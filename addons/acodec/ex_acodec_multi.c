@@ -38,13 +38,13 @@ int main(int argc, char **argv)
       return 1;
 
    /* a voice is used for playback */
-   voice = al_voice_create(44100, ALLEGRO_AUDIO_16_BIT_INT, ALLEGRO_AUDIO_2_CH);
+   voice = al_voice_create(44100, ALLEGRO_AUDIO_DEPTH_INT16, ALLEGRO_CHANNEL_CONF_2);
    if (!voice) {
       fprintf(stderr, "Could not create ALLEGRO_VOICE from sample\n");
       return 1;
    }
 
-   mixer = al_mixer_create(44100, ALLEGRO_AUDIO_32_BIT_FLOAT, ALLEGRO_AUDIO_2_CH);
+   mixer = al_mixer_create(44100, ALLEGRO_AUDIO_DEPTH_FLOAT32, ALLEGRO_CHANNEL_CONF_2);
    if (!mixer) {
       fprintf(stderr, "al_mixer_create failed.\n");
       return 1;
@@ -83,7 +83,7 @@ int main(int argc, char **argv)
       /* play each sample once */
       al_sample_play(sample[i]);
 
-      al_sample_get_float(sample[i], ALLEGRO_AUDIO_TIME, &sample_time);
+      al_sample_get_float(sample[i], ALLEGRO_AUDIOPROP_TIME, &sample_time);
       fprintf(stderr, "Playing '%s' (%.3f seconds)\n", filename, sample_time);
 
       if (sample_time > longest_sample)

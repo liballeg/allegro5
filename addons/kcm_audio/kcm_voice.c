@@ -17,7 +17,7 @@
 
 /* forward declarations */
 static void stream_read(void *source, void **vbuf, unsigned long samples,
-   ALLEGRO_AUDIO_ENUM buffer_depth, size_t dest_maxc);
+   ALLEGRO_AUDIO_DEPTH buffer_depth, size_t dest_maxc);
 
 
 
@@ -40,7 +40,7 @@ const void *_al_voice_update(ALLEGRO_VOICE *voice, unsigned long samples)
 
    if (voice->stream) {
       _al_mutex_lock(&voice->mutex);
-      voice->stream->read(voice->stream, &buf, samples, voice->depth, 0);
+      voice->stream->spl_read(voice->stream, &buf, samples, voice->depth, 0);
       _al_mutex_unlock(&voice->mutex);
    }
 
@@ -52,11 +52,11 @@ const void *_al_voice_update(ALLEGRO_VOICE *voice, unsigned long samples)
  *  Creates a voice struct and allocates a voice from the digital sound driver.
  *  The sound driver's allocate_voice function should change the voice's
  *  frequency, depth, chan_conf, and settings fields to match what is actually
- *  allocated. If it cannot create a voice with exact settings it will fail. Use
- *  a mixer in such a case.
+ *  allocated. If it cannot create a voice with exact settings it will fail.
+ *  Use a mixer in such a case.
  */
-ALLEGRO_VOICE *al_voice_create(unsigned long freq, ALLEGRO_AUDIO_ENUM depth,
-   ALLEGRO_AUDIO_ENUM chan_conf)
+ALLEGRO_VOICE *al_voice_create(unsigned long freq,
+   ALLEGRO_AUDIO_DEPTH depth, ALLEGRO_CHANNEL_CONF chan_conf)
 {
    ALLEGRO_VOICE *voice = NULL;
 
@@ -153,7 +153,7 @@ int al_voice_attach_sample(ALLEGRO_VOICE *voice, ALLEGRO_SAMPLE *spl)
                         al_channel_count(voice->chan_conf) *
                         al_depth_size(voice->depth);
 
-   spl->read = NULL;
+   spl->spl_read = NULL;
    _al_kcm_stream_set_mutex(spl, &voice->mutex);
 
    spl->parent.voice = voice;
@@ -163,7 +163,7 @@ int al_voice_attach_sample(ALLEGRO_VOICE *voice, ALLEGRO_SAMPLE *spl)
       (spl->playing && voice->driver->start_voice(voice) != 0))
    {      
       voice->stream = NULL;
-      spl->read = NULL;
+      spl->spl_read = NULL;
       _al_kcm_stream_set_mutex(spl, NULL);
       spl->parent.voice = NULL;
 
@@ -185,7 +185,7 @@ int al_voice_attach_sample(ALLEGRO_VOICE *voice, ALLEGRO_SAMPLE *spl)
  *  the last one as used
  */
 static void stream_read(void *source, void **vbuf, unsigned long samples,
-   ALLEGRO_AUDIO_ENUM buffer_depth, size_t dest_maxc)
+   ALLEGRO_AUDIO_DEPTH buffer_depth, size_t dest_maxc)
 {
    ALLEGRO_STREAM *stream = (ALLEGRO_STREAM*)source;
    void *old_buf;
@@ -262,13 +262,13 @@ int al_voice_attach_stream(ALLEGRO_VOICE *voice, ALLEGRO_STREAM *stream)
                         al_channel_count(stream->spl.chan_conf) *
                         al_depth_size(stream->spl.depth);
 
-   stream->spl.read = stream_read;
+   stream->spl.spl_read = stream_read;
 
    if (voice->driver->start_voice(voice) != 0) {
       voice->stream = NULL;
       _al_kcm_stream_set_mutex(&stream->spl, NULL);
       stream->spl.parent.voice = NULL;
-      stream->spl.read = NULL;
+      stream->spl.spl_read = NULL;
 
       _al_set_error(ALLEGRO_GENERIC_ERROR, "Unable to start stream");
       ret = 1;
@@ -350,9 +350,9 @@ void al_voice_detach(ALLEGRO_VOICE *voice)
       ALLEGRO_SAMPLE *spl = voice->stream;
       bool playing = false;
 
-      al_voice_get_long(voice, ALLEGRO_AUDIO_POSITION, &spl->pos);
+      al_voice_get_long(voice, ALLEGRO_AUDIOPROP_POSITION, &spl->pos);
       spl->pos <<= MIXER_FRAC_SHIFT;
-      al_voice_get_bool(voice, ALLEGRO_AUDIO_PLAYING, &playing);
+      al_voice_get_bool(voice, ALLEGRO_AUDIOPROP_PLAYING, &playing);
       spl->playing = playing;
 
       voice->driver->stop_voice(voice);
@@ -372,17 +372,17 @@ void al_voice_detach(ALLEGRO_VOICE *voice)
 
 /* Function: al_voice_get_long
  */
-int al_voice_get_long(const ALLEGRO_VOICE *voice, ALLEGRO_AUDIO_ENUM setting,
-   unsigned long *val)
+int al_voice_get_long(const ALLEGRO_VOICE *voice,
+   ALLEGRO_AUDIO_PROPERTY setting, unsigned long *val)
 {
    ASSERT(voice);
 
    switch (setting) {
-      case ALLEGRO_AUDIO_FREQUENCY:
+      case ALLEGRO_AUDIOPROP_FREQUENCY:
          *val = voice->frequency;
          return 0;
 
-      case ALLEGRO_AUDIO_POSITION:
+      case ALLEGRO_AUDIOPROP_POSITION:
          if (voice->stream && !voice->streaming)
             *val = voice->driver->get_voice_position(voice);
          else
@@ -397,17 +397,17 @@ int al_voice_get_long(const ALLEGRO_VOICE *voice, ALLEGRO_AUDIO_ENUM setting,
 
 /* Function: al_voice_get_enum
  */
-int al_voice_get_enum(const ALLEGRO_VOICE *voice, ALLEGRO_AUDIO_ENUM setting,
-   ALLEGRO_AUDIO_ENUM *val)
+int al_voice_get_enum(const ALLEGRO_VOICE *voice,
+   ALLEGRO_AUDIO_PROPERTY setting, int *val)
 {
    ASSERT(voice);
 
    switch (setting) {
-      case ALLEGRO_AUDIO_CHANNELS:
+      case ALLEGRO_AUDIOPROP_CHANNELS:
          *val = voice->chan_conf;
          return 0;
 
-      case ALLEGRO_AUDIO_DEPTH:
+      case ALLEGRO_AUDIOPROP_DEPTH:
          *val = voice->depth;
          return 0;
 
@@ -419,13 +419,13 @@ int al_voice_get_enum(const ALLEGRO_VOICE *voice, ALLEGRO_AUDIO_ENUM setting,
 
 /* Function: al_voice_get_bool
  */
-int al_voice_get_bool(const ALLEGRO_VOICE *voice, ALLEGRO_AUDIO_ENUM setting,
-   bool *val)
+int al_voice_get_bool(const ALLEGRO_VOICE *voice,
+   ALLEGRO_AUDIO_PROPERTY setting, bool *val)
 {
    ASSERT(voice);
 
    switch (setting) {
-      case ALLEGRO_AUDIO_PLAYING:
+      case ALLEGRO_AUDIOPROP_PLAYING:
          if (voice->stream && !voice->streaming) {
             *val = voice->driver->voice_is_playing(voice);
          }
@@ -445,13 +445,13 @@ int al_voice_get_bool(const ALLEGRO_VOICE *voice, ALLEGRO_AUDIO_ENUM setting,
 
 /* Function: al_voice_set_long
  */
-int al_voice_set_long(ALLEGRO_VOICE *voice, ALLEGRO_AUDIO_ENUM setting,
-   unsigned long val)
+int al_voice_set_long(ALLEGRO_VOICE *voice,
+   ALLEGRO_AUDIO_PROPERTY setting, unsigned long val)
 {
    ASSERT(voice);
 
    switch (setting) {
-      case ALLEGRO_AUDIO_POSITION:
+      case ALLEGRO_AUDIOPROP_POSITION:
          if (voice->stream && !voice->streaming) {
             return voice->driver->set_voice_position(voice, val);
          }
@@ -465,8 +465,8 @@ int al_voice_set_long(ALLEGRO_VOICE *voice, ALLEGRO_AUDIO_ENUM setting,
 
 /* Function: al_voice_set_enum
  */
-int al_voice_set_enum(ALLEGRO_VOICE *voice, ALLEGRO_AUDIO_ENUM setting,
-   ALLEGRO_AUDIO_ENUM val)
+int al_voice_set_enum(ALLEGRO_VOICE *voice,
+   ALLEGRO_AUDIO_PROPERTY setting, int val)
 {
    ASSERT(voice);
 
@@ -482,16 +482,16 @@ int al_voice_set_enum(ALLEGRO_VOICE *voice, ALLEGRO_AUDIO_ENUM setting,
 
 /* Function: al_voice_set_bool
  */
-int al_voice_set_bool(ALLEGRO_VOICE *voice, ALLEGRO_AUDIO_ENUM setting,
-   bool val)
+int al_voice_set_bool(ALLEGRO_VOICE *voice,
+   ALLEGRO_AUDIO_PROPERTY setting, bool val)
 {
    ASSERT(voice);
 
    switch (setting) {
-      case ALLEGRO_AUDIO_PLAYING:
+      case ALLEGRO_AUDIOPROP_PLAYING:
          if (voice->stream && !voice->streaming) {
             bool playing = false;
-            if (al_voice_get_bool(voice, ALLEGRO_AUDIO_PLAYING, &playing)) {
+            if (al_voice_get_bool(voice, ALLEGRO_AUDIOPROP_PLAYING, &playing)) {
                TRACE("Unable to get voice playing status\n");
                return 1;
             }

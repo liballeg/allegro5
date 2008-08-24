@@ -28,27 +28,27 @@ ALLEGRO_AUDIO_DRIVER *_al_kcm_driver = NULL;
 #endif
 
 /* Channel configuration helpers */
-bool al_is_channel_conf(ALLEGRO_AUDIO_ENUM conf)
+bool al_is_channel_conf(ALLEGRO_CHANNEL_CONF conf)
 {
-   return ((conf >= ALLEGRO_AUDIO_1_CH) && (conf <= ALLEGRO_AUDIO_7_1_CH));
+   return ((conf >= ALLEGRO_CHANNEL_CONF_1) && (conf <= ALLEGRO_CHANNEL_CONF_7_1));
 }
 
-size_t al_channel_count(ALLEGRO_AUDIO_ENUM conf)
+size_t al_channel_count(ALLEGRO_CHANNEL_CONF conf)
 {
    return (conf>>4)+(conf&0xF);
 }
 
 /* Depth configuration helpers */
-size_t al_depth_size(ALLEGRO_AUDIO_ENUM conf)
+size_t al_depth_size(ALLEGRO_CHANNEL_CONF conf)
 {
-   ALLEGRO_AUDIO_ENUM depth = conf&~ALLEGRO_AUDIO_UNSIGNED;
-   if (depth == ALLEGRO_AUDIO_8_BIT_INT)
+   ALLEGRO_AUDIO_DEPTH depth = conf & ~ALLEGRO_AUDIO_DEPTH_UNSIGNED;
+   if (depth == ALLEGRO_AUDIO_DEPTH_INT8)
       return sizeof(int8_t);
-   if (depth == ALLEGRO_AUDIO_16_BIT_INT)
+   if (depth == ALLEGRO_AUDIO_DEPTH_INT16)
       return sizeof(int16_t);
-   if (depth == ALLEGRO_AUDIO_24_BIT_INT)
+   if (depth == ALLEGRO_AUDIO_DEPTH_INT24)
       return sizeof(int32_t);
-   if (depth == ALLEGRO_AUDIO_32_BIT_FLOAT)
+   if (depth == ALLEGRO_AUDIO_DEPTH_FLOAT32)
       return sizeof(float);
    return 0;
 }
@@ -58,19 +58,17 @@ size_t al_depth_size(ALLEGRO_AUDIO_ENUM conf)
  * can create a voice with them.. if not
  * try another driver.
  */
-int al_audio_init(ALLEGRO_AUDIO_ENUM mode)
+int al_audio_init(ALLEGRO_AUDIO_DRIVER_ENUM mode)
 {
    int retVal = 0;
 
    /* check to see if a driver is already installed and running */
-   if (_al_kcm_driver)
-   {
+   if (_al_kcm_driver) {
       _al_set_error(ALLEGRO_GENERIC_ERROR, "A Driver already running"); 
       return 1;
    }
 
-   switch (mode)
-   {
+   switch (mode) {
       case ALLEGRO_AUDIO_DRIVER_AUTODETECT:
          /* check openal first then fallback on others */
          retVal = al_audio_init(ALLEGRO_AUDIO_DRIVER_OPENAL);

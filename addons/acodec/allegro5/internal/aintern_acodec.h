@@ -28,7 +28,7 @@
 #endif
 
 /* TODO: move this into audio */
-ALLEGRO_AUDIO_ENUM _al_count_to_channel_conf(int num_channels);
-ALLEGRO_AUDIO_ENUM _al_word_size_to_depth_conf(int word_size);
+ALLEGRO_CHANNEL_CONF _al_count_to_channel_conf(int num_channels);
+ALLEGRO_AUDIO_DEPTH _al_word_size_to_depth_conf(int word_size);
 
 #endif

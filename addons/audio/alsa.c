@@ -453,16 +453,16 @@ static int alsa_allocate_voice(ALLEGRO_VOICE *voice)
 
    switch(depth)
    {
-      case ALLEGRO_AUDIO_8_BIT_UINT:
+      case ALLEGRO_AUDIO_DEPTH_UINT8:
          format = SND_PCM_FORMAT_U8;
          break;
-      case ALLEGRO_AUDIO_16_BIT_INT:
+      case ALLEGRO_AUDIO_DEPTH_INT16:
          format = SND_PCM_FORMAT_S16;
          break;
-      case ALLEGRO_AUDIO_24_BIT_INT:
+      case ALLEGRO_AUDIO_DEPTH_INT24:
          format = SND_PCM_FORMAT_S24;
          break;
-      case ALLEGRO_AUDIO_32_BIT_FLOAT:
+      case ALLEGRO_AUDIO_DEPTH_FLOAT32:
          format = SND_PCM_FORMAT_FLOAT;
          break;
       default:
@@ -470,7 +470,7 @@ static int alsa_allocate_voice(ALLEGRO_VOICE *voice)
          goto Error;
    }
 
-   if (chan_conf == ALLEGRO_AUDIO_3_CH)
+   if (chan_conf == ALLEGRO_CHANNEL_CONF_3)
       goto Error;
 
    ALSA_CHECK(snd_pcm_open(&ex_data->pcm_handle, alsa_device, SND_PCM_STREAM_PLAYBACK, SND_PCM_NONBLOCK));

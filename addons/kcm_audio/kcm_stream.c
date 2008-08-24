@@ -21,7 +21,8 @@
  *  set to play by default.
  */
 ALLEGRO_STREAM *al_stream_create(size_t buffer_count, unsigned long samples,
-   unsigned long freq, ALLEGRO_AUDIO_ENUM depth, ALLEGRO_AUDIO_ENUM chan_conf)
+   unsigned long freq, ALLEGRO_AUDIO_DEPTH depth,
+   ALLEGRO_CHANNEL_CONF chan_conf)
 {
    ALLEGRO_STREAM *stream;
    unsigned long bytes_per_buffer;
@@ -45,16 +46,23 @@ ALLEGRO_STREAM *al_stream_create(size_t buffer_count, unsigned long samples,
 
    bytes_per_buffer  = samples;
    bytes_per_buffer *= (chan_conf>>4) + (chan_conf&0xF);
-   if ((depth & ~ALLEGRO_AUDIO_UNSIGNED) == ALLEGRO_AUDIO_8_BIT_INT)
+   if ((depth & ~ALLEGRO_AUDIO_DEPTH_UNSIGNED) == ALLEGRO_AUDIO_DEPTH_INT8) {
       bytes_per_buffer *= sizeof(int8_t);
-   else if ((depth & ~ALLEGRO_AUDIO_UNSIGNED) == ALLEGRO_AUDIO_16_BIT_INT)
+   }
+   else if ((depth & ~ALLEGRO_AUDIO_DEPTH_UNSIGNED)
+            == ALLEGRO_AUDIO_DEPTH_INT16) {
       bytes_per_buffer *= sizeof(int16_t);
-   else if ((depth & ~ALLEGRO_AUDIO_UNSIGNED) == ALLEGRO_AUDIO_24_BIT_INT)
+   }
+   else if ((depth & ~ALLEGRO_AUDIO_DEPTH_UNSIGNED)
+            == ALLEGRO_AUDIO_DEPTH_INT24) {
       bytes_per_buffer *= sizeof(int32_t);
-   else if (depth == ALLEGRO_AUDIO_32_BIT_FLOAT)
+   }
+   else if (depth == ALLEGRO_AUDIO_DEPTH_FLOAT32) {
       bytes_per_buffer *= sizeof(float);
-   else
+   }
+   else {
       return NULL;
+   }
 
    stream = calloc(1, sizeof(*stream));
    if (!stream) {
@@ -66,7 +74,7 @@ ALLEGRO_STREAM *al_stream_create(size_t buffer_count, unsigned long samples,
    stream->spl.playing   = true;
    stream->spl.is_stream = true;
 
-   stream->spl.loop      = ALLEGRO_AUDIO_PLAY_ONCE;
+   stream->spl.loop      = ALLEGRO_PLAYMODE_ONCE;
    stream->spl.depth     = depth;
    stream->spl.chan_conf = chan_conf;
    stream->spl.frequency = freq;
@@ -122,24 +130,24 @@ void al_stream_destroy(ALLEGRO_STREAM *stream)
 /* Function: al_stream_get_long
  */
 int al_stream_get_long(const ALLEGRO_STREAM *stream,
-   ALLEGRO_AUDIO_ENUM setting, unsigned long *val)
+   ALLEGRO_AUDIO_PROPERTY setting, unsigned long *val)
 {
    ASSERT(stream);
 
    switch (setting) {
-      case ALLEGRO_AUDIO_FREQUENCY:
+      case ALLEGRO_AUDIOPROP_FREQUENCY:
          *val = stream->spl.frequency;
          return 0;
 
-      case ALLEGRO_AUDIO_LENGTH:
+      case ALLEGRO_AUDIOPROP_LENGTH:
          *val = stream->spl.len>>MIXER_FRAC_SHIFT;
          return 0;
 
-      case ALLEGRO_AUDIO_FRAGMENTS:
+      case ALLEGRO_AUDIOPROP_FRAGMENTS:
          *val = stream->buf_count;
          return 0;
 
-      case ALLEGRO_AUDIO_USED_FRAGMENTS: {
+      case ALLEGRO_AUDIOPROP_USED_FRAGMENTS: {
          size_t i;
          for (i = 0; stream->used_bufs[i] && i < stream->buf_count; i++)
             ;
@@ -158,12 +166,12 @@ int al_stream_get_long(const ALLEGRO_STREAM *stream,
 /* Function: al_stream_get_float
  */
 int al_stream_get_float(const ALLEGRO_STREAM *stream,
-   ALLEGRO_AUDIO_ENUM setting, float *val)
+   ALLEGRO_AUDIO_PROPERTY setting, float *val)
 {
    ASSERT(stream);
 
    switch (setting) {
-      case ALLEGRO_AUDIO_SPEED:
+      case ALLEGRO_AUDIOPROP_SPEED:
          *val = stream->spl.speed;
          return 0;
 
@@ -178,16 +186,16 @@ int al_stream_get_float(const ALLEGRO_STREAM *stream,
 /* Function: al_stream_get_enum
  */
 int al_stream_get_enum(const ALLEGRO_STREAM *stream,
-   ALLEGRO_AUDIO_ENUM setting, ALLEGRO_AUDIO_ENUM *val)
+   ALLEGRO_AUDIO_PROPERTY setting, int *val)
 {
    ASSERT(stream);
 
    switch (setting) {
-      case ALLEGRO_AUDIO_DEPTH:
+      case ALLEGRO_AUDIOPROP_DEPTH:
          *val = stream->spl.depth;
          return 0;
 
-      case ALLEGRO_AUDIO_CHANNELS:
+      case ALLEGRO_AUDIOPROP_CHANNELS:
          *val = stream->spl.chan_conf;
          return 0;
 
@@ -202,16 +210,16 @@ int al_stream_get_enum(const ALLEGRO_STREAM *stream,
 /* Function: al_stream_get_bool
  */
 int al_stream_get_bool(const ALLEGRO_STREAM *stream,
-   ALLEGRO_AUDIO_ENUM setting, bool *val)
+   ALLEGRO_AUDIO_PROPERTY setting, bool *val)
 {
    ASSERT(stream);
 
    switch (setting) {
-      case ALLEGRO_AUDIO_PLAYING:
+      case ALLEGRO_AUDIOPROP_PLAYING:
          *val = stream->spl.playing;
          return 0;
 
-      case ALLEGRO_AUDIO_ATTACHED:
+      case ALLEGRO_AUDIOPROP_ATTACHED:
          *val = (stream->spl.parent.ptr != NULL);
          return 0;
 
@@ -226,12 +234,12 @@ int al_stream_get_bool(const ALLEGRO_STREAM *stream,
 /* Function: al_stream_get_ptr
  */
 int al_stream_get_ptr(const ALLEGRO_STREAM *stream,
-   ALLEGRO_AUDIO_ENUM setting, void **val)
+   ALLEGRO_AUDIO_PROPERTY setting, void **val)
 {
    ASSERT(stream);
 
    switch (setting) {
-      case ALLEGRO_AUDIO_BUFFER: {
+      case ALLEGRO_AUDIOPROP_BUFFER: {
          size_t i;
 
          if (!stream->used_bufs[0]) {
@@ -257,8 +265,8 @@ int al_stream_get_ptr(const ALLEGRO_STREAM *stream,
 
 /* Function: al_stream_set_long
  */
-int al_stream_set_long(ALLEGRO_STREAM *stream, ALLEGRO_AUDIO_ENUM setting,
-   unsigned long val)
+int al_stream_set_long(ALLEGRO_STREAM *stream,
+   ALLEGRO_AUDIO_PROPERTY setting, unsigned long val)
 {
    ASSERT(stream);
 
@@ -276,13 +284,13 @@ int al_stream_set_long(ALLEGRO_STREAM *stream, ALLEGRO_AUDIO_ENUM setting,
 
 /* Function: al_stream_set_float
  */
-int al_stream_set_float(ALLEGRO_STREAM *stream, ALLEGRO_AUDIO_ENUM setting,
-   float val)
+int al_stream_set_float(ALLEGRO_STREAM *stream,
+   ALLEGRO_AUDIO_PROPERTY setting, float val)
 {
    ASSERT(stream);
 
    switch (setting) {
-      case ALLEGRO_AUDIO_SPEED:
+      case ALLEGRO_AUDIOPROP_SPEED:
          if (val <= 0.0f) {
             _al_set_error(ALLEGRO_INVALID_PARAM,
                "Attempted to set stream speed to a zero or negative value");
@@ -330,8 +338,8 @@ int al_stream_set_float(ALLEGRO_STREAM *stream, ALLEGRO_AUDIO_ENUM setting,
 
 /* Function: al_stream_set_enum
  */
-int al_stream_set_enum(ALLEGRO_STREAM *stream, ALLEGRO_AUDIO_ENUM setting,
-   ALLEGRO_AUDIO_ENUM val)
+int al_stream_set_enum(ALLEGRO_STREAM *stream,
+   ALLEGRO_AUDIO_PROPERTY setting, int val)
 {
    ASSERT(stream);
 
@@ -349,16 +357,16 @@ int al_stream_set_enum(ALLEGRO_STREAM *stream, ALLEGRO_AUDIO_ENUM setting,
 
 /* Function: al_stream_set_bool
  */
-int al_stream_set_bool(ALLEGRO_STREAM *stream, ALLEGRO_AUDIO_ENUM setting,
-   bool val)
+int al_stream_set_bool(ALLEGRO_STREAM *stream,
+   ALLEGRO_AUDIO_PROPERTY setting, bool val)
 {
    ASSERT(stream);
 
    switch (setting) {
-      case ALLEGRO_AUDIO_PLAYING:
+      case ALLEGRO_AUDIOPROP_PLAYING:
          if (stream->spl.parent.ptr && stream->spl.parent_is_voice) {
             ALLEGRO_VOICE *voice = stream->spl.parent.voice;
-            if (al_voice_set_bool(voice, ALLEGRO_AUDIO_PLAYING, val) != 0) {
+            if (al_voice_set_bool(voice, ALLEGRO_AUDIOPROP_PLAYING, val) != 0) {
                return 1;
             }
          }
@@ -371,7 +379,7 @@ int al_stream_set_bool(ALLEGRO_STREAM *stream, ALLEGRO_AUDIO_ENUM setting,
          }
          return 0;
 
-      case ALLEGRO_AUDIO_ATTACHED:
+      case ALLEGRO_AUDIOPROP_ATTACHED:
          if (val) {
             _al_set_error(ALLEGRO_INVALID_PARAM,
                "Attempted to set stream attachment status true");
@@ -390,13 +398,13 @@ int al_stream_set_bool(ALLEGRO_STREAM *stream, ALLEGRO_AUDIO_ENUM setting,
 
 /* Function: al_stream_set_ptr
  */
-int al_stream_set_ptr(ALLEGRO_STREAM *stream, ALLEGRO_AUDIO_ENUM setting,
-   void *val)
+int al_stream_set_ptr(ALLEGRO_STREAM *stream,
+   ALLEGRO_AUDIO_PROPERTY setting, void *val)
 {
    ASSERT(stream);
 
    switch (setting) {
-      case ALLEGRO_AUDIO_BUFFER: {
+      case ALLEGRO_AUDIOPROP_BUFFER: {
          size_t i;
          int ret;
 

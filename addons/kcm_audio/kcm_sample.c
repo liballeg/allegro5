@@ -32,7 +32,7 @@ void _al_kcm_stream_set_mutex(ALLEGRO_SAMPLE *stream, _AL_MUTEX *mutex)
    /* If this is a mixer, we need to make sure all the attached streams also
     * set the same mutex.
     */
-   if (stream->read == _al_kcm_mixer_read) {
+   if (stream->spl_read == _al_kcm_mixer_read) {
       ALLEGRO_MIXER *mixer = (ALLEGRO_MIXER *)stream;
       int i;
 
@@ -53,7 +53,7 @@ static void stream_free(ALLEGRO_SAMPLE *spl)
       /* Make sure we free the mixer buffer and de-reference the attached
        * streams if this is a mixer stream.
        */
-      if (spl->read == _al_kcm_mixer_read) {
+      if (spl->spl_read == _al_kcm_mixer_read) {
          ALLEGRO_MIXER *mixer = (ALLEGRO_MIXER*)spl;
          int i;
 
@@ -97,7 +97,7 @@ static inline int32_t clamp(int32_t val, int32_t min, int32_t max)
  *  set it to the buffer pointer).
  */
 void _al_kcm_mixer_read(void *source, void **buf, unsigned long samples,
-   ALLEGRO_AUDIO_ENUM buffer_depth, size_t dest_maxc)
+   ALLEGRO_AUDIO_DEPTH buffer_depth, size_t dest_maxc)
 {
    const ALLEGRO_MIXER *mixer;
    ALLEGRO_MIXER *m = (ALLEGRO_MIXER *)source;
@@ -126,8 +126,8 @@ void _al_kcm_mixer_read(void *source, void **buf, unsigned long samples,
    memset(mixer->ss.buffer.ptr, 0, samples * maxc * sizeof(float));
    /* Mix the streams into the mixer buffer. */
    for (spl = mixer->streams; *spl; spl++) {
-      (*spl)->read(*spl, (void **) &mixer->ss.buffer.ptr, samples,
-         ALLEGRO_AUDIO_32_BIT_FLOAT, maxc);
+      (*spl)->spl_read(*spl, (void **) &mixer->ss.buffer.ptr, samples,
+         ALLEGRO_AUDIO_DEPTH_FLOAT32, maxc);
    }
    /* Call the post-processing callback. */
    if (mixer->post_process) {
@@ -152,9 +152,10 @@ void _al_kcm_mixer_read(void *source, void **buf, unsigned long samples,
     * to clamp and convert it).
     */
    *buf = mixer->ss.buffer.ptr;
-   switch (buffer_depth & ~ALLEGRO_AUDIO_UNSIGNED) {
-      case ALLEGRO_AUDIO_24_BIT_INT: {
-         int32_t off = ((buffer_depth & ALLEGRO_AUDIO_UNSIGNED) ? 0x800000 : 0);
+   switch (buffer_depth & ~ALLEGRO_AUDIO_DEPTH_UNSIGNED) {
+      case ALLEGRO_AUDIO_DEPTH_INT24: {
+         int32_t off = ((buffer_depth & ALLEGRO_AUDIO_DEPTH_UNSIGNED)
+                        ? 0x800000 : 0);
          int32_t *lbuf = mixer->ss.buffer.s24;
          float *src = mixer->ss.buffer.f32;
 
@@ -168,8 +169,9 @@ void _al_kcm_mixer_read(void *source, void **buf, unsigned long samples,
          break;
       }
 
-      case ALLEGRO_AUDIO_16_BIT_INT: {
-         int16_t off = ((buffer_depth & ALLEGRO_AUDIO_UNSIGNED) ? 0x8000 : 0);
+      case ALLEGRO_AUDIO_DEPTH_INT16: {
+         int16_t off = ((buffer_depth & ALLEGRO_AUDIO_DEPTH_UNSIGNED)
+                        ? 0x8000 : 0);
          int16_t *lbuf = mixer->ss.buffer.s16;
          float *src = mixer->ss.buffer.f32;
 
@@ -182,10 +184,11 @@ void _al_kcm_mixer_read(void *source, void **buf, unsigned long samples,
          break;
       }
 
-      case ALLEGRO_AUDIO_8_BIT_INT:
+      case ALLEGRO_AUDIO_DEPTH_INT8:
       default:
       {
-         int8_t off = ((buffer_depth & ALLEGRO_AUDIO_UNSIGNED) ? 0x80 : 0);
+         int8_t off = ((buffer_depth & ALLEGRO_AUDIO_DEPTH_UNSIGNED)
+                        ? 0x80 : 0);
          int8_t *lbuf = mixer->ss.buffer.s8;
          float *src = mixer->ss.buffer.f32;
 
@@ -236,8 +239,8 @@ void _al_kcm_detach_from_parent(ALLEGRO_SAMPLE *spl)
          spl->parent.mixer = NULL;
          _al_kcm_stream_set_mutex(spl, NULL);
 
-         if (spl->read != _al_kcm_mixer_read)
-            spl->read = NULL;
+         if (spl->spl_read != _al_kcm_mixer_read)
+            spl->spl_read = NULL;
 
          _al_mutex_unlock(mixer->ss.mutex);
 
@@ -254,8 +257,8 @@ void _al_kcm_detach_from_parent(ALLEGRO_SAMPLE *spl)
  *  want the supplied buffer to be freed using free() in al_sample_destroy().
  */
 ALLEGRO_SAMPLE *al_sample_create(void *buf, unsigned long samples,
-   unsigned long freq, ALLEGRO_AUDIO_ENUM depth, ALLEGRO_AUDIO_ENUM chan_conf,
-   bool free_buf)
+   unsigned long freq, ALLEGRO_AUDIO_DEPTH depth,
+   ALLEGRO_CHANNEL_CONF chan_conf, bool free_buf)
 {
    ALLEGRO_SAMPLE *spl;
 
@@ -271,7 +274,7 @@ ALLEGRO_SAMPLE *al_sample_create(void *buf, unsigned long samples,
       return NULL;
    }
 
-   spl->loop       = ALLEGRO_AUDIO_PLAY_ONCE;
+   spl->loop       = ALLEGRO_PLAYMODE_ONCE;
    spl->depth      = depth;
    spl->chan_conf  = chan_conf;
    spl->frequency  = freq;
@@ -331,7 +334,7 @@ int al_sample_play(ALLEGRO_SAMPLE *spl)
 {
    ASSERT(spl);
 
-   return al_sample_set_bool(spl, ALLEGRO_AUDIO_PLAYING, true);
+   return al_sample_set_bool(spl, ALLEGRO_AUDIOPROP_PLAYING, true);
 }
 
 
@@ -341,30 +344,30 @@ int al_sample_stop(ALLEGRO_SAMPLE *spl)
 {
    ASSERT(spl);
 
-   return al_sample_set_bool(spl, ALLEGRO_AUDIO_PLAYING, false);
+   return al_sample_set_bool(spl, ALLEGRO_AUDIOPROP_PLAYING, false);
 }
 
 
 /* Function: al_sample_get_long
  */
-int al_sample_get_long(const ALLEGRO_SAMPLE *spl, ALLEGRO_AUDIO_ENUM setting,
-   unsigned long *val)
+int al_sample_get_long(const ALLEGRO_SAMPLE *spl,
+   ALLEGRO_AUDIO_PROPERTY setting, unsigned long *val)
 {
    ASSERT(spl);
 
    switch (setting) {
-      case ALLEGRO_AUDIO_FREQUENCY:
+      case ALLEGRO_AUDIOPROP_FREQUENCY:
          *val = spl->frequency;
          return 0;
 
-      case ALLEGRO_AUDIO_LENGTH:
+      case ALLEGRO_AUDIOPROP_LENGTH:
          *val = spl->len>>MIXER_FRAC_SHIFT;
          return 0;
 
-      case ALLEGRO_AUDIO_POSITION:
+      case ALLEGRO_AUDIOPROP_POSITION:
          if (spl->parent.ptr && spl->parent_is_voice) {
             ALLEGRO_VOICE *voice = spl->parent.voice;
-            return al_voice_get_long(voice, ALLEGRO_AUDIO_POSITION, val);
+            return al_voice_get_long(voice, ALLEGRO_AUDIOPROP_POSITION, val);
          }
 
          *val = spl->pos >> MIXER_FRAC_SHIFT;
@@ -380,17 +383,17 @@ int al_sample_get_long(const ALLEGRO_SAMPLE *spl, ALLEGRO_AUDIO_ENUM setting,
 
 /* Function: al_sample_get_float
  */
-int al_sample_get_float(const ALLEGRO_SAMPLE *spl, ALLEGRO_AUDIO_ENUM setting,
-   float *val)
+int al_sample_get_float(const ALLEGRO_SAMPLE *spl,
+   ALLEGRO_AUDIO_PROPERTY setting, float *val)
 {
    ASSERT(spl);
 
    switch (setting) {
-      case ALLEGRO_AUDIO_SPEED:
+      case ALLEGRO_AUDIOPROP_SPEED:
          *val = spl->speed;
          return 0;
 
-      case ALLEGRO_AUDIO_TIME:
+      case ALLEGRO_AUDIOPROP_TIME:
          *val = (float)(spl->len>>MIXER_FRAC_SHIFT) / (float)spl->frequency;
          return 0;
 
@@ -404,21 +407,21 @@ int al_sample_get_float(const ALLEGRO_SAMPLE *spl, ALLEGRO_AUDIO_ENUM setting,
 
 /* Function: al_sample_get_enum
  */
-int al_sample_get_enum(const ALLEGRO_SAMPLE *spl, ALLEGRO_AUDIO_ENUM setting,
-   ALLEGRO_AUDIO_ENUM *val)
+int al_sample_get_enum(const ALLEGRO_SAMPLE *spl,
+   ALLEGRO_AUDIO_PROPERTY setting, int *val)
 {
    ASSERT(spl);
 
    switch (setting) {
-      case ALLEGRO_AUDIO_DEPTH:
+      case ALLEGRO_AUDIOPROP_DEPTH:
          *val = spl->depth;
          return 0;
 
-      case ALLEGRO_AUDIO_CHANNELS:
+      case ALLEGRO_AUDIOPROP_CHANNELS:
          *val = spl->chan_conf;
          return 0;
 
-      case ALLEGRO_AUDIO_LOOPMODE:
+      case ALLEGRO_AUDIOPROP_LOOPMODE:
          *val = spl->loop;
          return 0;
 
@@ -432,26 +435,26 @@ int al_sample_get_enum(const ALLEGRO_SAMPLE *spl, ALLEGRO_AUDIO_ENUM setting,
 
 /* Function: al_sample_get_bool
  */
-int al_sample_get_bool(const ALLEGRO_SAMPLE *spl, ALLEGRO_AUDIO_ENUM setting,
-   bool *val)
+int al_sample_get_bool(const ALLEGRO_SAMPLE *spl,
+   ALLEGRO_AUDIO_PROPERTY setting, bool *val)
 {
    ASSERT(spl);
 
    switch (setting) {
-      case ALLEGRO_AUDIO_PLAYING:
+      case ALLEGRO_AUDIOPROP_PLAYING:
          if (spl->parent.ptr && spl->parent_is_voice) {
             ALLEGRO_VOICE *voice = spl->parent.voice;
-            return al_voice_get_bool(voice, ALLEGRO_AUDIO_PLAYING, val);
+            return al_voice_get_bool(voice, ALLEGRO_AUDIOPROP_PLAYING, val);
          }
 
          *val = spl->playing;
          return 0;
 
-      case ALLEGRO_AUDIO_ATTACHED:
+      case ALLEGRO_AUDIOPROP_ATTACHED:
          *val = (spl->parent.ptr != NULL);
          return 0;
 
-      case ALLEGRO_AUDIO_ORPHAN_BUFFER:
+      case ALLEGRO_AUDIOPROP_ORPHAN_BUFFER:
          *val = spl->orphan_buffer;
          return 0;
 
@@ -465,13 +468,13 @@ int al_sample_get_bool(const ALLEGRO_SAMPLE *spl, ALLEGRO_AUDIO_ENUM setting,
 
 /* Function: al_sample_get_ptr
  */
-int al_sample_get_ptr(const ALLEGRO_SAMPLE *spl, ALLEGRO_AUDIO_ENUM setting,
-   void **val)
+int al_sample_get_ptr(const ALLEGRO_SAMPLE *spl,
+   ALLEGRO_AUDIO_PROPERTY setting, void **val)
 {
    ASSERT(spl);
 
    switch (setting) {
-      case ALLEGRO_AUDIO_BUFFER:
+      case ALLEGRO_AUDIOPROP_BUFFER:
          if (spl->playing) {
             _al_set_error(ALLEGRO_INVALID_OBJECT,
                "Attempted to get a playing buffer");
@@ -495,16 +498,16 @@ int al_sample_get_ptr(const ALLEGRO_SAMPLE *spl, ALLEGRO_AUDIO_ENUM setting,
 
 /* Function: al_sample_set_long
  */
-int al_sample_set_long(ALLEGRO_SAMPLE *spl, ALLEGRO_AUDIO_ENUM setting,
-   unsigned long val)
+int al_sample_set_long(ALLEGRO_SAMPLE *spl,
+   ALLEGRO_AUDIO_PROPERTY setting, unsigned long val)
 {
    ASSERT(spl);
 
    switch (setting) {
-      case ALLEGRO_AUDIO_POSITION:
+      case ALLEGRO_AUDIOPROP_POSITION:
          if (spl->parent.ptr && spl->parent_is_voice) {
             ALLEGRO_VOICE *voice = spl->parent.voice;
-            if (al_voice_set_long(voice, ALLEGRO_AUDIO_POSITION, val) != 0)
+            if (al_voice_set_long(voice, ALLEGRO_AUDIOPROP_POSITION, val) != 0)
                return 1;
          }
          else {
@@ -515,7 +518,7 @@ int al_sample_set_long(ALLEGRO_SAMPLE *spl, ALLEGRO_AUDIO_ENUM setting,
 
          return 0;
 
-      case ALLEGRO_AUDIO_LENGTH:
+      case ALLEGRO_AUDIOPROP_LENGTH:
          if (spl->playing) {
             _al_set_error(ALLEGRO_INVALID_OBJECT,
                "Attempted to change the length of a playing sample");
@@ -534,13 +537,13 @@ int al_sample_set_long(ALLEGRO_SAMPLE *spl, ALLEGRO_AUDIO_ENUM setting,
 
 /* Function: al_sample_set_float
  */
-int al_sample_set_float(ALLEGRO_SAMPLE *spl, ALLEGRO_AUDIO_ENUM setting,
-   float val)
+int al_sample_set_float(ALLEGRO_SAMPLE *spl,
+   ALLEGRO_AUDIO_PROPERTY setting, float val)
 {
    ASSERT(spl);
 
    switch (setting) {
-      case ALLEGRO_AUDIO_SPEED:
+      case ALLEGRO_AUDIOPROP_SPEED:
          if (fabs(val) < (1.0f/64.0f)) {
             _al_set_error(ALLEGRO_INVALID_PARAM,
                "Attempted to set zero speed");
@@ -582,13 +585,13 @@ int al_sample_set_float(ALLEGRO_SAMPLE *spl, ALLEGRO_AUDIO_ENUM setting,
 }
 
 
-int al_sample_set_enum(ALLEGRO_SAMPLE *spl, ALLEGRO_AUDIO_ENUM setting,
-   ALLEGRO_AUDIO_ENUM val)
+int al_sample_set_enum(ALLEGRO_SAMPLE *spl,
+   ALLEGRO_AUDIO_PROPERTY setting, int val)
 {
    ASSERT(spl);
 
    switch (setting) {
-      case ALLEGRO_AUDIO_LOOPMODE:
+      case ALLEGRO_AUDIOPROP_LOOPMODE:
          if (spl->parent.ptr && spl->parent_is_voice) {
             _al_set_error(ALLEGRO_GENERIC_ERROR,
                "Unable to set voice loop mode");
@@ -597,7 +600,7 @@ int al_sample_set_enum(ALLEGRO_SAMPLE *spl, ALLEGRO_AUDIO_ENUM setting,
 
          _al_mutex_lock(spl->mutex);
          spl->loop = val;
-         if (spl->loop != ALLEGRO_AUDIO_PLAY_ONCE) {
+         if (spl->loop != ALLEGRO_PLAYMODE_ONCE) {
             if (spl->pos < spl->loop_start)
                spl->pos = spl->loop_start;
             else if (spl->pos > spl->loop_end-MIXER_FRAC_ONE)
@@ -616,13 +619,13 @@ int al_sample_set_enum(ALLEGRO_SAMPLE *spl, ALLEGRO_AUDIO_ENUM setting,
 
 /* Function: al_sample_set_bool
  */
-int al_sample_set_bool(ALLEGRO_SAMPLE *spl, ALLEGRO_AUDIO_ENUM setting,
-   bool val)
+int al_sample_set_bool(ALLEGRO_SAMPLE *spl,
+   ALLEGRO_AUDIO_PROPERTY setting, bool val)
 {
    ASSERT(spl);
 
    switch (setting) {
-      case ALLEGRO_AUDIO_PLAYING:
+      case ALLEGRO_AUDIOPROP_PLAYING:
          if (!spl->parent.ptr) {
             fprintf(stderr, "Sample has no parent\n");
             return 1;
@@ -633,9 +636,9 @@ int al_sample_set_bool(ALLEGRO_SAMPLE *spl, ALLEGRO_AUDIO_ENUM setting,
             ALLEGRO_VOICE *voice = spl->parent.voice;
 
             /* FIXME: there is no else. what does this do? */
-            if (al_voice_set_bool(voice, ALLEGRO_AUDIO_PLAYING, val) == 0) {
+            if (al_voice_set_bool(voice, ALLEGRO_AUDIOPROP_PLAYING, val) == 0) {
                unsigned long pos = spl->pos >> MIXER_FRAC_SHIFT;
-               if (al_voice_get_long(voice, ALLEGRO_AUDIO_POSITION, &pos) == 0)
+               if (al_voice_get_long(voice, ALLEGRO_AUDIOPROP_POSITION, &pos) == 0)
                {
                   spl->pos = pos << MIXER_FRAC_SHIFT;
                   spl->playing = val;
@@ -654,7 +657,7 @@ int al_sample_set_bool(ALLEGRO_SAMPLE *spl, ALLEGRO_AUDIO_ENUM setting,
          }
          return 0;
 
-      case ALLEGRO_AUDIO_ATTACHED:
+      case ALLEGRO_AUDIOPROP_ATTACHED:
          if (val) {
             _al_set_error(ALLEGRO_INVALID_PARAM,
                "Attempted to set sample attachment ststus true");
@@ -663,7 +666,7 @@ int al_sample_set_bool(ALLEGRO_SAMPLE *spl, ALLEGRO_AUDIO_ENUM setting,
          _al_kcm_detach_from_parent(spl);
          return 0;
 
-      case ALLEGRO_AUDIO_ORPHAN_BUFFER:
+      case ALLEGRO_AUDIOPROP_ORPHAN_BUFFER:
          if (spl->orphan_buffer && !val) {
             _al_set_error(ALLEGRO_INVALID_PARAM,
                "Attempted to adopt an orphaned buffer");
@@ -682,13 +685,13 @@ int al_sample_set_bool(ALLEGRO_SAMPLE *spl, ALLEGRO_AUDIO_ENUM setting,
 
 /* Function: al_sample_set_ptr
  */
-int al_sample_set_ptr(ALLEGRO_SAMPLE *spl, ALLEGRO_AUDIO_ENUM setting,
-   void *val)
+int al_sample_set_ptr(ALLEGRO_SAMPLE *spl,
+   ALLEGRO_AUDIO_PROPERTY setting, void *val)
 {
    ASSERT(spl);
 
    switch (setting) {
-      case ALLEGRO_AUDIO_BUFFER:
+      case ALLEGRO_AUDIOPROP_BUFFER:
          if (spl->playing) {
             _al_set_error(ALLEGRO_INVALID_OBJECT,
                "Attempted to change the buffer of a playing sample");

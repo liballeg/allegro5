@@ -49,13 +49,13 @@ int main(int argc, char **argv)
 
       /* A voice is used for playback. You give it a sample to play
        * you can give a sample to many voices if you want */
-      voice = al_voice_create(44100, ALLEGRO_AUDIO_16_BIT_INT, ALLEGRO_AUDIO_2_CH);
+      voice = al_voice_create(44100, ALLEGRO_AUDIO_DEPTH_INT16, ALLEGRO_CHANNEL_CONF_2);
       if (!voice) {
          fprintf(stderr, "Could not create ALLEGRO_VOICE from sample\n");
          continue;
       }
 
-      mixer = al_mixer_create(44100, ALLEGRO_AUDIO_32_BIT_FLOAT, ALLEGRO_AUDIO_2_CH);
+      mixer = al_mixer_create(44100, ALLEGRO_AUDIO_DEPTH_FLOAT32, ALLEGRO_CHANNEL_CONF_2);
       if (!mixer) {
          fprintf(stderr, "al_mixer_create failed.\n");
          continue;
@@ -72,10 +72,10 @@ int main(int argc, char **argv)
       }
 
       /* play sample in looping mode */
-      al_sample_set_enum(sample, ALLEGRO_AUDIO_LOOPMODE, ALLEGRO_AUDIO_ONE_DIR);
+      al_sample_set_enum(sample, ALLEGRO_AUDIOPROP_LOOPMODE, ALLEGRO_PLAYMODE_ONEDIR);
       al_sample_play(sample);
 
-      al_sample_get_float(sample, ALLEGRO_AUDIO_TIME, &sample_time);
+      al_sample_get_float(sample, ALLEGRO_AUDIOPROP_TIME, &sample_time);
       fprintf(stderr, "Playing '%s' (%.3f seconds) 3 times", filename, sample_time);
       al_rest(sample_time*3.0f);
       al_sample_stop(sample);

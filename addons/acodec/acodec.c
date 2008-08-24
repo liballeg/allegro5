@@ -87,24 +87,24 @@ ALLEGRO_STREAM* al_load_stream(const char* filename)
 
 
 /* FIXME: use the allegro provided helpers */
-ALLEGRO_AUDIO_ENUM _al_count_to_channel_conf(int num_channels)
+ALLEGRO_CHANNEL_CONF _al_count_to_channel_conf(int num_channels)
 {
    switch (num_channels)
    {
       case 1:
-         return ALLEGRO_AUDIO_1_CH;
+         return ALLEGRO_CHANNEL_CONF_1;
       case 2:
-         return ALLEGRO_AUDIO_2_CH;
+         return ALLEGRO_CHANNEL_CONF_2;
       case 3:
-         return ALLEGRO_AUDIO_3_CH;
+         return ALLEGRO_CHANNEL_CONF_3;
       case 4:
-         return ALLEGRO_AUDIO_4_CH;
+         return ALLEGRO_CHANNEL_CONF_4;
       case 6:
-         return ALLEGRO_AUDIO_5_1_CH;
+         return ALLEGRO_CHANNEL_CONF_5_1;
       case 7:
-         return ALLEGRO_AUDIO_6_1_CH;
+         return ALLEGRO_CHANNEL_CONF_6_1;
       case 8:
-         return ALLEGRO_AUDIO_7_1_CH;
+         return ALLEGRO_CHANNEL_CONF_7_1;
       default:
          return 0;
    }
@@ -112,18 +112,18 @@ ALLEGRO_AUDIO_ENUM _al_count_to_channel_conf(int num_channels)
 
 /* note: assumes 8-bit is unsigned, and 32-bit float all others are signed 
  * make your own version if the codec is different */
-ALLEGRO_AUDIO_ENUM _al_word_size_to_depth_conf(int word_size)
+ALLEGRO_AUDIO_DEPTH _al_word_size_to_depth_conf(int word_size)
 {
    switch (word_size)
    {
       case 1:
-         return ALLEGRO_AUDIO_8_BIT_UINT;
+         return ALLEGRO_AUDIO_DEPTH_UINT8;
       case 2:
-         return ALLEGRO_AUDIO_16_BIT_INT;
+         return ALLEGRO_AUDIO_DEPTH_INT16;
       case 3:
-         return ALLEGRO_AUDIO_24_BIT_INT;
+         return ALLEGRO_AUDIO_DEPTH_INT24;
       case 4:
-         return ALLEGRO_AUDIO_32_BIT_FLOAT;
+         return ALLEGRO_AUDIO_DEPTH_FLOAT32;
       default:
          return 0;
    }

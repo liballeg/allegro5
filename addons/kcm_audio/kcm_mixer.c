@@ -26,8 +26,8 @@ static float _samp_buf[ALLEGRO_MAX_CHANNELS]; /* max: 7.1 */
  *
  *  Returns a pointer to a statically allocated array.
  */
-static float *_al_rechannel_matrix(ALLEGRO_AUDIO_ENUM orig,
-   ALLEGRO_AUDIO_ENUM target)
+static float *_al_rechannel_matrix(ALLEGRO_CHANNEL_CONF orig,
+   ALLEGRO_CHANNEL_CONF target)
 {
    /* Max 7.1 (8 channels) for input and output */
    static float mat[ALLEGRO_MAX_CHANNELS][ALLEGRO_MAX_CHANNELS];
@@ -92,7 +92,7 @@ static inline int fix_looped_position(ALLEGRO_SAMPLE *spl)
 {
    /* Looping! Should be mostly self-explanitory */
    switch (spl->loop) {
-      case ALLEGRO_AUDIO_ONE_DIR:
+      case ALLEGRO_PLAYMODE_ONEDIR:
          if (spl->step > 0) {
             while (spl->pos < spl->loop_start || spl->pos >= spl->loop_end) {
                spl->pos -= (spl->loop_end - spl->loop_start);
@@ -105,7 +105,7 @@ static inline int fix_looped_position(ALLEGRO_SAMPLE *spl)
          }
          break;
 
-      case ALLEGRO_AUDIO_BI_DIR:
+      case ALLEGRO_PLAYMODE_BIDIR:
          /* When doing bi-directional looping, you need to do a follow-up
           * check for the opposite direction if a loop occurred, otherwise
           * you could end up misplaced on small, high-step loops.
@@ -176,17 +176,17 @@ static inline const float *point_spl32(const ALLEGRO_SAMPLE *spl,
    unsigned int i;
 
    for (i = 0; i < maxc; i++) {
-      if (spl->depth == ALLEGRO_AUDIO_24_BIT_INT) {
+      if (spl->depth == ALLEGRO_AUDIO_DEPTH_INT24) {
          s[i] =
             (float) spl->buffer.s24[(spl->pos>>MIXER_FRAC_SHIFT)*maxc + i] /
             ((float)0x7FFFFF + 0.5f);
       }
-      else if (spl->depth == ALLEGRO_AUDIO_16_BIT_INT) {
+      else if (spl->depth == ALLEGRO_AUDIO_DEPTH_INT16) {
          s[i] =
             (float) spl->buffer.s16[(spl->pos>>MIXER_FRAC_SHIFT)*maxc + i] /
             ((float)0x7FFF + 0.5f);
       }
-      else if (spl->depth == ALLEGRO_AUDIO_8_BIT_INT) {
+      else if (spl->depth == ALLEGRO_AUDIO_DEPTH_INT8) {
          s[i] = (float) spl->buffer.s8[(spl->pos>>MIXER_FRAC_SHIFT)*maxc + i] /
             ((float)0x7F + 0.5f);
       }
@@ -205,15 +205,15 @@ static inline const float *point_spl32u(const ALLEGRO_SAMPLE *spl,
    unsigned int i;
 
    for (i = 0; i < maxc; i++) {
-      if (spl->depth == ALLEGRO_AUDIO_24_BIT_UINT) {
+      if (spl->depth == ALLEGRO_AUDIO_DEPTH_UINT24) {
          s[i] = (float)spl->buffer.u24[(spl->pos>>MIXER_FRAC_SHIFT)*maxc + i]
             / ((float)0x7FFFFF+0.5f) - 1.0;
       }
-      else if (spl->depth == ALLEGRO_AUDIO_16_BIT_UINT) {
+      else if (spl->depth == ALLEGRO_AUDIO_DEPTH_UINT16) {
          s[i] = (float)spl->buffer.u16[(spl->pos>>MIXER_FRAC_SHIFT)*maxc + i]
             / ((float)0x7FFF+0.5f) - 1.0;
       }
-      else if (spl->depth == ALLEGRO_AUDIO_8_BIT_UINT) {
+      else if (spl->depth == ALLEGRO_AUDIO_DEPTH_UINT8) {
          s[i] = (float)spl->buffer.u8[(spl->pos>>MIXER_FRAC_SHIFT)*maxc + i]
             / ((float)0x7F+0.5f) - 1.0;
       }
@@ -235,12 +235,12 @@ static inline const float *linear_spl32(const ALLEGRO_SAMPLE *spl,
    p1 = (spl->pos>>MIXER_FRAC_SHIFT)*maxc;
    p2 = p1 + maxc;
 
-   if (spl->loop == ALLEGRO_AUDIO_PLAY_ONCE) {
+   if (spl->loop == ALLEGRO_PLAYMODE_ONCE) {
       if (spl->pos+MIXER_FRAC_ONE >= spl->len)
          p2 = p1;
    }
    else if (spl->pos+MIXER_FRAC_ONE >= spl->loop_end) {
-      if (spl->loop == ALLEGRO_AUDIO_ONE_DIR)
+      if (spl->loop == ALLEGRO_PLAYMODE_ONEDIR)
          p2 = (spl->loop_start>>MIXER_FRAC_SHIFT)*maxc;
       else
          p2 = ((spl->loop_end>>MIXER_FRAC_SHIFT)-1)*maxc;
@@ -251,15 +251,15 @@ static inline const float *linear_spl32(const ALLEGRO_SAMPLE *spl,
    for (i = 0; i < maxc; i++) {
       float s1, s2;
 
-      if (spl->depth == ALLEGRO_AUDIO_24_BIT_INT) {
+      if (spl->depth == ALLEGRO_AUDIO_DEPTH_INT24) {
          s1 = (float)spl->buffer.s24[p1 + i] / ((float)0x7FFFFF + 0.5f);
          s2 = (float)spl->buffer.s24[p2 + i] / ((float)0x7FFFFF + 0.5f);
       }
-      else if (spl->depth == ALLEGRO_AUDIO_16_BIT_INT) {
+      else if (spl->depth == ALLEGRO_AUDIO_DEPTH_INT16) {
          s1 = (float)spl->buffer.s16[p1 + i] / ((float)0x7FFF + 0.5f);
          s2 = (float)spl->buffer.s16[p2 + i] / ((float)0x7FFF + 0.5f);
       }
-      else if (spl->depth == ALLEGRO_AUDIO_8_BIT_INT) {
+      else if (spl->depth == ALLEGRO_AUDIO_DEPTH_INT8) {
          s1 = (float)spl->buffer.s8[p1 + i] / ((float)0x7F + 0.5f);
          s2 = (float)spl->buffer.s8[p2 + i] / ((float)0x7F + 0.5f);
       }
@@ -284,12 +284,12 @@ static inline const float *linear_spl32u(const ALLEGRO_SAMPLE *spl,
    p1 = (spl->pos>>MIXER_FRAC_SHIFT)*maxc;
    p2 = p1 + maxc;
 
-   if (spl->loop == ALLEGRO_AUDIO_PLAY_ONCE) {
+   if (spl->loop == ALLEGRO_PLAYMODE_ONCE) {
       if (spl->pos+MIXER_FRAC_ONE >= spl->len)
          p2 = p1;
    }
    else if (spl->pos+MIXER_FRAC_ONE >= spl->loop_end) {
-      if (spl->loop == ALLEGRO_AUDIO_ONE_DIR)
+      if (spl->loop == ALLEGRO_PLAYMODE_ONEDIR)
          p2 = (spl->loop_start>>MIXER_FRAC_SHIFT)*maxc;
       else
          p2 = ((spl->loop_end>>MIXER_FRAC_SHIFT)-1)*maxc;
@@ -300,15 +300,15 @@ static inline const float *linear_spl32u(const ALLEGRO_SAMPLE *spl,
    for (i = 0; i < maxc; i++) {
       float s1, s2;
 
-      if (spl->depth == ALLEGRO_AUDIO_24_BIT_UINT) {
+      if (spl->depth == ALLEGRO_AUDIO_DEPTH_UINT24) {
          s1 = (float)spl->buffer.u24[p1 + i]/((float)0x7FFFFF + 0.5f) - 1.0f;
          s2 = (float)spl->buffer.u24[p2 + i]/((float)0x7FFFFF + 0.5f) - 1.0f;
       }
-      else if (spl->depth == ALLEGRO_AUDIO_16_BIT_UINT) {
+      else if (spl->depth == ALLEGRO_AUDIO_DEPTH_UINT16) {
          s1 = (float)spl->buffer.u16[p1 + i]/((float)0x7FFF + 0.5f) - 1.0f;
          s2 = (float)spl->buffer.u16[p2 + i]/((float)0x7FFF + 0.5f) - 1.0f;
       }
-      else if (spl->depth == ALLEGRO_AUDIO_8_BIT_UINT) {
+      else if (spl->depth == ALLEGRO_AUDIO_DEPTH_UINT8) {
          s1 = (float)spl->buffer.u8[p1 + i]/((float)0x7F + 0.5f) - 1.0f;
          s2 = (float)spl->buffer.u8[p2 + i]/((float)0x7F + 0.5f) - 1.0f;
       }
@@ -326,9 +326,10 @@ static inline const float *linear_spl32u(const ALLEGRO_SAMPLE *spl,
 /* Reads some samples into a mixer buffer. */
 #define MAKE_MIXER(bits, interp)                                              \
 static void read_to_mixer_##interp##bits(void *source, void **vbuf,           \
-   unsigned long samples, ALLEGRO_AUDIO_ENUM buffer_depth, size_t dest_maxc)  \
+   unsigned long samples, ALLEGRO_AUDIO_DEPTH buffer_depth,                   \
+   size_t dest_maxc)                                                          \
 {                                                                             \
-   ALLEGRO_SAMPLE *spl = (ALLEGRO_SAMPLE*)source;                             \
+   ALLEGRO_SAMPLE *spl = (ALLEGRO_SAMPLE *)source;                            \
    float *buf = *vbuf;                                                        \
    size_t maxc = al_channel_count(spl->chan_conf);                            \
    size_t c;                                                                  \
@@ -371,8 +372,8 @@ MAKE_MIXER(32u, linear)
  *  will mix into a buffer at the requested frequency and channel count.
  *  Only 24-bit signed integer mixing is currently supported.
  */
-ALLEGRO_MIXER *al_mixer_create(unsigned long freq, ALLEGRO_AUDIO_ENUM depth,
-   ALLEGRO_AUDIO_ENUM chan_conf)
+ALLEGRO_MIXER *al_mixer_create(unsigned long freq,
+   ALLEGRO_AUDIO_DEPTH depth, ALLEGRO_CHANNEL_CONF chan_conf)
 {
    ALLEGRO_MIXER *mixer;
 
@@ -381,7 +382,7 @@ ALLEGRO_MIXER *al_mixer_create(unsigned long freq, ALLEGRO_AUDIO_ENUM depth,
          "Attempted to create mixer with no frequency");
       return NULL;
    }
-   if (depth != ALLEGRO_AUDIO_32_BIT_FLOAT) {
+   if (depth != ALLEGRO_AUDIO_DEPTH_FLOAT32) {
       _al_set_error(ALLEGRO_INVALID_PARAM,
          "Attempted to create mixer with an invalid sample depth");
       return NULL;
@@ -397,14 +398,14 @@ ALLEGRO_MIXER *al_mixer_create(unsigned long freq, ALLEGRO_AUDIO_ENUM depth,
    mixer->ss.playing = true;
    mixer->ss.orphan_buffer = true;
 
-   mixer->ss.loop      = ALLEGRO_AUDIO_PLAY_ONCE;
+   mixer->ss.loop      = ALLEGRO_PLAYMODE_ONCE;
    mixer->ss.depth     = depth;
    mixer->ss.chan_conf = chan_conf;
    mixer->ss.frequency = freq;
 
-   mixer->ss.read = _al_kcm_mixer_read;
+   mixer->ss.spl_read = _al_kcm_mixer_read;
 
-   mixer->quality = ALLEGRO_AUDIO_LINEAR;
+   mixer->quality = ALLEGRO_MIXER_QUALITY_LINEAR;
 
    mixer->streams = malloc(sizeof(ALLEGRO_SAMPLE*));
    if (!mixer->streams) {
@@ -476,7 +477,7 @@ int al_mixer_attach_sample(ALLEGRO_MIXER *mixer, ALLEGRO_SAMPLE *spl)
    }
 
    /* If this isn't a mixer, set the proper sample stream reader */
-   if (spl->read == NULL) {
+   if (spl->spl_read == NULL) {
       size_t dst_chans;
       size_t src_chans;
       float *mat;
@@ -484,17 +485,17 @@ int al_mixer_attach_sample(ALLEGRO_MIXER *mixer, ALLEGRO_SAMPLE *spl)
       dst_chans = (mixer->ss.chan_conf >> 4) + (mixer->ss.chan_conf & 0xF);
       src_chans = (spl->chan_conf >> 4) + (spl->chan_conf & 0xF);
 
-      if (mixer->quality == ALLEGRO_AUDIO_LINEAR) {
-         if ((spl->depth&ALLEGRO_AUDIO_UNSIGNED))
-            spl->read = read_to_mixer_linear32u;
+      if (mixer->quality == ALLEGRO_MIXER_QUALITY_LINEAR) {
+         if ((spl->depth&ALLEGRO_AUDIO_DEPTH_UNSIGNED))
+            spl->spl_read = read_to_mixer_linear32u;
          else
-            spl->read = read_to_mixer_linear32;
+            spl->spl_read = read_to_mixer_linear32;
       }
       else {
-         if ((spl->depth & ALLEGRO_AUDIO_UNSIGNED))
-            spl->read = read_to_mixer_point32u;
+         if ((spl->depth & ALLEGRO_AUDIO_DEPTH_UNSIGNED))
+            spl->spl_read = read_to_mixer_point32u;
          else
-            spl->read = read_to_mixer_point32;
+            spl->spl_read = read_to_mixer_point32;
       }
 
       mat = _al_rechannel_matrix(spl->chan_conf, mixer->ss.chan_conf);
@@ -572,13 +573,13 @@ int al_mixer_set_postprocess_callback(ALLEGRO_MIXER *mixer,
 
 /* Function: al_mixer_get_long
  */
-int al_mixer_get_long(const ALLEGRO_MIXER *mixer, ALLEGRO_AUDIO_ENUM setting,
-   unsigned long *val)
+int al_mixer_get_long(const ALLEGRO_MIXER *mixer,
+   ALLEGRO_AUDIO_PROPERTY setting, unsigned long *val)
 {
    ASSERT(mixer);
 
    switch (setting) {
-      case ALLEGRO_AUDIO_FREQUENCY:
+      case ALLEGRO_AUDIOPROP_FREQUENCY:
          *val = mixer->ss.frequency;
          return 0;
 
@@ -592,21 +593,21 @@ int al_mixer_get_long(const ALLEGRO_MIXER *mixer, ALLEGRO_AUDIO_ENUM setting,
 
 /* Function: al_mixer_get_enum
  */
-int al_mixer_get_enum(const ALLEGRO_MIXER *mixer, ALLEGRO_AUDIO_ENUM setting,
-   ALLEGRO_AUDIO_ENUM *val)
+int al_mixer_get_enum(const ALLEGRO_MIXER *mixer,
+   ALLEGRO_AUDIO_PROPERTY setting, int *val)
 {
    ASSERT(mixer);
 
    switch (setting) {
-      case ALLEGRO_AUDIO_CHANNELS:
+      case ALLEGRO_AUDIOPROP_CHANNELS:
          *val = mixer->ss.chan_conf;
          return 0;
 
-      case ALLEGRO_AUDIO_DEPTH:
+      case ALLEGRO_AUDIOPROP_DEPTH:
          *val = mixer->ss.depth;
          return 0;
 
-      case ALLEGRO_AUDIO_QUALITY:
+      case ALLEGRO_AUDIOPROP_QUALITY:
          *val = mixer->quality;
          return 0;
 
@@ -620,17 +621,17 @@ int al_mixer_get_enum(const ALLEGRO_MIXER *mixer, ALLEGRO_AUDIO_ENUM setting,
 
 /* Function: al_mixer_get_bool
  */
-int al_mixer_get_bool(const ALLEGRO_MIXER *mixer, ALLEGRO_AUDIO_ENUM setting,
-   bool *val)
+int al_mixer_get_bool(const ALLEGRO_MIXER *mixer,
+   ALLEGRO_AUDIO_PROPERTY setting, bool *val)
 {
    ASSERT(mixer);
 
    switch (setting) {
-      case ALLEGRO_AUDIO_PLAYING:
+      case ALLEGRO_AUDIOPROP_PLAYING:
          *val = mixer->ss.playing;
          return 0;
 
-      case ALLEGRO_AUDIO_ATTACHED:
+      case ALLEGRO_AUDIOPROP_ATTACHED:
          *val = (mixer->streams[0] != NULL);
          return 0;
 
@@ -644,8 +645,8 @@ int al_mixer_get_bool(const ALLEGRO_MIXER *mixer, ALLEGRO_AUDIO_ENUM setting,
 
 /* Function: al_mixer_set_long
  */
-int al_mixer_set_long(ALLEGRO_MIXER *mixer, ALLEGRO_AUDIO_ENUM setting,
-   unsigned long val)
+int al_mixer_set_long(ALLEGRO_MIXER *mixer,
+   ALLEGRO_AUDIO_PROPERTY setting, unsigned long val)
 {
    ASSERT(mixer);
 
@@ -653,7 +654,7 @@ int al_mixer_set_long(ALLEGRO_MIXER *mixer, ALLEGRO_AUDIO_ENUM setting,
       /* You can change the frequency of a mixer as long as it's not attached
        * to anything.
        */
-      case ALLEGRO_AUDIO_FREQUENCY:
+      case ALLEGRO_AUDIOPROP_FREQUENCY:
          if (mixer->ss.parent.ptr) {
             _al_set_error(ALLEGRO_INVALID_OBJECT,
                "Attempted to change the frequency of an attached mixer");
@@ -672,14 +673,16 @@ int al_mixer_set_long(ALLEGRO_MIXER *mixer, ALLEGRO_AUDIO_ENUM setting,
 
 /* Function: al_mixer_set_enum
  */
-int al_mixer_set_enum(ALLEGRO_MIXER *mixer, ALLEGRO_AUDIO_ENUM setting,
-   ALLEGRO_AUDIO_ENUM val)
+int al_mixer_set_enum(ALLEGRO_MIXER *mixer,
+   ALLEGRO_AUDIO_PROPERTY setting, int val)
 {
    ASSERT(mixer);
 
    switch (setting) {
-      case ALLEGRO_AUDIO_QUALITY:
-         if (val != ALLEGRO_AUDIO_POINT && val != ALLEGRO_AUDIO_LINEAR) {
+      case ALLEGRO_AUDIOPROP_QUALITY:
+         if (val != ALLEGRO_MIXER_QUALITY_POINT &&
+               val != ALLEGRO_MIXER_QUALITY_LINEAR)
+         {
             _al_set_error(ALLEGRO_INVALID_PARAM,
                "Attempted to set unknown mixer quality");
             return 1;
@@ -690,17 +693,23 @@ int al_mixer_set_enum(ALLEGRO_MIXER *mixer, ALLEGRO_AUDIO_ENUM setting,
             size_t i;
 
             for (i = 0; mixer->streams[i]; i++) {
-               if (val == ALLEGRO_AUDIO_LINEAR) {
-                  if (mixer->streams[i]->read == read_to_mixer_point32)
-                     mixer->streams[i]->read = read_to_mixer_linear32;
-                  else if (mixer->streams[i]->read == read_to_mixer_point32u)
-                     mixer->streams[i]->read = read_to_mixer_linear32u;
+               if (val == ALLEGRO_MIXER_QUALITY_LINEAR) {
+                  if (mixer->streams[i]->spl_read == read_to_mixer_point32) {
+                     mixer->streams[i]->spl_read = read_to_mixer_linear32;
+                  }
+                  else if (mixer->streams[i]->spl_read ==
+                        read_to_mixer_point32u) {
+                     mixer->streams[i]->spl_read = read_to_mixer_linear32u;
+                  }
                }
-               else if (val == ALLEGRO_AUDIO_POINT) {
-                  if (mixer->streams[i]->read == read_to_mixer_linear32)
-                     mixer->streams[i]->read = read_to_mixer_point32;
-                  else if (mixer->streams[i]->read == read_to_mixer_linear32u)
-                     mixer->streams[i]->read = read_to_mixer_point32u;
+               else if (val == ALLEGRO_MIXER_QUALITY_POINT) {
+                  if (mixer->streams[i]->spl_read == read_to_mixer_linear32) {
+                     mixer->streams[i]->spl_read = read_to_mixer_point32;
+                  }
+                  else if (mixer->streams[i]->spl_read ==
+                        read_to_mixer_linear32u) {
+                     mixer->streams[i]->spl_read = read_to_mixer_point32u;
+                  }
                }
             }
          }
@@ -718,17 +727,17 @@ int al_mixer_set_enum(ALLEGRO_MIXER *mixer, ALLEGRO_AUDIO_ENUM setting,
 
 /* Function: al_mixer_set_bool
  */
-int al_mixer_set_bool(ALLEGRO_MIXER *mixer, ALLEGRO_AUDIO_ENUM setting,
-   bool val)
+int al_mixer_set_bool(ALLEGRO_MIXER *mixer,
+   ALLEGRO_AUDIO_PROPERTY setting, bool val)
 {
    ASSERT(mixer);
 
    switch (setting) {
-      case ALLEGRO_AUDIO_PLAYING:
+      case ALLEGRO_AUDIOPROP_PLAYING:
          mixer->ss.playing = val;
          return 0;
 
-      case ALLEGRO_AUDIO_ATTACHED:
+      case ALLEGRO_AUDIOPROP_ATTACHED:
          if (val) {
             _al_set_error(ALLEGRO_INVALID_PARAM,
                "Attempted to set mixer attachment status true");

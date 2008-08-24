@@ -12,80 +12,112 @@
 #include "allegro5/allegro5.h"
 
 
-typedef enum ALLEGRO_AUDIO_ENUM {
+/* Type: ALLEGRO_AUDIO_DEPTH
+ */
+typedef enum ALLEGRO_AUDIO_DEPTH ALLEGRO_AUDIO_DEPTH;
+enum ALLEGRO_AUDIO_DEPTH {
    /* Sample depth and type, and signedness. Mixers only use 32-bit signed
     * float (-1..+1). The unsigned value is a bit-flag applied to the depth
     * value.
     */
-   ALLEGRO_AUDIO_8_BIT_INT    = 0x00,
-   ALLEGRO_AUDIO_16_BIT_INT   = 0x01,
-   ALLEGRO_AUDIO_24_BIT_INT   = 0x02,
-   ALLEGRO_AUDIO_32_BIT_FLOAT = 0x03,
+   ALLEGRO_AUDIO_DEPTH_INT8      = 0x00,
+   ALLEGRO_AUDIO_DEPTH_INT16     = 0x01,
+   ALLEGRO_AUDIO_DEPTH_INT24     = 0x02,
+   ALLEGRO_AUDIO_DEPTH_FLOAT32   = 0x03,
 
-   ALLEGRO_AUDIO_UNSIGNED   = 0x08,
+   ALLEGRO_AUDIO_DEPTH_UNSIGNED  = 0x08,
 
    /* For convenience */
-   ALLEGRO_AUDIO_8_BIT_UINT   = ALLEGRO_AUDIO_8_BIT_INT|ALLEGRO_AUDIO_UNSIGNED,
-   ALLEGRO_AUDIO_16_BIT_UINT  = ALLEGRO_AUDIO_16_BIT_INT|ALLEGRO_AUDIO_UNSIGNED,
-   ALLEGRO_AUDIO_24_BIT_UINT  = ALLEGRO_AUDIO_24_BIT_INT|ALLEGRO_AUDIO_UNSIGNED,
+   ALLEGRO_AUDIO_DEPTH_UINT8  = ALLEGRO_AUDIO_DEPTH_INT8 |
+                                 ALLEGRO_AUDIO_DEPTH_UNSIGNED,
+   ALLEGRO_AUDIO_DEPTH_UINT16 = ALLEGRO_AUDIO_DEPTH_INT16 |
+                                 ALLEGRO_AUDIO_DEPTH_UNSIGNED,
+   ALLEGRO_AUDIO_DEPTH_UINT24 = ALLEGRO_AUDIO_DEPTH_INT24 |
+                                 ALLEGRO_AUDIO_DEPTH_UNSIGNED
+};
 
+
+/* Type: ALLEGRO_CHANNEL_CONF
+ */
+typedef enum ALLEGRO_CHANNEL_CONF ALLEGRO_CHANNEL_CONF;
+enum ALLEGRO_CHANNEL_CONF {
    /* Speaker configuration (mono, stereo, 2.1, 3, etc). With regards to
     * behavior, most of this code makes no distinction between, say, 4.1 and
     * 5 speaker setups.. they both have 5 "channels". However, users would
     * like the distinction, and later when the higher-level stuff is added,
     * the differences will become more important. (v>>4)+(v&0xF) should yield
     * the total channel count.
-    *
-    * XXX at least wrap a macro around it
     */
-   ALLEGRO_AUDIO_1_CH   = 0x10,
-   ALLEGRO_AUDIO_2_CH   = 0x20,
-   ALLEGRO_AUDIO_3_CH   = 0x30,
-   ALLEGRO_AUDIO_4_CH   = 0x40,
-   ALLEGRO_AUDIO_5_1_CH = 0x51,
-   ALLEGRO_AUDIO_6_1_CH = 0x61,
-   ALLEGRO_AUDIO_7_1_CH = 0x71,
+   ALLEGRO_CHANNEL_CONF_1   = 0x10,
+   ALLEGRO_CHANNEL_CONF_2   = 0x20,
+   ALLEGRO_CHANNEL_CONF_3   = 0x30,
+   ALLEGRO_CHANNEL_CONF_4   = 0x40,
+   ALLEGRO_CHANNEL_CONF_5_1 = 0x51,
+   ALLEGRO_CHANNEL_CONF_6_1 = 0x61,
+   ALLEGRO_CHANNEL_CONF_7_1 = 0x71
 #define ALLEGRO_MAX_CHANNELS 8
+};
 
-   /* Sample looping mode */
-   ALLEGRO_AUDIO_PLAY_ONCE = 0x100,
-   ALLEGRO_AUDIO_ONE_DIR   = 0x101,
-   ALLEGRO_AUDIO_BI_DIR    = 0x102,
 
-   /* Mixer quality */
-   ALLEGRO_AUDIO_POINT  = 0x110,
-   ALLEGRO_AUDIO_LINEAR = 0x111,
+/* Type: ALLEGRO_PLAYMODE
+ *  Sample looping mode.
+ */
+typedef enum ALLEGRO_PLAYMODE ALLEGRO_PLAYMODE;
+enum ALLEGRO_PLAYMODE {
+   ALLEGRO_PLAYMODE_ONCE   = 0x100,
+   ALLEGRO_PLAYMODE_ONEDIR = 0x101,
+   ALLEGRO_PLAYMODE_BIDIR  = 0x102
+};
 
-   /* Flags to pass to the various al_*_get_* and al_*_set_* functions. Not
-    * all types will apply to all functions.
-    */
-   ALLEGRO_AUDIO_DEPTH     = 0x200,
-   ALLEGRO_AUDIO_CHANNELS  = 0x201,
-   ALLEGRO_AUDIO_FREQUENCY = 0x202,
 
-   ALLEGRO_AUDIO_PLAYING  = 0x203,
-   ALLEGRO_AUDIO_ATTACHED = 0x204,
+/* Type: ALLEGRO_MIXER_QUALITY
+ */
+typedef enum ALLEGRO_MIXER_QUALITY ALLEGRO_MIXER_QUALITY;
+enum ALLEGRO_MIXER_QUALITY {
+   ALLEGRO_MIXER_QUALITY_POINT   = 0x110,
+   ALLEGRO_MIXER_QUALITY_LINEAR  = 0x111,
+};
 
-   ALLEGRO_AUDIO_LENGTH = 0x205,
-   ALLEGRO_AUDIO_BUFFER = 0x206,
 
-   ALLEGRO_AUDIO_LOOPMODE      = 0x207,
-   ALLEGRO_AUDIO_SPEED         = 0x208,
-   ALLEGRO_AUDIO_POSITION      = 0x209,
-   ALLEGRO_AUDIO_ORPHAN_BUFFER = 0x20A,
+/* Type: ALLEGRO_AUDIO_PROPERTY
+ *  Flags to pass to the various al_*_get_* and al_*_set_* functions. Not
+ *  all types will apply to all functions.
+ */
+typedef enum ALLEGRO_AUDIO_PROPERTY ALLEGRO_AUDIO_PROPERTY;
+enum ALLEGRO_AUDIO_PROPERTY {
+   ALLEGRO_AUDIOPROP_DEPTH          = 0x200,
+   ALLEGRO_AUDIOPROP_CHANNELS       = 0x201,
+   ALLEGRO_AUDIOPROP_FREQUENCY      = 0x202,
 
-   ALLEGRO_AUDIO_FRAGMENTS      = 0x20B,
-   ALLEGRO_AUDIO_USED_FRAGMENTS = 0x20C,
+   ALLEGRO_AUDIOPROP_PLAYING        = 0x203,
+   ALLEGRO_AUDIOPROP_ATTACHED       = 0x204,
 
-   ALLEGRO_AUDIO_QUALITY = 0x20D,
+   ALLEGRO_AUDIOPROP_LENGTH         = 0x205,
+   ALLEGRO_AUDIOPROP_BUFFER         = 0x206,
 
-   ALLEGRO_AUDIO_SETTINGS = 0x20E,
+   ALLEGRO_AUDIOPROP_LOOPMODE       = 0x207,
+   ALLEGRO_AUDIOPROP_SPEED          = 0x208,
+   ALLEGRO_AUDIOPROP_POSITION       = 0x209,
+   ALLEGRO_AUDIOPROP_ORPHAN_BUFFER  = 0x20A,
 
-   ALLEGRO_AUDIO_DEVICE = 0x20F,
+   ALLEGRO_AUDIOPROP_FRAGMENTS      = 0x20B,
+   ALLEGRO_AUDIOPROP_USED_FRAGMENTS = 0x20C,
+
+   ALLEGRO_AUDIOPROP_QUALITY        = 0x20D,
+
+   ALLEGRO_AUDIOPROP_SETTINGS       = 0x20E,
+
+   ALLEGRO_AUDIOPROP_DEVICE         = 0x20F,
 
    /* Length of audio sample. */
-   ALLEGRO_AUDIO_TIME   = 0x210,
+   ALLEGRO_AUDIOPROP_TIME           = 0x210
+};
 
+
+/* Type: ALLEGRO_AUDIO_DRIVER_ENUM
+ */
+typedef enum ALLEGRO_AUDIO_DRIVER_ENUM ALLEGRO_AUDIO_DRIVER_ENUM;
+enum ALLEGRO_AUDIO_DRIVER_ENUM {
    /* Used to define driver-specific option values, not to collide with
     * standard values.
     */
@@ -96,8 +128,7 @@ typedef enum ALLEGRO_AUDIO_ENUM {
    ALLEGRO_AUDIO_DRIVER_OPENAL     = 0x20001,
    ALLEGRO_AUDIO_DRIVER_ALSA       = 0x20002,
    ALLEGRO_AUDIO_DRIVER_DSOUND     = 0x20003
-
-} ALLEGRO_AUDIO_ENUM;
+};
 
 
 /* Type: ALLEGRO_SAMPLE
@@ -117,60 +148,60 @@ typedef enum ALLEGRO_AUDIO_ENUM {
  *
  * An ALLEGRO_SAMPLE object uses the following fields:
  *
- * ALLEGRO_AUDIO_DEPTH (enum) -
+ * ALLEGRO_AUDIOPROP_DEPTH (enum) -
  *    Gets the bit depth format the object was created with. This may not be
  *    changed after the object is created.
  *
- * ALLEGRO_AUDIO_CHANNELS (enum) -
+ * ALLEGRO_AUDIOPROP_CHANNELS (enum) -
  *    Gets the channel configuration the object was created with. This may not
  *    be changed after the object is created.
  *
- * ALLEGRO_AUDIO_FREQUENCY (long) -
+ * ALLEGRO_AUDIOPROP_FREQUENCY (long) -
  *    Gets the frequency (in hz) the object was created with. This may not be
  *    changed after the object is created. To change playback speed, see
- *    ALLEGRO_AUDIO_SPEED.
+ *    ALLEGRO_AUDIOPROP_SPEED.
  *
- * ALLEGRO_AUDIO_PLAYING (bool) -
+ * ALLEGRO_AUDIOPROP_PLAYING (bool) -
  *    Gets or sets the object's playing status. By default, it is stopped.
  *    Note that simply setting it true does not cause the object to play. It
  *    must also be attached to a voice, directly or indirectly (eg.
  *    sample->voice, sample->mixer->voice, sample->mixer->...->voice).
  *
- * ALLEGRO_AUDIO_ATTACHED (bool) -
+ * ALLEGRO_AUDIOPROP_ATTACHED (bool) -
  *    Gets the object's attachment status (true if it is attached to a
  *    something, false if not). Setting this to false detaches the object from
  *    whatever it is attached to. You may not directly set this to true.
  *
- * ALLEGRO_AUDIO_LENGTH (long) -
+ * ALLEGRO_AUDIOPROP_LENGTH (long) -
  *    Gets or sets the length of the object's data buffer, in
  *    samples-per-channel. When changing the length, you must make sure the
  *    current buffer is large enough. You may not change the length while the
  *    object is set to play.
  *
- * ALLEGRO_AUDIO_BUFFER (ptr) -
+ * ALLEGRO_AUDIOPROP_BUFFER (ptr) -
  *    Gets or sets the object's data buffer. You may not get or set this if the
  *    object is set to play, and you may not get this if the buffer was
- *    previously orphaned (see ALLEGRO_AUDIO_ORPHAN_BUFFER).
+ *    previously orphaned (see ALLEGRO_AUDIOPROP_ORPHAN_BUFFER).
  *
- * ALLEGRO_AUDIO_LOOPMODE (enum) -
+ * ALLEGRO_AUDIOPROP_LOOPMODE (enum) -
  *    Gets or sets the object's looping mode. Setting this may fail if the
  *    object is attached to a voice and the audio driver does not support the
  *    requested looping mode.
  *
- * ALLEGRO_AUDIO_SPEED (float) -
+ * ALLEGRO_AUDIOPROP_SPEED (float) -
  *    Gets or sets the object's playing speed. Negative values will cause the
  *    object to play backwards. If the value is set too close to 0, this will
  *    fail to set.
  *
- * ALLEGRO_AUDIO_POSITION (long) -
+ * ALLEGRO_AUDIOPROP_POSITION (long) -
  *    Gets or sets the object's playing position. The value is in
  *    samples-per-channel.
  *
- * ALLEGRO_AUDIO_ORPHAN_BUFFER (bool) -
+ * ALLEGRO_AUDIOPROP_ORPHAN_BUFFER (bool) -
  *    Setting this flag to true will cause the object's data buffer to be
  *    free()'d automatically when either the sample is destroyed, or the buffer
- *    is changed (setting an ALLEGRO_AUDIO_BUFFER value). If you set another
- *    ALLEGRO_AUDIO_BUFFER value, this will revert back to false. You may not
+ *    is changed (setting an ALLEGRO_AUDIOPROP_BUFFER value). If you set another
+ *    ALLEGRO_AUDIOPROP_BUFFER value, this will revert back to false. You may not
  *    directly set this to false. You must not orphan a buffer that is
  *    referenced outside of the object.
  */
@@ -187,48 +218,48 @@ typedef struct ALLEGRO_SAMPLE ALLEGRO_SAMPLE;
  * object.
  *
  * While playing, you must periodicly supply new buffer data by first checking
- * ALLEGRO_AUDIO_USED_FRAGMENTS, then refilling the buffers via
- * ALLEGRO_AUDIO_BUFFER. If you're late with supplying new data, the object
+ * ALLEGRO_AUDIOPROP_USED_FRAGMENTS, then refilling the buffers via
+ * ALLEGRO_AUDIOPROP_BUFFER. If you're late with supplying new data, the object
  * will be silenced until new data is provided.
  *
  * ALLEGRO_STREAM objects use the following fields:
  *
- * ALLEGRO_AUDIO_DEPTH (enum) -
+ * ALLEGRO_AUDIOPROP_DEPTH (enum) -
  *    Same as ALLEGRO_SAMPLE
  *
- * ALLEGRO_AUDIO_CHANNELS (enum) -
+ * ALLEGRO_AUDIOPROP_CHANNELS (enum) -
  *    Same as ALLEGRO_SAMPLE
  *
- * ALLEGRO_AUDIO_FREQUENCY (enum) -
+ * ALLEGRO_AUDIOPROP_FREQUENCY (enum) -
  *    Same as ALLEGRO_SAMPLE
  *
- * ALLEGRO_AUDIO_ATTACHED (bool) -
+ * ALLEGRO_AUDIOPROP_ATTACHED (bool) -
  *    Same as ALLEGRO_SAMPLE
  *
- * ALLEGRO_AUDIO_PLAYING (bool) -
+ * ALLEGRO_AUDIOPROP_PLAYING (bool) -
  *    Same as ALLEGRO_SAMPLE, with the exception that ALLEGRO_STREAM objects
  *    are set to play by default.
  *
- * ALLEGRO_AUDIO_SPEED (float) -
+ * ALLEGRO_AUDIOPROP_SPEED (float) -
  *    Same as ALLEGRO_SAMPLE, with the added caveat that negative values aren't
  *    allowed.
  *
- * ALLEGRO_AUDIO_LENGTH (long) -
+ * ALLEGRO_AUDIOPROP_LENGTH (long) -
  *    This gets the length, in samples-per-channel, of the individual buffer
  *    fragments. You may not set this after the object is created.
  *
- * ALLEGRO_AUDIO_BUFFER (ptr) -
+ * ALLEGRO_AUDIOPROP_BUFFER (ptr) -
  *    This gets the next buffer fragment that needs to be filled. After the
  *    buffer is filled, this field must be set to the same pointer value to let
  *    the object know the new data is ready.
  *
- * ALLEGRO_AUDIO_FRAGMENTS (long) -
+ * ALLEGRO_AUDIOPROP_FRAGMENTS (long) -
  *    This gets the total number of buffer fragments the object was created
  *    with. You may not set this after the object is created.
  *
- * ALLEGRO_AUDIO_USED_FRAGMENTS (long) -
+ * ALLEGRO_AUDIOPROP_USED_FRAGMENTS (long) -
  *    This gets the number of buffer fragments that are waiting to be refilled.
- *    This value is decreased when ALLEGRO_AUDIO_BUFFER is used to retrieve a
+ *    This value is decreased when ALLEGRO_AUDIOPROP_BUFFER is used to retrieve a
  *    waiting buffer fragment. You may not set this value.
  */
 typedef struct ALLEGRO_STREAM ALLEGRO_STREAM;
@@ -245,69 +276,120 @@ typedef struct ALLEGRO_VOICE ALLEGRO_VOICE;
 
 
 /* Sample functions (more detailed explanations below) */
-AL_FUNC(ALLEGRO_SAMPLE*, al_sample_create, (void *buf, unsigned long samples, unsigned long freq, ALLEGRO_AUDIO_ENUM depth, ALLEGRO_AUDIO_ENUM chan_conf, bool free_buf));
+AL_FUNC(ALLEGRO_SAMPLE*, al_sample_create, (void *buf, unsigned long samples,
+      unsigned long freq, ALLEGRO_AUDIO_DEPTH depth,
+      ALLEGRO_CHANNEL_CONF chan_conf, bool free_buf));
 AL_FUNC(ALLEGRO_SAMPLE*, al_sample_create_clone, (const ALLEGRO_SAMPLE *spl));
 AL_FUNC(void, al_sample_destroy, (ALLEGRO_SAMPLE *spl));
-AL_FUNC(int, al_sample_get_long, (const ALLEGRO_SAMPLE *spl, ALLEGRO_AUDIO_ENUM setting, unsigned long *val));
-AL_FUNC(int, al_sample_get_float, (const ALLEGRO_SAMPLE *spl, ALLEGRO_AUDIO_ENUM setting, float *val));
-AL_FUNC(int, al_sample_get_enum, (const ALLEGRO_SAMPLE *spl, ALLEGRO_AUDIO_ENUM setting, ALLEGRO_AUDIO_ENUM *val));
-AL_FUNC(int, al_sample_get_bool, (const ALLEGRO_SAMPLE *spl, ALLEGRO_AUDIO_ENUM setting, bool *val));
-AL_FUNC(int, al_sample_get_ptr, (const ALLEGRO_SAMPLE *spl, ALLEGRO_AUDIO_ENUM setting, void **ptr));
-AL_FUNC(int, al_sample_set_long, (ALLEGRO_SAMPLE *spl, ALLEGRO_AUDIO_ENUM setting, unsigned long val));
-AL_FUNC(int, al_sample_set_float, (ALLEGRO_SAMPLE *spl, ALLEGRO_AUDIO_ENUM setting, float val));
-AL_FUNC(int, al_sample_set_enum, (ALLEGRO_SAMPLE *spl, ALLEGRO_AUDIO_ENUM setting, ALLEGRO_AUDIO_ENUM val));
-AL_FUNC(int, al_sample_set_bool, (ALLEGRO_SAMPLE *spl, ALLEGRO_AUDIO_ENUM setting, bool val));
-AL_FUNC(int, al_sample_set_ptr, (ALLEGRO_SAMPLE *spl, ALLEGRO_AUDIO_ENUM setting, void *ptr));
+AL_FUNC(int, al_sample_get_long, (const ALLEGRO_SAMPLE *spl,
+      ALLEGRO_AUDIO_PROPERTY setting, unsigned long *val));
+AL_FUNC(int, al_sample_get_float, (const ALLEGRO_SAMPLE *spl,
+      ALLEGRO_AUDIO_PROPERTY setting, float *val));
+AL_FUNC(int, al_sample_get_enum, (const ALLEGRO_SAMPLE *spl,
+      ALLEGRO_AUDIO_PROPERTY setting, int *val));
+AL_FUNC(int, al_sample_get_bool, (const ALLEGRO_SAMPLE *spl,
+      ALLEGRO_AUDIO_PROPERTY setting, bool *val));
+AL_FUNC(int, al_sample_get_ptr, (const ALLEGRO_SAMPLE *spl,
+      ALLEGRO_AUDIO_PROPERTY setting, void **ptr));
+AL_FUNC(int, al_sample_set_long, (ALLEGRO_SAMPLE *spl,
+      ALLEGRO_AUDIO_PROPERTY setting, unsigned long val));
+AL_FUNC(int, al_sample_set_float, (ALLEGRO_SAMPLE *spl,
+      ALLEGRO_AUDIO_PROPERTY setting, float val));
+AL_FUNC(int, al_sample_set_enum, (ALLEGRO_SAMPLE *spl,
+      ALLEGRO_AUDIO_PROPERTY setting, int val));
+AL_FUNC(int, al_sample_set_bool, (ALLEGRO_SAMPLE *spl,
+      ALLEGRO_AUDIO_PROPERTY setting, bool val));
+AL_FUNC(int, al_sample_set_ptr, (ALLEGRO_SAMPLE *spl,
+      ALLEGRO_AUDIO_PROPERTY setting, void *ptr));
 AL_FUNC(int, al_sample_play, (ALLEGRO_SAMPLE *spl));
 AL_FUNC(int, al_sample_stop, (ALLEGRO_SAMPLE *spl));
 
-AL_FUNC(bool, al_is_channel_conf, (ALLEGRO_AUDIO_ENUM conf));
-AL_FUNC(size_t, al_channel_count, (ALLEGRO_AUDIO_ENUM conf));
-AL_FUNC(size_t, al_depth_size, (ALLEGRO_AUDIO_ENUM conf));
+AL_FUNC(bool, al_is_channel_conf, (ALLEGRO_CHANNEL_CONF conf));
+AL_FUNC(size_t, al_channel_count, (ALLEGRO_CHANNEL_CONF conf));
+AL_FUNC(size_t, al_depth_size, (ALLEGRO_CHANNEL_CONF conf));
 
 /* Stream functions */
-AL_FUNC(ALLEGRO_STREAM*, al_stream_create, (size_t buffer_count, unsigned long samples, unsigned long freq, ALLEGRO_AUDIO_ENUM depth, ALLEGRO_AUDIO_ENUM chan_conf));
+AL_FUNC(ALLEGRO_STREAM*, al_stream_create, (size_t buffer_count,
+      unsigned long samples, unsigned long freq,
+      ALLEGRO_AUDIO_DEPTH depth, ALLEGRO_CHANNEL_CONF chan_conf));
 AL_FUNC(void, al_stream_destroy, (ALLEGRO_STREAM *stream));
-AL_FUNC(int, al_stream_get_long, (const ALLEGRO_STREAM *stream, ALLEGRO_AUDIO_ENUM setting, unsigned long *val));
-AL_FUNC(int, al_stream_get_float, (const ALLEGRO_STREAM *stream, ALLEGRO_AUDIO_ENUM setting, float *val));
-AL_FUNC(int, al_stream_get_enum, (const ALLEGRO_STREAM *stream, ALLEGRO_AUDIO_ENUM setting, ALLEGRO_AUDIO_ENUM *val));
-AL_FUNC(int, al_stream_get_bool, (const ALLEGRO_STREAM *stream, ALLEGRO_AUDIO_ENUM setting, bool *val));
-AL_FUNC(int, al_stream_get_ptr, (const ALLEGRO_STREAM *spl, ALLEGRO_AUDIO_ENUM setting, void **ptr));
-AL_FUNC(int, al_stream_set_long, (ALLEGRO_STREAM *stream, ALLEGRO_AUDIO_ENUM setting, unsigned long val));
-AL_FUNC(int, al_stream_set_float, (ALLEGRO_STREAM *stream, ALLEGRO_AUDIO_ENUM setting, float val));
-AL_FUNC(int, al_stream_set_enum, (ALLEGRO_STREAM *stream, ALLEGRO_AUDIO_ENUM setting, ALLEGRO_AUDIO_ENUM val));
-AL_FUNC(int, al_stream_set_bool, (ALLEGRO_STREAM *stream, ALLEGRO_AUDIO_ENUM setting, bool val));
-AL_FUNC(int, al_stream_set_ptr, (ALLEGRO_STREAM *spl, ALLEGRO_AUDIO_ENUM setting, void *ptr));
+AL_FUNC(int, al_stream_get_long, (const ALLEGRO_STREAM *stream,
+      ALLEGRO_AUDIO_PROPERTY setting, unsigned long *val));
+AL_FUNC(int, al_stream_get_float, (const ALLEGRO_STREAM *stream,
+      ALLEGRO_AUDIO_PROPERTY setting, float *val));
+AL_FUNC(int, al_stream_get_enum, (const ALLEGRO_STREAM *stream,
+      ALLEGRO_AUDIO_PROPERTY setting, int *val));
+AL_FUNC(int, al_stream_get_bool, (const ALLEGRO_STREAM *stream,
+      ALLEGRO_AUDIO_PROPERTY setting, bool *val));
+AL_FUNC(int, al_stream_get_ptr, (const ALLEGRO_STREAM *spl,
+      ALLEGRO_AUDIO_PROPERTY setting, void **ptr));
+AL_FUNC(int, al_stream_set_long, (ALLEGRO_STREAM *stream,
+      ALLEGRO_AUDIO_PROPERTY setting, unsigned long val));
+AL_FUNC(int, al_stream_set_float, (ALLEGRO_STREAM *stream,
+      ALLEGRO_AUDIO_PROPERTY setting, float val));
+AL_FUNC(int, al_stream_set_enum, (ALLEGRO_STREAM *stream,
+      ALLEGRO_AUDIO_PROPERTY setting, int val));
+AL_FUNC(int, al_stream_set_bool, (ALLEGRO_STREAM *stream,
+      ALLEGRO_AUDIO_PROPERTY setting, bool val));
+AL_FUNC(int, al_stream_set_ptr, (ALLEGRO_STREAM *spl,
+      ALLEGRO_AUDIO_PROPERTY setting, void *ptr));
+
 /* Mixer functions */
-AL_FUNC(ALLEGRO_MIXER*, al_mixer_create, (unsigned long freq, ALLEGRO_AUDIO_ENUM depth, ALLEGRO_AUDIO_ENUM chan_conf));
+AL_FUNC(ALLEGRO_MIXER*, al_mixer_create, (unsigned long freq,
+      ALLEGRO_AUDIO_DEPTH depth, ALLEGRO_CHANNEL_CONF chan_conf));
 AL_FUNC(void, al_mixer_destroy, (ALLEGRO_MIXER *mixer));
-AL_FUNC(int, al_mixer_attach_sample, (ALLEGRO_MIXER *mixer, ALLEGRO_SAMPLE *stream));
-AL_FUNC(int, al_mixer_attach_stream, (ALLEGRO_MIXER *mixer, ALLEGRO_STREAM *stream));
-AL_FUNC(int, al_mixer_attach_mixer, (ALLEGRO_MIXER *mixer, ALLEGRO_MIXER *stream));
-AL_FUNC(int, al_mixer_set_postprocess_callback, (ALLEGRO_MIXER *mixer, void (*cb)(void *buf, unsigned long samples, void *data), void *data));
-AL_FUNC(int, al_mixer_get_long, (const ALLEGRO_MIXER *mixer, ALLEGRO_AUDIO_ENUM setting, unsigned long *val));
-AL_FUNC(int, al_mixer_get_enum, (const ALLEGRO_MIXER *mixer, ALLEGRO_AUDIO_ENUM setting, ALLEGRO_AUDIO_ENUM *val));
-AL_FUNC(int, al_mixer_get_bool, (const ALLEGRO_MIXER *mixer, ALLEGRO_AUDIO_ENUM setting, bool *val));
-AL_FUNC(int, al_mixer_set_long, (ALLEGRO_MIXER *mixer, ALLEGRO_AUDIO_ENUM setting, unsigned long val));
-AL_FUNC(int, al_mixer_set_enum, (ALLEGRO_MIXER *mixer, ALLEGRO_AUDIO_ENUM setting, ALLEGRO_AUDIO_ENUM val));
-AL_FUNC(int, al_mixer_set_bool, (ALLEGRO_MIXER *mixer, ALLEGRO_AUDIO_ENUM setting, bool val));
+AL_FUNC(int, al_mixer_attach_sample, (ALLEGRO_MIXER *mixer,
+      ALLEGRO_SAMPLE *stream));
+AL_FUNC(int, al_mixer_attach_stream, (ALLEGRO_MIXER *mixer,
+      ALLEGRO_STREAM *stream));
+AL_FUNC(int, al_mixer_attach_mixer, (ALLEGRO_MIXER *mixer,
+      ALLEGRO_MIXER *stream));
+AL_FUNC(int, al_mixer_set_postprocess_callback, (ALLEGRO_MIXER *mixer,
+      void (*cb)(void *buf, unsigned long samples, void *data),
+      void *data));
+AL_FUNC(int, al_mixer_get_long, (const ALLEGRO_MIXER *mixer,
+      ALLEGRO_AUDIO_PROPERTY setting, unsigned long *val));
+AL_FUNC(int, al_mixer_get_enum, (const ALLEGRO_MIXER *mixer,
+      ALLEGRO_AUDIO_PROPERTY setting, int *val));
+AL_FUNC(int, al_mixer_get_bool, (const ALLEGRO_MIXER *mixer,
+      ALLEGRO_AUDIO_PROPERTY setting, bool *val));
+AL_FUNC(int, al_mixer_set_long, (ALLEGRO_MIXER *mixer,
+      ALLEGRO_AUDIO_PROPERTY setting, unsigned long val));
+AL_FUNC(int, al_mixer_set_enum, (ALLEGRO_MIXER *mixer,
+      ALLEGRO_AUDIO_PROPERTY setting, int val));
+AL_FUNC(int, al_mixer_set_bool, (ALLEGRO_MIXER *mixer,
+      ALLEGRO_AUDIO_PROPERTY setting, bool val));
 /* XXX is this supposed to be public? */
-AL_FUNC(void, _al_kcm_mixer_read, (void*, void**, unsigned long, ALLEGRO_AUDIO_ENUM, size_t));
+AL_FUNC(void, _al_kcm_mixer_read, (void*, void**, unsigned long,
+      ALLEGRO_AUDIO_DEPTH, size_t));
+
 /* Voice functions */
-AL_FUNC(ALLEGRO_VOICE*, al_voice_create, (unsigned long freq, ALLEGRO_AUDIO_ENUM depth, ALLEGRO_AUDIO_ENUM chan_conf));
+AL_FUNC(ALLEGRO_VOICE*, al_voice_create, (unsigned long freq,
+      ALLEGRO_AUDIO_DEPTH depth,
+      ALLEGRO_CHANNEL_CONF chan_conf));
 AL_FUNC(void, al_voice_destroy, (ALLEGRO_VOICE *voice));
-AL_FUNC(int, al_voice_attach_sample, (ALLEGRO_VOICE *voice, ALLEGRO_SAMPLE *stream));
-AL_FUNC(int, al_voice_attach_stream, (ALLEGRO_VOICE *voice, ALLEGRO_STREAM *stream));
-AL_FUNC(int, al_voice_attach_mixer, (ALLEGRO_VOICE *voice, ALLEGRO_MIXER *mixer));
+AL_FUNC(int, al_voice_attach_sample, (ALLEGRO_VOICE *voice,
+      ALLEGRO_SAMPLE *stream));
+AL_FUNC(int, al_voice_attach_stream, (ALLEGRO_VOICE *voice,
+      ALLEGRO_STREAM *stream));
+AL_FUNC(int, al_voice_attach_mixer, (ALLEGRO_VOICE *voice,
+      ALLEGRO_MIXER *mixer));
 AL_FUNC(void, al_voice_detach, (ALLEGRO_VOICE *voice));
-AL_FUNC(int, al_voice_get_long, (const ALLEGRO_VOICE *voice, ALLEGRO_AUDIO_ENUM setting, unsigned long *val));
-AL_FUNC(int, al_voice_get_enum, (const ALLEGRO_VOICE *voice, ALLEGRO_AUDIO_ENUM setting, ALLEGRO_AUDIO_ENUM *val));
-AL_FUNC(int, al_voice_get_bool, (const ALLEGRO_VOICE *voice, ALLEGRO_AUDIO_ENUM setting, bool *val));
-AL_FUNC(int, al_voice_set_long, (ALLEGRO_VOICE *voice, ALLEGRO_AUDIO_ENUM setting, unsigned long val));
-AL_FUNC(int, al_voice_set_enum, (ALLEGRO_VOICE *voice, ALLEGRO_AUDIO_ENUM setting, ALLEGRO_AUDIO_ENUM val));
-AL_FUNC(int, al_voice_set_bool, (ALLEGRO_VOICE *voice, ALLEGRO_AUDIO_ENUM setting, bool val));
+AL_FUNC(int, al_voice_get_long, (const ALLEGRO_VOICE *voice,
+      ALLEGRO_AUDIO_PROPERTY setting, unsigned long *val));
+AL_FUNC(int, al_voice_get_enum, (const ALLEGRO_VOICE *voice,
+      ALLEGRO_AUDIO_PROPERTY setting, int *val));
+AL_FUNC(int, al_voice_get_bool, (const ALLEGRO_VOICE *voice,
+      ALLEGRO_AUDIO_PROPERTY setting, bool *val));
+AL_FUNC(int, al_voice_set_long, (ALLEGRO_VOICE *voice,
+      ALLEGRO_AUDIO_PROPERTY setting, unsigned long val));
+AL_FUNC(int, al_voice_set_enum, (ALLEGRO_VOICE *voice,
+      ALLEGRO_AUDIO_PROPERTY setting, int val));
+AL_FUNC(int, al_voice_set_bool, (ALLEGRO_VOICE *voice,
+      ALLEGRO_AUDIO_PROPERTY setting, bool val));
+
 /* Misc. audio functions */
-AL_FUNC(int,  al_audio_init, (ALLEGRO_AUDIO_ENUM mode));
+AL_FUNC(int,  al_audio_init, (ALLEGRO_AUDIO_DRIVER_ENUM mode));
 AL_FUNC(void, al_audio_deinit, (void));
 
 #endif  /* __al_included_kcm_audio_h */

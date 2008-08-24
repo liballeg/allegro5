@@ -12,25 +12,25 @@
 
 #include <sndfile.h>
 
-ALLEGRO_AUDIO_ENUM _get_depth_enum( int format , int* word_size)
+ALLEGRO_AUDIO_DEPTH _get_depth_enum( int format , int* word_size)
 {
    switch (format&0xFFFF)
    {
       case SF_FORMAT_PCM_U8:
          *word_size = 1;
-         return ALLEGRO_AUDIO_8_BIT_UINT; 
+         return ALLEGRO_AUDIO_DEPTH_UINT8;
 
       case SF_FORMAT_PCM_16:
          *word_size = 2;
-         return ALLEGRO_AUDIO_16_BIT_INT;
+         return ALLEGRO_AUDIO_DEPTH_INT16;
    
       case SF_FORMAT_PCM_24:
          *word_size = 3;
-         return ALLEGRO_AUDIO_24_BIT_INT;
+         return ALLEGRO_AUDIO_DEPTH_INT24;
    
       case SF_FORMAT_FLOAT:
          *word_size = 4;
-         return ALLEGRO_AUDIO_32_BIT_FLOAT;
+         return ALLEGRO_AUDIO_DEPTH_FLOAT32;
     
       default:
          fprintf(stderr, "Unsupported sndfile depth format (%X)\n",format);
@@ -41,7 +41,7 @@ ALLEGRO_AUDIO_ENUM _get_depth_enum( int format , int* word_size)
 
 ALLEGRO_SAMPLE* al_load_sample_sndfile(const char *filename)
 {
-   ALLEGRO_AUDIO_ENUM depth; 
+   ALLEGRO_AUDIO_DEPTH depth;
    SF_INFO sfinfo;
    SNDFILE* sndfile;
    int word_size;
@@ -79,10 +79,10 @@ ALLEGRO_SAMPLE* al_load_sample_sndfile(const char *filename)
       return NULL;
    }
 
-   if (depth == ALLEGRO_AUDIO_16_BIT_INT) {
+   if (depth == ALLEGRO_AUDIO_DEPTH_INT16) {
       sf_readf_short(sndfile, buffer, total_samples);
    }
-   else if (depth == ALLEGRO_AUDIO_32_BIT_FLOAT) {
+   else if (depth == ALLEGRO_AUDIO_DEPTH_FLOAT32) {
       sf_readf_float(sndfile, buffer, total_samples);
    }
    else {
@@ -108,10 +108,10 @@ bool _sndfile_stream_update(ALLEGRO_STREAM* stream, void* data, unsigned long bu
    bytes_per_sample = al_audio_channel_count(stream->chan_conf) * al_audio_depth_size(stream->depth);
    samples = buf_size / bytes_per_sample;
 
-   if (stream->depth == ALLEGRO_AUDIO_16_BIT_INT) {
+   if (stream->depth == ALLEGRO_AUDIO_DEPTH_INT16) {
       num_read = sf_readf_short(sndfile, data, samples);
    }
-   else if (stream->depth == ALLEGRO_AUDIO_32_BIT_FLOAT) {
+   else if (stream->depth == ALLEGRO_AUDIO_DEPTH_FLOAT32) {
       num_read = sf_readf_float(sndfile, data, samples);
    }
    else {

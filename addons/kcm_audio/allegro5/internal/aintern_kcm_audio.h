@@ -45,8 +45,8 @@ const void *_al_voice_update(ALLEGRO_VOICE *voice, unsigned long samples);
  * would be one ALLEGRO_VOICE per system/hardware voice.
  */
 struct ALLEGRO_VOICE {
-   ALLEGRO_AUDIO_ENUM depth;
-   ALLEGRO_AUDIO_ENUM chan_conf;
+   ALLEGRO_AUDIO_DEPTH depth;
+   ALLEGRO_CHANNEL_CONF chan_conf;
 
    unsigned long frequency;
 
@@ -69,16 +69,16 @@ struct ALLEGRO_VOICE {
 
 
 typedef void (*stream_reader)(void *, void **, unsigned long,
-   ALLEGRO_AUDIO_ENUM, size_t);
+   ALLEGRO_AUDIO_DEPTH, size_t);
 
 /* The sample struct */
 struct ALLEGRO_SAMPLE {
    volatile bool playing;
    volatile bool is_stream;
 
-   ALLEGRO_AUDIO_ENUM loop;
-   ALLEGRO_AUDIO_ENUM depth;
-   ALLEGRO_AUDIO_ENUM chan_conf;
+   ALLEGRO_PLAYMODE loop;
+   ALLEGRO_AUDIO_DEPTH depth;
+   ALLEGRO_CHANNEL_CONF chan_conf;
    unsigned long frequency;
    float speed;
 
@@ -105,7 +105,7 @@ struct ALLEGRO_SAMPLE {
    /* Reads sample data into the provided buffer, using the specified format,
     * converting as necessary.
     */
-   stream_reader read;
+   stream_reader spl_read;
 
    /* The mutex is shared with the parent object. It is NULL if it is not
     * directly or indirectly attached to a voice.
@@ -147,7 +147,7 @@ typedef void (*pp_callback)(void *, unsigned long, void *);
 struct ALLEGRO_MIXER {
    ALLEGRO_SAMPLE ss;
 
-   ALLEGRO_AUDIO_ENUM quality;
+   ALLEGRO_MIXER_QUALITY quality;
 
    pp_callback post_process;
    void *cb_ptr;

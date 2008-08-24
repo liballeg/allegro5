@@ -140,7 +140,7 @@ typedef struct ALSA_VOICE {
 
    volatile bool stop;
    volatile bool stopped;
-   ALLEGRO_AUDIO_ENUM loop_mode;
+   ALLEGRO_PLAYMODE loop_mode;
 
    _AL_THREAD poll_thread;
    bool quit_poll_thread;
@@ -227,11 +227,11 @@ static int alsa_update_nonstream(ALLEGRO_VOICE *voice, void **buf)
 
       if (buf_len < alsa_voice->frag_len) {
          alsa_voice->pos -= alsa_voice->frag_len;
-         if (alsa_voice->loop_mode == ALLEGRO_AUDIO_PLAY_ONCE) {
+         if (alsa_voice->loop_mode == ALLEGRO_PLAYMODE_ONCE) {
             alsa_voice->stop = true;
             alsa_voice->pos = 0;
          }
-         else if (alsa_voice->loop_mode == ALLEGRO_AUDIO_BI_DIR)
+         else if (alsa_voice->loop_mode == ALLEGRO_PLAYMODE_BIDIR)
             alsa_voice->reverse = !alsa_voice->reverse;
       }
    } while (!alsa_voice->stop && !buf_len);
@@ -447,11 +447,11 @@ static int alsa_allocate_voice(ALLEGRO_VOICE *voice)
 
    ex_data->frag_len = alsa_frag_size;
 
-   if (voice->depth == ALLEGRO_AUDIO_8_BIT_UINT)
+   if (voice->depth == ALLEGRO_AUDIO_DEPTH_UINT8)
       ex_data->silence = 0x80;
-   else if (voice->depth == ALLEGRO_AUDIO_16_BIT_UINT)
+   else if (voice->depth == ALLEGRO_AUDIO_DEPTH_UINT16)
       ex_data->silence = 0x8000;
-   else if (voice->depth == ALLEGRO_AUDIO_24_BIT_UINT)
+   else if (voice->depth == ALLEGRO_AUDIO_DEPTH_UINT24)
       ex_data->silence = 0x800000;
 
 
@@ -460,30 +460,30 @@ static int alsa_allocate_voice(ALLEGRO_VOICE *voice)
    ex_data->quit_poll_thread = false;
 
 
-   if (voice->depth == ALLEGRO_AUDIO_8_BIT_INT)
+   if (voice->depth == ALLEGRO_AUDIO_DEPTH_INT8)
       format = SND_PCM_FORMAT_S8;
-   else if (voice->depth == ALLEGRO_AUDIO_8_BIT_UINT)
+   else if (voice->depth == ALLEGRO_AUDIO_DEPTH_UINT8)
       format = SND_PCM_FORMAT_U8;
-   else if (voice->depth == ALLEGRO_AUDIO_16_BIT_INT)
+   else if (voice->depth == ALLEGRO_AUDIO_DEPTH_INT16)
       format = SND_PCM_FORMAT_S16;
-   else if (voice->depth == ALLEGRO_AUDIO_16_BIT_UINT)
+   else if (voice->depth == ALLEGRO_AUDIO_DEPTH_UINT16)
       format = SND_PCM_FORMAT_U16;
-   else if (voice->depth == ALLEGRO_AUDIO_24_BIT_INT)
+   else if (voice->depth == ALLEGRO_AUDIO_DEPTH_INT24)
       format = SND_PCM_FORMAT_S24;
-   else if (voice->depth == ALLEGRO_AUDIO_24_BIT_UINT)
+   else if (voice->depth == ALLEGRO_AUDIO_DEPTH_UINT24)
       format = SND_PCM_FORMAT_U24;
-   else if (voice->depth == ALLEGRO_AUDIO_32_BIT_FLOAT)
+   else if (voice->depth == ALLEGRO_AUDIO_DEPTH_FLOAT32)
       format = SND_PCM_FORMAT_FLOAT;
    else
       goto Error;
 
-   if (voice->chan_conf != ALLEGRO_AUDIO_1_CH &&
-       voice->chan_conf != ALLEGRO_AUDIO_2_CH &&
-       voice->chan_conf != ALLEGRO_AUDIO_4_CH &&
-       voice->chan_conf != ALLEGRO_AUDIO_5_1_CH &&
-       voice->chan_conf != ALLEGRO_AUDIO_7_1_CH) {
+   if (voice->chan_conf != ALLEGRO_CHANNEL_CONF_1 &&
+       voice->chan_conf != ALLEGRO_CHANNEL_CONF_2 &&
+       voice->chan_conf != ALLEGRO_CHANNEL_CONF_4 &&
+       voice->chan_conf != ALLEGRO_CHANNEL_CONF_5_1 &&
+       voice->chan_conf != ALLEGRO_CHANNEL_CONF_7_1) {
          goto Error;
-      voice->chan_conf = ALLEGRO_AUDIO_2_CH;
+      voice->chan_conf = ALLEGRO_CHANNEL_CONF_2;
    }
 
    channels = al_channel_count(voice->chan_conf);
