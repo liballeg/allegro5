@@ -24,11 +24,13 @@
 
 #include "allegro5/a5_font.h"
 
+#include "font.h"
+
 
 typedef struct FONT_TYPE_INFO
 {
    char *ext;
-   A5FONT_FONT *(*load)(AL_CONST char *filename, void *param);
+   ALLEGRO_FONT *(*load)(AL_CONST char *filename, void *param);
    struct FONT_TYPE_INFO *next;
 } FONT_TYPE_INFO;
 
@@ -40,7 +42,7 @@ static FONT_TYPE_INFO *font_type_list = NULL;
  *  Informs Allegro of a new font file type, telling it how to load files of 
  *  this format.
  */
-void a5font_register_font_file_type(AL_CONST char *ext, A5FONT_FONT *(*load)(AL_CONST char *filename, void *param))
+void al_font_register_font_file_type(AL_CONST char *ext, ALLEGRO_FONT *(*load)(AL_CONST char *filename, void *param))
 {
    char tmp[32], *aext;
    FONT_TYPE_INFO *iter = font_type_list;
@@ -68,7 +70,7 @@ void a5font_register_font_file_type(AL_CONST char *ext, A5FONT_FONT *(*load)(AL_
  *  Loads a font from disk. Will try to load a font from a bitmap if all else
  *  fails.
  */
-A5FONT_FONT *a5font_load_font(AL_CONST char *filename, void *param)
+ALLEGRO_FONT *al_font_load_font(AL_CONST char *filename, void *param)
 {
    char tmp[32], *aext;
    FONT_TYPE_INFO *iter;
@@ -85,7 +87,7 @@ A5FONT_FONT *a5font_load_font(AL_CONST char *filename, void *param)
    }
    
    /* Try to load the file as a bitmap image and grab the font from there */
-   return a5font_load_bitmap_font(filename, param);
+   return al_font_load_bitmap_font(filename, param);
 }
 
 
@@ -93,7 +95,7 @@ A5FONT_FONT *a5font_load_font(AL_CONST char *filename, void *param)
 /* register_font_file_type_exit:
  *  Free list of registered bitmap file types.
  */
-static void a5font_register_font_file_type_exit(void)
+static void al_font_register_font_file_type_exit(void)
 {
    FONT_TYPE_INFO *iter = font_type_list, *next;
 
@@ -111,10 +113,10 @@ static void a5font_register_font_file_type_exit(void)
     * the internal modules.
     */
    #ifdef ALLEGRO_USE_CONSTRUCTOR
-      _a5font_register_font_file_type_init();
+      _al_font_register_font_file_type_init();
    #endif
 
-   _remove_exit_func(a5font_register_font_file_type_exit);
+   _remove_exit_func(al_font_register_font_file_type_exit);
 }
 
 
@@ -122,10 +124,10 @@ static void a5font_register_font_file_type_exit(void)
 /* _register_font_file_type_init:
  *  Register built-in font file types.
  */
-void _a5font_register_font_file_type_init(void)
+void _al_font_register_font_file_type_init(void)
 {
-   _add_exit_func(a5font_register_font_file_type_exit,
-		  "a5font_register_font_file_type_exit");
+   _add_exit_func(al_font_register_font_file_type_exit,
+		  "al_font_register_font_file_type_exit");
 }
 
 
@@ -142,7 +144,7 @@ void _a5font_register_font_file_type_init(void)
     */
    void font_filetype_constructor(void)
    {
-      _a5font_register_font_file_type_init();
+      _al_font_register_font_file_type_init();
    }
 
    /* font_filetype_destructor:
@@ -163,6 +165,6 @@ void _a5font_register_font_file_type_init(void)
    
       font_type_list = NULL;
 
-      _remove_exit_func(a5font_register_font_file_type_exit);
+      _remove_exit_func(al_font_register_font_file_type_exit);
    }
 #endif

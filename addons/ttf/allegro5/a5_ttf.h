@@ -3,4 +3,4 @@
 
 #define ALLEGRO_TTF_NO_KERNING 1
 
-A5FONT_FONT *al_ttf_load_font(char const *filename, int size, int flags);
+ALLEGRO_FONT *al_ttf_load_font(char const *filename, int size, int flags);

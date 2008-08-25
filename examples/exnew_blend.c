@@ -12,7 +12,7 @@ struct Example
    ALLEGRO_BITMAP *example; /* Our example bitmap. */
    ALLEGRO_BITMAP *offscreen; /* An offscreen buffer, for testing. */
    ALLEGRO_BITMAP *memory; /* A memory buffer, for testing. */
-   A5FONT_FONT *myfont; /* Our font. */
+   ALLEGRO_FONT *myfont; /* Our font. */
    ALLEGRO_EVENT_QUEUE *queue; /* Our events queue. */
    int image; /* Which test image to use. */
    int mode; /* How to draw it. */
@@ -37,7 +37,7 @@ static void print(int x, int y, bool vertical, char const *format, ...)
    uvszprintf(message, sizeof message, format, list);
    va_end(list);
 
-   h = a5font_text_height(ex.myfont);
+   h = al_font_text_height(ex.myfont);
 
    for (j = 0; j < 2; j++) {
       if (j == 0)
@@ -52,11 +52,11 @@ static void print(int x, int y, bool vertical, char const *format, ...)
             char c[10] = "";
             int u = ugetat(message, i);
             usetat(c, 0, u);
-            a5font_textout(ex.myfont, c, x + 1 - j, y + 1 - j + h * i);
+            al_font_textout(ex.myfont, c, x + 1 - j, y + 1 - j + h * i);
          }
       }
       else {
-         a5font_textout(ex.myfont, message, x + 1 - j, y + 1 - j);
+         al_font_textout(ex.myfont, message, x + 1 - j, y + 1 - j);
       }
    }
 }
@@ -283,7 +283,7 @@ static void init(void)
    ex.BUTTONS_X = 40 + 110 * 4;
    ex.FPS = 60;
 
-   ex.myfont = a5font_load_font("font.tga", 0);
+   ex.myfont = al_font_load_font("font.tga", 0);
    if (!ex.myfont) {
       TRACE("font.tga not found\n");
       exit(1);
@@ -303,7 +303,7 @@ int main(void)
    al_init();
    al_install_keyboard();
    al_install_mouse();
-   a5font_init();
+   al_font_init();
 
    display = al_create_display(640, 480);
    if (!display) {

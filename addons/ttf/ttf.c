@@ -22,15 +22,15 @@ typedef struct ALLEGRO_TTF_FONT_DATA
 
 static bool once = true;
 static FT_Library ft;
-static A5FONT_FONT_VTABLE vt;
+static ALLEGRO_FONT_VTABLE vt;
 
-static int font_height(A5FONT_FONT const *f)
+static int font_height(ALLEGRO_FONT const *f)
 {
    ASSERT(f);
    return f->height;
 }
 
-static int render_glyph(A5FONT_FONT const *f, int prev, int ch,
+static int render_glyph(ALLEGRO_FONT const *f, int prev, int ch,
     int xpos, int ypos, bool only_measure)
 {
     ALLEGRO_TTF_FONT_DATA *data = f->data;
@@ -99,17 +99,17 @@ static int render_glyph(A5FONT_FONT const *f, int prev, int ch,
     return xpos - startpos;
 }
 
-static int render_char(A5FONT_FONT const *f, int ch, int xpos, int ypos)
+static int render_char(ALLEGRO_FONT const *f, int ch, int xpos, int ypos)
 {
     return render_glyph(f, '\0', ch, xpos, ypos, false);
 }
 
-static int char_length(A5FONT_FONT const *f, int ch)
+static int char_length(ALLEGRO_FONT const *f, int ch)
 {
     return render_glyph(f, '\0', ch, 0, 0, true);
 }
 
-static void render(A5FONT_FONT const *f, char const *text,
+static void render(ALLEGRO_FONT const *f, char const *text,
     int x, int y, int count)
 {
     char prev = '\0';
@@ -122,7 +122,7 @@ static void render(A5FONT_FONT const *f, char const *text,
     }
 }
 
-static int text_length(A5FONT_FONT const *f, char const *text, int count)
+static int text_length(ALLEGRO_FONT const *f, char const *text, int count)
 {
     char prev = '\0';
     char const *p = text;
@@ -136,7 +136,7 @@ static int text_length(A5FONT_FONT const *f, char const *text, int count)
     return x;
 }
 
-static void destroy(A5FONT_FONT *f)
+static void destroy(ALLEGRO_FONT *f)
 {
     ALLEGRO_TTF_FONT_DATA *data = f->data;
     FT_Done_Face(data->face);
@@ -151,7 +151,7 @@ static void destroy(A5FONT_FONT *f)
     _AL_FREE(f);
 }
 
-A5FONT_FONT *al_ttf_load_font(char const *filename, int size, int flags)
+ALLEGRO_FONT *al_ttf_load_font(char const *filename, int size, int flags)
 {
     if (once) {
         FT_Init_FreeType(&ft);
@@ -183,7 +183,7 @@ A5FONT_FONT *al_ttf_load_font(char const *filename, int size, int flags)
     memset(data->cache, 0, bytes);
     TRACE("al-ttf: %s: Preparing cache for %d glyphs.\n", filename, m);
 
-    A5FONT_FONT *f = _AL_MALLOC(sizeof *f);
+    ALLEGRO_FONT *f = _AL_MALLOC(sizeof *f);
     f->height = size;
     f->vtable = &vt;
     f->data = data;

@@ -174,7 +174,7 @@ const char* getResource(const char* fmt, ...)
 
 static void my_destroy_font(void *f)
 {
-   a5font_destroy_font((A5FONT_FONT *)f);
+   al_font_destroy_font((ALLEGRO_FONT *)f);
 }
 
 
@@ -200,14 +200,14 @@ bool loadResources(void)
    }
 
    // Load fonts
-   A5FONT_FONT *myfont = a5font_load_font(getResource("gfx/large_font.tga"), NULL);
+   ALLEGRO_FONT *myfont = al_font_load_font(getResource("gfx/large_font.tga"), NULL);
    if (!myfont) {
       debug_message("Failed to load %s\n", getResource("gfx/large_font.tga"));
       return false;
    }
    GenericResource *res = new GenericResource(myfont, my_destroy_font);
    if (!rm.add(res, false)) return false;
-   myfont = a5font_load_font(getResource("gfx/small_font.tga"), NULL);
+   myfont = al_font_load_font(getResource("gfx/small_font.tga"), NULL);
    if (!myfont) {
       printf("Failed to load %s\n", getResource("gfx/small_font.tga"));
       return false;
@@ -238,7 +238,7 @@ bool init(void)
 
    al_init();
    iio_init();
-   a5font_init();
+   al_font_init();
 
    al_set_new_bitmap_format(ALLEGRO_PIXEL_FORMAT_ANY_WITH_ALPHA);
 

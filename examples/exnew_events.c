@@ -25,7 +25,7 @@ ALLEGRO_DISPLAY     *display;
 ALLEGRO_TIMER       *timer_a;
 ALLEGRO_TIMER       *timer_b;
 ALLEGRO_TIMER       *timer_c;
-A5FONT_FONT         *myfont;
+ALLEGRO_FONT         *myfont;
 ALLEGRO_COLOR        black;
 ALLEGRO_COLOR        white;
 
@@ -61,7 +61,7 @@ static int num_messages(void)
 
 static void draw_message_log(void)
 {
-   const int th = a5font_text_height(myfont);
+   const int th = al_font_text_height(myfont);
    int y;
    int i;
 
@@ -75,7 +75,7 @@ static void draw_message_log(void)
    y = 0;
    i = msg_tail;
    while (1) {
-      a5font_textout(myfont, msg_log[i], 5, y);
+      al_font_textout(myfont, msg_log[i], 5, y);
       y += th;
 
       i = (i + 1) % SIZE_LOG;
@@ -91,7 +91,7 @@ static void draw_message_log(void)
 static void print(int x, int y, char const *message)
 {
    al_set_blender(ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA, black);
-   a5font_textout(myfont, message, x, y);
+   al_font_textout(myfont, message, x, y);
 }
 
 
@@ -454,7 +454,7 @@ int main(void)
       fatal_error("al_install_mouse");
    }
 
-   a5font_init();
+   al_font_init();
 
    /* Open a window. This function is part of the new display API and is
     * still in flux.
@@ -478,7 +478,7 @@ int main(void)
     */
    al_show_mouse_cursor();
 
-   myfont = a5font_load_font("font.tga", 0);
+   myfont = al_font_load_font("font.tga", 0);
    if (!myfont) {
       TRACE("font.tga not found\n");
       return 1;

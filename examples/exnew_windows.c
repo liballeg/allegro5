@@ -14,7 +14,7 @@ int main(void)
    ALLEGRO_MONITOR_INFO *info;
    int adapter_count;
    int x, y;
-   A5FONT_FONT *myfont;
+   ALLEGRO_FONT *myfont;
    ALLEGRO_EVENT_QUEUE *events;
    ALLEGRO_EVENT event;
    int i;
@@ -23,7 +23,7 @@ int main(void)
 
    al_init();
    al_install_mouse();
-   a5font_init();
+   al_font_init();
 
    adapter_count = al_get_num_video_adapters();
 
@@ -47,7 +47,7 @@ int main(void)
    displays[1] = al_create_display(W, H);
    al_show_mouse_cursor();
 
-   myfont = a5font_load_font("fixed_font.tga", 0);
+   myfont = al_font_load_font("fixed_font.tga", 0);
 
    events = al_create_event_queue();
    al_register_event_source(events, (ALLEGRO_EVENT_SOURCE *)al_get_mouse());
@@ -62,7 +62,7 @@ int main(void)
         else
            al_clear(al_map_rgb(155, 255, 0));
         al_set_blender(ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA, al_map_rgb(0, 0, 0));
-        a5font_textout_centre(myfont, "Click me..", 50, 50);
+        al_font_textout_centre(myfont, "Click me..", 50, 50);
         al_set_blender(ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA, al_map_rgb(255, 255, 255));
         al_flip_display();
       }

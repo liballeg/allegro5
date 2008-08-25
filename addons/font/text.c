@@ -28,9 +28,9 @@
 
 
 /* textout_count:
- * Like a5font_textout but prints exactly count characters.
+ * Like al_font_textout but prints exactly count characters.
  */
-void a5font_textout_count(AL_CONST A5FONT_FONT *f, AL_CONST char *str, int x, int y,
+void al_font_textout_count(AL_CONST ALLEGRO_FONT *f, AL_CONST char *str, int x, int y,
    int count)
 {
    ASSERT(f);
@@ -47,7 +47,7 @@ void a5font_textout_count(AL_CONST A5FONT_FONT *f, AL_CONST char *str, int x, in
  *  using the colors from the original font bitmap (the one imported into
  *  the grabber program), which allows multicolored text output.
  */
-void a5font_textout(AL_CONST A5FONT_FONT *f, AL_CONST char *str, int x, int y)
+void al_font_textout(AL_CONST ALLEGRO_FONT *f, AL_CONST char *str, int x, int y)
 {
    ASSERT(f);
    ASSERT(str);
@@ -56,16 +56,16 @@ void a5font_textout(AL_CONST A5FONT_FONT *f, AL_CONST char *str, int x, int y)
 
 
 
-/* a5font_textout_centre_count:
- * Like a5font_textout_centre but prints exactly count characters
+/* al_font_textout_centre_count:
+ * Like al_font_textout_centre but prints exactly count characters
  */
-void a5font_textout_centre_count(AL_CONST A5FONT_FONT *f, AL_CONST char *str, int x, int y, int count)
+void al_font_textout_centre_count(AL_CONST ALLEGRO_FONT *f, AL_CONST char *str, int x, int y, int count)
 {
    int len;
    ASSERT(f);
    ASSERT(str);
 
-   len = a5font_text_length_count(f, str, count);
+   len = al_font_text_length_count(f, str, count);
    f->vtable->render(f, str, x - len/2, y, count);
 }
 
@@ -75,13 +75,13 @@ void a5font_textout_centre_count(AL_CONST A5FONT_FONT *f, AL_CONST char *str, in
  *  Like textout_ex(), but uses the x coordinate as the centre rather than 
  *  the left of the string.
  */
-void a5font_textout_centre(AL_CONST A5FONT_FONT *f, AL_CONST char *str, int x, int y)
+void al_font_textout_centre(AL_CONST ALLEGRO_FONT *f, AL_CONST char *str, int x, int y)
 {
    int len;
    ASSERT(f);
    ASSERT(str);
 
-   len = a5font_text_length(f, str);
+   len = al_font_text_length(f, str);
    f->vtable->render(f, str, x - len/2, y, strlen(str));
 }
 
@@ -91,13 +91,13 @@ void a5font_textout_centre(AL_CONST A5FONT_FONT *f, AL_CONST char *str, int x, i
  *  Like textout_ex(), but uses the x coordinate as the right rather than 
  *  the left of the string.
  */
-void a5font_textout_right_count(AL_CONST A5FONT_FONT *f, AL_CONST char *str, int x, int y, int count)
+void al_font_textout_right_count(AL_CONST ALLEGRO_FONT *f, AL_CONST char *str, int x, int y, int count)
 {
    int len;
    ASSERT(f);
    ASSERT(str);
 
-   len = a5font_text_length_count(f, str, count);
+   len = al_font_text_length_count(f, str, count);
    f->vtable->render(f, str, x - len, y, count);
 }
 
@@ -107,13 +107,13 @@ void a5font_textout_right_count(AL_CONST A5FONT_FONT *f, AL_CONST char *str, int
  *  Like textout_ex(), but uses the x coordinate as the right rather than 
  *  the left of the string.
  */
-void a5font_textout_right(AL_CONST A5FONT_FONT *f, AL_CONST char *str, int x, int y)
+void al_font_textout_right(AL_CONST ALLEGRO_FONT *f, AL_CONST char *str, int x, int y)
 {
    int len;
    ASSERT(f);
    ASSERT(str);
 
-   len = a5font_text_length(f, str);
+   len = al_font_text_length(f, str);
    f->vtable->render(f, str, x - len, y, strlen(str));
 }
 
@@ -124,7 +124,7 @@ void a5font_textout_right(AL_CONST A5FONT_FONT *f, AL_CONST char *str, int x, in
  */
 #define MAX_TOKEN  128
 
-void a5font_textout_justify(AL_CONST A5FONT_FONT *f, AL_CONST char *str, int x1, int x2, int y, int diff)
+void al_font_textout_justify(AL_CONST ALLEGRO_FONT *f, AL_CONST char *str, int x1, int x2, int y, int diff)
 {
    char toks[32];
    char *tok[MAX_TOKEN];
@@ -153,7 +153,7 @@ void a5font_textout_justify(AL_CONST A5FONT_FONT *f, AL_CONST char *str, int x1,
    tok[last] = ustrtok_r(strbuf, toks, &strlast);
 
    while (tok[last]) {
-      minlen += a5font_text_length(f, tok[last]);
+      minlen += al_font_text_length(f, tok[last]);
       if (++last == MAX_TOKEN)
          break;
       tok[last] = ustrtok_r(NULL, toks, &strlast);
@@ -174,7 +174,7 @@ void a5font_textout_justify(AL_CONST A5FONT_FONT *f, AL_CONST char *str, int x1,
    finc = (float)space / (float)(last-1);
    for (i=0; i<last; i++) {
       f->vtable->render(f, tok[i], (int)fleft, y, strlen(tok[i]));
-      fleft += (float)a5font_text_length(f, tok[i]) + finc;
+      fleft += (float)al_font_text_length(f, tok[i]) + finc;
    }
 
    _AL_FREE(strbuf);
@@ -185,7 +185,7 @@ void a5font_textout_justify(AL_CONST A5FONT_FONT *f, AL_CONST char *str, int x1,
 /* textprintf_ex:
  *  Formatted text output, using a printf() style format string.
  */
-void a5font_textprintf_count(AL_CONST A5FONT_FONT *f, int x, int y, int count, AL_CONST char *format, ...)
+void al_font_textprintf_count(AL_CONST ALLEGRO_FONT *f, int x, int y, int count, AL_CONST char *format, ...)
 {
    char buf[512];
    va_list ap;
@@ -196,7 +196,7 @@ void a5font_textprintf_count(AL_CONST A5FONT_FONT *f, int x, int y, int count, A
    uvszprintf(buf, sizeof(buf), format, ap);
    va_end(ap);
 
-   a5font_textout_count(f, buf, x, y, count);
+   al_font_textout_count(f, buf, x, y, count);
 }
 
 
@@ -204,7 +204,7 @@ void a5font_textprintf_count(AL_CONST A5FONT_FONT *f, int x, int y, int count, A
 /* textprintf_ex:
  *  Formatted text output, using a printf() style format string.
  */
-void a5font_textprintf(AL_CONST A5FONT_FONT *f, int x, int y, AL_CONST char *format, ...)
+void al_font_textprintf(AL_CONST ALLEGRO_FONT *f, int x, int y, AL_CONST char *format, ...)
 {
    char buf[512];
    va_list ap;
@@ -215,7 +215,7 @@ void a5font_textprintf(AL_CONST A5FONT_FONT *f, int x, int y, AL_CONST char *for
    uvszprintf(buf, sizeof(buf), format, ap);
    va_end(ap);
 
-   a5font_textout(f, buf, x, y);
+   al_font_textout(f, buf, x, y);
 }
 
 
@@ -224,7 +224,7 @@ void a5font_textprintf(AL_CONST A5FONT_FONT *f, int x, int y, AL_CONST char *for
  *  Like textprintf_ex(), but uses the x coordinate as the centre rather than 
  *  the left of the string.
  */
-void a5font_textprintf_centre_count(AL_CONST A5FONT_FONT *f, int x, int y, int count, AL_CONST char *format, ...)
+void al_font_textprintf_centre_count(AL_CONST ALLEGRO_FONT *f, int x, int y, int count, AL_CONST char *format, ...)
 {
    char buf[512];
    va_list ap;
@@ -235,7 +235,7 @@ void a5font_textprintf_centre_count(AL_CONST A5FONT_FONT *f, int x, int y, int c
    uvszprintf(buf, sizeof(buf), format, ap);
    va_end(ap);
 
-   a5font_textout_centre_count(f, buf, x, y, count);
+   al_font_textout_centre_count(f, buf, x, y, count);
 }
 
 
@@ -244,7 +244,7 @@ void a5font_textprintf_centre_count(AL_CONST A5FONT_FONT *f, int x, int y, int c
  *  Like textprintf_ex(), but uses the x coordinate as the centre rather than 
  *  the left of the string.
  */
-void a5font_textprintf_centre(AL_CONST A5FONT_FONT *f, int x, int y, AL_CONST char *format, ...)
+void al_font_textprintf_centre(AL_CONST ALLEGRO_FONT *f, int x, int y, AL_CONST char *format, ...)
 {
    char buf[512];
    va_list ap;
@@ -255,7 +255,7 @@ void a5font_textprintf_centre(AL_CONST A5FONT_FONT *f, int x, int y, AL_CONST ch
    uvszprintf(buf, sizeof(buf), format, ap);
    va_end(ap);
 
-   a5font_textout_centre(f, buf, x, y);
+   al_font_textout_centre(f, buf, x, y);
 }
 
 
@@ -264,7 +264,7 @@ void a5font_textprintf_centre(AL_CONST A5FONT_FONT *f, int x, int y, AL_CONST ch
  *  Like textprintf_ex(), but uses the x coordinate as the right rather than 
  *  the left of the string.
  */
-void a5font_textprintf_right(AL_CONST A5FONT_FONT *f, int x, int y, AL_CONST char *format, ...)
+void al_font_textprintf_right(AL_CONST ALLEGRO_FONT *f, int x, int y, AL_CONST char *format, ...)
 {
    char buf[512];
    va_list ap;
@@ -275,7 +275,7 @@ void a5font_textprintf_right(AL_CONST A5FONT_FONT *f, int x, int y, AL_CONST cha
    uvszprintf(buf, sizeof(buf), format, ap);
    va_end(ap);
 
-   a5font_textout_right(f, buf, x, y);
+   al_font_textout_right(f, buf, x, y);
 }
 
 
@@ -284,7 +284,7 @@ void a5font_textprintf_right(AL_CONST A5FONT_FONT *f, int x, int y, AL_CONST cha
  *  Like textprintf_ex(), but uses the x coordinate as the right rather than 
  *  the left of the string.
  */
-void a5font_textprintf_right_count(AL_CONST A5FONT_FONT *f, int x, int y, int count, AL_CONST char *format, ...)
+void al_font_textprintf_right_count(AL_CONST ALLEGRO_FONT *f, int x, int y, int count, AL_CONST char *format, ...)
 {
    char buf[512];
    va_list ap;
@@ -295,7 +295,7 @@ void a5font_textprintf_right_count(AL_CONST A5FONT_FONT *f, int x, int y, int co
    uvszprintf(buf, sizeof(buf), format, ap);
    va_end(ap);
 
-   a5font_textout_right_count(f, buf, x, y, count);
+   al_font_textout_right_count(f, buf, x, y, count);
 }
 
 
@@ -303,7 +303,7 @@ void a5font_textprintf_right_count(AL_CONST A5FONT_FONT *f, int x, int y, int co
 /* textprintf_justify_ex:
  *  Like textprintf_ex(), but right justifies the string to the specified area.
  */
-void a5font_textprintf_justify(AL_CONST A5FONT_FONT *f, int x1, int x2, int y, int diff, AL_CONST char *format, ...)
+void al_font_textprintf_justify(AL_CONST ALLEGRO_FONT *f, int x1, int x2, int y, int diff, AL_CONST char *format, ...)
 {
    char buf[512];
    va_list ap;
@@ -314,7 +314,7 @@ void a5font_textprintf_justify(AL_CONST A5FONT_FONT *f, int x1, int x2, int y, i
    uvszprintf(buf, sizeof(buf), format, ap);
    va_end(ap);
 
-   a5font_textout_justify(f, buf, x1, x2, y, diff);
+   al_font_textout_justify(f, buf, x1, x2, y, diff);
 }
 
 
@@ -322,7 +322,7 @@ void a5font_textprintf_justify(AL_CONST A5FONT_FONT *f, int x1, int x2, int y, i
 /* text_length:
  *  Calculates the length of a string in a particular font.
  */
-int a5font_text_length(AL_CONST A5FONT_FONT *f, AL_CONST char *str)
+int al_font_text_length(AL_CONST ALLEGRO_FONT *f, AL_CONST char *str)
 {
    ASSERT(f);
    ASSERT(str);
@@ -334,7 +334,7 @@ int a5font_text_length(AL_CONST A5FONT_FONT *f, AL_CONST char *str)
 /* text_length:
  *  Calculates the length of a string in a particular font.
  */
-int a5font_text_length_count(AL_CONST A5FONT_FONT *f, AL_CONST char *str, int count)
+int al_font_text_length_count(AL_CONST ALLEGRO_FONT *f, AL_CONST char *str, int count)
 {
    ASSERT(f);
    ASSERT(str);
@@ -346,7 +346,7 @@ int a5font_text_length_count(AL_CONST A5FONT_FONT *f, AL_CONST char *str, int co
 /* text_height:
  *  Returns the height of a character in the specified font.
  */
-int a5font_text_height(AL_CONST A5FONT_FONT *f)
+int al_font_text_height(AL_CONST ALLEGRO_FONT *f)
 {
    ASSERT(f);
    return f->vtable->font_height(f);
@@ -358,7 +358,7 @@ int a5font_text_height(AL_CONST A5FONT_FONT *f)
  *  Frees the memory being used by a font structure.
  *  This is now wholly handled in the vtable.
  */
-void a5font_destroy_font(A5FONT_FONT *f)
+void al_font_destroy_font(ALLEGRO_FONT *f)
 {
    ASSERT(f);
    f->vtable->destroy(f);

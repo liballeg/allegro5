@@ -8,7 +8,7 @@ int do_gui(std::vector<Widget *>& widgets, unsigned int selected)
    ALLEGRO_BITMAP *logo = (ALLEGRO_BITMAP *)rm.getData(RES_LOGO);
    int lw = al_get_bitmap_width(logo);
    int lh = al_get_bitmap_height(logo);
-   A5FONT_FONT *myfont = (A5FONT_FONT *)rm.getData(RES_SMALLFONT);
+   ALLEGRO_FONT *myfont = (ALLEGRO_FONT *)rm.getData(RES_SMALLFONT);
 
    for (;;) {
       input->poll();
@@ -34,7 +34,7 @@ int do_gui(std::vector<Widget *>& widgets, unsigned int selected)
 
       al_set_blender(ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA,
          al_map_rgb(255, 255, 0));
-      a5font_textout_centre(myfont, "z/y to start", BB_W/2, BB_H/2);
+      al_font_textout_centre(myfont, "z/y to start", BB_W/2, BB_H/2);
       al_set_blender(ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA,
          al_map_rgb(255, 255, 255));
 

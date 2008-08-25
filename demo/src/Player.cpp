@@ -149,11 +149,11 @@ void Player::render(void)
 
    al_draw_bitmap(icon, 2, 2, 0);
 
-   small_font = (A5FONT_FONT *)rm.getData(RES_SMALLFONT);
+   small_font = (ALLEGRO_FONT *)rm.getData(RES_SMALLFONT);
 
-   a5font_textprintf(small_font, 20, 2, "x%d", lives);
+   al_font_textprintf(small_font, 20, 2, "x%d", lives);
 
-   a5font_textprintf(small_font, 2, 18, "%d", score);
+   al_font_textprintf(small_font, 2, 18, "%d", score);
 }
 
 bool Player::hit(int damage)
@@ -288,10 +288,10 @@ void Player::die(void)
       int w = al_get_bitmap_width(highscoreBitmap);
       int h = al_get_bitmap_height(highscoreBitmap);
       ResourceManager& rm = ResourceManager::getInstance();
-      A5FONT_FONT *large_font = (A5FONT_FONT *)rm.getData(RES_LARGEFONT);
-      A5FONT_FONT *small_font = (A5FONT_FONT *)rm.getData(RES_SMALLFONT);
-      a5font_textprintf_centre(large_font, w/2, h/2-16, "GAME OVER");
-      a5font_textprintf_centre(small_font, w/2, h/2+16, "%d Points", score);
+      ALLEGRO_FONT *large_font = (ALLEGRO_FONT *)rm.getData(RES_LARGEFONT);
+      ALLEGRO_FONT *small_font = (ALLEGRO_FONT *)rm.getData(RES_SMALLFONT);
+      al_font_textprintf_centre(large_font, w/2, h/2-16, "GAME OVER");
+      al_font_textprintf_centre(small_font, w/2, h/2+16, "%d Points", score);
       al_set_target_bitmap(old_target);
    }
    else {

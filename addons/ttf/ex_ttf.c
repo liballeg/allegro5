@@ -3,7 +3,7 @@
 struct Example
 {
     double fps;
-    A5FONT_FONT *f1, *f2, *f3;
+    ALLEGRO_FONT *f1, *f2, *f3;
 } ex;
 
 static void render(void)
@@ -18,23 +18,23 @@ static void render(void)
 
     al_set_blender(ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA, black);
 
-    a5font_textout(ex.f1, "Tulip (kerning)", 50, 50);
-    a5font_textout(ex.f2, "Tulip (no kerning)", 50, 100);
-    a5font_textout(ex.f3, "This font has a size of 12 pixels, "
+    al_font_textout(ex.f1, "Tulip (kerning)", 50, 50);
+    al_font_textout(ex.f2, "Tulip (no kerning)", 50, 100);
+    al_font_textout(ex.f3, "This font has a size of 12 pixels, "
         "the one above has 48 pixels.", 50, 200);
 
     al_set_blender(ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA, red);
-    a5font_textout(ex.f3, "The color can be changed simply "
+    al_font_textout(ex.f3, "The color can be changed simply "
         "by using a different blender.", 50, 220);
         
     al_set_blender(ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA, green);
-    a5font_textout(ex.f3, "Some unicode symbols:", 50, 240);
-    a5font_textout(ex.f3, "■□▢▣▤▥▦▧▨▩▪▫▬▭▮▯▰▱", 50, 260);
-    a5font_textout(ex.f3, "▲△▴▵▶▷▸▹►▻▼▽▾▿◀◁◂◃◄◅◆◇◈◉◊", 50, 280);
-    a5font_textout(ex.f3, "○◌◍◎●◐◑◒◓◔◕◖◗◘◙", 50, 300);
+    al_font_textout(ex.f3, "Some unicode symbols:", 50, 240);
+    al_font_textout(ex.f3, "■□▢▣▤▥▦▧▨▩▪▫▬▭▮▯▰▱", 50, 260);
+    al_font_textout(ex.f3, "▲△▴▵▶▷▸▹►▻▼▽▾▿◀◁◂◃◄◅◆◇◈◉◊", 50, 280);
+    al_font_textout(ex.f3, "○◌◍◎●◐◑◒◓◔◕◖◗◘◙", 50, 300);
 
     al_set_blender(ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA, black);
-    a5font_textprintf_right(ex.f3, al_get_display_width(), 0, "%.1f FPS", ex.fps);
+    al_font_textprintf_right(ex.f3, al_get_display_width(), 0, "%.1f FPS", ex.fps);
 }
 
 int main(void)
@@ -45,7 +45,7 @@ int main(void)
 
     al_init();
     al_install_mouse();
-    a5font_init();
+    al_font_init();
 
     display = al_create_display(640, 480);
     al_install_keyboard();

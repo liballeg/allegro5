@@ -10,7 +10,7 @@
 /* A structure holding all variables of our example program. */
 struct Example
 {
-   A5FONT_FONT *myfont; /* Our font. */
+   ALLEGRO_FONT *myfont; /* Our font. */
    ALLEGRO_EVENT_QUEUE *queue; /* Our events queue. */
 
    double FPS; /* How often to update per second. */
@@ -32,7 +32,7 @@ static void init(void)
    ex.FPS = 50;
    ex.first_tick = true;
 
-   ex.myfont = a5font_load_font("fixed_font.tga", 0);
+   ex.myfont = al_font_load_font("fixed_font.tga", 0);
    if (!ex.myfont) {
       TRACE("fixed_font.tga not found\n");
       exit(1);
@@ -42,7 +42,7 @@ static void init(void)
 /* Cleanup. Always a good idea. */
 static void cleanup(void)
 {
-   a5font_destroy_font(ex.myfont);
+   al_font_destroy_font(ex.myfont);
    ex.myfont = NULL;
 }
 
@@ -59,7 +59,7 @@ static void print(int x, int y, char const *format, ...)
    /* Actual text. */
    al_set_blender(ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA,
       al_map_rgb_f(0, 0, 0));
-   a5font_textout(ex.myfont, message, x, y);
+   al_font_textout(ex.myfont, message, x, y);
 }
 
 /* Draw our example scene. */
@@ -72,7 +72,7 @@ static void draw(void)
    event_overhead = cur_time - ex.timestamp;
    total_error = event_overhead + ex.timer_error;
 
-   h = a5font_text_height(ex.myfont);
+   h = al_font_text_height(ex.myfont);
    al_clear(al_map_rgb_f(1, 1, 1));
 
    print(0, 0, "%.9f target for %.0f Hz Timer", 1.0 / ex.FPS, ex.FPS);
@@ -166,7 +166,7 @@ int main(void)
    al_init();
    al_install_keyboard();
    al_install_mouse();
-   a5font_init();
+   al_font_init();
 
    display = al_create_display(640, 480);
    al_show_mouse_cursor();

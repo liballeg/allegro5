@@ -26,6 +26,8 @@
 
 #include "allegro5/a5_font.h"
 
+#include "font.h"
+
 
 /* state information for the bitmap font importer */
 static int import_x = 0;
@@ -161,12 +163,12 @@ static int bitmap_font_count(ALLEGRO_BITMAP* bmp)
 
 
 /* import routine for the Allegro .pcx font format */
-A5FONT_FONT *a5font_load_bitmap_font(AL_CONST char *fname, void *param)
+ALLEGRO_FONT *al_font_load_bitmap_font(AL_CONST char *fname, void *param)
 {
    /* NB: `end' is -1 if we want every glyph */
    int color_conv_mode;
    ALLEGRO_BITMAP *import_bmp;
-   A5FONT_FONT *f;
+   ALLEGRO_FONT *f;
    ALLEGRO_COLOR col;
    unsigned char r,g,b,a;
    ASSERT(fname);
@@ -192,7 +194,7 @@ A5FONT_FONT *a5font_load_bitmap_font(AL_CONST char *fname, void *param)
    col = al_get_pixel(import_bmp, 0, 0);
    al_unmap_rgba(col, &r, &g, &b, &a);
 
-   f = a5font_grab_font_from_bitmap(import_bmp);
+   f = al_font_grab_font_from_bitmap(import_bmp);
 
    al_destroy_bitmap(import_bmp);
 
@@ -202,12 +204,12 @@ A5FONT_FONT *a5font_load_bitmap_font(AL_CONST char *fname, void *param)
 
 
 /* work horse for grabbing a font from an Allegro bitmap */
-A5FONT_FONT *a5font_grab_font_from_bitmap(ALLEGRO_BITMAP *bmp)
+ALLEGRO_FONT *al_font_grab_font_from_bitmap(ALLEGRO_BITMAP *bmp)
 {
    int begin = ' ';
    int end = -1;
-   A5FONT_FONT *f;
-   A5FONT_FONT_COLOR_DATA* cf;
+   ALLEGRO_FONT *f;
+   ALLEGRO_FONT_COLOR_DATA* cf;
    ASSERT(bmp)
 
    import_x = 0;
@@ -216,7 +218,7 @@ A5FONT_FONT *a5font_grab_font_from_bitmap(ALLEGRO_BITMAP *bmp)
    f = _AL_MALLOC(sizeof *f);
    if (end == -1) end = bitmap_font_count(bmp) + begin;
 
-   cf = _AL_MALLOC(sizeof(A5FONT_FONT_COLOR_DATA));
+   cf = _AL_MALLOC(sizeof(ALLEGRO_FONT_COLOR_DATA));
    cf->bitmaps = _AL_MALLOC(sizeof(ALLEGRO_BITMAP*) * (end - begin));
    
    _al_push_target_bitmap();
@@ -248,7 +250,7 @@ A5FONT_FONT *a5font_grab_font_from_bitmap(ALLEGRO_BITMAP *bmp)
    }
    else {
       f->data = cf;
-      f->vtable = a5font_font_vtable_color;
+      f->vtable = al_font_vtable_color;
       f->height = cf->bitmaps[0]->h;
 
       cf->begin = begin;

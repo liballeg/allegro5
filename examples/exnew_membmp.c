@@ -5,17 +5,17 @@
 #include "allegro5/a5_iio.h"
 
 
-static void print(A5FONT_FONT *myfont, char *message, int x, int y)
+static void print(ALLEGRO_FONT *myfont, char *message, int x, int y)
 {
    al_set_blender(ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA, al_map_rgb(0, 0, 0));
-   a5font_textout(myfont, message, x+2, y+2);
+   al_font_textout(myfont, message, x+2, y+2);
 
    al_set_blender(ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA,
       al_map_rgb(255, 255, 255));
-   a5font_textout(myfont, message, x, y);
+   al_font_textout(myfont, message, x, y);
 }
 
-static void test(ALLEGRO_BITMAP *bitmap, A5FONT_FONT *font, char *message)
+static void test(ALLEGRO_BITMAP *bitmap, ALLEGRO_FONT *font, char *message)
 {
    ALLEGRO_EVENT_QUEUE *queue;
    ALLEGRO_EVENT event;
@@ -56,7 +56,7 @@ static void test(ALLEGRO_BITMAP *bitmap, A5FONT_FONT *font, char *message)
 
       print(font, message, 0, 0);
       sprintf(second_line, "%.1f FPS", fps);
-      print(font, second_line, 0, a5font_text_height(font)+5);
+      print(font, second_line, 0, al_font_text_height(font)+5);
 
       al_flip_display();
 
@@ -70,14 +70,14 @@ static void test(ALLEGRO_BITMAP *bitmap, A5FONT_FONT *font, char *message)
 int main(void)
 {
    ALLEGRO_DISPLAY *display;
-   A5FONT_FONT *accelfont;
-   A5FONT_FONT *memfont;
+   ALLEGRO_FONT *accelfont;
+   ALLEGRO_FONT *memfont;
    ALLEGRO_BITMAP *accelbmp;
    ALLEGRO_BITMAP *membmp;
 
    al_init();
    al_install_keyboard();
-   a5font_init();
+   al_font_init();
 
    display = al_create_display(640, 400);
    if (!display) {
@@ -85,7 +85,7 @@ int main(void)
       return 1;
    }
 
-   accelfont = a5font_load_font("font.tga", 0);
+   accelfont = al_font_load_font("font.tga", 0);
    if (!accelfont) {
       TRACE("font.tga not found\n");
       return 1;
@@ -98,7 +98,7 @@ int main(void)
 
    al_set_new_bitmap_flags(ALLEGRO_MEMORY_BITMAP);
 
-   memfont = a5font_load_font("font.tga", 0);
+   memfont = al_font_load_font("font.tga", 0);
    membmp = iio_load("mysha.pcx");
 
    test(membmp, memfont, "Memory bitmap (press SPACE key)");

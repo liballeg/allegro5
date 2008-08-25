@@ -15,7 +15,7 @@ ALLEGRO_BITMAP *target; /* The target bitmap. */
 float x, y, dx, dy; /* Position and velocity of moving rectangle. */
 double last_time; /* For controling speed. */
 bool quit; /* Flag to record Esc key or X button. */
-A5FONT_FONT *myfont; /* Our font. */
+ALLEGRO_FONT *myfont; /* Our font. */
 ALLEGRO_EVENT_QUEUE *queue; /* Our events queue. */
 
 /* Print some text with a shadow. */
@@ -29,11 +29,11 @@ static void print(int x, int y, char const *format, ...)
    va_end(list);
 
    al_set_blender(ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA, al_map_rgb(0, 0, 0));
-   a5font_textout(myfont, message, x + 2, y + 2);
+   al_font_textout(myfont, message, x + 2, y + 2);
 
    al_set_blender(ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA,
       al_map_rgb(255, 255, 255));
-   a5font_textout(myfont, message, x, y);
+   al_font_textout(myfont, message, x, y);
 }
 
 /* Draw our example scene. */
@@ -122,12 +122,12 @@ void run(void)
       draw();
       print(0, 0, "FPS: %.1f", frames / (al_current_time() - start));
       if (al_get_new_bitmap_flags() & ALLEGRO_FORCE_LOCKING) {
-         print(0, a5font_text_height(myfont), "using forced bitmap locking");
+         print(0, al_font_text_height(myfont), "using forced bitmap locking");
       }
       else {
-         print(0, a5font_text_height(myfont), "drawing directly to bitmap");
+         print(0, al_font_text_height(myfont), "drawing directly to bitmap");
       }
-      print(0, a5font_text_height(myfont) * 2,
+      print(0, al_font_text_height(myfont) * 2,
          "Press SPACE to toggle drawing method.");
       al_flip_display();
       frames++;
@@ -144,7 +144,7 @@ int main(void)
 
    al_init();
    al_install_keyboard();
-   a5font_init();
+   al_font_init();
 
    display = al_create_display(640, 480);
    if (!display) {
@@ -156,7 +156,7 @@ int main(void)
    al_register_event_source(queue, (ALLEGRO_EVENT_SOURCE *)al_get_keyboard());
    al_register_event_source(queue, (ALLEGRO_EVENT_SOURCE *)display);
 
-   myfont = a5font_load_font("font.tga", 0);
+   myfont = al_font_load_font("font.tga", 0);
    if (!myfont) {
       TRACE("font.tga not found\n");
       return 1;
