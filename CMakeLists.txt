@@ -86,6 +86,7 @@ option(WANT_KCM_AUDIO "Enable kcm_audio engine" off)
 # WANT_ICODEC is off until it checks for Magick++
 option(WANT_ICODEC "Enable image loading/saving for most filetypes (requires libMagick)" off)
 option(WANT_IIO "Enable IIO image load/save addon" on)
+option(WANT_TTF "Enable TTF addon" on)
 
 option(WANT_A5_ALSA "Enable A5 ALSA digital audio driver (Unix)" on)
 

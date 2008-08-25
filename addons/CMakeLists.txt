@@ -33,6 +33,10 @@ if(WANT_ICODEC)
     add_subdirectory(icodec)
 endif(WANT_ICODEC)
 
+if(WANT_TTF)
+    add_subdirectory(ttf)
+endif(WANT_TTF)
+
 #-----------------------------------------------------------------------------#
 # vi: set ts=8 sts=4 sw=4 et:
 
