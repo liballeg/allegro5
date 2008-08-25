@@ -218,7 +218,7 @@ typedef enum {
 } AL_ERROR_ENUM;
 
 extern void _al_set_error(int error, char* string);
-
+extern int _al_audio_get_silence(ALLEGRO_AUDIO_DEPTH depth);
 
 #endif
 

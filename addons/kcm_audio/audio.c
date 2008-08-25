@@ -56,6 +56,28 @@ size_t al_depth_size(ALLEGRO_CHANNEL_CONF conf)
    return 0;
 }
 
+/* Returns a silent sample frame. */
+int _al_audio_get_silence(ALLEGRO_AUDIO_DEPTH depth) {
+   int silence;
+
+   switch(depth)
+   {
+      case ALLEGRO_AUDIO_DEPTH_UINT8:
+         silence = 0x80;
+         break;
+      case ALLEGRO_AUDIO_DEPTH_INT16:
+         silence = 0x8000;
+         break;
+      case ALLEGRO_AUDIO_DEPTH_INT24:
+         silence = 0x800000;
+         break;
+      default:
+         silence = 0;
+   }
+
+   return silence;
+}
+
 /* TODO: possibly take extra parameters
  * (freq, channel, etc) and test if you 
  * can create a voice with them.. if not
