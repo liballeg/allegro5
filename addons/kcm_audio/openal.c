@@ -6,10 +6,16 @@
 #include <stdio.h>
 #include <string.h>
 
+#include "allegro5/allegro.h"
+
+#ifdef ALLEGRO_MACOSX
+#include <OpenAL/al.h>
+#include <OpenAL/alc.h>
+#else
 #include <AL/al.h>
 #include <AL/alc.h>
+#endif
 
-#include "allegro5/allegro.h"
 #include "allegro5/internal/aintern.h"
 #include "allegro5/internal/aintern_thread.h"
 #include "allegro5/internal/aintern_kcm_audio.h"
