@@ -155,6 +155,7 @@ def buildAddon(name):
 
 buildAddon("iio")
 buildAddon('font')
+buildAddon("ttf")
 if buildAddon("kcm_audio"):
     buildAddon('acodec')
 #if buildAddon('audio'):
