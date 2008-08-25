@@ -255,13 +255,12 @@ static unsigned int osx_get_mouse_num_axes(void)
 */
 int osx_mouse_set_sprite(ALLEGRO_BITMAP *sprite, int x, int y)
 {
-	int ix, iy;
 	int sw, sh;
 	
 	if (!sprite)
 		return -1;
-	sw = al_get_width(sprite);
-	sh = al_get_height(sprite);
+	sw = al_get_bitmap_width(sprite);
+	sh = al_get_bitmap_height(sprite);
 	if (floor(NSAppKitVersionNumber) <= NSAppKitVersionNumber10_2) {
 		// Before MacOS X 10.3, NSCursor can handle only 16x16 cursor sprites
 		// Pad to 16x16 or fail if the sprite is already larger.
@@ -273,38 +272,7 @@ int osx_mouse_set_sprite(ALLEGRO_BITMAP *sprite, int x, int y)
 	// release any previous cursor
 	[osx_mouse.cursor release];
 	
-	NSBitmapImageRep* cursor_rep = [[NSBitmapImageRep alloc] initWithBitmapDataPlanes: NULL
-																		   pixelsWide: sw
-																		   pixelsHigh: sh
-																		bitsPerSample: 8
-																	  samplesPerPixel: 4
-																			 hasAlpha: YES
-																			 isPlanar: NO
-																	   colorSpaceName: NSDeviceRGBColorSpace
-																		  bytesPerRow: 0
-																		 bitsPerPixel: 0];
-	int bpp = bitmap_color_depth(sprite);
-	int mask = bitmap_mask_color(sprite);
-	for (iy = 0; iy< sh; ++iy) {
-		unsigned char* ptr = [cursor_rep bitmapData] + (iy * [cursor_rep bytesPerRow]);
-		for (ix = 0; ix< sw; ++ix) {
-			int color = is_inside_bitmap(sprite, ix, iy, 1) 
-            ? getpixel(sprite, ix, iy) : mask; 
-			// Disable the possibility of mouse sprites with alpha for now, because
-			// this causes the built-in cursors to be invisible in 32 bit mode.
-			// int alpha = (color == mask) ? 0 : ((bpp == 32) ? geta_depth(bpp, color) : 255);
-			int alpha = (color == mask) ? 0 : 255;
-			// BitmapImageReps use premultiplied alpha
-			ptr[0] = getb_depth(bpp, color) * alpha / 255;
-			ptr[1] = getg_depth(bpp, color) * alpha / 255;
-			ptr[2] = getr_depth(bpp, color) * alpha / 255;
-			ptr[3] = alpha;
-			ptr += 4;
-		}
-	}
-	NSImage* cursor_image = [[NSImage alloc] initWithSize: NSMakeSize(sw, sh)];
-	[cursor_image addRepresentation: cursor_rep];
-	[cursor_rep release];
+	NSImage* cursor_image = NSImageFromAllegroBitmap(sprite);
 	osx_mouse.cursor = [[NSCursor alloc] initWithImage: cursor_image
 											   hotSpot: NSMakePoint(x, y)];
 	
