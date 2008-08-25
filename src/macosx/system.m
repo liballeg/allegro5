@@ -327,33 +327,66 @@ static void osx_get_monitor_info(int adapter, ALLEGRO_MONITOR_INFO* info)
       info->y2 = (int) (rc.origin.y + rc.size.height);
    }
 }
+
+/* NSImageFromAllegroBitmap:
+ * Create an NSImage from an Allegro bitmap
+ * This could definitely be speeded up if necessary.
+ */
+NSImage* NSImageFromAllegroBitmap(ALLEGRO_BITMAP* bmp)
+{
+   int w = al_get_bitmap_width(bmp);
+   int h = al_get_bitmap_height(bmp);
+   NSImage* img = [[NSImage alloc] initWithSize: NSMakeSize((float) w, (float) h)];
+   NSBitmapImageRep* rep = [[NSBitmapImageRep alloc] initWithBitmapDataPlanes: NULL // Allocate memory yourself
+      pixelsWide:w 
+      pixelsHigh:h 
+      bitsPerSample: 8 
+      samplesPerPixel: 4 
+      hasAlpha:YES 
+      isPlanar:NO 
+      colorSpaceName:NSDeviceRGBColorSpace 
+      bytesPerRow: 0 // Calculate yourself
+      bitsPerPixel:0 ];// Calculate yourself
+   int x, y;
+   for (y = 0; y<h; ++y) {
+      for (x = 0; x<w; ++x) {
+         ALLEGRO_COLOR c = al_get_pixel(bmp, x, y);
+         unsigned char* ptr = [rep bitmapData] + y * [rep bytesPerRow] + x * ([rep bitsPerPixel]/8);
+         al_unmap_rgba(c, ptr, ptr+1, ptr+2, ptr+3);
+      }
+   }
+   [img addRepresentation:rep];
+   return [img autorelease];
+}
+
 /* This works as long as there is only one screen */
 /* Not clear from docs how mouseLocation works if > 1 */
-void osx_get_cursor_position(int *x, int *y) 
+bool osx_get_cursor_position(int *x, int *y) 
 {
    NSPoint p = [NSEvent mouseLocation];
    NSRect r = [[NSScreen mainScreen] frame];
    *x = p.x;
    *y = r.size.height - p.y;
+   return true;
 }
 /* Internal function to get a reference to this driver. */
 ALLEGRO_SYSTEM_INTERFACE *_al_system_osx_driver(void)
 {
-	static ALLEGRO_SYSTEM_INTERFACE vt = {
-		0,//int id;
-		osx_sys_init, //ALLEGRO_SYSTEM *(*initialize)(int flags);
-		osx_get_display_driver,//ALLEGRO_DISPLAY_INTERFACE *(*get_display_driver)(void);
-		osx_get_keyboard_driver,//ALLEGRO_KEYBOARD_DRIVER *(*get_keyboard_driver)(void);
-		osx_get_mouse_driver,//ALLEGRO_MOUSE_DRIVER *(*get_mouse_driver)(void);
-		NULL,//int (*get_num_display_modes)(void);
-		NULL,//ALLEGRO_DISPLAY_MODE *(*get_display_mode)(int index, ALLEGRO_DISPLAY_MODE *mode);
-		osx_sys_exit,//void (*shutdown_system)(void);
-      osx_get_num_video_adapters,//int (*get_num_video_adapters)(void);
-      osx_get_monitor_info,//void (*get_monitor_info)(int adapter, ALLEGRO_MONITOR_INFO *info);
-      osx_get_cursor_position, //void (*get_cursor_position)(int *x, int *y);
+	static ALLEGRO_SYSTEM_INTERFACE* vt = NULL;
+   if (vt == NULL) {
+      vt = _AL_MALLOC(sizeof(*vt));
+      memset(vt, 0, sizeof(*vt));
+      vt->initialize = osx_sys_init;
+      vt->get_display_driver = osx_get_display_driver;
+      vt->get_keyboard_driver = osx_get_keyboard_driver;
+      vt->get_mouse_driver = osx_get_mouse_driver;
+      vt->shutdown_system = osx_sys_exit;
+      vt->get_num_video_adapters = osx_get_num_video_adapters;
+      vt->get_monitor_info = osx_get_monitor_info;
+      vt->get_cursor_position = osx_get_cursor_position;
 	};
 		
-	return &vt;
+	return vt;
 }
 
 /* This is a function each platform must define to register all available

@@ -616,6 +616,14 @@ void set_window_title(ALLEGRO_DISPLAY *display, AL_CONST char *title)
    ALLEGRO_DISPLAY_OSX_WIN* dpy = (ALLEGRO_DISPLAY_OSX_WIN*) display;
    [dpy->win setTitle: [NSString stringWithCString:title]];
 }
+/* set_display_icon:
+ * Set the icon - OS X doesn't have per-window icons so 
+ * ignore the display parameter
+ */
+void set_icon(ALLEGRO_DISPLAY *display, ALLEGRO_BITMAP* bitmap)
+{
+   [NSApp setApplicationIconImage: NSImageFromAllegroBitmap(bitmap)];
+}
 
 ALLEGRO_DISPLAY_INTERFACE* osx_get_display_driver(void)
 {
@@ -638,6 +646,7 @@ ALLEGRO_DISPLAY_INTERFACE* osx_get_display_driver(void)
       vt->get_window_position = get_window_position;
       vt->set_window_position = set_window_position;
       vt->set_window_title = set_window_title;
+      vt->set_icon = set_icon;
       _al_ogl_add_drawing_functions(vt);
    }
 	return vt;

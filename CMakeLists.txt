@@ -133,6 +133,13 @@ if(COMPILER_MSVC)
     set(ALLEGRO_MSVC 1)
 endif(COMPILER_MSVC)
 
+if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
+    set(MACOSX 1)
+    set(ALLEGRO_MACOSX 1)
+    set(ALLEGRO_UNIX 0)
+    set(WANT_X11 off)
+endif(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
+
 if(BORLAND)
     set(ALLEGRO_BCC32 1)
 endif(BORLAND)

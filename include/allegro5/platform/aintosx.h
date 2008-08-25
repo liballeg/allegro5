@@ -128,7 +128,7 @@ void _al_osx_keyboard_was_installed(BOOL);
 void _al_osx_post_quit(void);
 // Get the underlying view
 NSView* osx_view_from_display(ALLEGRO_DISPLAY*);
-
+NSImage* NSImageFromAllegroBitmap(ALLEGRO_BITMAP* bmp);
 AL_FUNC(ALLEGRO_KEYBOARD_DRIVER*, osx_get_keyboard_driver, (void));
 AL_FUNC(ALLEGRO_DISPLAY_INTERFACE*, osx_get_display_driver, (void));
 AL_FUNC(ALLEGRO_MOUSE_DRIVER*, osx_get_mouse_driver, (void));

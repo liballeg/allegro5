@@ -40,6 +40,7 @@
 		880DF4270D6A3C48004D12A5 /* IOKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 88A25CC70D565EC000F0FD8E /* IOKit.framework */; };
 		880DF4280D6A3C48004D12A5 /* CoreAudio.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 88A25CDC0D56673F00F0FD8E /* CoreAudio.framework */; };
 		881D13020D036BBC002B83CF /* utime.c in Sources */ = {isa = PBXBuildFile; fileRef = 881D13010D036BBC002B83CF /* utime.c */; };
+		882255D60E61E86600D24D3A /* libiio.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 88D568350E5F4DE800ECB75F /* libiio.a */; };
 		882CBCF00DBFE0B300F93C77 /* a5_opengl.h in Headers */ = {isa = PBXBuildFile; fileRef = 8894EF080D60D3F100E4968F /* a5_opengl.h */; settings = {ATTRIBUTES = (Private, ); }; };
 		882CBCF10DBFE0C500F93C77 /* gl_ext.h in Headers */ = {isa = PBXBuildFile; fileRef = 8894EF0A0D60D3F100E4968F /* gl_ext.h */; settings = {ATTRIBUTES = (Private, ); }; };
 		882CBCF20DBFE0C600F93C77 /* gl_ext_alias.h in Headers */ = {isa = PBXBuildFile; fileRef = 8894EF0D0D60D3F100E4968F /* gl_ext_alias.h */; settings = {ATTRIBUTES = (Private, ); }; };
@@ -432,8 +433,15 @@
 			isa = PBXContainerItemProxy;
 			containerPortal = 0867D690FE84028FC02AAC07 /* Project object */;
 			proxyType = 1;
-			remoteGlobalIDString = 88D568340E5F4DE800ECB75F /* iio */;
+			remoteGlobalIDString = 88D568340E5F4DE800ECB75F;
 			remoteInfo = iio;
+		};
+		882255D70E61E87000D24D3A /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 0867D690FE84028FC02AAC07 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = D2AAC07D0554694100DB518D;
+			remoteInfo = AllegroNew;
 		};
 		883B72F30D686DD7009F1EDA /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -780,9 +788,9 @@
 		0867D69BFE84028FC02AAC07 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = /System/Library/Frameworks/Foundation.framework; sourceTree = "<absolute>"; };
 		0867D6A5FE840307C02AAC07 /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = /System/Library/Frameworks/AppKit.framework; sourceTree = "<absolute>"; };
 		1058C7B1FEA5585E11CA2CBB /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = /System/Library/Frameworks/Cocoa.framework; sourceTree = "<absolute>"; };
-		880C81F70E4A316F008E62C7 /* PPCTest-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = "PPCTest-Info.plist"; sourceTree = "<group>"; };
 		880C84B90E4A3A43008E62C7 /* a5_font.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = a5_font.h; path = addons/font/allegro5/a5_font.h; sourceTree = "<group>"; };
 		881D13010D036BBC002B83CF /* utime.c */ = {isa = PBXFileReference; fileEncoding = 30; indentWidth = 3; lastKnownFileType = sourcecode.c.c; name = utime.c; path = src/unix/utime.c; sourceTree = "<group>"; tabWidth = 3; usesTabs = 0; };
+		8822557C0E61E57D00D24D3A /* exnew_glext.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; name = exnew_glext.c; path = examples/exnew_glext.c; sourceTree = "<group>"; };
 		883B72E30D686DAD009F1EDA /* exnew_bitmap_target.c */ = {isa = PBXFileReference; fileEncoding = 30; indentWidth = 3; lastKnownFileType = sourcecode.c.c; name = exnew_bitmap_target.c; path = examples/exnew_bitmap_target.c; sourceTree = "<group>"; tabWidth = 3; usesTabs = 0; };
 		883B72E40D686DAD009F1EDA /* exnew_blend.c */ = {isa = PBXFileReference; fileEncoding = 30; indentWidth = 3; lastKnownFileType = sourcecode.c.c; name = exnew_blend.c; path = examples/exnew_blend.c; sourceTree = "<group>"; tabWidth = 3; usesTabs = 0; };
 		883B72E50D686DAD009F1EDA /* exnew_fs_resize.c */ = {isa = PBXFileReference; fileEncoding = 30; indentWidth = 3; lastKnownFileType = sourcecode.c.c; name = exnew_fs_resize.c; path = examples/exnew_fs_resize.c; sourceTree = "<group>"; tabWidth = 3; usesTabs = 0; };
@@ -1055,6 +1063,8 @@
 		88E27C050E5A074E00DC354A /* exnew_threads.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; name = exnew_threads.c; path = examples/exnew_threads.c; sourceTree = "<group>"; };
 		88E27C060E5A074F00DC354A /* exnew_threads2.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; name = exnew_threads2.c; path = examples/exnew_threads2.c; sourceTree = "<group>"; };
 		88E27C360E5A091700DC354A /* ExNewNoFrame */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = ExNewNoFrame; sourceTree = BUILT_PRODUCTS_DIR; };
+		88E4DCAE0E62BC8000440C20 /* d3d_bmp.cpp */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; name = d3d_bmp.cpp; path = src/win/d3d_bmp.cpp; sourceTree = "<group>"; };
+		88E4DCAF0E62BC8000440C20 /* wmcursor.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; name = wmcursor.c; path = src/win/wmcursor.c; sourceTree = "<group>"; };
 		88E5B0A70D623FE800BDF453 /* aintunix.h */ = {isa = PBXFileReference; fileEncoding = 30; indentWidth = 3; lastKnownFileType = sourcecode.c.h; name = aintunix.h; path = include/allegro5/platform/aintunix.h; sourceTree = "<group>"; tabWidth = 3; usesTabs = 0; };
 		88E5B0AA0D62403700BDF453 /* aintern_opengl.h */ = {isa = PBXFileReference; fileEncoding = 30; indentWidth = 3; lastKnownFileType = sourcecode.c.h; name = aintern_opengl.h; path = include/allegro5/internal/aintern_opengl.h; sourceTree = "<group>"; tabWidth = 3; usesTabs = 0; };
 		88E5B0F50D62460E00BDF453 /* ExNewEvents */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = ExNewEvents; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -1199,6 +1209,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				882255D60E61E86600D24D3A /* libiio.a in Frameworks */,
 				8898404C0D6A3F7F00338D77 /* libAllegro-4.9.a in Frameworks */,
 				8898404D0D6A3F7F00338D77 /* CoreAudio.framework in Frameworks */,
 				8898404E0D6A3F7F00338D77 /* IOKit.framework in Frameworks */,
@@ -1447,7 +1458,6 @@
 				0867D69AFE84028FC02AAC07 /* External Frameworks and Libraries */,
 				034768DFFF38A50411DB9C8B /* Products */,
 				889DBF280E40F47F006F4B73 /* DemoApp-Info.plist */,
-				880C81F70E4A316F008E62C7 /* PPCTest-Info.plist */,
 			);
 			name = AllegroNew;
 			sourceTree = "<group>";
@@ -1776,6 +1786,7 @@
 		88E5B11B0D6247EF00BDF453 /* Examples */ = {
 			isa = PBXGroup;
 			children = (
+				8822557C0E61E57D00D24D3A /* exnew_glext.c */,
 				88D568160E5F4D5F00ECB75F /* exnew_mouse_cursor.c */,
 				88D568170E5F4D5F00ECB75F /* exnew_mouse_events2.c */,
 				88E27C050E5A074E00DC354A /* exnew_threads.c */,
@@ -1810,6 +1821,8 @@
 		88EC893C0E5CC10200902B7D /* Other Platforms */ = {
 			isa = PBXGroup;
 			children = (
+				88E4DCAE0E62BC8000440C20 /* d3d_bmp.cpp */,
+				88E4DCAF0E62BC8000440C20 /* wmcursor.c */,
 				88EC89650E5CC1D000902B7D /* d3d_disp.cpp */,
 				88EC89660E5CC1D000902B7D /* d3d.h */,
 				88EC89700E5CC1D000902B7D /* wddraw.c */,
@@ -2040,6 +2053,7 @@
 			buildRules = (
 			);
 			dependencies = (
+				882255D80E61E87000D24D3A /* PBXTargetDependency */,
 				880AEA670E60ACC500D5083F /* PBXTargetDependency */,
 			);
 			name = ExNewIcon;
@@ -2626,6 +2640,11 @@
 			isa = PBXTargetDependency;
 			target = 88D568340E5F4DE800ECB75F /* iio */;
 			targetProxy = 880AEA660E60ACC500D5083F /* PBXContainerItemProxy */;
+		};
+		882255D80E61E87000D24D3A /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = D2AAC07D0554694100DB518D /* AllegroNew */;
+			targetProxy = 882255D70E61E87000D24D3A /* PBXContainerItemProxy */;
 		};
 		883B72F40D686DD7009F1EDA /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
