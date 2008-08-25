@@ -38,9 +38,10 @@ const void *_al_voice_update(ALLEGRO_VOICE *voice, unsigned long samples)
 
    ASSERT(voice);
 
-   if (voice->stream) {
+   if (voice->attached_stream) {
       al_lock_mutex(voice->mutex);
-      voice->stream->spl_read(voice->stream, &buf, samples, voice->depth, 0);
+      voice->attached_stream->spl_read(voice->attached_stream, &buf, samples,
+         voice->depth, 0);
       al_unlock_mutex(voice->mutex);
    }
 
@@ -118,7 +119,7 @@ int al_voice_attach_sample(ALLEGRO_VOICE *voice, ALLEGRO_SAMPLE *spl)
    ASSERT(voice);
    ASSERT(spl);
 
-   if (voice->stream) {
+   if (voice->attached_stream) {
       TRACE(
          "Attempted to attach to a voice that already has an attachment\n");
       _al_set_error(ALLEGRO_INVALID_OBJECT,
@@ -145,7 +146,7 @@ int al_voice_attach_sample(ALLEGRO_VOICE *voice, ALLEGRO_SAMPLE *spl)
 
    al_lock_mutex(voice->mutex);
 
-   voice->stream = spl;
+   voice->attached_stream = spl;
 
    voice->is_streaming = false;
    voice->num_buffers = 1;
@@ -162,7 +163,7 @@ int al_voice_attach_sample(ALLEGRO_VOICE *voice, ALLEGRO_SAMPLE *spl)
    if (voice->driver->load_voice(voice, spl->buffer.ptr) != 0 ||
       (spl->is_playing && voice->driver->start_voice(voice) != 0))
    {      
-      voice->stream = NULL;
+      voice->attached_stream = NULL;
       spl->spl_read = NULL;
       _al_kcm_stream_set_mutex(spl, NULL);
       spl->parent.u.voice = NULL;
@@ -226,7 +227,7 @@ int al_voice_attach_stream(ALLEGRO_VOICE *voice, ALLEGRO_STREAM *stream)
    ASSERT(voice);
    ASSERT(stream);
 
-   if (voice->stream) {
+   if (voice->attached_stream) {
       _al_set_error(ALLEGRO_INVALID_OBJECT,
          "Attempted to attach to a voice that already has an attachment");
       return 1;
@@ -249,7 +250,7 @@ int al_voice_attach_stream(ALLEGRO_VOICE *voice, ALLEGRO_STREAM *stream)
 
    al_lock_mutex(voice->mutex);
 
-   voice->stream = &stream->spl;
+   voice->attached_stream = &stream->spl;
 
    _al_kcm_stream_set_mutex(&stream->spl, voice->mutex);
 
@@ -265,7 +266,7 @@ int al_voice_attach_stream(ALLEGRO_VOICE *voice, ALLEGRO_STREAM *stream)
    stream->spl.spl_read = stream_read;
 
    if (voice->driver->start_voice(voice) != 0) {
-      voice->stream = NULL;
+      voice->attached_stream = NULL;
       _al_kcm_stream_set_mutex(&stream->spl, NULL);
       stream->spl.parent.u.voice = NULL;
       stream->spl.spl_read = NULL;
@@ -294,7 +295,7 @@ int al_voice_attach_mixer(ALLEGRO_VOICE *voice, ALLEGRO_MIXER *mixer)
    ASSERT(voice);
    ASSERT(mixer);
 
-   if (voice->stream)
+   if (voice->attached_stream)
       return 1;
    if (mixer->ss.parent.u.ptr)
       return 2;
@@ -306,7 +307,7 @@ int al_voice_attach_mixer(ALLEGRO_VOICE *voice, ALLEGRO_MIXER *mixer)
 
    al_lock_mutex(voice->mutex);
 
-   voice->stream = &mixer->ss;
+   voice->attached_stream = &mixer->ss;
 
    _al_kcm_stream_set_mutex(&mixer->ss, voice->mutex);
 
@@ -318,7 +319,7 @@ int al_voice_attach_mixer(ALLEGRO_VOICE *voice, ALLEGRO_MIXER *mixer)
    voice->buffer_size = 0;
 
    if (voice->driver->start_voice(voice) != 0) {
-      voice->stream = NULL;
+      voice->attached_stream = NULL;
       _al_kcm_stream_set_mutex(&mixer->ss, NULL);
       mixer->ss.parent.u.voice = NULL;
       ret = 1;
@@ -340,14 +341,14 @@ void al_voice_detach(ALLEGRO_VOICE *voice)
 {
    ASSERT(voice);
 
-   if (!voice->stream) {
+   if (!voice->attached_stream) {
       return;
    }
 
    al_lock_mutex(voice->mutex);
 
    if (!voice->is_streaming) {
-      ALLEGRO_SAMPLE *spl = voice->stream;
+      ALLEGRO_SAMPLE *spl = voice->attached_stream;
       bool playing = false;
 
       al_voice_get_long(voice, ALLEGRO_AUDIOPROP_POSITION, &spl->pos);
@@ -362,9 +363,9 @@ void al_voice_detach(ALLEGRO_VOICE *voice)
       voice->driver->stop_voice(voice);
    }
 
-   _al_kcm_stream_set_mutex(voice->stream, NULL);
-   voice->stream->parent.u.voice = NULL;
-   voice->stream = NULL;
+   _al_kcm_stream_set_mutex(voice->attached_stream, NULL);
+   voice->attached_stream->parent.u.voice = NULL;
+   voice->attached_stream = NULL;
 
    al_unlock_mutex(voice->mutex);
 }
@@ -383,7 +384,7 @@ int al_voice_get_long(const ALLEGRO_VOICE *voice,
          return 0;
 
       case ALLEGRO_AUDIOPROP_POSITION:
-         if (voice->stream && !voice->is_streaming)
+         if (voice->attached_stream && !voice->is_streaming)
             *val = voice->driver->get_voice_position(voice);
          else
             *val = 0;
@@ -426,10 +427,10 @@ int al_voice_get_bool(const ALLEGRO_VOICE *voice,
 
    switch (setting) {
       case ALLEGRO_AUDIOPROP_PLAYING:
-         if (voice->stream && !voice->is_streaming) {
+         if (voice->attached_stream && !voice->is_streaming) {
             *val = voice->driver->voice_is_playing(voice);
          }
-         else if (voice->stream) {
+         else if (voice->attached_stream) {
             *val = true;
          }
          else {
@@ -452,7 +453,7 @@ int al_voice_set_long(ALLEGRO_VOICE *voice,
 
    switch (setting) {
       case ALLEGRO_AUDIOPROP_POSITION:
-         if (voice->stream && !voice->is_streaming) {
+         if (voice->attached_stream && !voice->is_streaming) {
             return voice->driver->set_voice_position(voice, val);
          }
          return 1;
@@ -489,7 +490,7 @@ int al_voice_set_bool(ALLEGRO_VOICE *voice,
 
    switch (setting) {
       case ALLEGRO_AUDIOPROP_PLAYING:
-         if (voice->stream && !voice->is_streaming) {
+         if (voice->attached_stream && !voice->is_streaming) {
             bool playing = false;
             if (al_voice_get_bool(voice, ALLEGRO_AUDIOPROP_PLAYING, &playing)) {
                TRACE("Unable to get voice playing status\n");

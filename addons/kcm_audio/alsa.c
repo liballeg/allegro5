@@ -327,12 +327,12 @@ static int alsa_load_voice(ALLEGRO_VOICE *voice, const void *data)
 
    _al_mutex_lock(&ex_data->mutex);
 
-   ex_data->cache = _al_cache_sample(voice->stream);
+   ex_data->cache = _al_cache_sample(voice->attached_stream);
 
    ex_data->pos = 0;
-   ex_data->loop_mode = voice->stream->loop;
+   ex_data->loop_mode = voice->attached_stream->loop;
 
-   ex_data->reverse = (voice->stream->speed < 0);
+   ex_data->reverse = (voice->attached_stream->speed < 0);
 
    _al_mutex_unlock(&ex_data->mutex);
 
@@ -571,8 +571,10 @@ static void alsa_deallocate_voice(ALLEGRO_VOICE *voice)
 static unsigned long alsa_get_voice_position(const ALLEGRO_VOICE *voice)
 {
    ALSA_VOICE *ex_data = voice->extra;
-   if (ex_data->reverse)
-      return voice->stream->len - (ex_data->pos / ex_data->frame_size) - 1;
+   if (ex_data->reverse) {
+      return voice->attached_stream->len -
+	  (ex_data->pos / ex_data->frame_size) - 1;
+   }
    return ex_data->pos / ex_data->frame_size;
 }
 

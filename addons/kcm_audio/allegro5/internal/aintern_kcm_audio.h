@@ -54,8 +54,9 @@ struct ALLEGRO_VOICE {
    size_t               num_buffers;
                         /* If non-0, they must be honored by the driver. */
 
-   ALLEGRO_SAMPLE       *stream;
-                        /* May be an ALLEGRO_SAMPLE or ALLEGRO_MIXER object.
+   ALLEGRO_SAMPLE       *attached_stream;
+                        /* The stream that is attached to the voice, or NULL.
+                         * May be an ALLEGRO_SAMPLE or ALLEGRO_MIXER object.
                          */
 
    bool                 is_streaming;

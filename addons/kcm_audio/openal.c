@@ -266,8 +266,8 @@ static int _openal_load_voice(ALLEGRO_VOICE *voice, const void *data)
 {
    ALLEGRO_AL_DATA *ex_data = voice->extra;
 
-   if(voice->stream->loop != ALLEGRO_PLAYMODE_ONCE &&
-           voice->stream->loop != ALLEGRO_PLAYMODE_ONEDIR)
+   if(voice->attached_stream->loop != ALLEGRO_PLAYMODE_ONCE &&
+           voice->attached_stream->loop != ALLEGRO_PLAYMODE_ONEDIR)
       return 1;
 
    ex_data->buffer_size = voice->buffer_size;
@@ -315,8 +315,8 @@ static int _openal_load_voice(ALLEGRO_VOICE *voice, const void *data)
    alSourcei(ex_data->source, AL_BUFFER, ex_data->buffers[0]);
 
    /* Loop / no loop? */
-   alSourcei(ex_data->source, AL_LOOPING, (voice->stream->loop !=
-                                           ALLEGRO_PLAYMODE_ONCE));
+   alSourcei(ex_data->source, AL_LOOPING,
+      (voice->attached_stream->loop != ALLEGRO_PLAYMODE_ONCE));
 
    /* make sure the volume is on */
    alSourcef(ex_data->source, AL_GAIN, 1.0f);
