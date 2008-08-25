@@ -44,10 +44,13 @@ int main(void)
     double t = 0;
 
     al_init();
+    al_install_mouse();
     a5font_init();
 
     display = al_create_display(640, 480);
     al_install_keyboard();
+
+    al_show_mouse_cursor();
 
     ex.f1 = al_ttf_load_font("DejaVuSans.ttf", 48, 0);
     ex.f2 = al_ttf_load_font("DejaVuSans.ttf", 48, ALLEGRO_TTF_NO_KERNING);
