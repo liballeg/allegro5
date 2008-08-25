@@ -298,7 +298,7 @@ modules = []
 if platform["ALLEGRO_LINUX_FBCON"]:
     def buildFBCon(menv,appendDir,buildDir,libDir):
         sources = ["fbcon.c"]
-        lib = menv.SharedLibrary(libDir + "/alleg-fbcon",appendDir(buildDir + "/modules/src/linux/", sources))
+        lib = menv.SharedLibrary(libDir + "/alleg-fbcon",appendDir(buildDir + "/src/linux/", sources))
         modules.append(lib)
         return lib
     context.addExtra(buildFBCon, depends = True)
