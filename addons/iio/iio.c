@@ -12,15 +12,16 @@
 #define MAX_EXTENSION 100
 
 
-typedef struct Loader {
+typedef struct Handler {
    char *extension;
-   IIO_LOADER_FUNCTION function;
-} Loader;
+   IIO_LOADER_FUNCTION loader;
+   IIO_SAVER_FUNCTION saver;
+} Handler;
 
 
-static Loader **loaders = NULL;
+static Handler **handlers = NULL;
 static bool inited = false;
-static unsigned int num_loaders = 0;
+static unsigned int num_handlers = 0;
 
 
 bool al_iio_init(void)
@@ -32,9 +33,12 @@ bool al_iio_init(void)
 
    success = 0;
 
-   success |= al_iio_add_loader("pcx", iio_load_pcx);
-   success |= al_iio_add_loader("bmp", iio_load_bmp);
-   success |= al_iio_add_loader("tga", iio_load_tga);
+   success |= al_iio_add_handler("pcx", iio_load_pcx, iio_save_pcx);
+   success |= al_iio_add_handler("bmp", iio_load_bmp, iio_save_bmp);
+   success |= al_iio_add_handler("tga", iio_load_tga, iio_save_tga);
+#ifdef ALLEGRO_CFG_IIO_HAVE_PNG
+   success |= al_iio_add_handler("png", iio_load_png, iio_save_png);
+#endif
 
    if (success)
       inited = true;
@@ -43,36 +47,37 @@ bool al_iio_init(void)
 }
 
 
-bool al_iio_add_loader(AL_CONST char *extension, IIO_LOADER_FUNCTION function)
+bool al_iio_add_handler(AL_CONST char *extension, IIO_LOADER_FUNCTION loader, IIO_SAVER_FUNCTION saver)
 {
-   Loader *l;
+   Handler *l;
 
    ASSERT(extension);
-   ASSERT(function);
+   ASSERT(loader);
 
-   l = (Loader *)malloc(sizeof(Loader));
+   l = (Handler *)malloc(sizeof(Handler));
    if (!l)
       return false;
 
    l->extension = strdup(extension);
-   l->function = function;
+   l->loader = loader;
+   l->saver = saver;
 
-   num_loaders++;
+   num_handlers++;
 
-   if (num_loaders == 1) {
-      loaders = malloc(sizeof(Loader*));
+   if (num_handlers == 1) {
+      handlers = malloc(sizeof(Handler*));
    }
    else {
-      loaders = realloc(loaders, num_loaders*sizeof(Loader*));
+      handlers = realloc(handlers, num_handlers*sizeof(Handler*));
    }
 
-   if (!loaders) {
+   if (!handlers) {
       free(l);
-      loaders = NULL;
+      handlers = NULL;
       return false;
    }
 
-   loaders[num_loaders-1] = l;
+   handlers[num_handlers-1] = l;
 
    return true;
 }
@@ -120,7 +125,7 @@ static int iio_stricmp(AL_CONST char *s1, AL_CONST char *s2)
 }
 
 
-ALLEGRO_BITMAP *al_iio_load(AL_CONST char *filename)
+static Handler *find_handler(AL_CONST char *filename)
 {
    char *p = iio_get_extension(filename);
    char extension[MAX_EXTENSION];
@@ -130,13 +135,34 @@ ALLEGRO_BITMAP *al_iio_load(AL_CONST char *filename)
 
    free(p);
 
-   for (i = 0; i < num_loaders; i++) {
-      Loader *l = loaders[i];
+   for (i = 0; i < num_handlers; i++) {
+      Handler *l = handlers[i];
       if (!iio_stricmp(extension, l->extension)) {
-         return l->function(filename);
+         return l;
       }
    }
 
    return NULL;
+}
+
+
+ALLEGRO_BITMAP *al_iio_load(AL_CONST char *filename)
+{
+   Handler *h = find_handler(filename);
+   if (h)
+      return h->loader(filename);
+   else
+      return NULL;
+}
+
+int al_iio_save(AL_CONST char *filename, ALLEGRO_BITMAP *bitmap)
+{
+   Handler *h = find_handler(filename);
+   if (h)
+      return h->saver(filename, bitmap);
+   else {
+      TRACE("No handler for image %s found\n", filename);
+      return 1;
+   }
 }
 

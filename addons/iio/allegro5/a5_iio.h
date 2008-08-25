@@ -29,11 +29,13 @@ extern "C" {
 #endif
 
 typedef ALLEGRO_BITMAP *(*IIO_LOADER_FUNCTION)(AL_CONST char *filename);
+typedef int (*IIO_SAVER_FUNCTION)(AL_CONST char *filename, ALLEGRO_BITMAP *bitmap);
 
 
 A5_IIO_FUNC(bool, al_iio_init, (void));
-A5_IIO_FUNC(bool, al_iio_add_loader, (AL_CONST char *ext, IIO_LOADER_FUNCTION function));
+A5_IIO_FUNC(bool, al_iio_add_handler, (AL_CONST char *ext, IIO_LOADER_FUNCTION loader, IIO_SAVER_FUNCTION saver));
 A5_IIO_FUNC(ALLEGRO_BITMAP *, al_iio_load, (AL_CONST char *filename));
+A5_IIO_FUNC(int, al_iio_save, (AL_CONST char *filename, ALLEGRO_BITMAP *bitmap));
 
 #ifdef __cplusplus
 }

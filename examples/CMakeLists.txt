@@ -12,6 +12,7 @@ endif(SUPPORT_FONT)
 
 if(SUPPORT_IIO)
     example(exnew_bitmap ${IIO_LINK_WITH})
+    example(exnew_convert ${IIO_LINK_WITH})
     example(exnew_dualies ${IIO_LINK_WITH})
     example(exnew_fs_resize ${IIO_LINK_WITH})
     example(exnew_icon ${IIO_LINK_WITH})
