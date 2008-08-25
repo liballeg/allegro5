@@ -157,13 +157,31 @@ void _al_kcm_detach_from_parent(ALLEGRO_SAMPLE *spl);
 
 struct ALLEGRO_STREAM {
    ALLEGRO_SAMPLE       spl;
+                        /* ALLEGRO_STREAM is derived from ALLEGRO_SAMPLE. */
 
    size_t               buf_count;
+                        /* The stream buffer is divided into a number of
+                         * fragments; this is the number of fragments.
+                         */
 
    void                 *main_buffer;
+                        /* Pointer to a single buffer big enough to hold all
+                         * the fragments.
+                         */
 
    void                 **pending_bufs;
    void                 **used_bufs;
+                        /* Arrays of offsets into the main_buffer.
+                         * The arrays are each 'buf_count' long.
+                         *
+                         * 'pending_bufs' holds pointers to fragments supplied
+                         * by the user which are yet to be handed off to the
+                         * audio driver.
+                         *
+                         * 'used_bufs' holds pointers to fragments which
+                         * have been sent to the audio driver and so are
+                         * ready to receive new data.
+                         */
 };
 
 
@@ -178,6 +196,7 @@ typedef void (*postprocess_callback_t)(void *buf, unsigned long samples,
  */
 struct ALLEGRO_MIXER {
    ALLEGRO_SAMPLE          ss;
+                           /* The sample that the mixer is derived from. */
 
    ALLEGRO_MIXER_QUALITY   quality;
 
