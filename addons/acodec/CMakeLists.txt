@@ -30,11 +30,14 @@ if(WANT_FLAC)
 endif(WANT_FLAC)
 
 if(WANT_VORBIS)
-    # XXX ogg.c doesn't compiler with libvorbis 1.1.2
-    # missing OV_CALLBACKS_NOCLOSE
-    find_path(VORBIS_INCLUDE_DIR vorbis/vorbisfile.h PATHS ENV INCLUDE)
-    find_library(VORBIS_LIBRARY NAMES vorbisfile PATHS ENV LIB)
-    mark_as_advanced(VORBIS_INCLUDE_DIR VORBIS_LIBRARY)
+    check_c_source_compiles("
+        #include <vorbis/vorbisfile.h>
+        int main(void) {
+            (void)OV_CALLBACKS_NOCLOSE;
+            return 0;
+        }"
+        CAN_VORBIS
+        )
 
     if(VORBIS_INCLUDE_DIR AND VORBIS_LIBRARY)
         set(CAN_VORBIS 1)

@@ -39,6 +39,8 @@ static int render_glyph(A5FONT_FONT const *f, int prev, int ch,
     unsigned char *row;
     int startpos = xpos;
 
+    _al_push_new_bitmap_parameters();
+
     ALLEGRO_TTF_GLYPH_DATA *glyph = data->cache + ft_index;
     if (glyph->bitmap || only_measure) {
         FT_Load_Glyph(face, ft_index, FT_LOAD_DEFAULT);
@@ -52,6 +54,7 @@ static int render_glyph(A5FONT_FONT const *f, int prev, int ch,
         int h = face->glyph->bitmap.rows;
 
         al_set_new_bitmap_format(ALLEGRO_PIXEL_FORMAT_ANY_WITH_ALPHA);
+        al_set_new_bitmap_flags(ALLEGRO_MEMORY_BITMAP);
         glyph->bitmap = al_create_bitmap(w, h);
 
         al_set_target_bitmap(glyph->bitmap);
@@ -75,6 +78,8 @@ static int render_glyph(A5FONT_FONT const *f, int prev, int ch,
         glyph->x = face->glyph->bitmap_left;
         glyph->y = f->height - face->glyph->bitmap_top;
     }
+
+    _al_pop_new_bitmap_parameters();
 
     /* Do kerning? */
     if (!(data->flags & ALLEGRO_TTF_NO_KERNING) && prev) {
