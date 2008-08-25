@@ -165,7 +165,7 @@ static INLINE int fix_looped_position(ALLEGRO_SAMPLE *spl)
                return 1;
             }
 
-            spl->pos = spl->len;
+            spl->pos = 0;//spl->len;
             spl->is_playing = false;
             return 0;
          }
@@ -639,7 +639,7 @@ int al_mixer_attach_sample(ALLEGRO_MIXER *mixer, ALLEGRO_SAMPLE *spl)
    }
 
    _al_kcm_stream_set_mutex(spl, mixer->ss.mutex);
-
+   
    spl->parent.u.mixer = mixer;
    spl->parent.is_voice = false;
 

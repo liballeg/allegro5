@@ -416,6 +416,7 @@ A5_KCM_AUDIO_FUNC(int, al_voice_set_bool, (ALLEGRO_VOICE *voice,
 A5_KCM_AUDIO_FUNC(int,  al_audio_init, (ALLEGRO_AUDIO_DRIVER_ENUM mode));
 A5_KCM_AUDIO_FUNC(void, al_audio_deinit, (void));
 
+
 #ifdef __cplusplus
 } /* End extern "C" */
 #endif

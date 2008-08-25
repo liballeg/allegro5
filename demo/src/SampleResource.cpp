@@ -13,8 +13,6 @@ bool SampleResource::load(void)
    sample = al_load_sample(filename.c_str());
    if (!sample)
       debug_message("Error loading sample %s\n", filename.c_str());
-   if (al_mixer_attach_sample(mixer, sample) != 0)
-      debug_message("Error attaching sample to mixer\n");
    return sample != 0;
 }
 

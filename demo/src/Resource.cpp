@@ -27,6 +27,8 @@ const char* BMP_NAMES[] = {
 };
 
 const char* SAMPLE_NAMES[] = {
+   "sfx/title_music.ogg",
+   "sfx/game_music.ogg",
    "sfx/big_explosion.ogg",
    "sfx/collision.ogg",
    "sfx/fire_large.ogg",

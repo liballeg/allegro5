@@ -1,6 +1,8 @@
 #include "a5teroids.hpp"
 #include <stdio.h>
 
+
+
 bool kb_installed = false;
 bool joy_installed = false;
 
@@ -184,6 +186,10 @@ bool loadResources(void)
    	printf("Failed to create display.\n");
    	return false;
    }
+
+   /* For some reason dsound needs a window... */
+   al_audio_init(ALLEGRO_AUDIO_DRIVER_AUTODETECT);
+
    if (!rm.add(new Player(), false)) {
    	printf("Failed to create player.\n");
    	return false;
@@ -233,7 +239,6 @@ bool init(void)
    al_init();
    iio_init();
    a5font_init();
-   al_audio_init(ALLEGRO_AUDIO_DRIVER_AUTODETECT);
 
    al_set_new_bitmap_format(ALLEGRO_PIXEL_FORMAT_ANY_WITH_ALPHA);
 
@@ -245,14 +250,20 @@ bool init(void)
    }
    */
    
-   voice = al_voice_create(44100, ALLEGRO_AUDIO_DEPTH_INT16, ALLEGRO_CHANNEL_CONF_2);
-   mixer = al_mixer_create(44100, ALLEGRO_AUDIO_DEPTH_FLOAT32, ALLEGRO_CHANNEL_CONF_2);
-   al_voice_attach_mixer(voice, mixer);
-
-
    if (!loadResources()) {
       debug_message("Error loading resources.\n");
       return false;
+   }
+
+   voice = al_voice_create(44100, ALLEGRO_AUDIO_DEPTH_INT16, ALLEGRO_CHANNEL_CONF_2);
+   mixer = al_mixer_create(44100, ALLEGRO_AUDIO_DEPTH_FLOAT32, ALLEGRO_CHANNEL_CONF_2);
+   al_voice_attach_mixer(voice, mixer);
+   
+   ResourceManager& rm = ResourceManager::getInstance();
+
+   for (int i = RES_SAMPLE_START; i < RES_SAMPLE_END; i++) {
+      ALLEGRO_SAMPLE *s = (ALLEGRO_SAMPLE *)rm.getData(i);
+      al_mixer_attach_sample(mixer, s);
    }
 
    return true;

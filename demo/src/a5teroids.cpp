@@ -27,19 +27,13 @@ int main(int argc, char **argv)
    }
 
 
-   SampleResource *game_res = new SampleResource(getResource("sfx/game_music.ogg"));
-   SampleResource *title_res = new SampleResource(getResource("sfx/title_music.ogg"));
-   game_res->load();
-   title_res->load();
-
-
    Wave& w = Wave::getInstance();
 
    ResourceManager& rm = ResourceManager::getInstance();
    Player *player = (Player *)rm.getData(RES_PLAYER);
 
-   ALLEGRO_SAMPLE *title_music = (ALLEGRO_SAMPLE *)title_res->get();
-   ALLEGRO_SAMPLE *game_music = (ALLEGRO_SAMPLE *)game_res->get();
+   ALLEGRO_SAMPLE *title_music = (ALLEGRO_SAMPLE *)rm.getData(RES_TITLE_MUSIC);
+   ALLEGRO_SAMPLE *game_music = (ALLEGRO_SAMPLE *)rm.getData(RES_GAME_MUSIC);
 
    al_sample_set_enum(title_music, ALLEGRO_AUDIOPROP_LOOPMODE, ALLEGRO_PLAYMODE_ONEDIR);
    al_sample_set_enum(game_music, ALLEGRO_AUDIOPROP_LOOPMODE, ALLEGRO_PLAYMODE_ONEDIR);
@@ -48,8 +42,8 @@ int main(int argc, char **argv)
       player->load();
 
       al_rest(0.500);
-   
-      al_sample_play(title_music);
+
+      my_play_sample(RES_TITLE_MUSIC);
 
       int choice = do_menu();
       if (choice != 0) {
@@ -64,7 +58,7 @@ int main(int argc, char **argv)
       canUFO = true;
 
       w.init();
-      al_sample_play(game_music);
+      my_play_sample(RES_GAME_MUSIC);
 
       int step = 0;
       long start = (long) (al_current_time() * 1000);

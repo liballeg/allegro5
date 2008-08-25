@@ -85,6 +85,9 @@ typedef struct ALLEGRO_DS_DATA {
 } ALLEGRO_DS_DATA;
 
 
+static bool _dsound_voice_is_playing(const ALLEGRO_VOICE *voice);
+
+
 /* Custom routine which runs in another thread to periodically check if DirectSound
    wants more data for a stream */
 static void _dsound_update(_AL_THREAD* self, void* arg)
@@ -98,7 +101,6 @@ static void _dsound_update(_AL_THREAD* self, void* arg)
    DWORD block1_bytes, block2_bytes;
    const void *data;
    const int bytes_per_sample = ex_data->bits_per_sample / 8;
-   int count = 0, count_bytes = 0;
 
    /* Fill buffer */
    hr = ex_data->ds8_buffer->Lock(0, BUFSIZE, &ptr1, &block1_bytes, &ptr2, &block2_bytes, DSBLOCK_ENTIREBUFFER);
@@ -112,14 +114,15 @@ static void _dsound_update(_AL_THREAD* self, void* arg)
    ex_data->ds8_buffer->Play(0, 0, DSBPLAY_LOOPING);
 
    do {
+      if (!_dsound_voice_is_playing(voice)) {
+         ex_data->ds8_buffer->Play(0, 0, DSBPLAY_LOOPING);
+      }
       ex_data->ds8_buffer->GetCurrentPosition(&play_cursor, &write_cursor);
       if (play_cursor != saved_play_cursor) {
          d = play_cursor - saved_play_cursor;
          if (d < 0)
             d += BUFSIZE;
          samples = d / bytes_per_sample / ex_data->channels;
-         count += samples;
-         count_bytes += d;
          data = _al_voice_update(voice, samples);
          if (data == NULL) {
             /* FIXME: play silence */
@@ -129,7 +132,10 @@ static void _dsound_update(_AL_THREAD* self, void* arg)
             if (!FAILED(hr)) {
                memcpy(ptr1, data, block1_bytes);
                memcpy(ptr2, ((unsigned char *)data)+block1_bytes, block2_bytes);
-               ex_data->ds8_buffer->Unlock(ptr1, block1_bytes, ptr2, block2_bytes);
+               hr = ex_data->ds8_buffer->Unlock(ptr1, block1_bytes, ptr2, block2_bytes);
+               if (FAILED(hr)) {
+                  fprintf(stderr, "Unlock failed: %s\n", ds_get_error(hr));
+               }
             }
             else {
             }
@@ -274,6 +280,7 @@ static int _dsound_load_voice(ALLEGRO_VOICE *voice, const void *data)
    ex_data->wave_fmt.cbSize = 0;
 
    ex_data->desc.dwSize = sizeof(DSBUFFERDESC);
+   ex_data->desc.dwFlags = DSBCAPS_LOCSOFTWARE; /* FIXME: software mixing for now */
    ex_data->desc.dwBufferBytes = voice->buffer_size;
    ex_data->desc.dwReserved = 0;
    ex_data->desc.lpwfxFormat = &ex_data->wave_fmt;
@@ -318,6 +325,7 @@ static int _dsound_start_voice(ALLEGRO_VOICE *voice)
    ALLEGRO_DS_DATA *ex_data = (ALLEGRO_DS_DATA *)voice->extra;
 
    if (!voice->is_streaming) {
+      ex_data->ds8_buffer->SetCurrentPosition(0);
       hr = ex_data->ds8_buffer->Play(0, 0, 0);
       if (FAILED(hr))
          return 1;
@@ -351,6 +359,8 @@ static int _dsound_start_voice(ALLEGRO_VOICE *voice)
       }
 
       ex_data->ds_buffer->QueryInterface(IID_IDirectSoundBuffer8, (void **)&ex_data->ds8_buffer);
+
+      ex_data->ds8_buffer->SetVolume(DSBVOLUME_MAX);
 
       ex_data->stop_voice = 0;
       _al_thread_create(&ex_data->thread, _dsound_update, (void*) voice);
