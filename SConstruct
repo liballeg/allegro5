@@ -204,6 +204,8 @@ class AllegroContext:
     #    self.sconsignFile = file
 
     def getExampleEnv(self):
+        if self.debug:
+            self.exampleEnv.Append(CCFLAGS = '-DDEBUGMODE=1')
         return self.exampleEnv
 
     def setExampleEnv(self, env):
@@ -400,6 +402,7 @@ SConscript("scons/naturaldocs.scons")
 # Build all other miscellaneous targets using the same environment
 # that was used to build allegro but only link in liballeg
 extraEnv = context.getExampleEnv().Clone()
+
 # liballeg = getLibraryName(debug)
 extraEnv.Append(LIBPATH = [ context.getLibraryDir() ])
 if not context.getStatic():
