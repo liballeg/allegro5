@@ -1052,7 +1052,7 @@ static void d3d_display_thread_proc(void *arg)
 	else {
 	   refresh_rate = d3d_get_default_refresh_rate(d3d_display->adapter);
 	}
-        d3d_display->device_name = _AL_MALLOC(sizeof(TCHAR)*32);
+        d3d_display->device_name = (TCHAR *)_AL_MALLOC(sizeof(TCHAR)*32);
 	strcpy(d3d_display->device_name, dd.DeviceName);
 	TRACE("going to call _al_win_create_faux_fullscreen_window\n");
    	win_display->window = _al_win_create_faux_fullscreen_window(dd.DeviceName, al_display,
@@ -1423,7 +1423,7 @@ static void d3d_draw_line(ALLEGRO_DISPLAY *al_display, float fx, float fy, float
    if (d3d_display->device_lost) return;
 
    if (!_al_d3d_render_to_texture_supported()) {
-      _al_draw_line_memory(fx, fy, tx, ty, color);
+      _al_draw_line_memory((int)fx, (int)fy, (int)tx, (int)ty, color);
       return;
    }
 
@@ -1488,7 +1488,7 @@ static void d3d_draw_rectangle(ALLEGRO_DISPLAY *al_display, float tlx, float tly
    if (d3d_display->device_lost) return;
    
    if (!_al_d3d_render_to_texture_supported()) {
-      _al_draw_rectangle_memory(tlx, tly, brx, bry, color, flags);
+      _al_draw_rectangle_memory((int)tlx, (int)tly, (int)brx, (int)bry, color, flags);
       return;
    }
 
@@ -1509,10 +1509,10 @@ static void d3d_draw_rectangle(ALLEGRO_DISPLAY *al_display, float tlx, float tly
       bry += target->yofs;
    }
    
-   rect.x1 = tlx;
-   rect.y1 = tly;
-   rect.x2 = brx;
-   rect.y2 = bry;
+   rect.x1 = (LONG)tlx;
+   rect.y1 = (LONG)tly;
+   rect.x2 = (LONG)brx;
+   rect.y2 = (LONG)bry;
 
    _al_d3d_set_blender(d3d_display);
 
@@ -2089,7 +2089,7 @@ static bool d3d_hide_mouse_cursor(ALLEGRO_DISPLAY *display)
    _al_win_set_mouse_hcursor(NULL);
    win_display->mouse_cursor_shown = false;
 
-   PostMessage(win_display->window, WM_SETCURSOR, NULL, NULL);
+   PostMessage(win_display->window, WM_SETCURSOR, 0, 0);
 
    return true;
 }
