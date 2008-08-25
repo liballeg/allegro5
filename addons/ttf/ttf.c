@@ -53,9 +53,8 @@ static int render_glyph(A5FONT_FONT const *f, int prev, int ch,
         int w = face->glyph->bitmap.width;
         int h = face->glyph->bitmap.rows;
 
-        if (w == 0 && h == 0) {
-            return 0;
-        }
+        if (w == 0) w = 1;
+        if (h == 0) h = 1;
 
         al_set_new_bitmap_format(ALLEGRO_PIXEL_FORMAT_ANY_WITH_ALPHA);
         glyph->bitmap = al_create_bitmap(w, h);

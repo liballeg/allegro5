@@ -53,6 +53,6 @@ if can_build:
         includes = ["#addons/ttf", "#addons/font"],
         example_libs = [context.libraryName("a5_font"),
             context.libraryName("a5_iio")],
-        examples = [("example", ["example.c"])])
+        examples = [("ex_ttf", ["ex_ttf.c"])])
 
 Return("can_build")
