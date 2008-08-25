@@ -49,6 +49,7 @@ if(USE_CXX AND SUPPORT_FONT AND SUPPORT_KCM_AUDIO AND SUPPORT_ACODEC)
         )
     target_link_libraries(demo
         ${LINK_WITH}
+        ${IIO_LINK_WITH}
         ${FONT_LINK_WITH}
         ${AUDIO_LINK_WITH}
         ${ACODEC_LINK_WITH}

@@ -34,7 +34,12 @@ if(WANT_ICODEC)
 endif(WANT_ICODEC)
 
 if(WANT_TTF)
-    add_subdirectory(ttf)
+    include(FindFreetype)
+    if(FREETYPE_FOUND)
+        add_subdirectory(ttf)
+        set(SUPPORT_TTF 1 PARENT_SCOPE)
+        set(TTF_LINK_WITH ${TTF_LINK_WITH} PARENT_SCOPE)
+    endif(FREETYPE_FOUND)
 endif(WANT_TTF)
 
 #-----------------------------------------------------------------------------#

@@ -1,11 +1,9 @@
 include_directories(../font)
-include_directories(`pkg-config freetype2 --cflags-only-I`)
+include_directories(${FREETYPE_INCLUDE_DIRS})
 include_directories(.)
 
-set(TTF_EXTRA_LIBS freetype z)
+set(TTF_EXTRA_LIBS ${FREETYPE_LIBRARIES})
 set(TTF_SOURCES ttf.c)
-
-set(SUPPORT_TTF 1 PARENT_SCOPE)
 
 configure_file(
     allegro5/internal/aintern_ttf_cfg.h.cmake
