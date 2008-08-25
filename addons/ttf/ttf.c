@@ -60,6 +60,7 @@ static int render_glyph(A5FONT_FONT const *f, int prev, int ch,
         glyph->bitmap = al_create_bitmap(w, h);
 
         al_set_target_bitmap(glyph->bitmap);
+        al_clear(al_map_rgba(0, 0, 0, 0));
         ALLEGRO_LOCKED_REGION lr;
         al_lock_bitmap(glyph->bitmap, &lr, ALLEGRO_LOCK_WRITEONLY);
         row = face->glyph->bitmap.buffer;
