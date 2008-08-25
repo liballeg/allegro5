@@ -16,7 +16,7 @@ int main(void)
    al_init();
    al_install_keyboard();
    al_install_mouse();
-   iio_init();
+   al_iio_init();
 
    events = al_create_event_queue();
 
@@ -34,13 +34,13 @@ int main(void)
    al_register_event_source(events, (ALLEGRO_EVENT_SOURCE *)display[1]);
    al_register_event_source(events, (ALLEGRO_EVENT_SOURCE *)al_get_keyboard());
 
-   pictures[0] = iio_load("mysha.pcx");
+   pictures[0] = al_iio_load("mysha.pcx");
    if (!pictures[0]) {
       TRACE("failed to load mysha.pcx\n");
       return 1;
    }
 
-   pictures[1] = iio_load("allegro.pcx");
+   pictures[1] = al_iio_load("allegro.pcx");
    if (!pictures[1]) {
       TRACE("failed to load allegro.pcx\n");
       return 1;

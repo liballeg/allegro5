@@ -24,7 +24,7 @@ int main(void)
    ALLEGRO_BITMAP *picture;
 
    al_init();
-   iio_init();
+   al_iio_init();
 
    al_set_new_display_flags(ALLEGRO_FULLSCREEN);
    display = al_create_display(640, 480);
@@ -33,7 +33,7 @@ int main(void)
       return 1;
    }
 
-   picture = iio_load("mysha.pcx");
+   picture = al_iio_load("mysha.pcx");
    if (!picture) {
       TRACE("mysha.pcx not found\n");
       return 1;

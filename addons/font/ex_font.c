@@ -9,11 +9,11 @@ int main(void)
     ALLEGRO_FONT *f;
 
     al_init();
-    iio_init();
+    al_iio_init();
     al_font_init();
 
     display = al_create_display(320, 200);
-    bitmap = iio_load("mysha.pcx");
+    bitmap = al_iio_load("mysha.pcx");
     al_draw_bitmap(bitmap, 0, 0, 0);
 
     f = al_font_load_font("bmpfont.tga", NULL);

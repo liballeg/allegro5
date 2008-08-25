@@ -41,7 +41,7 @@ int main(void)
    ALLEGRO_EVENT event;
 
    al_init();
-   iio_init();
+   al_iio_init();
 
    if (!al_install_mouse()) {
       TRACE("Error installing mouse\n");
@@ -54,7 +54,7 @@ int main(void)
       return 1;
    }
 
-   bmp = iio_load("allegro.pcx");
+   bmp = al_iio_load("allegro.pcx");
    if (!bmp) {
       TRACE("Error loading allegro.pcx\n");
       return 1;

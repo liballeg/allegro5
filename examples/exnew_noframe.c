@@ -17,12 +17,12 @@ int main(void)
    al_init();
    al_install_mouse();
    al_install_keyboard();
-   iio_init();
+   al_iio_init();
 
    al_set_new_display_flags(ALLEGRO_NOFRAME);
    display = al_create_display(300, 200);
    
-   bitmap = iio_load("fakeamp.bmp");
+   bitmap = al_iio_load("fakeamp.bmp");
    if (!bitmap) {
       TRACE("Error loading fakeamp.bmp\n\n");
       return 1;

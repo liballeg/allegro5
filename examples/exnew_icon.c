@@ -10,7 +10,7 @@ int main(void)
 
    al_init();
    al_install_mouse();
-   iio_init();
+   al_iio_init();
 
    display = al_create_display(320, 200);
    if (!display) {
@@ -19,7 +19,7 @@ int main(void)
    }
 
    /* First icon: Read from file. */
-   icon1 = iio_load("icon.tga");
+   icon1 = al_iio_load("icon.tga");
    if (!icon1) {
       TRACE("icon.tga not found\n");
       return 1;

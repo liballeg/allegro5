@@ -13,7 +13,7 @@ int main(void)
    al_init();
    al_install_mouse();
    al_install_keyboard();
-   iio_init();
+   al_iio_init();
 
    display = al_create_display(640, 480);
    if (!display) {
@@ -23,7 +23,7 @@ int main(void)
 
    al_hide_mouse_cursor();
 
-   cursor = iio_load("cursor.tga");
+   cursor = al_iio_load("cursor.tga");
    if (!cursor) {
       TRACE("Error loading cursor.tga\n");
       return 1;

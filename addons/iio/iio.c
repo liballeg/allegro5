@@ -23,7 +23,7 @@ static bool inited = false;
 static unsigned int num_loaders = 0;
 
 
-bool iio_init(void)
+bool al_iio_init(void)
 {
    int success;
 
@@ -32,9 +32,9 @@ bool iio_init(void)
 
    success = 0;
 
-   success |= iio_add_loader("pcx", iio_load_pcx);
-   success |= iio_add_loader("bmp", iio_load_bmp);
-   success |= iio_add_loader("tga", iio_load_tga);
+   success |= al_iio_add_loader("pcx", iio_load_pcx);
+   success |= al_iio_add_loader("bmp", iio_load_bmp);
+   success |= al_iio_add_loader("tga", iio_load_tga);
 
    if (success)
       inited = true;
@@ -43,7 +43,7 @@ bool iio_init(void)
 }
 
 
-bool iio_add_loader(AL_CONST char *extension, IIO_LOADER_FUNCTION function)
+bool al_iio_add_loader(AL_CONST char *extension, IIO_LOADER_FUNCTION function)
 {
    Loader *l;
 
@@ -120,7 +120,7 @@ static int iio_stricmp(AL_CONST char *s1, AL_CONST char *s2)
 }
 
 
-ALLEGRO_BITMAP *iio_load(AL_CONST char *filename)
+ALLEGRO_BITMAP *al_iio_load(AL_CONST char *filename)
 {
    char *p = iio_get_extension(filename);
    char extension[MAX_EXTENSION];

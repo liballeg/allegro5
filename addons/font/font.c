@@ -598,7 +598,7 @@ int al_font_transpose_font(ALLEGRO_FONT *f, int drange)
 
 void al_font_init(void)
 {
-   iio_init(); /* we depend on the iio addon */
+   al_iio_init(); /* we depend on the iio addon */
    //_register_font_file_type_init();
 }
 

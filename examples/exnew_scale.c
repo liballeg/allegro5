@@ -31,7 +31,7 @@ int main(int argc, char *argv[])
    if (!al_init())
       return 1;
    al_install_keyboard();
-   iio_init();
+   al_iio_init();
 
    dpy = al_create_display(display_w, display_h);
    if (!dpy) {
@@ -45,7 +45,7 @@ int main(int argc, char *argv[])
       return 1;
    }
 
-   bmp = iio_load("mysha.pcx");
+   bmp = al_iio_load("mysha.pcx");
    if (!bmp) {
       TRACE("Unable to load image\n");
       return 1;

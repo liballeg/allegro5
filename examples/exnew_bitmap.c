@@ -17,7 +17,7 @@ int main(int argc, const char *argv[])
     al_init();
     al_install_mouse();
 
-    iio_init();
+    al_iio_init();
 
     display = al_create_display(320, 200);
     if (!display) {
@@ -26,7 +26,7 @@ int main(int argc, const char *argv[])
     }
 
     al_show_mouse_cursor();
-    bitmap = iio_load(filename);
+    bitmap = al_iio_load(filename);
     if (!bitmap) {
        TRACE("mysha.pcx not found");
        return 1;

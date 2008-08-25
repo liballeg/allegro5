@@ -237,7 +237,7 @@ bool init(void)
    srand(time(NULL));
 
    al_init();
-   iio_init();
+   al_iio_init();
    al_font_init();
 
    al_set_new_bitmap_format(ALLEGRO_PIXEL_FORMAT_ANY_WITH_ALPHA);

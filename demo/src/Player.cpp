@@ -187,7 +187,7 @@ void Player::destroy(void)
 
 bool Player::load(void)
 {
-   bitmap = iio_load(getResource("gfx/ship.tga"));
+   bitmap = al_iio_load(getResource("gfx/ship.tga"));
    if (!bitmap) {
       debug_message("Error loading %s\n", getResource("gfx/ship.tga"));
       return false;
@@ -219,7 +219,7 @@ bool Player::load(void)
    }
    al_set_target_bitmap(old_target);
 
-   trail_bitmap = iio_load(getResource("gfx/trail.tga"));
+   trail_bitmap = al_iio_load(getResource("gfx/trail.tga"));
    if (!trail_bitmap) {
       debug_message("Error loading %s\n", getResource("gfx/trail.tga"));
       al_destroy_bitmap(bitmap);
@@ -227,7 +227,7 @@ bool Player::load(void)
       return false;
    }
 
-   icon = iio_load(getResource("gfx/ship_icon.tga"));
+   icon = al_iio_load(getResource("gfx/ship_icon.tga"));
    if (!icon) {
       debug_message("Error loading %s\n", getResource("gfx/icon.tga"));
       al_destroy_bitmap(bitmap);
