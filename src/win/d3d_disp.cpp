@@ -1052,6 +1052,7 @@ static void d3d_display_thread_proc(void *arg)
 	else {
 	   refresh_rate = d3d_get_default_refresh_rate(d3d_display->adapter);
 	}
+        d3d_display->device_name = _AL_MALLOC(sizeof(TCHAR)*32);
 	strcpy(d3d_display->device_name, dd.DeviceName);
 	TRACE("going to call _al_win_create_faux_fullscreen_window\n");
    	win_display->window = _al_win_create_faux_fullscreen_window(dd.DeviceName, al_display,
@@ -1187,6 +1188,7 @@ End:
    if (d3d_display->faux_fullscreen) {
 	TRACE("Changing resolution back\n");
    	ChangeDisplaySettingsEx(d3d_display->device_name, NULL, NULL, 0, NULL);//CDS_FULLSCREEN
+        _AL_FREE(d3d_display->device_name);
 	num_faux_fullscreen_windows--;
        TRACE("Res changed back\n");
    }

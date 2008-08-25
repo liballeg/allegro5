@@ -60,6 +60,12 @@ int main(void)
             ALLEGRO_DISPLAY_EVENT *de = &event.display;
             al_acknowledge_resize(de->source);
          }
+         if (event.type == ALLEGRO_EVENT_DISPLAY_SWITCH_IN) {
+            printf("%p switching in\n", event.display.source);
+         }
+         if (event.type == ALLEGRO_EVENT_DISPLAY_SWITCH_IN) {
+            printf("%p switching out\n", event.display.source);
+         }
          if (event.type == ALLEGRO_EVENT_DISPLAY_CLOSE) {
             int i;
             for (i = 0; i < 2; i++) {

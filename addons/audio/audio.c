@@ -124,7 +124,12 @@ int al_audio_init(ALLEGRO_AUDIO_ENUM mode)
 
       case ALLEGRO_AUDIO_DRIVER_DSOUND:
          #if defined(ALLEGRO_WINDOWS)
-            TRACE("DirectSound driver not yet implemented\n");
+            if (_al_dsound_driver.open() == 0)
+            {
+               fprintf(stderr, "Using DirectSound driver\n");
+               _al_audio_driver = &_al_dsound_driver;
+               return 0;
+            }
             return 1;
          #else
             TRACE("DirectSound not available on this platform\n");
