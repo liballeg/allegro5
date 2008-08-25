@@ -51,7 +51,7 @@ void a5font_textout(AL_CONST A5FONT_FONT *f, AL_CONST char *str, int x, int y)
 {
    ASSERT(f);
    ASSERT(str);
-   f->vtable->render(f, str, x, y, strlen(str));
+   f->vtable->render(f, str, x, y, ustrlen(str));
 }
 
 
