@@ -538,7 +538,7 @@ ALLEGRO_MIXER *al_mixer_create(unsigned long freq,
    }
 
    mixer->ss.is_playing = true;
-   mixer->ss.orphan_buffer = true;
+   mixer->ss.free_buf = true;
 
    mixer->ss.loop      = ALLEGRO_PLAYMODE_ONCE;
    mixer->ss.depth     = depth;

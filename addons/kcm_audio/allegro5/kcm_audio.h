@@ -130,7 +130,7 @@ enum ALLEGRO_AUDIO_PROPERTY {
    ALLEGRO_AUDIOPROP_LOOPMODE       = 0x207,
    ALLEGRO_AUDIOPROP_SPEED          = 0x208,
    ALLEGRO_AUDIOPROP_POSITION       = 0x209,
-   ALLEGRO_AUDIOPROP_ORPHAN_BUFFER  = 0x20A,
+   ALLEGRO_AUDIOPROP_AUTOFREE_BUFFER= 0x20A,
 
    ALLEGRO_AUDIOPROP_FRAGMENTS      = 0x20B,
    ALLEGRO_AUDIOPROP_USED_FRAGMENTS = 0x20C,
@@ -219,13 +219,12 @@ enum ALLEGRO_AUDIO_DRIVER_ENUM {
  *    Gets or sets the object's playing position. The value is in
  *    samples-per-channel.
  *
- * ALLEGRO_AUDIOPROP_ORPHAN_BUFFER (bool) -
+ * ALLEGRO_AUDIOPROP_AUTOFREE_BUFFER (bool) -
  *    Setting this flag to true will cause the object's data buffer to be
- *    free()'d automatically when either the sample is destroyed, or the buffer
- *    is changed (setting an ALLEGRO_AUDIOPROP_BUFFER value). If you set another
- *    ALLEGRO_AUDIOPROP_BUFFER value, this will revert back to false. You may not
- *    directly set this to false. You must not orphan a buffer that is
- *    referenced outside of the object.
+ *    free()'d automatically when either the sample is destroyed, or the
+ *    buffer is changed (setting an ALLEGRO_AUDIOPROP_BUFFER value). If you
+ *    set another ALLEGRO_AUDIOPROP_BUFFER value, this will revert back to
+ *    false.
  */
 typedef struct ALLEGRO_SAMPLE ALLEGRO_SAMPLE;
 

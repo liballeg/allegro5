@@ -113,7 +113,7 @@ struct ALLEGRO_SAMPLE {
    float                speed;
 
    any_buffer_t         buffer;
-   bool                 orphan_buffer;
+   bool                 free_buf;
                         /* Whether `buffer' needs to be freed when the sample
                          * is destroyed, or when `buffer' changes.
                          */
@@ -123,12 +123,6 @@ struct ALLEGRO_SAMPLE {
    unsigned long        loop_start;
    unsigned long        loop_end;
    long                 step;
-
-   bool                 free_buf;
-                        /* Whether to free `buffer' when this sample is
-                         * destroyed.
-                         * XXX how does this interact with orphan_buffer?
-                         */
 
    float                *matrix;
                         /* Used to convert from this format to the attached

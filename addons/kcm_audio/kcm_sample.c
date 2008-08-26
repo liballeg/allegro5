@@ -70,8 +70,10 @@ static void stream_free(ALLEGRO_SAMPLE *spl)
          _al_vector_free(&mixer->streams);
       }
 
-      if (spl->orphan_buffer) {
+      if (spl->free_buf) {
          free(spl->buffer.ptr);
+         spl->buffer.ptr = NULL;
+         spl->free_buf = false;
       }
 
       free(spl);
@@ -154,6 +156,7 @@ ALLEGRO_SAMPLE *al_sample_create(void *buf, unsigned long samples,
    spl->speed      = 1.0f;
    spl->parent.u.ptr = NULL;
    spl->buffer.ptr = buf;
+   spl->free_buf = free_buf;
 
    spl->step = 0;
    spl->pos = 0;
@@ -161,8 +164,6 @@ ALLEGRO_SAMPLE *al_sample_create(void *buf, unsigned long samples,
 
    spl->loop_start = 0;
    spl->loop_end = spl->len;
-
-   spl->free_buf = free_buf;
 
    return spl;
 }
@@ -192,9 +193,6 @@ ALLEGRO_SAMPLE *al_sample_create_clone(const ALLEGRO_SAMPLE *spl)
 void al_sample_destroy(ALLEGRO_SAMPLE *spl)
 {
    if (spl) {
-      if (spl->free_buf)
-         free(spl->buffer.ptr);
-
       _al_kcm_detach_from_parent(spl);
       stream_free(spl);
    }
@@ -327,8 +325,8 @@ int al_sample_get_bool(const ALLEGRO_SAMPLE *spl,
          *val = (spl->parent.u.ptr != NULL);
          return 0;
 
-      case ALLEGRO_AUDIOPROP_ORPHAN_BUFFER:
-         *val = spl->orphan_buffer;
+      case ALLEGRO_AUDIOPROP_AUTOFREE_BUFFER:
+         *val = spl->free_buf;
          return 0;
 
       default:
@@ -351,11 +349,6 @@ int al_sample_get_ptr(const ALLEGRO_SAMPLE *spl,
          if (spl->is_playing) {
             _al_set_error(ALLEGRO_INVALID_OBJECT,
                "Attempted to get a playing buffer");
-            return 1;
-         }
-         if (spl->orphan_buffer) {
-            _al_set_error(ALLEGRO_INVALID_OBJECT,
-               "Attempted to get an orphaned buffer");
             return 1;
          }
          *val = spl->buffer.ptr;
@@ -546,13 +539,8 @@ int al_sample_set_bool(ALLEGRO_SAMPLE *spl,
          _al_kcm_detach_from_parent(spl);
          return 0;
 
-      case ALLEGRO_AUDIOPROP_ORPHAN_BUFFER:
-         if (spl->orphan_buffer && !val) {
-            _al_set_error(ALLEGRO_INVALID_PARAM,
-               "Attempted to adopt an orphaned buffer");
-            return 1;
-         }
-         spl->orphan_buffer = val;
+      case ALLEGRO_AUDIOPROP_AUTOFREE_BUFFER:
+         spl->free_buf = val;
          return 0;
 
       default:
@@ -586,9 +574,10 @@ int al_sample_set_ptr(ALLEGRO_SAMPLE *spl,
                return 1;
             }
          }
-         if (spl->orphan_buffer)
+         if (spl->free_buf) {
             free(spl->buffer.ptr);
-         spl->orphan_buffer = false;
+            spl->free_buf = false;
+         }
          spl->buffer.ptr = val;
          return 0;
 
