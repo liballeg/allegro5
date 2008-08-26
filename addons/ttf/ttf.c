@@ -39,22 +39,22 @@ static int render_glyph(ALLEGRO_FONT const *f, int prev, int ch,
     unsigned char *row;
     int startpos = xpos;
 
-    _al_push_new_bitmap_parameters();
-
     ALLEGRO_TTF_GLYPH_DATA *glyph = data->cache + ft_index;
     if (glyph->bitmap || only_measure) {
         FT_Load_Glyph(face, ft_index, FT_LOAD_DEFAULT);
     }
     else {
-        FT_Load_Glyph(face, ft_index, FT_LOAD_RENDER | FT_LOAD_FORCE_AUTOHINT);
-        ALLEGRO_BITMAP *target = al_get_target_bitmap();
-        int format = al_get_new_bitmap_format();
+        // FIXME: make this a config setting? FT_LOAD_FORCE_AUTOHINT
+        FT_Load_Glyph(face, ft_index, FT_LOAD_RENDER);
         int x, y;
         int w = face->glyph->bitmap.width;
         int h = face->glyph->bitmap.rows;
 
         if (w == 0) w = 1;
         if (h == 0) h = 1;
+        
+        _al_push_new_bitmap_parameters();
+        _al_push_target_bitmap();
 
         al_set_new_bitmap_format(ALLEGRO_PIXEL_FORMAT_ANY_WITH_ALPHA);
         glyph->bitmap = al_create_bitmap(w, h);
@@ -74,15 +74,12 @@ static int render_glyph(ALLEGRO_FONT const *f, int prev, int ch,
             row += face->glyph->bitmap.pitch;
         }
         al_unlock_bitmap(glyph->bitmap);
-        
-        al_set_new_bitmap_format(format);
-        al_set_target_bitmap(target);
-        
         glyph->x = face->glyph->bitmap_left;
         glyph->y = f->height - face->glyph->bitmap_top;
+        
+        _al_pop_target_bitmap();
+        _al_pop_new_bitmap_parameters();
     }
-
-    _al_pop_new_bitmap_parameters();
 
     /* Do kerning? */
     if (!(data->flags & ALLEGRO_TTF_NO_KERNING) && prev) {
