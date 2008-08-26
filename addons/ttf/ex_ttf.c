@@ -40,7 +40,7 @@ static void render(void)
 int main(void)
 {
     ALLEGRO_DISPLAY *display;
-    bool redraw = true;
+    int redraw = 0;
     double t = 0;
 
     al_init();
@@ -67,13 +67,18 @@ int main(void)
     while (true) {
         ALLEGRO_EVENT event;
         al_wait_for_event(queue, &event);
-        if (event.type == ALLEGRO_EVENT_DISPLAY_CLOSE) break;
-        if (event.type == ALLEGRO_EVENT_KEY_DOWN) break;
-        if (event.type == ALLEGRO_EVENT_TIMER) redraw = true;
+        if (event.type == ALLEGRO_EVENT_DISPLAY_CLOSE)
+            break;
+        if (event.type == ALLEGRO_EVENT_KEY_DOWN &&
+                event.keyboard.keycode == ALLEGRO_KEY_ESCAPE) {
+            break;
+        }
+        if (event.type == ALLEGRO_EVENT_TIMER)
+            redraw++;
 
-        if (redraw) {
-            redraw = false;
-            
+        while (redraw > 0 && al_event_queue_is_empty(queue)) {
+            redraw--;
+
             double dt = al_current_time();
             render();
             dt = al_current_time() - dt;
