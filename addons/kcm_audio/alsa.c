@@ -51,6 +51,7 @@ typedef struct ALSA_VOICE {
    unsigned int pos; /* in frames */
    unsigned int len; /* in frames */
    snd_pcm_uframes_t frag_len; /* in frames */
+   bool reversed; /* true if playing reversed ATM. */
 
    volatile bool stop;
    volatile bool stopped;
@@ -105,6 +106,15 @@ static int xrun_recovery(snd_pcm_t *handle, int err)
 }
 
 
+/*
+ * Updates the supplied non-streaming voice.
+ * buf   - Returns a pointer to the buffer containing sample data.
+ * bytes - The requested size of the sample data buffer. Returns the actual
+ *         size of returned the buffer.
+ * Updates 'stop', 'pos' and 'reversed' fields of the supplied voice.
+ * If the voice is played backwards, 'buf' will point to the end of the buffer
+ * and 'bytes' is the size that can be read towards the beginning.
+ */
 static int alsa_update_nonstream_voice(ALLEGRO_VOICE *voice, void **buf, int *bytes)
 {
    ALSA_VOICE *alsa_voice = (ALSA_VOICE*)voice->extra;
@@ -113,16 +123,40 @@ static int alsa_update_nonstream_voice(ALLEGRO_VOICE *voice, void **buf, int *by
 
    *buf = voice->attached_stream->buffer.ptr + bpos;
 
-   if (bpos + *bytes > blen) {
-      *bytes = blen - bpos;
-      if (voice->attached_stream->loop == ALLEGRO_PLAYMODE_ONEDIR)
-         alsa_voice->stop = true;
-
-      alsa_voice->pos = 0;
-      return 1;
+   if (!alsa_voice->reversed) {
+      if (bpos + *bytes > blen) {
+         *bytes = blen - bpos;
+         if (voice->attached_stream->loop == ALLEGRO_PLAYMODE_ONCE) {
+            alsa_voice->stop = true;
+            alsa_voice->pos = 0;
+         }
+         if (voice->attached_stream->loop == ALLEGRO_PLAYMODE_ONEDIR) {
+            alsa_voice->pos = 0;
+         }
+         else if (voice->attached_stream->loop == ALLEGRO_PLAYMODE_BIDIR) {
+            alsa_voice->reversed = true;
+            alsa_voice->pos = alsa_voice->len;
+         }
+         return 1;
+      }
+      else
+         alsa_voice->pos += *bytes / alsa_voice->frame_size;
    }
-   else
-      alsa_voice->pos += *bytes / alsa_voice->frame_size;
+   else {
+      if (bpos - *bytes < 0) {
+         *bytes = bpos;
+         /* loop will be ALLEGRO_PLAYMODE_BIDIR, other playing modes that play
+            backwards are not currently supported by the API */
+         /*if (voice->attached_stream->loop != ALLEGRO_PLAYMODE_BIDIR)
+            alsa_voice->stop = true;*/
+
+         alsa_voice->pos = 0;
+         alsa_voice->reversed = false;
+         return 1;
+      }
+      else
+         alsa_voice->pos -= *bytes / alsa_voice->frame_size;
+   }
 
    return 0;
 }
@@ -216,10 +250,21 @@ static void* alsa_update(ALLEGRO_THREAD *self, void *arg)
       /* Read sample data into the buffer. */
       if (!voice->is_streaming && !alsa_voice->stopped) {
          void *buf;
+         bool reverse = alsa_voice->reversed;
          int bytes = frames * alsa_voice->frame_size;
+
          alsa_update_nonstream_voice(voice, &buf, &bytes);
-         memcpy(mmap, buf, bytes);
          frames = bytes / alsa_voice->frame_size;
+         if (!reverse) {
+            memcpy(mmap, buf, bytes);
+         }
+         else {
+            /* Put a reversed copy in the driver's buffer. */
+            unsigned int i;
+            int fs = alsa_voice->frame_size;
+            for (i = 1; i <= frames; i++)
+               memcpy(mmap + i * fs, buf - i * fs, fs);
+         }
       }
       else if (voice->is_streaming && !alsa_voice->stopped) {
          const void *data = _al_voice_update(voice, frames);
@@ -256,11 +301,6 @@ silence:
 static int alsa_load_voice(ALLEGRO_VOICE *voice, const void *data)
 {
    ALSA_VOICE *ex_data = voice->extra;
-
-   if (voice->attached_stream->loop == ALLEGRO_PLAYMODE_BIDIR) {
-      TRACE(PREFIX_N "ALLEGRO_PLAYMODE_BIDIR is not supported by the driver.\n");
-      return 1;
-   }
 
    ex_data->pos = 0;
    ex_data->len = voice->attached_stream->len >> MIXER_FRAC_SHIFT;
@@ -340,6 +380,7 @@ static int alsa_allocate_voice(ALLEGRO_VOICE *voice)
 
    ex_data->stop = true;
    ex_data->stopped = true;
+   ex_data->reversed = false;
    /* ALSA usually overrides this, but set it just in case. */
    ex_data->frag_len = 256;
 

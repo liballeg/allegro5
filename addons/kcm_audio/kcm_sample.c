@@ -473,7 +473,9 @@ int al_sample_set_enum(ALLEGRO_SAMPLE *spl,
             return 1;
          }
 
-         al_lock_mutex(spl->mutex);
+         if (spl->parent.u.ptr)
+            al_lock_mutex(spl->mutex);
+
          spl->loop = val;
          if (spl->loop != ALLEGRO_PLAYMODE_ONCE) {
             if (spl->pos < spl->loop_start)
@@ -481,7 +483,10 @@ int al_sample_set_enum(ALLEGRO_SAMPLE *spl,
             else if (spl->pos > spl->loop_end-MIXER_FRAC_ONE)
                spl->pos = spl->loop_end-MIXER_FRAC_ONE;
          }
-         al_unlock_mutex(spl->mutex);
+
+         if (spl->parent.u.ptr)
+            al_unlock_mutex(spl->mutex);
+
          return 0;
 
       default:
