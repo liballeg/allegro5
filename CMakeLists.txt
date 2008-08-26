@@ -88,7 +88,8 @@ option(WANT_ICODEC "Enable image loading/saving for most filetypes (requires lib
 option(WANT_IIO "Enable IIO image load/save addon" on)
 option(WANT_TTF "Enable TTF addon" on)
 
-option(WANT_A5_ALSA "Enable A5 ALSA digital audio driver (Unix)" on)
+option(WANT_ALSA "Enable ALSA digital audio driver (Unix)" on)
+option(WANT_OSS "Enable OSS digital audio driver (Unix)" on)
 
 #
 # For developers.
@@ -260,7 +261,7 @@ if(UNIX)
     # Sound drivers
     #
 
-    if(WANT_A5_ALSA)
+    if(WANT_ALSA)
         check_c_source_compiles("
             #include <sys/asoundlib.h>
             int main(void) { 
@@ -270,12 +271,17 @@ if(UNIX)
                 return 1;
             #endif
             }"
-            CAN_ALSADIGI
+            CAN_ALSA
         )
-        if (CAN_ALSADIGI AND WANT_A5_ALSA)
-            set(SUPPORT_A5_ALSA 1)
-        endif(CAN_ALSADIGI AND WANT_A5_ALSA)
-    endif(WANT_A5_ALSA)
+        if (WANT_ALSA)
+            set(SUPPORT_ALSA 1)
+        endif(WANT_ALSA)
+    endif(WANT_ALSA)
+
+    # It doesn't hurt to compile OSS driver on any unix
+    if(WANT_OSS)
+        set(SUPPORT_OSS 1)
+    endif(WANT_OSS)
 endif(UNIX)
 
 #

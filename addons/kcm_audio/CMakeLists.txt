@@ -7,6 +7,11 @@ set(AUDIO_SOURCES
     )
 set(AUDIO_INCLUDE_FILES allegro5/kcm_audio.h)
 
+if(SUPPORT_OSS)
+   set(ALLEGRO_CFG_KCM_OSS 1)
+   list(APPEND AUDIO_SOURCES oss.c)
+endif(SUPPORT_OSS)
+
 # This is a rather cheap way of doing it, but it works in most cases
 check_include_file(AL/al.h OPENAL_FOUND)
 if(OPENAL_FOUND)
@@ -15,11 +20,11 @@ if(OPENAL_FOUND)
     list(APPEND AUDIO_LIBRARIES ${OPENAL_LIBRARY})
 endif(OPENAL_FOUND)
 
-if(SUPPORT_A5_ALSA)
+if(SUPPORT_ALSA)
     set(ALLEGRO_CFG_KCM_ALSA 1)
     list(APPEND AUDIO_SOURCES alsa.c)
     list(APPEND AUDIO_LIBRARIES asound)
-endif(SUPPORT_A5_ALSA)
+endif(SUPPORT_ALSA)
 
 
 check_include_file(dsound.h HAVE_DSOUND)
@@ -29,7 +34,7 @@ if(HAVE_DSOUND)
     list(APPEND AUDIO_LIBRARIES dsound)
 endif(HAVE_DSOUND)
 
-if(OPENAL_FOUND OR SUPPORT_A5_ALSA OR HAVE_DSOUND)
+if(OPENAL_FOUND OR SUPPORT_ALSA OR HAVE_DSOUND)
     set(SUPPORT_KCM_AUDIO 1 PARENT_SCOPE)
 
     configure_file(
@@ -107,9 +112,9 @@ if(OPENAL_FOUND OR SUPPORT_A5_ALSA OR HAVE_DSOUND)
     install(FILES ${AUDIO_INCLUDE_FILES}
             DESTINATION include/allegro5
             )
-else(OPENAL_FOUND OR SUPPORT_A5_ALSA OR HAVE_DSOUND)
+else(OPENAL_FOUND OR SUPPORT_ALSA OR HAVE_DSOUND)
     message(STATUS "kcm_audio wanted but no supported backend found\n")
-endif(OPENAL_FOUND OR SUPPORT_A5_ALSA OR HAVE_DSOUND)
+endif(OPENAL_FOUND OR SUPPORT_ALSA OR HAVE_DSOUND)
 
 #-----------------------------------------------------------------------------#
 # vi: set ts=8 sts=4 sw=4 et:

@@ -26,6 +26,9 @@ ALLEGRO_AUDIO_DRIVER *_al_kcm_driver = NULL;
 #if defined(ALLEGRO_CFG_KCM_ALSA)
    extern struct ALLEGRO_AUDIO_DRIVER _alsa_driver;
 #endif
+#if defined(ALLEGRO_CFG_KCM_OSS)
+   extern struct ALLEGRO_AUDIO_DRIVER _oss_driver;
+#endif
 #if defined(ALLEGRO_CFG_KCM_DSOUND)
    extern struct ALLEGRO_AUDIO_DRIVER _dsound_driver;
 #endif
@@ -105,6 +108,9 @@ int al_audio_init(ALLEGRO_AUDIO_DRIVER_ENUM mode)
          retVal = al_audio_init(ALLEGRO_AUDIO_DRIVER_DSOUND);
          if (retVal == 0)
             return 0;
+         retVal = al_audio_init(ALLEGRO_AUDIO_DRIVER_OSS);
+         if (retVal == 0)
+            return 0;
          _al_kcm_driver = NULL;
          return 1;
 
@@ -131,6 +137,19 @@ int al_audio_init(ALLEGRO_AUDIO_DRIVER_ENUM mode)
             return 1;
          #else
             _al_set_error(ALLEGRO_INVALID_PARAM, "ALSA not available on this platform");
+            return 1;
+         #endif
+
+      case ALLEGRO_AUDIO_DRIVER_OSS:
+         #if defined(ALLEGRO_CFG_KCM_OSS)
+            if (_oss_driver.open() == 0) {
+               fprintf(stderr, "Using OSS driver\n");
+               _al_kcm_driver = &_oss_driver;
+               return 0;
+            }
+            return 1;
+         #else
+            _al_set_error(ALLEGRO_INVALID_PARAM, "OSS not available on this platform");
             return 1;
          #endif
 
