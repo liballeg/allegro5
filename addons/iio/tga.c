@@ -395,9 +395,9 @@ static ALLEGRO_BITMAP *iio_load_tga_pf(PACKFILE *f)
                int true_x = (left_to_right) ? i : (image_width - 1 - i);
                int pix = buf[i];
                ALLEGRO_COLOR color = al_map_rgb(
-                  image_palette[pix][0],
+                  image_palette[pix][2],
                   image_palette[pix][1],
-                  image_palette[pix][2]);
+                  image_palette[pix][0]);
                al_put_pixel(true_x, true_y, color);
             }
 
