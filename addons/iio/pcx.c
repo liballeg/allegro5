@@ -11,7 +11,7 @@ static ALLEGRO_BITMAP *iio_load_pcx_pf(PACKFILE *f)
    int c;
    int width, height;
    int bpp, bytes_per_line;
-   int x, xx = 0, y;
+   int x, xx, y;
    char ch;
    ALLEGRO_LOCKED_REGION lr;
    unsigned char *buf;
@@ -57,9 +57,13 @@ static ALLEGRO_BITMAP *iio_load_pcx_pf(PACKFILE *f)
    //*allegro_errno = 0;
 
    if (bpp == 8) {
+      /* The palette comes after the image data.  We need to to keep the
+       * whole image in a temporary buffer before mapping the final colours.
+       */
       buf = (unsigned char *)malloc(bytes_per_line*height);
    }
    else {
+      /* We can read one line at a time. */
       buf = (unsigned char *)malloc(bytes_per_line*3);
    }
 
@@ -67,25 +71,36 @@ static ALLEGRO_BITMAP *iio_load_pcx_pf(PACKFILE *f)
    al_set_target_bitmap(b);
    al_lock_bitmap(b, &lr, ALLEGRO_LOCK_WRITEONLY);
 
+   xx = 0;                          /* index into buf, only for bpp = 8 */
+
    for (y=0; y<height; y++) {       /* read RLE encoded PCX data */
 
       x = 0;
 
       while (x < bytes_per_line*bpp/8) {
 	 ch = pack_getc(f);
-	 if ((ch & 0xC0) == 0xC0) {
+	 if ((ch & 0xC0) == 0xC0) { /* a run */
 	    c = (ch & 0x3F);
 	    ch = pack_getc(f);
 	 }
-	 else
-	    c = 1;
+	 else {
+	    c = 1;                  /* single pixel */
+         }
 
-         
-         while (c--) {
-            buf[xx] = ch;
-	    x++;
-            xx++;
-	 }
+         if (bpp == 8) {
+            while (c--) {
+               if (x < width)       /* ignore padding */
+                  buf[xx++] = ch;
+               x++;
+            }
+         }
+         else {
+            while (c--) {
+               if (x < width*3)     /* ignore padding */
+                  buf[x] = ch;
+               x++;
+            }
+         }
       }
       if (bpp == 24) {
          int i;
@@ -96,7 +111,6 @@ static ALLEGRO_BITMAP *iio_load_pcx_pf(PACKFILE *f)
             ALLEGRO_COLOR color = al_map_rgb(r, g, b);
             al_put_pixel(i, y, color);
          }
-         xx = 0;
       }
    }
 
