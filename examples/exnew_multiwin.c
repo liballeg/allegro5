@@ -11,7 +11,6 @@ int main(void)
    ALLEGRO_EVENT event;
    ALLEGRO_EVENT_QUEUE *events;
    ALLEGRO_BITMAP *pictures[2];
-   bool quit = false;
    int i;
 
    al_init();
@@ -47,14 +46,14 @@ int main(void)
       return 1;
    }
 
-   while (!quit) {
+   while (1) {
       /* read input */
       while (!al_event_queue_is_empty(events)) {
          al_get_next_event(events, &event);
          if (event.type == ALLEGRO_EVENT_KEY_DOWN) {
             ALLEGRO_KEYBOARD_EVENT *key = &event.keyboard;
             if (key->keycode == ALLEGRO_KEY_ESCAPE) {
-               quit = 1;
+               goto done;
             }
          }
          if (event.type == ALLEGRO_EVENT_DISPLAY_RESIZE) {
@@ -78,7 +77,7 @@ int main(void)
                if (display[i])
                   goto not_done;
             }
-            quit = 1;
+            goto done;
          not_done:
             ;
          }
@@ -102,6 +101,7 @@ int main(void)
       al_rest(0.001);
    }
 
+done:
    al_destroy_bitmap(pictures[0]);
    al_destroy_bitmap(pictures[1]);
 

@@ -285,11 +285,31 @@ static LRESULT CALLBACK window_callback(HWND hWnd, UINT message,
          case WM_MOUSEACTIVATE:
             return MA_ACTIVATEANDEAT;
          case WM_SETCURSOR:
-            if (win_display->mouse_cursor_shown) {
-               SetCursor(win_display->mouse_selected_hcursor);
-            }
-            else {
-               SetCursor(NULL);
+            switch (LOWORD(lParam)) {
+               case HTLEFT:
+               case HTRIGHT:
+                  SetCursor(LoadCursor(NULL, IDC_SIZEWE));
+                  break;
+               case HTBOTTOM:
+               case HTTOP:
+                  SetCursor(LoadCursor(NULL, IDC_SIZENS));
+                  break;
+               case HTBOTTOMLEFT:
+               case HTTOPRIGHT:
+                  SetCursor(LoadCursor(NULL, IDC_SIZENESW));
+                  break;
+               case HTBOTTOMRIGHT:
+               case HTTOPLEFT:
+                  SetCursor(LoadCursor(NULL, IDC_SIZENWSE));
+                  break;
+               default:
+                  if (win_display->mouse_cursor_shown) {
+                     SetCursor(win_display->mouse_selected_hcursor);
+                  }
+                  else {
+                     SetCursor(NULL);
+                  }
+                  break;
             }
             return 1;
          //case WM_SETCURSOR:
