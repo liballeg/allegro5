@@ -10,7 +10,7 @@ int main(void)
    ALLEGRO_EVENT_QUEUE *events;
    ALLEGRO_EVENT event;
    bool down = false;
-   int down_x, down_y;
+   int down_x = 0, down_y = 0;
    ALLEGRO_TIMER *timer;
    bool frame = false;
 

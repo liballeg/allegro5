@@ -21,8 +21,8 @@ void *thread_func(ALLEGRO_THREAD *thr, void *arg)
 {
    const Background *background = (Background *) arg;
    ALLEGRO_DISPLAY *display;
-   ALLEGRO_EVENT_QUEUE *queue;
-   ALLEGRO_TIMER *timer;
+   ALLEGRO_EVENT_QUEUE *queue = NULL;
+   ALLEGRO_TIMER *timer = NULL;
    ALLEGRO_EVENT event;
    double theta = 0.0;
 

@@ -342,8 +342,6 @@ static int _dsound_start_voice(ALLEGRO_VOICE *voice)
       ex_data->wave_fmt.wBitsPerSample = ex_data->bits_per_sample;
       ex_data->wave_fmt.cbSize = 0;
 
-      fprintf(stderr, "Channels=%d frequency=%d bits-per-sample=%d\n", ex_data->channels, voice->frequency, ex_data->bits_per_sample);
-
       ex_data->desc.dwSize = sizeof(DSBUFFERDESC);
       ex_data->desc.dwFlags = DSBCAPS_LOCSOFTWARE; /* FIXME: software mixing for now */
       ex_data->desc.dwBufferBytes = BUFSIZE;
