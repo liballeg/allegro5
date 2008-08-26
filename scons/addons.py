@@ -6,27 +6,32 @@ def getOption(context, name, default = 0):
         return default
 
 def do_build(context, source, dir, name, examples = [],
-    install_headers = [], includes = [], example_libs = [], configs = []):
+    install_headers = [], includes = [], example_libs = [], configs = [],
+    libs = []):
     def build(env, appendDir, buildDir, libDir ):
         libEnv = env.Clone()
         libEnv.Append(CPPPATH = includes)
+        libEnv.Append(LIBS = libs)
         for i in configs:
             try:
                 libEnv.ParseConfig(i)
             except OSError:
-		print "Could not run '%s'. Please add a configure check so this error does not appear" % i
+                print("Could not run '%s'. Please add a configure check so " +
+                    "this error does not appear" % i)
                 # Could not exec the configuration, bail out!
                 return []
-        lib = context.makeLibrary( libEnv )( libDir + ('/%s' % name), appendDir(buildDir + ('/addons/%s' % dir),source))
+        lib = context.makeLibrary( libEnv )( libDir + ('/%s' % name),
+            appendDir(buildDir + ('/addons/%s' % dir), source))
 
         exampleEnv = env.Clone()
         exampleEnv.Append(CPPPATH = includes)
         exampleEnv.Append(LIBS = [context.libraryName(name)])
-        exampleEnv.Append(LIBS = example_libs)
+        exampleEnv.Append(LIBS = example_libs + libs)
     
         build_examples = []
         def addExample(ex_name, files):
-            example = exampleEnv.Program('addons/%s/%s' % (dir,ex_name), appendDir(buildDir + ('/addons/%s/' % dir), files))
+            example = exampleEnv.Program('addons/%s/%s' % (dir,ex_name),
+                appendDir(buildDir + ('/addons/%s/' % dir), files))
             env.Alias('%s-%s' % (name,ex_name), example)
             build_examples.append(example)
 

@@ -1,12 +1,27 @@
 Import("context")
-import addons
+import addons, helpers
+
+config = context.getLibraryEnv().Configure()
+settings = helpers.SimpleHash()
+
+settings["ALLEGRO_CFG_IIO_HAVE_PNG"] = config.CheckHeader("png.h") and\
+    config.CheckLib("png")
+
+config.Finish()
+
+helpers.parse_cmake_h(context.getLibraryEnv(),
+    settings,
+    "#addons/iio/allegro5/internal/aintern_iio_cfg.h.cmake",
+    "#addons/iio/allegro5/internal/aintern_iio_cfg.h")
 
 addons.do_build(
     context = context,
-    source = ["bmp.c", "iio.c", "pcx.c", "tga.c"],
-    dir = 'iio',
-    name = 'a5_iio',
-    install_headers = ['allegro5/a5_iio.h']
+    source = ["bmp.c", "iio.c", "pcx.c", "tga.c", "png.c"],
+    libs = ["png", "z"],
+    dir = "iio",
+    name = "a5_iio",
+    install_headers = ["allegro5/a5_iio.h",
+    "allegro5/internal/aintern_iio_cfg.h"]
 )
 
 x = True
