@@ -479,9 +479,10 @@ static int key_dinput_init(void)
       /* the data */
       DINPUT_BUFFERSIZE,         // dwData
    };
+   MAKE_UNION(&key_dinput, LPDIRECTINPUT8 *);
 
    /* Get DirectInput interface */
-   hr = DirectInput8Create(GetModuleHandle(NULL), DIRECTINPUT_VERSION, &IID_IDirectInput8A, (LPVOID *)&key_dinput, NULL);
+   hr = DirectInput8Create(GetModuleHandle(NULL), DIRECTINPUT_VERSION, &IID_IDirectInput8A, u.v, NULL);
    if (FAILED(hr)) {
       TRACE("DirectInputCreate failed.\n");
       goto Error;

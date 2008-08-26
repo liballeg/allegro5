@@ -48,11 +48,11 @@ if(USE_CXX AND SUPPORT_FONT AND SUPPORT_KCM_AUDIO AND SUPPORT_ACODEC)
         LINK_FLAGS "${MAYBE_ALLEGRO_STATICLINK}"
         )
     target_link_libraries(demo
-        ${LINK_WITH}
-        ${IIO_LINK_WITH}
         ${FONT_LINK_WITH}
-        ${AUDIO_LINK_WITH}
+        ${IIO_LINK_WITH}
         ${ACODEC_LINK_WITH}
+        ${AUDIO_LINK_WITH}
+        ${LINK_WITH}
         )
 else(USE_CXX AND SUPPORT_FONT AND SUPPORT_KCM_AUDIO AND SUPPORT_ACODEC)
     message(STATUS "Not building demo")

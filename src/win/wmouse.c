@@ -766,9 +766,10 @@ static int mouse_dinput_init(void)
       /* the data */
       DINPUT_BUFFERSIZE,        // dwData
    };
+   MAKE_UNION(&mouse_dinput, LPDIRECTINPUT *);
 
    /* Get DirectInput interface */
-   hr = DirectInput8Create(GetModuleHandle(NULL), DIRECTINPUT_VERSION, &IID_IDirectInput8A, (LPVOID *)&mouse_dinput, NULL);
+   hr = DirectInput8Create(GetModuleHandle(NULL), DIRECTINPUT_VERSION, &IID_IDirectInput8A, u.v, NULL);
    if (FAILED(hr))
       goto Error;
 

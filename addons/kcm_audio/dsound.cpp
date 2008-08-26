@@ -21,6 +21,13 @@ const IID GUID_NULL = { 0, 0, 0, { 0, 0, 0, 0, 0, 0, 0, 0 } };
 extern "C" {
 #include "allegro5/internal/aintern_kcm_audio.h"
 
+/* This is used to stop MinGW from complaining about type-punning */
+#define MAKE_UNION(ptr, t) \
+   union { \
+      LPVOID *v; \
+      t p; \
+   } u; \
+   u.p = (ptr);
 
 /* DirectSound vars */
 static IDirectSound8 *device;
@@ -270,6 +277,7 @@ static int _dsound_load_voice(ALLEGRO_VOICE *voice, const void *data)
    ALLEGRO_DS_DATA *ex_data = (ALLEGRO_DS_DATA *)voice->extra;
    LPVOID ptr1, ptr2;
    DWORD block1_bytes, block2_bytes;
+   MAKE_UNION(&ex_data->ds8_buffer, LPDIRECTSOUNDBUFFER8 *);
 
    ex_data->wave_fmt.wFormatTag = WAVE_FORMAT_PCM;
    ex_data->wave_fmt.nChannels = ex_data->channels;
@@ -292,7 +300,7 @@ static int _dsound_load_voice(ALLEGRO_VOICE *voice, const void *data)
       return 1;
    }
 
-   ex_data->ds_buffer->QueryInterface(IID_IDirectSoundBuffer8, (void **)&ex_data->ds8_buffer);
+   ex_data->ds_buffer->QueryInterface(IID_IDirectSoundBuffer8, u.v);
 
    hr = ex_data->ds8_buffer->Lock(0, voice->buffer_size, &ptr1, &block1_bytes, &ptr2, &block2_bytes,
       0);
@@ -323,6 +331,7 @@ static void _dsound_unload_voice(ALLEGRO_VOICE *voice)
 static int _dsound_start_voice(ALLEGRO_VOICE *voice)
 {
    ALLEGRO_DS_DATA *ex_data = (ALLEGRO_DS_DATA *)voice->extra;
+   MAKE_UNION(&ex_data->ds8_buffer, LPDIRECTSOUNDBUFFER8 *);
 
    if (!voice->is_streaming) {
       ex_data->ds8_buffer->SetCurrentPosition(0);
@@ -356,7 +365,7 @@ static int _dsound_start_voice(ALLEGRO_VOICE *voice)
          return 1;
       }
 
-      ex_data->ds_buffer->QueryInterface(IID_IDirectSoundBuffer8, (void **)&ex_data->ds8_buffer);
+      ex_data->ds_buffer->QueryInterface(IID_IDirectSoundBuffer8, u.v);
 
       ex_data->ds8_buffer->SetVolume(DSBVOLUME_MAX);
 
@@ -425,7 +434,7 @@ static unsigned long _dsound_get_voice_position(const ALLEGRO_VOICE *voice)
    if (FAILED(hr))
       return 0;
 
-   return play_pos;
+   return play_pos / (ex_data->channels / (ex_data->bits_per_sample/8));
 }
 
 /* The set_voice_position method should set the voice's playback position,
@@ -434,6 +443,8 @@ static unsigned long _dsound_get_voice_position(const ALLEGRO_VOICE *voice)
 static int _dsound_set_voice_position(ALLEGRO_VOICE *voice, unsigned long val)
 {
    ALLEGRO_DS_DATA *ex_data = (ALLEGRO_DS_DATA *)voice->extra;
+
+   val *= ex_data->channels * (ex_data->bits_per_sample/8);
 
    hr = ex_data->ds8_buffer->SetCurrentPosition(val);
    if (FAILED(hr))

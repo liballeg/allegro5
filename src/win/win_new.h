@@ -7,6 +7,16 @@
 extern "C" {
 #endif
 
+
+/* This is used to stop MinGW from complaining about type-punning */
+#define MAKE_UNION(ptr, t) \
+   union { \
+      LPVOID *v; \
+      t p; \
+   } u; \
+   u.p = (ptr);
+
+
 typedef struct ALLEGRO_SYSTEM_WIN ALLEGRO_SYSTEM_WIN;
 
 /* This is our version of ALLEGRO_SYSTEM with driver specific extra data. */

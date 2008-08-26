@@ -662,6 +662,7 @@ static BOOL CALLBACK joystick_enum_callback(LPCDIDEVICEINSTANCE lpddi, LPVOID pv
 static bool joydx_init_joystick(void)
 {
    HRESULT hr;
+   MAKE_UNION(&joystick_dinput, LPDIRECTINPUT *);
 
    /* make sure all the constants add up */
    /* the first two sticks are (x,y,z) and (rx,ry,rz) */
@@ -680,8 +681,8 @@ static bool joydx_init_joystick(void)
       */
 
    /* get the DirectInput interface */
-   hr = DirectInput8Create(GetModuleHandle(NULL), DIRECTINPUT_VERSION, &IID_IDirectInput8A, (LPVOID *)&joystick_dinput, NULL);
-   if (FAILED(hr)) {
+   hr = DirectInput8Create(GetModuleHandle(NULL), DIRECTINPUT_VERSION, &IID_IDirectInput8A, u.v, NULL);
+  if (FAILED(hr)) {
       joystick_dinput = NULL;
       return false;
    }
