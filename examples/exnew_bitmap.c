@@ -28,7 +28,7 @@ int main(int argc, const char *argv[])
     al_show_mouse_cursor();
     bitmap = al_iio_load(filename);
     if (!bitmap) {
-       TRACE("mysha.pcx not found");
+       TRACE("%s not found or failed to load", filename);
        return 1;
     }
 
