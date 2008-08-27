@@ -116,10 +116,11 @@ void _al_mutex_init_recursive(_AL_MUTEX *mutex)
 void _al_mutex_destroy(_AL_MUTEX *mutex)
 {
    ASSERT(mutex);
-   ASSERT(mutex->inited);
 
-   pthread_mutex_destroy(&mutex->mutex);
-   mutex->inited = false;
+   if (mutex->inited) {
+      pthread_mutex_destroy(&mutex->mutex);
+      mutex->inited = false;
+   }
 }
 
 

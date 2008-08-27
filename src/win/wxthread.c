@@ -102,11 +102,12 @@ void _al_mutex_init_recursive(_AL_MUTEX *mutex)
 void _al_mutex_destroy(_AL_MUTEX *mutex)
 {
    ASSERT(mutex);
-   ASSERT(mutex->cs);
 
-   DeleteCriticalSection(mutex->cs);
-   _AL_FREE(mutex->cs);
-   mutex->cs = NULL;
+   if (mutex->cs) {
+      DeleteCriticalSection(mutex->cs);
+      _AL_FREE(mutex->cs);
+      mutex->cs = NULL;
+   }
 }
 
 
