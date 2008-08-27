@@ -27,6 +27,7 @@ ALLEGRO_TIMER       *timer_b;
 ALLEGRO_TIMER       *timer_c;
 ALLEGRO_FONT         *myfont;
 ALLEGRO_COLOR        black;
+ALLEGRO_COLOR        grey;
 ALLEGRO_COLOR        white;
 
 /* circular array of log messages */
@@ -83,6 +84,8 @@ static void draw_message_log(void)
          break;
       }
    }
+
+   al_set_blender(ALLEGRO_ONE, ALLEGRO_ZERO, white);
 }
 
 
@@ -92,6 +95,7 @@ static void print(int x, int y, char const *message)
 {
    al_set_blender(ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA, black);
    al_font_textout(myfont, message, x, y);
+   al_set_blender(ALLEGRO_ONE, ALLEGRO_ZERO, white);
 }
 
 
@@ -121,7 +125,7 @@ void log_key_down(int keycode, int unichar, int modifiers)
 
    usetat(unistr, 0, unichar);
    uszprintf(buf, sizeof(buf),
-      "Down: %3d <%s> %04x [%08x]", keycode, unistr, unichar, modifiers);
+      "Down: %3d <%1s> %04x [%08x]", keycode, unistr, unichar, modifiers);
    log_message(buf);
 }
 
@@ -134,7 +138,7 @@ void log_key_repeat(int keycode, int unichar, int modifiers)
 
    usetat(unistr, 0, unichar);
    uszprintf(buf, sizeof(buf),
-      "Rept: %3d <%s> %04x [%08x]", keycode, unistr, unichar, modifiers);
+      "Rept: %3d <%1s> %04x [%08x]", keycode, unistr, unichar, modifiers);
    log_message(buf);
 }
 
@@ -147,7 +151,7 @@ void log_key_up(int keycode, int unichar, int modifiers)
 
    usetat(unistr, 0, unichar);
    uszprintf(buf, sizeof(buf),
-      "Up:   %3d <%s> %04x [%08x]", keycode, unistr, unichar, modifiers);
+      "Up:   %3d <%1s> %04x [%08x]", keycode, unistr, unichar, modifiers);
    log_message(buf);
 }
 
@@ -198,9 +202,10 @@ void draw_mouse_button(int but, bool down)
    x = 400 + offset[but-1];
    y = 130;
 
-   al_draw_rectangle(x, y, x + 25, y + 40, black, ALLEGRO_OUTLINED);
+   al_draw_rectangle(x, y, x + 26.5, y + 41.5, grey, ALLEGRO_FILLED);
+   al_draw_rectangle(x, y, x + 26.5, y + 41.5, black, ALLEGRO_OUTLINED);
    if (down) {
-      al_draw_rectangle(x + 2, y + 2, x + 24, y + 39, black, ALLEGRO_FILLED);
+      al_draw_rectangle(x + 2, y + 2, x + 24.5, y + 39.5, black, ALLEGRO_FILLED);
    }
 }
 
@@ -228,8 +233,10 @@ void draw_joystick_axes(ALLEGRO_JOYSTICK_STATE *jst)
    x = 470 + joys_x * 50;
    y = 300 + joys_y * 50;
 
-   al_draw_rectangle(470-60, 300-60, 470+60, 300+60, black, ALLEGRO_OUTLINED);
-   al_draw_rectangle(x-5, y-5, x+5, y+5, black, ALLEGRO_FILLED);
+   al_draw_rectangle(470-60, 300-60, 470+60.5, 300+60.5, grey, ALLEGRO_FILLED);
+   al_draw_rectangle(470-60, 300-60, 470+60.5, 300+60.5, black,
+      ALLEGRO_OUTLINED);
+   al_draw_rectangle(x-5, y-5, x+5.5, y+5.5, black, ALLEGRO_FILLED);
 }
 
 
@@ -242,9 +249,11 @@ void draw_joystick_button(int button, bool down)
    x = 400 + (button % 5) * 30;
    y = 400 + (button / 5) * 30;
 
-   al_draw_rectangle(x, y, x + 25, y + 25, black, ALLEGRO_OUTLINED);
+   al_draw_rectangle(x, y, x + 25.5, y + 25.5, grey, ALLEGRO_FILLED);
+   al_draw_rectangle(x, y, x + 25.5, y + 25.5, black, ALLEGRO_OUTLINED);
    if (down) {
-      al_draw_rectangle(x + 2, y + 2, x + 24, y + 24, black, ALLEGRO_FILLED);
+      al_draw_rectangle(x + 2, y + 2, x + 24.5, y + 24.5, black,
+         ALLEGRO_FILLED);
    }
 }
 
@@ -478,12 +487,13 @@ int main(void)
     */
    al_show_mouse_cursor();
 
-   myfont = al_font_load_font("font.tga", 0);
+   myfont = al_font_load_font("fixed_font.tga", 0);
    if (!myfont) {
-      TRACE("font.tga not found\n");
+      TRACE("fixed_font.tga not found\n");
       return 1;
    }
    black = al_map_rgb(0, 0, 0);
+   grey = al_map_rgb(0xe0, 0xe0, 0xe0);
    white = al_map_rgb(255, 255, 255);
 
    /* Install the joystick routines. */
