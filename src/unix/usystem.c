@@ -49,18 +49,6 @@
 
 
 
-
-
-
-#ifndef ALLEGRO_MACOSX
-
-/* background function manager */
-struct bg_manager *_unix_bg_man;
-
-#endif
-
-
-
 /* _unix_find_resource:
  *  Helper for locating a Unix config file. Looks in the home directory
  *  of the current user, and in /etc.

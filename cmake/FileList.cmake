@@ -194,7 +194,6 @@ set(ALLEGRO_SRC_UNIX_FILES
     src/unix/umodules.c
     src/unix/umouse.c
     src/unix/usystem.c
-    src/unix/uthreads.c
     src/unix/utime.c
     src/unix/uxthread.c
     src/misc/modexsms.c
@@ -226,7 +225,6 @@ set(ALLEGRO_SRC_QNX_FILES
     src/unix/ufile.c
     src/unix/umain.c
     src/unix/usystem.c
-    src/unix/uthreads.c
     src/unix/utimer.c
     src/misc/colconv.c
     src/misc/pckeys.c
@@ -244,7 +242,6 @@ set(ALLEGRO_SRC_MACOSX_FILES
     src/macosx/system.m
     src/macosx/osxgl.m
     src/unix/ufile.c
-    src/unix/uthreads.c
     src/unix/utime.c
     src/unix/uxthread.c
     src/opengl/extensions.c

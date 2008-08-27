@@ -27,11 +27,6 @@
 extern "C" {
 #endif
 
-   /* Macros to enable and disable interrupts */
-   #define DISABLE() _unix_bg_man->disable_interrupts()
-   #define ENABLE()  _unix_bg_man->enable_interrupts()
-
-
    /* Helper for locating config files */
    AL_FUNC(int, _unix_find_resource, (char *dest, AL_CONST char *resource, int size));
 
@@ -73,7 +68,6 @@ extern "C" {
    AL_FUNC(size_t, _unix_get_page_size, (void));
 
 #ifdef ALLEGRO_WITH_XWINDOWS
-   AL_ARRAY(_DRIVER_INFO, _xwin_gfx_driver_list);
    AL_ARRAY(_DRIVER_INFO, _al_xwin_keyboard_driver_list);
    AL_ARRAY(_DRIVER_INFO, _al_xwin_mouse_driver_list);
 #endif
@@ -89,39 +83,6 @@ extern "C" {
 #endif
 
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
-/* Typedef for background functions, called frequently in the background.
- * `threaded' is nonzero if the function is being called from a thread.
- */
-typedef void (*bg_func) (int threaded);
-
-/* Background function manager -- responsible for calling background 
- * functions.  `int' methods return -1 on failure, 0 on success. */
-struct bg_manager
-{
-   int multi_threaded;
-   int (*init) (void);
-   void (*exit) (void);
-   int (*register_func) (bg_func f);
-   int (*unregister_func) (bg_func f);
-   void (*enable_interrupts) (void);
-   void (*disable_interrupts) (void);
-   int (*interrupts_disabled) (void);
-};	
-
-extern struct bg_manager _bg_man_pthreads;
-
-extern struct bg_manager *_unix_bg_man;
-
-
-#ifdef __cplusplus
-}
-#endif
-
-
 
 /*----------------------------------------------------------------------*
  *									*
@@ -130,7 +91,6 @@ extern struct bg_manager *_unix_bg_man;
  *----------------------------------------------------------------------*/
 
 /* TODO: integrate this above */
-/* TODO: replace bg_man */
 
 #include "allegro5/platform/aintuthr.h"
 
