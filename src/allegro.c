@@ -31,10 +31,6 @@
 #define PREFIX_E                "al-main ERROR: "
 
 
-/* error value, which will work even with DLL linkage */
-int *allegro_errno = NULL;
-
-
 /* debugging stuff */
 static int debug_assert_virgin = TRUE;
 static int debug_trace_virgin = TRUE;

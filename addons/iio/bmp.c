@@ -760,7 +760,7 @@ static int iio_save_bmp_pf(PACKFILE *f, ALLEGRO_BITMAP *bmp)
       bfSize = 54 + biSizeImage;       /* header + image data */
    }
 
-   //*allegro_errno = 0;
+   al_set_errno(0);
 
    /* file_header */
    pack_iputw(0x4D42, f);              /* bfType ("BM") */
@@ -806,9 +806,9 @@ static int iio_save_bmp_pf(PACKFILE *f, ALLEGRO_BITMAP *bmp)
 
    al_unlock_bitmap(bmp);
 
-   //if (*allegro_errno)
-    //  return -1;
-   //else
+   if (al_get_errno())
+      return -1;
+   else
       return 0;
 }
 

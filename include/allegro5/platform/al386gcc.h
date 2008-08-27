@@ -110,11 +110,11 @@ AL_INLINE(void, bmp_unwrite_line, (BITMAP *bmp),
    #define __PRECALCULATE_CONSTANTS(calc)                                  \
       if(__builtin_constant_p(x) && __builtin_constant_p(y)) {             \
 	 if((calc) > (double)0x7FFFFFFF) {                                 \
-	    *allegro_errno = ERANGE;                                       \
+	    al_set_errno(ERANGE);                                          \
 	    return 0x7FFFFFFF;                                             \
 	 }                                                                 \
 	 else if(-(calc) > (double)0x7FFFFFFF) {                           \
-	    *allegro_errno = ERANGE;                                       \
+	    al_set_errno(ERANGE);                                          \
 	    return -0x7FFFFFFF;                                            \
 	 }                                                                 \
 	 else                                                              \
@@ -133,6 +133,7 @@ AL_INLINE(void, bmp_unwrite_line, (BITMAP *bmp),
 AL_INLINE(fixed, fixadd, (fixed x, fixed y),
 {
    fixed result;
+   int errnum = 0;
 
    __PRECALCULATE_CONSTANTS(x + (double)y)
    {
@@ -154,10 +155,13 @@ AL_INLINE(fixed, fixadd, (fixed x, fixed y),
       : "0" (x),                          /* x in the output register */
 	"rm" (y),                         /* y can go in register or memory */
 	"i" (ERANGE),
-	"m" (allegro_errno)
+	"m" (errnum)
 
       : "%cc", "memory"                   /* clobbers flags and errno */
       );
+
+      if (errnum)
+         al_set_errno(errnum);
 
       return result;
    }
@@ -171,6 +175,7 @@ AL_INLINE(fixed, fixadd, (fixed x, fixed y),
 AL_INLINE(fixed, fixsub, (fixed x, fixed y),
 {
    fixed result;
+   int errnum = 0;
 
    __PRECALCULATE_CONSTANTS(x - (double)y)
    {
@@ -192,10 +197,13 @@ AL_INLINE(fixed, fixsub, (fixed x, fixed y),
       : "0" (x),                          /* x in the output register */
 	"rm" (y),                         /* y can go in register or memory */
 	"i" (ERANGE),
-	"m" (allegro_errno)
+	"m" (errnum)
 
       : "%cc", "memory"                   /* clobbers flags and errno */
       );
+
+      if (errnum)
+         al_set_errno(errnum);
 
       return result;
    }
@@ -210,6 +218,7 @@ AL_INLINE(fixed, fixmul, (fixed x, fixed y),
 {
    fixed edx __attribute__ ((__unused__));
    fixed result;
+   int errnum = 0;
 
    __PRECALCULATE_CONSTANTS(x / 65536.0 * y)
    {
@@ -244,10 +253,13 @@ AL_INLINE(fixed, fixmul, (fixed x, fixed y),
       : "mr" (x),                         /* x and y can be regs or mem */
 	"mr" (y),
 	"i" (ERANGE),
-	"m" (allegro_errno)
+	"m" (errnum)
 
       : "%cc", "memory"                   /* clobbers flags and errno */
       );
+
+      if (errnum)
+         al_set_errno(errnum);
 
       return result;
    }
@@ -263,6 +275,7 @@ AL_INLINE(fixed, fixdiv, (fixed x, fixed y),
    fixed edx __attribute__ ((__unused__));
    fixed reg __attribute__ ((__unused__));
    fixed result;
+   int errnum = 0;
 
    __PRECALCULATE_CONSTANTS(x * 65536.0 / y)
    {
@@ -327,10 +340,13 @@ AL_INLINE(fixed, fixdiv, (fixed x, fixed y),
       : "0" (x),                          /* x in eax */
 	"2" (y),                          /* y in register */
 	"i" (ERANGE),
-	"m" (allegro_errno)
+	"m" (errnum)
 
       : "%cc", "memory"                   /* clobbers flags and memory  */
       );
+
+      if (errnum)
+         al_set_errno(errnum);
 
       return result;
    }
@@ -366,6 +382,7 @@ AL_INLINE(int, fixfloor, (fixed x),
 AL_INLINE(int, fixceil, (fixed x),
 {
    int result;
+   int errnum = 0;
 
    __asm__ (
       " addl $0xFFFF, %0 ;"	/* ceil () */
@@ -386,10 +403,13 @@ AL_INLINE(int, fixceil, (fixed x),
 
     : "0" (x),			/* x in the output register */
       "i" (ERANGE),
-      "m" (allegro_errno)
+      "m" (errnum)
 
     : "%cc", "memory"		/* clobbers flags and errno */
    );
+
+   if (errnum)
+      al_set_errno(errnum);
 
    return result;
 })

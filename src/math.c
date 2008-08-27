@@ -253,18 +253,18 @@ fixed fixatan2(fixed y, fixed x)
 
    if (x==0) {
       if (y==0) {
-	 *allegro_errno = EDOM;
+	 al_set_errno(EDOM);
 	 return 0L;
       }
       else
 	 return ((y < 0) ? -0x00400000L : 0x00400000L);
    } 
 
-   *allegro_errno = 0;
+   al_set_errno(0);
    r = fixdiv(y, x);
 
-   if (*allegro_errno) {
-      *allegro_errno = 0;
+   if (al_get_errno()) {
+      al_set_errno(0);
       return ((y < 0) ? -0x00400000L : 0x00400000L);
    }
 
@@ -346,7 +346,7 @@ fixed fixsqrt(fixed x)
       return ftofix(sqrt(fixtof(x)));
 
    if (x < 0)
-      *allegro_errno = EDOM;
+      al_set_errno(EDOM);
 
    return 0;
 }

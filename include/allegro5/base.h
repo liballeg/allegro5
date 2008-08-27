@@ -90,8 +90,6 @@ AL_BEGIN_EXTERN_C
 
 #define AL_ID(a,b,c,d)     (((a)<<24) | ((b)<<16) | ((c)<<8) | (d))
 
-AL_VAR(int *, allegro_errno);
-
 typedef struct _DRIVER_INFO         /* info about a hardware driver */
 {
    int id;                          /* integer ID */

@@ -747,9 +747,9 @@ int al_get_errno(void)
 /* Function: al_get_errno
  *  Set the error number for for the calling thread.
  */
-void al_set_errno(int err)
+void al_set_errno(int errnum)
 {
    if ((tls = tls_get()) == NULL)
       return;
-   tls->allegro_errno = err;
+   tls->allegro_errno = errnum;
 }

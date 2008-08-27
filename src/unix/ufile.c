@@ -69,7 +69,7 @@ uint64_t _al_file_size_ex(AL_CONST char *filename)
    char tmp[1024];
 
    if (stat(uconvert(filename, U_CURRENT, tmp, U_UTF8, sizeof(tmp)), &s) != 0) {
-      *allegro_errno = errno;
+      al_set_errno(errno);
       return 0;
    }
 
@@ -87,7 +87,7 @@ time_t _al_file_time(AL_CONST char *filename)
    char tmp[1024];
 
    if (stat(uconvert(filename, U_CURRENT, tmp, U_UTF8, sizeof(tmp)), &s) != 0) {
-      *allegro_errno = errno;
+      al_set_errno(errno);
       return 0;
    }
 
@@ -313,7 +313,7 @@ int al_findfirst(AL_CONST char *pattern, struct al_ffblk *info, int attrib)
    /* allocate ff_data structure */
    ff_data = _AL_MALLOC(sizeof(struct FF_DATA));
    if (!ff_data) {
-      *allegro_errno = ENOMEM;
+      al_set_errno(ENOMEM);
       return -1;
    }
 
@@ -323,7 +323,8 @@ int al_findfirst(AL_CONST char *pattern, struct al_ffblk *info, int attrib)
    /* if the pattern contains no wildcard, we use stat() */
    if (!ustrpbrk(pattern, uconvert("?*", U_ASCII, tmp, U_CURRENT, sizeof(tmp)))) {
       /* start the search */
-      errno = *allegro_errno = 0;
+      errno = 0;
+      al_set_errno(0);
 
       if (stat(uconvert(pattern, U_CURRENT, tmp, U_UTF8, sizeof(tmp)), &s) == 0) {
          /* get file attributes */
@@ -342,7 +343,7 @@ int al_findfirst(AL_CONST char *pattern, struct al_ffblk *info, int attrib)
 
        _AL_FREE(ff_data);
       info->ff_data = NULL;
-      *allegro_errno = (errno ? errno : ENOENT);
+      al_set_errno(errno ? errno : ENOENT);
       return -1;
    }
 
@@ -361,12 +362,13 @@ int al_findfirst(AL_CONST char *pattern, struct al_ffblk *info, int attrib)
       _al_sane_strncpy(ff_data->pattern, "*", FF_MAXPATHLEN);
 
    /* start the search */
-   errno = *allegro_errno = 0;
+   errno = 0;
+   al_set_errno(0);
 
    ff_data->dir = opendir(ff_data->dirname);
 
    if (!ff_data->dir) {
-      *allegro_errno = (errno ? errno : ENOENT);
+      al_set_errno(errno ? errno : ENOENT);
       _AL_FREE(ff_data);
       info->ff_data = NULL;
       return -1;
@@ -404,7 +406,7 @@ int al_findnext(struct al_ffblk *info)
       /* read directory entry */
       entry = readdir(ff_data->dir);
       if (!entry) {
-         *allegro_errno = (errno ? errno : ENOENT);
+         al_set_errno(errno ? errno : ENOENT);
          return -1;
       }
 
@@ -430,7 +432,7 @@ int al_findnext(struct al_ffblk *info)
          }
          else {
             /* evil! but no other way to avoid exiting for_each_file() */
-            *allegro_errno = 0;
+            al_set_errno(0);
          }
       }
    }

@@ -54,7 +54,7 @@ static ALLEGRO_BITMAP *iio_load_pcx_pf(PACKFILE *f)
       return NULL;
    }
 
-   //*allegro_errno = 0;
+   al_set_errno(0);
 
    if (bpp == 8) {
       /* The palette comes after the image data.  We need to to keep the
@@ -142,10 +142,10 @@ static ALLEGRO_BITMAP *iio_load_pcx_pf(PACKFILE *f)
    
    free(buf);
 
-   //if (*allegro_errno) {
-     // al_destroy_bitmap(b);
-      //return NULL;
-  // }
+   if (al_get_errno()) {
+      al_destroy_bitmap(b);
+      return NULL;
+   }
 
    return b;
 }
@@ -162,7 +162,7 @@ static int iio_save_pcx_pf(PACKFILE *f, ALLEGRO_BITMAP *bmp)
    ASSERT(f);
    ASSERT(bmp);
 
-   //*allegro_errno = 0;
+   al_set_errno(0);
    
    w = al_get_bitmap_width(bmp);
    h = al_get_bitmap_height(bmp);
@@ -228,9 +228,9 @@ static int iio_save_pcx_pf(PACKFILE *f, ALLEGRO_BITMAP *bmp)
 
    al_unlock_bitmap(bmp);
 
-   //if (*allegro_errno)
-     // return -1;
-   //else
+   if (al_get_errno())
+      return -1;
+   else
       return 0;
 }
 

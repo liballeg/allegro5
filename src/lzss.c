@@ -96,7 +96,7 @@ LZSS_PACK_DATA *create_lzss_pack_data(void)
    int c;
 
    if ((dat = _AL_MALLOC_ATOMIC(sizeof(LZSS_PACK_DATA))) == NULL) {
-      *allegro_errno = ENOMEM;
+      al_set_errno(ENOMEM);
       return NULL;
    }
 
@@ -433,7 +433,7 @@ LZSS_UNPACK_DATA *create_lzss_unpack_data(void)
    int c;
 
    if ((dat = _AL_MALLOC_ATOMIC(sizeof(LZSS_UNPACK_DATA))) == NULL) {
-      *allegro_errno = ENOMEM;
+      al_set_errno(ENOMEM);
       return NULL;
    }
 
