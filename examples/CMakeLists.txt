@@ -23,6 +23,7 @@ if(SUPPORT_IIO)
     example(exnew_multiwin ${IIO_LINK_WITH})
     example(exnew_scale ${IIO_LINK_WITH})
     example(exnew_noframe ${IIO_LINK_WITH})
+    example(exnew_expose ${IIO_LINK_WITH})
 endif(SUPPORT_IIO)
 
 
