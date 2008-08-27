@@ -33,9 +33,15 @@
 
  */
 
-/* We are distributing the OSS4 header file. */
-#include "allegro5/internal/soundcard.h"
-
+#if defined ALLEGRO_HAVE_SOUNDCARD_H
+  #include "soundcard.h"
+#elif defined ALLEGRO_HAVE_SYS_SOUNDCARD_H
+  #include "sys/soundcard.h"
+#elif defined ALLEGRO_HAVE_LINUX_SOUNDCARD_H
+  #include "linux/soundcard.h"
+#elif defined ALLEGRO_HAVE_MACHINE_SOUNDCARD_H
+  #include "machine/soundcard.h"
+#endif
 
 #define PREFIX_E "a5-oss Error: "
 #define PREFIX_N "a5-oss Notice: "

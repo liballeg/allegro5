@@ -163,6 +163,11 @@ check_include_files(sys/stat.h ALLEGRO_HAVE_SYS_STAT_H)
 check_include_files(sys/time.h ALLEGRO_HAVE_SYS_TIME_H)
 check_include_files(sys/utsname.h ALLEGRO_HAVE_SYS_UTSNAME_H)
 
+check_include_files(soundcard.h ALLEGRO_HAVE_SOUNDCARD_H)
+check_include_files(sys/soundcard.h ALLEGRO_HAVE_SYS_SOUNDCARD_H)
+check_include_files(machine/soundcard.h ALLEGRO_HAVE_MACHINE_SOUNDCARD_H)
+check_include_files(linux/soundcard.h ALLEGRO_HAVE_LINUX_SOUNDCARD_H)
+
 check_function_exists(getexecname ALLEGRO_HAVE_GETEXECNAME)
 check_function_exists(mkstemp ALLEGRO_HAVE_MKSTEMP)
 check_function_exists(mmap ALLEGRO_HAVE_MMAP)
@@ -278,9 +283,44 @@ if(UNIX)
         endif(WANT_ALSA)
     endif(WANT_ALSA)
 
-    # It doesn't hurt to compile OSS driver on any unix
     if(WANT_OSS)
-        set(SUPPORT_OSS 1)
+        if(ALLEGRO_HAVE_SOUNDCARD_H OR ALLEGRO_HAVE_SYS_SOUNDCARD_H OR ALLEGRO_HAVE_MACHINE_SOUNDCARD_H OR ALLEGRO_LINUX_SYS_SOUNDCARD_H)
+            if(ALLEGRO_MACHINE_SOUNDCARD_H)
+                set(CMAKE_REQUIRED_DEFINITIONS -DALLEGRO_HAVE_MACHINE_SOUNDCARD_H)
+            endif(ALLEGRO_MACHINE_SOUNDCARD_H)
+            if(ALLEGRO_HAVE_LINUX_SOUNDCARD_H)
+                set(CMAKE_REQUIRED_DEFINITIONS -DALLEGRO_HAVE_LINUX_SOUNDCARD_H)
+            endif(ALLEGRO_HAVE_LINUX_SOUNDCARD_H)
+            if(ALLEGRO_HAVE_SYS_SOUNDCARD_H)
+                set(CMAKE_REQUIRED_DEFINITIONS -DALLEGRO_HAVE_SYS_SOUNDCARD_H)
+            endif(ALLEGRO_HAVE_SYS_SOUNDCARD_H)
+            if(ALLEGRO_HAVE_SOUNDCARD_H)
+                set(CMAKE_REQUIRED_DEFINITIONS -DALLEGRO_HAVE_SOUNDCARD_H)
+            endif(ALLEGRO_HAVE_SOUNDCARD_H)
+            check_c_source_compiles("
+                #ifdef ALLEGRO_HAVE_SOUNDCARD_H 
+                #include <soundcard.h>
+                #endif
+                #ifdef ALLEGRO_HAVE_SYS_SOUNDCARD_H 
+                #include <sys/soundcard.h>
+                #endif
+                #ifdef ALLEGRO_HAVE_LINUX_SOUNDCARD_H 
+                #include <linux/soundcard.h>
+                #endif
+                #ifdef ALLEGRO_HAVE_MACHINE_SOUNDCARD_H 
+                #include <machine/soundcard.h>
+                #endif
+                int main(void) {
+                    /* This symbol is OSS4 only. */
+                    oss_sysinfo si;
+                }"
+                CAN_OSS
+            )
+            set(CMAKE_REQUIRED_DEFINITIONS)
+            if(CAN_OSS)
+                set(SUPPORT_OSS 1)
+            endif(CAN_OSS)
+        endif(ALLEGRO_HAVE_SOUNDCARD_H OR ALLEGRO_HAVE_SYS_SOUNDCARD_H OR ALLEGRO_HAVE_MACHINE_SOUNDCARD_H OR ALLEGRO_LINUX_SYS_SOUNDCARD_H)
     endif(WANT_OSS)
 endif(UNIX)
 
