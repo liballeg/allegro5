@@ -208,6 +208,11 @@ static ALLEGRO_KEYBOARD_DRIVER *win_get_keyboard_driver(void)
    return _al_keyboard_driver_list[0].driver;
 }
 
+static ALLEGRO_JOYSTICK_DRIVER *win_get_joystick_driver(void)
+{
+   return _al_joystick_driver_list[0].driver;
+}
+
 static int win_get_num_display_modes(void)
 {
    int format = al_get_new_display_format();
@@ -314,13 +319,14 @@ ALLEGRO_SYSTEM_INTERFACE *_al_system_win_driver(void)
    vt->initialize = win_initialize;
    vt->get_display_driver = win_get_display_driver;
    vt->get_keyboard_driver = win_get_keyboard_driver;
+   vt->get_mouse_driver = win_get_mouse_driver;
+   vt->get_joystick_driver = win_get_joystick_driver;
    vt->get_num_display_modes = win_get_num_display_modes;
    vt->get_display_mode = win_get_display_mode;
    vt->shutdown_system = win_shutdown;
    vt->get_num_video_adapters = win_get_num_video_adapters;
    vt->get_monitor_info = win_get_monitor_info;
    vt->get_cursor_position = win_get_cursor_position;
-   vt->get_mouse_driver = win_get_mouse_driver;
 
    TRACE("ALLEGRO_SYSTEM_INTERFACE created.\n");
 

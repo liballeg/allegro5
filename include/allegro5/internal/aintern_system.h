@@ -5,6 +5,7 @@
 #include "allegro5/internal/aintern_display.h"
 #include "allegro5/internal/aintern_events.h"
 #include "allegro5/internal/aintern_keyboard.h"
+#include "allegro5/internal/aintern_joystick.h"
 #include "allegro5/internal/aintern_mouse.h"
 #include "allegro5/internal/aintern_vector.h"
 
@@ -17,6 +18,7 @@ struct ALLEGRO_SYSTEM_INTERFACE
    ALLEGRO_DISPLAY_INTERFACE *(*get_display_driver)(void);
    ALLEGRO_KEYBOARD_DRIVER *(*get_keyboard_driver)(void);
    ALLEGRO_MOUSE_DRIVER *(*get_mouse_driver)(void);
+   ALLEGRO_JOYSTICK_DRIVER *(*get_joystick_driver)(void);
    int (*get_num_display_modes)(void);
    ALLEGRO_DISPLAY_MODE *(*get_display_mode)(int index, ALLEGRO_DISPLAY_MODE *mode);
    void (*shutdown_system)(void);

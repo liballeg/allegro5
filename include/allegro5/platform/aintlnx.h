@@ -30,7 +30,6 @@ extern "C" {
 extern _DRIVER_INFO _linux_gfx_driver_list[];
 extern _DRIVER_INFO _al_linux_keyboard_driver_list[];
 extern _DRIVER_INFO _al_linux_mouse_driver_list[];
-extern _DRIVER_INFO _al_linux_joystick_driver_list[];
 
 
 /****************************************/

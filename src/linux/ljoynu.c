@@ -78,9 +78,9 @@ static void ljoy_generate_button_event(ALLEGRO_JOYSTICK_LINUX *joy, int button, 
 /* the driver vtable */
 #define JOYDRV_LINUX    AL_ID('L','N','X','A')
 
-static ALLEGRO_JOYSTICK_DRIVER joydrv_linux =
+ALLEGRO_JOYSTICK_DRIVER _al_joydrv_linux =
 {
-   JOYDRV_LINUX,
+   _ALLEGRO_JOYDRV_LINUX,
    empty_string,
    empty_string,
    "Linux joystick(s)",
@@ -109,7 +109,7 @@ static bool check_js_api_version(int fd)
 
    if (ioctl(fd, JSIOCGVERSION, &raw_version) < 0) {
       /* NOTE: IOCTL fails if the joystick API is version 0.x */
-      uszprintf(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("Your Linux joystick API is version 0.x which is unsupported."));
+      TRACE("Your Linux joystick API is version 0.x which is unsupported.");
       return false;
    }
 
@@ -137,6 +137,9 @@ static int try_open_joy_device(int num)
    char tmp[128], tmp1[128], tmp2[128];
    int fd;
 
+   /* XXX use configuration system when we get one */
+   device_name = NULL;
+#if 0
    /* Check for a user override on the device to use. */
    uszprintf(tmp, sizeof(tmp), uconvert_ascii("joystick_device_%d", tmp1), num);
    device_name = get_config_string(uconvert_ascii("joystick", tmp1), tmp, NULL);
@@ -146,6 +149,7 @@ static int try_open_joy_device(int num)
       device_name = get_config_string(uconvert_ascii("joystick", tmp1),
                                       uconvert_ascii("joystick_device", tmp2),
                                       NULL);
+#endif
 
    if (device_name)
       fd = open(uconvert_toascii(device_name, tmp), O_RDONLY|O_NONBLOCK);
@@ -273,6 +277,9 @@ static ALLEGRO_JOYSTICK *ljoy_get_joystick(int num)
       if (num_buttons > _AL_MAX_JOYSTICK_BUTTONS)
          num_buttons = _AL_MAX_JOYSTICK_BUTTONS;
 
+      /* XXX use configuration system when we get one */
+      throttle = -1;
+#if 0
       /* User is allowed to override our simple assumption of which
        * axis number (kernel) the throttle is located at. */
       uszprintf(tmp, sizeof(tmp), uconvert_ascii("throttle_axis_%d", tmp1), num);
@@ -281,6 +288,7 @@ static ALLEGRO_JOYSTICK *ljoy_get_joystick(int num)
          throttle = get_config_int(uconvert_ascii("joystick", tmp1), 
                                    uconvert_ascii("throttle_axis", tmp2), -1);
       }
+#endif
 
       /* Each pair of axes is assumed to make up a stick unless it 
        * is the sole remaining axis, or has been user specified, in 
@@ -294,7 +302,7 @@ static ALLEGRO_JOYSTICK *ljoy_get_joystick(int num)
             /* One axis throttle. */
             joy->parent.info.stick[s].flags = ALLEGRO_JOYFLAG_ANALOGUE;
             joy->parent.info.stick[s].num_axes = 1;
-            joy->parent.info.stick[s].axis[0].name = get_config_text("Throttle");
+            joy->parent.info.stick[s].axis[0].name = "Throttle";
             joy->parent.info.stick[s].name = ustrdup(joy->parent.info.stick[s].axis[0].name);
             joy->axis_mapping[a].stick = s;
             joy->axis_mapping[a].axis = 0;
@@ -304,10 +312,10 @@ static ALLEGRO_JOYSTICK *ljoy_get_joystick(int num)
             /* Two axis stick. */
             joy->parent.info.stick[s].flags = ALLEGRO_JOYFLAG_ANALOGUE;
             joy->parent.info.stick[s].num_axes = 2;
-            joy->parent.info.stick[s].axis[0].name = get_config_text("X");
-            joy->parent.info.stick[s].axis[1].name = get_config_text("Y");
+            joy->parent.info.stick[s].axis[0].name = "X";
+            joy->parent.info.stick[s].axis[1].name = "Y";
             joy->parent.info.stick[s].name = _AL_MALLOC_ATOMIC (32);
-            uszprintf((char *)joy->parent.info.stick[s].name, 32, get_config_text("Stick %d"), s+1);
+            uszprintf((char *)joy->parent.info.stick[s].name, 32, "Stick %d", s+1);
             joy->axis_mapping[a].stick = s;
             joy->axis_mapping[a].axis = 0;
             a++;
@@ -323,7 +331,7 @@ static ALLEGRO_JOYSTICK *ljoy_get_joystick(int num)
 
       for (b = 0; b < num_buttons; b++) {
          joy->parent.info.button[b].name = _AL_MALLOC_ATOMIC (32);
-         uszprintf((char *)joy->parent.info.button[b].name, 32, get_config_text("B%d"), b+1);
+         uszprintf((char *)joy->parent.info.button[b].name, 32, "B%d", b+1);
       }
 
       joy->parent.info.num_buttons = num_buttons;
@@ -490,17 +498,6 @@ static void ljoy_generate_button_event(ALLEGRO_JOYSTICK_LINUX *joy, int button, 
 }
 
 #endif /* ALLEGRO_HAVE_LINUX_JOYSTICK_H */
-
-
-
-/* list the available drivers */
-_DRIVER_INFO _al_linux_joystick_driver_list[] =
-{
-#ifdef ALLEGRO_HAVE_LINUX_JOYSTICK_H
-   { JOYDRV_LINUX,                &joydrv_linux,               TRUE  },
-#endif
-   { 0,                           NULL,                        FALSE }
-};
 
 
 

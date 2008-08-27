@@ -208,6 +208,7 @@ set(ALLEGRO_SRC_X_FILES
     src/x/xfullscreen.c
     src/x/xglx_config.c
     src/x/xsystem.c
+    src/linux/ljoynu.c
     )
     
 set(ALLEGRO_SRC_QNX_FILES

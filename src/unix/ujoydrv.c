@@ -17,12 +17,14 @@
 
 
 #include "allegro5/allegro5.h"
+#include "allegro5/platform/aintunix.h"
 #include "allegro5/internal/aintern.h"
 #include "allegro5/internal/aintern_joystick.h"
 
 
 
 _AL_BEGIN_JOYSTICK_DRIVER_LIST
-/* Nothing to see here.  See the system driver
- * get_joystick_driver_list() methods instead. */
+#ifdef ALLEGRO_HAVE_LINUX_JOYSTICK_H
+   { _ALLEGRO_JOYDRV_LINUX,   &_al_joydrv_linux,   TRUE  },
+#endif
 _AL_END_JOYSTICK_DRIVER_LIST

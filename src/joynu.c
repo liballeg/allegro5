@@ -25,6 +25,7 @@
 #include "allegro5/internal/aintern.h"
 #include "allegro5/internal/aintern_events.h"
 #include "allegro5/internal/aintern_joystick.h"
+#include "allegro5/internal/aintern_system.h"
 
 
 
@@ -43,63 +44,25 @@ static _AL_VECTOR opened_joysticks = _AL_VECTOR_INITIALIZER(ALLEGRO_JOYSTICK *);
  */
 bool al_install_joystick(void)
 {
-   _DRIVER_INFO *driver_list;
+   ALLEGRO_SYSTEM *sysdrv;
    ALLEGRO_JOYSTICK_DRIVER *joydrv;
-   const char *name;
-   int c;
 
    if (new_joystick_driver)
       return true;
 
    ASSERT(_al_vector_is_empty(&opened_joysticks));
 
-/*
-   if (system_driver && system_driver->joystick_drivers)
-      driver_list = system_driver->joystick_drivers();
-   else
-   */
-      driver_list = _al_joystick_driver_list;
+   sysdrv = al_system_driver();
+   ASSERT(sysdrv);
 
-#if 0
-   /* search table for a specific driver */
-   /* DISABLED: There is no need so far as every OS only has one
-    * joystick driver.
-    */
-   for (c=0; driver_list[c].driver; c++) { 
-      if (driver_list[c].id == type) {
-	 joystick_driver = driver_list[c].driver;
-	 joystick_driver->name = joystick_driver->desc = get_config_text(joystick_driver->ascii_name);
-	 _joy_type = type;
-	 if (joystick_driver->init() != 0) {
-	    if (!ugetc(allegro_error))
-	       uszprintf(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("%s not found"), joystick_driver->name);
-	    joystick_driver = NULL; 
-	    _joy_type = JOY_TYPE_NONE;
-	    return -1;
-	 }
-	 break;
+   /* Currently every platform only has at most one joystick driver. */
+   if (sysdrv->vt->get_joystick_driver) {
+      joydrv = sysdrv->vt->get_joystick_driver();
+      if (joydrv->init_joystick()) {
+         new_joystick_driver = joydrv;
+         _add_exit_func(al_uninstall_joystick, "al_uninstall_joystick");
+         return true;
       }
-   }
-#endif /* #if 0 */
-
-   /* autodetect driver */
-   for (c=0; driver_list[c].driver; c++) {
-      if (driver_list[c].autodetect) {
-         joydrv = driver_list[c].driver;
-         //name = get_config_text(joydrv->joydrv_ascii_name);
-         name = joydrv->joydrv_ascii_name;
-         joydrv->joydrv_name = name;
-         joydrv->joydrv_desc = name;
-         if (joydrv->init_joystick()) {
-            new_joystick_driver = joydrv;
-            break;
-         }
-      }
-   }
-
-   if (new_joystick_driver) {
-      _add_exit_func(al_uninstall_joystick, "al_uninstall_joystick");
-      return true;
    }
 
    return false;

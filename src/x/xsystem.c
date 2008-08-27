@@ -197,6 +197,11 @@ static ALLEGRO_MOUSE_DRIVER *xglx_get_mouse_driver(void)
    return _al_xwin_mouse_driver_list[0].driver;
 }
 
+static ALLEGRO_JOYSTICK_DRIVER *xglx_get_joystick_driver(void)
+{
+   return _al_joystick_driver_list[0].driver;
+}
+
 // FIXME: Implement.
 static int xglx_get_num_video_adapters(void)
 {
@@ -247,6 +252,7 @@ ALLEGRO_SYSTEM_INTERFACE *_al_system_xglx_driver(void)
    xglx_vt->get_display_driver = xglx_get_display_driver;
    xglx_vt->get_keyboard_driver = xglx_get_keyboard_driver;
    xglx_vt->get_mouse_driver = xglx_get_mouse_driver;
+   xglx_vt->get_joystick_driver = xglx_get_joystick_driver;
    xglx_vt->get_num_display_modes = _al_xglx_get_num_display_modes;
    xglx_vt->get_display_mode = _al_xglx_get_display_mode;
    xglx_vt->shutdown_system = xglx_shutdown_system;
