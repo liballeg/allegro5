@@ -501,20 +501,6 @@ void _al_display_xglx_configure(ALLEGRO_DISPLAY *d, XEvent *xevent)
       }
    }
 
-   /* Generate an expose event. */
-   if (_al_event_source_needs_to_generate_event(es)) {
-      ALLEGRO_EVENT *event = _al_event_source_get_unused_event(es);
-      if (event) {
-         event->display.type = ALLEGRO_EVENT_DISPLAY_EXPOSE;
-         event->display.timestamp = al_current_time();
-         event->display.x = xevent->xconfigure.x;
-         event->display.y = xevent->xconfigure.y;
-         event->display.width = xevent->xconfigure.width;
-         event->display.height = xevent->xconfigure.height;
-         _al_event_source_emit_event(es, event);
-      }
-   }
-
    /* This ignores the event when changing the border (which has bogus
     * coordinates).
     */
@@ -567,6 +553,29 @@ void _al_xwin_display_switch_handler(ALLEGRO_DISPLAY *display,
          else
             event->display.type = ALLEGRO_EVENT_DISPLAY_SWITCH_IN;
          event->display.timestamp = al_current_time();
+         _al_event_source_emit_event(es, event);
+      }
+   }
+   _al_event_source_unlock(es);
+}
+
+
+
+void _al_xwin_display_expose(ALLEGRO_DISPLAY *display,
+   XExposeEvent *xevent)
+{
+   ALLEGRO_DISPLAY_XGLX *glx = (void *)display;
+   ALLEGRO_EVENT_SOURCE *es = &display->es;
+   _al_event_source_lock(es);
+   if (_al_event_source_needs_to_generate_event(es)) {
+      ALLEGRO_EVENT *event = _al_event_source_get_unused_event(es);
+      if (event) {
+         event->display.type = ALLEGRO_EVENT_DISPLAY_EXPOSE;
+         event->display.timestamp = al_current_time();
+         event->display.x = xevent->x;
+         event->display.y = xevent->y;
+         event->display.width = xevent->width;
+         event->display.height = xevent->height;
          _al_event_source_emit_event(es, event);
       }
    }

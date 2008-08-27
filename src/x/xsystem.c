@@ -62,6 +62,11 @@ static void process_x11_event(ALLEGRO_SYSTEM_XGLX *s, XEvent event)
       case MapNotify:
          _al_cond_signal(&s->mapped);
          break;
+      case Expose:
+         if (d->display.flags & ALLEGRO_GENERATE_EXPOSE_EVENTS) {
+            _al_xwin_display_expose(&d->display, &event.xexpose);
+         }
+         break;
       case ClientMessage:
          if ((Atom)event.xclient.data.l[0] == d->wm_delete_window_atom) {
             _al_display_xglx_closebutton(&d->display, &event);

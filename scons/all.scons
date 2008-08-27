@@ -114,6 +114,7 @@ def examples(env,appendDir,buildDir,libDir):
     example("exnew_drawpixels")
     example("exnew_dualies")
     example("exnew_events")
+    example("exnew_expose")
     example("exnew_fs_resize")
     example("exnew_glext", libs = ["GLU"])
     example("exnew_icon")

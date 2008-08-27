@@ -95,6 +95,7 @@ void _al_display_xglx_configure(ALLEGRO_DISPLAY *d, XEvent *event);
 void _al_display_xglx_closebutton(ALLEGRO_DISPLAY *d, XEvent *xevent);
 void _al_xwin_display_switch_handler(ALLEGRO_DISPLAY *d,
    XFocusChangeEvent *event);
+void _al_xwin_display_expose(ALLEGRO_DISPLAY *display, XExposeEvent *xevent);
 
 /* keyboard */
 void _al_xwin_keyboard_handler(XKeyEvent *event, bool dga2_hack,
