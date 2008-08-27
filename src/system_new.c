@@ -111,8 +111,6 @@ bool _al_init(void)
    /* FIXME: On UNIX this should read /etc/allegro.cfg too and merge the two */
    active_sysdrv->config = al_config_read("allegro.cfg");
 
-   _al_generate_integer_unmap_table();
-
    _add_exit_func(_al_exit, "Old-API exit function for new API"); 
 
    al_set_blender(ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA, al_map_rgb(255, 255, 255));

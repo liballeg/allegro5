@@ -38,6 +38,4 @@ struct ALLEGRO_SYSTEM
 AL_FUNC(void, _al_register_system_interfaces, (void));
 AL_VAR(_AL_VECTOR, _al_system_interfaces);
 
-AL_FUNC(void, _al_generate_integer_unmap_table, (void));
-
 #endif
