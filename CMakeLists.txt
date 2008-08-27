@@ -313,6 +313,7 @@ if(UNIX)
                 int main(void) {
                     /* This symbol is OSS4 only. */
                     oss_sysinfo si;
+                    return 0;
                 }"
                 CAN_OSS
             )

@@ -34,13 +34,13 @@
  */
 
 #if defined ALLEGRO_HAVE_SOUNDCARD_H
-  #include "soundcard.h"
+  #include <soundcard.h>
 #elif defined ALLEGRO_HAVE_SYS_SOUNDCARD_H
-  #include "sys/soundcard.h"
+  #include <sys/soundcard.h>
 #elif defined ALLEGRO_HAVE_LINUX_SOUNDCARD_H
-  #include "linux/soundcard.h"
+  #include <linux/soundcard.h>
 #elif defined ALLEGRO_HAVE_MACHINE_SOUNDCARD_H
-  #include "machine/soundcard.h"
+  #include <machine/soundcard.h>
 #endif
 
 #define PREFIX_E "a5-oss Error: "
