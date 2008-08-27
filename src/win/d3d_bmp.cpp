@@ -236,6 +236,7 @@ void _al_d3d_draw_textured_quad(ALLEGRO_DISPLAY_D3D *disp, ALLEGRO_BITMAP_D3D *b
 
    disp->device->SetFVF(D3DFVF_TL_VERTEX);
    
+
    if (disp->device->DrawPrimitiveUP(D3DPT_TRIANGLEFAN, 2,
 
 	   vertices, sizeof(D3D_TL_VERTEX)) != D3D_OK) {

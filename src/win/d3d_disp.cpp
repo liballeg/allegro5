@@ -65,6 +65,9 @@ static bool is_vista = false;
 static int num_faux_fullscreen_windows = 0;
 static bool already_fullscreen = false; /* real fullscreen */
 
+static DWORD d3d_min_filter = D3DTEXF_NONE;
+static DWORD d3d_mag_filter = D3DTEXF_NONE;
+
 /*
  * These parameters cannot be gotten by the display thread because
  * they're thread local. We get them in the calling thread first.
@@ -217,6 +220,17 @@ static bool d3d_parameters_are_valid(int format, int refresh_rate, int flags)
    return true;
 }
 
+
+static DWORD d3d_get_filter(AL_CONST char *s)
+{
+   if (strstr(s, "linear"))
+      return D3DTEXF_LINEAR;
+   if (strstr(s, "anisotropic"))
+      return D3DTEXF_ANISOTROPIC;
+   return D3DTEXF_NONE;
+}
+
+
 static void d3d_reset_state(ALLEGRO_DISPLAY_D3D *disp)
 {
    if (disp->device_lost) return;
@@ -226,6 +240,14 @@ static void d3d_reset_state(ALLEGRO_DISPLAY_D3D *disp)
    disp->device->SetRenderState(D3DRS_LIGHTING, FALSE);
    disp->device->SetRenderState(D3DRS_CULLMODE, D3DCULL_NONE);
    disp->device->SetRenderState(D3DRS_ALPHABLENDENABLE, TRUE);
+   
+   /* Set up filtering */
+   if (disp->device->SetSamplerState(0, D3DSAMP_MINFILTER, d3d_min_filter) != D3D_OK)
+      TRACE("SetSamplerState failed\n");
+   if (disp->device->SetSamplerState(0, D3DSAMP_MAGFILTER, d3d_mag_filter) != D3D_OK)
+      TRACE("SetSamplerState failed\n");
+   if (disp->device->SetSamplerState(0, D3DSAMP_MIPFILTER, D3DTEXF_NONE) != D3D_OK)
+      TRACE("SetSamplerState failed\n");
 }
 
 void _al_d3d_get_current_ortho_projection_parameters(float *w, float *h)
@@ -466,8 +488,6 @@ static bool d3d_create_fullscreen_device(ALLEGRO_DISPLAY_D3D *d,
 
    d->device->GetRenderTarget(0, &d->render_target);
 
-   d3d_reset_state(d);
-
    TRACE("Fullscreen Direct3D device created.\n");
    
    d->device->BeginScene();
@@ -508,6 +528,8 @@ bool _al_d3d_render_to_texture_supported(void)
 {
    return render_to_texture_supported;
 }
+
+
 
 bool _al_d3d_init_display()
 {
@@ -551,7 +573,7 @@ bool _al_d3d_init_display()
       render_to_texture_supported = false;
    else
       render_to_texture_supported = true;
-
+   
    TRACE("Render-to-texture: %d\n", render_to_texture_supported);
 
    return true;
@@ -619,8 +641,6 @@ static bool d3d_create_device(ALLEGRO_DISPLAY_D3D *d,
    else {
       TRACE("BeginScene succeeded in create_device\n");
    }
-
-   d3d_reset_state(d);
 
    return 1;
 }
@@ -1205,6 +1225,9 @@ static bool d3d_create_display_internals(ALLEGRO_DISPLAY_D3D *d3d_display)
    new_display_parameters params;
    ALLEGRO_DISPLAY_WIN *win_display = &d3d_display->win_display;
    ALLEGRO_DISPLAY *al_display = &win_display->display;
+   static bool cfg_read = false;
+   ALLEGRO_SYSTEM *sys;
+   AL_CONST char *s;
 
    params.display = d3d_display;
    params.init_failed = false;
@@ -1218,6 +1241,23 @@ static bool d3d_create_display_internals(ALLEGRO_DISPLAY_D3D *d3d_display)
    if (params.init_failed) {
       return false;
    }
+   
+   if (!cfg_read) {
+      cfg_read = true;
+
+      sys = al_system_driver();
+   
+      if (sys->config) {
+         s = al_config_get_value(sys->config, "gfx", "min_filter");
+         if (s)
+            d3d_min_filter = d3d_get_filter(s);
+         s = al_config_get_value(sys->config, "gfx", "mag_filter");
+         if (s)
+            d3d_mag_filter = d3d_get_filter(s);
+      }
+   }
+
+   d3d_reset_state(d3d_display);
 
    // Activate the window (grabs input)
    PostMessage(win_display->window, WM_ACTIVATEAPP, 1, 0);

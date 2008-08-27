@@ -2,6 +2,7 @@ set(ALLEGRO_SRC_FILES
     src/allegro.c
     src/bitmap_new.c
     src/blenders.c
+    src/config.c
     src/convert.c
     src/display_new.c
     src/dtor.c
@@ -299,6 +300,7 @@ set(ALLEGRO_INCLUDE_ALLEGRO_FILES
     include/allegro5/bitmap_new.h
     include/allegro5/color.h
     include/allegro5/color_new.h
+    include/allegro5/config.h
     include/allegro5/debug.h
     include/allegro5/display_new.h
     include/allegro5/error.h

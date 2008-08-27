@@ -24,27 +24,25 @@ int main(void)
 
    /* Create two windows. */
    display[0] = al_create_display(W, H);
-   al_show_mouse_cursor();
-   display[1] = al_create_display(W, H);
-   al_show_mouse_cursor();
-
-
-   /* This is only needed since we want to receive resize events. */
-   al_register_event_source(events, (ALLEGRO_EVENT_SOURCE *)display[0]);
-   al_register_event_source(events, (ALLEGRO_EVENT_SOURCE *)display[1]);
-   al_register_event_source(events, (ALLEGRO_EVENT_SOURCE *)al_get_keyboard());
-
    pictures[0] = al_iio_load("mysha.pcx");
    if (!pictures[0]) {
       TRACE("failed to load mysha.pcx\n");
       return 1;
    }
+   al_show_mouse_cursor();
 
+   display[1] = al_create_display(W, H);
    pictures[1] = al_iio_load("allegro.pcx");
    if (!pictures[1]) {
       TRACE("failed to load allegro.pcx\n");
       return 1;
    }
+   al_show_mouse_cursor();
+
+   /* This is only needed since we want to receive resize events. */
+   al_register_event_source(events, (ALLEGRO_EVENT_SOURCE *)display[0]);
+   al_register_event_source(events, (ALLEGRO_EVENT_SOURCE *)display[1]);
+   al_register_event_source(events, (ALLEGRO_EVENT_SOURCE *)al_get_keyboard());
 
    while (1) {
       /* read input */

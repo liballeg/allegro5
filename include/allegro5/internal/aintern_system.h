@@ -31,6 +31,7 @@ struct ALLEGRO_SYSTEM
 {
    ALLEGRO_SYSTEM_INTERFACE *vt;
    _AL_VECTOR displays; /* Keep a list of all displays attached to us. */
+   ALLEGRO_CONFIG *config;
 };
 
 

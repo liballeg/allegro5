@@ -73,7 +73,6 @@ typedef struct ALLEGRO_DISPLAY_D3D
    bool faux_fullscreen;
 
    TCHAR *device_name;
-
 } ALLEGRO_DISPLAY_D3D;
 
 

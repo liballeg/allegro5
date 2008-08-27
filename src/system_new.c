@@ -23,7 +23,7 @@
 #include "allegro5/internal/aintern_vector.h"
 
 
-static ALLEGRO_SYSTEM *active_sysdrv;
+static ALLEGRO_SYSTEM *active_sysdrv = NULL;
 
 _AL_VECTOR _al_system_interfaces = _AL_VECTOR_INITIALIZER(ALLEGRO_SYSTEM_INTERFACE *);
 static _AL_VECTOR _user_system_interfaces = _AL_VECTOR_INITIALIZER(ALLEGRO_SYSTEM_INTERFACE *);
@@ -72,6 +72,7 @@ void _al_exit(void)
    if (active_sysdrv) {
       if (active_sysdrv->vt && active_sysdrv->vt->shutdown_system)
          active_sysdrv->vt->shutdown_system();
+      al_config_destroy(active_sysdrv->config);
       active_sysdrv = NULL;
    }
 }
@@ -107,12 +108,14 @@ bool _al_init(void)
       return false;
    }
 
+   /* FIXME: On UNIX this should read /etc/allegro.cfg too and merge the two */
+   active_sysdrv->config = al_config_read("allegro.cfg");
+
    _al_generate_integer_unmap_table();
 
    _add_exit_func(_al_exit, "Old-API exit function for new API"); 
 
    al_set_blender(ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA, al_map_rgb(255, 255, 255));
-
 
    return true;
 }
