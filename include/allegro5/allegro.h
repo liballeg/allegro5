@@ -29,6 +29,7 @@
 #include "allegro5/system_new.h"
 #include "allegro5/memory.h"
 #include "allegro5/debug.h"
+#include "allegro5/error.h"
 
 #include "allegro5/unicode.h"
 

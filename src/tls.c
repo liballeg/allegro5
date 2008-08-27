@@ -57,6 +57,8 @@ typedef struct thread_local_state {
    int src_blender_backup;
    int dst_blender_backup;
    ALLEGRO_COLOR blend_color_backup;
+   /* Error code */
+   int allegro_errno;
 } thread_local_state;
 
 
@@ -195,23 +197,24 @@ static thread_local_state* tls_get(void)
 
 
 static THREAD_LOCAL thread_local_state _tls = {
-   0,
-   0,
-   0,
-   NULL,
-   NULL,
-   NULL,
-   ALLEGRO_PIXEL_FORMAT_ANY_WITH_ALPHA,
-   0,
-   0,
-   0,
-   ALLEGRO_ALPHA,
-   ALLEGRO_INVERSE_ALPHA,
-   { 1.0f, 1.0f, 1.0f, 1.0f },
-   _al_blender_alpha_inverse_alpha,
-   0,
-   0,
-   { 1.0f, 1.0f, 1.0f, 1.0f }
+   0,                                     /* new_display_format */
+   0,                                     /* new_display_refresh_rate */
+   0,                                     /* new_display_flags */
+   NULL,                                  /* current_display */
+   NULL,                                  /* target_bitmap */
+   NULL,                                  /* target_bitmap_backup */
+   ALLEGRO_PIXEL_FORMAT_ANY_WITH_ALPHA,   /* new_bitmap_format */
+   0,                                     /* new_bitmap_flags */
+   0,                                     /* new_bitmap_format_backup */
+   0,                                     /* new_bitmap_flags_backup */
+   ALLEGRO_ALPHA,                         /* blend_source */
+   ALLEGRO_INVERSE_ALPHA,                 /* blend_dest */
+   { 1.0f, 1.0f, 1.0f, 1.0f },            /* blend_color  */
+   _al_blender_alpha_inverse_alpha,       /* memory_blender */
+   0,                                     /* src_blender_backup */
+   0,                                     /* dst_blender_backup */
+   { 1.0f, 1.0f, 1.0f, 1.0f },            /* blend_color_backup */
+   0                                      /* errno */
 };
 
 
@@ -725,3 +728,28 @@ ALLEGRO_MEMORY_BLENDER _al_get_memory_blender()
    return tls->memory_blender;
 }
 
+
+
+/* Function: al_get_errno
+ *  Some Allegro functions will set an error number as well as returning an
+ *  error code.  Call this function to retrieve the last error number set
+ *  for the calling thread.
+ */
+int al_get_errno(void)
+{
+   if ((tls = tls_get()) == NULL)
+      return 0;
+   return tls->allegro_errno;
+}
+
+
+
+/* Function: al_get_errno
+ *  Set the error number for for the calling thread.
+ */
+void al_set_errno(int err)
+{
+   if ((tls = tls_get()) == NULL)
+      return;
+   tls->allegro_errno = err;
+}
