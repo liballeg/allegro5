@@ -103,6 +103,8 @@ if(SUPPORT_OPENAL OR SUPPORT_ALSA OR HAVE_DSOUND)
         set(AUDIO_LINK_WITH ${AUDIO_LIB_TO_LINK}_shared PARENT_SCOPE)
     endif(STATIC)
 
+    example(ex_saw ${AUDIO_LINK_WITH})
+
     #-----------------------------------------------------------------------------#
     #
     # Install header files.
