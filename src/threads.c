@@ -89,6 +89,7 @@ ALLEGRO_THREAD *al_create_thread(
    if (!outer) {
       return NULL;
    }
+   memset(outer, 0, sizeof(*outer));
 
    _al_mutex_init(&outer->mutex);
    _al_cond_init(&outer->cond);
