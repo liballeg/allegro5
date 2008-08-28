@@ -943,9 +943,9 @@ static ALLEGRO_DISPLAY* wgl_create_display(int w, int h) {
    /* Each display is an event source. */
    _al_event_source_init(&display->es);
 
-   win_grab_input();
-
    _al_win_active_window = wgl_display->win_display.window;
+
+   win_grab_input();
 
    wgl_display->win_display.mouse_range_x1 = 0;
    wgl_display->win_display.mouse_range_y1 = 0;
