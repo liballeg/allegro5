@@ -13,6 +13,7 @@ int main(void)
 
    al_set_new_display_flags(ALLEGRO_SINGLEBUFFER | ALLEGRO_RESIZABLE |
       ALLEGRO_GENERATE_EXPOSE_EVENTS);
+   al_set_new_display_format(ALLEGRO_PIXEL_FORMAT_ANY_32_NO_ALPHA);
    ALLEGRO_DISPLAY *display = al_create_display(W, H);
    if (!display) {
       TRACE("Error creating display\n");
@@ -21,6 +22,7 @@ int main(void)
 
    al_show_mouse_cursor();
 
+   al_set_new_bitmap_format(ALLEGRO_PIXEL_FORMAT_ANY_32_WITH_ALPHA);
    ALLEGRO_BITMAP *bitmap = al_iio_load("mysha.pcx");
    if (!bitmap) {
       TRACE("%s not found or failed to load", "mysha.pcx");
@@ -69,6 +71,7 @@ int main(void)
          for (y = 0; y < al_get_display_height(); y += 200) {
             for (x = 0; x < al_get_display_width(); x += 320) {
                al_draw_bitmap(bitmap, x, y, 0);
+               //al_draw_rectangle(x,  y, 320, 200, al_map_rgb(255, 255, 255), ALLEGRO_FILLED);
             }
          }
          al_flip_display();

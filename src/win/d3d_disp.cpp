@@ -17,6 +17,7 @@
 #include <string.h>
 #include <stdio.h>
 #include <process.h>
+#include <cmath>
 
 #include "allegro5/allegro5.h"
 
@@ -1424,10 +1425,7 @@ void _al_d3d_set_blender(ALLEGRO_DISPLAY_D3D *d3d_display)
       TRACE("Failed to set source blender");
    if (d3d_display->device->SetRenderState(D3DRS_DESTBLEND, dst) != D3D_OK)
       TRACE("Failed to set dest blender");
-   if (d3d_display->device->SetRenderState(D3DRS_TEXTUREFACTOR, d3d_al_color_to_d3d(color)) != D3D_OK)
-      TRACE("SetRenderState BLENDFACTOR failed.\n");
-
-   d3d_display->device->SetTextureStageState(0, D3DTSS_ALPHAOP, D3DTOP_BLENDFACTORALPHA);
+   d3d_display->device->SetTextureStageState(0, D3DTSS_ALPHAOP, D3DTOP_BLENDDIFFUSEALPHA);
 }
 
 
@@ -2001,7 +1999,11 @@ static ALLEGRO_BITMAP *d3d_get_frontbuffer(ALLEGRO_DISPLAY *display)
 static bool d3d_is_compatible_bitmap(ALLEGRO_DISPLAY *display, ALLEGRO_BITMAP *bitmap)
 {
    ALLEGRO_BITMAP_D3D *d3d_bitmap = (ALLEGRO_BITMAP_D3D *)bitmap;
-   return (ALLEGRO_DISPLAY_D3D *)display == d3d_bitmap->display;
+   //return (ALLEGRO_DISPLAY_D3D *)display == d3d_bitmap->display;
+   /* Not entirely sure on this yet, but it seems one dsiplays bitmaps
+    * can be displayed on other displays.
+    */
+   return true;
 }
 
 static void d3d_switch_out(ALLEGRO_DISPLAY *display)

@@ -281,7 +281,45 @@ static LRESULT CALLBACK window_callback(HWND hWnd, UINT message,
 
 
    if (i != system->displays._size) {
-      switch (message) { 
+      switch (message) {
+         case WM_PAINT: {
+            RECT r;
+            HRGN hrgn;
+            _al_win_get_window_pos(win->window, &r);
+            hrgn = CreateRectRgn(r.left, r.top, r.right, r.bottom);
+            if (GetUpdateRgn(win->window, hrgn, FALSE) != ERROR) {
+               PAINTSTRUCT ps;
+               BeginPaint(win->window, &ps);
+               DWORD size = GetRegionData(hrgn, 0, NULL);
+               LPRGNDATA rgndata = _AL_MALLOC(size);
+               int n;
+               RECT *rects;
+               GetRegionData(hrgn, size, rgndata);
+               n = rgndata->rdh.nCount;
+               rects = (RECT *)rgndata->Buffer;
+               _al_event_source_lock(es);
+                  if ((win_display->display.flags & ALLEGRO_GENERATE_EXPOSE_EVENTS) &&
+                           _al_event_source_needs_to_generate_event(es)) {
+                     while (n--) {
+                        ALLEGRO_EVENT *event = _al_event_source_get_unused_event(es);
+                        if (event) {
+                           event->display.type = ALLEGRO_EVENT_DISPLAY_EXPOSE;
+                           event->display.timestamp = al_current_time();
+                           event->display.x = rects[n].left;
+                           event->display.y = rects[n].top;
+                           event->display.width = rects[n].right - rects[n].left;
+                           event->display.height = rects[n].bottom - rects[n].top;
+                           _al_event_source_emit_event(es, event);
+                        }
+                     }
+                  }
+               _al_event_source_unlock(es);
+               _AL_FREE(rgndata);
+               EndPaint(win->window, &ps);
+               DeleteObject(hrgn);
+            }
+            return 0;
+         }
          case WM_MOUSEACTIVATE:
             return MA_ACTIVATEANDEAT;
          case WM_SETCURSOR:
