@@ -57,7 +57,7 @@ int main(void)
 
    al_init();
 
-   if (al_audio_init(ALLEGRO_AUDIO_DRIVER_ALSA) != 0) {
+   if (al_audio_init(ALLEGRO_AUDIO_DRIVER_AUTODETECT) != 0) {
       fprintf(stderr, "Could not init sound.\n");
       return 1;
    }
