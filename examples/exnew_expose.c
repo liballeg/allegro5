@@ -71,7 +71,6 @@ int main(void)
          for (y = 0; y < al_get_display_height(); y += 200) {
             for (x = 0; x < al_get_display_width(); x += 320) {
                al_draw_bitmap(bitmap, x, y, 0);
-               //al_draw_rectangle(x,  y, 320, 200, al_map_rgb(255, 255, 255), ALLEGRO_FILLED);
             }
          }
          al_flip_display();
