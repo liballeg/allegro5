@@ -45,10 +45,12 @@ static int render_glyph(ALLEGRO_FONT const *f, int prev, int ch,
     }
     else {
         // FIXME: make this a config setting? FT_LOAD_FORCE_AUTOHINT
+        int x, y, w, h;
+        ALLEGRO_LOCKED_REGION lr;
+
         FT_Load_Glyph(face, ft_index, FT_LOAD_RENDER);
-        int x, y;
-        int w = face->glyph->bitmap.width;
-        int h = face->glyph->bitmap.rows;
+        w = face->glyph->bitmap.width;
+        h = face->glyph->bitmap.rows;
 
         if (w == 0) w = 1;
         if (h == 0) h = 1;
@@ -61,7 +63,6 @@ static int render_glyph(ALLEGRO_FONT const *f, int prev, int ch,
 
         al_set_target_bitmap(glyph->bitmap);
         al_clear(al_map_rgba(0, 0, 0, 0));
-        ALLEGRO_LOCKED_REGION lr;
         al_lock_bitmap(glyph->bitmap, &lr, ALLEGRO_LOCK_WRITEONLY);
         row = face->glyph->bitmap.buffer;
         for (y = 0; y < face->glyph->bitmap.rows; y++) {
@@ -135,9 +136,9 @@ static int text_length(ALLEGRO_FONT const *f, char const *text, int count)
 
 static void destroy(ALLEGRO_FONT *f)
 {
+    int i;
     ALLEGRO_TTF_FONT_DATA *data = f->data;
     FT_Done_Face(data->face);
-    int i;
     for (i = 0; i < data->glyphs_count; i++) {
         if (data->cache[i].bitmap) {
             al_destroy_bitmap(data->cache[i].bitmap);
@@ -150,6 +151,13 @@ static void destroy(ALLEGRO_FONT *f)
 
 ALLEGRO_FONT *al_ttf_load_font(char const *filename, int size, int flags)
 {
+    FT_Face face;
+    FT_ULong unicode;
+    FT_UInt g, m = 0;
+    ALLEGRO_TTF_FONT_DATA *data;
+    ALLEGRO_FONT *f;
+    int bytes;
+
     if (once) {
         FT_Init_FreeType(&ft);
         vt.font_height = font_height;
@@ -160,27 +168,25 @@ ALLEGRO_FONT *al_ttf_load_font(char const *filename, int size, int flags)
         vt.destroy = destroy;
         once = false;
     }
-    FT_Face face;
     FT_New_Face(ft, filename, 0, &face);
     FT_Set_Pixel_Sizes(face, 0, size);
 
-    FT_UInt g, m = 0;
-    FT_ULong unicode = FT_Get_First_Char(face, &g);
+    unicode = FT_Get_First_Char(face, &g);
     while (g) {
         unicode = FT_Get_Next_Char(face, unicode, &g);
         if (g > m) m = g;
     }
 
-    ALLEGRO_TTF_FONT_DATA *data = _AL_MALLOC(sizeof *data);
+    data = _AL_MALLOC(sizeof *data);
     data->face = face;
     data->flags = flags;
     data->glyphs_count = m;
-    int bytes = (m + 1) * sizeof(ALLEGRO_TTF_GLYPH_DATA);
+    bytes = (m + 1) * sizeof(ALLEGRO_TTF_GLYPH_DATA);
     data->cache = _AL_MALLOC(bytes);
     memset(data->cache, 0, bytes);
     TRACE("al-ttf: %s: Preparing cache for %d glyphs.\n", filename, m);
 
-    ALLEGRO_FONT *f = _AL_MALLOC(sizeof *f);
+    f = _AL_MALLOC(sizeof *f);
     f->height = size;
     f->vtable = &vt;
     f->data = data;

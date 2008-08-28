@@ -78,11 +78,10 @@ option(WANT_OPENGL "Enable OpenGL graphics driver (Windows, X11))" on)
 #
 
 option(WANT_FONT "Enable bitmap font add-on" on)
-# WANT_AUDIO is off until it checks for OpenAL on the system.
+# WANT_AUDIO is off because KCM_AUDIO is on by default.
 option(WANT_AUDIO "Enable audio engine" off)
 option(WANT_ACODEC "Enable audio codecs (requires audio)" on)
-# WANT_KCM_AUDIO is off until it checks for OpenAL on the system.
-option(WANT_KCM_AUDIO "Enable kcm_audio engine" off)
+option(WANT_KCM_AUDIO "Enable kcm_audio engine" on)
 # WANT_ICODEC is off until it checks for Magick++
 option(WANT_ICODEC "Enable image loading/saving for most filetypes (requires libMagick)" off)
 option(WANT_IIO "Enable IIO image load/save addon" on)
@@ -90,6 +89,9 @@ option(WANT_TTF "Enable TTF addon" on)
 
 option(WANT_ALSA "Enable ALSA digital audio driver (Unix)" on)
 option(WANT_OSS "Enable OSS digital audio driver (Unix)" on)
+option(WANT_OPENAL "Enable OpenAL digital audio driver" on)
+option(WANT_DSOUND "Enable Dsound digital audio driver (Windows)" on)
+
 
 #
 # For developers.
@@ -248,6 +250,11 @@ if(WANT_OPENGL)
     endif(OPENGL_FOUND)
 endif(WANT_OPENGL)
 
+include(FindOpenAL)
+if(OPENAL_FOUND)
+    set(SUPPORT_OPENAL 1)
+endif(OPENAL_FOUND)
+
 # Accumulate extra libraries needed due to drivers.
 set(DRIVER_LIBS_STATIC)
 set(DRIVER_LIBS_SHARED)
@@ -270,7 +277,7 @@ if(UNIX)
     if(WANT_ALSA)
         check_c_source_compiles("
             #include <sys/asoundlib.h>
-            int main(void) { 
+            int main(void) {
             #if(SND_LIB_MAJOR > 0) || (SND_LIB_MAJOR == 0 && SND_LIB_MINOR == 9 && SND_LIB_SUBMINOR >= 1)
                 return 0;
             #else
