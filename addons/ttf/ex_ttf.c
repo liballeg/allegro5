@@ -11,7 +11,6 @@ static void render(void)
     ALLEGRO_COLOR white = al_map_rgba_f(1, 1, 1, 1);
     ALLEGRO_COLOR black = al_map_rgba_f(0, 0, 0, 1);
     ALLEGRO_COLOR red = al_map_rgba_f(1, 0, 0, 1);
-    ALLEGRO_COLOR blue = al_map_rgba_f(0, 0, 1, 1);
     ALLEGRO_COLOR green = al_map_rgba_f(0, 0.5, 0, 1);
 
     al_clear(white);
@@ -40,6 +39,8 @@ static void render(void)
 int main(void)
 {
     ALLEGRO_DISPLAY *display;
+    ALLEGRO_TIMER *timer;
+    ALLEGRO_EVENT_QUEUE *queue;
     int redraw = 0;
     double t = 0;
 
@@ -56,9 +57,9 @@ int main(void)
     ex.f2 = al_ttf_load_font("DejaVuSans.ttf", 48, ALLEGRO_TTF_NO_KERNING);
     ex.f3 = al_ttf_load_font("DejaVuSans.ttf", 12, 0);
 
-    ALLEGRO_TIMER *timer = al_install_timer(1.0 / 60);
+    timer = al_install_timer(1.0 / 60);
 
-    ALLEGRO_EVENT_QUEUE *queue = al_create_event_queue();
+    queue = al_create_event_queue();
     al_register_event_source(queue, (ALLEGRO_EVENT_SOURCE *)al_get_keyboard());
     al_register_event_source(queue, (ALLEGRO_EVENT_SOURCE *)display);
     al_register_event_source(queue, (ALLEGRO_EVENT_SOURCE *)timer);
@@ -77,9 +78,10 @@ int main(void)
             redraw++;
 
         while (redraw > 0 && al_event_queue_is_empty(queue)) {
+            double dt;
             redraw--;
 
-            double dt = al_current_time();
+            dt = al_current_time();
             render();
             dt = al_current_time() - dt;
 

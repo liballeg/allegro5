@@ -6,6 +6,8 @@ int main(int argc, const char *argv[])
     const char *filename;
     ALLEGRO_DISPLAY *display;
     ALLEGRO_BITMAP *bitmap;
+    ALLEGRO_TIMER *timer;
+    ALLEGRO_EVENT_QUEUE *queue;
     bool redraw = true;
 
     if (argc > 1) {
@@ -36,8 +38,8 @@ int main(int argc, const char *argv[])
        return 1;
     }
     
-    ALLEGRO_TIMER *timer = al_install_timer(1.0 / 30);
-    ALLEGRO_EVENT_QUEUE *queue = al_create_event_queue();
+    timer = al_install_timer(1.0 / 30);
+    queue = al_create_event_queue();
     al_register_event_source(queue, (ALLEGRO_EVENT_SOURCE *)al_get_keyboard());
     al_register_event_source(queue, (ALLEGRO_EVENT_SOURCE *)display);
     al_register_event_source(queue, (ALLEGRO_EVENT_SOURCE *)timer);
