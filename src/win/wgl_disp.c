@@ -1190,8 +1190,10 @@ End:
 static void wgl_flip_display(ALLEGRO_DISPLAY *d)
 {
    ALLEGRO_DISPLAY_WGL* disp = (ALLEGRO_DISPLAY_WGL*)d;
-   glFlush();
-   SwapBuffers(disp->dc);
+   if (d->flags & ALLEGRO_SINGLEBUFFER)
+      glFlush();
+   else
+      SwapBuffers(disp->dc);
 }
 
 
