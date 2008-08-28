@@ -289,11 +289,14 @@ static LRESULT CALLBACK window_callback(HWND hWnd, UINT message,
             hrgn = CreateRectRgn(r.left, r.top, r.right, r.bottom);
             if (GetUpdateRgn(win->window, hrgn, FALSE) != ERROR) {
                PAINTSTRUCT ps;
-               BeginPaint(win->window, &ps);
-               DWORD size = GetRegionData(hrgn, 0, NULL);
-               LPRGNDATA rgndata = _AL_MALLOC(size);
+               DWORD size;
+               LPRGNDATA rgndata;
                int n;
                RECT *rects;
+
+               BeginPaint(win->window, &ps);
+               size = GetRegionData(hrgn, 0, NULL);
+               rgndata = _AL_MALLOC(size);
                GetRegionData(hrgn, size, rgndata);
                n = rgndata->rdh.nCount;
                rects = (RECT *)rgndata->Buffer;

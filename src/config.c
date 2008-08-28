@@ -3,7 +3,7 @@
 #include <allegro5/allegro5.h>
 #include <allegro5/internal/aintern_config.h>
 
-const int MAXSIZE = 1024;
+#define MAXSIZE 1024
 
 
 static char *skip_whitespace(char *s)
@@ -49,8 +49,8 @@ static ALLEGRO_CONFIG_ENTRY *find_entry(ALLEGRO_CONFIG_ENTRY *section_head, AL_C
 
 static void get_key_and_value(char *buf, char *key, char *value)
 {
+   int i;
    char *p = skip_whitespace(buf);
-   int i, j;
 
    /* Error */
    if (*p == 0) {

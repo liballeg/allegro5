@@ -84,7 +84,7 @@ static ALLEGRO_BITMAP *really_load_png(png_structp png_ptr, png_infop info_ptr)
     int bit_depth, color_type, interlace_type;
     double image_gamma, screen_gamma;
     int intent;
-    int bpp, dest_bpp;
+    int bpp;
     int tRNS_to_alpha = FALSE;
     int number_passes, pass;
     PalEntry pal[256];

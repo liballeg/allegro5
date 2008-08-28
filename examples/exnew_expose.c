@@ -6,15 +6,20 @@ const int H = 200;
 
 int main(void)
 {
+   ALLEGRO_DISPLAY *display;
+   ALLEGRO_BITMAP *bitmap;
+   ALLEGRO_TIMER *timer;
+   ALLEGRO_EVENT_QUEUE *queue;
+
    al_init();
    al_iio_init();
    al_install_keyboard();
    al_install_mouse();
 
    al_set_new_display_flags(ALLEGRO_SINGLEBUFFER | ALLEGRO_RESIZABLE |
-      ALLEGRO_GENERATE_EXPOSE_EVENTS);
+      ALLEGRO_GENERATE_EXPOSE_EVENTS | ALLEGRO_OPENGL);
    al_set_new_display_format(ALLEGRO_PIXEL_FORMAT_ANY_32_NO_ALPHA);
-   ALLEGRO_DISPLAY *display = al_create_display(W, H);
+   display = al_create_display(W, H);
    if (!display) {
       TRACE("Error creating display\n");
       return 1;
@@ -23,7 +28,7 @@ int main(void)
    al_show_mouse_cursor();
 
    al_set_new_bitmap_format(ALLEGRO_PIXEL_FORMAT_ANY_32_WITH_ALPHA);
-   ALLEGRO_BITMAP *bitmap = al_iio_load("mysha.pcx");
+   bitmap = al_iio_load("mysha.pcx");
    if (!bitmap) {
       TRACE("%s not found or failed to load", "mysha.pcx");
       return 1;
@@ -31,9 +36,9 @@ int main(void)
    al_draw_bitmap(bitmap, 0, 0, 0);
    al_flip_display();
 
-   ALLEGRO_TIMER *timer = al_install_timer(0.5);
+   timer = al_install_timer(0.5);
 
-   ALLEGRO_EVENT_QUEUE *queue = al_create_event_queue();
+   queue = al_create_event_queue();
    al_register_event_source(queue, (ALLEGRO_EVENT_SOURCE *) al_get_keyboard());
    al_register_event_source(queue, (ALLEGRO_EVENT_SOURCE *) al_get_mouse());
    al_register_event_source(queue, (ALLEGRO_EVENT_SOURCE *) display);

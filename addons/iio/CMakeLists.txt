@@ -1,10 +1,14 @@
 set(IIO_SOURCES bmp.c iio.c pcx.c tga.c)
 set(IIO_INCLUDE_FILES allegro5/a5_iio.h)
 
-check_include_file(png.h ALLEGRO_CFG_IIO_HAVE_PNG)
-if(ALLEGRO_CFG_IIO_HAVE_PNG)
+include(FindPNG)
+if(PNG_FOUND)
+    set(ALLEGRO_CFG_IIO_HAVE_PNG 1)
     list(APPEND IIO_SOURCES png.c)
-endif(ALLEGRO_CFG_IIO_HAVE_PNG)
+    set(IIO_LIBRARIES ${PNG_LIBRARIES})
+    set(IIO_DEFINES ${PNG_DEFINITIONS})
+    include_directories(${PNG_INCLUDE_DIR})
+endif(PNG_FOUND)
 
 configure_file(
     allegro5/internal/aintern_iio_cfg.h.cmake
@@ -16,13 +20,11 @@ macro(add_iio_build nm extra_flags)
         add_library(${target} ${libtype} ${IIO_SOURCES})
         set_target_properties(${target}
             PROPERTIES
-            COMPILE_FLAGS "${more_extra_flags} ${LIBRARY_CFLAGS} -DA5_IIO_SRC"
+            COMPILE_FLAGS "${more_extra_flags} ${IIO_DEFINES} ${LIBRARY_CFLAGS} -DA5_IIO_SRC"
             OUTPUT_NAME ${nm2}
             )
         
-        if(ALLEGRO_CFG_IIO_HAVE_PNG)
-            target_link_libraries(${target} png z)
-        endif(ALLEGRO_CFG_IIO_HAVE_PNG)
+        target_link_libraries(${target} ${IIO_LIBRARIES})
 
         install(TARGETS ${target}
                 DESTINATION lib
