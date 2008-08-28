@@ -77,7 +77,7 @@ static void log_win32_msg(const char *prefix, const char *func,
    }
 
    /* Remove two trailing characters */
-   if (err_msg && strlen(err_msg) > 1)
+   if (free_msg && err_msg && strlen(err_msg) > 1)
       *(err_msg + strlen(err_msg) - 2) = '\0';
 
    TRACE("%s%s(): %s %s (0x%08lx)\n", prefix, func, error_msg ? error_msg : "",
@@ -235,6 +235,21 @@ static int get_pixel_formats_count_ext(HDC dc) {
 
    return value[0];
 }
+
+
+#ifdef DEBUGMODE
+static void display_pixel_format(OGL_PIXEL_FORMAT *pf) {
+   TRACE(PREFIX_I "Accelarated: %s\n", pf->rmethod ? "yes" : "no");
+   TRACE(PREFIX_I "Doublebuffer: %s\n", pf->doublebuffered ? "yes" : "no");
+   if (pf->swap_method > 0)
+      TRACE(PREFIX_I "Swap method: %s\n", pf->swap_method == 2 ? "flip" : "copy");
+   else
+      TRACE(PREFIX_I "Swap method: undefined\n");
+   TRACE(PREFIX_I "Color format: r%i g%i b%i a%i, %i bit\n", pf->r_size,
+      pf->g_size, pf->b_size, pf->a_size, pf->color_size);
+   TRACE(PREFIX_I "Depth buffer: %i bits\n", pf->depth_size);
+}
+#endif
 
 
 static void deduce_color_format(OGL_PIXEL_FORMAT *pf)
@@ -432,7 +447,12 @@ static bool decode_pixel_format_attrib(OGL_PIXEL_FORMAT *pf, int num_attribs,
          pf->doublebuffered = value[i];
       }
       else if (attrib[i] == WGL_SWAP_METHOD_ARB) {
-         pf->swap_method = value[i];
+         if (value[i] == WGL_SWAP_UNDEFINED_ARB)
+            pf->swap_method = 0;
+         else if (value[i] == WGL_SWAP_COPY_ARB)
+            pf->swap_method = 1;
+         else if (value[i] == WGL_SWAP_EXCHANGE_ARB) 
+            pf->swap_method = 2;
       }
 
       /* XXX: enable if needed, unused currently */
@@ -722,8 +742,13 @@ static OGL_PIXEL_FORMAT** get_available_pixel_formats_ext(int *count) {
       goto bail;
 
    for (i = 1; i <= maxindex; i++) {
-      TRACE(PREFIX_I "Reading visual no. %i...\n", i);
       pf_list[i-1] = read_pixel_format_ext(i, testdc);
+#ifdef DEBUGMODE
+      if (pf_list[i-1]) {
+         display_pixel_format(pf_list[i-1]);
+         TRACE("-- \n");
+      }
+#endif
    }
 
 bail:
@@ -762,8 +787,14 @@ static OGL_PIXEL_FORMAT** get_available_pixel_formats_old(int *count, HDC dc) {
       return NULL;
 
    for (i = 1; i <= maxindex; i++) {
-      TRACE(PREFIX_I "Reading visual no. %i...\n", i);
+      TRACE(PREFIX_I "Decoding visual no. %i...\n", i);
       pf_list[i-1] = read_pixel_format_old(i, dc);
+#ifdef DEBUGMODE
+      if (pf_list[i-1]) {
+         display_pixel_format(pf_list[i-1]);
+         TRACE("-- \n");
+      }
+#endif
    }
 
    return pf_list;
@@ -822,6 +853,7 @@ static bool select_pixel_format(ALLEGRO_DISPLAY_WGL *d, HDC dc) {
    bool want_sb = ((ALLEGRO_DISPLAY *) d)->flags & ALLEGRO_SINGLEBUFFER;
    int maxindex = 0;
    int i;
+   bool set_it = false;
 
    /* XXX
     * The correct and more logical way would be to first try the more
@@ -851,14 +883,22 @@ static bool select_pixel_format(ALLEGRO_DISPLAY_WGL *d, HDC dc) {
          if (try_to_set_pixel_format(i)) {
             PIXELFORMATDESCRIPTOR pdf;
             TRACE(PREFIX_I "select_pixel_format(): Chose visual no. %i\n\n", i);
-            /* TODO: read info out of pdf. Print it too.*/
+#ifdef DEBUGMODE
+            display_pixel_format(pf);
+#endif
             if (!SetPixelFormat(d->dc, i, &pdf)) {
                log_win32_error("select_pixel_format", "Unable to set pixel format!",
                       GetLastError());
             }
+            set_it = true;
             break;
          }
       }
+   }
+
+   if (!set_it) {
+      TRACE(PREFIX_E "Couldn't find a suitable pixel format");
+      return false;
    }
 
    for (i = 0; i < maxindex; i++)
