@@ -13,10 +13,22 @@ int main(void)
     al_font_init();
 
     display = al_create_display(320, 200);
+    if (!display) {
+        TRACE("Failed to create display\n");
+        return 1;
+    }
     bitmap = al_iio_load("mysha.pcx");
+    if (!bitmap) {
+        TRACE("Failed to load mysha.pcx\n");
+        return 1;
+    }
     al_draw_bitmap(bitmap, 0, 0, 0);
 
     f = al_font_load_font("bmpfont.tga", NULL);
+    if (!f) {
+        TRACE("Failed to load bmpfont.tga\n");
+        return 1;
+    }
 
     /* Draw red text */
     al_set_blender(ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA,
@@ -30,6 +42,8 @@ int main(void)
 
     al_flip_display();
     al_rest(3);
+
+    al_font_destroy_font(f);
     return 0;
 }
 END_OF_MAIN()
