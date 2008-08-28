@@ -17,7 +17,7 @@ int main(void)
    al_install_mouse();
 
    al_set_new_display_flags(ALLEGRO_SINGLEBUFFER | ALLEGRO_RESIZABLE |
-      ALLEGRO_GENERATE_EXPOSE_EVENTS | ALLEGRO_OPENGL);
+      ALLEGRO_GENERATE_EXPOSE_EVENTS);
    al_set_new_display_format(ALLEGRO_PIXEL_FORMAT_ANY_32_NO_ALPHA);
    display = al_create_display(W, H);
    if (!display) {
