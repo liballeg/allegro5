@@ -353,12 +353,19 @@ static LRESULT CALLBACK window_callback(HWND hWnd, UINT message,
                   break;
             }
             return 1;
-         //case WM_SETCURSOR:
-         //   mouse_set_syscursor();
-         //   return 1;
-         break;
-         case WM_ACTIVATEAPP:
-            if (wParam) {
+            /*
+         case WM_ACTIVATE:
+               if (LOWORD(wParam) != WA_INACTIVE) {
+                  _al_win_active_window = win->window;
+                  win_grab_input();
+                  return 0;
+               }
+               break;
+               */
+         //case WM_ACTIVATEAPP:
+         case WM_ACTIVATE:
+            //if (wParam) {
+            if (LOWORD(wParam) != WA_INACTIVE) {
                //if (al_set_current_display((ALLEGRO_DISPLAY *)d)) {
                _al_win_active_window = win->window;
                win_grab_input();

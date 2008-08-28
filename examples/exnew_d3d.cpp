@@ -66,6 +66,8 @@ int main(void)
    float angle = 0.0f;
    D3DXMATRIX mat;
    double start = al_current_time();
+   double start_secs = al_current_time();
+   long frames = 0;
 
    do {
       d3dd->Clear(0, NULL, D3DCLEAR_TARGET, D3DCOLOR_XRGB(0, 0, 0), 1.0f, 0);
@@ -85,7 +87,11 @@ int main(void)
       al_get_keyboard_state(&state);
 
       start = al_current_time();
+      frames++;
    } while (!al_key_down(&state, ALLEGRO_KEY_ESCAPE));
+
+   double elapsed = al_current_time() - start_secs;
+   printf("%g fps\n", frames/elapsed);
 
    return 0;
 }

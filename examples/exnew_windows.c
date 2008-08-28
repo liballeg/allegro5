@@ -47,6 +47,7 @@ int main(void)
    displays[1] = al_create_display(W, H);
    al_show_mouse_cursor();
 
+   al_set_new_bitmap_flags(ALLEGRO_MEMORY_BITMAP);
    myfont = al_font_load_font("fixed_font.tga", 0);
 
    events = al_create_event_queue();
@@ -57,18 +58,21 @@ int main(void)
    for (;;) {
       for (i = 0; i < 2; i++) {
         al_set_current_display(displays[i]);
+        al_set_blender(ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA, al_map_rgb(255, 255, 255));
         if (i == 0)
            al_clear(al_map_rgb(255, 0, 255));
         else
            al_clear(al_map_rgb(155, 255, 0));
         al_set_blender(ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA, al_map_rgb(0, 0, 0));
         al_font_textout_centre(myfont, "Click me..", 50, 50);
-        al_set_blender(ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA, al_map_rgb(255, 255, 255));
         al_flip_display();
       }
 
       if (al_wait_for_event_timed(events, &event, 1)) {
-         if (event.type == ALLEGRO_EVENT_MOUSE_BUTTON_DOWN) {
+         if (event.type == ALLEGRO_EVENT_DISPLAY_CLOSE) {
+            break;
+         }
+         else if (event.type == ALLEGRO_EVENT_MOUSE_BUTTON_DOWN) {
             int a = rand() % adapter_count;
             int w = info[a].x2 - info[a].x1;
             int h = info[a].y2 - info[a].y1;
@@ -76,9 +80,6 @@ int main(void)
             x = margin + info[a].x1 + (rand() % (w - W - margin));
             y = margin + info[a].y1 + (rand() % (h - H - margin));
             al_set_window_position(event.mouse.display, x, y);
-         }
-         else if (event.type == ALLEGRO_EVENT_DISPLAY_CLOSE) {
-            break;
          }
       }
    }

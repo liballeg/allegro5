@@ -1260,9 +1260,6 @@ static bool d3d_create_display_internals(ALLEGRO_DISPLAY_D3D *d3d_display)
 
    d3d_reset_state(d3d_display);
 
-   // Activate the window (grabs input)
-   PostMessage(win_display->window, WM_ACTIVATEAPP, 1, 0);
-
    d3d_display->backbuffer_bmp.is_backbuffer = true;
    d3d_display->backbuffer_bmp.bitmap.display = al_display;
    d3d_display->backbuffer_bmp.bitmap.format = al_display->format;
@@ -1363,6 +1360,9 @@ static ALLEGRO_DISPLAY *d3d_create_display(int w, int h)
 
    win_display->mouse_selected_hcursor = 0;
    win_display->mouse_cursor_shown = false;
+
+   // Activate the window (grabs input)
+   SendMessage(win_display->window, WM_ACTIVATE, WA_ACTIVE, 0);
 
    return al_display;
 }
