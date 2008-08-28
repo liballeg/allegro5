@@ -7,7 +7,7 @@ macro(add_font_build nm extra_flags)
 
         set_target_properties(${target}
             PROPERTIES
-            COMPILE_FLAGS "${more_extra_flags} ${LIBRARY_CFLAGS} -DA5_FONT_SRC"
+            COMPILE_FLAGS "${more_extra_flags} ${LIBRARY_CFLAGS} -DALLEGRO_FONT_SRC"
             OUTPUT_NAME ${nm2}
             )
 
