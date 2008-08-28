@@ -20,6 +20,9 @@
 #ifndef _al_included_threads_h
 #define _al_included_threads_h
 
+#ifdef __cplusplus
+   extern "C" {
+#endif
 
 typedef struct ALLEGRO_THREAD ALLEGRO_THREAD;
 typedef struct ALLEGRO_MUTEX ALLEGRO_MUTEX;
@@ -48,6 +51,9 @@ AL_FUNC(int, al_wait_cond_timed, (ALLEGRO_COND *cond, ALLEGRO_MUTEX *mutex,
 AL_FUNC(void, al_broadcast_cond, (ALLEGRO_COND *cond));
 AL_FUNC(void, al_signal_cond, (ALLEGRO_COND *cond));
 
+#ifdef __cplusplus
+   }
+#endif
 
 #endif          /* ifndef _al_included_threads_h */
 

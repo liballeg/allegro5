@@ -43,6 +43,7 @@
 
    #define ALLEGRO_H
    #include "allegro5/internal/aintern.h"
+   #include "allegro5/internal/aintern_vector.h"
 
 #endif
 

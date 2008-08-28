@@ -15,8 +15,6 @@
 const IID GUID_NULL = { 0, 0, 0, { 0, 0, 0, 0, 0, 0, 0, 0 } };
 
 #include "allegro5/allegro.h"
-#include "allegro5/internal/aintern.h"
-#include "allegro5/internal/aintern_thread.h"
 
 extern "C" {
 #include "allegro5/internal/aintern_kcm_audio.h"
@@ -88,7 +86,7 @@ typedef struct ALLEGRO_DS_DATA {
    LPDIRECTSOUNDBUFFER ds_buffer;
    LPDIRECTSOUNDBUFFER8 ds8_buffer;
    bool stop_voice;
-   _AL_THREAD thread;
+   ALLEGRO_THREAD *thread;
 } ALLEGRO_DS_DATA;
 
 
@@ -97,7 +95,7 @@ static bool _dsound_voice_is_playing(const ALLEGRO_VOICE *voice);
 
 /* Custom routine which runs in another thread to periodically check if DirectSound
    wants more data for a stream */
-static void _dsound_update(_AL_THREAD* self, void* arg)
+static void* _dsound_update(ALLEGRO_THREAD* self, void* arg)
 {
    ALLEGRO_VOICE *voice = (ALLEGRO_VOICE *)arg;
    ALLEGRO_DS_DATA *ex_data = (ALLEGRO_DS_DATA*)voice->extra;
@@ -155,6 +153,8 @@ static void _dsound_update(_AL_THREAD* self, void* arg)
 
 
    ex_data->ds8_buffer->Stop();
+
+   return NULL;
 }
 
 
@@ -370,7 +370,8 @@ static int _dsound_start_voice(ALLEGRO_VOICE *voice)
       ex_data->ds8_buffer->SetVolume(DSBVOLUME_MAX);
 
       ex_data->stop_voice = 0;
-      _al_thread_create(&ex_data->thread, _dsound_update, (void*) voice);
+      ex_data->thread = al_create_thread(_dsound_update, (void*) voice);
+      al_start_thread(ex_data->thread);
    }
 
    return 0;
@@ -398,7 +399,8 @@ static int _dsound_stop_voice(ALLEGRO_VOICE* voice)
    if(ex_data->stop_voice == 0)
    {
       ex_data->stop_voice = 1;
-      _al_thread_join(&ex_data->thread);
+      al_join_thread(ex_data->thread, NULL);
+      al_destroy_thread(ex_data->thread);
    }
 
    ex_data->ds8_buffer->Release();
