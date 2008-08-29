@@ -91,7 +91,7 @@ static int oss_open()
          break;
 
          default:
-            TRACE("Error no. %i.\n", errno);
+            TRACE(PREFIX_E "errno: %i -- %s\n", errno, strerror(errno));
       }
 
       return 1;
@@ -105,6 +105,8 @@ static int oss_open()
       else if (errno == EINVAL) {
          TRACE(PREFIX_E "OSS version 4.0 or later is required\n");
       }
+      else
+         TRACE(PREFIX_E "errno: %i -- %s\n", errno, strerror(errno));
 
       close(mixer_fd);
       return 1;
@@ -475,3 +477,5 @@ ALLEGRO_AUDIO_DRIVER _oss_driver =
    oss_get_voice_position,
    oss_set_voice_position
 };
+
+/* vim: set sts=3 sw=3 et: */

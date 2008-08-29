@@ -66,10 +66,26 @@ typedef struct ALSA_VOICE {
 } ALSA_VOICE;
 
 
+static int alsa_allocate_voice(ALLEGRO_VOICE *voice);
+static void alsa_deallocate_voice(ALLEGRO_VOICE *voice);
+
+
 /* initialized output */
 static int alsa_open()
 {
    ALSA_CHECK(snd_output_stdio_attach(&snd_output, stdout, 0));
+
+   /* We need to check if alsa is available in this function. */
+   snd_pcm_t *test_pcm_handle;
+   int alsa_err = snd_pcm_open(&test_pcm_handle, alsa_device,
+                               SND_PCM_STREAM_PLAYBACK, SND_PCM_NONBLOCK);
+   if (alsa_err < 0) {
+      TRACE(PREFIX_N "ALSA is not available on the system.\n");
+	  return 1;
+   }
+   else
+      snd_pcm_close(test_pcm_handle);
+
    return 0;
 
    /* ALSA check is a macro that 'goto' error*/
@@ -521,3 +537,5 @@ ALLEGRO_AUDIO_DRIVER _alsa_driver =
    alsa_get_voice_position,
    alsa_set_voice_position,
 };
+
+/* vim: set sts=3 sw=3 et: */
