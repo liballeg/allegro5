@@ -66,9 +66,6 @@ typedef struct ALSA_VOICE {
 } ALSA_VOICE;
 
 
-static int alsa_allocate_voice(ALLEGRO_VOICE *voice);
-static void alsa_deallocate_voice(ALLEGRO_VOICE *voice);
-
 
 /* initialized output */
 static int alsa_open()
