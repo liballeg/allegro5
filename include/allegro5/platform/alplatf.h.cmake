@@ -10,3 +10,4 @@
 #cmakedefine WANT_D3D9EX
 
 #cmakedefine ALLEGRO_NO_ASM
+#cmakedefine ALLEGRO_CFG_NO_FPU

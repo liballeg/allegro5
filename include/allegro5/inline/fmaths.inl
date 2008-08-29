@@ -140,6 +140,29 @@ AL_INLINE(fixed, fixsub, (fixed x, fixed y),
 #endif	    /* fixmul() C implementations */
 
 
+#if (defined ALLEGRO_CFG_NO_FPU) && (defined LONG_LONG)
+AL_INLINE(fixed, fixdiv, (fixed x, fixed y),
+{
+   LONG_LONG lres = x;
+   if (y == 0) {
+      al_set_errno(ERANGE);
+      return (x < 0) ? -0x7FFFFFFF : 0x7FFFFFFF;
+   }
+   lres <<= 16;
+   lres /= y;
+   if (lres > 0x7FFFFFFF) {
+      al_set_errno(ERANGE);
+      return 0x7FFFFFFF;
+   }
+   else if (lres < -0x7FFFFFFF) {
+      al_set_errno(ERANGE);
+      return 0x80000000;
+   }
+   else {
+      return (fixed)(lres);
+   }
+})
+#else
 AL_INLINE(fixed, fixdiv, (fixed x, fixed y),
 {
    if (y == 0) {
@@ -149,6 +172,7 @@ AL_INLINE(fixed, fixdiv, (fixed x, fixed y),
    else
       return ftofix(fixtof(x) / fixtof(y));
 })
+#endif
 
 
 AL_INLINE(int, fixfloor, (fixed x),

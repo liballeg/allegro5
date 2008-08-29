@@ -98,6 +98,7 @@ option(WANT_DSOUND "Enable Dsound digital audio driver (Windows)" on)
 #
 
 option(STRICT_WARN "Halt at warnings" off)
+option(NO_FPU "No floating point unit" off)
 
 #-----------------------------------------------------------------------------#
 #
@@ -112,6 +113,10 @@ include(CheckLibraryExists)
 include(CheckSymbolExists)
 include(CheckTypeSize)
 include(FindPkgConfig)
+
+if(NO_FPU)
+    set(ALLEGRO_CFG_NO_FPU 1)
+endif(NO_FPU)
 
 if(MSVC_IDE)
     set(COMPILER_MSVC 1)
@@ -409,15 +414,6 @@ configure_file(
     include/allegro5/platform/alplatf.h.cmake
     include/allegro5/platform/alplatf.h
     )
-
-if(MINGW)
-    # asmcapa.h wouldn't be necessary if we only supported CMake.
-    # XXX we shouldn't need asmcapa.h any more
-    configure_file(
-        cmake/asmcapa.h.cmake
-        obj/mingw32/asmcapa.h
-        )
-endif(MINGW)
 
 if(UNIX)
     configure_file(
