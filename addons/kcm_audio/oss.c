@@ -112,6 +112,14 @@ static int oss_open()
       return 1;
    }
 
+   /* Some OSS implementations (ALSA emulation) don't fail on SNDCTL_SYSINFO even
+    * though they don't support OSS4. They *seem* to set numcards to 0. */
+   if (sysinfo.numcards < 1) {
+      TRACE(PREFIX_E "OSS has not detected any supported sound hardware.\n");
+      TRACE(PREFIX_E "OSS version 4.0 or later is required.\n");
+      return 1;
+   }
+
    TRACE(PREFIX_N "OSS Version: %s\n", sysinfo.version);
    TRACE(PREFIX_N "Found %i sound cards.\n", sysinfo.numcards);
 
