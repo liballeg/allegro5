@@ -299,6 +299,7 @@ typedef struct ALLEGRO_MIXER ALLEGRO_MIXER;
 typedef struct ALLEGRO_VOICE ALLEGRO_VOICE;
 
 
+/* Sample data functions */
 A5_KCM_AUDIO_FUNC(ALLEGRO_SAMPLE_DATA *, al_sample_data_create, (void *buf,
       unsigned long samples, unsigned long freq, ALLEGRO_AUDIO_DEPTH depth,
       ALLEGRO_CHANNEL_CONF chan_conf, bool free_buf));
@@ -328,6 +329,8 @@ A5_KCM_AUDIO_FUNC(int, al_sample_set_bool, (ALLEGRO_SAMPLE *spl,
       ALLEGRO_AUDIO_PROPERTY setting, bool val));
 A5_KCM_AUDIO_FUNC(int, al_sample_set_ptr, (ALLEGRO_SAMPLE *spl,
       ALLEGRO_AUDIO_PROPERTY setting, void *ptr));
+A5_KCM_AUDIO_FUNC(int, al_sample_set_data, (ALLEGRO_SAMPLE *spl,
+      ALLEGRO_SAMPLE_DATA *data));
 A5_KCM_AUDIO_FUNC(int, al_sample_play, (ALLEGRO_SAMPLE *spl));
 A5_KCM_AUDIO_FUNC(int, al_sample_stop, (ALLEGRO_SAMPLE *spl));
 

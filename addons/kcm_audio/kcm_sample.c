@@ -184,8 +184,10 @@ void al_sample_data_destroy(ALLEGRO_SAMPLE_DATA *spl)
 
 
 /* Function: al_sample_create
- *  Creates a sample stream, using the supplied buffer.  This must be attached
+ *  Creates a sample stream, using the supplied data.  This must be attached
  *  to a voice or mixer before it can be played.
+ *  The argument may be NULL. You can then set the data later with
+ *  <al_sample_set_data>.
  */
 ALLEGRO_SAMPLE *al_sample_create(ALLEGRO_SAMPLE_DATA *sample_data)
 {
@@ -198,14 +200,16 @@ ALLEGRO_SAMPLE *al_sample_create(ALLEGRO_SAMPLE_DATA *sample_data)
       return NULL;
    }
 
-   spl->spl_data = *sample_data;
+   if (sample_data) {
+      spl->spl_data = *sample_data;
+   }
    spl->spl_data.free_buf = false;
 
    spl->loop = ALLEGRO_PLAYMODE_ONCE;
    spl->speed = 1.0f;
    spl->pos = 0;
    spl->loop_start = 0;
-   spl->loop_end = sample_data->len;
+   spl->loop_end = sample_data ? sample_data->len : 0;
    spl->step = 0;
 
    spl->matrix = NULL;
@@ -522,7 +526,11 @@ int al_sample_set_bool(ALLEGRO_SAMPLE *spl,
    switch (setting) {
       case ALLEGRO_AUDIOPROP_PLAYING:
          if (!spl->parent.u.ptr) {
-            fprintf(stderr, "Sample has no parent\n");
+            _al_set_error(ALLEGRO_INVALID_OBJECT, "Sample has no parent");
+            return 1;
+         }
+         if (!spl->spl_data.buffer.ptr) {
+            _al_set_error(ALLEGRO_INVALID_OBJECT, "Sample has no data");
             return 1;
          }
 
@@ -582,6 +590,89 @@ int al_sample_set_ptr(ALLEGRO_SAMPLE *spl,
             "Attempted to set invalid sample long setting");
          return 1;
    }
+}
+
+
+/* Function: al_sample_set_data
+ *  Change the sample data that a sample plays.  This can be quite an involved
+ *  process.
+ *
+ *  First, the sample is stopped if it is not already.
+ *
+ *  Next, if data is NULL, the sample is detached from its parent (if any).
+ *
+ *  If data is not NULL, the sample may be detached and reattached to its
+ *  parent (if any).  This is not necessary if the old sample data and new
+ *  sample data have the same frequency, depth and channel configuration.
+ *  Reattaching may not always succeed.
+ *
+ *  On success, the sample remains stopped.  The playback position and loop
+ *  end points are reset to their default values.  The loop mode remains
+ *  unchanged.
+ *
+ *  Returns zero on success, non-zero on failure.  On failure, the sample will
+ *  be stopped and detached from its parent.
+ */
+int al_sample_set_data(ALLEGRO_SAMPLE *spl, ALLEGRO_SAMPLE_DATA *data)
+{
+   sample_parent_t old_parent;
+   bool need_reattach;
+
+   ASSERT(spl);
+
+   /* Stop the sample if it is playing. */
+   if (spl->is_playing) {
+      if (al_sample_set_bool(spl, ALLEGRO_AUDIOPROP_PLAYING, false) != 0) {
+         /* Shouldn't happen. */
+         ASSERT(false);
+         return 1;
+      }
+   }
+
+   if (!data) {
+      if (spl->parent.u.ptr) {
+         _al_kcm_detach_from_parent(spl);
+      }
+      spl->spl_data.buffer.ptr = NULL;
+      return 0;
+   }
+
+   /* Have data. */
+
+   need_reattach = false;
+   if (spl->parent.u.ptr != NULL) {
+      if (spl->spl_data.frequency != data->frequency ||
+            spl->spl_data.depth != data->depth ||
+            spl->spl_data.chan_conf != data->chan_conf) {
+         old_parent = spl->parent;
+         need_reattach = true;
+         _al_kcm_detach_from_parent(spl);
+      }
+   }
+
+   spl->spl_data = *data;
+   spl->spl_data.free_buf = false;
+   spl->pos = 0;
+   spl->loop_start = 0;
+   spl->loop_end = data->len;
+   /* Should we reset the loop mode? */
+
+   if (need_reattach) {
+      if (old_parent.is_voice) {
+         if (al_voice_attach_sample(old_parent.u.voice, spl) != 0) {
+            spl->spl_data.buffer.ptr = NULL;
+            return 1;
+         }
+      }
+      else {
+         if (al_mixer_attach_sample(old_parent.u.mixer, spl) != 0) {
+            spl->spl_data.buffer.ptr = NULL;
+            return 1;
+         }
+      }
+   }
+
+   return 0;
 }
 
 

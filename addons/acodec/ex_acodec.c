@@ -12,6 +12,7 @@ int main(int argc, char **argv)
 {
    ALLEGRO_VOICE *voice;
    ALLEGRO_MIXER *mixer;
+   ALLEGRO_SAMPLE *sample;
    int i;
 
    if (argc < 2) {
@@ -44,13 +45,18 @@ int main(int argc, char **argv)
    }
 
    if (al_voice_attach_mixer(voice, mixer) != 0) {
-      TRACE("al_voice_attach_mixer failed.\n");
+      fprintf(stderr, "al_voice_attach_mixer failed.\n");
+      return 1;
+   }
+
+   sample = al_sample_create(NULL);
+   if (!sample) {
+      fprintf(stderr, "al_sample_create failed.\n");
       return 1;
    }
 
    for (i = 1; i < argc; ++i) {
       ALLEGRO_SAMPLE_DATA *sample_data = NULL;
-      ALLEGRO_SAMPLE *sample = NULL;
       const char *filename = argv[i];
       float sample_time = 0;
 
@@ -62,15 +68,14 @@ int main(int argc, char **argv)
          continue;
       }
 
-      sample = al_sample_create(sample_data);
-      if (!sample) {
-         fprintf(stderr, "al_sample_create failed.\n");
+      if (al_sample_set_data(sample, sample_data) != 0) {
+         fprintf(stderr, "al_sample_set_ptr failed.\n");
          continue;
       }
 
       if (al_mixer_attach_sample(mixer, sample) != 0) {
          fprintf(stderr, "al_mixer_attach_sample failed.\n");
-         continue;
+         return 1;
       }
 
       /* Play sample in looping mode. */
@@ -86,10 +91,11 @@ int main(int argc, char **argv)
       fprintf(stderr, "\n");
 
       /* Free the memory allocated. */
-      al_sample_destroy(sample);
+      al_sample_set_data(sample, NULL);
       al_sample_data_destroy(sample_data);
    }
 
+   al_sample_destroy(sample);
    al_mixer_destroy(mixer);
    al_voice_destroy(voice);
 
