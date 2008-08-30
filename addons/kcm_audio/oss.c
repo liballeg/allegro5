@@ -47,6 +47,21 @@
    #define OSS_VER_3
 #endif
 
+#ifndef AFMT_S16_NE
+   #ifdef ALLEGRO_BIG_ENDIAN
+      #define AFMT_S16_NE AFMT_S16_BE
+   #else
+      #define AFMT_S16_NE AFMT_S16_LE
+   #endif
+#endif
+#ifndef AFMT_U16_NE
+   #ifdef ALLEGRO_BIG_ENDIAN
+      #define AFMT_U16_NE AFMT_U16_BE
+   #else
+      #define AFMT_U16_NE AFMT_U16_LE
+   #endif
+#endif
+
 
 /* Audio device used by OSS3.
  * Make this configurable. */
@@ -61,6 +76,9 @@ static const int oss_timing_policy = 5;
 /* Fragment size, used by OSS3 
  * Make this configurable? */
 static int oss_fragsize = (8 << 16) | (10);
+
+#define SIL_BUF_SIZE 1024
+static char sil_buf[SIL_BUF_SIZE];
 
 static bool using_ver_4;
 
@@ -391,12 +409,18 @@ static void* oss_update(ALLEGRO_THREAD *self, void *arg)
 
       if (oss_voice->stop && !oss_voice->stopped) {
          oss_voice->stopped = true;
-         ioctl(oss_voice->fd, SNDCTL_DSP_SKIP, NULL);
+#ifdef OSS_VER_4
+         if (using_ver_4)
+            ioctl(oss_voice->fd, SNDCTL_DSP_SKIP, NULL);
+#endif
       }
 
       if (!oss_voice->stop && oss_voice->stopped) {
          oss_voice->stopped = false;
-         ioctl(oss_voice->fd, SNDCTL_DSP_SKIP, NULL);
+#ifdef OSS_VER_4
+         if (using_ver_4)
+            ioctl(oss_voice->fd, SNDCTL_DSP_SKIP, NULL);
+#endif
       }
 
       if (!voice->is_streaming && !oss_voice->stopped) {
@@ -424,7 +448,15 @@ static void* oss_update(ALLEGRO_THREAD *self, void *arg)
          int silence;
 silence:
          /* If stopped just fill with silence. */
-         ioctl(oss_voice->fd, SNDCTL_DSP_SILENCE, NULL);
+         if (using_ver_4) {
+#ifdef OSS_VER_4
+            ioctl(oss_voice->fd, SNDCTL_DSP_SILENCE, NULL);
+#endif
+         }
+         else {
+            memset(sil_buf, _al_audio_get_silence(voice->depth), SIL_BUF_SIZE);
+            write(oss_voice->fd, sil_buf, SIL_BUF_SIZE);
+         }
       }
    }
 
@@ -468,10 +500,12 @@ static int oss_allocate_voice(ALLEGRO_VOICE *voice)
       format = AFMT_S16_NE;
    else if (voice->depth == ALLEGRO_AUDIO_DEPTH_UINT16)
       format = AFMT_U16_NE;
+#ifdef OSS_VER_4
    else if (voice->depth == ALLEGRO_AUDIO_DEPTH_INT24)
       format = AFMT_S24_NE;
    else if (voice->depth == ALLEGRO_AUDIO_DEPTH_FLOAT32)
       format = AFMT_FLOAT;
+#endif
    else {
          TRACE(PREFIX_E "Unsupported OSS sound format.\n");
          goto Error;
