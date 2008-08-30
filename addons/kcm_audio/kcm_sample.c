@@ -69,10 +69,11 @@ static void stream_free(ALLEGRO_SAMPLE *spl)
 
          _al_vector_free(&mixer->streams);
 
-         ASSERT(spl->spl_data.buffer.ptr);
-         ASSERT(spl->spl_data.free_buf);
-         free(spl->spl_data.buffer.ptr);
-         spl->spl_data.buffer.ptr = NULL;
+         if (spl->spl_data.buffer.ptr) {
+            ASSERT(spl->spl_data.free_buf);
+            free(spl->spl_data.buffer.ptr);
+            spl->spl_data.buffer.ptr = NULL;
+         }
          spl->spl_data.free_buf = false;
       }
 

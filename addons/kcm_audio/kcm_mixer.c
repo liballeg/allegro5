@@ -561,7 +561,7 @@ ALLEGRO_MIXER *al_mixer_create(unsigned long freq,
    }
 
    mixer->ss.is_playing = true;
-   mixer->ss.spl_data.free_buf = true; /* XXX */
+   mixer->ss.spl_data.free_buf = true;
 
    mixer->ss.loop      = ALLEGRO_PLAYMODE_ONCE;
                         /* XXX should we have a specific one?*/
