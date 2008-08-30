@@ -117,11 +117,6 @@ struct ALLEGRO_SAMPLE {
    volatile bool        is_playing;
                         /* Is this sample is playing? */
 
-   volatile bool        is_stream;
-                        /* Is this sample is part of a ALLEGRO_STREAM object?
-                         * XXX this should be accounted for in the loop mode
-                         */
-
    ALLEGRO_PLAYMODE     loop;
    float                speed;
 
@@ -183,6 +178,8 @@ struct ALLEGRO_STREAM {
                          * ready to receive new data.
                          */
 };
+
+bool _al_kcm_refill_stream(ALLEGRO_STREAM *stream);
 
 
 typedef void (*postprocess_callback_t)(void *buf, unsigned long samples,

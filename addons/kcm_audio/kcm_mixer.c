@@ -89,12 +89,10 @@ static float *_al_rechannel_matrix(ALLEGRO_CHANNEL_CONF orig,
 
 /* fix_looped_position:
  *  When a stream loops, this will fix up the position and anything else to
- *  allow it to safely continue is_playing as expected. Returns 0 if it should
- *  stop being mixed.
- *
- * XXX reconsider inlining this; it looks rather big
+ *  allow it to safely continue playing as expected. Returns false if it
+ *  should stop being mixed.
  */
-static INLINE int fix_looped_position(ALLEGRO_SAMPLE *spl)
+static bool fix_looped_position(ALLEGRO_SAMPLE *spl)
 {
    /* Looping! Should be mostly self-explanitory */
    switch (spl->loop) {
@@ -109,7 +107,7 @@ static INLINE int fix_looped_position(ALLEGRO_SAMPLE *spl)
                spl->pos += (spl->loop_end - spl->loop_start);
             }
          }
-         break;
+         return true;
 
       case ALLEGRO_PLAYMODE_BIDIR:
          /* When doing bi-directional looping, you need to do a follow-up
@@ -132,51 +130,25 @@ static INLINE int fix_looped_position(ALLEGRO_SAMPLE *spl)
                goto check_forward;
             }
          }
-         break;
+         return true;
 
       case ALLEGRO_PLAYMODE_ONCE:
-         if (spl->pos >= spl->spl_data.len) {
-            if (spl->is_stream) {
-               ALLEGRO_STREAM *stream = (ALLEGRO_STREAM *)spl;
-               void *old_buf = stream->spl.spl_data.buffer.ptr;
-               size_t i;
-
-               if (old_buf) {
-                  /* Slide the buffers down one position and put the
-                   * completed buffer into the used array to be refilled.
-                   */
-                  for (i = 0;
-                        stream->pending_bufs[i] && i < stream->buf_count-1;
-                        i++) {
-                     stream->pending_bufs[i] = stream->pending_bufs[i+1];
-                  }
-                  stream->pending_bufs[i] = NULL;
-
-                  for (i = 0; stream->used_bufs[i]; i++)
-                     ;
-                  stream->used_bufs[i] = old_buf;
-               }
-
-               stream->spl.spl_data.buffer.ptr = stream->pending_bufs[0];
-               if (!stream->spl.spl_data.buffer.ptr)
-                  return 0;
-
-               spl->pos -= spl->spl_data.len;
-               return 1;
-            }
-
-            spl->pos = 0;//spl->len;
-            spl->is_playing = false;
-            return 0;
+         if (spl->pos < spl->spl_data.len) {
+            return true;
          }
-         break;
+         spl->pos = 0;
+         spl->is_playing = false;
+         return false;
 
-      default:
-         ASSERT(false);
-         return 0;
+      case _ALLEGRO_PLAYMODE_STREAM:
+         if (spl->pos < spl->spl_data.len) {
+            return true;
+         }
+         return _al_kcm_refill_stream((ALLEGRO_STREAM *)spl);
    }
 
-   return 1;
+   ASSERT(false);
+   return false;
 }
 
 
@@ -246,15 +218,20 @@ static INLINE const float *linear_spl32(const ALLEGRO_SAMPLE *spl,
    p1 = (spl->pos>>MIXER_FRAC_SHIFT)*maxc;
    p2 = p1 + maxc;
 
-   if (spl->loop == ALLEGRO_PLAYMODE_ONCE) {
-      if (spl->pos+MIXER_FRAC_ONE >= spl->spl_data.len)
-         p2 = p1;
-   }
-   else if (spl->pos+MIXER_FRAC_ONE >= spl->loop_end) {
-      if (spl->loop == ALLEGRO_PLAYMODE_ONEDIR)
-         p2 = (spl->loop_start>>MIXER_FRAC_SHIFT)*maxc;
-      else
-         p2 = ((spl->loop_end>>MIXER_FRAC_SHIFT)-1)*maxc;
+   switch (spl->loop) {
+      case ALLEGRO_PLAYMODE_ONCE:
+      case _ALLEGRO_PLAYMODE_STREAM:
+         if (spl->pos+MIXER_FRAC_ONE >= spl->spl_data.len)
+            p2 = p1;
+         break;
+      case ALLEGRO_PLAYMODE_ONEDIR:
+         if (spl->pos+MIXER_FRAC_ONE >= spl->loop_end)
+            p2 = (spl->loop_start>>MIXER_FRAC_SHIFT)*maxc;
+         break;
+      case ALLEGRO_PLAYMODE_BIDIR:
+         if (spl->pos+MIXER_FRAC_ONE >= spl->loop_end)
+            p2 = ((spl->loop_end>>MIXER_FRAC_SHIFT)-1)*maxc;
+         break;
    }
 
    frac = (float)(spl->pos&MIXER_FRAC_MASK) / (float)MIXER_FRAC_ONE;
@@ -295,15 +272,20 @@ static INLINE const float *linear_spl32u(const ALLEGRO_SAMPLE *spl,
    p1 = (spl->pos>>MIXER_FRAC_SHIFT)*maxc;
    p2 = p1 + maxc;
 
-   if (spl->loop == ALLEGRO_PLAYMODE_ONCE) {
-      if (spl->pos+MIXER_FRAC_ONE >= spl->spl_data.len)
-         p2 = p1;
-   }
-   else if (spl->pos+MIXER_FRAC_ONE >= spl->loop_end) {
-      if (spl->loop == ALLEGRO_PLAYMODE_ONEDIR)
-         p2 = (spl->loop_start>>MIXER_FRAC_SHIFT)*maxc;
-      else
-         p2 = ((spl->loop_end>>MIXER_FRAC_SHIFT)-1)*maxc;
+   switch (spl->loop) {
+      case ALLEGRO_PLAYMODE_ONCE:
+      case _ALLEGRO_PLAYMODE_STREAM:
+         if (spl->pos+MIXER_FRAC_ONE >= spl->spl_data.len)
+            p2 = p1;
+         break;
+      case ALLEGRO_PLAYMODE_ONEDIR:
+         if (spl->pos+MIXER_FRAC_ONE >= spl->loop_end)
+            p2 = (spl->loop_start>>MIXER_FRAC_SHIFT)*maxc;
+         break;
+      case ALLEGRO_PLAYMODE_BIDIR:
+         if (spl->pos+MIXER_FRAC_ONE >= spl->loop_end)
+            p2 = ((spl->loop_end>>MIXER_FRAC_SHIFT)-1)*maxc;
+         break;
    }
 
    frac = (float)(spl->pos&MIXER_FRAC_MASK) / (float)MIXER_FRAC_ONE;
@@ -546,6 +528,7 @@ ALLEGRO_MIXER *al_mixer_create(unsigned long freq,
    mixer->ss.spl_data.free_buf = true; /* XXX */
 
    mixer->ss.loop      = ALLEGRO_PLAYMODE_ONCE;
+                        /* XXX should we have a specific one?*/
    mixer->ss.spl_data.depth     = depth;
    mixer->ss.spl_data.chan_conf = chan_conf;
    mixer->ss.spl_data.frequency = freq;

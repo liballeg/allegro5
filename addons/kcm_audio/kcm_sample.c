@@ -486,6 +486,11 @@ int al_sample_set_enum(ALLEGRO_SAMPLE *spl,
 
    switch (setting) {
       case ALLEGRO_AUDIOPROP_LOOPMODE:
+         if (val < ALLEGRO_PLAYMODE_ONCE || val > ALLEGRO_PLAYMODE_BIDIR) {
+            _al_set_error(ALLEGRO_INVALID_PARAM,
+               "Invalid loop mode");
+            return 1;
+         }
          if (spl->parent.u.ptr && spl->parent.is_voice) {
             _al_set_error(ALLEGRO_GENERIC_ERROR,
                "Unable to set voice loop mode");

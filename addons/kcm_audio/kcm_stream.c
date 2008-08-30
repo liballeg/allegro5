@@ -55,9 +55,8 @@ ALLEGRO_STREAM *al_stream_create(size_t buffer_count, unsigned long samples,
    }
 
    stream->spl.is_playing = true;
-   stream->spl.is_stream = true;
 
-   stream->spl.loop      = ALLEGRO_PLAYMODE_ONCE;
+   stream->spl.loop      = _ALLEGRO_PLAYMODE_STREAM;
    stream->spl.spl_data.depth     = depth;
    stream->spl.spl_data.chan_conf = chan_conf;
    stream->spl.spl_data.frequency = freq;
@@ -69,7 +68,7 @@ ALLEGRO_STREAM *al_stream_create(size_t buffer_count, unsigned long samples,
 
    stream->buf_count = buffer_count;
 
-   stream->used_bufs = calloc(1, buffer_count*sizeof(void*)*2);
+   stream->used_bufs = calloc(1, buffer_count * sizeof(void *) * 2);
    if (!stream->used_bufs) {
       free(stream->used_bufs);
       free(stream);
@@ -414,6 +413,42 @@ int al_stream_set_ptr(ALLEGRO_STREAM *stream,
             "Attempted to set invalid stream pointer setting");
          return 1;
    }
+}
+
+
+/* _al_kcm_refill_stream:
+ *  Called by the mixer when the current buffer has been used up.  It should
+ *  point to the next pending buffer and reset the sample position.
+ *  Returns true if the next buffer is available and set up.
+ *  Otherwise returns false.
+ */
+bool _al_kcm_refill_stream(ALLEGRO_STREAM *stream)
+{
+   void *old_buf = stream->spl.spl_data.buffer.ptr;
+   size_t i;
+
+   if (old_buf) {
+      /* Slide the buffers down one position and put the
+       * completed buffer into the used array to be refilled.
+       */
+      for (i = 0;
+            stream->pending_bufs[i] && i < stream->buf_count-1;
+            i++) {
+         stream->pending_bufs[i] = stream->pending_bufs[i+1];
+      }
+      stream->pending_bufs[i] = NULL;
+
+      for (i = 0; stream->used_bufs[i]; i++)
+         ;
+      stream->used_bufs[i] = old_buf;
+   }
+
+   stream->spl.spl_data.buffer.ptr = stream->pending_bufs[0];
+   if (!stream->spl.spl_data.buffer.ptr)
+      return false;
+
+   stream->spl.pos -= stream->spl.spl_data.len;
+   return true;
 }
 
 
