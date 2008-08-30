@@ -206,6 +206,9 @@ struct ALLEGRO_MIXER {
                             */
 };
 
+extern void _al_kcm_mixer_read(void *source, void **buf, unsigned long samples,
+   ALLEGRO_AUDIO_DEPTH buffer_depth, size_t dest_maxc);
+
 
 typedef enum {
    ALLEGRO_NO_ERROR       = 0,

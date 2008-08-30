@@ -387,9 +387,6 @@ A5_KCM_AUDIO_FUNC(int, al_mixer_set_enum, (ALLEGRO_MIXER *mixer,
       ALLEGRO_AUDIO_PROPERTY setting, int val));
 A5_KCM_AUDIO_FUNC(int, al_mixer_set_bool, (ALLEGRO_MIXER *mixer,
       ALLEGRO_AUDIO_PROPERTY setting, bool val));
-/* XXX is this supposed to be public? */
-A5_KCM_AUDIO_FUNC(void, _al_kcm_mixer_read, (void*, void**, unsigned long,
-      ALLEGRO_AUDIO_DEPTH, size_t));
 
 /* Voice functions */
 A5_KCM_AUDIO_FUNC(ALLEGRO_VOICE*, al_voice_create, (unsigned long freq,
