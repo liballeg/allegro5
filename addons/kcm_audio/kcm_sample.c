@@ -376,15 +376,6 @@ int al_sample_get_ptr(const ALLEGRO_SAMPLE *spl,
    ASSERT(spl);
 
    switch (setting) {
-      case ALLEGRO_AUDIOPROP_BUFFER:
-         if (spl->is_playing) {
-            _al_set_error(ALLEGRO_INVALID_OBJECT,
-               "Attempted to get a playing buffer");
-            return 1;
-         }
-         *val = spl->spl_data.buffer.ptr;
-         return 0;
-
       default:
          _al_set_error(ALLEGRO_INVALID_PARAM,
             "Attempted to get invalid sample pointer setting");
@@ -564,7 +555,7 @@ int al_sample_set_bool(ALLEGRO_SAMPLE *spl,
       case ALLEGRO_AUDIOPROP_ATTACHED:
          if (val) {
             _al_set_error(ALLEGRO_INVALID_PARAM,
-               "Attempted to set sample attachment ststus true");
+               "Attempted to set sample attachment status true");
             return 1;
          }
          _al_kcm_detach_from_parent(spl);
@@ -586,24 +577,6 @@ int al_sample_set_ptr(ALLEGRO_SAMPLE *spl,
    ASSERT(spl);
 
    switch (setting) {
-      case ALLEGRO_AUDIOPROP_BUFFER:
-         if (spl->is_playing) {
-            _al_set_error(ALLEGRO_INVALID_OBJECT,
-               "Attempted to change the buffer of a playing sample");
-            return 1;
-         }
-         if (spl->parent.u.ptr && spl->parent.is_voice) {
-            ALLEGRO_VOICE *voice = spl->parent.u.voice;
-            voice->driver->unload_voice(voice);
-            if (voice->driver->load_voice(voice, val)) {
-               _al_set_error(ALLEGRO_GENERIC_ERROR,
-                  "Unable to load sample into voice");
-               return 1;
-            }
-         }
-         spl->spl_data.buffer.ptr = val;
-         return 0;
-
       default:
          _al_set_error(ALLEGRO_INVALID_PARAM,
             "Attempted to set invalid sample long setting");
