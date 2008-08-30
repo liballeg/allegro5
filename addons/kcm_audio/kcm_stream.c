@@ -44,25 +44,8 @@ ALLEGRO_STREAM *al_stream_create(size_t buffer_count, unsigned long samples,
       return NULL;
    }
 
-   bytes_per_buffer  = samples;
-   bytes_per_buffer *= (chan_conf>>4) + (chan_conf&0xF);
-   if ((depth & ~ALLEGRO_AUDIO_DEPTH_UNSIGNED) == ALLEGRO_AUDIO_DEPTH_INT8) {
-      bytes_per_buffer *= sizeof(int8_t);
-   }
-   else if ((depth & ~ALLEGRO_AUDIO_DEPTH_UNSIGNED)
-            == ALLEGRO_AUDIO_DEPTH_INT16) {
-      bytes_per_buffer *= sizeof(int16_t);
-   }
-   else if ((depth & ~ALLEGRO_AUDIO_DEPTH_UNSIGNED)
-            == ALLEGRO_AUDIO_DEPTH_INT24) {
-      bytes_per_buffer *= sizeof(int32_t);
-   }
-   else if (depth == ALLEGRO_AUDIO_DEPTH_FLOAT32) {
-      bytes_per_buffer *= sizeof(float);
-   }
-   else {
-      return NULL;
-   }
+   bytes_per_buffer = samples * al_channel_count(chan_conf) *
+      al_depth_size(depth);
 
    stream = calloc(1, sizeof(*stream));
    if (!stream) {
