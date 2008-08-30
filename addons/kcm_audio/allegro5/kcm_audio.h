@@ -130,7 +130,6 @@ enum ALLEGRO_AUDIO_PROPERTY {
    ALLEGRO_AUDIOPROP_LOOPMODE       = 0x207,
    ALLEGRO_AUDIOPROP_SPEED          = 0x208,
    ALLEGRO_AUDIOPROP_POSITION       = 0x209,
-   ALLEGRO_AUDIOPROP_AUTOFREE_BUFFER= 0x20A,
 
    ALLEGRO_AUDIOPROP_FRAGMENTS      = 0x20B,
    ALLEGRO_AUDIOPROP_USED_FRAGMENTS = 0x20C,
@@ -229,13 +228,6 @@ typedef struct ALLEGRO_SAMPLE_DATA ALLEGRO_SAMPLE_DATA;
  * ALLEGRO_AUDIOPROP_POSITION (long) -
  *    Gets or sets the object's playing position. The value is in
  *    samples-per-channel.
- *
- * ALLEGRO_AUDIOPROP_AUTOFREE_BUFFER (bool) -
- *    Setting this flag to true will cause the object's data buffer to be
- *    free()'d automatically when either the sample is destroyed, or the
- *    buffer is changed (setting an ALLEGRO_AUDIOPROP_BUFFER value). If you
- *    set another ALLEGRO_AUDIOPROP_BUFFER value, this will revert back to
- *    false.
  */
 typedef struct ALLEGRO_SAMPLE ALLEGRO_SAMPLE;
 
@@ -307,12 +299,14 @@ typedef struct ALLEGRO_MIXER ALLEGRO_MIXER;
 typedef struct ALLEGRO_VOICE ALLEGRO_VOICE;
 
 
-/* Sample functions (more detailed explanations below) */
-A5_KCM_AUDIO_FUNC(ALLEGRO_SAMPLE*, al_sample_create, (void *buf,
+A5_KCM_AUDIO_FUNC(ALLEGRO_SAMPLE_DATA *, al_sample_data_create, (void *buf,
       unsigned long samples, unsigned long freq, ALLEGRO_AUDIO_DEPTH depth,
       ALLEGRO_CHANNEL_CONF chan_conf, bool free_buf));
-A5_KCM_AUDIO_FUNC(ALLEGRO_SAMPLE*, al_sample_create_clone,
-      (const ALLEGRO_SAMPLE *spl));
+A5_KCM_AUDIO_FUNC(void, al_sample_data_destroy, (ALLEGRO_SAMPLE_DATA *data));
+
+/* Sample functions */
+A5_KCM_AUDIO_FUNC(ALLEGRO_SAMPLE*, al_sample_create, (
+      ALLEGRO_SAMPLE_DATA *data));
 A5_KCM_AUDIO_FUNC(void, al_sample_destroy, (ALLEGRO_SAMPLE *spl));
 A5_KCM_AUDIO_FUNC(int, al_sample_get_long, (const ALLEGRO_SAMPLE *spl,
       ALLEGRO_AUDIO_PROPERTY setting, unsigned long *val));

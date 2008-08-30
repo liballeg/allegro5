@@ -68,13 +68,15 @@ static void stream_free(ALLEGRO_SAMPLE *spl)
          }
 
          _al_vector_free(&mixer->streams);
-      }
 
-      if (spl->spl_data.free_buf) {
+         ASSERT(spl->spl_data.buffer.ptr);
+         ASSERT(spl->spl_data.free_buf);
          free(spl->spl_data.buffer.ptr);
          spl->spl_data.buffer.ptr = NULL;
          spl->spl_data.free_buf = false;
       }
+
+      ASSERT(! spl->spl_data.free_buf);
 
       free(spl);
    }
@@ -125,17 +127,18 @@ void _al_kcm_detach_from_parent(ALLEGRO_SAMPLE *spl)
 }
 
 
-/* Function: al_sample_create
- *  Creates a sample stream, using the supplied buffer at the specified size,
- *  channel configuration, sample depth, and frequency. This must be attached
- *  to a voice or mixer before it can be played. Set free_buf to true if you
- *  want the supplied buffer to be freed using free() in al_sample_destroy().
+/* Function: al_sample_data_create
+ *  Create a sample data structure from the supplied buffer.
+ *  If `free_buf' is true then the buffer will be freed as well when the
+ *  sample data structure is destroyed.
  */
-ALLEGRO_SAMPLE *al_sample_create(void *buf, unsigned long samples,
+ALLEGRO_SAMPLE_DATA *al_sample_data_create(void *buf, unsigned long samples,
    unsigned long freq, ALLEGRO_AUDIO_DEPTH depth,
    ALLEGRO_CHANNEL_CONF chan_conf, bool free_buf)
 {
-   ALLEGRO_SAMPLE *spl;
+   ALLEGRO_SAMPLE_DATA *spl;
+
+   ASSERT(buf);
 
    if (!freq) {
       _al_set_error(ALLEGRO_INVALID_PARAM, "Invalid sample frequency");
@@ -145,50 +148,80 @@ ALLEGRO_SAMPLE *al_sample_create(void *buf, unsigned long samples,
    spl = calloc(1, sizeof(*spl));
    if (!spl) {
       _al_set_error(ALLEGRO_GENERIC_ERROR,
-         "Out of memory allocating sample object");
+         "Out of memory allocating sample data object");
       return NULL;
    }
 
-   spl->loop       = ALLEGRO_PLAYMODE_ONCE;
-   spl->spl_data.depth      = depth;
-   spl->spl_data.chan_conf  = chan_conf;
-   spl->spl_data.frequency  = freq;
-   spl->speed      = 1.0f;
-   spl->parent.u.ptr = NULL;
-   spl->spl_data.buffer.ptr = buf;
-   spl->spl_data.free_buf = free_buf;
-
-   spl->step = 0;
-   spl->pos = 0;
-   spl->spl_data.len = samples << MIXER_FRAC_SHIFT;
-
-   spl->loop_start = 0;
-   spl->loop_end = spl->spl_data.len;
+   spl->depth = depth;
+   spl->chan_conf = chan_conf;
+   spl->frequency = freq;
+   spl->len = samples << MIXER_FRAC_SHIFT;
+   spl->buffer.ptr = buf;
+   spl->free_buf = free_buf;
 
    return spl;
 }
 
 
-/* Function: al_sample_create_clone
- *  Creates a new sample from an existing sample. The new sample will share
- *  the buffer with the original, and inherit its properties.
- *  This is equivalent to calling <al_sample_create> with 'free_buf'
- *  set to true.
+/* Function: al_sample_data_destroy
+ *  Free the sample data structure. If it was created with the `free_buf'
+ *  parameter set to true, then the buffer will be freed as well.
+ *
+ *  You must destroy any ALLEGRO_SAMPLE structures which reference
+ *  this ALLEGRO_SAMPLE_DATA beforehand.
  */
-ALLEGRO_SAMPLE *al_sample_create_clone(const ALLEGRO_SAMPLE *spl)
+void al_sample_data_destroy(ALLEGRO_SAMPLE_DATA *spl)
 {
-   unsigned long length;
+   if (spl) {
+      if (spl->free_buf && spl->buffer.ptr) {
+         free(spl->buffer.ptr);
+      }
+      spl->buffer.ptr = NULL;
+      spl->free_buf = false;
+      free(spl);
+   }
+}
 
-   length = spl->spl_data.len >> MIXER_FRAC_SHIFT;
-   return al_sample_create(spl->spl_data.buffer.ptr, length,
-      spl->spl_data.frequency, spl->spl_data.depth, spl->spl_data.chan_conf,
-      false);
+
+/* Function: al_sample_create
+ *  Creates a sample stream, using the supplied buffer.  This must be attached
+ *  to a voice or mixer before it can be played.
+ */
+ALLEGRO_SAMPLE *al_sample_create(ALLEGRO_SAMPLE_DATA *sample_data)
+{
+   ALLEGRO_SAMPLE *spl;
+
+   spl = calloc(1, sizeof(*spl));
+   if (!spl) {
+      _al_set_error(ALLEGRO_GENERIC_ERROR,
+         "Out of memory allocating sample object");
+      return NULL;
+   }
+
+   spl->spl_data = *sample_data;
+   spl->spl_data.free_buf = false;
+
+   spl->loop = ALLEGRO_PLAYMODE_ONCE;
+   spl->speed = 1.0f;
+   spl->pos = 0;
+   spl->loop_start = 0;
+   spl->loop_end = sample_data->len;
+   spl->step = 0;
+
+   spl->matrix = NULL;
+
+   spl->spl_read = NULL;
+
+   spl->mutex = NULL;
+   spl->parent.u.ptr = NULL;
+
+   return spl;
 }
 
 
 /* Function: al_sample_destroy
  *  Detaches the sample stream from anything it may be attached to and frees
- *  its data (note, the sample data is *not* freed!).
+ *  it (the sample data is *not* freed!).
  */
 /* This function is ALLEGRO_MIXER aware */
 void al_sample_destroy(ALLEGRO_SAMPLE *spl)
@@ -325,10 +358,6 @@ int al_sample_get_bool(const ALLEGRO_SAMPLE *spl,
 
       case ALLEGRO_AUDIOPROP_ATTACHED:
          *val = (spl->parent.u.ptr != NULL);
-         return 0;
-
-      case ALLEGRO_AUDIOPROP_AUTOFREE_BUFFER:
-         *val = spl->spl_data.free_buf;
          return 0;
 
       default:
@@ -541,10 +570,6 @@ int al_sample_set_bool(ALLEGRO_SAMPLE *spl,
          _al_kcm_detach_from_parent(spl);
          return 0;
 
-      case ALLEGRO_AUDIOPROP_AUTOFREE_BUFFER:
-         spl->spl_data.free_buf = val;
-         return 0;
-
       default:
          _al_set_error(ALLEGRO_INVALID_PARAM,
             "Attempted to set invalid sample long setting");
@@ -575,10 +600,6 @@ int al_sample_set_ptr(ALLEGRO_SAMPLE *spl,
                   "Unable to load sample into voice");
                return 1;
             }
-         }
-         if (spl->spl_data.free_buf) {
-            free(spl->spl_data.buffer.ptr);
-            spl->spl_data.free_buf = false;
          }
          spl->spl_data.buffer.ptr = val;
          return 0;

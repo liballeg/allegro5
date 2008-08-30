@@ -517,7 +517,7 @@ void _al_kcm_mixer_read(void *source, void **buf, unsigned long samples,
 /* Function: al_mixer_create
  *  Creates a mixer stream, to attach sample streams or other mixers to. It
  *  will mix into a buffer at the requested frequency and channel count.
- *  Only 24-bit signed integer mixing is currently supported.
+ *  Only floating point mixing is currently supported.
  */
 ALLEGRO_MIXER *al_mixer_create(unsigned long freq,
    ALLEGRO_AUDIO_DEPTH depth, ALLEGRO_CHANNEL_CONF chan_conf)
@@ -543,7 +543,7 @@ ALLEGRO_MIXER *al_mixer_create(unsigned long freq,
    }
 
    mixer->ss.is_playing = true;
-   mixer->ss.spl_data.free_buf = true;
+   mixer->ss.spl_data.free_buf = true; /* XXX */
 
    mixer->ss.loop      = ALLEGRO_PLAYMODE_ONCE;
    mixer->ss.spl_data.depth     = depth;
@@ -561,7 +561,7 @@ ALLEGRO_MIXER *al_mixer_create(unsigned long freq,
 
 
 /* Function: al_mixer_destroy
- *  Destroys the mixer stream, identical to al_sample_destroy.
+ *  Destroys the mixer stream.
  */
 void al_mixer_destroy(ALLEGRO_MIXER *mixer)
 {

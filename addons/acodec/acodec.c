@@ -1,87 +1,81 @@
 /*
  * Allegro audio codec loader.
  * author: Ryan Dickie (c) 2008
- * todo: unicode file paths ;)
  */
 
 #include "allegro5/acodec.h"
 #include "allegro5/internal/aintern_acodec.h"
 
 
-ALLEGRO_SAMPLE* al_load_sample(const char* filename)
+ALLEGRO_SAMPLE_DATA *al_load_sample(const char *filename)
 {
-   char *ext;
+   const char *ext;
 
-   if (filename == NULL)
-      return NULL;
+   ASSERT(filename);
 
-   //now to decide which file extension
-   ext = strrchr ( filename, '.' );
+   ext = strrchr(filename, '.');
    if (ext == NULL)
       return NULL;
 
-   //pardon me if this is ugly/unsafe
-   //i've only ever done this in higher level
-   //languages
-   ext++; //get past the '.' character
+   ext++;   /* skip '.' */
    #if defined(ALLEGRO_CFG_ACODEC_VORBIS)
-      if (stricmp("ogg",ext) == 0) {
+      if (stricmp("ogg", ext) == 0) {
          return al_load_sample_oggvorbis(filename);
       }
    #endif
    
    #if defined(ALLEGRO_CFG_ACODEC_FLAC)
-      if (stricmp("flac",ext) == 0) {
+      if (stricmp("flac", ext) == 0) {
          return al_load_sample_flac(filename);
       }
    #endif
 
    #if defined(ALLEGRO_CFG_ACODEC_SNDFILE)
-      if (stricmp("wav",ext) == 0 || stricmp("aiff",ext) == 0 || stricmp("flac",ext) == 0) {
+      if (stricmp("wav", ext) == 0 ||
+         stricmp("aiff", ext) == 0 ||
+         stricmp("flac", ext) == 0)
+      {
          return al_load_sample_sndfile(filename);
       }
    #endif
  
-   //no codec found!
    return NULL;
 }
 
-ALLEGRO_STREAM* al_load_stream(const char* filename)
+
+ALLEGRO_STREAM *al_load_stream(const char *filename)
 {
-   char *ext;
+   const char *ext;
 
-   if (filename == NULL)
-      return NULL;
+   ASSERT(filename);
 
-   //now to decide which file extension
-   ext = strrchr ( filename, '.' );
+   ext = strrchr(filename, '.');
    if (ext == NULL)
       return NULL;
 
-   //pardon me if this is ugly/unsafe
-   //i've only ever done this in higher level
-   //languages
-   ext++; //get past the '.' character
+   ext++;   /* skip '.' */
    #if defined(ALLEGRO_CFG_ACODEC_VORBIS)
-      if (stricmp("ogg",ext) == 0) {
+      if (stricmp("ogg", ext) == 0) {
          return al_load_stream_oggvorbis(filename);
       }
    #endif
    
    #if defined(ALLEGRO_CFG_ACODEC_FLAC)
-      if (stricmp("flac",ext) == 0) {
+      if (stricmp("flac", ext) == 0) {
       /* Disabled until flac streaming is implemented */
       /*   return al_load_stream_flac(filename); */
       }
    #endif
 
    #if defined(ALLEGRO_CFG_ACODEC_SNDFILE)
-      if (stricmp("wav",ext) == 0 || stricmp("aiff",ext) == 0 || stricmp("flac",ext) == 0) {
+      if (stricmp("wav", ext) == 0 ||
+         stricmp("aiff", ext) == 0 ||
+         stricmp("flac", ext) == 0)
+      {
          return al_load_stream_sndfile(filename);
       }
    #endif
- 
-   //no codec found!
+
    return NULL;
 }
 
@@ -89,8 +83,7 @@ ALLEGRO_STREAM* al_load_stream(const char* filename)
 /* FIXME: use the allegro provided helpers */
 ALLEGRO_CHANNEL_CONF _al_count_to_channel_conf(int num_channels)
 {
-   switch (num_channels)
-   {
+   switch (num_channels) {
       case 1:
          return ALLEGRO_CHANNEL_CONF_1;
       case 2:
@@ -110,12 +103,11 @@ ALLEGRO_CHANNEL_CONF _al_count_to_channel_conf(int num_channels)
    }
 }
 
-/* note: assumes 8-bit is unsigned, and 32-bit float all others are signed 
- * make your own version if the codec is different */
+
+/* Note: assumes 8-bit is unsigned, and all others are signed. */
 ALLEGRO_AUDIO_DEPTH _al_word_size_to_depth_conf(int word_size)
 {
-   switch (word_size)
-   {
+   switch (word_size) {
       case 1:
          return ALLEGRO_AUDIO_DEPTH_UINT8;
       case 2:

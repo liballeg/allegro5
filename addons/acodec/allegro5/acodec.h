@@ -1,7 +1,6 @@
 /**
  * allegro audio codec loader
  * author: Ryan Dickie (c) 2008
- * todo: unicode file paths ;)
  * todo: add streaming support
  */
 
@@ -36,8 +35,8 @@ extern "C" {
 
 #include "allegro5/kcm_audio.h"
 
-A5_ACODEC_FUNC(ALLEGRO_SAMPLE*, al_load_sample,(const char* filename));
-A5_ACODEC_FUNC(ALLEGRO_STREAM*, al_load_stream,(const char* filename));
+A5_ACODEC_FUNC(ALLEGRO_SAMPLE_DATA *, al_load_sample, (const char *filename));
+A5_ACODEC_FUNC(ALLEGRO_STREAM *, al_load_stream, (const char *filename));
 
 #ifdef __cplusplus
 }
