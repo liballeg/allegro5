@@ -256,6 +256,8 @@ static void _openal_update(_AL_THREAD* self, void* arg)
    }
 
    alSourceStop(ex_data->source);
+
+   free(silence);
 }
 
 /* The load_voice method loads a sample into the driver's memory. The voice's
