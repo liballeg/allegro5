@@ -335,10 +335,6 @@ A5_KCM_AUDIO_FUNC(int, al_sample_set_data, (ALLEGRO_SAMPLE *spl,
 A5_KCM_AUDIO_FUNC(int, al_sample_play, (ALLEGRO_SAMPLE *spl));
 A5_KCM_AUDIO_FUNC(int, al_sample_stop, (ALLEGRO_SAMPLE *spl));
 
-A5_KCM_AUDIO_FUNC(bool, al_is_channel_conf, (ALLEGRO_CHANNEL_CONF conf));
-A5_KCM_AUDIO_FUNC(size_t, al_channel_count, (ALLEGRO_CHANNEL_CONF conf));
-A5_KCM_AUDIO_FUNC(size_t, al_depth_size, (ALLEGRO_CHANNEL_CONF conf));
-
 /* Stream functions */
 A5_KCM_AUDIO_FUNC(ALLEGRO_STREAM*, al_stream_create, (size_t buffer_count,
       unsigned long samples, unsigned long freq,
@@ -423,6 +419,10 @@ A5_KCM_AUDIO_FUNC(int, al_voice_set_bool, (ALLEGRO_VOICE *voice,
 /* Misc. audio functions */
 A5_KCM_AUDIO_FUNC(int,  al_audio_init, (ALLEGRO_AUDIO_DRIVER_ENUM mode));
 A5_KCM_AUDIO_FUNC(void, al_audio_deinit, (void));
+
+A5_KCM_AUDIO_FUNC(bool, al_is_channel_conf, (ALLEGRO_CHANNEL_CONF conf));
+A5_KCM_AUDIO_FUNC(size_t, al_channel_count, (ALLEGRO_CHANNEL_CONF conf));
+A5_KCM_AUDIO_FUNC(size_t, al_depth_size, (ALLEGRO_AUDIO_DEPTH conf));
 
 
 #ifdef __cplusplus

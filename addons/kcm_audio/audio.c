@@ -45,40 +45,39 @@ size_t al_channel_count(ALLEGRO_CHANNEL_CONF conf)
 }
 
 /* Depth configuration helpers */
-size_t al_depth_size(ALLEGRO_CHANNEL_CONF conf)
+size_t al_depth_size(ALLEGRO_AUDIO_DEPTH depth)
 {
-   ALLEGRO_AUDIO_DEPTH depth = conf & ~ALLEGRO_AUDIO_DEPTH_UNSIGNED;
-   if (depth == ALLEGRO_AUDIO_DEPTH_INT8)
-      return sizeof(int8_t);
-   if (depth == ALLEGRO_AUDIO_DEPTH_INT16)
-      return sizeof(int16_t);
-   if (depth == ALLEGRO_AUDIO_DEPTH_INT24)
-      return sizeof(int32_t);
-   if (depth == ALLEGRO_AUDIO_DEPTH_FLOAT32)
-      return sizeof(float);
-   return 0;
+   switch (depth) {
+      case ALLEGRO_AUDIO_DEPTH_INT8:
+      case ALLEGRO_AUDIO_DEPTH_UINT8:
+         return sizeof(int8_t);
+      case ALLEGRO_AUDIO_DEPTH_INT16:
+      case ALLEGRO_AUDIO_DEPTH_UINT16:
+         return sizeof(int16_t);
+      case ALLEGRO_AUDIO_DEPTH_INT24:
+      case ALLEGRO_AUDIO_DEPTH_UINT24:
+         return sizeof(int32_t);
+      case ALLEGRO_AUDIO_DEPTH_FLOAT32:
+         return sizeof(float);
+      default:
+         ASSERT(false);
+         return 0;
+   }
 }
 
 /* Returns a silent sample frame. */
-int _al_audio_get_silence(ALLEGRO_AUDIO_DEPTH depth) {
-   int silence;
-
-   switch(depth)
-   {
+int _al_audio_get_silence(ALLEGRO_AUDIO_DEPTH depth)
+{
+   switch (depth) {
       case ALLEGRO_AUDIO_DEPTH_UINT8:
-         silence = 0x80;
-         break;
+         return 0x80;
       case ALLEGRO_AUDIO_DEPTH_INT16:
-         silence = 0x8000;
-         break;
+         return 0x8000;
       case ALLEGRO_AUDIO_DEPTH_INT24:
-         silence = 0x800000;
-         break;
+         return 0x800000;
       default:
-         silence = 0;
+         return 0;
    }
-
-   return silence;
 }
 
 /* TODO: possibly take extra parameters

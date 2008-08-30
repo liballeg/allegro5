@@ -155,26 +155,33 @@ static bool fix_looped_position(ALLEGRO_SAMPLE *spl)
 static INLINE const float *point_spl32(const ALLEGRO_SAMPLE *spl,
    unsigned int maxc)
 {
+   any_buffer_t *buf = (any_buffer_t *) &spl->spl_data.buffer;
    float *s = _samp_buf;
    unsigned int i;
 
    for (i = 0; i < maxc; i++) {
-      if (spl->spl_data.depth == ALLEGRO_AUDIO_DEPTH_INT24) {
-         s[i] =
-            (float) spl->spl_data.buffer.s24[(spl->pos>>MIXER_FRAC_SHIFT)*maxc + i] /
-            ((float)0x7FFFFF + 0.5f);
-      }
-      else if (spl->spl_data.depth == ALLEGRO_AUDIO_DEPTH_INT16) {
-         s[i] =
-            (float) spl->spl_data.buffer.s16[(spl->pos>>MIXER_FRAC_SHIFT)*maxc + i] /
-            ((float)0x7FFF + 0.5f);
-      }
-      else if (spl->spl_data.depth == ALLEGRO_AUDIO_DEPTH_INT8) {
-         s[i] = (float) spl->spl_data.buffer.s8[(spl->pos>>MIXER_FRAC_SHIFT)*maxc + i] /
-            ((float)0x7F + 0.5f);
-      }
-      else {
-         s[i] = spl->spl_data.buffer.f32[(spl->pos>>MIXER_FRAC_SHIFT)*maxc + i];
+      switch (spl->spl_data.depth) {
+         case ALLEGRO_AUDIO_DEPTH_INT24:
+            s[i] = (float) buf->s24[(spl->pos>>MIXER_FRAC_SHIFT)*maxc + i]
+               / ((float)0x7FFFFF + 0.5f);
+            break;
+         case ALLEGRO_AUDIO_DEPTH_INT16:
+            s[i] = (float) buf->s16[(spl->pos>>MIXER_FRAC_SHIFT)*maxc + i]
+               / ((float)0x7FFF + 0.5f);
+            break;
+         case ALLEGRO_AUDIO_DEPTH_INT8:
+            s[i] = (float) buf->s8[(spl->pos>>MIXER_FRAC_SHIFT)*maxc + i]
+               / ((float)0x7F + 0.5f);
+            break;
+         case ALLEGRO_AUDIO_DEPTH_FLOAT32:
+            s[i] = buf->f32[(spl->pos>>MIXER_FRAC_SHIFT)*maxc + i];
+            break;
+
+         case ALLEGRO_AUDIO_DEPTH_UINT8:
+         case ALLEGRO_AUDIO_DEPTH_UINT16:
+         case ALLEGRO_AUDIO_DEPTH_UINT24:
+            ASSERT(false);
+            break;
       }
    }
    return s;
@@ -184,24 +191,33 @@ static INLINE const float *point_spl32(const ALLEGRO_SAMPLE *spl,
 static INLINE const float *point_spl32u(const ALLEGRO_SAMPLE *spl,
    unsigned int maxc)
 {
+   any_buffer_t *buf = (any_buffer_t *) &spl->spl_data.buffer;
    float *s = _samp_buf;
    unsigned int i;
 
    for (i = 0; i < maxc; i++) {
-      if (spl->spl_data.depth == ALLEGRO_AUDIO_DEPTH_UINT24) {
-         s[i] = (float)spl->spl_data.buffer.u24[(spl->pos>>MIXER_FRAC_SHIFT)*maxc + i]
-            / ((float)0x7FFFFF+0.5f) - 1.0;
-      }
-      else if (spl->spl_data.depth == ALLEGRO_AUDIO_DEPTH_UINT16) {
-         s[i] = (float)spl->spl_data.buffer.u16[(spl->pos>>MIXER_FRAC_SHIFT)*maxc + i]
-            / ((float)0x7FFF+0.5f) - 1.0;
-      }
-      else if (spl->spl_data.depth == ALLEGRO_AUDIO_DEPTH_UINT8) {
-         s[i] = (float)spl->spl_data.buffer.u8[(spl->pos>>MIXER_FRAC_SHIFT)*maxc + i]
-            / ((float)0x7F+0.5f) - 1.0;
-      }
-      else {
-         s[i] = spl->spl_data.buffer.f32[(spl->pos>>MIXER_FRAC_SHIFT)*maxc + i] - 1.0;
+      switch (spl->spl_data.depth) {
+         case ALLEGRO_AUDIO_DEPTH_UINT24:
+            s[i] = (float)buf->u24[(spl->pos>>MIXER_FRAC_SHIFT)*maxc + i]
+               / ((float)0x7FFFFF+0.5f) - 1.0;
+            break;
+         case ALLEGRO_AUDIO_DEPTH_UINT16:
+            s[i] = (float)buf->u16[(spl->pos>>MIXER_FRAC_SHIFT)*maxc + i]
+               / ((float)0x7FFF+0.5f) - 1.0;
+            break;
+         case ALLEGRO_AUDIO_DEPTH_UINT8:
+            s[i] = (float)buf->u8[(spl->pos>>MIXER_FRAC_SHIFT)*maxc + i]
+               / ((float)0x7F+0.5f) - 1.0;
+            break;
+         case ALLEGRO_AUDIO_DEPTH_FLOAT32:
+            s[i] = buf->f32[(spl->pos>>MIXER_FRAC_SHIFT)*maxc + i] - 1.0;
+            break;
+
+         case ALLEGRO_AUDIO_DEPTH_INT8:
+         case ALLEGRO_AUDIO_DEPTH_INT16:
+         case ALLEGRO_AUDIO_DEPTH_INT24:
+            ASSERT(false);
+            break;
       }
    }
    return s;
@@ -234,26 +250,34 @@ static INLINE const float *linear_spl32(const ALLEGRO_SAMPLE *spl,
          break;
    }
 
-   frac = (float)(spl->pos&MIXER_FRAC_MASK) / (float)MIXER_FRAC_ONE;
+   frac = (float)(spl->pos & MIXER_FRAC_MASK) / (float)MIXER_FRAC_ONE;
 
    for (i = 0; i < maxc; i++) {
       float s1, s2;
 
-      if (spl->spl_data.depth == ALLEGRO_AUDIO_DEPTH_INT24) {
-         s1 = (float)spl->spl_data.buffer.s24[p1 + i] / ((float)0x7FFFFF + 0.5f);
-         s2 = (float)spl->spl_data.buffer.s24[p2 + i] / ((float)0x7FFFFF + 0.5f);
-      }
-      else if (spl->spl_data.depth == ALLEGRO_AUDIO_DEPTH_INT16) {
-         s1 = (float)spl->spl_data.buffer.s16[p1 + i] / ((float)0x7FFF + 0.5f);
-         s2 = (float)spl->spl_data.buffer.s16[p2 + i] / ((float)0x7FFF + 0.5f);
-      }
-      else if (spl->spl_data.depth == ALLEGRO_AUDIO_DEPTH_INT8) {
-         s1 = (float)spl->spl_data.buffer.s8[p1 + i] / ((float)0x7F + 0.5f);
-         s2 = (float)spl->spl_data.buffer.s8[p2 + i] / ((float)0x7F + 0.5f);
-      }
-      else {
-         s1 = (float)spl->spl_data.buffer.f32[p1 + i];
-         s2 = (float)spl->spl_data.buffer.f32[p2 + i];
+      switch (spl->spl_data.depth) {
+         case ALLEGRO_AUDIO_DEPTH_INT24:
+            s1 = (float)spl->spl_data.buffer.s24[p1 + i] / ((float)0x7FFFFF + 0.5f);
+            s2 = (float)spl->spl_data.buffer.s24[p2 + i] / ((float)0x7FFFFF + 0.5f);
+            break;
+         case ALLEGRO_AUDIO_DEPTH_INT16:
+            s1 = (float)spl->spl_data.buffer.s16[p1 + i] / ((float)0x7FFF + 0.5f);
+            s2 = (float)spl->spl_data.buffer.s16[p2 + i] / ((float)0x7FFF + 0.5f);
+            break;
+         case ALLEGRO_AUDIO_DEPTH_INT8:
+            s1 = (float)spl->spl_data.buffer.s8[p1 + i] / ((float)0x7F + 0.5f);
+            s2 = (float)spl->spl_data.buffer.s8[p2 + i] / ((float)0x7F + 0.5f);
+            break;
+         case ALLEGRO_AUDIO_DEPTH_FLOAT32:
+            s1 = (float)spl->spl_data.buffer.f32[p1 + i];
+            s2 = (float)spl->spl_data.buffer.f32[p2 + i];
+            break;
+
+         case ALLEGRO_AUDIO_DEPTH_UINT8:
+         case ALLEGRO_AUDIO_DEPTH_UINT16:
+         case ALLEGRO_AUDIO_DEPTH_UINT24:
+            ASSERT(false);
+            break;
       }
 
       s[i] = (s1*(1.0f-frac)) + (s2*frac);
@@ -288,26 +312,34 @@ static INLINE const float *linear_spl32u(const ALLEGRO_SAMPLE *spl,
          break;
    }
 
-   frac = (float)(spl->pos&MIXER_FRAC_MASK) / (float)MIXER_FRAC_ONE;
+   frac = (float)(spl->pos & MIXER_FRAC_MASK) / (float)MIXER_FRAC_ONE;
 
    for (i = 0; i < maxc; i++) {
       float s1, s2;
 
-      if (spl->spl_data.depth == ALLEGRO_AUDIO_DEPTH_UINT24) {
-         s1 = (float)spl->spl_data.buffer.u24[p1 + i]/((float)0x7FFFFF + 0.5f) - 1.0f;
-         s2 = (float)spl->spl_data.buffer.u24[p2 + i]/((float)0x7FFFFF + 0.5f) - 1.0f;
-      }
-      else if (spl->spl_data.depth == ALLEGRO_AUDIO_DEPTH_UINT16) {
-         s1 = (float)spl->spl_data.buffer.u16[p1 + i]/((float)0x7FFF + 0.5f) - 1.0f;
-         s2 = (float)spl->spl_data.buffer.u16[p2 + i]/((float)0x7FFF + 0.5f) - 1.0f;
-      }
-      else if (spl->spl_data.depth == ALLEGRO_AUDIO_DEPTH_UINT8) {
-         s1 = (float)spl->spl_data.buffer.u8[p1 + i]/((float)0x7F + 0.5f) - 1.0f;
-         s2 = (float)spl->spl_data.buffer.u8[p2 + i]/((float)0x7F + 0.5f) - 1.0f;
-      }
-      else {
-         s1 = (float)spl->spl_data.buffer.f32[p1 + i] - 1.0f;
-         s2 = (float)spl->spl_data.buffer.f32[p2 + i] - 1.0f;
+      switch (spl->spl_data.depth) {
+         case ALLEGRO_AUDIO_DEPTH_UINT24:
+            s1 = (float)spl->spl_data.buffer.u24[p1 + i]/((float)0x7FFFFF + 0.5f) - 1.0f;
+            s2 = (float)spl->spl_data.buffer.u24[p2 + i]/((float)0x7FFFFF + 0.5f) - 1.0f;
+            break;
+         case ALLEGRO_AUDIO_DEPTH_UINT16:
+            s1 = (float)spl->spl_data.buffer.u16[p1 + i]/((float)0x7FFF + 0.5f) - 1.0f;
+            s2 = (float)spl->spl_data.buffer.u16[p2 + i]/((float)0x7FFF + 0.5f) - 1.0f;
+            break;
+         case ALLEGRO_AUDIO_DEPTH_UINT8:
+            s1 = (float)spl->spl_data.buffer.u8[p1 + i]/((float)0x7F + 0.5f) - 1.0f;
+            s2 = (float)spl->spl_data.buffer.u8[p2 + i]/((float)0x7F + 0.5f) - 1.0f;
+            break;
+         case ALLEGRO_AUDIO_DEPTH_FLOAT32:
+            s1 = (float)spl->spl_data.buffer.f32[p1 + i] - 1.0f;
+            s2 = (float)spl->spl_data.buffer.f32[p2 + i] - 1.0f;
+            break;
+
+         case ALLEGRO_AUDIO_DEPTH_INT8:
+         case ALLEGRO_AUDIO_DEPTH_INT16:
+         case ALLEGRO_AUDIO_DEPTH_INT24:
+            ASSERT(false);
+            break;
       }
 
       s[i] = (s1*(1.0f-frac)) + (s2*frac);
@@ -474,9 +506,7 @@ void _al_kcm_mixer_read(void *source, void **buf, unsigned long samples,
          break;
       }
 
-      case ALLEGRO_AUDIO_DEPTH_INT8:
-      default:
-      {
+      case ALLEGRO_AUDIO_DEPTH_INT8: {
          int8_t off = ((buffer_depth & ALLEGRO_AUDIO_DEPTH_UNSIGNED)
                         ? 0x80 : 0);
          int8_t *lbuf = mixer->ss.spl_data.buffer.s8;
@@ -490,6 +520,12 @@ void _al_kcm_mixer_read(void *source, void **buf, unsigned long samples,
          }
          break;
       }
+
+      case ALLEGRO_AUDIO_DEPTH_UINT8:
+      case ALLEGRO_AUDIO_DEPTH_UINT16:
+      case ALLEGRO_AUDIO_DEPTH_UINT24:
+         ASSERT(false);
+         break;
    }
 
    (void)dest_maxc;
@@ -601,17 +637,19 @@ int al_mixer_attach_sample(ALLEGRO_MIXER *mixer, ALLEGRO_SAMPLE *spl)
       dst_chans = al_channel_count(mixer->ss.spl_data.chan_conf);
       src_chans = al_channel_count(spl->spl_data.chan_conf);
 
-      if (mixer->quality == ALLEGRO_MIXER_QUALITY_LINEAR) {
-         if ((spl->spl_data.depth & ALLEGRO_AUDIO_DEPTH_UNSIGNED))
-            spl->spl_read = read_to_mixer_linear32u;
-         else
-            spl->spl_read = read_to_mixer_linear32;
-      }
-      else {
-         if ((spl->spl_data.depth & ALLEGRO_AUDIO_DEPTH_UNSIGNED))
-            spl->spl_read = read_to_mixer_point32u;
-         else
-            spl->spl_read = read_to_mixer_point32;
+      switch (mixer->quality) {
+         case ALLEGRO_MIXER_QUALITY_LINEAR:
+            if ((spl->spl_data.depth & ALLEGRO_AUDIO_DEPTH_UNSIGNED))
+               spl->spl_read = read_to_mixer_linear32u;
+            else
+               spl->spl_read = read_to_mixer_linear32;
+            break;
+         case ALLEGRO_MIXER_QUALITY_POINT:
+            if ((spl->spl_data.depth & ALLEGRO_AUDIO_DEPTH_UNSIGNED))
+               spl->spl_read = read_to_mixer_point32u;
+            else
+               spl->spl_read = read_to_mixer_point32;
+            break;
       }
 
       mat = _al_rechannel_matrix(spl->spl_data.chan_conf,
@@ -830,21 +868,24 @@ static void mixer_change_quality(ALLEGRO_MIXER *mixer,
       ALLEGRO_SAMPLE **slot = _al_vector_ref(&mixer->streams, i);
       ALLEGRO_SAMPLE *spl = *slot;
 
-      if (new_quality == ALLEGRO_MIXER_QUALITY_LINEAR) {
-         if (spl->spl_read == read_to_mixer_point32) {
-            spl->spl_read = read_to_mixer_linear32;
-         }
-         else if (spl->spl_read == read_to_mixer_point32u) {
-            spl->spl_read = read_to_mixer_linear32u;
-         }
-      }
-      else if (new_quality == ALLEGRO_MIXER_QUALITY_POINT) {
-         if (spl->spl_read == read_to_mixer_linear32) {
-            spl->spl_read = read_to_mixer_point32;
-         }
-         else if (spl->spl_read == read_to_mixer_linear32u) {
-            spl->spl_read = read_to_mixer_point32u;
-         }
+      switch (new_quality) {
+         case ALLEGRO_MIXER_QUALITY_LINEAR:
+            if (spl->spl_read == read_to_mixer_point32) {
+               spl->spl_read = read_to_mixer_linear32;
+            }
+            else if (spl->spl_read == read_to_mixer_point32u) {
+               spl->spl_read = read_to_mixer_linear32u;
+            }
+            break;
+
+         case ALLEGRO_MIXER_QUALITY_POINT:
+            if (spl->spl_read == read_to_mixer_linear32) {
+               spl->spl_read = read_to_mixer_point32;
+            }
+            else if (spl->spl_read == read_to_mixer_linear32u) {
+               spl->spl_read = read_to_mixer_point32u;
+            }
+            break;
       }
    }
 
