@@ -18,9 +18,22 @@ void saw(ALLEGRO_STREAM *stream)
    int val = 0;
    int i;
    int n = 200;
+   unsigned long vbuf_wainting_count;
 
    while (n > 0) {
-      if (al_stream_get_ptr(stream, ALLEGRO_AUDIOPROP_BUFFER, &vbuf) != 0) {
+      if (al_stream_get_long(stream, ALLEGRO_AUDIOPROP_USED_FRAGMENTS,
+                             &vbuf_wainting_count) != 0) {
+         fprintf(stderr, "Error getting the number of waiting buffers.\n");
+         return;
+      }
+
+      if (vbuf_wainting_count) {
+         if (al_stream_get_ptr(stream, ALLEGRO_AUDIOPROP_BUFFER, &vbuf) != 0) {
+            fprintf(stderr, "Error getting the stream buffers.\n");
+            return;
+         }
+      }
+      else {
          al_rest(0.25);
          continue;
       }
