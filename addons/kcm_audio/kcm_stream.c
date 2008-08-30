@@ -58,14 +58,14 @@ ALLEGRO_STREAM *al_stream_create(size_t buffer_count, unsigned long samples,
    stream->spl.is_stream = true;
 
    stream->spl.loop      = ALLEGRO_PLAYMODE_ONCE;
-   stream->spl.depth     = depth;
-   stream->spl.chan_conf = chan_conf;
-   stream->spl.frequency = freq;
+   stream->spl.spl_data.depth     = depth;
+   stream->spl.spl_data.chan_conf = chan_conf;
+   stream->spl.spl_data.frequency = freq;
    stream->spl.speed     = 1.0f;
 
    stream->spl.step = 0;
-   stream->spl.pos  = samples<<MIXER_FRAC_SHIFT;
-   stream->spl.len  = stream->spl.pos;
+   stream->spl.pos  = samples << MIXER_FRAC_SHIFT;
+   stream->spl.spl_data.len  = stream->spl.pos;
 
    stream->buf_count = buffer_count;
 
@@ -119,11 +119,11 @@ int al_stream_get_long(const ALLEGRO_STREAM *stream,
 
    switch (setting) {
       case ALLEGRO_AUDIOPROP_FREQUENCY:
-         *val = stream->spl.frequency;
+         *val = stream->spl.spl_data.frequency;
          return 0;
 
       case ALLEGRO_AUDIOPROP_LENGTH:
-         *val = stream->spl.len>>MIXER_FRAC_SHIFT;
+         *val = stream->spl.spl_data.len >> MIXER_FRAC_SHIFT;
          return 0;
 
       case ALLEGRO_AUDIOPROP_FRAGMENTS:
@@ -175,11 +175,11 @@ int al_stream_get_enum(const ALLEGRO_STREAM *stream,
 
    switch (setting) {
       case ALLEGRO_AUDIOPROP_DEPTH:
-         *val = stream->spl.depth;
+         *val = stream->spl.spl_data.depth;
          return 0;
 
       case ALLEGRO_AUDIOPROP_CHANNELS:
-         *val = stream->spl.chan_conf;
+         *val = stream->spl.spl_data.chan_conf;
          return 0;
 
       default:
@@ -298,8 +298,8 @@ int al_stream_set_float(ALLEGRO_STREAM *stream,
              */
             stream->spl.step = 1;
 
-            i = (stream->spl.frequency << MIXER_FRAC_SHIFT) *
-               stream->spl.speed / mixer->ss.frequency;
+            i = (stream->spl.spl_data.frequency << MIXER_FRAC_SHIFT) *
+               stream->spl.speed / mixer->ss.spl_data.frequency;
 
             /* Don't wanna be trapped with a step value of 0. */
             if (i != 0) {
@@ -357,7 +357,7 @@ int al_stream_set_bool(ALLEGRO_STREAM *stream,
 
          if (!val) {
             al_lock_mutex(stream->spl.mutex);
-            stream->spl.pos = stream->spl.len;
+            stream->spl.pos = stream->spl.spl_data.len;
             al_unlock_mutex(stream->spl.mutex);
          }
          return 0;

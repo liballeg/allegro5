@@ -134,9 +134,9 @@ int al_voice_attach_sample(ALLEGRO_VOICE *voice, ALLEGRO_SAMPLE *spl)
       return 1;
    }
 
-   if (voice->chan_conf != spl->chan_conf ||
-      voice->frequency != spl->frequency ||
-      voice->depth != spl->depth)
+   if (voice->chan_conf != spl->spl_data.chan_conf ||
+      voice->frequency != spl->spl_data.frequency ||
+      voice->depth != spl->spl_data.depth)
    {
       TRACE("Sample settings do not match voice settings\n");
       _al_set_error(ALLEGRO_INVALID_OBJECT,
@@ -150,7 +150,7 @@ int al_voice_attach_sample(ALLEGRO_VOICE *voice, ALLEGRO_SAMPLE *spl)
 
    voice->is_streaming = false;
    voice->num_buffers = 1;
-   voice->buffer_size = (spl->len >> MIXER_FRAC_SHIFT) *
+   voice->buffer_size = (spl->spl_data.len >> MIXER_FRAC_SHIFT) *
                         al_channel_count(voice->chan_conf) *
                         al_depth_size(voice->depth);
 
@@ -160,7 +160,7 @@ int al_voice_attach_sample(ALLEGRO_VOICE *voice, ALLEGRO_SAMPLE *spl)
    spl->parent.u.voice = voice;
    spl->parent.is_voice = true;
 
-   if (voice->driver->load_voice(voice, spl->buffer.ptr) != 0 ||
+   if (voice->driver->load_voice(voice, spl->spl_data.buffer.ptr) != 0 ||
       (spl->is_playing && voice->driver->start_voice(voice) != 0))
    {      
       voice->attached_stream = NULL;
@@ -239,9 +239,9 @@ int al_voice_attach_stream(ALLEGRO_VOICE *voice, ALLEGRO_STREAM *stream)
       return 1;
    }
 
-   if (voice->chan_conf != stream->spl.chan_conf ||
-      voice->frequency != stream->spl.frequency ||
-      voice->depth != stream->spl.depth)
+   if (voice->chan_conf != stream->spl.spl_data.chan_conf ||
+      voice->frequency != stream->spl.spl_data.frequency ||
+      voice->depth != stream->spl.spl_data.depth)
    {
       _al_set_error(ALLEGRO_INVALID_OBJECT,
          "Stream settings do not match voice settings");
@@ -259,9 +259,9 @@ int al_voice_attach_stream(ALLEGRO_VOICE *voice, ALLEGRO_STREAM *stream)
 
    voice->is_streaming = true;
    voice->num_buffers = stream->buf_count;
-   voice->buffer_size = (stream->spl.len>>MIXER_FRAC_SHIFT) *
-                        al_channel_count(stream->spl.chan_conf) *
-                        al_depth_size(stream->spl.depth);
+   voice->buffer_size = (stream->spl.spl_data.len >> MIXER_FRAC_SHIFT) *
+                        al_channel_count(stream->spl.spl_data.chan_conf) *
+                        al_depth_size(stream->spl.spl_data.depth);
 
    stream->spl.spl_read = stream_read;
 
@@ -300,8 +300,8 @@ int al_voice_attach_mixer(ALLEGRO_VOICE *voice, ALLEGRO_MIXER *mixer)
    if (mixer->ss.parent.u.ptr)
       return 2;
 
-   if (voice->chan_conf != mixer->ss.chan_conf ||
-         voice->frequency != mixer->ss.frequency) {
+   if (voice->chan_conf != mixer->ss.spl_data.chan_conf ||
+         voice->frequency != mixer->ss.spl_data.frequency) {
       return 3;
    }
 

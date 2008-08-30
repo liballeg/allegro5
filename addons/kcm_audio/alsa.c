@@ -134,7 +134,7 @@ static int alsa_update_nonstream_voice(ALLEGRO_VOICE *voice, void **buf, int *by
    int bpos = alsa_voice->pos * alsa_voice->frame_size;
    int blen = alsa_voice->len * alsa_voice->frame_size;
 
-   *buf = voice->attached_stream->buffer.ptr + bpos;
+   *buf = voice->attached_stream->spl_data.buffer.ptr + bpos;
 
    if (!alsa_voice->reversed) {
       if (bpos + *bytes > blen) {
@@ -316,7 +316,7 @@ static int alsa_load_voice(ALLEGRO_VOICE *voice, const void *data)
    ALSA_VOICE *ex_data = voice->extra;
 
    ex_data->pos = 0;
-   ex_data->len = voice->attached_stream->len >> MIXER_FRAC_SHIFT;
+   ex_data->len = voice->attached_stream->spl_data.len >> MIXER_FRAC_SHIFT;
 
    return 0;
    (void)data;

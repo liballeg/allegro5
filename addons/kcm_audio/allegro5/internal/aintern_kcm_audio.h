@@ -85,6 +85,19 @@ typedef union {
    void     *ptr;
 } any_buffer_t;
 
+struct ALLEGRO_SAMPLE_DATA {
+   ALLEGRO_AUDIO_DEPTH  depth;
+   ALLEGRO_CHANNEL_CONF chan_conf;
+   unsigned long        frequency;
+   unsigned long        len;
+   any_buffer_t         buffer;
+   bool                 free_buf;
+                        /* Whether `buffer' needs to be freed when the sample
+                         * is destroyed, or when `buffer' changes.
+                         */
+};
+
+
 typedef void (*stream_reader_t)(void *, void **, unsigned long,
    ALLEGRO_AUDIO_DEPTH, size_t);
 
@@ -97,36 +110,29 @@ typedef struct {
    bool                 is_voice;
 } sample_parent_t;
 
-/* The sample struct */
+/* The sample struct also serves the base of ALLEGRO_STREAM, ALLEGRO_MIXER. */
 struct ALLEGRO_SAMPLE {
+   ALLEGRO_SAMPLE_DATA  spl_data;
+
    volatile bool        is_playing;
                         /* Is this sample is playing? */
 
    volatile bool        is_stream;
                         /* Is this sample is part of a ALLEGRO_STREAM object?
+                         * XXX this should be accounted for in the loop mode
                          */
 
    ALLEGRO_PLAYMODE     loop;
-   ALLEGRO_AUDIO_DEPTH  depth;
-   ALLEGRO_CHANNEL_CONF chan_conf;
-   unsigned long        frequency;
    float                speed;
 
-   any_buffer_t         buffer;
-   bool                 free_buf;
-                        /* Whether `buffer' needs to be freed when the sample
-                         * is destroyed, or when `buffer' changes.
-                         */
-
    unsigned long        pos;
-   unsigned long        len;
    unsigned long        loop_start;
    unsigned long        loop_end;
    long                 step;
 
    float                *matrix;
                         /* Used to convert from this format to the attached
-                         * mixers.
+                         * mixers, if any.  Otherwise is NULL.
                          */
 
    stream_reader_t      spl_read;
@@ -135,8 +141,8 @@ struct ALLEGRO_SAMPLE {
                          */
 
    ALLEGRO_MUTEX        *mutex;
-                        /* The mutex is shared with the parent object. It is
-                         * NULL if it is not directly or indirectly attached
+                        /* Points to the parent object's mutex.  It is NULL if
+                         * the sample is not directly or indirectly attached
                          * to a voice.
                          */
 
@@ -190,7 +196,7 @@ typedef void (*postprocess_callback_t)(void *buf, unsigned long samples,
  */
 struct ALLEGRO_MIXER {
    ALLEGRO_SAMPLE          ss;
-                           /* The sample that the mixer is derived from. */
+                           /* ALLEGRO_MIXER is derived from ALLEGRO_SAMPLE. */
 
    ALLEGRO_MIXER_QUALITY   quality;
 

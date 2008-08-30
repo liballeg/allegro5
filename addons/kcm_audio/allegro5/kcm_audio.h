@@ -154,15 +154,25 @@ enum ALLEGRO_AUDIO_DRIVER_ENUM {
 };
 
 
+/* Type: ALLEGRO_SAMPLE_DATA
+ *
+ * An ALLEGRO_SAMPLE_DATA object stores the data necessary for playing
+ * pre-defined digital audio. It holds information pertaining to data length,
+ * frequency, channel configuration, etc.  You can have an ALLEGRO_SAMPLE_DATA
+ * objects playing multiple times simultaneously.  The object holds a
+ * user-specified PCM data buffer, of the format the object is created with.
+ */
+typedef struct ALLEGRO_SAMPLE_DATA ALLEGRO_SAMPLE_DATA;
+
+
 /* Type: ALLEGRO_SAMPLE
  *
- * An ALLEGRO_SAMPLE object stores the data necessary for playing pre-defined
- * digital audio. It holds information pertaining to data length, the looping
- * mode, loop start/end points, playing position, playing frequency, channel
- * configuration, etc. As such, you cannot have an ALLEGRO_SAMPLE object
- * playing multiple times simultaniously. The object holds a user-specified PCM
- * data buffer, of the format the object is created with. Multiple objects may
- * be created using the same data buffer.
+ * An ALLEGRO_SAMPLE object represents a playable instance of a predefined
+ * sound effect. It holds information pertaining to the looping mode, loop
+ * start/end points, playing position, etc.  A ALLEGRO_SAMPLE uses the data
+ * from an ALLEGRO_SAMPLE_DATA object.  Multiple ALLEGRO_SAMPLEs may be created
+ * from the same ALLEGRO_SAMPLE_DATA. An ALLEGRO_SAMPLE_DATA must not be
+ * destroyed while there are ALLEGRO_SAMPLEs which reference it.
  *
  * To be played, an ALLEGRO_SAMPLE object must be attached to an ALLEGRO_VOICE
  * object, or to an ALLEGRO_MIXER object which is itself attached to an
@@ -170,6 +180,7 @@ enum ALLEGRO_AUDIO_DRIVER_ENUM {
  * to an ALLEGRO_VOICE object, etc).
  *
  * An ALLEGRO_SAMPLE object uses the following fields:
+ * XXX much of this will probably change soon
  *
  * ALLEGRO_AUDIOPROP_DEPTH (enum) -
  *    Gets the bit depth format the object was created with. This may not be
@@ -203,8 +214,7 @@ enum ALLEGRO_AUDIO_DRIVER_ENUM {
  *
  * ALLEGRO_AUDIOPROP_BUFFER (ptr) -
  *    Gets or sets the object's data buffer. You may not get or set this if the
- *    object is set to play, and you may not get this if the buffer was
- *    previously orphaned (see ALLEGRO_AUDIOPROP_ORPHAN_BUFFER).
+ *    object is set to play.
  *
  * ALLEGRO_AUDIOPROP_LOOPMODE (enum) -
  *    Gets or sets the object's looping mode. Setting this may fail if the
@@ -235,12 +245,12 @@ typedef struct ALLEGRO_SAMPLE ALLEGRO_SAMPLE;
  * An ALLEGRO_STREAM object is used to stream generated audio to the sound
  * device, in real-time. As with ALLEGRO_SAMPLE objects, they store information
  * necessary for playback, so you may not play one multiple times
- * simultaniously. They also need to be attached to an ALLEGRO_VOICE object, or
+ * simultaneously. They also need to be attached to an ALLEGRO_VOICE object, or
  * to an ALLEGRO_MIXER object which, eventually, reaches an ALLEGRO_VOICE
  * object.
  *
- * While playing, you must periodicly supply new buffer data by first checking
- * ALLEGRO_AUDIOPROP_USED_FRAGMENTS, then refilling the buffers via
+ * While playing, you must periodically supply new buffer data by first
+ * checking ALLEGRO_AUDIOPROP_USED_FRAGMENTS, then refilling the buffers via
  * ALLEGRO_AUDIOPROP_BUFFER. If you're late with supplying new data, the object
  * will be silenced until new data is provided.
  *

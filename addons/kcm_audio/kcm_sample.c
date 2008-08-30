@@ -70,10 +70,10 @@ static void stream_free(ALLEGRO_SAMPLE *spl)
          _al_vector_free(&mixer->streams);
       }
 
-      if (spl->free_buf) {
-         free(spl->buffer.ptr);
-         spl->buffer.ptr = NULL;
-         spl->free_buf = false;
+      if (spl->spl_data.free_buf) {
+         free(spl->spl_data.buffer.ptr);
+         spl->spl_data.buffer.ptr = NULL;
+         spl->spl_data.free_buf = false;
       }
 
       free(spl);
@@ -150,20 +150,20 @@ ALLEGRO_SAMPLE *al_sample_create(void *buf, unsigned long samples,
    }
 
    spl->loop       = ALLEGRO_PLAYMODE_ONCE;
-   spl->depth      = depth;
-   spl->chan_conf  = chan_conf;
-   spl->frequency  = freq;
+   spl->spl_data.depth      = depth;
+   spl->spl_data.chan_conf  = chan_conf;
+   spl->spl_data.frequency  = freq;
    spl->speed      = 1.0f;
    spl->parent.u.ptr = NULL;
-   spl->buffer.ptr = buf;
-   spl->free_buf = free_buf;
+   spl->spl_data.buffer.ptr = buf;
+   spl->spl_data.free_buf = free_buf;
 
    spl->step = 0;
    spl->pos = 0;
-   spl->len = samples << MIXER_FRAC_SHIFT;
+   spl->spl_data.len = samples << MIXER_FRAC_SHIFT;
 
    spl->loop_start = 0;
-   spl->loop_end = spl->len;
+   spl->loop_end = spl->spl_data.len;
 
    return spl;
 }
@@ -179,9 +179,10 @@ ALLEGRO_SAMPLE *al_sample_create_clone(const ALLEGRO_SAMPLE *spl)
 {
    unsigned long length;
 
-   length = spl->len >> MIXER_FRAC_SHIFT;
-   return al_sample_create(spl->buffer.ptr, length, spl->frequency,
-      spl->depth, spl->chan_conf, false);
+   length = spl->spl_data.len >> MIXER_FRAC_SHIFT;
+   return al_sample_create(spl->spl_data.buffer.ptr, length,
+      spl->spl_data.frequency, spl->spl_data.depth, spl->spl_data.chan_conf,
+      false);
 }
 
 
@@ -228,11 +229,11 @@ int al_sample_get_long(const ALLEGRO_SAMPLE *spl,
 
    switch (setting) {
       case ALLEGRO_AUDIOPROP_FREQUENCY:
-         *val = spl->frequency;
+         *val = spl->spl_data.frequency;
          return 0;
 
       case ALLEGRO_AUDIOPROP_LENGTH:
-         *val = spl->len>>MIXER_FRAC_SHIFT;
+         *val = spl->spl_data.len >> MIXER_FRAC_SHIFT;
          return 0;
 
       case ALLEGRO_AUDIOPROP_POSITION:
@@ -265,7 +266,8 @@ int al_sample_get_float(const ALLEGRO_SAMPLE *spl,
          return 0;
 
       case ALLEGRO_AUDIOPROP_TIME:
-         *val = (float)(spl->len>>MIXER_FRAC_SHIFT) / (float)spl->frequency;
+         *val = (float)(spl->spl_data.len >> MIXER_FRAC_SHIFT)
+                  / (float)spl->spl_data.frequency;
          return 0;
 
       default:
@@ -285,11 +287,11 @@ int al_sample_get_enum(const ALLEGRO_SAMPLE *spl,
 
    switch (setting) {
       case ALLEGRO_AUDIOPROP_DEPTH:
-         *val = spl->depth;
+         *val = spl->spl_data.depth;
          return 0;
 
       case ALLEGRO_AUDIOPROP_CHANNELS:
-         *val = spl->chan_conf;
+         *val = spl->spl_data.chan_conf;
          return 0;
 
       case ALLEGRO_AUDIOPROP_LOOPMODE:
@@ -326,7 +328,7 @@ int al_sample_get_bool(const ALLEGRO_SAMPLE *spl,
          return 0;
 
       case ALLEGRO_AUDIOPROP_AUTOFREE_BUFFER:
-         *val = spl->free_buf;
+         *val = spl->spl_data.free_buf;
          return 0;
 
       default:
@@ -351,7 +353,7 @@ int al_sample_get_ptr(const ALLEGRO_SAMPLE *spl,
                "Attempted to get a playing buffer");
             return 1;
          }
-         *val = spl->buffer.ptr;
+         *val = spl->spl_data.buffer.ptr;
          return 0;
 
       default:
@@ -390,7 +392,7 @@ int al_sample_set_long(ALLEGRO_SAMPLE *spl,
                "Attempted to change the length of a playing sample");
             return 1;
          }
-         spl->len = val << MIXER_FRAC_SHIFT;
+         spl->spl_data.len = val << MIXER_FRAC_SHIFT;
          return 0;
 
       default:
@@ -428,8 +430,8 @@ int al_sample_set_float(ALLEGRO_SAMPLE *spl,
 
             al_lock_mutex(spl->mutex);
 
-            spl->step = (spl->frequency<<MIXER_FRAC_SHIFT) *
-                        spl->speed / mixer->ss.frequency;
+            spl->step = (spl->spl_data.frequency << MIXER_FRAC_SHIFT) *
+                        spl->speed / mixer->ss.spl_data.frequency;
             /* Don't wanna be trapped with a step value of 0 */
             if (spl->step == 0) {
                if (spl->speed > 0.0f)
@@ -540,7 +542,7 @@ int al_sample_set_bool(ALLEGRO_SAMPLE *spl,
          return 0;
 
       case ALLEGRO_AUDIOPROP_AUTOFREE_BUFFER:
-         spl->free_buf = val;
+         spl->spl_data.free_buf = val;
          return 0;
 
       default:
@@ -574,11 +576,11 @@ int al_sample_set_ptr(ALLEGRO_SAMPLE *spl,
                return 1;
             }
          }
-         if (spl->free_buf) {
-            free(spl->buffer.ptr);
-            spl->free_buf = false;
+         if (spl->spl_data.free_buf) {
+            free(spl->spl_data.buffer.ptr);
+            spl->spl_data.free_buf = false;
          }
-         spl->buffer.ptr = val;
+         spl->spl_data.buffer.ptr = val;
          return 0;
 
       default:
