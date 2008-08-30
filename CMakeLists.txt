@@ -324,8 +324,7 @@ if(UNIX)
                 #include <machine/soundcard.h>
                 #endif
                 int main(void) {
-                    /* This symbol is OSS4 only. */
-                    oss_sysinfo si;
+                    audio_buf_info abi;
                     return 0;
                 }"
                 CAN_OSS

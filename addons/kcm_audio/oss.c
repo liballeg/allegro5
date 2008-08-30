@@ -27,12 +27,6 @@
 #include <poll.h>
 
 
-/*
-
-  TODO: Write support for OSS ver. < 4, which is far more common.
-
- */
-
 #if defined ALLEGRO_HAVE_SOUNDCARD_H
   #include <soundcard.h>
 #elif defined ALLEGRO_HAVE_SYS_SOUNDCARD_H
@@ -47,10 +41,28 @@
 #define PREFIX_N "a5-oss Notice: "
 
 
+#if OSS_VERSION >= 0x040000
+   #define OSS_VER_4
+#else
+   #define OSS_VER_3
+#endif
+
+
+/* Audio device used by OSS3.
+ * Make this configurable. */
+static const char* oss_audio_device_ver3 = "/dev/dsp";
+
 static char oss_audio_device[512];
 
-/* the timing policy (between 0 and 10) */
+/* timing policy (between 0 and 10), used by OSS4
+ * Make this configurable? */
 static const int oss_timing_policy = 5;
+
+/* Fragment size, used by OSS3 
+ * Make this configurable? */
+static int oss_fragsize = (8 << 16) | (10);
+
+static bool using_ver_4;
 
 
 typedef struct OSS_VOICE {
@@ -69,8 +81,8 @@ typedef struct OSS_VOICE {
 } OSS_VOICE;
 
 
-/* fills oss_audio_device */
-static int oss_open()
+#ifdef OSS_VER_4
+static int oss_open_ver4()
 {
    int mixer_fd, i;
    oss_sysinfo sysinfo;
@@ -79,14 +91,14 @@ static int oss_open()
       switch (errno) {
          case ENXIO:
          case ENODEV:
-            TRACE(PREFIX_E "Open Sound System is not running in your");
+            TRACE(PREFIX_E "Open Sound System is not running in your ");
             TRACE("system.\n");
          break;
 
          case ENOENT:
-            TRACE(PREFIX_E "No /dev/mixer device available in your");
+            TRACE(PREFIX_E "No /dev/mixer device available in your ");
             TRACE("system.\n");
-            TRACE(PREFIX_E "Perhaps Open Sound System is not installed");
+            TRACE(PREFIX_E "Perhaps Open Sound System is not installed ");
             TRACE("or running.\n");
          break;
 
@@ -103,7 +115,8 @@ static int oss_open()
          TRACE("hardware in your system.\n");
       }
       else if (errno == EINVAL) {
-         TRACE(PREFIX_E "OSS version 4.0 or later is required\n");
+         TRACE(PREFIX_N "The version of OSS installed on the system is not ");
+         TRACE("compatible with OSS4.\n");
       }
       else
          TRACE(PREFIX_E "errno: %i -- %s\n", errno, strerror(errno));
@@ -115,8 +128,8 @@ static int oss_open()
    /* Some OSS implementations (ALSA emulation) don't fail on SNDCTL_SYSINFO even
     * though they don't support OSS4. They *seem* to set numcards to 0. */
    if (sysinfo.numcards < 1) {
-      TRACE(PREFIX_E "OSS has not detected any supported sound hardware.\n");
-      TRACE(PREFIX_E "OSS version 4.0 or later is required.\n");
+      TRACE(PREFIX_N "The version of OSS installed on the system is not ");
+      TRACE("compatible with OSS4.\n");
       return 1;
    }
 
@@ -159,6 +172,64 @@ static int oss_open()
    }
 
    close(mixer_fd);
+
+   using_ver_4 = true;
+
+   return 0;
+}
+#endif
+
+static int oss_open_ver3(void)
+{
+   int fd = open(oss_audio_device_ver3, O_WRONLY);
+   if (fd == -1) {
+      switch (errno) {
+         case ENXIO:
+         case ENODEV:
+            TRACE(PREFIX_E "Open Sound System is not running in your ");
+            TRACE("system.\n");
+         break;
+
+         case ENOENT:
+            TRACE(PREFIX_E "No '%s' device available in your system.\n",
+                  oss_audio_device_ver3);
+            TRACE(PREFIX_E "Perhaps Open Sound System is not installed ");
+            TRACE("or running.\n");
+         break;
+
+         default:
+            TRACE(PREFIX_E "errno: %i -- %s\n", errno, strerror(errno));
+      }
+
+      return 1;
+   }
+
+   close(fd);
+   strncpy(oss_audio_device, oss_audio_device_ver3, 512);
+   TRACE(PREFIX_N "Using device: %s\n", oss_audio_device);
+
+   using_ver_4 = false;
+
+   return 0;
+}
+
+
+static int oss_open(void)
+{
+#ifdef OSS_VER_4
+   if (oss_open_ver4()) {
+      TRACE(PREFIX_N "OSS ver. 4 init failed, trying ver. 3...\n");
+      if (oss_open_ver3()) {
+         TRACE(PREFIX_E "Failed to init OSS.\n");
+         return 1;
+      }
+   }
+#else
+   if (oss_open_ver3()) {
+      TRACE(PREFIX_E "Failed to init OSS.\n");
+      return 1;
+   }
+#endif
 
    return 0;
 }
@@ -221,7 +292,7 @@ static int oss_load_voice(ALLEGRO_VOICE *voice, const void *data)
    }
 
    ex_data->pos = 0;
-   ex_data->len = voice->attached_stream->len >> MIXER_FRAC_SHIFT;
+   ex_data->len = voice->attached_stream->spl_data.len >> MIXER_FRAC_SHIFT;
 
    return 0;
    (void)data;
@@ -270,7 +341,7 @@ static int oss_update_nonstream_voice(ALLEGRO_VOICE *voice, void **buf, int *byt
    int bpos = oss_voice->pos * oss_voice->frame_size;
    int blen = oss_voice->len * oss_voice->frame_size;
 
-   *buf = voice->attached_stream->buffer.ptr + bpos;
+   *buf = voice->attached_stream->spl_data.buffer.ptr + bpos;
 
    if (bpos + *bytes > blen) {
       *bytes = blen - bpos;
@@ -410,15 +481,27 @@ static int oss_allocate_voice(ALLEGRO_VOICE *voice)
    int tmp_format = format;
    int tmp_chan_count = chan_count;
    unsigned int tmp_freq = voice->frequency;
+   int tmp_oss_fragsize = oss_fragsize;
 
-   if (ioctl(ex_data->fd, SNDCTL_DSP_POLICY, &tmp_oss_timing_policy) == -1) {
-      TRACE(PREFIX_E "Failed to set_timig policity to '%i'.\n",
+   if (using_ver_4) {
+#ifdef OSS_VER_4
+      if (ioctl(ex_data->fd, SNDCTL_DSP_POLICY, &tmp_oss_timing_policy) == -1) {
+          TRACE(PREFIX_E "Failed to set_timig policity to '%i'.\n",
+               tmp_oss_timing_policy);
+         TRACE(PREFIX_E "errno: %i -- %s\n", errno, strerror(errno));
+         goto Error;
+      }
+      TRACE(PREFIX_N "Accepted timing policy value: %i\n",
             tmp_oss_timing_policy);
-      TRACE(PREFIX_E "errno: %i -- %s\n", errno, strerror(errno));
-      goto Error;
+#endif
    }
-   TRACE(PREFIX_N "Accepted timing policy value: %i\n",
-         tmp_oss_timing_policy);
+   else {
+      if (ioctl(ex_data->fd, SNDCTL_DSP_SETFRAGMENT, &tmp_oss_fragsize) == -1) {
+          TRACE(PREFIX_E "Failed to set fragment size.\n");
+          TRACE(PREFIX_E "errno: %i -- %s\n", errno, strerror(errno));
+          goto Error;
+      }
+   }
 
    if (ioctl(ex_data->fd, SNDCTL_DSP_SETFMT, &tmp_format) == -1) {
       TRACE(PREFIX_E "Failed to set sample format.\n");
