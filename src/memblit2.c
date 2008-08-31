@@ -46,6 +46,10 @@ void _al_draw_scaled_bitmap_memory_fast(ALLEGRO_BITMAP *src,
    if ((sw <= 0) || (sh <= 0))
       return;
 
+   /* This must be calculated before clipping dw, dh. */
+   sxinc = fabs((float)sw / dw);
+   syinc = fabs((float)sh / dh);
+
    /* Do clipping */
    dy = ((dy > dest->ct) ? dy : dest->ct);
    dh = (((dy + dh) < dest->cb + 1) ? (dy + dh) : dest->cb + 1) - dy;
@@ -59,8 +63,6 @@ void _al_draw_scaled_bitmap_memory_fast(ALLEGRO_BITMAP *src,
    al_lock_bitmap(src, &src_region, ALLEGRO_LOCK_READONLY);
    al_lock_bitmap(dest, &dst_region, ALLEGRO_LOCK_WRITEONLY);
 
-   sxinc = fabs((float)sw / dw);
-   syinc = fabs((float)sh / dh);
    dxinc = dw < 0 ? -1 : 1;
    dyinc = dh < 0 ? -1 : 1;
    _dy = dy;
