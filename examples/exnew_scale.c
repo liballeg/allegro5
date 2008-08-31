@@ -1,9 +1,13 @@
 /*
  *    Example program for the Allegro library, by Peter Wang.
  *
+ *    Press 'w' to toggle "wide" mode.
+ *    Press 's' to toggle memory source bitmap.
+ *    Press ' ' to toggle scaling to backbuffer or off-screen bitmap.
+ *
  *    Future work:
- *       test memory bitmap scaling as well
  *       test flipping
+ *       make it easier to test both fast/non-fast software routines
  */
 
 
@@ -21,12 +25,17 @@ int main(int argc, char *argv[])
    ALLEGRO_DISPLAY *dpy;
    ALLEGRO_BITMAP *buf;
    ALLEGRO_BITMAP *bmp;
+   ALLEGRO_BITMAP *mem_bmp;
+   ALLEGRO_BITMAP *src_bmp;
    int bmp_w;
    int bmp_h;
    ALLEGRO_EVENT_QUEUE *queue;
    ALLEGRO_EVENT event;
    double theta = 0;
-   int mode;
+   double k = 1.0;
+   int mode = 0;
+   bool wide_mode = false;
+   bool mem_src_mode = false;
 
    if (!al_init())
       return 1;
@@ -50,23 +59,31 @@ int main(int argc, char *argv[])
       TRACE("Unable to load image\n");
       return 1;
    }
+
+   al_set_new_bitmap_flags(ALLEGRO_MEMORY_BITMAP);
+   mem_bmp = al_iio_load("mysha.pcx");
+   if (!mem_bmp) {
+      TRACE("Unable to load image\n");
+      return 1;
+   }
+
    bmp_w = al_get_bitmap_width(bmp);
    bmp_h = al_get_bitmap_height(bmp);
 
    queue = al_create_event_queue();
    al_register_event_source(queue, (ALLEGRO_EVENT_SOURCE *)al_get_keyboard());
 
-   mode = 0;
    while (true) {
       if (al_get_next_event(queue, &event)) {
          if (event.type == ALLEGRO_EVENT_KEY_DOWN) {
-            switch (event.keyboard.keycode) {
-               case ALLEGRO_KEY_ESCAPE:
-                  goto Quit;
-               case ALLEGRO_KEY_SPACE:
-                  mode = !mode;
-                  break;
-            }
+            if (event.keyboard.keycode == ALLEGRO_KEY_ESCAPE)
+               break;
+            if (event.keyboard.unichar == ' ')
+               mode = !mode;
+            if (event.keyboard.unichar == 'w')
+               wide_mode = !wide_mode;
+            if (event.keyboard.unichar == 's')
+               mem_src_mode = !mem_src_mode;
          }
       }
 
@@ -83,11 +100,14 @@ int main(int argc, char *argv[])
          al_set_target_bitmap(al_get_backbuffer());
       }
 
+      src_bmp = (mem_src_mode) ? mem_bmp : bmp;
+      k = (wide_mode) ? 2.0 : 1.0;
+
       al_clear(al_map_rgba_f(1, 0, 0, 1));
-      al_draw_scaled_bitmap(bmp,
+      al_draw_scaled_bitmap(src_bmp,
          0, 0, bmp_w, bmp_h,
          display_w/2, display_h/2,
-         cos(theta) * display_w/2, sin(theta) * display_h/2,
+         k * cos(theta) * display_w/2, k * sin(theta) * display_h/2,
          0);
 
       if (mode == 0) {
@@ -101,9 +121,8 @@ int main(int argc, char *argv[])
       theta += 0.01;
    }
 
-Quit:
-
    al_destroy_bitmap(bmp);
+   al_destroy_bitmap(mem_bmp);
    al_destroy_bitmap(buf);
 
    return 0;
