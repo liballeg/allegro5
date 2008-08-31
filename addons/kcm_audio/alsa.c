@@ -315,7 +315,7 @@ static int alsa_load_voice(ALLEGRO_VOICE *voice, const void *data)
 {
    ALSA_VOICE *ex_data = voice->extra;
 
-   data->attached_stream->pos = 0;
+   voice->attached_stream->pos = 0;
    ex_data->len = voice->attached_stream->spl_data.len >> MIXER_FRAC_SHIFT;
 
    return 0;
