@@ -8,7 +8,7 @@
  *                                           /\____/
  *                                           \_/__/
  *
- *      Open Sound System ver. 4 sound driver.
+ *      Open Sound System sound driver.
  *
  *      By Milan Mimica.
  *
@@ -67,6 +67,7 @@
  * Make this configurable. */
 static const char* oss_audio_device_ver3 = "/dev/dsp";
 
+/* Audio device is dynamically retrived in OSS4. */
 static char oss_audio_device[512];
 
 /* timing policy (between 0 and 10), used by OSS4
@@ -77,6 +78,7 @@ static const int oss_timing_policy = 5;
  * Make this configurable? */
 static int oss_fragsize = (8 << 16) | (10);
 
+/* Auxiliary buffer used in OSS3 to store silence. */
 #define SIL_BUF_SIZE 1024
 static char sil_buf[SIL_BUF_SIZE];
 
@@ -87,8 +89,8 @@ typedef struct OSS_VOICE {
    int fd;
    int volume;
 
+   /* Copied from the parent ALLEGRO_VOICE. Used for convenince. */
    unsigned int len; /* in frames */
-   unsigned int pos; /* in frames */
    unsigned int frame_size; /* in bytes */
 
    bool stopped;
@@ -243,6 +245,7 @@ static int oss_open(void)
       }
    }
 #else
+   TRACE(PREFIX_N "OSS4 support not compiled in. Skipping OSS4 probe.\n");
    if (oss_open_ver3()) {
       TRACE(PREFIX_E "Failed to init OSS.\n");
       return 1;
@@ -264,6 +267,7 @@ static void oss_deallocate_voice(ALLEGRO_VOICE *voice)
 
    oss_voice->quit_poll_thread = true;
    al_join_thread(oss_voice->poll_thread, NULL);
+   al_destroy_thread(oss_voice->poll_thread);
 
    close(oss_voice->fd);
    free(voice->extra);
@@ -285,7 +289,7 @@ static int oss_stop_voice(ALLEGRO_VOICE *voice)
 
    ex_data->stop = true;
    if (!voice->is_streaming) {
-      ex_data->pos = 0;
+      voice->attached_stream->pos = 0;
    }
 
    while (!ex_data->stopped)
@@ -309,7 +313,7 @@ static int oss_load_voice(ALLEGRO_VOICE *voice, const void *data)
       return -1;
    }
 
-   ex_data->pos = 0;
+   voice->attached_stream->pos = 0;
    ex_data->len = voice->attached_stream->spl_data.len >> MIXER_FRAC_SHIFT;
 
    return 0;
@@ -332,15 +336,13 @@ static bool oss_voice_is_playing(const ALLEGRO_VOICE *voice)
 
 static unsigned long oss_get_voice_position(const ALLEGRO_VOICE *voice)
 {
-   OSS_VOICE *ex_data = voice->extra;
-   return ex_data->pos;
+   return voice->attached_stream->pos;
 }
 
 
 static int oss_set_voice_position(ALLEGRO_VOICE *voice, unsigned long val)
 {
-   OSS_VOICE *ex_data = voice->extra;
-   ex_data->pos = val;
+   voice->attached_stream->pos = val;
    return 0;
 }
 
@@ -351,12 +353,13 @@ static int oss_set_voice_position(ALLEGRO_VOICE *voice, unsigned long val)
  * buf   - Returns a pointer to the buffer containing sample data.
  * bytes - The requested size of the sample data buffer. Returns the actual
  *         size of returned the buffer.
- * Updates 'stop', 'pos' and 'reversed' fields of the supplied voice.
+ * Updates 'stop', 'pos' and 'reversed' fields of the supplied voice to the
+ * future position.
  */
 static int oss_update_nonstream_voice(ALLEGRO_VOICE *voice, void **buf, int *bytes)
 {
    OSS_VOICE *oss_voice = voice->extra;
-   int bpos = oss_voice->pos * oss_voice->frame_size;
+   int bpos = voice->attached_stream->pos * oss_voice->frame_size;
    int blen = oss_voice->len * oss_voice->frame_size;
 
    *buf = voice->attached_stream->spl_data.buffer.ptr + bpos;
@@ -365,19 +368,19 @@ static int oss_update_nonstream_voice(ALLEGRO_VOICE *voice, void **buf, int *byt
       *bytes = blen - bpos;
       if (voice->attached_stream->loop == ALLEGRO_PLAYMODE_ONCE) {
          oss_voice->stop = true;
-         oss_voice->pos = 0;
+         voice->attached_stream->pos = 0;
       }
       if (voice->attached_stream->loop == ALLEGRO_PLAYMODE_ONEDIR) {
-         oss_voice->pos = 0;
+         voice->attached_stream->pos = 0;
       }
       /*else if (voice->attached_stream->loop == ALLEGRO_PLAYMODE_BIDIR) {
          oss_voice->reversed = true;
-         oss_voice->pos = oss_voice->len;
+         voice->attached_stream->pos = oss_voice->len;
       }*/
       return 1;
    }
    else
-      oss_voice->pos += *bytes / oss_voice->frame_size;
+      voice->attached_stream->pos += *bytes / oss_voice->frame_size;
 
    return 0;
 }

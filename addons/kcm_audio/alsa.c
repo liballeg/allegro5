@@ -48,7 +48,6 @@ static const char alsa_device[128] = "default";
 
 typedef struct ALSA_VOICE {
    unsigned int frame_size; /* in bytes */
-   unsigned int pos; /* in frames */
    unsigned int len; /* in frames */
    snd_pcm_uframes_t frag_len; /* in frames */
    bool reversed; /* true if playing reversed ATM. */
@@ -124,14 +123,15 @@ static int xrun_recovery(snd_pcm_t *handle, int err)
  * buf   - Returns a pointer to the buffer containing sample data.
  * bytes - The requested size of the sample data buffer. Returns the actual
  *         size of returned the buffer.
- * Updates 'stop', 'pos' and 'reversed' fields of the supplied voice.
+ * Updates 'stop', 'pos' and 'reversed' fields of the supplied voice to the
+ * future position.
  * If the voice is played backwards, 'buf' will point to the end of the buffer
  * and 'bytes' is the size that can be read towards the beginning.
  */
 static int alsa_update_nonstream_voice(ALLEGRO_VOICE *voice, void **buf, int *bytes)
 {
    ALSA_VOICE *alsa_voice = (ALSA_VOICE*)voice->extra;
-   int bpos = alsa_voice->pos * alsa_voice->frame_size;
+   int bpos = voice->attached_stream->pos * alsa_voice->frame_size;
    int blen = alsa_voice->len * alsa_voice->frame_size;
 
    *buf = voice->attached_stream->spl_data.buffer.ptr + bpos;
@@ -141,19 +141,19 @@ static int alsa_update_nonstream_voice(ALLEGRO_VOICE *voice, void **buf, int *by
          *bytes = blen - bpos;
          if (voice->attached_stream->loop == ALLEGRO_PLAYMODE_ONCE) {
             alsa_voice->stop = true;
-            alsa_voice->pos = 0;
+            voice->attached_stream->pos = 0;
          }
          if (voice->attached_stream->loop == ALLEGRO_PLAYMODE_ONEDIR) {
-            alsa_voice->pos = 0;
+            voice->attached_stream->pos = 0;
          }
          else if (voice->attached_stream->loop == ALLEGRO_PLAYMODE_BIDIR) {
             alsa_voice->reversed = true;
-            alsa_voice->pos = alsa_voice->len;
+            voice->attached_stream->pos = alsa_voice->len;
          }
          return 1;
       }
       else
-         alsa_voice->pos += *bytes / alsa_voice->frame_size;
+         voice->attached_stream->pos += *bytes / alsa_voice->frame_size;
    }
    else {
       if (bpos - *bytes < 0) {
@@ -163,12 +163,12 @@ static int alsa_update_nonstream_voice(ALLEGRO_VOICE *voice, void **buf, int *by
          /*if (voice->attached_stream->loop != ALLEGRO_PLAYMODE_BIDIR)
             alsa_voice->stop = true;*/
 
-         alsa_voice->pos = 0;
+         voice->attached_stream->pos = 0;
          alsa_voice->reversed = false;
          return 1;
       }
       else
-         alsa_voice->pos -= *bytes / alsa_voice->frame_size;
+         voice->attached_stream->pos -= *bytes / alsa_voice->frame_size;
    }
 
    return 0;
@@ -315,7 +315,7 @@ static int alsa_load_voice(ALLEGRO_VOICE *voice, const void *data)
 {
    ALSA_VOICE *ex_data = voice->extra;
 
-   ex_data->pos = 0;
+   data->attached_stream->pos = 0;
    ex_data->len = voice->attached_stream->spl_data.len >> MIXER_FRAC_SHIFT;
 
    return 0;
@@ -354,7 +354,7 @@ static int alsa_stop_voice(ALLEGRO_VOICE *voice)
 
    ex_data->stop = true;
    if(!voice->is_streaming) {
-      ex_data->pos = 0;
+      voice->attached_stream->pos = 0;
    }
 
    while (!ex_data->stopped)
@@ -494,8 +494,7 @@ static void alsa_deallocate_voice(ALLEGRO_VOICE *voice)
    be called on a streaming voice. */
 static unsigned long alsa_get_voice_position(const ALLEGRO_VOICE *voice)
 {
-   ALSA_VOICE *ex_data = voice->extra;
-   return ex_data->pos;
+   return voice->attached_stream->pos;
 }
 
 
@@ -505,10 +504,7 @@ static unsigned long alsa_get_voice_position(const ALLEGRO_VOICE *voice)
    voice. */
 static int alsa_set_voice_position(ALLEGRO_VOICE *voice, unsigned long val)
 {
-   ALSA_VOICE *ex_data = voice->extra;
-
-   ex_data->pos = val;
-
+   voice->attached_stream->pos = val;
    return 0;
 }
 
@@ -532,7 +528,7 @@ ALLEGRO_AUDIO_DRIVER _alsa_driver =
    alsa_voice_is_playing,
 
    alsa_get_voice_position,
-   alsa_set_voice_position,
+   alsa_set_voice_position
 };
 
 /* vim: set sts=3 sw=3 et: */
