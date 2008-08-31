@@ -8,8 +8,11 @@ int main(void)
    ALLEGRO_LOCKED_REGION locked;
    uint8_t *ptr;
    int i, j;
+   ALLEGRO_EVENT_QUEUE *events;
+   ALLEGRO_EVENT event;
 
    al_init();
+   al_install_keyboard();
    al_iio_init();
 
    /* Create a 100 x 100 window. */
@@ -68,7 +71,16 @@ int main(void)
 
    al_draw_bitmap(bitmap, 0, 0, 0);
    al_flip_display();
-   al_rest(5.0);
+
+   events = al_create_event_queue();
+   al_register_event_source(events, (ALLEGRO_EVENT_SOURCE *)al_get_keyboard());
+
+   while (1) {
+      al_wait_for_event(events, &event);
+      if (event.type == ALLEGRO_EVENT_KEY_DOWN &&  
+            event.keyboard.keycode == ALLEGRO_KEY_ESCAPE)
+         break;
+   }
 
    return 0;
 }

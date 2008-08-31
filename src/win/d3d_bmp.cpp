@@ -183,7 +183,6 @@ void _al_d3d_draw_textured_quad(ALLEGRO_DISPLAY_D3D *disp, ALLEGRO_BITMAP_D3D *b
    vertices[0].y = dy;
    vertices[0].z = z;
    vertices[0].diffuse = color;
-   vertices[0].specular = white;
    vertices[0].tu = tu_start;
    vertices[0].tv = tv_start;
 
@@ -191,7 +190,6 @@ void _al_d3d_draw_textured_quad(ALLEGRO_DISPLAY_D3D *disp, ALLEGRO_BITMAP_D3D *b
    vertices[1].y = dy;
    vertices[1].z = z;
    vertices[1].diffuse = color;
-   vertices[1].specular = white;
    vertices[1].tu = tu_end;
    vertices[1].tv = tv_start;
 
@@ -199,7 +197,6 @@ void _al_d3d_draw_textured_quad(ALLEGRO_DISPLAY_D3D *disp, ALLEGRO_BITMAP_D3D *b
    vertices[2].y = bottom;
    vertices[2].z = z;
    vertices[2].diffuse = color;
-   vertices[2].specular = white;
    vertices[2].tu = tu_end;
    vertices[2].tv = tv_end;
 
@@ -207,7 +204,6 @@ void _al_d3d_draw_textured_quad(ALLEGRO_DISPLAY_D3D *disp, ALLEGRO_BITMAP_D3D *b
    vertices[3].y = bottom;
    vertices[3].z = z;
    vertices[3].diffuse = color;
-   vertices[3].specular = white;
    vertices[3].tu = tu_start;
    vertices[3].tv = tv_end;
 
@@ -239,8 +235,6 @@ void _al_d3d_draw_textured_quad(ALLEGRO_DISPLAY_D3D *disp, ALLEGRO_BITMAP_D3D *b
 
    disp->device->SetFVF(D3DFVF_TL_VERTEX);
    
-   _al_d3d_set_blender(disp);
-
    if (disp->device->DrawPrimitiveUP(D3DPT_TRIANGLEFAN, 2,
 
 	   vertices, sizeof(D3D_TL_VERTEX)) != D3D_OK) {
@@ -766,6 +760,8 @@ static void d3d_blit_real(ALLEGRO_BITMAP *src,
       return;
    }
 
+   
+   _al_d3d_set_blender(d3d_dest->display);
 
    _al_d3d_draw_textured_quad(d3d_dest->display, d3d_src,
       sx, sy, sw, sh,

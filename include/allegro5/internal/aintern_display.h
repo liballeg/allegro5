@@ -102,6 +102,8 @@ struct ALLEGRO_DISPLAY_WIN
    int mouse_range_y2;
    HCURSOR mouse_selected_hcursor;
    bool mouse_cursor_shown;
+
+   UINT adapter;
 };
 #endif
 

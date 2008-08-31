@@ -70,7 +70,7 @@ option(WANT_MAGIC_MAIN "Enable magic main" off)
 option(WANT_X11 "X11 support" on)
 
 option(WANT_D3D "Enable Direct3D graphics driver (Windows)" on)
-option(WANT_D3DEX "Enable Direct3D 9Ex extensions (Vista)" off)
+option(WANT_D3D9EX "Enable Direct3D 9Ex extensions (Vista)" off)
 option(WANT_OPENGL "Enable OpenGL graphics driver (Windows, X11))" on)
 
 #

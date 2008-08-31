@@ -78,27 +78,21 @@ HWND _al_win_create_hidden_window()
 HWND _al_win_create_window(ALLEGRO_DISPLAY *display, int width, int height, int flags)
 {
    HWND my_window;
-   RECT working_area;
    RECT win_size;
-   RECT pos;
    DWORD style;
    DWORD ex_style;
    WIN_WINDOW *win_window;
    WIN_WINDOW **add;
-   WINDOWINFO wi;
    int pos_x, pos_y;
    bool center = false;
+   ALLEGRO_MONITOR_INFO info;
+   ALLEGRO_DISPLAY_WIN *win_display = (ALLEGRO_DISPLAY_WIN *)display;
+   WINDOWINFO wi;
+   int bw, bh;
 
 
    /* Save the thread handle for later use */
    *((DWORD *)_al_vector_alloc_back(&thread_handles)) = GetCurrentThreadId();
-
-   SystemParametersInfo(SPI_GETWORKAREA, 0, &working_area, 0);
-
-   win_size.left = (working_area.left + working_area.right - width) / 2;
-   win_size.top = (working_area.top + working_area.bottom - height) / 2;
-   win_size.right = win_size.left + width;
-   win_size.bottom = win_size.top + height;
 
    if (!(flags & ALLEGRO_FULLSCREEN)) {
       if  (flags & ALLEGRO_RESIZABLE) {
@@ -123,10 +117,70 @@ HWND _al_win_create_window(ALLEGRO_DISPLAY *display, int width, int height, int 
       }
    }
 
+   if (center) {
+      //int a = al_get_current_video_adapter();
+      int a = win_display->adapter;
+
+      if (a == -1) {
+         ALLEGRO_SYSTEM *sys = al_system_driver();
+         unsigned int num;
+         bool *is_fullscreen;
+         unsigned int i;
+         unsigned int fullscreen_found = 0;
+         num = al_get_num_video_adapters();
+         is_fullscreen = _AL_MALLOC(sizeof(bool)*num);
+         memset(is_fullscreen, 0, sizeof(bool)*num);
+         for (i = 0; i < sys->displays._size; i++) {
+            ALLEGRO_DISPLAY **dptr = _al_vector_ref(&sys->displays, i);
+            ALLEGRO_DISPLAY *d = *dptr;
+            if (d->flags & ALLEGRO_FULLSCREEN) {
+               ALLEGRO_DISPLAY_WIN *win_display = (ALLEGRO_DISPLAY_WIN *)d;
+               is_fullscreen[win_display->adapter] = true;
+               fullscreen_found++;
+            }
+         }
+         if (fullscreen_found && fullscreen_found < num) {
+            for (i = 0; i < num; i++) {
+               if (is_fullscreen[i] == false) {
+                  a = i;
+                  break;
+               }
+            }
+         }
+         else
+            a = 0;
+         _AL_FREE(is_fullscreen);
+      }
+
+      al_set_current_video_adapter(a);
+
+      al_get_monitor_info(a, &info);
+
+      win_size.left = info.x1 + (info.x2 - info.x1 - width) / 2;
+      win_size.right = win_size.left + width;
+      win_size.top = info.y1 + (info.y2 - info.y1 - height) / 2;
+      win_size.bottom = win_size.top + height;
+
+      AdjustWindowRectEx(&win_size, style, FALSE, ex_style);
+
+      pos_x = win_size.left;
+      pos_y = win_size.top;
+   }
+
    my_window = CreateWindowEx(ex_style,
       "ALEX", "Allegro", style,
       pos_x, pos_y, width, height,
       NULL,NULL,window_class.hInstance,0);
+
+   GetWindowInfo(my_window, &wi);
+      
+   bw = (wi.rcClient.left - wi.rcWindow.left) + (wi.rcWindow.right - wi.rcClient.right),
+   bh = (wi.rcClient.top - wi.rcWindow.top) + (wi.rcWindow.bottom - wi.rcClient.bottom),
+
+   SetWindowPos(my_window, 0, pos_x-bw/2, pos_y-bh/2,
+      width+bw,
+      height+bh,
+      SWP_NOMOVE | SWP_NOZORDER);
 
    if (flags & ALLEGRO_NOFRAME) {
       SetWindowLong(my_window, GWL_STYLE, WS_VISIBLE);
@@ -141,18 +195,6 @@ HWND _al_win_create_window(ALLEGRO_DISPLAY *display, int width, int height, int 
    win_window->window = my_window;
    add = _al_vector_alloc_back(&win_window_list);
    *add = win_window;
-
-   if (center) {
-      GetWindowInfo(my_window, &wi);
-      AdjustWindowRectEx(&win_size, wi.dwStyle, FALSE, wi.dwExStyle);
-
-      MoveWindow(my_window, win_size.left, win_size.top,
-         win_size.right - win_size.left,
-         win_size.bottom - win_size.top,
-         TRUE);
-   }	      
-
-   _al_win_get_window_pos(my_window, &pos);
 
    if (!(flags & ALLEGRO_RESIZABLE) && !(flags & ALLEGRO_FULLSCREEN)) {
       /* Make the window non-resizable */
@@ -169,7 +211,7 @@ HWND _al_win_create_window(ALLEGRO_DISPLAY *display, int width, int height, int 
 
 HWND _al_win_create_faux_fullscreen_window(LPCTSTR devname, ALLEGRO_DISPLAY *display, 
 	int x1, int y1, int width, int height, int refresh_rate, int flags)
-{
+{ 
    HWND my_window;
    DWORD style;
    DWORD ex_style;
@@ -208,15 +250,8 @@ HWND _al_win_create_faux_fullscreen_window(LPCTSTR devname, ALLEGRO_DISPLAY *dis
    mode.dmFields = DM_BITSPERPEL|DM_PELSWIDTH|DM_PELSHEIGHT|DM_DISPLAYFLAGS|
    	DM_DISPLAYFREQUENCY|DM_POSITION;
 
-   {
-   ALLEGRO_MONITOR_INFO info;
-   al_get_monitor_info(0, &info);
-   TRACE("before 0 = %d %d %d %d\n", info.x1, info.y1, info.x2, info.y2);
    ChangeDisplaySettingsEx(devname, &mode, NULL, 0, NULL/*CDS_FULLSCREEN*/);
-   al_get_monitor_info(0, &info);
-   TRACE("after 0 = %d %d %d %d\n", info.x1, info.y1, info.x2, info.y2);
-   }
-
+   
    win_window = _AL_MALLOC(sizeof(WIN_WINDOW));
    win_window->display = display;
    win_window->window = my_window;
@@ -284,46 +319,49 @@ static LRESULT CALLBACK window_callback(HWND hWnd, UINT message,
    if (i != system->displays._size) {
       switch (message) {
          case WM_PAINT: {
-            RECT r;
-            HRGN hrgn;
-            _al_win_get_window_pos(win->window, &r);
-            hrgn = CreateRectRgn(r.left, r.top, r.right, r.bottom);
-            if (GetUpdateRgn(win->window, hrgn, FALSE) != ERROR) {
-               PAINTSTRUCT ps;
-               DWORD size;
-               LPRGNDATA rgndata;
-               int n;
-               RECT *rects;
-
-               BeginPaint(win->window, &ps);
-               size = GetRegionData(hrgn, 0, NULL);
-               rgndata = _AL_MALLOC(size);
-               GetRegionData(hrgn, size, rgndata);
-               n = rgndata->rdh.nCount;
-               rects = (RECT *)rgndata->Buffer;
-               _al_event_source_lock(es);
-                  if ((win_display->display.flags & ALLEGRO_GENERATE_EXPOSE_EVENTS) &&
-                           _al_event_source_needs_to_generate_event(es)) {
-                     while (n--) {
-                        ALLEGRO_EVENT *event = _al_event_source_get_unused_event(es);
-                        if (event) {
-                           event->display.type = ALLEGRO_EVENT_DISPLAY_EXPOSE;
-                           event->display.timestamp = al_current_time();
-                           event->display.x = rects[n].left;
-                           event->display.y = rects[n].top;
-                           event->display.width = rects[n].right - rects[n].left;
-                           event->display.height = rects[n].bottom - rects[n].top;
-                           _al_event_source_emit_event(es, event);
-                        }
+            if ((win_display->display.flags & ALLEGRO_GENERATE_EXPOSE_EVENTS) &&
+                     _al_event_source_needs_to_generate_event(es)) {
+               RECT r;
+               HRGN hrgn;
+               GetWindowRect(win->window, &r);
+               hrgn = CreateRectRgn(r.left, r.top, r.right, r.bottom);
+               if (GetUpdateRgn(win->window, hrgn, FALSE) != ERROR) {
+                  PAINTSTRUCT ps;
+                  DWORD size;
+                  LPRGNDATA rgndata;
+                  int n;
+                  RECT *rects;
+                  WINDOWINFO wi;
+                  BeginPaint(win->window, &ps);
+                  size = GetRegionData(hrgn, 0, NULL);
+                  rgndata = _AL_MALLOC(size);
+                  GetRegionData(hrgn, size, rgndata);
+                  n = rgndata->rdh.nCount;
+                  rects = (RECT *)rgndata->Buffer;
+                  GetWindowInfo(win->window, &wi);
+                  _al_event_source_lock(es);
+                  while (n--) {
+                     ALLEGRO_EVENT *event = _al_event_source_get_unused_event(es);
+                     if (event) {
+                        event->display.type = ALLEGRO_EVENT_DISPLAY_EXPOSE;
+                        event->display.timestamp = al_current_time();
+                        event->display.x = rects[n].left;
+                        event->display.y = rects[n].top;
+                        event->display.width = rects[n].right - rects[n].left;
+                        event->display.height = rects[n].bottom - rects[n].top;
+                        _al_event_source_emit_event(es, event);
                      }
                   }
-               _al_event_source_unlock(es);
-               _AL_FREE(rgndata);
-               EndPaint(win->window, &ps);
-               DeleteObject(hrgn);
+                  _al_event_source_unlock(es);
+                  _AL_FREE(rgndata);
+                  EndPaint(win->window, &ps);
+                  DeleteObject(hrgn);
+               }
+               return 0;
             }
-            return 0;
+            break;
          }
+
          case WM_MOUSEACTIVATE:
             return MA_ACTIVATEANDEAT;
          case WM_SETCURSOR:
@@ -354,15 +392,6 @@ static LRESULT CALLBACK window_callback(HWND hWnd, UINT message,
                   break;
             }
             return 1;
-            /*
-         case WM_ACTIVATE:
-               if (LOWORD(wParam) != WA_INACTIVE) {
-                  _al_win_active_window = win->window;
-                  win_grab_input();
-                  return 0;
-               }
-               break;
-               */
          //case WM_ACTIVATEAPP:
          case WM_ACTIVATE:
             //if (wParam) {
@@ -503,81 +532,6 @@ void _al_win_ungrab_input()
    PostMessage(_al_win_active_window, _al_win_msg_call_proc, (DWORD)key_dinput_unacquire, 0);
 }
 
-// FIXME
-#if 0
-static HICON win_create_icon_from_old_bitmap(struct BITMAP *sprite)
-{
-   int mask_color;
-   int x, y;
-   int width, height;
-   HDC h_dc;
-   HDC h_and_dc;
-   HDC h_xor_dc;
-   ICONINFO iconinfo;
-   HBITMAP and_mask;
-   HBITMAP xor_mask;
-   HBITMAP hOldAndMaskBitmap;
-   HBITMAP hOldXorMaskBitmap;
-   HICON hicon;
-   HWND allegro_wnd = _al_win_active_window;
-
-   /* Create bitmap */
-   h_dc = GetDC(allegro_wnd);
-   h_xor_dc = CreateCompatibleDC(h_dc);
-   h_and_dc = CreateCompatibleDC(h_dc);
-
-   width = sprite->w;
-   height = sprite->h;
-
-   /* Prepare AND (monochrome) and XOR (colour) mask */
-   and_mask = CreateBitmap(width, height, 1, 1, NULL);
-   xor_mask = CreateCompatibleBitmap(h_dc, width, height);
-   hOldAndMaskBitmap = SelectObject(h_and_dc, and_mask);
-   hOldXorMaskBitmap = SelectObject(h_xor_dc, xor_mask);
-
-   /* Create transparent cursor */
-   for (y = 0; y < height; y++) {
-      for (x = 0; x < width; x++) {
-	 SetPixel(h_and_dc, x, y, WINDOWS_RGB(255, 255, 255));
-	 SetPixel(h_xor_dc, x, y, WINDOWS_RGB(0, 0, 0));
-      }
-   }
-   draw_to_hdc(h_xor_dc, sprite, 0, 0);
-   mask_color = bitmap_mask_color(sprite);
-
-   /* Make cursor background transparent */
-   for (y = 0; y < sprite->h; y++) {
-      for (x = 0; x < sprite->w; x++) {
-	 if (getpixel(sprite, x, y) != mask_color) {
-	    /* Don't touch XOR value */
-	    SetPixel(h_and_dc, x, y, 0);
-	 }
-	 else {
-	    /* No need to touch AND value */
-	    SetPixel(h_xor_dc, x, y, WINDOWS_RGB(0, 0, 0));
-	 }
-      }
-   }
-
-   SelectObject(h_and_dc, hOldAndMaskBitmap);
-   SelectObject(h_xor_dc, hOldXorMaskBitmap);
-   DeleteDC(h_and_dc);
-   DeleteDC(h_xor_dc);
-   ReleaseDC(allegro_wnd, h_dc);
-
-   iconinfo.fIcon = TRUE;
-   iconinfo.hbmMask = and_mask;
-   iconinfo.hbmColor = xor_mask;
-
-   hicon = CreateIconIndirect(&iconinfo);
-
-   DeleteObject(and_mask);
-   DeleteObject(xor_mask);
-
-   return hicon;
-}
-
-#endif
 
 void _al_win_set_display_icon(ALLEGRO_DISPLAY *display, ALLEGRO_BITMAP *bmp)
 {
