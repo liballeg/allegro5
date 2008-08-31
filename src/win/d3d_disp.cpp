@@ -24,12 +24,13 @@
 extern "C" {
 #include "allegro5/system_new.h"
 #include "allegro5/internal/aintern.h"
-#include "allegro5/internal/aintern_system.h"
-#include "allegro5/internal/aintern_display.h"
 #include "allegro5/internal/aintern_bitmap.h"
+#include "allegro5/internal/aintern_display.h"
+#include "allegro5/internal/aintern_memory.h"
+#include "allegro5/internal/aintern_system.h"
+#include "allegro5/internal/aintern_thread.h"
 #include "allegro5/internal/aintern_vector.h"
 #include "allegro5/platform/aintwin.h"
-#include "allegro5/internal/aintern_thread.h"
 #include "wddraw.h"
 }
 

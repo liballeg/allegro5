@@ -1,3 +1,5 @@
+#include "allegro5/allegro5.h"
+#include "allegro5/internal/aintern_memory.h"
 #include "xglx.h"
 
 #include <X11/cursorfont.h>

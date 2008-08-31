@@ -29,6 +29,7 @@
 #include "allegro5/internal/aintern.h"
 #include "allegro5/internal/aintern_bitmap.h"
 #include "allegro5/internal/aintern_display.h"
+#include "allegro5/internal/aintern_memory.h"
 
 
 /* Thread local storage for graphics API state */

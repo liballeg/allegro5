@@ -7,6 +7,8 @@
 extern int _Xdebug; /* part of Xlib */
 #endif
 
+#include "allegro5/allegro5.h"
+#include "allegro5/internal/aintern_memory.h"
 #include "xglx.h"
 
 static ALLEGRO_SYSTEM_INTERFACE *xglx_vt;

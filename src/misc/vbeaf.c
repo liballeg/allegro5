@@ -68,6 +68,7 @@
 #if (defined ALLEGRO_DOS) || (defined ALLEGRO_LINUX_VBEAF)
 
 #include "allegro5/internal/aintern.h"
+#include "allegro5/internal/aintern_memory.h"
 
 #ifdef ALLEGRO_INTERNAL_HEADER
    #include ALLEGRO_INTERNAL_HEADER

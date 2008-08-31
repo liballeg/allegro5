@@ -19,8 +19,9 @@
 #include <process.h>
 
 #include "allegro5/internal/aintern.h"
-#include "allegro5/internal/aintern_vector.h"
 #include "allegro5/internal/aintern_bitmap.h"
+#include "allegro5/internal/aintern_memory.h"
+#include "allegro5/internal/aintern_vector.h"
 #include "allegro5/platform/aintwin.h"
 
 #include "win_new.h"

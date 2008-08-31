@@ -21,6 +21,7 @@
 #if (defined ALLEGRO_WITH_SGIALDIGI) && ((!defined ALLEGRO_WITH_MODULES) || (defined ALLEGRO_MODULE))
 
 #include "allegro5/internal/aintern.h"
+#include "allegro5/internal/aintern_memory.h"
 #include "allegro5/platform/aintunix.h"
 
 #include <pthread.h>

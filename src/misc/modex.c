@@ -27,6 +27,7 @@
 #ifdef ALLEGRO_GFX_HAS_VGA
 
 #include "allegro5/internal/aintern.h"
+#include "allegro5/internal/aintern_memory.h"
 #include "allegro5/internal/aintvga.h"
 
 #ifdef ALLEGRO_INTERNAL_HEADER

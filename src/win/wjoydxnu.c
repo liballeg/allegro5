@@ -61,6 +61,7 @@
 #include "allegro5/platform/aintwin.h"
 #include "allegro5/internal/aintern_events.h"
 #include "allegro5/internal/aintern_joystick.h"
+#include "allegro5/internal/aintern_memory.h"
 #include "win_new.h"
 
 #ifndef SCAN_DEPEND

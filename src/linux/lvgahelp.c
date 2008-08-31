@@ -24,6 +24,7 @@
 #ifdef ALLEGRO_LINUX_VGA
 
 #include "allegro5/internal/aintern.h"
+#include "allegro5/internal/aintern_memory.h"
 #include "allegro5/platform/aintunix.h"
 #include "allegro5/internal/aintvga.h"
 #include "allegro5/linalleg.h"

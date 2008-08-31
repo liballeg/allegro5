@@ -25,6 +25,7 @@
 
 #include "allegro5/allegro5.h"
 #include "allegro5/internal/aintern.h"
+#include "allegro5/internal/aintern_memory.h"
 
 
 int *_colorconv_indexed_palette = NULL;    /* for conversion from 8-bit */

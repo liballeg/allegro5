@@ -25,6 +25,7 @@
 #include ALLEGRO_INTERNAL_HEADER
 #include "allegro5/internal/aintern_display.h"
 #include "allegro5/internal/aintern_bitmap.h"
+#include "allegro5/internal/aintern_memory.h"
 #include "allegro5/internal/aintern_system.h"
 
 
