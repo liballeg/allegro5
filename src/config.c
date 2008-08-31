@@ -1,9 +1,53 @@
+/*         ______   ___    ___
+ *        /\  _  \ /\_ \  /\_ \
+ *        \ \ \L\ \\//\ \ \//\ \      __     __   _ __   ___
+ *         \ \  __ \ \ \ \  \ \ \   /'__`\ /'_ `\/\`'__\/ __`\
+ *          \ \ \/\ \ \_\ \_ \_\ \_/\  __//\ \L\ \ \ \//\ \L\ \
+ *           \ \_\ \_\/\____\/\____\ \____\ \____ \ \_\\ \____/
+ *            \/_/\/_/\/____/\/____/\/____/\/___L\ \/_/ \/___/
+ *                                           /\____/
+ *                                           \_/__/
+ *
+ *      Configuration routines.
+ *
+ *      By Trent Gamblin.
+ */
+
+
 #include <stdio.h>
 #include <ctype.h>
-#include <allegro5/allegro5.h>
-#include <allegro5/internal/aintern_config.h>
+#include "allegro5/allegro5.h"
+#include "allegro5/internal/aintern.h"
+#include "allegro5/internal/aintern_config.h"
+#include "allegro5/internal/aintern_memory.h"
+
 
 #define MAXSIZE 1024
+
+
+static void *local_calloc1(size_t size)
+{
+   void *p;
+
+   p = _AL_MALLOC(size);
+   if (p) {
+      memset(p, 0, size);
+   }
+   return p;
+}
+
+
+static char *local_strdup(const char *s)
+{
+   size_t size = strlen(s);
+   char *copy;
+
+   copy = _AL_MALLOC_ATOMIC(size);
+   if (copy) {
+      memcpy(copy, s, size + 1);
+   }
+   return copy;
+}
 
 
 static char *skip_whitespace(char *s)
@@ -99,8 +143,8 @@ void al_config_add_section(ALLEGRO_CONFIG *config, AL_CONST char *name)
    if (find_section(config, name))
       return;
 
-   section = calloc(1, sizeof(ALLEGRO_CONFIG_SECTION));
-   section->name = strdup(name);
+   section = local_calloc1(sizeof(ALLEGRO_CONFIG_SECTION));
+   section->name = local_strdup(name);
 
    if (sec == NULL) {
       config->head = section;
@@ -119,15 +163,15 @@ void al_config_set_global(ALLEGRO_CONFIG *config, AL_CONST char *key, AL_CONST c
    ALLEGRO_CONFIG_ENTRY *e = find_entry(config->globals, key);
 
    if (e) {
-      free(e->value);
-      e->value = strdup(value);
+      _AL_FREE(e->value);
+      e->value = local_strdup(value);
       return;
    }
    
-   e = calloc(1, sizeof(ALLEGRO_CONFIG_ENTRY));
+   e = local_calloc1(sizeof(ALLEGRO_CONFIG_ENTRY));
 
-   e->key = strdup(key);
-   e->value = strdup(value);
+   e->key = local_strdup(key);
+   e->value = local_strdup(value);
 
    if (config->globals == NULL) {
       config->globals = e;
@@ -148,15 +192,15 @@ void al_config_set_value(ALLEGRO_CONFIG *config, AL_CONST char *section, AL_CONS
    ALLEGRO_CONFIG_ENTRY *entry = find_entry(s->head, key);
 
    if (entry) {
-      free(entry->value);
-      entry->value = strdup(value);
+      _AL_FREE(entry->value);
+      entry->value = local_strdup(value);
       return;
    }
    
-   entry = calloc(1, sizeof(ALLEGRO_CONFIG_ENTRY));
+   entry = local_calloc1(sizeof(ALLEGRO_CONFIG_ENTRY));
 
-   entry->key = strdup(key);
-   entry->value = strdup(value);
+   entry->key = local_strdup(key);
+   entry->value = local_strdup(value);
    
    if (!s) {
       al_config_add_section(config, section);
@@ -216,7 +260,7 @@ ALLEGRO_CONFIG *al_config_read(AL_CONST char *filename)
       return NULL;
    }
    
-   config = calloc(1, sizeof(ALLEGRO_CONFIG));
+   config = local_calloc1(sizeof(ALLEGRO_CONFIG));
    if (!config) {
       fclose(file);
       return NULL;
@@ -315,7 +359,7 @@ static void add_config(ALLEGRO_CONFIG *master, ALLEGRO_CONFIG *add)
 
 ALLEGRO_CONFIG *al_config_merge(ALLEGRO_CONFIG *cfg1, ALLEGRO_CONFIG *cfg2)
 {
-   ALLEGRO_CONFIG *config = calloc(1, sizeof(ALLEGRO_CONFIG));
+   ALLEGRO_CONFIG *config = local_calloc1(sizeof(ALLEGRO_CONFIG));
 
    add_config(config, cfg1);
    add_config(config, cfg2);
@@ -332,9 +376,9 @@ void al_config_destroy(ALLEGRO_CONFIG *config)
    e = config->globals;
    while (e) {
       ALLEGRO_CONFIG_ENTRY *tmp = e->next;
-      free(e->key);
-      free(e->value);
-      free(e);
+      _AL_FREE(e->key);
+      _AL_FREE(e->value);
+      _AL_FREE(e);
       e = tmp;
    }
 
@@ -344,13 +388,13 @@ void al_config_destroy(ALLEGRO_CONFIG *config)
       e = s->head;
       while (e) {
          ALLEGRO_CONFIG_ENTRY *tmp = e->next;
-         free(e->key);
-         free(e->value);
-         free(e);
+         _AL_FREE(e->key);
+         _AL_FREE(e->value);
+         _AL_FREE(e);
          e = tmp;
       }
-      free(s->name);
-      free(s);
+      _AL_FREE(s->name);
+      _AL_FREE(s);
       s = tmp;
    }
 }
