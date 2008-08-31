@@ -10,6 +10,7 @@
 #include <stdio.h>
 
 #include "allegro5/kcm_audio.h"
+#include "allegro5/internal/aintern_system.h"
 #include "allegro5/internal/aintern_kcm_audio.h"
 #include "allegro5/internal/aintern_kcm_cfg.h"
 
@@ -80,6 +81,33 @@ int _al_audio_get_silence(ALLEGRO_AUDIO_DEPTH depth)
    }
 }
 
+static ALLEGRO_AUDIO_DRIVER_ENUM get_config_audio_driver(void)
+{
+   ALLEGRO_SYSTEM *sys = al_system_driver();
+   const char *value;
+
+   if (!sys || !sys->config)
+      return ALLEGRO_AUDIO_DRIVER_AUTODETECT;
+
+   value = al_config_get_value(sys->config, "sound", "driver");
+   if (!value)
+      return ALLEGRO_AUDIO_DRIVER_AUTODETECT;
+
+   if (0 == stricmp(value, "ALSA"))
+      return ALLEGRO_AUDIO_DRIVER_ALSA;
+
+   if (0 == stricmp(value, "OPENAL"))
+      return ALLEGRO_AUDIO_DRIVER_OPENAL;
+
+   if (0 == stricmp(value, "OSS"))
+      return ALLEGRO_AUDIO_DRIVER_OSS;
+
+   if (0 == stricmp(value, "DSOUND") || 0 == stricmp(value, "DIRECTSOUND"))
+      return ALLEGRO_AUDIO_DRIVER_DSOUND;
+
+   return ALLEGRO_AUDIO_DRIVER_AUTODETECT;
+}
+
 /* TODO: possibly take extra parameters
  * (freq, channel, etc) and test if you 
  * can create a voice with them.. if not
@@ -91,8 +119,12 @@ int al_audio_init(ALLEGRO_AUDIO_DRIVER_ENUM mode)
 
    /* check to see if a driver is already installed and running */
    if (_al_kcm_driver) {
-      _al_set_error(ALLEGRO_GENERIC_ERROR, "A Driver already running"); 
+      _al_set_error(ALLEGRO_GENERIC_ERROR, "A driver already running");
       return 1;
+   }
+
+   if (mode == ALLEGRO_AUDIO_DRIVER_AUTODETECT) {
+      mode = get_config_audio_driver();
    }
 
    switch (mode) {
