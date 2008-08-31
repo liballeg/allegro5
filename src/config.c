@@ -52,7 +52,7 @@ static char *local_strdup(const char *s)
 
 static char *skip_whitespace(char *s)
 {
-   while (isspace(*s))
+   while (*s && isspace(*s))
       s++;
 
    return s;
@@ -93,8 +93,8 @@ static ALLEGRO_CONFIG_ENTRY *find_entry(ALLEGRO_CONFIG_ENTRY *section_head, AL_C
 
 static void get_key_and_value(char *buf, char *key, char *value)
 {
-   int i;
    char *p = skip_whitespace(buf);
+   int i, j;
 
    /* Error */
    if (*p == 0) {
@@ -315,24 +315,39 @@ int al_config_write(ALLEGRO_CONFIG *config, AL_CONST char *filename)
    /* Save globals */
    e = config->globals;
    while (e != NULL) {
-      fprintf(file, "%s=%s\n", e->key, e->value);
+      if (fprintf(file, "%s=%s\n", e->key, e->value) < 0) {
+         goto Error;
+      }
       e = e->next;
    }
 
    /* Save each section */
    while (s != NULL) {
-      fprintf(file, "[%s]\n", s->name);
+      if (fprintf(file, "[%s]\n", s->name) < 0) {
+         goto Error;
+      }
       e = s->head;
       while (e != NULL) {
-         fprintf(file, "%s=%s\n", e->key, e->value);
+         if (fprintf(file, "%s=%s\n", e->key, e->value) < 0) {
+            goto Error;
+         }
          e = e->next;
       }
       s = s->next;
    }
 
-   fclose(file);
+   if (fclose(file) == EOF) {
+      /* XXX do we delete the incomplete file? */
+      return 1;
+   }
 
    return 0;
+
+Error:
+
+   /* XXX do we delete the incomplete file? */
+   fclose(file);
+   return 1;
 }
 
 
