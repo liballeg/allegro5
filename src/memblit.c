@@ -197,7 +197,8 @@ void _al_draw_scaled_bitmap_memory(ALLEGRO_BITMAP *src,
    	return;
 
    al_lock_bitmap(src, &src_region, ALLEGRO_LOCK_READONLY);
-   al_lock_bitmap(dest, &dst_region, ALLEGRO_LOCK_WRITEONLY);
+   /* XXX we should be able to lock less of the destination */
+   al_lock_bitmap(dest, &dst_region, 0);
 
    dxinc = dw < 0 ? -1 : 1;
    dyinc = dh < 0 ? -1 : 1;
