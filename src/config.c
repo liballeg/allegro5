@@ -113,7 +113,7 @@ static void get_key_and_value(char *buf, char *key, char *value)
       strcpy(value, "");
       return;
    }
-   
+
    /* Skip past = */
    if (p[i] == '=')
       p += i+1;
@@ -128,9 +128,13 @@ static void get_key_and_value(char *buf, char *key, char *value)
       p++;
    }
 
+   /* Read value, stripping leading and trailing whitespace */
+   p = skip_whitespace(p);
    for (i = 0; p[i] && i < MAXSIZE-1 && p[i] != '\n'; i++) {
       value[i] = p[i];
    }
+   while (i > 0 && isspace(value[i-1]))
+      i--;
    value[i] = 0;
 }
 
