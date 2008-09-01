@@ -20,7 +20,7 @@ AL_INLINE_STATIC(bool, al_init, (void),
    return _al_init();
 })
 
-ALLEGRO_SYSTEM *al_system_driver(void);
+AL_FUNC(ALLEGRO_SYSTEM *, al_system_driver, (void));
 
 #ifdef __cplusplus
    }

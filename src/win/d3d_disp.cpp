@@ -657,7 +657,6 @@ static bool d3d_create_device(ALLEGRO_DISPLAY_D3D *d,
    ALLEGRO_DISPLAY_WIN *win_display = &d->win_display;
    ALLEGRO_DISPLAY *al_display = &win_display->display;
    int adapter = al_get_current_video_adapter();
-   int i;
 
    /* Ideally if you're targetting vanilla Direct3D 9 you should create
     * your windowed displays before any fullscreen ones. If you don't,

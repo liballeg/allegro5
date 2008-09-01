@@ -94,7 +94,7 @@ static ALLEGRO_CONFIG_ENTRY *find_entry(ALLEGRO_CONFIG_ENTRY *section_head, AL_C
 static void get_key_and_value(char *buf, char *key, char *value)
 {
    char *p = skip_whitespace(buf);
-   int i, j;
+   int i;
 
    /* Error */
    if (*p == 0) {

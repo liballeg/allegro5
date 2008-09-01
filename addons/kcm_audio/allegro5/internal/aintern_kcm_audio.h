@@ -233,8 +233,10 @@ typedef enum {
 } AL_ERROR_ENUM;
 
 extern void _al_set_error(int error, char* string);
-extern int _al_audio_get_silence(ALLEGRO_AUDIO_DEPTH depth);
-extern void* _al_kcm_feed_stream(ALLEGRO_THREAD *self, void *vstream);
+
+/* Supposedly internal */
+A5_KCM_AUDIO_FUNC(int, _al_audio_get_silence, (ALLEGRO_AUDIO_DEPTH depth));
+A5_KCM_AUDIO_FUNC(void*, _al_kcm_feed_stream, (ALLEGRO_THREAD *self, void *vstream));
 
 #endif
 
