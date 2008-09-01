@@ -103,7 +103,11 @@ int main(int argc, char *argv[])
       src_bmp = (mem_src_mode) ? mem_bmp : bmp;
       k = (wide_mode) ? 2.0 : 1.0;
 
-      al_clear(al_map_rgba_f(1, 0, 0, 1));
+      if (mode == 0)
+         al_clear(al_map_rgba_f(1, 0, 0, 1));
+      else
+         al_clear(al_map_rgba_f(0, 0, 1, 1));
+
       al_draw_scaled_bitmap(src_bmp,
          0, 0, bmp_w, bmp_h,
          display_w/2, display_h/2,
@@ -112,7 +116,6 @@ int main(int argc, char *argv[])
 
       if (mode == 0) {
          al_set_target_bitmap(al_get_backbuffer());
-         al_clear(al_map_rgba_f(0, 0, 1, 1));
          al_draw_bitmap(buf, 0, 0, 0);
       }
 
