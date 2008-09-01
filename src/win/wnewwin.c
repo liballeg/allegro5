@@ -39,6 +39,8 @@ static ALLEGRO_DISPLAY *event_display = NULL;
 
 HWND _al_win_active_window = NULL;
 
+static bool resize_postponed = false;
+
 
 /*
  * Find the top left position of the client area of a window.
@@ -255,6 +257,25 @@ HWND _al_win_create_faux_fullscreen_window(LPCTSTR devname, ALLEGRO_DISPLAY *dis
 }
 
 
+static void postpone_thread_proc(void *arg)
+{
+   HWND window = (HWND)arg;
+
+   Sleep(500);
+
+   SendMessage(window, WM_USER+0, 0, 0);
+
+   resize_postponed = 0;
+}
+
+
+static void postpone_resize(HWND window)
+{
+   resize_postponed = 1;
+   _beginthread(postpone_thread_proc, 0, (void *)window);
+}
+
+
 static LRESULT CALLBACK window_callback(HWND hWnd, UINT message, 
     WPARAM wParam, LPARAM lParam)
 {
@@ -298,7 +319,6 @@ static LRESULT CALLBACK window_callback(HWND hWnd, UINT message,
       if (win)
          _AL_FREE(win);
       _al_vector_find_and_delete(&win_window_list, &win);
-      //SendMessage(_al_win_compat_wnd, _al_win_msg_suicide, 0, 0);
       DestroyWindow(hWnd);
       return 0;
    }
@@ -380,16 +400,13 @@ static LRESULT CALLBACK window_callback(HWND hWnd, UINT message,
                   break;
             }
             return 1;
-         //case WM_ACTIVATEAPP:
          case WM_ACTIVATE:
-            //if (wParam) {
             if (LOWORD(wParam) != WA_INACTIVE) {
                //if (al_set_current_display((ALLEGRO_DISPLAY *)d)) {
                _al_win_active_window = win->window;
                win_grab_input();
                if (d->vt->switch_in)
                	  d->vt->switch_in(d);
-	       //event_display = d;
                _al_event_source_lock(es);
                   if (_al_event_source_needs_to_generate_event(es)) {
                      ALLEGRO_EVENT *event = _al_event_source_get_unused_event(es);
@@ -401,7 +418,6 @@ static LRESULT CALLBACK window_callback(HWND hWnd, UINT message,
                   }
                _al_event_source_unlock(es);
                return 0;
-               //}
             }
             else {
                for (j = 0; j < win_window_list._size; j++) {
@@ -418,7 +434,6 @@ static LRESULT CALLBACK window_callback(HWND hWnd, UINT message,
                if (d->flags & ALLEGRO_FULLSCREEN) {
                   d->vt->switch_out(d);
                }
-               //_al_win_ungrab_input();
                _al_event_source_lock(es);
                   if (_al_event_source_needs_to_generate_event(es)) {
                      ALLEGRO_EVENT *event = _al_event_source_get_unused_event(es);
@@ -446,50 +461,56 @@ static LRESULT CALLBACK window_callback(HWND hWnd, UINT message,
             return 0;
          case WM_SIZE:
             if (wParam == SIZE_RESTORED || wParam == SIZE_MAXIMIZED) {// || wParam == SIZE_MINIMIZED) {
-               /* Generate a resize event if the size has changed. We cannot asynchronously
-                * change the display size here yet, since the user will only know about a
-                * changed size after receiving the resize event. Here we merely add the
-                * event to the queue.
+               /*
+                * Delay the resize event so we don't get bogged down with them
                 */
-               h = HIWORD(lParam);
-               w = LOWORD(lParam);
-               wi.cbSize = sizeof(WINDOWINFO);
-               GetWindowInfo(win->window, &wi);
-               x = wi.rcClient.left;
-               y = wi.rcClient.top;
-               if (d->w != w || d->h != h) {
-                  _al_event_source_lock(es);
-                  if (_al_event_source_needs_to_generate_event(es)) {
-                     ALLEGRO_EVENT *event = _al_event_source_get_unused_event(es);
-                     if (event) {
-                        event->display.type = ALLEGRO_EVENT_DISPLAY_RESIZE;
-                        event->display.timestamp = al_current_time();
-                        event->display.x = x;
-                        event->display.y = y;
-                        event->display.width = w;
-                        event->display.height = h;
-                        _al_event_source_emit_event(es, event);
-                     }
-                  }
-
-                  /* Generate an expose event. */
-                  if (_al_event_source_needs_to_generate_event(es)) {
-                     ALLEGRO_EVENT *event = _al_event_source_get_unused_event(es);
-                     if (event) {
-                        event->display.type = ALLEGRO_EVENT_DISPLAY_EXPOSE;
-                        event->display.timestamp = al_current_time();
-                        event->display.x = x;
-                        event->display.y = y;
-                        event->display.width = w;
-                        event->display.height = h;
-                        _al_event_source_emit_event(es, event);
-                     }
-                  }
-                  _al_event_source_unlock(es);
-               }
-               return 0;
+               if (!resize_postponed)
+                  postpone_resize(win->window);
             }
-            break;
+            return 0;
+         case WM_USER+0:
+            /* Generate a resize event if the size has changed. We cannot asynchronously
+             * change the display size here yet, since the user will only know about a
+             * changed size after receiving the resize event. Here we merely add the
+             * event to the queue.
+             */
+            h = HIWORD(lParam);
+            w = LOWORD(lParam);
+            wi.cbSize = sizeof(WINDOWINFO);
+            GetWindowInfo(win->window, &wi);
+            x = wi.rcClient.left;
+            y = wi.rcClient.top;
+            if (d->w != w || d->h != h) {
+               _al_event_source_lock(es);
+               if (_al_event_source_needs_to_generate_event(es)) {
+                  ALLEGRO_EVENT *event = _al_event_source_get_unused_event(es);
+                  if (event) {
+                     event->display.type = ALLEGRO_EVENT_DISPLAY_RESIZE;
+                     event->display.timestamp = al_current_time();
+                     event->display.x = x;
+                     event->display.y = y;
+                     event->display.width = w;
+                     event->display.height = h;
+                     _al_event_source_emit_event(es, event);
+                  }
+               }
+
+               /* Generate an expose event. */
+               if (_al_event_source_needs_to_generate_event(es)) {
+                  ALLEGRO_EVENT *event = _al_event_source_get_unused_event(es);
+                  if (event) {
+                     event->display.type = ALLEGRO_EVENT_DISPLAY_EXPOSE;
+                     event->display.timestamp = al_current_time();
+                     event->display.x = x;
+                     event->display.y = y;
+                     event->display.width = w;
+                     event->display.height = h;
+                     _al_event_source_emit_event(es, event);
+                  }
+               }
+               _al_event_source_unlock(es);
+            }
+            return 0;
       } 
    }
 
