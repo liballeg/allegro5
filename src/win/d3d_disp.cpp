@@ -227,9 +227,9 @@ static bool d3d_parameters_are_valid(int format, int refresh_rate, int flags)
 
 static DWORD d3d_get_filter(AL_CONST char *s)
 {
-   if (strstr(s, "linear"))
+   if (!stricmp(s, "LINEAR"))
       return D3DTEXF_LINEAR;
-   if (strstr(s, "anisotropic"))
+   if (!stricmp(s, "ANISOTROPIC"))
       return D3DTEXF_ANISOTROPIC;
    return D3DTEXF_POINT;
 }

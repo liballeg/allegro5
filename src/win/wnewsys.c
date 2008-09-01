@@ -186,9 +186,9 @@ static ALLEGRO_DISPLAY_INTERFACE *win_get_display_driver(void)
    if (sys->config) {
       s = al_config_get_value(sys->config, "gfx", "driver");
       if (s) {
-         if (strstr(s, "opengl"))
+         if (!stricmp(s, "OPENGL"))
             return _al_display_wgl_driver();
-         else if (strstr(s, "direct3d"))
+         else if (!stricmp(s, "DIRECT3D") || !stricmp(s, "D3D"))
             return _al_display_d3d_driver();
       }
    }
