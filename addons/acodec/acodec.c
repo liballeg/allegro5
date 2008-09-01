@@ -43,7 +43,14 @@ ALLEGRO_SAMPLE_DATA *al_load_sample(const char *filename)
 }
 
 
-ALLEGRO_STREAM *al_load_stream(const char *filename)
+/* al_stream_from_file:
+ * Unlike a regular stream, a stream created with al_stream_from_file() doesn't
+ * have to be fed by the user. Instead, it will be fed as needed by acodec
+ * addon, progressively reading a file from the disk. When the stream finishes
+ * the ALLEGRO_AUDIOPROP_PLAYING field will be set to false.
+ */
+ALLEGRO_STREAM *al_stream_from_file(size_t buffer_count, unsigned long samples,
+                                    const char *filename)
 {
    const char *ext;
 
@@ -56,14 +63,14 @@ ALLEGRO_STREAM *al_load_stream(const char *filename)
    ext++;   /* skip '.' */
    #if defined(ALLEGRO_CFG_ACODEC_VORBIS)
       if (stricmp("ogg", ext) == 0) {
-         return al_load_stream_oggvorbis(filename);
+         return  al_load_stream_oggvorbis(buffer_count, samples, filename);
       }
    #endif
-   
+
    #if defined(ALLEGRO_CFG_ACODEC_FLAC)
       if (stricmp("flac", ext) == 0) {
-      /* Disabled until flac streaming is implemented */
-      /*   return al_load_stream_flac(filename); */
+         /* Disabled until flac streaming is implemented */
+         //return al_load_stream_flac(buffer_count, samples, filename);
       }
    #endif
 
@@ -72,9 +79,11 @@ ALLEGRO_STREAM *al_load_stream(const char *filename)
          stricmp("aiff", ext) == 0 ||
          stricmp("flac", ext) == 0)
       {
-         return al_load_stream_sndfile(filename);
+         return al_load_stream_sndfile(buffer_count, samples, filename);
       }
    #endif
+
+   TRACE("Error creating ALLEGRO_STREAM from '%s'.\n", filename);
 
    return NULL;
 }

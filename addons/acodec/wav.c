@@ -114,18 +114,18 @@ ALLEGRO_SAMPLE_DATA *al_load_sample_sndfile(const char *filename)
 static bool _sndfile_stream_update(ALLEGRO_STREAM *stream, void *data,
    unsigned long buf_size)
 {
-/* TODO: implement streaming */
-#if 0
    int bytes_per_sample, samples, num_read, bytes_read, silence;
+   ALLEGRO_AUDIO_DEPTH depth = stream->spl.spl_data.depth;
 
-   SNDFILE* sndfile = (SNDFILE*) stream->ex_data;
-   bytes_per_sample = al_audio_channel_count(stream->chan_conf) * al_audio_depth_size(stream->depth);
+   SNDFILE* sndfile = (SNDFILE*) stream->extra;
+   bytes_per_sample = al_channel_count(stream->spl.spl_data.chan_conf)
+                    * al_depth_size(depth);
    samples = buf_size / bytes_per_sample;
 
-   if (stream->depth == ALLEGRO_AUDIO_DEPTH_INT16) {
+   if (depth == ALLEGRO_AUDIO_DEPTH_INT16) {
       num_read = sf_readf_short(sndfile, data, samples);
    }
-   else if (stream->depth == ALLEGRO_AUDIO_DEPTH_FLOAT32) {
+   else if (depth == ALLEGRO_AUDIO_DEPTH_FLOAT32) {
       num_read = sf_readf_float(sndfile, data, samples);
    }
    else {
@@ -133,35 +133,37 @@ static bool _sndfile_stream_update(ALLEGRO_STREAM *stream, void *data,
    }
 
    if (num_read == samples)
-      return true;
+      return false;
 
    /* out of data */
-   bytes_read = num_read*bytes_per_sample;
-   silence = _al_audio_get_silence(stream->depth);
+   bytes_read = num_read * bytes_per_sample;
+   silence = _al_audio_get_silence(depth);
    memset((char*)data + bytes_read, silence, buf_size - bytes_read);
-   return false;
-#endif
-   return false;
+
+   /* stream is dry */
+   return true;
 }
 
 
 static void _sndfile_stream_close(ALLEGRO_STREAM *stream)
 {
-/* TODO: implement streaming */
-#if 0
-   SNDFILE* sndfile = (SNDFILE*) stream->ex_data;
+   SNDFILE* sndfile = (SNDFILE*) stream->extra;
+
+   stream->quit_feed_thread = true;
+   al_join_thread(stream->feed_thread, NULL);
+   al_destroy_thread(stream->feed_thread);
+
    sf_close(sndfile);
-   stream->ex_data = NULL;
+   stream->extra = NULL;
    return;
-#endif
 }
 
 
-ALLEGRO_STREAM *al_load_stream_sndfile(const char *filename)
+ALLEGRO_STREAM *al_load_stream_sndfile(size_t buffer_count,
+                                       unsigned long samples,
+                                       const char *filename)
 {
-/* TODO: implement streaming */
-#if 0
-   ALLEGRO_AUDIO_ENUM depth; 
+   ALLEGRO_AUDIO_DEPTH depth;
    SF_INFO sfinfo;
    SNDFILE* sndfile;
    int word_size;
@@ -171,20 +173,20 @@ ALLEGRO_STREAM *al_load_stream_sndfile(const char *filename)
    long total_size;
    short* buffer;
    ALLEGRO_STREAM* stream;
-   
+
    sfinfo.format = 0;
-   sndfile = sf_open(filename, SFM_READ, &sfinfo); 
+   sndfile = sf_open(filename, SFM_READ, &sfinfo);
 
    if (sndfile == NULL)
       return NULL;
 
    /* supports 16-bit, 32-bit (and float) */
    word_size = 0;
-   depth = _get_depth_enum(sfinfo.format,&word_size);  
+   depth = _get_depth_enum(sfinfo.format, &word_size);
    channels = sfinfo.channels;
    rate = sfinfo.samplerate;
    total_samples = sfinfo.frames;
-   total_size = total_samples * channels * word_size; 
+   total_size = total_samples * channels * word_size;
 
    fprintf(stderr, "loaded sample %s with properties:\n",filename);
    fprintf(stderr, "	channels %d\n",channels);
@@ -192,7 +194,7 @@ ALLEGRO_STREAM *al_load_stream_sndfile(const char *filename)
    fprintf(stderr, "	rate %ld\n",rate);
    fprintf(stderr, "	total_samples %ld\n",total_samples);
    fprintf(stderr, "	total_size %ld\n",total_size);
-   
+
    buffer = (short*) malloc(total_size);
    if (buffer == NULL)
    {
@@ -200,15 +202,16 @@ ALLEGRO_STREAM *al_load_stream_sndfile(const char *filename)
       return NULL;
    }
 
-   stream = al_stream_create(rate,
-	 depth,
-	 _al_count_to_channel_conf(channels),
-	 _sndfile_stream_update, _sndfile_stream_close);
+   stream = al_stream_create(buffer_count, samples, rate, depth,
+                             _al_count_to_channel_conf(channels));
 
-   stream->ex_data = sndfile;
+   stream->extra = sndfile;
+   stream->feed_thread = al_create_thread(_al_kcm_feed_stream, stream);
+   stream->quit_feed_thread = false;
+   stream->feeder = _sndfile_stream_update;
+   al_start_thread(stream->feed_thread);
+
    return stream;
-#endif
-   return NULL;
 }
 
 

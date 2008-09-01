@@ -150,6 +150,9 @@ void _al_kcm_stream_set_mutex(ALLEGRO_SAMPLE *stream, ALLEGRO_MUTEX *mutex);
 void _al_kcm_detach_from_parent(ALLEGRO_SAMPLE *spl);
 
 
+typedef bool (*stream_callback_t)(ALLEGRO_STREAM *, void *, unsigned long);
+
+
 struct ALLEGRO_STREAM {
    ALLEGRO_SAMPLE       spl;
                         /* ALLEGRO_STREAM is derived from ALLEGRO_SAMPLE. */
@@ -177,6 +180,18 @@ struct ALLEGRO_STREAM {
                          * have been sent to the audio driver and so are
                          * ready to receive new data.
                          */
+
+   ALLEGRO_THREAD        *feed_thread;
+   volatile bool         quit_feed_thread;
+   stream_callback_t     feeder;
+                         /* If ALLEGRO_STREAM has been created by
+                          * al_stream_from_file(), acodec will be feeding the stream
+                          * from a feeding thread using the 'feeder' callback. Such
+                          * streams don't need to be fed by the user.
+                          */
+
+   void                  *extra;
+                         /* Extra data for use by acodec. */
 };
 
 bool _al_kcm_refill_stream(ALLEGRO_STREAM *stream);
@@ -219,6 +234,7 @@ typedef enum {
 
 extern void _al_set_error(int error, char* string);
 extern int _al_audio_get_silence(ALLEGRO_AUDIO_DEPTH depth);
+extern void* _al_kcm_feed_stream(ALLEGRO_THREAD *self, void *vstream);
 
 #endif
 

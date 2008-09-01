@@ -125,6 +125,7 @@ addons.do_build(
     includes = ['#addons/kcm_audio','#addons/acodec'],
     examples = [('ex_acodec',['ex_acodec.c']),
      ('ex_acodec_multi',['ex_acodec_multi.c']),
+     ('ex_stream_file',['ex_stream_file.c'])
 #     ('ex_acodec_stream',['ex_acodec_stream.c'])
     ],
     example_libs = [context.libraryName('kcm_audio')],

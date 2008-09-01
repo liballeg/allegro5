@@ -448,8 +448,59 @@ bool _al_kcm_refill_stream(ALLEGRO_STREAM *stream)
       return false;
 
    stream->spl.pos -= stream->spl.spl_data.len;
+
    return true;
 }
 
+
+/* _al_kcm_feed_stream:
+ * A routine running in another thread that feeds the stream buffers as
+ * neccesary, usually getting data from some acodec file reader backend.
+ */
+void *_al_kcm_feed_stream(ALLEGRO_THREAD *self, void *vstream)
+{
+   ALLEGRO_STREAM *stream = vstream;
+
+   while (!stream->quit_feed_thread) {
+      void *vbuf;
+      unsigned long vbuf_waiting_count;
+      unsigned long bytes;
+      bool is_dry;
+
+      if (al_stream_get_long(stream, ALLEGRO_AUDIOPROP_USED_FRAGMENTS,
+                             &vbuf_waiting_count) != 0) {
+         TRACE("Error getting the number of waiting buffers.\n");
+         return NULL;
+      }
+
+      if (vbuf_waiting_count == 0) {
+         al_rest(0.05); /* Precalculate some optimal value? */
+         continue;
+      }
+
+      if (al_stream_get_ptr(stream, ALLEGRO_AUDIOPROP_BUFFER, &vbuf) != 0) {
+         TRACE("Error getting the stream buffers.\n");
+         return NULL;
+      }
+
+      bytes = (stream->spl.spl_data.len >> MIXER_FRAC_SHIFT) *
+              al_channel_count(stream->spl.spl_data.chan_conf) *
+              al_depth_size(stream->spl.spl_data.depth);
+
+      is_dry = stream->feeder(stream, vbuf, bytes);
+
+      if (al_stream_set_ptr(stream, ALLEGRO_AUDIOPROP_BUFFER, vbuf) != 0) {
+         TRACE("Error setting stream buffer.\n");
+         return NULL;
+      }
+
+      if (is_dry) {
+         al_stream_set_bool(stream, ALLEGRO_AUDIOPROP_PLAYING, false);
+         return NULL;
+      }
+   }
+
+   return NULL;
+}
 
 /* vim: set sts=3 sw=3 et: */
