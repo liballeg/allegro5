@@ -1181,8 +1181,6 @@ End:
       win_disp->window = NULL;
    }
 
-   _al_win_delete_thread_handle(GetCurrentThreadId());
-
    TRACE("wgl display thread exits\n");
    wgl_disp->thread_ended = true;
 }

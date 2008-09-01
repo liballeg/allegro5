@@ -1280,8 +1280,6 @@ End:
        TRACE("Res changed back\n");
    }
 
-   _al_win_delete_thread_handle(GetCurrentThreadId());
-
    d3d_display->thread_ended = true;
 
    TRACE("d3d display thread exits\n");

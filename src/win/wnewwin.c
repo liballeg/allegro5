@@ -28,7 +28,6 @@
 
 static ATOM window_identifier;
 static WNDCLASS window_class;
-static _AL_VECTOR thread_handles = _AL_VECTOR_INITIALIZER(DWORD);
 
 /* We have to keep track of windows some how */
 typedef struct WIN_WINDOW {
@@ -90,9 +89,6 @@ HWND _al_win_create_window(ALLEGRO_DISPLAY *display, int width, int height, int 
    WINDOWINFO wi;
    int bw, bh;
 
-
-   /* Save the thread handle for later use */
-   *((DWORD *)_al_vector_alloc_back(&thread_handles)) = GetCurrentThreadId();
 
    if (!(flags & ALLEGRO_FULLSCREEN)) {
       if  (flags & ALLEGRO_RESIZABLE) {
@@ -220,9 +216,6 @@ HWND _al_win_create_faux_fullscreen_window(LPCTSTR devname, ALLEGRO_DISPLAY *dis
    DEVMODE mode;
    LONG temp;
 
-   /* Save the thread handle for later use */
-   *((DWORD *)_al_vector_alloc_back(&thread_handles)) = GetCurrentThreadId();
-
    style = WS_VISIBLE;
    ex_style = WS_EX_TOPMOST;
 
@@ -261,11 +254,6 @@ HWND _al_win_create_faux_fullscreen_window(LPCTSTR devname, ALLEGRO_DISPLAY *dis
    return my_window;
 }
 
-/* This must be called by Windows drivers after their window is deleted */
-void _al_win_delete_thread_handle(DWORD handle)
-{
-   _al_vector_find_and_delete(&thread_handles, &handle);
-}
 
 static LRESULT CALLBACK window_callback(HWND hWnd, UINT message, 
     WPARAM wParam, LPARAM lParam)
@@ -416,27 +404,32 @@ static LRESULT CALLBACK window_callback(HWND hWnd, UINT message,
                //}
             }
             else {
-               if (_al_vector_find(&thread_handles, &lParam) < 0) {
-                  /*
-                   * Device can be lost here, so
-                   * backup textures.
-                   */
-                  if (d->flags & ALLEGRO_FULLSCREEN) {
-                     d->vt->switch_out(d);
+               for (j = 0; j < win_window_list._size; j++) {
+                  WIN_WINDOW **wptr = _al_vector_ref(&win_window_list, j);
+                  win = *wptr;
+                  if (win->window == (HWND)lParam) {
+                     break;
                   }
-                  //_al_win_ungrab_input();
-                  _al_event_source_lock(es);
-                     if (_al_event_source_needs_to_generate_event(es)) {
-                        ALLEGRO_EVENT *event = _al_event_source_get_unused_event(es);
-                        if (event) {
-                           event->display.type = ALLEGRO_EVENT_DISPLAY_SWITCH_OUT;
-                           event->display.timestamp = al_current_time();
-                           _al_event_source_emit_event(es, event);
-                        }
-                     }
-                  _al_event_source_unlock(es);
-                  return 0;
                }
+
+               if (j == win_window_list._size)
+                  _al_win_ungrab_input();
+
+               if (d->flags & ALLEGRO_FULLSCREEN) {
+                  d->vt->switch_out(d);
+               }
+               //_al_win_ungrab_input();
+               _al_event_source_lock(es);
+                  if (_al_event_source_needs_to_generate_event(es)) {
+                     ALLEGRO_EVENT *event = _al_event_source_get_unused_event(es);
+                     if (event) {
+                        event->display.type = ALLEGRO_EVENT_DISPLAY_SWITCH_OUT;
+                        event->display.timestamp = al_current_time();
+                        _al_event_source_emit_event(es, event);
+                     }
+                  }
+               _al_event_source_unlock(es);
+               return 0;
             }
             break;
          case WM_CLOSE:

@@ -27,8 +27,6 @@ struct ALLEGRO_SYSTEM_WIN
 
 AL_VAR(ALLEGRO_SYSTEM_WIN *, _al_win_system);
 
-void _al_win_delete_thread_handle(DWORD handle);
-
 HWND _al_win_create_window(ALLEGRO_DISPLAY *display, int width, int height, int flags);
 HWND _al_win_create_faux_fullscreen_window(LPCTSTR devname, ALLEGRO_DISPLAY *display,
 	int x1, int y1, int width, int height, int refresh_rate, int flags);
