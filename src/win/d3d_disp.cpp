@@ -1860,6 +1860,8 @@ static bool d3d_resize_display(ALLEGRO_DISPLAY *d, int width, int height)
          win_size.bottom-win_size.top,
          SWP_NOMOVE|SWP_NOZORDER)) != 0;
 
+      PostMessage(win_display->window, WM_USER+0, 0, 0);
+
       /*
        * The clipping rectangle and bitmap size must be
        * changed to match the new size.

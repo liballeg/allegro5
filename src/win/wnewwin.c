@@ -53,6 +53,8 @@ void _al_win_get_window_pos(HWND window, RECT *pos)
    int left;
    WINDOWINFO wi;
 
+   wi.cbSize = sizeof(WINDOWINFO);
+
    GetWindowRect(window, &with_decorations);
    memcpy(&adjusted, &with_decorations, sizeof(RECT));
 
@@ -91,6 +93,7 @@ HWND _al_win_create_window(ALLEGRO_DISPLAY *display, int width, int height, int 
    WINDOWINFO wi;
    int bw, bh;
 
+   wi.cbSize = sizeof(WINDOWINFO);
 
    if (!(flags & ALLEGRO_FULLSCREEN)) {
       if  (flags & ALLEGRO_RESIZABLE) {
@@ -291,6 +294,8 @@ static LRESULT CALLBACK window_callback(HWND hWnd, UINT message,
    ALLEGRO_SYSTEM *system = al_system_driver();
    WIN_WINDOW *win = NULL;
 
+   wi.cbSize = sizeof(WINDOWINFO);
+
    if (message == _al_win_msg_call_proc) {
       return ((int (*)(void))wParam) ();
    }
@@ -339,7 +344,6 @@ static LRESULT CALLBACK window_callback(HWND hWnd, UINT message,
                   LPRGNDATA rgndata;
                   int n;
                   RECT *rects;
-                  WINDOWINFO wi;
                   BeginPaint(win->window, &ps);
                   size = GetRegionData(hrgn, 0, NULL);
                   rgndata = _AL_MALLOC(size);
@@ -460,7 +464,7 @@ static LRESULT CALLBACK window_callback(HWND hWnd, UINT message,
             _al_event_source_unlock(es);
             return 0;
          case WM_SIZE:
-            if (wParam == SIZE_RESTORED || wParam == SIZE_MAXIMIZED) {// || wParam == SIZE_MINIMIZED) {
+            if (wParam == SIZE_RESTORED || wParam == SIZE_MAXIMIZED || wParam == SIZE_MINIMIZED) {
                /*
                 * Delay the resize event so we don't get bogged down with them
                 */
@@ -474,13 +478,12 @@ static LRESULT CALLBACK window_callback(HWND hWnd, UINT message,
              * changed size after receiving the resize event. Here we merely add the
              * event to the queue.
              */
-            h = HIWORD(lParam);
-            w = LOWORD(lParam);
-            wi.cbSize = sizeof(WINDOWINFO);
             GetWindowInfo(win->window, &wi);
             x = wi.rcClient.left;
             y = wi.rcClient.top;
-            if (d->w != w || d->h != h) {
+            w = wi.rcClient.right - wi.rcClient.left;
+            h = wi.rcClient.bottom - wi.rcClient.top;
+            //if (d->w != w || d->h != h) {
                _al_event_source_lock(es);
                if (_al_event_source_needs_to_generate_event(es)) {
                   ALLEGRO_EVENT *event = _al_event_source_get_unused_event(es);
@@ -509,7 +512,7 @@ static LRESULT CALLBACK window_callback(HWND hWnd, UINT message,
                   }
                }
                _al_event_source_unlock(es);
-            }
+            //}
             return 0;
       } 
    }

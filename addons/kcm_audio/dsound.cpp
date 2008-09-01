@@ -288,7 +288,7 @@ static int _dsound_load_voice(ALLEGRO_VOICE *voice, const void *data)
    ex_data->wave_fmt.cbSize = 0;
 
    ex_data->desc.dwSize = sizeof(DSBUFFERDESC);
-   ex_data->desc.dwFlags = DSBCAPS_LOCSOFTWARE; /* FIXME: software mixing for now */
+   ex_data->desc.dwFlags = DSBCAPS_LOCSOFTWARE | DSBCAPS_GLOBALFOCUS; /* FIXME: software mixing for now */
    ex_data->desc.dwBufferBytes = voice->buffer_size;
    ex_data->desc.dwReserved = 0;
    ex_data->desc.lpwfxFormat = &ex_data->wave_fmt;
@@ -352,7 +352,7 @@ static int _dsound_start_voice(ALLEGRO_VOICE *voice)
       ex_data->wave_fmt.cbSize = 0;
 
       ex_data->desc.dwSize = sizeof(DSBUFFERDESC);
-      ex_data->desc.dwFlags = DSBCAPS_LOCSOFTWARE; /* FIXME: software mixing for now */
+      ex_data->desc.dwFlags = DSBCAPS_LOCSOFTWARE | DSBCAPS_GLOBALFOCUS; /* FIXME: software mixing for now */
       ex_data->desc.dwBufferBytes = BUFSIZE;
       ex_data->desc.dwReserved = 0;
       ex_data->desc.lpwfxFormat = &ex_data->wave_fmt;
