@@ -253,10 +253,11 @@ static void display_pixel_format(OGL_PIXEL_FORMAT *pf) {
 #endif
 
 
-static void deduce_color_format(OGL_PIXEL_FORMAT *pf)
+static bool deduce_color_format(OGL_PIXEL_FORMAT *pf)
 {
-   /* FIXME: complete this with all formats */
-   /* XXX REVEIW: someone check this!!! */
+   /* dummy value to check if the format was detected */
+   pf->format = ALLEGRO_PIXEL_FORMAT_ANY_NO_ALPHA;
+
    if (pf->r_size == 8 && pf->g_size == 8 && pf->b_size == 8) {
       if (pf->a_size == 8 && pf->color_size == 32) {
          if (pf->a_shift == 0 && pf->b_shift == 8 && pf->g_shift == 16 && pf->r_shift == 24) {
@@ -295,31 +296,10 @@ static void deduce_color_format(OGL_PIXEL_FORMAT *pf)
       }
    }
 
+   if (pf->format == ALLEGRO_PIXEL_FORMAT_ANY_NO_ALPHA)
+      return false;
 
-   /*pf->colour_depth = 0;
-   if (pf->pixel_size.rgba.r == 5 && pf->pixel_size.rgba.b == 5) {
-      if (pf->pixel_size.rgba.g == 5)
-         pf->colour_depth = 15;
-      if (pf->pixel_size.rgba.g == 6)
-         pf->colour_depth = 16;
-   }
-   if (pf->pixel_size.rgba.r == 8 && pf->pixel_size.rgba.g == 8 && pf->pixel_size.rgba.b == 8) {
-      if (pf->pixel_size.rgba.a == 8)
-         pf->colour_depth = 32;
-      else
-         pf->colour_depth = 24;
-   }*/
-
-   /* FIXME: this is suppsed to tell if the pixel format is compatible with allegro's
-    * color format, but this code was originally for 4.2.
-    */
-   /*
-   pf->allegro_format =
-         (pf->colour_depth != 0)
-      && (pf->g_shift == pf->pixel_size.rgba.b)
-      && (pf->r_shift * pf->b_shift == 0)
-      && (pf->r_shift + pf->b_shift == pf->pixel_size.rgba.b + pf->pixel_size.rgba.g);
-   */
+   return true;
 }
 
 
@@ -381,7 +361,10 @@ static int decode_pixel_format_old(PIXELFORMATDESCRIPTOR *pfd, OGL_PIXEL_FORMAT 
 
    /* FIXME: there is other, potetialy usefull, info in pfd. */
 
-   deduce_color_format(pf);
+   if (!deduce_color_format(pf)) {
+      TRACE(PREFIX_I "Color format not supported by allegro.\n");
+      return false;
+   }
 
 	return true;
 }
@@ -507,7 +490,11 @@ static bool decode_pixel_format_attrib(OGL_PIXEL_FORMAT *pf, int num_attribs,
 
    /* Setting some things based on what we've read out of the PFD. */
 
-   deduce_color_format(pf);
+   if (deduce_color_format(pf)) {
+      TRACE(PREFIX_I "Color format not supported by allegro.\n");
+      return false;
+   }
+
 
    return true;
 }
@@ -854,7 +841,8 @@ static bool select_pixel_format(ALLEGRO_DISPLAY_WGL *d, HDC dc) {
    bool want_sb = ((ALLEGRO_DISPLAY *) d)->flags & ALLEGRO_SINGLEBUFFER;
    int maxindex = 0;
    int i;
-   bool set_it = false;
+   int pf_index_fallback = -1;
+   int pf_index = -1;
 
    /* XXX
     * The correct and more logical way would be to first try the more
@@ -876,30 +864,44 @@ static bool select_pixel_format(ALLEGRO_DISPLAY_WGL *d, HDC dc) {
       /* TODO: implement a choice system (scoring?) */
       if (pf
          && pf->doublebuffered == !want_sb
-         && pf->rmethod
          && _al_pixel_format_fits(pf->format, format)
          && pf->float_color == 0
          && pf->float_depth == 0
          && pf->sample_buffers == 0) {
-         if (try_to_set_pixel_format(i)) {
-            PIXELFORMATDESCRIPTOR pdf;
-            TRACE(PREFIX_I "select_pixel_format(): Chose visual no. %i\n\n", i);
-#ifdef DEBUGMODE
-            display_pixel_format(pf);
-#endif
-            if (!SetPixelFormat(d->dc, i, &pdf)) {
-               log_win32_error("select_pixel_format", "Unable to set pixel format!",
-                      GetLastError());
-            }
-            set_it = true;
-            break;
+
+         if (pf->rmethod && pf_index == -1) {
+            pf_index = i;
          }
+         else if (!pf->rmethod && !pf_index_fallback == -1) {
+            pf_index_fallback = i;
+         }
+
+         /* we chose our pixels formats */
+         if (pf_index != -1 && pf_index_fallback != -1)
+            break;
       }
    }
 
-   if (!set_it) {
-      TRACE(PREFIX_E "Couldn't find a suitable pixel format");
+   if (pf_index == -1 && pf_index_fallback == -1) {
+      TRACE(PREFIX_E "Couldn't find a suitable pixel format\n");
       return false;
+   }
+
+   if (pf_index == -1 && pf_index_fallback != -1)
+      pf_index = pf_index_fallback;
+
+   if (try_to_set_pixel_format(pf_index)) {
+      OGL_PIXEL_FORMAT *pf = pf_list[pf_index - 1];
+      PIXELFORMATDESCRIPTOR pdf;
+
+      TRACE(PREFIX_I "select_pixel_format(): Chose visual no. %i\n\n", pf_index);
+#ifdef DEBUGMODE
+      display_pixel_format(pf);
+#endif
+      if (!SetPixelFormat(d->dc, pf_index, &pdf)) {
+         log_win32_error("select_pixel_format", "Unable to set pixel format!",
+                GetLastError());
+      }
    }
 
    for (i = 0; i < maxindex; i++)
