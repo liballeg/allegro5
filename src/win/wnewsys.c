@@ -180,6 +180,18 @@ static void win_shutdown(void)
 static ALLEGRO_DISPLAY_INTERFACE *win_get_display_driver(void)
 {
    int flags = al_get_new_display_flags();
+   ALLEGRO_SYSTEM *sys = al_system_driver();
+   AL_CONST char *s;
+
+   if (sys->config) {
+      s = al_config_get_value(sys->config, "gfx", "driver");
+      if (s) {
+         if (strstr(s, "opengl"))
+            return _al_display_wgl_driver();
+         else if (strstr(s, "direct3d"))
+            return _al_display_d3d_driver();
+      }
+   }
 
    if (flags & ALLEGRO_OPENGL) {
 #if defined ALLEGRO_CFG_OPENGL
