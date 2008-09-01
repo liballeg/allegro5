@@ -267,14 +267,11 @@ static void postpone_thread_proc(void *arg)
    Sleep(500);
 
    SendMessage(window, WM_USER+0, 0, 0);
-
-   resize_postponed = 0;
 }
 
 
 static void postpone_resize(HWND window)
 {
-   resize_postponed = 1;
    _beginthread(postpone_thread_proc, 0, (void *)window);
 }
 
@@ -468,8 +465,10 @@ static LRESULT CALLBACK window_callback(HWND hWnd, UINT message,
                /*
                 * Delay the resize event so we don't get bogged down with them
                 */
-               if (!resize_postponed)
+               if (!resize_postponed) {
+                  resize_postponed = true;
                   postpone_resize(win->window);
+               }
             }
             return 0;
          case WM_USER+0:
@@ -483,7 +482,7 @@ static LRESULT CALLBACK window_callback(HWND hWnd, UINT message,
             y = wi.rcClient.top;
             w = wi.rcClient.right - wi.rcClient.left;
             h = wi.rcClient.bottom - wi.rcClient.top;
-            //if (d->w != w || d->h != h) {
+            if (d->w != w || d->h != h) {
                _al_event_source_lock(es);
                if (_al_event_source_needs_to_generate_event(es)) {
                   ALLEGRO_EVENT *event = _al_event_source_get_unused_event(es);
@@ -512,7 +511,8 @@ static LRESULT CALLBACK window_callback(HWND hWnd, UINT message,
                   }
                }
                _al_event_source_unlock(es);
-            //}
+               resize_postponed = false;
+            }
             return 0;
       } 
    }
