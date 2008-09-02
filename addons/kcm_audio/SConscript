@@ -71,6 +71,7 @@ if can_build:
             "allegro5/kcm_audio.h",
             "allegro5/internal/aintern_kcm_audio.h",
             "aintern_kcm_cfg.h"],
-        configs = configs)
+        configs = configs,
+        examples = [("ex_saw", ["ex_saw.c"])])
 
 Return("can_build")
