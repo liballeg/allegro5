@@ -8,8 +8,13 @@
 
 #include "allegro5/allegro.h"
 
+#ifdef ALLEGRO_MACOSX
+#include <OpenAL/al.h>
+#include <OpenAL/alc.h>
+#else /* ALLEGRO_MACOSX */
 #include <al.h>
 #include <alc.h>
+#endif /* ALLEGRO_MACOSX */
 
 #include "allegro5/internal/aintern.h"
 #include "allegro5/internal/aintern_thread.h"
