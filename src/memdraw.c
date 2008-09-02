@@ -391,6 +391,9 @@ do {                                                                         \
 } while (0)
 
 
+/* Coordinates are inclusive full-pixel positions. So (0, 0, 0, 0) draws a
+ * single pixel at 0/0.
+ */
 void _al_draw_rectangle_memory_fast(int x1, int y1, int x2, int y2,
    ALLEGRO_COLOR *color, int flags)
 {
@@ -422,26 +425,14 @@ void _al_draw_rectangle_memory_fast(int x1, int y1, int x2, int y2,
       y2 = tmp;
    }
 
+   /* Do clipping */
+   if (x1 < bitmap->cl) x1 = bitmap->cl;
+   if (y1 < bitmap->ct) y1 = bitmap->ct;
+   if (x2 > bitmap->cr - 1) x2 = bitmap->cr - 1;
+   if (y2 > bitmap->cb - 1) y2 = bitmap->cb - 1;
+
    w = x2 - x1 + 1;
    h = y2 - y1 + 1;
-
-   /* Do clipping */
-   if (x1 < bitmap->cl) {
-      w -= (bitmap->cl - x1);
-      x1 = bitmap->cl;
-   }
-   if (y1 < bitmap->ct) {
-      h -= (bitmap->ct - y1);
-      y1 = bitmap->ct;
-   }
-   if (x2 > bitmap->cr) {
-      w -= (x2 - bitmap->cr);
-      x2 = bitmap->cr;
-   }
-   if (y2 > bitmap->cb) {
-      h -= (y2 - bitmap->cb);
-      y2 = bitmap->cb;
-   }
 
    if (w <= 0 || h <= 0)
       return;
@@ -768,18 +759,10 @@ void _al_draw_rectangle_memory(int x1, int y1, int x2, int y2,
    }
 
    /* Do clipping */
-   if (x1 < bitmap->cl) {
-      x1 = bitmap->cl;
-   }
-   if (y1 < bitmap->ct) {
-      y1 = bitmap->ct;
-   }
-   if (x2 > bitmap->cr) {
-      x2 = bitmap->cr;
-   }
-   if (y2 > bitmap->cb) {
-      y2 = bitmap->cb;
-   }
+   if (x1 < bitmap->cl) x1 = bitmap->cl;
+   if (y1 < bitmap->ct) y1 = bitmap->ct;
+   if (x2 > bitmap->cr - 1) x2 = bitmap->cr - 1;
+   if (y2 > bitmap->cb - 1) y2 = bitmap->cb - 1;
 
    w = x2 - x1 + 1;
    h = y2 - y1 + 1;
