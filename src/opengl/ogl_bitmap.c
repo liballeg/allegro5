@@ -296,15 +296,7 @@ static bool ogl_upload_bitmap(ALLEGRO_BITMAP *bitmap, int x, int y,
     */
    if (ogl_bitmap->fbo == 0 && !(bitmap->flags & ALLEGRO_FORCE_LOCKING)) {
       if (al_get_opengl_extension_list()->ALLEGRO_GL_EXT_framebuffer_object) {
-
-         /* Note: I had a buggy nvidia driver which would just malfunction
-          * after around 170 FBOs were allocated.. but not much we can do
-          * against driver bugs like that. We should have a way to disable
-          * use of individual OpenGL extensions though I guess.
-          */
-         if (ogl_bitmap->fbo == 0) {
-            glGenFramebuffersEXT(1, &ogl_bitmap->fbo);
-         }
+         glGenFramebuffersEXT(1, &ogl_bitmap->fbo);
       }
    }
 
