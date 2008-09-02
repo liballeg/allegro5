@@ -183,6 +183,19 @@ static ALLEGRO_DISPLAY_INTERFACE *win_get_display_driver(void)
    ALLEGRO_SYSTEM *sys = al_system_driver();
    AL_CONST char *s;
 
+   if (flags & ALLEGRO_DIRECT3D) {
+#if defined ALLEGRO_CFG_D3D
+      return _al_display_d3d_driver();
+#endif
+      return NULL;
+   }
+   else if (flags & ALLEGRO_OPENGL) {
+#if defined ALLEGRO_CFG_OPENGL
+      return _al_display_wgl_driver();
+#endif
+      return NULL;
+   }
+
    if (sys->config) {
       s = al_config_get_value(sys->config, "gfx", "driver");
       if (s) {
@@ -193,26 +206,14 @@ static ALLEGRO_DISPLAY_INTERFACE *win_get_display_driver(void)
       }
    }
 
-   if (flags & ALLEGRO_OPENGL) {
-#if defined ALLEGRO_CFG_OPENGL
-      return _al_display_wgl_driver();
-#endif
-   }
-   else {
 #if defined ALLEGRO_CFG_D3D
       return _al_display_d3d_driver();
 #endif
-   }
-
-
-   /* FIXME: should default be set in the flags? */
-#if defined ALLEGRO_CFG_D3D
-   return _al_display_d3d_driver();
-#elif defined ALLEGRO_CFG_OPENGL
-   return _al_display_wgl_driver();
-#else
-   #error Neither ALLEGRO_CFG_D3D or ALLEGRO_CFG_OPENGL are defined!
+#if defined ALLEGRO_CFG_OPENGL
+      return _al_display_wgl_driver();
 #endif
+
+   return NULL;
 }
 
 /* FIXME: use the list */
