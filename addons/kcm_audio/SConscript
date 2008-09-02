@@ -1,23 +1,25 @@
 Import("context")
-import addons, helpers
+import addons, helpers, os
 
 configs = []
 
 def CheckOpenAL(context):
     context.Message("Checking for OpenAL... ")
 
-    ret = context.TryAction('openal-config --cflags --libs')[0]
+    ret = context.TryAction('openal-config --libs')[0]
     if ret:
-        tmpEnv = context.env.Clone()
-        context.env.ParseConfig('openal-config --cflags --libs')
+        context.env.ParseConfig('openal-config --libs')
+        def add_al(env, output):
+            output = "-I " + os.path.join(output.strip(), "AL")
+            env.MergeFlags(output)
+        context.env.ParseConfig('openal-config --includedir', add_al)
         ret = context.TryLink("""
-            #include <AL/al.h>
+            #include <al.h>
                 int main(){
                 ALenum al_error;
                 return 0;
             }
             """, ".c");
-        context.sconf.env = tmpEnv
     context.Result(ret)
     return ret
 
@@ -58,7 +60,6 @@ configs = []
 
 can_build = True
 if can_build:
-    configs.extend(["openal-config --libs"])
     configs.extend(["pkg-config --libs alsa"])
 
     addons.do_build(
