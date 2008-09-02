@@ -94,6 +94,9 @@ static float *_al_rechannel_matrix(ALLEGRO_CHANNEL_CONF orig,
  */
 static bool fix_looped_position(ALLEGRO_SAMPLE *spl)
 {
+   bool is_dry;
+   ALLEGRO_STREAM *stream;
+
    /* Looping! Should be mostly self-explanitory */
    switch (spl->loop) {
       case ALLEGRO_PLAYMODE_ONEDIR:
@@ -144,7 +147,18 @@ static bool fix_looped_position(ALLEGRO_SAMPLE *spl)
          if (spl->pos < spl->spl_data.len) {
             return true;
          }
-         return _al_kcm_refill_stream((ALLEGRO_STREAM *)spl);
+         stream = (ALLEGRO_STREAM *)spl;
+         is_dry = !_al_kcm_refill_stream(stream);
+         if (is_dry && stream->drained) {
+            /* We can't use plain al_stream_set_bool() here becase the
+             * stream->spl.mutex has been locked, and al_stream_set_bool() tries
+             * to lock too... Just setting is_playing to false should do. */
+             /* al_stream_set_bool(stream, ALLEGRO_AUDIOPROP_PLAYING, false);*/
+            stream->spl.is_playing = false;
+            stream->drained = false;
+         }
+
+         return !is_dry;
    }
 
    ASSERT(false);

@@ -180,6 +180,12 @@ struct ALLEGRO_STREAM {
                          * have been sent to the audio driver and so are
                          * ready to receive new data.
                          */
+   bool                  drained;
+                         /* Set to true if sample data is not going to be passed
+                          * to the stream any more. The stream must change its
+                          * playing state to false after all buffers have been
+                          * played.
+                          */
 
    ALLEGRO_THREAD        *feed_thread;
    volatile bool         quit_feed_thread;

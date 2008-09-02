@@ -55,6 +55,7 @@ ALLEGRO_STREAM *al_stream_create(size_t buffer_count, unsigned long samples,
    }
 
    stream->spl.is_playing = true;
+   stream->drained = false;
 
    stream->spl.loop      = _ALLEGRO_PLAYMODE_STREAM;
    stream->spl.spl_data.depth     = depth;
@@ -106,6 +107,17 @@ void al_stream_destroy(ALLEGRO_STREAM *stream)
       free(stream->used_bufs);
       free(stream);
    }
+}
+
+
+/* Function: al_stream_drain
+ * Called by the user if sample data is not going to be passed to the stream
+ * any longer. The stream will change its playing state to false after all
+ * buffers have finished playing.
+ */
+void al_stream_drain(ALLEGRO_STREAM *stream)
+{
+   stream->drained = true;
 }
 
 
@@ -495,7 +507,7 @@ void *_al_kcm_feed_stream(ALLEGRO_THREAD *self, void *vstream)
       }
 
       if (is_dry) {
-         al_stream_set_bool(stream, ALLEGRO_AUDIOPROP_PLAYING, false);
+         al_stream_drain(stream);
          return NULL;
       }
    }

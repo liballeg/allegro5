@@ -245,7 +245,9 @@ typedef struct ALLEGRO_SAMPLE ALLEGRO_SAMPLE;
  * While playing, you must periodically supply new buffer data by first
  * checking ALLEGRO_AUDIOPROP_USED_FRAGMENTS, then refilling the buffers via
  * ALLEGRO_AUDIOPROP_BUFFER. If you're late with supplying new data, the object
- * will be silenced until new data is provided.
+ * will be silenced until new data is provided. You must call al_stream_drain()
+ * when you're finished supplying the stream and the stream will change its
+ * playing state to false when finished.
  *
  * ALLEGRO_STREAM objects use the following fields:
  *
@@ -340,6 +342,7 @@ A5_KCM_AUDIO_FUNC(ALLEGRO_STREAM*, al_stream_create, (size_t buffer_count,
       unsigned long samples, unsigned long freq,
       ALLEGRO_AUDIO_DEPTH depth, ALLEGRO_CHANNEL_CONF chan_conf));
 A5_KCM_AUDIO_FUNC(void, al_stream_destroy, (ALLEGRO_STREAM *stream));
+A5_KCM_AUDIO_FUNC(void, al_stream_drain, (ALLEGRO_STREAM *stream));
 A5_KCM_AUDIO_FUNC(int, al_stream_get_long, (const ALLEGRO_STREAM *stream,
       ALLEGRO_AUDIO_PROPERTY setting, unsigned long *val));
 A5_KCM_AUDIO_FUNC(int, al_stream_get_float, (const ALLEGRO_STREAM *stream,

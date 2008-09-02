@@ -57,6 +57,8 @@ void saw(ALLEGRO_STREAM *stream)
       }
    }
 
+   al_stream_drain(stream);
+
    putchar('\n');
 }
 
