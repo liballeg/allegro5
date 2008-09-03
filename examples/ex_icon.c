@@ -19,7 +19,7 @@ int main(void)
    }
 
    /* First icon: Read from file. */
-   icon1 = al_iio_load("icon.tga");
+   icon1 = al_iio_load("data/icon.tga");
    if (!icon1) {
       TRACE("icon.tga not found\n");
       return 1;

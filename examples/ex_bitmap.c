@@ -14,7 +14,7 @@ int main(int argc, const char *argv[])
        filename = argv[1];
     }
     else {
-       filename = "mysha.pcx";
+       filename = "data/mysha.pcx";
     }
 
     al_init();

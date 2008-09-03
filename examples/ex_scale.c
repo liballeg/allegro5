@@ -54,14 +54,14 @@ int main(int argc, char *argv[])
       return 1;
    }
 
-   bmp = al_iio_load("mysha.pcx");
+   bmp = al_iio_load("data/mysha.pcx");
    if (!bmp) {
       TRACE("Unable to load image\n");
       return 1;
    }
 
    al_set_new_bitmap_flags(ALLEGRO_MEMORY_BITMAP);
-   mem_bmp = al_iio_load("mysha.pcx");
+   mem_bmp = al_iio_load("data/mysha.pcx");
    if (!mem_bmp) {
       TRACE("Unable to load image\n");
       return 1;

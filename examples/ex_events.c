@@ -487,7 +487,7 @@ int main(void)
     */
    al_show_mouse_cursor();
 
-   myfont = al_font_load_font("fixed_font.tga", 0);
+   myfont = al_font_load_font("data/fixed_font.tga", 0);
    if (!myfont) {
       TRACE("fixed_font.tga not found\n");
       return 1;

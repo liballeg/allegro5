@@ -23,7 +23,7 @@ int main(void)
 
    al_hide_mouse_cursor();
 
-   cursor = al_iio_load("cursor.tga");
+   cursor = al_iio_load("data/cursor.tga");
    if (!cursor) {
       TRACE("Error loading cursor.tga\n");
       return 1;

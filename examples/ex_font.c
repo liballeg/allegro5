@@ -17,14 +17,14 @@ int main(void)
         TRACE("Failed to create display\n");
         return 1;
     }
-    bitmap = al_iio_load("mysha.pcx");
+    bitmap = al_iio_load("data/mysha.pcx");
     if (!bitmap) {
         TRACE("Failed to load mysha.pcx\n");
         return 1;
     }
     al_draw_bitmap(bitmap, 0, 0, 0);
 
-    f = al_font_load_font("bmpfont.tga", NULL);
+    f = al_font_load_font("data/bmpfont.tga", NULL);
     if (!f) {
         TRACE("Failed to load bmpfont.tga\n");
         return 1;

@@ -156,7 +156,7 @@ int main(void)
    al_register_event_source(queue, (ALLEGRO_EVENT_SOURCE *)al_get_keyboard());
    al_register_event_source(queue, (ALLEGRO_EVENT_SOURCE *)display);
 
-   myfont = al_font_load_font("font.tga", 0);
+   myfont = al_font_load_font("data/font.tga", 0);
    if (!myfont) {
       TRACE("font.tga not found\n");
       return 1;

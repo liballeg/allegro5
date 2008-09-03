@@ -24,7 +24,7 @@ int main(void)
 
    /* Create two windows. */
    display[0] = al_create_display(W, H);
-   pictures[0] = al_iio_load("mysha.pcx");
+   pictures[0] = al_iio_load("data/mysha.pcx");
    if (!pictures[0]) {
       TRACE("failed to load mysha.pcx\n");
       return 1;
@@ -32,7 +32,7 @@ int main(void)
    al_show_mouse_cursor();
 
    display[1] = al_create_display(W, H);
-   pictures[1] = al_iio_load("allegro.pcx");
+   pictures[1] = al_iio_load("data/allegro.pcx");
    if (!pictures[1]) {
       TRACE("failed to load allegro.pcx\n");
       return 1;

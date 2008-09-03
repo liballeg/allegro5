@@ -54,7 +54,7 @@ int main(void)
       return 1;
    }
 
-   bmp = al_iio_load("allegro.pcx");
+   bmp = al_iio_load("data/allegro.pcx");
    if (!bmp) {
       TRACE("Error loading allegro.pcx\n");
       return 1;

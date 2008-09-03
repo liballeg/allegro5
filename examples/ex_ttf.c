@@ -53,9 +53,9 @@ int main(void)
 
     al_show_mouse_cursor();
 
-    ex.f1 = al_ttf_load_font("DejaVuSans.ttf", 48, 0);
-    ex.f2 = al_ttf_load_font("DejaVuSans.ttf", 48, ALLEGRO_TTF_NO_KERNING);
-    ex.f3 = al_ttf_load_font("DejaVuSans.ttf", 12, 0);
+    ex.f1 = al_ttf_load_font("data/DejaVuSans.ttf", 48, 0);
+    ex.f2 = al_ttf_load_font("data/DejaVuSans.ttf", 48, ALLEGRO_TTF_NO_KERNING);
+    ex.f3 = al_ttf_load_font("data/DejaVuSans.ttf", 12, 0);
 
     timer = al_install_timer(1.0 / 60);
 

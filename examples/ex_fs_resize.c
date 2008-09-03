@@ -33,7 +33,7 @@ int main(void)
       return 1;
    }
 
-   picture = al_iio_load("mysha.pcx");
+   picture = al_iio_load("data/mysha.pcx");
    if (!picture) {
       TRACE("mysha.pcx not found\n");
       return 1;
