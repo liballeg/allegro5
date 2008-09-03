@@ -26,7 +26,7 @@ void Explosion::render(int offx, int offy)
 
    bitmap = (ALLEGRO_BITMAP *)rm.getData(bitmapIndex);
 
-   al_draw_rotated_bitmap(bitmap, radius, radius, offx - x, offy - y, 0, 0);
+   al_draw_rotated_bitmap(bitmap, radius, radius, offx + x, offy + y, 0, 0);
 }
 
 Explosion::Explosion(float x, float y, bool big)
