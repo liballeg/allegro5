@@ -45,7 +45,7 @@ def demo(env,appendDir,buildDir,libDir):
     demoEnv = env.Clone()
     demoEnv.Append( CPPPATH = 'demo/include' )
     demoEnv.Append(CPPPATH = ['addons/font', 'addons/iio',
-      'addons/audio', 'addons/acodec'])
+      'addons/kcm_audio', 'addons/acodec'])
     sources = Split("""
        Asteroid.cpp
        BitmapResource.cpp
@@ -83,7 +83,7 @@ def demo(env,appendDir,buildDir,libDir):
     demoEnv.Append( LIBPATH = libDir )
     demoEnv.Append(LIBS = [context.libraryName('a5_font')])
     demoEnv.Append(LIBS = [context.libraryName('a5_iio')])
-    demoEnv.Append(LIBS = [context.libraryName('a5_audio')])
+    demoEnv.Append(LIBS = [context.libraryName('a5_kcm_audio')])
     demoEnv.Append(LIBS = [context.libraryName('a5_acodec')])
     demo = demoEnv.Program('demo/demo', appendDir(buildDir + '/demo/src', sources))
     Alias('demo', demo)
@@ -165,7 +165,7 @@ if buildAddon("kcm_audio"):
 # addon_dirs = ['#addons/font','#addons/acodec','#addons/audio']
 # SConscript( dirs = addon_dirs, exports = 'context' )
 
-#context.addExtra(demo)
+context.addExtra(demo)
 context.addExtra(examples)
 # context.addExtra(addons)
 # context.addExtra(tools)
