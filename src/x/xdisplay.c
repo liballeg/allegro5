@@ -12,6 +12,8 @@ static ALLEGRO_DISPLAY_INTERFACE *xdpy_vt;
 /* Helper to set up GL state as we want it. */
 static void setup_gl(ALLEGRO_DISPLAY *d)
 {
+   ALLEGRO_OGL_EXTRAS *ogl = d->ogl_extras;
+
    glViewport(0, 0, d->w, d->h);
 
    glMatrixMode(GL_PROJECTION);
@@ -20,6 +22,11 @@ static void setup_gl(ALLEGRO_DISPLAY *d)
 
    glMatrixMode(GL_MODELVIEW);
    glLoadIdentity();
+   
+   if (ogl->backbuffer)
+      _al_ogl_resize_backbuffer(ogl->backbuffer, d->w, d->h);
+   else
+      ogl->backbuffer = _al_ogl_create_backbuffer(d);
 }
 
 
@@ -294,8 +301,6 @@ static ALLEGRO_DISPLAY *xdpy_create_display(int w, int h)
    _al_ogl_set_extensions(ogl->extension_api);
 
    setup_gl(display);
-
-   ogl->backbuffer = _al_ogl_create_backbuffer(display);
 
    d->invisible_cursor = None; /* Will be created on demand. */
    d->current_cursor = None; /* Initially, we use the root cursor. */
