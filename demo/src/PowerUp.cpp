@@ -24,9 +24,9 @@ bool PowerUp::logic(int step)
    return true;
 }
 
-void PowerUp::render(void)
+void PowerUp::render(int offx, int offy)
 {
-   al_draw_rotated_bitmap(bitmap, radius, radius, x, y, angle, 0);
+   al_draw_rotated_bitmap(bitmap, radius, radius, offx - x, offy + y, angle, 0);
 }
 
 PowerUp::PowerUp(float x, float y, int type) :

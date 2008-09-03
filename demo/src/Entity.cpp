@@ -55,15 +55,34 @@ void Entity::setPowerUp(int type)
 void Entity::wrap(void)
 {
    x += dx;
-   if (x < -radius && dx < 0.0f)
-      x = BB_W+radius;
-   else if (x > (BB_W+radius) && dx > 0.0f)
-      x = -radius;
    y += dy;
-   if (y < -radius && dy < 0.0f)
-      y = BB_H+radius;
-   else if (y > (BB_H+radius) && dy > 0.0f)
-      y = -radius;
+   if (x < 0) x += BB_W;
+   if (x >= BB_W) x -= BB_W;
+   if (y < 0) y += BB_H;
+   if (y >= BB_H) y -= BB_H;
+}
+
+void Entity::render_four(void)
+{
+   int ox = 0;
+   render(0, 0);
+   if (x > BB_W / 2) {
+      ox = -BB_W;
+      render(ox, 0);
+   }
+   else {
+      ox = BB_W;
+      render(ox, 0);
+   }
+   if (y > BB_H / 2) {
+      render(0, -BB_H);
+      render(ox, -BB_H);
+   }
+   else {
+      render(0, BB_H);
+      render(ox, BB_H);
+   }
+   
 }
 
 Entity *Entity::checkCollisions(std::list<Entity *>& e)

@@ -5,7 +5,7 @@ class Asteroid : public Enemy
 {
 public:
    bool logic(int step);
-   void render(void);
+   void render(int offx, int offy);
 
    //bool init(lua_State *luaState);
    void init(float x, float y, float speed_x, float speed_y, float da);

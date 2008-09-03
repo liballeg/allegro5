@@ -51,9 +51,10 @@ bool UFO::logic(int step)
    return true;
 }
 
-void UFO::render(void)
+void UFO::render(int offx, int offy)
 {
-   al_draw_rotated_bitmap(bitmaps[bitmapFrame], radius, radius, x, y, 0.0f, 0);
+   al_draw_rotated_bitmap(bitmaps[bitmapFrame], radius, radius, offx + x,
+      offy + y, 0.0f, 0);
 }
 
 // added x, y, dx, dy

@@ -13,7 +13,7 @@ bool Explosion::logic(int step)
    return true;
 }
 
-void Explosion::render(void)
+void Explosion::render(int offx, int offy)
 {
    ResourceManager& rm = ResourceManager::getInstance();
    ALLEGRO_BITMAP *bitmap;
@@ -26,7 +26,7 @@ void Explosion::render(void)
 
    bitmap = (ALLEGRO_BITMAP *)rm.getData(bitmapIndex);
 
-   al_draw_rotated_bitmap(bitmap, radius, radius, x, y, 0, 0);
+   al_draw_rotated_bitmap(bitmap, radius, radius, offx - x, offy - y, 0, 0);
 }
 
 Explosion::Explosion(float x, float y, bool big)

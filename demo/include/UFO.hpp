@@ -8,7 +8,7 @@ public:
    const int ANIMATION_SPEED;
 
    bool logic(int step);
-   void render(void);
+   void render(int offx, int offy);
 
    //bool init(lua_State *luaState);
 

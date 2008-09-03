@@ -96,10 +96,10 @@ void render(int step)
    std::list<Entity *>::iterator it;
    for (it = entities.begin(); it != entities.end(); it++) {
       Entity *e = *it;
-      e->render();
+      e->render_four();
       if (e->isHighlighted()) {
          al_set_blender(ALLEGRO_ALPHA, ALLEGRO_ONE, al_map_rgb(150, 150, 150));
-         e->render();
+         e->render_four();
          al_set_blender(ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA,
             al_map_rgb(255, 255, 255));
       }
@@ -107,7 +107,8 @@ void render(int step)
    }
 
    Player *player = (Player *)rm.getData(RES_PLAYER);
-   player->render();
+   player->render_four();
+   player->render_extra();
 
    if (waveAngle > 0.0f) {
       renderWave();

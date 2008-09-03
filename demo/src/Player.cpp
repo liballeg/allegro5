@@ -111,7 +111,7 @@ bool Player::logic(int step)
    return true;
 }
 
-void Player::render(void)
+void Player::render_extra(void)
 {
    ResourceManager& rm = ResourceManager::getInstance();
 
@@ -123,30 +123,6 @@ void Player::render(void)
       return;
    }
 
-   if (!isDestructable) {
-      al_draw_rotated_bitmap(trans_bitmap, radius, radius, x, y,
-         angle-(M_PI/2.0f), 0);
-   }
-   else {
-      al_draw_rotated_bitmap(bitmap, radius, radius, x, y,
-         angle-(M_PI/2.0f), 0);
-   }
-   if (draw_trail) {
-      int tw = al_get_bitmap_width(trail_bitmap);
-      int th = al_get_bitmap_height(trail_bitmap);
-      float ca = (M_PI*2)-angle;
-      float a = ca - ((210.0f / 180.0f) * M_PI);
-      float tx = x + 42.0f * cos(a);
-      float ty = y + 42.0f * sin(a);
-      al_draw_rotated_bitmap(trail_bitmap, tw, th/2,
-         tx, ty, (M_PI*2)-a, 0);
-      a = ca - ((150.0f / 180.0f) * M_PI);
-      tx = x + 42.0f * cos(a);
-      ty = y + 42.0f * sin(a);
-      al_draw_rotated_bitmap(trail_bitmap, tw, th/2,
-         tx, ty, (M_PI*2)-a, 0);
-   }
-
    al_draw_bitmap(icon, 2, 2, 0);
 
    small_font = (ALLEGRO_FONT *)rm.getData(RES_SMALLFONT);
@@ -154,6 +130,37 @@ void Player::render(void)
    al_font_textprintf(small_font, 20, 2, "x%d", lives);
 
    al_font_textprintf(small_font, 2, 18, "%d", score);
+}
+
+void Player::render(int offx, int offy)
+{
+   ResourceManager& rm = ResourceManager::getInstance();
+   
+   int rx = offx + x, ry = offy + y;
+
+   if (!isDestructable) {
+      al_draw_rotated_bitmap(trans_bitmap, radius, radius, rx, ry,
+         angle-(M_PI/2.0f), 0);
+   }
+   else {
+      al_draw_rotated_bitmap(bitmap, radius, radius, rx, ry,
+         angle-(M_PI/2.0f), 0);
+   }
+   if (draw_trail) {
+      int tw = al_get_bitmap_width(trail_bitmap);
+      int th = al_get_bitmap_height(trail_bitmap);
+      float ca = (M_PI*2)-angle;
+      float a = ca - ((210.0f / 180.0f) * M_PI);
+      float tx = rx + 42.0f * cos(a);
+      float ty = ry + 42.0f * sin(a);
+      al_draw_rotated_bitmap(trail_bitmap, tw, th/2,
+         tx, ty, (M_PI*2)-a, 0);
+      a = ca - ((150.0f / 180.0f) * M_PI);
+      tx = rx + 42.0f * cos(a);
+      ty = ry + 42.0f * sin(a);
+      al_draw_rotated_bitmap(trail_bitmap, tw, th/2,
+         tx, ty, (M_PI*2)-a, 0);
+   }
 }
 
 bool Player::hit(int damage)

@@ -9,7 +9,8 @@ public:
    static const float DECCEL;
 
    bool logic(int step);
-   void render(void);
+   void render_extra(void);
+   void render(int offx, int offy);
    bool hit(int damage);
 
    void destroy(void);
