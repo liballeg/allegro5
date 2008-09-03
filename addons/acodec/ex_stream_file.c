@@ -48,7 +48,7 @@ int main(int argc, char **argv)
    fprintf(stderr, "Voice created.\n");
 
 #ifndef BYPASS_MIXER
-   mixer = al_mixer_create(441000, ALLEGRO_AUDIO_DEPTH_FLOAT32,
+   mixer = al_mixer_create(44100, ALLEGRO_AUDIO_DEPTH_FLOAT32,
                            ALLEGRO_CHANNEL_CONF_2);
    if (!mixer) {
       fprintf(stderr, "Could not create ALLEGRO_MIXER.\n");
