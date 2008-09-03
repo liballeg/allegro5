@@ -130,6 +130,7 @@ def examples(env,appendDir,buildDir,libDir):
     example("ex_noframe")
     example("ex_opengl")
     example("ex_resize")
+    example("ex_resize2")
     example("ex_scale")
     example("ex_threads")
     example("ex_threads2")
