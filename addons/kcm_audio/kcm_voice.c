@@ -196,18 +196,13 @@ static void stream_read(void *source, void **vbuf, unsigned long samples,
       return;
    }
 
-   old_buf = stream->pending_bufs[0];
-   if (old_buf) {
-      for (i = 0; stream->used_bufs[i] && i < stream->buf_count-1; i++)
-         ;
-      stream->used_bufs[i] = old_buf;
-   }
-
-   for (i = 0; stream->pending_bufs[i] && i < stream->buf_count-1; i++)
-      ;
-   stream->pending_bufs[i] = NULL;
-
+   _al_kcm_refill_stream(stream);
    *vbuf = stream->pending_bufs[0];
+
+   if (*vbuf == NULL && stream->drained) {
+      stream->drained = false;
+      stream->spl.is_playing = false;
+   }
 
    (void)dest_maxc;
    (void)buffer_depth;

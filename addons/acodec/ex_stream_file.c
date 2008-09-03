@@ -12,6 +12,11 @@
 #include "allegro5/acodec.h"
 #include <stdio.h>
 
+/* Attaches the stream directly to a voice. Streamed file's and voice's sample
+ * rate, channels and depth must match.
+ */
+//#define BYPASS_MIXER
+
 
 int main(int argc, char **argv)
 {
@@ -42,7 +47,8 @@ int main(int argc, char **argv)
    }
    fprintf(stderr, "Voice created.\n");
 
-   mixer = al_mixer_create(44100, ALLEGRO_AUDIO_DEPTH_FLOAT32,
+#ifndef BYPASS_MIXER
+   mixer = al_mixer_create(441000, ALLEGRO_AUDIO_DEPTH_FLOAT32,
                            ALLEGRO_CHANNEL_CONF_2);
    if (!mixer) {
       fprintf(stderr, "Could not create ALLEGRO_MIXER.\n");
@@ -54,6 +60,7 @@ int main(int argc, char **argv)
       fprintf(stderr, "al_voice_attach_mixer failed.\n");
       return 1;
    }
+#endif
 
    for (i = 1; i < argc; ++i)
    {
@@ -69,10 +76,17 @@ int main(int argc, char **argv)
       }
       fprintf(stderr, "Stream created from '%s'.\n", filename);
 
+#ifndef BYPASS_MIXER
       if (al_mixer_attach_stream(mixer, stream) != 0) {
          fprintf(stderr, "al_mixer_attach_stream failed.\n");
          continue;
       }
+#else
+      if (al_voice_attach_stream(voice, stream) != 0) {
+         fprintf(stderr, "al_voice_attach_stream failed.\n");
+         return 1;
+      }
+#endif
 
       fprintf(stderr, "Playing %s ... Waiting for stream to finish ", filename);
       do {
@@ -85,7 +99,9 @@ int main(int argc, char **argv)
       al_stream_destroy(stream);
    }
 
+#ifndef BYPASS_MIXER
    al_mixer_destroy(mixer);
+#endif
    al_voice_destroy(voice);
 
    al_audio_deinit();

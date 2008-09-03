@@ -928,7 +928,7 @@ static bool create_display_internals(ALLEGRO_DISPLAY_WGL *wgl_disp) {
       al_rest(0.001);
 
    if (ndp.init_failed) {
-      TRACE(PREFIX_E "Faild to create display.\n");
+      TRACE(PREFIX_E "Failed to create display.\n");
       return false;
    }
 
