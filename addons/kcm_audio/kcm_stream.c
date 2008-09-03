@@ -112,12 +112,17 @@ void al_stream_destroy(ALLEGRO_STREAM *stream)
 
 /* Function: al_stream_drain
  * Called by the user if sample data is not going to be passed to the stream
- * any longer. The stream will change its playing state to false after all
- * buffers have finished playing.
+ * any longer. This function waits for all pending buffers to finish playing.
+ * Stream's playing state will change to false.
  */
 void al_stream_drain(ALLEGRO_STREAM *stream)
 {
+   bool playing;
    stream->drained = true;
+   do {
+      al_rest(0.01);
+      al_stream_get_bool(stream, ALLEGRO_AUDIOPROP_PLAYING, &playing);
+   } while (playing);
 }
 
 

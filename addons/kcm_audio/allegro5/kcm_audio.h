@@ -246,8 +246,7 @@ typedef struct ALLEGRO_SAMPLE ALLEGRO_SAMPLE;
  * checking ALLEGRO_AUDIOPROP_USED_FRAGMENTS, then refilling the buffers via
  * ALLEGRO_AUDIOPROP_BUFFER. If you're late with supplying new data, the object
  * will be silenced until new data is provided. You must call al_stream_drain()
- * when you're finished supplying the stream and the stream will change its
- * playing state to false when finished.
+ * when you're finished supplying the stream.
  *
  * ALLEGRO_STREAM objects use the following fields:
  *
