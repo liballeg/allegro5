@@ -65,9 +65,6 @@ else(STATIC)
 endif(STATIC)
 
 
-example(ex_font ${FONT_LINK_WITH} ${IIO_LINK_WITH})
-
-
 #-----------------------------------------------------------------------------#
 #
 # Install header files.

@@ -80,8 +80,6 @@ else(STATIC)
     set(TTF_LINK_WITH ${TTF_LINK_WITH} ${FONT_LIB_TO_LINK}_shared ${IIO_LIB_TO_LINK}_shared CACHE INTERNAL "internal")
 endif(STATIC)
 
-example(ex_ttf ${TTF_LINK_WITH})
-
 #-----------------------------------------------------------------------------#
 #
 # Install header files.

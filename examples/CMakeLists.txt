@@ -7,8 +7,8 @@ if(SUPPORT_FONT)
     example(ex_blend ${LIBS})
     example(ex_timer ${LIBS})
     example(ex_windows ${LIBS})
+    example(ex_font ${LIBS})
 endif(SUPPORT_FONT)
-
 
 if(SUPPORT_IIO)
     example(ex_bitmap ${IIO_LINK_WITH})
@@ -27,6 +27,27 @@ if(SUPPORT_IIO)
     example(ex_expose ${IIO_LINK_WITH})
     example(ex_winfull ${IIO_LINK_WITH})
 endif(SUPPORT_IIO)
+
+if(SUPPORT_KCM_AUDIO)
+    include_directories(../addons/kcm_audio)
+    example(ex_saw ${AUDIO_LINK_WITH})
+endif(SUPPORT_KCM_AUDIO)
+
+if(SUPPORT_TTF)
+    include_directories(../addons/ttf)
+    example(ex_ttf ${TTF_LINK_WITH})
+endif(SUPPORT_TTF)
+
+if(SUPPORT_ACODEC)
+    include_directories(../addons/acodec)
+    example(ex_acodec ${ACODEC_LINK_WITH})
+    example(ex_acodec_multi ${ACODEC_LINK_WITH})
+    #disable until the streaming is done
+    #example(ex_acodec_stream ${ACODEC_LINK_WITH})
+    example(ex_stream_file ${ACODEC_LINK_WITH})
+
+    #example(ex_acodec_mixer ${ACODEC_LINK_WITH})
+endif(SUPPORT_ACODEC)
 
 
 example(ex_drawpixels NOTHING)
