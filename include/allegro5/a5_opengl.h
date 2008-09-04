@@ -23,7 +23,7 @@
 
 AL_BEGIN_EXTERN_C
 
-#ifdef ALLEGRO_WINDOWS
+#if defined(ALLEGRO_WINDOWS) && !defined(SCAN_EXPORT)
 #include <windows.h>
 #endif
 
