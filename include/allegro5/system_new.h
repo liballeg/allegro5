@@ -7,19 +7,8 @@
 
 typedef struct ALLEGRO_SYSTEM ALLEGRO_SYSTEM;
 
-AL_FUNC(bool, _al_init, (void));
-
-AL_INLINE_STATIC(bool, al_init, (void),
-{
-   /*
-   if (!system_driver) {
-      if (allegro_init())
-         return false;
-   }
-   */
-   return _al_init();
-})
-
+AL_FUNC(bool, al_init, (void));
+AL_FUNC(void, allegro_exit, (void));
 AL_FUNC(ALLEGRO_SYSTEM *, al_system_driver, (void));
 
 #ifdef __cplusplus

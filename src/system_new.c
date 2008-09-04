@@ -79,10 +79,10 @@ void _al_exit(void)
 
 
 
-/* _al_init:
+/* al_init:
  *  Initialize the Allegro system.
  */
-bool _al_init(void)
+bool al_init(void)
 {
    if (active_sysdrv) {
       return true;

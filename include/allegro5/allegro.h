@@ -25,7 +25,6 @@
 
 #include "allegro5/base.h"
 
-//#include "allegro5/system.h"
 #include "allegro5/system_new.h"
 #include "allegro5/memory.h"
 #include "allegro5/debug.h"
