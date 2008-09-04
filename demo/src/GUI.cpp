@@ -29,7 +29,11 @@ int do_gui(std::vector<Widget *>& widgets, unsigned int selected)
       }
       if (input->esc())
          return -1;
-      al_draw_bitmap(bg, 0, 0, 0);
+      al_draw_scaled_bitmap(bg, 0, 0, 
+         al_get_bitmap_width(bg),
+         al_get_bitmap_height(bg),
+         0, 0, BB_W, BB_H,
+         0);
       al_draw_rotated_bitmap(logo, lw/2, lh/2, BB_W/2, BB_H/4, 0.0f, 0);
 
       al_set_blender(ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA,

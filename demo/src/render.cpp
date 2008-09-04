@@ -89,7 +89,9 @@ void render(int step)
       }
    }
 
-   al_draw_bitmap(bg, bgx, bgy, 0);
+   al_draw_scaled_bitmap(bg, 0, 0, 
+      al_get_bitmap_width(bg), al_get_bitmap_height(bg), 
+      bgx, bgy, BB_W, BB_H, 0);
 
    int rendered = 0;
 

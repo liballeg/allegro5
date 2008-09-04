@@ -26,7 +26,7 @@ bool logic(int step)
          }
          else {
             x = BB_W+32;
-            y = randf(405.0f, 448.0f);
+            y = randf(BB_H-75, BB_H-32);
             dx = -0.1f;
             dy = 0.0f;
          }

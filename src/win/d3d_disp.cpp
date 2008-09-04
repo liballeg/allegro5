@@ -1345,6 +1345,9 @@ static bool d3d_create_display_internals(ALLEGRO_DISPLAY_D3D *d3d_display)
 }
 
 
+static bool d3d_show_mouse_cursor(ALLEGRO_DISPLAY *display);
+
+
 static ALLEGRO_DISPLAY *d3d_create_display(int w, int h)
 {
    ALLEGRO_SYSTEM_WIN *system = (ALLEGRO_SYSTEM_WIN *)al_system_driver();
@@ -1426,6 +1429,8 @@ static ALLEGRO_DISPLAY *d3d_create_display(int w, int h)
 
    // Activate the window (grabs input)
    SendMessage(win_display->window, WM_ACTIVATE, WA_ACTIVE, 0);
+
+   d3d_show_mouse_cursor(al_display);
 
    return al_display;
 }

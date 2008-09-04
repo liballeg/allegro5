@@ -68,8 +68,8 @@
 #include "gui.hpp"
 #include "logic.hpp"
 
-const int BB_W = 640;
-const int BB_H = 480;
+const int BB_W = 800;
+const int BB_H = 600;
 
 extern ALLEGRO_VOICE *voice;
 extern ALLEGRO_MIXER *mixer;
