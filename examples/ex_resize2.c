@@ -59,11 +59,13 @@ int main(void)
          al_acknowledge_resize(event.display.source);
          redraw = true;
 #if 1
+         {
          /* XXX the opengl drivers currently don't resize the backbuffer */
          ALLEGRO_BITMAP *bb = al_get_backbuffer();
          int w = al_get_bitmap_width(bb);
          int h = al_get_bitmap_height(bb);
          printf("backbuffer w, h: %d, %d\n", w, h);
+         }
 #endif
       }
       if (event.type == ALLEGRO_EVENT_DISPLAY_EXPOSE) {
