@@ -47,6 +47,8 @@
 #include "allegro5/bitmap_new.h"
 #include "allegro5/color.h"
 
+#include "allegro5/tls.h"
+
 #include "allegro5/file.h"
 #include "allegro5/lzss.h"
 

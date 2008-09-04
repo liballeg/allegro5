@@ -592,6 +592,100 @@ void _al_pop_new_bitmap_parameters(void)
 
 
 
+#define _STORE(x) stored->x = tls->x;
+/* Function: al_store_state
+ * 
+ * Stores part of the state of the current thread in the given <ALLEGRO_STATE>
+ * objects. The flags parameter can take any bit-combination of the flags
+ * described under <ALLEGRO_STATE_FLAGS>.
+ */
+void al_store_state(ALLEGRO_STATE *state, int flags)
+{
+   thread_local_state *tls;
+   if ((tls = tls_get()) == NULL)
+      return;
+      
+   ASSERT(sizeof(ALLEGRO_STATE) > sizeof(thread_local_state) + sizeof(int));
+   state->flags = flags;
+   
+   thread_local_state *stored = (void *)&state->_tls;
+
+   if (flags & ALLEGRO_STATE_NEW_DISPLAY_PARAMETERS) {
+      _STORE(new_display_format);
+      _STORE(new_display_refresh_rate);
+      _STORE(new_display_flags);
+   }
+   
+   if (flags & ALLEGRO_STATE_NEW_BITMAP_PARAMETERS) {
+      _STORE(new_bitmap_format);
+      _STORE(new_bitmap_flags);
+   }
+   
+   if (flags & ALLEGRO_STATE_DISPLAY) {
+      _STORE(current_display);
+   }
+   
+   if (flags & ALLEGRO_STATE_TARGET_BITMAP) {
+      _STORE(target_bitmap);
+   }
+   
+   if (flags & ALLEGRO_STATE_BLENDER) {
+      _STORE(blend_source);
+      _STORE(blend_dest);
+      _STORE(blend_color);
+      _STORE(memory_blender);
+   }
+};
+#undef _STORE
+
+
+
+#define _STORE(x) tls->x = stored->x;
+/* Function: al_restore_state
+ * 
+ * Restores part of the state of the current thread from the given
+ * <ALLEGRO_STATE> object.
+ */
+void al_restore_state(ALLEGRO_STATE const *state)
+{
+   thread_local_state *tls;
+   int flags;
+   if ((tls = tls_get()) == NULL)
+      return;
+   flags = state->flags;
+   
+   thread_local_state *stored = (void *)&state->_tls;
+
+   if (flags & ALLEGRO_STATE_NEW_DISPLAY_PARAMETERS) {
+      _STORE(new_display_format);
+      _STORE(new_display_refresh_rate);
+      _STORE(new_display_flags);
+   }
+   
+   if (flags & ALLEGRO_STATE_NEW_BITMAP_PARAMETERS) {
+      _STORE(new_bitmap_format);
+      _STORE(new_bitmap_flags);
+   }
+   
+   if (flags & ALLEGRO_STATE_DISPLAY) {
+      _STORE(current_display);
+   }
+   
+   if (flags & ALLEGRO_STATE_TARGET_BITMAP) {
+      _STORE(target_bitmap);
+   }
+   
+   if (flags & ALLEGRO_STATE_BLENDER) {
+      _STORE(blend_source);
+      _STORE(blend_dest);
+      _STORE(blend_color);
+      _STORE(memory_blender);
+   }
+};
+#undef _STORE
+
+
+
 /* Function: al_set_blender
  *
  * Sets the function to use for blending for the current thread.
