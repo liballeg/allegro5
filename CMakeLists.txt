@@ -403,6 +403,10 @@ if(WIN32)
         if(GRADE_DEBUG)
             set(D3D_DEBUG_INFO 1)
         endif(GRADE_DEBUG)
+
+        if(WANT_D3D9EX)
+            set(ALLEGRO_CFG_D3D9EX 1)
+        endif(WANT_D3D9EX)
     endif(SUPPORT_D3D)
 endif(WIN32)
 

@@ -53,7 +53,7 @@ static float d3d_ortho_h;
 static HWND fullscreen_focus_window;
 static bool ffw_set = false;
 
-#ifdef WANT_D3D9EX
+#ifdef ALLEGRO_CFG_D3D9EX
 // Stuff dynamically loaded from dlls
 typedef HRESULT (WINAPI *_dyn_create_type)(UINT, IDirect3D9Ex **);
 static _dyn_create_type _dyn_create;
@@ -413,7 +413,7 @@ static bool d3d_create_fullscreen_device(ALLEGRO_DISPLAY_D3D *d,
       reset_all = true;
    }
 
-#ifdef WANT_D3D9EX
+#ifdef ALLEGRO_CFG_D3D9EX
    if (is_vista) {
     D3DDISPLAYMODEEX mode;
    	IDirect3D9Ex *d3d = (IDirect3D9Ex *)_al_d3d;
@@ -484,7 +484,7 @@ static bool d3d_create_fullscreen_device(ALLEGRO_DISPLAY_D3D *d,
 		 return 0;
 	      }
 	   }
-#ifdef WANT_D3D9EX	   
+#ifdef ALLEGRO_CFG_D3D9EX	   
    }
 #endif
 
@@ -543,7 +543,7 @@ bool _al_d3d_init_display()
    GetVersionEx(&info);
    is_vista = info.dwMajorVersion >= 6;
 
-#ifdef WANT_D3D9EX
+#ifdef ALLEGRO_CFG_D3D9EX
    if (is_vista) {
 	_dyn_create = (_dyn_create_type)GetProcAddress(GetModuleHandle(TEXT("d3d9.dll")), "Direct3DCreate9Ex");
 	if (_dyn_create != NULL) {
@@ -564,7 +564,7 @@ bool _al_d3d_init_display()
 	      TRACE("Direct3DCreate9 failed.\n");
 	      return false;
 	   }
-#ifdef WANT_D3D9EX	   
+#ifdef ALLEGRO_CFG_D3D9EX	   
    }
 #endif   
 
@@ -664,7 +664,7 @@ static bool d3d_create_device(ALLEGRO_DISPLAY_D3D *d,
     * displays, basically screen-filling windows set out in front of
     * everything else.
     */
-#ifndef WANT_D3D9EX
+#ifndef ALLEGRO_CFG_D3D9EX
    if (convert_to_faux)
       d3d_make_faux_fullscreen_stage_one(d);
 #endif
@@ -727,7 +727,7 @@ static bool d3d_create_device(ALLEGRO_DISPLAY_D3D *d,
       TRACE("BeginScene succeeded in create_device\n");
    }
 
-#ifndef WANT_D3D9EX
+#ifndef ALLEGRO_CFG_D3D9EX
    if (convert_to_faux)
       d3d_make_faux_fullscreen_stage_two(d);
 #endif
@@ -874,7 +874,7 @@ static bool _al_d3d_reset_device(ALLEGRO_DISPLAY_D3D *d3d_display)
         else {
            d3d_pp.FullScreen_RefreshRateInHz = d3d_get_default_refresh_rate(win_display->adapter);
         }
-#ifdef WANT_D3D9EX	
+#ifdef ALLEGRO_CFG_D3D9EX	
 	 		if (is_vista) {
 				D3DDISPLAYMODEEX mode;
 				IDirect3DDevice9Ex *dev = (IDirect3DDevice9Ex *)d3d_display->device;
@@ -889,7 +889,7 @@ static bool _al_d3d_reset_device(ALLEGRO_DISPLAY_D3D *d3d_display)
 			else {
 #endif			
 		         	hr = d3d_display->device->Reset(&d3d_pp);
-#ifdef WANT_D3D9EX				
+#ifdef ALLEGRO_CFG_D3D9EX				
 			}
 #endif			
 			if (hr != D3D_OK) {
@@ -1367,7 +1367,7 @@ static ALLEGRO_DISPLAY *d3d_create_display(int w, int h)
    al_display->flags = al_get_new_display_flags();
    al_display->vt = vt;
    
-#ifdef WANT_D3D9EX
+#ifdef ALLEGRO_CFG_D3D9EX
    if (!is_vista) {
 #endif   
 	   if (al_display->flags & ALLEGRO_FULLSCREEN) {
@@ -1382,7 +1382,7 @@ static ALLEGRO_DISPLAY *d3d_create_display(int w, int h)
 	   else {
 	   	d3d_display->faux_fullscreen = false;
 	   }
-#ifdef WANT_D3D9EX
+#ifdef ALLEGRO_CFG_D3D9EX
    }
    else {
 	   d3d_display->faux_fullscreen = false;
