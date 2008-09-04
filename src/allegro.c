@@ -102,15 +102,6 @@ void _remove_exit_func(void (*func)(void))
 
 
 
-/* allegro_exit_stub:
- *  Stub function registered by the library via atexit.
- */
-static void allegro_exit_stub(void)
-{
-   //allegro_exit();
-}
-
-
 /* allegro_exit:
  *  Closes down the Allegro system.
  *
@@ -131,6 +122,8 @@ void allegro_exit(void)
    }
    */
 }
+
+
 
 /* debug_exit:
  *  Closes the debugging output files.
