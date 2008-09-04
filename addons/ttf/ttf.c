@@ -48,6 +48,7 @@ static int render_glyph(ALLEGRO_FONT const *f, int prev, int ch,
         // FIXME: make this a config setting? FT_LOAD_FORCE_AUTOHINT
         int x, y, w, h;
         ALLEGRO_LOCKED_REGION lr;
+        ALLEGRO_STATE backup;
 
         FT_Load_Glyph(face, ft_index, FT_LOAD_RENDER);
         w = face->glyph->bitmap.width;
@@ -56,8 +57,7 @@ static int render_glyph(ALLEGRO_FONT const *f, int prev, int ch,
         if (w == 0) w = 1;
         if (h == 0) h = 1;
         
-        _al_push_new_bitmap_parameters();
-        _al_push_target_bitmap();
+        al_store_state(&backup, ALLEGRO_STATE_BITMAP);
 
         al_set_new_bitmap_format(ALLEGRO_PIXEL_FORMAT_ANY_WITH_ALPHA);
         glyph->bitmap = al_create_bitmap(w, h);
@@ -79,8 +79,7 @@ static int render_glyph(ALLEGRO_FONT const *f, int prev, int ch,
         glyph->x = face->glyph->bitmap_left;
         glyph->y = f->height - face->glyph->bitmap_top;
         
-        _al_pop_target_bitmap();
-        _al_pop_new_bitmap_parameters();
+        al_restore_state(&backup);
     }
 
     /* Do kerning? */

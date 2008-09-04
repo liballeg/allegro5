@@ -229,6 +229,7 @@ static ALLEGRO_BITMAP *_al_load_memory_bitmap(char const *filename)
    PALETTE pal;
    BITMAP *file_data;
    ALLEGRO_BITMAP *bitmap;
+   ALLEGRO_STATE backup;
 
    // TODO:
    // The idea is, load_bitmap returns a memory representation of the bitmap,
@@ -247,14 +248,14 @@ static ALLEGRO_BITMAP *_al_load_memory_bitmap(char const *filename)
    select_palette(pal);
 
    if (flags & ALLEGRO_KEEP_BITMAP_FORMAT) {
-      _al_push_new_bitmap_parameters();
+      al_store_state(ALLEGRO_STATE_NEW_BITMAP_PARAMETERS);
       al_set_new_bitmap_format(_al_get_compat_bitmap_format(file_data));
    }
 
    bitmap = al_create_bitmap(file_data->w, file_data->h);
 
    if (flags & ALLEGRO_KEEP_BITMAP_FORMAT) {
-      _al_pop_new_bitmap_parameters();
+      al_restore_state();
    }
 
    if (!bitmap)
@@ -609,13 +610,15 @@ void al_convert_mask_to_alpha(ALLEGRO_BITMAP *bitmap, ALLEGRO_COLOR mask_color)
    int x, y;
    ALLEGRO_COLOR pixel;
    ALLEGRO_COLOR alpha_pixel;
+   ALLEGRO_STATE backup;
 
    if (!al_lock_bitmap(bitmap, &lr, 0)) {
       TRACE("al_convert_mask_to_alpha: Couldn't lock bitmap.\n");
       return;
    }
 
-   _al_push_target_bitmap();
+   al_store_state(&backup, ALLEGRO_STATE_TARGET_BITMAP);
+   
    al_set_target_bitmap(bitmap);
 
    alpha_pixel = al_map_rgba(0, 0, 0, 0);
@@ -629,7 +632,7 @@ void al_convert_mask_to_alpha(ALLEGRO_BITMAP *bitmap, ALLEGRO_COLOR mask_color)
       }
    }
 
-   _al_pop_target_bitmap();
+   al_restore_state(&backup);
 
    al_unlock_bitmap(bitmap);
 }
@@ -808,6 +811,7 @@ bool al_is_bitmap_locked(ALLEGRO_BITMAP *bitmap)
 void _al_convert_to_memory_bitmap(ALLEGRO_BITMAP *bitmap)
 {
    ALLEGRO_BITMAP *tmp;
+   ALLEGRO_STATE backup;
 
    /* Do nothing if it is a memory bitmap already. */
    if (bitmap->flags & ALLEGRO_MEMORY_BITMAP)
@@ -824,13 +828,12 @@ void _al_convert_to_memory_bitmap(ALLEGRO_BITMAP *bitmap)
 
    /* Allocate a temporary bitmap which will hold the data
     * during the conversion process. */
-   _al_push_new_bitmap_parameters();
+   
+   al_store_state(&backup, ALLEGRO_STATE_BITMAP);
+
    al_set_new_bitmap_flags(ALLEGRO_MEMORY_BITMAP);
    al_set_new_bitmap_format(bitmap->format);
    tmp = al_create_bitmap(bitmap->w, bitmap->h);
-   _al_pop_new_bitmap_parameters();
-
-   _al_push_target_bitmap();
 
    /* Preserve bitmap contents. */
    al_set_target_bitmap(tmp);
@@ -839,8 +842,8 @@ void _al_convert_to_memory_bitmap(ALLEGRO_BITMAP *bitmap)
    tmp->cr = bitmap->cr;
    tmp->cl = bitmap->cl;
    tmp->ct = bitmap->ct;
-
-   _al_pop_target_bitmap();
+   
+   al_restore_state(&backup);
 
    /* Destroy the display bitmap to free driver-specific resources. */
    if (bitmap->vt)

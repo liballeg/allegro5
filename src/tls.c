@@ -42,22 +42,14 @@ typedef struct thread_local_state {
    ALLEGRO_DISPLAY *current_display;
    /* Target bitmap */
    ALLEGRO_BITMAP *target_bitmap;
-   /* For pushing/popping target bitmap */
-   ALLEGRO_BITMAP *target_bitmap_backup;
    /* Bitmap parameters */
    int new_bitmap_format;
    int new_bitmap_flags;
-   /* For pushing/popping bitmap parameters */
-   int new_bitmap_format_backup;
-   int new_bitmap_flags_backup;
    /* Blending modes and color */
    int blend_source;
    int blend_dest;
    ALLEGRO_COLOR blend_color;
    ALLEGRO_MEMORY_BLENDER memory_blender;
-   int src_blender_backup;
-   int dst_blender_backup;
-   ALLEGRO_COLOR blend_color_backup;
    /* Error code */
    int allegro_errno;
 } thread_local_state;
@@ -200,18 +192,12 @@ static THREAD_LOCAL thread_local_state _tls = {
    0,                                     /* new_display_flags */
    NULL,                                  /* current_display */
    NULL,                                  /* target_bitmap */
-   NULL,                                  /* target_bitmap_backup */
    ALLEGRO_PIXEL_FORMAT_ANY_WITH_ALPHA,   /* new_bitmap_format */
    0,                                     /* new_bitmap_flags */
-   0,                                     /* new_bitmap_format_backup */
-   0,                                     /* new_bitmap_flags_backup */
    ALLEGRO_ALPHA,                         /* blend_source */
    ALLEGRO_INVERSE_ALPHA,                 /* blend_dest */
    { 1.0f, 1.0f, 1.0f, 1.0f },            /* blend_color  */
    _al_blender_alpha_inverse_alpha,       /* memory_blender */
-   0,                                     /* src_blender_backup */
-   0,                                     /* dst_blender_backup */
-   { 1.0f, 1.0f, 1.0f, 1.0f },            /* blend_color_backup */
    0                                      /* errno */
 };
 
@@ -438,59 +424,6 @@ ALLEGRO_BITMAP *al_get_target_bitmap(void)
 
 
 
-void _al_push_target_bitmap(void)
-{
-   thread_local_state *tls;
-
-   if ((tls = tls_get()) == NULL)
-      return;
-   tls->target_bitmap_backup = tls->target_bitmap;
-}
-
-
-
-void _al_pop_target_bitmap(void)
-{
-   thread_local_state *tls;
-
-   if ((tls = tls_get()) == NULL)
-      return;
-   tls->target_bitmap = tls->target_bitmap_backup;
-   al_set_target_bitmap(tls->target_bitmap);
-}
-
-
-
-void _al_push_blender(void)
-{
-   thread_local_state *tls;
-
-   if ((tls = tls_get()) == NULL)
-      return;
-
-   al_get_blender(
-      &tls->src_blender_backup,
-      &tls->dst_blender_backup,
-      &tls->blend_color_backup);
-}
-
-
-
-void _al_pop_blender(void)
-{
-   thread_local_state *tls;
-
-   if ((tls = tls_get()) == NULL)
-      return;
-
-   al_set_blender(
-      tls->src_blender_backup,
-      tls->dst_blender_backup,
-      tls->blend_color_backup);
-}
-
-
-
 /* Function: al_set_new_bitmap_format
  *
  * Sets the pixel format for newly created bitmaps. format
@@ -564,30 +497,6 @@ int al_get_new_bitmap_flags(void)
    if ((tls = tls_get()) == NULL)
       return 0;
    return tls->new_bitmap_flags;
-}
-
-
-
-void _al_push_new_bitmap_parameters(void)
-{
-   thread_local_state *tls;
-
-   if ((tls = tls_get()) == NULL)
-      return;
-   tls->new_bitmap_format_backup = tls->new_bitmap_format;
-   tls->new_bitmap_flags_backup = tls->new_bitmap_flags;
-}
-
-
-
-void _al_pop_new_bitmap_parameters(void)
-{
-   thread_local_state *tls;
-
-   if ((tls = tls_get()) == NULL)
-      return;
-   tls->new_bitmap_format = tls->new_bitmap_format_backup;
-   tls->new_bitmap_flags = tls->new_bitmap_flags_backup;
 }
 
 
@@ -669,10 +578,12 @@ void al_restore_state(ALLEGRO_STATE const *state)
    
    if (flags & ALLEGRO_STATE_DISPLAY) {
       _STORE(current_display);
+      al_set_current_display(tls->current_display);
    }
    
    if (flags & ALLEGRO_STATE_TARGET_BITMAP) {
       _STORE(target_bitmap);
+      al_set_target_bitmap(tls->target_bitmap);
    }
    
    if (flags & ALLEGRO_STATE_BLENDER) {

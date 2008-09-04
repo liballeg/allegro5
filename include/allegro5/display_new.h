@@ -96,9 +96,6 @@ AL_FUNC(void, al_flip_display,       (void));
 AL_FUNC(bool, al_update_display_region, (int x, int y, int width, int height));
 AL_FUNC(bool, al_is_compatible_bitmap, (ALLEGRO_BITMAP *bitmap));
 
-AL_FUNC(void, _al_push_target_bitmap, (void));
-AL_FUNC(void, _al_pop_target_bitmap, (void));
-
 AL_FUNC(int, al_get_num_display_modes, (void));
 AL_FUNC(ALLEGRO_DISPLAY_MODE*, al_get_display_mode, (int index,
         ALLEGRO_DISPLAY_MODE *mode));

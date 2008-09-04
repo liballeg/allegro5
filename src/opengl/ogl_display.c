@@ -155,11 +155,12 @@ ALLEGRO_BITMAP_OGL* _al_ogl_create_backbuffer(ALLEGRO_DISPLAY *disp)
 {
    ALLEGRO_BITMAP_OGL *ogl_backbuffer;
    ALLEGRO_BITMAP *backbuffer;
+   ALLEGRO_STATE backup;
 
-   _al_push_new_bitmap_parameters();
+   al_store_state(&backup, ALLEGRO_STATE_NEW_BITMAP_PARAMETERS);
    al_set_new_bitmap_format(disp->format);
    backbuffer = _al_ogl_create_bitmap(disp, disp->w, disp->h);
-   _al_pop_new_bitmap_parameters();
+   al_restore_state(&backup);
 
    ogl_backbuffer = (ALLEGRO_BITMAP_OGL*)backbuffer;
    ogl_backbuffer->is_backbuffer = 1;

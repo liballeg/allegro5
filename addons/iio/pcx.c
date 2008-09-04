@@ -14,6 +14,7 @@ static ALLEGRO_BITMAP *iio_load_pcx_pf(PACKFILE *f)
    int x, xx, y;
    char ch;
    ALLEGRO_LOCKED_REGION lr;
+   ALLEGRO_STATE backup;
    unsigned char *buf;
    PalEntry pal[256];
    ASSERT(f);
@@ -67,7 +68,7 @@ static ALLEGRO_BITMAP *iio_load_pcx_pf(PACKFILE *f)
       buf = (unsigned char *)malloc(bytes_per_line*3);
    }
 
-   _al_push_target_bitmap();
+   al_store_state(&backup, ALLEGRO_STATE_TARGET_BITMAP);
    al_set_target_bitmap(b);
    al_lock_bitmap(b, &lr, ALLEGRO_LOCK_WRITEONLY);
 
@@ -137,7 +138,7 @@ static ALLEGRO_BITMAP *iio_load_pcx_pf(PACKFILE *f)
       }
    }
 
-   _al_pop_target_bitmap();
+   al_restore_state(&backup);
    al_unlock_bitmap(b);
    
    free(buf);

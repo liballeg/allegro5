@@ -279,8 +279,7 @@ static ALLEGRO_FONT_COLOR_DATA *color_copy_glyph_range(ALLEGRO_FONT_COLOR_DATA *
    ALLEGRO_BITMAP **gl;
    ALLEGRO_BITMAP *g;
    int num, c;
-   int src_mode, dst_mode;
-   ALLEGRO_COLOR blend_color, white;
+   ALLEGRO_COLOR white;
    
    if (begin<cf->begin || end>cf->end)
       return NULL;
@@ -295,13 +294,11 @@ static ALLEGRO_FONT_COLOR_DATA *color_copy_glyph_range(ALLEGRO_FONT_COLOR_DATA *
    newcf->next = NULL;
    num = end - begin;
 
-   _al_push_new_bitmap_parameters();
+   al_store_state(&backup, ALLEGRO_STATE_BITMAP | ALLEGRO_STATE_BLENDER);
    //al_set_new_bitmap_flags(0);
    al_set_new_bitmap_format(ALLEGRO_PIXEL_FORMAT_ANY_WITH_ALPHA);
-   al_get_blender(&src_mode, &dst_mode, &blend_color);
    white = al_map_rgb(255, 255, 255);
    al_set_blender(ALLEGRO_ONE, ALLEGRO_ZERO, white);
-   _al_push_target_bitmap();
 
    gl = newcf->bitmaps = _AL_MALLOC(num * sizeof *gl);
    for (c=0; c<num; c++) {
@@ -311,9 +308,7 @@ static ALLEGRO_FONT_COLOR_DATA *color_copy_glyph_range(ALLEGRO_FONT_COLOR_DATA *
       al_draw_bitmap(g, 0, 0, 0);
    }
 
-   _al_pop_new_bitmap_parameters();
-   al_set_blender(src_mode, dst_mode, blend_color);
-   _al_pop_target_bitmap();
+   al_restore_state(&backup);
 
    return newcf;
 }

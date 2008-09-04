@@ -608,6 +608,7 @@ static ALLEGRO_BITMAP *iio_load_bmp_pf(PACKFILE *f)
    unsigned long biSize;
    unsigned char *buf = NULL;
    ALLEGRO_LOCKED_REGION lr;
+   ALLEGRO_STATE backup;
    int bpp;
    ASSERT(f);
 
@@ -669,7 +670,7 @@ static ALLEGRO_BITMAP *iio_load_bmp_pf(PACKFILE *f)
       return NULL;
    }
 
-   _al_push_target_bitmap();
+   al_store_state(&backup, ALLEGRO_STATE_TARGET_BITMAP);
    al_set_target_bitmap(bmp);
    al_lock_bitmap(bmp, &lr, ALLEGRO_LOCK_WRITEONLY);
 
@@ -715,7 +716,7 @@ static ALLEGRO_BITMAP *iio_load_bmp_pf(PACKFILE *f)
       free(buf);
    }
 
-   _al_pop_target_bitmap();
+   al_restore_state(&backup);
    al_unlock_bitmap(bmp);
 
    return bmp;

@@ -1843,6 +1843,7 @@ static bool d3d_resize_display(ALLEGRO_DISPLAY *d, int width, int height)
    else {
       RECT win_size;
       WINDOWINFO wi;
+      ALLEGRO_STATE backup;
 
       win_size.left = 0;
       win_size.top = 0;
@@ -1866,13 +1867,13 @@ static bool d3d_resize_display(ALLEGRO_DISPLAY *d, int width, int height)
        * The clipping rectangle and bitmap size must be
        * changed to match the new size.
        */
-      _al_push_target_bitmap();
+      al_store_state(&backup, ALLEGRO_STATE_TARGET_BITMAP);
       al_set_target_bitmap(&disp->backbuffer_bmp.bitmap);
       disp->backbuffer_bmp.bitmap.w = width;
       disp->backbuffer_bmp.bitmap.h = height;
       al_set_clipping_rectangle(0, 0, width-1, height-1);
       d3d_set_bitmap_clip(&disp->backbuffer_bmp.bitmap);
-      _al_pop_target_bitmap();
+      al_restore_state(&backup);
 #if 0
 
       TRACE("resizing windowed display!\n");

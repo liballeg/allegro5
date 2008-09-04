@@ -555,10 +555,9 @@ void _al_win_set_display_icon(ALLEGRO_DISPLAY *display, ALLEGRO_BITMAP *bmp)
    ALLEGRO_BITMAP *scaled_bmp;
    HICON icon, old_small, old_big;
    ALLEGRO_DISPLAY_WIN *win_display = (ALLEGRO_DISPLAY_WIN *)display;
+   ALLEGRO_STATE backup;
 
-   _al_push_new_bitmap_parameters();
-   _al_push_target_bitmap();
-   _al_push_blender();
+   al_store_state(&backup, ALLEGRO_STATE_BITMAP | ALLEGRO_STATE_BLENDER);
 
    al_set_new_bitmap_flags(ALLEGRO_MEMORY_BITMAP);
    al_set_new_bitmap_format(ALLEGRO_PIXEL_FORMAT_ARGB_8888);
@@ -570,9 +569,7 @@ void _al_win_set_display_icon(ALLEGRO_DISPLAY *display, ALLEGRO_BITMAP *bmp)
       al_get_bitmap_height(bmp),
       0, 0, 32, 32, 0);
 
-   _al_pop_target_bitmap();
-   _al_pop_new_bitmap_parameters();
-   _al_pop_blender();
+   al_restore_state(&backup);
 
    icon = _al_win_create_icon(win_display->window, scaled_bmp, 0, 0, false);
 

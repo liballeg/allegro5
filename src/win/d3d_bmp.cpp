@@ -440,6 +440,7 @@ static ALLEGRO_BITMAP *d3d_create_bitmap_from_surface(LPDIRECT3DSURFACE9 surface
    D3DSURFACE_DESC desc;
    D3DLOCKED_RECT surf_locked_rect;
    D3DLOCKED_RECT sys_locked_rect;
+   ALLEGRO_STATE backup;
    int format;
    unsigned int y;
 
@@ -453,7 +454,7 @@ static ALLEGRO_BITMAP *d3d_create_bitmap_from_surface(LPDIRECT3DSURFACE9 surface
       return NULL;
    }
 
-   _al_push_new_bitmap_parameters();
+   al_store_state(&backup, ALLEGRO_STATE_NEW_BITMAP_PARAMETERS);
 
    format = _al_d3d_format_to_allegro(desc.Format);
 
@@ -463,7 +464,7 @@ static ALLEGRO_BITMAP *d3d_create_bitmap_from_surface(LPDIRECT3DSURFACE9 surface
    bitmap = al_create_bitmap(desc.Width, desc.Height);
    d3d_bmp = (ALLEGRO_BITMAP_D3D *)bitmap;
 
-   _al_pop_new_bitmap_parameters();
+   al_restore_state(&backup);
 
    if (!bitmap) {
       surface->UnlockRect();

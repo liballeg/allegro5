@@ -89,6 +89,7 @@ static ALLEGRO_BITMAP *really_load_png(png_structp png_ptr, png_infop info_ptr)
     int number_passes, pass;
     PalEntry pal[256];
     ALLEGRO_LOCKED_REGION lock;
+    ALLEGRO_STATE backup;
     unsigned char *buf;
 
     ASSERT(png_ptr && info_ptr);
@@ -188,7 +189,7 @@ static ALLEGRO_BITMAP *really_load_png(png_structp png_ptr, png_infop info_ptr)
     buf = malloc(((bpp+7)/8) * width);
 
     al_lock_bitmap(bmp, &lock, ALLEGRO_LOCK_WRITEONLY);
-    _al_push_target_bitmap();
+    al_store_state(&backup, ALLEGRO_STATE_TARGET_BITMAP);
     al_set_target_bitmap(bmp);
 
     /* Read the image, one line at a line (easier to debug!) */
@@ -254,7 +255,7 @@ static ALLEGRO_BITMAP *really_load_png(png_structp png_ptr, png_infop info_ptr)
     }
 
     al_unlock_bitmap(bmp);
-    _al_pop_target_bitmap();
+    al_restore_state(&backup);
 
     free(buf);
 

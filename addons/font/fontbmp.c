@@ -103,11 +103,11 @@ static int import_bitmap_font_color(ALLEGRO_BITMAP *import_bmp, ALLEGRO_BITMAP**
    int w = 1, h = 1, i;
    int ret = 0;
    ALLEGRO_COLOR col;
+   ALLEGRO_STATE backup;
          
    col = al_map_rgb(255, 255, 0);
 
-   _al_push_target_bitmap();
-   _al_push_new_bitmap_parameters();
+   al_store_state(&backup, ALLEGRO_STATE_BITMAP);
    //al_set_new_bitmap_flags(0);
    al_set_new_bitmap_format(ALLEGRO_PIXEL_FORMAT_ANY_WITH_ALPHA);
    
@@ -133,8 +133,7 @@ static int import_bitmap_font_color(ALLEGRO_BITMAP *import_bmp, ALLEGRO_BITMAP**
    }
 
 done:
-   _al_pop_target_bitmap();
-   _al_pop_new_bitmap_parameters();
+   al_restore_state(&backup);
 
    return ret;
 }
@@ -172,6 +171,7 @@ ALLEGRO_FONT *al_font_load_bitmap_font(AL_CONST char *fname, void *param)
    ALLEGRO_FONT *f;
    ALLEGRO_COLOR col;
    unsigned char r,g,b,a;
+   ALLEGRO_STATE backup;
    ASSERT(fname);
 
    /* Don't change the colourdepth of the bitmap if it is 8 bit */
@@ -183,11 +183,11 @@ ALLEGRO_FONT *al_font_load_bitmap_font(AL_CONST char *fname, void *param)
    set_color_conversion(color_conv_mode);
    */
 
-   _al_push_new_bitmap_parameters();
+   al_store_state(&backup, ALLEGRO_STATE_NEW_BITMAP_PARAMETERS);
    al_set_new_bitmap_flags(ALLEGRO_MEMORY_BITMAP);
    al_set_new_bitmap_format(ALLEGRO_PIXEL_FORMAT_ANY_WITH_ALPHA);
    import_bmp = al_iio_load(fname);
-   _al_pop_new_bitmap_parameters();
+   al_restore_state(&backup);
 
    if(!import_bmp) 
      return NULL;
@@ -212,6 +212,7 @@ ALLEGRO_FONT *al_font_grab_font_from_bitmap(ALLEGRO_BITMAP *bmp)
    ALLEGRO_FONT *f;
    ALLEGRO_FONT_COLOR_DATA* cf;
    ASSERT(bmp)
+   ALLEGRO_STATE backup;
 
    import_x = 0;
    import_y = 0;
@@ -222,8 +223,7 @@ ALLEGRO_FONT *al_font_grab_font_from_bitmap(ALLEGRO_BITMAP *bmp)
    cf = _AL_MALLOC(sizeof(ALLEGRO_FONT_COLOR_DATA));
    cf->bitmaps = _AL_MALLOC(sizeof(ALLEGRO_BITMAP*) * (end - begin));
    
-   _al_push_target_bitmap();
-   _al_push_new_bitmap_parameters();
+   al_store_state(&backup, ALLEGRO_STATE_BITMAP | ALLEGRO_STATE_BLENDER);
    //al_set_new_bitmap_flags(0);
    al_set_new_bitmap_format(ALLEGRO_PIXEL_FORMAT_ANY_WITH_ALPHA);
 
@@ -233,15 +233,11 @@ ALLEGRO_FONT *al_font_grab_font_from_bitmap(ALLEGRO_BITMAP *bmp)
 
    al_set_target_bitmap(cf->glyphs);
 
-   _al_push_blender();
    al_set_blender(ALLEGRO_ONE, ALLEGRO_ZERO, al_map_rgb(255, 255, 255));
 
    al_draw_bitmap(bmp, 0, 0, 0);
 
-   _al_pop_blender();
-
-   _al_pop_target_bitmap();
-   _al_pop_new_bitmap_parameters();
+   al_restore_state(&backup);
 
    if( import_bitmap_font_color(bmp, cf->bitmaps, cf->glyphs, end - begin) ) {
       _AL_FREE(cf->bitmaps);

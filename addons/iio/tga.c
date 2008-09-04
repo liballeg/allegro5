@@ -268,6 +268,7 @@ static ALLEGRO_BITMAP *iio_load_tga_pf(PACKFILE *f)
    int compressed;
    ALLEGRO_BITMAP *bmp;
    ALLEGRO_LOCKED_REGION lr;
+   ALLEGRO_STATE backup;
    unsigned char *buf;
    ASSERT(f);
 
@@ -376,7 +377,8 @@ static ALLEGRO_BITMAP *iio_load_tga_pf(PACKFILE *f)
 
    al_lock_bitmap(bmp, &lr, ALLEGRO_LOCK_WRITEONLY);
    buf = malloc(image_width*((bpp+1/8)));
-   _al_push_target_bitmap();
+
+   al_store_state(&backup, ALLEGRO_STATE_TARGET_BITMAP);
    al_set_target_bitmap(bmp);
 
    for (y=0; y < image_height; y++) {
@@ -455,7 +457,7 @@ static ALLEGRO_BITMAP *iio_load_tga_pf(PACKFILE *f)
 
    free(buf);
    al_unlock_bitmap(bmp);
-   _al_pop_target_bitmap();
+   al_restore_state(&backup);
    
    if (al_get_errno()) {
       al_destroy_bitmap(bmp);
