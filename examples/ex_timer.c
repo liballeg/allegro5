@@ -32,9 +32,9 @@ static void init(void)
    ex.FPS = 50;
    ex.first_tick = true;
 
-   ex.myfont = al_font_load_font("fixed_font.tga", 0);
+   ex.myfont = al_font_load_font("data/fixed_font.tga", 0);
    if (!ex.myfont) {
-      TRACE("fixed_font.tga not found\n");
+      TRACE("data/fixed_font.tga not found\n");
       exit(1);
    }
 }

@@ -283,9 +283,9 @@ static void init(void)
    ex.BUTTONS_X = 40 + 110 * 4;
    ex.FPS = 60;
 
-   ex.myfont = al_font_load_font("font.tga", 0);
+   ex.myfont = al_font_load_font("data/font.tga", 0);
    if (!ex.myfont) {
-      TRACE("font.tga not found\n");
+      TRACE("data/font.tga not found\n");
       exit(1);
    }
    ex.example = create_example_bitmap();
