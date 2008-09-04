@@ -392,6 +392,10 @@ void al_config_destroy(ALLEGRO_CONFIG *config)
    ALLEGRO_CONFIG_ENTRY *e;
    ALLEGRO_CONFIG_SECTION *s;
 
+   if (!config) {
+      return;
+   }
+
    e = config->globals;
    while (e) {
       ALLEGRO_CONFIG_ENTRY *tmp = e->next;
