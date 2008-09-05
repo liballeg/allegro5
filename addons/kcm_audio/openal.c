@@ -246,7 +246,7 @@ static void _openal_update(_AL_THREAD* self, void* arg)
       {
          ALuint buffer;
 
-         data = _al_voice_update(voice, samples_per_update);
+         data = _al_voice_update(voice, &samples_per_update);
          if(data == NULL)
             data = silence;
 

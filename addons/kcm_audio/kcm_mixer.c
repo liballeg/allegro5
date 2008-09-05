@@ -150,10 +150,6 @@ static bool fix_looped_position(ALLEGRO_SAMPLE *spl)
          stream = (ALLEGRO_STREAM *)spl;
          is_dry = !_al_kcm_refill_stream(stream);
          if (is_dry && stream->drained) {
-            /* We can't use plain al_stream_set_bool() here becase the
-             * stream->spl.mutex has been locked, and al_stream_set_bool() tries
-             * to lock too... Just setting is_playing to false should do. */
-             /* al_stream_set_bool(stream, ALLEGRO_AUDIOPROP_PLAYING, false);*/
             stream->spl.is_playing = false;
             stream->drained = false;
          }
@@ -365,18 +361,19 @@ static INLINE const float *linear_spl32u(const ALLEGRO_SAMPLE *spl,
 /* Reads some samples into a mixer buffer. */
 #define MAKE_MIXER(bits, interp)                                              \
 static void read_to_mixer_##interp##bits(void *source, void **vbuf,           \
-   unsigned long samples, ALLEGRO_AUDIO_DEPTH buffer_depth,                   \
+   unsigned long *samples, ALLEGRO_AUDIO_DEPTH buffer_depth,                  \
    size_t dest_maxc)                                                          \
 {                                                                             \
    ALLEGRO_SAMPLE *spl = (ALLEGRO_SAMPLE *)source;                            \
    float *buf = *vbuf;                                                        \
    size_t maxc = al_channel_count(spl->spl_data.chan_conf);                   \
+   size_t samples_l = *samples;                                               \
    size_t c;                                                                  \
                                                                               \
    if (!spl->is_playing)                                                      \
       return;                                                                 \
                                                                               \
-   while (samples > 0) {                                                      \
+   while (samples_l > 0) {                                                    \
       const float *s;                                                         \
                                                                               \
       if (!fix_looped_position(spl))                                          \
@@ -392,7 +389,7 @@ static void read_to_mixer_##interp##bits(void *source, void **vbuf,           \
       }                                                                       \
                                                                               \
       spl->pos += spl->step;                                                  \
-      samples--;                                                              \
+      samples_l--;                                                            \
    }                                                                          \
    fix_looped_position(spl);                                                  \
    (void)buffer_depth;                                                        \
@@ -427,34 +424,35 @@ static INLINE int32_t clamp(int32_t val, int32_t min, int32_t max)
  *  specified buffer (or if *buf is NULL, indicating a voice, convert it and
  *  set it to the buffer pointer).
  */
-void _al_kcm_mixer_read(void *source, void **buf, unsigned long samples,
+void _al_kcm_mixer_read(void *source, void **buf, unsigned long *samples,
    ALLEGRO_AUDIO_DEPTH buffer_depth, size_t dest_maxc)
 {
    const ALLEGRO_MIXER *mixer;
    ALLEGRO_MIXER *m = (ALLEGRO_MIXER *)source;
    int maxc = al_channel_count(m->ss.spl_data.chan_conf);
+   unsigned long samples_l = *samples;
    int i;
 
    if (!m->ss.is_playing)
       return;
 
    /* Make sure the mixer buffer is big enough. */
-   if (m->ss.spl_data.len*maxc < samples*maxc) {
+   if (m->ss.spl_data.len*maxc < samples_l*maxc) {
       free(m->ss.spl_data.buffer.ptr);
-      m->ss.spl_data.buffer.ptr = malloc(samples*maxc*sizeof(float));
+      m->ss.spl_data.buffer.ptr = malloc(samples_l*maxc*sizeof(float));
       if (!m->ss.spl_data.buffer.ptr) {
          _al_set_error(ALLEGRO_GENERIC_ERROR,
             "Out of memory allocating mixer buffer");
          m->ss.spl_data.len = 0;
          return;
       }
-      m->ss.spl_data.len = samples;
+      m->ss.spl_data.len = samples_l;
    }
 
    mixer = m;
 
    /* Clear the buffer to silence. */
-   memset(mixer->ss.spl_data.buffer.ptr, 0, samples * maxc * sizeof(float));
+   memset(mixer->ss.spl_data.buffer.ptr, 0, samples_l * maxc * sizeof(float));
 
    /* Mix the streams into the mixer buffer. */
    for (i = _al_vector_size(&mixer->streams) - 1; i >= 0; i--) {
@@ -470,16 +468,16 @@ void _al_kcm_mixer_read(void *source, void **buf, unsigned long samples,
          mixer->ss.spl_data.len, mixer->pp_callback_userdata);
    }
 
-   samples *= maxc;
+   samples_l *= maxc;
 
    if (*buf) {
       /* We don't need to clamp in the mixer yet. */
       float *lbuf = *buf;
       float *src = mixer->ss.spl_data.buffer.f32;
 
-      while (samples > 0) {
+      while (samples_l > 0) {
          *(lbuf++) += *(src++);
-         samples--;
+         samples_l--;
       }
       return;
    }
@@ -495,12 +493,12 @@ void _al_kcm_mixer_read(void *source, void **buf, unsigned long samples,
          int32_t *lbuf = mixer->ss.spl_data.buffer.s24;
          float *src = mixer->ss.spl_data.buffer.f32;
 
-         while (samples > 0) {
+         while (samples_l > 0) {
             *lbuf = clamp(*(src++) * ((float)0x7FFFFF + 0.5f),
                ~0x7FFFFF, 0x7FFFFF);
             *lbuf += off;
             lbuf++;
-            samples--;
+            samples_l--;
          }
          break;
       }
@@ -511,11 +509,11 @@ void _al_kcm_mixer_read(void *source, void **buf, unsigned long samples,
          int16_t *lbuf = mixer->ss.spl_data.buffer.s16;
          float *src = mixer->ss.spl_data.buffer.f32;
 
-         while (samples > 0) {
+         while (samples_l > 0) {
             *lbuf = clamp(*(src++) * ((float)0x7FFF + 0.5f), ~0x7FFF, 0x7FFF);
             *lbuf += off;
             lbuf++;
-            samples--;
+            samples_l--;
          }
          break;
       }
@@ -526,11 +524,11 @@ void _al_kcm_mixer_read(void *source, void **buf, unsigned long samples,
          int8_t *lbuf = mixer->ss.spl_data.buffer.s8;
          float *src = mixer->ss.spl_data.buffer.f32;
 
-         while (samples > 0) {
+         while (samples_l > 0) {
             *lbuf = clamp(*(src++) * ((float)0x7F + 0.5f), ~0x7F, 0x7F);
             *lbuf += off;
             lbuf++;
-            samples--;
+            samples_l--;
          }
          break;
       }

@@ -464,7 +464,7 @@ bool _al_kcm_refill_stream(ALLEGRO_STREAM *stream)
    if (!stream->spl.spl_data.buffer.ptr)
       return false;
 
-   stream->spl.pos -= stream->spl.spl_data.len;
+   stream->spl.pos = 0;
 
    return true;
 }

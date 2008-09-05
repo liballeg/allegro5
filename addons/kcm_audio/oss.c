@@ -406,8 +406,8 @@ static void* oss_update(ALLEGRO_THREAD *self, void *arg)
       len = bi.bytes;
       */
 
-      int frames = 1024; /* How many bytes are we supposed to try to
-                          * write at once? */
+      unsigned long frames = 1024; /* How many bytes are we supposed to try to
+                                    * write at once? */
 
 
       if (oss_voice->stop && !oss_voice->stopped) {
@@ -438,7 +438,7 @@ static void* oss_update(ALLEGRO_THREAD *self, void *arg)
          }
       }
       else if (voice->is_streaming && !oss_voice->stopped) {
-         const void *data = _al_voice_update(voice, frames);
+         const void *data = _al_voice_update(voice, &frames);
          if (data == NULL)
             goto silence;
 

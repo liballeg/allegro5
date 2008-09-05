@@ -110,7 +110,8 @@ static void* _dsound_update(ALLEGRO_THREAD* self, void* arg)
    /* Fill buffer */
    hr = ex_data->ds8_buffer->Lock(0, BUFSIZE, &ptr1, &block1_bytes, &ptr2, &block2_bytes, DSBLOCK_ENTIREBUFFER);
    if (!FAILED(hr)) {
-      data = _al_voice_update(voice, BUFSIZE / bytes_per_sample / ex_data->channels);
+      samples = BUFSIZE / bytes_per_sample / ex_data->channels;
+      data = _al_voice_update(voice, &samples);
       memcpy(ptr1, data, block1_bytes);
       memcpy(ptr2, ((unsigned char *)data)+block1_bytes, block2_bytes);
       ex_data->ds8_buffer->Unlock(ptr1, block1_bytes, ptr2, block2_bytes);
@@ -128,7 +129,7 @@ static void* _dsound_update(ALLEGRO_THREAD* self, void* arg)
          if (d < 0)
             d += BUFSIZE;
          samples = d / bytes_per_sample / ex_data->channels;
-         data = _al_voice_update(voice, samples);
+         data = _al_voice_update(voice, &samples);
          if (data == NULL) {
             /* FIXME: play silence */
          }

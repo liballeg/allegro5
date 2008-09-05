@@ -16,7 +16,7 @@
 
 
 /* forward declarations */
-static void stream_read(void *source, void **vbuf, unsigned long samples,
+static void stream_read(void *source, void **vbuf, unsigned long *samples,
    ALLEGRO_AUDIO_DEPTH buffer_depth, size_t dest_maxc);
 
 
@@ -30,9 +30,11 @@ static void stream_read(void *source, void **vbuf, unsigned long samples,
  *  The return value is a pointer to the next chunk of audio data in the format
  *  the voice was allocated with. It may return NULL, in which case it is the
  *  driver's responsilibty to play silence for the voice. The returned buffer
- *  must *not* be modified.
+ *  must *not* be modified. The 'samples' argument is set to the samples count
+ *  in the returned audio data and it may be less or equal to the requested
+ *  samples count.
  */
-const void *_al_voice_update(ALLEGRO_VOICE *voice, unsigned long samples)
+const void *_al_voice_update(ALLEGRO_VOICE *voice, unsigned long *samples)
 {
    void *buf = NULL;
 
@@ -182,29 +184,50 @@ int al_voice_attach_sample(ALLEGRO_VOICE *voice, ALLEGRO_SAMPLE *spl)
 
 
 /* stream_read:
- *  This passes the next waiting stream buffer to the voice via vbuf, setting
- *  the last one as used
+ *  This passes the next waiting stream buffer to the voice via vbuf.
  */
-static void stream_read(void *source, void **vbuf, unsigned long samples,
+static void stream_read(void *source, void **vbuf, unsigned long *samples,
    ALLEGRO_AUDIO_DEPTH buffer_depth, size_t dest_maxc)
 {
    ALLEGRO_STREAM *stream = (ALLEGRO_STREAM*)source;
+   unsigned int len = stream->spl.spl_data.len >> MIXER_FRAC_SHIFT;
+   unsigned int pos = stream->spl.pos >> MIXER_FRAC_SHIFT;
 
    if (!stream->spl.is_playing) {
+      *vbuf = NULL;
       return;
    }
 
-   _al_kcm_refill_stream(stream);
-   *vbuf = stream->pending_bufs[0];
+   if (*samples > len)
+      *samples = len;
 
-   if (*vbuf == NULL && stream->drained) {
-      stream->drained = false;
-      stream->spl.is_playing = false;
+   if (pos >= len) {
+      _al_kcm_refill_stream(stream);
+      if (!stream->pending_bufs[0]) {
+         if (stream->drained) {
+            stream->drained = false;
+            stream->spl.is_playing = false;
+         }
+         *vbuf = NULL;
+         return;
+      }
+      *vbuf = stream->pending_bufs[0];
+      pos = *samples;
    }
+   else {
+      int bytes = pos * al_channel_count(stream->spl.spl_data.chan_conf)
+                      * al_depth_size(stream->spl.spl_data.depth);
+      *vbuf = stream->pending_bufs[0] + bytes;
+
+      if (pos + *samples > len)
+         *samples = len - pos;
+      pos += *samples;
+   }
+
+   stream->spl.pos = pos << MIXER_FRAC_SHIFT;
 
    (void)dest_maxc;
    (void)buffer_depth;
-   (void)samples;
 }
 
 

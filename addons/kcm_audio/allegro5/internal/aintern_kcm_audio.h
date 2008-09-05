@@ -39,7 +39,7 @@ struct ALLEGRO_AUDIO_DRIVER {
 
 extern ALLEGRO_AUDIO_DRIVER *_al_kcm_driver;
 
-const void *_al_voice_update(ALLEGRO_VOICE *voice, unsigned long samples);
+const void *_al_voice_update(ALLEGRO_VOICE *voice, unsigned long *samples);
 
 /* A voice structure that you'd attach a mixer or sample to. Ideally there
  * would be one ALLEGRO_VOICE per system/hardware voice.
@@ -98,7 +98,7 @@ struct ALLEGRO_SAMPLE_DATA {
 };
 
 
-typedef void (*stream_reader_t)(void *, void **, unsigned long,
+typedef void (*stream_reader_t)(void *, void **, unsigned long *,
    ALLEGRO_AUDIO_DEPTH, size_t);
 
 typedef struct {
@@ -227,7 +227,7 @@ struct ALLEGRO_MIXER {
                             */
 };
 
-extern void _al_kcm_mixer_read(void *source, void **buf, unsigned long samples,
+extern void _al_kcm_mixer_read(void *source, void **buf, unsigned long *samples,
    ALLEGRO_AUDIO_DEPTH buffer_depth, size_t dest_maxc);
 
 

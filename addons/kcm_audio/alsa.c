@@ -280,7 +280,7 @@ static void* alsa_update(ALLEGRO_THREAD *self, void *arg)
          }
       }
       else if (voice->is_streaming && !alsa_voice->stopped) {
-         const void *data = _al_voice_update(voice, frames);
+         const void *data = _al_voice_update(voice, &frames);
          if (data == NULL)
             goto silence;
          memcpy(mmap, data, frames * alsa_voice->frame_size);
