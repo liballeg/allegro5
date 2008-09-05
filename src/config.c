@@ -42,7 +42,7 @@ static char *local_strdup(const char *s)
    size_t size = strlen(s);
    char *copy;
 
-   copy = _AL_MALLOC_ATOMIC(size);
+   copy = _AL_MALLOC_ATOMIC(size + 1);
    if (copy) {
       memcpy(copy, s, size + 1);
    }
