@@ -124,8 +124,8 @@ Now that the project solution has been generated, open it with the MSVC IDE
 and start the building process.
 
 *Note:*
-The demo is currently excluded from the build due to some problems with the IDE.
-Only Visual Studio 8 2005 has been tested but other versions may work as well.
+The demo is currently excluded from the build if MSVC8 is detected, due to
+some problems with IntelliSense.
 Please give it a try and report problems.
 
 
