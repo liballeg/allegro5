@@ -409,21 +409,12 @@ static void* oss_update(ALLEGRO_THREAD *self, void *arg)
       unsigned long frames = 1024; /* How many bytes are we supposed to try to
                                     * write at once? */
 
-
       if (oss_voice->stop && !oss_voice->stopped) {
          oss_voice->stopped = true;
-#ifdef OSS_VER_4
-         if (using_ver_4)
-            ioctl(oss_voice->fd, SNDCTL_DSP_SKIP, NULL);
-#endif
       }
 
       if (!oss_voice->stop && oss_voice->stopped) {
          oss_voice->stopped = false;
-#ifdef OSS_VER_4
-         if (using_ver_4)
-            ioctl(oss_voice->fd, SNDCTL_DSP_SKIP, NULL);
-#endif
       }
 
       if (!voice->is_streaming && !oss_voice->stopped) {
@@ -451,15 +442,8 @@ static void* oss_update(ALLEGRO_THREAD *self, void *arg)
          int silence;
 silence:
          /* If stopped just fill with silence. */
-         if (using_ver_4) {
-#ifdef OSS_VER_4
-            ioctl(oss_voice->fd, SNDCTL_DSP_SILENCE, NULL);
-#endif
-         }
-         else {
-            memset(sil_buf, _al_audio_get_silence(voice->depth), SIL_BUF_SIZE);
-            write(oss_voice->fd, sil_buf, SIL_BUF_SIZE);
-         }
+         memset(sil_buf, _al_audio_get_silence(voice->depth), SIL_BUF_SIZE);
+         write(oss_voice->fd, sil_buf, SIL_BUF_SIZE);
       }
    }
 
