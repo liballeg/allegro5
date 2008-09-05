@@ -211,8 +211,8 @@ ALLEGRO_FONT *al_font_grab_font_from_bitmap(ALLEGRO_BITMAP *bmp)
    int end = -1;
    ALLEGRO_FONT *f;
    ALLEGRO_FONT_COLOR_DATA* cf;
-   ASSERT(bmp)
    ALLEGRO_STATE backup;
+   ASSERT(bmp)
 
    import_x = 0;
    import_y = 0;

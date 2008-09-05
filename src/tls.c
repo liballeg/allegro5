@@ -511,13 +511,15 @@ int al_get_new_bitmap_flags(void)
 void al_store_state(ALLEGRO_STATE *state, int flags)
 {
    thread_local_state *tls;
+   thread_local_state *stored;
+
    if ((tls = tls_get()) == NULL)
       return;
       
    ASSERT(sizeof(ALLEGRO_STATE) > sizeof(thread_local_state) + sizeof(int));
    state->flags = flags;
    
-   thread_local_state *stored = (void *)&state->_tls;
+   stored = (void *)&state->_tls;
 
    if (flags & ALLEGRO_STATE_NEW_DISPLAY_PARAMETERS) {
       _STORE(new_display_format);
@@ -558,12 +560,14 @@ void al_store_state(ALLEGRO_STATE *state, int flags)
 void al_restore_state(ALLEGRO_STATE const *state)
 {
    thread_local_state *tls;
+   thread_local_state *stored;
    int flags;
+
    if ((tls = tls_get()) == NULL)
       return;
    flags = state->flags;
    
-   thread_local_state *stored = (void *)&state->_tls;
+   stored = (void *)&state->_tls;
 
    if (flags & ALLEGRO_STATE_NEW_DISPLAY_PARAMETERS) {
       _STORE(new_display_format);

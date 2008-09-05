@@ -189,8 +189,6 @@ static void stream_read(void *source, void **vbuf, unsigned long samples,
    ALLEGRO_AUDIO_DEPTH buffer_depth, size_t dest_maxc)
 {
    ALLEGRO_STREAM *stream = (ALLEGRO_STREAM*)source;
-   void *old_buf;
-   size_t i;
 
    if (!stream->spl.is_playing) {
       return;
