@@ -78,7 +78,7 @@ static const int oss_timing_policy = 5;
  * Make this configurable? */
 static int oss_fragsize = (8 << 16) | (10);
 
-/* Auxiliary buffer used in OSS3 to store silence. */
+/* Auxiliary buffer used to store silence. */
 #define SIL_BUF_SIZE 1024
 static char sil_buf[SIL_BUF_SIZE];
 
