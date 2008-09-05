@@ -21,6 +21,21 @@ endif(COMMAND cmake_policy)
 
 option(USE_CXX "Build C++ portions." on)
 
+# Manage (MSVC) build configurations. Ideally, debug projects would only have
+# "Debug" configuration available, and release only "Release" ...
+# More ideally, we would only have one project and multiple configurations for
+# each "GRADE_", but that would require a revamp of this file.
+# Note: This needs to be done before the project command.
+if(GRADE_DEBUG)
+    set(CMAKE_CONFIGURATION_TYPES "Debug" CACHE INTERNAL "internal")
+endif(GRADE_DEBUG)
+if(GRADE_STANDARD)
+    set(CMAKE_CONFIGURATION_TYPES "Release" CACHE INTERNAL "internal")
+endif(GRADE_STANDARD)
+if(GRADE_STANDARD AND GRADE_DEBUG)
+    set(CMAKE_CONFIGURATION_TYPES "Debug;Release" CACHE INTERNAL "internal")
+endif(GRADE_STANDARD AND GRADE_DEBUG)
+
 if(USE_CXX)
     project(ALLEGRO C CXX)
 else(USE_CXX)
