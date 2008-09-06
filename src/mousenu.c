@@ -60,7 +60,7 @@ bool al_install_mouse(void)
           new_mouse_driver = NULL;
           return false;
        }
-       _add_exit_func(al_uninstall_keyboard, "al_uninstall_mouse");
+       _add_exit_func(al_uninstall_mouse, "al_uninstall_mouse");
        return true;
    }
 
