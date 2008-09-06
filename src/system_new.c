@@ -67,7 +67,7 @@ static ALLEGRO_SYSTEM *find_system(_AL_VECTOR *vector)
 
 
 
-void _al_exit(void)
+static void shutdown_system_driver(void)
 {
    if (active_sysdrv) {
       if (active_sysdrv->vt && active_sysdrv->vt->shutdown_system)
@@ -111,7 +111,7 @@ bool al_init(void)
    /* FIXME: On UNIX this should read /etc/allegro.cfg too and merge the two */
    active_sysdrv->config = al_config_read("allegro.cfg");
 
-   _add_exit_func(_al_exit, "Old-API exit function for new API"); 
+   _add_exit_func(shutdown_system_driver, "shutdown_system_driver");
 
    al_set_blender(ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA, al_map_rgb(255, 255, 255));
 
