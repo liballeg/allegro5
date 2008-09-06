@@ -273,23 +273,29 @@ def getAllegroContext2():
     context.cmake = helpers.read_cmake_list("cmake/FileList.cmake")
     return context
 
+# Contains getters for other modules to inspect the current system
 class AllegroContext:
     def __init__(self):
         self.cmake = helpers.read_cmake_list("cmake/FileList.cmake")
         self.librarySource = []
     
+    # List of source for the Allegro library (and nothing else!)
     def getLibrarySource(self):
         return self.librarySource
     
+    # Version of allegro (major.minor.micro)
     def getVersion(self):
         return allegroVersion
     
+    # Add files to the source for the Allegro library
     def addFiles(self,files):
         self.librarySource.extend(files)
 
+    # Just the major version of Allegro
     def getMajorVersion(self):
         return majorVersion
 
+    # Just the minor version of Allegro
     def getMinorVersion(self):
         return minorVersion
 
@@ -298,13 +304,16 @@ class AllegroContextNormal(AllegroContext):
     def __init__(self):
         AllegroContext.__init__(self)
     
+    # Alias a target and add it to the 'all' alias
     def alias(self,name,target):
         Alias(name,target)
         Alias('all',target)
 
+    # Library name is as-is
     def libraryName(self, name):
         return name
 
+    # Build the library
     def buildLibrary(self, env, name, source):
         return env.SharedLibrary(name, source)
 
@@ -320,18 +329,21 @@ class AllegroContextNormal(AllegroContext):
     def getBuildDir(self):
         return BUILD_DIR + '/release'
 
-# Shared non-debug
+# Static non-debug
 class AllegroContextStatic(AllegroContext):
     def __init__(self):
         AllegroContext.__init__(self)
     
+    # Anything aliased with this target ends up with -static on the end
     def alias(self,name,target):
         Alias(name + '-static',target)
         Alias('all-static',target)
 
+    # Adds _s to all libraries
     def libraryName(self, name):
         return name + '_s'
 
+    # Build libraries statically
     def buildLibrary(self, env, name, source):
         return env.StaticLibrary(name, source)
 
@@ -347,7 +359,7 @@ class AllegroContextStatic(AllegroContext):
     def getBuildDir(self):
         return BUILD_DIR + '/release-static'
 
-# Shared non-debug
+# Shared debug
 class AllegroContextDebug(AllegroContext):
     def __init__(self):
         AllegroContext.__init__(self)
@@ -376,7 +388,7 @@ class AllegroContextDebug(AllegroContext):
     def getBuildDir(self):
         return BUILD_DIR + '/debug'
 
-# Shared non-debug
+# Static debug
 class AllegroContextStaticDebug(AllegroContext):
     def __init__(self):
         AllegroContext.__init__(self)
@@ -459,6 +471,7 @@ buildStatic()
 buildDebug()
 buildStaticDebug()
 
+# Default is what comes out of buildNormal()
 Default('all')
 
 if False:

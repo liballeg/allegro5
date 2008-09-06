@@ -76,7 +76,7 @@ if settings["ALLEGRO_CFG_KCM_ALSA"]:
 if settings["ALLEGRO_CFG_KCM_OPENAL"]:
     source.append("openal.c")
 
-if settings["ALLEGRO_CFG_KCM_OPENAL"]:
+if settings["ALLEGRO_CFG_KCM_OSS"]:
     source.append("oss.c")
 
 can_build = True
