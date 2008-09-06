@@ -4,65 +4,65 @@ See `changes._tx` for changes in earlier versions of Allegro.  These lists
 serve as summaries; the full histories are in the Subversion repository.
 
 
-Changes from 4.9.2 to 4.9.3 (April 2008)
-========================================
+Changes from 4.9.3 to 4.9.4 (September 2008)
+============================================
+
+The core developers this time were: Trent Gamblin, Peter Hull, Milan Mimica,
+Elias Pschernig and Peter Wang.  Ryan Dickie and Jon Rafkind also contributed.
 
 General:
 
--  Many bugfixes all around
+-  Many bug fixes all around.
 
--  Code formatting improvements
+-  Added a public threads API.
 
--  Added more debugging messages
+-  Added a basic configuration API.
 
--  Removed a lot of A4 code that is no longer used
+-  Added al_store_state/al_restore_state functions.
 
--  Added documentation for new functions
+-  Added al_get_errno/al_set_errno (not used much yet).
 
--  Renamed some functions/structures to be more consistant
+-  Renamed some functions/structures to be more consistent.
 
--  Added a basic configuration api
+-  Code formatting improvements.
 
+-  Added more debugging messages.
+
+-  Removed a lot of A4 code that is no longer used.
 
 Graphics:
 
--  Added support for some new OpenGL extensions
+-  Added support for some new OpenGL extensions.
 
--  Multihead support on Windows (preliminary support on OSX and Linux)
+-  Multihead support on Windows (preliminary support on OSX and Linux).
 
--  Many enhancements to all drivers
+-  Many enhancements to all drivers.
 
--  Merged common parts of WGL and D3D drivers
+-  Merged common parts of WGL and D3D drivers.
 
--  Borderless windows, setting window positions and titles
+-  Borderless windows, setting window positions and titles.
 
--  Fullscreen support on OSX and Linux
+-  Fullscreen support on OSX and Linux.
 
--  Do not clear bitmaps when they are created
+-  Do not clear bitmaps when they are created.
 
--  Improved compile times and dll sizes by simplifying "memblit" functions
+-  Improved compile times and DLL sizes by simplifying "memblit" functions.
 
--  Added EXPOSE display events
+-  Added EXPOSE, SWITCH_IN and SWITCH_OUT display events.
 
-Build System:
+Build system:
 
--  Many bug fixes and enhancements to scons and cmake build systems
+-  Many bug fixes and enhancements to SCons and CMake build systems.
 
--  Support for Trubo C++ 2006
+-  Support for Turbo C++ 2006.
 
--  Support for cross-compiling on Linux to MinGW
-
-Examples:
-
--  Lots of new examples
-
--  Wait for keypress in some examples instead of arbitrary delay
-
--  Clean up files when done in some examples
+-  Support for cross-compiling on Linux to MinGW (CMake).
 
 Events:
 
--  Filled in a display field for all relevant events
+-  Filled in a display field for all relevant events.
+
+-  Added al_wait_for_event_until.
 
 Addons:
 
@@ -70,17 +70,32 @@ Addons:
 
 -  Added iio (Image IO) addon
 
--  Added new audio addon, kcm_audio
+      -  Supports BMP, PCX, TGA.
 
--  Added ttf font addon
+      -  Supports PNG support with libpng.
 
--  Made all addons use al_ prefix
+-  Added new audio addon, kcm_audio.  (The 'audio' addon was taken in a new
+   direction between the 4.9.3 and 4.9.4 releases, but we decided against
+   that, so actually it's actually a continuation of the old audio addon.)
 
-Miscellaneous:
+      -  Added audio streaming functionality.
 
--  Public threads api
+      -  Added OSS, ALSA, DirectSound drivers.
 
--  Made the demo run at 800x600
+      -  A lot of reorganisation, internally and externally.
+
+-  Added TTF font addon, using FreeType.
+
+-  Made all addons use "al_" prefix.
+
+Examples:
+
+-  Lots of new examples.
+
+-  Wait for keypress in some examples instead of arbitrary delay.
+
+-  Clean up files when done in some examples.
+
 
 
 Changes from 4.9.2 to 4.9.3 (April 2008)
