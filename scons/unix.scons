@@ -379,20 +379,23 @@ def install(library):
             subdir = root
             add(subdir, '#' + os.path.join(root, i))
 
-    add('lib/allegro/%s.%s' % (context.getMajorVersion(),context.getMinorVersion()), 'modules.lst')
+    add('lib/allegro/%s.%s' % (context.getMajorVersion(),context.getMinorVersion()), '#modules.lst')
     for i in getModules():
         add('lib/allegro/%s.%s' % (context.getMajorVersion(),context.getMinorVersion()),i)
     add('bin', 'allegro5-config')
     
     # Try to run ldconfig after installing everything, so add it as a dependency
     # depending on everything else.
-    ldconfig = env.Command(None, ret, "ldconfig")
-    env.Depends(ldconfig, ret)
-    ret.append(ldconfig)
+    # Use a configure check to see if we can run ldconfig
+    can_ldconfig = False
+    if can_ldconfig:
+	    ldconfig = env.Command(None, ret, "ldconfig")
+	    env.Depends(ldconfig, ret)
+	    ret.append(ldconfig)
 
     return ret
 
-context.setInstaller(install)
+# context.setInstaller(install)
     
 # context.addExtra(allegroConfig, use_build_env = True)
 allegroConfig( context.getLibraryEnv(), False, False, False )
@@ -408,4 +411,6 @@ env.Append(BUILDERS = {"Cat" : cat})
     
 context.setExampleEnv(env.Clone())
 
-SConscript("all.scons", exports = ["context"])
+library = SConscript("all.scons", exports = ["context"])
+
+Alias('install',install(library))

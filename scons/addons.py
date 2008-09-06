@@ -45,7 +45,7 @@ def do_build(context, source, dir, name, examples = [],
                 targets.append(t)
             add(env.Install(installDir + '/lib/', lib))
             for header in install_headers:
-	            add(env.Install(installDir + '/include/allegro5/', 'addons/%s/%s' % (dir,header)))
+	            add(env.Install(installDir + '/include/allegro5/', '%s' % (header)))
             return targets
 
         env.Alias('install', install())

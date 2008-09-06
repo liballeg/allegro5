@@ -135,8 +135,14 @@ class AllegroContext:
 
     def getDebug(self):
         return self.debug
+    
+    def isDebug(self):
+        return self.debug
 
     def getStatic(self):
+        return self.static
+    
+    def isStatic(self):
         return self.static
 
     def addLibrary(self, library):
@@ -331,7 +337,7 @@ def getLibraryName(debug,static):
         else:
             return 'allegd-' + context.getAllegroVersion()
     else:
-	if static:
+        if static:
             return 'alleg_s-' + context.getAllegroVersion()
         else:
             return 'alleg-' + context.getAllegroVersion()
@@ -344,15 +350,15 @@ else:
 context.getLibraryEnv().Append(CPPPATH = [ normalBuildDir ])
 
 if context.onBsd():
-    SConscript('scons/bsd.scons', build_dir = normalBuildDir, exports = 'context')
+    SConscript('scons/bsd.scons', build_dir = BUILD_DIR, exports = 'context')
 elif context.onLinux():
-    SConscript('scons/linux.scons', build_dir = normalBuildDir, exports = 'context')
+    SConscript('scons/linux.scons', build_dir = BUILD_DIR, exports = 'context')
 elif context.onWindows():
-    SConscript('scons/win32.scons', build_dir = normalBuildDir, exports = 'context')
+    SConscript('scons/win32.scons', build_dir = BUILD_DIR, exports = 'context')
 elif context.onOSX():
-    SConscript('scons/osx.scons', build_dir = normalBuildDir, exports = 'context')
+    SConscript('scons/osx.scons', build_dir = BUILD_DIR, exports = 'context')
 else:
-    SConscript('scons/linux.scons', build_dir = normalBuildDir, exports = 'context')
+    SConscript('scons/linux.scons', build_dir = BUILD_DIR, exports = 'context')
 
 if False:
     library = context.getAllegroTarget()

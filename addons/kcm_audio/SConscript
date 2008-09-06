@@ -70,7 +70,7 @@ if can_build:
         install_headers = [
             "allegro5/kcm_audio.h",
             "allegro5/internal/aintern_kcm_audio.h",
-            "aintern_kcm_cfg.h"],
+            "allegro5/internal/aintern_kcm_cfg.h"],
         configs = configs)
 
 Return("can_build")
