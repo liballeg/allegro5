@@ -78,6 +78,8 @@ option(STATIC "Build static libraries" on)
 
 option(WANT_MAGIC_MAIN "Enable magic main" off)
 
+set(INSTALL_PREFIX "")
+
 #
 # Platforms and drivers.
 #
@@ -146,9 +148,11 @@ if(MINGW)
     set(ALLEGRO_MINGW32 1)
     # Install to MINGDIR
     string(REPLACE "\\" "/" MINGDIR "$ENV{MINGDIR}")
-    if(CMAKE_INSTALL_PREFIX STREQUAL "")
+    if(INSTALL_PREFIX STREQUAL "")
         set(CMAKE_INSTALL_PREFIX ${MINGDIR})
-    endif(CMAKE_INSTALL_PREFIX STREQUAL "")
+    else(INSTALL_PREFIX STREQUAL "")
+        set(CMAKE_INSTALL_PREFIX ${INSTALL_PREFIX})
+    endif(INSTALL_PREFIX STREQUAL "")
 endif(MINGW)
 
 if(UNIX)
