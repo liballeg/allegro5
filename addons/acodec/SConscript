@@ -119,6 +119,7 @@ if settings['ALLEGRO_CFG_ACODEC_FLAC']:
 if settings['ALLEGRO_CFG_ACODEC_SNDFILE']:
     source.extend(['wav.c'])
     configs.extend(['pkg-config sndfile --libs'])
+    env.ParseConfig('pkg-config sndfile --libs')
 
 addons.do_build(
     context = context,

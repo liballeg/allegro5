@@ -96,6 +96,7 @@ configs = []
 can_build = True
 if can_build:
     configs.extend(["pkg-config --libs alsa"])
+    env.ParseConfig('pkg-config --libs alsa')
 
     addons.do_build(
         context = context,

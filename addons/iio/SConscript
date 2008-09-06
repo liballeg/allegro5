@@ -33,6 +33,8 @@ helpers.parse_cmake_h(myEnv,
     "allegro5/internal/aintern_iio_cfg.h.cmake",
     "allegro5/internal/aintern_iio_cfg.h")
 
+env.Append(LIBS = ['png','z'])
+
 addons.do_build(
     context = context,
     env = myEnv,
