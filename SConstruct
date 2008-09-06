@@ -74,7 +74,7 @@ SConscriptChdir(0)
 def appendDir(directory, files):
     return [directory + "/" + x for x in files]
 
-class AllegroContext:
+class AllegroContext2:
     """This is simply a class to hold together all the various build info."""
 
     def __init__(self):
@@ -268,47 +268,220 @@ class AllegroContext:
 # env - environment
 # files - list of files that compose the Allegro library
 # d - directory where the library( dll, so ) should end up
-def getAllegroContext():
+def getAllegroContext2():
     context = AllegroContext()
     context.cmake = helpers.read_cmake_list("cmake/FileList.cmake")
     return context
 
-context = getAllegroContext()
-
-debugBuildDir = BUILD_DIR + '/debug/' + context.getPlatform() + "/"
-optimizedBuildDir = BUILD_DIR + '/release/' + context.getPlatform() + "/"
-
-def getLibraryName(debug,static):
-    if debug:
-        if static:
-            return 'allegd_s-' + context.getAllegroVersion()
-        else:
-            return 'allegd-' + context.getAllegroVersion()
-    else:
-        if static:
-            return 'alleg_s-' + context.getAllegroVersion()
-        else:
-            return 'alleg-' + context.getAllegroVersion()
-        
-if context.getDebug():
-    normalBuildDir = debugBuildDir
-else:
-    normalBuildDir = optimizedBuildDir
-
-context.getLibraryEnv().Append(CPPPATH = [ normalBuildDir ])
-
-if context.onBsd():
-    SConscript('scons/bsd.scons', build_dir = BUILD_DIR, exports = 'context')
-elif context.onLinux():
-    SConscript('scons/linux.scons', build_dir = BUILD_DIR, exports = 'context')
-elif context.onWindows():
-    SConscript('scons/win32.scons', build_dir = BUILD_DIR, exports = 'context')
-elif context.onOSX():
-    SConscript('scons/osx.scons', build_dir = BUILD_DIR, exports = 'context')
-else:
-    SConscript('scons/linux.scons', build_dir = BUILD_DIR, exports = 'context')
+class AllegroContext:
+    def __init__(self):
+        self.cmake = helpers.read_cmake_list("cmake/FileList.cmake")
+        self.librarySource = []
     
-Default(SConscript("scons/naturaldocs.scons"))
+    def getLibrarySource(self):
+        return self.librarySource
+    
+    def getVersion(self):
+        return allegroVersion
+    
+    def addFiles(self,files):
+        self.librarySource.extend(files)
+
+    def getMajorVersion(self):
+        return majorVersion
+
+    def getMinorVersion(self):
+        return minorVersion
+
+# Shared non-debug
+class AllegroContextNormal(AllegroContext):
+    def __init__(self):
+        AllegroContext.__init__(self)
+    
+    def alias(self,name,target):
+        Alias(name,target)
+        Alias('all',target)
+
+    def libraryName(self, name):
+        return name
+
+    def buildLibrary(self, env, name, source):
+        return env.SharedLibrary(name, source)
+
+    def isStatic(self):
+        return False
+
+    def isDebug(self):
+        return False
+
+    def getBuildDir(self):
+        return BUILD_DIR + '/release'
+
+# Shared non-debug
+class AllegroContextStatic(AllegroContext):
+    def __init__(self):
+        AllegroContext.__init__(self)
+    
+    def alias(self,name,target):
+        Alias(name + '-static',target)
+        Alias('all-static',target)
+
+    def libraryName(self, name):
+        return name + '_s'
+
+    def buildLibrary(self, env, name, source):
+        return env.StaticLibrary(name, source)
+
+    def isStatic(self):
+        return True
+
+    def isDebug(self):
+        return False
+
+    def getBuildDir(self):
+        return BUILD_DIR + '/release-static'
+
+# Shared non-debug
+class AllegroContextDebug(AllegroContext):
+    def __init__(self):
+        AllegroContext.__init__(self)
+    
+    def alias(self,name,target):
+        Alias(name + '-debug',target)
+        Alias('all-debug',target)
+
+    def libraryName(self, name):
+        return name + '_d'
+
+    def buildLibrary(self, env, name, source):
+        return env.SharedLibrary(name, source)
+
+    def isStatic(self):
+        return False
+
+    def isDebug(self):
+        return True
+
+    def getBuildDir(self):
+        return BUILD_DIR + '/debug'
+
+# Shared non-debug
+class AllegroContextStaticDebug(AllegroContext):
+    def __init__(self):
+        AllegroContext.__init__(self)
+    
+    def alias(self,name,target):
+        Alias(name + '-static-debug',target)
+        Alias('all-static-debug',target)
+
+    def libraryName(self, name):
+        return name + '_sd'
+
+    def buildLibrary(self, env, name, source):
+        return env.StaticLibrary(name, source)
+
+    def isStatic(self):
+        return False
+
+    def isDebug(self):
+        return True
+
+    def getBuildDir(self):
+        return BUILD_DIR + '/debug-static'
+
+def getPlatformFile():
+    def getPlatform():
+        import sys
+        # if self.platform: return self.platform
+        # return sys.platform
+        return sys.platform
+
+    def matchPlatform(name):
+        return name in getPlatform()
+
+    def onBsd():
+        return matchPlatform('openbsd')
+
+    def onLinux():
+        return matchPlatform('linux')
+
+    def onWindows():
+        return matchPlatform('win32')
+
+    def onOSX():
+        return matchPlatform('darwin')
+
+    if onBsd():
+        return 'scons/bsd.scons'
+    elif onLinux():
+        return 'scons/linux.scons'
+    elif onWindows():
+        return 'scons/win32.scons'
+    elif onOSX():
+        return 'scons/osx.scons'
+    else:
+        return 'scons/linux.scons'
+
+def doBuild(context):
+    env = Environment(ENV = os.environ)
+    SConscript(getPlatformFile(), build_dir = context.getBuildDir(), exports = ['context','env'])
+    
+def buildNormal():
+    doBuild(AllegroContextNormal())
+
+def buildStatic():
+    doBuild(AllegroContextStatic())
+
+def buildDebug():
+    doBuild(AllegroContextDebug())
+
+def buildStaticDebug():
+    doBuild(AllegroContextStaticDebug())
+
+buildNormal()
+buildStatic()
+buildDebug()
+buildStaticDebug()
+
+Default('all')
+
+if False:
+    context = getAllegroContext()
+    
+    debugBuildDir = BUILD_DIR + '/debug/' + context.getPlatform() + "/"
+    optimizedBuildDir = BUILD_DIR + '/release/' + context.getPlatform() + "/"
+    
+    def getLibraryName(debug,static):
+        if debug:
+            if static:
+                return 'allegd_s-' + context.getAllegroVersion()
+            else:
+                return 'allegd-' + context.getAllegroVersion()
+        else:
+            if static:
+                return 'alleg_s-' + context.getAllegroVersion()
+            else:
+                return 'alleg-' + context.getAllegroVersion()
+            
+    if context.getDebug():
+        normalBuildDir = debugBuildDir
+    else:
+        normalBuildDir = optimizedBuildDir
+    
+    context.getLibraryEnv().Append(CPPPATH = [ normalBuildDir ])
+    
+    if context.onBsd():
+        SConscript('scons/bsd.scons', build_dir = normalBuildDir, exports = 'context')
+    elif context.onLinux():
+        SConscript('scons/linux.scons', build_dir = BUILD_DIR, exports = 'context')
+    elif context.onWindows():
+        SConscript('scons/win32.scons', build_dir = BUILD_DIR, exports = 'context')
+    elif context.onOSX():
+        SConscript('scons/osx.scons', build_dir = BUILD_DIR, exports = 'context')
+    else:
+        SConscript('scons/linux.scons', build_dir = BUILD_DIR, exports = 'context')
+        
+    Default(SConscript("scons/naturaldocs.scons"))
 
 if False:
     library = context.getAllegroTarget()

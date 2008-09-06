@@ -1,4 +1,5 @@
 Import("context")
+Import("env")
 import addons, helpers, os
 
 configs = []
@@ -46,7 +47,7 @@ def CheckOSS(context):
     ret = False
     return ret
 
-config = context.getLibraryEnv().Configure(custom_tests =
+config = env.Configure(custom_tests =
     {"CheckOpenAL": CheckOpenAL,
      "CheckAlsa" : CheckAlsa,
      "CheckOSS" : CheckOSS})
@@ -60,10 +61,10 @@ d = settings["ALLEGRO_HAVE_LINUX_SOUNDCARD_H"] = config.CheckCHeader("linux/soun
 settings["ALLEGRO_CFG_KCM_OSS"] = a or b or c or d
 config.Finish()
 
-helpers.parse_cmake_h(context.getLibraryEnv(),
+helpers.parse_cmake_h(env,
     settings,
-    "#addons/kcm_audio/allegro5/internal/aintern_kcm_cfg.h.cmake",
-    "#addons/kcm_audio/allegro5/internal/aintern_kcm_cfg.h")
+    "allegro5/internal/aintern_kcm_cfg.h.cmake",
+    "allegro5/internal/aintern_kcm_cfg.h")
 
 source = ["audio.c", "kcm_mixer.c", "kcm_sample.c", "kcm_stream.c",
     "kcm_voice.c"]
@@ -84,6 +85,7 @@ if can_build:
 
     addons.do_build(
         context = context,
+        env = env,
         source = source,
         dir = "kcm_audio",
         name = "a5_kcm_audio",

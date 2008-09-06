@@ -1,4 +1,5 @@
 Import("context")
+Import("env")
 import addons, helpers
 
 configs = []
@@ -23,16 +24,16 @@ def CheckFreetype(context):
     context.Result(ret)
     return ret
 
-config = context.getLibraryEnv().Configure(custom_tests =
+config = env.Configure(custom_tests =
     {"CheckFreetype": CheckFreetype,})
 settings = helpers.SimpleHash()
 settings["ALLEGRO_CFG_TTF_FREETYPE"] = config.CheckFreetype()
 config.Finish()
 
-helpers.parse_cmake_h(context.getLibraryEnv(),
+helpers.parse_cmake_h(env,
     settings,
-    "#addons/ttf/allegro5/internal/aintern_ttf_cfg.h.cmake",
-    "#addons/ttf/allegro5/internal/aintern_ttf_cfg.h")
+    "allegro5/internal/aintern_ttf_cfg.h.cmake",
+    "allegro5/internal/aintern_ttf_cfg.h")
 
 source = ["ttf.c"]
 configs = []
@@ -43,6 +44,7 @@ if can_build:
 
     addons.do_build(
         context = context,
+        env = env,
         source = source,
         dir = "ttf",
         name = "a5_ttf",

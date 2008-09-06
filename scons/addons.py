@@ -1,11 +1,11 @@
 
-def getOption(context, name, default = 0):
+def getOption(env, name, default = 0):
     try:
-        return context.getLibraryEnv()[name]
+        return env[name]
     except KeyError:
         return default
 
-def do_build(context, source, dir, name, examples = [],
+def do_build(context, env, source, dir, name, examples = [],
     install_headers = [], includes = [], example_libs = [], configs = [],
     libs = []):
     def build(env, libDir):
@@ -27,7 +27,7 @@ def do_build(context, source, dir, name, examples = [],
                 # Could not exec the configuration, bail out!
                 return []
         # lib = context.makeLibrary( libEnv )( libDir + ('/%s' % name), appendDir(('addons/%s' % dir), source))
-        lib = context.makeLibrary( libEnv )( libDir + ('/%s' % name), source)
+        lib = context.buildLibrary( libEnv, libDir + ('/%s' % context.libraryName(name)), source)
 
         exampleEnv = env.Clone()
         exampleEnv.Append(CPPPATH = includes)
@@ -35,7 +35,7 @@ def do_build(context, source, dir, name, examples = [],
         exampleEnv.Append(LIBS = example_libs + libs)
     
         def install():
-            installDir = getOption(context, 'install','/usr/local')
+            installDir = getOption(env, 'install','/usr/local')
             targets = []
             def add(t):
                 targets.append(t)
@@ -44,14 +44,14 @@ def do_build(context, source, dir, name, examples = [],
 	            add(env.Install(installDir + '/include/allegro5/', '%s' % (header)))
             return targets
 
-        env.Alias('install', install())
-        env.Alias('install-addons/%s' % name, install())
+        # env.Alias('install', install())
+        # env.Alias('install-addons/%s' % name, install())
 
         all = lib
-        env.Alias('addons', all)
-        env.Alias('addons/%s' % name, all)
+        context.alias('all-addons', all)
+        context.alias('all-addons/%s' % name, all)
     
         return all
 
-    build(context.getLibraryEnv(), 'lib' )
+    build(env, 'lib' )
     # context.addExtra(build,depends = True)

@@ -1,12 +1,13 @@
 # vi: syntax=python
 Import('context')
+Import('env')
 
 import os, ConfigParser, re
 import checks, helpers
 
-context.setLibraryDir("lib/unix")
+# context.setLibraryDir("lib/unix")
 
-opts = Options(context.build_dir + "/options-unix.py", ARGUMENTS)
+opts = Options(context.getBuildDir() + "/options-unix.py", ARGUMENTS)
 opts.Add('color8', 'Enable 8 bit color', 1)
 opts.Add('color16', 'Enable 16 bit color', 1)
 opts.Add('color24', 'Enable 24 bit color', 1)
@@ -16,9 +17,9 @@ opts.Add('magic_main', 'Use magic main', 0)
 opts.Add('no_asm', 'Disable asm', 1)
 opts.Add('vbeaf', 'Enable VBEAF', 0)
 opts.Add('vga', 'Enable VGA', 0)
-opts.Update(context.getLibraryEnv())
-opts.Save(context.build_dir + "/options-unix.py", context.getLibraryEnv())
-Help(opts.GenerateHelpText(context.getLibraryEnv()))
+opts.Update(env)
+opts.Save(context.getBuildDir() + "/options-unix.py", env)
+Help(opts.GenerateHelpText(env))
 Help("""
 config: (Re)configure Allegro. You will need to set this to 1 if you wish to enable/disable parts of allegro such as color8=0
     default: 0
@@ -28,10 +29,11 @@ config: (Re)configure Allegro. You will need to set this to 1 if you wish to ena
 # print context.getLibraryEnv()['install']
 
 def isStatic():
-    return int(context.getLibraryEnv()['static']) == 1
+    # return int(context.getEnv()['static']) == 1
+    return context.isStatic()
 
 def getOption(name, default = 0):
-    return context.getLibraryEnv()[name]
+    return env[name]
 
 def getArgumentOption(name, default):
     arg = ARGUMENTS.get(name,default)
@@ -76,8 +78,8 @@ def writeAutoHeader(filename, platform):
 # 2/19/2006 - Only configure if config=1 is given or the .h/.cfg file is missing
 noconfig = False
 if not getArgumentOption("config",0):
-    if os.path.exists(context.build_dir + "/include/allegro5/platform/alunixac.h") and \
-        os.path.exists(context.build_dir + "/settings.cfg"):
+    if os.path.exists(context.getBuildDir() + "/include/allegro5/platform/alunixac.h") and \
+        os.path.exists(context.getBuildDir() + "/settings.cfg"):
         print "Re-using old settings"
         noconfig = True
 
@@ -92,10 +94,10 @@ settings = ConfigParser.ConfigParser()
 ## so that alunixac.h can be written
 if noconfig:
     # platform = helpers.readAutoHeader("scons_build/include/allegro5/platform/alunixac.h")
-    platform = helpers.readAutoHeader(context.build_dir + '/' +
+    platform = helpers.readAutoHeader(context.getBuildDir() + '/' +
         "include/allegro5/platform/alunixac.h")
-    settings.read(context.build_dir + "/settings.cfg")
-    env = context.getLibraryEnv()
+    settings.read(context.getBuildDir() + "/settings.cfg")
+    # env = context.getEnv()
     for setting in config_settings:
         try:
             eval("env.Append(%s = %s)" % (
@@ -108,7 +110,7 @@ else:
     for check in [x for x in dir(checks) if callable(getattr(checks, x))]:
         tests[check] = getattr(checks, check)
 
-    config = context.getLibraryEnv().Configure(custom_tests = tests)
+    config = env.Configure(custom_tests = tests)
 
     machine = "i386"
     archFlag = "-mcpu="
@@ -222,8 +224,9 @@ else:
 
     platform["ALLEGRO_HAVE_SV_PROCFS"] = False
 
-    context.setLibraryEnv(config.Finish())
-    env = context.getLibraryEnv()
+    env = config.Finish()
+    # context.setLibraryEnv(config.Finish())
+    # env = context.getEnv()
 
     # Write out alunixac.h with all the config settings
     # writeAutoHeader("include/allegro5/platform/alunixac.h", platform)
@@ -237,7 +240,7 @@ else:
         if hasattr(val, "data"): val = val.data # for CCFLAGS
         if not type(val) == list: val = [val]
         settings.set("unix", setting, str(val))
-    settings.write(file(context.build_dir + "/settings.cfg", "w"))
+    settings.write(file(context.getBuildDir() + "/settings.cfg", "w"))
 
 helpers.parse_cmake_h(env, platform,
     'include/allegro5/platform/alunixac.h.cmake',
@@ -257,7 +260,7 @@ import SCons.Tool
 
 AssemblerAction = Action( 'gcc -x assembler-with-cpp $CCFLAGS $_CPPINCFLAGS $SOURCES -c -o $TARGET' )
 
-static_obj, shared_obj = SCons.Tool.createObjBuilders(context.getLibraryEnv())
+static_obj, shared_obj = SCons.Tool.createObjBuilders(env)
 shared_obj.add_action('.s', AssemblerAction )
 shared_obj.add_emitter('.s', SCons.Defaults.SharedObjectEmitter )
 static_obj.add_action( '.s', AssemblerAction )
@@ -270,7 +273,7 @@ flags = ["-Wall", "-Wno-unused", "-funroll-loops", "-ffast-math", "-fomit-frame-
 # includes = ["#include", "#include/allegro5", "."]
 defines = ["ALLEGRO_LIB_BUILD", "ALLEGRO_SRC"]
 
-if context.getDebug():
+if context.isDebug():
     flags += ["-g"]
 else:
     flags += ["-O2"]
@@ -281,8 +284,8 @@ env.Append(CPPPATH = ['include'])
 # env.Append(CPPPATH = includes)
 
 # This is where the source for the unix files comes from
-context.add_files(context.cmake["ALLEGRO_SRC_C_FILES"])
-context.add_files(context.cmake["ALLEGRO_SRC_OPENGL_FILES"])
+context.addFiles(context.cmake["ALLEGRO_SRC_C_FILES"])
+context.addFiles(context.cmake["ALLEGRO_SRC_OPENGL_FILES"])
 unixfiles = context.cmake["ALLEGRO_SRC_UNIX_FILES"]
 
 #FIXME: Didn't we say no more asm in A5?
@@ -295,7 +298,7 @@ unixfiles = context.cmake["ALLEGRO_SRC_UNIX_FILES"]
 #asmdef = asmdefEnv.Program('#build/asmdef', '#build/i386/asmdef.c')
 #asmdefEnv.Command(asmdef_inc,asmdef,'$SOURCE $TARGET')
 
-context.add_files(unixfiles)
+context.addFiles(unixfiles)
 
 def supportModules():
     return True
@@ -308,13 +311,15 @@ if platform["ALLEGRO_LINUX_FBCON"]:
         lib = menv.SharedLibrary(libDir + "/alleg-fbcon",appendDir(buildDir + "/src/linux/", sources))
         modules.append(lib)
         return lib
-    context.addExtra(buildFBCon, depends = True)
+    # context.addExtra(buildFBCon, depends = True)
+    # XXX: actually build this
+    pass
 
 def haveXWindows():
     return platform["ALLEGRO_WITH_XWINDOWS"]
 
 if haveXWindows():
-    context.add_files(context.cmake["ALLEGRO_SRC_X_FILES"])
+    context.addFiles(context.cmake["ALLEGRO_SRC_X_FILES"])
 
     def tools(tenv,appendDir,buildDir,libDir):
         tools = []
@@ -326,7 +331,9 @@ if haveXWindows():
         Alias("tools", tools)
         return tools
 
-    context.addExtra(tools, depends = True)
+    # context.addExtra(tools, depends = True)
+    # XXX: actually build this
+    pass
 
 ## return a list of modules
 def getModules():
@@ -347,7 +354,9 @@ def allegroConfig(env, appendDir, buildDir, libDir):
     if supportModules():
         ldflags = '-Wl,--export-dynamic'
     replaces[ '@LDFLAGS@' ] = ldflags
-    libs = env["LIBS"]
+    # XXX: fix this
+    # libs = env["LIBS"]
+    libs = []
     replaces[ '@LIBS@' ] = ' '.join(['-l' + str(x) for x in libs])
     replaces[ '@FRAMEWORKS@' ] = ''
     replaces[ '^version=.*' ] = 'version=%s' % context.getVersion()
@@ -373,7 +382,7 @@ def allegroConfig(env, appendDir, buildDir, libDir):
     return env.ConfigMaker( 'allegro5-config', '#misc/allegro5-config.in' )
 
 def install(library):
-    env = context.getLibraryEnv()
+    # env = context.getEnv()
     ## list of files to be installed
     ret = []
     ## add a file to be installed
@@ -406,19 +415,20 @@ def install(library):
 # context.setInstaller(install)
     
 # context.addExtra(allegroConfig, use_build_env = True)
-allegroConfig( context.getLibraryEnv(), False, False, False )
+allegroConfig( env, False, False, False )
 
 def pruneLibs(libs):
     import sets # needed for Python 2.3 compatibility
     return list(sets.Set(libs))
 
-env.Replace(LIBS = pruneLibs(env["LIBS"]))
+# XXX: fixme
+# env.Replace(LIBS = pruneLibs(env["LIBS"]))
 
 cat = Builder(action = "cat $SOURCES > $TARGET")
 env.Append(BUILDERS = {"Cat" : cat})
     
-context.setExampleEnv(env.Clone())
+# context.setExampleEnv(env.Clone())
 
-library = SConscript("all.scons", exports = ["context"])
+library = SConscript("all.scons", exports = ["context",'env'])
 
-Alias('install',install(library))
+# Alias('install',install(library))
