@@ -242,9 +242,11 @@ else:
         settings.set("unix", setting, str(val))
     settings.write(file(context.getBuildDir() + "/settings.cfg", "w"))
 
-helpers.parse_cmake_h(env, platform,
+alunixac = helpers.parse_cmake_h(env, platform,
     'include/allegro5/platform/alunixac.h.cmake',
     'include/allegro5/platform/alunixac.h')
+
+Alias('all', alunixac)
 
 # alplatf_h = helpers.generate_alplatf_h(env, ["ALLEGRO_UNIX"])
 platf_settings = helpers.define("ALLEGRO_UNIX","ALLEGRO_CFG_OPENGL")
@@ -252,6 +254,8 @@ platf_settings = helpers.define("ALLEGRO_UNIX","ALLEGRO_CFG_OPENGL")
 # platf_settings[ "ALLEGRO_UNIX" ] = True
 # platf_settings[ "ALLEGRO_NO_ASM" ] = True
 alplatf_h = helpers.parse_cmake_h(env, platf_settings, 'include/allegro5/platform/alplatf.h.cmake', 'include/allegro5/platform/alplatf.h')
+
+Alias('all', alplatf_h)
         
 # env.Depends(alplatf_h, env.Program('dummy','#src/unix/dummy.c'))
 

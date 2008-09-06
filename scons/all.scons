@@ -117,7 +117,7 @@ def tests(env):
 def demo(env):
     demoEnv = env.Clone()
     demoEnv.BuildDir('demo', '#demo', duplicate=0)
-    demoEnv.Append(CPPPATH = 'demo/include' )
+    demoEnv.Append(CPPPATH = 'demo/include')
     demoEnv.Append(CPPPATH = ['addons/font', 'addons/iio',
       'addons/kcm_audio', 'addons/acodec'])
     sources = Split("""
