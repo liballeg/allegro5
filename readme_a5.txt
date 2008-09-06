@@ -11,7 +11,8 @@ Windows
 Allegro5 implements two graphics drivers for Windows: one using DirectX 9 and
 onther one using OpenGL. You can force using OpenGL by calling
 al_set_new_display_flags(ALLEGRO_OPENGL) prior to creating a display, while
-DirectX is the default driver (ALLEGRO_DIRECT3D new display flag is implied).
+DirectX is the default driver.
+You can also select the driver using the `allegro.cfg` file.
 
 Here are some files you may need regarding DirectX:
 
@@ -143,11 +144,11 @@ See the Allegro wiki for more info on the scons build system:
 
 To compile Allegro, simply type this inside the allegro directory:
 
-    $ scons
+	$ scons
 
 To install, run (as root):
 
-    $ scons install
+	$ scons install
 
 There are also some options you can use with the scons command:
 
@@ -170,37 +171,18 @@ To install as a non-root user, you can do:
 Running the examples
 ====================
 
-Currently, only examples specifically written to use the new API will run.
-The compatibility layer is currently broken so older examples from 4.2.x and
-earlier won't work.
-
-- there's a different demo in the `demo` directory (a5teroids)
-- exnewapi - a messy example showing off a lot of A5 features
-- exnew_bitmap - simply draws a bitmap on screen
-- exnew_bitmap_target - 
-- exnew_fs_resize - demonstrates fullscreen display resizing
-- exnew_lockbitmap - shows how to lock a bitmap to write directly to it
-- exnew_lockscreen - like exnew_lockbitmap, but operates directly on the screen
-- exnew_mouse - uses mouse polling to show a cursor
-- exnew_mouse_events - uses the new event system to show a mouse cursor
-- exnew_resize - demonstrates windows resized with code
-- exnew_blend - an example demonstrating different blending modes
-- exnew_drawpixels - draws individual pixels 
-- exnew_events - demonstrates the event system
-- exnew_icon - sets window icons
-- exnew_membmp - test memory bitmaps
-- exnew_multiwin - demonstrates multiple window support
-- exnew_opengl - 
-- exnew_scale - test bitmap scaling
-- exnew_timedwait - test timed wait for events
-- exnew_timer - test timer events
-
 Remember that some examples look for data files in the current directory, so if
 you used an external build directory you will need to change into the examples
 directory and specify the path to the example in the build directory, e.g.
 
 	$ cd examples
-	$ ../Build/examples/exnew_mouse_events
+	$ ../Build/examples/ex_bitmap
+
+Or symlink the data directory into the build directory:
+
+	$ cd Build/examples
+	$ ln -s ../../examples/data .
+	$ ./ex_bitmap
 
 
 
@@ -212,4 +194,7 @@ The documentation is all linked to from the wiki:
 
 If you have NaturalDocs installed you can build the documentation by
 running `make` in the `docs/naturaldocs` directory.
+
+There is also the `docs/src/refman` directory, which doesn't contain
+much yet.
 
