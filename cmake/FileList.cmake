@@ -197,7 +197,6 @@ set(ALLEGRO_SRC_UNIX_FILES
     src/unix/usystem.c
     src/unix/utime.c
     src/unix/uxthread.c
-    src/misc/modexsms.c
     )
 
 set(ALLEGRO_SRC_X_FILES

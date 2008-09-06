@@ -122,7 +122,7 @@ addons.do_build(
     dir = 'acodec',
     name = 'a5_acodec',
     install_headers = ['allegro5/acodec.h'],
-    includes = ['#addons/kcm_audio','#addons/acodec'],
+    includes = ['../kcm_audio','../acodec'],
     configs = configs,
 )
 

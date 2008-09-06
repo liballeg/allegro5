@@ -4,8 +4,6 @@ Import('context')
 import os, ConfigParser, re
 import checks, helpers
 
-SConscript("all.scons", exports = ["context"])
-
 context.setLibraryDir("lib/unix")
 
 opts = Options(context.build_dir + "/options-unix.py", ARGUMENTS)
@@ -78,7 +76,7 @@ def writeAutoHeader(filename, platform):
 # 2/19/2006 - Only configure if config=1 is given or the .h/.cfg file is missing
 noconfig = False
 if not getArgumentOption("config",0):
-    if os.path.exists("include/allegro5/platform/alunixac.h") and \
+    if os.path.exists(context.build_dir + "/include/allegro5/platform/alunixac.h") and \
         os.path.exists(context.build_dir + "/settings.cfg"):
         print "Re-using old settings"
         noconfig = True
@@ -93,7 +91,8 @@ settings = ConfigParser.ConfigParser()
 ## The platform variable will hold all configuration things we care about
 ## so that alunixac.h can be written
 if noconfig:
-    platform = helpers.readAutoHeader("include/allegro5/platform/alunixac.h")
+    # platform = helpers.readAutoHeader("scons_build/include/allegro5/platform/alunixac.h")
+    platform = helpers.readAutoHeader(context.build_dir + '/' + "include/allegro5/platform/alunixac.h")
     settings.read(context.build_dir + "/settings.cfg")
     env = context.getLibraryEnv()
     for setting in config_settings:
@@ -227,7 +226,7 @@ else:
 
     # Write out alunixac.h with all the config settings
     # writeAutoHeader("include/allegro5/platform/alunixac.h", platform)
-    helpers.parse_cmake_h(env,platform,'#include/allegro5/platform/alunixac.h.cmake','#include/allegro5/platform/alunixac.h')
+    # helpers.parse_cmake_h(env,platform,'include/allegro5/platform/alunixac.h.cmake','include/allegro5/platform/alunixac.h')
 
     # write out settings.cfg with scons specific settings
     settings.add_section("unix")
@@ -238,13 +237,15 @@ else:
         if not type(val) == list: val = [val]
         settings.set("unix", setting, str(val))
     settings.write(file(context.build_dir + "/settings.cfg", "w"))
+    
+helpers.parse_cmake_h(env,platform,'include/allegro5/platform/alunixac.h.cmake','include/allegro5/platform/alunixac.h')
 
 # alplatf_h = helpers.generate_alplatf_h(env, ["ALLEGRO_UNIX"])
 platf_settings = helpers.define("ALLEGRO_UNIX","ALLEGRO_CFG_OPENGL")
 # platf_settings = helpers.SimpleHash()
 # platf_settings[ "ALLEGRO_UNIX" ] = True
 # platf_settings[ "ALLEGRO_NO_ASM" ] = True
-alplatf_h = helpers.parse_cmake_h(env, platf_settings, '#include/allegro5/platform/alplatf.h.cmake', '#include/allegro5/platform/alplatf.h')
+alplatf_h = helpers.parse_cmake_h(env, platf_settings, 'include/allegro5/platform/alplatf.h.cmake', 'include/allegro5/platform/alplatf.h')
         
 # env.Depends(alplatf_h, env.Program('dummy','#src/unix/dummy.c'))
 
@@ -260,8 +261,10 @@ static_obj.add_action( '.s', AssemblerAction )
 static_obj.add_emitter( '.s', SCons.Defaults.StaticObjectEmitter )
 SourceFileScanner.add_scanner('.s', SCons.Scanner.C.CScanner() )
 
+env.BuildDir('include','#include')
+
 flags = ["-Wall", "-Wno-unused", "-funroll-loops", "-ffast-math", "-fomit-frame-pointer"]
-includes = ["include", "include/allegro5", "."]
+# includes = ["#include", "#include/allegro5", "."]
 defines = ["ALLEGRO_LIB_BUILD", "ALLEGRO_SRC"]
 
 if context.getDebug():
@@ -271,7 +274,8 @@ else:
 
 env.Append(CCFLAGS = flags)
 env.Append(CPPDEFINES = defines)
-env.Append(CPPPATH = includes)
+env.Append(CPPPATH = ['include'])
+# env.Append(CPPPATH = includes)
 
 # This is where the source for the unix files comes from
 context.add_files(context.cmake["ALLEGRO_SRC_C_FILES"])
@@ -380,22 +384,26 @@ def install(library):
             subdir = root
             add(subdir, '#' + os.path.join(root, i))
 
-    add('lib/allegro/%s.%s' % (context.getMajorVersion(),context.getMinorVersion()), 'modules.lst')
+    add('lib/allegro/%s.%s' % (context.getMajorVersion(),context.getMinorVersion()), '#modules.lst')
     for i in getModules():
         add('lib/allegro/%s.%s' % (context.getMajorVersion(),context.getMinorVersion()),i)
     add('bin', 'allegro5-config')
     
     # Try to run ldconfig after installing everything, so add it as a dependency
     # depending on everything else.
-    ldconfig = env.Command(None, ret, "ldconfig")
-    env.Depends(ldconfig, ret)
-    ret.append(ldconfig)
+    # Use a configure check to see if we can run ldconfig
+    can_ldconfig = False
+    if can_ldconfig:
+	    ldconfig = env.Command(None, ret, "ldconfig")
+	    env.Depends(ldconfig, ret)
+	    ret.append(ldconfig)
 
     return ret
 
-context.setInstaller(install)
+# context.setInstaller(install)
     
-context.addExtra(allegroConfig, use_build_env = True)
+# context.addExtra(allegroConfig, use_build_env = True)
+allegroConfig( context.getLibraryEnv(), False, False, False )
 
 def pruneLibs(libs):
     import sets # needed for Python 2.3 compatibility
@@ -407,3 +415,7 @@ cat = Builder(action = "cat $SOURCES > $TARGET")
 env.Append(BUILDERS = {"Cat" : cat})
     
 context.setExampleEnv(env.Clone())
+
+library = SConscript("all.scons", exports = ["context"])
+
+Alias('install',install(library))

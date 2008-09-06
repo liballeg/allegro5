@@ -11,7 +11,12 @@ def do_build(context, source, dir, name, examples = [],
     def build(env, appendDir, buildDir, libDir ):
         libEnv = env.Clone()
         libEnv.Append(CPPPATH = includes)
-        libEnv.Append(LIBS = libs)
+        if context.isStatic():
+            libEnv.Append(LIBS = libs)
+        else:
+            libEnv.Replace(LIBS = libs)
+        # Allegro's include directory
+        libEnv.Append(CPPPATH = ['../../include'])
         for i in configs:
             try:
                 libEnv.ParseConfig(i)
@@ -20,8 +25,8 @@ def do_build(context, source, dir, name, examples = [],
                     "this error does not appear" % i)
                 # Could not exec the configuration, bail out!
                 return []
-        lib = context.makeLibrary( libEnv )( libDir + ('/%s' % name),
-            appendDir(buildDir + ('/addons/%s' % dir), source))
+        # lib = context.makeLibrary( libEnv )( libDir + ('/%s' % name), appendDir(('addons/%s' % dir), source))
+        lib = context.makeLibrary( libEnv )( libDir + ('/%s' % name), source)
 
         exampleEnv = env.Clone()
         exampleEnv.Append(CPPPATH = includes)
@@ -31,7 +36,7 @@ def do_build(context, source, dir, name, examples = [],
         build_examples = []
         def addExample(ex_name, files):
             example = exampleEnv.Program('addons/%s/%s' % (dir,ex_name),
-                appendDir(buildDir + ('/addons/%s/' % dir), files))
+                appendDir(('addons/%s/' % dir), files))
             env.Alias('%s-%s' % (name,ex_name), example)
             build_examples.append(example)
 
@@ -45,7 +50,7 @@ def do_build(context, source, dir, name, examples = [],
                 targets.append(t)
             add(env.Install(installDir + '/lib/', lib))
             for header in install_headers:
-	            add(env.Install(installDir + '/include/allegro5/', 'addons/%s/%s' % (dir,header)))
+	            add(env.Install(installDir + '/include/allegro5/', '%s' % (header)))
             return targets
 
         env.Alias('install', install())
@@ -57,4 +62,5 @@ def do_build(context, source, dir, name, examples = [],
     
         return all
 
-    context.addExtra(build,depends = True)
+    build(context.getLibraryEnv(), lambda d, f: [d + '/' + x for x in f], 'whatever', 'lib' )
+    # context.addExtra(build,depends = True)
