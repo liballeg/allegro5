@@ -10,7 +10,7 @@ def do_build(context, env, source, dir, name, examples = [],
     libs = []):
     def build(env, libDir):
         libEnv = env.Clone()
-        libEnv.Append(CPPPATH = includes)
+        libEnv.Append(CPPPATH = [includes,'.'])
         if context.isStatic():
             libEnv.Append(LIBS = libs)
         else:

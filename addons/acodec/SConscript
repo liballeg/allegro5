@@ -7,7 +7,7 @@ import os
 myEnv = env.Clone()
 
 def getOption(name, default = 0):
-    return myEnv()[name]
+    return myEnv[name]
 
 def getArgumentOption(name, default):
     arg = ARGUMENTS.get(name,default)
