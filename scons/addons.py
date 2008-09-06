@@ -12,6 +12,8 @@ def do_build(context, source, dir, name, examples = [],
         libEnv = env.Clone()
         libEnv.Append(CPPPATH = includes)
         libEnv.Append(LIBS = libs)
+	# Allegro's include directory
+	libEnv.Append(CPPPATH = ['../../include'])
         for i in configs:
             try:
                 libEnv.ParseConfig(i)

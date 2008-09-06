@@ -84,14 +84,17 @@ def tools(env,appendDir,buildDir,libDir):
     Alias('tools', tools)
     return tools
 
-def tests(env,appendDir,buildDir,libDir):
+def tests(env):
     tests = []
-    env.BuildDir(buildDir + 'tests', 'tests', duplicate = 0)
+    testEnv = env.Clone()
+    testEnv.BuildDir('tests', '#tests', duplicate = 0)
+    testEnv.Append(LIBPATH = ['.'])
+    testEnv.Replace(LIBS = [getLibraryName(context.isDebug(), context.isStatic())])
     def addTest(name,files):
-        test = env.Program('tests/' + name, appendDir(buildDir + '/tests/', files))
+        test = testEnv.Program('#tests/' + name, map(lambda f: ('tests/%s' % f), files))
         Alias(name, test)
         tests.append(test)
-    addTest('afinfo', [ 'afinfo.c' ])
+    # addTest('afinfo', [ 'afinfo.c' ])
     addTest('akaitest', [ 'akaitest.c' ])
     addTest('digitest', [ 'digitest.c' ])
     addTest('filetest', [ 'filetest.c' ])
@@ -169,12 +172,12 @@ def examples(env):
         "addons/kcm_audio", "addons/acodec"])
     # exEnv.BuildDir('#examples', 'examples', duplicate = 0)
     # FIXME: those should be per-example..
+    exEnv.Replace(LIBS = [getLibraryName(context.isDebug(), context.isStatic())])
     exEnv.Append(LIBS = [context.libraryName('a5_font')])
     exEnv.Append(LIBS = [context.libraryName('a5_iio')])
     exEnv.Append(LIBS = [context.libraryName('a5_ttf')])
     exEnv.Append(LIBS = [context.libraryName('a5_kcm_audio')])
     exEnv.Append(LIBS = [context.libraryName('a5_acodec')])
-    exEnv.Append(LIBS = [getLibraryName(context.isDebug(), context.isStatic())])
     exEnv.Append(LIBPATH = ['addons/font/lib'])
     exEnv.Append(LIBPATH = ['addons/acodec/lib'])
     exEnv.Append(LIBPATH = ['addons/ttf/lib'])
@@ -232,17 +235,6 @@ def examples(env):
     Alias('examples', examples)
     return examples
 
-def addons(env, appendDir, buildDir, libDir):
-    examples = []
-    print buildDir, libDir
-    def addAddonExample(name, files):
-        example = env.Program("addons/" + name, appendDir('#addons/', files))
-        Alias(name, example)
-        examples.append(example)
-    addAddonExample("font/ex", ["font/font.c", "font/ex_font.c",
-        "font/fontbmp.c", "font/readfont.c", "font/text.c"])
-    return examples
-
 def buildAddon(name):
     return SConscript( dirs = ['#addons/%s' % name], build_dir = 'addons/%s' % name, exports='context')
 
@@ -258,6 +250,7 @@ if buildAddon("kcm_audio"):
 
 examples(context.getLibraryEnv())
 demo(context.getLibraryEnv())
+# tests(context.getLibraryEnv())
 
 Alias('library', library)
 Default(['library','examples','addons','demo'])

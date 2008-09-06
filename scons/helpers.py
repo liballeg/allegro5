@@ -91,7 +91,7 @@ def parse_cmake_h(env, defines, src, dest):
         else:
             return line
 
-    def func(target, source, env):
+    def parse(target, source, env):
         reader = open(source[0].path, 'r')
         writer = open(target[0].path, 'w')
         # all = reader.read()
@@ -101,7 +101,7 @@ def parse_cmake_h(env, defines, src, dest):
         writer.close()
         return 0
     env2 = env.Clone()
-    make = SCons.Builder.Builder(action = func)
+    make = SCons.Builder.Builder(action = parse)
     env2.Append(BUILDERS = { "PlatformHeader" : make })
     return env2.PlatformHeader(dest,src)
 

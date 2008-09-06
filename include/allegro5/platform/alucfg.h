@@ -25,6 +25,11 @@
 #define ALLEGRO_VRAM_SINGLE_SURFACE
 
 #define ALLEGRO_EXTRA_HEADER "allegro5/platform/alunix.h"
+
+#ifdef _this_is_a_hack_to_fool_scons
+#include "alunix.h"
+#endif
+
 #define ALLEGRO_INTERNAL_HEADER "allegro5/platform/aintunix.h"
 #define ALLEGRO_INTERNAL_THREAD_HEADER "allegro5/platform/aintuthr.h"
 
