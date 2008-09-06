@@ -13,7 +13,7 @@ def appendDir(directory, files):
 
 def buildLibrary():
     libraryEnv = env.Clone()
-    libraryEnv.BuildDir('library', '#src')
+    libraryEnv.BuildDir('library', '#src', duplicate = 0)
 
     def change(source):
         return map( lambda f: f.replace('src/', 'library/'), source)
