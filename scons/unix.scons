@@ -4,7 +4,6 @@ Import('context')
 import os, ConfigParser, re
 import checks, helpers
 
-SConscript("all.scons", exports = ["context"])
 
 context.setLibraryDir("lib/unix")
 
@@ -261,7 +260,7 @@ static_obj.add_emitter( '.s', SCons.Defaults.StaticObjectEmitter )
 SourceFileScanner.add_scanner('.s', SCons.Scanner.C.CScanner() )
 
 flags = ["-Wall", "-Wno-unused", "-funroll-loops", "-ffast-math", "-fomit-frame-pointer"]
-includes = ["include", "include/allegro5", "."]
+includes = ["#include", "#include/allegro5", "."]
 defines = ["ALLEGRO_LIB_BUILD", "ALLEGRO_SRC"]
 
 if context.getDebug():
@@ -395,7 +394,8 @@ def install(library):
 
 context.setInstaller(install)
     
-context.addExtra(allegroConfig, use_build_env = True)
+# context.addExtra(allegroConfig, use_build_env = True)
+allegroConfig( context.getLibraryEnv(), False, False, False )
 
 def pruneLibs(libs):
     import sets # needed for Python 2.3 compatibility
@@ -407,3 +407,5 @@ cat = Builder(action = "cat $SOURCES > $TARGET")
 env.Append(BUILDERS = {"Cat" : cat})
     
 context.setExampleEnv(env.Clone())
+
+SConscript("all.scons", exports = ["context"])

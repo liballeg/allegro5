@@ -20,8 +20,8 @@ def do_build(context, source, dir, name, examples = [],
                     "this error does not appear" % i)
                 # Could not exec the configuration, bail out!
                 return []
-        lib = context.makeLibrary( libEnv )( libDir + ('/%s' % name),
-            appendDir(buildDir + ('/addons/%s' % dir), source))
+        # lib = context.makeLibrary( libEnv )( libDir + ('/%s' % name), appendDir(('addons/%s' % dir), source))
+        lib = context.makeLibrary( libEnv )( libDir + ('/%s' % name), source)
 
         exampleEnv = env.Clone()
         exampleEnv.Append(CPPPATH = includes)
@@ -31,7 +31,7 @@ def do_build(context, source, dir, name, examples = [],
         build_examples = []
         def addExample(ex_name, files):
             example = exampleEnv.Program('addons/%s/%s' % (dir,ex_name),
-                appendDir(buildDir + ('/addons/%s/' % dir), files))
+                appendDir(('addons/%s/' % dir), files))
             env.Alias('%s-%s' % (name,ex_name), example)
             build_examples.append(example)
 
@@ -57,4 +57,5 @@ def do_build(context, source, dir, name, examples = [],
     
         return all
 
-    context.addExtra(build,depends = True)
+    build(context.getLibraryEnv(), lambda d, f: [d + '/' + x for x in f], 'whatever', 'lib' )
+    # context.addExtra(build,depends = True)

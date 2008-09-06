@@ -54,8 +54,8 @@ helpers.parse_cmake_h(context.getLibraryEnv(),
     "#addons/kcm_audio/allegro5/internal/aintern_kcm_cfg.h.cmake",
     "#addons/kcm_audio/allegro5/internal/aintern_kcm_cfg.h")
 
-source = ["alsa.c", "audio.c", "kcm_mixer.c", "kcm_sample.c", "kcm_stream.c",
-    "kcm_voice.c", "openal.c"]
+# source = ["alsa.c", "audio.c", "kcm_mixer.c", "kcm_sample.c", "kcm_stream.c", "kcm_voice.c", "openal.c"]
+source = ["alsa.c", "audio.c", "kcm_mixer.c", "kcm_sample.c", "kcm_stream.c", "kcm_voice.c"]
 configs = []
 
 can_build = True

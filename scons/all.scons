@@ -2,7 +2,7 @@ import os
 
 Import('context')
 
-context.add_files(context.cmake["ALLEGRO_SRC_FILES"])
+# context.add_files(context.cmake["ALLEGRO_SRC_FILES"])
 
 def tools(env,appendDir,buildDir,libDir):
     tools = []
@@ -94,21 +94,29 @@ def examples(env,appendDir,buildDir,libDir):
     exEnv = env.Clone()
     exEnv.Append(CPPPATH = ['addons/font', 'addons/iio', "addons/ttf",
         "addons/kcm_audio", "addons/acodec"])
-    exEnv.BuildDir(buildDir + 'examples', 'examples', duplicate = 0)
+    # exEnv.BuildDir('#examples', 'examples', duplicate = 0)
     # FIXME: those should be per-example..
     exEnv.Append(LIBS = [context.libraryName('a5_font')])
     exEnv.Append(LIBS = [context.libraryName('a5_iio')])
     exEnv.Append(LIBS = [context.libraryName('a5_ttf')])
     exEnv.Append(LIBS = [context.libraryName('a5_kcm_audio')])
     exEnv.Append(LIBS = [context.libraryName('a5_acodec')])
+    exEnv.Append(LIBS = ['alleg'])
+    exEnv.Append(LIBPATH = ['addons/font/lib'])
+    exEnv.Append(LIBPATH = ['addons/acodec/lib'])
+    exEnv.Append(LIBPATH = ['addons/ttf/lib'])
+    exEnv.Append(LIBPATH = ['addons/iio/lib'])
+    exEnv.Append(LIBPATH = ['addons/kcm_audio/lib'])
+    exEnv.Append(LIBPATH = ['.'])
     exEnv.Append(LIBS = ["GLU"])
+    exEnv.BuildDir('examples', '#examples')
     ## Add an example
     ## name - filename of example and also the alias of the target
     ## files - list of files associated with the example
     def example(name, files = None, libs = []):
         if files is None:
             files = [name + ".c"]
-        example = exEnv.Program('examples/' + name, appendDir(buildDir + '/examples/', files))
+            example = exEnv.Program('#examples/' + name, appendDir('examples/', files))
         Alias(name, example)
         examples.append(example)
 
@@ -155,7 +163,7 @@ def addons(env, appendDir, buildDir, libDir):
     examples = []
     print buildDir, libDir
     def addAddonExample(name, files):
-        example = env.Program("addons/" + name, appendDir(buildDir + '/addons/', files))
+        example = env.Program("addons/" + name, appendDir('#addons/', files))
         Alias(name, example)
         examples.append(example)
     addAddonExample("font/ex", ["font/font.c", "font/ex_font.c",
@@ -163,7 +171,7 @@ def addons(env, appendDir, buildDir, libDir):
     return examples
 
 def buildAddon(name):
-    return SConscript( dirs = ['#addons/%s' % name],exports='context')
+    return SConscript( dirs = ['#addons/%s' % name], build_dir = 'addons/%s' % name, exports='context')
 
 buildAddon("iio")
 buildAddon('font')
@@ -175,8 +183,19 @@ if buildAddon("kcm_audio"):
 # addon_dirs = ['#addons/font','#addons/acodec','#addons/audio']
 # SConscript( dirs = addon_dirs, exports = 'context' )
 
-context.addExtra(demo)
-context.addExtra(examples)
+examples(context.getLibraryEnv(), lambda directory, files: [directory + "/" + x for x in files], 'whatever', 'lib')
+
+context.add_files( context.cmake["ALLEGRO_SRC_FILES"] )
+
+menv = context.getLibraryEnv()
+menv.BuildDir('library', '#src')
+def change(f):
+	return f.replace('src/','library/')
+library = menv.SharedLibrary( 'alleg', map( change, context.getFiles() ) )
+Alias('library', library)
+
+#context.addExtra(demo)
+# context.addExtra(examples)
 # context.addExtra(addons)
 # context.addExtra(tools)
 # context.addExtra(tests)

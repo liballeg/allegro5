@@ -218,6 +218,9 @@ class AllegroContext:
     def addFiles(self, d, fileList):
         self.librarySource.extend(appendDir(d, fileList))
 
+    def getFiles(self):
+        return self.librarySource
+
     def libraryName(self,name):
         if self.static == 1:
             return name + '_s'
@@ -313,7 +316,7 @@ def getAllegroContext():
         print "Warning: unknown system type %s. Defaulting to linux." % (
             context.getPlatform())
         file = 'scons/linux.scons'
-    SConscript(file, exports = ['context'])
+    # SConscript(file, exports = ['context'])
     return context
 
 context = getAllegroContext()
@@ -340,88 +343,98 @@ else:
 
 context.getLibraryEnv().Append(CPPPATH = [ normalBuildDir ])
 
-library = context.getAllegroTarget()
-if context.getStatic() == 1 and context.getDebug() == 1:
-	print "Building static debug library"
-elif context.getStatic() == 1:
-	print "Building static release library"
-elif context.getDebug() == 1:
-	print "Building shared debug library"
-else:
-	print "Building shared release library"
-Alias('library', library)
+if context.onBsd():
+    SConscript('scons/bsd.scons', build_dir = 'scons_build', exports = 'context')
+elif context.onLinux():
+    SConscript('scons/linux.scons', build_dir = 'scons_build', exports = 'context')
+elif context.onWindows():
+    SConscript('scons/win32.scons', build_dir = 'scons_build', exports = 'context')
+elif context.onOSX():
+    SConscript('scons/osx.scons', build_dir = 'scons_build', exports = 'context')
 
-# m = Move(context.getLibraryEnv(), library)
-
-# In scons 0.96.92 the Move() action only accepts strings for filenames
-# as opposed to targets. This method should replace Move() in scons at
-# some point.
-# *Not used* - 12/9/2007
-def XMove(env, target, source):
-    sources = env.arg2nodes(source, env.fs.File)
-    targets = env.arg2nodes(target, env.fs.Dir)
-    result = []
-    def moveFunc(target, source, env):
-        import shutil
-        shutil.move(source[0].path, target[0].path)
-        return 0
-
-    def moveStr(target, source, env):
-        return "Moving %s to %s" % (source[0].path, target[0].path)
-
-    MoveBuilder = SCons.Builder.Builder(action = SCons.Action.Action(moveFunc, moveStr), name='MoveBuilder')
-    for src, tgt in map(lambda x, y: (x, y), sources, targets):
-        result.extend(MoveBuilder(env, env.fs.File(src.name, tgt), src))
-    return result
-
-# mover = Builder(action = XMove)
-# context.getLibraryEnv().Append( BUILDERS = { 'XMove' : mover } )
-# context.getLibraryEnv().XMove( Dir(context.getLibraryDir()), library )
-
-# m = context.getLibraryEnv().Move(context.getLibraryDir(), library)
-# m = context.getLibraryEnv().Move(context.getLibraryDir(), library)
-# install_to_lib_dir = XMove(context.getLibraryEnv(), context.getLibraryDir(), library)
-# install_to_lib_dir = Install(context.getLibraryDir(), library)
-
-# Execute(Move(context.getLibraryDir(), library))
-# Execute(Action(os.rename(library, context.getLibraryDir() + '/' + library)))
-
-# context.addLibrary(library)
-context.addLibrary('-l%s' % getLibraryName(context.getDebug(),context.getStatic()))
-
-# we don't use makedoc any longer
-#docs = SConscript("scons/docs.scons", exports = ["normalBuildDir"])
-#Alias('docs', docs)
-
-SConscript("scons/naturaldocs.scons")
-
-# For some reason I have to call Program() from this file
-# otherwise 'scons/' will be appended to all the sources
-# and targets. 
-
-# Build all other miscellaneous targets using the same environment
-# that was used to build allegro but only link in liballeg
-extraEnv = context.getExampleEnv().Clone()
-
-# liballeg = getLibraryName(debug)
-extraEnv.Append(LIBPATH = [ context.getLibraryDir() ])
-if not context.getStatic():
-    extraEnv.Replace(LIBS = [context.getLibraries()])
-else:
-    extraEnv.Append(LIBS = [context.getLibraries()])
-
-extraTargets = []
-for et in context.getExtraTargets():
-    useEnv = extraEnv
-    if et.use_build_env:
-        useEnv = context.getLibraryEnv()
-    make = et.func(useEnv,appendDir, normalBuildDir, context.getLibraryDir())
-    if et.depends:
-        useEnv.Depends(make,library)
-    extraTargets.append(make)
-
-Default(library, extraTargets)
-
-# Depends(library, extraTargets)
-
-Alias('install', context.install(library))
+if False:
+    library = context.getAllegroTarget()
+    if context.getStatic() == 1 and context.getDebug() == 1:
+    	print "Building static debug library"
+    elif context.getStatic() == 1:
+    	print "Building static release library"
+    elif context.getDebug() == 1:
+    	print "Building shared debug library"
+    else:
+    	print "Building shared release library"
+    Alias('library', library)
+    
+    # m = Move(context.getLibraryEnv(), library)
+    
+    # In scons 0.96.92 the Move() action only accepts strings for filenames
+    # as opposed to targets. This method should replace Move() in scons at
+    # some point.
+    # *Not used* - 12/9/2007
+    def XMove(env, target, source):
+        sources = env.arg2nodes(source, env.fs.File)
+        targets = env.arg2nodes(target, env.fs.Dir)
+        result = []
+        def moveFunc(target, source, env):
+            import shutil
+            shutil.move(source[0].path, target[0].path)
+            return 0
+    
+        def moveStr(target, source, env):
+            return "Moving %s to %s" % (source[0].path, target[0].path)
+    
+        MoveBuilder = SCons.Builder.Builder(action = SCons.Action.Action(moveFunc, moveStr), name='MoveBuilder')
+        for src, tgt in map(lambda x, y: (x, y), sources, targets):
+            result.extend(MoveBuilder(env, env.fs.File(src.name, tgt), src))
+        return result
+    
+    # mover = Builder(action = XMove)
+    # context.getLibraryEnv().Append( BUILDERS = { 'XMove' : mover } )
+    # context.getLibraryEnv().XMove( Dir(context.getLibraryDir()), library )
+    
+    # m = context.getLibraryEnv().Move(context.getLibraryDir(), library)
+    # m = context.getLibraryEnv().Move(context.getLibraryDir(), library)
+    # install_to_lib_dir = XMove(context.getLibraryEnv(), context.getLibraryDir(), library)
+    # install_to_lib_dir = Install(context.getLibraryDir(), library)
+    
+    # Execute(Move(context.getLibraryDir(), library))
+    # Execute(Action(os.rename(library, context.getLibraryDir() + '/' + library)))
+    
+    # context.addLibrary(library)
+    context.addLibrary('-l%s' % getLibraryName(context.getDebug(),context.getStatic()))
+    
+    # we don't use makedoc any longer
+    #docs = SConscript("scons/docs.scons", exports = ["normalBuildDir"])
+    #Alias('docs', docs)
+    
+    SConscript("scons/naturaldocs.scons")
+    
+    # For some reason I have to call Program() from this file
+    # otherwise 'scons/' will be appended to all the sources
+    # and targets. 
+    
+    # Build all other miscellaneous targets using the same environment
+    # that was used to build allegro but only link in liballeg
+    extraEnv = context.getExampleEnv().Clone()
+    
+    # liballeg = getLibraryName(debug)
+    extraEnv.Append(LIBPATH = [ context.getLibraryDir() ])
+    if not context.getStatic():
+        extraEnv.Replace(LIBS = [context.getLibraries()])
+    else:
+        extraEnv.Append(LIBS = [context.getLibraries()])
+    
+    extraTargets = []
+    for et in context.getExtraTargets():
+        useEnv = extraEnv
+        if et.use_build_env:
+            useEnv = context.getLibraryEnv()
+        make = et.func(useEnv,appendDir, normalBuildDir, context.getLibraryDir())
+        if et.depends:
+            useEnv.Depends(make,library)
+        extraTargets.append(make)
+    
+    Default(library, extraTargets)
+    
+    # Depends(library, extraTargets)
+    
+    Alias('install', context.install(library))
