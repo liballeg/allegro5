@@ -242,42 +242,6 @@ class AllegroContext:
         else:
             return lambda name, *rest : apply(env.SharedLibrary, [name] + list(rest) )
 
-    def getAllegroTarget(self):
-        def build(function, lib, d):
-            return function(self.getLibraryDir() + '/' + lib, appendDir(d, self.librarySource))
-
-        def buildStatic(env, debug, d):
-            env.BuildDir(d, '.', duplicate = 0)
-            # return build(env.StaticLibrary, self.libDir + '/static/' + getLibraryName(debug), d)
-            return build(env.StaticLibrary, getLibraryName(debug,True), d)
-
-        def buildShared(env, debug, d):
-            env.BuildDir(d, '.', duplicate = 0)
-            # return build(env.SharedLibrary, self.libDir + '/shared/' + getLibraryName(debug), d)
-            return build(env.SharedLibrary, getLibraryName(debug,False), d)
-
-        debugEnv = self.libraryEnv.Clone()
-        debugEnv.Append(CCFLAGS = '-DDEBUGMODE=1')
-
-        debugStatic = buildStatic(debugEnv, 1, debugBuildDir)
-        debugShared = buildShared(debugEnv, 1, debugBuildDir)
-        normalStatic = buildStatic(self.libraryEnv, 0, optimizedBuildDir)
-        normalShared = buildShared(self.libraryEnv, 0, optimizedBuildDir)
-
-        Alias('debug-static', debugStatic)
-        Alias('debug-shared', debugShared)
-        Alias('static', normalStatic)
-        Alias('shared', normalShared)
-
-        if self.debug == 1 and self.static == 1:
-            return debugStatic
-        elif self.debug == 1:
-            return debugShared
-        elif self.static == 1:
-            return normalStatic
-        else:
-            return normalShared
-
     def defaultEnvironment(self):
         import os
         env = Environment(ENV = os.environ)
@@ -306,23 +270,7 @@ class AllegroContext:
 # d - directory where the library( dll, so ) should end up
 def getAllegroContext():
     context = AllegroContext()
-
     context.cmake = helpers.read_cmake_list("cmake/FileList.cmake")
-
-    file = ""
-    if context.onBsd():
-        file = 'scons/bsd.scons'
-    elif context.onLinux():
-        file = 'scons/linux.scons'
-    elif context.onWindows():
-        file = 'scons/win32.scons'
-    elif context.onOSX():
-        file = 'scons/osx.scons'
-    else:
-        print "Warning: unknown system type %s. Defaulting to linux." % (
-            context.getPlatform())
-        file = 'scons/linux.scons'
-    # SConscript(file, exports = ['context'])
     return context
 
 context = getAllegroContext()
