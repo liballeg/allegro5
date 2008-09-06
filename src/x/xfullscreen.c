@@ -84,8 +84,13 @@ bool _al_xglx_fullscreen_set_mode(ALLEGRO_SYSTEM_XGLX *s,
       }
    }
 
-   if (!XF86VidModeSwitchToMode(s->gfxdisplay, 0, s->modes[best_mode]))
+   TRACE("xfullscreen: best mode [%d] = (%d, %d)\n", best_mode,
+      s->modes[best_mode]->hdisplay, s->modes[best_mode]->vdisplay);
+
+   if (!XF86VidModeSwitchToMode(s->gfxdisplay, 0, s->modes[best_mode])) {
+      TRACE("xfullscreen: XF86VidModeSwitchToMode failed\n");
       return false;
+   }
 
    return true;
 }
@@ -110,17 +115,49 @@ void _al_xglx_fullscreen_to_display(ALLEGRO_SYSTEM_XGLX *s,
 
 void _al_xglx_store_video_mode(ALLEGRO_SYSTEM_XGLX *s)
 {
-   get_num_display_modes(s);
+   int n;
+   int i;
+
+   TRACE("xfullscreen: _al_xglx_store_video_mode\n");
+
+   n = get_num_display_modes(s);
+   if (n == 0) {
+      /* XXX what to do here? */
+      return;
+   }
+
    s->original_mode = s->modes[0];
+
+   for (i = 0; i < n; i++) {
+      TRACE("xfullscreen: mode[%d] = (%d, %d)\n",
+         i, s->modes[i]->hdisplay, s->modes[i]->vdisplay);
+   }
+   TRACE("xfullscreen: original mode = (%d, %d)\n",
+      s->original_mode->hdisplay, s->original_mode->vdisplay);
 }
 
 void _al_xglx_restore_video_mode(ALLEGRO_SYSTEM_XGLX *s)
 {
-   XF86VidModeSwitchToMode(s->gfxdisplay, 0, s->original_mode);
+   Bool ok;
+
+   ASSERT(s->original_mode);
+   TRACE("xfullscreen: _al_xglx_restore_video_mode (%d, %d)\n",
+      s->original_mode->hdisplay, s->original_mode->vdisplay);
+
+   ok = XF86VidModeSwitchToMode(s->gfxdisplay, 0, s->original_mode);
+   if (!ok) {
+      TRACE("xfullscreen: XF86VidModeSwitchToMode failed\n");
+   }
+
    if (s->pointer_grabbed) {
       XUngrabPointer(s->gfxdisplay, CurrentTime);
       s->pointer_grabbed = false;
    }
+
+   /* This is needed, at least on my machine, or the program may terminate
+    * before the screen mode is actually reset. --pw
+    */
+   XFlush(s->gfxdisplay);
 }
 
 #else /* !ALLEGRO_XWINDOWS_WITH_XF86VIDMODE */
@@ -156,3 +193,5 @@ void _al_xglx_restore_video_mode(ALLEGRO_SYSTEM_XGLX *s)
 }
 
 #endif /* !ALLEGRO_XWINDOWS_WITH_XF86VIDMODE */
+
+/* vim: set sts=3 sw=3 et: */
