@@ -78,8 +78,8 @@ def writeAutoHeader(filename, platform):
 # 2/19/2006 - Only configure if config=1 is given or the .h/.cfg file is missing
 noconfig = False
 if not getArgumentOption("config",0):
-    if os.path.exists(context.getBuildDir() + "/include/allegro5/platform/alunixac.h") and \
-        os.path.exists(context.getBuildDir() + "/settings.cfg"):
+    if os.path.exists("include/allegro5/platform/alunixac.h") and \
+        os.path.exists("settings.cfg"):
         print "Re-using old settings"
         noconfig = True
 
@@ -94,9 +94,8 @@ settings = ConfigParser.ConfigParser()
 ## so that alunixac.h can be written
 if noconfig:
     # platform = helpers.readAutoHeader("scons_build/include/allegro5/platform/alunixac.h")
-    platform = helpers.readAutoHeader(context.getBuildDir() + '/' +
-        "include/allegro5/platform/alunixac.h")
-    settings.read(context.getBuildDir() + "/settings.cfg")
+    platform = helpers.readAutoHeader("include/allegro5/platform/alunixac.h")
+    settings.read("settings.cfg")
     # env = context.getEnv()
     for setting in config_settings:
         try:
@@ -240,13 +239,13 @@ else:
         if hasattr(val, "data"): val = val.data # for CCFLAGS
         if not type(val) == list: val = [val]
         settings.set("unix", setting, str(val))
-    settings.write(file(context.getBuildDir() + "/settings.cfg", "w"))
+    settings.write(file("settings.cfg", "w"))
 
 alunixac = helpers.parse_cmake_h(env, platform,
     'include/allegro5/platform/alunixac.h.cmake',
     'include/allegro5/platform/alunixac.h')
 
-Alias('all', alunixac)
+# Alias('all', alunixac)
 
 # alplatf_h = helpers.generate_alplatf_h(env, ["ALLEGRO_UNIX"])
 platf_settings = helpers.define("ALLEGRO_UNIX","ALLEGRO_CFG_OPENGL")
@@ -255,7 +254,7 @@ platf_settings = helpers.define("ALLEGRO_UNIX","ALLEGRO_CFG_OPENGL")
 # platf_settings[ "ALLEGRO_NO_ASM" ] = True
 alplatf_h = helpers.parse_cmake_h(env, platf_settings, 'include/allegro5/platform/alplatf.h.cmake', 'include/allegro5/platform/alplatf.h')
 
-Alias('all', alplatf_h)
+# Alias('all', alplatf_h)
         
 # env.Depends(alplatf_h, env.Program('dummy','#src/unix/dummy.c'))
 

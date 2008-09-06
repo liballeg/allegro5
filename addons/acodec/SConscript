@@ -97,15 +97,17 @@ else:
         config = myEnv.Configure(custom_tests = tests)
 
         settings = helpers.SimpleHash()
-        settings["ALLEGRO_CFG_ACODEC_VORBIS"] = getOption('ogg', False) and config.CheckOgg()
-        settings["ALLEGRO_CFG_ACODEC_FLAC"] = getOption('flac', False) and config.CheckFlac()
-        settings["ALLEGRO_CFG_ACODEC_SNDFILE"] = getOption('sndfile', False) and config.CheckSndfile()
+        settings["ALLEGRO_CFG_ACODEC_VORBIS"] = getOption('ogg', True) and config.CheckOgg()
+        settings["ALLEGRO_CFG_ACODEC_FLAC"] = getOption('flac', True) and config.CheckFlac()
+        settings["ALLEGRO_CFG_ACODEC_SNDFILE"] = getOption('sndfile', True) and config.CheckSndfile()
         config.Finish()
 
 helpers.parse_cmake_h(myEnv, settings,'allegro5/internal/aintern_acodec_cfg.h.cmake','allegro5/internal/aintern_acodec_cfg.h')
 source = ['acodec.c']
 configs = []
 
+# This shouldn't be required, use env = config.Finish() above and make
+# the Check* functions modify the environment
 if settings['ALLEGRO_CFG_ACODEC_VORBIS']:
     source.extend(['ogg.c'])
     configs.extend(['pkg-config vorbisfile --libs'])

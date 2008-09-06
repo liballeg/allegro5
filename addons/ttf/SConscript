@@ -1,8 +1,13 @@
 Import("context")
 Import("env")
 import addons, helpers
+import os
 
-configs = []
+def getArgumentOption(name, default):
+    arg = ARGUMENTS.get(name,default)
+    if arg == "yes" or arg == "1":
+        return 1
+    return 0
 
 def CheckFreetype(context):
     context.Message("Checking for Freetype... ")
@@ -26,11 +31,21 @@ def CheckFreetype(context):
 
 myEnv = env.Clone()
 
-config = myEnv.Configure(custom_tests =
-    {"CheckFreetype": CheckFreetype,})
-settings = helpers.SimpleHash()
-settings["ALLEGRO_CFG_TTF_FREETYPE"] = config.CheckFreetype()
-config.Finish()
+noconfig = False
+if not getArgumentOption("config",0):
+    if os.path.exists("addons/ttf/allegro5/internal/aintern_ttf_cfg.h"):
+        print "Re-using old ttf settings"
+        noconfig = True
+
+settings = []
+if noconfig:
+    settings = helpers.readAutoHeader('addons/ttf/allegro5/internal/aintern_ttf_cfg.h')
+else:
+	config = myEnv.Configure(custom_tests =
+	    {"CheckFreetype": CheckFreetype,})
+	settings = helpers.SimpleHash()
+	settings["ALLEGRO_CFG_TTF_FREETYPE"] = config.CheckFreetype()
+	myEnv = config.Finish()
 
 helpers.parse_cmake_h(myEnv,
     settings,
