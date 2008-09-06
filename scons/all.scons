@@ -150,11 +150,14 @@ def demo(env):
        wave.cpp
     """);
     # demoEnv.Append(LIBPATH = libDir)
+    if context.isStatic():
+        demoEnv.Append(LIBS = [getLibraryName(context.isDebug(), context.isStatic())])
+    else:
+        demoEnv.Replace(LIBS = [getLibraryName(context.isDebug(), context.isStatic())])
     demoEnv.Append(LIBS = [context.libraryName('a5_font')])
     demoEnv.Append(LIBS = [context.libraryName('a5_iio')])
     demoEnv.Append(LIBS = [context.libraryName('a5_kcm_audio')])
     demoEnv.Append(LIBS = [context.libraryName('a5_acodec')])
-    demoEnv.Append(LIBS = [getLibraryName(context.isDebug(), context.isStatic())])
     demoEnv.Append(LIBPATH = ['addons/font/lib'])
     demoEnv.Append(LIBPATH = ['addons/acodec/lib'])
     demoEnv.Append(LIBPATH = ['addons/ttf/lib'])
@@ -172,7 +175,10 @@ def examples(env):
         "addons/kcm_audio", "addons/acodec"])
     # exEnv.BuildDir('#examples', 'examples', duplicate = 0)
     # FIXME: those should be per-example..
-    exEnv.Replace(LIBS = [getLibraryName(context.isDebug(), context.isStatic())])
+    if context.isStatic():
+        exEnv.Append(LIBS = [getLibraryName(context.isDebug(), context.isStatic())])
+    else:
+        exEnv.Replace(LIBS = [getLibraryName(context.isDebug(), context.isStatic())])
 
     # Should all the examples use the addon libraries?
     # If not then the libraries could be passed as a parameter to 'example'
