@@ -344,13 +344,15 @@ else:
 context.getLibraryEnv().Append(CPPPATH = [ normalBuildDir ])
 
 if context.onBsd():
-    SConscript('scons/bsd.scons', build_dir = 'scons_build', exports = 'context')
+    SConscript('scons/bsd.scons', build_dir = normalBuildDir, exports = 'context')
 elif context.onLinux():
-    SConscript('scons/linux.scons', build_dir = 'scons_build', exports = 'context')
+    SConscript('scons/linux.scons', build_dir = normalBuildDir, exports = 'context')
 elif context.onWindows():
-    SConscript('scons/win32.scons', build_dir = 'scons_build', exports = 'context')
+    SConscript('scons/win32.scons', build_dir = normalBuildDir, exports = 'context')
 elif context.onOSX():
-    SConscript('scons/osx.scons', build_dir = 'scons_build', exports = 'context')
+    SConscript('scons/osx.scons', build_dir = normalBuildDir, exports = 'context')
+else:
+    SConscript('scons/linux.scons', build_dir = normalBuildDir, exports = 'context')
 
 if False:
     library = context.getAllegroTarget()
