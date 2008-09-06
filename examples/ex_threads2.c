@@ -312,7 +312,6 @@ int main(void)
       al_start_thread(thread[i]);
    }
    al_start_timer(timer);
-   al_show_mouse_cursor();
 
    need_draw = true;
    while (true) {

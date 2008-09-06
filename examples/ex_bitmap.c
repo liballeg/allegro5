@@ -31,7 +31,6 @@ int main(int argc, const char *argv[])
     
     al_set_window_title(filename);
 
-    al_show_mouse_cursor();
     bitmap = al_iio_load(filename);
     if (!bitmap) {
        TRACE("%s not found or failed to load", filename);

@@ -310,7 +310,6 @@ int main(void)
       TRACE("Error creating display\n");
       return 1;
    }
-   al_show_mouse_cursor();
 
    init();
 

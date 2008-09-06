@@ -39,7 +39,6 @@ int main(void)
    al_set_new_window_position(x, y);
 
    displays[0] = al_create_display(W, H);
-   al_show_mouse_cursor();
 
    x *= 2;
    al_set_new_window_position(x, y);

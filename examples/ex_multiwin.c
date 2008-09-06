@@ -29,7 +29,6 @@ int main(void)
       TRACE("failed to load mysha.pcx\n");
       return 1;
    }
-   al_show_mouse_cursor();
 
    display[1] = al_create_display(W, H);
    pictures[1] = al_iio_load("data/allegro.pcx");

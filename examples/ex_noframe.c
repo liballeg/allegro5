@@ -28,8 +28,6 @@ int main(void)
       return 1;
    }
 
-   al_show_mouse_cursor();
-
    timer = al_install_timer(1.0f/30.0f);
 
    events = al_create_event_queue();

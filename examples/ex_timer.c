@@ -169,7 +169,6 @@ int main(void)
    al_font_init();
 
    display = al_create_display(640, 480);
-   al_show_mouse_cursor();
 
    init();
 
