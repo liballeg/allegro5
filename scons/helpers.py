@@ -72,19 +72,20 @@ def readAutoHeader(filename):
             # In case the line is in the form #define X, set it to True.
             if len(line) == 1: line += [True]
             name, use = line
-            obj[name] = [use, name]
+            obj[name] = use
     return obj
 
 def parse_cmake_h(env, defines, src, dest):
     def parse_line(line):
         # Replace cmake variables of the form ${variable}.
         def substitute_variable(match):
-            return str(defines[match.group(1)])
+            var = defines[match.group(1)]
+            return str(var)
         line = re.sub(r"\$\{(.*?)\}", substitute_variable, line)
         m = re.compile('^#cmakedefine (.*)').match(line)
         if m:
             name = m.group(1)
-            if defines[ name ]:
+            if defines[name]:
                 return "#define %s\n" % name
             else:
                 return "/* #undef %s */\n" % name

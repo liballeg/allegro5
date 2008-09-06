@@ -111,7 +111,7 @@ def tests(env):
 
 def demo(env):
     demoEnv = env.Clone()
-    demoEnv.BuildDir('demo','#demo')
+    demoEnv.BuildDir('demo', '#demo', duplicate=0)
     demoEnv.Append(CPPPATH = 'demo/include' )
     demoEnv.Append(CPPPATH = ['addons/font', 'addons/iio',
       'addons/kcm_audio', 'addons/acodec'])
@@ -194,7 +194,7 @@ def examples(env):
     exEnv.Append(LIBPATH = ['addons/kcm_audio/lib'])
     exEnv.Append(LIBPATH = ['.'])
     # exEnv.Append(LIBS = ["GLU"])
-    exEnv.BuildDir('examples', '#examples')
+    exEnv.BuildDir('examples', '#examples', duplicate = 0)
     ## Add an example
     ## name - filename of example and also the alias of the target
     ## files - list of files associated with the example
@@ -247,7 +247,9 @@ def examples(env):
     return examples
 
 def buildAddon(name):
-    return SConscript( dirs = ['#addons/%s' % name], build_dir = 'addons/%s' % name, exports='context')
+    return SConscript( dirs = ['#addons/%s' % name],
+        build_dir = 'addons/%s' % name,
+        exports = 'context', duplicate = 0)
 
 buildAddon("iio")
 buildAddon('font')
