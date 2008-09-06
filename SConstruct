@@ -286,7 +286,10 @@ class AllegroContext:
     # Version of allegro (major.minor.micro)
     def getVersion(self):
         return allegroVersion
-    
+
+    def getGlobalDir(self):
+        return BUILD_DIR + '/'
+
     # Add files to the source for the Allegro library
     def addFiles(self,files):
         self.librarySource.extend(files)

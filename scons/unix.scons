@@ -79,7 +79,7 @@ def writeAutoHeader(filename, platform):
 noconfig = False
 if not getArgumentOption("config",0):
     if os.path.exists("include/allegro5/platform/alunixac.h") and \
-        os.path.exists("settings.cfg"):
+        os.path.exists(context.getGlobalDir() + "settings.cfg"):
         # print "Re-using old settings"
         noconfig = True
 
@@ -95,7 +95,7 @@ settings = ConfigParser.ConfigParser()
 if noconfig:
     # platform = helpers.readAutoHeader("scons_build/include/allegro5/platform/alunixac.h")
     platform = helpers.readAutoHeader("include/allegro5/platform/alunixac.h")
-    settings.read("settings.cfg")
+    settings.read(context.getGlobalDir() + "settings.cfg")
     # env = context.getEnv()
     for setting in config_settings:
         try:
@@ -239,7 +239,7 @@ else:
         if hasattr(val, "data"): val = val.data # for CCFLAGS
         if not type(val) == list: val = [val]
         settings.set("unix", setting, str(val))
-    settings.write(file("settings.cfg", "w"))
+    settings.write(file(context.getGlobalDir() + "settings.cfg", "w"))
 
 alunixac = helpers.parse_cmake_h(env, platform,
     'include/allegro5/platform/alunixac.h.cmake',
