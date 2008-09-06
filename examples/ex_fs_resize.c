@@ -50,6 +50,12 @@ int main(void)
       return 1;
    }
 
+   /* Destroying the fullscreen display restores the original screen
+    * resolution.  If allegro_exit was automatically run at exit, it would be
+    * done automatically.
+    */
+   al_destroy_display(display);
+
    return 0;
 }
 END_OF_MAIN()
