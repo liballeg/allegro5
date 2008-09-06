@@ -28,6 +28,12 @@ static void process_x11_event(ALLEGRO_SYSTEM_XGLX *s, XEvent event)
          break;
       }
    }
+
+   if (!d) {
+      /* The display was probably destroyed already. */
+      return;
+   }
+
    switch (event.type) {
       case KeyPress:
          _al_xwin_keyboard_handler(&event.xkey, false,
