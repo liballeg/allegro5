@@ -24,13 +24,15 @@ def CheckFreetype(context):
     context.Result(ret)
     return ret
 
-config = env.Configure(custom_tests =
+myEnv = env.Clone()
+
+config = myEnv.Configure(custom_tests =
     {"CheckFreetype": CheckFreetype,})
 settings = helpers.SimpleHash()
 settings["ALLEGRO_CFG_TTF_FREETYPE"] = config.CheckFreetype()
 config.Finish()
 
-helpers.parse_cmake_h(env,
+helpers.parse_cmake_h(myEnv,
     settings,
     "allegro5/internal/aintern_ttf_cfg.h.cmake",
     "allegro5/internal/aintern_ttf_cfg.h")
@@ -44,7 +46,7 @@ if can_build:
 
     addons.do_build(
         context = context,
-        env = env,
+        env = myEnv,
         source = source,
         dir = "ttf",
         name = "a5_ttf",

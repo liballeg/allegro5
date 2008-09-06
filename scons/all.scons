@@ -180,10 +180,8 @@ def examples(env):
         "addons/kcm_audio", "addons/acodec"])
     # exEnv.BuildDir('#examples', 'examples', duplicate = 0)
     # FIXME: those should be per-example..
-    if context.isStatic():
-        exEnv.Append(LIBS = [getLibraryName()])
-    else:
-        exEnv.Replace(LIBS = [getLibraryName()])
+    if not context.isStatic():
+        exEnv.Replace(LIBS = [])
 
     # Should all the examples use the addon libraries?
     # If not then the libraries could be passed as a parameter to 'example'
@@ -192,6 +190,7 @@ def examples(env):
     exEnv.Append(LIBS = [context.libraryName('a5_ttf')])
     exEnv.Append(LIBS = [context.libraryName('a5_kcm_audio')])
     exEnv.Append(LIBS = [context.libraryName('a5_acodec')])
+    exEnv.Append(LIBS = [getLibraryName()])
     exEnv.Append(LIBPATH = ['addons/font/lib'])
     exEnv.Append(LIBPATH = ['addons/acodec/lib'])
     exEnv.Append(LIBPATH = ['addons/ttf/lib'])

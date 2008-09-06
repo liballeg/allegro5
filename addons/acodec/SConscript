@@ -4,8 +4,10 @@ import addons
 import helpers
 import os
 
+myEnv = env.Clone()
+
 def getOption(name, default = 0):
-    return env()[name]
+    return myEnv()[name]
 
 def getArgumentOption(name, default):
     arg = ARGUMENTS.get(name,default)
@@ -74,9 +76,9 @@ opts = Options(context.getBuildDir() + "/options-addons-acodec.py", ARGUMENTS)
 opts.Add('flac', 'Enable FLAC', 1)
 opts.Add('sndfile', 'Enable sndfile', 1)
 opts.Add('ogg', 'Enable ogg', 1)
-opts.Update(env)
-opts.Save(context.getBuildDir() + "/options-addons-acodec.py", env)
-Help(opts.GenerateHelpText(env))
+opts.Update(myEnv)
+opts.Save(context.getBuildDir() + "/options-addons-acodec.py", myEnv)
+Help(opts.GenerateHelpText(myEnv))
 
 noconfig = False
 if not getArgumentOption("config",0):
@@ -92,7 +94,7 @@ else:
                   "CheckFlac": CheckFlac,
                   "CheckSndfile": CheckSndfile,
                 }
-        config = env.Configure(custom_tests = tests)
+        config = myEnv.Configure(custom_tests = tests)
 
         settings = helpers.SimpleHash()
         settings["ALLEGRO_CFG_ACODEC_VORBIS"] = getOption('ogg', False) and config.CheckOgg()
@@ -100,7 +102,7 @@ else:
         settings["ALLEGRO_CFG_ACODEC_SNDFILE"] = getOption('sndfile', False) and config.CheckSndfile()
         config.Finish()
 
-helpers.parse_cmake_h(env, settings,'allegro5/internal/aintern_acodec_cfg.h.cmake','allegro5/internal/aintern_acodec_cfg.h')
+helpers.parse_cmake_h(myEnv, settings,'allegro5/internal/aintern_acodec_cfg.h.cmake','allegro5/internal/aintern_acodec_cfg.h')
 source = ['acodec.c']
 configs = []
 
@@ -118,7 +120,7 @@ if settings['ALLEGRO_CFG_ACODEC_SNDFILE']:
 
 addons.do_build(
     context = context,
-    env = env,
+    env = myEnv,
     source = source,
     dir = 'acodec',
     name = 'a5_acodec',

@@ -474,6 +474,9 @@ buildStaticDebug()
 # Default is what comes out of buildNormal()
 Default('all')
 
+# Build the world!
+Alias('everything',['all','all-static','all-debug','all-static-debug'])
+
 if False:
     context = getAllegroContext()
     
