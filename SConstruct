@@ -307,6 +307,8 @@ elif context.onOSX():
     SConscript('scons/osx.scons', build_dir = BUILD_DIR, exports = 'context')
 else:
     SConscript('scons/linux.scons', build_dir = BUILD_DIR, exports = 'context')
+    
+Default(SConscript("scons/naturaldocs.scons"))
 
 if False:
     library = context.getAllegroTarget()

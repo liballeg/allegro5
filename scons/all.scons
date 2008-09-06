@@ -173,6 +173,9 @@ def examples(env):
     # exEnv.BuildDir('#examples', 'examples', duplicate = 0)
     # FIXME: those should be per-example..
     exEnv.Replace(LIBS = [getLibraryName(context.isDebug(), context.isStatic())])
+
+    # Should all the examples use the addon libraries?
+    # If not then the libraries could be passed as a parameter to 'example'
     exEnv.Append(LIBS = [context.libraryName('a5_font')])
     exEnv.Append(LIBS = [context.libraryName('a5_iio')])
     exEnv.Append(LIBS = [context.libraryName('a5_ttf')])
@@ -184,15 +187,17 @@ def examples(env):
     exEnv.Append(LIBPATH = ['addons/iio/lib'])
     exEnv.Append(LIBPATH = ['addons/kcm_audio/lib'])
     exEnv.Append(LIBPATH = ['.'])
-    exEnv.Append(LIBS = ["GLU"])
+    # exEnv.Append(LIBS = ["GLU"])
     exEnv.BuildDir('examples', '#examples')
     ## Add an example
     ## name - filename of example and also the alias of the target
     ## files - list of files associated with the example
     def example(name, files = None, libs = []):
+        myEnv = exEnv.Clone()
+        myEnv.Append(LIBS = libs)
         if files is None:
             files = [name + ".c"]
-            example = exEnv.Program('#examples/' + name, appendDir('examples/', files))
+        example = myEnv.Program('#examples/' + name, appendDir('examples/', files))
         Alias(name, example)
         examples.append(example)
 
