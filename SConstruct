@@ -314,6 +314,9 @@ class AllegroContextNormal(AllegroContext):
     def isDebug(self):
         return False
 
+    def defaultEnvironment(self):
+        return Environment(ENV = os.environ)
+
     def getBuildDir(self):
         return BUILD_DIR + '/release'
 
@@ -337,6 +340,9 @@ class AllegroContextStatic(AllegroContext):
 
     def isDebug(self):
         return False
+    
+    def defaultEnvironment(self):
+        return Environment(ENV = os.environ)
 
     def getBuildDir(self):
         return BUILD_DIR + '/release-static'
@@ -361,6 +367,11 @@ class AllegroContextDebug(AllegroContext):
 
     def isDebug(self):
         return True
+    
+    def defaultEnvironment(self):
+        env = Environment(ENV = os.environ)
+        env.Append(CFLAGS = ['-DDEBUG'])
+        return env
 
     def getBuildDir(self):
         return BUILD_DIR + '/debug'
@@ -385,6 +396,11 @@ class AllegroContextStaticDebug(AllegroContext):
 
     def isDebug(self):
         return True
+    
+    def defaultEnvironment(self):
+        env = Environment(ENV = os.environ)
+        env.Append(CFLAGS = ['-DDEBUG'])
+        return env
 
     def getBuildDir(self):
         return BUILD_DIR + '/debug-static'
@@ -423,7 +439,7 @@ def getPlatformFile():
         return 'scons/linux.scons'
 
 def doBuild(context):
-    env = Environment(ENV = os.environ)
+    env = context.defaultEnvironment()
     SConscript(getPlatformFile(), build_dir = context.getBuildDir(), exports = ['context','env'])
     
 def buildNormal():
