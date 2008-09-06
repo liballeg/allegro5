@@ -83,6 +83,18 @@ void Entity::render_four(void)
       render(ox, BB_H);
    }
    
+   #ifdef DEBUG_COLLISION_CIRCLES
+   float x1 = x + cos(0) * radius;
+   float y1 = y + sin(0) * radius;
+   for (int i = 0; i < 30; i++) {
+      float x2 = x + cos((i + 1) * AL_PI * 2 / 30) * radius;
+      float y2 = y + sin((i + 1) * AL_PI * 2 / 30) * radius;
+      al_draw_line(x1, y1, x2, y2, al_map_rgba_f(1, 0, 0, 1));
+      x1 = x2;
+      y1 = y2;
+   }
+   #endif
+   
 }
 
 Entity *Entity::checkCollisions(std::list<Entity *>& e)

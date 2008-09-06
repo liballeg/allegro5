@@ -29,6 +29,7 @@ public:
    ~Player();
 private:
    float angle;
+   float draw_radius;
    bool draw_trail;
    int weapon;
    int lastShot;

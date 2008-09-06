@@ -139,11 +139,11 @@ void Player::render(int offx, int offy)
    int rx = offx + x, ry = offy + y;
 
    if (!isDestructable) {
-      al_draw_rotated_bitmap(trans_bitmap, radius, radius, rx, ry,
+      al_draw_rotated_bitmap(trans_bitmap, draw_radius, draw_radius, rx, ry,
          angle-(M_PI/2.0f), 0);
    }
    else {
-      al_draw_rotated_bitmap(bitmap, radius, radius, rx, ry,
+      al_draw_rotated_bitmap(bitmap, draw_radius, draw_radius, rx, ry,
          angle-(M_PI/2.0f), 0);
    }
    if (draw_trail) {
@@ -248,7 +248,9 @@ bool Player::load(void)
    al_clear(al_map_rgba(0, 0, 0, 0));
    al_set_target_bitmap(old_target);
 
-   radius = al_get_bitmap_width(bitmap)/2;
+   draw_radius = al_get_bitmap_width(bitmap)/2;
+   radius = draw_radius / 2;
+   
 
    newGame();
    reset();
