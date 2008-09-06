@@ -50,6 +50,6 @@ if can_build:
             "allegro5/a5_ttf.h",
             "allegro5/internal/aintern_ttf_cfg.h"],
         configs = configs,
-        includes = ["#addons/ttf", "#addons/font"])
+        includes = ["../ttf", "../font"])
 
 Return("can_build")
