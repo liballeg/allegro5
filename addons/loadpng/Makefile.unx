@@ -5,6 +5,8 @@ libdir := $(prefix)/lib
 includedir := $(prefix)/include
 DESTDIR :=
 
+CC := gcc
+
 EXAMPLECFLAGS := -Wno-deprecated-declarations -I../../include
 EXAMPLELIBS := -lpng -lz `../../allegro-config --libs --addon` -L../../lib/unix
 

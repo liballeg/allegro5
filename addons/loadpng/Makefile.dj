@@ -7,6 +7,7 @@ includedir := $(prefix)/include
 EXE := .exe
 EXAMPLELIBS := -lpng -lz -l$(ALLEG_LIB_BASENAME) -L../../lib/djgpp
 
+CC := gcc
 
 #--------------------------------------------------
 .PHONY: install

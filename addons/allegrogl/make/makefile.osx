@@ -3,6 +3,12 @@ COMPILER = macosx
 DATA_INSTALLER = cp -f
 PROG_INSTALLER = cp -f
 
+ifdef UB
+CC = ../../misc/gcc-uni.sh
+else
+CC = gcc
+endif
+
 UNIX_TOOLS=1
 
 include make/makefile.gcc
@@ -66,15 +72,15 @@ include make/makefile.all
 
 
 $(OBJ_DIR)/%.o: $(SRC_DIR)/%.c $(addprefix include/,$(C_DEPEND)) $(EXT_HEADERS)
-	gcc -c $< -o $@ $(FLAGS) $(INCLUDE_PATHS)
+	$(CC) -c $< -o $@ $(FLAGS) $(INCLUDE_PATHS)
 
 $(OBJ_DIR)/%.o: $(SRC_DIR)/%.m $(addprefix include/,$(C_DEPEND)) $(EXT_HEADERS)
-	gcc -c $< -o $@ $(FLAGS) $(INCLUDE_PATHS)
+	$(CC) -c $< -o $@ $(FLAGS) $(INCLUDE_PATHS)
 
 $(LIB_PATH): $(OBJECTS) $(HEADERS)
 	ar rs $@ $(OBJECTS)
 	ranlib $@
 	
 $(EXAMPLE_DIR)/%: $(EXAMPLE_DIR)/%.c $(HEADERS) $(LIB_PATH)
-	gcc $< -o $@ $(FLAGS) $(INCLUDE_PATHS) $(LIB_PATH) $(COMPILER_LINK_LIB)
+	$(CC) $< -o $@ $(FLAGS) $(INCLUDE_PATHS) $(LIB_PATH) $(COMPILER_LINK_LIB)
 

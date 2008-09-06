@@ -1,6 +1,5 @@
 ## Toplevel Makefile
 
-CC := gcc
 CFLAGS := -W -Wall -O3 -I. -I../../include
 
 ifdef STATICLINK

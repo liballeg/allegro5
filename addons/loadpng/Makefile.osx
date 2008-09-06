@@ -9,6 +9,11 @@ DESTDIR :=
 EXAMPLECFLAGS := -Wno-deprecated-declarations -I../../include
 EXAMPLELIBS := -lpng -lz `../../allegro-config --libs --addon` -L../../lib/macosx
 
+ifdef UB
+CC = ../../misc/gcc-uni.sh
+else
+CC = gcc
+endif
 
 #--------------------------------------------------
 # Note: this is for gcc

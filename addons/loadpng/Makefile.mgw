@@ -2,6 +2,8 @@
 
 prefix := $(MINGDIR)
 
+CC := gcc
+
 EXE := .exe
 EXAMPLECFLAGS := -Wl,--subsystem,windows
 EXAMPLELIBS := -lpng -lz -l$(ALLEG_LIB_BASENAME) -L../../lib/mingw32
