@@ -4,6 +4,84 @@ See `changes._tx` for changes in earlier versions of Allegro.  These lists
 serve as summaries; the full histories are in the Subversion repository.
 
 
+Changes from 4.9.2 to 4.9.3 (April 2008)
+========================================
+
+General:
+
+-  Many bugfixes all around
+
+-  Code formatting improvements
+
+-  Added more debugging messages
+
+-  Removed a lot of A4 code that is no longer used
+
+-  Added documentation for new functions
+
+-  Renamed some functions/structures to be more consistant
+
+-  Added a basic configuration api
+
+
+Graphics:
+
+-  Added support for some new OpenGL extensions
+
+-  Multihead support on Windows (preliminary support on OSX and Linux)
+
+-  Many enhancements to all drivers
+
+-  Merged common parts of WGL and D3D drivers
+
+-  Borderless windows, setting window positions and titles
+
+-  Fullscreen support on OSX and Linux
+
+-  Do not clear bitmaps when they are created
+
+-  Improved compile times and dll sizes by simplifying "memblit" functions
+
+-  Added EXPOSE display events
+
+Build System:
+
+-  Many bug fixes and enhancements to scons and cmake build systems
+
+-  Support for Trubo C++ 2006
+
+-  Support for cross-compiling on Linux to MinGW
+
+Examples:
+
+-  Lots of new examples
+
+-  Wait for keypress in some examples instead of arbitrary delay
+
+-  Clean up files when done in some examples
+
+Events:
+
+-  Filled in a display field for all relevant events
+
+Addons:
+
+-  Added an ImageMagick addon
+
+-  Added iio (Image IO) addon
+
+-  Added new audio addon, kcm_audio
+
+-  Added ttf font addon
+
+-  Made all addons use al_ prefix
+
+Miscellaneous:
+
+-  Public threads api
+
+-  Made the demo run at 800x600
+
 
 Changes from 4.9.2 to 4.9.3 (April 2008)
 ========================================
