@@ -83,7 +83,7 @@ Help(opts.GenerateHelpText(myEnv))
 noconfig = False
 if not getArgumentOption("config",0):
     if os.path.exists("addons/acodec/allegro5/internal/aintern_acodec_cfg.h"):
-        print "Re-using old acodec settings"
+        # print "Re-using old acodec settings"
         noconfig = True
 
 settins = []

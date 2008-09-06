@@ -54,7 +54,7 @@ def CheckOSS(context):
 noconfig = False
 if not getArgumentOption("config",0):
     if os.path.exists("addons/kcm_audio/allegro5/internal/aintern_kcm_cfg.h"):
-        print "Re-using old kcm_audio settings"
+        # print "Re-using old kcm_audio settings"
         noconfig = True
 
 settings = []

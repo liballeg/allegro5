@@ -80,7 +80,7 @@ noconfig = False
 if not getArgumentOption("config",0):
     if os.path.exists("include/allegro5/platform/alunixac.h") and \
         os.path.exists("settings.cfg"):
-        print "Re-using old settings"
+        # print "Re-using old settings"
         noconfig = True
 
 unixLibs = [ 'm', 'pthread' ]

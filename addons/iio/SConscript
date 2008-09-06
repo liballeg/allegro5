@@ -14,7 +14,7 @@ myEnv = env.Clone()
 noconfig = False
 if not getArgumentOption("config",0):
     if os.path.exists("addons/iio/allegro5/internal/aintern_iio_cfg.h"):
-        print "Re-using old iio settings"
+        # print "Re-using old iio settings"
         noconfig = True
 
 settings = []

@@ -34,7 +34,7 @@ myEnv = env.Clone()
 noconfig = False
 if not getArgumentOption("config",0):
     if os.path.exists("addons/ttf/allegro5/internal/aintern_ttf_cfg.h"):
-        print "Re-using old ttf settings"
+        # print "Re-using old ttf settings"
         noconfig = True
 
 settings = []
