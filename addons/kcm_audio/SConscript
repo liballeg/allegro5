@@ -41,12 +41,23 @@ def CheckAlsa(context):
     context.Result(ret)
     return ret
 
+def CheckOSS(context):
+    context.Message("Checking for OSS... ")
+    ret = False
+    return ret
+
 config = context.getLibraryEnv().Configure(custom_tests =
     {"CheckOpenAL": CheckOpenAL,
-     "CheckAlsa" : CheckAlsa})
+     "CheckAlsa" : CheckAlsa,
+     "CheckOSS" : CheckOSS})
 settings = helpers.SimpleHash()
 settings["ALLEGRO_CFG_KCM_OPENAL"] = config.CheckOpenAL()
 settings["ALLEGRO_CFG_KCM_ALSA"] = config.CheckAlsa()
+a = settings["ALLEGRO_HAVE_SOUNDCARD_H"] = config.CheckCHeader("soundcard.h")
+b = settings["ALLEGRO_HAVE_SYS_SOUNDCARD_H"] = config.CheckCHeader("sys/soundcard.h")
+c = settings["ALLEGRO_HAVE_MACHINE_SOUNDCARD_H"] = config.CheckCHeader("machine/soundcard.h")
+d = settings["ALLEGRO_HAVE_LINUX_SOUNDCARD_H"] = config.CheckCHeader("linux/soundcard.h")
+settings["ALLEGRO_CFG_KCM_OSS"] = a or b or c or d
 config.Finish()
 
 helpers.parse_cmake_h(context.getLibraryEnv(),
@@ -54,8 +65,18 @@ helpers.parse_cmake_h(context.getLibraryEnv(),
     "#addons/kcm_audio/allegro5/internal/aintern_kcm_cfg.h.cmake",
     "#addons/kcm_audio/allegro5/internal/aintern_kcm_cfg.h")
 
-source = ["alsa.c", "audio.c", "kcm_mixer.c", "kcm_sample.c", "kcm_stream.c", "kcm_voice.c", "openal.c"]
+source = ["audio.c", "kcm_mixer.c", "kcm_sample.c", "kcm_stream.c",
+    "kcm_voice.c"]
 configs = []
+
+if settings["ALLEGRO_CFG_KCM_ALSA"]:
+    source.append("alsa.c")
+
+if settings["ALLEGRO_CFG_KCM_OPENAL"]:
+    source.append("openal.c")
+
+if settings["ALLEGRO_CFG_KCM_OPENAL"]:
+    source.append("oss.c")
 
 can_build = True
 if can_build:
