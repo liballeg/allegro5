@@ -1005,8 +1005,8 @@ static ALLEGRO_DISPLAY* wgl_create_display(int w, int h) {
       al_set_mouse_range(0, 0, w, h);
    }
 
-   wgl_display->win_display.mouse_selected_hcursor = 0;
-   wgl_display->win_display.mouse_cursor_shown = true;
+   _al_win_set_system_mouse_cursor(display, ALLEGRO_SYSTEM_MOUSE_CURSOR_ARROW);
+   _al_win_show_mouse_cursor(display);
 
    return display;
 }
