@@ -192,7 +192,7 @@ class AllegroContextStaticDebug(AllegroContext):
         return env.StaticLibrary(name, source)
 
     def isStatic(self):
-        return False
+        return True
 
     def isDebug(self):
         return True
