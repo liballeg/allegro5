@@ -16,7 +16,7 @@
 
 void _al_set_error(int error, char* string)
 {
-   TRACE("%s (error code: %d)", string, error);
+   TRACE("%s (error code: %d)\n", string, error);
 }
 
 ALLEGRO_AUDIO_DRIVER *_al_kcm_driver = NULL;

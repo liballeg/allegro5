@@ -217,7 +217,7 @@ static void stream_read(void *source, void **vbuf, unsigned long *samples,
    else {
       int bytes = pos * al_channel_count(stream->spl.spl_data.chan_conf)
                       * al_depth_size(stream->spl.spl_data.depth);
-      *vbuf = stream->pending_bufs[0] + bytes;
+      *vbuf = ((char**)stream->pending_bufs[0]) + bytes;
 
       if (pos + *samples > len)
          *samples = len - pos;
