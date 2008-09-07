@@ -73,7 +73,7 @@ static void log_win32_msg(const char *prefix, const char *func,
                       NULL, err & 0x3FFF,
                       MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
                      (LPTSTR) &err_msg, 0, NULL)) {
-      err_msg = "(Unable to decode error code)  ";
+      err_msg = "(Unable to decode error code)";
       free_msg = FALSE;
    }
 
@@ -1006,7 +1006,7 @@ static ALLEGRO_DISPLAY* wgl_create_display(int w, int h) {
    }
 
    wgl_display->win_display.mouse_selected_hcursor = 0;
-   wgl_display->win_display.mouse_cursor_shown = false;
+   wgl_display->win_display.mouse_cursor_shown = true;
 
    return display;
 }
