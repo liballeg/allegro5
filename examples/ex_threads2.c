@@ -26,6 +26,7 @@ typedef struct ThreadInfo {
    ALLEGRO_MUTEX *mutex;
    ALLEGRO_COND *cond;
    bool is_paused;
+   int random_seed;
    double target_x, target_y;
 } ThreadInfo;
 
@@ -71,11 +72,24 @@ int mandel(double cre, double cim, int MAX_ITER)
 }
 
 
-void random_palette(unsigned char palette[256][3])
+/* local_rand:
+ *  Simple rand() replacement with guaranteed randomness in the lower 16 bits.
+ *  We just need a RNG with a thread-safe interface.
+ */
+int local_rand(int *seed)
 {
-   unsigned char rmax = 128 + rand() % 128;
-   unsigned char gmax = 128 + rand() % 128;
-   unsigned char bmax = 128 + rand() % 128;
+   const int LOCAL_RAND_MAX = 0xFFFF;
+
+   *seed = (*seed + 1) * 1103515245 + 12345;
+   return ((*seed >> 16) & LOCAL_RAND_MAX);
+}
+
+
+void random_palette(unsigned char palette[256][3], int *seed)
+{
+   unsigned char rmax = 128 + local_rand(seed) % 128;
+   unsigned char gmax = 128 + local_rand(seed) % 128;
+   unsigned char bmax = 128 + local_rand(seed) % 128;
    int i;
 
    for (i = 0; i < 256; i++) {
@@ -166,7 +180,7 @@ void *thread_func(ALLEGRO_THREAD *thr, void *arg)
 
       if (!info->is_paused) {
          if (y == 0) {
-            random_palette(palette);
+            random_palette(palette, &info->random_seed);
          }
 
          draw_mandel_line(info->bitmap, &viewport, palette, y);
@@ -293,6 +307,7 @@ int main(void)
          goto Error;
       }
       thread_info[i].is_paused = false;
+      thread_info[i].random_seed = i;
       thread[i] = al_create_thread(thread_func, &thread_info[i]);
       if (!thread[i]) {
          goto Error;
