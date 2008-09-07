@@ -99,7 +99,7 @@ bool al_install_keyboard(void)
           new_keyboard_driver = NULL;
           return false;
        }
-       _add_exit_func(al_uninstall_keyboard, "al_uninstall_keyboard");
+       _al_add_exit_func(al_uninstall_keyboard, "al_uninstall_keyboard");
        return true;
    }
    
@@ -127,7 +127,7 @@ bool al_install_keyboard(void)
 
    //set_leds(-1);
 
-   _add_exit_func(al_uninstall_keyboard, "al_uninstall_keyboard");
+   _al_add_exit_func(al_uninstall_keyboard, "al_uninstall_keyboard");
 
 
    return true;
@@ -152,8 +152,6 @@ void al_uninstall_keyboard(void)
 
    new_keyboard_driver->exit_keyboard();
    new_keyboard_driver = NULL;
-
-   _remove_exit_func(al_uninstall_keyboard);
 }
 
 

@@ -60,7 +60,7 @@ bool al_install_joystick(void)
       joydrv = sysdrv->vt->get_joystick_driver();
       if (joydrv->init_joystick()) {
          new_joystick_driver = joydrv;
-         _add_exit_func(al_uninstall_joystick, "al_uninstall_joystick");
+         _al_add_exit_func(al_uninstall_joystick, "al_uninstall_joystick");
          return true;
       }
    }
@@ -92,9 +92,6 @@ void al_uninstall_joystick(void)
       new_joystick_driver->exit_joystick();
       new_joystick_driver = NULL;
    }
-
-   /* this is an atexit'd function */
-   _remove_exit_func(al_uninstall_joystick);
 }
 
 

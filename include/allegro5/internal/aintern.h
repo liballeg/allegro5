@@ -68,8 +68,8 @@ AL_FUNCPTR(int, _al_trace_handler, (AL_CONST char *msg));
 
 
 /* list of functions to call at program cleanup */
-AL_FUNC(void, _add_exit_func, (AL_METHOD(void, func, (void)), AL_CONST char *desc));
-AL_FUNC(void, _remove_exit_func, (AL_METHOD(void, func, (void))));
+AL_FUNC(void, _al_add_exit_func, (AL_METHOD(void, func, (void)), AL_CONST char *desc));
+AL_FUNC(void, _al_remove_exit_func, (AL_METHOD(void, func, (void))));
 AL_FUNC(void, _al_run_exit_funcs, (void));
 
 

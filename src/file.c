@@ -1067,7 +1067,7 @@ int set_allegro_resource_path(int priority, AL_CONST char *path)
 	 }
          
 	 if (!resource_path_list->next)
-	    _add_exit_func(destroy_resource_path_list,
+	    _al_add_exit_func(destroy_resource_path_list,
 			   "destroy_resource_path_list");
       }
       
@@ -1087,7 +1087,7 @@ int set_allegro_resource_path(int priority, AL_CONST char *path)
 	  _AL_FREE(node);
           
 	  if (!resource_path_list)
-	     _remove_exit_func(destroy_resource_path_list);
+	     _al_remove_exit_func(destroy_resource_path_list);
        }
        else
 	  return 0;
@@ -1103,7 +1103,7 @@ static void destroy_resource_path_list(void)
    RESOURCE_PATH *node = resource_path_list;
    
    if (node)
-      _remove_exit_func(destroy_resource_path_list);
+      _al_remove_exit_func(destroy_resource_path_list);
    
    while (node) {
       resource_path_list = node->next;

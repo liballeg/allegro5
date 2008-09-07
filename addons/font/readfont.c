@@ -117,7 +117,7 @@ static void al_font_register_font_file_type_exit(void)
       _al_font_register_font_file_type_init();
    #endif
 
-   _remove_exit_func(al_font_register_font_file_type_exit);
+   _al_remove_exit_func(al_font_register_font_file_type_exit);
 }
 
 
@@ -127,7 +127,7 @@ static void al_font_register_font_file_type_exit(void)
  */
 void _al_font_register_font_file_type_init(void)
 {
-   _add_exit_func(al_font_register_font_file_type_exit,
+   _al_add_exit_func(al_font_register_font_file_type_exit,
 		  "al_font_register_font_file_type_exit");
 }
 
@@ -166,6 +166,6 @@ void _al_font_register_font_file_type_init(void)
    
       font_type_list = NULL;
 
-      _remove_exit_func(al_font_register_font_file_type_exit);
+      _al_remove_exit_func(al_font_register_font_file_type_exit);
    }
 #endif

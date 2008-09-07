@@ -54,12 +54,12 @@ static struct al_exit_func *exit_func_list = NULL;
 
 
 
-/* _add_exit_func:
+/* _al_add_exit_func:
  *  Adds a function to the list that need to be called on Allegro shutdown.
  *  `desc' should point to a statically allocated string to help with
  *  debugging.
  */
-void _add_exit_func(void (*func)(void), AL_CONST char *desc)
+void _al_add_exit_func(void (*func)(void), AL_CONST char *desc)
 {
    struct al_exit_func *n;
 
@@ -79,11 +79,11 @@ void _add_exit_func(void (*func)(void), AL_CONST char *desc)
 
 
 
-/* _remove_exit_func:
+/* _al_remove_exit_func:
  *  Removes a function from the list that need to be called on Allegro
  *  shutdown.
  */
-void _remove_exit_func(void (*func)(void))
+void _al_remove_exit_func(void (*func)(void))
 {
    struct al_exit_func *iter = exit_func_list, *prev = NULL;
 
@@ -104,14 +104,14 @@ void _remove_exit_func(void (*func)(void))
 
 
 /* _al_run_exit_funcs:
- *  Run all the functions registered with _add_exit_func, in reverse order of
+ *  Run all the functions registered with _al_add_exit_func, in reverse order of
  *  registration.
  */
 void _al_run_exit_funcs(void)
 {
    while (exit_func_list) {
       void (*func)(void) = exit_func_list->funcptr;
-      _remove_exit_func(func);
+      _al_remove_exit_func(func);
       (*func)();
    }
 }
@@ -135,8 +135,6 @@ static void debug_exit(void)
 
    debug_assert_virgin = TRUE;
    debug_trace_virgin = TRUE;
-
-   _remove_exit_func(debug_exit);
 }
 
 
@@ -171,7 +169,7 @@ void al_assert(AL_CONST char *file, int line)
 	 assert_file = NULL;
 
       if (debug_trace_virgin)
-	 _add_exit_func(debug_exit, "debug_exit");
+	 _al_add_exit_func(debug_exit, "debug_exit");
 
       debug_assert_virgin = FALSE;
    }
@@ -229,7 +227,7 @@ void al_trace(AL_CONST char *msg, ...)
 	 trace_file = fopen("allegro.log", "w");
 
       if (debug_assert_virgin)
-	 _add_exit_func(debug_exit, "debug_exit");
+	 _al_add_exit_func(debug_exit, "debug_exit");
 
       debug_trace_virgin = FALSE;
    }

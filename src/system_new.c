@@ -116,7 +116,7 @@ bool al_install_system(int (*atexit_ptr)(void (*)(void)))
    /* FIXME: On UNIX this should read /etc/allegro.cfg too and merge the two */
    active_sysdrv->config = al_config_read("allegro.cfg");
 
-   _add_exit_func(shutdown_system_driver, "shutdown_system_driver");
+   _al_add_exit_func(shutdown_system_driver, "shutdown_system_driver");
 
    _al_init_destructors();
 

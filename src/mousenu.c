@@ -60,7 +60,7 @@ bool al_install_mouse(void)
           new_mouse_driver = NULL;
           return false;
        }
-       _add_exit_func(al_uninstall_mouse, "al_uninstall_mouse");
+       _al_add_exit_func(al_uninstall_mouse, "al_uninstall_mouse");
        return true;
    }
 
@@ -90,7 +90,7 @@ bool al_install_mouse(void)
       new_mouse_driver = NULL;
       return false;
    }
-   _add_exit_func(al_uninstall_mouse, "al_uninstall_mouse");
+   _al_add_exit_func(al_uninstall_mouse, "al_uninstall_mouse");
 
 
    return true;
@@ -115,8 +115,6 @@ void al_uninstall_mouse(void)
 
    new_mouse_driver->exit_mouse();
    new_mouse_driver = NULL;
-
-   _remove_exit_func(al_uninstall_mouse);
 }
 
 
