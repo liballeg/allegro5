@@ -903,9 +903,12 @@ static bool select_pixel_format(ALLEGRO_DISPLAY_WGL *d, HDC dc) {
                 GetLastError());
       }
    }
+   else {
+      TRACE(PREFIX_E "Unable to set pixel format!\n");
+      return false;
+   }
 
-   // milan: is this ok?
-   d->win_display.display.format = pf_list[pf_index]->format;
+   d->win_display.display.format = pf_list[pf_index - 1]->format;
 
    for (i = 0; i < maxindex; i++)
       free(pf_list[i]);
