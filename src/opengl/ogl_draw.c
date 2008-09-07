@@ -111,15 +111,26 @@ static void ogl_draw_rectangle(ALLEGRO_DISPLAY *d, float tlx, float tly,
    }
 
    set_opengl_blending(d, color);
-   if (flags & ALLEGRO_FILLED)
+   if (flags & ALLEGRO_FILLED) {
       glBegin(GL_QUADS);
-   else
-      glBegin(GL_LINE_LOOP);
-   glVertex2d(tlx, tly);
-   glVertex2d(brx, tly);
-   glVertex2d(brx, bry);
-   glVertex2d(tlx, bry);
-   glEnd();
+      glVertex2d(tlx, tly);
+      glVertex2d(brx, tly);
+      glVertex2d(brx, bry);
+      glVertex2d(tlx, bry);
+      glEnd();
+   }
+   else {
+      /* GL_LINE_STRIP works more reliably than GL_LINE_LOOP on two of my
+       * machines --pw
+       */
+      glBegin(GL_LINE_STRIP);
+      glVertex2d(tlx, tly);
+      glVertex2d(brx, tly);
+      glVertex2d(brx, bry);
+      glVertex2d(tlx, bry);
+      glVertex2d(tlx, tly);
+      glEnd();
+   }
 }
 
 
