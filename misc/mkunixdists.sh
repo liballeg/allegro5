@@ -55,8 +55,10 @@ echo "Running 'convert_line_endings.sh --dtou'"
 		sh misc/convert_line_endings.sh --dtou >/dev/null
 	) || error
 echo "Checking version number"
-	basename=$(sed -n -e 's/shared_version = /allegro-/p' $dir/allegro/makefile.ver)
-	basename2=$(sed -n -e 's/shared_version = /allegro-enduser-/p' $dir/allegro/makefile.ver)
+	version=$( awk -F '[() ]' '/set\(ALLEGRO_VERSION / { print $3 }' < ../CMakeLists.txt )
+	test -n "$version" || error
+	basename="allegro-$version"
+	basename2="allegro-enduser-$version"
 echo "Renaming 'allegro' to '$basename'"
 	mv $dir/allegro $dir/$basename || error
 
@@ -74,36 +76,41 @@ mktargz() {
 mktargz $basename
 
 # Hack'n'slash
-echo "Stripping to form end-user distribution"
-(cd $dir/$basename && {
-	(cd src && rm -rf beos qnx dos mac ppc win)
-	(cd obj && rm -rf bcc32 beos qnx djgpp mingw32 msvc watcom)
-	(cd lib && rm -rf bcc32 beos qnx djgpp mingw32 msvc watcom)
-	(cd include && rm -f bealleg.h qnxalleg.h macalleg.h winalleg.h)
-	(cd misc && rm -f cmplog.pl dllsyms.lst findtext.sh fixpatch.sh fixver.sh)
-	(cd misc && rm -f allegro-config-qnx.sh zipup.sh zipwin.sh *.bat *.c)
-	mkdir .saveme
-	cp readme.txt docs/build/unix.txt docs/build/linux.txt .saveme
-	rm -rf demo docs examples resource setup tests tools
-	rm -f AUTHORS CHANGES THANKS *.txt fix* indent* readme.* allegro.mft
-	rm -f makefile.all makefile.be makefile.qnx makefile.bcc makefile.dj
-	rm -f makefile.mgw makefile.mpw makefile.vc makefile.wat makefile.tst
-	rm -f xmake.sh
-	rm -f keyboard.dat language.dat
-	mv .saveme/* .
-	rmdir .saveme
-	{       # Tweak makefile.in
-		cp makefile.in makefile.old &&
-		cat makefile.old |
-		sed -e "s/INSTALL_TARGETS = .*/INSTALL_TARGETS = mini-install/" |
-		sed -e "s/DEFAULT_TARGETS = .*/DEFAULT_TARGETS = lib modules/" |
-		cat > makefile.in &&
-		rm -f makefile.old
-	}
-})
+# XXX end-user distribution is useless while we are in WIP mode
+# This code is outdated anyway.
+if false
+then
+	echo "Stripping to form end-user distribution"
+	(cd $dir/$basename && {
+		(cd src && rm -rf beos qnx dos mac ppc win)
+		(cd obj && rm -rf bcc32 beos qnx djgpp mingw32 msvc watcom)
+		(cd lib && rm -rf bcc32 beos qnx djgpp mingw32 msvc watcom)
+		(cd include && rm -f bealleg.h qnxalleg.h macalleg.h winalleg.h)
+		(cd misc && rm -f cmplog.pl dllsyms.lst findtext.sh fixpatch.sh fixver.sh)
+		(cd misc && rm -f allegro-config-qnx.sh zipup.sh zipwin.sh *.bat *.c)
+		mkdir .saveme
+		cp readme.txt docs/build/unix.txt docs/build/linux.txt .saveme
+		rm -rf demo docs examples resource setup tests tools
+		rm -f AUTHORS CHANGES THANKS *.txt fix* indent* readme.* allegro.mft
+		rm -f makefile.all makefile.be makefile.qnx makefile.bcc makefile.dj
+		rm -f makefile.mgw makefile.mpw makefile.vc makefile.wat makefile.tst
+		rm -f xmake.sh
+		rm -f keyboard.dat language.dat
+		mv .saveme/* .
+		rmdir .saveme
+		{       # Tweak makefile.in
+			cp makefile.in makefile.old &&
+			cat makefile.old |
+			sed -e "s/INSTALL_TARGETS = .*/INSTALL_TARGETS = mini-install/" |
+			sed -e "s/DEFAULT_TARGETS = .*/DEFAULT_TARGETS = lib modules/" |
+			cat > makefile.in &&
+			rm -f makefile.old
+		}
+	})
 
-# Create the end users' archive
-mktargz $basename2
+	# Create the end users' archive
+	mktargz $basename2
+fi  # false
 
 
 ################################################################
@@ -116,24 +123,29 @@ mktargz $basename2
 # This requires you to have Red Hat's default RPM build system
 # properly set up, so we'll skip it if that's not the case.
 
-rpmdir=
-[ -d /usr/src/redhat ] && rpmdir=/usr/src/redhat
-[ -d /usr/src/packages ] && rpmdir=/usr/src/packages
-[ -d /usr/src/RPM ] && rpmdir=/usr/src/RPM
-[ -d /usr/src/rpm ] && rpmdir=/usr/src/rpm
+# XXX SRPMs disabled because they must be broken by now
+# Also, they are useless.
+if false
+then
+	rpmdir=
+	[ -d /usr/src/redhat ] && rpmdir=/usr/src/redhat
+	[ -d /usr/src/packages ] && rpmdir=/usr/src/packages
+	[ -d /usr/src/RPM ] && rpmdir=/usr/src/RPM
+	[ -d /usr/src/rpm ] && rpmdir=/usr/src/rpm
 
-if [ -n "$rpmdir" ]; then
-	echo "Creating SRPM"
-	echo "Enter your root password if prompted"
-	su -c "(\
-		cp -f $basename.tar.gz $rpmdir/SOURCES ;\
-		cp -f $dir/$basename/misc/icon.xpm $rpmdir/SOURCES ;\
-		rpm -bs $dir/$basename/misc/allegro.spec ;\
-		mv -f $rpmdir/SRPMS/allegro-*.rpm . ;\
-		rm -f $rpmdir/SOURCES/icon.xpm ;\
-		rm -f $rpmdir/SOURCES/$basename.tar.gz ;\
-	)"
-fi
+	if [ -n "$rpmdir" ]; then
+		echo "Creating SRPM"
+		echo "Enter your root password if prompted"
+		su -c "(\
+			cp -f $basename.tar.gz $rpmdir/SOURCES ;\
+			cp -f $dir/$basename/misc/icon.xpm $rpmdir/SOURCES ;\
+			rpm -bs $dir/$basename/misc/allegro.spec ;\
+			mv -f $rpmdir/SRPMS/allegro-*.rpm . ;\
+			rm -f $rpmdir/SOURCES/icon.xpm ;\
+			rm -f $rpmdir/SOURCES/$basename.tar.gz ;\
+		)"
+	fi
+fi  # false
 
 
 ################################################################
