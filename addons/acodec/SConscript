@@ -111,10 +111,12 @@ configs = []
 if settings['ALLEGRO_CFG_ACODEC_VORBIS']:
     source.extend(['ogg.c'])
     configs.extend(['pkg-config vorbisfile --libs'])
+    env.ParseConfig('pkg-config vorbisfile --libs')
 
 if settings['ALLEGRO_CFG_ACODEC_FLAC']:
     source.extend(['flac.c'])
     configs.extend(['pkg-config flac --libs'])
+    env.ParseConfig('pkg-config flac --libs')
 
 if settings['ALLEGRO_CFG_ACODEC_SNDFILE']:
     source.extend(['wav.c'])

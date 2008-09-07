@@ -155,14 +155,13 @@ def demo(env):
        wave.cpp
     """);
     # demoEnv.Append(LIBPATH = libDir)
-    if context.isStatic():
-        demoEnv.Append(LIBS = [getLibraryName()])
-    else:
-        demoEnv.Replace(LIBS = [getLibraryName()])
+    if not context.isStatic():
+        demoEnv.Replace(LIBS = [])
     demoEnv.Append(LIBS = [context.libraryName('a5_font')])
     demoEnv.Append(LIBS = [context.libraryName('a5_iio')])
     demoEnv.Append(LIBS = [context.libraryName('a5_kcm_audio')])
     demoEnv.Append(LIBS = [context.libraryName('a5_acodec')])
+    demoEnv.Append(LIBS = [getLibraryName()])
     demoEnv.Append(LIBPATH = ['addons/font/lib'])
     demoEnv.Append(LIBPATH = ['addons/acodec/lib'])
     demoEnv.Append(LIBPATH = ['addons/ttf/lib'])

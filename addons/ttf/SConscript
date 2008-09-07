@@ -58,6 +58,7 @@ configs = []
 can_build = True
 if can_build:
     configs.extend(["pkg-config freetype2 --libs --cflags"])
+    env.ParseConfig('pkg-config freetype2 --libs')
 
     addons.do_build(
         context = context,

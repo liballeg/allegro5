@@ -170,7 +170,7 @@ class AllegroContextDebug(AllegroContext):
     
     def defaultEnvironment(self):
         env = Environment(ENV = os.environ)
-        env.Append(CFLAGS = ['-DDEBUG'])
+        env.Append(CFLAGS = ['-DDEBUGMODE=1'])
         return env
 
     def getBuildDir(self):
@@ -199,7 +199,7 @@ class AllegroContextStaticDebug(AllegroContext):
     
     def defaultEnvironment(self):
         env = Environment(ENV = os.environ)
-        env.Append(CFLAGS = ['-DDEBUG'])
+        env.Append(CFLAGS = ['-DDEBUGMODE=1'])
         return env
 
     def getBuildDir(self):
