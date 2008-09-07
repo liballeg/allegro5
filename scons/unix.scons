@@ -310,18 +310,12 @@ alunixac = helpers.parse_cmake_h(env, platform,
 if getUnixAlunixac():
     env.Depends(alunixac, getUnixAlunixac())
 
-# Alias('all', alunixac)
-
 # alplatf_h = helpers.generate_alplatf_h(env, ["ALLEGRO_UNIX"])
 platf_settings = helpers.define("ALLEGRO_UNIX","ALLEGRO_CFG_OPENGL")
 # platf_settings = helpers.SimpleHash()
 # platf_settings[ "ALLEGRO_UNIX" ] = True
 # platf_settings[ "ALLEGRO_NO_ASM" ] = True
 alplatf_h = helpers.parse_cmake_h(env, platf_settings, 'include/allegro5/platform/alplatf.h.cmake', 'include/allegro5/platform/alplatf.h')
-
-# Alias('all', alplatf_h)
-        
-# env.Depends(alplatf_h, env.Program('dummy','#src/unix/dummy.c'))
 
 # Maybe setting up the assembler should be in a gcc.scons or something?
 import SCons.Tool
@@ -407,7 +401,7 @@ if haveXWindows():
 def getModules():
     return modules
 
-def allegroConfig(env, appendDir, buildDir, libDir):
+def allegroConfig(env):
     """Builds the allegro5-config shell script out of misc/allegro5-config.in"""
     prefix = ARGUMENTS.get('install', '/usr/local')
     replaces = {}
@@ -449,6 +443,9 @@ def allegroConfig(env, appendDir, buildDir, libDir):
     # Return an instance of the builder, passing destination and source file.
     return env.ConfigMaker( 'allegro5-config', '#misc/allegro5-config.in' )
 
+env.BuildDir('misc','#misc', duplicate = 0)
+context.alias('config', allegroConfig(env))
+
 def install(library):
     # env = context.getEnv()
     ## list of files to be installed
@@ -483,7 +480,7 @@ def install(library):
 # context.setInstaller(install)
     
 # context.addExtra(allegroConfig, use_build_env = True)
-allegroConfig( env, False, False, False )
+# allegroConfig( env, False, False, False )
 
 def pruneLibs(libs):
     import sets # needed for Python 2.3 compatibility
