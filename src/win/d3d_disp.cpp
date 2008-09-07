@@ -1312,10 +1312,10 @@ static bool d3d_create_display_internals(ALLEGRO_DISPLAY_D3D *d3d_display)
       sys = al_system_driver();
    
       if (sys->config) {
-         s = al_config_get_value(sys->config, "gfx", "min_filter");
+         s = al_config_get_value(sys->config, "graphics", "min_filter");
          if (s)
             d3d_min_filter = d3d_get_filter(s);
-         s = al_config_get_value(sys->config, "gfx", "mag_filter");
+         s = al_config_get_value(sys->config, "graphics", "mag_filter");
          if (s)
             d3d_mag_filter = d3d_get_filter(s);
       }
