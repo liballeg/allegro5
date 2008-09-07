@@ -236,6 +236,7 @@ def examples(env):
     example("ex_multiwin")
     example("ex_noframe")
     example("ex_opengl")
+    example("ex_pixelformat")
     example("ex_resize")
     example("ex_resize2")
     example("ex_saw")
