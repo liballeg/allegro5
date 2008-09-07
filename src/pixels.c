@@ -371,7 +371,7 @@ static void _get_pixel_bgr_565(void *data, ALLEGRO_COLOR *color)
    uint16_t pixel = *(uint16_t *)(data);
    *color = al_map_rgba(
       _rgb_scale_5[(pixel & 0x001F)],
-      _rgb_scale_5[(pixel & 0x07E0) >> 5],
+      _rgb_scale_6[(pixel & 0x07E0) >> 5],
       _rgb_scale_5[(pixel & 0xF800) >> 11],
       255);
 }
@@ -590,7 +590,7 @@ static int _get_pixel_value_xbgr_8888(ALLEGRO_COLOR *p)
    uint32_t pixel = 0xff000000;
    pixel |= (int)(p->b * 0xff) << 16;
    pixel |= (int)(p->g * 0xff) << 8;
-   pixel |= (int)(p->b * 0xff);
+   pixel |= (int)(p->r * 0xff);
    return pixel;
 }
 
