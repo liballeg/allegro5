@@ -150,7 +150,7 @@ void _al_font_register_font_file_type_init(void)
 
    /* font_filetype_destructor:
     *  Since we only want to destroy the whole list when we *actually*
-    *  quit, not just when allegro_exit() is called, we need to use a
+    *  quit, not just when al_uninstall_system() is called, we need to use a
     *  destructor to accomplish this.
     */
    static void font_filetype_destructor(void)

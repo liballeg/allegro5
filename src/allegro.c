@@ -55,7 +55,7 @@ static struct al_exit_func *exit_func_list = NULL;
 
 
 /* _add_exit_func:
- *  Adds a function to the list that need to be called by allegro_exit().
+ *  Adds a function to the list that need to be called on Allegro shutdown.
  *  `desc' should point to a statically allocated string to help with
  *  debugging.
  */
@@ -80,7 +80,8 @@ void _add_exit_func(void (*func)(void), AL_CONST char *desc)
 
 
 /* _remove_exit_func:
- *  Removes a function from the list that need to be called by allegro_exit().
+ *  Removes a function from the list that need to be called on Allegro
+ *  shutdown.
  */
 void _remove_exit_func(void (*func)(void))
 {
@@ -102,25 +103,17 @@ void _remove_exit_func(void (*func)(void))
 
 
 
-/* allegro_exit:
- *  Closes down the Allegro system.
- *
- *  Note: allegro_exit() can be called without a corresponding
- *  install_allegro() call, e.g. from atexit().
+/* _al_run_exit_funcs:
+ *  Run all the functions registered with _add_exit_func, in reverse order of
+ *  registration.
  */
-void allegro_exit(void)
+void _al_run_exit_funcs(void)
 {
    while (exit_func_list) {
       void (*func)(void) = exit_func_list->funcptr;
       _remove_exit_func(func);
       (*func)();
    }
-
-   /*if (system_driver) {
-      system_driver->exit();
-      system_driver = NULL;
-   }
-   */
 }
 
 
@@ -196,7 +189,7 @@ void al_assert(AL_CONST char *file, int line)
       }
       else {
       */
-//	 allegro_exit();
+//	 al_uninstall_system();
 	 fprintf(stderr, "%s\n", buf);
 	 abort();
      // }

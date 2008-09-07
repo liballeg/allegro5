@@ -85,7 +85,7 @@ static RETSIGTYPE osx_signal_handler(int num)
    _al_mutex_unlock(&osx_event_mutex);
    //_al_mutex_unlock(&osx_window_mutex);
    
-   allegro_exit();
+   al_uninstall_system();
    
    _al_mutex_destroy(&osx_event_mutex);
    //_al_mutex_destroy(&osx_window_mutex);

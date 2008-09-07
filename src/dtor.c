@@ -99,7 +99,7 @@ static void shutdown_destructors(void)
 
 
 /* Internal function: _al_register_destructor
- *  Register OBJECT to be destroyed by FUNC during allegro_exit().
+ *  Register OBJECT to be destroyed by FUNC during Allegro shutdown.
  *  This would be done in the object's constructor function.
  *
  *  [thread-safe]

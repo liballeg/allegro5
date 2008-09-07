@@ -556,8 +556,8 @@ int main(void)
    /* Run the main loop. */
    main_loop();
 
-   /* For now, Allegro still automatically registers allegro_exit() with
-    * atexit() when you install it.  Further, all subsystems (keyboard, etc.)
+   /* Allegro automatically registers al_uninstall_system() with atexit() when
+    * you install it using al_init().  Further, all subsystems (keyboard, etc.)
     * are automatically shut down when Allegro is shut down.  All event queues
     * are also automatically destroyed.  So we don't actually need any
     * explicit shutdown code here.

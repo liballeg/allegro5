@@ -28,6 +28,8 @@ static ALLEGRO_SYSTEM *active_sysdrv = NULL;
 _AL_VECTOR _al_system_interfaces = _AL_VECTOR_INITIALIZER(ALLEGRO_SYSTEM_INTERFACE *);
 static _AL_VECTOR _user_system_interfaces = _AL_VECTOR_INITIALIZER(ALLEGRO_SYSTEM_INTERFACE *);
 
+static bool atexit_virgin = true;
+
 
 
 bool al_register_system_driver(ALLEGRO_SYSTEM_INTERFACE *sys_interface)
@@ -79,10 +81,12 @@ static void shutdown_system_driver(void)
 
 
 
-/* al_init:
- *  Initialize the Allegro system.
+/* al_install_system:
+ *  Initialize the Allegro system.  If atexit_ptr is non-NULL, and if hasn't
+ *  been done already, al_uninstall_system() will be registered as an atexit
+ *  function.
  */
-bool al_init(void)
+bool al_install_system(int (*atexit_ptr)(void (*)(void)))
 {
    if (active_sysdrv) {
       return true;
@@ -115,7 +119,29 @@ bool al_init(void)
 
    al_set_blender(ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA, al_map_rgb(255, 255, 255));
 
+   if (atexit_ptr && atexit_virgin) {
+      atexit_ptr(al_uninstall_system);
+      atexit_virgin = false;
+   }
+
    return true;
+}
+
+
+
+/* al_uninstall_system:
+ *  Closes down the Allegro system.
+ *
+ *  Note: al_uninstall_system() can be called without a corresponding
+ *  al_install_system() call, e.g. from atexit().
+ */
+void al_uninstall_system(void)
+{
+   _al_run_exit_funcs();
+
+   /* shutdown_system_driver is registered as an exit func so we don't need
+    * to do any more here.
+    */
 }
 
 
@@ -127,3 +153,6 @@ ALLEGRO_SYSTEM *al_system_driver(void)
 {
    return active_sysdrv;
 }
+
+
+/* vim: set sts=3 sw=3 et: */

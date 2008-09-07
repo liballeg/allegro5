@@ -118,7 +118,7 @@ static temp_sighandler_t old_sig_abrt, old_sig_fpe, old_sig_ill, old_sig_segv, o
  */
 static RETSIGTYPE signal_handler (int num)
 {
-	allegro_exit();
+	al_uninstall_system();
 	fprintf (stderr, "Shutting down Allegro due to signal #%d\n", num);
 	raise (num);
 }
