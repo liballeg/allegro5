@@ -399,9 +399,9 @@
 	(0xFF000000 | \
 		ALLEGRO_SHIFT_CONVERT(p, \
 		0, 0, 0, \
-		0xFF0000, 0, 8, \
-		0x00FF00, 8, 0, \
-		0x0000FF, 24, 0))
+		0xFF0000, 0, 16, \
+		0x00FF00, 0, 0, \
+		0x0000FF, 16, 0))
 
 #define ALLEGRO_CONVERT_RGB_888_TO_XBGR_8888(p) \
 	ALLEGRO_SHIFT_CONVERT(p, \
