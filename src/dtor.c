@@ -48,7 +48,7 @@ static _AL_VECTOR dtors = _AL_VECTOR_INITIALIZER(DTOR);
 
 
 /* Internal function: _al_init_destructors
- *  This is called from allegro_init() and nowhere else.  It adds an exit
+ *  This is called from al_install_system() and nowhere else.  It adds an exit
  *  function using _add_exit_func.  When that exit func is called, all the
  *  registered destructors will be called in reverse order to the order in
  *  which they were registered.

@@ -19,6 +19,7 @@
 #include "allegro5/allegro5.h"
 #include "allegro5/internal/aintern.h"
 #include ALLEGRO_INTERNAL_HEADER
+#include "allegro5/internal/aintern_dtor.h"
 #include "allegro5/internal/aintern_system.h"
 #include "allegro5/internal/aintern_vector.h"
 
@@ -116,6 +117,8 @@ bool al_install_system(int (*atexit_ptr)(void (*)(void)))
    active_sysdrv->config = al_config_read("allegro.cfg");
 
    _add_exit_func(shutdown_system_driver, "shutdown_system_driver");
+
+   _al_init_destructors();
 
    al_set_blender(ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA, al_map_rgb(255, 255, 255));
 
