@@ -48,6 +48,7 @@ int main(void)
    ALLEGRO_BITMAP *bitmap;
    ALLEGRO_EVENT event;
    unsigned int i;
+   int delta;
 
    al_init();
    al_iio_init();
@@ -70,7 +71,12 @@ int main(void)
       return 1;
    }
 
-   for (i = 0; i < NUM_FORMATS; i++) {
+   i = 0;
+   delta = 1;
+
+   while (true) {
+      i = (i + delta) % NUM_FORMATS;
+
       al_set_new_bitmap_flags(ALLEGRO_MEMORY_BITMAP);
       al_set_new_bitmap_format(formats[i]);
 
@@ -86,7 +92,7 @@ int main(void)
       al_font_textprintf_right(font, al_get_display_width()-1, 0, "%d", i);
 
       al_set_blender(ALLEGRO_ONE, ALLEGRO_ZERO, al_map_rgb(255, 255, 255));
-      al_draw_bitmap(bitmap, i*5, i*5, 0);
+      al_draw_bitmap(bitmap, 0, 0, 0);
 
       al_flip_display();
       al_destroy_bitmap(bitmap);
@@ -97,7 +103,16 @@ int main(void)
             if (event.keyboard.keycode == ALLEGRO_KEY_ESCAPE) {
                goto Quit;
             }
-            break;
+            if (event.keyboard.keycode == ALLEGRO_KEY_SPACE ||
+                  event.keyboard.keycode == ALLEGRO_KEY_RIGHT) {
+               delta = +1;
+               break;
+            }
+            if (event.keyboard.keycode == ALLEGRO_KEY_BACKSPACE ||
+                  event.keyboard.keycode == ALLEGRO_KEY_LEFT) {
+               delta = -1;
+               break;
+            }
          }
       }
    }
