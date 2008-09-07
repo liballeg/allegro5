@@ -177,17 +177,36 @@ static ALLEGRO_SYSTEM *xglx_initialize(int flags)
 
 static void xglx_shutdown_system(void)
 {
-   TRACE("shutting down.\n");
    /* Close all open displays. */
    ALLEGRO_SYSTEM *s = al_system_driver();
    ALLEGRO_SYSTEM_XGLX *sx = (void *)s;
+
+   TRACE("shutting down.\n");
+
    _al_thread_join(&sx->thread);
+
    while (_al_vector_size(&s->displays) > 0) {
       ALLEGRO_DISPLAY **dptr = _al_vector_ref(&s->displays, 0);
       ALLEGRO_DISPLAY *d = *dptr;
       _al_destroy_display_bitmaps(d);
       al_destroy_display(d);
    }
+   _al_vector_free(&s->displays);
+
+   _al_xglx_free_mode_infos(sx);
+
+   if (sx->x11display) {
+      XCloseDisplay(sx->x11display);
+      sx->x11display = None;
+   }
+
+   if (sx->gfxdisplay) {
+      /* XXX for some reason, crashes if both XCloseDisplay calls are made */
+      /* XCloseDisplay(sx->gfxdisplay); */
+      sx->gfxdisplay = None;
+   }
+
+   _AL_FREE(sx);
 }
 
 // FIXME: This is just for now, the real way is of course a list of

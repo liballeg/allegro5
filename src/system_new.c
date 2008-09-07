@@ -73,9 +73,9 @@ static ALLEGRO_SYSTEM *find_system(_AL_VECTOR *vector)
 static void shutdown_system_driver(void)
 {
    if (active_sysdrv) {
+      al_config_destroy(active_sysdrv->config);
       if (active_sysdrv->vt && active_sysdrv->vt->shutdown_system)
          active_sysdrv->vt->shutdown_system();
-      al_config_destroy(active_sysdrv->config);
       active_sysdrv = NULL;
    }
 }
@@ -145,6 +145,8 @@ void al_uninstall_system(void)
    /* shutdown_system_driver is registered as an exit func so we don't need
     * to do any more here.
     */
+
+   ASSERT(active_sysdrv == NULL);
 }
 
 

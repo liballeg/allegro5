@@ -160,6 +160,24 @@ void _al_xglx_restore_video_mode(ALLEGRO_SYSTEM_XGLX *s)
    XFlush(s->gfxdisplay);
 }
 
+void _al_xglx_free_mode_infos(ALLEGRO_SYSTEM_XGLX *s)
+{
+   int i;
+
+   if (s->modes_count > 0) {
+      for (i = 0; i < s->modes_count; i++) {
+         if (s->modes[i]->privsize > 0) {
+            XFree(s->modes[i]->private);
+         }
+      }
+      XFree(s->modes);
+
+      s->modes_count = 0;
+      s->modes = NULL;
+      s->original_mode = NULL;
+   }
+}
+
 #else /* !ALLEGRO_XWINDOWS_WITH_XF86VIDMODE */
 
 int _al_xglx_get_num_display_modes(void)
@@ -189,6 +207,10 @@ void _al_xglx_store_video_mode(ALLEGRO_SYSTEM_XGLX *s)
 }
 
 void _al_xglx_restore_video_mode(ALLEGRO_SYSTEM_XGLX *s)
+{
+}
+
+void _al_xglx_free_mode_infos(ALLEGRO_SYSTEM_XGLX *s)
 {
 }
 

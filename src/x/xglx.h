@@ -117,6 +117,7 @@ bool _al_xglx_fullscreen_set_mode(ALLEGRO_SYSTEM_XGLX *s, int w, int h,
    int format, int refresh_rate);
 void _al_xglx_store_video_mode(ALLEGRO_SYSTEM_XGLX *s);
 void _al_xglx_restore_video_mode(ALLEGRO_SYSTEM_XGLX *s);
+void _al_xglx_free_mode_infos(ALLEGRO_SYSTEM_XGLX *s);
 void _al_xglx_fullscreen_to_display(ALLEGRO_SYSTEM_XGLX *s,
    ALLEGRO_DISPLAY_XGLX *d);
 

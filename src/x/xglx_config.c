@@ -21,6 +21,7 @@ static void choose_visual_fbconfig(ALLEGRO_DISPLAY_XGLX *glx)
     int nelements;
     glx->fbc = glXChooseFBConfig(system->gfxdisplay,
         glx->xscreen, attributes, &nelements);
+    ASSERT(!glx->xvinfo);
     glx->xvinfo = glXGetVisualFromFBConfig(system->gfxdisplay, glx->fbc[0]);
 }
 
@@ -44,8 +45,8 @@ static void choose_visual_old(ALLEGRO_DISPLAY_XGLX *glx)
         double_buffer ? GLX_DOUBLEBUFFER : None,
         None,
         };
-    glx->xvinfo = glXChooseVisual(system->gfxdisplay, glx->xscreen, attributes);
-}
+    ASSERT(!glx->xvinfo);
+    glx->xvinfo = glXChooseVisual(system->gfxdisplay, glx->xscreen, attributes); }
 
 void _al_xglx_config_select_visual(ALLEGRO_DISPLAY_XGLX *glx)
 {

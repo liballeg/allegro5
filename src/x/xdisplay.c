@@ -358,12 +358,23 @@ static void xdpy_destroy_display(ALLEGRO_DISPLAY *d)
    _al_vector_find_and_delete(&s->system.displays, &d);
    XDestroyWindow(s->x11display, glx->window);
 
-   if (d->flags & ALLEGRO_FULLSCREEN)
+   if (d->flags & ALLEGRO_FULLSCREEN) {
       _al_xglx_restore_video_mode(s);
+   }
 
    if (ogl->backbuffer) {
       _al_ogl_destroy_backbuffer(ogl->backbuffer);
       ogl->backbuffer = NULL;
+   }
+
+   if (glx->context) {
+      glXDestroyContext(s->gfxdisplay, glx->context);
+      glx->context = NULL;
+   }
+
+   if (glx->xvinfo) {
+      XFree(glx->xvinfo);
+      glx->xvinfo = NULL;
    }
 
    _al_vector_free(&d->bitmaps);
