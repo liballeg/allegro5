@@ -1013,15 +1013,23 @@ static ALLEGRO_DISPLAY* wgl_create_display(int w, int h) {
 
 
 static void destroy_display_internals(ALLEGRO_DISPLAY_WGL *wgl_disp) {
-   ALLEGRO_DISPLAY *ogl_disp = (ALLEGRO_DISPLAY *)wgl_disp;
+   ALLEGRO_DISPLAY *disp = (ALLEGRO_DISPLAY *)wgl_disp;
    ALLEGRO_DISPLAY_WIN *win_disp = (ALLEGRO_DISPLAY_WIN *)wgl_disp;
 
-   /* REVIEW: can al_destroy_bitmap() handle backbuffers? */
-   if (ogl_disp->ogl_extras->backbuffer)
-      _al_ogl_destroy_backbuffer(ogl_disp->ogl_extras->backbuffer);
-   ogl_disp->ogl_extras->backbuffer = NULL;
+   /* We need to convert all our bitmaps to display independent (memory)
+    * bitmaps because WGL driver doesn't support sharing of resources. */
+   while (disp->bitmaps._size > 0) {
+      ALLEGRO_BITMAP **bptr = _al_vector_ref_back(&disp->bitmaps);
+      ALLEGRO_BITMAP *bmp = *bptr;
+      _al_convert_to_memory_bitmap(bmp);
+   }
 
-   _al_ogl_unmanage_extensions(ogl_disp);
+   /* REVIEW: can al_destroy_bitmap() handle backbuffers? */
+   if (disp->ogl_extras->backbuffer)
+      _al_ogl_destroy_backbuffer(disp->ogl_extras->backbuffer);
+   disp->ogl_extras->backbuffer = NULL;
+
+   _al_ogl_unmanage_extensions(disp);
 
    wgl_disp->end_thread = true;
    while (!wgl_disp->thread_ended)
@@ -1031,9 +1039,9 @@ static void destroy_display_internals(ALLEGRO_DISPLAY_WGL *wgl_disp) {
 
    PostMessage(win_disp->window, _al_win_msg_suicide, 0, 0);
 
-   _al_event_source_free(&ogl_disp->es);
+   _al_event_source_free(&disp->es);
 
-   _AL_FREE(ogl_disp->ogl_extras); /* Should this be in destroy_display? */
+   _AL_FREE(disp->ogl_extras); /* Should this be in destroy_display? */
 }
 
 
@@ -1041,14 +1049,6 @@ static void wgl_destroy_display(ALLEGRO_DISPLAY *disp)
 {
    ALLEGRO_SYSTEM_WIN *system = (ALLEGRO_SYSTEM_WIN *)al_system_driver();
    ALLEGRO_DISPLAY_WGL *wgl_disp = (ALLEGRO_DISPLAY_WGL *)disp;
-
-   /* We need to convert all our bitmaps to display independent (memory)
-    * bitmaps because WGL driver doesn't support sharing of resources. */
-   while (disp->bitmaps._size > 0) {
-      ALLEGRO_BITMAP **bptr = _al_vector_ref_back(&disp->bitmaps);
-      ALLEGRO_BITMAP *bmp = *bptr;
-      _al_convert_to_memory_bitmap(bmp);
-   }
 
    destroy_display_internals(wgl_disp);
    _al_vector_find_and_delete(&system->system.displays, &disp);
@@ -1093,16 +1093,7 @@ static void display_thread_proc(void *arg)
    ALLEGRO_DISPLAY_WIN *win_disp = (ALLEGRO_DISPLAY_WIN *)disp;
    DWORD result;
    MSG msg;
-
-   if (disp->flags & ALLEGRO_FULLSCREEN) {
-      if (!change_display_mode(disp)) {
-         wgl_disp->thread_ended = true;
-         wgl_destroy_display(disp);
-         ndp->init_failed = true;
-         return;
-      }
-   }
-
+   
    win_disp->window = _al_win_create_window(disp, disp->w, disp->h, disp->flags);
 
    if (!win_disp->window) {
@@ -1120,6 +1111,15 @@ static void display_thread_proc(void *arg)
       SetWindowPos(win_disp->window, 0, rect.left, rect.top,
              rect.right - rect.left, rect.bottom - rect.top,
              SWP_NOZORDER | SWP_FRAMECHANGED);
+   }
+
+   if (disp->flags & ALLEGRO_FULLSCREEN) {
+      if (!change_display_mode(disp)) {
+         wgl_disp->thread_ended = true;
+         wgl_destroy_display(disp);
+         ndp->init_failed = true;
+         return;
+      }
    }
 
    /* get the device context of our window */
@@ -1228,18 +1228,24 @@ static bool wgl_resize_display(ALLEGRO_DISPLAY *d, int width, int height)
    ALLEGRO_DISPLAY_WIN *win_disp = (ALLEGRO_DISPLAY_WIN *)d;
 
    if (d->flags & ALLEGRO_FULLSCREEN) {
+      ALLEGRO_BITMAP *bmp = al_get_target_bitmap();
+      bool was_backbuffer = false;
+      if (bmp->display != NULL)
+         was_backbuffer = ((ALLEGRO_BITMAP_OGL*)bmp)->is_backbuffer;
+
       destroy_display_internals(wgl_disp);
       /* FIXME: no need to switch to desktop display mode in between.
        */
       d->w = width;
       d->h = height;
       create_display_internals(wgl_disp);
-      /* FIXME: the context has been destroyed, need to recreate the bitmaps
+      /* FIXME: All display bitmaps are memory bitmaps now. We should
+       * reuploaded them.
        */
-      /* FIXME: should not change the target bitmap, but the old backbuffer
-       * has been destroyed and if it was the target bitmap, the target will
-       * be invalid */
-      al_set_target_bitmap(al_get_backbuffer());
+
+      /* We have a new backbuffer now. */
+      if (was_backbuffer)
+         al_set_target_bitmap(al_get_backbuffer());
    }
    else {
       RECT win_size;
