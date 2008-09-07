@@ -63,12 +63,8 @@ def define(*rest):
         n[i] = True
     return n
 
-memoizedHeaders = SimpleHash()
-
 def readAutoHeader(filename):
     """Read current config settings from the #define commands."""
-    if memoizedHeaders[filename] != False:
-        return memoizedHeaders[filename]
     obj = SimpleHash()
     for line in file(filename):
         if line.startswith("#define "):
@@ -77,7 +73,6 @@ def readAutoHeader(filename):
             if len(line) == 1: line += [True]
             name, use = line
             obj[name] = use
-    memoizedHeaders[filename] = obj
     return obj
 
 def parse_cmake_h(env, defines, src, dest):

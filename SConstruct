@@ -100,7 +100,7 @@ class AllegroContextNormal(AllegroContext):
     # Library name is as-is
     def libraryName(self, name):
         return name
-
+    
     # Build the library
     def buildLibrary(self, env, name, source):
         return env.SharedLibrary(name, source)

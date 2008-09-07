@@ -28,9 +28,56 @@ config: (Re)configure Allegro. You will need to set this to 1 if you wish to ena
 
 # print context.getLibraryEnv()['install']
 
-def isStatic():
-    # return int(context.getEnv()['static']) == 1
-    return context.isStatic()
+# Store global stuff in here, like alunixac settings
+class Unix:
+    single = None
+    def __init__(self):
+        import globals
+        Unix.single = globals.unixConfig
+        if Unix.single:
+            raise Exception(Unix.single)
+        else:
+            Unix.single = self
+            globals.unixConfig = self
+        self.platform = False
+        self.settings = False
+        self.alunixac = None
+
+    def set(self, platform, settings):
+        self.platform = platform
+        self.settings = settings
+
+    def get(self):
+        return [self.platform, self.settings]
+
+    def getAlUnixac(self):
+        return self.alunixac
+
+    def setAlUnixac(self, alunixac):
+        self.alunixac = alunixac
+
+def unixConfiguration():
+    try:
+        u = Unix()
+        return u
+    except Exception, s:
+        return s.args[0]
+
+def isUnixConfigured():
+    a, b = unixConfiguration().get()
+    return a != False
+
+def getUnixConfiguration():
+    return unixConfiguration().get()
+
+def setUnixConfiguration(platform, settings):
+    unixConfiguration().set(platform, settings)
+
+def getUnixAlunixac():
+    return unixConfiguration().getAlUnixac()
+
+def setUnixAlunixac(alunixac):
+    return unixConfiguration().setAlUnixac(alunixac)
 
 def getOption(name, default = 0):
     return env[name]
@@ -77,8 +124,10 @@ def writeAutoHeader(filename, platform):
 # Should this be default?
 # 2/19/2006 - Only configure if config=1 is given or the .h/.cfg file is missing
 noconfig = False
-if not getArgumentOption("config",0):
-    if os.path.exists("include/allegro5/platform/alunixac.h") and \
+if isUnixConfigured():
+    noconfig = True
+elif not getArgumentOption("config",0):
+    if os.path.exists(context.getGlobalDir() + "alunixac.h") and \
         os.path.exists(context.getGlobalDir() + "settings.cfg"):
         # print "Re-using old settings"
         noconfig = True
@@ -94,8 +143,12 @@ settings = ConfigParser.ConfigParser()
 ## so that alunixac.h can be written
 if noconfig:
     # platform = helpers.readAutoHeader("scons_build/include/allegro5/platform/alunixac.h")
-    platform = helpers.readAutoHeader("include/allegro5/platform/alunixac.h")
-    settings.read(context.getGlobalDir() + "settings.cfg")
+    if isUnixConfigured():
+        platform, settings = getUnixConfiguration()
+    else:
+        platform = helpers.readAutoHeader(context.getGlobalDir() + "alunixac.h")
+        settings.read(context.getGlobalDir() + "settings.cfg")
+        setUnixConfiguration(platform, settings)
     # env = context.getEnv()
     for setting in config_settings:
         try:
@@ -241,9 +294,21 @@ else:
         settings.set("unix", setting, str(val))
     settings.write(file(context.getGlobalDir() + "settings.cfg", "w"))
 
+    setUnixConfiguration(platform, settings)
+    global_alunixac = helpers.parse_cmake_h(env, platform,
+        'include/allegro5/platform/alunixac.h.cmake',
+        '#' + context.getGlobalDir() + 'alunixac.h')
+    setUnixAlunixac(global_alunixac)
+
 alunixac = helpers.parse_cmake_h(env, platform,
     'include/allegro5/platform/alunixac.h.cmake',
     'include/allegro5/platform/alunixac.h')
+
+# Any one of the variants could have created the global alunixac but that
+# variant might not be built, so ensure that the global alunixac is built by
+# forcing all alunixac's to be dependant on it
+if getUnixAlunixac():
+    env.Depends(alunixac, getUnixAlunixac())
 
 # Alias('all', alunixac)
 
