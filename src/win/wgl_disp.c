@@ -904,6 +904,9 @@ static bool select_pixel_format(ALLEGRO_DISPLAY_WGL *d, HDC dc) {
       }
    }
 
+   // milan: is this ok?
+   d->win_display.display.format = pf_list[pf_index]->format;
+
    for (i = 0; i < maxindex; i++)
       free(pf_list[i]);
 
