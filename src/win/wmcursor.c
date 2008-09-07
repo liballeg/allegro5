@@ -123,9 +123,11 @@ HICON _al_win_create_icon(HWND wnd,
 }
 
 
-ALLEGRO_MOUSE_CURSOR_WIN *_al_win_create_mouse_cursor(HWND wnd,
+ALLEGRO_MOUSE_CURSOR *_al_win_create_mouse_cursor(ALLEGRO_DISPLAY *display,
    ALLEGRO_BITMAP *sprite, int xfocus, int yfocus)
 {
+   ALLEGRO_DISPLAY_WIN *win_display = (ALLEGRO_DISPLAY_WIN *) display;
+   HWND wnd = win_display->window;
    HCURSOR hcursor;
    ALLEGRO_MOUSE_CURSOR_WIN *win_cursor;
 
@@ -141,15 +143,21 @@ ALLEGRO_MOUSE_CURSOR_WIN *_al_win_create_mouse_cursor(HWND wnd,
    }
 
    win_cursor->hcursor = hcursor;
-   return win_cursor;
+   return (ALLEGRO_MOUSE_CURSOR *)win_cursor;
 }
 
 
 
-void _al_win_destroy_mouse_cursor(ALLEGRO_MOUSE_CURSOR_WIN *win_cursor)
+void _al_win_destroy_mouse_cursor(ALLEGRO_DISPLAY *display, ALLEGRO_MOUSE_CURSOR *cursor)
 {
+   ALLEGRO_DISPLAY_WIN *win_display = (ALLEGRO_DISPLAY_WIN *) display;
+   ALLEGRO_MOUSE_CURSOR_WIN *win_cursor = (ALLEGRO_MOUSE_CURSOR_WIN *) cursor;
+
    ASSERT(win_cursor);
-   ASSERT(win_cursor->hcursor);
+
+   if (win_cursor->hcursor == win_display->mouse_selected_hcursor) {
+      _al_win_set_system_mouse_cursor(display, ALLEGRO_SYSTEM_MOUSE_CURSOR_ARROW);
+   }
 
    DestroyIcon(win_cursor->hcursor);
    _AL_FREE(win_cursor);
@@ -157,23 +165,62 @@ void _al_win_destroy_mouse_cursor(ALLEGRO_MOUSE_CURSOR_WIN *win_cursor)
 
 
 
-void _al_win_set_mouse_hcursor(HCURSOR hcursor)
+bool _al_win_set_mouse_cursor(ALLEGRO_DISPLAY *display,
+                              ALLEGRO_MOUSE_CURSOR *cursor)
 {
-   POINT p;
-   
-   SetCursor(hcursor);
+   ALLEGRO_DISPLAY_WIN *win_display = (ALLEGRO_DISPLAY_WIN *) display;
+   ALLEGRO_MOUSE_CURSOR_WIN *win_cursor = (ALLEGRO_MOUSE_CURSOR_WIN *) cursor;
 
-   /* Windows is too stupid to actually display the mouse pointer when we
-    * change it and waits until it is moved, so we have to generate a fake
-    * mouse move to actually show the cursor.
-    */
-   GetCursorPos(&p);
-   SetCursorPos(p.x, p.y);
+   ASSERT(win_cursor);
+   ASSERT(win_cursor->hcursor);
+
+   win_display->mouse_selected_hcursor = win_cursor->hcursor;
+
+   if (win_display->mouse_cursor_shown) {
+      POINT p;
+   
+      SetCursor(win_cursor->hcursor);
+
+      /* Windows is too stupid to actually display the mouse pointer when we
+       * change it and waits until it is moved, so we have to generate a fake
+       * mouse move to actually show the cursor.
+       */
+      GetCursorPos(&p);
+      SetCursorPos(p.x, p.y);
+   }
+
+   return true;
 }
 
 
+bool _al_win_show_mouse_cursor(ALLEGRO_DISPLAY *display)
+{
+   ALLEGRO_DISPLAY_WIN *win_display = (ALLEGRO_DISPLAY_WIN *) display;
+   ALLEGRO_MOUSE_CURSOR_WIN tmp_cursor;
 
-HCURSOR _al_win_system_cursor_to_hcursor(ALLEGRO_SYSTEM_MOUSE_CURSOR cursor_id)
+   /* XXX do we need this? */
+   if (!win_display->mouse_selected_hcursor) {
+      _al_win_set_system_mouse_cursor(display, ALLEGRO_SYSTEM_MOUSE_CURSOR_ARROW);
+   }
+
+   tmp_cursor.hcursor = win_display->mouse_selected_hcursor;
+   win_display->mouse_cursor_shown = true;
+   _al_win_set_mouse_cursor(display, (ALLEGRO_MOUSE_CURSOR*)&tmp_cursor);
+
+   return true;
+}
+
+bool _al_win_hide_mouse_cursor(ALLEGRO_DISPLAY *display)
+{
+   ALLEGRO_DISPLAY_WIN *win_display = (ALLEGRO_DISPLAY_WIN *) display;
+   win_display->mouse_cursor_shown = false;
+   PostMessage(win_display->window, WM_SETCURSOR, 0, 0);
+
+   return true;
+}
+
+
+static HCURSOR system_cursor_to_hcursor(ALLEGRO_SYSTEM_MOUSE_CURSOR cursor_id)
 {
    switch (cursor_id) {
       case ALLEGRO_SYSTEM_MOUSE_CURSOR_ARROW:
@@ -187,6 +234,32 @@ HCURSOR _al_win_system_cursor_to_hcursor(ALLEGRO_SYSTEM_MOUSE_CURSOR cursor_id)
       default:
          return NULL;
    }
+}
+
+
+bool _al_win_set_system_mouse_cursor(ALLEGRO_DISPLAY *display,
+   ALLEGRO_SYSTEM_MOUSE_CURSOR cursor_id)
+{
+   ALLEGRO_DISPLAY_WIN *win_display = (ALLEGRO_DISPLAY_WIN *) display;
+   HCURSOR wc;
+
+   wc = system_cursor_to_hcursor(cursor_id);
+   if (!wc) {
+      return false;
+   }
+
+   win_display->mouse_selected_hcursor = wc;
+
+   if (win_display->mouse_cursor_shown) {
+      /*
+      MySetCursor(wc);
+      PostMessage(wgl_display->window, WM_MOUSEMOVE, 0, 0);
+      */
+      ALLEGRO_MOUSE_CURSOR_WIN tmp_cursor;
+      tmp_cursor.hcursor = wc;
+      _al_win_set_mouse_cursor(display, (ALLEGRO_MOUSE_CURSOR*)&tmp_cursor);
+   }
+   return true;
 }
 
 

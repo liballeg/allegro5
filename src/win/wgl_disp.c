@@ -1348,102 +1348,6 @@ static void wgl_toggle_frame(ALLEGRO_DISPLAY *display, bool onoff)
       display->w, display->h, onoff);
 }
 
-static bool wgl_set_system_mouse_cursor(ALLEGRO_DISPLAY *display,
-   ALLEGRO_SYSTEM_MOUSE_CURSOR cursor_id);
-
-ALLEGRO_MOUSE_CURSOR *wgl_create_mouse_cursor(ALLEGRO_DISPLAY *display,
-   ALLEGRO_BITMAP *sprite, int xfocus, int yfocus)
-{
-   ALLEGRO_DISPLAY_WIN *win_display = (ALLEGRO_DISPLAY_WIN *) display;
-   HWND wnd = win_display->window;
-   ALLEGRO_MOUSE_CURSOR_WIN *win_cursor;
-
-   win_cursor = _al_win_create_mouse_cursor(wnd, sprite, xfocus, yfocus);
-   return (ALLEGRO_MOUSE_CURSOR *) win_cursor;
-}
-
-static void wgl_destroy_mouse_cursor(ALLEGRO_DISPLAY *display,
-   ALLEGRO_MOUSE_CURSOR *cursor)
-{
-   ALLEGRO_DISPLAY_WIN *win_display = (ALLEGRO_DISPLAY_WIN *) display;
-   ALLEGRO_MOUSE_CURSOR_WIN *win_cursor = (ALLEGRO_MOUSE_CURSOR_WIN *) cursor;
-
-   ASSERT(win_cursor);
-
-   if (win_cursor->hcursor == win_display->mouse_selected_hcursor) {
-      wgl_set_system_mouse_cursor(display, ALLEGRO_SYSTEM_MOUSE_CURSOR_ARROW);
-   }
-
-   _al_win_destroy_mouse_cursor(win_cursor);
-}
-
-static bool wgl_set_mouse_cursor(ALLEGRO_DISPLAY *display,
-   ALLEGRO_MOUSE_CURSOR *cursor)
-{
-   ALLEGRO_DISPLAY_WIN *win_display = (ALLEGRO_DISPLAY_WIN *) display;
-   ALLEGRO_MOUSE_CURSOR_WIN *win_cursor = (ALLEGRO_MOUSE_CURSOR_WIN *) cursor;
-
-   ASSERT(win_cursor);
-   ASSERT(win_cursor->hcursor);
-
-   win_display->mouse_selected_hcursor = win_cursor->hcursor;
-
-   if (win_display->mouse_cursor_shown) {
-      _al_win_set_mouse_hcursor(win_cursor->hcursor);
-   }
-
-   return true;
-}
-
-static bool wgl_set_system_mouse_cursor(ALLEGRO_DISPLAY *display,
-   ALLEGRO_SYSTEM_MOUSE_CURSOR cursor_id)
-{
-   ALLEGRO_DISPLAY_WIN *win_display = (ALLEGRO_DISPLAY_WIN *) display;
-   HCURSOR wc;
-
-   wc = _al_win_system_cursor_to_hcursor(cursor_id);
-   if (!wc) {
-      return false;
-   }
-
-   win_display->mouse_selected_hcursor = wc;
-   if (win_display->mouse_cursor_shown) {
-      /*
-      MySetCursor(wc);
-      PostMessage(wgl_display->window, WM_MOUSEMOVE, 0, 0);
-      */
-      _al_win_set_mouse_hcursor(wc);
-   }
-   return true;
-}
-
-static bool wgl_show_mouse_cursor(ALLEGRO_DISPLAY *display)
-{
-   ALLEGRO_DISPLAY_WIN *win_display = (ALLEGRO_DISPLAY_WIN *) display;
-
-   /* XXX do we need this? */
-   if (!win_display->mouse_selected_hcursor) {
-      wgl_set_system_mouse_cursor(display, ALLEGRO_SYSTEM_MOUSE_CURSOR_ARROW);
-   }
-
-   _al_win_set_mouse_hcursor(win_display->mouse_selected_hcursor);
-   win_display->mouse_cursor_shown = true;
-
-   return true;
-}
-
-static bool wgl_hide_mouse_cursor(ALLEGRO_DISPLAY *display)
-{
-   ALLEGRO_DISPLAY_WIN *win_display = (ALLEGRO_DISPLAY_WIN *) display;
-
-   _al_win_set_mouse_hcursor(NULL);
-   win_display->mouse_cursor_shown = false;
-
-   PostMessage(win_display->window, WM_SETCURSOR, 0, 0);
-
-   return true;
-}
-
 
 /* Obtain a reference to this driver. */
 ALLEGRO_DISPLAY_INTERFACE *_al_display_wgl_driver(void)
@@ -1469,12 +1373,12 @@ ALLEGRO_DISPLAY_INTERFACE *_al_display_wgl_driver(void)
    vt->switch_out = wgl_switch_in;
    vt->switch_in = wgl_switch_out;
 
-   vt->create_mouse_cursor = wgl_create_mouse_cursor;
-   vt->destroy_mouse_cursor = wgl_destroy_mouse_cursor;
-   vt->set_mouse_cursor = wgl_set_mouse_cursor;
-   vt->set_system_mouse_cursor = wgl_set_system_mouse_cursor;
-   vt->show_mouse_cursor = wgl_show_mouse_cursor;
-   vt->hide_mouse_cursor = wgl_hide_mouse_cursor;
+   vt->create_mouse_cursor = _al_win_create_mouse_cursor;
+   vt->destroy_mouse_cursor = _al_win_destroy_mouse_cursor;
+   vt->set_mouse_cursor = _al_win_set_mouse_cursor;
+   vt->set_system_mouse_cursor = _al_win_set_system_mouse_cursor;
+   vt->show_mouse_cursor = _al_win_show_mouse_cursor;
+   vt->hide_mouse_cursor = _al_win_hide_mouse_cursor;
 
    vt->set_icon = _al_win_set_display_icon;
    vt->set_window_position = wgl_set_window_position;
