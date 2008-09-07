@@ -2,26 +2,11 @@
 # Scons build scripts for Allegro by Jon Rafkind
 # Circa 12/25/2005
 
-
 # If you are on Linux/*NIX you need at least version 0.96.92 of SCons 
-
-# Possible targets should be
-# shared - Shared allegro library. Either a .so( unix ) or .dll( windows )
-# static - Static allegro library, .a file.
-# debug-shared - Shared library with debugging turned on
-# debug-static - Static library with debugging turned on
-# examples - All the examples in examples/
-# tools - All the tools in tools/
-# docs - All the documentation
-# tests - All the tests in tests/
-# demo - The demo game
 
 # debug=1 is the same as prefixing debug- to the target and
 # static=1 is the same as using the static target
 # Thus debug=1 static=1 is the same as debug-static
-
-# TODO:
-# 1. Compile the modules in unix( alsa, oss, etc ) - Mostly done( 95% )
 
 # 2. Get the build system working on other platforms supported by Allegro, Windows being the most important one
 # Linux - 95%. Still need to handle install
@@ -39,22 +24,19 @@ def allegroHelp():
     return """
 scons [options] [targets]
 
-Possible targets are:
-debug-static : Build a static library with debug mode on
-debug-shared : Build a shared library with debug mode on
-static : Build a static library with debug off
-shared : Build a shared library with debug off
-library : Build the library which is configured by static=X and debug=X
-examples : Build all the examples
-docs : Build the docs
-demo : Build the demo
-install : Install Allegro
+Possible targets:
+all
+all-static
+all-debug
+all-static-debug
+everything
 
 To turn an option on use the form option=1. Possible options are:
     """
 
 Help(allegroHelp())
 
+# Make this an option?
 BUILD_DIR = "scons_build"
 
 # Generate build directory (since we put the signatures db there)
@@ -63,7 +45,7 @@ except OSError: pass
 
 majorVersion = '4'
 minorVersion = '9'
-microVersion = '3'
+microVersion = '4'
 
 ## Version of Allegro
 allegroVersion = '%s.%s.%s' % (majorVersion, minorVersion, microVersion)
@@ -74,206 +56,9 @@ SConscriptChdir(0)
 def appendDir(directory, files):
     return [directory + "/" + x for x in files]
 
-class AllegroContext2:
-    """This is simply a class to hold together all the various build info."""
-
-    def __init__(self):
-        self.librarySource = []
-        self.extraTargets = []
-        self.build_dir = BUILD_DIR
-
-        # Set in one of the scons/*.scons files
-        self.installDir = "tmp"
-        self.libDir = "lib/dummy"
-        self.optionsfile = BUILD_DIR + "/options.py"
-
-        self.libraryEnv = self.defaultEnvironment()
-	
-        # Where md5 signatures are placed
-        self.sconsignFile = BUILD_DIR + "/signatures"
-
-        self.debug = int(self.getLibraryEnv()['debug'])
-        self.static = int(self.getLibraryEnv()['static'])
-        self.platform = self.getLibraryEnv()['platform']
-
-        # Each platform should set its own install function
-        # install :: library -> list of targets
-        self.install = lambda lib: []
-
-        # Platform specific scons scripts should set the example env via
-        # setExampleEnv(). In most cases the library env can be used:
-        # context.setExampleEnv(context.getLibraryEnv().Copy())
-        self.exampleEnv = Environment()
-
-        # libraries - list of libraries to link into Allegro test/example programs
-        # Usually is just liballeg.so/dylib/dll but could also be something
-        # like liballeg-main.a
-        self.libraries = []
-        self.setEnvs()
-
-    def getPlatform(self):
-        if self.platform: return self.platform
-        return sys.platform
-
-    def matchPlatform(self, name):
-        return name in self.getPlatform()
-
-    def onBsd(self):
-        return self.matchPlatform('openbsd')
-
-    def onLinux(self):
-        return self.matchPlatform('linux')
-
-    def onWindows(self):
-        return self.matchPlatform('win32')
-
-    def onOSX(self):
-        return self.matchPlatform('darwin')
-
-    def setLibraryDir(self, d):
-        self.libDir = d
-
-    def getDebug(self):
-        return self.debug
-    
-    def isDebug(self):
-        return self.debug
-
-    def getStatic(self):
-        return self.static
-    
-    def isStatic(self):
-        return self.static
-
-    def addLibrary(self, library):
-        self.libraries.append(library)
-
-    def getLibraries(self):
-        return self.libraries
-
-    def setInstaller(self, installer):
-        self.install = installer
-
-    def getLibraryDir(self):
-        return self.libDir
-
-    def getVersion(self):
-        return allegroVersion
-
-    def getExtraTargets(self):
-        return self.extraTargets
-
-    def setEnvs(self):
-        self.envs = [self.libraryEnv, self.exampleEnv]
-	# Force all envs to use the same dblite file
-        for i in self.envs:
-            i.SConsignFile(self.sconsignFile)
-
-    def getMajorVersion(self):
-        return majorVersion
-
-    def getMinorVersion(self):
-        return minorVersion
-
-    def getMicroVersion(self):
-        return microVersion
-
-    def getAllegroVersion(self):
-        return allegroVersion
-
-    def getInstallDir(self):
-        return self.installDir
-
-    def setInstallDir(self, d):
-        self.installDir = d 
-
-    ## pass 'depends = True' if the result of 'func' should
-    ## depend on the Allegro library being built.
-    ## This is important to make parallel builds, -j 2, work.
-    def addExtra(self, func, depends = False, use_build_env = False):
-        class ExtraTarget:
-            pass
-        et = ExtraTarget()
-        et.func = func
-	et.depends = depends
-        et.use_build_env = use_build_env
-        self.extraTargets.append(et)
-
-    def setLibraryEnv(self, env):
-        self.libraryEnv = env
-        self.setEnvs()
-
-    def getLibraryEnv(self):
-        return self.libraryEnv
-
-    #def setSConsignFile(self, file):
-    #    self.sconsignFile = file
-
-    def getExampleEnv(self):
-        if self.debug:
-            self.exampleEnv.Append(CCFLAGS = '-DDEBUGMODE=1')
-        return self.exampleEnv
-
-    def setExampleEnv(self, env):
-        self.exampleEnv = env
-        self.setEnvs()
-
-    def add_files(self, files):
-        self.librarySource.extend(files)
-
-    def addFiles(self, d, fileList):
-        self.librarySource.extend(appendDir(d, fileList))
-
-    def getFiles(self):
-        return self.librarySource
-
-    def libraryName(self,name):
-        if self.static == 1:
-            return name + '_s'
-        else:
-            return name
-
-    # Build a library given an env
-    # Library is static if Allegro is configured with static=1
-    # or shared if static=0
-    def makeLibrary(self,env):
-        if self.static == 1:
-            return lambda name, *rest : apply(env.StaticLibrary, [name + '_s'] + list(rest) )
-        else:
-            return lambda name, *rest : apply(env.SharedLibrary, [name] + list(rest) )
-
-    def defaultEnvironment(self):
-        import os
-        env = Environment(ENV = os.environ)
-        if ARGUMENTS.get("mingw"):
-            Tool("mingw")(env)
-        opts = Options(self.optionsfile, ARGUMENTS)
-        opts.Add('static', 'Set Allegro to be built statically', 0)
-        opts.Add('debug', 'Build the debug version of Allegro', 0)
-        opts.Add('platform', 'Use a specific platform', "")
-        opts.Add('CC', 'Use a specific c compiler', env["CC"])
-        opts.Add('CXX', 'Use a specific c++ compiler', env["CXX"])
-        opts.Add('CFLAGS', 'Override compiler flags', env.get("CFLAGS", ""))
-        opts.Add('mingw', 'For using mingw', "")
-        opts.Update(env)
-        opts.Save(self.optionsfile, env)
-        Help(opts.GenerateHelpText(env))
-        return env
-
-# Subsequent scons files can call addExtra to add arbitrary targets
-# that will be evaluated in this file
-
-# Returns a tuple( env, files, d ). Each platform that Allegro supports should be
-# listed here and the proper scons/X.scons file should be SConscript()'ed.
-# env - environment
-# files - list of files that compose the Allegro library
-# d - directory where the library( dll, so ) should end up
-def getAllegroContext2():
-    context = AllegroContext()
-    context.cmake = helpers.read_cmake_list("cmake/FileList.cmake")
-    return context
-
 # Contains getters for other modules to inspect the current system
+# This is a base class which should not be instantiated. See one of
+# the subclasses below.
 class AllegroContext:
     def __init__(self):
         self.cmake = helpers.read_cmake_list("cmake/FileList.cmake")
