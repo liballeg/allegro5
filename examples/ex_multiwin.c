@@ -60,7 +60,7 @@ int main(void)
          if (event.type == ALLEGRO_EVENT_DISPLAY_SWITCH_IN) {
             printf("%p switching in\n", event.display.source);
          }
-         if (event.type == ALLEGRO_EVENT_DISPLAY_SWITCH_IN) {
+         if (event.type == ALLEGRO_EVENT_DISPLAY_SWITCH_OUT) {
             printf("%p switching out\n", event.display.source);
          }
          if (event.type == ALLEGRO_EVENT_DISPLAY_CLOSE) {
