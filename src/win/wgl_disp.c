@@ -1194,7 +1194,10 @@ static void display_thread_proc(void *arg)
          break;
       }
       /* FIXME: How long should we wait? */
-      result = MsgWaitForMultipleObjects(_win_input_events, _win_input_event_id, FALSE, 5/*INFINITE*/, QS_ALLINPUT);
+      al_lock_mutex(_al_win_input_mutex);
+      result = MsgWaitForMultipleObjects(_win_input_events, _win_input_event_id, FALSE, 0/*INFINITE*/, QS_ALLINPUT);
+      al_unlock_mutex(_al_win_input_mutex);
+      al_rest(1);
       if (result < (DWORD) WAIT_OBJECT_0 + _win_input_events) {
          /* one of the registered events is in signaled state */
          (*_win_input_event_handler[result - WAIT_OBJECT_0])();

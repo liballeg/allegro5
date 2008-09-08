@@ -99,6 +99,8 @@ bool _al_wgl_init_display();
 int _al_wgl_get_num_video_adapters(void);
 void _al_wgl_get_monitor_info(int adapter, ALLEGRO_MONITOR_INFO *info);
 
+extern ALLEGRO_MUTEX *_al_win_input_mutex;
+
 #endif /*  defined ALLEGRO_CFG_OPENGL */
 
 #ifdef __cplusplus

@@ -35,7 +35,6 @@ typedef struct WIN_WINDOW {
    HWND window;
 } WIN_WINDOW;
 static _AL_VECTOR win_window_list = _AL_VECTOR_INITIALIZER(WIN_WINDOW *);
-static ALLEGRO_DISPLAY *event_display = NULL;
 
 HWND _al_win_active_window = NULL;
 
@@ -429,8 +428,9 @@ static LRESULT CALLBACK window_callback(HWND hWnd, UINT message,
                   }
                }
 
-               if (j == win_window_list._size)
+               if (j >= win_window_list._size) {
                   _al_win_ungrab_input();
+               }
 
                if (d->flags & ALLEGRO_FULLSCREEN) {
                   d->vt->switch_out(d);

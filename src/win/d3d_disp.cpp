@@ -1119,11 +1119,9 @@ static void d3d_display_thread_proc(void *arg)
 
       d3d_make_faux_fullscreen_stage_one(d3d_display);
    
-      printf("adapter=%d\n", win_display->adapter);
       al_get_monitor_info(win_display->adapter, &mi);
       /* Yes this is an "infinite" loop (suggested by MS on msdn) */
       for (int i = 0; ; i++) {
-         printf("i=%d\n", i);
          dd.cb = sizeof(dd);
          if (!EnumDisplayDevices(NULL, i, &dd, 0)) {
             found = false;
@@ -1143,7 +1141,6 @@ static void d3d_display_thread_proc(void *arg)
          num_faux_fullscreen_windows--;
          return;
       }
-      printf("found %s\n", dd.DeviceName);
       if (al_display->refresh_rate) {
          refresh_rate = al_display->refresh_rate;
       }
@@ -1207,8 +1204,11 @@ static void d3d_display_thread_proc(void *arg)
          break;
       }
       /* FIXME: How long should we wait? */
-      result = MsgWaitForMultipleObjects(_win_input_events, _win_input_event_id, FALSE, 1/*INFINITE*/, QS_ALLINPUT);
-      if (result < (DWORD) WAIT_OBJECT_0 + _win_input_events) {
+      al_lock_mutex(_al_win_input_mutex);
+      result = MsgWaitForMultipleObjects(_win_input_events, _win_input_event_id, FALSE, 0/*INFINITE*/, QS_ALLINPUT);
+      al_unlock_mutex(_al_win_input_mutex);
+      al_rest(0.001);
+      if ((result < (DWORD) WAIT_OBJECT_0 + _win_input_events)) {
          /* one of the registered events is in signaled state */
          (*_win_input_event_handler[result - WAIT_OBJECT_0])();
       }
