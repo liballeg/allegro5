@@ -922,7 +922,6 @@ static bool select_pixel_format(ALLEGRO_DISPLAY_WGL *d, HDC dc) {
 
 static bool create_display_internals(ALLEGRO_DISPLAY_WGL *wgl_disp) {
    ALLEGRO_DISPLAY     *disp     = (void*)wgl_disp;
-   ALLEGRO_DISPLAY *ogl_disp = (void*)wgl_disp;
    new_display_parameters ndp;
 
    ndp.display = wgl_disp;
@@ -947,10 +946,23 @@ static bool create_display_internals(ALLEGRO_DISPLAY_WGL *wgl_disp) {
       return false;
    }
 
-   _al_ogl_manage_extensions(ogl_disp);
-   _al_ogl_set_extensions(ogl_disp->ogl_extras->extension_api);
+   _al_ogl_manage_extensions(disp);
+   _al_ogl_set_extensions(disp->ogl_extras->extension_api);
 
-   ogl_disp->ogl_extras->backbuffer = _al_ogl_create_backbuffer(disp);
+   disp->ogl_extras->backbuffer = _al_ogl_create_backbuffer(disp);
+ 
+   _al_win_active_window = wgl_disp->win_display.window;
+
+   win_grab_input();
+
+   wgl_disp->win_display.mouse_range_x1 = 0;
+   wgl_disp->win_display.mouse_range_y1 = 0;
+   wgl_disp->win_display.mouse_range_x2 = disp->w;
+   wgl_disp->win_display.mouse_range_y2 = disp->h;
+   if (al_is_mouse_installed()) {
+      al_set_mouse_xy(disp->w/2, disp->h/2);
+      al_set_mouse_range(0, 0, disp->w, disp->h);
+   }
 
    setup_gl(disp);
 
@@ -992,19 +1004,6 @@ static ALLEGRO_DISPLAY* wgl_create_display(int w, int h) {
    /* Each display is an event source. */
    _al_event_source_init(&display->es);
 
-   _al_win_active_window = wgl_display->win_display.window;
-
-   win_grab_input();
-
-   wgl_display->win_display.mouse_range_x1 = 0;
-   wgl_display->win_display.mouse_range_y1 = 0;
-   wgl_display->win_display.mouse_range_x2 = w;
-   wgl_display->win_display.mouse_range_y2 = h;
-   if (al_is_mouse_installed()) {
-      al_set_mouse_xy(w/2, h/2);
-      al_set_mouse_range(0, 0, w, h);
-   }
-
    _al_win_set_system_mouse_cursor(display, ALLEGRO_SYSTEM_MOUSE_CURSOR_ARROW);
    _al_win_show_mouse_cursor(display);
 
@@ -1024,7 +1023,6 @@ static void destroy_display_internals(ALLEGRO_DISPLAY_WGL *wgl_disp) {
       _al_convert_to_memory_bitmap(bmp);
    }
 
-   /* REVIEW: can al_destroy_bitmap() handle backbuffers? */
    if (disp->ogl_extras->backbuffer)
       _al_ogl_destroy_backbuffer(disp->ogl_extras->backbuffer);
    disp->ogl_extras->backbuffer = NULL;
@@ -1038,10 +1036,6 @@ static void destroy_display_internals(ALLEGRO_DISPLAY_WGL *wgl_disp) {
    _al_win_ungrab_input();
 
    PostMessage(win_disp->window, _al_win_msg_suicide, 0, 0);
-
-   _al_event_source_free(&disp->es);
-
-   _AL_FREE(disp->ogl_extras); /* Should this be in destroy_display? */
 }
 
 
@@ -1051,9 +1045,11 @@ static void wgl_destroy_display(ALLEGRO_DISPLAY *disp)
    ALLEGRO_DISPLAY_WGL *wgl_disp = (ALLEGRO_DISPLAY_WGL *)disp;
 
    destroy_display_internals(wgl_disp);
+   _al_event_source_free(&disp->es);
    _al_vector_find_and_delete(&system->system.displays, &disp);
 
    _al_vector_free(&disp->bitmaps);
+   _AL_FREE(disp->ogl_extras);
    _AL_FREE(wgl_disp);
 }
 
@@ -1094,6 +1090,15 @@ static void display_thread_proc(void *arg)
    DWORD result;
    MSG msg;
    
+   if (disp->flags & ALLEGRO_FULLSCREEN) {
+      if (!change_display_mode(disp)) {
+         wgl_disp->thread_ended = true;
+         wgl_destroy_display(disp);
+         ndp->init_failed = true;
+         return;
+      }
+   }
+
    win_disp->window = _al_win_create_window(disp, disp->w, disp->h, disp->flags);
 
    if (!win_disp->window) {
@@ -1113,14 +1118,51 @@ static void display_thread_proc(void *arg)
              SWP_NOZORDER | SWP_FRAMECHANGED);
    }
 
-   if (disp->flags & ALLEGRO_FULLSCREEN) {
-      if (!change_display_mode(disp)) {
-         wgl_disp->thread_ended = true;
-         wgl_destroy_display(disp);
-         ndp->init_failed = true;
-         return;
-      }
-   }
+   /* Yep, the following is really needed sometimes. */
+   /* <rohannessian> Win98/2k/XP's window forground rules don't let us
+	 * make our window the topmost window on launch. This causes issues on 
+	 * full-screen apps, as DInput loses input focus on them.
+	 * We use this trick to force the window to be topmost, when switching
+	 * to full-screen only. Note that this only works for Win98 and greater.
+	 * Win95 will ignore our SystemParametersInfo() calls.
+	 * 
+	 * See http://support.microsoft.com:80/support/kb/articles/Q97/9/25.asp
+	 * for details.
+	 */
+	{
+		DWORD lock_time;
+      HWND wnd = win_disp->window;
+
+#define SPI_GETFOREGROUNDLOCKTIMEOUT 0x2000
+#define SPI_SETFOREGROUNDLOCKTIMEOUT 0x2001
+      if (disp->flags & ALLEGRO_FULLSCREEN) {
+			SystemParametersInfo(SPI_GETFOREGROUNDLOCKTIMEOUT,
+			                     0, (LPVOID)&lock_time, 0);
+			SystemParametersInfo(SPI_SETFOREGROUNDLOCKTIMEOUT,
+			                     0, (LPVOID)0,
+			                     SPIF_SENDWININICHANGE | SPIF_UPDATEINIFILE);
+		}
+
+		ShowWindow(wnd, SW_SHOWNORMAL);
+		SetForegroundWindow(wnd);
+		/* In some rare cases, it doesn't seem to work without the loop. And we
+		 * absolutely need this to succeed, else we trap the user in a
+		 * fullscreen window without input.
+		 */
+		while (GetForegroundWindow() != wnd) {
+			al_rest(0.01);
+			SetForegroundWindow(wnd);
+		}
+		UpdateWindow(wnd);
+
+		if (disp->flags & ALLEGRO_FULLSCREEN) {
+			SystemParametersInfo(SPI_SETFOREGROUNDLOCKTIMEOUT,
+			                     0, (LPVOID)lock_time,
+			                     SPIF_SENDWININICHANGE | SPIF_UPDATEINIFILE);
+		}
+#undef SPI_GETFOREGROUNDLOCKTIMEOUT
+#undef SPI_SETFOREGROUNDLOCKTIMEOUT
+	}
 
    /* get the device context of our window */
    wgl_disp->dc = GetDC(win_disp->window);
@@ -1230,7 +1272,7 @@ static bool wgl_resize_display(ALLEGRO_DISPLAY *d, int width, int height)
    if (d->flags & ALLEGRO_FULLSCREEN) {
       ALLEGRO_BITMAP *bmp = al_get_target_bitmap();
       bool was_backbuffer = false;
-      if (bmp->display != NULL)
+      if (bmp->vt)
          was_backbuffer = ((ALLEGRO_BITMAP_OGL*)bmp)->is_backbuffer;
 
       destroy_display_internals(wgl_disp);
@@ -1238,9 +1280,10 @@ static bool wgl_resize_display(ALLEGRO_DISPLAY *d, int width, int height)
        */
       d->w = width;
       d->h = height;
-      create_display_internals(wgl_disp);
+      if (!create_display_internals(wgl_disp))
+         return false;
       /* FIXME: All display bitmaps are memory bitmaps now. We should
-       * reuploaded them.
+       * reuploaded them or prevent destroying them.
        */
 
       /* We have a new backbuffer now. */
