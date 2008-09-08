@@ -51,9 +51,6 @@ static ALLEGRO_BITMAP *_al_create_memory_bitmap(int w, int h)
       case ALLEGRO_PIXEL_FORMAT_ANY_15_NO_ALPHA:
          format = ALLEGRO_PIXEL_FORMAT_RGB_555;
          break;
-      case ALLEGRO_PIXEL_FORMAT_ANY_15_WITH_ALPHA:
-         format = ALLEGRO_PIXEL_FORMAT_ARGB_1555;
-         break;
       case ALLEGRO_PIXEL_FORMAT_ANY_16_NO_ALPHA:
          format = ALLEGRO_PIXEL_FORMAT_RGB_565;
          break;
@@ -63,8 +60,9 @@ static ALLEGRO_BITMAP *_al_create_memory_bitmap(int w, int h)
       case ALLEGRO_PIXEL_FORMAT_ANY_24_NO_ALPHA:
          format = ALLEGRO_PIXEL_FORMAT_RGB_888;
          break;
+      case ALLEGRO_PIXEL_FORMAT_ANY_15_WITH_ALPHA:
       case ALLEGRO_PIXEL_FORMAT_ANY_24_WITH_ALPHA:
-         /* We don't support any 24 bit formats with alpha */
+         /* We don't support any 24 or 15 bit formats with alpha. */
          return NULL;
       default:
          break;
