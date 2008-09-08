@@ -397,7 +397,7 @@ demos/skater/skater: $(OBJECTS_SKATER) $(LIB_NAME) $(LIB_MAIN_NAME)
 	$(CC) $(LFLAGS) -o $@ $(OBJECTS_SKATER) $(LIB_NAME) $(LIB_MAIN_NAME) $(LIBRARIES)
 
 demos/skater/skater_agl: $(OBJECTS_SKATER) $(LIB_NAME) $(LIB_MAIN_NAME)
-	$(CC) $(LFLAGS) -o $@ $(OBJECTS_SKATER) -Laddons/allegrogl/lib/macosx/ -l$(AGL_LIB_TO_LINK) -framework OpenGL -framework GLU $(LIB_NAME) $(LIB_MAIN_NAME) $(LIBRARIES)
+	$(CC) $(LFLAGS) -o $@ $(OBJECTS_SKATER) -Laddons/allegrogl/lib/macosx/ -l$(AGL_LIB_TO_LINK) -framework OpenGL $(LIB_NAME) $(LIB_MAIN_NAME) $(LIBRARIES)
 
 */%: $(OBJ_DIR)/%.o $(LIB_NAME) $(LIB_MAIN_NAME)
 	$(CC) $(LFLAGS) -o $@ $< $(LIB_NAME) $(LIB_MAIN_NAME) $(LIBRARIES)
