@@ -81,10 +81,8 @@ int main(void)
    delta1 = delta2 = 0;
 
    while (true) {
-      i = (i + delta1) % NUM_FORMATS;
-      j = (j + delta2) % NUM_FORMATS;
-
-      delta1 = delta2 = 0;
+      i = (i + delta1 + NUM_FORMATS) % NUM_FORMATS;
+      j = (j + delta2 + NUM_FORMATS) % NUM_FORMATS;
 
       al_set_new_bitmap_format(formats[i]);
 
@@ -92,9 +90,9 @@ int main(void)
       if (!bitmap1) {
          TRACE("Could not load image, bitmap format = %d\n", formats[i]);
          printf("Could not load image, bitmap format = %d\n", formats[i]);
-         delta1 = 1;
          continue;
       }
+      delta1 = 0;
 
       al_set_new_bitmap_format(formats[j]);
 
@@ -102,9 +100,9 @@ int main(void)
       if (!bitmap2) {
          TRACE("Could not create bitmap, format = %d\n", formats[j]);
          printf("Could not create bitmap, format = %d\n", formats[j]);
-         delta2 = 1;
          continue;
       }
+      delta2 = 0;
 
       al_clear(al_map_rgb(0x80, 0x80, 0x80));
 
