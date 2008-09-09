@@ -312,9 +312,9 @@ if(UNIX)
             }"
             CAN_ALSA
         )
-        if (WANT_ALSA)
+        if(CAN_ALSA)
             set(SUPPORT_ALSA 1)
-        endif(WANT_ALSA)
+        endif(CAN_ALSA)
     endif(WANT_ALSA)
 
     if(WANT_OSS)
