@@ -231,12 +231,13 @@ set(ALLEGRO_SRC_QNX_FILES
     )
 
 set(ALLEGRO_SRC_MACOSX_FILES
-    src/macosx/cadigi.m
-    src/macosx/camidi.m
-    src/macosx/drivers.m
+    # src/macosx/cadigi.m
+    # src/macosx/camidi.m
+    # src/macosx/drivers.m
     src/macosx/hidjoy.m
     src/macosx/hidman.m
     src/macosx/keybd.m
+    src/macosx/main.m
     src/macosx/pcpu.m
     src/macosx/qzmouse.m
     src/macosx/system.m
@@ -244,10 +245,6 @@ set(ALLEGRO_SRC_MACOSX_FILES
     src/unix/ufile.c
     src/unix/utime.c
     src/unix/uxthread.c
-    src/opengl/extensions.c
-    src/opengl/ogl_bitmap.c
-    src/opengl/ogl_draw.c
-    src/opengl/ogl_display.c
     )
 
 set(ALLEGRO_MODULE_VGA_FILES

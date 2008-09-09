@@ -473,10 +473,10 @@ endif(COMPILER_MSVC)
 # e.g. -lm on Unix.
 set(PLATFORM_LIBS)
 
-if(UNIX)
+if(ALLEGRO_UNIX) # not MACOSX
     list(APPEND LIBRARY_SOURCES ${ALLEGRO_SRC_UNIX_FILES})
     list(APPEND PLATFORM_LIBS m pthread)
-endif(UNIX)
+endif(ALLEGRO_UNIX)
 
 if(SUPPORT_X11)
     list(APPEND LIBRARY_SOURCES ${ALLEGRO_SRC_X_FILES})
@@ -500,6 +500,13 @@ if(WIN32)
         list(APPEND PLATFORM_LIBS d3d9)
     endif(SUPPORT_D3D)
 endif(WIN32)
+
+if(MACOSX)
+    list(APPEND LIBRARY_SOURCES ${ALLEGRO_SRC_MACOSX_FILES})
+    # XXX someone who knows something about Macs should check this.
+    list(APPEND PLATFORM_LIBS "-framework AppKit")
+    list(APPEND PLATFORM_LIBS "-framework IOKit")
+endif(MACOSX)
 
 if(SUPPORT_OPENGL)
     list(APPEND LIBRARY_SOURCES ${ALLEGRO_SRC_OPENGL_FILES})
