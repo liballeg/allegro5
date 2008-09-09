@@ -25,15 +25,17 @@ if(SUPPORT_ALSA)
     list(APPEND AUDIO_LIBRARIES asound)
 endif(SUPPORT_ALSA)
 
+if(WANT_DSOUND)
+    check_include_file(dsound.h HAVE_DSOUND)
+    if(HAVE_DSOUND)
+        set(SUPPORT_DSOUND 1)
+        set(ALLEGRO_CFG_KCM_DSOUND 1)
+        list(APPEND AUDIO_SOURCES dsound.cpp)
+        list(APPEND AUDIO_LIBRARIES dsound)
+    endif(HAVE_DSOUND)
+endif(WANT_DSOUND)
 
-check_include_file(dsound.h HAVE_DSOUND)
-if(HAVE_DSOUND)
-    set(ALLEGRO_CFG_KCM_DSOUND 1)
-    list(APPEND AUDIO_SOURCES dsound.cpp)
-    list(APPEND AUDIO_LIBRARIES dsound)
-endif(HAVE_DSOUND)
-
-if(SUPPORT_OPENAL OR SUPPORT_ALSA OR HAVE_DSOUND)
+if(SUPPORT_OSS OR SUPPORT_OPENAL OR SUPPORT_ALSA OR SUPPORT_DSOUND)
     set(SUPPORT_KCM_AUDIO 1 PARENT_SCOPE)
 
     configure_file(
@@ -103,17 +105,15 @@ if(SUPPORT_OPENAL OR SUPPORT_ALSA OR HAVE_DSOUND)
         set(AUDIO_LINK_WITH ${AUDIO_LIB_TO_LINK}_shared PARENT_SCOPE)
     endif(STATIC)
 
-    #-----------------------------------------------------------------------------#
-    #
     # Install header files.
-    #
 
     install(FILES ${AUDIO_INCLUDE_FILES}
             DESTINATION include/allegro5
             )
-else(SUPPORT_OPENAL OR SUPPORT_ALSA OR HAVE_DSOUND)
+
+else(SUPPORT_OSS OR SUPPORT_OPENAL OR SUPPORT_ALSA OR SUPPORT_DSOUND)
     message(STATUS "kcm_audio wanted but no supported backend found\n")
-endif(SUPPORT_OPENAL OR SUPPORT_ALSA OR HAVE_DSOUND)
+endif(SUPPORT_OSS OR SUPPORT_OPENAL OR SUPPORT_ALSA OR SUPPORT_DSOUND)
 
 #-----------------------------------------------------------------------------#
 # vi: set ts=8 sts=4 sw=4 et:

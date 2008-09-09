@@ -276,10 +276,12 @@ if(WANT_OPENGL)
     endif(OPENGL_FOUND)
 endif(WANT_OPENGL)
 
-include(FindOpenAL)
-if(OPENAL_FOUND)
-    set(SUPPORT_OPENAL 1)
-endif(OPENAL_FOUND)
+if(WANT_OPENAL)
+    include(FindOpenAL)
+    if(OPENAL_FOUND)
+        set(SUPPORT_OPENAL 1)
+    endif(OPENAL_FOUND)
+endif(WANT_OPENAL)
 
 # Accumulate extra libraries needed due to drivers.
 set(DRIVER_LIBS_STATIC)

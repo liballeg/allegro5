@@ -7,7 +7,10 @@ option(WANT_SNDFILE "Enable WAV/AIFF/FLAC support (acodec)" on)
 set(ACODEC_EXTRA_LIBS)
 set(ACODEC_SOURCES acodec.c)
 
-set(SUPPORT_ACODEC 1 PARENT_SCOPE)
+if(SUPPORT_KCM_AUDIO)
+    set(SUPPORT_ACODEC 1)
+    set(SUPPORT_ACODEC 1 PARENT_SCOPE)
+endif(SUPPORT_KCM_AUDIO)
 
 if(WANT_FLAC)
     # XXX flac.c doesn't compile with flac 1.1.2
@@ -111,59 +114,64 @@ macro(add_acodec_build nm extra_flags)
 
 endmacro(add_acodec_build)
 
-if(GRADE_STANDARD)
-    add_acodec_build(a5_acodec
-        "-O2 -funroll-loops -ffast-math -fomit-frame-pointer")
-endif(GRADE_STANDARD)
+if(SUPPORT_ACODEC)
 
-if(GRADE_DEBUG)
-    add_acodec_build(a5_acodecd
-        "-DDEBUGMODE -g")
-endif(GRADE_DEBUG)
+    if(GRADE_STANDARD)
+        add_acodec_build(a5_acodec
+            "-O2 -funroll-loops -ffast-math -fomit-frame-pointer")
+    endif(GRADE_STANDARD)
 
-if(GRADE_PROFILE)
-    add_acodec_build(a5_acodecp
-        "-pg -O2 -funroll-loops -ffast-math")
-endif(GRADE_PROFILE)
+    if(GRADE_DEBUG)
+        add_acodec_build(a5_acodecd
+            "-DDEBUGMODE -g")
+    endif(GRADE_DEBUG)
 
-if(GRADE_STANDARD)
-    set(ACODEC_LIB_TO_LINK a5_acodec CACHE INTERNAL "internal")
-elseif(GRADE_DEBUG)
-    set(ACODEC_LIB_TO_LINK a5_acodecd CACHE INTERNAL "internal")
-elseif(GRADE_PROFILE)
-    set(ACODEC_LIB_TO_LINK a5_acodecp CACHE INTERNAL "internal")
-endif(GRADE_STANDARD)
+    if(GRADE_PROFILE)
+        add_acodec_build(a5_acodecp
+            "-pg -O2 -funroll-loops -ffast-math")
+    endif(GRADE_PROFILE)
 
-if(STATIC)
-    set(ACODEC_LINK_WITH ${ACODEC_LIB_TO_LINK}_static CACHE INTERNAL "internal")
-    set(ACODEC_LINK_WITH ${ACODEC_LIB_TO_LINK}_static PARENT_SCOPE)
-    set(ACODEC_LINK_WITH ${ACODEC_LINK_WITH} ${AUDIO_LIB_TO_LINK}_static CACHE INTERNAL "internal")
-else(STATIC)
-    set(ACODEC_LINK_WITH ${ACODEC_LIB_TO_LINK}_shared CACHE INTERNAL "internal")
-    set(ACODEC_LINK_WITH ${ACODEC_LIB_TO_LINK}_shared PARENT_SCOPE)
-    set(ACODEC_LINK_WITH ${ACODEC_LINK_WITH} ${AUDIO_LIB_TO_LINK}_shared CACHE INTERNAL "internal")
-endif(STATIC)
+    if(GRADE_STANDARD)
+        set(ACODEC_LIB_TO_LINK a5_acodec CACHE INTERNAL "internal")
+    elseif(GRADE_DEBUG)
+        set(ACODEC_LIB_TO_LINK a5_acodecd CACHE INTERNAL "internal")
+    elseif(GRADE_PROFILE)
+        set(ACODEC_LIB_TO_LINK a5_acodecp CACHE INTERNAL "internal")
+    endif(GRADE_STANDARD)
 
-if(SUPPORT_FLAC)
-    set(ACODEC_LINK_WITH ${ACODEC_LINK_WITH} FLAC)
-endif(SUPPORT_FLAC)
+    if(STATIC)
+        set(ACODEC_LINK_WITH ${ACODEC_LIB_TO_LINK}_static
+            CACHE INTERNAL "internal")
+        set(ACODEC_LINK_WITH ${ACODEC_LIB_TO_LINK}_static PARENT_SCOPE)
+        set(ACODEC_LINK_WITH ${ACODEC_LINK_WITH} ${AUDIO_LIB_TO_LINK}_static
+            CACHE INTERNAL "internal")
+    else(STATIC)
+        set(ACODEC_LINK_WITH ${ACODEC_LIB_TO_LINK}_shared
+            CACHE INTERNAL "internal")
+        set(ACODEC_LINK_WITH ${ACODEC_LIB_TO_LINK}_shared PARENT_SCOPE)
+        set(ACODEC_LINK_WITH ${ACODEC_LINK_WITH} ${AUDIO_LIB_TO_LINK}_shared
+            CACHE INTERNAL "internal")
+    endif(STATIC)
 
-if(SUPPORT_VORBIS)
-    set(ACODEC_LINK_WITH ${ACODEC_LINK_WITH} vorbisfile)
-endif(SUPPORT_VORBIS)
+    if(SUPPORT_FLAC)
+        set(ACODEC_LINK_WITH ${ACODEC_LINK_WITH} FLAC)
+    endif(SUPPORT_FLAC)
 
-if(SUPPORT_SNDFILE)
-    set(ACODEC_LINK_WITH ${ACODEC_LINK_WITH} sndfile)
-endif(SUPPORT_SNDFILE)
+    if(SUPPORT_VORBIS)
+        set(ACODEC_LINK_WITH ${ACODEC_LINK_WITH} vorbisfile)
+    endif(SUPPORT_VORBIS)
 
-#-----------------------------------------------------------------------------#
-#
-# Install header files.
-#
+    if(SUPPORT_SNDFILE)
+        set(ACODEC_LINK_WITH ${ACODEC_LINK_WITH} sndfile)
+    endif(SUPPORT_SNDFILE)
 
-install(FILES ${ACODEC_INCLUDE_FILES}
-        DESTINATION include/allegro5
-        )
+    # Install header files.
+
+    install(FILES ${ACODEC_INCLUDE_FILES}
+            DESTINATION include/allegro5
+            )
+
+endif(SUPPORT_ACODEC)
 
 #-----------------------------------------------------------------------------#
 # vi: set ts=8 sts=4 sw=4 et:
