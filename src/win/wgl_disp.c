@@ -1193,9 +1193,15 @@ static void display_thread_proc(void *arg)
       if (wgl_disp->end_thread) {
          break;
       }
-      /* FIXME: How long should we wait? */
+      /*
+       * We have to lock a mutex here so that we're not waiting on and receiving events from
+       * a source while  it is being unregistered. In order to not block the mutex for long,
+       * we wait for 0ms, meaning we don't wait at all. The al_rest is there so the input thread
+       * doesn't eat up too much processor time (formerly we had waiting 1-5ms for events which
+       * was enough of a break on the CPU).
+       */
       al_lock_mutex(_al_win_input_mutex);
-      result = MsgWaitForMultipleObjects(_win_input_events, _win_input_event_id, FALSE, 0/*INFINITE*/, QS_ALLINPUT);
+      result = MsgWaitForMultipleObjects(_win_input_events, _win_input_event_id, FALSE, 0, QS_ALLINPUT);
       al_unlock_mutex(_al_win_input_mutex);
       al_rest(1);
       if (result < (DWORD) WAIT_OBJECT_0 + _win_input_events) {
