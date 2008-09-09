@@ -142,6 +142,7 @@ shared library won't link properly so you'll have to disable it.
 Example:
 
 	$ mkdir Build
+	$ cd Build
 	$ cmake .. -DSHARED=off
 	$ make
 
