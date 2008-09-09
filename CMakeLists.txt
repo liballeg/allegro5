@@ -168,6 +168,11 @@ if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
     set(ALLEGRO_MACOSX 1)
     set(ALLEGRO_UNIX 0)
     set(WANT_X11 off)
+
+    # This flag is required on some versions of Mac OS X to avoid linker
+    # problems with global variables which are not explicitly initialised.
+    list(APPEND CMAKE_C_FLAGS "-fno-common")
+    list(APPEND CMAKE_CXX_FLAGS "-fno-common")
 endif(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
 
 if(BORLAND)
@@ -542,12 +547,19 @@ macro(add_allegro_build nm extra_flags)
         "-DALLEGRO_LIB_BUILD ${WFLAGS} ${extra_flags}"
         )
 
+    # Suppress errors about _mangled_main_address being undefined
+    # on Mac OS X.
+    if(MACOSX)
+        set(LIBRARY_LINK_FLAGS "-flat_namespace -undefined suppress")
+    endif(MACOSX)
+
     macro(really_add_allegro_build nam target libtype more_extra_flags)
         set(OUTPUT_LIBRARY ${nam})
         add_library(${target} ${libtype} ${LIBRARY_SOURCES})
         set_target_properties(${target}
             PROPERTIES
             COMPILE_FLAGS "${more_extra_flags} ${LIBRARY_CFLAGS} -DALLEGRO_SRC"
+            LINK_FLAGS "${LIBRARY_LINK_FLAGS}"
             OUTPUT_NAME ${nam}
             )
 
@@ -579,7 +591,7 @@ if(GRADE_STANDARD)
             "-O2 -funroll-loops -ffast-math -fomit-frame-pointer")
     endif(COMPILER_GCC)
     if(COMPILER_MSVC)
-       	add_allegro_build(alleg "")
+        add_allegro_build(alleg "")
     endif(COMPILER_MSVC)
     if(BORLAND)
         add_allegro_build(alleg "-O2")
@@ -592,7 +604,7 @@ if(GRADE_DEBUG)
             "-DDEBUGMODE -g2 -O0")
     endif(COMPILER_GCC)
     if(COMPILER_MSVC)
-       	add_allegro_build(allegd "-DDEBUGMODE")
+        add_allegro_build(allegd "-DDEBUGMODE")
     endif(COMPILER_MSVC)
     if(BORLAND)
         add_allegro_build(allegd "-DDEBUGMODE=1 -v")
@@ -605,7 +617,7 @@ if(GRADE_PROFILE)
             "-pg -O2 -funroll-loops -ffast-math")
     endif(COMPILER_GCC)
     if(COMPILER_MSVC)
-       	add_allegro_build(allegp "")
+        add_allegro_build(allegp "")
     endif(COMPILER_MSVC)
 endif(GRADE_PROFILE)
 

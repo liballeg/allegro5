@@ -58,8 +58,8 @@ You will need CMake 2.6 or later.
 
 
 
-CMake & Unix or MinGW
----------------------
+CMake & Unix or MinGW or Mac OS X
+---------------------------------
 
 CMake works by first creating a makefile, which then can be used to compile.
 
@@ -84,11 +84,11 @@ with defaults in brackets:
 - SHARED -- Build shared libraries (on)
 - STATIC -- Build static libraries (on)
 
-Examples:
+Examples: (you only need one)
+
+	$ cmake ..
 
 	$ cmake .. -G "MinGW Makefiles" -DSTATIC=off
-
-	$ cmake .. -G "Unix Makefiles"
 
 Alternatively, you can use `ccmake` to bring up an interactive option
 selector. e.g. `ccmake ..`
@@ -130,21 +130,6 @@ and start the building process.
 The demo is currently excluded from the build if MSVC8 is detected, due to
 some problems with IntelliSense.
 Please give it a try and report problems.
-
-
-
-CMake & Mac OS X
-----------------
-
-This should be the same as on a traditional Unix, except that currently the
-shared library won't link properly so you'll have to disable it.
-
-Example:
-
-	$ mkdir Build
-	$ cd Build
-	$ cmake .. -DSHARED=off
-	$ make
 
 
 
