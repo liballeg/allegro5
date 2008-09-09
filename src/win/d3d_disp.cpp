@@ -1630,6 +1630,10 @@ static void d3d_draw_rectangle(ALLEGRO_DISPLAY *al_display, float tlx, float tly
 static void d3d_clear(ALLEGRO_DISPLAY *al_display, ALLEGRO_COLOR *color)
 {
    ALLEGRO_DISPLAY_D3D* d3d_display = (ALLEGRO_DISPLAY_D3D*)al_display;
+   d3d_display->device->Clear(0, NULL, D3DCLEAR_TARGET,
+   	D3DCOLOR_ARGB((int)(color->a*255), (int)(color->r*255), (int)(color->g*255), (int)(color->b*255)),
+	0, 0);
+#if 0
    D3DRECT rect;
    int src, dst;
    ALLEGRO_COLOR blend_color;
@@ -1663,6 +1667,7 @@ static void d3d_clear(ALLEGRO_DISPLAY *al_display, ALLEGRO_COLOR *color)
    d3d_draw_rectangle(al_display, rect.x1, rect.y1, rect.x2+1, rect.y2+1, color, ALLEGRO_FILLED);
 
    al_set_blender(src, dst, blend_color);
+#endif
 }
 
 
@@ -1751,62 +1756,25 @@ static bool d3d_update_display_region(ALLEGRO_DISPLAY *al_display,
 void d3d_set_bitmap_clip(ALLEGRO_BITMAP *bitmap)
 {
    ALLEGRO_DISPLAY_D3D *disp = ((ALLEGRO_BITMAP_D3D *)bitmap)->display;
-   float plane[4];
-   int left, right, top, bottom;
+   RECT rect;
 
    if (!disp)
       return;
 
    if (bitmap->parent) {
-	  left = bitmap->xofs + bitmap->cl;
-	  right = bitmap->xofs + bitmap->cr;
-	  top = bitmap->yofs + bitmap->ct;
-	  bottom = bitmap->yofs + bitmap->cb;
+	  rect.left = bitmap->xofs + bitmap->cl;
+	  rect.right = bitmap->xofs + bitmap->cr + 1;
+	  rect.top = bitmap->yofs + bitmap->ct;
+	  rect.bottom = bitmap->yofs + bitmap->cb + 1;
    }
    else {
-	  left = bitmap->cl;
-	  right = bitmap->cr;
-	  top = bitmap->ct;
-	  bottom = bitmap->cb;
-	  if (left == 0 && top == 0 &&
-			right == (bitmap->w-1) &&
-			bottom == (bitmap->h-1)) {
-		 disp->device->SetRenderState(D3DRS_CLIPPLANEENABLE, 0);
-		 return;
-	  }
+	  rect.left = bitmap->cl;
+	  rect.right = bitmap->cr + 1;
+	  rect.top = bitmap->ct;
+	  rect.bottom = bitmap->cb + 1;
    }
 
-   if (left == 0) left = 1;
-   if (top == 0) top = 1;
-   if (right == 0) right = 1;
-   if (bottom == 0) bottom = 1;
-
-   plane[0] = 1.0f / left;
-   plane[1] = 0.0f;
-   plane[2] = 0.0f;
-   plane[3] = -1;
-   disp->device->SetClipPlane(0, plane);
-
-   plane[0] = -1.0f / right;
-   plane[1] = 0.0f;
-   plane[2] = 0.0f;
-   plane[3] = 1;
-   disp->device->SetClipPlane(1, plane);
-
-   plane[0] = 0.0f;
-   plane[1] = 1.0f / top;
-   plane[2] = 0.0f;
-   plane[3] = -1;
-   disp->device->SetClipPlane(2, plane);
-
-   plane[0] = 0.0f;
-   plane[1] = -1.0f / bottom;
-   plane[2] = 0.0f;
-   plane[3] = 1;
-   disp->device->SetClipPlane(3, plane);
-
-   /* Enable the first four clipping planes */
-   disp->device->SetRenderState(D3DRS_CLIPPLANEENABLE, 0xF);
+   disp->device->SetScissorRect(&rect);
 }
 
 static bool d3d_resize_display(ALLEGRO_DISPLAY *d, int width, int height)

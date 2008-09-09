@@ -148,8 +148,6 @@ void _al_d3d_draw_textured_quad(ALLEGRO_DISPLAY_D3D *disp, ALLEGRO_BITMAP_D3D *b
 
    D3D_TL_VERTEX vertices[4];
 
-   D3DCOLOR white = D3DCOLOR_ARGB(255, 255, 255, 255);
-
    right  = dx + dw;
    bottom = dy + dh;
 
