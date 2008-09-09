@@ -54,6 +54,8 @@ Compilation
 
 We provide two build systems, *CMake* and *scons*.
 
+You will need CMake 2.6 or later.
+
 
 
 CMake & Unix or MinGW
