@@ -133,6 +133,20 @@ Please give it a try and report problems.
 
 
 
+CMake & Mac OS X
+----------------
+
+This should be the same as on a traditional Unix, except that currently the
+shared library won't link properly so you'll have to disable it.
+
+Example:
+
+	$ mkdir Build
+	$ cmake .. -DSHARED=off
+	$ make
+
+
+
 Scons
 -----
 
