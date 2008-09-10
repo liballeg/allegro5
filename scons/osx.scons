@@ -29,6 +29,8 @@ context.addFiles(context.cmake["ALLEGRO_SRC_C_FILES"])
 # unixfiles = context.cmake["ALLEGRO_SRC_UNIX_FILES"]
 # context.add_files(unixfiles)
 
+env.BuildDir('include', '#include', duplicate = 0)
+
 #mainEnv = Environment()
 #mainLibrary = mainEnv.StaticLibrary( 'alleg-main', 'src/macosx/main.m' )
 #mainEnv.Install(context.getLibraryDir(),mainLibrary)
