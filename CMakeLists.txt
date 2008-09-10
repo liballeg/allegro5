@@ -171,8 +171,8 @@ if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
 
     # This flag is required on some versions of Mac OS X to avoid linker
     # problems with global variables which are not explicitly initialised.
-    list(APPEND CMAKE_C_FLAGS "-fno-common")
-    list(APPEND CMAKE_CXX_FLAGS "-fno-common")
+    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fno-common")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fno-common")
 endif(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
 
 if(BORLAND)
