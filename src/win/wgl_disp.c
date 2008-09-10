@@ -872,7 +872,7 @@ static bool select_pixel_format(ALLEGRO_DISPLAY_WGL *d, HDC dc) {
          if (pf->rmethod && pf_index == -1) {
             pf_index = i;
          }
-         else if (!pf->rmethod && !pf_index_fallback == -1) {
+         else if (!pf->rmethod && pf_index_fallback == -1) {
             pf_index_fallback = i;
          }
 
