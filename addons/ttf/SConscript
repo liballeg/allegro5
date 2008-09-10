@@ -55,7 +55,7 @@ helpers.parse_cmake_h(myEnv,
 source = ["ttf.c"]
 configs = []
 
-can_build = True
+can_build = settings["ALLEGRO_CFG_TTF_FREETYPE"]
 if can_build:
     configs.extend(["pkg-config freetype2 --libs --cflags"])
     env.ParseConfig('pkg-config freetype2 --libs')

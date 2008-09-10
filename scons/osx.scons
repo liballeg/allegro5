@@ -3,14 +3,11 @@ import SCons
 import helpers
 
 Import('context')
+Import('env')
 
-SConscript('all.scons', exports = ['context'])
+# context.setLibraryDir("lib/macosx")
 
-env = context.getLibraryEnv()
-
-context.setLibraryDir("lib/macosx")
-
-helpers.parse_cmake_h(context.getLibraryEnv(),helpers.define('ALLEGRO_MACOSX','ALLEGRO_CFG_OPENGL'),'#include/allegro5/platform/alplatf.h.cmake','#include/allegro5/platform/alplatf.h')
+helpers.parse_cmake_h(env,helpers.define('ALLEGRO_MACOSX','ALLEGRO_CFG_OPENGL'),'#include/allegro5/platform/alplatf.h.cmake','#include/allegro5/platform/alplatf.h')
 
 # alplatf_h = helpers.generate_alplatf_h(env, ['ALLEGRO_MACOSX','ALLEGRO_CFG_OPENGL'])
 # file = open( "include/allegro5/platform/alplatf.h", "w" )
@@ -26,9 +23,9 @@ env[ 'SHCCFLAGS' ] = SCons.Util.CLVar( '$CCFLAGS' )
 
 osxfiles = context.cmake["ALLEGRO_SRC_MACOSX_FILES"]
 # linuxfiles.remove("src/linux/fbcon.c")
-context.add_files(osxfiles);
+context.addFiles(osxfiles);
 
-context.add_files(context.cmake["ALLEGRO_SRC_C_FILES"])
+context.addFiles(context.cmake["ALLEGRO_SRC_C_FILES"])
 # unixfiles = context.cmake["ALLEGRO_SRC_UNIX_FILES"]
 # context.add_files(unixfiles)
 
@@ -58,7 +55,7 @@ def buildMain(env,appendDir,buildDir,libDir):
 #env = context.getLibraryEnv()
 #mainLib = env.StaticLibrary( 'alleg-main', 'build/release/macosx/main.m' )
 
-context.addExtra(buildMain)
+# context.addExtra(buildMain)
 
 def makeExampleEnv():
     exampleEnv = Environment()
@@ -93,9 +90,9 @@ def makeExampleEnv():
     # exampleEnv.Append(LIBS = libs)
     return exampleEnv
 
-context.addLibrary(File('#%s/liballeg-main.a' % context.getLibraryDir()))
+# context.addLibrary(File('#%s/liballeg-main.a' % context.getLibraryDir()))
 
-context.setExampleEnv( makeExampleEnv() )
+# context.setExampleEnv( makeExampleEnv() )
 
 # gcc -DALLEGRO_LIB_BUILD -Wall -Wno-unused -Wno-long-double  -O2 -funroll-loops -ffast-math -fomit-frame-pointer -fno-common -pipe -dynamic -DALLEGRO_NO_ASM -I. -I./include -o obj/macosx/alleg/exupdate.o -c examples/exupdate.c
 
@@ -122,7 +119,7 @@ ALLEGRO_SHARED
 ALLEGRO_SRC
 """);
 
-linkflags = [ "-prebind", "-seg1addr", "0x30000000", "-compatibility_version", str(context.getAllegroVersion()), "-current_version", str(context.getAllegroVersion()), "-install_name", "liballeg-" + str(context.getAllegroVersion()) + ".dylib" ]
+linkflags = [ "-prebind", "-seg1addr", "0x30000000", "-compatibility_version", str(context.getVersion()), "-current_version", str(context.getVersion()), "-install_name", "liballeg-" + str(context.getVersion()) + ".dylib" ]
 # linkflags = [ "-seg1addr", "0x30000000", "-compatibility_version", str(context.getAllegroVersion()), "-current_version", str(context.getAllegroVersion()), "-install_name", "liballeg-" + str(context.getAllegroVersion()) + ".dylib" ]
 
 def addFramework( name ):
@@ -146,3 +143,5 @@ env.Append(LINKFLAGS = linkflags)
 
 cat = Builder(action = "cat $SOURCES > $TARGET")
 env.Append(BUILDERS = {"Cat" : cat})
+
+SConscript('all.scons', exports = ['context','env'])

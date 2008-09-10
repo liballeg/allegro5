@@ -95,8 +95,9 @@ if settings["ALLEGRO_CFG_KCM_OSS"]:
 configs = []
 can_build = True
 if can_build:
-    configs.extend(["pkg-config --libs alsa"])
-    env.ParseConfig('pkg-config --libs alsa')
+    if settings["ALLEGRO_CFG_KCM_ALSA"]:
+        configs.extend(["pkg-config --libs alsa"])
+        env.ParseConfig('pkg-config --libs alsa')
 
     addons.do_build(
         context = context,

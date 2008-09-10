@@ -11,7 +11,9 @@ def read_cmake_list(name):
     """
     lists = {}
     for line in open(name):
-        if line.startswith("#"): continue
+        import re
+        comment = re.compile( "^\s*#" )
+        if comment.match(line): continue
         if line.startswith("set"):
             current = []
             name = line[4:].strip()
