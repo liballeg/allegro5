@@ -9,10 +9,6 @@ if(WANT_IIO)
     endif(WANT_FONT)
 endif(WANT_IIO)
 
-if(WANT_AUDIO)
-    add_subdirectory(audio)
-endif(WANT_AUDIO)
-
 if(WANT_KCM_AUDIO)
     add_subdirectory(kcm_audio)
     if(SUPPORT_KCM_AUDIO)

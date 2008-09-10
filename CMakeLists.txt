@@ -95,9 +95,7 @@ option(WANT_OPENGL "Enable OpenGL graphics driver (Windows, X11))" on)
 #
 
 option(WANT_FONT "Enable bitmap font add-on" on)
-# WANT_AUDIO is off because KCM_AUDIO is on by default.
-option(WANT_AUDIO "Enable audio engine" off)
-option(WANT_ACODEC "Enable audio codecs (requires audio)" on)
+option(WANT_ACODEC "Enable audio codecs (requires kcm_audio)" on)
 option(WANT_KCM_AUDIO "Enable kcm_audio engine" on)
 # WANT_ICODEC is off until it checks for Magick++
 option(WANT_ICODEC "Enable image loading/saving for most filetypes (requires libMagick)" off)
