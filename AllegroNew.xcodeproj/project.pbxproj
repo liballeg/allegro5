@@ -1514,7 +1514,7 @@
 		88CBBAEA0D8B0FE000AE3780 /* sound.cpp */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; name = sound.cpp; path = demo/src/sound.cpp; sourceTree = "<group>"; };
 		88CBBAEB0D8B0FE000AE3780 /* UFO.cpp */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; name = UFO.cpp; path = demo/src/UFO.cpp; sourceTree = "<group>"; };
 		88CBBAEC0D8B0FE000AE3780 /* wave.cpp */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; name = wave.cpp; path = demo/src/wave.cpp; sourceTree = "<group>"; };
-		88CBBAF00D8B0FF200AE3780 /* Demo */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = "compiled.mach-o.executable"; path = Demo; sourceTree = BUILT_PRODUCTS_DIR; };
+		88CBBAF00D8B0FF200AE3780 /* Demo */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = Demo; sourceTree = BUILT_PRODUCTS_DIR; };
 		88CBBB170D8B106400AE3780 /* a5teroids.hpp */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.h; name = a5teroids.hpp; path = demo/include/a5teroids.hpp; sourceTree = "<group>"; };
 		88CBBB180D8B106400AE3780 /* Asteroid.hpp */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.h; name = Asteroid.hpp; path = demo/include/Asteroid.hpp; sourceTree = "<group>"; };
 		88CBBB190D8B106400AE3780 /* BitmapResource.hpp */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.h; name = BitmapResource.hpp; path = demo/include/BitmapResource.hpp; sourceTree = "<group>"; };
@@ -1569,6 +1569,11 @@
 		88D623710D02EEF300656A3C /* vector.c */ = {isa = PBXFileReference; fileEncoding = 30; indentWidth = 3; lastKnownFileType = sourcecode.c.c; name = vector.c; path = src/misc/vector.c; sourceTree = "<group>"; tabWidth = 3; usesTabs = 0; };
 		88D623830D02EF4500656A3C /* ufile.c */ = {isa = PBXFileReference; fileEncoding = 30; indentWidth = 3; lastKnownFileType = sourcecode.c.c; name = ufile.c; path = src/unix/ufile.c; sourceTree = "<group>"; tabWidth = 3; usesTabs = 0; };
 		88D6238B0D02EF9100656A3C /* uxthread.c */ = {isa = PBXFileReference; fileEncoding = 30; indentWidth = 3; lastKnownFileType = sourcecode.c.c; name = uxthread.c; path = src/unix/uxthread.c; sourceTree = "<group>"; tabWidth = 3; usesTabs = 0; };
+		88D71C0C0E72637200DB2B18 /* xcursor.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; name = xcursor.c; path = src/x/xcursor.c; sourceTree = "<group>"; };
+		88D71C0D0E72637200DB2B18 /* xdisplay.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; name = xdisplay.c; path = src/x/xdisplay.c; sourceTree = "<group>"; };
+		88D71C0E0E72637200DB2B18 /* xfullscreen.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; name = xfullscreen.c; path = src/x/xfullscreen.c; sourceTree = "<group>"; };
+		88D71C0F0E72637200DB2B18 /* xglx_config.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; name = xglx_config.c; path = src/x/xglx_config.c; sourceTree = "<group>"; };
+		88D71C100E72637200DB2B18 /* xglx.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = xglx.h; path = src/x/xglx.h; sourceTree = "<group>"; };
 		88D74B110E6D0C9800583964 /* ex_drawpixels */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = ex_drawpixels; sourceTree = BUILT_PRODUCTS_DIR; };
 		88D74B320E6D0CE000583964 /* ex_dualies */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = ex_dualies; sourceTree = BUILT_PRODUCTS_DIR; };
 		88D74B540E6D0D2F00583964 /* ex_events */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = ex_events; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -2504,6 +2509,11 @@
 		88EC893C0E5CC10200902B7D /* Other Platforms */ = {
 			isa = PBXGroup;
 			children = (
+				88D71C0C0E72637200DB2B18 /* xcursor.c */,
+				88D71C0D0E72637200DB2B18 /* xdisplay.c */,
+				88D71C0E0E72637200DB2B18 /* xfullscreen.c */,
+				88D71C0F0E72637200DB2B18 /* xglx_config.c */,
+				88D71C100E72637200DB2B18 /* xglx.h */,
 				88E4DCAE0E62BC8000440C20 /* d3d_bmp.cpp */,
 				88E4DCAF0E62BC8000440C20 /* wmcursor.c */,
 				88EC89650E5CC1D000902B7D /* d3d_disp.cpp */,

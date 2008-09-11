@@ -23,7 +23,7 @@
 #include "allegro5/internal/aintern_mouse.h"
 #include "allegro5/internal/aintern_keyboard.h"
 #include "allegro5/platform/aintosx.h"
-
+#include "./osxgl.h"
 #ifndef ALLEGRO_MACOSX
 #error Something is wrong with the makefile
 #endif
@@ -136,7 +136,7 @@ void osx_mouse_generate_event(NSEvent* evt, ALLEGRO_DISPLAY* dpy)
 	}
 	else 
 	{
-		// To do: full screen handling 
+      pos.y = [[NSScreen mainScreen] frame].size.height - pos.y;
 	}
 	_al_event_source_lock(&osx_mouse.parent.es);
 	if ((within || osx_mouse.captured) && _al_event_source_needs_to_generate_event(&osx_mouse.parent.es))
