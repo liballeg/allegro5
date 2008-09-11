@@ -780,7 +780,8 @@ static void d3d_destroy_display_internals(ALLEGRO_DISPLAY_D3D *d3d_display)
 {
    ALLEGRO_DISPLAY_WIN *win_display = &d3d_display->win_display;
 
-   d3d_display->device->EndScene();
+   if (d3d_display->device)
+      d3d_display->device->EndScene();
    
    d3d_release_bitmaps((ALLEGRO_DISPLAY *)d3d_display);
    //_al_d3d_release_default_pool_textures();
