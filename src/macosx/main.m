@@ -237,14 +237,16 @@ int main(int argc, char *argv[])
 		{
 			title = [[NSProcessInfo processInfo] processName];
 		}
-		[NSApp setMainMenu: [[NSMenu allocWithZone: [NSMenu menuZone]] initWithTitle: @"temp"]];
+      NSMenu* main_menu = [[NSMenu allocWithZone: [NSMenu menuZone]] initWithTitle: @"temp"];
+		[NSApp setMainMenu: main_menu];
 		menu = [[NSMenu allocWithZone: [NSMenu menuZone]] initWithTitle: @"temp"];
 		temp_item = [[NSMenuItem allocWithZone: [NSMenu menuZone]]
 		     initWithTitle: @"temp"
 					action: NULL
 		     keyEquivalent: @""];
-		[[NSApp mainMenu] addItem: temp_item];
-		[[NSApp mainMenu] setSubmenu: menu forItem: temp_item];
+		[main_menu addItem: temp_item];
+		[main_menu setSubmenu: menu forItem: temp_item];
+      [temp_item release];
 		[NSApp setAppleMenu: menu];
 		NSString *quit = [@"Quit " stringByAppendingString: title];
 		menu_item = [[NSMenuItem allocWithZone: [NSMenu menuZone]]
@@ -253,10 +255,13 @@ int main(int argc, char *argv[])
 		     keyEquivalent: @"q"];
 		[menu_item setKeyEquivalentModifierMask: NSCommandKeyMask];
 		[menu addItem: menu_item];
+      [menu_item release];
+      [menu release];
+      [main_menu release];
 	}
-	
+	// setDelegate: doesn't retain the delegate here (a Cocoa convention)
+   // therefore we don't release it.
 	[NSApp setDelegate: app_delegate];
-	
 	[NSApp run];
 	/* Can never get here */
 	[pool release];

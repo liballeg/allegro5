@@ -357,6 +357,7 @@ NSImage* NSImageFromAllegroBitmap(ALLEGRO_BITMAP* bmp)
       }
    }
    [img addRepresentation:rep];
+   [rep release];
    return [img autorelease];
 }
 

@@ -59,8 +59,8 @@ void _al_osx_keyboard_was_installed(BOOL install) {
 	/* This is passed onto the event functions so we know where the event came from */
 	ALLEGRO_DISPLAY* dpy_ptr;
 }
--(void)setDisplay: (ALLEGRO_DISPLAY*) ptr;
--(ALLEGRO_DISPLAY*) display;
+-(void)setAllegroDisplay: (ALLEGRO_DISPLAY*) ptr;
+-(ALLEGRO_DISPLAY*) allegroDisplay;
 -(void) reshape;
 -(BOOL) acceptsFirstResponder;
 -(void) drawRect: (NSRect) rc;
@@ -111,14 +111,14 @@ void _al_osx_mouse_was_installed(BOOL install) {
 /* setDisplay:
 * Set the display this view is associated with
 */
--(void) setDisplay: (ALLEGRO_DISPLAY*) ptr {
+-(void) setAllegroDisplay: (ALLEGRO_DISPLAY*) ptr {
 	dpy_ptr = ptr;
 }
 
 /* display 
 * return the display this view is associated with
 */
--(ALLEGRO_DISPLAY*) display {
+-(ALLEGRO_DISPLAY*) allegroDisplay {
 	return dpy_ptr;
 }
 
@@ -269,7 +269,7 @@ void _al_osx_mouse_was_installed(BOOL install) {
 */
 - (BOOL)windowShouldClose:(id)sender
 {
-	ALLEGRO_EVENT_SOURCE* src = &([self display]->es);
+	ALLEGRO_EVENT_SOURCE* src = &([self allegroDisplay]->es);
 	_al_event_source_lock(src);
 	ALLEGRO_EVENT* evt = _al_event_source_get_unused_event(src);
 	evt->type = ALLEGRO_EVENT_DISPLAY_CLOSE;
@@ -280,7 +280,7 @@ void _al_osx_mouse_was_installed(BOOL install) {
 /* Window switch in/out */
 -(void) windowDidBecomeMain:(NSNotification*) notification
 {
-	ALLEGRO_EVENT_SOURCE* src = &([self display]->es);
+	ALLEGRO_EVENT_SOURCE* src = &([self allegroDisplay]->es);
 	_al_event_source_lock(src);
 	ALLEGRO_EVENT* evt = _al_event_source_get_unused_event(src);
 	evt->type = ALLEGRO_EVENT_DISPLAY_SWITCH_IN;
@@ -289,7 +289,7 @@ void _al_osx_mouse_was_installed(BOOL install) {
 }
 -(void) windowDidResignMain:(NSNotification*) notification
 {
-	ALLEGRO_EVENT_SOURCE* src = &([self display]->es);
+	ALLEGRO_EVENT_SOURCE* src = &([self allegroDisplay]->es);
 	_al_event_source_lock(src);
 	ALLEGRO_EVENT* evt = _al_event_source_get_unused_event(src);
 	evt->type = ALLEGRO_EVENT_DISPLAY_SWITCH_OUT;
@@ -414,9 +414,10 @@ static int decode_allegro_format(int format, int* glfmt, int* glsize, int* depth
 	NSOpenGLPixelFormat* fmt = [[NSOpenGLPixelFormat alloc] initWithAttributes: attrs];
 	ALOpenGLView* view = [[ALOpenGLView alloc] initWithFrame: rc];
    dpy->ctx = CreateShareableContext(fmt, &dpy->display_group);
+   [fmt release];
    [view setOpenGLContext: dpy->ctx];
 	/* Hook up the view to its display */
-	[view setDisplay: &dpy->parent];
+	[view setAllegroDisplay: &dpy->parent];
 	/* Realize the window on the main thread */
 	[win setContentView: view];
 	[win setDelegate: view];
@@ -433,7 +434,7 @@ static int decode_allegro_format(int format, int* glfmt, int* glsize, int* depth
 	[view release];
 }
 +(void) destroyDisplay: (NSValue*) display_object {
-   int i;
+   unsigned int i;
    ALLEGRO_DISPLAY_OSX_WIN* dpy = [display_object pointerValue];
    _al_vector_find_and_delete(&al_system_driver()->displays, &dpy);
    ALLEGRO_DISPLAY_OSX_WIN* other = NULL;
@@ -527,7 +528,7 @@ NSOpenGLContext* CreateShareableContext(NSOpenGLPixelFormat* fmt, unsigned int* 
 {
    // Iterate through all existing displays and try and find one that's compatible
    _AL_VECTOR* dpys = &al_system_driver()->displays;
-   int i;
+   unsigned int i;
    NSOpenGLContext* compat = nil;
    
    for (i = 0; i < _al_vector_size(dpys); ++i) {
