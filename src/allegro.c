@@ -188,7 +188,9 @@ void al_assert(AL_CONST char *file, int line)
       else {
       */
 //	 al_uninstall_system();
+#ifndef ALLEGRO_MSVC
 	 fprintf(stderr, "%s\n", buf);
+#endif
 	 abort();
      // }
    }

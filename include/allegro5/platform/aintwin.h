@@ -103,7 +103,7 @@ AL_VAR(int, _win_input_events);
 AL_ARRAY(HANDLE, _win_input_event_id);
 AL_FUNCPTRARRAY(void, _win_input_event_handler, (void));
 
-AL_FUNC(void, _win_input_init, (int need_thread));
+AL_FUNC(void, _win_input_init, (void));
 AL_FUNC(void, _win_input_exit, (void));
 AL_FUNC(int, _win_input_register_event, (HANDLE event_id, void (*event_handler)(void)));
 AL_FUNC(void, _win_input_unregister_event, (HANDLE event_id));

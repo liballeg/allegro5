@@ -48,35 +48,6 @@ static void (*pending_event_handler)(void);
 /* internal input thread management */
 static HANDLE ack_event = NULL;
 static int reserved_events = 0;
-static int input_need_thread = FALSE;
-static HANDLE input_thread = NULL;
-
-
-/* input_thread_proc: [input thread]
- *  Thread function that handles the input when there is
- *  no dedicated window thread because the library has
- *  been attached to an external window.
- */
-static void input_thread_proc(LPVOID unused)
-{
-   DWORD result;
-
-   _win_thread_init();
-   _TRACE(PREFIX_I "input thread starts\n");
-
-   /* event loop */
-   while (TRUE) {
-      result = WaitForMultipleObjects(_win_input_events, _win_input_event_id, FALSE, INFINITE);
-      if (result == WAIT_OBJECT_0 + 2)
-        break;  /* thread suicide */
-      else if (result < (DWORD) WAIT_OBJECT_0 + _win_input_events)
-         (*_win_input_event_handler[result - WAIT_OBJECT_0])();
-   }
-
-   _TRACE(PREFIX_I "input thread exits\n");
-   _win_thread_exit();
-}
-
 
 
 /* register_pending_event: [input thread]
@@ -141,12 +112,13 @@ int _win_input_register_event(HANDLE event_id, void (*event_handler)(void))
    pending_event_id = event_id;
    pending_event_handler = event_handler;
 
-   /* create the input thread if none */
-   if (input_need_thread && !input_thread)
-      input_thread = (HANDLE) _beginthread(input_thread_proc, 0, NULL);
-
-   /* ask the input thread to register the pending event */
-   SetEvent(_win_input_event_id[0]);
+   if (al_get_current_display()) {
+      /* ask the input thread to register the pending event */
+      SetEvent(_win_input_event_id[0]);
+   }
+   else {
+      register_pending_event();
+   }
 
    /* wait for the input thread to acknowledge */
    WaitForSingleObject(ack_event, INFINITE);
@@ -167,18 +139,17 @@ void _win_input_unregister_event(HANDLE event_id)
 
    al_lock_mutex(_al_win_input_mutex);
 
-   /* ask the input thread to unregister the pending event */
-   SetEvent(_win_input_event_id[1]);
+   if (al_get_current_display()) {
+      /* ask the input thread to unregister the pending event */
+      SetEvent(_win_input_event_id[1]);
+   }
+   else {
+      unregister_pending_event();
+   }
 
    /* wait for the input thread to acknowledge */
    WaitForSingleObject(ack_event, INFINITE);
 
-   /* kill the input thread if no more event */
-   if (input_need_thread && (_win_input_events == reserved_events)) {
-      SetEvent(_win_input_event_id[2]);  /* thread suicide */
-      input_thread = NULL;
-   }
-   
    al_unlock_mutex(_al_win_input_mutex);
 
    _TRACE(PREFIX_I "1 input event unregistered (total = %d)\n", _win_input_events-reserved_events);
@@ -189,24 +160,13 @@ void _win_input_unregister_event(HANDLE event_id)
 /* _win_input_init: [primary thread]
  *  Initializes the module.
  */
-void _win_input_init(int need_thread)
+void _win_input_init(void)
 {
    _win_input_event_id[0] = CreateEvent(NULL, FALSE, FALSE, NULL);
    _win_input_event_handler[0] = register_pending_event;
    _win_input_event_id[1] = CreateEvent(NULL, FALSE, FALSE, NULL);
    _win_input_event_handler[1] = unregister_pending_event;
-
-   if (need_thread) {
-      input_need_thread = TRUE;
-      _win_input_event_id[2] = CreateEvent(NULL, FALSE, FALSE, NULL);
-      reserved_events = 3;
-   }
-   else {
-      input_need_thread = FALSE;
-      reserved_events = 2;
-   }
-
-   _win_input_events = reserved_events;
+   _win_input_events = 2;
 
    ack_event = CreateEvent(NULL, FALSE, FALSE, NULL);
 

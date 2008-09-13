@@ -139,7 +139,7 @@ static ALLEGRO_SYSTEM *win_initialize(int flags)
    }
    _al_win_init_time();
 
-   _win_input_init(TRUE);
+   _win_input_init();
 
    _al_win_init_window();
 
