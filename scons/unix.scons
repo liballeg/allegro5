@@ -147,7 +147,7 @@ if noconfig:
         platform, settings = getUnixConfiguration()
     else:
         platform = helpers.readAutoHeader(context.getGlobalDir() + "alunixac.h")
-        settings.read(context.getGlobalDir() + "settings.cfg")
+        settings.read(context.getGlobalDir() + "unix-settings.cfg")
         setUnixConfiguration(platform, settings)
     # env = context.getEnv()
     for setting in config_settings:
@@ -292,7 +292,7 @@ else:
         if hasattr(val, "data"): val = val.data # for CCFLAGS
         if not type(val) == list: val = [val]
         settings.set("unix", setting, str(val))
-    settings.write(file(context.getGlobalDir() + "settings.cfg", "w"))
+    settings.write(file(context.getGlobalDir() + "unix-settings.cfg", "w"))
 
     setUnixConfiguration(platform, settings)
     global_alunixac = helpers.parse_cmake_h(env, platform,

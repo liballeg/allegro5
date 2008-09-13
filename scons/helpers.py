@@ -1,6 +1,13 @@
 import SCons
 import re
 
+# def getArgumentOption(name, default):
+#     import SCons.Script.ARGUMENTS
+#     arg = ARGUMENTS.get(name,default)
+#     if arg == "yes" or arg == "1":
+#         return 1
+#     return 0
+
 def read_cmake_list(name):
     """
     Read a cmake files list and return a dictionary with each cmake variable
@@ -108,3 +115,64 @@ def parse_cmake_h(env, defines, src, dest):
     env2.Append(BUILDERS = { "PlatformHeader" : make })
     return env2.PlatformHeader(dest,src)
 
+# Global state to handle configuration things
+configure_state = SimpleHash()
+
+def do_configure(name, context, tests, setup_platform, cmake_file, h_file, reconfigure):
+    import os, ConfigParser
+    noconfig = False
+    config_settings = ["CCFLAGS", "CPPPATH", "CPPFLAGS", "LIBS", "LIBPATH", "LINKFLAGS"]
+
+    platform = SimpleHash()
+    env = context.defaultEnvironment()
+
+    configured = configure_state[name]
+    config_file = None
+
+    if configured:
+        noconfig = True
+    # elif not getArgumentOption("config",0):
+    elif not reconfigure:
+        if os.path.exists( '#' + context.getGlobalDir() + h_file):
+            print "Re-using old %s settings" % name
+            noconfig = True
+    
+    if noconfig:
+        settings = ConfigParser.ConfigParser()
+        if configured:
+            platform, settings = configure_state[name]
+        else:
+            platform = readAutoHeader('#' + context.getGlobalDir() + h_file)
+            settings.read(context.getGlobalDir() + name + ".cfg")
+
+        env = context.defaultEnvironment()
+        for setting in config_settings:
+            try:
+                eval("env.Append(%s = %s)" % (
+                    setting, settings.get(name, setting)))
+            except ConfigParser.NoOptionError:
+                pass
+    else:
+        config = env.Configure(custom_tests = tests)
+        env = setup_platform(platform, config)
+
+        settings = ConfigParser.ConfigParser()
+        settings.add_section(name)
+        for setting in config_settings:
+            val = env.get(setting, None)
+            if not val: continue
+            if hasattr(val, "data"): val = val.data # for CCFLAGS
+            if not type(val) == list: val = [val]
+            settings.set(name, setting, str(val))
+        settings.write(file(context.getGlobalDir() + name + ".cfg", "w"))
+        config_file = parse_cmake_h(env, platform, cmake_file,
+            '#' + context.getGlobalDir() + name + '.h')
+
+        configure_state[name] = [platform, settings]
+        configure_state[name + "_h"] = config_file
+
+    header = parse_cmake_h(env, platform, cmake_file, h_file)
+    if configure_state[name + "_h"] != False:
+        env.Depends(header, configure_state[name + "_h"])
+
+    return [platform, env]

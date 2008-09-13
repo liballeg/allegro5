@@ -80,31 +80,51 @@ opts.Update(myEnv)
 opts.Save(context.getBuildDir() + "/options-addons-acodec.py", myEnv)
 Help(opts.GenerateHelpText(myEnv))
 
-noconfig = False
-if not getArgumentOption("config",0):
-    if os.path.exists("addons/acodec/allegro5/internal/aintern_acodec_cfg.h"):
-        # print "Re-using old acodec settings"
-        noconfig = True
+if False:
+    noconfig = False
+    if not getArgumentOption("config",0):
+        if os.path.exists("addons/acodec/allegro5/internal/aintern_acodec_cfg.h"):
+            # print "Re-using old acodec settings"
+            noconfig = True
 
-settins = []
-if noconfig:
-    settings = helpers.readAutoHeader('addons/acodec/allegro5/internal/aintern_acodec_cfg.h')
-else:
-        tests = { "CheckOgg": CheckOGG,
-                  "CheckFlac": CheckFlac,
-                  "CheckSndfile": CheckSndfile,
-                }
-        config = myEnv.Configure(custom_tests = tests)
+    settins = []
+    if noconfig:
+        settings = helpers.readAutoHeader('addons/acodec/allegro5/internal/aintern_acodec_cfg.h')
+    else:
+            tests = { "CheckOgg": CheckOGG,
+                      "CheckFlac": CheckFlac,
+                      "CheckSndfile": CheckSndfile,
+                    }
+            config = myEnv.Configure(custom_tests = tests)
 
-        settings = helpers.SimpleHash()
-        settings["ALLEGRO_CFG_ACODEC_VORBIS"] = getOption('ogg', True) and config.CheckOgg()
-        settings["ALLEGRO_CFG_ACODEC_FLAC"] = getOption('flac', True) and config.CheckFlac()
-        settings["ALLEGRO_CFG_ACODEC_SNDFILE"] = getOption('sndfile', True) and config.CheckSndfile()
-        config.Finish()
+            settings = helpers.SimpleHash()
+            settings["ALLEGRO_CFG_ACODEC_VORBIS"] = getOption('ogg', True) and config.CheckOgg()
+            settings["ALLEGRO_CFG_ACODEC_FLAC"] = getOption('flac', True) and config.CheckFlac()
+            settings["ALLEGRO_CFG_ACODEC_SNDFILE"] = getOption('sndfile', True) and config.CheckSndfile()
+            config.Finish()
 
-helpers.parse_cmake_h(myEnv, settings,'allegro5/internal/aintern_acodec_cfg.h.cmake','allegro5/internal/aintern_acodec_cfg.h')
+    helpers.parse_cmake_h(myEnv, settings,'allegro5/internal/aintern_acodec_cfg.h.cmake','allegro5/internal/aintern_acodec_cfg.h')
+    source = ['acodec.c']
+    configs = []
+
+def setupPlatform(settings, config):
+    settings["ALLEGRO_CFG_ACODEC_VORBIS"] = getOption('ogg', True) and config.CheckOgg()
+    settings["ALLEGRO_CFG_ACODEC_FLAC"] = getOption('flac', True) and config.CheckFlac()
+    settings["ALLEGRO_CFG_ACODEC_SNDFILE"] = getOption('sndfile', True) and config.CheckSndfile()
+    return config.Finish()
+
+tests = { "CheckOgg": CheckOGG,
+          "CheckFlac": CheckFlac,
+          "CheckSndfile": CheckSndfile,
+        }
+
 source = ['acodec.c']
 configs = []
+settings, configure_env = helpers.do_configure('acodec', context,
+                            tests, setupPlatform,
+                            'allegro5/internal/aintern_acodec_cfg.h.cmake',
+                            'allegro5/internal/aintern_acodec_cfg.h',
+                            getArgumentOption('config', 0))
 
 # This shouldn't be required, use env = config.Finish() above and make
 # the Check* functions modify the environment
