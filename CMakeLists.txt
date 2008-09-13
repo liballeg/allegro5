@@ -282,6 +282,7 @@ endif(WANT_OPENGL)
 
 if(WANT_OPENAL)
     include(FindOpenAL)
+    mark_as_advanced(OPENAL_INCLUDE_DIR OPENAL_LIBRARY)
     if(OPENAL_FOUND)
         set(SUPPORT_OPENAL 1)
     endif(OPENAL_FOUND)
