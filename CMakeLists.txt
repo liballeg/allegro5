@@ -310,20 +310,10 @@ if(UNIX)
     #
 
     if(WANT_ALSA)
-        check_c_source_compiles("
-            #include <sys/asoundlib.h>
-            int main(void) {
-            #if(SND_LIB_MAJOR > 0) || (SND_LIB_MAJOR == 0 && SND_LIB_MINOR == 9 && SND_LIB_SUBMINOR >= 1)
-                return 0;
-            #else
-                return 1;
-            #endif
-            }"
-            CAN_ALSA
-        )
-        if(CAN_ALSA)
+        pkg_check_modules(ALSA alsa)
+        if(ALSA_FOUND)
             set(SUPPORT_ALSA 1)
-        endif(CAN_ALSA)
+        endif(ALSA_FOUND)
     endif(WANT_ALSA)
 
     if(WANT_OSS)
