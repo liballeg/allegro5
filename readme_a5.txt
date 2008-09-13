@@ -133,6 +133,32 @@ Please give it a try and report problems.
 
 
 
+Hints on setting up Visual C++ 2005 Express Edition
+---------------------------------------------------
+
+After installing Visual C++, you need to install the Platform SDK (or Windows
+SDK), otherwise CMake will fail at a linking step.  You can do a web install to
+avoid downloading a massive file.  For me, installation seemed to take an
+inordinately long (half an hour or more), but eventually it completed.
+Don't be too quick to hit Cancel.
+
+You also need to install the DirectX SDK.  This is a big download, which I
+don't know how to avoid.
+
+Next, you'll need to tell VC++ about the Platform SDK.  Start the IDE.  Under
+"Tools > Options > Projects and Solutions > VC++ Directories", add the Platform
+SDK executable (bin), include and lib directories to the respective lists.
+The DirectX SDK seems to add itself when it's installed.
+
+Now you can open a command prompt with the correct environment by going to
+"Tools > Visual Studio 2005 command prompt".  Change to the Allegro directory
+and run CMake as before.
+
+For debugging, use the DirectX control panel applet to switch to the debugging
+runtime.  It's really useful.
+
+
+
 Scons
 -----
 
