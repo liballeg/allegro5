@@ -693,26 +693,31 @@ static bool d3d_create_device(ALLEGRO_DISPLAY_D3D *d,
          D3DDEVTYPE_HAL, win_display->window,
          D3DCREATE_HARDWARE_VERTEXPROCESSING|D3DCREATE_FPU_PRESERVE|D3DCREATE_MULTITHREADED,
          &d3d_pp, (LPDIRECT3DDEVICE9 *)&d->device)) != D3D_OK) {
-      if (hr == D3DERR_NOTAVAILABLE) {
-      	TRACE("CreateDevice failed: 1\n");
+      if ((hr = _al_d3d->CreateDevice(adapter,
+            D3DDEVTYPE_HAL, win_display->window,
+            D3DCREATE_SOFTWARE_VERTEXPROCESSING|D3DCREATE_FPU_PRESERVE|D3DCREATE_MULTITHREADED,
+            &d3d_pp, (LPDIRECT3DDEVICE9 *)&d->device)) != D3D_OK) {
+         if (hr == D3DERR_NOTAVAILABLE) {
+            TRACE("CreateDevice failed: 1\n");
+         }
+         else if (hr == D3DERR_DEVICELOST) {
+            TRACE("CreateDevice failed: 2\n");
+         }
+         else if (hr == D3DERR_INVALIDCALL) {
+            TRACE("CreateDevice failed: 3\n");
+         }
+         else if (hr == D3DERR_OUTOFVIDEOMEMORY) {
+            TRACE("CreateDevice failed: 4\n");
+         }
+         else if (hr == E_OUTOFMEMORY) {
+            TRACE("CreateDevice failed: 5\n");
+         }
+         else {
+            TRACE("Unknown error %u\n", (unsigned)hr);
+         }
+         TRACE("d3d_create_device: CreateDevice failed.\n");
+         return 0;
       }
-      else if (hr == D3DERR_DEVICELOST) {
-      	TRACE("CreateDevice failed: 2\n");
-      }
-      else if (hr == D3DERR_INVALIDCALL) {
-      	TRACE("CreateDevice failed: 3\n");
-      }
-      else if (hr == D3DERR_OUTOFVIDEOMEMORY) {
-      	TRACE("CreateDevice failed: 4\n");
-      }
-      else if (hr == E_OUTOFMEMORY) {
-      	TRACE("CreateDevice failed: 5\n");
-      }
-      else {
-      	TRACE("Unknown error %u\n", (unsigned)hr);
-      }
-      TRACE("d3d_create_device: CreateDevice failed.\n");
-      return 0;
    }
 
    if (d->device->GetBackBuffer(0, 0, D3DBACKBUFFER_TYPE_MONO, &d->render_target) != D3D_OK) {
