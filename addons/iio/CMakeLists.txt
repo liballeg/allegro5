@@ -1,14 +1,16 @@
 set(IIO_SOURCES bmp.c iio.c pcx.c tga.c)
 set(IIO_INCLUDE_FILES allegro5/a5_iio.h)
 
-include(FindPNG)
-if(PNG_FOUND)
-    set(ALLEGRO_CFG_IIO_HAVE_PNG 1)
-    list(APPEND IIO_SOURCES png.c)
-    set(IIO_LIBRARIES ${PNG_LIBRARIES})
-    set(IIO_DEFINES ${PNG_DEFINITIONS})
-    include_directories(${PNG_INCLUDE_DIR})
-endif(PNG_FOUND)
+if(WANT_PNG)
+    include(FindPNG)
+    if(PNG_FOUND)
+        set(ALLEGRO_CFG_IIO_HAVE_PNG 1)
+        list(APPEND IIO_SOURCES png.c)
+        set(IIO_LIBRARIES ${PNG_LIBRARIES})
+        set(IIO_DEFINES ${PNG_DEFINITIONS})
+        include_directories(${PNG_INCLUDE_DIR})
+    endif(PNG_FOUND)
+endif(WANT_PNG)
 
 configure_file(
     allegro5/internal/aintern_iio_cfg.h.cmake
