@@ -12,9 +12,10 @@ TODO
 * finish fname - DONE 02-12-2006
 
 // 03-12-2006
-* Change AL_FILE/AL_DIR to a merged AL_FS_ENTRY
+* Change AL_FILE/AL_DIR to a merged AL_FS_ENTRY - DONE
 * Add solitary stat info functions: each calls stat, if you want something more efficient, create a AL_FS_ENTRY handle.
   - al_fs_stat_size, al_fs_stat_mode, al_fs_stat_atime, etc
+  - DONE
 
 * char ** al_fs_find_ex(char *path, int (*filter)(...), void *filter_dat, int (*sort)(...), void *sort_dat);
 * char ** al_fs_find(char *path, AL_FS_FILTER filter, AL_FS_SORT sort);
@@ -26,6 +27,8 @@ TODO
 * MacOSX get_path implementation needed
 
 // 13-09-2008
-* implement both versions (file/path, entry) of the stdio stat functions.
 * maybe add a al_fs_set_interface(AL_FS_HOOK_SYS_VTABLE *, AL_FS_HOOK_ENTRY_VTABLE *) function
-
+* finish stdio driver
+* finish path.c/h functions
+* get allegro to use fshook functions
+* split old pack_ and datafile functions off into addons
