@@ -318,44 +318,12 @@ if(UNIX)
     endif(WANT_ALSA)
 
     if(WANT_OSS)
-        if(ALLEGRO_HAVE_SOUNDCARD_H OR ALLEGRO_HAVE_SYS_SOUNDCARD_H OR ALLEGRO_HAVE_MACHINE_SOUNDCARD_H OR ALLEGRO_LINUX_SYS_SOUNDCARD_H)
-            if(ALLEGRO_MACHINE_SOUNDCARD_H)
-                set(CMAKE_REQUIRED_DEFINITIONS -DALLEGRO_HAVE_MACHINE_SOUNDCARD_H)
-            endif(ALLEGRO_MACHINE_SOUNDCARD_H)
-            if(ALLEGRO_HAVE_LINUX_SOUNDCARD_H)
-                set(CMAKE_REQUIRED_DEFINITIONS -DALLEGRO_HAVE_LINUX_SOUNDCARD_H)
-            endif(ALLEGRO_HAVE_LINUX_SOUNDCARD_H)
-            if(ALLEGRO_HAVE_SYS_SOUNDCARD_H)
-                set(CMAKE_REQUIRED_DEFINITIONS -DALLEGRO_HAVE_SYS_SOUNDCARD_H)
-            endif(ALLEGRO_HAVE_SYS_SOUNDCARD_H)
-            if(ALLEGRO_HAVE_SOUNDCARD_H)
-                set(CMAKE_REQUIRED_DEFINITIONS -DALLEGRO_HAVE_SOUNDCARD_H)
-            endif(ALLEGRO_HAVE_SOUNDCARD_H)
-            check_c_source_compiles("
-                #ifdef ALLEGRO_HAVE_SOUNDCARD_H 
-                #include <soundcard.h>
-                #endif
-                #ifdef ALLEGRO_HAVE_SYS_SOUNDCARD_H 
-                #include <sys/soundcard.h>
-                #endif
-                #ifdef ALLEGRO_HAVE_LINUX_SOUNDCARD_H 
-                #include <linux/soundcard.h>
-                #endif
-                #ifdef ALLEGRO_HAVE_MACHINE_SOUNDCARD_H 
-                #include <machine/soundcard.h>
-                #endif
-                int main(void) {
-                    audio_buf_info abi;
-                    return 0;
-                }"
-                CAN_OSS
-            )
-            set(CMAKE_REQUIRED_DEFINITIONS)
-            if(CAN_OSS)
-                set(SUPPORT_OSS 1)
-            endif(CAN_OSS)
-        endif(ALLEGRO_HAVE_SOUNDCARD_H OR ALLEGRO_HAVE_SYS_SOUNDCARD_H OR ALLEGRO_HAVE_MACHINE_SOUNDCARD_H OR ALLEGRO_LINUX_SYS_SOUNDCARD_H)
+        include(AllegroFindOSS)
+        if(OSS_FOUND)
+            set(SUPPORT_OSS 1)
+        endif(OSS_FOUND)
     endif(WANT_OSS)
+
 endif(UNIX)
 
 #
