@@ -299,6 +299,9 @@ if(UNIX)
     include(FindThreads)
     if(CMAKE_USE_PTHREADS_INIT)
         set(ALLEGRO_HAVE_LIBPTHREAD 1)
+    else(CMAKE_USE_PTHREADS_INIT)
+        message(FATAL_ERROR
+            "Unix port requires pthreads support, not detected.")
     endif(CMAKE_USE_PTHREADS_INIT)
 
     #
@@ -480,7 +483,7 @@ set(PLATFORM_LIBS)
 
 if(ALLEGRO_UNIX) # not MACOSX
     list(APPEND LIBRARY_SOURCES ${ALLEGRO_SRC_UNIX_FILES})
-    list(APPEND PLATFORM_LIBS m pthread)
+    list(APPEND PLATFORM_LIBS m ${CMAKE_THREAD_LIBS_INIT})
 endif(ALLEGRO_UNIX)
 
 if(SUPPORT_X11)
