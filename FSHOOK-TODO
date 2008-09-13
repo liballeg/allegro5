@@ -24,3 +24,8 @@ TODO
 // 18-06-2008
 * need to ensure the various uconvert stuff is correct
 * MacOSX get_path implementation needed
+
+// 13-09-2008
+* implement both versions (file/path, entry) of the stdio stat functions.
+* maybe add a al_fs_set_interface(AL_FS_HOOK_SYS_VTABLE *, AL_FS_HOOK_ENTRY_VTABLE *) function
+

@@ -1,62 +1,201 @@
 
 #include "allegro5/path.h"
 
-char **_split_path(const char *path, uint32_t *num)
+static char *_ustrduprange(const char *start, const char *end)
 {
-   char **arr = NULL, *ptr = NULL, *lptr = NULL;
-   uint32_t count = 0, i = 0;
-   char sep[2];
+   const char *ptr = start;
+   char *dup = NULL;
+   int32_t blen = 0, eslen = ustrsizez(empty_string);
 
-   al_fs_path_sep(2, sep);
-
-   for(ptr=path; *ptr; ptr++) {
-      if(*ptr == sep[0])
-         count++;
+   while(ptr < end) {
+      int32_t c = ugetxc(&ptr);
+      blen += ucwidth(c);
    }
 
-   arr = AL_MALLOC(sizeof(char *) * count);
+   dup = malloc(blen+eslen);
+   if(!dup) {
+      return NULL;
+   }
+
+   memcpy(dup, start, blen);
+   memset(dup+blen, 0, eslen);
+
+   return dup;
+}
+
+// last component if its not followed by a `dirsep` is interpreted as a file component, always.
+static int32_t _parse_path(const char *p, char **drive, char **path, char **file)
+{
+   const char *ptr = p;
+   char *path_info = NULL, *path_info_end = NULL;
+   int32_t path_info_len = 0;
+   const char dirsep = ALLEGRO_NATIVE_PATH_SEP;
+   
+#ifdef ALLEGRO_WINDOWS
+   // UNC \\server\share name
+   if(ugetc(ptr) == dirsep && ugetat(ptr, 1) == dirsep) {
+      char *uncdrive = NULL;
+      int32_t udlen = 0;
+
+      ptr += uwidth(ptr);
+      ptr += uwidth(ptr);
+      
+      ptr = ustrchr(ptr, dirsep);
+      if(!ptr)
+         goto _parse_path_error;
+      
+      if(!ugetc(ptr)) {
+         goto _parse_path_error;
+      }
+
+      ptr += uwidth(ptr);
+      if(!ugetc(ptr))
+         goto _parse_path_error;
+      
+      ptr = ustrchr(ptr, dirsep);
+      if(!ptr) {
+         ptr = p + ustrsize(p);
+      }
+
+      uncdrive = _ustrduprange(p, ptr);
+      if(!uncdrive) {
+         goto _parse_path_error;
+      }
+
+      *drive = uncdrive;
+   }
+   // drive name
+   else if(ugetc(ptr) != dirsep && ugetat(ptr, 1) == ALLEGRO_NATIVE_DRIVE_SEP) {
+      char *tmp = NULL;
+
+      tmp = _ustrduprange(ptr, ptr+uoffset(ptr, 2));
+      if(!tmp) {
+         // ::)
+         goto _parse_path_error;
+      }
+
+      *drive = tmp;
+      ptr = ustrchr(ptr, dirsep);
+   }
+
+   if(!ptr || !ugetc(ptr)) {
+      // no path, or file info
+      return 0;
+   }
+#endif
+
+   // grab path, and/or file info
+
+   path_info_end = ustrrchr(ptr, dirsep);
+   if(!path_info_end) { // no path, just file
+      char *file_info = NULL;
+
+      file_info = ustrdup(ptr);
+      if(!file_info)
+         goto _parse_path_error;
+
+      *file = file_info;
+      return 0;
+   }
+   else if(ugetat(path_info_end, 1)) {
+      // dirsep is not at end
+      char *file_info = NULL;
+
+      file_info = ustrdup(path_info_end+uoffset(path_info_end,1));
+      if(!file_info)
+         goto _parse_path_error;
+
+      *file = file_info;
+   }
+
+   /* detect if the path_info should be a single '/' */
+   if(ugetc(ptr) == dirsep && (!ugetat(ptr, 2) || ptr == path_info_end)) {
+      path_info_end += ucwidth(dirsep);
+   }
+
+   path_info_len = path_info_end - ptr;
+   if(path_info_len) {
+      path_info = _ustrduprange(ptr, path_info_end);
+      if(!path_info)
+         goto _parse_path_error;
+
+      *path = path_info;
+   }
+
+   return 0;
+
+_parse_path_error:
+   if(*drive) {
+      free(*drive);
+      *drive = 0;
+   }
+
+   if(*path) {
+      free(*path);
+      *path = 0;
+   }
+
+   if(*file) {
+      free(*file);
+      *file = 0;
+   }
+
+   return -1;
+}
+
+static const char **_split_path(const char *path, uint32_t *num)
+{
+   const char **arr = NULL, *ptr = NULL, *lptr = NULL;
+   int32_t count = 0, i = 0;
+   const char dirsep = ALLEGRO_NATIVE_PATH_SEP;
+
+   for(ptr=path; ugetc(ptr); ptr+=uwidth(ptr)) {
+      if(ugetc(ptr) == dirsep)
+         count++;
+      lptr = ptr;
+   }
+
+   if(ugetc(lptr) != dirsep) {
+      count++;
+   }
+
+   arr = malloc(sizeof(char *) * count);
    if(!arr)
       return NULL;
 
    lptr = path;
-   for(ptr=path; *ptr; ptr++) {
-      if(*ptr == sep[0]) {
-         /* one minus current len, remove the trailing separator */
-         uint32_t l = (ptr - lptr - 1);
-         /* one plus total, to include trailing null */
-         char *seg = AL_MALLOC(sizeof(char) *  (l + 1));
+   for(ptr=path; ugetc(ptr); ptr++) {
+      if(ugetc(ptr) == dirsep) {
+         char *seg = _ustrduprange(lptr, ptr);
          if(!seg)
             goto _split_path_getout;
 
-         memset(seg, 0, l+1);
-         memcpy(seg, lptr, l);
-
-         lptr = ptr+1;
+         arr[i++] = seg;
+         lptr = ptr+uoffset(ptr, 1);
       }
    }
 
-   if(*lptr) {
-         /* one minus current len, remove the trailing separator */
-      uint32_t l = (ptr - lptr - 1);
-      /* one plus total, to include trailing null */
-      char *seg = AL_MALLOC(sizeof(char) *  (l + 1));
+   if(ugetc(lptr)) {
+      char *seg = _ustrduprange(lptr, ptr);
       if(!seg)
          goto _split_path_getout;
 
-      memset(seg, 0, l+1);
-      memcpy(seg, lptr, l);
+      arr[i++] = seg;
    }
 
+   *num = count;
    return arr;
 _split_path_getout:
 
    if(arr) {
       for(i = 0; arr[i]; i++) {
-         AL_FREE(arr[i]);
+         free((void*)arr[i]);
       }
 
-      al_free(arr);
+      free(arr);
    }
+
+   return NULL;
 }
 
 AL_PATH *al_path_init(void)

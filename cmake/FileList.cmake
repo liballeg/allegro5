@@ -31,6 +31,8 @@ set(ALLEGRO_SRC_FILES
     src/fontgrx.c
     src/fonttxt.c
     src/fsel.c
+	 src/fshook.c
+    src/fshook_stdio.c
     src/gfx.c
     src/glyph.c
     src/graphics.c
@@ -478,6 +480,7 @@ set(ALLEGRO_INCLUDE_ALLEGRO_FILES
     include/allegro5/fli.h
     include/allegro5/fmaths.h
     include/allegro5/font.h
+    include/allegro5/fshook.h
     include/allegro5/gfx.h
     include/allegro5/graphics.h
     include/allegro5/gui.h
@@ -531,6 +534,7 @@ set(ALLEGRO_INCLUDE_ALLEGRO_INTERNAL_FILES
     include/allegro5/internal/aintern_opengl.h
     include/allegro5/internal/aintvga.h
     include/allegro5/internal/alconfig.h
+    include/allegro5/internal/fshook.h
     )
 
 set(ALLEGRO_INCLUDE_ALLEGRO_OPENGL_FILES

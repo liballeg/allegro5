@@ -21,357 +21,14 @@
 #include "allegro5/internal/fshook.h"
 #include ALLEGRO_INTERNAL_HEADER
 
-static struct AL_FS_HOOK_SYS_VTABLE  _al_sys_fshooks;
-static struct AL_FS_HOOK_ENTRY_VTABLE _al_entry_fshooks;
-
-int al_fs_set_hook(uint32_t phid, void *fshook)
-{
-   if(phid < 0 || phid >= AL_FS_HOOK_LAST)
-      return -1;
-
-   switch(phid) {
-      case AL_FS_HOOK_CREATE_HANDLE:
-         _al_sys_fshooks.create_handle = fshook;
-         break;
-
-      case AL_FS_HOOK_DESTROY_HANDLE:
-         _al_entry_fshooks.destroy_handle = fshook;
-         break;
-
-      case AL_FS_HOOK_OPEN_HANDLE:
-         _al_entry_fshooks.open_handle = fshook;
-         break;
-
-      case AL_FS_HOOK_CLOSE_HANDLE:
-         _al_entry_fshooks.close_handle = fshook;
-         break;
-
-      case AL_FS_HOOK_ENTRY_OPEN:
-         _al_sys_fshooks.fopen = fshook;
-         break;
-
-      case AL_FS_HOOK_ENTRY_CLOSE:
-         _al_entry_fshooks.fclose = fshook;
-         break;
-
-      case AL_FS_HOOK_ENTRY_READ:
-         _al_entry_fshooks.fread = fshook;
-         break;
-
-      case AL_FS_HOOK_ENTRY_WRITE:
-         _al_entry_fshooks.fwrite = fshook;
-         break;
-
-      case AL_FS_HOOK_ENTRY_FLUSH:
-         _al_entry_fshooks.fflush = fshook;
-         break;
-
-      case AL_FS_HOOK_ENTRY_SEEK:
-         _al_entry_fshooks.fseek = fshook;
-         break;
-
-      case AL_FS_HOOK_ENTRY_TELL:
-         _al_entry_fshooks.ftell = fshook;
-         break;
-
-      case AL_FS_HOOK_ENTRY_ERROR:
-         _al_entry_fshooks.ferror = fshook;
-         break;
-
-      case AL_FS_HOOK_ENTRY_EOF:
-         _al_entry_fshooks.feof = fshook;
-         break;
-
-      case AL_FS_HOOK_ENTRY_STAT:
-         _al_entry_fshooks.fstat = fshook;
-         break;
-
-      case AL_FS_HOOK_OPENDIR:
-         _al_sys_fshooks.opendir = fshook;
-         break;
-
-      case AL_FS_HOOK_CLOSEDIR:
-         _al_entry_fshooks.closedir = fshook;
-         break;
-
-      case AL_FS_HOOK_READDIR:
-         _al_entry_fshooks.readdir = fshook;
-         break;
-
-      case AL_FS_HOOK_MKTEMP:
-         _al_sys_fshooks.mktemp = fshook;
-         break;
-
-      case AL_FS_HOOK_GETCWD:
-         _al_sys_fshooks.getcwd = fshook;
-         break;
-
-      case AL_FS_HOOK_CHDIR:
-         _al_sys_fshooks.chdir = fshook;
-         break;
-
-      case AL_FS_HOOK_ADD_SEARCH_PATH:
-         _al_sys_fshooks.add_search_path = fshook;
-         break;
-
-      case AL_FS_HOOK_SEARCH_PATH_COUNT:
-         _al_sys_fshooks.search_path_count = fshook;
-         break;
-
-      case AL_FS_HOOK_GET_SEARCH_PATH:
-         _al_sys_fshooks.get_search_path = fshook;
-         break;
-
-      case AL_FS_HOOK_ENTRY_MODE:
-         _al_entry_fshooks.entry_mode = fshook;
-         break;
-
-      case AL_FS_HOOK_ENTRY_ATIME:
-         _al_entry_fshooks.entry_atime = fshook;
-         break;
-
-      case AL_FS_HOOK_ENTRY_MTIME:
-         _al_entry_fshooks.entry_mtime = fshook;
-         break;
-
-      case AL_FS_HOOK_ENTRY_CTIME:
-         _al_entry_fshooks.entry_ctime = fshook;
-         break;
-
-      case AL_FS_HOOK_ENTRY_SIZE:
-         _al_entry_fshooks.entry_size = fshook;
-         break;
-
-      case AL_FS_HOOK_ENTRY_UNLINK:
-         _al_entry_fshooks.entry_unlink = fshook;
-         break;
-
-      case AL_FS_HOOK_ENTRY_EXISTS:
-         _al_entry_fshooks.entry_exists = fshook;
-         break;
-
-      case AL_FS_HOOK_STAT_MODE:
-         _al_sys_fshooks.file_mode = fshook;
-         break;
-
-      case AL_FS_HOOK_STAT_ATIME:
-         _al_sys_fshooks.file_atime = fshook;
-         break;
-
-      case AL_FS_HOOK_STAT_MTIME:
-         _al_sys_fshooks.file_mtime = fshook;
-         break;
-
-      case AL_FS_HOOK_STAT_CTIME:
-         _al_sys_fshooks.file_ctime = fshook;
-         break;
-
-      case AL_FS_HOOK_STAT_SIZE:
-         _al_sys_fshooks.file_size = fshook;
-         break;
-
-      case AL_FS_HOOK_PATH_TO_SYS:
-         _al_sys_fshooks.path_to_sys = fshook;
-         break;
-
-      case AL_FS_HOOK_PATH_TO_UNI:
-         _al_sys_fshooks.path_to_uni = fshook;
-         break;
-
-      case AL_FS_HOOK_UNLINK:
-         _al_sys_fshooks.unlink = fshook;
-         break;
-
-      case AL_FS_HOOK_EXISTS:
-         _al_sys_fshooks.exists = fshook;
-         break;
-
-      default:
-         break;
-   }
-
-   return 0;
-}
-
-void *al_fs_get_hook(uint32_t phid)
-{
-   /* ptr exists in case we need to add a mutex. */
-   void *ptr = NULL;
-   if(phid < 0 || phid >= AL_FS_HOOK_LAST)
-      return NULL;
-
-   switch(phid) {
-      case AL_FS_HOOK_CREATE_HANDLE:
-         ptr = _al_sys_fshooks.create_handle;
-         break;
-
-      case AL_FS_HOOK_DESTROY_HANDLE:
-         ptr = _al_entry_fshooks.destroy_handle;
-         break;
-
-      case AL_FS_HOOK_OPEN_HANDLE:
-         ptr = _al_sys_fshooks.open_handle;
-         break;
-
-      case AL_FS_HOOK_CLOSE_HANDLE:
-         ptr = _al_entry_fshooks.close_handle;
-         break;
-
-      case AL_FS_HOOK_ENTRY_OPEN:
-         ptr = _al_sys_fshooks.fopen;
-         break;
-
-      case AL_FS_HOOK_ENTRY_CLOSE:
-         ptr = _al_entry_fshooks.fclose;
-         break;
-
-      case AL_FS_HOOK_ENTRY_READ:
-         ptr = _al_entry_fshooks.fread;
-         break;
-
-      case AL_FS_HOOK_ENTRY_WRITE:
-         ptr = _al_entry_fshooks.fwrite;
-         break;
-
-      case AL_FS_HOOK_ENTRY_FLUSH:
-         ptr = _al_entry_fshooks.fflush;
-         break;
-
-      case AL_FS_HOOK_ENTRY_SEEK:
-         ptr = _al_entry_fshooks.fseek;
-         break;
-
-      case AL_FS_HOOK_ENTRY_TELL:
-         ptr = _al_entry_fshooks.ftell;
-         break;
-
-      case AL_FS_HOOK_ENTRY_ERROR:
-         ptr = _al_entry_fshooks.ferror;
-         break;
-
-      case AL_FS_HOOK_ENTRY_EOF:
-         ptr = _al_entry_fshooks.feof;
-         break;
-
-      case AL_FS_HOOK_ENTRY_STAT:
-         ptr = _al_entry_fshooks.fstat;
-         break;
-
-      case AL_FS_HOOK_OPENDIR:
-         ptr = _al_sys_fshooks.opendir;
-         break;
-
-      case AL_FS_HOOK_CLOSEDIR:
-         ptr = _al_entry_fshooks.closedir;
-         break;
-
-      case AL_FS_HOOK_READDIR:
-         ptr = _al_entry_fshooks.readdir;
-         break;
-
-      case AL_FS_HOOK_MKTEMP:
-         ptr = _al_sys_fshooks.mktemp;
-         break;
-
-      case AL_FS_HOOK_GETCWD:
-         ptr = _al_sys_fshooks.getcwd;
-         break;
-
-      case AL_FS_HOOK_CHDIR:
-         ptr = _al_sys_fshooks.chdir;
-         break;
-
-      case AL_FS_HOOK_ADD_SEARCH_PATH:
-         ptr = _al_sys_fshooks.add_search_path;
-         break;
-
-      case AL_FS_HOOK_SEARCH_PATH_COUNT:
-         ptr = _al_sys_fshooks.search_path_count;
-         break;
-
-      case AL_FS_HOOK_GET_SEARCH_PATH:
-         ptr = _al_sys_fshooks.get_search_path;
-         break;
-
-      case AL_FS_HOOK_ENTRY_MODE:
-         ptr = _al_entry_fshooks.entry_mode;
-         break;
-
-      case AL_FS_HOOK_ENTRY_ATIME:
-         ptr = _al_entry_fshooks.entry_atime;
-         break;
-
-      case AL_FS_HOOK_ENTRY_MTIME:
-         ptr = _al_entry_fshooks.entry_mtime;
-         break;
-
-      case AL_FS_HOOK_ENTRY_SIZE:
-         ptr = _al_entry_fshooks.entry_size;
-         break;
-
-      case AL_FS_HOOK_ENTRY_CTIME:
-         ptr = _al_entry_fshooks.entry_ctime;
-         break;
-
-      case AL_FS_HOOK_ENTRY_UNLINK:
-         ptr = _al_entry_fshooks.unlink;
-         break
-
-      case AL_FS_HOOK_ENTRY_EXISTS:
-         ptr = _al_entry_fshooks.exists;
-         break;
-
-      case AL_FS_HOOK_PATH_TO_SYS:
-         ptr = _al_sys_fshooks.path_to_sys;
-         break;
-
-      case AL_FS_HOOK_PATH_TO_UNI:
-         ptr = _al_sys_fshooks.path_to_uni;
-         break;
-
-      case AL_FS_HOOK_STAT_MODE:
-         ptr = _al_sys_fshooks.stat_mode;
-         break;
-
-      case AL_FS_HOOK_STAT_ATIME:
-         ptr = _al_sys_fshooks.stat_atime;
-         break;
-
-      case AL_FS_HOOK_STAT_MTIME:
-         ptr = _al_sys_fshooks.stat_mtime;
-         break;
-
-      case AL_FS_HOOK_STAT_SIZE:
-         ptr = _al_sys_fshooks.stat_size;
-         break;
-
-      case AL_FS_HOOK_STAT_CTIME:
-         ptr = _al_sys_fshooks.stat_ctime;
-         break;
-
-      case AL_FS_HOOK_UNLINK:
-         ptr = _al_sys_fshooks.unlink;
-         break
-
-      case AL_FS_HOOK_EXISTS:
-         ptr = _al_sys_fshooks.exists;
-         break;
-
-      default:
-         ptr = NULL;
-         break;
-   }
-
-   return ptr;
-}
+struct AL_FS_HOOK_SYS_VTABLE  *_al_sys_fshooks = &_al_stdio_sys_fshooks;
+struct AL_FS_HOOK_ENTRY_VTABLE *_al_entry_fshooks = &_al_stdio_entry_fshooks;
 
 AL_FS_ENTRY *al_fs_create_handle(AL_CONST char *path)
 {
    AL_FS_ENTRY *handle = _al_fs_hook_create_handle(path);
    if(!handle)
       return NULL;
-
-   handle->vtable = _al_entry_fshooks;
 
    return handle;
 }
@@ -493,8 +150,6 @@ AL_FS_ENTRY *al_fs_opendir(const char *path)
    if(!dir)
       return NULL;
 
-   dir->vtable = _al_entry_fshooks;
-
    return dir;
 }
 
@@ -579,7 +234,7 @@ int32_t al_fs_entry_isfile(AL_FS_ENTRY *e)
 AL_FS_ENTRY *al_fs_mktemp(const char *template, uint32_t ulink)
 {
    ASSERT(template != NULL);
-   ASSERT(ulink != AL_MKTEMP_UNLINK_NOW && ulink != AL_MKTEMP_UNLINK_ON_CLOSE);
+   ASSERT(ulink != AL_MKTEMP_UNLINK_NOW && ulink != AL_MKTEMP_UNLINK_ON_CLOSE && ulink != AL_MKTEMP_UNLINK_NEVER);
 
    return _al_fs_hook_mktemp(template, ulink);
 }
@@ -587,7 +242,7 @@ AL_FS_ENTRY *al_fs_mktemp(const char *template, uint32_t ulink)
 int32_t al_fs_getcwd(char *buf, size_t len)
 {
    ASSERT(buf != NULL);
-   ASSERT(len != NULL);
+   ASSERT(len != 0);
 
    return _al_fs_hook_getcwd(buf, len);
 }
@@ -679,7 +334,7 @@ time_t al_fs_stat_ctime( const char *path )
    return _al_fs_hook_stat_ctime(path);
 }
 
-size_t al_fs_stat_size( const char *path )
+off_t al_fs_stat_size( const char *path )
 {
    ASSERT(path != NULL);
    return _al_fs_hook_stat_size(path);
