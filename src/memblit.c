@@ -145,178 +145,97 @@ void _al_draw_bitmap_memory(ALLEGRO_BITMAP *bitmap,
 
 
 
-void _al_draw_scaled_bitmap_memory(ALLEGRO_BITMAP *bitmap,
+void _al_draw_scaled_bitmap_memory(ALLEGRO_BITMAP *src,
    int sx, int sy, int sw, int sh,
    int dx, int dy, int dw, int dh, int flags)
 {
-   int x; /* current dst x */
-   int y; /* current dst y */
-   int _sx; /* current source x */
-   int yc; /* y counter */
-   int syinc; /* amount to increment src y each time */
-   int ycdec; /* amount to decrement counter by, increase sy when this reaches 0 */
-   int ycinc; /* amount to increment counter by when it reaches 0 */
-   int dxbeg, dxend; /* clipping information */
-   int xcstart; /* x counter start */
-   int dybeg, dyend;
-   int xcinc, xcdec;
-   int sxinc;
-   int sxdir, sydir;
-   int i, j;
    ALLEGRO_BITMAP *dest = al_get_target_bitmap();
-   int pixel;
    ALLEGRO_LOCKED_REGION src_region;
    ALLEGRO_LOCKED_REGION dst_region;
-   ALLEGRO_COLOR src_color, result;
    int src_mode, dst_mode;
-   ALLEGRO_COLOR *ic;
+   ALLEGRO_COLOR *bc;
+
+   float sxinc;
+   float syinc;
+   float _sx;
+   float _sy;
+   float dxinc;
+   float dyinc;
+   float _dx;
+   float _dy;
+   int x, y;
+   int xend;
+   int yend;
+   ALLEGRO_COLOR src_color, result;
 
    al_get_blender(&src_mode, &dst_mode, NULL);
-   ic = _al_get_blend_color();
+   bc = _al_get_blend_color();
 
-#ifndef DEBUGMODE
    if (src_mode == ALLEGRO_ONE && dst_mode == ALLEGRO_ZERO &&
-      ic->r == 1.0f && ic->g == 1.0f && ic->b == 1.0f && ic->a == 1.0f) {
-      _al_draw_scaled_bitmap_memory_fast(bitmap,
+      bc->r == 1.0f && bc->g == 1.0f && bc->b == 1.0f && bc->a == 1.0f &&
+      (src->format == dest->format)) {
+      _al_draw_scaled_bitmap_memory_fast(src,
             sx, sy, sw, sh, dx, dy, dw, dh, flags);
       return;
    }
-#endif
 
-   if ((sw <= 0) || (sh <= 0) || (dw <= 0) || (dh <= 0))
+   if ((sw <= 0) || (sh <= 0))
       return;
+
+   /* This must be calculated before clipping dw, dh. */
+   sxinc = fabs((float)sw / dw);
+   syinc = fabs((float)sh / dh);
 
    /* Do clipping */
-   dybeg = ((dy > dest->ct) ? dy : dest->ct);
-   dyend = (((dy + dh) < dest->cb) ? (dy + dh) : dest->cb);
-   if (dybeg >= dyend)
-      return;
+   dy = ((dy > dest->ct) ? dy : dest->ct);
+   dh = (((dy + dh) < dest->cb + 1) ? (dy + dh) : dest->cb + 1) - dy;
 
-   dxbeg = ((dx > dest->cl) ? dx : dest->cl);
-   dxend = (((dx + dw) < dest->cr) ? (dx + dw) : dest->cr);
-   if (dxbeg >= dxend)
-      return;
+   dx = ((dx > dest->cl) ? dx : dest->cl);
+   dw = (((dx + dw) < dest->cr + 1) ? (dx + dw) : dest->cr + 1) - dx;
 
-   syinc = sh / dh;
-   ycdec = sh - (syinc*dh);
-   ycinc = dh - ycdec;
-   yc = ycinc;
+   if (dw == 0 || dh == 0)
+   	return;
 
-   sxinc = sw / dw;
-   xcdec = sw - ((sw/dw)*dw);
-   xcinc = dw - xcdec;
-   xcstart = xcinc;
+   al_lock_bitmap(src, &src_region, ALLEGRO_LOCK_READONLY);
+   /* XXX we should be able to lock less of the destination */
+   al_lock_bitmap(dest, &dst_region, 0);
 
-   /* get start state (clip) */
-   for (i = 0, j = 0; i < dxbeg-dx; i++) {
-      if (xcstart <= 0) {
-         xcstart += xcinc;
-         /*j++;*/
-      }
-      else
-         xcstart -= xcdec;
-   }
-
-   /* skip clipped lines */
-   for (y = dy; y < dybeg; y++) {
-      if (yc <= 0) {
-         yc += ycinc;
-      }
-      else
-         yc -= ycdec;
-   }
-
-   i = (dxbeg-dx) * sw / dw;
-   sx += i;
-   sw = (dxend-dxbeg) * sw / dw;
-   i = (dybeg-dy) * sh / dh;
-   sy += i;
-   sh = (dyend-dybeg) * sh / dh;
-
-   dx = dxbeg;
-   dy = dybeg;
-   dw = dxend - dxbeg;
-   dh = dyend - dybeg;
-
-   /* Handle sub bitmaps */
-   if (dest->parent) {
-      dx += dest->xofs;
-      dy += dest->yofs;
-      dest = dest->parent;
-   }
-
-   if (bitmap->parent) {
-      sx += bitmap->xofs;
-      sy += bitmap->yofs;
-      bitmap = bitmap->parent;
-   }
-
-   if (!al_lock_bitmap_region(bitmap, sx, sy, sw, sh, &src_region, ALLEGRO_LOCK_READONLY))
-      return;
-
-   if (!al_lock_bitmap_region(dest, dx, dy, dw, dh, &dst_region, 0)) {
-      al_unlock_bitmap(bitmap);
-      return;
-   }
-
-   y = 0;
-   dyend = dyend - dy;
+   dxinc = dw < 0 ? -1 : 1;
+   dyinc = dh < 0 ? -1 : 1;
+   _dy = dy;
+   xend = abs(dw);
+   yend = abs(dh);
 
    if (flags & ALLEGRO_FLIP_HORIZONTAL) {
-      //sx = sw - 1;
-      sx += sw - 1;
-      sxdir = -1;
+   	sxinc = -sxinc;
+	sx = sx + sw - 1;
    }
-   else {
-      //sx = 0;
-      sxdir = 1;
-   }
+
    if (flags & ALLEGRO_FLIP_VERTICAL) {
-      //sy = sh - 1;
-      sy += sh - 1;
-      syinc = -syinc;
-      sydir = -1;
+   	syinc = -syinc;
+	_sy = sy + sh - 1;
    }
-   else {
-      //sy = 0;
-      sydir = 1;
-   }
+   else
+   	_sy = sy;
 
-   /* Stretch it */
 
-   for (; y < dyend; y++, sy += syinc) {
-      int xc = xcstart;
-      _sx = sx;
-      for (x = 0; x < (dxend-dxbeg); x++) {
-         (void)pixel;
-      /*
-         pixel = get(src_region.data+src_region.pitch*sy+ssize*_sx);
-         pixel = convert(pixel);
-         set(dst_region.data+dst_region.pitch*y+dsize*x, pixel);
-         */
-         src_color = al_get_pixel(bitmap, _sx, sy);
-         _al_blend(&src_color, x+dx, y+dy, &result);
-         al_put_pixel(x+dx, y+dy, result);
-         if (xc <= 0) {
-            _sx += sxdir;
-            xc += xcinc;
-         }
-         else
-            xc -= xcdec;
-      }
-
-      if (yc <= 0) {
-         sy += sydir;
-         yc += ycinc;
-      }
-      else
-         yc -= ycdec;
+   for (y = 0; y < yend; y++) {
+   	_sx = sx;
+	_dx = dx;
+   	for (x = 0; x < xend; x++) {
+		src_color = al_get_pixel(src, _sx, _sy);
+		_al_blend(&src_color, _dx, _dy, &result);
+		al_put_pixel(_dx, _dy, result);
+		_sx += sxinc;
+		_dx += dxinc;
+	}
+	_sy += syinc;
+	_dy += dyinc;
    }
 
-   al_unlock_bitmap(bitmap);
+   al_unlock_bitmap(src);
    al_unlock_bitmap(dest);
 }
-
 
 
 /*
@@ -830,7 +749,6 @@ do {                                                                         \
 } while (0)
 
 
-
 void _al_draw_rotated_scaled_bitmap_memory(ALLEGRO_BITMAP *src,
    int cx, int cy, int dx, int dy, float xscale, float yscale,
    float angle, int flags)
@@ -842,14 +760,13 @@ void _al_draw_rotated_scaled_bitmap_memory(ALLEGRO_BITMAP *src,
    al_get_blender(&src_mode, &dst_mode, NULL);
    ic = _al_get_blend_color();
 
-#ifndef DEBUGMODE
    if (src_mode == ALLEGRO_ONE && dst_mode == ALLEGRO_ZERO &&
-      ic->r == 1.0f && ic->g == 1.0f && ic->b == 1.0f && ic->a == 1.0f) {
+      ic->r == 1.0f && ic->g == 1.0f && ic->b == 1.0f && ic->a == 1.0f &&
+      (src->format == dst->format)) {
       _al_draw_rotated_scaled_bitmap_memory_fast(src,
          cx, cy, dx, dy, xscale, yscale, angle, flags);
       return;
    }
-#endif
 
    ASSERT(_al_pixel_format_is_real(src->format));
    ASSERT(_al_pixel_format_is_real(dst->format));
@@ -857,7 +774,6 @@ void _al_draw_rotated_scaled_bitmap_memory(ALLEGRO_BITMAP *src,
    DO_DRAW_ROTATED_SCALED(src, dst,
       cx, cy, dx, dy, xscale, yscale, -angle, flags);
 }
-
 
 
 void _al_draw_rotated_bitmap_memory(ALLEGRO_BITMAP *src,

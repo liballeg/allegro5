@@ -19,6 +19,13 @@
 #ifndef AINTOSX_H
 #define AINTOSX_H
 
+#include "allegro5/internal/aintern.h"
+#include "allegro5/internal/aintern_system.h"
+#include "allegro5/internal/aintern_events.h"
+#include "allegro5/internal/aintern_display.h"
+#include "allegro5/internal/aintern_joystick.h"
+#include "allegro5/internal/aintern_keyboard.h"
+#include "allegro5/internal/aintern_mouse.h"
 #include "allegro5/platform/aintunix.h"
 
 #ifdef __OBJC__
@@ -105,8 +112,8 @@ void osx_keyboard_focused(int focused, int state);
 
 void osx_mouse_generate_event(NSEvent*, ALLEGRO_DISPLAY*);
 void osx_mouse_handler(NSEvent*);
-int osx_mouse_set_sprite(BITMAP *sprite, int x, int y);
-int osx_mouse_show(BITMAP *bmp, int x, int y);
+int osx_mouse_set_sprite(ALLEGRO_BITMAP *sprite, int x, int y);
+int osx_mouse_show(ALLEGRO_BITMAP *bmp, int x, int y);
 void osx_mouse_hide(void);
 void osx_mouse_move(int x, int y);
 
@@ -121,23 +128,10 @@ void _al_osx_keyboard_was_installed(BOOL);
 void _al_osx_post_quit(void);
 // Get the underlying view
 NSView* osx_view_from_display(ALLEGRO_DISPLAY*);
-
-AL_VAR(NSBundle *, osx_bundle);
-AL_VAR(struct _AL_MUTEX, osx_event_mutex);
-AL_VAR(int, osx_gfx_mode);
-AL_VAR(int, osx_screen_used);
-AL_VAR(NSCursor *, osx_blank_cursor);
-AL_VAR(NSCursor *, osx_cursor);
-AL_ARRAY(char, osx_window_title);
-AL_VAR(int, osx_window_first_expose);
-AL_VAR(CGDirectPaletteRef, osx_palette);
-AL_VAR(int, osx_palette_dirty);
-AL_VAR(int, osx_mouse_warped);
-AL_VAR(int, osx_skip_mouse_move);
-AL_VAR(int, osx_emulate_mouse_buttons);
-extern AL_METHOD(void, osx_window_close_hook, (void));
+NSImage* NSImageFromAllegroBitmap(ALLEGRO_BITMAP* bmp);
 AL_FUNC(ALLEGRO_KEYBOARD_DRIVER*, osx_get_keyboard_driver, (void));
 AL_FUNC(ALLEGRO_DISPLAY_INTERFACE*, osx_get_display_driver, (void));
+AL_FUNC(ALLEGRO_MOUSE_DRIVER*, osx_get_mouse_driver, (void));
 #endif
 
 #endif

@@ -4,9 +4,11 @@
 #include "allegro5/display_new.h"
 #include "allegro5/bitmap_new.h"
 
-typedef struct ALLEGRO_BITMAP_INTERFACE ALLEGRO_BITMAP_INTERFACE;
+#ifdef __cplusplus
+extern "C" {
+#endif
 
-struct BITMAP;
+typedef struct ALLEGRO_BITMAP_INTERFACE ALLEGRO_BITMAP_INTERFACE;
 
 struct ALLEGRO_BITMAP
 {
@@ -22,7 +24,9 @@ struct ALLEGRO_BITMAP
    int pitch;
    /* 
     * clip left, right, top, bottom
-    * Clip anything outside of this
+    * Clip anything outside of this. cr/cb are exclusive, that is (0, 0, 1, 1)
+    * is the single pixel spawning a rectangle from floating point 0/0 to 1/1 -
+    * or in other words, the single pixel 0/0.
     */
    int cl, cr, ct, cb;
    /*
@@ -80,6 +84,8 @@ struct ALLEGRO_BITMAP_INTERFACE
     * read the contents of an associated texture.
     */
 
+   void (*update_clipping_rectangle)(ALLEGRO_BITMAP *bitmap);
+
    void (*destroy_bitmap)(ALLEGRO_BITMAP *bitmap);
 
    ALLEGRO_LOCKED_REGION * (*lock_region)(ALLEGRO_BITMAP *bitmap,
@@ -93,7 +99,7 @@ struct ALLEGRO_BITMAP_INTERFACE
 void _al_blit_memory_bitmap(ALLEGRO_BITMAP *source, ALLEGRO_BITMAP *dest,
    int source_x, int source_y, int dest_x, int dest_y, int w, int h);
 //ALLEGRO_BITMAP_INTERFACE *_al_bitmap_xdummy_driver(void);
-ALLEGRO_BITMAP_INTERFACE *_al_bitmap_d3ddummy_driver(void);
+//ALLEGRO_BITMAP_INTERFACE *_al_bitmap_d3ddummy_driver(void);
 
 /* Bitmap conversion */
 void _al_convert_bitmap_data(
@@ -101,20 +107,11 @@ void _al_convert_bitmap_data(
 	void *dst, int dst_format, int dst_pitch,
 	int sx, int sy, int dx, int dy,
 	int width, int height);
-void _al_convert_compat_bitmap(
-	BITMAP *src,
-	void *dst, int dst_format, int dst_pitch,
-	int sx, int sy, int dx, int dy,
-	int width, int height);
-void _al_convert_to_compat_bitmap(
-	ALLEGRO_BITMAP *src,
-        BITMAP *dst);
 void _al_convert_to_memory_bitmap(ALLEGRO_BITMAP *bitmap);
 int _al_get_pixel_value(int src_format, ALLEGRO_COLOR *src_color);
-int _al_get_compat_bitmap_format(BITMAP *bmp);
 bool _al_format_has_alpha(int format);
 bool _al_pixel_format_is_real(int format);
-int _al_get_pixel_format_bits(int format);
+bool _al_pixel_format_fits(int format1, int format2);
 
 /* Memory bitmap blitting */
 void _al_draw_bitmap_region_memory(ALLEGRO_BITMAP *bitmap,
@@ -133,7 +130,6 @@ void _al_draw_rotated_scaled_bitmap_memory(ALLEGRO_BITMAP *bitmap,
    int center_x, int center_y, int dx, int dy,
    float xscale, float yscale, float angle, int flags);
 
-#ifndef DEBUGMODE
 void _al_draw_bitmap_region_memory_fast(ALLEGRO_BITMAP *bitmap,
    int sx, int sy, int sw, int sh,
    int dx, int dy, int flags);
@@ -147,7 +143,6 @@ void _al_draw_rotated_scaled_bitmap_memory_fast(ALLEGRO_BITMAP *bitmap,
    float angle, int flags);
 void _al_draw_rotated_bitmap_memory_fast(ALLEGRO_BITMAP *bitmap,
    int cx, int cy, int dx, int dy, float angle, int flags);
-#endif /* !DEBUGMODE */
 
 
 /* For blending memory bitmaps */
@@ -178,5 +173,8 @@ void _al_blender_inverse_alpha_one(ALLEGRO_COLOR *src_color, ALLEGRO_COLOR *dst_
 void _al_blender_inverse_alpha_alpha(ALLEGRO_COLOR *src_color, ALLEGRO_COLOR *dst_color, ALLEGRO_COLOR *result);
 void _al_blender_inverse_alpha_inverse_alpha(ALLEGRO_COLOR *src_color, ALLEGRO_COLOR *dst_color, ALLEGRO_COLOR *result);
 
+#ifdef __cplusplus
+}
+#endif
 
 #endif

@@ -73,18 +73,6 @@ else(STATIC)
     set(AUDIO_LINK_WITH ${AUDIO_LIB_TO_LINK}_shared CACHE INTERNAL "internal")
 endif(STATIC)
 
-macro(add_audio_example nm)
-    add_executable(${nm} ${EXECUTABLE_TYPE} ${ARGN})
-    set_target_properties(${nm} PROPERTIES
-        COMPILE_FLAGS "${MAYBE_ALLEGRO_STATICLINK} ${WFLAGS} ${EXE_CFLAGS}"
-        LINK_FLAGS "${MAYBE_ALLEGRO_STATICLINK}"
-        )
-    target_link_libraries(${nm} ${LINK_WITH})
-    target_link_libraries(${nm} ${AUDIO_LINK_WITH})
-endmacro(add_audio_example)
-
-#add_audio_example(ex_audio ex_audio.c)
-
 #-----------------------------------------------------------------------------#
 #
 # Install header files.

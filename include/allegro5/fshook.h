@@ -18,7 +18,7 @@
 
 #include "base.h"
 
-AL_BEGIN_EXTERN_C
+//AL_BEGIN_EXTERN_C
 
 /* The following defines are reserved for fs drivers.
  * Define to keep from defining types multiple times.
@@ -27,11 +27,10 @@ AL_BEGIN_EXTERN_C
 #ifndef ALLEGRO_FS_ENTRY_DEFINED
 
 #ifdef ALLEGRO_LIB_BUILD
-//#include "allegro5/internal/fshook.h"
 
 struct AL_FS_HOOK_ENTRY_VTABLE;
 typedef struct AL_FS_ENTRY {
-   struct AL_FS_HOOK_ENTRY_VTABLE *vtable;
+   struct AL_FS_HOOK_ENTRY_INTERFACE *vtable;
 } AL_FS_ENTRY;
 #else
 typedef void AL_FS_ENTRY;
@@ -138,13 +137,13 @@ void *al_fs_get_hook(uint32_t phid);
 AL_FS_ENTRY *al_fs_create_handle(AL_CONST char *path);
 void     al_fs_destroy_handle(AL_FS_ENTRY *handle);
 int32_t  al_fs_open_handle(AL_FS_ENTRY *handle, AL_CONST char *mode);
-int32_t  al_fs_close_handle(AL_FS_ENTRY *handle);
+void  al_fs_close_handle(AL_FS_ENTRY *handle);
 
 AL_FS_ENTRY *al_fs_mktemp(const char *tmpl, uint32_t ulink);
 
 AL_FS_ENTRY *al_fs_entry_open(const char *path, const char *mode);
 void    al_fs_entry_name(AL_FS_ENTRY *fp, size_t, char *fn);
-int32_t al_fs_entry_close(AL_FS_ENTRY *fp);
+void    al_fs_entry_close(AL_FS_ENTRY *fp);
 ssize_t al_fs_entry_read(void *ptr, size_t size, AL_FS_ENTRY *fp);
 ssize_t al_fs_entry_write(const void *ptr, size_t size, AL_FS_ENTRY *fp);
 int32_t al_fs_entry_flush(AL_FS_ENTRY *fp);
@@ -159,7 +158,7 @@ uint32_t al_fs_entry_mode(AL_FS_ENTRY *st);
 time_t   al_fs_entry_atime(AL_FS_ENTRY *st);
 time_t   al_fs_entry_mtime(AL_FS_ENTRY *st);
 time_t   al_fs_entry_ctime(AL_FS_ENTRY *st);
-size_t   al_fs_entry_size(AL_FS_ENTRY *st);
+off_t    al_fs_entry_size(AL_FS_ENTRY *st);
 
 int32_t al_fs_entry_unlink(AL_FS_ENTRY *fp);
 int32_t al_fs_entry_exists(AL_FS_ENTRY *);
@@ -176,7 +175,7 @@ uint32_t al_fs_stat_mode(AL_CONST char *);
 time_t   al_fs_stat_atime(AL_CONST char *);
 time_t   al_fs_stat_mtime(AL_CONST char *);
 time_t   al_fs_stat_ctime(AL_CONST char *);
-size_t   al_fs_stat_size(AL_CONST char *);
+off_t    al_fs_stat_size(AL_CONST char *);
 
 int32_t al_fs_isdir(AL_CONST char *);
 int32_t al_fs_isfile(AL_CONST char *);
@@ -212,6 +211,6 @@ char ** al_fs_find(char *path, AL_FS_FILTER filter, AL_FS_SORT sort);
 void al_fs_free_list(char **);
 
 
-AL_END_EXTERN_C
+//AL_END_EXTERN_C
 
 #endif          /* ifndef ALLEGRO_FSHOOK_H */

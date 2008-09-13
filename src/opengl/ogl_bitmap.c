@@ -16,6 +16,7 @@
 
 #include "allegro5/allegro5.h"
 #include "allegro5/internal/aintern.h"
+#include "allegro5/internal/aintern_memory.h"
 #include "allegro5/internal/aintern_opengl.h"
 
 
@@ -41,7 +42,6 @@ static const int glformats[][3] = {
    {GL_RGB8, GL_UNSIGNED_BYTE, GL_BGR}, /* RGB_888 */
    {GL_RGB, GL_UNSIGNED_SHORT_5_6_5, GL_RGB}, /* RGB_565 */
    {0, 0, 0}, /* RGB_555 */ //FIXME: how?
-   {GL_INTENSITY, GL_UNSIGNED_BYTE, GL_COLOR_INDEX}, /* PALETTE_8 */
    {GL_RGB5_A1, GL_UNSIGNED_SHORT_5_5_5_1, GL_RGBA}, /* RGBA_5551 */
    {0, 0, 0}, /* ARGB_1555 */ //FIXME: how?
    {GL_RGBA8, GL_UNSIGNED_INT_8_8_8_8_REV, GL_RGBA}, /* ABGR_8888 */
@@ -74,13 +74,14 @@ static void draw_quad(ALLEGRO_BITMAP *bitmap, float sx, float sy, float sw, floa
       GL_ZERO, GL_ONE, GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA
    };
 
-   glGetBooleanv(GL_TEXTURE_2D, &on);
-   if (!on)
-      glEnable(GL_TEXTURE_2D);
-
    al_get_blender(&src_mode, &dst_mode, NULL);
    glEnable(GL_BLEND);
    glBlendFunc(blend_modes[src_mode], blend_modes[dst_mode]);
+
+   glGetBooleanv(GL_TEXTURE_2D, &on);
+   if (!on) {
+      glEnable(GL_TEXTURE_2D);
+   }
 
    glGetIntegerv(GL_TEXTURE_2D_BINDING_EXT, (GLint*)&current_texture);
    if (current_texture != ogl_bitmap->texture) {
@@ -121,8 +122,9 @@ static void draw_quad(ALLEGRO_BITMAP *bitmap, float sx, float sy, float sw, floa
 
    glPopMatrix();
 
-   if (!on)
+   if (!on) {
       glDisable(GL_TEXTURE_2D);
+   }
 }
 
 
@@ -135,8 +137,8 @@ static void ogl_draw_bitmap(ALLEGRO_BITMAP *bitmap, float x, float y,
    // FIXME: need format conversion if they don't match
    ALLEGRO_BITMAP *target = al_get_target_bitmap();
    ALLEGRO_BITMAP_OGL *ogl_target = (ALLEGRO_BITMAP_OGL *)target;
-   ALLEGRO_DISPLAY_OGL *disp = (void *)al_get_current_display();
-   if (disp->opengl_target != ogl_target) {
+   ALLEGRO_DISPLAY *disp = (void *)al_get_current_display();
+   if (disp->ogl_extras->opengl_target != ogl_target) {
       _al_draw_bitmap_memory(bitmap, x, y, flags);
       return;
    }
@@ -154,8 +156,8 @@ static void ogl_draw_scaled_bitmap(ALLEGRO_BITMAP *bitmap, float sx, float sy,
    // FIXME: need format conversion if they don't match
    ALLEGRO_BITMAP *target = al_get_target_bitmap();
    ALLEGRO_BITMAP_OGL *ogl_target = (ALLEGRO_BITMAP_OGL *)target;
-   ALLEGRO_DISPLAY_OGL *disp = (void *)al_get_current_display();
-   if (disp->opengl_target != ogl_target) {
+   ALLEGRO_DISPLAY *disp = (void *)al_get_current_display();
+   if (disp->ogl_extras->opengl_target != ogl_target) {
       _al_draw_scaled_bitmap_memory(bitmap, sx, sy, sw, sh, dx, dy, dw, dh,
                                     flags);
       return;
@@ -173,8 +175,8 @@ static void ogl_draw_bitmap_region(ALLEGRO_BITMAP *bitmap, float sx, float sy,
    // FIXME: need format conversion if they don't match
    ALLEGRO_BITMAP *target = al_get_target_bitmap();
    ALLEGRO_BITMAP_OGL *ogl_target = (ALLEGRO_BITMAP_OGL *)target;
-   ALLEGRO_DISPLAY_OGL *disp = (void *)al_get_current_display();
-   if (disp->opengl_target != ogl_target) {
+   ALLEGRO_DISPLAY *disp = (void *)al_get_current_display();
+   if (disp->ogl_extras->opengl_target != ogl_target) {
       _al_draw_bitmap_region_memory(bitmap, sx, sy, sw, sh, dx, dy, flags);
       return;
    }
@@ -191,8 +193,8 @@ static void ogl_draw_rotated_bitmap(ALLEGRO_BITMAP *bitmap, float cx, float cy,
    // FIXME: need format conversion if they don't match
    ALLEGRO_BITMAP *target = al_get_target_bitmap();
    ALLEGRO_BITMAP_OGL *ogl_target = (ALLEGRO_BITMAP_OGL *)target;
-   ALLEGRO_DISPLAY_OGL *disp = (void *)al_get_current_display();
-   if (disp->opengl_target != ogl_target) {
+   ALLEGRO_DISPLAY *disp = (void *)al_get_current_display();
+   if (disp->ogl_extras->opengl_target != ogl_target) {
       _al_draw_rotated_bitmap_memory(bitmap, cx, cy, dx, dy, angle, flags);
       return;
    }
@@ -211,8 +213,8 @@ static void ogl_draw_rotated_scaled_bitmap(ALLEGRO_BITMAP *bitmap,
    // FIXME: need format conversion if they don't match
    ALLEGRO_BITMAP *target = al_get_target_bitmap();
    ALLEGRO_BITMAP_OGL *ogl_target = (ALLEGRO_BITMAP_OGL *)target;
-   ALLEGRO_DISPLAY_OGL *disp = (void *)al_get_current_display();
-   if (disp->opengl_target != ogl_target) {
+   ALLEGRO_DISPLAY *disp = (void *)al_get_current_display();
+   if (disp->ogl_extras->opengl_target != ogl_target) {
       _al_draw_rotated_scaled_bitmap_memory(bitmap, cx, cy, dx, dy,
                                             xscale, yscale, angle, flags);
       return;
@@ -257,7 +259,6 @@ static void upside_down(ALLEGRO_BITMAP *bitmap, int x, int y, int w, int h)
 static bool ogl_upload_bitmap(ALLEGRO_BITMAP *bitmap, int x, int y,
    int w, int h)
 {
-   // FIXME: Some OpenGL drivers need power of two textures.
    ALLEGRO_BITMAP_OGL *ogl_bitmap = (void *)bitmap;
 
    if (ogl_bitmap->texture == 0) {
@@ -295,19 +296,24 @@ static bool ogl_upload_bitmap(ALLEGRO_BITMAP *bitmap, int x, int y,
     */
    if (ogl_bitmap->fbo == 0 && !(bitmap->flags & ALLEGRO_FORCE_LOCKING)) {
       if (al_get_opengl_extension_list()->ALLEGRO_GL_EXT_framebuffer_object) {
-
-         /* Note: I had a buggy nvidia driver which would just malfunction
-          * after around 170 FBOs were allocated.. but not much we can do
-          * against driver bugs like that. We should have a way to disable
-          * use of individual OpenGL extensions though I guess.
-          */
-         if (ogl_bitmap->fbo == 0) {
-            glGenFramebuffersEXT(1, &ogl_bitmap->fbo);
-         }
+         glGenFramebuffersEXT(1, &ogl_bitmap->fbo);
       }
    }
 
    return true;
+}
+
+
+
+static void ogl_update_clipping_rectangle(ALLEGRO_BITMAP *bitmap)
+{
+   ALLEGRO_DISPLAY *display = al_get_current_display();
+   ALLEGRO_DISPLAY *ogl_disp = (void *)display;
+   ALLEGRO_BITMAP_OGL *ogl_bitmap = (void *)bitmap;
+
+   if (ogl_disp->ogl_extras->opengl_target == ogl_bitmap) {
+      _al_ogl_setup_bitmap_clipping(bitmap);
+   }
 }
 
 
@@ -382,7 +388,11 @@ static void ogl_unlock_region(ALLEGRO_BITMAP *bitmap)
          glWindowPos2i(bitmap->lock_x, bitmap->h - bitmap->lock_y - bitmap->lock_h);
       }
       else {
-         glRasterPos2i(bitmap->lock_x, bitmap->lock_y + bitmap->lock_h);
+         /* The offset is to keep the coordinate within bounds, which was at
+          * least needed on my machine. --pw
+          */
+         glRasterPos2f(bitmap->lock_x,
+            bitmap->lock_y + bitmap->lock_h - 1e-4f);
       }
 
       /* XXX would it be more efficient to avoid copying padding,
@@ -444,12 +454,13 @@ static ALLEGRO_BITMAP_INTERFACE *ogl_bitmap_driver(void)
    memset(glbmp_vt, 0, sizeof *glbmp_vt);
 
    glbmp_vt->draw_bitmap = ogl_draw_bitmap;
-   glbmp_vt->upload_bitmap = ogl_upload_bitmap;
-   glbmp_vt->destroy_bitmap = ogl_destroy_bitmap;
-   glbmp_vt->draw_scaled_bitmap = ogl_draw_scaled_bitmap;
    glbmp_vt->draw_bitmap_region = ogl_draw_bitmap_region;
-   glbmp_vt->draw_rotated_scaled_bitmap = ogl_draw_rotated_scaled_bitmap;
+   glbmp_vt->draw_scaled_bitmap = ogl_draw_scaled_bitmap;
    glbmp_vt->draw_rotated_bitmap = ogl_draw_rotated_bitmap;
+   glbmp_vt->draw_rotated_scaled_bitmap = ogl_draw_rotated_scaled_bitmap;
+   glbmp_vt->upload_bitmap = ogl_upload_bitmap;
+   glbmp_vt->update_clipping_rectangle = ogl_update_clipping_rectangle;
+   glbmp_vt->destroy_bitmap = ogl_destroy_bitmap;
    glbmp_vt->lock_region = ogl_lock_region;
    glbmp_vt->unlock_region = ogl_unlock_region;
 
@@ -460,7 +471,7 @@ static ALLEGRO_BITMAP_INTERFACE *ogl_bitmap_driver(void)
 
 ALLEGRO_BITMAP *_al_ogl_create_bitmap(ALLEGRO_DISPLAY *d, int w, int h)
 {
-   const ALLEGRO_DISPLAY_OGL *ogl_dpy = (void *)d;
+   const ALLEGRO_DISPLAY *ogl_dpy = (void *)d;
    ALLEGRO_BITMAP_OGL *bitmap;
    int format = al_get_new_bitmap_format();
    const int flags = al_get_new_bitmap_flags();
@@ -469,7 +480,7 @@ ALLEGRO_BITMAP *_al_ogl_create_bitmap(ALLEGRO_DISPLAY *d, int w, int h)
    int pitch;
    size_t bytes;
 
-   if (ogl_dpy->extension_list->ALLEGRO_GL_ARB_texture_non_power_of_two) {
+   if (ogl_dpy->ogl_extras->extension_list->ALLEGRO_GL_ARB_texture_non_power_of_two) {
       true_w = w;
       true_h = h;
    }
@@ -480,11 +491,26 @@ ALLEGRO_BITMAP *_al_ogl_create_bitmap(ALLEGRO_DISPLAY *d, int w, int h)
 
    /* FIXME: do this right */
    if (! _al_pixel_format_is_real(format)) {
-      format = d->format;
-      //if (_al_format_has_alpha(format))
-      //   format = ALLEGRO_PIXEL_FORMAT_ABGR_8888;
-      //else
-      //   format = ALLEGRO_PIXEL_FORMAT_XBGR_8888;
+      if (format == ALLEGRO_PIXEL_FORMAT_ANY_NO_ALPHA)
+         format = ALLEGRO_PIXEL_FORMAT_XBGR_8888;
+      else if (format == ALLEGRO_PIXEL_FORMAT_ANY_15_NO_ALPHA)
+         return NULL;
+      else if (format == ALLEGRO_PIXEL_FORMAT_ANY_16_NO_ALPHA)
+         format = ALLEGRO_PIXEL_FORMAT_BGR_565;
+      else if (format == ALLEGRO_PIXEL_FORMAT_ANY_24_NO_ALPHA)
+         format = ALLEGRO_PIXEL_FORMAT_BGR_888;
+      else if (format == ALLEGRO_PIXEL_FORMAT_ANY_32_NO_ALPHA)
+         format = ALLEGRO_PIXEL_FORMAT_XBGR_8888;
+      else if (format == ALLEGRO_PIXEL_FORMAT_ANY_15_WITH_ALPHA)
+         return NULL;
+      else if (format == ALLEGRO_PIXEL_FORMAT_ANY_16_WITH_ALPHA)
+         format = ALLEGRO_PIXEL_FORMAT_RGBA_5551;
+      else if (format == ALLEGRO_PIXEL_FORMAT_ANY_24_WITH_ALPHA)
+         return NULL;
+      else if (format == ALLEGRO_PIXEL_FORMAT_ANY_32_WITH_ALPHA)
+         format = ALLEGRO_PIXEL_FORMAT_ABGR_8888;
+      else if (format == ALLEGRO_PIXEL_FORMAT_ANY_WITH_ALPHA)
+         format = ALLEGRO_PIXEL_FORMAT_ABGR_8888;
    }
 
    pitch = true_w * al_get_pixel_size(format);
@@ -500,15 +526,14 @@ ALLEGRO_BITMAP *_al_ogl_create_bitmap(ALLEGRO_DISPLAY *d, int w, int h)
    bitmap->bitmap.flags = flags;
    bitmap->bitmap.cl = 0;
    bitmap->bitmap.ct = 0;
-   bitmap->bitmap.cr = w - 1;
-   bitmap->bitmap.cb = h - 1;
+   bitmap->bitmap.cr = w;
+   bitmap->bitmap.cb = h;
 
    bitmap->true_w = true_w;
    bitmap->true_h = true_h;
 
    bytes = pitch * true_h;
    bitmap->bitmap.memory = _AL_MALLOC_ATOMIC(bytes);
-   memset(bitmap->bitmap.memory, 0, bytes);
 
    return &bitmap->bitmap;
 }

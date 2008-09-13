@@ -10,7 +10,7 @@ public:
    const float SPIN_SPEED;
 
    bool logic(int step);
-   void render(void);
+   void render(int offx, int offy);
 
    PowerUp(float x, float y, int type);
 private:

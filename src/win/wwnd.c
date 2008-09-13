@@ -53,9 +53,6 @@ static int last_wnd_y = -1;
 static int window_is_initialized = FALSE;
 
 /* graphics */
-WIN_GFX_DRIVER *win_gfx_driver;
-CRITICAL_SECTION gfx_crit_sect;
-int gfx_crit_sect_nesting = 0;
 
 /* close button user hook */
 void (*user_close_proc)(void) = NULL;
@@ -104,6 +101,7 @@ typedef struct {
  */
 static int init_window_modules(struct WINDOW_MODULES *wm)
 {
+   /*
    if (wm->keyboard)
       install_keyboard();
 
@@ -118,6 +116,7 @@ static int init_window_modules(struct WINDOW_MODULES *wm)
 
    if (wm->sound_input)
       install_sound_input(wm->digi_input_card, wm->midi_input_card);
+      */
 
    return 0;
 }
@@ -167,6 +166,7 @@ static void exit_window_modules(struct WINDOW_MODULES *wm)
    }
 #endif
 
+/*
    if (_sound_installed) {
       if (wm) {
          wm->sound = TRUE;
@@ -186,6 +186,7 @@ static void exit_window_modules(struct WINDOW_MODULES *wm)
 
       remove_sound_input();
    }
+   */
 }
 
 
@@ -196,7 +197,7 @@ static void exit_window_modules(struct WINDOW_MODULES *wm)
  */
 int wnd_call_proc(int (*proc) (void))
 {
-   return SendMessage(win_get_window(), _al_win_msg_call_proc, (DWORD) proc, 0);
+   return SendMessage(GetForegroundWindow(), _al_win_msg_call_proc, (DWORD) proc, 0);
 }
 
 
@@ -207,9 +208,10 @@ int wnd_call_proc(int (*proc) (void))
  */
 void wnd_schedule_proc(int (*proc) (void))
 {
-   PostMessage(win_get_window(), _al_win_msg_call_proc, (DWORD) proc, 0);
+   PostMessage(_al_win_active_window, _al_win_msg_call_proc, (DWORD) proc, 0);
 }
 
+#if 0
 /* directx_wnd_proc:
  *  Window procedure for the Allegro window class.
  */
@@ -272,9 +274,9 @@ static LRESULT CALLBACK directx_wnd_proc(HWND wnd, UINT message, WPARAM wparam, 
 	    if (HIWORD(wparam))
 	       break;
 
-            if (gfx_driver && !gfx_driver->windowed) {
+            if (_al_display_type() == 0) {
                /* 1.2s delay to let Windows complete the switch in fullscreen mode */
-               SetTimer(win_get_window(), SWITCH_TIMER, 1200, NULL);
+               SetTimer(_al_win_active_window, SWITCH_TIMER, 1200, NULL);
             }
             else {
                /* no delay in windowed mode */
@@ -285,7 +287,7 @@ static LRESULT CALLBACK directx_wnd_proc(HWND wnd, UINT message, WPARAM wparam, 
 
       case WM_TIMER:
          if (wparam == SWITCH_TIMER) {
-            KillTimer(win_get_window(), SWITCH_TIMER);
+            KillTimer(_al_win_active_window, SWITCH_TIMER);
             _win_switch_in();
             return 0;
          }
@@ -302,8 +304,8 @@ static LRESULT CALLBACK directx_wnd_proc(HWND wnd, UINT message, WPARAM wparam, 
          break;
 
       case WM_MOVE:
-         if (GetActiveWindow() == win_get_window()) {
-            if (!IsIconic(win_get_window())) {
+         if (GetActiveWindow() == _al_win_active_window) {
+            if (!IsIconic(_al_win_active_window)) {
                wnd_x = (short) LOWORD(lparam);
                wnd_y = (short) HIWORD(lparam);
 
@@ -387,9 +389,9 @@ static LRESULT CALLBACK directx_wnd_proc(HWND wnd, UINT message, WPARAM wparam, 
    else
       return DefWindowProc(wnd, message, wparam, lparam);
 }
+#endif
 
-
-
+#if 0
 /* create_directx_window:
  *  Creates the Allegro window.
  */
@@ -446,9 +448,10 @@ static HWND create_directx_window(void)
 
    return wnd;
 }
+#endif
 
 
-
+#if 0
 /* wnd_thread_proc:
  *  Thread function that handles the messages of the directx window.
  */
@@ -498,9 +501,10 @@ static void wnd_thread_proc(HANDLE setup_event)
    _TRACE(PREFIX_I "window thread exits\n");
    _win_thread_exit();
 }
+#endif
 
 
-
+#if 0
 /* init_directx_window:
  *  If the user called win_set_window, the user window will be hooked to receive
  *  messages from Allegro. Otherwise a thread is created to own the new window.
@@ -523,9 +527,9 @@ int init_directx_window(void)
       _win_input_init(TRUE);
 
       /* hook the user window */
-      user_wnd_proc = (WNDPROC) SetWindowLong(user_wnd, GWL_WNDPROC, (long)directx_wnd_proc);
-      if (!user_wnd_proc)
-         return -1;
+      //user_wnd_proc = (WNDPROC) SetWindowLong(user_wnd, GWL_WNDPROC, (long)directx_wnd_proc);
+      //if (!user_wnd_proc)
+        // return -1;
 
       _al_win_wnd = user_wnd;
 
@@ -568,7 +572,7 @@ int init_directx_window(void)
 
    return 0;
 }
-
+#endif
 
 
 /* exit_directx_window:
@@ -596,7 +600,7 @@ void exit_directx_window(void)
       wnd_thread = NULL;
    }
 
-   DeleteCriticalSection(&gfx_crit_sect);
+   //DeleteCriticalSection(&gfx_crit_sect);
 
    _win_input_exit();
    
@@ -610,8 +614,8 @@ void exit_directx_window(void)
  */
 void restore_window_style(void)
 {
-   SetWindowLong(win_get_window(), GWL_STYLE, old_style);
-   SetWindowPos(win_get_window(), 0, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_FRAMECHANGED);
+   SetWindowLong(_al_win_active_window, GWL_STYLE, old_style);
+   SetWindowPos(_al_win_active_window, 0, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_FRAMECHANGED);
 }
 
 
@@ -713,7 +717,7 @@ void save_window_pos(void)
 }
 
 
-
+#if 0
 /* win_set_window:
  *  Selects an user-defined window for Allegro or
  *  the built-in window if NULL is passed.
@@ -750,7 +754,7 @@ void win_set_window(HWND wnd)
    
    window_is_initialized = TRUE;
 }
-
+#endif
 
 
 /* win_get_window:

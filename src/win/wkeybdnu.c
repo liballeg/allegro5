@@ -23,7 +23,7 @@
 
 #define ALLEGRO_NO_COMPATIBILITY
 
-#define DIRECTINPUT_VERSION 0x0300
+#define DIRECTINPUT_VERSION 0x0800
 
 /* For waitable timers */
 #define _WIN32_WINNT 0x400
@@ -33,11 +33,13 @@
 #include "allegro5/internal/aintern_events.h"
 #include "allegro5/internal/aintern_keyboard.h"
 #include "allegro5/platform/aintwin.h"
+#include "win_new.h"
 
 #ifndef SCAN_DEPEND
    #include <dinput.h>
    #include <process.h>
 #endif
+
 
 #define PREFIX_I                "al-wkey INFO: "
 #define PREFIX_W                "al-wkey WARNING: "
@@ -49,8 +51,8 @@
 
 
 
-static LPDIRECTINPUT key_dinput;
-static LPDIRECTINPUTDEVICE key_dinput_device;
+static LPDIRECTINPUT8 key_dinput;
+static LPDIRECTINPUTDEVICE8 key_dinput_device;
 static HANDLE key_input_event;
 static HANDLE key_autorepeat_timer;
 static LARGE_INTEGER repeat_delay;
@@ -60,7 +62,7 @@ static int key_scancode_to_repeat;
 
 /* the one and only keyboard object and its internal state */
 static ALLEGRO_KEYBOARD the_keyboard;
-static ALLEGRO_KBDSTATE key_state;
+static ALLEGRO_KEYBOARD_STATE key_state;
 
 
 
@@ -224,7 +226,7 @@ static const unsigned char hw_to_mycode[256] =
  */
 static void key_dinput_handle_scancode(unsigned char scancode, int pressed)
 {
-   HWND allegro_wnd = win_get_window();
+   HWND allegro_wnd = _al_win_active_window;
    /* Windows seems to send lots of ctrl-alt-XXX key combos in response to the
     * ctrl-alt-del combo. We want to ignore them all, especially ctrl-alt-end,
     * which would cause Allegro to terminate.
@@ -296,7 +298,7 @@ static void key_dinput_handle(void)
    waiting_scancodes = DINPUT_BUFFERSIZE;
 
    /* fill the buffer */
-   hr = IDirectInputDevice_GetDeviceData(key_dinput_device,
+   hr = IDirectInputDevice8_GetDeviceData(key_dinput_device,
                                          sizeof(DIDEVICEOBJECTDATA),
                                          scancode_buffer,
                                          (unsigned long int *)&waiting_scancodes,
@@ -376,7 +378,7 @@ int key_dinput_acquire(void)
    if (key_dinput_device) {
       get_autorepeat_parameters();
  
-      hr = IDirectInputDevice_Acquire(key_dinput_device);
+      hr = IDirectInputDevice8_Acquire(key_dinput_device);
 
       if (FAILED(hr)) {
          _TRACE(PREFIX_E "acquire keyboard failed: %s\n", dinput_err_str(hr));
@@ -402,7 +404,7 @@ int key_dinput_unacquire(void)
    int key;
 
    if (key_dinput_device) {
-      IDirectInputDevice_Unacquire(key_dinput_device);
+      IDirectInputDevice8_Unacquire(key_dinput_device);
 
       /* release all keys */
       for (key=0; key<256; key++)
@@ -431,13 +433,13 @@ static int key_dinput_exit(void)
       wnd_call_proc(key_dinput_unacquire);
 
       /* now it can be released */
-      IDirectInputDevice_Release(key_dinput_device);
+      IDirectInputDevice8_Release(key_dinput_device);
       key_dinput_device = NULL;
    }
 
    /* release DirectInput interface */
    if (key_dinput) {
-      IDirectInput_Release(key_dinput);
+      IDirectInput8_Release(key_dinput);
       key_dinput = NULL;
    }
 
@@ -463,7 +465,7 @@ static int key_dinput_exit(void)
 static int key_dinput_init(void)
 {
    HRESULT hr;
-   HWND allegro_wnd = win_get_window();
+   HWND allegro_wnd = _al_win_active_window;
    DIPROPDWORD property_buf_size =
    {
       /* the header */
@@ -477,32 +479,33 @@ static int key_dinput_init(void)
       /* the data */
       DINPUT_BUFFERSIZE,         // dwData
    };
+   MAKE_UNION(&key_dinput, LPDIRECTINPUT8 *);
 
    /* Get DirectInput interface */
-   hr = DirectInputCreate(allegro_inst, DIRECTINPUT_VERSION, &key_dinput, NULL);
+   hr = DirectInput8Create(GetModuleHandle(NULL), DIRECTINPUT_VERSION, &IID_IDirectInput8A, u.v, NULL);
    if (FAILED(hr)) {
       TRACE("DirectInputCreate failed.\n");
       goto Error;
    }
 
    /* Create the keyboard device */
-   hr = IDirectInput_CreateDevice(key_dinput, &GUID_SysKeyboard, &key_dinput_device, NULL);
+   hr = IDirectInput8_CreateDevice(key_dinput, &GUID_SysKeyboard, &key_dinput_device, NULL);
    if (FAILED(hr)) {
-      TRACE("IDirectInput_CreateDevice failed.\n");
+      TRACE("IDirectInput8_CreateDevice failed.\n");
       goto Error;
    }
 
    /* Set data format */
-   hr = IDirectInputDevice_SetDataFormat(key_dinput_device, &c_dfDIKeyboard);
+   hr = IDirectInputDevice8_SetDataFormat(key_dinput_device, &c_dfDIKeyboard);
    if (FAILED(hr)) {
-      TRACE("IDirectInputDevice_SetDataFormat failed.\n");
+      TRACE("IDirectInputDevice8_SetDataFormat failed.\n");
       goto Error;
    }
 
    /* Set buffer size */
-   hr = IDirectInputDevice_SetProperty(key_dinput_device, DIPROP_BUFFERSIZE, &property_buf_size.diph);
+   hr = IDirectInputDevice8_SetProperty(key_dinput_device, DIPROP_BUFFERSIZE, &property_buf_size.diph);
    if (FAILED(hr)) {
-      TRACE("IDirectInputDevice_SetProperty failed.\n");
+      TRACE("IDirectInputDevice8_SetProperty failed.\n");
       goto Error;
    }
 
@@ -512,9 +515,9 @@ static int key_dinput_init(void)
 
    /* Enable event notification */
    key_input_event = CreateEvent(NULL, FALSE, FALSE, NULL);
-   hr = IDirectInputDevice_SetEventNotification(key_dinput_device, key_input_event);
+   hr = IDirectInputDevice8_SetEventNotification(key_dinput_device, key_input_event);
    if (FAILED(hr)) {
-      TRACE("IDirectInputDevice_SetEventNotification failed.\n");
+      TRACE("IDirectInputDevice8_SetEventNotification failed.\n");
       goto Error;
    }
 
@@ -550,7 +553,7 @@ static int key_dinput_init(void)
 static bool wkeybd_init_keyboard(void);
 static void wkeybd_exit_keyboard(void);
 static ALLEGRO_KEYBOARD *wkeybd_get_keyboard(void);
-static void wkeybd_get_keyboard_state(ALLEGRO_KBDSTATE *ret_state);
+static void wkeybd_get_keyboard_state(ALLEGRO_KEYBOARD_STATE *ret_state);
 
 
 
@@ -631,7 +634,7 @@ static ALLEGRO_KEYBOARD *wkeybd_get_keyboard(void)
 /* wkeybd_get_keyboard_state: [primary thread]
  *  Copy the current keyboard state into RET_STATE, with any necessary locking.
  */
-static void wkeybd_get_keyboard_state(ALLEGRO_KBDSTATE *ret_state)
+static void wkeybd_get_keyboard_state(ALLEGRO_KEYBOARD_STATE *ret_state)
 {
    _al_event_source_lock(&the_keyboard.es);
    {
@@ -661,6 +664,7 @@ static void handle_key_press(unsigned char scancode)
    vkey = MapVirtualKey(scancode, 1);
    GetKeyboardState(keystate);
    update_modifiers(keystate);
+
 
    /* TODO: shouldn't we base the mapping on vkey? */
    mycode = hw_to_mycode[scancode];
@@ -744,10 +748,10 @@ static void handle_key_press(unsigned char scancode)
       unicode = 0;
    }
 
-   is_repeat = _AL_KBDSTATE_KEY_DOWN(key_state, mycode);
+   is_repeat = _AL_KEYBOARD_STATE_KEY_DOWN(key_state, mycode);
 
    /* Maintain the key_down array. */
-   _AL_KBDSTATE_SET_KEY_DOWN(key_state, mycode);
+   _AL_KEYBOARD_STATE_SET_KEY_DOWN(key_state, mycode);
 
    /* Generate key press/repeat events if necessary. */   
    event_type = is_repeat ? ALLEGRO_EVENT_KEY_REPEAT : ALLEGRO_EVENT_KEY_DOWN;
@@ -758,9 +762,10 @@ static void handle_key_press(unsigned char scancode)
    if (!event)
       return;
 
+
    event->keyboard.type = event_type;
    event->keyboard.timestamp = al_current_time();
-   event->keyboard.__display__dont_use_yet__ = NULL;
+   event->keyboard.display = _al_win_get_event_display();
    event->keyboard.keycode = mycode;
    event->keyboard.unichar = unicode;
    event->keyboard.modifiers = key_modifiers;
@@ -797,11 +802,11 @@ static void handle_key_release(unsigned char scancode)
       update_modifiers(keystate);
    }
 
-   if (!_AL_KBDSTATE_KEY_DOWN(key_state, mycode))
+   if (!_AL_KEYBOARD_STATE_KEY_DOWN(key_state, mycode))
       return;
 
    /* Maintain the key_down array. */
-   _AL_KBDSTATE_CLEAR_KEY_DOWN(key_state, mycode);
+   _AL_KEYBOARD_STATE_CLEAR_KEY_DOWN(key_state, mycode);
 
    /* Stop autorepeating if the key to autorepeat was just released. */
    if (scancode == key_scancode_to_repeat) {
@@ -819,7 +824,7 @@ static void handle_key_release(unsigned char scancode)
 
    event->keyboard.type = ALLEGRO_EVENT_KEY_UP;
    event->keyboard.timestamp = al_current_time();
-   event->keyboard.__display__dont_use_yet__ = NULL;
+   event->keyboard.display = NULL;
    event->keyboard.keycode = mycode;
    event->keyboard.unichar = 0;
    event->keyboard.modifiers = 0;
@@ -830,9 +835,9 @@ static void handle_key_release(unsigned char scancode)
 int key_dinput_set_cooperative_level(HWND wnd)
 {
    /* Set cooperative level */
-   HRESULT hr = IDirectInputDevice_SetCooperativeLevel(key_dinput_device, wnd, DISCL_BACKGROUND | DISCL_NONEXCLUSIVE);
+   HRESULT hr = IDirectInputDevice8_SetCooperativeLevel(key_dinput_device, wnd, DISCL_BACKGROUND | DISCL_NONEXCLUSIVE);
    if (FAILED(hr)) {
-      TRACE("IDirectInputDevice_SetCooperativeLevel failed.\n");
+      TRACE("IDirectInputDevice8_SetCooperativeLevel failed.\n");
       return 1;
    }
    return 0;

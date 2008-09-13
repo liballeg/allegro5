@@ -19,7 +19,7 @@ def CheckIntel(context):
 
 def CheckMTune(context,machine):
     context.Message("Checking if -mtune is supported... ")
-    tmp = context.env.Copy()
+    tmp = context.env.Clone()
     context.env.Append(CCFLAGS = '-mtune=' + machine)
     ret = context.TryCompile("""
         int main(){}
@@ -262,7 +262,7 @@ def CheckALSADigi(context):
 
 def CheckXCursor(context):
     context.Message("Checking for XCursor... ")
-    tmpEnv = context.env.Copy()
+    tmpEnv = context.env.Clone()
     context.env.Append(LIBS = 'Xcursor')
     ret = context.TryLink("""
         #include <X11/Xlib.h>
@@ -287,7 +287,7 @@ def CheckARTSDigi(context):
 
     ret = context.TryAction('artsc-config --version')[0]
     if ret:
-        tmpEnv = context.env.Copy()
+        tmpEnv = context.env.Clone()
         context.env.ParseConfig('artsc-config --libs --cflags')
         ret = context.TryLink("""
             #include <artsc.h>
@@ -305,7 +305,7 @@ def CheckESDDigi(context):
 
     ret = context.TryAction('esd-config --version')[0]
     if ret:
-        tmpEnv = context.env.Copy()
+        tmpEnv = context.env.Clone()
         context.env.ParseConfig('esd-config --libs --cflags')
         ret = context.TryLink("""
             #include <esd.h>
@@ -323,7 +323,7 @@ def CheckJackDigi(context):
 
     ret = context.TryAction('pkg-config --libs jack')[0]
     if ret:
-	tmpEnv = context.env.Copy()
+	tmpEnv = context.env.Clone()
 	context.env.ParseConfig('pkg-config --libs jack --cflags jack')
 	ret = context.TryLink("""
 	    #include <jack/jack.h>
@@ -349,7 +349,7 @@ def CheckForX(context):
         if not ret:
             raise NoX
     except NoX:
-        oldEnv = context.env.Copy()
+        oldEnv = context.env.Clone()
         context.env.Append(CPPPATH = "/usr/X11R6/include")
         context.env.Append(LIBPATH = "/usr/X11R6/lib")
         import SCons.SConf

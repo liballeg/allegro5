@@ -18,6 +18,7 @@
 
 #include "allegro5/allegro5.h"
 #include "allegro5/internal/aintern.h"
+#include "allegro5/internal/aintern_events.h"
 #include "allegro5/internal/aintern_keyboard.h"
 #include "allegro5/platform/aintosx.h"
 
@@ -85,8 +86,6 @@ static BOOL in_bundle(void)
 	NSFileManager* fm;
 	BOOL isDir;
 	
-	/* create mutex */
-	_al_mutex_init(&osx_event_mutex);
 	
 	if (in_bundle() == YES)   
 	{
@@ -94,7 +93,7 @@ static BOOL in_bundle(void)
 		* or to the 'magic' resource directory if it exists.
 		* (see the readme.osx file for more info)
 		*/
-		osx_bundle = [NSBundle mainBundle];
+		NSBundle* osx_bundle = [NSBundle mainBundle];
 		exename = [[osx_bundle executablePath] lastPathComponent];
 		resdir = [[osx_bundle resourcePath] stringByAppendingPathComponent: exename];
 		fm = [NSFileManager defaultManager];
@@ -238,14 +237,16 @@ int main(int argc, char *argv[])
 		{
 			title = [[NSProcessInfo processInfo] processName];
 		}
-		[NSApp setMainMenu: [[NSMenu allocWithZone: [NSMenu menuZone]] initWithTitle: @"temp"]];
+      NSMenu* main_menu = [[NSMenu allocWithZone: [NSMenu menuZone]] initWithTitle: @"temp"];
+		[NSApp setMainMenu: main_menu];
 		menu = [[NSMenu allocWithZone: [NSMenu menuZone]] initWithTitle: @"temp"];
 		temp_item = [[NSMenuItem allocWithZone: [NSMenu menuZone]]
 		     initWithTitle: @"temp"
 					action: NULL
 		     keyEquivalent: @""];
-		[[NSApp mainMenu] addItem: temp_item];
-		[[NSApp mainMenu] setSubmenu: menu forItem: temp_item];
+		[main_menu addItem: temp_item];
+		[main_menu setSubmenu: menu forItem: temp_item];
+      [temp_item release];
 		[NSApp setAppleMenu: menu];
 		NSString *quit = [@"Quit " stringByAppendingString: title];
 		menu_item = [[NSMenuItem allocWithZone: [NSMenu menuZone]]
@@ -254,10 +255,13 @@ int main(int argc, char *argv[])
 		     keyEquivalent: @"q"];
 		[menu_item setKeyEquivalentModifierMask: NSCommandKeyMask];
 		[menu addItem: menu_item];
+      [menu_item release];
+      [menu release];
+      [main_menu release];
 	}
-	
+	// setDelegate: doesn't retain the delegate here (a Cocoa convention)
+   // therefore we don't release it.
 	[NSApp setDelegate: app_delegate];
-	
 	[NSApp run];
 	/* Can never get here */
 	[pool release];

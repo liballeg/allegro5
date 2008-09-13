@@ -1,10 +1,13 @@
 Import( 'context' )
+Import('env')
 import addons
 import helpers
 import os
 
+myEnv = env.Clone()
+
 def getOption(name, default = 0):
-    return context.getLibraryEnv()[name]
+    return myEnv[name]
 
 def getArgumentOption(name, default):
     arg = ARGUMENTS.get(name,default)
@@ -17,7 +20,7 @@ def CheckOGG(context):
 
     ret = context.TryAction('pkg-config vorbisfile --libs')[0]
     if ret:
-        tmpEnv = context.env.Copy()
+        tmpEnv = context.env.Clone()
         context.env.ParseConfig('pkg-config vorbisfile --libs --cflags')
         ret = context.TryLink("""
             #include <vorbis/vorbisfile.h>
@@ -37,7 +40,7 @@ def CheckFlac(context):
 
     ret = context.TryAction('pkg-config flac --libs')[0]
     if ret:
-        tmpEnv = context.env.Copy()
+        tmpEnv = context.env.Clone()
         context.env.ParseConfig('pkg-config flac --libs --cflags')
         ret = context.TryLink("""
             #include <FLAC/stream_decoder.h>
@@ -55,7 +58,7 @@ def CheckSndfile(context):
 
     ret = context.TryAction('pkg-config sndfile --libs')[0]
     if ret:
-        tmpEnv = context.env.Copy()
+        tmpEnv = context.env.Clone()
         context.env.ParseConfig('pkg-config sndfile --libs --cflags')
         ret = context.TryLink("""
             #include <sndfile.h>
@@ -69,64 +72,65 @@ def CheckSndfile(context):
     context.Result(ret)
     return ret
 
-opts = Options('options-addons-acodec.py', ARGUMENTS)
+opts = Options(context.getBuildDir() + "/options-addons-acodec.py", ARGUMENTS)
 opts.Add('flac', 'Enable FLAC', 1)
 opts.Add('sndfile', 'Enable sndfile', 1)
 opts.Add('ogg', 'Enable ogg', 1)
-opts.Update(context.getLibraryEnv())
-opts.Save('options-addons-acodec.py',context.getLibraryEnv())
-Help(opts.GenerateHelpText(context.getLibraryEnv()))
+opts.Update(myEnv)
+opts.Save(context.getBuildDir() + "/options-addons-acodec.py", myEnv)
+Help(opts.GenerateHelpText(myEnv))
 
 noconfig = False
 if not getArgumentOption("config",0):
-    if os.path.exists("addons/acodec/allegro5/internal/aintern_acodec.h"):
-        print "Re-using old acodec settings"
+    if os.path.exists("addons/acodec/allegro5/internal/aintern_acodec_cfg.h"):
+        # print "Re-using old acodec settings"
         noconfig = True
 
 settins = []
 if noconfig:
-    settings = helpers.readAutoHeader('addons/acodec/allegro5/internal/aintern_acodec.h')
+    settings = helpers.readAutoHeader('addons/acodec/allegro5/internal/aintern_acodec_cfg.h')
 else:
         tests = { "CheckOgg": CheckOGG,
                   "CheckFlac": CheckFlac,
                   "CheckSndfile": CheckSndfile,
                 }
-        config = context.getLibraryEnv().Configure(custom_tests = tests)
+        config = myEnv.Configure(custom_tests = tests)
 
         settings = helpers.SimpleHash()
-        settings["ALLEGRO_CFG_ACODEC_OGG"] = getOption('ogg', False) and config.CheckOgg()
-        settings["ALLEGRO_CFG_ACODEC_FLAC"] = getOption('flac', False) and config.CheckFlac()
-        settings["ALLEGRO_CFG_ACODEC_SNDFILE"] = getOption('sndfile', False) and config.CheckSndfile()
+        settings["ALLEGRO_CFG_ACODEC_VORBIS"] = getOption('ogg', True) and config.CheckOgg()
+        settings["ALLEGRO_CFG_ACODEC_FLAC"] = getOption('flac', True) and config.CheckFlac()
+        settings["ALLEGRO_CFG_ACODEC_SNDFILE"] = getOption('sndfile', True) and config.CheckSndfile()
         config.Finish()
 
-helpers.parse_cmake_h(context.getLibraryEnv(),settings,'#addons/acodec/allegro5/internal/aintern_acodec_cfg.h.cmake','#addons/acodec/allegro5/internal/aintern_acodec_cfg.h')
-
+helpers.parse_cmake_h(myEnv, settings,'allegro5/internal/aintern_acodec_cfg.h.cmake','allegro5/internal/aintern_acodec_cfg.h')
 source = ['acodec.c']
 configs = []
 
-if settings['ALLEGRO_CFG_ACODEC_OGG']:
+# This shouldn't be required, use env = config.Finish() above and make
+# the Check* functions modify the environment
+if settings['ALLEGRO_CFG_ACODEC_VORBIS']:
     source.extend(['ogg.c'])
     configs.extend(['pkg-config vorbisfile --libs'])
+    env.ParseConfig('pkg-config vorbisfile --libs')
 
 if settings['ALLEGRO_CFG_ACODEC_FLAC']:
     source.extend(['flac.c'])
     configs.extend(['pkg-config flac --libs'])
+    env.ParseConfig('pkg-config flac --libs')
 
 if settings['ALLEGRO_CFG_ACODEC_SNDFILE']:
     source.extend(['wav.c'])
     configs.extend(['pkg-config sndfile --libs'])
+    env.ParseConfig('pkg-config sndfile --libs')
 
 addons.do_build(
     context = context,
+    env = myEnv,
     source = source,
     dir = 'acodec',
     name = 'a5_acodec',
     install_headers = ['allegro5/acodec.h'],
-    includes = ['#addons/audio','#addons/acodec'],
-    examples = [('ex_acodec',['ex_acodec.c']),
-     ('ex_acodec_multi',['ex_acodec_multi.c']),
-     ('ex_acodec_stream',['ex_acodec_stream.c'])],
-    example_libs = [context.libraryName('a5_audio')],
+    includes = ['../kcm_audio','../acodec'],
     configs = configs,
 )
 

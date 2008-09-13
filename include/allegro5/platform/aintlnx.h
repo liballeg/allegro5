@@ -30,7 +30,6 @@ extern "C" {
 extern _DRIVER_INFO _linux_gfx_driver_list[];
 extern _DRIVER_INFO _al_linux_keyboard_driver_list[];
 extern _DRIVER_INFO _al_linux_mouse_driver_list[];
-extern _DRIVER_INFO _al_linux_joystick_driver_list[];
 
 
 /****************************************/
@@ -99,7 +98,6 @@ typedef struct MODE_REGISTERS
    unsigned long flags;
    union {
       unsigned char vga[768];
-      PALETTE allegro;
    } palette;
 } MODE_REGISTERS;
 
@@ -153,43 +151,18 @@ void __al_linux_restore_text_mode (void);
 int __al_linux_init_vtswitch (void);
 int __al_linux_done_vtswitch (void);
 
-void __al_linux_acquire_bitmap (BITMAP *bmp);
-void __al_linux_release_bitmap (BITMAP *bmp);
-
 int __al_linux_set_display_switch_mode (int mode);
 void __al_linux_display_switch_lock (int lock, int foreground);
 
 extern volatile int __al_linux_switching_blocked;
 
 
-/**************************************/
-/************ Mode setting ************/ /* (src/linux/lgraph.c) */
-/**************************************/
-
-typedef struct GFX_MODE_INFO {
-	int w,h,c;   /* width, height, colour depth */
-	int id;      /* ID code, for driver's reference */
-	void *data;  /* data for driver's use in setting the mode */
-} GFX_MODE_INFO;
-
-BITMAP *__al_linux_gfx_mode_set_helper (
-	int w, int h, int v_w, int v_h, int c,
-	GFX_DRIVER *driver, GFX_MODE_INFO *mode,
-	int (*set_video_mode) (GFX_MODE_INFO *mode),
-	void (*set_width) (int w)
-);
-
 
 #ifdef __cplusplus
 }
 #endif
 
-/* VGA register access helpers */
-/* This is conditional because configure may have disabled VGA support */
-#ifdef ALLEGRO_LINUX_VGA
-   #include "allegro5/internal/aintern.h"
-   #include "allegro5/internal/aintvga.h"
-#endif
+
 
 /* Functions for querying the framebuffer, for the fbcon driver */
 #if (defined ALLEGRO_LINUX_FBCON) && (!defined ALLEGRO_WITH_MODULES)

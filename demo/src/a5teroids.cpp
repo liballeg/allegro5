@@ -1,5 +1,8 @@
 #include "a5teroids.hpp"
 
+ALLEGRO_VOICE *voice;
+ALLEGRO_MIXER *mixer;
+
 int check_arg(int argc, char **argv, const std::string& arg)
 {
    for (int i = 1; i < argc; i++) {
@@ -23,42 +26,39 @@ int main(int argc, char **argv)
       return 1;
    }
 
-   SAMPLE *game_music = load_sample(getResource("sfx/game_music.wav"));
-   if (!game_music) {
-      printf("Failed to load %s\n", getResource("sfx/game_music.wav"));
-      return 1;
-   }
-   SAMPLE *title_music = load_sample(getResource("sfx/title_music.wav"));
-   if (!title_music) {
-      printf("Failed to load %s\n", getResource("sfx/title_music.wav"));
-      return 1;
-   }
 
    Wave& w = Wave::getInstance();
 
    ResourceManager& rm = ResourceManager::getInstance();
    Player *player = (Player *)rm.getData(RES_PLAYER);
 
+   ALLEGRO_SAMPLE *title_music = (ALLEGRO_SAMPLE *)rm.getData(RES_TITLE_MUSIC);
+   ALLEGRO_SAMPLE *game_music = (ALLEGRO_SAMPLE *)rm.getData(RES_GAME_MUSIC);
+
+   al_sample_set_enum(title_music, ALLEGRO_AUDIOPROP_LOOPMODE, ALLEGRO_PLAYMODE_ONEDIR);
+   al_sample_set_enum(game_music, ALLEGRO_AUDIOPROP_LOOPMODE, ALLEGRO_PLAYMODE_ONEDIR);
+
    for (;;) {
       player->load();
 
       al_rest(0.500);
 
-      play_sample(title_music, 255, 128, 1000, 1);
+      my_play_sample(RES_TITLE_MUSIC);
+
       int choice = do_menu();
       if (choice != 0) {
          if (joystick)
             al_release_joystick(joystick);
          break;
       }
-      stop_sample(title_music);
+      al_sample_stop(title_music);
 
       al_rest(0.250);
       lastUFO = -1;
       canUFO = true;
 
       w.init();
-      play_sample(game_music, 255, 128, 1000, 1);
+      my_play_sample(RES_GAME_MUSIC);
 
       int step = 0;
       long start = (long) (al_current_time() * 1000);
@@ -87,7 +87,7 @@ int main(int argc, char **argv)
       }
       entities.clear();
 
-      stop_sample(game_music);
+      al_sample_stop(game_music);
 
       if (won) {
          // FIXME: show end screen

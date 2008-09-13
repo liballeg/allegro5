@@ -24,6 +24,7 @@
 #include "allegro5/allegro5.h"
 #include "allegro5/internal/aintern.h"
 #include "allegro5/internal/aintern_thread.h"
+#include "allegro5/platform/aintunix.h"
 
 
 
@@ -58,7 +59,7 @@ void _al_thread_create(_AL_THREAD *thread, void (*proc)(_AL_THREAD*, void*), voi
 }
 
 
-void _al_thread_join(_AL_THREAD *thread)
+void _al_thread_set_should_stop(_AL_THREAD *thread)
 {
    ASSERT(thread);
 
@@ -67,6 +68,15 @@ void _al_thread_join(_AL_THREAD *thread)
       thread->should_stop = true;
    }
    pthread_mutex_unlock(&thread->mutex);
+}
+
+
+
+void _al_thread_join(_AL_THREAD *thread)
+{
+   ASSERT(thread);
+
+   _al_thread_set_should_stop(thread);
    pthread_join(thread->thread, NULL);
 
    pthread_mutex_destroy(&thread->mutex);
@@ -106,35 +116,25 @@ void _al_mutex_init_recursive(_AL_MUTEX *mutex)
 void _al_mutex_destroy(_AL_MUTEX *mutex)
 {
    ASSERT(mutex);
-   ASSERT(mutex->inited);
 
-   pthread_mutex_destroy(&mutex->mutex);
-   mutex->inited = false;
+   if (mutex->inited) {
+      pthread_mutex_destroy(&mutex->mutex);
+      mutex->inited = false;
+   }
 }
 
 
 /* condition variables */
 /* most of the condition variable implementation is actually inline */
 
-void _al_cond_timeout_init(_AL_COND_TIMEOUT *timeout, unsigned int rel_msecs)
-{
-   struct timeval now;
-
-   gettimeofday(&now, NULL);
-   timeout->abstime.tv_sec = now.tv_sec + (rel_msecs / 1000);
-   timeout->abstime.tv_nsec = (now.tv_usec + (rel_msecs % 1000) * 1000) * 1000;
-   timeout->abstime.tv_sec += timeout->abstime.tv_nsec / 1000000000L;
-   timeout->abstime.tv_nsec = timeout->abstime.tv_nsec % 1000000000L;
-}
-
-
 int _al_cond_timedwait(_AL_COND *cond, _AL_MUTEX *mutex,
-   const _AL_COND_TIMEOUT *timeout)
+   const ALLEGRO_TIMEOUT *timeout)
 {
+   ALLEGRO_TIMEOUT_UNIX *unix_timeout = (ALLEGRO_TIMEOUT_UNIX *) timeout;
    int retcode;
 
    retcode = pthread_cond_timedwait(&cond->cond, &mutex->mutex,
-      &timeout->abstime);
+      &unix_timeout->abstime);
 
    return (retcode == ETIMEDOUT) ? -1 : 0;
 }

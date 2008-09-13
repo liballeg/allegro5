@@ -31,10 +31,9 @@
 
 
 
-// FIXME: The system driver must be used to get drivers!
-extern ALLEGRO_DISPLAY_INTERFACE *_al_glx_vt(void);
-
-
+static int current_video_adapter = -1;
+static int new_window_x = INT_MAX;
+static int new_window_y = INT_MAX;
 
 /* Function: al_create_display
  *
@@ -57,8 +56,6 @@ ALLEGRO_DISPLAY *al_create_display(int w, int h)
    // variables like "display/driver" and according to flags (e.g. OpenGL
    // requested or not).
 
-   // Right now, the X11 driver is hardcoded.
-
    ALLEGRO_SYSTEM *system = al_system_driver();
    ALLEGRO_DISPLAY_INTERFACE *driver = system->vt->get_display_driver();
    ALLEGRO_DISPLAY *display = driver->create_display(w, h);
@@ -69,7 +66,7 @@ ALLEGRO_DISPLAY *al_create_display(int w, int h)
    _al_vector_init(&display->bitmaps, sizeof(ALLEGRO_BITMAP*));
 
    {
-   ALLEGRO_COLOR black = al_map_rgba(0, 0, 0, 0);
+   ALLEGRO_COLOR black = al_map_rgb(0, 0, 0);
    al_set_current_display(display);
    al_set_target_bitmap(al_get_backbuffer());
    al_clear(black);
@@ -87,7 +84,9 @@ ALLEGRO_DISPLAY *al_create_display(int w, int h)
  */
 void al_destroy_display(ALLEGRO_DISPLAY *display)
 {
-   display->vt->destroy_display(display);
+   if (display) {
+      display->vt->destroy_display(display);
+   }
 }
 
 
@@ -99,9 +98,10 @@ void al_destroy_display(ALLEGRO_DISPLAY *display)
  */
 ALLEGRO_BITMAP *al_get_backbuffer(void)
 {
-   ASSERT(_al_current_display);
+   ALLEGRO_DISPLAY *display = al_get_current_display();
+   ASSERT(display);
 
-   return _al_current_display->vt->get_backbuffer(_al_current_display);
+   return display->vt->get_backbuffer(display);
 }
 
 
@@ -114,9 +114,10 @@ ALLEGRO_BITMAP *al_get_backbuffer(void)
  */
 ALLEGRO_BITMAP *al_get_frontbuffer(void)
 {
-   ASSERT(_al_current_display);
+   ALLEGRO_DISPLAY *display = al_get_current_display();
+   ASSERT(display);
 
-   return _al_current_display->vt->get_frontbuffer(_al_current_display);
+   return display->vt->get_frontbuffer(display);
 }
 
 
@@ -131,9 +132,10 @@ ALLEGRO_BITMAP *al_get_frontbuffer(void)
  */
 void al_flip_display(void)
 {
-   ASSERT(_al_current_display);
+   ALLEGRO_DISPLAY *display = al_get_current_display();
+   ASSERT(display);
 
-   _al_current_display->vt->flip_display(_al_current_display);
+   display->vt->flip_display(display);
 }
 
 
@@ -148,10 +150,10 @@ void al_flip_display(void)
  */
 bool al_update_display_region(int x, int y, int width, int height)
 {
-   ASSERT(_al_current_display);
+   ALLEGRO_DISPLAY *display = al_get_current_display();
+   ASSERT(display);
 
-   return _al_current_display->vt->update_display_region(
-      _al_current_display, x, y, width, height);
+   return display->vt->update_display_region(display, x, y, width, height);
 }
 
 
@@ -170,8 +172,9 @@ bool al_acknowledge_resize(ALLEGRO_DISPLAY *display)
    ASSERT(display);
 
    if (!(display->flags & ALLEGRO_FULLSCREEN)) {
-      if (display->vt->acknowledge_resize)
+      if (display->vt->acknowledge_resize) {
          return display->vt->acknowledge_resize(display);
+      }
    }
    return false;
 }
@@ -188,11 +191,11 @@ bool al_acknowledge_resize(ALLEGRO_DISPLAY *display)
  */
 bool al_resize_display(int width, int height)
 {
-   ASSERT(_al_current_display);
+   ALLEGRO_DISPLAY *display = al_get_current_display();
+   ASSERT(display);
 
-   if (_al_current_display->vt->resize_display) {
-      return _al_current_display->vt->resize_display(_al_current_display,
-         width, height);
+   if (display->vt->resize_display) {
+      return display->vt->resize_display(display, width, height);
    }
    return false;
 }
@@ -205,16 +208,17 @@ bool al_resize_display(int width, int height)
  */
 void al_clear(ALLEGRO_COLOR color)
 {
+   ALLEGRO_DISPLAY *display = al_get_current_display();
    ALLEGRO_BITMAP *target = al_get_target_bitmap();
 
    ASSERT(target);
-   ASSERT(_al_current_display);
+   ASSERT(display);
 
    if (target->flags & ALLEGRO_MEMORY_BITMAP) {
       _al_clear_memory(&color);
    }
    else {
-      _al_current_display->vt->clear(_al_current_display, &color);
+      display->vt->clear(display, &color);
    }
 }
 
@@ -233,17 +237,17 @@ void al_clear(ALLEGRO_COLOR color)
 void al_draw_line(float fx, float fy, float tx, float ty,
    ALLEGRO_COLOR color)
 {
+   ALLEGRO_DISPLAY *display = al_get_current_display();
    ALLEGRO_BITMAP *target = al_get_target_bitmap();
 
    ASSERT(target);
-   ASSERT(_al_current_display);
+   ASSERT(display);
 
    if (target->flags & ALLEGRO_MEMORY_BITMAP) {
       _al_draw_line_memory(fx, fy, tx, ty, &color);
    }
    else {
-      _al_current_display->vt->draw_line(_al_current_display,
-         fx, fy, tx, ty, &color);
+      display->vt->draw_line(display, fx, fy, tx, ty, &color);
    }
 }
 
@@ -268,17 +272,17 @@ void al_draw_line(float fx, float fy, float tx, float ty,
 void al_draw_rectangle(float tlx, float tly, float brx, float bry,
    ALLEGRO_COLOR color, int flags)
 {
+   ALLEGRO_DISPLAY *display = al_get_current_display();
    ALLEGRO_BITMAP *target = al_get_target_bitmap();
 
    ASSERT(target);
-   ASSERT(_al_current_display);
+   ASSERT(display);
 
    if (target->flags & ALLEGRO_MEMORY_BITMAP) {
       _al_draw_rectangle_memory(tlx, tly, brx, bry, &color, flags);
    }
    else {
-      _al_current_display->vt->draw_rectangle(_al_current_display,
-         tlx, tly, brx, bry, &color, flags);
+      display->vt->draw_rectangle(display, tlx, tly, brx, bry, &color, flags);
    }
 }
 
@@ -294,18 +298,17 @@ void al_draw_rectangle(float tlx, float tly, float brx, float bry,
  */
 void al_draw_pixel(float x, float y, ALLEGRO_COLOR color)
 {
+   ALLEGRO_DISPLAY *display = al_get_current_display();
    ALLEGRO_BITMAP *target = al_get_target_bitmap();
 
    ASSERT(target);
-   ASSERT(_al_current_display);
+   ASSERT(display);
 
-   if (target->flags & ALLEGRO_MEMORY_BITMAP
-         || !_al_current_display->vt->draw_pixel) {
+   if (target->flags & ALLEGRO_MEMORY_BITMAP || !display->vt->draw_pixel) {
       _al_draw_pixel_memory(x, y, &color);
    }
    else {
-      _al_current_display->vt->draw_pixel(_al_current_display,
-         x, y, &color);
+      display->vt->draw_pixel(display, x, y, &color);
    }
 }
 
@@ -327,11 +330,11 @@ void al_draw_pixel(float x, float y, ALLEGRO_COLOR color)
  */
 bool al_is_compatible_bitmap(ALLEGRO_BITMAP *bitmap)
 {
+   ALLEGRO_DISPLAY *display = al_get_current_display();
    ASSERT(bitmap);
-   ASSERT(_al_current_display);
+   ASSERT(display);
 
-   return _al_current_display->vt->is_compatible_bitmap(
-      _al_current_display, bitmap);
+   return display->vt->is_compatible_bitmap(display, bitmap);
 }
 
 
@@ -342,7 +345,10 @@ bool al_is_compatible_bitmap(ALLEGRO_BITMAP *bitmap)
  */
 int al_get_display_width(void)
 {
-   return _al_current_display->w;
+   ALLEGRO_DISPLAY *display = al_get_current_display();
+   ASSERT(display);
+
+   return display->w;
 }
 
 
@@ -353,9 +359,10 @@ int al_get_display_width(void)
  */
 int al_get_display_height(void)
 {
-   ASSERT(_al_current_display);
+   ALLEGRO_DISPLAY *display = al_get_current_display();
+   ASSERT(display);
 
-   return _al_current_display->h;
+   return display->h;
 }
 
 
@@ -366,9 +373,10 @@ int al_get_display_height(void)
  */
 int al_get_display_format(void)
 {
-   ASSERT(_al_current_display);
+   ALLEGRO_DISPLAY *display = al_get_current_display();
+   ASSERT(display);
 
-   return _al_current_display->format;
+   return display->format;
 }
 
 
@@ -379,9 +387,10 @@ int al_get_display_format(void)
  */
 int al_get_display_refresh_rate(void)
 {
-   ASSERT(_al_current_display);
+   ALLEGRO_DISPLAY *display = al_get_current_display();
+   ASSERT(display);
 
-   return _al_current_display->refresh_rate;
+   return display->refresh_rate;
 }
 
 
@@ -392,9 +401,10 @@ int al_get_display_refresh_rate(void)
  */
 int al_get_display_flags(void)
 {
-   ASSERT(_al_current_display);
+   ALLEGRO_DISPLAY *display = al_get_current_display();
+   ASSERT(display);
 
-   return _al_current_display->flags;
+   return display->flags;
 }
 
 
@@ -443,10 +453,11 @@ ALLEGRO_DISPLAY_MODE *al_get_display_mode(int index, ALLEGRO_DISPLAY_MODE *mode)
  */
 bool al_wait_for_vsync(void)
 {
-   ASSERT(_al_current_display);
+   ALLEGRO_DISPLAY *display = al_get_current_display();
+   ASSERT(display);
 
-   if (_al_current_display->vt && _al_current_display->vt->wait_for_vsync)
-      return _al_current_display->vt->wait_for_vsync(_al_current_display);
+   if (display->vt->wait_for_vsync)
+      return display->vt->wait_for_vsync(display);
    else
       return false;
 }
@@ -459,6 +470,7 @@ bool al_wait_for_vsync(void)
  * pixels get clipped to. The default is to clip pixels
  * to the entire bitmap.
  */
+/* XXX this seems like it belongs in bitmap_new.c */
 void al_set_clipping_rectangle(int x, int y, int width, int height)
 {
    ALLEGRO_BITMAP *bitmap = al_get_target_bitmap();
@@ -473,17 +485,21 @@ void al_set_clipping_rectangle(int x, int y, int width, int height)
       height += y;
       y = 0;
    }
-   if (x+width >= bitmap->w) {
-      width = bitmap->w - x - 1;
+   if (x + width > bitmap->w) {
+      width = bitmap->w - x;
    }
-   if (y+height >= bitmap->h) {
-      height = bitmap->h - y - 1;
+   if (y + height > bitmap->h) {
+      height = bitmap->h - y;
    }
 
    bitmap->cl = x;
    bitmap->ct = y;
    bitmap->cr = x + width;
    bitmap->cb = y + height;
+
+   if (bitmap->vt->update_clipping_rectangle) {
+      bitmap->vt->update_clipping_rectangle(bitmap);
+   }
 }
 
 
@@ -492,6 +508,7 @@ void al_set_clipping_rectangle(int x, int y, int width, int height)
  *
  * Gets the clipping rectangle of the target bitmap.
  */
+/* XXX this seems like it belongs in bitmap_new.c */
 void al_get_clipping_rectangle(int *x, int *y, int *w, int *h)
 {
    ALLEGRO_BITMAP *bitmap = al_get_target_bitmap();
@@ -500,8 +517,8 @@ void al_get_clipping_rectangle(int *x, int *y, int *w, int *h)
 
    if (x) *x = bitmap->cl;
    if (y) *y = bitmap->ct;
-   if (w) *w = bitmap->cr - bitmap->cl + 1;
-   if (h) *h = bitmap->cb - bitmap->ct + 1;
+   if (w) *w = bitmap->cr - bitmap->cl;
+   if (h) *h = bitmap->cb - bitmap->ct;
 }
 
 
@@ -518,17 +535,201 @@ void al_get_clipping_rectangle(int *x, int *y, int *w, int *h)
  */
 void al_set_display_icon(ALLEGRO_BITMAP *icon)
 {
-   _al_current_display->vt->set_icon(_al_current_display, icon);
+   ALLEGRO_DISPLAY *display = al_get_current_display();
+   ASSERT(display);
+   if (display->vt->set_icon) {
+      display->vt->set_icon(display, icon);
+   }
 }
 
 
 
 /* Destroys all bitmaps created for this display.
  */
-void _al_destroy_display_bitmaps(ALLEGRO_DISPLAY *d) {
+void _al_destroy_display_bitmaps(ALLEGRO_DISPLAY *d)
+{
    while (_al_vector_size(&d->bitmaps) > 0) {
       ALLEGRO_BITMAP **bptr = _al_vector_ref_back(&d->bitmaps);
       ALLEGRO_BITMAP *b = *bptr;
       al_destroy_bitmap(b);
    }
 }
+
+
+/* Function: al_get_num_video_adapters
+ *
+ * Get the number of video "adapters" attached to the computer. Each
+ * video card attached to the computer counts as one or more adapters.
+ * An adapter is thus really a video port that can have a monitor connected
+ * to it.
+ */
+int al_get_num_video_adapters(void)
+{
+   ALLEGRO_SYSTEM *system = al_system_driver();
+
+   if (system && system->vt && system->vt->get_num_video_adapters) {
+      return system->vt->get_num_video_adapters();
+   }
+
+   return 0;
+}
+
+/* Function: al_get_monitor_info
+ *
+ * Get information about a monitor's position on the desktop.
+ * adapter is a number from 0 to al_get_num_video_adapters()-1.
+ *
+ * See Also: <ALLEGRO_MONITOR_INFO>
+ */
+void al_get_monitor_info(int adapter, ALLEGRO_MONITOR_INFO *info)
+{
+   ALLEGRO_SYSTEM *system = al_system_driver();
+
+   ASSERT(adapter < al_get_num_video_adapters());
+
+   if (system && system->vt && system->vt->get_monitor_info) {
+      system->vt->get_monitor_info(adapter, info);
+   }
+   else {
+      info->x1 = info->y1 = info->x2 = info->y2 = INT_MAX;
+   }
+}
+
+
+/* Function: al_get_current_video_adapter
+ *
+ * Gets the video adapter index where new displays
+ * will be created.
+ */
+int al_get_current_video_adapter(void)
+{
+   return current_video_adapter;
+}
+
+/* Function: al_set_current_video_adapter
+ *
+ * Sets the adapter to use for newly created displays.
+ * The adapter has a monitor attached to it. Information
+ * about the monitor can be gotten using al_get_num_video_adapters
+ * and al_get_monitor_info.
+ *
+ * See Also: <al_get_num_video_adapters>, <al_get_monitor_info>
+ */
+void al_set_current_video_adapter(int adapter)
+{
+   current_video_adapter = adapter;
+}
+
+/* Function: al_set_new_window_position
+ *
+ * Sets where the top left pixel of the client area of newly
+ * created windows (non-fullscreen) will be on screen.
+ * Negative values allowed on some multihead systems.
+ *
+ * See Also: <al_set_new_window_position>
+ */
+void al_set_new_window_position(int x, int y)
+{
+   new_window_x = x;
+   new_window_y = y;
+}
+
+/* Function: al_get_new_window_position
+ *
+ * Gets the position where newly created non-fullscreen
+ * displays will be placed.
+ *
+ * See Also: <al_set_new_window_position>
+ */
+void al_get_new_window_position(int *x, int *y)
+{
+   if (x)
+      *x = new_window_x;
+   if (y)
+      *y = new_window_y;
+}
+
+/* Function: al_set_window_position
+ *
+ * Sets the position on screen of a non-fullscreen display.
+ *
+ * See Also: <al_get_window_position>
+ */
+void al_set_window_position(ALLEGRO_DISPLAY *display, int x, int y)
+{
+   ASSERT(display);
+
+   if (display->flags & ALLEGRO_FULLSCREEN) {
+      return;
+   }
+
+   if (display && display->vt && display->vt->set_window_position) {
+      display->vt->set_window_position(display, x, y);
+   }
+}
+
+/* Function: al_get_window_position
+ *
+ * Gets the position of a non-fullscreen display.
+ *
+ * See Also: <al_set_window_position>
+ */
+void al_get_window_position(ALLEGRO_DISPLAY *display, int *x, int *y)
+{
+   ASSERT(x);
+   ASSERT(y);
+
+   if (display && display->vt && display->vt->get_window_position) {
+      display->vt->get_window_position(display, x, y);
+   }
+   else {
+      *x = *y = -1;
+   }
+}
+
+void al_toggle_window_frame(ALLEGRO_DISPLAY *display, bool onoff)
+{
+   ASSERT(display);
+
+   if (display->flags & ALLEGRO_FULLSCREEN) {
+      return;
+   }
+
+   if (display && display->vt && display->vt->toggle_frame) {
+      display->vt->toggle_frame(display, onoff);
+   }
+}
+
+/*
+ * -1 = none
+ *  0 = fullscreen
+ *  1 = windowed
+ */
+int _al_display_type(void)
+{
+   ALLEGRO_SYSTEM *sys = al_system_driver();
+
+   if (sys->displays._size > 0) {
+      ALLEGRO_DISPLAY **dptr = _al_vector_ref(&sys->displays, 0);
+      ALLEGRO_DISPLAY *d = *dptr;
+      if (d->flags & ALLEGRO_FULLSCREEN) {
+         return 0;
+      }
+      else {
+         return 1;
+      }
+   }
+   else {
+      return -1;
+   }
+}
+
+
+void al_set_window_title(AL_CONST char *title)
+{
+   ALLEGRO_DISPLAY *current_display = al_get_current_display();
+
+   if (current_display && current_display->vt && current_display->vt->set_window_title)
+      current_display->vt->set_window_title(current_display, title);
+}
+

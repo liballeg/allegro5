@@ -7,7 +7,7 @@ const int ENTITY_SMALL_ASTEROID = 1;
 class Entity {
 public:
    virtual bool logic(int step);
-   virtual void render(void) = 0;
+   virtual void render(int offx = 0, int offy = 0) = 0;
 
    virtual void spawn(void);
    virtual bool hit(int damage);
@@ -27,6 +27,8 @@ public:
    Entity *getEntityCollision(void);
    Entity *getAllCollision(void);
    void explode(void);
+   
+   void render_four(void);
 
    Entity(void);
    virtual ~Entity(void) {};

@@ -4,6 +4,9 @@
  *  By Michael Rickmann.
  */
 
+/* don't include non-standard header files */
+#define SCAN_DEPEND
+
 
 #define AL_VAR(type, name)                   allexpvar name##_sym
 #define AL_FUNCPTR(type, name, args)         allexpfpt name##_sym
@@ -19,6 +22,11 @@
 #define ALLEGRO_COLOR32
 #define ALLEGRO_NO_COLORCOPY
 #define ALLEGRO_WINDOWS
+/* Make OpenGL mandatory. A library without OpenGL lacks many
+ * exports specific to OpenGL, which makes it ABI incompatible. */
+#define ALLEGRO_CFG_OPENGL
+/* Make D3D mandatory. */
+#define ALLEGRO_CFG_D3D
 
 
 #if defined ALLEGRO_API
@@ -28,7 +36,6 @@
 #elif defined ALLEGRO_WINAPI
 
    #define ALLEGRO_H
-   #include "allegro5/platform/alplatf.h"
    #include "allegro5/winalleg.h"
    #include "allegro5/platform/alwin.h"
 
@@ -36,6 +43,8 @@
 
    #define ALLEGRO_H
    #include "allegro5/internal/aintern.h"
+   #include "allegro5/internal/aintern_memory.h"
+   #include "allegro5/internal/aintern_vector.h"
 
 #endif
 

@@ -16,12 +16,13 @@
 
 #include "allegro5/allegro5.h"
 #include "allegro5/internal/aintern.h"
+#include "allegro5/internal/aintern_memory.h"
 #include "allegro5/internal/aintern_opengl.h"
 
 
 void _al_ogl_set_target_bitmap(ALLEGRO_DISPLAY *display, ALLEGRO_BITMAP *bitmap)
 {
-   ALLEGRO_DISPLAY_OGL *ogl_disp = (void *)display;
+   ALLEGRO_DISPLAY *ogl_disp = (void *)display;
    /* If it is a memory bitmap, this display vtable entry would not even get
     * called, so the cast below is always safe.
     */
@@ -30,7 +31,7 @@ void _al_ogl_set_target_bitmap(ALLEGRO_DISPLAY *display, ALLEGRO_BITMAP *bitmap)
    if (!ogl_bitmap->is_backbuffer) {
       if (ogl_bitmap->fbo) {
          /* Bind to the FBO. */
-         ASSERT(ogl_disp->extension_list->ALLEGRO_GL_EXT_framebuffer_object);
+         ASSERT(ogl_disp->ogl_extras->extension_list->ALLEGRO_GL_EXT_framebuffer_object);
          glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, ogl_bitmap->fbo);
 
          /* Attach the texture. */
@@ -41,7 +42,7 @@ void _al_ogl_set_target_bitmap(ALLEGRO_DISPLAY *display, ALLEGRO_BITMAP *bitmap)
             // FIXME: handle this somehow!
          }
 
-         ogl_disp->opengl_target = ogl_bitmap;
+         ogl_disp->ogl_extras->opengl_target = ogl_bitmap;
          glViewport(0, 0, bitmap->w, bitmap->h);
 
          glMatrixMode(GL_PROJECTION);
@@ -61,10 +62,10 @@ void _al_ogl_set_target_bitmap(ALLEGRO_DISPLAY *display, ALLEGRO_BITMAP *bitmap)
       }
    }
    else {
-      if (ogl_disp->extension_list->ALLEGRO_GL_EXT_framebuffer_object) {
+      if (ogl_disp->ogl_extras->extension_list->ALLEGRO_GL_EXT_framebuffer_object) {
          glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
       }
-      ogl_disp->opengl_target = ogl_bitmap;
+      ogl_disp->ogl_extras->opengl_target = ogl_bitmap;
 
       glViewport(0, 0, display->w, display->h);
 
@@ -79,42 +80,44 @@ void _al_ogl_set_target_bitmap(ALLEGRO_DISPLAY *display, ALLEGRO_BITMAP *bitmap)
       glLoadIdentity();
    }
 
-   if (ogl_disp->opengl_target == ogl_bitmap) {
-      int x_1, y_1, x_2, y_2;
+   if (ogl_disp->ogl_extras->opengl_target == ogl_bitmap) {
+      _al_ogl_setup_bitmap_clipping(bitmap);
+   }
+}
 
-      x_1 = bitmap->cl;
-      y_1 = bitmap->ct;
-      /* In OpenGL, coordinates are the top-left corner of pixels, so we need
-       * to add one to the right and bottom edge.
-       */
-      x_2 = bitmap->cr + 1;
-      y_2 = bitmap->cb + 1;
 
-      /* Drawing onto the sub bitmap is handled by clipping the parent. */
-      if (bitmap->parent) {
-         x_1 += bitmap->xofs;
-         y_1 += bitmap->yofs;
-         x_2 += bitmap->xofs;
-         y_2 += bitmap->yofs;
-      }
+void _al_ogl_setup_bitmap_clipping(const ALLEGRO_BITMAP *bitmap)
+{
+   int x_1, y_1, x_2, y_2;
 
-      if (x_1 == 0 &&  y_1 == 0 && x_2 == bitmap->w && y_2 == bitmap->h)
-      {
-         glDisable(GL_SCISSOR_TEST);
-      }
-      else {
-         glEnable(GL_SCISSOR_TEST);
-         /* OpenGL is upside down, so must adjust y_2 to the height. */
-         glScissor(x_1, bitmap->h - y_2, x_2 - x_1, y_2 - y_1);
-      }
+   x_1 = bitmap->cl;
+   y_1 = bitmap->ct;
+   x_2 = bitmap->cr;
+   y_2 = bitmap->cb;
+
+   /* Drawing onto the sub bitmap is handled by clipping the parent. */
+   if (bitmap->parent) {
+      x_1 += bitmap->xofs;
+      y_1 += bitmap->yofs;
+      x_2 += bitmap->xofs;
+      y_2 += bitmap->yofs;
+   }
+
+   if (x_1 == 0 &&  y_1 == 0 && x_2 == bitmap->w && y_2 == bitmap->h) {
+      glDisable(GL_SCISSOR_TEST);
+   }
+   else {
+      glEnable(GL_SCISSOR_TEST);
+      /* OpenGL is upside down, so must adjust y_2 to the height. */
+      glScissor(x_1, bitmap->h - y_2, x_2 - x_1, y_2 - y_1);
    }
 }
 
 
 ALLEGRO_BITMAP *_al_ogl_get_backbuffer(ALLEGRO_DISPLAY *d)
 {
-   ALLEGRO_DISPLAY_OGL *dpy = (void *)d;
-   return (ALLEGRO_BITMAP *)dpy->backbuffer;
+   ALLEGRO_DISPLAY *dpy = (void *)d;
+   return (ALLEGRO_BITMAP *)dpy->ogl_extras->backbuffer;
 }
 
 
@@ -130,8 +133,8 @@ bool _al_ogl_resize_backbuffer(ALLEGRO_BITMAP_OGL *b, int w, int h)
    b->bitmap.pitch = pitch;
    b->bitmap.cl = 0;
    b->bitmap.ct = 0;
-   b->bitmap.cr = w - 1;
-   b->bitmap.cb = h - 1;
+   b->bitmap.cr = w;
+   b->bitmap.cb = h;
 
    /* There is no texture associated with the backbuffer so no need to care
     * about texture size limitations. */
@@ -152,11 +155,12 @@ ALLEGRO_BITMAP_OGL* _al_ogl_create_backbuffer(ALLEGRO_DISPLAY *disp)
 {
    ALLEGRO_BITMAP_OGL *ogl_backbuffer;
    ALLEGRO_BITMAP *backbuffer;
+   ALLEGRO_STATE backup;
 
-   _al_push_new_bitmap_parameters();
+   al_store_state(&backup, ALLEGRO_STATE_NEW_BITMAP_PARAMETERS);
    al_set_new_bitmap_format(disp->format);
    backbuffer = _al_ogl_create_bitmap(disp, disp->w, disp->h);
-   _al_pop_new_bitmap_parameters();
+   al_restore_state(&backup);
 
    ogl_backbuffer = (ALLEGRO_BITMAP_OGL*)backbuffer;
    ogl_backbuffer->is_backbuffer = 1;

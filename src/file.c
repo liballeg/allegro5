@@ -30,6 +30,7 @@
 
 #include "allegro5/allegro5.h"
 #include "allegro5/internal/aintern.h"
+#include "allegro5/internal/aintern_memory.h"
 
 #ifndef ALLEGRO_MPW
    #include <sys/stat.h>
@@ -71,8 +72,6 @@ int _packfile_datasize = 0;
 int _packfile_type = 0;
 
 static PACKFILE_VTABLE normal_vtable;
-
-static PACKFILE *pack_fopen_special_file(AL_CONST char *filename, AL_CONST char *mode);
 
 static int filename_encoding = U_ASCII;
 
@@ -704,23 +703,13 @@ int file_exists(AL_CONST char *filename, int attrib, int *aret)
    struct al_ffblk info;
    ASSERT(filename);
 
-   if (ustrchr(filename, '#')) {
-      PACKFILE *f = pack_fopen_special_file(filename, F_READ);
-      if (f) {
-	 pack_fclose(f);
-	 if (aret)
-	    *aret = FA_DAT_FLAGS;
-	 return ((attrib & FA_DAT_FLAGS) == FA_DAT_FLAGS) ? TRUE : FALSE;
-      }
-   }
-
    if (!_al_file_isok(filename))
       return FALSE;
 
    if (al_findfirst(filename, &info, attrib) != 0) {
       /* no entry is not an error for file_exists() */
-      if (*allegro_errno == ENOENT)
-         *allegro_errno = 0;
+      if (al_get_errno() == ENOENT)
+         al_set_errno(0);
 
       return FALSE;
    }
@@ -754,17 +743,6 @@ int exists(AL_CONST char *filename)
 uint64_t file_size_ex(AL_CONST char *filename)
 {
    ASSERT(filename);
-   if (ustrchr(filename, '#')) {
-      PACKFILE *f = pack_fopen_special_file(filename, F_READ);
-      if (f) {
-	 long ret;
-	 ASSERT(f->is_normal_packfile);
-	 ret = f->normal.todo;
-	 pack_fclose(f);
-	 return ret;
-      }
-   }
-
    if (!_al_file_isok(filename))
       return 0;
 
@@ -821,7 +799,7 @@ int delete_file(AL_CONST char *filename)
       return -1;
 
    if (_al_unlink(uconvert_tofilename(filename, tmp)) != 0) {
-      *allegro_errno = errno;
+      al_set_errno(errno);
       return -1;
    }
  
@@ -854,19 +832,19 @@ int for_each_file(AL_CONST char *name, int attrib, void (*callback)(AL_CONST cha
 
    if (al_findfirst(name, &info, attrib) != 0) {
       /* no entry is not an error for for_each_file() */
-      if (*allegro_errno == ENOENT)
-         *allegro_errno = 0;
+      if (al_get_errno() == ENOENT)
+         al_set_errno(0);
 
       return 0;
    }
 
-   *allegro_errno = 0;
+   al_set_errno(0);
 
    do {
       replace_filename(buf, name, info.name, sizeof(buf));
       (*callback)(buf, info.attrib, param);
 
-      if (*allegro_errno) /* evil, evil, evil! */
+      if (al_get_errno()) /* evil, evil, evil! */
 	 break;
 
       c++;
@@ -875,8 +853,8 @@ int for_each_file(AL_CONST char *name, int attrib, void (*callback)(AL_CONST cha
    al_findclose(&info);
 
    /* no entry is not an error for for_each_file() */
-   if (*allegro_errno == ENOENT)
-      *allegro_errno = 0;
+   if (al_get_errno() == ENOENT)
+      al_set_errno(0);
 
    return c;
 }
@@ -908,8 +886,8 @@ int for_each_file_ex(AL_CONST char *name, int in_attrib, int out_attrib, int (*c
 
    if (al_findfirst(name, &info, ~out_attrib) != 0) {
       /* no entry is not an error for for_each_file_ex() */
-      if (*allegro_errno == ENOENT)
-	 *allegro_errno = 0;
+      if (al_get_errno() == ENOENT)
+	 al_set_errno(0);
 
       return 0;
    }
@@ -929,8 +907,8 @@ int for_each_file_ex(AL_CONST char *name, int in_attrib, int out_attrib, int (*c
    al_findclose(&info);
 
    /* no entry is not an error for for_each_file_ex() */
-   if (*allegro_errno == ENOENT)
-      *allegro_errno = 0;
+   if (al_get_errno() == ENOENT)
+      al_set_errno(0);
 
    return c;
 }
@@ -1089,7 +1067,7 @@ int set_allegro_resource_path(int priority, AL_CONST char *path)
 	 }
          
 	 if (!resource_path_list->next)
-	    _add_exit_func(destroy_resource_path_list,
+	    _al_add_exit_func(destroy_resource_path_list,
 			   "destroy_resource_path_list");
       }
       
@@ -1109,7 +1087,7 @@ int set_allegro_resource_path(int priority, AL_CONST char *path)
 	  _AL_FREE(node);
           
 	  if (!resource_path_list)
-	     _remove_exit_func(destroy_resource_path_list);
+	     _al_remove_exit_func(destroy_resource_path_list);
        }
        else
 	  return 0;
@@ -1125,7 +1103,7 @@ static void destroy_resource_path_list(void)
    RESOURCE_PATH *node = resource_path_list;
    
    if (node)
-      _remove_exit_func(destroy_resource_path_list);
+      _al_remove_exit_func(destroy_resource_path_list);
    
    while (node) {
       resource_path_list = node->next;
@@ -1135,7 +1113,7 @@ static void destroy_resource_path_list(void)
 }
 
 
-
+#if 0
 /* find_allegro_resource:
  *  Searches for a support file, eg. allegro.cfg or language.dat. Passed
  *  a resource string describing what you are looking for, along with
@@ -1272,7 +1250,7 @@ int find_allegro_resource(char *dest, AL_CONST char *resource, AL_CONST char *ex
    /* argh, all that work, and still no biscuit */ 
    return -1;
 }
-
+#endif
 
 
 /***************************************************
@@ -1280,6 +1258,7 @@ int find_allegro_resource(char *dest, AL_CONST char *resource, AL_CONST char *ex
  ***************************************************/
 
 
+#if 0
 /* pack_fopen_exe_file:
  *  Helper to handle opening files that have been appended to the end of
  *  the program executable.
@@ -1294,7 +1273,7 @@ static PACKFILE *pack_fopen_exe_file(void)
    get_executable_name(exe_name, sizeof(exe_name));
 
    if (!ugetc(get_filename(exe_name))) {
-      *allegro_errno = ENOENT;
+      al_set_errno(ENOENT);
       return NULL;
    }
 
@@ -1309,7 +1288,7 @@ static PACKFILE *pack_fopen_exe_file(void)
 
    if (pack_mgetl(f) != F_EXE_MAGIC) {
       pack_fclose(f);
-      *allegro_errno = ENOTDIR;
+      al_set_errno(ENOTDIR);
       return NULL;
    }
 
@@ -1331,138 +1310,7 @@ static PACKFILE *pack_fopen_exe_file(void)
 
    return f;
 }
-
-
-
-/* pack_fopen_datafile_object:
- *  Recursive helper to handle opening member objects from datafiles, 
- *  given a fake filename in the form 'object_name[/nestedobject]'.
- */
-static PACKFILE *pack_fopen_datafile_object(PACKFILE *f, AL_CONST char *objname)
-{
-   char buf[512];   /* text is read into buf as UTF-8 */
-   char tmp[512*4]; /* this should be enough even when expanding to UCS-4 */
-   char name[512];
-   int use_next = FALSE;
-   int recurse = FALSE;
-   int type, size, pos, c;
-
-   /* split up the object name */
-   pos = 0;
-
-   while ((c = ugetxc(&objname)) != 0) {
-      if ((c == '#') || (c == '/') || (c == OTHER_PATH_SEPARATOR)) {
-	 recurse = TRUE;
-	 break;
-      }
-      pos += usetc(name+pos, c);
-   }
-
-   usetc(name+pos, 0);
-
-   pack_mgetl(f);
-
-   /* search for the requested object */
-   while (!pack_feof(f)) {
-      type = pack_mgetl(f);
-
-      if (type == DAT_PROPERTY) {
-	 type = pack_mgetl(f);
-	 size = pack_mgetl(f);
-	 if (type == DAT_NAME) {
-	    /* examine name property */
-	    pack_fread(buf, size, f);
-	    buf[size] = 0;
-	    if (ustricmp(uconvert(buf, U_UTF8, tmp, U_CURRENT, sizeof tmp), name) == 0)
-	       use_next = TRUE;
-	 }
-	 else {
-	    /* skip property */
-	    pack_fseek(f, size);
-	 }
-      }
-      else {
-	 if (use_next) {
-	    /* found it! */
-	    if (recurse) {
-	       if (type == DAT_FILE)
-		  return pack_fopen_datafile_object(pack_fopen_chunk(f, FALSE), objname);
-	       else
-		  break;
-	    }
-	    else {
-	       _packfile_type = type;
-	       return pack_fopen_chunk(f, FALSE);
-	    }
-	 }
-	 else {
-	    /* skip unwanted object */
-	    size = pack_mgetl(f);
-	    pack_fseek(f, size+4);
-	 }
-      }
-   }
-
-   /* oh dear, the object isn't there... */
-   pack_fclose(f);
-   *allegro_errno = ENOENT;
-   return NULL; 
-}
-
-
-
-/* pack_fopen_special_file:
- *  Helper to handle opening psuedo-files, ie. datafile objects and data
- *  that has been appended to the end of the executable.
- */
-static PACKFILE *pack_fopen_special_file(AL_CONST char *filename, AL_CONST char *mode)
-{
-   char fname[1024], objname[512], tmp[16];
-   PACKFILE *f;
-   char *p;
-   int c;
-
-   /* special files are read-only */
-   while ((c = *(mode++)) != 0) {
-      if ((c == 'w') || (c == 'W')) {
-	 *allegro_errno = EROFS;
-	 return NULL;
-      }
-   }
-
-   if (ustrcmp(filename, uconvert_ascii("#", tmp)) == 0) {
-      /* read appended executable data */
-      return pack_fopen_exe_file();
-   }
-   else {
-      if (ugetc(filename) == '#') {
-	 /* read object from an appended datafile */
-	 ustrzcpy(fname,  sizeof(fname), uconvert_ascii("#", tmp));
-	 ustrzcpy(objname, sizeof(objname), filename+uwidth(filename));
-      }
-      else {
-	 /* read object from a regular datafile */
-	 ustrzcpy(fname,  sizeof(fname), filename);
-	 p = ustrrchr(fname, '#');
-	 usetat(p, 0, 0);
-	 ustrzcpy(objname, sizeof(objname), p+uwidth(p));
-      }
-
-      /* open the file */
-      f = pack_fopen(fname, F_READ_PACKED);
-      if (!f)
-	 return NULL;
-
-      if (pack_mgetl(f) != DAT_MAGIC) {
-	 pack_fclose(f);
-	 *allegro_errno = ENOTDIR;
-	 return NULL;
-      }
-
-      /* find the required object */
-      return pack_fopen_datafile_object(f, objname);
-   }
-}
+#endif
 
 
 
@@ -1526,7 +1374,7 @@ static int clone_password(PACKFILE *f)
 
    if (the_password[0]) {
       if ((f->normal.passdata = _AL_MALLOC_ATOMIC(strlen(the_password)+1)) == NULL) {
-	 *allegro_errno = ENOMEM;
+	 al_set_errno(ENOMEM);
 	 return FALSE;
       }
       _al_sane_strncpy(f->normal.passdata, the_password, strlen(the_password)+1);
@@ -1555,7 +1403,7 @@ static PACKFILE *create_packfile(int is_normal_packfile)
       f = _AL_MALLOC(sizeof(PACKFILE) - sizeof(struct _al_normal_packfile_details));
 
    if (f == NULL) {
-      *allegro_errno = ENOMEM;
+      al_set_errno(ENOMEM);
       return NULL;
    }
 
@@ -1707,7 +1555,7 @@ PACKFILE *_pack_fdopen(int fd, AL_CONST char *mode)
 	    if (fd2<0) {
 	       pack_fclose(f->normal.parent);
 	       free_packfile(f);
-	       *allegro_errno = errno;
+	       al_set_errno(errno);
 	       return NULL;
 	    }
   
@@ -1755,7 +1603,7 @@ PACKFILE *_pack_fdopen(int fd, AL_CONST char *mode)
 	    free_lzss_unpack_data(f->normal.unpack_data);
 	    f->normal.unpack_data = NULL;
 	    free_packfile(f);
-	    *allegro_errno = EDOM;
+	    al_set_errno(EDOM);
 	    return NULL;
 	 }
       }
@@ -1763,7 +1611,7 @@ PACKFILE *_pack_fdopen(int fd, AL_CONST char *mode)
 	 /* read a 'real' file */
 	 f->normal.todo = lseek(fd, 0, SEEK_END);  /* size of the file */
 	 if (f->normal.todo < 0) {
-	    *allegro_errno = errno;
+	    al_set_errno(errno);
 	    free_packfile(f);
 	    return NULL;
          }
@@ -1813,11 +1661,6 @@ PACKFILE *pack_fopen(AL_CONST char *filename, AL_CONST char *mode)
 
    _packfile_type = 0;
 
-   if (ustrchr(filename, '#')) {
-      PACKFILE *special = pack_fopen_special_file(filename, mode);
-      if (special)
-	 return special;
-   }
 
    if (!_al_file_isok(filename))
       return NULL;
@@ -1835,7 +1678,7 @@ PACKFILE *pack_fopen(AL_CONST char *filename, AL_CONST char *mode)
 #endif
 
    if (fd < 0) {
-      *allegro_errno = errno;
+      al_set_errno(errno);
       return NULL;
    }
 
@@ -1903,7 +1746,7 @@ int pack_fclose(PACKFILE *f)
 
    ret = f->vtable->pf_fclose(f->userdata);
    if (ret != 0)
-      *allegro_errno = errno;
+      al_set_errno(errno);
 
    free_packfile(f);
 
@@ -1939,7 +1782,7 @@ PACKFILE *pack_fopen_chunk(PACKFILE *f, int pack)
 
    /* unsupported */
    if (!f->is_normal_packfile) {
-      *allegro_errno = EINVAL;
+      al_set_errno(EINVAL);
       return NULL;
    }
 
@@ -2057,7 +1900,7 @@ PACKFILE *pack_fopen_chunk(PACKFILE *f, int pack)
 	 /* backward compatibility mode */
 	 if (f->normal.passdata) {
 	    if ((chunk->normal.passdata = _AL_MALLOC_ATOMIC(strlen(f->normal.passdata)+1)) == NULL) {
-	       *allegro_errno = ENOMEM;
+	       al_set_errno(ENOMEM);
 	       _AL_FREE(chunk);
 	       return NULL;
 	    }
@@ -2109,7 +1952,7 @@ PACKFILE *pack_fclose_chunk(PACKFILE *f)
 
    /* unsupported */
    if (!f->is_normal_packfile) {
-      *allegro_errno = EINVAL;
+      al_set_errno(EINVAL);
       return NULL;
    }
 
@@ -2129,7 +1972,7 @@ PACKFILE *pack_fclose_chunk(PACKFILE *f)
          hndl = dup(f->normal.hndl);
 
       if (hndl<0) {
-         *allegro_errno = errno;
+         al_set_errno(errno);
          return NULL;
       }
 
@@ -2497,7 +2340,7 @@ char *pack_fgets(char *p, int max, PACKFILE *f)
    int c;
    ASSERT(f);
 
-   *allegro_errno = 0;
+   al_set_errno(0);
 
    pmax = p+max - ucwidth(0);
 
@@ -2536,7 +2379,7 @@ char *pack_fgets(char *p, int max, PACKFILE *f)
    /* terminate the string */
    usetc(p, 0);
 
-   if (c == '\0' || *allegro_errno)
+   if (c == '\0' || al_get_errno())
       return NULL;
 
    return orig_p; /* p has changed */
@@ -2557,7 +2400,7 @@ int pack_fputs(AL_CONST char *p, PACKFILE *f)
    ASSERT(f);
    ASSERT(p);
 
-   *allegro_errno = 0;
+   al_set_errno(0);
 
    bufsize = uconvert_size(p, U_CURRENT, U_UTF8);
    buf = _AL_MALLOC_ATOMIC(bufsize);
@@ -2578,7 +2421,7 @@ int pack_fputs(AL_CONST char *p, PACKFILE *f)
 
    _AL_FREE(buf);
 
-   if (*allegro_errno)
+   if (al_get_errno())
       return -1;
    else
       return 0;
@@ -2663,7 +2506,7 @@ static int normal_fclose(void *_f)
    else {
       ret = close(f->normal.hndl);
       if (ret != 0)
-	 *allegro_errno = errno;
+	 al_set_errno(errno);
    }
 
    if (f->normal.pack_data) {
@@ -2803,7 +2646,7 @@ static int normal_fseek(void *_f, int offset)
    if (f->normal.flags & PACKFILE_FLAG_WRITE)
       return -1;
 
-   *allegro_errno = 0;
+   al_set_errno(0);
 
    /* skip forward through the buffer */
    if (f->normal.buf_size > 0) {
@@ -2841,7 +2684,7 @@ static int normal_fseek(void *_f, int offset)
       }
    }
 
-   if (*allegro_errno)
+   if (al_get_errno())
       return -1;
    else
       return 0;
@@ -2938,7 +2781,7 @@ static int normal_refill_buffer(PACKFILE *f)
       return *(f->normal.buf_pos++);
 
  Error:
-   *allegro_errno = EFAULT;
+   al_set_errno(EFAULT);
    f->normal.flags |= PACKFILE_FLAG_ERROR;
    return EOF;
 }
@@ -2992,7 +2835,7 @@ static int normal_flush_buffer(PACKFILE *f, int last)
    return 0;
 
  Error:
-   *allegro_errno = EFAULT;
+   al_set_errno(EFAULT);
    f->normal.flags |= PACKFILE_FLAG_ERROR;
    return EOF;
 }

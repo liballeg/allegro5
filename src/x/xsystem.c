@@ -1,440 +1,313 @@
-/*         ______   ___    ___
- *        /\  _  \ /\_ \  /\_ \
- *        \ \ \L\ \\//\ \ \//\ \      __     __   _ __   ___
- *         \ \  __ \ \ \ \  \ \ \   /'__`\ /'_ `\/\`'__\/ __`\
- *          \ \ \/\ \ \_\ \_ \_\ \_/\  __//\ \L\ \ \ \//\ \L\ \
- *           \ \_\ \_\/\____\/\____\ \____\ \____ \ \_\\ \____/
- *            \/_/\/_/\/____/\/____/\/____/\/___L\ \/_/ \/___/
- *                                           /\____/
- *                                           \_/__/
- *
- *      Main system driver for the X-Windows library.
- *
- *      By Michael Bukin.
- *
- *      See readme.txt for copyright information.
+/* This is only a dummy driver, not implementing most required things,
+ * it's just here to give me some understanding of the base framework of a
+ * system driver.
  */
 
+#ifdef DEBUG_X11
+extern int _Xdebug; /* part of Xlib */
+#endif
 
 #include "allegro5/allegro5.h"
-#include "allegro5/platform/aintunix.h"
-#include "xwin.h"
+#include "allegro5/internal/aintern_memory.h"
+#include "xglx.h"
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <signal.h>
-#include <sys/time.h>
-#include <sys/types.h>
-#include <sys/wait.h>
-#include <unistd.h>
+int32_t _unix_get_path(uint32_t id, char *dir, size_t size);
 
+static ALLEGRO_SYSTEM_INTERFACE *xglx_vt;
 
-
-static int _xwin_sysdrv_init(void);
-static void _xwin_sysdrv_exit(void);
-static void _xwin_sysdrv_set_window_title(AL_CONST char *name);
-static int _xwin_sysdrv_set_close_button_callback(void (*proc)(void));
-static void _xwin_sysdrv_message(AL_CONST char *msg);
-static int _xwin_sysdrv_display_switch_mode(int mode);
-static int _xwin_sysdrv_desktop_color_depth(void);
-static int _xwin_sysdrv_get_desktop_resolution(int *width, int *height);
-static void _xwin_sysdrv_get_gfx_safe_mode(int *driver, struct GFX_MODE *mode);
-static _DRIVER_INFO *_xwin_sysdrv_gfx_drivers(void);
-static _DRIVER_INFO *_xwin_sysdrv_digi_drivers(void);
-static _DRIVER_INFO *_xwin_sysdrv_midi_drivers(void);
-static _DRIVER_INFO *_xwin_sysdrv_keyboard_drivers(void);
-static _DRIVER_INFO *_xwin_sysdrv_mouse_drivers(void);
-#ifdef ALLEGRO_LINUX
-static _DRIVER_INFO *_xwin_sysdrv_joystick_drivers(void);
-#endif
-
-
-/* the main system driver for running under X-Windows */
-SYSTEM_DRIVER system_xwin =
+static void process_x11_event(ALLEGRO_SYSTEM_XGLX *s, XEvent event)
 {
-   SYSTEM_XWINDOWS,
-   empty_string,
-   empty_string,
-   "X-Windows",
-   _xwin_sysdrv_init,
-   _xwin_sysdrv_exit,
-   _unix_get_executable_name,
-   _unix_get_path,
-   _unix_find_resource,
-   _xwin_sysdrv_set_window_title,
-   _xwin_sysdrv_set_close_button_callback,
-   _xwin_sysdrv_message,
-   NULL, /* assert */
-   NULL, /* save_console_state */
-   NULL, /* restore_console_state */
-   NULL, /* create_bitmap */
-   NULL, /* created_bitmap */
-   NULL, /* create_sub_bitmap */
-   NULL, /* created_sub_bitmap */
-   NULL, /* destroy_bitmap */
-   NULL, /* read_hardware_palette */
-   NULL, /* set_palette_range */
-   NULL, /* get_vtable */
-   _xwin_sysdrv_display_switch_mode,
-   NULL, /* display_switch_lock */
-   _xwin_sysdrv_desktop_color_depth,
-   _xwin_sysdrv_get_desktop_resolution,
-   _xwin_sysdrv_get_gfx_safe_mode,
-   _unix_yield_timeslice,
-   _xwin_sysdrv_gfx_drivers,
-   _xwin_sysdrv_digi_drivers,
-   _xwin_sysdrv_midi_drivers,
-   _xwin_sysdrv_keyboard_drivers,
-   _xwin_sysdrv_mouse_drivers,
-#ifdef ALLEGRO_LINUX
-   _xwin_sysdrv_joystick_drivers
-#else
-   NULL /* joystick_driver_list */
-#endif
-};
+   unsigned int i;
+   ALLEGRO_DISPLAY_XGLX *d = NULL;
 
-
-static RETSIGTYPE (*old_sig_abrt)(int num);
-static RETSIGTYPE (*old_sig_fpe)(int num);
-static RETSIGTYPE (*old_sig_ill)(int num);
-static RETSIGTYPE (*old_sig_segv)(int num);
-static RETSIGTYPE (*old_sig_term)(int num);
-static RETSIGTYPE (*old_sig_int)(int num);
-#ifdef SIGQUIT
-static RETSIGTYPE (*old_sig_quit)(int num);
-#endif
-
-/* _xwin_signal_handler:
- *  Used to trap various signals, to make sure things get shut down cleanly.
- */
-static RETSIGTYPE _xwin_signal_handler(int num)
-{
-   if (_unix_bg_man->interrupts_disabled() || _xwin.lock_count) {
-      /* Can not shutdown X-Windows, restore old signal handlers and slam the door.  */
-      signal(SIGABRT, old_sig_abrt);
-      signal(SIGFPE,  old_sig_fpe);
-      signal(SIGILL,  old_sig_ill);
-      signal(SIGSEGV, old_sig_segv);
-      signal(SIGTERM, old_sig_term);
-      signal(SIGINT,  old_sig_int);
-#ifdef SIGQUIT
-      signal(SIGQUIT, old_sig_quit);
-#endif
-      raise(num);
-      abort();
+   /* With many windows, it's bad to loop through them all, but typically
+    * we have one or at most two or so.
+    */
+   for (i = 0; i < _al_vector_size(&s->system.displays); i++) {
+      ALLEGRO_DISPLAY_XGLX **dptr = _al_vector_ref(&s->system.displays, i);
+      d = *dptr;
+      if (d->window == event.xany.window) {
+         break;
+      }
    }
-   else {
-      allegro_exit();
-      fprintf(stderr, "Shutting down Allegro due to signal #%d\n", num);
-      raise(num);
+
+   if (!d) {
+      /* The display was probably destroyed already. */
+      return;
+   }
+
+   switch (event.type) {
+      case KeyPress:
+         _al_xwin_keyboard_handler(&event.xkey, false,
+            &d->display);
+         break;
+      case KeyRelease:
+         _al_xwin_keyboard_handler(&event.xkey, false,
+            &d->display);
+         break;
+      case FocusIn:
+         //_al_xwin_keyboard_focus_handler(&event.xfocus);
+         _al_xwin_display_switch_handler(&d->display, &event.xfocus);
+         break;
+      case FocusOut:
+         //_al_xwin_keyboard_focus_handler(&event.xfocus);
+         _al_xwin_display_switch_handler(&d->display, &event.xfocus);
+         break;
+      case ButtonPress:
+         _al_xwin_mouse_button_press_handler(event.xbutton.button,
+            &d->display);
+         break;
+      case ButtonRelease:
+         _al_xwin_mouse_button_release_handler(event.xbutton.button,
+            &d->display);
+         break;
+      case MotionNotify:
+         _al_xwin_mouse_motion_notify_handler(
+            event.xmotion.x, event.xmotion.y, &d->display);
+         break;
+      case ConfigureNotify:
+         _al_display_xglx_configure(&d->display,  &event);
+         _al_cond_signal(&s->resized);
+         break;
+      case MapNotify:
+         _al_cond_signal(&s->mapped);
+         break;
+      case Expose:
+         if (d->display.flags & ALLEGRO_GENERATE_EXPOSE_EVENTS) {
+            _al_xwin_display_expose(&d->display, &event.xexpose);
+         }
+         break;
+      case ClientMessage:
+         if ((Atom)event.xclient.data.l[0] == d->wm_delete_window_atom) {
+            _al_display_xglx_closebutton(&d->display, &event);
+            break;
+         }
    }
 }
 
-
-
-/* _xwin_bg_handler:
- *  Really used for synchronous stuff.
- */
-static void _xwin_bg_handler(int threaded)
+static void xglx_background_thread(_AL_THREAD *self, void *arg)
 {
-   _xwin_handle_input();
+   ALLEGRO_SYSTEM_XGLX *s = arg;
+   XEvent event;
+
+   while (!_al_thread_should_stop(self)) {
+      /* Note:
+       * Most older X11 implementations are not thread-safe no matter what, so
+       * we simply cannot sit inside a blocking XNextEvent from another thread
+       * if another thread also uses X11 functions.
+       * 
+       * The usual use of XNextEvent is to only call it from the main thread. We
+       * could of course do this for A5, just needs some slight adjustments to
+       * the events system (polling for an Allegro event would call a function
+       * of the system driver).
+       * 
+       * As an alternative, we can use locking. This however can never fully
+       * work, as for example OpenGL implementations also will access X11, in a
+       * way we cannot know and cannot control (and we can't require users to
+       * only call graphics functions inside a lock).
+       * 
+       * However, most X11 implementations are somewhat thread safe, and do
+       * use locking quite a bit themselves, so locking mostly does work.
+       * 
+       * (Yet another alternative might be to use a separate X11 display
+       * connection for graphics output.)
+       *
+       */
+
+      _al_mutex_lock(&s->lock);
+      while (XEventsQueued(s->x11display, QueuedAfterFlush)) {
+         XNextEvent(s->x11display, &event);
+         process_x11_event(s, event);
+      }
+      _al_mutex_unlock(&s->lock);
+
+      /* If no X11 events are there, unlock so other threads can run. We use
+       * a select call to wake up when as soon as anything is available on
+       * the X11 connection - and just for safety also wake up 10 times
+       * a second regardless.
+       */
+      int x11_fd = ConnectionNumber(s->x11display);
+      fd_set fdset;
+      FD_ZERO(&fdset);
+      FD_SET(x11_fd, &fdset);
+      struct timeval small_time = {0, 100000}; /* 10 times a second */
+      select(x11_fd + 1, &fdset, NULL, NULL, &small_time);
+   }
 }
 
-
-/* _xwin_sysdrv_init:
- *  Top level system driver wakeup call.
- */
-static int _xwin_sysdrv_init(void)
+/* Create a new system object for the dummy X11 driver. */
+static ALLEGRO_SYSTEM *xglx_initialize(int flags)
 {
-   char tmp[256];
+   ALLEGRO_SYSTEM_XGLX *s = _AL_MALLOC(sizeof *s);
+   memset(s, 0, sizeof *s);
 
-   _unix_read_os_type();
+   #ifdef DEBUG_X11
+   _Xdebug = 1;
+   #endif
 
-   /* install emergency-exit signal handlers */
-   old_sig_abrt = signal(SIGABRT, _xwin_signal_handler);
-   old_sig_fpe  = signal(SIGFPE,  _xwin_signal_handler);
-   old_sig_ill  = signal(SIGILL,  _xwin_signal_handler);
-   old_sig_segv = signal(SIGSEGV, _xwin_signal_handler);
-   old_sig_term = signal(SIGTERM, _xwin_signal_handler);
-   old_sig_int  = signal(SIGINT,  _xwin_signal_handler);
-
-#ifdef SIGQUIT
-   old_sig_quit = signal(SIGQUIT, _xwin_signal_handler);
-#endif
-
-   /* Initialise dynamic driver lists and load modules */
-   _unix_driver_lists_init();
-   if (_unix_gfx_driver_list)
-      _driver_list_append_list(&_unix_gfx_driver_list, _xwin_gfx_driver_list);
-   _unix_load_modules(SYSTEM_XWINDOWS);
-
-   _unix_bg_man = &_bg_man_pthreads;
-
-   /* Initialise bg_man */
-   if (_unix_bg_man->init()) {
-      _xwin_sysdrv_exit();
-      return -1;
-   }
-
-   _al_mutex_init_recursive(&_xwin.mutex);
-
-   get_executable_name(tmp, sizeof(tmp));
-   set_window_title(get_filename(tmp));
-
-   if (get_config_int("system", "XInitThreads", 1))
-      XInitThreads();
-
-   /* Open the display, create a window, and background-process 
-    * events for it all. */
-   if (_xwin_open_display(0) || _xwin_create_window()
-       || _unix_bg_man->register_func(_xwin_bg_handler))
-   {
-      _xwin_sysdrv_exit();
-      return -1;
-   }
-
-   set_display_switch_mode(SWITCH_BACKGROUND);
-
-   /* Mark the beginning of time. */
    _al_unix_init_time();
 
-   return 0;
-}
+   _al_mutex_init_recursive(&s->lock);
+   _al_cond_init(&s->mapped);
+   _al_cond_init(&s->resized);
 
+   _al_vector_init(&s->system.displays, sizeof (ALLEGRO_SYSTEM_XGLX *));
 
+   XInitThreads();
 
-/* _xwin_sysdrv_exit:
- *  The end of the world...
- */
-static void _xwin_sysdrv_exit(void)
-{
-   /* This stops the X event handler running in the background, which
-    * seems a nice thing to do before closing the connection to the X
-    * display... (remove this and you get SIGABRTs during XCloseDisplay).
-    */
-   _unix_bg_man->unregister_func(_xwin_bg_handler);
+   s->system.vt = xglx_vt;
 
-   _xwin_close_display();
-   _unix_bg_man->exit();
-
-   _unix_unload_modules();
-   _unix_driver_lists_shutdown();
-
-   signal(SIGABRT, old_sig_abrt);
-   signal(SIGFPE,  old_sig_fpe);
-   signal(SIGILL,  old_sig_ill);
-   signal(SIGSEGV, old_sig_segv);
-   signal(SIGTERM, old_sig_term);
-   signal(SIGINT,  old_sig_int);
-
-#ifdef SIGQUIT
-   signal(SIGQUIT, old_sig_quit);
-#endif
-
-   _al_mutex_destroy(&_xwin.mutex);
-}
-
-
-
-/* _xwin_sysdrv_set_window_title:
- *  Sets window title.
- */
-static void _xwin_sysdrv_set_window_title(AL_CONST char *name)
-{
-   char title[128];
-
-   do_uconvert(name, U_CURRENT, title, U_ASCII, sizeof(title));
-
-   _xwin_set_window_title(title);
-}
-
-
-
-/* _xwin_sysdrv_set_close_button_callback:
- *  Sets close button callback function.
- */
-static int _xwin_sysdrv_set_close_button_callback(void (*proc)(void))
-{
-   _xwin.close_button_callback = proc;
+   /* Get an X11 display handle. */
+   s->x11display = XOpenDisplay(0);
    
-   return 0;
+   /* Never ask. */
+   s->gfxdisplay = XOpenDisplay(0);
+
+   TRACE("xsystem: XGLX driver connected to X11 (%sys %d).\n",
+      ServerVendor(s->x11display), VendorRelease(s->x11display));
+   TRACE("xsystem: X11 protocol version %d.%d.\n",
+      ProtocolVersion(s->x11display), ProtocolRevision(s->x11display));
+
+   _al_xglx_store_video_mode(s);
+   
+   _al_thread_create(&s->thread, xglx_background_thread, s);
+
+   TRACE("xsystem: events thread spawned.\n");
+
+   return &s->system;
 }
 
-
-
-/* _xwin_sysdrv_message:
- *  Displays a message. Uses xmessage if possible, and stdout if not.
- */
-static void _xwin_sysdrv_message(AL_CONST char *msg)
+static void xglx_shutdown_system(void)
 {
-   char buf[ALLEGRO_MESSAGE_SIZE+1];
-   char *msg2;
-   size_t len;
-   pid_t pid;
-   int status;
+   /* Close all open displays. */
+   ALLEGRO_SYSTEM *s = al_system_driver();
+   ALLEGRO_SYSTEM_XGLX *sx = (void *)s;
 
-   /* convert message to ASCII */
-   msg2 = uconvert(msg, U_CURRENT, buf, U_ASCII, ALLEGRO_MESSAGE_SIZE);
+   TRACE("shutting down.\n");
 
-   /* xmessage interprets some strings beginning with '-' as command-line
-    * options. To avoid this we make sure all strings we pass to it have
-    * newlines on the end. This is also useful for the fputs() case.
-    */
-   len = strlen(msg2);
-   ASSERT(len < ALLEGRO_MESSAGE_SIZE);
-   if ((len == 0) || (msg2[len-1] != '\n'))
-      strcat(msg2, "\n");
+   _al_thread_join(&sx->thread);
 
-   /* fork a child */
-   pid = fork();
-   switch (pid) {
-
-      case -1: /* fork error */
-	 fputs(msg2, stdout);
-	 break;
-
-      case 0: /* child process */
-	 execlp("xmessage", "xmessage", "-buttons", "OK:101", "-default", "OK", "-center", msg2, (char *)NULL);
-
-	 /* if execution reaches here, it means execlp failed */
-	 _exit(EXIT_FAILURE);
-	 break;
-
-      default: /* parent process */
-	 waitpid(pid, &status, 0);
-	 if ((!WIFEXITED(status))
-	     || (WEXITSTATUS(status) != 101)) /* ok button */
-	 {
-	    fputs(msg2, stdout);
-	 }
-
-	 break;
+   while (_al_vector_size(&s->displays) > 0) {
+      ALLEGRO_DISPLAY **dptr = _al_vector_ref(&s->displays, 0);
+      ALLEGRO_DISPLAY *d = *dptr;
+      _al_destroy_display_bitmaps(d);
+      al_destroy_display(d);
    }
+   _al_vector_free(&s->displays);
+
+   _al_xglx_free_mode_infos(sx);
+
+   if (sx->x11display) {
+      XCloseDisplay(sx->x11display);
+      sx->x11display = None;
+   }
+
+   if (sx->gfxdisplay) {
+      /* XXX for some reason, crashes if both XCloseDisplay calls are made */
+      /* XCloseDisplay(sx->gfxdisplay); */
+      sx->gfxdisplay = None;
+   }
+
+   _AL_FREE(sx);
 }
 
-
-
-/* _xwin_sysdrv_gfx_drivers:
- *  Get the list of graphics drivers.
- */
-static _DRIVER_INFO *_xwin_sysdrv_gfx_drivers(void)
+// FIXME: This is just for now, the real way is of course a list of
+// available display drivers. Possibly such drivers can be attached at runtime
+// to the system driver, so addons could provide additional drivers.
+static ALLEGRO_DISPLAY_INTERFACE *xglx_get_display_driver(void)
 {
-   return _unix_gfx_driver_list;
+   return _al_display_xglx_driver();
 }
 
-
-
-/* _xwin_sysdrv_digi_drivers:
- *  Get the list of digital sound drivers.
- */
-static _DRIVER_INFO *_xwin_sysdrv_digi_drivers(void)
+static ALLEGRO_KEYBOARD_DRIVER *xglx_get_keyboard_driver(void)
 {
-   return _unix_digi_driver_list;
+   // FIXME: Select the best driver somehow
+   return _al_xwin_keyboard_driver_list[0].driver;
 }
 
-
-
-/* _xwin_sysdrv_midi_drivers:
- *  Get the list of MIDI drivers.
- */
-static _DRIVER_INFO *_xwin_sysdrv_midi_drivers(void)
+static ALLEGRO_MOUSE_DRIVER *xglx_get_mouse_driver(void)
 {
-   return _unix_midi_driver_list;
+   // FIXME: Select the best driver somehow
+   return _al_xwin_mouse_driver_list[0].driver;
 }
 
-
-
-/* _xwin_sysdrv_keyboard_drivers:
- *  Get the list of keyboard drivers.
- */
-static _DRIVER_INFO *_xwin_sysdrv_keyboard_drivers(void)
+static ALLEGRO_JOYSTICK_DRIVER *xglx_get_joystick_driver(void)
 {
-   return _al_xwin_keyboard_driver_list;
+   return _al_joystick_driver_list[0].driver;
 }
 
-
-
-/* _xwin_sysdrv_mouse_drivers:
- *  Get the list of mouse drivers.
- */
-static _DRIVER_INFO *_xwin_sysdrv_mouse_drivers(void)
+// FIXME: Implement.
+static int xglx_get_num_video_adapters(void)
 {
-   return _al_xwin_mouse_driver_list;
+   return 1;
 }
 
-
-
-#ifdef ALLEGRO_LINUX
-/* _xwin_sysdrv_joystick_drivers:
- *  Get the list of joystick drivers.
- */
-static _DRIVER_INFO *_xwin_sysdrv_joystick_drivers(void)
+// FIXME: Implement. Right now it just reads the root window size and ignores
+// the adapeter number.
+static void xglx_get_monitor_info(int adapter, ALLEGRO_MONITOR_INFO *info)
 {
-   return _al_linux_joystick_driver_list;
+   ALLEGRO_SYSTEM_XGLX *system = (void *)al_system_driver();
+   XWindowAttributes xwa;
+   Window root = RootWindow(system->x11display, 0);
+   _al_mutex_lock(&system->lock);
+   XGetWindowAttributes(system->x11display, root, &xwa);
+   _al_mutex_unlock(&system->lock);
+   
+   info->x1 = 0;
+   info->y1 = 0;
+   info->x2 = xwa.width;
+   info->y2 = xwa.height;
 }
+
+static bool xglx_get_cursor_position(int *ret_x, int *ret_y)
+{
+   ALLEGRO_SYSTEM_XGLX *system = (void *)al_system_driver();
+   Window root = RootWindow(system->x11display, 0);
+   Window child;
+   int wx, wy;
+   unsigned int mask;
+
+   _al_mutex_lock(&system->lock);
+   XQueryPointer(system->x11display, root, &root, &child, ret_x, ret_y,
+      &wx, &wy, &mask);
+   _al_mutex_unlock(&system->lock);
+   return true;
+}
+
+/* Internal function to get a reference to this driver. */
+ALLEGRO_SYSTEM_INTERFACE *_al_system_xglx_driver(void)
+{
+   if (xglx_vt) return xglx_vt;
+
+   xglx_vt = _AL_MALLOC(sizeof *xglx_vt);
+   memset(xglx_vt, 0, sizeof *xglx_vt);
+
+   xglx_vt->initialize = xglx_initialize;
+   xglx_vt->get_display_driver = xglx_get_display_driver;
+   xglx_vt->get_keyboard_driver = xglx_get_keyboard_driver;
+   xglx_vt->get_mouse_driver = xglx_get_mouse_driver;
+   xglx_vt->get_joystick_driver = xglx_get_joystick_driver;
+   xglx_vt->get_num_display_modes = _al_xglx_get_num_display_modes;
+   xglx_vt->get_display_mode = _al_xglx_get_display_mode;
+   xglx_vt->shutdown_system = xglx_shutdown_system;
+   xglx_vt->get_num_video_adapters = xglx_get_num_video_adapters;
+   xglx_vt->get_monitor_info = xglx_get_monitor_info;
+   xglx_vt->get_cursor_position = xglx_get_cursor_position;
+   xglx_vt->get_path = _unix_get_path;
+
+   return xglx_vt;
+}
+
+/* This is a function each platform must define to register all available
+ * system drivers.
+ */
+void _al_register_system_interfaces(void)
+{
+   ALLEGRO_SYSTEM_INTERFACE **add;
+
+#if defined ALLEGRO_UNIX
+   /* This is the only system driver right now */
+   add = _al_vector_alloc_back(&_al_system_interfaces);
+   *add = _al_system_xglx_driver();
 #endif
-
-
-
-/* _xwin_sysdrv_display_switch_mode:
- *  Tries to set the display switching mode (this is mostly just to
- *  return sensible values to the caller: most of the modes don't
- *  properly apply to X).
- */
-static int _xwin_sysdrv_display_switch_mode(int mode)
-{
-   if (_xwin.in_dga_mode) {
-      if (mode != SWITCH_NONE)
-	 return -1;
-   }
-
-   if (mode != SWITCH_BACKGROUND)
-      return -1;
-
-   return 0;
 }
-
-
-
-/* _xwin_sysdrv_desktop_color_depth:
- *  Returns the current desktop color depth.
- */
-static int _xwin_sysdrv_desktop_color_depth(void)
-{
-   if (_xwin.window_depth <= 8)
-      return 8;
-   else if (_xwin.window_depth <= 15)
-      return 15;
-   else if (_xwin.window_depth == 16)
-      return 16;
-   else
-      return 32;
-}
-
-
-
-/* _xwin_sysdrv_get_desktop_resolution:
- *  Returns the current desktop resolution.
- */
-static int _xwin_sysdrv_get_desktop_resolution(int *width, int *height)
-{
-   XLOCK();
-   *width = DisplayWidth(_xwin.display, _xwin.screen);
-   *height = DisplayHeight(_xwin.display, _xwin.screen);
-   XUNLOCK();
-   return 0;
-}
-
-
-
-/* _xwin_sysdrv_get_gfx_safe_mode:
- *  Defines the safe graphics mode for this system.
- */
-static void _xwin_sysdrv_get_gfx_safe_mode(int *driver, struct GFX_MODE *mode)
-{
-   *driver = GFX_XWINDOWS;
-   mode->width = 320;
-   mode->height = 200;
-   mode->bpp = 8;
-}
-

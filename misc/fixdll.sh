@@ -115,15 +115,19 @@ else
 
    echo "Generating..."
    echo " lib/msvc/allegro.def"
+   mkdir -p lib/msvc
    cp _all.def lib/msvc/allegro.def
 
    echo " lib/mingw32/allegro.def"
+   mkdir -p lib/mingw32
    cp _all.def lib/mingw32/allegro.def
 
    echo " lib/dmc/allegro.def"
+   mkdir -p lib/dmc
    cp _all.def lib/dmc/allegro.def
 
    echo " lib/bcc32/allegro.def"
+   mkdir -p lib/bcc32
    sed -e "s/^    \([a-zA-Z0-9_]*\) \([@0-9]*\)\([ A-Z]*\)/    _\1 = \1/" _all.def > lib/bcc32/allegro.def
 
 fi

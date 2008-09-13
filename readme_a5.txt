@@ -11,7 +11,8 @@ Windows
 Allegro5 implements two graphics drivers for Windows: one using DirectX 9 and
 onther one using OpenGL. You can force using OpenGL by calling
 al_set_new_display_flags(ALLEGRO_OPENGL) prior to creating a display, while
-DirectX is the default driver (ALLEGRO_DIRECT3D new display flag is implied).
+DirectX is the default driver.
+You can also select the driver using the `allegro.cfg` file.
 
 Here are some files you may need regarding DirectX:
 
@@ -53,10 +54,12 @@ Compilation
 
 We provide two build systems, *CMake* and *scons*.
 
+You will need CMake 2.6 or later.
 
 
-CMake & Unix or MinGW
----------------------
+
+CMake & Unix or MinGW or Mac OS X
+---------------------------------
 
 CMake works by first creating a makefile, which then can be used to compile.
 
@@ -81,11 +84,11 @@ with defaults in brackets:
 - SHARED -- Build shared libraries (on)
 - STATIC -- Build static libraries (on)
 
-Examples:
+Examples: (you only need one)
+
+	$ cmake ..
 
 	$ cmake .. -G "MinGW Makefiles" -DSTATIC=off
-
-	$ cmake .. -G "Unix Makefiles"
 
 Alternatively, you can use `ccmake` to bring up an interactive option
 selector. e.g. `ccmake ..`
@@ -124,9 +127,35 @@ Now that the project solution has been generated, open it with the MSVC IDE
 and start the building process.
 
 *Note:*
-The demo is currently excluded from the build due to some problems with the IDE.
-Only Visual Studio 8 2005 has been tested but other versions may work as well.
+The demo is currently excluded from the build if MSVC8 is detected, due to
+some problems with IntelliSense.
 Please give it a try and report problems.
+
+
+
+Hints on setting up Visual C++ 2005 Express Edition
+---------------------------------------------------
+
+After installing Visual C++, you need to install the Platform SDK (or Windows
+SDK), otherwise CMake will fail at a linking step.  You can do a web install to
+avoid downloading a massive file.  For me, installation seemed to take an
+inordinately long (half an hour or more), but eventually it completed.
+Don't be too quick to hit Cancel.
+
+You also need to install the DirectX SDK.  This is a big download, which I
+don't know how to avoid.
+
+Next, you'll need to tell VC++ about the Platform SDK.  Start the IDE.  Under
+"Tools > Options > Projects and Solutions > VC++ Directories", add the Platform
+SDK executable (bin), include and lib directories to the respective lists.
+The DirectX SDK seems to add itself when it's installed.
+
+Now you can open a command prompt with the correct environment by going to
+"Tools > Visual Studio 2005 command prompt".  Change to the Allegro directory
+and run CMake as before.
+
+For debugging, use the DirectX control panel applet to switch to the debugging
+runtime.  It's really useful.
 
 
 
@@ -143,11 +172,11 @@ See the Allegro wiki for more info on the scons build system:
 
 To compile Allegro, simply type this inside the allegro directory:
 
-    $ scons
+	$ scons
 
 To install, run (as root):
 
-    $ scons install
+	$ scons install
 
 There are also some options you can use with the scons command:
 
@@ -170,37 +199,18 @@ To install as a non-root user, you can do:
 Running the examples
 ====================
 
-Currently, only examples specifically written to use the new API will run.
-The compatibility layer is currently broken so older examples from 4.2.x and
-earlier won't work.
-
-- there's a different demo in the `demo` directory (a5teroids)
-- exnewapi - a messy example showing off a lot of A5 features
-- exnew_bitmap - simply draws a bitmap on screen
-- exnew_bitmap_target - 
-- exnew_fs_resize - demonstrates fullscreen display resizing
-- exnew_lockbitmap - shows how to lock a bitmap to write directly to it
-- exnew_lockscreen - like exnew_lockbitmap, but operates directly on the screen
-- exnew_mouse - uses mouse polling to show a cursor
-- exnew_mouse_events - uses the new event system to show a mouse cursor
-- exnew_resize - demonstrates windows resized with code
-- exnew_blend - an example demonstrating different blending modes
-- exnew_drawpixels - draws individual pixels 
-- exnew_events - demonstrates the event system
-- exnew_icon - sets window icons
-- exnew_membmp - test memory bitmaps
-- exnew_multiwin - demonstrates multiple window support
-- exnew_opengl - 
-- exnew_scale - test bitmap scaling
-- exnew_timedwait - test timed wait for events
-- exnew_timer - test timer events
-
 Remember that some examples look for data files in the current directory, so if
 you used an external build directory you will need to change into the examples
 directory and specify the path to the example in the build directory, e.g.
 
 	$ cd examples
-	$ ../Build/examples/exnew_mouse_events
+	$ ../Build/examples/ex_bitmap
+
+Or symlink the data directory into the build directory:
+
+	$ cd Build/examples
+	$ ln -s ../../examples/data .
+	$ ./ex_bitmap
 
 
 
@@ -212,4 +222,7 @@ The documentation is all linked to from the wiki:
 
 If you have NaturalDocs installed you can build the documentation by
 running `make` in the `docs/naturaldocs` directory.
+
+There is also the `docs/src/refman` directory, which doesn't contain
+much yet.
 

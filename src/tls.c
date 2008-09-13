@@ -28,6 +28,8 @@
 #include "allegro5/allegro5.h"
 #include "allegro5/internal/aintern.h"
 #include "allegro5/internal/aintern_bitmap.h"
+#include "allegro5/internal/aintern_display.h"
+#include "allegro5/internal/aintern_memory.h"
 
 
 /* Thread local storage for graphics API state */
@@ -40,23 +42,17 @@ typedef struct thread_local_state {
    ALLEGRO_DISPLAY *current_display;
    /* Target bitmap */
    ALLEGRO_BITMAP *target_bitmap;
-   /* For pushing/popping target bitmap */
-   ALLEGRO_BITMAP *target_bitmap_backup;
    /* Bitmap parameters */
    int new_bitmap_format;
    int new_bitmap_flags;
-   /* For pushing/popping bitmap parameters */
-   int new_bitmap_format_backup;
-   int new_bitmap_flags_backup;
    /* Blending modes and color */
    int blend_source;
    int blend_dest;
    ALLEGRO_COLOR blend_color;
    ALLEGRO_MEMORY_BLENDER memory_blender;
+   /* Error code */
+   int allegro_errno;
 } thread_local_state;
-
-
-static thread_local_state *tls;
 
 
 #if defined ALLEGRO_MINGW32 && (__GNUC__ < 4 || __GNUC_MINOR__ < 2 \
@@ -137,7 +133,7 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved)
 
 #else /* not defined ALLEGRO_MINGW32 */
 
-#if defined ALLEGRO_MSVC
+#if defined(ALLEGRO_MSVC) || defined(ALLEGRO_BCC32)
 
 #define THREAD_LOCAL __declspec(thread)
 #define HAVE_NATIVE_TLS
@@ -182,29 +178,27 @@ static thread_local_state* tls_get(void)
    return ptr;
 }
 
-#else /* not MSVC, not OSX */
+#else /* not MSVC/BCC32, not OSX */
 
 #define THREAD_LOCAL __thread
 #define HAVE_NATIVE_TLS
 
-#endif /* end not MSVC, not OSX */
+#endif /* end not MSVC/BCC32, not OSX */
 
 
 static THREAD_LOCAL thread_local_state _tls = {
-   0,
-   0,
-   0,
-   NULL,
-   NULL,
-   NULL,
-   ALLEGRO_PIXEL_FORMAT_ANY_WITH_ALPHA,
-   0,
-   0,
-   0,
-   ALLEGRO_ALPHA,
-   ALLEGRO_INVERSE_ALPHA,
-   { 1.0f, 1.0f, 1.0f, 1.0f },
-   _al_blender_alpha_inverse_alpha
+   0,                                     /* new_display_format */
+   0,                                     /* new_display_refresh_rate */
+   0,                                     /* new_display_flags */
+   NULL,                                  /* current_display */
+   NULL,                                  /* target_bitmap */
+   ALLEGRO_PIXEL_FORMAT_ANY_WITH_ALPHA,   /* new_bitmap_format */
+   0,                                     /* new_bitmap_flags */
+   ALLEGRO_ALPHA,                         /* blend_source */
+   ALLEGRO_INVERSE_ALPHA,                 /* blend_dest */
+   { 1.0f, 1.0f, 1.0f, 1.0f },            /* blend_color  */
+   _al_blender_alpha_inverse_alpha,       /* memory_blender */
+   0                                      /* errno */
 };
 
 
@@ -226,6 +220,8 @@ static thread_local_state *tls_get(void)
  */
 void al_set_new_display_format(int format)
 {
+   thread_local_state *tls;
+
    if ((tls = tls_get()) == NULL)
       return;
    tls->new_display_format = format;
@@ -245,6 +241,8 @@ void al_set_new_display_format(int format)
  */
 void al_set_new_display_refresh_rate(int refresh_rate)
 {
+   thread_local_state *tls;
+
    if ((tls = tls_get()) == NULL)
       return;
    tls->new_display_refresh_rate = refresh_rate;
@@ -277,10 +275,17 @@ void al_set_new_display_refresh_rate(int refresh_rate)
  * ALLEGRO_SINGLEBUFFER - use only one buffer (front and back buffer are the
  * same) 
  * 
+ * ALLEGRO_NOFRAME - Try to create a window without a frame (i.e. no border or
+ * titlebar). This usualy does nothing for fullscreen modes, and even in
+ * windowed moded it depends on the underlying platform whether it is supported
+ * or not.
+ * 
  * 0 can be used for default values. 
  */
 void al_set_new_display_flags(int flags)
 {
+   thread_local_state *tls;
+
    if ((tls = tls_get()) == NULL)
       return;
    tls->new_display_flags = flags;
@@ -294,6 +299,8 @@ void al_set_new_display_flags(int flags)
  */
 int al_get_new_display_format(void)
 {
+   thread_local_state *tls;
+
    if ((tls = tls_get()) == NULL)
       return 0;
    return tls->new_display_format;
@@ -307,6 +314,8 @@ int al_get_new_display_format(void)
  */
 int al_get_new_display_refresh_rate(void)
 {
+   thread_local_state *tls;
+
    if ((tls = tls_get()) == NULL)
       return 0;
    return tls->new_display_refresh_rate;
@@ -320,6 +329,8 @@ int al_get_new_display_refresh_rate(void)
  */
 int al_get_new_display_flags(void)
 {
+   thread_local_state *tls;
+
    if ((tls = tls_get()) == NULL)
       return 0;
    return tls->new_display_flags;
@@ -331,18 +342,30 @@ int al_get_new_display_flags(void)
  *
  * Change the current display for the calling thread.
  * Also sets the target bitmap to the display's
- * backbuffer.
+ * backbuffer. Returns true on success.
  */
-void al_set_current_display(ALLEGRO_DISPLAY *display)
+bool al_set_current_display(ALLEGRO_DISPLAY *display)
 {
+   thread_local_state *tls;
+
    if ((tls = tls_get()) == NULL)
-      return;
-   tls->current_display = display;
+      return false;
 
    if (display) {
-      display->vt->set_current_display(display);
-      al_set_target_bitmap(al_get_backbuffer());
+      if (display->vt->set_current_display(display)) {
+         tls->current_display = display;
+         al_set_target_bitmap(al_get_backbuffer());
+         return true;
+      }
+      else {
+         return false;
+      }
    }
+   else {
+      tls->current_display = display;
+   }
+
+   return true;
 }
 
 
@@ -353,6 +376,8 @@ void al_set_current_display(ALLEGRO_DISPLAY *display)
  */
 ALLEGRO_DISPLAY *al_get_current_display(void)
 {
+   thread_local_state *tls;
+
    if ((tls = tls_get()) == NULL)
       return 0;
    return tls->current_display;
@@ -367,12 +392,18 @@ ALLEGRO_DISPLAY *al_get_current_display(void)
  */
 void al_set_target_bitmap(ALLEGRO_BITMAP *bitmap)
 {
+   thread_local_state *tls;
+
    if ((tls = tls_get()) == NULL)
       return;
+
    tls->target_bitmap = bitmap;
    if (bitmap != NULL) {
-      if (!(bitmap->flags & ALLEGRO_MEMORY_BITMAP))
-         _al_current_display->vt->set_target_bitmap(_al_current_display, bitmap);
+      if (!(bitmap->flags & ALLEGRO_MEMORY_BITMAP)) {
+         ALLEGRO_DISPLAY *display = tls->current_display;
+         ASSERT(display);
+         display->vt->set_target_bitmap(display, bitmap);
+      }
    }
 }
 
@@ -384,28 +415,11 @@ void al_set_target_bitmap(ALLEGRO_BITMAP *bitmap)
  */
 ALLEGRO_BITMAP *al_get_target_bitmap(void)
 {
+   thread_local_state *tls;
+
    if ((tls = tls_get()) == NULL)
       return 0;
    return tls->target_bitmap;
-}
-
-
-
-void _al_push_target_bitmap(void)
-{
-   if ((tls = tls_get()) == NULL)
-      return;
-   tls->target_bitmap_backup = tls->target_bitmap;
-}
-
-
-
-void _al_pop_target_bitmap(void)
-{
-   if ((tls = tls_get()) == NULL)
-      return;
-   tls->target_bitmap = tls->target_bitmap_backup;
-   al_set_target_bitmap(tls->target_bitmap);
 }
 
 
@@ -419,6 +433,8 @@ void _al_pop_target_bitmap(void)
  */
 void al_set_new_bitmap_format(int format)
 {
+   thread_local_state *tls;
+
    if ((tls = tls_get()) == NULL)
       return;
    tls->new_bitmap_format = format;
@@ -446,6 +462,8 @@ void al_set_new_bitmap_format(int format)
  */
 void al_set_new_bitmap_flags(int flags)
 {
+   thread_local_state *tls;
+
    if ((tls = tls_get()) == NULL)
       return;
    tls->new_bitmap_flags = flags;
@@ -459,6 +477,8 @@ void al_set_new_bitmap_flags(int flags)
  */
 int al_get_new_bitmap_format(void)
 {
+   thread_local_state *tls;
+
    if ((tls = tls_get()) == NULL)
       return 0;
    return tls->new_bitmap_format;
@@ -472,6 +492,8 @@ int al_get_new_bitmap_format(void)
  */
 int al_get_new_bitmap_flags(void)
 {
+   thread_local_state *tls;
+
    if ((tls = tls_get()) == NULL)
       return 0;
    return tls->new_bitmap_flags;
@@ -479,23 +501,103 @@ int al_get_new_bitmap_flags(void)
 
 
 
-void _al_push_new_bitmap_parameters(void)
+#define _STORE(x) stored->x = tls->x;
+/* Function: al_store_state
+ * 
+ * Stores part of the state of the current thread in the given <ALLEGRO_STATE>
+ * objects. The flags parameter can take any bit-combination of the flags
+ * described under <ALLEGRO_STATE_FLAGS>.
+ */
+void al_store_state(ALLEGRO_STATE *state, int flags)
 {
+   thread_local_state *tls;
+   thread_local_state *stored;
+
    if ((tls = tls_get()) == NULL)
       return;
-   tls->new_bitmap_format_backup = tls->new_bitmap_format;
-   tls->new_bitmap_flags_backup = tls->new_bitmap_flags;
-}
+      
+   ASSERT(sizeof(ALLEGRO_STATE) > sizeof(thread_local_state) + sizeof(int));
+   state->flags = flags;
+   
+   stored = (void *)&state->_tls;
+
+   if (flags & ALLEGRO_STATE_NEW_DISPLAY_PARAMETERS) {
+      _STORE(new_display_format);
+      _STORE(new_display_refresh_rate);
+      _STORE(new_display_flags);
+   }
+   
+   if (flags & ALLEGRO_STATE_NEW_BITMAP_PARAMETERS) {
+      _STORE(new_bitmap_format);
+      _STORE(new_bitmap_flags);
+   }
+   
+   if (flags & ALLEGRO_STATE_DISPLAY) {
+      _STORE(current_display);
+   }
+   
+   if (flags & ALLEGRO_STATE_TARGET_BITMAP) {
+      _STORE(target_bitmap);
+   }
+   
+   if (flags & ALLEGRO_STATE_BLENDER) {
+      _STORE(blend_source);
+      _STORE(blend_dest);
+      _STORE(blend_color);
+      _STORE(memory_blender);
+   }
+};
+#undef _STORE
 
 
 
-void _al_pop_new_bitmap_parameters(void)
+#define _STORE(x) tls->x = stored->x;
+/* Function: al_restore_state
+ * 
+ * Restores part of the state of the current thread from the given
+ * <ALLEGRO_STATE> object.
+ */
+void al_restore_state(ALLEGRO_STATE const *state)
 {
+   thread_local_state *tls;
+   thread_local_state *stored;
+   int flags;
+
    if ((tls = tls_get()) == NULL)
       return;
-   tls->new_bitmap_format = tls->new_bitmap_format_backup;
-   tls->new_bitmap_flags = tls->new_bitmap_flags_backup;
-}
+   flags = state->flags;
+   
+   stored = (void *)&state->_tls;
+
+   if (flags & ALLEGRO_STATE_NEW_DISPLAY_PARAMETERS) {
+      _STORE(new_display_format);
+      _STORE(new_display_refresh_rate);
+      _STORE(new_display_flags);
+   }
+   
+   if (flags & ALLEGRO_STATE_NEW_BITMAP_PARAMETERS) {
+      _STORE(new_bitmap_format);
+      _STORE(new_bitmap_flags);
+   }
+   
+   if (flags & ALLEGRO_STATE_DISPLAY) {
+      _STORE(current_display);
+      al_set_current_display(tls->current_display);
+   }
+   
+   if (flags & ALLEGRO_STATE_TARGET_BITMAP) {
+      _STORE(target_bitmap);
+      al_set_target_bitmap(tls->target_bitmap);
+   }
+   
+   if (flags & ALLEGRO_STATE_BLENDER) {
+      _STORE(blend_source);
+      _STORE(blend_dest);
+      _STORE(blend_color);
+      _STORE(memory_blender);
+   }
+};
+#undef _STORE
 
 
 
@@ -546,6 +648,8 @@ void _al_pop_new_bitmap_parameters(void)
  */
 void al_set_blender(int src, int dst, ALLEGRO_COLOR color)
 {
+   thread_local_state *tls;
+
    if ((tls = tls_get()) == NULL)
       return;
 
@@ -565,6 +669,8 @@ void al_set_blender(int src, int dst, ALLEGRO_COLOR color)
  */
 void al_get_blender(int *src, int *dst, ALLEGRO_COLOR *color)
 {
+   thread_local_state *tls;
+
    if ((tls = tls_get()) == NULL)
       return;
 
@@ -582,6 +688,8 @@ void al_get_blender(int *src, int *dst, ALLEGRO_COLOR *color)
 
 ALLEGRO_COLOR *_al_get_blend_color()
 {
+   thread_local_state *tls;
+
    if ((tls = tls_get()) == NULL)
       return NULL;
    return &tls->blend_color;
@@ -591,6 +699,8 @@ ALLEGRO_COLOR *_al_get_blend_color()
 
 void _al_set_memory_blender(int src, int dst, ALLEGRO_COLOR *color)
 {
+   thread_local_state *tls;
+
    if ((tls = tls_get()) == NULL)
       return;
 
@@ -670,8 +780,39 @@ void _al_set_memory_blender(int src, int dst, ALLEGRO_COLOR *color)
 
 ALLEGRO_MEMORY_BLENDER _al_get_memory_blender()
 {
+   thread_local_state *tls;
+
    if ((tls = tls_get()) == NULL)
       return NULL;
    return tls->memory_blender;
 }
 
+
+
+/* Function: al_get_errno
+ *  Some Allegro functions will set an error number as well as returning an
+ *  error code.  Call this function to retrieve the last error number set
+ *  for the calling thread.
+ */
+int al_get_errno(void)
+{
+   thread_local_state *tls;
+
+   if ((tls = tls_get()) == NULL)
+      return 0;
+   return tls->allegro_errno;
+}
+
+
+
+/* Function: al_get_errno
+ *  Set the error number for for the calling thread.
+ */
+void al_set_errno(int errnum)
+{
+   thread_local_state *tls;
+
+   if ((tls = tls_get()) == NULL)
+      return;
+   tls->allegro_errno = errnum;
+}

@@ -79,17 +79,6 @@ AL_VAR(int, wnd_sysmenu);
 AL_FUNCPTR(void, user_close_proc, (void));
 
 
-/* gfx synchronization */
-AL_VAR(CRITICAL_SECTION, gfx_crit_sect);
-AL_VAR(int, gfx_crit_sect_nesting);
-
-#define _enter_gfx_critical()  EnterCriticalSection(&gfx_crit_sect); \
-                               gfx_crit_sect_nesting++
-#define _exit_gfx_critical()   LeaveCriticalSection(&gfx_crit_sect); \
-                               gfx_crit_sect_nesting--
-#define GFX_CRITICAL_RELEASED  (!gfx_crit_sect_nesting)
-
-
 /* switch routines */
 AL_VAR(int, _win_app_foreground);
 
@@ -143,30 +132,6 @@ AL_FUNC(int, _al_win_joystick_dinput_unacquire, (void));
 AL_FUNC(void, _win_thread_init, (void));
 AL_FUNC(void, _win_thread_exit, (void));
 
-
-/* sound routines */
-AL_FUNC(_DRIVER_INFO *, _get_win_digi_driver_list, (void));
-AL_FUNC(void, _free_win_digi_driver_list, (void));
-
-AL_FUNC(DIGI_DRIVER *, _get_dsalmix_driver, (char *name, LPGUID guid, int num));
-AL_FUNC(DIGI_DRIVER *, _get_woalmix_driver, (int num));
-
-AL_FUNC(int, digi_directsound_capture_init, (LPGUID guid));
-AL_FUNC(void, digi_directsound_capture_exit, (void));
-AL_FUNC(int, digi_directsound_capture_detect, (LPGUID guid));
-AL_FUNC(int, digi_directsound_rec_cap_rate, (int bits, int stereo));
-AL_FUNC(int, digi_directsound_rec_cap_param, (int rate, int bits, int stereo));
-AL_FUNC(int, digi_directsound_rec_source, (int source));
-AL_FUNC(int, digi_directsound_rec_start, (int rate, int bits, int stereo));
-AL_FUNC(void, digi_directsound_rec_stop, (void));
-AL_FUNC(int, digi_directsound_rec_read, (void *buf));
-
-
-/* midi routines */
-AL_FUNC(_DRIVER_INFO *, _get_win_midi_driver_list, (void));
-AL_FUNC(void, _free_win_midi_driver_list, (void));
-
-AL_FUNC(void, midi_switch_out, (void));
 
 
 /* file routines */

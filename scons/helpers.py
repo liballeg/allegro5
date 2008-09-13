@@ -1,4 +1,5 @@
 import SCons
+import re
 
 def read_cmake_list(name):
     """
@@ -10,6 +11,9 @@ def read_cmake_list(name):
     """
     lists = {}
     for line in open(name):
+        import re
+        comment = re.compile( "^\s*#" )
+        if comment.match(line): continue
         if line.startswith("set"):
             current = []
             name = line[4:].strip()
@@ -36,8 +40,8 @@ def generate_alplatf_h(env, defines):
     # Add the builder to scons.
     env.Append(BUILDERS = { "PlatformHeader" : platformHeader })
     # Create alplatf.h based on alplatf.h.cmake
-    return env.PlatformHeader('#include/allegro5/platform/alplatf.h',
-        '#include/allegro5/platform/alplatf.h.cmake')
+    return env.PlatformHeader('include/allegro5/platform/alplatf.h',
+        'include/allegro5/platform/alplatf.h.cmake')
 
 class SimpleHash:
     def __init__( self ):
@@ -70,25 +74,27 @@ def readAutoHeader(filename):
             # In case the line is in the form #define X, set it to True.
             if len(line) == 1: line += [True]
             name, use = line
-            obj[name] = [use, name]
+            obj[name] = use
     return obj
 
 def parse_cmake_h(env, defines, src, dest):
     def parse_line(line):
-        import re
-        update = re.compile('\$\{([^}]*)\}')
-        line = update.sub(lambda m: str(defines[m.group(1)]), line)
+        # Replace cmake variables of the form ${variable}.
+        def substitute_variable(match):
+            var = defines[match.group(1)]
+            return str(var)
+        line = re.sub(r"\$\{(.*?)\}", substitute_variable, line)
         m = re.compile('^#cmakedefine (.*)').match(line)
         if m:
             name = m.group(1)
-            if defines[ name ]:
+            if defines[name]:
                 return "#define %s\n" % name
             else:
                 return "/* #undef %s */\n" % name
         else:
             return line
 
-    def func(target, source, env):
+    def parse(target, source, env):
         reader = open(source[0].path, 'r')
         writer = open(target[0].path, 'w')
         # all = reader.read()
@@ -98,7 +104,7 @@ def parse_cmake_h(env, defines, src, dest):
         writer.close()
         return 0
     env2 = env.Clone()
-    make = SCons.Builder.Builder(action = func)
+    make = SCons.Builder.Builder(action = parse)
     env2.Append(BUILDERS = { "PlatformHeader" : make })
     return env2.PlatformHeader(dest,src)
 

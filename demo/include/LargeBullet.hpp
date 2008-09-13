@@ -4,7 +4,7 @@
 class LargeBullet : public Bullet
 {
 public:
-   void render(void);
+   void render(int offx, int offy);
 
    LargeBullet(float x, float y, float angle, Entity *shooter);
 };

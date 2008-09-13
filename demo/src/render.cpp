@@ -37,19 +37,19 @@ void showWave(int num)
 
    ResourceManager& rm = ResourceManager::getInstance();
 
-   A5FONT_FONT *myfont = (A5FONT_FONT *)rm.getData(RES_LARGEFONT);
+   ALLEGRO_FONT *myfont = (ALLEGRO_FONT *)rm.getData(RES_LARGEFONT);
    
    char text[20];
    sprintf(text, "WAVE %d", num);
 
-   int w = a5font_text_length(myfont, text);
-   int h = a5font_text_height(myfont);
+   int w = al_font_text_length(myfont, text);
+   int h = al_font_text_height(myfont);
 
    waveBitmap = al_create_bitmap(w, h);
    ALLEGRO_BITMAP *old_target = al_get_target_bitmap();
    al_set_target_bitmap(waveBitmap);
    al_clear(al_map_rgba(0, 0, 0, 0));
-   a5font_textprintf(myfont, 0, 0, text);
+   al_font_textprintf(myfont, 0, 0, text);
    al_set_target_bitmap(old_target);
 
    waveAngle = (M_PI*2);
@@ -89,17 +89,19 @@ void render(int step)
       }
    }
 
-   al_draw_bitmap(bg, bgx, bgy, 0);
+   al_draw_scaled_bitmap(bg, 0, 0, 
+      al_get_bitmap_width(bg), al_get_bitmap_height(bg), 
+      bgx, bgy, BB_W, BB_H, 0);
 
    int rendered = 0;
 
    std::list<Entity *>::iterator it;
    for (it = entities.begin(); it != entities.end(); it++) {
       Entity *e = *it;
-      e->render();
+      e->render_four();
       if (e->isHighlighted()) {
          al_set_blender(ALLEGRO_ALPHA, ALLEGRO_ONE, al_map_rgb(150, 150, 150));
-         e->render();
+         e->render_four();
          al_set_blender(ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA,
             al_map_rgb(255, 255, 255));
       }
@@ -107,7 +109,8 @@ void render(int step)
    }
 
    Player *player = (Player *)rm.getData(RES_PLAYER);
-   player->render();
+   player->render_four();
+   player->render_extra();
 
    if (waveAngle > 0.0f) {
       renderWave();

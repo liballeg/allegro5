@@ -27,11 +27,6 @@
 extern "C" {
 #endif
 
-   /* Macros to enable and disable interrupts */
-   #define DISABLE() _unix_bg_man->disable_interrupts()
-   #define ENABLE()  _unix_bg_man->enable_interrupts()
-
-
    /* Helper for locating config files */
    AL_FUNC(int, _unix_find_resource, (char *dest, AL_CONST char *resource, int size));
 
@@ -63,9 +58,6 @@ extern "C" {
    AL_VAR(_DRIVER_INFO *, _unix_midi_driver_list);
    AL_FUNC(void, _unix_driver_lists_init, (void));
    AL_FUNC(void, _unix_driver_lists_shutdown, (void));
-   AL_FUNC(void, _unix_register_gfx_driver, (int id, GFX_DRIVER *driver, int autodetect, int priority));
-   AL_FUNC(void, _unix_register_digi_driver, (int id, DIGI_DRIVER *driver, int autodetect, int priority));
-   AL_FUNC(void, _unix_register_midi_driver, (int id, MIDI_DRIVER *driver, int autodetect, int priority));
 
    /* Get size of a memory page in bytes */
    AL_FUNC(size_t, _unix_get_page_size, (void));
@@ -74,35 +66,10 @@ extern "C" {
 
    /* Get size of a memory page in bytes */
    AL_FUNC(size_t, _unix_get_page_size, (void));
-
 
 #ifdef ALLEGRO_WITH_XWINDOWS
-   AL_ARRAY(_DRIVER_INFO, _xwin_gfx_driver_list);
    AL_ARRAY(_DRIVER_INFO, _al_xwin_keyboard_driver_list);
    AL_ARRAY(_DRIVER_INFO, _al_xwin_mouse_driver_list);
-
-   AL_FUNC(void, _xwin_handle_input, (void));
-   AL_FUNC(void, _xwin_private_handle_input, (void));
-
-   #define XLOCK()                              \
-      do {                                      \
-         _al_mutex_lock(&_xwin.mutex);		\
-         _xwin.lock_count++;                    \
-      } while (0)
-
-   #define XUNLOCK()                            \
-      do {                                      \
-         _al_mutex_unlock(&_xwin.mutex);	\
-         _xwin.lock_count--;                    \
-      } while (0)
-
-#endif
-
-
-#ifdef ALLEGRO_WITH_OSSDIGI
-   /* So the setup program can read what we detected */
-   AL_VAR(int, _oss_fragsize);
-   AL_VAR(int, _oss_numfrags);
 #endif
 
 
@@ -116,39 +83,6 @@ extern "C" {
 #endif
 
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
-/* Typedef for background functions, called frequently in the background.
- * `threaded' is nonzero if the function is being called from a thread.
- */
-typedef void (*bg_func) (int threaded);
-
-/* Background function manager -- responsible for calling background 
- * functions.  `int' methods return -1 on failure, 0 on success. */
-struct bg_manager
-{
-   int multi_threaded;
-   int (*init) (void);
-   void (*exit) (void);
-   int (*register_func) (bg_func f);
-   int (*unregister_func) (bg_func f);
-   void (*enable_interrupts) (void);
-   void (*disable_interrupts) (void);
-   int (*interrupts_disabled) (void);
-};	
-
-extern struct bg_manager _bg_man_pthreads;
-
-extern struct bg_manager *_unix_bg_man;
-
-
-#ifdef __cplusplus
-}
-#endif
-
-
 
 /*----------------------------------------------------------------------*
  *									*
@@ -157,7 +91,6 @@ extern struct bg_manager *_unix_bg_man;
  *----------------------------------------------------------------------*/
 
 /* TODO: integrate this above */
-/* TODO: replace bg_man */
 
 #include "allegro5/platform/aintuthr.h"
 
@@ -170,6 +103,14 @@ AL_FUNC(void, _al_unix_init_time, (void));
 /* fdwatch */
 void _al_unix_start_watching_fd(int fd, void (*callback)(void *), void *cb_data);
 void _al_unix_stop_watching_fd(int fd);
+
+/* ljoynu.c */
+/* This isn't in aintlnx.h because it's needed for the X11 port as well. */
+#define _ALLEGRO_JOYDRV_LINUX    AL_ID('L','N','X','A')
+
+#ifdef ALLEGRO_HAVE_LINUX_JOYSTICK_H
+AL_VAR(struct ALLEGRO_JOYSTICK_DRIVER, _al_joydrv_linux);
+#endif
 
 AL_END_EXTERN_C
 

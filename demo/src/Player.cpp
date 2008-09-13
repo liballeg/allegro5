@@ -111,7 +111,7 @@ bool Player::logic(int step)
    return true;
 }
 
-void Player::render(void)
+void Player::render_extra(void)
 {
    ResourceManager& rm = ResourceManager::getInstance();
 
@@ -123,12 +123,27 @@ void Player::render(void)
       return;
    }
 
+   al_draw_bitmap(icon, 2, 2, 0);
+
+   small_font = (ALLEGRO_FONT *)rm.getData(RES_SMALLFONT);
+
+   al_font_textprintf(small_font, 20, 2, "x%d", lives);
+
+   al_font_textprintf(small_font, 2, 18, "%d", score);
+}
+
+void Player::render(int offx, int offy)
+{
+   ResourceManager& rm = ResourceManager::getInstance();
+   
+   int rx = offx + x, ry = offy + y;
+
    if (!isDestructable) {
-      al_draw_rotated_bitmap(trans_bitmap, radius, radius, x, y,
+      al_draw_rotated_bitmap(trans_bitmap, draw_radius, draw_radius, rx, ry,
          angle-(M_PI/2.0f), 0);
    }
    else {
-      al_draw_rotated_bitmap(bitmap, radius, radius, x, y,
+      al_draw_rotated_bitmap(bitmap, draw_radius, draw_radius, rx, ry,
          angle-(M_PI/2.0f), 0);
    }
    if (draw_trail) {
@@ -136,24 +151,16 @@ void Player::render(void)
       int th = al_get_bitmap_height(trail_bitmap);
       float ca = (M_PI*2)-angle;
       float a = ca - ((210.0f / 180.0f) * M_PI);
-      float tx = x + 42.0f * cos(a);
-      float ty = y + 42.0f * sin(a);
+      float tx = rx + 42.0f * cos(a);
+      float ty = ry + 42.0f * sin(a);
       al_draw_rotated_bitmap(trail_bitmap, tw, th/2,
          tx, ty, (M_PI*2)-a, 0);
       a = ca - ((150.0f / 180.0f) * M_PI);
-      tx = x + 42.0f * cos(a);
-      ty = y + 42.0f * sin(a);
+      tx = rx + 42.0f * cos(a);
+      ty = ry + 42.0f * sin(a);
       al_draw_rotated_bitmap(trail_bitmap, tw, th/2,
          tx, ty, (M_PI*2)-a, 0);
    }
-
-   al_draw_bitmap(icon, 2, 2, 0);
-
-   small_font = (A5FONT_FONT *)rm.getData(RES_SMALLFONT);
-
-   a5font_textprintf(small_font, 20, 2, "x%d", lives);
-
-   a5font_textprintf(small_font, 2, 18, "%d", score);
 }
 
 bool Player::hit(int damage)
@@ -187,7 +194,7 @@ void Player::destroy(void)
 
 bool Player::load(void)
 {
-   bitmap = al_load_bitmap(getResource("gfx/ship.tga"));
+   bitmap = al_iio_load(getResource("gfx/ship.tga"));
    if (!bitmap) {
       debug_message("Error loading %s\n", getResource("gfx/ship.tga"));
       return false;
@@ -219,7 +226,7 @@ bool Player::load(void)
    }
    al_set_target_bitmap(old_target);
 
-   trail_bitmap = al_load_bitmap(getResource("gfx/trail.tga"));
+   trail_bitmap = al_iio_load(getResource("gfx/trail.tga"));
    if (!trail_bitmap) {
       debug_message("Error loading %s\n", getResource("gfx/trail.tga"));
       al_destroy_bitmap(bitmap);
@@ -227,7 +234,7 @@ bool Player::load(void)
       return false;
    }
 
-   icon = al_load_bitmap(getResource("gfx/ship_icon.tga"));
+   icon = al_iio_load(getResource("gfx/ship_icon.tga"));
    if (!icon) {
       debug_message("Error loading %s\n", getResource("gfx/icon.tga"));
       al_destroy_bitmap(bitmap);
@@ -241,7 +248,9 @@ bool Player::load(void)
    al_clear(al_map_rgba(0, 0, 0, 0));
    al_set_target_bitmap(old_target);
 
-   radius = al_get_bitmap_width(bitmap)/2;
+   draw_radius = al_get_bitmap_width(bitmap)/2;
+   radius = draw_radius / 2;
+   
 
    newGame();
    reset();
@@ -288,10 +297,10 @@ void Player::die(void)
       int w = al_get_bitmap_width(highscoreBitmap);
       int h = al_get_bitmap_height(highscoreBitmap);
       ResourceManager& rm = ResourceManager::getInstance();
-      A5FONT_FONT *large_font = (A5FONT_FONT *)rm.getData(RES_LARGEFONT);
-      A5FONT_FONT *small_font = (A5FONT_FONT *)rm.getData(RES_SMALLFONT);
-      a5font_textprintf_centre(large_font, w/2, h/2-16, "GAME OVER");
-      a5font_textprintf_centre(small_font, w/2, h/2+16, "%d Points", score);
+      ALLEGRO_FONT *large_font = (ALLEGRO_FONT *)rm.getData(RES_LARGEFONT);
+      ALLEGRO_FONT *small_font = (ALLEGRO_FONT *)rm.getData(RES_SMALLFONT);
+      al_font_textprintf_centre(large_font, w/2, h/2-16, "GAME OVER");
+      al_font_textprintf_centre(small_font, w/2, h/2+16, "%d Points", score);
       al_set_target_bitmap(old_target);
    }
    else {

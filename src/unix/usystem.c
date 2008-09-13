@@ -26,6 +26,7 @@
 
 #include "allegro5/allegro5.h"
 #include "allegro5/internal/aintern.h"
+#include "allegro5/internal/aintern_memory.h"
 #include "allegro5/platform/aintunix.h"
 #include "allegro5/fshook.h"
 
@@ -47,35 +48,6 @@
    #include <sys/procfs.h>
    #include <sys/ioctl.h>
    #include <fcntl.h>
-#endif
-
-
-/* list the available drivers */
-_DRIVER_INFO _system_driver_list[] =
-{
-#ifdef ALLEGRO_WITH_XWINDOWS
-   {  SYSTEM_XWINDOWS,  &system_xwin,     TRUE  },
-#endif
-#ifdef ALLEGRO_LINUX
-   {  SYSTEM_LINUX,     &system_linux,    TRUE  },
-#endif
-#ifdef ALLEGRO_QNX
-   {  SYSTEM_QNX,       &system_qnx,      TRUE  },
-#endif
-#ifdef ALLEGRO_MACOSX
-   {  SYSTEM_MACOSX,    &system_macosx,   TRUE  },
-#endif
-   {  SYSTEM_NONE,      &system_none,     FALSE },
-   {  0,                NULL,             0     }
-};
-
-
-
-#ifndef ALLEGRO_MACOSX
-
-/* background function manager */
-struct bg_manager *_unix_bg_man;
-
 #endif
 
 
@@ -152,7 +124,7 @@ int _unix_find_resource(char *dest, AL_CONST char *resource, int size)
 
 
 
-#ifndef ALLEGRO_MACOSX
+#if 0
 
 /* _unix_read_os_type:
  *  Set the os_type variable to something sensible.
@@ -464,7 +436,7 @@ static int32_t _unix_find_home(char *dir, uint32_t len)
       /* grab user information */
       struct passwd *pass = getpwuid(uid);
       if(!pass) {
-         *allegro_errno = errno;
+         al_set_errno(errno);
          return -1;
       }
 
@@ -540,7 +512,7 @@ int32_t _unix_get_path(uint32_t id, char *dir, size_t size)
 
          ptr = ustrrchr(dir, '/');
          if(!ptr) {
-            *allegro_errno = errno = EINVAL;
+            al_set_errno(EINVAL);
             return -1;
          }
 
@@ -577,7 +549,7 @@ int32_t _unix_get_path(uint32_t id, char *dir, size_t size)
 
          ptr = strrchr(prog, '/');
          if(!ptr) {
-            *allegro_errno = errno = EINVAL;
+            al_set_errno(EINVAL);
             return -1;
          }
 

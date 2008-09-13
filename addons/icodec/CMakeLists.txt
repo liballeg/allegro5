@@ -79,19 +79,8 @@ endif(STATIC)
 
 set(ICODEC_LINK_WITH ${ICODEC_LINK_WITH} Magick++)
 
-
-macro(add_icodec_example nm)
-    add_executable(${nm} ${EXECUTABLE_TYPE} ${ARGN})
-    set_target_properties(${nm} PROPERTIES
-        COMPILE_FLAGS "${MAYBE_ALLEGRO_STATICLINK} ${WFLAGS} ${EXE_CFLAGS}"
-        LINK_FLAGS "${MAYBE_ALLEGRO_STATICLINK}"
-        )
-    target_link_libraries(${nm} ${LINK_WITH})
-    target_link_libraries(${nm} ${ICODEC_LINK_WITH})
-endmacro(add_icodec_example)
-
 if(SUPPORT_MAGICK)
-    add_icodec_example(ex_icodec ex_icodec.c)
+    example(ex_icodec ${ICODEC_LINK_WITH})
 endif(SUPPORT_MAGICK)
 
 #-----------------------------------------------------------------------------#

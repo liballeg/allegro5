@@ -2,7 +2,7 @@
 #define ALLEGRO_INTERNAL_OPENGL_NEW_H
 
 #include "allegro5/internal/aintern_bitmap.h"
-
+#include "allegro5/internal/aintern_display.h"
 
 typedef struct ALLEGRO_BITMAP_OGL
 {
@@ -44,6 +44,7 @@ typedef struct OGL_PIXEL_FORMAT {
    int stencil_size;
    int r_shift, g_shift, b_shift, a_shift;
    int r_size, g_size, b_size, a_size;
+   int color_size;
    int fullscreen;
    int sample_buffers;
    int samples;
@@ -52,10 +53,8 @@ typedef struct OGL_PIXEL_FORMAT {
 } OGL_PIXEL_FORMAT;
 
 
-typedef struct ALLEGRO_DISPLAY_OGL
+typedef struct ALLEGRO_OGL_EXTRAS
 {
-   ALLEGRO_DISPLAY display; /* This must be the first member. */
-
    /* A list of extensions supported by Allegro, for this context. */
    ALLEGRO_OGL_EXT_LIST *extension_list;
    /* A list of extension API, loaded by Allegro, for this context. */
@@ -67,17 +66,14 @@ typedef struct ALLEGRO_DISPLAY_OGL
 
    ALLEGRO_BITMAP_OGL *backbuffer;
 
-} ALLEGRO_DISPLAY_OGL;
+} ALLEGRO_OGL_EXTRAS;
 
 
 /* extensions */
 int  _al_ogl_look_for_an_extension(AL_CONST char *name, AL_CONST GLubyte *extensions);
 void _al_ogl_set_extensions(ALLEGRO_OGL_EXT_API *ext);
-void _al_ogl_manage_extensions(ALLEGRO_DISPLAY_OGL *disp);
-void _al_ogl_unmanage_extensions(ALLEGRO_DISPLAY_OGL *disp);
-
-/* draw */
-void _al_ogl_add_drawing_functions(ALLEGRO_DISPLAY_INTERFACE *vt);
+void _al_ogl_manage_extensions(ALLEGRO_DISPLAY *disp);
+void _al_ogl_unmanage_extensions(ALLEGRO_DISPLAY *disp);
 
 /* bitmap */
 ALLEGRO_BITMAP *_al_ogl_create_bitmap(ALLEGRO_DISPLAY *d, int w, int h);
@@ -86,9 +82,15 @@ ALLEGRO_BITMAP *_al_ogl_create_sub_bitmap(ALLEGRO_DISPLAY *d, ALLEGRO_BITMAP *pa
 
 /* common driver */
 void _al_ogl_set_target_bitmap(ALLEGRO_DISPLAY *display, ALLEGRO_BITMAP *bitmap);
+void _al_ogl_setup_bitmap_clipping(const ALLEGRO_BITMAP *bitmap);
 ALLEGRO_BITMAP *_al_ogl_get_backbuffer(ALLEGRO_DISPLAY *d);
 ALLEGRO_BITMAP_OGL* _al_ogl_create_backbuffer(ALLEGRO_DISPLAY *disp);
 void _al_ogl_destroy_backbuffer(ALLEGRO_BITMAP_OGL *b);
 bool _al_ogl_resize_backbuffer(ALLEGRO_BITMAP_OGL *b, int w, int h);
+
+struct ALLEGRO_DISPLAY_INTERFACE;
+
+/* draw */
+void _al_ogl_add_drawing_functions(struct ALLEGRO_DISPLAY_INTERFACE *vt);
 
 #endif

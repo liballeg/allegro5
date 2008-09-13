@@ -6,6 +6,10 @@
 #include "allegro5/bitmap_new.h"
 #include "allegro5/internal/aintern_events.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 typedef struct ALLEGRO_DISPLAY_INTERFACE ALLEGRO_DISPLAY_INTERFACE;
 
 struct ALLEGRO_DISPLAY_INTERFACE
@@ -13,7 +17,7 @@ struct ALLEGRO_DISPLAY_INTERFACE
    int id;
    ALLEGRO_DISPLAY *(*create_display)(int w, int h);
    void (*destroy_display)(ALLEGRO_DISPLAY *display);
-   void (*set_current_display)(ALLEGRO_DISPLAY *d);
+   bool (*set_current_display)(ALLEGRO_DISPLAY *d);
    void (*clear)(ALLEGRO_DISPLAY *d, ALLEGRO_COLOR *color);
    void (*draw_line)(ALLEGRO_DISPLAY *d, float fx, float fy, float tx, float ty,
       ALLEGRO_COLOR *color);
@@ -29,7 +33,6 @@ struct ALLEGRO_DISPLAY_INTERFACE
    ALLEGRO_BITMAP *(*create_bitmap)(ALLEGRO_DISPLAY *d,
    	int w, int h);
    
-   void (*upload_compat_screen)(struct BITMAP *bitmap, int x, int y, int width, int height);
    void (*set_target_bitmap)(ALLEGRO_DISPLAY *display, ALLEGRO_BITMAP *bitmap);
    ALLEGRO_BITMAP *(*get_backbuffer)(ALLEGRO_DISPLAY *d);
    ALLEGRO_BITMAP *(*get_frontbuffer)(ALLEGRO_DISPLAY *d);
@@ -46,11 +49,28 @@ struct ALLEGRO_DISPLAY_INTERFACE
 
    bool (*wait_for_vsync)(ALLEGRO_DISPLAY *display);
 
-   bool (*show_cursor)(ALLEGRO_DISPLAY *display);
-   bool (*hide_cursor)(ALLEGRO_DISPLAY *display);
+   ALLEGRO_MOUSE_CURSOR *(*create_mouse_cursor)(ALLEGRO_DISPLAY *display,
+      ALLEGRO_BITMAP *bmp, int x_focus, int y_focus);
+   void (*destroy_mouse_cursor)(ALLEGRO_DISPLAY *display,
+      ALLEGRO_MOUSE_CURSOR *cursor);
+   bool (*set_mouse_cursor)(ALLEGRO_DISPLAY *display,
+      ALLEGRO_MOUSE_CURSOR *cursor);
+   bool (*set_system_mouse_cursor)(ALLEGRO_DISPLAY *display,
+      ALLEGRO_SYSTEM_MOUSE_CURSOR cursor_id);
+   bool (*show_mouse_cursor)(ALLEGRO_DISPLAY *display);
+   bool (*hide_mouse_cursor)(ALLEGRO_DISPLAY *display);
 
    void (*set_icon)(ALLEGRO_DISPLAY *display, ALLEGRO_BITMAP *bitmap);
+
+   void (*set_window_position)(ALLEGRO_DISPLAY *display, int x, int y);
+   void (*get_window_position)(ALLEGRO_DISPLAY *display, int *x, int *y);
+   void (*toggle_frame)(ALLEGRO_DISPLAY *display, bool onoff);
+   void (*set_window_title)(ALLEGRO_DISPLAY *display, AL_CONST char *title);
 };
+
+
+struct ALLEGRO_OGL_EXTRAS;
+
 
 struct ALLEGRO_DISPLAY
 {
@@ -62,10 +82,31 @@ struct ALLEGRO_DISPLAY
    int flags;
    int w, h;
 
+   struct ALLEGRO_OGL_EXTRAS *ogl_extras;
+
    _AL_VECTOR bitmaps; /* A list of bitmaps created for this display. */
 };
 
-#define _al_current_display al_get_current_display()
+
+#ifdef ALLEGRO_WINDOWS
+typedef struct ALLEGRO_DISPLAY_WIN ALLEGRO_DISPLAY_WIN;
+
+struct ALLEGRO_DISPLAY_WIN
+{
+   ALLEGRO_DISPLAY display;
+
+   HWND window;
+   int mouse_range_x1;
+   int mouse_range_y1;
+   int mouse_range_x2;
+   int mouse_range_y2;
+   HCURSOR mouse_selected_hcursor;
+   bool mouse_cursor_shown;
+
+   UINT adapter;
+};
+#endif
+
 
 //ALLEGRO_DISPLAY_INTERFACE *_al_display_d3ddummy_driver(void);
 
@@ -75,5 +116,12 @@ void _al_draw_line_memory(int x1, int y1, int x2, int y2, ALLEGRO_COLOR *color);
 void _al_draw_pixel_memory(int x, int y, ALLEGRO_COLOR *color);
 
 void _al_destroy_display_bitmaps(ALLEGRO_DISPLAY *d);
+
+int _al_display_type(void);
+
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

@@ -82,8 +82,7 @@ do {                                                                         \
    func12, macro12,                                                          \
    func13, macro13,                                                          \
    func14, macro14,                                                          \
-   func15, macro15,                                                          \
-   func16, macro16)                                                          \
+   func15, macro15)                                                          \
                                                                              \
 static void func1 (void *src,                                                \
    int sx, int sy, int sw, int sh, int spitch, int ssize, int sformat,       \
@@ -165,7 +164,7 @@ static void func7 (void *src,                                                \
 {                                                                            \
    DO_DRAW_REGION_FAST(src,                                                  \
       sx, sy, sw, sh, spitch, ssize, sformat, get,                           \
-      dst, dx, dy, dpitch, 1, dformat, bmp_write8,                           \
+      dst, dx, dy, dpitch, 2, dformat, bmp_write16,                          \
       macro7, flags);                                                        \
 }                                                                            \
                                                                              \
@@ -181,7 +180,7 @@ static void func8 (void *src,                                                \
       macro8, flags);                                                        \
 }                                                                            \
                                                                              \
-static void func9 (void *src,                                                \
+static void func9 (void *src,                                               \
    int sx, int sy, int sw, int sh, int spitch, int ssize, int sformat,       \
    void *dst,                                                                \
    int dx, int dy, int dpitch, int dsize, int dformat,                       \
@@ -189,8 +188,8 @@ static void func9 (void *src,                                                \
 {                                                                            \
    DO_DRAW_REGION_FAST(src,                                                  \
       sx, sy, sw, sh, spitch, ssize, sformat, get,                           \
-      dst, dx, dy, dpitch, 2, dformat, bmp_write16,                          \
-      macro9, flags);                                                        \
+      dst, dx, dy, dpitch, 4, dformat, bmp_write32,                          \
+      macro9, flags);                                                       \
 }                                                                            \
                                                                              \
 static void func10 (void *src,                                               \
@@ -213,8 +212,8 @@ static void func11 (void *src,                                               \
 {                                                                            \
    DO_DRAW_REGION_FAST(src,                                                  \
       sx, sy, sw, sh, spitch, ssize, sformat, get,                           \
-      dst, dx, dy, dpitch, 4, dformat, bmp_write32,                          \
-      macro11, flags);                                                       \
+      dst, dx, dy, dpitch, 3, dformat, WRITE3BYTES,                          \
+      macro11, flags);                                                        \
 }                                                                            \
                                                                              \
 static void func12 (void *src,                                               \
@@ -225,8 +224,8 @@ static void func12 (void *src,                                               \
 {                                                                            \
    DO_DRAW_REGION_FAST(src,                                                  \
       sx, sy, sw, sh, spitch, ssize, sformat, get,                           \
-      dst, dx, dy, dpitch, 3, dformat, WRITE3BYTES,                          \
-      macro1, flags);                                                        \
+      dst, dx, dy, dpitch, 2, dformat, bmp_write16,                          \
+      macro12, flags);                                                       \
 }                                                                            \
                                                                              \
 static void func13 (void *src,                                               \
@@ -249,7 +248,7 @@ static void func14 (void *src,                                               \
 {                                                                            \
    DO_DRAW_REGION_FAST(src,                                                  \
       sx, sy, sw, sh, spitch, ssize, sformat, get,                           \
-      dst, dx, dy, dpitch, 2, dformat, bmp_write16,                          \
+      dst, dx, dy, dpitch, 4, dformat, bmp_write32,                          \
       macro14, flags);                                                       \
 }                                                                            \
                                                                              \
@@ -263,18 +262,6 @@ static void func15 (void *src,                                               \
       sx, sy, sw, sh, spitch, ssize, sformat, get,                           \
       dst, dx, dy, dpitch, 4, dformat, bmp_write32,                          \
       macro15, flags);                                                       \
-}                                                                            \
-                                                                             \
-static void func16 (void *src,                                               \
-   int sx, int sy, int sw, int sh, int spitch, int ssize, int sformat,       \
-   void *dst,                                                                \
-   int dx, int dy, int dpitch, int dsize, int dformat,                       \
-   int flags)                                                                \
-{                                                                            \
-   DO_DRAW_REGION_FAST(src,                                                  \
-      sx, sy, sw, sh, spitch, ssize, sformat, get,                           \
-      dst, dx, dy, dpitch, 4, dformat, bmp_write32,                          \
-      macro16, flags);                                                       \
 }
 
 #define DEFINE_DRAW_REGION(get, fprefix, mprefix)                            \
@@ -285,7 +272,6 @@ static void func16 (void *src,                                               \
       fprefix ## _to_rgb_888, mprefix ## _TO_RGB_888,                        \
       fprefix ## _to_rgb_565, mprefix ## _TO_RGB_565,                        \
       fprefix ## _to_rgb_555, mprefix ## _TO_RGB_555,                        \
-      fprefix ## _to_palette_8, mprefix ## _TO_PALETTE_8,                    \
       fprefix ## _to_rgba_5551, mprefix ## _TO_RGBA_5551,                    \
       fprefix ## _to_argb_1555, mprefix ## _TO_ARGB_1555,                    \
       fprefix ## _to_abgr_8888, mprefix ## _TO_ABGR_8888,                    \
@@ -302,7 +288,6 @@ DEFINE_DRAW_REGION(bmp_read16, _draw_region_memory_argb_4444, ALLEGRO_CONVERT_AR
 DEFINE_DRAW_REGION(READ3BYTES, _draw_region_memory_rgb_888, ALLEGRO_CONVERT_RGB_888)
 DEFINE_DRAW_REGION(bmp_read16, _draw_region_memory_rgb_565, ALLEGRO_CONVERT_RGB_565)
 DEFINE_DRAW_REGION(bmp_read16, _draw_region_memory_rgb_555, ALLEGRO_CONVERT_RGB_555)
-DEFINE_DRAW_REGION(bmp_read8, _draw_region_memory_palette_8, ALLEGRO_CONVERT_PALETTE_8)
 DEFINE_DRAW_REGION(bmp_read16, _draw_region_memory_rgba_5551, ALLEGRO_CONVERT_RGBA_5551)
 DEFINE_DRAW_REGION(bmp_read16, _draw_region_memory_argb_1555, ALLEGRO_CONVERT_ARGB_1555)
 DEFINE_DRAW_REGION(bmp_read32, _draw_region_memory_abgr_8888, ALLEGRO_CONVERT_ABGR_8888)
@@ -359,7 +344,6 @@ typedef void (*_draw_region_func)(void *src,
       prefix ## _to_rgb_888,                                                 \
       prefix ## _to_rgb_565,                                                 \
       prefix ## _to_rgb_555,                                                 \
-      prefix ## _to_palette_8,                                               \
       prefix ## _to_rgba_5551,                                               \
       prefix ## _to_argb_1555,                                               \
       prefix ## _to_abgr_8888,                                               \
@@ -390,7 +374,6 @@ static _draw_region_func _draw_region_funcs[ALLEGRO_NUM_PIXEL_FORMATS][ALLEGRO_N
       DECLARE_DRAW_REGION_FUNCS(_draw_region_memory_rgb_888),
       DECLARE_DRAW_REGION_FUNCS(_draw_region_memory_rgb_565),
       DECLARE_DRAW_REGION_FUNCS(_draw_region_memory_rgb_555),
-      DECLARE_DRAW_REGION_FUNCS(_draw_region_memory_palette_8),
       DECLARE_DRAW_REGION_FUNCS(_draw_region_memory_rgba_5551),
       DECLARE_DRAW_REGION_FUNCS(_draw_region_memory_argb_1555),
       DECLARE_DRAW_REGION_FUNCS(_draw_region_memory_abgr_8888),

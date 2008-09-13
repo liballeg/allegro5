@@ -30,6 +30,7 @@
 
 #include "allegro5/allegro5.h"
 #include "allegro5/internal/aintern.h"
+#include "allegro5/internal/aintern_memory.h"
 
 
 
@@ -1739,7 +1740,7 @@ char *_ustrdup(AL_CONST char *src, AL_METHOD(void *, malloc_func, (size_t)))
    if (s)
       ustrzcpy(s, size, src);
    else
-      *allegro_errno = ENOMEM;
+      al_set_errno(ENOMEM);
 
    return s;
 }

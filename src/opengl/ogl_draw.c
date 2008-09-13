@@ -41,12 +41,12 @@ static void set_opengl_blending(ALLEGRO_DISPLAY *d, ALLEGRO_COLOR *color)
 /* Dummy implementation of clear. */
 static void ogl_clear(ALLEGRO_DISPLAY *d, ALLEGRO_COLOR *color)
 {
-   ALLEGRO_DISPLAY_OGL *ogl_disp = (void *)d;
+   ALLEGRO_DISPLAY *ogl_disp = (void *)d;
    ALLEGRO_BITMAP *target = al_get_target_bitmap();
    ALLEGRO_BITMAP_OGL *ogl_target = (void *)target;
    unsigned char r, g, b, a;
 
-   if (!ogl_target->is_backbuffer && ogl_disp->opengl_target != ogl_target) {
+   if (!ogl_target->is_backbuffer && ogl_disp->ogl_extras->opengl_target != ogl_target) {
       _al_clear_memory(color);
       return;
    }
@@ -63,11 +63,11 @@ static void ogl_clear(ALLEGRO_DISPLAY *d, ALLEGRO_COLOR *color)
 static void ogl_draw_line(ALLEGRO_DISPLAY *d, float fx, float fy,
    float tx, float ty, ALLEGRO_COLOR *color)
 {
-   ALLEGRO_DISPLAY_OGL *ogl_disp = (void *)d;
+   ALLEGRO_DISPLAY *ogl_disp = (void *)d;
    ALLEGRO_BITMAP *target = al_get_target_bitmap();
    ALLEGRO_BITMAP_OGL *ogl_target = (void *)target;
 
-   if (!ogl_target->is_backbuffer && ogl_disp->opengl_target != ogl_target) {
+   if (!ogl_target->is_backbuffer && ogl_disp->ogl_extras->opengl_target != ogl_target) {
       _al_draw_line_memory(fx, fy, tx, ty, color);
       return;
    }
@@ -93,11 +93,11 @@ static void ogl_draw_line(ALLEGRO_DISPLAY *d, float fx, float fy,
 static void ogl_draw_rectangle(ALLEGRO_DISPLAY *d, float tlx, float tly,
    float brx, float bry, ALLEGRO_COLOR *color, int flags)
 {
-   ALLEGRO_DISPLAY_OGL *ogl_disp = (void *)d;
+   ALLEGRO_DISPLAY *ogl_disp = (void *)d;
    ALLEGRO_BITMAP *target = al_get_target_bitmap();
    ALLEGRO_BITMAP_OGL *ogl_target = (void *)target;
 
-   if (!ogl_target->is_backbuffer && ogl_disp->opengl_target != ogl_target) {
+   if (!ogl_target->is_backbuffer && ogl_disp->ogl_extras->opengl_target != ogl_target) {
       _al_draw_rectangle_memory(tlx, tly, brx, bry, color, flags);
       return;
    }
@@ -111,15 +111,26 @@ static void ogl_draw_rectangle(ALLEGRO_DISPLAY *d, float tlx, float tly,
    }
 
    set_opengl_blending(d, color);
-   if (flags & ALLEGRO_FILLED)
+   if (flags & ALLEGRO_FILLED) {
       glBegin(GL_QUADS);
-   else
-      glBegin(GL_LINE_LOOP);
-   glVertex2d(tlx, tly);
-   glVertex2d(brx, tly);
-   glVertex2d(brx, bry);
-   glVertex2d(tlx, bry);
-   glEnd();
+      glVertex2d(tlx, tly);
+      glVertex2d(brx, tly);
+      glVertex2d(brx, bry);
+      glVertex2d(tlx, bry);
+      glEnd();
+   }
+   else {
+      /* GL_LINE_STRIP works more reliably than GL_LINE_LOOP on two of my
+       * machines --pw
+       */
+      glBegin(GL_LINE_STRIP);
+      glVertex2d(tlx, tly);
+      glVertex2d(brx, tly);
+      glVertex2d(brx, bry);
+      glVertex2d(tlx, bry);
+      glVertex2d(tlx, tly);
+      glEnd();
+   }
 }
 
 

@@ -154,23 +154,23 @@ misc/fixdll.sh
 
 
 # convert documentation from the ._tx source files
-echo "Converting documentation..."
-
-gcc -o _makedoc.exe docs/src/makedoc/*.c
-
-./_makedoc.exe -ascii readme.txt docs/src/readme._tx
-./_makedoc.exe -ascii CHANGES docs/src/changes._tx
-./_makedoc.exe -part -ascii AUTHORS docs/src/thanks._tx
-./_makedoc.exe -part -ascii THANKS docs/src/thanks._tx
-for base in abi ahack allegro const faq help mistakes; do
-   ./_makedoc.exe -ascii docs/txt/$base.txt docs/src/$base._tx
-done
-for base in bcc32 beos darwin djgpp linux macosx mingw32 msvc qnx unix watcom; do
-   ./_makedoc.exe -ascii docs/build/$base.txt docs/src/build/$base._tx
-done
-
-
-rm _makedoc.exe
+# echo "Converting documentation..."
+#
+# gcc -o _makedoc.exe docs/src/makedoc/*.c
+#
+# ./_makedoc.exe -ascii readme.txt docs/src/readme._tx
+# ./_makedoc.exe -ascii CHANGES docs/src/changes._tx
+# ./_makedoc.exe -part -ascii AUTHORS docs/src/thanks._tx
+# ./_makedoc.exe -part -ascii THANKS docs/src/thanks._tx
+# for base in abi ahack allegro const faq help mistakes; do
+#    ./_makedoc.exe -ascii docs/txt/$base.txt docs/src/$base._tx
+# done
+# for base in bcc32 beos darwin djgpp linux macosx mingw32 msvc qnx unix watcom; do
+#    ./_makedoc.exe -ascii docs/build/$base.txt docs/src/build/$base._tx
+# done
+#
+#
+# rm _makedoc.exe
 
 
 # convert documentation from pandoc-format source files
@@ -184,6 +184,7 @@ then
        cmake ..
        make docs
        mv docs/txt/changes-4.9.txt ../CHANGES-4.9.txt
+       mv docs/html ../docs/html
    ) || exit 1
    rm -rf $builddir
 else
@@ -205,7 +206,7 @@ fi
 
 
 # create language.dat and keyboard.dat files
-misc/mkdata.sh || exit 1
+# misc/mkdata.sh || exit 1
 
 
 # convert files to djgpp format for distribution
@@ -254,6 +255,8 @@ cd .dist
 
 # if 7za is available, use that to produce both .zip and .7z files
 if 7za > /dev/null ; then
+   rm -f $name.zip
+   rm -f $name.7z
    if [ -n "$FAST_ZIPUP" ]; then
       7za a -mx0 $name.zip allegro
       7za a -mx0 $name.7z allegro

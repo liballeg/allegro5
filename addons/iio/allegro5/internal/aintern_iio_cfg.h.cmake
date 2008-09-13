@@ -1,0 +1,1 @@
+#cmakedefine ALLEGRO_CFG_IIO_HAVE_PNG

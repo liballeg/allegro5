@@ -1,4 +1,4 @@
-include_directories(../audio)
+include_directories(../kcm_audio)
 
 option(WANT_FLAC "Enable FLAC support (acodec)" on)
 option(WANT_VORBIS "Enable Ogg Vorbis support (acodec)" on)
@@ -6,6 +6,11 @@ option(WANT_SNDFILE "Enable WAV/AIFF/FLAC support (acodec)" on)
 
 set(ACODEC_EXTRA_LIBS)
 set(ACODEC_SOURCES acodec.c)
+
+if(SUPPORT_KCM_AUDIO)
+    set(SUPPORT_ACODEC 1)
+    set(SUPPORT_ACODEC 1 PARENT_SCOPE)
+endif(SUPPORT_KCM_AUDIO)
 
 if(WANT_FLAC)
     # XXX flac.c doesn't compile with flac 1.1.2
@@ -28,11 +33,14 @@ if(WANT_FLAC)
 endif(WANT_FLAC)
 
 if(WANT_VORBIS)
-    # XXX ogg.c doesn't compiler with libvorbis 1.1.2
-    # missing OV_CALLBACKS_NOCLOSE
-    find_path(VORBIS_INCLUDE_DIR vorbis/vorbisfile.h PATHS ENV INCLUDE)
-    find_library(VORBIS_LIBRARY NAMES vorbisfile PATHS ENV LIB)
-    mark_as_advanced(VORBIS_INCLUDE_DIR VORBIS_LIBRARY)
+    check_c_source_compiles("
+        #include <vorbis/vorbisfile.h>
+        int main(void) {
+            (void)OV_CALLBACKS_NOCLOSE;
+            return 0;
+        }"
+        CAN_VORBIS
+        )
 
     if(VORBIS_INCLUDE_DIR AND VORBIS_LIBRARY)
         set(CAN_VORBIS 1)
@@ -106,73 +114,64 @@ macro(add_acodec_build nm extra_flags)
 
 endmacro(add_acodec_build)
 
-if(GRADE_STANDARD)
-    add_acodec_build(a5_acodec
-        "-O2 -funroll-loops -ffast-math -fomit-frame-pointer")
-endif(GRADE_STANDARD)
+if(SUPPORT_ACODEC)
 
-if(GRADE_DEBUG)
-    add_acodec_build(a5_acodecd
-        "-DDEBUGMODE -g")
-endif(GRADE_DEBUG)
+    if(GRADE_STANDARD)
+        add_acodec_build(a5_acodec
+            "-O2 -funroll-loops -ffast-math -fomit-frame-pointer")
+    endif(GRADE_STANDARD)
 
-if(GRADE_PROFILE)
-    add_acodec_build(a5_acodecp
-        "-pg -O2 -funroll-loops -ffast-math")
-endif(GRADE_PROFILE)
+    if(GRADE_DEBUG)
+        add_acodec_build(a5_acodecd
+            "-DDEBUGMODE -g")
+    endif(GRADE_DEBUG)
 
-if(GRADE_STANDARD)
-    set(ACODEC_LIB_TO_LINK a5_acodec CACHE INTERNAL "internal")
-elseif(GRADE_DEBUG)
-    set(ACODEC_LIB_TO_LINK a5_acodecd CACHE INTERNAL "internal")
-elseif(GRADE_PROFILE)
-    set(ACODEC_LIB_TO_LINK a5_acodecp CACHE INTERNAL "internal")
-endif(GRADE_STANDARD)
+    if(GRADE_PROFILE)
+        add_acodec_build(a5_acodecp
+            "-pg -O2 -funroll-loops -ffast-math")
+    endif(GRADE_PROFILE)
 
-if(STATIC)
-    set(ACODEC_LINK_WITH ${ACODEC_LIB_TO_LINK}_static CACHE INTERNAL "internal")
-    set(ACODEC_LINK_WITH ${ACODEC_LINK_WITH} ${AUDIO_LIB_TO_LINK}_static CACHE INTERNAL "internal")
-else(STATIC)
-    set(ACODEC_LINK_WITH ${ACODEC_LIB_TO_LINK}_shared CACHE INTERNAL "internal")
-    set(ACODEC_LINK_WITH ${ACODEC_LINK_WITH} ${AUDIO_LIB_TO_LINK}_shared CACHE INTERNAL "internal")
-endif(STATIC)
+    if(GRADE_STANDARD)
+        set(ACODEC_LIB_TO_LINK a5_acodec CACHE INTERNAL "internal")
+    elseif(GRADE_DEBUG)
+        set(ACODEC_LIB_TO_LINK a5_acodecd CACHE INTERNAL "internal")
+    elseif(GRADE_PROFILE)
+        set(ACODEC_LIB_TO_LINK a5_acodecp CACHE INTERNAL "internal")
+    endif(GRADE_STANDARD)
 
-if(SUPPORT_FLAC)
-    set(ACODEC_LINK_WITH ${ACODEC_LINK_WITH} FLAC)
-endif(SUPPORT_FLAC)
+    if(STATIC)
+        set(ACODEC_LINK_WITH ${ACODEC_LIB_TO_LINK}_static
+            CACHE INTERNAL "internal")
+        set(ACODEC_LINK_WITH ${ACODEC_LIB_TO_LINK}_static PARENT_SCOPE)
+        set(ACODEC_LINK_WITH ${ACODEC_LINK_WITH} ${AUDIO_LIB_TO_LINK}_static
+            CACHE INTERNAL "internal")
+    else(STATIC)
+        set(ACODEC_LINK_WITH ${ACODEC_LIB_TO_LINK}_shared
+            CACHE INTERNAL "internal")
+        set(ACODEC_LINK_WITH ${ACODEC_LIB_TO_LINK}_shared PARENT_SCOPE)
+        set(ACODEC_LINK_WITH ${ACODEC_LINK_WITH} ${AUDIO_LIB_TO_LINK}_shared
+            CACHE INTERNAL "internal")
+    endif(STATIC)
 
-if(SUPPORT_VORBIS)
-    set(ACODEC_LINK_WITH ${ACODEC_LINK_WITH} vorbisfile)
-endif(SUPPORT_VORBIS)
+    if(SUPPORT_FLAC)
+        set(ACODEC_LINK_WITH ${ACODEC_LINK_WITH} FLAC)
+    endif(SUPPORT_FLAC)
 
-if(SUPPORT_SNDFILE)
-    set(ACODEC_LINK_WITH ${ACODEC_LINK_WITH} sndfile)
-endif(SUPPORT_SNDFILE)
+    if(SUPPORT_VORBIS)
+        set(ACODEC_LINK_WITH ${ACODEC_LINK_WITH} vorbisfile)
+    endif(SUPPORT_VORBIS)
 
-macro(add_acodec_example nm)
-    add_executable(${nm} ${EXECUTABLE_TYPE} ${ARGN})
-    set_target_properties(${nm} PROPERTIES
-        COMPILE_FLAGS "${MAYBE_ALLEGRO_STATICLINK} ${WFLAGS} ${EXE_CFLAGS}"
-        LINK_FLAGS "${MAYBE_ALLEGRO_STATICLINK}"
-        )
-    target_link_libraries(${nm} ${LINK_WITH})
-    target_link_libraries(${nm} ${ACODEC_LINK_WITH})
-endmacro(add_acodec_example)
+    if(SUPPORT_SNDFILE)
+        set(ACODEC_LINK_WITH ${ACODEC_LINK_WITH} sndfile)
+    endif(SUPPORT_SNDFILE)
 
-add_acodec_example(ex_acodec ex_acodec.c)
-add_acodec_example(ex_acodec_multi ex_acodec_multi.c)
-add_acodec_example(ex_acodec_stream ex_acodec_stream.c)
+    # Install header files.
 
-#add_acodec_example(ex_acodec_mixer ex_acodec_mixer.c)
+    install(FILES ${ACODEC_INCLUDE_FILES}
+            DESTINATION include/allegro5
+            )
 
-#-----------------------------------------------------------------------------#
-#
-# Install header files.
-#
-
-install(FILES ${ACODEC_INCLUDE_FILES}
-        DESTINATION include/allegro5
-        )
+endif(SUPPORT_ACODEC)
 
 #-----------------------------------------------------------------------------#
 # vi: set ts=8 sts=4 sw=4 et:

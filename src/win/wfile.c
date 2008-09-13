@@ -24,6 +24,7 @@
 #include "allegro5/allegro5.h"
 #include "allegro5/winalleg.h"
 #include "allegro5/internal/aintern.h"
+#include "allegro5/internal/aintern_memory.h"
 
 #ifndef ALLEGRO_WINDOWS
 #error something is wrong with the makefile
@@ -70,14 +71,14 @@ uint64_t _al_file_size_ex(AL_CONST char *filename)
 
    if (get_filename_encoding() != U_UNICODE) {
       if (_stat(uconvert(filename, U_CURRENT, tmp, U_ASCII, sizeof(tmp)), &s) != 0) {
-         *allegro_errno = errno;
+         al_set_errno(errno);
          return 0;
       }
    }
    else {
       if (_wstat((wchar_t*)uconvert(filename, U_CURRENT, tmp, U_UNICODE,
                  sizeof(tmp)), &s) != 0) {
-         *allegro_errno = errno;
+         al_set_errno(errno);
          return 0;
       }
    }
@@ -97,13 +98,13 @@ time_t _al_file_time(AL_CONST char *filename)
 
    if (get_filename_encoding() != U_UNICODE) {
       if (_stat(uconvert(filename, U_CURRENT, tmp, U_ASCII, sizeof(tmp)), &s) != 0) {
-         *allegro_errno = errno;
+         al_set_errno(errno);
          return 0;
       }
    }
    else {
       if (_wstat((wchar_t*)uconvert(filename, U_CURRENT, tmp, U_UNICODE, sizeof(tmp)), &s) != 0) {
-         *allegro_errno = errno;
+         al_set_errno(errno);
          return 0;
       }
    }
@@ -165,7 +166,7 @@ int al_findfirst(AL_CONST char *pattern, struct al_ffblk *info, int attrib)
    ff_data = _AL_MALLOC(sizeof(struct FF_DATA));
 
    if (!ff_data) {
-      *allegro_errno = ENOMEM;
+      al_set_errno(ENOMEM);
       return -1;
    }
 
@@ -187,7 +188,8 @@ int al_findfirst(AL_CONST char *pattern, struct al_ffblk *info, int attrib)
    ff_data->attrib = attrib | 0xFFFFFF00;
 
    /* start the search */
-   errno = *allegro_errno = 0;
+   errno = 0;
+   al_set_errno(0);
 
    if (get_filename_encoding() != U_UNICODE) {
       ff_data->handle = _findfirst(uconvert(pattern, U_CURRENT, tmp,
@@ -195,7 +197,7 @@ int al_findfirst(AL_CONST char *pattern, struct al_ffblk *info, int attrib)
                                             &ff_data->data.a);
 
       if (ff_data->handle < 0) {
-         *allegro_errno = errno;
+         al_set_errno(errno);
          _AL_FREE(ff_data);
          info->ff_data = NULL;
          return -1;
@@ -216,7 +218,7 @@ int al_findfirst(AL_CONST char *pattern, struct al_ffblk *info, int attrib)
                                                        &ff_data->data.w);
 
       if (ff_data->handle < 0) {
-         *allegro_errno = errno;
+         al_set_errno(errno);
          _AL_FREE(ff_data);
          info->ff_data = NULL;
          return -1;
@@ -248,7 +250,7 @@ int al_findnext(struct al_ffblk *info)
    if (get_filename_encoding() != U_UNICODE) {
       do {
          if (_findnext(ff_data->handle, &ff_data->data.a) != 0) {
-            *allegro_errno = errno;
+            al_set_errno(errno);
             return -1;
          }
       } while (ff_data->data.a.attrib & ~ff_data->attrib);
@@ -256,7 +258,7 @@ int al_findnext(struct al_ffblk *info)
    else {
       do {
          if (_wfindnext(ff_data->handle, &ff_data->data.w) != 0) {
-            *allegro_errno = errno;
+            al_set_errno(errno);
             return -1;
          }
       } while (ff_data->data.w.attrib & ~ff_data->attrib);

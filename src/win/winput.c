@@ -39,6 +39,7 @@
 int _win_input_events;
 HANDLE _win_input_event_id[MAX_EVENTS];
 void (*_win_input_event_handler[MAX_EVENTS])(void);
+ALLEGRO_MUTEX *_al_win_input_mutex;
 
 /* pending event waiting for being processed */
 static HANDLE pending_event_id;
@@ -49,7 +50,6 @@ static HANDLE ack_event = NULL;
 static int reserved_events = 0;
 static int input_need_thread = FALSE;
 static HANDLE input_thread = NULL;
-
 
 
 /* input_thread_proc: [input thread]
@@ -165,6 +165,8 @@ void _win_input_unregister_event(HANDLE event_id)
    /* record the event */
    pending_event_id = event_id;
 
+   al_lock_mutex(_al_win_input_mutex);
+
    /* ask the input thread to unregister the pending event */
    SetEvent(_win_input_event_id[1]);
 
@@ -176,6 +178,8 @@ void _win_input_unregister_event(HANDLE event_id)
       SetEvent(_win_input_event_id[2]);  /* thread suicide */
       input_thread = NULL;
    }
+   
+   al_unlock_mutex(_al_win_input_mutex);
 
    _TRACE(PREFIX_I "1 input event unregistered (total = %d)\n", _win_input_events-reserved_events);
 }
@@ -205,6 +209,8 @@ void _win_input_init(int need_thread)
    _win_input_events = reserved_events;
 
    ack_event = CreateEvent(NULL, FALSE, FALSE, NULL);
+
+   _al_win_input_mutex = al_create_mutex();
 }
 
 
@@ -222,5 +228,8 @@ void _win_input_exit(void)
    _win_input_events = 0;
 
    CloseHandle(ack_event);
+
+   al_destroy_mutex(_al_win_input_mutex);
+   _al_win_input_mutex = NULL;
 }
 

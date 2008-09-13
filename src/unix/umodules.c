@@ -18,6 +18,7 @@
 
 #include "allegro5/allegro5.h"
 #include "allegro5/internal/aintern.h"
+#include "allegro5/internal/aintern_memory.h"
 #include "allegro5/platform/aintunix.h"
 
 
@@ -185,7 +186,7 @@ void _unix_unload_modules(void)
       sym = dlsym(m->handle, "_module_has_registered_via_atexit");
       has_registered = (sym ? *sym : 0);
 
-      if (!has_registered || _allegro_in_exit)
+      if (!has_registered)
 	 dlclose(m->handle);
 
       _AL_FREE(m);

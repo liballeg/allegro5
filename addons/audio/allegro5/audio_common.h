@@ -4,6 +4,10 @@
 #ifndef A5_AUDIO_COMMON_H
 #define A5_AUDIO_COMMON_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #if (defined ALLEGRO_MINGW32) || (defined ALLEGRO_MSVC)
    #ifndef ALLEGRO_STATICLINK
       #ifdef A5_AUDIO_SRC
@@ -46,10 +50,10 @@ typedef enum ALLEGRO_AUDIO_ENUM {
    /* Sample depth and type, and signedness. Mixers only use 32-bit signed
       float (-1..+1). The unsigned value is a bit-flag applied to the depth
       value */
-   ALLEGRO_AUDIO_8_BIT_UINT   = 0x00,
-   ALLEGRO_AUDIO_16_BIT_INT   = 0x01,
-   ALLEGRO_AUDIO_24_BIT_INT   = 0x02,
-   ALLEGRO_AUDIO_32_BIT_FLOAT = 0x03,
+   ALLEGRO_AUDIO_DEPTH_UINT8   = 0x00,
+   ALLEGRO_AUDIO_DEPTH_INT16   = 0x01,
+   ALLEGRO_AUDIO_DEPTH_INT24   = 0x02,
+   ALLEGRO_AUDIO_DEPTH_FLOAT32 = 0x03,
 
    /* Speaker configuration (mono, stereo, 2.1, 3, etc). With regards to
       behavior, most of this code makes no distinction between, say, 4.1 and
@@ -57,18 +61,18 @@ typedef enum ALLEGRO_AUDIO_ENUM {
       like the distinction, and later when the higher-level stuff is added,
       the differences will become more important. (v>>4)+(v&0xF) should yield
       the total channel count */
-   ALLEGRO_AUDIO_1_CH   = 0x10,
-   ALLEGRO_AUDIO_2_CH   = 0x20,
-   ALLEGRO_AUDIO_3_CH   = 0x30,
-   ALLEGRO_AUDIO_4_CH   = 0x40,
-   ALLEGRO_AUDIO_5_1_CH = 0x51,
-   ALLEGRO_AUDIO_6_1_CH = 0x61,
-   ALLEGRO_AUDIO_7_1_CH = 0x71,
+   ALLEGRO_CHANNEL_CONF_1   = 0x10,
+   ALLEGRO_CHANNEL_CONF_2   = 0x20,
+   ALLEGRO_CHANNEL_CONF_3   = 0x30,
+   ALLEGRO_CHANNEL_CONF_4   = 0x40,
+   ALLEGRO_CHANNEL_CONF_5_1 = 0x51,
+   ALLEGRO_CHANNEL_CONF_6_1 = 0x61,
+   ALLEGRO_CHANNEL_CONF_7_1 = 0x71,
 
    /* Sample looping mode */
-   ALLEGRO_AUDIO_PLAY_ONCE = 0x100,
-   ALLEGRO_AUDIO_ONE_DIR   = 0x101,
-   ALLEGRO_AUDIO_BI_DIR    = 0x102,
+   ALLEGRO_PLAYMODE_ONCE = 0x100,
+   ALLEGRO_PLAYMODE_ONEDIR   = 0x101,
+   ALLEGRO_PLAYMODE_BIDIR    = 0x102,
 
    /* various driver modes */
    ALLEGRO_AUDIO_DRIVER_AUTODETECT = 0x20000,
@@ -85,5 +89,9 @@ A5_AUDIO_FUNC(void, al_audio_deinit, (void));
 
 A5_AUDIO_FUNC(int,  al_audio_channel_count, (ALLEGRO_AUDIO_ENUM conf));
 A5_AUDIO_FUNC(int,  al_audio_depth_size, (ALLEGRO_AUDIO_ENUM conf));
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

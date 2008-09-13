@@ -17,6 +17,7 @@
 
 
 #include "allegro5/allegro5.h"
+#include "allegro5/internal/aintern_thread.h"
 #include "allegro5/platform/aintwin.h"
 
 #ifndef SCAN_DEPEND
@@ -122,3 +123,24 @@ void al_rest(double seconds)
 
    Sleep((DWORD)(seconds * 1000.0));
 }
+
+
+/* al_init_timeout:
+ *  Set a timeout value.
+ */
+void al_init_timeout(ALLEGRO_TIMEOUT *timeout, double seconds)
+{
+   ALLEGRO_TIMEOUT_WIN *wt = (ALLEGRO_TIMEOUT_WIN *) timeout;
+
+   ASSERT(sizeof(ALLEGRO_TIMEOUT_WIN) <= sizeof(ALLEGRO_TIMEOUT));
+   ASSERT(wt);
+
+   if (seconds <= 0.0) {
+      wt->abstime = timeGetTime();
+   }
+   else {
+      wt->abstime = timeGetTime() + (DWORD)(seconds * 1000.0);
+   }
+}
+
+/* vim: set sts=3 sw=3 et */

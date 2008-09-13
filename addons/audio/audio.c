@@ -19,13 +19,13 @@ int al_audio_channel_count(ALLEGRO_AUDIO_ENUM conf)
 /* Depth configuration helpers */
 int al_audio_depth_size(ALLEGRO_AUDIO_ENUM depth)
 {
-   if(depth == ALLEGRO_AUDIO_8_BIT_UINT)
+   if(depth == ALLEGRO_AUDIO_DEPTH_UINT8)
       return 1;
-   if(depth == ALLEGRO_AUDIO_16_BIT_INT)
+   if(depth == ALLEGRO_AUDIO_DEPTH_INT16)
       return 2;
-   if(depth == ALLEGRO_AUDIO_24_BIT_INT)
+   if(depth == ALLEGRO_AUDIO_DEPTH_INT24)
       return 3;
-   if(depth == ALLEGRO_AUDIO_32_BIT_FLOAT)
+   if(depth == ALLEGRO_AUDIO_DEPTH_FLOAT32)
       return 4;
 
    TRACE("oops. unsupported depth size\n");
@@ -52,16 +52,16 @@ int _al_audio_get_silence(ALLEGRO_AUDIO_ENUM depth) {
 
    switch(depth)
    {
-      case ALLEGRO_AUDIO_8_BIT_UINT:
+      case ALLEGRO_AUDIO_DEPTH_UINT8:
          silence = 0x80;
          break;
-      case ALLEGRO_AUDIO_16_BIT_INT:
+      case ALLEGRO_AUDIO_DEPTH_INT16:
          silence = 0x8000;
          break;
-      case ALLEGRO_AUDIO_24_BIT_INT:
+      case ALLEGRO_AUDIO_DEPTH_INT24:
          silence = 0x800000;
          break;
-      case ALLEGRO_AUDIO_32_BIT_FLOAT:
+      case ALLEGRO_AUDIO_DEPTH_FLOAT32:
          silence = 0;
          break;
       default:
@@ -124,7 +124,12 @@ int al_audio_init(ALLEGRO_AUDIO_ENUM mode)
 
       case ALLEGRO_AUDIO_DRIVER_DSOUND:
          #if defined(ALLEGRO_WINDOWS)
-            TRACE("DirectSound driver not yet implemented\n");
+            if (_al_dsound_driver.open() == 0)
+            {
+               fprintf(stderr, "Using DirectSound driver\n");
+               _al_audio_driver = &_al_dsound_driver;
+               return 0;
+            }
             return 1;
          #else
             TRACE("DirectSound not available on this platform\n");

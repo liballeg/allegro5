@@ -15,14 +15,14 @@
  *      See readme.txt for copyright information.
  */
 
-#include "allegro.h"
+#include "allegro5/allegro5.h"
+#include ALLEGRO_INTERNAL_HEADER
 #include "allegro5/debug.h"
 #include "allegro5/fshook.h"
 #include "allegro5/internal/fshook.h"
-#include ALLEGRO_INTERNAL_HEADER
 
-struct AL_FS_HOOK_SYS_VTABLE  *_al_sys_fshooks = &_al_stdio_sys_fshooks;
-struct AL_FS_HOOK_ENTRY_VTABLE *_al_entry_fshooks = &_al_stdio_entry_fshooks;
+struct AL_FS_HOOK_SYS_INTERFACE  *_al_sys_fshooks = &_al_stdio_sys_fshooks;
+struct AL_FS_HOOK_ENTRY_INTERFACE *_al_entry_fshooks = &_al_stdio_entry_fshooks;
 
 AL_FS_ENTRY *al_fs_create_handle(AL_CONST char *path)
 {
@@ -49,18 +49,17 @@ int32_t al_fs_open_handle(AL_FS_ENTRY *handle, AL_CONST char *mode)
    return _al_fs_hook_open_handle(handle, mode);
 }
 
-int32_t al_fs_close_handle(AL_FS_ENTRY *handle)
+void al_fs_close_handle(AL_FS_ENTRY *handle)
 {
    ASSERT(handle != NULL);
-
-   return _al_fs_hook_close_handle(handle);
+   _al_fs_hook_close_handle(handle);
 }
 
-void al_fs_entry_name(AL_FS_ENTRY *fp)
+void al_fs_entry_name(AL_FS_ENTRY *fp, size_t size, char *buf)
 {
    ASSERT(fp != NULL);
 
-   return _al_fs_hook_entry_name(fp);
+   return _al_fs_hook_entry_name(fp, size, buf);
 }
 
 AL_FS_ENTRY *al_fs_entry_open(const char *path, const char *mode)
@@ -71,11 +70,11 @@ AL_FS_ENTRY *al_fs_entry_open(const char *path, const char *mode)
    return _al_fs_hook_entry_open(path, mode);
 }
 
-int32_t al_fs_entry_close(AL_FS_ENTRY *fp)
+void al_fs_entry_close(AL_FS_ENTRY *fp)
 {
    ASSERT(fp != NULL);
 
-   return _al_fs_hook_entry_close(fp);
+   _al_fs_hook_entry_close(fp);
 }
 
 ssize_t   al_fs_entry_read(void *ptr, size_t size, AL_FS_ENTRY *fp)
@@ -177,32 +176,32 @@ int32_t al_fs_readdir(AL_FS_ENTRY *dir, size_t size, char *name)
 uint32_t al_fs_entry_mode(AL_FS_ENTRY *e)
 {
    ASSERT(e != NULL);
-   return _al_fs_hook_entry_mode(st);
+   return _al_fs_hook_entry_mode(e);
 }
 
 time_t al_fs_entry_atime(AL_FS_ENTRY *e)
 {
    ASSERT(e != NULL);
-   return _al_fs_hook_entry_atime(st);
+   return _al_fs_hook_entry_atime(e);
 }
 
 time_t al_fs_entry_mtime(AL_FS_ENTRY *e)
 {
    ASSERT(e != NULL);
-   return _al_fs_hook_entry_mtime(st);
+   return _al_fs_hook_entry_mtime(e);
 }
 
 time_t al_fs_entry_ctime(AL_FS_ENTRY *e)
 {
    ASSERT(e != NULL);
-   return _al_fs_hook_entry_ctime(st);
+   return _al_fs_hook_entry_ctime(e);
 }
 
-size_t al_fs_entry_size(AL_FS_ENTRY *e)
+off_t al_fs_entry_size(AL_FS_ENTRY *e)
 {
    ASSERT(e != NULL);
 
-   return _al_fs_hook_entry_size(st);
+   return _al_fs_hook_entry_size(e);
 }
 
 int32_t al_fs_entry_unlink( AL_FS_ENTRY *e )
@@ -274,7 +273,7 @@ int32_t al_fs_get_search_path(uint32_t idx, char *dest, size_t len)
    return _al_fs_hook_get_search_path(idx, dest, len);
 }
 
-uint32_t al_fs_drive_sep(size_t len, char *sep)
+int32_t al_fs_drive_sep(size_t len, char *sep)
 {
    ASSERT(len > 0);
    ASSERT(sep);
@@ -282,7 +281,7 @@ uint32_t al_fs_drive_sep(size_t len, char *sep)
    return _al_fs_hook_drive_sep(len, sep);
 }
 
-uint32_t al_fs_path_sep(size_t len, char *sep)
+int32_t al_fs_path_sep(size_t len, char *sep)
 {
    ASSERT(len > 0);
    ASSERT(sep);
@@ -292,7 +291,7 @@ uint32_t al_fs_path_sep(size_t len, char *sep)
 
 /* not sure these two conversion hooks are needed, should the path conversion be in the driver? */
 /* yup, driver may want to expose a "environment" that doesn't match the curren't platform's */
-uint32_t al_fs_path_to_sys(const char *orig, size_t len, char *path)
+int32_t al_fs_path_to_sys(const char *orig, size_t len, char *path)
 {
    ASSERT(orig);
    ASSERT(len > 0);
@@ -301,7 +300,7 @@ uint32_t al_fs_path_to_sys(const char *orig, size_t len, char *path)
    return _al_fs_hook_path_to_sys(orig, len, path);
 }
 
-uint32_t al_fs_path_to_uni(const char *orig, size_t len, char *path)
+int32_t al_fs_path_to_uni(const char *orig, size_t len, char *path)
 {
    ASSERT(orig);
    ASSERT(len > 0);
@@ -356,13 +355,13 @@ int32_t al_fs_exists( const char *path )
 int32_t al_fs_isdir(AL_CONST char *path)
 {
    ASSERT(path != NULL);
-   return _al_fs_stat_mode(path) & AL_FM_ISDIR;
+   return _al_fs_hook_stat_mode(path) & AL_FM_ISDIR;
 }
 
 int32_t al_fs_isfile(AL_CONST char *path)
 {
    ASSERT(path != NULL);
-   return _al_fs_stat_mode(path) & AL_FM_ISFILE;
+   return _al_fs_hook_stat_mode(path) & AL_FM_ISFILE;
 }
 
 /* for you freaks running vim/emacs. */

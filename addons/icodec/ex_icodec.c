@@ -25,7 +25,7 @@ int main(int argc, char **argv)
 
    display = al_create_display(WIDTH, HEIGHT);
    if (!display) {
-      allegro_message("Error creating display");
+      TRACE("Error creating display\n");
       return 1;
    }
 

@@ -14,18 +14,22 @@
  *      Based on AllegroGL extensions management.
  */
 
+/* Title: OpenGL extensions
+ */
+
 
 #include "allegro5/allegro5.h"
 #include "allegro5/display_new.h"
 #include "allegro5/opengl/gl_ext.h"
 #include "allegro5/internal/aintern_opengl.h"
+#include "allegro5/internal/aintern_display.h"
 
 
 /* We need some driver specific details not worth of a vtable entry. */
 #if defined ALLEGRO_WINDOWS
    #include "../win/wgl.h"
 #elif defined ALLEGRO_UNIX
-   #include "../xglx/xglx.h"
+   #include "../x/xglx.h"
 #endif
 
 #include <string.h>
@@ -145,13 +149,13 @@ static float _al_ogl_version(void)
  */
 float al_opengl_version(void)
 {
-   ALLEGRO_DISPLAY_OGL *ogl_disp;
+   ALLEGRO_DISPLAY *ogl_disp;
 
-   ogl_disp = (ALLEGRO_DISPLAY_OGL*)al_get_current_display();
+   ogl_disp = (ALLEGRO_DISPLAY*)al_get_current_display();
    if (!ogl_disp)
       return 0.0f;
 
-   return ogl_disp->ogl_info.version;
+   return ogl_disp->ogl_extras->ogl_info.version;
 }
 
 
@@ -335,7 +339,7 @@ int _al_ogl_look_for_an_extension(AL_CONST char *name, AL_CONST GLubyte *extensi
 
 
 static int _ogl_is_extension_supported(AL_CONST char *extension,
-                                       ALLEGRO_DISPLAY_OGL *disp)
+                                       ALLEGRO_DISPLAY *disp)
 {
    int ret;
    
@@ -365,11 +369,11 @@ static int _ogl_is_extension_supported(AL_CONST char *extension,
       ALLEGRO_SYSTEM_XGLX *sys = (void*)al_system_driver();
       ALLEGRO_DISPLAY_XGLX *glx_disp = (void*)disp;
 
-      if (!sys->xdisplay || !glx_disp->xscreen)
+      if (!sys->gfxdisplay || !glx_disp->xscreen)
          return FALSE;
 
       ret = _al_ogl_look_for_an_extension(extension, (const GLubyte *)
-                    glXQueryExtensionsString(sys->xdisplay, glx_disp->xscreen));
+         glXQueryExtensionsString(sys->gfxdisplay, glx_disp->xscreen));
    }
 #endif
 
@@ -405,7 +409,7 @@ int al_is_opengl_extension_supported(AL_CONST char *extension)
    if (!(disp->flags & ALLEGRO_OPENGL))
       return FALSE;
 
-   return _ogl_is_extension_supported(extension, (ALLEGRO_DISPLAY_OGL*)disp);
+   return _ogl_is_extension_supported(extension, (ALLEGRO_DISPLAY*)disp);
 }
 
 
@@ -557,7 +561,7 @@ static void fill_in_info_struct(const GLubyte *rendereru, OPENGL_INFO *info)
  * This functions fills the extensions API table and extension list
  * structures and displays on the log file which extensions are available.
  */
-void _al_ogl_manage_extensions(ALLEGRO_DISPLAY_OGL *gl_disp)
+void _al_ogl_manage_extensions(ALLEGRO_DISPLAY *gl_disp)
 {
    //AL_CONST GLubyte *buf;
 #if defined ALLEGRO_MACOSX
@@ -609,21 +613,21 @@ void _al_ogl_manage_extensions(ALLEGRO_DISPLAY_OGL *gl_disp)
    CFRelease(bundle_url);
 #endif
 
-   fill_in_info_struct(glGetString(GL_RENDERER), &(gl_disp->ogl_info));
+   fill_in_info_struct(glGetString(GL_RENDERER), &(gl_disp->ogl_extras->ogl_info));
 
    /* Create & load extension API table */
    ext_api = create_extension_api_table();
    load_extensions(ext_api);
-   gl_disp->extension_api = ext_api;
+   gl_disp->ogl_extras->extension_api = ext_api;
 
    /* Create the list of supported extensions. */
    ext_list = create_extension_list();
-   gl_disp->extension_list = ext_list;
+   gl_disp->ogl_extras->extension_list = ext_list;
 
    /* Fill the list. */
 #define AGL_EXT(name, ver) {                                                             \
 		ext_list->ALLEGRO_GL_##name =  _ogl_is_extension_supported("GL_" #name, gl_disp) \
-		                      || (gl_disp->ogl_info.version >= ver && ver > 0);          \
+		                      || (gl_disp->ogl_extras->ogl_info.version >= ver && ver > 0);          \
 	}
    #include "allegro5/opengl/GLext/gl_ext_list.h"
 #undef AGL_EXT
@@ -631,14 +635,14 @@ void _al_ogl_manage_extensions(ALLEGRO_DISPLAY_OGL *gl_disp)
 #ifdef ALLEGRO_UNIX
 #define AGL_EXT(name, ver) {                                                              \
 		ext_list->ALLEGRO_GLX_##name = _ogl_is_extension_supported("GLX_" #name, gl_disp) \
-		                      || (gl_disp->ogl_info.version >= ver && ver > 0);           \
+		                      || (gl_disp->ogl_extras->ogl_info.version >= ver && ver > 0);           \
 	}
    #include "allegro5/opengl/GLext/glx_ext_list.h"
 #undef AGL_EXT
 #elif defined ALLEGRO_WINDOWS
 #define AGL_EXT(name, ver) {                                                              \
 		ext_list->ALLEGRO_WGL_##name = _ogl_is_extension_supported("WGL_" #name, gl_disp) \
-		                      || (gl_disp->ogl_info.version >= ver && ver > 0);           \
+		                      || (gl_disp->ogl_extras->ogl_info.version >= ver && ver > 0);           \
 	}
    #include "allegro5/opengl/GLext/wgl_ext_list.h"
 #undef AGL_EXT
@@ -658,20 +662,20 @@ void _al_ogl_manage_extensions(ALLEGRO_DISPLAY_OGL *gl_disp)
    /* Get number of texture units */
    if (ext_list->ALLEGRO_GL_ARB_multitexture) {
       glGetIntegerv(GL_MAX_TEXTURE_UNITS,
-                    (GLint *) & gl_disp->ogl_info.num_texture_units);
+                    (GLint *) & gl_disp->ogl_extras->ogl_info.num_texture_units);
    }
    else {
-      gl_disp->ogl_info.num_texture_units = 1;
+      gl_disp->ogl_extras->ogl_info.num_texture_units = 1;
    }
 
    /* Get max texture size */
    glGetIntegerv(GL_MAX_TEXTURE_SIZE,
-                 (GLint *) & gl_disp->ogl_info.max_texture_size);
+                 (GLint *) & gl_disp->ogl_extras->ogl_info.max_texture_size);
 
    /* Note: Voodoo (even V5) don't seem to correctly support
     * packed pixel formats. Disabling them for those cards.
     */
-   ext_list->ALLEGRO_GL_EXT_packed_pixels &= !gl_disp->ogl_info.is_voodoo;
+   ext_list->ALLEGRO_GL_EXT_packed_pixels &= !gl_disp->ogl_extras->ogl_info.is_voodoo;
 
 
    if (ext_list->ALLEGRO_GL_EXT_packed_pixels) {
@@ -704,7 +708,7 @@ void _al_ogl_manage_extensions(ALLEGRO_DISPLAY_OGL *gl_disp)
       else if (strstr(vendor, "ATI Technologies")) {
          if (!strstr((const char *)glGetString(GL_EXTENSIONS),
                      "GL_ARB_texture_non_power_of_two")
-             && gl_disp->ogl_info.version >= 2.0f) {
+             && gl_disp->ogl_extras->ogl_info.version >= 2.0f) {
             ext_list->ALLEGRO_GL_ARB_texture_non_power_of_two = 0;
          }
       }
@@ -713,15 +717,15 @@ void _al_ogl_manage_extensions(ALLEGRO_DISPLAY_OGL *gl_disp)
 
 
 
-/* Function: al_get_opengl_extension_list
+/* Function: al_get_opengl_ogl_extras->extension_list
  * Returns the list of OpenGL extensions supported by Allegro, for
  * the current display.
  *
  * Allegro will keep information about all extensions it knows about in a
- * structure returned by <al_get_opengl_extension_list>.
+ * structure returned by <al_get_opengl_ogl_extras->extension_list>.
  *
  * For example:
- * > if (al_get_opengl_extension_list()->ALLEGRO_GL_ARB_multitexture) { use it }
+ * > if (al_get_opengl_ogl_extras->extension_list()->ALLEGRO_GL_ARB_multitexture) { use it }
  *
  * The extension will be set to true if available for the current display and
  * false otherwise. This means to use the definitions and functions from an
@@ -742,7 +746,7 @@ ALLEGRO_OGL_EXT_LIST *al_get_opengl_extension_list(void)
 
    disp = al_get_current_display();
    ASSERT(disp);
-   return ((ALLEGRO_DISPLAY_OGL*)disp)->extension_list;
+   return ((ALLEGRO_DISPLAY*)disp)->ogl_extras->extension_list;
 }
 
 
@@ -772,12 +776,12 @@ static void print_extensions(AL_CONST char *extension)
 
 
 
-void _al_ogl_unmanage_extensions(ALLEGRO_DISPLAY_OGL *gl_disp)
+void _al_ogl_unmanage_extensions(ALLEGRO_DISPLAY *gl_disp)
 {
-   destroy_extension_api_table(gl_disp->extension_api);
-   destroy_extension_list(gl_disp->extension_list);
-   gl_disp->extension_api = NULL;
-   gl_disp->extension_list = NULL;
+   destroy_extension_api_table(gl_disp->ogl_extras->extension_api);
+   destroy_extension_list(gl_disp->ogl_extras->extension_list);
+   gl_disp->ogl_extras->extension_api = NULL;
+   gl_disp->ogl_extras->extension_list = NULL;
 
 #ifdef ALLEGRO_MACOSX
    CFRelease(opengl_bundle_ref);

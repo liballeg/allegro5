@@ -22,9 +22,12 @@
 #include "allegro5/internal/aintern.h"
 #include "allegro5/internal/aintern_dtor.h"
 #include "allegro5/internal/aintern_events.h"
+#include "allegro5/internal/aintern_memory.h"
 
 #ifndef ALLEGRO_MSVC
+#ifndef ALLEGRO_BCC32
    #include <sys/time.h>
+#endif
 #endif
 
 

@@ -10,10 +10,9 @@
 
 typedef struct ALLEGRO_DISPLAY_WGL
 {
-   ALLEGRO_DISPLAY_OGL ogl_display; /* This must be the first member. */
+   ALLEGRO_DISPLAY_WIN win_display; /* This must be the first member. */
 
    /* Driver specifics */
-   HWND window;
    HDC dc;
    HGLRC glrc;
 

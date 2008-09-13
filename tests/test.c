@@ -4600,7 +4600,7 @@ int main(void)
    set_palette(mypal);
 
    if (gfx_mode() != 0) {
-      allegro_exit();
+      al_uninstall_system();
       return 0;
    }
 

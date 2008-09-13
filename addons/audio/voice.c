@@ -111,7 +111,7 @@ int al_voice_set_loop_mode(ALLEGRO_VOICE* voice, ALLEGRO_AUDIO_ENUM loop_mode)
    return _al_audio_driver->set_loop_mode(voice, loop_mode);
 }
 
-int al_voice_get_loop_mode(ALLEGRO_VOICE* voice, ALLEGRO_AUDIO_ENUM loop_mode)
+ALLEGRO_AUDIO_ENUM al_voice_get_loop_mode(ALLEGRO_VOICE* voice, ALLEGRO_AUDIO_ENUM loop_mode)
 {
    ASSERT(voice);
    return _al_audio_driver->get_loop_mode(voice);

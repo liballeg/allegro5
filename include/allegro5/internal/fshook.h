@@ -28,7 +28,7 @@ AL_BEGIN_EXTERN_C
 
 #ifdef ALLEGRO_LIB_BUILD
 
-struct AL_FS_HOOK_SYS_VTABLE {
+struct AL_FS_HOOK_SYS_INTERFACE {
    AL_METHOD(AL_FS_ENTRY *, create_handle, (AL_CONST char *path) );
    AL_METHOD(AL_FS_ENTRY *, opendir,       (AL_CONST char *path) );
    AL_METHOD(AL_FS_ENTRY *, fopen,         (AL_CONST char *path, AL_CONST char *mode) );
@@ -57,14 +57,14 @@ struct AL_FS_HOOK_SYS_VTABLE {
    AL_METHOD(time_t,   stat_ctime, (AL_CONST char *) );
 };
 
-struct AL_FS_HOOK_ENTRY_VTABLE {
+struct AL_FS_HOOK_ENTRY_INTERFACE {
    AL_METHOD(void,     destroy_handle, (AL_FS_ENTRY *handle) );
    AL_METHOD(int32_t,  open_handle,    (AL_FS_ENTRY *handle, AL_CONST char *mode) );
-   AL_METHOD(int32_t,  close_handle,   (AL_FS_ENTRY *handle) );
+   AL_METHOD(void,  close_handle,   (AL_FS_ENTRY *handle) );
 
    AL_METHOD(void,     fname,  (AL_FS_ENTRY *fh, size_t s, char *name) );
 
-   AL_METHOD(int32_t,  fclose, (AL_FS_ENTRY *fp) );
+   AL_METHOD(void,  fclose, (AL_FS_ENTRY *fp) );
    AL_METHOD(size_t,   fread,  (void *ptr, size_t size, AL_FS_ENTRY *fp) );
    AL_METHOD(size_t,   fwrite, (AL_CONST void *ptr, size_t size, AL_FS_ENTRY *fp) );
    AL_METHOD(int32_t,  fflush, (AL_FS_ENTRY *fp) );
@@ -74,7 +74,7 @@ struct AL_FS_HOOK_ENTRY_VTABLE {
    AL_METHOD(int32_t,  feof,   (AL_FS_ENTRY *fp) );
    AL_METHOD(int32_t,  fstat,  (AL_FS_ENTRY *handle) );
 
-   AL_METHOD(size_t,   entry_size,  (AL_FS_ENTRY *) );
+   AL_METHOD(off_t,   entry_size,  (AL_FS_ENTRY *) );
    AL_METHOD(uint32_t, entry_mode,  (AL_FS_ENTRY *) );
    AL_METHOD(time_t,   entry_atime, (AL_FS_ENTRY *) );
    AL_METHOD(time_t,   entry_mtime, (AL_FS_ENTRY *) );
@@ -87,18 +87,18 @@ struct AL_FS_HOOK_ENTRY_VTABLE {
    AL_METHOD(int32_t,  closedir, (AL_FS_ENTRY *dir) );
 };
 
-extern struct AL_FS_HOOK_SYS_VTABLE  *_al_sys_fshooks;
-extern struct AL_FS_HOOK_ENTRY_VTABLE *_al_entry_fshooks;
+extern struct AL_FS_HOOK_SYS_INTERFACE  *_al_sys_fshooks;
+extern struct AL_FS_HOOK_ENTRY_INTERFACE *_al_entry_fshooks;
 
-extern struct AL_FS_HOOK_ENTRY_VTABLE _al_stdio_entry_fshooks;
-extern struct AL_FS_HOOK_SYS_VTABLE _al_stdio_sys_fshooks;
+extern struct AL_FS_HOOK_ENTRY_INTERFACE _al_stdio_entry_fshooks;
+extern struct AL_FS_HOOK_SYS_INTERFACE _al_stdio_sys_fshooks;
 
 #define _al_fs_hook_create_handle(path)       _al_sys_fshooks->create_handle(path)
 #define _al_fs_hook_destroy_handle(handle)    (handle)->vtable->destroy_handle(handle)
 #define _al_fs_hook_open_handle(handle, mode) (handle)->vtable->open_handle(handle, mode)
 #define _al_fs_hook_close_handle(handle)      (handle)->vtable->close_handle(handle)
 
-#define _al_fs_hook_entry_name(fp, s, b)           (fp)->vtable->fname(handle, s, b)
+#define _al_fs_hook_entry_name(fp, s, b)           (fp)->vtable->fname(fp, s, b)
 #define _al_fs_hook_entry_open(path, mode)         _al_sys_fshooks->fopen(path, mode)
 #define _al_fs_hook_entry_close(fp)                (fp)->vtable->fclose(fp)
 #define _al_fs_hook_entry_read(ptr, size, fp)      (fp)->vtable->fread(ptr, size, fp)
@@ -109,12 +109,12 @@ extern struct AL_FS_HOOK_SYS_VTABLE _al_stdio_sys_fshooks;
 #define _al_fs_hook_entry_error(fp)                (fp)->vtable->ferror(fp)
 #define _al_fs_hook_entry_eof(fp)                  (fp)->vtable->feof(fp)
 
-#define _al_fs_hook_entry_stat(path, stbuf) (fp)->vtable->fstat(path, stbuf)
-#define _al_fs_hook_entry_mode(fp)          (fp)->vtable->entry_mode(st)
-#define _al_fs_hook_entry_atime(fp)         (fp)->vtable->entry_atime(st)
-#define _al_fs_hook_entry_mtime(fp)         (fp)->vtable->entry_mtime(st)
-#define _al_fs_hook_entry_ctime(fp)         (fp)->vtable->entry_ctime(st)
-#define _al_fs_hook_entry_size(fp)          (fp)->vtable->entry_size(st)
+#define _al_fs_hook_entry_stat(path) (fp)->vtable->fstat(path)
+#define _al_fs_hook_entry_mode(fp)          (fp)->vtable->entry_mode(fp)
+#define _al_fs_hook_entry_atime(fp)         (fp)->vtable->entry_atime(fp)
+#define _al_fs_hook_entry_mtime(fp)         (fp)->vtable->entry_mtime(fp)
+#define _al_fs_hook_entry_ctime(fp)         (fp)->vtable->entry_ctime(fp)
+#define _al_fs_hook_entry_size(fp)          (fp)->vtable->entry_size(fp)
 
 #define _al_fs_hook_entry_unlink(fp) (fp)->vtable->unlink(fp)
 
@@ -122,9 +122,9 @@ extern struct AL_FS_HOOK_SYS_VTABLE _al_stdio_sys_fshooks;
 
 #define _al_fs_hook_opendir(path) _al_sys_fshooks->opendir(path)
 #define _al_fs_hook_closedir(dir) (dir)->vtable->closedir(dir)
-#define _al_fs_hook_readdir(dir)  (dir)->vtable->readdir(dir)
+#define _al_fs_hook_readdir(dir, size, name)  (dir)->vtable->readdir(dir, size, name)
 
-#define _al_fs_hook_mktemp(template)     _al_sys_fshooks->mktemp(template)
+#define _al_fs_hook_mktemp(template, ulink)     _al_sys_fshooks->mktemp(template, ulink)
 #define _al_fs_hook_getcwd(buf, len)     _al_sys_fshooks->getcwd(buf, len)
 #define _al_fs_hook_chdir(path)          _al_sys_fshooks->chdir(path)
 

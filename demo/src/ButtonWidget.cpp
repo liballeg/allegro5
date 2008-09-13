@@ -15,17 +15,17 @@ void ButtonWidget::right(void)
 
 void ButtonWidget::render(bool selected)
 {
-   A5FONT_FONT *myfont;
+   ALLEGRO_FONT *myfont;
    ResourceManager& rm = ResourceManager::getInstance();
 
    if (center) {
       if (selected) {
-         myfont = (A5FONT_FONT *)rm.getData(RES_LARGEFONT);
+         myfont = (ALLEGRO_FONT *)rm.getData(RES_LARGEFONT);
       }
       else {
-         myfont = (A5FONT_FONT *)rm.getData(RES_SMALLFONT);
+         myfont = (ALLEGRO_FONT *)rm.getData(RES_SMALLFONT);
       }
-      a5font_textprintf_centre(myfont, x, y, text);
+      al_font_textprintf_centre(myfont, x, y, text);
    }
 }
 

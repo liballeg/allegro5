@@ -26,8 +26,8 @@ typedef struct ALLEGRO_AUDIO_DRIVER {
    unsigned long (*get_voice_position)(const ALLEGRO_VOICE*);
    int (*set_voice_position)(ALLEGRO_VOICE*, unsigned long);
 
-   int (*set_loop_mode)(ALLEGRO_VOICE*, bool loop);
-   bool (*get_loop_mode)(ALLEGRO_VOICE*);
+   int (*set_loop_mode)(ALLEGRO_VOICE*, ALLEGRO_AUDIO_ENUM mode);
+   ALLEGRO_AUDIO_ENUM (*get_loop_mode)(ALLEGRO_VOICE*);
 }ALLEGRO_AUDIO_DRIVER;
 
 /* A voice structure that you'd attach a mixer or sample to. Ideally there
@@ -71,7 +71,9 @@ extern struct ALLEGRO_AUDIO_DRIVER _al_openal_driver;
 #if defined(ALLEGRO_LINUX)
    extern struct ALLEGRO_AUDIO_DRIVER _al_alsa_driver;
 #endif
-
+#if defined(ALLEGRO_WINDOWS)
+   extern struct ALLEGRO_AUDIO_DRIVER _al_dsound_driver;
+#endif
 
 
 extern const void* _al_voice_update(ALLEGRO_VOICE* voice, unsigned long samples);

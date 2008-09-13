@@ -27,6 +27,7 @@
 #include "allegro5/allegro5.h"
 #include "allegro5/internal/aintern.h"
 #include "allegro5/internal/aintern_dtor.h"
+#include "allegro5/internal/aintern_memory.h"
 #include "allegro5/internal/aintern_events.h"
 
 
@@ -41,6 +42,11 @@ struct ALLEGRO_EVENT_QUEUE
    _AL_MUTEX mutex;
    _AL_COND cond;
 };
+
+
+
+static bool do_wait_for_event(ALLEGRO_EVENT_QUEUE *queue,
+   ALLEGRO_EVENT *ret_event, ALLEGRO_TIMEOUT *timeout);
 
 
 
@@ -347,17 +353,36 @@ void al_wait_for_event(ALLEGRO_EVENT_QUEUE *queue, ALLEGRO_EVENT *ret_event)
 bool al_wait_for_event_timed(ALLEGRO_EVENT_QUEUE *queue,
    ALLEGRO_EVENT *ret_event, float secs)
 {
-   _AL_COND_TIMEOUT timeout;
-   bool timed_out = false;
-   ALLEGRO_EVENT *next_event = NULL;
+   ALLEGRO_TIMEOUT timeout;
 
    ASSERT(queue);
    ASSERT(secs >= 0);
 
    if (secs < 0.0)
-      _al_cond_timeout_init(&timeout, 0);
+      al_init_timeout(&timeout, 0);
    else
-      _al_cond_timeout_init(&timeout, (unsigned int) 1000.0 * secs);
+      al_init_timeout(&timeout, secs);
+
+   return do_wait_for_event(queue, ret_event, &timeout);
+}
+
+
+
+bool al_wait_for_event_until(ALLEGRO_EVENT_QUEUE *queue,
+   ALLEGRO_EVENT *ret_event, ALLEGRO_TIMEOUT *timeout)
+{
+   ASSERT(queue);
+
+   return do_wait_for_event(queue, ret_event, timeout);
+}
+
+
+
+static bool do_wait_for_event(ALLEGRO_EVENT_QUEUE *queue,
+   ALLEGRO_EVENT *ret_event, ALLEGRO_TIMEOUT *timeout)
+{
+   bool timed_out = false;
+   ALLEGRO_EVENT *next_event = NULL;
 
    _al_mutex_lock(&queue->mutex);
    {
@@ -368,7 +393,7 @@ bool al_wait_for_event_timed(ALLEGRO_EVENT_QUEUE *queue,
        * the queue.
        */
       while (_al_vector_is_empty(&queue->events) && (result != -1)) {
-         result = _al_cond_timedwait(&queue->cond, &queue->mutex, &timeout);
+         result = _al_cond_timedwait(&queue->cond, &queue->mutex, timeout);
       }
 
       if (result == -1)
@@ -459,3 +484,4 @@ void _al_copy_event(ALLEGRO_EVENT *dest, const ALLEGRO_EVENT *src)
  * indent-tabs-mode: nil
  * End:
  */
+/* vim: set sts=3 sw=3 et */

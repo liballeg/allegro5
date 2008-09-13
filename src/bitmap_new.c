@@ -25,6 +25,8 @@
 #include ALLEGRO_INTERNAL_HEADER
 #include "allegro5/internal/aintern_display.h"
 #include "allegro5/internal/aintern_bitmap.h"
+#include "allegro5/internal/aintern_memory.h"
+#include "allegro5/internal/aintern_system.h"
 
 
 
@@ -49,9 +51,6 @@ static ALLEGRO_BITMAP *_al_create_memory_bitmap(int w, int h)
       case ALLEGRO_PIXEL_FORMAT_ANY_15_NO_ALPHA:
          format = ALLEGRO_PIXEL_FORMAT_RGB_555;
          break;
-      case ALLEGRO_PIXEL_FORMAT_ANY_15_WITH_ALPHA:
-         format = ALLEGRO_PIXEL_FORMAT_ARGB_1555;
-         break;
       case ALLEGRO_PIXEL_FORMAT_ANY_16_NO_ALPHA:
          format = ALLEGRO_PIXEL_FORMAT_RGB_565;
          break;
@@ -61,16 +60,15 @@ static ALLEGRO_BITMAP *_al_create_memory_bitmap(int w, int h)
       case ALLEGRO_PIXEL_FORMAT_ANY_24_NO_ALPHA:
          format = ALLEGRO_PIXEL_FORMAT_RGB_888;
          break;
+      case ALLEGRO_PIXEL_FORMAT_ANY_15_WITH_ALPHA:
       case ALLEGRO_PIXEL_FORMAT_ANY_24_WITH_ALPHA:
-         /* We don't support any 24 bit formats with alpha */
+         /* We don't support any 24 or 15 bit formats with alpha. */
          return NULL;
       default:
          break;
    }
 
    bitmap = _AL_MALLOC(sizeof *bitmap);
-
-   memset(bitmap, 0, sizeof *bitmap);
 
    pitch = w * al_get_pixel_size(format);
 
@@ -82,15 +80,14 @@ static ALLEGRO_BITMAP *_al_create_memory_bitmap(int w, int h)
    bitmap->display = NULL;
    bitmap->locked = false;
    bitmap->cl = bitmap->ct = 0;
-   bitmap->cr = w-1;
-   bitmap->cb = h-1;
+   bitmap->cr = w;
+   bitmap->cb = h;
    bitmap->parent = NULL;
    bitmap->xofs = bitmap->yofs = 0;
    // FIXME: Of course, we do need to handle all the possible different formats,
    // this will easily fill up its own file of 1000 lines, but for now,
    // RGBA with 8-bit per component is hardcoded.
    bitmap->memory = _AL_MALLOC(pitch * h);
-   memset(bitmap->memory, 0, pitch * h);
    return bitmap;
 }
 
@@ -119,28 +116,35 @@ ALLEGRO_BITMAP *al_create_bitmap(int w, int h)
 {
    ALLEGRO_BITMAP *bitmap;
    ALLEGRO_BITMAP **back;
+   ALLEGRO_SYSTEM *system = al_system_driver();
+   ALLEGRO_DISPLAY *current_display = al_get_current_display();
 
    if ((al_get_new_bitmap_flags() & ALLEGRO_MEMORY_BITMAP) ||
-         (_al_current_display->vt->create_bitmap == NULL)) {
+         (!current_display || !current_display->vt || current_display->vt->create_bitmap == NULL) ||
+         (system->displays._size < 1)) {
       return _al_create_memory_bitmap(w, h);
    }
 
    /* Else it's a display bitmap */
 
-   bitmap = _al_current_display->vt->create_bitmap(_al_current_display, w, h);
+   bitmap = current_display->vt->create_bitmap(current_display, w, h);
+   if (!bitmap) {
+      TRACE("al_create_bitmap: failed to create display bitmap\n");
+      return NULL;
+   }
 
    /* XXX the ogl_display driver sets some of these variables. It's not clear
     * who should be responsible for setting what.
     * The pitch must be set by the driver.
     */
-   bitmap->display = _al_current_display;
+   bitmap->display = current_display;
    bitmap->w = w;
    bitmap->h = h;
    bitmap->locked = false;
    bitmap->cl = 0;
    bitmap->ct = 0;
-   bitmap->cr = w-1;
-   bitmap->cb = h-1;
+   bitmap->cr = w;
+   bitmap->cb = h;
    bitmap->parent = NULL;
    bitmap->xofs = 0;
    bitmap->yofs = 0;
@@ -153,7 +157,7 @@ ALLEGRO_BITMAP *al_create_bitmap(int w, int h)
    if (!bitmap->memory) {
       size_t bytes = bitmap->pitch * h;
       bitmap->memory = _AL_MALLOC_ATOMIC(bytes);
-      memset(bitmap->memory, 0, bytes);
+      //memset(bitmap->memory, 0, bytes);
    }
 
    if (!bitmap->vt->upload_bitmap(bitmap, 0, 0, w, h)) {
@@ -163,7 +167,7 @@ ALLEGRO_BITMAP *al_create_bitmap(int w, int h)
 
    /* We keep a list of bitmaps depending on the current display so that we can
     * convert them to memory bimaps when the display is destroyed. */
-   back = _al_vector_alloc_back(&_al_current_display->bitmaps);
+   back = _al_vector_alloc_back(&current_display->bitmaps);
    *back = bitmap;
 
    return bitmap;
@@ -213,6 +217,7 @@ void al_destroy_bitmap(ALLEGRO_BITMAP *bitmap)
 }
 
 
+#if 0
 
 /* TODO
  * This will load a bitmap from a file into a memory bitmap, keeping it in the
@@ -226,6 +231,7 @@ static ALLEGRO_BITMAP *_al_load_memory_bitmap(char const *filename)
    PALETTE pal;
    BITMAP *file_data;
    ALLEGRO_BITMAP *bitmap;
+   ALLEGRO_STATE backup;
 
    // TODO:
    // The idea is, load_bitmap returns a memory representation of the bitmap,
@@ -236,7 +242,7 @@ static ALLEGRO_BITMAP *_al_load_memory_bitmap(char const *filename)
    int flags = al_get_new_bitmap_flags();
 
    // FIXME: should not use the 4.2 function here of course
-   set_color_conversion(COLORCONV_NONE);
+   //set_color_conversion(COLORCONV_NONE);
    file_data = load_bitmap(filename, pal);
    if (!file_data) {
       return NULL;
@@ -244,14 +250,14 @@ static ALLEGRO_BITMAP *_al_load_memory_bitmap(char const *filename)
    select_palette(pal);
 
    if (flags & ALLEGRO_KEEP_BITMAP_FORMAT) {
-      _al_push_new_bitmap_parameters();
+      al_store_state(ALLEGRO_STATE_NEW_BITMAP_PARAMETERS);
       al_set_new_bitmap_format(_al_get_compat_bitmap_format(file_data));
    }
 
    bitmap = al_create_bitmap(file_data->w, file_data->h);
 
    if (flags & ALLEGRO_KEEP_BITMAP_FORMAT) {
-      _al_pop_new_bitmap_parameters();
+      al_restore_state();
    }
 
    if (!bitmap)
@@ -286,7 +292,7 @@ ALLEGRO_BITMAP *al_load_bitmap(char const *filename)
 
    return bitmap;
 }
-
+#endif
 
 
 /* Function: al_draw_bitmap
@@ -301,7 +307,7 @@ ALLEGRO_BITMAP *al_load_bitmap(char const *filename)
 void al_draw_bitmap(ALLEGRO_BITMAP *bitmap, float dx, float dy, int flags)
 {
    ALLEGRO_BITMAP *dest = al_get_target_bitmap();
-   ALLEGRO_DISPLAY* display = _al_current_display;
+   ALLEGRO_DISPLAY *display = al_get_current_display();
    
    /* If destination is memory, do a memory bitmap */
    if (dest->flags & ALLEGRO_MEMORY_BITMAP) {
@@ -497,6 +503,11 @@ ALLEGRO_LOCKED_REGION *al_lock_bitmap_region(ALLEGRO_BITMAP *bitmap,
 	ALLEGRO_LOCKED_REGION *locked_region,
 	int flags)
 {
+   ASSERT(x >= 0);
+   ASSERT(y >= 0);
+   ASSERT(width >= 0);
+   ASSERT(height >= 0);
+
    /* For sub-bitmaps */
    if (bitmap->parent) {
       x += bitmap->xofs;
@@ -601,13 +612,15 @@ void al_convert_mask_to_alpha(ALLEGRO_BITMAP *bitmap, ALLEGRO_COLOR mask_color)
    int x, y;
    ALLEGRO_COLOR pixel;
    ALLEGRO_COLOR alpha_pixel;
+   ALLEGRO_STATE backup;
 
    if (!al_lock_bitmap(bitmap, &lr, 0)) {
       TRACE("al_convert_mask_to_alpha: Couldn't lock bitmap.\n");
       return;
    }
 
-   _al_push_target_bitmap();
+   al_store_state(&backup, ALLEGRO_STATE_TARGET_BITMAP);
+   
    al_set_target_bitmap(bitmap);
 
    alpha_pixel = al_map_rgba(0, 0, 0, 0);
@@ -621,7 +634,7 @@ void al_convert_mask_to_alpha(ALLEGRO_BITMAP *bitmap, ALLEGRO_COLOR mask_color)
       }
    }
 
-   _al_pop_target_bitmap();
+   al_restore_state(&backup);
 
    al_unlock_bitmap(bitmap);
 }
@@ -732,8 +745,8 @@ ALLEGRO_BITMAP *al_create_sub_bitmap(ALLEGRO_BITMAP *parent,
    bitmap->display = parent->display;
    bitmap->locked = false;
    bitmap->cl = bitmap->ct = 0;
-   bitmap->cr = w-1;
-   bitmap->cb = h-1;
+   bitmap->cr = w;
+   bitmap->cb = h;
    bitmap->parent = parent;
    bitmap->xofs = x;
    bitmap->yofs = y;
@@ -753,12 +766,9 @@ ALLEGRO_BITMAP *al_create_sub_bitmap(ALLEGRO_BITMAP *parent,
 /* Function: al_clone_bitmap
  *
  * Clone a bitmap "exactly", formats can be different.
- *
- * XXX is this supposed to be public? --pw
  */
 ALLEGRO_BITMAP *al_clone_bitmap(ALLEGRO_BITMAP *bitmap)
 {
-   
    ALLEGRO_BITMAP *clone = al_create_bitmap(bitmap->w, bitmap->h);
    ALLEGRO_LOCKED_REGION dst_region;
    ALLEGRO_LOCKED_REGION src_region;
@@ -769,7 +779,7 @@ ALLEGRO_BITMAP *al_clone_bitmap(ALLEGRO_BITMAP *bitmap)
    if (!al_lock_bitmap(bitmap, &src_region, ALLEGRO_LOCK_READONLY))
       return NULL;
 
-   if (!al_lock_bitmap(clone, &dst_region, 0)) {
+   if (!al_lock_bitmap(clone, &dst_region, ALLEGRO_LOCK_WRITEONLY)) {
       al_unlock_bitmap(bitmap);
       return NULL;
    }
@@ -803,6 +813,7 @@ bool al_is_bitmap_locked(ALLEGRO_BITMAP *bitmap)
 void _al_convert_to_memory_bitmap(ALLEGRO_BITMAP *bitmap)
 {
    ALLEGRO_BITMAP *tmp;
+   ALLEGRO_STATE backup;
 
    /* Do nothing if it is a memory bitmap already. */
    if (bitmap->flags & ALLEGRO_MEMORY_BITMAP)
@@ -813,19 +824,18 @@ void _al_convert_to_memory_bitmap(ALLEGRO_BITMAP *bitmap)
 
       //_AL_REALLOC(bitmap, sizeof(ALLEGRO_BITMAP));
       bitmap->display = NULL;
-      bitmap->flags &= ALLEGRO_MEMORY_BITMAP;
+      bitmap->flags |= ALLEGRO_MEMORY_BITMAP;
       return;
    }
 
    /* Allocate a temporary bitmap which will hold the data
     * during the conversion process. */
-   _al_push_new_bitmap_parameters();
+   
+   al_store_state(&backup, ALLEGRO_STATE_BITMAP);
+
    al_set_new_bitmap_flags(ALLEGRO_MEMORY_BITMAP);
    al_set_new_bitmap_format(bitmap->format);
    tmp = al_create_bitmap(bitmap->w, bitmap->h);
-   _al_pop_new_bitmap_parameters();
-
-   _al_push_target_bitmap();
 
    /* Preserve bitmap contents. */
    al_set_target_bitmap(tmp);
@@ -834,8 +844,8 @@ void _al_convert_to_memory_bitmap(ALLEGRO_BITMAP *bitmap)
    tmp->cr = bitmap->cr;
    tmp->cl = bitmap->cl;
    tmp->ct = bitmap->ct;
-
-   _al_pop_target_bitmap();
+   
+   al_restore_state(&backup);
 
    /* Destroy the display bitmap to free driver-specific resources. */
    if (bitmap->vt)

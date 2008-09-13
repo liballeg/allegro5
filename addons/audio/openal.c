@@ -287,7 +287,7 @@ static void _openal_update(_AL_THREAD* self, void* arg)
    int bytes_per_sample = (al_audio_channel_count(voice->stream->chan_conf) * al_audio_depth_size(voice->stream->depth));
 
    data = malloc(ex_data->buffer_size);
-   if (voice->stream->depth == ALLEGRO_AUDIO_8_BIT_UINT)
+   if (voice->stream->depth == ALLEGRO_AUDIO_DEPTH_UINT8)
       memset(data, 0x80, ex_data->buffer_size);
    else
       memset(data, 0, ex_data->buffer_size);
@@ -487,16 +487,16 @@ static int _openal_allocate_voice(ALLEGRO_VOICE *voice)
 
    switch (depth)
    {
-      case ALLEGRO_AUDIO_8_BIT_UINT:
+      case ALLEGRO_AUDIO_DEPTH_UINT8:
          /* format supported */
          break;
-      case ALLEGRO_AUDIO_16_BIT_INT:
+      case ALLEGRO_AUDIO_DEPTH_INT16:
          /* format supported */
          break;
-      case ALLEGRO_AUDIO_24_BIT_INT:  
+      case ALLEGRO_AUDIO_DEPTH_INT24:
          fprintf(stderr, "OpenAL does not support 24-bit data\n");
          return 1;
-      case ALLEGRO_AUDIO_32_BIT_FLOAT:
+      case ALLEGRO_AUDIO_DEPTH_FLOAT32:
          fprintf(stderr, "OpenAL does not support 32-bit floating data\n");
          return 1;
       default:
@@ -528,25 +528,25 @@ static int _openal_allocate_voice(ALLEGRO_VOICE *voice)
 
    switch (chan_conf)
    {
-      case ALLEGRO_AUDIO_1_CH:
+      case ALLEGRO_CHANNEL_CONF_1:
          /* format supported */
-         if(depth == ALLEGRO_AUDIO_8_BIT_UINT)
+         if(depth == ALLEGRO_AUDIO_DEPTH_UINT8)
             ex_data->format = AL_FORMAT_MONO8;
          else
             ex_data->format = AL_FORMAT_MONO16;
          break;
-      case ALLEGRO_AUDIO_2_CH:
+      case ALLEGRO_CHANNEL_CONF_2:
          /* format supported */
-         if(depth == ALLEGRO_AUDIO_8_BIT_UINT)
+         if(depth == ALLEGRO_AUDIO_DEPTH_UINT8)
             ex_data->format = AL_FORMAT_STEREO8;
          else
             ex_data->format = AL_FORMAT_STEREO16;
          break;
-      case ALLEGRO_AUDIO_3_CH:
+      case ALLEGRO_CHANNEL_CONF_3:
          fprintf(stderr, "OpenAL does not support voice with 3 channel configuration\n");
          free(ex_data);
          return 1;
-      case ALLEGRO_AUDIO_4_CH:
+      case ALLEGRO_CHANNEL_CONF_4:
          ex_data->format = alGetEnumValue("AL_FORMAT_QUAD16");
          if (ex_data->format)
          {
@@ -554,7 +554,7 @@ static int _openal_allocate_voice(ALLEGRO_VOICE *voice)
             free(ex_data);
             return 1;
          }
-         if (depth == ALLEGRO_AUDIO_16_BIT_INT)
+         if (depth == ALLEGRO_AUDIO_DEPTH_INT16)
          {
             fprintf(stderr, "OpenAL requires 16-bit signed data for 4 channel configuration\n");
             free(ex_data);
@@ -562,7 +562,7 @@ static int _openal_allocate_voice(ALLEGRO_VOICE *voice)
          }
          /* else it is supported */
          break;
-      case ALLEGRO_AUDIO_5_1_CH:
+      case ALLEGRO_CHANNEL_CONF_5_1:
          ex_data->format = alGetEnumValue("AL_FORMAT_51CHN_16");
          if (!ex_data->format)
          {
@@ -572,7 +572,7 @@ static int _openal_allocate_voice(ALLEGRO_VOICE *voice)
          }
          /* else it is supported */
          break;
-      case ALLEGRO_AUDIO_6_1_CH:
+      case ALLEGRO_CHANNEL_CONF_6_1:
          ex_data->format = alGetEnumValue("AL_FORMAT_61CHN_16");
          if (!ex_data->format)
          {
@@ -582,7 +582,7 @@ static int _openal_allocate_voice(ALLEGRO_VOICE *voice)
          }
          /* else it is supported */
          break;
-      case ALLEGRO_AUDIO_7_1_CH:
+      case ALLEGRO_CHANNEL_CONF_7_1:
          ex_data->format = alGetEnumValue("AL_FORMAT_71CHN_16");
          if (!ex_data->format)
          {

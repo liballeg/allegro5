@@ -1,0 +1,351 @@
+% Threading API
+
+Allegro 4.9 includes a simple cross-platform threading interface.
+It is a thin layer on top of two threading APIs: Windows threads
+and POSIX Threads (pthreads).  Enforcing a consistent semantics on all
+platforms would be difficult at best, hence the behaviour of the following
+functions will differ subtly on different platforms (more so than usual).
+Your best bet is to be aware of this and code to the intersection of the
+semantics and avoid edge cases.
+
+
+
+[ALLEGRO_THREAD]: #ALLEGRO_THREAD
+## ALLEGRO_THREAD
+
+    typedef struct ALLEGRO_THREAD ALLEGRO_THREAD;
+
+
+
+[ALLEGRO_MUTEX]: #ALLEGRO_MUTEX
+## ALLEGRO_MUTEX
+
+    typedef struct ALLEGRO_MUTEX ALLEGRO_MUTEX;
+
+
+
+[ALLEGRO_COND]: #ALLEGRO_COND
+## ALLEGRO_COND
+
+    typedef struct ALLEGRO_COND ALLEGRO_COND;
+
+
+
+[ALLEGRO_TIMEOUT]: #ALLEGRO_TIMEOUT
+## ALLEGRO_TIMEOUT
+
+    typedef struct ALLEGRO_TIMEOUT ALLEGRO_TIMEOUT;
+
+**This is shared with the events API.**
+
+
+
+[al_create_thread]: #al_create_thread
+## al_create_thread
+
+    ALLEGRO_THREAD *al_create_thread(
+                        void *(*proc)(ALLEGRO_THREAD *thread, void *arg),
+                        void *arg);
+
+Spawn a new thread which begins executing `proc`.  The new thread is passed
+its own thread handle and the value `arg`.
+
+*Return value:*
+
+Returns true if the thread was created, false if there was an error.
+
+*See also:*
+[al_start_thread],
+[al_join_thread].
+
+
+
+[al_start_thread]: #al_start_thread
+## al_start_thread
+
+    void al_start_thread(ALLEGRO_THREAD *thread);
+
+When a thread is created, it is initially in a suspended state.
+Calling `al_start_thread` will start its actual execution.
+
+Starting a thread which has already been started does nothing.
+
+*See also:*
+[al_create_thread].
+
+
+
+[al_join_thread]: #al_join_thread
+## al_join_thread
+
+    void al_join_thread(ALLEGRO_THREAD *thread, void **ret_value);
+
+Wait for the thread to finish executing.  This implicitly calls
+`al_set_thread_should_stop` first.
+
+If `ret_value` is non-`NULL`, the value returned by the thread function
+will be stored at the location pointed to by `ret_value`.
+
+*See also:*
+[al_set_thread_should_stop],
+[al_thread_should_stop],
+[al_destroy_thread].
+
+
+
+[al_set_thread_should_stop]: #al_set_thread_should_stop
+## al_set_thread_should_stop
+
+    void al_set_thread_should_stop(ALLEGRO_THREAD *thread);
+
+Set the flag to indicate `thread` should stop.  Returns immediately.
+
+*See also:*
+[al_join_thread],
+[al_thread_should_stop].
+
+
+
+[al_thread_should_stop]: #al_thread_should_stop
+## al_thread_should_stop
+
+    bool al_thread_should_stop(ALLEGRO_THREAD *thread);
+
+Check if another thread is waiting for `thread` to stop.  Threads which run
+in a loop should check this periodically and act on it when convenient.
+
+*Return value:*
+
+Return true if another thread has called `al_join_thread` or
+`al_set_thread_should_stop` on this thread.
+
+*See also:*
+[al_join_thread],
+[al_set_thread_should_stop].
+
+*Note:*
+We don't support forceful killing of threads.
+
+
+
+[al_destroy_thread]: #al_destroy_thread
+## al_destroy_thread
+
+    void al_destroy_thread(ALLEGRO_THREAD *thread);
+
+Free the resources used by a thread.  Implicitly performs `al_join_thread`
+on the thread if it hasn't been done already.
+
+Does nothing if `thread` is NULL.
+
+*See also:*
+[al_join_thread].
+
+
+
+[al_create_mutex]: #al_create_mutex
+## al_create_mutex
+
+    ALLEGRO_MUTEX *al_create_mutex(void);
+
+Create the mutex object (a mutual exclusion device).  The mutex may or
+may not support "recursive" locking.
+
+*Return value:*
+
+Returns the mutex on success or `NULL` on error.
+
+*See also:*
+[al_create_mutex_recursive].
+
+
+
+[al_create_mutex_recursive]: #al_create_mutex_recursive
+## al_create_mutex_recursive
+
+    ALLEGRO_MUTEX *al_create_mutex_recursive(void);
+
+Create the mutex object (a mutual exclusion device), with support for
+"recursive" locking.  That is, the mutex will count the number of times it
+has been locked by the same thread.  If the caller tries to acquire a lock
+on the mutex when it already holds the lock then the count is incremented.
+The mutex is only unlocked when the thread releases the lock on the mutex an
+equal number of times, i.e. the count drops down to zero.
+
+*See also:*
+[al_create_mutex].
+
+
+
+[al_lock_mutex]: #al_lock_mutex
+## al_lock_mutex
+
+    void al_lock_mutex(ALLEGRO_MUTEX *mutex);
+
+Acquire the lock on `mutex`.  If the mutex is already locked by another
+thread, the call will block until the mutex becomes available and locked.
+
+If the mutex is already locked by the calling thread, then the behaviour
+depends on whether the mutex was created with `al_create_mutex` or
+`al_create_mutex_recursive`.  In the former case, the behaviour is undefined;
+the most likely behaviour is deadlock.  In the latter case, the count in the
+mutex will be incremented and the call will return immediately.
+
+*See also:*
+[al_unlock_mutex].
+
+**We don't yet have al_mutex_trylock.**
+
+
+
+[al_unlock_mutex]: #al_unlock_mutex
+## al_unlock_mutex
+
+    void al_unlock_mutex(ALLEGRO_MUTEX *mutex);
+
+Release the lock on `mutex` if the calling thread holds the lock on it.
+
+If the calling thread doesn't hold the lock, or if the mutex is not locked,
+undefined behaviour results.
+
+*See also:*
+[al_lock_mutex].
+
+
+
+[al_destroy_mutex]: #al_destroy_mutex
+## al_destroy_mutex
+
+    void al_destroy_mutex(ALLEGRO_MUTEX *mutex);
+
+Free the resources used by the mutex.  The mutex should be unlocked.
+Destroying a locked mutex results in undefined behaviour.
+
+Does nothing if `mutex` is `NULL`.
+
+
+
+[al_create_cond]: #al_create_cond
+## al_create_cond
+
+    ALLEGRO_COND *al_create_cond(void);
+
+Create a condition variable.
+
+*Return value:*
+
+Returns the condition value on success or `NULL` on error.
+
+
+
+[al_destroy_cond]: #al_destroy_cond
+## al_destroy_cond
+
+    void al_destroy_cond(ALLEGRO_COND *cond);
+
+Destroy a condition variable.
+
+Destroying a condition variable which has threads block on it results in
+undefined behaviour.
+
+Does nothing if `cond` is `NULL`.
+
+
+
+[al_wait_cond]: #al_wait_cond
+## al_wait_cond
+
+    void al_wait_cond(ALLEGRO_COND *cond, ALLEGRO_MUTEX *mutex);
+
+On entering this function, `mutex` must be locked by the calling thread.
+The function will atomically release `mutex` and block on `cond`.  The
+function will return when `cond` is "signalled", acquiring the lock on the
+mutex in the process.
+
+Example of proper use:
+
+    al_lock_mutex(mutex);
+    while (something_not_true) {
+        al_wait_cond(cond, mutex);
+    }
+    do_something();
+    al_unlock_mutex(mutex);
+
+The mutex should be locked before checking the condition, and should be
+rechecked `al_wait_cond` returns.  `al_wait_cond` can return for other
+reasons than the condition becoming true (e.g. the process was signalled).
+If multiple threads are blocked on the condition variable, the condition may
+no longer be true by the time the second and later threads are unblocked.
+Remember not to unlock the mutex prematurely.
+
+*See also:*
+[al_wait_cond_timed],
+[al_broadcast_cond],
+[al_signal_cond].
+
+
+
+[al_init_timeout]: #al_init_timeout
+## al_init_timeout
+
+    void al_init_timeout(ALLEGRO_TIMEOUT *timeout, double seconds);
+
+Set a timeout of the specified number of seconds after the time that the call
+is made.
+
+ALLEGRO_TIMEOUT structures can be statically allocated, e.g.
+
+    ALLEGRO_TIMEOUT timeout;
+
+    al_init_timeout(&timeout, 5.0);
+
+
+
+[al_wait_cond_timed]: #al_wait_cond_timed
+## al_wait_cond_timed
+
+    int al_wait_cond_timed(ALLEGRO_COND *cond, ALLEGRO_MUTEX *mutex,
+                          const ALLEGRO_TIMEOUT *timeout);
+
+Like `al_wait_cond` but the call can return if the absolute time passes
+`timeout` before the condition is signalled.
+
+*Return value:*
+
+Returns zero on success, non-zero if the call timed out.
+
+**Fix up the return value.  pthread_cond_timedwait returns ETIMEDOUT
+but can return other errors.  Do we need to return other errors?**
+
+
+
+[al_broadcast_cond]: #al_broadcast_cond
+## al_broadcast_cond
+
+    void al_broadcast_cond(ALLEGRO_COND *cond);
+
+Unblock all threads currently waiting on a condition variable.  That is,
+broadcast that some condition which those threads were waiting for has
+become true.
+
+*See also:*
+[al_signal_cond].
+
+*Note:*
+The pthreads spec says to lock the mutex associated with `cond` before
+signalling for predictable scheduling behaviour.
+
+
+
+[al_signal_cond]: #al_signal_cond
+## al_signal_cond
+
+    void al_signal_cond(ALLEGRO_COND *cond);
+
+Unblock at least one thread waiting on a condition variable.
+
+Generally you should use `al_broadcast_cond` but `al_signal_cond` may be
+more efficient when it's applicable.
+
+*See also:*
+[al_broadcast_cond].

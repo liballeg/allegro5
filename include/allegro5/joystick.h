@@ -41,7 +41,7 @@ typedef struct ALLEGRO_JOYSTICK ALLEGRO_JOYSTICK;
 
 
 
-/* Type: ALLEGRO_JOYSTATE
+/* Type: ALLEGRO_JOYSTICK_STATE
  *
  * This is a structure that is used to hold a "snapshot" of a
  * joystick's axes and buttons at a particular instant.
@@ -52,13 +52,13 @@ typedef struct ALLEGRO_JOYSTICK ALLEGRO_JOYSTICK;
  * > } stick[num_sticks];
  * > int button[num_buttons];		    // 0 to 32767
  */
-typedef struct ALLEGRO_JOYSTATE
+typedef struct ALLEGRO_JOYSTICK_STATE
 {
    struct {
       float axis[_AL_MAX_JOYSTICK_AXES];        /* -1.0 to 1.0 */
    } stick[_AL_MAX_JOYSTICK_STICKS];
    int button[_AL_MAX_JOYSTICK_BUTTONS];        /* 0 to 32767 */
-} ALLEGRO_JOYSTATE;
+} ALLEGRO_JOYSTICK_STATE;
 
 
 
@@ -100,7 +100,7 @@ AL_FUNC(const char*,    al_get_joystick_axis_name,  (const ALLEGRO_JOYSTICK*, in
 AL_FUNC(int,            al_get_num_joystick_buttons,  (const ALLEGRO_JOYSTICK*));
 AL_FUNC(const char*,    al_get_joystick_button_name,  (const ALLEGRO_JOYSTICK*, int buttonn));
 
-AL_FUNC(void,           al_get_joystick_state,  (ALLEGRO_JOYSTICK*, ALLEGRO_JOYSTATE *ret_state));
+AL_FUNC(void,           al_get_joystick_state,  (ALLEGRO_JOYSTICK*, ALLEGRO_JOYSTICK_STATE *ret_state));
 
 
 

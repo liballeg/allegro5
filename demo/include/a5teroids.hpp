@@ -2,7 +2,10 @@
 #define A5TEROIDS_HPP
 
 #include "allegro5/allegro5.h"
+#include "allegro5/a5_iio.h"
 #include "allegro5/a5_font.h"
+#include "allegro5/kcm_audio.h"
+#include "allegro5/acodec.h"
 
 #ifdef ALLEGRO_UNIX
 #define MAX_PATH 5000
@@ -10,7 +13,7 @@
 #ifdef ALLEGRO_MACOSX
 
 #endif
-#if defined(ALLEGRO_MINGW32) || defined(ALLEGRO_MSVC)
+#if defined(ALLEGRO_MINGW32) || defined(ALLEGRO_MSVC) || defined(ALLEGRO_BCC32)
 #include "allegro5/winalleg.h"
 #ifndef _WIN32_IE
 #define _WIN32_IE 0x400
@@ -21,13 +24,13 @@
 #include <string>
 #include <iostream>
 #include <fstream>
-#include <cstdio>
-#include <cstdarg>
-#include <cstring>
+#include <stdio.h>
+#include <stdarg.h>
+#include <string.h>
 #include <vector>
 #include <list>
-#include <cmath>
-#include <ctime>
+#include <math.h>
+#include <time.h>
 
 #include "Error.hpp"
 #include "Debug.hpp"
@@ -65,8 +68,11 @@
 #include "gui.hpp"
 #include "logic.hpp"
 
-const int BB_W = 640;
-const int BB_H = 480;
+const int BB_W = 800;
+const int BB_H = 600;
+
+extern ALLEGRO_VOICE *voice;
+extern ALLEGRO_MIXER *mixer;
 
 #endif // A5TEROIDS_HPP
 

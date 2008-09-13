@@ -44,9 +44,9 @@ bool Asteroid::logic(int step)
    return true;
 }
 
-void Asteroid::render(void)
+void Asteroid::render(int offx, int offy)
 {
-   al_draw_rotated_bitmap(bitmap, radius, radius, x, y, angle, 0);
+   al_draw_rotated_bitmap(bitmap, radius, radius, offx + x, offy + y, angle, 0);
 }
 
 Asteroid::Asteroid(float radius, int bitmapID)

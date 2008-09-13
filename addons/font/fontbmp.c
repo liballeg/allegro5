@@ -21,8 +21,13 @@
 #include "allegro5/allegro5.h"
 #include "allegro5/internal/aintern.h"
 #include "allegro5/internal/aintern_bitmap.h"
+#include "allegro5/internal/aintern_memory.h"
+
+#include "allegro5/a5_iio.h"
 
 #include "allegro5/a5_font.h"
+
+#include "font.h"
 
 
 /* state information for the bitmap font importer */
@@ -98,11 +103,11 @@ static int import_bitmap_font_color(ALLEGRO_BITMAP *import_bmp, ALLEGRO_BITMAP**
    int w = 1, h = 1, i;
    int ret = 0;
    ALLEGRO_COLOR col;
+   ALLEGRO_STATE backup;
          
    col = al_map_rgb(255, 255, 0);
 
-   _al_push_target_bitmap();
-   _al_push_new_bitmap_parameters();
+   al_store_state(&backup, ALLEGRO_STATE_BITMAP);
    //al_set_new_bitmap_flags(0);
    al_set_new_bitmap_format(ALLEGRO_PIXEL_FORMAT_ANY_WITH_ALPHA);
    
@@ -128,8 +133,7 @@ static int import_bitmap_font_color(ALLEGRO_BITMAP *import_bmp, ALLEGRO_BITMAP**
    }
 
 done:
-   _al_pop_target_bitmap();
-   _al_pop_new_bitmap_parameters();
+   al_restore_state(&backup);
 
    return ret;
 }
@@ -159,14 +163,15 @@ static int bitmap_font_count(ALLEGRO_BITMAP* bmp)
 
 
 /* import routine for the Allegro .pcx font format */
-A5FONT_FONT *a5font_load_bitmap_font(AL_CONST char *fname, void *param)
+ALLEGRO_FONT *al_font_load_bitmap_font(AL_CONST char *fname, void *param)
 {
    /* NB: `end' is -1 if we want every glyph */
    int color_conv_mode;
    ALLEGRO_BITMAP *import_bmp;
-   A5FONT_FONT *f;
+   ALLEGRO_FONT *f;
    ALLEGRO_COLOR col;
    unsigned char r,g,b,a;
+   ALLEGRO_STATE backup;
    ASSERT(fname);
 
    /* Don't change the colourdepth of the bitmap if it is 8 bit */
@@ -178,11 +183,11 @@ A5FONT_FONT *a5font_load_bitmap_font(AL_CONST char *fname, void *param)
    set_color_conversion(color_conv_mode);
    */
 
-   _al_push_new_bitmap_parameters();
+   al_store_state(&backup, ALLEGRO_STATE_NEW_BITMAP_PARAMETERS);
    al_set_new_bitmap_flags(ALLEGRO_MEMORY_BITMAP);
    al_set_new_bitmap_format(ALLEGRO_PIXEL_FORMAT_ANY_WITH_ALPHA);
-   import_bmp = al_load_bitmap(fname);
-   _al_pop_new_bitmap_parameters();
+   import_bmp = al_iio_load(fname);
+   al_restore_state(&backup);
 
    if(!import_bmp) 
      return NULL;
@@ -190,7 +195,7 @@ A5FONT_FONT *a5font_load_bitmap_font(AL_CONST char *fname, void *param)
    col = al_get_pixel(import_bmp, 0, 0);
    al_unmap_rgba(col, &r, &g, &b, &a);
 
-   f = a5font_grab_font_from_bitmap(import_bmp);
+   f = al_font_grab_font_from_bitmap(import_bmp);
 
    al_destroy_bitmap(import_bmp);
 
@@ -200,12 +205,13 @@ A5FONT_FONT *a5font_load_bitmap_font(AL_CONST char *fname, void *param)
 
 
 /* work horse for grabbing a font from an Allegro bitmap */
-A5FONT_FONT *a5font_grab_font_from_bitmap(ALLEGRO_BITMAP *bmp)
+ALLEGRO_FONT *al_font_grab_font_from_bitmap(ALLEGRO_BITMAP *bmp)
 {
    int begin = ' ';
    int end = -1;
-   A5FONT_FONT *f;
-   A5FONT_FONT_COLOR_DATA* cf;
+   ALLEGRO_FONT *f;
+   ALLEGRO_FONT_COLOR_DATA* cf;
+   ALLEGRO_STATE backup;
    ASSERT(bmp)
 
    import_x = 0;
@@ -214,11 +220,10 @@ A5FONT_FONT *a5font_grab_font_from_bitmap(ALLEGRO_BITMAP *bmp)
    f = _AL_MALLOC(sizeof *f);
    if (end == -1) end = bitmap_font_count(bmp) + begin;
 
-   cf = _AL_MALLOC(sizeof(A5FONT_FONT_COLOR_DATA));
+   cf = _AL_MALLOC(sizeof(ALLEGRO_FONT_COLOR_DATA));
    cf->bitmaps = _AL_MALLOC(sizeof(ALLEGRO_BITMAP*) * (end - begin));
    
-   _al_push_target_bitmap();
-   _al_push_new_bitmap_parameters();
+   al_store_state(&backup, ALLEGRO_STATE_BITMAP | ALLEGRO_STATE_BLENDER);
    //al_set_new_bitmap_flags(0);
    al_set_new_bitmap_format(ALLEGRO_PIXEL_FORMAT_ANY_WITH_ALPHA);
 
@@ -227,10 +232,12 @@ A5FONT_FONT *a5font_grab_font_from_bitmap(ALLEGRO_BITMAP *bmp)
       return 0;
 
    al_set_target_bitmap(cf->glyphs);
+
+   al_set_blender(ALLEGRO_ONE, ALLEGRO_ZERO, al_map_rgb(255, 255, 255));
+
    al_draw_bitmap(bmp, 0, 0, 0);
 
-   _al_pop_target_bitmap();
-   _al_pop_new_bitmap_parameters();
+   al_restore_state(&backup);
 
    if( import_bitmap_font_color(bmp, cf->bitmaps, cf->glyphs, end - begin) ) {
       _AL_FREE(cf->bitmaps);
@@ -240,7 +247,7 @@ A5FONT_FONT *a5font_grab_font_from_bitmap(ALLEGRO_BITMAP *bmp)
    }
    else {
       f->data = cf;
-      f->vtable = a5font_font_vtable_color;
+      f->vtable = al_font_vtable_color;
       f->height = cf->bitmaps[0]->h;
 
       cf->begin = begin;

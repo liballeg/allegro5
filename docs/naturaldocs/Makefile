@@ -1,11 +1,22 @@
 .PHONY: all
 all: public private
 
+#ifndef ND
+ND=NaturalDocs
+#endif
+
+EX=docs misc
+
+# Note: In my version of naturaldocs, only one single -i option must be present,
+# else it will wite absolute pathes everywhere.
+
+XIOPTIONS=$(addprefix -xi ../../, $(EX))
+
 .PHONY: public
 public: public/html
-	NaturalDocs --project public \
-	    	--input ../../src \
-	    	--input ../../include \
+	$(ND) --project public \
+	    	-i ../../ \
+	    	$(XIOPTIONS) \
 		--output html public/html \
 		--style Default CustomStyle
 
@@ -14,9 +25,9 @@ public/html:
 
 .PHONY: private
 private: private/html
-	NaturalDocs --project private \
-	    	--input ../../src \
-	    	--input ../../include \
+	$(ND) --project private \
+	    	-i ../../ \
+	    	$(XIOPTIONS) \
 		--output html private/html \
 		--style Default CustomStyle
 

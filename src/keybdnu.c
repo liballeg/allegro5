@@ -25,6 +25,7 @@
 #include "allegro5/internal/aintern.h"
 #include "allegro5/internal/aintern_events.h"
 #include "allegro5/internal/aintern_keyboard.h"
+#include "allegro5/internal/aintern_system.h"
 
 
 
@@ -88,13 +89,23 @@ const char *_al_keyboard_common_names[ALLEGRO_KEY_MAX] =
  */
 bool al_install_keyboard(void)
 {
-   _DRIVER_INFO *driver_list;
-   const char *name;
-   int i;
-
    if (new_keyboard_driver)
       return true;
 
+   //FIXME: seems A4/A5 driver list stuff doesn't quite agree right now
+   if (al_system_driver()->vt->get_keyboard_driver) {
+       new_keyboard_driver = al_system_driver()->vt->get_keyboard_driver();
+       if (!new_keyboard_driver->init_keyboard()) {
+          new_keyboard_driver = NULL;
+          return false;
+       }
+       _al_add_exit_func(al_uninstall_keyboard, "al_uninstall_keyboard");
+       return true;
+   }
+   
+   return false;
+
+   /*
    if (system_driver->keyboard_drivers)
       driver_list = system_driver->keyboard_drivers();
    else
@@ -116,9 +127,11 @@ bool al_install_keyboard(void)
 
    //set_leds(-1);
 
-   _add_exit_func(al_uninstall_keyboard, "al_uninstall_keyboard");
+   _al_add_exit_func(al_uninstall_keyboard, "al_uninstall_keyboard");
+
 
    return true;
+   */
 }
 
 
@@ -139,8 +152,6 @@ void al_uninstall_keyboard(void)
 
    new_keyboard_driver->exit_keyboard();
    new_keyboard_driver = NULL;
-
-   _remove_exit_func(al_uninstall_keyboard);
 }
 
 
@@ -206,7 +217,7 @@ const char *al_keycode_to_name(int keycode)
  *  Save the state of the keyboard specified at the time the function
  *  is called into the structure pointed to by RET_STATE.
  */
-void al_get_keyboard_state(ALLEGRO_KBDSTATE *ret_state)
+void al_get_keyboard_state(ALLEGRO_KEYBOARD_STATE *ret_state)
 {
    ASSERT(new_keyboard_driver);
    ASSERT(ret_state);
@@ -220,9 +231,9 @@ void al_get_keyboard_state(ALLEGRO_KBDSTATE *ret_state)
  *  Return true if the key specified was held down in the state
  *  specified.
  */
-bool al_key_down(const ALLEGRO_KBDSTATE *state, int keycode)
+bool al_key_down(const ALLEGRO_KEYBOARD_STATE *state, int keycode)
 {
-   return _AL_KBDSTATE_KEY_DOWN(*state, keycode);
+   return _AL_KEYBOARD_STATE_KEY_DOWN(*state, keycode);
 }
 
 

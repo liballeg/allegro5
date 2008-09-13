@@ -1,6 +1,8 @@
 #include "a5teroids.hpp"
 #include <stdio.h>
 
+
+
 bool kb_installed = false;
 bool joy_installed = false;
 
@@ -56,7 +58,7 @@ static char* userResourcePath()
    return path;
 }
 #endif
-#if defined(ALLEGRO_MSVC) || defined(ALLEGRO_MINGW32)
+#if defined(ALLEGRO_MSVC) || defined(ALLEGRO_MINGW32) || defined(ALLEGRO_BCC32)
 static char* userResourcePath()
 {
    static char path[MAX_PATH];
@@ -71,9 +73,8 @@ static char* userResourcePath()
          strncat(path, "a5teroids/", (sizeof(path)/sizeof(*path))-1);
       }
    }
-   else {
+   else
       strcpy(path, "save/");
-   }
 
    return path;
 }
@@ -173,7 +174,7 @@ const char* getResource(const char* fmt, ...)
 
 static void my_destroy_font(void *f)
 {
-   a5font_destroy_font((A5FONT_FONT *)f);
+   al_font_destroy_font((ALLEGRO_FONT *)f);
 }
 
 
@@ -185,6 +186,10 @@ bool loadResources(void)
    	printf("Failed to create display.\n");
    	return false;
    }
+
+   /* For some reason dsound needs a window... */
+   al_audio_init(ALLEGRO_AUDIO_DRIVER_AUTODETECT);
+
    if (!rm.add(new Player(), false)) {
    	printf("Failed to create player.\n");
    	return false;
@@ -195,14 +200,14 @@ bool loadResources(void)
    }
 
    // Load fonts
-   A5FONT_FONT *myfont = a5font_load_font(getResource("gfx/large_font.tga"), NULL);
+   ALLEGRO_FONT *myfont = al_font_load_font(getResource("gfx/large_font.tga"), NULL);
    if (!myfont) {
       debug_message("Failed to load %s\n", getResource("gfx/large_font.tga"));
       return false;
    }
    GenericResource *res = new GenericResource(myfont, my_destroy_font);
    if (!rm.add(res, false)) return false;
-   myfont = a5font_load_font(getResource("gfx/small_font.tga"), NULL);
+   myfont = al_font_load_font(getResource("gfx/small_font.tga"), NULL);
    if (!myfont) {
       printf("Failed to load %s\n", getResource("gfx/small_font.tga"));
       return false;
@@ -232,9 +237,9 @@ bool init(void)
    srand(time(NULL));
 
    al_init();
+   al_iio_init();
+   al_font_init();
 
-   install_sound(DIGI_AUTODETECT, MIDI_NONE, 0);
-   
    al_set_new_bitmap_format(ALLEGRO_PIXEL_FORMAT_ANY_WITH_ALPHA);
 
    // Read configuration file
@@ -244,10 +249,21 @@ bool init(void)
       debug_message("Error reading configuration file.\n");
    }
    */
-
+   
    if (!loadResources()) {
       debug_message("Error loading resources.\n");
       return false;
+   }
+
+   voice = al_voice_create(44100, ALLEGRO_AUDIO_DEPTH_INT16, ALLEGRO_CHANNEL_CONF_2);
+   mixer = al_mixer_create(44100, ALLEGRO_AUDIO_DEPTH_FLOAT32, ALLEGRO_CHANNEL_CONF_2);
+   al_voice_attach_mixer(voice, mixer);
+   
+   ResourceManager& rm = ResourceManager::getInstance();
+
+   for (int i = RES_SAMPLE_START; i < RES_SAMPLE_END; i++) {
+      ALLEGRO_SAMPLE *s = (ALLEGRO_SAMPLE *)rm.getData(i);
+      al_mixer_attach_sample(mixer, s);
    }
 
    return true;

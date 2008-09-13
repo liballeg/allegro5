@@ -100,7 +100,7 @@ END_OF_INLINE(bmp_unwrite_line);
  */
 INLINE void _set_errno_erange(void)
 {
-   *allegro_errno = ERANGE;
+   al_set_errno(ERANGE);
 }
 
 END_OF_INLINE(_set_errno_erange);

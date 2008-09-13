@@ -25,6 +25,7 @@
 
 #include "allegro5/allegro5.h"
 #include "allegro5/internal/aintern.h"
+#include "allegro5/internal/aintern_memory.h"
 #include "allegro5/platform/aintunix.h"
 #include "allegro5/platform/aintlnx.h"
 
@@ -118,7 +119,7 @@ static temp_sighandler_t old_sig_abrt, old_sig_fpe, old_sig_ill, old_sig_segv, o
  */
 static RETSIGTYPE signal_handler (int num)
 {
-	allegro_exit();
+	al_uninstall_system();
 	fprintf (stderr, "Shutting down Allegro due to signal #%d\n", num);
 	raise (num);
 }

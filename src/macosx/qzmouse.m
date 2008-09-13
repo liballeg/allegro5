@@ -23,15 +23,15 @@
 #include "allegro5/internal/aintern_mouse.h"
 #include "allegro5/internal/aintern_keyboard.h"
 #include "allegro5/platform/aintosx.h"
-
+#include "./osxgl.h"
 #ifndef ALLEGRO_MACOSX
 #error Something is wrong with the makefile
 #endif
 
 typedef struct ALLEGRO_MOUSE AL_MOUSE;
-typedef struct ALLEGRO_MSESTATE AL_MSESTATE;
+typedef struct ALLEGRO_MOUSE_STATE AL_MOUSE_STATE;
 
-static bool osx_mouse_init(void);
+static bool osx_init_mouse(void);
 static void osx_mouse_exit(void);
 static bool osx_mouse_position(int, int);
 static bool osx_mouse_set_range(int, int, int, int);
@@ -42,7 +42,7 @@ static unsigned int osx_get_mouse_num_buttons(void);
 static unsigned int osx_get_mouse_num_axes(void);
 static bool osx_set_mouse_axis(int axis, int value);
 static ALLEGRO_MOUSE* osx_get_mouse(void);
-static void osx_get_state(ALLEGRO_MSESTATE *ret_state);
+static void osx_get_state(ALLEGRO_MOUSE_STATE *ret_state);
 
 /* Mouse info - includes extra info for OS X */
 static struct {
@@ -50,7 +50,7 @@ static struct {
 	unsigned int button_count;
 	unsigned int axis_count;
 	int minx, miny, maxx, maxy;
-	ALLEGRO_MSESTATE state;
+	ALLEGRO_MOUSE_STATE state;
 	float z_axis, w_axis;
 	BOOL captured;
 	NSCursor* cursor;
@@ -136,7 +136,7 @@ void osx_mouse_generate_event(NSEvent* evt, ALLEGRO_DISPLAY* dpy)
 	}
 	else 
 	{
-		// To do: full screen handling 
+      pos.y = [[NSScreen mainScreen] frame].size.height - pos.y;
 	}
 	_al_event_source_lock(&osx_mouse.parent.es);
 	if ((within || osx_mouse.captured) && _al_event_source_needs_to_generate_event(&osx_mouse.parent.es))
@@ -147,6 +147,7 @@ void osx_mouse_generate_event(NSEvent* evt, ALLEGRO_DISPLAY* dpy)
 		// Note: we use 'allegro time' rather than the time stamp 
 		// from the event 
 		mouse_event->timestamp = al_current_time();
+      mouse_event->display = dpy;
 		mouse_event->button = b;
 		mouse_event->x = pos.x;
 		mouse_event->y = pos.y; 
@@ -168,10 +169,10 @@ void osx_mouse_generate_event(NSEvent* evt, ALLEGRO_DISPLAY* dpy)
 	_al_event_source_unlock(&osx_mouse.parent.es);
 }
 
-/* osx_mouse_init:
+/* osx_init_mouse:
 *  Initializes the driver.
 */
-static bool osx_mouse_init(void)
+static bool osx_init_mouse(void)
 {
 	HID_DEVICE_COLLECTION devices={0,0,NULL};
 	int i = 0, j = 0;
@@ -216,18 +217,20 @@ static bool osx_mouse_init(void)
 		osx_hid_free(&devices);
 	}
 	if (buttons <= 0) return FALSE;
-	_al_mutex_lock(&osx_event_mutex);
-	/* FIXME */
-	//const char* str = [desc UTF8String];
-	// mouse_macosx.desc = strcpy(malloc(strlen(str) + 1), str);
-	osx_emulate_mouse_buttons = (buttons == 1) ? TRUE : FALSE;
 	_al_event_source_init(&osx_mouse.parent.es);
 	osx_mouse.button_count = buttons;
 	osx_mouse.axis_count = axes;
-	memset(&osx_mouse.state, 0, sizeof(ALLEGRO_MSESTATE));
-	_al_mutex_unlock(&osx_event_mutex);
+	memset(&osx_mouse.state, 0, sizeof(ALLEGRO_MOUSE_STATE));
    _al_osx_mouse_was_installed(YES);
 	return TRUE;
+}
+
+/* osx_exit_mouse:
+* Shut down the mouse driver
+*/
+static void osx_exit_mouse(void)
+{
+   _al_osx_mouse_was_installed(NO);
 }
 
 /* osx_get_mouse_num_buttons:
@@ -250,15 +253,14 @@ static unsigned int osx_get_mouse_num_axes(void)
 /* osx_mouse_set_sprite:
 *  Sets the hardware cursor sprite.
 */
-int osx_mouse_set_sprite(BITMAP *sprite, int x, int y)
+int osx_mouse_set_sprite(ALLEGRO_BITMAP *sprite, int x, int y)
 {
-	int ix, iy;
 	int sw, sh;
 	
 	if (!sprite)
 		return -1;
-	sw = sprite->w;
-	sh = sprite->h;
+	sw = al_get_bitmap_width(sprite);
+	sh = al_get_bitmap_height(sprite);
 	if (floor(NSAppKitVersionNumber) <= NSAppKitVersionNumber10_2) {
 		// Before MacOS X 10.3, NSCursor can handle only 16x16 cursor sprites
 		// Pad to 16x16 or fail if the sprite is already larger.
@@ -270,38 +272,7 @@ int osx_mouse_set_sprite(BITMAP *sprite, int x, int y)
 	// release any previous cursor
 	[osx_mouse.cursor release];
 	
-	NSBitmapImageRep* cursor_rep = [[NSBitmapImageRep alloc] initWithBitmapDataPlanes: NULL
-																		   pixelsWide: sw
-																		   pixelsHigh: sh
-																		bitsPerSample: 8
-																	  samplesPerPixel: 4
-																			 hasAlpha: YES
-																			 isPlanar: NO
-																	   colorSpaceName: NSDeviceRGBColorSpace
-																		  bytesPerRow: 0
-																		 bitsPerPixel: 0];
-	int bpp = bitmap_color_depth(sprite);
-	int mask = bitmap_mask_color(sprite);
-	for (iy = 0; iy< sh; ++iy) {
-		unsigned char* ptr = [cursor_rep bitmapData] + (iy * [cursor_rep bytesPerRow]);
-		for (ix = 0; ix< sw; ++ix) {
-			int color = is_inside_bitmap(sprite, ix, iy, 1) 
-            ? getpixel(sprite, ix, iy) : mask; 
-			// Disable the possibility of mouse sprites with alpha for now, because
-			// this causes the built-in cursors to be invisible in 32 bit mode.
-			// int alpha = (color == mask) ? 0 : ((bpp == 32) ? geta_depth(bpp, color) : 255);
-			int alpha = (color == mask) ? 0 : 255;
-			// BitmapImageReps use premultiplied alpha
-			ptr[0] = getb_depth(bpp, color) * alpha / 255;
-			ptr[1] = getg_depth(bpp, color) * alpha / 255;
-			ptr[2] = getr_depth(bpp, color) * alpha / 255;
-			ptr[3] = alpha;
-			ptr += 4;
-		}
-	}
-	NSImage* cursor_image = [[NSImage alloc] initWithSize: NSMakeSize(sw, sh)];
-	[cursor_image addRepresentation: cursor_rep];
-	[cursor_rep release];
+	NSImage* cursor_image = NSImageFromAllegroBitmap(sprite);
 	osx_mouse.cursor = [[NSCursor alloc] initWithImage: cursor_image
 											   hotSpot: NSMakePoint(x, y)];
 	
@@ -321,10 +292,10 @@ int osx_mouse_set_sprite(BITMAP *sprite, int x, int y)
 	return 0;
 }
 
-static void osx_get_state(ALLEGRO_MSESTATE *ret_state)
+static void osx_get_mouse_state(ALLEGRO_MOUSE_STATE *ret_state)
 {
 	_al_event_source_lock(&osx_mouse.parent.es);
-	memcpy(ret_state, &osx_mouse.state, sizeof(ALLEGRO_MSESTATE));
+	memcpy(ret_state, &osx_mouse.state, sizeof(ALLEGRO_MOUSE_STATE));
 	_al_event_source_unlock(&osx_mouse.parent.es);
 }
 
@@ -350,10 +321,32 @@ static bool osx_set_mouse_axis(int axis, int value)
 	_al_event_source_unlock(&osx_mouse.parent.es);
 	return FALSE;
 }
+/* Mouse driver */
+static ALLEGRO_MOUSE_DRIVER osx_mouse_driver =
+{
+   0, //int  msedrv_id;
+   "OSXMouse", //const char *msedrv_name;
+   "Driver for Mac OS X",// const char *msedrv_desc;
+   "OSX Mouse", //const char *msedrv_ascii_name;
+   osx_init_mouse, //AL_METHOD(bool, init_mouse, (void));
+   osx_exit_mouse, //AL_METHOD(void, exit_mouse, (void));
+   osx_get_mouse, //AL_METHOD(ALLEGRO_MOUSE*, get_mouse, (void));
+   osx_get_mouse_num_buttons, //AL_METHOD(unsigned int, get_mouse_num_buttons, (void));
+   osx_get_mouse_num_axes, //AL_METHOD(unsigned int, get_mouse_num_axes, (void));
+   NULL, //AL_METHOD(bool, set_mouse_xy, (int x, int y));
+   osx_set_mouse_axis, //AL_METHOD(bool, set_mouse_axis, (int which, int value));
+   NULL, //AL_METHOD(bool, set_mouse_range, (int x1, int y1, int x2, int y2));
+   osx_get_mouse_state, //AL_METHOD(void, get_mouse_state, (ALLEGRO_MOUSE_STATE *ret_state));
+};
+ALLEGRO_MOUSE_DRIVER* osx_get_mouse_driver(void)
+{
+   return &osx_mouse_driver;
+}
 
 /* list the available drivers */
 _DRIVER_INFO _al_mouse_driver_list[] =
 {
+   {  1, &osx_mouse_driver, 1 },
    {  0,  NULL,  0  }
 };
 

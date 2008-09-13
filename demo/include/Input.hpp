@@ -20,8 +20,8 @@ public:
    bool load(void);
    void* get(void);
 private:
-   ALLEGRO_KBDSTATE kbdstate;
-   ALLEGRO_JOYSTATE joystate;
+   ALLEGRO_KEYBOARD_STATE kbdstate;
+   ALLEGRO_JOYSTICK_STATE joystate;
 };
 
 extern ALLEGRO_JOYSTICK *joystick;

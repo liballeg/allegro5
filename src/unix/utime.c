@@ -20,10 +20,12 @@
 #include <math.h>
 
 #include "allegro5/altime.h"
+#include "allegro5/debug.h"
+#include "allegro5/platform/aintuthr.h"
 
 
 /* Marks the time Allegro was initialised, for al_current_time(). */
-static struct timeval initial_time;
+struct timeval _al_unix_initial_time;
 
 
 
@@ -32,7 +34,7 @@ static struct timeval initial_time;
  */
 void _al_unix_init_time(void)
 {
-   gettimeofday(&initial_time, NULL);
+   gettimeofday(&_al_unix_initial_time, NULL);
 }
 
 
@@ -44,9 +46,11 @@ void _al_unix_init_time(void)
 double al_current_time(void)
 {
    struct timeval now;
+   double time;
+
    gettimeofday(&now, NULL);
-   double time = (double) (now.tv_sec - initial_time.tv_sec)
-      + (double) (now.tv_usec - initial_time.tv_usec) * 1.0e-6;
+   time = (double) (now.tv_sec - _al_unix_initial_time.tv_sec)
+      + (double) (now.tv_usec - _al_unix_initial_time.tv_usec) * 1.0e-6;
    return time;
 }
 
@@ -63,3 +67,36 @@ void al_rest(double seconds)
    timeout.tv_nsec = (suseconds_t) ((seconds - fsecs) * 1e9);
    nanosleep(&timeout, 0);
 }
+
+
+
+/* al_init_timeout:
+ *  Set a timeout value.
+ */
+void al_init_timeout(ALLEGRO_TIMEOUT *timeout, double seconds)
+{
+    ALLEGRO_TIMEOUT_UNIX *ut = (ALLEGRO_TIMEOUT_UNIX *) timeout;
+    struct timeval now;
+    double integral;
+    double frac;
+
+    ASSERT(sizeof(ALLEGRO_TIMEOUT_UNIX) <= sizeof(ALLEGRO_TIMEOUT));
+    ASSERT(ut);
+
+    gettimeofday(&now, NULL);
+
+    if (seconds <= 0.0) {
+	ut->abstime.tv_sec = now.tv_sec;
+	ut->abstime.tv_nsec = now.tv_usec * 1000;
+    }
+    else {
+	frac = modf(seconds, &integral);
+
+	ut->abstime.tv_sec = now.tv_sec + integral;
+	ut->abstime.tv_nsec = (now.tv_usec * 1000) + (frac * 1000000000L);
+	ut->abstime.tv_sec += ut->abstime.tv_nsec / 1000000000L;
+	ut->abstime.tv_nsec = ut->abstime.tv_nsec % 1000000000L;
+    }
+}
+
+/* vim: set sts=3 sw=3 et */

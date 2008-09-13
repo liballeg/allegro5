@@ -1,0 +1,75 @@
+Import("context")
+Import("env")
+import addons, helpers
+import os
+
+def getArgumentOption(name, default):
+    arg = ARGUMENTS.get(name,default)
+    if arg == "yes" or arg == "1":
+        return 1
+    return 0
+
+def CheckFreetype(context):
+    context.Message("Checking for Freetype... ")
+
+    ret = context.TryAction("pkg-config freetype2 --cflags --libs")[0]
+    if ret:
+        tmpEnv = context.env.Clone()
+        context.env.ParseConfig("pkg-config freetype2 --cflags --libs")
+        ret = context.TryLink("""
+            #include <ft2build.h>
+            #include FT_FREETYPE_H
+                int main(){
+                FT_Library ft;
+                FT_Init_FreeType(&ft);
+                return 0;
+            }
+            """, ".c");
+        context.sconf.env = tmpEnv
+    context.Result(ret)
+    return ret
+
+myEnv = env.Clone()
+
+noconfig = False
+if not getArgumentOption("config",0):
+    if os.path.exists("addons/ttf/allegro5/internal/aintern_ttf_cfg.h"):
+        # print "Re-using old ttf settings"
+        noconfig = True
+
+settings = []
+if noconfig:
+    settings = helpers.readAutoHeader('addons/ttf/allegro5/internal/aintern_ttf_cfg.h')
+else:
+	config = myEnv.Configure(custom_tests =
+	    {"CheckFreetype": CheckFreetype,})
+	settings = helpers.SimpleHash()
+	settings["ALLEGRO_CFG_TTF_FREETYPE"] = config.CheckFreetype()
+	myEnv = config.Finish()
+
+helpers.parse_cmake_h(myEnv,
+    settings,
+    "allegro5/internal/aintern_ttf_cfg.h.cmake",
+    "allegro5/internal/aintern_ttf_cfg.h")
+
+source = ["ttf.c"]
+configs = []
+
+can_build = settings["ALLEGRO_CFG_TTF_FREETYPE"]
+if can_build:
+    configs.extend(["pkg-config freetype2 --libs --cflags"])
+    env.ParseConfig('pkg-config freetype2 --libs')
+
+    addons.do_build(
+        context = context,
+        env = myEnv,
+        source = source,
+        dir = "ttf",
+        name = "a5_ttf",
+        install_headers = [
+            "allegro5/a5_ttf.h",
+            "allegro5/internal/aintern_ttf_cfg.h"],
+        configs = configs,
+        includes = ["../ttf", "../font"])
+
+Return("can_build")

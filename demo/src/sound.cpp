@@ -1,9 +1,14 @@
 #include "a5teroids.hpp"
 
+#define MAX_VOICES 16
+static ALLEGRO_VOICE *voices[MAX_VOICES];
+
+
 void my_play_sample(int resourceID)
 {
    ResourceManager &rm = ResourceManager::getInstance();
-   SAMPLE *s = (SAMPLE *)rm.getData(resourceID);
-   play_sample(s, 255, 128, 1000, 0);
+   ALLEGRO_SAMPLE *s = (ALLEGRO_SAMPLE *)rm.getData(resourceID);
+   al_sample_stop(s);
+   al_sample_play(s);
 }
 

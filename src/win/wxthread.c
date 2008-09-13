@@ -18,6 +18,7 @@
 
 #include "allegro5/allegro5.h"
 #include "allegro5/internal/aintern.h"
+#include "allegro5/internal/aintern_memory.h"
 #include "allegro5/internal/aintern_thread.h"
 
 #ifndef SCAN_DEPEND
@@ -52,7 +53,7 @@ void _al_thread_create(_AL_THREAD *thread, void (*proc)(_AL_THREAD*, void*), voi
 }
 
 
-void _al_thread_join(_AL_THREAD *thread)
+void _al_thread_set_should_stop(_AL_THREAD *thread)
 {
    ASSERT(thread);
 
@@ -61,6 +62,15 @@ void _al_thread_join(_AL_THREAD *thread)
       thread->should_stop = true;
    }
    LeaveCriticalSection(&thread->cs);
+}
+
+
+
+void _al_thread_join(_AL_THREAD *thread)
+{
+   ASSERT(thread);
+
+   _al_thread_set_should_stop(thread);
    WaitForSingleObject(thread->thread, INFINITE);
 
    DeleteCriticalSection(&thread->cs);
@@ -93,11 +103,12 @@ void _al_mutex_init_recursive(_AL_MUTEX *mutex)
 void _al_mutex_destroy(_AL_MUTEX *mutex)
 {
    ASSERT(mutex);
-   ASSERT(mutex->cs);
 
-   DeleteCriticalSection(mutex->cs);
-   _AL_FREE(mutex->cs);
-   mutex->cs = NULL;
+   if (mutex->cs) {
+      DeleteCriticalSection(mutex->cs);
+      _AL_FREE(mutex->cs);
+      mutex->cs = NULL;
+   }
 }
 
 
@@ -300,15 +311,10 @@ void _al_cond_wait(_AL_COND *cond, _AL_MUTEX *mtxExternal)
 }
 
 
-void _al_cond_timeout_init(_AL_COND_TIMEOUT *timeout, unsigned int rel_msecs)
-{
-   timeout->abstime = timeGetTime() + rel_msecs;
-}
-
-
 int _al_cond_timedwait(_AL_COND *cond, _AL_MUTEX *mtxExternal,
-   const _AL_COND_TIMEOUT *timeout)
+   const ALLEGRO_TIMEOUT *timeout)
 {
+   ALLEGRO_TIMEOUT_WIN *win_timeout = (ALLEGRO_TIMEOUT_WIN *) timeout;
    DWORD now;
    DWORD rel_msecs;
 
@@ -316,7 +322,7 @@ int _al_cond_timedwait(_AL_COND *cond, _AL_MUTEX *mtxExternal,
    ASSERT(mtxExternal);
 
    now = timeGetTime();
-   rel_msecs = timeout->abstime - now;
+   rel_msecs = win_timeout->abstime - now;
    if (rel_msecs == INFINITE) {
       rel_msecs--;
    }

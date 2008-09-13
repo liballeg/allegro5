@@ -4,16 +4,29 @@ void SampleResource::destroy(void)
 {
    if (!sample)
       return;
-   destroy_sample(sample);
+   al_sample_destroy(sample);
+   al_sample_data_destroy(sample_data);
    sample = 0;
+   sample_data = 0;
 }
 
 bool SampleResource::load(void)
 {
-   sample = load_sample(filename.c_str());
-   if (!sample)
+   sample_data = al_load_sample(filename.c_str());
+   if (!sample_data) {
       debug_message("Error loading sample %s\n", filename.c_str());
-   return sample != 0;
+      return false;
+   }
+
+   sample = al_sample_create(sample_data);
+   if (!sample) {
+       debug_message("Error creating sample\n");
+       al_sample_data_destroy(sample_data);
+       sample_data = 0;
+       return false;
+   }
+
+   return true;
 }
 
 void* SampleResource::get(void)

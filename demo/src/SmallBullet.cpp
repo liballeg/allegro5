@@ -1,8 +1,8 @@
 #include "a5teroids.hpp"
 
-void SmallBullet::render(void)
+void SmallBullet::render(int offx, int offy)
 {
-   al_draw_rotated_bitmap(bitmap, radius, radius, x, y, 0.0f, 0);
+   al_draw_rotated_bitmap(bitmap, radius, radius, offx + x, offy + y, 0.0f, 0);
 }
 
 SmallBullet::SmallBullet(float x, float y, float angle, Entity *shooter) :

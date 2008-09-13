@@ -39,19 +39,19 @@
  *
  * 3. The background thread waits upon the win32 Events/Waitable Timer
  * objects.  When one of them is triggered, the thread wakes up and
- * reads in buffered joystick events.  An internal ALLEGRO_JOYSTATE
+ * reads in buffered joystick events.  An internal ALLEGRO_JOYSTICK_STATE
  * structure (part of ALLEGRO_JOYSTICK_DIRECTX) is updated accordingly.
  * Also, any Allegro events are generated if necessary.
  *
  * 4. When the user calls al_get_joystick_state() the contents of the
- * internal ALLEGRO_JOYSTATE structure are copied to a user ALLEGRO_JOYSTATE
+ * internal ALLEGRO_JOYSTICK_STATE structure are copied to a user ALLEGRO_JOYSTICK_STATE
  * structure.
  */
 
 
 #define ALLEGRO_NO_COMPATIBILITY
 
-#define DIRECTINPUT_VERSION 0x0500
+#define DIRECTINPUT_VERSION 0x0800
 
 /* For waitable timers */
 #define _WIN32_WINNT 0x400
@@ -61,6 +61,8 @@
 #include "allegro5/platform/aintwin.h"
 #include "allegro5/internal/aintern_events.h"
 #include "allegro5/internal/aintern_joystick.h"
+#include "allegro5/internal/aintern_memory.h"
+#include "win_new.h"
 
 #ifndef SCAN_DEPEND
    #ifdef ALLEGRO_MINGW32
@@ -85,7 +87,7 @@
 /* arbitrary limit to make life easier; this was the limit in Allegro 4.1.x */
 #define MAX_JOYSTICKS        8
 
-/* these limits are from DIJOYSTATE in dinput.h */
+/* these limits are from DIJOYSTICK_STATE in dinput.h */
 #define MAX_SLIDERS          2
 #define MAX_POVS             4
 #define MAX_BUTTONS          32
@@ -121,7 +123,7 @@ typedef struct ALLEGRO_JOYSTICK_DIRECTX {
    CAPS_AND_NAMES caps_and_names;
 
    bool gotten;
-   ALLEGRO_JOYSTATE joystate;
+   ALLEGRO_JOYSTICK_STATE joystate;
 
    LPDIRECTINPUTDEVICE2 device;
 
@@ -143,7 +145,7 @@ static void joydx_exit_joystick(void);
 static int joydx_get_num_joysticks(void);
 static ALLEGRO_JOYSTICK *joydx_get_joystick(int num);
 static void joydx_release_joystick(ALLEGRO_JOYSTICK *joy);
-static void joydx_get_joystick_state(ALLEGRO_JOYSTICK *joy, ALLEGRO_JOYSTATE *ret_state);
+static void joydx_get_joystick_state(ALLEGRO_JOYSTICK *joy, ALLEGRO_JOYSTICK_STATE *ret_state);
 
 static void joydx_thread_proc(LPVOID unused);
 static void update_joystick(ALLEGRO_JOYSTICK_DIRECTX *joy);
@@ -266,7 +268,7 @@ int _al_win_joystick_dinput_acquire(void)
 
    if (joystick_dinput) {
       for (i=0; i<joydx_num_joysticks; i++) {
-         hr = IDirectInputDevice2_Acquire(joydx_joystick[i].device);
+         hr = IDirectInputDevice8_Acquire(joydx_joystick[i].device);
 
          if (FAILED(hr))
 	    _TRACE(PREFIX_E "acquire joystick %d failed: %s\n", i, dinput_err_str(hr));
@@ -287,7 +289,7 @@ int _al_win_joystick_dinput_unacquire(void)
 
    if (joystick_dinput) {
       for (i=0; i < joydx_num_joysticks; i++) {
-         IDirectInputDevice2_Unacquire(joydx_joystick[i].device);
+         IDirectInputDevice8_Unacquire(joydx_joystick[i].device);
       }
    }
 
@@ -488,7 +490,7 @@ static BOOL CALLBACK joystick_enum_callback(LPCDIDEVICEINSTANCE lpddi, LPVOID pv
    LPDIRECTINPUTDEVICE2 dinput_device = NULL;
    HRESULT hr;
    LPVOID temp;
-   HWND allegro_wnd = win_get_window();
+   HWND allegro_wnd = _al_win_active_window;
 
    DIPROPRANGE property_range =
    {
@@ -539,47 +541,47 @@ static BOOL CALLBACK joystick_enum_callback(LPCDIDEVICEINSTANCE lpddi, LPVOID pv
    memset(&joydx_joystick[joydx_num_joysticks], 0, sizeof(joydx_joystick[joydx_num_joysticks]));
 
    /* create the DirectInput joystick device */
-   hr = IDirectInput_CreateDevice(joystick_dinput, &lpddi->guidInstance, &_dinput_device1, NULL);
+   hr = IDirectInput8_CreateDevice(joystick_dinput, &lpddi->guidInstance, &_dinput_device1, NULL);
    if (FAILED(hr))
       goto Error;
 
    /* query the DirectInputDevice2 interface needed for the poll() method */
-   hr = IDirectInputDevice_QueryInterface(_dinput_device1, &IID_IDirectInputDevice2, &temp);
-   IDirectInputDevice_Release(_dinput_device1);
+   hr = IDirectInputDevice8_QueryInterface(_dinput_device1, &IID_IDirectInputDevice8, &temp);
+   IDirectInputDevice8_Release(_dinput_device1);
    if (FAILED(hr))
       goto Error;
 
    dinput_device = temp;
 
    /* set cooperative level */
-   hr = IDirectInputDevice2_SetCooperativeLevel(dinput_device, allegro_wnd, DISCL_FOREGROUND | DISCL_NONEXCLUSIVE);
+   hr = IDirectInputDevice8_SetCooperativeLevel(dinput_device, allegro_wnd, DISCL_FOREGROUND | DISCL_NONEXCLUSIVE);
    if (FAILED(hr))
       goto Error;
 
    /* enumerate objects available on the device */
-   hr = IDirectInputDevice2_EnumObjects(dinput_device, object_enum_callback, 
+   hr = IDirectInputDevice8_EnumObjects(dinput_device, object_enum_callback, 
                                         &joydx_joystick[joydx_num_joysticks].caps_and_names,
                                         DIDFT_PSHBUTTON | DIDFT_AXIS | DIDFT_POV);
    if (FAILED(hr))
       goto Error;
 
    /* set data format */
-   hr = IDirectInputDevice2_SetDataFormat(dinput_device, &c_dfDIJoystick);
+   hr = IDirectInputDevice8_SetDataFormat(dinput_device, &c_dfDIJoystick);
    if (FAILED(hr))
       goto Error;
 
    /* set the range of axes */
-   hr = IDirectInputDevice2_SetProperty(dinput_device, DIPROP_RANGE, &property_range.diph);
+   hr = IDirectInputDevice8_SetProperty(dinput_device, DIPROP_RANGE, &property_range.diph);
    if (FAILED(hr))
       goto Error;
 
    /* set the dead zone of axes */
-   hr = IDirectInputDevice2_SetProperty(dinput_device, DIPROP_DEADZONE, &property_deadzone.diph);
+   hr = IDirectInputDevice8_SetProperty(dinput_device, DIPROP_DEADZONE, &property_deadzone.diph);
    if (FAILED(hr))
       goto Error;
 
    /* set the buffer size */
-   hr = IDirectInputDevice2_SetProperty(dinput_device, DIPROP_BUFFERSIZE, &property_buffersize.diph);
+   hr = IDirectInputDevice8_SetProperty(dinput_device, DIPROP_BUFFERSIZE, &property_buffersize.diph);
    if (FAILED(hr))
       goto Error;
 
@@ -595,7 +597,7 @@ static BOOL CALLBACK joystick_enum_callback(LPCDIDEVICEINSTANCE lpddi, LPVOID pv
    /* tell the joystick background thread to wake up when this joystick
     * device's state changes
     */
-   hr = IDirectInputDevice2_SetEventNotification(joydx_joystick[joydx_num_joysticks].device, 
+   hr = IDirectInputDevice8_SetEventNotification(joydx_joystick[joydx_num_joysticks].device, 
                                                  JOYSTICK_WAKER(joydx_num_joysticks));
 
    if (FAILED(hr)) {
@@ -642,7 +644,7 @@ static BOOL CALLBACK joystick_enum_callback(LPCDIDEVICEINSTANCE lpddi, LPVOID pv
    }
 
    if (dinput_device)
-      IDirectInputDevice2_Release(dinput_device);
+      IDirectInputDevice8_Release(dinput_device);
 
    return DIENUM_CONTINUE;
 }
@@ -661,6 +663,7 @@ static BOOL CALLBACK joystick_enum_callback(LPCDIDEVICEINSTANCE lpddi, LPVOID pv
 static bool joydx_init_joystick(void)
 {
    HRESULT hr;
+   MAKE_UNION(&joystick_dinput, LPDIRECTINPUT *);
 
    /* make sure all the constants add up */
    /* the first two sticks are (x,y,z) and (rx,ry,rz) */
@@ -673,20 +676,22 @@ static bool joydx_init_joystick(void)
    ASSERT(!STOP_EVENT);
 
    /* the DirectInput joystick interface is not part of DirectX 3 */
+   /*
    if (_dx_ver < 0x0500)
       return false;
+      */
 
    /* get the DirectInput interface */
-   hr = DirectInputCreate(allegro_inst, DIRECTINPUT_VERSION, &joystick_dinput, NULL);
-   if (FAILED(hr)) {
+   hr = DirectInput8Create(GetModuleHandle(NULL), DIRECTINPUT_VERSION, &IID_IDirectInput8A, u.v, NULL);
+  if (FAILED(hr)) {
       joystick_dinput = NULL;
       return false;
    }
 
    /* enumerate the joysticks attached to the system */
-   hr = IDirectInput_EnumDevices(joystick_dinput, DIDEVTYPE_JOYSTICK, joystick_enum_callback, NULL, DIEDFL_ATTACHEDONLY);
+   hr = IDirectInput8_EnumDevices(joystick_dinput, DI8DEVTYPE_JOYSTICK, joystick_enum_callback, NULL, DIEDFL_ATTACHEDONLY);
    if (FAILED(hr) || (joydx_num_joysticks == 0)) {
-      IDirectInput_Release(joystick_dinput);
+      IDirectInput8_Release(joystick_dinput);
       joystick_dinput = NULL;
       return false;
    }
@@ -769,8 +774,8 @@ static void joydx_exit_joystick(void)
    for (i = 0; i < joydx_num_joysticks; i++) {
       ASSERT(!joydx_joystick[i].gotten);
 
-      IDirectInputDevice2_SetEventNotification(joydx_joystick[i].device, NULL);
-      IDirectInputDevice2_Release(joydx_joystick[i].device);
+      IDirectInputDevice8_SetEventNotification(joydx_joystick[i].device, NULL);
+      IDirectInputDevice8_Release(joydx_joystick[i].device);
 
       free_caps_and_names_strings(&joydx_joystick[i].caps_and_names);
 
@@ -779,7 +784,7 @@ static void joydx_exit_joystick(void)
    }
 
    /* destroy the DirectInput interface */
-   IDirectInput_Release(joystick_dinput);
+   IDirectInput8_Release(joystick_dinput);
    joystick_dinput = NULL;
 
    joydx_num_joysticks = 0;
@@ -847,7 +852,7 @@ static void joydx_release_joystick(ALLEGRO_JOYSTICK *joy_)
 /* joydx_get_joystick_state: [primary thread]
  *  Copy the internal joystick state to a user-provided structure.
  */
-static void joydx_get_joystick_state(ALLEGRO_JOYSTICK *joy_, ALLEGRO_JOYSTATE *ret_state)
+static void joydx_get_joystick_state(ALLEGRO_JOYSTICK *joy_, ALLEGRO_JOYSTICK_STATE *ret_state)
 {
    ALLEGRO_JOYSTICK_DIRECTX *joy = (ALLEGRO_JOYSTICK_DIRECTX *)joy_;
 
@@ -900,7 +905,7 @@ static void joydx_thread_proc(LPVOID unused)
 
 /* update_joystick: [joystick thread]
  *  Reads in data for a single DirectInput joystick device, updates
- *  the internal ALLEGRO_JOYSTATE structure, and generates any Allegro
+ *  the internal ALLEGRO_JOYSTICK_STATE structure, and generates any Allegro
  *  events required.
  */
 static void update_joystick(ALLEGRO_JOYSTICK_DIRECTX *joy)
@@ -910,10 +915,10 @@ static void update_joystick(ALLEGRO_JOYSTICK_DIRECTX *joy)
    HRESULT hr;
 
    /* some devices require polling */
-   IDirectInputDevice2_Poll(joy->device);
+   IDirectInputDevice8_Poll(joy->device);
 
    /* get device data into buffer */
-   hr = IDirectInputDevice2_GetDeviceData(joy->device, sizeof(DIDEVICEOBJECTDATA), buffer, &num_items, 0);
+   hr = IDirectInputDevice8_GetDeviceData(joy->device, sizeof(DIDEVICEOBJECTDATA), buffer, &num_items, 0);
 
    if (hr != DI_OK && hr != DI_BUFFEROVERFLOW) {
       if ((hr == DIERR_NOTACQUIRED) || (hr == DIERR_INPUTLOST)) {

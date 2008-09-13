@@ -48,8 +48,8 @@ static _AL_VECTOR dtors = _AL_VECTOR_INITIALIZER(DTOR);
 
 
 /* Internal function: _al_init_destructors
- *  This is called from allegro_init() and nowhere else.  It adds an exit
- *  function using _add_exit_func.  When that exit func is called, all the
+ *  This is called from al_install_system() and nowhere else.  It adds an exit
+ *  function using _al_add_exit_func.  When that exit func is called, all the
  *  registered destructors will be called in reverse order to the order in
  *  which they were registered.
  */
@@ -57,13 +57,13 @@ void _al_init_destructors(void)
 {
    _al_mutex_init(&mutex);
 
-   _add_exit_func(shutdown_destructors, "shutdown_destructors");
+   _al_add_exit_func(shutdown_destructors, "shutdown_destructors");
 }
 
 
 
 /* shutdown_destructors:
- *  The function that is called on exit by the _add_exit_func() mechanism.
+ *  The function that is called on exit by the _al_add_exit_func() mechanism.
  */
 static void shutdown_destructors(void)
 {
@@ -91,15 +91,12 @@ static void shutdown_destructors(void)
    _al_vector_free(&dtors);
 
    _al_mutex_destroy(&mutex);
-
-   /* this is an _add_exit_func'd function */
-   _remove_exit_func(shutdown_destructors);
 }
 
 
 
 /* Internal function: _al_register_destructor
- *  Register OBJECT to be destroyed by FUNC during allegro_exit().
+ *  Register OBJECT to be destroyed by FUNC during Allegro shutdown.
  *  This would be done in the object's constructor function.
  *
  *  [thread-safe]

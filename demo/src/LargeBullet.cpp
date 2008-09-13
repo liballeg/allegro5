@@ -1,8 +1,9 @@
 #include "a5teroids.hpp"
 
-void LargeBullet::render(void)
+void LargeBullet::render(int offx, int offy)
 {
-   al_draw_rotated_bitmap(bitmap, radius, radius, x, y, angle-(M_PI/2), 0);
+   al_draw_rotated_bitmap(bitmap, radius, radius, offx + x, offy + y,
+      angle-(M_PI/2), 0);
 }
 
 LargeBullet::LargeBullet(float x, float y, float angle, Entity *shooter) :

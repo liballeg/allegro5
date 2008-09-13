@@ -16,8 +16,6 @@
  */
 
 #include "allegro5/allegro5.h"
-#include "allegro5/internal/aintern.h"
-#include "allegro5/internal/aintern_keyboard.h"
 #include "allegro5/platform/aintosx.h"
 
 #ifndef ALLEGRO_MACOSX
@@ -38,39 +36,39 @@ static int command, data_pos, data_buffer[2];
 static char driver_desc[256];
 
 
-MIDI_DRIVER midi_core_audio =
-{
-   MIDI_CORE_AUDIO,         /* driver ID code */
-   empty_string,            /* driver name */
-   empty_string,            /* description string */
-   "CoreAudio",             /* ASCII format name string */
-   16,                      /* available voices */
-   0,                       /* voice number offset */
-   16,                      /* maximum voices we can support */
-   0,                       /* default number of voices to use */
-   10, 10,                  /* reserved voice range */
-   ca_detect,               /* AL_METHOD(int,  detect, (int input)); */
-   ca_init,                 /* AL_METHOD(int,  init, (int input, int voices)); */
-   ca_exit,                 /* AL_METHOD(void, exit, (int input)); */
-   ca_set_mixer_volume,     /* AL_METHOD(int,  mixer_set_volume, (int volume)); */
-   NULL,                    /* AL_METHOD(int,  mixer_get_volume, (void)); */
-   ca_raw_midi,             /* AL_METHOD(void, raw_midi, (int data)); */
-   _dummy_load_patches,     /* AL_METHOD(int,  load_patches, (AL_CONST char *patches, AL_CONST char *drums)); */
-   _dummy_adjust_patches,   /* AL_METHOD(void, adjust_patches, (AL_CONST char *patches, AL_CONST char *drums)); */
-   _dummy_key_on,           /* AL_METHOD(void, key_on, (int inst, int note, int bend, int vol, int pan)); */
-   _dummy_noop1,            /* AL_METHOD(void, key_off, (int voice)); */
-   _dummy_noop2,            /* AL_METHOD(void, set_volume, (int voice, int vol)); */
-   _dummy_noop3,            /* AL_METHOD(void, set_pitch, (int voice, int note, int bend)); */
-   _dummy_noop2,            /* AL_METHOD(void, set_pan, (int voice, int pan)); */
-   _dummy_noop2,            /* AL_METHOD(void, set_vibrato, (int voice, int amount)); */
-};
-
+//MIDI_DRIVER midi_core_audio =
+//{
+//   MIDI_CORE_AUDIO,         /* driver ID code */
+//   empty_string,            /* driver name */
+//   empty_string,            /* description string */
+//   "CoreAudio",             /* ASCII format name string */
+//   16,                      /* available voices */
+//   0,                       /* voice number offset */
+//   16,                      /* maximum voices we can support */
+//   0,                       /* default number of voices to use */
+//   10, 10,                  /* reserved voice range */
+//   ca_detect,               /* AL_METHOD(int,  detect, (int input)); */
+//   ca_init,                 /* AL_METHOD(int,  init, (int input, int voices)); */
+//   ca_exit,                 /* AL_METHOD(void, exit, (int input)); */
+//   ca_set_mixer_volume,     /* AL_METHOD(int,  mixer_set_volume, (int volume)); */
+//   NULL,                    /* AL_METHOD(int,  mixer_get_volume, (void)); */
+//   ca_raw_midi,             /* AL_METHOD(void, raw_midi, (int data)); */
+//   _dummy_load_patches,     /* AL_METHOD(int,  load_patches, (AL_CONST char *patches, AL_CONST char *drums)); */
+//   _dummy_adjust_patches,   /* AL_METHOD(void, adjust_patches, (AL_CONST char *patches, AL_CONST char *drums)); */
+//   _dummy_key_on,           /* AL_METHOD(void, key_on, (int inst, int note, int bend, int vol, int pan)); */
+//   _dummy_noop1,            /* AL_METHOD(void, key_off, (int voice)); */
+//   _dummy_noop2,            /* AL_METHOD(void, set_volume, (int voice, int vol)); */
+//   _dummy_noop3,            /* AL_METHOD(void, set_pitch, (int voice, int note, int bend)); */
+//   _dummy_noop2,            /* AL_METHOD(void, set_pan, (int voice, int pan)); */
+//   _dummy_noop2,            /* AL_METHOD(void, set_vibrato, (int voice, int amount)); */
+//};
+//
 
 
 static int ca_detect(int input)
 {
    if (input) {
-      ustrzcpy(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("Input is not supported"));
+ //     ustrzcpy(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("Input is not supported"));
       return FALSE;
    }
    if (floor(NSAppKitVersionNumber) <= NSAppKitVersionNumber10_1)
@@ -99,11 +97,11 @@ static int ca_init(int input, int voices)
 		        { kReverbRoomType_Plate, "plate" } };
 
    if (input) {
-      ustrzcpy(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("Input is not supported"));
+//      ustrzcpy(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("Input is not supported"));
       return -1;
    }
    if (floor(NSAppKitVersionNumber) <= NSAppKitVersionNumber10_1) {
-      ustrzcpy(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("MacOS X.2 or newer required by this driver"));
+//      ustrzcpy(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("MacOS X.2 or newer required by this driver"));
       return -1;
    }
    
@@ -142,7 +140,7 @@ static int ca_init(int input, int voices)
    uszprintf(driver_desc, sizeof(driver_desc),  uconvert_ascii("DLSMusicDevice unit, %s quality, %s reverb", tmp),
       (quality < 32 ? uconvert_ascii("low", tmp1) : (quality >= 96 ? uconvert_ascii("high", tmp1) : uconvert_ascii("medium", tmp1))),
       uconvert_ascii(reverb_info[reverb].name, tmp2));
-   midi_core_audio.desc = driver_desc;
+//   midi_core_audio.desc = driver_desc;
 
    command = -1;
 

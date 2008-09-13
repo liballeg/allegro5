@@ -51,7 +51,7 @@ def main():
         if old_version:
             print "Fixed version from", old_version, "to", version
 
-    print "Crating archives.."
+    print "Creating archives.."
     run("tar cjf private.tar.bz2 -C private html")
     run("tar cjf public.tar.bz2 -C public html")
     print "Uploading archives.."

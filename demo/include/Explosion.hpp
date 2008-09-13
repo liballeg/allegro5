@@ -8,7 +8,7 @@ public:
    static const int FRAME_TIME = 100;
 
    bool logic(int step);
-   void render(void);
+   void render(int offx, int offy);
 
    Explosion(float x, float y, bool big);
 private:

@@ -26,7 +26,7 @@ bool logic(int step)
          }
          else {
             x = BB_W+32;
-            y = randf(405.0f, 448.0f);
+            y = randf(BB_H-75, BB_H-32);
             dx = -0.1f;
             dy = 0.0f;
          }
@@ -53,9 +53,8 @@ bool logic(int step)
          return false;
    }
 
-   std::list<Entity *>::iterator it;
-
-   for (it = entities.begin(); it != entities.end(); it++) {
+   std::list<Entity *>::iterator it = entities.begin();
+   while (it != entities.end()) {
       Entity *e = *it;
       if (!e->logic(step)) {
          if (e->isUFO()) {
@@ -65,6 +64,8 @@ bool logic(int step)
          delete e;
          it = entities.erase(it);
       }
+      else
+         it++;
    }
 
    for (it = new_entities.begin(); it != new_entities.end(); it++) {

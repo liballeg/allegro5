@@ -51,10 +51,10 @@ AL_BEGIN_EXTERN_C
 
 #define ALLEGRO_VERSION          4
 #define ALLEGRO_SUB_VERSION      9
-#define ALLEGRO_WIP_VERSION      4
-#define ALLEGRO_VERSION_STR      "4.9.4 (SVN)"
+#define ALLEGRO_WIP_VERSION      5
+#define ALLEGRO_VERSION_STR      "4.9.5 (SVN)"
 #define ALLEGRO_DATE_STR         "2008"
-#define ALLEGRO_DATE             20080427    /* yyyymmdd */
+#define ALLEGRO_DATE             20080911    /* yyyymmdd */
 
 /*******************************************/
 /************ Some global stuff ************/
@@ -89,8 +89,6 @@ AL_BEGIN_EXTERN_C
 #define AL_PI        3.14159265358979323846
 
 #define AL_ID(a,b,c,d)     (((a)<<24) | ((b)<<16) | ((c)<<8) | (d))
-
-AL_VAR(int *, allegro_errno);
 
 typedef struct _DRIVER_INFO         /* info about a hardware driver */
 {

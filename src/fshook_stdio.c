@@ -18,35 +18,38 @@
 #define ALLEGRO_FS_ENTRY_DEFINED
 
 #include <stdio.h>
-#include "allegro5/platform/astdint.h"
+#include "allegro5/allegro5.h"
+#include "allegro5/internal/aintern.h"
+#include "allegro5/internal/aintern_memory.h"
+#include ALLEGRO_INTERNAL_HEADER
 
-#ifdef HAVE_SYS_STAT_H
+#ifdef ALLEGRO_HAVE_SYS_STAT_H
 #include <sys/stat.h>
 #endif
 
-#ifdef HAVE_DIRENT_H
+#ifdef ALLEGRO_HAVE_DIRENT_H
    #include <sys/types.h>
    #include <dirent.h>
    #define NAMLEN(dirent) (strlen((dirent)->d_name))
 #else
    #define dirent direct
    #define NAMLEN(dirent) ((dirent)->d_namlen)
-   #ifdef HAVE_SYS_NDIR_H
+   #ifdef ALLEGRO_HAVE_SYS_NDIR_H
       #include <sys/ndir.h>
    #endif
-   #ifdef HAVE_SYS_DIR_H
+   #ifdef ALLEGRO_HAVE_SYS_DIR_H
       #include <sys/dir.h>
    #endif
-   #ifdef HAVE_NDIR_H
+   #ifdef ALLEGRO_HAVE_NDIR_H
       #include <ndir.h>
    #endif
 #endif
 
-#ifdef TIME_WITH_SYS_TIME
+#if defined ALLEGRO_HAVE_TIME_H && defined ALLEGRO_HAVE_SYS_TIME
    #include <sys/time.h>
    #include <time.h>
 #else
-   #ifdef HAVE_SYS_TIME_H
+   #ifdef ALLEGRO_HAVE_SYS_TIME_H
       #include <sys/time.h>
    #else
       #include <time.h>
@@ -63,7 +66,7 @@ should AL_FS_ENTRY carry a vtable? so the io handler can be changed without fuck
 
 typedef struct AL_FS_ENTRY AL_FS_ENTRY;
 struct AL_FS_ENTRY {
-   struct AL_FS_HOOK_FILE_VTABLE *vtable;
+   struct AL_FS_HOOK_ENTRY_INTERFACE *vtable;
 
    uint32_t isdir;
    union {
@@ -95,9 +98,9 @@ AL_FS_ENTRY *al_fs_stdio_create_handle(AL_CONST char *path)
    uint32_t fnd = 0;
    char *tmp = NULL;
 
-   fh = AL_MALLOC(sizeof(AL_FS_ENTRY));
+   fh = _AL_MALLOC(sizeof(AL_FS_ENTRY));
    if(!fh) {
-      *allegro_errno = errno;
+      al_set_errno(errno);
       return NULL;
    }
 
@@ -106,10 +109,10 @@ AL_FS_ENTRY *al_fs_stdio_create_handle(AL_CONST char *path)
 	fh->vtable = &_al_stdio_entry_fshooks;
 
    len = strlen( path );
-   fh->path = AL_MALLOC(len+1);
+   fh->path = _AL_MALLOC(len+1);
    if(!fh->path) {
-      *allegro_errno = errno;
-      AL_FREE(fh);
+      al_set_errno(errno);
+      _AL_FREE(fh);
       return NULL;
    }
 
@@ -117,7 +120,7 @@ AL_FS_ENTRY *al_fs_stdio_create_handle(AL_CONST char *path)
 
    /* lookup real file path if given non abs path */
    if(fh->path[0] != '/') {
-		int spi = 0;
+		uint32_t spi = 0;
       for(spi = 0; spi < search_path_count; ++spi) {
          uint32_t splen = strlen( search_path[spi] );
          struct stat st;
@@ -133,7 +136,7 @@ AL_FS_ENTRY *al_fs_stdio_create_handle(AL_CONST char *path)
          tmp[splen+len] = '\0';
 
          if(stat(tmp, &st) != 0) {
-            AL_FREE(tmp);
+            _AL_FREE(tmp);
             break;
          }
 
@@ -196,7 +199,7 @@ void al_fs_stdio_destroy_handle(AL_FS_ENTRY *handle)
       if(handle->ulink)
          unlink( handle->found );
 
-      AL_FREE(handle->found);
+      _AL_FREE(handle->found);
    }
    else {
       if(handle->ulink)
@@ -204,7 +207,7 @@ void al_fs_stdio_destroy_handle(AL_FS_ENTRY *handle)
    }
 
    if(handle->path)
-      AL_FREE(handle->path);
+      _AL_FREE(handle->path);
 
    if(handle->isdir)
       closedir(handle->dir);
@@ -212,7 +215,7 @@ void al_fs_stdio_destroy_handle(AL_FS_ENTRY *handle)
       fclose(handle->handle);
 
    memset(handle, 0, sizeof(AL_FS_ENTRY));
-   AL_FREE(handle);
+   _AL_FREE(handle);
 }
 
 int32_t al_fs_stdio_open_handle(AL_FS_ENTRY *fh, AL_CONST char *mode)
@@ -223,14 +226,14 @@ int32_t al_fs_stdio_open_handle(AL_FS_ENTRY *fh, AL_CONST char *mode)
    if(fh->stat_mode & AL_FM_ISDIR) {
       fh->dir = opendir( tmp );
       if(!fh->dir) {
-         *allegro_errno = errno;
+         al_set_errno(errno);
          return -1;
       }
       fh->isdir = 1;
    } else {
       fh->handle = fopen( tmp, mode );
       if(!fh->handle) {
-         *allegro_errno = errno;
+         al_set_errno(errno);
          return -1;
       }
       fh->isdir = 0;
@@ -247,7 +250,7 @@ void al_fs_stdio_close_handle(AL_FS_ENTRY *handle)
       /* think about handling the unlink on close.. may only be usefull if mktemp can do dirs as well, or a mkdtemp is provided */
       closedir(handle->dir);
       if(handle->found) {
-         AL_FREE(handle->found);
+         _AL_FREE(handle->found);
          handle->found = NULL;
       }
       handle->dir = NULL;
@@ -259,7 +262,7 @@ void al_fs_stdio_close_handle(AL_FS_ENTRY *handle)
       /* unlink on close */
       if(handle->found && handle->ulink) {
          unlink( handle->found );
-         AL_FREE( handle->found );
+         _AL_FREE( handle->found );
          handle->found = NULL;
       }
       else if(handle->path && handle->ulink) {
@@ -285,7 +288,7 @@ AL_FS_ENTRY *al_fs_stdio_fopen(const char *path, const char *mode)
 
 void al_fs_stdio_fclose(AL_FS_ENTRY *fp)
 {
-   AL_ASSERT(!fp->isdir);
+   ASSERT(!fp->isdir);
 
    al_fs_stdio_close_handle(fp);
 
@@ -296,11 +299,11 @@ void al_fs_stdio_fclose(AL_FS_ENTRY *fp)
 size_t al_fs_stdio_fread(void *ptr, size_t size, AL_FS_ENTRY *fp)
 {
    size_t ret;
-   AL_ASSERT(!fp->isdir);
+   ASSERT(!fp->isdir);
 
    ret = fread(ptr, 1, size, fp->handle);
    if(ret == 0) {
-      *allegro_errno = errno;
+      al_set_errno(errno);
    }
 
    return ret;
@@ -309,11 +312,11 @@ size_t al_fs_stdio_fread(void *ptr, size_t size, AL_FS_ENTRY *fp)
 size_t al_fs_stdio_fwrite(const void *ptr, size_t size, AL_FS_ENTRY *fp)
 {
    size_t ret;
-   AL_ASSERT(!fp->isdir);
+   ASSERT(!fp->isdir);
 
    ret = fwrite(ptr, 1, size, fp->handle);
    if(ret == 0) {
-      *allegro_errno = errno;
+      al_set_errno(errno);
    }
 
    return ret;
@@ -322,11 +325,11 @@ size_t al_fs_stdio_fwrite(const void *ptr, size_t size, AL_FS_ENTRY *fp)
 int32_t al_fs_stdio_fflush(AL_FS_ENTRY *fp)
 {
    int32_t ret;
-   AL_ASSERT(!fp->isdir);
+   ASSERT(!fp->isdir);
 
    ret = fflush(fp->handle);
    if(ret == EOF) {
-      *allegro_errno = errno;
+      al_set_errno(errno);
    }
 
    return ret;
@@ -335,7 +338,7 @@ int32_t al_fs_stdio_fflush(AL_FS_ENTRY *fp)
 int32_t al_fs_stdio_fseek(AL_FS_ENTRY *fp, uint32_t offset, uint32_t whence)
 {
    int32_t ret = 0;
-   AL_ASSERT(!fp->isdir);
+   ASSERT(!fp->isdir);
 
    switch(whence) {
       case AL_SEEK_SET: whence = SEEK_SET; break;
@@ -345,7 +348,7 @@ int32_t al_fs_stdio_fseek(AL_FS_ENTRY *fp, uint32_t offset, uint32_t whence)
 
    ret = fseek(fp->handle, offset, whence);
    if(ret == -1) {
-      *allegro_errno = errno;
+      al_set_errno(errno);
    }
 
    return ret;
@@ -354,11 +357,11 @@ int32_t al_fs_stdio_fseek(AL_FS_ENTRY *fp, uint32_t offset, uint32_t whence)
 int32_t al_fs_stdio_ftell(AL_FS_ENTRY *fp)
 {
    int32_t ret;
-   AL_ASSERT(!fp->isdir);
+   ASSERT(!fp->isdir);
 
    ret = ftell(fp->handle);
    if(ret == -1) {
-      *allegro_errno = errno;
+      al_set_errno(errno);
    }
 
    return ret;
@@ -366,13 +369,13 @@ int32_t al_fs_stdio_ftell(AL_FS_ENTRY *fp)
 
 int32_t al_fs_stdio_ferror(AL_FS_ENTRY *fp)
 {
-   AL_ASSERT(!fp->isdir);
+   ASSERT(!fp->isdir);
    return ferror(fp->handle);
 }
 
 int32_t al_fs_stdio_feof(AL_FS_ENTRY *fp)
 {
-   AL_ASSERT(!fp->isdir);
+   ASSERT(!fp->isdir);
    return feof(fp->handle);
 }
 
@@ -383,7 +386,7 @@ int32_t al_fs_stdio_fstat(AL_FS_ENTRY *fp)
 
    ret = stat(fp->found ? fp->found : fp->path, &(fp->st));
    if(ret == -1) {
-      *allegro_errno = errno;
+      al_set_errno(errno);
    }
 
    return ret;
@@ -414,13 +417,13 @@ int32_t al_fs_stdio_closedir(AL_FS_ENTRY *ent)
 {
    int32_t ret = closedir(ent->dir);
    if(ret == -1) {
-      *allegro_errno = errno;
+      al_set_errno(errno);
    }
 
    ent->dir = NULL;
    ent->isdir = 0;
 
-   AL_FREE(ent);
+   _AL_FREE(ent);
 
    return ret;
 }
@@ -428,10 +431,10 @@ int32_t al_fs_stdio_closedir(AL_FS_ENTRY *ent)
 int32_t al_fs_stdio_readdir(AL_FS_ENTRY *entry, size_t size, char *buf)
 {
    struct dirent *ent = readdir(entry->dir);
-   int32_t ent_len = 0;
+   uint32_t ent_len = 0;
 
    if(!ent) {
-      *allegro_errno = errno;
+      al_set_errno(errno);
       return -1;
    }
 
@@ -473,7 +476,7 @@ time_t al_fs_stdio_entry_ctime(AL_FS_ENTRY *ent)
 #define MAX_MKTEMP_TRIES 1000
 const char mktemp_ok_chars[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
 
-void _al_fs_mktemp_replace_XX(char *template, char *dst)
+void _al_fs_mktemp_replace_XX(const char *template, char *dst)
 {
    size_t len = strlen(template);
    uint32_t i = 0;
@@ -503,15 +506,17 @@ AL_FS_ENTRY *al_fs_stdio_mktemp(const char *template, uint32_t ulink)
    template_len = strlen( template );
 
    if(al_get_path(AL_TEMP_PATH, tmpdir, PATH_MAX) != 0) {
+		/* allegro_error disappeared on me :(
       ustrzcpy(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("Failed to find temp directory"));
+		*/
       return NULL;
    }
 
    tmpdir_len = strlen( tmpdir );
 
-   dest = AL_MALLOC( template_len + tmpdir_len + 2 );
+   dest = _AL_MALLOC( template_len + tmpdir_len + 2 );
    if(!dest) {
-      *allegro_errno = errno;
+      al_set_errno(errno);
       return NULL;
    }
 
@@ -561,15 +566,17 @@ AL_FS_ENTRY *al_fs_stdio_mktemp(const char *template, uint32_t ulink)
    }
 
    free(dest);
+	/* allegro_error disappeared on me :(
    ustrzcpy(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("Failed to create a uniqe temporary file"));
-   return NULL;
+	*/
+	return NULL;
 }
 
 int32_t al_fs_stdio_getcwd(char *buf, size_t len)
 {
    char *cwd = getcwd(buf, len);
    if(!cwd) {
-      *allegro_errno = errno;
+      al_set_errno(errno);
       return -1;
    }
 
@@ -580,7 +587,7 @@ int32_t al_fs_stdio_chdir(const char *path)
 {
    int32_t ret = chdir(path);
    if(ret == -1) {
-      *allegro_errno = errno;
+      al_set_errno(errno);
    }
 
    return ret;
@@ -598,10 +605,10 @@ int32_t al_fs_stdio_add_search_path(const char *path)
    }
 
    /* extend search_path, store temporarily so original var isn't overwritten with NULL on failure */
-   new_search_path = (char **)_al_realloc(search_path, sizeof(char *) * (search_path_count + 1));
+   new_search_path = (char **)_AL_REALLOC(search_path, sizeof(char *) * (search_path_count + 1));
    if(!new_search_path) {
       free(new_path);
-      *allegro_errno = errno;
+      al_set_errno(errno);
       return -1;
    }
 
@@ -705,28 +712,6 @@ int32_t al_fs_stdio_file_exists(AL_CONST char *path)
    return 1;
 }
 
-int32_t al_fs_stdio_file_unlink(AL_CONST char *path)
-{
-   int32_t err = 0;
-	struct stat st;
-
-	if(stat(path, &st) == 0) {
-		if(S_ISDIR(st.st_mode)) {
-			err = rmdir(path);
-		}
-		else {
-			err = unlink(path);
-		}
-	}
-	
-   if(err != 0) {
-      *allegro_errno = errno;
-      return -1;
-   }
-
-   return 0;
-}
-
 int32_t al_fs_stdio_entry_unlink(AL_FS_ENTRY *ent)
 {
    int32_t err = 0;
@@ -735,85 +720,109 @@ int32_t al_fs_stdio_entry_unlink(AL_FS_ENTRY *ent)
    if(al_fs_stdio_entry_mode(ent) & AL_FM_ISDIR) {
       err = rmdir(ent->found ? ent->found : ent->path);
    }
-   else {
+   else
+	if(al_fs_stdio_entry_mode(ent) & AL_FM_ISFILE) {
       err = unlink(ent->found ? ent->found : ent->path);
    }
+	else {
+		al_set_errno(ENOENT);
+		return -1;
+	}
 
    if(err != 0) {
-      *allegro_errno = errno;
+      al_set_errno(errno);
       return -1;
    }
 
    return 0;
 }
 
+
+int32_t al_fs_stdio_file_unlink(AL_CONST char *path)
+{
+   int32_t err = 0;
+	AL_FS_ENTRY *ent = al_fs_stdio_create_handle(path);
+	if(!ent)
+		return 0;
+
+	err = al_fs_stdio_entry_unlink(ent);
+
+	al_fs_stdio_destroy_handle(ent);
+
+   return err;
+}
+
 void al_fs_stdio_fname(AL_FS_ENTRY *fp, size_t size, char *buf)
 {
-   int32_t len = strlen(fp->path);
+   uint32_t len = strlen(fp->path);
 
    memcpy(buf, fp->path, MIN(len+1, size));
 }
 
-off_t al_fs_stdio_file_size(char *path)
+off_t al_fs_stdio_file_size(AL_CONST char *path)
 {
 	off_t size = 0;
 	AL_FS_ENTRY *ent = al_fs_stdio_create_handle(path);
 	if(!ent)
 		return 0;
 
-	
-	size = ent->st.st_size;
+	size = al_fs_stdio_entry_size(ent);
 	al_fs_stdio_destroy_handle(ent);
+	
 	return size;
 }
 
-uint32_t al_fs_stdio_file_mode(char *path)
+uint32_t al_fs_stdio_file_mode(AL_CONST char *path)
 {
 	uint32_t mode = 0;
 	AL_FS_ENTRY *ent = al_fs_stdio_create_handle(path);
 	if(!ent)
 		return 0;
 
-	mode = ent->stat_mode;
+	mode = al_fs_stdio_entry_mode(ent);
 	al_fs_stdio_destroy_handle(ent);
+
 	return mode;
 }
 
-time_t al_fs_stdio_file_atime(char *path) {
+time_t al_fs_stdio_file_atime(AL_CONST char *path) {
 	time_t atime = 0;
 	AL_FS_ENTRY *ent = al_fs_stdio_create_handle(path);
 	if(!ent)
 		return 0;
 
-	atime = ent->st.st_atime;
+	atime = al_fs_stdio_entry_atime(ent);
 	al_fs_stdio_destroy_handle(ent);
+	
 	return atime;
 }
 
-time_t al_fs_stdio_file_mtime(char *path) {
+time_t al_fs_stdio_file_mtime(AL_CONST char *path) {
 	time_t mtime = 0;
 	AL_FS_ENTRY *ent = al_fs_stdio_create_handle(path);
 	if(!ent)
 		return 0;
 
-	mtime = ent->st.st_mtime;
+	mtime = al_fs_stdio_entry_mtime(ent);
 	al_fs_stdio_destroy_handle(ent);
+
 	return mtime;
 }
 
-time_t al_fs_stdio_file_ctime(char *path) {
+time_t al_fs_stdio_file_ctime(AL_CONST char *path) {
 	time_t ctime = 0;
 	AL_FS_ENTRY *ent = al_fs_stdio_create_handle(path);
 	if(!ent)
 		return 0;
 
-	ctime = ent->st.st_ctime;
+	ctime = al_fs_stdio_entry_ctime(ent);
 	al_fs_stdio_destroy_handle(ent);
+
 	return ctime;
 }
 
 
-struct AL_FS_HOOK_SYS_VTABLE _al_stdio_sys_fshooks = {
+struct AL_FS_HOOK_SYS_INTERFACE _al_stdio_sys_fshooks = {
 	al_fs_stdio_create_handle,
 	al_fs_stdio_opendir,
 	al_fs_stdio_fopen,
@@ -841,7 +850,7 @@ struct AL_FS_HOOK_SYS_VTABLE _al_stdio_sys_fshooks = {
 	al_fs_stdio_file_ctime
 };
 
-struct AL_FS_HOOK_ENTRY_VTABLE _al_stdio_entry_fshooks = {
+struct AL_FS_HOOK_ENTRY_INTERFACE _al_stdio_entry_fshooks = {
 	al_fs_stdio_destroy_handle,
 	al_fs_stdio_open_handle,
 	al_fs_stdio_close_handle,

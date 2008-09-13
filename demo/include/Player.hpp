@@ -9,7 +9,8 @@ public:
    static const float DECCEL;
 
    bool logic(int step);
-   void render(void);
+   void render_extra(void);
+   void render(int offx, int offy);
    bool hit(int damage);
 
    void destroy(void);
@@ -28,6 +29,7 @@ public:
    ~Player();
 private:
    float angle;
+   float draw_radius;
    bool draw_trail;
    int weapon;
    int lastShot;
@@ -39,7 +41,7 @@ private:
    ALLEGRO_BITMAP *trans_bitmap;
    ALLEGRO_BITMAP *trail_bitmap;
    ALLEGRO_BITMAP *icon;
-   A5FONT_FONT *small_font;
+   ALLEGRO_FONT *small_font;
    ALLEGRO_BITMAP *highscoreBitmap;
 };
 

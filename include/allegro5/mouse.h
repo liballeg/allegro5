@@ -32,14 +32,14 @@ AL_BEGIN_EXTERN_C
 /* Abstract data type */
 typedef struct ALLEGRO_MOUSE ALLEGRO_MOUSE;
 
-/* Type: ALLEGRO_MSESTATE
+/* Type: ALLEGRO_MOUSE_STATE
  *
  * x - mouse x
  * y - mouse y
  * w, z - Mouse wheel position (2D 'ball')
  * buttons - mouse buttons
  */
-typedef struct ALLEGRO_MSESTATE
+typedef struct ALLEGRO_MOUSE_STATE
 {
    /* (x, y) Primary mouse position */
    /* (z) Mouse wheel position (1D 'wheel'), or,  */
@@ -50,7 +50,7 @@ typedef struct ALLEGRO_MSESTATE
    int w;
    int more_axes[ALLEGRO_MOUSE_MAX_EXTRA_AXES];
    int buttons;
-} ALLEGRO_MSESTATE;
+} ALLEGRO_MOUSE_STATE;
 
 /* Mouse cursors */
 typedef struct ALLEGRO_MOUSE_CURSOR ALLEGRO_MOUSE_CURSOR;
@@ -80,9 +80,9 @@ AL_FUNC(bool,           al_set_mouse_z,         (int z));
 AL_FUNC(bool,           al_set_mouse_w,         (int w));
 AL_FUNC(bool,           al_set_mouse_axis,      (int axis, int value));
 AL_FUNC(bool,           al_set_mouse_range,     (int x1, int y1, int x2, int y2));
-AL_FUNC(void,           al_get_mouse_state,     (ALLEGRO_MSESTATE *ret_state));
-AL_FUNC(bool,           al_mouse_button_down,   (ALLEGRO_MSESTATE *state, int button));
-AL_FUNC(int,            al_mouse_state_axis,    (ALLEGRO_MSESTATE *state, int axis));
+AL_FUNC(void,           al_get_mouse_state,     (ALLEGRO_MOUSE_STATE *ret_state));
+AL_FUNC(bool,           al_mouse_button_down,   (ALLEGRO_MOUSE_STATE *state, int button));
+AL_FUNC(int,            al_mouse_state_axis,    (ALLEGRO_MOUSE_STATE *state, int axis));
 
 
 struct ALLEGRO_BITMAP;
@@ -95,13 +95,13 @@ struct ALLEGRO_BITMAP;
  * for later (it would need significant cooperation from the display
  * API).
  */
-AL_FUNC(ALLEGRO_MOUSE_CURSOR *, al_create_mouse_cursor_old, (struct BITMAP *sprite, int xfocus, int yfocus));
 AL_FUNC(ALLEGRO_MOUSE_CURSOR *, al_create_mouse_cursor, (struct ALLEGRO_BITMAP *sprite, int xfocus, int yfocus));
 AL_FUNC(void, al_destroy_mouse_cursor, (ALLEGRO_MOUSE_CURSOR *));
 AL_FUNC(bool, al_set_mouse_cursor, (ALLEGRO_MOUSE_CURSOR *cursor));
 AL_FUNC(bool, al_set_system_mouse_cursor, (ALLEGRO_SYSTEM_MOUSE_CURSOR cursor_id));
 AL_FUNC(bool, al_show_mouse_cursor, (void));
 AL_FUNC(bool, al_hide_mouse_cursor, (void));
+AL_FUNC(bool, al_get_cursor_position, (int *ret_x, int *ret_y));
 
 
 AL_END_EXTERN_C

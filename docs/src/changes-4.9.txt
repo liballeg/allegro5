@@ -4,6 +4,99 @@ See `changes._tx` for changes in earlier versions of Allegro.  These lists
 serve as summaries; the full histories are in the Subversion repository.
 
 
+Changes from 4.9.3 to 4.9.4 (September 2008)
+============================================
+
+The core developers this time were: Trent Gamblin, Peter Hull, Milan Mimica,
+Elias Pschernig and Peter Wang.  Ryan Dickie and Jon Rafkind also contributed.
+
+General:
+
+-  Many bug fixes all around.
+
+-  Added a public threads API.
+
+-  Added a basic configuration API.
+
+-  Added al_store_state/al_restore_state functions.
+
+-  Added al_get_errno/al_set_errno (not used much yet).
+
+-  Renamed some functions/structures to be more consistent.
+
+-  Code formatting improvements.
+
+-  Added more debugging messages.
+
+-  Removed a lot of A4 code that is no longer used.
+
+Graphics:
+
+-  Added support for some new OpenGL extensions.
+
+-  Multihead support on Windows (preliminary support on OSX and Linux).
+
+-  Many enhancements to all drivers.
+
+-  Merged common parts of WGL and D3D drivers.
+
+-  Borderless windows, setting window positions and titles.
+
+-  Fullscreen support on OSX and Linux.
+
+-  Do not clear bitmaps when they are created.
+
+-  Improved compile times and DLL sizes by simplifying "memblit" functions.
+
+-  Added EXPOSE, SWITCH_IN and SWITCH_OUT display events.
+
+Build system:
+
+-  Many bug fixes and enhancements to SCons and CMake build systems.
+
+-  Support for Turbo C++ 2006.
+
+-  Support for cross-compiling on Linux to MinGW (CMake).
+
+Events:
+
+-  Filled in a display field for all relevant events.
+
+-  Added al_wait_for_event_until.
+
+Addons:
+
+-  Added an ImageMagick addon
+
+-  Added iio (Image IO) addon
+
+      -  Supports BMP, PCX, TGA.
+
+      -  Supports PNG support with libpng.
+
+-  Added new audio addon, kcm_audio.  (The 'audio' addon was taken in a new
+   direction between the 4.9.3 and 4.9.4 releases, but we decided against
+   that, so actually it's actually a continuation of the old audio addon.)
+
+      -  Added audio streaming functionality.
+
+      -  Added OSS, ALSA, DirectSound drivers.
+
+      -  A lot of reorganisation, internally and externally.
+
+-  Added TTF font addon, using FreeType.
+
+-  Made all addons use "al_" prefix.
+
+Examples:
+
+-  Lots of new examples.
+
+-  Wait for keypress in some examples instead of arbitrary delay.
+
+-  Clean up files when done in some examples.
+
+
 
 Changes from 4.9.2 to 4.9.3 (April 2008)
 ========================================
@@ -662,7 +755,7 @@ Changes from 4.9.1 to 4.9.2 (November 2007)
 -  Peter Wang exposed some internal documentation on destructors,
    events and event sources to NaturalDocs.
 
--  Peter Wnag changed al_wait_for_event() so that a timeout value of "0"
+-  Peter Wang changed al_wait_for_event() so that a timeout value of "0"
    means to not wait at all. To wait an indefinite amount of time the
    caller should pass the AL_WAIT_FOREVER constant.
 
