@@ -371,6 +371,7 @@ bool osx_get_cursor_position(int *x, int *y)
    *y = r.size.height - p.y;
    return true;
 }
+
 /* Internal function to get a reference to this driver. */
 ALLEGRO_SYSTEM_INTERFACE *_al_system_osx_driver(void)
 {
@@ -387,6 +388,7 @@ ALLEGRO_SYSTEM_INTERFACE *_al_system_osx_driver(void)
       vt->get_num_video_adapters = osx_get_num_video_adapters;
       vt->get_monitor_info = osx_get_monitor_info;
       vt->get_cursor_position = osx_get_cursor_position;
+      vt->get_path = _al_osx_get_path;
 	};
 		
 	return vt;
@@ -402,16 +404,6 @@ void _al_register_system_interfaces()
    add = _al_vector_alloc_back(&_al_system_interfaces);
    *add = _al_system_osx_driver();
 }
-
-/* Temporarily put this here until it appears in the header */
-enum {
-        AL_PROGRAM_PATH = 0,
-        AL_TEMP_PATH,
-        AL_SYSTEM_DATA_PATH,
-        AL_USER_DATA_PATH,
-        AL_USER_HOME_PATH,
-        AL_LAST_PATH // must be last
-};
 
 /* Implentation of this function, not 'officially' in allegro yet */
 int32_t _al_osx_get_path(int32_t id, char* path, size_t length) 
