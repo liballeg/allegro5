@@ -128,6 +128,10 @@ ALLEGRO_BITMAP *al_create_bitmap(int w, int h)
    /* Else it's a display bitmap */
 
    bitmap = current_display->vt->create_bitmap(current_display, w, h);
+   if (!bitmap) {
+      TRACE("al_create_bitmap: failed to create display bitmap\n");
+      return NULL;
+   }
 
    /* XXX the ogl_display driver sets some of these variables. It's not clear
     * who should be responsible for setting what.
