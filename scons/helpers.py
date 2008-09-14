@@ -138,7 +138,7 @@ def do_configure(name, context, tests, setup_platform, cmake_file, h_file, recon
         noconfig = True
     # elif not getArgumentOption("config",0):
     elif not reconfigure:
-        if os.path.exists( main_dir + h_file):
+        if os.path.exists(main_dir + h_file):
             print "Re-using old %s settings" % name
             noconfig = True
     
@@ -170,14 +170,16 @@ def do_configure(name, context, tests, setup_platform, cmake_file, h_file, recon
             if not type(val) == list: val = [val]
             settings.set(name, setting, str(val))
         settings.write(file(main_dir + name + ".cfg", "w"))
-        config_file = parse_cmake_h(env, platform, cmake_file,
-            '#' + main_dir + h_file)
+        if cmake_file:
+            config_file = parse_cmake_h(env, platform, cmake_file,
+                '#' + main_dir + h_file)
 
         configure_state[name + "_h"] = config_file
 
-    header = parse_cmake_h(env, platform, cmake_file, h_file)
-    if configure_state[name + "_h"] != False:
-        env.Depends(header, configure_state[name + "_h"])
+    if cmake_file:
+        header = parse_cmake_h(env, platform, cmake_file, h_file)
+        if configure_state[name + "_h"] != False:
+            env.Depends(header, configure_state[name + "_h"])
         
     configure_state[name] = [platform, settings]
 
