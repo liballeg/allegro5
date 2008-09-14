@@ -69,7 +69,7 @@ void al_font_textout_centre_count(const ALLEGRO_FONT *f, const char *str, int x,
    ASSERT(f);
    ASSERT(str);
 
-   len = al_font_text_length_count(f, str, count);
+   len = al_font_text_width_count(f, str, count);
    f->vtable->render(f, str, x - len/2, y, count);
 }
 
@@ -85,7 +85,7 @@ void al_font_textout_centre(const ALLEGRO_FONT *f, const char *str, int x, int y
    ASSERT(f);
    ASSERT(str);
 
-   len = al_font_text_length(f, str);
+   len = al_font_text_width(f, str);
    f->vtable->render(f, str, x - len/2, y, ustrlen(str));
 }
 
@@ -101,7 +101,7 @@ void al_font_textout_right_count(const ALLEGRO_FONT *f, const char *str, int x, 
    ASSERT(f);
    ASSERT(str);
 
-   len = al_font_text_length_count(f, str, count);
+   len = al_font_text_width_count(f, str, count);
    f->vtable->render(f, str, x - len, y, count);
 }
 
@@ -117,7 +117,7 @@ void al_font_textout_right(const ALLEGRO_FONT *f, const char *str, int x, int y)
    ASSERT(f);
    ASSERT(str);
 
-   len = al_font_text_length(f, str);
+   len = al_font_text_width(f, str);
    f->vtable->render(f, str, x - len, y, ustrlen(str));
 }
 
@@ -157,7 +157,7 @@ void al_font_textout_justify(const ALLEGRO_FONT *f, const char *str, int x1, int
    tok[last] = ustrtok_r(strbuf, toks, &strlast);
 
    while (tok[last]) {
-      minlen += al_font_text_length(f, tok[last]);
+      minlen += al_font_text_width(f, tok[last]);
       if (++last == MAX_TOKEN)
          break;
       tok[last] = ustrtok_r(NULL, toks, &strlast);
@@ -178,7 +178,7 @@ void al_font_textout_justify(const ALLEGRO_FONT *f, const char *str, int x1, int
    finc = (float)space / (float)(last-1);
    for (i=0; i<last; i++) {
       f->vtable->render(f, tok[i], (int)fleft, y, ustrlen(tok[i]));
-      fleft += (float)al_font_text_length(f, tok[i]) + finc;
+      fleft += (float)al_font_text_width(f, tok[i]) + finc;
    }
 
    _AL_FREE(strbuf);
@@ -326,7 +326,7 @@ void al_font_textprintf_justify(const ALLEGRO_FONT *f, int x1, int x2, int y, in
 /* text_length:
  *  Calculates the length of a string in a particular font.
  */
-int al_font_text_length(const ALLEGRO_FONT *f, const char *str)
+int al_font_text_width(const ALLEGRO_FONT *f, const char *str)
 {
    ASSERT(f);
    ASSERT(str);
@@ -338,7 +338,7 @@ int al_font_text_length(const ALLEGRO_FONT *f, const char *str)
 /* text_length:
  *  Calculates the length of a string in a particular font.
  */
-int al_font_text_length_count(const ALLEGRO_FONT *f, const char *str, int count)
+int al_font_text_width_count(const ALLEGRO_FONT *f, const char *str, int count)
 {
    ASSERT(f);
    ASSERT(str);

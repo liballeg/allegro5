@@ -87,8 +87,8 @@ ALLEGRO_FONT_PRINTFUNC(void, al_font_textprintf, (const ALLEGRO_FONT *f, int x, 
 ALLEGRO_FONT_PRINTFUNC(void, al_font_textprintf_centre, (const ALLEGRO_FONT *f, int x, int y, const char *format, ...), 4, 5);
 ALLEGRO_FONT_PRINTFUNC(void, al_font_textprintf_right, (const ALLEGRO_FONT *f, int x, int y, const char *format, ...), 4, 5);
 ALLEGRO_FONT_PRINTFUNC(void, al_font_textprintf_justify, (const ALLEGRO_FONT *f, int x1, int x2, int y, int diff, const char *format, ...), 6, 7);
-ALLEGRO_FONT_FUNC(int, al_font_text_length, (const ALLEGRO_FONT *f, const char *str));
-ALLEGRO_FONT_FUNC(int, al_font_text_length_count, (const ALLEGRO_FONT *f, const char *str, int count));
+ALLEGRO_FONT_FUNC(int, al_font_text_width, (const ALLEGRO_FONT *f, const char *str));
+ALLEGRO_FONT_FUNC(int, al_font_text_width_count, (const ALLEGRO_FONT *f, const char *str, int count));
 ALLEGRO_FONT_FUNC(int, al_font_text_height, (const ALLEGRO_FONT *f));
 ALLEGRO_FONT_FUNC(void, al_font_destroy_font, (ALLEGRO_FONT *f));
 

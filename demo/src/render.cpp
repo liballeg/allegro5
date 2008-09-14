@@ -42,7 +42,7 @@ void showWave(int num)
    char text[20];
    sprintf(text, "WAVE %d", num);
 
-   int w = al_font_text_length(myfont, text);
+   int w = al_font_text_width(myfont, text);
    int h = al_font_text_height(myfont);
 
    waveBitmap = al_create_bitmap(w, h);
