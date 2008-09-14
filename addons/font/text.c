@@ -26,6 +26,9 @@
 
 #include "allegro5/a5_font.h"
 
+/* If you call this, you're probably making a mistake. */
+#define strlen(s)   __are_you_sure__
+
 
 
 /* textout_count:
@@ -83,7 +86,7 @@ void al_font_textout_centre(AL_CONST ALLEGRO_FONT *f, AL_CONST char *str, int x,
    ASSERT(str);
 
    len = al_font_text_length(f, str);
-   f->vtable->render(f, str, x - len/2, y, strlen(str));
+   f->vtable->render(f, str, x - len/2, y, ustrlen(str));
 }
 
 
@@ -115,7 +118,7 @@ void al_font_textout_right(AL_CONST ALLEGRO_FONT *f, AL_CONST char *str, int x, 
    ASSERT(str);
 
    len = al_font_text_length(f, str);
-   f->vtable->render(f, str, x - len, y, strlen(str));
+   f->vtable->render(f, str, x - len, y, ustrlen(str));
 }
 
 
@@ -145,7 +148,7 @@ void al_font_textout_justify(AL_CONST ALLEGRO_FONT *f, AL_CONST char *str, int x
    strbuf = ustrdup(str);
    if (!strbuf) {
       /* Can't justify ! */
-      f->vtable->render(f, str, x1, y, strlen(str));
+      f->vtable->render(f, str, x1, y, ustrlen(str));
       return;
    }
 
@@ -166,7 +169,7 @@ void al_font_textout_justify(AL_CONST ALLEGRO_FONT *f, AL_CONST char *str, int x
    if ((space <= 0) || (space > diff) || (last < 2)) {
       /* can't justify */
       _AL_FREE(strbuf);
-      f->vtable->render(f, str, x1, y, strlen(str));
+      f->vtable->render(f, str, x1, y, ustrlen(str));
       return; 
    }
 
@@ -174,7 +177,7 @@ void al_font_textout_justify(AL_CONST ALLEGRO_FONT *f, AL_CONST char *str, int x
    fleft = (float)x1;
    finc = (float)space / (float)(last-1);
    for (i=0; i<last; i++) {
-      f->vtable->render(f, tok[i], (int)fleft, y, strlen(tok[i]));
+      f->vtable->render(f, tok[i], (int)fleft, y, ustrlen(tok[i]));
       fleft += (float)al_font_text_length(f, tok[i]) + finc;
    }
 
@@ -327,7 +330,7 @@ int al_font_text_length(AL_CONST ALLEGRO_FONT *f, AL_CONST char *str)
 {
    ASSERT(f);
    ASSERT(str);
-   return f->vtable->text_length(f, str, strlen(str));
+   return f->vtable->text_length(f, str, ustrlen(str));
 }
 
 

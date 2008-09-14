@@ -32,6 +32,11 @@ static void render(void)
     al_font_textout(ex.f3, "▲△▴▵▶▷▸▹►▻▼▽▾▿◀◁◂◃◄◅◆◇◈◉◊", 50, 280);
     al_font_textout(ex.f3, "○◌◍◎●◐◑◒◓◔◕◖◗◘◙", 50, 300);
 
+    al_font_textout_count(ex.f3, "«Thís»|you", 50, 320, 6);
+    al_font_textout_count(ex.f3, "‘ìş’|shouldn't", 50, 340, 4);
+    al_font_textout_count(ex.f3, "“cøünt”|see", 50, 360, 7);
+    al_font_textout_count(ex.f3, "réstrïçteđ…|this.", 50, 380, 11);
+
     al_set_blender(ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA, black);
     al_font_textprintf_right(ex.f3, al_get_display_width(), 0, "%.1f FPS", ex.fps);
 }
