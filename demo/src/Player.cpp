@@ -136,7 +136,7 @@ void Player::render(int offx, int offy)
 {
    ResourceManager& rm = ResourceManager::getInstance();
    
-   int rx = offx + x, ry = offy + y;
+   int rx = (int)(offx + x), ry = (int)(offy + y);
 
    if (!isDestructable) {
       al_draw_rotated_bitmap(trans_bitmap, draw_radius, draw_radius, rx, ry,
