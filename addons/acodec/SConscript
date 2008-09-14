@@ -26,8 +26,10 @@ def CheckOGG(context):
             #include <vorbis/vorbisfile.h>
             int main(){
                 OggVorbis_File f;
+                ov_callbacks callback;
                 vorbis_info * v = 0;
                 ov_info(&f,-1);
+                callback = OV_CALLBACKS_NOCLOSE;
                 return 0;
             }
             """, ".c");
