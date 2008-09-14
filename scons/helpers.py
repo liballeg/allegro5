@@ -115,6 +115,31 @@ def parse_cmake_h(env, defines, src, dest):
     env2.Append(BUILDERS = { "PlatformHeader" : make })
     return env2.PlatformHeader(dest,src)
 
+def mergeEnv(env1, env2):
+    env = env1.Clone()
+    try:
+        env.Append(CCFLAGS = env2['CCFLAGS'])
+    except KeyError:
+        pass
+    try:
+        env.Append(LIBS = env2['LIBS'])
+    except KeyError:
+        pass
+    try:
+        env.Append(CPPFLAGS = env2['CPPFLAGS'])
+    except KeyError:
+        pass
+    try:
+        env.Append(LIBPATH = env2['LIBPATH'])
+    except KeyError:
+        pass
+    try:
+        env.Append(LINKFLAGS = env2['LINKFLAGS'])
+    except KeyError:
+        pass
+
+    return env
+
 # Global state to handle configuration things
 configure_state = SimpleHash()
 
