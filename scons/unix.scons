@@ -5,8 +5,6 @@ Import('env')
 import os, ConfigParser, re
 import checks, helpers
 
-# context.setLibraryDir("lib/unix")
-
 opts = Options(context.getBuildDir() + "/options-unix.py", ARGUMENTS)
 opts.Add('color8', 'Enable 8 bit color', 1)
 opts.Add('color16', 'Enable 16 bit color', 1)
@@ -26,59 +24,6 @@ config: (Re)configure Allegro. You will need to set this to 1 if you wish to ena
     actual: 0
 """);
 
-# print context.getLibraryEnv()['install']
-
-# Store global stuff in here, like alunixac settings
-class Unix:
-    single = None
-    def __init__(self):
-        import globals
-        Unix.single = globals.unixConfig
-        if Unix.single:
-            raise Exception(Unix.single)
-        else:
-            Unix.single = self
-            globals.unixConfig = self
-        self.platform = False
-        self.settings = False
-        self.alunixac = None
-
-    def set(self, platform, settings):
-        self.platform = platform
-        self.settings = settings
-
-    def get(self):
-        return [self.platform, self.settings]
-
-    def getAlUnixac(self):
-        return self.alunixac
-
-    def setAlUnixac(self, alunixac):
-        self.alunixac = alunixac
-
-def unixConfiguration():
-    try:
-        u = Unix()
-        return u
-    except Exception, s:
-        return s.args[0]
-
-def isUnixConfigured():
-    a, b = unixConfiguration().get()
-    return a != False
-
-def getUnixConfiguration():
-    return unixConfiguration().get()
-
-def setUnixConfiguration(platform, settings):
-    unixConfiguration().set(platform, settings)
-
-def getUnixAlunixac():
-    return unixConfiguration().getAlUnixac()
-
-def setUnixAlunixac(alunixac):
-    return unixConfiguration().setAlUnixac(alunixac)
-
 def getOption(name, default = 0):
     return env[name]
 
@@ -87,8 +32,6 @@ def getArgumentOption(name, default):
     if arg == "yes" or arg == "1":
         return 1
     return 0
-
-config = getArgumentOption('config','0')
 
 def OnX86():
     uname = os.uname()
@@ -105,196 +48,6 @@ def EnableVGA():
     return 0
 
 unixLibs = [ 'm', 'pthread' ]
-
-if False:
-    # With the noconfig option, simply re-use the last config if one is available.
-    # Should this be default?
-    # 2/19/2006 - Only configure if config=1 is given or the .h/.cfg file is missing
-    noconfig = False
-    if isUnixConfigured():
-        noconfig = True
-    elif not getArgumentOption("config",0):
-        if os.path.exists(context.getGlobalDir() + "alunixac.h") and \
-            os.path.exists(context.getGlobalDir() + "settings.cfg"):
-            # print "Re-using old settings"
-            noconfig = True
-
-
-    # the settings we cache in settings.cfg
-    config_settings = ["CCFLAGS", "CPPPATH", "CPPFLAGS", "LIBS", "LIBPATH", "LINKFLAGS"]
-    platform = helpers.SimpleHash()
-    settings = ConfigParser.ConfigParser()
-
-    ## The platform variable will hold all configuration things we care about
-    ## so that alunixac.h can be written
-    if noconfig:
-        # platform = helpers.readAutoHeader("scons_build/include/allegro5/platform/alunixac.h")
-        if isUnixConfigured():
-            platform, settings = getUnixConfiguration()
-        else:
-            platform = helpers.readAutoHeader(context.getGlobalDir() + "alunixac.h")
-            settings.read(context.getGlobalDir() + "unix-settings.cfg")
-            setUnixConfiguration(platform, settings)
-        # env = context.getEnv()
-        for setting in config_settings:
-            try:
-                eval("env.Append(%s = %s)" % (
-                    setting, settings.get("unix", setting)))
-            except ConfigParser.NoOptionError:
-                pass
-    else:
-        tests = {}
-        # import all functions from checks.py as custom SCons checks
-        for check in [x for x in dir(checks) if callable(getattr(checks, x))]:
-            tests[check] = getattr(checks, check)
-
-        config = env.Configure(custom_tests = tests)
-
-        machine = "i386"
-        archFlag = "-mcpu="
-        useArch = False
-        if config.CheckIntel():
-            machine = "pentium"
-            useArch = True
-
-        if config.CheckAMD64():
-            machine = "k8"
-            useArch = True
-
-        if config.CheckMTune(machine):
-            archFlag = '-mtune='
-
-        if useArch:
-            config.env.Append( CCFLAGS = [archFlag + machine] )
-
-        config.CheckLib("m", "sin")
-        platform["ALLEGRO_ALSA_VERSION"] = config.AlsaVersion()
-        platform["ALLEGRO_ASM_PREFIX"] = config.CheckASMUnderscores()
-        platform["ALLEGRO_BIG_ENDIAN"] = config.CheckBigEndian()
-        platform["ALLEGRO_COLOR16"] = getOption("color16", "yes")
-        platform["ALLEGRO_COLOR24"] = getOption("color24", "yes")
-        platform["ALLEGRO_COLOR32"] = getOption("color32", "yes")
-        platform["ALLEGRO_COLOR8"] = getOption("color8", "yes")
-        platform["ALLEGRO_DARWIN"] = config.CheckDarwin()
-        platform["ALLEGRO_HAVE_GETEXECNAME"] = config.CheckFunc("getexecname")
-        platform["ALLEGRO_HAVE_PROCFS_ARGCV"] = config.CheckProcFSArgCV()
-        platform["ALLEGRO_LINUX"] = config.CheckLinux()
-        platform["ALLEGRO_LINUX_FBCON"] = config.CheckFBCon()
-    #    platform["ALLEGRO_LINUX_SVGALIB"] = config.CheckLib("vga", "vga_init")
-    #    platform["ALLEGRO_LINUX_SVGALIB_HAVE_VGA_VERSION"] = config.CheckSVGALibVersion()
-        platform["ALLEGRO_LINUX_VBEAF"] = EnableVBEAF()
-        platform["ALLEGRO_LINUX_VGA"] = EnableVGA()
-        platform["ALLEGRO_LITTLE_ENDIAN"] = config.CheckLittleEndian()
-        platform["ALLEGRO_MMX"] = config.CheckMMX()
-        platform["ALLEGRO_NO_ASM"] = getOption("no_asm", "yes")
-        platform["ALLEGRO_SSE"] = config.CheckSSE()
-        platform["ALLEGRO_USE_CONSTRUCTOR"] = config.CheckConstructor()
-        platform["ALLEGRO_USE_SCHED_YIELD"] = config.CheckLib(["c", "posix4", "rt"], "sched_yield")
-        platform["ALLEGRO_WITH_ALSADIGI"] = config.CheckALSADigi()
-        platform["ALLEGRO_WITH_ALSAMIDI"] = config.CheckALSAMidi()
-        platform["ALLEGRO_WITH_JACKDIGI"] = config.CheckJackDigi()
-        platform["ALLEGRO_WITH_MAGIC_MAIN"] = getOption("magic_main", "no")
-
-        platform["ALLEGRO_WITH_XWINDOWS"] = config.CheckForX()
-        platform["ALLEGRO_XWINDOWS_WITH_SHM"] = config.CheckLib("Xext", "XShmQueryExtension")
-        platform["ALLEGRO_XWINDOWS_WITH_XCURSOR"] = config.CheckXCursor()
-        platform["ALLEGRO_XWINDOWS_WITH_XF86DGA2"] = config.CheckLib("Xxf86dga", "XDGAQueryExtension")
-        platform["ALLEGRO_XWINDOWS_WITH_XF86VIDMODE"] = config.CheckLib("Xxf86vm", "XF86VidModeQueryExtension")
-        platform["ALLEGRO_XWINDOWS_WITH_XPM"] = config.CheckLib("Xpm", "XpmCreatePixmapFromData")
-        platform["ALLEGRO_XWINDOWS_WITH_XIM"] = config.CheckLib("X11", "XOpenIM")
-        platform["ALLEGRO_GLX"] = config.CheckForGLX()
-        platform["ALLEGRO_HAVE_DIRENT_H"] = config.CheckCHeader("dirent.h")
-        platform["ALLEGRO_HAVE_DLFCN_H"] = config.CheckCHeader("dlfcn.h")
-        platform["ALLEGRO_HAVE_FCNTL_H"] = config.CheckCHeader("fcntl.h")
-        platform["ALLEGRO_HAVE_INTTYPES_H"] = config.CheckCHeader("inttypes.h")
-        platform["ALLEGRO_HAVE_LIBOSSAUDIO"] = config.CheckLib("ossaudio", "_oss_ioctl")
-        platform["ALLEGRO_HAVE_LIBPTHREAD"] = config.CheckLib("pthread", "pthread_create")
-        platform["ALLEGRO_HAVE_LIMITS_H"] = config.CheckCHeader("limits.h")
-        platform["ALLEGRO_HAVE_LINUX_AWE_VOICE_H"] = config.CheckCHeader("linux/awe_voice.h")
-        platform["ALLEGRO_HAVE_LINUX_INPUT_H"] = config.CheckCHeader("linux/input.h")
-        platform["ALLEGRO_HAVE_LINUX_JOYSTICK_H"] = config.CheckCHeader("linux/joystick.h")
-        platform["ALLEGRO_HAVE_LINUX_SOUNDCARD_H"] = config.CheckCHeader("linux/soundcard.h")
-        platform["ALLEGRO_HAVE_MACHINE_SOUNDCARD_H"] = config.CheckCHeader("machine/soundcard.h")
-        platform["ALLEGRO_HAVE_MEMCMP"] = config.CheckLib("c", "memcmp")
-        platform["ALLEGRO_HAVE_MEMORY_H"] = config.CheckCHeader("memory.h")
-        platform["ALLEGRO_HAVE_MKSTEMP"] = config.CheckLib("c", "mkstemp")
-        platform["ALLEGRO_HAVE_MMAP"] = config.CheckLib("c", "mmap")
-        platform["ALLEGRO_HAVE_NDIR_H"] = config.CheckCHeader("ndir.h")
-        platform["ALLEGRO_HAVE_SOUNDCARD_H"] = config.CheckCHeader("soundcard.h")
-        platform["ALLEGRO_HAVE_STDBOOL_H"] = config.CheckCHeader("stdbool.h")
-        platform["ALLEGRO_HAVE_STDINT_H"] = config.CheckCHeader("stdint.h")
-        platform["ALLEGRO_HAVE_STDLIB_H"] = config.CheckCHeader("stdlib.h")
-        platform["ALLEGRO_HAVE_STRICMP"] = config.CheckLib("c", "stricmp")
-        platform["ALLEGRO_HAVE_STRINGS_H"] = config.CheckCHeader("strings.h")
-        platform["ALLEGRO_HAVE_STRING_H"] = config.CheckCHeader("string.h")
-        platform["ALLEGRO_HAVE_STRLWR"] = config.CheckLib("c", "strlwr")
-        platform["ALLEGRO_HAVE_STRUPR"] = config.CheckLib("c", "strup")
-        platform["ALLEGRO_HAVE_SYS_DIR_H"] = config.CheckCHeader("sys/dir.h")
-        platform["ALLEGRO_HAVE_SYS_IO_H"] = config.CheckCHeader("sys/io.h")
-        platform["ALLEGRO_HAVE_SYS_NDIR_H"] = config.CheckCHeader("sys/ndir.h")
-        platform["ALLEGRO_HAVE_SYS_SOUNDCARD_H"] = config.CheckCHeader("sys/soundcard.h")
-        platform["ALLEGRO_HAVE_SYS_STAT_H"] = config.CheckCHeader("sys/stat.h")
-        platform["ALLEGRO_HAVE_SYS_TIME_H"] = config.CheckCHeader("sys/time.h")
-        platform["ALLEGRO_HAVE_SYS_TYPES_H"] = config.CheckCHeader("sys/types.h")
-        platform["ALLEGRO_HAVE_SYS_UTSNAME_H"] = config.CheckCHeader("sys/utsname.h")
-        platform["ALLEGRO_HAVE_VPRINTF"] = config.CheckLib("c", "vprintf")
-        platform["ALLEGRO_HAVE__BOOL"] = config.CheckCHeader("stdbool.h")
-        platform["MAP_FAILED"] = config.CheckMapFailed()
-        platform["ALLEGRO_WITH_OSSDIGI"] = config.CheckOSSDigi()
-        platform["ALLEGRO_WITH_OSSMIDI"] = config.CheckOSSMidi()
-        platform["ALLEGRO_HAVE_DYNAMIC_LINK"] = config.CheckDL()
-
-        ## Not checked yet
-        platform["ALLEGRO_MODULES_PATH"] = '"/usr/local/lib/allegro"'
-        platform["PACKAGE_BUGREPORT"] = ""
-        platform["ALLEGRO_WITH_MODULES"] = "1"
-        platform["PACKAGE_NAME"] = ""
-        platform["PACKAGE_STRING"] = ""
-        platform["PACKAGE_TARNAME"] = ""
-        platform["PACKAGE_VERSION"] = ""
-        platform["RETSIGTYPE"] = "void"
-        platform["STDC_HEADERS"] = "1"
-        platform["TIME_WITH_SYS_TIME"] = "1"
-        platform["TM_IN_SYS_TIME"] = False
-        platform["ALLEGRO_WITH_SGIALDIGI"] = False
-        platform["WORDS_BIGENDIAN"] = False
-        platform["const"] = False
-
-        platform["ALLEGRO_HAVE_SV_PROCFS"] = False
-
-        env = config.Finish()
-        # context.setLibraryEnv(config.Finish())
-        # env = context.getEnv()
-
-        # Write out alunixac.h with all the config settings
-        # writeAutoHeader("include/allegro5/platform/alunixac.h", platform)
-        # helpers.parse_cmake_h(env,platform,'include/allegro5/platform/alunixac.h.cmake','include/allegro5/platform/alunixac.h')
-
-        # write out settings.cfg with scons specific settings
-        settings.add_section("unix")
-        for setting in config_settings:
-            val = env.get(setting, None)
-            if not val: continue
-            if hasattr(val, "data"): val = val.data # for CCFLAGS
-            if not type(val) == list: val = [val]
-            settings.set("unix", setting, str(val))
-        settings.write(file(context.getGlobalDir() + "unix-settings.cfg", "w"))
-
-        setUnixConfiguration(platform, settings)
-        global_alunixac = helpers.parse_cmake_h(env, platform,
-            'include/allegro5/platform/alunixac.h.cmake',
-            '#' + context.getGlobalDir() + 'alunixac.h')
-        setUnixAlunixac(global_alunixac)
-
-    alunixac = helpers.parse_cmake_h(env, platform,
-        'include/allegro5/platform/alunixac.h.cmake',
-        'include/allegro5/platform/alunixac.h')
-
-    # Any one of the variants could have created the global alunixac but that
-    # variant might not be built, so ensure that the global alunixac is built by
-    # forcing all alunixac's to be dependant on it
-    if getUnixAlunixac():
-        env.Depends(alunixac, getUnixAlunixac())
 
 def setupPlatform(platform, config):
     machine = "i386"

@@ -11,29 +11,6 @@ def getArgumentOption(name, default):
 
 myEnv = env.Clone()
 
-if False:
-    noconfig = False
-    if not getArgumentOption("config",0):
-        if os.path.exists("addons/iio/allegro5/internal/aintern_iio_cfg.h"):
-            # print "Re-using old iio settings"
-            noconfig = True
-
-    settings = []
-    if noconfig:
-        settings = helpers.readAutoHeader('addons/iio/allegro5/internal/aintern_iio_cfg.h')
-    else:
-        config = myEnv.Configure()
-        settings = helpers.SimpleHash()
-        settings["ALLEGRO_CFG_IIO_HAVE_PNG"] = config.CheckHeader("png.h") and\
-            config.CheckLib("png")
-
-        myEnv = config.Finish()
-
-    helpers.parse_cmake_h(myEnv,
-        settings,
-        "allegro5/internal/aintern_iio_cfg.h.cmake",
-        "allegro5/internal/aintern_iio_cfg.h")
-
 tests = {}
 
 def setupPlatform(settings, config):

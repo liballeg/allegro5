@@ -51,36 +51,6 @@ def CheckOSS(context):
     ret = False
     return ret
 
-if False:
-    noconfig = False
-    if not getArgumentOption("config",0):
-        if os.path.exists("addons/kcm_audio/allegro5/internal/aintern_kcm_cfg.h"):
-            # print "Re-using old kcm_audio settings"
-            noconfig = True
-
-    settings = []
-    if noconfig:
-        settings = helpers.readAutoHeader('addons/kcm_audio/allegro5/internal/aintern_kcm_cfg.h')
-    else:
-            config = env.Configure(custom_tests =
-                {"CheckOpenAL": CheckOpenAL,
-                 "CheckAlsa" : CheckAlsa,
-                 "CheckOSS" : CheckOSS})
-            settings = helpers.SimpleHash()
-            settings["ALLEGRO_CFG_KCM_OPENAL"] = config.CheckOpenAL()
-            settings["ALLEGRO_CFG_KCM_ALSA"] = config.CheckAlsa()
-            a = settings["ALLEGRO_HAVE_SOUNDCARD_H"] = config.CheckCHeader("soundcard.h")
-            b = settings["ALLEGRO_HAVE_SYS_SOUNDCARD_H"] = config.CheckCHeader("sys/soundcard.h")
-            c = settings["ALLEGRO_HAVE_MACHINE_SOUNDCARD_H"] = config.CheckCHeader("machine/soundcard.h")
-            d = settings["ALLEGRO_HAVE_LINUX_SOUNDCARD_H"] = config.CheckCHeader("linux/soundcard.h")
-            settings["ALLEGRO_CFG_KCM_OSS"] = a or b or c or d
-            myEnv = config.Finish()
-
-    helpers.parse_cmake_h(env,
-        settings,
-        "allegro5/internal/aintern_kcm_cfg.h.cmake",
-        "allegro5/internal/aintern_kcm_cfg.h")
-
 def setupPlatform(settings, config):
     settings["ALLEGRO_CFG_KCM_OPENAL"] = config.CheckOpenAL()
     settings["ALLEGRO_CFG_KCM_ALSA"] = config.CheckAlsa()

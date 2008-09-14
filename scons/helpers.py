@@ -85,6 +85,10 @@ def readAutoHeader(filename):
     return obj
 
 def parse_cmake_h(env, defines, src, dest):
+    """
+    Parse a cmake file and return a hashmap that contains
+    defines for the variables set in the cmake file
+    """
     def parse_line(line):
         # Replace cmake variables of the form ${variable}.
         def substitute_variable(match):
@@ -116,6 +120,7 @@ def parse_cmake_h(env, defines, src, dest):
     return env2.PlatformHeader(dest,src)
 
 def mergeEnv(env1, env2):
+    """Copy environment variables from env2 to env1. Returns a new environment"""
     env = env1.Clone()
     try:
         env.Append(CCFLAGS = env2['CCFLAGS'])
@@ -144,6 +149,13 @@ def mergeEnv(env1, env2):
 configure_state = SimpleHash()
 
 def do_configure(name, context, tests, setup_platform, cmake_file, h_file, reconfigure):
+    """
+    Run a set of configure tests (which should be invoked by setup_platform())
+    and save the result in a global variable, configure_state, for other variants
+    of the same SConscript to use. A global .cfg and .h file are also generated in
+    the scons_build/configure directory and act as the cache for future invocations
+    of the build.
+    """
     import os, ConfigParser
     noconfig = False
     config_settings = ["CCFLAGS", "CPPPATH", "CPPFLAGS", "LIBS", "LIBPATH", "LINKFLAGS"]
