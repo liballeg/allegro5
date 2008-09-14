@@ -129,11 +129,16 @@ def do_configure(name, context, tests, setup_platform, cmake_file, h_file, recon
     configured = configure_state[name]
     config_file = None
 
+    main_dir = context.getGlobalDir() + '/configure/'
+
+    try: os.mkdir(main_dir)
+    except OSError: pass
+
     if configured:
         noconfig = True
     # elif not getArgumentOption("config",0):
     elif not reconfigure:
-        if os.path.exists( '#' + context.getGlobalDir() + h_file):
+        if os.path.exists( main_dir + h_file):
             print "Re-using old %s settings" % name
             noconfig = True
     
@@ -142,8 +147,8 @@ def do_configure(name, context, tests, setup_platform, cmake_file, h_file, recon
         if configured:
             platform, settings = configure_state[name]
         else:
-            platform = readAutoHeader('#' + context.getGlobalDir() + h_file)
-            settings.read(context.getGlobalDir() + name + ".cfg")
+            platform = readAutoHeader(main_dir + h_file)
+            settings.read(main_dir + name + ".cfg")
 
         env = context.defaultEnvironment()
         for setting in config_settings:
@@ -164,15 +169,16 @@ def do_configure(name, context, tests, setup_platform, cmake_file, h_file, recon
             if hasattr(val, "data"): val = val.data # for CCFLAGS
             if not type(val) == list: val = [val]
             settings.set(name, setting, str(val))
-        settings.write(file(context.getGlobalDir() + name + ".cfg", "w"))
+        settings.write(file(main_dir + name + ".cfg", "w"))
         config_file = parse_cmake_h(env, platform, cmake_file,
-            '#' + context.getGlobalDir() + name + '.h')
+            '#' + main_dir + h_file)
 
-        configure_state[name] = [platform, settings]
         configure_state[name + "_h"] = config_file
 
     header = parse_cmake_h(env, platform, cmake_file, h_file)
     if configure_state[name + "_h"] != False:
         env.Depends(header, configure_state[name + "_h"])
+        
+    configure_state[name] = [platform, settings]
 
     return [platform, env]
