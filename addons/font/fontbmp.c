@@ -163,7 +163,7 @@ static int bitmap_font_count(ALLEGRO_BITMAP* bmp)
 
 
 /* import routine for the Allegro .pcx font format */
-ALLEGRO_FONT *al_font_load_bitmap_font(AL_CONST char *fname, void *param)
+ALLEGRO_FONT *al_font_load_bitmap_font(const char *fname, void *param)
 {
    /* NB: `end' is -1 if we want every glyph */
    int color_conv_mode;
