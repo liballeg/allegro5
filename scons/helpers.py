@@ -8,6 +8,26 @@ import re
 #         return 1
 #     return 0
 
+class SimpleHash:
+    def __init__( self ):
+        self.hash = dict()
+
+    def __getitem__( self, key ):
+        try:
+            return self.hash[ key ]
+        except KeyError:
+            return False
+
+    def __setitem__( self, key, value ):
+        self.hash[ key ] = value
+
+    def keys( self ):
+        return self.hash.keys()
+
+# Global state to handle configuration things
+configure_state = SimpleHash()
+install = 'install'
+
 def read_cmake_list(name):
     """
     Read a cmake files list and return a dictionary with each cmake variable
@@ -53,22 +73,6 @@ def generate_alplatf_h(env, defines):
     # Create alplatf.h based on alplatf.h.cmake
     return env.PlatformHeader('include/allegro5/platform/alplatf.h',
         'include/allegro5/platform/alplatf.h.cmake')
-
-class SimpleHash:
-    def __init__( self ):
-        self.hash = dict()
-
-    def __getitem__( self, key ):
-        try:
-            return self.hash[ key ]
-        except KeyError:
-            return False
-
-    def __setitem__( self, key, value ):
-        self.hash[ key ] = value
-
-    def keys( self ):
-        return self.hash.keys()
 
 def define(*rest):
     n = SimpleHash()
@@ -149,8 +153,6 @@ def mergeEnv(env1, env2):
 
     return env
 
-# Global state to handle configuration things
-configure_state = SimpleHash()
 
 def do_configure(name, context, tests, setup_platform, cmake_file, h_file, reconfigure):
     """

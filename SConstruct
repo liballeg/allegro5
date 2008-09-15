@@ -312,7 +312,9 @@ def filterCommon(all_real):
 common = filterCommon(allInstall)
 
 def doInstall(targets):
-    dir = '#install'
+    dir = helpers.install
+    if not os.path.isabs(dir):
+        dir = '#' + dir
     def install(t):
         return InstallAs(os.path.join(dir, t[1]), t[0])
     all = [install(target) for target in targets]

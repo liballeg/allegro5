@@ -24,6 +24,8 @@ config: (Re)configure Allegro. You will need to set this to 1 if you wish to ena
     actual: 0
 """);
 
+helpers.install = env['install']
+
 def getOption(name, default = 0):
     return env[name]
 
