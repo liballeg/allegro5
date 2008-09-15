@@ -6,6 +6,12 @@
 #include "allegro5/bitmap_new.h"
 #include "allegro5/internal/aintern_events.h"
 
+#ifndef SCAN_DEPEND
+   #define DIRECTINPUT_VERSION 0x0800
+   #include <dinput.h>
+   #include <process.h>
+#endif
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -89,6 +95,23 @@ struct ALLEGRO_DISPLAY
 
 
 #ifdef ALLEGRO_WINDOWS
+
+typedef struct _AL_KEY_DINPUT _AL_KEY_DINPUT;
+
+struct _AL_KEY_DINPUT {
+   HWND window;
+   ALLEGRO_DISPLAY *display;
+
+   LPDIRECTINPUT8 dinput;
+   LPDIRECTINPUTDEVICE8 device;
+   HANDLE input_event;
+   HANDLE autorepeat_timer;
+   LARGE_INTEGER repeat_delay;
+   LONG repeat_period;
+   unsigned int modifiers;
+   int scancode_to_repeat;
+};
+
 typedef struct ALLEGRO_DISPLAY_WIN ALLEGRO_DISPLAY_WIN;
 
 struct ALLEGRO_DISPLAY_WIN
@@ -102,6 +125,10 @@ struct ALLEGRO_DISPLAY_WIN
    int mouse_range_y2;
    HCURSOR mouse_selected_hcursor;
    bool mouse_cursor_shown;
+
+   _AL_KEY_DINPUT key_input;
+
+   HANDLE window_thread;
 
    UINT adapter;
 };

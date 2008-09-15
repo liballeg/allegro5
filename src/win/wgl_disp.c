@@ -923,11 +923,12 @@ static bool select_pixel_format(ALLEGRO_DISPLAY_WGL *d, HDC dc) {
 static bool create_display_internals(ALLEGRO_DISPLAY_WGL *wgl_disp) {
    ALLEGRO_DISPLAY     *disp     = (void*)wgl_disp;
    new_display_parameters ndp;
+   HANDLE window_thread;
 
    ndp.display = wgl_disp;
    ndp.init_failed = false;
    ndp.initialized = false;
-   _beginthread(display_thread_proc, 0, &ndp);
+   window_thread = (HANDLE)_beginthread(display_thread_proc, 0, &ndp);
 
    while (!ndp.initialized && !ndp.init_failed)
       al_rest(0.001);
@@ -952,8 +953,22 @@ static bool create_display_internals(ALLEGRO_DISPLAY_WGL *wgl_disp) {
    disp->ogl_extras->backbuffer = _al_ogl_create_backbuffer(disp);
  
    _al_win_active_window = wgl_disp->win_display.window;
+   wgl_disp->win_display.window_thread = window_thread;
+   wgl_disp->win_display.key_input.window = wgl_disp->win_display.window;
+   wgl_disp->win_display.key_input.display = disp;
 
-   win_grab_input();
+   if (al_is_keyboard_installed()) {
+      wgl_disp->win_display.key_input.window = wgl_disp->win_display.window;
+      if (!_al_win_attach_key_input(&wgl_disp->win_display.key_input)) {
+         TRACE(PREFIX_E "Failed to init keyboard.\n");
+         wgl_destroy_display(disp);
+         return false;
+      }
+   }
+
+   QueueUserAPC((PAPCFUNC)_al_win_key_dinput_acquire,
+             wgl_disp->win_display.window_thread,
+             (ULONG_PTR)&wgl_disp->win_display.key_input);
 
    wgl_disp->win_display.mouse_range_x1 = 0;
    wgl_disp->win_display.mouse_range_y1 = 0;
@@ -1011,6 +1026,13 @@ static ALLEGRO_DISPLAY* wgl_create_display(int w, int h) {
 }
 
 
+static void CALLBACK quit_window_thread(ULONG_PTR *param)
+{
+   ALLEGRO_DISPLAY_WGL *wgl = (void*)param;
+   wgl->end_thread = true;
+}
+
+
 static void destroy_display_internals(ALLEGRO_DISPLAY_WGL *wgl_disp) {
    ALLEGRO_DISPLAY *disp = (ALLEGRO_DISPLAY *)wgl_disp;
    ALLEGRO_DISPLAY_WIN *win_disp = (ALLEGRO_DISPLAY_WIN *)wgl_disp;
@@ -1029,11 +1051,20 @@ static void destroy_display_internals(ALLEGRO_DISPLAY_WGL *wgl_disp) {
 
    _al_ogl_unmanage_extensions(disp);
 
-   wgl_disp->end_thread = true;
+   QueueUserAPC((PAPCFUNC)_al_win_key_dinput_unacquire,
+          wgl_disp->win_display.window_thread,
+          (ULONG_PTR)&wgl_disp->win_display.key_input);
+
+   if (al_is_keyboard_installed())
+      _al_win_dettach_key_input(&win_disp->key_input);
+
+   //_al_win_ungrab_input();
+
+   QueueUserAPC((PAPCFUNC)quit_window_thread,
+       wgl_disp->win_display.window_thread,
+       (ULONG_PTR)wgl_disp);
    while (!wgl_disp->thread_ended)
       al_rest(0.001);
-
-   _al_win_ungrab_input();
 
    PostMessage(win_disp->window, _al_win_msg_suicide, 0, 0);
 }
@@ -1189,17 +1220,12 @@ static void display_thread_proc(void *arg)
    wgl_disp->end_thread = false;
    ndp->initialized = true;
 
-   for (;;) {
-      if (wgl_disp->end_thread) {
-         break;
-      }
-
-      result = MsgWaitForMultipleObjects(_win_input_events, _win_input_event_id, FALSE, 1, QS_ALLINPUT);
-      if (result < (DWORD) WAIT_OBJECT_0 + _win_input_events) {
-         /* one of the registered events is in signaled state */
-         (*_win_input_event_handler[result - WAIT_OBJECT_0])();
-      }
-      else if (result == (DWORD) WAIT_OBJECT_0 + _win_input_events) {
+   while (!wgl_disp->end_thread) {
+      result = MsgWaitForMultipleObjectsEx(0, NULL,
+                                           INFINITE,
+                                           QS_ALLEVENTS,
+                                           MWMO_ALERTABLE | MWMO_INPUTAVAILABLE);
+      if (result == (DWORD) WAIT_OBJECT_0) {
          /* messages are waiting in the queue */
          while (PeekMessage(&msg, NULL, 0, 0, PM_NOREMOVE)) {
             if (GetMessage(&msg, NULL, 0, 0)) {
@@ -1209,6 +1235,12 @@ static void display_thread_proc(void *arg)
                goto End;
             }
          }
+      }
+      else if (result == WAIT_IO_COMPLETION) {
+      }
+      else if (result == WAIT_FAILED) {
+         TRACE(PREFIX_E "Wait failed.\n");
+         break;
       }
    }
 

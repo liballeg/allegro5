@@ -29,6 +29,7 @@
 
 
 #include "allegro5/winalleg.h"
+#include "allegro5/internal/aintern_display.h"
 
 #ifndef SCAN_DEPEND
    /* workaround for buggy MinGW32 headers */
@@ -99,19 +100,17 @@ AL_FUNC(void, wnd_schedule_proc, (int (*proc)(void)));
 
 
 /* input routines */
-AL_VAR(int, _win_input_events);
-AL_ARRAY(HANDLE, _win_input_event_id);
-AL_FUNCPTRARRAY(void, _win_input_event_handler, (void));
-
 AL_FUNC(void, _win_input_init, (void));
 AL_FUNC(void, _win_input_exit, (void));
-AL_FUNC(int, _win_input_register_event, (HANDLE event_id, void (*event_handler)(void)));
-AL_FUNC(void, _win_input_unregister_event, (HANDLE event_id));
+bool _win_input_register_event(HANDLE event_id, void (*event_handler)(void*), void*);
+bool _win_input_unregister_event(HANDLE event_id);
 
 
 /* keyboard routines */
-AL_FUNC(int, key_dinput_acquire, (void));
-AL_FUNC(int, key_dinput_unacquire, (void));
+VOID CALLBACK _al_win_key_dinput_acquire(ULONG_PTR param);
+VOID CALLBACK _al_win_key_dinput_unacquire(ULONG_PTR param);
+bool _al_win_attach_key_input(_AL_KEY_DINPUT *key_input);
+bool _al_win_dettach_key_input(_AL_KEY_DINPUT *key_input);
 
 
 /* mouse routines */
@@ -173,8 +172,6 @@ AL_BEGIN_EXTERN_C
 /* time */
 AL_FUNC(void, _al_win_init_time, (void));
 AL_FUNC(void, _al_win_shutdown_time, (void));
-
-AL_FUNC(int, key_dinput_set_cooperative_level, (HWND wnd));
 
 AL_END_EXTERN_C
 

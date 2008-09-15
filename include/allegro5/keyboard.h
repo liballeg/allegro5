@@ -58,7 +58,7 @@ typedef struct ALLEGRO_KEYBOARD_STATE
 } ALLEGRO_KEYBOARD_STATE;
 
 
-
+AL_FUNC(bool,         al_is_keyboard_installed,   (void));
 AL_FUNC(bool,         al_install_keyboard,   (void));
 AL_FUNC(void,         al_uninstall_keyboard, (void));
 

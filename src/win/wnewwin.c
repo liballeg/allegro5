@@ -403,6 +403,9 @@ static LRESULT CALLBACK window_callback(HWND hWnd, UINT message,
          case WM_ACTIVATE:
             if (LOWORD(wParam) != WA_INACTIVE) {
                //if (al_set_current_display((ALLEGRO_DISPLAY *)d)) {
+               QueueUserAPC((PAPCFUNC)_al_win_key_dinput_acquire,
+                            win_display->window_thread,
+                            (ULONG_PTR)&win_display->key_input);
                _al_win_active_window = win->window;
                win_grab_input();
                if (d->vt->switch_in)
@@ -429,7 +432,10 @@ static LRESULT CALLBACK window_callback(HWND hWnd, UINT message,
                }
 
                if (j >= win_window_list._size) {
-                  _al_win_ungrab_input();
+                   QueueUserAPC((PAPCFUNC)_al_win_key_dinput_unacquire,
+                            win_display->window_thread,
+                            (ULONG_PTR)&win_display->key_input);
+                  //_al_win_ungrab_input();
                }
 
                if (d->flags & ALLEGRO_FULLSCREEN) {
@@ -546,7 +552,8 @@ int _al_win_init_window()
 
 void _al_win_ungrab_input()
 {
-   PostMessage(_al_win_active_window, _al_win_msg_call_proc, (DWORD)key_dinput_unacquire, 0);
+   ASSERT(0);
+   //PostMessage(_al_win_active_window, _al_win_msg_call_proc, (DWORD)key_dinput_unacquire, 0);
 }
 
 
