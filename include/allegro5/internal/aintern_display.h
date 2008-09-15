@@ -6,11 +6,6 @@
 #include "allegro5/bitmap_new.h"
 #include "allegro5/internal/aintern_events.h"
 
-#ifndef SCAN_DEPEND
-   #define DIRECTINPUT_VERSION 0x0800
-   #include <dinput.h>
-   #include <process.h>
-#endif
 
 #ifdef __cplusplus
 extern "C" {
@@ -95,6 +90,12 @@ struct ALLEGRO_DISPLAY
 
 
 #ifdef ALLEGRO_WINDOWS
+
+#ifndef SCAN_DEPEND
+   #define DIRECTINPUT_VERSION 0x0800
+   #include <dinput.h>
+   #include <process.h>
+#endif
 
 typedef struct _AL_KEY_DINPUT _AL_KEY_DINPUT;
 
