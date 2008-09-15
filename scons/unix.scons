@@ -342,9 +342,9 @@ def install(library):
             subdir = root
             add(subdir, '#' + os.path.join(root, i))
 
-    add('lib/allegro/%s.%s' % (context.getMajorVersion(),context.getMinorVersion()), '#modules.lst')
-    for i in getModules():
-        add('lib/allegro/%s.%s' % (context.getMajorVersion(),context.getMinorVersion()),i)
+    # add('lib/allegro/%s.%s' % (context.getMajorVersion(),context.getMinorVersion()), '#modules.lst')
+    #for i in getModules():
+    #    add('lib/allegro/%s.%s' % (context.getMajorVersion(),context.getMinorVersion()),i)
     add('bin', 'allegro5-config')
     
     # Try to run ldconfig after installing everything, so add it as a dependency
