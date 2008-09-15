@@ -345,3 +345,4 @@ Default('all')
 
 # Build the world!
 Alias('everything',['all','all-static','all-debug','all-static-debug'])
+Alias('install-everything', ['install', 'install-static', 'install-debug', 'install-static-debug'])
