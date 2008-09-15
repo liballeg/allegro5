@@ -28,8 +28,15 @@
    #define A5_ICODEC_FUNC      AL_FUNC
 #endif
 
+#ifdef __cplusplus
+   extern "C" {
+#endif
 
 A5_ICODEC_FUNC(int, al_save_image, (ALLEGRO_BITMAP* bmp, const char* path));
 A5_ICODEC_FUNC(ALLEGRO_BITMAP*, al_load_image, (const char* path));
+
+#ifdef __cplusplus
+   }
+#endif
 
 #endif

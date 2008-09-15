@@ -21,9 +21,9 @@
 
 #include "allegro5/base.h"
 
-AL_BEGIN_EXTERN_C
-
-
+#ifdef __cplusplus
+   extern "C" {
+#endif
 
 /* internal values */
 #define _AL_MAX_JOYSTICK_AXES	   3
@@ -102,9 +102,9 @@ AL_FUNC(const char*,    al_get_joystick_button_name,  (const ALLEGRO_JOYSTICK*, 
 
 AL_FUNC(void,           al_get_joystick_state,  (ALLEGRO_JOYSTICK*, ALLEGRO_JOYSTICK_STATE *ret_state));
 
-
-
-AL_END_EXTERN_C
+#ifdef __cplusplus
+   }
+#endif
 
 #endif
 

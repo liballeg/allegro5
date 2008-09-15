@@ -22,14 +22,16 @@
 
 #include "allegro5/base.h"
 
-AL_BEGIN_EXTERN_C
-
+#ifdef __cplusplus
+   extern "C" {
+#endif
 
 AL_FUNC(int, al_get_errno, (void));
 AL_FUNC(void, al_set_errno, (int errnum));
 
-
-AL_END_EXTERN_C
+#ifdef __cplusplus
+   }
+#endif
 
 #endif          /* ifndef ALLEGRO_MOUSE_H */
 

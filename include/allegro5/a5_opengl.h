@@ -20,8 +20,9 @@
 
 #include "allegro5/base.h"
 
-
-AL_BEGIN_EXTERN_C
+#ifdef __cplusplus
+   extern "C" {
+#endif
 
 #if defined(ALLEGRO_WINDOWS) && !defined(SCAN_EXPORT)
 #include <windows.h>
@@ -90,7 +91,8 @@ AL_FUNC(int,                   al_is_opengl_extension_supported, (AL_CONST char 
 AL_FUNC(void*,                 al_get_opengl_proc_address,       (AL_CONST char *name));
 AL_FUNC(ALLEGRO_OGL_EXT_LIST*, al_get_opengl_extension_list,     (void));
 
-
-AL_END_EXTERN_C
+#ifdef __cplusplus
+   }
+#endif
 
 #endif /* A5_OPENGL_ALLEGRO_H */

@@ -1,6 +1,10 @@
 #include "allegro5/allegro5.h"
 #include "allegro5/a5_font.h"
 
+#ifdef __cplusplus
+   extern "C" {
+#endif
+
 #define ALLEGRO_TTF_NO_KERNING 1
 
 #if (defined ALLEGRO_MINGW32) || (defined ALLEGRO_MSVC) || (defined ALLEGRO_BCC32)
@@ -26,3 +30,7 @@
 #endif
 
 A5_TTF_FUNC(ALLEGRO_FONT *, al_ttf_load_font, (char const *filename, int size, int flags));
+
+#ifdef __cplusplus
+   }
+#endif

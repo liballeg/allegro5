@@ -16,6 +16,9 @@
 #ifndef ALLEGRO_MEMORY_H
 #define ALLEGRO_MEMORY_H
 
+#ifdef __cplusplus
+   extern "C" {
+#endif
 
 void al_set_memory_management_functions(
    void *(*malloc)(void *opaque, size_t size),
@@ -32,5 +35,8 @@ void al_set_memory_management_functions(
       void *opaque, void *ptr, size_t size),
    void *user_opaque);
 
+#ifdef __cplusplus
+   }
+#endif
 
 #endif          /* ifndef ALLEGRO_MEMORY_H */

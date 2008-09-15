@@ -21,7 +21,9 @@
 
 #include "allegro5/base.h"
 
-AL_BEGIN_EXTERN_C
+#ifdef __cplusplus
+   extern "C" {
+#endif
 
 /* Enum: ALLEGRO_STATE_FLAGS
  * 
@@ -66,6 +68,8 @@ typedef struct ALLEGRO_STATE
 AL_FUNC(void, al_store_state, (ALLEGRO_STATE *state, int flags));
 AL_FUNC(void, al_restore_state, (ALLEGRO_STATE const *state));
 
-AL_END_EXTERN_C
+#ifdef __cplusplus
+   }
+#endif
 
 #endif /* ifndef ALLEGRO_TLS_H */
