@@ -272,7 +272,7 @@ def getModules():
 
 def allegroConfig(env):
     """Builds the allegro5-config shell script out of misc/allegro5-config.in"""
-    prefix = ARGUMENTS.get('install', '/usr/local')
+    prefix = env['install']
     replaces = {}
     replaces[ '@prefix@' ] = prefix
     replaces[ '@INCLUDE_PREFIX@' ] = prefix
