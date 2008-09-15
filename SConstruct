@@ -278,7 +278,11 @@ installDebug = buildDebug()
 installStaticDebug = buildStaticDebug()
 
 def combineInstall(*installs):
+    # all is a hashmap from the path minus the common prefix to
+    # the number of times path has been seen
     all = {}
+    # real is a hashmap of path minus the common prefix to
+    # an array containing the real FS node and the prefix
     real = {}
     for targets in installs:
         common = os.path.commonprefix([str(f[0]) for f in targets])
@@ -302,7 +306,19 @@ def filterCommon(all_real):
     real = all_real[1]
     def keep(c):
         if all[c] > 1:
-            print "Keep " + str(real[c])
+            # print "Keep " + str(real[c])
+            return real[c]
+        else:
+            return None
+    
+    return filter(lambda n: n != None, [keep(c) for c in all.keys()])
+
+def filterUncommon(all_real):
+    all = all_real[0]
+    real = all_real[1]
+    def keep(c):
+        if all[c] == 1:
+            # print "Keep " + str(real[c])
             return real[c]
         else:
             return None
@@ -310,6 +326,7 @@ def filterCommon(all_real):
     return filter(lambda n: n != None, [keep(c) for c in all.keys()])
 
 common = filterCommon(allInstall)
+uncommon = filterUncommon(allInstall)
 
 def doInstall(targets):
     dir = helpers.install
@@ -321,6 +338,7 @@ def doInstall(targets):
     return all
 
 Alias('install-common', doInstall(common))
+Alias('install', 'install-common')
 
 # Default is what comes out of buildNormal()
 Default('all')

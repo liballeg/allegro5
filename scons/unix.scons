@@ -320,6 +320,13 @@ def install(library):
     ## list of files to be installed
     ret = []
     ## add a file to be installed
+    def unique(d, target):
+        dir = os.path.join(getOption('install'), d)
+        if not os.path.isabs(dir):
+            dir = '#' + dir
+        i = env.Install(dir, target)
+        context.aliasInstall('install-library', i)
+        return i
     def add(d, f):
         # prefix = getOption('install')
         prefix = 'tmp-install'
@@ -327,9 +334,9 @@ def install(library):
         #if not os.path.isabs(path):
         #    path = '#' + path
         i = env.Install(path, f)
-        context.aliasInstall('install-library', i)
         ret.append(i)
-    add('lib', library)
+    # add('lib', library)
+    unique('lib', library)
     for root, dirs, files in os.walk('include'):
         for i in [x for x in files if x.endswith(".h") or x.endswith(".inl")]:
             subdir = root
