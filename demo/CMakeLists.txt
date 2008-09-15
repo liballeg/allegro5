@@ -57,6 +57,24 @@ else(USE_CXX AND SUPPORT_FONT AND SUPPORT_KCM_AUDIO AND SUPPORT_ACODEC)
     message(STATUS "Not building demo")
 endif(USE_CXX AND SUPPORT_FONT AND SUPPORT_KCM_AUDIO AND SUPPORT_ACODEC)
 
+if (MACOSX)
+FILE(GLOB_RECURSE GFX data/gfx/*.tga )
+FILE(GLOB_RECURSE SFX data/sfx/*.ogg)
+ADD_CUSTOM_COMMAND(TARGET demo 
+	POST_BUILD
+	COMMAND install -d Demo.app/Contents/Resources/data/sfx
+	COMMAND install -d Demo.app/Contents/Resources/data/gfx
+	COMMAND install -d Demo.app/Contents/MacOS
+	COMMAND install demo Demo.app/Contents/MacOS
+	COMMAND install Icon.icns  Demo.app/Contents/Resources
+	COMMAND install Info.plist Demo.app/Contents
+	COMMAND install ${GFX} Demo.app/Contents/Resources/data/gfx
+	COMMAND install ${SFX} Demo.app/Contents/Resources/data/sfx
+	VERBATIM
+)
+
+endif (MACOSX)
+
 #-----------------------------------------------------------------------------#
 # vi: set ts=8 sts=4 sw=4 et:
 
