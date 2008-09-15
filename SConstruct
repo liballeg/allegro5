@@ -96,6 +96,10 @@ class AllegroContextNormal(AllegroContext):
     def alias(self,name,target):
         Alias(name,target)
         Alias('all',target)
+    
+    def aliasInstall(self,name,target):
+        Alias(name,target)
+        Alias('install',target)
 
     # Library name is as-is
     def libraryName(self, name):
@@ -126,6 +130,10 @@ class AllegroContextStatic(AllegroContext):
     def alias(self,name,target):
         Alias(name + '-static',target)
         Alias('all-static',target)
+    
+    def aliasInstall(self,name,target):
+        Alias(name + '-static',target)
+        Alias('install-static',target)
 
     # Adds _s to all libraries
     def libraryName(self, name):
@@ -155,6 +163,10 @@ class AllegroContextDebug(AllegroContext):
     def alias(self,name,target):
         Alias(name + '-debug',target)
         Alias('all-debug',target)
+    
+    def aliasInstall(self,name,target):
+        Alias(name + '-debug',target)
+        Alias('install-debug',target)
 
     def libraryName(self, name):
         return name + '_d'
@@ -184,6 +196,10 @@ class AllegroContextStaticDebug(AllegroContext):
     def alias(self,name,target):
         Alias(name + '-static-debug',target)
         Alias('all-static-debug',target)
+    
+    def aliasInstall(self,name,target):
+        Alias(name + '-static-debug',target)
+        Alias('install-static-debug',target)
 
     def libraryName(self, name):
         return name + '_sd'
@@ -242,152 +258,70 @@ def getPlatformFile():
 
 def doBuild(context):
     env = context.defaultEnvironment()
-    SConscript(getPlatformFile(), build_dir = context.getBuildDir(), exports = ['context','env'])
+    return SConscript(getPlatformFile(), build_dir = context.getBuildDir(), exports = ['context','env'])
     
 def buildNormal():
-    doBuild(AllegroContextNormal())
+    return doBuild(AllegroContextNormal())
 
 def buildStatic():
-    doBuild(AllegroContextStatic())
+    return doBuild(AllegroContextStatic())
 
 def buildDebug():
-    doBuild(AllegroContextDebug())
+    return doBuild(AllegroContextDebug())
 
 def buildStaticDebug():
-    doBuild(AllegroContextStaticDebug())
+    return doBuild(AllegroContextStaticDebug())
 
-buildNormal()
-buildStatic()
-buildDebug()
-buildStaticDebug()
+installNormal = buildNormal()
+installStatic = buildStatic()
+installDebug = buildDebug()
+installStaticDebug = buildStaticDebug()
+
+def combineInstall(*installs):
+    all = {}
+    real = {}
+    for targets in installs:
+        common = os.path.commonprefix([str(f[0]) for f in targets])
+        for f in targets:
+            base = str(f[0]).replace(common, '')
+            # If its unique there will only be one entry, if its not
+            # unique then whoever was last will be the installed on
+            real[base] = [f[0], base]
+            try:
+                all[base] += 1
+            except KeyError:
+                all[base] = 1
+
+    return [all, real]
+
+allInstall = combineInstall(installNormal, installStatic,
+                            installDebug, installStaticDebug)
+
+def filterCommon(all_real):
+    all = all_real[0]
+    real = all_real[1]
+    def keep(c):
+        if all[c] > 1:
+            print "Keep " + str(real[c])
+            return real[c]
+        else:
+            return None
+    
+    return filter(lambda n: n != None, [keep(c) for c in all.keys()])
+
+common = filterCommon(allInstall)
+
+def doInstall(targets):
+    dir = '#install'
+    def install(t):
+        return InstallAs(os.path.join(dir, t[1]), t[0])
+    all = [install(target) for target in targets]
+    return all
+
+Alias('install-common', doInstall(common))
 
 # Default is what comes out of buildNormal()
 Default('all')
 
 # Build the world!
 Alias('everything',['all','all-static','all-debug','all-static-debug'])
-
-if False:
-    context = getAllegroContext()
-    
-    debugBuildDir = BUILD_DIR + '/debug/' + context.getPlatform() + "/"
-    optimizedBuildDir = BUILD_DIR + '/release/' + context.getPlatform() + "/"
-    
-    def getLibraryName(debug,static):
-        if debug:
-            if static:
-                return 'allegd_s-' + context.getAllegroVersion()
-            else:
-                return 'allegd-' + context.getAllegroVersion()
-        else:
-            if static:
-                return 'alleg_s-' + context.getAllegroVersion()
-            else:
-                return 'alleg-' + context.getAllegroVersion()
-            
-    if context.getDebug():
-        normalBuildDir = debugBuildDir
-    else:
-        normalBuildDir = optimizedBuildDir
-    
-    context.getLibraryEnv().Append(CPPPATH = [ normalBuildDir ])
-    
-    if context.onBsd():
-        SConscript('scons/bsd.scons', build_dir = normalBuildDir, exports = 'context')
-    elif context.onLinux():
-        SConscript('scons/linux.scons', build_dir = BUILD_DIR, exports = 'context')
-    elif context.onWindows():
-        SConscript('scons/win32.scons', build_dir = BUILD_DIR, exports = 'context')
-    elif context.onOSX():
-        SConscript('scons/osx.scons', build_dir = BUILD_DIR, exports = 'context')
-    else:
-        SConscript('scons/linux.scons', build_dir = BUILD_DIR, exports = 'context')
-        
-    Default(SConscript("scons/naturaldocs.scons"))
-
-if False:
-    library = context.getAllegroTarget()
-    if context.getStatic() == 1 and context.getDebug() == 1:
-    	print "Building static debug library"
-    elif context.getStatic() == 1:
-    	print "Building static release library"
-    elif context.getDebug() == 1:
-    	print "Building shared debug library"
-    else:
-    	print "Building shared release library"
-    Alias('library', library)
-    
-    # m = Move(context.getLibraryEnv(), library)
-    
-    # In scons 0.96.92 the Move() action only accepts strings for filenames
-    # as opposed to targets. This method should replace Move() in scons at
-    # some point.
-    # *Not used* - 12/9/2007
-    def XMove(env, target, source):
-        sources = env.arg2nodes(source, env.fs.File)
-        targets = env.arg2nodes(target, env.fs.Dir)
-        result = []
-        def moveFunc(target, source, env):
-            import shutil
-            shutil.move(source[0].path, target[0].path)
-            return 0
-    
-        def moveStr(target, source, env):
-            return "Moving %s to %s" % (source[0].path, target[0].path)
-    
-        MoveBuilder = SCons.Builder.Builder(action = SCons.Action.Action(moveFunc, moveStr), name='MoveBuilder')
-        for src, tgt in map(lambda x, y: (x, y), sources, targets):
-            result.extend(MoveBuilder(env, env.fs.File(src.name, tgt), src))
-        return result
-    
-    # mover = Builder(action = XMove)
-    # context.getLibraryEnv().Append( BUILDERS = { 'XMove' : mover } )
-    # context.getLibraryEnv().XMove( Dir(context.getLibraryDir()), library )
-    
-    # m = context.getLibraryEnv().Move(context.getLibraryDir(), library)
-    # m = context.getLibraryEnv().Move(context.getLibraryDir(), library)
-    # install_to_lib_dir = XMove(context.getLibraryEnv(), context.getLibraryDir(), library)
-    # install_to_lib_dir = Install(context.getLibraryDir(), library)
-    
-    # Execute(Move(context.getLibraryDir(), library))
-    # Execute(Action(os.rename(library, context.getLibraryDir() + '/' + library)))
-    
-    # context.addLibrary(library)
-    context.addLibrary('-l%s' % getLibraryName(context.getDebug(),context.getStatic()))
-    
-    # we don't use makedoc any longer
-    #docs = SConscript("scons/docs.scons", exports = ["normalBuildDir"])
-    #Alias('docs', docs)
-    
-    SConscript("scons/naturaldocs.scons")
-    
-    # For some reason I have to call Program() from this file
-    # otherwise 'scons/' will be appended to all the sources
-    # and targets. 
-    
-    # Build all other miscellaneous targets using the same environment
-    # that was used to build allegro but only link in liballeg
-    extraEnv = context.getExampleEnv().Clone()
-    
-    # liballeg = getLibraryName(debug)
-    extraEnv.Append(LIBPATH = [ context.getLibraryDir() ])
-    if not context.getStatic():
-        extraEnv.Replace(LIBS = [context.getLibraries()])
-    else:
-        extraEnv.Append(LIBS = [context.getLibraries()])
-    
-    extraTargets = []
-    for et in context.getExtraTargets():
-        useEnv = extraEnv
-        if et.use_build_env:
-            useEnv = context.getLibraryEnv()
-        make = et.func(useEnv,appendDir, normalBuildDir, context.getLibraryDir())
-        if et.depends:
-            useEnv.Depends(make,library)
-        extraTargets.append(make)
-    
-    Default(library, extraTargets)
-    
-    # Depends(library, extraTargets)
-    
-    Alias('install', context.install(library))

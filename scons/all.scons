@@ -3,7 +3,8 @@ import os, helpers
 Import('context')
 Import('env')
 
-context.addFiles( context.cmake["ALLEGRO_SRC_FILES"] )
+def getOption(name, default = 0):
+    return env[name]
 
 def getLibraryName():
     return "%s-%s" % (context.libraryName("alleg"), context.getVersion())
@@ -20,59 +21,18 @@ def buildLibrary():
 
     return context.buildLibrary(env, getLibraryName(), change(context.getLibrarySource()))
 
-def buildLibrary2():
-            
-    menv = context.getLibraryEnv()
-    # menv.BuildDir('library', '#src')
-    
-    def source(dest_dir):
-        def change(f):
-            # return f.replace('src/','library/')
-            return f.replace('src/','%s/' % dest_dir)
-        return map( change, context.getFiles() )
-
-    def build(function, lib, d):
-        #library = menv.SharedLibrary( getLibraryName(context.isDebug(), context.isStatic()), map( change, context.getFiles() ) )
-       return function(lib, source(d))
-
-    def buildStatic(env, debug, d):
-        env.BuildDir(d, '#src', duplicate = 0)
-        # return build(env.StaticLibrary, self.libDir + '/static/' + getLibraryName(debug), d)
-        return build(env.StaticLibrary, getLibraryName(debug,True), d)
-
-    def buildShared(env, debug, d):
-        env.BuildDir(d, '#src', duplicate = 0)
-        # return build(env.SharedLibrary, self.libDir + '/shared/' + getLibraryName(debug), d)
-        return build(env.SharedLibrary, getLibraryName(debug,False), d)
-
-    debugEnv = menv.Clone()
-    debugEnv.Append(CCFLAGS = '-DDEBUGMODE=1')
-
-    debugStatic = buildStatic(debugEnv, 1, 'debug')
-    debugShared = buildShared(debugEnv, 1, 'debug')
-    normalStatic = buildStatic(menv, 0, 'release')
-    normalShared = buildShared(menv, 0, 'release')
-
-    Alias('debug-static', debugStatic)
-    Alias('debug-shared', debugShared)
-    Alias('static', normalStatic)
-    Alias('shared', normalShared)
-
-    if context.isDebug() and context.isStatic():
-        return debugStatic
-    elif context.isDebug():
-        return debugShared
-    elif context.isStatic():
-        return normalStatic
-    else:
-        return normalShared
-
-#library = menv.SharedLibrary( getLibraryName(context.isDebug(), context.isStatic()), map( change, context.getFiles() ) )
-# library = buildLibrary()
-
-# library = context.buildLibrary(context.getEnv(), getLibraryName(), context.getLibrarySource())
+context.addFiles( context.cmake["ALLEGRO_SRC_FILES"] )
 library = buildLibrary()
 context.alias('allegro', library)
+
+def install(env):
+    #dir = getOption('install') + '/lib'
+    #if not dir.startswith('/'):
+    #    dir = '#' + dir
+    dir = 'tmp-install/lib'
+    i = env.Install(dir, library)
+
+install(env)
 
 def demo(env):
     demoEnv = env.Clone()
@@ -189,19 +149,7 @@ if buildAddon("kcm_audio"):
     buildAddon('acodec')
 #if buildAddon('audio'):
 
-# addon_dirs = ['#addons/font','#addons/acodec','#addons/audio']
-# SConscript( dirs = addon_dirs, exports = 'context' )
-
 examples(env)
 demo(env)
-# tests(context.getLibraryEnv())
 
-# Alias('library', library)
-# Default(['allegro','all-examples','all-addons','all-demo'])
 Return('library')
-
-#context.addExtra(demo)
-# context.addExtra(examples)
-# context.addExtra(addons)
-# context.addExtra(tools)
-# context.addExtra(tests)
