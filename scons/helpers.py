@@ -16,6 +16,7 @@ def read_cmake_list(name):
     This makes it easy to add/remove files, as only the cmake list needs to be
     modified and scons will automatically pick up the changes.
     """
+    in_set = False
     lists = {}
     for line in open(name):
         import re
@@ -25,9 +26,12 @@ def read_cmake_list(name):
             current = []
             name = line[4:].strip()
             lists[name] = current
-        else:
-            w = line.strip("( )\t\r\n")
-            if w: current.append(w)
+            in_set = True
+        elif in_set:
+            w = line.strip(" \t\r\n")
+            if w == ")":
+                in_set = False
+            elif w: current.append(w)
     return lists
 
 def generate_alplatf_h(env, defines):

@@ -1,4 +1,4 @@
-import os
+import os, helpers
 
 Import('context')
 Import('env')
@@ -120,41 +120,8 @@ def demo(env):
     demoEnv.Append(CPPPATH = 'demo/include')
     demoEnv.Append(CPPPATH = ['addons/font', 'addons/iio',
       'addons/kcm_audio', 'addons/acodec'])
-    sources = Split("""
-       Asteroid.cpp
-       BitmapResource.cpp
-       Bullet.cpp
-       ButtonWidget.cpp
-       Debug.cpp
-       DisplayResource.cpp
-       Enemy.cpp
-       Entity.cpp
-       Error.cpp
-       Explosion.cpp
-       GUI.cpp
-       GenericResource.cpp
-       Input.cpp
-       LargeAsteroid.cpp
-       LargeBullet.cpp
-       LargeSlowBullet.cpp
-       MediumAsteroid.cpp
-       Misc.cpp
-       Player.cpp
-       PowerUp.cpp
-       Resource.cpp
-       ResourceManager.cpp
-       SampleResource.cpp
-       SmallAsteroid.cpp
-       SmallBullet.cpp
-       UFO.cpp
-       a5teroids.cpp
-       collision.cpp
-       logic.cpp
-       render.cpp
-       sound.cpp
-       wave.cpp
-    """);
-    # demoEnv.Append(LIBPATH = libDir)
+    demo_cmake = helpers.read_cmake_list("demo/CMakeLists.txt")
+    sources = demo_cmake["DEMO_SRCS"]
     if not context.isStatic():
         demoEnv.Replace(LIBS = [])
     demoEnv.Append(LIBS = [context.libraryName('a5_font')])
@@ -168,7 +135,7 @@ def demo(env):
     demoEnv.Append(LIBPATH = ['addons/iio/lib'])
     demoEnv.Append(LIBPATH = ['addons/kcm_audio/lib'])
     demoEnv.Append(LIBPATH = ['.'])
-    demo = demoEnv.Program('demo/demo', appendDir('demo/src', sources))
+    demo = demoEnv.Program('demo/demo', appendDir('demo', sources))
     context.alias('all-demo', demo)
     return demo
 
