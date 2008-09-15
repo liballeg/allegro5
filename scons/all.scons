@@ -74,46 +74,6 @@ def buildLibrary2():
 library = buildLibrary()
 context.alias('allegro', library)
 
-def tools(env,appendDir,buildDir,libDir):
-    tools = []
-    env.BuildDir(buildDir + 'tools', 'tools', duplicate = 0)
-    def addTool(name,files):
-        tool = env.Program('tools/' + name, appendDir(buildDir + '/tools/', files))
-        Alias(name, tool)
-        tools.append(tool)
-    addTool('colormap', [ 'colormap.c' ])
-    addTool('pack', [ 'pack.c' ])
-    addTool('rgbmap', [ 'rgbmap.c' ])
-    addTool('textconv', [ 'textconv.c' ])
-    
-    Alias('tools', tools)
-    return tools
-
-def tests(env):
-    tests = []
-    testEnv = env.Clone()
-    testEnv.BuildDir('tests', '#tests', duplicate = 0)
-    testEnv.Append(LIBPATH = ['.'])
-    testEnv.Replace(LIBS = [getLibraryName(context.isDebug(), context.isStatic())])
-    def addTest(name,files):
-        test = testEnv.Program('#tests/' + name, map(lambda f: ('tests/%s' % f), files))
-        Alias(name, test)
-        tests.append(test)
-    # addTest('afinfo', [ 'afinfo.c' ])
-    addTest('akaitest', [ 'akaitest.c' ])
-    addTest('digitest', [ 'digitest.c' ])
-    addTest('filetest', [ 'filetest.c' ])
-    addTest('gfxinfo', [ 'gfxinfo.c' ])
-    addTest('mathtest', [ 'mathtest.c' ])
-    addTest('miditest', [ 'miditest.c' ])
-    addTest('play', [ 'play.c' ])
-    addTest('playfli', [ 'playfli.c' ])
-    addTest('test', [ 'test.c' ])
-    addTest('vesainfo', [ 'vesainfo.c' ])
-    addTest('cpptest', [ 'cpptest.cpp' ])
-    Alias('tests', tests)
-    return tests
-
 def demo(env):
     demoEnv = env.Clone()
     demoEnv.BuildDir('demo', '#demo', duplicate=0)
