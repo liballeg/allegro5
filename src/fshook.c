@@ -103,7 +103,7 @@ int32_t al_fs_entry_flush(AL_FS_ENTRY *fp)
 int32_t al_fs_entry_seek(AL_FS_ENTRY *fp, uint32_t offset, uint32_t whence)
 {
    ASSERT(fp != NULL);
-   ASSERT(offset >= 0);
+   ASSERT(offset > 0);
    ASSERT(whence == AL_SEEK_SET || whence == AL_SEEK_CUR || whence == AL_SEEK_END);
 
    return _al_fs_hook_entry_seek(fp, offset, whence);
@@ -233,7 +233,7 @@ int32_t al_fs_entry_isfile(AL_FS_ENTRY *e)
 AL_FS_ENTRY *al_fs_mktemp(const char *template, uint32_t ulink)
 {
    ASSERT(template != NULL);
-   ASSERT(ulink != AL_MKTEMP_UNLINK_NOW && ulink != AL_MKTEMP_UNLINK_ON_CLOSE && ulink != AL_MKTEMP_UNLINK_NEVER);
+   ASSERT(ulink != AL_FS_MKTEMP_UNLINK_NOW && ulink != AL_FS_MKTEMP_UNLINK_ON_CLOSE && ulink != AL_FS_MKTEMP_UNLINK_NEVER);
 
    return _al_fs_hook_mktemp(template, ulink);
 }

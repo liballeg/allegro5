@@ -666,7 +666,7 @@ int32_t al_fs_stdio_path_sep(size_t len, char *sep)
 
 /* not sure these two conversion hooks are needed, should the path conversion be in the driver? */
 /* yup. */
-int32_t al_fs_stdio_path_to_sys(const char *orig, uint32_t len, char *path)
+int32_t al_fs_stdio_path_to_sys(AL_CONST char *orig, uint32_t len, char *path)
 {
 #ifdef ALLEGRO_WINDOWS
 
@@ -676,7 +676,7 @@ int32_t al_fs_stdio_path_to_sys(const char *orig, uint32_t len, char *path)
    return 0;
 }
 
-int32_t al_fs_stdio_path_to_uni(const char *orig, uint32_t len, char *path)
+int32_t al_fs_stdio_path_to_uni(AL_CONST char *orig, uint32_t len, char *path)
 {
    return 0;
 }

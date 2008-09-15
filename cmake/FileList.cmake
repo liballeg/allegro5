@@ -25,6 +25,7 @@ set(ALLEGRO_SRC_FILES
     src/memdraw.c
     src/memory.c
     src/mousenu.c
+    src/path.c
     src/pixels.c
     src/rotate.c
     src/system_new.c
@@ -313,6 +314,7 @@ set(ALLEGRO_INCLUDE_ALLEGRO_FILES
     include/allegro5/lzss.h
     include/allegro5/memory.h
     include/allegro5/mouse.h
+    include/allegro5/path.h
     include/allegro5/a5_opengl.h
     include/allegro5/system_new.h
     include/allegro5/threads.h

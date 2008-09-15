@@ -195,8 +195,8 @@ int32_t al_fs_get_search_path(uint32_t idx, char *dest, size_t len);
 int32_t al_fs_drive_sep(size_t len, char *sep);
 int32_t al_fs_path_sep(size_t len, char *sep);
 
-int32_t al_fs_path_to_sys(const char *orig, size_t len, char *path);
-int32_t al_fs_path_to_uni(const char *orig, size_t len, char *path);
+int32_t al_fs_path_to_sys(AL_CONST char *orig, size_t len, char *path);
+int32_t al_fs_path_to_uni(AL_CONST char *orig, size_t len, char *path);
 
 int32_t al_fs_catdir(char *dest, char **items, int32_t icnt);
 char **al_fs_splitdir(char *src);

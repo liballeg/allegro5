@@ -44,8 +44,8 @@ struct AL_FS_HOOK_SYS_INTERFACE {
    AL_METHOD(int32_t, drive_sep, (size_t len, char *sep) );
    AL_METHOD(int32_t, path_sep,  (size_t len, char *sep) );
 
-   AL_METHOD(int32_t, path_to_sys, (const char *orig, uint32_t len, char *path) );
-   AL_METHOD(int32_t, path_to_uni, (const char *orig, uint32_t len, char *path) );
+   AL_METHOD(int32_t, path_to_sys, (AL_CONST char *orig, uint32_t len, char *path) );
+   AL_METHOD(int32_t, path_to_uni, (AL_CONST char *orig, uint32_t len, char *path) );
 
    AL_METHOD(int32_t, exists, (AL_CONST char *) );
    AL_METHOD(int32_t, unlink, (AL_CONST char *) );
