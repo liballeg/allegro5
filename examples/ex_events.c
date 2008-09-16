@@ -76,7 +76,7 @@ static void draw_message_log(void)
    y = 0;
    i = msg_tail;
    while (1) {
-      al_font_textout(myfont, msg_log[i], 5, y);
+      al_font_textout(myfont, msg_log[i], 5, y, -1);
       y += th;
 
       i = (i + 1) % SIZE_LOG;
@@ -94,7 +94,7 @@ static void draw_message_log(void)
 static void print(int x, int y, char const *message)
 {
    al_set_blender(ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA, black);
-   al_font_textout(myfont, message, x, y);
+   al_font_textout(myfont, message, x, y, -1);
    al_set_blender(ALLEGRO_ONE, ALLEGRO_ZERO, white);
 }
 

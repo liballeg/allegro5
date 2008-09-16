@@ -79,28 +79,19 @@ ALLEGRO_FONT_FUNC(ALLEGRO_FONT *, al_font_load_font, (const char *filename, void
 
 ALLEGRO_FONT_FUNC(ALLEGRO_FONT *, al_font_grab_font_from_bitmap, (ALLEGRO_BITMAP *bmp));
 
-ALLEGRO_FONT_FUNC(void, al_font_textout, (const ALLEGRO_FONT *f, const char *str, int x, int y));
-ALLEGRO_FONT_FUNC(void, al_font_textout_centre, (const ALLEGRO_FONT *f, const char *str, int x, int y));
-ALLEGRO_FONT_FUNC(void, al_font_textout_right, (const ALLEGRO_FONT *f, const char *str, int x, int y));
+ALLEGRO_FONT_FUNC(void, al_font_textout, (const ALLEGRO_FONT *f, const char *str, int x, int y, int count));
+ALLEGRO_FONT_FUNC(void, al_font_textout_centre, (const ALLEGRO_FONT *f, const char *str, int x, int y, int count));
+ALLEGRO_FONT_FUNC(void, al_font_textout_right, (const ALLEGRO_FONT *f, const char *str, int x, int y, int count));
 ALLEGRO_FONT_FUNC(void, al_font_textout_justify, (const ALLEGRO_FONT *f, const char *str, int x1, int x2, int y, int diff));
 ALLEGRO_FONT_PRINTFUNC(void, al_font_textprintf, (const ALLEGRO_FONT *f, int x, int y, const char *format, ...), 4, 5);
 ALLEGRO_FONT_PRINTFUNC(void, al_font_textprintf_centre, (const ALLEGRO_FONT *f, int x, int y, const char *format, ...), 4, 5);
 ALLEGRO_FONT_PRINTFUNC(void, al_font_textprintf_right, (const ALLEGRO_FONT *f, int x, int y, const char *format, ...), 4, 5);
 ALLEGRO_FONT_PRINTFUNC(void, al_font_textprintf_justify, (const ALLEGRO_FONT *f, int x1, int x2, int y, int diff, const char *format, ...), 6, 7);
-ALLEGRO_FONT_FUNC(int, al_font_text_width, (const ALLEGRO_FONT *f, const char *str));
-ALLEGRO_FONT_FUNC(int, al_font_text_width_count, (const ALLEGRO_FONT *f, const char *str, int count));
+ALLEGRO_FONT_FUNC(int, al_font_text_width, (const ALLEGRO_FONT *f, const char *str, int count));
 ALLEGRO_FONT_FUNC(int, al_font_text_height, (const ALLEGRO_FONT *f));
 ALLEGRO_FONT_FUNC(void, al_font_destroy_font, (ALLEGRO_FONT *f));
 
 ALLEGRO_FONT_FUNC(void, al_font_init, (void));
-
-/* New count based routines */
-ALLEGRO_FONT_FUNC(void, al_font_textout_count, (const ALLEGRO_FONT *f, const char *str, int x, int y, int count));
-ALLEGRO_FONT_FUNC(void, al_font_textout_centre_count, (const ALLEGRO_FONT *f, const char *str, int x, int y, int count));
-ALLEGRO_FONT_FUNC(void, al_font_textout_right_count, (const ALLEGRO_FONT *f, const char *str, int x, int y, int count));
-ALLEGRO_FONT_PRINTFUNC(void, al_font_textprintf_count, (const ALLEGRO_FONT *f, int x, int y, int count, const char *format, ...), 5, 6);
-ALLEGRO_FONT_PRINTFUNC(void, al_font_textprintf_centre_count, (const ALLEGRO_FONT *f, int x, int y, int count, const char *format, ...), 5, 6);
-ALLEGRO_FONT_PRINTFUNC(void, al_font_textprintf_right_count, (const ALLEGRO_FONT *f, int x, int y, int count, const char *format, ...), 5, 6);
 
 
 #ifdef __cplusplus
