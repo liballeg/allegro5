@@ -39,8 +39,8 @@
  *  the grabber program), which allows multicolored text output.
  *  If count is not -1, write only the first 'count' code points.
  */
-void al_font_textout(const ALLEGRO_FONT *f, const char *str, int x, int y,
-   int count)
+void al_font_textout(const ALLEGRO_FONT *f, int x, int y,
+   const char *str, int count)
 {
    ASSERT(f);
    ASSERT(str);
@@ -59,7 +59,8 @@ void al_font_textout(const ALLEGRO_FONT *f, const char *str, int x, int y,
  *  Like <al_font_textout>, but uses the x coordinate as the centre rather than 
  *  the left of the string.
  */
-void al_font_textout_centre(const ALLEGRO_FONT *f, const char *str, int x, int y, int count)
+void al_font_textout_centre(const ALLEGRO_FONT *f, int x, int y,
+   const char *str, int count)
 {
    int len;
    ASSERT(f);
@@ -80,8 +81,8 @@ void al_font_textout_centre(const ALLEGRO_FONT *f, const char *str, int x, int y
  *  Like <al_font_textout>, but uses the x coordinate as the right rather than 
  *  the left of the string.
  */
-void al_font_textout_right(const ALLEGRO_FONT *f, const char *str,
-   int x, int y, int count)
+void al_font_textout_right(const ALLEGRO_FONT *f, int x, int y,
+   const char *str, int count)
 {
    int len;
    ASSERT(f);
@@ -104,8 +105,8 @@ void al_font_textout_right(const ALLEGRO_FONT *f, const char *str,
 #define MAX_TOKEN  128
 
 /* XXX this looks pretty inefficient */
-void al_font_textout_justify(const ALLEGRO_FONT *f, const char *str,
-   int x1, int x2, int y, int diff)
+void al_font_textout_justify(const ALLEGRO_FONT *f, int x1, int x2, int y,
+   int diff, const char *str)
 {
    char toks[32];
    char *tok[MAX_TOKEN];
@@ -177,7 +178,7 @@ void al_font_textprintf(const ALLEGRO_FONT *f, int x, int y, const char *format,
    uvszprintf(buf, sizeof(buf), format, ap);
    va_end(ap);
 
-   al_font_textout(f, buf, x, y, -1);
+   al_font_textout(f, x, y, buf, -1);
 }
 
 
@@ -197,7 +198,7 @@ void al_font_textprintf_centre(const ALLEGRO_FONT *f, int x, int y, const char *
    uvszprintf(buf, sizeof(buf), format, ap);
    va_end(ap);
 
-   al_font_textout_centre(f, buf, x, y, -1);
+   al_font_textout_centre(f, x, y, buf, -1);
 }
 
 
@@ -217,7 +218,7 @@ void al_font_textprintf_right(const ALLEGRO_FONT *f, int x, int y, const char *f
    uvszprintf(buf, sizeof(buf), format, ap);
    va_end(ap);
 
-   al_font_textout_right(f, buf, x, y, -1);
+   al_font_textout_right(f, x, y, buf, -1);
 }
 
 
@@ -237,7 +238,7 @@ void al_font_textprintf_justify(const ALLEGRO_FONT *f, int x1, int x2, int y, in
    uvszprintf(buf, sizeof(buf), format, ap);
    va_end(ap);
 
-   al_font_textout_justify(f, buf, x1, x2, y, diff);
+   al_font_textout_justify(f, x1, x2, y, diff, buf);
 }
 
 
@@ -281,3 +282,5 @@ void al_font_destroy_font(ALLEGRO_FONT *f)
    f->vtable->destroy(f);
 }
 
+
+/* vim: set sts=3 sw=3 et: */

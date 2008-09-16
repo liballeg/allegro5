@@ -52,11 +52,11 @@ static void print(int x, int y, bool vertical, char const *format, ...)
             char c[10] = "";
             int u = ugetat(message, i);
             usetat(c, 0, u);
-            al_font_textout(ex.myfont, c, x + 1 - j, y + 1 - j + h * i, -1);
+            al_font_textout(ex.myfont, x + 1 - j, y + 1 - j + h * i, c, -1);
          }
       }
       else {
-         al_font_textout(ex.myfont, message, x + 1 - j, y + 1 - j, -1);
+         al_font_textout(ex.myfont, x + 1 - j, y + 1 - j, message, -1);
       }
    }
 }

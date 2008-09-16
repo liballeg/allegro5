@@ -17,25 +17,25 @@ static void render(void)
 
     al_set_blender(ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA, black);
 
-    al_font_textout(ex.f1, "Tulip (kerning)", 50, 50, -1);
-    al_font_textout(ex.f2, "Tulip (no kerning)", 50, 100, -1);
-    al_font_textout(ex.f3, "This font has a size of 12 pixels, "
-        "the one above has 48 pixels.", 50, 200, -1);
+    al_font_textout(ex.f1, 50,  50, "Tulip (kerning)", -1);
+    al_font_textout(ex.f2, 50, 100, "Tulip (no kerning)", -1);
+    al_font_textout(ex.f3, 50, 200, "This font has a size of 12 pixels, "
+        "the one above has 48 pixels.", -1);
 
     al_set_blender(ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA, red);
-    al_font_textout(ex.f3, "The color can be changed simply "
-        "by using a different blender.", 50, 220, -1);
+    al_font_textout(ex.f3, 50, 220, "The color can be changed simply "
+        "by using a different blender.", -1);
         
     al_set_blender(ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA, green);
-    al_font_textout(ex.f3, "Some unicode symbols:", 50, 240, -1);
-    al_font_textout(ex.f3, "■□▢▣▤▥▦▧▨▩▪▫▬▭▮▯▰▱", 50, 260, -1);
-    al_font_textout(ex.f3, "▲△▴▵▶▷▸▹►▻▼▽▾▿◀◁◂◃◄◅◆◇◈◉◊", 50, 280, -1);
-    al_font_textout(ex.f3, "○◌◍◎●◐◑◒◓◔◕◖◗◘◙", 50, 300, -1);
+    al_font_textout(ex.f3, 50, 240, "Some unicode symbols:", -1);
+    al_font_textout(ex.f3, 50, 260, "■□▢▣▤▥▦▧▨▩▪▫▬▭▮▯▰▱", -1);
+    al_font_textout(ex.f3, 50, 280, "▲△▴▵▶▷▸▹►▻▼▽▾▿◀◁◂◃◄◅◆◇◈◉◊", -1);
+    al_font_textout(ex.f3, 50, 300, "○◌◍◎●◐◑◒◓◔◕◖◗◘◙", -1);
 
-    al_font_textout(ex.f3, "«Thís»|you", 50, 320, 6);
-    al_font_textout(ex.f3, "‘ìş’|shouldn't", 50, 340, 4);
-    al_font_textout(ex.f3, "“cøünt”|see", 50, 360, 7);
-    al_font_textout(ex.f3, "réstrïçteđ…|this.", 50, 380, 11);
+    al_font_textout(ex.f3, 50, 320, "«Thís»|you", 6);
+    al_font_textout(ex.f3, 50, 340, "‘ìş’|shouldn't", 4);
+    al_font_textout(ex.f3, 50, 360, "“cøünt”|see", 7);
+    al_font_textout(ex.f3, 50, 380, "réstrïçteđ…|this.", 11);
 
     al_set_blender(ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA, black);
     al_font_textprintf_right(ex.f3, al_get_display_width(), 0, "%.1f FPS", ex.fps);
