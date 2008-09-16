@@ -70,13 +70,6 @@ int osx_emulate_mouse_buttons = FALSE;
 int osx_window_first_expose = FALSE;
 static ALLEGRO_SYSTEM osx_system;
 
-
-/* Stub, do nothing */
-static int osx_sys_init_compat(void) {
-	return 0;
-}
-
-
 /* osx_signal_handler:
  *  Used to trap various signals, to make sure things get shut down cleanly.
  */
@@ -382,7 +375,7 @@ ALLEGRO_SYSTEM_INTERFACE *_al_system_osx_driver(void)
       vt->get_display_driver = osx_get_display_driver;
       vt->get_keyboard_driver = osx_get_keyboard_driver;
       vt->get_mouse_driver = osx_get_mouse_driver;
-      vt->get_joystick_driver = NULL; /* TODO */
+      vt->get_joystick_driver = osx_get_joystick_driver; 
       vt->shutdown_system = osx_sys_exit;
       vt->get_num_video_adapters = osx_get_num_video_adapters;
       vt->get_monitor_info = osx_get_monitor_info;
@@ -454,7 +447,7 @@ int32_t _al_osx_get_path(int32_t id, char* path, size_t length)
  */
 void _al_osx_post_quit(void) 
 {
-   int i;
+   unsigned int i;
    _AL_VECTOR* dpys = &al_system_driver()->displays;
    // Iterate through all existing displays 
    for (i = 0; i < _al_vector_size(dpys); ++i) {
