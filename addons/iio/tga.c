@@ -79,7 +79,13 @@ static INLINE int single_tga_read32(PACKFILE *f)
    value.r = pack_getc(f);
    alpha = pack_getc(f);
 
+#ifdef ALLEGRO_LITTLE_ENDIAN
    return (alpha << 24) | (value.r << 16) | (value.g << 8) | value.b;
+#elif defined ALLEGRO_BIG_ENDIAN
+   return (value.b << 24) | (value.g << 16) | (value.r << 8) | alpha;
+#else
+#error "Endianesse not defined!"
+#endif
 }
 
 
@@ -135,7 +141,13 @@ static INLINE int single_tga_read24(PACKFILE *f)
    value.g = pack_getc(f);
    value.r = pack_getc(f);
 
+#ifdef ALLEGRO_LITTLE_ENDIAN
    return (value.r << 16) | (value.g << 8) | value.b;
+#elif defined ALLEGRO_BIG_ENDIAN
+   return (value.b << 16) | (value.g << 8) | value.r;
+#else
+#error "Endianesse not defined!"
+#endif
 }
 
 
