@@ -7,6 +7,8 @@
 
 
 #include <allegro5/allegro5.h>
+#include <allegro5/a5_font.h>
+#include "allegro5/a5_ttf.h"
 #include "allegro5/a5_iio.h"
 
 
@@ -38,6 +40,7 @@ int main(void)
    ALLEGRO_BITMAP *shrunk_bmp;
    ALLEGRO_MOUSE_CURSOR *cursor;
    ALLEGRO_EVENT_QUEUE *queue;
+   ALLEGRO_FONT *font;
    ALLEGRO_EVENT event;
 
    al_init();
@@ -57,6 +60,12 @@ int main(void)
    bmp = al_iio_load("data/allegro.pcx");
    if (!bmp) {
       TRACE("Error loading allegro.pcx\n");
+      return 1;
+   }
+
+   font = al_ttf_load_font("data/DejaVuSans.ttf", 16, 0);
+   if (!font) {
+      TRACE("DejaVuSans.ttf not found\n");
       return 1;
    }
 
@@ -97,10 +106,18 @@ int main(void)
    al_register_event_source(queue, (ALLEGRO_EVENT_SOURCE *)al_get_keyboard());
    al_register_event_source(queue, (ALLEGRO_EVENT_SOURCE *)al_get_mouse());
 
-   /* XXX some instructions on this blank screen would be nice */
-
    al_set_target_bitmap(al_get_backbuffer());
    al_clear(al_map_rgb(128, 128, 128));
+   al_set_blender(ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA, al_map_rgba_f(0, 0, 0, 1));
+   al_font_textout(font, 50, 20, "Instructions:", -1);
+   al_font_textout(font, 50, 50, "<s> - show cursor", -1);
+   al_font_textout(font, 50, 70, "<h> - hide cursor", -1);
+   al_font_textout(font, 50, 90, "<1> - show cursor 1", -1);
+   al_font_textout(font, 50, 110, "<2> - show cursor 2", -1);
+   al_font_textout(font, 50, 130, "<3> - show cursor 3", -1);
+   al_font_textout(font, 50, 150, "<4> - show cursor 4", -1);
+   al_font_textout(font, 50, 170, "<c> - show custom cursor", -1);
+   al_font_textout(font, 50, 190, "<esc> - exit program", -1);
    al_flip_display();
 
    al_show_mouse_cursor();
