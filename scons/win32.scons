@@ -12,7 +12,7 @@ import helpers
 flags = [ '-g', '-Wall', '-Wno-unused', '-O2', '-funroll-loops', '-ffast-math', '-fomit-frame-pointer' ]
 includes = [ "include", "include/allegro", "." ]
 # defines = [ "-DALLEGRO_SRC", "-DALLEGRO_NO_ASM", "-DALLEGRO_LIB_BUILD" ]
-defines = [ "ALLEGRO_SRC", "ALLEGRO_LIB_BUILD" ]
+defines = [ "ALLEGRO_SRC", "ALLEGRO_LIB_BUILD", "ALLEGRO_NO_ASM" ]
 
 # env = context.getLibraryEnv()
 
@@ -24,6 +24,7 @@ env.Append(CPPPATH = includes)
 
 opts = Options('options-win32.py', ARGUMENTS)
 opts.Add('d3d', 'Enable Direct3D', 0)
+opts.Add('opengl', 'Enable OpenGL', 1)
 opts.Update(env)
 
 env.BuildDir('include', '#include', duplicate=0)
@@ -134,14 +135,11 @@ if False:
 
 
 if getOption('d3d') == 1:
-	context.addFiles('win', Split("""
-	d3d_system.c
-	d3d_display.c
-	d3d_bitmap.c
-	d3d_keyboard.c
-	d3d_window.c
-	"""));
+	context.addFiles(context.cmake["ALLEGRO_SRC_D3D_FILES"])
 	env.Append(LIBS = [ 'd3d9' ])
+
+if getOption('opengl') == 1:
+	context.addFiles(context.cmake["ALLEGRO_SRC_OPENGL_FILES"])
 
 
 def asmdef(env,appendDir,buildDir,libDir):
