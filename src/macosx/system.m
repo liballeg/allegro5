@@ -347,6 +347,10 @@ NSImage* NSImageFromAllegroBitmap(ALLEGRO_BITMAP* bmp)
          ALLEGRO_COLOR c = al_get_pixel(bmp, x, y);
          unsigned char* ptr = [rep bitmapData] + y * [rep bytesPerRow] + x * ([rep bitsPerPixel]/8);
          al_unmap_rgba(c, ptr, ptr+1, ptr+2, ptr+3);
+         // NSImage should be premultiplied alpha
+         ptr[0] *= c.a;
+         ptr[1] *= c.a;
+         ptr[2] *= c.a;
       }
    }
    [img addRepresentation:rep];
