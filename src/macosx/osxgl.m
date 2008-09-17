@@ -51,7 +51,8 @@ NSOpenGLContext* CreateShareableContext(NSOpenGLPixelFormat* fmt, unsigned int* 
  */
 static void osx_change_cursor(ALLEGRO_DISPLAY_OSX_WIN *dpy, NSCursor* cursor)
 {
-	[cursor performSelectorOnMainThread: @selector(set) withObject: nil waitUntilDone: NO];
+	if (dpy->show_cursor)
+		[cursor performSelectorOnMainThread: @selector(set) withObject: nil waitUntilDone: NO];
 }
 
 /* _al_osx_keyboard_was_installed:
@@ -289,12 +290,14 @@ void _al_osx_mouse_was_installed(BOOL install) {
 /* Window switch in/out */
 -(void) windowDidBecomeMain:(NSNotification*) notification
 {
+	ALLEGRO_DISPLAY_OSX_WIN* dpy =  (ALLEGRO_DISPLAY_OSX_WIN*) dpy_ptr;
 	ALLEGRO_EVENT_SOURCE* src = &([self allegroDisplay]->es);
 	_al_event_source_lock(src);
 	ALLEGRO_EVENT* evt = _al_event_source_get_unused_event(src);
 	evt->type = ALLEGRO_EVENT_DISPLAY_SWITCH_IN;
 	_al_event_source_emit_event(src, evt);
 	_al_event_source_unlock(src);
+	osx_change_cursor(dpy, dpy->cursor);
 }
 -(void) windowDidResignMain:(NSNotification*) notification
 {
