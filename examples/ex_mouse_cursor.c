@@ -12,6 +12,23 @@
 #include "allegro5/a5_iio.h"
 
 
+static void draw_display(ALLEGRO_FONT *font)
+{
+   al_set_target_bitmap(al_get_backbuffer());
+   al_clear(al_map_rgb(128, 128, 128));
+   al_set_blender(ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA, al_map_rgba_f(0, 0, 0, 1));
+   al_font_textout(font, 50, 20, "Instructions:", -1);
+   al_font_textout(font, 50, 50, "<s> - show cursor", -1);
+   al_font_textout(font, 50, 70, "<h> - hide cursor", -1);
+   al_font_textout(font, 50, 90, "<1> - show cursor 1", -1);
+   al_font_textout(font, 50, 110, "<2> - show cursor 2", -1);
+   al_font_textout(font, 50, 130, "<3> - show cursor 3", -1);
+   al_font_textout(font, 50, 150, "<4> - show cursor 4", -1);
+   al_font_textout(font, 50, 170, "<c> - show custom cursor", -1);
+   al_font_textout(font, 50, 190, "<esc> - exit program", -1);
+   al_flip_display();
+}
+
 static void hide_cursor(void)
 {
    if (!al_hide_mouse_cursor()) {
@@ -35,7 +52,8 @@ static void test_set_cursor(ALLEGRO_SYSTEM_MOUSE_CURSOR cursor_id)
 
 int main(void)
 {
-   ALLEGRO_DISPLAY *display;
+   ALLEGRO_DISPLAY *display1;
+   ALLEGRO_DISPLAY *display2;
    ALLEGRO_BITMAP *bmp;
    ALLEGRO_BITMAP *shrunk_bmp;
    ALLEGRO_MOUSE_CURSOR *cursor;
@@ -51,9 +69,16 @@ int main(void)
       return 1;
    }
 
-   display = al_create_display(400, 300);
-   if (!display) {
-      TRACE("Error creating display\n");
+   al_set_new_display_flags(ALLEGRO_GENERATE_EXPOSE_EVENTS);
+   display1 = al_create_display(400, 300);
+   if (!display2) {
+      TRACE("Error creating display1\n");
+      return 1;
+   }
+
+   display2 = al_create_display(400, 300);
+   if (!display2) {
+      TRACE("Error creating display2\n");
       return 1;
    }
 
@@ -104,27 +129,30 @@ int main(void)
    }
 
    al_register_event_source(queue, (ALLEGRO_EVENT_SOURCE *)al_get_keyboard());
-   al_register_event_source(queue, (ALLEGRO_EVENT_SOURCE *)al_get_mouse());
+   al_register_event_source(queue, (ALLEGRO_EVENT_SOURCE *)display1);
+   al_register_event_source(queue, (ALLEGRO_EVENT_SOURCE *)display2);
 
+   al_set_current_display(display1);
    al_set_target_bitmap(al_get_backbuffer());
-   al_clear(al_map_rgb(128, 128, 128));
-   al_set_blender(ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA, al_map_rgba_f(0, 0, 0, 1));
-   al_font_textout(font, 50, 20, "Instructions:", -1);
-   al_font_textout(font, 50, 50, "<s> - show cursor", -1);
-   al_font_textout(font, 50, 70, "<h> - hide cursor", -1);
-   al_font_textout(font, 50, 90, "<1> - show cursor 1", -1);
-   al_font_textout(font, 50, 110, "<2> - show cursor 2", -1);
-   al_font_textout(font, 50, 130, "<3> - show cursor 3", -1);
-   al_font_textout(font, 50, 150, "<4> - show cursor 4", -1);
-   al_font_textout(font, 50, 170, "<c> - show custom cursor", -1);
-   al_font_textout(font, 50, 190, "<esc> - exit program", -1);
-   al_flip_display();
+   draw_display(font);
+   al_set_current_display(display2);
+   al_set_target_bitmap(al_get_backbuffer());
+   draw_display(font);
 
    al_show_mouse_cursor();
 
    while (1) {
       al_wait_for_event(queue, &event);
+      if (event.type == ALLEGRO_EVENT_DISPLAY_CLOSE) {
+         break;
+      }
+      if (event.type == ALLEGRO_EVENT_DISPLAY_EXPOSE) {
+         al_set_current_display(event.display.source);
+         draw_display(font);
+         continue;
+      }
       if (event.type == ALLEGRO_EVENT_KEY_DOWN) {
+         al_set_current_display(event.keyboard.display);
          switch (event.keyboard.unichar) {
             case 27: /* escape */
                goto Quit;
@@ -134,11 +162,11 @@ int main(void)
             case 's':
                show_cursor();
                break;
-               /* Is this part of the API?
-                  case '0':
-                  test_set_cursor(ALLEGRO_SYSTEM_MOUSE_CURSOR_NONE);
-                  break;
-                  */
+            /* Is this part of the API?
+            case '0':
+               test_set_cursor(ALLEGRO_SYSTEM_MOUSE_CURSOR_NONE);
+               break;
+            */
             case '1':
                test_set_cursor(ALLEGRO_SYSTEM_MOUSE_CURSOR_ARROW);
                break;
