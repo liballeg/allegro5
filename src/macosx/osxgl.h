@@ -19,3 +19,9 @@ typedef struct ALLEGRO_DISPLAY_OSX_WIN {
    unsigned int display_group;
 } ALLEGRO_DISPLAY_OSX_WIN;
 
+/* This is our version of ALLEGRO_MOUSE_CURSOR */
+typedef struct ALLEGRO_MOUSE_CURSOR_OSX
+{
+   NSCursor *cursor;
+} ALLEGRO_MOUSE_CURSOR_OSX;
+

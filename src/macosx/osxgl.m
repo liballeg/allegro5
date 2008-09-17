@@ -45,6 +45,15 @@ ALLEGRO_DISPLAY_INTERFACE* osx_get_display_driver_win(void);
 ALLEGRO_DISPLAY_INTERFACE* osx_get_display_driver_fs(void);
 NSOpenGLContext* CreateShareableContext(NSOpenGLPixelFormat* fmt, unsigned int* group);
 
+/* osx_change_cursor:
+ * Actually change the current cursor. This can be called fom any thread 
+ * but ensures that the change is only called from the main thread.
+ */
+static void osx_change_cursor(ALLEGRO_DISPLAY_OSX_WIN *dpy, NSCursor* cursor)
+{
+	[cursor performSelectorOnMainThread: @selector(set) withObject: nil waitUntilDone: NO];
+}
+
 /* _al_osx_keyboard_was_installed:
  * Called by the keyboard driver when the driver is installed or uninstalled.
  * Set the variable so we can decide to pass events or not.
@@ -699,6 +708,105 @@ static void flip_display(ALLEGRO_DISPLAY *disp)
    }
 }
 
+/* osx_create_mouse_cursor:
+ * creates a custom system cursor from the bitmap bmp.
+ * (x_focus, y_focus) indicates the cursor hot-spot.
+ *
+ * FIXME: before MacOS X 10.3, NSCursor can handle only 16x16 cursor
+ * sprites. The code used to pad smaller sprites to 16x16 or fail if the
+ * original image was larger. Using NSImageFromAllegroBitmap this is not
+ * so straightforward to enforce.
+ */
+static ALLEGRO_MOUSE_CURSOR *osx_create_mouse_cursor(ALLEGRO_DISPLAY *display,
+   ALLEGRO_BITMAP *bmp, int x_focus, int y_focus) {
+	ALLEGRO_DISPLAY_OSX_WIN* dpy = (ALLEGRO_DISPLAY_OSX_WIN*) display;
+   ALLEGRO_MOUSE_CURSOR_OSX *cursor = NULL;
+  	int ix, iy;
+	int bmpw, bmph;
+	int sw, sh;
+	
+   if (!bmp || !dpy)
+      return NULL;
+
+	NSImage* cursor_image = NSImageFromAllegroBitmap(bmp);
+   cursor = _AL_MALLOC(sizeof *cursor);
+	cursor->cursor = [[NSCursor alloc] initWithImage: cursor_image
+									 hotSpot: NSMakePoint(x_focus, y_focus)];
+	[cursor_image release];
+
+   return (ALLEGRO_MOUSE_CURSOR *)cursor;
+}
+ 
+/* osx_destroy_mouse_cursor:
+ * destroys a mouse cursor previously created with osx_create_mouse_cursor
+ */
+static void osx_destroy_mouse_cursor(ALLEGRO_DISPLAY *display,
+   ALLEGRO_MOUSE_CURSOR *curs) {
+	ALLEGRO_DISPLAY_OSX_WIN* dpy = (ALLEGRO_DISPLAY_OSX_WIN*) display;
+   ALLEGRO_MOUSE_CURSOR_OSX *cursor = (ALLEGRO_MOUSE_CURSOR_OSX *) curs;
+
+   if (!dpy || !cursor)
+      return;
+
+   if (dpy->cursor == cursor->cursor)
+      dpy->cursor = [[NSCursor arrowCursor] retain];
+
+   [cursor->cursor release];
+   _AL_FREE(cursor);
+}
+
+/* osx_set_mouse_cursor:
+ * change the mouse cursor for the active window to the cursor previously
+ * allocated by osx_create_mouse_cursor
+ */
+static bool osx_set_mouse_cursor(ALLEGRO_DISPLAY *display,
+   ALLEGRO_MOUSE_CURSOR *cursor)
+{
+   ALLEGRO_DISPLAY_OSX_WIN *dpy = (ALLEGRO_DISPLAY_OSX_WIN *)display;
+   ALLEGRO_MOUSE_CURSOR_OSX *osxcursor = (ALLEGRO_MOUSE_CURSOR_OSX *)cursor;
+
+   dpy->cursor = osxcursor->cursor;
+
+   if (dpy->show_cursor) {
+      osx_change_cursor(dpy, dpy->cursor);
+   }
+
+   return true;
+}
+
+/* osx_set_system_mouse_cursor:
+ * change the mouse cursor to one of the system default cursors.
+ * NOTE: Allegro defines four of these, but OS X has no dedicated "busy" or
+ * "question" cursors, so we just set an arrow in those cases.
+ *
+ * TODO: maybe Allegro could expose more of the system default cursors?
+ * Check with other platforms!
+ */
+static bool osx_set_system_mouse_cursor(ALLEGRO_DISPLAY *display,
+   ALLEGRO_SYSTEM_MOUSE_CURSOR cursor_id) {
+   ALLEGRO_DISPLAY_OSX_WIN *dpy = (ALLEGRO_DISPLAY_OSX_WIN *)display;
+   NSCursor *requested_cursor = NULL;
+
+   switch (cursor_id) {
+      case ALLEGRO_SYSTEM_MOUSE_CURSOR_ARROW:
+      case ALLEGRO_SYSTEM_MOUSE_CURSOR_BUSY:
+      case ALLEGRO_SYSTEM_MOUSE_CURSOR_QUESTION:
+         requested_cursor = [[NSCursor arrowCursor] retain];
+         break;
+      case ALLEGRO_SYSTEM_MOUSE_CURSOR_EDIT:
+         requested_cursor = [[NSCursor IBeamCursor] retain];
+         break;
+      default:
+         return false;
+   }
+
+   dpy->cursor = requested_cursor;
+   if (dpy->show_cursor)
+      osx_change_cursor(dpy, requested_cursor);
+   return true;
+}
+
+
 static bool show_cursor_win(ALLEGRO_DISPLAY *d) {
 	ALLEGRO_DISPLAY_OSX_WIN* dpy = (ALLEGRO_DISPLAY_OSX_WIN*) d;
 	//ALOpenGLView* view = (ALOpenGLView*) [dpy->win contentView];
@@ -706,6 +814,7 @@ static bool show_cursor_win(ALLEGRO_DISPLAY *d) {
    [NSCursor unhide];
    return true;
 }
+
 static bool hide_cursor_win(ALLEGRO_DISPLAY *d) {
 	ALLEGRO_DISPLAY_OSX_WIN* dpy = (ALLEGRO_DISPLAY_OSX_WIN*) d;
 	//ALOpenGLView* view = (ALOpenGLView*) [dpy->win contentView];
@@ -713,16 +822,19 @@ static bool hide_cursor_win(ALLEGRO_DISPLAY *d) {
    [NSCursor hide];
    return true;
 }
+
 static bool show_cursor_fs(ALLEGRO_DISPLAY *d) {
 // stub
 	ALLEGRO_DISPLAY_OSX_WIN* dpy = (ALLEGRO_DISPLAY_OSX_WIN*) d;
    return false;
 }
+
 static bool hide_cursor_fs(ALLEGRO_DISPLAY *d) {
 // stub
 	ALLEGRO_DISPLAY_OSX_WIN* dpy = (ALLEGRO_DISPLAY_OSX_WIN*) d;
    return false;
 }
+
 static bool resize_display_win(ALLEGRO_DISPLAY *d, int w, int h) {
 	ALLEGRO_DISPLAY_OSX_WIN* dpy = (ALLEGRO_DISPLAY_OSX_WIN*) d;
    NSWindow* window = dpy->win;
@@ -803,6 +915,10 @@ ALLEGRO_DISPLAY_INTERFACE* osx_get_display_driver_win(void)
       vt->create_sub_bitmap = _al_ogl_create_sub_bitmap;
       vt->show_mouse_cursor = show_cursor_win;
       vt->hide_mouse_cursor = hide_cursor_win;
+      vt->create_mouse_cursor = osx_create_mouse_cursor;
+      vt->destroy_mouse_cursor = osx_destroy_mouse_cursor;
+      vt->set_mouse_cursor = osx_set_mouse_cursor;
+      vt->set_system_mouse_cursor = osx_set_system_mouse_cursor;
       vt->get_window_position = get_window_position;
       vt->set_window_position = set_window_position;
       vt->set_window_title = set_window_title;
@@ -826,6 +942,10 @@ ALLEGRO_DISPLAY_INTERFACE* osx_get_display_driver_fs(void)
       vt->set_target_bitmap = _al_ogl_set_target_bitmap;
       vt->show_mouse_cursor = show_cursor_fs;
       vt->hide_mouse_cursor = hide_cursor_fs;
+      vt->create_mouse_cursor = osx_create_mouse_cursor;
+      vt->destroy_mouse_cursor = osx_destroy_mouse_cursor;
+      vt->set_mouse_cursor = osx_set_mouse_cursor;
+      vt->set_system_mouse_cursor = osx_set_system_mouse_cursor;
       vt->get_backbuffer = _al_ogl_get_backbuffer;
       vt->is_compatible_bitmap = is_compatible_bitmap;
       vt->create_sub_bitmap = _al_ogl_create_sub_bitmap;

@@ -250,48 +250,6 @@ static unsigned int osx_get_mouse_num_axes(void)
 }
 
 
-/* osx_mouse_set_sprite:
-*  Sets the hardware cursor sprite.
-*/
-int osx_mouse_set_sprite(ALLEGRO_BITMAP *sprite, int x, int y)
-{
-	int sw, sh;
-	
-	if (!sprite)
-		return -1;
-	sw = al_get_bitmap_width(sprite);
-	sh = al_get_bitmap_height(sprite);
-	if (floor(NSAppKitVersionNumber) <= NSAppKitVersionNumber10_2) {
-		// Before MacOS X 10.3, NSCursor can handle only 16x16 cursor sprites
-		// Pad to 16x16 or fail if the sprite is already larger.
-		if (sw>16 || sh>16)
-			return -1;
-		sh = sw = 16;
-	}
-	
-	// release any previous cursor
-	[osx_mouse.cursor release];
-	
-	NSImage* cursor_image = NSImageFromAllegroBitmap(sprite);
-	osx_mouse.cursor = [[NSCursor alloc] initWithImage: cursor_image
-											   hotSpot: NSMakePoint(x, y)];
-	
-	[cursor_image release];
-	NSView* v = osx_view_from_display(NULL);
-	if (v)
-	{
-		[v performSelectorOnMainThread: @selector(setCursor)
-							withObject: osx_mouse.cursor
-						 waitUntilDone: NO];
-	}
-	else
-	{
-		[osx_mouse.cursor set];
-	}
-	
-	return 0;
-}
-
 static void osx_get_mouse_state(ALLEGRO_MOUSE_STATE *ret_state)
 {
 	_al_event_source_lock(&osx_mouse.parent.es);
