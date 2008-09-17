@@ -40,7 +40,7 @@ AssemblerAction = Action( 'gcc -x assembler-with-cpp $CCFLAGS $_CPPINCFLAGS $SOU
 
 # helpers.generate_alplatf_h(env, "ALLEGRO_MINGW32")
 # platf_settings = helpers.define("ALLEGRO_UNIX","ALLEGRO_CFG_OPENGL")
-platf_settings = helpers.define("ALLEGRO_MINGW32")
+platf_settings = helpers.define("ALLEGRO_MINGW32", "ALLEGRO_CFG_D3D", "ALLEGRO_CFG_OPENGL", "ALLEGRO_CFG_NO_ASM")
 alplatf_h = helpers.parse_cmake_h(env, platf_settings, 'include/allegro5/platform/alplatf.h.cmake', 'include/allegro5/platform/alplatf.h')
 
 import SCons.Tool
