@@ -43,11 +43,7 @@ if(SUPPORT_ACODEC)
     include_directories(../addons/acodec)
     example(ex_acodec ${ACODEC_LINK_WITH} ${AUDIO_LINK_WITH})
     example(ex_acodec_multi ${ACODEC_LINK_WITH} ${AUDIO_LINK_WITH})
-    #disable until the streaming is done
-    #example(ex_acodec_stream ${ACODEC_LINK_WITH})
     example(ex_stream_file ${ACODEC_LINK_WITH} ${AUDIO_LINK_WITH})
-
-    #example(ex_acodec_mixer ${ACODEC_LINK_WITH})
 endif(SUPPORT_ACODEC)
 
 
