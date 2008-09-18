@@ -231,14 +231,10 @@ set(ALLEGRO_SRC_QNX_FILES
     )
 
 set(ALLEGRO_SRC_MACOSX_FILES
-    # src/macosx/cadigi.m
-    # src/macosx/camidi.m
-    # src/macosx/drivers.m
     src/macosx/hidjoy.m
     src/macosx/hidman.m
     src/macosx/keybd.m
     src/macosx/main.m
-    src/macosx/pcpu.m
     src/macosx/qzmouse.m
     src/macosx/system.m
     src/macosx/osxgl.m
