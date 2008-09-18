@@ -103,17 +103,17 @@ static void update_modifiers(BYTE *keystate, unsigned int *key_modifiers)
    /* Can't we just deprecate key_shifts, now that pckeys.c is gone? EP */
    unsigned int modifiers = 0;
 
-   if (keystate[VK_SHIFT] & 0x80)
-      modifiers |= ALLEGRO_KEYMOD_SHIFT;
-   if (keystate[VK_CONTROL] & 0x80)
-      modifiers |= ALLEGRO_KEYMOD_CTRL;
+   if (GetAsyncKeyState(VK_SHIFT) & 0x8000)
+       modifiers |= ALLEGRO_KEYMOD_SHIFT;
+   if (GetAsyncKeyState(VK_CONTROL) & 0x8000)
+       modifiers |= ALLEGRO_KEYMOD_CTRL;
+   if (GetAsyncKeyState(VK_MENU) & 0x8000)
+       modifiers |= ALLEGRO_KEYMOD_ALT;
 
    if (keystate[VK_LMENU] & 0x80)
       modifiers |= ALLEGRO_KEYMOD_ALT;
    else if (keystate[VK_RMENU] & 0x80)
       modifiers |= ALLEGRO_KEYMOD_ALTGR;
-   else if (keystate[VK_MENU] & 0x80)
-      modifiers |= ALLEGRO_KEYMOD_ALT;
 
    if (keystate[VK_SCROLL] & 1)
       modifiers |= ALLEGRO_KEYMOD_SCROLLLOCK;
