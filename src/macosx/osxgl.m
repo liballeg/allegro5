@@ -51,6 +51,9 @@ NSOpenGLContext* CreateShareableContext(NSOpenGLPixelFormat* fmt, unsigned int* 
  */
 static void osx_change_cursor(ALLEGRO_DISPLAY_OSX_WIN *dpy, NSCursor* cursor)
 {
+	NSCursor* old = dpy->cursor;
+	dpy->cursor = [cursor retain];
+	[old release];
 	if (dpy->show_cursor)
 		[cursor performSelectorOnMainThread: @selector(set) withObject: nil waitUntilDone: NO];
 }
@@ -647,7 +650,7 @@ static ALLEGRO_DISPLAY* create_display_win(int w, int h) {
 	dpy->parent.w = w;
 	dpy->parent.h = h;
 	_al_event_source_init(&dpy->parent.es);
-   dpy->cursor = [[NSCursor arrowCursor] retain];
+	osx_change_cursor(dpy, [NSCursor arrowCursor]);
    dpy->show_cursor = YES;
    
    if (_al_vector_is_empty(&al_system_driver()->displays)) {
@@ -752,8 +755,7 @@ static void osx_destroy_mouse_cursor(ALLEGRO_DISPLAY *display,
    if (!dpy || !cursor)
       return;
 
-   if (dpy->cursor == cursor->cursor)
-      dpy->cursor = [[NSCursor arrowCursor] retain];
+   osx_change_cursor(dpy, [NSCursor arrowCursor]);
 
    [cursor->cursor release];
    _AL_FREE(cursor);
@@ -769,11 +771,7 @@ static bool osx_set_mouse_cursor(ALLEGRO_DISPLAY *display,
    ALLEGRO_DISPLAY_OSX_WIN *dpy = (ALLEGRO_DISPLAY_OSX_WIN *)display;
    ALLEGRO_MOUSE_CURSOR_OSX *osxcursor = (ALLEGRO_MOUSE_CURSOR_OSX *)cursor;
 
-   dpy->cursor = osxcursor->cursor;
-
-   if (dpy->show_cursor) {
-      osx_change_cursor(dpy, dpy->cursor);
-   }
+   osx_change_cursor(dpy, osxcursor->cursor);
 
    return true;
 }
@@ -795,18 +793,16 @@ static bool osx_set_system_mouse_cursor(ALLEGRO_DISPLAY *display,
       case ALLEGRO_SYSTEM_MOUSE_CURSOR_ARROW:
       case ALLEGRO_SYSTEM_MOUSE_CURSOR_BUSY:
       case ALLEGRO_SYSTEM_MOUSE_CURSOR_QUESTION:
-         requested_cursor = [[NSCursor arrowCursor] retain];
+         requested_cursor = [NSCursor arrowCursor];
          break;
       case ALLEGRO_SYSTEM_MOUSE_CURSOR_EDIT:
-         requested_cursor = [[NSCursor IBeamCursor] retain];
+         requested_cursor = [NSCursor IBeamCursor];
          break;
       default:
          return false;
    }
 
-   dpy->cursor = requested_cursor;
-   if (dpy->show_cursor)
-      osx_change_cursor(dpy, requested_cursor);
+   osx_change_cursor(dpy, requested_cursor);
    return true;
 }
 
