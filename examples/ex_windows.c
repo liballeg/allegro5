@@ -63,7 +63,7 @@ int main(void)
         else
            al_clear(al_map_rgb(155, 255, 0));
         al_set_blender(ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA, al_map_rgb(0, 0, 0));
-        al_font_textout_centre(myfont, "Click me..", 50, 50);
+        al_font_textout_centre(myfont, 50, 50, "Click me..", -1);
         al_flip_display();
       }
 

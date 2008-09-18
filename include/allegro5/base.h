@@ -47,7 +47,9 @@
    #define AL_END_EXTERN_C
 #endif
 
-AL_BEGIN_EXTERN_C
+#ifdef __cplusplus
+   extern "C" {
+#endif
 
 #define ALLEGRO_VERSION          4
 #define ALLEGRO_SUB_VERSION      9
@@ -99,6 +101,8 @@ typedef struct _DRIVER_INFO         /* info about a hardware driver */
 
        
 
-AL_END_EXTERN_C
+#ifdef __cplusplus
+   }
+#endif
 
 #endif          /* ifndef ALLEGRO_BASE_H */

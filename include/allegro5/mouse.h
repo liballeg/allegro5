@@ -22,8 +22,9 @@
 
 #include "allegro5/base.h"
 
-AL_BEGIN_EXTERN_C
-
+#ifdef __cplusplus
+   extern "C" {
+#endif
 
 /* Allow up to four extra axes for future expansion. */
 #define ALLEGRO_MOUSE_MAX_EXTRA_AXES	 4
@@ -103,8 +104,9 @@ AL_FUNC(bool, al_show_mouse_cursor, (void));
 AL_FUNC(bool, al_hide_mouse_cursor, (void));
 AL_FUNC(bool, al_get_cursor_position, (int *ret_x, int *ret_y));
 
-
-AL_END_EXTERN_C
+#ifdef __cplusplus
+   }
+#endif
 
 #endif          /* ifndef ALLEGRO_MOUSE_H */
 

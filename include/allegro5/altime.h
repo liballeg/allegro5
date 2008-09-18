@@ -6,8 +6,9 @@
 
 #include "allegro5/base.h"
 
-AL_BEGIN_EXTERN_C
-
+#ifdef __cplusplus
+   extern "C" {
+#endif
 
 /* Type: ALLEGRO_TIMEOUT
  *  Represent a timeout value.  The size of the structure is known so can be
@@ -50,6 +51,8 @@ AL_FUNC(void, al_init_timeout, (ALLEGRO_TIMEOUT *timeout, double seconds));
 
 
 
-AL_END_EXTERN_C
+#ifdef __cplusplus
+   }
+#endif
 
 #endif

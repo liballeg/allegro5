@@ -149,13 +149,13 @@ _DRIVER_INFO _al_keyboard_driver_list[] =
 	{ 0,                       NULL,                     0     }
 };
 
-ALLEGRO_KEYBOARD_DRIVER* osx_get_keyboard_driver(void) {
+ALLEGRO_KEYBOARD_DRIVER* _al_osx_get_keyboard_driver(void) {
 	return &keyboard_macosx;
 }
-/* osx_keyboard_handler:
+/* _al_osx_keyboard_handler:
 *  Keyboard "interrupt" handler.
 */
-void osx_keyboard_handler(int pressed, NSEvent *event, ALLEGRO_DISPLAY* dpy)
+void _al_osx_keyboard_handler(int pressed, NSEvent *event, ALLEGRO_DISPLAY* dpy)
 {
 	const char character = [[event charactersIgnoringModifiers] characterAtIndex: 0];
 	int scancode = mac_to_scancode[[event keyCode]];
@@ -184,7 +184,7 @@ void osx_keyboard_handler(int pressed, NSEvent *event, ALLEGRO_DISPLAY* dpy)
 /* osx_keyboard_modifier:
 *  Handles keyboard modifiers changes.
 */
-void osx_keyboard_modifiers(unsigned int mods, ALLEGRO_DISPLAY* dpy)
+void _al_osx_keyboard_modifiers(unsigned int mods, ALLEGRO_DISPLAY* dpy)
 {
 	unsigned const int mod_info[5][3] = { { NSAlphaShiftKeyMask, ALLEGRO_KEYMOD_CAPSLOCK, ALLEGRO_KEY_CAPSLOCK },
 	{ NSShiftKeyMask,      ALLEGRO_KEYMOD_SHIFT,    ALLEGRO_KEY_LSHIFT   },

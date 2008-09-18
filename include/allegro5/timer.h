@@ -21,9 +21,9 @@
 
 #include "allegro5/base.h"
 
-AL_BEGIN_EXTERN_C
-
-
+#ifdef __cplusplus
+   extern "C" {
+#endif
 
 /* Macros: conversion macros
  *  ALLEGRO_USECS_TO_SECS - microseconds to seconds
@@ -125,8 +125,8 @@ AL_FUNC(long, al_get_timer_count, (ALLEGRO_TIMER *timer));
  */
 AL_FUNC(void, al_set_timer_count, (ALLEGRO_TIMER *timer, long count));
 
-
-
-AL_END_EXTERN_C
+#ifdef __cplusplus
+   }
+#endif
 
 #endif          /* ifndef ALLEGRO_TIMER_H */

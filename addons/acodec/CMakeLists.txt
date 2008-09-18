@@ -13,26 +13,56 @@ if(SUPPORT_KCM_AUDIO)
 endif(SUPPORT_KCM_AUDIO)
 
 if(WANT_FLAC)
-    # XXX flac.c doesn't compile with flac 1.1.2
-    # missing FLAC__StreamDecoderInitStatus
     find_package(FLAC)
     if(FLAC_FOUND)
-        set(SUPPORT_FLAC 1)
-        set(ALLEGRO_CFG_ACODEC_FLAC 1)
-        include_directories(${FLAC_INCLUDE_DIR})
-        list(APPEND ACODEC_EXTRA_LIBS ${FLAC_LIBRARIES})
-        list(APPEND ACODEC_SOURCES flac.c)
+        set(CMAKE_REQUIRED_INCLUDES ${FLAC_INCLUDE_DIR})
+        set(CMAKE_REQUIRED_LIBRARIES ${FLAC_LIBRARIES})
+        check_c_source_compiles("
+            #include <FLAC/stream_decoder.h>
+            int main(void)
+            {
+                FLAC__StreamDecoderInitStatus status;
+                return 0;
+            }"
+            FLAC_COMPILES)
+        set(CMAKE_REQUIRED_INCLUDES)
+        set(CMAKE_REQUIRED_LIBRARIES)
+        if(FLAC_COMPILES)
+            set(SUPPORT_FLAC 1)
+            set(ALLEGRO_CFG_ACODEC_FLAC 1)
+            include_directories(${FLAC_INCLUDE_DIR})
+            list(APPEND ACODEC_EXTRA_LIBS ${FLAC_LIBRARIES})
+            list(APPEND ACODEC_SOURCES flac.c)
+        endif(FLAC_COMPILES)
     endif(FLAC_FOUND)
 endif(WANT_FLAC)
 
 if(WANT_VORBIS)
     find_package(Vorbis)
     if(VORBIS_FOUND)
-        set(SUPPORT_VORBIS 1)
-        set(ALLEGRO_CFG_ACODEC_VORBIS 1)
-        include_directories(${VORBIS_INCLUDE_DIR})
-        list(APPEND ACODEC_EXTRA_LIBS ${VORBIS_LIBRARIES})
-        list(APPEND ACODEC_SOURCES ogg.c)
+        set(CMAKE_REQUIRED_INCLUDES ${VORBIS_INCLUDE_DIR})
+        set(CMAKE_REQUIRED_LIBRARIES ${VORBIS_LIBRARIES})
+        check_c_source_compiles("
+            #include <vorbis/vorbisfile.h>
+            int main(void)
+            {
+                OggVorbis_File f;
+                ov_callbacks callback;
+                vorbis_info *v = 0;
+                ov_info(&f, -1);
+                callback = OV_CALLBACKS_NOCLOSE;
+                return 0;
+            }"
+            VORBIS_COMPILES)
+        set(CMAKE_REQUIRED_INCLUDES)
+        set(CMAKE_REQUIRED_LIBRARIES)
+        if(VORBIS_COMPILES)
+            set(SUPPORT_VORBIS 1)
+            set(ALLEGRO_CFG_ACODEC_VORBIS 1)
+            include_directories(${VORBIS_INCLUDE_DIR})
+            list(APPEND ACODEC_EXTRA_LIBS ${VORBIS_LIBRARIES})
+            list(APPEND ACODEC_SOURCES ogg.c)
+        endif(VORBIS_COMPILES)
     endif(VORBIS_FOUND)
 endif(WANT_VORBIS)
 

@@ -1,9 +1,10 @@
-import os
+import os, helpers
 
 Import('context')
 Import('env')
 
-context.addFiles( context.cmake["ALLEGRO_SRC_FILES"] )
+def getOption(name, default = 0):
+    return env[name]
 
 def getLibraryName():
     return "%s-%s" % (context.libraryName("alleg"), context.getVersion())
@@ -20,99 +21,18 @@ def buildLibrary():
 
     return context.buildLibrary(env, getLibraryName(), change(context.getLibrarySource()))
 
-def buildLibrary2():
-            
-    menv = context.getLibraryEnv()
-    # menv.BuildDir('library', '#src')
-    
-    def source(dest_dir):
-        def change(f):
-            # return f.replace('src/','library/')
-            return f.replace('src/','%s/' % dest_dir)
-        return map( change, context.getFiles() )
-
-    def build(function, lib, d):
-        #library = menv.SharedLibrary( getLibraryName(context.isDebug(), context.isStatic()), map( change, context.getFiles() ) )
-       return function(lib, source(d))
-
-    def buildStatic(env, debug, d):
-        env.BuildDir(d, '#src', duplicate = 0)
-        # return build(env.StaticLibrary, self.libDir + '/static/' + getLibraryName(debug), d)
-        return build(env.StaticLibrary, getLibraryName(debug,True), d)
-
-    def buildShared(env, debug, d):
-        env.BuildDir(d, '#src', duplicate = 0)
-        # return build(env.SharedLibrary, self.libDir + '/shared/' + getLibraryName(debug), d)
-        return build(env.SharedLibrary, getLibraryName(debug,False), d)
-
-    debugEnv = menv.Clone()
-    debugEnv.Append(CCFLAGS = '-DDEBUGMODE=1')
-
-    debugStatic = buildStatic(debugEnv, 1, 'debug')
-    debugShared = buildShared(debugEnv, 1, 'debug')
-    normalStatic = buildStatic(menv, 0, 'release')
-    normalShared = buildShared(menv, 0, 'release')
-
-    Alias('debug-static', debugStatic)
-    Alias('debug-shared', debugShared)
-    Alias('static', normalStatic)
-    Alias('shared', normalShared)
-
-    if context.isDebug() and context.isStatic():
-        return debugStatic
-    elif context.isDebug():
-        return debugShared
-    elif context.isStatic():
-        return normalStatic
-    else:
-        return normalShared
-
-#library = menv.SharedLibrary( getLibraryName(context.isDebug(), context.isStatic()), map( change, context.getFiles() ) )
-# library = buildLibrary()
-
-# library = context.buildLibrary(context.getEnv(), getLibraryName(), context.getLibrarySource())
+context.addFiles( context.cmake["ALLEGRO_SRC_FILES"] )
 library = buildLibrary()
 context.alias('allegro', library)
 
-def tools(env,appendDir,buildDir,libDir):
-    tools = []
-    env.BuildDir(buildDir + 'tools', 'tools', duplicate = 0)
-    def addTool(name,files):
-        tool = env.Program('tools/' + name, appendDir(buildDir + '/tools/', files))
-        Alias(name, tool)
-        tools.append(tool)
-    addTool('colormap', [ 'colormap.c' ])
-    addTool('pack', [ 'pack.c' ])
-    addTool('rgbmap', [ 'rgbmap.c' ])
-    addTool('textconv', [ 'textconv.c' ])
-    
-    Alias('tools', tools)
-    return tools
+def install(env):
+    #dir = getOption('install') + '/lib'
+    #if not dir.startswith('/'):
+    #    dir = '#' + dir
+    dir = 'tmp-install/lib'
+    i = env.Install(dir, library)
 
-def tests(env):
-    tests = []
-    testEnv = env.Clone()
-    testEnv.BuildDir('tests', '#tests', duplicate = 0)
-    testEnv.Append(LIBPATH = ['.'])
-    testEnv.Replace(LIBS = [getLibraryName(context.isDebug(), context.isStatic())])
-    def addTest(name,files):
-        test = testEnv.Program('#tests/' + name, map(lambda f: ('tests/%s' % f), files))
-        Alias(name, test)
-        tests.append(test)
-    # addTest('afinfo', [ 'afinfo.c' ])
-    addTest('akaitest', [ 'akaitest.c' ])
-    addTest('digitest', [ 'digitest.c' ])
-    addTest('filetest', [ 'filetest.c' ])
-    addTest('gfxinfo', [ 'gfxinfo.c' ])
-    addTest('mathtest', [ 'mathtest.c' ])
-    addTest('miditest', [ 'miditest.c' ])
-    addTest('play', [ 'play.c' ])
-    addTest('playfli', [ 'playfli.c' ])
-    addTest('test', [ 'test.c' ])
-    addTest('vesainfo', [ 'vesainfo.c' ])
-    addTest('cpptest', [ 'cpptest.cpp' ])
-    Alias('tests', tests)
-    return tests
+install(env)
 
 def demo(env):
     demoEnv = env.Clone()
@@ -120,41 +40,8 @@ def demo(env):
     demoEnv.Append(CPPPATH = 'demo/include')
     demoEnv.Append(CPPPATH = ['addons/font', 'addons/iio',
       'addons/kcm_audio', 'addons/acodec'])
-    sources = Split("""
-       Asteroid.cpp
-       BitmapResource.cpp
-       Bullet.cpp
-       ButtonWidget.cpp
-       Debug.cpp
-       DisplayResource.cpp
-       Enemy.cpp
-       Entity.cpp
-       Error.cpp
-       Explosion.cpp
-       GUI.cpp
-       GenericResource.cpp
-       Input.cpp
-       LargeAsteroid.cpp
-       LargeBullet.cpp
-       LargeSlowBullet.cpp
-       MediumAsteroid.cpp
-       Misc.cpp
-       Player.cpp
-       PowerUp.cpp
-       Resource.cpp
-       ResourceManager.cpp
-       SampleResource.cpp
-       SmallAsteroid.cpp
-       SmallBullet.cpp
-       UFO.cpp
-       a5teroids.cpp
-       collision.cpp
-       logic.cpp
-       render.cpp
-       sound.cpp
-       wave.cpp
-    """);
-    # demoEnv.Append(LIBPATH = libDir)
+    demo_cmake = helpers.read_cmake_list("demo/CMakeLists.txt")
+    sources = demo_cmake["DEMO_SRCS"]
     if not context.isStatic():
         demoEnv.Replace(LIBS = [])
     demoEnv.Append(LIBS = [context.libraryName('a5_font')])
@@ -168,7 +55,7 @@ def demo(env):
     demoEnv.Append(LIBPATH = ['addons/iio/lib'])
     demoEnv.Append(LIBPATH = ['addons/kcm_audio/lib'])
     demoEnv.Append(LIBPATH = ['.'])
-    demo = demoEnv.Program('demo/demo', appendDir('demo/src', sources))
+    demo = demoEnv.Program('demo/demo', appendDir('demo', sources))
     context.alias('all-demo', demo)
     return demo
 
@@ -262,19 +149,7 @@ if buildAddon("kcm_audio"):
     buildAddon('acodec')
 #if buildAddon('audio'):
 
-# addon_dirs = ['#addons/font','#addons/acodec','#addons/audio']
-# SConscript( dirs = addon_dirs, exports = 'context' )
-
 examples(env)
 demo(env)
-# tests(context.getLibraryEnv())
 
-# Alias('library', library)
-# Default(['allegro','all-examples','all-addons','all-demo'])
 Return('library')
-
-#context.addExtra(demo)
-# context.addExtra(examples)
-# context.addExtra(addons)
-# context.addExtra(tools)
-# context.addExtra(tests)

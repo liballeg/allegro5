@@ -29,11 +29,11 @@ static void print(int x, int y, char const *format, ...)
    va_end(list);
 
    al_set_blender(ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA, al_map_rgb(0, 0, 0));
-   al_font_textout(myfont, message, x + 2, y + 2);
+   al_font_textout(myfont, x + 2, y + 2, message, -1);
 
    al_set_blender(ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA,
       al_map_rgb(255, 255, 255));
-   al_font_textout(myfont, message, x, y);
+   al_font_textout(myfont, x, y, message, -1);
 }
 
 /* Draw our example scene. */

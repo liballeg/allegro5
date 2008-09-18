@@ -102,20 +102,20 @@ typedef struct
 } HID_DEVICE_COLLECTION;
 
 
-int osx_bootstrap_ok(void);
+int _al_osx_bootstrap_ok(void);
 
-void setup_direct_shifts(void);
+void _al_setup_direct_shifts(void);
 
-void osx_keyboard_handler(int pressed, NSEvent *event, ALLEGRO_DISPLAY*);
-void osx_keyboard_modifiers(unsigned int new_mods, ALLEGRO_DISPLAY*);
-void osx_keyboard_focused(int focused, int state);
+void _al_osx_keyboard_handler(int pressed, NSEvent *event, ALLEGRO_DISPLAY*);
+void _al_osx_keyboard_modifiers(unsigned int new_mods, ALLEGRO_DISPLAY*);
+void _al_osx_keyboard_focused(int focused, int state);
 
-void osx_mouse_generate_event(NSEvent*, ALLEGRO_DISPLAY*);
-void osx_mouse_handler(NSEvent*);
-int osx_mouse_set_sprite(ALLEGRO_BITMAP *sprite, int x, int y);
-int osx_mouse_show(ALLEGRO_BITMAP *bmp, int x, int y);
-void osx_mouse_hide(void);
-void osx_mouse_move(int x, int y);
+void _al_osx_mouse_generate_event(NSEvent*, ALLEGRO_DISPLAY*);
+void _al_osx_mouse_handler(NSEvent*);
+int _al_osx_mouse_set_sprite(ALLEGRO_BITMAP *sprite, int x, int y);
+int _al_osx_mouse_show(ALLEGRO_BITMAP *bmp, int x, int y);
+void _al_osx_mouse_hide(void);
+void _al_osx_mouse_move(int x, int y);
 
 HID_DEVICE_COLLECTION *osx_hid_scan(int type, HID_DEVICE_COLLECTION*);
 void osx_hid_free(HID_DEVICE_COLLECTION *);
@@ -127,11 +127,16 @@ void _al_osx_keyboard_was_installed(BOOL);
 // Notify that the quit menu was clicked
 void _al_osx_post_quit(void);
 // Get the underlying view
-NSView* osx_view_from_display(ALLEGRO_DISPLAY*);
+NSView* _al_osx_view_from_display(ALLEGRO_DISPLAY*);
+// Create an image from an allegro bitmap
 NSImage* NSImageFromAllegroBitmap(ALLEGRO_BITMAP* bmp);
-AL_FUNC(ALLEGRO_KEYBOARD_DRIVER*, osx_get_keyboard_driver, (void));
-AL_FUNC(ALLEGRO_DISPLAY_INTERFACE*, osx_get_display_driver, (void));
-AL_FUNC(ALLEGRO_MOUSE_DRIVER*, osx_get_mouse_driver, (void));
+// Do some one-time initialisation for the thread support
+void _al_osx_threads_init(void);
+// Drivers
+AL_FUNC(ALLEGRO_KEYBOARD_DRIVER*, _al_osx_get_keyboard_driver, (void));
+AL_FUNC(ALLEGRO_DISPLAY_INTERFACE*, _al_osx_get_display_driver, (void));
+AL_FUNC(ALLEGRO_MOUSE_DRIVER*, _al_osx_get_mouse_driver, (void));
+AL_FUNC(ALLEGRO_JOYSTICK_DRIVER*, osx_get_joystick_driver, (void));
 #endif
 
 #endif

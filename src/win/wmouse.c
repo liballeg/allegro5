@@ -450,7 +450,7 @@ static void mouse_dinput_handle_event(int ofs, int data)
 /* mouse_dinput_handle: [input thread]
  *  Handles queued mouse input.
  */
-static void mouse_dinput_handle(void)
+static void mouse_dinput_handle(void* unused)
 {
    static DIDEVICEOBJECTDATA message_buffer[DINPUT_BUFFERSIZE];
    long int waiting_messages;
@@ -806,7 +806,7 @@ static int mouse_dinput_init(void)
       goto Error;
 
    /* Register event handler */
-   if (_win_input_register_event(mouse_input_event, mouse_dinput_handle) != 0)
+   if (!_win_input_register_event(mouse_input_event, mouse_dinput_handle, NULL) != 0)
       goto Error;
 
    /* Grab the device */

@@ -83,6 +83,16 @@ const char *_al_keyboard_common_names[ALLEGRO_KEY_MAX] =
 
 
 
+/* Function: al_is_keyboard_installed
+ *  Returns true if <al_install_keyboard> was called successfully.
+ */
+bool al_is_keyboard_installed(void)
+{
+   return (new_keyboard_driver ? true : false);
+}
+
+
+
 /* Function: al_install_keyboard
  *  Install a keyboard driver. Returns true if successful. If a driver
  *  was already installed, nothing happens and true is returned.

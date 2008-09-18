@@ -28,9 +28,9 @@
 
 #include "allegro5/base.h"
 
-AL_BEGIN_EXTERN_C
-
-
+#ifdef __cplusplus
+   extern "C" {
+#endif
 
 /*
  * Event type tags
@@ -297,8 +297,9 @@ AL_FUNC(bool, al_wait_for_event_until, (ALLEGRO_EVENT_QUEUE *queue,
                                         ALLEGRO_TIMEOUT *timeout));
 
 
-
-AL_END_EXTERN_C
+#ifdef __cplusplus
+   }
+#endif
 
 #endif
 

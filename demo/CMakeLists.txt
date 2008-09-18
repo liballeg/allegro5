@@ -57,6 +57,24 @@ else(USE_CXX AND SUPPORT_FONT AND SUPPORT_KCM_AUDIO AND SUPPORT_ACODEC)
     message(STATUS "Not building demo")
 endif(USE_CXX AND SUPPORT_FONT AND SUPPORT_KCM_AUDIO AND SUPPORT_ACODEC)
 
+if (MACOSX)
+FILE(GLOB_RECURSE GFX ${CMAKE_SOURCE_DIR}/demo/data/gfx/*.tga )
+FILE(GLOB_RECURSE SFX ${CMAKE_SOURCE_DIR}/demo/data/sfx/*.ogg)
+ADD_CUSTOM_COMMAND(TARGET demo 
+	POST_BUILD
+	COMMAND install -d ${CMAKE_BINARY_DIR}/demo/Demo.app/Contents/Resources/data/sfx
+	COMMAND install -d ${CMAKE_BINARY_DIR}/demo/Demo.app/Contents/Resources/data/gfx
+	COMMAND install -d ${CMAKE_BINARY_DIR}/demo/Demo.app/Contents/MacOS
+	COMMAND install ${CMAKE_BINARY_DIR}/demo/demo ${CMAKE_BINARY_DIR}/demo/Demo.app/Contents/MacOS
+	COMMAND install ${CMAKE_SOURCE_DIR}/demo/Icon.icns ${CMAKE_BINARY_DIR}/demo/Demo.app/Contents/Resources
+	COMMAND install ${CMAKE_SOURCE_DIR}/demo/Info.plist ${CMAKE_BINARY_DIR}/demo/Demo.app/Contents
+	COMMAND install ${GFX} ${CMAKE_BINARY_DIR}/demo/Demo.app/Contents/Resources/data/gfx
+	COMMAND install ${SFX} ${CMAKE_BINARY_DIR}/demo/Demo.app/Contents/Resources/data/sfx
+	VERBATIM
+)
+
+endif (MACOSX)
+
 #-----------------------------------------------------------------------------#
 # vi: set ts=8 sts=4 sw=4 et:
 

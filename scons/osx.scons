@@ -7,7 +7,7 @@ Import('env')
 
 # context.setLibraryDir("lib/macosx")
 
-helpers.parse_cmake_h(env,helpers.define('ALLEGRO_MACOSX','ALLEGRO_CFG_OPENGL'),'#include/allegro5/platform/alplatf.h.cmake','#include/allegro5/platform/alplatf.h')
+helpers.parse_cmake_h(env,helpers.define('ALLEGRO_MACOSX','ALLEGRO_CFG_OPENGL'),'#include/allegro5/platform/alplatf.h.cmake','include/allegro5/platform/alplatf.h')
 
 # alplatf_h = helpers.generate_alplatf_h(env, ['ALLEGRO_MACOSX','ALLEGRO_CFG_OPENGL'])
 # file = open( "include/allegro5/platform/alplatf.h", "w" )
@@ -146,4 +146,6 @@ env.Append(LINKFLAGS = linkflags)
 cat = Builder(action = "cat $SOURCES > $TARGET")
 env.Append(BUILDERS = {"Cat" : cat})
 
-SConscript('all.scons', exports = ['context','env'])
+library = SConscript('all.scons', exports = ['context','env'])
+n = [library]
+Return('n')

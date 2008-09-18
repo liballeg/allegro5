@@ -781,6 +781,13 @@ static void d3d_release_current_target(bool release_backbuffer)
 }
 
 
+static void CALLBACK d3d_quit_window_thread(ULONG_PTR *param)
+{
+   ALLEGRO_DISPLAY_D3D *d3d_display = (ALLEGRO_DISPLAY_D3D*)param;
+   d3d_display->end_thread = true;
+}
+
+
 static void d3d_destroy_display_internals(ALLEGRO_DISPLAY_D3D *d3d_display)
 {
    ALLEGRO_DISPLAY_WIN *win_display = &d3d_display->win_display;
@@ -799,11 +806,19 @@ static void d3d_destroy_display_internals(ALLEGRO_DISPLAY_D3D *d3d_display)
       }
    }
 
-   d3d_display->end_thread = true;
+   //_al_win_ungrab_input();
+   QueueUserAPC((PAPCFUNC)_al_win_key_dinput_unacquire,
+       win_display->window_thread,
+       (ULONG_PTR)&win_display->key_input);
+
+   if (al_is_keyboard_installed())
+      _al_win_dettach_key_input(&win_display->key_input);
+
+   QueueUserAPC((PAPCFUNC)d3d_quit_window_thread,
+      win_display->window_thread,
+      (ULONG_PTR)d3d_display);
    while (!d3d_display->thread_ended)
       al_rest(0.001);
-
-   _al_win_ungrab_input();
 
    SendMessage(win_display->window, _al_win_msg_suicide, 0, 0);
 }
@@ -1205,26 +1220,18 @@ static void d3d_display_thread_proc(void *arg)
 
    d3d_display->initialized = true;
 
-   for (;;) {
-      if (d3d_display->end_thread) {
+   while (!d3d_display->end_thread) {
+      result = MsgWaitForMultipleObjectsEx(0, NULL,
+                                           INFINITE,
+                                           QS_ALLEVENTS,
+                                           MWMO_ALERTABLE | MWMO_INPUTAVAILABLE);
+      if (result == WAIT_IO_COMPLETION) {
+      }
+      else if (result == WAIT_FAILED) {
+         TRACE("Wait failed.\n");
          break;
       }
-      /*
-       * We have to lock a mutex here so that we're not waiting on and receiving events from
-       * a source while  it is being unregistered. In order to not block the mutex for long,
-       * we wait for 0ms, meaning we don't wait at all. The al_rest is there so the input thread
-       * doesn't eat up too much processor time (formerly we had waiting 1-5ms for events which
-       * was enough of a break on the CPU).
-       */
-      al_lock_mutex(_al_win_input_mutex);
-      result = MsgWaitForMultipleObjects(_win_input_events, _win_input_event_id, FALSE, 0, QS_ALLINPUT);
-      al_unlock_mutex(_al_win_input_mutex);
-      al_rest(0.001);
-      if ((result < (DWORD) WAIT_OBJECT_0 + _win_input_events)) {
-         /* one of the registered events is in signaled state */
-         (*_win_input_event_handler[result - WAIT_OBJECT_0])();
-      }
-      else if (result == (DWORD) WAIT_OBJECT_0 + _win_input_events) {
+      else if (result == (DWORD) WAIT_OBJECT_0) {
          /* messages are waiting in the queue */
          while (PeekMessage(&msg, NULL, 0, 0, PM_NOREMOVE)) {
             if (GetMessage(&msg, NULL, 0, 0)) {
@@ -1234,6 +1241,10 @@ static void d3d_display_thread_proc(void *arg)
                goto End;
             }
          }
+
+         if (!d3d_display->device)
+            continue;
+
          hr = d3d_display->device->TestCooperativeLevel();
 
          if (hr == D3D_OK) {
@@ -1304,11 +1315,12 @@ static bool d3d_create_display_internals(ALLEGRO_DISPLAY_D3D *d3d_display)
    static bool cfg_read = false;
    ALLEGRO_SYSTEM *sys;
    AL_CONST char *s;
+   HANDLE thread;
 
    params.display = d3d_display;
    params.init_failed = false;
 
-   _beginthread(d3d_display_thread_proc, 0, &params);
+   thread = (HANDLE)_beginthread(d3d_display_thread_proc, 0, &params);
 
    while (!params.display->initialized && !params.init_failed)
       al_rest(0.001);
@@ -1332,6 +1344,10 @@ static bool d3d_create_display_internals(ALLEGRO_DISPLAY_D3D *d3d_display)
             d3d_mag_filter = d3d_get_filter(s);
       }
    }
+
+   win_display->window_thread = thread;
+   win_display->key_input.window = win_display->window;
+   win_display->key_input.display = al_display;
 
    d3d_reset_state(d3d_display);
 
@@ -1421,6 +1437,14 @@ static ALLEGRO_DISPLAY *d3d_create_display(int w, int h)
    *add = d3d_display;
 
    _al_win_active_window = win_display->window;
+
+   if (al_is_keyboard_installed()) {
+      if (!_al_win_attach_key_input(&win_display->key_input)) {
+         TRACE("Failed to init keyboard.\n");
+         _AL_FREE(d3d_display);
+         return NULL;
+      }
+   }
 
    /* Setup the mouse */
 
@@ -2045,7 +2069,8 @@ static ALLEGRO_BITMAP *d3d_get_frontbuffer(ALLEGRO_DISPLAY *display)
 
 static bool d3d_is_compatible_bitmap(ALLEGRO_DISPLAY *display, ALLEGRO_BITMAP *bitmap)
 {
-   ALLEGRO_BITMAP_D3D *d3d_bitmap = (ALLEGRO_BITMAP_D3D *)bitmap;
+   if (bitmap->display->ogl_extras)
+      return false;
    //return (ALLEGRO_DISPLAY_D3D *)display == d3d_bitmap->display;
    /* Not entirely sure on this yet, but it seems one dsiplays bitmaps
     * can be displayed on other displays.

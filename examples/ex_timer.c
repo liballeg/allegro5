@@ -59,7 +59,7 @@ static void print(int x, int y, char const *format, ...)
    /* Actual text. */
    al_set_blender(ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA,
       al_map_rgb_f(0, 0, 0));
-   al_font_textout(ex.myfont, message, x, y);
+   al_font_textout(ex.myfont, x, y, message, -1);
 }
 
 /* Draw our example scene. */

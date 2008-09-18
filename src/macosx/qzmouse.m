@@ -64,12 +64,12 @@ static ALLEGRO_MOUSE* osx_get_mouse(void)
 	return (ALLEGRO_MOUSE*) &osx_mouse.parent;
 }
 
-/* osx_mouse_generate_event:
+/* _al_osx_mouse_generate_event:
 * Convert an OS X mouse event to an Allegro event
 * and push it into a queue.
 * First check that the event is wanted.
 */
-void osx_mouse_generate_event(NSEvent* evt, ALLEGRO_DISPLAY* dpy)
+void _al_osx_mouse_generate_event(NSEvent* evt, ALLEGRO_DISPLAY* dpy)
 {
 	NSPoint pos;
 	int type, b_change = 0, dx = 0, dy = 0, dz = 0, dw = 0, b = 0;
@@ -250,48 +250,6 @@ static unsigned int osx_get_mouse_num_axes(void)
 }
 
 
-/* osx_mouse_set_sprite:
-*  Sets the hardware cursor sprite.
-*/
-int osx_mouse_set_sprite(ALLEGRO_BITMAP *sprite, int x, int y)
-{
-	int sw, sh;
-	
-	if (!sprite)
-		return -1;
-	sw = al_get_bitmap_width(sprite);
-	sh = al_get_bitmap_height(sprite);
-	if (floor(NSAppKitVersionNumber) <= NSAppKitVersionNumber10_2) {
-		// Before MacOS X 10.3, NSCursor can handle only 16x16 cursor sprites
-		// Pad to 16x16 or fail if the sprite is already larger.
-		if (sw>16 || sh>16)
-			return -1;
-		sh = sw = 16;
-	}
-	
-	// release any previous cursor
-	[osx_mouse.cursor release];
-	
-	NSImage* cursor_image = NSImageFromAllegroBitmap(sprite);
-	osx_mouse.cursor = [[NSCursor alloc] initWithImage: cursor_image
-											   hotSpot: NSMakePoint(x, y)];
-	
-	[cursor_image release];
-	NSView* v = osx_view_from_display(NULL);
-	if (v)
-	{
-		[v performSelectorOnMainThread: @selector(setCursor)
-							withObject: osx_mouse.cursor
-						 waitUntilDone: NO];
-	}
-	else
-	{
-		[osx_mouse.cursor set];
-	}
-	
-	return 0;
-}
-
 static void osx_get_mouse_state(ALLEGRO_MOUSE_STATE *ret_state)
 {
 	_al_event_source_lock(&osx_mouse.parent.es);
@@ -338,7 +296,7 @@ static ALLEGRO_MOUSE_DRIVER osx_mouse_driver =
    NULL, //AL_METHOD(bool, set_mouse_range, (int x1, int y1, int x2, int y2));
    osx_get_mouse_state, //AL_METHOD(void, get_mouse_state, (ALLEGRO_MOUSE_STATE *ret_state));
 };
-ALLEGRO_MOUSE_DRIVER* osx_get_mouse_driver(void)
+ALLEGRO_MOUSE_DRIVER* _al_osx_get_mouse_driver(void)
 {
    return &osx_mouse_driver;
 }

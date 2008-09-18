@@ -52,8 +52,7 @@ static ALLEGRO_MOUSE_CURSOR *xdpy_create_mouse_cursor(ALLEGRO_DISPLAY *display,
          unsigned char r, g, b, a;
 
          col = al_get_pixel(bmp, ix, iy);
-         al_unmap_rgb(col, &r, &g, &b);
-         a = 255;
+         al_unmap_rgba(col, &r, &g, &b, &a);
          image->pixels[c++] = (a<<24) | (r<<16) | (g<<8) | (b);
       }
    }

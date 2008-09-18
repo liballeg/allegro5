@@ -80,7 +80,13 @@ static INLINE int single_tga_read32(AL_FS_ENTRY *f)
    value.r = al_fs_entry_getc(f);
    alpha = al_fs_entry_getc(f);
 
+#ifdef ALLEGRO_LITTLE_ENDIAN
    return (alpha << 24) | (value.r << 16) | (value.g << 8) | value.b;
+#elif defined ALLEGRO_BIG_ENDIAN
+   return (value.b << 24) | (value.g << 16) | (value.r << 8) | alpha;
+#else
+#error "Endianesse not defined!"
+#endif
 }
 
 
@@ -136,7 +142,13 @@ static INLINE int single_tga_read24(AL_FS_ENTRY *f)
    value.g = al_fs_entry_getc(f);
    value.r = al_fs_entry_getc(f);
 
+#ifdef ALLEGRO_LITTLE_ENDIAN
    return (value.r << 16) | (value.g << 8) | value.b;
+#elif defined ALLEGRO_BIG_ENDIAN
+   return (value.b << 16) | (value.g << 8) | value.r;
+#else
+#error "Endianesse not defined!"
+#endif
 }
 
 

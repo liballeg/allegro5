@@ -263,7 +263,7 @@ static INLINE const float *linear_spl32(const ALLEGRO_SAMPLE *spl,
    frac = (float)(spl->pos & MIXER_FRAC_MASK) / (float)MIXER_FRAC_ONE;
 
    for (i = 0; i < maxc; i++) {
-      float s1, s2;
+      float s1 = 0, s2 = 0;
 
       switch (spl->spl_data.depth) {
          case ALLEGRO_AUDIO_DEPTH_INT24:
@@ -325,7 +325,7 @@ static INLINE const float *linear_spl32u(const ALLEGRO_SAMPLE *spl,
    frac = (float)(spl->pos & MIXER_FRAC_MASK) / (float)MIXER_FRAC_ONE;
 
    for (i = 0; i < maxc; i++) {
-      float s1, s2;
+      float s1 = 0, s2 = 0;
 
       switch (spl->spl_data.depth) {
          case ALLEGRO_AUDIO_DEPTH_UINT24:

@@ -1,9 +1,9 @@
 Import('context')
+Import('env')
 
 import os
 import helpers
 
-SConscript('all.scons', exports = ['context']);
 
 # config = env.Configure()
 
@@ -12,11 +12,11 @@ SConscript('all.scons', exports = ['context']);
 flags = [ '-g', '-Wall', '-Wno-unused', '-O2', '-funroll-loops', '-ffast-math', '-fomit-frame-pointer' ]
 includes = [ "include", "include/allegro", "." ]
 # defines = [ "-DALLEGRO_SRC", "-DALLEGRO_NO_ASM", "-DALLEGRO_LIB_BUILD" ]
-defines = [ "ALLEGRO_SRC", "ALLEGRO_LIB_BUILD" ]
+defines = [ "ALLEGRO_SRC", "ALLEGRO_LIB_BUILD", "ALLEGRO_NO_ASM" ]
 
-env = context.getLibraryEnv()
+# env = context.getLibraryEnv()
 
-context.setLibraryDir('lib/win32')
+# context.setLibraryDir('lib/win32')
 
 env.Append(CCFLAGS = flags)
 env.Append(CPPDEFINES = defines)
@@ -24,10 +24,13 @@ env.Append(CPPPATH = includes)
 
 opts = Options('options-win32.py', ARGUMENTS)
 opts.Add('d3d', 'Enable Direct3D', 0)
-opts.Update(context.getLibraryEnv())
+opts.Add('opengl', 'Enable OpenGL', 1)
+opts.Update(env)
+
+env.BuildDir('include', '#include', duplicate=0)
 
 def getOption(name, default = 0):
-    return context.getLibraryEnv()[name]
+    return env[name]
 
 # assembler = Builder(action = 'gcc --x assembler-with-cpp $CCFLAGS $SOURCES -c -o $TARGET', src_suffic = '.s', suffic = '.o')
 
@@ -35,7 +38,11 @@ def getOption(name, default = 0):
 # but it uses 'as' instead of gcc, so something needs to be changed here
 AssemblerAction = Action( 'gcc -x assembler-with-cpp $CCFLAGS $_CPPINCFLAGS $SOURCES -c -o $TARGET' )
 
-helpers.generate_alplatf_h(env, "ALLEGRO_MINGW32")
+
+# helpers.generate_alplatf_h(env, "ALLEGRO_MINGW32")
+# platf_settings = helpers.define("ALLEGRO_UNIX","ALLEGRO_CFG_OPENGL")
+platf_settings = helpers.define("ALLEGRO_MINGW32", "ALLEGRO_CFG_D3D", "ALLEGRO_CFG_OPENGL", "ALLEGRO_CFG_NO_ASM")
+alplatf_h = helpers.parse_cmake_h(env, platf_settings, 'include/allegro5/platform/alplatf.h.cmake', 'include/allegro5/platform/alplatf.h')
 
 import SCons.Tool
 
@@ -55,7 +62,7 @@ env.Append(LIBS = [ 'kernel32', 'user32', 'gdi32', 'comdlg32', 'ole32', 'dinput'
 # for i in f:
 #	files += [env.Assembler(i)]
 
-context.add_files(context.cmake["ALLEGRO_SRC_WIN_FILES"])
+context.addFiles(context.cmake["ALLEGRO_SRC_WIN_FILES"])
 
 if False:
 	context.addFiles('c',Split("""
@@ -128,14 +135,11 @@ if False:
 
 
 if getOption('d3d') == 1:
-	context.addFiles('win', Split("""
-	d3d_system.c
-	d3d_display.c
-	d3d_bitmap.c
-	d3d_keyboard.c
-	d3d_window.c
-	"""));
+	context.addFiles(context.cmake["ALLEGRO_SRC_D3D_FILES"])
 	env.Append(LIBS = [ 'd3d9' ])
+
+if getOption('opengl') == 1:
+	context.addFiles(context.cmake["ALLEGRO_SRC_OPENGL_FILES"])
 
 
 def asmdef(env,appendDir,buildDir,libDir):
@@ -153,16 +157,21 @@ def asmdef(env,appendDir,buildDir,libDir):
     return file
 
 
-context.addExtra(asmdef)
+# context.addExtra(asmdef)
 
 ## crappy hack
-file = open('obj/mingw32/asmcapa.h', "w")
-file.write("#define ALLEGRO_GENERATED_BY_MAKEFILE_TST\n")
-file.write("#define ALLEGRO_MMX\n")
-file.write("#define ALLEGRO_SSE\n")
-file.close()
+if False:
+	file = open('obj/mingw32/asmcapa.h', "w")
+	file.write("#define ALLEGRO_GENERATED_BY_MAKEFILE_TST\n")
+	file.write("#define ALLEGRO_MMX\n")
+	file.write("#define ALLEGRO_SSE\n")
+	file.close()
 
 cat = Builder(action = 'cat $SOURCES > $TARGET')
 env.Append(BUILDERS = {'Cat' : cat})
 
-context.setExampleEnv(env)
+# context.setExampleEnv(env)
+
+lib = SConscript('all.scons', exports = ['context', 'env']);
+n = [lib]
+Return('n')

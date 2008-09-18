@@ -33,12 +33,12 @@ int main(void)
     /* Draw red text */
     al_set_blender(ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA,
       al_map_rgb(255, 0, 0));
-    al_font_textout(f, "red", 10, 10);
+    al_font_textout(f, 10, 10, "red", -1);
 
     /* Draw green text */
     al_set_blender(ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA,
       al_map_rgb(0, 255, 0));
-    al_font_textout(f, "green", 10, 50);
+    al_font_textout(f, 10, 50, "green", -1);
 
     al_flip_display();
     al_rest(3);

@@ -19,7 +19,11 @@
  */
 ALLEGRO_SAMPLE_DATA *al_load_sample_oggvorbis(const char *filename)
 {
+#ifdef ALLEGRO_LITTLE_ENDIAN
    const int endian = 0; /* 0 for Little-Endian, 1 for Big-Endian */
+#else
+   const int endian = 1; /* 0 for Little-Endian, 1 for Big-Endian */
+#endif
    int word_size = 2; /* 1 = 8bit, 2 = 16-bit. nothing else */
    int signedness = 1; /* 0  for unsigned, 1 for signed */
    const int packet_size = 4096; /* suggestion for size to read at a time */
@@ -121,7 +125,11 @@ static bool ogg_stream_update(ALLEGRO_STREAM *stream, void *data,
 {
    AL_OV_DATA* extra = (AL_OV_DATA*) stream->extra;
 
+#ifdef ALLEGRO_LITTLE_ENDIAN
    const int endian = 0; /* 0 for Little-Endian, 1 for Big-Endian */
+#else
+   const int endian = 1; /* 0 for Little-Endian, 1 for Big-Endian */
+#endif
    const int word_size = 2; /* 1 = 8bit, 2 = 16-bit. nothing else */
    const int signedness = 1; /* 0  for unsigned, 1 for signed */
    int channels = extra->vi->channels;

@@ -8,4 +8,5 @@ linuxfiles = context.cmake["ALLEGRO_SRC_LINUX_FILES"]
 linuxfiles = [x for x in linuxfiles if not x.endswith(".s")]
 context.addFiles(linuxfiles);
 
-SConscript('unix.scons', exports = ['context','env'])
+result = SConscript('unix.scons', exports = ['context','env'])
+Return('result')

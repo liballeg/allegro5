@@ -22,9 +22,9 @@
 #include "allegro5/base.h"
 #include "allegro5/keycodes.h"
 
-AL_BEGIN_EXTERN_C
-
-
+#ifdef __cplusplus
+   extern "C" {
+#endif
 
 /* Type: ALLEGRO_KEYBOARD
  *  This is an abstract data type representing the physical keyboard.
@@ -58,7 +58,7 @@ typedef struct ALLEGRO_KEYBOARD_STATE
 } ALLEGRO_KEYBOARD_STATE;
 
 
-
+AL_FUNC(bool,         al_is_keyboard_installed,   (void));
 AL_FUNC(bool,         al_install_keyboard,   (void));
 AL_FUNC(void,         al_uninstall_keyboard, (void));
 
@@ -74,9 +74,9 @@ AL_FUNC(bool,         al_key_down,           (const ALLEGRO_KEYBOARD_STATE *, in
 AL_VAR(bool, _al_three_finger_flag);
 AL_VAR(bool, _al_key_led_flag);
 
-
-
-AL_END_EXTERN_C
+#ifdef __cplusplus
+   }
+#endif
 
 #endif
 
