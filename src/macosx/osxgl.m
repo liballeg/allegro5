@@ -648,6 +648,7 @@ static ALLEGRO_DISPLAY* create_display_win(int w, int h) {
 	dpy->parent.h = h;
 	_al_event_source_init(&dpy->parent.es);
    dpy->cursor = [[NSCursor arrowCursor] retain];
+   dpy->show_cursor = YES;
    
    if (_al_vector_is_empty(&al_system_driver()->displays)) {
       last_window_pos = NSZeroPoint;
