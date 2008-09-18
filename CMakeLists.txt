@@ -796,10 +796,4 @@ endif(UNIX)
 add_subdirectory(docs)
 
 #-----------------------------------------------------------------------------#
-
-# Recreate directory structure for out-of-source builds.
-# XXX is this only needed because of asmcapa.h?
-make_directory(obj/mingw32)
-
-#-----------------------------------------------------------------------------#
 # vi: set ts=8 sts=4 sw=4 et:
