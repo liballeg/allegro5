@@ -4,7 +4,7 @@ set(IIO_INCLUDE_FILES allegro5/a5_iio.h)
 if(WANT_PNG)
     include(FindPNG)
     if(PNG_FOUND)
-        set(ALLEGRO_CFG_IIO_HAVE_PNG 1)
+        set(ALLEGRO_CFG_IIO_HAVE_PNG "-DALLEGRO_CFG_IIO_HAVE_PNG")
         list(APPEND IIO_SOURCES png.c)
         set(IIO_LIBRARIES ${PNG_LIBRARIES})
         set(IIO_DEFINES ${PNG_DEFINITIONS})
@@ -22,7 +22,7 @@ macro(add_iio_build nm extra_flags)
         add_library(${target} ${libtype} ${IIO_SOURCES})
         set_target_properties(${target}
             PROPERTIES
-            COMPILE_FLAGS "${more_extra_flags} ${IIO_DEFINES} ${LIBRARY_CFLAGS} -DA5_IIO_SRC"
+            COMPILE_FLAGS "${more_extra_flags} ${IIO_DEFINES} ${LIBRARY_CFLAGS} -DA5_IIO_SRC ${ALLEGRO_CFG_IIO_HAVE_PNG}"
             OUTPUT_NAME ${nm2}
             )
         
