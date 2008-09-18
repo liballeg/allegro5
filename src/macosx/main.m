@@ -217,7 +217,7 @@ int main(int argc, char *argv[])
 	__crt0_argc = argc;
 	__crt0_argv = argv;
 	
-	if (!osx_bootstrap_ok()) /* not safe to use NSApplication */
+	if (!_al_osx_bootstrap_ok()) /* not safe to use NSApplication */
 		call_user_main();
 	
 	[NSApplication sharedApplication];

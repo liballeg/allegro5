@@ -40,9 +40,9 @@ static BOOL in_fullscreen = NO;
 
 /* Module functions */
 NSView* osx_view_from_display(ALLEGRO_DISPLAY* disp);
-ALLEGRO_DISPLAY_INTERFACE* osx_get_display_driver(void);
-ALLEGRO_DISPLAY_INTERFACE* osx_get_display_driver_win(void);
-ALLEGRO_DISPLAY_INTERFACE* osx_get_display_driver_fs(void);
+ALLEGRO_DISPLAY_INTERFACE* _al_osx_get_display_driver(void);
+ALLEGRO_DISPLAY_INTERFACE* _al_osx_get_display_driver_win(void);
+ALLEGRO_DISPLAY_INTERFACE* _al_osx_get_display_driver_fs(void);
 NSOpenGLContext* CreateShareableContext(NSOpenGLPixelFormat* fmt, unsigned int* group);
 
 /* osx_change_cursor:
@@ -170,17 +170,17 @@ void _al_osx_mouse_was_installed(BOOL install) {
 -(void) keyDown:(NSEvent*) event
 {
 	if (_osx_keyboard_installed)
-		osx_keyboard_handler(TRUE, event, dpy_ptr);
+		_al_osx_keyboard_handler(TRUE, event, dpy_ptr);
 }
 -(void) keyUp:(NSEvent*) event 
 {
 	if (_osx_keyboard_installed)
-		osx_keyboard_handler(FALSE, event, dpy_ptr);
+		_al_osx_keyboard_handler(FALSE, event, dpy_ptr);
 }
 -(void) flagsChanged:(NSEvent*) event
 {
 	if (_osx_keyboard_installed) {
-		osx_keyboard_modifiers([event modifierFlags], dpy_ptr);
+		_al_osx_keyboard_modifiers([event modifierFlags], dpy_ptr);
 	}
 }
 
@@ -189,57 +189,57 @@ void _al_osx_mouse_was_installed(BOOL install) {
 -(void) mouseDown: (NSEvent*) evt
 {
 	if (_osx_mouse_installed) 
-      osx_mouse_generate_event(evt, dpy_ptr);
+      _al_osx_mouse_generate_event(evt, dpy_ptr);
 }
 -(void) mouseUp: (NSEvent*) evt
 {
 	if (_osx_mouse_installed) 
-	osx_mouse_generate_event(evt, dpy_ptr);
+	_al_osx_mouse_generate_event(evt, dpy_ptr);
 }
 -(void) mouseDragged: (NSEvent*) evt
 {
 	if (_osx_mouse_installed) 
-	osx_mouse_generate_event(evt, dpy_ptr);
+	_al_osx_mouse_generate_event(evt, dpy_ptr);
 }
 -(void) rightMouseDown: (NSEvent*) evt
 {
 	if (_osx_mouse_installed) 
-	osx_mouse_generate_event(evt, dpy_ptr);
+	_al_osx_mouse_generate_event(evt, dpy_ptr);
 }
 -(void) rightMouseUp: (NSEvent*) evt
 {
 	if (_osx_mouse_installed) 
-	osx_mouse_generate_event(evt, dpy_ptr);
+	_al_osx_mouse_generate_event(evt, dpy_ptr);
 }
 -(void) rightMouseDragged: (NSEvent*) evt
 {
 	if (_osx_mouse_installed) 
-	osx_mouse_generate_event(evt, dpy_ptr);
+	_al_osx_mouse_generate_event(evt, dpy_ptr);
 }
 -(void) otherMouseDown: (NSEvent*) evt
 {
 	if (_osx_mouse_installed) 
-	osx_mouse_generate_event(evt, dpy_ptr);
+	_al_osx_mouse_generate_event(evt, dpy_ptr);
 }
 -(void) otherMouseUp: (NSEvent*) evt
 {
 	if (_osx_mouse_installed) 
-	osx_mouse_generate_event(evt, dpy_ptr);
+	_al_osx_mouse_generate_event(evt, dpy_ptr);
 }
 -(void) otherMouseDragged: (NSEvent*) evt
 {
 	if (_osx_mouse_installed) 
-	osx_mouse_generate_event(evt, dpy_ptr);
+	_al_osx_mouse_generate_event(evt, dpy_ptr);
 }
 -(void) mouseMoved: (NSEvent*) evt
 {
 	if (_osx_mouse_installed) 
-	osx_mouse_generate_event(evt, dpy_ptr);
+	_al_osx_mouse_generate_event(evt, dpy_ptr);
 }
 -(void) scrollWheel: (NSEvent*) evt
 {
 	if (_osx_mouse_installed) 
-	osx_mouse_generate_event(evt, dpy_ptr);
+	_al_osx_mouse_generate_event(evt, dpy_ptr);
 }
 /* Cursor handling */
 - (void) viewDidMoveToWindow {
@@ -263,7 +263,7 @@ void _al_osx_mouse_was_installed(BOOL install) {
    else {
       [NSCursor hide];
    }
-   osx_mouse_generate_event(evt, dpy_ptr);
+   _al_osx_mouse_generate_event(evt, dpy_ptr);
 }
 -(void) mouseExited: (NSEvent*) evt
 {
@@ -271,7 +271,7 @@ void _al_osx_mouse_was_installed(BOOL install) {
    if (!dpy->show_cursor) {
       [NSCursor unhide];
    }
-	osx_mouse_generate_event(evt, dpy_ptr);
+	_al_osx_mouse_generate_event(evt, dpy_ptr);
 }
 
 /* windowShouldClose:
@@ -506,13 +506,13 @@ static int decode_allegro_format(int format, int* glfmt, int* glsize, int* depth
                                             dequeue:YES];
       switch ([event type]) {
          case NSKeyDown:
-            osx_keyboard_handler(TRUE,event,display);
+            _al_osx_keyboard_handler(TRUE,event,display);
             break;
          case NSKeyUp:
-            osx_keyboard_handler(FALSE,event,display);
+            _al_osx_keyboard_handler(FALSE,event,display);
             break;
          case NSFlagsChanged:
-            osx_keyboard_modifiers([event modifierFlags],display);
+            _al_osx_keyboard_modifiers([event modifierFlags],display);
             break;
          case NSLeftMouseDown:
          case NSLeftMouseUp:
@@ -525,7 +525,7 @@ static int decode_allegro_format(int format, int* glfmt, int* glsize, int* depth
          case NSRightMouseDragged:
          case NSOtherMouseDragged:
             if (_osx_mouse_installed) 
-               osx_mouse_generate_event(event, display);
+               _al_osx_mouse_generate_event(event, display);
             break;
          default:
             [NSApp sendEvent: event];
@@ -570,7 +570,7 @@ static ALLEGRO_DISPLAY* create_display_fs(int w, int h) {
 	}
    memset(dpy, 0, sizeof(*dpy));
 	/* Set up the ALLEGRO_DISPLAY part */
-	dpy->parent.vt = osx_get_display_driver_fs();
+	dpy->parent.vt = _al_osx_get_display_driver_fs();
 	dpy->parent.format = ALLEGRO_PIXEL_FORMAT_RGBA_8888; // To do: use the actual format and flags
 	dpy->parent.refresh_rate = al_get_new_display_refresh_rate();
 	dpy->parent.flags = al_get_new_display_flags() | ALLEGRO_OPENGL | ALLEGRO_FULLSCREEN;
@@ -640,7 +640,7 @@ static ALLEGRO_DISPLAY* create_display_win(int w, int h) {
 	}
    memset(dpy, 0, sizeof(*dpy));
 	/* Set up the ALLEGRO_DISPLAY part */
-	dpy->parent.vt = osx_get_display_driver_win();
+	dpy->parent.vt = _al_osx_get_display_driver_win();
 	dpy->parent.format = ALLEGRO_PIXEL_FORMAT_RGBA_8888; // To do: use the actual format and flags
 	dpy->parent.refresh_rate = al_get_new_display_refresh_rate();
 	dpy->parent.flags = al_get_new_display_flags() | ALLEGRO_OPENGL | ALLEGRO_WINDOWED | ALLEGRO_SINGLEBUFFER;
@@ -901,7 +901,7 @@ void set_icon(ALLEGRO_DISPLAY *display, ALLEGRO_BITMAP* bitmap)
    [NSApp setApplicationIconImage: NSImageFromAllegroBitmap(bitmap)];
 }
 
-ALLEGRO_DISPLAY_INTERFACE* osx_get_display_driver_win(void)
+ALLEGRO_DISPLAY_INTERFACE* _al_osx_get_display_driver_win(void)
 {
 	static ALLEGRO_DISPLAY_INTERFACE* vt = NULL;
    if (vt == NULL) {
@@ -932,7 +932,7 @@ ALLEGRO_DISPLAY_INTERFACE* osx_get_display_driver_win(void)
 	return vt;
 }   
 
-ALLEGRO_DISPLAY_INTERFACE* osx_get_display_driver_fs(void)
+ALLEGRO_DISPLAY_INTERFACE* _al_osx_get_display_driver_fs(void)
 {
 	static ALLEGRO_DISPLAY_INTERFACE* vt = NULL;
    if (vt == NULL) {
@@ -959,7 +959,7 @@ ALLEGRO_DISPLAY_INTERFACE* osx_get_display_driver_fs(void)
 }  
  
 /* Mini VT just for creating displays */
-ALLEGRO_DISPLAY_INTERFACE* osx_get_display_driver(void)
+ALLEGRO_DISPLAY_INTERFACE* _al_osx_get_display_driver(void)
 {
 	static ALLEGRO_DISPLAY_INTERFACE* vt = NULL;
    if (vt == NULL) {

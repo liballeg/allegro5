@@ -150,7 +150,7 @@ static void osx_thread_destroy(void* ptr)
 }
 
 
-void osx_threads_init(void)
+void _al_osx_threads_init(void)
 {
    pthread_key_create(&tls_key, osx_thread_destroy);
 }

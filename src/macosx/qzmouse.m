@@ -64,12 +64,12 @@ static ALLEGRO_MOUSE* osx_get_mouse(void)
 	return (ALLEGRO_MOUSE*) &osx_mouse.parent;
 }
 
-/* osx_mouse_generate_event:
+/* _al_osx_mouse_generate_event:
 * Convert an OS X mouse event to an Allegro event
 * and push it into a queue.
 * First check that the event is wanted.
 */
-void osx_mouse_generate_event(NSEvent* evt, ALLEGRO_DISPLAY* dpy)
+void _al_osx_mouse_generate_event(NSEvent* evt, ALLEGRO_DISPLAY* dpy)
 {
 	NSPoint pos;
 	int type, b_change = 0, dx = 0, dy = 0, dz = 0, dw = 0, b = 0;
@@ -296,7 +296,7 @@ static ALLEGRO_MOUSE_DRIVER osx_mouse_driver =
    NULL, //AL_METHOD(bool, set_mouse_range, (int x1, int y1, int x2, int y2));
    osx_get_mouse_state, //AL_METHOD(void, get_mouse_state, (ALLEGRO_MOUSE_STATE *ret_state));
 };
-ALLEGRO_MOUSE_DRIVER* osx_get_mouse_driver(void)
+ALLEGRO_MOUSE_DRIVER* _al_osx_get_mouse_driver(void)
 {
    return &osx_mouse_driver;
 }

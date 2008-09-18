@@ -107,12 +107,12 @@ static void osx_tell_dock(void)
 
 
 
-/* osx_bootstrap_ok:
+/* _al_osx_bootstrap_ok:
  *  Check if the current bootstrap context is privilege. If it's not, we can't
  *  use NSApplication, and instead have to go directly to main.
  *  Returns 1 if ok, 0 if not.
  */
-int osx_bootstrap_ok(void)
+int _al_osx_bootstrap_ok(void)
 {
    static int _ok = -1;
    mach_port_t bp;
@@ -140,7 +140,7 @@ static ALLEGRO_SYSTEM* osx_sys_init(int flags)
    int v1 = 0, v2 = 0, v3 = 0; // version numbers read from ProductVersion
    
    /* If we're in the 'dead bootstrap' environment, the Mac driver won't work. */
-   if (!osx_bootstrap_ok()) {
+   if (!_al_osx_bootstrap_ok()) {
       return NULL;
    }
 	/* Initialise the vt and display list */
@@ -175,7 +175,7 @@ static ALLEGRO_SYSTEM* osx_sys_init(int flags)
    
    osx_gfx_mode = OSX_GFX_NONE;
    
-   osx_threads_init();
+   _al_osx_threads_init();
    /* Mark the beginning of time. */
    _al_unix_init_time();
 
@@ -376,9 +376,9 @@ ALLEGRO_SYSTEM_INTERFACE *_al_system_osx_driver(void)
       vt = _AL_MALLOC(sizeof(*vt));
       memset(vt, 0, sizeof(*vt));
       vt->initialize = osx_sys_init;
-      vt->get_display_driver = osx_get_display_driver;
-      vt->get_keyboard_driver = osx_get_keyboard_driver;
-      vt->get_mouse_driver = osx_get_mouse_driver;
+      vt->get_display_driver = _al_osx_get_display_driver;
+      vt->get_keyboard_driver = _al_osx_get_keyboard_driver;
+      vt->get_mouse_driver = _al_osx_get_mouse_driver;
       vt->get_joystick_driver = osx_get_joystick_driver; 
       vt->shutdown_system = osx_sys_exit;
       vt->get_num_video_adapters = osx_get_num_video_adapters;
