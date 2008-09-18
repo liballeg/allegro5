@@ -32,3 +32,13 @@ TODO
 * finish path.c/h functions
 * get allegro to use fshook functions
 * split old pack_ and datafile functions off into addons
+
+// 18-09-2008
+* add mkdir function (demo uses "system()")
+* probably need to do something about the fancy path.c parsing,
+   in the demo I really don't want it to see A5TERIOIDS last item as a file if its not followed by a /
+   and I dont really want to force the / either. the separate drive and file items are really convenient...
+   but are they convenient enough to not be annoying in the case where you don't want them?
+* AL_USER_DATA_PATH needs to be "fixed", currently I've hacked it to clone USER_HOME_PATH on unix, which is ok for now,
+   wanted it to pre append the "app name" to it, so the app doesn't have to...
+* demo needs to switch to AL_USER_DATA_PATH once its fixed, fornow USER_HOME_PATH will have to suffice

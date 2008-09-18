@@ -16,10 +16,12 @@ typedef struct AL_PATH {
    char *abspath;
    uint32_t dirty;
 
+   uint32_t free;
+
    char *drive;
    char *filename;
-   
- 	int32_t segment_count;
+
+   int32_t segment_count;
    char **segment;
 } AL_PATH;
 
@@ -44,6 +46,9 @@ const char *al_path_get_drive(AL_PATH *path);
 
 int32_t al_path_set_filename(AL_PATH *path, AL_CONST char *filename);
 const char *al_path_get_filename(AL_PATH *path);
+
+const char *al_path_get_extension(AL_PATH *path, char *buf, size_t len);
+const char *al_path_get_basename(AL_PATH *path, char *buf, size_t len);
 
 /* FIXME: implement kthx bye */
 char *al_path_absolute(AL_PATH *path, char *buffer, size_t len, char delim);

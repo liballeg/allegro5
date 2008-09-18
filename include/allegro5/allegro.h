@@ -49,9 +49,6 @@
 
 #include "allegro5/tls.h"
 
-#include "allegro5/file.h"
-#include "allegro5/lzss.h"
-
 #include "fmaths.h"
 
 #include "config.h"

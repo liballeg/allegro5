@@ -11,7 +11,7 @@ extern int _Xdebug; /* part of Xlib */
 #include "allegro5/internal/aintern_memory.h"
 #include "xglx.h"
 
-int32_t _unix_get_path(uint32_t id, char *dir, size_t size);
+AL_CONST char *_unix_get_path(uint32_t id, char *dir, size_t size);
 
 static ALLEGRO_SYSTEM_INTERFACE *xglx_vt;
 

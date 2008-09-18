@@ -1,7 +1,8 @@
 #include "a5teroids.hpp"
 #include <stdio.h>
 
-
+#include <allegro5/fshook.h>
+#include <allegro5/path.h>
 
 bool kb_installed = false;
 bool joy_installed = false;
@@ -9,103 +10,43 @@ bool joy_installed = false;
 /*
  * Return the path to user resources (save states, configuration)
  */
-#ifdef __linux__
-static char* userResourcePath()
-{
-   static char path[MAX_PATH];
 
-   char* env = getenv("HOME");
-
-   if (env) {
-      strcpy(path, env);
-      if (path[strlen(path)-1] != '/') {
-         strncat(path, "/.a5teroids/", (sizeof(path)/sizeof(*path))-1);
-      }
-      else {
-         strncat(path, ".a5teroids/", (sizeof(path)/sizeof(*path))-1);
-      }
-   }
-   else {
-      strcpy(path, "save/");
-   }
-
-   return path;
-}
-#endif
 #ifdef ALLEGRO_MACOSX
 #ifndef MAX_PATH 
 #define MAX_PATH PATH_MAX
 #endif
-static char* userResourcePath()
-{
-   static char path[MAX_PATH];
-
-   char* env = getenv("HOME");
-
-   if (env) {
-      strcpy(path, env);
-      if (path[strlen(path)-1] != '/') {
-         strncat(path, "/.a5teroids/", (sizeof(path)/sizeof(*path))-1);
-      }
-      else {
-         strncat(path, ".a5teroids/", (sizeof(path)/sizeof(*path))-1);
-      }
-   }
-   else {
-      strcpy(path, "save/");
-   }
-
-   return path;
-}
 #endif
-#if defined(ALLEGRO_MSVC) || defined(ALLEGRO_MINGW32) || defined(ALLEGRO_BCC32)
-static char* userResourcePath()
-{
-   static char path[MAX_PATH];
-
-   int success = SHGetSpecialFolderPath(0, path, CSIDL_APPDATA, false);
-
-   if (success) {
-      if (path[strlen(path)-1] != '/') {
-         strncat(path, "/a5teroids/", (sizeof(path)/sizeof(*path))-1);	
-      }
-      else {
-         strncat(path, "a5teroids/", (sizeof(path)/sizeof(*path))-1);
-      }
-   }
-   else
-      strcpy(path, "save/");
-
-   return path;
-}
-#endif
-
-
 
 const char* getUserResource(const char* fmt, ...) throw (Error)
 {
+   AL_PATH path;
    va_list ap;
    static char name[MAX_PATH];
 
    // Create the user resource directory
    char userDir[991];
-   sprintf(userDir, "%s", userResourcePath());
-#ifndef __linux__
-   userDir[strlen(userDir)-1] = 0;
+   al_get_path(AL_USER_DATA_PATH, userDir, 991);
+   al_path_init(&path, userDir);
+
+#ifdef ALLEGRO_WINDOWS
+   al_path_append(&path, "a5steriods");
+#else
+   al_path_append(&path, ".a5steriods");
 #endif
-   if (!file_exists(userDir, FA_DIREC, 0)) {
-      char command[1000];
-      sprintf(command, "mkdir \"%s\"", userDir);
-      system(command);
-      if (!file_exists(userDir, FA_DIREC, 0)) {
+
+   al_path_to_string(&path, userDir, 991, ALLEGRO_NATIVE_PATH_SEP);
+   al_path_free(&path);
+
+   if (!al_fs_exists(userDir)) {
+      if(al_fs_mkdir(userDir) == -1) {
          throw Error("The user resource directory could not be created.\n");
       }
    }
 
-   strcpy(name, userResourcePath());
+   ustrcpy(name, userDir);
 
    va_start(ap, fmt);
-   vsnprintf(name+strlen(name), (sizeof(name)/sizeof(*name))-1, fmt, ap);
+   uvszprintf(name+strlen(name), MAX_PATH-1, fmt, ap);
    return name;
 }
 
@@ -117,45 +58,52 @@ const char* getUserResource(const char* fmt, ...) throw (Error)
 * then a system-wide resource directory then the directory
 * "data" from the current directory.
 */
-#ifdef __linux__
 static char* resourcePath()
 {
+   AL_PATH paths;
    static char path[MAX_PATH];
-
+   char sep[2] = { ALLEGRO_NATIVE_PATH_SEP, '\0' };
    char* env = getenv("A5TEROIDS_DATA");
 
    if (env) {
-      strcpy(path, env);
-      if (path[strlen(path)-1] != '/') {
-         strncat(path, "/", (sizeof(path)/sizeof(*path))-1);
+      al_path_init(&paths, env);
+      al_path_to_string(&paths, path, PATH_MAX, ALLEGRO_NATIVE_PATH_SEP);
+
+      if(!al_fs_exists(path)) {
+         al_path_free(&paths);
+
+         al_get_path(AL_SYSTEM_DATA_PATH, path, MAX_PATH);
+         al_path_init(&paths, path);
+         al_path_append(&paths, "a5steriods");
+         al_path_to_string(&paths, path, PATH_MAX, ALLEGRO_NATIVE_PATH_SEP);
+
+         if(!al_fs_exists(path)) {
+            al_path_free(&paths);
+            al_path_init(&paths, "data/");
+         }
       }
    }
    else {
-     strcpy(path, "data/");
+      al_get_path(AL_SYSTEM_DATA_PATH, path, MAX_PATH);
+      al_path_init(&paths, path);
+      al_path_append(&paths, "a5steriods");
+      al_path_to_string(&paths, path, PATH_MAX, ALLEGRO_NATIVE_PATH_SEP);
+
+      if(!al_fs_exists(path)) {
+         al_path_free(&paths);
+         al_path_init(&paths, "data/");
+      }
+   }
+
+   al_path_to_string(&paths, path, MAX_PATH, ALLEGRO_NATIVE_PATH_SEP);
+   al_path_free(&paths);
+
+   if (path[ustrlen(path)-1] != '/') {
+      strncat(path, sep, MAX_PATH-1);
    }
 
    return path;
 }
-#else
-static char* resourcePath()
-{
-   static char path[MAX_PATH];
-
-   char* env = getenv("A5TEROIDS_DATA");
-
-   if (env) {
-      strcpy(path, env);
-      if (path[strlen(path)-1] != '\\' && path[strlen(path)-1] != '/') {
-         strncat(path, "/", (sizeof(path)/sizeof(*path))-1);
-      }
-   }
-   else {
-      strcpy(path, "data/");
-   }
-
-   return path;
-}
-#endif
 
 
 
@@ -164,10 +112,10 @@ const char* getResource(const char* fmt, ...)
    va_list ap;
    static char name[MAX_PATH];
 
-   strcpy(name, resourcePath());
+   ustrcpy(name, resourcePath());
 
    va_start(ap, fmt);
-   vsnprintf(name+strlen(name), (sizeof(name)/sizeof(*name))-1, fmt, ap);
+   uvszprintf(name+ustrlen(name), MAX_PATH-1, fmt, ap);
    return name;
 }
 

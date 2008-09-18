@@ -163,14 +163,14 @@ ALLEGRO_SYSTEM *al_system_driver(void)
  *  Gets a system path, ie: temp, home, etc
  *  Returns -1 on failure.
  */
-int32_t al_get_path(uint32_t id, char *path, size_t size)
+AL_CONST char *al_get_path(uint32_t id, char *path, size_t size)
 {
    ASSERT(active_sysdrv);
 
    if (active_sysdrv->vt->get_path)
       return active_sysdrv->vt->get_path(id, path, size);
 
-   return -1;
+   return NULL;
 }
 
 /* vim: set sts=3 sw=3 et: */

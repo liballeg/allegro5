@@ -50,7 +50,7 @@
    #include <fcntl.h>
 #endif
 
-
+#include "allegro5/path.h"
 
 /* _unix_find_resource:
  *  Helper for locating a Unix config file. Looks in the home directory
@@ -59,65 +59,84 @@
 int _unix_find_resource(char *dest, AL_CONST char *resource, int size)
 {
    char buf[256], tmp[256], *last;
-   char *home = getenv("HOME");
+   char home[256], ext[256];
+   AL_PATH path;
 
-   if (home) {
-      /* look for ~/file */
-      append_filename(buf, uconvert_ascii(home, tmp), resource, sizeof(buf));
-      if (exists(buf)) {
+   _unix_get_path(AL_USER_HOME_PATH, home, sizeof(home));
+
+   if (ustrlen(home)) {
+      AL_PATH local_path;
+      if(!al_path_init(&local_path, home))
+         return -1;
+
+      al_path_append(&local_path, resource);
+      al_path_to_string(&local_path, buf, sizeof(buf), '/');
+
+      if (al_fs_exists(buf)) {
 	 ustrzcpy(dest, size, buf);
 	 return 0;
       }
 
       /* if it is a .cfg, look for ~/.filerc */
-      if (ustricmp(get_extension(resource), uconvert_ascii("cfg", tmp)) == 0) {
-	 ustrzcpy(buf, sizeof(buf) - ucwidth(OTHER_PATH_SEPARATOR), uconvert_ascii(home, tmp));
-	 put_backslash(buf);
-	 ustrzcat(buf, sizeof(buf), uconvert_ascii(".", tmp));
-	 ustrzcpy(tmp, sizeof(tmp), resource);
-	 ustrzcat(buf, sizeof(buf), ustrtok_r(tmp, ".", &last));
-	 ustrzcat(buf, sizeof(buf), uconvert_ascii("rc", tmp));
+      if (ustricmp(al_path_get_extension(&local_path, ext, sizeof(ext)), uconvert_ascii("cfg", tmp)) == 0) {
+
+         al_path_get_basename(&local_path, buf, sizeof(buf));
+         ustrncat(buf, "rc", 2);
+         al_path_set_filename(&local_path, buf);
+         al_path_to_string(&local_path, buf, sizeof(buf), '/');
+
+         /* FIXME: we're temporarily forgetting about these permission flags
 	 if (file_exists(buf, FA_ARCH | FA_RDONLY | FA_HIDDEN, NULL)) {
+         */
+         if (al_fs_exists(buf)) {
 	    ustrzcpy(dest, size, buf);
 	    return 0;
 	 }
       }
+
+      al_path_free(&local_path);
    }
 
    /* look for /etc/file */
-   append_filename(buf, uconvert_ascii("/etc/", tmp), resource, sizeof(buf));
-   if (exists(buf)) {
+   al_path_init(&path, "/etc");
+   al_path_set_filename(&path, resource);
+   al_path_to_string(&path, buf, sizeof(buf), '/');
+
+   if (al_fs_exists(buf)) {
       ustrzcpy(dest, size, buf);
       return 0;
    }
 
    /* if it is a .cfg, look for /etc/filerc */
-   if (ustricmp(get_extension(resource), uconvert_ascii("cfg", tmp)) == 0) {
-      ustrzcpy(buf, sizeof(buf), uconvert_ascii("/etc/", tmp));
-      ustrzcpy(tmp, sizeof(tmp), resource);
-      ustrzcat(buf, sizeof(buf), ustrtok_r(tmp, ".", &last));
-      ustrzcat(buf, sizeof(buf), uconvert_ascii("rc", tmp));
-      if (exists(buf)) {
+   if (ustricmp(al_path_get_extension(&path, ext, sizeof(ext)), uconvert_ascii("cfg", tmp)) == 0) {
+
+      al_path_get_basename(&path, buf, sizeof(buf));
+      ustrncat(buf, "rc", 2);
+      al_path_set_filename(&path, buf);
+      al_path_to_string(&path, buf, sizeof(buf), '/');
+
+      if (al_fs_exists(buf)) {
 	 ustrzcpy(dest, size, buf);
 	 return 0;
       }
    }
 
-   /* if it is a .dat, look in /usr/share/ and /usr/local/share/ */
-   if (ustricmp(get_extension(resource), uconvert_ascii("dat", tmp)) == 0) {
-      ustrzcpy(buf, sizeof(buf), uconvert_ascii("/usr/share/allegro/", tmp));
-      ustrzcat(buf, sizeof(buf), resource);
-      if (exists(buf)) {
-	 ustrzcpy(dest, size, buf);
-	 return 0;
-      }
-      ustrzcpy(buf, sizeof(buf), uconvert_ascii("/usr/local/share/allegro/", tmp));
-      ustrzcat(buf, sizeof(buf), resource);
-      if (exists(buf)) {
+   al_path_free(&path);
+
+   /* if it is a .dat, look in AL_SYSTEM_DATA_PATH */
+   al_path_init(&path, al_get_path(AL_SYSTEM_DATA_PATH, buf, sizeof(buf)));
+   al_path_set_filename(&path, resource);
+
+   if (ustricmp(al_path_get_extension(&path, ext, sizeof(ext)), uconvert_ascii("dat", tmp)) == 0) {
+      al_path_append(&path, "allegro");
+      al_path_to_string(&path, buf, sizeof(buf), '/');
+      if (al_fs_exists(buf)) {
 	 ustrzcpy(dest, size, buf);
 	 return 0;
       }
    }
+
+   al_path_free(&path);
 
    return -1;
 }
@@ -476,7 +495,7 @@ static int32_t _unix_find_home(char *dir, uint32_t len)
    return -1;
 }
 
-int32_t _unix_get_path(uint32_t id, char *dir, size_t size)
+AL_CONST char *_unix_get_path(uint32_t id, char *dir, size_t size)
 {
    switch(id) {
       case AL_TEMP_PATH: {
@@ -488,21 +507,21 @@ int32_t _unix_get_path(uint32_t id, char *dir, size_t size)
             if(tmp) {
                /* this may truncate paths, not likely in unix */
                do_uconvert (tmp, U_ASCII, dir, U_CURRENT, strlen(tmp)+1);
-               return 0;
+               return dir;
             }
          }
 
          /* next try: /tmp /var/tmp /usr/tmp */
-         char *paths[] = { "/tmp", "/var/tmp", "/usr/tmp", NULL };
+         char *paths[] = { "/tmp/", "/var/tmp/", "/usr/tmp/", NULL };
          for(i=0; paths[i] != NULL; ++i) {
             if(al_fs_stat_mode(paths[i]) & AL_FM_ISDIR) {
                do_uconvert (paths[i], U_ASCII, dir, U_CURRENT, strlen(paths[i])+1);
-               return 0;
+               return dir;
             }
          }
 
          /* Give up? */
-         return -1;
+         return NULL;
       } break;
 
       case AL_PROGRAM_PATH: {
@@ -513,18 +532,21 @@ int32_t _unix_get_path(uint32_t id, char *dir, size_t size)
          ptr = ustrrchr(dir, '/');
          if(!ptr) {
             al_set_errno(EINVAL);
-            return -1;
+            return NULL;
          }
 
-         *ptr = '\0';
+         ptr+=ucwidth(*ptr);
+         usetc(ptr, 0);
+         ustrcat(ptr, "/");
 
       } break;
 
       case AL_SYSTEM_DATA_PATH: {
          /* FIXME: make this a compile time define, or a allegro cfg option? or both */
-         _al_sane_strncpy(dir, "/usr/share", strlen("/usr/share")+1);
+         _al_sane_strncpy(dir, "/usr/share/", strlen("/usr/share/")+1);
       } break;
 
+#if 0
       case AL_USER_DATA_PATH: {
          int32_t ret = 0;
          uint32_t path_len = 0, ptr_len = 0, prog_len = 0;
@@ -532,7 +554,7 @@ int32_t _unix_get_path(uint32_t id, char *dir, size_t size)
          char prog[PATH_MAX] = "";
 
          if(_unix_find_home(path, PATH_MAX) != 0) {
-            return -1;
+            return NULL;
          }
 
          strncat(path, "/.", 2);
@@ -550,7 +572,7 @@ int32_t _unix_get_path(uint32_t id, char *dir, size_t size)
          ptr = strrchr(prog, '/');
          if(!ptr) {
             al_set_errno(EINVAL);
-            return -1;
+            return NULL;
          }
 
          *ptr = '\0';
@@ -561,23 +583,29 @@ int32_t _unix_get_path(uint32_t id, char *dir, size_t size)
          //*(ptr-1) = '/';
          do_uconvert (path, U_ASCII, dir, U_CURRENT, strlen(path)+1);
 
-         return 0;
       } break;
+#endif
 
+      case AL_USER_DATA_PATH:
       case AL_USER_HOME_PATH: {
          char tmp[PATH_MAX] = "";
          if(_unix_find_home(tmp, PATH_MAX) != 0) {
-            return -1;
+            return NULL;
          }
 
-         do_uconvert (tmp, U_ASCII, dir, U_CURRENT, strlen(tmp)+1);
+         if(tmp[strlen(tmp)-1] != '/')
+            ustrcat(tmp, "/");
+
+         ustrcpy(dir, tmp);
+         printf("userhome/datapath: '%s'\n", tmp);
+//         do_uconvert (tmp, U_ASCII, dir, U_CURRENT, strlen(tmp)+1);
       } break;
 
       default:
-         return -1;
+         return NULL;
    }
 
-   return 0;
+   return dir;
 }
 
 /* _unix_get_page_size:

@@ -20,6 +20,7 @@
 #include "allegro5/debug.h"
 #include "allegro5/fshook.h"
 #include "allegro5/internal/fshook.h"
+#include "allegro5/internal/aintern_memory.h"
 
 struct AL_FS_HOOK_SYS_INTERFACE  *_al_sys_fshooks = &_al_stdio_sys_fshooks;
 struct AL_FS_HOOK_ENTRY_INTERFACE *_al_entry_fshooks = &_al_stdio_entry_fshooks;
@@ -253,6 +254,13 @@ int32_t al_fs_chdir(const char *path)
    return _al_fs_hook_chdir(path);
 }
 
+int32_t al_fs_mkdir(AL_CONST char *path)
+{
+   ASSERT(path);
+
+   return _al_fs_hook_mkdir(path);
+}
+
 int32_t al_fs_add_search_path(const char *path)
 {
    ASSERT(path);
@@ -362,6 +370,246 @@ int32_t al_fs_isfile(AL_CONST char *path)
 {
    ASSERT(path != NULL);
    return _al_fs_hook_stat_mode(path) & AL_FM_ISFILE;
+}
+
+int al_fs_entry_getc (AL_FS_ENTRY *f)
+{
+   uint32_t c = 0;
+   ASSERT(f);
+
+   if(al_fs_entry_read(&c, 1, f) != 1) {
+      if(al_fs_entry_eof(f))
+         return EOF;
+   }
+
+   return c;
+}
+
+int al_fs_entry_putc (int c, AL_FS_ENTRY *f)
+{
+   ASSERT(f);
+   
+   if(al_fs_entry_write(&c, 1, f) != 1) {
+      if(al_fs_entry_error(f))
+         return EOF;
+   }
+
+   return c;
+}
+
+
+int16_t al_fs_entry_igetw (AL_FS_ENTRY *f)
+{
+   int16_t b1 = 0, b2 = 0;
+   ASSERT(f);
+
+   if ((b1 = al_fs_entry_getc(f)) != EOF)
+      if ((b2 = al_fs_entry_getc(f)) != EOF)
+         return ((b2 << 8) | b1);
+
+   return EOF;
+}
+
+int32_t al_fs_entry_igetl (AL_FS_ENTRY *f)
+{
+   int32_t b1 = 0, b2 = 0, b3 = 0, b4 = 0;
+   ASSERT(f);
+
+   if ((b1 = al_fs_entry_getc(f)) != EOF)
+      if ((b2 = al_fs_entry_getc(f)) != EOF)
+         if ((b3 = al_fs_entry_getc(f)) != EOF)
+            if ((b4 = al_fs_entry_getc(f)) != EOF)
+               return (((int32_t)b4 << 24) | ((int32_t)b3 << 16) |
+                       ((int32_t)b2 << 8) | (int32_t)b1);
+
+   return EOF;
+}
+
+int16_t al_fs_entry_iputw (int16_t w, AL_FS_ENTRY *f)
+{
+   int16_t b1 = 0, b2 = 0;
+   ASSERT(f);
+
+   b1 = (w & 0xFF00) >> 8;
+   b2 = w & 0x00FF;
+
+   if (al_fs_entry_putc(b2,f)==b2)
+      if (al_fs_entry_putc(b1,f)==b1)
+         return w;
+
+   return EOF;
+}
+
+int32_t al_fs_entry_iputl (int32_t l, AL_FS_ENTRY *f)
+{
+   int32_t b1 = 0, b2 = 0, b3 = 0, b4 = 0;
+   ASSERT(f);
+
+   b1 = (int32_t)((l & 0xFF000000L) >> 24);
+   b2 = (int32_t)((l & 0x00FF0000L) >> 16);
+   b3 = (int32_t)((l & 0x0000FF00L) >> 8);
+   b4 = (int32_t)l & 0x00FF;
+
+   if (al_fs_entry_putc(b4,f)==b4)
+      if (al_fs_entry_putc(b3,f)==b3)
+         if (al_fs_entry_putc(b2,f)==b2)
+            if (al_fs_entry_putc(b1,f)==b1)
+               return l;
+
+   return EOF;
+}
+
+int16_t al_fs_entry_mgetw (AL_FS_ENTRY *f)
+{
+   int16_t b1 = 0, b2 = 0;
+   ASSERT(f);
+
+   if ((b1 = al_fs_entry_getc(f)) != EOF)
+      if ((b2 = al_fs_entry_getc(f)) != EOF)
+         return ((b1 << 8) | b2);
+
+   return EOF;
+}
+
+int32_t al_fs_entry_mgetl (AL_FS_ENTRY *f)
+{
+   int32_t b1 = 0, b2 = 0, b3 = 0, b4 = 0;
+   ASSERT(f);
+
+   if ((b1 = al_fs_entry_getc(f)) != EOF)
+      if ((b2 = al_fs_entry_getc(f)) != EOF)
+         if ((b3 = al_fs_entry_getc(f)) != EOF)
+            if ((b4 = al_fs_entry_getc(f)) != EOF)
+               return (((int32_t)b1 << 24) | ((int32_t)b2 << 16) |
+                       ((int32_t)b3 << 8) | (int32_t)b4);
+
+   return EOF;
+}
+
+int16_t al_fs_entry_mputw (int16_t w, AL_FS_ENTRY *f)
+{
+   int16_t b1 = 0, b2 = 0;
+   ASSERT(f);
+
+   b1 = (w & 0xFF00) >> 8;
+   b2 = w & 0x00FF;
+
+   if (al_fs_entry_putc(b1,f)==b1)
+      if (al_fs_entry_putc(b2,f)==b2)
+         return w;
+
+   return EOF;
+}
+
+int32_t al_fs_entry_mputl (int32_t l, AL_FS_ENTRY *f)
+{
+   int32_t b1 = 0, b2 = 0, b3 = 0, b4 = 0;
+   ASSERT(f);
+
+   b1 = (int32_t)((l & 0xFF000000L) >> 24);
+   b2 = (int32_t)((l & 0x00FF0000L) >> 16);
+   b3 = (int32_t)((l & 0x0000FF00L) >> 8);
+   b4 = (int32_t)l & 0x00FF;
+
+   if (al_fs_entry_putc(b1,f)==b1)
+      if (al_fs_entry_putc(b2,f)==b2)
+         if (al_fs_entry_putc(b3,f)==b3)
+            if (al_fs_entry_putc(b4,f)==b4)
+               return l;
+
+   return EOF;
+}
+
+char *al_fs_entry_fgets (char *p, ssize_t max, AL_FS_ENTRY *f)
+{
+   char *pmax = NULL, *orig_p = p;
+   int c = 0;
+   ASSERT(f);
+
+   al_set_errno(0);
+
+   pmax = p+max - ucwidth(0);
+
+   if ((c = al_fs_entry_getc(f)) == EOF) {
+      if (ucwidth(0) <= max)
+         usetc(p,0);
+      return NULL;
+   }
+
+   do {
+
+      if (c == '\r' || c == '\n') {
+         /* Technically we should check there's space in the buffer, and if so,
+          * add a \n.  But pack_fgets has never done this. */
+         if (c == '\r') {
+            /* eat the following \n, if any */
+            c = al_fs_entry_getc(f);
+            if ((c != '\n') && (c != EOF))
+               al_fs_entry_ungetc(c, f);
+         }
+         break;
+      }
+
+      /* is there room in the buffer? */
+      if (ucwidth(c) > pmax - p) {
+         al_fs_entry_ungetc(c, f);
+         c = '\0';
+         break;
+      }
+
+      /* write the character */
+      p += usetc(p, c);
+   }
+   while ((c = al_fs_entry_getc(f)) != EOF);
+
+   /* terminate the string */
+   usetc(p, 0);
+
+   if (c == '\0' || al_get_errno())
+      return NULL;
+
+   return orig_p; /* p has changed */
+}
+
+int   al_fs_entry_fputs (AL_CONST char *p, AL_FS_ENTRY *f)
+{
+   char *buf = NULL, *s = NULL;
+   int bufsize = 0;
+   ASSERT(f);
+   ASSERT(p);
+
+   al_set_errno(0);
+
+   bufsize = uconvert_size(p, U_CURRENT, U_UTF8);
+   buf = _AL_MALLOC_ATOMIC(bufsize);
+   if (!buf)
+      return -1;
+
+   s = uconvert(p, U_CURRENT, buf, U_UTF8, bufsize);
+
+   while (*s) {
+      #if (defined ALLEGRO_DOS) || (defined ALLEGRO_WINDOWS)
+         if (*s == '\n')
+            al_fs_entry_putc('\r', f);
+      #endif
+
+      al_fs_entry_putc(*s, f);
+      s++;
+   }
+
+   _AL_FREE(buf);
+
+   if (al_get_errno())
+      return -1;
+   else
+      return 0;
+}
+
+int32_t al_fs_entry_ungetc(int32_t c, AL_FS_ENTRY *fp)
+{
+   ASSERT(fp != NULL);
+
+   return _al_fs_hook_entry_ungetc(c, fp);
 }
 
 /* for you freaks running vim/emacs. */

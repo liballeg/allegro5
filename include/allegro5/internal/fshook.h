@@ -50,6 +50,8 @@ struct AL_FS_HOOK_SYS_INTERFACE {
    AL_METHOD(int32_t, exists, (AL_CONST char *) );
    AL_METHOD(int32_t, unlink, (AL_CONST char *) );
 
+   AL_METHOD(int32_t, mkdir, (AL_CONST char *) );
+
    AL_METHOD(off_t,    stat_size,  (AL_CONST char *) );
    AL_METHOD(uint32_t, stat_mode,  (AL_CONST char *) );
    AL_METHOD(time_t,   stat_atime, (AL_CONST char *) );
@@ -73,6 +75,7 @@ struct AL_FS_HOOK_ENTRY_INTERFACE {
    AL_METHOD(int32_t,  ferror, (AL_FS_ENTRY *fp) );
    AL_METHOD(int32_t,  feof,   (AL_FS_ENTRY *fp) );
    AL_METHOD(int32_t,  fstat,  (AL_FS_ENTRY *handle) );
+   AL_METHOD(int32_t,  ungetc, (int32_t c, AL_FS_ENTRY *fp) );
 
    AL_METHOD(off_t,   entry_size,  (AL_FS_ENTRY *) );
    AL_METHOD(uint32_t, entry_mode,  (AL_FS_ENTRY *) );
@@ -108,6 +111,7 @@ extern struct AL_FS_HOOK_SYS_INTERFACE _al_stdio_sys_fshooks;
 #define _al_fs_hook_entry_tell(fp)                 (fp)->vtable->ftell(fp)
 #define _al_fs_hook_entry_error(fp)                (fp)->vtable->ferror(fp)
 #define _al_fs_hook_entry_eof(fp)                  (fp)->vtable->feof(fp)
+#define _al_fs_hook_entry_ungetc(c, fp)            (fp)->vtable->ungetc(c, fp)
 
 #define _al_fs_hook_entry_stat(path) (fp)->vtable->fstat(path)
 #define _al_fs_hook_entry_mode(fp)          (fp)->vtable->entry_mode(fp)
@@ -138,6 +142,7 @@ extern struct AL_FS_HOOK_SYS_INTERFACE _al_stdio_sys_fshooks;
 #define _al_fs_hook_stat_ctime(st) _al_sys_fshooks->stat_ctime(st)
 #define _al_fs_hook_stat_size(st)  _al_sys_fshooks->stat_size(st)
 
+#define _al_fs_hook_mkdir(path) _al_sys_fshooks->mkdir(path)
 
 #define _al_fs_hook_exists(path) _al_sys_fshooks->exists(path)
 #define _al_fs_hook_unlink(path) _al_sys_fshooks->unlink(path)

@@ -15,62 +15,36 @@ endif(SUPPORT_KCM_AUDIO)
 if(WANT_FLAC)
     # XXX flac.c doesn't compile with flac 1.1.2
     # missing FLAC__StreamDecoderInitStatus
-    find_path(FLAC_INCLUDE_DIR FLAC/stream_decoder.h PATHS ENV INCLUDE)
-    find_library(FLAC_LIBRARY NAMES FLAC PATHS ENV LIB)
-    mark_as_advanced(FLAC_INCLUDE_DIR FLAC_LIBRARY)
-
-    if(FLAC_INCLUDE_DIR AND FLAC_LIBRARY)
-        set(CAN_FLAC 1)
-    endif(FLAC_INCLUDE_DIR AND FLAC_LIBRARY)
-
-    if(CAN_FLAC)
+    find_package(FLAC)
+    if(FLAC_FOUND)
         set(SUPPORT_FLAC 1)
         set(ALLEGRO_CFG_ACODEC_FLAC 1)
         include_directories(${FLAC_INCLUDE_DIR})
-        list(APPEND ACODEC_EXTRA_LIBS FLAC)
+        list(APPEND ACODEC_EXTRA_LIBS ${FLAC_LIBRARIES})
         list(APPEND ACODEC_SOURCES flac.c)
-    endif(CAN_FLAC)
+    endif(FLAC_FOUND)
 endif(WANT_FLAC)
 
 if(WANT_VORBIS)
-    check_c_source_compiles("
-        #include <vorbis/vorbisfile.h>
-        int main(void) {
-            (void)OV_CALLBACKS_NOCLOSE;
-            return 0;
-        }"
-        CAN_VORBIS
-        )
-
-    if(VORBIS_INCLUDE_DIR AND VORBIS_LIBRARY)
-        set(CAN_VORBIS 1)
-    endif(VORBIS_INCLUDE_DIR AND VORBIS_LIBRARY)
-
-    if(CAN_VORBIS)
+    find_package(Vorbis)
+    if(VORBIS_FOUND)
         set(SUPPORT_VORBIS 1)
         set(ALLEGRO_CFG_ACODEC_VORBIS 1)
         include_directories(${VORBIS_INCLUDE_DIR})
-        list(APPEND ACODEC_EXTRA_LIBS vorbisfile vorbis ogg)
+        list(APPEND ACODEC_EXTRA_LIBS ${VORBIS_LIBRARIES})
         list(APPEND ACODEC_SOURCES ogg.c)
-    endif(CAN_VORBIS)
+    endif(VORBIS_FOUND)
 endif(WANT_VORBIS)
 
 if(WANT_SNDFILE)
-    find_path(SNDFILE_INCLUDE_DIR sndfile.h PATHS ENV INCLUDE)
-    find_library(SNDFILE_LIBRARY NAMES sndfile PATHS ENV LIB)
-    mark_as_advanced(SNDFILE_INCLUDE_DIR SNDFILE_LIBRARY)
-
-    if(SNDFILE_INCLUDE_DIR AND SNDFILE_LIBRARY)
-        set(CAN_SNDFILE 1)
-    endif(SNDFILE_INCLUDE_DIR AND SNDFILE_LIBRARY)
-
-    if(CAN_SNDFILE)
+    find_package(Sndfile)
+    if(SNDFILE_FOUND)
         set(SUPPORT_SNDFILE 1)
         set(ALLEGRO_CFG_ACODEC_SNDFILE 1)
         include_directories(${SNDFILE_INCLUDE_DIR})
-        list(APPEND ACODEC_EXTRA_LIBS sndfile)
+        list(APPEND ACODEC_EXTRA_LIBS ${SNDFILE_LIBRARIES})
         list(APPEND ACODEC_SOURCES wav.c)
-    endif(CAN_SNDFILE)
+    endif(SNDFILE_FOUND)
 endif(WANT_SNDFILE)
 
 configure_file(

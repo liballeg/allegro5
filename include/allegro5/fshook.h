@@ -18,7 +18,9 @@
 
 #include "base.h"
 
-//AL_BEGIN_EXTERN_C
+#ifdef __cplusplus
+   extern "C" {
+#endif
 
 /* The following defines are reserved for fs drivers.
  * Define to keep from defining types multiple times.
@@ -28,7 +30,7 @@
 
 #ifdef ALLEGRO_LIB_BUILD
 
-struct AL_FS_HOOK_ENTRY_VTABLE;
+struct AL_FS_HOOK_ENTRY_INTERFACE;
 typedef struct AL_FS_ENTRY {
    struct AL_FS_HOOK_ENTRY_INTERFACE *vtable;
 } AL_FS_ENTRY;
@@ -99,6 +101,10 @@ enum {
    AL_SEEK_END
 };
 
+#ifndef EOF
+   #define EOF    (-1)
+#endif
+
 /*
    Different Methods of handling file stat info (ie: AL_STAT):
 
@@ -152,6 +158,8 @@ int32_t al_fs_entry_tell(AL_FS_ENTRY *fp);
 int32_t al_fs_entry_error(AL_FS_ENTRY *fp);
 int32_t al_fs_entry_eof(AL_FS_ENTRY *fp);
 
+int32_t al_fs_entry_ungetc(int32_t c, AL_FS_ENTRY *fp);
+
 int32_t al_fs_entry_stat(AL_FS_ENTRY *fp);
 
 uint32_t al_fs_entry_mode(AL_FS_ENTRY *st);
@@ -183,6 +191,8 @@ int32_t al_fs_isfile(AL_CONST char *);
 int32_t al_fs_unlink(AL_CONST char *path);
 int32_t al_fs_exists(AL_CONST char *);
 
+int32_t al_fs_mkdir(AL_CONST char *);
+
 int32_t al_fs_getcwd(char *buf, size_t len);
 int32_t al_fs_chdir(const char *path);
 
@@ -190,16 +200,26 @@ int32_t al_fs_add_search_path(const char *path);
 int32_t al_fs_search_path_count();
 int32_t al_fs_get_search_path(uint32_t idx, char *dest, size_t len);
 
-
-
 int32_t al_fs_drive_sep(size_t len, char *sep);
 int32_t al_fs_path_sep(size_t len, char *sep);
 
 int32_t al_fs_path_to_sys(AL_CONST char *orig, size_t len, char *path);
 int32_t al_fs_path_to_uni(AL_CONST char *orig, size_t len, char *path);
 
-int32_t al_fs_catdir(char *dest, char **items, int32_t icnt);
-char **al_fs_splitdir(char *src);
+int al_fs_entry_getc (AL_FS_ENTRY *f);
+int al_fs_entry_putc (int c, AL_FS_ENTRY *f);
+
+int16_t al_fs_entry_igetw (AL_FS_ENTRY *f);
+int32_t al_fs_entry_igetl (AL_FS_ENTRY *f);
+int16_t al_fs_entry_iputw (int16_t w, AL_FS_ENTRY *f);
+int32_t al_fs_entry_iputl (int32_t l, AL_FS_ENTRY *f);
+int16_t al_fs_entry_mgetw (AL_FS_ENTRY *f);
+int32_t al_fs_entry_mgetl (AL_FS_ENTRY *f);
+int16_t al_fs_entry_mputw (int16_t w, AL_FS_ENTRY *f);
+int32_t al_fs_entry_mputl (int32_t l, AL_FS_ENTRY *f);
+
+char *al_fs_entry_fgets (char *p, ssize_t max, AL_FS_ENTRY *f);
+int   al_fs_entry_fputs (AL_CONST char *p, AL_FS_ENTRY *f);
 
 /* Find stuff */
 
@@ -211,6 +231,8 @@ char ** al_fs_find(char *path, AL_FS_FILTER filter, AL_FS_SORT sort);
 void al_fs_free_list(char **);
 
 
-//AL_END_EXTERN_C
+#ifdef __cplusplus
+   }
+#endif
 
 #endif          /* ifndef ALLEGRO_FSHOOK_H */

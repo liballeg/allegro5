@@ -15,7 +15,7 @@ static char *_ustrduprange(const char *start, const char *end)
       blen += ucwidth(c);
    }
 
-   dup = malloc(blen+eslen+1);
+   dup = _AL_MALLOC(blen+eslen+1);
    if(!dup) {
       return NULL;
    }
@@ -26,21 +26,37 @@ static char *_ustrduprange(const char *start, const char *end)
    return dup;
 }
 
-static void _fix_slashes(char *path)
+static void _ustrcpyrange(char *dest, const char *start, const char *end)
 {
-	char *ptr = path;
-	uint32_t cc = ugetc(ptr);
+   const char *ptr = start;
+   char *dup = NULL;
+   int32_t blen = 0, eslen = ustrsizez(empty_string);
 
-	while(cc) {
-		if(cc == '\\')
-			usetc(ptr, '/');
+   while(ptr < end) {
+      int32_t c = ugetxc(&ptr);
+      blen += ucwidth(c);
+   }
 
-		ptr++;
-		cc = ugetc(ptr);
-	}
+   memset(dest, 0, blen+eslen+1);
+   memcpy(dest, start, blen);
+
 }
 
-// last component if its not followed by a `dirsep` is interpreted as a file component, always.
+static void _fix_slashes(char *path)
+{
+   char *ptr = path;
+   uint32_t cc = ugetc(ptr);
+
+   while(cc) {
+      if(cc == '\\')
+         usetc(ptr, '/');
+
+      ptr++;
+      cc = ugetc(ptr);
+   }
+}
+
+// last component if its not followed by a `dirsep` is interpreted as a file component, if it is not a . or ..
 static int32_t _parse_path(const char *p, char **drive, char **path, char **file)
 {
    const char *ptr = p;
@@ -111,11 +127,11 @@ static int32_t _parse_path(const char *p, char **drive, char **path, char **file
       if(!file_info)
          goto _parse_path_error;
 
-		/* if the last bit is a . or .., its actually a dir, not a file */
-		if(ustrcmp(file_info, ".") == 0 || ustrcmp(file_info, "..") == 0) {
-			*path = file_info;
-			return 0;
-		}
+      /* if the last bit is a . or .., its actually a dir, not a file */
+      if(ustrcmp(file_info, ".") == 0 || ustrcmp(file_info, "..") == 0) {
+         *path = file_info;
+         return 0;
+      }
 
       *file = file_info;
       return 0;
@@ -123,19 +139,19 @@ static int32_t _parse_path(const char *p, char **drive, char **path, char **file
    else if(ugetat(path_info_end, 1)) {
       // dirsep is not at end
       char *file_info = NULL;
-		char *tmp_file_info = path_info_end;
+      char *tmp_file_info = path_info_end;
 
-		/* if the last bit is a . or .., its actually a dir, not a file */
-		if(ustrcmp(tmp_file_info, ".") == 0 || ustrcmp(tmp_file_info, "..") == 0) {
-			path_info_end = (char *)(ptr + ustrsize(ptr));
-		}
-		else {
-			file_info = ustrdup(tmp_file_info);
-			if(!file_info)
-				goto _parse_path_error;
+      /* if the last bit is a . or .., its actually a dir, not a file */
+      if(ustrcmp(tmp_file_info, ".") == 0 || ustrcmp(tmp_file_info, "..") == 0) {
+            path_info_end = (char *)(ptr + ustrsize(ptr));
+      }
+      else {
+         file_info = ustrdup(tmp_file_info);
+         if(!file_info)
+            goto _parse_path_error;
 
-				*file = file_info;
-		}
+            *file = file_info;
+      }
    }
 
    /* detect if the path_info should be a single '/' */
@@ -151,8 +167,6 @@ static int32_t _parse_path(const char *p, char **drive, char **path, char **file
 
       *path = path_info;
    }
-
-	printf("drive:'%s', path:'%s', file:'%s'\n", *drive, *path, *file);
 
    return 0;
 
@@ -231,68 +245,68 @@ _split_path_getout:
 
 static int32_t _al_path_init(AL_PATH *path, AL_CONST char *str)
 {
-	memset(path, 0, sizeof(AL_PATH));
+   memset(path, 0, sizeof(AL_PATH));
 
-	if(str != NULL) {
-		char *part_path = NULL;
-		char *orig = ustrdup(str);
-		if(!orig)
-			goto _path_init_fatal;
+   if(str != NULL) {
+   char *part_path = NULL;
+   char *orig = ustrdup(str);
+   if(!orig)
+         goto _path_init_fatal;
 
-		_fix_slashes(orig);
+   _fix_slashes(orig);
 
-		//if(ugetc(orig) == '/' || ugetat(orig, 1) == ':') {
-			if(_parse_path(orig, &(path->drive), &part_path, &(path->filename))!=0)
-				goto _path_init_fatal;
+   //if(ugetc(orig) == '/' || ugetat(orig, 1) == ':') {
+      if(_parse_path(orig, &(path->drive), &part_path, &(path->filename))!=0)
+         goto _path_init_fatal;
 
-//			printf("drive:'%s', path:'%s', file:'%s'\n", path->drive, part_path, path->filename);
+   //			printf("drive:'%s', path:'%s', file:'%s'\n", path->drive, part_path, path->filename);
 
-			free(orig);
-			orig = NULL;
-		//} else {
-		//	part_path = orig;
-		//	orig = NULL;
-		//}
+      free(orig);
+      orig = NULL;
+   //} else {
+   //	part_path = orig;
+   //	orig = NULL;
+   //}
 
-		/*{
-			char buffer[1024], *c = NULL;
-			usprintf(buffer, "_al_path_init: drive:'%s', filename:'%s', part_path:'%s'", path->drive?path->drive:"(null)", path->filename?path->filename:"(null)", part_path?part_path:"(null)");
-			c = uconvert(buffer, U_CURRENT, NULL, U_ASCII, 0);
-			printf("%s\n", c);
-		}*/
+   /*{
+         char buffer[1024], *c = NULL;
+         usprintf(buffer, "_al_path_init: drive:'%s', filename:'%s', part_path:'%s'", path->drive?path->drive:"(null)", path->filename?path->filename:"(null)", part_path?part_path:"(null)");
+         c = uconvert(buffer, U_CURRENT, NULL, U_ASCII, 0);
+         printf("%s\n", c);
+   }*/
 
-		path->segment = _split_path(part_path, &(path->segment_count));
-		if(!path->segment)
-			goto _path_init_fatal;
+   path->segment = _split_path(part_path, &(path->segment_count));
+   if(!path->segment)
+      goto _path_init_fatal;
 
-		return 1;
+   return 1;
 
 _path_init_fatal:
-		if(path->segment) {
-			int32_t i = 0;
-			for(i = 0; i < path->segment_count; i++)
-				free(path->segment[i]);
+   if(path->segment) {
+      int32_t i = 0;
+      for(i = 0; i < path->segment_count; i++)
+         free(path->segment[i]);
 
-			free(path->segment);
-		}
+      free(path->segment);
+   }
 
-		if(path->drive)
-			free(path->drive);
+   if(path->drive)
+      free(path->drive);
 
-		if(path->filename)
-			free(path->filename);
+   if(path->filename)
+      free(path->filename);
 
-		if(part_path)
-			free(part_path);
+   if(part_path)
+      free(part_path);
 
-		if(orig)
-			free(orig);
+   if(orig)
+      free(orig);
 
-		return 0;
+   return 0;
 
-	}
+   }
 
-	return 1;
+   return 1;
 }
 
 AL_PATH *al_path_create(AL_CONST char *str)
@@ -304,277 +318,324 @@ AL_PATH *al_path_create(AL_CONST char *str)
       return NULL;
 
    if(!_al_path_init(path, str)) {
-		free(path);
-		return NULL;
-	}
+      free(path);
+      return NULL;
+   }
 
-	return path;
+   path->free = 1;
+
+   return path;
 }
 
 int32_t al_path_init(AL_PATH *path, AL_CONST char *str)
 {
-	ASSERT(path);
-	return _al_path_init(path, str);
+   ASSERT(path);
+   return _al_path_init(path, str);
 }
 
 
 int al_path_num_components(AL_PATH *path)
 {
-	ASSERT(path);
-	return path->segment_count;
+   ASSERT(path);
+   return path->segment_count;
 }
 
 const char *al_path_index(AL_PATH *path, int i)
 {
-	ASSERT(path);
-	ASSERT(i < path->segment_count);
+   ASSERT(path);
+   ASSERT(i < path->segment_count);
 
-	if(i < 0)
-		i = path->segment_count + i;
+   if(i < 0)
+      i = path->segment_count + i;
 
-	ASSERT(i >= 0);
+   ASSERT(i >= 0);
 
-	return path->segment[i];
+   return path->segment[i];
 }
 
 void al_path_replace(AL_PATH *path, int i, const char *s)
 {
-	char *tmp = NULL;
+   char *tmp = NULL;
 
-	ASSERT(path);
-	ASSERT(s);
-	ASSERT(i < path->segment_count);
+   ASSERT(path);
+   ASSERT(s);
+   ASSERT(i < path->segment_count);
 
-	if(i < 0)
-		i = path->segment_count + i;
+   if(i < 0)
+      i = path->segment_count + i;
 
-	ASSERT(i >= 0);
+   ASSERT(i >= 0);
 
-	tmp = ustrdup(s);
-	if(!tmp)
-		return;
+   tmp = ustrdup(s);
+   if(!tmp)
+      return;
 
-	_AL_FREE(path->segment[i]);
-	path->segment[i] = tmp;
+   _AL_FREE(path->segment[i]);
+   path->segment[i] = tmp;
 }
 
 void al_path_remove(AL_PATH *path, int i)
 {
-	char **tmp = NULL;
+   char **tmp = NULL;
 
-	ASSERT(path);
-	ASSERT(i < path->segment_count);
+   ASSERT(path);
+   ASSERT(i < path->segment_count);
 
-	if(i < 0)
-		i = path->segment_count + i;
+   if(i < 0)
+      i = path->segment_count + i;
 
-	ASSERT(i >= 0);
+   ASSERT(i >= 0);
 
-	_AL_FREE(path->segment[i]);
-	memmove(path->segment+i, path->segment+i+1, sizeof(char *)*(path->segment_count-i-1));
-	path->segment = (char **)_AL_REALLOC(path->segment, (path->segment_count-1) * sizeof(char *));
-	/* I don't think realloc can fail if its just shrinking the existing block,
-		so I'm not bothering to check for it, or work around it */
+   _AL_FREE(path->segment[i]);
+   memmove(path->segment+i, path->segment+i+1, sizeof(char *)*(path->segment_count-i-1));
+   path->segment = (char **)_AL_REALLOC(path->segment, (path->segment_count-1) * sizeof(char *));
+   /* I don't think realloc can fail if its just shrinking the existing block,
+      so I'm not bothering to check for it, or work around it */
 }
 
 void al_path_insert(AL_PATH *path, int i, const char *s)
 {
-	char **tmp = NULL;
-	char *tmps = NULL;
+   char **tmp = NULL;
+   char *tmps = NULL;
 
-	ASSERT(path);
-	ASSERT(i < path->segment_count);
+   ASSERT(path);
+   ASSERT(i < path->segment_count);
 
-	if(i < 0)
-		i = path->segment_count + i;
+   if(i < 0)
+      i = path->segment_count - (-i) + 1;
 
-	ASSERT(i >= 0);
+   ASSERT(i >= 0);
 
-	tmps = ustrdup(s);
-	if(!tmps)
-		return;
+   tmps = ustrdup(s);
+   if(!tmps)
+      return;
 
-	tmp = _AL_REALLOC(path->segment, sizeof(char *) * (path->segment_count+1));
-	if(!tmp)
-		return;
+   tmp = _AL_REALLOC(path->segment, sizeof(char *) * (path->segment_count+1));
+   if(!tmp)
+      return;
 
-	path->segment = tmp;
+   path->segment = tmp;
 
-	memmove(path->segment+i, path->segment+i+1, path->segment_count - i);
-	path->segment[i] = tmps;
-	path->segment_count++;
+   printf("path_insert[%i]: '%s'\n", i, tmps);
+
+   memmove(path->segment+i, path->segment+i+1, path->segment_count - i);
+   path->segment[i] = tmps;
+   path->segment_count++;
 
 }
 
 const char *al_path_tail(AL_PATH *path)
 {
-	ASSERT(path);
+   ASSERT(path);
 
-	return al_path_index(path, -1);
+   return al_path_index(path, -1);
 }
 
 void al_path_drop_tail(AL_PATH *path)
 {
-	al_path_remove(path, -1);
+   al_path_remove(path, -1);
 }
 
 void al_path_append(AL_PATH *path, const char *s)
 {
-	al_path_insert(path, -1, s);
+   al_path_insert(path, -1, s);
 }
 
 void al_path_concat(AL_PATH *path, const AL_PATH *tail)
 {
-	char **tmp = NULL, *new_filename = NULL;
-	int32_t i = 0, full_count = 0;
+   char **tmp = NULL, *new_filename = NULL;
+   int32_t i = 0, full_count = 0;
 
-	ASSERT(path);
-	ASSERT(tail);
+   ASSERT(path);
+   ASSERT(tail);
 
-	if(tail->drive)
-		/* don't bother concating if the tail is an absolute path */
-		return;
+   if(tail->drive)
+      /* don't bother concating if the tail is an absolute path */
+      return;
 
-	if(tail->segment_count) {
-		if(tail->segment[0] && ustrcmp(tail->segment[0], "")==0) {
-			/* if the first segment is empty, we have an absolute path */
-			return;
-		}
-	}
+   if(tail->segment_count) {
+      if(tail->segment[0] && ustrcmp(tail->segment[0], "")==0) {
+         /* if the first segment is empty, we have an absolute path */
+         return;
+      }
+   }
 
-	if(path->filename) {
-		new_filename = ustrdup(tail->filename);
-		if(!new_filename)
-			return;
+   if(path->filename) {
+      new_filename = ustrdup(tail->filename);
+      if(!new_filename)
+         return;
 
-		_AL_FREE(path->filename);
-		path->filename = new_filename;
-	}
+      _AL_FREE(path->filename);
+      path->filename = new_filename;
+   }
 
-	tmp = _AL_REALLOC(path->segment, (path->segment_count + tail->segment_count) * sizeof(char *));
-	if(!tmp)
-		return;
+   tmp = _AL_REALLOC(path->segment, (path->segment_count + tail->segment_count) * sizeof(char *));
+   if(!tmp)
+      return;
 
-	memset(path->segment+path->segment_count, 0, sizeof(char*)*tail->segment_count);
+   memset(path->segment+path->segment_count, 0, sizeof(char*)*tail->segment_count);
 
-	for(i = 0; i < tail->segment_count; i++) {
-		char *seg = ustrdup(tail->segment[i]);
-		if(!seg) {
-			i--;
-			break;
-		}
+   for(i = 0; i < tail->segment_count; i++) {
+      char *seg = ustrdup(tail->segment[i]);
+      if(!seg) {
+         i--;
+         break;
+      }
 
-		path->segment[path->segment_count+i] = seg;
-	}
+      path->segment[path->segment_count+i] = seg;
+   }
 
-	path->segment_count += i;
+   path->segment_count += i;
 
 }
 
 /* FIXME: this is a rather dumb implementation, not using ustr*cat should speed it up */
 char *al_path_to_string(AL_PATH *path, char *buffer, size_t len, char delim)
 {
-	size_t cur_len = 0;
-	char *ptr = buffer;
-	int32_t i = 0;
-	char d[2] = { delim, '\0' };
+   size_t cur_len = 0;
+   char *ptr = buffer;
+   int32_t i = 0;
+   char d[2] = { delim, '\0' };
 
-	ASSERT(path);
-	ASSERT(buffer);
+   ASSERT(path);
+   ASSERT(buffer);
 
-	memset(buffer, 0, len);
+   memset(buffer, 0, len);
 
-	if(path->drive) {
-		size_t drive_size = ustrlen(path->drive);
-		ustrzncat(buffer, len, path->drive, drive_size);
-		ustrzncat(buffer, len, d, 1);
-	}
+   if(path->drive) {
+      size_t drive_size = ustrlen(path->drive);
+      ustrzncat(buffer, len, path->drive, drive_size);
+      ustrzncat(buffer, len, d, 1);
+   }
 
-	for(i=0; i < path->segment_count; i++) {
-		ustrzncat(buffer, len, path->segment[i], ustrlen(path->segment[i]));
-		ustrzncat(buffer, len, d, 1);
-	}
+   printf("path->segment_count: %i\n", path->segment_count);
+   for(i=0; i < path->segment_count; i++) {
+      printf("segment: '%p'\n", path->segment[i]);
+      ustrzncat(buffer, len, path->segment[i], ustrlen(path->segment[i]));
+      ustrzncat(buffer, len, d, 1);
+   }
 
-	if(path->filename) {
-		ustrzncat(buffer, len, path->filename, ustrlen(path->filename));
-	}
+   if(path->filename) {
+      ustrzncat(buffer, len, path->filename, ustrlen(path->filename));
+   }
 
-	return buffer;
+   return buffer;
 }
 
 void al_path_free(AL_PATH *path)
 {
-	int32_t i = 0;
+   int32_t i = 0;
 
-	ASSERT(path);
+   ASSERT(path);
 
-	if(path->drive) {
-		_AL_FREE(path->drive);
-		path->drive = NULL;
-	}
+   if(path->drive) {
+      _AL_FREE(path->drive);
+      path->drive = NULL;
+   }
 
-	if(path->filename) {
-		_AL_FREE(path->filename);
-		path->filename = NULL;
-	}
+   if(path->filename) {
+      _AL_FREE(path->filename);
+      path->filename = NULL;
+   }
 
-	for(i = 0; i < path->segment_count; i++) {
-		_AL_FREE(path->segment[i]);
-		path->segment[i] = NULL;
-	}
+   for(i = 0; i < path->segment_count; i++) {
+      _AL_FREE(path->segment[i]);
+      path->segment[i] = NULL;
+   }
 
-	_AL_FREE(path->segment);
-	path->segment = NULL;
+   _AL_FREE(path->segment);
+   path->segment = NULL;
 
-	_AL_FREE(path);
+   path->segment_count = 0;
+
+   if(path->free)
+      _AL_FREE(path);
 }
 
 int32_t al_path_set_drive(AL_PATH *path, AL_CONST char *drive)
 {
-	ASSERT(path);
+   ASSERT(path);
 
-	if(path->drive) {
-		free(path->drive);
-		path->drive = NULL;
-	}
+   if(path->drive) {
+      free(path->drive);
+      path->drive = NULL;
+   }
 
-	if(drive) {
-		path->drive = ustrdup(drive);
-		if(!path->drive)
-			return -1;
-	}
+   if(drive) {
+      path->drive = ustrdup(drive);
+      if(!path->drive)
+         return -1;
+   }
 
-	return 0;
+   return 0;
 }
 
 const char *al_path_get_drive(AL_PATH *path)
 {
-	ASSERT(path);
-	//printf("drive: '%s'\n", path->drive);
-	return path->drive;
+   ASSERT(path);
+   return path->drive;
 }
 
 int32_t al_path_set_filename(AL_PATH *path, AL_CONST char *filename)
 {
-	ASSERT(path);
+   ASSERT(path);
 
-	if(path->filename) {
-		free(path->filename);
-		path->filename = NULL;
-	}
+   if(path->filename) {
+      _AL_FREE(path->filename);
+      path->filename = NULL;
+   }
 
-	if(filename) {
-		path->filename = ustrdup(filename);
-		if(!path->filename)
-			return -1;
-	}
+   if(filename) {
+      path->filename = ustrdup(filename);
+      if(!path->filename)
+         return -1;
+   }
 
-	return 0;
+   return 0;
 }
 
 const char *al_path_get_filename(AL_PATH *path)
 {
-	ASSERT(path);
-	//printf("filename: '%s'\n", path->filename);
-	return path->filename;
+   ASSERT(path);
+   return path->filename;
 }
+
+const char *al_path_get_extension(AL_PATH *path, char *buf, size_t len)
+{
+   ASSERT(path);
+   ASSERT(buf);
+
+   memset(buf, 0, len);
+
+   if(path->filename) {
+      char *ext = NULL;
+
+      ext = ustrrchr(path->filename, '.');
+      if(ext) {
+         ustrncpy(buf, ext, len);
+      }
+
+   }
+
+   return buf;
+}
+
+const char *al_path_get_basename(AL_PATH *path, char *buf, size_t len)
+{
+   ASSERT(path);
+   ASSERT(buf);
+
+   memset(buf, 0, len);
+
+   if(path->filename) {
+      char *ext = NULL;
+
+      ext = ustrrchr(path->filename, '.');
+      if(ext) {
+         _ustrcpyrange(buf, path->filename, ext);
+      }
+   }
+
+   return buf;
+}
+

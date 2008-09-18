@@ -22,7 +22,7 @@ enum {
    AL_LAST_PATH // must be last
 };
 
-AL_FUNC(int32_t, al_get_path, (uint32_t id, char *path, size_t size));
+AL_FUNC(AL_CONST char *, al_get_path, (uint32_t id, char *path, size_t size));
 
 #ifdef __cplusplus
    }

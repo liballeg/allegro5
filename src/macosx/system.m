@@ -406,7 +406,7 @@ void _al_register_system_interfaces()
 }
 
 /* Implentation of this function, not 'officially' in allegro yet */
-int32_t _al_osx_get_path(int32_t id, char* path, size_t length) 
+AL_CONST char *_al_osx_get_path(int32_t id, char* path, size_t length)
 {
    NSString* ans = nil;
    NSArray* paths = nil;
@@ -436,7 +436,7 @@ int32_t _al_osx_get_path(int32_t id, char* path, size_t length)
       /* 10.4 and above only */
          ok = [ans getCString:path maxLength:length encoding: NSUTF8StringEncoding];
       }
-   return ok == YES ? 0 : -1;
+   return ok == YES ? path : NULL;
 }
 
 /* _al_osx_post_quit

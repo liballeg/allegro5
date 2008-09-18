@@ -8,7 +8,6 @@ set(ALLEGRO_SRC_FILES
     src/dtor.c
     src/events.c
     src/evtsrc.c
-    src/file.c
     src/fshook.c
     src/fshook_stdio.c
     src/graphics.c
@@ -16,7 +15,6 @@ set(ALLEGRO_SRC_FILES
     src/joynu.c
     src/keybdnu.c
     src/libc.c
-    src/lzss.c
     src/math.c
     src/memblit.c
     src/memblit1.c
@@ -94,7 +92,6 @@ set(ALLEGRO_SRC_DOS_FILES
 
 set(ALLEGRO_SRC_WIN_FILES
     src/win/wddraw.c
-    src/win/wfile.c
     src/win/winput.c
     src/win/wjoydrv.c
     src/win/wjoydxnu.c
@@ -190,7 +187,6 @@ set(ALLEGRO_SRC_UNIX_FILES
     src/unix/udrvlist.c
     src/unix/udummy.c
     src/unix/ufdwatch.c
-    src/unix/ufile.c
     src/unix/ugfxdrv.c
     src/unix/ujoydrv.c
     src/unix/ukeybd.c
@@ -245,7 +241,6 @@ set(ALLEGRO_SRC_MACOSX_FILES
     src/macosx/qzmouse.m
     src/macosx/system.m
     src/macosx/osxgl.m
-    src/unix/ufile.c
     src/unix/utime.c
     src/unix/uxthread.c
     )
@@ -304,14 +299,12 @@ set(ALLEGRO_INCLUDE_ALLEGRO_FILES
     include/allegro5/display_new.h
     include/allegro5/error.h
     include/allegro5/events.h
-    include/allegro5/file.h
     include/allegro5/fixed.h
     include/allegro5/fmaths.h
     include/allegro5/fshook.h
     include/allegro5/joystick.h
     include/allegro5/keyboard.h
     include/allegro5/keycodes.h
-    include/allegro5/lzss.h
     include/allegro5/memory.h
     include/allegro5/mouse.h
     include/allegro5/path.h

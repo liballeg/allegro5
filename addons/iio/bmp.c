@@ -24,7 +24,7 @@
 #include "allegro5/internal/aintern.h"
 #include "allegro5/internal/aintern_bitmap.h"
 #include "allegro5/convert.h"
-
+#include "allegro5/fshook.h"
 
 #include "iio.h"
 
@@ -88,13 +88,13 @@ typedef struct OS2BMPINFOHEADER  /* size: 12 */
 /* read_bmfileheader:
  *  Reads a BMP file header and check that it has the BMP magic number.
  */
-static int read_bmfileheader(PACKFILE *f, BMPFILEHEADER *fileheader)
+static int read_bmfileheader(AL_FS_ENTRY *f, BMPFILEHEADER *fileheader)
 {
-   fileheader->bfType = pack_igetw(f);
-   fileheader->bfSize= pack_igetl(f);
-   fileheader->bfReserved1= pack_igetw(f);
-   fileheader->bfReserved2= pack_igetw(f);
-   fileheader->bfOffBits= pack_igetl(f);
+   fileheader->bfType = al_fs_entry_igetw(f);
+   fileheader->bfSize = al_fs_entry_igetl(f);
+   fileheader->bfReserved1 = al_fs_entry_igetw(f);
+   fileheader->bfReserved2 = al_fs_entry_igetw(f);
+   fileheader->bfOffBits = al_fs_entry_igetl(f);
 
    if (fileheader->bfType != 19778)
       return -1;
@@ -107,20 +107,20 @@ static int read_bmfileheader(PACKFILE *f, BMPFILEHEADER *fileheader)
 /* read_win_bminfoheader:
  *  Reads information from a BMP file header.
  */
-static int read_win_bminfoheader(PACKFILE *f, BMPINFOHEADER *infoheader)
+static int read_win_bminfoheader(AL_FS_ENTRY *f, BMPINFOHEADER *infoheader)
 {
    WINBMPINFOHEADER win_infoheader;
 
-   win_infoheader.biWidth = pack_igetl(f);
-   win_infoheader.biHeight = pack_igetl(f);
-   win_infoheader.biPlanes = pack_igetw(f);
-   win_infoheader.biBitCount = pack_igetw(f);
-   win_infoheader.biCompression = pack_igetl(f);
-   win_infoheader.biSizeImage = pack_igetl(f);
-   win_infoheader.biXPelsPerMeter = pack_igetl(f);
-   win_infoheader.biYPelsPerMeter = pack_igetl(f);
-   win_infoheader.biClrUsed = pack_igetl(f);
-   win_infoheader.biClrImportant = pack_igetl(f);
+   win_infoheader.biWidth = al_fs_entry_igetl(f);
+   win_infoheader.biHeight = al_fs_entry_igetl(f);
+   win_infoheader.biPlanes = al_fs_entry_igetw(f);
+   win_infoheader.biBitCount = al_fs_entry_igetw(f);
+   win_infoheader.biCompression = al_fs_entry_igetl(f);
+   win_infoheader.biSizeImage = al_fs_entry_igetl(f);
+   win_infoheader.biXPelsPerMeter = al_fs_entry_igetl(f);
+   win_infoheader.biYPelsPerMeter = al_fs_entry_igetl(f);
+   win_infoheader.biClrUsed = al_fs_entry_igetl(f);
+   win_infoheader.biClrImportant = al_fs_entry_igetl(f);
 
    infoheader->biWidth = win_infoheader.biWidth;
    infoheader->biHeight = win_infoheader.biHeight;
@@ -135,14 +135,14 @@ static int read_win_bminfoheader(PACKFILE *f, BMPINFOHEADER *infoheader)
 /* read_os2_bminfoheader:
  *  Reads information from an OS/2 format BMP file header.
  */
-static int read_os2_bminfoheader(PACKFILE *f, BMPINFOHEADER *infoheader)
+static int read_os2_bminfoheader(AL_FS_ENTRY *f, BMPINFOHEADER *infoheader)
 {
    OS2BMPINFOHEADER os2_infoheader;
 
-   os2_infoheader.biWidth = pack_igetw(f);
-   os2_infoheader.biHeight = pack_igetw(f);
-   os2_infoheader.biPlanes = pack_igetw(f);
-   os2_infoheader.biBitCount = pack_igetw(f);
+   os2_infoheader.biWidth = al_fs_entry_igetw(f);
+   os2_infoheader.biHeight = al_fs_entry_igetw(f);
+   os2_infoheader.biPlanes = al_fs_entry_igetw(f);
+   os2_infoheader.biBitCount = al_fs_entry_igetw(f);
 
    infoheader->biWidth = os2_infoheader.biWidth;
    infoheader->biHeight = os2_infoheader.biHeight;
@@ -157,25 +157,25 @@ static int read_os2_bminfoheader(PACKFILE *f, BMPINFOHEADER *infoheader)
 /* read_bmicolors:
  *  Loads the color palette for 1,4,8 bit formats.
  */
-static void read_bmicolors(int bytes, PalEntry *pal, PACKFILE *f, int win_flag)
+static void read_bmicolors(int bytes, PalEntry *pal, AL_FS_ENTRY *f, int win_flag)
 {
    int i, j;
 
    for (i=j=0; (i+3 <= bytes && j < 256); j++) {
-      pal[j].b = pack_getc(f);
-      pal[j].g = pack_getc(f);
-      pal[j].r = pack_getc(f);
+      pal[j].b = al_fs_entry_getc(f);
+      pal[j].g = al_fs_entry_getc(f);
+      pal[j].r = al_fs_entry_getc(f);
 
       i += 3;
 
       if (win_flag && i < bytes) {
-	 pack_getc(f);
+	 al_fs_entry_getc(f);
 	 i++;
       }
    }
 
    for (; i<bytes; i++)
-      pack_getc(f);
+      al_fs_entry_getc(f);
 }
 
 
@@ -183,7 +183,7 @@ static void read_bmicolors(int bytes, PalEntry *pal, PACKFILE *f, int win_flag)
 /* read_1bit_line:
  *  Support function for reading the 1 bit bitmap file format.
  */
-static void read_1bit_line(int length, PACKFILE *f, unsigned char *buf, int line)
+static void read_1bit_line(int length, AL_FS_ENTRY *f, unsigned char *buf, int line)
 {
    unsigned char b[32];
    unsigned long n;
@@ -192,7 +192,7 @@ static void read_1bit_line(int length, PACKFILE *f, unsigned char *buf, int line
    for (i=0; i<length; i++) {
       j = i % 32;
       if (j == 0) {
-	 n = pack_mgetl(f);
+	 n = al_fs_entry_mgetl(f);
 	 for (k=0; k<32; k++) {
 	    b[31-k] = (char)(n & 1);
 	    n = n >> 1;
@@ -207,7 +207,7 @@ static void read_1bit_line(int length, PACKFILE *f, unsigned char *buf, int line
 /* read_4bit_line:
  *  Support function for reading the 4 bit bitmap file format.
  */
-static void read_4bit_line(int length, PACKFILE *f, unsigned char *buf, int line)
+static void read_4bit_line(int length, AL_FS_ENTRY *f, unsigned char *buf, int line)
 {
    unsigned char b[8];
    unsigned long n;
@@ -217,7 +217,7 @@ static void read_4bit_line(int length, PACKFILE *f, unsigned char *buf, int line
    for (i=0; i<length; i++) {
       j = i % 8;
       if (j == 0) {
-	 n = pack_igetl(f);
+	 n = al_fs_entry_igetl(f);
 	 for (k=0; k<4; k++) {
 	    temp = n & 255;
 	    b[k*2+1] = temp & 15;
@@ -235,7 +235,7 @@ static void read_4bit_line(int length, PACKFILE *f, unsigned char *buf, int line
 /* read_8bit_line:
  *  Support function for reading the 8 bit bitmap file format.
  */
-static void read_8bit_line(int length, PACKFILE *f, unsigned char *buf, int line)
+static void read_8bit_line(int length, AL_FS_ENTRY *f, unsigned char *buf, int line)
 {
    unsigned char b[4];
    unsigned long n;
@@ -244,7 +244,7 @@ static void read_8bit_line(int length, PACKFILE *f, unsigned char *buf, int line
    for (i=0; i<length; i++) {
       j = i % 4;
       if (j == 0) {
-	 n = pack_igetl(f);
+	 n = al_fs_entry_igetl(f);
 	 for (k=0; k<4; k++) {
 	    b[k] = (char)(n & 255);
 	    n = n >> 8;
@@ -260,13 +260,13 @@ static void read_8bit_line(int length, PACKFILE *f, unsigned char *buf, int line
  *  Support function for reading the 16 bit bitmap file format, doing
  *  our best to convert it down to a 256 color palette.
  */
-static void read_16bit_line(int length, PACKFILE *f, ALLEGRO_BITMAP *bmp, int line)
+static void read_16bit_line(int length, AL_FS_ENTRY *f, ALLEGRO_BITMAP *bmp, int line)
 {
    int i, w;
    PalEntry c;
 
    for (i=0; i<length; i++) {
-      w = pack_igetw(f);
+      w = al_fs_entry_igetw(f);
 
       /* the format is like a 15-bpp bitmap, not 16bpp */
       c.r = (w >> 10) & 0x1f;
@@ -280,7 +280,7 @@ static void read_16bit_line(int length, PACKFILE *f, ALLEGRO_BITMAP *bmp, int li
    i = (i * 2) % 4;
    if (i != 0) {
       while (i++ < 4)
-	 pack_getc(f);
+	 al_fs_entry_getc(f);
    }
 }
 
@@ -290,15 +290,15 @@ static void read_16bit_line(int length, PACKFILE *f, ALLEGRO_BITMAP *bmp, int li
  *  Support function for reading the 24 bit bitmap file format, doing
  *  our best to convert it down to a 256 color palette.
  */
-static void read_24bit_line(int length, PACKFILE *f, ALLEGRO_BITMAP *bmp, int line)
+static void read_24bit_line(int length, AL_FS_ENTRY *f, ALLEGRO_BITMAP *bmp, int line)
 {
    int i;
    PalEntry c;
 
    for (i=0; i<length; i++) {
-      c.b = pack_getc(f);
-      c.g = pack_getc(f);
-      c.r = pack_getc(f);
+      c.b = al_fs_entry_getc(f);
+      c.g = al_fs_entry_getc(f);
+      c.r = al_fs_entry_getc(f);
       al_put_pixel(i, line, al_map_rgb(c.r, c.g, c.b));
    }
 
@@ -306,7 +306,7 @@ static void read_24bit_line(int length, PACKFILE *f, ALLEGRO_BITMAP *bmp, int li
    i = (i * 3) % 4;
    if (i != 0) {
       while (i++ < 4)
-         pack_getc(f);
+         al_fs_entry_getc(f);
    }
 }
 
@@ -316,16 +316,16 @@ static void read_24bit_line(int length, PACKFILE *f, ALLEGRO_BITMAP *bmp, int li
  *  Support function for reading the 32 bit bitmap file format, doing
  *  our best to convert it down to a 256 color palette.
  */
-static void read_32bit_line(int length, PACKFILE *f, ALLEGRO_BITMAP *bmp, int line)
+static void read_32bit_line(int length, AL_FS_ENTRY *f, ALLEGRO_BITMAP *bmp, int line)
 {
    int i;
    PalEntry c;
 
    for (i=0; i<length; i++) {
-      c.b = pack_getc(f);
-      c.g = pack_getc(f);
-      c.r = pack_getc(f);
-      c.a = pack_getc(f);
+      c.b = al_fs_entry_getc(f);
+      c.g = al_fs_entry_getc(f);
+      c.r = al_fs_entry_getc(f);
+      c.a = al_fs_entry_getc(f);
       al_put_pixel(i, line, al_map_rgba(c.r, c.g, c.b, c.a));
    }
 }
@@ -335,7 +335,7 @@ static void read_32bit_line(int length, PACKFILE *f, ALLEGRO_BITMAP *bmp, int li
 /* read_bitfields_image:
  *  For reading the bitfield compressed BMP image format.
  */
-static void read_bitfields_image(PACKFILE *f, ALLEGRO_BITMAP *bmp, AL_CONST BMPINFOHEADER *infoheader, int bpp)
+static void read_bitfields_image(AL_FS_ENTRY *f, ALLEGRO_BITMAP *bmp, AL_CONST BMPINFOHEADER *infoheader, int bpp)
 {
    int k, i, line, height, dir;
    int bytes_per_pixel;
@@ -354,7 +354,7 @@ static void read_bitfields_image(PACKFILE *f, ALLEGRO_BITMAP *bmp, AL_CONST BMPI
    for (i=0; i<height; i++, line+=dir) {
       for (k=0; k<(int)infoheader->biWidth; k++) {
 
-	 pack_fread(&buffer, bytes_per_pixel, f);
+	 al_fs_entry_read(&buffer, bytes_per_pixel, f);
 
 	 if (bpp == 15) {
             pix = ALLEGRO_CONVERT_RGB_555_TO_ARGB_8888(buffer);
@@ -378,7 +378,7 @@ static void read_bitfields_image(PACKFILE *f, ALLEGRO_BITMAP *bmp, AL_CONST BMPI
       k = (k * bytes_per_pixel) % 4;
       if (k > 0) {
 	 while (k++ < 4)
-	    pack_getc(f);
+	    al_fs_entry_getc(f);
       }
    }
 }
@@ -387,7 +387,7 @@ static void read_bitfields_image(PACKFILE *f, ALLEGRO_BITMAP *bmp, AL_CONST BMPI
 /* read_image:
  *  For reading the noncompressed BMP image format.
  */
-static void read_image(PACKFILE *f, ALLEGRO_BITMAP *bmp, AL_CONST BMPINFOHEADER *infoheader,
+static void read_image(AL_FS_ENTRY *f, ALLEGRO_BITMAP *bmp, AL_CONST BMPINFOHEADER *infoheader,
    PalEntry *pal)
 {
    int i, j, line, height, dir;
@@ -447,7 +447,7 @@ static void read_image(PACKFILE *f, ALLEGRO_BITMAP *bmp, AL_CONST BMPINFOHEADER 
 /* read_RLE8_compressed_image:
  *  For reading the 8 bit RLE compressed BMP image format.
  */
-static void read_RLE8_compressed_image(PACKFILE *f, unsigned char *buf, AL_CONST BMPINFOHEADER *infoheader)
+static void read_RLE8_compressed_image(AL_FS_ENTRY *f, unsigned char *buf, AL_CONST BMPINFOHEADER *infoheader)
 {
    unsigned char count, val, val0;
    int j, pos, line;
@@ -461,8 +461,8 @@ static void read_RLE8_compressed_image(PACKFILE *f, unsigned char *buf, AL_CONST
       eolflag = 0;                           /* end of line flag */
 
       while ((eolflag == 0) && (eopicflag == 0)) {
-	 count = pack_getc(f);
-	 val = pack_getc(f);
+	 count = al_fs_entry_getc(f);
+	 val = al_fs_entry_getc(f);
 
 	 if (count > 0) {                    /* repeat pixel count times */
 	    for (j=0;j<count;j++) {
@@ -482,21 +482,21 @@ static void read_RLE8_compressed_image(PACKFILE *f, unsigned char *buf, AL_CONST
 		  break;
 
 	       case 2:                       /* displace picture */
-		  count = pack_getc(f);
-		  val = pack_getc(f);
+		  count = al_fs_entry_getc(f);
+		  val = al_fs_entry_getc(f);
 		  pos += count;
 		  line -= val;
 		  break;
 
 	       default:                      /* read in absolute mode */
 		  for (j=0; j<val; j++) {
-		     val0 = pack_getc(f);
+		     val0 = al_fs_entry_getc(f);
                      buf[line*infoheader->biWidth+pos] = val0;
 		     pos++;
 		  }
 
 		  if (j%2 == 1)
-		     val0 = pack_getc(f);    /* align on word boundary */
+		     val0 = al_fs_entry_getc(f);    /* align on word boundary */
 		  break;
 
 	    }
@@ -517,7 +517,7 @@ static void read_RLE8_compressed_image(PACKFILE *f, unsigned char *buf, AL_CONST
 /* read_RLE4_compressed_image:
  *  For reading the 4 bit RLE compressed BMP image format.
  */
-static void read_RLE4_compressed_image(PACKFILE *f, unsigned char *buf, AL_CONST BMPINFOHEADER *infoheader)
+static void read_RLE4_compressed_image(AL_FS_ENTRY *f, unsigned char *buf, AL_CONST BMPINFOHEADER *infoheader)
 {
    unsigned char b[8];
    unsigned char count;
@@ -533,8 +533,8 @@ static void read_RLE4_compressed_image(PACKFILE *f, unsigned char *buf, AL_CONST
       eolflag = 0;                           /* end of line flag */
 
       while ((eolflag == 0) && (eopicflag == 0)) {
-	 count = pack_getc(f);
-	 val = pack_getc(f);
+	 count = al_fs_entry_getc(f);
+	 val = al_fs_entry_getc(f);
 
 	 if (count > 0) {                    /* repeat pixels count times */
 	    b[1] = val & 15;
@@ -556,8 +556,8 @@ static void read_RLE4_compressed_image(PACKFILE *f, unsigned char *buf, AL_CONST
 		  break;
 
 	       case 2:                       /* displace image */
-		  count = pack_getc(f);
-		  val = pack_getc(f);
+		  count = al_fs_entry_getc(f);
+		  val = al_fs_entry_getc(f);
 		  pos += count;
 		  line -= val;
 		  break;
@@ -565,7 +565,7 @@ static void read_RLE4_compressed_image(PACKFILE *f, unsigned char *buf, AL_CONST
 	       default:                      /* read in absolute mode */
 		  for (j=0; j<val; j++) {
 		     if ((j%4) == 0) {
-			val0 = pack_igetw(f);
+			val0 = al_fs_entry_igetw(f);
 			for (k=0; k<2; k++) {
 			   b[2*k+1] = val0 & 15;
 			   val0 = val0 >> 4;
@@ -593,13 +593,13 @@ static void read_RLE4_compressed_image(PACKFILE *f, unsigned char *buf, AL_CONST
 
 
 /* load_bmp_pf:
- *  Like load_bmp, but starts loading from the current place in the PACKFILE
+ *  Like load_bmp, but starts loading from the current place in the AL_FS_ENTRY
  *  specified. If successful the offset into the file will be left just after
  *  the image data. If unsuccessful the offset into the file is unspecified,
  *  i.e. you must either reset the offset to some known place or close the
  *  packfile. The packfile is not closed by this function.
  */
-static ALLEGRO_BITMAP *iio_load_bmp_pf(PACKFILE *f)
+static ALLEGRO_BITMAP *iio_load_bmp_pf(AL_FS_ENTRY *f)
 {
    BMPFILEHEADER fileheader;
    BMPINFOHEADER infoheader;
@@ -616,7 +616,7 @@ static ALLEGRO_BITMAP *iio_load_bmp_pf(PACKFILE *f)
       return NULL;
    }
 
-   biSize = pack_igetl(f);
+   biSize = al_fs_entry_igetl(f);
 
    if (biSize == WININFOHEADERSIZE) {
       if (read_win_bminfoheader(f, &infoheader) != 0) {
@@ -646,9 +646,9 @@ static ALLEGRO_BITMAP *iio_load_bmp_pf(PACKFILE *f)
       bpp = 8;
 
    if (infoheader.biCompression == BIT_BITFIELDS) {
-      unsigned long redMask = pack_igetl(f);
-      unsigned long grnMask = pack_igetl(f);
-      unsigned long bluMask = pack_igetl(f);
+      unsigned long redMask = al_fs_entry_igetl(f);
+      unsigned long grnMask = al_fs_entry_igetl(f);
+      unsigned long bluMask = al_fs_entry_igetl(f);
 
       (void)grnMask;
 
@@ -725,12 +725,12 @@ static ALLEGRO_BITMAP *iio_load_bmp_pf(PACKFILE *f)
 
 
 /* save_bmp_pf:
- *  Like save_bmp but writes into the PACKFILE given instead of a new file.
+ *  Like save_bmp but writes into the AL_FS_ENTRY given instead of a new file.
  *  The packfile is not closed after writing is completed. On success the
  *  offset into the file is left after the TGA file just written. On failure
  *  the offset is left at the end of whatever incomplete data was written.
  */
-static int iio_save_bmp_pf(PACKFILE *f, ALLEGRO_BITMAP *bmp) 
+static int iio_save_bmp_pf(AL_FS_ENTRY *f, ALLEGRO_BITMAP *bmp)
 {
    int bfSize;
    int biSizeImage;
@@ -764,29 +764,29 @@ static int iio_save_bmp_pf(PACKFILE *f, ALLEGRO_BITMAP *bmp)
    al_set_errno(0);
 
    /* file_header */
-   pack_iputw(0x4D42, f);              /* bfType ("BM") */
-   pack_iputl(bfSize, f);              /* bfSize */
-   pack_iputw(0, f);                   /* bfReserved1 */
-   pack_iputw(0, f);                   /* bfReserved2 */
+   al_fs_entry_iputw(0x4D42, f);              /* bfType ("BM") */
+   al_fs_entry_iputl(bfSize, f);              /* bfSize */
+   al_fs_entry_iputw(0, f);                   /* bfReserved1 */
+   al_fs_entry_iputw(0, f);                   /* bfReserved2 */
 
    if (bpp == 8)                       /* bfOffBits */
-      pack_iputl(54+256*4, f); 
+      al_fs_entry_iputl(54+256*4, f);
    else
-      pack_iputl(54, f); 
+      al_fs_entry_iputl(54, f);
 
    /* info_header */
-   pack_iputl(40, f);                  /* biSize */
-   pack_iputl(w, f);                   /* biWidth */
-   pack_iputl(h, f);                   /* biHeight */
-   pack_iputw(1, f);                   /* biPlanes */
-   pack_iputw(bpp, f);                 /* biBitCount */
-   pack_iputl(0, f);                   /* biCompression */
-   pack_iputl(biSizeImage, f);         /* biSizeImage */
-   pack_iputl(0xB12, f);               /* biXPelsPerMeter (0xB12 = 72 dpi) */
-   pack_iputl(0xB12, f);               /* biYPelsPerMeter */
+   al_fs_entry_iputl(40, f);                  /* biSize */
+   al_fs_entry_iputl(w, f);                   /* biWidth */
+   al_fs_entry_iputl(h, f);                   /* biHeight */
+   al_fs_entry_iputw(1, f);                   /* biPlanes */
+   al_fs_entry_iputw(bpp, f);                 /* biBitCount */
+   al_fs_entry_iputl(0, f);                   /* biCompression */
+   al_fs_entry_iputl(biSizeImage, f);         /* biSizeImage */
+   al_fs_entry_iputl(0xB12, f);               /* biXPelsPerMeter (0xB12 = 72 dpi) */
+   al_fs_entry_iputl(0xB12, f);               /* biYPelsPerMeter */
 
-   pack_iputl(0, f);                /* biClrUsed */
-   pack_iputl(0, f);                /* biClrImportant */
+   al_fs_entry_iputl(0, f);                /* biClrUsed */
+   al_fs_entry_iputl(0, f);                /* biClrImportant */
 
    al_lock_bitmap(bmp, &lr, ALLEGRO_LOCK_READONLY);
 
@@ -796,13 +796,13 @@ static int iio_save_bmp_pf(PACKFILE *f, ALLEGRO_BITMAP *bmp)
          ALLEGRO_COLOR c = al_get_pixel(bmp, j, i);
          unsigned char r, g, b;
          al_unmap_rgb(c, &r, &g, &b);
-         pack_putc(b, f);
-         pack_putc(g, f);
-         pack_putc(r, f);
+         al_fs_entry_putc(b, f);
+         al_fs_entry_putc(g, f);
+         al_fs_entry_putc(r, f);
       }
 
       for (j=0; j<filler; j++)
-	 pack_putc(0, f);
+	 al_fs_entry_putc(0, f);
    }
 
    al_unlock_bitmap(bmp);
@@ -824,17 +824,17 @@ static int iio_save_bmp_pf(PACKFILE *f, ALLEGRO_BITMAP *bmp)
  */
 ALLEGRO_BITMAP *iio_load_bmp(AL_CONST char *filename)
 {
-   PACKFILE *f;
+   AL_FS_ENTRY *f;
    ALLEGRO_BITMAP *bmp;
    ASSERT(filename);
 
-   f = pack_fopen(filename, F_READ);
+   f = al_fs_entry_open(filename, "r");
    if (!f)
       return NULL;
 
    bmp = iio_load_bmp_pf(f);
 
-   pack_fclose(f);
+   al_fs_entry_close(f);
 
    return bmp;
 }
@@ -846,17 +846,17 @@ ALLEGRO_BITMAP *iio_load_bmp(AL_CONST char *filename)
  */
 int iio_save_bmp(AL_CONST char *filename, ALLEGRO_BITMAP *bmp) 
 {
-   PACKFILE *f;
+   AL_FS_ENTRY *f;
    int ret;
    ASSERT(filename);
 
-   f = pack_fopen(filename, F_WRITE);
+   f = al_fs_entry_open(filename, "w");
    if (!f) 
       return -1;
 
    ret = iio_save_bmp_pf(f, bmp);
 
-   pack_fclose(f);
+   al_fs_entry_close(f);
 
    return ret;
 }
