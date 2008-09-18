@@ -71,7 +71,7 @@ int main(void)
 
    al_set_new_display_flags(ALLEGRO_GENERATE_EXPOSE_EVENTS);
    display1 = al_create_display(400, 300);
-   if (!display2) {
+   if (!display1) {
       TRACE("Error creating display1\n");
       return 1;
    }
