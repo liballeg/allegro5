@@ -56,6 +56,8 @@ typedef struct KEY_EVENT_INFO {
    void (*handler)(void);
 } KEY_EVENT_INFO;
 
+typedef void (*THREAD_PROC)(void *);
+
 
 /* input_proc: [input thread]
  * This the input thread.
@@ -206,7 +208,7 @@ bool _al_win_input_unregister_event(HANDLE event_id)
  */
 void _al_win_input_init(void)
 {
-   input_thread = (HANDLE)_beginthread(input_proc, 0, NULL);
+   input_thread = (HANDLE)_beginthread((THREAD_PROC)input_proc, 0, NULL);
    if (!input_thread) {
       TRACE(PREFIX_E "Failed to spawn the input thread.\n");
    }

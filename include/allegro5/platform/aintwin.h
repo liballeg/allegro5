@@ -116,8 +116,6 @@ struct ALLEGRO_SYSTEM_WIN
 	ALLEGRO_SYSTEM system; /* This must be the first member, we "derive" from it. */
 };
 
-extern ALLEGRO_SYSTEM_WIN *_al_win_system;
-
 /* helpers to create windows */
 HWND _al_win_create_window(ALLEGRO_DISPLAY *display, int width, int height, int flags);
 HWND _al_win_create_faux_fullscreen_window(LPCTSTR devname, ALLEGRO_DISPLAY *display,
