@@ -12,10 +12,6 @@ if(WANT_PNG)
     endif(PNG_FOUND)
 endif(WANT_PNG)
 
-configure_file(
-    allegro5/internal/aintern_iio_cfg.h.cmake
-    include/allegro5/internal/aintern_iio_cfg.h
-    )
 
 macro(add_iio_build nm extra_flags)
     macro(really_add_iio_build nm2 target libtype more_extra_flags)
