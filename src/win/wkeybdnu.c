@@ -227,7 +227,7 @@ static void key_dinput_handle_scancode(unsigned char scancode, int pressed, _AL_
    }
 
    /* if not foreground, filter out press codes and handle only release codes */
-   if (!wnd_sysmenu || !pressed) {
+   if (!pressed) {
       /* three-finger salute for killing the program */
       if (_al_three_finger_flag
          && (key_input->modifiers & ALLEGRO_KEYMOD_CTRL)
@@ -519,6 +519,9 @@ static bool key_dinput_init(_AL_KEY_DINPUT *key_input)
 }
 
 
+typedef void (*handler)(void *);
+
+
 /* _al_win_attach_input: [primary thread] [window thread]
  *  Initializes dinput interface for the given window and registers events
  *  callbacks to the input thread.
@@ -532,11 +535,11 @@ bool _al_win_attach_key_input(_AL_KEY_DINPUT *key_input)
       TRACE(PREFIX_E "Failed to init dinput keyboard device.\n");
       return false;
    }
-   if (!_win_input_register_event(key_input->input_event, key_dinput_handle, key_input)) {
+   if (!_win_input_register_event(key_input->input_event, (handler)key_dinput_handle, key_input)) {
       TRACE(PREFIX_E "Registering dinput keyboard event handlers failed.\n");
       return false;
    }
-   if (!_win_input_register_event(key_input->autorepeat_timer, key_dinput_repeat, key_input)) {
+   if (!_win_input_register_event(key_input->autorepeat_timer, (handler)key_dinput_repeat, key_input)) {
       TRACE(PREFIX_E "Registering dinput keyboard event handlers failed.\n");
       return false;
    }

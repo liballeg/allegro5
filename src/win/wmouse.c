@@ -485,7 +485,7 @@ static void mouse_dinput_handle(void* unused)
 
       if (_al_display_type() == 1) {
          /* windowed input mode */
-         if (!wnd_sysmenu) {
+         //if (!wnd_sysmenu) {
             POINT p;
             int wx, wy;
 
@@ -513,7 +513,7 @@ static void mouse_dinput_handle(void* unused)
             }
             mouse_directx_motion_handler_abs(p.x, p.y);
          }
-      }
+      //}
    }
 #if 0
       else {

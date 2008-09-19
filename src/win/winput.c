@@ -56,7 +56,7 @@ static HANDLE input_thread = NULL;
 /* internal input thread management */
 static HANDLE ack_event = NULL;
 
-volatile static bool input_thread_is_over = false;
+static volatile bool input_thread_is_over = false;
 
 typedef struct KEY_EVENT_INFO {
    HANDLE id;
@@ -68,7 +68,7 @@ typedef struct KEY_EVENT_INFO {
 /* input_proc: [input thread]
  * This the input thread.
  */
-static unsigned int __stdcall input_proc(void *unused)
+static DWORD __stdcall input_proc(void *unused)
 {
    DWORD result;
    TRACE(PREFIX_I "Input thread started.\n");

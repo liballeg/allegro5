@@ -40,6 +40,8 @@ HWND _al_win_active_window = NULL;
 
 static bool resize_postponed = false;
 
+UINT _al_win_msg_call_proc = 0;
+UINT _al_win_msg_suicide = 0;
 
 /*
  * Find the top left position of the client area of a window.
@@ -546,6 +548,9 @@ int _al_win_init_window()
    window_class.style = CS_VREDRAW|CS_HREDRAW|CS_OWNDC;
 
    window_identifier = RegisterClass(&window_class);
+
+   _al_win_msg_call_proc = RegisterWindowMessage("Allegro call proc");
+   _al_win_msg_suicide = RegisterWindowMessage("Allegro window suicide");
 
    return true;
 }
