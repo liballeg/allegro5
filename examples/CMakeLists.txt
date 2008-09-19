@@ -10,6 +10,7 @@ if(SUPPORT_FONT)
     example(ex_windows ${LIBS})
     example(ex_font ${LIBS})
     example(ex_mouse_cursor ${LIBS})
+    example(ex_keyboard_events ${LIBS})
 endif(SUPPORT_FONT)
 
 if(SUPPORT_IIO)
