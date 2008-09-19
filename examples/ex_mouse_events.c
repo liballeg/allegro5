@@ -1,6 +1,30 @@
 #include <allegro5/allegro5.h>
 #include "allegro5/a5_iio.h"
 
+#define NUM_BUTTONS  3
+
+void draw_mouse_button(int but, bool down)
+{
+   const int offset[NUM_BUTTONS] = {0, 70, 35};
+   ALLEGRO_COLOR grey;
+   ALLEGRO_COLOR black;
+   int x;
+   int y;
+   
+   x = 400 + offset[but];
+   y = 130;
+
+   grey = al_map_rgb(0xe0, 0xe0, 0xe0);
+   black = al_map_rgb(0, 0, 0);
+
+   al_draw_rectangle(x, y, x + 26.5, y + 41.5, grey, ALLEGRO_FILLED);
+   al_draw_rectangle(x, y, x + 26.5, y + 41.5, black, ALLEGRO_OUTLINED);
+   if (down) {
+      al_draw_rectangle(x + 2, y + 2, x + 24.5, y + 39.5, black,
+         ALLEGRO_FILLED);
+   }
+}
+
 int main(void)
 {
    ALLEGRO_DISPLAY *display;
@@ -9,6 +33,8 @@ int main(void)
    ALLEGRO_EVENT event;
    int mx = 0;
    int my = 0;
+   bool buttons[NUM_BUTTONS] = {false};
+   int i;
 
    al_init();
    al_install_mouse();
@@ -34,30 +60,38 @@ int main(void)
    al_register_event_source(queue, (ALLEGRO_EVENT_SOURCE *)al_get_keyboard());
 
    while (1) {
-      if (!al_event_queue_is_empty(queue)) {
-         while (al_get_next_event(queue, &event)) {
-            switch (event.type) {
-               case ALLEGRO_EVENT_MOUSE_AXES:
-                  mx = event.mouse.x;
-                  my = event.mouse.y;
-                  break;
-
-               case ALLEGRO_EVENT_MOUSE_BUTTON_DOWN:
-                  goto done;
-
-               case ALLEGRO_EVENT_KEY_DOWN:
-                  if (event.keyboard.keycode == ALLEGRO_KEY_ESCAPE) {
-                     goto done;
-                  }
-                  break;
-            }
-         }
+      al_clear(al_map_rgb(0xff, 0xff, 0xc0));
+      for (i = 0; i < NUM_BUTTONS; i++) {
+         draw_mouse_button(i, buttons[i]);
       }
-
-      al_clear(al_map_rgb(0, 0, 0));
       al_draw_bitmap(cursor, mx, my, 0);
       al_flip_display();
-      al_rest(0.005);
+
+      al_wait_for_event(queue, &event);
+      switch (event.type) {
+         case ALLEGRO_EVENT_MOUSE_AXES:
+            mx = event.mouse.x;
+            my = event.mouse.y;
+            break;
+
+         case ALLEGRO_EVENT_MOUSE_BUTTON_DOWN:
+            if (event.mouse.button-1 < NUM_BUTTONS) {
+               buttons[event.mouse.button-1] = true;
+            }
+            break;
+
+         case ALLEGRO_EVENT_MOUSE_BUTTON_UP:
+            if (event.mouse.button-1 < NUM_BUTTONS) {
+               buttons[event.mouse.button-1] = false;
+            }
+            break;
+
+         case ALLEGRO_EVENT_KEY_DOWN:
+            if (event.keyboard.keycode == ALLEGRO_KEY_ESCAPE) {
+               goto done;
+            }
+            break;
+      }
    }
 
 done:
@@ -69,4 +103,4 @@ done:
 
 END_OF_MAIN()
 
-/* vi: set sw=3 sts=3 et: */
+/* vim: set sw=3 sts=3 et: */
