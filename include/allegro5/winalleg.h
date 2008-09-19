@@ -68,9 +68,6 @@
 #endif
 
 
-AL_FUNC(void, win_grab_input, (void));
-
-
 /* D3D stuff */
 
 

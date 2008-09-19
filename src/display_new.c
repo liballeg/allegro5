@@ -700,30 +700,6 @@ void al_toggle_window_frame(ALLEGRO_DISPLAY *display, bool onoff)
    }
 }
 
-/*
- * -1 = none
- *  0 = fullscreen
- *  1 = windowed
- */
-int _al_display_type(void)
-{
-   ALLEGRO_SYSTEM *sys = al_system_driver();
-
-   if (sys->displays._size > 0) {
-      ALLEGRO_DISPLAY **dptr = _al_vector_ref(&sys->displays, 0);
-      ALLEGRO_DISPLAY *d = *dptr;
-      if (d->flags & ALLEGRO_FULLSCREEN) {
-         return 0;
-      }
-      else {
-         return 1;
-      }
-   }
-   else {
-      return -1;
-   }
-}
-
 
 void al_set_window_title(AL_CONST char *title)
 {

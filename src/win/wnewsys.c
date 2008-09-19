@@ -25,11 +25,9 @@
 #include "allegro5/internal/aintern_memory.h"
 #include "allegro5/internal/aintern_system.h"
 #include "allegro5/platform/aintwin.h"
-#include "allegro5/platform/alplatf.h"
 
 #include "allegro5/winalleg.h"
 
-#include "win_new.h"
 
 #ifndef SCAN_DEPEND
    #include <mmsystem.h>
@@ -39,9 +37,7 @@
 static ALLEGRO_SYSTEM_INTERFACE *vt = 0;
 static bool using_higher_res_timer;
 
-CRITICAL_SECTION allegro_critical_section;
-
-ALLEGRO_SYSTEM_WIN *_al_win_system;
+static ALLEGRO_SYSTEM_WIN *_al_win_system;
 
 
 /* _WinMain:
@@ -78,18 +74,18 @@ int _WinMain(void *_main, void *hInst, void *hPrev, char *Cmd, int nShow)
    /* parse commandline into argc/argv format */
    while (argbuf[i]) {
       while ((argbuf[i]) && (uisspace(argbuf[i])))
-	 i++;
+         i++;
 
       if (argbuf[i]) {
-	 if ((argbuf[i] == '\'') || (argbuf[i] == '"')) {
-	    q = argbuf[i++];
-	    if (!argbuf[i])
-	       break;
-	 }
-	 else
-	    q = 0;
+         if ((argbuf[i] == '\'') || (argbuf[i] == '"')) {
+            q = argbuf[i++];
+            if (!argbuf[i])
+               break;
+         }
+         else
+            q = 0;
 
-	 argv[argc++] = &argbuf[i];
+         argv[argc++] = &argbuf[i];
 
          if (argc >= argc_max) {
             argc_max += 64;
@@ -100,13 +96,13 @@ int _WinMain(void *_main, void *hInst, void *hPrev, char *Cmd, int nShow)
             }
          }
 
-	 while ((argbuf[i]) && ((q) ? (argbuf[i] != q) : (!uisspace(argbuf[i]))))
-	    i++;
+         while ((argbuf[i]) && ((q) ? (argbuf[i] != q) : (!uisspace(argbuf[i]))))
+            i++;
 
-	 if (argbuf[i]) {
-	    argbuf[i] = 0;
-	    i++;
-	 }
+            if (argbuf[i]) {
+            argbuf[i] = 0;
+            i++;
+         }
       }
    }
 
@@ -124,14 +120,11 @@ int _WinMain(void *_main, void *hInst, void *hPrev, char *Cmd, int nShow)
 
 
 
-/* Create a new system object for the dummy D3D driver. */
+/* Create a new system object. */
 static ALLEGRO_SYSTEM *win_initialize(int flags)
 {
    _al_win_system = _AL_MALLOC(sizeof *_al_win_system);
    memset(_al_win_system, 0, sizeof *_al_win_system);
-
-   /* setup general critical section */
-   InitializeCriticalSection(&allegro_critical_section);
 
    // Request a 1ms resolution from our timer
    if (timeBeginPeriod(1) != TIMERR_NOCANDO) {
@@ -139,7 +132,7 @@ static ALLEGRO_SYSTEM *win_initialize(int flags)
    }
    _al_win_init_time();
 
-   _win_input_init();
+   _al_win_input_init();
 
    _al_win_init_window();
 
@@ -158,8 +151,6 @@ static ALLEGRO_SYSTEM *win_initialize(int flags)
 
 static void win_shutdown(void)
 {
-   /* Disabled because seems to cause deadlocks. */
-#if 0
    /* Close all open displays. */
    ALLEGRO_SYSTEM *s = al_system_driver();
    while (_al_vector_size(&s->displays) > 0) {
@@ -168,7 +159,10 @@ static void win_shutdown(void)
       _al_destroy_display_bitmaps(d);
       al_destroy_display(d);
    }
-#endif
+
+   _al_win_shutdown_time();
+
+    _al_win_input_exit();
 
    if (using_higher_res_timer) {
       timeEndPeriod(1);
@@ -176,7 +170,6 @@ static void win_shutdown(void)
 }
 
 
-/* FIXME: autodetect a driver */
 static ALLEGRO_DISPLAY_INTERFACE *win_get_display_driver(void)
 {
    int flags = al_get_new_display_flags();
@@ -199,10 +192,20 @@ static ALLEGRO_DISPLAY_INTERFACE *win_get_display_driver(void)
    if (sys->config) {
       s = al_config_get_value(sys->config, "graphics", "driver");
       if (s) {
-         if (!stricmp(s, "OPENGL"))
+         if (!stricmp(s, "OPENGL")) {
+#if defined ALLEGRO_CFG_OPENGL
             return _al_display_wgl_driver();
-         else if (!stricmp(s, "DIRECT3D") || !stricmp(s, "D3D"))
+#else
+            return NULL;
+#endif
+         }
+         else if (!stricmp(s, "DIRECT3D") || !stricmp(s, "D3D")) {
+#if defined ALLEGRO_CFG_D3D
             return _al_display_d3d_driver();
+#else
+            return NULL;
+#endif
+         }
       }
    }
 

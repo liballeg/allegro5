@@ -21,7 +21,6 @@
 #include "allegro5/allegro5.h"
 #include "allegro5/internal/aintern.h"
 #include "allegro5/platform/aintwin.h"
-#include "win_new.h"
 
 #ifndef SCAN_DEPEND
    #include <objbase.h>
@@ -41,15 +40,14 @@ static int first_call = 1;
 
 
 
-/* _win_thread_init:
+/* _al_win_thread_init:
  *  Initializes COM interface for the calling thread.
  *  Attempts to use Distributed COM if available (installed by default
  *  on every 32-bit Windows starting with Win98 and Win NT4).
  */
-void _win_thread_init(void)
+void _al_win_thread_init(void)
 {
    HMODULE ole32 = NULL;
-   HWND allegro_wnd = _al_win_active_window;
 
    if (first_call) {
       first_call = 0;
@@ -60,15 +58,13 @@ void _win_thread_init(void)
 						ole32, "CoInitializeEx");
       }
       else {
-	 MessageBox(allegro_wnd,
-	 "OLE32.DLL can't be loaded.", "Warning", MB_ICONWARNING + MB_OK);
+         TRACE("WARNING: OLE32.DLL can't be loaded.");
       }
 
       if (_CoInitializeEx == NULL) {
-	 MessageBox(allegro_wnd,
-		    "Microsoft Distributed COM is not installed on this system. If you have problems "
-		    "with this application, please install the DCOM update. You can find it on the "
-	 "Microsoft homepage.", "DCOM not found", MB_ICONWARNING + MB_OK);
+         TRACE("Microsoft Distributed COM is not installed on this system. If you have problems ");
+         TRACE("with this application, please install the DCOM update. You can find it on the ");
+         TRACE("Microsoft homepage\n");
       }
    }
 
@@ -80,10 +76,10 @@ void _win_thread_init(void)
 
 
 
-/* _win_thread_exit:
+/* _al_win_thread_exit:
  *  Shuts down COM interface for the calling thread.
  */
-void _win_thread_exit(void)
+void _al_win_thread_exit(void)
 {
    CoUninitialize();
 }

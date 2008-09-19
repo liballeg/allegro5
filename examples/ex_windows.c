@@ -75,7 +75,7 @@ int main(void)
             int a = rand() % adapter_count;
             int w = info[a].x2 - info[a].x1;
             int h = info[a].y2 - info[a].y1;
-	    int margin = 20;
+            int margin = 20;
             x = margin + info[a].x1 + (rand() % (w - W - margin));
             y = margin + info[a].y1 + (rand() % (h - H - margin));
             al_set_window_position(event.mouse.display, x, y);

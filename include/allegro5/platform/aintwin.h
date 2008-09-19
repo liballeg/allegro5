@@ -15,7 +15,6 @@
  *      See readme.txt for copyright information.
  */
 
-
 #ifndef AINTWIN_H
 #define AINTWIN_H
 
@@ -28,150 +27,154 @@
 #endif
 
 
-#include "allegro5/winalleg.h"
-#include "allegro5/internal/aintern_display.h"
-
-#ifndef SCAN_DEPEND
-   /* workaround for buggy MinGW32 headers */
-   #ifdef ALLEGRO_MINGW32
-      #ifndef HMONITOR_DECLARED
-         #define HMONITOR_DECLARED
-      #endif
-      #if (defined _HRESULT_DEFINED) && (defined WINNT)
-         #undef WINNT
-      #endif
-   #endif
-
-   #include <objbase.h>  /* for LPGUID */
-#endif
-
-
-#ifdef __cplusplus
-   extern "C" {
-#endif
-
-/* generals */
-AL_VAR(HINSTANCE, allegro_inst);
-AL_VAR(HANDLE, allegro_thread);
-AL_VAR(CRITICAL_SECTION, allegro_critical_section);
-AL_VAR(int, _dx_ver);
-
-#define _enter_critical()  EnterCriticalSection(&allegro_critical_section)
-#define _exit_critical()   LeaveCriticalSection(&allegro_critical_section)
-
-AL_FUNC(int, init_directx_window, (void));
-AL_FUNC(void, exit_directx_window, (void));
-AL_FUNC(int, get_dx_ver, (void));
-AL_FUNC(int, adjust_window, (int w, int h));
-AL_FUNC(void, restore_window_style, (void));
-AL_FUNC(void, save_window_pos, (void));
-
-
-/* main window */
-#define WND_TITLE_SIZE  128
-
-AL_ARRAY(char, wnd_title);
-AL_VAR(int, wnd_x);
-AL_VAR(int, wnd_y);
-AL_VAR(int, wnd_width);
-AL_VAR(int, wnd_height);
-AL_VAR(int, wnd_sysmenu);
-
-AL_FUNCPTR(void, user_close_proc, (void));
-
-
-/* switch routines */
-AL_VAR(int, _win_app_foreground);
-
-AL_FUNC(void, sys_directx_display_switch_init, (void));
-AL_FUNC(void, sys_directx_display_switch_exit, (void));
-AL_FUNC(int, sys_directx_set_display_switch_mode, (int mode));
-
-AL_FUNC(void, _win_switch_in, (void));
-AL_FUNC(void, _win_switch_out, (void));
-AL_FUNC(void, _win_reset_switch_mode, (void));
-
-AL_FUNC(int, _win_thread_switch_out, (void));
-
-
-/* main window routines */
-AL_FUNC(int, wnd_call_proc, (int (*proc)(void)));
-AL_FUNC(void, wnd_schedule_proc, (int (*proc)(void)));
-
-
-/* input routines */
-AL_FUNC(void, _win_input_init, (void));
-AL_FUNC(void, _win_input_exit, (void));
-bool _win_input_register_event(HANDLE event_id, void (*event_handler)(void*), void*);
-bool _win_input_unregister_event(HANDLE event_id);
-
-
-/* keyboard routines */
-VOID CALLBACK _al_win_key_dinput_acquire(ULONG_PTR param);
-VOID CALLBACK _al_win_key_dinput_unacquire(ULONG_PTR param);
-bool _al_win_attach_key_input(_AL_KEY_DINPUT *key_input);
-bool _al_win_dettach_key_input(_AL_KEY_DINPUT *key_input);
-
-
-/* mouse routines */
-AL_VAR(HCURSOR, _win_hcursor);
-AL_FUNC(int, mouse_dinput_acquire, (void));
-AL_FUNC(int, mouse_dinput_unacquire, (void));
-AL_FUNC(int, mouse_dinput_grab, (void));
-AL_FUNC(int, mouse_set_syscursor, (void));
-AL_FUNC(int, mouse_set_sysmenu, (int state));
-
-
-/* joystick routines */
-AL_FUNC(int, _al_win_joystick_dinput_acquire, (void));
-AL_FUNC(int, _al_win_joystick_dinput_unacquire, (void));
-
-
-/* thread routines */
-AL_FUNC(void, _win_thread_init, (void));
-AL_FUNC(void, _win_thread_exit, (void));
-
-
-
-/* file routines */
-AL_VAR(int, _al_win_unicode_filenames);
-
-
-/* error handling */
-AL_FUNC(char* , win_err_str, (long err));
-AL_FUNC(void, thread_safe_trace, (char *msg, ...));
-
-#if DEBUGMODE >= 2
-   #define _TRACE                 thread_safe_trace
-#else
-   #define _TRACE                 1 ? (void) 0 : thread_safe_trace
-#endif
-
-
-#ifdef __cplusplus
-   }
-#endif
-
-
-
-/*----------------------------------------------------------------------*
- *									*
- *	New stuff							*
- *									*
- *----------------------------------------------------------------------*/
-
-/* TODO: integrate this above */
-/* TODO: a lot of this is repeated from aintunix.h */
-
-
 #include "allegro5/platform/aintwthr.h"
+#include "allegro5/internal/aintern_display.h"
+#include "allegro5/internal/aintern_system.h"
+#include "allegro5/system_new.h"
 
 
 AL_BEGIN_EXTERN_C
 
+
+typedef struct ALLEGRO_DISPLAY_WIN ALLEGRO_DISPLAY_WIN;
+
+struct ALLEGRO_DISPLAY_WIN
+{
+   ALLEGRO_DISPLAY display;
+
+   HWND window;
+   int mouse_range_x1;
+   int mouse_range_y1;
+   int mouse_range_x2;
+   int mouse_range_y2;
+   HCURSOR mouse_selected_hcursor;
+   bool mouse_cursor_shown;
+   /* used internally to disable the mouse when outside the window area */
+   bool is_mouse_on;
+   /* set to true if the user is browsing the system menu */
+   bool is_in_sysmenu;
+
+   UINT adapter;
+
+   /*
+    * The display thread must communicate with the main thread
+    * through these variables.
+    */
+   volatile bool end_thread;    /* The display thread should end */
+   volatile bool thread_ended;  /* The display thread has ended */
+};
+
+
+/* thread routines */
+void _al_win_thread_init(void);
+void _al_win_thread_exit(void);
+
+/* input routines */
+AL_FUNC(void, _al_win_input_init, (void));
+AL_FUNC(void, _al_win_input_exit, (void));
+bool _al_win_input_register_event(HANDLE event_id, void (*handler)(void));
+bool _al_win_input_unregister_event(HANDLE event_id);
+void _al_win_grab_input(ALLEGRO_DISPLAY_WIN *win_disp);
+
+/* keyboard routines */
+void _al_win_key_dinput_unacquire(void *unused);
+void _al_win_key_dinput_grab(void *ALLEGRO_DISPLAY_WIN);
+
+/* mouse routines */
+void _al_win_mouse_dinput_grab(void *ALLEGRO_DISPLAY_WIN);
+void _al_win_mouse_dinput_unacquire(void *win_disp);
+void _al_win_mouse_set_sysmenu(bool state);
+
+/* joystick routines */
+void _al_win_joystick_dinput_unacquire(void *unused);
+void _al_win_joystick_dinput_grab(void *ALLEGRO_DISPLAY_WIN);
+
+/* custom Allegro messages */
+extern UINT _al_win_msg_call_proc;
+extern UINT _al_win_msg_suicide;
+
+/* main window routines */
+AL_FUNC(void, _al_win_wnd_schedule_proc, (HWND wnd, void (*proc)(void*), void *param));
+AL_FUNC(void, _al_win_wnd_call_proc, (HWND wnd, void (*proc)(void*), void *param));
+
 /* time */
-AL_FUNC(void, _al_win_init_time, (void));
-AL_FUNC(void, _al_win_shutdown_time, (void));
+void _al_win_init_time(void);
+void _al_win_shutdown_time(void);
+
+/* This is used to stop MinGW from complaining about type-punning */
+#define MAKE_UNION(ptr, t) \
+   union {                 \
+      LPVOID *v;           \
+      t p;                 \
+   } u;                    \
+   u.p = (ptr);
+
+typedef struct ALLEGRO_SYSTEM_WIN ALLEGRO_SYSTEM_WIN;
+/* This is our version of ALLEGRO_SYSTEM with driver specific extra data. */
+struct ALLEGRO_SYSTEM_WIN
+{
+	ALLEGRO_SYSTEM system; /* This must be the first member, we "derive" from it. */
+};
+
+extern ALLEGRO_SYSTEM_WIN *_al_win_system;
+
+/* helpers to create windows */
+HWND _al_win_create_window(ALLEGRO_DISPLAY *display, int width, int height, int flags);
+HWND _al_win_create_faux_fullscreen_window(LPCTSTR devname, ALLEGRO_DISPLAY *display,
+                                           int x1, int y1, int width, int height,
+                                           int refresh_rate, int flags);
+int  _al_win_init_window(void);
+HWND _al_win_create_hidden_window(void);
+
+/* icon helpers */
+void  _al_win_set_display_icon(ALLEGRO_DISPLAY *display ,ALLEGRO_BITMAP *bitmap);
+HICON _al_win_create_icon(HWND wnd, ALLEGRO_BITMAP *sprite, int xfocus, int yfocus, bool is_cursor);
+
+/* window decorations */
+void _al_win_set_window_position(HWND window, int x, int y);
+void _al_win_get_window_position(HWND window, int *x, int *y);
+void _al_win_toggle_window_frame(ALLEGRO_DISPLAY *display, HWND window, int w, int h, bool onoff);
+void _al_win_set_window_title(ALLEGRO_DISPLAY *display, AL_CONST char *title);
+
+/* cursor routines */
+typedef struct ALLEGRO_MOUSE_CURSOR_WIN ALLEGRO_MOUSE_CURSOR_WIN;
+struct ALLEGRO_MOUSE_CURSOR_WIN
+{
+   HCURSOR hcursor;
+};
+
+ALLEGRO_MOUSE_CURSOR* _al_win_create_mouse_cursor(ALLEGRO_DISPLAY *display, ALLEGRO_BITMAP *sprite, int xfocus, int yfocus);
+void _al_win_destroy_mouse_cursor(ALLEGRO_DISPLAY *display, ALLEGRO_MOUSE_CURSOR *cursor);
+bool _al_win_set_mouse_cursor(ALLEGRO_DISPLAY *display, ALLEGRO_MOUSE_CURSOR *cursor);
+bool _al_win_set_system_mouse_cursor(ALLEGRO_DISPLAY *display, ALLEGRO_SYSTEM_MOUSE_CURSOR cursor_id);
+bool _al_win_show_mouse_cursor(ALLEGRO_DISPLAY *display);
+bool _al_win_hide_mouse_cursor(ALLEGRO_DISPLAY *display);
+
+
+/* driver specific functions */
+
+#if defined ALLEGRO_CFG_D3D
+   ALLEGRO_DISPLAY_INTERFACE* _al_display_d3d_driver(void);
+   int _al_d3d_get_num_display_modes(int format, int refresh_rate, int flags);
+   ALLEGRO_DISPLAY_MODE* _al_d3d_get_display_mode(int index, int format,
+                                                  int refresh_rate, int flags,
+                                                  ALLEGRO_DISPLAY_MODE *mode);
+   bool _al_d3d_init_display();
+   int  _al_d3d_get_num_video_adapters(void);
+   void _al_d3d_get_monitor_info(int adapter, ALLEGRO_MONITOR_INFO *info);
+#endif /*  defined ALLEGRO_CFG_D3D */
+
+#if defined ALLEGRO_CFG_OPENGL
+   ALLEGRO_DISPLAY_INTERFACE *_al_display_wgl_driver(void);
+   int _al_wgl_get_num_display_modes(int format, int refresh_rate, int flags);
+   ALLEGRO_DISPLAY_MODE* _al_wgl_get_display_mode(int index, int format,
+                                                  int refresh_rate, int flags,
+                                                  ALLEGRO_DISPLAY_MODE *mode);
+   bool _al_wgl_init_display();
+   int  _al_wgl_get_num_video_adapters(void);
+   void _al_wgl_get_monitor_info(int adapter, ALLEGRO_MONITOR_INFO *info);
+#endif /*  defined ALLEGRO_CFG_OPENGL */
+
 
 AL_END_EXTERN_C
 

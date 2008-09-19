@@ -58,6 +58,7 @@ int main(void)
    queue = al_create_event_queue();
    al_register_event_source(queue, (ALLEGRO_EVENT_SOURCE *)al_get_mouse());
    al_register_event_source(queue, (ALLEGRO_EVENT_SOURCE *)al_get_keyboard());
+   al_register_event_source(queue, (ALLEGRO_EVENT_SOURCE *)display);
 
    while (1) {
       al_clear(al_map_rgb(0xff, 0xff, 0xc0));
@@ -91,6 +92,9 @@ int main(void)
                goto done;
             }
             break;
+
+         case ALLEGRO_EVENT_DISPLAY_CLOSE:
+            goto done;
       }
    }
 

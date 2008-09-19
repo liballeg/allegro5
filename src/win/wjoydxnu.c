@@ -62,7 +62,6 @@
 #include "allegro5/internal/aintern_events.h"
 #include "allegro5/internal/aintern_joystick.h"
 #include "allegro5/internal/aintern_memory.h"
-#include "win_new.h"
 
 #ifndef SCAN_DEPEND
    #ifdef ALLEGRO_MINGW32
@@ -173,6 +172,7 @@ ALLEGRO_JOYSTICK_DRIVER _al_joydrv_directx =
 };
 
 
+ALLEGRO_DISPLAY_WIN *win_disp;
 
 /* a handle to the DirectInput interface */
 static LPDIRECTINPUT joystick_dinput = NULL;
@@ -261,7 +261,7 @@ static char* dinput_err_str(long err)
 /* _al_win_joystick_dinput_acquire: [window thread]
  *  Acquires the joystick devices.
  */
-int _al_win_joystick_dinput_acquire(void)
+static void joystick_dinput_acquire(void)
 {
    HRESULT hr;
    int i;
@@ -271,11 +271,9 @@ int _al_win_joystick_dinput_acquire(void)
          hr = IDirectInputDevice8_Acquire(joydx_joystick[i].device);
 
          if (FAILED(hr))
-	    _TRACE(PREFIX_E "acquire joystick %d failed: %s\n", i, dinput_err_str(hr));
+   TRACE(PREFIX_E "acquire joystick %d failed: %s\n", i, dinput_err_str(hr));
       }
    }
-
-   return 0;
 }
 
 
@@ -283,19 +281,48 @@ int _al_win_joystick_dinput_acquire(void)
 /* _al_win_joystick_dinput_unacquire: [window thread]
  *  Unacquires the joystick devices.
  */
-int _al_win_joystick_dinput_unacquire(void)
+void _al_win_joystick_dinput_unacquire(void *unused)
 {
    int i;
 
-   if (joystick_dinput) {
+   if (joystick_dinput && win_disp) {
       for (i=0; i < joydx_num_joysticks; i++) {
          IDirectInputDevice8_Unacquire(joydx_joystick[i].device);
       }
    }
-
-   return 0;
 }
 
+
+/* _al_win_joystick_dinput_grab: [window thread]
+ * Grabs the joystick devices.
+ */
+void _al_win_joystick_dinput_grab(void *param)
+{
+   int i;
+
+   if (!joystick_dinput)
+      return;
+
+   /* Release the input from the previous window just in case,
+      otherwise set cooperative level will fail. */
+   if (win_disp)
+      _al_win_wnd_call_proc(win_disp->window, _al_win_joystick_dinput_unacquire, NULL);
+
+   win_disp = param;
+
+   /* set cooperative level */
+   for (i = 0; i < joydx_num_joysticks; i++) {
+      HRESULT hr = IDirectInputDevice8_SetCooperativeLevel(
+                      joydx_joystick[i].device, win_disp->window,
+                      DISCL_FOREGROUND | DISCL_NONEXCLUSIVE);
+      if (FAILED(hr)) {
+         TRACE(PREFIX_E "IDirectInputDevice8_SetCooperativeLevel failed.\n");
+         return;
+      }
+   }
+
+   joystick_dinput_acquire();
+}
 
 
 /* object_enum_callback: [primary thread]
@@ -490,7 +517,6 @@ static BOOL CALLBACK joystick_enum_callback(LPCDIDEVICEINSTANCE lpddi, LPVOID pv
    LPDIRECTINPUTDEVICE2 dinput_device = NULL;
    HRESULT hr;
    LPVOID temp;
-   HWND allegro_wnd = _al_win_active_window;
 
    DIPROPRANGE property_range =
    {
@@ -553,11 +579,6 @@ static BOOL CALLBACK joystick_enum_callback(LPCDIDEVICEINSTANCE lpddi, LPVOID pv
 
    dinput_device = temp;
 
-   /* set cooperative level */
-   hr = IDirectInputDevice8_SetCooperativeLevel(dinput_device, allegro_wnd, DISCL_FOREGROUND | DISCL_NONEXCLUSIVE);
-   if (FAILED(hr))
-      goto Error;
-
    /* enumerate objects available on the device */
    hr = IDirectInputDevice8_EnumObjects(dinput_device, object_enum_callback, 
                                         &joydx_joystick[joydx_num_joysticks].caps_and_names,
@@ -601,7 +622,7 @@ static BOOL CALLBACK joystick_enum_callback(LPCDIDEVICEINSTANCE lpddi, LPVOID pv
                                                  JOYSTICK_WAKER(joydx_num_joysticks));
 
    if (FAILED(hr)) {
-      _TRACE(PREFIX_E "SetEventNotification failed for joystick %d: %s\n", joydx_num_joysticks, dinput_err_str(hr));
+      TRACE(PREFIX_E "SetEventNotification failed for joystick %d: %s\n", joydx_num_joysticks, dinput_err_str(hr));
       goto Error;
    }
 
@@ -618,7 +639,7 @@ static BOOL CALLBACK joystick_enum_callback(LPCDIDEVICEINSTANCE lpddi, LPVOID pv
 
       JOYSTICK_WAKER(joydx_num_joysticks) = CreateWaitableTimer(NULL, FALSE, NULL);
       if (JOYSTICK_WAKER(joydx_num_joysticks) == NULL) {
-         _TRACE(PREFIX_E "CreateWaitableTimer failed in wjoydxnu.c\n");
+         TRACE(PREFIX_E "CreateWaitableTimer failed in wjoydxnu.c\n");
          goto Error;
       }
 
@@ -663,6 +684,8 @@ static BOOL CALLBACK joystick_enum_callback(LPCDIDEVICEINSTANCE lpddi, LPVOID pv
 static bool joydx_init_joystick(void)
 {
    HRESULT hr;
+   ALLEGRO_SYSTEM *system;
+   size_t i;
    MAKE_UNION(&joystick_dinput, LPDIRECTINPUT *);
 
    /* make sure all the constants add up */
@@ -683,7 +706,7 @@ static bool joydx_init_joystick(void)
 
    /* get the DirectInput interface */
    hr = DirectInput8Create(GetModuleHandle(NULL), DIRECTINPUT_VERSION, &IID_IDirectInput8A, u.v, NULL);
-  if (FAILED(hr)) {
+   if (FAILED(hr)) {
       joystick_dinput = NULL;
       return false;
    }
@@ -696,8 +719,16 @@ static bool joydx_init_joystick(void)
       return false;
    }
 
-   /* acquire the devices */
-   wnd_call_proc(_al_win_joystick_dinput_acquire);
+   /* If one of our windows is the foreground window make it grab the input. */
+   system = al_system_driver();
+   for (i = 0; i < _al_vector_size(&system->displays); i++) {
+      ALLEGRO_DISPLAY_WIN **pwin_disp = _al_vector_ref(&system->displays, i);
+      ALLEGRO_DISPLAY_WIN *win_disp = *pwin_disp;
+      if (win_disp->window == GetForegroundWindow()) {
+         _al_win_wnd_call_proc(win_disp->window,
+            _al_win_joystick_dinput_grab, win_disp);
+      }
+   }
 
    /* create the dedicated thread stopping event */
    STOP_EVENT = CreateEvent(NULL, FALSE, FALSE, NULL);
@@ -754,6 +785,8 @@ static void free_caps_and_names_strings(CAPS_AND_NAMES *can)
 static void joydx_exit_joystick(void)
 {
    int i;
+   ALLEGRO_SYSTEM *system;
+   size_t j;
 
    ASSERT(joydx_thread);
 
@@ -767,8 +800,16 @@ static void joydx_exit_joystick(void)
    STOP_EVENT = NULL;
    DeleteCriticalSection(&joydx_thread_cs);
 
-   /* unacquire the devices */
-   wnd_call_proc(_al_win_joystick_dinput_unacquire);
+   /* The toplevel display is assumed to have the input acquired. Release it. */
+   system = al_system_driver();
+   for (j = 0; j < _al_vector_size(&system->displays); j++) {
+      ALLEGRO_DISPLAY_WIN **pwin_disp = _al_vector_ref(&system->displays, j);
+      ALLEGRO_DISPLAY_WIN *win_disp = *pwin_disp;
+      if (win_disp->window == GetForegroundWindow())
+         _al_win_wnd_call_proc(win_disp->window,
+                               _al_win_joystick_dinput_unacquire,
+                               win_disp);
+   }
 
    /* destroy the devices */
    for (i = 0; i < joydx_num_joysticks; i++) {
@@ -870,7 +911,8 @@ static void joydx_get_joystick_state(ALLEGRO_JOYSTICK *joy_, ALLEGRO_JOYSTICK_ST
  */
 static void joydx_thread_proc(LPVOID unused)
 {
-   _win_thread_init();
+   /* XXX is this needed? */
+   _al_win_thread_init();
 
    while (true) {
       DWORD result;
@@ -896,7 +938,7 @@ static void joydx_thread_proc(LPVOID unused)
       LeaveCriticalSection(&joydx_thread_cs);
    }
 
-   _win_thread_exit();
+   _al_win_thread_exit();
 
    (void)unused;
 }
@@ -923,11 +965,11 @@ static void update_joystick(ALLEGRO_JOYSTICK_DIRECTX *joy)
    if (hr != DI_OK && hr != DI_BUFFEROVERFLOW) {
       if ((hr == DIERR_NOTACQUIRED) || (hr == DIERR_INPUTLOST)) {
          /* reacquire device */
-         _TRACE(PREFIX_W "joystick device not acquired or lost\n");
-         wnd_schedule_proc(_al_win_joystick_dinput_acquire);
+         TRACE(PREFIX_W "joystick device not acquired or lost\n");
+         //wnd_schedule_proc(_al_win_joystick_dinput_acquire);
       }
       else {
-         _TRACE(PREFIX_E "unexpected error while polling the joystick\n");
+         TRACE(PREFIX_E "unexpected error while polling the joystick\n");
       }
       return;
    }

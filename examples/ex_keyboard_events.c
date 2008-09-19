@@ -224,9 +224,6 @@ void main_loop(void)
 
 int main(void)
 {
-   int num;
-   int i;
-
    al_init();
    al_font_init();
 

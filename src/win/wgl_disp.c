@@ -15,22 +15,18 @@
  *
  */
 
-#include <process.h>
-
 #include "allegro5/allegro5.h"
 #include "allegro5/system_new.h"
 #include "allegro5/internal/aintern.h"
 #include "allegro5/internal/aintern_bitmap.h"
-#include "allegro5/internal/aintern_display.h"
 #include "allegro5/internal/aintern_memory.h"
 #include "allegro5/internal/aintern_opengl.h"
-#include "allegro5/internal/aintern_system.h"
 #include "allegro5/internal/aintern_vector.h"
 #include "allegro5/platform/aintwin.h"
 
 #include "wgl.h"
-/* for mouse cursor routines */
-#include "wddraw.h"
+
+#include <process.h>
 
 #define PREFIX_I                "wgl-win INFO: "
 #define PREFIX_W                "wgl-win WARNING: "
@@ -922,6 +918,7 @@ static bool select_pixel_format(ALLEGRO_DISPLAY_WGL *d, HDC dc) {
 
 static bool create_display_internals(ALLEGRO_DISPLAY_WGL *wgl_disp) {
    ALLEGRO_DISPLAY     *disp     = (void*)wgl_disp;
+   ALLEGRO_DISPLAY_WIN *win_disp = (void*)wgl_disp;
    new_display_parameters ndp;
    HANDLE window_thread;
 
@@ -952,32 +949,21 @@ static bool create_display_internals(ALLEGRO_DISPLAY_WGL *wgl_disp) {
 
    disp->ogl_extras->backbuffer = _al_ogl_create_backbuffer(disp);
  
-   _al_win_active_window = wgl_disp->win_display.window;
-   wgl_disp->win_display.window_thread = window_thread;
-   wgl_disp->win_display.key_input.window = wgl_disp->win_display.window;
-   wgl_disp->win_display.key_input.display = disp;
-
-   if (al_is_keyboard_installed()) {
-      wgl_disp->win_display.key_input.window = wgl_disp->win_display.window;
-      if (!_al_win_attach_key_input(&wgl_disp->win_display.key_input)) {
-         TRACE(PREFIX_E "Failed to init keyboard.\n");
-         wgl_destroy_display(disp);
-         return false;
-      }
-   }
-
-   QueueUserAPC((PAPCFUNC)_al_win_key_dinput_acquire,
-             wgl_disp->win_display.window_thread,
-             (ULONG_PTR)&wgl_disp->win_display.key_input);
-
-   wgl_disp->win_display.mouse_range_x1 = 0;
-   wgl_disp->win_display.mouse_range_y1 = 0;
-   wgl_disp->win_display.mouse_range_x2 = disp->w;
-   wgl_disp->win_display.mouse_range_y2 = disp->h;
+   win_disp->mouse_range_x1 = 0;
+   win_disp->mouse_range_y1 = 0;
+   win_disp->mouse_range_x2 = disp->w;
+   win_disp->mouse_range_y2 = disp->h;
+   /* XXX: These calls use the current display (which is not set to this
+           display yet). Mouse routines semantics have to be sorted out first.
    if (al_is_mouse_installed()) {
       al_set_mouse_xy(disp->w/2, disp->h/2);
       al_set_mouse_range(0, 0, disp->w, disp->h);
-   }
+   }*/
+
+   win_disp->mouse_selected_hcursor = 0;
+   win_disp->mouse_cursor_shown = false;
+
+   _al_win_grab_input(win_disp);
 
    setup_gl(disp);
 
@@ -1026,13 +1012,6 @@ static ALLEGRO_DISPLAY* wgl_create_display(int w, int h) {
 }
 
 
-static void CALLBACK quit_window_thread(ULONG_PTR *param)
-{
-   ALLEGRO_DISPLAY_WGL *wgl = (void*)param;
-   wgl->end_thread = true;
-}
-
-
 static void destroy_display_internals(ALLEGRO_DISPLAY_WGL *wgl_disp) {
    ALLEGRO_DISPLAY *disp = (ALLEGRO_DISPLAY *)wgl_disp;
    ALLEGRO_DISPLAY_WIN *win_disp = (ALLEGRO_DISPLAY_WIN *)wgl_disp;
@@ -1051,22 +1030,9 @@ static void destroy_display_internals(ALLEGRO_DISPLAY_WGL *wgl_disp) {
 
    _al_ogl_unmanage_extensions(disp);
 
-   QueueUserAPC((PAPCFUNC)_al_win_key_dinput_unacquire,
-          wgl_disp->win_display.window_thread,
-          (ULONG_PTR)&wgl_disp->win_display.key_input);
-
-   if (al_is_keyboard_installed())
-      _al_win_dettach_key_input(&win_disp->key_input);
-
-   //_al_win_ungrab_input();
-
-   QueueUserAPC((PAPCFUNC)quit_window_thread,
-       wgl_disp->win_display.window_thread,
-       (ULONG_PTR)wgl_disp);
-   while (!wgl_disp->thread_ended)
-      al_rest(0.001);
-
    PostMessage(win_disp->window, _al_win_msg_suicide, 0, 0);
+   while (!win_disp->thread_ended)
+      al_rest(0.001);
 }
 
 
@@ -1117,13 +1083,12 @@ static void display_thread_proc(void *arg)
    new_display_parameters *ndp = arg;
    ALLEGRO_DISPLAY *disp = (ALLEGRO_DISPLAY*)ndp->display;
    ALLEGRO_DISPLAY_WGL *wgl_disp = (void*)disp;
-   ALLEGRO_DISPLAY_WIN *win_disp = (ALLEGRO_DISPLAY_WIN *)disp;
-   DWORD result;
+   ALLEGRO_DISPLAY_WIN *win_disp = (void*)disp;
    MSG msg;
    
    if (disp->flags & ALLEGRO_FULLSCREEN) {
       if (!change_display_mode(disp)) {
-         wgl_disp->thread_ended = true;
+         win_disp->thread_ended = true;
          wgl_destroy_display(disp);
          ndp->init_failed = true;
          return;
@@ -1199,7 +1164,7 @@ static void display_thread_proc(void *arg)
    wgl_disp->dc = GetDC(win_disp->window);
 
    if (!select_pixel_format(wgl_disp, wgl_disp->dc)) {
-      wgl_disp->thread_ended = true;
+      win_disp->thread_ended = true;
       wgl_destroy_display(disp);
       ndp->init_failed = true;
       return;
@@ -1210,22 +1175,18 @@ static void display_thread_proc(void *arg)
    if (!wgl_disp->glrc) {
       log_win32_error("wgl_disp_display_thread_proc", "Unable to create a render context!",
                       GetLastError());
-      wgl_disp->thread_ended = true;
+      win_disp->thread_ended = true;
       wgl_destroy_display(disp);
       ndp->init_failed = true;
       return;
    }
 
-   wgl_disp->thread_ended = false;
-   wgl_disp->end_thread = false;
+   win_disp->thread_ended = false;
+   win_disp->end_thread = false;
    ndp->initialized = true;
 
-   while (!wgl_disp->end_thread) {
-      result = MsgWaitForMultipleObjectsEx(0, NULL,
-                                           INFINITE,
-                                           QS_ALLEVENTS,
-                                           MWMO_ALERTABLE | MWMO_INPUTAVAILABLE);
-      if (result == (DWORD) WAIT_OBJECT_0) {
+   while (!win_disp->end_thread) {
+      if (WaitMessage()) {
          /* messages are waiting in the queue */
          while (PeekMessage(&msg, NULL, 0, 0, PM_NOREMOVE)) {
             if (GetMessage(&msg, NULL, 0, 0)) {
@@ -1236,9 +1197,7 @@ static void display_thread_proc(void *arg)
             }
          }
       }
-      else if (result == WAIT_IO_COMPLETION) {
-      }
-      else if (result == WAIT_FAILED) {
+      else {
          TRACE(PREFIX_E "Wait failed.\n");
          break;
       }
@@ -1264,7 +1223,7 @@ End:
    }
 
    TRACE("wgl display thread exits\n");
-   wgl_disp->thread_ended = true;
+   win_disp->thread_ended = true;
 }
 
 

@@ -12,6 +12,8 @@
  *
  *      By Stefan Schimanski.
  *
+ *      Rewritten to handle multiple A5 windows by Milan Mimica.
+ *
  *      See readme.txt for copyright information.
  */
 
@@ -25,7 +27,6 @@
 #include "allegro5/internal/aintern_mouse.h"
 #include "allegro5/platform/aintwin.h"
 #include "allegro5/internal/aintern_display.h"
-#include "win_new.h"
 
 #ifndef SCAN_DEPEND
    #include <process.h>
@@ -46,74 +47,16 @@ typedef struct AL_MOUSE_DIRECTX
 {
    ALLEGRO_MOUSE parent;
    ALLEGRO_MOUSE_STATE state;
-   int min_x, min_y;
-   int max_x, max_y;
 } AL_MOUSE_DIRECTX;
 
 
+/* forward declarations */
+static void mouse_set_syscursor(void* unused);
 
 static bool mouse_directx_installed = false;
 
 /* the one and only mouse object */
 static AL_MOUSE_DIRECTX the_mouse;
-
-
-
-/* forward declarations */
-static bool mouse_directx_init(void);
-static void mouse_directx_exit(void);
-static ALLEGRO_MOUSE *mouse_directx_get_mouse(void);
-static unsigned int mouse_directx_get_mouse_num_buttons(void);
-static unsigned int mouse_directx_get_mouse_num_axes(void);
-static bool mouse_directx_set_mouse_xy(int x, int y);
-static bool mouse_directx_set_mouse_axis(int which, int z);
-static bool mouse_directx_set_mouse_range(int x1, int y1, int x2, int y2);
-static void mouse_directx_get_state(ALLEGRO_MOUSE_STATE *ret_state);
-
-static void generate_mouse_event(unsigned int type,
-                                 int x, int y, int z,
-                                 int dx, int dy, int dz,
-                                 unsigned int button);
-
-
-
-/* the driver vtable */
-#define MOUSEDRV_XWIN  AL_ID('X','W','I','N')
-
-static ALLEGRO_MOUSE_DRIVER mousedrv_directx =
-{
-   MOUSE_DIRECTX,
-   empty_string,
-   empty_string,
-   "DirectInput mouse",
-   mouse_directx_init,
-   mouse_directx_exit,
-   mouse_directx_get_mouse,
-   mouse_directx_get_mouse_num_buttons,
-   mouse_directx_get_mouse_num_axes,
-   mouse_directx_set_mouse_xy,
-   mouse_directx_set_mouse_axis,
-   mouse_directx_set_mouse_range,
-   mouse_directx_get_state
-};
-
-
-
-_DRIVER_INFO _al_mouse_driver_list[] =
-{
-   {MOUSE_DIRECTX, &mousedrv_directx, TRUE},
-   {0, NULL, 0}
-};
-
-
-
-/* XXX this should be per-display */
-HCURSOR _win_hcursor = NULL;	/* Hardware cursor to display */
-
-
-//XXX
-static int _mouse_on;
-//XXX end
 
 
 #define DINPUT_BUFFERSIZE 256
@@ -135,15 +78,22 @@ static int mouse_accel_mult = MAF_DEFAULT;
 static int mouse_accel_thr1 = 5 * 5;
 static int mouse_accel_thr2 = 16 * 16;
 
-static int mouse_minx = 0;            /* mouse range */
-static int mouse_miny = 0;
-static int mouse_maxx = 319;
-static int mouse_maxy = 199;
-
+/* XXX: should this be per-display? */
 static int mymickey_x = 0;            /* for get_mouse_mickeys() */
 static int mymickey_y = 0;
 static int mymickey_ox = 0;
 static int mymickey_oy = 0;
+
+/* XXX: should this be per-display? */
+static int _mouse_x = 0;
+static int _mouse_y = 0;
+static int dinput_x = 0;
+static int dinput_y = 0;
+static int mouse_mx = 0;
+static int mouse_my = 0;
+
+/* The display which has the mouse acquired. */
+static ALLEGRO_DISPLAY_WIN *win_disp = NULL;
 
 #define MICKEY_TO_COORD_X(n)        ((n) / mouse_sx)
 #define MICKEY_TO_COORD_Y(n)        ((n) / mouse_sy)
@@ -153,13 +103,13 @@ static int mymickey_oy = 0;
 
 #define CLEAR_MICKEYS()                       \
 {                                             \
-   if (_al_display_type() == 1) {             \
+   if (!(win_disp->display.flags & ALLEGRO_FULLSCREEN)) { \
       POINT p;                                \
       int wx, wy;                             \
                                               \
       GetCursorPos(&p);                       \
                                               \
-      _al_win_get_window_position(_al_win_active_window, &wx, &wy); \
+      _al_win_get_window_position(win_disp->window, &wx, &wy); \
       p.x -= wx;                              \
       p.y -= wy;                              \
                                               \
@@ -178,27 +128,31 @@ static int mymickey_oy = 0;
 {                                                   \
    int wx, wy;                                      \
    GetCursorPos(&p);                                \
-   _al_win_get_window_position(_al_win_active_window, &wx, &wy); \
+   _al_win_get_window_position(win_disp->window, &wx, &wy); \
                                                     \
    p.x -= wx;                                       \
    p.y -= wy;                                       \
                                                     \
-   if ((p.x < mouse_minx) || (p.x > mouse_maxx) ||  \
-       (p.y < mouse_miny) || (p.y > mouse_maxy)) {  \
-      if (_mouse_on) {                              \
-         _mouse_on = FALSE;                         \
-         wnd_schedule_proc(mouse_set_syscursor);    \
+   if ((p.x < win_disp->mouse_range_x1) ||          \
+       (p.x > win_disp->mouse_range_x2) ||          \
+       (p.y < win_disp->mouse_range_y1) ||          \
+       (p.y > win_disp->mouse_range_y2)) {          \
+      if (win_disp->is_mouse_on) {             \
+         win_disp->is_mouse_on = false;        \
+         _al_win_wnd_schedule_proc(win_disp->window, mouse_set_syscursor, NULL); \
       }                                             \
    }                                                \
    else {                                           \
-      if (!_mouse_on) {                             \
-         _mouse_on = TRUE;                          \
-         wnd_schedule_proc(mouse_set_syscursor);    \
+      if (!win_disp->is_mouse_on) {            \
+         win_disp->is_mouse_on = true;         \
+         _al_win_wnd_schedule_proc(win_disp->window, mouse_set_syscursor, NULL); \
       }                                             \
    }                                                \
                                                     \
-   out_x = CLAMP(mouse_minx, p.x, mouse_maxx);        \
-   out_y = CLAMP(mouse_miny, p.y, mouse_maxy);        \
+   out_x = CLAMP(win_disp->mouse_range_x1,          \
+                 p.x, win_disp->mouse_range_x2);    \
+   out_y = CLAMP(win_disp->mouse_range_y1, p.y,     \
+                 win_disp->mouse_range_y2);         \
 }
 
 
@@ -247,6 +201,35 @@ static char* dinput_err_str(long err)
 #endif
 
 
+/* [bgman thread] */
+static void generate_mouse_event(unsigned int type,
+                                 int x, int y, int z,
+                                 int dx, int dy, int dz,
+                                 unsigned int button,
+                                 ALLEGRO_DISPLAY *source)
+{
+   ALLEGRO_EVENT *event;
+
+   if (!_al_event_source_needs_to_generate_event(&the_mouse.parent.es))
+      return;
+
+   event = _al_event_source_get_unused_event(&the_mouse.parent.es);
+   if (!event)
+      return;
+
+   event->mouse.type = type;
+   event->mouse.timestamp = al_current_time();
+   event->mouse.display = source;
+   event->mouse.x = x;
+   event->mouse.y = y;
+   event->mouse.z = z;
+   event->mouse.dx = dx;
+   event->mouse.dy = dy;
+   event->mouse.dz = dz;
+   event->mouse.button = button;
+   _al_event_source_emit_event(&the_mouse.parent.es, event);
+}
+
 
 /* mouse_directx_motion_handler: [input thread]
  *  Called by mouse_dinput_handle_event().
@@ -260,18 +243,18 @@ static void mouse_directx_motion_handler(int dx, int dy)
       int new_x = the_mouse.state.x + dx;
       int new_y = the_mouse.state.y + dy;
 
-      new_x = CLAMP(mouse_minx, new_x, mouse_maxx);
-      new_y = CLAMP(mouse_miny, new_y, mouse_maxy);
+      new_x = CLAMP(win_disp->mouse_range_x1, new_x, win_disp->mouse_range_x2);
+      new_y = CLAMP(win_disp->mouse_range_y1, new_y, win_disp->mouse_range_y2);
 
       if ((new_x != the_mouse.state.x) || (new_y != the_mouse.state.y)) {
-	 the_mouse.state.x = new_x;
-	 the_mouse.state.y = new_y;
+         the_mouse.state.x = new_x;
+         the_mouse.state.y = new_y;
 
-	 generate_mouse_event(
-	    ALLEGRO_EVENT_MOUSE_AXES,
-	    the_mouse.state.x, the_mouse.state.y, the_mouse.state.z,
-	    dx, dy, 0,
-	    0);
+         generate_mouse_event(
+            ALLEGRO_EVENT_MOUSE_AXES,
+            the_mouse.state.x, the_mouse.state.y, the_mouse.state.z,
+            dx, dy, 0,
+            0, (void*)win_disp);
       }
    }
    _al_event_source_unlock(&the_mouse.parent.es);
@@ -284,6 +267,7 @@ static void mouse_directx_motion_handler(int dx, int dy)
  */
 static void mouse_directx_motion_handler_abs(int x, int y)
 {
+   ALLEGRO_DISPLAY *d = (void*)win_disp;
    ASSERT(mouse_directx_installed);
 
    _al_event_source_lock(&the_mouse.parent.es);
@@ -297,7 +281,7 @@ static void mouse_directx_motion_handler_abs(int x, int y)
          ALLEGRO_EVENT_MOUSE_AXES,
          the_mouse.state.x, the_mouse.state.y, the_mouse.state.z,
          dx, dy, 0,
-         0);
+         0, d);
    }
    _al_event_source_unlock(&the_mouse.parent.es);
 }
@@ -309,6 +293,7 @@ static void mouse_directx_motion_handler_abs(int x, int y)
  */
 static void mouse_directx_wheel_motion_handler(int dz)
 {
+   ALLEGRO_DISPLAY *d = (void*)win_disp;
    ASSERT(mouse_directx_installed);
 
    _al_event_source_lock(&the_mouse.parent.es);
@@ -319,7 +304,7 @@ static void mouse_directx_wheel_motion_handler(int dz)
          ALLEGRO_EVENT_MOUSE_AXES,
          the_mouse.state.x, the_mouse.state.y, the_mouse.state.z,
          0, 0, dz,
-         0);
+         0, d);
    }
    _al_event_source_unlock(&the_mouse.parent.es);
 }
@@ -331,6 +316,7 @@ static void mouse_directx_wheel_motion_handler(int dz)
  */
 static void mouse_directx_button_handler(int unswapped_button, bool is_down)
 {
+   ALLEGRO_DISPLAY *d = (void*)win_disp;
    int button0;
 
    ASSERT(mouse_directx_installed);
@@ -357,10 +343,10 @@ static void mouse_directx_button_handler(int unswapped_button, bool is_down)
       }
 
       generate_mouse_event(
-	 is_down ?  ALLEGRO_EVENT_MOUSE_BUTTON_DOWN : ALLEGRO_EVENT_MOUSE_BUTTON_UP,
+         is_down ?  ALLEGRO_EVENT_MOUSE_BUTTON_DOWN : ALLEGRO_EVENT_MOUSE_BUTTON_UP,
          the_mouse.state.x, the_mouse.state.y, the_mouse.state.z,
          0, 0, 0,
-         button0 + 1);
+         button0 + 1, d);
    }
    _al_event_source_unlock(&the_mouse.parent.es);
 }
@@ -372,6 +358,8 @@ static void mouse_directx_button_handler(int unswapped_button, bool is_down)
  */
 static void mouse_dinput_handle_event(int ofs, int data)
 {
+   ALLEGRO_DISPLAY *d = (void*)win_disp;
+   //XXX make this per display, maybe... probably
    static int last_data_x = 0;
    static int last_data_y = 0;
    static int last_was_x = 0;
@@ -380,7 +368,7 @@ static void mouse_dinput_handle_event(int ofs, int data)
    switch (ofs) {
 
       case DIMOFS_X:
-         if (_al_display_type() < 0 || _al_display_type() == 0) {
+         if (d->flags & ALLEGRO_FULLSCREEN) {
             if (last_was_x)
                last_data_y = 0;
             last_data_x = data;
@@ -393,12 +381,12 @@ static void mouse_dinput_handle_event(int ofs, int data)
                   data *= mouse_accel_mult;
             }
 
-	    mouse_directx_motion_handler(data, 0);
+             mouse_directx_motion_handler(data, 0);
          }
          break;
 
       case DIMOFS_Y:
-         if (_al_display_type() < 0 || _al_display_type() == 0) {
+         if (d->flags & ALLEGRO_FULLSCREEN) {
             if (!last_was_x)
                last_data_x = 0;
             last_data_y = data;
@@ -411,37 +399,37 @@ static void mouse_dinput_handle_event(int ofs, int data)
                   data *= mouse_accel_mult;
             }
 
-	    mouse_directx_motion_handler(0, data);
+             mouse_directx_motion_handler(0, data);
          }
          break;
 
       case DIMOFS_Z:
-	 // XXX: untested yet as the mouse wheel doesn't want to work on my
-	 // laptop
-         if (dinput_wheel && _mouse_on) {
-	    mouse_directx_wheel_motion_handler(data/120);
-	 }
+         // XXX: untested yet as the mouse wheel doesn't want to work on my
+         // laptop
+         if (dinput_wheel && win_disp->is_mouse_on) {
+            mouse_directx_wheel_motion_handler(data/120);
+         }
          break;
 
       case DIMOFS_BUTTON0:
-	 mouse_directx_button_handler(0, data & 0x80);
+         mouse_directx_button_handler(0, data & 0x80);
          break;
 
       case DIMOFS_BUTTON1:
-	 mouse_directx_button_handler(1, data & 0x80);
+         mouse_directx_button_handler(1, data & 0x80);
          break;
 
       case DIMOFS_BUTTON2:
-	 mouse_directx_button_handler(2, data & 0x80);
+         mouse_directx_button_handler(2, data & 0x80);
          break;
 
       case DIMOFS_BUTTON3:
-	 mouse_directx_button_handler(3, data & 0x80);
+         mouse_directx_button_handler(3, data & 0x80);
          break;
 
       default:
-	 TRACE(PREFIX_I "unknown event at mouse_dinput_handle_event %d\n", ofs);
-	 break;
+       TRACE(PREFIX_I "unknown event at mouse_dinput_handle_event %d\n", ofs);
+       break;
    }
 }
 
@@ -450,7 +438,7 @@ static void mouse_dinput_handle_event(int ofs, int data)
 /* mouse_dinput_handle: [input thread]
  *  Handles queued mouse input.
  */
-static void mouse_dinput_handle(void* unused)
+static void mouse_dinput_handle(void)
 {
    static DIDEVICEOBJECTDATA message_buffer[DINPUT_BUFFERSIZE];
    long int waiting_messages;
@@ -470,52 +458,59 @@ static void mouse_dinput_handle(void* unused)
    /* was device lost ? */
    if ((hr == DIERR_NOTACQUIRED) || (hr == DIERR_INPUTLOST)) {
       /* reacquire device */
-      _TRACE(PREFIX_W "mouse device not acquired or lost\n");
-      wnd_schedule_proc(mouse_dinput_acquire);
+      TRACE(PREFIX_W "mouse device not acquired or lost\n");
+      /*_al_win_wnd_schedule_proc(win_disp->window, mouse_dinput_acquire, NULL);*/
+      /* Makes no sense to reacquire the device here becasue this usually 
+       * happens when the window looses focus. */
    }
    else if (FAILED(hr)) {  /* other error? */
-      _TRACE(PREFIX_E "unexpected error while filling mouse message buffer\n");
+      TRACE(PREFIX_E "unexpected error while filling mouse message buffer\n");
    }
    else {
       /* normally only this case should happen */
-      for (i = 0; i < waiting_messages; i++) {
+      for (i = 0; i < waiting_messages && win_disp->is_mouse_on; i++) {
          mouse_dinput_handle_event(message_buffer[i].dwOfs,
                                    message_buffer[i].dwData);
       }
 
-      if (_al_display_type() == 1) {
+      if (!(win_disp->display.flags & ALLEGRO_FULLSCREEN)) {
          /* windowed input mode */
-         //if (!wnd_sysmenu) {
+         if (!win_disp->is_in_sysmenu) {
             POINT p;
             int wx, wy;
 
-         GetCursorPos(&p);
+            GetCursorPos(&p);
 
-         _al_win_get_window_position(_al_win_active_window, &wx, &wy);
+            _al_win_get_window_position(win_disp->window, &wx, &wy);
 
-         p.x -= wx;
-         p.y -= wy;
+            p.x -= wx;
+            p.y -= wy;
 
-         if ((p.x < mouse_minx) || (p.x > mouse_maxx) ||
-             (p.y < mouse_miny) || (p.y > mouse_maxy)) {
-            if (_mouse_on) {
-               _mouse_on = FALSE;
-               wnd_schedule_proc(mouse_set_syscursor);
-               mouse_directx_motion_handler_abs(
-                  CLAMP(mouse_minx, p.x, mouse_maxx),
-                  CLAMP(mouse_miny, p.y, mouse_maxy));
+            if ((p.x < win_disp->mouse_range_x1) ||
+                (p.x > win_disp->mouse_range_x2) ||
+                (p.y < win_disp->mouse_range_y1) ||
+                (p.y > win_disp->mouse_range_y2)) {
+               if (win_disp->is_mouse_on) {
+                  win_disp->is_mouse_on = false;
+                  _al_win_wnd_schedule_proc(win_disp->window,
+                                            mouse_set_syscursor,
+                                            NULL);
+                  mouse_directx_motion_handler_abs(
+                     CLAMP(win_disp->mouse_range_x1,
+                           p.x, win_disp->mouse_range_x2),
+                     CLAMP(win_disp->mouse_range_y1,
+                           p.y, win_disp->mouse_range_y2));
+               }
+            }
+            else {
+               if (!win_disp->is_mouse_on) {
+                  win_disp->is_mouse_on = true;
+                  _al_win_wnd_schedule_proc(win_disp->window, mouse_set_syscursor, NULL);
+               }
+               mouse_directx_motion_handler_abs(p.x, p.y);
             }
          }
-         else {
-            if (!_mouse_on) {
-               _mouse_on = TRUE;
-               wnd_schedule_proc(mouse_set_syscursor);
-            }
-            mouse_directx_motion_handler_abs(p.x, p.y);
-         }
-      //}
-   }
-#if 0
+      }
       else {
          /* fullscreen input mode */
          mymickey_x += dinput_x - mymickey_ox;
@@ -527,11 +522,15 @@ static void mouse_dinput_handle(void* unused)
          _mouse_x = MICKEY_TO_COORD_X(mouse_mx + dinput_x);
          _mouse_y = MICKEY_TO_COORD_Y(mouse_my + dinput_y);
 
-         if ((_mouse_x < mouse_minx) || (_mouse_x > mouse_maxx) ||
-             (_mouse_y < mouse_miny) || (_mouse_y > mouse_maxy)) {
+         if ((_mouse_x < win_disp->mouse_range_x1) ||
+             (_mouse_x > win_disp->mouse_range_x2) ||
+             (_mouse_y < win_disp->mouse_range_y1) ||
+             (_mouse_y > win_disp->mouse_range_y2)) {
 
-            _mouse_x = CLAMP(mouse_minx, _mouse_x, mouse_maxx);
-            _mouse_y = CLAMP(mouse_miny, _mouse_y, mouse_maxy);
+            _mouse_x = CLAMP(win_disp->mouse_range_x1,
+                             _mouse_x, win_disp->mouse_range_x2);
+            _mouse_y = CLAMP(win_disp->mouse_range_y1,
+                             _mouse_y, win_disp->mouse_range_y2);
 
             mouse_mx = COORD_TO_MICKEY_X(_mouse_x);
             mouse_my = COORD_TO_MICKEY_Y(_mouse_y);
@@ -539,147 +538,147 @@ static void mouse_dinput_handle(void* unused)
             CLEAR_MICKEYS();
          }
 
-         if (!_mouse_on) {
-            _mouse_on = TRUE;
-            wnd_schedule_proc(mouse_set_syscursor);
+         if (!win_disp->is_mouse_on) {
+            win_disp->is_mouse_on = true;
+            _al_win_wnd_schedule_proc(win_disp->window, mouse_set_syscursor, NULL);
          }
-
-         _handle_mouse_input();
       }
-#endif
    }
 }
-
-
-
-/* mouse_dinput_acquire: [window thread]
- *  Acquires the mouse device.
- */
-int mouse_dinput_acquire(void)
-{
-   HRESULT hr;
-
-   if (mouse_dinput_device) {
-      //_mouse_b = 0;
-
-      hr = IDirectInputDevice8_Acquire(mouse_dinput_device);
-
-      if (FAILED(hr)) {
-	 _TRACE(PREFIX_E "acquire mouse failed: %s\n", dinput_err_str(hr));
-	 return -1;
-      }
-
-      /* The cursor may not be in the client area
-       * so we don't set _mouse_on here.
-       */
-
-      return 0;
-   }
-   else {
-      return -1;
-   }
-}
-
-
-
-/* mouse_dinput_unacquire: [window thread]
- *  Unacquires the mouse device.
- */
-int mouse_dinput_unacquire(void)
-{
-   if (mouse_dinput_device) {
-      IDirectInputDevice8_Unacquire(mouse_dinput_device);
-
-      //_mouse_b = 0;
-      _mouse_on = FALSE;
-
-      return 0;
-   }
-   else {
-      return -1;
-   }
-}
-
-
-
-/* mouse_dinput_grab: [window thread]
- *  Grabs the mouse device.
- */
-int mouse_dinput_grab(void)
-{
-   HRESULT hr;
-   DWORD level;
-   HWND allegro_wnd = _al_win_active_window;
-
-   if (mouse_dinput_device) {
-      /* necessary in order to set the cooperative level */
-      mouse_dinput_unacquire();
-
-      if (_al_display_type() == 0) {
-         level = DISCL_FOREGROUND | DISCL_EXCLUSIVE;
-         _TRACE(PREFIX_I "foreground exclusive cooperative level requested for mouse\n");
-      }
-      else {
-         level = DISCL_FOREGROUND | DISCL_NONEXCLUSIVE;
-         _TRACE(PREFIX_I "foreground non-exclusive cooperative level requested for mouse\n");
-      }
-
-      /* set cooperative level */
-      hr = IDirectInputDevice8_SetCooperativeLevel(mouse_dinput_device, allegro_wnd, level);
-      if (FAILED(hr)) {
-         _TRACE(PREFIX_E "set cooperative level failed: %s\n", dinput_err_str(hr));
-         return -1;
-      }
-
-      mouse_dinput_acquire();
-
-      /* update the system cursor */
-      mouse_set_syscursor();
-
-      return 0;
-   }
-   else {
-      /* update the system cursor */
-      mouse_set_syscursor();
-
-      return -1;
-   }
-}
-
 
 
 /* mouse_set_syscursor: [window thread]
  *  Selects whatever system cursor we should display.
  */
-int mouse_set_syscursor(void)
+static void mouse_set_syscursor(void *unused)
 {
-   HWND allegro_wnd = _al_win_active_window;
-   if ((mouse_dinput_device && _mouse_on) || (_al_display_type() == 0)) {
-      SetCursor(_win_hcursor);
+   if ((mouse_dinput_device && win_disp->is_mouse_on) ||
+       (win_disp->display.flags & ALLEGRO_FULLSCREEN)) {
+      SetCursor(win_disp->mouse_selected_hcursor);
       /* Make sure the cursor is removed by the system. */
-      PostMessage(allegro_wnd, WM_MOUSEMOVE, 0, 0);
+      PostMessage(win_disp->window, WM_MOUSEMOVE, 0, 0);
    }
    else
       SetCursor(LoadCursor(NULL, IDC_ARROW));
-
-   return 0;
 }
 
+
+/* mouse_dinput_acquire: [window thread]
+ *  Acquires the mouse device.
+ */
+static void mouse_dinput_acquire(void)
+{
+   HRESULT hr;
+
+   if (mouse_dinput_device) {
+      the_mouse.state.buttons = 0;
+
+      hr = IDirectInputDevice8_Acquire(mouse_dinput_device);
+
+      if (FAILED(hr)) {
+         TRACE(PREFIX_E "acquire mouse failed: %s\n", dinput_err_str(hr));
+         return;
+      }
+
+      /* The cursor may not be in the client area
+       * so we don't set win_disp->is_mouse_on here.
+       */
+   }
+}
+
+
+
+/* _al_win_mouse_dinput_unacquire: [window thread]
+ *  Unacquires the mouse device.
+ */
+void _al_win_mouse_dinput_unacquire(void *param)
+{
+   /* Unacquiring a device that is acquired by a different display. This can
+    * happen if for example the unacquire command arrives after the other
+    * display has already grabbed the device, since these messages are sent
+    * asynchronously to the window thread message queue. */
+   if (param && param != win_disp) {
+      return;
+   }
+
+   if (mouse_dinput_device && win_disp) {
+      IDirectInputDevice8_Unacquire(mouse_dinput_device);
+
+      the_mouse.state.buttons = 0;
+
+      if (param) {
+         /* Called externally. */
+         ALLEGRO_DISPLAY_WIN *win_disp = param;
+         win_disp->is_mouse_on = false;
+      }
+      else if (win_disp) {
+         /* Called by _al_win_mouse_dinput_grab to unacquire the previous
+          * device. */
+         win_disp->is_mouse_on = false;
+      }
+
+      win_disp = NULL;
+   }
+}
+
+
+
+/* _al_win_mouse_dinput_grab: [window thread]
+ *  Grabs the mouse device, ungrabs from the previous display.
+ */
+void _al_win_mouse_dinput_grab(void *param)
+{
+   HRESULT hr;
+   DWORD level;
+
+   if (mouse_dinput_device) {
+      /* Release the input from the previous window just in case,
+         otherwise set cooperative level will fail. */
+      if (win_disp)
+         _al_win_wnd_call_proc(win_disp->window, _al_win_mouse_dinput_unacquire, NULL);
+
+      win_disp = param;
+
+      if (win_disp->display.flags & ALLEGRO_FULLSCREEN) {
+         level = DISCL_FOREGROUND | DISCL_EXCLUSIVE;
+      }
+      else {
+         level = DISCL_FOREGROUND | DISCL_NONEXCLUSIVE;
+      }
+
+      /* set cooperative level */
+      hr = IDirectInputDevice8_SetCooperativeLevel(mouse_dinput_device,
+                                                   win_disp->window, level);
+      if (FAILED(hr)) {
+         TRACE(PREFIX_E "set cooperative level failed: %s\n", dinput_err_str(hr));
+         return;
+      }
+
+      mouse_dinput_acquire();
+
+      /* update the system cursor */
+      mouse_set_syscursor(NULL);
+   }
+   else {
+      /* update the system cursor (why??)*/
+      SetCursor(LoadCursor(NULL, IDC_ARROW));
+   }
+}
 
 
 /* mouse_set_sysmenu: [window thread]
  *  Changes the state of the mouse when going to/from sysmenu mode.
  */
-int mouse_set_sysmenu(int state)
+void _al_win_mouse_set_sysmenu(bool state)
 {
    POINT p;
    int x, y;
 
    if (mouse_dinput_device) {
-      if (state == TRUE) {
-         if (_mouse_on) {
-            _mouse_on = FALSE;
-            mouse_set_syscursor();
+      if (state) {
+         if (win_disp->is_mouse_on) {
+            win_disp->is_mouse_on = false;
+            mouse_set_syscursor(NULL);
          }
       }
       else {
@@ -689,8 +688,6 @@ int mouse_set_sysmenu(int state)
 
       //_handle_mouse_input();
    }
-
-   return 0;
 }
 
 
@@ -702,10 +699,7 @@ static int mouse_dinput_exit(void)
 {
    if (mouse_dinput_device) {
       /* unregister event handler first */
-      _win_input_unregister_event(mouse_input_event);
-
-      /* unacquire device */
-      wnd_call_proc(mouse_dinput_unacquire);
+      _al_win_input_unregister_event(mouse_input_event);
 
       /* now it can be released */
       IDirectInputDevice8_Release(mouse_dinput_device);
@@ -723,9 +717,6 @@ static int mouse_dinput_exit(void)
       CloseHandle(mouse_input_event);
       mouse_input_event = NULL;
    }
-
-   /* update the system cursor */
-   wnd_schedule_proc(mouse_set_syscursor);
 
    return 0;
 }
@@ -806,12 +797,8 @@ static int mouse_dinput_init(void)
       goto Error;
 
    /* Register event handler */
-   if (!_win_input_register_event(mouse_input_event, mouse_dinput_handle, NULL) != 0)
+   if (!_al_win_input_register_event(mouse_input_event, mouse_dinput_handle) != 0)
       goto Error;
-
-   /* Grab the device */
-   _mouse_on = TRUE;
-   wnd_call_proc(mouse_dinput_grab);
 
    return 0;
 
@@ -822,10 +809,13 @@ static int mouse_dinput_init(void)
 
 
 
-/* mouse_directx_init: [primary thread]
+/* mouse_directx_init: [primary thread] [vtable entry]
  */
 static bool mouse_directx_init(void)
 {
+   ALLEGRO_SYSTEM *system;
+   size_t i;
+
    /* get user acceleration factor */
    mouse_accel_fact = 1; /*get_config_int(uconvert_ascii("mouse", tmp1),
                                      uconvert_ascii("mouse_accel_factor", tmp2),
@@ -833,8 +823,20 @@ static bool mouse_directx_init(void)
 
    if (mouse_dinput_init() != 0) {
       /* something has gone wrong */
-      _TRACE(PREFIX_E "mouse handler init failed\n");
+      TRACE(PREFIX_E "mouse handler init failed\n");
       return false;
+   }
+
+   /* If one of our windows is the foreground window make it grab the input. */
+   system = al_system_driver();
+   for (i = 0; i < _al_vector_size(&system->displays); i++) {
+      ALLEGRO_DISPLAY_WIN **pwin_disp = _al_vector_ref(&system->displays, i);
+      ALLEGRO_DISPLAY_WIN *win_disp = *pwin_disp;
+      if (win_disp->window == GetForegroundWindow()) {
+         win_disp->is_mouse_on = true;
+         _al_win_wnd_call_proc(win_disp->window,
+            _al_win_mouse_dinput_grab, win_disp);
+      }
    }
 
    memset(&the_mouse, 0, sizeof the_mouse);
@@ -844,29 +846,47 @@ static bool mouse_directx_init(void)
    mouse_directx_installed = true;
 
    /* the mouse handler has successfully set up */
-   _TRACE(PREFIX_I "mouse handler starts\n");
+   TRACE(PREFIX_I "mouse handler starts\n");
    return true;
 }
 
 
 
-/* mouse_directx_exit: [primary thread]
+/* mouse_directx_exit: [primary thread] [vtable entry]
  */
 static void mouse_directx_exit(void)
 {
+   ALLEGRO_SYSTEM *system;
+   size_t i;
+
    if (mouse_dinput_device) {
       /* command mouse handler shutdown */
-      _TRACE(PREFIX_I "mouse handler exits\n");
+      TRACE(PREFIX_I "mouse handler exits\n");
+
+      /* If one of our windows is the foreground window release the input
+         from it. */
+      system = al_system_driver();
+      for (i = 0; i < _al_vector_size(&system->displays); i++) {
+         ALLEGRO_DISPLAY_WIN **pwin_disp = _al_vector_ref(&system->displays, i);
+         ALLEGRO_DISPLAY_WIN *win_disp = *pwin_disp;
+         if (win_disp->window == GetForegroundWindow())
+            _al_win_wnd_call_proc(win_disp->window,
+                                  _al_win_mouse_dinput_unacquire,
+                                  win_disp);
+      }
+
       mouse_dinput_exit();
+
       ASSERT(mouse_directx_installed);
       mouse_directx_installed = false;
+
       _al_event_source_free(&the_mouse.parent.es);
    }
 }
 
 
 
-/* mouse_directx_get_mouse:
+/* mouse_directx_get_mouse: [vtable entry]
  *  Returns the address of a ALLEGRO_MOUSE structure representing the mouse.
  */
 static ALLEGRO_MOUSE *mouse_directx_get_mouse(void)
@@ -878,7 +898,7 @@ static ALLEGRO_MOUSE *mouse_directx_get_mouse(void)
 
 
 
-/* mouse_directx_get_mouse_num_buttons:
+/* mouse_directx_get_mouse_num_buttons: [vtable entry]
  *  Return the number of buttons on the mouse.
  */
 static unsigned int mouse_directx_get_mouse_num_buttons(void)
@@ -890,7 +910,7 @@ static unsigned int mouse_directx_get_mouse_num_buttons(void)
 
 
 
-/* mouse_directx_get_mouse_num_axes:
+/* mouse_directx_get_mouse_num_axes: [vtable entry]
  *  Return the number of axes on the mouse.
  */
 static unsigned int mouse_directx_get_mouse_num_axes(void)
@@ -902,14 +922,13 @@ static unsigned int mouse_directx_get_mouse_num_axes(void)
 
 
 
-/* mouse_directx_set_mouse_xy:
+/* mouse_directx_set_mouse_xy: [vtable entry]
  *
  */
 static bool mouse_directx_set_mouse_xy(int x, int y)
 {
+   ALLEGRO_DISPLAY_WIN *win_disp = (void*)al_get_current_display();
    ASSERT(mouse_directx_installed);
-
-   _enter_critical();
 
    _al_event_source_lock(&the_mouse.parent.es);
    {
@@ -917,8 +936,8 @@ static bool mouse_directx_set_mouse_xy(int x, int y)
       int dx, dy;
       int wx, wy;
 
-      new_x = CLAMP(mouse_minx, x, mouse_maxx);
-      new_y = CLAMP(mouse_miny, y, mouse_maxy);
+      new_x = CLAMP(win_disp->mouse_range_x1, x, win_disp->mouse_range_x2);
+      new_y = CLAMP(win_disp->mouse_range_y1, y, win_disp->mouse_range_y1);
 
       dx = new_x - the_mouse.state.x;
       dy = new_y - the_mouse.state.y;
@@ -931,12 +950,12 @@ static bool mouse_directx_set_mouse_xy(int x, int y)
          ALLEGRO_EVENT_MOUSE_AXES,
          the_mouse.state.x, the_mouse.state.y, the_mouse.state.z,
          dx, dy, 0,
-         0);
+         0, (void*)win_disp);
       }
 
-      _al_win_get_window_position(_al_win_active_window, &wx, &wy);
+      _al_win_get_window_position(win_disp->window, &wx, &wy);
 
-      if (_al_display_type() == 1) {
+      if (!(win_disp->display.flags & ALLEGRO_FULLSCREEN)) {
          SetCursorPos(new_x+wx, new_y+wy);
       }
    }
@@ -945,18 +964,19 @@ static bool mouse_directx_set_mouse_xy(int x, int y)
    /* force mouse update */
    SetEvent(mouse_input_event);
 
-   _exit_critical();
-
    return true;
 }
 
 
 
-/* mouse_directx_set_mouse_axis:
+/* mouse_directx_set_mouse_axis: [vtable entry]
  *
  */
 static bool mouse_directx_set_mouse_axis(int which, int z)
 {
+   //XXX Which display to event?
+   ALLEGRO_DISPLAY *disp = al_get_current_display();
+
    if (which != 2) {
       return false;
    }
@@ -974,7 +994,7 @@ static bool mouse_directx_set_mouse_axis(int which, int z)
             ALLEGRO_EVENT_MOUSE_AXES,
             the_mouse.state.x, the_mouse.state.y, the_mouse.state.z,
             0, 0, dz,
-            0);
+            0, disp);
       }
    }
    _al_event_source_unlock(&the_mouse.parent.es);
@@ -984,11 +1004,14 @@ static bool mouse_directx_set_mouse_axis(int which, int z)
 
 
 
-/* mouse_directx_set_mouse_range:
+/* mouse_directx_set_mouse_range: [vtable entry]
  *
  */
 static bool mouse_directx_set_mouse_range(int x1, int y1, int x2, int y2)
 {
+   //XXX Decide which display does al_set_mouse_range() affect.
+   ALLEGRO_DISPLAY_WIN *win_disp = (void*)al_get_current_display();
+
    ASSERT(mouse_directx_installed);
    
    _al_event_source_lock(&the_mouse.parent.es);
@@ -996,13 +1019,13 @@ static bool mouse_directx_set_mouse_range(int x1, int y1, int x2, int y2)
       int new_x, new_y;
       int dx, dy;
 
-      mouse_minx = x1;
-      mouse_miny = y1;
-      mouse_maxx = x2;
-      mouse_maxy = y2;
+      win_disp->mouse_range_x1 = x1;
+      win_disp->mouse_range_y1 = y1;
+      win_disp->mouse_range_x2 = x2;
+      win_disp->mouse_range_y2 = y2;
 
-      new_x = CLAMP(mouse_minx, the_mouse.state.x, mouse_maxx);
-      new_y = CLAMP(mouse_miny, the_mouse.state.y, mouse_maxy);
+      new_x = CLAMP(win_disp->mouse_range_x1, the_mouse.state.x, win_disp->mouse_range_x2);
+      new_y = CLAMP(win_disp->mouse_range_y1, the_mouse.state.y, win_disp->mouse_range_y2);
 
       dx = new_x - the_mouse.state.x;
       dy = new_y - the_mouse.state.y;
@@ -1015,7 +1038,7 @@ static bool mouse_directx_set_mouse_range(int x1, int y1, int x2, int y2)
             ALLEGRO_EVENT_MOUSE_AXES,
             the_mouse.state.x, the_mouse.state.y, the_mouse.state.z,
             dx, dy, 0,
-            0);
+            0, (void*)win_disp);
       }
    }
    _al_event_source_unlock(&the_mouse.parent.es);
@@ -1025,7 +1048,7 @@ static bool mouse_directx_set_mouse_range(int x1, int y1, int x2, int y2)
 
 
 
-/* mouse_directx_get_state:
+/* mouse_directx_get_state: [vtable entry]
  *  Copy the current mouse state into RET_STATE, with any necessary locking.
  */
 static void mouse_directx_get_state(ALLEGRO_MOUSE_STATE *ret_state)
@@ -1041,180 +1064,30 @@ static void mouse_directx_get_state(ALLEGRO_MOUSE_STATE *ret_state)
 
 
 
-/* [bgman thread] */
-static void generate_mouse_event(unsigned int type,
-                                 int x, int y, int z,
-                                 int dx, int dy, int dz,
-                                 unsigned int button)
+/* the driver vtable */
+#define MOUSEDRV_XWIN  AL_ID('X','W','I','N')
+
+static ALLEGRO_MOUSE_DRIVER mousedrv_directx =
 {
-   ALLEGRO_EVENT *event;
-
-   if (!_al_event_source_needs_to_generate_event(&the_mouse.parent.es))
-      return;
-
-   event = _al_event_source_get_unused_event(&the_mouse.parent.es);
-   if (!event)
-      return;
-
-   event->mouse.type = type;
-   event->mouse.timestamp = al_current_time();
-   event->mouse.display = _al_win_get_event_display();
-   event->mouse.x = x;
-   event->mouse.y = y;
-   event->mouse.z = z;
-   event->mouse.dx = dx;
-   event->mouse.dy = dy;
-   event->mouse.dz = dz;
-   event->mouse.button = button;
-   _al_event_source_emit_event(&the_mouse.parent.es, event);
-}
+   MOUSE_DIRECTX,
+   empty_string,
+   empty_string,
+   "DirectInput mouse",
+   mouse_directx_init,
+   mouse_directx_exit,
+   mouse_directx_get_mouse,
+   mouse_directx_get_mouse_num_buttons,
+   mouse_directx_get_mouse_num_axes,
+   mouse_directx_set_mouse_xy,
+   mouse_directx_set_mouse_axis,
+   mouse_directx_set_mouse_range,
+   mouse_directx_get_state
+};
 
 
-//---------------------------------------------------------------------//
-//---------------------------------------------------------------------//
 
-/* mouse_directx_position: [primary thread]
- */
-#if 0
-static void mouse_directx_position(int x, int y)
+_DRIVER_INFO _al_mouse_driver_list[] =
 {
-   _enter_critical();
-
-   _mouse_x = x;
-   _mouse_y = y;
-
-   mouse_mx = COORD_TO_MICKEY_X(x);
-   mouse_my = COORD_TO_MICKEY_Y(y);
-
-   if (gfx_driver && gfx_driver->windowed)
-      SetCursorPos(x+wnd_x, y+wnd_y);
-
-   CLEAR_MICKEYS();
-
-   mymickey_x = mymickey_y = 0;
-
-   /* force mouse update */
-   SetEvent(mouse_input_event);
-
-   _exit_critical();
-}
-#endif
-
-
-
-/* mouse_directx_set_range: [primary thread]
- */
-#if 0
-static void mouse_directx_set_range(int x1, int y1, int x2, int y2)
-{
-   mouse_minx = x1;
-   mouse_miny = y1;
-   mouse_maxx = x2;
-   mouse_maxy = y2;
-
-   _enter_critical();
-
-   _mouse_x = CLAMP(mouse_minx, _mouse_x, mouse_maxx);
-   _mouse_y = CLAMP(mouse_miny, _mouse_y, mouse_maxy);
-
-   mouse_mx = COORD_TO_MICKEY_X(_mouse_x);
-   mouse_my = COORD_TO_MICKEY_Y(_mouse_y);
-
-   CLEAR_MICKEYS();
-
-   _exit_critical();
-
-   /* scale up the acceleration multiplier to the range */
-   mouse_accel_mult = mouse_accel_fact * MAX(x2-x1+1, y2-y1+1)/320;
-}
-#endif /* 0 */
-
-
-
-/* mouse_directx_set_speed: [primary thread]
- */
-#if 0
-static void mouse_directx_set_speed(int xspeed, int yspeed)
-{
-   _enter_critical();
-
-   mouse_sx = MAX(1, xspeed);
-   mouse_sy = MAX(1, yspeed);
-
-   mouse_mx = COORD_TO_MICKEY_X(_mouse_x);
-   mouse_my = COORD_TO_MICKEY_Y(_mouse_y);
-
-   CLEAR_MICKEYS();
-
-   _exit_critical();
-}
-#endif /* 0 */
-
-
-
-/* mouse_directx_get_mickeys: [primary thread]
- */
-#if 0
-static void mouse_directx_get_mickeys(int *mickeyx, int *mickeyy)
-{
-   int temp_x = mymickey_x;
-   int temp_y = mymickey_y;
-
-   mymickey_x -= temp_x;
-   mymickey_y -= temp_y;
-
-   *mickeyx = temp_x;
-   *mickeyy = temp_y;
-}
-#endif
-
-
-
-/* mouse_directx_enable_hardware_cursor:
- *  enable the hardware cursor; actually a no-op in Windows, but we need to
- *  put something in the vtable.
- */
-#if 0
-static void mouse_directx_enable_hardware_cursor(int mode)
-{
-   /* Do nothing */
-   (void)mode;
-}
-#endif
-
-
-
-/* mouse_directx_select_system_cursor:
- *  Select an OS native cursor 
- */
-#if 0
-static int mouse_directx_select_system_cursor (AL_CONST int cursor)
-{
-   HCURSOR wc;
-   HWND allegro_wnd = win_get_window();
-   
-   wc = NULL;
-   switch(cursor) {
-      case MOUSE_CURSOR_ARROW:
-         wc = LoadCursor(NULL, IDC_ARROW);
-         break;
-      case MOUSE_CURSOR_BUSY:
-         wc = LoadCursor(NULL, IDC_WAIT);
-         break;
-      case MOUSE_CURSOR_QUESTION:
-         wc = LoadCursor(NULL, IDC_HELP);
-         break;
-      case MOUSE_CURSOR_EDIT:
-         wc = LoadCursor(NULL, IDC_IBEAM);
-         break;
-      default:
-         return 0;
-   }
-
-   _win_hcursor = wc;
-   SetCursor(_win_hcursor);
-   PostMessage(allegro_wnd, WM_MOUSEMOVE, 0, 0);
-   
-   return cursor;
-}
-#endif
+   {MOUSE_DIRECTX, &mousedrv_directx, TRUE},
+   {0, NULL, 0}
+};

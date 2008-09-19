@@ -25,7 +25,7 @@
 #include "allegro5/internal/aintern_display.h"
 #include "allegro5/internal/aintern_memory.h"
 #include "allegro5/internal/aintern_system.h"
-
+#include "allegro5/platform/aintwin.h"
 
 #include "d3d.h"
 

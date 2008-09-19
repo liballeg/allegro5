@@ -102,7 +102,6 @@ set(ALLEGRO_SRC_WIN_FILES
     src/win/wnewwin.c
     src/win/wthread.c
     src/win/wtime.c
-    src/win/wwnd.c
     src/win/wxthread.c
     )
 

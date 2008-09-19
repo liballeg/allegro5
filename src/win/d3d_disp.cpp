@@ -31,7 +31,6 @@ extern "C" {
 #include "allegro5/internal/aintern_thread.h"
 #include "allegro5/internal/aintern_vector.h"
 #include "allegro5/platform/aintwin.h"
-#include "wddraw.h"
 }
 
 #include "d3d.h"
@@ -79,6 +78,7 @@ static DWORD d3d_mag_filter = D3DTEXF_POINT;
 typedef struct new_display_parameters {
    ALLEGRO_DISPLAY_D3D *display;
    bool init_failed;
+   bool initialized;
 } new_display_parameters;
 
 
@@ -620,10 +620,8 @@ static void d3d_make_faux_fullscreen_stage_one(ALLEGRO_DISPLAY_D3D *d3d_display)
          if (disp != d3d_display) {// && (disp->win_display.display.flags & ALLEGRO_FULLSCREEN)) {
             TRACE("Destroying internals\n");
             d3d_destroy_display_internals(disp);
-            disp->end_thread = false;
-            disp->initialized = false;
-            disp->init_failed = false;
-            disp->thread_ended = false;
+            disp->win_display.end_thread = false;
+            disp->win_display.thread_ended = false;
          }
       }
    }
@@ -781,13 +779,6 @@ static void d3d_release_current_target(bool release_backbuffer)
 }
 
 
-static void CALLBACK d3d_quit_window_thread(ULONG_PTR *param)
-{
-   ALLEGRO_DISPLAY_D3D *d3d_display = (ALLEGRO_DISPLAY_D3D*)param;
-   d3d_display->end_thread = true;
-}
-
-
 static void d3d_destroy_display_internals(ALLEGRO_DISPLAY_D3D *d3d_display)
 {
    ALLEGRO_DISPLAY_WIN *win_display = &d3d_display->win_display;
@@ -806,21 +797,9 @@ static void d3d_destroy_display_internals(ALLEGRO_DISPLAY_D3D *d3d_display)
       }
    }
 
-   //_al_win_ungrab_input();
-   QueueUserAPC((PAPCFUNC)_al_win_key_dinput_unacquire,
-       win_display->window_thread,
-       (ULONG_PTR)&win_display->key_input);
-
-   if (al_is_keyboard_installed())
-      _al_win_dettach_key_input(&win_display->key_input);
-
-   QueueUserAPC((PAPCFUNC)d3d_quit_window_thread,
-      win_display->window_thread,
-      (ULONG_PTR)d3d_display);
-   while (!d3d_display->thread_ended)
-      al_rest(0.001);
-
    SendMessage(win_display->window, _al_win_msg_suicide, 0, 0);
+   while (!win_display->thread_ended)
+      al_rest(0.001);
 }
 
 static void d3d_destroy_display(ALLEGRO_DISPLAY *display)
@@ -837,7 +816,7 @@ static void d3d_destroy_display(ALLEGRO_DISPLAY *display)
    if (d3d_created_displays._size > 0) {
       ALLEGRO_DISPLAY_D3D **dptr = (ALLEGRO_DISPLAY_D3D **)_al_vector_ref(&d3d_created_displays, 0);
       ALLEGRO_DISPLAY_D3D *d = *dptr;
-      win_grab_input();
+      _al_win_grab_input((ALLEGRO_DISPLAY_WIN*)d);
    }
    else {
       ffw_set = false;
@@ -1097,7 +1076,6 @@ static void d3d_display_thread_proc(void *arg)
    ALLEGRO_DISPLAY_D3D *d3d_display;
    ALLEGRO_DISPLAY_WIN *win_display;
    ALLEGRO_DISPLAY *al_display;
-   DWORD result;
    MSG msg;
    HRESULT hr;
    bool lost_event_generated = false;
@@ -1194,7 +1172,7 @@ static void d3d_display_thread_proc(void *arg)
    if (!(al_display->flags & ALLEGRO_FULLSCREEN) || d3d_display->faux_fullscreen) {
       if (!d3d_create_device(d3d_display, al_display->format,
             al_display->refresh_rate, al_display->flags, convert_to_faux)) {
-         d3d_display->thread_ended = true;
+         win_display->thread_ended = true;
          d3d_destroy_display(al_display);
          params->init_failed = true;
          return;
@@ -1204,7 +1182,7 @@ static void d3d_display_thread_proc(void *arg)
       TRACE("Creating real fullscreen device\n");
       if (!d3d_create_fullscreen_device(d3d_display, al_display->format,
             al_display->refresh_rate, al_display->flags)) {
-         d3d_display->thread_ended = true;
+         win_display->thread_ended = true;
          d3d_destroy_display(al_display);
          params->init_failed = true;
          return;
@@ -1216,22 +1194,12 @@ static void d3d_display_thread_proc(void *arg)
    d3d_display->device->GetDeviceCaps(&caps);
    d3d_can_wait_for_vsync = ((caps.Caps & D3DCAPS_READ_SCANLINE) != 0);
 
-   d3d_display->thread_ended = false;
+   params->initialized = true;
+   win_display->thread_ended = false;
+   win_display->end_thread = false;
 
-   d3d_display->initialized = true;
-
-   while (!d3d_display->end_thread) {
-      result = MsgWaitForMultipleObjectsEx(0, NULL,
-                                           INFINITE,
-                                           QS_ALLEVENTS,
-                                           MWMO_ALERTABLE | MWMO_INPUTAVAILABLE);
-      if (result == WAIT_IO_COMPLETION) {
-      }
-      else if (result == WAIT_FAILED) {
-         TRACE("Wait failed.\n");
-         break;
-      }
-      else if (result == (DWORD) WAIT_OBJECT_0) {
+   while (!win_display->end_thread) {
+      if (WaitMessage()) {
          /* messages are waiting in the queue */
          while (PeekMessage(&msg, NULL, 0, 0, PM_NOREMOVE)) {
             if (GetMessage(&msg, NULL, 0, 0)) {
@@ -1288,6 +1256,10 @@ static void d3d_display_thread_proc(void *arg)
             d3d_display->do_reset = false;
          }
       }
+      else {
+         TRACE("Wait failed.\n");
+         break;
+      }
    }
 
 End:
@@ -1302,7 +1274,7 @@ End:
       TRACE("Res changed back\n");
    }
 
-   d3d_display->thread_ended = true;
+   win_display->thread_ended = true;
 
    TRACE("d3d display thread exits\n");
 }
@@ -1315,16 +1287,15 @@ static bool d3d_create_display_internals(ALLEGRO_DISPLAY_D3D *d3d_display)
    static bool cfg_read = false;
    ALLEGRO_SYSTEM *sys;
    AL_CONST char *s;
-   HANDLE thread;
 
    params.display = d3d_display;
    params.init_failed = false;
+   params.initialized = false;
 
-   thread = (HANDLE)_beginthread(d3d_display_thread_proc, 0, &params);
+   _beginthread(d3d_display_thread_proc, 0, &params);
 
-   while (!params.display->initialized && !params.init_failed)
+   while (!params.initialized && !params.init_failed)
       al_rest(0.001);
-
 
    if (params.init_failed) {
       return false;
@@ -1344,10 +1315,6 @@ static bool d3d_create_display_internals(ALLEGRO_DISPLAY_D3D *d3d_display)
             d3d_mag_filter = d3d_get_filter(s);
       }
    }
-
-   win_display->window_thread = thread;
-   win_display->key_input.window = win_display->window;
-   win_display->key_input.display = al_display;
 
    d3d_reset_state(d3d_display);
 
@@ -1436,32 +1403,22 @@ static ALLEGRO_DISPLAY *d3d_create_display(int w, int h)
    add = (ALLEGRO_DISPLAY_D3D **)_al_vector_alloc_back(&d3d_created_displays);
    *add = d3d_display;
 
-   _al_win_active_window = win_display->window;
-
-   if (al_is_keyboard_installed()) {
-      if (!_al_win_attach_key_input(&win_display->key_input)) {
-         TRACE("Failed to init keyboard.\n");
-         _AL_FREE(d3d_display);
-         return NULL;
-      }
-   }
-
    /* Setup the mouse */
-
    win_display->mouse_range_x1 = 0;
    win_display->mouse_range_y1 = 0;
    win_display->mouse_range_x2 = w;
    win_display->mouse_range_y2 = h;
+   /* XXX: These calls use the current display (which is not set to this
+           display yet). Mouse routines semantics have to be sorted out first.
    if (al_is_mouse_installed()) {
       al_set_mouse_xy(w/2, h/2);
       al_set_mouse_range(0, 0, w, h);
-   }
+   }*/
 
    win_display->mouse_selected_hcursor = 0;
    win_display->mouse_cursor_shown = false;
 
-   // Activate the window (grabs input)
-   SendMessage(win_display->window, WM_ACTIVATE, WA_ACTIVE, 0);
+   _al_win_grab_input(win_display);
 
    _al_win_show_mouse_cursor(al_display);
 
@@ -1825,10 +1782,8 @@ static bool d3d_resize_display(ALLEGRO_DISPLAY *d, int width, int height)
       d3d_destroy_display_internals(disp);
       d->w = width;
       d->h = height;
-      disp->end_thread = false;
-      disp->initialized = false;
-      disp->init_failed = false;
-      disp->thread_ended = false;
+      win_display->end_thread = false;
+      win_display->thread_ended = false;
       /* What's this? */
       if (d3d_created_displays._size <= 1) {
          ffw_set = false;
@@ -2071,7 +2026,7 @@ static bool d3d_is_compatible_bitmap(ALLEGRO_DISPLAY *display, ALLEGRO_BITMAP *b
 {
    if (bitmap->display->ogl_extras)
       return false;
-   //return (ALLEGRO_DISPLAY_D3D *)display == d3d_bitmap->display;
+   //return display == bitmap->display;
    /* Not entirely sure on this yet, but it seems one dsiplays bitmaps
     * can be displayed on other displays.
     */
@@ -2088,9 +2043,9 @@ static void  d3d_switch_in(ALLEGRO_DISPLAY *display)
 {
    ALLEGRO_DISPLAY_WIN *win_display = (ALLEGRO_DISPLAY_WIN *)display;
 
-   if (al_is_mouse_installed())
+/*   if (al_is_mouse_installed())
       al_set_mouse_range(win_display->mouse_range_x1, win_display->mouse_range_y1,
-         win_display->mouse_range_x2, win_display->mouse_range_y2);
+         win_display->mouse_range_x2, win_display->mouse_range_y2);*/
 }
 
 static bool d3d_wait_for_vsync(ALLEGRO_DISPLAY *display)
