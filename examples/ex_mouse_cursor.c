@@ -8,7 +8,6 @@
 
 #include <allegro5/allegro5.h>
 #include <allegro5/a5_font.h>
-#include "allegro5/a5_ttf.h"
 #include "allegro5/a5_iio.h"
 
 
@@ -84,13 +83,13 @@ int main(void)
 
    bmp = al_iio_load("data/allegro.pcx");
    if (!bmp) {
-      TRACE("Error loading allegro.pcx\n");
+      TRACE("Error loading data/allegro.pcx\n");
       return 1;
    }
 
-   font = al_ttf_load_font("data/DejaVuSans.ttf", 16, 0);
+   font = al_font_load_bitmap_font("data/font.tga", NULL);
    if (!font) {
-      TRACE("DejaVuSans.ttf not found\n");
+      TRACE("Error loading data/font.tga\n");
       return 1;
    }
 
@@ -198,4 +197,4 @@ Quit:
 }
 END_OF_MAIN()
 
-/* vi: set sts=3 sw=3 et: */
+/* vim: set sts=3 sw=3 et: */
