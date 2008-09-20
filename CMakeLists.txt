@@ -152,6 +152,21 @@ if(MINGW)
     else(INSTALL_PREFIX STREQUAL "")
         set(CMAKE_INSTALL_PREFIX ${INSTALL_PREFIX})
     endif(INSTALL_PREFIX STREQUAL "")
+
+    # Check for a common problem (at the time of writing).
+    check_c_source_compiles("
+        #include <windows.h>
+        int main(void)
+        {
+            int x = DM_POSITION;
+            return 0;
+        }"
+        HAVE_DM_POSITION)
+    if(NOT HAVE_DM_POSITION)
+        message(FATAL_ERROR
+            "Missing DM_POSITION. Please update your MinGW"
+            "w32api package, delete CMakeCache.txt and try again.")
+    endif(NOT HAVE_DM_POSITION)
 endif(MINGW)
 
 if(UNIX)
