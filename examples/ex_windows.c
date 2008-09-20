@@ -21,7 +21,11 @@ int main(void)
 
    srand(time(NULL));
 
-   al_init();
+   if (!al_init()) {
+      TRACE("Could not init Allegro.\n");
+      return 1;
+   }
+
    al_install_mouse();
    al_font_init();
 

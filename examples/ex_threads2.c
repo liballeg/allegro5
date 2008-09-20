@@ -260,7 +260,11 @@ int main(void)
       sin_lut[i] = 128 + (int) (127.0 * sin(i / 8.0));
    }
 
-   al_init();
+   if (!al_init()) {
+      TRACE("Could not init Allegro.\n");
+      return 1;
+   }
+
    al_install_keyboard();
    al_install_mouse();
    display = al_create_display(W * IMAGES_PER_ROW,

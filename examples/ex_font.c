@@ -8,7 +8,11 @@ int main(void)
     ALLEGRO_BITMAP *bitmap;
     ALLEGRO_FONT *f;
 
-    al_init();
+    if (!al_init()) {
+        TRACE("Could not init Allegro.\n");
+        return 1;
+    }
+
     al_iio_init();
     al_font_init();
 
@@ -48,3 +52,4 @@ int main(void)
 }
 END_OF_MAIN()
 
+/* vim: set sts=4 sw=4 et: */

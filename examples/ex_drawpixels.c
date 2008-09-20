@@ -26,8 +26,11 @@ int main(void)
    int layer, star;
    ALLEGRO_LOCKED_REGION lr;
 
+   if (!al_init()) {
+      TRACE("Could not init Allegro.\n");
+      return 1;
+   }
 
-   al_init();
    al_install_keyboard();
    
 

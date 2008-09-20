@@ -63,7 +63,10 @@ int main(void)
    ALLEGRO_MIXER *mixer;
    ALLEGRO_STREAM *stream;
 
-   al_init();
+   if (!al_init()) {
+      fprintf(stderr, "Could not init Allegro.\n");
+      return 1;
+   }
 
    if (al_audio_init(ALLEGRO_AUDIO_DRIVER_AUTODETECT) != 0) {
       fprintf(stderr, "Could not init sound.\n");

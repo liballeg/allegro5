@@ -23,7 +23,11 @@ int main(void)
    ALLEGRO_DISPLAY *display;
    ALLEGRO_BITMAP *picture;
 
-   al_init();
+   if (!al_init()) {
+      TRACE("Could not init Allegro.\n");
+      return 1;
+   }
+
    al_iio_init();
 
    al_set_new_display_flags(ALLEGRO_FULLSCREEN);

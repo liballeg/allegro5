@@ -15,7 +15,11 @@ int main(int argc, char **argv)
       return 1;
    }
 
-   al_init();
+   if (!al_init()) {
+      fprintf(stderr, "Could not init Allegro.\n");
+      return 1;
+   }
+
    al_iio_init();
 
    al_set_new_bitmap_format(ALLEGRO_PIXEL_FORMAT_ARGB_8888);

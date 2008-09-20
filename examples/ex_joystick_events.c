@@ -130,7 +130,10 @@ int main(void)
    int num;
    int i;
 
-   al_init();
+   if (!al_init()) {
+      TRACE("Could not init Allegro.\n");
+      return 1;
+   }
 
    display = al_create_display(640, 480);
    if (!display) {

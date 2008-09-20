@@ -28,7 +28,10 @@ int main(void)
     int rs = 100;
 
     /* Initialize Allegro and create an event queue. */
-    al_init();
+    if (!al_init()) {
+        TRACE("Could not init Allegro.\n");
+        return 1;
+    }
     events = al_create_event_queue();
 
     /* Setup a display driver and register events from it. */
@@ -75,3 +78,5 @@ int main(void)
     return 0;
 }
 END_OF_MAIN()
+
+/* vim: set sts=4 sw=4 et: */

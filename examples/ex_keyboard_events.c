@@ -224,7 +224,11 @@ void main_loop(void)
 
 int main(void)
 {
-   al_init();
+   if (!al_init()) {
+      TRACE("Could not init Allegro.\n");
+      return 1;
+   }
+
    al_font_init();
 
    display = al_create_display(WIDTH, HEIGHT);

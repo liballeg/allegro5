@@ -58,7 +58,11 @@ int main(void)
    int i, j;
    int delta1, delta2;
 
-   al_init();
+   if (!al_init()) {
+      TRACE("Could not init Allegro.\n");
+      return 1;
+   }
+
    al_iio_init();
    al_font_init();
 

@@ -49,7 +49,11 @@ int main(void)
     int redraw = 0;
     double t = 0;
 
-    al_init();
+    if (!al_init()) {
+        TRACE("Could not init Allegro.\n");
+        return 1;
+    }
+
     al_install_mouse();
     al_font_init();
 
@@ -98,3 +102,5 @@ int main(void)
     return 0;
 }
 END_OF_MAIN()
+
+/* vim: set sts=4 sw=4 et: */

@@ -120,7 +120,10 @@ int main(void)
    int frames = 0;
    double start;
 
-   al_init();
+   if (!al_init()) {
+      TRACE("Could not init Allegro.\n");
+      return 1;
+   }
 
    al_install_keyboard();
    al_set_new_display_flags(ALLEGRO_OPENGL);

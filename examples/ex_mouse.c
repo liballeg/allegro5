@@ -33,7 +33,11 @@ int main(void)
    ALLEGRO_KEYBOARD_STATE kbdstate;
    int i;
 
-   al_init();
+   if (!al_init()) {
+      TRACE("Could not init Allegro.\n");
+      return 1;
+   }
+
    al_install_mouse();
    al_install_keyboard();
    al_iio_init();

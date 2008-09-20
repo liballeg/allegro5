@@ -7,7 +7,10 @@ int main(void)
    int num_adapters;
    int i;
 
-   al_init();
+   if (!al_init()) {
+      TRACE("Could not init Allegro.\n");
+      return 1;
+   }
 
    num_adapters = al_get_num_video_adapters();
 

@@ -132,7 +132,11 @@ int main(void)
    ALLEGRO_KEYBOARD_STATE kst;
    bool blend;
 
-   al_init();
+   if (!al_init()) {
+      TRACE("Could not init Allegro.\n");
+      return 1;
+   }
+
    al_install_keyboard();
    al_install_mouse();
 
