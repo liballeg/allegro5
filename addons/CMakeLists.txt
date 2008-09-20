@@ -30,7 +30,7 @@ if(WANT_ICODEC)
 endif(WANT_ICODEC)
 
 if(WANT_TTF)
-    include(FindFreetype)
+    find_package(Freetype)
     if(FREETYPE_FOUND)
         add_subdirectory(ttf)
         set(SUPPORT_TTF 1 PARENT_SCOPE)

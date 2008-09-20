@@ -2,7 +2,7 @@ set(IIO_SOURCES bmp.c iio.c pcx.c tga.c)
 set(IIO_INCLUDE_FILES allegro5/a5_iio.h)
 
 if(WANT_PNG)
-    include(FindPNG)
+    find_package(PNG)
     if(PNG_FOUND)
         set(ALLEGRO_CFG_IIO_HAVE_PNG 1)
         list(APPEND IIO_SOURCES png.c)

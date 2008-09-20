@@ -300,7 +300,7 @@ endif(WANT_MAGIC_MAIN)
 #
 
 if(WANT_OPENGL)
-    include(FindOpenGL)
+    find_package(OpenGL)
     if(OPENGL_FOUND)
         set(SUPPORT_OPENGL 1)
         set(ALLEGRO_CFG_OPENGL 1)
@@ -308,7 +308,7 @@ if(WANT_OPENGL)
 endif(WANT_OPENGL)
 
 if(WANT_OPENAL)
-    include(FindOpenAL)
+    find_package(OpenAL)
     mark_as_advanced(OPENAL_INCLUDE_DIR OPENAL_LIBRARY)
     if(OPENAL_FOUND)
         set(SUPPORT_OPENAL 1)
@@ -325,7 +325,7 @@ set(DRIVER_LIBS_SHARED)
 
 if(UNIX)
 
-    include(FindThreads)
+    find_package(Threads)
     if(CMAKE_USE_PTHREADS_INIT)
         set(ALLEGRO_HAVE_LIBPTHREAD 1)
     else(CMAKE_USE_PTHREADS_INIT)
@@ -358,7 +358,7 @@ endif(UNIX)
 #
 
 if(WANT_X11)
-    include(FindX11)
+    find_package(X11)
     if(X11_FOUND)
         set(SUPPORT_X11 1)
         set(ALLEGRO_WITH_XWINDOWS 1)
