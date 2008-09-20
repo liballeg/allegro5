@@ -194,6 +194,8 @@ static ALLEGRO_DISPLAY_INTERFACE *win_get_display_driver(void)
       if (s) {
          if (!stricmp(s, "OPENGL")) {
 #if defined ALLEGRO_CFG_OPENGL
+            flags |= ALLEGRO_OPENGL;
+            al_set_new_display_flags(flags);
             return _al_display_wgl_driver();
 #else
             return NULL;
@@ -201,6 +203,8 @@ static ALLEGRO_DISPLAY_INTERFACE *win_get_display_driver(void)
          }
          else if (!stricmp(s, "DIRECT3D") || !stricmp(s, "D3D")) {
 #if defined ALLEGRO_CFG_D3D
+            flags |= ALLEGRO_DIRECT3D;
+            al_set_new_display_flags(flags);
             return _al_display_d3d_driver();
 #else
             return NULL;
@@ -210,9 +214,13 @@ static ALLEGRO_DISPLAY_INTERFACE *win_get_display_driver(void)
    }
 
 #if defined ALLEGRO_CFG_D3D
+      flags |= ALLEGRO_DIRECT3D;
+      al_set_new_display_flags(flags);
       return _al_display_d3d_driver();
 #endif
 #if defined ALLEGRO_CFG_OPENGL
+      flags |= ALLEGRO_OPENGL;
+      al_set_new_display_flags(flags);
       return _al_display_wgl_driver();
 #endif
 
