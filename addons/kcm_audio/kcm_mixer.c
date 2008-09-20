@@ -157,7 +157,7 @@ static bool fix_looped_position(ALLEGRO_SAMPLE *spl)
 
          al_stream_get_long(stream, ALLEGRO_AUDIOPROP_USED_FRAGMENTS, &count);
          if (count)
-            _al_kcm_emmit_stream_event(stream, is_dry, count);
+            _al_kcm_emit_stream_event(stream, is_dry, count);
          return !is_dry;
    }
 

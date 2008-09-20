@@ -249,8 +249,8 @@ extern void _al_set_error(int error, char* string);
 A5_KCM_AUDIO_FUNC(int, _al_audio_get_silence, (ALLEGRO_AUDIO_DEPTH depth));
 A5_KCM_AUDIO_FUNC(void*, _al_kcm_feed_stream, (ALLEGRO_THREAD *self, void *vstream));
 
-/* Helper to emmit an event that the stream has got a buffer ready to be refilled. */
-bool _al_kcm_emmit_stream_event(ALLEGRO_STREAM *stream, bool is_dry, unsigned long count);
+/* Helper to emit an event that the stream has got a buffer ready to be refilled. */
+bool _al_kcm_emit_stream_event(ALLEGRO_STREAM *stream, bool is_dry, unsigned long count);
 
 #endif
 

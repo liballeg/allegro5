@@ -524,7 +524,7 @@ void *_al_kcm_feed_stream(ALLEGRO_THREAD *self, void *vstream)
 }
 
 
-bool _al_kcm_emmit_stream_event(ALLEGRO_STREAM *stream, bool is_dry, unsigned long count)
+bool _al_kcm_emit_stream_event(ALLEGRO_STREAM *stream, bool is_dry, unsigned long count)
 {
    _al_event_source_lock(&stream->spl.es);
    if (_al_event_source_needs_to_generate_event(&stream->spl.es)) {
