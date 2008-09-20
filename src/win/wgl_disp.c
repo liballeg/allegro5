@@ -1085,6 +1085,9 @@ static void display_thread_proc(void *arg)
    ALLEGRO_DISPLAY_WGL *wgl_disp = (void*)disp;
    ALLEGRO_DISPLAY_WIN *win_disp = (void*)disp;
    MSG msg;
+
+   /* So that we can call the functions using TLS from this thread. */
+   al_set_new_display_flags(disp->flags);
    
    if (disp->flags & ALLEGRO_FULLSCREEN) {
       if (!change_display_mode(disp)) {

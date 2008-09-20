@@ -1088,6 +1088,9 @@ static void d3d_display_thread_proc(void *arg)
    win_display = &d3d_display->win_display;
    al_display = &win_display->display;
 
+   /* So that we can call the functions using TLS from this thread. */
+   al_set_new_display_flags(al_display->flags);
+
    new_format = al_display->format;
 
    if (!_al_pixel_format_is_real(al_display->format)) {
