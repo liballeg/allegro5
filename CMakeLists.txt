@@ -287,6 +287,14 @@ if(WANT_OPENAL)
     endif(OPENAL_FOUND)
 endif(WANT_OPENAL)
 
+if(UNIX OR WIN32)
+    configure_file(
+        include/allegro5/platform/al_cfg.h.cmake
+        include/allegro5/platform/al_cfg.h
+        )
+endif(UNIX OR WIN32)
+
+
 # Accumulate extra libraries needed due to drivers.
 set(DRIVER_LIBS_STATIC)
 set(DRIVER_LIBS_SHARED)
@@ -445,13 +453,6 @@ configure_file(
     include/allegro5/platform/alplatf.h
     )
 
-if(UNIX)
-    configure_file(
-        include/allegro5/platform/alunixac.h.cmake
-        include/allegro5/platform/alunixac.h
-        )
-endif(UNIX)
-
 #-----------------------------------------------------------------------------#
 #
 #   Library
@@ -499,7 +500,7 @@ if(WIN32)
         list(APPEND LIBRARY_SOURCES lib/msvc/allegro.def)
     endif(COMPILER_MSVC)
     list(APPEND PLATFORM_LIBS
-        kernel32 user32 gdi32 comdlg32 ole32 dinput8 dxguid winmm
+        kernel32 user32 gdi32 comdlg32 ole32 dinput8 dxguid winmm psapi
         )
     if(SUPPORT_D3D)
         list(APPEND LIBRARY_SOURCES ${ALLEGRO_SRC_D3D_FILES})

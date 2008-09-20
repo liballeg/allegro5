@@ -100,7 +100,6 @@ AL_FUNC(void, wnd_schedule_proc, (int (*proc)(void)));
 
 
 /* input routines */
-AL_FUNC(void, _win_input_init, (int need_thread));
 AL_FUNC(void, _win_input_exit, (void));
 bool _win_input_register_event(HANDLE event_id, void (*event_handler)(void*), void*);
 bool _win_input_unregister_event(HANDLE event_id);

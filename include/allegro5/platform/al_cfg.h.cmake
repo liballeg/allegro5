@@ -1,11 +1,5 @@
-/* alunixac.h is generated from alunixac.h.cmake by CMake. */
+/* al_cfg.h is generated from al_cfg.h.cmake by CMake. */
 /* Keep this in sync with alunixac.hin */
-
-/* No configuration for these yet */
-#define ALLEGRO_COLOR16 1
-#define ALLEGRO_COLOR24 1
-#define ALLEGRO_COLOR32 1
-#define ALLEGRO_COLOR8 1
 
 /* TODO: rename this */
 #define RETSIGTYPE void

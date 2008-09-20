@@ -166,6 +166,7 @@ AL_FS_ENTRY *al_fs_stdio_create_handle(AL_CONST char *path)
       fh->stat_mode |= AL_FM_ISFILE;
    */
 
+#ifndef ALLEGRO_WINDOWS
    if(fh->st.st_mode & S_IRUSR || fh->st.st_mode & S_IRGRP)
       fh->stat_mode |= AL_FM_READ;
 
@@ -174,6 +175,7 @@ AL_FS_ENTRY *al_fs_stdio_create_handle(AL_CONST char *path)
 
    if(fh->st.st_mode & S_IXUSR || fh->st.st_mode & S_IXGRP)
       fh->stat_mode |= AL_FM_EXECUTE;
+#endif
 
 /* TODO: do we need a special OSX section here? or are . (dot) files "proper" under osx? */
 #ifdef ALLEGRO_WINDOWS
@@ -599,7 +601,11 @@ int32_t al_fs_stdio_chdir(const char *path)
 
 int32_t al_fs_stdio_mkdir(AL_CONST char *path)
 {
+#ifdef ALLEGRO_WINDOWS
+   int32_t ret = mkdir(path);
+#else
    int32_t ret = mkdir(path, 0755);
+#endif
    if(ret == -1) {
       al_set_errno(errno);
    }

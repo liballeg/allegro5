@@ -29,9 +29,9 @@ const char* getUserResource(const char* fmt, ...) throw (Error)
    al_path_init(&path, userDir);
 
 #ifdef ALLEGRO_WINDOWS
-   al_path_append(&path, "a5steriods");
+   al_path_append(&path, "a5teroids");
 #else
-   al_path_append(&path, ".a5steriods");
+   al_path_append(&path, ".a5teroids");
 #endif
 
    al_path_to_string(&path, userDir, 991, ALLEGRO_NATIVE_PATH_SEP);
@@ -74,7 +74,7 @@ static char* resourcePath()
 
          al_get_path(AL_SYSTEM_DATA_PATH, path, MAX_PATH);
          al_path_init(&paths, path);
-         al_path_append(&paths, "a5steriods");
+         al_path_append(&paths, "a5teroids");
          al_path_to_string(&paths, path, PATH_MAX, ALLEGRO_NATIVE_PATH_SEP);
 
          if(!al_fs_exists(path)) {
@@ -86,7 +86,7 @@ static char* resourcePath()
    else {
       al_get_path(AL_SYSTEM_DATA_PATH, path, MAX_PATH);
       al_path_init(&paths, path);
-      al_path_append(&paths, "a5steriods");
+      al_path_append(&paths, "a5teroids");
       al_path_to_string(&paths, path, PATH_MAX, ALLEGRO_NATIVE_PATH_SEP);
 
       if(!al_fs_exists(path)) {

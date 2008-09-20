@@ -23,6 +23,7 @@
    #include <malloc.h>
 #endif
 
+#include "allegro5/platform/al_cfg.h"
 
 #pragma warning (disable: 4200 4244 4305)
 
@@ -48,6 +49,7 @@
 #ifdef ALLEGRO_AND_MFC
    #define ALLEGRO_NO_MAGIC_MAIN
 #endif
+
 
 
 /* describe how function prototypes look to MSVC */
