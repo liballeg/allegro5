@@ -90,8 +90,8 @@ Examples: (you only need one)
 
 	$ cmake .. -G "MinGW Makefiles" -DSTATIC=off
 
-Alternatively, you can use `ccmake` to bring up an interactive option
-selector. e.g. `ccmake ..`
+Alternatively, you can use `ccmake` (Unix) or `cmake-gui` (Windows) to bring up
+an interactive option selector. e.g. `ccmake ..` or `cmake-gui ..`.
 
 Now run `make` (or `mingw32-make`) and, optionally, `make install`.
 (For MinGW users, you should have `MINGDIR` pointing to your MinGW directory
