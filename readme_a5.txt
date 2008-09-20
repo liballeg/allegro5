@@ -94,8 +94,8 @@ Alternatively, you can use `ccmake` (Unix) or `cmake-gui` (Windows) to bring up
 an interactive option selector. e.g. `ccmake ..` or `cmake-gui ..`.
 
 Now run `make` (or `mingw32-make`) and, optionally, `make install`.
-(For MinGW users, you should have `MINGDIR` pointing to your MinGW directory
-before you do `mingw32-make install`):
+(For MinGW users, you may have to set `MINGDIR` to point to your MinGW
+directory before you do `mingw32-make install`):
 
 	$ make
 	$ make install

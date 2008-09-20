@@ -145,8 +145,20 @@ endif(CMAKE_COMPILER_IS_GNUCC)
 if(MINGW)
     # For alplatf.h
     set(ALLEGRO_MINGW32 1)
+
+    # Guess MINGDIR from the value of CMAKE_C_COMPILER if it's not set.
+    if("$ENV{MINGDIR}" STREQUAL "")
+        string(REGEX REPLACE "/bin/[^/]*$" "" MINGDIR "${CMAKE_C_COMPILER}")
+        message(STATUS "Guessed MinGW directory: ${MINGDIR}")
+    else("$ENV{MINGDIR}" STREQUAL "")
+        file(TO_CMAKE_PATH "$ENV{MINGDIR}" MINGDIR)
+        message(STATUS "Using MINGDIR: ${MINGDIR}")
+    endif("$ENV{MINGDIR}" STREQUAL "")
+
+    # Search in MINGDIR for headers and libraries.
+    set(CMAKE_PREFIX_PATH "${MINGDIR}")
+
     # Install to MINGDIR
-    string(REPLACE "\\" "/" MINGDIR "$ENV{MINGDIR}")
     if(INSTALL_PREFIX STREQUAL "")
         set(CMAKE_INSTALL_PREFIX ${MINGDIR})
     else(INSTALL_PREFIX STREQUAL "")
