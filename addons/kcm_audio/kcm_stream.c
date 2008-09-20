@@ -93,6 +93,8 @@ ALLEGRO_STREAM *al_stream_create(size_t buffer_count, unsigned long samples,
          (char *) stream->main_buffer + i * bytes_per_buffer;
    }
 
+   _al_event_source_init(&stream->spl.es);
+
    return stream;
 }
 
@@ -102,6 +104,7 @@ ALLEGRO_STREAM *al_stream_create(size_t buffer_count, unsigned long samples,
 void al_stream_destroy(ALLEGRO_STREAM *stream)
 {
    if (stream) {
+      _al_event_source_free(&stream->spl.es);
       _al_kcm_detach_from_parent(&stream->spl);
       free(stream->main_buffer);
       free(stream->used_bufs);
@@ -518,6 +521,29 @@ void *_al_kcm_feed_stream(ALLEGRO_THREAD *self, void *vstream)
    }
 
    return NULL;
+}
+
+
+bool _al_kcm_emmit_stream_event(ALLEGRO_STREAM *stream, bool is_dry, unsigned long count)
+{
+   _al_event_source_lock(&stream->spl.es);
+   if (_al_event_source_needs_to_generate_event(&stream->spl.es)) {
+      ALLEGRO_EVENT *event = _al_event_source_get_unused_event(&stream->spl.es);
+      if (event) {
+         event->stream.type = ALLEGRO_EVENT_STREAM_EMPTY_FRAGMENT;
+         event->stream.timestamp = al_current_time();
+         al_stream_get_ptr(stream, ALLEGRO_AUDIOPROP_BUFFER,
+                           &event->stream.empty_fragment);
+         if (!event->stream.empty_fragment)
+            return false;
+         event->stream.is_dry = is_dry;
+         event->stream.count = count;
+         _al_event_source_emit_event(&stream->spl.es, event);
+      }
+   }
+   _al_event_source_unlock(&stream->spl.es);
+
+   return true;
 }
 
 /* vim: set sts=3 sw=3 et: */

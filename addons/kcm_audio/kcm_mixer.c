@@ -95,6 +95,7 @@ static float *_al_rechannel_matrix(ALLEGRO_CHANNEL_CONF orig,
 static bool fix_looped_position(ALLEGRO_SAMPLE *spl)
 {
    bool is_dry;
+   unsigned long count = 0;
    ALLEGRO_STREAM *stream;
 
    /* Looping! Should be mostly self-explanitory */
@@ -154,6 +155,9 @@ static bool fix_looped_position(ALLEGRO_SAMPLE *spl)
             stream->drained = false;
          }
 
+         al_stream_get_long(stream, ALLEGRO_AUDIOPROP_USED_FRAGMENTS, &count);
+         if (count)
+            _al_kcm_emmit_stream_event(stream, is_dry, count);
          return !is_dry;
    }
 

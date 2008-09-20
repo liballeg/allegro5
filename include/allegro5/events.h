@@ -103,6 +103,9 @@ typedef unsigned int ALLEGRO_EVENT_TYPE;
  *    is the user might have clicked into another window or "tabbed" away.
  * 
  *  ALLEGRO_EVENT_DISPLAY_SWITCH_IN - The window is the active one again.
+ *
+ *  ALLEGRO_EVENT_STREAM_EMPTY_FRAGMENT - A stream fragment in is ready to be
+ *    refilled with more audio data.
  */
 enum
 {
@@ -128,7 +131,9 @@ enum
    ALLEGRO_EVENT_DISPLAY_LOST                = 43,
    ALLEGRO_EVENT_DISPLAY_FOUND               = 44,
    ALLEGRO_EVENT_DISPLAY_SWITCH_IN           = 45,
-   ALLEGRO_EVENT_DISPLAY_SWITCH_OUT          = 46
+   ALLEGRO_EVENT_DISPLAY_SWITCH_OUT          = 46,
+
+   ALLEGRO_EVENT_STREAM_EMPTY_FRAGMENT       = 47
 };
 
 
@@ -218,6 +223,16 @@ typedef struct ALLEGRO_TIMER_EVENT
 
 
 
+typedef struct ALLEGRO_STREAM_EVENT
+{
+   _AL_EVENT_HEADER(struct ALLEGRO_STREAM);
+   void *empty_fragment;
+   unsigned long count;
+   bool is_dry;
+} ALLEGRO_STREAM_EVENT;
+
+
+
 /* Type: ALLEGRO_EVENT
  *
  * An ALLEGRO_EVENT is a union of all builtin event structures, i.e. it is an
@@ -257,6 +272,7 @@ union ALLEGRO_EVENT
    ALLEGRO_KEYBOARD_EVENT keyboard;
    ALLEGRO_MOUSE_EVENT    mouse;
    ALLEGRO_TIMER_EVENT    timer;
+   ALLEGRO_STREAM_EVENT   stream;
 };
 
 
