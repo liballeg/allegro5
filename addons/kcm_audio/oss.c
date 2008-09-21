@@ -425,7 +425,8 @@ static void* oss_update(ALLEGRO_THREAD *self, void *arg)
          frames = bytes / oss_voice->frame_size;
          if (write(oss_voice->fd, buf, bytes) == -1) {
             TRACE(PREFIX_E "errno: %i -- %s\n", errno, strerror(errno));
-            return NULL;
+            if (errno != EINTR)
+               return NULL;
          }
       }
       else if (voice->is_streaming && !oss_voice->stopped) {
@@ -435,7 +436,8 @@ static void* oss_update(ALLEGRO_THREAD *self, void *arg)
 
          if (write(oss_voice->fd, data, frames * oss_voice->frame_size) == -1) {
             TRACE(PREFIX_E "errno: %i -- %s\n", errno, strerror(errno));
-            return NULL;
+            if (errno != EINTR)
+               return NULL;
          }
       }
       else {
