@@ -48,6 +48,8 @@ BUILD_DIR = "scons_build"
 try: os.mkdir(BUILD_DIR)
 except OSError: pass
 
+SConsignFile(BUILD_DIR + "/scons-signatures")
+
 majorVersion = '4'
 minorVersion = '9'
 microVersion = '4'
