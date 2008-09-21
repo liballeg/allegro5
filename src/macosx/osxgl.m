@@ -704,7 +704,7 @@ static void destroy_display(ALLEGRO_DISPLAY* d) {
 /* create_display:
  * Create a display either fullscreen or windowed depending on flags
  */
-ALLEGRO_DISPLAY* create_display(int w, int h)
+static ALLEGRO_DISPLAY* create_display(int w, int h)
 {
    int flags = al_get_new_display_flags();
    if (flags & ALLEGRO_DIRECT3D) {
