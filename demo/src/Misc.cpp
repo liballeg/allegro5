@@ -279,6 +279,8 @@ void done(void)
 
    // Free resources
    ResourceManager::getInstance().destroy();
+   al_mixer_destroy(mixer);
+   al_voice_destroy(voice);
 }
 
 // Returns a random number between lo and hi
