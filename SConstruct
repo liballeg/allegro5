@@ -364,13 +364,16 @@ common = filterCommon(allInstall)
 uncommon = filterUncommon(allInstall)
 
 Alias('install-common', doInstall(common))
-Alias('install-normal', doInstall(filterType(installNormal, uncommon)))
-Alias('install-static', doInstall(filterType(installStatic, uncommon)))
-Alias('install-debug', doInstall(filterType(installDebug, uncommon)))
-Alias('install-static-debug', doInstall(filterType(installStaticDebug, uncommon)))
+Alias('install-normal-files', doInstall(filterType(installNormal, uncommon)))
+Alias('install-static-files', doInstall(filterType(installStatic, uncommon)))
+Alias('install-debug-files', doInstall(filterType(installDebug, uncommon)))
+Alias('install-static-debug-files', doInstall(filterType(installStaticDebug, uncommon)))
 
 # Regular install is the normal library
-Alias('install', ['install-common', 'install-normal'])
+Alias('install', ['install-common', 'install-normal-files'])
+Alias('install-static', ['install-common', 'install-static-files'])
+Alias('install-debug', ['install-common', 'install-debug-files'])
+Alias('install-static-debug', ['install-common', 'install-static-debug-files'])
 
 # Default is what comes out of buildNormal()
 Default('all')
