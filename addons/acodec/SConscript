@@ -74,12 +74,12 @@ def CheckSndfile(context):
     context.Result(ret)
     return ret
 
-opts = Options(context.getBuildDir() + "/options-addons-acodec.py", ARGUMENTS)
+opts = helpers.Options(context, "options-addons-acodec.py", ARGUMENTS)
 opts.Add('flac', 'Enable FLAC', 1)
 opts.Add('sndfile', 'Enable sndfile', 1)
 opts.Add('ogg', 'Enable ogg', 1)
 opts.Update(myEnv)
-opts.Save(context.getBuildDir() + "/options-addons-acodec.py", myEnv)
+opts.Save(myEnv)
 Help(opts.GenerateHelpText(myEnv))
 
 def setupPlatform(settings, config):

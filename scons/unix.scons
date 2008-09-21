@@ -5,24 +5,17 @@ Import('env')
 import os, ConfigParser, re
 import checks, helpers
 
-opts = Options(context.getBuildDir() + "/options-unix.py", ARGUMENTS)
-opts.Add('color8', 'Enable 8 bit color', 1)
-opts.Add('color16', 'Enable 16 bit color', 1)
-opts.Add('color24', 'Enable 24 bit color', 1)
-opts.Add('color32', 'Enable 32 bit color', 1)
+
+opts = helpers.Options(context, "options-unix.py", ARGUMENTS)
+
 opts.AddOptions(PathOption('install', 'Installation directory', '/usr/local'))
 opts.Add('magic_main', 'Use magic main', 0)
-opts.Add('no_asm', 'Disable asm', 1)
-opts.Add('vbeaf', 'Enable VBEAF', 0)
-opts.Add('vga', 'Enable VGA', 0)
+opts.Add('config', "(Re)configure Allegro. You will need to set this to 1 " +
+    "if you wish to enable/disable parts of allegro such as install=" +
+    "\"/usr/local\".", 0)
 opts.Update(env)
-opts.Save(context.getBuildDir() + "/options-unix.py", env)
+opts.Save(env)
 Help(opts.GenerateHelpText(env))
-Help("""
-config: (Re)configure Allegro. You will need to set this to 1 if you wish to enable/disable parts of allegro such as color8=0
-    default: 0
-    actual: 0
-""");
 
 helpers.install = env['install']
 
@@ -38,16 +31,6 @@ def getArgumentOption(name, default):
 def OnX86():
     uname = os.uname()
     return re.match(r"i\d86", uname[4])
-
-def EnableVBEAF():
-    if OnX86() and getOption("vbeaf", "no"):
-        return 1
-    return 0
-
-def EnableVGA():
-    if OnX86() and getOption("vga", "no"):
-        return 1
-    return 0
 
 unixLibs = [ 'm', 'pthread' ]
 
@@ -73,22 +56,13 @@ def setupPlatform(platform, config):
     platform["ALLEGRO_ALSA_VERSION"] = config.AlsaVersion()
     platform["ALLEGRO_ASM_PREFIX"] = config.CheckASMUnderscores()
     platform["ALLEGRO_BIG_ENDIAN"] = config.CheckBigEndian()
-    platform["ALLEGRO_COLOR16"] = getOption("color16", "yes")
-    platform["ALLEGRO_COLOR24"] = getOption("color24", "yes")
-    platform["ALLEGRO_COLOR32"] = getOption("color32", "yes")
-    platform["ALLEGRO_COLOR8"] = getOption("color8", "yes")
     platform["ALLEGRO_DARWIN"] = config.CheckDarwin()
     platform["ALLEGRO_HAVE_GETEXECNAME"] = config.CheckFunc("getexecname")
     platform["ALLEGRO_HAVE_PROCFS_ARGCV"] = config.CheckProcFSArgCV()
     platform["ALLEGRO_LINUX"] = config.CheckLinux()
     platform["ALLEGRO_LINUX_FBCON"] = config.CheckFBCon()
-#    platform["ALLEGRO_LINUX_SVGALIB"] = config.CheckLib("vga", "vga_init")
-#    platform["ALLEGRO_LINUX_SVGALIB_HAVE_VGA_VERSION"] = config.CheckSVGALibVersion()
-    platform["ALLEGRO_LINUX_VBEAF"] = EnableVBEAF()
-    platform["ALLEGRO_LINUX_VGA"] = EnableVGA()
     platform["ALLEGRO_LITTLE_ENDIAN"] = config.CheckLittleEndian()
     platform["ALLEGRO_MMX"] = config.CheckMMX()
-    platform["ALLEGRO_NO_ASM"] = getOption("no_asm", "yes")
     platform["ALLEGRO_SSE"] = config.CheckSSE()
     platform["ALLEGRO_USE_CONSTRUCTOR"] = config.CheckConstructor()
     platform["ALLEGRO_USE_SCHED_YIELD"] = config.CheckLib(["c", "posix4", "rt"], "sched_yield")
@@ -161,6 +135,8 @@ def setupPlatform(platform, config):
     platform["ALLEGRO_WITH_SGIALDIGI"] = False
     platform["WORDS_BIGENDIAN"] = False
     platform["const"] = False
+    
+    platform["ALLEGRO_NO_ASM"] = True
 
     platform["ALLEGRO_HAVE_SV_PROCFS"] = False
 

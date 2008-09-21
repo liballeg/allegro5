@@ -75,18 +75,9 @@ settings, configure_env = helpers.do_configure('kcm_audio', context,
                             getArgumentOption('config', 0))
 
 # There should be a nicer way to do this
-try:
-    env.Append(CPPPATH = configure_env['CPPPATH'])
-except KeyError:
-    pass
-try:
-    env.Append(LIBS = configure_env['LIBS'])
-except KeyError:
-    pass
-try:
-    env.Append(LIBPATH = configure_env['LIBPATH'])
-except KeyError:
-    pass
+for merge in ["CPPPATH", "LIBS", "LIBPATH"]:
+    try: env.Append(**{merge: configure_env[merge]})
+    except KeyError: pass
 
 if settings["ALLEGRO_CFG_KCM_ALSA"]:
     source.append("alsa.c")

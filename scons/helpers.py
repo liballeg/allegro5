@@ -1,5 +1,5 @@
 import SCons
-import re
+import re, os
 
 # def getArgumentOption(name, default):
 #     import SCons.Script.ARGUMENTS
@@ -227,3 +227,31 @@ def do_configure(name, context, tests, setup_platform, cmake_file, h_file, recon
     configure_state[name] = [platform, settings]
 
     return [platform, env]
+
+# FIXME
+# This is a small hack which makes a wrapper class around SCons options, which
+# ignores double options. We need this because we call our options for each
+# build variant. Doing that is wrong, we should call each option only once, but
+# for now this is an easy fix.
+only_once = {}
+class Options:
+    def __init__(self, context, path, ARGUMENTS):
+        if path not in only_once:
+            only_once[path] = True
+            self.double = False
+        else:
+            self.double = True
+        self.path = os.path.join(context.getGlobalDir(), path)
+        self.o = SCons.Options.Options(self.path, ARGUMENTS)
+
+    def Save(self, env):
+        if self.double: return
+        self.o.Save(self.path, env)
+    
+    def GenerateHelpText(self, env):
+        if self.double: return ""
+        return self.o.GenerateHelpText(env)
+
+    # For all other methods, use the original scons one.
+    def __getattr__(self, attr):
+        return getattr(self.o, attr)
