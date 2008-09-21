@@ -99,18 +99,38 @@ void _al_osx_keyboard_was_installed(BOOL install) {
 -(void) windowDidBecomeMain:(NSNotification*) notification;
 -(void) windowDidResignMain:(NSNotification*) notification;
 @end
-/* ALWindow:
- * This class is only here to return YES from canBecomeKeyWindow
- * to accept events when the window is frameless.
- * It may have other uses later (e.g. to handle zooming properly)
- */
-@interface ALWindow : NSWindow
-@end
+
 @implementation ALWindow
 -(BOOL) canBecomeKeyWindow 
 {
 	return YES;
 }
+
+-(NSSize)windowWillResize:(NSWindow *)window toSize:(NSSize)proposedFrameSize
+{
+   ALLEGRO_DISPLAY *dpy = [[window contentView] allegroDisplay];
+	NSRect rc = NSMakeRect(0, 0, proposedFrameSize.width, proposedFrameSize.height);
+   NSRect content = [window contentRectForFrameRect: rc];
+
+   ALLEGRO_EVENT_SOURCE *es = &dpy->es;
+   _al_event_source_lock(es);
+
+   proposedFrameSize.height = MAX(48, proposedFrameSize.height);
+   if (_al_event_source_needs_to_generate_event(es)) {
+      ALLEGRO_EVENT *event = _al_event_source_get_unused_event(es);
+      if (event) {
+         event->display.type = ALLEGRO_EVENT_DISPLAY_RESIZE;
+         event->display.timestamp = al_current_time();
+         event->display.width = NSWidth(content);
+         event->display.height = NSHeight(content);
+         _al_event_source_emit_event(es, event);
+      }
+   }
+
+   _al_event_source_unlock(es);
+   return proposedFrameSize;
+}
+
 @end
 
 /* _al_osx_mouse_was_installed:
@@ -422,9 +442,10 @@ static int decode_allegro_format(int format, int* glfmt, int* glsize, int* depth
 +(void) initialiseDisplay: (NSValue*) display_object {
    ALLEGRO_DISPLAY_OSX_WIN* dpy = [display_object pointerValue];
 	NSRect rc = NSMakeRect(0, 0, dpy->parent.w,  dpy->parent.h);
-	NSWindow* win = dpy->win = [ALWindow alloc]; 
+	ALWindow* win = dpy->win = [ALWindow alloc]; 
    unsigned int mask = (dpy->parent.flags & ALLEGRO_NOFRAME) ? NSBorderlessWindowMask : 
       (NSTitledWindowMask|NSClosableWindowMask|NSMiniaturizableWindowMask);
+   if (dpy->parent.flags & ALLEGRO_RESIZABLE) mask |= NSResizableWindowMask;
 	[win initWithContentRect: rc
 				   styleMask: mask
 					 backing: NSBackingStoreBuffered
@@ -458,7 +479,7 @@ static int decode_allegro_format(int format, int* glfmt, int* glsize, int* depth
    }
    last_window_pos = [win cascadeTopLeftFromPoint:last_window_pos];
    [win makeKeyAndOrderFront:self];
-	if (mask != NSBorderlessWindowMask) [win makeMainWindow];
+	if (!(mask & NSBorderlessWindowMask)) [win makeMainWindow];
 	[view release];
 }
 +(void) destroyDisplay: (NSValue*) display_object {
@@ -885,6 +906,34 @@ static bool resize_display_fs(ALLEGRO_DISPLAY *d, int w, int h) {
 	*/
 	return false;
 }
+
+static bool acknowledge_resize_display_win(ALLEGRO_DISPLAY *d)
+{
+   ALLEGRO_DISPLAY_OSX_WIN *dpy = (ALLEGRO_DISPLAY_OSX_WIN *)d;
+   ALWindow* window = (ALWindow *)dpy->win;
+   NSRect frame = [window frame];
+   NSRect content = [window contentRectForFrameRect: frame];
+
+   d->w = NSWidth(content);
+   d->h = NSHeight(content);
+
+   /* FIXME: without calling setContentView the view id not properly
+    * located in the window frame: it shifts around when the window is
+    * resized. Calling the view's setFrame method doesn't help. This
+    * is the only way I've found that makes this work. 
+    * It does have one major draw back: the window doesn't take keyboard
+    * input until it has been klicked.
+    * Nether of these things make much sense to me; there has to  be a
+    * better way of doing this...? -- EG
+    */
+   [window setContentView: [window contentView]];
+
+   _al_ogl_resize_backbuffer(d->ogl_extras->backbuffer, d->w, d->h);
+   setup_gl(d);
+
+   return true;
+}
+
 static bool is_compatible_bitmap(ALLEGRO_DISPLAY* disp, ALLEGRO_BITMAP* bmp) {
    return (bmp->display == disp)
       || (((ALLEGRO_DISPLAY_OSX_WIN*) bmp->display)->display_group == ((ALLEGRO_DISPLAY_OSX_WIN*) disp)->display_group);
@@ -949,6 +998,7 @@ ALLEGRO_DISPLAY_INTERFACE* _al_osx_get_display_driver_win(void)
       vt->set_current_display = set_current_display;
       vt->flip_display = flip_display;
       vt->resize_display = resize_display_win;
+      vt->acknowledge_resize = acknowledge_resize_display_win;
       vt->create_bitmap = _al_ogl_create_bitmap;
       vt->set_target_bitmap = _al_ogl_set_target_bitmap;
       vt->get_backbuffer = _al_ogl_get_backbuffer;

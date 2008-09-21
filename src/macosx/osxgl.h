@@ -7,12 +7,20 @@
 
 #include "allegro5/opengl/gl_ext.h"
 
+/* ALWindow:
+ * This class is here to return YES from canBecomeKeyWindow
+ * to accept events when the window is frameless and to handle resizable
+ * windows.
+ */
+@interface ALWindow : NSWindow
+@end
+
 /* This is our version of ALLEGRO_DISPLAY with driver specific extra data. */
 typedef struct ALLEGRO_DISPLAY_OSX_WIN {
 	ALLEGRO_DISPLAY parent;
 	int gl_fmt, gl_datasize;
 	NSOpenGLContext* ctx;
-	NSWindow* win;
+	ALWindow* win;
    NSCursor* cursor;
    BOOL show_cursor;
    NSTrackingRectTag tracking;
