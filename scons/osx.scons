@@ -146,6 +146,5 @@ env.Append(LINKFLAGS = linkflags)
 cat = Builder(action = "cat $SOURCES > $TARGET")
 env.Append(BUILDERS = {"Cat" : cat})
 
-library = SConscript('all.scons', exports = ['context','env'])
-n = [library]
-Return('n')
+installed = SConscript('all.scons', exports = ['context','env'])
+Return('installed')
