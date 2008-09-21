@@ -202,6 +202,8 @@ def do_configure(name, context, tests, setup_platform, cmake_file, h_file, recon
                 pass
     else:
         config = env.Configure(custom_tests = tests)
+            conf_dir = "#/" + main_dir,
+            log_file = "#/" + main_dir + "/config.log")
         env = setup_platform(platform, config)
 
         settings = ConfigParser.ConfigParser()
