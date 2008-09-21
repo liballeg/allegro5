@@ -27,6 +27,10 @@ endif(WANT_KCM_AUDIO)
 
 if(WANT_ICODEC)
     add_subdirectory(icodec)
+    if(SUPPORT_ICODEC)
+        set(SUPPORT_ICODEC 1 PARENT_SCOPE)
+        set(ICODEC_LINK_WITH ${ICODEC_LINK_WITH} PARENT_SCOPE)
+    endif(SUPPORT_ICODEC)
 endif(WANT_ICODEC)
 
 if(WANT_TTF)

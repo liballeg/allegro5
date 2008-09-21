@@ -47,6 +47,11 @@ if(SUPPORT_ACODEC)
     example(ex_stream_file ${ACODEC_LINK_WITH} ${AUDIO_LINK_WITH})
 endif(SUPPORT_ACODEC)
 
+if(SUPPORT_ICODEC)
+    include_directories(../addons/icodec)
+    example(ex_icodec ${ICODEC_LINK_WITH})
+endif(SUPPORT_ICODEC)
+
 
 example(ex_drawpixels NOTHING)
 example(ex_lines NOTHING)
