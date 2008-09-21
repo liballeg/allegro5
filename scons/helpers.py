@@ -201,7 +201,7 @@ def do_configure(name, context, tests, setup_platform, cmake_file, h_file, recon
             except ConfigParser.NoOptionError:
                 pass
     else:
-        config = env.Configure(custom_tests = tests)
+        config = env.Configure(custom_tests = tests,
             conf_dir = "#/" + main_dir,
             log_file = "#/" + main_dir + "/config.log")
         env = setup_platform(platform, config)
