@@ -16,8 +16,6 @@
  */
 
 
-#include "allegro5/inline/system.inl"
-
 #include "allegro5/inline/gfx.inl"
 
 #include "allegro5/inline/color.inl"

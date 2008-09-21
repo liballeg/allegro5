@@ -56,8 +56,6 @@ AL_ARRAY(int, _rgb_scale_6);
    }
 #endif
 
-#include "allegro5/inline/color.inl"
-
 #endif          /* ifndef ALLEGRO_COLOR_H */
 
 
