@@ -64,82 +64,13 @@ env.Append(LIBS = [ 'kernel32', 'user32', 'gdi32', 'comdlg32', 'ole32', 'dinput'
 
 context.addFiles(context.cmake["ALLEGRO_SRC_WIN_FILES"])
 
-if False:
-	context.addFiles('c',Split("""
-	"""));
-	# cmiscs.s
-
-	context.addFiles('i386', Split("""
-	iblit8.s
-	iblit16.s
-	iblit24.s
-	iblit32.s
-	icpu.c
-	icpus.s
-	icsprite.c
-	igfx8.s
-	igfx15.s
-	igfx16.s
-	igfx24.s
-	igfx32.s
-	imisc.s
-	iscan.s
-	iscanmmx.s
-	ispr8.s
-	ispr15.s
-	ispr16.s
-	ispr24.s
-	ispr32.s
-	istretch.c
-	izbuf.s
-	"""));
-
-	context.addFiles('misc',Split("""
-	icolconv.s
-	"""));
-
-	context.addFiles('win', Split("""
-	asmlock.s
-	gdi.c
-	wddaccel.c
-	wddbmp.c
-	wddbmpl.c
-	wddfull.c
-	wddlock.c
-	wddmode.c
-	wddovl.c
-	wddraw.c
-	wddwin.c
-	wdispsw.c
-	wdsinput.c
-	wdsndmix.c
-	wdsound.c
-	wdxver.c
-	wfile.c
-	wgdi.c
-	wgfxdrv.c
-	winput.c
-	wjoydrv.c
-	wjoydxnu.c
-	wkeybdnu.c
-	wmidi.c
-	wmouse.c
-	wsnddrv.c
-	wsndwo.c
-	wsystem.c
-	wthread.c
-	wtime.c
-	wwnd.c
-	wxthread.c
-"""));
-
-
 if getOption('d3d') == 1:
 	context.addFiles(context.cmake["ALLEGRO_SRC_D3D_FILES"])
 	env.Append(LIBS = [ 'd3d9' ])
 
 if getOption('opengl') == 1:
 	context.addFiles(context.cmake["ALLEGRO_SRC_OPENGL_FILES"])
+	env.Append(LIBS = ['opengl32'])
 
 
 def asmdef(env,appendDir,buildDir,libDir):
@@ -172,6 +103,6 @@ env.Append(BUILDERS = {'Cat' : cat})
 
 # context.setExampleEnv(env)
 
-lib = SConscript('all.scons', exports = ['context', 'env']);
-n = [lib]
+installed = SConscript('all.scons', exports = ['context', 'env']);
+n = installed
 Return('n')
