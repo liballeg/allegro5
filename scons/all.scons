@@ -105,7 +105,6 @@ def examples(env):
     example("ex_blend")
     example("ex_drawpixels")
     example("ex_dualies")
-    example("ex_events")
     example("ex_expose")
     example("ex_font")
     example("ex_fs_resize")
