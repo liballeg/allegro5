@@ -104,6 +104,9 @@ ALLEGRO_STREAM *al_stream_create(size_t buffer_count, unsigned long samples,
 void al_stream_destroy(ALLEGRO_STREAM *stream)
 {
    if (stream) {
+      if (stream->feed_thread) {
+         stream->unload_feeder(stream);
+      }
       _al_event_source_free(&stream->spl.es);
       _al_kcm_detach_from_parent(&stream->spl);
       free(stream->main_buffer);

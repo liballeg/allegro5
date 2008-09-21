@@ -107,8 +107,7 @@ ALLEGRO_SAMPLE_DATA *al_load_sample_oggvorbis(const char *filename)
 
 
 /* To be called when stream is destroyed */
-/* XXX this is not referenced anywhere! */
-void _ogg_stream_close(ALLEGRO_STREAM *stream)
+static void _ogg_stream_close(ALLEGRO_STREAM *stream)
 {
    AL_OV_DATA *extra = (AL_OV_DATA *) stream->extra;
 
@@ -213,6 +212,7 @@ ALLEGRO_STREAM *al_load_stream_oggvorbis(size_t buffer_count,
    stream->feed_thread = al_create_thread(_al_kcm_feed_stream, stream);
    stream->quit_feed_thread = false;
    stream->feeder = ogg_stream_update;
+   stream->unload_feeder = _ogg_stream_close;
    al_start_thread(stream->feed_thread);
 
    return stream;

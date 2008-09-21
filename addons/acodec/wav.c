@@ -148,7 +148,6 @@ static bool _sndfile_stream_update(ALLEGRO_STREAM *stream, void *data,
 }
 
 
-/* XXX not referenced anywhere! */
 static void _sndfile_stream_close(ALLEGRO_STREAM *stream)
 {
    SNDFILE *sndfile = (SNDFILE *) stream->extra;
@@ -174,7 +173,6 @@ ALLEGRO_STREAM *al_load_stream_sndfile(size_t buffer_count,
    long rate;
    long total_samples;
    long total_size;
-   short* buffer;
    ALLEGRO_STREAM* stream;
 
    sfinfo.format = 0;
@@ -198,12 +196,6 @@ ALLEGRO_STREAM *al_load_stream_sndfile(size_t buffer_count,
    TRACE("      total_samples %ld\n", total_samples);
    TRACE("      total_size %ld\n", total_size);
 
-   buffer = _AL_MALLOC_ATOMIC(total_size);
-   if (buffer == NULL) {
-      sf_close(sndfile);
-      return NULL;
-   }
-
    stream = al_stream_create(buffer_count, samples, rate, depth,
                              _al_count_to_channel_conf(channels));
 
@@ -211,6 +203,7 @@ ALLEGRO_STREAM *al_load_stream_sndfile(size_t buffer_count,
    stream->feed_thread = al_create_thread(_al_kcm_feed_stream, stream);
    stream->quit_feed_thread = false;
    stream->feeder = _sndfile_stream_update;
+   stream->unload_feeder = _sndfile_stream_close;
    al_start_thread(stream->feed_thread);
 
    return stream;
