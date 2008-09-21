@@ -757,11 +757,6 @@ static void flip_display(ALLEGRO_DISPLAY *disp)
 /* osx_create_mouse_cursor:
  * creates a custom system cursor from the bitmap bmp.
  * (x_focus, y_focus) indicates the cursor hot-spot.
- *
- * FIXME: before MacOS X 10.3, NSCursor can handle only 16x16 cursor
- * sprites. The code used to pad smaller sprites to 16x16 or fail if the
- * original image was larger. Using NSImageFromAllegroBitmap this is not
- * so straightforward to enforce.
  */
 static ALLEGRO_MOUSE_CURSOR *osx_create_mouse_cursor(ALLEGRO_DISPLAY *display,
    ALLEGRO_BITMAP *bmp, int x_focus, int y_focus) {
