@@ -30,6 +30,11 @@ all-static
 all-debug
 all-static-debug
 everything
+install
+install-static
+install-debug
+install-static-debug
+install-everything
 
 To turn an option on use the form option=1. Possible options are:
     """
@@ -67,6 +72,10 @@ class AllegroContext:
     # List of source for the Allegro library (and nothing else!)
     def getLibrarySource(self):
         return self.librarySource
+
+    # Directory that files are installed to before being really installed
+    def temporaryInstallDir(self):
+        return "tmp-install"
     
     # Version of allegro (major.minor.micro)
     def getVersion(self):
@@ -277,6 +286,7 @@ installStatic = buildStatic()
 installDebug = buildDebug()
 installStaticDebug = buildStaticDebug()
 
+# Combine all the possible installed files into a giant list
 def combineInstall(*installs):
     # all is a hashmap from the path minus the common prefix to
     # the number of times path has been seen
@@ -298,9 +308,8 @@ def combineInstall(*installs):
 
     return [all, real]
 
-allInstall = combineInstall(installNormal, installStatic,
-                            installDebug, installStaticDebug)
 
+# Filter files that are repeated for each variant - mostly header files
 def filterCommon(all_real):
     all = all_real[0]
     real = all_real[1]
@@ -313,6 +322,7 @@ def filterCommon(all_real):
     
     return filter(lambda n: n != None, [keep(c) for c in all.keys()])
 
+# Filter files that only occur once - mostly libraries
 def filterUncommon(all_real):
     all = all_real[0]
     real = all_real[1]
@@ -325,8 +335,18 @@ def filterUncommon(all_real):
     
     return filter(lambda n: n != None, [keep(c) for c in all.keys()])
 
-common = filterCommon(allInstall)
-uncommon = filterUncommon(allInstall)
+# 'all' is supposed to be the list of uncommon files as computed by filterUncommon
+# and 'files' is the installed files from one variant, such as normal, or debug
+# This function returns the intersection of the two lists so that only the uncommon
+# files from a specific variant will be returned
+def filterType(files, all):
+    names = map(lambda z: z[0].path, files)
+    # names = files
+    # print "Filtering from " + str(names)
+    def check(n):
+        # print "Checking for " + n[0].path
+        return n[0].path in names
+    return filter(check, all)
 
 def doInstall(targets):
     dir = helpers.install
@@ -337,8 +357,20 @@ def doInstall(targets):
     all = [install(target) for target in targets]
     return all
 
+allInstall = combineInstall(installNormal, installStatic,
+                            installDebug, installStaticDebug)
+
+common = filterCommon(allInstall)
+uncommon = filterUncommon(allInstall)
+
 Alias('install-common', doInstall(common))
-Alias('install', 'install-common')
+Alias('install-normal', doInstall(filterType(installNormal, uncommon)))
+Alias('install-static', doInstall(filterType(installStatic, uncommon)))
+Alias('install-debug', doInstall(filterType(installDebug, uncommon)))
+Alias('install-static-debug', doInstall(filterType(installStaticDebug, uncommon)))
+
+# Regular install is the normal library
+Alias('install', ['install-common', 'install-normal'])
 
 # Default is what comes out of buildNormal()
 Default('all')

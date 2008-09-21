@@ -48,11 +48,12 @@ settings, configure_env = helpers.do_configure('ttf', context,
 
 
 can_build = settings["ALLEGRO_CFG_TTF_FREETYPE"]
+result = None
 if can_build:
     configs.extend(["pkg-config freetype2 --libs --cflags"])
     env.ParseConfig('pkg-config freetype2 --libs')
 
-    addons.do_build(
+    result = addons.do_build(
         context = context,
         env = myEnv,
         source = source,
@@ -64,4 +65,4 @@ if can_build:
         configs = configs,
         includes = ["../ttf", "../font"])
 
-Return("can_build")
+Return("result")

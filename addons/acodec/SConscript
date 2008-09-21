@@ -118,7 +118,7 @@ if settings['ALLEGRO_CFG_ACODEC_SNDFILE']:
     configs.extend(['pkg-config sndfile --libs'])
     env.ParseConfig('pkg-config sndfile --libs')
 
-addons.do_build(
+install = addons.do_build(
     context = context,
     env = myEnv,
     source = source,
@@ -129,5 +129,4 @@ addons.do_build(
     configs = configs,
 )
 
-x = True
-Return('x')
+Return('install')

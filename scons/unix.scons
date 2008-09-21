@@ -315,7 +315,7 @@ def allegroConfig(env):
 env.BuildDir('misc','#misc', duplicate = 0)
 context.alias('config', allegroConfig(env))
 
-def install(library):
+def install():
     # env = context.getEnv()
     ## list of files to be installed
     ret = []
@@ -329,14 +329,14 @@ def install(library):
         return i
     def add(d, f):
         # prefix = getOption('install')
-        prefix = 'tmp-install'
+        prefix = context.temporaryInstallDir()
         path = os.path.join(prefix, d)
         #if not os.path.isabs(path):
         #    path = '#' + path
         i = env.Install(path, f)
         ret.append(i)
     # add('lib', library)
-    unique('lib', library)
+    # unique('lib', library)
     for root, dirs, files in os.walk('include'):
         for i in [x for x in files if x.endswith(".h") or x.endswith(".inl")]:
             subdir = root
@@ -375,8 +375,10 @@ env.Append(BUILDERS = {"Cat" : cat})
     
 # context.setExampleEnv(env.Clone())
 
-library = SConscript("all.scons", exports = ["context",'env'])
-installed = install(library)
+# library = SConscript("all.scons", exports = ["context",'env'])
+# installed = install(library)
+installed = SConscript("all.scons", exports = ["context",'env'])
+installed.extend(install())
 
 Return('installed')
 
