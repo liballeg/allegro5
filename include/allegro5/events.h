@@ -104,8 +104,9 @@ typedef unsigned int ALLEGRO_EVENT_TYPE;
  * 
  *  ALLEGRO_EVENT_DISPLAY_SWITCH_IN - The window is the active one again.
  *
- *  ALLEGRO_EVENT_STREAM_EMPTY_FRAGMENT - A stream fragment in is ready to be
+ *  ALLEGRO_EVENT_STREAM_EMPTY_FRAGMENT - A stream fragment is ready to be
  *    refilled with more audio data.
+ *    Fields: stream.empty_fragment, stream.is_dry
  */
 enum
 {
@@ -227,7 +228,6 @@ typedef struct ALLEGRO_STREAM_EVENT
 {
    _AL_EVENT_HEADER(struct ALLEGRO_STREAM);
    void *empty_fragment;
-   unsigned long count;
    bool is_dry;
 } ALLEGRO_STREAM_EVENT;
 

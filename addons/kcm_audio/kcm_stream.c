@@ -526,26 +526,26 @@ void *_al_kcm_feed_stream(ALLEGRO_THREAD *self, void *vstream)
 
 bool _al_kcm_emit_stream_event(ALLEGRO_STREAM *stream, bool is_dry, unsigned long count)
 {
-   bool rc = true;
-
    _al_event_source_lock(&stream->spl.es);
+
    if (_al_event_source_needs_to_generate_event(&stream->spl.es)) {
-      ALLEGRO_EVENT *event = _al_event_source_get_unused_event(&stream->spl.es);
-      if (event) {
-         event->stream.type = ALLEGRO_EVENT_STREAM_EMPTY_FRAGMENT;
-         event->stream.timestamp = al_current_time();
-         al_stream_get_ptr(stream, ALLEGRO_AUDIOPROP_BUFFER,
-                           &event->stream.empty_fragment);
-         if (!event->stream.empty_fragment)
-            rc = false;
-         event->stream.is_dry = is_dry;
-         event->stream.count = count;
-         _al_event_source_emit_event(&stream->spl.es, event);
+      while (count--) {
+         ALLEGRO_EVENT *event = _al_event_source_get_unused_event(&stream->spl.es);
+         if (event) {
+            event->stream.type = ALLEGRO_EVENT_STREAM_EMPTY_FRAGMENT;
+            event->stream.timestamp = al_current_time();
+            al_stream_get_ptr(stream, ALLEGRO_AUDIOPROP_BUFFER,
+                              &event->stream.empty_fragment);
+            ASSERT(event->stream.empty_fragment);
+            event->stream.is_dry = is_dry;
+            _al_event_source_emit_event(&stream->spl.es, event);
+         }
       }
    }
+
    _al_event_source_unlock(&stream->spl.es);
 
-   return rc;
+   return true;
 }
 
 /* vim: set sts=3 sw=3 et: */
