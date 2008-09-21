@@ -196,6 +196,27 @@ To install as a non-root user, you can do:
 
 
 
+Optional dependencies
+=====================
+
+Many of the addons make use of additional libraries.  They are not required to
+build Allegro, but some functionality may be disabled if they are not present.
+In particular the demo game currently *requires* Ogg Vorbis support.
+
+The libraries are:
+
+- libpng/zlib for PNG support
+- FreeType, for TrueType font support
+- Ogg Vorbis
+- FLAC
+- libsndfile, for loading .wav and other sample formats
+- OpenAL (only really needed on Mac OS X due to missing native driver)
+- ImageMagick (not really used)
+
+On Windows, OpenGL is also optional.
+
+
+
 Running the examples
 ====================
 
