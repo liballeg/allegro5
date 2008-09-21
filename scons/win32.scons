@@ -23,7 +23,7 @@ env.Append(CPPDEFINES = defines)
 env.Append(CPPPATH = includes)
 
 opts = Options('options-win32.py', ARGUMENTS)
-opts.Add('d3d', 'Enable Direct3D', 0)
+opts.Add('d3d', 'Enable Direct3D', 1)
 opts.Add('opengl', 'Enable OpenGL', 1)
 opts.Update(env)
 
@@ -55,7 +55,7 @@ shared_obj.add_emitter('.s', SCons.Defaults.SharedObjectEmitter )
 
 # env.Append(BUILDERS = { 'Assembler' : assembler })
 
-env.Append(LIBS = [ 'kernel32', 'user32', 'gdi32', 'comdlg32', 'ole32', 'dinput', 'ddraw', 'dxguid', 'winmm', 'dsound' ])
+env.Append(LIBS = [ 'kernel32', 'user32', 'gdi32', 'comdlg32', 'ole32', 'dxguid', 'winmm' ])
 
 # files += sourceFiles('c', ['cmiscs.s'])
 # f = sourceFiles('c', ['cmiscs.s'])
@@ -66,10 +66,11 @@ context.addFiles(context.cmake["ALLEGRO_SRC_WIN_FILES"])
 
 if getOption('d3d') == 1:
 	context.addFiles(context.cmake["ALLEGRO_SRC_D3D_FILES"])
-	env.Append(LIBS = [ 'd3d9' ])
+	env.Append(LIBS = ['dinput8', 'd3d9'])
 
 if getOption('opengl') == 1:
 	context.addFiles(context.cmake["ALLEGRO_SRC_OPENGL_FILES"])
+	context.addFiles(context.cmake["ALLEGRO_SRC_WGL_FILES"])
 	env.Append(LIBS = ['opengl32'])
 
 
