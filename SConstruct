@@ -50,9 +50,16 @@ except OSError: pass
 
 SConsignFile(BUILD_DIR + "/scons-signatures")
 
-majorVersion = '4'
-minorVersion = '9'
-microVersion = '4'
+# read version
+defines = {}
+for line in open("include/allegro5/base.h"):
+    if line.startswith("#define"):
+        x = line[8:].split()
+        if len(x) == 2:
+            defines[x[0]] = x[1]
+majorVersion = defines["ALLEGRO_VERSION"]
+minorVersion = defines["ALLEGRO_SUB_VERSION"]
+microVersion = defines["ALLEGRO_WIP_VERSION"]
 
 ## Version of Allegro
 allegroVersion = '%s.%s.%s' % (majorVersion, minorVersion, microVersion)
