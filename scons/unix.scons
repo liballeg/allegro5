@@ -10,9 +10,7 @@ opts = helpers.Options(context, "options-unix.py", ARGUMENTS)
 
 opts.AddOptions(PathOption('install', 'Installation directory', '/usr/local'))
 opts.Add('magic_main', 'Use magic main', 0)
-opts.Add('config', "(Re)configure Allegro. You will need to set this to 1 " +
-    "if you wish to enable/disable parts of allegro such as install=" +
-    "\"/usr/local\".", 0)
+opts.AddWithoutMemorize('config', "Force re-configuration of the build.", 0)
 opts.Update(env)
 opts.Save(env)
 Help(opts.GenerateHelpText(env))

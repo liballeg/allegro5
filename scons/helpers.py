@@ -243,6 +243,12 @@ class Options:
             self.double = True
         self.path = os.path.join(context.getGlobalDir(), path)
         self.o = SCons.Options.Options(self.path, ARGUMENTS)
+        
+        self.nomem = {}
+    
+    def AddWithoutMemorize(self, name, help, default):
+        if self.double: return
+        self.nomem[name] = help, default
 
     def Save(self, env):
         if self.double: return
@@ -250,7 +256,10 @@ class Options:
     
     def GenerateHelpText(self, env):
         if self.double: return ""
-        return self.o.GenerateHelpText(env)
+        own = ""
+        for name, (help, default) in self.nomem.items():
+            own += "\n%s: %s\n" % (name, help)
+        return self.o.GenerateHelpText(env) + own
 
     # For all other methods, use the original scons one.
     def __getattr__(self, attr):
