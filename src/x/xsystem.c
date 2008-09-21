@@ -157,7 +157,7 @@ static ALLEGRO_SYSTEM *xglx_initialize(int flags)
    gfxdisplay = XOpenDisplay(0);
    if (!gfxdisplay) {
       TRACE("xsystem: XOpenDisplay failed.\n");
-      XCloseDisplay(gfxdisplay);
+      XCloseDisplay(x11display);
       return NULL;
    }
 
