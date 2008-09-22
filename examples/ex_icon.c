@@ -8,7 +8,11 @@ int main(void)
    ALLEGRO_BITMAP *icon2;
    int i;
 
-   al_init();
+   if (!al_init()) {
+      TRACE("Could not init Allegro.\n");
+      return 1;
+   }
+
    al_install_mouse();
    al_iio_init();
 

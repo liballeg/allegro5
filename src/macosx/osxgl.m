@@ -51,6 +51,9 @@ NSOpenGLContext* CreateShareableContext(NSOpenGLPixelFormat* fmt, unsigned int* 
  */
 static void osx_change_cursor(ALLEGRO_DISPLAY_OSX_WIN *dpy, NSCursor* cursor)
 {
+	NSCursor* old = dpy->cursor;
+	dpy->cursor = [cursor retain];
+	[old release];
 	if (dpy->show_cursor)
 		[cursor performSelectorOnMainThread: @selector(set) withObject: nil waitUntilDone: NO];
 }
@@ -95,6 +98,21 @@ void _al_osx_keyboard_was_installed(BOOL install) {
 /* Window delegate methods */
 -(void) windowDidBecomeMain:(NSNotification*) notification;
 -(void) windowDidResignMain:(NSNotification*) notification;
+-(NSSize)windowWillResize:(NSWindow *)window toSize:(NSSize)proposedFrameSize;
+@end
+
+/* ALWindow:
+ * This class is only here to return YES from canBecomeKeyWindow
+ * to accept events when the window is frameless.
+ */
+@interface ALWindow : NSWindow
+@end
+
+@implementation ALWindow
+-(BOOL) canBecomeKeyWindow 
+{
+	return YES;
+}
 @end
 
 /* _al_osx_mouse_was_installed:
@@ -309,6 +327,30 @@ void _al_osx_mouse_was_installed(BOOL install) {
 	_al_event_source_unlock(src);
 }
 
+-(NSSize)windowWillResize:(NSWindow *)window toSize:(NSSize)proposedFrameSize
+{
+   ALLEGRO_DISPLAY *dpy = [[window contentView] allegroDisplay];
+	NSRect rc = NSMakeRect(0, 0, proposedFrameSize.width, proposedFrameSize.height);
+   NSRect content = [window contentRectForFrameRect: rc];
+
+   ALLEGRO_EVENT_SOURCE *es = &dpy->es;
+   _al_event_source_lock(es);
+
+   proposedFrameSize.height = MAX(48, proposedFrameSize.height);
+   if (_al_event_source_needs_to_generate_event(es)) {
+      ALLEGRO_EVENT *event = _al_event_source_get_unused_event(es);
+      if (event) {
+         event->display.type = ALLEGRO_EVENT_DISPLAY_RESIZE;
+         event->display.timestamp = al_current_time();
+         event->display.width = NSWidth(content);
+         event->display.height = NSHeight(content);
+         _al_event_source_emit_event(es, event);
+      }
+   }
+
+   _al_event_source_unlock(es);
+   return proposedFrameSize;
+}
 /* End of ALOpenGLView implementation */
 @end
 
@@ -406,9 +448,10 @@ static int decode_allegro_format(int format, int* glfmt, int* glsize, int* depth
 +(void) initialiseDisplay: (NSValue*) display_object {
    ALLEGRO_DISPLAY_OSX_WIN* dpy = [display_object pointerValue];
 	NSRect rc = NSMakeRect(0, 0, dpy->parent.w,  dpy->parent.h);
-	NSWindow* win = dpy->win = [NSWindow alloc]; 
+	NSWindow* win = dpy->win = [ALWindow alloc]; 
    unsigned int mask = (dpy->parent.flags & ALLEGRO_NOFRAME) ? NSBorderlessWindowMask : 
       (NSTitledWindowMask|NSClosableWindowMask|NSMiniaturizableWindowMask);
+   if (dpy->parent.flags & ALLEGRO_RESIZABLE) mask |= NSResizableWindowMask;
 	[win initWithContentRect: rc
 				   styleMask: mask
 					 backing: NSBackingStoreBuffered
@@ -442,7 +485,7 @@ static int decode_allegro_format(int format, int* glfmt, int* glsize, int* depth
    }
    last_window_pos = [win cascadeTopLeftFromPoint:last_window_pos];
    [win makeKeyAndOrderFront:self];
-	if (mask != NSBorderlessWindowMask) [win makeMainWindow];
+	if (!(mask & NSBorderlessWindowMask)) [win makeMainWindow];
 	[view release];
 }
 +(void) destroyDisplay: (NSValue*) display_object {
@@ -500,6 +543,7 @@ static int decode_allegro_format(int format, int* glfmt, int* glsize, int* depth
 {
    ALLEGRO_DISPLAY* display = (ALLEGRO_DISPLAY*) [display_object pointerValue];
    while (in_fullscreen) {
+      NSAutoreleasePool* pool = [[NSAutoreleasePool alloc] init];
       NSEvent* event = [NSApp nextEventMatchingMask:NSAnyEventMask 
                                           untilDate:[NSDate distantFuture] 
                                              inMode:NSDefaultRunLoopMode 
@@ -531,6 +575,7 @@ static int decode_allegro_format(int format, int* glfmt, int* glsize, int* depth
             [NSApp sendEvent: event];
             break;
       }
+	  [pool release];
    }
 }
 /* End of ALDisplayHelper implementation */
@@ -603,7 +648,7 @@ static ALLEGRO_DISPLAY* create_display_fs(int w, int h) {
    dpy->parent.w = w;
    dpy->parent.h = h;
    CGDisplayCapture(CGMainDisplayID());
-   CFDictionaryRef mode = CGDisplayBestModeForParametersAndRefreshRate(CGMainDisplayID(), depth, w, h, dpy->parent.refresh_rate, NO);
+   CFDictionaryRef mode = CGDisplayBestModeForParametersAndRefreshRate(CGMainDisplayID(), depth, w, h, dpy->parent.refresh_rate, NULL);
    CGDisplaySwitchToMode(CGMainDisplayID(), mode);
    [context setFullScreen];
    dpy->parent.ogl_extras = _AL_MALLOC(sizeof(ALLEGRO_OGL_EXTRAS));
@@ -647,7 +692,7 @@ static ALLEGRO_DISPLAY* create_display_win(int w, int h) {
 	dpy->parent.w = w;
 	dpy->parent.h = h;
 	_al_event_source_init(&dpy->parent.es);
-   dpy->cursor = [[NSCursor arrowCursor] retain];
+	osx_change_cursor(dpy, [NSCursor arrowCursor]);
    dpy->show_cursor = YES;
    
    if (_al_vector_is_empty(&al_system_driver()->displays)) {
@@ -668,6 +713,9 @@ static ALLEGRO_DISPLAY* create_display_win(int w, int h) {
 	ALLEGRO_DISPLAY **add = _al_vector_alloc_back(&al_system_driver()->displays);
 	return *add = &dpy->parent;
 }
+/* destroy_display:
+ * Destroy display, actually close the window or exit fullscreen on the main thread
+ */
 static void destroy_display(ALLEGRO_DISPLAY* d) {
 	ALLEGRO_DISPLAY_OSX_WIN* dpy = (ALLEGRO_DISPLAY_OSX_WIN*) d;
    _al_ogl_unmanage_extensions(&dpy->parent);
@@ -683,7 +731,7 @@ static void destroy_display(ALLEGRO_DISPLAY* d) {
 /* create_display:
  * Create a display either fullscreen or windowed depending on flags
  */
-ALLEGRO_DISPLAY* create_display(int w, int h)
+static ALLEGRO_DISPLAY* create_display(int w, int h)
 {
    int flags = al_get_new_display_flags();
    if (flags & ALLEGRO_DIRECT3D) {
@@ -715,11 +763,6 @@ static void flip_display(ALLEGRO_DISPLAY *disp)
 /* osx_create_mouse_cursor:
  * creates a custom system cursor from the bitmap bmp.
  * (x_focus, y_focus) indicates the cursor hot-spot.
- *
- * FIXME: before MacOS X 10.3, NSCursor can handle only 16x16 cursor
- * sprites. The code used to pad smaller sprites to 16x16 or fail if the
- * original image was larger. Using NSImageFromAllegroBitmap this is not
- * so straightforward to enforce.
  */
 static ALLEGRO_MOUSE_CURSOR *osx_create_mouse_cursor(ALLEGRO_DISPLAY *display,
    ALLEGRO_BITMAP *bmp, int x_focus, int y_focus) {
@@ -752,8 +795,7 @@ static void osx_destroy_mouse_cursor(ALLEGRO_DISPLAY *display,
    if (!dpy || !cursor)
       return;
 
-   if (dpy->cursor == cursor->cursor)
-      dpy->cursor = [[NSCursor arrowCursor] retain];
+   osx_change_cursor(dpy, [NSCursor arrowCursor]);
 
    [cursor->cursor release];
    _AL_FREE(cursor);
@@ -769,11 +811,7 @@ static bool osx_set_mouse_cursor(ALLEGRO_DISPLAY *display,
    ALLEGRO_DISPLAY_OSX_WIN *dpy = (ALLEGRO_DISPLAY_OSX_WIN *)display;
    ALLEGRO_MOUSE_CURSOR_OSX *osxcursor = (ALLEGRO_MOUSE_CURSOR_OSX *)cursor;
 
-   dpy->cursor = osxcursor->cursor;
-
-   if (dpy->show_cursor) {
-      osx_change_cursor(dpy, dpy->cursor);
-   }
+   osx_change_cursor(dpy, osxcursor->cursor);
 
    return true;
 }
@@ -795,22 +833,22 @@ static bool osx_set_system_mouse_cursor(ALLEGRO_DISPLAY *display,
       case ALLEGRO_SYSTEM_MOUSE_CURSOR_ARROW:
       case ALLEGRO_SYSTEM_MOUSE_CURSOR_BUSY:
       case ALLEGRO_SYSTEM_MOUSE_CURSOR_QUESTION:
-         requested_cursor = [[NSCursor arrowCursor] retain];
+         requested_cursor = [NSCursor arrowCursor];
          break;
       case ALLEGRO_SYSTEM_MOUSE_CURSOR_EDIT:
-         requested_cursor = [[NSCursor IBeamCursor] retain];
+         requested_cursor = [NSCursor IBeamCursor];
          break;
       default:
          return false;
    }
 
-   dpy->cursor = requested_cursor;
-   if (dpy->show_cursor)
-      osx_change_cursor(dpy, requested_cursor);
+   osx_change_cursor(dpy, requested_cursor);
    return true;
 }
 
-
+/* (show|hide)_cursor_(win|fs):
+ Cursor show or hide
+ */
 static bool show_cursor_win(ALLEGRO_DISPLAY *d) {
 	ALLEGRO_DISPLAY_OSX_WIN* dpy = (ALLEGRO_DISPLAY_OSX_WIN*) d;
 	//ALOpenGLView* view = (ALOpenGLView*) [dpy->win contentView];
@@ -839,6 +877,9 @@ static bool hide_cursor_fs(ALLEGRO_DISPLAY *d) {
    return false;
 }
 
+/* resize_display_(win|fs)
+ Change the size of the display by altering the window size or changing the screen mode
+ */
 static bool resize_display_win(ALLEGRO_DISPLAY *d, int w, int h) {
 	ALLEGRO_DISPLAY_OSX_WIN* dpy = (ALLEGRO_DISPLAY_OSX_WIN*) d;
    NSWindow* window = dpy->win;
@@ -848,6 +889,52 @@ static bool resize_display_win(ALLEGRO_DISPLAY *d, int w, int h) {
    [window setFrame:rc display:YES animate:YES];
 	return true;
 }
+static bool resize_display_fs(ALLEGRO_DISPLAY *d, int w, int h) {
+/* This causes crashes in al_destroy_display so disable for now 
+	ALLEGRO_DISPLAY_OSX_WIN* dpy = (ALLEGRO_DISPLAY_OSX_WIN*) d;
+	CFDictionaryRef current = CGDisplayCurrentMode(CGMainDisplayID());
+	CFNumberRef bps = (CFNumberRef) CFDictionaryGetValue(current, kCGDisplayBitsPerPixel);
+	int b;
+	CFNumberGetValue(bps, kCFNumberSInt32Type,&b);
+	CFDictionaryRef mode = CGDisplayBestModeForParameters(CGMainDisplayID(), b, w, h, NULL);
+	[dpy->ctx clearDrawable];
+	CGError err = CGDisplaySwitchToMode(CGMainDisplayID(), mode);
+	d->w = w;
+	d->h = h;
+	[dpy->ctx setFullScreen];
+	setup_gl(d);
+	return  err == kCGErrorSuccess;
+	*/
+	return false;
+}
+
+static bool acknowledge_resize_display_win(ALLEGRO_DISPLAY *d)
+{
+   ALLEGRO_DISPLAY_OSX_WIN *dpy = (ALLEGRO_DISPLAY_OSX_WIN *)d;
+   NSWindow* window = dpy->win;
+   NSRect frame = [window frame];
+   NSRect content = [window contentRectForFrameRect: frame];
+
+   d->w = NSWidth(content);
+   d->h = NSHeight(content);
+
+   /* FIXME: without calling setContentView the view id not properly
+    * located in the window frame: it shifts around when the window is
+    * resized. Calling the view's setFrame method doesn't help. This
+    * is the only way I've found that makes this work. 
+    * It does have one major draw back: the window doesn't take keyboard
+    * input until it has been klicked.
+    * Nether of these things make much sense to me; there has to  be a
+    * better way of doing this...? -- EG
+    */
+   [window setContentView: [window contentView]];
+
+   _al_ogl_resize_backbuffer(d->ogl_extras->backbuffer, d->w, d->h);
+   setup_gl(d);
+
+   return true;
+}
+
 static bool is_compatible_bitmap(ALLEGRO_DISPLAY* disp, ALLEGRO_BITMAP* bmp) {
    return (bmp->display == disp)
       || (((ALLEGRO_DISPLAY_OSX_WIN*) bmp->display)->display_group == ((ALLEGRO_DISPLAY_OSX_WIN*) disp)->display_group);
@@ -912,6 +999,7 @@ ALLEGRO_DISPLAY_INTERFACE* _al_osx_get_display_driver_win(void)
       vt->set_current_display = set_current_display;
       vt->flip_display = flip_display;
       vt->resize_display = resize_display_win;
+      vt->acknowledge_resize = acknowledge_resize_display_win;
       vt->create_bitmap = _al_ogl_create_bitmap;
       vt->set_target_bitmap = _al_ogl_set_target_bitmap;
       vt->get_backbuffer = _al_ogl_get_backbuffer;
@@ -942,6 +1030,7 @@ ALLEGRO_DISPLAY_INTERFACE* _al_osx_get_display_driver_fs(void)
       vt->destroy_display = destroy_display;
       vt->set_current_display = set_current_display;
       vt->flip_display = flip_display;
+      vt->resize_display = resize_display_fs;
       vt->create_bitmap = _al_ogl_create_bitmap;
       vt->set_target_bitmap = _al_ogl_set_target_bitmap;
       vt->show_mouse_cursor = show_cursor_fs;

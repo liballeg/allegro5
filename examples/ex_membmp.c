@@ -75,7 +75,11 @@ int main(void)
    ALLEGRO_BITMAP *accelbmp;
    ALLEGRO_BITMAP *membmp;
 
-   al_init();
+   if (!al_init()) {
+      TRACE("Could not init Allegro.\n");
+      return 1;
+   }
+
    al_install_keyboard();
    al_font_init();
 

@@ -45,6 +45,7 @@
    #include "allegro5/internal/aintern.h"
    #include "allegro5/internal/aintern_memory.h"
    #include "allegro5/internal/aintern_vector.h"
+   #include "allegro5/internal/aintern_events.h"
 
 #endif
 

@@ -90,12 +90,12 @@ Examples: (you only need one)
 
 	$ cmake .. -G "MinGW Makefiles" -DSTATIC=off
 
-Alternatively, you can use `ccmake` to bring up an interactive option
-selector. e.g. `ccmake ..`
+Alternatively, you can use `ccmake` (Unix) or `cmake-gui` (Windows) to bring up
+an interactive option selector. e.g. `ccmake ..` or `cmake-gui ..`.
 
 Now run `make` (or `mingw32-make`) and, optionally, `make install`.
-(For MinGW users, you should have `MINGDIR` pointing to your MinGW directory
-before you do `mingw32-make install`):
+(For MinGW users, you may have to set `MINGDIR` to point to your MinGW
+directory before you do `mingw32-make install`):
 
 	$ make
 	$ make install
@@ -193,6 +193,27 @@ etc..
 To install as a non-root user, you can do:
 
 	$ scons install install=/home/myuser/mydirectory
+
+
+
+Optional dependencies
+=====================
+
+Many of the addons make use of additional libraries.  They are not required to
+build Allegro, but some functionality may be disabled if they are not present.
+In particular the demo game currently *requires* Ogg Vorbis support.
+
+The libraries are:
+
+- libpng/zlib for PNG support
+- FreeType, for TrueType font support
+- Ogg Vorbis
+- FLAC
+- libsndfile, for loading .wav and other sample formats
+- OpenAL (only really needed on Mac OS X due to missing native driver)
+- ImageMagick (not really used)
+
+On Windows, OpenGL is also optional.
 
 
 

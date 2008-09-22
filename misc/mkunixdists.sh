@@ -85,7 +85,7 @@ then
 		(cd src && rm -rf beos qnx dos mac ppc win)
 		(cd obj && rm -rf bcc32 beos qnx djgpp mingw32 msvc watcom)
 		(cd lib && rm -rf bcc32 beos qnx djgpp mingw32 msvc watcom)
-		(cd include && rm -f bealleg.h qnxalleg.h macalleg.h winalleg.h)
+		(cd include && rm -f bealleg.h qnxalleg.h winalleg.h)
 		(cd misc && rm -f cmplog.pl dllsyms.lst findtext.sh fixpatch.sh fixver.sh)
 		(cd misc && rm -f allegro-config-qnx.sh zipup.sh zipwin.sh *.bat *.c)
 		mkdir .saveme

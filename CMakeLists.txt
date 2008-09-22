@@ -97,8 +97,8 @@ option(WANT_OPENGL "Enable OpenGL graphics driver (Windows, X11))" on)
 option(WANT_FONT "Enable bitmap font add-on" on)
 option(WANT_ACODEC "Enable audio codecs (requires kcm_audio)" on)
 option(WANT_KCM_AUDIO "Enable kcm_audio engine" on)
-# WANT_ICODEC is off until it checks for Magick++
-option(WANT_ICODEC "Enable image loading/saving for most filetypes (requires libMagick)" off)
+# icodec is off because it's currently broken.
+option(WANT_ICODEC "Enable image loading/saving for most filetypes (requires libMagick; broken)" off)
 option(WANT_IIO "Enable IIO image load/save addon" on)
 option(WANT_TTF "Enable TTF addon" on)
 
@@ -144,13 +144,40 @@ endif(CMAKE_COMPILER_IS_GNUCC)
 if(MINGW)
     # For alplatf.h
     set(ALLEGRO_MINGW32 1)
+
+    # Guess MINGDIR from the value of CMAKE_C_COMPILER if it's not set.
+    if("$ENV{MINGDIR}" STREQUAL "")
+        string(REGEX REPLACE "/bin/[^/]*$" "" MINGDIR "${CMAKE_C_COMPILER}")
+        message(STATUS "Guessed MinGW directory: ${MINGDIR}")
+    else("$ENV{MINGDIR}" STREQUAL "")
+        file(TO_CMAKE_PATH "$ENV{MINGDIR}" MINGDIR)
+        message(STATUS "Using MINGDIR: ${MINGDIR}")
+    endif("$ENV{MINGDIR}" STREQUAL "")
+
+    # Search in MINGDIR for headers and libraries.
+    set(CMAKE_PREFIX_PATH "${MINGDIR}")
+
     # Install to MINGDIR
-    string(REPLACE "\\" "/" MINGDIR "$ENV{MINGDIR}")
     if(INSTALL_PREFIX STREQUAL "")
         set(CMAKE_INSTALL_PREFIX ${MINGDIR})
     else(INSTALL_PREFIX STREQUAL "")
         set(CMAKE_INSTALL_PREFIX ${INSTALL_PREFIX})
     endif(INSTALL_PREFIX STREQUAL "")
+
+    # Check for a common problem (at the time of writing).
+    check_c_source_compiles("
+        #include <windows.h>
+        int main(void)
+        {
+            int x = DM_POSITION;
+            return 0;
+        }"
+        HAVE_DM_POSITION)
+    if(NOT HAVE_DM_POSITION)
+        message(FATAL_ERROR
+            "Missing DM_POSITION. Please update your MinGW"
+            "w32api package, delete CMakeCache.txt and try again.")
+    endif(NOT HAVE_DM_POSITION)
 endif(MINGW)
 
 if(UNIX)
@@ -273,7 +300,7 @@ endif(WANT_MAGIC_MAIN)
 #
 
 if(WANT_OPENGL)
-    include(FindOpenGL)
+    find_package(OpenGL)
     if(OPENGL_FOUND)
         set(SUPPORT_OPENGL 1)
         set(ALLEGRO_CFG_OPENGL 1)
@@ -281,7 +308,7 @@ if(WANT_OPENGL)
 endif(WANT_OPENGL)
 
 if(WANT_OPENAL)
-    include(FindOpenAL)
+    find_package(OpenAL)
     if(OPENAL_FOUND)
         set(SUPPORT_OPENAL 1)
     endif(OPENAL_FOUND)
@@ -305,7 +332,7 @@ set(DRIVER_LIBS_SHARED)
 
 if(UNIX)
 
-    include(FindThreads)
+    find_package(Threads)
     if(CMAKE_USE_PTHREADS_INIT)
         set(ALLEGRO_HAVE_LIBPTHREAD 1)
     endif(CMAKE_USE_PTHREADS_INIT)
@@ -377,7 +404,7 @@ endif(UNIX)
 #
 
 if(WANT_X11)
-    include(FindX11)
+    find_package(X11)
     if(X11_FOUND)
         set(SUPPORT_X11 1)
         set(ALLEGRO_WITH_XWINDOWS 1)
@@ -425,12 +452,12 @@ endif(SUPPORT_X11)
 
 if(WIN32)
     if(WANT_D3D)
-        check_include_files(d3d9.h HAVE_D3D9)
-        if(HAVE_D3D9)
+        find_package(D3D9)
+        if(D3D9_FOUND)
             set(SUPPORT_D3D 1)
-        endif(HAVE_D3D9)
+        endif(D3D9_FOUND)
     endif(WANT_D3D)
-    
+
     if(SUPPORT_D3D)
         set(ALLEGRO_CFG_D3D 1)
         if(GRADE_DEBUG)
@@ -441,6 +468,13 @@ if(WIN32)
             set(ALLEGRO_CFG_D3D9EX 1)
         endif(WANT_D3D9EX)
     endif(SUPPORT_D3D)
+
+    if(WANT_DSOUND)
+        find_package(DSound)
+        if(DSOUND_FOUND)
+            set(SUPPORT_DSOUND 1)
+        endif(DSOUND_FOUND)
+    endif(WANT_DSOUND)
 endif(WIN32)
 
 #
@@ -504,7 +538,7 @@ if(WIN32)
         )
     if(SUPPORT_D3D)
         list(APPEND LIBRARY_SOURCES ${ALLEGRO_SRC_D3D_FILES})
-        list(APPEND PLATFORM_LIBS d3d9)
+        list(APPEND PLATFORM_LIBS ${D3D9_LIBRARIES})
     endif(SUPPORT_D3D)
 endif(WIN32)
 

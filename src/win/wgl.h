@@ -1,11 +1,7 @@
 #include "allegro5/internal/aintern_display.h"
-#include "allegro5/internal/aintern_bitmap.h"
-#include "allegro5/internal/aintern_opengl.h"
-#include "allegro5/a5_opengl.h"
+#include "allegro5/platform/aintwin.h"
 
 #include <windows.h>
-
-#include "win_new.h"
 
 
 typedef struct ALLEGRO_DISPLAY_WGL
@@ -15,8 +11,5 @@ typedef struct ALLEGRO_DISPLAY_WGL
    /* Driver specifics */
    HDC dc;
    HGLRC glrc;
-
-   bool thread_ended;
-   bool end_thread;
 } ALLEGRO_DISPLAY_WGL;
 

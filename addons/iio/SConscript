@@ -27,7 +27,7 @@ settings, configure_env = helpers.do_configure('iio', context,
 
 env.Append(LIBS = ['png','z'])
 
-addons.do_build(
+result = addons.do_build(
     context = context,
     env = myEnv,
     source = ["bmp.c", "iio.c", "pcx.c", "tga.c", "png.c"],
@@ -38,5 +38,4 @@ addons.do_build(
     "allegro5/internal/aintern_iio_cfg.h"]
 )
 
-x = True
-Return("x")
+Return("result")

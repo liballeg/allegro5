@@ -21,18 +21,10 @@ def buildLibrary():
 
     return context.buildLibrary(env, getLibraryName(), change(context.getLibrarySource()))
 
+installed = []
 context.addFiles( context.cmake["ALLEGRO_SRC_FILES"] )
 library = buildLibrary()
 context.alias('allegro', library)
-
-def install(env):
-    #dir = getOption('install') + '/lib'
-    #if not dir.startswith('/'):
-    #    dir = '#' + dir
-    dir = 'tmp-install/lib'
-    i = env.Install(dir, library)
-
-install(env)
 
 def demo(env):
     demoEnv = env.Clone()
@@ -105,8 +97,8 @@ def examples(env):
     example("ex_blend")
     example("ex_drawpixels")
     example("ex_dualies")
-    example("ex_events")
     example("ex_expose")
+    #example("ex_icodec")
     example("ex_font")
     example("ex_fs_resize")
     example("ex_glext", libs = ["GLU"])
@@ -138,9 +130,19 @@ def examples(env):
     return examples
 
 def buildAddon(name):
-    return SConscript( dirs = ['#addons/%s' % name],
+    result = SConscript( dirs = ['#addons/%s' % name],
         build_dir = 'addons/%s' % name,
         exports = ['context','env'], duplicate = 0)
+    if result:
+        installed.extend(result)
+    return result
+
+def installLibrary(library):
+    prefix = context.temporaryInstallDir()
+    path = os.path.join(prefix, 'lib')
+    #if not os.path.isabs(path):
+    #    path = '#' + path
+    return env.Install(path, library)
 
 buildAddon("iio")
 buildAddon('font')
@@ -152,4 +154,5 @@ if buildAddon("kcm_audio"):
 examples(env)
 demo(env)
 
-Return('library')
+installed.append(installLibrary(library))
+Return('installed')

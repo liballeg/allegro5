@@ -6,6 +6,7 @@
 
 #include "allegro5/acodec.h"
 #include "allegro5/internal/aintern_acodec.h"
+#include "allegro5/internal/aintern_memory.h"
 
 #ifdef ALLEGRO_CFG_ACODEC_FLAC
 
@@ -24,7 +25,7 @@ typedef struct FLACFILE {
 } FLACFILE;
 
 
-void metadata_callback(const FLAC__StreamDecoder *decoder,
+static void metadata_callback(const FLAC__StreamDecoder *decoder,
     const FLAC__StreamMetadata *metadata, void *client_data)
 {
    FLACFILE *out = (FLACFILE *) client_data;
@@ -34,13 +35,13 @@ void metadata_callback(const FLAC__StreamDecoder *decoder,
       out->channels = metadata->data.stream_info.channels;
       out->word_size = metadata->data.stream_info.bits_per_sample / 8;
       out->total_size = out->total_samples * out->channels * out->word_size;
-      out->buffer = malloc(out->total_size);
+      out->buffer = _AL_MALLOC_ATOMIC(out->total_size);
       out->pos = 0;
    }
 }
 
 
-void error_callback(const FLAC__StreamDecoder *decoder,
+static void error_callback(const FLAC__StreamDecoder *decoder,
     FLAC__StreamDecoderErrorStatus status, void *client_data)
 {
    TRACE("Got FLAC error callback: %s\n",
@@ -48,7 +49,7 @@ void error_callback(const FLAC__StreamDecoder *decoder,
 }
 
 
-FLAC__StreamDecoderWriteStatus write_callback(
+static FLAC__StreamDecoderWriteStatus write_callback(
    const FLAC__StreamDecoder *decoder, const FLAC__Frame *frame,
    const FLAC__int32 * const buffer[], void *client_data)
 {
@@ -168,7 +169,7 @@ ALLEGRO_SAMPLE_DATA *al_load_sample_flac(const char *filename)
       _al_count_to_channel_conf(ff.channels), true);
 
    if (!sample) {
-      free(ff.buffer);
+      _AL_FREE(ff.buffer);
    }
 
    return sample;

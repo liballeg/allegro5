@@ -1,19 +1,17 @@
 set(ICODEC_INCLUDE_FILES allegro5/icodec.h)
 
-find_path(MAGICK_INCLUDE_DIR Magick++.h PATHS ENV INCLUDE)
-find_library(MAGICK_LIBRARY NAMES Magick++ PATHS ENV LIB)
-mark_as_advanced(MAGICK_INCLUDE_DIR MAGICK_LIBRARY)
-
-if(MAGICK_INCLUDE_DIR AND MAGICK_LIBRARY)
-    set(CAN_MAGICK 1)
-endif(MAGICK_INCLUDE_DIR AND MAGICK_LIBRARY)
-
-if(CAN_MAGICK)
+find_package(ImageMagick COMPONENTS Magick++)
+if(ImageMagick_FOUND)
     set(SUPPORT_MAGICK 1)
-    include_directories(${ICODEC_INCLUDE_DIR})
-    list(APPEND ICODEC_EXTRA_LIBS Magick++)
+    include_directories(${ImageMagick_INCLUDE_DIRS})
+    list(APPEND ICODEC_EXTRA_LIBS ${ImageMagick_LIBRARIES})
     list(APPEND ICODEC_SOURCES icodec.cpp)
-endif(CAN_MAGICK)
+endif(ImageMagick_FOUND)
+
+if(SUPPORT_MAGICK)
+    set(SUPPORT_ICODEC 1)
+    set(SUPPORT_ICODEC 1 PARENT_SCOPE)
+endif(SUPPORT_MAGICK)
 
 macro(add_icodec_build nm extra_flags)
     macro(really_add_icodec_build nm2 target libtype more_extra_flags)
@@ -46,7 +44,7 @@ macro(add_icodec_build nm extra_flags)
 
 endmacro(add_icodec_build)
 
-if(SUPPORT_MAGICK)
+if(SUPPORT_ICODEC)
     if(GRADE_STANDARD)
         add_icodec_build(a5_icodec
             "-O2 -funroll-loops -ffast-math -fomit-frame-pointer")
@@ -61,7 +59,7 @@ if(SUPPORT_MAGICK)
         add_icodec_build(a5_icodecp
             "-pg -O2 -funroll-loops -ffast-math")
     endif(GRADE_PROFILE)
-endif(SUPPORT_MAGICK)
+endif(SUPPORT_ICODEC)
 
 if(GRADE_STANDARD)
     set(ICODEC_LIB_TO_LINK a5_icodec CACHE INTERNAL "internal")
@@ -73,14 +71,14 @@ endif(GRADE_STANDARD)
 
 if(STATIC)
     set(ICODEC_LINK_WITH ${ICODEC_LIB_TO_LINK}_static CACHE INTERNAL "internal")
+    set(ICODEC_LINK_WITH ${ICODEC_LIB_TO_LINK}_static PARENT_SCOPE)
 else(STATIC)
     set(ICODEC_LINK_WITH ${ICODEC_LIB_TO_LINK}_shared CACHE INTERNAL "internal")
+    set(ICODEC_LINK_WITH ${ICODEC_LIB_TO_LINK}_shared PARENT_SCOPE)
 endif(STATIC)
 
-set(ICODEC_LINK_WITH ${ICODEC_LINK_WITH} Magick++)
-
 if(SUPPORT_MAGICK)
-    example(ex_icodec ${ICODEC_LINK_WITH})
+    list(APPEND ICODEC_LINK_WITH ${ImageMagick_LIBRARIES})
 endif(SUPPORT_MAGICK)
 
 #-----------------------------------------------------------------------------#
@@ -88,11 +86,11 @@ endif(SUPPORT_MAGICK)
 # Install header files.
 #
 
-if(SUPPORT_MAGICK)
+if(SUPPORT_ICODEC)
     install(FILES ${ICODEC_INCLUDE_FILES}
            DESTINATION include/allegro5
            )
-endif(SUPPORT_MAGICK)
+endif(SUPPORT_ICODEC)
 
 #-----------------------------------------------------------------------------#
 # vi: set ts=8 sts=4 sw=4 et:

@@ -21,8 +21,10 @@ int main(int argc, char *argv[])
    ALLEGRO_DISPLAY *dpy;
    ALLEGRO_EVENT_QUEUE *queue;
 
-   if (!al_init())
+   if (!al_init()) {
+      TRACE("Could not init Allegro.\n");
       return 1;
+   }
 
    al_install_keyboard();
 

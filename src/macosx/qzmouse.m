@@ -100,6 +100,7 @@ void _al_osx_mouse_generate_event(NSEvent* evt, ALLEGRO_DISPLAY* dpy)
 		case NSOtherMouseUp:
 			type = ALLEGRO_EVENT_MOUSE_BUTTON_UP;
 			b = [evt buttonNumber]+1;
+			b_change = 1;
 			break;
 		case NSScrollWheel:
 			type = ALLEGRO_EVENT_MOUSE_AXES;
@@ -163,9 +164,7 @@ void _al_osx_mouse_generate_event(NSEvent* evt, ALLEGRO_DISPLAY* dpy)
 	osx_mouse.state.w = osx_mouse.w_axis;
 	osx_mouse.state.z = osx_mouse.z_axis;
 	if (b_change)
-		osx_mouse.state.buttons |= (1<<b);
-	else
-		osx_mouse.state.buttons &= ~(1<<b);
+		osx_mouse.state.buttons ^= (1<<(b-1));
 	_al_event_source_unlock(&osx_mouse.parent.es);
 }
 

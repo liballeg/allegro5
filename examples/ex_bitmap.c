@@ -17,7 +17,11 @@ int main(int argc, const char *argv[])
        filename = "data/mysha.pcx";
     }
 
-    al_init();
+    if (!al_init()) {
+        TRACE("Could not init Allegro.\n");
+        return 1;
+    }
+
     al_install_mouse();
     al_install_keyboard();
 
@@ -66,3 +70,5 @@ int main(int argc, const char *argv[])
     return 0;
 }
 END_OF_MAIN()
+
+/* vim: set sts=4 sw=4 et: */

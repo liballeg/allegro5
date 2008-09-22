@@ -7,6 +7,7 @@
 
 #include "allegro5/opengl/gl_ext.h"
 
+
 /* This is our version of ALLEGRO_DISPLAY with driver specific extra data. */
 typedef struct ALLEGRO_DISPLAY_OSX_WIN {
 	ALLEGRO_DISPLAY parent;

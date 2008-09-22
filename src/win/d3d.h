@@ -1,11 +1,10 @@
 #include "allegro5/internal/aintern_system.h"
 #include "allegro5/internal/aintern_display.h"
 #include "allegro5/internal/aintern_bitmap.h"
+#include "allegro5/platform/aintwin.h"
 
 #include <windows.h>
 #include <d3d9.h>
-
-#include "win_new.h"
 
 
 #ifdef __cplusplus
@@ -48,15 +47,6 @@ typedef struct ALLEGRO_DISPLAY_D3D
    /* Driver specifics */
    LPDIRECT3DDEVICE9 device;
    LPDIRECT3DSURFACE9 render_target;
-
-   /*
-    * The display thread must communicate with the main thread
-    * through these variables.
-    */
-   bool end_thread;    /* The display thread should end */
-   bool initialized;   /* Fully initialized */
-   bool init_failed;   /* Initialization failed */
-   bool thread_ended;  /* The display thread has ended */
 
    bool do_reset;
    bool reset_done;

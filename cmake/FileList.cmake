@@ -102,7 +102,6 @@ set(ALLEGRO_SRC_WIN_FILES
     src/win/wnewwin.c
     src/win/wthread.c
     src/win/wtime.c
-    src/win/wwnd.c
     src/win/wxthread.c
     )
 
@@ -230,14 +229,10 @@ set(ALLEGRO_SRC_QNX_FILES
     )
 
 set(ALLEGRO_SRC_MACOSX_FILES
-    # src/macosx/cadigi.m
-    # src/macosx/camidi.m
-    # src/macosx/drivers.m
     src/macosx/hidjoy.m
     src/macosx/hidman.m
     src/macosx/keybd.m
     src/macosx/main.m
-    src/macosx/pcpu.m
     src/macosx/qzmouse.m
     src/macosx/system.m
     src/macosx/osxgl.m
@@ -287,7 +282,6 @@ set(ALLEGRO_INCLUDE_ALLEGRO_FILES
     include/allegro5/allegro5.h
     include/allegro5/allegro.h
     include/allegro5/winalleg.h
-    include/allegro5/xalleg.h
     include/allegro5/alinline.h
     include/allegro5/altime.h
     include/allegro5/base.h
@@ -317,10 +311,7 @@ set(ALLEGRO_INCLUDE_ALLEGRO_FILES
     )
 
 set(ALLEGRO_INCLUDE_ALLEGRO_INLINE_FILES
-    include/allegro5/inline/color.inl
-    include/allegro5/inline/file.inl
     include/allegro5/inline/fmaths.inl
-    include/allegro5/inline/system.inl
     )
 
 set(ALLEGRO_INCLUDE_ALLEGRO_INTERNAL_FILES
@@ -364,7 +355,6 @@ set(ALLEGRO_INCLUDE_ALLEGRO_PLATFORM_FILES
     include/allegro5/platform/aintbeos.h
     include/allegro5/platform/aintdos.h
     include/allegro5/platform/aintlnx.h
-    include/allegro5/platform/aintmac.h
     include/allegro5/platform/aintosx.h
     include/allegro5/platform/aintqnx.h
     include/allegro5/platform/aintunix.h
@@ -379,8 +369,6 @@ set(ALLEGRO_INCLUDE_ALLEGRO_PLATFORM_FILES
     include/allegro5/platform/albeos.h
     include/allegro5/platform/aldjgpp.h
     include/allegro5/platform/aldos.h
-    include/allegro5/platform/almac.h
-    include/allegro5/platform/almaccfg.h
     include/allegro5/platform/almngw32.h
     include/allegro5/platform/almsvc.h
     include/allegro5/platform/alosx.h
@@ -393,7 +381,6 @@ set(ALLEGRO_INCLUDE_ALLEGRO_PLATFORM_FILES
     include/allegro5/platform/alwin.h
     include/allegro5/platform/astdbool.h
     include/allegro5/platform/astdint.h
-    include/allegro5/platform/macdef.h
     )
 
 set(ALLEGRO_INCLUDE_ALLEGRO_PLATFORM_FILES_GENERATED

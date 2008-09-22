@@ -25,28 +25,19 @@
 #include "allegro5/internal/aintern_memory.h"
 #include "allegro5/internal/aintern_system.h"
 #include "allegro5/platform/aintwin.h"
-#include "allegro5/platform/alplatf.h"
 
 #include "allegro5/winalleg.h"
 
-#include "win_new.h"
 
 #ifndef SCAN_DEPEND
    #include <mmsystem.h>
 #endif
 
-#include <psapi.h>
-
-#define _WIN32_IE 0x500
-#include <shlobj.h>
-
 
 static ALLEGRO_SYSTEM_INTERFACE *vt = 0;
 static bool using_higher_res_timer;
 
-CRITICAL_SECTION allegro_critical_section;
-
-ALLEGRO_SYSTEM_WIN *_al_win_system;
+static ALLEGRO_SYSTEM_WIN *_al_win_system;
 
 
 /* _WinMain:
@@ -83,18 +74,18 @@ int _WinMain(void *_main, void *hInst, void *hPrev, char *Cmd, int nShow)
    /* parse commandline into argc/argv format */
    while (argbuf[i]) {
       while ((argbuf[i]) && (uisspace(argbuf[i])))
-	 i++;
+         i++;
 
       if (argbuf[i]) {
-	 if ((argbuf[i] == '\'') || (argbuf[i] == '"')) {
-	    q = argbuf[i++];
-	    if (!argbuf[i])
-	       break;
-	 }
-	 else
-	    q = 0;
+         if ((argbuf[i] == '\'') || (argbuf[i] == '"')) {
+            q = argbuf[i++];
+            if (!argbuf[i])
+               break;
+         }
+         else
+            q = 0;
 
-	 argv[argc++] = &argbuf[i];
+         argv[argc++] = &argbuf[i];
 
          if (argc >= argc_max) {
             argc_max += 64;
@@ -105,13 +96,13 @@ int _WinMain(void *_main, void *hInst, void *hPrev, char *Cmd, int nShow)
             }
          }
 
-	 while ((argbuf[i]) && ((q) ? (argbuf[i] != q) : (!uisspace(argbuf[i]))))
-	    i++;
+         while ((argbuf[i]) && ((q) ? (argbuf[i] != q) : (!uisspace(argbuf[i]))))
+            i++;
 
-	 if (argbuf[i]) {
-	    argbuf[i] = 0;
-	    i++;
-	 }
+            if (argbuf[i]) {
+            argbuf[i] = 0;
+            i++;
+         }
       }
    }
 
@@ -129,14 +120,11 @@ int _WinMain(void *_main, void *hInst, void *hPrev, char *Cmd, int nShow)
 
 
 
-/* Create a new system object for the dummy D3D driver. */
+/* Create a new system object. */
 static ALLEGRO_SYSTEM *win_initialize(int flags)
 {
    _al_win_system = _AL_MALLOC(sizeof *_al_win_system);
    memset(_al_win_system, 0, sizeof *_al_win_system);
-
-   /* setup general critical section */
-   InitializeCriticalSection(&allegro_critical_section);
 
    // Request a 1ms resolution from our timer
    if (timeBeginPeriod(1) != TIMERR_NOCANDO) {
@@ -144,7 +132,7 @@ static ALLEGRO_SYSTEM *win_initialize(int flags)
    }
    _al_win_init_time();
 
-   //_win_input_init(TRUE);
+   _al_win_input_init();
 
    _al_win_init_window();
 
@@ -163,8 +151,6 @@ static ALLEGRO_SYSTEM *win_initialize(int flags)
 
 static void win_shutdown(void)
 {
-   /* Disabled because seems to cause deadlocks. */
-#if 0
    /* Close all open displays. */
    ALLEGRO_SYSTEM *s = al_system_driver();
    while (_al_vector_size(&s->displays) > 0) {
@@ -173,7 +159,10 @@ static void win_shutdown(void)
       _al_destroy_display_bitmaps(d);
       al_destroy_display(d);
    }
-#endif
+
+   _al_win_shutdown_time();
+
+    _al_win_input_exit();
 
    if (using_higher_res_timer) {
       timeEndPeriod(1);
@@ -181,7 +170,6 @@ static void win_shutdown(void)
 }
 
 
-/* FIXME: autodetect a driver */
 static ALLEGRO_DISPLAY_INTERFACE *win_get_display_driver(void)
 {
    int flags = al_get_new_display_flags();
@@ -204,17 +192,35 @@ static ALLEGRO_DISPLAY_INTERFACE *win_get_display_driver(void)
    if (sys->config) {
       s = al_config_get_value(sys->config, "graphics", "driver");
       if (s) {
-         if (!stricmp(s, "OPENGL"))
+         if (!stricmp(s, "OPENGL")) {
+#if defined ALLEGRO_CFG_OPENGL
+            flags |= ALLEGRO_OPENGL;
+            al_set_new_display_flags(flags);
             return _al_display_wgl_driver();
-         else if (!stricmp(s, "DIRECT3D") || !stricmp(s, "D3D"))
+#else
+            return NULL;
+#endif
+         }
+         else if (!stricmp(s, "DIRECT3D") || !stricmp(s, "D3D")) {
+#if defined ALLEGRO_CFG_D3D
+            flags |= ALLEGRO_DIRECT3D;
+            al_set_new_display_flags(flags);
             return _al_display_d3d_driver();
+#else
+            return NULL;
+#endif
+         }
       }
    }
 
 #if defined ALLEGRO_CFG_D3D
+      flags |= ALLEGRO_DIRECT3D;
+      al_set_new_display_flags(flags);
       return _al_display_d3d_driver();
 #endif
 #if defined ALLEGRO_CFG_OPENGL
+      flags |= ALLEGRO_OPENGL;
+      al_set_new_display_flags(flags);
       return _al_display_wgl_driver();
 #endif
 
@@ -328,75 +334,6 @@ static ALLEGRO_MOUSE_DRIVER *win_get_mouse_driver(void)
 }
 
 
-/* sys_directx_get_path:
- *  Returns full path to various system and user diretories
- */
-
-static AL_CONST char *win_get_path(uint32_t id, char *dir, size_t size)
-{
-   char path[MAX_PATH], tmp[256];
-   uint32_t csidl = 0, path_len = MIN(size, MAX_PATH);
-   HRESULT ret = 0;
-   HANDLE process = GetCurrentProcess();
-
-   memset(dir, 0, size);
-
-   switch(id) {
-      case AL_TEMP_PATH: {
-         /* Check: TMP, TMPDIR, TEMP or TEMPDIR */
-         DWORD ret = GetTempPath(MAX_PATH, path);
-         if(ret > MAX_PATH) {
-            /* should this ever happen, windows is more broken than I ever thought */
-            return dir; 
-         }
-
-         do_uconvert (path, U_ASCII, dir, U_CURRENT, strlen(path)+1);
-         return dir;
-
-      } break;
-
-      case AL_PROGRAM_PATH: { /* where the program is in */
-         HMODULE module = GetModuleHandle(NULL); /* Get handle for this process */
-         DWORD mret = GetModuleFileNameEx(process, NULL, path, MAX_PATH);
-         char *ptr = strrchr(path, '\\');
-         if(!ptr) { /* shouldn't happen */
-            return dir;
-         }
-
-         /* chop off everything including and after the last slash */
-         /* should this not chop the slash? */
-         *ptr = '\0';
-
-         do_uconvert (path, U_ASCII, dir, U_CURRENT, strlen(path)+1);
-         return dir;
-      } break;
-
-      case AL_SYSTEM_DATA_PATH: /* CSIDL_COMMON_APPDATA */
-         csidl = CSIDL_COMMON_APPDATA;
-         break;
-
-      case AL_USER_DATA_PATH: /* CSIDL_APPDATA */
-         csidl = CSIDL_APPDATA;
-         break;
-
-      case AL_USER_HOME_PATH: /* CSIDL_PROFILE */
-         csidl = CSIDL_PROFILE;
-         break;
-
-      default:
-         return dir;
-   }
-
-   ret = SHGetFolderPath(NULL, csidl, NULL, SHGFP_TYPE_CURRENT, path);
-   if(ret != S_OK) {
-      return dir;
-   }
-
-   do_uconvert (path, U_ASCII, dir, U_CURRENT, strlen(path)+1);
-
-   return dir;
-}
-
 ALLEGRO_SYSTEM_INTERFACE *_al_system_win_driver(void)
 {
    if (vt) return vt;
@@ -415,7 +352,6 @@ ALLEGRO_SYSTEM_INTERFACE *_al_system_win_driver(void)
    vt->get_num_video_adapters = win_get_num_video_adapters;
    vt->get_monitor_info = win_get_monitor_info;
    vt->get_cursor_position = win_get_cursor_position;
-   vt->get_path = win_get_path;
 
    TRACE("ALLEGRO_SYSTEM_INTERFACE created.\n");
 
@@ -431,5 +367,4 @@ void _al_register_system_interfaces()
    *add = _al_system_win_driver();
 #endif
 }
-
 

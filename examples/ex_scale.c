@@ -37,8 +37,11 @@ int main(int argc, char *argv[])
    bool wide_mode = false;
    bool mem_src_mode = false;
 
-   if (!al_init())
+   if (!al_init()) {
+      TRACE("Could not init Allegro.\n");
       return 1;
+   }
+
    al_install_keyboard();
    al_iio_init();
 

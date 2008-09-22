@@ -51,7 +51,11 @@ void go(void)
 
 int main(void)
 {
-   al_init();
+   if (!al_init()) {
+      TRACE("Could not init Allegro.\n");
+      return 1;
+   }
+
    al_iio_init();
 
    if (al_get_num_video_adapters() < 2) {

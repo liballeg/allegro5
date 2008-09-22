@@ -4,7 +4,7 @@ import addons
 
 myEnv = env.Clone()
 
-addons.do_build(
+result = addons.do_build(
     context = context,
     env = myEnv,
     source = Split("""
@@ -18,5 +18,4 @@ addons.do_build(
     install_headers = ['allegro5/a5_font.h'],
     includes = ["../iio"]);
 
-x = True
-Return('x')
+Return('result')

@@ -12,54 +12,48 @@
 
 void saw(ALLEGRO_STREAM *stream)
 {
-   void *vbuf;
+   ALLEGRO_EVENT_QUEUE *queue;
    int8_t *buf;
    int pitch = 0x10000;
    int val = 0;
    int i;
    int n = 200;
-   unsigned long vbuf_waiting_count;
+
+   queue = al_create_event_queue();
+   al_register_event_source(queue, (ALLEGRO_EVENT_SOURCE *) stream);
 
    while (n > 0) {
-      if (al_stream_get_long(stream, ALLEGRO_AUDIOPROP_USED_FRAGMENTS,
-                             &vbuf_waiting_count) != 0) {
-         fprintf(stderr, "Error getting the number of waiting buffers.\n");
-         return;
-      }
+      ALLEGRO_EVENT event;
 
-      if (vbuf_waiting_count == 0) {
-         al_rest(0.25);
-         continue;
-      }
+      al_wait_for_event(queue, &event);
 
-      if (al_stream_get_ptr(stream, ALLEGRO_AUDIOPROP_BUFFER, &vbuf) != 0) {
-         fprintf(stderr, "Error getting the stream buffers.\n");
-         return;
-      }
+      if (event.type == ALLEGRO_EVENT_STREAM_EMPTY_FRAGMENT) {
+         buf = (int8_t *) event.stream.empty_fragment;
+         for (i = 0; i < SAMPLES_PER_BUFFER; i++) {
+            buf[i] = ((val >> 16) & 0xff) >> 4;    /* not so loud please */
+            val += pitch;
+            pitch++;
+            if (pitch > 0x40000)
+               pitch = 0x10000;
+         }
 
-      buf = (int8_t *) vbuf;
-      for (i = 0; i < SAMPLES_PER_BUFFER; i++) {
-         buf[i] = ((val >> 16) & 0xff) >> 4;    /* not so loud please */
-         val += pitch;
-         pitch++;
-         if (pitch > 0x40000)
-            pitch = 0x10000;
-      }
+         if (al_stream_set_ptr(stream, ALLEGRO_AUDIOPROP_BUFFER, buf) != 0) {
+            fprintf(stderr, "Error setting stream buffer.\n");
+         }
 
-      if (al_stream_set_ptr(stream, ALLEGRO_AUDIOPROP_BUFFER, vbuf) != 0) {
-         fprintf(stderr, "Error setting stream buffer.\n");
-      }
-
-      n--;
-      if ((n % 10) == 0) {
-         putchar('.');
-         fflush(stdout);
+         n--;
+         if ((n % 10) == 0) {
+            putchar('.');
+            fflush(stdout);
+         }
       }
    }
 
    al_stream_drain(stream);
 
    putchar('\n');
+
+   al_destroy_event_queue(queue);
 }
 
 
@@ -69,7 +63,10 @@ int main(void)
    ALLEGRO_MIXER *mixer;
    ALLEGRO_STREAM *stream;
 
-   al_init();
+   if (!al_init()) {
+      fprintf(stderr, "Could not init Allegro.\n");
+      return 1;
+   }
 
    if (al_audio_init(ALLEGRO_AUDIO_DRIVER_AUTODETECT) != 0) {
       fprintf(stderr, "Could not init sound.\n");

@@ -8,6 +8,7 @@
 #include "allegro5/allegro5.h"
 #include "allegro5/internal/aintern.h"
 #include "allegro5/internal/aintern_vector.h"
+#include "allegro5/internal/aintern_events.h"
 #include "../kcm_audio.h"
 
 /* This can probably be set to 16, or higher, if long is 64-bit */
@@ -112,6 +113,10 @@ typedef struct {
 
 /* The sample struct also serves the base of ALLEGRO_STREAM, ALLEGRO_MIXER. */
 struct ALLEGRO_SAMPLE {
+   /* ALLEGRO_SAMPLE does not generate any events yet but ALLEGRO_STREAM
+    * does, which can inherit only ALLEGRO_SAMPLE. */
+   struct ALLEGRO_EVENT_SOURCE es;
+
    ALLEGRO_SAMPLE_DATA  spl_data;
 
    volatile bool        is_playing;
@@ -151,6 +156,7 @@ void _al_kcm_detach_from_parent(ALLEGRO_SAMPLE *spl);
 
 
 typedef bool (*stream_callback_t)(ALLEGRO_STREAM *, void *, unsigned long);
+typedef void (*unload_feeder_t)(ALLEGRO_STREAM *);
 
 
 struct ALLEGRO_STREAM {
@@ -189,6 +195,7 @@ struct ALLEGRO_STREAM {
 
    ALLEGRO_THREAD        *feed_thread;
    volatile bool         quit_feed_thread;
+   unload_feeder_t       unload_feeder;
    stream_callback_t     feeder;
                          /* If ALLEGRO_STREAM has been created by
                           * al_stream_from_file(), acodec will be feeding the stream
@@ -243,6 +250,9 @@ extern void _al_set_error(int error, char* string);
 /* Supposedly internal */
 A5_KCM_AUDIO_FUNC(int, _al_audio_get_silence, (ALLEGRO_AUDIO_DEPTH depth));
 A5_KCM_AUDIO_FUNC(void*, _al_kcm_feed_stream, (ALLEGRO_THREAD *self, void *vstream));
+
+/* Helper to emit an event that the stream has got a buffer ready to be refilled. */
+bool _al_kcm_emit_stream_event(ALLEGRO_STREAM *stream, bool is_dry, unsigned long count);
 
 #endif
 

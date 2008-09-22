@@ -17,19 +17,13 @@
  *      See readme.txt for copyright information.
  */
 
-
 /* For APC */
 #define _WIN32_WINNT 0x400
 
 
 #include "allegro5/allegro5.h"
 #include "allegro5/internal/aintern.h"
-#include "allegro5/platform/aintwin.h"
-
-#ifndef SCAN_DEPEND
-   #include <process.h>
-#endif
-
+#include <process.h>
 
 #ifndef ALLEGRO_WINDOWS
    #error something is wrong with the makefile
@@ -40,15 +34,14 @@
 #define PREFIX_E                "al-winput ERROR: "
 
 
-#define MAX_EVENTS 20
+#define MAX_EVENTS 10
 
 /* events in event queue */
-static int _win_input_events;
+static int win_input_events;
 /* input thread event queue */
-static HANDLE _win_input_event_id[MAX_EVENTS];
+static HANDLE win_input_event_id[MAX_EVENTS];
 /* event handler */
-static void *_win_input_event_handler_param[MAX_EVENTS];
-static void (*_win_input_event_handler[MAX_EVENTS])(void *);
+static void (*win_input_event_handler[MAX_EVENTS])(void);
 
 /* handle of the input thread */
 static HANDLE input_thread = NULL;
@@ -56,38 +49,39 @@ static HANDLE input_thread = NULL;
 /* internal input thread management */
 static HANDLE ack_event = NULL;
 
-volatile static bool input_thread_is_over = false;
+static volatile bool input_thread_is_over = false;
 
 typedef struct KEY_EVENT_INFO {
    HANDLE id;
-   void *param;
-   void (*handler)(void *);
+   void (*handler)(void);
 } KEY_EVENT_INFO;
+
+typedef void (*THREAD_PROC)(void *);
 
 
 /* input_proc: [input thread]
  * This the input thread.
  */
-static unsigned int __stdcall input_proc(void *unused)
+static DWORD input_proc(void *unused)
 {
    DWORD result;
    TRACE(PREFIX_I "Input thread started.\n");
 
    while (!input_thread_is_over) {
-      if (_win_input_events) {
-         result = WaitForMultipleObjectsEx(_win_input_events,
-                                           _win_input_event_id,
+      if (win_input_events) {
+         result = WaitForMultipleObjectsEx(win_input_events,
+                                           win_input_event_id,
                                            FALSE, INFINITE, TRUE);
       }
       else {
          result = SleepEx(INFINITE, TRUE);
       }
 
-      if (result < (DWORD) WAIT_OBJECT_0 + _win_input_events) {
+      if (result < (DWORD) WAIT_OBJECT_0 + win_input_events) {
          /* one of the registered events is in signaled state,
           * call its handler. */
          int index = result - WAIT_OBJECT_0;
-         (*_win_input_event_handler[index])(_win_input_event_handler_param[index]);
+         (*win_input_event_handler[index])();
       }
       else if (result == (DWORD) WAIT_IO_COMPLETION) {
          /* An Asynchronous Procedure Call has been executed.
@@ -104,8 +98,6 @@ static unsigned int __stdcall input_proc(void *unused)
          input_thread_is_over = true;
       }
    }
-
-   TRACE(PREFIX_I "Input thread exiting.\n");
 
    ExitThread(0);
    return 0;
@@ -129,17 +121,16 @@ static VOID CALLBACK quit_input_thread(ULONG_PTR *useless)
  */
 static VOID CALLBACK register_event(ULONG_PTR *param)
 {
-   KEY_EVENT_INFO  *event_info = (KEY_EVENT_INFO*)param;
+   KEY_EVENT_INFO *event_info = (KEY_EVENT_INFO*)param;
 
    /* add the event to the queue */
-   _win_input_event_id[_win_input_events] = event_info->id;
+   win_input_event_id[win_input_events] = event_info->id;
 
    /* set the event handler */
-   _win_input_event_handler[_win_input_events] = event_info->handler;
-   _win_input_event_handler_param[_win_input_events] = event_info->param;
+   win_input_event_handler[win_input_events] = event_info->handler;
 
    /* adjust the size of the queue */
-   _win_input_events++;
+   win_input_events++;
 }
 
 
@@ -154,8 +145,8 @@ static VOID CALLBACK unregister_event(ULONG_PTR *param)
    HANDLE event_id = (HANDLE*)param;
 
    /* look for the pending event in the event queue */
-   for (i = 0; i < _win_input_events; i++) {
-      if (_win_input_event_id[i] == event_id) {
+   for (i = 0; i < win_input_events; i++) {
+      if (win_input_event_id[i] == event_id) {
          found = i;
          break;
       }
@@ -165,32 +156,28 @@ static VOID CALLBACK unregister_event(ULONG_PTR *param)
 
    if (found >= 0) {
       /* shift the queue to the left */
-      for (i = found; i < _win_input_events - 1; i++) {
-         _win_input_event_id[i] = _win_input_event_id[i+1];
-         _win_input_event_handler[i] = _win_input_event_handler[i+1];
-         _win_input_event_handler_param[i] = _win_input_event_handler_param[i+1];
+      for (i = found; i < win_input_events - 1; i++) {
+         win_input_event_id[i] = win_input_event_id[i+1];
+         win_input_event_handler[i] = win_input_event_handler[i+1];
       }
 
       /* adjust the size of the queue */
-      _win_input_events--;
+      win_input_events--;
    }
 }
 
 
 
-/* _win_input_register_event: [primary thread]
+/* _al_win_input_register_event: [primary thread]
  *  Adds an event to the input thread event queue.
  */
-bool _win_input_register_event(HANDLE event_id,
-                               void (*event_handler)(void*),
-                               void *event_handler_param)
+bool _al_win_input_register_event(HANDLE event_id, void (*handler)(void))
 {
    KEY_EVENT_INFO event_info;
    event_info.id = event_id;
-   event_info.handler = event_handler;
-   event_info.param = event_handler_param;
+   event_info.handler = handler;
 
-   if (_win_input_events == MAX_EVENTS)
+   if (win_input_events == MAX_EVENTS)
       return false;
 
    QueueUserAPC((PAPCFUNC)register_event, input_thread, (ULONG_PTR)&event_info);
@@ -202,10 +189,10 @@ bool _win_input_register_event(HANDLE event_id,
 
 
 
-/* _win_input_unregister_event: [primary thread]
+/* _al_win_input_unregister_event: [primary thread]
  *  Removes an event from the input thread event queue.
  */
-bool _win_input_unregister_event(HANDLE event_id)
+bool _al_win_input_unregister_event(HANDLE event_id)
 {
    QueueUserAPC((PAPCFUNC)unregister_event, input_thread, (ULONG_PTR)event_id);
    /* wait for the input thread to acknowledge */
@@ -216,12 +203,12 @@ bool _win_input_unregister_event(HANDLE event_id)
 
 
 
-/* _win_input_init: [primary thread]
+/* _al_win_input_init: [primary thread]
  *  Initializes the module.
  */
-void _win_input_init(void)
+void _al_win_input_init(void)
 {
-   input_thread = CreateThread(NULL, 0, input_proc, NULL, 0, NULL);
+   input_thread = (HANDLE)_beginthread((THREAD_PROC)input_proc, 0, NULL);
    if (!input_thread) {
       TRACE(PREFIX_E "Failed to spawn the input thread.\n");
    }
@@ -231,18 +218,19 @@ void _win_input_init(void)
 
 
 
-/* _win_input_exit: [primary thread]
+/* _al_win_input_exit: [primary thread]
  *  Shuts down the module.
  */
-void _win_input_exit(void)
+void _al_win_input_exit(void)
 {
    if (input_thread) {
       QueueUserAPC((PAPCFUNC)quit_input_thread, input_thread, (ULONG_PTR)NULL);
       /* wait for the input thread to acknowledge */
       WaitForSingleObject(ack_event, INFINITE);
+      TRACE(PREFIX_I "Input thread closed.\n");
    }
 
-   _win_input_events = 0;
+   win_input_events = 0;
 
    if (ack_event)
       CloseHandle(ack_event);

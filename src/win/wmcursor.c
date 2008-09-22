@@ -24,7 +24,7 @@
 #include "allegro5/internal/aintern.h"
 #include "allegro5/internal/aintern_bitmap.h"
 #include "allegro5/internal/aintern_memory.h"
-#include "win_new.h"
+#include "allegro5/platform/aintwin.h"
 
 
 static void local_stretch_blit_to_hdc(ALLEGRO_BITMAP *bitmap, HDC dc,

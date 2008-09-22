@@ -1,5 +1,5 @@
 import SCons
-import re
+import re, os
 
 # def getArgumentOption(name, default):
 #     import SCons.Script.ARGUMENTS
@@ -201,7 +201,9 @@ def do_configure(name, context, tests, setup_platform, cmake_file, h_file, recon
             except ConfigParser.NoOptionError:
                 pass
     else:
-        config = env.Configure(custom_tests = tests)
+        config = env.Configure(custom_tests = tests,
+            conf_dir = "#/" + main_dir,
+            log_file = "#/" + main_dir + "/config.log")
         env = setup_platform(platform, config)
 
         settings = ConfigParser.ConfigParser()
@@ -227,3 +229,40 @@ def do_configure(name, context, tests, setup_platform, cmake_file, h_file, recon
     configure_state[name] = [platform, settings]
 
     return [platform, env]
+
+# FIXME
+# This is a small hack which makes a wrapper class around SCons options, which
+# ignores double options. We need this because we call our options for each
+# build variant. Doing that is wrong, we should call each option only once, but
+# for now this is an easy fix.
+only_once = {}
+class Options:
+    def __init__(self, context, path, ARGUMENTS):
+        if path not in only_once:
+            only_once[path] = True
+            self.double = False
+        else:
+            self.double = True
+        self.path = os.path.join(context.getGlobalDir(), path)
+        self.o = SCons.Options.Options(self.path, ARGUMENTS)
+        
+        self.nomem = {}
+    
+    def AddWithoutMemorize(self, name, help, default):
+        if self.double: return
+        self.nomem[name] = help, default
+
+    def Save(self, env):
+        if self.double: return
+        self.o.Save(self.path, env)
+    
+    def GenerateHelpText(self, env):
+        if self.double: return ""
+        own = ""
+        for name, (help, default) in self.nomem.items():
+            own += "\n%s: %s\n" % (name, help)
+        return self.o.GenerateHelpText(env) + own
+
+    # For all other methods, use the original scons one.
+    def __getattr__(self, attr):
+        return getattr(self.o, attr)

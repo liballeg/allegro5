@@ -189,7 +189,8 @@ void draw_mesh() {
 
 
 
-int main() {
+int main(void)
+{
    GLuint pid;
    ALLEGRO_DISPLAY *d;
    ALLEGRO_EVENT_QUEUE *queue;
@@ -197,7 +198,10 @@ int main() {
    int frames = 0;
    double start;
 
-   al_init();
+   if (!al_init()) {
+      TRACE("Could not init Allegro.\n");
+      return 1;
+   }
 
    al_set_new_display_flags(ALLEGRO_OPENGL);
    d = al_create_display(WINDOW_W, WINDOW_H);

@@ -138,14 +138,35 @@ static void xglx_background_thread(_AL_THREAD *self, void *arg)
 /* Create a new system object for the dummy X11 driver. */
 static ALLEGRO_SYSTEM *xglx_initialize(int flags)
 {
-   ALLEGRO_SYSTEM_XGLX *s = _AL_MALLOC(sizeof *s);
-   memset(s, 0, sizeof *s);
+   Display *x11display;
+   Display *gfxdisplay;
+   ALLEGRO_SYSTEM_XGLX *s;
 
    #ifdef DEBUG_X11
    _Xdebug = 1;
    #endif
 
+   XInitThreads();
+
+   /* Get an X11 display handle. */
+   x11display = XOpenDisplay(0);
+   if (!x11display) {
+      TRACE("xsystem: XOpenDisplay failed.\n");
+      return NULL;
+   }
+
+   /* Never ask. */
+   gfxdisplay = XOpenDisplay(0);
+   if (!gfxdisplay) {
+      TRACE("xsystem: XOpenDisplay failed.\n");
+      XCloseDisplay(x11display);
+      return NULL;
+   }
+
    _al_unix_init_time();
+
+   s = _AL_MALLOC(sizeof *s);
+   memset(s, 0, sizeof *s);
 
    _al_mutex_init_recursive(&s->lock);
    _al_cond_init(&s->mapped);
@@ -153,15 +174,10 @@ static ALLEGRO_SYSTEM *xglx_initialize(int flags)
 
    _al_vector_init(&s->system.displays, sizeof (ALLEGRO_SYSTEM_XGLX *));
 
-   XInitThreads();
+   s->gfxdisplay = gfxdisplay;
+   s->x11display = x11display;
 
    s->system.vt = xglx_vt;
-
-   /* Get an X11 display handle. */
-   s->x11display = XOpenDisplay(0);
-   
-   /* Never ask. */
-   s->gfxdisplay = XOpenDisplay(0);
 
    TRACE("xsystem: XGLX driver connected to X11 (%sys %d).\n",
       ServerVendor(s->x11display), VendorRelease(s->x11display));
@@ -311,3 +327,5 @@ void _al_register_system_interfaces(void)
    *add = _al_system_xglx_driver();
 #endif
 }
+
+/* vim: set sts=3 sw=3 et: */

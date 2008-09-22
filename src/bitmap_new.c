@@ -831,13 +831,14 @@ void _al_convert_to_memory_bitmap(ALLEGRO_BITMAP *bitmap)
    /* Allocate a temporary bitmap which will hold the data
     * during the conversion process. */
    
-   al_store_state(&backup, ALLEGRO_STATE_BITMAP);
+   al_store_state(&backup, ALLEGRO_STATE_BITMAP | ALLEGRO_STATE_BLENDER);
 
    al_set_new_bitmap_flags(ALLEGRO_MEMORY_BITMAP);
    al_set_new_bitmap_format(bitmap->format);
    tmp = al_create_bitmap(bitmap->w, bitmap->h);
 
    /* Preserve bitmap contents. */
+   al_set_blender(ALLEGRO_ONE, ALLEGRO_ZERO, al_map_rgb(255, 255, 255));
    al_set_target_bitmap(tmp);
    al_draw_bitmap(bitmap, 0, 0, 0);
    tmp->cb = bitmap->cb;

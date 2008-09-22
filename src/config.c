@@ -420,5 +420,7 @@ void al_config_destroy(ALLEGRO_CONFIG *config)
       _AL_FREE(s);
       s = tmp;
    }
+
+   _AL_FREE(config);
 }
 

@@ -30,6 +30,11 @@ all-static
 all-debug
 all-static-debug
 everything
+install
+install-static
+install-debug
+install-static-debug
+install-everything
 
 To turn an option on use the form option=1. Possible options are:
     """
@@ -43,9 +48,22 @@ BUILD_DIR = "scons_build"
 try: os.mkdir(BUILD_DIR)
 except OSError: pass
 
-majorVersion = '4'
-minorVersion = '9'
-microVersion = '4'
+SConsignFile(BUILD_DIR + "/scons-signatures")
+
+def readVersion():
+    # read version
+    defines = {}
+    for line in open("include/allegro5/base.h"):
+        if line.startswith("#define"):
+            x = line[8:].split()
+            if len(x) == 2:
+                defines[x[0]] = x[1]
+    majorVersion = defines["ALLEGRO_VERSION"]
+    minorVersion = defines["ALLEGRO_SUB_VERSION"]
+    microVersion = defines["ALLEGRO_WIP_VERSION"]
+    return [majorVersion, minorVersion, microVersion]
+
+majorVersion, minorVersion, microVersion = readVersion()
 
 ## Version of Allegro
 allegroVersion = '%s.%s.%s' % (majorVersion, minorVersion, microVersion)
@@ -67,6 +85,10 @@ class AllegroContext:
     # List of source for the Allegro library (and nothing else!)
     def getLibrarySource(self):
         return self.librarySource
+
+    # Directory that files are installed to before being really installed
+    def temporaryInstallDir(self):
+        return "tmp-install"
     
     # Version of allegro (major.minor.micro)
     def getVersion(self):
@@ -277,6 +299,7 @@ installStatic = buildStatic()
 installDebug = buildDebug()
 installStaticDebug = buildStaticDebug()
 
+# Combine all the possible installed files into a giant list
 def combineInstall(*installs):
     # all is a hashmap from the path minus the common prefix to
     # the number of times path has been seen
@@ -298,9 +321,8 @@ def combineInstall(*installs):
 
     return [all, real]
 
-allInstall = combineInstall(installNormal, installStatic,
-                            installDebug, installStaticDebug)
 
+# Filter files that are repeated for each variant - mostly header files
 def filterCommon(all_real):
     all = all_real[0]
     real = all_real[1]
@@ -313,6 +335,7 @@ def filterCommon(all_real):
     
     return filter(lambda n: n != None, [keep(c) for c in all.keys()])
 
+# Filter files that only occur once - mostly libraries
 def filterUncommon(all_real):
     all = all_real[0]
     real = all_real[1]
@@ -325,8 +348,18 @@ def filterUncommon(all_real):
     
     return filter(lambda n: n != None, [keep(c) for c in all.keys()])
 
-common = filterCommon(allInstall)
-uncommon = filterUncommon(allInstall)
+# 'all' is supposed to be the list of uncommon files as computed by filterUncommon
+# and 'files' is the installed files from one variant, such as normal, or debug
+# This function returns the intersection of the two lists so that only the uncommon
+# files from a specific variant will be returned
+def filterType(files, all):
+    names = map(lambda z: z[0].path, files)
+    # names = files
+    # print "Filtering from " + str(names)
+    def check(n):
+        # print "Checking for " + n[0].path
+        return n[0].path in names
+    return filter(check, all)
 
 def doInstall(targets):
     dir = helpers.install
@@ -337,8 +370,23 @@ def doInstall(targets):
     all = [install(target) for target in targets]
     return all
 
+allInstall = combineInstall(installNormal, installStatic,
+                            installDebug, installStaticDebug)
+
+common = filterCommon(allInstall)
+uncommon = filterUncommon(allInstall)
+
 Alias('install-common', doInstall(common))
-Alias('install', 'install-common')
+Alias('install-normal-files', doInstall(filterType(installNormal, uncommon)))
+Alias('install-static-files', doInstall(filterType(installStatic, uncommon)))
+Alias('install-debug-files', doInstall(filterType(installDebug, uncommon)))
+Alias('install-static-debug-files', doInstall(filterType(installStaticDebug, uncommon)))
+
+# Regular install is the normal library
+Alias('install', ['install-common', 'install-normal-files'])
+Alias('install-static', ['install-common', 'install-static-files'])
+Alias('install-debug', ['install-common', 'install-debug-files'])
+Alias('install-static-debug', ['install-common', 'install-static-debug-files'])
 
 # Default is what comes out of buildNormal()
 Default('all')

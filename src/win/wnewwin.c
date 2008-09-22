@@ -22,29 +22,26 @@
 #include "allegro5/internal/aintern_bitmap.h"
 #include "allegro5/internal/aintern_memory.h"
 #include "allegro5/internal/aintern_vector.h"
+#include "allegro5/internal/aintern_display.h"
 #include "allegro5/platform/aintwin.h"
 
-#include "win_new.h"
 
-static ATOM window_identifier;
+#define PREFIX_I                "al-newin INFO: "
+#define PREFIX_W                "al-newin WARNING: "
+#define PREFIX_E                "al-newin ERROR: "
+
 static WNDCLASS window_class;
-
-/* We have to keep track of windows some how */
-typedef struct WIN_WINDOW {
-   ALLEGRO_DISPLAY *display;
-   HWND window;
-} WIN_WINDOW;
-static _AL_VECTOR win_window_list = _AL_VECTOR_INITIALIZER(WIN_WINDOW *);
-
-HWND _al_win_active_window = NULL;
 
 static bool resize_postponed = false;
 
 
+UINT _al_win_msg_call_proc = 0;
+UINT _al_win_msg_suicide = 0;
+
 /*
  * Find the top left position of the client area of a window.
  */
-void _al_win_get_window_pos(HWND window, RECT *pos)
+static void get_window_pos(HWND window, RECT *pos)
 {
    RECT with_decorations;
    RECT adjusted;
@@ -83,8 +80,6 @@ HWND _al_win_create_window(ALLEGRO_DISPLAY *display, int width, int height, int 
    RECT win_size;
    DWORD style;
    DWORD ex_style;
-   WIN_WINDOW *win_window;
-   WIN_WINDOW **add;
    int pos_x, pos_y;
    bool center = false;
    ALLEGRO_MONITOR_INFO info;
@@ -190,12 +185,6 @@ HWND _al_win_create_window(ALLEGRO_DISPLAY *display, int width, int height, int 
 
    ShowWindow(my_window, SW_SHOW);
 
-   win_window = _AL_MALLOC(sizeof(WIN_WINDOW));
-   win_window->display = display;
-   win_window->window = my_window;
-   add = _al_vector_alloc_back(&win_window_list);
-   *add = win_window;
-
    if (!(flags & ALLEGRO_RESIZABLE) && !(flags & ALLEGRO_FULLSCREEN)) {
       /* Make the window non-resizable */
       HMENU menu;
@@ -215,8 +204,6 @@ HWND _al_win_create_faux_fullscreen_window(LPCTSTR devname, ALLEGRO_DISPLAY *dis
    HWND my_window;
    DWORD style;
    DWORD ex_style;
-   WIN_WINDOW *win_window;
-   WIN_WINDOW **add;
    DEVMODE mode;
    LONG temp;
 
@@ -249,13 +236,37 @@ HWND _al_win_create_faux_fullscreen_window(LPCTSTR devname, ALLEGRO_DISPLAY *dis
 
    ChangeDisplaySettingsEx(devname, &mode, NULL, 0, NULL/*CDS_FULLSCREEN*/);
    
-   win_window = _AL_MALLOC(sizeof(WIN_WINDOW));
-   win_window->display = display;
-   win_window->window = my_window;
-   add = _al_vector_alloc_back(&win_window_list);
-   *add = win_window;
-
    return my_window;
+}
+
+
+/* _al_win_grab_input:
+ * Makes the passed display grab the input. All consequent input events will be
+ * generated the this display's window. The display's window must the the
+ * foreground window.
+ */
+void _al_win_grab_input(ALLEGRO_DISPLAY_WIN *win_disp)
+{
+   _al_win_wnd_schedule_proc(win_disp->window,
+                             _al_win_key_dinput_grab,
+                             win_disp);
+   _al_win_wnd_schedule_proc(win_disp->window,
+                             _al_win_mouse_dinput_grab,
+                             win_disp);
+   _al_win_wnd_schedule_proc(win_disp->window,
+                             _al_win_joystick_dinput_grab,
+                             win_disp);
+}
+
+
+/* _al_win_unacquire_input: [window thread]
+ * Called when the window looses focus to release the input.
+ */
+static void unacquire_input(ALLEGRO_DISPLAY_WIN *win_disp)
+{
+   _al_win_key_dinput_unacquire(win_disp);
+   _al_win_mouse_dinput_unacquire(win_disp);
+   _al_win_joystick_dinput_unacquire(win_disp);
 }
 
 
@@ -285,15 +296,15 @@ static LRESULT CALLBACK window_callback(HWND hWnd, UINT message,
    int h;
    int x;
    int y;
-   unsigned int i, j;
+   unsigned int i;
    ALLEGRO_EVENT_SOURCE *es = NULL;
    ALLEGRO_SYSTEM *system = al_system_driver();
-   WIN_WINDOW *win = NULL;
 
    wi.cbSize = sizeof(WINDOWINFO);
 
    if (message == _al_win_msg_call_proc) {
-      return ((int (*)(void))wParam) ();
+      ((void (*)(void*))wParam) ((void*)lParam);
+      return 0;
    }
 
    if (!system) {
@@ -303,236 +314,214 @@ static LRESULT CALLBACK window_callback(HWND hWnd, UINT message,
    for (i = 0; i < system->displays._size; i++) {
       ALLEGRO_DISPLAY **dptr = _al_vector_ref(&system->displays, i);
       d = *dptr;
-      for (j = 0; j < win_window_list._size; j++) {
-         WIN_WINDOW **wptr = _al_vector_ref(&win_window_list, j);
-         win = *wptr;
-         if (win->display == d && win->window == hWnd) {
-            es = &d->es;
-            goto found;
-         }
+      win_display = (void*)d;
+      if (win_display->window == hWnd) {
+         es = &d->es;
+         break;
       }
    }
-   found:
 
-   win_display = (ALLEGRO_DISPLAY_WIN *)d;
+   if (i == system->displays._size)
+      return DefWindowProc(hWnd,message,wParam,lParam); 
 
    if (message == _al_win_msg_suicide) {
-      if (win)
-         _AL_FREE(win);
-      _al_vector_find_and_delete(&win_window_list, &win);
+      win_display->end_thread = true;
       DestroyWindow(hWnd);
       return 0;
    }
 
-
-   if (i != system->displays._size) {
-      switch (message) {
-         case WM_PAINT: {
-            if ((win_display->display.flags & ALLEGRO_GENERATE_EXPOSE_EVENTS) &&
-                     _al_event_source_needs_to_generate_event(es)) {
-               RECT r;
-               HRGN hrgn;
-               GetWindowRect(win->window, &r);
-               hrgn = CreateRectRgn(r.left, r.top, r.right, r.bottom);
-               if (GetUpdateRgn(win->window, hrgn, FALSE) != ERROR) {
-                  PAINTSTRUCT ps;
-                  DWORD size;
-                  LPRGNDATA rgndata;
-                  int n;
-                  RECT *rects;
-                  BeginPaint(win->window, &ps);
-                  size = GetRegionData(hrgn, 0, NULL);
-                  rgndata = _AL_MALLOC(size);
-                  GetRegionData(hrgn, size, rgndata);
-                  n = rgndata->rdh.nCount;
-                  rects = (RECT *)rgndata->Buffer;
-                  GetWindowInfo(win->window, &wi);
-                  _al_event_source_lock(es);
-                  while (n--) {
-                     ALLEGRO_EVENT *event = _al_event_source_get_unused_event(es);
-                     if (event) {
-                        event->display.type = ALLEGRO_EVENT_DISPLAY_EXPOSE;
-                        event->display.timestamp = al_current_time();
-                        event->display.x = rects[n].left;
-                        event->display.y = rects[n].top;
-                        event->display.width = rects[n].right - rects[n].left;
-                        event->display.height = rects[n].bottom - rects[n].top;
-                        _al_event_source_emit_event(es, event);
-                     }
-                  }
-                  _al_event_source_unlock(es);
-                  _AL_FREE(rgndata);
-                  EndPaint(win->window, &ps);
-                  DeleteObject(hrgn);
-               }
-               return 0;
-            }
-            break;
-         }
-
-         case WM_MOUSEACTIVATE:
-            return MA_ACTIVATEANDEAT;
-         case WM_SETCURSOR:
-            switch (LOWORD(lParam)) {
-               case HTLEFT:
-               case HTRIGHT:
-                  SetCursor(LoadCursor(NULL, IDC_SIZEWE));
-                  break;
-               case HTBOTTOM:
-               case HTTOP:
-                  SetCursor(LoadCursor(NULL, IDC_SIZENS));
-                  break;
-               case HTBOTTOMLEFT:
-               case HTTOPRIGHT:
-                  SetCursor(LoadCursor(NULL, IDC_SIZENESW));
-                  break;
-               case HTBOTTOMRIGHT:
-               case HTTOPLEFT:
-                  SetCursor(LoadCursor(NULL, IDC_SIZENWSE));
-                  break;
-               default:
-                  if (win_display->mouse_cursor_shown) {
-                     SetCursor(win_display->mouse_selected_hcursor);
-                  }
-                  else {
-                     SetCursor(NULL);
-                  }
-                  break;
-            }
-            return 1;
-         case WM_ACTIVATE:
-            if (LOWORD(wParam) != WA_INACTIVE) {
-               //if (al_set_current_display((ALLEGRO_DISPLAY *)d)) {
-               QueueUserAPC((PAPCFUNC)_al_win_key_dinput_acquire,
-                            win_display->window_thread,
-                            (ULONG_PTR)&win_display->key_input);
-               _al_win_active_window = win->window;
-               win_grab_input();
-               if (d->vt->switch_in)
-               	  d->vt->switch_in(d);
+   switch (message) {
+      case WM_PAINT: {
+         if ((win_display->display.flags & ALLEGRO_GENERATE_EXPOSE_EVENTS) &&
+                  _al_event_source_needs_to_generate_event(es)) {
+            RECT r;
+            HRGN hrgn;
+            GetWindowRect(win_display->window, &r);
+            hrgn = CreateRectRgn(r.left, r.top, r.right, r.bottom);
+            if (GetUpdateRgn(win_display->window, hrgn, FALSE) != ERROR) {
+               PAINTSTRUCT ps;
+               DWORD size;
+               LPRGNDATA rgndata;
+               int n;
+               RECT *rects;
+               BeginPaint(win_display->window, &ps);
+               size = GetRegionData(hrgn, 0, NULL);
+               rgndata = _AL_MALLOC(size);
+               GetRegionData(hrgn, size, rgndata);
+               n = rgndata->rdh.nCount;
+               rects = (RECT *)rgndata->Buffer;
+               GetWindowInfo(win_display->window, &wi);
                _al_event_source_lock(es);
-                  if (_al_event_source_needs_to_generate_event(es)) {
-                     ALLEGRO_EVENT *event = _al_event_source_get_unused_event(es);
-                     if (event) {
-                        event->display.type = ALLEGRO_EVENT_DISPLAY_SWITCH_IN;
-                        event->display.timestamp = al_current_time();
-                        _al_event_source_emit_event(es, event);
-                     }
-                  }
-               _al_event_source_unlock(es);
-               return 0;
-            }
-            else {
-               for (j = 0; j < win_window_list._size; j++) {
-                  WIN_WINDOW **wptr = _al_vector_ref(&win_window_list, j);
-                  win = *wptr;
-                  if (win->window == (HWND)lParam) {
-                     break;
-                  }
-               }
-
-               if (j >= win_window_list._size) {
-                   QueueUserAPC((PAPCFUNC)_al_win_key_dinput_unacquire,
-                            win_display->window_thread,
-                            (ULONG_PTR)&win_display->key_input);
-                  //_al_win_ungrab_input();
-               }
-
-               if (d->flags & ALLEGRO_FULLSCREEN) {
-                  d->vt->switch_out(d);
-               }
-               _al_event_source_lock(es);
-                  if (_al_event_source_needs_to_generate_event(es)) {
-                     ALLEGRO_EVENT *event = _al_event_source_get_unused_event(es);
-                     if (event) {
-                        event->display.type = ALLEGRO_EVENT_DISPLAY_SWITCH_OUT;
-                        event->display.timestamp = al_current_time();
-                        _al_event_source_emit_event(es, event);
-                     }
-                  }
-               _al_event_source_unlock(es);
-               return 0;
-            }
-            break;
-         case WM_CLOSE:
-            _al_event_source_lock(es);
-            if (_al_event_source_needs_to_generate_event(es)) {
-               ALLEGRO_EVENT *event = _al_event_source_get_unused_event(es);
-               if (event) {
-                  event->display.type = ALLEGRO_EVENT_DISPLAY_CLOSE;
-                  event->display.timestamp = al_current_time();
-                  _al_event_source_emit_event(es, event);
-               }
-            }
-            _al_event_source_unlock(es);
-            return 0;
-         case WM_SIZE:
-            if (wParam == SIZE_RESTORED || wParam == SIZE_MAXIMIZED || wParam == SIZE_MINIMIZED) {
-               /*
-                * Delay the resize event so we don't get bogged down with them
-                */
-               if (!resize_postponed) {
-                  resize_postponed = true;
-                  postpone_resize(win->window);
-               }
-            }
-            return 0;
-         case WM_USER+0:
-            /* Generate a resize event if the size has changed. We cannot asynchronously
-             * change the display size here yet, since the user will only know about a
-             * changed size after receiving the resize event. Here we merely add the
-             * event to the queue.
-             */
-            GetWindowInfo(win->window, &wi);
-            x = wi.rcClient.left;
-            y = wi.rcClient.top;
-            w = wi.rcClient.right - wi.rcClient.left;
-            h = wi.rcClient.bottom - wi.rcClient.top;
-            if (d->w != w || d->h != h) {
-               _al_event_source_lock(es);
-               if (_al_event_source_needs_to_generate_event(es)) {
-                  ALLEGRO_EVENT *event = _al_event_source_get_unused_event(es);
-                  if (event) {
-                     event->display.type = ALLEGRO_EVENT_DISPLAY_RESIZE;
-                     event->display.timestamp = al_current_time();
-                     event->display.x = x;
-                     event->display.y = y;
-                     event->display.width = w;
-                     event->display.height = h;
-                     _al_event_source_emit_event(es, event);
-                  }
-               }
-
-               /* Generate an expose event. */
-               if (_al_event_source_needs_to_generate_event(es)) {
+               while (n--) {
                   ALLEGRO_EVENT *event = _al_event_source_get_unused_event(es);
                   if (event) {
                      event->display.type = ALLEGRO_EVENT_DISPLAY_EXPOSE;
                      event->display.timestamp = al_current_time();
-                     event->display.x = x;
-                     event->display.y = y;
-                     event->display.width = w;
-                     event->display.height = h;
+                     event->display.x = rects[n].left;
+                     event->display.y = rects[n].top;
+                     event->display.width = rects[n].right - rects[n].left;
+                     event->display.height = rects[n].bottom - rects[n].top;
                      _al_event_source_emit_event(es, event);
                   }
                }
                _al_event_source_unlock(es);
-               resize_postponed = false;
+               _AL_FREE(rgndata);
+               EndPaint(win_display->window, &ps);
+               DeleteObject(hrgn);
             }
             return 0;
-      } 
-   }
+         }
+         break;
+      }
+
+      case WM_SETCURSOR:
+         switch (LOWORD(lParam)) {
+            case HTLEFT:
+            case HTRIGHT:
+               SetCursor(LoadCursor(NULL, IDC_SIZEWE));
+               break;
+            case HTBOTTOM:
+            case HTTOP:
+               SetCursor(LoadCursor(NULL, IDC_SIZENS));
+               break;
+            case HTBOTTOMLEFT:
+            case HTTOPRIGHT:
+               SetCursor(LoadCursor(NULL, IDC_SIZENESW));
+               break;
+            case HTBOTTOMRIGHT:
+            case HTTOPLEFT:
+               SetCursor(LoadCursor(NULL, IDC_SIZENWSE));
+               break;
+            default:
+               if (win_display->mouse_cursor_shown) {
+                  SetCursor(win_display->mouse_selected_hcursor);
+               }
+               else {
+                  SetCursor(NULL);
+               }
+               break;
+         }
+         return 1;
+      case WM_ACTIVATE:
+         if (LOWORD(wParam) != WA_INACTIVE) {
+            _al_win_grab_input(win_display);
+            if (d->vt->switch_in)
+            	  d->vt->switch_in(d);
+            _al_event_source_lock(es);
+               if (_al_event_source_needs_to_generate_event(es)) {
+                  ALLEGRO_EVENT *event = _al_event_source_get_unused_event(es);
+                  if (event) {
+                     event->display.type = ALLEGRO_EVENT_DISPLAY_SWITCH_IN;
+                     event->display.timestamp = al_current_time();
+                     _al_event_source_emit_event(es, event);
+                  }
+               }
+            _al_event_source_unlock(es);
+            return 0;
+         }
+         else {
+            unacquire_input(win_display);
+            if (d->flags & ALLEGRO_FULLSCREEN) {
+               d->vt->switch_out(d);
+            }
+            _al_event_source_lock(es);
+               if (_al_event_source_needs_to_generate_event(es)) {
+                  ALLEGRO_EVENT *event = _al_event_source_get_unused_event(es);
+                  if (event) {
+                     event->display.type = ALLEGRO_EVENT_DISPLAY_SWITCH_OUT;
+                     event->display.timestamp = al_current_time();
+                     _al_event_source_emit_event(es, event);
+                  }
+               }
+            _al_event_source_unlock(es);
+            return 0;
+         }
+         break;
+      case WM_INITMENUPOPUP:
+         win_display->is_in_sysmenu = true;
+         _al_win_mouse_set_sysmenu(true);
+         return 0;
+      case WM_MENUSELECT:
+         if ((HIWORD(wParam) == 0xFFFF) && (!lParam)) {
+            win_display->is_in_sysmenu = false;
+            _al_win_mouse_set_sysmenu(false);
+         }
+         return 0;
+      case WM_MENUCHAR :
+         return (MNC_CLOSE << 16) | (wParam & 0xffff);
+      case WM_CLOSE:
+         _al_event_source_lock(es);
+         if (_al_event_source_needs_to_generate_event(es)) {
+            ALLEGRO_EVENT *event = _al_event_source_get_unused_event(es);
+            if (event) {
+               event->display.type = ALLEGRO_EVENT_DISPLAY_CLOSE;
+               event->display.timestamp = al_current_time();
+               _al_event_source_emit_event(es, event);
+            }
+         }
+         _al_event_source_unlock(es);
+         return 0;
+      case WM_SIZE:
+         if (wParam == SIZE_RESTORED || wParam == SIZE_MAXIMIZED || wParam == SIZE_MINIMIZED) {
+            /*
+             * Delay the resize event so we don't get bogged down with them
+             */
+            if (!resize_postponed) {
+               resize_postponed = true;
+               postpone_resize(win_display->window);
+            }
+         }
+         return 0;
+      case WM_USER+0:
+         /* Generate a resize event if the size has changed. We cannot asynchronously
+          * change the display size here yet, since the user will only know about a
+          * changed size after receiving the resize event. Here we merely add the
+          * event to the queue.
+          */
+         GetWindowInfo(win_display->window, &wi);
+         x = wi.rcClient.left;
+         y = wi.rcClient.top;
+         w = wi.rcClient.right - wi.rcClient.left;
+         h = wi.rcClient.bottom - wi.rcClient.top;
+         if (d->w != w || d->h != h) {
+            _al_event_source_lock(es);
+            if (_al_event_source_needs_to_generate_event(es)) {
+               ALLEGRO_EVENT *event = _al_event_source_get_unused_event(es);
+               if (event) {
+                  event->display.type = ALLEGRO_EVENT_DISPLAY_RESIZE;
+                  event->display.timestamp = al_current_time();
+                  event->display.x = x;
+                  event->display.y = y;
+                  event->display.width = w;
+                  event->display.height = h;
+                  _al_event_source_emit_event(es, event);
+               }
+            }
+
+            /* Generate an expose event. */
+            if (_al_event_source_needs_to_generate_event(es)) {
+               ALLEGRO_EVENT *event = _al_event_source_get_unused_event(es);
+               if (event) {
+                  event->display.type = ALLEGRO_EVENT_DISPLAY_EXPOSE;
+                  event->display.timestamp = al_current_time();
+                  event->display.x = x;
+                  event->display.y = y;
+                  event->display.width = w;
+                  event->display.height = h;
+                  _al_event_source_emit_event(es, event);
+               }
+            }
+            _al_event_source_unlock(es);
+            resize_postponed = false;
+         }
+         return 0;
+   } 
 
    return DefWindowProc(hWnd,message,wParam,lParam); 
 }
 
 int _al_win_init_window()
 {
-   if (_al_win_msg_call_proc == 0 && _al_win_msg_suicide == 0) {
-      _al_win_msg_call_proc = RegisterWindowMessage("Allegro call proc");
-      _al_win_msg_suicide = RegisterWindowMessage("Allegro window suicide");
-   }
-
    // Create A Window Class Structure 
    window_class.cbClsExtra = 0;
    window_class.cbWndExtra = 0; 
@@ -545,15 +534,14 @@ int _al_win_init_window()
    window_class.lpszMenuName = NULL;
    window_class.style = CS_VREDRAW|CS_HREDRAW|CS_OWNDC;
 
-   window_identifier = RegisterClass(&window_class);
+   RegisterClass(&window_class);
+
+   if (_al_win_msg_call_proc == 0 && _al_win_msg_suicide == 0) {
+      _al_win_msg_call_proc = RegisterWindowMessage("Allegro call proc");
+      _al_win_msg_suicide = RegisterWindowMessage("Allegro window suicide");
+   }
 
    return true;
-}
-
-void _al_win_ungrab_input()
-{
-   ASSERT(0);
-   //PostMessage(_al_win_active_window, _al_win_msg_call_proc, (DWORD)key_dinput_unacquire, 0);
 }
 
 
@@ -609,7 +597,7 @@ void _al_win_get_window_position(HWND window, int *x, int *y)
 {
    RECT r;
 
-   _al_win_get_window_pos(window, &r);
+   get_window_pos(window, &r);
 
    if (x) {
       *x = r.left;
@@ -619,33 +607,6 @@ void _al_win_get_window_position(HWND window, int *x, int *y)
    }
 }
 
-
-ALLEGRO_DISPLAY *_al_win_get_event_display(void)
-{
-   ALLEGRO_DISPLAY *d;
-   unsigned int i, j;
-   WIN_WINDOW *win = NULL;
-   HWND foreground_window = _al_win_active_window;
-   ALLEGRO_SYSTEM *system = al_system_driver();
-
-   for (i = 0; i < system->displays._size; i++) {
-      ALLEGRO_DISPLAY **dptr = _al_vector_ref(&system->displays, i);
-      d = *dptr;
-      for (j = 0; j < win_window_list._size; j++) {
-         WIN_WINDOW **wptr = _al_vector_ref(&win_window_list, j);
-         win = *wptr;
-         if (win->display == d && win->window == foreground_window) {
-            goto found;
-         }
-      }
-   }
-
-   return al_get_current_display();
-
-   found:
-
-   return d;
-}
 
 void _al_win_toggle_window_frame(ALLEGRO_DISPLAY *display, HWND hWnd,
    int w, int h, bool onoff)
@@ -694,3 +655,28 @@ void _al_win_set_window_title(ALLEGRO_DISPLAY *display, AL_CONST char *title)
    SetWindowText(win_display->window, title);
 }
 
+
+/* _al_win_wnd_call_proc:
+ *  instructs the specifed window thread to call the specified procedure. Waits
+ *  until the procedure has returned.
+ */
+void _al_win_wnd_call_proc(HWND wnd, void (*proc) (void*), void* param)
+{
+   ASSERT(_al_win_msg_call_proc);
+   SendMessage(wnd, _al_win_msg_call_proc, (WPARAM)proc, (LPARAM)param);
+}
+
+
+/* _al_win_wnd_schedule_proc:
+ *  instructs the specifed window thread to call the specified procedure but
+ *  doesn't wait until the procedure has returned.
+ */
+void _al_win_wnd_schedule_proc(HWND wnd, void (*proc) (void*), void* param)
+{
+   ASSERT(_al_win_msg_call_proc);
+   if (!PostMessage(wnd, _al_win_msg_call_proc, (WPARAM)proc, (LPARAM)param)) {
+      TRACE(PREFIX_E "_al_win_wnd_schedule_proc failed.\n");
+   }
+}
+
+/* vi: set ts=8 sts=3 sw=3 et: */

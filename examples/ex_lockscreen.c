@@ -9,7 +9,11 @@ int main(void)
    ALLEGRO_EVENT_QUEUE *events;
    ALLEGRO_EVENT event;
 
-   al_init();
+   if (!al_init()) {
+      TRACE("Could not init Allegro.\n");
+      return 1;
+   }
+
    al_install_keyboard();
 
    al_set_new_display_format(ALLEGRO_PIXEL_FORMAT_ANY_32_NO_ALPHA);

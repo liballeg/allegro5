@@ -35,13 +35,17 @@ def do_build(context, env, source, dir, name, examples = [],
         exampleEnv.Append(LIBS = example_libs + libs)
     
         def install():
-            installDir = getOption(env, 'install','/usr/local')
+            import os
+            # installDir = getOption(env, 'install')
+            prefix = context.temporaryInstallDir()
             targets = []
-            def add(t):
-                targets.append(t)
-            add(env.Install(installDir + '/lib/', lib))
+            def add(dir, t):
+                path = os.path.join('..', '..', prefix, dir)
+                # path = os.path.join(prefix, dir)
+                targets.append(env.Install(path, t))
+            add('lib', lib)
             for header in install_headers:
-	            add(env.Install(installDir + '/include/allegro5/', '%s' % (header)))
+                add('include/allegro5/', '%s' % (header))
             return targets
 
         # env.Alias('install', install())
@@ -51,7 +55,7 @@ def do_build(context, env, source, dir, name, examples = [],
         context.alias('all-addons', all)
         context.alias('all-addons/%s' % name, all)
     
-        return all
+        return install()
 
-    build(env, 'lib' )
+    return build(env, 'lib')
     # context.addExtra(build,depends = True)
