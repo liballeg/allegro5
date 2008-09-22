@@ -39,6 +39,9 @@ bool al_iio_init(void)
 #ifdef ALLEGRO_CFG_IIO_HAVE_PNG
    success |= al_iio_add_handler("png", iio_load_png, iio_save_png);
 #endif
+#ifdef ALLEGRO_CFG_IIO_HAVE_JPG
+   success |= al_iio_add_handler("jpg", iio_load_jpg, iio_save_jpg);
+#endif
 
    if (success)
       inited = true;

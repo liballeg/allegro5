@@ -12,6 +12,17 @@ if(WANT_PNG)
     endif(PNG_FOUND)
 endif(WANT_PNG)
 
+if(WANT_JPG)
+    find_package(JPEG)
+    if(JPEG_FOUND)
+        set(ALLEGRO_CFG_IIO_HAVE_JPG 1)
+        list(APPEND IIO_SOURCES jpg.c)
+        list(APPEND IIO_LIBRARIES ${JPEG_LIBRARIES})
+        list(APPEND IIO_DEFINES ${JPEG_DEFINITIONS})
+        include_directories(${JPEG_INCLUDE_DIR})
+    endif(JPEG_FOUND)
+endif(WANT_JPG)
+
 configure_file(
     allegro5/internal/aintern_iio_cfg.h.cmake
     ${CMAKE_BINARY_DIR}/include/allegro5/internal/aintern_iio_cfg.h

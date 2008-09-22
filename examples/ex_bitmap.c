@@ -5,10 +5,11 @@ int main(int argc, const char *argv[])
 {
     const char *filename;
     ALLEGRO_DISPLAY *display;
-    ALLEGRO_BITMAP *bitmap;
+    ALLEGRO_BITMAP *membitmap, *bitmap;
     ALLEGRO_TIMER *timer;
     ALLEGRO_EVENT_QUEUE *queue;
     bool redraw = true;
+    double zoom = 1;
 
     if (argc > 1) {
        filename = argv[1];
@@ -34,13 +35,25 @@ int main(int argc, const char *argv[])
     }
     
     al_set_window_title(filename);
-
-    bitmap = al_iio_load(filename);
+    
+    /* We load the bitmap into a memory bitmap, because creating a
+     * display bitmap could fail if the bitmap is too big to fit into a
+     * single texture.
+     * FIXME: Or should A5 automatically created multiple display bitmaps?
+     */
+    al_set_new_bitmap_flags(ALLEGRO_MEMORY_BITMAP);
+    membitmap = al_iio_load(filename);
     if (!bitmap) {
        TRACE("%s not found or failed to load", filename);
        return 1;
     }
+    al_set_new_bitmap_flags(0);
     
+    // FIXME: 
+    // Now try to split the memory bitmap into display bitmaps?
+    bitmap = al_clone_bitmap(membitmap);
+    if (!bitmap) bitmap = membitmap;
+
     timer = al_install_timer(1.0 / 30);
     queue = al_create_event_queue();
     al_register_event_source(queue, (ALLEGRO_EVENT_SOURCE *)al_get_keyboard());
@@ -53,16 +66,30 @@ int main(int argc, const char *argv[])
         al_wait_for_event(queue, &event);
         if (event.type == ALLEGRO_EVENT_DISPLAY_CLOSE)
             break;
-        if (event.type == ALLEGRO_EVENT_KEY_DOWN &&
-                event.keyboard.keycode == ALLEGRO_KEY_ESCAPE) {
-            break;
+        if (event.type == ALLEGRO_EVENT_KEY_DOWN) {
+            if (event.keyboard.keycode == ALLEGRO_KEY_ESCAPE)
+                break;
+            if (event.keyboard.unichar == '1')
+                zoom = 1;
+            if (event.keyboard.unichar == '+')
+                zoom *= 1.1;
+            if (event.keyboard.unichar == '-')
+                zoom /= 1.1;
+            if (event.keyboard.unichar == 'f')
+                zoom = (double)al_get_display_width() /
+                    al_get_bitmap_width(bitmap);
         }
         if (event.type == ALLEGRO_EVENT_TIMER)
             redraw = true;
             
         if (redraw && al_event_queue_is_empty(queue)) {
             redraw = false;
-            al_draw_bitmap(bitmap, 0, 0, 0);
+            al_clear(al_map_rgb_f(0, 0, 0));
+            if (zoom == 1)
+                al_draw_bitmap(bitmap, 0, 0, 0);
+            else
+                al_draw_rotated_scaled_bitmap(
+                    bitmap, 0, 0, 0, 0, zoom, zoom, 0, 0);
             al_flip_display();
         }
     }

@@ -15,23 +15,24 @@ tests = {}
 
 def setupPlatform(settings, config):
     settings["ALLEGRO_CFG_IIO_HAVE_PNG"] = config.CheckHeader("png.h") and\
-            config.CheckLib("png")
+        config.CheckLib("png")
+    settings["ALLEGRO_CFG_IIO_HAVE_JPG"] = config.CheckHeader(["stdio.h",
+        "stdlib.h", "jpeglib.h"]) and config.CheckLib("jpeg")
     return config.Finish()
 
 settings, configure_env = helpers.do_configure('iio', context,
-                            tests, setupPlatform,
-                            'allegro5/internal/aintern_iio_cfg.h.cmake',
-                            'allegro5/internal/aintern_iio_cfg.h',
-                            getArgumentOption('config', 0))
+    tests, setupPlatform,
+    'allegro5/internal/aintern_iio_cfg.h.cmake',
+    'allegro5/internal/aintern_iio_cfg.h',
+    getArgumentOption('config', 0))
 
-
-env.Append(LIBS = ['png','z'])
+env.Append(LIBS = ['png', 'z', 'jpeg'])
 
 result = addons.do_build(
     context = context,
     env = myEnv,
-    source = ["bmp.c", "iio.c", "pcx.c", "tga.c", "png.c"],
-    libs = ["png", "z"],
+    source = ["bmp.c", "iio.c", "pcx.c", "tga.c", "png.c", "jpg.c"],
+    libs = ["png", "z", "jpeg"],
     dir = "iio",
     name = "a5_iio",
     install_headers = ["allegro5/a5_iio.h",
