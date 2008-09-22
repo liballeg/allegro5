@@ -29,7 +29,7 @@ int main(int argc, const char *argv[])
 
     display = al_create_display(320, 200);
     if (!display) {
-       TRACE("Error creating display");
+       TRACE("Error creating display\n");
        return 1;
     }
     
