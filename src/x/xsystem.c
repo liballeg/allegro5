@@ -257,7 +257,7 @@ static int xglx_get_num_video_adapters(void)
 }
 
 // FIXME: Implement. Right now it just reads the root window size and ignores
-// the adapeter number.
+// the adapter number.
 static void xglx_get_monitor_info(int adapter, ALLEGRO_MONITOR_INFO *info)
 {
    ALLEGRO_SYSTEM_XGLX *system = (void *)al_system_driver();
