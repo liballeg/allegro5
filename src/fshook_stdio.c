@@ -278,11 +278,11 @@ void al_fs_stdio_close_handle(AL_FS_ENTRY *handle)
 AL_FS_ENTRY *al_fs_stdio_fopen(const char *path, const char *mode)
 {
    AL_FS_ENTRY *fh = al_fs_stdio_create_handle(path);
-   if(al_fs_stdio_open_handle(fh, mode) != 0) {
+   if(al_fs_stdio_open_handle(fh, mode) != 0 || fh->stat_mode & AL_FM_ISDIR) {
       al_fs_stdio_destroy_handle(fh);
       return NULL;
    }
-
+   
    fh->free_on_fclose = 1;
    return fh;
 }

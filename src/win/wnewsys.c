@@ -380,6 +380,7 @@ static AL_CONST char *win_get_path(uint32_t id, char *dir, size_t size)
          *ptr = '\0';
 
          do_uconvert (path, U_ASCII, dir, U_CURRENT, strlen(path)+1);
+         ustrcat(dir, "\\");
          return dir;
       } break;
 
@@ -405,7 +406,8 @@ static AL_CONST char *win_get_path(uint32_t id, char *dir, size_t size)
    }
 
    do_uconvert (path, U_ASCII, dir, U_CURRENT, strlen(path)+1);
-
+   ustrcat(dir, "\\");
+   
    return dir;
 }
 

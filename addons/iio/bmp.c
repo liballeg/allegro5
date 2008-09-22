@@ -828,7 +828,7 @@ ALLEGRO_BITMAP *iio_load_bmp(AL_CONST char *filename)
    ALLEGRO_BITMAP *bmp;
    ASSERT(filename);
 
-   f = al_fs_entry_open(filename, "r");
+   f = al_fs_entry_open(filename, "rb");
    if (!f)
       return NULL;
 
@@ -850,7 +850,7 @@ int iio_save_bmp(AL_CONST char *filename, ALLEGRO_BITMAP *bmp)
    int ret;
    ASSERT(filename);
 
-   f = al_fs_entry_open(filename, "w");
+   f = al_fs_entry_open(filename, "wb");
    if (!f) 
       return -1;
 
