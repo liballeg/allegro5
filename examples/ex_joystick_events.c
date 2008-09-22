@@ -127,7 +127,6 @@ int main(void)
    ALLEGRO_DISPLAY *display;
    ALLEGRO_JOYSTICK *zero_joy;
    ALLEGRO_JOYSTICK_STATE jst;
-   int num;
    int i;
 
    if (!al_init()) {

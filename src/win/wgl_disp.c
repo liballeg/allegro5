@@ -46,8 +46,8 @@ static void wgl_destroy_display(ALLEGRO_DISPLAY *display);
  */
 typedef struct new_display_parameters {
    ALLEGRO_DISPLAY_WGL *display;
-   bool init_failed;
-   bool initialized;
+   volatile bool init_failed;
+   volatile bool initialized;
 } new_display_parameters;
 
 

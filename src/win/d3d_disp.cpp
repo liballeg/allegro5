@@ -77,8 +77,8 @@ static DWORD d3d_mag_filter = D3DTEXF_POINT;
  */
 typedef struct new_display_parameters {
    ALLEGRO_DISPLAY_D3D *display;
-   bool init_failed;
-   bool initialized;
+   volatile bool init_failed;
+   volatile bool initialized;
 } new_display_parameters;
 
 
