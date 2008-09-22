@@ -33,6 +33,13 @@
    #include <mmsystem.h>
 #endif
 
+/* FIXME: should we check for psapi _WIN32_IE and shlobj?
+{ */
+   #include <psapi.h>
+
+   #define _WIN32_IE 0x500
+   #include <shlobj.h>
+/* } */
 
 static ALLEGRO_SYSTEM_INTERFACE *vt = 0;
 static bool using_higher_res_timer;
