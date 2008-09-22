@@ -55,6 +55,9 @@ char *al_path_absolute(AL_PATH *path, char *buffer, size_t len, char delim);
 char *al_path_relative(AL_PATH *path, char *buffer, size_t len, char delim);
 char *al_path_cannonical(AL_PATH *path, char *buffer, size_t len, char delim);
 
+uint32_t al_path_exists(AL_PATH *path);
+uint32_t al_path_emode(AL_PATH *path, uint32_t mode);
+
 AL_END_EXTERN_C
 
 #endif /* ALLEGRO_PATH_H */

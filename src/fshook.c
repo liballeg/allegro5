@@ -21,6 +21,7 @@
 #include "allegro5/fshook.h"
 #include "allegro5/internal/fshook.h"
 #include "allegro5/internal/aintern_memory.h"
+#include "allegro5/path.h"
 
 struct AL_FS_HOOK_SYS_INTERFACE  *_al_sys_fshooks = &_al_stdio_sys_fshooks;
 struct AL_FS_HOOK_ENTRY_INTERFACE *_al_entry_fshooks = &_al_stdio_entry_fshooks;
@@ -610,6 +611,111 @@ int32_t al_fs_entry_ungetc(int32_t c, AL_FS_ENTRY *fp)
    ASSERT(fp != NULL);
 
    return _al_fs_hook_entry_ungetc(c, fp);
+}
+
+/* maybe find a better place for this later */
+int32_t _al_find_resource_exists(char *path, char *base, char *resource, uint32_t fm, char *buffer, size_t len)
+{
+   AL_PATH fp, resp;
+   int32_t ret = 0;
+
+   memset(buffer, 0, len);
+   
+   al_path_init(&fp, path);
+   al_path_append(&fp, base);
+   
+   if(resource) {
+      al_path_init(&resp, resource);
+      al_path_concat(&fp, &resp);
+      al_path_free(&resp);
+   }
+   
+   al_path_to_string(&fp, buffer, len, ALLEGRO_NATIVE_PATH_SEP);
+   printf("_find_resource: '%s' exists:%i sfm:%i fm:%i eq:%i\n", buffer, al_fs_exists(buffer), al_fs_stat_mode(buffer), fm, (al_fs_stat_mode(buffer) & fm) == fm);
+   if(al_fs_exists(buffer) && (al_fs_stat_mode(buffer) & fm) == fm) {
+      ret = 1;
+   } else
+   if(fm & AL_FM_WRITE) {
+      char *rchr = ustrchr(buffer, ALLEGRO_NATIVE_PATH_SEP);
+      if(rchr) {
+         usetc(rchr, '\0');
+      
+         printf("testing '%s' for WRITE perms.\n", buffer);
+         if(al_fs_exists(buffer) && al_fs_stat_mode(buffer) & AL_FM_WRITE) {
+            ret = 1;
+         }
+
+         usetc(rchr, ALLEGRO_NATIVE_PATH_SEP);
+      }
+   }
+   
+   al_path_free(&fp);
+   
+   return ret;
+}
+
+char *al_find_resource(char *base, char *resource, uint32_t fm, char *buffer, size_t len)
+{
+   AL_PATH path, resp;
+   char tmp[PATH_MAX];
+   char base_new[256];
+   
+   ASSERT(base != NULL);
+   ASSERT(resource != NULL);
+   ASSERT(buffer != NULL);
+
+   fm |= AL_FM_READ;
+   
+   memset(buffer, 0, len);
+   
+#ifdef ALLEGRO_WINDOWS
+   memset(base_new, 0, 256);
+#else
+   ustrcpy(base_new, ".");
+#endif
+   
+   ustrcat(base_new, base);
+   
+   al_get_path(AL_USER_DATA_PATH, tmp, PATH_MAX);
+   printf("find_resource: AL_USER_DATA_PATH\n");
+   if(_al_find_resource_exists(tmp, base_new, resource, fm, buffer, len)) {
+      return buffer;
+   }
+   
+   al_get_path(AL_PROGRAM_PATH, tmp, PATH_MAX);
+   printf("find_resource: AL_PROGRAM_PATH\n");
+   if(_al_find_resource_exists(tmp, "data", resource, fm, buffer, len)) {
+      return buffer;
+   }
+   
+   al_fs_getcwd(tmp, PATH_MAX);
+   printf("find_resource: getcwd\n");
+   if(_al_find_resource_exists(tmp, "data", resource, fm, buffer, len)) {
+      return buffer;
+   }
+   
+   al_get_path(AL_SYSTEM_DATA_PATH, tmp, PATH_MAX);
+   printf("find_resource: AL_SYSTEM_DATA_PATH\n");
+   if(_al_find_resource_exists(tmp, base_new, resource, fm, buffer, len)) {
+      return buffer;
+   }
+
+   /* file didn't exist anywhere, lets return whatever we can */
+
+   al_get_path(AL_USER_DATA_PATH, tmp, PATH_MAX);
+   printf("find_resource: def AL_USER_DATA_PATH\n");
+   al_path_init(&path, tmp);
+   al_path_append(&path, base_new);
+   
+   if(resource) {
+      al_path_init(&resp, resource);
+      al_path_concat(&path, &resp);
+      al_path_free(&resp);
+   }
+   
+   al_path_to_string(&path, buffer, len, ALLEGRO_NATIVE_PATH_SEP);
+   
+   return buffer;
 }
 
 /* for you freaks running vim/emacs. */

@@ -230,6 +230,7 @@ char ** al_fs_find_ex(char *path, AL_FILTER_PROC filter, void *, AL_SORT_PROC so
 char ** al_fs_find(char *path, AL_FS_FILTER filter, AL_FS_SORT sort);
 void al_fs_free_list(char **);
 
+char *al_find_resource(char *base, char *resource, uint32_t fm, char *buffer, size_t len);
 
 #ifdef __cplusplus
    }

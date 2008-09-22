@@ -3,6 +3,7 @@
 #include "allegro5/path.h"
 #include "allegro5/unicode.h"
 #include "allegro5/internal/aintern_memory.h"
+#include "allegro5/fshook.h"
 
 static char *_ustrduprange(const char *start, const char *end)
 {
@@ -98,7 +99,7 @@ static int32_t _parse_path(const char *p, char **drive, char **path, char **file
       *drive = uncdrive;
    }
    // drive name
-   else if(ugetc(ptr) != dirsep && ugetat(ptr, 1) == ALLEGRO_NATIVE_DRIVE_SEP) {
+   else if(ugetc(ptr) != dirsep && ugetat(ptr, 1) == dirsep) {
       char *tmp = NULL;
 
       tmp = _ustrduprange(ptr, ptr+uoffset(ptr, 2));
@@ -108,13 +109,16 @@ static int32_t _parse_path(const char *p, char **drive, char **path, char **file
       }
 
       *drive = tmp;
-      ptr = ustrchr(ptr, dirsep);
+      ptr = ustrchr(ptr+uoffset(ptr,1), dirsep);
    }
 
    if(!ptr || !ugetc(ptr)) {
       // no path, or file info
       return 0;
    }
+   
+   //if(ptr)
+    //  ptr+=uoffset(ptr, 1);
 #endif
 
    // grab path, and/or file info
@@ -136,7 +140,7 @@ static int32_t _parse_path(const char *p, char **drive, char **path, char **file
       *file = file_info;
       return 0;
    }
-   else if(ugetat(path_info_end, 2)) {
+   else if(ugetat(path_info_end, 1)) {
       // dirsep is not at end
       char *file_info = NULL;
       char *tmp_file_info = path_info_end+uoffset(path_info_end, 1);
@@ -194,7 +198,7 @@ static char **_split_path(char *path, int32_t *num)
    char **arr = NULL, *ptr = NULL, *lptr = NULL;
    int32_t count = 0, i = 0;
 
-   printf("_split_path: '%s'\n", path);
+   //printf("_split_path: '%s'\n", path);
 
    for(ptr=path; ugetc(ptr); ptr+=ucwidth(*ptr)) {
       if(ugetc(ptr) == '/')
@@ -420,7 +424,7 @@ void al_path_insert(AL_PATH *path, int i, const char *s)
 
    path->segment = tmp;
 
-   printf("path_insert[%i]: '%s'\n", i, tmps);
+   //printf("path_insert[%i]: '%s'\n", i, tmps);
 
    memmove(path->segment+i, path->segment+i+1, path->segment_count - i);
    path->segment[i] = tmps;
@@ -464,12 +468,12 @@ void al_path_concat(AL_PATH *path, const AL_PATH *tail)
       }
    }
 
-   if(path->filename) {
+   if(tail->filename) {
       new_filename = ustrdup(tail->filename);
       if(!new_filename)
          return;
 
-      _AL_FREE(path->filename);
+      if(path->filename) _AL_FREE(path->filename);
       path->filename = new_filename;
    }
 
@@ -512,9 +516,9 @@ char *al_path_to_string(AL_PATH *path, char *buffer, size_t len, char delim)
       ustrzncat(buffer, len, d, 1);
    }
 
-   printf("path->segment_count: %i\n", path->segment_count);
+   //printf("path->segment_count: %i\n", path->segment_count);
    for(i=0; i < path->segment_count; i++) {
-      printf("segment: '%p'\n", path->segment[i]);
+      //printf("segment: '%p'\n", path->segment[i]);
       ustrzncat(buffer, len, path->segment[i], ustrlen(path->segment[i]));
       ustrzncat(buffer, len, d, 1);
    }
@@ -643,3 +647,22 @@ const char *al_path_get_basename(AL_PATH *path, char *buf, size_t len)
    return buf;
 }
 
+uint32_t al_path_exists(AL_PATH *path)
+{
+   char buffer[PATH_MAX];
+   ASSERT(path);
+   
+   al_path_to_string(path, buffer, PATH_MAX, ALLEGRO_NATIVE_PATH_SEP);
+   
+   return al_fs_exists(buffer);
+}
+
+uint32_t al_path_emode(AL_PATH *path, uint32_t mode)
+{
+   char buffer[PATH_MAX];
+   ASSERT(path);
+   
+   al_path_to_string(path, buffer, PATH_MAX, ALLEGRO_NATIVE_PATH_SEP);
+   
+   return (al_fs_stat_mode(path) & mode) == mode;
+}

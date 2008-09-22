@@ -57,6 +57,8 @@
    #endif
 #endif
 
+#include "allegro5/path.h"
+
 #define PREFIX_I "al-fs-stdio INFO: "
 
 /* FIXME:
@@ -174,6 +176,15 @@ AL_FS_ENTRY *al_fs_stdio_create_handle(AL_CONST char *path)
       fh->stat_mode |= AL_FM_WRITE;
 
    if(fh->st.st_mode & S_IXUSR || fh->st.st_mode & S_IXGRP)
+      fh->stat_mode |= AL_FM_EXECUTE;
+#else
+   if(fh->st.st_mode & S_IRUSR)
+      fh->stat_mode |= AL_FM_READ;
+
+   if(fh->st.st_mode & S_IWUSR)
+      fh->stat_mode |= AL_FM_WRITE;
+
+   if(fh->st.st_mode & S_IXUSR)
       fh->stat_mode |= AL_FM_EXECUTE;
 #endif
 
@@ -457,25 +468,25 @@ off_t al_fs_stdio_entry_size(AL_FS_ENTRY *ent)
 
 uint32_t al_fs_stdio_entry_mode(AL_FS_ENTRY *ent)
 {
-   ASSERT(ent && ent->handle);
+   ASSERT(ent);
    return ent->stat_mode;
 }
 
 time_t al_fs_stdio_entry_atime(AL_FS_ENTRY *ent)
 {
-   ASSERT(ent && ent->handle);
+   ASSERT(ent);
    return ent->st.st_atime;
 }
 
 time_t al_fs_stdio_entry_mtime(AL_FS_ENTRY *ent)
 {
-   ASSERT(ent && ent->handle);
+   ASSERT(ent);
    return ent->st.st_mtime;
 }
 
 time_t al_fs_stdio_entry_ctime(AL_FS_ENTRY *ent)
 {
-   ASSERT(ent && ent->handle);
+   ASSERT(ent);
    return ent->st.st_ctime;
 }
 
@@ -581,11 +592,13 @@ AL_FS_ENTRY *al_fs_stdio_mktemp(const char *template, uint32_t ulink)
 int32_t al_fs_stdio_getcwd(char *buf, size_t len)
 {
    char *cwd = getcwd(buf, len);
+   char sep[2] = { ALLEGRO_NATIVE_PATH_SEP, 0 };
    if(!cwd) {
       al_set_errno(errno);
       return -1;
    }
 
+   ustrcat(buf, sep);
    return 0;
 }
 

@@ -19,103 +19,32 @@ bool joy_installed = false;
 
 const char* getUserResource(const char* fmt, ...) throw (Error)
 {
-   AL_PATH path;
    va_list ap;
+   static char res[512];
    static char name[MAX_PATH];
-
-   // Create the user resource directory
-   char userDir[991];
-   al_get_path(AL_USER_DATA_PATH, userDir, 991);
-   al_path_init(&path, userDir);
-
-#ifdef ALLEGRO_WINDOWS
-   al_path_append(&path, "a5teroids");
-#else
-   al_path_append(&path, ".a5teroids");
-#endif
-
-   al_path_to_string(&path, userDir, 991, ALLEGRO_NATIVE_PATH_SEP);
-   al_path_free(&path);
-
-   if (!al_fs_exists(userDir)) {
-      if(al_fs_mkdir(userDir) == -1) {
-         throw Error("The user resource directory could not be created.\n");
-      }
-   }
-
-   ustrcpy(name, userDir);
-
+   
    va_start(ap, fmt);
-   uvszprintf(name+strlen(name), MAX_PATH-1, fmt, ap);
-   return name;
+   memset(res, 0, 512);
+   uvszprintf(res, 511, fmt, ap);
+
+   al_find_resource("a5teroids", res, AL_FM_WRITE, name, MAX_PATH);
+   
+   printf("getUserResource: '%s'\n", name);
 }
-
-
-
-/*
-* Get the path to the game resources. First checks for a
-* MONSTER_DATA environment variable that points to the resources,
-* then a system-wide resource directory then the directory
-* "data" from the current directory.
-*/
-static char* resourcePath()
-{
-   AL_PATH paths;
-   static char path[MAX_PATH];
-   char sep[2] = { ALLEGRO_NATIVE_PATH_SEP, '\0' };
-   char* env = getenv("A5TEROIDS_DATA");
-
-   if (env) {
-      al_path_init(&paths, env);
-      al_path_to_string(&paths, path, PATH_MAX, ALLEGRO_NATIVE_PATH_SEP);
-
-      if(!al_fs_exists(path)) {
-         al_path_free(&paths);
-
-         al_get_path(AL_SYSTEM_DATA_PATH, path, MAX_PATH);
-         al_path_init(&paths, path);
-         al_path_append(&paths, "a5teroids");
-         al_path_to_string(&paths, path, PATH_MAX, ALLEGRO_NATIVE_PATH_SEP);
-
-         if(!al_fs_exists(path)) {
-            al_path_free(&paths);
-            al_path_init(&paths, "data/");
-         }
-      }
-   }
-   else {
-      al_get_path(AL_SYSTEM_DATA_PATH, path, MAX_PATH);
-      al_path_init(&paths, path);
-      al_path_append(&paths, "a5teroids");
-      al_path_to_string(&paths, path, PATH_MAX, ALLEGRO_NATIVE_PATH_SEP);
-
-      if(!al_fs_exists(path)) {
-         al_path_free(&paths);
-         al_path_init(&paths, "data/");
-      }
-   }
-
-   al_path_to_string(&paths, path, MAX_PATH, ALLEGRO_NATIVE_PATH_SEP);
-   al_path_free(&paths);
-
-   if (path[ustrlen(path)-1] != '/') {
-      strncat(path, sep, MAX_PATH-1);
-   }
-
-   return path;
-}
-
-
 
 const char* getResource(const char* fmt, ...)
 {
    va_list ap;
+   static char res[512];
    static char name[MAX_PATH];
-
-   ustrcpy(name, resourcePath());
-
+   
    va_start(ap, fmt);
-   uvszprintf(name+ustrlen(name), MAX_PATH-1, fmt, ap);
+   memset(res, 0, 512);
+   uvszprintf(res, 511, fmt, ap);
+
+   al_find_resource("a5teroids", res, 0, name, MAX_PATH);
+   printf("getResource: '%s'\n", name);
+   
    return name;
 }
 
