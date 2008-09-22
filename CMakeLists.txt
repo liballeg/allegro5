@@ -314,13 +314,6 @@ if(WANT_OPENAL)
     endif(OPENAL_FOUND)
 endif(WANT_OPENAL)
 
-if(UNIX OR WIN32)
-    configure_file(
-        include/allegro5/platform/al_cfg.h.cmake
-        include/allegro5/platform/al_cfg.h
-        )
-endif(UNIX OR WIN32)
-
 
 # Accumulate extra libraries needed due to drivers.
 set(DRIVER_LIBS_STATIC)
@@ -486,6 +479,13 @@ configure_file(
     include/allegro5/platform/alplatf.h.cmake
     include/allegro5/platform/alplatf.h
     )
+
+if(UNIX OR WIN32)
+    configure_file(
+        include/allegro5/platform/al_cfg.h.cmake
+        include/allegro5/platform/al_cfg.h
+        )
+endif(UNIX OR WIN32)
 
 #-----------------------------------------------------------------------------#
 #
