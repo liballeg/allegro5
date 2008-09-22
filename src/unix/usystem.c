@@ -597,7 +597,7 @@ AL_CONST char *_unix_get_path(uint32_t id, char *dir, size_t size)
             ustrcat(tmp, "/");
 
          ustrcpy(dir, tmp);
-         printf("userhome/datapath: '%s'\n", tmp);
+         //printf("userhome/datapath: '%s'\n", tmp);
 //         do_uconvert (tmp, U_ASCII, dir, U_CURRENT, strlen(tmp)+1);
       } break;
 

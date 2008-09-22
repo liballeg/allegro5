@@ -631,7 +631,7 @@ int32_t _al_find_resource_exists(char *path, char *base, char *resource, uint32_
    }
    
    al_path_to_string(&fp, buffer, len, ALLEGRO_NATIVE_PATH_SEP);
-   printf("_find_resource: '%s' exists:%i sfm:%i fm:%i eq:%i\n", buffer, al_fs_exists(buffer), al_fs_stat_mode(buffer), fm, (al_fs_stat_mode(buffer) & fm) == fm);
+   //printf("_find_resource: '%s' exists:%i sfm:%i fm:%i eq:%i\n", buffer, al_fs_exists(buffer), al_fs_stat_mode(buffer), fm, (al_fs_stat_mode(buffer) & fm) == fm);
    if(al_fs_exists(buffer) && (al_fs_stat_mode(buffer) & fm) == fm) {
       ret = 1;
    } else
@@ -640,7 +640,7 @@ int32_t _al_find_resource_exists(char *path, char *base, char *resource, uint32_
       if(rchr) {
          usetc(rchr, '\0');
       
-         printf("testing '%s' for WRITE perms.\n", buffer);
+         //printf("testing '%s' for WRITE perms.\n", buffer);
          if(al_fs_exists(buffer) && al_fs_stat_mode(buffer) & AL_FM_WRITE) {
             ret = 1;
          }
@@ -677,25 +677,25 @@ char *al_find_resource(char *base, char *resource, uint32_t fm, char *buffer, si
    ustrcat(base_new, base);
    
    al_get_path(AL_USER_DATA_PATH, tmp, PATH_MAX);
-   printf("find_resource: AL_USER_DATA_PATH\n");
+   //printf("find_resource: AL_USER_DATA_PATH\n");
    if(_al_find_resource_exists(tmp, base_new, resource, fm, buffer, len)) {
       return buffer;
    }
    
    al_get_path(AL_PROGRAM_PATH, tmp, PATH_MAX);
-   printf("find_resource: AL_PROGRAM_PATH\n");
+   //printf("find_resource: AL_PROGRAM_PATH\n");
    if(_al_find_resource_exists(tmp, "data", resource, fm, buffer, len)) {
       return buffer;
    }
    
    al_fs_getcwd(tmp, PATH_MAX);
-   printf("find_resource: getcwd\n");
+   //printf("find_resource: getcwd\n");
    if(_al_find_resource_exists(tmp, "data", resource, fm, buffer, len)) {
       return buffer;
    }
    
    al_get_path(AL_SYSTEM_DATA_PATH, tmp, PATH_MAX);
-   printf("find_resource: AL_SYSTEM_DATA_PATH\n");
+   //printf("find_resource: AL_SYSTEM_DATA_PATH\n");
    if(_al_find_resource_exists(tmp, base_new, resource, fm, buffer, len)) {
       return buffer;
    }
@@ -703,7 +703,7 @@ char *al_find_resource(char *base, char *resource, uint32_t fm, char *buffer, si
    /* file didn't exist anywhere, lets return whatever we can */
 
    al_get_path(AL_USER_DATA_PATH, tmp, PATH_MAX);
-   printf("find_resource: def AL_USER_DATA_PATH\n");
+   //printf("find_resource: def AL_USER_DATA_PATH\n");
    al_path_init(&path, tmp);
    al_path_append(&path, base_new);
    

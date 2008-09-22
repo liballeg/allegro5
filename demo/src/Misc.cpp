@@ -29,7 +29,7 @@ const char* getUserResource(const char* fmt, ...) throw (Error)
 
    al_find_resource("a5teroids", res, AL_FM_WRITE, name, MAX_PATH);
    
-   printf("getUserResource: '%s'\n", name);
+   //printf("getUserResource: '%s'\n", name);
 }
 
 const char* getResource(const char* fmt, ...)
@@ -43,7 +43,7 @@ const char* getResource(const char* fmt, ...)
    uvszprintf(res, 511, fmt, ap);
 
    al_find_resource("a5teroids", res, 0, name, MAX_PATH);
-   printf("getResource: '%s'\n", name);
+   //printf("getResource: '%s'\n", name);
    
    return name;
 }

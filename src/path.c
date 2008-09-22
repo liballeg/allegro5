@@ -481,7 +481,9 @@ void al_path_concat(AL_PATH *path, const AL_PATH *tail)
    if(!tmp)
       return;
 
-   memset(path->segment+path->segment_count, 0, sizeof(char*)*tail->segment_count);
+   path->segment = tmp;
+   
+   memset(tmp+path->segment_count, 0, sizeof(char*)*tail->segment_count);
 
    for(i = 0; i < tail->segment_count; i++) {
       char *seg = ustrdup(tail->segment[i]);
@@ -490,7 +492,7 @@ void al_path_concat(AL_PATH *path, const AL_PATH *tail)
          break;
       }
 
-      path->segment[path->segment_count+i] = seg;
+      tmp[path->segment_count+i] = seg;
    }
 
    path->segment_count += i;
@@ -664,5 +666,5 @@ uint32_t al_path_emode(AL_PATH *path, uint32_t mode)
    
    al_path_to_string(path, buffer, PATH_MAX, ALLEGRO_NATIVE_PATH_SEP);
    
-   return (al_fs_stat_mode(path) & mode) == mode;
+   return (al_fs_stat_mode(buffer) & mode) == mode;
 }
