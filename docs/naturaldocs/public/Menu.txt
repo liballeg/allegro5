@@ -2,7 +2,7 @@ Format: 1.4
 
 
 Title: Allegro
-SubTitle: Version 4.9.4 (SVN)
+SubTitle: Version 4.9.5 (SVN)
 
 # You can add a footer to your documentation like this:
 # Footer: [text]
