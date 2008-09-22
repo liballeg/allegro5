@@ -119,7 +119,7 @@ static int32_t _parse_path(const char *p, char **drive, char **path, char **file
 
    // grab path, and/or file info
 
-   path_info_end = ustrrchr(ptr, dirsep)+uoffset(ptr,1);
+   path_info_end = ustrrchr(ptr, dirsep);
    if(!path_info_end) { // no path, just file
       char *file_info = NULL;
 
@@ -136,10 +136,10 @@ static int32_t _parse_path(const char *p, char **drive, char **path, char **file
       *file = file_info;
       return 0;
    }
-   else if(ugetat(path_info_end, 1)) {
+   else if(ugetat(path_info_end, 2)) {
       // dirsep is not at end
       char *file_info = NULL;
-      char *tmp_file_info = path_info_end;
+      char *tmp_file_info = path_info_end+uoffset(path_info_end, 1);
 
       /* if the last bit is a . or .., its actually a dir, not a file */
       if(ustrcmp(tmp_file_info, ".") == 0 || ustrcmp(tmp_file_info, "..") == 0) {
@@ -194,7 +194,9 @@ static char **_split_path(char *path, int32_t *num)
    char **arr = NULL, *ptr = NULL, *lptr = NULL;
    int32_t count = 0, i = 0;
 
-   for(ptr=path; ugetc(ptr); ptr+=uwidth(ptr)) {
+   printf("_split_path: '%s'\n", path);
+
+   for(ptr=path; ugetc(ptr); ptr+=ucwidth(*ptr)) {
       if(ugetc(ptr) == '/')
          count++;
       lptr = ptr;
@@ -275,10 +277,12 @@ static int32_t _al_path_init(AL_PATH *path, AL_CONST char *str)
          printf("%s\n", c);
    }*/
 
-   path->segment = _split_path(part_path, &(path->segment_count));
-   if(!path->segment)
-      goto _path_init_fatal;
-
+   if(part_path) {
+      path->segment = _split_path(part_path, &(path->segment_count));
+      if(!path->segment)
+         goto _path_init_fatal;
+   }
+   
    return 1;
 
 _path_init_fatal:
