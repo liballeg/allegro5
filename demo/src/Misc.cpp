@@ -229,6 +229,13 @@ bool loadResources(void)
       }
    }
 
+   for (int i = 0; STREAM_NAMES[i]; i++) {
+      if (!rm.add(new StreamResource(getResource(STREAM_NAMES[i])))) {
+         printf("Failed to load %s\n", getResource(STREAM_NAMES[i]));
+         return false;
+      }
+   }
+
    return true;
 }
 
@@ -264,6 +271,12 @@ bool init(void)
    for (int i = RES_SAMPLE_START; i < RES_SAMPLE_END; i++) {
       ALLEGRO_SAMPLE *s = (ALLEGRO_SAMPLE *)rm.getData(i);
       al_mixer_attach_sample(mixer, s);
+   }
+
+   for (int i = RES_STREAM_START; i < RES_STREAM_END; i++) {
+      ALLEGRO_STREAM *s = (ALLEGRO_STREAM *)rm.getData(i);
+      al_mixer_attach_stream(mixer, s); 
+      al_stream_set_bool(s, ALLEGRO_AUDIOPROP_PLAYING, false);
    }
 
    return true;

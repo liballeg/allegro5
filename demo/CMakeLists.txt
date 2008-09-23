@@ -22,6 +22,7 @@ set(DEMO_SRCS
     src/Resource.cpp
     src/ResourceManager.cpp
     src/SampleResource.cpp
+    src/StreamResource.cpp
     src/SmallAsteroid.cpp
     src/SmallBullet.cpp
     src/UFO.cpp
