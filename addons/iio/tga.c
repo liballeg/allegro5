@@ -48,18 +48,18 @@ static void rle_tga_read8(unsigned char *b, int w, PACKFILE *f)
    do {
       count = pack_getc(f);
       if (count & 0x80) {
-	 /* run-length packet */
-	 count = (count & 0x7F) + 1;
-	 c += count;
-	 value = pack_getc(f);
-	 while (count--)
-	    *b++ = value;
+         /* run-length packet */
+         count = (count & 0x7F) + 1;
+         c += count;
+         value = pack_getc(f);
+         while (count--)
+            *b++ = value;
       }
       else {
-	 /* raw packet */
-	 count++;
-	 c += count;
-	 b = raw_tga_read8(b, count, f);
+         /* raw packet */
+         count++;
+         c += count;
+         b = raw_tga_read8(b, count, f);
       }
    } while (c < w);
 }
@@ -113,18 +113,18 @@ static void rle_tga_read32(unsigned int *b, int w, PACKFILE *f)
    do {
       count = pack_getc(f);
       if (count & 0x80) {
-	 /* run-length packet */
-	 count = (count & 0x7F) + 1;
-	 c += count;
-	 color = single_tga_read32(f);
-	 while (count--)
-	    *b++ = color;
+         /* run-length packet */
+         count = (count & 0x7F) + 1;
+         c += count;
+         color = single_tga_read32(f);
+         while (count--)
+            *b++ = color;
       }
       else {
-	 /* raw packet */
-	 count++;
-	 c += count;
-	 b = raw_tga_read32(b, count, f);
+         /* raw packet */
+         count++;
+         c += count;
+         b = raw_tga_read32(b, count, f);
       }
    } while (c < w);
 }
@@ -180,20 +180,20 @@ static void rle_tga_read24(unsigned char *b, int w, PACKFILE *f)
    do {
       count = pack_getc(f);
       if (count & 0x80) {
-	 /* run-length packet */
-	 count = (count & 0x7F) + 1;
-	 c += count;
-	 color = single_tga_read24(f);
-	 while (count--) {
-	    WRITE3BYTES(b, color);
-	    b += 3;
-	 }
+         /* run-length packet */
+         count = (count & 0x7F) + 1;
+         c += count;
+         color = single_tga_read24(f);
+         while (count--) {
+            WRITE3BYTES(b, color);
+            b += 3;
+         }
       }
       else {
-	 /* raw packet */
-	 count++;
-	 c += count;
-	 b = raw_tga_read24(b, count, f);
+         /* raw packet */
+         count++;
+         c += count;
+         b = raw_tga_read24(b, count, f);
       }
    } while (c < w);
 }
@@ -211,10 +211,10 @@ static INLINE int single_tga_read16(PACKFILE *f)
 
    return value;
    /*
-   (((value >> 10) & 0x1F) << _rgb_r_shift_15) |
-	  (((value >> 5) & 0x1F) << _rgb_g_shift_15)  |
-	  ((value & 0x1F) << _rgb_b_shift_15);
-          */
+      (((value >> 10) & 0x1F) << _rgb_r_shift_15) |
+      (((value >> 5) & 0x1F) << _rgb_g_shift_15)  |
+      ((value & 0x1F) << _rgb_b_shift_15);
+    */
 }
 
 
@@ -242,18 +242,18 @@ static void rle_tga_read16(unsigned short *b, int w, PACKFILE *f)
    do {
       count = pack_getc(f);
       if (count & 0x80) {
-	 /* run-length packet */
-	 count = (count & 0x7F) + 1;
-	 c += count;
-	 color = single_tga_read16(f);
-	 while (count--)
-	    *b++ = color;
+         /* run-length packet */
+         count = (count & 0x7F) + 1;
+         c += count;
+         color = single_tga_read16(f);
+         while (count--)
+            *b++ = color;
       }
       else {
-	 /* raw packet */
-	 count++;
-	 c += count;
-	 b = raw_tga_read16(b, count, f);
+         /* raw packet */
+         count++;
+         c += count;
+         b = raw_tga_read16(b, count, f);
       }
    } while (c < w);
 }
@@ -288,7 +288,7 @@ static ALLEGRO_BITMAP *iio_load_tga_pf(PACKFILE *f)
    palette_type = pack_getc(f);
    image_type = pack_getc(f);
    first_color = pack_igetw(f);
-   palette_colors  = pack_igetw(f);
+   palette_colors = pack_igetw(f);
    palette_entry_size = pack_getc(f);
    left = pack_igetw(f);
    top = pack_igetw(f);
@@ -297,8 +297,8 @@ static ALLEGRO_BITMAP *iio_load_tga_pf(PACKFILE *f)
    bpp = pack_getc(f);
    descriptor_bits = pack_getc(f);
 
-   left_to_right = !(descriptor_bits & (1<<4));
-   top_to_bottom =  (descriptor_bits & (1<<5));
+   left_to_right = !(descriptor_bits & (1 << 4));
+   top_to_bottom = (descriptor_bits & (1 << 5));
 
    pack_fread(image_id, id_length, f);
 
@@ -306,24 +306,24 @@ static ALLEGRO_BITMAP *iio_load_tga_pf(PACKFILE *f)
 
       for (i = 0; i < palette_colors; i++) {
 
-	 switch (palette_entry_size) {
+         switch (palette_entry_size) {
 
-	    case 16: 
-	       c = pack_igetw(f);
-	       image_palette[i][0] = (c & 0x1F) << 3;
-	       image_palette[i][1] = ((c >> 5) & 0x1F) << 3;
-	       image_palette[i][2] = ((c >> 10) & 0x1F) << 3;
-	       break;
+            case 16:
+               c = pack_igetw(f);
+               image_palette[i][0] = (c & 0x1F) << 3;
+               image_palette[i][1] = ((c >> 5) & 0x1F) << 3;
+               image_palette[i][2] = ((c >> 10) & 0x1F) << 3;
+               break;
 
-	    case 24:
-	    case 32:
-	       image_palette[i][0] = pack_getc(f);
-	       image_palette[i][1] = pack_getc(f);
-	       image_palette[i][2] = pack_getc(f);
-	       if (palette_entry_size == 32)
-		  pack_getc(f);
-	       break;
-	 }
+            case 24:
+            case 32:
+               image_palette[i][0] = pack_getc(f);
+               image_palette[i][1] = pack_getc(f);
+               image_palette[i][2] = pack_getc(f);
+               if (palette_entry_size == 32)
+                  pack_getc(f);
+               break;
+         }
       }
    }
    else if (palette_type != 0) {
@@ -349,35 +349,35 @@ static ALLEGRO_BITMAP *iio_load_tga_pf(PACKFILE *f)
    switch (image_type) {
 
       case 1:
-	 /* paletted image */
-	 if ((palette_type != 1) || (bpp != 8)) {
-	    return NULL;
-	 }
+         /* paletted image */
+         if ((palette_type != 1) || (bpp != 8)) {
+            return NULL;
+         }
 
-	 break;
+         break;
 
       case 2:
-	 /* truecolor image */
-	 if ((palette_type == 0) && ((bpp == 15) || (bpp == 16))) {
-	    bpp = 15;
+         /* truecolor image */
+         if ((palette_type == 0) && ((bpp == 15) || (bpp == 16))) {
+            bpp = 15;
          }
-	 else if ((palette_type == 0) && ((bpp == 24) || (bpp == 32))) {
-	 }
-	 else {
-	    return NULL;
-	 }
-	 break;
+         else if ((palette_type == 0) && ((bpp == 24) || (bpp == 32))) {
+         }
+         else {
+            return NULL;
+         }
+         break;
 
       case 3:
-	 /* grayscale image */
-	 if ((palette_type != 0) || (bpp != 8)) {
-	    return NULL;
-	 }
+         /* grayscale image */
+         if ((palette_type != 0) || (bpp != 8)) {
+            return NULL;
+         }
 
-	 break;
+         break;
 
       default:
-	 return NULL;
+         return NULL;
    }
 
    bmp = al_create_bitmap(image_width, image_height);
@@ -388,89 +388,88 @@ static ALLEGRO_BITMAP *iio_load_tga_pf(PACKFILE *f)
    al_set_errno(0);
 
    al_lock_bitmap(bmp, &lr, ALLEGRO_LOCK_WRITEONLY);
-   buf = malloc(image_width*((bpp+1/8)));
+   buf = malloc(image_width * ((bpp + 1 / 8)));
 
    al_store_state(&backup, ALLEGRO_STATE_TARGET_BITMAP);
    al_set_target_bitmap(bmp);
 
-   for (y=0; y < image_height; y++) {
+   for (y = 0; y < image_height; y++) {
       int true_y = (top_to_bottom) ? y : (image_height - 1 - y);
 
       switch (image_type) {
 
-	 case 1:
-	 case 3:
-	    if (compressed)
-	       rle_tga_read8(buf, image_width, f);
-	    else
-	       raw_tga_read8(buf, image_width, f);
+         case 1:
+         case 3:
+            if (compressed)
+               rle_tga_read8(buf, image_width, f);
+            else
+               raw_tga_read8(buf, image_width, f);
 
             for (i = 0; i < image_width; i++) {
                int true_x = (left_to_right) ? i : (image_width - 1 - i);
                int pix = buf[i];
-               ALLEGRO_COLOR color = al_map_rgb(
-                  image_palette[pix][2],
-                  image_palette[pix][1],
-                  image_palette[pix][0]);
+               ALLEGRO_COLOR color = al_map_rgb(image_palette[pix][2],
+                                                image_palette[pix][1],
+                                                image_palette[pix][0]);
                al_put_pixel(true_x, true_y, color);
             }
 
-	    break;
+            break;
 
-	 case 2:
-	    if (bpp == 32) {
-	       if (compressed)
-		  rle_tga_read32((unsigned int *)buf, image_width, f);
-	       else
-		  raw_tga_read32((unsigned int *)buf, image_width, f);
+         case 2:
+            if (bpp == 32) {
+               if (compressed)
+                  rle_tga_read32((unsigned int *)buf, image_width, f);
+               else
+                  raw_tga_read32((unsigned int *)buf, image_width, f);
 
                for (i = 0; i < image_width; i++) {
                   int true_x = (left_to_right) ? i : (image_width - 1 - i);
-                  int b = buf[i*4+0];
-                  int g = buf[i*4+1];
-                  int r = buf[i*4+2];
-                  int a = buf[i*4+3];
+                  int b = buf[i * 4 + 0];
+                  int g = buf[i * 4 + 1];
+                  int r = buf[i * 4 + 2];
+                  int a = buf[i * 4 + 3];
                   ALLEGRO_COLOR color = al_map_rgba(r, g, b, a);
                   al_put_pixel(true_x, true_y, color);
                }
-	    }
-	    else if (bpp == 24) {
-	       if (compressed)
-		  rle_tga_read24(buf, image_width, f);
-	       else
-		  raw_tga_read24(buf, image_width, f);
+            }
+            else if (bpp == 24) {
+               if (compressed)
+                  rle_tga_read24(buf, image_width, f);
+               else
+                  raw_tga_read24(buf, image_width, f);
                for (i = 0; i < image_width; i++) {
                   int true_x = (left_to_right) ? i : (image_width - 1 - i);
-                  int b = buf[i*3+0];
-                  int g = buf[i*3+1];
-                  int r = buf[i*3+2];
+                  int b = buf[i * 3 + 0];
+                  int g = buf[i * 3 + 1];
+                  int r = buf[i * 3 + 2];
                   ALLEGRO_COLOR color = al_map_rgb(r, g, b);
                   al_put_pixel(true_x, true_y, color);
                }
-	    }
-	    else {
-	       if (compressed)
-		  rle_tga_read16((unsigned short *)buf, image_width, f);
-	       else
-		  raw_tga_read16((unsigned short *)buf, image_width, f);
+            }
+            else {
+               if (compressed)
+                  rle_tga_read16((unsigned short *)buf, image_width, f);
+               else
+                  raw_tga_read16((unsigned short *)buf, image_width, f);
                for (i = 0; i < image_width; i++) {
                   int true_x = (left_to_right) ? i : (image_width - 1 - i);
-                  int pix = *((unsigned short *)(buf+i*2));
+                  int pix = *((unsigned short *)(buf + i * 2));
                   int r = _rgb_scale_5[(pix >> 10)];
                   int g = _rgb_scale_5[(pix >> 5) & 0x1F];
                   int b = _rgb_scale_5[(pix & 0x1F)];
                   ALLEGRO_COLOR color = al_map_rgb(r, g, b);
                   al_put_pixel(true_x, true_y, color);
                }
-	    }
-	    break;
+            }
+            break;
       }
    }
 
    free(buf);
    al_unlock_bitmap(bmp);
    al_restore_state(&backup);
-   
+
    if (al_get_errno()) {
       al_destroy_bitmap(bmp);
       return NULL;
@@ -500,23 +499,23 @@ static int iio_save_tga_pf(PACKFILE *f, ALLEGRO_BITMAP *bmp)
    w = al_get_bitmap_width(bmp);
    h = al_get_bitmap_height(bmp);
 
-   pack_putc(0, f);                          /* id length (no id saved) */
-   pack_putc(0, f);                          /* palette type */
-   pack_putc(2, f);                          /* image type */
-   pack_iputw(0, f);                         /* first colour */
-   pack_iputw(0, f);                         /* number of colours */
-   pack_putc(0, f);                          /* palette entry size */
-   pack_iputw(0, f);                         /* left */
-   pack_iputw(0, f);                         /* top */
-   pack_iputw(w, f);                         /* width */
-   pack_iputw(h, f);                         /* height */
-   pack_putc(32, f);                         /* bits per pixel */
-   pack_putc(8, f);                          /* descriptor (bottom to top, 8-bit alpha) */
+   pack_putc(0, f);             /* id length (no id saved) */
+   pack_putc(0, f);             /* palette type */
+   pack_putc(2, f);             /* image type */
+   pack_iputw(0, f);            /* first colour */
+   pack_iputw(0, f);            /* number of colours */
+   pack_putc(0, f);             /* palette entry size */
+   pack_iputw(0, f);            /* left */
+   pack_iputw(0, f);            /* top */
+   pack_iputw(w, f);            /* width */
+   pack_iputw(h, f);            /* height */
+   pack_putc(32, f);            /* bits per pixel */
+   pack_putc(8, f);             /* descriptor (bottom to top, 8-bit alpha) */
 
    al_lock_bitmap(bmp, &lr, ALLEGRO_LOCK_READONLY);
 
-   for (y=h-1; y>=0; y--) {
-      for (x=0; x<w; x++) {
+   for (y = h - 1; y >= 0; y--) {
+      for (x = 0; x < w; x++) {
          ALLEGRO_COLOR c = al_get_pixel(bmp, x, y);
          unsigned char r, g, b, a;
          al_unmap_rgba(c, &r, &g, &b, &a);
@@ -580,5 +579,3 @@ int iio_save_tga(AL_CONST char *filename, ALLEGRO_BITMAP *bmp)
 
    return ret;
 }
-
-

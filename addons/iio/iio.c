@@ -12,7 +12,8 @@
 #define MAX_EXTENSION 100
 
 
-typedef struct Handler {
+typedef struct Handler
+{
    char *extension;
    IIO_LOADER_FUNCTION loader;
    IIO_SAVER_FUNCTION saver;
@@ -50,14 +51,15 @@ bool al_iio_init(void)
 }
 
 
-bool al_iio_add_handler(AL_CONST char *extension, IIO_LOADER_FUNCTION loader, IIO_SAVER_FUNCTION saver)
+bool al_iio_add_handler(AL_CONST char *extension,
+                        IIO_LOADER_FUNCTION loader, IIO_SAVER_FUNCTION saver)
 {
    Handler *l;
 
    ASSERT(extension);
    ASSERT(loader);
 
-   l = (Handler *)malloc(sizeof(Handler));
+   l = (Handler *) malloc(sizeof(Handler));
    if (!l)
       return false;
 
@@ -68,10 +70,10 @@ bool al_iio_add_handler(AL_CONST char *extension, IIO_LOADER_FUNCTION loader, II
    num_handlers++;
 
    if (num_handlers == 1) {
-      handlers = malloc(sizeof(Handler*));
+      handlers = malloc(sizeof(Handler *));
    }
    else {
-      handlers = realloc(handlers, num_handlers*sizeof(Handler*));
+      handlers = realloc(handlers, num_handlers * sizeof(Handler *));
    }
 
    if (!handlers) {
@@ -80,7 +82,7 @@ bool al_iio_add_handler(AL_CONST char *extension, IIO_LOADER_FUNCTION loader, II
       return false;
    }
 
-   handlers[num_handlers-1] = l;
+   handlers[num_handlers - 1] = l;
 
    return true;
 }
@@ -89,7 +91,7 @@ bool al_iio_add_handler(AL_CONST char *extension, IIO_LOADER_FUNCTION loader, II
 static char *iio_get_extension(AL_CONST char *filename)
 {
    int count = 0;
-   int pos = strlen(filename)-1;
+   int pos = strlen(filename) - 1;
    char *result;
 
    while (pos >= 0 && filename[pos] != '.') {
@@ -98,7 +100,7 @@ static char *iio_get_extension(AL_CONST char *filename)
    }
 
    if (filename[pos] == '.') {
-      result = strdup(filename+pos+1);
+      result = strdup(filename + pos + 1);
    }
    else {
       result = strdup("");
@@ -133,7 +135,7 @@ static Handler *find_handler(AL_CONST char *filename)
    char *p = iio_get_extension(filename);
    char extension[MAX_EXTENSION];
    unsigned int i;
-   
+
    strncpy(extension, p, MAX_EXTENSION);
 
    free(p);
@@ -168,4 +170,3 @@ int al_iio_save(AL_CONST char *filename, ALLEGRO_BITMAP *bitmap)
       return 1;
    }
 }
-
