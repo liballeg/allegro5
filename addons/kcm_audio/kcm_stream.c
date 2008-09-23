@@ -130,7 +130,7 @@ void al_stream_drain(ALLEGRO_STREAM *stream)
       al_rest(0.01);
       al_stream_get_bool(stream, ALLEGRO_AUDIOPROP_PLAYING, &playing);
    } while (playing);
-   stream->is_draining = true;
+   stream->is_draining = false;
 }
 
 
@@ -545,7 +545,7 @@ void *_al_kcm_feed_stream(ALLEGRO_THREAD *self, void *vstream)
          return NULL;
       }
 
-      if (vbuf_waiting_count == 0) {
+      if (vbuf_waiting_count == 0 || stream->is_draining) {
          al_rest(0.05); /* Precalculate some optimal value? */
          continue;
       }
