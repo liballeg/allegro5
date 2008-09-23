@@ -922,7 +922,7 @@ static bool create_display_internals(ALLEGRO_DISPLAY_WGL *wgl_disp) {
    HANDLE window_thread;
 
    ndp.display = wgl_disp;
-   ndp.init_failed = false;
+   ndp.init_failed = true;
    ndp.AckEvent = CreateEvent(NULL, FALSE, FALSE, NULL);
    window_thread = (HANDLE)_beginthread(display_thread_proc, 0, &ndp);
 
@@ -991,6 +991,8 @@ static ALLEGRO_DISPLAY* wgl_create_display(int w, int h) {
    memset(display->ogl_extras, 0, sizeof(ALLEGRO_OGL_EXTRAS));
 
    if (!create_display_internals(wgl_display)) {
+      _AL_FREE(display);
+      _AL_FREE(display->ogl_extras);
       return NULL;
    }
 
@@ -1092,8 +1094,8 @@ static void display_thread_proc(void *arg)
    
    if (disp->flags & ALLEGRO_FULLSCREEN) {
       if (!change_display_mode(disp)) {
-         wgl_destroy_display(disp);
-         ndp->init_failed = true;
+         win_disp->thread_ended = true;
+         destroy_display_internals(wgl_disp);
          SetEvent(ndp->AckEvent);
          return;
       }
@@ -1102,7 +1104,8 @@ static void display_thread_proc(void *arg)
    win_disp->window = _al_win_create_window(disp, disp->w, disp->h, disp->flags);
 
    if (!win_disp->window) {
-      ndp->init_failed = true;
+      win_disp->thread_ended = true;
+      destroy_display_internals(wgl_disp);
       SetEvent(ndp->AckEvent);
       return;
    }
@@ -1169,8 +1172,8 @@ static void display_thread_proc(void *arg)
    wgl_disp->dc = GetDC(win_disp->window);
 
    if (!select_pixel_format(wgl_disp, wgl_disp->dc)) {
-      wgl_destroy_display(disp);
-      ndp->init_failed = true;
+      win_disp->thread_ended = true;
+      destroy_display_internals(wgl_disp);
       SetEvent(ndp->AckEvent);
       return;
    }
@@ -1180,14 +1183,15 @@ static void display_thread_proc(void *arg)
    if (!wgl_disp->glrc) {
       log_win32_error("wgl_disp_display_thread_proc", "Unable to create a render context!",
                       GetLastError());
-      wgl_destroy_display(disp);
-      ndp->init_failed = true;
+      win_disp->thread_ended = true;
+      destroy_display_internals(wgl_disp);
       SetEvent(ndp->AckEvent);
       return;
    }
 
    win_disp->thread_ended = false;
    win_disp->end_thread = false;
+   ndp->init_failed = false;
    SetEvent(ndp->AckEvent);
 
    while (!win_disp->end_thread) {
