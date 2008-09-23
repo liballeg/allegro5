@@ -55,6 +55,9 @@ int main(void)
             al_toggle_window_frame(display, frame);
          }
       }
+      else if (event.type == ALLEGRO_EVENT_DISPLAY_CLOSE) {
+         break;
+      }
       else if (event.type == ALLEGRO_EVENT_MOUSE_BUTTON_UP) {
          if (event.mouse.button == 1) {
             down = false;
