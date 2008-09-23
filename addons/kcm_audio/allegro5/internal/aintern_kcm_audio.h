@@ -124,6 +124,7 @@ struct ALLEGRO_SAMPLE {
 
    ALLEGRO_PLAYMODE     loop;
    float                speed;
+   float                gain;
 
    unsigned long        pos;
    unsigned long        loop_start;
@@ -133,6 +134,7 @@ struct ALLEGRO_SAMPLE {
    float                *matrix;
                         /* Used to convert from this format to the attached
                          * mixers, if any.  Otherwise is NULL.
+                         * The gain is premultiplied in.
                          */
 
    stream_reader_t      spl_read;
@@ -234,6 +236,8 @@ struct ALLEGRO_MIXER {
                             */
 };
 
+extern void _al_kcm_mixer_rejig_sample_matrix(ALLEGRO_MIXER *mixer,
+   ALLEGRO_SAMPLE *spl);
 extern void _al_kcm_mixer_read(void *source, void **buf, unsigned long *samples,
    ALLEGRO_AUDIO_DEPTH buffer_depth, size_t dest_maxc);
 

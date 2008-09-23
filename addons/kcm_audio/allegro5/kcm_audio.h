@@ -131,6 +131,7 @@ enum ALLEGRO_AUDIO_PROPERTY {
    ALLEGRO_AUDIOPROP_LOOPMODE       = 0x207,
    ALLEGRO_AUDIOPROP_SPEED          = 0x208,
    ALLEGRO_AUDIOPROP_POSITION       = 0x209,
+   ALLEGRO_AUDIOPROP_GAIN           = 0x20A,
 
    ALLEGRO_AUDIOPROP_FRAGMENTS      = 0x20B,
    ALLEGRO_AUDIOPROP_USED_FRAGMENTS = 0x20C,
@@ -229,6 +230,11 @@ typedef struct ALLEGRO_SAMPLE_DATA ALLEGRO_SAMPLE_DATA;
  * ALLEGRO_AUDIOPROP_POSITION (long) -
  *    Gets or sets the object's playing position. The value is in
  *    samples-per-channel.
+ *
+ * ALLEGRO_AUDIOPROP_GAIN (float) -
+ *    Gets or sets the object's gain. The gain is only applied when mixing the
+ *    sample into a parent mixer. Has no effect if the object is attached
+ *    directly to a voice.
  */
 typedef struct ALLEGRO_SAMPLE ALLEGRO_SAMPLE;
 

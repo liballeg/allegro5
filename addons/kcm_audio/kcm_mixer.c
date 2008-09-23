@@ -33,7 +33,7 @@ static float _samp_buf[ALLEGRO_MAX_CHANNELS]; /* max: 7.1 */
  *  Returns a pointer to a statically allocated array.
  */
 static float *_al_rechannel_matrix(ALLEGRO_CHANNEL_CONF orig,
-   ALLEGRO_CHANNEL_CONF target)
+   ALLEGRO_CHANNEL_CONF target, float gain)
 {
    /* Max 7.1 (8 channels) for input and output */
    static float mat[ALLEGRO_MAX_CHANNELS][ALLEGRO_MAX_CHANNELS];
@@ -74,6 +74,15 @@ static float *_al_rechannel_matrix(ALLEGRO_CHANNEL_CONF orig,
       mat[dst_chans-1][src_chans-1] = 1.0;
    }
 
+   /* Apply gain */
+   if (gain != 1.0f) {
+      for (i = 0; i < dst_chans; i++) {
+         for (j = 0; j < src_chans; j++) {
+            mat[i][j] *= gain;
+         }
+      }
+   }
+
    TRACE("sample matrix:\n");
    for (i = 0; i < dst_chans; i++) {
       for (j = 0; j < src_chans; j++) {
@@ -84,6 +93,38 @@ static float *_al_rechannel_matrix(ALLEGRO_CHANNEL_CONF orig,
    TRACE("\n");
 
    return &mat[0][0];
+}
+
+
+/* _al_kcm_mixer_rejig_sample_matrix:
+ *  Recompute the mixing matrix for a sample attached to a mixer.
+ *  The caller must be holding the mixer mutex.
+ */
+void _al_kcm_mixer_rejig_sample_matrix(ALLEGRO_MIXER *mixer,
+   ALLEGRO_SAMPLE *spl)
+{
+   float *mat;
+   size_t dst_chans;
+   size_t src_chans;
+   size_t i, j;
+
+   if (spl->matrix) {
+      free(spl->matrix);
+   }
+
+   mat = _al_rechannel_matrix(spl->spl_data.chan_conf,
+      mixer->ss.spl_data.chan_conf, spl->gain);
+
+   dst_chans = al_channel_count(mixer->ss.spl_data.chan_conf);
+   src_chans = al_channel_count(spl->spl_data.chan_conf);
+
+   spl->matrix = calloc(1, src_chans * dst_chans * sizeof(float));
+
+   for (i = 0; i < dst_chans; i++) {
+      for (j = 0; j < src_chans; j++) {
+         spl->matrix[i*src_chans + j] = mat[i*ALLEGRO_MAX_CHANNELS + j];
+      }
+   }
 }
 
 
@@ -579,8 +620,9 @@ ALLEGRO_MIXER *al_mixer_create(unsigned long freq,
    mixer->ss.is_playing = true;
    mixer->ss.spl_data.free_buf = true;
 
-   mixer->ss.loop      = ALLEGRO_PLAYMODE_ONCE;
-                        /* XXX should we have a specific one?*/
+   mixer->ss.loop = ALLEGRO_PLAYMODE_ONCE;
+   /* XXX should we have a specific loop mode? */
+   mixer->ss.gain = 1.0f;
    mixer->ss.spl_data.depth     = depth;
    mixer->ss.spl_data.chan_conf = chan_conf;
    mixer->ss.spl_data.frequency = freq;
@@ -646,13 +688,6 @@ int al_mixer_attach_sample(ALLEGRO_MIXER *mixer, ALLEGRO_SAMPLE *spl)
 
    /* If this isn't a mixer, set the proper sample stream reader */
    if (spl->spl_read == NULL) {
-      size_t dst_chans;
-      size_t src_chans;
-      float *mat;
-
-      dst_chans = al_channel_count(mixer->ss.spl_data.chan_conf);
-      src_chans = al_channel_count(spl->spl_data.chan_conf);
-
       switch (mixer->quality) {
          case ALLEGRO_MIXER_QUALITY_LINEAR:
             if ((spl->spl_data.depth & ALLEGRO_AUDIO_DEPTH_UNSIGNED))
@@ -668,17 +703,7 @@ int al_mixer_attach_sample(ALLEGRO_MIXER *mixer, ALLEGRO_SAMPLE *spl)
             break;
       }
 
-      mat = _al_rechannel_matrix(spl->spl_data.chan_conf,
-         mixer->ss.spl_data.chan_conf);
-
-      spl->matrix = calloc(1, src_chans * dst_chans * sizeof(float));
-
-      for (i = 0; i < dst_chans; i++) {
-         size_t j;
-         for (j = 0; j < src_chans; j++) {
-            spl->matrix[i*src_chans + j] = mat[i*ALLEGRO_MAX_CHANNELS + j];
-         }
-      }
+      _al_kcm_mixer_rejig_sample_matrix(mixer, spl);
    }
 
    _al_kcm_stream_set_mutex(spl, mixer->ss.mutex);
