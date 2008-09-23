@@ -100,6 +100,7 @@ option(WANT_KCM_AUDIO "Enable kcm_audio engine" on)
 # icodec is off because it's currently broken.
 option(WANT_ICODEC "Enable image loading/saving for most filetypes (requires libMagick; broken)" off)
 option(WANT_IIO "Enable IIO image load/save addon" on)
+option(WANT_JPG "Enable JPEG support in IIO" on)
 option(WANT_PNG "Enable PNG support in IIO" on)
 option(WANT_TTF "Enable TTF addon" on)
 
