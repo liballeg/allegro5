@@ -114,8 +114,8 @@ ALLEGRO_SAMPLE_DATA *al_load_sample_sndfile(const char *filename)
 }
 
 
-static bool _sndfile_stream_update(ALLEGRO_STREAM *stream, void *data,
-   unsigned long buf_size)
+static size_t _sndfile_stream_update(ALLEGRO_STREAM *stream, void *data,
+   size_t buf_size)
 {
    int bytes_per_sample, samples, num_read, bytes_read, silence;
    ALLEGRO_AUDIO_DEPTH depth = stream->spl.spl_data.depth;
@@ -135,16 +135,22 @@ static bool _sndfile_stream_update(ALLEGRO_STREAM *stream, void *data,
       num_read = sf_read_raw(sndfile, data, samples);
    }
 
-   if (num_read == samples)
-      return false;
+   if (num_read != samples) {
+      /* stream is dry */
+      bytes_read = num_read * bytes_per_sample;
+      silence = _al_audio_get_silence(depth);
+      memset((char*)data + bytes_read, silence, buf_size - bytes_read);
+   }
 
-   /* out of data */
-   bytes_read = num_read * bytes_per_sample;
-   silence = _al_audio_get_silence(depth);
-   memset((char*)data + bytes_read, silence, buf_size - bytes_read);
+   /* return the number of usefull bytes written */
+   return num_read * bytes_per_sample;
+}
 
-   /* stream is dry */
-   return true;
+
+static bool _sndfile_stream_rewind(ALLEGRO_STREAM *stream)
+{
+   SNDFILE *sndfile = (SNDFILE *) stream->extra;
+   return (sf_seek(sndfile, 0, SEEK_SET) != -1);
 }
 
 
@@ -204,6 +210,7 @@ ALLEGRO_STREAM *al_load_stream_sndfile(size_t buffer_count,
    stream->quit_feed_thread = false;
    stream->feeder = _sndfile_stream_update;
    stream->unload_feeder = _sndfile_stream_close;
+   stream->rewind_feeder = _sndfile_stream_rewind;
    al_start_thread(stream->feed_thread);
 
    return stream;

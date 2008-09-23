@@ -135,7 +135,7 @@ void _al_kcm_mixer_rejig_sample_matrix(ALLEGRO_MIXER *mixer,
  */
 static bool fix_looped_position(ALLEGRO_SAMPLE *spl)
 {
-   bool is_dry;
+   bool is_empty;
    unsigned long count = 0;
    ALLEGRO_STREAM *stream;
 
@@ -185,21 +185,22 @@ static bool fix_looped_position(ALLEGRO_SAMPLE *spl)
          spl->is_playing = false;
          return false;
 
-      case _ALLEGRO_PLAYMODE_STREAM:
+      case _ALLEGRO_PLAYMODE_STREAM_ONCE:
+      case _ALLEGRO_PLAYMODE_STREAM_ONEDIR:
          if (spl->pos < spl->spl_data.len) {
             return true;
          }
          stream = (ALLEGRO_STREAM *)spl;
-         is_dry = !_al_kcm_refill_stream(stream);
-         if (is_dry && stream->drained) {
+         is_empty = !_al_kcm_refill_stream(stream);
+         if (is_empty && stream->is_draining) {
             stream->spl.is_playing = false;
-            stream->drained = false;
          }
 
          al_stream_get_long(stream, ALLEGRO_AUDIOPROP_USED_FRAGMENTS, &count);
          if (count)
-            _al_kcm_emit_stream_event(stream, is_dry, count);
-         return !is_dry;
+            _al_kcm_emit_stream_event(stream, count);
+
+         return !(is_empty);
    }
 
    ASSERT(false);
@@ -291,7 +292,8 @@ static INLINE const float *linear_spl32(const ALLEGRO_SAMPLE *spl,
 
    switch (spl->loop) {
       case ALLEGRO_PLAYMODE_ONCE:
-      case _ALLEGRO_PLAYMODE_STREAM:
+      case _ALLEGRO_PLAYMODE_STREAM_ONCE:
+      case _ALLEGRO_PLAYMODE_STREAM_ONEDIR:
          if (spl->pos+MIXER_FRAC_ONE >= spl->spl_data.len)
             p2 = p1;
          break;
@@ -353,7 +355,8 @@ static INLINE const float *linear_spl32u(const ALLEGRO_SAMPLE *spl,
 
    switch (spl->loop) {
       case ALLEGRO_PLAYMODE_ONCE:
-      case _ALLEGRO_PLAYMODE_STREAM:
+      case _ALLEGRO_PLAYMODE_STREAM_ONCE:
+      case _ALLEGRO_PLAYMODE_STREAM_ONEDIR:
          if (spl->pos+MIXER_FRAC_ONE >= spl->spl_data.len)
             p2 = p1;
          break;

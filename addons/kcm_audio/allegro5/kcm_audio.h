@@ -95,13 +95,14 @@ enum ALLEGRO_CHANNEL_CONF {
 
 
 /* Type: ALLEGRO_PLAYMODE
- *  Sample looping mode.
+ *  Sample and stream looping mode.
  */
 enum ALLEGRO_PLAYMODE {
    ALLEGRO_PLAYMODE_ONCE   = 0x100,
    ALLEGRO_PLAYMODE_ONEDIR = 0x101,
    ALLEGRO_PLAYMODE_BIDIR  = 0x102,
-   _ALLEGRO_PLAYMODE_STREAM = 0x103    /* internal */
+   _ALLEGRO_PLAYMODE_STREAM_ONCE   = 0x103,   /* internal */
+   _ALLEGRO_PLAYMODE_STREAM_ONEDIR = 0x104    /* internal */
 };
 
 
@@ -272,6 +273,9 @@ typedef struct ALLEGRO_SAMPLE ALLEGRO_SAMPLE;
  *    Same as ALLEGRO_SAMPLE, with the exception that ALLEGRO_STREAM objects
  *    are set to play by default.
  *
+ * ALLEGRO_AUDIOPROP_LOOPMODE (enum) -
+ *    Same as ALLEGRO_SAMPLE
+ *
  * ALLEGRO_AUDIOPROP_SPEED (float) -
  *    Same as ALLEGRO_SAMPLE, with the added caveat that negative values aren't
  *    allowed.
@@ -371,6 +375,7 @@ A5_KCM_AUDIO_FUNC(int, al_stream_set_bool, (ALLEGRO_STREAM *stream,
       ALLEGRO_AUDIO_PROPERTY setting, bool val));
 A5_KCM_AUDIO_FUNC(int, al_stream_set_ptr, (ALLEGRO_STREAM *spl,
       ALLEGRO_AUDIO_PROPERTY setting, void *ptr));
+A5_KCM_AUDIO_FUNC(bool, al_stream_rewind, (ALLEGRO_STREAM *stream));
 
 /* Mixer functions */
 A5_KCM_AUDIO_FUNC(ALLEGRO_MIXER*, al_mixer_create, (unsigned long freq,
