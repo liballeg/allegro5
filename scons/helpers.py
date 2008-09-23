@@ -12,17 +12,20 @@ class SimpleHash:
     def __init__( self ):
         self.hash = dict()
 
-    def __getitem__( self, key ):
+    def __getitem__(self, key):
         try:
             return self.hash[ key ]
         except KeyError:
             return False
 
-    def __setitem__( self, key, value ):
+    def __setitem__(self, key, value):
         self.hash[ key ] = value
 
-    def keys( self ):
+    def keys(self):
         return self.hash.keys()
+    
+    def __str__(self):
+        return str(self.hash)
 
 # Global state to handle configuration things
 configure_state = SimpleHash()
@@ -105,7 +108,7 @@ def parse_cmake_h(env, defines, src, dest):
         line = re.sub(r"\$\{(.*?)\}", substitute_variable, line)
         m = re.compile('^#cmakedefine (.*)').match(line)
         if m:
-            name = m.group(1)
+            name = m.group(1).strip()
             if defines[name]:
                 return "#define %s\n" % name
             else:
