@@ -181,6 +181,10 @@ int al_stream_get_float(const ALLEGRO_STREAM *stream,
          *val = stream->spl.speed;
          return 0;
 
+      case ALLEGRO_AUDIOPROP_GAIN:
+         *val = stream->spl.gain;
+         return 0;
+
       default:
          _al_set_error(ALLEGRO_INVALID_PARAM,
             "Attempted to get invalid stream float setting");
@@ -329,6 +333,31 @@ int al_stream_set_float(ALLEGRO_STREAM *stream,
                stream->spl.step *= i;
             }
 
+            al_unlock_mutex(stream->spl.mutex);
+         }
+
+         return 0;
+
+      case ALLEGRO_AUDIOPROP_GAIN:
+         if (stream->spl.parent.u.ptr && stream->spl.parent.is_voice) {
+            _al_set_error(ALLEGRO_GENERIC_ERROR,
+               "Could not set gain of stream attached to voice");
+            return 1;
+         }
+
+         if (stream->spl.gain == val) {
+            return 0;
+         }
+         stream->spl.gain = val;
+
+         /* If attached to a mixer already, need to recompute the sample
+          * matrix to take into account the gain.
+          */
+         if (stream->spl.parent.u.mixer) {
+            ALLEGRO_MIXER *mixer = stream->spl.parent.u.mixer;
+
+            al_lock_mutex(stream->spl.mutex);
+            _al_kcm_mixer_rejig_sample_matrix(mixer, &stream->spl);
             al_unlock_mutex(stream->spl.mutex);
          }
 

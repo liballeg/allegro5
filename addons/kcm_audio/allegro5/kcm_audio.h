@@ -276,6 +276,9 @@ typedef struct ALLEGRO_SAMPLE ALLEGRO_SAMPLE;
  *    Same as ALLEGRO_SAMPLE, with the added caveat that negative values aren't
  *    allowed.
  *
+ * ALLEGRO_AUDIOPROP_GAIN (float) -
+ *    Same as ALLEGRO_SAMPLE.
+ *
  * ALLEGRO_AUDIOPROP_LENGTH (long) -
  *    This gets the length, in samples-per-channel, of the individual buffer
  *    fragments. You may not set this after the object is created.

@@ -18,6 +18,7 @@ void saw(ALLEGRO_STREAM *stream)
    int val = 0;
    int i;
    int n = 200;
+   float gain;
 
    queue = al_create_event_queue();
    al_register_event_source(queue, (ALLEGRO_EVENT_SOURCE *) stream);
@@ -45,6 +46,14 @@ void saw(ALLEGRO_STREAM *stream)
          if ((n % 10) == 0) {
             putchar('.');
             fflush(stdout);
+
+            if (al_stream_get_float(stream, ALLEGRO_AUDIOPROP_GAIN, &gain)
+                  == 0) {
+               al_stream_set_float(stream, ALLEGRO_AUDIOPROP_GAIN, gain * 0.9);
+            }
+            else {
+               fprintf(stderr, "Error getting gain.\n");
+            }
          }
       }
    }
