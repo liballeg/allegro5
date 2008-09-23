@@ -73,12 +73,12 @@ int main(int argc, char **argv)
          fprintf(stderr, "al_sample_set_ptr failed.\n");
          return 1;
       }
-      if (al_mixer_attach_mixer(mixer, submixer[i]) != 0) {
-         fprintf(stderr, "al_mixer_attach_mixer failed.\n");
-         return 1;
-      }
       if (al_mixer_attach_sample(submixer[i], sample[i]) != 0) {
          fprintf(stderr, "al_mixer_attach_sample failed.\n");
+         return 1;
+      }
+      if (al_mixer_attach_mixer(mixer, submixer[i]) != 0) {
+         fprintf(stderr, "al_mixer_attach_mixer failed.\n");
          return 1;
       }
    }
