@@ -43,8 +43,8 @@ int main(int argc, const char *argv[])
      */
     al_set_new_bitmap_flags(ALLEGRO_MEMORY_BITMAP);
     membitmap = al_iio_load(filename);
-    if (!bitmap) {
-       TRACE("%s not found or failed to load", filename);
+    if (!membitmap) {
+       TRACE("%s not found or failed to load\n", filename);
        return 1;
     }
     al_set_new_bitmap_flags(0);
