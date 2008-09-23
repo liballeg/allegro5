@@ -568,7 +568,7 @@ void *_al_kcm_feed_stream(ALLEGRO_THREAD *self, void *vstream)
           stream->spl.loop == _ALLEGRO_PLAYMODE_STREAM_ONEDIR) {
          size_t bw;
          al_stream_rewind(stream);
-         bw = stream->feeder(stream, vbuf + bytes_written, bytes - bytes_written);
+         bw = stream->feeder(stream, ((int*)vbuf) + bytes_written, bytes - bytes_written);
          ASSERT(bw == bytes - bytes_written);
       }
 

@@ -655,7 +655,6 @@ void al_mixer_destroy(ALLEGRO_MIXER *mixer)
 int al_mixer_attach_sample(ALLEGRO_MIXER *mixer, ALLEGRO_SAMPLE *spl)
 {
    ALLEGRO_SAMPLE **slot;
-   unsigned long i;
 
    ASSERT(mixer);
    ASSERT(spl);
