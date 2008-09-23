@@ -95,6 +95,7 @@ void _al_osx_keyboard_was_installed(BOOL install) {
 -(void) viewWillMoveToWindow: (NSWindow*) newWindow;
 -(void) mouseEntered: (NSEvent*) evt;
 -(void) mouseExited: (NSEvent*) evt;
+-(void) viewDidEndLiveResize;
 /* Window delegate methods */
 -(void) windowDidBecomeMain:(NSNotification*) notification;
 -(void) windowDidResignMain:(NSNotification*) notification;
@@ -305,6 +306,27 @@ void _al_osx_mouse_was_installed(BOOL install) {
 	_al_event_source_unlock(src);
 	return NO;
 }
+-(void) viewDidEndLiveResize
+{
+	ALLEGRO_DISPLAY_OSX_WIN* dpy =  (ALLEGRO_DISPLAY_OSX_WIN*) dpy_ptr;
+   NSWindow *window = dpy->win;
+   NSRect rc = [window frame];
+   NSRect content = [window contentRectForFrameRect: rc];
+   ALLEGRO_EVENT_SOURCE *es = &dpy->parent.es;
+
+   _al_event_source_lock(es);
+   if (_al_event_source_needs_to_generate_event(es)) {
+      ALLEGRO_EVENT *event = _al_event_source_get_unused_event(es);
+      if (event) {
+         event->display.type = ALLEGRO_EVENT_DISPLAY_RESIZE;
+         event->display.timestamp = al_current_time();
+         event->display.width = NSWidth(content);
+         event->display.height = NSHeight(content);
+         _al_event_source_emit_event(es, event);
+      }
+   }
+   _al_event_source_unlock(es);
+}
 /* Window switch in/out */
 -(void) windowDidBecomeMain:(NSNotification*) notification
 {
@@ -329,26 +351,11 @@ void _al_osx_mouse_was_installed(BOOL install) {
 
 -(NSSize)windowWillResize:(NSWindow *)window toSize:(NSSize)proposedFrameSize
 {
-   ALLEGRO_DISPLAY *dpy = [[window contentView] allegroDisplay];
-	NSRect rc = NSMakeRect(0, 0, proposedFrameSize.width, proposedFrameSize.height);
-   NSRect content = [window contentRectForFrameRect: rc];
-
-   ALLEGRO_EVENT_SOURCE *es = &dpy->es;
-   _al_event_source_lock(es);
-
+   /* Make sure the content doesn't get resized to 0, since that would
+    * really suck.
+    */
    proposedFrameSize.height = MAX(48, proposedFrameSize.height);
-   if (_al_event_source_needs_to_generate_event(es)) {
-      ALLEGRO_EVENT *event = _al_event_source_get_unused_event(es);
-      if (event) {
-         event->display.type = ALLEGRO_EVENT_DISPLAY_RESIZE;
-         event->display.timestamp = al_current_time();
-         event->display.width = NSWidth(content);
-         event->display.height = NSHeight(content);
-         _al_event_source_emit_event(es, event);
-      }
-   }
 
-   _al_event_source_unlock(es);
    return proposedFrameSize;
 }
 /* End of ALOpenGLView implementation */
