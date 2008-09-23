@@ -111,7 +111,7 @@ static DWORD input_proc(void *unused)
 static VOID CALLBACK quit_input_thread(ULONG_PTR *useless)
 {
    input_thread_is_over = true;
-   TRACE("input thread quit request\n");
+   TRACE(PREFIX_I "Input thread quit request was sent.\n");
 }
 
 

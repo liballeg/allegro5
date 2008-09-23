@@ -208,6 +208,7 @@ ALLEGRO_SAMPLE *al_sample_create(ALLEGRO_SAMPLE_DATA *sample_data)
 
    spl->loop = ALLEGRO_PLAYMODE_ONCE;
    spl->speed = 1.0f;
+   spl->gain = 1.0f;
    spl->pos = 0;
    spl->loop_start = 0;
    spl->loop_end = sample_data ? sample_data->len : 0;
@@ -301,6 +302,10 @@ int al_sample_get_float(const ALLEGRO_SAMPLE *spl,
    switch (setting) {
       case ALLEGRO_AUDIOPROP_SPEED:
          *val = spl->speed;
+         return 0;
+
+      case ALLEGRO_AUDIOPROP_GAIN:
+         *val = spl->gain;
          return 0;
 
       case ALLEGRO_AUDIOPROP_TIME:
@@ -465,6 +470,31 @@ int al_sample_set_float(ALLEGRO_SAMPLE *spl,
                   spl->step = -1;
             }
 
+            al_unlock_mutex(spl->mutex);
+         }
+
+         return 0;
+
+      case ALLEGRO_AUDIOPROP_GAIN:
+         if (spl->parent.u.ptr && spl->parent.is_voice) {
+            _al_set_error(ALLEGRO_GENERIC_ERROR,
+               "Could not set gain of sample attached to voice");
+            return 1;
+         }
+
+         if (spl->gain == val) {
+            return 0;
+         }
+         spl->gain = val;
+
+         /* If attached to a mixer already, need to recompute the sample
+          * matrix to take into account the gain.
+          */
+         if (spl->parent.u.mixer) {
+            ALLEGRO_MIXER *mixer = spl->parent.u.mixer;
+
+            al_lock_mutex(spl->mutex);
+            _al_kcm_mixer_rejig_sample_matrix(mixer, spl);
             al_unlock_mutex(spl->mutex);
          }
 

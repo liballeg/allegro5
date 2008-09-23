@@ -34,20 +34,21 @@ static ALLEGRO_BITMAP *iio_load_pcx_pf(AL_FS_ENTRY *f)
 
    al_fs_entry_igetl(f);                   /* skip DPI values */
 
-   for (c=0; c<16*3; c++) {         /* skip the 16 color palette */
+   for (c = 0; c < 16 * 3; c++) {          /* skip the 16 color palette */
       al_fs_entry_getc(f);
    }
 
    al_fs_entry_getc(f);
 
    bpp = al_fs_entry_getc(f) * 8;          /* how many color planes? */
+
    if ((bpp != 8) && (bpp != 24)) {
       return NULL;
    }
 
    bytes_per_line = al_fs_entry_igetw(f);
 
-   for (c=0; c<60; c++)             /* skip some more junk */
+   for (c = 0; c < 60; c++)                /* skip some more junk */
       al_fs_entry_getc(f);
 
    b = al_create_bitmap(width, height);
@@ -61,31 +62,31 @@ static ALLEGRO_BITMAP *iio_load_pcx_pf(AL_FS_ENTRY *f)
       /* The palette comes after the image data.  We need to to keep the
        * whole image in a temporary buffer before mapping the final colours.
        */
-      buf = (unsigned char *)malloc(bytes_per_line*height);
+      buf = (unsigned char *)malloc(bytes_per_line * height);
    }
    else {
       /* We can read one line at a time. */
-      buf = (unsigned char *)malloc(bytes_per_line*3);
+      buf = (unsigned char *)malloc(bytes_per_line * 3);
    }
 
    al_store_state(&backup, ALLEGRO_STATE_TARGET_BITMAP);
    al_set_target_bitmap(b);
    al_lock_bitmap(b, &lr, ALLEGRO_LOCK_WRITEONLY);
 
-   xx = 0;                          /* index into buf, only for bpp = 8 */
+   xx = 0;                      /* index into buf, only for bpp = 8 */
 
-   for (y=0; y<height; y++) {       /* read RLE encoded PCX data */
+   for (y = 0; y < height; y++) {       /* read RLE encoded PCX data */
 
       x = 0;
 
-      while (x < bytes_per_line*bpp/8) {
-	 ch = al_fs_entry_getc(f);
-	 if ((ch & 0xC0) == 0xC0) { /* a run */
-	    c = (ch & 0x3F);
-	    ch = al_fs_entry_getc(f);
-	 }
-	 else {
-	    c = 1;                  /* single pixel */
+      while (x < bytes_per_line * bpp / 8) {
+         ch = al_fs_entry_getc(f);
+         if ((ch & 0xC0) == 0xC0) { /* a run */
+            c = (ch & 0x3F);
+            ch = al_fs_entry_getc(f);
+         }
+         else {
+            c = 1;                  /* single pixel */
          }
 
          if (bpp == 8) {
@@ -97,7 +98,7 @@ static ALLEGRO_BITMAP *iio_load_pcx_pf(AL_FS_ENTRY *f)
          }
          else {
             while (c--) {
-               if (x < width*3)     /* ignore padding */
+               if (x < width * 3)   /* ignore padding */
                   buf[x] = ch;
                x++;
             }
@@ -107,32 +108,31 @@ static ALLEGRO_BITMAP *iio_load_pcx_pf(AL_FS_ENTRY *f)
          int i;
          for (i = 0; i < width; i++) {
             int r = buf[i];
-            int g = buf[i+width];
-            int b = buf[i+width*2];
+            int g = buf[i + width];
+            int b = buf[i + width * 2];
             ALLEGRO_COLOR color = al_map_rgb(r, g, b);
             al_put_pixel(i, y, color);
          }
       }
    }
 
-   if (bpp == 8) {                  /* look for a 256 color palette */
+   if (bpp == 8) {               /* look for a 256 color palette */
       while ((c = al_fs_entry_getc(f)) != EOF) {
-	 if (c == 12) {
-	    for (c=0; c<256; c++) {
-	       pal[c].r = al_fs_entry_getc(f);
-	       pal[c].g = al_fs_entry_getc(f);
-	       pal[c].b = al_fs_entry_getc(f);
-	    }
-	    break;
-	 }
+         if (c == 12) {
+            for (c = 0; c < 256; c++) {
+               pal[c].r = al_fs_entry_getc(f);
+               pal[c].g = al_fs_entry_getc(f);
+               pal[c].b = al_fs_entry_getc(f);
+            }
+            break;
+         }
       }
       for (y = 0; y < height; y++) {
          for (x = 0; x < width; x++) {
-            int index = buf[y*width+x];
-            ALLEGRO_COLOR color = al_map_rgb(
-               pal[index].r,
-               pal[index].g,
-               pal[index].b);
+            int index = buf[y * width + x];
+            ALLEGRO_COLOR color = al_map_rgb(pal[index].r,
+                                             pal[index].g,
+                                             pal[index].b);
             al_put_pixel(x, y, color);
          }
       }
@@ -140,7 +140,7 @@ static ALLEGRO_BITMAP *iio_load_pcx_pf(AL_FS_ENTRY *f)
 
    al_restore_state(&backup);
    al_unlock_bitmap(b);
-   
+
    free(buf);
 
    if (al_get_errno()) {
@@ -164,46 +164,46 @@ static int iio_save_pcx_pf(AL_FS_ENTRY *f, ALLEGRO_BITMAP *bmp)
    ASSERT(bmp);
 
    al_set_errno(0);
-   
+
    w = al_get_bitmap_width(bmp);
    h = al_get_bitmap_height(bmp);
 
-   al_fs_entry_putc(10, f);                      /* manufacturer */
-   al_fs_entry_putc(5, f);                       /* version */
-   al_fs_entry_putc(1, f);                       /* run length encoding  */
-   al_fs_entry_putc(8, f);                       /* 8 bits per pixel */
-   al_fs_entry_iputw(0, f);                      /* xmin */
-   al_fs_entry_iputw(0, f);                      /* ymin */
-   al_fs_entry_iputw(w-1, f);                    /* xmax */
-   al_fs_entry_iputw(h-1, f);                    /* ymax */
-   al_fs_entry_iputw(320, f);                    /* HDpi */
-   al_fs_entry_iputw(200, f);                    /* VDpi */
+   al_fs_entry_putc(10, f);     /* manufacturer */
+   al_fs_entry_putc(5, f);      /* version */
+   al_fs_entry_putc(1, f);      /* run length encoding  */
+   al_fs_entry_putc(8, f);      /* 8 bits per pixel */
+   al_fs_entry_iputw(0, f);     /* xmin */
+   al_fs_entry_iputw(0, f);     /* ymin */
+   al_fs_entry_iputw(w - 1, f); /* xmax */
+   al_fs_entry_iputw(h - 1, f); /* ymax */
+   al_fs_entry_iputw(320, f);   /* HDpi */
+   al_fs_entry_iputw(200, f);   /* VDpi */
 
-   for (c=0; c<16*3; c++) {
+   for (c = 0; c < 16 * 3; c++) {
       al_fs_entry_putc(0, f);
    }
 
-   al_fs_entry_putc(0, f);                       /* reserved */
-   al_fs_entry_putc(3, f);                       /* color planes */
-   al_fs_entry_iputw(w, f);                      /* number of bytes per scanline */
-   al_fs_entry_iputw(1, f);                      /* color palette */
-   al_fs_entry_iputw(w, f);                      /* hscreen size */
-   al_fs_entry_iputw(h, f);                      /* vscreen size */
-   for (c=0; c<54; c++)                   /* filler */
+   al_fs_entry_putc(0, f);      /* reserved */
+   al_fs_entry_putc(3, f);      /* color planes */
+   al_fs_entry_iputw(w, f);     /* number of bytes per scanline */
+   al_fs_entry_iputw(1, f);     /* color palette */
+   al_fs_entry_iputw(w, f);     /* hscreen size */
+   al_fs_entry_iputw(h, f);     /* vscreen size */
+   for (c = 0; c < 54; c++)     /* filler */
       al_fs_entry_putc(0, f);
 
-   buf = malloc(w*3);
+   buf = malloc(w * 3);
 
    al_lock_bitmap(bmp, &lr, ALLEGRO_LOCK_READONLY);
 
-   for (y=0; y<h; y++) {             /* for each scanline... */
+   for (y = 0; y < h; y++) {    /* for each scanline... */
       for (x = 0; x < w; x++) {
-         ALLEGRO_COLOR c = al_get_pixel(bmp, x,  y);
+         ALLEGRO_COLOR c = al_get_pixel(bmp, x, y);
          unsigned char r, g, b;
          al_unmap_rgb(c, &r, &g, &b);
          buf[x] = r;
-         buf[x+w] = g;
-         buf[x+w*2] = b;
+         buf[x + w] = g;
+         buf[x + w * 2] = b;
       }
 
       for (i = 0; i < 3; i++) {
@@ -212,11 +212,11 @@ static int iio_save_pcx_pf(AL_FS_ENTRY *f, ALLEGRO_BITMAP *bmp)
          x = 0;
          for (;;) {
             count = 0;
-            color = buf[x+w*i];
+            color = buf[x + w * i];
             do {
                count++;
                x++;
-            } while ((count < 63) && (x < w) && (color == buf[x+w*i]));
+            } while ((count < 63) && (x < w) && (color == buf[x + w * i]));
             al_fs_entry_putc(count | 0xC0, f);
             al_fs_entry_putc(color, f);
             if (x >= w)
@@ -267,8 +267,6 @@ int iio_save_pcx(AL_CONST char *filename, ALLEGRO_BITMAP *bmp)
    ret = iio_save_pcx_pf(f, bmp);
 
    al_fs_entry_close(f);
-   
+
    return ret;
 }
-
-

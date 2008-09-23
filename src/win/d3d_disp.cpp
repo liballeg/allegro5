@@ -77,8 +77,8 @@ static DWORD d3d_mag_filter = D3DTEXF_POINT;
  */
 typedef struct new_display_parameters {
    ALLEGRO_DISPLAY_D3D *display;
-   bool init_failed;
-   bool initialized;
+   volatile bool init_failed;
+   HANDLE AckEvent;
 } new_display_parameters;
 
 
@@ -1096,7 +1096,7 @@ static void d3d_display_thread_proc(void *arg)
    if (!_al_pixel_format_is_real(al_display->format)) {
       int f = d3d_choose_display_format(al_display->format);
       if (f < 0) {
-         params->init_failed = true;
+         SetEvent(params->AckEvent);
          return;
       }
       new_format = f;
@@ -1104,7 +1104,7 @@ static void d3d_display_thread_proc(void *arg)
 
    if (!d3d_parameters_are_valid(al_display->format, al_display->refresh_rate, al_display->flags)) {
       TRACE("d3d_display_thread_proc: Invalid parameters.\n");
-      params->init_failed = true;
+      SetEvent(params->AckEvent);
       return;
    }
 
@@ -1139,8 +1139,8 @@ static void d3d_display_thread_proc(void *arg)
       }
       if (!found) {
          TRACE("d3d_display_thread_proc: Error setting faux fullscreen mode.\n");
-         params->init_failed = true;
          num_faux_fullscreen_windows--;
+         SetEvent(params->AckEvent);
          return;
       }
       if (al_display->refresh_rate) {
@@ -1168,7 +1168,7 @@ static void d3d_display_thread_proc(void *arg)
    }
 
    if (!win_display->window) {
-      params->init_failed = true;
+      SetEvent(params->AckEvent);
       return;
    }
 
@@ -1177,7 +1177,7 @@ static void d3d_display_thread_proc(void *arg)
             al_display->refresh_rate, al_display->flags, convert_to_faux)) {
          win_display->thread_ended = true;
          d3d_destroy_display(al_display);
-         params->init_failed = true;
+         SetEvent(params->AckEvent);
          return;
       }
    }
@@ -1187,7 +1187,7 @@ static void d3d_display_thread_proc(void *arg)
             al_display->refresh_rate, al_display->flags)) {
          win_display->thread_ended = true;
          d3d_destroy_display(al_display);
-         params->init_failed = true;
+         SetEvent(params->AckEvent);
          return;
       }
       TRACE("Real fullscreen device created\n");
@@ -1197,9 +1197,10 @@ static void d3d_display_thread_proc(void *arg)
    d3d_display->device->GetDeviceCaps(&caps);
    d3d_can_wait_for_vsync = ((caps.Caps & D3DCAPS_READ_SCANLINE) != 0);
 
-   params->initialized = true;
+   params->init_failed = false;
    win_display->thread_ended = false;
    win_display->end_thread = false;
+   SetEvent(params->AckEvent);
 
    while (!win_display->end_thread) {
       if (WaitMessage()) {
@@ -1292,14 +1293,14 @@ static bool d3d_create_display_internals(ALLEGRO_DISPLAY_D3D *d3d_display)
    AL_CONST char *s;
 
    params.display = d3d_display;
-   params.init_failed = false;
-   params.initialized = false;
+   params.init_failed = true;
+   params.AckEvent = CreateEvent(NULL, FALSE, FALSE, NULL);
 
    _beginthread(d3d_display_thread_proc, 0, &params);
-
-   while (!params.initialized && !params.init_failed)
-      al_rest(0.001);
-
+   /* Give some time for dispaly thread do init, but don't block if
+    * something horrible happened to it. */
+   WaitForSingleObject(params.AckEvent, 10*1000);
+   CloseHandle(params.AckEvent);
    if (params.init_failed) {
       return false;
    }

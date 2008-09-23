@@ -276,6 +276,11 @@ static bool ogl_upload_bitmap(ALLEGRO_BITMAP *bitmap, int x, int y,
    if (glGetError()) {
       TRACE("ogl_bitmap: glTexImage2D for format %d, size %dx%d failed\n",
          bitmap->format, ogl_bitmap->true_w, ogl_bitmap->true_h);
+      glDeleteTextures(1, &ogl_bitmap->texture);
+      ogl_bitmap->texture = 0;
+      // FIXME: Should we convert it into a memory bitmap? Or if the size is
+      // the problem try to use multiple textures?
+      return false;
    }
 
    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);

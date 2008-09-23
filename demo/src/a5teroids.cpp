@@ -32,18 +32,16 @@ int main(int argc, char **argv)
    ResourceManager& rm = ResourceManager::getInstance();
    Player *player = (Player *)rm.getData(RES_PLAYER);
 
-   ALLEGRO_SAMPLE *title_music = (ALLEGRO_SAMPLE *)rm.getData(RES_TITLE_MUSIC);
-   ALLEGRO_SAMPLE *game_music = (ALLEGRO_SAMPLE *)rm.getData(RES_GAME_MUSIC);
+   ALLEGRO_STREAM *title_music = (ALLEGRO_STREAM *)rm.getData(RES_TITLE_MUSIC);
+   ALLEGRO_STREAM *game_music = (ALLEGRO_STREAM *)rm.getData(RES_GAME_MUSIC);
 
-   al_sample_set_enum(title_music, ALLEGRO_AUDIOPROP_LOOPMODE, ALLEGRO_PLAYMODE_ONEDIR);
-   al_sample_set_enum(game_music, ALLEGRO_AUDIOPROP_LOOPMODE, ALLEGRO_PLAYMODE_ONEDIR);
+   al_stream_set_enum(title_music, ALLEGRO_AUDIOPROP_LOOPMODE, ALLEGRO_PLAYMODE_ONEDIR);
+   al_stream_set_enum(game_music, ALLEGRO_AUDIOPROP_LOOPMODE, ALLEGRO_PLAYMODE_ONEDIR);
 
    for (;;) {
       player->load();
 
-      al_rest(0.500);
-
-      my_play_sample(RES_TITLE_MUSIC);
+      al_stream_set_bool(title_music, ALLEGRO_AUDIOPROP_PLAYING, true);
 
       int choice = do_menu();
       if (choice != 0) {
@@ -51,14 +49,16 @@ int main(int argc, char **argv)
             al_release_joystick(joystick);
          break;
       }
-      al_sample_stop(title_music);
 
-      al_rest(0.250);
+	  al_stream_drain(title_music);
+	  al_stream_rewind(title_music);
+
       lastUFO = -1;
       canUFO = true;
 
       w.init();
-      my_play_sample(RES_GAME_MUSIC);
+      al_stream_set_bool(game_music, ALLEGRO_AUDIOPROP_PLAYING, true);
+	  al_rest(0.200);
 
       int step = 0;
       long start = (long) (al_current_time() * 1000);
@@ -80,14 +80,15 @@ int main(int argc, char **argv)
          start = end;
       }
 
+	  al_stream_drain(game_music);
+	  al_stream_rewind(game_music);
+
       std::list<Entity *>::iterator it;
       for (it = entities.begin(); it != entities.end(); it++) {
          Entity *e = *it;
          delete e;
       }
       entities.clear();
-
-      al_sample_stop(game_music);
 
       if (won) {
          // FIXME: show end screen

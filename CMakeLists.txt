@@ -100,6 +100,8 @@ option(WANT_KCM_AUDIO "Enable kcm_audio engine" on)
 # icodec is off because it's currently broken.
 option(WANT_ICODEC "Enable image loading/saving for most filetypes (requires libMagick; broken)" off)
 option(WANT_IIO "Enable IIO image load/save addon" on)
+option(WANT_JPG "Enable JPEG support in IIO" on)
+option(WANT_PNG "Enable PNG support in IIO" on)
 option(WANT_TTF "Enable TTF addon" on)
 
 option(WANT_ALSA "Enable ALSA digital audio driver (Unix)" on)
@@ -135,6 +137,22 @@ endif(NO_FPU)
 
 if(MSVC_IDE)
     set(COMPILER_MSVC 1)
+
+    # Guess VCINSTALLDIR from the value of CMAKE_C_COMPILER if it's not set.
+    if("$ENV{VCINSTALLDIR}" STREQUAL "")
+        string(REGEX REPLACE "/bin/[^/]*$" "" VCINSTALLDIR "${CMAKE_C_COMPILER}")
+        message(STATUS "Guessed MSVC directory: ${VCINSTALLDIR}")
+    else("$ENV{VCINSTALLDIR}" STREQUAL "")
+        file(TO_CMAKE_PATH "$ENV{VCINSTALLDIR}" VCINSTALLDIR)
+        message(STATUS "Using VCINSTALLDIR: ${VCINSTALLDIR}")
+    endif("$ENV{VCINSTALLDIR}" STREQUAL "")
+
+    # Install in VCINSTALLDIR by default
+    if(INSTALL_PREFIX STREQUAL "")
+        set(CMAKE_INSTALL_PREFIX ${VCINSTALLDIR})
+    else(INSTALL_PREFIX STREQUAL "")
+        set(CMAKE_INSTALL_PREFIX ${INSTALL_PREFIX})
+    endif(INSTALL_PREFIX STREQUAL "")
 endif(MSVC_IDE)
 
 if(CMAKE_COMPILER_IS_GNUCC)

@@ -2,17 +2,12 @@ Format: 1.4
 
 
 Title: Allegro
-SubTitle: Version 4.9.4 (SVN)
+SubTitle: Version 4.9.5 (SVN)
 
 # You can add a footer to your documentation like this:
 # Footer: [text]
 # If you want to add a copyright notice, this would be the place to do it.
-
-# You can add a timestamp to your documentation like one of these:
-# Timestamp: Generated on month day, year
-# Timestamp: Updated mm/dd/yyyy
-# Timestamp: Last updated mon day
-#
+Timestamp: Generated on month day, year
 #   m     - One or two digit month.  January is "1"
 #   mm    - Always two digit month.  January is "01"
 #   mon   - Short month word.  January is "Jan"
@@ -45,55 +40,57 @@ SubTitle: Version 4.9.4 (SVN)
 # --------------------------------------------------------------------------
 
 
-Group: Graphics  {
+Group: Addons  {
 
-   File: Colors  (include/allegro5/color_new.h)
+   File: Audio  (addons/kcm_audio/allegro5/kcm_audio.h)
+   File: iio/jpg.c  (addons/iio/jpg.c)
+   File: Mixer functions  (addons/kcm_audio/kcm_mixer.c)
+   File: Sample functions  (addons/kcm_audio/kcm_sample.c)
+   File: Stream functions  (addons/kcm_audio/kcm_stream.c)
+   File: Voice functions  (addons/kcm_audio/kcm_voice.c)
+   }  # Group: Addons
+
+Group: Include  {
+
    File: Bitmap types and constants  (include/allegro5/bitmap_new.h)
+   File: Colors  (include/allegro5/color_new.h)
    File: Display types  (include/allegro5/display_new.h)
-   File: Pixel manipulation  (src/pixels.c)
-   File: Bitmap routines  (src/bitmap_new.c)
-   File: Display routines  (src/display_new.c)
-   File: OpenGL extensions  (src/opengl/extensions.c)
-   }  # Group: Graphics
-
-Group: Input  {
-
+   File: Error handling  (include/allegro5/error.h)
+   File: Events  (include/allegro5/events.h)
+   File: Joystick types  (include/allegro5/joystick.h)
    File: Keyboard constants  (include/allegro5/keycodes.h)
    File: Keyboard types  (include/allegro5/keyboard.h)
-   File: Keyboard routines  (src/keybdnu.c)
    File: Mouse types  (include/allegro5/mouse.h)
-   File: Mouse routines  (src/mousenu.c)
-   File: Joystick types  (include/allegro5/joystick.h)
-   File: Joystick routines  (src/joynu.c)
-   }  # Group: Input
-
-Group: Time  {
-
+   File: Thread local storage  (include/allegro5/tls.h)
+   File: Threads  (include/allegro5/threads.h)
    File: Timer routines  (include/allegro5/timer.h)
    File: Timing routines  (include/allegro5/altime.h)
-   }  # Group: Time
+   }  # Group: Include
 
-Group: Events  {
+Group: Src  {
 
-   File: Events  (include/allegro5/events.h)
+   File: Bitmap routines  (src/bitmap_new.c)
+   File: Destructors  (src/dtor.c)
+   File: Display routines  (src/display_new.c)
    File: Event queues  (src/events.c)
    File: Event sources  (src/evtsrc.c)
-   }  # Group: Events
-
-Group: Miscellaneous  {
-
-   File: Destructors  (src/dtor.c)
+   File: Joystick routines  (src/joynu.c)
+   File: Keyboard routines  (src/keybdnu.c)
    File: Memory management routines  (src/memory.c)
+   File: Mouse routines  (src/mousenu.c)
+   File: OpenGL extensions  (src/opengl/extensions.c)
+   File: Pixel manipulation  (src/pixels.c)
    File: Thread local storage  (src/tls.c)
-   }  # Group: Miscellaneous
+   File: Threads  (src/threads.c)
+   }  # Group: Src
 
 Group: Index  {
 
    Index: Everything
    Constant Index: Constants
+   File Index: Files
    Function Index: Functions
    Macro Index: Macros
    Type Index: Types
-   Class Index: Classes
    }  # Group: Index
 

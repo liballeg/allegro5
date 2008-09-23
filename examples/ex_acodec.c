@@ -86,7 +86,19 @@ int main(int argc, char **argv)
       al_sample_get_float(sample, ALLEGRO_AUDIOPROP_TIME, &sample_time);
       fprintf(stderr, "Playing '%s' (%.3f seconds) 3 times", filename,
          sample_time);
-      al_rest(sample_time * 3.0f);
+
+      al_rest(sample_time);
+
+      if (al_sample_set_float(sample, ALLEGRO_AUDIOPROP_GAIN, 0.5) != 0) {
+         fprintf(stderr, "Failed to set gain.\n");
+      }
+      al_rest(sample_time);
+
+      if (al_sample_set_float(sample, ALLEGRO_AUDIOPROP_GAIN, 0.25) != 0) {
+         fprintf(stderr, "Failed to set gain.\n");
+      }
+      al_rest(sample_time);
+
       al_sample_stop(sample);
       fprintf(stderr, "\n");
 

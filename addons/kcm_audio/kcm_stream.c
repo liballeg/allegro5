@@ -55,13 +55,14 @@ ALLEGRO_STREAM *al_stream_create(size_t buffer_count, unsigned long samples,
    }
 
    stream->spl.is_playing = true;
-   stream->drained = false;
+   stream->is_draining = false;
 
-   stream->spl.loop      = _ALLEGRO_PLAYMODE_STREAM;
+   stream->spl.loop      = _ALLEGRO_PLAYMODE_STREAM_ONCE;
    stream->spl.spl_data.depth     = depth;
    stream->spl.spl_data.chan_conf = chan_conf;
    stream->spl.spl_data.frequency = freq;
    stream->spl.speed     = 1.0f;
+   stream->spl.gain      = 1.0f;
 
    stream->spl.step = 0;
    stream->spl.pos  = samples << MIXER_FRAC_SHIFT;
@@ -124,11 +125,12 @@ void al_stream_destroy(ALLEGRO_STREAM *stream)
 void al_stream_drain(ALLEGRO_STREAM *stream)
 {
    bool playing;
-   stream->drained = true;
+   stream->is_draining = true;
    do {
       al_rest(0.01);
       al_stream_get_bool(stream, ALLEGRO_AUDIOPROP_PLAYING, &playing);
    } while (playing);
+   stream->is_draining = false;
 }
 
 
@@ -180,6 +182,10 @@ int al_stream_get_float(const ALLEGRO_STREAM *stream,
          *val = stream->spl.speed;
          return 0;
 
+      case ALLEGRO_AUDIOPROP_GAIN:
+         *val = stream->spl.gain;
+         return 0;
+
       default:
          _al_set_error(ALLEGRO_INVALID_PARAM,
             "Attempted to get invalid stream float setting");
@@ -202,6 +208,10 @@ int al_stream_get_enum(const ALLEGRO_STREAM *stream,
 
       case ALLEGRO_AUDIOPROP_CHANNELS:
          *val = stream->spl.spl_data.chan_conf;
+         return 0;
+
+      case ALLEGRO_AUDIOPROP_LOOPMODE:
+         *val = stream->spl.loop;
          return 0;
 
       default:
@@ -333,6 +343,31 @@ int al_stream_set_float(ALLEGRO_STREAM *stream,
 
          return 0;
 
+      case ALLEGRO_AUDIOPROP_GAIN:
+         if (stream->spl.parent.u.ptr && stream->spl.parent.is_voice) {
+            _al_set_error(ALLEGRO_GENERIC_ERROR,
+               "Could not set gain of stream attached to voice");
+            return 1;
+         }
+
+         if (stream->spl.gain == val) {
+            return 0;
+         }
+         stream->spl.gain = val;
+
+         /* If attached to a mixer already, need to recompute the sample
+          * matrix to take into account the gain.
+          */
+         if (stream->spl.parent.u.mixer) {
+            ALLEGRO_MIXER *mixer = stream->spl.parent.u.mixer;
+
+            al_lock_mutex(stream->spl.mutex);
+            _al_kcm_mixer_rejig_sample_matrix(mixer, &stream->spl);
+            al_unlock_mutex(stream->spl.mutex);
+         }
+
+         return 0;
+
       default:
          _al_set_error(ALLEGRO_INVALID_PARAM,
             "Attempted to set invalid stream float setting");
@@ -348,10 +383,22 @@ int al_stream_set_enum(ALLEGRO_STREAM *stream,
 {
    ASSERT(stream);
 
-   (void)stream;
-   (void)val;
-
    switch (setting) {
+      case ALLEGRO_AUDIOPROP_LOOPMODE:
+         if (val == ALLEGRO_PLAYMODE_ONCE) {
+            stream->spl.loop = _ALLEGRO_PLAYMODE_STREAM_ONCE;
+            return 0;
+         }
+         else if (val == ALLEGRO_PLAYMODE_ONEDIR) {
+            /* Only streams creating by al_stream_from_file() support
+             * looping. */
+            if (!stream->feeder)
+               return 1;
+
+            stream->spl.loop = _ALLEGRO_PLAYMODE_STREAM_ONEDIR;
+            return 0;
+         }
+
       default:
          _al_set_error(ALLEGRO_INVALID_PARAM,
             "Attempted to set invalid stream enum setting");
@@ -484,11 +531,13 @@ void *_al_kcm_feed_stream(ALLEGRO_THREAD *self, void *vstream)
 {
    ALLEGRO_STREAM *stream = vstream;
 
+   TRACE("Stream feeder thread started.\n");
+
    while (!stream->quit_feed_thread) {
       void *vbuf;
       unsigned long vbuf_waiting_count;
       unsigned long bytes;
-      bool is_dry;
+      unsigned long bytes_written;
 
       if (al_stream_get_long(stream, ALLEGRO_AUDIOPROP_USED_FRAGMENTS,
                              &vbuf_waiting_count) != 0) {
@@ -496,7 +545,7 @@ void *_al_kcm_feed_stream(ALLEGRO_THREAD *self, void *vstream)
          return NULL;
       }
 
-      if (vbuf_waiting_count == 0) {
+      if (vbuf_waiting_count == 0 || stream->is_draining) {
          al_rest(0.05); /* Precalculate some optimal value? */
          continue;
       }
@@ -510,24 +559,39 @@ void *_al_kcm_feed_stream(ALLEGRO_THREAD *self, void *vstream)
               al_channel_count(stream->spl.spl_data.chan_conf) *
               al_depth_size(stream->spl.spl_data.depth);
 
-      is_dry = stream->feeder(stream, vbuf, bytes);
+      bytes_written = stream->feeder(stream, vbuf, bytes);
+
+      /* In case it reaches the end of the stream source, stream feeder will
+       * fill the remaining space with silence. If we should loop, rewind the
+       * stream and override the silence with the beginning. */
+      if (bytes_written != bytes &&
+          stream->spl.loop == _ALLEGRO_PLAYMODE_STREAM_ONEDIR) {
+         size_t bw;
+         al_stream_rewind(stream);
+         bw = stream->feeder(stream, ((int*)vbuf) + bytes_written, bytes - bytes_written);
+         ASSERT(bw == bytes - bytes_written);
+      }
 
       if (al_stream_set_ptr(stream, ALLEGRO_AUDIOPROP_BUFFER, vbuf) != 0) {
          TRACE("Error setting stream buffer.\n");
          return NULL;
       }
 
-      if (is_dry) {
+      /* The streaming source doesn't feed any more, drain buffers and quit. */
+      if (bytes_written != bytes &&
+          stream->spl.loop == _ALLEGRO_PLAYMODE_STREAM_ONCE) {
          al_stream_drain(stream);
          return NULL;
       }
    }
 
+   TRACE("Stream feeder thread finished.\n");
+
    return NULL;
 }
 
 
-bool _al_kcm_emit_stream_event(ALLEGRO_STREAM *stream, bool is_dry, unsigned long count)
+bool _al_kcm_emit_stream_event(ALLEGRO_STREAM *stream, unsigned long count)
 {
    _al_event_source_lock(&stream->spl.es);
 
@@ -540,7 +604,6 @@ bool _al_kcm_emit_stream_event(ALLEGRO_STREAM *stream, bool is_dry, unsigned lon
             al_stream_get_ptr(stream, ALLEGRO_AUDIOPROP_BUFFER,
                               &event->stream.empty_fragment);
             ASSERT(event->stream.empty_fragment);
-            event->stream.is_dry = is_dry;
             _al_event_source_emit_event(&stream->spl.es, event);
          }
       }
@@ -551,4 +614,19 @@ bool _al_kcm_emit_stream_event(ALLEGRO_STREAM *stream, bool is_dry, unsigned lon
    return true;
 }
 
+
+/* al_stream_rewind:
+ * Set the streaming file playing position to the beginning. Returns true on
+ * success. Currently this can only be called on streams created with acodec's
+ * al_stream_from_file(). */
+bool al_stream_rewind(ALLEGRO_STREAM *stream)
+{
+   if (stream->rewind_feeder) {
+      return stream->rewind_feeder(stream);
+   }
+
+   return false;
+}
+
 /* vim: set sts=3 sw=3 et: */
+

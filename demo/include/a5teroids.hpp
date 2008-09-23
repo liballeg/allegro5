@@ -40,6 +40,7 @@
 #include "DisplayResource.hpp"
 #include "GenericResource.hpp"
 #include "SampleResource.hpp"
+#include "StreamResource.hpp"
 #include "ResourceManager.hpp"
 #include "Misc.hpp"
 //#include "Script.hpp"

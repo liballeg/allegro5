@@ -95,13 +95,14 @@ enum ALLEGRO_CHANNEL_CONF {
 
 
 /* Type: ALLEGRO_PLAYMODE
- *  Sample looping mode.
+ *  Sample and stream looping mode.
  */
 enum ALLEGRO_PLAYMODE {
    ALLEGRO_PLAYMODE_ONCE   = 0x100,
    ALLEGRO_PLAYMODE_ONEDIR = 0x101,
    ALLEGRO_PLAYMODE_BIDIR  = 0x102,
-   _ALLEGRO_PLAYMODE_STREAM = 0x103    /* internal */
+   _ALLEGRO_PLAYMODE_STREAM_ONCE   = 0x103,   /* internal */
+   _ALLEGRO_PLAYMODE_STREAM_ONEDIR = 0x104    /* internal */
 };
 
 
@@ -131,6 +132,7 @@ enum ALLEGRO_AUDIO_PROPERTY {
    ALLEGRO_AUDIOPROP_LOOPMODE       = 0x207,
    ALLEGRO_AUDIOPROP_SPEED          = 0x208,
    ALLEGRO_AUDIOPROP_POSITION       = 0x209,
+   ALLEGRO_AUDIOPROP_GAIN           = 0x20A,
 
    ALLEGRO_AUDIOPROP_FRAGMENTS      = 0x20B,
    ALLEGRO_AUDIOPROP_USED_FRAGMENTS = 0x20C,
@@ -229,6 +231,11 @@ typedef struct ALLEGRO_SAMPLE_DATA ALLEGRO_SAMPLE_DATA;
  * ALLEGRO_AUDIOPROP_POSITION (long) -
  *    Gets or sets the object's playing position. The value is in
  *    samples-per-channel.
+ *
+ * ALLEGRO_AUDIOPROP_GAIN (float) -
+ *    Gets or sets the object's gain. The gain is only applied when mixing the
+ *    sample into a parent mixer. Has no effect if the object is attached
+ *    directly to a voice.
  */
 typedef struct ALLEGRO_SAMPLE ALLEGRO_SAMPLE;
 
@@ -266,9 +273,15 @@ typedef struct ALLEGRO_SAMPLE ALLEGRO_SAMPLE;
  *    Same as ALLEGRO_SAMPLE, with the exception that ALLEGRO_STREAM objects
  *    are set to play by default.
  *
+ * ALLEGRO_AUDIOPROP_LOOPMODE (enum) -
+ *    Same as ALLEGRO_SAMPLE
+ *
  * ALLEGRO_AUDIOPROP_SPEED (float) -
  *    Same as ALLEGRO_SAMPLE, with the added caveat that negative values aren't
  *    allowed.
+ *
+ * ALLEGRO_AUDIOPROP_GAIN (float) -
+ *    Same as ALLEGRO_SAMPLE.
  *
  * ALLEGRO_AUDIOPROP_LENGTH (long) -
  *    This gets the length, in samples-per-channel, of the individual buffer
@@ -362,6 +375,7 @@ A5_KCM_AUDIO_FUNC(int, al_stream_set_bool, (ALLEGRO_STREAM *stream,
       ALLEGRO_AUDIO_PROPERTY setting, bool val));
 A5_KCM_AUDIO_FUNC(int, al_stream_set_ptr, (ALLEGRO_STREAM *spl,
       ALLEGRO_AUDIO_PROPERTY setting, void *ptr));
+A5_KCM_AUDIO_FUNC(bool, al_stream_rewind, (ALLEGRO_STREAM *stream));
 
 /* Mixer functions */
 A5_KCM_AUDIO_FUNC(ALLEGRO_MIXER*, al_mixer_create, (unsigned long freq,

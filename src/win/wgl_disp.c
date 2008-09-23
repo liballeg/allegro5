@@ -37,8 +37,7 @@ static ALLEGRO_DISPLAY_INTERFACE *vt = 0;
 
 /* Forward declarations: */
 static void display_thread_proc(void *arg);
-static void wgl_destroy_display(ALLEGRO_DISPLAY *display);
-
+static void destroy_display_internals(ALLEGRO_DISPLAY_WGL *wgl_disp);
 
 /*
  * These parameters cannot be gotten by the display thread because
@@ -46,8 +45,8 @@ static void wgl_destroy_display(ALLEGRO_DISPLAY *display);
  */
 typedef struct new_display_parameters {
    ALLEGRO_DISPLAY_WGL *display;
-   bool init_failed;
-   bool initialized;
+   volatile bool init_failed;
+   HANDLE AckEvent;
 } new_display_parameters;
 
 
@@ -923,12 +922,14 @@ static bool create_display_internals(ALLEGRO_DISPLAY_WGL *wgl_disp) {
    HANDLE window_thread;
 
    ndp.display = wgl_disp;
-   ndp.init_failed = false;
-   ndp.initialized = false;
+   ndp.init_failed = true;
+   ndp.AckEvent = CreateEvent(NULL, FALSE, FALSE, NULL);
    window_thread = (HANDLE)_beginthread(display_thread_proc, 0, &ndp);
 
-   while (!ndp.initialized && !ndp.init_failed)
-      al_rest(0.001);
+   /* Give some time for dispaly thread do init, but don't block if
+    * something horrible happened to it. */
+   WaitForSingleObject(ndp.AckEvent, 10*1000);
+   CloseHandle(ndp.AckEvent);
 
    if (ndp.init_failed) {
       TRACE(PREFIX_E "Failed to create display.\n");
@@ -940,7 +941,7 @@ static bool create_display_internals(ALLEGRO_DISPLAY_WGL *wgl_disp) {
       log_win32_error("create_display_internals",
                       "Unable to make the context current!",
                        GetLastError());
-      wgl_destroy_display(disp);
+      destroy_display_internals(wgl_disp);
       return false;
    }
 
@@ -990,6 +991,8 @@ static ALLEGRO_DISPLAY* wgl_create_display(int w, int h) {
    memset(display->ogl_extras, 0, sizeof(ALLEGRO_OGL_EXTRAS));
 
    if (!create_display_internals(wgl_display)) {
+      _AL_FREE(display);
+      _AL_FREE(display->ogl_extras);
       return NULL;
    }
 
@@ -1092,8 +1095,8 @@ static void display_thread_proc(void *arg)
    if (disp->flags & ALLEGRO_FULLSCREEN) {
       if (!change_display_mode(disp)) {
          win_disp->thread_ended = true;
-         wgl_destroy_display(disp);
-         ndp->init_failed = true;
+         destroy_display_internals(wgl_disp);
+         SetEvent(ndp->AckEvent);
          return;
       }
    }
@@ -1101,7 +1104,9 @@ static void display_thread_proc(void *arg)
    win_disp->window = _al_win_create_window(disp, disp->w, disp->h, disp->flags);
 
    if (!win_disp->window) {
-      ndp->init_failed = true;
+      win_disp->thread_ended = true;
+      destroy_display_internals(wgl_disp);
+      SetEvent(ndp->AckEvent);
       return;
    }
 
@@ -1168,8 +1173,8 @@ static void display_thread_proc(void *arg)
 
    if (!select_pixel_format(wgl_disp, wgl_disp->dc)) {
       win_disp->thread_ended = true;
-      wgl_destroy_display(disp);
-      ndp->init_failed = true;
+      destroy_display_internals(wgl_disp);
+      SetEvent(ndp->AckEvent);
       return;
    }
 
@@ -1179,14 +1184,15 @@ static void display_thread_proc(void *arg)
       log_win32_error("wgl_disp_display_thread_proc", "Unable to create a render context!",
                       GetLastError());
       win_disp->thread_ended = true;
-      wgl_destroy_display(disp);
-      ndp->init_failed = true;
+      destroy_display_internals(wgl_disp);
+      SetEvent(ndp->AckEvent);
       return;
    }
 
    win_disp->thread_ended = false;
    win_disp->end_thread = false;
-   ndp->initialized = true;
+   ndp->init_failed = false;
+   SetEvent(ndp->AckEvent);
 
    while (!win_disp->end_thread) {
       if (WaitMessage()) {

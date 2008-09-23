@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-import optparse, subprocess
+import optparse, subprocess, sys
 
 def fix_version_in_menu_txt(real_version, menu_txt):
     try:
@@ -30,16 +30,20 @@ def get_real_version():
             return line[quote1:quote2]
     return None
 
-def main():
+def main(argv):
     p = optparse.OptionParser()
     p.add_option("-u", "--user", help = "Username to use.")
     options, args = p.parse_args()
 
-    sf = "shell.sf.net"
-    if options.user: sf = "%s@shell.sf.net" % options.user
+    if options.user: sf = "%s,alleg@web.sf.net" % options.user
+    else:
+        sys.stderr.write("SourceForge user name required.\n")
+        p.print_help()
+        sys.exit(-1)
     htdocs = "/home/groups/a/al/alleg/htdocs"
 
     def run(cmd):
+        print ">", cmd
         p = subprocess.Popen(cmd, shell = True, stdout = subprocess.PIPE,
             stderr = subprocess.STDOUT)
         print ">", p.stdout.read()
@@ -51,34 +55,17 @@ def main():
         if old_version:
             print "Fixed version from", old_version, "to", version
 
-    print "Creating archives.."
-    run("tar cjf private.tar.bz2 -C private html")
-    run("tar cjf public.tar.bz2 -C public html")
-    print "Uploading archives.."
-    run("scp private.tar.bz2 " + sf + ":" + htdocs)
-    run("scp public.tar.bz2 " + sf + ":" + htdocs)
-    print "Replacing docs.."
-    com = "cd " + htdocs
-    com += " ; rm -r naturaldocs_internal"
-    com += " ; mkdir naturaldocs_internal"
-    com += " ; cd naturaldocs_internal"
-    com += " ; tar xjf ../private.tar.bz2"
-    com += " ; mv html/* . ; rmdir html"
-    com += " ; rm ../private.tar.bz2"
-    com += " ; cd .."
-    com += " ; rm -r naturaldocs"
-    com += " ; mkdir naturaldocs"
-    com += " ; cd naturaldocs"
-    com += " ; tar xjf ../public.tar.bz2"
-    com += " ; mv html/* . ; rmdir html"
-    com += " ; rm ../public.tar.bz2"
-    run("ssh " + sf + " '" + com + "'")
-    print "Cleaning up.."
-    run("rm private.tar.bz2")
-    run("rm public.tar.bz2")
+    print "Generating docs.."
+    run("make")
+
+    print "Copying files.."
+    rsync = "rsync --delete -r -z"
+    run("%s public/html/* %s:htdocs/naturaldocs/" % (rsync, sf))
+    run("%s private/html/* %s:htdocs/naturaldocs_internal/" % (rsync, sf))
+    
     print("Public docs: http://www.liballeg.org/naturaldocs")
     print("Internal docs: http://www.liballeg.org/naturaldocs_internal")
     
 if __name__ == "__main__":
-    main()
+    main(sys.argv)
 

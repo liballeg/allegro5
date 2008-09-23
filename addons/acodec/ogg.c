@@ -106,8 +106,15 @@ ALLEGRO_SAMPLE_DATA *al_load_sample_oggvorbis(const char *filename)
 }
 
 
+static bool ogg_stream_rewind(ALLEGRO_STREAM *stream)
+{
+   AL_OV_DATA *extra = (AL_OV_DATA *) stream->extra;
+   return (ov_raw_seek(extra->vf, 0) != -1);
+}
+
+
 /* To be called when stream is destroyed */
-static void _ogg_stream_close(ALLEGRO_STREAM *stream)
+static void ogg_stream_close(ALLEGRO_STREAM *stream)
 {
    AL_OV_DATA *extra = (AL_OV_DATA *) stream->extra;
 
@@ -123,8 +130,8 @@ static void _ogg_stream_close(ALLEGRO_STREAM *stream)
 }
 
 
-static bool ogg_stream_update(ALLEGRO_STREAM *stream, void *data,
-                              unsigned long buf_size)
+static size_t ogg_stream_update(ALLEGRO_STREAM *stream, void *data,
+                                size_t buf_size)
 {
    AL_OV_DATA *extra = (AL_OV_DATA *) stream->extra;
 
@@ -148,12 +155,12 @@ static bool ogg_stream_update(ALLEGRO_STREAM *stream, void *data,
       if (read == 0) {
          int silence = _al_audio_get_silence(stream->spl.spl_data.depth);
          memset((char *)data + pos, silence, buf_size - pos);
-         /* stream is dry */
-         return true;
+         /* return the number of usefull byes written */
+         return pos;
       }
    }
 
-   return false;
+   return pos;
 }
 
 
@@ -212,7 +219,8 @@ ALLEGRO_STREAM *al_load_stream_oggvorbis(size_t buffer_count,
    stream->feed_thread = al_create_thread(_al_kcm_feed_stream, stream);
    stream->quit_feed_thread = false;
    stream->feeder = ogg_stream_update;
-   stream->unload_feeder = _ogg_stream_close;
+   stream->rewind_feeder = ogg_stream_rewind;
+   stream->unload_feeder = ogg_stream_close;
    al_start_thread(stream->feed_thread);
 
    return stream;

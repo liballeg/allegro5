@@ -129,3 +129,6 @@ ALLEGRO_AUDIO_DEPTH _al_word_size_to_depth_conf(int word_size)
          return 0;
    }
 }
+
+/* vim: set sts=3 sw=3 et: */
+

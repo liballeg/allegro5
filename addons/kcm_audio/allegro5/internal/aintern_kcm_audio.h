@@ -124,6 +124,7 @@ struct ALLEGRO_SAMPLE {
 
    ALLEGRO_PLAYMODE     loop;
    float                speed;
+   float                gain;
 
    unsigned long        pos;
    unsigned long        loop_start;
@@ -133,6 +134,7 @@ struct ALLEGRO_SAMPLE {
    float                *matrix;
                         /* Used to convert from this format to the attached
                          * mixers, if any.  Otherwise is NULL.
+                         * The gain is premultiplied in.
                          */
 
    stream_reader_t      spl_read;
@@ -155,8 +157,9 @@ void _al_kcm_stream_set_mutex(ALLEGRO_SAMPLE *stream, ALLEGRO_MUTEX *mutex);
 void _al_kcm_detach_from_parent(ALLEGRO_SAMPLE *spl);
 
 
-typedef bool (*stream_callback_t)(ALLEGRO_STREAM *, void *, unsigned long);
+typedef size_t (*stream_callback_t)(ALLEGRO_STREAM *, void *, size_t);
 typedef void (*unload_feeder_t)(ALLEGRO_STREAM *);
+typedef bool (*rewind_feeder_t)(ALLEGRO_STREAM *);
 
 
 struct ALLEGRO_STREAM {
@@ -186,7 +189,7 @@ struct ALLEGRO_STREAM {
                          * have been sent to the audio driver and so are
                          * ready to receive new data.
                          */
-   bool                  drained;
+   bool                  is_draining;
                          /* Set to true if sample data is not going to be passed
                           * to the stream any more. The stream must change its
                           * playing state to false after all buffers have been
@@ -196,6 +199,7 @@ struct ALLEGRO_STREAM {
    ALLEGRO_THREAD        *feed_thread;
    volatile bool         quit_feed_thread;
    unload_feeder_t       unload_feeder;
+   rewind_feeder_t       rewind_feeder;
    stream_callback_t     feeder;
                          /* If ALLEGRO_STREAM has been created by
                           * al_stream_from_file(), acodec will be feeding the stream
@@ -234,6 +238,8 @@ struct ALLEGRO_MIXER {
                             */
 };
 
+extern void _al_kcm_mixer_rejig_sample_matrix(ALLEGRO_MIXER *mixer,
+   ALLEGRO_SAMPLE *spl);
 extern void _al_kcm_mixer_read(void *source, void **buf, unsigned long *samples,
    ALLEGRO_AUDIO_DEPTH buffer_depth, size_t dest_maxc);
 
@@ -252,7 +258,7 @@ A5_KCM_AUDIO_FUNC(int, _al_audio_get_silence, (ALLEGRO_AUDIO_DEPTH depth));
 A5_KCM_AUDIO_FUNC(void*, _al_kcm_feed_stream, (ALLEGRO_THREAD *self, void *vstream));
 
 /* Helper to emit an event that the stream has got a buffer ready to be refilled. */
-bool _al_kcm_emit_stream_event(ALLEGRO_STREAM *stream, bool is_dry, unsigned long count);
+bool _al_kcm_emit_stream_event(ALLEGRO_STREAM *stream, unsigned long count);
 
 #endif
 

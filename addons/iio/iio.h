@@ -16,12 +16,14 @@ ALLEGRO_BITMAP *iio_load_pcx(AL_CONST char *filename);
 ALLEGRO_BITMAP *iio_load_bmp(AL_CONST char *filename);
 ALLEGRO_BITMAP *iio_load_tga(AL_CONST char *filename);
 ALLEGRO_BITMAP *iio_load_png(AL_CONST char *filename);
+ALLEGRO_BITMAP *iio_load_jpg(AL_CONST char *filename);
 
 
 int iio_save_pcx(AL_CONST char *filename, ALLEGRO_BITMAP *bmp);
 int iio_save_bmp(AL_CONST char *filename, ALLEGRO_BITMAP *bmp);
 int iio_save_tga(AL_CONST char *filename, ALLEGRO_BITMAP *bmp);
 int iio_save_png(AL_CONST char *filename, ALLEGRO_BITMAP *bmp);
+int iio_save_jpg(AL_CONST char *filename, ALLEGRO_BITMAP *bmp);
 
 
 

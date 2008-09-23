@@ -206,8 +206,7 @@ static void stream_read(void *source, void **vbuf, unsigned long *samples,
 
       _al_kcm_refill_stream(stream);
       if (!stream->pending_bufs[0]) {
-         if (stream->drained) {
-            stream->drained = false;
+         if (stream->is_draining) {
             stream->spl.is_playing = false;
          }
          *vbuf = NULL;
@@ -218,7 +217,7 @@ static void stream_read(void *source, void **vbuf, unsigned long *samples,
 
       al_stream_get_long(stream, ALLEGRO_AUDIOPROP_USED_FRAGMENTS, &count);
       if (count)
-         _al_kcm_emit_stream_event(stream, (bool)*vbuf, count);
+         _al_kcm_emit_stream_event(stream, count);
    }
    else {
       int bytes = pos * al_channel_count(stream->spl.spl_data.chan_conf)

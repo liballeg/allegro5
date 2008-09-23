@@ -5,10 +5,10 @@ all: public private
 ND=NaturalDocs
 #endif
 
-EX=docs misc
+EX=docs misc build scons_build
 
 # Note: In my version of naturaldocs, only one single -i option must be present,
-# else it will wite absolute pathes everywhere.
+# else it will write absolute pathes everywhere.
 
 XIOPTIONS=$(addprefix -xi ../../, $(EX))
 

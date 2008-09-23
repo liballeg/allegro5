@@ -107,6 +107,7 @@ def examples(env):
     example("ex_lockbitmap")
     example("ex_lockscreen")
     example("ex_membmp")
+    example("ex_mixer_chain")
     example("ex_monitorinfo")
     example("ex_mouse")
     example("ex_mouse_cursor")
