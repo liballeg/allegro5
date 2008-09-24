@@ -991,8 +991,8 @@ static ALLEGRO_DISPLAY* wgl_create_display(int w, int h) {
    memset(display->ogl_extras, 0, sizeof(ALLEGRO_OGL_EXTRAS));
 
    if (!create_display_internals(wgl_display)) {
-      _AL_FREE(display);
       _AL_FREE(display->ogl_extras);
+      _AL_FREE(display);
       return NULL;
    }
 
