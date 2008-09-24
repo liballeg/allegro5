@@ -96,6 +96,7 @@ int main(int argc, char **argv)
       max_sample_time = sample_time;
 
    printf("Playing...");
+   fflush(stdout);
 
    al_rest(max_sample_time);
 
@@ -107,6 +108,7 @@ int main(int argc, char **argv)
 
    al_sample_stop(sample[0]);
    al_sample_stop(sample[1]);
+   printf("\n");
 
    /* Free the memory allocated. */
    for (i = 0; i < 2; i++) {
