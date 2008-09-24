@@ -93,7 +93,7 @@ typedef struct OSS_VOICE {
    unsigned int len; /* in frames */
    unsigned int frame_size; /* in bytes */
 
-   bool stopped;
+   volatile bool stopped;
    volatile bool stop;
 
    ALLEGRO_THREAD *poll_thread;
