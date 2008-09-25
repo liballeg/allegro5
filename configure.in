@@ -298,6 +298,15 @@ else
   allegro_build_normal_library=yes
   _programs="release"
 fi
+
+M_LIBS="-lm"
+case "$host_os" in
+  beos* | haiku*)
+      M_LIBS=""
+      ;;
+esac
+
+
 if test "X$allegro_build_static_programs" = "Xyes"; then
   LIBALLEG=lib/unix/lib$LIB_TO_LINK.a
   LINK_LIBALLEG="$LIBALLEG \$(LIBS)"
@@ -306,7 +315,7 @@ if test "X$allegro_build_static_programs" = "Xyes"; then
   _programs="statically linked $_programs"
 else
   LIBALLEG="lib/unix/lib${LIB_TO_LINK}-\$(shared_version).so lib/unix/lib${LIB_TO_LINK}_unsharable.a"
-  LINK_LIBALLEG="-Llib/unix -l${LIB_TO_LINK}-\$(shared_version) -l${LIB_TO_LINK}_unsharable -lm"
+  LINK_LIBALLEG="-Llib/unix -l${LIB_TO_LINK}-\$(shared_version) -l${LIB_TO_LINK}_unsharable ${M_LIBS}"
   LINK_WITH_STATIC_LIBS=no
   allegro_shared_libraries=yes
   _programs="dynamically linked $_programs"
@@ -879,7 +888,7 @@ test -z "$_addons" && _addons="none"
 #-----------------------------------------------------------------------------#
 
 dnl Additional libraries.
-LIBS="-lm $LIBS"
+LIBS="${M_LIBS} $LIBS"
 
 case "$allegro_system" in
 

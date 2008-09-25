@@ -38,7 +38,7 @@ else
   endif
 endif
 
-LIBS = -lm `../../allegro-config --libs --addon`
+LIBS = `../../allegro-config --libs --addon`
 LDFLAGS = -L../../lib/$(PLATFORM_PATH)
 INSTALL_LIB_PATH = /boot/develop/lib/x86
 INSTALL_HEADER_PATH = /boot/develop/headers

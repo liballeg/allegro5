@@ -54,7 +54,7 @@ AC_PROG_INSTALL
 dnl Check for pthread support, which GL libs may require (e.g. FreeBSD)
 AC_CHECK_HEADER(pthread.h, , dontcare=y)
 AC_CHECK_LIB(pthread, pthread_create, LIBS="-lpthread $LIBS")
-
+AC_CHECK_LIB(m, cos, LIBS="-lm $LIBS")
 
 dnl Build Mesa generic driver
 if test -n "$agl_build_generic"; then
@@ -76,7 +76,7 @@ dnl Test for location of X headers and libraries
 	if test -n "$x_libraries"; then
 		LDFLAGS="-L$x_libraries $LDFLAGS"
 	fi
-	LIBS="-lXext -lX11 -lm $LIBS"
+	LIBS="-lXext -lX11 $LIBS"
 
 
 dnl Test for VidMode extension
