@@ -949,6 +949,11 @@ static bool create_display_internals(ALLEGRO_DISPLAY_WGL *wgl_disp) {
    _al_ogl_set_extensions(disp->ogl_extras->extension_api);
 
    disp->ogl_extras->backbuffer = _al_ogl_create_backbuffer(disp);
+   if (!disp->ogl_extras->backbuffer) {
+      TRACE(PREFIX_E "Failed to create a backbuffer.\n");
+      destroy_display_internals(wgl_disp);
+      return false;
+   }
  
    win_disp->mouse_range_x1 = 0;
    win_disp->mouse_range_y1 = 0;
@@ -1524,4 +1529,6 @@ void _al_wgl_get_monitor_info(int adapter, ALLEGRO_MONITOR_INFO *info)
    info->x2 = info->x1 + dm.dmPelsWidth;
    info->y2 = info->y1 + dm.dmPelsHeight;
 }
+
+/* vi: set sts=3 sw=3 et: */
 
