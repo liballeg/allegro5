@@ -471,6 +471,12 @@ endif(UNIX)
 #
 #-----------------------------------------------------------------------------#
 
+# Sanity check.
+if(NOT STATIC AND NOT SHARED)
+    message(FATAL_ERROR
+        "You must enable at least one of the STATIC or SHARED options.")
+endif(NOT STATIC AND NOT SHARED)
+
 # List of source files need to compile Allegro in this configuration on
 # this platform.
 set(LIBRARY_SOURCES
