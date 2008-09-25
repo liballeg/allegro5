@@ -22,6 +22,9 @@ find_package_handle_standard_args(FLAC DEFAULT_MSG
 
 if(FLAC_FOUND)
   set(FLAC_LIBRARIES ${FLAC_LIBRARY})
+  if(WIN32)
+    set(FLAC_LIBRARIES ${FLAC_LIBRARIES} -lwsock32)
+  endif(WIN32)
 else(FLAC_FOUND)
   set(FLAC_LIBRARIES)
 endif(FLAC_FOUND)
