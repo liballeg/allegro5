@@ -88,10 +88,24 @@ static void draw_quad(ALLEGRO_BITMAP *bitmap, float sx, float sy, float sw, floa
       glBindTexture(GL_TEXTURE_2D, ogl_bitmap->texture);
    }
 
-   l = ogl_bitmap->left;
-   t = ogl_bitmap->top;
-   r = ogl_bitmap->right;
-   b = ogl_bitmap->bottom;
+   if (flags & ALLEGRO_FLIP_HORIZONTAL) {
+      l = ogl_bitmap->right;
+      r = ogl_bitmap->left;
+   }
+   else {
+      l = ogl_bitmap->left;
+      r = ogl_bitmap->right;
+   }
+
+   if (flags & ALLEGRO_FLIP_VERTICAL) {
+      t = ogl_bitmap->bottom;
+      b = ogl_bitmap->top;
+   }
+   else {
+      t = ogl_bitmap->top;
+      b = ogl_bitmap->bottom;
+   }
+
    w = bitmap->w;
    h = bitmap->h;
 
