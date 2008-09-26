@@ -103,6 +103,7 @@ def examples(env):
     example("ex_fs_resize")
     example("ex_glext", libs = ["GLU"])
     example("ex_icon")
+    example("ex_keyboard_events")
     example("ex_lines")
     example("ex_lockbitmap")
     example("ex_lockscreen")
