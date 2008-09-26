@@ -29,6 +29,7 @@
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>
 #include <X11/Xproto.h>
+#include <X11/XKBlib.h>
 
 #include "allegro5/allegro5.h"
 #include "allegro5/internal/aintern.h"
