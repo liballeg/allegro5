@@ -697,6 +697,12 @@ static int x_keyboard_init(void)
    memcpy(key_names, _al_keyboard_common_names, sizeof key_names);
 
    _al_mutex_lock(&s->lock);
+   
+   Bool supported;
+   XkbSetDetectableAutoRepeat(s->x11display, True, &supported);
+   if (!supported) {
+    TRACE(PREFIX_W "XkbSetDetectableAutoRepeat failed.\n");
+   }
 
 #ifdef ALLEGRO_XWINDOWS_WITH_XIM
 /* TODO: is this needed?
