@@ -711,6 +711,22 @@ void *_al_realloc(void *mem, size_t size)
 
 
 
+/* _al_strdup:
+ *  Wrapper for when a program needs to duplicate a string in a way that
+ *  uses any user overloaded memory allocation system in use.
+ */
+char *_al_strdup(const char *string)
+{
+   char *newstring = _AL_MALLOC(strlen(string) + 1);
+
+   if (newstring)
+      strcpy(newstring, string);
+
+   return newstring;
+}
+
+
+
 /* a simple system driver for platform-independent code */
 static int sys_none_init(void) { return 0; }
 static void sys_none_exit(void) { }

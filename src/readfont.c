@@ -55,7 +55,7 @@ void register_font_file_type(AL_CONST char *ext, FONT *(*load)(AL_CONST char *fi
 
    if (iter) {
       iter->load = load;
-      iter->ext = strdup(aext);
+      iter->ext = _al_strdup(aext);
       iter->next = NULL;
    }
 }

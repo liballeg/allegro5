@@ -58,7 +58,7 @@ void register_sample_file_type(AL_CONST char *ext, SAMPLE *(*load)(AL_CONST char
    if (iter) {
       iter->load = load;
       iter->save = save;
-      iter->ext = strdup(aext);
+      iter->ext = _al_strdup(aext);
       iter->next = NULL;
    }
 }

@@ -57,7 +57,7 @@ void register_bitmap_file_type(AL_CONST char *ext, BITMAP *(*load)(AL_CONST char
    if (iter) {
       iter->load = load;
       iter->save = save;
-      iter->ext = strdup(aext);
+      iter->ext = _al_strdup(aext);
       iter->next = NULL;
    }
 }
