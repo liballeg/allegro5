@@ -78,9 +78,10 @@ def appendDir(directory, files):
 # This is a base class which should not be instantiated. See one of
 # the subclasses below.
 class AllegroContext:
-    def __init__(self):
+    def __init__(self, tests):
         self.cmake = helpers.read_cmake_list("cmake/FileList.cmake")
         self.librarySource = []
+        self.tests = tests
     
     # List of source for the Allegro library (and nothing else!)
     def getLibrarySource(self):
@@ -89,6 +90,9 @@ class AllegroContext:
     # Directory that files are installed to before being really installed
     def temporaryInstallDir(self):
         return "tmp-install"
+
+    def getTests(self):
+        return self.tests
     
     # Version of allegro (major.minor.micro)
     def getVersion(self):
@@ -111,8 +115,8 @@ class AllegroContext:
 
 # Shared non-debug
 class AllegroContextNormal(AllegroContext):
-    def __init__(self):
-        AllegroContext.__init__(self)
+    def __init__(self, tests):
+        AllegroContext.__init__(self, tests)
     
     # Alias a target and add it to the 'all' alias
     def alias(self,name,target):
@@ -145,8 +149,8 @@ class AllegroContextNormal(AllegroContext):
 
 # Static non-debug
 class AllegroContextStatic(AllegroContext):
-    def __init__(self):
-        AllegroContext.__init__(self)
+    def __init__(self, tests):
+        AllegroContext.__init__(self, tests)
     
     # Anything aliased with this target ends up with -static on the end
     def alias(self,name,target):
@@ -179,8 +183,8 @@ class AllegroContextStatic(AllegroContext):
 
 # Shared debug
 class AllegroContextDebug(AllegroContext):
-    def __init__(self):
-        AllegroContext.__init__(self)
+    def __init__(self, tests):
+        AllegroContext.__init__(self, tests)
     
     def alias(self,name,target):
         Alias(name + '-debug',target)
@@ -212,8 +216,8 @@ class AllegroContextDebug(AllegroContext):
 
 # Static debug
 class AllegroContextStaticDebug(AllegroContext):
-    def __init__(self):
-        AllegroContext.__init__(self)
+    def __init__(self, tests):
+        AllegroContext.__init__(self, tests)
     
     def alias(self,name,target):
         Alias(name + '-static-debug',target)
@@ -243,30 +247,30 @@ class AllegroContextStaticDebug(AllegroContext):
     def getBuildDir(self):
         return BUILD_DIR + '/debug-static'
 
+def getPlatform():
+    import sys
+    # if self.platform: return self.platform
+    # return sys.platform
+    return sys.platform
+
+def matchPlatform(name):
+    import re
+    m = re.compile(".*%s.*" % name)
+    return (m.match(getPlatform()) != None)
+
+def onBsd():
+    return matchPlatform('openbsd')
+
+def onLinux():
+    return matchPlatform('linux')
+
+def onWindows():
+    return matchPlatform('win32')
+
+def onOSX():
+    return matchPlatform('darwin')
+
 def getPlatformFile():
-    def getPlatform():
-        import sys
-        # if self.platform: return self.platform
-        # return sys.platform
-        return sys.platform
-
-    def matchPlatform(name):
-        import re
-        m = re.compile(".*%s.*" % name)
-        return (m.match(getPlatform()) != None)
-
-    def onBsd():
-        return matchPlatform('openbsd')
-
-    def onLinux():
-        return matchPlatform('linux')
-
-    def onWindows():
-        return matchPlatform('win32')
-
-    def onOSX():
-        return matchPlatform('darwin')
-
     if onBsd():
         return 'scons/bsd.scons'
     elif onLinux():
@@ -278,21 +282,37 @@ def getPlatformFile():
     else:
         return 'scons/linux.scons'
 
+def platformChecks():
+    def unixChecks():
+        import checks
+        tests = {}
+        for check in [x for x in dir(checks) if callable(getattr(checks, x))]:
+            tests[check] = getattr(checks, check)
+        return tests
+
+    # TODO: windows checks and osx checks
+    if onLinux():
+        return unixChecks()
+    elif onBsd():
+        return unixChecks()
+    else:
+        return unixChecks()
+
 def doBuild(context):
     env = context.defaultEnvironment()
     return SConscript(getPlatformFile(), build_dir = context.getBuildDir(), exports = ['context','env'])
     
 def buildNormal():
-    return doBuild(AllegroContextNormal())
+    return doBuild(AllegroContextNormal(platformChecks()))
 
 def buildStatic():
-    return doBuild(AllegroContextStatic())
+    return doBuild(AllegroContextStatic(platformChecks()))
 
 def buildDebug():
-    return doBuild(AllegroContextDebug())
+    return doBuild(AllegroContextDebug(platformChecks()))
 
 def buildStaticDebug():
-    return doBuild(AllegroContextStaticDebug())
+    return doBuild(AllegroContextStaticDebug(platformChecks()))
 
 installNormal = buildNormal()
 installStatic = buildStatic()

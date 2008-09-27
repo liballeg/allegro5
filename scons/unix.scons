@@ -140,13 +140,13 @@ def setupPlatform(platform, config):
 
     return config.Finish()
 
-tests = {}
+#tests = {}
 # import all functions from checks.py as custom SCons checks
-for check in [x for x in dir(checks) if callable(getattr(checks, x))]:
-    tests[check] = getattr(checks, check)
+#for check in [x for x in dir(checks) if callable(getattr(checks, x))]:
+#    tests[check] = getattr(checks, check)
 
 platform, configure_env = helpers.do_configure('unix', context,
-                            tests, setupPlatform,
+                            context.getTests(), setupPlatform,
                             'include/allegro5/platform/alunixac.h.cmake',
                             'include/allegro5/platform/alunixac.h',
                             getArgumentOption('config', 0))
