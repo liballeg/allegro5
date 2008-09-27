@@ -714,6 +714,7 @@ void *_al_realloc(void *mem, size_t size)
 /* _al_strdup:
  *  Wrapper for when a program needs to duplicate a string in a way that
  *  uses any user overloaded memory allocation system in use.
+ *  The result of this function _must_ be freed with _AL_FREE().
  */
 char *_al_strdup(const char *string)
 {
