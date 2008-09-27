@@ -304,7 +304,7 @@ static void key_dinput_handle(void)
                                          0);
 
    /* was device lost ? */
-   if ((hr == DIERR_NOTACQUIRED) || (hr == DIERR_INPUTLOST)) {
+   if ((hr == DIERR_NOTACQUIRED) || (hr == DIERR_INPUTLOST) || !win_disp) {
       /* reacquire device */
       TRACE(PREFIX_W "keyboard device not acquired or lost\n");
       /* Makes no sense to reacquire the device here becasue this usually 

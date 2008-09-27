@@ -456,7 +456,7 @@ static void mouse_dinput_handle(void)
                                          0);
 
    /* was device lost ? */
-   if ((hr == DIERR_NOTACQUIRED) || (hr == DIERR_INPUTLOST)) {
+   if ((hr == DIERR_NOTACQUIRED) || (hr == DIERR_INPUTLOST) || !win_disp) {
       /* reacquire device */
       TRACE(PREFIX_W "mouse device not acquired or lost\n");
       /*_al_win_wnd_schedule_proc(win_disp->window, mouse_dinput_acquire, NULL);*/
