@@ -492,3 +492,51 @@ def CheckSndfile(context):
             context.sconf.env = tmpEnv
     context.Result(ret)
     return ret
+
+def CheckOpenAL(context):
+    context.Message("Checking for OpenAL... ")
+
+    ret = context.TryAction('openal-config --libs')[0]
+    if ret:
+        tmpEnv = context.env.Clone()
+        tmpEnv.ParseConfig('openal-config --libs')
+        def add_al(env, output):
+            output = "-I " + os.path.join(output.strip(), "AL")
+            tmpEnv.MergeFlags(output)
+        tmpEnv.ParseConfig('openal-config --includedir', add_al)
+        ret = context.TryLink("""
+            #include <al.h>
+                int main(){
+                ALenum al_error;
+                return 0;
+            }
+            """, ".c");
+        if not ret:
+            context.sconf.env = tmpEnv
+    context.Result(ret)
+    return ret
+
+def CheckAlsa(context):
+    context.Message("Checking for Alsa... ")
+
+    ret = context.TryAction('pkg-config --libs --cflags alsa')[0]
+    if ret:
+        tmpEnv = context.env.Clone()
+        context.env.ParseConfig('pkg-config --libs --cflags alsa')
+        ret = context.TryLink("""
+            #include <alsa/asoundlib.h>
+            int main(){
+                snd_pcm_t * x;
+                return 0;
+            }
+            """, ".c");
+        if not ret:
+            context.sconf.env = tmpEnv
+    context.Result(ret)
+    return ret
+
+def CheckOSS(context):
+    context.Message("Checking for OSS... ")
+    ret = False
+    return ret
+

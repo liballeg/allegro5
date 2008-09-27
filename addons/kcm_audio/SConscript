@@ -8,49 +8,6 @@ def getArgumentOption(name, default):
         return 1
     return 0
 
-def CheckOpenAL(context):
-    context.Message("Checking for OpenAL... ")
-
-    ret = context.TryAction('openal-config --libs')[0]
-    if ret:
-        context.env.ParseConfig('openal-config --libs')
-        def add_al(env, output):
-            output = "-I " + os.path.join(output.strip(), "AL")
-            env.MergeFlags(output)
-        context.env.ParseConfig('openal-config --includedir', add_al)
-        ret = context.TryLink("""
-            #include <al.h>
-                int main(){
-                ALenum al_error;
-                return 0;
-            }
-            """, ".c");
-    context.Result(ret)
-    return ret
-
-def CheckAlsa(context):
-    context.Message("Checking for Alsa... ")
-
-    ret = context.TryAction('pkg-config --libs --cflags alsa')[0]
-    if ret:
-        tmpEnv = context.env.Clone()
-        context.env.ParseConfig('pkg-config --libs --cflags alsa')
-        ret = context.TryLink("""
-            #include <alsa/asoundlib.h>
-            int main(){
-                snd_pcm_t * x;
-                return 0;
-            }
-            """, ".c");
-        context.sconf.env = tmpEnv
-    context.Result(ret)
-    return ret
-
-def CheckOSS(context):
-    context.Message("Checking for OSS... ")
-    ret = False
-    return ret
-
 def setupPlatform(settings, config):
     settings["ALLEGRO_CFG_KCM_OPENAL"] = config.CheckOpenAL()
     settings["ALLEGRO_CFG_KCM_ALSA"] = config.CheckAlsa()
@@ -64,12 +21,8 @@ def setupPlatform(settings, config):
 source = ["audio.c", "kcm_mixer.c", "kcm_sample.c", "kcm_stream.c",
     "kcm_voice.c"]
 
-tests = {"CheckOpenAL": CheckOpenAL,
-         "CheckAlsa" : CheckAlsa,
-         "CheckOSS" : CheckOSS}
-
 settings, configure_env = helpers.do_configure('kcm_audio', context,
-                            tests, setupPlatform,
+                            context.getTests(), setupPlatform,
                             'allegro5/internal/aintern_kcm_cfg.h.cmake',
                             'allegro5/internal/aintern_kcm_cfg.h',
                             getArgumentOption('config', 0))
@@ -93,10 +46,6 @@ can_build = True
 
 result = None
 if can_build:
-    if settings["ALLEGRO_CFG_KCM_ALSA"]:
-        configs.extend(["pkg-config --libs alsa"])
-        env.ParseConfig('pkg-config --libs alsa')
-
     result = addons.do_build(
         context = context,
         env = env,
