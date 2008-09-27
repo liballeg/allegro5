@@ -1760,18 +1760,18 @@ void d3d_set_bitmap_clip(ALLEGRO_BITMAP *bitmap)
 
    if (bitmap->parent) {
       rect.left = bitmap->xofs + bitmap->cl;
-      rect.right = bitmap->xofs + bitmap->cr;
+      rect.right = bitmap->xofs + bitmap->cr + 1;
       rect.top = bitmap->yofs + bitmap->ct;
-      rect.bottom = bitmap->yofs + bitmap->cb;
+      rect.bottom = bitmap->yofs + bitmap->cb + 1;
    }
    else {
       rect.left = bitmap->cl;
-      rect.right = bitmap->cr;
+      rect.right = bitmap->cr + 1;
       rect.top = bitmap->ct;
-      rect.bottom = bitmap->cb;
+      rect.bottom = bitmap->cb + 1;
    }
 
-   if (rect.left == 0 && rect.top == 0 && rect.right == disp->win_display.display.w && rect.left == disp->win_display.display.h) {
+   if (rect.left == 0 && rect.top == 0 && rect.right == disp->win_display.display.w+1 && rect.left == disp->win_display.display.h+1) {
       disp->device->SetRenderState(D3DRS_SCISSORTESTENABLE, FALSE);
       return;
    }   
