@@ -163,9 +163,14 @@ enum
    ALLEGRO_EVENT_TYPE type;                          \
    srctype *source;                                  \
    double timestamp;                                 \
-   signed int _refcount;            /* internal */   \
    union ALLEGRO_EVENT *_next;      /* internal */   \
-   union ALLEGRO_EVENT *_next_free  /* internal */
+
+
+
+typedef struct ALLEGRO_ANY_EVENT
+{
+   _AL_EVENT_HEADER(struct ALLEGRO_EVENT_SOURCE);
+} ALLEGRO_ANY_EVENT;
 
 
 
@@ -259,13 +264,11 @@ union ALLEGRO_EVENT
 {
    /* This must be the same as the first field of _AL_EVENT_HEADER.  */
    ALLEGRO_EVENT_TYPE type;
-   /* This is to allow the user to access the other fields which are
+   /* `any' is to allow the user to access the other fields which are
     * common to all event types, without using some specific type
-    * structure.  A C hack.
+    * structure.
     */
-   struct {
-      _AL_EVENT_HEADER(struct ALLEGRO_EVENT_SOURCE);
-   } any;
+   ALLEGRO_ANY_EVENT      any;
    ALLEGRO_DISPLAY_EVENT  display;
    ALLEGRO_JOYSTICK_EVENT joystick;
    ALLEGRO_KEYBOARD_EVENT keyboard;
@@ -324,4 +327,4 @@ AL_FUNC(bool, al_wait_for_event_until, (ALLEGRO_EVENT_QUEUE *queue,
  * indent-tabs-mode: nil
  * End:
  */
-/* vim: set sts=3 sw=3 et */
+/* vim: set sts=3 sw=3 et: */

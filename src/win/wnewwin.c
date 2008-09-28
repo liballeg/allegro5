@@ -353,16 +353,14 @@ static LRESULT CALLBACK window_callback(HWND hWnd, UINT message,
                GetWindowInfo(win_display->window, &wi);
                _al_event_source_lock(es);
                while (n--) {
-                  ALLEGRO_EVENT *event = _al_event_source_get_unused_event(es);
-                  if (event) {
-                     event->display.type = ALLEGRO_EVENT_DISPLAY_EXPOSE;
-                     event->display.timestamp = al_current_time();
-                     event->display.x = rects[n].left;
-                     event->display.y = rects[n].top;
-                     event->display.width = rects[n].right - rects[n].left;
-                     event->display.height = rects[n].bottom - rects[n].top;
-                     _al_event_source_emit_event(es, event);
-                  }
+                  ALLEGRO_EVENT event;
+                  event.display.type = ALLEGRO_EVENT_DISPLAY_EXPOSE;
+                  event.display.timestamp = al_current_time();
+                  event.display.x = rects[n].left;
+                  event.display.y = rects[n].top;
+                  event.display.width = rects[n].right - rects[n].left;
+                  event.display.height = rects[n].bottom - rects[n].top;
+                  _al_event_source_emit_event(es, &event);
                }
                _al_event_source_unlock(es);
                _AL_FREE(rgndata);
@@ -408,14 +406,12 @@ static LRESULT CALLBACK window_callback(HWND hWnd, UINT message,
             if (d->vt->switch_in)
             	  d->vt->switch_in(d);
             _al_event_source_lock(es);
-               if (_al_event_source_needs_to_generate_event(es)) {
-                  ALLEGRO_EVENT *event = _al_event_source_get_unused_event(es);
-                  if (event) {
-                     event->display.type = ALLEGRO_EVENT_DISPLAY_SWITCH_IN;
-                     event->display.timestamp = al_current_time();
-                     _al_event_source_emit_event(es, event);
-                  }
-               }
+            if (_al_event_source_needs_to_generate_event(es)) {
+               ALLEGRO_EVENT event;
+               event.display.type = ALLEGRO_EVENT_DISPLAY_SWITCH_IN;
+               event.display.timestamp = al_current_time();
+               _al_event_source_emit_event(es, &event);
+            }
             _al_event_source_unlock(es);
             return 0;
          }
@@ -425,14 +421,12 @@ static LRESULT CALLBACK window_callback(HWND hWnd, UINT message,
                d->vt->switch_out(d);
             }
             _al_event_source_lock(es);
-               if (_al_event_source_needs_to_generate_event(es)) {
-                  ALLEGRO_EVENT *event = _al_event_source_get_unused_event(es);
-                  if (event) {
-                     event->display.type = ALLEGRO_EVENT_DISPLAY_SWITCH_OUT;
-                     event->display.timestamp = al_current_time();
-                     _al_event_source_emit_event(es, event);
-                  }
-               }
+            if (_al_event_source_needs_to_generate_event(es)) {
+               ALLEGRO_EVENT event;
+               event.display.type = ALLEGRO_EVENT_DISPLAY_SWITCH_OUT;
+               event.display.timestamp = al_current_time();
+               _al_event_source_emit_event(es, &event);
+            }
             _al_event_source_unlock(es);
             return 0;
          }
@@ -452,12 +446,10 @@ static LRESULT CALLBACK window_callback(HWND hWnd, UINT message,
       case WM_CLOSE:
          _al_event_source_lock(es);
          if (_al_event_source_needs_to_generate_event(es)) {
-            ALLEGRO_EVENT *event = _al_event_source_get_unused_event(es);
-            if (event) {
-               event->display.type = ALLEGRO_EVENT_DISPLAY_CLOSE;
-               event->display.timestamp = al_current_time();
-               _al_event_source_emit_event(es, event);
-            }
+            ALLEGRO_EVENT event;
+            event.display.type = ALLEGRO_EVENT_DISPLAY_CLOSE;
+            event.display.timestamp = al_current_time();
+            _al_event_source_emit_event(es, &event);
          }
          _al_event_source_unlock(es);
          return 0;
@@ -486,30 +478,26 @@ static LRESULT CALLBACK window_callback(HWND hWnd, UINT message,
          if (d->w != w || d->h != h) {
             _al_event_source_lock(es);
             if (_al_event_source_needs_to_generate_event(es)) {
-               ALLEGRO_EVENT *event = _al_event_source_get_unused_event(es);
-               if (event) {
-                  event->display.type = ALLEGRO_EVENT_DISPLAY_RESIZE;
-                  event->display.timestamp = al_current_time();
-                  event->display.x = x;
-                  event->display.y = y;
-                  event->display.width = w;
-                  event->display.height = h;
-                  _al_event_source_emit_event(es, event);
-               }
+               ALLEGRO_EVENT event;
+               event.display.type = ALLEGRO_EVENT_DISPLAY_RESIZE;
+               event.display.timestamp = al_current_time();
+               event.display.x = x;
+               event.display.y = y;
+               event.display.width = w;
+               event.display.height = h;
+               _al_event_source_emit_event(es, &event);
             }
 
             /* Generate an expose event. */
             if (_al_event_source_needs_to_generate_event(es)) {
-               ALLEGRO_EVENT *event = _al_event_source_get_unused_event(es);
-               if (event) {
-                  event->display.type = ALLEGRO_EVENT_DISPLAY_EXPOSE;
-                  event->display.timestamp = al_current_time();
-                  event->display.x = x;
-                  event->display.y = y;
-                  event->display.width = w;
-                  event->display.height = h;
-                  _al_event_source_emit_event(es, event);
-               }
+               ALLEGRO_EVENT event;
+               event.display.type = ALLEGRO_EVENT_DISPLAY_EXPOSE;
+               event.display.timestamp = al_current_time();
+               event.display.x = x;
+               event.display.y = y;
+               event.display.width = w;
+               event.display.height = h;
+               _al_event_source_emit_event(es, &event);
             }
             _al_event_source_unlock(es);
             resize_postponed = false;

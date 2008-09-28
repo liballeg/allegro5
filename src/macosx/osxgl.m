@@ -300,9 +300,9 @@ void _al_osx_mouse_was_installed(BOOL install) {
 {
 	ALLEGRO_EVENT_SOURCE* src = &([self allegroDisplay]->es);
 	_al_event_source_lock(src);
-	ALLEGRO_EVENT* evt = _al_event_source_get_unused_event(src);
-	evt->type = ALLEGRO_EVENT_DISPLAY_CLOSE;
-	_al_event_source_emit_event(src, evt);
+	ALLEGRO_EVENT evt;
+	evt.type = ALLEGRO_EVENT_DISPLAY_CLOSE;
+	_al_event_source_emit_event(src, &evt);
 	_al_event_source_unlock(src);
 	return NO;
 }
@@ -316,14 +316,12 @@ void _al_osx_mouse_was_installed(BOOL install) {
 
    _al_event_source_lock(es);
    if (_al_event_source_needs_to_generate_event(es)) {
-      ALLEGRO_EVENT *event = _al_event_source_get_unused_event(es);
-      if (event) {
-         event->display.type = ALLEGRO_EVENT_DISPLAY_RESIZE;
-         event->display.timestamp = al_current_time();
-         event->display.width = NSWidth(content);
-         event->display.height = NSHeight(content);
-         _al_event_source_emit_event(es, event);
-      }
+      ALLEGRO_EVENT event;
+      event.display.type = ALLEGRO_EVENT_DISPLAY_RESIZE;
+      event.display.timestamp = al_current_time();
+      event.display.width = NSWidth(content);
+      event.display.height = NSHeight(content);
+      _al_event_source_emit_event(es, &event);
    }
    _al_event_source_unlock(es);
 }
@@ -333,9 +331,9 @@ void _al_osx_mouse_was_installed(BOOL install) {
 	ALLEGRO_DISPLAY_OSX_WIN* dpy =  (ALLEGRO_DISPLAY_OSX_WIN*) dpy_ptr;
 	ALLEGRO_EVENT_SOURCE* src = &([self allegroDisplay]->es);
 	_al_event_source_lock(src);
-	ALLEGRO_EVENT* evt = _al_event_source_get_unused_event(src);
-	evt->type = ALLEGRO_EVENT_DISPLAY_SWITCH_IN;
-	_al_event_source_emit_event(src, evt);
+	ALLEGRO_EVENT evt;
+	evt.type = ALLEGRO_EVENT_DISPLAY_SWITCH_IN;
+	_al_event_source_emit_event(src, &evt);
 	_al_event_source_unlock(src);
 	osx_change_cursor(dpy, dpy->cursor);
 }
@@ -343,9 +341,9 @@ void _al_osx_mouse_was_installed(BOOL install) {
 {
 	ALLEGRO_EVENT_SOURCE* src = &([self allegroDisplay]->es);
 	_al_event_source_lock(src);
-	ALLEGRO_EVENT* evt = _al_event_source_get_unused_event(src);
-	evt->type = ALLEGRO_EVENT_DISPLAY_SWITCH_OUT;
-	_al_event_source_emit_event(src, evt);
+	ALLEGRO_EVENT evt;
+	evt.type = ALLEGRO_EVENT_DISPLAY_SWITCH_OUT;
+	_al_event_source_emit_event(src, &evt);
 	_al_event_source_unlock(src);
 }
 

@@ -451,23 +451,19 @@ static void ljoy_process_new_data(void *data)
  */
 static void ljoy_generate_axis_event(ALLEGRO_JOYSTICK_LINUX *joy, int stick, int axis, float pos)
 {
-   ALLEGRO_EVENT *event;
+   ALLEGRO_EVENT event;
 
    if (!_al_event_source_needs_to_generate_event(&joy->parent.es))
       return;
 
-   event = _al_event_source_get_unused_event(&joy->parent.es);
-   if (!event)
-      return;
+   event.joystick.type = ALLEGRO_EVENT_JOYSTICK_AXIS;
+   event.joystick.timestamp = al_current_time();
+   event.joystick.stick = stick;
+   event.joystick.axis = axis;
+   event.joystick.pos = pos;
+   event.joystick.button = 0;
 
-   event->joystick.type = ALLEGRO_EVENT_JOYSTICK_AXIS;
-   event->joystick.timestamp = al_current_time();
-   event->joystick.stick = stick;
-   event->joystick.axis = axis;
-   event->joystick.pos = pos;
-   event->joystick.button = 0;
-
-   _al_event_source_emit_event(&joy->parent.es, event);
+   _al_event_source_emit_event(&joy->parent.es, &event);
 }
 
 
@@ -479,23 +475,19 @@ static void ljoy_generate_axis_event(ALLEGRO_JOYSTICK_LINUX *joy, int stick, int
  */
 static void ljoy_generate_button_event(ALLEGRO_JOYSTICK_LINUX *joy, int button, ALLEGRO_EVENT_TYPE event_type)
 {
-   ALLEGRO_EVENT *event;
+   ALLEGRO_EVENT event;
 
    if (!_al_event_source_needs_to_generate_event(&joy->parent.es))
       return;
 
-   event = _al_event_source_get_unused_event(&joy->parent.es);
-   if (!event)
-      return;
+   event.joystick.type = event_type;
+   event.joystick.timestamp = al_current_time();
+   event.joystick.stick = 0;
+   event.joystick.axis = 0;
+   event.joystick.pos = 0.0;
+   event.joystick.button = button;
 
-   event->joystick.type = event_type;
-   event->joystick.timestamp = al_current_time();
-   event->joystick.stick = 0;
-   event->joystick.axis = 0;
-   event->joystick.pos = 0.0;
-   event->joystick.button = button;
-
-   _al_event_source_emit_event(&joy->parent.es, event);
+   _al_event_source_emit_event(&joy->parent.es, &event);
 }
 
 #endif /* ALLEGRO_HAVE_LINUX_JOYSTICK_H */

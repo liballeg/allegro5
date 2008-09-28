@@ -350,14 +350,12 @@ static void timer_handle_tick(ALLEGRO_TIMER *this)
 
       /* Generate an event, maybe.  */
       if (_al_event_source_needs_to_generate_event(&this->es)) {
-         ALLEGRO_EVENT *event = _al_event_source_get_unused_event(&this->es);
-         if (event) {
-            event->timer.type = ALLEGRO_EVENT_TIMER;
-            event->timer.timestamp = al_current_time();
-            event->timer.count = this->count;
-            event->timer.error = -this->counter;
-            _al_event_source_emit_event(&this->es, event);
-         }
+         ALLEGRO_EVENT event;
+         event.timer.type = ALLEGRO_EVENT_TIMER;
+         event.timer.timestamp = al_current_time();
+         event.timer.count = this->count;
+         event.timer.error = -this->counter;
+         _al_event_source_emit_event(&this->es, &event);
       }
    }
    _al_event_source_unlock(&this->es);
@@ -371,3 +369,4 @@ static void timer_handle_tick(ALLEGRO_TIMER *this)
  * indent-tabs-mode: nil
  * End:
  */
+/* vim: set sts=3 sw=3 et: */

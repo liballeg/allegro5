@@ -142,8 +142,8 @@ void _al_osx_mouse_generate_event(NSEvent* evt, ALLEGRO_DISPLAY* dpy)
 	_al_event_source_lock(&osx_mouse.parent.es);
 	if ((within || osx_mouse.captured) && _al_event_source_needs_to_generate_event(&osx_mouse.parent.es))
 	{
-		ALLEGRO_EVENT* new_event = _al_event_source_get_unused_event(&osx_mouse.parent.es);
-		ALLEGRO_MOUSE_EVENT* mouse_event = &new_event->mouse;
+		ALLEGRO_EVENT new_event;
+		ALLEGRO_MOUSE_EVENT* mouse_event = &new_event.mouse;
 		mouse_event->type = type;
 		// Note: we use 'allegro time' rather than the time stamp 
 		// from the event 
@@ -156,7 +156,7 @@ void _al_osx_mouse_generate_event(NSEvent* evt, ALLEGRO_DISPLAY* dpy)
 		mouse_event->dx = dx;
 		mouse_event->dy = dy;
 		mouse_event->dz = dz;
-		_al_event_source_emit_event(&osx_mouse.parent.es, new_event);
+		_al_event_source_emit_event(&osx_mouse.parent.es, &new_event);
 	}
 	// Record current state
 	osx_mouse.state.x = pos.x;

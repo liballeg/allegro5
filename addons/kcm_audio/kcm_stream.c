@@ -599,15 +599,13 @@ bool _al_kcm_emit_stream_event(ALLEGRO_STREAM *stream, unsigned long count)
 
    if (_al_event_source_needs_to_generate_event(&stream->spl.es)) {
       while (count--) {
-         ALLEGRO_EVENT *event = _al_event_source_get_unused_event(&stream->spl.es);
-         if (event) {
-            event->stream.type = ALLEGRO_EVENT_STREAM_EMPTY_FRAGMENT;
-            event->stream.timestamp = al_current_time();
-            al_stream_get_ptr(stream, ALLEGRO_AUDIOPROP_BUFFER,
-                              &event->stream.empty_fragment);
-            ASSERT(event->stream.empty_fragment);
-            _al_event_source_emit_event(&stream->spl.es, event);
-         }
+         ALLEGRO_EVENT event;
+         event.stream.type = ALLEGRO_EVENT_STREAM_EMPTY_FRAGMENT;
+         event.stream.timestamp = al_current_time();
+         al_stream_get_ptr(stream, ALLEGRO_AUDIOPROP_BUFFER,
+            &event.stream.empty_fragment);
+         ASSERT(event.stream.empty_fragment);
+         _al_event_source_emit_event(&stream->spl.es, &event);
       }
    }
 

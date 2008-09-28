@@ -971,16 +971,15 @@ static void handle_key_press(int mycode, int unichar, unsigned int modifiers,
 
       /* Generate the press event if necessary. */
       type = is_repeat ? ALLEGRO_EVENT_KEY_REPEAT : ALLEGRO_EVENT_KEY_DOWN;
-      if ((_al_event_source_needs_to_generate_event(&the_keyboard.parent.es)) &&
-          (event = _al_event_source_get_unused_event(&the_keyboard.parent.es)))
-      {
-         event->keyboard.type = type;
-         event->keyboard.timestamp = al_current_time();
-         event->keyboard.display = display;
-         event->keyboard.keycode   = mycode;
-         event->keyboard.unichar   = unichar;
-         event->keyboard.modifiers = modifiers;
-         _al_event_source_emit_event(&the_keyboard.parent.es, event);
+      if (_al_event_source_needs_to_generate_event(&the_keyboard.parent.es)) {
+         ALLEGRO_EVENT event;
+         event.keyboard.type = type;
+         event.keyboard.timestamp = al_current_time();
+         event.keyboard.display = display;
+         event.keyboard.keycode   = mycode;
+         event.keyboard.unichar   = unichar;
+         event.keyboard.modifiers = modifiers;
+         _al_event_source_emit_event(&the_keyboard.parent.es, &event);
       }
    }
    _al_event_source_unlock(&the_keyboard.parent.es);
@@ -1016,16 +1015,15 @@ static void handle_key_release(int mycode, ALLEGRO_DISPLAY *display)
       _AL_KEYBOARD_STATE_CLEAR_KEY_DOWN(the_keyboard.state, mycode);
 
       /* Generate the release event if necessary. */
-      if ((_al_event_source_needs_to_generate_event(&the_keyboard.parent.es)) &&
-          (event = _al_event_source_get_unused_event(&the_keyboard.parent.es)))
-      {
-         event->keyboard.type = ALLEGRO_EVENT_KEY_UP;
-         event->keyboard.timestamp = al_current_time();
-         event->keyboard.display = display;
-         event->keyboard.keycode = mycode;
-         event->keyboard.unichar = 0;
-         event->keyboard.modifiers = 0;
-         _al_event_source_emit_event(&the_keyboard.parent.es, event);
+      if (_al_event_source_needs_to_generate_event(&the_keyboard.parent.es)) {
+         ALLEGRO_EVENT event;
+         event.keyboard.type = ALLEGRO_EVENT_KEY_UP;
+         event.keyboard.timestamp = al_current_time();
+         event.keyboard.display = display;
+         event.keyboard.keycode = mycode;
+         event.keyboard.unichar = 0;
+         event.keyboard.modifiers = 0;
+         _al_event_source_emit_event(&the_keyboard.parent.es, &event);
       }
    }
    _al_event_source_unlock(&the_keyboard.parent.es);
