@@ -142,28 +142,21 @@ enum
 /*
  * Event structures
  *
- * All event types have the following fields in common, which are
- * semantically read-only.
+ * All event types have the following fields in common.
  *
  *  type      -- the type of event this is
  *  timestamp -- when this event was generated
  *  source    -- which event source generated this event
  *
- * There are a couple of other fields, which are internal to the
- * implementation (don't touch).
- *
- *
  * For people writing event sources: The common fields must be at the
  * very start of each event structure, i.e. put _AL_EVENT_HEADER at the
- * front.  If you are managing your own event lists, be careful not to
- * mix up _next and _next_free -- the resultant bugs can be elusive.
+ * front.
  */
 
 #define _AL_EVENT_HEADER(srctype)                    \
    ALLEGRO_EVENT_TYPE type;                          \
    srctype *source;                                  \
    double timestamp;                                 \
-   union ALLEGRO_EVENT *_next;      /* internal */   \
 
 
 
