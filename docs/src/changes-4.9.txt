@@ -30,7 +30,7 @@ Graphics:
 
 Input:
 
--  Fixed many problems with input and threads on Windows.
+-  Fixed input with multiple windows on Windows.
 
 -  Fixed keyboard autorepeat events in X11.
 
