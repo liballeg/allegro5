@@ -4,6 +4,118 @@ See `changes._tx` for changes in earlier versions of Allegro.  These lists
 serve as summaries; the full histories are in the Subversion repository.
 
 
+Changes from 4.9.4 to 4.9.5 (October 2008)
+==========================================
+
+The core developers this time were: Trent Gamblin, Evert Glebbeek, Peter Hull,
+Milan Mimica, Elias Pschernig, Jon Rafkind, Peter Wang.
+
+Graphics:
+
+-  Added fullscreen support on Mac OS X.
+
+-  Added support for resizable windows on Mac OS X.
+
+-  Made frameless windows respond to events on Mac OS X.
+
+-  Fixed a problem with D3D blending.
+
+-  Made D3D driver work on systems without hardware vertex processing.
+
+-  Made WGL driver fail more gracefully.
+
+-  Implemented sprite flipping for OpenGL drivers (Steven Wallace).
+
+-  Added al_is_sub_bitmap() function.
+
+Input:
+
+-  Fixed many problems with input and threads on Windows.
+
+-  Fixed keyboard autorepeat events in X11.
+
+-  Added al_is_keyboard_installed().
+
+-  Fixed key shifts on Windows (ported from 4.2).
+
+-  Fixed mouse button reporting on Mac OS X.
+
+-  Implemented system mouse cursors on MacOS X.
+
+-  Fixed mouse cursors with alpha channels on X11.
+
+-  Some work on Mac OS X joystick support (incomplete).
+
+Events:
+
+-  Simplified internals of events system further.  At the same time,
+   this change happens to also allow event queues to grow unboundedly.
+   (You should still avoid letting them get too big, of course.)
+
+Audio addons:
+
+-  Made ALLEGRO_STREAM objects emit events for empty fragments that need
+   to be refilled.
+
+-  Added a possiblity to drain a stream created by al_stream_from_file().
+
+-  Added a function to rewind a stream.
+
+-  Added gain support to ALLEGRO_STREAM and ALLEGRO_SAMPLE objects.
+
+-  Made it possible to attach a sample to a mixer that isn't already attached
+   to something.
+
+-  Fixed Ogg Vorbis loader on big-endian systems.
+
+-  Made the OpenAL driver the least preferred driver, as it doesn't play
+   stereo samples properly.
+
+Image addons:
+
+-  Added JPEG support to iio addon, using libjpeg.
+
+-  Fixed TGA loader on big-endian systems.
+
+-  Fixed image loading in icodec addon.
+
+Font addon:
+
+-  Fixed count-restricted text output functions calculations on non-ASCII
+   strings.
+
+-  Made al_textout* functions always a 'count' parameter.
+
+-  Renamed al_font_text_length* to al_font_text_width*.
+
+-  Harmonised the order of al_font_textout* and al_font_textprintf* arguments.
+
+Examples:
+
+-  Added ex_bitmap_flip example (Steven Wallace).
+
+-  Added ex_mixer_chain example.
+
+-  Split ex_events into smaller examples.
+
+-  Made the demo use ALLEGRO_STREAM to play music.
+
+-  Build an app bundle from the demo, on Mac OS X.
+
+Build system:
+
+-  Improved detection of external dependencies in CMake build.
+
+-  Guess compiler locations for MinGW and MSVC (CMake).
+
+-  Many improvements to scons build, including install support.
+
+General:
+
+-  Many other bug fixes.
+
+
+
 Changes from 4.9.3 to 4.9.4 (September 2008)
 ============================================
 
