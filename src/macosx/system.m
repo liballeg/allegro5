@@ -53,6 +53,7 @@ static int osx_sys_set_close_button_callback(void (*proc)(void));
 static int osx_sys_set_display_switch_mode(int mode);
 static int osx_sys_desktop_color_depth(void);
 static int osx_sys_get_desktop_resolution(int *width, int *height);
+static AL_CONST char *osx_get_path(int32_t id, char* path, size_t length);
 
 
 /* Global variables */
@@ -286,7 +287,7 @@ ALLEGRO_SYSTEM_INTERFACE *_al_system_osx_driver(void)
       vt->get_num_video_adapters = osx_get_num_video_adapters;
       vt->get_monitor_info = osx_get_monitor_info;
       vt->get_cursor_position = osx_get_cursor_position;
-      vt->get_path = _al_osx_get_path;
+      vt->get_path = osx_get_path;
 	};
 		
 	return vt;
@@ -304,7 +305,7 @@ void _al_register_system_interfaces()
 }
 
 /* Implentation of this function, not 'officially' in allegro yet */
-AL_CONST char *_al_osx_get_path(int32_t id, char* path, size_t length)
+static AL_CONST char *osx_get_path(int32_t id, char* path, size_t length)
 {
    NSString* ans = nil;
    NSArray* paths = nil;
