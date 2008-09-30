@@ -32,6 +32,10 @@
 #import <Cocoa/Cocoa.h>
 #import <OpenGL/OpenGL.h>
 
+/* Defines */
+#define MINIMUM_WIDTH 48
+#define MINIMUM_HEIGHT 48
+
 /* Module Variables */
 static BOOL _osx_mouse_installed = NO, _osx_keyboard_installed = NO;
 static NSPoint last_window_pos;
@@ -99,7 +103,6 @@ void _al_osx_keyboard_was_installed(BOOL install) {
 /* Window delegate methods */
 -(void) windowDidBecomeMain:(NSNotification*) notification;
 -(void) windowDidResignMain:(NSNotification*) notification;
--(NSSize)windowWillResize:(NSWindow *)window toSize:(NSSize)proposedFrameSize;
 @end
 
 /* ALWindow:
@@ -346,16 +349,6 @@ void _al_osx_mouse_was_installed(BOOL install) {
 	_al_event_source_emit_event(src, &evt);
 	_al_event_source_unlock(src);
 }
-
--(NSSize)windowWillResize:(NSWindow *)window toSize:(NSSize)proposedFrameSize
-{
-   /* Make sure the content doesn't get resized to 0, since that would
-    * really suck.
-    */
-   proposedFrameSize.height = MAX(48, proposedFrameSize.height);
-
-   return proposedFrameSize;
-}
 /* End of ALOpenGLView implementation */
 @end
 
@@ -484,6 +477,10 @@ static int decode_allegro_format(int format, int* glfmt, int* glsize, int* depth
 	[win setReleasedWhenClosed: YES];
 	[win setAcceptsMouseMovedEvents: _osx_mouse_installed];
 	[win setTitle: @"Allegro"];
+	/* Set minimum size, otherwise the window can be resized so small we can't
+	 * grab the handle any more to make it bigger
+	 */
+	[win setMinSize: NSMakeSize(MINIMUM_WIDTH, MINIMUM_HEIGHT)];
    if (NSEqualPoints(last_window_pos, NSZeroPoint)) {
       /* We haven't positioned a window before */
       [win center];
@@ -889,6 +886,8 @@ static bool resize_display_win(ALLEGRO_DISPLAY *d, int w, int h) {
 	ALLEGRO_DISPLAY_OSX_WIN* dpy = (ALLEGRO_DISPLAY_OSX_WIN*) d;
    NSWindow* window = dpy->win;
    NSRect current = [window frame];
+   w = MAX(w, MINIMUM_WIDTH);
+   h = MAX(h, MINIMUM_HEIGHT);
    NSRect rc = [window frameRectForContentRect: NSMakeRect(0.0f, 0.0f, (float) w, (float) h)];
    rc.origin = current.origin;
    [window setFrame:rc display:YES animate:YES];
