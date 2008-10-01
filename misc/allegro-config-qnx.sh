@@ -9,7 +9,7 @@
 #
 #  Derived from the Unix version of the same script.
 
-version=4.9.5
+version=4.9.6
 
 prefix=
 exec_prefix=$prefix
