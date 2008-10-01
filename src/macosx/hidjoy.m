@@ -27,6 +27,8 @@
 #error something is wrong with the makefile
 #endif                
 
+#define _AL_MAX_JOYSTICKS 8
+
 static bool init_joystick(void);
 static void exit_joystick(void);
 static int num_joysticks(void);
@@ -72,7 +74,8 @@ typedef struct {
 	CFRunLoopSourceRef source;
 } ALLEGRO_JOYSTICK_OSX;
 
-static _AL_VECTOR joysticks;
+static ALLEGRO_JOYSTICK_OSX joysticks[_AL_MAX_JOYSTICKS];
+static unsigned int joystick_count;
 
 /* create_device_iterator:
 * Create an iterator which will match all joysticks/
@@ -185,9 +188,9 @@ static void add_device(io_object_t device)
 	NSArray* elements = nil;
 	int num_buttons = 0;
 	BOOL have_x = NO, have_y = NO;
-	int num = _al_vector_size(&joysticks);
+	int num = joystick_count;
 	IOReturn err;
-	joy = (ALLEGRO_JOYSTICK_OSX*) _al_vector_alloc_back(&joysticks);
+	joy = &joysticks[joystick_count++];
 	memset(joy, 0, sizeof(*joy));
 	joy->parent.num = num;
 	joy->parent.info.num_sticks = 0;
@@ -294,7 +297,7 @@ ALLEGRO_JOYSTICK_DRIVER* osx_get_joystick_driver(void)
 */
 static bool init_joystick(void)
 {
-	_al_vector_init(&joysticks, sizeof(ALLEGRO_JOYSTICK_OSX));
+	joystick_count = 0;
 	io_iterator_t iterator;
 	io_object_t device;
 	iterator = create_device_iterator(kHIDUsage_GD_GamePad);
@@ -328,8 +331,8 @@ static void exit_joystick(void)
 									   withObject: nil
 									waitUntilDone: YES];
 	unsigned int i;
-	for (i=0; i< _al_vector_size(&joysticks); ++i) {
-		ALLEGRO_JOYSTICK_OSX* joy = (ALLEGRO_JOYSTICK_OSX*) _al_vector_ref(&joysticks,i);
+	for (i=0; i< joystick_count; ++i) {
+		ALLEGRO_JOYSTICK_OSX* joy = &joysticks[i];
 		CFRelease(joy->source);
 		if (joy->queue) {
 			(*joy->queue)->dispose(joy->queue);
@@ -353,8 +356,6 @@ static void exit_joystick(void)
 			}
 		}
 	}
-	_al_vector_free(&joysticks);
-	
 }
 
 /* num_joysticks:
@@ -362,7 +363,7 @@ static void exit_joystick(void)
 */
 int num_joysticks(void) 
 {
-	return _al_vector_size(&joysticks);
+	return joystick_count;
 }
 
 /* get_joystick:
@@ -371,8 +372,8 @@ int num_joysticks(void)
 ALLEGRO_JOYSTICK* get_joystick(int index) 
 {
 	ALLEGRO_JOYSTICK* joy = NULL;
-	if (index >= 0 && index < (int) _al_vector_size(&joysticks)) {
-		joy = _al_vector_ref(&joysticks, index);
+	if (index >= 0 && index < (int) joystick_count) {
+		joy =&joysticks[index];
 	}
 	return joy;
 }
@@ -399,8 +400,8 @@ void get_joystick_state(ALLEGRO_JOYSTICK* ajoy, ALLEGRO_JOYSTICK_STATE* state)
 {
 	unsigned int i;
 	CFRunLoopRef current = CFRunLoopGetCurrent();
-	for (i=0; i<_al_vector_size(&joysticks); ++i) {
-		ALLEGRO_JOYSTICK_OSX* joy = _al_vector_ref(&joysticks,i);
+	for (i=0; i<joystick_count; ++i) {
+		ALLEGRO_JOYSTICK_OSX* joy = &joysticks[i];
 		CFRunLoopAddSource(current,joy->source,kCFRunLoopDefaultMode);
 		(*joy->queue)->start(joy->queue);
 	}
@@ -409,8 +410,8 @@ void get_joystick_state(ALLEGRO_JOYSTICK* ajoy, ALLEGRO_JOYSTICK_STATE* state)
 {
 	unsigned int i;
 	CFRunLoopRef current = CFRunLoopGetCurrent();
-	for (i=0; i<_al_vector_size(&joysticks); ++i) {
-		ALLEGRO_JOYSTICK_OSX* joy = _al_vector_ref(&joysticks,i);
+	for (i=0; i<joystick_count; ++i) {
+		ALLEGRO_JOYSTICK_OSX* joy = &joysticks[i];
 		(*joy->queue)->stop(joy->queue);
 		CFRunLoopRemoveSource(current,joy->source,kCFRunLoopDefaultMode);
 	}	
