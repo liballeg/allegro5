@@ -149,6 +149,8 @@ int main(void)
 		       background->w, background->h);
          break; 
       }
+
+      destroy_bitmap(background);
    }
    else {
       textprintf_centre_ex(screen, font, SCREEN_W/2, SCREEN_H/2,
