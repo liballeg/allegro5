@@ -156,20 +156,19 @@ enum
 #define _AL_EVENT_HEADER(srctype)                    \
    ALLEGRO_EVENT_TYPE type;                          \
    srctype *source;                                  \
-   double timestamp;                                 \
-
+   double timestamp;
 
 
 typedef struct ALLEGRO_ANY_EVENT
 {
-   _AL_EVENT_HEADER(struct ALLEGRO_EVENT_SOURCE);
+   _AL_EVENT_HEADER(struct ALLEGRO_EVENT_SOURCE)
 } ALLEGRO_ANY_EVENT;
 
 
 
 typedef struct ALLEGRO_DISPLAY_EVENT
 {
-   _AL_EVENT_HEADER(struct ALLEGRO_DISPLAY);
+   _AL_EVENT_HEADER(struct ALLEGRO_DISPLAY)
    int x, y;
    int width, height;
 } ALLEGRO_DISPLAY_EVENT;
@@ -178,7 +177,7 @@ typedef struct ALLEGRO_DISPLAY_EVENT
 
 typedef struct ALLEGRO_JOYSTICK_EVENT
 {
-   _AL_EVENT_HEADER(struct ALLEGRO_JOYSTICK);
+   _AL_EVENT_HEADER(struct ALLEGRO_JOYSTICK)
    int stick;
    int axis;
    float pos;
@@ -189,7 +188,7 @@ typedef struct ALLEGRO_JOYSTICK_EVENT
 
 typedef struct ALLEGRO_KEYBOARD_EVENT
 {
-   _AL_EVENT_HEADER(struct ALLEGRO_KEYBOARD);
+   _AL_EVENT_HEADER(struct ALLEGRO_KEYBOARD)
    struct ALLEGRO_DISPLAY *display; /* the window the key was pressed in */
    int keycode;                 /* the physical key pressed */
    unsigned int unichar;        /* unicode character */
@@ -200,7 +199,7 @@ typedef struct ALLEGRO_KEYBOARD_EVENT
 
 typedef struct ALLEGRO_MOUSE_EVENT
 {
-   _AL_EVENT_HEADER(struct ALLEGRO_MOUSE);
+   _AL_EVENT_HEADER(struct ALLEGRO_MOUSE)
    struct ALLEGRO_DISPLAY *display;
    /* (display) Window the event originate from */
    /* (x, y) Primary mouse position */
@@ -215,7 +214,7 @@ typedef struct ALLEGRO_MOUSE_EVENT
 
 typedef struct ALLEGRO_TIMER_EVENT
 {
-   _AL_EVENT_HEADER(struct ALLEGRO_TIMER);
+   _AL_EVENT_HEADER(struct ALLEGRO_TIMER)
    long count;
    double error;
 } ALLEGRO_TIMER_EVENT;
@@ -224,7 +223,7 @@ typedef struct ALLEGRO_TIMER_EVENT
 
 typedef struct ALLEGRO_STREAM_EVENT
 {
-   _AL_EVENT_HEADER(struct ALLEGRO_STREAM);
+   _AL_EVENT_HEADER(struct ALLEGRO_STREAM)
    void *empty_fragment;
 } ALLEGRO_STREAM_EVENT;
 
