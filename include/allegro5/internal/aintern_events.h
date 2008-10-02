@@ -25,8 +25,6 @@ AL_FUNC(void, _al_event_source_on_unregistration_from_queue, (ALLEGRO_EVENT_SOUR
 AL_FUNC(bool, _al_event_source_needs_to_generate_event, (ALLEGRO_EVENT_SOURCE*));
 AL_FUNC(void, _al_event_source_emit_event, (ALLEGRO_EVENT_SOURCE *, ALLEGRO_EVENT*));
 
-AL_FUNC(void, _al_release_event, (ALLEGRO_EVENT*));
-
 AL_FUNC(void, _al_event_queue_push_event, (ALLEGRO_EVENT_QUEUE*, const ALLEGRO_EVENT*));
 
 
