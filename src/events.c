@@ -60,7 +60,6 @@ static void discard_events_of_source(ALLEGRO_EVENT_QUEUE *queue,
 ALLEGRO_EVENT_QUEUE *al_create_event_queue(void)
 {
    ALLEGRO_EVENT_QUEUE *queue = _AL_MALLOC(sizeof *queue);
-   int i;
 
    ASSERT(queue);
 
@@ -91,7 +90,6 @@ ALLEGRO_EVENT_QUEUE *al_create_event_queue(void)
  */
 void al_destroy_event_queue(ALLEGRO_EVENT_QUEUE *queue)
 {
-   ALLEGRO_EVENT *event;
    ASSERT(queue);
 
    _al_unregister_destructor(queue);
