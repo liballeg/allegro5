@@ -382,6 +382,10 @@ if(WANT_X11)
     endif(X11_FOUND)
 endif(WANT_X11)
 
+if(SUPPORT_X11 AND NOT SUPPORT_OPENGL)
+    message(FATAL_ERROR "X11 support currently requires OpenGL support.")
+endif(SUPPORT_X11 AND NOT SUPPORT_OPENGL)
+
 if(SUPPORT_X11)
     set(CMAKE_REQUIRED_LIBRARIES ${X11_LIBRARIES})
 
@@ -394,6 +398,8 @@ if(SUPPORT_X11)
     if(CAN_XCURSOR)
         set(ALLEGRO_XWINDOWS_WITH_XCURSOR 1)
         list(APPEND X11_LIBRARIES "Xcursor")
+    else(CAN_XCURSOR)
+        message(FATAL_ERROR "X11 support requires Xcursor library.")
     endif(CAN_XCURSOR)
 
     check_library_exists(Xxf86vm XF86VidModeQueryExtension "" CAN_XF86VIDMODE)
