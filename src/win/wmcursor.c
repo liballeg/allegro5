@@ -370,7 +370,6 @@ static void local_stretch_blit_to_hdc(ALLEGRO_BITMAP *bitmap, HDC dc,
    int src_x, int src_y, int src_w, int src_h,
    int dest_x, int dest_y, int dest_w, int dest_h)
 {
-   const int bitmap_w = al_get_bitmap_width(bitmap);
    const int bitmap_h = al_get_bitmap_height(bitmap);
    const int bottom_up_src_y = bitmap_h - src_y - src_h;
    BYTE *pixels;

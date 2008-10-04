@@ -144,7 +144,8 @@ const char *program_nv =
    "END";
 
 
-void create_mesh() {
+void create_mesh(void)
+{
 	int x, z;
 
 	/* Create our mesh */
@@ -159,7 +160,8 @@ void create_mesh() {
 
 
 
-void draw_mesh() {
+void draw_mesh(void)
+{
    int x, z;
 
    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);

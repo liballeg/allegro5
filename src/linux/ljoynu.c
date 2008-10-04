@@ -135,7 +135,8 @@ static bool check_js_api_version(int fd)
 static int try_open_joy_device(int num)
 {
    const char *device_name = NULL;
-   char tmp[128], tmp1[128], tmp2[128];
+   char tmp[128];
+   /* char tmp1[128], tmp2[128]; */
    int fd;
 
    /* XXX use configuration system when we get one */
@@ -263,7 +264,7 @@ static ALLEGRO_JOYSTICK *ljoy_get_joystick(int num)
 
    /* Fill in the joystick information fields. */
    {
-      char tmp[128], tmp1[128], tmp2[128];
+      /* char tmp[128], tmp1[128], tmp2[128]; */
       char num_axes;
       char num_buttons;
       int throttle;

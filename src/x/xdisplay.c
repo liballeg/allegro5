@@ -55,7 +55,6 @@ static void xdpy_set_icon(ALLEGRO_DISPLAY *d, ALLEGRO_BITMAP *bitmap)
    ALLEGRO_SYSTEM_XGLX *system = (void *)al_system_driver();
    ALLEGRO_DISPLAY_XGLX *display = (void *)d;
    XWMHints wm_hints;
-   int x, y;
 
    _al_mutex_lock(&system->lock);
 
@@ -536,8 +535,6 @@ void _al_display_xglx_configure(ALLEGRO_DISPLAY *d, XEvent *xevent)
  */
 void _al_display_xglx_closebutton(ALLEGRO_DISPLAY *d, XEvent *xevent)
 {
-   ALLEGRO_DISPLAY_XGLX *glx = (ALLEGRO_DISPLAY_XGLX *)d;
-
    ALLEGRO_EVENT_SOURCE *es = &d->es;
    _al_event_source_lock(es);
 
@@ -562,7 +559,6 @@ void _al_xwin_display_switch_handler(ALLEGRO_DISPLAY *display,
     */
    if (xevent->mode != NotifyNormal) return;
 
-   ALLEGRO_DISPLAY_XGLX *glx = (void *)display;
    ALLEGRO_EVENT_SOURCE *es = &display->es;
    _al_event_source_lock(es);
    if (_al_event_source_needs_to_generate_event(es)) {
@@ -582,7 +578,6 @@ void _al_xwin_display_switch_handler(ALLEGRO_DISPLAY *display,
 void _al_xwin_display_expose(ALLEGRO_DISPLAY *display,
    XExposeEvent *xevent)
 {
-   ALLEGRO_DISPLAY_XGLX *glx = (void *)display;
    ALLEGRO_EVENT_SOURCE *es = &display->es;
    _al_event_source_lock(es);
    if (_al_event_source_needs_to_generate_event(es)) {

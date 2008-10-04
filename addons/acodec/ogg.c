@@ -142,7 +142,6 @@ static size_t ogg_stream_update(ALLEGRO_STREAM *stream, void *data,
 #endif
    const int word_size = 2;   /* 1 = 8bit, 2 = 16-bit. nothing else */
    const int signedness = 1;  /* 0 for unsigned, 1 for signed */
-   int channels = extra->vi->channels;
 
    unsigned long pos = 0;
    while (pos < buf_size) {
@@ -169,7 +168,6 @@ ALLEGRO_STREAM *al_load_stream_oggvorbis(size_t buffer_count,
                                          const char *filename)
 {
    const int word_size = 2; /* 1 = 8bit, 2 = 16-bit. nothing else */
-   const int signedness = 1; /* 0  for unsigned, 1 for signed */
    FILE* file = NULL;
    OggVorbis_File* vf;
    vorbis_info* vi;

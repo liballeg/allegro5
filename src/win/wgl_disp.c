@@ -185,7 +185,7 @@ static HGLRC init_temp_context(HWND wnd) {
 static ALLEGRO_GetPixelFormatAttribivARB_t __wglGetPixelFormatAttribivARB = NULL;
 static ALLEGRO_GetPixelFormatAttribivEXT_t __wglGetPixelFormatAttribivEXT = NULL;
 
-static bool init_pixel_format_extensions()
+static bool init_pixel_format_extensions(void)
 {
    /* Load the ARB_p_f symbol - Note, we shouldn't use the extension
     * mechanism here, because it hasn't been initialized yet!
@@ -1358,12 +1358,6 @@ static bool wgl_is_compatible_bitmap(ALLEGRO_DISPLAY *display, ALLEGRO_BITMAP *b
     * al_create_bitmap was called.
     */
    return display == bitmap->display;
-}
-
-
-static bool wgl_wait_for_vsync(ALLEGRO_DISPLAY *display)
-{
-   return false;
 }
 
 

@@ -95,7 +95,7 @@ char* alc_get_err_str(ALCenum err, int len_str, char* str)
 /* The open method starts up the driver and should lock the device, using the
    previously set paramters, or defaults. It shouldn't need to start sending
    audio data to the device yet, however. */
-static int _openal_open()
+static int _openal_open(void)
 { 
    fprintf(stderr, "Starting OpenAL...\n");
 
@@ -165,7 +165,7 @@ static int _openal_open()
 
 /* The close method should close the device, freeing any resources, and allow
    other processes to use the device */
-static void _openal_close()
+static void _openal_close(void)
 {
    /* clear error states */
    alGetError();

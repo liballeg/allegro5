@@ -489,8 +489,6 @@ void _al_draw_rotated_scaled_bitmap_memory_fast(ALLEGRO_BITMAP *src,
       switch (ssize) {
          case 2:
             for (; addr < end_addr; addr += dsize) {
-               int y = (my_l_spr_y>>16);
-               int x = (my_l_spr_x>>16);
                c = bmp_read16((void *)(((char *)src_region.data) +
                   (my_l_spr_y>>16) * src_region.pitch + ssize * (my_l_spr_x>>16)));
                bmp_write16(addr, c);

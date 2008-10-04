@@ -958,7 +958,6 @@ static void handle_key_press(int mycode, int unichar, unsigned int modifiers,
     ALLEGRO_DISPLAY *display)
 {
    bool is_repeat;
-   ALLEGRO_EVENT *event;
    ALLEGRO_EVENT_TYPE type;
 
    is_repeat = (last_press_code == mycode);
@@ -1004,8 +1003,6 @@ static void handle_key_press(int mycode, int unichar, unsigned int modifiers,
  */
 static void handle_key_release(int mycode, ALLEGRO_DISPLAY *display)
 {
-   ALLEGRO_EVENT *event;
-
    if (last_press_code == mycode)
       last_press_code = -1;
 

@@ -67,7 +67,7 @@ typedef struct ALSA_VOICE {
 
 
 /* initialized output */
-static int alsa_open()
+static int alsa_open(void)
 {
    ALSA_CHECK(snd_output_stdio_attach(&snd_output, stdout, 0));
 
@@ -94,7 +94,7 @@ static int alsa_open()
 
 /* The close method should close the device, freeing any resources, and allow
    other processes to use the device */
-static void alsa_close()
+static void alsa_close(void)
 {
    snd_config_update_free_global();
 }
@@ -328,7 +328,6 @@ static int alsa_load_voice(ALLEGRO_VOICE *voice, const void *data)
    This method should not be called on a streaming voice. */
 static void alsa_unload_voice(ALLEGRO_VOICE *voice)
 {
-   ALSA_VOICE *ex_data = voice->extra;
 }
 
 

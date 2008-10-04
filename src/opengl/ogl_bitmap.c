@@ -64,8 +64,6 @@ static void draw_quad(ALLEGRO_BITMAP *bitmap, float sx, float sy, float sw, floa
 {
    float l, t, r, b, w, h;
    ALLEGRO_BITMAP_OGL *ogl_bitmap = (void *)bitmap;
-   ALLEGRO_BITMAP *target = al_get_target_bitmap();
-   ALLEGRO_BITMAP_OGL *ogl_target = (ALLEGRO_BITMAP_OGL *)target;
    GLboolean on;
    GLuint current_texture;
    ALLEGRO_COLOR *bc;
@@ -221,7 +219,7 @@ static void ogl_draw_rotated_bitmap(ALLEGRO_BITMAP *bitmap, float cx, float cy,
 
 static void ogl_draw_rotated_scaled_bitmap(ALLEGRO_BITMAP *bitmap,
    float cx, float cy, float dx, float dy, float xscale, float yscale,
-   float angle, float flags)
+   float angle, int flags)
 {
    // FIXME: hack
    // FIXME: need format conversion if they don't match

@@ -134,8 +134,6 @@ void Player::render_extra(void)
 
 void Player::render(int offx, int offy)
 {
-   ResourceManager& rm = ResourceManager::getInstance();
-   
    int rx = (int)(offx + x), ry = (int)(offy + y);
 
    if (!isDestructable) {
@@ -210,8 +208,6 @@ bool Player::load(void)
    /* Make a translucent copy of the ship */
    ALLEGRO_BITMAP *old_target = al_get_target_bitmap();
    al_set_target_bitmap(trans_bitmap);
-   int bitmap_format = al_get_bitmap_format(bitmap);
-   int trans_format = al_get_bitmap_format(trans_bitmap);
    for (int py = 0; py < al_get_bitmap_height(bitmap); py++) {
       for (int px = 0; px < al_get_bitmap_height(bitmap); px++) {
          ALLEGRO_COLOR color = al_get_pixel(bitmap, px, py);

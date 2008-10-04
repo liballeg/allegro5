@@ -20,8 +20,8 @@ typedef struct ALLEGRO_AUDIO_DRIVER ALLEGRO_AUDIO_DRIVER;
 struct ALLEGRO_AUDIO_DRIVER {
    const char     *specifier;
 
-   int            (*open)();
-   void           (*close)();
+   int            (*open)(void);
+   void           (*close)(void);
 
    int            (*allocate_voice)(ALLEGRO_VOICE*);
    void           (*deallocate_voice)(ALLEGRO_VOICE*);

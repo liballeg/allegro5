@@ -65,8 +65,8 @@ static bool render_to_texture_supported = true;
 static bool is_vista = false;
 static int num_faux_fullscreen_windows = 0;
 static bool already_fullscreen = false; /* real fullscreen */
-static int num_video_adapters = -1;
-static ALLEGRO_MONITOR_INFO *monitor_info;
+//static int num_video_adapters = -1;
+//static ALLEGRO_MONITOR_INFO *monitor_info;
 
 static DWORD d3d_min_filter = D3DTEXF_POINT;
 static DWORD d3d_mag_filter = D3DTEXF_POINT;
@@ -840,8 +840,6 @@ void _al_d3d_prepare_for_reset(ALLEGRO_DISPLAY_D3D *disp)
 
 static bool _al_d3d_reset_device(ALLEGRO_DISPLAY_D3D *d3d_display)
 {
-   ALLEGRO_BITMAP *curr = al_get_target_bitmap();
-   bool reset_target = false;
    ALLEGRO_DISPLAY_WIN *win_display = &d3d_display->win_display;
    ALLEGRO_DISPLAY *al_display = &win_display->display;
 
@@ -1428,7 +1426,7 @@ static ALLEGRO_DISPLAY *d3d_create_display(int w, int h)
 static bool d3d_set_current_display(ALLEGRO_DISPLAY *d)
 {
    ALLEGRO_DISPLAY_D3D *d3d_display = (ALLEGRO_DISPLAY_D3D *)d;
-   ALLEGRO_DISPLAY_WIN *win_display = (ALLEGRO_DISPLAY_WIN *)d;
+   //ALLEGRO_DISPLAY_WIN *win_display = (ALLEGRO_DISPLAY_WIN *)d;
 
    if (d3d_display->do_reset)
       return false;
@@ -1706,7 +1704,6 @@ static bool d3d_update_display_region(ALLEGRO_DISPLAY *al_display,
 
    if (al_display->flags & ALLEGRO_SINGLEBUFFER) {
       RECT rect;
-      ALLEGRO_DISPLAY_D3D* disp = (ALLEGRO_DISPLAY_D3D*)al_display;
 
       rect.left = x;
       rect.right = x+width;
@@ -2047,9 +2044,10 @@ static void d3d_switch_out(ALLEGRO_DISPLAY *display)
 
 static void  d3d_switch_in(ALLEGRO_DISPLAY *display)
 {
+   /*
    ALLEGRO_DISPLAY_WIN *win_display = (ALLEGRO_DISPLAY_WIN *)display;
 
-/*   if (al_is_mouse_installed())
+   if (al_is_mouse_installed())
       al_set_mouse_range(win_display->mouse_range_x1, win_display->mouse_range_y1,
          win_display->mouse_range_x2, win_display->mouse_range_y2);*/
 }

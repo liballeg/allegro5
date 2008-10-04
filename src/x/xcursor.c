@@ -16,10 +16,8 @@
 static ALLEGRO_MOUSE_CURSOR *xdpy_create_mouse_cursor(ALLEGRO_DISPLAY *display,
    ALLEGRO_BITMAP *bmp, int x_focus, int y_focus)
 {
-   ALLEGRO_DISPLAY_XGLX *glx = (ALLEGRO_DISPLAY_XGLX *)display;
    ALLEGRO_SYSTEM_XGLX *system = (ALLEGRO_SYSTEM_XGLX *)al_system_driver();
    Display *xdisplay = system->x11display;
-   Window xwindow = glx->window;
 
    int bmp_w;
    int bmp_h;
