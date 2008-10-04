@@ -530,12 +530,12 @@ endif(SUPPORT_X11)
 if(WIN32)
     list(APPEND LIBRARY_SOURCES ${ALLEGRO_SRC_WIN_FILES})
     # TODO this still needs to be produced with misc/fixdll.sh
-    if(MINGW)
+    if(MINGW AND SHARED)
         list(APPEND LIBRARY_SOURCES lib/mingw32/allegro.def)
-    endif(MINGW)
-    if(COMPILER_MSVC)
+    endif(MINGW AND SHARED)
+    if(COMPILER_MSVC AND SHARED)
         list(APPEND LIBRARY_SOURCES lib/msvc/allegro.def)
-    endif(COMPILER_MSVC)
+    endif(COMPILER_MSVC AND SHARED)
     list(APPEND PLATFORM_LIBS
         kernel32 user32 gdi32 comdlg32 ole32 dinput8 dxguid winmm
         )
