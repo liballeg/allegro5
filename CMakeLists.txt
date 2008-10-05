@@ -26,6 +26,7 @@ option(USE_CXX "Build C++ portions." on)
 # More ideally, we would only have one project and multiple configurations for
 # each "GRADE_", but that would require a revamp of this file.
 # Note: This needs to be done before the project command.
+set(CMAKE_CONFIGURATION_TYPES "Release" CACHE INTERNAL "internal")
 if(GRADE_DEBUG)
     set(CMAKE_CONFIGURATION_TYPES "Debug" CACHE INTERNAL "internal")
 endif(GRADE_DEBUG)
