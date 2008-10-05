@@ -174,8 +174,11 @@ SourceFileScanner.add_scanner('.s', SCons.Scanner.C.CScanner() )
 
 env.BuildDir('include', '#include', duplicate = 0)
 
-flags = ["-Wall", "-Wno-unused", "-funroll-loops", "-ffast-math",
-    "-fomit-frame-pointer", "-W"]
+flags = ["-Wall", "-Wno-unused", "-funroll-loops", "-ffast-math", "-W"]
+
+if not context.isProfile():
+    flags.append("-fomit-frame-pointer")
+
 # includes = ["#include", "#include/allegro5", "."]
 defines = ["ALLEGRO_LIB_BUILD", "ALLEGRO_SRC"]
 

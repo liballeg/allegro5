@@ -82,6 +82,18 @@ class AllegroContext:
         self.cmake = helpers.read_cmake_list("cmake/FileList.cmake")
         self.librarySource = []
         self.tests = tests
+
+    def aliasName(self):
+        return ""
+
+    # Alias a target and add it to the 'all' alias
+    def alias(self,name,target):
+        Alias(name,target)
+        Alias('all%s' % self.aliasName(),target)
+    
+    def aliasInstall(self,name,target):
+        Alias(name,target)
+        Alias('install%s' % self.aliasName(),target)
     
     # List of source for the Allegro library (and nothing else!)
     def getLibrarySource(self):
@@ -113,20 +125,14 @@ class AllegroContext:
     def getMinorVersion(self):
         return minorVersion
 
+    def isProfile(self):
+        return False
+
 # Shared non-debug
 class AllegroContextNormal(AllegroContext):
     def __init__(self, tests):
         AllegroContext.__init__(self, tests)
     
-    # Alias a target and add it to the 'all' alias
-    def alias(self,name,target):
-        Alias(name,target)
-        Alias('all',target)
-    
-    def aliasInstall(self,name,target):
-        Alias(name,target)
-        Alias('install',target)
-
     # Library name is as-is
     def libraryName(self, name):
         return name
@@ -152,18 +158,12 @@ class AllegroContextStatic(AllegroContext):
     def __init__(self, tests):
         AllegroContext.__init__(self, tests)
     
-    # Anything aliased with this target ends up with -static on the end
-    def alias(self,name,target):
-        Alias(name + '-static',target)
-        Alias('all-static',target)
-    
-    def aliasInstall(self,name,target):
-        Alias(name + '-static',target)
-        Alias('install-static',target)
-
+    def aliasName(self):
+        return "-static"
+   
     # Adds _s to all libraries
     def libraryName(self, name):
-        return name + '_s'
+        return name + '-static'
 
     # Build libraries statically
     def buildLibrary(self, env, name, source):
@@ -186,16 +186,11 @@ class AllegroContextDebug(AllegroContext):
     def __init__(self, tests):
         AllegroContext.__init__(self, tests)
     
-    def alias(self,name,target):
-        Alias(name + '-debug',target)
-        Alias('all-debug',target)
-    
-    def aliasInstall(self,name,target):
-        Alias(name + '-debug',target)
-        Alias('install-debug',target)
-
+    def aliasName(self):
+        return "-debug"
+   
     def libraryName(self, name):
-        return name + '_d'
+        return name + '-debug'
 
     def buildLibrary(self, env, name, source):
         return env.SharedLibrary(name, source)
@@ -219,16 +214,11 @@ class AllegroContextStaticDebug(AllegroContext):
     def __init__(self, tests):
         AllegroContext.__init__(self, tests)
     
-    def alias(self,name,target):
-        Alias(name + '-static-debug',target)
-        Alias('all-static-debug',target)
-    
-    def aliasInstall(self,name,target):
-        Alias(name + '-static-debug',target)
-        Alias('install-static-debug',target)
-
+    def aliasName(self):
+        return "-static-debug"
+   
     def libraryName(self, name):
-        return name + '_sd'
+        return name + '-static-debug'
 
     def buildLibrary(self, env, name, source):
         return env.StaticLibrary(name, source)
@@ -246,6 +236,38 @@ class AllegroContextStaticDebug(AllegroContext):
 
     def getBuildDir(self):
         return BUILD_DIR + '/debug-static'
+
+# Static debug
+class AllegroContextProfile(AllegroContext):
+    def __init__(self, tests):
+        AllegroContext.__init__(self, tests)
+    
+    def aliasName(self):
+        return "-profile"
+   
+    def libraryName(self, name):
+        return name + '-profile'
+
+    def buildLibrary(self, env, name, source):
+        return env.SharedLibrary(name, source)
+
+    def isStatic(self):
+        return False
+
+    def isDebug(self):
+        return False
+    
+    def defaultEnvironment(self):
+        env = Environment(ENV = os.environ)
+        env.Append(CFLAGS = ['-pg'])
+        env.Append(LINKFLAGS = ['-pg'])
+        return env
+
+    def getBuildDir(self):
+        return BUILD_DIR + '/profile'
+    
+    def isProfile(self):
+        return True
 
 def getPlatform():
     import sys
@@ -314,10 +336,14 @@ def buildDebug():
 def buildStaticDebug():
     return doBuild(AllegroContextStaticDebug(platformChecks()))
 
+def buildProfile():
+    return doBuild(AllegroContextProfile(platformChecks()))
+
 installNormal = buildNormal()
 installStatic = buildStatic()
 installDebug = buildDebug()
 installStaticDebug = buildStaticDebug()
+installProfile = buildProfile()
 
 # Combine all the possible installed files into a giant list
 def combineInstall(*installs):
@@ -391,7 +417,8 @@ def doInstall(targets):
     return all
 
 allInstall = combineInstall(installNormal, installStatic,
-                            installDebug, installStaticDebug)
+                            installDebug, installStaticDebug,
+                            installProfile)
 
 common = filterCommon(allInstall)
 uncommon = filterUncommon(allInstall)
@@ -401,16 +428,18 @@ Alias('install-normal-files', doInstall(filterType(installNormal, uncommon)))
 Alias('install-static-files', doInstall(filterType(installStatic, uncommon)))
 Alias('install-debug-files', doInstall(filterType(installDebug, uncommon)))
 Alias('install-static-debug-files', doInstall(filterType(installStaticDebug, uncommon)))
+Alias('install-profile-files', doInstall(filterType(installProfile, uncommon)))
 
 # Regular install is the normal library
 Alias('install', ['install-common', 'install-normal-files'])
 Alias('install-static', ['install-common', 'install-static-files'])
 Alias('install-debug', ['install-common', 'install-debug-files'])
 Alias('install-static-debug', ['install-common', 'install-static-debug-files'])
+Alias('install-profile', ['install-common', 'install-profile-files'])
 
 # Default is what comes out of buildNormal()
 Default('all')
 
 # Build the world!
-Alias('everything',['all','all-static','all-debug','all-static-debug'])
-Alias('install-everything', ['install', 'install-static', 'install-debug', 'install-static-debug'])
+Alias('everything',['all','all-static','all-debug','all-static-debug', 'all-profile'])
+Alias('install-everything', ['install', 'install-static', 'install-debug', 'install-static-debug', 'install-profile'])
