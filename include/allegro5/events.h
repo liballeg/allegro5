@@ -229,6 +229,17 @@ typedef struct ALLEGRO_STREAM_EVENT
 
 
 
+typedef struct ALLEGRO_USER_EVENT
+{
+   _AL_EVENT_HEADER(struct ALLEGRO_EVENT_SOURCE);
+   intptr_t data1;
+   intptr_t data2;
+   intptr_t data3;
+   intptr_t data4;
+} ALLEGRO_USER_EVENT;
+
+
+
 /* Type: ALLEGRO_EVENT
  *
  * An ALLEGRO_EVENT is a union of all builtin event structures, i.e. it is an
@@ -267,6 +278,7 @@ union ALLEGRO_EVENT
    ALLEGRO_MOUSE_EVENT    mouse;
    ALLEGRO_TIMER_EVENT    timer;
    ALLEGRO_STREAM_EVENT   stream;
+   ALLEGRO_USER_EVENT     user;
 };
 
 
@@ -281,6 +293,13 @@ union ALLEGRO_EVENT
  * event sources.
  */
 typedef struct ALLEGRO_EVENT_SOURCE ALLEGRO_EVENT_SOURCE;
+
+AL_FUNC(ALLEGRO_EVENT_SOURCE *, al_create_user_event_source, (void));
+AL_FUNC(void, al_destroy_user_event_source, (ALLEGRO_EVENT_SOURCE *));
+/* The second argument is ALLEGRO_EVENT instead of ALLEGRO_USER_EVENT
+ * to prevent users passing a pointer to a too-short structure.
+ */
+AL_FUNC(bool, al_emit_user_event, (ALLEGRO_EVENT_SOURCE *, ALLEGRO_EVENT *));
 
 
 

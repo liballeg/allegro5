@@ -127,6 +127,7 @@ def examples(env):
     example("ex_timedwait")
     example("ex_timer")
     example("ex_ttf")
+    example("ex_user_events")
     example("ex_windows")
 
     context.alias('all-examples', examples)

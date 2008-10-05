@@ -21,6 +21,7 @@
 
 #include "allegro5/allegro5.h"
 #include "allegro5/internal/aintern.h"
+#include "allegro5/internal/aintern_dtor.h"
 #include "allegro5/internal/aintern_events.h"
 #include "allegro5/internal/aintern_memory.h"
 
@@ -158,6 +159,86 @@ void _al_event_source_emit_event(ALLEGRO_EVENT_SOURCE *this, ALLEGRO_EVENT *even
          _al_event_queue_push_event(*slot, event);
       }
    }
+}
+
+
+
+/* Function: al_create_user_event_source
+ *  Allocate an event source for emitting user events.
+ */
+ALLEGRO_EVENT_SOURCE *al_create_user_event_source(void)
+{
+   ALLEGRO_EVENT_SOURCE *src;
+
+   src = _AL_MALLOC(sizeof(*src));
+   if (src) {
+      _al_event_source_init(src);
+      _al_register_destructor(src,
+         (void (*)(void *)) al_destroy_user_event_source);
+   }
+   return src;
+}
+
+
+
+/* Function: al_destroy_user_event_source
+ *  Destroy an event source created with <al_create_user_event_source>.
+ */
+void al_destroy_user_event_source(ALLEGRO_EVENT_SOURCE *src)
+{
+   if (src) {
+      _al_unregister_destructor(src);
+      _al_event_source_free(src);
+      _AL_FREE(src);
+   }
+}
+
+
+
+/* Function: al_emit_user_event
+ *  Emit a user event.
+ *  The event source must have been created with <al_create_user_event_source>.
+ *  Some fields of the event being passed in may be modified.
+ *  Returns `false' if the event source isn't registered with any queues,
+ *  hence the event wouldn't have been delivered into any queues.
+ *
+ *  It is not recommended to have user events that hold unique references to
+ *  dynamically allocated memory blocks.  If you choose to do that, it is your
+ *  responsibility to manage that memory.  Event structures are *copied* into
+ *  event queues.  If a user event is emitted by an event source registered
+ *  with multiple queues, there would be multiple events pointing to the same
+ *  piece of dynamically allocated memory.  In some cases, such as when an
+ *  event queue is destroyed, when an event source is removed from a queue, or
+ *  if you call <al_flush_event_queue>, events may be dropped without further
+ *  warning.  If one of those events held a unique pointer to a memory block
+ *  then that would result in a memory leak.
+ */
+bool al_emit_user_event(ALLEGRO_EVENT_SOURCE *src,
+   ALLEGRO_EVENT *event)
+{
+   size_t num_queues;
+   bool rc;
+
+   ASSERT(src);
+   ASSERT(event);
+   /* We could check if it's not a builtin event type. */
+   ASSERT(event->type != 0);
+
+   _al_event_source_lock(src);
+   {
+      num_queues = _al_vector_size(&src->queues);
+      if (num_queues > 0) {
+         event->user.timestamp = al_current_time();
+         _al_event_source_emit_event(src, event);
+         rc = true;
+      }
+      else {
+         rc = false;
+      }
+   }
+   _al_event_source_unlock(src);
+
+   return rc;
 }
 
 
