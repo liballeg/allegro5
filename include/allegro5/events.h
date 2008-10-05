@@ -231,7 +231,7 @@ typedef struct ALLEGRO_STREAM_EVENT
 
 typedef struct ALLEGRO_USER_EVENT
 {
-   _AL_EVENT_HEADER(struct ALLEGRO_EVENT_SOURCE);
+   _AL_EVENT_HEADER(struct ALLEGRO_EVENT_SOURCE)
    intptr_t data1;
    intptr_t data2;
    intptr_t data3;
