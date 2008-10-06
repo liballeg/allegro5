@@ -30,6 +30,8 @@ const char* getUserResource(const char* fmt, ...) throw (Error)
    al_find_resource("a5teroids", res, AL_FM_WRITE, name, MAX_PATH);
    
    //printf("getUserResource: '%s'\n", name);
+
+   return name;
 }
 
 const char* getResource(const char* fmt, ...)

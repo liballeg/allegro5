@@ -240,7 +240,7 @@ check_include_files(sys/stat.h ALLEGRO_HAVE_SYS_STAT_H)
 check_include_files(sys/time.h ALLEGRO_HAVE_SYS_TIME_H)
 check_include_files(time.h ALLEGRO_HAVE_TIME_H)
 check_include_files(sys/utsname.h ALLEGRO_HAVE_SYS_UTSNAME_H)
-
+check_include_files(sys/types.h ALLEGRO_HAVE_SYS_TYPES_H)
 check_include_files(soundcard.h ALLEGRO_HAVE_SOUNDCARD_H)
 check_include_files(sys/soundcard.h ALLEGRO_HAVE_SYS_SOUNDCARD_H)
 check_include_files(machine/soundcard.h ALLEGRO_HAVE_MACHINE_SOUNDCARD_H)
