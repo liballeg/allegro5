@@ -96,6 +96,9 @@ Examples: (you only need one)
 Alternatively, you can use `ccmake` (Unix) or `cmake-gui` (Windows) to bring up
 an interactive option selector. e.g. `ccmake ..` or `cmake-gui ..`.
 
+*Note:* At least one user has had no luck with `cmake-gui` on Windows. If you
+run into problems, please try again with `cmake`.
+
 Now run `make` (or `mingw32-make`) and, optionally, `make install`.
 (For MinGW users, you may have to set `MINGDIR` to point to your MinGW
 directory before you do `mingw32-make install`):
