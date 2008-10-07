@@ -387,6 +387,6 @@ set(ALLEGRO_INCLUDE_ALLEGRO_PLATFORM_FILES_GENERATED
     include/allegro5/platform/alplatf.h
     )
 
-if(UNIX)
-   LIST(APPEND ALLEGRO_INCLUDE_ALLEGRO_PLATFORM_FILES_GENERATED include/allegro5/platform/alunixac.h)
+if(UNIX OR WIN32)
+   LIST(APPEND ALLEGRO_INCLUDE_ALLEGRO_PLATFORM_FILES_GENERATED include/allegro5/platform/al_cfg.h)
 endif(UNIX)
