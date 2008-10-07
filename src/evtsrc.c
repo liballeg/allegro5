@@ -8,7 +8,7 @@
  *                                           /\____/
  *                                           \_/__/
  *
- *      Event sources (mostly internal stuff).
+ *      Event sources.
  *
  *      By Peter Wang.
  *
@@ -21,16 +21,10 @@
 
 #include "allegro5/allegro5.h"
 #include "allegro5/internal/aintern.h"
+#include "allegro5/internal/aintern_dtor.h"
 #include "allegro5/internal/aintern_events.h"
 #include "allegro5/internal/aintern_memory.h"
 
-
-
-/*----------------------------------------------------------------------*
- *                                                                      *
- *      Internal event source API                                       *
- *                                                                      *
- *----------------------------------------------------------------------*/
 
 
 /* Internal function: _al_event_source_init
@@ -41,8 +35,6 @@ void _al_event_source_init(ALLEGRO_EVENT_SOURCE *this)
    _AL_MARK_MUTEX_UNINITED(this->mutex);
    _al_mutex_init(&this->mutex);
    _al_vector_init(&this->queues, sizeof(ALLEGRO_EVENT_QUEUE *));
-   this->all_events = NULL;
-   this->free_events = NULL;
 }
 
 
@@ -61,17 +53,6 @@ void _al_event_source_free(ALLEGRO_EVENT_SOURCE *this)
    }
 
    _al_vector_free(&this->queues);
-
-   /* Free all allocated event structures.  */
-   {
-      ALLEGRO_EVENT *event, *next_event;
-
-      for (event = this->all_events; event != NULL; event = next_event) {
-         ASSERT(event->any._refcount == 0);
-         next_event = event->any._next;
-         _AL_FREE(event);
-      }
-   }
 
    _al_mutex_destroy(&this->mutex);
 }
@@ -94,27 +75,6 @@ void _al_event_source_lock(ALLEGRO_EVENT_SOURCE *this)
 void _al_event_source_unlock(ALLEGRO_EVENT_SOURCE *this)
 {
    _al_mutex_unlock(&this->mutex);
-}
-
-
-
-/* make_new_event:
- *  Helper to allocate event structures for the event source.
- */
-static ALLEGRO_EVENT *make_new_event(ALLEGRO_EVENT_SOURCE *this)
-{
-   ALLEGRO_EVENT *ret;
-
-   ret = _AL_MALLOC(sizeof *ret);
-   ASSERT(ret);
-
-   if (ret) {
-      ret->any._refcount = 0;
-      ret->any._next = NULL;
-      ret->any._next_free = NULL;
-   }
-
-   return ret;
 }
 
 
@@ -172,36 +132,6 @@ bool _al_event_source_needs_to_generate_event(ALLEGRO_EVENT_SOURCE *this)
 
 
 
-/* Internal function: _al_event_source_get_unused_event
- *  Once it is determined that an event source needs to generate an
- *  event, this function is called.  It returns an allocated event
- *  structure that can be filled in, or NULL if no event structure is
- *  available.
- *
- *  The event source must be _locked_ before calling this function.
- *
- *  [runs in background threads]
- */
-ALLEGRO_EVENT *_al_event_source_get_unused_event(ALLEGRO_EVENT_SOURCE *this)
-{
-   ALLEGRO_EVENT *event;
-
-   event = this->free_events;
-   if (event) {
-      this->free_events = event->any._next_free;
-      return event;
-   }
-
-   event = make_new_event(this);
-   if (event) {
-      event->any._next = this->all_events;
-      this->all_events = event;
-   }
-   return event;
-}
-
-
-
 /* Internal function: _al_event_source_emit_event
  *  After an event structure has been filled in, it is time for the
  *  event source to tell the event queues it knows of about the new
@@ -215,7 +145,6 @@ ALLEGRO_EVENT *_al_event_source_get_unused_event(ALLEGRO_EVENT_SOURCE *this)
 void _al_event_source_emit_event(ALLEGRO_EVENT_SOURCE *this, ALLEGRO_EVENT *event)
 {
    event->any.source = this;
-   ASSERT(event->any._refcount == 0);
 
    /* Push the event to all the queues that this event source is
     * registered to.
@@ -228,58 +157,88 @@ void _al_event_source_emit_event(ALLEGRO_EVENT_SOURCE *this, ALLEGRO_EVENT *even
       for (i = 0; i < num_queues; i++) {
          slot = _al_vector_ref(&this->queues, i);
          _al_event_queue_push_event(*slot, event);
-         /* The event queue will increment the event's _refcount field
-          * if the event was accepted into the queue.
-          */
       }
-   }
-
-   /* Note: if a thread was waiting on a event queue, the
-    * event_queue->push_event() call may have woken it up.
-    * Futhermore, it may have grabbed the event just pushed, and
-    * already released it!
-    *
-    * If the event source's `release_event' method does locking, and
-    * the event source is locked before entering this function,
-    * everything will (should!) work out fine.
-    */
-
-   if (event->any._refcount == 0) {
-      /* No queues could accept this event, add to free list.  */
-      event->any._next_free = this->free_events;
-      this->free_events = event;
    }
 }
 
 
 
-/* Internal function: _al_release_event
- *  This function is called by event queue implementations when they
- *  no longer need a reference to the given event structure.  It
- *  decrements the refcount of the event by one.  Once the refcount
- *  reaches zero, the event structure is put on a 'free list', where
- *  it can be reused for later events.
+/* Function: al_create_user_event_source
+ *  Allocate an event source for emitting user events.
  */
-void _al_release_event(ALLEGRO_EVENT *event)
+ALLEGRO_EVENT_SOURCE *al_create_user_event_source(void)
 {
-   ASSERT(event);
-   {
-      ALLEGRO_EVENT_SOURCE *source = event->any.source;
+   ALLEGRO_EVENT_SOURCE *src;
 
-      _al_event_source_lock(source);
-      {
-         /* Decrement the refcount...  */
-         ASSERT(event->any._refcount > 0);
-         event->any._refcount--;
-
-         /* ... then return the event to the free list if appropriate.  */
-         if (event->any._refcount == 0) {
-            event->any._next_free = source->free_events;
-            source->free_events = event;
-         }
-      }
-      _al_event_source_unlock(source);
+   src = _AL_MALLOC(sizeof(*src));
+   if (src) {
+      _al_event_source_init(src);
+      _al_register_destructor(src,
+         (void (*)(void *)) al_destroy_user_event_source);
    }
+   return src;
+}
+
+
+
+/* Function: al_destroy_user_event_source
+ *  Destroy an event source created with <al_create_user_event_source>.
+ */
+void al_destroy_user_event_source(ALLEGRO_EVENT_SOURCE *src)
+{
+   if (src) {
+      _al_unregister_destructor(src);
+      _al_event_source_free(src);
+      _AL_FREE(src);
+   }
+}
+
+
+
+/* Function: al_emit_user_event
+ *  Emit a user event.
+ *  The event source must have been created with <al_create_user_event_source>.
+ *  Some fields of the event being passed in may be modified.
+ *  Returns `false' if the event source isn't registered with any queues,
+ *  hence the event wouldn't have been delivered into any queues.
+ *
+ *  It is not recommended to have user events that hold unique references to
+ *  dynamically allocated memory blocks.  If you choose to do that, it is your
+ *  responsibility to manage that memory.  Event structures are *copied* into
+ *  event queues.  If a user event is emitted by an event source registered
+ *  with multiple queues, there would be multiple events pointing to the same
+ *  piece of dynamically allocated memory.  In some cases, such as when an
+ *  event queue is destroyed, when an event source is removed from a queue, or
+ *  if you call <al_flush_event_queue>, events may be dropped without further
+ *  warning.  If one of those events held a unique pointer to a memory block
+ *  then that would result in a memory leak.
+ */
+bool al_emit_user_event(ALLEGRO_EVENT_SOURCE *src,
+   ALLEGRO_EVENT *event)
+{
+   size_t num_queues;
+   bool rc;
+
+   ASSERT(src);
+   ASSERT(event);
+   /* We could check if it's not a builtin event type. */
+   ASSERT(event->type != 0);
+
+   _al_event_source_lock(src);
+   {
+      num_queues = _al_vector_size(&src->queues);
+      if (num_queues > 0) {
+         event->user.timestamp = al_current_time();
+         _al_event_source_emit_event(src, event);
+         rc = true;
+      }
+      else {
+         rc = false;
+      }
+   }
+   _al_event_source_unlock(src);
+
+   return rc;
 }
 
 
@@ -290,3 +249,4 @@ void _al_release_event(ALLEGRO_EVENT *event)
  * indent-tabs-mode: nil
  * End:
  */
+/* vim: set sts=3 sw=3 et: */

@@ -20,8 +20,8 @@ typedef struct ALLEGRO_AUDIO_DRIVER ALLEGRO_AUDIO_DRIVER;
 struct ALLEGRO_AUDIO_DRIVER {
    const char     *specifier;
 
-   int            (*open)();
-   void           (*close)();
+   int            (*open)(void);
+   void           (*close)(void);
 
    int            (*allocate_voice)(ALLEGRO_VOICE*);
    void           (*deallocate_voice)(ALLEGRO_VOICE*);
@@ -189,7 +189,7 @@ struct ALLEGRO_STREAM {
                          * have been sent to the audio driver and so are
                          * ready to receive new data.
                          */
-   bool                  is_draining;
+   volatile bool         is_draining;
                          /* Set to true if sample data is not going to be passed
                           * to the stream any more. The stream must change its
                           * playing state to false after all buffers have been

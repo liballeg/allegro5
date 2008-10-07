@@ -1,5 +1,7 @@
 import os
 
+# Unix checks only
+
 def CheckIntel(context):
     context.Message("Checking for intel chip... ")
     ret = context.TryCompile("""
@@ -428,3 +430,113 @@ def CheckDL(context):
         context.env.Append(LIBS = ["dl"])
     context.Result(result)
     return result
+
+def CheckOgg(context):
+    context.Message("Checking for Ogg... ")
+
+    ret = context.TryAction('pkg-config vorbisfile --libs')[0]
+    if ret:
+        tmpEnv = context.env.Clone()
+        context.env.ParseConfig('pkg-config vorbisfile --libs --cflags')
+        ret = context.TryLink("""
+            #include <vorbis/vorbisfile.h>
+            int main(){
+                OggVorbis_File f;
+                ov_callbacks callback;
+                vorbis_info * v = 0;
+                ov_info(&f,-1);
+                callback = OV_CALLBACKS_NOCLOSE;
+                return 0;
+            }
+            """, ".c");
+        if not ret:
+            context.sconf.env = tmpEnv
+    context.Result(ret)
+    return ret
+
+def CheckFlac(context):
+    context.Message("Checking for Flac... ")
+
+    ret = context.TryAction('pkg-config flac --libs')[0]
+    if ret:
+        tmpEnv = context.env.Clone()
+        context.env.ParseConfig('pkg-config flac --libs --cflags')
+        ret = context.TryLink("""
+            #include <FLAC/stream_decoder.h>
+            int main(){
+                FLAC__StreamDecoderInitStatus status;
+                return 0;
+            }
+            """, ".c");
+        if not ret:
+            context.sconf.env = tmpEnv
+    context.Result(ret)
+    return ret
+
+def CheckSndfile(context):
+    context.Message("Checking for Sndfile... ")
+
+    ret = context.TryAction('pkg-config sndfile --libs')[0]
+    if ret:
+        tmpEnv = context.env.Clone()
+        context.env.ParseConfig('pkg-config sndfile --libs --cflags')
+        ret = context.TryLink("""
+            #include <sndfile.h>
+            int main(){
+                SNDFILE * file;
+                file = sf_open("fake", SFM_READ, 0);
+                return 0;
+            }
+            """, ".c");
+        if not ret:
+            context.sconf.env = tmpEnv
+    context.Result(ret)
+    return ret
+
+def CheckOpenAL(context):
+    context.Message("Checking for OpenAL... ")
+
+    ret = context.TryAction('openal-config --libs')[0]
+    if ret:
+        tmpEnv = context.env.Clone()
+        tmpEnv.ParseConfig('openal-config --libs')
+        def add_al(env, output):
+            output = "-I " + os.path.join(output.strip(), "AL")
+            tmpEnv.MergeFlags(output)
+        tmpEnv.ParseConfig('openal-config --includedir', add_al)
+        ret = context.TryLink("""
+            #include <al.h>
+                int main(){
+                ALenum al_error;
+                return 0;
+            }
+            """, ".c");
+        if not ret:
+            context.sconf.env = tmpEnv
+    context.Result(ret)
+    return ret
+
+def CheckAlsa(context):
+    context.Message("Checking for Alsa... ")
+
+    ret = context.TryAction('pkg-config --libs --cflags alsa')[0]
+    if ret:
+        tmpEnv = context.env.Clone()
+        context.env.ParseConfig('pkg-config --libs --cflags alsa')
+        ret = context.TryLink("""
+            #include <alsa/asoundlib.h>
+            int main(){
+                snd_pcm_t * x;
+                return 0;
+            }
+            """, ".c");
+        if not ret:
+            context.sconf.env = tmpEnv
+    context.Result(ret)
+    return ret
+
+def CheckOSS(context):
+    context.Message("Checking for OSS... ")
+    ret = False
+    return ret
+

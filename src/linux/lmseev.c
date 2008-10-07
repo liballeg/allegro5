@@ -811,26 +811,22 @@ static void generate_mouse_event(unsigned int type,
                                  int dx, int dy, int dz,
                                  unsigned int button)
 {
-   ALLEGRO_EVENT *event;
+   ALLEGRO_EVENT event;
 
    if (!_al_event_source_needs_to_generate_event(&the_mouse.parent.es))
       return;
 
-   event = _al_event_source_get_unused_event(&the_mouse.parent.es);
-   if (!event)
-      return;
-
-   event->mouse.type = type;
-   event->mouse.timestamp = al_current_time();
-   event->mouse.display = NULL;
-   event->mouse.x = x;
-   event->mouse.y = y;
-   event->mouse.z = z;
-   event->mouse.dx = dx;
-   event->mouse.dy = dy;
-   event->mouse.dz = dz;
-   event->mouse.button = button;
-   _al_event_source_emit_event(&the_mouse.parent.es, event);
+   event.mouse.type = type;
+   event.mouse.timestamp = al_current_time();
+   event.mouse.display = NULL;
+   event.mouse.x = x;
+   event.mouse.y = y;
+   event.mouse.z = z;
+   event.mouse.dx = dx;
+   event.mouse.dy = dy;
+   event.mouse.dz = dz;
+   event.mouse.button = button;
+   _al_event_source_emit_event(&the_mouse.parent.es, &event);
 }
 
 

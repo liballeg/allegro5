@@ -1112,23 +1112,19 @@ static void handle_button_event(ALLEGRO_JOYSTICK_DIRECTX *joy, int button, bool 
  */
 static void generate_axis_event(ALLEGRO_JOYSTICK_DIRECTX *joy, int stick, int axis, float pos)
 {
-   ALLEGRO_EVENT *event;
+   ALLEGRO_EVENT event;
 
    if (!_al_event_source_needs_to_generate_event(&joy->parent.es))
       return;
 
-   event = _al_event_source_get_unused_event(&joy->parent.es);
-   if (!event)
-      return;
+   event.joystick.type = ALLEGRO_EVENT_JOYSTICK_AXIS;
+   event.joystick.timestamp = al_current_time();
+   event.joystick.stick = stick;
+   event.joystick.axis = axis;
+   event.joystick.pos = pos;
+   event.joystick.button = 0;
 
-   event->joystick.type = ALLEGRO_EVENT_JOYSTICK_AXIS;
-   event->joystick.timestamp = al_current_time();
-   event->joystick.stick = stick;
-   event->joystick.axis = axis;
-   event->joystick.pos = pos;
-   event->joystick.button = 0;
-
-   _al_event_source_emit_event(&joy->parent.es, event);
+   _al_event_source_emit_event(&joy->parent.es, &event);
 }
 
 
@@ -1139,23 +1135,19 @@ static void generate_axis_event(ALLEGRO_JOYSTICK_DIRECTX *joy, int stick, int ax
  */
 static void generate_button_event(ALLEGRO_JOYSTICK_DIRECTX *joy, int button, ALLEGRO_EVENT_TYPE event_type)
 {
-   ALLEGRO_EVENT *event;
+   ALLEGRO_EVENT event;
 
    if (!_al_event_source_needs_to_generate_event(&joy->parent.es))
       return;
 
-   event = _al_event_source_get_unused_event(&joy->parent.es);
-   if (!event)
-      return;
+   event.joystick.type = event_type;
+   event.joystick.timestamp = al_current_time();
+   event.joystick.stick = 0;
+   event.joystick.axis = 0;
+   event.joystick.pos = 0.0;
+   event.joystick.button = button;
 
-   event->joystick.type = event_type;
-   event->joystick.timestamp = al_current_time();
-   event->joystick.stick = 0;
-   event->joystick.axis = 0;
-   event->joystick.pos = 0.0;
-   event->joystick.button = button;
-
-   _al_event_source_emit_event(&joy->parent.es, event);
+   _al_event_source_emit_event(&joy->parent.es, &event);
 }
 
 

@@ -304,7 +304,7 @@ static void key_dinput_handle(void)
                                          0);
 
    /* was device lost ? */
-   if ((hr == DIERR_NOTACQUIRED) || (hr == DIERR_INPUTLOST)) {
+   if ((hr == DIERR_NOTACQUIRED) || (hr == DIERR_INPUTLOST) || !win_disp) {
       /* reacquire device */
       TRACE(PREFIX_W "keyboard device not acquired or lost\n");
       /* Makes no sense to reacquire the device here becasue this usually 
@@ -699,7 +699,7 @@ static void handle_key_press(unsigned char scancode)
    int unicode;
    bool is_repeat;
    ALLEGRO_EVENT_TYPE event_type;
-   ALLEGRO_EVENT *event;
+   ALLEGRO_EVENT event;
    UINT vkey;
    BYTE keystate[256];
    WCHAR chars[16];
@@ -802,19 +802,14 @@ static void handle_key_press(unsigned char scancode)
    if (!_al_event_source_needs_to_generate_event(&the_keyboard.es))
       return;
 
-   event = _al_event_source_get_unused_event(&the_keyboard.es);
-   if (!event)
-      return;
+   event.keyboard.type = event_type;
+   event.keyboard.timestamp = al_current_time();
+   event.keyboard.display = (void*)win_disp;
+   event.keyboard.keycode = mycode;
+   event.keyboard.unichar = unicode;
+   event.keyboard.modifiers = key_modifiers;
 
-
-   event->keyboard.type = event_type;
-   event->keyboard.timestamp = al_current_time();
-   event->keyboard.display = (void*)win_disp;
-   event->keyboard.keycode = mycode;
-   event->keyboard.unichar = unicode;
-   event->keyboard.modifiers = key_modifiers;
-
-   _al_event_source_emit_event(&the_keyboard.es, event);
+   _al_event_source_emit_event(&the_keyboard.es, &event);
 
    /* Set up auto-repeat emulation. */
    if ((!is_repeat) && (mycode < ALLEGRO_KEY_MODIFIERS)) {
@@ -834,7 +829,7 @@ static void handle_key_press(unsigned char scancode)
 static void handle_key_release(unsigned char scancode)
 {
    int mycode;
-   ALLEGRO_EVENT *event;
+   ALLEGRO_EVENT event;
 
    mycode = hw_to_mycode[scancode];
    if (mycode == 0)
@@ -862,18 +857,14 @@ static void handle_key_release(unsigned char scancode)
    if (!_al_event_source_needs_to_generate_event(&the_keyboard.es))
       return;
 
-   event = _al_event_source_get_unused_event(&the_keyboard.es);
-   if (!event)
-      return;
+   event.keyboard.type = ALLEGRO_EVENT_KEY_UP;
+   event.keyboard.timestamp = al_current_time();
+   event.keyboard.display = (void*)win_disp;
+   event.keyboard.keycode = mycode;
+   event.keyboard.unichar = 0;
+   event.keyboard.modifiers = 0;
 
-   event->keyboard.type = ALLEGRO_EVENT_KEY_UP;
-   event->keyboard.timestamp = al_current_time();
-   event->keyboard.display = (void*)win_disp;
-   event->keyboard.keycode = mycode;
-   event->keyboard.unichar = 0;
-   event->keyboard.modifiers = 0;
-
-   _al_event_source_emit_event(&the_keyboard.es, event);
+   _al_event_source_emit_event(&the_keyboard.es, &event);
 }
 
 /*

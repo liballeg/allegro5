@@ -751,6 +751,7 @@ ALLEGRO_OGL_EXT_LIST *al_get_opengl_extension_list(void)
 
 
 
+#if 0
 /* print_extensions:
  * Given a string containing extensions (i.e. a NULL terminated string where
  * each extension are separated by a space and which names do not contain any
@@ -773,6 +774,7 @@ static void print_extensions(AL_CONST char *extension)
       TRACE(PREFIX_I "%s\n", buf);
    }
 }
+#endif
 
 
 

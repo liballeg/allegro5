@@ -73,12 +73,12 @@ int main(int argc, char **argv)
          fprintf(stderr, "al_sample_set_ptr failed.\n");
          return 1;
       }
-      if (al_mixer_attach_mixer(mixer, submixer[i]) != 0) {
-         fprintf(stderr, "al_mixer_attach_mixer failed.\n");
-         return 1;
-      }
       if (al_mixer_attach_sample(submixer[i], sample[i]) != 0) {
          fprintf(stderr, "al_mixer_attach_sample failed.\n");
+         return 1;
+      }
+      if (al_mixer_attach_mixer(mixer, submixer[i]) != 0) {
+         fprintf(stderr, "al_mixer_attach_mixer failed.\n");
          return 1;
       }
    }
@@ -96,6 +96,7 @@ int main(int argc, char **argv)
       max_sample_time = sample_time;
 
    printf("Playing...");
+   fflush(stdout);
 
    al_rest(max_sample_time);
 
@@ -107,6 +108,7 @@ int main(int argc, char **argv)
 
    al_sample_stop(sample[0]);
    al_sample_stop(sample[1]);
+   printf("\n");
 
    /* Free the memory allocated. */
    for (i = 0; i < 2; i++) {

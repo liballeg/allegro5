@@ -14,6 +14,8 @@
 #include "allegro5/internal/aintern_kcm_audio.h"
 #include "allegro5/internal/aintern_kcm_cfg.h"
 
+#define PREFIX_E "kcm_stream ERROR: "
+#define PREFIX_I "kcm_stream INFO: "
 
 
 /* Function: al_stream_create
@@ -531,7 +533,7 @@ void *_al_kcm_feed_stream(ALLEGRO_THREAD *self, void *vstream)
 {
    ALLEGRO_STREAM *stream = vstream;
 
-   TRACE("Stream feeder thread started.\n");
+   TRACE(PREFIX_I "Stream feeder thread started.\n");
 
    while (!stream->quit_feed_thread) {
       void *vbuf;
@@ -541,7 +543,7 @@ void *_al_kcm_feed_stream(ALLEGRO_THREAD *self, void *vstream)
 
       if (al_stream_get_long(stream, ALLEGRO_AUDIOPROP_USED_FRAGMENTS,
                              &vbuf_waiting_count) != 0) {
-         TRACE("Error getting the number of waiting buffers.\n");
+         TRACE(PREFIX_E "Error getting the number of waiting buffers.\n");
          return NULL;
       }
 
@@ -551,7 +553,7 @@ void *_al_kcm_feed_stream(ALLEGRO_THREAD *self, void *vstream)
       }
 
       if (al_stream_get_ptr(stream, ALLEGRO_AUDIOPROP_BUFFER, &vbuf) != 0) {
-         TRACE("Error getting the stream buffers.\n");
+         TRACE(PREFIX_E "Error getting stream buffers.\n");
          return NULL;
       }
 
@@ -573,7 +575,7 @@ void *_al_kcm_feed_stream(ALLEGRO_THREAD *self, void *vstream)
       }
 
       if (al_stream_set_ptr(stream, ALLEGRO_AUDIOPROP_BUFFER, vbuf) != 0) {
-         TRACE("Error setting stream buffer.\n");
+         TRACE(PREFIX_E "Error setting stream buffer.\n");
          return NULL;
       }
 
@@ -581,11 +583,11 @@ void *_al_kcm_feed_stream(ALLEGRO_THREAD *self, void *vstream)
       if (bytes_written != bytes &&
           stream->spl.loop == _ALLEGRO_PLAYMODE_STREAM_ONCE) {
          al_stream_drain(stream);
-         return NULL;
+         stream->quit_feed_thread = true;
       }
    }
 
-   TRACE("Stream feeder thread finished.\n");
+   TRACE(PREFIX_I "Stream feeder thread finished.\n");
 
    return NULL;
 }
@@ -597,15 +599,13 @@ bool _al_kcm_emit_stream_event(ALLEGRO_STREAM *stream, unsigned long count)
 
    if (_al_event_source_needs_to_generate_event(&stream->spl.es)) {
       while (count--) {
-         ALLEGRO_EVENT *event = _al_event_source_get_unused_event(&stream->spl.es);
-         if (event) {
-            event->stream.type = ALLEGRO_EVENT_STREAM_EMPTY_FRAGMENT;
-            event->stream.timestamp = al_current_time();
-            al_stream_get_ptr(stream, ALLEGRO_AUDIOPROP_BUFFER,
-                              &event->stream.empty_fragment);
-            ASSERT(event->stream.empty_fragment);
-            _al_event_source_emit_event(&stream->spl.es, event);
-         }
+         ALLEGRO_EVENT event;
+         event.stream.type = ALLEGRO_EVENT_STREAM_EMPTY_FRAGMENT;
+         event.stream.timestamp = al_current_time();
+         al_stream_get_ptr(stream, ALLEGRO_AUDIOPROP_BUFFER,
+            &event.stream.empty_fragment);
+         ASSERT(event.stream.empty_fragment);
+         _al_event_source_emit_event(&stream->spl.es, &event);
       }
    }
 

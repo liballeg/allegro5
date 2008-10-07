@@ -73,7 +73,7 @@ struct ALLEGRO_BITMAP_INTERFACE
       float angle, float dx, float dy, int flags);
    void (*draw_rotated_scaled_bitmap)(ALLEGRO_BITMAP *bitmap, float cx, float cy,
       float angle, float dx, float dy, float xscale, float yscale,
-      float flags);
+      int flags);
    /* After the memory-copy of the bitmap has been modified, need to call this
     * to update the display-specific copy. E.g. with an OpenGL driver, this
     * might create/update a texture. Returns false on failure.

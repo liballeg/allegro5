@@ -666,12 +666,15 @@ int al_mixer_attach_sample(ALLEGRO_MIXER *mixer, ALLEGRO_SAMPLE *spl)
       return 1;
    }
 
-   ASSERT(mixer->ss.mutex);
-   al_lock_mutex(mixer->ss.mutex);
+   if (mixer->ss.mutex) {
+      al_lock_mutex(mixer->ss.mutex);
+   }
 
    slot = _al_vector_alloc_back(&mixer->streams);
    if (!slot) {
-      al_unlock_mutex(mixer->ss.mutex);
+      if (mixer->ss.mutex) {
+         al_unlock_mutex(mixer->ss.mutex);
+      }
       _al_set_error(ALLEGRO_GENERIC_ERROR,
          "Out of memory allocating attachment pointers");
       return 1;
@@ -713,7 +716,9 @@ int al_mixer_attach_sample(ALLEGRO_MIXER *mixer, ALLEGRO_SAMPLE *spl)
    spl->parent.u.mixer = mixer;
    spl->parent.is_voice = false;
 
-   al_unlock_mutex(mixer->ss.mutex);
+   if (mixer->ss.mutex) {
+      al_unlock_mutex(mixer->ss.mutex);
+   }
 
    return 0;
 }

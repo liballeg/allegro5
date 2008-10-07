@@ -29,6 +29,7 @@
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>
 #include <X11/Xproto.h>
+#include <X11/XKBlib.h>
 
 #include "allegro5/allegro5.h"
 #include "allegro5/internal/aintern.h"
@@ -697,6 +698,12 @@ static int x_keyboard_init(void)
    memcpy(key_names, _al_keyboard_common_names, sizeof key_names);
 
    _al_mutex_lock(&s->lock);
+   
+   Bool supported;
+   XkbSetDetectableAutoRepeat(s->x11display, True, &supported);
+   if (!supported) {
+    TRACE(PREFIX_W "XkbSetDetectableAutoRepeat failed.\n");
+   }
 
 #ifdef ALLEGRO_XWINDOWS_WITH_XIM
 /* TODO: is this needed?
@@ -951,7 +958,6 @@ static void handle_key_press(int mycode, int unichar, unsigned int modifiers,
     ALLEGRO_DISPLAY *display)
 {
    bool is_repeat;
-   ALLEGRO_EVENT *event;
    ALLEGRO_EVENT_TYPE type;
 
    is_repeat = (last_press_code == mycode);
@@ -964,16 +970,15 @@ static void handle_key_press(int mycode, int unichar, unsigned int modifiers,
 
       /* Generate the press event if necessary. */
       type = is_repeat ? ALLEGRO_EVENT_KEY_REPEAT : ALLEGRO_EVENT_KEY_DOWN;
-      if ((_al_event_source_needs_to_generate_event(&the_keyboard.parent.es)) &&
-          (event = _al_event_source_get_unused_event(&the_keyboard.parent.es)))
-      {
-         event->keyboard.type = type;
-         event->keyboard.timestamp = al_current_time();
-         event->keyboard.display = display;
-         event->keyboard.keycode   = mycode;
-         event->keyboard.unichar   = unichar;
-         event->keyboard.modifiers = modifiers;
-         _al_event_source_emit_event(&the_keyboard.parent.es, event);
+      if (_al_event_source_needs_to_generate_event(&the_keyboard.parent.es)) {
+         ALLEGRO_EVENT event;
+         event.keyboard.type = type;
+         event.keyboard.timestamp = al_current_time();
+         event.keyboard.display = display;
+         event.keyboard.keycode   = mycode;
+         event.keyboard.unichar   = unichar;
+         event.keyboard.modifiers = modifiers;
+         _al_event_source_emit_event(&the_keyboard.parent.es, &event);
       }
    }
    _al_event_source_unlock(&the_keyboard.parent.es);
@@ -998,8 +1003,6 @@ static void handle_key_press(int mycode, int unichar, unsigned int modifiers,
  */
 static void handle_key_release(int mycode, ALLEGRO_DISPLAY *display)
 {
-   ALLEGRO_EVENT *event;
-
    if (last_press_code == mycode)
       last_press_code = -1;
 
@@ -1009,16 +1012,15 @@ static void handle_key_release(int mycode, ALLEGRO_DISPLAY *display)
       _AL_KEYBOARD_STATE_CLEAR_KEY_DOWN(the_keyboard.state, mycode);
 
       /* Generate the release event if necessary. */
-      if ((_al_event_source_needs_to_generate_event(&the_keyboard.parent.es)) &&
-          (event = _al_event_source_get_unused_event(&the_keyboard.parent.es)))
-      {
-         event->keyboard.type = ALLEGRO_EVENT_KEY_UP;
-         event->keyboard.timestamp = al_current_time();
-         event->keyboard.display = display;
-         event->keyboard.keycode = mycode;
-         event->keyboard.unichar = 0;
-         event->keyboard.modifiers = 0;
-         _al_event_source_emit_event(&the_keyboard.parent.es, event);
+      if (_al_event_source_needs_to_generate_event(&the_keyboard.parent.es)) {
+         ALLEGRO_EVENT event;
+         event.keyboard.type = ALLEGRO_EVENT_KEY_UP;
+         event.keyboard.timestamp = al_current_time();
+         event.keyboard.display = display;
+         event.keyboard.keycode = mycode;
+         event.keyboard.unichar = 0;
+         event.keyboard.modifiers = 0;
+         _al_event_source_emit_event(&the_keyboard.parent.es, &event);
       }
    }
    _al_event_source_unlock(&the_keyboard.parent.es);

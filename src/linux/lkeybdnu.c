@@ -542,7 +542,7 @@ static void process_character(unsigned char ch)
 static void handle_key_press(int mycode, unsigned int ascii)
 {
    ALLEGRO_EVENT_TYPE event_type;
-   ALLEGRO_EVENT *event;
+   ALLEGRO_EVENT event;
 
    event_type = (_AL_KEYBOARD_STATE_KEY_DOWN(the_keyboard.state, mycode)
                  ? ALLEGRO_EVENT_KEY_REPEAT
@@ -555,18 +555,14 @@ static void handle_key_press(int mycode, unsigned int ascii)
    if (!_al_event_source_needs_to_generate_event(&the_keyboard.parent.es))
       return;
 
-   event = _al_event_source_get_unused_event(&the_keyboard.parent.es);
-   if (!event)
-      return;
+   event.keyboard.type = event_type;
+   event.keyboard.timestamp = al_current_time();
+   event.keyboard.display = NULL;
+   event.keyboard.keycode = mycode;
+   event.keyboard.unichar = ascii;
+   event.keyboard.modifiers = the_keyboard.modifiers;
 
-   event->keyboard.type = event_type;
-   event->keyboard.timestamp = al_current_time();
-   event->keyboard.display = NULL;
-   event->keyboard.keycode = mycode;
-   event->keyboard.unichar = ascii;
-   event->keyboard.modifiers = the_keyboard.modifiers;
-
-   _al_event_source_emit_event(&the_keyboard.parent.es, event);
+   _al_event_source_emit_event(&the_keyboard.parent.es, &event);
 }
 
 
@@ -576,7 +572,7 @@ static void handle_key_press(int mycode, unsigned int ascii)
  */
 static void handle_key_release(int mycode)
 {
-   ALLEGRO_EVENT *event;
+   ALLEGRO_EVENT event;
 
    /* This can happen, e.g. when we are switching back into a VT with
     * ALT+Fn, we only get the release event of the function key.
@@ -591,18 +587,14 @@ static void handle_key_release(int mycode)
    if (!_al_event_source_needs_to_generate_event(&the_keyboard.parent.es))
       return;
 
-   event = _al_event_source_get_unused_event(&the_keyboard.parent.es);
-   if (!event)
-      return;
+   event.keyboard.type = ALLEGRO_EVENT_KEY_UP;
+   event.keyboard.timestamp = al_current_time();
+   event.keyboard.display = NULL;
+   event.keyboard.keycode = mycode;
+   event.keyboard.unichar = 0;
+   event.keyboard.modifiers = 0;
 
-   event->keyboard.type = ALLEGRO_EVENT_KEY_UP;
-   event->keyboard.timestamp = al_current_time();
-   event->keyboard.display = NULL;
-   event->keyboard.keycode = mycode;
-   event->keyboard.unichar = 0;
-   event->keyboard.modifiers = 0;
-
-   _al_event_source_emit_event(&the_keyboard.parent.es, event);
+   _al_event_source_emit_event(&the_keyboard.parent.es, &event);
 }
 
 

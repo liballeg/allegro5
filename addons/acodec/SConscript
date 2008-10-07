@@ -4,7 +4,7 @@ import addons
 import helpers
 import os
 
-myEnv = env.Clone()
+myEnv = env
 
 def getOption(name, default = 0):
     return myEnv[name]
@@ -14,65 +14,6 @@ def getArgumentOption(name, default):
     if arg == "yes" or arg == "1":
         return 1
     return 0
-
-def CheckOGG(context):
-    context.Message("Checking for Ogg... ")
-
-    ret = context.TryAction('pkg-config vorbisfile --libs')[0]
-    if ret:
-        tmpEnv = context.env.Clone()
-        context.env.ParseConfig('pkg-config vorbisfile --libs --cflags')
-        ret = context.TryLink("""
-            #include <vorbis/vorbisfile.h>
-            int main(){
-                OggVorbis_File f;
-                ov_callbacks callback;
-                vorbis_info * v = 0;
-                ov_info(&f,-1);
-                callback = OV_CALLBACKS_NOCLOSE;
-                return 0;
-            }
-            """, ".c");
-        context.sconf.env = tmpEnv
-    context.Result(ret)
-    return ret
-
-def CheckFlac(context):
-    context.Message("Checking for Flac... ")
-
-    ret = context.TryAction('pkg-config flac --libs')[0]
-    if ret:
-        tmpEnv = context.env.Clone()
-        context.env.ParseConfig('pkg-config flac --libs --cflags')
-        ret = context.TryLink("""
-            #include <FLAC/stream_decoder.h>
-            int main(){
-                FLAC__StreamDecoderInitStatus status;
-                return 0;
-            }
-            """, ".c");
-        context.sconf.env = tmpEnv
-    context.Result(ret)
-    return ret
-
-def CheckSndfile(context):
-    context.Message("Checking for Sndfile... ")
-
-    ret = context.TryAction('pkg-config sndfile --libs')[0]
-    if ret:
-        tmpEnv = context.env.Clone()
-        context.env.ParseConfig('pkg-config sndfile --libs --cflags')
-        ret = context.TryLink("""
-            #include <sndfile.h>
-            int main(){
-                SNDFILE * file;
-                file = sf_open("fake", SFM_READ, 0);
-                return 0;
-            }
-            """, ".c");
-        context.sconf.env = tmpEnv
-    context.Result(ret)
-    return ret
 
 opts = helpers.Options(context, "options-addons-acodec.py", ARGUMENTS)
 opts.Add('flac', 'Enable FLAC', 1)
@@ -88,35 +29,28 @@ def setupPlatform(settings, config):
     settings["ALLEGRO_CFG_ACODEC_SNDFILE"] = getOption('sndfile', True) and config.CheckSndfile()
     return config.Finish()
 
-tests = { "CheckOgg": CheckOGG,
-          "CheckFlac": CheckFlac,
-          "CheckSndfile": CheckSndfile,
-        }
-
 source = ['acodec.c']
 configs = []
 settings, configure_env = helpers.do_configure('acodec', context,
-                            tests, setupPlatform,
+                            context.getTests(), setupPlatform,
                             'allegro5/internal/aintern_acodec_cfg.h.cmake',
                             'allegro5/internal/aintern_acodec_cfg.h',
                             getArgumentOption('config', 0))
+
+for merge in ['CCFLAGS', "CPPPATH", "LIBS", "LIBPATH"]:
+    try: env.Append(**{merge: configure_env[merge]})
+    except KeyError: pass
 
 # This shouldn't be required, use env = config.Finish() above and make
 # the Check* functions modify the environment
 if settings['ALLEGRO_CFG_ACODEC_VORBIS']:
     source.extend(['ogg.c'])
-    configs.extend(['pkg-config vorbisfile --libs'])
-    env.ParseConfig('pkg-config vorbisfile --libs')
 
 if settings['ALLEGRO_CFG_ACODEC_FLAC']:
     source.extend(['flac.c'])
-    configs.extend(['pkg-config flac --libs'])
-    env.ParseConfig('pkg-config flac --libs')
 
 if settings['ALLEGRO_CFG_ACODEC_SNDFILE']:
     source.extend(['wav.c'])
-    configs.extend(['pkg-config sndfile --libs'])
-    env.ParseConfig('pkg-config sndfile --libs')
 
 install = addons.do_build(
     context = context,

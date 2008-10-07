@@ -35,23 +35,22 @@ static ALLEGRO_KEYBOARD keyboard;
 static ALLEGRO_KEYBOARD_STATE kbdstate;
 
 static void _handle_key_press(ALLEGRO_DISPLAY* dpy, int unicode, int scancode, int modifiers) {
-	ALLEGRO_EVENT* event;
 	int is_repeat=0;
 	int type;
 	_al_event_source_lock(&keyboard.es);
 	{
 		/* Generate the press event if necessary. */
 		type = is_repeat ? ALLEGRO_EVENT_KEY_REPEAT : ALLEGRO_EVENT_KEY_DOWN;
-		if ((_al_event_source_needs_to_generate_event(&keyboard.es)) &&
-			(event = _al_event_source_get_unused_event(&keyboard.es)))
+		if (_al_event_source_needs_to_generate_event(&keyboard.es))
 		{
-            event->keyboard.type = type;
-            event->keyboard.timestamp = al_current_time();
-            event->keyboard.display   = dpy;
-            event->keyboard.keycode   = scancode;
-            event->keyboard.unichar   = unicode;
-            event->keyboard.modifiers = modifiers;
-            _al_event_source_emit_event(&keyboard.es, event);
+			 ALLEGRO_EVENT event;
+			 event.keyboard.type = type;
+			 event.keyboard.timestamp = al_current_time();
+			 event.keyboard.display   = dpy;
+			 event.keyboard.keycode   = scancode;
+			 event.keyboard.unichar   = unicode;
+			 event.keyboard.modifiers = modifiers;
+			 _al_event_source_emit_event(&keyboard.es, &event);
 		}
 	}
    /* Maintain the kbdstate array. */
@@ -59,21 +58,19 @@ static void _handle_key_press(ALLEGRO_DISPLAY* dpy, int unicode, int scancode, i
 	_al_event_source_unlock(&keyboard.es);	
 }
 static void _handle_key_release(ALLEGRO_DISPLAY* dpy, int scancode) {
-	ALLEGRO_EVENT* event;
 	_al_event_source_lock(&keyboard.es);
 	{
 		/* Generate the release event if necessary. */
-		if ((_al_event_source_needs_to_generate_event(&keyboard.es)) \
-			&&
-			(event = _al_event_source_get_unused_event(&keyboard.es)))
+		if (_al_event_source_needs_to_generate_event(&keyboard.es))
 		{
-            event->keyboard.type = ALLEGRO_EVENT_KEY_UP;
-            event->keyboard.timestamp = al_current_time();
-            event->keyboard.display   = dpy;
-            event->keyboard.keycode   = scancode;
-            event->keyboard.unichar   = 0;
-            event->keyboard.modifiers = 0;
-            _al_event_source_emit_event(&keyboard.es, event);
+			ALLEGRO_EVENT event;
+			event.keyboard.type = ALLEGRO_EVENT_KEY_UP;
+			event.keyboard.timestamp = al_current_time();
+			event.keyboard.display   = dpy;
+			event.keyboard.keycode   = scancode;
+			event.keyboard.unichar   = 0;
+			event.keyboard.modifiers = 0;
+			_al_event_source_emit_event(&keyboard.es, &event);
 		}
 	}
    /* Maintain the kbdstate array. */

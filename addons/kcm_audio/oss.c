@@ -93,7 +93,7 @@ typedef struct OSS_VOICE {
    unsigned int len; /* in frames */
    unsigned int frame_size; /* in bytes */
 
-   bool stopped;
+   volatile bool stopped;
    volatile bool stop;
 
    ALLEGRO_THREAD *poll_thread;
@@ -323,7 +323,6 @@ static int oss_load_voice(ALLEGRO_VOICE *voice, const void *data)
 
 static void oss_unload_voice(ALLEGRO_VOICE *voice)
 {
-   OSS_VOICE *ex_data = voice->extra;
 }
 
 
@@ -390,12 +389,12 @@ static void* oss_update(ALLEGRO_THREAD *self, void *arg)
 {
    ALLEGRO_VOICE *voice = arg;
    OSS_VOICE *oss_voice = voice->extra;
-   audio_buf_info bi;
-   void *buf;
 
    while (!oss_voice->quit_poll_thread) {
       /*
       For possible eventual non-blocking mode:
+
+      audio_buf_info bi;
 
       if (ioctl(oss_voice->fd, SNDCTL_DSP_GETOSPACE, &bi) == -1) {
          TRACE(PREFIX_E "Error SNDCTL_DSP_GETOSPACE.\n");
@@ -441,7 +440,6 @@ static void* oss_update(ALLEGRO_THREAD *self, void *arg)
          }
       }
       else {
-         int silence;
 silence:
          /* If stopped just fill with silence. */
          memset(sil_buf, _al_audio_get_silence(voice->depth), SIL_BUF_SIZE);
@@ -457,7 +455,6 @@ static int oss_allocate_voice(ALLEGRO_VOICE *voice)
 {
    int format;
    int chan_count;
-   unsigned int req_freq;
 
    OSS_VOICE *ex_data = calloc(1, sizeof(OSS_VOICE));
    if (!ex_data)
@@ -500,7 +497,6 @@ static int oss_allocate_voice(ALLEGRO_VOICE *voice)
          goto Error;
    }
 
-   int tmp_oss_timing_policy = oss_timing_policy;
    int tmp_format = format;
    int tmp_chan_count = chan_count;
    unsigned int tmp_freq = voice->frequency;
@@ -508,6 +504,7 @@ static int oss_allocate_voice(ALLEGRO_VOICE *voice)
 
    if (using_ver_4) {
 #ifdef OSS_VER_4
+      int tmp_oss_timing_policy = oss_timing_policy;
       if (ioctl(ex_data->fd, SNDCTL_DSP_POLICY, &tmp_oss_timing_policy) == -1) {
           TRACE(PREFIX_E "Failed to set_timig policity to '%i'.\n",
                tmp_oss_timing_policy);

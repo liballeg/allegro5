@@ -208,26 +208,22 @@ static void generate_mouse_event(unsigned int type,
                                  unsigned int button,
                                  ALLEGRO_DISPLAY *source)
 {
-   ALLEGRO_EVENT *event;
+   ALLEGRO_EVENT event;
 
    if (!_al_event_source_needs_to_generate_event(&the_mouse.parent.es))
       return;
 
-   event = _al_event_source_get_unused_event(&the_mouse.parent.es);
-   if (!event)
-      return;
-
-   event->mouse.type = type;
-   event->mouse.timestamp = al_current_time();
-   event->mouse.display = source;
-   event->mouse.x = x;
-   event->mouse.y = y;
-   event->mouse.z = z;
-   event->mouse.dx = dx;
-   event->mouse.dy = dy;
-   event->mouse.dz = dz;
-   event->mouse.button = button;
-   _al_event_source_emit_event(&the_mouse.parent.es, event);
+   event.mouse.type = type;
+   event.mouse.timestamp = al_current_time();
+   event.mouse.display = source;
+   event.mouse.x = x;
+   event.mouse.y = y;
+   event.mouse.z = z;
+   event.mouse.dx = dx;
+   event.mouse.dy = dy;
+   event.mouse.dz = dz;
+   event.mouse.button = button;
+   _al_event_source_emit_event(&the_mouse.parent.es, &event);
 }
 
 
@@ -456,7 +452,7 @@ static void mouse_dinput_handle(void)
                                          0);
 
    /* was device lost ? */
-   if ((hr == DIERR_NOTACQUIRED) || (hr == DIERR_INPUTLOST)) {
+   if ((hr == DIERR_NOTACQUIRED) || (hr == DIERR_INPUTLOST) || !win_disp) {
       /* reacquire device */
       TRACE(PREFIX_W "mouse device not acquired or lost\n");
       /*_al_win_wnd_schedule_proc(win_disp->window, mouse_dinput_acquire, NULL);*/

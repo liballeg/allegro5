@@ -65,8 +65,8 @@ static bool render_to_texture_supported = true;
 static bool is_vista = false;
 static int num_faux_fullscreen_windows = 0;
 static bool already_fullscreen = false; /* real fullscreen */
-static int num_video_adapters = -1;
-static ALLEGRO_MONITOR_INFO *monitor_info;
+//static int num_video_adapters = -1;
+//static ALLEGRO_MONITOR_INFO *monitor_info;
 
 static DWORD d3d_min_filter = D3DTEXF_POINT;
 static DWORD d3d_mag_filter = D3DTEXF_POINT;
@@ -840,8 +840,6 @@ void _al_d3d_prepare_for_reset(ALLEGRO_DISPLAY_D3D *disp)
 
 static bool _al_d3d_reset_device(ALLEGRO_DISPLAY_D3D *d3d_display)
 {
-   ALLEGRO_BITMAP *curr = al_get_target_bitmap();
-   bool reset_target = false;
    ALLEGRO_DISPLAY_WIN *win_display = &d3d_display->win_display;
    ALLEGRO_DISPLAY *al_display = &win_display->display;
 
@@ -1227,12 +1225,10 @@ static void d3d_display_thread_proc(void *arg)
             if (!lost_event_generated) {
                _al_event_source_lock(&al_display->es);
                if (_al_event_source_needs_to_generate_event(&al_display->es)) {
-                  ALLEGRO_EVENT *event = _al_event_source_get_unused_event(&al_display->es);
-                  if (event) {
-                     event->display.type = ALLEGRO_EVENT_DISPLAY_LOST;
-                     event->display.timestamp = al_current_time();
-                     _al_event_source_emit_event(&al_display->es, event);
-                  }
+                  ALLEGRO_EVENT event;
+                  event.display.type = ALLEGRO_EVENT_DISPLAY_LOST;
+                  event.display.timestamp = al_current_time();
+                  _al_event_source_emit_event(&al_display->es, &event);
                }
                _al_event_source_unlock(&al_display->es);
                lost_event_generated = true;
@@ -1243,12 +1239,10 @@ static void d3d_display_thread_proc(void *arg)
                d3d_display->device_lost = false;
                _al_event_source_lock(&al_display->es);
                if (_al_event_source_needs_to_generate_event(&al_display->es)) {
-                  ALLEGRO_EVENT *event = _al_event_source_get_unused_event(&al_display->es);
-                  if (event) {
-                     event->display.type = ALLEGRO_EVENT_DISPLAY_FOUND;
-                     event->display.timestamp = al_current_time();
-                     _al_event_source_emit_event(&al_display->es, event);
-                  }
+                  ALLEGRO_EVENT event;
+                  event.display.type = ALLEGRO_EVENT_DISPLAY_FOUND;
+                  event.display.timestamp = al_current_time();
+                  _al_event_source_emit_event(&al_display->es, &event);
                }
                _al_event_source_unlock(&al_display->es);
                lost_event_generated = false;
@@ -1432,7 +1426,7 @@ static ALLEGRO_DISPLAY *d3d_create_display(int w, int h)
 static bool d3d_set_current_display(ALLEGRO_DISPLAY *d)
 {
    ALLEGRO_DISPLAY_D3D *d3d_display = (ALLEGRO_DISPLAY_D3D *)d;
-   ALLEGRO_DISPLAY_WIN *win_display = (ALLEGRO_DISPLAY_WIN *)d;
+   //ALLEGRO_DISPLAY_WIN *win_display = (ALLEGRO_DISPLAY_WIN *)d;
 
    if (d3d_display->do_reset)
       return false;
@@ -1710,7 +1704,6 @@ static bool d3d_update_display_region(ALLEGRO_DISPLAY *al_display,
 
    if (al_display->flags & ALLEGRO_SINGLEBUFFER) {
       RECT rect;
-      ALLEGRO_DISPLAY_D3D* disp = (ALLEGRO_DISPLAY_D3D*)al_display;
 
       rect.left = x;
       rect.right = x+width;
@@ -1760,18 +1753,18 @@ void d3d_set_bitmap_clip(ALLEGRO_BITMAP *bitmap)
 
    if (bitmap->parent) {
       rect.left = bitmap->xofs + bitmap->cl;
-      rect.right = bitmap->xofs + bitmap->cr;
+      rect.right = bitmap->xofs + bitmap->cr + 1;
       rect.top = bitmap->yofs + bitmap->ct;
-      rect.bottom = bitmap->yofs + bitmap->cb;
+      rect.bottom = bitmap->yofs + bitmap->cb + 1;
    }
    else {
       rect.left = bitmap->cl;
-      rect.right = bitmap->cr;
+      rect.right = bitmap->cr + 1;
       rect.top = bitmap->ct;
-      rect.bottom = bitmap->cb;
+      rect.bottom = bitmap->cb + 1;
    }
 
-   if (rect.left == 0 && rect.top == 0 && rect.right == disp->win_display.display.w && rect.left == disp->win_display.display.h) {
+   if (rect.left == 0 && rect.top == 0 && rect.right == disp->win_display.display.w+1 && rect.left == disp->win_display.display.h+1) {
       disp->device->SetRenderState(D3DRS_SCISSORTESTENABLE, FALSE);
       return;
    }   
@@ -2051,9 +2044,10 @@ static void d3d_switch_out(ALLEGRO_DISPLAY *display)
 
 static void  d3d_switch_in(ALLEGRO_DISPLAY *display)
 {
+   /*
    ALLEGRO_DISPLAY_WIN *win_display = (ALLEGRO_DISPLAY_WIN *)display;
 
-/*   if (al_is_mouse_installed())
+   if (al_is_mouse_installed())
       al_set_mouse_range(win_display->mouse_range_x1, win_display->mouse_range_y1,
          win_display->mouse_range_x2, win_display->mouse_range_y2);*/
 }

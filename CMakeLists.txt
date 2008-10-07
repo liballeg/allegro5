@@ -26,6 +26,7 @@ option(USE_CXX "Build C++ portions." on)
 # More ideally, we would only have one project and multiple configurations for
 # each "GRADE_", but that would require a revamp of this file.
 # Note: This needs to be done before the project command.
+set(CMAKE_CONFIGURATION_TYPES "Release" CACHE INTERNAL "internal")
 if(GRADE_DEBUG)
     set(CMAKE_CONFIGURATION_TYPES "Debug" CACHE INTERNAL "internal")
 endif(GRADE_DEBUG)
@@ -42,7 +43,7 @@ else(USE_CXX)
     project(ALLEGRO C)
 endif(USE_CXX)
 
-set(ALLEGRO_VERSION 4.9.5)
+set(ALLEGRO_VERSION 4.9.6)
 
 # Search in the `cmake' directory for additional CMake modules.
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake)
@@ -422,6 +423,10 @@ if(WANT_X11)
     endif(X11_FOUND)
 endif(WANT_X11)
 
+if(SUPPORT_X11 AND NOT SUPPORT_OPENGL)
+    message(FATAL_ERROR "X11 support currently requires OpenGL support.")
+endif(SUPPORT_X11 AND NOT SUPPORT_OPENGL)
+
 if(SUPPORT_X11)
     set(CMAKE_REQUIRED_LIBRARIES ${X11_LIBRARIES})
 
@@ -434,6 +439,8 @@ if(SUPPORT_X11)
     if(CAN_XCURSOR)
         set(ALLEGRO_XWINDOWS_WITH_XCURSOR 1)
         list(APPEND X11_LIBRARIES "Xcursor")
+    else(CAN_XCURSOR)
+        message(FATAL_ERROR "X11 support requires Xcursor library.")
     endif(CAN_XCURSOR)
 
     check_library_exists(Xxf86vm XF86VidModeQueryExtension "" CAN_XF86VIDMODE)
@@ -511,6 +518,25 @@ endif(UNIX OR WIN32)
 #
 #-----------------------------------------------------------------------------#
 
+# On Windows, disable shared build if either D3D or OpenGL are not present,
+# because it would produce a incompatible DLL.
+if(WIN32)
+    if(SHARED)
+        if(NOT SUPPORT_D3D OR NOT SUPPORT_OPENGL)
+            message(STATUS
+                "Both D3D and OpneGL must be present for the SHARED build.
+                Disabling SHARED build.")
+            set(SHARED off)
+        endif(NOT SUPPORT_D3D OR NOT SUPPORT_OPENGL)
+    endif(SHARED)
+endif(WIN32)
+
+# Sanity check.
+if(NOT STATIC AND NOT SHARED)
+    message(FATAL_ERROR
+        "You must enable at least one of the STATIC or SHARED options.")
+endif(NOT STATIC AND NOT SHARED)
+
 # List of source files need to compile Allegro in this configuration on
 # this platform.
 set(LIBRARY_SOURCES
@@ -545,12 +571,12 @@ endif(SUPPORT_X11)
 if(WIN32)
     list(APPEND LIBRARY_SOURCES ${ALLEGRO_SRC_WIN_FILES})
     # TODO this still needs to be produced with misc/fixdll.sh
-    if(MINGW)
+    if(MINGW AND SHARED)
         list(APPEND LIBRARY_SOURCES lib/mingw32/allegro.def)
-    endif(MINGW)
-    if(COMPILER_MSVC)
+    endif(MINGW AND SHARED)
+    if(COMPILER_MSVC AND SHARED)
         list(APPEND LIBRARY_SOURCES lib/msvc/allegro.def)
-    endif(COMPILER_MSVC)
+    endif(COMPILER_MSVC AND SHARED)
     list(APPEND PLATFORM_LIBS
         kernel32 user32 gdi32 comdlg32 ole32 dinput8 dxguid winmm psapi
         )

@@ -185,7 +185,7 @@ static HGLRC init_temp_context(HWND wnd) {
 static ALLEGRO_GetPixelFormatAttribivARB_t __wglGetPixelFormatAttribivARB = NULL;
 static ALLEGRO_GetPixelFormatAttribivEXT_t __wglGetPixelFormatAttribivEXT = NULL;
 
-static bool init_pixel_format_extensions()
+static bool init_pixel_format_extensions(void)
 {
    /* Load the ARB_p_f symbol - Note, we shouldn't use the extension
     * mechanism here, because it hasn't been initialized yet!
@@ -949,6 +949,11 @@ static bool create_display_internals(ALLEGRO_DISPLAY_WGL *wgl_disp) {
    _al_ogl_set_extensions(disp->ogl_extras->extension_api);
 
    disp->ogl_extras->backbuffer = _al_ogl_create_backbuffer(disp);
+   if (!disp->ogl_extras->backbuffer) {
+      TRACE(PREFIX_E "Failed to create a backbuffer.\n");
+      destroy_display_internals(wgl_disp);
+      return false;
+   }
  
    win_disp->mouse_range_x1 = 0;
    win_disp->mouse_range_y1 = 0;
@@ -991,8 +996,8 @@ static ALLEGRO_DISPLAY* wgl_create_display(int w, int h) {
    memset(display->ogl_extras, 0, sizeof(ALLEGRO_OGL_EXTRAS));
 
    if (!create_display_internals(wgl_display)) {
-      _AL_FREE(display);
       _AL_FREE(display->ogl_extras);
+      _AL_FREE(display);
       return NULL;
    }
 
@@ -1356,12 +1361,6 @@ static bool wgl_is_compatible_bitmap(ALLEGRO_DISPLAY *display, ALLEGRO_BITMAP *b
 }
 
 
-static bool wgl_wait_for_vsync(ALLEGRO_DISPLAY *display)
-{
-   return false;
-}
-
-
 static void wgl_switch_in(ALLEGRO_DISPLAY *display)
 {
    ALLEGRO_DISPLAY_WIN *win_disp = (ALLEGRO_DISPLAY_WIN *)display;
@@ -1524,4 +1523,6 @@ void _al_wgl_get_monitor_info(int adapter, ALLEGRO_MONITOR_INFO *info)
    info->x2 = info->x1 + dm.dmPelsWidth;
    info->y2 = info->y1 + dm.dmPelsHeight;
 }
+
+/* vi: set sts=3 sw=3 et: */
 

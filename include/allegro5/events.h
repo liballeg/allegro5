@@ -142,36 +142,33 @@ enum
 /*
  * Event structures
  *
- * All event types have the following fields in common, which are
- * semantically read-only.
+ * All event types have the following fields in common.
  *
  *  type      -- the type of event this is
  *  timestamp -- when this event was generated
  *  source    -- which event source generated this event
  *
- * There are a couple of other fields, which are internal to the
- * implementation (don't touch).
- *
- *
  * For people writing event sources: The common fields must be at the
  * very start of each event structure, i.e. put _AL_EVENT_HEADER at the
- * front.  If you are managing your own event lists, be careful not to
- * mix up _next and _next_free -- the resultant bugs can be elusive.
+ * front.
  */
 
 #define _AL_EVENT_HEADER(srctype)                    \
    ALLEGRO_EVENT_TYPE type;                          \
    srctype *source;                                  \
-   double timestamp;                                 \
-   signed int _refcount;            /* internal */   \
-   union ALLEGRO_EVENT *_next;      /* internal */   \
-   union ALLEGRO_EVENT *_next_free  /* internal */
+   double timestamp;
+
+
+typedef struct ALLEGRO_ANY_EVENT
+{
+   _AL_EVENT_HEADER(struct ALLEGRO_EVENT_SOURCE)
+} ALLEGRO_ANY_EVENT;
 
 
 
 typedef struct ALLEGRO_DISPLAY_EVENT
 {
-   _AL_EVENT_HEADER(struct ALLEGRO_DISPLAY);
+   _AL_EVENT_HEADER(struct ALLEGRO_DISPLAY)
    int x, y;
    int width, height;
 } ALLEGRO_DISPLAY_EVENT;
@@ -180,7 +177,7 @@ typedef struct ALLEGRO_DISPLAY_EVENT
 
 typedef struct ALLEGRO_JOYSTICK_EVENT
 {
-   _AL_EVENT_HEADER(struct ALLEGRO_JOYSTICK);
+   _AL_EVENT_HEADER(struct ALLEGRO_JOYSTICK)
    int stick;
    int axis;
    float pos;
@@ -191,7 +188,7 @@ typedef struct ALLEGRO_JOYSTICK_EVENT
 
 typedef struct ALLEGRO_KEYBOARD_EVENT
 {
-   _AL_EVENT_HEADER(struct ALLEGRO_KEYBOARD);
+   _AL_EVENT_HEADER(struct ALLEGRO_KEYBOARD)
    struct ALLEGRO_DISPLAY *display; /* the window the key was pressed in */
    int keycode;                 /* the physical key pressed */
    unsigned int unichar;        /* unicode character */
@@ -202,7 +199,7 @@ typedef struct ALLEGRO_KEYBOARD_EVENT
 
 typedef struct ALLEGRO_MOUSE_EVENT
 {
-   _AL_EVENT_HEADER(struct ALLEGRO_MOUSE);
+   _AL_EVENT_HEADER(struct ALLEGRO_MOUSE)
    struct ALLEGRO_DISPLAY *display;
    /* (display) Window the event originate from */
    /* (x, y) Primary mouse position */
@@ -217,7 +214,7 @@ typedef struct ALLEGRO_MOUSE_EVENT
 
 typedef struct ALLEGRO_TIMER_EVENT
 {
-   _AL_EVENT_HEADER(struct ALLEGRO_TIMER);
+   _AL_EVENT_HEADER(struct ALLEGRO_TIMER)
    long count;
    double error;
 } ALLEGRO_TIMER_EVENT;
@@ -226,9 +223,20 @@ typedef struct ALLEGRO_TIMER_EVENT
 
 typedef struct ALLEGRO_STREAM_EVENT
 {
-   _AL_EVENT_HEADER(struct ALLEGRO_STREAM);
+   _AL_EVENT_HEADER(struct ALLEGRO_STREAM)
    void *empty_fragment;
 } ALLEGRO_STREAM_EVENT;
+
+
+
+typedef struct ALLEGRO_USER_EVENT
+{
+   _AL_EVENT_HEADER(struct ALLEGRO_EVENT_SOURCE)
+   intptr_t data1;
+   intptr_t data2;
+   intptr_t data3;
+   intptr_t data4;
+} ALLEGRO_USER_EVENT;
 
 
 
@@ -259,19 +267,18 @@ union ALLEGRO_EVENT
 {
    /* This must be the same as the first field of _AL_EVENT_HEADER.  */
    ALLEGRO_EVENT_TYPE type;
-   /* This is to allow the user to access the other fields which are
+   /* `any' is to allow the user to access the other fields which are
     * common to all event types, without using some specific type
-    * structure.  A C hack.
+    * structure.
     */
-   struct {
-      _AL_EVENT_HEADER(struct ALLEGRO_EVENT_SOURCE);
-   } any;
+   ALLEGRO_ANY_EVENT      any;
    ALLEGRO_DISPLAY_EVENT  display;
    ALLEGRO_JOYSTICK_EVENT joystick;
    ALLEGRO_KEYBOARD_EVENT keyboard;
    ALLEGRO_MOUSE_EVENT    mouse;
    ALLEGRO_TIMER_EVENT    timer;
    ALLEGRO_STREAM_EVENT   stream;
+   ALLEGRO_USER_EVENT     user;
 };
 
 
@@ -286,6 +293,13 @@ union ALLEGRO_EVENT
  * event sources.
  */
 typedef struct ALLEGRO_EVENT_SOURCE ALLEGRO_EVENT_SOURCE;
+
+AL_FUNC(ALLEGRO_EVENT_SOURCE *, al_create_user_event_source, (void));
+AL_FUNC(void, al_destroy_user_event_source, (ALLEGRO_EVENT_SOURCE *));
+/* The second argument is ALLEGRO_EVENT instead of ALLEGRO_USER_EVENT
+ * to prevent users passing a pointer to a too-short structure.
+ */
+AL_FUNC(bool, al_emit_user_event, (ALLEGRO_EVENT_SOURCE *, ALLEGRO_EVENT *));
 
 
 
@@ -324,4 +338,4 @@ AL_FUNC(bool, al_wait_for_event_until, (ALLEGRO_EVENT_QUEUE *queue,
  * indent-tabs-mode: nil
  * End:
  */
-/* vim: set sts=3 sw=3 et */
+/* vim: set sts=3 sw=3 et: */

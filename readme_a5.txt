@@ -45,8 +45,6 @@ Mac OS X
 
 We have an OpenGL graphics driver on Mac OS X as well.
 
-XXX fill this in
-
 
 
 Compilation
@@ -71,18 +69,23 @@ First create a directory for the build to take place in.
 	$ mkdir Build
 	$ cd Build
 
-*Note:* For MinGW with gcc < 4, you cannot build a static library because
-TLS (thread local storage, using __thread) support was not introduced
-until version 4.
-
-Run `cmake` with whatever options you want. Some common options are,
-with defaults in brackets:
+Run `cmake` with whatever options you want.
+Some common options are, with defaults in brackets:
 
 - GRADE_STANDARD -- Build release library (on)
 - GRADE_DEBUG -- Build debug library (off)
 - GRADE_PROFILE -- Build profiling library (off)
 - SHARED -- Build shared libraries (on)
 - STATIC -- Build static libraries (on)
+
+If you're not sure about any option, just leave it at the default.
+
+*Note:* MinGW users: if you have `sh.exe` in your PATH you should call CMake
+with the options `-G "MSYS Makefiles"`.  Otherwise, use `-G "MinGW Makefiles"`.
+
+*Note:* For MinGW with gcc < 4, you cannot build a static library because
+TLS (thread local storage, using __thread) support was not introduced
+until version 4.
 
 Examples: (you only need one)
 

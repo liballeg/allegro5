@@ -352,10 +352,10 @@ void _al_osx_post_quit(void)
       ALLEGRO_DISPLAY* dpy = *(ALLEGRO_DISPLAY**) _al_vector_ref(dpys, i);
       ALLEGRO_EVENT_SOURCE* src = &(dpy->es);
       _al_event_source_lock(src);
-      ALLEGRO_EVENT* evt = _al_event_source_get_unused_event(src);
-      evt->type = ALLEGRO_EVENT_DISPLAY_CLOSE;
+      ALLEGRO_EVENT evt;
+      evt.type = ALLEGRO_EVENT_DISPLAY_CLOSE;
       // Send event
-      _al_event_source_emit_event(src, evt);
+      _al_event_source_emit_event(src, &evt);
       _al_event_source_unlock(src);
    }
 }

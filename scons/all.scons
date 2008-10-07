@@ -93,6 +93,7 @@ def examples(env):
     example("ex_acodec_multi")
     example("ex_stream_file")
     example("ex_bitmap")
+    example("ex_bitmap_flip")
     example("ex_bitmap_target")
     example("ex_blend")
     example("ex_drawpixels")
@@ -103,6 +104,7 @@ def examples(env):
     example("ex_fs_resize")
     example("ex_glext", libs = ["GLU"])
     example("ex_icon")
+    example("ex_keyboard_events")
     example("ex_lines")
     example("ex_lockbitmap")
     example("ex_lockscreen")
@@ -125,6 +127,7 @@ def examples(env):
     example("ex_timedwait")
     example("ex_timer")
     example("ex_ttf")
+    example("ex_user_events")
     example("ex_windows")
 
     context.alias('all-examples', examples)
