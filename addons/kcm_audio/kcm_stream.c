@@ -552,7 +552,11 @@ void *_al_kcm_feed_stream(ALLEGRO_THREAD *self, void *vstream)
          unsigned long bytes;
          unsigned long bytes_written;
 
-         al_stream_get_ptr(stream, ALLEGRO_AUDIOPROP_BUFFER, (void**)&fragment);
+         if (al_stream_get_ptr(stream, ALLEGRO_AUDIOPROP_BUFFER,
+            (void**)&fragment) != 0) {
+            TRACE(PREFIX_E "Error getting stream buffer.\n");
+            continue;
+         }
 
          bytes = (stream->spl.spl_data.len >> MIXER_FRAC_SHIFT) *
                al_channel_count(stream->spl.spl_data.chan_conf) *
@@ -575,8 +579,7 @@ void *_al_kcm_feed_stream(ALLEGRO_THREAD *self, void *vstream)
          if (al_stream_set_ptr(stream, ALLEGRO_AUDIOPROP_BUFFER,
             fragment) != 0) {
             TRACE(PREFIX_E "Error setting stream buffer.\n");
-            al_destroy_event_queue(queue);
-            return NULL;
+            continue;
          }
 
          /* The streaming source doesn't feed any more, drain buffers and quit. */
