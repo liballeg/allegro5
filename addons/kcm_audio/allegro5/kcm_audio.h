@@ -39,6 +39,10 @@ extern "C" {
 #endif
 
 
+/* Internal, used to communicate with acodec. */
+#define _KCM_STREAM_FEEDER_QUIT_EVENT_TYPE 1234
+
+
 /* Type: ALLEGRO_AUDIO_DEPTH
  */
 

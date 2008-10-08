@@ -157,13 +157,16 @@ static bool _sndfile_stream_rewind(ALLEGRO_STREAM *stream)
 static void _sndfile_stream_close(ALLEGRO_STREAM *stream)
 {
    SNDFILE *sndfile = (SNDFILE *) stream->extra;
+   ALLEGRO_EVENT quit_event;
 
-   stream->quit_feed_thread = true;
+   quit_event.type = _KCM_STREAM_FEEDER_QUIT_EVENT_TYPE;
+   al_emit_user_event((ALLEGRO_EVENT_SOURCE*)stream, &quit_event);
    al_join_thread(stream->feed_thread, NULL);
    al_destroy_thread(stream->feed_thread);
 
    sf_close(sndfile);
    stream->extra = NULL;
+   stream->feed_thread = NULL;
 }
 
 
@@ -207,7 +210,6 @@ ALLEGRO_STREAM *al_load_stream_sndfile(size_t buffer_count,
 
    stream->extra = sndfile;
    stream->feed_thread = al_create_thread(_al_kcm_feed_stream, stream);
-   stream->quit_feed_thread = false;
    stream->feeder = _sndfile_stream_update;
    stream->unload_feeder = _sndfile_stream_close;
    stream->rewind_feeder = _sndfile_stream_rewind;

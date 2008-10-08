@@ -107,11 +107,11 @@ ALLEGRO_STREAM *al_stream_create(size_t buffer_count, unsigned long samples,
 void al_stream_destroy(ALLEGRO_STREAM *stream)
 {
    if (stream) {
+      _al_kcm_detach_from_parent(&stream->spl);
       if (stream->feed_thread) {
          stream->unload_feeder(stream);
       }
       _al_event_source_free(&stream->spl.es);
-      _al_kcm_detach_from_parent(&stream->spl);
       free(stream->main_buffer);
       free(stream->used_bufs);
       free(stream);
@@ -532,60 +532,66 @@ bool _al_kcm_refill_stream(ALLEGRO_STREAM *stream)
 void *_al_kcm_feed_stream(ALLEGRO_THREAD *self, void *vstream)
 {
    ALLEGRO_STREAM *stream = vstream;
+   ALLEGRO_EVENT_QUEUE *queue;
 
    TRACE(PREFIX_I "Stream feeder thread started.\n");
 
+   queue = al_create_event_queue();
+   al_register_event_source(queue, (ALLEGRO_EVENT_SOURCE*)stream);
+
+   stream->quit_feed_thread = false;
+
    while (!stream->quit_feed_thread) {
-      void *vbuf;
-      unsigned long vbuf_waiting_count;
-      unsigned long bytes;
-      unsigned long bytes_written;
+      char *fragment;
+      ALLEGRO_EVENT event;
 
-      if (al_stream_get_long(stream, ALLEGRO_AUDIOPROP_USED_FRAGMENTS,
-                             &vbuf_waiting_count) != 0) {
-         TRACE(PREFIX_E "Error getting the number of waiting buffers.\n");
-         return NULL;
+      al_wait_for_event(queue, &event);
+
+      if (event.type == ALLEGRO_EVENT_STREAM_EMPTY_FRAGMENT
+          && !stream->is_draining) {
+         unsigned long bytes;
+         unsigned long bytes_written;
+
+         al_stream_get_ptr(stream, ALLEGRO_AUDIOPROP_BUFFER, (void**)&fragment);
+
+         bytes = (stream->spl.spl_data.len >> MIXER_FRAC_SHIFT) *
+               al_channel_count(stream->spl.spl_data.chan_conf) *
+               al_depth_size(stream->spl.spl_data.depth);
+
+         bytes_written = stream->feeder(stream, fragment, bytes);
+
+        /* In case it reaches the end of the stream source, stream feeder will
+         * fill the remaining space with silence. If we should loop, rewind the
+         * stream and override the silence with the beginning. */
+         if (bytes_written != bytes &&
+            stream->spl.loop == _ALLEGRO_PLAYMODE_STREAM_ONEDIR) {
+            size_t bw;
+            al_stream_rewind(stream);
+            bw = stream->feeder(stream, fragment + bytes_written,
+               bytes - bytes_written);
+            ASSERT(bw == bytes - bytes_written);
+         }
+
+         if (al_stream_set_ptr(stream, ALLEGRO_AUDIOPROP_BUFFER,
+            fragment) != 0) {
+            TRACE(PREFIX_E "Error setting stream buffer.\n");
+            al_destroy_event_queue(queue);
+            return NULL;
+         }
+
+         /* The streaming source doesn't feed any more, drain buffers and quit. */
+         if (bytes_written != bytes &&
+            stream->spl.loop == _ALLEGRO_PLAYMODE_STREAM_ONCE) {
+            al_stream_drain(stream);
+            stream->quit_feed_thread = true;
+         }
       }
-
-      if (vbuf_waiting_count == 0 || stream->is_draining) {
-         al_rest(0.05); /* Precalculate some optimal value? */
-         continue;
-      }
-
-      if (al_stream_get_ptr(stream, ALLEGRO_AUDIOPROP_BUFFER, &vbuf) != 0) {
-         TRACE(PREFIX_E "Error getting stream buffers.\n");
-         return NULL;
-      }
-
-      bytes = (stream->spl.spl_data.len >> MIXER_FRAC_SHIFT) *
-              al_channel_count(stream->spl.spl_data.chan_conf) *
-              al_depth_size(stream->spl.spl_data.depth);
-
-      bytes_written = stream->feeder(stream, vbuf, bytes);
-
-      /* In case it reaches the end of the stream source, stream feeder will
-       * fill the remaining space with silence. If we should loop, rewind the
-       * stream and override the silence with the beginning. */
-      if (bytes_written != bytes &&
-          stream->spl.loop == _ALLEGRO_PLAYMODE_STREAM_ONEDIR) {
-         size_t bw;
-         al_stream_rewind(stream);
-         bw = stream->feeder(stream, ((int*)vbuf) + bytes_written, bytes - bytes_written);
-         ASSERT(bw == bytes - bytes_written);
-      }
-
-      if (al_stream_set_ptr(stream, ALLEGRO_AUDIOPROP_BUFFER, vbuf) != 0) {
-         TRACE(PREFIX_E "Error setting stream buffer.\n");
-         return NULL;
-      }
-
-      /* The streaming source doesn't feed any more, drain buffers and quit. */
-      if (bytes_written != bytes &&
-          stream->spl.loop == _ALLEGRO_PLAYMODE_STREAM_ONCE) {
-         al_stream_drain(stream);
+      else if (event.type == _KCM_STREAM_FEEDER_QUIT_EVENT_TYPE) {
          stream->quit_feed_thread = true;
       }
    }
+
+   al_destroy_event_queue(queue);
 
    TRACE(PREFIX_I "Stream feeder thread finished.\n");
 
@@ -602,9 +608,6 @@ bool _al_kcm_emit_stream_event(ALLEGRO_STREAM *stream, unsigned long count)
          ALLEGRO_EVENT event;
          event.stream.type = ALLEGRO_EVENT_STREAM_EMPTY_FRAGMENT;
          event.stream.timestamp = al_current_time();
-         al_stream_get_ptr(stream, ALLEGRO_AUDIOPROP_BUFFER,
-            &event.stream.empty_fragment);
-         ASSERT(event.stream.empty_fragment);
          _al_event_source_emit_event(&stream->spl.es, &event);
       }
    }
