@@ -252,7 +252,7 @@ ALLEGRO_BITMAP *iio_load_jpg(char const *filename)
 
    ASSERT(filename);
 
-   pf = al_fs_entry_open(filename, "r");
+   pf = al_fs_entry_open(filename, "rb");
    if (!pf)
       return NULL;
 
@@ -276,7 +276,7 @@ int iio_save_jpg(char const *filename, ALLEGRO_BITMAP *bmp)
    ASSERT(filename);
    ASSERT(bmp);
 
-   pf = al_fs_entry_open(filename, "w");
+   pf = al_fs_entry_open(filename, "wb");
    if (!pf) {
       TRACE("Unable to open file %s for writing\n", filename);
       return -1;

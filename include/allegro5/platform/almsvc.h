@@ -51,7 +51,6 @@
 #endif
 
 
-
 /* describe how function prototypes look to MSVC */
 #if (defined ALLEGRO_STATICLINK) || (defined ALLEGRO_SRC)
    #define _AL_DLL
