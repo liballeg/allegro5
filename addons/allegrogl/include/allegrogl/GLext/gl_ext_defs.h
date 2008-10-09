@@ -3995,6 +3995,35 @@ typedef uint64_t GLuint64EXT;
 #endif
 
 #ifndef GL_GREMEDY_frame_terminator
+#define GL_GREMEDY_frame_terminator
 #define AGL_GREMEDY_frame_terminator
+#endif
+
+#ifndef GL_NV_conditional_render
+#define GL_NV_conditional_render
+#define AGL_NV_conditional_render
+#define GL_QUERY_WAIT_NV                  0x8E13
+#define GL_QUERY_NO_WAIT_NV               0x8E14
+#define GL_QUERY_BY_REGION_WAIT_NV        0x8E15
+#define GL_QUERY_BY_REGION_NO_WAIT_NV     0x8E16
+#endif
+
+#ifndef GL_NV_present_video
+#define GL_NV_present_video
+#define AGL_NV_present_video
+#define GL_FRAME_NV                       0x8E26
+#define GL_FIELDS_NV                      0x8E27
+#define GL_CURRENT_TIME_NV                0x8E28
+#define GL_NUM_FILL_STREAMS_NV            0x8E29
+#define GL_PRESENT_TIME_NV                0x8E2A
+#define GL_PRESENT_DURATION_NV            0x8E2B
+#endif
+
+#ifndef GL_EXT_direct_state_access
+#define GL_EXT_direct_state_access
+#define AGL_EXT_direct_state_access
+#define GL_PROGRAM_MATRIX_EXT             0x8E2D
+#define GL_TRANSPOSE_PROGRAM_MATRIX_EXT   0x8E2E
+#define GL_PROGRAM_MATRIX_STACK_DEPTH_EXT 0x8E2F
 #endif
 
