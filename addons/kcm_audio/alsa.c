@@ -22,6 +22,7 @@
 
 #include "allegro5/allegro.h"
 #include "allegro5/internal/aintern.h"
+#include "allegro5/internal/aintern_system.h"
 #include "allegro5/internal/aintern_kcm_audio.h"
 
 #include <alsa/asoundlib.h>
@@ -42,8 +43,8 @@ do {                                                                  \
 
 
 static snd_output_t *snd_output = NULL;
-/* TODO: add an API to make this configurable */
-static const char alsa_device[128] = "default";
+static char* default_device = "default";
+static char* alsa_device = NULL;
 
 
 typedef struct ALSA_VOICE {
@@ -69,6 +70,16 @@ typedef struct ALSA_VOICE {
 /* initialized output */
 static int alsa_open(void)
 {
+   alsa_device = default_device;
+   
+   ALLEGRO_SYSTEM *sys = al_system_driver();
+   if(sys->config) {
+      const char* config_device;
+      config_device = al_config_get_value(sys->config, "sound", "alsa_device");
+      if(config_device)
+         alsa_device = strdup(config_device);
+   }
+   
    ALSA_CHECK(snd_output_stdio_attach(&snd_output, stdout, 0));
 
    /* We need to check if alsa is available in this function. */
@@ -96,6 +107,11 @@ static int alsa_open(void)
    other processes to use the device */
 static void alsa_close(void)
 {
+   if(alsa_device != default_device)
+      free(alsa_device);
+   
+   alsa_device = NULL;
+   
    snd_config_update_free_global();
 }
 
