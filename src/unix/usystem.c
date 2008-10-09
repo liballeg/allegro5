@@ -21,7 +21,6 @@
 #include <stdlib.h>
 #include <string.h>
 #include <sys/stat.h>
-#include <sys/types.h>
 #include <pwd.h>
 
 #include "allegro5/allegro5.h"

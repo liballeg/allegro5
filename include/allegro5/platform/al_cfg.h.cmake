@@ -25,6 +25,7 @@
 #cmakedefine ALLEGRO_HAVE_SYS_SOUNDCARD_H
 #cmakedefine ALLEGRO_HAVE_SYS_STAT_H
 #cmakedefine ALLEGRO_HAVE_SYS_TIME_H
+#cmakedefine ALLEGRO_HAVE_TIME_H
 #cmakedefine ALLEGRO_HAVE_SYS_UTSNAME_H
 #cmakedefine ALLEGRO_HAVE_SYS_TYPES_H
 

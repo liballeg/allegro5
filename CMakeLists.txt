@@ -328,6 +328,7 @@ endif(WANT_OPENGL)
 
 if(WANT_OPENAL)
     find_package(OpenAL)
+    mark_as_advanced(OPENAL_INCLUDE_DIR OPENAL_LIBRARY)
     if(OPENAL_FOUND)
         set(SUPPORT_OPENAL 1)
     endif(OPENAL_FOUND)
@@ -347,6 +348,9 @@ if(UNIX)
     find_package(Threads)
     if(CMAKE_USE_PTHREADS_INIT)
         set(ALLEGRO_HAVE_LIBPTHREAD 1)
+    else(CMAKE_USE_PTHREADS_INIT)
+        message(FATAL_ERROR
+            "Unix port requires pthreads support, not detected.")
     endif(CMAKE_USE_PTHREADS_INIT)
 
     #
@@ -354,61 +358,19 @@ if(UNIX)
     #
 
     if(WANT_ALSA)
-        check_c_source_compiles("
-            #include <sys/asoundlib.h>
-            int main(void) {
-            #if(SND_LIB_MAJOR > 0) || (SND_LIB_MAJOR == 0 && SND_LIB_MINOR == 9 && SND_LIB_SUBMINOR >= 1)
-                return 0;
-            #else
-                return 1;
-            #endif
-            }"
-            CAN_ALSA
-        )
-        if(CAN_ALSA)
+        pkg_check_modules(ALSA alsa)
+        if(ALSA_FOUND)
             set(SUPPORT_ALSA 1)
-        endif(CAN_ALSA)
+        endif(ALSA_FOUND)
     endif(WANT_ALSA)
 
     if(WANT_OSS)
-        if(ALLEGRO_HAVE_SOUNDCARD_H OR ALLEGRO_HAVE_SYS_SOUNDCARD_H OR ALLEGRO_HAVE_MACHINE_SOUNDCARD_H OR ALLEGRO_LINUX_SYS_SOUNDCARD_H)
-            if(ALLEGRO_MACHINE_SOUNDCARD_H)
-                set(CMAKE_REQUIRED_DEFINITIONS -DALLEGRO_HAVE_MACHINE_SOUNDCARD_H)
-            endif(ALLEGRO_MACHINE_SOUNDCARD_H)
-            if(ALLEGRO_HAVE_LINUX_SOUNDCARD_H)
-                set(CMAKE_REQUIRED_DEFINITIONS -DALLEGRO_HAVE_LINUX_SOUNDCARD_H)
-            endif(ALLEGRO_HAVE_LINUX_SOUNDCARD_H)
-            if(ALLEGRO_HAVE_SYS_SOUNDCARD_H)
-                set(CMAKE_REQUIRED_DEFINITIONS -DALLEGRO_HAVE_SYS_SOUNDCARD_H)
-            endif(ALLEGRO_HAVE_SYS_SOUNDCARD_H)
-            if(ALLEGRO_HAVE_SOUNDCARD_H)
-                set(CMAKE_REQUIRED_DEFINITIONS -DALLEGRO_HAVE_SOUNDCARD_H)
-            endif(ALLEGRO_HAVE_SOUNDCARD_H)
-            check_c_source_compiles("
-                #ifdef ALLEGRO_HAVE_SOUNDCARD_H 
-                #include <soundcard.h>
-                #endif
-                #ifdef ALLEGRO_HAVE_SYS_SOUNDCARD_H 
-                #include <sys/soundcard.h>
-                #endif
-                #ifdef ALLEGRO_HAVE_LINUX_SOUNDCARD_H 
-                #include <linux/soundcard.h>
-                #endif
-                #ifdef ALLEGRO_HAVE_MACHINE_SOUNDCARD_H 
-                #include <machine/soundcard.h>
-                #endif
-                int main(void) {
-                    audio_buf_info abi;
-                    return 0;
-                }"
-                CAN_OSS
-            )
-            set(CMAKE_REQUIRED_DEFINITIONS)
-            if(CAN_OSS)
-                set(SUPPORT_OSS 1)
-            endif(CAN_OSS)
-        endif(ALLEGRO_HAVE_SOUNDCARD_H OR ALLEGRO_HAVE_SYS_SOUNDCARD_H OR ALLEGRO_HAVE_MACHINE_SOUNDCARD_H OR ALLEGRO_LINUX_SYS_SOUNDCARD_H)
+        include(AllegroFindOSS)
+        if(OSS_FOUND)
+            set(SUPPORT_OSS 1)
+        endif(OSS_FOUND)
     endif(WANT_OSS)
+
 endif(UNIX)
 
 #
@@ -560,7 +522,7 @@ set(PLATFORM_LIBS)
 
 if(ALLEGRO_UNIX) # not MACOSX
     list(APPEND LIBRARY_SOURCES ${ALLEGRO_SRC_UNIX_FILES})
-    list(APPEND PLATFORM_LIBS m pthread)
+    list(APPEND PLATFORM_LIBS m ${CMAKE_THREAD_LIBS_INIT})
 endif(ALLEGRO_UNIX)
 
 if(SUPPORT_X11)

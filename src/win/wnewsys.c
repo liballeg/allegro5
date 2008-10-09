@@ -341,8 +341,8 @@ static ALLEGRO_MOUSE_DRIVER *win_get_mouse_driver(void)
 }
 
 /* _win_get_path:
-    *  Returns full path to various system and user diretories
-    */
+ *  Returns full path to various system and user diretories
+ */
 
 static AL_CONST char *win_get_path(uint32_t id, char *dir, size_t size)
 {
