@@ -106,7 +106,6 @@ typedef unsigned int ALLEGRO_EVENT_TYPE;
  *
  *  ALLEGRO_EVENT_STREAM_EMPTY_FRAGMENT - A stream fragment is ready to be
  *    refilled with more audio data.
- *    Fields: stream.empty_fragment
  */
 enum
 {
@@ -224,7 +223,6 @@ typedef struct ALLEGRO_TIMER_EVENT
 typedef struct ALLEGRO_STREAM_EVENT
 {
    _AL_EVENT_HEADER(struct ALLEGRO_STREAM)
-   void *empty_fragment;
 } ALLEGRO_STREAM_EVENT;
 
 

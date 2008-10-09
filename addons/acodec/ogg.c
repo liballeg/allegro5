@@ -117,8 +117,10 @@ static bool ogg_stream_rewind(ALLEGRO_STREAM *stream)
 static void ogg_stream_close(ALLEGRO_STREAM *stream)
 {
    AL_OV_DATA *extra = (AL_OV_DATA *) stream->extra;
+   ALLEGRO_EVENT quit_event;
 
-   stream->quit_feed_thread = true;
+   quit_event.type = _KCM_STREAM_FEEDER_QUIT_EVENT_TYPE;
+   al_emit_user_event((ALLEGRO_EVENT_SOURCE*)stream, &quit_event);
    al_join_thread(stream->feed_thread, NULL);
    al_destroy_thread(stream->feed_thread);
 
@@ -127,6 +129,7 @@ static void ogg_stream_close(ALLEGRO_STREAM *stream)
    _AL_FREE(extra->vf);
    _AL_FREE(extra);
    stream->extra = NULL;
+   stream->feed_thread = NULL;
 }
 
 
