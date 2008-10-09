@@ -382,9 +382,9 @@ typedef struct {
 #define GLX_FRAMEBUFFER_SRGB_CAPABLE_EXT   0x20B2
 #endif
 
-#ifndef GLX_EXT_packed_float
-#define GLX_EXT_packed_float
-#define AGLX_EXT_packed_float
+#ifndef GLX_EXT_fbconfig_packed_float
+#define GLX_EXT_fbconfig_packed_float
+#define AGLX_EXT_fbconfig_packed_float
 #define GLX_RGBA_UNSIGNED_FLOAT_TYPE_EXT 0x20B1
 #define GLX_RGBA_UNSIGNED_FLOAT_BIT_EXT  0x00000008
 #endif
@@ -425,6 +425,12 @@ typedef struct {
 #define GLX_AUX7_EXT                     0x20E9
 #define GLX_AUX8_EXT                     0x20EA
 #define GLX_AUX9_EXT                     0x20EB
+#endif
+
+#ifndef GLX_NV_present_video
+#define GLX_NV_present_video
+#define AGLX_NV_present_video
+#define GLX_GLX_NUM_VIDEO_SLOTS_NV         0x20F0
 #endif
 
 #ifndef GLX_NV_video_out

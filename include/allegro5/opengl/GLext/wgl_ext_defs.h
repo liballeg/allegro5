@@ -289,8 +289,8 @@ DECLARE_HANDLE(HPBUFFEREXT);
 #define WGL_FRAMEBUFFER_SRGB_CAPABLE_EXT 0x20A9
 #endif
 
-#ifndef WGL_EXT_packed_float
-#define WGL_EXT_packed_float
+#ifndef WGL_EXT_pixel_format_packed_float
+#define WGL_EXT_pixel_format_packed_float
 #define WGL_TYPE_RGBA_UNSIGNED_FLOAT_EXT 0x20A8
 #endif
 
@@ -298,6 +298,35 @@ DECLARE_HANDLE(HPBUFFEREXT);
 #define WGL_WIN_swap_hint
 #endif
 
+#ifndef WGL_NV_present_video
+#define WGL_NV_present_video
+#define WGL_NUM_VIDEO_SLOTS_NV         0x20F0
+#endif
+
+#ifndef WGL_NV_video_out
+#define WGL_NV_video_out
+#define WGL_BIND_TO_VIDEO_RGB_NV       0x20C0
+#define WGL_BIND_TO_VIDEO_RGBA_NV      0x20C1
+#define WGL_BIND_TO_VIDEO_RGB_AND_DEPTH_NV 0x20C2
+#define WGL_VIDEO_OUT_COLOR_NV         0x20C3
+#define WGL_VIDEO_OUT_ALPHA_NV         0x20C4
+#define WGL_VIDEO_OUT_DEPTH_NV         0x20C5
+#define WGL_VIDEO_OUT_COLOR_AND_ALPHA_NV 0x20C6
+#define WGL_VIDEO_OUT_COLOR_AND_DEPTH_NV 0x20C7
+#define WGL_VIDEO_OUT_FRAME            0x20C8
+#define WGL_VIDEO_OUT_FIELD_1          0x20C9
+#define WGL_VIDEO_OUT_FIELD_2          0x20CA
+#define WGL_VIDEO_OUT_STACKED_FIELDS_1_2 0x20CB
+#define WGL_VIDEO_OUT_STACKED_FIELDS_2_1 0x20CC
+#endif
+
 #ifndef WGL_NV_swap_group
 #define WGL_NV_swap_group
 #endif
+
+#ifndef WGL_NV_gpu_affinity
+#define WGL_NV_gpu_affinity
+#define WGL_ERROR_INCOMPATIBLE_AFFINITY_MASKS_NV 0x20D0
+#define WGL_ERROR_MISSING_AFFINITY_MASK_NV 0x20D1
+#endif
+

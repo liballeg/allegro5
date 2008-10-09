@@ -114,6 +114,19 @@ AGL_API(BOOL, QueryFrameTrackingI3D, (DWORD *, DWORD *, float *))
 /* glAddSwapHintRectWIN */
 AGL_API(void, AddSwapHintRectWIN, (int, int, int, int))
 
+/* WGL_NV_present_video */
+AGL_API(int,  wglEnumerateVideoDevicesNV, (HDC, HVIDEOOUTPUTDEVICENV *))
+AGL_API(BOOL, wglBindVideoDeviceNV, (HDC, unsigned int, HVIDEOOUTPUTDEVICENV, const int *))
+AGL_API(BOOL, wglQueryCurrentContextNV, (int, int *))
+
+/* WGL_NV_video_out */
+AGL_API(BOOL, wglGetVideoDeviceNV, (HDC, int, HPVIDEODEV *))
+AGL_API(BOOL, wglReleaseVideoDeviceNV, (HPVIDEODEV))
+AGL_API(BOOL, wglBindVideoImageNV, (HPVIDEODEV, HPBUFFERARB, int))
+AGL_API(BOOL, wglReleaseVideoImageNV, (HPBUFFERARB, int))
+AGL_API(BOOL, wglSendPbufferToVideoNV, (HPBUFFERARB, int, unsigned long *, BOOL))
+AGL_API(BOOL, wglGetVideoInfoNV, (HPVIDEODEV, unsigned long *, unsigned long *))
+
 /* WGL_NV_swap_group */
 AGL_API(BOOL, wglJoinSwapGroupNV, (HDC hDC, GLuint group))
 AGL_API(BOOL, wglBindSwapBarrierNV, (GLuint group, GLuint barrier))
@@ -121,3 +134,11 @@ AGL_API(BOOL, wglQuerySwapGroupNV, (HDC hDC, GLuint *group, GLuint *barrier))
 AGL_API(BOOL, wglQueryMaxSwapGroupsNV, (HDC hDC, GLuint *maxGroups, GLuint *maxBarriers))
 AGL_API(BOOL, wglQueryFrameCountNV, (HDC hDC, GLuint *count))
 AGL_API(BOOL, wglResetFrameCountNV, (HDC hDC))
+
+/* WGL_NV_gpu_affinity */
+AGL_API(BOOL, wglEnumGpusNV, (UINT, HGPUNV *))
+AGL_API(BOOL, wglEnumGpuDevicesNV, (HGPUNV, UINT, PGPU_DEVICE))
+AGL_API(HDC,  wglCreateAffinityDCNV, (const HGPUNV *))
+AGL_API(BOOL, wglEnumGpusFromAffinityDCNV, (HDC, UINT, HGPUNV *))
+AGL_API(BOOL, wglDeleteDCNV, (HDC))
+
