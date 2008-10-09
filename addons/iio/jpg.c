@@ -11,6 +11,7 @@
 #include "allegro5/internal/aintern_memory.h"
 #include "allegro5/internal/aintern_bitmap.h"
 
+#include "allegro5/fshook.h"
 #include "iio.h"
 
 #define BUFFER_SIZE 4096
@@ -19,14 +20,14 @@ struct my_src_mgr
 {
    struct jpeg_source_mgr pub;
    unsigned char *buffer;
-   PACKFILE *pf;
+   AL_FS_ENTRY *pf;
 };
 
 struct my_dest_mgr
 {
    struct jpeg_destination_mgr pub;
    unsigned char *buffer;
-   PACKFILE *pf;
+   AL_FS_ENTRY *pf;
 };
 
 static void init_source(j_decompress_ptr cinfo)
@@ -44,14 +45,14 @@ static int fill_input_buffer(j_decompress_ptr cinfo)
 {
    struct my_src_mgr *src = (void *)cinfo->src;
    src->pub.next_input_byte = src->buffer;
-   src->pub.bytes_in_buffer = pack_fread(src->buffer, BUFFER_SIZE, src->pf);
+   src->pub.bytes_in_buffer = al_fs_entry_read(src->buffer, BUFFER_SIZE, src->pf);
    return 1;
 }
 
 static int empty_output_buffer(j_compress_ptr cinfo)
 {
    struct my_dest_mgr *dest = (void *)cinfo->dest;
-   pack_fwrite(dest->buffer, BUFFER_SIZE, dest->pf);
+   al_fs_entry_write(dest->buffer, BUFFER_SIZE, dest->pf);
    dest->pub.next_output_byte = dest->buffer;
    dest->pub.free_in_buffer = BUFFER_SIZE;
    return 1;
@@ -66,7 +67,7 @@ static void skip_input_data(j_decompress_ptr cinfo, long num_bytes)
    }
    else {
       long skip = num_bytes - src->pub.bytes_in_buffer;
-      pack_fseek(src->pf, skip);
+      al_fs_entry_seek(src->pf, skip, AL_SEEK_CUR);
       src->pub.bytes_in_buffer = 0;
    }
 }
@@ -78,11 +79,11 @@ static void term_source(j_decompress_ptr cinfo)
 static void term_destination(j_compress_ptr cinfo)
 {
    struct my_dest_mgr *dest = (void *)cinfo->dest;
-   pack_fwrite(dest->buffer, BUFFER_SIZE - dest->pub.free_in_buffer, dest->pf);
+   al_fs_entry_write(dest->buffer, BUFFER_SIZE - dest->pub.free_in_buffer, dest->pf);
 }
 
 
-static void jpeg_packfile_src(j_decompress_ptr cinfo, PACKFILE *pf,
+static void jpeg_packfile_src(j_decompress_ptr cinfo, AL_FS_ENTRY *pf,
                               unsigned char *buffer)
 {
    struct my_src_mgr *src;
@@ -103,7 +104,7 @@ static void jpeg_packfile_src(j_decompress_ptr cinfo, PACKFILE *pf,
    src->pf = pf;
 }
 
-static void jpeg_packfile_dest(j_compress_ptr cinfo, PACKFILE *pf,
+static void jpeg_packfile_dest(j_compress_ptr cinfo, AL_FS_ENTRY *pf,
                                unsigned char *buffer)
 {
    struct my_dest_mgr *dest;
@@ -122,7 +123,7 @@ static void jpeg_packfile_dest(j_compress_ptr cinfo, PACKFILE *pf,
    dest->pf = pf;
 }
 
-static ALLEGRO_BITMAP *load_jpg_pf(PACKFILE *pf)
+static ALLEGRO_BITMAP *load_jpg_pf(AL_FS_ENTRY *pf)
 {
    struct jpeg_decompress_struct cinfo;
    struct jpeg_error_mgr jerr;
@@ -187,7 +188,7 @@ static ALLEGRO_BITMAP *load_jpg_pf(PACKFILE *pf)
    return bmp;
 }
 
-static int save_jpg_pf(PACKFILE *pf, ALLEGRO_BITMAP *bmp)
+static int save_jpg_pf(AL_FS_ENTRY *pf, ALLEGRO_BITMAP *bmp)
 {
    struct jpeg_compress_struct cinfo;
    struct jpeg_error_mgr jerr;
@@ -246,18 +247,18 @@ static int save_jpg_pf(PACKFILE *pf, ALLEGRO_BITMAP *bmp)
  */
 ALLEGRO_BITMAP *iio_load_jpg(char const *filename)
 {
-   PACKFILE *pf;
+   AL_FS_ENTRY *pf;
    ALLEGRO_BITMAP *bmp;
 
    ASSERT(filename);
 
-   pf = pack_fopen(filename, "r");
+   pf = al_fs_entry_open(filename, "rb");
    if (!pf)
       return NULL;
 
    bmp = load_jpg_pf(pf);
 
-   pack_fclose(pf);
+   al_fs_entry_close(pf);
 
    return bmp;
 }
@@ -269,13 +270,13 @@ ALLEGRO_BITMAP *iio_load_jpg(char const *filename)
  */
 int iio_save_jpg(char const *filename, ALLEGRO_BITMAP *bmp)
 {
-   PACKFILE *pf;
+   AL_FS_ENTRY *pf;
    int result;
 
    ASSERT(filename);
    ASSERT(bmp);
 
-   pf = pack_fopen(filename, "w");
+   pf = al_fs_entry_open(filename, "wb");
    if (!pf) {
       TRACE("Unable to open file %s for writing\n", filename);
       return -1;
@@ -283,7 +284,7 @@ int iio_save_jpg(char const *filename, ALLEGRO_BITMAP *bmp)
 
    result = save_jpg_pf(pf, bmp);
 
-   pack_fclose(pf);
+   al_fs_entry_close(pf);
 
    return result;
 }

@@ -33,6 +33,13 @@
    #include <mmsystem.h>
 #endif
 
+/* FIXME: should we check for psapi _WIN32_IE and shlobj?
+{ */
+   #include <psapi.h>
+
+   #define _WIN32_IE 0x500
+   #include <shlobj.h>
+/* } */
 
 static ALLEGRO_SYSTEM_INTERFACE *vt = 0;
 static bool using_higher_res_timer;
@@ -333,6 +340,76 @@ static ALLEGRO_MOUSE_DRIVER *win_get_mouse_driver(void)
    return _al_mouse_driver_list[0].driver;
 }
 
+/* _win_get_path:
+ *  Returns full path to various system and user diretories
+ */
+
+static AL_CONST char *win_get_path(uint32_t id, char *dir, size_t size)
+{
+   char path[MAX_PATH], tmp[256];
+   uint32_t csidl = 0, path_len = MIN(size, MAX_PATH);
+   HRESULT ret = 0;
+   HANDLE process = GetCurrentProcess();
+
+   memset(dir, 0, size);
+
+   switch(id) {
+      case AL_TEMP_PATH: {
+         /* Check: TMP, TMPDIR, TEMP or TEMPDIR */
+         DWORD ret = GetTempPath(MAX_PATH, path);
+         if(ret > MAX_PATH) {
+            /* should this ever happen, windows is more broken than I ever thought */
+            return dir;
+         }
+
+         do_uconvert (path, U_ASCII, dir, U_CURRENT, strlen(path)+1);
+         return dir;
+
+      } break;
+
+      case AL_PROGRAM_PATH: { /* where the program is in */
+         HMODULE module = GetModuleHandle(NULL); /* Get handle for this process */
+         DWORD mret = GetModuleFileNameEx(process, NULL, path, MAX_PATH);
+         char *ptr = strrchr(path, '\\');
+         if(!ptr) { /* shouldn't happen */
+            return dir;
+         }
+
+         /* chop off everything including and after the last slash */
+         /* should this not chop the slash? */
+         *ptr = '\0';
+
+         do_uconvert (path, U_ASCII, dir, U_CURRENT, strlen(path)+1);
+         ustrcat(dir, "\\");
+         return dir;
+      } break;
+
+      case AL_SYSTEM_DATA_PATH: /* CSIDL_COMMON_APPDATA */
+         csidl = CSIDL_COMMON_APPDATA;
+         break;
+
+      case AL_USER_DATA_PATH: /* CSIDL_APPDATA */
+         csidl = CSIDL_APPDATA;
+         break;
+
+      case AL_USER_HOME_PATH: /* CSIDL_PROFILE */
+         csidl = CSIDL_PROFILE;
+         break;
+
+      default:
+         return dir;
+   }
+
+   ret = SHGetFolderPath(NULL, csidl, NULL, SHGFP_TYPE_CURRENT, path);
+   if(ret != S_OK) {
+      return dir;
+   }
+
+   do_uconvert (path, U_ASCII, dir, U_CURRENT, strlen(path)+1);
+   ustrcat(dir, "\\");
+   
+   return dir;
+}
 
 ALLEGRO_SYSTEM_INTERFACE *_al_system_win_driver(void)
 {
@@ -352,6 +429,7 @@ ALLEGRO_SYSTEM_INTERFACE *_al_system_win_driver(void)
    vt->get_num_video_adapters = win_get_num_video_adapters;
    vt->get_monitor_info = win_get_monitor_info;
    vt->get_cursor_position = win_get_cursor_position;
+   vt->get_path = win_get_path;
 
    TRACE("ALLEGRO_SYSTEM_INTERFACE created.\n");
 

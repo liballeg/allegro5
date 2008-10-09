@@ -92,7 +92,7 @@ AL_FUNC(UTYPE_INFO *, _find_utype, (int type));
 /* message stuff */
 #define ALLEGRO_MESSAGE_SIZE  4096
 
-
+#if 0
 /* wrappers for implementing disk I/O on different platforms */
 AL_FUNC(int, _al_file_isok, (AL_CONST char *filename));
 AL_FUNC(uint64_t, _al_file_size_ex, (AL_CONST char *filename));
@@ -114,7 +114,7 @@ AL_VAR(int, _packfile_type);
 AL_FUNC(PACKFILE *, _pack_fdopen, (int fd, AL_CONST char *mode));
 
 AL_FUNC(int, _al_lzss_incomplete_state, (AL_CONST LZSS_UNPACK_DATA *dat));
-
+#endif
 
 /* various libc stuff */
 AL_FUNC(void *, _al_sane_realloc, (void *ptr, size_t size));

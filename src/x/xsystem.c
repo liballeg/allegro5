@@ -11,6 +11,8 @@ extern int _Xdebug; /* part of Xlib */
 #include "allegro5/internal/aintern_memory.h"
 #include "xglx.h"
 
+AL_CONST char *_unix_get_path(uint32_t id, char *dir, size_t size);
+
 static ALLEGRO_SYSTEM_INTERFACE *xglx_vt;
 
 static void process_x11_event(ALLEGRO_SYSTEM_XGLX *s, XEvent event)
@@ -307,7 +309,8 @@ ALLEGRO_SYSTEM_INTERFACE *_al_system_xglx_driver(void)
    xglx_vt->get_num_video_adapters = xglx_get_num_video_adapters;
    xglx_vt->get_monitor_info = xglx_get_monitor_info;
    xglx_vt->get_cursor_position = xglx_get_cursor_position;
-   
+   xglx_vt->get_path = _unix_get_path;
+
    return xglx_vt;
 }
 

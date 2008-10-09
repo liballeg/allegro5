@@ -23,6 +23,7 @@
    #include <malloc.h>
 #endif
 
+#include "allegro5/platform/al_cfg.h"
 
 #pragma warning (disable: 4200 4244 4305)
 

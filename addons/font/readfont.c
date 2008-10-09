@@ -21,7 +21,6 @@
 #include "allegro5/allegro5.h"
 #include "allegro5/internal/aintern.h"
 #include "allegro5/internal/aintern_memory.h"
-#include "allegro5/file.h"
 
 #include "allegro5/a5_font.h"
 
@@ -77,7 +76,7 @@ ALLEGRO_FONT *al_font_load_font(const char *filename, void *param)
    FONT_TYPE_INFO *iter;
    ASSERT(filename);
 
-   aext = uconvert_toascii(get_extension(filename), tmp);
+   aext = uconvert_toascii(ustrrchr(filename,'.'), tmp);
    
    for (iter = font_type_list; iter; iter = iter->next) {
       if (stricmp(iter->ext, aext) == 0) {

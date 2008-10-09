@@ -261,5 +261,3 @@ void register_trace_handler(int (*handler)(AL_CONST char *msg))
 {
    _al_trace_handler = handler;
 }
-
-

@@ -915,7 +915,6 @@ int for_each_file_ex(AL_CONST char *name, int in_attrib, int out_attrib, int (*c
 
 
 
-#if 0
 /* find_resource:
  *  Tries lots of different places that a resource file might live.
  */
@@ -1028,7 +1027,6 @@ static int find_resource(char *dest, AL_CONST char *path, AL_CONST char *name, A
 
    return -1;
 }
-#endif
 
 
 

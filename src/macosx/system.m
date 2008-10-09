@@ -53,6 +53,7 @@ static int osx_sys_set_close_button_callback(void (*proc)(void));
 static int osx_sys_set_display_switch_mode(int mode);
 static int osx_sys_desktop_color_depth(void);
 static int osx_sys_get_desktop_resolution(int *width, int *height);
+static AL_CONST char *osx_get_path(int32_t id, char* path, size_t length);
 
 
 /* Global variables */
@@ -286,6 +287,7 @@ ALLEGRO_SYSTEM_INTERFACE *_al_system_osx_driver(void)
       vt->get_num_video_adapters = osx_get_num_video_adapters;
       vt->get_monitor_info = osx_get_monitor_info;
       vt->get_cursor_position = osx_get_cursor_position;
+      vt->get_path = osx_get_path;
 	};
 		
 	return vt;
@@ -302,18 +304,8 @@ void _al_register_system_interfaces()
    *add = _al_system_osx_driver();
 }
 
-/* Temporarily put this here until it appears in the header */
-enum {
-        AL_PROGRAM_PATH = 0,
-        AL_TEMP_PATH,
-        AL_SYSTEM_DATA_PATH,
-        AL_USER_DATA_PATH,
-        AL_USER_HOME_PATH,
-        AL_LAST_PATH // must be last
-};
-
 /* Implentation of this function, not 'officially' in allegro yet */
-int32_t _al_osx_get_path(int32_t id, char* path, size_t length) 
+static AL_CONST char *osx_get_path(int32_t id, char* path, size_t length)
 {
    NSString* ans = nil;
    NSArray* paths = nil;
@@ -343,7 +335,7 @@ int32_t _al_osx_get_path(int32_t id, char* path, size_t length)
       /* 10.4 and above only */
          ok = [ans getCString:path maxLength:length encoding: NSUTF8StringEncoding];
       }
-   return ok == YES ? 0 : -1;
+   return ok == YES ? path : NULL;
 }
 
 /* _al_osx_post_quit

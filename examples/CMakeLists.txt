@@ -63,8 +63,9 @@ example(ex_resize NOTHING)
 example(ex_threads NOTHING)
 example(ex_threads2 NOTHING)
 example(ex_timedwait NOTHING)
+example(ex_get_path NOTHING)
+example(ex_path NOTHING)
 example(ex_user_events NOTHING)
-
 
 if(SUPPORT_D3D)
     example_cxx(ex_d3d d3dx9)

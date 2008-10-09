@@ -21,12 +21,13 @@
 #include <stdlib.h>
 #include <string.h>
 #include <sys/stat.h>
-
+#include <pwd.h>
 
 #include "allegro5/allegro5.h"
 #include "allegro5/internal/aintern.h"
 #include "allegro5/internal/aintern_memory.h"
 #include "allegro5/platform/aintunix.h"
+#include "allegro5/fshook.h"
 
 #if defined(ALLEGRO_HAVE_SCHED_YIELD) && defined(_POSIX_PRIORITY_SCHEDULING)
    /* ALLEGRO_HAVE_SCHED_YIELD is set by configure */
@@ -48,7 +49,7 @@
    #include <fcntl.h>
 #endif
 
-
+#include "allegro5/path.h"
 
 /* _unix_find_resource:
  *  Helper for locating a Unix config file. Looks in the home directory
@@ -57,65 +58,84 @@
 int _unix_find_resource(char *dest, AL_CONST char *resource, int size)
 {
    char buf[256], tmp[256], *last;
-   char *home = getenv("HOME");
+   char home[256], ext[256];
+   AL_PATH path;
 
-   if (home) {
-      /* look for ~/file */
-      append_filename(buf, uconvert_ascii(home, tmp), resource, sizeof(buf));
-      if (exists(buf)) {
+   _unix_get_path(AL_USER_HOME_PATH, home, sizeof(home));
+
+   if (ustrlen(home)) {
+      AL_PATH local_path;
+      if(!al_path_init(&local_path, home))
+         return -1;
+
+      al_path_append(&local_path, resource);
+      al_path_to_string(&local_path, buf, sizeof(buf), '/');
+
+      if (al_fs_exists(buf)) {
 	 ustrzcpy(dest, size, buf);
 	 return 0;
       }
 
       /* if it is a .cfg, look for ~/.filerc */
-      if (ustricmp(get_extension(resource), uconvert_ascii("cfg", tmp)) == 0) {
-	 ustrzcpy(buf, sizeof(buf) - ucwidth(OTHER_PATH_SEPARATOR), uconvert_ascii(home, tmp));
-	 put_backslash(buf);
-	 ustrzcat(buf, sizeof(buf), uconvert_ascii(".", tmp));
-	 ustrzcpy(tmp, sizeof(tmp), resource);
-	 ustrzcat(buf, sizeof(buf), ustrtok_r(tmp, ".", &last));
-	 ustrzcat(buf, sizeof(buf), uconvert_ascii("rc", tmp));
+      if (ustricmp(al_path_get_extension(&local_path, ext, sizeof(ext)), uconvert_ascii("cfg", tmp)) == 0) {
+
+         al_path_get_basename(&local_path, buf, sizeof(buf));
+         ustrncat(buf, "rc", 2);
+         al_path_set_filename(&local_path, buf);
+         al_path_to_string(&local_path, buf, sizeof(buf), '/');
+
+         /* FIXME: we're temporarily forgetting about these permission flags
 	 if (file_exists(buf, FA_ARCH | FA_RDONLY | FA_HIDDEN, NULL)) {
+         */
+         if (al_fs_exists(buf)) {
 	    ustrzcpy(dest, size, buf);
 	    return 0;
 	 }
       }
+
+      al_path_free(&local_path);
    }
 
    /* look for /etc/file */
-   append_filename(buf, uconvert_ascii("/etc/", tmp), resource, sizeof(buf));
-   if (exists(buf)) {
+   al_path_init(&path, "/etc");
+   al_path_set_filename(&path, resource);
+   al_path_to_string(&path, buf, sizeof(buf), '/');
+
+   if (al_fs_exists(buf)) {
       ustrzcpy(dest, size, buf);
       return 0;
    }
 
    /* if it is a .cfg, look for /etc/filerc */
-   if (ustricmp(get_extension(resource), uconvert_ascii("cfg", tmp)) == 0) {
-      ustrzcpy(buf, sizeof(buf), uconvert_ascii("/etc/", tmp));
-      ustrzcpy(tmp, sizeof(tmp), resource);
-      ustrzcat(buf, sizeof(buf), ustrtok_r(tmp, ".", &last));
-      ustrzcat(buf, sizeof(buf), uconvert_ascii("rc", tmp));
-      if (exists(buf)) {
+   if (ustricmp(al_path_get_extension(&path, ext, sizeof(ext)), uconvert_ascii("cfg", tmp)) == 0) {
+
+      al_path_get_basename(&path, buf, sizeof(buf));
+      ustrncat(buf, "rc", 2);
+      al_path_set_filename(&path, buf);
+      al_path_to_string(&path, buf, sizeof(buf), '/');
+
+      if (al_fs_exists(buf)) {
 	 ustrzcpy(dest, size, buf);
 	 return 0;
       }
    }
 
-   /* if it is a .dat, look in /usr/share/ and /usr/local/share/ */
-   if (ustricmp(get_extension(resource), uconvert_ascii("dat", tmp)) == 0) {
-      ustrzcpy(buf, sizeof(buf), uconvert_ascii("/usr/share/allegro/", tmp));
-      ustrzcat(buf, sizeof(buf), resource);
-      if (exists(buf)) {
-	 ustrzcpy(dest, size, buf);
-	 return 0;
-      }
-      ustrzcpy(buf, sizeof(buf), uconvert_ascii("/usr/local/share/allegro/", tmp));
-      ustrzcat(buf, sizeof(buf), resource);
-      if (exists(buf)) {
+   al_path_free(&path);
+
+   /* if it is a .dat, look in AL_SYSTEM_DATA_PATH */
+   al_path_init(&path, al_get_path(AL_SYSTEM_DATA_PATH, buf, sizeof(buf)));
+   al_path_set_filename(&path, resource);
+
+   if (ustricmp(al_path_get_extension(&path, ext, sizeof(ext)), uconvert_ascii("dat", tmp)) == 0) {
+      al_path_append(&path, "allegro");
+      al_path_to_string(&path, buf, sizeof(buf), '/');
+      if (al_fs_exists(buf)) {
 	 ustrzcpy(dest, size, buf);
 	 return 0;
       }
    }
+
+   al_path_free(&path);
 
    return -1;
 }
@@ -421,6 +441,171 @@ void _unix_get_executable_name(char *output, int size)
 #endif
 
 
+static int32_t _unix_find_home(char *dir, uint32_t len)
+{
+   char *home_env = getenv("HOME");
+
+   if(!home_env || home_env[0] == '\0') {
+      /* since HOME isn't set, we have to ask libc for the info */
+
+      /* get user id */
+      uid_t uid = getuid();
+
+      /* grab user information */
+      struct passwd *pass = getpwuid(uid);
+      if(!pass) {
+         al_set_errno(errno);
+         return -1;
+      }
+
+      if(pass->pw_dir) {
+         /* hey, we got our home directory */
+         do_uconvert (pass->pw_dir, U_ASCII, dir, U_CURRENT, strlen(pass->pw_dir)+1);
+         return 0;
+      }
+      else {
+         char tmp[PATH_MAX];
+         char *name = getenv("USER");
+
+         if(!name) {
+            name = pass->pw_name;
+            if(!name) {
+               return -1;
+            }
+         }
+
+         /* assume we live in /home/<username> */
+
+         /* TODO: might want to make a "configure" option for this (/home) */
+         /* should we check to see if the dir exists? */
+
+         _al_sane_strncpy(tmp, "/home/", strlen("/home/")+1);
+         strncat(tmp, name, len);
+         do_uconvert (tmp, U_ASCII, dir, U_CURRENT, strlen(tmp)+1);
+         return 0;
+      }
+   }
+   else {
+      do_uconvert (home_env, U_ASCII, dir, U_CURRENT, strlen(home_env)+1);
+      return 0;
+   }
+
+   /* should not reach here */
+   return -1;
+}
+
+AL_CONST char *_unix_get_path(uint32_t id, char *dir, size_t size)
+{
+   switch(id) {
+      case AL_TEMP_PATH: {
+         /* Check: TMP, TMPDIR, TEMP or TEMPDIR */
+         char *envs[] = { "TMP", "TMPDIR", "TEMP", "TEMPDIR", NULL};
+         uint32_t i = 0;
+         for(; envs[i] != NULL; ++i) {
+            char *tmp = getenv(envs[i]);
+            if(tmp) {
+               /* this may truncate paths, not likely in unix */
+               do_uconvert (tmp, U_ASCII, dir, U_CURRENT, strlen(tmp)+1);
+               return dir;
+            }
+         }
+
+         /* next try: /tmp /var/tmp /usr/tmp */
+         char *paths[] = { "/tmp/", "/var/tmp/", "/usr/tmp/", NULL };
+         for(i=0; paths[i] != NULL; ++i) {
+            if(al_fs_stat_mode(paths[i]) & AL_FM_ISDIR) {
+               do_uconvert (paths[i], U_ASCII, dir, U_CURRENT, strlen(paths[i])+1);
+               return dir;
+            }
+         }
+
+         /* Give up? */
+         return NULL;
+      } break;
+
+      case AL_PROGRAM_PATH: {
+         char *ptr = NULL;
+
+         _unix_get_executable_name(dir, size);
+
+         ptr = ustrrchr(dir, '/');
+         if(!ptr) {
+            al_set_errno(EINVAL);
+            return NULL;
+         }
+
+         ptr+=ucwidth(*ptr);
+         usetc(ptr, 0);
+         ustrcat(ptr, "/");
+
+      } break;
+
+      case AL_SYSTEM_DATA_PATH: {
+         /* FIXME: make this a compile time define, or a allegro cfg option? or both */
+         _al_sane_strncpy(dir, "/usr/share/", strlen("/usr/share/")+1);
+      } break;
+
+#if 0
+      case AL_USER_DATA_PATH: {
+         int32_t ret = 0;
+         uint32_t path_len = 0, ptr_len = 0, prog_len = 0;
+         char path[PATH_MAX] = "", *ptr = NULL;
+         char prog[PATH_MAX] = "";
+
+         if(_unix_find_home(path, PATH_MAX) != 0) {
+            return NULL;
+         }
+
+         strncat(path, "/.", 2);
+
+         path_len = strlen(path);
+
+         /* get exe name */
+         /* FIXME:
+            This really aught to get the "Program" name from somewhere, say a config var? Or a function al_set_program_name()?
+            making a ~/.test_program dir for a exe named "test_program" might not be what people have in mind.
+         */
+
+         _unix_get_executable_name(prog, PATH_MAX);
+
+         ptr = strrchr(prog, '/');
+         if(!ptr) {
+            al_set_errno(EINVAL);
+            return NULL;
+         }
+
+         *ptr = '\0';
+         ptr++;
+         ptr_len = strlen(ptr);
+         //
+         strncat(path, ptr, ptr_len+1);
+         //*(ptr-1) = '/';
+         do_uconvert (path, U_ASCII, dir, U_CURRENT, strlen(path)+1);
+
+      } break;
+#endif
+
+      case AL_USER_DATA_PATH:
+      case AL_USER_HOME_PATH: {
+         char tmp[PATH_MAX] = "";
+         if(_unix_find_home(tmp, PATH_MAX) != 0) {
+            return NULL;
+         }
+
+         if(tmp[strlen(tmp)-1] != '/')
+            ustrcat(tmp, "/");
+
+         ustrcpy(dir, tmp);
+         //printf("userhome/datapath: '%s'\n", tmp);
+//         do_uconvert (tmp, U_ASCII, dir, U_CURRENT, strlen(tmp)+1);
+      } break;
+
+      default:
+         return NULL;
+   }
+
+   return dir;
+}
 
 /* _unix_get_page_size:
  *  Get size of a memory page in bytes.  If we can't do it, we make a guess.

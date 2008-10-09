@@ -23,6 +23,7 @@
 
 
 #include "allegro5/allegro5.h"
+#include "allegro5/fshook.h"
 #include "allegro5/internal/aintern.h"
 #include "iio.h"
 
@@ -31,9 +32,9 @@
 /* raw_tga_read8:
  *  Helper for reading 256-color raw data from TGA files.
  */
-static INLINE unsigned char *raw_tga_read8(unsigned char *b, int w, PACKFILE *f)
+static INLINE unsigned char *raw_tga_read8(unsigned char *b, int w, AL_FS_ENTRY *f)
 {
-   return b + pack_fread(b, w, f);
+   return b + al_fs_entry_read(b, w, f);
 }
 
 
@@ -41,17 +42,17 @@ static INLINE unsigned char *raw_tga_read8(unsigned char *b, int w, PACKFILE *f)
 /* rle_tga_read8:
  *  Helper for reading 256-color RLE data from TGA files.
  */
-static void rle_tga_read8(unsigned char *b, int w, PACKFILE *f)
+static void rle_tga_read8(unsigned char *b, int w, AL_FS_ENTRY *f)
 {
    int value, count, c = 0;
 
    do {
-      count = pack_getc(f);
+      count = al_fs_entry_getc(f);
       if (count & 0x80) {
          /* run-length packet */
          count = (count & 0x7F) + 1;
          c += count;
-         value = pack_getc(f);
+         value = al_fs_entry_getc(f);
          while (count--)
             *b++ = value;
       }
@@ -69,15 +70,15 @@ static void rle_tga_read8(unsigned char *b, int w, PACKFILE *f)
 /* single_tga_read32:
  *  Helper for reading a single 32-bit data from TGA files.
  */
-static INLINE int single_tga_read32(PACKFILE *f)
+static INLINE int single_tga_read32(AL_FS_ENTRY *f)
 {
    PalEntry value;
    int alpha;
 
-   value.b = pack_getc(f);
-   value.g = pack_getc(f);
-   value.r = pack_getc(f);
-   alpha = pack_getc(f);
+   value.b = al_fs_entry_getc(f);
+   value.g = al_fs_entry_getc(f);
+   value.r = al_fs_entry_getc(f);
+   alpha = al_fs_entry_getc(f);
 
 #ifdef ALLEGRO_LITTLE_ENDIAN
    return (alpha << 24) | (value.r << 16) | (value.g << 8) | value.b;
@@ -93,7 +94,7 @@ static INLINE int single_tga_read32(PACKFILE *f)
 /* raw_tga_read32:
  *  Helper for reading 32-bit raw data from TGA files.
  */
-static unsigned int *raw_tga_read32(unsigned int *b, int w, PACKFILE *f)
+static unsigned int *raw_tga_read32(unsigned int *b, int w, AL_FS_ENTRY *f)
 {
    while (w--)
       *b++ = single_tga_read32(f);
@@ -106,12 +107,12 @@ static unsigned int *raw_tga_read32(unsigned int *b, int w, PACKFILE *f)
 /* rle_tga_read32:
  *  Helper for reading 32-bit RLE data from TGA files.
  */
-static void rle_tga_read32(unsigned int *b, int w, PACKFILE *f)
+static void rle_tga_read32(unsigned int *b, int w, AL_FS_ENTRY *f)
 {
    int color, count, c = 0;
 
    do {
-      count = pack_getc(f);
+      count = al_fs_entry_getc(f);
       if (count & 0x80) {
          /* run-length packet */
          count = (count & 0x7F) + 1;
@@ -133,13 +134,13 @@ static void rle_tga_read32(unsigned int *b, int w, PACKFILE *f)
 /* single_tga_read24:
  *  Helper for reading a single 24-bit data from TGA files.
  */
-static INLINE int single_tga_read24(PACKFILE *f)
+static INLINE int single_tga_read24(AL_FS_ENTRY *f)
 {
    PalEntry value;
 
-   value.b = pack_getc(f);
-   value.g = pack_getc(f);
-   value.r = pack_getc(f);
+   value.b = al_fs_entry_getc(f);
+   value.g = al_fs_entry_getc(f);
+   value.r = al_fs_entry_getc(f);
 
 #ifdef ALLEGRO_LITTLE_ENDIAN
    return (value.r << 16) | (value.g << 8) | value.b;
@@ -155,7 +156,7 @@ static INLINE int single_tga_read24(PACKFILE *f)
 /* raw_tga_read24:
  *  Helper for reading 24-bit raw data from TGA files.
  */
-static unsigned char *raw_tga_read24(unsigned char *b, int w, PACKFILE *f)
+static unsigned char *raw_tga_read24(unsigned char *b, int w, AL_FS_ENTRY *f)
 {
    int color;
 
@@ -173,12 +174,12 @@ static unsigned char *raw_tga_read24(unsigned char *b, int w, PACKFILE *f)
 /* rle_tga_read24:
  *  Helper for reading 24-bit RLE data from TGA files.
  */
-static void rle_tga_read24(unsigned char *b, int w, PACKFILE *f)
+static void rle_tga_read24(unsigned char *b, int w, AL_FS_ENTRY *f)
 {
    int color, count, c = 0;
 
    do {
-      count = pack_getc(f);
+      count = al_fs_entry_getc(f);
       if (count & 0x80) {
          /* run-length packet */
          count = (count & 0x7F) + 1;
@@ -203,11 +204,11 @@ static void rle_tga_read24(unsigned char *b, int w, PACKFILE *f)
 /* single_tga_read16:
  *  Helper for reading a single 16-bit data from TGA files.
  */
-static INLINE int single_tga_read16(PACKFILE *f)
+static INLINE int single_tga_read16(AL_FS_ENTRY *f)
 {
    int value;
 
-   value = pack_igetw(f);
+   value = al_fs_entry_igetw(f);
 
    return value;
    /*
@@ -222,7 +223,7 @@ static INLINE int single_tga_read16(PACKFILE *f)
 /* raw_tga_read16:
  *  Helper for reading 16-bit raw data from TGA files.
  */
-static unsigned short *raw_tga_read16(unsigned short *b, int w, PACKFILE *f)
+static unsigned short *raw_tga_read16(unsigned short *b, int w, AL_FS_ENTRY *f)
 {
    while (w--)
       *b++ = single_tga_read16(f);
@@ -235,12 +236,12 @@ static unsigned short *raw_tga_read16(unsigned short *b, int w, PACKFILE *f)
 /* rle_tga_read16:
  *  Helper for reading 16-bit RLE data from TGA files.
  */
-static void rle_tga_read16(unsigned short *b, int w, PACKFILE *f)
+static void rle_tga_read16(unsigned short *b, int w, AL_FS_ENTRY *f)
 {
    int color, count, c = 0;
 
    do {
-      count = pack_getc(f);
+      count = al_fs_entry_getc(f);
       if (count & 0x80) {
          /* run-length packet */
          count = (count & 0x7F) + 1;
@@ -260,13 +261,13 @@ static void rle_tga_read16(unsigned short *b, int w, PACKFILE *f)
 
 
 /* load_tga_pf:
- *  Like load_tga, but starts loading from the current place in the PACKFILE
+ *  Like load_tga, but starts loading from the current place in the AL_FS_ENTRY
  *  specified. If successful the offset into the file will be left just after
  *  the image data. If unsuccessful the offset into the file is unspecified,
  *  i.e. you must either reset the offset to some known place or close the
  *  packfile. The packfile is not closed by this function.
  */
-static ALLEGRO_BITMAP *iio_load_tga_pf(PACKFILE *f)
+static ALLEGRO_BITMAP *iio_load_tga_pf(AL_FS_ENTRY *f)
 {
    unsigned char image_id[256], image_palette[256][3];
    unsigned char id_length, palette_type, image_type, palette_entry_size;
@@ -284,23 +285,23 @@ static ALLEGRO_BITMAP *iio_load_tga_pf(PACKFILE *f)
    unsigned char *buf;
    ASSERT(f);
 
-   id_length = pack_getc(f);
-   palette_type = pack_getc(f);
-   image_type = pack_getc(f);
-   first_color = pack_igetw(f);
-   palette_colors = pack_igetw(f);
-   palette_entry_size = pack_getc(f);
-   left = pack_igetw(f);
-   top = pack_igetw(f);
-   image_width = pack_igetw(f);
-   image_height = pack_igetw(f);
-   bpp = pack_getc(f);
-   descriptor_bits = pack_getc(f);
+   id_length = al_fs_entry_getc(f);
+   palette_type = al_fs_entry_getc(f);
+   image_type = al_fs_entry_getc(f);
+   first_color = al_fs_entry_igetw(f);
+   palette_colors  = al_fs_entry_igetw(f);
+   palette_entry_size = al_fs_entry_getc(f);
+   left = al_fs_entry_igetw(f);
+   top = al_fs_entry_igetw(f);
+   image_width = al_fs_entry_igetw(f);
+   image_height = al_fs_entry_igetw(f);
+   bpp = al_fs_entry_getc(f);
+   descriptor_bits = al_fs_entry_getc(f);
 
    left_to_right = !(descriptor_bits & (1 << 4));
    top_to_bottom = (descriptor_bits & (1 << 5));
 
-   pack_fread(image_id, id_length, f);
+   al_fs_entry_read(image_id, id_length, f);
 
    if (palette_type == 1) {
 
@@ -309,7 +310,7 @@ static ALLEGRO_BITMAP *iio_load_tga_pf(PACKFILE *f)
          switch (palette_entry_size) {
 
             case 16:
-               c = pack_igetw(f);
+               c = al_fs_entry_igetw(f);
                image_palette[i][0] = (c & 0x1F) << 3;
                image_palette[i][1] = ((c >> 5) & 0x1F) << 3;
                image_palette[i][2] = ((c >> 10) & 0x1F) << 3;
@@ -317,11 +318,11 @@ static ALLEGRO_BITMAP *iio_load_tga_pf(PACKFILE *f)
 
             case 24:
             case 32:
-               image_palette[i][0] = pack_getc(f);
-               image_palette[i][1] = pack_getc(f);
-               image_palette[i][2] = pack_getc(f);
+               image_palette[i][0] = al_fs_entry_getc(f);
+               image_palette[i][1] = al_fs_entry_getc(f);
+               image_palette[i][2] = al_fs_entry_getc(f);
                if (palette_entry_size == 32)
-                  pack_getc(f);
+                  al_fs_entry_getc(f);
                break;
          }
       }
@@ -481,12 +482,12 @@ static ALLEGRO_BITMAP *iio_load_tga_pf(PACKFILE *f)
 
 
 /* save_tga_pf:
- *  Like save_tga but writes into the PACKFILE given instead of a new file.
+ *  Like save_tga but writes into the AL_FS_ENTRY given instead of a new file.
  *  The packfile is not closed after writing is completed. On success the
  *  offset into the file is left after the TGA file just written. On failure
  *  the offset is left at the end of whatever incomplete data was written.
  */
-static int iio_save_tga_pf(PACKFILE *f, ALLEGRO_BITMAP *bmp)
+static int iio_save_tga_pf(AL_FS_ENTRY *f, ALLEGRO_BITMAP *bmp)
 {
    int x, y;
    int w, h;
@@ -499,18 +500,18 @@ static int iio_save_tga_pf(PACKFILE *f, ALLEGRO_BITMAP *bmp)
    w = al_get_bitmap_width(bmp);
    h = al_get_bitmap_height(bmp);
 
-   pack_putc(0, f);             /* id length (no id saved) */
-   pack_putc(0, f);             /* palette type */
-   pack_putc(2, f);             /* image type */
-   pack_iputw(0, f);            /* first colour */
-   pack_iputw(0, f);            /* number of colours */
-   pack_putc(0, f);             /* palette entry size */
-   pack_iputw(0, f);            /* left */
-   pack_iputw(0, f);            /* top */
-   pack_iputw(w, f);            /* width */
-   pack_iputw(h, f);            /* height */
-   pack_putc(32, f);            /* bits per pixel */
-   pack_putc(8, f);             /* descriptor (bottom to top, 8-bit alpha) */
+   al_fs_entry_putc(0, f);      /* id length (no id saved) */
+   al_fs_entry_putc(0, f);      /* palette type */
+   al_fs_entry_putc(2, f);      /* image type */
+   al_fs_entry_iputw(0, f);     /* first colour */
+   al_fs_entry_iputw(0, f);     /* number of colours */
+   al_fs_entry_putc(0, f);      /* palette entry size */
+   al_fs_entry_iputw(0, f);     /* left */
+   al_fs_entry_iputw(0, f);     /* top */
+   al_fs_entry_iputw(w, f);     /* width */
+   al_fs_entry_iputw(h, f);     /* height */
+   al_fs_entry_putc(32, f);     /* bits per pixel */
+   al_fs_entry_putc(8, f);      /* descriptor (bottom to top, 8-bit alpha) */
 
    al_lock_bitmap(bmp, &lr, ALLEGRO_LOCK_READONLY);
 
@@ -519,10 +520,10 @@ static int iio_save_tga_pf(PACKFILE *f, ALLEGRO_BITMAP *bmp)
          ALLEGRO_COLOR c = al_get_pixel(bmp, x, y);
          unsigned char r, g, b, a;
          al_unmap_rgba(c, &r, &g, &b, &a);
-         pack_putc(b, f);
-         pack_putc(g, f);
-         pack_putc(r, f);
-         pack_putc(a, f);
+         al_fs_entry_putc(b, f);
+         al_fs_entry_putc(g, f);
+         al_fs_entry_putc(r, f);
+         al_fs_entry_putc(a, f);
       }
    }
 
@@ -542,17 +543,17 @@ static int iio_save_tga_pf(PACKFILE *f, ALLEGRO_BITMAP *bmp)
  */
 ALLEGRO_BITMAP *iio_load_tga(AL_CONST char *filename)
 {
-   PACKFILE *f;
+   AL_FS_ENTRY *f;
    ALLEGRO_BITMAP *bmp;
    ASSERT(filename);
 
-   f = pack_fopen(filename, F_READ);
+   f = al_fs_entry_open(filename, "rb");
    if (!f)
       return NULL;
 
    bmp = iio_load_tga_pf(f);
 
-   pack_fclose(f);
+   al_fs_entry_close(f);
 
    return bmp;
 }
@@ -565,17 +566,17 @@ ALLEGRO_BITMAP *iio_load_tga(AL_CONST char *filename)
  */
 int iio_save_tga(AL_CONST char *filename, ALLEGRO_BITMAP *bmp)
 {
-   PACKFILE *f;
+   AL_FS_ENTRY *f;
    int ret;
    ASSERT(filename);
 
-   f = pack_fopen(filename, F_WRITE);
+   f = al_fs_entry_open(filename, "wb");
    if (!f)
       return -1;
 
    ret = iio_save_tga_pf(f, bmp);
 
-   pack_fclose(f);
+   al_fs_entry_close(f);
 
    return ret;
 }

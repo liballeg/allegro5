@@ -239,8 +239,9 @@ check_include_files(stdint.h ALLEGRO_HAVE_STDINT_H)
 check_include_files(sys/io.h ALLEGRO_HAVE_SYS_IO_H)
 check_include_files(sys/stat.h ALLEGRO_HAVE_SYS_STAT_H)
 check_include_files(sys/time.h ALLEGRO_HAVE_SYS_TIME_H)
+check_include_files(time.h ALLEGRO_HAVE_TIME_H)
 check_include_files(sys/utsname.h ALLEGRO_HAVE_SYS_UTSNAME_H)
-
+check_include_files(sys/types.h ALLEGRO_HAVE_SYS_TYPES_H)
 check_include_files(soundcard.h ALLEGRO_HAVE_SOUNDCARD_H)
 check_include_files(sys/soundcard.h ALLEGRO_HAVE_SYS_SOUNDCARD_H)
 check_include_files(machine/soundcard.h ALLEGRO_HAVE_MACHINE_SOUNDCARD_H)
@@ -332,6 +333,7 @@ if(WANT_OPENAL)
         set(SUPPORT_OPENAL 1)
     endif(OPENAL_FOUND)
 endif(WANT_OPENAL)
+
 
 # Accumulate extra libraries needed due to drivers.
 set(DRIVER_LIBS_STATIC)
@@ -465,12 +467,12 @@ configure_file(
     include/allegro5/platform/alplatf.h
     )
 
-if(UNIX)
+if(UNIX OR WIN32)
     configure_file(
-        include/allegro5/platform/alunixac.h.cmake
-        include/allegro5/platform/alunixac.h
+        include/allegro5/platform/al_cfg.h.cmake
+        include/allegro5/platform/al_cfg.h
         )
-endif(UNIX)
+endif(UNIX OR WIN32)
 
 #-----------------------------------------------------------------------------#
 #
@@ -538,7 +540,7 @@ if(WIN32)
         list(APPEND LIBRARY_SOURCES lib/msvc/allegro.def)
     endif(COMPILER_MSVC AND SHARED)
     list(APPEND PLATFORM_LIBS
-        kernel32 user32 gdi32 comdlg32 ole32 dinput8 dxguid winmm
+        kernel32 user32 gdi32 comdlg32 ole32 dinput8 dxguid winmm psapi
         )
     if(SUPPORT_D3D)
         list(APPEND LIBRARY_SOURCES ${ALLEGRO_SRC_D3D_FILES})

@@ -25,6 +25,7 @@ struct ALLEGRO_SYSTEM_INTERFACE
    int (*get_num_video_adapters)(void);
    void (*get_monitor_info)(int adapter, ALLEGRO_MONITOR_INFO *info);
    bool (*get_cursor_position)(int *ret_x, int *ret_y);
+   AL_CONST char *(*get_path)(uint32_t id, char *path, size_t size);
 };
 
 struct ALLEGRO_SYSTEM

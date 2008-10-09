@@ -1,7 +1,8 @@
 #include "a5teroids.hpp"
 #include <stdio.h>
 
-
+#include <allegro5/fshook.h>
+#include <allegro5/path.h>
 
 bool kb_installed = false;
 bool joy_installed = false;
@@ -9,165 +10,43 @@ bool joy_installed = false;
 /*
  * Return the path to user resources (save states, configuration)
  */
-#ifdef __linux__
-static char* userResourcePath()
-{
-   static char path[MAX_PATH];
 
-   char* env = getenv("HOME");
-
-   if (env) {
-      strcpy(path, env);
-      if (path[strlen(path)-1] != '/') {
-         strncat(path, "/.a5teroids/", (sizeof(path)/sizeof(*path))-1);
-      }
-      else {
-         strncat(path, ".a5teroids/", (sizeof(path)/sizeof(*path))-1);
-      }
-   }
-   else {
-      strcpy(path, "save/");
-   }
-
-   return path;
-}
-#endif
 #ifdef ALLEGRO_MACOSX
 #ifndef MAX_PATH 
 #define MAX_PATH PATH_MAX
 #endif
-static char* userResourcePath()
-{
-   static char path[MAX_PATH];
-
-   char* env = getenv("HOME");
-
-   if (env) {
-      strcpy(path, env);
-      if (path[strlen(path)-1] != '/') {
-         strncat(path, "/.a5teroids/", (sizeof(path)/sizeof(*path))-1);
-      }
-      else {
-         strncat(path, ".a5teroids/", (sizeof(path)/sizeof(*path))-1);
-      }
-   }
-   else {
-      strcpy(path, "save/");
-   }
-
-   return path;
-}
 #endif
-#if defined(ALLEGRO_MSVC) || defined(ALLEGRO_MINGW32) || defined(ALLEGRO_BCC32)
-static char* userResourcePath()
-{
-   static char path[MAX_PATH];
-
-   int success = SHGetSpecialFolderPath(0, path, CSIDL_APPDATA, false);
-
-   if (success) {
-      if (path[strlen(path)-1] != '/') {
-         strncat(path, "/a5teroids/", (sizeof(path)/sizeof(*path))-1);	
-      }
-      else {
-         strncat(path, "a5teroids/", (sizeof(path)/sizeof(*path))-1);
-      }
-   }
-   else
-      strcpy(path, "save/");
-
-   return path;
-}
-#endif
-
-
 
 const char* getUserResource(const char* fmt, ...) throw (Error)
 {
    va_list ap;
+   static char res[512];
    static char name[MAX_PATH];
-
-   // Create the user resource directory
-   char userDir[991];
-   sprintf(userDir, "%s", userResourcePath());
-#ifndef __linux__
-   userDir[strlen(userDir)-1] = 0;
-#endif
-   if (!file_exists(userDir, FA_DIREC, 0)) {
-      char command[1000];
-      sprintf(command, "mkdir \"%s\"", userDir);
-      system(command);
-      if (!file_exists(userDir, FA_DIREC, 0)) {
-         throw Error("The user resource directory could not be created.\n");
-      }
-   }
-
-   strcpy(name, userResourcePath());
-
+   
    va_start(ap, fmt);
-   vsnprintf(name+strlen(name), (sizeof(name)/sizeof(*name))-1, fmt, ap);
+   memset(res, 0, 512);
+   uvszprintf(res, 511, fmt, ap);
+
+   al_find_resource("a5teroids", res, AL_FM_WRITE, name, MAX_PATH);
+   
+   //printf("getUserResource: '%s'\n", name);
+
    return name;
 }
-
-
-
-/*
-* Get the path to the game resources. First checks for a
-* MONSTER_DATA environment variable that points to the resources,
-* then a system-wide resource directory then the directory
-* "data" from the current directory.
-*/
-#ifdef __linux__
-static char* resourcePath()
-{
-   static char path[MAX_PATH];
-
-   char* env = getenv("A5TEROIDS_DATA");
-
-   if (env) {
-      strcpy(path, env);
-      if (path[strlen(path)-1] != '/') {
-         strncat(path, "/", (sizeof(path)/sizeof(*path))-1);
-      }
-   }
-   else {
-     strcpy(path, "data/");
-   }
-
-   return path;
-}
-#else
-static char* resourcePath()
-{
-   static char path[MAX_PATH];
-
-   char* env = getenv("A5TEROIDS_DATA");
-
-   if (env) {
-      strcpy(path, env);
-      if (path[strlen(path)-1] != '\\' && path[strlen(path)-1] != '/') {
-         strncat(path, "/", (sizeof(path)/sizeof(*path))-1);
-      }
-   }
-   else {
-      strcpy(path, "data/");
-   }
-
-   return path;
-}
-#endif
-
-
 
 const char* getResource(const char* fmt, ...)
 {
    va_list ap;
+   static char res[512];
    static char name[MAX_PATH];
-
-   strcpy(name, resourcePath());
-
+   
    va_start(ap, fmt);
-   vsnprintf(name+strlen(name), (sizeof(name)/sizeof(*name))-1, fmt, ap);
+   memset(res, 0, 512);
+   uvszprintf(res, 511, fmt, ap);
+
+   al_find_resource("a5teroids", res, 0, name, MAX_PATH);
+   //printf("getResource: '%s'\n", name);
+   
    return name;
 }
 
