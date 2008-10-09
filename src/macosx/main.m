@@ -264,6 +264,7 @@ int main(int argc, char *argv[])
 	[NSApp setDelegate: app_delegate];
 	[NSApp run];
 	/* Can never get here */
+	[app_delegate release];
 	[pool release];
 	return 0;
 }
