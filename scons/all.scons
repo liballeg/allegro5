@@ -40,6 +40,7 @@ def demo(env):
     demoEnv.Append(LIBS = [context.libraryName('a5_iio')])
     demoEnv.Append(LIBS = [context.libraryName('a5_kcm_audio')])
     demoEnv.Append(LIBS = [context.libraryName('a5_acodec')])
+    demoEnv.Append(LIBS = ["GLU"])
     demoEnv.Append(LIBS = [getLibraryName()])
     demoEnv.Append(LIBPATH = ['addons/font/lib'])
     demoEnv.Append(LIBPATH = ['addons/acodec/lib'])
