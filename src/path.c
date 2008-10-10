@@ -30,7 +30,6 @@ static char *_ustrduprange(const char *start, const char *end)
 static void _ustrcpyrange(char *dest, const char *start, const char *end)
 {
    const char *ptr = start;
-   char *dup = NULL;
    int32_t blen = 0, eslen = ustrsizez(empty_string);
 
    while (ptr < end) {
@@ -383,8 +382,6 @@ void al_path_replace(AL_PATH *path, int i, const char *s)
 
 void al_path_remove(AL_PATH *path, int i)
 {
-   char **tmp = NULL;
-
    ASSERT(path);
    ASSERT(i < path->segment_count);
 
@@ -451,7 +448,7 @@ void al_path_append(AL_PATH *path, const char *s)
 void al_path_concat(AL_PATH *path, const AL_PATH *tail)
 {
    char **tmp = NULL, *new_filename = NULL;
-   int32_t i = 0, full_count = 0;
+   int32_t i = 0;
 
    ASSERT(path);
    ASSERT(tail);
@@ -501,8 +498,6 @@ void al_path_concat(AL_PATH *path, const AL_PATH *tail)
 /* FIXME: this is a rather dumb implementation, not using ustr*cat should speed it up */
 char *al_path_to_string(AL_PATH *path, char *buffer, size_t len, char delim)
 {
-   size_t cur_len = 0;
-   char *ptr = buffer;
    int32_t i = 0;
    char d[2] = { delim, '\0' };
 

@@ -204,7 +204,7 @@ int32_t al_fs_getcwd(char *buf, size_t len);
 int32_t al_fs_chdir(const char *path);
 
 int32_t al_fs_add_search_path(const char *path);
-int32_t al_fs_search_path_count();
+int32_t al_fs_search_path_count(void);
 int32_t al_fs_get_search_path(uint32_t idx, char *dest, size_t len);
 
 int32_t al_fs_drive_sep(size_t len, char *sep);
@@ -237,7 +237,7 @@ char ** al_fs_find_ex(char *path, AL_FILTER_PROC filter, void *, AL_SORT_PROC so
 char ** al_fs_find(char *path, AL_FS_FILTER filter, AL_FS_SORT sort);
 void al_fs_free_list(char **);
 
-char *al_find_resource(char *base, char *resource, uint32_t fm, char *buffer, size_t len);
+char *al_find_resource(const char *base, const char *resource, uint32_t fm, char *buffer, size_t len);
 
 #ifdef __cplusplus
    }

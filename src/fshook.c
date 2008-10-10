@@ -156,7 +156,6 @@ AL_FS_ENTRY *al_fs_opendir(const char *path)
 
 int32_t al_fs_closedir(AL_FS_ENTRY *dir)
 {
-   struct _al_entry_fshooks *vtable = NULL;
    int32_t ret = 0;
 
    ASSERT(dir != NULL);
@@ -614,7 +613,8 @@ int32_t al_fs_entry_ungetc(int32_t c, AL_FS_ENTRY *fp)
 }
 
 /* maybe find a better place for this later */
-int32_t _al_find_resource_exists(char *path, char *base, char *resource, uint32_t fm, char *buffer, size_t len)
+static int32_t _al_find_resource_exists(const char *path, const char *base,
+   const char *resource, uint32_t fm, char *buffer, size_t len)
 {
    AL_PATH fp, resp;
    int32_t ret = 0;
@@ -654,7 +654,8 @@ int32_t _al_find_resource_exists(char *path, char *base, char *resource, uint32_
    return ret;
 }
 
-char *al_find_resource(char *base, char *resource, uint32_t fm, char *buffer, size_t len)
+char *al_find_resource(const char *base, const char *resource, uint32_t fm,
+   char *buffer, size_t len)
 {
    AL_PATH path, resp;
    char tmp[PATH_MAX];

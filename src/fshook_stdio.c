@@ -514,7 +514,7 @@ void _al_fs_mktemp_replace_XX(const char *template, char *dst)
 
 AL_FS_ENTRY *al_fs_stdio_mktemp(const char *template, uint32_t ulink)
 {
-   int32_t fd = -1, tries = 0, i = 0;
+   int32_t fd = -1, i = 0;
    int32_t template_len = 0, tmpdir_len = 0;
    AL_FS_ENTRY *fh = NULL;
    char *dest = NULL;
