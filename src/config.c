@@ -351,10 +351,15 @@ Error:
 }
 
 
-static void add_config(ALLEGRO_CONFIG *master, ALLEGRO_CONFIG *add)
+void al_config_merge_into(ALLEGRO_CONFIG *master, ALLEGRO_CONFIG *add)
 {
    ALLEGRO_CONFIG_SECTION *s = add->head;
    ALLEGRO_CONFIG_ENTRY *e;
+   ASSERT(master);
+
+   if(!add) {
+      return;
+   }
 
    /* Save globals */
    e = add->globals;
@@ -380,8 +385,8 @@ ALLEGRO_CONFIG *al_config_merge(ALLEGRO_CONFIG *cfg1, ALLEGRO_CONFIG *cfg2)
 {
    ALLEGRO_CONFIG *config = local_calloc1(sizeof(ALLEGRO_CONFIG));
 
-   add_config(config, cfg1);
-   add_config(config, cfg2);
+   al_config_merge_into(config, cfg1);
+   al_config_merge_into(config, cfg2);
 
    return config;
 }

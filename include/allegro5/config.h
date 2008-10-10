@@ -15,6 +15,7 @@ AL_FUNC(void, al_config_set_value, (ALLEGRO_CONFIG *config, AL_CONST char *secti
 AL_FUNC(AL_CONST char*, al_config_get_value, (ALLEGRO_CONFIG *config, AL_CONST char *section, AL_CONST char *key));
 AL_FUNC(ALLEGRO_CONFIG*, al_config_read, (AL_CONST char *filename));
 AL_FUNC(int, al_config_write, (ALLEGRO_CONFIG *config, AL_CONST char *filename));
+AL_FUNC(void, al_config_merge_into, (ALLEGRO_CONFIG *master, ALLEGRO_CONFIG *add));
 AL_FUNC(ALLEGRO_CONFIG *, al_config_merge, (ALLEGRO_CONFIG *cfg1, ALLEGRO_CONFIG *cfg2));
 AL_FUNC(void, al_config_destroy, (ALLEGRO_CONFIG *config));
 
