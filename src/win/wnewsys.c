@@ -353,11 +353,11 @@ static AL_CONST char *win_get_path(uint32_t id, char *dir, size_t size)
 
    memset(dir, 0, size);
 
-   switch(id) {
+   switch (id) {
       case AL_TEMP_PATH: {
          /* Check: TMP, TMPDIR, TEMP or TEMPDIR */
          DWORD ret = GetTempPath(MAX_PATH, path);
-         if(ret > MAX_PATH) {
+         if (ret > MAX_PATH) {
             /* should this ever happen, windows is more broken than I ever thought */
             return dir;
          }
@@ -371,7 +371,7 @@ static AL_CONST char *win_get_path(uint32_t id, char *dir, size_t size)
          HMODULE module = GetModuleHandle(NULL); /* Get handle for this process */
          DWORD mret = GetModuleFileNameEx(process, NULL, path, MAX_PATH);
          char *ptr = strrchr(path, '\\');
-         if(!ptr) { /* shouldn't happen */
+         if (!ptr) { /* shouldn't happen */
             return dir;
          }
 
@@ -401,7 +401,7 @@ static AL_CONST char *win_get_path(uint32_t id, char *dir, size_t size)
    }
 
    ret = SHGetFolderPath(NULL, csidl, NULL, SHGFP_TYPE_CURRENT, path);
-   if(ret != S_OK) {
+   if (ret != S_OK) {
       return dir;
    }
 

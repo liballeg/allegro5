@@ -65,7 +65,7 @@ int _unix_find_resource(char *dest, AL_CONST char *resource, int size)
 
    if (ustrlen(home)) {
       AL_PATH local_path;
-      if(!al_path_init(&local_path, home))
+      if (!al_path_init(&local_path, home))
          return -1;
 
       al_path_append(&local_path, resource);
@@ -445,7 +445,7 @@ static int32_t _unix_find_home(char *dir, uint32_t len)
 {
    char *home_env = getenv("HOME");
 
-   if(!home_env || home_env[0] == '\0') {
+   if (!home_env || home_env[0] == '\0') {
       /* since HOME isn't set, we have to ask libc for the info */
 
       /* get user id */
@@ -453,12 +453,12 @@ static int32_t _unix_find_home(char *dir, uint32_t len)
 
       /* grab user information */
       struct passwd *pass = getpwuid(uid);
-      if(!pass) {
+      if (!pass) {
          al_set_errno(errno);
          return -1;
       }
 
-      if(pass->pw_dir) {
+      if (pass->pw_dir) {
          /* hey, we got our home directory */
          do_uconvert (pass->pw_dir, U_ASCII, dir, U_CURRENT, strlen(pass->pw_dir)+1);
          return 0;
@@ -467,9 +467,9 @@ static int32_t _unix_find_home(char *dir, uint32_t len)
          char tmp[PATH_MAX];
          char *name = getenv("USER");
 
-         if(!name) {
+         if (!name) {
             name = pass->pw_name;
-            if(!name) {
+            if (!name) {
                return -1;
             }
          }
@@ -496,14 +496,14 @@ static int32_t _unix_find_home(char *dir, uint32_t len)
 
 AL_CONST char *_unix_get_path(uint32_t id, char *dir, size_t size)
 {
-   switch(id) {
+   switch (id) {
       case AL_TEMP_PATH: {
          /* Check: TMP, TMPDIR, TEMP or TEMPDIR */
          char *envs[] = { "TMP", "TMPDIR", "TEMP", "TEMPDIR", NULL};
          uint32_t i = 0;
-         for(; envs[i] != NULL; ++i) {
+         for (; envs[i] != NULL; ++i) {
             char *tmp = getenv(envs[i]);
-            if(tmp) {
+            if (tmp) {
                /* this may truncate paths, not likely in unix */
                do_uconvert (tmp, U_ASCII, dir, U_CURRENT, strlen(tmp)+1);
                return dir;
@@ -512,8 +512,8 @@ AL_CONST char *_unix_get_path(uint32_t id, char *dir, size_t size)
 
          /* next try: /tmp /var/tmp /usr/tmp */
          char *paths[] = { "/tmp/", "/var/tmp/", "/usr/tmp/", NULL };
-         for(i=0; paths[i] != NULL; ++i) {
-            if(al_fs_stat_mode(paths[i]) & AL_FM_ISDIR) {
+         for (i=0; paths[i] != NULL; ++i) {
+            if (al_fs_stat_mode(paths[i]) & AL_FM_ISDIR) {
                do_uconvert (paths[i], U_ASCII, dir, U_CURRENT, strlen(paths[i])+1);
                return dir;
             }
@@ -529,7 +529,7 @@ AL_CONST char *_unix_get_path(uint32_t id, char *dir, size_t size)
          _unix_get_executable_name(dir, size);
 
          ptr = ustrrchr(dir, '/');
-         if(!ptr) {
+         if (!ptr) {
             al_set_errno(EINVAL);
             return NULL;
          }
@@ -552,7 +552,7 @@ AL_CONST char *_unix_get_path(uint32_t id, char *dir, size_t size)
          char path[PATH_MAX] = "", *ptr = NULL;
          char prog[PATH_MAX] = "";
 
-         if(_unix_find_home(path, PATH_MAX) != 0) {
+         if (_unix_find_home(path, PATH_MAX) != 0) {
             return NULL;
          }
 
@@ -569,7 +569,7 @@ AL_CONST char *_unix_get_path(uint32_t id, char *dir, size_t size)
          _unix_get_executable_name(prog, PATH_MAX);
 
          ptr = strrchr(prog, '/');
-         if(!ptr) {
+         if (!ptr) {
             al_set_errno(EINVAL);
             return NULL;
          }
@@ -588,11 +588,11 @@ AL_CONST char *_unix_get_path(uint32_t id, char *dir, size_t size)
       case AL_USER_DATA_PATH:
       case AL_USER_HOME_PATH: {
          char tmp[PATH_MAX] = "";
-         if(_unix_find_home(tmp, PATH_MAX) != 0) {
+         if (_unix_find_home(tmp, PATH_MAX) != 0) {
             return NULL;
          }
 
-         if(tmp[strlen(tmp)-1] != '/')
+         if (tmp[strlen(tmp)-1] != '/')
             ustrcat(tmp, "/");
 
          ustrcpy(dir, tmp);

@@ -196,7 +196,7 @@ static bool osx_init_mouse(void)
             axes = 0;
             for (j = 0; j < device->num_elements; j++) 
 			{
-				switch(device->element[j].type)
+				switch (device->element[j].type)
 				{
 					case HID_ELEMENT_BUTTON:
                         buttons ++;
@@ -262,7 +262,7 @@ static void osx_get_mouse_state(ALLEGRO_MOUSE_STATE *ret_state)
 static bool osx_set_mouse_axis(int axis, int value) 
 {
 	_al_event_source_lock(&osx_mouse.parent.es);	
-	switch(axis)
+	switch (axis)
 	{
 		case 0:
 		case 1:

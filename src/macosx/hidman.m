@@ -127,7 +127,7 @@ static void hid_scan_application(CFTypeRef properties, HID_DEVICE *device, int a
 				{ 
 					switch (usage_page) {
 						case kHIDPage_GenericDesktop:
-							switch(usage) {
+							switch (usage) {
 								case kHIDUsage_GD_Pointer:
 									if (axis!=0) {
 										/* already have some elements in this stick */
@@ -208,7 +208,7 @@ static void hid_scan_physical_collection(CFTypeRef properties, HID_DEVICE *devic
 				usage_page = i_val(element, CFSTR(kIOHIDElementUsagePageKey));
 				switch (usage_page) {
 					case kHIDPage_GenericDesktop:
-						switch(usage) {
+						switch (usage) {
 							case kHIDUsage_GD_X:
 								hid_store_element_data(element, HID_ELEMENT_AXIS_PRIMARY_X, device, app, stick, axis++);
 								break;
@@ -253,7 +253,7 @@ static void hid_scan_application_collection(CFMutableDictionaryRef properties, H
 			if (CFGetTypeID(element) == CFDictionaryGetTypeID()) {
 				usage=i_val(element, CFSTR(kIOHIDElementUsageKey));
 				usage_page=i_val(element, CFSTR(kIOHIDElementUsagePageKey));
-				switch(USAGE(usage_page,  usage)) {
+				switch (USAGE(usage_page,  usage)) {
 					case USAGE(kHIDPage_GenericDesktop, kHIDUsage_GD_Joystick):
 						device->type=HID_JOYSTICK;
 						hid_scan_application(element, device, device->cur_app);

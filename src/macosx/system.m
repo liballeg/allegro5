@@ -310,7 +310,7 @@ static AL_CONST char *osx_get_path(int32_t id, char* path, size_t length)
    NSString* ans = nil;
    NSArray* paths = nil;
    BOOL ok = NO;
-   switch(id) {
+   switch (id) {
       case AL_PROGRAM_PATH:
          ans = [[NSBundle mainBundle] bundlePath];
          break;

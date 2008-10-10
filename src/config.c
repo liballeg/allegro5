@@ -357,7 +357,7 @@ void al_config_merge_into(ALLEGRO_CONFIG *master, ALLEGRO_CONFIG *add)
    ALLEGRO_CONFIG_ENTRY *e;
    ASSERT(master);
 
-   if(!add) {
+   if (!add) {
       return;
    }
 

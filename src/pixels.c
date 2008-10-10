@@ -851,7 +851,7 @@ void al_put_pixel(int x, int y, ALLEGRO_COLOR color)
  * See also: <al_unmap_rgb>, <al_unmap_rgba_f>, <al_unmap_rgb_f>
  */
 void al_unmap_rgba(ALLEGRO_COLOR color,
-   unsigned char *r,  unsigned char *g, unsigned char *b, unsigned char *a)
+   unsigned char *r, unsigned char *g, unsigned char *b, unsigned char *a)
 {
    *r = color.r * 255.0f;
    *g = color.g * 255.0f;
@@ -868,7 +868,7 @@ void al_unmap_rgba(ALLEGRO_COLOR color,
  * See also: <al_unmap_rgba>, <al_unmap_rgba_f>, <al_unmap_rgb_f>
  */
 void al_unmap_rgb(ALLEGRO_COLOR color,
-   unsigned char *r,  unsigned char *g, unsigned char *b)
+   unsigned char *r, unsigned char *g, unsigned char *b)
 {
    unsigned char tmp;
 

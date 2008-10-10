@@ -120,16 +120,16 @@ bool al_install_system(int (*atexit_ptr)(void (*)(void)))
 
 #ifdef ALLEGRO_UNIX
    active_sysdrv->config = al_config_read("/etc/allegrorc");
-   if(active_sysdrv->config) {
+   if (active_sysdrv->config) {
       TRACE("Applying system settings from /etc/allegrorc\n");
    }
 
    ustrzcpy(buf, sizeof(buf) - ucwidth(OTHER_PATH_SEPARATOR), uconvert_ascii(getenv("HOME"), tmp));
    ustrzcat(buf, sizeof(buf), uconvert_ascii("/.allegrorc", tmp));
    temp = al_config_read(buf);
-   if(temp) {
+   if (temp) {
       TRACE("Applying system settings from %s\n", buf);
-      if(active_sysdrv->config) {
+      if (active_sysdrv->config) {
          al_config_merge_into(active_sysdrv->config, temp);
          al_config_destroy(temp);
       }
@@ -139,9 +139,9 @@ bool al_install_system(int (*atexit_ptr)(void (*)(void)))
    }
    
    temp = al_config_read("allegro.cfg");
-   if(temp) {
+   if (temp) {
       TRACE("Applying system settings from allegro.cfg\n");
-      if(active_sysdrv->config) {
+      if (active_sysdrv->config) {
          al_config_merge_into(active_sysdrv->config, temp);
          al_config_destroy(temp);
       }

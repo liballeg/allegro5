@@ -113,12 +113,12 @@ static int osx_midi_init(int input, int voices)
       return -1;
    }
    note_allocator = OpenDefaultComponent(kNoteAllocatorComponentType, 0);
-   if(!note_allocator) {
+   if (!note_allocator) {
       ustrzcpy(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("Cannot open the NoteAllocator QuickTime component"));
       return -1; 
    }
    memset(voice, 0, 17 * sizeof(MIDI_VOICE));
-   for(i = 1; i <= 16; i++) {
+   for (i = 1; i <= 16; i++) {
       voice[i].note = -1;
       voice[i].bend = -1;
       voice[i].inst = -1;
@@ -161,7 +161,7 @@ static void osx_midi_exit(int input)
       return;
    
    if (note_allocator) {
-      for(i = 1; i <= 16; i++) {
+      for (i = 1; i <= 16; i++) {
          if (voice[i].channel) {
             NAPlayNote(note_allocator, voice[i].channel, voice[i].note, 0);
             NADisposeNoteChannel(note_allocator, voice[i].channel);
