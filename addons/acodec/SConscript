@@ -31,7 +31,7 @@ def setupPlatform(settings, config):
 
 source = ['acodec.c']
 configs = []
-settings, configure_env = helpers.do_configure('acodec', myEnv, context,
+settings, configure_env = helpers.do_configure('acodec', context.defaultEnvironment(), context,
                             context.getTests(), setupPlatform,
                             'allegro5/internal/aintern_acodec_cfg.h.cmake',
                             'allegro5/internal/aintern_acodec_cfg.h',
