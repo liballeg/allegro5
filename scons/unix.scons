@@ -121,7 +121,7 @@ def setupPlatform(platform, config):
     ## Not checked yet
     platform["ALLEGRO_MODULES_PATH"] = '"/usr/local/lib/allegro"'
     platform["PACKAGE_BUGREPORT"] = ""
-    platform["ALLEGRO_WITH_MODULES"] = "1"
+    # platform["ALLEGRO_WITH_MODULES"] = "0"
     platform["PACKAGE_NAME"] = ""
     platform["PACKAGE_STRING"] = ""
     platform["PACKAGE_TARNAME"] = ""
