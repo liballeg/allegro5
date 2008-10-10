@@ -147,8 +147,8 @@ def setupPlatform(platform, config):
 
 platform, configure_env = helpers.do_configure('unix', context,
                             context.getTests(), setupPlatform,
-                            'include/allegro5/platform/alunixac.h.cmake',
-                            'include/allegro5/platform/alunixac.h',
+                            'include/allegro5/platform/al_cfg.h.cmake',
+                            'include/allegro5/platform/al_cfg.h',
                             getArgumentOption('config', 0))
 
 env = helpers.mergeEnv(env, configure_env)
