@@ -20,7 +20,7 @@ def setupPlatform(settings, config):
         "stdlib.h", "jpeglib.h"]) and config.CheckLib("jpeg")
     return config.Finish()
 
-settings, configure_env = helpers.do_configure('iio', context,
+settings, configure_env = helpers.do_configure('iio', myEnv, context,
     tests, setupPlatform,
     'allegro5/internal/aintern_iio_cfg.h.cmake',
     'allegro5/internal/aintern_iio_cfg.h',

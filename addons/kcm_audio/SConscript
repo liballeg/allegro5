@@ -21,7 +21,7 @@ def setupPlatform(settings, config):
 source = ["audio.c", "kcm_mixer.c", "kcm_sample.c", "kcm_stream.c",
     "kcm_voice.c"]
 
-settings, configure_env = helpers.do_configure('kcm_audio', context,
+settings, configure_env = helpers.do_configure('kcm_audio', env, context,
                             context.getTests(), setupPlatform,
                             'allegro5/internal/aintern_kcm_cfg.h.cmake',
                             'allegro5/internal/aintern_kcm_cfg.h',

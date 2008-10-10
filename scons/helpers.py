@@ -156,8 +156,70 @@ def mergeEnv(env1, env2):
 
     return env
 
+def do_configure(name, envX, context, tests, setup_platform, cmake_file, h_file, reconfigure):
+    import os, ConfigParser
+    noconfig = False
+    config_settings = ["CCFLAGS", "CPPPATH", "CPPFLAGS", "LIBS", "LIBPATH", "LINKFLAGS"]
 
-def do_configure(name, context, tests, setup_platform, cmake_file, h_file, reconfigure):
+    platform = SimpleHash()
+    env = envX.Clone()
+    # env = context.defaultEnvironment()
+
+    configured = configure_state[name]
+    config_file = None
+
+    main_dir = context.getGlobalDir() + '/configure/'
+
+    try: os.mkdir(main_dir)
+    except OSError: pass
+
+    noconfig = configure_state[name]
+    
+    if noconfig:
+        settings = ConfigParser.ConfigParser()
+        if configured:
+            platform, settings = configure_state[name]
+        else:
+            platform = readAutoHeader(main_dir + h_file)
+            settings.read(main_dir + name + ".cfg")
+
+        env = context.defaultEnvironment()
+        for setting in config_settings:
+            try:
+                eval("env.Append(%s = %s)" % (
+                    setting, settings.get(name, setting)))
+            except ConfigParser.NoOptionError:
+                pass
+    else:
+        config = env.Configure(custom_tests = tests,
+            conf_dir = "#/" + main_dir,
+            log_file = "#/" + main_dir + "/config.log")
+        env = setup_platform(platform, config)
+
+        settings = ConfigParser.ConfigParser()
+        settings.add_section(name)
+        for setting in config_settings:
+            val = env.get(setting, None)
+            if not val: continue
+            if hasattr(val, "data"): val = val.data # for CCFLAGS
+            if not type(val) == list: val = [val]
+            settings.set(name, setting, str(val))
+        settings.write(file(main_dir + name + ".cfg", "w"))
+        
+        # configure_state[name + "_h"] = config_file
+
+    #if cmake_file:
+        # header = parse_cmake_h(env, platform, cmake_file, h_file)
+        #if configure_state[name + "_h"] != False:
+        #    env.Depends(header, configure_state[name + "_h"])
+    if cmake_file:
+        config_file = parse_cmake_h(env, platform, cmake_file, h_file)
+        
+    configure_state[name] = [platform, settings]
+
+    return [platform, env]
+
+def do_configure2(name, envX, context, tests, setup_platform, cmake_file, h_file, reconfigure):
     """
     Run a set of configure tests (which should be invoked by setup_platform())
     and save the result in a global variable, configure_state, for other variants
@@ -170,7 +232,8 @@ def do_configure(name, context, tests, setup_platform, cmake_file, h_file, recon
     config_settings = ["CCFLAGS", "CPPPATH", "CPPFLAGS", "LIBS", "LIBPATH", "LINKFLAGS"]
 
     platform = SimpleHash()
-    env = context.defaultEnvironment()
+    env = envX.Clone()
+    # env = context.defaultEnvironment()
 
     configured = configure_state[name]
     config_file = None
@@ -219,15 +282,15 @@ def do_configure(name, context, tests, setup_platform, cmake_file, h_file, recon
             settings.set(name, setting, str(val))
         settings.write(file(main_dir + name + ".cfg", "w"))
         if cmake_file:
-            config_file = parse_cmake_h(env, platform, cmake_file,
-                '#' + main_dir + h_file)
+            # config_file = parse_cmake_h(env, platform, cmake_file, '#' + main_dir + h_file)
+            config_file = parse_cmake_h(env, platform, cmake_file, h_file)
 
         configure_state[name + "_h"] = config_file
 
-    if cmake_file:
-        header = parse_cmake_h(env, platform, cmake_file, h_file)
-        if configure_state[name + "_h"] != False:
-            env.Depends(header, configure_state[name + "_h"])
+    #if cmake_file:
+        # header = parse_cmake_h(env, platform, cmake_file, h_file)
+        #if configure_state[name + "_h"] != False:
+        #    env.Depends(header, configure_state[name + "_h"])
         
     configure_state[name] = [platform, settings]
 

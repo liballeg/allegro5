@@ -145,7 +145,9 @@ def setupPlatform(platform, config):
 #for check in [x for x in dir(checks) if callable(getattr(checks, x))]:
 #    tests[check] = getattr(checks, check)
 
-platform, configure_env = helpers.do_configure('unix', context,
+env.BuildDir('include', '#include', duplicate = 0)
+
+platform, configure_env = helpers.do_configure('unix', env, context,
                             context.getTests(), setupPlatform,
                             'include/allegro5/platform/al_cfg.h.cmake',
                             'include/allegro5/platform/al_cfg.h',
@@ -172,7 +174,6 @@ static_obj.add_action( '.s', AssemblerAction )
 static_obj.add_emitter( '.s', SCons.Defaults.StaticObjectEmitter )
 SourceFileScanner.add_scanner('.s', SCons.Scanner.C.CScanner() )
 
-env.BuildDir('include', '#include', duplicate = 0)
 
 flags = ["-Wall", "-Wno-unused", "-funroll-loops", "-ffast-math", "-W"]
 
