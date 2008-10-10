@@ -323,7 +323,7 @@ def install():
     # add('lib/allegro/%s.%s' % (context.getMajorVersion(),context.getMinorVersion()), '#modules.lst')
     #for i in getModules():
     #    add('lib/allegro/%s.%s' % (context.getMajorVersion(),context.getMinorVersion()),i)
-    # add('include/allegro5/platform', 'include/allegro5/platform/alunixac.h')
+    add('include/allegro5/platform', 'include/allegro5/platform/al_cfg.h')
     add('include/allegro5/platform', 'include/allegro5/platform/alplatf.h')
     add('bin', 'allegro5-config')
     
