@@ -125,8 +125,7 @@ bool al_install_system(int (*atexit_ptr)(void (*)(void)))
    }
 
    ustrzcpy(buf, sizeof(buf) - ucwidth(OTHER_PATH_SEPARATOR), uconvert_ascii(getenv("HOME"), tmp));
-   put_backslash(buf);
-   ustrzcat(buf, sizeof(buf), uconvert_ascii(".allegrorc", tmp));
+   ustrzcat(buf, sizeof(buf), uconvert_ascii("/.allegrorc", tmp));
    temp = al_config_read(buf);
    if(temp) {
       TRACE("Applying system settings from %s\n", buf);
