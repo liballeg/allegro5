@@ -82,6 +82,22 @@ dd p {
     margin-top: 0;
 }
 
+table {
+    background-color: #f8f8fa;
+    border-top: 1px solid #e0e0e0;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+table th {
+    font-weight: bold;
+    border-bottom: 1px solid #e0e0e0;
+    padding: 0.5em;
+}
+
+table td {
+    padding: 0.4em;
+}
+
 #footer {
     padding-top: 1em;
     font-size: 70%;
