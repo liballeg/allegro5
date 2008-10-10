@@ -18,6 +18,10 @@
 #define ALLEGRO_FS_ENTRY_DEFINED
 
 #include <stdio.h>
+#ifdef _MSC_VER
+   #define _POSIX_
+#endif
+#include <limits.h>
 #include "allegro5/allegro5.h"
 #include "allegro5/debug.h"
 #include "allegro5/internal/aintern.h"

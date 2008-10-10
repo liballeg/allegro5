@@ -144,100 +144,100 @@ enum {
 /*
 set the given <phid> hook to <fshook>
 */
-int al_fs_set_hook(uint32_t phid, void *fshook);
-void *al_fs_get_hook(uint32_t phid);
+AL_FUNC(int, al_fs_set_hook, (uint32_t phid, void *fshook));
+AL_FUNC(void*, al_fs_get_hook, (uint32_t phid));
 
-AL_FS_ENTRY *al_fs_create_handle(AL_CONST char *path);
-void     al_fs_destroy_handle(AL_FS_ENTRY *handle);
-int32_t  al_fs_open_handle(AL_FS_ENTRY *handle, AL_CONST char *mode);
-void  al_fs_close_handle(AL_FS_ENTRY *handle);
+AL_FUNC(AL_FS_ENTRY*, al_fs_create_handle, (AL_CONST char *path));
+AL_FUNC(void, al_fs_destroy_handle, (AL_FS_ENTRY *handle));
+AL_FUNC(int32_t, al_fs_open_handle, (AL_FS_ENTRY *handle, AL_CONST char *mode));
+AL_FUNC(void, al_fs_close_handle, (AL_FS_ENTRY *handle));
 
-AL_FS_ENTRY *al_fs_mktemp(const char *tmpl, uint32_t ulink);
+AL_FUNC(AL_FS_ENTRY*, al_fs_mktemp, (const char *tmpl, uint32_t ulink));
 
-AL_FS_ENTRY *al_fs_entry_open(const char *path, const char *mode);
-void    al_fs_entry_name(AL_FS_ENTRY *fp, size_t, char *fn);
-void    al_fs_entry_close(AL_FS_ENTRY *fp);
-ssize_t al_fs_entry_read(void *ptr, size_t size, AL_FS_ENTRY *fp);
-ssize_t al_fs_entry_write(const void *ptr, size_t size, AL_FS_ENTRY *fp);
-int32_t al_fs_entry_flush(AL_FS_ENTRY *fp);
-int32_t al_fs_entry_seek(AL_FS_ENTRY *fp, uint32_t offset, uint32_t whence);
-int32_t al_fs_entry_tell(AL_FS_ENTRY *fp);
-int32_t al_fs_entry_error(AL_FS_ENTRY *fp);
-int32_t al_fs_entry_eof(AL_FS_ENTRY *fp);
+AL_FUNC(AL_FS_ENTRY*, al_fs_entry_open, (const char *path, const char *mode));
+AL_FUNC(void, al_fs_entry_name, (AL_FS_ENTRY *fp, size_t, char *fn));
+AL_FUNC(void, al_fs_entry_close, (AL_FS_ENTRY *fp));
+AL_FUNC(ssize_t, al_fs_entry_read, (void *ptr, size_t size, AL_FS_ENTRY *fp));
+AL_FUNC(ssize_t, al_fs_entry_write, (const void *ptr, size_t size, AL_FS_ENTRY *fp));
+AL_FUNC(int32_t, al_fs_entry_flush, (AL_FS_ENTRY *fp));
+AL_FUNC(int32_t, al_fs_entry_seek, (AL_FS_ENTRY *fp, uint32_t offset, uint32_t whence));
+AL_FUNC(int32_t, al_fs_entry_tell, (AL_FS_ENTRY *fp));
+AL_FUNC(int32_t, al_fs_entry_error, (AL_FS_ENTRY *fp));
+AL_FUNC(int32_t, al_fs_entry_eof, (AL_FS_ENTRY *fp));
 
-int32_t al_fs_entry_ungetc(int32_t c, AL_FS_ENTRY *fp);
+AL_FUNC(int32_t, al_fs_entry_ungetc, (int32_t c, AL_FS_ENTRY *fp));
 
-int32_t al_fs_entry_stat(AL_FS_ENTRY *fp);
+AL_FUNC(int32_t, al_fs_entry_stat, (AL_FS_ENTRY *fp));
 
-uint32_t al_fs_entry_mode(AL_FS_ENTRY *st);
-time_t   al_fs_entry_atime(AL_FS_ENTRY *st);
-time_t   al_fs_entry_mtime(AL_FS_ENTRY *st);
-time_t   al_fs_entry_ctime(AL_FS_ENTRY *st);
-off_t    al_fs_entry_size(AL_FS_ENTRY *st);
+AL_FUNC(uint32_t, al_fs_entry_mode, (AL_FS_ENTRY *st));
+AL_FUNC(time_t , al_fs_entry_atime, (AL_FS_ENTRY *st));
+AL_FUNC(time_t , al_fs_entry_mtime, (AL_FS_ENTRY *st));
+AL_FUNC(time_t , al_fs_entry_ctime, (AL_FS_ENTRY *st));
+AL_FUNC(off_t  , al_fs_entry_size, (AL_FS_ENTRY *st));
 
-int32_t al_fs_entry_unlink(AL_FS_ENTRY *fp);
-int32_t al_fs_entry_exists(AL_FS_ENTRY *);
+AL_FUNC(int32_t, al_fs_entry_unlink, (AL_FS_ENTRY *fp));
+AL_FUNC(int32_t, al_fs_entry_exists, (AL_FS_ENTRY *));
 
-int32_t al_fs_entry_isdir(AL_FS_ENTRY *);
-int32_t al_fs_entry_isfile(AL_FS_ENTRY *);
+AL_FUNC(int32_t, al_fs_entry_isdir, (AL_FS_ENTRY *));
+AL_FUNC(int32_t, al_fs_entry_isfile, (AL_FS_ENTRY *));
 
-AL_FS_ENTRY  *al_fs_opendir(const char *path);
-int32_t al_fs_closedir(AL_FS_ENTRY *dir);
-int32_t al_fs_readdir(AL_FS_ENTRY *dir, size_t size, char *name);
+AL_FUNC(AL_FS_ENTRY *, al_fs_opendir, (const char *path));
+AL_FUNC(int32_t, al_fs_closedir, (AL_FS_ENTRY *dir));
+AL_FUNC(int32_t, al_fs_readdir, (AL_FS_ENTRY *dir, size_t size, char *name));
 
 
-uint32_t al_fs_stat_mode(AL_CONST char *);
-time_t   al_fs_stat_atime(AL_CONST char *);
-time_t   al_fs_stat_mtime(AL_CONST char *);
-time_t   al_fs_stat_ctime(AL_CONST char *);
-off_t    al_fs_stat_size(AL_CONST char *);
+AL_FUNC(uint32_t, al_fs_stat_mode,  (AL_CONST char *));
+AL_FUNC(time_t,   al_fs_stat_atime, (AL_CONST char *));
+AL_FUNC(time_t,   al_fs_stat_mtime, (AL_CONST char *));
+AL_FUNC(time_t,   al_fs_stat_ctime, (AL_CONST char *));
+AL_FUNC(off_t,    al_fs_stat_size,  (AL_CONST char *));
 
-int32_t al_fs_isdir(AL_CONST char *);
-int32_t al_fs_isfile(AL_CONST char *);
+AL_FUNC(int32_t, al_fs_isdir, (AL_CONST char *));
+AL_FUNC(int32_t, al_fs_isfile, (AL_CONST char *));
 
-int32_t al_fs_unlink(AL_CONST char *path);
-int32_t al_fs_exists(AL_CONST char *);
+AL_FUNC(int32_t, al_fs_unlink, (AL_CONST char *path));
+AL_FUNC(int32_t, al_fs_exists, (AL_CONST char *));
 
-int32_t al_fs_mkdir(AL_CONST char *);
+AL_FUNC(int32_t, al_fs_mkdir, (AL_CONST char *));
 
-int32_t al_fs_getcwd(char *buf, size_t len);
-int32_t al_fs_chdir(const char *path);
+AL_FUNC(int32_t, al_fs_getcwd, (char *buf, size_t len));
+AL_FUNC(int32_t, al_fs_chdir, (const char *path));
 
-int32_t al_fs_add_search_path(const char *path);
-int32_t al_fs_search_path_count(void);
-int32_t al_fs_get_search_path(uint32_t idx, char *dest, size_t len);
+AL_FUNC(int32_t, al_fs_add_search_path, (const char *path));
+AL_FUNC(int32_t, al_fs_search_path_count, (void));
+AL_FUNC(int32_t, al_fs_get_search_path, (uint32_t idx, char *dest, size_t len));
 
-int32_t al_fs_drive_sep(size_t len, char *sep);
-int32_t al_fs_path_sep(size_t len, char *sep);
+AL_FUNC(int32_t, al_fs_drive_sep, (size_t len, char *sep));
+AL_FUNC(int32_t, al_fs_path_sep, (size_t len, char *sep));
 
-int32_t al_fs_path_to_sys(AL_CONST char *orig, size_t len, char *path);
-int32_t al_fs_path_to_uni(AL_CONST char *orig, size_t len, char *path);
+AL_FUNC(int32_t, al_fs_path_to_sys, (AL_CONST char *orig, size_t len, char *path));
+AL_FUNC(int32_t, al_fs_path_to_uni, (AL_CONST char *orig, size_t len, char *path));
 
-int al_fs_entry_getc (AL_FS_ENTRY *f);
-int al_fs_entry_putc (int c, AL_FS_ENTRY *f);
+AL_FUNC(int, al_fs_entry_getc, (AL_FS_ENTRY *f));
+AL_FUNC(int, al_fs_entry_putc, (int c, AL_FS_ENTRY *f));
 
-int16_t al_fs_entry_igetw (AL_FS_ENTRY *f);
-int32_t al_fs_entry_igetl (AL_FS_ENTRY *f);
-int16_t al_fs_entry_iputw (int16_t w, AL_FS_ENTRY *f);
-int32_t al_fs_entry_iputl (int32_t l, AL_FS_ENTRY *f);
-int16_t al_fs_entry_mgetw (AL_FS_ENTRY *f);
-int32_t al_fs_entry_mgetl (AL_FS_ENTRY *f);
-int16_t al_fs_entry_mputw (int16_t w, AL_FS_ENTRY *f);
-int32_t al_fs_entry_mputl (int32_t l, AL_FS_ENTRY *f);
+AL_FUNC(int16_t, al_fs_entry_igetw, (AL_FS_ENTRY *f));
+AL_FUNC(int32_t, al_fs_entry_igetl, (AL_FS_ENTRY *f));
+AL_FUNC(int16_t, al_fs_entry_iputw, (int16_t w, AL_FS_ENTRY *f));
+AL_FUNC(int32_t, al_fs_entry_iputl, (int32_t l, AL_FS_ENTRY *f));
+AL_FUNC(int16_t, al_fs_entry_mgetw, (AL_FS_ENTRY *f));
+AL_FUNC(int32_t, al_fs_entry_mgetl, (AL_FS_ENTRY *f));
+AL_FUNC(int16_t, al_fs_entry_mputw, (int16_t w, AL_FS_ENTRY *f));
+AL_FUNC(int32_t, al_fs_entry_mputl, (int32_t l, AL_FS_ENTRY *f));
 
-char *al_fs_entry_fgets (char *p, ssize_t max, AL_FS_ENTRY *f);
-int   al_fs_entry_fputs (AL_CONST char *p, AL_FS_ENTRY *f);
+AL_FUNC(char*, al_fs_entry_fgets, (char *p, ssize_t max, AL_FS_ENTRY *f));
+AL_FUNC(int, al_fs_entry_fputs, (AL_CONST char *p, AL_FS_ENTRY *f));
 
 /* Find stuff */
 
 typedef int (*AL_FILTER_PROC)(AL_CONST char *, void *);
 typedef int (*AL_SORT_PROC)(AL_CONST char *, AL_CONST char *, void *);
 
-char ** al_fs_find_ex(char *path, AL_FILTER_PROC filter, void *, AL_SORT_PROC sort, void *);
-char ** al_fs_find(char *path, AL_FS_FILTER filter, AL_FS_SORT sort);
-void al_fs_free_list(char **);
+AL_FUNC(char **, al_fs_find_ex, (char *path, AL_FILTER_PROC filter, void *, AL_SORT_PROC sort, void *));
+AL_FUNC(char **, al_fs_find, (char *path, AL_FS_FILTER filter, AL_FS_SORT sort));
+AL_FUNC(void,  al_fs_free_list, (char **));
 
-char *al_find_resource(const char *base, const char *resource, uint32_t fm, char *buffer, size_t len);
+AL_FUNC(char *, al_find_resource, (const char *base, const char *resource, uint32_t fm, char *buffer, size_t len));
 
 #ifdef __cplusplus
    }

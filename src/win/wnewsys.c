@@ -37,7 +37,9 @@
 { */
    #include <psapi.h>
 
+   #ifndef _WIN32_IE
    #define _WIN32_IE 0x500
+   #endif
    #include <shlobj.h>
 /* } */
 
@@ -346,7 +348,7 @@ static ALLEGRO_MOUSE_DRIVER *win_get_mouse_driver(void)
 
 static AL_CONST char *win_get_path(uint32_t id, char *dir, size_t size)
 {
-   char path[MAX_PATH], tmp[256];
+   char path[MAX_PATH];
    uint32_t csidl = 0, path_len = MIN(size, MAX_PATH);
    HRESULT ret = 0;
    HANDLE process = GetCurrentProcess();
