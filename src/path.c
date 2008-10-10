@@ -72,7 +72,6 @@ static int32_t _parse_path(const char *p, char **drive, char **path, char **file
    // UNC \\server\share name
    if (ugetc(ptr) == dirsep && ugetat(ptr, 1) == dirsep) {
       char *uncdrive = NULL;
-      int32_t udlen = 0;
 
       ptr += uwidth(ptr);
       ptr += uwidth(ptr);

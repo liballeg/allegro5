@@ -349,9 +349,8 @@ static ALLEGRO_MOUSE_DRIVER *win_get_mouse_driver(void)
 static AL_CONST char *win_get_path(uint32_t id, char *dir, size_t size)
 {
    char path[MAX_PATH];
-   uint32_t csidl = 0, path_len = MIN(size, MAX_PATH);
+   uint32_t csidl = 0;
    HRESULT ret = 0;
-   HANDLE process = GetCurrentProcess();
 
    memset(dir, 0, size);
 
@@ -370,8 +369,6 @@ static AL_CONST char *win_get_path(uint32_t id, char *dir, size_t size)
       } break;
 
       case AL_PROGRAM_PATH: { /* where the program is in */
-         HMODULE module = GetModuleHandle(NULL); /* Get handle for this process */
-         DWORD mret = GetModuleFileNameEx(process, NULL, path, MAX_PATH);
          char *ptr = strrchr(path, '\\');
          if (!ptr) { /* shouldn't happen */
             return dir;
