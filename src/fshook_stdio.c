@@ -491,7 +491,7 @@ time_t al_fs_stdio_entry_ctime(AL_FS_ENTRY *ent)
 }
 
 #define MAX_MKTEMP_TRIES 1000
-const char mktemp_ok_chars[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+static const char mktemp_ok_chars[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
 
 void _al_fs_mktemp_replace_XX(const char *template, char *dst)
 {
