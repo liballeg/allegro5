@@ -300,11 +300,13 @@ DECLARE_HANDLE(HPBUFFEREXT);
 
 #ifndef WGL_NV_present_video
 #define WGL_NV_present_video
+DECLARE_HANDLE(HVIDEOOUTPUTDEVICENV);
 #define WGL_NUM_VIDEO_SLOTS_NV         0x20F0
 #endif
 
 #ifndef WGL_NV_video_out
 #define WGL_NV_video_out
+DECLARE_HANDLE(HPVIDEODEV);
 #define WGL_BIND_TO_VIDEO_RGB_NV       0x20C0
 #define WGL_BIND_TO_VIDEO_RGBA_NV      0x20C1
 #define WGL_BIND_TO_VIDEO_RGB_AND_DEPTH_NV 0x20C2
@@ -326,6 +328,16 @@ DECLARE_HANDLE(HPBUFFEREXT);
 
 #ifndef WGL_NV_gpu_affinity
 #define WGL_NV_gpu_affinity
+DECLARE_HANDLE(HPGPUNV);
+DECLARE_HANDLE(HGPUNV);
+
+typedef struct _GPU_DEVICE {
+    DWORD  cb;
+    CHAR   DeviceName[32];
+    CHAR   DeviceString[128];
+    DWORD  Flags;
+    RECT   rcVirtualScreen;
+} GPU_DEVICE, *PGPU_DEVICE;
 #define WGL_ERROR_INCOMPATIBLE_AFFINITY_MASKS_NV 0x20D0
 #define WGL_ERROR_MISSING_AFFINITY_MASK_NV 0x20D1
 #endif
