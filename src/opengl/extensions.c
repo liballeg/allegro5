@@ -121,6 +121,8 @@ static float _al_ogl_version(void)
       return 1.5;
    if ((strncmp(str, "2.0 ", 4) == 0) || (strncmp(str, "2.0.0 ", 6) == 0))
       return 2.0;
+   if ((strncmp(str, "2.1 ", 4) == 0) || (strncmp(str, "2.1.0 ", 6) == 0))
+      return 2.1;
    if ((strncmp(str, "3.0 ", 4) == 0) || (strncmp(str, "3.0.0 ", 6) == 0))
       return 3.0;
 
