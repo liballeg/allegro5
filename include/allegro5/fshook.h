@@ -141,12 +141,6 @@ enum {
  *  alows one to grab a handle to get file info without opening the file
  */
 
-/*
-set the given <phid> hook to <fshook>
-*/
-AL_FUNC(int, al_fs_set_hook, (uint32_t phid, void *fshook));
-AL_FUNC(void*, al_fs_get_hook, (uint32_t phid));
-
 AL_FUNC(AL_FS_ENTRY*, al_fs_create_handle, (AL_CONST char *path));
 AL_FUNC(void, al_fs_destroy_handle, (AL_FS_ENTRY *handle));
 AL_FUNC(int32_t, al_fs_open_handle, (AL_FS_ENTRY *handle, AL_CONST char *mode));
