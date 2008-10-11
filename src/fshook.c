@@ -15,6 +15,11 @@
  *      See readme.txt for copyright information.
  */
 
+#ifdef _MSC_VER
+   #define _POSIX_
+#endif
+#include <limits.h>
+
 #include "allegro5/allegro5.h"
 #include ALLEGRO_INTERNAL_HEADER
 #include "allegro5/debug.h"
@@ -61,7 +66,7 @@ void al_fs_entry_name(AL_FS_ENTRY *fp, size_t size, char *buf)
 {
    ASSERT(fp != NULL);
 
-   return _al_fs_hook_entry_name(fp, size, buf);
+   _al_fs_hook_entry_name(fp, size, buf);
 }
 
 AL_FS_ENTRY *al_fs_entry_open(const char *path, const char *mode)

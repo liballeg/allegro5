@@ -37,7 +37,8 @@
 { */
    #include <psapi.h>
 
-   #ifndef _WIN32_IE
+   #if _WIN32_IE < 0x500
+   #undef _WIN32_IE
    #define _WIN32_IE 0x500
    #endif
    #include <shlobj.h>
@@ -370,8 +371,9 @@ static AL_CONST char *win_get_path(uint32_t id, char *dir, size_t size)
 
       case AL_PROGRAM_PATH: { /* where the program is in */
          HANDLE process = GetCurrentProcess();
+         char *ptr;
          GetModuleFileNameEx(process, NULL, path, MAX_PATH);
-         char *ptr = strrchr(path, '\\');
+         ptr = strrchr(path, '\\');
          if (!ptr) { /* shouldn't happen */
             return dir;
          }
