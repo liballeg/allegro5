@@ -275,6 +275,71 @@ AGL_API(void, UniformMatrix3x4fv, (GLint, GLsizei, GLboolean, const GLfloat *))
 AGL_API(void, UniformMatrix4x3fv, (GLint, GLsizei, GLboolean, const GLfloat *))
 #endif
 
+#if defined AGL_VERSION_3_0
+/* OpenGL 3.0 also reuses entry points from these extensions: */
+/* ARB_framebuffer_object */
+/* ARB_map_buffer_range */
+/* ARB_vertex_array_object */
+AGL_API(void, ColorMaski, (GLuint, GLboolean, GLboolean, GLboolean, GLboolean))
+AGL_API(void, GetBooleani_v, (GLenum, GLuint, GLboolean *))
+AGL_API(void, GetIntegeri_v, (GLenum, GLuint, GLint *))
+AGL_API(void, Enablei, (GLenum, GLuint))
+AGL_API(void, Disablei, (GLenum, GLuint))
+AGL_API(GLboolean, IsEnabledi, (GLenum, GLuint))
+AGL_API(void, BeginTransformFeedback, (GLenum))
+AGL_API(void, EndTransformFeedback, (void))
+AGL_API(void, BindBufferRange, (GLenum, GLuint, GLuint, GLintptr, GLsizeiptr))
+AGL_API(void, BindBufferBase, (GLenum, GLuint, GLuint))
+AGL_API(void, TransformFeedbackVaryings, (GLuint, GLsizei, const GLint *, GLenum))
+AGL_API(void, GetTransformFeedbackVarying, (GLuint, GLuint, GLint *))
+AGL_API(void, ClampColor, (GLenum, GLenum))
+AGL_API(void, BeginConditionalRender, (GLuint, GLenum))
+AGL_API(void, EndConditionalRender, (void))
+AGL_API(void, VertexAttribI1i, (GLuint, GLint))
+AGL_API(void, VertexAttribI2i, (GLuint, GLint, GLint))
+AGL_API(void, VertexAttribI3i, (GLuint, GLint, GLint, GLint))
+AGL_API(void, VertexAttribI4i, (GLuint, GLint, GLint, GLint, GLint))
+AGL_API(void, VertexAttribI1ui, (GLuint, GLuint))
+AGL_API(void, VertexAttribI2ui, (GLuint, GLuint, GLuint))
+AGL_API(void, VertexAttribI3ui, (GLuint, GLuint, GLuint, GLuint))
+AGL_API(void, VertexAttribI4ui, (GLuint, GLuint, GLuint, GLuint, GLuint))
+AGL_API(void, VertexAttribI1iv, (GLuint, const GLint *))
+AGL_API(void, VertexAttribI2iv, (GLuint, const GLint *))
+AGL_API(void, VertexAttribI3iv, (GLuint, const GLint *))
+AGL_API(void, VertexAttribI4iv, (GLuint, const GLint *))
+AGL_API(void, VertexAttribI1uiv, (GLuint, const GLuint *))
+AGL_API(void, VertexAttribI2uiv, (GLuint, const GLuint *))
+AGL_API(void, VertexAttribI3uiv, (GLuint, const GLuint *))
+AGL_API(void, VertexAttribI4uiv, (GLuint, const GLuint *))
+AGL_API(void, VertexAttribI4bv, (GLuint, const GLbyte *))
+AGL_API(void, VertexAttribI4sv, (GLuint, const GLshort *))
+AGL_API(void, VertexAttribI4ubv, (GLuint, const GLubyte *))
+AGL_API(void, VertexAttribI4usv, (GLuint, const GLushort *))
+AGL_API(void, VertexAttribIPointer, (GLuint, GLint, GLenum, GLsizei, const GLvoid *))
+AGL_API(void, GetVertexAttribIiv, (GLuint, GLenum, GLint *))
+AGL_API(void, GetVertexAttribIuiv, (GLuint, GLenum, GLuint *))
+AGL_API(void, GetUniformuiv, (GLuint, GLint, GLuint *))
+AGL_API(void, BindFragDataLocation, (GLuint, GLuint, const GLchar *))
+AGL_API(GLint, GetFragDataLocation, (GLuint, const GLchar *))
+AGL_API(void, Uniform1ui, (GLint, GLuint))
+AGL_API(void, Uniform2ui, (GLint, GLuint, GLuint))
+AGL_API(void, Uniform3ui, (GLint, GLuint, GLuint, GLuint))
+AGL_API(void, Uniform4ui, (GLint, GLuint, GLuint, GLuint, GLuint))
+AGL_API(void, Uniform1uiv, (GLint, GLsizei, const GLuint *))
+AGL_API(void, Uniform2uiv, (GLint, GLsizei, const GLuint *))
+AGL_API(void, Uniform3uiv, (GLint, GLsizei, const GLuint *))
+AGL_API(void, Uniform4uiv, (GLint, GLsizei, const GLuint *))
+AGL_API(void, TexParameterIiv, (GLenum, GLenum, const GLint *))
+AGL_API(void, TexParameterIuiv, (GLenum, GLenum, const GLuint *))
+AGL_API(void, GetTexParameterIiv, (GLenum, GLenum, GLint *))
+AGL_API(void, GetTexParameterIuiv, (GLenum, GLenum, GLuint *))
+AGL_API(void, ClearBufferiv, (GLenum, GLint, const GLint *))
+AGL_API(void, ClearBufferuiv, (GLenum, GLint, const GLuint *))
+AGL_API(void, ClearBufferfv, (GLenum, GLint, const GLfloat *))
+AGL_API(void, ClearBufferfi, (GLenum, GLint, GLfloat, GLint))
+AGL_API(const GLubyte *, GetStringi, (GLenum, GLuint))
+#endif
+
 
 /* </Core> */
 /* <ARB> */
@@ -575,7 +640,64 @@ AGL_API(void, DrawBuffersARB, (GLsizei n, const GLenum *bufs))
 AGL_API(void, ClampColorARB, (GLenum, GLenum clamp))
 #endif
 
+#if defined AGL_ARB_draw_instanced
+AGL_API(void, DrawArraysInstancedARB, (GLenum, GLint, GLsizei, GLsizei))
+AGL_API(void, DrawElementsInstancedARB, (GLenum, GLsizei, GLenum, const GLvoid *, GLsizei))
+#endif
+
+#if defined AGL_ARB_framebuffer_object
+AGL_API(GLboolean, IsRenderbuffer, (GLuint))
+AGL_API(void, BindRenderbuffer, (GLenum, GLuint))
+AGL_API(void, DeleteRenderbuffers, (GLsizei, const GLuint *))
+AGL_API(void, GenRenderbuffers, (GLsizei, GLuint *))
+AGL_API(void, RenderbufferStorage, (GLenum, GLenum, GLsizei, GLsizei))
+AGL_API(void, GetRenderbufferParameteriv, (GLenum, GLenum, GLint *))
+AGL_API(GLboolean, IsFramebuffer, (GLuint))
+AGL_API(void, BindFramebuffer, (GLenum, GLuint))
+AGL_API(void, DeleteFramebuffers, (GLsizei, const GLuint *))
+AGL_API(void, GenFramebuffers, (GLsizei, GLuint *))
+AGL_API(GLenum, CheckFramebufferStatus, (GLenum))
+AGL_API(void, FramebufferTexture1D, (GLenum, GLenum, GLenum, GLuint, GLint))
+AGL_API(void, FramebufferTexture2D, (GLenum, GLenum, GLenum, GLuint, GLint))
+AGL_API(void, FramebufferTexture3D, (GLenum, GLenum, GLenum, GLuint, GLint, GLint))
+AGL_API(void, FramebufferRenderbuffer, (GLenum, GLenum, GLenum, GLuint))
+AGL_API(void, GetFramebufferAttachmentParameteriv, (GLenum, GLenum, GLenum, GLint *))
+AGL_API(void, GenerateMipmap, (GLenum))
+AGL_API(void, BlitFramebuffer, (GLint, GLint, GLint, GLint, GLint, GLint, GLint, GLint, GLbitfield, GLenum))
+AGL_API(void, RenderbufferStorageMultisample, (GLenum, GLsizei, GLenum, GLsizei, GLsizei))
+AGL_API(void, FramebufferTextureLayer, (GLenum, GLenum, GLuint, GLint, GLint))
+#endif
+
+#if defined AGL_ARB_geometry_shader4
+AGL_API(void, ProgramParameteriARB, (GLuint, GLenum, GLint))
+AGL_API(void, FramebufferTextureARB, (GLenum, GLenum, GLuint, GLint))
+AGL_API(void, FramebufferTextureLayerARB, (GLenum, GLenum, GLuint, GLint, GLint))
+AGL_API(void, FramebufferTextureFaceARB, (GLenum, GLenum, GLuint, GLint, GLenum))
+#endif
+
+#if defined AGL_ARB_instanced_arrays
+AGL_API(void, VertexAttribDivisor, (GLuint, GLuint))
+#endif
+
+#if defined AGL_ARB_map_buffer_range
+AGL_API(void, MapBufferRange, (GLenum, GLintptr, GLsizeiptr, GLbitfield))
+AGL_API(void, FlushMappedBufferRange, (GLenum, GLintptr, GLsizeiptr))
+#endif
+
+#if defined AGL_ARB_texture_buffer_object
+AGL_API(void, TexBufferARB, (GLenum, GLenum, GLuint))
+#endif
+
+#if defined AGL_ARB_vertex_array_object
+AGL_API(void, BindVertexArray, (GLuint))
+AGL_API(void, DeleteVertexArrays, (GLsizei, const GLuint *))
+AGL_API(void, GenVertexArrays, (GLsizei, GLuint *))
+AGL_API(GLboolean, IsVertexArray, (GLuint))
+#endif
+
+
 /* </ARB> */
+
 
 #if defined AGL_EXT_blend_color
 AGL_API(void, BlendColorEXT, (GLclampf, GLclampf, GLclampf, GLclampf))
@@ -1870,6 +1992,16 @@ AGL_API(void, FrameTerminatorGREMEDY, (void))
 #if defined AGL_NV_conditional_render
 AGL_API(void, BeginConditionalRenderNV, (GLuint, GLenum))
 AGL_API(void, EndConditionalRenderNV, (void))
+#endif
+
+#if defined AGL_EXT_transform_feedback
+AGL_API(void, BeginTransformFeedbackEXT, (GLenum))
+AGL_API(void, EndTransformFeedbackEXT, (void))
+AGL_API(void, BindBufferRangeEXT, (GLenum, GLuint, GLuint, GLintptr, GLsizeiptr))
+AGL_API(void, BindBufferOffsetEXT, (GLenum, GLuint, GLuint, GLintptr))
+AGL_API(void, BindBufferBaseEXT, (GLenum, GLuint, GLuint))
+AGL_API(void, TransformFeedbackVaryingsEXT, (GLuint, GLsizei, const GLint *, GLenum))
+AGL_API(void, GetTransformFeedbackVaryingEXT, (GLuint, GLuint, GLint *))
 #endif
 
 #if defined AGL_EXT_direct_state_access

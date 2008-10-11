@@ -276,6 +276,71 @@
 #define glUniformMatrix4x3fv __aglUniformMatrix4x3fv
 #endif
 
+#if defined AGL_VERSION_3_0
+/*OpenGL3.0alsoreusesentrypointsfromtheseextensions:*/
+/*ARB_framebuffer_object*/
+/*ARB_map_buffer_range*/
+/*ARB_vertex_array_object*/
+#define glColorMaski __aglColorMaski
+#define glGetBooleani_v __aglGetBooleani_v
+#define glGetIntegeri_v __aglGetIntegeri_v
+#define glEnablei __aglEnablei
+#define glDisablei __aglDisablei
+#define glIsEnabledi __aglIsEnabledi
+#define glBeginTransformFeedback __aglBeginTransformFeedback
+#define glEndTransformFeedback __aglEndTransformFeedback
+#define glBindBufferRange __aglBindBufferRange
+#define glBindBufferBase __aglBindBufferBase
+#define glTransformFeedbackVaryings __aglTransformFeedbackVaryings
+#define glGetTransformFeedbackVarying __aglGetTransformFeedbackVarying
+#define glClampColor __aglClampColor
+#define glBeginConditionalRender __aglBeginConditionalRender
+#define glEndConditionalRender __aglEndConditionalRender
+#define glVertexAttribI1i __aglVertexAttribI1i
+#define glVertexAttribI2i __aglVertexAttribI2i
+#define glVertexAttribI3i __aglVertexAttribI3i
+#define glVertexAttribI4i __aglVertexAttribI4i
+#define glVertexAttribI1ui __aglVertexAttribI1ui
+#define glVertexAttribI2ui __aglVertexAttribI2ui
+#define glVertexAttribI3ui __aglVertexAttribI3ui
+#define glVertexAttribI4ui __aglVertexAttribI4ui
+#define glVertexAttribI1iv __aglVertexAttribI1iv
+#define glVertexAttribI2iv __aglVertexAttribI2iv
+#define glVertexAttribI3iv __aglVertexAttribI3iv
+#define glVertexAttribI4iv __aglVertexAttribI4iv
+#define glVertexAttribI1uiv __aglVertexAttribI1uiv
+#define glVertexAttribI2uiv __aglVertexAttribI2uiv
+#define glVertexAttribI3uiv __aglVertexAttribI3uiv
+#define glVertexAttribI4uiv __aglVertexAttribI4uiv
+#define glVertexAttribI4bv __aglVertexAttribI4bv
+#define glVertexAttribI4sv __aglVertexAttribI4sv
+#define glVertexAttribI4ubv __aglVertexAttribI4ubv
+#define glVertexAttribI4usv __aglVertexAttribI4usv
+#define glVertexAttribIPointer __aglVertexAttribIPointer
+#define glGetVertexAttribIiv __aglGetVertexAttribIiv
+#define glGetVertexAttribIuiv __aglGetVertexAttribIuiv
+#define glGetUniformuiv __aglGetUniformuiv
+#define glBindFragDataLocation __aglBindFragDataLocation
+#define glGetFragDataLocation __aglGetFragDataLocation
+#define glUniform1ui __aglUniform1ui
+#define glUniform2ui __aglUniform2ui
+#define glUniform3ui __aglUniform3ui
+#define glUniform4ui __aglUniform4ui
+#define glUniform1uiv __aglUniform1uiv
+#define glUniform2uiv __aglUniform2uiv
+#define glUniform3uiv __aglUniform3uiv
+#define glUniform4uiv __aglUniform4uiv
+#define glTexParameterIiv __aglTexParameterIiv
+#define glTexParameterIuiv __aglTexParameterIuiv
+#define glGetTexParameterIiv __aglGetTexParameterIiv
+#define glGetTexParameterIuiv __aglGetTexParameterIuiv
+#define glClearBufferiv __aglClearBufferiv
+#define glClearBufferuiv __aglClearBufferuiv
+#define glClearBufferfv __aglClearBufferfv
+#define glClearBufferfi __aglClearBufferfi
+#define glGetStringi __aglGetStringi
+#endif
+
 
 /*</Core>*/
 /*<ARB>*/
@@ -575,6 +640,66 @@
 #if defined AGL_ARB_color_buffer_float
 #define glClampColorARB __aglClampColorARB
 #endif
+
+#if defined AGL_ARB_draw_instanced
+#define glDrawArraysInstancedARB __aglDrawArraysInstancedARB
+#define glDrawElementsInstancedARB __aglDrawElementsInstancedARB
+#endif
+
+#if defined AGL_ARB_framebuffer_object
+#define glIsRenderbuffer __aglIsRenderbuffer
+#define glBindRenderbuffer __aglBindRenderbuffer
+#define glDeleteRenderbuffers __aglDeleteRenderbuffers
+#define glGenRenderbuffers __aglGenRenderbuffers
+#define glRenderbufferStorage __aglRenderbufferStorage
+#define glGetRenderbufferParameteriv __aglGetRenderbufferParameteriv
+#define glIsFramebuffer __aglIsFramebuffer
+#define glBindFramebuffer __aglBindFramebuffer
+#define glDeleteFramebuffers __aglDeleteFramebuffers
+#define glGenFramebuffers __aglGenFramebuffers
+#define glCheckFramebufferStatus __aglCheckFramebufferStatus
+#define glFramebufferTexture1D __aglFramebufferTexture1D
+#define glFramebufferTexture2D __aglFramebufferTexture2D
+#define glFramebufferTexture3D __aglFramebufferTexture3D
+#define glFramebufferRenderbuffer __aglFramebufferRenderbuffer
+#define glGetFramebufferAttachmentParameteriv __aglGetFramebufferAttachmentParameteriv
+#define glGenerateMipmap __aglGenerateMipmap
+#define glBlitFramebuffer __aglBlitFramebuffer
+#define glRenderbufferStorageMultisample __aglRenderbufferStorageMultisample
+#define glFramebufferTextureLayer __aglFramebufferTextureLayer
+#endif
+
+#if defined AGL_ARB_geometry_shader4
+#define glProgramParameteriARB __aglProgramParameteriARB
+#define glFramebufferTextureARB __aglFramebufferTextureARB
+#define glFramebufferTextureLayerARB __aglFramebufferTextureLayerARB
+#define glFramebufferTextureFaceARB __aglFramebufferTextureFaceARB
+#endif
+
+#if defined AGL_ARB_instanced_arrays
+#define glVertexAttribDivisor __aglVertexAttribDivisor
+#endif
+
+#if defined AGL_ARB_map_buffer_range
+#define glMapBufferRange __aglMapBufferRange
+#define glFlushMappedBufferRange __aglFlushMappedBufferRange
+#endif
+
+#if defined AGL_ARB_texture_buffer_object
+#define glTexBufferARB __aglTexBufferARB
+#endif
+
+#if defined AGL_ARB_vertex_array_object
+#define glBindVertexArray __aglBindVertexArray
+#define glDeleteVertexArrays __aglDeleteVertexArrays
+#define glGenVertexArrays __aglGenVertexArrays
+#define glIsVertexArray __aglIsVertexArray
+#endif
+
+#if defined AGL_EXT_blend_color
+#define glBlendColorEXT __aglBlendColorEXT
+#endif
+
 
 /*</ARB>*/
 
@@ -1871,6 +1996,16 @@
 #if defined AGL_NV_conditional_render
 #define glBeginConditionalRenderNV __aglBeginConditionalRenderNV
 #define glEndConditionalRenderNV __aglEndConditionalRenderNV
+#endif
+
+#if defined AGL_EXT_transform_feedback
+#define glBeginTransformFeedbackEXT __aglBeginTransformFeedbackEXT
+#define glEndTransformFeedbackEXT __aglEndTransformFeedbackEXT
+#define glBindBufferRangeEXT __aglBindBufferRangeEXT
+#define glBindBufferOffsetEXT __aglBindBufferOffsetEXT
+#define glBindBufferBaseEXT __aglBindBufferBaseEXT
+#define glTransformFeedbackVaryingsEXT __aglTransformFeedbackVaryingsEXT
+#define glGetTransformFeedbackVaryingEXT __aglGetTransformFeedbackVaryingEXT
 #endif
 
 #if defined AGL_EXT_direct_state_access
