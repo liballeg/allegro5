@@ -372,7 +372,7 @@ int32_t al_fs_isfile(AL_CONST char *path)
    return _al_fs_hook_stat_mode(path) & AL_FM_ISFILE;
 }
 
-int al_fs_entry_getc (AL_FS_ENTRY *f)
+int al_fs_entry_getc(AL_FS_ENTRY *f)
 {
    uint32_t c = 0;
    ASSERT(f);
@@ -385,7 +385,7 @@ int al_fs_entry_getc (AL_FS_ENTRY *f)
    return c;
 }
 
-int al_fs_entry_putc (int c, AL_FS_ENTRY *f)
+int al_fs_entry_putc(int c, AL_FS_ENTRY *f)
 {
    ASSERT(f);
 
@@ -398,7 +398,7 @@ int al_fs_entry_putc (int c, AL_FS_ENTRY *f)
 }
 
 
-int16_t al_fs_entry_igetw (AL_FS_ENTRY *f)
+int16_t al_fs_entry_igetw(AL_FS_ENTRY *f)
 {
    int16_t b1 = 0, b2 = 0;
    ASSERT(f);
@@ -410,7 +410,7 @@ int16_t al_fs_entry_igetw (AL_FS_ENTRY *f)
    return EOF;
 }
 
-int32_t al_fs_entry_igetl (AL_FS_ENTRY *f)
+int32_t al_fs_entry_igetl(AL_FS_ENTRY *f)
 {
    int32_t b1 = 0, b2 = 0, b3 = 0, b4 = 0;
    ASSERT(f);
@@ -425,7 +425,7 @@ int32_t al_fs_entry_igetl (AL_FS_ENTRY *f)
    return EOF;
 }
 
-int16_t al_fs_entry_iputw (int16_t w, AL_FS_ENTRY *f)
+int16_t al_fs_entry_iputw(int16_t w, AL_FS_ENTRY *f)
 {
    int16_t b1 = 0, b2 = 0;
    ASSERT(f);
@@ -440,7 +440,7 @@ int16_t al_fs_entry_iputw (int16_t w, AL_FS_ENTRY *f)
    return EOF;
 }
 
-int32_t al_fs_entry_iputl (int32_t l, AL_FS_ENTRY *f)
+int32_t al_fs_entry_iputl(int32_t l, AL_FS_ENTRY *f)
 {
    int32_t b1 = 0, b2 = 0, b3 = 0, b4 = 0;
    ASSERT(f);
@@ -459,7 +459,7 @@ int32_t al_fs_entry_iputl (int32_t l, AL_FS_ENTRY *f)
    return EOF;
 }
 
-int16_t al_fs_entry_mgetw (AL_FS_ENTRY *f)
+int16_t al_fs_entry_mgetw(AL_FS_ENTRY *f)
 {
    int16_t b1 = 0, b2 = 0;
    ASSERT(f);
@@ -471,7 +471,7 @@ int16_t al_fs_entry_mgetw (AL_FS_ENTRY *f)
    return EOF;
 }
 
-int32_t al_fs_entry_mgetl (AL_FS_ENTRY *f)
+int32_t al_fs_entry_mgetl(AL_FS_ENTRY *f)
 {
    int32_t b1 = 0, b2 = 0, b3 = 0, b4 = 0;
    ASSERT(f);
@@ -486,7 +486,7 @@ int32_t al_fs_entry_mgetl (AL_FS_ENTRY *f)
    return EOF;
 }
 
-int16_t al_fs_entry_mputw (int16_t w, AL_FS_ENTRY *f)
+int16_t al_fs_entry_mputw(int16_t w, AL_FS_ENTRY *f)
 {
    int16_t b1 = 0, b2 = 0;
    ASSERT(f);
@@ -501,7 +501,7 @@ int16_t al_fs_entry_mputw (int16_t w, AL_FS_ENTRY *f)
    return EOF;
 }
 
-int32_t al_fs_entry_mputl (int32_t l, AL_FS_ENTRY *f)
+int32_t al_fs_entry_mputl(int32_t l, AL_FS_ENTRY *f)
 {
    int32_t b1 = 0, b2 = 0, b3 = 0, b4 = 0;
    ASSERT(f);
@@ -520,7 +520,7 @@ int32_t al_fs_entry_mputl (int32_t l, AL_FS_ENTRY *f)
    return EOF;
 }
 
-char *al_fs_entry_fgets (char *p, ssize_t max, AL_FS_ENTRY *f)
+char *al_fs_entry_fgets(char *p, ssize_t max, AL_FS_ENTRY *f)
 {
    char *pmax = NULL, *orig_p = p;
    int c = 0;
@@ -569,7 +569,7 @@ char *al_fs_entry_fgets (char *p, ssize_t max, AL_FS_ENTRY *f)
    return orig_p; /* p has changed */
 }
 
-int   al_fs_entry_fputs (AL_CONST char *p, AL_FS_ENTRY *f)
+int al_fs_entry_fputs(AL_CONST char *p, AL_FS_ENTRY *f)
 {
    char *buf = NULL, *s = NULL;
    int bufsize = 0;
