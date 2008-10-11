@@ -103,6 +103,7 @@
 #if (!defined S_IRUSR) && (!defined SCAN_DEPEND)
    #define S_IRUSR   S_IREAD
    #define S_IWUSR   S_IWRITE
+   #define S_IXUSR   S_IEXEC
 #endif
 
 
