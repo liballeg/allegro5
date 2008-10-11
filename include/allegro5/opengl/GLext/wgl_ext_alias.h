@@ -116,30 +116,33 @@
 #define wglAddSwapHintRectWIN __awglAddSwapHintRectWIN
 
 /*WGL_NV_present_video*/
-#define wglwglEnumerateVideoDevicesNV __awglwglEnumerateVideoDevicesNV
-#define wglwglBindVideoDeviceNV __awglwglBindVideoDeviceNV
-#define wglwglQueryCurrentContextNV __awglwglQueryCurrentContextNV
+#define wglEnumerateVideoDevicesNV __awglEnumerateVideoDevicesNV
+#define wglBindVideoDeviceNV __awglBindVideoDeviceNV
+#define wglQueryCurrentContextNV __awglQueryCurrentContextNV
 
 /*WGL_NV_video_out*/
-#define wglwglGetVideoDeviceNV __awglwglGetVideoDeviceNV
-#define wglwglReleaseVideoDeviceNV __awglwglReleaseVideoDeviceNV
-#define wglwglBindVideoImageNV __awglwglBindVideoImageNV
-#define wglwglReleaseVideoImageNV __awglwglReleaseVideoImageNV
-#define wglwglSendPbufferToVideoNV __awglwglSendPbufferToVideoNV
-#define wglwglGetVideoInfoNV __awglwglGetVideoInfoNV
+#define wglGetVideoDeviceNV __awglGetVideoDeviceNV
+#define wglReleaseVideoDeviceNV __awglReleaseVideoDeviceNV
+#define wglBindVideoImageNV __awglBindVideoImageNV
+#define wglReleaseVideoImageNV __awglReleaseVideoImageNV
+#define wglSendPbufferToVideoNV __awglSendPbufferToVideoNV
+#define wglGetVideoInfoNV __awglGetVideoInfoNV
 
 /*WGL_NV_swap_group*/
-#define wglwglJoinSwapGroupNV __awglwglJoinSwapGroupNV
-#define wglwglBindSwapBarrierNV __awglwglBindSwapBarrierNV
-#define wglwglQuerySwapGroupNV __awglwglQuerySwapGroupNV
-#define wglwglQueryMaxSwapGroupsNV __awglwglQueryMaxSwapGroupsNV
-#define wglwglQueryFrameCountNV __awglwglQueryFrameCountNV
-#define wglwglResetFrameCountNV __awglwglResetFrameCountNV
+#define wglJoinSwapGroupNV __awglJoinSwapGroupNV
+#define wglBindSwapBarrierNV __awglBindSwapBarrierNV
+#define wglQuerySwapGroupNV __awglQuerySwapGroupNV
+#define wglQueryMaxSwapGroupsNV __awglQueryMaxSwapGroupsNV
+#define wglQueryFrameCountNV __awglQueryFrameCountNV
+#define wglResetFrameCountNV __awglResetFrameCountNV
 
 /*WGL_NV_gpu_affinity*/
-#define wglwglEnumGpusNV __awglwglEnumGpusNV
-#define wglwglEnumGpuDevicesNV __awglwglEnumGpuDevicesNV
-#define wglwglCreateAffinityDCNV __awglwglCreateAffinityDCNV
-#define wglwglEnumGpusFromAffinityDCNV __awglwglEnumGpusFromAffinityDCNV
-#define wglwglDeleteDCNV __awglwglDeleteDCNV
+#define wglEnumGpusNV __awglEnumGpusNV
+#define wglEnumGpuDevicesNV __awglEnumGpuDevicesNV
+#define wglCreateAffinityDCNV __awglCreateAffinityDCNV
+#define wglEnumGpusFromAffinityDCNV __awglEnumGpusFromAffinityDCNV
+#define wglDeleteDCNV __awglDeleteDCNV
+
+/*WGL_ARB_create_context*/
+#define wglCreateContextAttribsARB __awglCreateContextAttribsARB
 

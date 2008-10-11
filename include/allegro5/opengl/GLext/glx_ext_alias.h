@@ -170,24 +170,24 @@
 
 
 #ifdef AGLX_EXT_texture_from_pixmap
-#define glXglXBindTexImageEXT __aglXglXBindTexImageEXT
-#define glXglXReleaseTextImageEXT __aglXglXReleaseTextImageEXT
+#define glXBindTexImageEXT __aglXBindTexImageEXT
+#define glXReleaseTextImageEXT __aglXReleaseTextImageEXT
 #endif
 
 #ifdef AGLX_NV_video_out
-#define glXglXGetVideoDeviceNV __aglXglXGetVideoDeviceNV
-#define glXglXReleaseVideoDeviceNV __aglXglXReleaseVideoDeviceNV
-#define glXglXBindVideoImageNV __aglXglXBindVideoImageNV
-#define glXglXReleaseVideoImageNV __aglXglXReleaseVideoImageNV
-#define glXglXSendPbufferToVideoNV __aglXglXSendPbufferToVideoNV
-#define glXglXGetVideoInfoNV __aglXglXGetVideoInfoNV
+#define glXGetVideoDeviceNV __aglXGetVideoDeviceNV
+#define glXReleaseVideoDeviceNV __aglXReleaseVideoDeviceNV
+#define glXBindVideoImageNV __aglXBindVideoImageNV
+#define glXReleaseVideoImageNV __aglXReleaseVideoImageNV
+#define glXSendPbufferToVideoNV __aglXSendPbufferToVideoNV
+#define glXGetVideoInfoNV __aglXGetVideoInfoNV
 #endif
 
 #ifdef AGLX_NV_swap_group
-#define glXglXJoinSwapGroupNV __aglXglXJoinSwapGroupNV
-#define glXglXBindSwapBarrierNV __aglXglXBindSwapBarrierNV
-#define glXglXQuerySwapGroupNV __aglXglXQuerySwapGroupNV
-#define glXglXQueryMaxSwapGroupsNV __aglXglXQueryMaxSwapGroupsNV
-#define glXglXQueryFrameCountNV __aglXglXQueryFrameCountNV
-#define glXglXResetFrameCountNV __aglXglXResetFrameCountNV
+#define glXJoinSwapGroupNV __aglXJoinSwapGroupNV
+#define glXBindSwapBarrierNV __aglXBindSwapBarrierNV
+#define glXQuerySwapGroupNV __aglXQuerySwapGroupNV
+#define glXQueryMaxSwapGroupsNV __aglXQueryMaxSwapGroupsNV
+#define glXQueryFrameCountNV __aglXQueryFrameCountNV
+#define glXResetFrameCountNV __aglXResetFrameCountNV
 #endif
