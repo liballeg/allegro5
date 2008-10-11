@@ -322,7 +322,7 @@ def platformChecks():
 
 def doBuild(context):
     env = context.defaultEnvironment()
-    return SConscript(getPlatformFile(), build_dir = context.getBuildDir(), exports = ['context','env'])
+    return SConscript(getPlatformFile(), build_dir = context.getBuildDir(), exports = ['context','env'], duplicate = False)
     
 def buildNormal():
     return doBuild(AllegroContextNormal(platformChecks()))

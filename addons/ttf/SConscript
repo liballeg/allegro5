@@ -40,7 +40,7 @@ def setupPlatform(settings, config):
 
 tests = {"CheckFreetype": CheckFreetype}
 
-settings, configure_env = helpers.do_configure('ttf', myEnv, context,
+settings, configure_env = helpers.do_configure('ttf', context,
                             tests, setupPlatform,
                             'allegro5/internal/aintern_ttf_cfg.h.cmake',
                             'allegro5/internal/aintern_ttf_cfg.h',
