@@ -369,6 +369,8 @@ static AL_CONST char *win_get_path(uint32_t id, char *dir, size_t size)
       } break;
 
       case AL_PROGRAM_PATH: { /* where the program is in */
+         HANDLE process = GetCurrentProcess();
+         GetModuleFileNameEx(process, NULL, path, MAX_PATH);
          char *ptr = strrchr(path, '\\');
          if (!ptr) { /* shouldn't happen */
             return dir;
@@ -445,3 +447,4 @@ void _al_register_system_interfaces()
 #endif
 }
 
+/* vim: set sts=3 sw=3 et: */
