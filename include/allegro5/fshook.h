@@ -29,23 +29,15 @@ typedef unsigned int off_t;
    extern "C" {
 #endif
 
-/* The following defines are reserved for fs drivers.
- * Define to keep from defining types multiple times.
- */
-
-#ifndef ALLEGRO_FS_ENTRY_DEFINED
+typedef struct AL_FS_ENTRY AL_FS_ENTRY;
 
 #ifdef ALLEGRO_LIB_BUILD
-
 struct AL_FS_HOOK_ENTRY_INTERFACE;
-typedef struct AL_FS_ENTRY {
+struct AL_FS_ENTRY {
    struct AL_FS_HOOK_ENTRY_INTERFACE *vtable;
-} AL_FS_ENTRY;
-#else
-typedef void AL_FS_ENTRY;
+};
 #endif /* ALLEGRO_LIB_BUILD */
 
-#endif /* ALLEGRO_FS_ENTRY_DEFINED */
 
 typedef enum AL_FS_FILTER {
    AL_FS_FILTER_DRIVES         = 0x001,
