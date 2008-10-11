@@ -68,8 +68,6 @@
 
 
 	
-typedef void RETSIGTYPE;
-
 typedef struct HID_ELEMENT
 {
    int type;
