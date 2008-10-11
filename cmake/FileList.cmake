@@ -320,6 +320,7 @@ set(ALLEGRO_INCLUDE_ALLEGRO_INTERNAL_FILES
     include/allegro5/internal/aintern_display.h
     include/allegro5/internal/aintern_dtor.h
     include/allegro5/internal/aintern_events.h
+    include/allegro5/internal/aintern_fshook.h
     include/allegro5/internal/aintern_joystick.h
     include/allegro5/internal/aintern_keyboard.h
     include/allegro5/internal/aintern_mouse.h
@@ -329,7 +330,6 @@ set(ALLEGRO_INCLUDE_ALLEGRO_INTERNAL_FILES
     include/allegro5/internal/aintern_opengl.h
     include/allegro5/internal/aintvga.h
     include/allegro5/internal/alconfig.h
-    include/allegro5/internal/fshook.h
     )
 
 set(ALLEGRO_INCLUDE_ALLEGRO_OPENGL_FILES

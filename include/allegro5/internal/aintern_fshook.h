@@ -13,8 +13,8 @@
  *      See readme.txt for copyright information.
  */
 
-#ifndef AINTERN_FHOOK_H
-#define AINTERN_FHOOK_H
+#ifndef __al_included_aintern_fshook_h
+#define __al_included_aintern_fshook_h
 
 #include "allegro5/base.h"
 
@@ -161,4 +161,4 @@ extern struct AL_FS_HOOK_SYS_INTERFACE _al_stdio_sys_fshooks;
 
 AL_END_EXTERN_C
 
-#endif          /* ifndef AINTERN_FHOOK_H */
+#endif          /* ifndef __al_included_aintern_fshook_h */

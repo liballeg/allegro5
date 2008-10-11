@@ -91,7 +91,7 @@ struct AL_FS_ENTRY {
 };
 
 #include "allegro5/fshook.h"
-#include "allegro5/internal/fshook.h"
+#include "allegro5/internal/aintern_fshook.h"
 
 static char **search_path = NULL;
 static uint32_t search_path_count = 0;

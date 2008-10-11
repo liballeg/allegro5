@@ -20,7 +20,7 @@
 #include "allegro5/debug.h"
 #include "allegro5/fshook.h"
 #include "allegro5/path.h"
-#include "allegro5/internal/fshook.h"
+#include "allegro5/internal/aintern_fshook.h"
 #include "allegro5/internal/aintern_memory.h"
 
 struct AL_FS_HOOK_SYS_INTERFACE  *_al_sys_fshooks = &_al_stdio_sys_fshooks;
