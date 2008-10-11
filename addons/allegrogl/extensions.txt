@@ -43,6 +43,18 @@ GL_ARB_color_buffer_float
 GL_ARB_half_float_pixel
 GL_ARB_texture_float
 GL_ARB_pixel_buffer_object 
+GL_ARB_instanced_arrays
+GL_ARB_draw_instanced
+GL_ARB_geometry_shader4
+GL_ARB_texture_buffer_object
+GL_ARB_depth_buffer_float
+GL_ARB_framebuffer_object
+GL_ARB_framebuffer_sRGB
+GL_ARB_half_float_vertex
+GL_ARB_map_buffer_range
+GL_ARB_texture_compression_rgtc
+GL_ARB_texture_rg
+GL_ARB_vertex_array_object
 
 Non-ARB Extensions:
 GL_EXT_abgr 
@@ -338,4 +350,7 @@ WIN_swap_hint
 GLX_EXT_texture_from_pixmap
 GLX_NV_video_out
 GLX_NV_swap_group
-
+NV_conditional_render
+NV_present_video
+EXT_direct_state_access
+EXT_transform_feedback

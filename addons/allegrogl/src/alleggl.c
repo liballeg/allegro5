@@ -997,6 +997,8 @@ float allegro_gl_opengl_version() {
 		return 2.0;
 	if ((strncmp(str, "2.1 ", 4) == 0) || (strncmp(str, "2.1.0 ", 6) == 0))
 		return 2.1;
+	if ((strncmp(str, "3.0 ", 4) == 0) || (strncmp(str, "3.0.0 ", 6) == 0))
+		return 3.0;
 
 	/* The OpenGL driver does not return a version
 	 * number. However it probably supports at least OpenGL 1.0
