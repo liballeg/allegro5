@@ -19,9 +19,9 @@
 #include ALLEGRO_INTERNAL_HEADER
 #include "allegro5/debug.h"
 #include "allegro5/fshook.h"
+#include "allegro5/path.h"
 #include "allegro5/internal/fshook.h"
 #include "allegro5/internal/aintern_memory.h"
-#include "allegro5/path.h"
 
 struct AL_FS_HOOK_SYS_INTERFACE  *_al_sys_fshooks = &_al_stdio_sys_fshooks;
 struct AL_FS_HOOK_ENTRY_INTERFACE *_al_entry_fshooks = &_al_stdio_entry_fshooks;
@@ -205,18 +205,18 @@ off_t al_fs_entry_size(AL_FS_ENTRY *e)
    return _al_fs_hook_entry_size(e);
 }
 
-int32_t al_fs_entry_unlink( AL_FS_ENTRY *e )
+int32_t al_fs_entry_unlink(AL_FS_ENTRY *e)
 {
    ASSERT(e != NULL);
 
-   return _al_fs_hook_entry_unlink( e );
+   return _al_fs_hook_entry_unlink(e);
 }
 
-int32_t al_fs_entry_exists( AL_FS_ENTRY *e )
+int32_t al_fs_entry_exists(AL_FS_ENTRY *e)
 {
    ASSERT(e != NULL);
 
-   return _al_fs_hook_entry_exists( e );
+   return _al_fs_hook_entry_exists(e);
 }
 
 int32_t al_fs_entry_isdir(AL_FS_ENTRY *e)
@@ -317,47 +317,47 @@ int32_t al_fs_path_to_uni(const char *orig, size_t len, char *path)
    return _al_fs_hook_path_to_uni(orig, len, path);
 }
 
-uint32_t al_fs_stat_mode( const char *path )
+uint32_t al_fs_stat_mode(const char *path)
 {
    ASSERT(path != NULL);
    return _al_fs_hook_stat_mode(path);
 }
 
-time_t al_fs_stat_atime( const char *path )
+time_t al_fs_stat_atime(const char *path)
 {
    ASSERT(path != NULL);
    return _al_fs_hook_stat_atime(path);
 }
 
-time_t al_fs_stat_mtime( const char *path )
+time_t al_fs_stat_mtime(const char *path)
 {
    ASSERT(path != NULL);
    return _al_fs_hook_stat_mtime(path);
 }
 
-time_t al_fs_stat_ctime( const char *path )
+time_t al_fs_stat_ctime(const char *path)
 {
    ASSERT(path != NULL);
    return _al_fs_hook_stat_ctime(path);
 }
 
-off_t al_fs_stat_size( const char *path )
+off_t al_fs_stat_size(const char *path)
 {
    ASSERT(path != NULL);
    return _al_fs_hook_stat_size(path);
 }
 
-int32_t al_fs_unlink( const char *path )
+int32_t al_fs_unlink(const char *path)
 {
    ASSERT(path != NULL);
    return _al_fs_hook_unlink(path);
 }
 
-int32_t al_fs_exists( const char *path )
+int32_t al_fs_exists(const char *path)
 {
    ASSERT(path != NULL);
 
-   return _al_fs_hook_exists( path );
+   return _al_fs_hook_exists(path);
 }
 
 int32_t al_fs_isdir(AL_CONST char *path)
@@ -537,7 +537,6 @@ char *al_fs_entry_fgets (char *p, ssize_t max, AL_FS_ENTRY *f)
    }
 
    do {
-
       if (c == '\r' || c == '\n') {
          /* Technically we should check there's space in the buffer, and if so,
           * add a \n.  But pack_fgets has never done this. */
@@ -559,8 +558,7 @@ char *al_fs_entry_fgets (char *p, ssize_t max, AL_FS_ENTRY *f)
 
       /* write the character */
       p += usetc(p, c);
-   }
-   while ((c = al_fs_entry_getc(f)) != EOF);
+   } while ((c = al_fs_entry_getc(f)) != EOF);
 
    /* terminate the string */
    usetc(p, 0);

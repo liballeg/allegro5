@@ -113,7 +113,7 @@ AL_FS_ENTRY *al_fs_stdio_create_handle(AL_CONST char *path)
 
    fh->vtable = &_al_stdio_entry_fshooks;
 
-   len = strlen( path );
+   len = strlen(path);
    fh->path = _AL_MALLOC(len+1);
    if (!fh->path) {
       al_set_errno(errno);
@@ -127,10 +127,10 @@ AL_FS_ENTRY *al_fs_stdio_create_handle(AL_CONST char *path)
    if (fh->path[0] != '/') {
       uint32_t spi = 0;
       for (spi = 0; spi < search_path_count; ++spi) {
-         uint32_t splen = strlen( search_path[spi] );
+         uint32_t splen = strlen(search_path[spi]);
          struct stat st;
 
-         tmp = _AL_REALLOC( tmp, splen + len + 1 );
+         tmp = _AL_REALLOC(tmp, splen + len + 1);
          memcpy(tmp, search_path[spi], MIN(splen, PATH_MAX));
          if (tmp[splen-1] == '/') {
             tmp[splen] = '/';
@@ -201,9 +201,9 @@ AL_FS_ENTRY *al_fs_stdio_create_handle(AL_CONST char *path)
    }
 #else
    if (fh->found)
-      fh->stat_mode |= ( fh->found[0] == '.' ? AL_FM_HIDDEN : 0 );
+      fh->stat_mode |= (fh->found[0] == '.' ? AL_FM_HIDDEN : 0);
    else
-      fh->stat_mode |= ( fh->path[0] == '.' ? AL_FM_HIDDEN : 0 );
+      fh->stat_mode |= (fh->path[0] == '.' ? AL_FM_HIDDEN : 0);
 #endif
 
    return fh;
@@ -213,13 +213,13 @@ void al_fs_stdio_destroy_handle(AL_FS_ENTRY *handle)
 {
    if (handle->found) {
       if (handle->ulink)
-         unlink( handle->found );
+         unlink(handle->found);
 
       _AL_FREE(handle->found);
    }
    else {
       if (handle->ulink)
-         unlink( handle->path );
+         unlink(handle->path);
    }
 
    if (handle->path)
@@ -240,7 +240,7 @@ int32_t al_fs_stdio_open_handle(AL_FS_ENTRY *fh, AL_CONST char *mode)
 
    tmp = fh->found ? fh->found : fh->path;
    if (fh->stat_mode & AL_FM_ISDIR) {
-      fh->dir = opendir( tmp );
+      fh->dir = opendir(tmp);
       if (!fh->dir) {
          al_set_errno(errno);
          return -1;
@@ -248,7 +248,7 @@ int32_t al_fs_stdio_open_handle(AL_FS_ENTRY *fh, AL_CONST char *mode)
       fh->isdir = 1;
    }
    else {
-      fh->handle = fopen( tmp, mode );
+      fh->handle = fopen(tmp, mode);
       if (!fh->handle) {
          al_set_errno(errno);
          return -1;
@@ -278,12 +278,12 @@ void al_fs_stdio_close_handle(AL_FS_ENTRY *handle)
 
       /* unlink on close */
       if (handle->found && handle->ulink) {
-         unlink( handle->found );
-         _AL_FREE( handle->found );
+         unlink(handle->found);
+         _AL_FREE(handle->found);
          handle->found = NULL;
       }
       else if (handle->path && handle->ulink) {
-         unlink( handle->found );
+         unlink(handle->found);
       }
 
       handle->handle = NULL;
@@ -524,7 +524,7 @@ AL_FS_ENTRY *al_fs_stdio_mktemp(const char *template, uint32_t ulink)
    char *dest = NULL;
    char tmpdir[PATH_MAX];
 
-   template_len = strlen( template );
+   template_len = strlen(template);
 
    if (al_get_path(AL_TEMP_PATH, tmpdir, PATH_MAX) != 0) {
       /* allegro_error disappeared on me :(
@@ -533,16 +533,16 @@ AL_FS_ENTRY *al_fs_stdio_mktemp(const char *template, uint32_t ulink)
       return NULL;
    }
 
-   tmpdir_len = strlen( tmpdir );
+   tmpdir_len = strlen(tmpdir);
 
-   dest = _AL_MALLOC( template_len + tmpdir_len + 2 );
+   dest = _AL_MALLOC(template_len + tmpdir_len + 2);
    if (!dest) {
       al_set_errno(errno);
       return NULL;
    }
 
    memset(dest, 0, template_len + tmpdir_len + 2);
-   memcpy(dest, tmpdir, strlen( tmpdir ) );
+   memcpy(dest, tmpdir, strlen(tmpdir));
 
    /* doing this check makes the path prettier, no extra / laying around */
    if (dest[tmpdir_len-1] != '/') {
@@ -554,20 +554,20 @@ AL_FS_ENTRY *al_fs_stdio_mktemp(const char *template, uint32_t ulink)
 
    for (i=0; i<MAX_MKTEMP_TRIES; ++i) {
       _al_fs_mktemp_replace_XX(template, dest + tmpdir_len);
-      fd = open( dest, O_EXCL | O_CREAT | O_RDWR );
+      fd = open(dest, O_EXCL | O_CREAT | O_RDWR);
       if (fd == -1)
          continue;
 
       // changing the hook for create handle in a separate thread will cause some nice errors here,
       //    if you expect it to return a stdio handle ;)
-      fh = al_fs_create_handle( dest );
+      fh = al_fs_create_handle(dest);
       if (!fh) {
          close(fd);
          free(dest);
          return NULL;
       }
 
-      fh->handle = fdopen( fd, "r+" );
+      fh->handle = fdopen(fd, "r+");
       if (!fh->handle) {
          al_fs_stdio_destroy_handle(fh);
          close(fd);
@@ -576,7 +576,7 @@ AL_FS_ENTRY *al_fs_stdio_mktemp(const char *template, uint32_t ulink)
       }
 
       if (ulink == AL_FS_MKTEMP_UNLINK_NOW)
-         unlink( dest );
+         unlink(dest);
       else if (ulink == AL_FS_MKTEMP_UNLINK_ON_CLOSE)
          fh->ulink = 1;
 
@@ -665,9 +665,9 @@ uint32_t al_fs_stdio_search_path_count(void)
 int32_t al_fs_stdio_get_search_path(uint32_t idx, char *dest, uint32_t len)
 {
    if (idx < search_path_count) {
-      uint32_t slen = strlen( search_path[idx] );
+      uint32_t slen = strlen(search_path[idx]);
 
-      memcpy( dest, search_path[idx], MIN( slen, len-1 ) );
+      memcpy(dest, search_path[idx], MIN(slen, len-1));
       dest[len] = '\0';
    }
 
@@ -715,6 +715,7 @@ int32_t al_fs_stdio_path_to_sys(AL_CONST char *orig, uint32_t len, char *path)
 
 int32_t al_fs_stdio_path_to_uni(AL_CONST char *orig, uint32_t len, char *path)
 {
+   /* XXX what does this do? */
    return 0;
 }
 
