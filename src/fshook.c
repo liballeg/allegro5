@@ -79,7 +79,7 @@ void al_fs_entry_close(AL_FS_ENTRY *fp)
    _al_fs_hook_entry_close(fp);
 }
 
-ssize_t   al_fs_entry_read(void *ptr, size_t size, AL_FS_ENTRY *fp)
+size_t al_fs_entry_read(void *ptr, size_t size, AL_FS_ENTRY *fp)
 {
    ASSERT(ptr != NULL);
    ASSERT(fp != NULL);
@@ -87,7 +87,7 @@ ssize_t   al_fs_entry_read(void *ptr, size_t size, AL_FS_ENTRY *fp)
    return _al_fs_hook_entry_read(ptr, size, fp);
 }
 
-ssize_t   al_fs_entry_write(const void *ptr, size_t size, AL_FS_ENTRY *fp)
+size_t al_fs_entry_write(const void *ptr, size_t size, AL_FS_ENTRY *fp)
 {
    ASSERT(ptr != NULL);
    ASSERT(fp != NULL);
@@ -520,7 +520,7 @@ int32_t al_fs_entry_mputl(int32_t l, AL_FS_ENTRY *f)
    return EOF;
 }
 
-char *al_fs_entry_fgets(char *p, ssize_t max, AL_FS_ENTRY *f)
+char *al_fs_entry_fgets(char *p, size_t max, AL_FS_ENTRY *f)
 {
    char *pmax = NULL, *orig_p = p;
    int c = 0;
@@ -531,7 +531,7 @@ char *al_fs_entry_fgets(char *p, ssize_t max, AL_FS_ENTRY *f)
    pmax = p+max - ucwidth(0);
 
    if ((c = al_fs_entry_getc(f)) == EOF) {
-      if (ucwidth(0) <= max)
+      if ((unsigned) ucwidth(0) <= max)
          usetc(p,0);
       return NULL;
    }

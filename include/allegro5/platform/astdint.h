@@ -41,11 +41,6 @@
    #define intptr_t     int32_t
    #define uintptr_t    uint32_t
 
-   #if defined(__INT_MAX__) && __INT_MAX__ == 2147483647
-      #define ssize_t int
-   #else
-      #define ssize_t long
-   #endif
 #else
    #error I dunno how to get the definitions of fixed-width integer types on your platform.  Please report this to your friendly Allegro developer.
 #endif
