@@ -463,27 +463,9 @@ static int32_t _unix_find_home(char *dir, uint32_t len)
          do_uconvert(pass->pw_dir, U_ASCII, dir, U_CURRENT, strlen(pass->pw_dir)+1);
          return 0;
       }
-      else {
-         char tmp[PATH_MAX];
-         char *name = getenv("USER");
 
-         if (!name) {
-            name = pass->pw_name;
-            if (!name) {
-               return -1;
-            }
-         }
-
-         /* assume we live in /home/<username> */
-
-         /* TODO: might want to make a "configure" option for this (/home) */
-         /* should we check to see if the dir exists? */
-
-         _al_sane_strncpy(tmp, "/home/", strlen("/home/")+1);
-         strncat(tmp, name, len);
-         do_uconvert (tmp, U_ASCII, dir, U_CURRENT, strlen(tmp)+1);
-         return 0;
-      }
+      al_set_errno(ENOENT);
+      return -1;
    }
    else {
       do_uconvert(home_env, U_ASCII, dir, U_CURRENT, strlen(home_env)+1);
