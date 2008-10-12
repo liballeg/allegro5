@@ -97,27 +97,27 @@ struct dirent
  */
 typedef struct
 {
-	/* disk transfer area for this dir */
-	struct _finddata_t dd_dta;
+   /* disk transfer area for this dir */
+   struct _finddata_t dd_dta;
 
-	/* dirent struct to return from dir (NOTE: this makes this thread
-	 * safe as long as only one thread uses a particular DIR struct at
-	 * a time) */
-	struct dirent dd_dir;
+   /* dirent struct to return from dir (NOTE: this makes this thread
+    * safe as long as only one thread uses a particular DIR struct at
+    * a time) */
+   struct dirent dd_dir;
 
-	/* _findnext handle */
-	long dd_handle;
+   /* _findnext handle */
+   long dd_handle;
 
-	/*
+   /*
     * Status of search:
-	 *   0 = not started yet (next entry to read is first entry)
-	 *  -1 = off the end
-	 *   positive = 0 based index of next entry
-	 */
-	int dd_stat;
+    *   0 = not started yet (next entry to read is first entry)
+    *  -1 = off the end
+    *   positive = 0 based index of next entry
+    */
+   int dd_stat;
 
-	/* given path for dir with search pattern (struct is extended) */
-	char dd_name[1];
+   /* given path for dir with search pattern (struct is extended) */
+   char dd_name[1];
 } DIR;
 
 /* Helper for opendir().  */
@@ -129,7 +129,7 @@ static unsigned __inline _tGetFileAttributes(const _TCHAR * tPath)
     {
       char aPath [MAX_PATH];
       WideCharToMultiByte(CP_ACP, 0, tPath, -1, aPath, MAX_PATH, NULL,
-			   NULL);
+         NULL);
       return GetFileAttributesA(aPath);
     }
   return GetFileAttributesW(tPath);
