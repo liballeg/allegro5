@@ -8,7 +8,6 @@
 #include "allegro5/allegro5.h"
 #include "allegro5/internal/aintern.h"
 #include "allegro5/internal/aintern_vector.h"
-#include "allegro5/internal/aintern_events.h"
 #include "../kcm_audio.h"
 
 /* This can probably be set to 16, or higher, if long is 64-bit */
@@ -115,7 +114,7 @@ typedef struct {
 struct ALLEGRO_SAMPLE {
    /* ALLEGRO_SAMPLE does not generate any events yet but ALLEGRO_STREAM
     * does, which can inherit only ALLEGRO_SAMPLE. */
-   struct ALLEGRO_EVENT_SOURCE es;
+   struct ALLEGRO_EVENT_SOURCE *es;
 
    ALLEGRO_SAMPLE_DATA  spl_data;
 

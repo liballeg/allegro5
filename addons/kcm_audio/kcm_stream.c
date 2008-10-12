@@ -96,7 +96,7 @@ ALLEGRO_STREAM *al_stream_create(size_t buffer_count, unsigned long samples,
          (char *) stream->main_buffer + i * bytes_per_buffer;
    }
 
-   _al_event_source_init(&stream->spl.es);
+   stream->spl.es = al_create_user_event_source();
 
    return stream;
 }
@@ -111,7 +111,7 @@ void al_stream_destroy(ALLEGRO_STREAM *stream)
       if (stream->feed_thread) {
          stream->unload_feeder(stream);
       }
-      _al_event_source_free(&stream->spl.es);
+      al_destroy_user_event_source(stream->spl.es);
       free(stream->main_buffer);
       free(stream->used_bufs);
       free(stream);
@@ -537,7 +537,7 @@ void *_al_kcm_feed_stream(ALLEGRO_THREAD *self, void *vstream)
    TRACE(PREFIX_I "Stream feeder thread started.\n");
 
    queue = al_create_event_queue();
-   al_register_event_source(queue, (ALLEGRO_EVENT_SOURCE*)stream);
+   al_register_event_source(queue, stream->spl.es);
 
    stream->quit_feed_thread = false;
 
@@ -604,18 +604,12 @@ void *_al_kcm_feed_stream(ALLEGRO_THREAD *self, void *vstream)
 
 bool _al_kcm_emit_stream_event(ALLEGRO_STREAM *stream, unsigned long count)
 {
-   _al_event_source_lock(&stream->spl.es);
-
-   if (_al_event_source_needs_to_generate_event(&stream->spl.es)) {
-      while (count--) {
-         ALLEGRO_EVENT event;
-         event.stream.type = ALLEGRO_EVENT_STREAM_EMPTY_FRAGMENT;
-         event.stream.timestamp = al_current_time();
-         _al_event_source_emit_event(&stream->spl.es, &event);
-      }
+   while (count--) {
+      ALLEGRO_EVENT event;
+      event.user.type = ALLEGRO_EVENT_STREAM_EMPTY_FRAGMENT;
+      event.user.timestamp = al_current_time();
+      al_emit_user_event(stream->spl.es, &event);
    }
-
-   _al_event_source_unlock(&stream->spl.es);
 
    return true;
 }
