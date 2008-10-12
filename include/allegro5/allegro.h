@@ -53,11 +53,6 @@
 
 #include "config.h"
 
-#ifdef ALLEGRO_CFG_OPENGL
-   //temporary.... where's DECLARE_HANDLE?
-   #include "allegro5/a5_opengl.h"
-#endif
-
 #ifdef ALLEGRO_EXTRA_HEADER
    #include ALLEGRO_EXTRA_HEADER
 #endif

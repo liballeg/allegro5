@@ -18,8 +18,6 @@
 #ifndef A5_OPENGL_ALLEGRO_H
 #define A5_OPENGL_ALLEGRO_H
 
-#include "allegro5/base.h"
-
 #ifdef __cplusplus
    extern "C" {
 #endif
@@ -85,7 +83,14 @@
 #endif
 
 
-/* Public OpenGL-related API */
+/*
+ *  Public OpenGL-related API
+ */
+
+/* Display creation flag. */
+#define ALLEGRO_OPENGL     4
+
+
 AL_FUNC(float,                 al_opengl_version,                (void));
 AL_FUNC(int,                   al_is_opengl_extension_supported, (AL_CONST char *extension));
 AL_FUNC(void*,                 al_get_opengl_proc_address,       (AL_CONST char *name));

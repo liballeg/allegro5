@@ -15,7 +15,8 @@
 
 #define ALLEGRO_WINDOWED     1
 #define ALLEGRO_FULLSCREEN   2
-#define ALLEGRO_OPENGL       4
+// moved to a5_opengl.h
+//#define ALLEGRO_OPENGL       4
 #define ALLEGRO_DIRECT3D     8
 //#define ALLEGRO_GENERATE_UPDATE_EVENTS 64
 #define ALLEGRO_RESIZABLE    16
