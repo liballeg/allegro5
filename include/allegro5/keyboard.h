@@ -50,11 +50,8 @@ typedef struct ALLEGRO_KEYBOARD ALLEGRO_KEYBOARD;
 typedef struct ALLEGRO_KEYBOARD_STATE
 {
    struct ALLEGRO_DISPLAY *display;  /* public */
-   unsigned int __key_down__internal__[4]; /* internal */
-   /* Was using uint32_t, but some machines don't have stdint.h. */ 
-#if AL_KEY_MAX >= (32 * 4)
-# error __key_down__internal__ array not big enough for AL_KEY_MAX
-#endif
+   unsigned int __key_down__internal__[
+      (ALLEGRO_KEY_MAX + 7) / 8 / sizeof(unsigned int)]; /* internal */
 } ALLEGRO_KEYBOARD_STATE;
 
 
