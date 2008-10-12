@@ -70,6 +70,7 @@ Group: Include  {
 Group: Src  {
 
    File: Bitmap routines  (src/bitmap_new.c)
+   File: Configuration routines  (src/config.c)
    File: Destructors  (src/dtor.c)
    File: Display routines  (src/display_new.c)
    File: Event queues  (src/events.c)
@@ -83,6 +84,12 @@ Group: Src  {
    File: Thread local storage  (src/tls.c)
    File: Threads  (src/threads.c)
    }  # Group: Src
+
+File: Audio  (Buildunix2/addons/kcm_audio/kcm_audio/allegro5/kcm_audio.h)
+File: Mixer functions  (Buildunix2/addons/kcm_audio/kcm_audio/kcm_mixer.c)
+File: Sample functions  (Buildunix2/addons/kcm_audio/kcm_audio/kcm_sample.c)
+File: Stream functions  (Buildunix2/addons/kcm_audio/kcm_audio/kcm_stream.c)
+File: Voice functions  (Buildunix2/addons/kcm_audio/kcm_audio/kcm_voice.c)
 
 Group: Index  {
 

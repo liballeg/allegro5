@@ -13,6 +13,9 @@
  *      By Trent Gamblin.
  */
 
+/* Title: Configuration routines
+ */
+
 
 #include <stdio.h>
 #include <ctype.h>
@@ -59,7 +62,8 @@ static char *skip_whitespace(char *s)
 }
 
 
-static ALLEGRO_CONFIG_SECTION *find_section(ALLEGRO_CONFIG *config, AL_CONST char *section)
+static ALLEGRO_CONFIG_SECTION *find_section(const ALLEGRO_CONFIG *config,
+   const char *section)
 {
    ALLEGRO_CONFIG_SECTION *p = config->head;
 
@@ -76,7 +80,8 @@ static ALLEGRO_CONFIG_SECTION *find_section(ALLEGRO_CONFIG *config, AL_CONST cha
 }
 
 
-static ALLEGRO_CONFIG_ENTRY *find_entry(ALLEGRO_CONFIG_ENTRY *section_head, AL_CONST char *key)
+static ALLEGRO_CONFIG_ENTRY *find_entry(ALLEGRO_CONFIG_ENTRY *section_head,
+   const char *key)
 {
    ALLEGRO_CONFIG_ENTRY *p = section_head;
 
@@ -139,7 +144,10 @@ static void get_key_and_value(char *buf, char *key, char *value)
 }
 
 
-void al_config_add_section(ALLEGRO_CONFIG *config, AL_CONST char *name)
+/* Function: al_config_add_section
+ *  Add a section to a configuration structure.
+ */
+void al_config_add_section(ALLEGRO_CONFIG *config, const char *name)
 {
    ALLEGRO_CONFIG_SECTION *sec = config->head;
    ALLEGRO_CONFIG_SECTION *section;
@@ -161,7 +169,13 @@ void al_config_add_section(ALLEGRO_CONFIG *config, AL_CONST char *name)
 }
 
 
-void al_config_set_global(ALLEGRO_CONFIG *config, AL_CONST char *key, AL_CONST char *value)
+/* Function: al_config_set_global
+ *  Set a value in the global section of a configuration structure.
+ *  If a value already existed for the given key, it will be overwritten.
+ */
+/* XXX why do we have this but not al_config_get_global? */
+void al_config_set_global(ALLEGRO_CONFIG *config,
+   const char *key, const char *value)
 {
    ALLEGRO_CONFIG_ENTRY *p;
    ALLEGRO_CONFIG_ENTRY *e = find_entry(config->globals, key);
@@ -190,7 +204,13 @@ void al_config_set_global(ALLEGRO_CONFIG *config, AL_CONST char *key, AL_CONST c
 }
 
 
-void al_config_set_value(ALLEGRO_CONFIG *config, AL_CONST char *section, AL_CONST char *key, AL_CONST char *value)
+/* Function: al_config_set_value
+ *  Set a value in a section of a configuration.  If the section doesn't yet
+ *  exist, it will be created.  If a value already existed for the given key,
+ *  it will be overwritten.
+ */
+void al_config_set_value(ALLEGRO_CONFIG *config,
+   const char *section, const char *key, const char *value)
 {
    ALLEGRO_CONFIG_SECTION *s = find_section(config, section);
    ALLEGRO_CONFIG_ENTRY *entry = find_entry(s->head, key);
@@ -223,12 +243,15 @@ void al_config_set_value(ALLEGRO_CONFIG *config, AL_CONST char *section, AL_CONS
 }
 
 
-/*
- * Gets a pointer to an internal character buffer that will
- * only remain valid as long as the ALLEGRO_CONFIG structure
- * is not destroyed. Call stdup if you need a copy.
+/* Function: al_config_get_value
+ *  Gets a pointer to an internal character buffer that will only remain valid
+ *  as long as the ALLEGRO_CONFIG structure is not destroyed. Copy the value
+ *  if you need a copy.
+ *  The section can be NULL for the global section.
+ *  Returns NULL if the section or key do not exist.
  */
-AL_CONST char *al_config_get_value(ALLEGRO_CONFIG *config, AL_CONST char *section, AL_CONST char *key)
+const char *al_config_get_value(const ALLEGRO_CONFIG *config,
+   const char *section, const char *key)
 {
    ALLEGRO_CONFIG_ENTRY *e;
 
@@ -250,8 +273,11 @@ AL_CONST char *al_config_get_value(ALLEGRO_CONFIG *config, AL_CONST char *sectio
 }
 
 
-
-ALLEGRO_CONFIG *al_config_read(AL_CONST char *filename)
+/* Function: al_config_read
+ *  Read a configuration file.
+ *  Returns NULL on error.
+ */
+ALLEGRO_CONFIG *al_config_read(const char *filename)
 {
    ALLEGRO_CONFIG *config;
    ALLEGRO_CONFIG_SECTION *current_section = NULL;
@@ -302,7 +328,11 @@ ALLEGRO_CONFIG *al_config_read(AL_CONST char *filename)
 }
 
 
-int al_config_write(ALLEGRO_CONFIG *config, AL_CONST char *filename)
+/* Function: al_config_write
+ *  Write out a configuration file.
+ *  Returns zero on success, non-zero on error.
+ */
+int al_config_write(const ALLEGRO_CONFIG *config, const char *filename)
 {
    ALLEGRO_CONFIG_SECTION *s = config->head;
    ALLEGRO_CONFIG_ENTRY *e;
@@ -351,7 +381,12 @@ Error:
 }
 
 
-void al_config_merge_into(ALLEGRO_CONFIG *master, ALLEGRO_CONFIG *add)
+/* Function: al_config_merge_into
+ *  Merge one configuration structure into another.
+ *  Values in configuration 'add' override those in 'master'.
+ *  'master' is modified.
+ */
+void al_config_merge_into(ALLEGRO_CONFIG *master, const ALLEGRO_CONFIG *add)
 {
    ALLEGRO_CONFIG_SECTION *s = add->head;
    ALLEGRO_CONFIG_ENTRY *e;
@@ -381,7 +416,14 @@ void al_config_merge_into(ALLEGRO_CONFIG *master, ALLEGRO_CONFIG *add)
 }
 
 
-ALLEGRO_CONFIG *al_config_merge(ALLEGRO_CONFIG *cfg1, ALLEGRO_CONFIG *cfg2)
+/* Function: al_config_merge
+ *  Merge two configuration structures, and return the result as a new
+ *  configuration.  Values in configuration 'cfg2' override those in 'cfg1'.
+ *  Neither of the input configuration structures are
+ *  modified.
+ */
+ALLEGRO_CONFIG *al_config_merge(const ALLEGRO_CONFIG *cfg1,
+    const ALLEGRO_CONFIG *cfg2)
 {
    ALLEGRO_CONFIG *config = local_calloc1(sizeof(ALLEGRO_CONFIG));
 
@@ -392,6 +434,10 @@ ALLEGRO_CONFIG *al_config_merge(ALLEGRO_CONFIG *cfg1, ALLEGRO_CONFIG *cfg2)
 }
 
 
+/* Function: al_config_destroy
+ *  Free the resources used by a configuration structure.
+ *  Does nothing if passed NULL.
+ */
 void al_config_destroy(ALLEGRO_CONFIG *config)
 {
    ALLEGRO_CONFIG_ENTRY *e;
@@ -429,3 +475,4 @@ void al_config_destroy(ALLEGRO_CONFIG *config)
    _AL_FREE(config);
 }
 
+/* vim: set sts=3 sw=3 et: */
