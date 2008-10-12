@@ -7,7 +7,7 @@ def getOption(name, default = 0):
     return env[name]
 
 def getLibraryName():
-    return "%s-%s" % (context.libraryName("alleg"), context.getVersion())
+    return "%s-%s" % (context.libraryName("allegro"), context.getVersion())
 
 def appendDir(directory, files):
     return [directory + "/" + x for x in files]
