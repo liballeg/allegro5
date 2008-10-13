@@ -7,6 +7,23 @@ Import('env')
 
 # context.setLibraryDir("lib/macosx")
 
+def getArgumentOption(name, default):
+    arg = ARGUMENTS.get(name,default)
+    if arg == "yes" or arg == "1":
+        return 1
+    return 0
+
+
+def setupPlatform(platform, config):
+    return config.Finish()
+
+platform, configure_env = helpers.do_configure('osx', context,
+                            context.getTests(), setupPlatform,
+                            'include/allegro5/platform/al_cfg.h.cmake',
+                            'include/allegro5/platform/al_cfg.h',
+                            getArgumentOption('config', 0))
+
+
 helpers.parse_cmake_h(env,helpers.define('ALLEGRO_MACOSX','ALLEGRO_CFG_OPENGL'),'#include/allegro5/platform/alplatf.h.cmake','include/allegro5/platform/alplatf.h')
 
 # alplatf_h = helpers.generate_alplatf_h(env, ['ALLEGRO_MACOSX','ALLEGRO_CFG_OPENGL'])
