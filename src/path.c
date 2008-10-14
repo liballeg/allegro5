@@ -67,11 +67,11 @@ static int32_t _parse_path(const char *p, char **drive, char **path, char **file
    char *path_info = NULL, *path_info_end = NULL;
    int32_t path_info_len = 0;
    const char dirsep = '/';
-   const char drivesep = ':';
 
 #ifdef ALLEGRO_WINDOWS
    // UNC \\server\share name
    if (ugetc(ptr) == dirsep && ugetat(ptr, 1) == dirsep) {
+      const char drivesep = ':';
       char *uncdrive = NULL;
 
       ptr += uwidth(ptr);
