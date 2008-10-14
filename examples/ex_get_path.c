@@ -1,6 +1,5 @@
 #include <stdio.h>
 #include "allegro5/allegro5.h"
-#include "allegro5/fshook.h"
 
 int main(int argc, char **argv)
 {

@@ -51,9 +51,11 @@ AL_FUNC(const char*, al_path_get_extension, (AL_PATH *path, char *buf, size_t le
 AL_FUNC(const char*, al_path_get_basename, (AL_PATH *path, char *buf, size_t len));
 
 /* FIXME: implement kthx bye */
+/*
 AL_FUNC(char*, al_path_absolute, (AL_PATH *path, char *buffer, size_t len, char delim));
 AL_FUNC(char*, al_path_relative, (AL_PATH *path, char *buffer, size_t len, char delim));
 AL_FUNC(char*, al_path_cannonical, (AL_PATH *path, char *buffer, size_t len, char delim));
+*/
 
 AL_FUNC(uint32_t, al_path_exists, (AL_PATH *path));
 AL_FUNC(uint32_t, al_path_emode, (AL_PATH *path, uint32_t mode));

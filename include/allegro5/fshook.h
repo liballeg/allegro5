@@ -216,12 +216,14 @@ AL_FUNC(int, al_fs_entry_fputs, (AL_CONST char *p, AL_FS_ENTRY *f));
 
 /* Find stuff */
 
+/*
 typedef int (*AL_FILTER_PROC)(AL_CONST char *, void *);
 typedef int (*AL_SORT_PROC)(AL_CONST char *, AL_CONST char *, void *);
 
 AL_FUNC(char **, al_fs_find_ex, (char *path, AL_FILTER_PROC filter, void *, AL_SORT_PROC sort, void *));
 AL_FUNC(char **, al_fs_find, (char *path, AL_FS_FILTER filter, AL_FS_SORT sort));
 AL_FUNC(void,  al_fs_free_list, (char **));
+*/
 
 AL_FUNC(char *, al_find_resource, (const char *base, const char *resource, uint32_t fm, char *buffer, size_t len));
 

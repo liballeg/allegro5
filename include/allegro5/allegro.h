@@ -49,6 +49,9 @@
 
 #include "allegro5/tls.h"
 
+#include "allegro5/fshook.h"
+#include "allegro5/path.h"
+
 #include "fmaths.h"
 
 #include "config.h"
