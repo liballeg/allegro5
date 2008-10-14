@@ -19,8 +19,6 @@
 #include <string.h>
 
 #include "allegro5/allegro5.h"
-#include "allegro5/internal/aintern.h"
-#include "allegro5/internal/aintern_bitmap.h"
 #include "allegro5/internal/aintern_memory.h"
 
 #include "allegro5/a5_iio.h"
@@ -44,6 +42,8 @@ static bool color_compare(ALLEGRO_COLOR c1, ALLEGRO_COLOR c2)
 /* splits bitmaps into sub-sprites, using regions bounded by col #255 */
 static void font_find_character(ALLEGRO_BITMAP *bmp, int *x, int *y, int *w, int *h)
 {
+   const int bmp_w = al_get_bitmap_width(bmp);
+   const int bmp_h = al_get_bitmap_height(bmp);
    ALLEGRO_COLOR c;
    ALLEGRO_LOCKED_REGION lr;
 
@@ -53,10 +53,10 @@ static void font_find_character(ALLEGRO_BITMAP *bmp, int *x, int *y, int *w, int
 
    /* look for top left corner of character */
    while (1) {
-      if (*x+1 >= bmp->w) {
+      if (*x+1 >= bmp_w) {
          *x = 0;
          (*y)++;
-         if (*y+1 >= bmp->h) {
+         if (*y+1 >= bmp_h) {
             *w = 0;
             *h = 0;
             al_unlock_bitmap(bmp);
@@ -76,15 +76,15 @@ static void font_find_character(ALLEGRO_BITMAP *bmp, int *x, int *y, int *w, int
 
    /* look for right edge of character */
    *w = 0;
-   while ((*x+*w+1 < bmp->w) && 
+   while ((*x+*w+1 < bmp_w) &&
       (!color_compare(al_get_pixel(bmp, *x+*w+1, *y), c) &&
       color_compare(al_get_pixel(bmp, *x+*w+1, *y+1), c))) {
-         (*w)++;
+      (*w)++;
    }
 
    /* look for bottom edge of character */
    *h = 0;
-   while ((*y+*h+1 < bmp->h) &&
+   while ((*y+*h+1 < bmp_h) &&
       (!color_compare(al_get_pixel(bmp, *x, *y+*h+1), c) &&
       color_compare(al_get_pixel(bmp, *x+1, *y+*h+1), c))) {
          (*h)++;
@@ -227,7 +227,8 @@ ALLEGRO_FONT *al_font_grab_font_from_bitmap(ALLEGRO_BITMAP *bmp)
    //al_set_new_bitmap_flags(0);
    al_set_new_bitmap_format(ALLEGRO_PIXEL_FORMAT_ANY_WITH_ALPHA);
 
-   cf->glyphs = al_create_bitmap(bmp->w, bmp->h);
+   cf->glyphs = al_create_bitmap(
+      al_get_bitmap_width(bmp), al_get_bitmap_height(bmp));
    if (!cf->glyphs)
       return 0;
 
@@ -248,7 +249,7 @@ ALLEGRO_FONT *al_font_grab_font_from_bitmap(ALLEGRO_BITMAP *bmp)
    else {
       f->data = cf;
       f->vtable = al_font_vtable_color;
-      f->height = cf->bitmaps[0]->h;
+      f->height = al_get_bitmap_height(cf->bitmaps[0]);
 
       cf->begin = begin;
       cf->end = end;

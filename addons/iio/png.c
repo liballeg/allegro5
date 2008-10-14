@@ -7,8 +7,6 @@
 
 #include "allegro5/allegro5.h"
 #include "allegro5/fshook.h"
-#include "allegro5/internal/aintern.h"
-#include "allegro5/internal/aintern_bitmap.h"
 
 #include "iio.h"
 
@@ -374,17 +372,19 @@ static void flush_data(png_structp png_ptr)
  */
 static int save_rgba(png_structp png_ptr, ALLEGRO_BITMAP *bmp)
 {
+   const int bmp_w = al_get_bitmap_width(bmp);
+   const int bmp_h = al_get_bitmap_height(bmp);
    unsigned char *rowdata;
    int x, y;
 
-   rowdata = (unsigned char *)malloc(bmp->w * 4);
+   rowdata = (unsigned char *)malloc(bmp_w * 4);
    if (!rowdata)
       return 0;
 
-   for (y = 0; y < bmp->h; y++) {
+   for (y = 0; y < bmp_h; y++) {
       unsigned char *p = rowdata;
 
-      for (x = 0; x < bmp->w; x++) {
+      for (x = 0; x < bmp_w; x++) {
          ALLEGRO_COLOR c = al_get_pixel(bmp, x, y);
          unsigned char r, g, b, a;
          al_unmap_rgba(c, &r, &g, &b, &a);
@@ -452,7 +452,9 @@ static int really_save_png(AL_FS_ENTRY *fp, ALLEGRO_BITMAP *bmp)
    /* Set compression level. */
    png_set_compression_level(png_ptr, _png_compression_level);
 
-   png_set_IHDR(png_ptr, info_ptr, bmp->w, bmp->h, 8, colour_type,
+   png_set_IHDR(png_ptr, info_ptr,
+                al_get_bitmap_width(bmp), al_get_bitmap_height(bmp),
+                8, colour_type,
                 PNG_INTERLACE_NONE, PNG_COMPRESSION_TYPE_BASE,
                 PNG_FILTER_TYPE_BASE);
 
@@ -507,3 +509,5 @@ int iio_save_png(AL_CONST char *filename, ALLEGRO_BITMAP *bmp)
 
    return result;
 }
+
+/* vim: set sts=3 sw=3 et: */

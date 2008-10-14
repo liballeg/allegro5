@@ -21,8 +21,6 @@
 #include <string.h>
 
 #include "allegro5/allegro5.h"
-#include "allegro5/internal/aintern.h"
-#include "allegro5/internal/aintern_bitmap.h"
 #include "allegro5/convert.h"
 #include "allegro5/fshook.h"
 
@@ -745,7 +743,7 @@ static int iio_save_bmp_pf(AL_FS_ENTRY *f, ALLEGRO_BITMAP *bmp)
    w = al_get_bitmap_width(bmp);
    h = al_get_bitmap_height(bmp);
 
-   depth = al_get_pixel_format_bits(bmp->format);
+   depth = al_get_pixel_format_bits(al_get_bitmap_format(bmp));
    bpp = 24;
    filler = 3 - ((w * (bpp / 8) - 1) & 3);
 
@@ -859,3 +857,5 @@ int iio_save_bmp(AL_CONST char *filename, ALLEGRO_BITMAP *bmp)
 
    return ret;
 }
+
+/* vim: set sts=3 sw=3 et: */

@@ -8,10 +8,9 @@
 #include <jerror.h>
 
 #include "allegro5/allegro5.h"
-#include "allegro5/internal/aintern_memory.h"
-#include "allegro5/internal/aintern_bitmap.h"
-
 #include "allegro5/fshook.h"
+#include "allegro5/internal/aintern_memory.h"
+
 #include "iio.h"
 
 #define BUFFER_SIZE 4096

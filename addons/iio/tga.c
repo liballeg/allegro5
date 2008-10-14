@@ -24,7 +24,7 @@
 
 #include "allegro5/allegro5.h"
 #include "allegro5/fshook.h"
-#include "allegro5/internal/aintern.h"
+
 #include "iio.h"
 
 

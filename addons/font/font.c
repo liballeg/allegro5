@@ -24,8 +24,6 @@
 
 #include <string.h>
 #include "allegro5/allegro5.h"
-#include "allegro5/internal/aintern.h"
-#include "allegro5/internal/aintern_bitmap.h"
 #include "allegro5/internal/aintern_memory.h"
 #include "allegro5/a5_font.h"
 #include "allegro5/a5_iio.h"
@@ -102,7 +100,7 @@ ALLEGRO_BITMAP* _al_font_color_find_glyph(const ALLEGRO_FONT* f, int ch)
 static int color_char_length(const ALLEGRO_FONT* f, int ch)
 {
     ALLEGRO_BITMAP* g = _al_font_color_find_glyph(f, ch);
-    return g ? g->w : 0;
+    return g ? al_get_bitmap_width(g) : 0;
 }
 
 
@@ -122,9 +120,9 @@ static int color_render_char(const ALLEGRO_FONT* f, int ch, int x, int y)
 
     g = _al_font_color_find_glyph(f, ch);
     if(g) {
-        al_draw_bitmap(g, x, y + ((float)h-g->h)/2.0f, 0);
+        al_draw_bitmap(g, x, y + ((float)h - al_get_bitmap_height(g))/2.0f, 0);
 
-	w = g->w;
+	w = al_get_bitmap_width(g);
     }
 
     return w;

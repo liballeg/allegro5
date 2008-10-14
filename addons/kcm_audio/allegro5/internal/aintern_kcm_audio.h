@@ -6,7 +6,6 @@
 #define AINTERN_AUDIO_H
 
 #include "allegro5/allegro5.h"
-#include "allegro5/internal/aintern.h"
 #include "allegro5/internal/aintern_vector.h"
 #include "../kcm_audio.h"
 

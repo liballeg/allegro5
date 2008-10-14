@@ -16,7 +16,6 @@
 #include <alc.h>
 #endif /* ALLEGRO_MACOSX */
 
-#include "allegro5/internal/aintern.h"
 #include "allegro5/internal/aintern_thread.h"
 #include "allegro5/internal/aintern_kcm_audio.h"
 
