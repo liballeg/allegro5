@@ -696,12 +696,9 @@
 #define glIsVertexArray __aglIsVertexArray
 #endif
 
-#if defined AGL_EXT_blend_color
-#define glBlendColorEXT __aglBlendColorEXT
-#endif
-
 
 /*</ARB>*/
+
 
 #if defined AGL_EXT_blend_color
 #define glBlendColorEXT __aglBlendColorEXT
