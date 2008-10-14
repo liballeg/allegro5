@@ -718,6 +718,7 @@ char *al_find_resource(const char *base, const char *resource, uint32_t fm,
    }
 
    al_path_to_string(&path, buffer, len, ALLEGRO_NATIVE_PATH_SEP);
+   al_path_free(&path);
 
    return buffer;
 }

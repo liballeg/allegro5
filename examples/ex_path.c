@@ -30,10 +30,12 @@ int main(int argc, char **argv)
    }
    else {
       printf("dyn: drive=\"%s\", file=\"%s\"\n", al_path_get_drive(dyn), al_path_get_filename(dyn));
+      al_path_free(dyn);
    }
 
    if(al_path_init(&sta, argv[1])) {
       printf("sta: drive=\"%s\", file=\"%s\"\n", al_path_get_drive(&sta), al_path_get_filename(&sta));
+      al_path_free(&sta);
    }
    else {
       printf("failed to init path structure for '%s'\n", argv[1]);
@@ -53,6 +55,7 @@ int main(int argc, char **argv)
          printf(" '%s'", al_path_index(tostring, i));
       }
       printf(" filename:'%s'\n", al_path_get_filename(tostring));
+      al_path_free(tostring);
    }
 
    /* FIXME: test out more of the al_path_ functions, ie: insert, remove, concat, cannonocalize, absolute, relative */
