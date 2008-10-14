@@ -1,3 +1,4 @@
+#include "allegro5/a5_direct3d.h"
 #include "allegro5/internal/aintern_system.h"
 #include "allegro5/internal/aintern_display.h"
 #include "allegro5/internal/aintern_bitmap.h"

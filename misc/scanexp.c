@@ -32,6 +32,8 @@
 #if defined ALLEGRO_API
 
    #include "allegro5/allegro5.h"
+   #include "allegro5/a5_opengl.h"
+   #include "allegro5/a5_direct3d.h"
 
 #elif defined ALLEGRO_WINAPI
 

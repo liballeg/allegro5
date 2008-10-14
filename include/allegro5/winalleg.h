@@ -60,46 +60,4 @@
 #undef BITMAP
 #undef RGB
 
-
-
-/* Allegro's Win32 specific interface */
-#ifdef __cplusplus
-   extern "C" {
-#endif
-
-
-/* D3D stuff */
-
-
-#if defined(ALLEGRO_CFG_D3D)
-
-#ifndef SCAN_DEPEND
-#include <d3d9.h>
-#endif
-
-#ifdef __cplusplus
-extern "C" {
-#endif
-
-AL_FUNC(LPDIRECT3DDEVICE9, al_d3d_get_device, (ALLEGRO_DISPLAY *));
-AL_FUNC(HWND, al_d3d_get_hwnd, (ALLEGRO_DISPLAY *));
-AL_FUNC(LPDIRECT3DTEXTURE9, al_d3d_get_system_texture, (ALLEGRO_BITMAP *));
-AL_FUNC(LPDIRECT3DTEXTURE9, al_d3d_get_video_texture, (ALLEGRO_BITMAP *));
-AL_FUNC(bool, al_d3d_supports_non_pow2_textures, (void));
-AL_FUNC(bool, al_d3d_supports_non_square_textures, (void));
-
-#ifdef __cplusplus
-}
-#endif
-
-#ifdef ALLEGRO_BCC32
-#define sqrtf (float)sqrt
-#endif
-
-#endif //ALLEGRO_CFG_D3D
-
-#ifdef __cplusplus
-   }
-#endif
-
 #endif          /* ifndef WIN_ALLEGRO_H */

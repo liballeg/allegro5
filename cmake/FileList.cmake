@@ -303,6 +303,7 @@ set(ALLEGRO_INCLUDE_ALLEGRO_FILES
     include/allegro5/mouse.h
     include/allegro5/path.h
     include/allegro5/a5_opengl.h
+    include/allegro5/a5_direct3d.h
     include/allegro5/system_new.h
     include/allegro5/threads.h
     include/allegro5/tls.h
