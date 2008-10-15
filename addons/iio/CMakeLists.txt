@@ -55,7 +55,7 @@ macro(add_iio_build nm extra_flags)
     endif(SHARED)
 
     if(STATIC)
-        really_add_iio_build(${nm}_s ${nm}_static STATIC "-DALLEGRO_STATICLINK")
+        really_add_iio_build(${nm}-static ${nm}_static STATIC "-DALLEGRO_STATICLINK")
     endif(STATIC)
 
 endmacro(add_iio_build)
@@ -66,12 +66,12 @@ if(GRADE_STANDARD)
 endif(GRADE_STANDARD)
 
 if(GRADE_DEBUG)
-    add_iio_build(a5_iiod
+    add_iio_build(a5_iio-debug
         "-DDEBUGMODE -g")
 endif(GRADE_DEBUG)
 
 if(GRADE_PROFILE)
-    add_iio_build(a5_iiop
+    add_iio_build(a5_iio-profile
         "-pg -O2 -funroll-loops -ffast-math")
 endif(GRADE_PROFILE)
 
@@ -79,9 +79,9 @@ endif(GRADE_PROFILE)
 if(GRADE_STANDARD)
     set(IIO_LIB_TO_LINK a5_iio CACHE INTERNAL "internal")
 elseif(GRADE_DEBUG)
-    set(IIO_LIB_TO_LINK a5_iiod CACHE INTERNAL "internal")
+    set(IIO_LIB_TO_LINK a5_iio-debug CACHE INTERNAL "internal")
 elseif(GRADE_PROFILE)
-    set(IIO_LIB_TO_LINK a5_iiop CACHE INTERNAL "internal")
+    set(IIO_LIB_TO_LINK a5_iio-profile CACHE INTERNAL "internal")
 endif(GRADE_STANDARD)
 
 if(STATIC)
