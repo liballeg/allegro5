@@ -4,9 +4,9 @@
  */
 
 #include <allegro5/allegro5.h>
-#include <allegro5/winalleg.h>
 #include <allegro5/a5_direct3d.h>
 #include <d3dx9.h>
+#include <windows.h>
 #include <cstdio>
 
 #define D3DFVF_CUSTOMVERTEX   (D3DFVF_XYZ | D3DFVF_DIFFUSE)

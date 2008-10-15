@@ -4,7 +4,7 @@
 #ifndef _AINTWTHR_H
 #define _AINTWTHR_H
 
-#include "allegro5/winalleg.h"
+#include <windows.h>
 
 AL_BEGIN_EXTERN_C
 

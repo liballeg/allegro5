@@ -65,7 +65,7 @@ typedef struct thread_local_state {
  * build must be built as a DLL.
  */
 
-#include "allegro5/winalleg.h"
+#include <windows.h>
 
 
 static DWORD tls_index;

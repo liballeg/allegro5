@@ -91,7 +91,6 @@ set(ALLEGRO_SRC_DOS_FILES
     )
 
 set(ALLEGRO_SRC_WIN_FILES
-    src/win/wddraw.c
     src/win/winput.c
     src/win/wjoydrv.c
     src/win/wjoydxnu.c
@@ -281,7 +280,6 @@ set(ALLEGRO_INCLUDE_FILES
 set(ALLEGRO_INCLUDE_ALLEGRO_FILES
     include/allegro5/allegro5.h
     include/allegro5/allegro.h
-    include/allegro5/winalleg.h
     include/allegro5/alinline.h
     include/allegro5/altime.h
     include/allegro5/base.h

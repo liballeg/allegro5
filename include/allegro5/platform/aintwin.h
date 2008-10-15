@@ -33,6 +33,9 @@
 #include "allegro5/system_new.h"
 
 
+#define WINDOWS_RGB(r,g,b)  ((COLORREF)(((BYTE)(r)|((WORD)((BYTE)(g))<<8))|(((DWORD)(BYTE)(b))<<16)))
+
+
 AL_BEGIN_EXTERN_C
 
 

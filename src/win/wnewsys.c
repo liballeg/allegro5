@@ -33,7 +33,7 @@
    #include "allegro5/a5_direct3d.h"
 #endif
 
-#include "allegro5/winalleg.h"
+#include <windows.h>
 
 
 #ifndef SCAN_DEPEND

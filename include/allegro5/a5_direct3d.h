@@ -41,11 +41,6 @@ AL_FUNC(bool,               al_d3d_supports_non_pow2_textures,   (void));
 AL_FUNC(bool,               al_d3d_supports_non_square_textures, (void));
 
 
-#ifdef ALLEGRO_BCC32
-#define sqrtf (float)sqrt
-#endif
-
-
 #ifdef __cplusplus
    }
 #endif
