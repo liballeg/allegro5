@@ -214,11 +214,12 @@ class AllegroContextStaticDebug(AllegroContext):
     def __init__(self, tests):
         AllegroContext.__init__(self, tests)
     
+    # its debug-static because its easier for cmake that way
     def aliasName(self):
-        return "-static-debug"
+        return "-debug-static"
    
     def libraryName(self, name):
-        return name + '-static-debug'
+        return name + '-debug-static'
 
     def buildLibrary(self, env, name, source):
         return env.StaticLibrary(name, source)

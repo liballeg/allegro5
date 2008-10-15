@@ -619,7 +619,7 @@ macro(add_allegro_build nm extra_flags)
     endif(SHARED)
 
     if(STATIC)
-        really_add_allegro_build(${nm}_s-${ALLEGRO_VERSION} ${nm}_static STATIC
+        really_add_allegro_build(${nm}-static-${ALLEGRO_VERSION} ${nm}_static STATIC
             "-DALLEGRO_STATICLINK")
     endif(STATIC)
 
@@ -627,37 +627,37 @@ endmacro(add_allegro_build)
 
 if(GRADE_STANDARD)
     if(COMPILER_GCC)
-        add_allegro_build(alleg
+        add_allegro_build(allegro
             "-O2 -funroll-loops -ffast-math -fomit-frame-pointer")
     endif(COMPILER_GCC)
     if(COMPILER_MSVC)
-        add_allegro_build(alleg "")
+        add_allegro_build(allegro "")
     endif(COMPILER_MSVC)
     if(BORLAND)
-        add_allegro_build(alleg "-O2")
+        add_allegro_build(allegro "-O2")
     endif(BORLAND)
 endif(GRADE_STANDARD)
 
 if(GRADE_DEBUG)
     if(COMPILER_GCC)
-        add_allegro_build(allegd
+        add_allegro_build(allegro-debug
             "-DDEBUGMODE -g2 -O0")
     endif(COMPILER_GCC)
     if(COMPILER_MSVC)
-        add_allegro_build(allegd "-DDEBUGMODE")
+        add_allegro_build(allegro-debug "-DDEBUGMODE")
     endif(COMPILER_MSVC)
     if(BORLAND)
-        add_allegro_build(allegd "-DDEBUGMODE=1 -v")
+        add_allegro_build(allegro-debug "-DDEBUGMODE=1 -v")
     endif(BORLAND)
 endif(GRADE_DEBUG)
 
 if(GRADE_PROFILE)
     if(COMPILER_GCC)
-        add_allegro_build(allegp
+        add_allegro_build(allegro-profile
             "-pg -O2 -funroll-loops -ffast-math")
     endif(COMPILER_GCC)
     if(COMPILER_MSVC)
-        add_allegro_build(allegp "")
+        add_allegro_build(allegro-profile "")
     endif(COMPILER_MSVC)
 endif(GRADE_PROFILE)
 

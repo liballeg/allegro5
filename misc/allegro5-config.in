@@ -190,7 +190,7 @@ fi
 
 if test "$echo_libs" = "yes"; then
    libdirs=-L$lib_path
-   echo $libdirs $allegro_ldflags -lallegro$lib_linkage$lib_type-$version
+   echo $libdirs $allegro_ldflags -lallegro$lib_type$lib_linkage-$version
 fi
 
 if test "$echo_frameworks" = "yes"; then
