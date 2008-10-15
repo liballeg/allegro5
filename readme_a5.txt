@@ -184,23 +184,27 @@ To install, run (as root):
 
 	$ scons install
 
-There are also some options you can use with the scons command:
-
-- static (default: 1)
-- debug
+To build different types of libraries, use different targets
 
 Example:
 
-	$ scons static=1 debug=1
-	$ scons static=0 debug=1
+	$ scons all # normal shared, non-debug
+	$ scons all-static
+	$ scons all-debug
+	$ scons all-static-debug
+	$ scons all-profile
 
-etc..
+To build all the versions at once
+	
+	$ scons everything
 
 To install as a non-root user, you can do:
 
 	$ scons install install=/home/myuser/mydirectory
 
+To install all versions at once
 
+	$ scons install-everything
 
 Optional dependencies
 =====================

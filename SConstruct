@@ -29,11 +29,13 @@ all
 all-static
 all-debug
 all-static-debug
+all-profile
 everything
 install
 install-static
 install-debug
 install-static-debug
+install-profile
 install-everything
 
 To turn an option on use the form option=1. Possible options are:
