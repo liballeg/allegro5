@@ -257,8 +257,14 @@ def allegroConfig(env):
     replaces[ '@includedir@' ] = os.path.join(prefix, "include")
     replaces[ '@libdir@' ] = os.path.join(prefix, "lib")
     replaces[ '@bindir@' ] = os.path.join(prefix, "bin")
-    replaces[ '@LINK_WITH_STATIC_LIBS@' ] = 'no'
-    replaces[ '@LIB_TO_LINK@' ] = 'alleg'
+    if context.isStatic():
+    	replaces['@LIB_LINKAGE@'] = '-static'
+    else:
+    	replaces['@LIB_LINKAGE@'] = ''
+    if context.isDebug():
+    	replaces['@LIB_TYPE@'] = '-debug'
+    else:
+    	replaces['@LIB_TYPE@'] = ''
     ldflags = ''
     if supportModules():
         ldflags = '-Wl,--export-dynamic'

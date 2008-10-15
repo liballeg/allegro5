@@ -20,8 +20,8 @@ include_path=@includedir@
 lib_path=@libdir@
 bin_path=@bindir@
 
-static_libs=@LINK_WITH_STATIC_LIBS@
-lib_type=@LIB_TO_LINK@
+lib_linkage=@LIB_LINKAGE@
+lib_type=@LIB_TYPE@
 
 accepts_frameworks=no
 
@@ -38,25 +38,25 @@ usage()
 Usage: allegro5-config [OPTIONS] [LIBRARIES]
 
 Options:
-	--prefix[=DIR]
-	--exec-prefix[=DIR]
-	--version[=VERSION]
-	--cflags
-	--cppflags
-	--libs
-	--static
-	--shared
+        --prefix[=DIR]
+        --exec-prefix[=DIR]
+        --version[=VERSION]
+        --cflags
+        --cppflags
+        --libs
+        --static
+        --shared
 EOF
    if test "$accepts_frameworks" = "yes"; then
-      echo "	--frameworks"
+      echo "        --frameworks"
    fi
    cat <<EOF
-	--env
+        --env
 
 Libraries:
-	release
-	debug
-	profile
+        release
+        debug
+        profile
 EOF
    exit $1
 }
@@ -74,89 +74,96 @@ while test $# -gt 0; do
    case $1 in
 
       --prefix=*)
-	 prefix=$optarg
-	 if test $exec_prefix_set = no; then
-	    exec_prefix=$optarg
-	 fi
+         prefix=$optarg
+         if test $exec_prefix_set = no; then
+            exec_prefix=$optarg
+         fi
       ;;
 
       --prefix)
-	 echo_prefix=yes
+         echo_prefix=yes
       ;;
 
       --exec-prefix=*)
-	 exec_prefix=$optarg
-	 exec_prefix_set=yes
+         exec_prefix=$optarg
+         exec_prefix_set=yes
       ;;
 
       --exec-prefix)
-	 echo_exec_prefix=yes
+         echo_exec_prefix=yes
       ;;
 
       --version=*)
-	 version=$optarg
+         version=$optarg
       ;;
 
       --version)
-	 echo $version
+         echo $version
       ;;
 
       --cflags)
-	 echo_cflags=yes
+         echo_cflags=yes
       ;;
 
       --cppflags)
-	 echo_cppflags=yes
+         echo_cppflags=yes
       ;;
 
       --libs)
-	 echo_libs=yes
+         echo_libs=yes
       ;;
 
       --static)
-	 static_libs=yes
-	 echo_libs=yes
+         lib_linkage=-static
+         echo_libs=yes
       ;;
 
       --shared)
-	 static_libs=no
-	 echo_libs=yes
+         lib_linkage=
+         echo_libs=yes
       ;;
 
       --frameworks)
-	 if test "$accepts_frameworks" = "yes"; then
-	    echo_frameworks=yes
-	 else
-	    usage 1 1>&2
-	 fi
+         if test "$accepts_frameworks" = "yes"; then
+            echo_frameworks=yes
+         else
+            usage 1 1>&2
+         fi
       ;;
 
       --env)
-	 echo_env=yes
+         echo_env=yes
       ;;
 
       release)
-	 lib_type=alleg
+         lib_type=
       ;;
 
       debug)
-	 allegro_cflags=-DDEBUGMODE $allegro_cflags
-	 allegro_cppflags=-DDEBUGMODE $allegro_cppflags
-	 lib_type=allegd
+         allegro_cflags="-DDEBUGMODE $allegro_cflags"
+         allegro_cppflags="-DDEBUGMODE $allegro_cppflags"
+         lib_type=-debug
       ;;
 
       profile)
-	 lib_type=allegp
+         lib_type=-profile
       ;;
 
       *)
-	 usage 1 1>&2
+         usage 1 1>&2
       ;;
 
    esac
    shift
 done
 
+# Check argument sanity
+if test "$lib_type" = "-profile" && test "$lib_linkage" = "-static"; then
+   echo "There is no static-linked profiling configuration." >&2
+   exit 1
+fi
+
+# Perform actions
 if test "$echo_prefix" = "yes"; then
    echo $prefix
 fi
@@ -183,11 +190,7 @@ fi
 
 if test "$echo_libs" = "yes"; then
    libdirs=-L$lib_path
-   if test "$static_libs" = "yes"; then
-      echo $libdirs $allegro_ldflags -l${lib_type}_s $allegro_libs
-   else
-      echo $libdirs $allegro_ldflags -l$lib_type-$version
-   fi
+   echo $libdirs $allegro_ldflags -lallegro$lib_linkage$lib_type-$version
 fi
 
 if test "$echo_frameworks" = "yes"; then
