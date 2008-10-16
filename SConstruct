@@ -4,14 +4,10 @@
 
 # If you are on Linux/*NIX you need at least version 0.96.92 of SCons 
 
-# debug=1 is the same as prefixing debug- to the target and
-# static=1 is the same as using the static target
-# Thus debug=1 static=1 is the same as debug-static
-
 # 2. Get the build system working on other platforms supported by Allegro, Windows being the most important one
-# Linux - 95%. Still need to handle install
-# OSX - 80%. Still need to handle install
-# Windows - 80%. asm doesnt compile yet
+# Linux - 99%. Installing copies files in the current directory as root.
+# OSX - 70%. Examples don't link and installing.
+# Windows - 70%. Examples don't link and installing.
 
 # 3. Allow arbitrary libraries to be dropped into the Allegro directory and automatically compiled using the Allegro SCons environments - 0%
 
@@ -36,6 +32,7 @@ install-static
 install-debug
 install-static-debug
 install-profile
+install-profile-static
 install-everything
 
 To turn an option on use the form option=1. Possible options are:
@@ -240,7 +237,7 @@ class AllegroContextStaticDebug(AllegroContext):
     def getBuildDir(self):
         return BUILD_DIR + '/debug-static'
 
-# Static debug
+# Profile
 class AllegroContextProfile(AllegroContext):
     def __init__(self, tests):
         AllegroContext.__init__(self, tests)
@@ -268,6 +265,38 @@ class AllegroContextProfile(AllegroContext):
 
     def getBuildDir(self):
         return BUILD_DIR + '/profile'
+    
+    def isProfile(self):
+        return True
+
+# Profile static
+class AllegroContextProfileStatic(AllegroContext):
+    def __init__(self, tests):
+        AllegroContext.__init__(self, tests)
+    
+    def aliasName(self):
+        return "-profile-static"
+   
+    def libraryName(self, name):
+        return name + '-profile-static'
+
+    def buildLibrary(self, env, name, source):
+        return env.StaticLibrary(name, source)
+
+    def isStatic(self):
+        return True
+
+    def isDebug(self):
+        return False
+    
+    def defaultEnvironment(self):
+        env = Environment(ENV = os.environ)
+        env.Append(CFLAGS = ['-pg'])
+        env.Append(LINKFLAGS = ['-pg'])
+        return env
+
+    def getBuildDir(self):
+        return BUILD_DIR + '/profile-static'
     
     def isProfile(self):
         return True
@@ -342,11 +371,15 @@ def buildStaticDebug():
 def buildProfile():
     return doBuild(AllegroContextProfile(platformChecks()))
 
+def buildProfileStatic():
+    return doBuild(AllegroContextProfileStatic(platformChecks()))
+
 installNormal = buildNormal()
 installStatic = buildStatic()
 installDebug = buildDebug()
 installStaticDebug = buildStaticDebug()
 installProfile = buildProfile()
+installProfileStatic = buildProfileStatic()
 
 # Combine all the possible installed files into a giant list
 def combineInstall(*installs):
@@ -421,7 +454,7 @@ def doInstall(targets):
 
 allInstall = combineInstall(installNormal, installStatic,
                             installDebug, installStaticDebug,
-                            installProfile)
+                            installProfile, installProfileStatic)
 
 common = filterCommon(allInstall)
 uncommon = filterUncommon(allInstall)
@@ -432,6 +465,7 @@ Alias('install-static-files', doInstall(filterType(installStatic, uncommon)))
 Alias('install-debug-files', doInstall(filterType(installDebug, uncommon)))
 Alias('install-static-debug-files', doInstall(filterType(installStaticDebug, uncommon)))
 Alias('install-profile-files', doInstall(filterType(installProfile, uncommon)))
+Alias('install-profile-static-files', doInstall(filterType(installProfileStatic, uncommon)))
 
 # Regular install is the normal library
 Alias('install', ['install-common', 'install-normal-files'])
@@ -439,10 +473,11 @@ Alias('install-static', ['install-common', 'install-static-files'])
 Alias('install-debug', ['install-common', 'install-debug-files'])
 Alias('install-static-debug', ['install-common', 'install-static-debug-files'])
 Alias('install-profile', ['install-common', 'install-profile-files'])
+Alias('install-profile-static', ['install-common', 'install-profile-static-files'])
 
 # Default is what comes out of buildNormal()
 Default('all')
 
 # Build the world!
-Alias('everything',['all','all-static','all-debug','all-static-debug', 'all-profile'])
-Alias('install-everything', ['install', 'install-static', 'install-debug', 'install-static-debug', 'install-profile'])
+Alias('everything',['all','all-static','all-debug','all-static-debug', 'all-profile', 'all-profile-static'])
+Alias('install-everything', ['install', 'install-static', 'install-debug', 'install-static-debug', 'install-profile', 'install-profile-static'])
