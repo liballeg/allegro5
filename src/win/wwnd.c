@@ -65,6 +65,8 @@ static HANDLE wnd_thread = NULL;
 static HWND (*wnd_create_proc)(WNDPROC) = NULL;
 static int old_style = 0;
 
+static int (*wnd_msg_pre_proc)(HWND, UINT, WPARAM, LPARAM, int *) = NULL;
+
 /* custom window msgs */
 #define SWITCH_TIMER  1
 static UINT msg_call_proc = 0;
@@ -216,6 +218,13 @@ static LRESULT CALLBACK directx_wnd_proc(HWND wnd, UINT message, WPARAM wparam, 
    if (message == msg_suicide) {
       DestroyWindow(wnd);
       return 0;
+   }
+
+   /* Call user callback if available */
+   if (wnd_msg_pre_proc){
+      int retval;
+      if (wnd_msg_pre_proc(wnd, message, wparam, lparam, &retval) == 0)
+         return retval;
    }
 
    /* See get_reverse_mapping() in wkeybd.c to see what this is for. */
@@ -751,6 +760,11 @@ HWND win_get_window(void)
    return allegro_wnd;
 }
 
+
+void win_set_msg_pre_proc(int (*proc)(HWND, UINT, WPARAM, LPARAM, int *))
+{
+   wnd_msg_pre_proc = proc;
+}
 
 
 /* win_set_wnd_create_proc:

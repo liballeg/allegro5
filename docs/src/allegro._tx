@@ -13842,6 +13842,15 @@ you must include winalleg.h after other Allegro headers.
    Releases a handle to the device context of the bitmap that was
    previously retrieved with win_get_dc().
 
+@@void @win_set_msg_pre_proc(int (*proc)(HWND, UINT, WPARAM, LPARAM, int *retval));
+@Sets a user callback to be called on window events. This callback function takes
+   the same parameters as a normal window callback procedure plus an additional
+   pointer to an integer. This pointer should be filled with a return value that
+   must be set if the callback has completely processed the window event. If the
+   callback has completely processed the window event, it should return 0 and fill
+   retval with a proper value, otherwise it should return a non-zero value, and
+   event processing will continue in Allegro's default window callback procedure.
+
 @hnode GDI routines
 
 The following GDI routines are a very platform specific thing, to allow 
