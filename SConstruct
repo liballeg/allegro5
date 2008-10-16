@@ -6,6 +6,7 @@
 
 # 2. Get the build system working on other platforms supported by Allegro, Windows being the most important one
 # Linux - 99%. Installing copies files in the current directory as root.
+#  Installing idea: Use FS nodes directly instead of copying files to tmp-install.
 # OSX - 70%. Examples don't link and installing.
 # Windows - 70%. Examples don't link and installing.
 
