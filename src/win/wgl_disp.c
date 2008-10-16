@@ -486,7 +486,7 @@ static bool decode_pixel_format_attrib(OGL_PIXEL_FORMAT *pf, int num_attribs,
 
    /* Setting some things based on what we've read out of the PFD. */
 
-   if (deduce_color_format(pf)) {
+   if (!deduce_color_format(pf)) {
       TRACE(PREFIX_I "Color format not supported by allegro.\n");
       return false;
    }
@@ -785,52 +785,6 @@ static OGL_PIXEL_FORMAT** get_available_pixel_formats_old(int *count, HDC dc) {
 }
 
 
-static bool try_to_set_pixel_format(int i) {
-   HWND testwnd;
-   HDC testdc;
-   PIXELFORMATDESCRIPTOR pfd;
-
-   /* Recreate our test windows */
-   testwnd = _al_win_create_hidden_window();
-   if (!testwnd)
-      return false;
-   testdc = GetDC(testwnd);
-		
-   if (SetPixelFormat(testdc, i, &pfd)) {
-      HGLRC rc = wglCreateContext(testdc);
-      if (!rc) {
-         TRACE(PREFIX_I "try_to_set_pixel_format(): Unable to create RC!\n");
-      }
-      else {
-         if (wglMakeCurrent(testdc, rc)) {
-            wglMakeCurrent(NULL, NULL);
-            wglDeleteContext(rc);
-            ReleaseDC(testwnd, testdc);
-            DestroyWindow(testwnd);
-
-            return true;
-         }
-         else {
-            wglMakeCurrent(NULL, NULL);
-            wglDeleteContext(rc);
-            log_win32_warning("try_to_set_pixel_format", "Couldn't make the temporary render context "
-                              "current for the this pixel format.", GetLastError());
-         }
-      }
-   }
-   else {
-      log_win32_note("try_to_set_pixel_format", "Unable to set pixel format!", GetLastError());
-   }
-
-   ReleaseDC(testwnd, testdc);
-   DestroyWindow(testwnd);
-   testdc = NULL;
-   testwnd = NULL;
-
-   return false;
-}
-
-
 static bool select_pixel_format(ALLEGRO_DISPLAY_WGL *d, HDC dc) {
    OGL_PIXEL_FORMAT **pf_list = NULL;
    enum ALLEGRO_PIXEL_FORMAT format = ((ALLEGRO_DISPLAY *) d)->format;
@@ -880,27 +834,30 @@ static bool select_pixel_format(ALLEGRO_DISPLAY_WGL *d, HDC dc) {
 
    if (pf_index == -1 && pf_index_fallback == -1) {
       TRACE(PREFIX_E "Couldn't find a suitable pixel format\n");
+      for (i = 0; i < maxindex; i++)
+         free(pf_list[i]);
+      free(pf_list);
       return false;
    }
 
    if (pf_index == -1 && pf_index_fallback != -1)
       pf_index = pf_index_fallback;
 
-   if (try_to_set_pixel_format(pf_index)) {
+   if (SetPixelFormat(d->dc, pf_index, NULL)) {
       OGL_PIXEL_FORMAT *pf = pf_list[pf_index - 1];
-      PIXELFORMATDESCRIPTOR pdf;
-
-      TRACE(PREFIX_I "select_pixel_format(): Chose visual no. %i\n\n", pf_index);
 #ifdef DEBUGMODE
+      TRACE(PREFIX_I "select_pixel_format(): Chose visual no. %i\n\n", pf_index);
       display_pixel_format(pf);
 #endif
-      if (!SetPixelFormat(d->dc, pf_index, &pdf)) {
-         log_win32_error("select_pixel_format", "Unable to set pixel format!",
-                GetLastError());
-      }
    }
    else {
       TRACE(PREFIX_E "Unable to set pixel format!\n");
+      log_win32_error("select_pixel_format", "Unable to set pixel format!",
+         GetLastError());
+
+      for (i = 0; i < maxindex; i++)
+         free(pf_list[i]);
+      free(pf_list);
       return false;
    }
 
