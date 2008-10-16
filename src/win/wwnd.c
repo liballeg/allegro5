@@ -222,7 +222,7 @@ static LRESULT CALLBACK directx_wnd_proc(HWND wnd, UINT message, WPARAM wparam, 
 
    /* Call user callback if available */
    if (wnd_msg_pre_proc){
-      int retval;
+      int retval = 0;
       if (wnd_msg_pre_proc(wnd, message, wparam, lparam, &retval) == 0)
          return retval;
    }

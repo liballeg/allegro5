@@ -13848,8 +13848,9 @@ you must include winalleg.h after other Allegro headers.
    pointer to an integer. This pointer should be filled with a return value that
    must be set if the callback has completely processed the window event. If the
    callback has completely processed the window event, it should return 0 and fill
-   retval with a proper value, otherwise it should return a non-zero value, and
-   event processing will continue in Allegro's default window callback procedure.
+   retval with a proper value (the default is zero), otherwise it should return a
+   non-zero value, and event processing will continue in Allegro's default window
+   callback procedure.
 
 @hnode GDI routines
 
