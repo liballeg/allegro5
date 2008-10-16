@@ -157,12 +157,6 @@ while test $# -gt 0; do
    shift
 done
 
-# Check argument sanity
-if test "$lib_type" = "-profile" && test "$lib_linkage" = "-static"; then
-   echo "There is no static-linked profiling configuration." >&2
-   exit 1
-fi
-
 # Perform actions
 if test "$echo_prefix" = "yes"; then
    echo $prefix
