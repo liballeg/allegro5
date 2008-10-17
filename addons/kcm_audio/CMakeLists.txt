@@ -67,7 +67,7 @@ if(SUPPORT_OSS OR SUPPORT_OPENAL OR SUPPORT_ALSA OR SUPPORT_DSOUND)
         endif(SHARED)
 
         if(STATIC)
-            really_add_audio_build(${nm}_s ${nm}_static STATIC "-DALLEGRO_STATICLINK")
+            really_add_audio_build(${nm}-static ${nm}_static STATIC "-DALLEGRO_STATICLINK")
         endif(STATIC)
 
     endmacro(add_audio_build)
@@ -78,12 +78,12 @@ if(SUPPORT_OSS OR SUPPORT_OPENAL OR SUPPORT_ALSA OR SUPPORT_DSOUND)
     endif(GRADE_STANDARD)
 
     if(GRADE_DEBUG)
-        add_audio_build(kcm_audiod
+        add_audio_build(kcm_audio-debug
             "-DDEBUGMODE -g")
     endif(GRADE_DEBUG)
 
     if(GRADE_PROFILE)
-        add_audio_build(kcm_audiop
+        add_audio_build(kcm_audio-profile
             "-pg -O2 -funroll-loops -ffast-math")
     endif(GRADE_PROFILE)
 

@@ -39,7 +39,7 @@ macro(add_icodec_build nm extra_flags)
     endif(SHARED)
 
     if(STATIC)
-        really_add_icodec_build(${nm}_s ${nm}_static STATIC "-DALLEGRO_STATICLINK")
+        really_add_icodec_build(${nm}-static ${nm}_static STATIC "-DALLEGRO_STATICLINK")
     endif(STATIC)
 
 endmacro(add_icodec_build)
@@ -51,12 +51,12 @@ if(SUPPORT_ICODEC)
     endif(GRADE_STANDARD)
 
     if(GRADE_DEBUG)
-        add_icodec_build(a5_icodecd
+        add_icodec_build(a5_icodec-debug
             "-DDEBUGMODE -g")
     endif(GRADE_DEBUG)
 
     if(GRADE_PROFILE)
-        add_icodec_build(a5_icodecp
+        add_icodec_build(a5_icodec-profile
             "-pg -O2 -funroll-loops -ffast-math")
     endif(GRADE_PROFILE)
 endif(SUPPORT_ICODEC)

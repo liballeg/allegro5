@@ -27,7 +27,7 @@ macro(add_font_build nm extra_flags)
     endif(SHARED)
 
     if(STATIC)
-        really_add_font_build(${nm}_s ${nm}_static STATIC "-DALLEGRO_STATICLINK")
+        really_add_font_build(${nm}-static ${nm}_static STATIC "-DALLEGRO_STATICLINK")
     endif(STATIC)
 
 endmacro(add_font_build)
@@ -38,12 +38,12 @@ if(GRADE_STANDARD)
 endif(GRADE_STANDARD)
 
 if(GRADE_DEBUG)
-    add_font_build(a5_fontd
+    add_font_build(a5_font-debug
         "-DDEBUGMODE -g")
 endif(GRADE_DEBUG)
 
 if(GRADE_PROFILE)
-    add_font_build(a5_fontp
+    add_font_build(a5_font-profile
         "-pg -O2 -funroll-loops -ffast-math")
 endif(GRADE_PROFILE)
 

@@ -42,7 +42,7 @@ macro(add_ttf_build nm extra_flags)
     endif(SHARED)
 
     if(STATIC)
-        really_add_ttf_build(${nm}_s ${nm}_static STATIC "-DALLEGRO_STATICLINK")
+        really_add_ttf_build(${nm}-static ${nm}_static STATIC "-DALLEGRO_STATICLINK")
     endif(STATIC)
 
 endmacro(add_ttf_build)
@@ -53,12 +53,12 @@ if(GRADE_STANDARD)
 endif(GRADE_STANDARD)
 
 if(GRADE_DEBUG)
-    add_ttf_build(a5_ttfd
+    add_ttf_build(a5_ttf-debug
         "-DDEBUGMODE -g")
 endif(GRADE_DEBUG)
 
 if(GRADE_PROFILE)
-    add_ttf_build(a5_ttfp
+    add_ttf_build(a5_ttf-profile
         "-pg -O2 -funroll-loops -ffast-math")
 endif(GRADE_PROFILE)
 

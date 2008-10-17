@@ -113,7 +113,7 @@ macro(add_acodec_build nm extra_flags)
     endif(SHARED)
 
     if(STATIC)
-        really_add_acodec_build(${nm}_s ${nm}_static STATIC "-DALLEGRO_STATICLINK")
+        really_add_acodec_build(${nm}-static ${nm}_static STATIC "-DALLEGRO_STATICLINK")
     endif(STATIC)
 
 endmacro(add_acodec_build)
@@ -126,12 +126,12 @@ if(SUPPORT_ACODEC)
     endif(GRADE_STANDARD)
 
     if(GRADE_DEBUG)
-        add_acodec_build(a5_acodecd
+        add_acodec_build(a5_acodec-debug
             "-DDEBUGMODE -g")
     endif(GRADE_DEBUG)
 
     if(GRADE_PROFILE)
-        add_acodec_build(a5_acodecp
+        add_acodec_build(a5_acodec-profile
             "-pg -O2 -funroll-loops -ffast-math")
     endif(GRADE_PROFILE)
 
