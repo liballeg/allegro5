@@ -10,16 +10,6 @@
 #ifdef ALLEGRO_UNIX
 #define MAX_PATH 5000
 #endif
-#ifdef ALLEGRO_MACOSX
-
-#endif
-#if defined(ALLEGRO_MINGW32) || defined(ALLEGRO_MSVC) || defined(ALLEGRO_BCC32)
-#include "allegro5/winalleg.h"
-#ifndef _WIN32_IE
-#define _WIN32_IE 0x400
-#endif
-#include <shlobj.h>
-#endif
 
 #include <string>
 #include <iostream>
