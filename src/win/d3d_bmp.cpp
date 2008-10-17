@@ -96,6 +96,24 @@ static void d3d_get_z_rotation_matrix(float a, D3DMATRIX *result)
    d3d_set_matrix(rotation, result);
 }
 
+static void d3d_set_identity_matrix(ALLEGRO_DISPLAY_D3D *disp)
+{
+   int i, j;
+   int one = 0;
+   D3DMATRIX matrix;
+
+   for (i = 0; i < 4; i++) {
+      for (j = 0; j < 4; j++) {
+         if (j == one)
+            matrix.m[j][i] = 1.0f;
+         else
+            matrix.m[j][i] = 0.0f;
+      }
+      one++;
+   }
+   
+   disp->device->SetTransform(D3DTS_VIEW, &matrix);
+}
 
 /*
  * Do a transformation for a quad drawing.
@@ -242,8 +260,9 @@ void _al_d3d_draw_textured_quad(ALLEGRO_DISPLAY_D3D *disp, ALLEGRO_BITMAP_D3D *b
       return;
    }
 
-
    disp->device->SetTexture(0, NULL);
+
+   d3d_set_identity_matrix(disp);
 }
 
 /* Copy texture memory to bitmap->memory */
