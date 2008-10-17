@@ -100,11 +100,6 @@ static void log_win32_warning(const char *func, const char *error_msg, DWORD err
 }
 
 
-/* Logs a note */
-static void log_win32_note(const char *func, const char *error_msg, DWORD err) {
-   log_win32_msg(PREFIX_I, func, error_msg, err);
-}
-
 /* Helper to set up GL state as we want it. */
 static void setup_gl(ALLEGRO_DISPLAY *d)
 {
