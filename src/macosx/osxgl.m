@@ -17,6 +17,7 @@
 
 
 #include "allegro5/allegro5.h"
+#include "allegro5/a5_opengl.h"
 #include "allegro5/internal/aintern.h"
 #include "allegro5/internal/aintern_bitmap.h"
 #include "allegro5/internal/aintern_memory.h"
@@ -736,10 +737,12 @@ static void destroy_display(ALLEGRO_DISPLAY* d) {
 static ALLEGRO_DISPLAY* create_display(int w, int h)
 {
    int flags = al_get_new_display_flags();
+#if 0
    if (flags & ALLEGRO_DIRECT3D) {
       // Can't handle this if the user asked for it
       return NULL;
    }
+#endif
    if (flags & ALLEGRO_FULLSCREEN) {
       return create_display_fs(w,h);
    }
