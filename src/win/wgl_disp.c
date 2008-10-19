@@ -879,9 +879,17 @@ static bool create_display_internals(ALLEGRO_DISPLAY_WGL *wgl_disp) {
    ndp.AckEvent = CreateEvent(NULL, FALSE, FALSE, NULL);
    window_thread = (HANDLE)_beginthread(display_thread_proc, 0, &ndp);
 
-   /* Give some time for dispaly thread do init, but don't block if
-    * something horrible happened to it. */
+   /* Wait some _finite_ time (10 secs or so) for display thread to init, and
+    * give up if something horrible happened to it, unless we're in debug mode
+    * and we may have intentionally stopped the execution to analyze the code.
+    */
+#ifdef DEBUGMODE
+   WaitForSingleObject(ndp.AckEvent, INFINITE);
+#else
    WaitForSingleObject(ndp.AckEvent, 10*1000);
+#endif
+
+
    CloseHandle(ndp.AckEvent);
 
    if (ndp.init_failed) {

@@ -1291,9 +1291,16 @@ static bool d3d_create_display_internals(ALLEGRO_DISPLAY_D3D *d3d_display)
    params.AckEvent = CreateEvent(NULL, FALSE, FALSE, NULL);
 
    _beginthread(d3d_display_thread_proc, 0, &params);
-   /* Give some time for dispaly thread do init, but don't block if
-    * something horrible happened to it. */
+   /* Wait some _finite_ time (10 secs or so) for display thread to init, and
+    * give up if something horrible happened to it, unless we're in debug mode
+    * and we may have intentionally stopped the execution to analyze the code.
+    */
+#ifdef DEBUGMODE
+   WaitForSingleObject(params.AckEvent, INFINITE);
+#else
    WaitForSingleObject(params.AckEvent, 10*1000);
+#endif
+
    CloseHandle(params.AckEvent);
    if (params.init_failed) {
       return false;
