@@ -401,6 +401,8 @@ void al_path_remove(AL_PATH *path, int i)
    path->segment = (char **)_AL_REALLOC(path->segment, (path->segment_count-1) * sizeof(char *));
    /* I don't think realloc can fail if its just shrinking the existing block,
       so I'm not bothering to check for it, or work around it */
+
+   path->segment_count--;
 }
 
 void al_path_insert(AL_PATH *path, int i, const char *s)
