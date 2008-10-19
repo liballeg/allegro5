@@ -72,6 +72,7 @@ static ALLEGRO_BITMAP *_al_create_memory_bitmap(int w, int h)
 
    pitch = w * al_get_pixel_size(format);
 
+   bitmap->vt = NULL;
    bitmap->format = format;
    bitmap->flags = al_get_new_bitmap_flags() | ALLEGRO_MEMORY_BITMAP;
    bitmap->w = w;

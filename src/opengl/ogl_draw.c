@@ -60,6 +60,32 @@ static void ogl_clear(ALLEGRO_DISPLAY *d, ALLEGRO_COLOR *color)
 
 
 
+static void ogl_draw_pixel(ALLEGRO_DISPLAY *d, float x, float y,
+   ALLEGRO_COLOR *color)
+{
+   ALLEGRO_DISPLAY *ogl_disp = (void *)d;
+   ALLEGRO_BITMAP *target = al_get_target_bitmap();
+   ALLEGRO_BITMAP_OGL *ogl_target = (void *)target;
+
+   if (!ogl_target->is_backbuffer && ogl_disp->ogl_extras->opengl_target != ogl_target) {
+      _al_draw_pixel_memory(x, y, color);
+      return;
+   }
+
+   /* For sub bitmaps. */
+   if (target->parent) {
+      x += target->xofs;
+      y += target->yofs;
+   }
+
+   set_opengl_blending(d, color);
+   glBegin(GL_POINTS);
+   glVertex2d(x, y);
+   glEnd();
+}
+
+
+
 /* Dummy implementation of line. */
 static void ogl_draw_line(ALLEGRO_DISPLAY *d, float fx, float fy,
    float tx, float ty, ALLEGRO_COLOR *color)
@@ -142,4 +168,7 @@ void _al_ogl_add_drawing_functions(ALLEGRO_DISPLAY_INTERFACE *vt)
    vt->clear = ogl_clear;
    vt->draw_line = ogl_draw_line;
    vt->draw_rectangle = ogl_draw_rectangle;
+   vt->draw_pixel = ogl_draw_pixel;
 }
+
+/* vim: set sts=3 sw=3 et: */
