@@ -603,17 +603,12 @@ void _al_win_mouse_dinput_unacquire(void *param)
       the_mouse.state.buttons = 0;
 
       if (param) {
-         /* Called externally. */
          ALLEGRO_DISPLAY_WIN *win_disp = param;
          win_disp->is_mouse_on = false;
       }
       else if (win_disp) {
-         /* Called by _al_win_mouse_dinput_grab to unacquire the previous
-          * device. */
          win_disp->is_mouse_on = false;
       }
-
-      win_disp = NULL;
    }
 }
 

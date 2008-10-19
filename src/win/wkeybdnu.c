@@ -413,8 +413,6 @@ void _al_win_key_dinput_unacquire(void *unused)
          if (key != DIK_PAUSE)
             key_dinput_handle_scancode((unsigned char) key, FALSE);
    }
-
-   win_disp = NULL;
 }
 
 
