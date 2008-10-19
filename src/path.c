@@ -655,6 +655,16 @@ uint32_t al_path_exists(AL_PATH *path)
 
    al_path_to_string(path, buffer, PATH_MAX, ALLEGRO_NATIVE_PATH_SEP);
 
+   /* Windows' stat() doesn't like the slash at the end of the path when
+    * the path is pointing to a directory. There are other places which
+    * might require the same fix.*/
+#ifdef ALLEGRO_WINDOWS
+   if (ugetat(buffer, ustrlen(buffer) - 1) == '\\' &&
+       al_path_num_components(path)) {
+      usetc(buffer + ustrlen(buffer) - 1, '\0');
+   }
+#endif
+
    return al_fs_exists(buffer);
 }
 
