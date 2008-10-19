@@ -89,12 +89,13 @@ void _al_ogl_set_target_bitmap(ALLEGRO_DISPLAY *display, ALLEGRO_BITMAP *bitmap)
 
 void _al_ogl_setup_bitmap_clipping(const ALLEGRO_BITMAP *bitmap)
 {
-   int x_1, y_1, x_2, y_2;
+   int x_1, y_1, x_2, y_2, h;
 
    x_1 = bitmap->cl;
    y_1 = bitmap->ct;
    x_2 = bitmap->cr;
    y_2 = bitmap->cb;
+   h = bitmap->h;
 
    /* Drawing onto the sub bitmap is handled by clipping the parent. */
    if (bitmap->parent) {
@@ -102,6 +103,7 @@ void _al_ogl_setup_bitmap_clipping(const ALLEGRO_BITMAP *bitmap)
       y_1 += bitmap->yofs;
       x_2 += bitmap->xofs;
       y_2 += bitmap->yofs;
+      h = bitmap->parent->h;
    }
 
    if (x_1 == 0 &&  y_1 == 0 && x_2 == bitmap->w && y_2 == bitmap->h) {
@@ -110,7 +112,7 @@ void _al_ogl_setup_bitmap_clipping(const ALLEGRO_BITMAP *bitmap)
    else {
       glEnable(GL_SCISSOR_TEST);
       /* OpenGL is upside down, so must adjust y_2 to the height. */
-      glScissor(x_1, bitmap->h - y_2, x_2 - x_1, y_2 - y_1);
+      glScissor(x_1, h - y_2, x_2 - x_1, y_2 - y_1);
    }
 }
 

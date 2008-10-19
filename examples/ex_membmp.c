@@ -74,6 +74,7 @@ int main(void)
    ALLEGRO_FONT *memfont;
    ALLEGRO_BITMAP *accelbmp;
    ALLEGRO_BITMAP *membmp;
+   ALLEGRO_BITMAP *sub_bb;
 
    if (!al_init()) {
       TRACE("Could not init Allegro.\n");
@@ -107,6 +108,10 @@ int main(void)
 
    memfont = al_font_load_font("data/font.tga", 0);
    membmp = al_iio_load("data/mysha.pcx");
+
+   sub_bb = al_create_sub_bitmap(al_get_backbuffer(),
+      50, 50, al_get_display_width() - 100, al_get_display_height() - 100);
+   al_set_target_bitmap(sub_bb);
 
    test(membmp, memfont, "Memory bitmap (press SPACE key)");
 
