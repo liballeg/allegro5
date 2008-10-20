@@ -190,7 +190,7 @@ AL_VAR(volatile int, _key_shifts);
 
 
 #if (defined ALLEGRO_DOS) || (defined ALLEGRO_DJGPP) || (defined ALLEGRO_WATCOM) || \
-    (defined ALLEGRO_QNX) || (defined ALLEGRO_BEOS)
+    (defined ALLEGRO_QNX) || (defined ALLEGRO_BEOS)  || (defined ALLEGRO_HAIKU)
 
 AL_ARRAY(char *, _pckeys_names);
 

@@ -61,6 +61,7 @@ AL_ARRAY(char, allegro_error);
 #define OSTYPE_QNX         AL_ID('Q','N','X',' ')
 #define OSTYPE_UNIX        AL_ID('U','N','I','X')
 #define OSTYPE_BEOS        AL_ID('B','E','O','S')
+#define OSTYPE_HAIKU       AL_ID('H','A','I','K')
 #define OSTYPE_MACOS       AL_ID('M','A','C',' ')
 #define OSTYPE_MACOSX      AL_ID('M','A','C','X')
 

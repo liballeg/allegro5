@@ -18,9 +18,9 @@
 #include "allegro.h"
 #include "allegro/internal/aintern.h"
 
-#ifndef ALLEGRO_BEOS
+#if !defined ALLEGRO_BEOS && !defined ALLEGRO_HAIKU
 #error something is wrong with the makefile
-#endif                
+#endif             
 
 _DRIVER_INFO _keyboard_driver_list[] =
 {

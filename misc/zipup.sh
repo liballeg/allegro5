@@ -125,6 +125,12 @@ echo "Generating BeOS dependencies..."
 
 make depend UNIX_TOOLS=1 CC=gcc
 
+# generate dependencies for Haiku
+echo "Generating Haiku dependencies..."
+
+./fix.sh haiku --quick
+
+make depend UNIX_TOOLS=1 CC=gcc
 
 # generate dependencies for QNX
 echo "Generating QNX dependencies..."
@@ -164,7 +170,7 @@ gcc -o _makedoc.exe docs/src/makedoc/*.c
 for base in abi ahack allegro const faq help mistakes; do
    ./_makedoc.exe -ascii docs/txt/$base.txt docs/src/$base._tx
 done
-for base in bcc32 beos darwin djgpp linux macosx mingw32 msvc qnx unix watcom; do
+for base in bcc32 beos darwin djgpp haiku linux macosx mingw32 msvc qnx unix watcom; do
    ./_makedoc.exe -ascii docs/build/$base.txt docs/src/build/$base._tx
 done
 

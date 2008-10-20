@@ -8,7 +8,8 @@ proc_help()
    echo
    echo "Usage: $0 <platform> [--quick|--dtou|--utod]"
    echo
-   echo "Where platform is one of: mingw32, unix, macosx, macosx-universal"
+   echo "Where platform is one of: mingw32, unix, macosx, macosx-universal,"
+   echo "  beos, haiku"
    echo "The --quick parameter turns off text file conversion, --dtou converts from"
    echo "DOS/Win32 format to Unix, --utod converts from Unix to DOS/Win32 format."
    echo "If no parameter is specified --quick is assumed."
@@ -80,6 +81,8 @@ if [ -z "$1" ]; then
 fi
 
 case "$1" in
+   "beos"    ) proc_fix "BeOS"              "Makefile.be";;
+   "haiku"   ) proc_fix "Haiku"             "Makefile.be";;
    "mingw"   ) proc_fix "Windows (MinGW)"   "Makefile.migw";;
    "mingw32" ) proc_fix "Windows (MinGW)"   "Makefile.migw";;
    "unix"    ) proc_fix "Unix"              "Makefile.unix";;

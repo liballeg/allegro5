@@ -74,3 +74,7 @@ AL_VAR(MIDI_DRIVER, midi_beos);
 #define JOYSTICK_DRIVER_BEOS                                            \
    {  JOYSTICK_BEOS,   &joystick_beos,  TRUE  },
 
+#if defined __HAIKU__
+#define TIMERDRV_UNIX_PTHREADS        AL_ID('P','T','H','R')
+#endif
+

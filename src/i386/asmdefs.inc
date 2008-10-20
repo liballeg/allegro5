@@ -31,6 +31,8 @@
    #include "obj/msvc/asmdef.inc"
 #elif defined ALLEGRO_WATCOM
    #include "obj/watcom/asmdef.inc"
+#elif defined ALLEGRO_HAIKU
+   #include "obj/beos/asmdef.inc"
 #elif defined ALLEGRO_BEOS
    #include "obj/beos/asmdef.inc"
 #elif defined ALLEGRO_QNX

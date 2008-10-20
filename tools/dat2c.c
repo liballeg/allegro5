@@ -342,7 +342,7 @@ static int prepare_dat2c(struct dat2c *dat2c)
    }
 
    if (dat2c->lformat == lineformat_default)
-#if (defined ALLEGRO_UNIX || defined ALLEGRO_QNX || defined ALLEGRO_BEOS || defined ALLEGRO_MACOSX)
+#if (defined ALLEGRO_UNIX || defined ALLEGRO_QNX || defined ALLEGRO_BEOS || defined ALLEGRO_HAIKU || defined ALLEGRO_MACOSX)
       dat2c->lformat = lineformat_unix;
 #elif (defined ALLEGRO_WINDOWS || defined ALLEGRO_DOS)
       dat2c->lformat = lineformat_dos;

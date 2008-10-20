@@ -3132,6 +3132,7 @@ static int sysinfo(void)
       case OSTYPE_QNX:        s = "QNX";                        break;
       case OSTYPE_UNIX:       s = "Unix";                       break;
       case OSTYPE_BEOS:       s = "BeOS";                       break;
+      case OSTYPE_HAIKU:      s = "Haiku";                      break;
       case OSTYPE_MACOS:      s = "MacOS";                      break;
       case OSTYPE_MACOSX:     s = "MacOS X";                    break;
       default:                s = "Unknown";                    break;

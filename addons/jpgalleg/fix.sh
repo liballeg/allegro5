@@ -85,6 +85,7 @@ case "$1" in
    "mingw"   ) proc_fix "MinGW32" "makefile.mgw";;
    "msvc"    ) proc_fix "MSVC" "makefile.vc";;
    "beos"    ) proc_fix "BeOS" "makefile.be";;
+   "haiku"   ) proc_fix "Haiku" "makefile.be";;
    "unix"    ) proc_fix "Unix" "makefile.uni";;
    "macosx"  ) proc_fix "MacOS X" "makefile.osx";;
    "macosx-universal" ) proc_fix_osx_ub ;;

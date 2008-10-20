@@ -19,7 +19,7 @@
 #include "allegro/internal/aintern.h"
 #include "allegro/platform/aintbeos.h"
 
-#ifndef ALLEGRO_BEOS
+#if !defined ALLEGRO_BEOS && !defined ALLEGRO_HAIKU
 #error something is wrong with the makefile
 #endif
 
@@ -117,7 +117,7 @@ extern "C" void be_gfx_bwindow_release(struct BITMAP *bmp)
 /* _be_gfx_bwindow_read_write_bank:
  *  Returns new line and marks it as dirty.
  */
-extern "C" unsigned long _be_gfx_bwindow_read_write_bank(BITMAP *bmp, int line)
+extern "C" uintptr_t _be_gfx_bwindow_read_write_bank(BITMAP *bmp, int line)
 {
    if (!bmp->id & BMP_ID_LOCKED) {
       bmp->id |= (BMP_ID_LOCKED | BMP_ID_AUTOLOCK);

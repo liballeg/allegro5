@@ -27,7 +27,7 @@
 #include <sys/utsname.h>
 #endif
 
-#ifndef ALLEGRO_BEOS
+#if !defined ALLEGRO_BEOS && !defined ALLEGRO_HAIKU
 #error something is wrong with the makefile
 #endif              
 
@@ -201,8 +201,6 @@ extern "C" int be_sys_init(void)
    uname(&os_name);
    os_type = OSTYPE_BEOS;
    os_multitasking = TRUE;
-   os_version = atoi(strtok(os_name.release, "."));
-   os_revision = atoi(strtok(NULL, "."));
 
    chdir(app_path);
 

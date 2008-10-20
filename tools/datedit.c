@@ -121,6 +121,8 @@ void datedit_init(void)
       #include "obj/dmc/plugins.h"
    #elif defined ALLEGRO_BEOS
       #include "obj/beos/plugins.h"
+   #elif defined ALLEGRO_HAIKU
+      /* #include "obj/beos/plugins.h" */
    #elif defined ALLEGRO_BCC32
       #include "obj/bcc32/plugins.h"
    #elif defined ALLEGRO_MPW

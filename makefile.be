@@ -10,7 +10,16 @@
 
 # -------- define some variables that the primary makefile will use --------
 
+OS=$(shell uname -s)
+
+ifeq ($(OS),BeOS)
 PLATFORM = BeOS
+endif
+
+ifeq ($(OS),Haiku)
+PLATFORM = Haiku
+endif
+
 CC = gcc
 EXE = 
 OBJ = .o
@@ -123,7 +132,13 @@ endif # ALLEGRO_USE_C
 
 OBJECT_LIST = $(COMMON_OBJECTS) $(MY_OBJECTS) $(basename $(notdir $(ALLEGRO_SRC_BEOS_FILES)))
 
+ifeq ($(OS),BeOS)
 LIBRARIES = -lbe -lgame -ldevice -lmidi -lmedia -lnet
+endif
+
+ifeq ($(OS),Haiku)
+LIBRARIES = -lbe -lgame -ldevice -lmidi -lmedia -lnetwork
+endif
 
 PROGRAMS = bfixicon
 
@@ -135,11 +150,21 @@ DISTCLEAN_FILES += tools/beos/bfixicon
 
 # -------- rules for installing and removing the library files --------
 
+ifeq ($(OS),BeOS)
 INSTALLDIR = /boot/develop
 LIBDIR = lib/x86
 INCDIR = headers
 
 SHARED_LIBDIR = /boot/home/config/lib
+endif
+
+ifeq ($(OS),Haiku)
+INSTALLDIR = /boot/common
+LIBDIR = lib
+INCDIR = include
+
+SHARED_LIBDIR = /boot/common/lib
+endif
 
 
 ifdef STATICLINK
@@ -167,7 +192,14 @@ endif
 	sed -e "s/@LIBS@/$(LIBRARIES)/" temp2 > temp
 	sed -e "s/include/headers/" temp >temp2
 	sed -e "s/ -l\$${lib_type}_unsharable//" temp2 >temp
+
+ifeq ($(OS),BeOS)
 	sed -e "s/libdirs=-L\$${exec_prefix}\/lib/libdirs=\"-L\$${exec_prefix}\/lib\/x86 -L\/boot\/home\/config\/lib\"/" temp >/bin/allegro-config
+endif
+ifeq ($(OS),Haiku)
+	sed -e "s/libdirs=-L\$${exec_prefix}\/lib/libdirs=\"-L\$${exec_prefix}\/lib\/x86 -L\/boot\/common\/lib\"/" temp >/bin/allegro-config
+endif
+
 	rm -f temp temp2
 	chmod a+x /bin/allegro-config
 

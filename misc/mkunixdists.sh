@@ -73,9 +73,9 @@ mktargz $basename
 # Hack'n'slash
 echo "Stripping to form end-user distribution"
 (cd $dir/$basename && {
-	(cd src && rm -rf beos qnx dos mac ppc win)
-	(cd obj && rm -rf bcc32 beos qnx djgpp mingw32 msvc watcom)
-	(cd lib && rm -rf bcc32 beos qnx djgpp mingw32 msvc watcom)
+	(cd src && rm -rf beos haiku qnx dos mac ppc win)
+	(cd obj && rm -rf bcc32 beos haiku qnx djgpp mingw32 msvc watcom)
+	(cd lib && rm -rf bcc32 beos haiku qnx djgpp mingw32 msvc watcom)
 	(cd include && rm -f bealleg.h qnxalleg.h macalleg.h winalleg.h)
 	(cd misc && rm -f cmplog.pl dllsyms.lst findtext.sh fixpatch.sh fixver.sh)
 	(cd misc && rm -f allegro-config-qnx.sh zipup.sh zipwin.sh *.bat *.c)
@@ -94,8 +94,8 @@ echo "Stripping to form end-user distribution"
 	(cd addons/jpgalleg && rm -f makefile.be makefile.mgw makefile.dj)
 	(cd addons/jpgalleg && rm -f makefile.osx makefile.vc fix.bat readme.txt)
 	(cd addons/jpgalleg/misc && rm -f fixver.sh runner.c)
-	(cd addons/jpgalleg/lib && rm -rf beos djgpp macosx mingw32 msvc)
-	(cd addons/jpgalleg/obj && rm -rf beos djgpp macosx mingw32 msvc)
+	(cd addons/jpgalleg/lib && rm -rf beos djgpp haiku macosx mingw32 msvc)
+	(cd addons/jpgalleg/obj && rm -rf beos djgpp haiku macosx mingw32 msvc)
 
 	# logg addon
 	(cd addons/logg && rm -f Makefile.mingw play_ogg.c stream_ogg.c fix.bat)

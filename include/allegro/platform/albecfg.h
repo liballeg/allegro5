@@ -31,7 +31,13 @@
 #define ALLEGRO_HAVE_SYS_TIME_H 1
 
 /* describe this platform */
-#define ALLEGRO_PLATFORM_STR  "BeOS"
+#if defined __BEOS__ && !defined __HAIKU__
+  #define ALLEGRO_PLATFORM_STR  "BeOS"
+#endif
+#if defined __HAIKU__
+  #define ALLEGRO_PLATFORM_STR  "Haiku"
+  #define ALLEGRO_HAVE_LIBPTHREAD 1
+#endif
 #define ALLEGRO_LITTLE_ENDIAN
 #define ALLEGRO_CONSOLE_OK
 #define ALLEGRO_USE_CONSTRUCTOR

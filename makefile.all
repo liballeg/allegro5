@@ -8,7 +8,7 @@
 #        DEBUGMODE=2        selects a build intended to debug Allegro itself.
 #        PROFILEMODE=1      selects a profiling build.
 #        WARNMODE=1         selects strict compiler warnings.
-#        STATICLINK=1       use static linking (MinGW32, MSVC, BeOS).
+#        STATICLINK=1       use static linking (MinGW32, MSVC, BeOS, Haiku).
 #        STATICRUNTIME=1    link to a static C runtime library (/MT) (MSVC)
 #        TARGET_ARCH_COMPAT optimize for the given processor while preserving backwards
 #                           compatibility with older processors (GCC-based platforms).
@@ -132,7 +132,7 @@ ifdef HTML
 # XXX this is duplicated in makefile.in
 DOCBASEFILES = ahack changes faq mistakes help thanks allegro const abi api packfile \
                readme makedoc datafile grabber dat dat2c dat2s license addons targets
-DOCBUILDFILES = bcc32 beos darwin djgpp dmc linux macosx mingw32 msvc qnx unix watcom
+DOCBUILDFILES = bcc32 beos darwin djgpp dmc haiku linux macosx mingw32 msvc qnx unix watcom
 DOCTXTBUILDFILES = $(addprefix docs/build/,$(addsuffix .txt,$(DOCBUILDFILES)))
 
 DOCS  = $(addprefix docs/txt/,$(addsuffix .txt,$(filter-out changes thanks readme, $(DOCBASEFILES))))

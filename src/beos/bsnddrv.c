@@ -19,7 +19,7 @@
 #include "allegro/internal/aintern.h"
 
 
-#ifndef ALLEGRO_BEOS
+#if !defined ALLEGRO_BEOS && !defined ALLEGRO_HAIKU
 #error something is wrong with the makefile
 #endif                
 

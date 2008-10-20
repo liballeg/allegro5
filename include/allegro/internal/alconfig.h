@@ -48,6 +48,8 @@
       #include "allegro/platform/albcc32.h"
    #elif defined ALLEGRO_MSVC
       #include "allegro/platform/almsvc.h"
+   #elif defined ALLEGRO_HAIKU
+      #include "allegro/platform/albecfg.h"
    #elif defined ALLEGRO_BEOS
       #include "allegro/platform/albecfg.h"
    #elif defined ALLEGRO_MPW

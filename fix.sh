@@ -9,7 +9,7 @@ proc_help()
    echo
    echo "Usage: $0 <platform> [--quick|--dtou|--utod]"
    echo
-   echo "Where platform is one of: bcc32, beos, djgpp, mingw, qnx, unix"
+   echo "Where platform is one of: bcc32, beos, djgpp, haiku, mingw, qnx, unix"
    echo "mac, macosx, macosx-universal and watcom."
    echo "The --quick parameter turns off text file conversion, --dtou converts from"
    echo "DOS/Win32 format to Unix, --utod converts from Unix to DOS/Win32 format."
@@ -90,6 +90,7 @@ case "$1" in
    "bcc32"   ) proc_fix "Windows (BCC32)"   "makefile.bcc" "ALLEGRO_BCC32";;
    "beos"    ) proc_fix "BeOS"              "makefile.be"  "ALLEGRO_BEOS";;
    "djgpp"   ) proc_fix "DOS (djgpp)"       "makefile.dj"  "ALLEGRO_DJGPP";;
+   "haiku"   ) proc_fix "Haiku"             "makefile.be"  "ALLEGRO_HAIKU";;
    "mingw"   ) proc_fix "Windows (MinGW)"   "makefile.mgw" "ALLEGRO_MINGW32";;
    "mingw32" ) proc_fix "Windows (MinGW)"   "makefile.mgw" "ALLEGRO_MINGW32";;
    # The 'msvc' target is undocumented in the help message, but is used

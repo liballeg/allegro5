@@ -19,7 +19,7 @@
 #include "allegro/internal/aintern.h"
 #include "allegro/platform/aintbeos.h"
 
-#ifndef ALLEGRO_BEOS
+#if !defined ALLEGRO_BEOS && !defined ALLEGRO_HAIKU
 #error something is wrong with the makefile
 #endif
 
@@ -474,7 +474,7 @@ extern "C" void be_gfx_bwindowscreen_exit(struct BITMAP *bmp)
 /* be_gfx_bwindowscreen_read_write_bank:
  *  Returns new line and synchronizes framebuffer if needed.
  */
-extern "C" unsigned long be_gfx_bwindowscreen_read_write_bank(BITMAP *bmp, int line)
+extern "C" uintptr_t be_gfx_bwindowscreen_read_write_bank(BITMAP *bmp, int line)
 {
    if (!(bmp->id & BMP_ID_LOCKED)) {
       _be_sync_func();
@@ -490,7 +490,7 @@ extern "C" unsigned long be_gfx_bwindowscreen_read_write_bank(BITMAP *bmp, int l
  */
 extern "C" void be_gfx_bwindowscreen_unwrite_bank(BITMAP *bmp)
 {
-   if (bmp->id & BMP_AUTOLOCK) {
+   if (bmp->id & BMP_ID_AUTOLOCK) {
       bmp->id &= ~(BMP_ID_LOCKED | BMP_ID_AUTOLOCK);
    }
 }

@@ -27,7 +27,7 @@ display_help()
       echo "  Usage: fix <platform> [--dtou|--utod|--quick]"
       echo ""
       echo "  <platform> is one of: djgpp, mingw32, unix, macosx,"
-	  echo "  macosx-universal"
+	  echo "  macosx-universal, beos, haiku"
       echo ""
       echo "  --dtou converts from DOS/Win32 format to Unix"
       echo "  --utod converts from Unix format to DOS/Win32"
@@ -81,6 +81,7 @@ fi
 
 case "$1" in
 	djgpp	) proc_fix "DJGPP" "makefile.dj";;
+	haiku	) proc_fix "Haiku" "makefile.gen";;
 	mingw	) proc_fix "Mingw32" "makefile.mgw";;
 	mingw32	) proc_fix "Mingw32" "makefile.mgw";;
 	# used only by allegro's zipup.sh in packaging process

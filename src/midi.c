@@ -1122,7 +1122,7 @@ static int load_patches(MIDI *midi)
       running_status = 0;
 
       while (p < end) {                         /* work through data stream */
-#ifdef ALLEGRO_BEOS
+#if defined ALLEGRO_BEOS || defined ALLEGRO_HAIKU
          /* Is there a bug in this routine, or in gcc under BeOS/x86? --PW */
          { int i; for (i=1; i; i--); }
 #endif
