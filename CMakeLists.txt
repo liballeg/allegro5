@@ -467,13 +467,6 @@ configure_file(
     include/allegro5/platform/alplatf.h
     )
 
-if(UNIX OR WIN32)
-    configure_file(
-        include/allegro5/platform/al_cfg.h.cmake
-        include/allegro5/platform/al_cfg.h
-        )
-endif(UNIX OR WIN32)
-
 #-----------------------------------------------------------------------------#
 #
 #   Library

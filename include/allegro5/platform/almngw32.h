@@ -25,13 +25,7 @@
    #include <malloc.h>
 #endif
 
-#include "allegro5/platform/al_cfg.h"
-
-/* a static auto config */
-/* older mingw's don't seem to have inttypes.h */
-/* #define ALLEGRO_HAVE_INTTYPES_H */
-//#define ALLEGRO_HAVE_STDINT_H	1
-//#define ALLEGRO_HAVE_STDBOOL_H
+#include "allegro5/platform/alplatf.h"
 
 
 /* describe this platform */

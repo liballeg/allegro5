@@ -138,6 +138,9 @@ def setupPlatform(platform, config):
 
     platform["ALLEGRO_HAVE_SV_PROCFS"] = False
 
+    platform["ALLEGRO_UNIX" ] = True
+    platform["ALLEGRO_CFG_OPENGL"] = True
+
     return config.Finish()
 
 #tests = {}
@@ -147,18 +150,18 @@ def setupPlatform(platform, config):
 
 platform, configure_env = helpers.do_configure('unix', context,
                             context.getTests(), setupPlatform,
-                            'include/allegro5/platform/al_cfg.h.cmake',
-                            'include/allegro5/platform/al_cfg.h',
+                            'include/allegro5/platform/alplatf.h.cmake',
+                            'include/allegro5/platform/alplatf.h',
                             getArgumentOption('config', 0))
 
 env = helpers.mergeEnv(env, configure_env)
 
 # alplatf_h = helpers.generate_alplatf_h(env, ["ALLEGRO_UNIX"])
-platf_settings = helpers.define("ALLEGRO_UNIX","ALLEGRO_CFG_OPENGL")
+# platf_settings = helpers.define("ALLEGRO_UNIX","ALLEGRO_CFG_OPENGL")
 # platf_settings = helpers.SimpleHash()
 # platf_settings[ "ALLEGRO_UNIX" ] = True
 # platf_settings[ "ALLEGRO_NO_ASM" ] = True
-alplatf_h = helpers.parse_cmake_h(env, platf_settings, 'include/allegro5/platform/alplatf.h.cmake', 'include/allegro5/platform/alplatf.h')
+# alplatf_h = helpers.parse_cmake_h(env, platf_settings, 'include/allegro5/platform/alplatf.h.cmake', 'include/allegro5/platform/alplatf.h')
 
 # Maybe setting up the assembler should be in a gcc.scons or something?
 import SCons.Tool
@@ -329,7 +332,6 @@ def install():
     # add('lib/allegro/%s.%s' % (context.getMajorVersion(),context.getMinorVersion()), '#modules.lst')
     #for i in getModules():
     #    add('lib/allegro/%s.%s' % (context.getMajorVersion(),context.getMinorVersion()),i)
-    add('include/allegro5/platform', 'include/allegro5/platform/al_cfg.h')
     add('include/allegro5/platform', 'include/allegro5/platform/alplatf.h')
     add('bin', 'allegro5-config')
     
