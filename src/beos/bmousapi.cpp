@@ -31,8 +31,6 @@
 #define MOUSE_THREAD_PRIORITY 60
 #define MOUSE_THREAD_PERIOD   20000 // microseconds, 1/50th of a second
 
-#define CLAMP(low, var, high) (((var) < (low))?(low):(((var) > (high))?(high):(var)))
-
 
 
 #define PREFIX_I                "al-bmouse INFO: "
