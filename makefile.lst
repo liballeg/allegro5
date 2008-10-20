@@ -393,6 +393,16 @@ ALLEGRO_SRC_MACOSX_FILES = \
 	src/unix/uthreads.c \
 	src/misc/colconv.c
 
+ALLEGRO_SRC_PSP_FILES = \
+	src/psp/pdrivers.c \
+	src/psp/pfile.c \
+	src/psp/pgfx.c \
+	src/psp/pkey.c \
+	src/psp/pmain.c \
+	src/psp/psound.c \
+	src/psp/psystem.c \
+	src/misc/colconv.c
+
 ALLEGRO_MODULE_VGA_FILES = \
 	src/linux/lvga.c \
 	src/misc/modex.c \

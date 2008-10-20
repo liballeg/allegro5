@@ -64,6 +64,7 @@ AL_ARRAY(char, allegro_error);
 #define OSTYPE_HAIKU       AL_ID('H','A','I','K')
 #define OSTYPE_MACOS       AL_ID('M','A','C',' ')
 #define OSTYPE_MACOSX      AL_ID('M','A','C','X')
+#define OSTYPE_PSP         AL_ID('K','P','S','P')
 
 AL_VAR(int, os_type);
 AL_VAR(int, os_version);

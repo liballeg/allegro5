@@ -60,6 +60,8 @@
       #include "allegro/platform/alqnxcfg.h"
    #elif defined ALLEGRO_UNIX
       #include "allegro/platform/alucfg.h"
+   #elif defined ALLEGRO_PSP
+      #include "allegro/platform/alpspcfg.h"
    #else
       #error platform not supported
    #endif

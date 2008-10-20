@@ -10,7 +10,7 @@ proc_help()
    echo "Usage: $0 <platform> [--quick|--dtou|--utod]"
    echo
    echo "Where platform is one of: bcc32, beos, djgpp, haiku, mingw, qnx, unix"
-   echo "mac, macosx, macosx-universal and watcom."
+   echo "mac, macosx, macosx-universal, psp and watcom."
    echo "The --quick parameter turns off text file conversion, --dtou converts from"
    echo "DOS/Win32 format to Unix, --utod converts from Unix to DOS/Win32 format."
    echo "If no parameter is specified --quick is assumed."
@@ -101,6 +101,7 @@ case "$1" in
    "mac"     ) proc_fix "Mac"               "none"         "ALLEGRO_MPW";;
    "macosx"  ) proc_fix "MacOS X"           "makefile.osx" "ALLEGRO_MACOSX";;
    "macosx-universal" ) proc_fix_osx_ub ;;
+   "psp"     ) proc_fix "PSP"               "makefile.psp" "ALLEGRO_PSP";;
    "watcom"  ) proc_fix "DOS (Watcom)"      "makefile.wat" "ALLEGRO_WATCOM";;
    "help"    ) proc_help; exit 0;;
    *         ) proc_help; exit 0;;
