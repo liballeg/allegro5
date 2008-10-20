@@ -118,7 +118,7 @@ ifdef ALLEGRO_USE_C
 # ------ build a C-only version ------
 
 VPATH += src/c
-MY_OBJECTS = $(C_OBJECTS) cmiscs
+MY_OBJECTS = $(C_OBJECTS)
 CFLAGS += -DALLEGRO_NO_ASM
 
 else
