@@ -15,16 +15,18 @@ def getArgumentOption(name, default):
 
 
 def setupPlatform(platform, config):
+    platform["ALLEGRO_MACOSX"] = True
+    platform["ALLEGRO_CFG_OPENGL"] = True
     return config.Finish()
 
 platform, configure_env = helpers.do_configure('osx', context,
                             context.getTests(), setupPlatform,
-                            'include/allegro5/platform/al_cfg.h.cmake',
-                            'include/allegro5/platform/al_cfg.h',
+                            'include/allegro5/platform/alplatf.h.cmake',
+                            'include/allegro5/platform/alplatf.h',
                             getArgumentOption('config', 0))
 
 
-helpers.parse_cmake_h(env,helpers.define('ALLEGRO_MACOSX','ALLEGRO_CFG_OPENGL'),'#include/allegro5/platform/alplatf.h.cmake','include/allegro5/platform/alplatf.h')
+# helpers.parse_cmake_h(env,helpers.define('ALLEGRO_MACOSX','ALLEGRO_CFG_OPENGL'),'#include/allegro5/platform/alplatf.h.cmake','include/allegro5/platform/alplatf.h')
 
 # alplatf_h = helpers.generate_alplatf_h(env, ['ALLEGRO_MACOSX','ALLEGRO_CFG_OPENGL'])
 # file = open( "include/allegro5/platform/alplatf.h", "w" )
