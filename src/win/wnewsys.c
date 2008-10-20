@@ -177,6 +177,10 @@ static void win_shutdown(void)
       al_destroy_display(d);
    }
 
+   if (vt->get_display_driver && vt->get_display_driver()->shutdown) {
+      vt->get_display_driver()->shutdown();
+   }
+
    _al_win_shutdown_time();
 
     _al_win_input_exit();

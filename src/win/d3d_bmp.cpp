@@ -705,15 +705,14 @@ void _al_d3d_sync_bitmap(ALLEGRO_BITMAP *dest)
    }
 
    //d3d_sync_bitmap_memory(dest);
-
+   
    if ((i = system_texture_surface->Release()) != 0) {
-      TRACE("_al_d3d_sync_bitmap (system) ref count == %d\n", i);
+      //TRACE("_al_d3d_sync_bitmap (system) ref count == %d\n", i);
    }
 
-   /* Yes, I'm releasing it twice */
-
    if ((i = video_texture_surface->Release()) != 0) {
-      TRACE("_al_d3d_sync_bitmap (video) ref count == %d\n", i);
+   	// This can be non-zero
+      //TRACE("_al_d3d_sync_bitmap (video) ref count == %d\n", i);
    }
 
    d3d_sync_bitmap_memory(dest);
@@ -879,13 +878,19 @@ static void d3d_destroy_bitmap(ALLEGRO_BITMAP *bitmap)
 
    if (d3d_bmp->video_texture) {
       if (d3d_bmp->video_texture->Release() != 0) {
-      TRACE("d3d_destroy_bitmap: Release video texture failed.\n");
-   }
+         TRACE("d3d_destroy_bitmap: Release video texture failed.\n");
+      }
    }
    if (d3d_bmp->system_texture) {
       if (d3d_bmp->system_texture->Release() != 0) {
-      TRACE("d3d_destroy_bitmap: Release system texture failed.\n");
+         TRACE("d3d_destroy_bitmap: Release system texture failed.\n");
+      }
    }
+
+   if (d3d_bmp->render_target) {
+      if (d3d_bmp->render_target->Release() != 0) {
+         TRACE("d3d_destroy_bitmap: Release render target failed.\n");
+      }
    }
 
    _al_vector_find_and_delete(&created_bitmaps, &d3d_bmp);

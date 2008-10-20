@@ -1331,8 +1331,8 @@ static bool d3d_create_display_internals(ALLEGRO_DISPLAY_D3D *d3d_display)
    d3d_display->backbuffer_bmp.bitmap.h = al_display->h;
    d3d_display->backbuffer_bmp.bitmap.cl = 0;
    d3d_display->backbuffer_bmp.bitmap.ct = 0;
-   d3d_display->backbuffer_bmp.bitmap.cr = al_display->w-1;
-   d3d_display->backbuffer_bmp.bitmap.cb = al_display->h-1;
+   d3d_display->backbuffer_bmp.bitmap.cr = al_display->w;
+   d3d_display->backbuffer_bmp.bitmap.cb = al_display->h;
    d3d_display->backbuffer_bmp.bitmap.vt = (ALLEGRO_BITMAP_INTERFACE *)_al_bitmap_d3d_driver();
    d3d_display->backbuffer_bmp.display = d3d_display;
 
@@ -1760,18 +1760,18 @@ void d3d_set_bitmap_clip(ALLEGRO_BITMAP *bitmap)
 
    if (bitmap->parent) {
       rect.left = bitmap->xofs + bitmap->cl;
-      rect.right = bitmap->xofs + bitmap->cr + 1;
+      rect.right = bitmap->xofs + bitmap->cr;
       rect.top = bitmap->yofs + bitmap->ct;
-      rect.bottom = bitmap->yofs + bitmap->cb + 1;
+      rect.bottom = bitmap->yofs + bitmap->cb;
    }
    else {
       rect.left = bitmap->cl;
-      rect.right = bitmap->cr + 1;
+      rect.right = bitmap->cr;
       rect.top = bitmap->ct;
-      rect.bottom = bitmap->cb + 1;
+      rect.bottom = bitmap->cb;
    }
 
-   if (rect.left == 0 && rect.top == 0 && rect.right == disp->win_display.display.w+1 && rect.left == disp->win_display.display.h+1) {
+   if (rect.left == 0 && rect.top == 0 && rect.right == disp->win_display.display.w && rect.left == disp->win_display.display.h) {
       disp->device->SetRenderState(D3DRS_SCISSORTESTENABLE, FALSE);
       return;
    }   
@@ -2130,6 +2130,14 @@ static void d3d_toggle_frame(ALLEGRO_DISPLAY *display, bool onoff)
       display->w, display->h, onoff);
 }
 
+
+static void d3d_shutdown(void)
+{
+   _al_d3d->Release();
+}
+
+
+
 /* Obtain a reference to this driver. */
 ALLEGRO_DISPLAY_INTERFACE *_al_display_d3d_driver(void)
 {
@@ -2172,6 +2180,7 @@ ALLEGRO_DISPLAY_INTERFACE *_al_display_d3d_driver(void)
    vt->get_window_position = d3d_get_window_position;
    vt->toggle_frame = d3d_toggle_frame;
    vt->set_window_title = _al_win_set_window_title;
+   vt->shutdown = d3d_shutdown;
 
    return vt;
 }

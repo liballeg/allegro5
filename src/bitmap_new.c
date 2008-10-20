@@ -519,6 +519,9 @@ ALLEGRO_LOCKED_REGION *al_lock_bitmap_region(ALLEGRO_BITMAP *bitmap,
    if (bitmap->locked)
       return NULL;
 
+   ASSERT(x+width <= bitmap->w);
+   ASSERT(y+height <= bitmap->h);
+
    bitmap->locked = true;
    bitmap->lock_x = x;
    bitmap->lock_y = y;

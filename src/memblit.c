@@ -59,8 +59,8 @@ void _al_draw_bitmap_region_memory(ALLEGRO_BITMAP *bitmap,
       dx = dest->cl;
       sw -= inc;
    }
-   if (dx+sw-1 > dest->cr) {
-      int inc = (dx+sw-1) - dest->cr;
+   if (dx+sw > dest->cr) {
+      int inc = (dx+sw) - dest->cr;
       sw -= inc;
    }
 
@@ -70,8 +70,8 @@ void _al_draw_bitmap_region_memory(ALLEGRO_BITMAP *bitmap,
       dy = dest->ct;
       sh -= inc;
    }
-   if (dy+sh-1 > dest->cb) {
-      int inc = (dy+sh-1) - dest->cb;
+   if (dy+sh > dest->cb) {
+      int inc = (dy+sh) - dest->cb;
       sh -= inc;
    }
 
