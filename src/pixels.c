@@ -789,21 +789,16 @@ static p_put_pixel_func put_pixel_funcs[ALLEGRO_NUM_PIXEL_FORMATS] = {
    _put_pixel_xrgb_8888
 };
 
-void _al_put_pixel(void *data, int format, int color)
+static void _al_put_pixel_raw(void *data, int format, int color)
 {
    ASSERT(_al_pixel_format_is_real(format));
 
    (*put_pixel_funcs[format])(data, color);
 }
 
-/* Function: al_put_pixel
- *
- * Draw a single pixel on the target bitmap.
- */
-void al_put_pixel(int x, int y, ALLEGRO_COLOR color)
+void _al_put_pixel(ALLEGRO_BITMAP *bitmap, int x, int y, ALLEGRO_COLOR color)
 {
    ALLEGRO_LOCKED_REGION lr;
-   ALLEGRO_BITMAP *bitmap = al_get_target_bitmap();
    int color_value;
 
    color_value = _al_get_pixel_value(bitmap->format, &color);
@@ -815,7 +810,7 @@ void al_put_pixel(int x, int y, ALLEGRO_COLOR color)
          return;
       }
 
-      _al_put_pixel(
+      _al_put_pixel_raw(
          (char *)bitmap->locked_region.data
             + y * bitmap->locked_region.pitch
             + x * al_get_pixel_size(bitmap->format),
@@ -833,10 +828,19 @@ void al_put_pixel(int x, int y, ALLEGRO_COLOR color)
 
       /* FIXME: check for valid pixel format */
 
-      _al_put_pixel(lr.data, bitmap->format, color_value);
+      _al_put_pixel_raw(lr.data, bitmap->format, color_value);
 
       al_unlock_bitmap(bitmap);
    }
+}
+
+/* Function: al_put_pixel
+ *
+ * Draw a single pixel on the target bitmap.
+ */
+void al_put_pixel(int x, int y, ALLEGRO_COLOR color)
+{
+   _al_put_pixel(al_get_target_bitmap(), x, y, color);
 }
 
 

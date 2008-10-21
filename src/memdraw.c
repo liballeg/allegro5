@@ -21,11 +21,12 @@
 #include "allegro5/internal/aintern.h"
 #include "allegro5/internal/aintern_bitmap.h"
 
-void _al_draw_pixel_memory(int x, int y, ALLEGRO_COLOR *color)
+void _al_draw_pixel_memory(ALLEGRO_BITMAP *bitmap, int x, int y,
+   ALLEGRO_COLOR *color)
 {
    ALLEGRO_COLOR result;
    _al_blend(color, x, y, &result);
-   al_put_pixel(x, y, result);
+   _al_put_pixel(bitmap, x, y, result);
 }
 
 #define DEFINE_PUT_PIXEL(name, size, get, set)                               \
@@ -474,27 +475,29 @@ void _al_clear_memory(ALLEGRO_COLOR *color)
 
 
 
-static void _hline(int x1, int y, int x2, ALLEGRO_COLOR *color)
+static void _hline(ALLEGRO_BITMAP *target, int x1, int y, int x2,
+   ALLEGRO_COLOR *color)
 {
    int x;
 
    for (x = x1; x <= x2; x++) {
       ALLEGRO_COLOR result;
       _al_blend(color, x, y, &result);
-      al_put_pixel(x, y, result);
+      _al_put_pixel(target, x, y, result);
    }
 }
 
 
 
-static void _vline(int x, int y1, int y2, ALLEGRO_COLOR *color)
+static void _vline(ALLEGRO_BITMAP *target, int x, int y1, int y2,
+   ALLEGRO_COLOR *color)
 {
    int y;
 
    for (y = y1; y <= y2; y++) {
       ALLEGRO_COLOR result;
       _al_blend(color, x, y, &result);
-      al_put_pixel(x, y, result);
+      _al_put_pixel(target, x, y, result);
    }
 }
 
@@ -523,7 +526,7 @@ void _al_draw_hline_memory(int dx1, int dy, int dx2, ALLEGRO_COLOR *color)
    if (!al_lock_bitmap_region(target, dx1, dy, dx2-dx1+1, 1, &lr, 0))
       return;
 
-   _hline(dx1, dy, dx2, color);
+   _hline(target, dx1, dy, dx2, color);
 
    al_unlock_bitmap(target);
 }
@@ -552,7 +555,7 @@ void _al_draw_vline_memory(int dx, int dy1, int dy2, ALLEGRO_COLOR *color)
    if (!al_lock_bitmap_region(dst, dx, dy1, 1, dy2-dy1+1, &lr, 0))
       return;
 
-   _vline(dx, dy1, dy2, color);
+   _vline(dst, dx, dy1, dy2, color);
 
    al_unlock_bitmap(dst);
 }
@@ -612,7 +615,7 @@ void _al_draw_line_memory(int x1, int y1, int x2, int y2, ALLEGRO_COLOR *color)
       int x, y;                                                              \
                                                                              \
       if (d##pri_c == 0) {                                                   \
-         set(x1, y1, color);                                                 \
+         set(bitmap, x1, y1, color);                                         \
          break;                                                              \
       }                                                                      \
                                                                              \
@@ -624,7 +627,7 @@ void _al_draw_line_memory(int x1, int y1, int x2, int y2, ALLEGRO_COLOR *color)
       y = y1;                                                                \
                                                                              \
       while (pri_c pri_cond pri_c##2) {                                      \
-         set(x, y, color);                                                   \
+         set(bitmap, x, y, color);                                           \
                                                                              \
          if (dd sec_cond 0) {                                                \
             sec_c = sec_c sec_sign 1;                                        \
@@ -707,12 +710,12 @@ void _al_draw_line_memory(int x1, int y1, int x2, int y2, ALLEGRO_COLOR *color)
    #undef DO_LINE
 }
 
-#define DO_FILLED_RECTANGLE(func, dx, dy, w, h, color)                       \
+#define DO_FILLED_RECTANGLE(func, bitmap, dx, dy, w, h, color)               \
 do {                                                                         \
    int y;                                                                    \
                                                                              \
    for (y = 0; y < h; y++) {                                                 \
-      func(dx, dy+y, dx+w-1, color);                                         \
+      func(bitmap, dx, dy+y, dx+w-1, color);                                 \
    }                                                                         \
 } while (0)
 
@@ -772,7 +775,7 @@ void _al_draw_rectangle_memory(int x1, int y1, int x2, int y2,
 
    al_lock_bitmap_region(bitmap, x1, y1, w, h, &lr, 0);
 
-   DO_FILLED_RECTANGLE(_hline, x1, y1, w, h, color);
+   DO_FILLED_RECTANGLE(_hline, bitmap, x1, y1, w, h, color);
 
    al_unlock_bitmap(bitmap);
 }

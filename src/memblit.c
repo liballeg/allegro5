@@ -125,7 +125,7 @@ void _al_draw_bitmap_region_memory(ALLEGRO_BITMAP *bitmap,
       for (x = 0; x < sw; x++, xd += xinc) {
          src_color = al_get_pixel(bitmap, x+sx, y+sy);
          _al_blend(&src_color, x+dx, y+dy, &result);
-         al_put_pixel(xd+dx, yd+dy, result);
+         _al_put_pixel(dest, xd+dx, yd+dy, result);
       }
    }
 
@@ -225,7 +225,7 @@ void _al_draw_scaled_bitmap_memory(ALLEGRO_BITMAP *src,
    	for (x = 0; x < xend; x++) {
 		src_color = al_get_pixel(src, _sx, _sy);
 		_al_blend(&src_color, _dx, _dy, &result);
-		al_put_pixel(_dx, _dy, result);
+		_al_put_pixel(dest, _dx, _dy, result);
 		_sx += sxinc;
 		_dx += dxinc;
 	}
@@ -686,7 +686,7 @@ do {                                                                         \
       for (x = 0; x < endx-startx; x++) {                                    \
          src_color = al_get_pixel(src, my_l_spr_x>>16, my_l_spr_y>>16);      \
          _al_blend(&src_color, x+my_l_bmp_x_i, bmp_y_i, &result);            \
-         al_put_pixel(x+my_l_bmp_x_i, bmp_y_i, result);                      \
+         _al_put_pixel(dst, x+my_l_bmp_x_i, bmp_y_i, result);                \
          (void) c;                                                           \
          /*c = get(src_region.data+(my_l_spr_y>>16)*src_region.pitch+ssize*(my_l_spr_x>>16));\
          c = convert(c);                                                     \

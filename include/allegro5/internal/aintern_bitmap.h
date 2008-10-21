@@ -96,11 +96,6 @@ struct ALLEGRO_BITMAP_INTERFACE
    void (*unlock_region)(ALLEGRO_BITMAP *bitmap);
 };
 
-void _al_blit_memory_bitmap(ALLEGRO_BITMAP *source, ALLEGRO_BITMAP *dest,
-   int source_x, int source_y, int dest_x, int dest_y, int w, int h);
-//ALLEGRO_BITMAP_INTERFACE *_al_bitmap_xdummy_driver(void);
-//ALLEGRO_BITMAP_INTERFACE *_al_bitmap_d3ddummy_driver(void);
-
 /* Bitmap conversion */
 void _al_convert_bitmap_data(
 	void *src, int src_format, int src_pitch,
@@ -109,6 +104,7 @@ void _al_convert_bitmap_data(
 	int width, int height);
 void _al_convert_to_memory_bitmap(ALLEGRO_BITMAP *bitmap);
 int _al_get_pixel_value(int src_format, ALLEGRO_COLOR *src_color);
+void _al_put_pixel(ALLEGRO_BITMAP *bitmap, int x, int y, ALLEGRO_COLOR color);
 bool _al_format_has_alpha(int format);
 bool _al_pixel_format_is_real(int format);
 bool _al_pixel_format_fits(int format1, int format2);
