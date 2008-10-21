@@ -11,11 +11,18 @@ opts = helpers.Options(context, "options-unix.py", ARGUMENTS)
 opts.AddOptions(PathOption('install', 'Installation directory', '/usr/local'))
 opts.Add('magic_main', 'Use magic main', 0)
 opts.AddWithoutMemorize('config', "Force re-configuration of the build.", 0)
+
+# FIXME: This should not be in unix.scons but in all.scons
+opts.Add('jobs', 'How many parallel jobs to run (same as -j).', 1)
+
 opts.Update(env)
 opts.Save(env)
 Help(opts.GenerateHelpText(env))
 
 helpers.install = env['install']
+
+# FIXME: This should not be in unix.scons but in all.scons
+SetOption("num_jobs", env['jobs'])
 
 def getOption(name, default = 0):
     return env[name]
