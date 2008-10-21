@@ -144,7 +144,9 @@ static int32 system_thread(void *data)
 
    _be_allegro_app->Run();
 
+   /* XXX commented out due to conflicting TRACE in Haiku
    TRACE(PREFIX_I "system thread exited\n");
+   */
 
    return 0;
 }

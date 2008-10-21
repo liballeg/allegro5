@@ -76,7 +76,9 @@ int32 mouse_thread(void *mouse_started)
 
       if (mouse_thread_running == false) {
          release_sem(_be_mouse_view_attached);
+         /* XXX commented out due to conflicting TRACE in Haiku
          TRACE(PREFIX_I "mouse thread exited\n");
+         */
 
          return 0;
       }

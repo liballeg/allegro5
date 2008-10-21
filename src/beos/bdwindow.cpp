@@ -260,8 +260,10 @@ void BeAllegroDirectWindow::DirectConnected(direct_buffer_info *info)
 	             cmap[i] = BScreen().IndexForColor(((i >> 4) & 0xF0) | (i >> 8),  (i & 0xF0) | ((i >> 4) & 0xF),  (i & 0xF) | ((i & 0xF) << 4));
 	       }
 	    }
+	    /* XXX commented out due to conflicting TRACE in Haiku
 	    TRACE(PREFIX_I "Color conversion mode set: %d->%d\n",
 		  (int)screen_depth, (int)display_depth);
+	    */
 	 }
 	 			       
 	 if (rects) {

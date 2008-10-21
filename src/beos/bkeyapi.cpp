@@ -260,9 +260,11 @@ static int32 keyboard_thread(void *keyboard_started)
       key_info_old = key_info_new;
    }
 
- TRACE(PREFIX_I "keyboard thread exited\n");
+   /* XXX commented out due to conflicting TRACE in Haiku
+   TRACE(PREFIX_I "keyboard thread exited\n");
+   */
 
- return 0;
+   return 0;
 }
 
 
