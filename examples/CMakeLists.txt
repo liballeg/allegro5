@@ -28,6 +28,7 @@ if(SUPPORT_IIO)
     example(ex_noframe ${IIO_LINK_WITH})
     example(ex_resize2 ${IIO_LINK_WITH})
     example(ex_scale ${IIO_LINK_WITH})
+    example(ex_subbitmap ${IIO_LINK_WITH})
     example(ex_winfull ${IIO_LINK_WITH})
 endif(SUPPORT_IIO)
 

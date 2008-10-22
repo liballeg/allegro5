@@ -196,9 +196,27 @@ void _al_draw_scaled_bitmap_memory(ALLEGRO_BITMAP *src,
    if (dw == 0 || dh == 0)
    	return;
 
-   al_lock_bitmap(src, &src_region, ALLEGRO_LOCK_READONLY);
+   /* Handle sub bitmaps */
+   if (dest->parent) {
+      dx += dest->xofs;
+      dy += dest->yofs;
+      dest = dest->parent;
+   }
+
+   if (src->parent) {
+      sx += src->xofs;
+      sy += src->yofs;
+      src = src->parent;
+   }
+
+   if (!al_lock_bitmap(src, &src_region, ALLEGRO_LOCK_READONLY)) {
+      return;
+   }
    /* XXX we should be able to lock less of the destination */
-   al_lock_bitmap(dest, &dst_region, 0);
+   if (!al_lock_bitmap(dest, &dst_region, 0)) {
+      al_unlock_bitmap(src);
+      return;
+   }
 
    dxinc = dw < 0 ? -1 : 1;
    dyinc = dh < 0 ? -1 : 1;

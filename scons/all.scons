@@ -123,6 +123,7 @@ def examples(env):
     example("ex_resize2")
     example("ex_saw")
     example("ex_scale")
+    example("ex_subbitmap")
     example("ex_threads")
     example("ex_threads2")
     example("ex_timedwait")
