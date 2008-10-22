@@ -75,7 +75,7 @@ static int alsa_open(void)
    if (sys->config) {
       const char *config_device;
       config_device = al_config_get_value(sys->config, "sound", "alsa_device");
-      if (config_device)
+      if (config_device && config_device[0] != '\0')
          alsa_device = strdup(config_device);
    }
 

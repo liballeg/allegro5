@@ -90,7 +90,7 @@ static ALLEGRO_AUDIO_DRIVER_ENUM get_config_audio_driver(void)
       return ALLEGRO_AUDIO_DRIVER_AUTODETECT;
 
    value = al_config_get_value(sys->config, "sound", "driver");
-   if (!value)
+   if (!value || value[0] == '\0')
       return ALLEGRO_AUDIO_DRIVER_AUTODETECT;
 
    if (0 == stricmp(value, "ALSA"))
