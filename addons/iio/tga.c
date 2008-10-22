@@ -32,7 +32,7 @@
 /* raw_tga_read8:
  *  Helper for reading 256-color raw data from TGA files.
  */
-static INLINE unsigned char *raw_tga_read8(unsigned char *b, int w, AL_FS_ENTRY *f)
+static INLINE unsigned char *raw_tga_read8(unsigned char *b, int w, ALLEGRO_FS_ENTRY *f)
 {
    return b + al_fs_entry_read(b, w, f);
 }
@@ -42,7 +42,7 @@ static INLINE unsigned char *raw_tga_read8(unsigned char *b, int w, AL_FS_ENTRY 
 /* rle_tga_read8:
  *  Helper for reading 256-color RLE data from TGA files.
  */
-static void rle_tga_read8(unsigned char *b, int w, AL_FS_ENTRY *f)
+static void rle_tga_read8(unsigned char *b, int w, ALLEGRO_FS_ENTRY *f)
 {
    int value, count, c = 0;
 
@@ -70,7 +70,7 @@ static void rle_tga_read8(unsigned char *b, int w, AL_FS_ENTRY *f)
 /* single_tga_read32:
  *  Helper for reading a single 32-bit data from TGA files.
  */
-static INLINE int single_tga_read32(AL_FS_ENTRY *f)
+static INLINE int single_tga_read32(ALLEGRO_FS_ENTRY *f)
 {
    PalEntry value;
    int alpha;
@@ -94,7 +94,7 @@ static INLINE int single_tga_read32(AL_FS_ENTRY *f)
 /* raw_tga_read32:
  *  Helper for reading 32-bit raw data from TGA files.
  */
-static unsigned int *raw_tga_read32(unsigned int *b, int w, AL_FS_ENTRY *f)
+static unsigned int *raw_tga_read32(unsigned int *b, int w, ALLEGRO_FS_ENTRY *f)
 {
    while (w--)
       *b++ = single_tga_read32(f);
@@ -107,7 +107,7 @@ static unsigned int *raw_tga_read32(unsigned int *b, int w, AL_FS_ENTRY *f)
 /* rle_tga_read32:
  *  Helper for reading 32-bit RLE data from TGA files.
  */
-static void rle_tga_read32(unsigned int *b, int w, AL_FS_ENTRY *f)
+static void rle_tga_read32(unsigned int *b, int w, ALLEGRO_FS_ENTRY *f)
 {
    int color, count, c = 0;
 
@@ -134,7 +134,7 @@ static void rle_tga_read32(unsigned int *b, int w, AL_FS_ENTRY *f)
 /* single_tga_read24:
  *  Helper for reading a single 24-bit data from TGA files.
  */
-static INLINE int single_tga_read24(AL_FS_ENTRY *f)
+static INLINE int single_tga_read24(ALLEGRO_FS_ENTRY *f)
 {
    PalEntry value;
 
@@ -156,7 +156,7 @@ static INLINE int single_tga_read24(AL_FS_ENTRY *f)
 /* raw_tga_read24:
  *  Helper for reading 24-bit raw data from TGA files.
  */
-static unsigned char *raw_tga_read24(unsigned char *b, int w, AL_FS_ENTRY *f)
+static unsigned char *raw_tga_read24(unsigned char *b, int w, ALLEGRO_FS_ENTRY *f)
 {
    int color;
 
@@ -174,7 +174,7 @@ static unsigned char *raw_tga_read24(unsigned char *b, int w, AL_FS_ENTRY *f)
 /* rle_tga_read24:
  *  Helper for reading 24-bit RLE data from TGA files.
  */
-static void rle_tga_read24(unsigned char *b, int w, AL_FS_ENTRY *f)
+static void rle_tga_read24(unsigned char *b, int w, ALLEGRO_FS_ENTRY *f)
 {
    int color, count, c = 0;
 
@@ -204,7 +204,7 @@ static void rle_tga_read24(unsigned char *b, int w, AL_FS_ENTRY *f)
 /* single_tga_read16:
  *  Helper for reading a single 16-bit data from TGA files.
  */
-static INLINE int single_tga_read16(AL_FS_ENTRY *f)
+static INLINE int single_tga_read16(ALLEGRO_FS_ENTRY *f)
 {
    int value;
 
@@ -223,7 +223,7 @@ static INLINE int single_tga_read16(AL_FS_ENTRY *f)
 /* raw_tga_read16:
  *  Helper for reading 16-bit raw data from TGA files.
  */
-static unsigned short *raw_tga_read16(unsigned short *b, int w, AL_FS_ENTRY *f)
+static unsigned short *raw_tga_read16(unsigned short *b, int w, ALLEGRO_FS_ENTRY *f)
 {
    while (w--)
       *b++ = single_tga_read16(f);
@@ -236,7 +236,7 @@ static unsigned short *raw_tga_read16(unsigned short *b, int w, AL_FS_ENTRY *f)
 /* rle_tga_read16:
  *  Helper for reading 16-bit RLE data from TGA files.
  */
-static void rle_tga_read16(unsigned short *b, int w, AL_FS_ENTRY *f)
+static void rle_tga_read16(unsigned short *b, int w, ALLEGRO_FS_ENTRY *f)
 {
    int color, count, c = 0;
 
@@ -261,13 +261,13 @@ static void rle_tga_read16(unsigned short *b, int w, AL_FS_ENTRY *f)
 
 
 /* load_tga_pf:
- *  Like load_tga, but starts loading from the current place in the AL_FS_ENTRY
+ *  Like load_tga, but starts loading from the current place in the ALLEGRO_FS_ENTRY
  *  specified. If successful the offset into the file will be left just after
  *  the image data. If unsuccessful the offset into the file is unspecified,
  *  i.e. you must either reset the offset to some known place or close the
  *  packfile. The packfile is not closed by this function.
  */
-static ALLEGRO_BITMAP *iio_load_tga_pf(AL_FS_ENTRY *f)
+static ALLEGRO_BITMAP *iio_load_tga_pf(ALLEGRO_FS_ENTRY *f)
 {
    unsigned char image_id[256], image_palette[256][3];
    unsigned char id_length, palette_type, image_type, palette_entry_size;
@@ -482,12 +482,12 @@ static ALLEGRO_BITMAP *iio_load_tga_pf(AL_FS_ENTRY *f)
 
 
 /* save_tga_pf:
- *  Like save_tga but writes into the AL_FS_ENTRY given instead of a new file.
+ *  Like save_tga but writes into the ALLEGRO_FS_ENTRY given instead of a new file.
  *  The packfile is not closed after writing is completed. On success the
  *  offset into the file is left after the TGA file just written. On failure
  *  the offset is left at the end of whatever incomplete data was written.
  */
-static int iio_save_tga_pf(AL_FS_ENTRY *f, ALLEGRO_BITMAP *bmp)
+static int iio_save_tga_pf(ALLEGRO_FS_ENTRY *f, ALLEGRO_BITMAP *bmp)
 {
    int x, y;
    int w, h;
@@ -543,7 +543,7 @@ static int iio_save_tga_pf(AL_FS_ENTRY *f, ALLEGRO_BITMAP *bmp)
  */
 ALLEGRO_BITMAP *iio_load_tga(AL_CONST char *filename)
 {
-   AL_FS_ENTRY *f;
+   ALLEGRO_FS_ENTRY *f;
    ALLEGRO_BITMAP *bmp;
    ASSERT(filename);
 
@@ -566,7 +566,7 @@ ALLEGRO_BITMAP *iio_load_tga(AL_CONST char *filename)
  */
 int iio_save_tga(AL_CONST char *filename, ALLEGRO_BITMAP *bmp)
 {
-   AL_FS_ENTRY *f;
+   ALLEGRO_FS_ENTRY *f;
    int ret;
    ASSERT(filename);
 

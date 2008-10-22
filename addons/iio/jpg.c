@@ -19,14 +19,14 @@ struct my_src_mgr
 {
    struct jpeg_source_mgr pub;
    unsigned char *buffer;
-   AL_FS_ENTRY *pf;
+   ALLEGRO_FS_ENTRY *pf;
 };
 
 struct my_dest_mgr
 {
    struct jpeg_destination_mgr pub;
    unsigned char *buffer;
-   AL_FS_ENTRY *pf;
+   ALLEGRO_FS_ENTRY *pf;
 };
 
 static void init_source(j_decompress_ptr cinfo)
@@ -66,7 +66,7 @@ static void skip_input_data(j_decompress_ptr cinfo, long num_bytes)
    }
    else {
       long skip = num_bytes - src->pub.bytes_in_buffer;
-      al_fs_entry_seek(src->pf, skip, AL_SEEK_CUR);
+      al_fs_entry_seek(src->pf, skip, ALLEGRO_SEEK_CUR);
       src->pub.bytes_in_buffer = 0;
    }
 }
@@ -82,7 +82,7 @@ static void term_destination(j_compress_ptr cinfo)
 }
 
 
-static void jpeg_packfile_src(j_decompress_ptr cinfo, AL_FS_ENTRY *pf,
+static void jpeg_packfile_src(j_decompress_ptr cinfo, ALLEGRO_FS_ENTRY *pf,
                               unsigned char *buffer)
 {
    struct my_src_mgr *src;
@@ -103,7 +103,7 @@ static void jpeg_packfile_src(j_decompress_ptr cinfo, AL_FS_ENTRY *pf,
    src->pf = pf;
 }
 
-static void jpeg_packfile_dest(j_compress_ptr cinfo, AL_FS_ENTRY *pf,
+static void jpeg_packfile_dest(j_compress_ptr cinfo, ALLEGRO_FS_ENTRY *pf,
                                unsigned char *buffer)
 {
    struct my_dest_mgr *dest;
@@ -122,7 +122,7 @@ static void jpeg_packfile_dest(j_compress_ptr cinfo, AL_FS_ENTRY *pf,
    dest->pf = pf;
 }
 
-static ALLEGRO_BITMAP *load_jpg_pf(AL_FS_ENTRY *pf)
+static ALLEGRO_BITMAP *load_jpg_pf(ALLEGRO_FS_ENTRY *pf)
 {
    struct jpeg_decompress_struct cinfo;
    struct jpeg_error_mgr jerr;
@@ -187,7 +187,7 @@ static ALLEGRO_BITMAP *load_jpg_pf(AL_FS_ENTRY *pf)
    return bmp;
 }
 
-static int save_jpg_pf(AL_FS_ENTRY *pf, ALLEGRO_BITMAP *bmp)
+static int save_jpg_pf(ALLEGRO_FS_ENTRY *pf, ALLEGRO_BITMAP *bmp)
 {
    struct jpeg_compress_struct cinfo;
    struct jpeg_error_mgr jerr;
@@ -246,7 +246,7 @@ static int save_jpg_pf(AL_FS_ENTRY *pf, ALLEGRO_BITMAP *bmp)
  */
 ALLEGRO_BITMAP *iio_load_jpg(char const *filename)
 {
-   AL_FS_ENTRY *pf;
+   ALLEGRO_FS_ENTRY *pf;
    ALLEGRO_BITMAP *bmp;
 
    ASSERT(filename);
@@ -269,7 +269,7 @@ ALLEGRO_BITMAP *iio_load_jpg(char const *filename)
  */
 int iio_save_jpg(char const *filename, ALLEGRO_BITMAP *bmp)
 {
-   AL_FS_ENTRY *pf;
+   ALLEGRO_FS_ENTRY *pf;
    int result;
 
    ASSERT(filename);

@@ -47,7 +47,7 @@ static double get_gamma(void)
  */
 static void read_data(png_structp png_ptr, png_bytep data, png_uint_32 length)
 {
-   AL_FS_ENTRY *f = (AL_FS_ENTRY *)png_get_io_ptr(png_ptr);
+   ALLEGRO_FS_ENTRY *f = (ALLEGRO_FS_ENTRY *)png_get_io_ptr(png_ptr);
    if ((png_uint_32) al_fs_entry_read(data, length, f) != length)
       png_error(png_ptr, "read error (loadpng calling al_fs_entry_read)");
 }
@@ -59,7 +59,7 @@ static void read_data(png_structp png_ptr, png_bytep data, png_uint_32 length)
  */
 #define PNG_BYTES_TO_CHECK 4
 
-static int check_if_png(AL_FS_ENTRY *fp)
+static int check_if_png(ALLEGRO_FS_ENTRY *fp)
 {
    unsigned char buf[PNG_BYTES_TO_CHECK];
 
@@ -256,7 +256,7 @@ static ALLEGRO_BITMAP *really_load_png(png_structp png_ptr, png_infop info_ptr)
 /* load_png_pf:
  *  Load a PNG file from disk, doing colour coversion if required.
  */
-static ALLEGRO_BITMAP *load_png_pf(AL_FS_ENTRY *fp)
+static ALLEGRO_BITMAP *load_png_pf(ALLEGRO_FS_ENTRY *fp)
 {
    ALLEGRO_BITMAP *bmp;
    png_structp png_ptr;
@@ -322,7 +322,7 @@ static ALLEGRO_BITMAP *load_png_pf(AL_FS_ENTRY *fp)
  */
 ALLEGRO_BITMAP *iio_load_png(AL_CONST char *filename)
 {
-   AL_FS_ENTRY *fp;
+   ALLEGRO_FS_ENTRY *fp;
    ALLEGRO_BITMAP *bmp;
 
    ASSERT(filename);
@@ -353,7 +353,7 @@ ALLEGRO_BITMAP *iio_load_png(AL_CONST char *filename)
  */
 static void write_data(png_structp png_ptr, png_bytep data, png_uint_32 length)
 {
-   AL_FS_ENTRY *f = (AL_FS_ENTRY *)png_get_io_ptr(png_ptr);
+   ALLEGRO_FS_ENTRY *f = (ALLEGRO_FS_ENTRY *)png_get_io_ptr(png_ptr);
    if ((png_uint_32) al_fs_entry_write(data, length, f) != length)
       png_error(png_ptr, "write error (loadpng calling al_fs_entry_write)");
 }
@@ -408,7 +408,7 @@ static int save_rgba(png_structp png_ptr, ALLEGRO_BITMAP *bmp)
  *  Writes a non-interlaced, no-frills PNG, taking the usual save_xyz
  *  parameters.  Returns non-zero on error.
  */
-static int really_save_png(AL_FS_ENTRY *fp, ALLEGRO_BITMAP *bmp)
+static int really_save_png(ALLEGRO_FS_ENTRY *fp, ALLEGRO_BITMAP *bmp)
 {
    png_structp png_ptr = NULL;
    png_infop info_ptr = NULL;
@@ -492,7 +492,7 @@ static int really_save_png(AL_FS_ENTRY *fp, ALLEGRO_BITMAP *bmp)
 
 int iio_save_png(AL_CONST char *filename, ALLEGRO_BITMAP *bmp)
 {
-   AL_FS_ENTRY *fp;
+   ALLEGRO_FS_ENTRY *fp;
    int result;
 
    ASSERT(filename);

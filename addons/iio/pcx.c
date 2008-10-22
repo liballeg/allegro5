@@ -4,7 +4,7 @@
 #include "iio.h"
 
 
-static ALLEGRO_BITMAP *iio_load_pcx_pf(AL_FS_ENTRY *f)
+static ALLEGRO_BITMAP *iio_load_pcx_pf(ALLEGRO_FS_ENTRY *f)
 {
    ALLEGRO_BITMAP *b;
    int c;
@@ -151,7 +151,7 @@ static ALLEGRO_BITMAP *iio_load_pcx_pf(AL_FS_ENTRY *f)
 }
 
 
-static int iio_save_pcx_pf(AL_FS_ENTRY *f, ALLEGRO_BITMAP *bmp)
+static int iio_save_pcx_pf(ALLEGRO_FS_ENTRY *f, ALLEGRO_BITMAP *bmp)
 {
    int c;
    int x, y;
@@ -237,7 +237,7 @@ static int iio_save_pcx_pf(AL_FS_ENTRY *f, ALLEGRO_BITMAP *bmp)
 
 ALLEGRO_BITMAP *iio_load_pcx(AL_CONST char *filename)
 {
-   AL_FS_ENTRY *f;
+   ALLEGRO_FS_ENTRY *f;
    ALLEGRO_BITMAP *bmp;
    ASSERT(filename);
 
@@ -255,7 +255,7 @@ ALLEGRO_BITMAP *iio_load_pcx(AL_CONST char *filename)
 
 int iio_save_pcx(AL_CONST char *filename, ALLEGRO_BITMAP *bmp)
 {
-   AL_FS_ENTRY *f;
+   ALLEGRO_FS_ENTRY *f;
    int ret;
    ASSERT(filename);
 

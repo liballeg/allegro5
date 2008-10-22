@@ -91,9 +91,6 @@ int main(void)
    al_install_keyboard();
    al_font_init();
 
-   al_set_new_bitmap_format(ALLEGRO_PIXEL_FORMAT_RGB_565);
-   al_set_new_display_format(ALLEGRO_PIXEL_FORMAT_RGB_565);
-
    display = al_create_display(640, 400);
    if (!display) {
       TRACE("Error creating display\n");

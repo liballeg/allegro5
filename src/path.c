@@ -254,9 +254,9 @@ _split_path_getout:
    return NULL;
 }
 
-static int32_t _al_path_init(AL_PATH *path, AL_CONST char *str)
+static int32_t _al_path_init(ALLEGRO_PATH *path, AL_CONST char *str)
 {
-   memset(path, 0, sizeof(AL_PATH));
+   memset(path, 0, sizeof(ALLEGRO_PATH));
 
    if (str != NULL) {
       char *part_path = NULL;
@@ -321,11 +321,11 @@ _path_init_fatal:
    return 1;
 }
 
-AL_PATH *al_path_create(AL_CONST char *str)
+ALLEGRO_PATH *al_path_create(AL_CONST char *str)
 {
-   AL_PATH *path = NULL;
+   ALLEGRO_PATH *path = NULL;
 
-   path = _AL_MALLOC(sizeof(AL_PATH));
+   path = _AL_MALLOC(sizeof(ALLEGRO_PATH));
    if (!path)
       return NULL;
 
@@ -339,20 +339,20 @@ AL_PATH *al_path_create(AL_CONST char *str)
    return path;
 }
 
-int32_t al_path_init(AL_PATH *path, AL_CONST char *str)
+int32_t al_path_init(ALLEGRO_PATH *path, AL_CONST char *str)
 {
    ASSERT(path);
    return _al_path_init(path, str);
 }
 
 
-int al_path_num_components(AL_PATH *path)
+int al_path_num_components(ALLEGRO_PATH *path)
 {
    ASSERT(path);
    return path->segment_count;
 }
 
-const char *al_path_index(AL_PATH *path, int i)
+const char *al_path_index(ALLEGRO_PATH *path, int i)
 {
    ASSERT(path);
    ASSERT(i < path->segment_count);
@@ -365,7 +365,7 @@ const char *al_path_index(AL_PATH *path, int i)
    return path->segment[i];
 }
 
-void al_path_replace(AL_PATH *path, int i, const char *s)
+void al_path_replace(ALLEGRO_PATH *path, int i, const char *s)
 {
    char *tmp = NULL;
 
@@ -386,7 +386,7 @@ void al_path_replace(AL_PATH *path, int i, const char *s)
    path->segment[i] = tmp;
 }
 
-void al_path_remove(AL_PATH *path, int i)
+void al_path_remove(ALLEGRO_PATH *path, int i)
 {
    ASSERT(path);
    ASSERT(i < path->segment_count);
@@ -405,7 +405,7 @@ void al_path_remove(AL_PATH *path, int i)
    path->segment_count--;
 }
 
-void al_path_insert(AL_PATH *path, int i, const char *s)
+void al_path_insert(ALLEGRO_PATH *path, int i, const char *s)
 {
    char **tmp = NULL;
    char *tmps = NULL;
@@ -436,24 +436,24 @@ void al_path_insert(AL_PATH *path, int i, const char *s)
 
 }
 
-const char *al_path_tail(AL_PATH *path)
+const char *al_path_tail(ALLEGRO_PATH *path)
 {
    ASSERT(path);
 
    return al_path_index(path, -1);
 }
 
-void al_path_drop_tail(AL_PATH *path)
+void al_path_drop_tail(ALLEGRO_PATH *path)
 {
    al_path_remove(path, -1);
 }
 
-void al_path_append(AL_PATH *path, const char *s)
+void al_path_append(ALLEGRO_PATH *path, const char *s)
 {
    al_path_insert(path, -1, s);
 }
 
-void al_path_concat(AL_PATH *path, const AL_PATH *tail)
+void al_path_concat(ALLEGRO_PATH *path, const ALLEGRO_PATH *tail)
 {
    char **tmp = NULL, *new_filename = NULL;
    int32_t i = 0;
@@ -504,7 +504,7 @@ void al_path_concat(AL_PATH *path, const AL_PATH *tail)
 }
 
 /* FIXME: this is a rather dumb implementation, not using ustr*cat should speed it up */
-char *al_path_to_string(AL_PATH *path, char *buffer, size_t len, char delim)
+char *al_path_to_string(ALLEGRO_PATH *path, char *buffer, size_t len, char delim)
 {
    int32_t i = 0;
    char d[2] = { delim, '\0' };
@@ -534,7 +534,7 @@ char *al_path_to_string(AL_PATH *path, char *buffer, size_t len, char delim)
    return buffer;
 }
 
-void al_path_free(AL_PATH *path)
+void al_path_free(ALLEGRO_PATH *path)
 {
    int32_t i = 0;
 
@@ -564,7 +564,7 @@ void al_path_free(AL_PATH *path)
       _AL_FREE(path);
 }
 
-int32_t al_path_set_drive(AL_PATH *path, AL_CONST char *drive)
+int32_t al_path_set_drive(ALLEGRO_PATH *path, AL_CONST char *drive)
 {
    ASSERT(path);
 
@@ -582,13 +582,13 @@ int32_t al_path_set_drive(AL_PATH *path, AL_CONST char *drive)
    return 0;
 }
 
-const char *al_path_get_drive(AL_PATH *path)
+const char *al_path_get_drive(ALLEGRO_PATH *path)
 {
    ASSERT(path);
    return path->drive;
 }
 
-int32_t al_path_set_filename(AL_PATH *path, AL_CONST char *filename)
+int32_t al_path_set_filename(ALLEGRO_PATH *path, AL_CONST char *filename)
 {
    ASSERT(path);
 
@@ -606,13 +606,13 @@ int32_t al_path_set_filename(AL_PATH *path, AL_CONST char *filename)
    return 0;
 }
 
-const char *al_path_get_filename(AL_PATH *path)
+const char *al_path_get_filename(ALLEGRO_PATH *path)
 {
    ASSERT(path);
    return path->filename;
 }
 
-const char *al_path_get_extension(AL_PATH *path, char *buf, size_t len)
+const char *al_path_get_extension(ALLEGRO_PATH *path, char *buf, size_t len)
 {
    ASSERT(path);
    ASSERT(buf);
@@ -631,7 +631,7 @@ const char *al_path_get_extension(AL_PATH *path, char *buf, size_t len)
    return buf;
 }
 
-const char *al_path_get_basename(AL_PATH *path, char *buf, size_t len)
+const char *al_path_get_basename(ALLEGRO_PATH *path, char *buf, size_t len)
 {
    ASSERT(path);
    ASSERT(buf);
@@ -650,7 +650,7 @@ const char *al_path_get_basename(AL_PATH *path, char *buf, size_t len)
    return buf;
 }
 
-uint32_t al_path_exists(AL_PATH *path)
+uint32_t al_path_exists(ALLEGRO_PATH *path)
 {
    char buffer[PATH_MAX];
    ASSERT(path);
@@ -670,7 +670,7 @@ uint32_t al_path_exists(AL_PATH *path)
    return al_fs_exists(buffer);
 }
 
-uint32_t al_path_emode(AL_PATH *path, uint32_t mode)
+uint32_t al_path_emode(ALLEGRO_PATH *path, uint32_t mode)
 {
    char buffer[PATH_MAX];
    ASSERT(path);

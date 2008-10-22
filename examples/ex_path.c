@@ -3,15 +3,15 @@
 
 int main(int argc, char **argv)
 {
-   AL_PATH *dyn = NULL;
-   AL_PATH sta;
-   AL_PATH *tostring = NULL;
+   ALLEGRO_PATH *dyn = NULL;
+   ALLEGRO_PATH sta;
+   ALLEGRO_PATH *tostring = NULL;
 
    al_init();
    set_uformat(U_ASCII);
 
    if(argc < 2) {
-      AL_PATH *exe = al_path_create(argv[0]);
+      ALLEGRO_PATH *exe = al_path_create(argv[0]);
       if(exe) {
          printf("useage1: %s <path>\n", al_path_get_filename(exe));
          al_path_free(exe);

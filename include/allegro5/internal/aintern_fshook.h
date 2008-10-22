@@ -28,11 +28,11 @@ AL_BEGIN_EXTERN_C
 
 #ifdef ALLEGRO_LIB_BUILD
 
-struct AL_FS_HOOK_SYS_INTERFACE {
-   AL_METHOD(AL_FS_ENTRY *, create_handle, (AL_CONST char *path) );
-   AL_METHOD(AL_FS_ENTRY *, opendir,       (AL_CONST char *path) );
-   AL_METHOD(AL_FS_ENTRY *, fopen,         (AL_CONST char *path, AL_CONST char *mode) );
-   AL_METHOD(AL_FS_ENTRY *, mktemp,        (AL_CONST char *t, uint32_t ulink) );
+struct ALLEGRO_FS_HOOK_SYS_INTERFACE {
+   AL_METHOD(ALLEGRO_FS_ENTRY *, create_handle, (AL_CONST char *path) );
+   AL_METHOD(ALLEGRO_FS_ENTRY *, opendir,       (AL_CONST char *path) );
+   AL_METHOD(ALLEGRO_FS_ENTRY *, fopen,         (AL_CONST char *path, AL_CONST char *mode) );
+   AL_METHOD(ALLEGRO_FS_ENTRY *, mktemp,        (AL_CONST char *t, uint32_t ulink) );
 
    AL_METHOD(int32_t, getcwd, (char *buf, size_t len) );
    AL_METHOD(int32_t, chdir,  (AL_CONST char *path) );
@@ -59,42 +59,42 @@ struct AL_FS_HOOK_SYS_INTERFACE {
    AL_METHOD(time_t,   stat_ctime, (AL_CONST char *) );
 };
 
-struct AL_FS_HOOK_ENTRY_INTERFACE {
-   AL_METHOD(void,     destroy_handle, (AL_FS_ENTRY *handle) );
-   AL_METHOD(int32_t,  open_handle,    (AL_FS_ENTRY *handle, AL_CONST char *mode) );
-   AL_METHOD(void,  close_handle,   (AL_FS_ENTRY *handle) );
+struct ALLEGRO_FS_HOOK_ENTRY_INTERFACE {
+   AL_METHOD(void,     destroy_handle, (ALLEGRO_FS_ENTRY *handle) );
+   AL_METHOD(int32_t,  open_handle,    (ALLEGRO_FS_ENTRY *handle, AL_CONST char *mode) );
+   AL_METHOD(void,  close_handle,   (ALLEGRO_FS_ENTRY *handle) );
 
-   AL_METHOD(void,     fname,  (AL_FS_ENTRY *fh, size_t s, char *name) );
+   AL_METHOD(void,     fname,  (ALLEGRO_FS_ENTRY *fh, size_t s, char *name) );
 
-   AL_METHOD(void,  fclose, (AL_FS_ENTRY *fp) );
-   AL_METHOD(size_t,   fread,  (void *ptr, size_t size, AL_FS_ENTRY *fp) );
-   AL_METHOD(size_t,   fwrite, (AL_CONST void *ptr, size_t size, AL_FS_ENTRY *fp) );
-   AL_METHOD(int32_t,  fflush, (AL_FS_ENTRY *fp) );
-   AL_METHOD(int32_t,  fseek,  (AL_FS_ENTRY *fp, uint32_t offset, uint32_t whence) );
-   AL_METHOD(int32_t,  ftell,  (AL_FS_ENTRY *fp) );
-   AL_METHOD(int32_t,  ferror, (AL_FS_ENTRY *fp) );
-   AL_METHOD(int32_t,  feof,   (AL_FS_ENTRY *fp) );
-   AL_METHOD(int32_t,  fstat,  (AL_FS_ENTRY *handle) );
-   AL_METHOD(int32_t,  ungetc, (int32_t c, AL_FS_ENTRY *fp) );
+   AL_METHOD(void,  fclose, (ALLEGRO_FS_ENTRY *fp) );
+   AL_METHOD(size_t,   fread,  (void *ptr, size_t size, ALLEGRO_FS_ENTRY *fp) );
+   AL_METHOD(size_t,   fwrite, (AL_CONST void *ptr, size_t size, ALLEGRO_FS_ENTRY *fp) );
+   AL_METHOD(int32_t,  fflush, (ALLEGRO_FS_ENTRY *fp) );
+   AL_METHOD(int32_t,  fseek,  (ALLEGRO_FS_ENTRY *fp, uint32_t offset, uint32_t whence) );
+   AL_METHOD(int32_t,  ftell,  (ALLEGRO_FS_ENTRY *fp) );
+   AL_METHOD(int32_t,  ferror, (ALLEGRO_FS_ENTRY *fp) );
+   AL_METHOD(int32_t,  feof,   (ALLEGRO_FS_ENTRY *fp) );
+   AL_METHOD(int32_t,  fstat,  (ALLEGRO_FS_ENTRY *handle) );
+   AL_METHOD(int32_t,  ungetc, (int32_t c, ALLEGRO_FS_ENTRY *fp) );
 
-   AL_METHOD(off_t,   entry_size,  (AL_FS_ENTRY *) );
-   AL_METHOD(uint32_t, entry_mode,  (AL_FS_ENTRY *) );
-   AL_METHOD(time_t,   entry_atime, (AL_FS_ENTRY *) );
-   AL_METHOD(time_t,   entry_mtime, (AL_FS_ENTRY *) );
-   AL_METHOD(time_t,   entry_ctime, (AL_FS_ENTRY *) );
+   AL_METHOD(off_t,   entry_size,  (ALLEGRO_FS_ENTRY *) );
+   AL_METHOD(uint32_t, entry_mode,  (ALLEGRO_FS_ENTRY *) );
+   AL_METHOD(time_t,   entry_atime, (ALLEGRO_FS_ENTRY *) );
+   AL_METHOD(time_t,   entry_mtime, (ALLEGRO_FS_ENTRY *) );
+   AL_METHOD(time_t,   entry_ctime, (ALLEGRO_FS_ENTRY *) );
 
-   AL_METHOD(int32_t,  exists,  (AL_FS_ENTRY *) );
-   AL_METHOD(int32_t,  unlink,  (AL_FS_ENTRY *) );
+   AL_METHOD(int32_t,  exists,  (ALLEGRO_FS_ENTRY *) );
+   AL_METHOD(int32_t,  unlink,  (ALLEGRO_FS_ENTRY *) );
 
-   AL_METHOD(int32_t,  readdir,  (AL_FS_ENTRY *dir, size_t size, char *name) );
-   AL_METHOD(int32_t,  closedir, (AL_FS_ENTRY *dir) );
+   AL_METHOD(int32_t,  readdir,  (ALLEGRO_FS_ENTRY *dir, size_t size, char *name) );
+   AL_METHOD(int32_t,  closedir, (ALLEGRO_FS_ENTRY *dir) );
 };
 
-extern struct AL_FS_HOOK_SYS_INTERFACE  *_al_sys_fshooks;
-extern struct AL_FS_HOOK_ENTRY_INTERFACE *_al_entry_fshooks;
+extern struct ALLEGRO_FS_HOOK_SYS_INTERFACE  *_al_sys_fshooks;
+extern struct ALLEGRO_FS_HOOK_ENTRY_INTERFACE *_al_entry_fshooks;
 
-extern struct AL_FS_HOOK_ENTRY_INTERFACE _al_stdio_entry_fshooks;
-extern struct AL_FS_HOOK_SYS_INTERFACE _al_stdio_sys_fshooks;
+extern struct ALLEGRO_FS_HOOK_ENTRY_INTERFACE _al_stdio_entry_fshooks;
+extern struct ALLEGRO_FS_HOOK_SYS_INTERFACE _al_stdio_sys_fshooks;
 
 #define _al_fs_hook_create_handle(path)       _al_sys_fshooks->create_handle(path)
 #define _al_fs_hook_destroy_handle(handle)    (handle)->vtable->destroy_handle(handle)

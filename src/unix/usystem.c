@@ -59,12 +59,12 @@ int _unix_find_resource(char *dest, AL_CONST char *resource, int size)
 {
    char buf[256], tmp[256];
    char home[256], ext[256];
-   AL_PATH path;
+   ALLEGRO_PATH path;
 
    _unix_get_path(AL_USER_HOME_PATH, home, sizeof(home));
 
    if (ustrlen(home)) {
-      AL_PATH local_path;
+      ALLEGRO_PATH local_path;
       if (!al_path_init(&local_path, home))
          return -1;
 
