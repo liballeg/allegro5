@@ -26,9 +26,10 @@
 
 #include "allegro5/allegro5.h"
 #include "allegro5/internal/aintern.h"
+#include "allegro5/internal/aintern_atomicops.h"
 #include "allegro5/internal/aintern_dtor.h"
-#include "allegro5/internal/aintern_memory.h"
 #include "allegro5/internal/aintern_events.h"
+#include "allegro5/internal/aintern_memory.h"
 
 
 
@@ -48,6 +49,8 @@ struct ALLEGRO_EVENT_QUEUE
 static bool do_wait_for_event(ALLEGRO_EVENT_QUEUE *queue,
    ALLEGRO_EVENT *ret_event, ALLEGRO_TIMEOUT *timeout);
 static void copy_event(ALLEGRO_EVENT *dest, const ALLEGRO_EVENT *src);
+static void ref_if_user_event(ALLEGRO_EVENT *event);
+static void unref_if_user_event(ALLEGRO_EVENT *event);
 static void discard_events_of_source(ALLEGRO_EVENT_QUEUE *queue,
    const ALLEGRO_EVENT_SOURCE *source);
 
@@ -186,7 +189,7 @@ bool al_event_queue_is_empty(ALLEGRO_EVENT_QUEUE *queue)
 /* circ_array_next:
  *  Return the next index in a circular array.
  */
-static int circ_array_next(const _AL_VECTOR *vector, int i)
+static unsigned int circ_array_next(const _AL_VECTOR *vector, unsigned int i)
 {
    return (i + 1) % _al_vector_size(vector);
 }
@@ -218,31 +221,6 @@ static ALLEGRO_EVENT *get_next_event_if_any(ALLEGRO_EVENT_QUEUE *queue,
 
 
 
-/* get_peek_or_drop_next_event: [primary thread]
- *  Helper function to do the work for al_get_next_event,
- *  al_peek_next_event and al_drop_next_event which are all very
- *  similar.
- */
-static bool get_peek_or_drop_next_event(ALLEGRO_EVENT_QUEUE *queue,
-   ALLEGRO_EVENT *do_copy, bool delete)
-{
-   ALLEGRO_EVENT *next_event;
-
-   _al_mutex_lock(&queue->mutex);
-
-   next_event = get_next_event_if_any(queue, delete);
-   if (next_event) {
-      if (do_copy)
-         copy_event(do_copy, next_event);
-   }
-
-   _al_mutex_unlock(&queue->mutex);
-
-   return (next_event ? true : false);
-}
-
-
-
 /* Function: al_get_next_event
  *  Take the next event packet out of the event queue specified, and
  *  copy the contents into RET_EVENT, returning true.  The original
@@ -251,10 +229,21 @@ static bool get_peek_or_drop_next_event(ALLEGRO_EVENT_QUEUE *queue,
  */
 bool al_get_next_event(ALLEGRO_EVENT_QUEUE *queue, ALLEGRO_EVENT *ret_event)
 {
+   ALLEGRO_EVENT *next_event;
    ASSERT(queue);
    ASSERT(ret_event);
 
-   return get_peek_or_drop_next_event(queue, ret_event, true);
+   _al_mutex_lock(&queue->mutex);
+
+   next_event = get_next_event_if_any(queue, true);
+   if (next_event) {
+      copy_event(ret_event, next_event);
+      /* Don't increment reference count on user events. */
+   }
+
+   _al_mutex_unlock(&queue->mutex);
+
+   return (next_event ? true : false);
 }
 
 
@@ -268,10 +257,21 @@ bool al_get_next_event(ALLEGRO_EVENT_QUEUE *queue, ALLEGRO_EVENT *ret_event)
  */
 bool al_peek_next_event(ALLEGRO_EVENT_QUEUE *queue, ALLEGRO_EVENT *ret_event)
 {
+   ALLEGRO_EVENT *next_event;
    ASSERT(queue);
    ASSERT(ret_event);
 
-   return get_peek_or_drop_next_event(queue, ret_event, false);
+   _al_mutex_lock(&queue->mutex);
+
+   next_event = get_next_event_if_any(queue, false);
+   if (next_event) {
+      copy_event(ret_event, next_event);
+      ref_if_user_event(ret_event);
+   }
+
+   _al_mutex_unlock(&queue->mutex);
+
+   return (next_event ? true : false);
 }
 
 
@@ -282,9 +282,17 @@ bool al_peek_next_event(ALLEGRO_EVENT_QUEUE *queue, ALLEGRO_EVENT *ret_event)
  */
 void al_drop_next_event(ALLEGRO_EVENT_QUEUE *queue)
 {
+   ALLEGRO_EVENT *next_event;
    ASSERT(queue);
 
-   get_peek_or_drop_next_event(queue, NULL, true);
+   _al_mutex_lock(&queue->mutex);
+
+   next_event = get_next_event_if_any(queue, true);
+   if (next_event) {
+      unref_if_user_event(next_event);
+   }
+
+   _al_mutex_unlock(&queue->mutex);
 }
 
 
@@ -294,9 +302,19 @@ void al_drop_next_event(ALLEGRO_EVENT_QUEUE *queue)
  */
 void al_flush_event_queue(ALLEGRO_EVENT_QUEUE *queue)
 {
+   unsigned int i;
    ASSERT(queue);
 
    _al_mutex_lock(&queue->mutex);
+
+   /* Decrement reference counts on all user events. */
+   i = queue->events_tail;
+   while (i != queue->events_head) {
+      ALLEGRO_EVENT *old_ev = _al_vector_ref(&queue->events, i);
+      unref_if_user_event(old_ev);
+      i = circ_array_next(&queue->events, i);
+   }
+
    queue->events_head = queue->events_tail = 0;
    _al_mutex_unlock(&queue->mutex);
 }
@@ -471,6 +489,33 @@ static void copy_event(ALLEGRO_EVENT *dest, const ALLEGRO_EVENT *src)
 
 
 
+/* Increment a user event's reference count, if the event passed is a user
+ * event and requires it.
+ */
+static void ref_if_user_event(ALLEGRO_EVENT *event)
+{
+   if (ALLEGRO_EVENT_TYPE_IS_USER(event->type)) {
+      ALLEGRO_USER_EVENT_DESCRIPTOR *descr = event->user.__internal__descr;
+      if (descr) {
+         _al_fetch_and_add1(&descr->refcount);
+      }
+   }
+}
+
+
+
+/* Decrement a user event's reference count, if the event passed is a user
+ * event and requires it.
+ */
+static void unref_if_user_event(ALLEGRO_EVENT *event)
+{
+   if (ALLEGRO_EVENT_TYPE_IS_USER(event->type)) {
+      al_unref_user_event(&event->user);
+   }
+}
+
+
+
 /* Internal function: _al_event_queue_push_event
  *  Event sources call this function when they have something to add to
  *  the queue.  If a queue cannot accept the event, the event's
@@ -490,6 +535,7 @@ void _al_event_queue_push_event(ALLEGRO_EVENT_QUEUE *queue,
    {
       new_event = alloc_event(queue);
       copy_event(new_event, orig_event);
+      ref_if_user_event(new_event);
 
       /* Wake up threads that are waiting for an event to be placed in
        * the queue.
@@ -564,6 +610,9 @@ static void discard_events_of_source(ALLEGRO_EVENT_QUEUE *queue,
          new_event = _al_vector_alloc_back(&queue->events);
          copy_event(new_event, old_event);
       }
+      else {
+         unref_if_user_event(old_event);
+      }
       i = circ_array_next(&old_events, i);
    }
 
@@ -578,6 +627,31 @@ static void discard_events_of_source(ALLEGRO_EVENT_QUEUE *queue,
    }
 
    _al_vector_free(&old_events);
+}
+
+
+
+/* Function: al_unref_user_event
+ *  Unreference a user-defined event. This must be called on any user event
+ *  that you get from <al_get_next_event>, <al_peek_next_event>,
+ *  <al_wait_for_event>, etc. which is reference counted.
+ *  This function does nothing if the event is not reference counted.
+ *
+ *  See also: <al_emit_user_event>.
+ */
+void al_unref_user_event(ALLEGRO_USER_EVENT *event)
+{
+   ALLEGRO_USER_EVENT_DESCRIPTOR *descr;
+   ASSERT(event);
+
+   descr = event->__internal__descr;
+   if (descr) {
+      ASSERT(descr->refcount > 0);
+      if (_al_sub1_and_fetch(&descr->refcount) == 0) {
+         (descr->dtor)(event);
+         _AL_FREE(descr);
+      }
+   }
 }
 
 

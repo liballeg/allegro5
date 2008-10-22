@@ -7,7 +7,38 @@
 
 
 /* XXX Currently we have no formal way to allocate event type numbers. */
-#define MY_EVENT_TYPE   1025
+#define MY_SIMPLE_EVENT_TYPE     1025
+#define MY_COMPLEX_EVENT_TYPE    1026
+
+
+/* Just some fantasy event, supposedly used in an RPG - it's just to show that
+ * in practice, the 4 user fields we have now never will be enough. */
+typedef struct MY_EVENT
+{
+   int id;
+   int type; /* For example "attack" or "buy". */
+   int x, y, z; /* Position in the game world the event takes place. */
+   int server_time; /* Game time in ticks the event takes place. */
+   int source_unit_id; /* E.g. attacker or seller. */
+   int destination_unit_id; /* E.g. defender of buyer. */
+   int item_id; /* E.g. weapon used or item sold. */
+   int amount; /* Gold the item is sold for. */
+} MY_EVENT;
+
+
+MY_EVENT *new_event(int id)
+{
+    MY_EVENT *event = calloc(1, sizeof *event);
+    event->id = id;
+    return event;
+}
+
+
+void my_event_dtor(ALLEGRO_USER_EVENT *event)
+{
+   printf("my_event_dtor: %p\n", (void *) event->data1);
+   free((void *) event->data1);
+}
 
 
 int main(void)
@@ -49,21 +80,35 @@ int main(void)
 
          printf("Got timer event %d\n", n);
 
-         user_event.user.type = MY_EVENT_TYPE;
+         user_event.user.type = MY_SIMPLE_EVENT_TYPE;
          user_event.user.data1 = n;
-         al_emit_user_event(user_src, &user_event);
+         al_emit_user_event(user_src, &user_event, NULL);
+
+         user_event.user.type = MY_COMPLEX_EVENT_TYPE;
+         user_event.user.data1 = (intptr_t)new_event(n);
+         al_emit_user_event(user_src, &user_event, my_event_dtor);
       }
-      else if (event.type == MY_EVENT_TYPE) {
+      else if (event.type == MY_SIMPLE_EVENT_TYPE) {
          int n = (int) event.user.data1;
          ASSERT(event.user.source == user_src);
 
-         printf("Got user event %d\n", n);
+         al_unref_user_event(&event.user);
+
+         printf("Got simple user event %d\n", n);
          if (n == 5) {
             break;
          }
       }
+      else if (event.type == MY_COMPLEX_EVENT_TYPE) {
+         MY_EVENT *my_event = (void *)event.user.data1;
+         ASSERT(event.user.source == user_src);
+
+         printf("Got complex user event %d\n", my_event->id);
+         al_unref_user_event(&event.user);
+      }
    }
 
+   al_destroy_event_queue(queue);
    al_destroy_user_event_source(user_src);
    al_uninstall_timer(timer);
 

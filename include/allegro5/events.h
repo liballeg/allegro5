@@ -131,6 +131,8 @@ enum
    ALLEGRO_EVENT_DISPLAY_SWITCH_OUT          = 46
 };
 
+#define ALLEGRO_EVENT_TYPE_IS_USER(t)        ((t) >= 1024)
+
 
 
 /*
@@ -218,6 +220,7 @@ typedef struct ALLEGRO_TIMER_EVENT
 typedef struct ALLEGRO_USER_EVENT
 {
    _AL_EVENT_HEADER(struct ALLEGRO_EVENT_SOURCE)
+   struct ALLEGRO_USER_EVENT_DESCRIPTOR *__internal__descr;
    intptr_t data1;
    intptr_t data2;
    intptr_t data3;
@@ -284,7 +287,9 @@ AL_FUNC(void, al_destroy_user_event_source, (ALLEGRO_EVENT_SOURCE *));
 /* The second argument is ALLEGRO_EVENT instead of ALLEGRO_USER_EVENT
  * to prevent users passing a pointer to a too-short structure.
  */
-AL_FUNC(bool, al_emit_user_event, (ALLEGRO_EVENT_SOURCE *, ALLEGRO_EVENT *));
+AL_FUNC(bool, al_emit_user_event, (ALLEGRO_EVENT_SOURCE *, ALLEGRO_EVENT *,
+                                   void (*dtor)(ALLEGRO_USER_EVENT *)));
+AL_FUNC(void, al_unref_user_event, (ALLEGRO_USER_EVENT *));
 
 
 

@@ -202,27 +202,36 @@ void al_destroy_user_event_source(ALLEGRO_EVENT_SOURCE *src)
  *  Returns `false' if the event source isn't registered with any queues,
  *  hence the event wouldn't have been delivered into any queues.
  *
- *  It is not recommended to have user events that hold unique references to
- *  dynamically allocated memory blocks.  If you choose to do that, it is your
- *  responsibility to manage that memory.  Event structures are *copied* into
- *  event queues.  If a user event is emitted by an event source registered
- *  with multiple queues, there would be multiple events pointing to the same
- *  piece of dynamically allocated memory.  In some cases, such as when an
- *  event queue is destroyed, when an event source is removed from a queue, or
- *  if you call <al_flush_event_queue>, events may be dropped without further
- *  warning.  If one of those events held a unique pointer to a memory block
- *  then that would result in a memory leak.
+ *  Reference counting will be performed on the event if `dtor' is non-NULL.
+ *  When the reference count drops to zero `dtor' will be called with a copy of
+ *  the event as an argument.  It should free the resources associated with
+ *  the event.  If `dtor' is NULL then reference counting will not be
+ *  performed.
+ *
+ *  You need to call <al_unref_user_event> when you are done with a reference
+ *  counted user event that you have gotten from <al_get_next_event>,
+ *  <al_peek_next_event>, <al_wait_for_event>, etc.  You may, but do not need
+ *  to, call <al_unref_user_event> on non-reference counted user events.
  */
 bool al_emit_user_event(ALLEGRO_EVENT_SOURCE *src,
-   ALLEGRO_EVENT *event)
+   ALLEGRO_EVENT *event, void (*dtor)(ALLEGRO_USER_EVENT *))
 {
    size_t num_queues;
    bool rc;
 
    ASSERT(src);
    ASSERT(event);
-   /* We could check if it's not a builtin event type. */
-   ASSERT(event->type != 0);
+   ASSERT(ALLEGRO_EVENT_TYPE_IS_USER(event->any.type));
+
+   if (dtor) {
+      ALLEGRO_USER_EVENT_DESCRIPTOR *descr = _AL_MALLOC(sizeof(*descr));
+      descr->refcount = 0;
+      descr->dtor = dtor;
+      event->user.__internal__descr = descr;
+   }
+   else {
+      event->user.__internal__descr = NULL;
+   }
 
    _al_event_source_lock(src);
    {
@@ -237,6 +246,11 @@ bool al_emit_user_event(ALLEGRO_EVENT_SOURCE *src,
       }
    }
    _al_event_source_unlock(src);
+
+   if (dtor && !rc) {
+      dtor(&event->user);
+      _AL_FREE(event->user.__internal__descr);
+   }
 
    return rc;
 }

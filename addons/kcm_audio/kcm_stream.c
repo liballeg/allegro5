@@ -608,7 +608,7 @@ bool _al_kcm_emit_stream_event(ALLEGRO_STREAM *stream, unsigned long count)
       ALLEGRO_EVENT event;
       event.user.type = ALLEGRO_EVENT_STREAM_EMPTY_FRAGMENT;
       event.user.timestamp = al_current_time();
-      al_emit_user_event(stream->spl.es, &event);
+      al_emit_user_event(stream->spl.es, &event, NULL);
    }
 
    return true;

@@ -26,5 +26,6 @@
    #include ALLEGRO_INTERNAL_HEADER
 #endif
 
+#include "allegro5/internal/aintern_atomicops.h"
 #include "allegro5/internal/aintern_vector.h"
 
