@@ -113,10 +113,6 @@ int main(void)
    memfont = al_font_load_font("data/font.tga", 0);
    membmp = al_iio_load("data/mysha.pcx");
 
-   sub_bb = al_create_sub_bitmap(al_get_backbuffer(),
-      50, 50, al_get_display_width() - 100, al_get_display_height() - 100);
-   al_set_target_bitmap(sub_bb);
-
    for (;;) {
       if (test(membmp, memfont, "Memory bitmap (press SPACE key)"))
          break;
