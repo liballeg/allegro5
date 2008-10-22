@@ -244,8 +244,7 @@ static int _dsound_allocate_voice(ALLEGRO_VOICE *voice)
    }
 
    ex_data = (ALLEGRO_DS_DATA *)calloc(1, sizeof(*ex_data));
-   if(!ex_data)
-   {
+   if (!ex_data) {
       fprintf(stderr, "Could not allocate voice data memory\n"); 
       return 1;
    }
@@ -342,8 +341,7 @@ static int _dsound_start_voice(ALLEGRO_VOICE *voice)
       return 0;
    }
 
-   if(ex_data->stop_voice != 0)
-   {
+   if (ex_data->stop_voice != 0) {
       ex_data->wave_fmt.wFormatTag = WAVE_FORMAT_PCM;
       ex_data->wave_fmt.nChannels = ex_data->channels;
       ex_data->wave_fmt.nSamplesPerSec = voice->frequency;
@@ -384,21 +382,18 @@ static int _dsound_stop_voice(ALLEGRO_VOICE* voice)
 {
    ALLEGRO_DS_DATA *ex_data = (ALLEGRO_DS_DATA *)voice->extra;
 
-   if(!ex_data->ds8_buffer)
-   {
+   if (!ex_data->ds8_buffer) {
       fprintf(stderr, "Trying to stop empty voice buffer\n"); 
       return 1;
    }
 
    /* if playing a sample */
-   if(!voice->is_streaming)
-   {
+   if (!voice->is_streaming) {
       ex_data->ds8_buffer->Stop();
       return 0;
    }
 
-   if(ex_data->stop_voice == 0)
-   {
+   if (ex_data->stop_voice == 0) {
       ex_data->stop_voice = 1;
       al_join_thread(ex_data->thread, NULL);
       al_destroy_thread(ex_data->thread);
@@ -417,7 +412,7 @@ static bool _dsound_voice_is_playing(const ALLEGRO_VOICE *voice)
    ALLEGRO_DS_DATA *ex_data = (ALLEGRO_DS_DATA *)voice->extra;
    DWORD status;
 
-   if(!ex_data)
+   if (!ex_data)
       return false;
 
    ex_data->ds8_buffer->GetStatus(&status);

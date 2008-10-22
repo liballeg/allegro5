@@ -400,25 +400,25 @@ void _al_draw_bitmap_region_memory_fast(ALLEGRO_BITMAP *bitmap,
 
    /* Do clipping */
    if (dx < dest->cl) {
-    int inc = dest->cl - dx;
-    sx += inc;
-    dx = dest->cl;
-    sw -= inc;
+      int inc = dest->cl - dx;
+      sx += inc;
+      dx = dest->cl;
+      sw -= inc;
    }
    if (dx+sw-1 > dest->cr) {
-    int inc = (dx+sw-1) - dest->cr;
-    sw -= inc;
+      int inc = (dx+sw-1) - dest->cr;
+      sw -= inc;
    }
 
    if (dy < dest->ct) {
-    int inc = dest->ct - dy;
-    sy += inc;
-    dy = dest->ct;
-    sh -= inc;
+      int inc = dest->ct - dy;
+      sy += inc;
+      dy = dest->ct;
+      sh -= inc;
    }
    if (dy+sh-1 > dest->cb) {
-    int inc = (dy+sh-1) - dest->cb;
-    sh -= inc;
+      int inc = (dy+sh-1) - dest->cb;
+      sh -= inc;
    }
 
    /* Handle sub bitmaps */
@@ -441,9 +441,9 @@ void _al_draw_bitmap_region_memory_fast(ALLEGRO_BITMAP *bitmap,
 
    if (al_is_bitmap_locked(dest)) {
       if (dx < dest->lock_x || dy < dest->lock_y ||
-         (dx+sw) > (dest->lock_x+dest->lock_w) ||
-         (dy+sh) > (dest->lock_y+dest->lock_h)) {
-              return;
+            (dx+sw) > (dest->lock_x+dest->lock_w) ||
+            (dy+sh) > (dest->lock_y+dest->lock_h)) {
+         return;
       }
       dst_region.data = (void*)(((char*)dest->locked_region.data) +
          ((dy-dest->lock_y)*dest->locked_region.pitch) +
@@ -479,3 +479,5 @@ void _al_draw_bitmap_memory_fast(ALLEGRO_BITMAP *bitmap,
 }
 
 #endif /* !DEBUGMODE */
+
+/* vim: set sts=3 sw=3 et: */

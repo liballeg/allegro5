@@ -194,7 +194,7 @@ void _al_draw_scaled_bitmap_memory(ALLEGRO_BITMAP *src,
    dw = (((dx + dw) < dest->cr + 1) ? (dx + dw) : dest->cr + 1) - dx;
 
    if (dw == 0 || dh == 0)
-   	return;
+      return;
 
    /* Handle sub bitmaps */
    if (dest->parent) {
@@ -225,30 +225,31 @@ void _al_draw_scaled_bitmap_memory(ALLEGRO_BITMAP *src,
    yend = abs(dh);
 
    if (flags & ALLEGRO_FLIP_HORIZONTAL) {
-   	sxinc = -sxinc;
-	sx = sx + sw - 1;
+      sxinc = -sxinc;
+      sx = sx + sw - 1;
    }
 
    if (flags & ALLEGRO_FLIP_VERTICAL) {
-   	syinc = -syinc;
-	_sy = sy + sh - 1;
+      syinc = -syinc;
+      _sy = sy + sh - 1;
    }
-   else
-   	_sy = sy;
+   else {
+      _sy = sy;
+   }
 
 
    for (y = 0; y < yend; y++) {
-   	_sx = sx;
-	_dx = dx;
-   	for (x = 0; x < xend; x++) {
-		src_color = al_get_pixel(src, _sx, _sy);
-		_al_blend(&src_color, _dx, _dy, &result);
-		_al_put_pixel(dest, _dx, _dy, result);
-		_sx += sxinc;
-		_dx += dxinc;
-	}
-	_sy += syinc;
-	_dy += dyinc;
+      _sx = sx;
+      _dx = dx;
+      for (x = 0; x < xend; x++) {
+         src_color = al_get_pixel(src, _sx, _sy);
+         _al_blend(&src_color, _dx, _dy, &result);
+         _al_put_pixel(dest, _dx, _dy, result);
+         _sx += sxinc;
+         _dx += dxinc;
+      }
+      _sy += syinc;
+      _dy += dyinc;
    }
 
    al_unlock_bitmap(src);
@@ -801,3 +802,4 @@ void _al_draw_rotated_bitmap_memory(ALLEGRO_BITMAP *src,
       cx, cy, dx, dy, 1.0f, 1.0f, angle, flags);
 }
 
+/* vim: set sts=3 sw=3 et: */

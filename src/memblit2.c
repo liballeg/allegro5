@@ -58,7 +58,7 @@ void _al_draw_scaled_bitmap_memory_fast(ALLEGRO_BITMAP *src,
    dw = (((dx + dw) < dest->cr + 1) ? (dx + dw) : dest->cr + 1) - dx;
 
    if (dw == 0 || dh == 0)
-   	return;
+      return;
 
    /* Handle sub bitmaps */
    if (dest->parent) {
@@ -99,9 +99,9 @@ void _al_draw_scaled_bitmap_memory_fast(ALLEGRO_BITMAP *src,
       syinc = -syinc;
       _sy = sy + sh - 1;
    }
-   else
+   else {
       _sy = sy;
-
+   }
 
    size = al_get_pixel_size(src->format);
 
@@ -110,28 +110,28 @@ void _al_draw_scaled_bitmap_memory_fast(ALLEGRO_BITMAP *src,
       _dx = dx;
       switch (size) {
          case 2:
-               for (x = 0; x < xend; x++) {
-                  uint16_t pix = bmp_read16((char *)src_region.data+(int)_sy*src_region.pitch+(int)_sx*2);
-                  bmp_write16((char *)dst_region.data+(int)_dy*dst_region.pitch+(int)_dx*2, pix);
-                  _sx += sxinc;
-                  _dx += dxinc;
-               }
+            for (x = 0; x < xend; x++) {
+               uint16_t pix = bmp_read16((char *)src_region.data+(int)_sy*src_region.pitch+(int)_sx*2);
+               bmp_write16((char *)dst_region.data+(int)_dy*dst_region.pitch+(int)_dx*2, pix);
+               _sx += sxinc;
+               _dx += dxinc;
+            }
             break;
          case 3:
-               for (x = 0; x < xend; x++) {
-                  int pix = READ3BYTES((char *)src_region.data+(int)_sy*src_region.pitch+(int)_sx*3);
-                  WRITE3BYTES((char *)dst_region.data+(int)_dy*dst_region.pitch+(int)_dx*3, pix);
-                  _sx += sxinc;
-                  _dx += dxinc;
-               }
+            for (x = 0; x < xend; x++) {
+               int pix = READ3BYTES((char *)src_region.data+(int)_sy*src_region.pitch+(int)_sx*3);
+               WRITE3BYTES((char *)dst_region.data+(int)_dy*dst_region.pitch+(int)_dx*3, pix);
+               _sx += sxinc;
+               _dx += dxinc;
+            }
             break;
          case 4:
-               for (x = 0; x < xend; x++) {
-                  uint32_t pix = bmp_read32((char *)src_region.data+(int)_sy*src_region.pitch+(int)_sx*4);
-                  bmp_write32((char *)dst_region.data+(int)_dy*dst_region.pitch+(int)_dx*4, pix);
-                  _sx += sxinc;
-                  _dx += dxinc;
-               }
+            for (x = 0; x < xend; x++) {
+               uint32_t pix = bmp_read32((char *)src_region.data+(int)_sy*src_region.pitch+(int)_sx*4);
+               bmp_write32((char *)dst_region.data+(int)_dy*dst_region.pitch+(int)_dx*4, pix);
+               _sx += sxinc;
+               _dx += dxinc;
+            }
             break;
       }
       _sy += syinc;
