@@ -25,7 +25,7 @@ void _al_draw_pixel_memory(ALLEGRO_BITMAP *bitmap, int x, int y,
    ALLEGRO_COLOR *color)
 {
    ALLEGRO_COLOR result;
-   _al_blend(color, x, y, &result);
+   _al_blend(color, bitmap, x, y, &result);
    _al_put_pixel(bitmap, x, y, result);
 }
 
@@ -482,7 +482,7 @@ static void _hline(ALLEGRO_BITMAP *target, int x1, int y, int x2,
 
    for (x = x1; x <= x2; x++) {
       ALLEGRO_COLOR result;
-      _al_blend(color, x, y, &result);
+      _al_blend(color, target, x, y, &result);
       _al_put_pixel(target, x, y, result);
    }
 }
@@ -496,7 +496,7 @@ static void _vline(ALLEGRO_BITMAP *target, int x, int y1, int y2,
 
    for (y = y1; y <= y2; y++) {
       ALLEGRO_COLOR result;
-      _al_blend(color, x, y, &result);
+      _al_blend(color, target, x, y, &result);
       _al_put_pixel(target, x, y, result);
    }
 }

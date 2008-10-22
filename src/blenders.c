@@ -234,10 +234,9 @@ void _al_blender_inverse_alpha_inverse_alpha(ALLEGRO_COLOR *scol,
 }
 
 
-void _al_blend(ALLEGRO_COLOR *scol,
+void _al_blend(ALLEGRO_COLOR *scol, ALLEGRO_BITMAP *dest,
    int dx, int dy, ALLEGRO_COLOR *result)
 {
-   ALLEGRO_BITMAP *dest = al_get_target_bitmap();
    ALLEGRO_MEMORY_BLENDER blender = _al_get_memory_blender();
    ALLEGRO_COLOR dcol;
 
