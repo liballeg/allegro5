@@ -15,7 +15,7 @@ static void print(ALLEGRO_FONT *myfont, char *message, int x, int y)
    al_font_textout(myfont, x, y, message, -1);
 }
 
-static void test(ALLEGRO_BITMAP *bitmap, ALLEGRO_FONT *font, char *message)
+static bool test(ALLEGRO_BITMAP *bitmap, ALLEGRO_FONT *font, char *message)
 {
    ALLEGRO_EVENT_QUEUE *queue;
    ALLEGRO_EVENT event;
@@ -23,6 +23,7 @@ static void test(ALLEGRO_BITMAP *bitmap, ALLEGRO_FONT *font, char *message)
    long frames = 0;
    double fps = 0;
    char second_line[100];
+   bool quit = false;
 
    queue = al_create_event_queue();
    al_register_event_source(queue, (ALLEGRO_EVENT_SOURCE *) al_get_keyboard());
@@ -31,10 +32,14 @@ static void test(ALLEGRO_BITMAP *bitmap, ALLEGRO_FONT *font, char *message)
 
    for (;;) {
       if (al_get_next_event(queue, &event)) {
-         if (event.type == ALLEGRO_EVENT_KEY_DOWN &&
-            event.keyboard.keycode == ALLEGRO_KEY_SPACE)
-         {
-            break;
+         if (event.type == ALLEGRO_EVENT_KEY_DOWN) {
+            if (event.keyboard.keycode == ALLEGRO_KEY_SPACE) {
+               break;
+            }
+            if (event.keyboard.keycode == ALLEGRO_KEY_ESCAPE) {
+               quit = true;
+               break;
+            }
          }
       }
 
@@ -65,6 +70,8 @@ static void test(ALLEGRO_BITMAP *bitmap, ALLEGRO_FONT *font, char *message)
    }
 
    al_destroy_event_queue(queue);
+
+   return quit;
 }
 
 int main(void)
@@ -113,9 +120,12 @@ int main(void)
       50, 50, al_get_display_width() - 100, al_get_display_height() - 100);
    al_set_target_bitmap(sub_bb);
 
-   test(membmp, memfont, "Memory bitmap (press SPACE key)");
-
-   test(accelbmp, accelfont, "Accelerated bitmap (press SPACE key)");
+   for (;;) {
+      if (test(membmp, memfont, "Memory bitmap (press SPACE key)"))
+         break;
+      if (test(accelbmp, accelfont, "Accelerated bitmap (press SPACE key)"))
+         break;
+   }
 
    return 0;
 }
