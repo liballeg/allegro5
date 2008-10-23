@@ -348,7 +348,7 @@ static int get_line(AL_CONST char *data, int length, char **name, char **val)
 	 c = ugetc(buf+i);
       }
 
-      *val = ustrdup(buf+i);
+      *val = _al_ustrdup(buf+i);
       if (!(*val)) {
 	 _AL_FREE(name);
 	 _AL_FREE(buf);
@@ -363,7 +363,7 @@ static int get_line(AL_CONST char *data, int length, char **name, char **val)
    else {
       /* blank line or comment */
       *name = NULL;
-      *val = ustrdup(buf);
+      *val = _al_ustrdup(buf);
       if (!(*val)) {
 	 _AL_FREE(buf);
 	 return -1;
@@ -403,7 +403,7 @@ static void set_config(CONFIG **config, AL_CONST char *data, int length, AL_CONS
    (*config)->dirty = FALSE;
 
    if (filename) {
-      (*config)->filename = ustrdup(filename);
+      (*config)->filename = _al_ustrdup(filename);
       if (!(*config)->filename) {
 	 _AL_FREE(*config);
 	 *config = NULL;
@@ -674,7 +674,7 @@ void hook_config_section(AL_CONST char *section, int (*intgetter)(AL_CONST char 
    if (!hook)
       return;
 
-   hook->section = ustrdup(section_name);
+   hook->section = _al_ustrdup(section_name);
    if (!(hook->section)) {
       _AL_FREE(hook);
       return;
@@ -1033,12 +1033,12 @@ static CONFIG_ENTRY *insert_variable(CONFIG *the_config, CONFIG_ENTRY *p, AL_CON
       return NULL;
 
    if (name)
-      n->name = ustrdup(name);
+      n->name = _al_ustrdup(name);
    else
       n->name = NULL;
 
    if (data)
-      n->data = ustrdup(data);
+      n->data = _al_ustrdup(data);
    else
       n->data = NULL;
 
@@ -1099,7 +1099,7 @@ void set_config_string(AL_CONST char *section, AL_CONST char *name, AL_CONST cha
 	    if (p->data)
 	       _AL_FREE(p->data);
 
-	    p->data = ustrdup(val);
+	    p->data = _al_ustrdup(val);
 	 }
 	 else {
 	    /* delete variable */
@@ -1236,7 +1236,7 @@ void set_config_id(AL_CONST char *section, AL_CONST char *name, int val)
 void _reload_config(void)
 {
    if (config[0]) {
-      char *name = ustrdup(config[0]->filename);
+      char *name = _al_ustrdup(config[0]->filename);
       set_config_file(name);
       _AL_FREE(name);
    }
@@ -1268,7 +1268,7 @@ void reload_config_texts(AL_CONST char *new_language)
    name = get_config_string(uconvert_ascii("system", tmp1), uconvert_ascii("language", tmp2), NULL);
 
    if ((name) && (ugetc(name))) {
-      namecpy = ustrdup(name);
+      namecpy = _al_ustrdup(name);
       ustrlwr (namecpy);
       if ((ustrlen(namecpy)<4) || (ustricmp(namecpy+uoffset(namecpy, -4), uconvert_ascii("text", tmp1)) != 0))
 	 ext = uconvert_ascii("text.cfg", tmp1);

@@ -716,7 +716,7 @@ void *_al_realloc(void *mem, size_t size)
  *  uses any user overloaded memory allocation system in use.
  *  The result of this function _must_ be freed with _AL_FREE().
  */
-char *_al_strdup(const char *string)
+char *_al_strdup(AL_CONST char *string)
 {
    char *newstring = _AL_MALLOC(strlen(string) + 1);
 

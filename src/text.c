@@ -99,7 +99,7 @@ void textout_justify_ex(BITMAP *bmp, AL_CONST FONT *f, AL_CONST char *str, int x
    usetc(toks+i, 0);
 
    /* count words and measure min length (without spaces) */ 
-   strbuf = ustrdup(str);
+   strbuf = _al_ustrdup(str);
    if (!strbuf) {
       /* Can't justify ! */
       f->vtable->render(f, str, color, bg, bmp, x1, y);

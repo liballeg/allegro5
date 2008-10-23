@@ -646,7 +646,7 @@ static void parse_extension_string(AL_CONST char *ext)
    char *last, *p, *attrb_p;
    int c, c2, i;
 
-   fext = ustrdup(ext);
+   fext = _al_ustrdup(ext);
    if (!fext)
       return;
 
@@ -848,7 +848,7 @@ int file_select_ex(AL_CONST char *message, char *path, AL_CONST char *ext, int s
    ASSERT(message);
    ASSERT(path);
 
-   backup = ustrdup(path);
+   backup = _al_ustrdup(path);
    if (!backup)
       return FALSE;
 

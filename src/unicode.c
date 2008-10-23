@@ -1724,7 +1724,8 @@ int uisdigit(int c)
 
 /* ustrdup:
  *  Returns a newly allocated copy of the src string, which must later be
- *  freed by the caller.
+ *  freed by the caller.  This function is for external use by Allegro
+ *  clients only.  Internal code should use _al_ustrdup().
  */
 char *_ustrdup(AL_CONST char *src, AL_METHOD(void *, malloc_func, (size_t)))
 {
@@ -1742,6 +1743,28 @@ char *_ustrdup(AL_CONST char *src, AL_METHOD(void *, malloc_func, (size_t)))
       *allegro_errno = ENOMEM;
 
    return s;
+}
+
+
+
+/* _al_ustrdup:
+ *  Returns a newly allocated copy of the src string, which must later be
+ *  freed by the caller using _AL_FREE().  This function is for internal use
+ *  by Allegro clients only.  External code should use ustrdup().
+ */
+char *_al_ustrdup(AL_CONST char *src)
+{
+   int size;
+   char *newstring;
+   ASSERT(src);
+
+   size = ustrsizez(src);
+   newstring = _AL_MALLOC(size);
+
+   if (newstring)
+      ustrzcpy(newstring, size, src);
+
+   return newstring;
 }
 
 

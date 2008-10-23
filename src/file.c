@@ -182,7 +182,7 @@ char *canonicalize_filename(char *dest, AL_CONST char *filename, int size)
 	    /* easy */
 	    home = getenv("HOME");
 	    if (home)
-	       home = strdup(home);
+	       home = _al_strdup(home);
 	 }
 	 else {
 	    /* harder */
@@ -219,7 +219,7 @@ char *canonicalize_filename(char *dest, AL_CONST char *filename, int size)
 	       _AL_FREE(ascii_username);
 
 	       if (pwd)
-		  home = strdup(pwd->pw_dir);
+		  home = _al_strdup(pwd->pw_dir);
 
 	       endpwent();
 	    }
@@ -373,11 +373,11 @@ char *make_relative_filename(char *dest, AL_CONST char *path, AL_CONST char *fil
    if (ugetc(path) != ugetc(filename))
       return NULL;
 
-   my_path = ustrdup(path);
+   my_path = _al_ustrdup(path);
    if (!my_path)
       return NULL;
 
-   my_filename = ustrdup(filename);
+   my_filename = _al_ustrdup(filename);
    if (!my_filename) {
       _AL_FREE(my_path);
       return NULL;
@@ -1972,20 +1972,20 @@ PACKFILE *pack_fopen_chunk(PACKFILE *f, int pack)
 
          /* Try various possible locations to store the temporary file */
          if (getenv("TEMP")) {
-            tmp_dir = strdup(getenv("TEMP"));
+            tmp_dir = _al_strdup(getenv("TEMP"));
          }
          else if (getenv("TMP")) {
-            tmp_dir = strdup(getenv("TMP"));
+            tmp_dir = _al_strdup(getenv("TMP"));
          }
          else if (file_exists("/tmp", FA_DIREC, NULL)) {
-            tmp_dir = strdup("/tmp");
+            tmp_dir = _al_strdup("/tmp");
          }
          else if (getenv("HOME")) {
-            tmp_dir = strdup(getenv("HOME"));
+            tmp_dir = _al_strdup(getenv("HOME"));
          }
          else {
             /* Give up - try current directory */
-            tmp_dir = strdup(".");
+            tmp_dir = _al_strdup(".");
          }
 
       #endif
@@ -2029,7 +2029,7 @@ PACKFILE *pack_fopen_chunk(PACKFILE *f, int pack)
       chunk = _pack_fdopen(tmp_fd, (pack ? F_WRITE_PACKED : F_WRITE_NOPACK));
 
       if (chunk) {
-         chunk->normal.filename = ustrdup(name);
+         chunk->normal.filename = _al_ustrdup(name);
 
 	 if (pack)
 	    chunk->normal.parent->normal.parent = f;

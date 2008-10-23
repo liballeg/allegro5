@@ -1442,7 +1442,7 @@ DATAFILE_INDEX *create_datafile_index(AL_CONST char *filename)
       return NULL;
    }
 
-   index->filename = ustrdup(filename);
+   index->filename = _al_ustrdup(filename);
    if (!index->filename) {
       pack_fclose(f);
       _AL_FREE(index);

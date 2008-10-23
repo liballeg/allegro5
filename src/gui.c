@@ -1400,7 +1400,7 @@ static char* split_around_tab(const char *s, char **tok1, char **tok2)
    char *buf, *last;
    char tmp[16];
 
-   buf = ustrdup(s);
+   buf = _al_ustrdup(s);
    *tok1 = ustrtok_r(buf, uconvert_ascii("\t", tmp), &last);
    *tok2 = ustrtok_r(NULL, empty_string, &last);
 

@@ -266,20 +266,20 @@ static BOOL CALLBACK object_enum_callback(LPCDIDEVICEOBJECTINSTANCE lpddoi, LPVO
    char tmp[128];
 
    if (memcmp(&lpddoi->guidType, &GUID_XAxis, sizeof(GUID)) == 0) {
-      joy->axis_name[0] = ustrdup(uconvert_ascii(lpddoi->tszName, tmp));
+      joy->axis_name[0] = _al_ustrdup(uconvert_ascii(lpddoi->tszName, tmp));
       joy->num_axes++;
    }
    else if (memcmp(&lpddoi->guidType, &GUID_YAxis, sizeof(GUID)) == 0) {
-      joy->axis_name[1] = ustrdup(uconvert_ascii(lpddoi->tszName, tmp));
+      joy->axis_name[1] = _al_ustrdup(uconvert_ascii(lpddoi->tszName, tmp));
       joy->num_axes++;
    }
    else if (memcmp(&lpddoi->guidType, &GUID_ZAxis, sizeof(GUID)) == 0) {
-      joy->axis_name[2] = ustrdup(uconvert_ascii(lpddoi->tszName, tmp));
+      joy->axis_name[2] = _al_ustrdup(uconvert_ascii(lpddoi->tszName, tmp));
       joy->caps |= JOYCAPS_HASZ;
       joy->num_axes++;
    }
    else if (memcmp(&lpddoi->guidType, &GUID_RzAxis, sizeof(GUID)) == 0) {
-      joy->axis_name[joy->num_axes] = ustrdup(uconvert_ascii(lpddoi->tszName, tmp));
+      joy->axis_name[joy->num_axes] = _al_ustrdup(uconvert_ascii(lpddoi->tszName, tmp));
       joy->caps |= JOYCAPS_HASR;
       joy->num_axes++;
    }
@@ -294,7 +294,7 @@ static BOOL CALLBACK object_enum_callback(LPCDIDEVICEOBJECTINSTANCE lpddoi, LPVO
          else
             joy->caps |= JOYCAPS_HASU;
 
-         joy->axis_name[joy->num_axes] = ustrdup(uconvert_ascii(lpddoi->tszName, tmp));
+         joy->axis_name[joy->num_axes] = _al_ustrdup(uconvert_ascii(lpddoi->tszName, tmp));
          joy->num_axes++;
       }
    }
@@ -304,7 +304,7 @@ static BOOL CALLBACK object_enum_callback(LPCDIDEVICEOBJECTINSTANCE lpddoi, LPVO
          return DIENUM_CONTINUE;
       }
       else {
-         joy->hat_name = ustrdup(uconvert_ascii(lpddoi->tszName, tmp));
+         joy->hat_name = _al_ustrdup(uconvert_ascii(lpddoi->tszName, tmp));
          joy->caps |= JOYCAPS_HASPOV;
       }
    }
@@ -313,7 +313,7 @@ static BOOL CALLBACK object_enum_callback(LPCDIDEVICEOBJECTINSTANCE lpddoi, LPVO
          return DIENUM_CONTINUE;
       }
       else {
-         joy->button_name[joy->num_buttons] = ustrdup(uconvert_ascii(lpddoi->tszName, tmp));
+         joy->button_name[joy->num_buttons] = _al_ustrdup(uconvert_ascii(lpddoi->tszName, tmp));
          joy->num_buttons++;
       }
    }

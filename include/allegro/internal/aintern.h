@@ -66,7 +66,8 @@ AL_FUNCPTR(int, _al_trace_handler, (AL_CONST char *msg));
 AL_FUNC(void *, _al_malloc, (size_t size));
 AL_FUNC(void, _al_free, (void *mem));
 AL_FUNC(void *, _al_realloc, (void *mem, size_t size));
-AL_FUNC(char *, _al_strdup, (const char *string));
+AL_FUNC(char *, _al_strdup, (AL_CONST char *string));
+AL_FUNC(char *, _al_ustrdup, (AL_CONST char *string));
 
 
 

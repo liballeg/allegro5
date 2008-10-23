@@ -997,7 +997,7 @@ int open_fli(AL_CONST char *filename)
       fli_filename = NULL;
    }
 
-   fli_filename = ustrdup(filename);
+   fli_filename = _al_ustrdup(filename);
    if (!fli_filename)
       return FLI_ERROR;
 
