@@ -64,12 +64,12 @@ extern "C" int be_joy_init(void)
    device_config = get_config_string("joystick", "joystick_device", "");
    
    /* Let's try to open selected device */
-   if ((device_config[0] == '\0') || (be_joy->Open(device_config, true) < 0)) {
+   if ((device_config[0] == '\0') || (be_joy->Open(device_config) < 0)) {
       /* ok, let's try to open first available device */
       if (be_joy->GetDeviceName(0, device_name) != B_OK) {
          goto cleanup;
       }
-      if (be_joy->Open(device_name, true) == B_ERROR) {
+      if (be_joy->Open(device_name) == B_ERROR) {
          goto cleanup;
       }
    }
