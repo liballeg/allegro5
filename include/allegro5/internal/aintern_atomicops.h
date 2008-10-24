@@ -25,30 +25,27 @@
 
    typedef int _AL_ATOMIC;
 
-   AL_INLINE(_AL_ATOMIC,
-      __al_fetch_and_add, (volatile _AL_ATOMIC *ptr, _AL_ATOMIC value),
-   {
-      _AL_ATOMIC result;
-
-      __asm__ __volatile__ (
-         "lock; xaddl %0, %1"
-         : "=r" (result), "=m" (*ptr)
-         : "0" (value), "m" (*ptr)
-         : "memory"
-      );
-      return result;
-   })
+   #define __al_fetch_and_add(ptr, value, result)                             \
+      __asm__ __volatile__ (                                                  \
+         "lock; xaddl %0, %1"                                                 \
+         : "=r" (result), "=m" (*ptr)                                         \
+         : "0" (value), "m" (*ptr)                                            \
+         : "memory"                                                           \
+      )
 
    AL_INLINE(_AL_ATOMIC,
       _al_fetch_and_add1, (volatile _AL_ATOMIC *ptr),
    {
-      return __al_fetch_and_add(ptr, 1);
+      _AL_ATOMIC result;
+      __al_fetch_and_add(ptr, 1, result);
+      return result;
    })
 
    AL_INLINE(_AL_ATOMIC,
       _al_sub1_and_fetch, (volatile _AL_ATOMIC *ptr),
    {
-      _AL_ATOMIC old = __al_fetch_and_add(ptr, -1);
+      _AL_ATOMIC old;
+      __al_fetch_and_add(ptr, -1, old);
       return old - 1;
    })
 
