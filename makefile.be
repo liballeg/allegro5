@@ -316,7 +316,8 @@ define LINK_WITH_PLUGINS
 $(CC) $(LFLAGS) -o $@ $< $(strip $(PLUGIN_LIB) $(addprefix @,$(PLUGIN_SCRIPTS)) $(LIB_NAME))
 endef
 
-tools/beos/%: $(OBJ_DIR)/%.o $(LIB_NAME)
+# Use explicit name to work around (seemingly) a problem with make on Haiku.
+tools/beos/bfixicon: $(OBJ_DIR)/bfixicon.o $(LIB_NAME)
 	$(CC) $(LFLAGS) -o $@ $< $(LIB_NAME) $(LIBRARIES)
 
 
