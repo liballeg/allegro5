@@ -1,0 +1,77 @@
+@html_text_substitution=readme.txt|<a href="../readme.html">readme.txt</a>
+@external-css=../allegro.css
+@document_title=Allegro Haiku-specific information
+@<pre>
+     ______   ___    ___
+    /\  _  \ /\_ \  /\_ \
+    \ \ \L\ \\//\ \ \//\ \      __     __   _ __   ___
+     \ \  __ \ \ \ \  \ \ \   /'__`\ /'_ `\/\`'__\/ __`\
+      \ \ \/\ \ \_\ \_ \_\ \_/\  __//\ \L\ \ \ \//\ \L\ \
+       \ \_\ \_\/\____\/\____\ \____\ \____ \ \_\\ \____/
+	\/_/\/_/\/____/\/____/\/____/\/___L\ \/_/ \/___/
+				       /\____/
+				       \_/__/
+
+
+		 Haiku-specific information.
+
+	 See readme.txt for a more general overview.
+@</pre>
+
+
+
+@heading
+Haiku notes
+
+   Status: don't know.
+
+
+
+@heading
+Required software
+
+   Don't know.
+
+
+
+@heading
+Installing Allegro
+
+   Don't know.
+
+
+
+@heading
+Using Allegro
+
+   Linking Allegro to a program also requires you to link several other Haiku
+   libraries and set the correct library search pathes. To simplify the
+   linking process, the installation sets up a script, <tt>allegro-config</tt>, that
+   will print out a suitable commandline. You can use this inside backtick
+   command substitution, for example:
+<textblock>
+      gcc myfile.c -o myprogram `allegro-config --static`
+<endblock>
+   This will enable you to link against the static library.
+
+   The `<tt>allegro-config --shared</tt>` option mentioned above will output all the
+   options and libraries needed to link dynamically against the shared
+   version of the Allegro library. If you use <tt>--libs</tt> instead of <tt>--shared</tt> or
+   <tt>--static</tt>, the script will generate the linking arguments according to the
+   latest installed library version. You can also run these <tt>allegro-config</tt>
+   commands on the commandline to see what exactly they do.
+
+   If you want to build a debug version of your program, assuming that
+   you have installed the debug version of Allegro, use:
+<textblock>
+      gcc myfile.c -o myprogram `allegro-config --libs debug`
+<endblock>
+   Terminal newbies, take note that these are ` backticks, not normal '
+   quotes!
+
+   There are also other switches for printing out the Allegro version number,
+   or to override the install paths. Run <tt>allegro-config</tt> without any
+   arguments for a full list of options.
+
+   Don't forget that you need to use the <code>END_OF_MAIN()</code> macro right after
+   your <code>main()</code> function!
