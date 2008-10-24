@@ -544,8 +544,10 @@ endif(WIN32)
 if(MACOSX)
     list(APPEND LIBRARY_SOURCES ${ALLEGRO_SRC_MACOSX_FILES})
     # XXX someone who knows something about Macs should check this.
-    list(APPEND PLATFORM_LIBS "-framework AppKit")
-    list(APPEND PLATFORM_LIBS "-framework IOKit")
+    find_library(APPKIT_LIBRARY AppKit)
+    find_library(IOKIT_LIBRARY IOKit)
+    list(APPEND PLATFORM_LIBS ${APPKIT_LIBRARY})
+    list(APPEND PLATFORM_LIBS ${IOKIT_LIBRARY})
 endif(MACOSX)
 
 if(SUPPORT_OPENGL)
