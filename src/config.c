@@ -62,6 +62,18 @@ static char *skip_whitespace(char *s)
 }
 
 
+/* Function: al_config_create
+ *  Create an empty configuration structure.
+ */
+ALLEGRO_CONFIG *al_config_create(void)
+{
+   ALLEGRO_CONFIG *config = local_calloc1(sizeof(ALLEGRO_CONFIG));
+   ASSERT(config);
+
+   return config;
+}
+
+
 static ALLEGRO_CONFIG_SECTION *find_section(const ALLEGRO_CONFIG *config,
    const char *section)
 {
@@ -268,7 +280,7 @@ ALLEGRO_CONFIG *al_config_read(const char *filename)
       return NULL;
    }
    
-   config = local_calloc1(sizeof(ALLEGRO_CONFIG));
+   config = al_config_create();
    if (!config) {
       fclose(file);
       return NULL;
@@ -407,7 +419,7 @@ void al_config_merge_into(ALLEGRO_CONFIG *master, const ALLEGRO_CONFIG *add)
 ALLEGRO_CONFIG *al_config_merge(const ALLEGRO_CONFIG *cfg1,
     const ALLEGRO_CONFIG *cfg2)
 {
-   ALLEGRO_CONFIG *config = local_calloc1(sizeof(ALLEGRO_CONFIG));
+   ALLEGRO_CONFIG *config = al_config_create();
 
    al_config_merge_into(config, cfg1);
    al_config_merge_into(config, cfg2);
