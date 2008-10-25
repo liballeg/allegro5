@@ -16,7 +16,6 @@ struct ALLEGRO_CONFIG_SECTION {
 
 struct ALLEGRO_CONFIG {
    ALLEGRO_CONFIG_SECTION *head;
-   ALLEGRO_CONFIG_ENTRY *globals;
 };
 
 

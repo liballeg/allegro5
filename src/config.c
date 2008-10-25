@@ -169,51 +169,29 @@ void al_config_add_section(ALLEGRO_CONFIG *config, const char *name)
 }
 
 
-/* Function: al_config_set_global
- *  Set a value in the global section of a configuration structure.
- *  If a value already existed for the given key, it will be overwritten.
- */
-/* XXX why do we have this but not al_config_get_global? */
-void al_config_set_global(ALLEGRO_CONFIG *config,
-   const char *key, const char *value)
-{
-   ALLEGRO_CONFIG_ENTRY *p;
-   ALLEGRO_CONFIG_ENTRY *e = find_entry(config->globals, key);
-
-   if (e) {
-      _AL_FREE(e->value);
-      e->value = local_strdup(value);
-      return;
-   }
-   
-   e = local_calloc1(sizeof(ALLEGRO_CONFIG_ENTRY));
-
-   e->key = local_strdup(key);
-   e->value = local_strdup(value);
-
-   if (config->globals == NULL) {
-      config->globals = e;
-   }
-   else {
-      p = config->globals;
-      while (p->next != NULL) {
-         p = p->next;
-      }
-      p->next = e;
-   }
-}
-
-
 /* Function: al_config_set_value
  *  Set a value in a section of a configuration.  If the section doesn't yet
  *  exist, it will be created.  If a value already existed for the given key,
  *  it will be overwritten.
+ *  The section can be NULL or "" for the global section.
  */
 void al_config_set_value(ALLEGRO_CONFIG *config,
    const char *section, const char *key, const char *value)
 {
-   ALLEGRO_CONFIG_SECTION *s = find_section(config, section);
-   ALLEGRO_CONFIG_ENTRY *entry = find_entry(s->head, key);
+   ALLEGRO_CONFIG_SECTION *s;
+   ALLEGRO_CONFIG_ENTRY *entry;
+
+   if (section == NULL) {
+      section = "";
+   }
+
+   s = find_section(config, section);
+   if (s) {
+      entry = find_entry(s->head, key);
+   }
+   else {
+      entry = NULL;
+   }
 
    if (entry) {
       _AL_FREE(entry->value);
@@ -247,23 +225,23 @@ void al_config_set_value(ALLEGRO_CONFIG *config,
  *  Gets a pointer to an internal character buffer that will only remain valid
  *  as long as the ALLEGRO_CONFIG structure is not destroyed. Copy the value
  *  if you need a copy.
- *  The section can be NULL for the global section.
+ *  The section can be NULL or "" for the global section.
  *  Returns NULL if the section or key do not exist.
  */
 const char *al_config_get_value(const ALLEGRO_CONFIG *config,
    const char *section, const char *key)
 {
+   ALLEGRO_CONFIG_SECTION *s;
    ALLEGRO_CONFIG_ENTRY *e;
 
    if (section == NULL) {
-      e = config->globals;
+      section = "";
    }
-   else {
-      ALLEGRO_CONFIG_SECTION *s = find_section(config, section);
-      if (!s)
-         return NULL;
-      e = s->head;
-   }
+
+   s = find_section(config, section);
+   if (!s)
+      return NULL;
+   e = s->head;
 
    e = find_entry(e, key);
    if (!e)
@@ -316,7 +294,7 @@ ALLEGRO_CONFIG *al_config_read(const char *filename)
       else {
          get_key_and_value(buffer, key, value);
          if (current_section == NULL)
-            al_config_set_global(config, key, value);
+            al_config_set_value(config, "", key, value);
          else
             al_config_set_value(config, current_section->name, key, value);
       }
@@ -334,7 +312,7 @@ ALLEGRO_CONFIG *al_config_read(const char *filename)
  */
 int al_config_write(const ALLEGRO_CONFIG *config, const char *filename)
 {
-   ALLEGRO_CONFIG_SECTION *s = config->head;
+   ALLEGRO_CONFIG_SECTION *s;
    ALLEGRO_CONFIG_ENTRY *e;
    FILE *file = fopen(filename, "w");
 
@@ -342,26 +320,36 @@ int al_config_write(const ALLEGRO_CONFIG *config, const char *filename)
       return 1;
    }
 
-   /* Save globals */
-   e = config->globals;
-   while (e != NULL) {
-      if (fprintf(file, "%s=%s\n", e->key, e->value) < 0) {
-         goto Error;
+   /* Save global section */
+   s = config->head;
+   while (s != NULL) {
+      if (strcmp(s->name, "") == 0) {
+         e = s->head;
+         while (e != NULL) {
+            if (fprintf(file, "%s=%s\n", e->key, e->value) < 0) {
+               goto Error;
+            }
+            e = e->next;
+         }
+         break;
       }
-      e = e->next;
+      s = s->next;
    }
 
-   /* Save each section */
+   /* Save other sections */
+   s = config->head;
    while (s != NULL) {
-      if (fprintf(file, "[%s]\n", s->name) < 0) {
-         goto Error;
-      }
-      e = s->head;
-      while (e != NULL) {
-         if (fprintf(file, "%s=%s\n", e->key, e->value) < 0) {
+      if (strcmp(s->name, "") != 0) {
+         if (fprintf(file, "[%s]\n", s->name) < 0) {
             goto Error;
          }
-         e = e->next;
+         e = s->head;
+         while (e != NULL) {
+            if (fprintf(file, "%s=%s\n", e->key, e->value) < 0) {
+               goto Error;
+            }
+            e = e->next;
+         }
       }
       s = s->next;
    }
@@ -388,7 +376,7 @@ Error:
  */
 void al_config_merge_into(ALLEGRO_CONFIG *master, const ALLEGRO_CONFIG *add)
 {
-   ALLEGRO_CONFIG_SECTION *s = add->head;
+   ALLEGRO_CONFIG_SECTION *s;
    ALLEGRO_CONFIG_ENTRY *e;
    ASSERT(master);
 
@@ -396,14 +384,8 @@ void al_config_merge_into(ALLEGRO_CONFIG *master, const ALLEGRO_CONFIG *add)
       return;
    }
 
-   /* Save globals */
-   e = add->globals;
-   while (e != NULL) {
-      al_config_set_global(master, e->key, e->value);
-      e = e->next;
-   }
-
    /* Save each section */
+   s = add->head;
    while (s != NULL) {
       al_config_add_section(master, s->name);
       e = s->head;
@@ -445,15 +427,6 @@ void al_config_destroy(ALLEGRO_CONFIG *config)
 
    if (!config) {
       return;
-   }
-
-   e = config->globals;
-   while (e) {
-      ALLEGRO_CONFIG_ENTRY *tmp = e->next;
-      _AL_FREE(e->key);
-      _AL_FREE(e->value);
-      _AL_FREE(e);
-      e = tmp;
    }
 
    s = config->head;
