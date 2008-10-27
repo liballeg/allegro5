@@ -279,8 +279,9 @@ bool al_peek_next_event(ALLEGRO_EVENT_QUEUE *queue, ALLEGRO_EVENT *ret_event)
 /* Function: al_drop_next_event
  *  Drop the next event packet from the queue.  If the queue is empty,
  *  nothing happens.
+ *  Returns true iff an event was dropped.
  */
-void al_drop_next_event(ALLEGRO_EVENT_QUEUE *queue)
+bool al_drop_next_event(ALLEGRO_EVENT_QUEUE *queue)
 {
    ALLEGRO_EVENT *next_event;
    ASSERT(queue);
@@ -293,6 +294,8 @@ void al_drop_next_event(ALLEGRO_EVENT_QUEUE *queue)
    }
 
    _al_mutex_unlock(&queue->mutex);
+
+   return (next_event ? true : false);
 }
 
 

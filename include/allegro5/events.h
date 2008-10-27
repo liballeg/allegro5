@@ -304,7 +304,7 @@ AL_FUNC(void, al_unregister_event_source, (ALLEGRO_EVENT_QUEUE*, ALLEGRO_EVENT_S
 AL_FUNC(bool, al_event_queue_is_empty, (ALLEGRO_EVENT_QUEUE*));
 AL_FUNC(bool, al_get_next_event, (ALLEGRO_EVENT_QUEUE*, ALLEGRO_EVENT *ret_event));
 AL_FUNC(bool, al_peek_next_event, (ALLEGRO_EVENT_QUEUE*, ALLEGRO_EVENT *ret_event));
-AL_FUNC(void, al_drop_next_event, (ALLEGRO_EVENT_QUEUE*));
+AL_FUNC(bool, al_drop_next_event, (ALLEGRO_EVENT_QUEUE*));
 AL_FUNC(void, al_flush_event_queue, (ALLEGRO_EVENT_QUEUE*));
 AL_FUNC(void, al_wait_for_event, (ALLEGRO_EVENT_QUEUE*,
                                   ALLEGRO_EVENT *ret_event));
