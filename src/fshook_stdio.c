@@ -144,7 +144,7 @@ static unsigned __inline _tGetFileAttributes(const _TCHAR * tPath)
  * Returns a pointer to a DIR structure appropriately filled in to begin
  * searching a directory.
  */
-DIR *opendir(const _TCHAR *szPath)
+static DIR *opendir(const _TCHAR *szPath)
 {
    DIR *nd;
    unsigned int rc;
@@ -230,7 +230,7 @@ DIR *opendir(const _TCHAR *szPath)
  * Return a pointer to a dirent structure filled with the information on the
  * next entry in the directory.
  */
-struct dirent* readdir(DIR* dirp)
+static struct dirent* readdir(DIR* dirp)
 {
    errno = 0;
 
@@ -297,7 +297,7 @@ struct dirent* readdir(DIR* dirp)
  *
  * Frees up resources allocated by opendir.
  */
-int closedir(DIR* dirp)
+static int closedir(DIR* dirp)
 {
   int rc;
 
