@@ -68,6 +68,32 @@
       return InterlockedDecrement(ptr);
    })
 
+#elif defined(ALLEGRO_HAVE_OSATOMIC_H)
+
+   /* OS X, GCC < 4.1
+    * These functions only work on Tiger (10.4) and above.
+    * FIXME: Apple's manpage says these functions take volatile int*
+    * arguments, but at least the 10.4 SDK seems to prototype them as
+    * taking int * - should the volatile qualifier be removed from the
+    * wrapper functions in this case? (EG)
+    */
+
+    #include <libkern/OSAtomic.h>
+    typedef int32_t _AL_ATOMIC;
+
+   AL_INLINE(_AL_ATOMIC,
+      _al_fetch_and_add1, (volatile _AL_ATOMIC *ptr),
+   {
+      return OSAtomicIncrement32Barrier(ptr) - 1;
+   })
+
+   AL_INLINE(_AL_ATOMIC,
+      _al_sub1_and_fetch, (volatile _AL_ATOMIC *ptr),
+   {
+      return OSAtomicDecrement32Barrier(ptr);
+   })
+
+
 #else
 
    /* Hope for the best? */
