@@ -4,10 +4,11 @@
 #endif
 #include <limits.h>
 #include "allegro5/debug.h"
+#include "allegro5/fshook.h"
 #include "allegro5/path.h"
 #include "allegro5/unicode.h"
 #include "allegro5/internal/aintern_memory.h"
-#include "allegro5/fshook.h"
+#include "allegro5/internal/aintern_path.h"
 
 
 static char *_ustrduprange(const char *start, const char *end)
@@ -318,17 +319,8 @@ ALLEGRO_PATH *al_path_create(const char *str)
       return NULL;
    }
 
-   path->free = true;
-
    return path;
 }
-
-int32_t al_path_init(ALLEGRO_PATH *path, const char *str)
-{
-   ASSERT(path);
-   return _al_path_init(path, str);
-}
-
 
 int al_path_num_components(ALLEGRO_PATH *path)
 {
@@ -549,9 +541,7 @@ void al_path_free(ALLEGRO_PATH *path)
 
    path->segment_count = 0;
 
-   if (path->free) {
-      _AL_FREE(path);
-   }
+   _AL_FREE(path);
 }
 
 int32_t al_path_set_drive(ALLEGRO_PATH *path, const char *drive)

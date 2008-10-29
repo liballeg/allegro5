@@ -14,20 +14,7 @@ AL_BEGIN_EXTERN_C
 
 typedef struct ALLEGRO_PATH ALLEGRO_PATH;
 
-/* The contents are internal. */
-/* XXX this should be hidden */
-struct ALLEGRO_PATH {
-   bool free;
-
-   char *drive;
-   char *filename;
-
-   int32_t segment_count;
-   char **segment;
-};
-
 AL_FUNC(ALLEGRO_PATH*, al_path_create, (const char *str));
-AL_FUNC(int32_t, al_path_init, (ALLEGRO_PATH *path, const char *str));
 
 // FIXME: rename to, al_path_num_dir_components
 AL_FUNC(int, al_path_num_components, (ALLEGRO_PATH *path));

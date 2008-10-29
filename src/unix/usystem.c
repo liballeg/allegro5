@@ -59,17 +59,20 @@ int _unix_find_resource(char *dest, AL_CONST char *resource, int size)
 {
    char buf[256], tmp[256];
    char home[256], ext[256];
-   ALLEGRO_PATH path;
+   ALLEGRO_PATH *path;
 
    _unix_get_path(AL_USER_HOME_PATH, home, sizeof(home));
 
    if (ustrlen(home)) {
-      ALLEGRO_PATH local_path;
-      if (!al_path_init(&local_path, home))
-         return -1;
+      ALLEGRO_PATH *local_path;
 
-      al_path_append(&local_path, resource);
-      al_path_to_string(&local_path, buf, sizeof(buf), '/');
+      local_path = al_path_create(home);
+      if (!local_path) {
+         return -1;
+      }
+
+      al_path_append(local_path, resource);
+      al_path_to_string(local_path, buf, sizeof(buf), '/');
 
       if (al_fs_exists(buf)) {
 	 ustrzcpy(dest, size, buf);
@@ -77,12 +80,12 @@ int _unix_find_resource(char *dest, AL_CONST char *resource, int size)
       }
 
       /* if it is a .cfg, look for ~/.filerc */
-      if (ustricmp(al_path_get_extension(&local_path, ext, sizeof(ext)), uconvert_ascii("cfg", tmp)) == 0) {
+      if (ustricmp(al_path_get_extension(local_path, ext, sizeof(ext)), uconvert_ascii("cfg", tmp)) == 0) {
 
-         al_path_get_basename(&local_path, buf, sizeof(buf));
+         al_path_get_basename(local_path, buf, sizeof(buf));
          ustrncat(buf, "rc", 2);
-         al_path_set_filename(&local_path, buf);
-         al_path_to_string(&local_path, buf, sizeof(buf), '/');
+         al_path_set_filename(local_path, buf);
+         al_path_to_string(local_path, buf, sizeof(buf), '/');
 
          /* FIXME: we're temporarily forgetting about these permission flags
 	 if (file_exists(buf, FA_ARCH | FA_RDONLY | FA_HIDDEN, NULL)) {
@@ -93,13 +96,13 @@ int _unix_find_resource(char *dest, AL_CONST char *resource, int size)
 	 }
       }
 
-      al_path_free(&local_path);
+      al_path_free(local_path);
    }
 
    /* look for /etc/file */
-   al_path_init(&path, "/etc");
-   al_path_set_filename(&path, resource);
-   al_path_to_string(&path, buf, sizeof(buf), '/');
+   path = al_path_create("/etc");
+   al_path_set_filename(path, resource);
+   al_path_to_string(path, buf, sizeof(buf), '/');
 
    if (al_fs_exists(buf)) {
       ustrzcpy(dest, size, buf);
@@ -107,12 +110,12 @@ int _unix_find_resource(char *dest, AL_CONST char *resource, int size)
    }
 
    /* if it is a .cfg, look for /etc/filerc */
-   if (ustricmp(al_path_get_extension(&path, ext, sizeof(ext)), uconvert_ascii("cfg", tmp)) == 0) {
+   if (ustricmp(al_path_get_extension(path, ext, sizeof(ext)), uconvert_ascii("cfg", tmp)) == 0) {
 
-      al_path_get_basename(&path, buf, sizeof(buf));
+      al_path_get_basename(path, buf, sizeof(buf));
       ustrncat(buf, "rc", 2);
-      al_path_set_filename(&path, buf);
-      al_path_to_string(&path, buf, sizeof(buf), '/');
+      al_path_set_filename(path, buf);
+      al_path_to_string(path, buf, sizeof(buf), '/');
 
       if (al_fs_exists(buf)) {
 	 ustrzcpy(dest, size, buf);
@@ -120,22 +123,22 @@ int _unix_find_resource(char *dest, AL_CONST char *resource, int size)
       }
    }
 
-   al_path_free(&path);
+   al_path_free(path);
 
    /* if it is a .dat, look in AL_SYSTEM_DATA_PATH */
-   al_path_init(&path, al_get_path(AL_SYSTEM_DATA_PATH, buf, sizeof(buf)));
-   al_path_set_filename(&path, resource);
+   path = al_path_create(al_get_path(AL_SYSTEM_DATA_PATH, buf, sizeof(buf)));
+   al_path_set_filename(path, resource);
 
-   if (ustricmp(al_path_get_extension(&path, ext, sizeof(ext)), uconvert_ascii("dat", tmp)) == 0) {
-      al_path_append(&path, "allegro");
-      al_path_to_string(&path, buf, sizeof(buf), '/');
+   if (ustricmp(al_path_get_extension(path, ext, sizeof(ext)), uconvert_ascii("dat", tmp)) == 0) {
+      al_path_append(path, "allegro");
+      al_path_to_string(path, buf, sizeof(buf), '/');
       if (al_fs_exists(buf)) {
 	 ustrzcpy(dest, size, buf);
 	 return 0;
       }
    }
 
-   al_path_free(&path);
+   al_path_free(path);
 
    return -1;
 }

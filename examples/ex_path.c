@@ -4,7 +4,6 @@
 int main(int argc, char **argv)
 {
    ALLEGRO_PATH *dyn = NULL;
-   ALLEGRO_PATH sta;
    ALLEGRO_PATH *tostring = NULL;
 
    al_init();
@@ -32,14 +31,6 @@ int main(int argc, char **argv)
 	  al_path_get_drive(dyn),
 	  al_path_get_filename(dyn));
       al_path_free(dyn);
-   }
-
-   if(al_path_init(&sta, argv[1])) {
-      printf("sta: drive=\"%s\", file=\"%s\"\n", al_path_get_drive(&sta), al_path_get_filename(&sta));
-      al_path_free(&sta);
-   }
-   else {
-      printf("failed to init path structure for '%s'\n", argv[1]);
    }
 
    tostring = al_path_create(argv[1]);

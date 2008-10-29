@@ -619,21 +619,21 @@ int32_t al_fs_entry_ungetc(int32_t c, ALLEGRO_FS_ENTRY *fp)
 static int32_t _al_find_resource_exists(const char *path, const char *base,
    const char *resource, uint32_t fm, char *buffer, size_t len)
 {
-   ALLEGRO_PATH fp, resp;
+   ALLEGRO_PATH *fp;
    int32_t ret = 0;
 
    memset(buffer, 0, len);
 
-   al_path_init(&fp, path);
-   al_path_append(&fp, base);
+   fp = al_path_create(path);
+   al_path_append(fp, base);
 
    if (resource) {
-      al_path_init(&resp, resource);
-      al_path_concat(&fp, &resp);
-      al_path_free(&resp);
+      ALLEGRO_PATH *resp = al_path_create(resource);
+      al_path_concat(fp, resp);
+      al_path_free(resp);
    }
 
-   al_path_to_string(&fp, buffer, len, ALLEGRO_NATIVE_PATH_SEP);
+   al_path_to_string(fp, buffer, len, ALLEGRO_NATIVE_PATH_SEP);
    //printf("_find_resource: '%s' exists:%i sfm:%i fm:%i eq:%i\n", buffer, al_fs_exists(buffer), al_fs_stat_mode(buffer), fm, (al_fs_stat_mode(buffer) & fm) == fm);
    if (al_fs_exists(buffer) && (al_fs_stat_mode(buffer) & fm) == fm) {
       ret = 1;
@@ -652,7 +652,7 @@ static int32_t _al_find_resource_exists(const char *path, const char *base,
       }
    }
 
-   al_path_free(&fp);
+   al_path_free(fp);
 
    return ret;
 }
@@ -660,7 +660,7 @@ static int32_t _al_find_resource_exists(const char *path, const char *base,
 char *al_find_resource(const char *base, const char *resource, uint32_t fm,
    char *buffer, size_t len)
 {
-   ALLEGRO_PATH path, resp;
+   ALLEGRO_PATH *path;
    char tmp[PATH_MAX];
    char base_new[256];
 
@@ -708,17 +708,17 @@ char *al_find_resource(const char *base, const char *resource, uint32_t fm,
 
    al_get_path(AL_USER_DATA_PATH, tmp, PATH_MAX);
    //printf("find_resource: def AL_USER_DATA_PATH\n");
-   al_path_init(&path, tmp);
-   al_path_append(&path, base_new);
+   path = al_path_create(tmp);
+   al_path_append(path, base_new);
 
    if (resource) {
-      al_path_init(&resp, resource);
-      al_path_concat(&path, &resp);
-      al_path_free(&resp);
+      ALLEGRO_PATH *resp = al_path_create(resource);
+      al_path_concat(path, resp);
+      al_path_free(resp);
    }
 
-   al_path_to_string(&path, buffer, len, ALLEGRO_NATIVE_PATH_SEP);
-   al_path_free(&path);
+   al_path_to_string(path, buffer, len, ALLEGRO_NATIVE_PATH_SEP);
+   al_path_free(path);
 
    return buffer;
 }
