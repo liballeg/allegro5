@@ -47,6 +47,8 @@ int main(void)
          uint8_t green = 0;
          uint8_t blue = 0;
          uint8_t alpha = 255;
+         uint32_t col;
+         uint32_t *cptr = (uint32_t *)ptr;
 
          if (j < 50) {
             if (i < 50)
@@ -60,13 +62,15 @@ int main(void)
          }
 
          /* The ARGB format means, the 32 bits per pixel are layed out like
-          * this, lowest bit right:
+          * this, least significant bit right:
           * A A A A A A A A R R R R R R R R G G G G G G G G B B B B B B B B
+          * Because the byte order can vary per platform (big endian or
+          * little endian) we encode a 32 bit integer and store that
+          * directly rather than storing each component seperately.
           */
-         *(ptr++) = blue;
-         *(ptr++) = green;
-         *(ptr++) = red;
-         *(ptr++) = alpha;
+         col = (alpha << 24) | (red << 16) | (green << 8) | blue;
+         *cptr = col;
+         ptr+=4;
       }
 
       ptr += locked.pitch - (4 * 100);
