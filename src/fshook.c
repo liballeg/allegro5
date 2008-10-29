@@ -379,7 +379,7 @@ int32_t al_fs_isfile(AL_CONST char *path)
 
 int al_fs_entry_getc(ALLEGRO_FS_ENTRY *f)
 {
-   uint32_t c = 0;
+   uint8_t c = 0;
    ASSERT(f);
 
    if (al_fs_entry_read(&c, 1, f) != 1) {
