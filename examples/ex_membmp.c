@@ -81,7 +81,6 @@ int main(void)
    ALLEGRO_FONT *memfont;
    ALLEGRO_BITMAP *accelbmp;
    ALLEGRO_BITMAP *membmp;
-   ALLEGRO_BITMAP *sub_bb;
 
    if (!al_init()) {
       TRACE("Could not init Allegro.\n");
