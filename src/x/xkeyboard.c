@@ -458,28 +458,6 @@ void _al_xwin_keyboard_handler(XKeyEvent *event, bool dga2_hack,
 
 
 
-/* _al_xwin_keyboard_focus_handler:
- *  Handles switching of X keyboard focus.
- */
-void _al_xwin_keyboard_focus_handler(XFocusChangeEvent *event)
-{
-   /* TODO */
-
-#if 0
-   /* Simulate release of all keys on focus out. */
-   if (event->type == FocusOut) {
-      int i;
-
-      for (i = 0; i < ALLEGRO_KEY_MAX; i++) {
-         if (key[i])
-            handle_key_release(i, display);
-      }
-   }
-#endif
-}
-
-
-
 /* find_allegro_key
  *  Search the translation table for the Allegro key corresponding to the
  *  given KeySym.

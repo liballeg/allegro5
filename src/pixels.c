@@ -440,7 +440,8 @@ p_get_pixel_func get_pixel_funcs[ALLEGRO_NUM_PIXEL_FORMATS] = {
    _get_pixel_xrgb_8888
 };
 
-ALLEGRO_COLOR *_al_get_pixel(ALLEGRO_BITMAP *bitmap, void *data, ALLEGRO_COLOR *color)
+static ALLEGRO_COLOR *_al_get_pixel(ALLEGRO_BITMAP *bitmap, void *data,
+   ALLEGRO_COLOR *color)
 {
    (*get_pixel_funcs[bitmap->format])(data, color);
 
@@ -911,3 +912,4 @@ void al_unmap_rgb_f(ALLEGRO_COLOR color, float *r, float *g, float *b)
    al_unmap_rgba_f(color, r, g, b, &tmp);
 }
 
+/* vim: set sts=3 sw=3 et: */

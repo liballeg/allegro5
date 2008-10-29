@@ -26,7 +26,7 @@ int _al_xglx_get_num_display_modes(void)
    return get_num_display_modes((void *)al_system_driver());
 }
 
-ALLEGRO_DISPLAY_MODE *get_display_mode(ALLEGRO_SYSTEM_XGLX *s,
+static ALLEGRO_DISPLAY_MODE *get_display_mode(ALLEGRO_SYSTEM_XGLX *s,
    int i, ALLEGRO_DISPLAY_MODE *mode)
 {
    if (!s->modes)

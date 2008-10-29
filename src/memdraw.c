@@ -87,7 +87,8 @@ DEFINE_HLINE(_hline24, 3, READ3BYTES, WRITE3BYTES)
 DEFINE_HLINE(_hline32, 4, bmp_read32, bmp_write32)
 
 
-void _al_draw_hline_memory_fast(int dx1, int dy, int dx2, ALLEGRO_COLOR *color)
+static void _al_draw_hline_memory_fast(int dx1, int dy, int dx2,
+   ALLEGRO_COLOR *color)
 {
    ALLEGRO_BITMAP *target;
    int color_value;
@@ -131,7 +132,8 @@ void _al_draw_hline_memory_fast(int dx1, int dy, int dx2, ALLEGRO_COLOR *color)
 }
 
 
-void _al_draw_vline_memory_fast(int dx, int dy1, int dy2, ALLEGRO_COLOR *color)
+static void _al_draw_vline_memory_fast(int dx, int dy1, int dy2,
+   ALLEGRO_COLOR *color)
 {
    int y;
    ALLEGRO_BITMAP *dst = al_get_target_bitmap();
@@ -193,7 +195,7 @@ void _al_draw_vline_memory_fast(int dx, int dy1, int dy2, ALLEGRO_COLOR *color)
 
 
 /* Copied from do_line in gfx.c */
-void _al_draw_line_memory_fast(int x1, int y1, int x2, int y2,
+static void _al_draw_line_memory_fast(int x1, int y1, int x2, int y2,
    ALLEGRO_COLOR *color)
 {
    ALLEGRO_LOCKED_REGION lr;
@@ -396,7 +398,7 @@ do {                                                                         \
 /* Coordinates are inclusive full-pixel positions. So (0, 0, 0, 0) draws a
  * single pixel at 0/0.
  */
-void _al_draw_rectangle_memory_fast(int x1, int y1, int x2, int y2,
+static void _al_draw_rectangle_memory_fast(int x1, int y1, int x2, int y2,
    ALLEGRO_COLOR *color, int flags)
 {
    ALLEGRO_BITMAP *bitmap;
@@ -504,7 +506,8 @@ static void _vline(ALLEGRO_BITMAP *target, int x, int y1, int y2,
 
 
 
-void _al_draw_hline_memory(int dx1, int dy, int dx2, ALLEGRO_COLOR *color)
+static void _al_draw_hline_memory(int dx1, int dy, int dx2,
+   ALLEGRO_COLOR *color)
 {
    ALLEGRO_BITMAP *target;
    ALLEGRO_LOCKED_REGION lr;
@@ -533,7 +536,8 @@ void _al_draw_hline_memory(int dx1, int dy, int dx2, ALLEGRO_COLOR *color)
 }
 
 
-void _al_draw_vline_memory(int dx, int dy1, int dy2, ALLEGRO_COLOR *color)
+static void _al_draw_vline_memory(int dx, int dy1, int dy2,
+   ALLEGRO_COLOR *color)
 {
    ALLEGRO_BITMAP *dst = al_get_target_bitmap();
    ALLEGRO_LOCKED_REGION lr;

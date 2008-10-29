@@ -380,38 +380,6 @@ void _al_xwin_mouse_motion_notify_handler(int x, int y,
 
 
 
-/* _al_xwin_mouse_motion_notify_handler_dga2: [bgman thread]
- *  Called by _xdga_process_event() for MotionNotify events received from the X
- *  server.  These are different from the MotionNotify events received when not
- *  in DGA2 mode.
- */
-void _al_xwin_mouse_motion_notify_handler_dga2(int dx, int dy,
-                                               int min_x, int min_y,
-                                               int max_x, int max_y,
-                                               ALLEGRO_DISPLAY *display)
-{
-   if (!xmouse_installed)
-      return;
-
-   _al_event_source_lock(&the_mouse.parent.es);
-   {
-      int x = the_mouse.state.x + dx;
-      int y = the_mouse.state.y + dy;
-
-      the_mouse.state.x = CLAMP(min_x, x, max_x);
-      the_mouse.state.y = CLAMP(min_y, y, max_y);
-
-      generate_mouse_event(
-         ALLEGRO_EVENT_MOUSE_AXES,
-         the_mouse.state.x, the_mouse.state.y, the_mouse.state.z,
-         dx, dy, 0,
-         0, display);
-   }
-   _al_event_source_unlock(&the_mouse.parent.es);
-}
-
-
-
 /* x_button_to_wheel: [bgman thread]
  *  Return a non-zero number if an X mouse button number corresponds to the
  *  mouse wheel scrolling, otherwise return 0.

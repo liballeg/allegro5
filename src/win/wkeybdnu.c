@@ -373,7 +373,7 @@ static void get_autorepeat_parameters(void)
  *  window switch for example if the device is in foreground
  *  cooperative level.
  */
-int key_dinput_acquire(void)
+static int key_dinput_acquire(void)
 {
    HRESULT hr;
 

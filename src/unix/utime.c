@@ -21,6 +21,7 @@
 
 #include "allegro5/altime.h"
 #include "allegro5/debug.h"
+#include "allegro5/platform/aintunix.h"
 #include "allegro5/platform/aintuthr.h"
 
 

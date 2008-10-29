@@ -33,6 +33,7 @@ static bool atexit_virgin = true;
 
 
 
+#if 0
 bool al_register_system_driver(ALLEGRO_SYSTEM_INTERFACE *sys_interface)
 {
    ALLEGRO_SYSTEM_INTERFACE **add = _al_vector_alloc_back(&_user_system_interfaces);
@@ -41,13 +42,16 @@ bool al_register_system_driver(ALLEGRO_SYSTEM_INTERFACE *sys_interface)
    *add = sys_interface;
    return true;
 }
+#endif
 
 
 
+#if 0
 void al_unregister_system_driver(ALLEGRO_SYSTEM_INTERFACE *sys_interface)
 {
    _al_vector_find_and_delete(&_user_system_interfaces, &sys_interface);
 }
+#endif
 
 
 

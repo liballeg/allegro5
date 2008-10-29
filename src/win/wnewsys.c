@@ -425,7 +425,7 @@ static AL_CONST char *win_get_path(uint32_t id, char *dir, size_t size)
    return dir;
 }
 
-ALLEGRO_SYSTEM_INTERFACE *_al_system_win_driver(void)
+static ALLEGRO_SYSTEM_INTERFACE *_al_system_win_driver(void)
 {
    if (vt) return vt;
 
