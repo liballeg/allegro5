@@ -1,3 +1,23 @@
+/*         ______   ___    ___
+ *        /\  _  \ /\_ \  /\_ \
+ *        \ \ \L\ \\//\ \ \//\ \      __     __   _ __   ___
+ *         \ \  __ \ \ \ \  \ \ \   /'__`\ /'_ `\/\`'__\/ __`\
+ *          \ \ \/\ \ \_\ \_ \_\ \_/\  __//\ \L\ \ \ \//\ \L\ \
+ *           \ \_\ \_\/\____\/\____\ \____\ \____ \ \_\\ \____/
+ *            \/_/\/_/\/____/\/____/\/____/\/___L\ \/_/ \/___/
+ *                                           /\____/
+ *                                           \_/__/
+ *
+ *      Filesystem path routines.
+ *
+ *      By Thomas Fjellstrom.
+ *
+ *      See LICENSE.txt for copyright information.
+ */
+
+/* Title: Filesystem path routines
+ */
+
 #include <stdio.h>
 #ifdef _MSC_VER
    #define _POSIX_
@@ -306,6 +326,10 @@ _path_init_fatal:
    return 0;
 }
 
+/* Function: al_path_create
+ *  Create a path structure from a string.
+ *  The string may be NULL for an empty path.
+ */
 ALLEGRO_PATH *al_path_create(const char *str)
 {
    ALLEGRO_PATH *path;
@@ -322,12 +346,24 @@ ALLEGRO_PATH *al_path_create(const char *str)
    return path;
 }
 
+/* Function: al_path_num_components
+ *  Return the number of directory components in a path.
+ *
+ *  The directory components do not include the final part of a path
+ *  (the basename).
+ */
 int al_path_num_components(ALLEGRO_PATH *path)
 {
    ASSERT(path);
    return path->segment_count;
 }
 
+/* Function: al_path_index
+ *  Return the i'th directory component of a path, counting from zero.
+ *  If the index is negative then count from the right, i.e. -1 refers to
+ *  the last path component.
+ *  It is an error to pass an index which is out of bounds.
+ */
 const char *al_path_index(ALLEGRO_PATH *path, int i)
 {
    ASSERT(path);
@@ -341,6 +377,12 @@ const char *al_path_index(ALLEGRO_PATH *path, int i)
    return path->segment[i];
 }
 
+/* Function: al_path_replace
+ *  Replace the i'th directory component by another string.
+ *  If the index is negative then count from the right, i.e. -1 refers to
+ *  the last path component.
+ *  It is an error to pass an index which is out of bounds.
+ */
 void al_path_replace(ALLEGRO_PATH *path, int i, const char *s)
 {
    char *tmp = NULL;
@@ -362,6 +404,12 @@ void al_path_replace(ALLEGRO_PATH *path, int i, const char *s)
    path->segment[i] = tmp;
 }
 
+/* Function: al_path_remove
+ *  Delete the i'th directory component.
+ *  If the index is negative then count from the right, i.e. -1 refers to
+ *  the last path component.
+ *  It is an error to pass an index which is out of bounds.
+ */
 void al_path_remove(ALLEGRO_PATH *path, int i)
 {
    ASSERT(path);
@@ -381,6 +429,12 @@ void al_path_remove(ALLEGRO_PATH *path, int i)
    path->segment_count--;
 }
 
+/* Function: al_path_insert
+ *  Insert a directory component at index i.
+ *  If the index is negative then count from the right, i.e. -1 refers to
+ *  the last path component.
+ *  It is an error to pass an index which is out of bounds.
+ */
 void al_path_insert(ALLEGRO_PATH *path, int i, const char *s)
 {
    char *copy_s;
@@ -415,6 +469,9 @@ void al_path_insert(ALLEGRO_PATH *path, int i, const char *s)
    path->segment_count++;
 }
 
+/* Function: al_path_tail
+ *  Returns the last directory component, or NULL if there are none.
+ */
 const char *al_path_tail(ALLEGRO_PATH *path)
 {
    ASSERT(path);
@@ -423,17 +480,28 @@ const char *al_path_tail(ALLEGRO_PATH *path)
    return al_path_index(path, -1);
 }
 
+/* Function: al_path_drop_tail
+ *  Drop the last directory component.
+ */
 void al_path_drop_tail(ALLEGRO_PATH *path)
 {
    /* XXX handle empty path */
    al_path_remove(path, -1);
 }
 
+/* Function: al_path_append
+ *  Append a directory component.
+ */
 void al_path_append(ALLEGRO_PATH *path, const char *s)
 {
    al_path_insert(path, -1, s);
 }
 
+/* Function: al_path_concat
+ *  Concatenate two path structures. The first path structure is
+ *  modified.
+ *  XXX describe details
+ */
 void al_path_concat(ALLEGRO_PATH *path, const ALLEGRO_PATH *tail)
 {
    char *new_filename;
@@ -484,6 +552,10 @@ void al_path_concat(ALLEGRO_PATH *path, const ALLEGRO_PATH *tail)
    path->segment_count += i;
 }
 
+/* Function: al_path_to_string
+ *  Get the string representation of a path.
+ *  XXX describe fully
+ */
 /* FIXME: this is a rather dumb implementation, not using ustr*cat should speed it up */
 char *al_path_to_string(ALLEGRO_PATH *path, char *buffer, size_t len, char delim)
 {
@@ -513,6 +585,10 @@ char *al_path_to_string(ALLEGRO_PATH *path, char *buffer, size_t len, char delim
    return buffer;
 }
 
+/* Function: al_path_free
+ *  Free a path structure.
+ *  Does nothing if passed NULL.
+ */
 void al_path_free(ALLEGRO_PATH *path)
 {
    int32_t i;
@@ -544,6 +620,10 @@ void al_path_free(ALLEGRO_PATH *path)
    _AL_FREE(path);
 }
 
+/* Function: al_path_set_drive
+ *  Set the drive letter on a path.
+ *  The drive may be NULL to remove the drive letter.
+ */
 int32_t al_path_set_drive(ALLEGRO_PATH *path, const char *drive)
 {
    ASSERT(path);
@@ -562,12 +642,21 @@ int32_t al_path_set_drive(ALLEGRO_PATH *path, const char *drive)
    return 0;
 }
 
+/* Function: al_path_get_drive
+ *  Return the drive letter on a path, or NULL if there is none.
+ */
 const char *al_path_get_drive(ALLEGRO_PATH *path)
 {
    ASSERT(path);
    return path->drive;
 }
 
+/* Function: al_path_set_filename
+ *  Set the optional filename (i.e. basename) part of the path.
+ *  The filename may be NULL.
+ */
+/* XXX rename; 'filename' doesn't mean 'basename' */
+/* XXX what happens if filename includes directory separators? */
 int32_t al_path_set_filename(ALLEGRO_PATH *path, const char *filename)
 {
    ASSERT(path);
@@ -586,12 +675,22 @@ int32_t al_path_set_filename(ALLEGRO_PATH *path, const char *filename)
    return 0;
 }
 
+/* Function: al_path_get_filename
+ *  Return the filename (i.e. basename) part of the path,
+ *  or NULL if there is none.
+ */
+/* XXX rename; 'filename' doesn't mean 'basename' */
 const char *al_path_get_filename(ALLEGRO_PATH *path)
 {
    ASSERT(path);
    return path->filename;
 }
 
+/* Function: al_path_get_extension
+ *  Fill buf with extension of the filename part of the path.
+ *  If there is no filename part then buf is filled with the empty string.
+ *  Returns buf.
+ */
 const char *al_path_get_extension(ALLEGRO_PATH *path, char *buf, size_t len)
 {
    ASSERT(path);
@@ -609,6 +708,12 @@ const char *al_path_get_extension(ALLEGRO_PATH *path, char *buf, size_t len)
    return buf;
 }
 
+/* Function: al_path_get_basename
+ *  Fill buf with filename part of the path, with the extension removed.
+ *  If there is no filename part then buf is filled with the empty string.
+ *  Returns buf.
+ */
+/* XXX rename; 'basename' doesn't imply no extension */
 const char *al_path_get_basename(ALLEGRO_PATH *path, char *buf, size_t len)
 {
    ASSERT(path);
@@ -626,6 +731,12 @@ const char *al_path_get_basename(ALLEGRO_PATH *path, char *buf, size_t len)
    return buf;
 }
 
+/* Function: al_path_exists
+ *  Return 1 if path represents an existing file on the system,
+ *  or 0 if it doesn't exist.
+ *  Returns -1 on error.
+ */
+/* XXX change return value? */
 uint32_t al_path_exists(ALLEGRO_PATH *path)
 {
    char buffer[PATH_MAX];
@@ -648,6 +759,10 @@ uint32_t al_path_exists(ALLEGRO_PATH *path)
    return al_fs_exists(buffer);
 }
 
+/* Function: al_path_emode
+ *  Return true iff the path represents a file on the system that exists with
+ *  the given mode bits.
+ */
 bool al_path_emode(ALLEGRO_PATH *path, uint32_t mode)
 {
    char buffer[PATH_MAX];
