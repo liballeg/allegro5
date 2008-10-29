@@ -20,6 +20,7 @@
 #include "allegro5/allegro5.h"
 #include "allegro5/internal/aintern.h"
 #include "allegro5/internal/aintern_bitmap.h"
+#include "allegro5/internal/aintern_display.h"
 
 void _al_draw_pixel_memory(ALLEGRO_BITMAP *bitmap, int x, int y,
    ALLEGRO_COLOR *color)

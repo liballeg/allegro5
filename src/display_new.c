@@ -304,7 +304,7 @@ void al_draw_pixel(float x, float y, ALLEGRO_COLOR color)
    ASSERT(display);
 
    if (target->flags & ALLEGRO_MEMORY_BITMAP || !display->vt->draw_pixel) {
-      _al_draw_pixel_memory(x, y, &color);
+      _al_draw_pixel_memory(target, x, y, &color);
    }
    else {
       display->vt->draw_pixel(display, x, y, &color);

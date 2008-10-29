@@ -15,6 +15,7 @@
 
 #include "allegro5/allegro5.h"
 #include "allegro5/a5_opengl.h"
+#include "allegro5/internal/aintern_display.h"
 #include "allegro5/internal/aintern_opengl.h"
 
 
@@ -68,7 +69,7 @@ static void ogl_draw_pixel(ALLEGRO_DISPLAY *d, float x, float y,
    ALLEGRO_BITMAP_OGL *ogl_target = (void *)target;
 
    if (!ogl_target->is_backbuffer && ogl_disp->ogl_extras->opengl_target != ogl_target) {
-      _al_draw_pixel_memory(x, y, color);
+      _al_draw_pixel_memory(target, x, y, color);
       return;
    }
 
