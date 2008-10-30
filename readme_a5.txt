@@ -82,6 +82,9 @@ If you're not sure about any option, just leave it at the default.
 
 *Note:* MinGW users: if you have `sh.exe` in your PATH you should call CMake
 with the options `-G "MSYS Makefiles"`.  Otherwise, use `-G "MinGW Makefiles"`.
+If you do have `sh` but it isn't from MSYS (e.g. it's from Unixutils) then
+you might need to modify your PATH so `sh` isn't in it and use "MinGW
+Makefiles" instead.
 
 *Note:* For MinGW with gcc < 4, you cannot build a static library because
 TLS (thread local storage, using __thread) support was not introduced
