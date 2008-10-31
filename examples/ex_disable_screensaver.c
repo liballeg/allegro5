@@ -9,13 +9,11 @@ int main(void)
 	ALLEGRO_EVENT_QUEUE *events;
 	ALLEGRO_EVENT event;
 	bool done = false;
-	bool active;
+	bool active = true;
 
 	al_init();
 	al_install_keyboard();
 	al_font_init();
-
-	active = al_get_screensaver_active();
 
 	al_set_new_display_flags(ALLEGRO_GENERATE_EXPOSE_EVENTS);
 
@@ -34,7 +32,7 @@ int main(void)
 
 	do {
 		al_clear(al_map_rgb(0, 0, 0));
-		al_font_textprintf(font, 0, 0, "Screen saver: %s", active ? "on" : "off");
+		al_font_textprintf(font, 0, 0, "Screen saver: %s", active ? "Normal" : "Inhibited");
 		al_flip_display();
 		al_wait_for_event(events, &event);
 		switch (event.type) {
@@ -43,7 +41,7 @@ int main(void)
 					done = true;
 				else if (event.keyboard.keycode == ALLEGRO_KEY_SPACE) {
 					active = !active;
-					al_set_screensaver_active(active);
+					al_inhibit_screensaver(!active);
 				}
 				break;
 		}

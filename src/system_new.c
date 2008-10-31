@@ -215,36 +215,23 @@ AL_CONST char *al_get_path(uint32_t id, char *path, size_t size)
 }
 
 
-/* Function: al_get_screensaver_active
+/* Function: al_inhibit_screensaver
  *
- * Returns whether or not the screensaver will activate or is active
- * false means either the screensaver is inactive, or we don't know.
- *
- * See Also: <al_set_screensaver_active>
+ * This function allows the user to stop the system
+ * screensaver from starting up if true is passed,
+ * or resets the system back to the default state
+ * (the state at program start) if false is passed.
+ * It returns true if the state was set successfully,
+ * otherwise false.
  */
-bool al_get_screensaver_active(void)
+bool al_inhibit_screensaver(bool inhibit)
 {
    ASSERT(active_sysdrv);
 
-   if (active_sysdrv->vt->get_screensaver_active)
-      return active_sysdrv->vt->get_screensaver_active();
-
-   return false;
-}
-
-
-/* Function: al_set_screensaver_active
- *
- * Turns the screensaver on or off
- *
- * See Also: <al_get_screensaver_active>
- */
-void al_set_screensaver_active(bool active)
-{
-   ASSERT(active_sysdrv);
-
-   if (active_sysdrv->vt->set_screensaver_active)
-      active_sysdrv->vt->set_screensaver_active(active);
+   if (active_sysdrv->vt->inhibit_screensaver)
+      return active_sysdrv->vt->inhibit_screensaver(inhibit);
+   else
+      return false;
 }
 
 

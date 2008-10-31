@@ -23,8 +23,7 @@ enum {
 };
 
 AL_FUNC(AL_CONST char *, al_get_path, (uint32_t id, char *path, size_t size));
-AL_FUNC(bool, al_get_screensaver_active, (void));
-AL_FUNC(void, al_set_screensaver_active, (bool active));
+AL_FUNC(bool, al_inhibit_screensaver, (bool inhibit));
 
 #ifdef __cplusplus
    }
