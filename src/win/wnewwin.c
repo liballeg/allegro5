@@ -38,6 +38,10 @@ static bool resize_postponed = false;
 UINT _al_win_msg_call_proc = 0;
 UINT _al_win_msg_suicide = 0;
 
+
+extern bool win_disable_screensaver;
+
+
 /*
  * Find the top left position of the client area of a window.
  */
@@ -331,6 +335,12 @@ static LRESULT CALLBACK window_callback(HWND hWnd, UINT message,
    }
 
    switch (message) {
+      case WM_SYSCOMMAND: {
+         if (win_disable_screensaver && (wParam == SC_MONITORPOWER || wParam == SC_SCREENSAVE)) {
+            return 0;
+         }
+         break;
+      }
       case WM_PAINT: {
          if ((win_display->display.flags & ALLEGRO_GENERATE_EXPOSE_EVENTS) &&
                   _al_event_source_needs_to_generate_event(es)) {

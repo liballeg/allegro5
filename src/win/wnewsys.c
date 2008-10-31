@@ -51,6 +51,8 @@
    #include <shlobj.h>
 /* } */
 
+bool win_disable_screensaver = false;
+
 static ALLEGRO_SYSTEM_INTERFACE *vt = 0;
 static bool using_higher_res_timer;
 
@@ -425,6 +427,27 @@ static AL_CONST char *win_get_path(uint32_t id, char *dir, size_t size)
    return dir;
 }
 
+static bool win_get_screensaver_active(void)
+{
+   BOOL b;
+
+   /* check if user disabled screensaver first */
+   if (win_disable_screensaver)
+      return false;
+
+   /* query */
+   SystemParametersInfo(SPI_GETSCREENSAVEACTIVE, 0, &b, 0);
+
+   return b;
+}
+
+
+static void win_set_screensaver_active(bool active)
+{
+   win_disable_screensaver = !active;
+}
+
+
 static ALLEGRO_SYSTEM_INTERFACE *_al_system_win_driver(void)
 {
    if (vt) return vt;
@@ -444,6 +467,8 @@ static ALLEGRO_SYSTEM_INTERFACE *_al_system_win_driver(void)
    vt->get_monitor_info = win_get_monitor_info;
    vt->get_cursor_position = win_get_cursor_position;
    vt->get_path = win_get_path;
+   vt->get_screensaver_active = win_get_screensaver_active;
+   vt->set_screensaver_active = win_set_screensaver_active;
 
    TRACE("ALLEGRO_SYSTEM_INTERFACE created.\n");
 

@@ -11,6 +11,7 @@ if(SUPPORT_FONT)
     example(ex_pixelformat ${LIBS})
     example(ex_timer ${LIBS})
     example(ex_windows ${LIBS})
+    example(ex_disable_screensaver ${LIBS})
 endif(SUPPORT_FONT)
 
 if(SUPPORT_IIO)

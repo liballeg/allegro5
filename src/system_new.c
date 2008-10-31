@@ -214,4 +214,38 @@ AL_CONST char *al_get_path(uint32_t id, char *path, size_t size)
    return NULL;
 }
 
+
+/* Function: al_get_screensaver_active
+ *
+ * Returns whether or not the screensaver will activate or is active
+ * false means either the screensaver is inactive, or we don't know.
+ *
+ * See Also: <al_set_screensaver_active>
+ */
+bool al_get_screensaver_active(void)
+{
+   ASSERT(active_sysdrv);
+
+   if (active_sysdrv->vt->get_screensaver_active)
+      return active_sysdrv->vt->get_screensaver_active();
+
+   return false;
+}
+
+
+/* Function: al_set_screensaver_active
+ *
+ * Turns the screensaver on or off
+ *
+ * See Also: <al_get_screensaver_active>
+ */
+void al_set_screensaver_active(bool active)
+{
+   ASSERT(active_sysdrv);
+
+   if (active_sysdrv->vt->set_screensaver_active)
+      active_sysdrv->vt->set_screensaver_active(active);
+}
+
+
 /* vim: set sts=3 sw=3 et: */
