@@ -4,6 +4,72 @@ See `changes._tx` for changes in earlier versions of Allegro.  These lists
 serve as summaries; the full histories are in the Subversion repository.
 
 
+Changes from 4.9.5 to 4.9.6 (November 2008)
+===========================================
+
+The core developers this time were: Thomas Fjellstrom, Trent Gamblin, Evert
+Glebbeek, Peter Hull, Milan Mimica, Jon Rafkind, Peter Wang.
+
+Allegro 4.9.6 and onwards are licensed under the zlib licence (see
+LICENSE.txt).  This is a simple permissive free software licence, close in
+spirit to the 'giftware' licence, but is clearer and more well-known.
+
+General:
+
+-  Added filesystem hook (fshook) and path API functions.
+
+-  Many minor bug fixes.
+
+Graphics:
+
+-  Added allegro5/a5_opengl.h, which has to be included by programs
+   to use OpenGL specifics.  ALLEGRO_EXCLUDE_GLX and ALLEGRO_EXCLUDE_WGL can
+   be #defined to exclude GLX and WGL OpenGL extensions respectively.
+
+-  Added allegro/a5_direct3d.h, which has to be included by programs
+   to use D3D specifics.
+
+-  Fixed some drawing from and onto sub-bitmaps.
+
+-  Fixed blending with the wrong color in case of sub-bitmaps.
+
+-  Fixed a bug in the D3D driver where the transformation matrix was not
+   reset after drawing a bitmap.
+
+-  Added draw pixel to OpenGL driver.
+
+-  Added more OpenGL extensions and OpenGL 3.0 support.
+
+Config routines:
+
+-  Added al_config_create().
+
+-  Deleted al_config_set_global().  Made empty section name equivalent to
+   the global section.
+
+-  Read system wide and home directory config files on Unix
+   (Ryan Patterson).
+
+Events:
+
+-  Added support for injecting user-defined events into event queues.
+
+Audio addon:
+
+-  Made the ALSA driver read the device name from the config file (Ryan
+   Patterson).
+
+Examples:
+
+-  Added ex_subbitmap example.
+
+Build system:
+
+-  Rationalised library names and made CMake and SCons build systems
+   agree on the names.
+
+
+
 Changes from 4.9.4 to 4.9.5 (October 2008)
 ==========================================
 
