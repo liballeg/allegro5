@@ -34,6 +34,10 @@ set(DEMO_SRCS
     src/wave.cpp
     )
 
+file(GLOB_RECURSE DEMO_GFX data/gfx/*.tga)
+file(GLOB_RECURSE DEMO_SFX data/sfx/*.ogg)
+set(DEMO_ICON data/gfx/Icon.icns)
+
 if(USE_CXX AND SUPPORT_FONT AND SUPPORT_KCM_AUDIO AND SUPPORT_ACODEC)
     set_source_files_properties(${DEMO_SRCS} PROPERTIES LANGUAGE "CXX")
     include_directories(
@@ -43,10 +47,18 @@ if(USE_CXX AND SUPPORT_FONT AND SUPPORT_KCM_AUDIO AND SUPPORT_ACODEC)
         ../addons/acodec
         )
 
-    add_executable(demo ${EXECUTABLE_TYPE} ${DEMO_SRCS})
+    if(APPLE)
+	set(DEMO_EXECUTABLE_TYPE MACOSX_BUNDLE)
+    else(APPLE)
+	set(DEMO_EXECUTABLE_TYPE "${EXECUTABLE_TYPE}")
+    endif(APPLE)
+
+    add_executable(demo ${DEMO_EXECUTABLE_TYPE} ${DEMO_SRCS}
+	${DEMO_GFX} ${DEMO_SFX} ${DEMO_ICON})
     set_target_properties(demo PROPERTIES
         COMPILE_FLAGS "${MAYBE_ALLEGRO_STATICLINK} ${WFLAGS} ${EXE_CFLAGS}"
         )
+
     target_link_libraries(demo
         ${FONT_LINK_WITH}
         ${IIO_LINK_WITH}
@@ -54,28 +66,29 @@ if(USE_CXX AND SUPPORT_FONT AND SUPPORT_KCM_AUDIO AND SUPPORT_ACODEC)
         ${AUDIO_LINK_WITH}
         ${LINK_WITH}
         )
+
+    # Mac OS X bundle support.
+    set_target_properties(demo PROPERTIES
+	MACOSX_BUNDLE_COPYRIGHT "Copyright 2008 Allegro Developers"
+	MACOSX_BUNDLE_ICON_FILE "Icon.icns"
+	MACOSX_BUNDLE_INFO_STRING "4.9, Copyright 2008 Allegro Developers"
+	MACOSX_BUNDLE_SHORT_VERSION_STRING "4.9"
+	MACOSX_BUNDLE_LONG_VERSION_STRING "A5teroids v4.9"
+	MACOSX_BUNDLE_GUI_IDENTIFIER "org.liballeg.A5teroids"
+	)
+    set_source_files_properties(${DEMO_GFX} PROPERTIES
+	MACOSX_PACKAGE_LOCATION "Resources/data/gfx"
+	)
+    set_source_files_properties(${DEMO_SFX} PROPERTIES
+	MACOSX_PACKAGE_LOCATION "Resources/data/sfx"
+	)
+    set_source_files_properties(${DEMO_ICON} PROPERTIES
+        MACOSX_PACKAGE_LOCATION "Resources"
+	)
+
 else(USE_CXX AND SUPPORT_FONT AND SUPPORT_KCM_AUDIO AND SUPPORT_ACODEC)
     message(STATUS "Not building demo")
 endif(USE_CXX AND SUPPORT_FONT AND SUPPORT_KCM_AUDIO AND SUPPORT_ACODEC)
 
-if (MACOSX)
-FILE(GLOB_RECURSE GFX ${CMAKE_SOURCE_DIR}/demo/data/gfx/*.tga )
-FILE(GLOB_RECURSE SFX ${CMAKE_SOURCE_DIR}/demo/data/sfx/*.ogg)
-ADD_CUSTOM_COMMAND(TARGET demo 
-	POST_BUILD
-	COMMAND install -d ${CMAKE_BINARY_DIR}/demo/Demo.app/Contents/Resources/data/sfx
-	COMMAND install -d ${CMAKE_BINARY_DIR}/demo/Demo.app/Contents/Resources/data/gfx
-	COMMAND install -d ${CMAKE_BINARY_DIR}/demo/Demo.app/Contents/MacOS
-	COMMAND install ${CMAKE_BINARY_DIR}/demo/demo ${CMAKE_BINARY_DIR}/demo/Demo.app/Contents/MacOS
-	COMMAND install ${CMAKE_SOURCE_DIR}/demo/Icon.icns ${CMAKE_BINARY_DIR}/demo/Demo.app/Contents/Resources
-	COMMAND install ${CMAKE_SOURCE_DIR}/demo/Info.plist ${CMAKE_BINARY_DIR}/demo/Demo.app/Contents
-	COMMAND install ${GFX} ${CMAKE_BINARY_DIR}/demo/Demo.app/Contents/Resources/data/gfx
-	COMMAND install ${SFX} ${CMAKE_BINARY_DIR}/demo/Demo.app/Contents/Resources/data/sfx
-	VERBATIM
-)
-
-endif (MACOSX)
-
 #-----------------------------------------------------------------------------#
 # vi: set ts=8 sts=4 sw=4 et:
-
