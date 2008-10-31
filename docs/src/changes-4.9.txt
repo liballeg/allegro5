@@ -38,7 +38,7 @@ Graphics:
 
 -  Added draw pixel to OpenGL driver.
 
--  Added more OpenGL extensions and OpenGL 3.0 support.
+-  Added more OpenGL extensions.
 
 Config routines:
 
