@@ -40,6 +40,8 @@ Graphics:
 
 -  Added more OpenGL extensions.
 
+-  Added function to inhibit screen saver (currently Windows only).
+
 Config routines:
 
 -  Added al_config_create().
@@ -62,6 +64,8 @@ Audio addon:
 Examples:
 
 -  Added ex_subbitmap example.
+
+-  Added ex_disable_screensaver example.
 
 Build system:
 
