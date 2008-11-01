@@ -97,6 +97,7 @@ def examples(env):
     example("ex_bitmap_flip")
     example("ex_bitmap_target")
     example("ex_blend")
+    example("ex_disable_screensaver")
     example("ex_drawpixels")
     example("ex_dualies")
     example("ex_expose")
