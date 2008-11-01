@@ -51,7 +51,7 @@
    #include <shlobj.h>
 /* } */
 
-bool win_disable_screensaver = false;
+bool _al_win_disable_screensaver = false;
 
 static ALLEGRO_SYSTEM_INTERFACE *vt = 0;
 static bool using_higher_res_timer;
@@ -429,7 +429,7 @@ static AL_CONST char *win_get_path(uint32_t id, char *dir, size_t size)
 
 static void win_inhibit_screensaver(bool inhibit)
 {
-   win_disable_screensaver = inhibit;
+   _al_win_disable_screensaver = inhibit;
    return true;
 }
 

@@ -100,6 +100,8 @@ extern UINT _al_win_msg_suicide;
 AL_FUNC(void, _al_win_wnd_schedule_proc, (HWND wnd, void (*proc)(void*), void *param));
 AL_FUNC(void, _al_win_wnd_call_proc, (HWND wnd, void (*proc)(void*), void *param));
 
+extern bool _al_win_disable_screensaver;
+
 /* time */
 void _al_win_init_time(void);
 void _al_win_shutdown_time(void);
