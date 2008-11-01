@@ -199,18 +199,16 @@ static ALLEGRO_DISPLAY_INTERFACE *win_get_display_driver(void)
    ALLEGRO_SYSTEM *sys = al_system_driver();
    AL_CONST char *s;
 
-   if (flags & ALLEGRO_DIRECT3D) {
 #if defined ALLEGRO_CFG_D3D
+   if (flags & ALLEGRO_DIRECT3D) {
       return _al_display_d3d_driver();
-#endif
-      return NULL;
    }
-   else if (flags & ALLEGRO_OPENGL) {
+#endif
 #if defined ALLEGRO_CFG_OPENGL
+   if (flags & ALLEGRO_OPENGL) {
       return _al_display_wgl_driver();
-#endif
-      return NULL;
    }
+#endif
 
    if (sys->config) {
       s = al_config_get_value(sys->config, "graphics", "driver");
@@ -270,16 +268,16 @@ static int win_get_num_display_modes(void)
    if (!(flags & ALLEGRO_FULLSCREEN))
       return -1;
 
-   if (flags & ALLEGRO_OPENGL) {
 #if defined ALLEGRO_CFG_OPENGL
+   if (flags & ALLEGRO_OPENGL) {
       return _al_wgl_get_num_display_modes(format, refresh_rate, flags);
-#endif
    }
-   else {
+#endif
 #if defined ALLEGRO_CFG_D3D
+   if (flags & ALLEGRO_DIRECT3D) {
       return _al_d3d_get_num_display_modes(format, refresh_rate, flags);
-#endif
    }
+#endif
 
    return 0;
 }
@@ -294,16 +292,16 @@ static ALLEGRO_DISPLAY_MODE *win_get_display_mode(int index,
    if (!(flags & ALLEGRO_FULLSCREEN))
       return NULL;
 
-   if (flags & ALLEGRO_OPENGL) {
 #if defined ALLEGRO_CFG_OPENGL
+   if (flags & ALLEGRO_OPENGL) {
       return _al_wgl_get_display_mode(index, format, refresh_rate, flags, mode);
-#endif
    }
-   else {
+#endif
 #if defined ALLEGRO_CFG_D3D
+   if (flags & ALLEGRO_DIRECT3D) {
       return _al_d3d_get_display_mode(index, format, refresh_rate, flags, mode);
-#endif
    }
+#endif
 
 
    return NULL;
@@ -427,7 +425,7 @@ static AL_CONST char *win_get_path(uint32_t id, char *dir, size_t size)
    return dir;
 }
 
-static void win_inhibit_screensaver(bool inhibit)
+static bool win_inhibit_screensaver(bool inhibit)
 {
    _al_win_disable_screensaver = inhibit;
    return true;
