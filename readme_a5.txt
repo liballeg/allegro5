@@ -176,6 +176,8 @@ does not use timestamps, and in general will always know what to rebuild even
 if files are added/removed/renamed, options are changed, or even external
 dependencies are changed.
 
+You should use scons 1.0.0 or above.
+
 See the Allegro wiki for more info on the scons build system:
 <http://wiki.allegro.cc/Scons>
 
@@ -208,6 +210,8 @@ To install as a non-root user, you can do:
 To install all versions at once
 
 	$ scons install-everything
+
+
 
 Optional dependencies
 =====================
