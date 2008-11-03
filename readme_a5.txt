@@ -259,7 +259,8 @@ The documentation is all linked to from the wiki:
 <http://wiki.allegro.cc/NewAPI>
 
 If you have NaturalDocs installed you can build the documentation by
-running `make` in the `docs/naturaldocs` directory.
+running `make` in the `docs/naturaldocs` directory. You need at least
+version 1.4 of NaturalDocs.
 
 There is also the `docs/src/refman` directory, which doesn't contain
 much yet.
