@@ -851,7 +851,11 @@ static ALLEGRO_FS_ENTRY *al_fs_stdio_mktemp(const char *template,
 
    for (i=0; i<MAX_MKTEMP_TRIES; ++i) {
       _al_fs_mktemp_replace_XX(template, dest + tmpdir_len);
+#ifndef ALLEGRO_MSVC
       fd = open(dest, O_EXCL | O_CREAT | O_RDWR, S_IRWXU);
+#else
+      fd = open(dest, O_EXCL | O_CREAT | O_RDWR, _S_IWRITE | _S_IREAD);
+#endif
       if (fd == -1)
          continue;
 
