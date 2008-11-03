@@ -247,8 +247,11 @@ class Options:
             self.double = True
         self.path = os.path.join(context.getGlobalDir(), path)
         if not self.double:
-            options = [x.strip() for x in open(self.path)]
-            print("Re-using options (%s)" % ", ".join(options))
+            try:
+                options = [x.strip() for x in open(self.path)]
+                print("Re-using options (%s)" % ", ".join(options))
+            except IOError:
+                pass
         self.o = SCons.Options.Options(self.path, ARGUMENTS)
         
         self.nomem = {}
