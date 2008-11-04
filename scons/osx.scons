@@ -5,7 +5,13 @@ import helpers
 Import('context')
 Import('env')
 
-# context.setLibraryDir("lib/macosx")
+opts = helpers.Options(context, "options-osx.py", ARGUMENTS)
+
+opts.AddWithoutMemorize('config', "Force re-configuration of the build.", 0)
+
+opts.Update(env)
+opts.Save(env)
+Help(opts.GenerateHelpText(env))
 
 def getArgumentOption(name, default):
     arg = ARGUMENTS.get(name,default)
@@ -17,6 +23,15 @@ def getArgumentOption(name, default):
 def setupPlatform(platform, config):
     platform["ALLEGRO_MACOSX"] = True
     platform["ALLEGRO_CFG_OPENGL"] = True
+    platform["ALLEGRO_BIG_ENDIAN"] = config.CheckBigEndian()
+    platform["ALLEGRO_LITTLE_ENDIAN"] = config.CheckLittleEndian()
+    platform["ALLEGRO_HAVE_DIRENT_H"] = True
+    platform["ALLEGRO_HAVE_STDBOOL_H"] = True
+    platform["ALLEGRO_HAVE_STDINT_H"] = True
+    platform["ALLEGRO_HAVE_SYS_STAT_H"] = True
+    platform["ALLEGRO_HAVE_SYS_TYPES_H"] = True
+    platform["ALLEGRO_DARWIN"] = True
+
     return config.Finish()
 
 platform, configure_env = helpers.do_configure('osx', context,
@@ -41,12 +56,10 @@ shared_obj.add_emitter( '.m', SCons.Defaults.SharedObjectEmitter )
 env[ 'SHCCFLAGS' ] = SCons.Util.CLVar( '$CCFLAGS' )
 
 osxfiles = context.cmake["ALLEGRO_SRC_MACOSX_FILES"]
-# linuxfiles.remove("src/linux/fbcon.c")
 context.addFiles(osxfiles);
 
 context.addFiles(context.cmake["ALLEGRO_SRC_C_FILES"])
-# unixfiles = context.cmake["ALLEGRO_SRC_UNIX_FILES"]
-# context.add_files(unixfiles)
+context.addFiles(context.cmake["ALLEGRO_SRC_OPENGL_FILES"])
 
 env.BuildDir('include', '#include', duplicate = 0)
 
@@ -91,8 +104,8 @@ def makeExampleEnv():
     libs = [ 'lib/macosx/liballeg-main.a' ]
 
     def addFramework( name ):
-	linkflags.append( "-framework" )
-	linkflags.append( name )
+        linkflags.append("-framework")
+        linkflags.append(name)
 
 
     addFramework("Cocoa")
@@ -140,12 +153,11 @@ ALLEGRO_SHARED
 ALLEGRO_SRC
 """);
 
-linkflags = [ "-prebind", "-seg1addr", "0x30000000", "-compatibility_version", str(context.getVersion()), "-current_version", str(context.getVersion()), "-install_name", "liballeg-" + str(context.getVersion()) + ".dylib" ]
-# linkflags = [ "-seg1addr", "0x30000000", "-compatibility_version", str(context.getAllegroVersion()), "-current_version", str(context.getAllegroVersion()), "-install_name", "liballeg-" + str(context.getAllegroVersion()) + ".dylib" ]
+linkflags = [ "-prebind", "-seg1addr", "0x30000000", "-compatibility_version", str(context.getVersion()), "-current_version", str(context.getVersion()), "-install_name", "liballeg-" + str(context.getVersion()) + ".dylib", "-flat_namespace", "-undefined", "suppress" ]
 
 def addFramework( name ):
-	linkflags.append( "-framework" )
-	linkflags.append( name )
+    linkflags.append( "-framework" )
+    linkflags.append( name )
 
 addFramework( "Cocoa" )
 addFramework( "Carbon" )
