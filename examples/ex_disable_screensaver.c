@@ -40,7 +40,7 @@ int main(void)
             if (event.keyboard.keycode == ALLEGRO_KEY_ESCAPE)
                done = true;
             else if (event.keyboard.keycode == ALLEGRO_KEY_SPACE) {
-               if (al_inhibit_screensaver(!active)) {
+               if (al_inhibit_screensaver(active)) {
                   active = !active;
                }
             }
