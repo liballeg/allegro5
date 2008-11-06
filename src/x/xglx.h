@@ -54,6 +54,7 @@ struct ALLEGRO_SYSTEM_XGLX
    _AL_COND mapped; /* Condition variable to wait for mapping a window. */
    _AL_COND resized; /* Condition variable to wait for resizing a window. */
    bool pointer_grabbed; /* Is an XGrabPointer in effect? */
+   bool inhibit_screensaver; /* Should we inhibit the screensaver? */
 };
 
 /* This is our version of ALLEGRO_DISPLAY with driver specific extra data. */

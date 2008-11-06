@@ -89,6 +89,7 @@ static void xglx_background_thread(_AL_THREAD *self, void *arg)
 {
    ALLEGRO_SYSTEM_XGLX *s = arg;
    XEvent event;
+   double last_reset_screensaver_time = 0.0;
 
    while (!_al_thread_should_stop(self)) {
       /* Note:
@@ -115,10 +116,25 @@ static void xglx_background_thread(_AL_THREAD *self, void *arg)
        */
 
       _al_mutex_lock(&s->lock);
+
       while (XEventsQueued(s->x11display, QueuedAfterFlush)) {
          XNextEvent(s->x11display, &event);
          process_x11_event(s, event);
       }
+
+      /* The Xlib manual is particularly useless about the XResetScreenSaver()
+       * function.  Nevertheless, this does seem to work to inhibit the native
+       * screensaver facility.  Probably it won't do anything for other
+       * systems, though.
+       */
+      if (s->inhibit_screensaver) {
+         double now = al_current_time();
+         if (now - last_reset_screensaver_time > 10.0) {
+            XResetScreenSaver(s->x11display);
+            last_reset_screensaver_time = now;
+         }
+      }
+
       _al_mutex_unlock(&s->lock);
 
       /* If no X11 events are there, unlock so other threads can run. We use
@@ -171,6 +187,7 @@ static ALLEGRO_SYSTEM *xglx_initialize(int flags)
    _al_mutex_init_recursive(&s->lock);
    _al_cond_init(&s->mapped);
    _al_cond_init(&s->resized);
+   s->inhibit_screensaver = false;
 
    _al_vector_init(&s->system.displays, sizeof (ALLEGRO_SYSTEM_XGLX *));
 
@@ -290,6 +307,14 @@ static bool xglx_get_cursor_position(int *ret_x, int *ret_y)
    return true;
 }
 
+static bool xglx_inhibit_screensaver(bool inhibit)
+{
+   ALLEGRO_SYSTEM_XGLX *system = (void *)al_system_driver();
+
+   system->inhibit_screensaver = inhibit;
+   return true;
+}
+
 /* Internal function to get a reference to this driver. */
 ALLEGRO_SYSTEM_INTERFACE *_al_system_xglx_driver(void)
 {
@@ -310,6 +335,7 @@ ALLEGRO_SYSTEM_INTERFACE *_al_system_xglx_driver(void)
    xglx_vt->get_monitor_info = xglx_get_monitor_info;
    xglx_vt->get_cursor_position = xglx_get_cursor_position;
    xglx_vt->get_path = _unix_get_path;
+   xglx_vt->inhibit_screensaver = xglx_inhibit_screensaver;
 
    return xglx_vt;
 }
