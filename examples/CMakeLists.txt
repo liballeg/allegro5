@@ -58,15 +58,16 @@ endif(SUPPORT_ICODEC)
 
 
 example(ex_drawpixels NOTHING)
+example(ex_get_path NOTHING)
+example(ex_keyboard_focus NOTHING)
 example(ex_lines NOTHING)
 example(ex_lockscreen NOTHING)
 example(ex_monitorinfo NOTHING)
+example(ex_path NOTHING)
 example(ex_resize NOTHING)
 example(ex_threads NOTHING)
 example(ex_threads2 NOTHING)
 example(ex_timedwait NOTHING)
-example(ex_get_path NOTHING)
-example(ex_path NOTHING)
 example(ex_user_events NOTHING)
 
 if(SUPPORT_D3D)
