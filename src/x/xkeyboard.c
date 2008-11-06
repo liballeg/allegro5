@@ -48,6 +48,20 @@ static int _key_shifts;
 #define PREFIX_W                "al-xkey WARNING: "
 #define PREFIX_E                "al-xkey ERROR: "
 
+
+typedef struct ALLEGRO_KEYBOARD_XWIN
+{
+   ALLEGRO_KEYBOARD parent;
+   ALLEGRO_KEYBOARD_STATE state;
+} ALLEGRO_KEYBOARD_XWIN;
+
+
+
+/* the one and only keyboard object */
+static ALLEGRO_KEYBOARD_XWIN the_keyboard;
+
+
+
 #ifdef ALLEGRO_XWINDOWS_WITH_XIM
 static XIM xim = NULL;
 static XIC xic = NULL;
@@ -458,6 +472,28 @@ void _al_xwin_keyboard_handler(XKeyEvent *event, bool dga2_hack,
 
 
 
+/* _al_xwin_keyboard_switch_handler:
+ *  Handle a focus switch event.
+ */
+void _al_xwin_keyboard_switch_handler(ALLEGRO_DISPLAY *display,
+   const XFocusChangeEvent *event)
+{
+   _al_event_source_lock(&the_keyboard.parent.es);
+
+   switch (event->type) {
+      case FocusIn:
+         the_keyboard.state.display = display;
+         break;
+      case FocusOut:
+         the_keyboard.state.display = NULL;
+         break;
+   }
+
+   _al_event_source_unlock(&the_keyboard.parent.es);
+}
+
+
+
 /* find_allegro_key
  *  Search the translation table for the Allegro key corresponding to the
  *  given KeySym.
@@ -796,19 +832,6 @@ static void x_keyboard_exit(void)
  */
 
 
-typedef struct ALLEGRO_KEYBOARD_XWIN
-{
-   ALLEGRO_KEYBOARD parent;
-   ALLEGRO_KEYBOARD_STATE state;
-} ALLEGRO_KEYBOARD_XWIN;
-
-
-
-/* the one and only keyboard object */
-static ALLEGRO_KEYBOARD_XWIN the_keyboard;
-
-
-
 /* forward declarations */
 static bool xkeybd_init_keyboard(void);
 static void xkeybd_exit_keyboard(void);
@@ -1003,3 +1026,5 @@ static void handle_key_release(int mycode, ALLEGRO_DISPLAY *display)
    }
    _al_event_source_unlock(&the_keyboard.parent.es);
 }
+
+/* vim: set sts=3 sw=3 et: */

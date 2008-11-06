@@ -101,6 +101,8 @@ void _al_xwin_display_expose(ALLEGRO_DISPLAY *display, XExposeEvent *xevent);
 /* keyboard */
 void _al_xwin_keyboard_handler(XKeyEvent *event, bool dga2_hack,
    ALLEGRO_DISPLAY *display);
+void _al_xwin_keyboard_switch_handler(ALLEGRO_DISPLAY *display,
+   const XFocusChangeEvent *event);
 
 /* mouse */
 void _al_xwin_mouse_button_press_handler(int button, ALLEGRO_DISPLAY *display);
