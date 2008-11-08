@@ -57,6 +57,7 @@ if(SUPPORT_ICODEC)
 endif(SUPPORT_ICODEC)
 
 
+example(ex_config NOTHING)
 example(ex_drawpixels NOTHING)
 example(ex_get_path NOTHING)
 example(ex_keyboard_focus NOTHING)
