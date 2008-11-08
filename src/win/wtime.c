@@ -119,7 +119,8 @@ void _al_win_shutdown_time(void)
  */
 void al_rest(double seconds)
 {
-   ASSERT(seconds >= 0);
+   if (seconds <= 0)
+      return;
 
    Sleep((DWORD)(seconds * 1000.0));
 }
