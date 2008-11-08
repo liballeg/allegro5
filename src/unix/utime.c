@@ -59,6 +59,7 @@ double al_current_time(void)
 
 /* al_rest:
  *  Make the caller rest for some time.
+ *  Does nothing with values <= 0.
  */
 void al_rest(double seconds)
 {

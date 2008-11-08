@@ -116,6 +116,7 @@ void _al_win_shutdown_time(void)
 
 /* al_rest:
  *  Rests the specified amount of milliseconds.
+ *  Does nothing with values <= 0.
  */
 void al_rest(double seconds)
 {
