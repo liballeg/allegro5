@@ -36,6 +36,7 @@
    #define DIRECTINPUT_VERSION 0x0800
    #include <dinput.h>
    #include <process.h>
+   #include <wchar.h>
 #endif
 
 
@@ -788,6 +789,11 @@ static void handle_key_press(unsigned char scancode)
    else
    {
       unicode = 0;
+   }
+
+   /* Uppercase if shift/caps lock is on */
+   if ((key_modifiers & ALLEGRO_KEYMOD_SHIFT) || (key_modifiers & ALLEGRO_KEY_CAPSLOCK)) {
+      unicode = towupper(unicode);
    }
 
    is_repeat = _AL_KEYBOARD_STATE_KEY_DOWN(key_state, mycode);
