@@ -98,7 +98,7 @@ static ALLEGRO_CONFIG_ENTRY *find_entry(ALLEGRO_CONFIG_ENTRY *section_head,
    ALLEGRO_CONFIG_ENTRY *p = section_head;
 
    while (p != NULL) {
-      if (!strcmp(p->key, key)) {
+      if (p->key && !strcmp(p->key, key)) {
          return p;
       }
       p = p->next;
@@ -233,6 +233,45 @@ void al_config_set_value(ALLEGRO_CONFIG *config,
 }
 
 
+/* Function: al_config_set_value
+ *  Set a value in a section of a configuration.  If the section doesn't yet
+ *  exist, it will be created.  If a value already existed for the given key,
+ *  it will be overwritten.
+ *  The section can be NULL or "" for the global section.
+ */
+void al_config_add_comment(ALLEGRO_CONFIG *config,
+   const char *section, const char *value)
+{
+   ALLEGRO_CONFIG_SECTION *s;
+   ALLEGRO_CONFIG_ENTRY *entry;
+
+   if (section == NULL) {
+      section = "";
+   }
+
+   s = find_section(config, section);
+
+   entry = local_calloc1(sizeof(ALLEGRO_CONFIG_ENTRY));
+
+   entry->comment = local_strdup(value);
+   
+   if (!s) {
+      al_config_add_section(config, section);
+      s = find_section(config, section);
+   }
+
+   if (s->head == NULL) {
+      s->head = entry;
+   }
+   else {
+      ALLEGRO_CONFIG_ENTRY *p = s->head;
+      while (p->next != NULL)
+         p = p->next;
+      p->next = entry;
+   }
+}
+
+
 /* Function: al_config_get_value
  *  Gets a pointer to an internal character buffer that will only remain valid
  *  as long as the ALLEGRO_CONFIG structure is not destroyed. Copy the value
@@ -288,10 +327,13 @@ ALLEGRO_CONFIG *al_config_read(const char *filename)
 
    while (fgets(buffer, MAXSIZE, file)) {
       char *ptr = skip_whitespace(buffer);
-      if (*ptr == 0)
-         continue;
-      if (*ptr == '#')
-         continue;
+      if (*ptr == '#' || *ptr == 0) {
+         /* Preserve comments */
+         const char *name = current_section && current_section->name ?
+            current_section->name : "";
+         const char *comment = *ptr == 0 ? "\n" : ptr;
+         al_config_add_comment(config, name, comment);
+      }
       else if (*ptr == '[') {
          strcpy(section, ptr+1);
          for (i = strlen(section)-1; i >= 0; i--) {
@@ -313,6 +355,8 @@ ALLEGRO_CONFIG *al_config_read(const char *filename)
    }
 
    fclose(file);
+
+   al_config_write(config, "test.cfg");
 
    return config;
 }
@@ -338,8 +382,15 @@ int al_config_write(const ALLEGRO_CONFIG *config, const char *filename)
       if (strcmp(s->name, "") == 0) {
          e = s->head;
          while (e != NULL) {
-            if (fprintf(file, "%s=%s\n", e->key, e->value) < 0) {
-               goto Error;
+            if (e->comment != NULL) {
+               if (!fprintf(file, "%s", e->comment)) {
+                  goto Error;
+               }
+            }
+            else {
+               if (fprintf(file, "%s=%s\n", e->key, e->value) < 0) {
+                  goto Error;
+               }
             }
             e = e->next;
          }
@@ -357,8 +408,15 @@ int al_config_write(const ALLEGRO_CONFIG *config, const char *filename)
          }
          e = s->head;
          while (e != NULL) {
-            if (fprintf(file, "%s=%s\n", e->key, e->value) < 0) {
-               goto Error;
+            if (e->comment != NULL) {
+               if (!fprintf(file, "%s", e->comment)) {
+                  goto Error;
+               }
+            }
+            else {
+               if (fprintf(file, "%s=%s\n", e->key, e->value) < 0) {
+                  goto Error;
+               }
             }
             e = e->next;
          }

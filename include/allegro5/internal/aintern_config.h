@@ -4,6 +4,7 @@
 struct ALLEGRO_CONFIG_ENTRY {
    char *key;
    char *value;
+   char *comment;
    ALLEGRO_CONFIG_ENTRY *next;
 };
 
