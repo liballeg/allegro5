@@ -197,6 +197,9 @@ void al_config_set_value(ALLEGRO_CONFIG *config,
       section = "";
    }
 
+   ASSERT(key);
+   ASSERT(value);
+
    s = find_section(config, section);
    if (s) {
       entry = find_entry(s->head, key);
@@ -233,14 +236,13 @@ void al_config_set_value(ALLEGRO_CONFIG *config,
 }
 
 
-/* Function: al_config_set_value
- *  Set a value in a section of a configuration.  If the section doesn't yet
- *  exist, it will be created.  If a value already existed for the given key,
- *  it will be overwritten.
+/* Function: al_config_add_comment
+ *  Add a comment in a section of a configuration.  If the section doesn't yet
+ *  exist, it will be created.
  *  The section can be NULL or "" for the global section.
  */
 void al_config_add_comment(ALLEGRO_CONFIG *config,
-   const char *section, const char *value)
+   const char *section, const char *comment)
 {
    ALLEGRO_CONFIG_SECTION *s;
    ALLEGRO_CONFIG_ENTRY *entry;
@@ -249,11 +251,13 @@ void al_config_add_comment(ALLEGRO_CONFIG *config,
       section = "";
    }
 
+   ASSERT(comment);
+
    s = find_section(config, section);
 
    entry = local_calloc1(sizeof(ALLEGRO_CONFIG_ENTRY));
 
-   entry->comment = local_strdup(value);
+   entry->comment = local_strdup(comment);
    
    if (!s) {
       al_config_add_section(config, section);
@@ -329,9 +333,9 @@ ALLEGRO_CONFIG *al_config_read(const char *filename)
       char *ptr = skip_whitespace(buffer);
       if (*ptr == '#' || *ptr == 0) {
          /* Preserve comments */
-         const char *name = current_section && current_section->name ?
+         const char *name = (current_section && current_section->name) ?
             current_section->name : "";
-         const char *comment = *ptr == 0 ? "\n" : ptr;
+         const char *comment = (*ptr == 0) ? "\n" : ptr;
          al_config_add_comment(config, name, comment);
       }
       else if (*ptr == '[') {
@@ -355,8 +359,6 @@ ALLEGRO_CONFIG *al_config_read(const char *filename)
    }
 
    fclose(file);
-
-   al_config_write(config, "test.cfg");
 
    return config;
 }
@@ -439,12 +441,11 @@ Error:
 }
 
 
-/* Function: al_config_merge_into
- *  Merge one configuration structure into another.
- *  Values in configuration 'add' override those in 'master'.
- *  'master' is modified.
+/* do_config_merge_into:
+ *  Helper function for merging.
  */
-void al_config_merge_into(ALLEGRO_CONFIG *master, const ALLEGRO_CONFIG *add)
+void do_config_merge_into(ALLEGRO_CONFIG *master, const ALLEGRO_CONFIG *add,
+   bool merge_comments)
 {
    ALLEGRO_CONFIG_SECTION *s;
    ALLEGRO_CONFIG_ENTRY *e;
@@ -460,11 +461,29 @@ void al_config_merge_into(ALLEGRO_CONFIG *master, const ALLEGRO_CONFIG *add)
       al_config_add_section(master, s->name);
       e = s->head;
       while (e != NULL) {
-         al_config_set_value(master, s->name, e->key, e->value);
+         if (e->key) {
+            al_config_set_value(master, s->name, e->key, e->value);
+         }
+         else if (merge_comments) {
+            ASSERT(e->comment);
+            al_config_add_comment(master, s->name, e->comment);
+         }
          e = e->next;
       }
       s = s->next;
    }
+}
+
+
+/* Function: al_config_merge_into
+ *  Merge one configuration structure into another.
+ *  Values in configuration 'add' override those in 'master'.
+ *  'master' is modified.
+ *  Comments from 'add' are not retained.
+ */
+void al_config_merge_into(ALLEGRO_CONFIG *master, const ALLEGRO_CONFIG *add)
+{
+   do_config_merge_into(master, add, false);
 }
 
 
@@ -473,14 +492,15 @@ void al_config_merge_into(ALLEGRO_CONFIG *master, const ALLEGRO_CONFIG *add)
  *  configuration.  Values in configuration 'cfg2' override those in 'cfg1'.
  *  Neither of the input configuration structures are
  *  modified.
+ *  Comments from 'cfg2' are not retained.
  */
 ALLEGRO_CONFIG *al_config_merge(const ALLEGRO_CONFIG *cfg1,
     const ALLEGRO_CONFIG *cfg2)
 {
    ALLEGRO_CONFIG *config = al_config_create();
 
-   al_config_merge_into(config, cfg1);
-   al_config_merge_into(config, cfg2);
+   do_config_merge_into(config, cfg1, true);
+   do_config_merge_into(config, cfg2, false);
 
    return config;
 }
