@@ -222,7 +222,20 @@ static void osx_get_monitor_info(int adapter, ALLEGRO_MONITOR_INFO* info)
       info->y2 = (int) (rc.origin.y + rc.size.height);
    }
 }
-
+/* osx_inhibit_screensaver:
+ * Stops the screen dimming/screen saver activation if inhibit is true
+ * otherwise re-enable normal behaviour. The last call takes force (i.e 
+ * it does not count the calls to inhibit/uninhibit.
+ * Always returns true
+ */
+static bool osx_inhibit_screensaver(bool inhibit)
+{
+	// Send a message to the App's delegate always on the main thread
+	[[NSApp delegate] performSelectorOnMainThread: @selector(setInhibitScreenSaver:)
+		withObject: [NSNumber numberWithBool:inhibit ? YES : NO]
+		waitUntilDone: NO];
+	return true;
+}
 /* NSImageFromAllegroBitmap:
  * Create an NSImage from an Allegro bitmap
  * This could definitely be speeded up if necessary.
@@ -286,6 +299,7 @@ ALLEGRO_SYSTEM_INTERFACE *_al_system_osx_driver(void)
       vt->get_monitor_info = osx_get_monitor_info;
       vt->get_cursor_position = osx_get_cursor_position;
       vt->get_path = osx_get_path;
+	  vt->inhibit_screensaver = osx_inhibit_screensaver;
 	};
 		
 	return vt;

@@ -54,11 +54,17 @@ static BOOL in_bundle(void)
 
 
 @interface AllegroAppDelegate : NSObject
+{
+	NSTimer* activity;
+}
+- (void) dealloc;
 - (BOOL)application: (NSApplication *)theApplication openFile: (NSString *)filename;
 - (void)applicationDidFinishLaunching: (NSNotification *)aNotification;
 - (void)applicationDidChangeScreenParameters: (NSNotification *)aNotification;
 + (void)app_main: (id)arg;
 - (NSApplicationTerminateReply) applicationShouldTerminate: (id)sender;
+- (void) updateSystemActivity:(NSTimer*) timer;
+- (void) setInhibitScreenSaver: (NSNumber*) inhibit;
 @end
 
 @interface AllegroWindowDelegate : NSObject
@@ -68,6 +74,50 @@ static BOOL in_bundle(void)
 
 @implementation AllegroAppDelegate
 
+/* setInhibitScreenSaver:
+ * If inhibit is YES, set up an infrequent timer to call
+ * updateSystemActivity: to prevent the screen saver from activating
+ * Must be called from the main thread (osx_inhibit_screensaver ensures
+ * this)
+ * Has no effect if inhibit is YES and the timer is already active
+ * or if inhibit is NO and the timer is not active
+ */
+-(void) setInhibitScreenSaver: (NSNumber *) inhibit 
+{
+	if ([inhibit boolValue] == YES) {
+		if (activity == nil) {
+		// Schedule every 30 seconds
+			activity = [NSTimer scheduledTimerWithTimeInterval:30.0  
+				target:self 
+				selector:@selector(updateSystemActivity:) 
+				userInfo:nil 
+				repeats:YES]; 
+				[activity retain];
+				}
+				// else already active
+			}
+			else {
+			// OK to send message to nil if timer wasn't set.
+				[activity invalidate];
+				[activity release];
+				activity = nil;
+			}
+}
+/* updateSystemActivity:
+ * called by a timer to inform the system that there is still activity and 
+ * therefore do not dim the screen/start the screensaver
+ */
+-(void) updateSystemActivity: (NSTimer*) timer
+{
+	UpdateSystemActivity(UsrActivity);
+}
+
+-(void) dealloc
+{
+	[activity invalidate];
+	[activity release];
+	[super dealloc];
+}
 - (BOOL)application: (NSApplication *)theApplication openFile: (NSString *)filename
 {
 	arg1 = strdup([filename lossyCString]);
