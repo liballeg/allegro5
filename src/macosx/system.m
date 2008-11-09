@@ -53,7 +53,7 @@ static int osx_sys_set_close_button_callback(void (*proc)(void));
 static int osx_sys_set_display_switch_mode(int mode);
 static int osx_sys_desktop_color_depth(void);
 static int osx_sys_get_desktop_resolution(int *width, int *height);
-static AL_CONST char *osx_get_path(int32_t id, char* path, size_t length);
+static AL_CONST char *osx_get_path(uint32_t id, char* path, size_t length);
 
 
 /* Global variables */
@@ -302,8 +302,8 @@ void _al_register_system_interfaces()
    *add = _al_system_osx_driver();
 }
 
-/* Implentation of this function, not 'officially' in allegro yet */
-static AL_CONST char *osx_get_path(int32_t id, char* path, size_t length)
+/* Implentation of get_path */
+static AL_CONST char *osx_get_path(uint32_t id, char* path, size_t length)
 {
    NSString* ans = nil;
    NSArray* paths = nil;
