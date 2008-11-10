@@ -118,6 +118,7 @@ void al_start_thread(ALLEGRO_THREAD *outer)
          outer->thread_state = THREAD_STATE_STARTED;
          _al_cond_broadcast(&outer->cond);
          _al_mutex_unlock(&outer->mutex);
+         break;
       case THREAD_STATE_STARTED:
          break;
       /* invalid cases */
@@ -198,6 +199,7 @@ void al_destroy_thread(ALLEGRO_THREAD *outer)
       case THREAD_STATE_CREATED: /* fall through */
       case THREAD_STATE_STARTED:
          al_join_thread(outer, NULL);
+         break;
       case THREAD_STATE_JOINING:
          ASSERT(outer->thread_state != THREAD_STATE_JOINING);
          break;
