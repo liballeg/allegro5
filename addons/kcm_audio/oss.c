@@ -566,7 +566,7 @@ Error:
 }
 
 
-ALLEGRO_AUDIO_DRIVER _oss_driver =
+ALLEGRO_AUDIO_DRIVER _al_kcm_oss_driver =
 {
    "OSS",
 

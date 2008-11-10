@@ -451,7 +451,7 @@ static int _dsound_set_voice_position(ALLEGRO_VOICE *voice, unsigned long val)
    return 0;
 }
 
-ALLEGRO_AUDIO_DRIVER _dsound_driver = {
+ALLEGRO_AUDIO_DRIVER _al_kcm_dsound_driver = {
    "DirectSound",
 
    _dsound_open,

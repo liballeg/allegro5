@@ -22,16 +22,16 @@ void _al_set_error(int error, char* string)
 ALLEGRO_AUDIO_DRIVER *_al_kcm_driver = NULL;
 
 #if defined(ALLEGRO_CFG_KCM_OPENAL)
-   extern struct ALLEGRO_AUDIO_DRIVER _openal_driver;
+   extern struct ALLEGRO_AUDIO_DRIVER _al_kcm_openal_driver;
 #endif
 #if defined(ALLEGRO_CFG_KCM_ALSA)
-   extern struct ALLEGRO_AUDIO_DRIVER _alsa_driver;
+   extern struct ALLEGRO_AUDIO_DRIVER _al_kcm_alsa_driver;
 #endif
 #if defined(ALLEGRO_CFG_KCM_OSS)
-   extern struct ALLEGRO_AUDIO_DRIVER _oss_driver;
+   extern struct ALLEGRO_AUDIO_DRIVER _al_kcm_oss_driver;
 #endif
 #if defined(ALLEGRO_CFG_KCM_DSOUND)
-   extern struct ALLEGRO_AUDIO_DRIVER _dsound_driver;
+   extern struct ALLEGRO_AUDIO_DRIVER _al_kcm_dsound_driver;
 #endif
 
 /* Channel configuration helpers */
@@ -149,9 +149,9 @@ int al_audio_init(ALLEGRO_AUDIO_DRIVER_ENUM mode)
 
       case ALLEGRO_AUDIO_DRIVER_OPENAL:
          #if defined(ALLEGRO_CFG_KCM_OPENAL)
-            if (_openal_driver.open() == 0) {
+            if (_al_kcm_openal_driver.open() == 0) {
                fprintf(stderr, "Using OpenAL driver\n"); 
-               _al_kcm_driver = &_openal_driver;
+               _al_kcm_driver = &_al_kcm_openal_driver;
                return 0;
             }
             return 1;
@@ -162,9 +162,9 @@ int al_audio_init(ALLEGRO_AUDIO_DRIVER_ENUM mode)
 
       case ALLEGRO_AUDIO_DRIVER_ALSA:
          #if defined(ALLEGRO_CFG_KCM_ALSA)
-            if (_alsa_driver.open() == 0) {
+            if (_al_kcm_alsa_driver.open() == 0) {
                fprintf(stderr, "Using ALSA driver\n"); 
-               _al_kcm_driver = &_alsa_driver;
+               _al_kcm_driver = &_al_kcm_alsa_driver;
                return 0;
             }
             return 1;
@@ -175,9 +175,9 @@ int al_audio_init(ALLEGRO_AUDIO_DRIVER_ENUM mode)
 
       case ALLEGRO_AUDIO_DRIVER_OSS:
          #if defined(ALLEGRO_CFG_KCM_OSS)
-            if (_oss_driver.open() == 0) {
+            if (_al_kcm_oss_driver.open() == 0) {
                fprintf(stderr, "Using OSS driver\n");
-               _al_kcm_driver = &_oss_driver;
+               _al_kcm_driver = &_al_kcm_oss_driver;
                return 0;
             }
             return 1;
@@ -188,9 +188,9 @@ int al_audio_init(ALLEGRO_AUDIO_DRIVER_ENUM mode)
 
       case ALLEGRO_AUDIO_DRIVER_DSOUND:
          #if defined(ALLEGRO_CFG_KCM_DSOUND)
-            if (_dsound_driver.open() == 0) {
+            if (_al_kcm_dsound_driver.open() == 0) {
                fprintf(stderr, "Using DirectSound driver\n"); 
-               _al_kcm_driver = &_dsound_driver;
+               _al_kcm_driver = &_al_kcm_dsound_driver;
                return 0;
             }
             return 1;

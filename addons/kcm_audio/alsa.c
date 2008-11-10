@@ -523,7 +523,7 @@ static int alsa_set_voice_position(ALLEGRO_VOICE *voice, unsigned long val)
 }
 
 
-ALLEGRO_AUDIO_DRIVER _alsa_driver =
+ALLEGRO_AUDIO_DRIVER _al_kcm_alsa_driver =
 {
    "ALSA",
 

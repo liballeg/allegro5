@@ -20,18 +20,18 @@
 #include "allegro5/internal/aintern_kcm_audio.h"
 
 /* OpenAL vars */
-ALCdevice*  openal_dev;
-ALCcontext* openal_context;
-ALenum      openal_err;
-char  openal_err_str[64];
-ALCenum     alc_err;
-char  alc_err_str[64];
+static ALCdevice*  openal_dev;
+static ALCcontext* openal_context;
+static ALenum      openal_err;
+static char  openal_err_str[64];
+static ALCenum     alc_err;
+static char  alc_err_str[64];
 
 /* TODO: make these configurable */
-const size_t preferred_frag_size = 1024;
-const ALuint preferred_buf_count = 4;
+static const size_t preferred_frag_size = 1024;
+static const ALuint preferred_buf_count = 4;
 
-char* openal_get_err_str(ALenum err, int len_str, char* str)
+static char* openal_get_err_str(ALenum err, int len_str, char* str)
 {
    switch (err)
    {
@@ -61,7 +61,7 @@ char* openal_get_err_str(ALenum err, int len_str, char* str)
    return str;
 }
 
-char* alc_get_err_str(ALCenum err, int len_str, char* str)
+static char* alc_get_err_str(ALCenum err, int len_str, char* str)
 {
    switch (err)
    {
@@ -658,7 +658,7 @@ static int _openal_set_voice_position(ALLEGRO_VOICE *voice, unsigned long val)
    return 0;
 }
 
-ALLEGRO_AUDIO_DRIVER _openal_driver = {
+ALLEGRO_AUDIO_DRIVER _al_kcm_openal_driver = {
    "OpenAL",
 
    _openal_open,
