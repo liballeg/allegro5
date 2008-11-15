@@ -75,6 +75,10 @@ void _al_draw_bitmap_region_memory(ALLEGRO_BITMAP *bitmap,
       sh -= inc;
    }
 
+   if (sw <= 0 || sh <= 0) {
+      return;
+   }
+
    /* Handle sub bitmaps */
    if (dest->parent) {
       dx += dest->xofs;
