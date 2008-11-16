@@ -590,7 +590,6 @@ macro(add_allegro_build nm extra_flags)
     endif(MACOSX)
 
     macro(really_add_allegro_build nam target libtype more_extra_flags)
-        set(OUTPUT_LIBRARY ${nam})
         add_library(${target} ${libtype} ${LIBRARY_SOURCES})
         set_target_properties(${target}
             PROPERTIES
@@ -824,11 +823,11 @@ add_subdirectory(examples)
 if(UNIX)
 
     set(prefix "${CMAKE_INSTALL_PREFIX}")
-    set(INCLUDE_PREFIX "${prefix}")
+    set(INCLUDE_PREFIX "\${prefix}")
     # XXX these should be configurable separately
-    set(bindir "${prefix}/bin")
-    set(includedir "${prefix}/include")
-    set(libdir "${prefix}/lib")
+    set(bindir "\${exec_prefix}/bin")
+    set(includedir "\${prefix}/include")
+    set(libdir "\${exec_prefix}/lib")
 
     if(SHARED)
         set(LINK_WITH_STATIC_LIBS no)
