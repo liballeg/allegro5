@@ -38,7 +38,6 @@
 #elif defined ALLEGRO_WINAPI
 
    #define ALLEGRO_H
-   #include "allegro5/winalleg.h"
    #include "allegro5/platform/alwin.h"
 
 #elif defined ALLEGRO_INTERNALS
