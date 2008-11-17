@@ -44,6 +44,9 @@ Mac OS X
 ========
 
 We have an OpenGL graphics driver on Mac OS X as well.
+The only sound driver we have on OS X at the moment uses OpenAL, so this is
+required to get any sound at all on OS X. This should not normally be a
+problem since OpenAL should be installed by default.
 
 
 
