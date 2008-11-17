@@ -53,7 +53,7 @@ if(SUPPORT_OSS OR SUPPORT_OPENAL OR SUPPORT_ALSA OR SUPPORT_DSOUND)
             target_link_libraries(${target} ${AUDIO_LIBRARIES})
 
             install(TARGETS ${target}
-                    DESTINATION lib
+                    DESTINATION "lib${LIB_SUFFIX}"
                     LIBRARY PERMISSIONS
                         OWNER_READ OWNER_WRITE OWNER_EXECUTE
                         GROUP_READ             GROUP_EXECUTE

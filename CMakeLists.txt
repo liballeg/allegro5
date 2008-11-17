@@ -81,6 +81,10 @@ option(WANT_MAGIC_MAIN "Enable magic main" off)
 
 set(INSTALL_PREFIX "")
 
+# On some 64-bit platforms, libraries should be installed into `lib64'
+# instead of `lib'.  Set this to 64 to do that.
+set(LIB_SUFFIX "" CACHE STRING "Suffix for 'lib' directories, e.g. '64'")
+
 #
 # Platforms and drivers.
 #
@@ -601,7 +605,7 @@ macro(add_allegro_build nm extra_flags)
         target_link_libraries(${target} ${PLATFORM_LIBS})
 
         install(TARGETS ${target}
-                DESTINATION lib
+                DESTINATION "lib${LIB_SUFFIX}"
                 LIBRARY PERMISSIONS
                     OWNER_READ OWNER_WRITE OWNER_EXECUTE
                     GROUP_READ             GROUP_EXECUTE

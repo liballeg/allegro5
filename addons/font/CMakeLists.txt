@@ -12,7 +12,7 @@ macro(add_font_build nm extra_flags)
             )
 
         install(TARGETS ${target}
-                DESTINATION lib
+                DESTINATION "lib${LIB_SUFFIX}"
                 LIBRARY PERMISSIONS
                     OWNER_READ OWNER_WRITE OWNER_EXECUTE
                     GROUP_READ             GROUP_EXECUTE

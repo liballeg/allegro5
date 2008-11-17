@@ -98,7 +98,7 @@ macro(add_acodec_build nm extra_flags)
         target_link_libraries(${target} ${ACODEC_EXTRA_LIBS})
 
         install(TARGETS ${target}
-                DESTINATION lib
+                DESTINATION "lib${LIB_SUFFIX}"
                 LIBRARY PERMISSIONS
                     OWNER_READ OWNER_WRITE OWNER_EXECUTE
                     GROUP_READ             GROUP_EXECUTE
