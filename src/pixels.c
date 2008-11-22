@@ -457,6 +457,12 @@ ALLEGRO_COLOR al_get_pixel(ALLEGRO_BITMAP *bitmap, int x, int y)
    ALLEGRO_LOCKED_REGION lr;
    ALLEGRO_COLOR color;
 
+   if (bitmap->parent) {
+      x += bitmap->xofs;
+      y += bitmap->yofs;
+      bitmap = bitmap->parent;
+   }
+
    if (bitmap->locked) {
       x -= bitmap->lock_x;
       y -= bitmap->lock_y;
@@ -801,6 +807,12 @@ void _al_put_pixel(ALLEGRO_BITMAP *bitmap, int x, int y, ALLEGRO_COLOR color)
 {
    ALLEGRO_LOCKED_REGION lr;
    int color_value;
+
+   if (bitmap->parent) {
+       x += bitmap->xofs;
+       y += bitmap->yofs;
+       bitmap = bitmap->parent;
+   }
 
    color_value = _al_get_pixel_value(bitmap->format, &color);
 
