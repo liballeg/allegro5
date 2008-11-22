@@ -48,7 +48,8 @@ static void ogl_clear(ALLEGRO_DISPLAY *d, ALLEGRO_COLOR *color)
    ALLEGRO_BITMAP_OGL *ogl_target = (void *)target;
    unsigned char r, g, b, a;
 
-   if (!ogl_target->is_backbuffer && ogl_disp->ogl_extras->opengl_target != ogl_target) {
+   if ((!ogl_target->is_backbuffer && ogl_disp->ogl_extras->opengl_target != ogl_target)
+     || target->locked) {
       _al_clear_memory(color);
       return;
    }
@@ -68,7 +69,8 @@ static void ogl_draw_pixel(ALLEGRO_DISPLAY *d, float x, float y,
    ALLEGRO_BITMAP *target = al_get_target_bitmap();
    ALLEGRO_BITMAP_OGL *ogl_target = (void *)target;
 
-   if (!ogl_target->is_backbuffer && ogl_disp->ogl_extras->opengl_target != ogl_target) {
+   if ((!ogl_target->is_backbuffer && ogl_disp->ogl_extras->opengl_target != ogl_target)
+      || target->locked)  {
       _al_draw_pixel_memory(target, x, y, color);
       return;
    }
@@ -95,7 +97,8 @@ static void ogl_draw_line(ALLEGRO_DISPLAY *d, float fx, float fy,
    ALLEGRO_BITMAP *target = al_get_target_bitmap();
    ALLEGRO_BITMAP_OGL *ogl_target = (void *)target;
 
-   if (!ogl_target->is_backbuffer && ogl_disp->ogl_extras->opengl_target != ogl_target) {
+   if ((!ogl_target->is_backbuffer && ogl_disp->ogl_extras->opengl_target != ogl_target)
+      || target->locked) {
       _al_draw_line_memory(fx, fy, tx, ty, color);
       return;
    }
@@ -125,7 +128,8 @@ static void ogl_draw_rectangle(ALLEGRO_DISPLAY *d, float tlx, float tly,
    ALLEGRO_BITMAP *target = al_get_target_bitmap();
    ALLEGRO_BITMAP_OGL *ogl_target = (void *)target;
 
-   if (!ogl_target->is_backbuffer && ogl_disp->ogl_extras->opengl_target != ogl_target) {
+   if ((!ogl_target->is_backbuffer && ogl_disp->ogl_extras->opengl_target != ogl_target)
+     || target->locked) {
       _al_draw_rectangle_memory(tlx, tly, brx, bry, color, flags);
       return;
    }

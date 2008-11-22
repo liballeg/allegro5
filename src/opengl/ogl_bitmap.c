@@ -151,7 +151,7 @@ static void ogl_draw_bitmap(ALLEGRO_BITMAP *bitmap, float x, float y,
    ALLEGRO_BITMAP *target = al_get_target_bitmap();
    ALLEGRO_BITMAP_OGL *ogl_target = (ALLEGRO_BITMAP_OGL *)target;
    ALLEGRO_DISPLAY *disp = (void *)al_get_current_display();
-   if (disp->ogl_extras->opengl_target != ogl_target) {
+   if (disp->ogl_extras->opengl_target != ogl_target || target->locked) {
       _al_draw_bitmap_memory(bitmap, x, y, flags);
       return;
    }
@@ -176,7 +176,7 @@ static void ogl_draw_scaled_bitmap(ALLEGRO_BITMAP *bitmap, float sx, float sy,
    ALLEGRO_BITMAP *target = al_get_target_bitmap();
    ALLEGRO_BITMAP_OGL *ogl_target = (ALLEGRO_BITMAP_OGL *)target;
    ALLEGRO_DISPLAY *disp = (void *)al_get_current_display();
-   if (disp->ogl_extras->opengl_target != ogl_target) {
+   if (disp->ogl_extras->opengl_target != ogl_target || target->locked) {
       _al_draw_scaled_bitmap_memory(bitmap, sx, sy, sw, sh, dx, dy, dw, dh,
                                     flags);
       return;
@@ -201,7 +201,7 @@ static void ogl_draw_bitmap_region(ALLEGRO_BITMAP *bitmap, float sx, float sy,
    ALLEGRO_BITMAP *target = al_get_target_bitmap();
    ALLEGRO_BITMAP_OGL *ogl_target = (ALLEGRO_BITMAP_OGL *)target;
    ALLEGRO_DISPLAY *disp = (void *)al_get_current_display();
-   if (disp->ogl_extras->opengl_target != ogl_target) {
+   if (disp->ogl_extras->opengl_target != ogl_target || target->locked) {
       _al_draw_bitmap_region_memory(bitmap, sx, sy, sw, sh, dx, dy, flags);
       return;
    }
@@ -225,7 +225,7 @@ static void ogl_draw_rotated_bitmap(ALLEGRO_BITMAP *bitmap, float cx, float cy,
    ALLEGRO_BITMAP *target = al_get_target_bitmap();
    ALLEGRO_BITMAP_OGL *ogl_target = (ALLEGRO_BITMAP_OGL *)target;
    ALLEGRO_DISPLAY *disp = (void *)al_get_current_display();
-   if (disp->ogl_extras->opengl_target != ogl_target) {
+   if (disp->ogl_extras->opengl_target != ogl_target || target->locked) {
       _al_draw_rotated_bitmap_memory(bitmap, cx, cy, dx, dy, angle, flags);
       return;
    }
@@ -251,7 +251,7 @@ static void ogl_draw_rotated_scaled_bitmap(ALLEGRO_BITMAP *bitmap,
    ALLEGRO_BITMAP *target = al_get_target_bitmap();
    ALLEGRO_BITMAP_OGL *ogl_target = (ALLEGRO_BITMAP_OGL *)target;
    ALLEGRO_DISPLAY *disp = (void *)al_get_current_display();
-   if (disp->ogl_extras->opengl_target != ogl_target) {
+   if (disp->ogl_extras->opengl_target != ogl_target || target->locked) {
       _al_draw_rotated_scaled_bitmap_memory(bitmap, cx, cy, dx, dy,
                                             xscale, yscale, angle, flags);
       return;
