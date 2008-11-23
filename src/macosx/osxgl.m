@@ -104,6 +104,7 @@ void _al_osx_keyboard_was_installed(BOOL install) {
 /* Window delegate methods */
 -(void) windowDidBecomeMain:(NSNotification*) notification;
 -(void) windowDidResignMain:(NSNotification*) notification;
+-(void) windowDidResize:(NSNotification*) notification;
 @end
 
 /* ALWindow:
@@ -349,6 +350,25 @@ void _al_osx_mouse_was_installed(BOOL install) {
 	evt.type = ALLEGRO_EVENT_DISPLAY_SWITCH_OUT;
 	_al_event_source_emit_event(src, &evt);
 	_al_event_source_unlock(src);
+}
+-(void) windowDidResize:(NSNotification*) notification
+{
+	ALLEGRO_DISPLAY_OSX_WIN* dpy =  (ALLEGRO_DISPLAY_OSX_WIN*) dpy_ptr;
+   NSWindow *window = dpy->win;
+   NSRect rc = [window frame];
+   NSRect content = [window contentRectForFrameRect: rc];
+   ALLEGRO_EVENT_SOURCE *es = &dpy->parent.es;
+
+   _al_event_source_lock(es);
+   if (_al_event_source_needs_to_generate_event(es)) {
+      ALLEGRO_EVENT event;
+      event.display.type = ALLEGRO_EVENT_DISPLAY_RESIZE;
+      event.display.timestamp = al_current_time();
+      event.display.width = NSWidth(content);
+      event.display.height = NSHeight(content);
+      _al_event_source_emit_event(es, &event);
+   }
+   _al_event_source_unlock(es);
 }
 /* End of ALOpenGLView implementation */
 @end
