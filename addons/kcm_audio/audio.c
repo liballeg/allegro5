@@ -35,18 +35,18 @@ ALLEGRO_AUDIO_DRIVER *_al_kcm_driver = NULL;
 #endif
 
 /* Channel configuration helpers */
-bool al_is_channel_conf(ALLEGRO_CHANNEL_CONF conf)
+bool al_is_channel_configuredigured(ALLEGRO_CHANNEL_CONF conf)
 {
    return ((conf >= ALLEGRO_CHANNEL_CONF_1) && (conf <= ALLEGRO_CHANNEL_CONF_7_1));
 }
 
-size_t al_channel_count(ALLEGRO_CHANNEL_CONF conf)
+size_t al_get_channel_count(ALLEGRO_CHANNEL_CONF conf)
 {
    return (conf>>4)+(conf&0xF);
 }
 
 /* Depth configuration helpers */
-size_t al_depth_size(ALLEGRO_AUDIO_DEPTH depth)
+size_t al_get_depth_size(ALLEGRO_AUDIO_DEPTH depth)
 {
    switch (depth) {
       case ALLEGRO_AUDIO_DEPTH_INT8:
@@ -113,7 +113,7 @@ static ALLEGRO_AUDIO_DRIVER_ENUM get_config_audio_driver(void)
  * can create a voice with them.. if not
  * try another driver.
  */
-int al_audio_init(ALLEGRO_AUDIO_DRIVER_ENUM mode)
+int al_install_audio(ALLEGRO_AUDIO_DRIVER_ENUM mode)
 {
    int retVal = 0;
 
@@ -129,19 +129,19 @@ int al_audio_init(ALLEGRO_AUDIO_DRIVER_ENUM mode)
 
    switch (mode) {
       case ALLEGRO_AUDIO_DRIVER_AUTODETECT:
-         retVal = al_audio_init(ALLEGRO_AUDIO_DRIVER_ALSA);
+         retVal = al_install_audio(ALLEGRO_AUDIO_DRIVER_ALSA);
          if (retVal == 0)
             return 0;
-         retVal = al_audio_init(ALLEGRO_AUDIO_DRIVER_DSOUND);
+         retVal = al_install_audio(ALLEGRO_AUDIO_DRIVER_DSOUND);
          if (retVal == 0)
             return 0;
-         retVal = al_audio_init(ALLEGRO_AUDIO_DRIVER_OSS);
+         retVal = al_install_audio(ALLEGRO_AUDIO_DRIVER_OSS);
          if (retVal == 0)
             return 0;
          /* Disfavour the OpenAL driver as it doesn't play stereo samples
           * with their stereo separation.
           */
-         retVal = al_audio_init(ALLEGRO_AUDIO_DRIVER_OPENAL);
+         retVal = al_install_audio(ALLEGRO_AUDIO_DRIVER_OPENAL);
          if (retVal == 0)
             return 0;
          _al_kcm_driver = NULL;
@@ -206,7 +206,7 @@ int al_audio_init(ALLEGRO_AUDIO_DRIVER_ENUM mode)
 
 }
 
-void al_audio_deinit()
+void al_uninstall_audio()
 {
    if (_al_kcm_driver)
       _al_kcm_driver->close();

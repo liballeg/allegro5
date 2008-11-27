@@ -67,7 +67,7 @@ bool loadResources(void)
    }
 
    /* For some reason dsound needs a window... */
-   al_audio_init(ALLEGRO_AUDIO_DRIVER_AUTODETECT);
+   al_install_audio(ALLEGRO_AUDIO_DRIVER_AUTODETECT);
 
    if (!rm.add(new Player(), false)) {
    	printf("Failed to create player.\n");
@@ -141,21 +141,21 @@ bool init(void)
       return false;
    }
 
-   voice = al_voice_create(44100, ALLEGRO_AUDIO_DEPTH_INT16, ALLEGRO_CHANNEL_CONF_2);
-   mixer = al_mixer_create(44100, ALLEGRO_AUDIO_DEPTH_FLOAT32, ALLEGRO_CHANNEL_CONF_2);
-   al_voice_attach_mixer(voice, mixer);
+   voice = al_create_voice(44100, ALLEGRO_AUDIO_DEPTH_INT16, ALLEGRO_CHANNEL_CONF_2);
+   mixer = al_create_mixer(44100, ALLEGRO_AUDIO_DEPTH_FLOAT32, ALLEGRO_CHANNEL_CONF_2);
+   al_attach_mixer_to_voice(voice, mixer);
    
    ResourceManager& rm = ResourceManager::getInstance();
 
    for (int i = RES_SAMPLE_START; i < RES_SAMPLE_END; i++) {
       ALLEGRO_SAMPLE *s = (ALLEGRO_SAMPLE *)rm.getData(i);
-      al_mixer_attach_sample(mixer, s);
+      al_attach_sample_to_mixer(mixer, s);
    }
 
    for (int i = RES_STREAM_START; i < RES_STREAM_END; i++) {
       ALLEGRO_STREAM *s = (ALLEGRO_STREAM *)rm.getData(i);
-      al_mixer_attach_stream(mixer, s); 
-      al_stream_set_bool(s, ALLEGRO_AUDIOPROP_PLAYING, false);
+      al_attach_stream_to_mixer(mixer, s); 
+      al_set_stream_booll(s, ALLEGRO_AUDIOPROP_PLAYING, false);
    }
 
    return true;
@@ -172,7 +172,7 @@ void done(void)
    // Free resources
    ResourceManager::getInstance().destroy();
    al_mixer_destroy(mixer);
-   al_voice_destroy(voice);
+   al_destroy_voice(voice);
 }
 
 // Returns a random number between lo and hi

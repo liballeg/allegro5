@@ -94,7 +94,7 @@ ALLEGRO_SAMPLE_DATA *al_load_sample_oggvorbis(const char *filename)
    ov_clear(&vf);
    fclose(file);
 
-   sample = al_sample_data_create(buffer, total_samples, rate,
+   sample = al_create_sample_data(buffer, total_samples, rate,
       _al_word_size_to_depth_conf(word_size),
       _al_count_to_channel_conf(channels), true);
 
@@ -211,7 +211,7 @@ ALLEGRO_STREAM *al_load_stream_oggvorbis(size_t buffer_count,
    TRACE("ogg:     total_samples %ld\n", total_samples);
    TRACE("ogg:     total_size %ld\n", total_size);
 
-   stream = al_stream_create(buffer_count, samples, rate,
+   stream = al_create_stream(buffer_count, samples, rate,
             _al_word_size_to_depth_conf(word_size),
             _al_count_to_channel_conf(channels));
 

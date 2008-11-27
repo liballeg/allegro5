@@ -105,7 +105,7 @@ ALLEGRO_SAMPLE_DATA *al_load_sample_sndfile(const char *filename)
 
    sf_close(sndfile);
 
-   sample = al_sample_data_create(buffer, total_samples, rate, depth,
+   sample = al_create_sample_data(buffer, total_samples, rate, depth,
          _al_count_to_channel_conf(channels), true);
 
    /* XXX set error if !sample */
@@ -121,8 +121,8 @@ static size_t _sndfile_stream_update(ALLEGRO_STREAM *stream, void *data,
    ALLEGRO_AUDIO_DEPTH depth = stream->spl.spl_data.depth;
 
    SNDFILE *sndfile = (SNDFILE *) stream->extra;
-   bytes_per_sample = al_channel_count(stream->spl.spl_data.chan_conf)
-                    * al_depth_size(depth);
+   bytes_per_sample = al_get_channel_count(stream->spl.spl_data.chan_conf)
+                    * al_get_depth_size(depth);
    samples = buf_size / bytes_per_sample;
 
    if (depth == ALLEGRO_AUDIO_DEPTH_INT16) {
@@ -205,7 +205,7 @@ ALLEGRO_STREAM *al_load_stream_sndfile(size_t buffer_count,
    TRACE("      total_samples %ld\n", total_samples);
    TRACE("      total_size %ld\n", total_size);
 
-   stream = al_stream_create(buffer_count, samples, rate, depth,
+   stream = al_create_stream(buffer_count, samples, rate, depth,
                              _al_count_to_channel_conf(channels));
 
    stream->extra = sndfile;

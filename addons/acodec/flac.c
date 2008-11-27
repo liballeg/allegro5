@@ -164,7 +164,7 @@ ALLEGRO_SAMPLE_DATA *al_load_sample_flac(const char *filename)
       return NULL;
    }
 
-   sample = al_sample_data_create(ff.buffer, ff.total_samples, ff.sample_rate,
+   sample = al_create_sample_data(ff.buffer, ff.total_samples, ff.sample_rate,
       _al_word_size_to_depth_conf(ff.word_size),
       _al_count_to_channel_conf(ff.channels), true);
 
@@ -189,7 +189,7 @@ ALLEGRO_STREAM *al_load_stream_flac(const char *filename)
 {
    return NULL;
 /*
-   stream = al_stream_create(ff.sample_rate,
+   stream = al_create_stream(ff.sample_rate,
                      _al_word_size_to_depth_conf(ff.word_size),
                      _al_count_to_channel_conf(ff.channels),
                      _flac_stream_update);

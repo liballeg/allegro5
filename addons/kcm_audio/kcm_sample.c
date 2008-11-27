@@ -97,7 +97,7 @@ void _al_kcm_detach_from_parent(ALLEGRO_SAMPLE *spl)
       return;
 
    if (spl->parent.is_voice) {
-      al_voice_detach(spl->parent.u.voice);
+      al_detach_voice(spl->parent.u.voice);
       return;
    }
    
@@ -128,12 +128,12 @@ void _al_kcm_detach_from_parent(ALLEGRO_SAMPLE *spl)
 }
 
 
-/* Function: al_sample_data_create
+/* Function: al_create_sample_data
  *  Create a sample data structure from the supplied buffer.
  *  If `free_buf' is true then the buffer will be freed as well when the
  *  sample data structure is destroyed.
  */
-ALLEGRO_SAMPLE_DATA *al_sample_data_create(void *buf, unsigned long samples,
+ALLEGRO_SAMPLE_DATA *al_create_sample_data(void *buf, unsigned long samples,
    unsigned long freq, ALLEGRO_AUDIO_DEPTH depth,
    ALLEGRO_CHANNEL_CONF chan_conf, bool free_buf)
 {
@@ -164,14 +164,14 @@ ALLEGRO_SAMPLE_DATA *al_sample_data_create(void *buf, unsigned long samples,
 }
 
 
-/* Function: al_sample_data_destroy
+/* Function: al_destroy_sample_data
  *  Free the sample data structure. If it was created with the `free_buf'
  *  parameter set to true, then the buffer will be freed as well.
  *
  *  You must destroy any ALLEGRO_SAMPLE structures which reference
  *  this ALLEGRO_SAMPLE_DATA beforehand.
  */
-void al_sample_data_destroy(ALLEGRO_SAMPLE_DATA *spl)
+void al_destroy_sample_data(ALLEGRO_SAMPLE_DATA *spl)
 {
    if (spl) {
       if (spl->free_buf && spl->buffer.ptr) {
@@ -184,13 +184,13 @@ void al_sample_data_destroy(ALLEGRO_SAMPLE_DATA *spl)
 }
 
 
-/* Function: al_sample_create
+/* Function: al_create_sample
  *  Creates a sample stream, using the supplied data.  This must be attached
  *  to a voice or mixer before it can be played.
  *  The argument may be NULL. You can then set the data later with
- *  <al_sample_set_data>.
+ *  <al_set_sample_data>.
  */
-ALLEGRO_SAMPLE *al_sample_create(ALLEGRO_SAMPLE_DATA *sample_data)
+ALLEGRO_SAMPLE *al_create_sample(ALLEGRO_SAMPLE_DATA *sample_data)
 {
    ALLEGRO_SAMPLE *spl;
 
@@ -225,12 +225,12 @@ ALLEGRO_SAMPLE *al_sample_create(ALLEGRO_SAMPLE_DATA *sample_data)
 }
 
 
-/* Function: al_sample_destroy
+/* Function: al_destroy_sample
  *  Detaches the sample stream from anything it may be attached to and frees
  *  it (the sample data is *not* freed!).
  */
 /* This function is ALLEGRO_MIXER aware */
-void al_sample_destroy(ALLEGRO_SAMPLE *spl)
+void al_destroy_sample(ALLEGRO_SAMPLE *spl)
 {
    if (spl) {
       _al_kcm_detach_from_parent(spl);
@@ -239,29 +239,29 @@ void al_sample_destroy(ALLEGRO_SAMPLE *spl)
 }
 
 
-/* Function: al_sample_play
+/* Function: al_play_sample
  */
-int al_sample_play(ALLEGRO_SAMPLE *spl)
+int al_play_sample(ALLEGRO_SAMPLE *spl)
 {
    ASSERT(spl);
 
-   return al_sample_set_bool(spl, ALLEGRO_AUDIOPROP_PLAYING, true);
+   return al_set_sample_bool(spl, ALLEGRO_AUDIOPROP_PLAYING, true);
 }
 
 
-/* Function: al_sample_stop
+/* Function: al_stop_sample
  */
-int al_sample_stop(ALLEGRO_SAMPLE *spl)
+int al_stop_sample(ALLEGRO_SAMPLE *spl)
 {
    ASSERT(spl);
 
-   return al_sample_set_bool(spl, ALLEGRO_AUDIOPROP_PLAYING, false);
+   return al_set_sample_bool(spl, ALLEGRO_AUDIOPROP_PLAYING, false);
 }
 
 
-/* Function: al_sample_get_long
+/* Function: al_get_sample_long
  */
-int al_sample_get_long(const ALLEGRO_SAMPLE *spl,
+int al_get_sample_long(const ALLEGRO_SAMPLE *spl,
    ALLEGRO_AUDIO_PROPERTY setting, unsigned long *val)
 {
    ASSERT(spl);
@@ -278,7 +278,7 @@ int al_sample_get_long(const ALLEGRO_SAMPLE *spl,
       case ALLEGRO_AUDIOPROP_POSITION:
          if (spl->parent.u.ptr && spl->parent.is_voice) {
             ALLEGRO_VOICE *voice = spl->parent.u.voice;
-            return al_voice_get_long(voice, ALLEGRO_AUDIOPROP_POSITION, val);
+            return al_get_voice_long(voice, ALLEGRO_AUDIOPROP_POSITION, val);
          }
 
          *val = spl->pos >> MIXER_FRAC_SHIFT;
@@ -292,9 +292,9 @@ int al_sample_get_long(const ALLEGRO_SAMPLE *spl,
 }
 
 
-/* Function: al_sample_get_float
+/* Function: al_get_sample_float
  */
-int al_sample_get_float(const ALLEGRO_SAMPLE *spl,
+int al_get_sample_float(const ALLEGRO_SAMPLE *spl,
    ALLEGRO_AUDIO_PROPERTY setting, float *val)
 {
    ASSERT(spl);
@@ -321,9 +321,9 @@ int al_sample_get_float(const ALLEGRO_SAMPLE *spl,
 }
 
 
-/* Function: al_sample_get_enum
+/* Function: al_get_sample_enum
  */
-int al_sample_get_enum(const ALLEGRO_SAMPLE *spl,
+int al_get_sample_enum(const ALLEGRO_SAMPLE *spl,
    ALLEGRO_AUDIO_PROPERTY setting, int *val)
 {
    ASSERT(spl);
@@ -349,9 +349,9 @@ int al_sample_get_enum(const ALLEGRO_SAMPLE *spl,
 }
 
 
-/* Function: al_sample_get_bool
+/* Function: al_get_sample_bool
  */
-int al_sample_get_bool(const ALLEGRO_SAMPLE *spl,
+int al_get_sample_bool(const ALLEGRO_SAMPLE *spl,
    ALLEGRO_AUDIO_PROPERTY setting, bool *val)
 {
    ASSERT(spl);
@@ -360,7 +360,7 @@ int al_sample_get_bool(const ALLEGRO_SAMPLE *spl,
       case ALLEGRO_AUDIOPROP_PLAYING:
          if (spl->parent.u.ptr && spl->parent.is_voice) {
             ALLEGRO_VOICE *voice = spl->parent.u.voice;
-            return al_voice_get_bool(voice, ALLEGRO_AUDIOPROP_PLAYING, val);
+            return al_get_voice_bool(voice, ALLEGRO_AUDIOPROP_PLAYING, val);
          }
 
          *val = spl->is_playing;
@@ -378,9 +378,9 @@ int al_sample_get_bool(const ALLEGRO_SAMPLE *spl,
 }
 
 
-/* Function: al_sample_get_ptr
+/* Function: al_get_sample_ptr
  */
-int al_sample_get_ptr(const ALLEGRO_SAMPLE *spl,
+int al_get_sample_ptr(const ALLEGRO_SAMPLE *spl,
    ALLEGRO_AUDIO_PROPERTY setting, void **val)
 {
    ASSERT(spl);
@@ -394,9 +394,9 @@ int al_sample_get_ptr(const ALLEGRO_SAMPLE *spl,
 }
 
 
-/* Function: al_sample_set_long
+/* Function: al_set_sample_long
  */
-int al_sample_set_long(ALLEGRO_SAMPLE *spl,
+int al_set_sample_long(ALLEGRO_SAMPLE *spl,
    ALLEGRO_AUDIO_PROPERTY setting, unsigned long val)
 {
    ASSERT(spl);
@@ -405,7 +405,7 @@ int al_sample_set_long(ALLEGRO_SAMPLE *spl,
       case ALLEGRO_AUDIOPROP_POSITION:
          if (spl->parent.u.ptr && spl->parent.is_voice) {
             ALLEGRO_VOICE *voice = spl->parent.u.voice;
-            if (al_voice_set_long(voice, ALLEGRO_AUDIOPROP_POSITION, val) != 0)
+            if (al_set_voice_long(voice, ALLEGRO_AUDIOPROP_POSITION, val) != 0)
                return 1;
          }
          else {
@@ -433,9 +433,9 @@ int al_sample_set_long(ALLEGRO_SAMPLE *spl,
 }
 
 
-/* Function: al_sample_set_float
+/* Function: al_set_sample_float
  */
-int al_sample_set_float(ALLEGRO_SAMPLE *spl,
+int al_set_sample_float(ALLEGRO_SAMPLE *spl,
    ALLEGRO_AUDIO_PROPERTY setting, float val)
 {
    ASSERT(spl);
@@ -508,9 +508,9 @@ int al_sample_set_float(ALLEGRO_SAMPLE *spl,
 }
 
 
-/* Function: al_sample_set_enum
+/* Function: al_set_sample_enum
  */
-int al_sample_set_enum(ALLEGRO_SAMPLE *spl,
+int al_set_sample_enum(ALLEGRO_SAMPLE *spl,
    ALLEGRO_AUDIO_PROPERTY setting, int val)
 {
    ASSERT(spl);
@@ -552,9 +552,9 @@ int al_sample_set_enum(ALLEGRO_SAMPLE *spl,
 }
 
 
-/* Function: al_sample_set_bool
+/* Function: al_set_sample_bool
  */
-int al_sample_set_bool(ALLEGRO_SAMPLE *spl,
+int al_set_sample_bool(ALLEGRO_SAMPLE *spl,
    ALLEGRO_AUDIO_PROPERTY setting, bool val)
 {
    ASSERT(spl);
@@ -575,9 +575,9 @@ int al_sample_set_bool(ALLEGRO_SAMPLE *spl,
             ALLEGRO_VOICE *voice = spl->parent.u.voice;
 
             /* FIXME: there is no else. what does this do? */
-            if (al_voice_set_bool(voice, ALLEGRO_AUDIOPROP_PLAYING, val) == 0) {
+            if (al_set_voice_bool(voice, ALLEGRO_AUDIOPROP_PLAYING, val) == 0) {
                unsigned long pos = spl->pos >> MIXER_FRAC_SHIFT;
-               if (al_voice_get_long(voice, ALLEGRO_AUDIOPROP_POSITION, &pos) == 0)
+               if (al_get_voice_long(voice, ALLEGRO_AUDIOPROP_POSITION, &pos) == 0)
                {
                   spl->pos = pos << MIXER_FRAC_SHIFT;
                   spl->is_playing = val;
@@ -613,9 +613,9 @@ int al_sample_set_bool(ALLEGRO_SAMPLE *spl,
 }
 
 
-/* Function: al_sample_set_ptr
+/* Function: al_set_sample_ptr
  */
-int al_sample_set_ptr(ALLEGRO_SAMPLE *spl,
+int al_set_sample_ptr(ALLEGRO_SAMPLE *spl,
    ALLEGRO_AUDIO_PROPERTY setting, void *val)
 {
    ASSERT(spl);
@@ -629,7 +629,7 @@ int al_sample_set_ptr(ALLEGRO_SAMPLE *spl,
 }
 
 
-/* Function: al_sample_set_data
+/* Function: al_set_sample_data
  *  Change the sample data that a sample plays.  This can be quite an involved
  *  process.
  *
@@ -649,7 +649,7 @@ int al_sample_set_ptr(ALLEGRO_SAMPLE *spl,
  *  Returns zero on success, non-zero on failure.  On failure, the sample will
  *  be stopped and detached from its parent.
  */
-int al_sample_set_data(ALLEGRO_SAMPLE *spl, ALLEGRO_SAMPLE_DATA *data)
+int al_set_sample_data(ALLEGRO_SAMPLE *spl, ALLEGRO_SAMPLE_DATA *data)
 {
    sample_parent_t old_parent;
    bool need_reattach;
@@ -658,7 +658,7 @@ int al_sample_set_data(ALLEGRO_SAMPLE *spl, ALLEGRO_SAMPLE_DATA *data)
 
    /* Stop the sample if it is playing. */
    if (spl->is_playing) {
-      if (al_sample_set_bool(spl, ALLEGRO_AUDIOPROP_PLAYING, false) != 0) {
+      if (al_set_sample_bool(spl, ALLEGRO_AUDIOPROP_PLAYING, false) != 0) {
          /* Shouldn't happen. */
          ASSERT(false);
          return 1;
@@ -695,13 +695,13 @@ int al_sample_set_data(ALLEGRO_SAMPLE *spl, ALLEGRO_SAMPLE_DATA *data)
 
    if (need_reattach) {
       if (old_parent.is_voice) {
-         if (al_voice_attach_sample(old_parent.u.voice, spl) != 0) {
+         if (al_attach_sample_to_voice(old_parent.u.voice, spl) != 0) {
             spl->spl_data.buffer.ptr = NULL;
             return 1;
          }
       }
       else {
-         if (al_mixer_attach_sample(old_parent.u.mixer, spl) != 0) {
+         if (al_attach_sample_to_mixer(old_parent.u.mixer, spl) != 0) {
             spl->spl_data.buffer.ptr = NULL;
             return 1;
          }

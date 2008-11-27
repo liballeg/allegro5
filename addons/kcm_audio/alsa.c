@@ -400,8 +400,8 @@ static int alsa_allocate_voice(ALLEGRO_VOICE *voice)
    if (!ex_data)
       return 1;
 
-   chan_count = al_channel_count(voice->chan_conf);
-   ex_data->frame_size = chan_count * al_depth_size(voice->depth);
+   chan_count = al_get_channel_count(voice->chan_conf);
+   ex_data->frame_size = chan_count * al_get_depth_size(voice->depth);
    if (!ex_data->frame_size)
       goto Error;
 

@@ -34,12 +34,12 @@ int main(int argc, char **argv)
        return 1;
    }
 
-   if (al_audio_init(ALLEGRO_AUDIO_DRIVER_AUTODETECT)) {
+   if (al_install_audio(ALLEGRO_AUDIO_DRIVER_AUTODETECT)) {
        fprintf(stderr, "Could not init sound!\n");
        return 1;
    }
 
-   voice = al_voice_create(44100, ALLEGRO_AUDIO_DEPTH_INT16,
+   voice = al_create_voice(44100, ALLEGRO_AUDIO_DEPTH_INT16,
                            ALLEGRO_CHANNEL_CONF_2);
    if (!voice) {
       fprintf(stderr, "Could not create ALLEGRO_VOICE.\n");
@@ -48,7 +48,7 @@ int main(int argc, char **argv)
    fprintf(stderr, "Voice created.\n");
 
 #ifndef BYPASS_MIXER
-   mixer = al_mixer_create(44100, ALLEGRO_AUDIO_DEPTH_FLOAT32,
+   mixer = al_create_mixer(44100, ALLEGRO_AUDIO_DEPTH_FLOAT32,
                            ALLEGRO_CHANNEL_CONF_2);
    if (!mixer) {
       fprintf(stderr, "Could not create ALLEGRO_MIXER.\n");
@@ -56,8 +56,8 @@ int main(int argc, char **argv)
    }
    fprintf(stderr, "Mixer created.\n");
 
-   if (al_voice_attach_mixer(voice, mixer) != 0) {
-      fprintf(stderr, "al_voice_attach_mixer failed.\n");
+   if (al_attach_mixer_to_voice(voice, mixer) != 0) {
+      fprintf(stderr, "al_attach_mixer_to_voice failed.\n");
       return 1;
    }
 #endif
@@ -77,13 +77,13 @@ int main(int argc, char **argv)
       fprintf(stderr, "Stream created from '%s'.\n", filename);
 
 #ifndef BYPASS_MIXER
-      if (al_mixer_attach_stream(mixer, stream) != 0) {
-         fprintf(stderr, "al_mixer_attach_stream failed.\n");
+      if (al_attach_stream_to_mixer(mixer, stream) != 0) {
+         fprintf(stderr, "al_attach_stream_to_mixer failed.\n");
          continue;
       }
 #else
-      if (al_voice_attach_stream(voice, stream) != 0) {
-         fprintf(stderr, "al_voice_attach_stream failed.\n");
+      if (al_attach_stream_to_voice(voice, stream) != 0) {
+         fprintf(stderr, "al_attach_stream_to_voice failed.\n");
          return 1;
       }
 #endif
@@ -91,20 +91,20 @@ int main(int argc, char **argv)
       fprintf(stderr, "Playing %s ... Waiting for stream to finish ", filename);
       do {
          al_rest(0.1);
-         al_stream_get_bool(stream, ALLEGRO_AUDIOPROP_PLAYING, &playing);
+         al_get_stream_bool(stream, ALLEGRO_AUDIOPROP_PLAYING, &playing);
       }
       while (playing);
       fprintf(stderr, "\n");
 
-      al_stream_destroy(stream);
+      al_destroy_stream(stream);
    }
 
 #ifndef BYPASS_MIXER
    al_mixer_destroy(mixer);
 #endif
-   al_voice_destroy(voice);
+   al_destroy_voice(voice);
 
-   al_audio_deinit();
+   al_uninstall_audio();
 
    return 0;
 }

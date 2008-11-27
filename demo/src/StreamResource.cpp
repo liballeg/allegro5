@@ -4,7 +4,7 @@ void StreamResource::destroy(void)
 {
    if (!stream)
       return;
-   al_stream_destroy(stream);
+   al_destroy_stream(stream);
    stream = 0;
 }
 

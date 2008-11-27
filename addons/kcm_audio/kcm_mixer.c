@@ -38,8 +38,8 @@ static float *_al_rechannel_matrix(ALLEGRO_CHANNEL_CONF orig,
    /* Max 7.1 (8 channels) for input and output */
    static float mat[ALLEGRO_MAX_CHANNELS][ALLEGRO_MAX_CHANNELS];
 
-   size_t dst_chans = al_channel_count(target);
-   size_t src_chans = al_channel_count(orig);
+   size_t dst_chans = al_get_channel_count(target);
+   size_t src_chans = al_get_channel_count(orig);
    size_t i, j;
 
    /* Start with a simple identity matrix */
@@ -115,8 +115,8 @@ void _al_kcm_mixer_rejig_sample_matrix(ALLEGRO_MIXER *mixer,
    mat = _al_rechannel_matrix(spl->spl_data.chan_conf,
       mixer->ss.spl_data.chan_conf, spl->gain);
 
-   dst_chans = al_channel_count(mixer->ss.spl_data.chan_conf);
-   src_chans = al_channel_count(spl->spl_data.chan_conf);
+   dst_chans = al_get_channel_count(mixer->ss.spl_data.chan_conf);
+   src_chans = al_get_channel_count(spl->spl_data.chan_conf);
 
    spl->matrix = calloc(1, src_chans * dst_chans * sizeof(float));
 
@@ -196,7 +196,7 @@ static bool fix_looped_position(ALLEGRO_SAMPLE *spl)
             stream->spl.is_playing = false;
          }
 
-         al_stream_get_long(stream, ALLEGRO_AUDIOPROP_USED_FRAGMENTS, &count);
+         al_get_stream_long(stream, ALLEGRO_AUDIOPROP_USED_FRAGMENTS, &count);
          if (count)
             _al_kcm_emit_stream_event(stream, count);
 
@@ -414,7 +414,7 @@ static void read_to_mixer_##interp##bits(void *source, void **vbuf,           \
 {                                                                             \
    ALLEGRO_SAMPLE *spl = (ALLEGRO_SAMPLE *)source;                            \
    float *buf = *vbuf;                                                        \
-   size_t maxc = al_channel_count(spl->spl_data.chan_conf);                   \
+   size_t maxc = al_get_channel_count(spl->spl_data.chan_conf);                   \
    size_t samples_l = *samples;                                               \
    size_t c;                                                                  \
                                                                               \
@@ -477,7 +477,7 @@ void _al_kcm_mixer_read(void *source, void **buf, unsigned long *samples,
 {
    const ALLEGRO_MIXER *mixer;
    ALLEGRO_MIXER *m = (ALLEGRO_MIXER *)source;
-   int maxc = al_channel_count(m->ss.spl_data.chan_conf);
+   int maxc = al_get_channel_count(m->ss.spl_data.chan_conf);
    unsigned long samples_l = *samples;
    int i;
 
@@ -592,12 +592,12 @@ void _al_kcm_mixer_read(void *source, void **buf, unsigned long *samples,
 }
 
 
-/* Function: al_mixer_create
+/* Function: al_create_mixer
  *  Creates a mixer stream, to attach sample streams or other mixers to. It
  *  will mix into a buffer at the requested frequency and channel count.
  *  Only floating point mixing is currently supported.
  */
-ALLEGRO_MIXER *al_mixer_create(unsigned long freq,
+ALLEGRO_MIXER *al_create_mixer(unsigned long freq,
    ALLEGRO_AUDIO_DEPTH depth, ALLEGRO_CHANNEL_CONF chan_conf)
 {
    ALLEGRO_MIXER *mixer;
@@ -645,14 +645,14 @@ ALLEGRO_MIXER *al_mixer_create(unsigned long freq,
  */
 void al_mixer_destroy(ALLEGRO_MIXER *mixer)
 {
-   al_sample_destroy(&mixer->ss);
+   al_destroy_sample(&mixer->ss);
 }
 
 
-/* Function: al_mixer_attach_sample
+/* Function: al_attach_sample_to_mixer
  */
 /* This function is ALLEGRO_MIXER aware */
-int al_mixer_attach_sample(ALLEGRO_MIXER *mixer, ALLEGRO_SAMPLE *spl)
+int al_attach_sample_to_mixer(ALLEGRO_MIXER *mixer, ALLEGRO_SAMPLE *spl)
 {
    ALLEGRO_SAMPLE **slot;
 
@@ -724,23 +724,23 @@ int al_mixer_attach_sample(ALLEGRO_MIXER *mixer, ALLEGRO_SAMPLE *spl)
 }
 
 
-/* Function: al_mixer_attach_stream
+/* Function: al_attach_stream_to_mixer
  */
-int al_mixer_attach_stream(ALLEGRO_MIXER *mixer, ALLEGRO_STREAM *stream)
+int al_attach_stream_to_mixer(ALLEGRO_MIXER *mixer, ALLEGRO_STREAM *stream)
 {
    ASSERT(mixer);
    ASSERT(stream);
 
-   return al_mixer_attach_sample(mixer, &stream->spl);
+   return al_attach_sample_to_mixer(mixer, &stream->spl);
 }
 
 
-/* Function: al_mixer_attach_mixer
+/* Function: al_attach_mixer_to_mixer
  *  Attaches a mixer onto another mixer. The same rules as with
- *  <al_mixer_attach_sample> apply, with the added caveat that both
+ *  <al_attach_sample_to_mixer> apply, with the added caveat that both
  *  mixers must be the same frequency.
  */
-int al_mixer_attach_mixer(ALLEGRO_MIXER *mixer, ALLEGRO_MIXER *stream)
+int al_attach_mixer_to_mixer(ALLEGRO_MIXER *mixer, ALLEGRO_MIXER *stream)
 {
    ASSERT(mixer);
    ASSERT(stream);
@@ -751,7 +751,7 @@ int al_mixer_attach_mixer(ALLEGRO_MIXER *mixer, ALLEGRO_MIXER *stream)
       return 1;
    }
 
-   return al_mixer_attach_sample(mixer, &stream->ss);
+   return al_attach_sample_to_mixer(mixer, &stream->ss);
 }
 
 
@@ -774,9 +774,9 @@ int al_mixer_set_postprocess_callback(ALLEGRO_MIXER *mixer,
 }
 
 
-/* Function: al_mixer_get_long
+/* Function: al_get_mixer_long
  */
-int al_mixer_get_long(const ALLEGRO_MIXER *mixer,
+int al_get_mixer_long(const ALLEGRO_MIXER *mixer,
    ALLEGRO_AUDIO_PROPERTY setting, unsigned long *val)
 {
    ASSERT(mixer);
@@ -794,9 +794,9 @@ int al_mixer_get_long(const ALLEGRO_MIXER *mixer,
 }
 
 
-/* Function: al_mixer_get_enum
+/* Function: al_get_mixer_enum
  */
-int al_mixer_get_enum(const ALLEGRO_MIXER *mixer,
+int al_get_mixer_enum(const ALLEGRO_MIXER *mixer,
    ALLEGRO_AUDIO_PROPERTY setting, int *val)
 {
    ASSERT(mixer);
@@ -822,9 +822,9 @@ int al_mixer_get_enum(const ALLEGRO_MIXER *mixer,
 }
 
 
-/* Function: al_mixer_get_bool
+/* Function: al_get_mixer_bool
  */
-int al_mixer_get_bool(const ALLEGRO_MIXER *mixer,
+int al_get_mixer_bool(const ALLEGRO_MIXER *mixer,
    ALLEGRO_AUDIO_PROPERTY setting, bool *val)
 {
    ASSERT(mixer);
@@ -846,9 +846,9 @@ int al_mixer_get_bool(const ALLEGRO_MIXER *mixer,
 }
 
 
-/* Function: al_mixer_set_long
+/* Function: al_set_mixer_long
  */
-int al_mixer_set_long(ALLEGRO_MIXER *mixer,
+int al_set_mixer_long(ALLEGRO_MIXER *mixer,
    ALLEGRO_AUDIO_PROPERTY setting, unsigned long val)
 {
    ASSERT(mixer);
@@ -874,9 +874,9 @@ int al_mixer_set_long(ALLEGRO_MIXER *mixer,
 }
 
 
-/* Function: al_mixer_set_enum
+/* Function: al_set_mixer_enum
  */
-int al_mixer_set_enum(ALLEGRO_MIXER *mixer,
+int al_set_mixer_enum(ALLEGRO_MIXER *mixer,
    ALLEGRO_AUDIO_PROPERTY setting, int val)
 {
    ASSERT(mixer);
@@ -943,9 +943,9 @@ static void mixer_change_quality(ALLEGRO_MIXER *mixer,
 }
 
 
-/* Function: al_mixer_set_bool
+/* Function: al_set_mixer_bool
  */
-int al_mixer_set_bool(ALLEGRO_MIXER *mixer,
+int al_set_mixer_bool(ALLEGRO_MIXER *mixer,
    ALLEGRO_AUDIO_PROPERTY setting, bool val)
 {
    ASSERT(mixer);

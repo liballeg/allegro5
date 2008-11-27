@@ -27,7 +27,7 @@ int main(int argc, char **argv)
        return 1;
    }
 
-   if (al_audio_init(ALLEGRO_AUDIO_DRIVER_AUTODETECT)) {
+   if (al_install_audio(ALLEGRO_AUDIO_DRIVER_AUTODETECT)) {
        fprintf(stderr, "Could not init sound!\n");
        return 1;
    }
@@ -41,22 +41,22 @@ int main(int argc, char **argv)
       return 1;
 
    /* a voice is used for playback */
-   voice = al_voice_create(44100, ALLEGRO_AUDIO_DEPTH_INT16,
+   voice = al_create_voice(44100, ALLEGRO_AUDIO_DEPTH_INT16,
       ALLEGRO_CHANNEL_CONF_2);
    if (!voice) {
       fprintf(stderr, "Could not create ALLEGRO_VOICE from sample\n");
       return 1;
    }
 
-   mixer = al_mixer_create(44100, ALLEGRO_AUDIO_DEPTH_FLOAT32,
+   mixer = al_create_mixer(44100, ALLEGRO_AUDIO_DEPTH_FLOAT32,
       ALLEGRO_CHANNEL_CONF_2);
    if (!mixer) {
-      fprintf(stderr, "al_mixer_create failed.\n");
+      fprintf(stderr, "al_create_mixer failed.\n");
       return 1;
    }
 
-   if (al_voice_attach_mixer(voice, mixer) != 0) {
-      TRACE("al_voice_attach_mixer failed.\n");
+   if (al_attach_mixer_to_voice(voice, mixer) != 0) {
+      TRACE("al_attach_mixer_to_voice failed.\n");
       return 1;
    }
 
@@ -72,16 +72,16 @@ int main(int argc, char **argv)
          continue;
       }
 
-      sample[i] = al_sample_create(sample_data[i]);
+      sample[i] = al_create_sample(sample_data[i]);
       if (!sample[i]) {
          fprintf(stderr, "Could not create sample!\n");
-	 al_sample_data_destroy(sample_data[i]);
+	 al_destroy_sample_data(sample_data[i]);
 	 sample_data[i] = NULL;
 	 continue;
       }
 
-      if (al_mixer_attach_sample(mixer, sample[i]) != 0) {
-         fprintf(stderr, "al_mixer_attach_sample failed.\n");
+      if (al_attach_sample_to_mixer(mixer, sample[i]) != 0) {
+         fprintf(stderr, "al_attach_sample_to_mixer failed.\n");
          continue;
       }
    }
@@ -96,9 +96,9 @@ int main(int argc, char **argv)
 	 continue;
 
       /* play each sample once */
-      al_sample_play(sample[i]);
+      al_play_sample(sample[i]);
 
-      al_sample_get_float(sample[i], ALLEGRO_AUDIOPROP_TIME, &sample_time);
+      al_get_sample_float(sample[i], ALLEGRO_AUDIOPROP_TIME, &sample_time);
       fprintf(stderr, "Playing '%s' (%.3f seconds)\n", filename, sample_time);
 
       if (sample_time > longest_sample)
@@ -110,18 +110,18 @@ int main(int argc, char **argv)
    for (i = 1; i < argc; ++i) {
       /* free the memory allocated when creating the sample + voice */
       if (sample[i]) {
-         al_sample_stop(sample[i]);
-         al_sample_destroy(sample[i]);
-	 al_sample_data_destroy(sample_data[i]);
+         al_stop_sample(sample[i]);
+         al_destroy_sample(sample[i]);
+	 al_destroy_sample_data(sample_data[i]);
       }
    }
    al_mixer_destroy(mixer);
-   al_voice_destroy(voice);
+   al_destroy_voice(voice);
 
    free(sample);
    free(sample_data);
 
-   al_audio_deinit();
+   al_uninstall_audio();
 
    return 0;
 }

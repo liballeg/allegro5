@@ -25,33 +25,33 @@ int main(int argc, char **argv)
       return 1;
    }
 
-   if (al_audio_init(ALLEGRO_AUDIO_DRIVER_AUTODETECT)) {
+   if (al_install_audio(ALLEGRO_AUDIO_DRIVER_AUTODETECT)) {
       fprintf(stderr, "Could not init sound!\n");
       return 1;
    }
 
-   voice = al_voice_create(44100, ALLEGRO_AUDIO_DEPTH_INT16,
+   voice = al_create_voice(44100, ALLEGRO_AUDIO_DEPTH_INT16,
       ALLEGRO_CHANNEL_CONF_2);
    if (!voice) {
       fprintf(stderr, "Could not create ALLEGRO_VOICE.\n");
       return 1;
    }
 
-   mixer = al_mixer_create(44100, ALLEGRO_AUDIO_DEPTH_FLOAT32,
+   mixer = al_create_mixer(44100, ALLEGRO_AUDIO_DEPTH_FLOAT32,
       ALLEGRO_CHANNEL_CONF_2);
    if (!mixer) {
-      fprintf(stderr, "al_mixer_create failed.\n");
+      fprintf(stderr, "al_create_mixer failed.\n");
       return 1;
    }
 
-   if (al_voice_attach_mixer(voice, mixer) != 0) {
-      fprintf(stderr, "al_voice_attach_mixer failed.\n");
+   if (al_attach_mixer_to_voice(voice, mixer) != 0) {
+      fprintf(stderr, "al_attach_mixer_to_voice failed.\n");
       return 1;
    }
 
-   sample = al_sample_create(NULL);
+   sample = al_create_sample(NULL);
    if (!sample) {
-      fprintf(stderr, "al_sample_create failed.\n");
+      fprintf(stderr, "al_create_sample failed.\n");
       return 1;
    }
 
@@ -68,50 +68,50 @@ int main(int argc, char **argv)
          continue;
       }
 
-      if (al_sample_set_data(sample, sample_data) != 0) {
-         fprintf(stderr, "al_sample_set_ptr failed.\n");
+      if (al_set_sample_data(sample, sample_data) != 0) {
+         fprintf(stderr, "al_set_sample_ptr failed.\n");
          continue;
       }
 
-      if (al_mixer_attach_sample(mixer, sample) != 0) {
-         fprintf(stderr, "al_mixer_attach_sample failed.\n");
+      if (al_attach_sample_to_mixer(mixer, sample) != 0) {
+         fprintf(stderr, "al_attach_sample_to_mixer failed.\n");
          return 1;
       }
 
       /* Play sample in looping mode. */
-      al_sample_set_enum(sample, ALLEGRO_AUDIOPROP_LOOPMODE,
+      al_set_sample_enum(sample, ALLEGRO_AUDIOPROP_LOOPMODE,
          ALLEGRO_PLAYMODE_ONEDIR);
-      al_sample_play(sample);
+      al_play_sample(sample);
 
-      al_sample_get_float(sample, ALLEGRO_AUDIOPROP_TIME, &sample_time);
+      al_get_sample_float(sample, ALLEGRO_AUDIOPROP_TIME, &sample_time);
       fprintf(stderr, "Playing '%s' (%.3f seconds) 3 times", filename,
          sample_time);
 
       al_rest(sample_time);
 
-      if (al_sample_set_float(sample, ALLEGRO_AUDIOPROP_GAIN, 0.5) != 0) {
+      if (al_set_sample_float(sample, ALLEGRO_AUDIOPROP_GAIN, 0.5) != 0) {
          fprintf(stderr, "Failed to set gain.\n");
       }
       al_rest(sample_time);
 
-      if (al_sample_set_float(sample, ALLEGRO_AUDIOPROP_GAIN, 0.25) != 0) {
+      if (al_set_sample_float(sample, ALLEGRO_AUDIOPROP_GAIN, 0.25) != 0) {
          fprintf(stderr, "Failed to set gain.\n");
       }
       al_rest(sample_time);
 
-      al_sample_stop(sample);
+      al_stop_sample(sample);
       fprintf(stderr, "\n");
 
       /* Free the memory allocated. */
-      al_sample_set_data(sample, NULL);
-      al_sample_data_destroy(sample_data);
+      al_set_sample_data(sample, NULL);
+      al_destroy_sample_data(sample_data);
    }
 
-   al_sample_destroy(sample);
+   al_destroy_sample(sample);
    al_mixer_destroy(mixer);
-   al_voice_destroy(voice);
+   al_destroy_voice(voice);
 
-   al_audio_deinit();
+   al_uninstall_audio();
 
    return 0;
 }

@@ -35,13 +35,13 @@ int main(int argc, char **argv)
    ALLEGRO_STREAM *title_music = (ALLEGRO_STREAM *)rm.getData(RES_TITLE_MUSIC);
    ALLEGRO_STREAM *game_music = (ALLEGRO_STREAM *)rm.getData(RES_GAME_MUSIC);
 
-   al_stream_set_enum(title_music, ALLEGRO_AUDIOPROP_LOOPMODE, ALLEGRO_PLAYMODE_ONEDIR);
-   al_stream_set_enum(game_music, ALLEGRO_AUDIOPROP_LOOPMODE, ALLEGRO_PLAYMODE_ONEDIR);
+   al_set_stream_enum(title_music, ALLEGRO_AUDIOPROP_LOOPMODE, ALLEGRO_PLAYMODE_ONEDIR);
+   al_set_stream_enum(game_music, ALLEGRO_AUDIOPROP_LOOPMODE, ALLEGRO_PLAYMODE_ONEDIR);
 
    for (;;) {
       player->load();
 
-      al_stream_set_bool(title_music, ALLEGRO_AUDIOPROP_PLAYING, true);
+      al_set_stream_booll(title_music, ALLEGRO_AUDIOPROP_PLAYING, true);
 
       int choice = do_menu();
       if (choice != 0) {
@@ -50,14 +50,14 @@ int main(int argc, char **argv)
          break;
       }
 
-	  al_stream_drain(title_music);
-	  al_stream_rewind(title_music);
+	  al_drain_stream(title_music);
+	  al_rewind_stream(title_music);
 
       lastUFO = -1;
       canUFO = true;
 
       w.init();
-      al_stream_set_bool(game_music, ALLEGRO_AUDIOPROP_PLAYING, true);
+      al_set_stream_booll(game_music, ALLEGRO_AUDIOPROP_PLAYING, true);
 	  al_rest(0.200);
 
       int step = 0;
@@ -80,8 +80,8 @@ int main(int argc, char **argv)
          start = end;
       }
 
-	  al_stream_drain(game_music);
-	  al_stream_rewind(game_music);
+	  al_drain_stream(game_music);
+	  al_rewind_stream(game_music);
 
       std::list<Entity *>::iterator it;
       for (it = entities.begin(); it != entities.end(); it++) {

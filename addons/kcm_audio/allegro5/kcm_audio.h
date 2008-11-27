@@ -259,7 +259,7 @@ typedef struct ALLEGRO_SAMPLE ALLEGRO_SAMPLE;
  * While playing, you must periodically supply new buffer data by first
  * checking ALLEGRO_AUDIOPROP_USED_FRAGMENTS, then refilling the buffers via
  * ALLEGRO_AUDIOPROP_BUFFER. If you're late with supplying new data, the object
- * will be silenced until new data is provided. You must call al_stream_drain()
+ * will be silenced until new data is provided. You must call al_drain_stream()
  * when you're finished supplying the stream.
  *
  * ALLEGRO_STREAM objects use the following fields:
@@ -322,127 +322,127 @@ typedef struct ALLEGRO_VOICE ALLEGRO_VOICE;
 
 
 /* Sample data functions */
-A5_KCM_AUDIO_FUNC(ALLEGRO_SAMPLE_DATA *, al_sample_data_create, (void *buf,
+A5_KCM_AUDIO_FUNC(ALLEGRO_SAMPLE_DATA *, al_create_sample_data, (void *buf,
       unsigned long samples, unsigned long freq, ALLEGRO_AUDIO_DEPTH depth,
       ALLEGRO_CHANNEL_CONF chan_conf, bool free_buf));
-A5_KCM_AUDIO_FUNC(void, al_sample_data_destroy, (ALLEGRO_SAMPLE_DATA *data));
+A5_KCM_AUDIO_FUNC(void, al_destroy_sample_data, (ALLEGRO_SAMPLE_DATA *data));
 
 /* Sample functions */
-A5_KCM_AUDIO_FUNC(ALLEGRO_SAMPLE*, al_sample_create, (
+A5_KCM_AUDIO_FUNC(ALLEGRO_SAMPLE*, al_create_sample, (
       ALLEGRO_SAMPLE_DATA *data));
-A5_KCM_AUDIO_FUNC(void, al_sample_destroy, (ALLEGRO_SAMPLE *spl));
-A5_KCM_AUDIO_FUNC(int, al_sample_get_long, (const ALLEGRO_SAMPLE *spl,
+A5_KCM_AUDIO_FUNC(void, al_destroy_sample, (ALLEGRO_SAMPLE *spl));
+A5_KCM_AUDIO_FUNC(int, al_get_sample_long, (const ALLEGRO_SAMPLE *spl,
       ALLEGRO_AUDIO_PROPERTY setting, unsigned long *val));
-A5_KCM_AUDIO_FUNC(int, al_sample_get_float, (const ALLEGRO_SAMPLE *spl,
+A5_KCM_AUDIO_FUNC(int, al_get_sample_float, (const ALLEGRO_SAMPLE *spl,
       ALLEGRO_AUDIO_PROPERTY setting, float *val));
-A5_KCM_AUDIO_FUNC(int, al_sample_get_enum, (const ALLEGRO_SAMPLE *spl,
+A5_KCM_AUDIO_FUNC(int, al_get_sample_enum, (const ALLEGRO_SAMPLE *spl,
       ALLEGRO_AUDIO_PROPERTY setting, int *val));
-A5_KCM_AUDIO_FUNC(int, al_sample_get_bool, (const ALLEGRO_SAMPLE *spl,
+A5_KCM_AUDIO_FUNC(int, al_get_sample_bool, (const ALLEGRO_SAMPLE *spl,
       ALLEGRO_AUDIO_PROPERTY setting, bool *val));
-A5_KCM_AUDIO_FUNC(int, al_sample_get_ptr, (const ALLEGRO_SAMPLE *spl,
+A5_KCM_AUDIO_FUNC(int, al_get_sample_ptr, (const ALLEGRO_SAMPLE *spl,
       ALLEGRO_AUDIO_PROPERTY setting, void **ptr));
-A5_KCM_AUDIO_FUNC(int, al_sample_set_long, (ALLEGRO_SAMPLE *spl,
+A5_KCM_AUDIO_FUNC(int, al_set_sample_long, (ALLEGRO_SAMPLE *spl,
       ALLEGRO_AUDIO_PROPERTY setting, unsigned long val));
-A5_KCM_AUDIO_FUNC(int, al_sample_set_float, (ALLEGRO_SAMPLE *spl,
+A5_KCM_AUDIO_FUNC(int, al_set_sample_float, (ALLEGRO_SAMPLE *spl,
       ALLEGRO_AUDIO_PROPERTY setting, float val));
-A5_KCM_AUDIO_FUNC(int, al_sample_set_enum, (ALLEGRO_SAMPLE *spl,
+A5_KCM_AUDIO_FUNC(int, al_set_sample_enum, (ALLEGRO_SAMPLE *spl,
       ALLEGRO_AUDIO_PROPERTY setting, int val));
-A5_KCM_AUDIO_FUNC(int, al_sample_set_bool, (ALLEGRO_SAMPLE *spl,
+A5_KCM_AUDIO_FUNC(int, al_set_sample_bool, (ALLEGRO_SAMPLE *spl,
       ALLEGRO_AUDIO_PROPERTY setting, bool val));
-A5_KCM_AUDIO_FUNC(int, al_sample_set_ptr, (ALLEGRO_SAMPLE *spl,
+A5_KCM_AUDIO_FUNC(int, al_set_sample_ptr, (ALLEGRO_SAMPLE *spl,
       ALLEGRO_AUDIO_PROPERTY setting, void *ptr));
-A5_KCM_AUDIO_FUNC(int, al_sample_set_data, (ALLEGRO_SAMPLE *spl,
+A5_KCM_AUDIO_FUNC(int, al_set_sample_data, (ALLEGRO_SAMPLE *spl,
       ALLEGRO_SAMPLE_DATA *data));
-A5_KCM_AUDIO_FUNC(int, al_sample_play, (ALLEGRO_SAMPLE *spl));
-A5_KCM_AUDIO_FUNC(int, al_sample_stop, (ALLEGRO_SAMPLE *spl));
+A5_KCM_AUDIO_FUNC(int, al_play_sample, (ALLEGRO_SAMPLE *spl));
+A5_KCM_AUDIO_FUNC(int, al_stop_sample, (ALLEGRO_SAMPLE *spl));
 
 /* Stream functions */
-A5_KCM_AUDIO_FUNC(ALLEGRO_STREAM*, al_stream_create, (size_t buffer_count,
+A5_KCM_AUDIO_FUNC(ALLEGRO_STREAM*, al_create_stream, (size_t buffer_count,
       unsigned long samples, unsigned long freq,
       ALLEGRO_AUDIO_DEPTH depth, ALLEGRO_CHANNEL_CONF chan_conf));
-A5_KCM_AUDIO_FUNC(void, al_stream_destroy, (ALLEGRO_STREAM *stream));
-A5_KCM_AUDIO_FUNC(void, al_stream_drain, (ALLEGRO_STREAM *stream));
-A5_KCM_AUDIO_FUNC(int, al_stream_get_long, (const ALLEGRO_STREAM *stream,
+A5_KCM_AUDIO_FUNC(void, al_destroy_stream, (ALLEGRO_STREAM *stream));
+A5_KCM_AUDIO_FUNC(void, al_drain_stream, (ALLEGRO_STREAM *stream));
+A5_KCM_AUDIO_FUNC(int, al_get_stream_long, (const ALLEGRO_STREAM *stream,
       ALLEGRO_AUDIO_PROPERTY setting, unsigned long *val));
-A5_KCM_AUDIO_FUNC(int, al_stream_get_float, (const ALLEGRO_STREAM *stream,
+A5_KCM_AUDIO_FUNC(int, al_get_stream_float, (const ALLEGRO_STREAM *stream,
       ALLEGRO_AUDIO_PROPERTY setting, float *val));
-A5_KCM_AUDIO_FUNC(int, al_stream_get_enum, (const ALLEGRO_STREAM *stream,
+A5_KCM_AUDIO_FUNC(int, al_get_stream_enum, (const ALLEGRO_STREAM *stream,
       ALLEGRO_AUDIO_PROPERTY setting, int *val));
-A5_KCM_AUDIO_FUNC(int, al_stream_get_bool, (const ALLEGRO_STREAM *stream,
+A5_KCM_AUDIO_FUNC(int, al_get_stream_bool, (const ALLEGRO_STREAM *stream,
       ALLEGRO_AUDIO_PROPERTY setting, bool *val));
-A5_KCM_AUDIO_FUNC(int, al_stream_get_ptr, (const ALLEGRO_STREAM *spl,
+A5_KCM_AUDIO_FUNC(int, al_get_stream_ptr, (const ALLEGRO_STREAM *spl,
       ALLEGRO_AUDIO_PROPERTY setting, void **ptr));
-A5_KCM_AUDIO_FUNC(int, al_stream_set_long, (ALLEGRO_STREAM *stream,
+A5_KCM_AUDIO_FUNC(int, al_set_stream_long, (ALLEGRO_STREAM *stream,
       ALLEGRO_AUDIO_PROPERTY setting, unsigned long val));
-A5_KCM_AUDIO_FUNC(int, al_stream_set_float, (ALLEGRO_STREAM *stream,
+A5_KCM_AUDIO_FUNC(int, al_set_stream_float, (ALLEGRO_STREAM *stream,
       ALLEGRO_AUDIO_PROPERTY setting, float val));
-A5_KCM_AUDIO_FUNC(int, al_stream_set_enum, (ALLEGRO_STREAM *stream,
+A5_KCM_AUDIO_FUNC(int, al_set_stream_enum, (ALLEGRO_STREAM *stream,
       ALLEGRO_AUDIO_PROPERTY setting, int val));
-A5_KCM_AUDIO_FUNC(int, al_stream_set_bool, (ALLEGRO_STREAM *stream,
+A5_KCM_AUDIO_FUNC(int, al_set_stream_booll, (ALLEGRO_STREAM *stream,
       ALLEGRO_AUDIO_PROPERTY setting, bool val));
-A5_KCM_AUDIO_FUNC(int, al_stream_set_ptr, (ALLEGRO_STREAM *spl,
+A5_KCM_AUDIO_FUNC(int, al_set_stream_ptr, (ALLEGRO_STREAM *spl,
       ALLEGRO_AUDIO_PROPERTY setting, void *ptr));
-A5_KCM_AUDIO_FUNC(bool, al_stream_rewind, (ALLEGRO_STREAM *stream));
+A5_KCM_AUDIO_FUNC(bool, al_rewind_stream, (ALLEGRO_STREAM *stream));
 
 /* Mixer functions */
-A5_KCM_AUDIO_FUNC(ALLEGRO_MIXER*, al_mixer_create, (unsigned long freq,
+A5_KCM_AUDIO_FUNC(ALLEGRO_MIXER*, al_create_mixer, (unsigned long freq,
       ALLEGRO_AUDIO_DEPTH depth, ALLEGRO_CHANNEL_CONF chan_conf));
 A5_KCM_AUDIO_FUNC(void, al_mixer_destroy, (ALLEGRO_MIXER *mixer));
-A5_KCM_AUDIO_FUNC(int, al_mixer_attach_sample, (ALLEGRO_MIXER *mixer,
+A5_KCM_AUDIO_FUNC(int, al_attach_sample_to_mixer, (ALLEGRO_MIXER *mixer,
       ALLEGRO_SAMPLE *stream));
-A5_KCM_AUDIO_FUNC(int, al_mixer_attach_stream, (ALLEGRO_MIXER *mixer,
+A5_KCM_AUDIO_FUNC(int, al_attach_stream_to_mixer, (ALLEGRO_MIXER *mixer,
       ALLEGRO_STREAM *stream));
-A5_KCM_AUDIO_FUNC(int, al_mixer_attach_mixer, (ALLEGRO_MIXER *mixer,
+A5_KCM_AUDIO_FUNC(int, al_attach_mixer_to_mixer, (ALLEGRO_MIXER *mixer,
       ALLEGRO_MIXER *stream));
 A5_KCM_AUDIO_FUNC(int, al_mixer_set_postprocess_callback, (
       ALLEGRO_MIXER *mixer,
       void (*cb)(void *buf, unsigned long samples, void *data),
       void *data));
-A5_KCM_AUDIO_FUNC(int, al_mixer_get_long, (const ALLEGRO_MIXER *mixer,
+A5_KCM_AUDIO_FUNC(int, al_get_mixer_long, (const ALLEGRO_MIXER *mixer,
       ALLEGRO_AUDIO_PROPERTY setting, unsigned long *val));
-A5_KCM_AUDIO_FUNC(int, al_mixer_get_enum, (const ALLEGRO_MIXER *mixer,
+A5_KCM_AUDIO_FUNC(int, al_get_mixer_enum, (const ALLEGRO_MIXER *mixer,
       ALLEGRO_AUDIO_PROPERTY setting, int *val));
-A5_KCM_AUDIO_FUNC(int, al_mixer_get_bool, (const ALLEGRO_MIXER *mixer,
+A5_KCM_AUDIO_FUNC(int, al_get_mixer_bool, (const ALLEGRO_MIXER *mixer,
       ALLEGRO_AUDIO_PROPERTY setting, bool *val));
-A5_KCM_AUDIO_FUNC(int, al_mixer_set_long, (ALLEGRO_MIXER *mixer,
+A5_KCM_AUDIO_FUNC(int, al_set_mixer_long, (ALLEGRO_MIXER *mixer,
       ALLEGRO_AUDIO_PROPERTY setting, unsigned long val));
-A5_KCM_AUDIO_FUNC(int, al_mixer_set_enum, (ALLEGRO_MIXER *mixer,
+A5_KCM_AUDIO_FUNC(int, al_set_mixer_enum, (ALLEGRO_MIXER *mixer,
       ALLEGRO_AUDIO_PROPERTY setting, int val));
-A5_KCM_AUDIO_FUNC(int, al_mixer_set_bool, (ALLEGRO_MIXER *mixer,
+A5_KCM_AUDIO_FUNC(int, al_set_mixer_bool, (ALLEGRO_MIXER *mixer,
       ALLEGRO_AUDIO_PROPERTY setting, bool val));
 
 /* Voice functions */
-A5_KCM_AUDIO_FUNC(ALLEGRO_VOICE*, al_voice_create, (unsigned long freq,
+A5_KCM_AUDIO_FUNC(ALLEGRO_VOICE*, al_create_voice, (unsigned long freq,
       ALLEGRO_AUDIO_DEPTH depth,
       ALLEGRO_CHANNEL_CONF chan_conf));
-A5_KCM_AUDIO_FUNC(void, al_voice_destroy, (ALLEGRO_VOICE *voice));
-A5_KCM_AUDIO_FUNC(int, al_voice_attach_sample, (ALLEGRO_VOICE *voice,
+A5_KCM_AUDIO_FUNC(void, al_destroy_voice, (ALLEGRO_VOICE *voice));
+A5_KCM_AUDIO_FUNC(int, al_attach_sample_to_voice, (ALLEGRO_VOICE *voice,
       ALLEGRO_SAMPLE *stream));
-A5_KCM_AUDIO_FUNC(int, al_voice_attach_stream, (ALLEGRO_VOICE *voice,
+A5_KCM_AUDIO_FUNC(int, al_attach_stream_to_voice, (ALLEGRO_VOICE *voice,
       ALLEGRO_STREAM *stream));
-A5_KCM_AUDIO_FUNC(int, al_voice_attach_mixer, (ALLEGRO_VOICE *voice,
+A5_KCM_AUDIO_FUNC(int, al_attach_mixer_to_voice, (ALLEGRO_VOICE *voice,
       ALLEGRO_MIXER *mixer));
-A5_KCM_AUDIO_FUNC(void, al_voice_detach, (ALLEGRO_VOICE *voice));
-A5_KCM_AUDIO_FUNC(int, al_voice_get_long, (const ALLEGRO_VOICE *voice,
+A5_KCM_AUDIO_FUNC(void, al_detach_voice, (ALLEGRO_VOICE *voice));
+A5_KCM_AUDIO_FUNC(int, al_get_voice_long, (const ALLEGRO_VOICE *voice,
       ALLEGRO_AUDIO_PROPERTY setting, unsigned long *val));
-A5_KCM_AUDIO_FUNC(int, al_voice_get_enum, (const ALLEGRO_VOICE *voice,
+A5_KCM_AUDIO_FUNC(int, al_get_voice_enum, (const ALLEGRO_VOICE *voice,
       ALLEGRO_AUDIO_PROPERTY setting, int *val));
-A5_KCM_AUDIO_FUNC(int, al_voice_get_bool, (const ALLEGRO_VOICE *voice,
+A5_KCM_AUDIO_FUNC(int, al_get_voice_bool, (const ALLEGRO_VOICE *voice,
       ALLEGRO_AUDIO_PROPERTY setting, bool *val));
-A5_KCM_AUDIO_FUNC(int, al_voice_set_long, (ALLEGRO_VOICE *voice,
+A5_KCM_AUDIO_FUNC(int, al_set_voice_long, (ALLEGRO_VOICE *voice,
       ALLEGRO_AUDIO_PROPERTY setting, unsigned long val));
-A5_KCM_AUDIO_FUNC(int, al_voice_set_enum, (ALLEGRO_VOICE *voice,
+A5_KCM_AUDIO_FUNC(int, al_set_voice_enum, (ALLEGRO_VOICE *voice,
       ALLEGRO_AUDIO_PROPERTY setting, int val));
-A5_KCM_AUDIO_FUNC(int, al_voice_set_bool, (ALLEGRO_VOICE *voice,
+A5_KCM_AUDIO_FUNC(int, al_set_voice_bool, (ALLEGRO_VOICE *voice,
       ALLEGRO_AUDIO_PROPERTY setting, bool val));
 
 /* Misc. audio functions */
-A5_KCM_AUDIO_FUNC(int,  al_audio_init, (ALLEGRO_AUDIO_DRIVER_ENUM mode));
-A5_KCM_AUDIO_FUNC(void, al_audio_deinit, (void));
+A5_KCM_AUDIO_FUNC(int,  al_install_audio, (ALLEGRO_AUDIO_DRIVER_ENUM mode));
+A5_KCM_AUDIO_FUNC(void, al_uninstall_audio, (void));
 
-A5_KCM_AUDIO_FUNC(bool, al_is_channel_conf, (ALLEGRO_CHANNEL_CONF conf));
-A5_KCM_AUDIO_FUNC(size_t, al_channel_count, (ALLEGRO_CHANNEL_CONF conf));
-A5_KCM_AUDIO_FUNC(size_t, al_depth_size, (ALLEGRO_AUDIO_DEPTH conf));
+A5_KCM_AUDIO_FUNC(bool, al_is_channel_configuredigured, (ALLEGRO_CHANNEL_CONF conf));
+A5_KCM_AUDIO_FUNC(size_t, al_get_channel_count, (ALLEGRO_CHANNEL_CONF conf));
+A5_KCM_AUDIO_FUNC(size_t, al_get_depth_size, (ALLEGRO_AUDIO_DEPTH conf));
 
 
 #ifdef __cplusplus
