@@ -56,30 +56,28 @@ if(SUPPORT_ICODEC)
     example(ex_icodec ${ICODEC_LINK_WITH})
 endif(SUPPORT_ICODEC)
 
-
-example(ex_config NOTHING)
-example(ex_drawpixels NOTHING)
-example(ex_get_path NOTHING)
-example(ex_keyboard_focus NOTHING)
-example(ex_lines NOTHING)
-example(ex_lockscreen NOTHING)
-example(ex_monitorinfo NOTHING)
-example(ex_path NOTHING)
-example(ex_resize NOTHING)
-example(ex_threads NOTHING)
-example(ex_threads2 NOTHING)
-example(ex_timedwait NOTHING)
-example(ex_user_events NOTHING)
+example(ex_config)
+example(ex_drawpixels)
+example(ex_get_path)
+example(ex_keyboard_focus)
+example(ex_lines)
+example(ex_lockscreen)
+example(ex_monitorinfo)
+example(ex_path)
+example(ex_resize)
+example(ex_threads)
+example(ex_threads2)
+example(ex_timedwait)
+example(ex_user_events)
 
 if(SUPPORT_D3D)
-    example_cxx(ex_d3d d3dx9)
+    example(ex_d3d ex_d3d.cpp d3dx9)
 endif(SUPPORT_D3D)
 
 if(SUPPORT_OPENGL)
-    example(ex_glext NOTHING)
-    example(ex_opengl NOTHING)
+    example(ex_glext)
+    example(ex_opengl)
 endif(SUPPORT_OPENGL)
 
-
 #-----------------------------------------------------------------------------#
-# vi: set ts=8 sts=4 sw=4 et:
+# vim: set ts=8 sts=4 sw=4 et:
