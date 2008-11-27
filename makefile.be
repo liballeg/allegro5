@@ -162,8 +162,8 @@ ifeq ($(OS),Haiku)
 INSTALLDIR = /boot/common
 LIBDIR = lib
 INCDIR = include
-
-SHARED_LIBDIR = /boot/common/lib
+BINDIR = bin
+SHARED_LIBDIR = lib
 endif
 
 
@@ -174,34 +174,45 @@ $(INSTALLDIR)/$(LIBDIR)/lib$(VERSION).a: $(LIB_NAME)
 	
 else	
 		
-$(SHARED_LIBDIR)/lib$(VERSION)-$(shared_version).so: $(LIB_NAME)
+$(INSTALLDIR)/$(SHARED_LIBDIR)/lib$(VERSION)-$(shared_version).so: $(LIB_NAME)
 	cp $< $@	
 	
 endif
 
 
-/bin/allegro-config:
+$(INSTALLDIR)/$(BINDIR)/allegro-config:
 ifdef STATICLINK
 	sed -e "s/@LINK_WITH_STATIC_LIBS@/yes/" misc/allegro-config.in >temp
 else
 	sed -e "s/@LINK_WITH_STATIC_LIBS@/no/" misc/allegro-config.in >temp
 endif
+ifeq ($(OS),BeOS)
 	sed -e "s/@prefix@/\/boot\/develop/" temp > temp2
+endif
+ifeq ($(OS),Haiku)
+	sed -e "s/@prefix@/\/boot\/common/" temp > temp2
+endif
 	sed -e "s/@LIB_TO_LINK@/$(VERSION)/" temp2 > temp
 	sed -e "s/@LDFLAGS@//" temp > temp2
 	sed -e "s/@LIBS@/$(LIBRARIES)/" temp2 > temp
 	sed -e "s/include/headers/" temp >temp2
 	sed -e "s/ -l\$${lib_type}_unsharable//" temp2 >temp
+ifeq ($(OS),Haiku)
+	sed -e "s/@INCLUDE_PREFIX@/\/boot\/common\/include/" temp > temp2
+	sed -e "s/@includedir@/\/boot\/common\/include/" temp2 > temp
+	sed -e "s/@libdir@/\/boot\/common\/lib/" temp > temp2
+	sed -e "s/@bindir@/\/boot\/common\/bin/" temp2 > temp
+endif
 
 ifeq ($(OS),BeOS)
-	sed -e "s/libdirs=-L\$${exec_prefix}\/lib/libdirs=\"-L\$${exec_prefix}\/lib\/x86 -L\/boot\/home\/config\/lib\"/" temp >/bin/allegro-config
+	sed -e "s/libdirs=-L\$${exec_prefix}\/lib/libdirs=\"-L\$${exec_prefix}\/lib\/x86 -L\/boot\/home\/config\/lib\"/" temp >$(INSTALLDIR)/$(BINDIR)/allegro-config
 endif
 ifeq ($(OS),Haiku)
-	sed -e "s/libdirs=-L\$${exec_prefix}\/lib/libdirs=\"-L\$${exec_prefix}\/lib\/x86 -L\/boot\/common\/lib\"/" temp >/bin/allegro-config
+	sed -e "s/libdirs=-L\$${exec_prefix}\/lib/libdirs=\"-L\$${exec_prefix}\/lib\/x86 -L\/boot\/common\/lib\"/" temp >$(INSTALLDIR)/$(BINDIR)/allegro-config
 endif
 
 	rm -f temp temp2
-	chmod a+x /bin/allegro-config
+	chmod a+x $(INSTALLDIR)/$(BINDIR)/allegro-config
 
 
 HEADERS = $(INSTALLDIR)/$(INCDIR)/bealleg.h                   \
@@ -215,10 +226,10 @@ HEADERS = $(INSTALLDIR)/$(INCDIR)/bealleg.h                   \
 ifdef STATICLINK
    INSTALL_FILES = $(INSTALLDIR)/$(LIBDIR)/lib$(VERSION).a 
 else
-   INSTALL_FILES = $(SHARED_LIBDIR)/lib$(VERSION)-$(shared_version).so
+   INSTALL_FILES = $(INSTALLDIR)/$(SHARED_LIBDIR)/lib$(VERSION)-$(shared_version).so
 endif
 
-INSTALL_FILES += $(HEADERS) /bin/allegro-config
+INSTALL_FILES += $(HEADERS) $(INSTALLDIR)/$(BINDIR)/allegro-config
 
 
 install: generic-install
@@ -227,11 +238,11 @@ install: generic-install
 UNINSTALL_FILES = $(INSTALLDIR)/$(LIBDIR)/liballeg.a             \
                   $(INSTALLDIR)/$(LIBDIR)/liballd.a              \
                   $(INSTALLDIR)/$(LIBDIR)/liballp.a              \
-                  $(SHARED_LIBDIR)/liballeg-$(shared_version).so \
-                  $(SHARED_LIBDIR)/liballd-$(shared_version).so  \
-                  $(SHARED_LIBDIR)/liballp-$(shared_version).so  \
+                  $(INSTALLDIR)/$(SHARED_LIBDIR)/liballeg-$(shared_version).so \
+                  $(INSTALLDIR)/$(SHARED_LIBDIR)/liballd-$(shared_version).so  \
+                  $(INSTALLDIR)/$(SHARED_LIBDIR)/liballp-$(shared_version).so  \
                   $(HEADERS)                                     \
-                  /bin/allegro-config
+                  $(BINDIR)/allegro-config
 
 uninstall: generic-uninstall
 	@echo All gone!
