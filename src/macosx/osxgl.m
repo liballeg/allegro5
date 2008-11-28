@@ -313,6 +313,7 @@ void _al_osx_mouse_was_installed(BOOL install) {
 }
 -(void) viewDidEndLiveResize
 {
+   [super viewDidEndLiveResize];
 	ALLEGRO_DISPLAY_OSX_WIN* dpy =  (ALLEGRO_DISPLAY_OSX_WIN*) dpy_ptr;
    NSWindow *window = dpy->win;
    NSRect rc = [window frame];
@@ -406,6 +407,8 @@ static void setup_gl(ALLEGRO_DISPLAY *d)
 	
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
+	ALLEGRO_DISPLAY_OSX_WIN* dpy = (ALLEGRO_DISPLAY_OSX_WIN*) d;
+	[dpy->ctx update];
 }
 
 static int decode_allegro_format(int format, int* glfmt, int* glsize, int* depth) {
@@ -944,17 +947,6 @@ static bool acknowledge_resize_display_win(ALLEGRO_DISPLAY *d)
 
    d->w = NSWidth(content);
    d->h = NSHeight(content);
-
-   /* FIXME: without calling setContentView the view id not properly
-    * located in the window frame: it shifts around when the window is
-    * resized. Calling the view's setFrame method doesn't help. This
-    * is the only way I've found that makes this work. 
-    * It does have one major draw back: the window doesn't take keyboard
-    * input until it has been klicked.
-    * Nether of these things make much sense to me; there has to  be a
-    * better way of doing this...? -- EG
-    */
-   [window setContentView: [window contentView]];
 
    _al_ogl_resize_backbuffer(d->ogl_extras->backbuffer, d->w, d->h);
    setup_gl(d);
