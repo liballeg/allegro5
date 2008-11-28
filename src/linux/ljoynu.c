@@ -110,7 +110,7 @@ static bool check_js_api_version(int fd)
 
    if (ioctl(fd, JSIOCGVERSION, &raw_version) < 0) {
       /* NOTE: IOCTL fails if the joystick API is version 0.x */
-      TRACE("Your Linux joystick API is version 0.x which is unsupported.");
+      TRACE("Your Linux joystick API is version 0.x which is unsupported.\n");
       return false;
    }
 

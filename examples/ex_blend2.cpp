@@ -133,17 +133,17 @@ int main()
    }
    font = al_font_load_font("data/fixed_font.tga", 0);
    if (!font) {
-      TRACE("Failed to load data/fixed_font.tga");
+      TRACE("Failed to load data/fixed_font.tga\n");
       return 1;
    }
    allegro = al_iio_load("data/allegro.pcx");
    if (!allegro) {
-      TRACE("Failed to load data/allegro.pcx");
+      TRACE("Failed to load data/allegro.pcx\n");
       return 1;
    }
    mysha = al_iio_load("data/mysha.pcx");
    if (!mysha) {
-      TRACE("Failed to load data/mysha.pcx");
+      TRACE("Failed to load data/mysha.pcx\n");
       return 1;
    }
 

@@ -553,7 +553,7 @@ bool _al_d3d_init_display()
          }
       }
       else {
-         TRACE("Direct3DCreate9Ex not in d3d9.dll");
+         TRACE("Direct3DCreate9Ex not in d3d9.dll\n");
          is_vista = false;
       }
    }
@@ -1470,7 +1470,7 @@ static int d3d_al_blender_to_d3d(int al_mode)
       }
    }
 
-   TRACE("Unknown blend mode.");
+   TRACE("Unknown blend mode.\n");
 
    return D3DBLEND_ONE;
 }
@@ -1486,9 +1486,9 @@ void _al_d3d_set_blender(ALLEGRO_DISPLAY_D3D *d3d_display)
    dst = d3d_al_blender_to_d3d(dst);
 
    if (d3d_display->device->SetRenderState(D3DRS_SRCBLEND, src) != D3D_OK)
-      TRACE("Failed to set source blender");
+      TRACE("Failed to set source blender\n");
    if (d3d_display->device->SetRenderState(D3DRS_DESTBLEND, dst) != D3D_OK)
-      TRACE("Failed to set dest blender");
+      TRACE("Failed to set dest blender\n");
    d3d_display->device->SetTextureStageState(0, D3DTSS_ALPHAOP, D3DTOP_MODULATE);
 }
 

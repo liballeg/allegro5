@@ -58,7 +58,7 @@ void _al_win_thread_init(void)
 						ole32, "CoInitializeEx");
       }
       else {
-         TRACE("WARNING: OLE32.DLL can't be loaded.");
+         TRACE("WARNING: OLE32.DLL can't be loaded.\n");
       }
 
       if (_CoInitializeEx == NULL) {

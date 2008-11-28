@@ -208,7 +208,7 @@ int main(void)
    al_set_new_display_flags(ALLEGRO_OPENGL);
    d = al_create_display(WINDOW_W, WINDOW_H);
    if (!d) {
-      TRACE("Unable to open a OpenGL display.");
+      TRACE("Unable to open a OpenGL display.\n");
       return -1;
    }
 

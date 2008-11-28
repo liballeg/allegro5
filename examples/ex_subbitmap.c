@@ -74,7 +74,7 @@ int main(void)
    al_set_new_bitmap_flags(ALLEGRO_MEMORY_BITMAP);
    mem_bmp = al_iio_load("data/mysha.pcx");
    if (!mem_bmp) {
-      TRACE("Could not load data/mysha.pcx");
+      TRACE("Could not load data/mysha.pcx\n");
       return 1;
    }
 
