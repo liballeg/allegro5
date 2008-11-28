@@ -505,6 +505,19 @@ static int decode_allegro_format(int format, int* glfmt, int* glsize, int* depth
 	 * grab the handle any more to make it bigger
 	 */
 	[win setMinSize: NSMakeSize(MINIMUM_WIDTH, MINIMUM_HEIGHT)];
+   /* Place the window, respecting the location set by the user with
+    * al_set_new_window_position()
+    */
+   int new_x, new_y;
+   al_get_new_window_position(&new_x, &new_y);
+   /* CAUTION: the window manager under OS X requires that x and y be in
+    * the range -16000 ... 16000 (approximately, probably the range of a
+    * signed 16 bit integer). Should we check for this?
+    */
+   if ((new_x != INT_MAX) && (new_y != INT_MAX)) {
+      last_window_pos.x = new_x;
+      last_window_pos.y = new_y;
+   }
    if (NSEqualPoints(last_window_pos, NSZeroPoint)) {
       /* We haven't positioned a window before */
       [win center];
