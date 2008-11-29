@@ -909,12 +909,16 @@ static bool hide_cursor_win(ALLEGRO_DISPLAY *d) {
 static bool show_cursor_fs(ALLEGRO_DISPLAY *d) {
 // stub
 	ALLEGRO_DISPLAY_OSX_WIN* dpy = (ALLEGRO_DISPLAY_OSX_WIN*) d;
+   dpy->show_cursor = YES;
+   [NSCursor unhide];
    return false;
 }
 
 static bool hide_cursor_fs(ALLEGRO_DISPLAY *d) {
 // stub
 	ALLEGRO_DISPLAY_OSX_WIN* dpy = (ALLEGRO_DISPLAY_OSX_WIN*) d;
+   dpy->show_cursor = NO;
+   [NSCursor hide];
    return false;
 }
 
