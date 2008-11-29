@@ -115,7 +115,7 @@ int main(int argc, char **argv)
 	 al_destroy_sample_data(sample_data[i]);
       }
    }
-   al_mixer_destroy(mixer);
+   al_destroy_mixer(mixer);
    al_destroy_voice(voice);
 
    free(sample);

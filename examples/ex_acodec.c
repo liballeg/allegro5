@@ -108,7 +108,7 @@ int main(int argc, char **argv)
    }
 
    al_destroy_sample(sample);
-   al_mixer_destroy(mixer);
+   al_destroy_mixer(mixer);
    al_destroy_voice(voice);
 
    al_uninstall_audio();

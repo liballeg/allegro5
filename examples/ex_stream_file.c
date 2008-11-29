@@ -100,7 +100,7 @@ int main(int argc, char **argv)
    }
 
 #ifndef BYPASS_MIXER
-   al_mixer_destroy(mixer);
+   al_destroy_mixer(mixer);
 #endif
    al_destroy_voice(voice);
 

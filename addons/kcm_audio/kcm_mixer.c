@@ -640,10 +640,10 @@ ALLEGRO_MIXER *al_create_mixer(unsigned long freq,
 }
 
 
-/* Function: al_mixer_destroy
+/* Function: al_destroy_mixer
  *  Destroys the mixer stream.
  */
-void al_mixer_destroy(ALLEGRO_MIXER *mixer)
+void al_destroy_mixer(ALLEGRO_MIXER *mixer)
 {
    al_destroy_sample(&mixer->ss);
 }

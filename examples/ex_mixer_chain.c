@@ -115,9 +115,9 @@ int main(int argc, char **argv)
       al_set_sample_data(sample[i], NULL);
       al_destroy_sample_data(sample_data[i]);
       al_destroy_sample(sample[i]);
-      al_mixer_destroy(submixer[i]);
+      al_destroy_mixer(submixer[i]);
    }
-   al_mixer_destroy(mixer);
+   al_destroy_mixer(mixer);
    al_destroy_voice(voice);
 
    al_uninstall_audio();

@@ -118,7 +118,7 @@ int main(void)
    saw(stream);
 
    al_destroy_stream(stream);
-   al_mixer_destroy(mixer);
+   al_destroy_mixer(mixer);
    al_destroy_voice(voice);
    al_uninstall_audio();
 
