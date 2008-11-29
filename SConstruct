@@ -464,7 +464,7 @@ Alias('install-common', doInstall(common))
 Alias('install-normal-files', doInstall(filterType(installNormal, uncommon)))
 Alias('install-static-files', doInstall(filterType(installStatic, uncommon)))
 Alias('install-debug-files', doInstall(filterType(installDebug, uncommon)))
-Alias('install-static-debug-files', doInstall(filterType(installStaticDebug, uncommon)))
+Alias('install-debug-static-files', doInstall(filterType(installStaticDebug, uncommon)))
 Alias('install-profile-files', doInstall(filterType(installProfile, uncommon)))
 Alias('install-profile-static-files', doInstall(filterType(installProfileStatic, uncommon)))
 
@@ -472,7 +472,7 @@ Alias('install-profile-static-files', doInstall(filterType(installProfileStatic,
 Alias('install', ['install-common', 'install-normal-files'])
 Alias('install-static', ['install-common', 'install-static-files'])
 Alias('install-debug', ['install-common', 'install-debug-files'])
-Alias('install-static-debug', ['install-common', 'install-static-debug-files'])
+Alias('install-debug-static', ['install-common', 'install-debug-static-files'])
 Alias('install-profile', ['install-common', 'install-profile-files'])
 Alias('install-profile-static', ['install-common', 'install-profile-static-files'])
 
@@ -480,5 +480,5 @@ Alias('install-profile-static', ['install-common', 'install-profile-static-files
 Default('all')
 
 # Build the world!
-Alias('everything',['all','all-static','all-debug','all-static-debug', 'all-profile', 'all-profile-static'])
-Alias('install-everything', ['install', 'install-static', 'install-debug', 'install-static-debug', 'install-profile', 'install-profile-static'])
+Alias('everything',['all','all-static','all-debug','all-debug-static', 'all-profile', 'all-profile-static'])
+Alias('install-everything', ['install', 'install-static', 'install-debug', 'install-debug-static', 'install-profile', 'install-profile-static'])
