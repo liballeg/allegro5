@@ -24,6 +24,7 @@
 #include "allegro5/internal/aintern_dtor.h"
 #include "allegro5/internal/aintern_events.h"
 #include "allegro5/internal/aintern_memory.h"
+#include "allegro5/internal/aintern_system.h"
 
 
 
@@ -173,7 +174,7 @@ ALLEGRO_EVENT_SOURCE *al_create_user_event_source(void)
    src = _AL_MALLOC(sizeof(*src));
    if (src) {
       _al_event_source_init(src);
-      _al_register_destructor(src,
+      _al_register_destructor(_al_dtor_list, src,
          (void (*)(void *)) al_destroy_user_event_source);
    }
    return src;
@@ -187,7 +188,7 @@ ALLEGRO_EVENT_SOURCE *al_create_user_event_source(void)
 void al_destroy_user_event_source(ALLEGRO_EVENT_SOURCE *src)
 {
    if (src) {
-      _al_unregister_destructor(src);
+      _al_unregister_destructor(_al_dtor_list, src);
       _al_event_source_free(src);
       _AL_FREE(src);
    }

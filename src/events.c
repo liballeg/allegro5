@@ -30,6 +30,7 @@
 #include "allegro5/internal/aintern_dtor.h"
 #include "allegro5/internal/aintern_events.h"
 #include "allegro5/internal/aintern_memory.h"
+#include "allegro5/internal/aintern_system.h"
 
 
 
@@ -78,7 +79,8 @@ ALLEGRO_EVENT_QUEUE *al_create_event_queue(void)
       _al_mutex_init(&queue->mutex);
       _al_cond_init(&queue->cond);
 
-      _al_register_destructor(queue, (void (*)(void *)) al_destroy_event_queue);
+      _al_register_destructor(_al_dtor_list, queue,
+         (void (*)(void *)) al_destroy_event_queue);
    }
 
    return queue;
@@ -95,7 +97,7 @@ void al_destroy_event_queue(ALLEGRO_EVENT_QUEUE *queue)
 {
    ASSERT(queue);
 
-   _al_unregister_destructor(queue);
+   _al_unregister_destructor(_al_dtor_list, queue);
 
    /* Unregister any event sources registered with this queue.  */
    while (_al_vector_is_nonempty(&queue->sources)) {

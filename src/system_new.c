@@ -29,6 +29,8 @@ static ALLEGRO_SYSTEM *active_sysdrv = NULL;
 _AL_VECTOR _al_system_interfaces = _AL_VECTOR_INITIALIZER(ALLEGRO_SYSTEM_INTERFACE *);
 static _AL_VECTOR _user_system_interfaces = _AL_VECTOR_INITIALIZER(ALLEGRO_SYSTEM_INTERFACE *);
 
+_AL_DTOR_LIST *_al_dtor_list = NULL;
+
 static bool atexit_virgin = true;
 
 
@@ -159,7 +161,7 @@ bool al_install_system(int (*atexit_ptr)(void (*)(void)))
 
    _al_add_exit_func(shutdown_system_driver, "shutdown_system_driver");
 
-   _al_init_destructors();
+   _al_dtor_list = _al_init_destructors();
 
    al_set_blender(ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA, al_map_rgb(255, 255, 255));
 
@@ -181,7 +183,10 @@ bool al_install_system(int (*atexit_ptr)(void (*)(void)))
  */
 void al_uninstall_system(void)
 {
+   _al_run_destructors(_al_dtor_list);
    _al_run_exit_funcs();
+   _al_shutdown_destructors(_al_dtor_list);
+   _al_dtor_list = NULL;
 
    /* shutdown_system_driver is registered as an exit func so we don't need
     * to do any more here.

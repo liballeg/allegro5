@@ -3,9 +3,10 @@
 
 #include "allegro5/system_new.h"
 #include "allegro5/internal/aintern_display.h"
+#include "allegro5/internal/aintern_dtor.h"
 #include "allegro5/internal/aintern_events.h"
-#include "allegro5/internal/aintern_keyboard.h"
 #include "allegro5/internal/aintern_joystick.h"
+#include "allegro5/internal/aintern_keyboard.h"
 #include "allegro5/internal/aintern_mouse.h"
 #include "allegro5/internal/aintern_vector.h"
 
@@ -39,5 +40,6 @@ struct ALLEGRO_SYSTEM
 
 AL_FUNC(void, _al_register_system_interfaces, (void));
 AL_VAR(_AL_VECTOR, _al_system_interfaces);
+AL_VAR(_AL_DTOR_LIST *, _al_dtor_list);
 
 #endif

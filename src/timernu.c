@@ -23,6 +23,7 @@
 #include "allegro5/internal/aintern_dtor.h"
 #include "allegro5/internal/aintern_events.h"
 #include "allegro5/internal/aintern_memory.h"
+#include "allegro5/internal/aintern_system.h"
 
 #ifndef ALLEGRO_MSVC
 #ifndef ALLEGRO_BCC32
@@ -167,7 +168,8 @@ ALLEGRO_TIMER* al_install_timer(double speed_secs)
          timer->speed_secs = speed_secs;
          timer->counter = 0;
 
-         _al_register_destructor(timer, (void (*)(void *)) al_uninstall_timer);
+         _al_register_destructor(_al_dtor_list, timer,
+            (void (*)(void *)) al_uninstall_timer);
       }
 
       return timer;
@@ -185,7 +187,7 @@ void al_uninstall_timer(ALLEGRO_TIMER *this)
 
    al_stop_timer(this);
 
-   _al_unregister_destructor(this);
+   _al_unregister_destructor(_al_dtor_list, this);
 
    _al_event_source_free(&this->es);
    _AL_FREE(this);
