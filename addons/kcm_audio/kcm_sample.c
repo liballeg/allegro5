@@ -160,6 +160,8 @@ ALLEGRO_SAMPLE_DATA *al_create_sample_data(void *buf, unsigned long samples,
    spl->buffer.ptr = buf;
    spl->free_buf = free_buf;
 
+   _al_kcm_register_destructor(spl, (void (*)(void *)) al_destroy_sample_data);
+
    return spl;
 }
 
@@ -174,6 +176,8 @@ ALLEGRO_SAMPLE_DATA *al_create_sample_data(void *buf, unsigned long samples,
 void al_destroy_sample_data(ALLEGRO_SAMPLE_DATA *spl)
 {
    if (spl) {
+      _al_kcm_unregister_destructor(spl);
+
       if (spl->free_buf && spl->buffer.ptr) {
          free(spl->buffer.ptr);
       }
@@ -221,6 +225,8 @@ ALLEGRO_SAMPLE *al_create_sample(ALLEGRO_SAMPLE_DATA *sample_data)
    spl->mutex = NULL;
    spl->parent.u.ptr = NULL;
 
+   _al_kcm_register_destructor(spl, (void (*)(void *)) al_destroy_sample);
+
    return spl;
 }
 
@@ -232,7 +238,19 @@ ALLEGRO_SAMPLE *al_create_sample(ALLEGRO_SAMPLE_DATA *sample_data)
 /* This function is ALLEGRO_MIXER aware */
 void al_destroy_sample(ALLEGRO_SAMPLE *spl)
 {
+   _al_kcm_destroy_sample(spl, true);
+}
+
+
+/* Internal function: _al_kcm_destroy_sample
+ */
+void _al_kcm_destroy_sample(ALLEGRO_SAMPLE *spl, bool unregister)
+{
    if (spl) {
+      if (unregister) {
+         _al_kcm_unregister_destructor(spl);
+      }
+
       _al_kcm_detach_from_parent(spl);
       stream_free(spl);
    }

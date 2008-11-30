@@ -98,6 +98,8 @@ ALLEGRO_STREAM *al_create_stream(size_t buffer_count, unsigned long samples,
 
    stream->spl.es = al_create_user_event_source();
 
+   _al_kcm_register_destructor(stream, (void (*)(void *)) al_destroy_stream);
+
    return stream;
 }
 
@@ -107,6 +109,8 @@ ALLEGRO_STREAM *al_create_stream(size_t buffer_count, unsigned long samples,
 void al_destroy_stream(ALLEGRO_STREAM *stream)
 {
    if (stream) {
+      _al_kcm_unregister_destructor(stream);
+
       _al_kcm_detach_from_parent(&stream->spl);
       if (stream->feed_thread) {
          stream->unload_feeder(stream);

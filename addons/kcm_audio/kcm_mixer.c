@@ -636,6 +636,8 @@ ALLEGRO_MIXER *al_create_mixer(unsigned long freq,
 
    _al_vector_init(&mixer->streams, sizeof(ALLEGRO_SAMPLE *));
 
+   _al_kcm_register_destructor(mixer, (void (*)(void *)) al_destroy_mixer);
+
    return mixer;
 }
 
@@ -645,7 +647,10 @@ ALLEGRO_MIXER *al_create_mixer(unsigned long freq,
  */
 void al_destroy_mixer(ALLEGRO_MIXER *mixer)
 {
-   al_destroy_sample(&mixer->ss);
+   if (mixer) {
+      _al_kcm_unregister_destructor(mixer);
+      _al_kcm_destroy_sample(&mixer->ss, false);
+   }
 }
 
 

@@ -113,7 +113,7 @@ static ALLEGRO_AUDIO_DRIVER_ENUM get_config_audio_driver(void)
  * can create a voice with them.. if not
  * try another driver.
  */
-int al_install_audio(ALLEGRO_AUDIO_DRIVER_ENUM mode)
+static int do_install_audio(ALLEGRO_AUDIO_DRIVER_ENUM mode)
 {
    int retVal = 0;
 
@@ -203,14 +203,24 @@ int al_install_audio(ALLEGRO_AUDIO_DRIVER_ENUM mode)
          _al_set_error(ALLEGRO_INVALID_PARAM, "Invalid audio driver");
          return 1;
    }
-
 }
 
-void al_uninstall_audio()
+int al_install_audio(ALLEGRO_AUDIO_DRIVER_ENUM mode)
 {
-   if (_al_kcm_driver)
+   int ret = do_install_audio(mode);
+   if (ret == 0) {
+      _al_kcm_init_destructors();
+   }
+   return ret;
+}
+
+void al_uninstall_audio(void)
+{
+   if (_al_kcm_driver) {
+      _al_kcm_shutdown_destructors();
       _al_kcm_driver->close();
-   _al_kcm_driver = NULL;
+      _al_kcm_driver = NULL;
+   }
 }
 
 /* vim: set sts=3 sw=3 et: */

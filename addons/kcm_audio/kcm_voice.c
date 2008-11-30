@@ -88,6 +88,8 @@ ALLEGRO_VOICE *al_create_voice(unsigned long freq,
       return NULL;
    }
 
+   _al_kcm_register_destructor(voice, (void (*)(void *)) al_destroy_voice);
+
    return voice;
 }
 
@@ -99,6 +101,8 @@ ALLEGRO_VOICE *al_create_voice(unsigned long freq,
 void al_destroy_voice(ALLEGRO_VOICE *voice)
 {
    if (voice) {
+      _al_kcm_unregister_destructor(voice);
+
       al_detach_voice(voice);
       voice->driver->deallocate_voice(voice);
       al_destroy_mutex(voice->mutex);

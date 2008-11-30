@@ -151,6 +151,7 @@ struct ALLEGRO_SAMPLE {
                          */
 };
 
+void _al_kcm_destroy_sample(ALLEGRO_SAMPLE *sample, bool unregister);
 void _al_kcm_stream_set_mutex(ALLEGRO_SAMPLE *stream, ALLEGRO_MUTEX *mutex);
 void _al_kcm_detach_from_parent(ALLEGRO_SAMPLE *spl);
 
@@ -257,6 +258,11 @@ A5_KCM_AUDIO_FUNC(void*, _al_kcm_feed_stream, (ALLEGRO_THREAD *self, void *vstre
 
 /* Helper to emit an event that the stream has got a buffer ready to be refilled. */
 bool _al_kcm_emit_stream_event(ALLEGRO_STREAM *stream, unsigned long count);
+
+void _al_kcm_init_destructors(void);
+void _al_kcm_shutdown_destructors(void);
+void _al_kcm_register_destructor(void *object, void (*func)(void*));
+void _al_kcm_unregister_destructor(void *object);
 
 #endif
 
