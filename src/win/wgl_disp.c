@@ -40,6 +40,10 @@ static ALLEGRO_DISPLAY_INTERFACE *vt = 0;
 static void display_thread_proc(void *arg);
 static void destroy_display_internals(ALLEGRO_DISPLAY_WGL *wgl_disp);
 
+/* Prevents switching to desktop resolution when destroying the display. Used
+   on full screen resize. */
+static bool _wgl_do_not_change_display_mode = false;
+
 /*
  * These parameters cannot be gotten by the display thread because
  * they're thread local. We get them in the calling thread first.
@@ -1188,7 +1192,7 @@ End:
       wgl_disp->dc = NULL;
    }
 
-   if (disp->flags & ALLEGRO_FULLSCREEN) {
+   if (disp->flags & ALLEGRO_FULLSCREEN && !_wgl_do_not_change_display_mode) {
       ChangeDisplaySettings(NULL, 0);
    }
 
@@ -1236,21 +1240,39 @@ static bool wgl_resize_display(ALLEGRO_DISPLAY *d, int width, int height)
    ALLEGRO_DISPLAY_WIN *win_disp = (ALLEGRO_DISPLAY_WIN *)d;
 
    if (d->flags & ALLEGRO_FULLSCREEN) {
-      ALLEGRO_BITMAP *bmp = al_get_target_bitmap();
+      ALLEGRO_BITMAP *target_bmp;
+      _AL_VECTOR disp_bmps;
       bool was_backbuffer = false;
-      if (bmp->vt)
-         was_backbuffer = ((ALLEGRO_BITMAP_OGL*)bmp)->is_backbuffer;
+      size_t i;
 
+      target_bmp = al_get_target_bitmap();
+      if (target_bmp->vt)
+         was_backbuffer = ((ALLEGRO_BITMAP_OGL*)target_bmp)->is_backbuffer;
+
+      /* Remeber display bitmaps. */
+      _al_vector_init(&disp_bmps, sizeof(ALLEGRO_BITMAP*));
+      for (i = 0; i < _al_vector_size(&d->bitmaps); i++) {
+         ALLEGRO_BITMAP **dis = _al_vector_ref(&d->bitmaps, i);
+         ALLEGRO_BITMAP **mem = _al_vector_alloc_back(&disp_bmps);
+         *mem = *dis;
+      }
+
+      /* This flag prevents from switching to desktop resolution in between. */
+      _wgl_do_not_change_display_mode = true;
       destroy_display_internals(wgl_disp);
-      /* FIXME: no need to switch to desktop display mode in between.
-       */
+      _wgl_do_not_change_display_mode = false;
+
       d->w = width;
       d->h = height;
       if (!create_display_internals(wgl_disp))
          return false;
-      /* FIXME: All display bitmaps are memory bitmaps now. We should
-       * reuploaded them or prevent destroying them.
-       */
+
+      /* Reupload bitmaps. */
+      while (_al_vector_is_nonempty(&disp_bmps)) {
+         ALLEGRO_BITMAP **back = _al_vector_ref_back(&disp_bmps);
+         _al_convert_to_display_bitmap(*back);
+         _al_vector_delete_at(&disp_bmps, _al_vector_size(&disp_bmps) - 1);
+      }
 
       /* We have a new backbuffer now. */
       if (was_backbuffer)

@@ -566,6 +566,7 @@ ALLEGRO_BITMAP *_al_ogl_create_bitmap(ALLEGRO_DISPLAY *d, int w, int h)
    bitmap = _AL_MALLOC(sizeof *bitmap);
    ASSERT(bitmap);
    memset(bitmap, 0, sizeof *bitmap);
+   bitmap->bitmap.size = sizeof *bitmap;
    bitmap->bitmap.vt = ogl_bitmap_driver();
    bitmap->bitmap.w = w;
    bitmap->bitmap.h = h;

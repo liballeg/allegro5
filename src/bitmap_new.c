@@ -69,6 +69,8 @@ static ALLEGRO_BITMAP *_al_create_memory_bitmap(int w, int h)
    }
 
    bitmap = _AL_MALLOC(sizeof *bitmap);
+   memset(bitmap, 0, sizeof(*bitmap));
+   bitmap->size = sizeof(*bitmap);
 
    pitch = w * al_get_pixel_size(format);
 
@@ -721,7 +723,7 @@ ALLEGRO_BITMAP *al_create_sub_bitmap(ALLEGRO_BITMAP *parent,
    else {
       bitmap = _AL_MALLOC(sizeof *bitmap);
       memset(bitmap, 0, sizeof *bitmap);
-
+      bitmap->size = sizeof *bitmap;
       bitmap->vt = parent->vt;
    }
 
@@ -819,6 +821,69 @@ bool al_is_bitmap_locked(ALLEGRO_BITMAP *bitmap)
 }
 
 
+/* Converts a memory bitmap to a display bitmap preserving its contents.
+ * The created bitmap belongs to the current display. A converted sub
+ * bitmap is invalid until its parent is converted.
+ * WARNING: This function will fail for any memory bitmap not previously
+ * processed by _al_convert_to_memory_bitmap().
+ */
+void _al_convert_to_display_bitmap(ALLEGRO_BITMAP *bitmap)
+{
+   ALLEGRO_BITMAP *tmp;
+   ALLEGRO_STATE backup;
+   ALLEGRO_DISPLAY *d = al_get_current_display();
+
+   /* Do nothing if it is a memory bitmap already. */
+   if (!(bitmap->flags & ALLEGRO_MEMORY_BITMAP))
+      return;
+
+   if (bitmap->parent) {
+      /* FIXME
+       * We cannot safely assume that the backbuffer and bitmaps use the same
+       * vtable.
+       */
+      bitmap->vt = al_get_backbuffer()->vt;
+      bitmap->display = d;
+      bitmap->flags &= !ALLEGRO_MEMORY_BITMAP;
+      return;
+   }
+
+   /* Allocate a temporary bitmap which will hold the data
+    * during the conversion process. */
+
+   al_store_state(&backup, ALLEGRO_STATE_BITMAP | ALLEGRO_STATE_BLENDER);
+
+   al_set_new_bitmap_flags(0);
+   al_set_new_bitmap_format(bitmap->format);
+   tmp = al_create_bitmap(bitmap->w, bitmap->h);
+   /* Remove the temporary bitmap from the display bitmap list, added
+    * automatically by al_create_bitmap()*/
+   _al_vector_find_and_delete(&d->bitmaps, &tmp);
+
+   /* Preserve bitmap contents. */
+   al_set_blender(ALLEGRO_ONE, ALLEGRO_ZERO, al_map_rgb(255, 255, 255));
+   al_set_target_bitmap(tmp);
+   al_draw_bitmap(bitmap, 0, 0, 0);
+   tmp->cb = bitmap->cb;
+   tmp->cr = bitmap->cr;
+   tmp->cl = bitmap->cl;
+   tmp->ct = bitmap->ct;
+   
+   al_restore_state(&backup);
+
+   /* Free the memory bitmap's memory. */
+   _AL_FREE(bitmap->memory);
+
+   /* Put the contents back to the bitmap. */
+   ASSERT(tmp->size > sizeof(ALLEGRO_BITMAP));
+   ASSERT(bitmap->size > sizeof(ALLEGRO_BITMAP));
+   ASSERT(tmp->size == bitmap->size);
+   memcpy(bitmap, tmp, tmp->size);
+
+   _AL_FREE(tmp);
+}
+
+
 /* Converts a display bitmap to a memory bitmap preserving its contents.
  * Driver specific resources occupied by the display bitmap are freed.
  * A converted sub bitmap is invalid until its parent is converted.
@@ -867,26 +932,14 @@ void _al_convert_to_memory_bitmap(ALLEGRO_BITMAP *bitmap)
 
    _al_vector_find_and_delete(&bitmap->display->bitmaps, &bitmap);
 
-   /* Can't be sure that the pointer will stay the same. Not a real memory
-    * leak anyway, destroying the bitmap will free the whole block.
+   /* Do not shrink the bitmap object. This way we can convert back to the
+    * display bitmap.
     */
-   //_AL_REALLOC(bitmap, sizeof(ALLEGRO_BITMAP));
+   /*_AL_REALLOC(bitmap, tmp->size);
+     bitmap->size = tmp->size*/
 
    /* Put the contents back to the bitmap. */
-   bitmap->format = tmp->format;
-   bitmap->flags = tmp->flags;
-   bitmap->pitch = tmp->pitch;
-   bitmap->display = NULL;
-   bitmap->locked = false;
-   bitmap->w = tmp->w;
-   bitmap->h = tmp->h;
-   bitmap->cl = tmp->cl;
-   bitmap->ct = tmp->ct;
-   bitmap->cr = tmp->cr;
-   bitmap->cb = tmp->cb;
-   bitmap->parent = NULL;
-   bitmap->xofs = bitmap->yofs = 0;
-   bitmap->memory = tmp->memory;
+   memcpy(bitmap, tmp, tmp->size);
 
    _AL_FREE(tmp);
 }
