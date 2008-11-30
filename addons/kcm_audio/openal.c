@@ -16,7 +16,6 @@
 #include <alc.h>
 #endif /* ALLEGRO_MACOSX */
 
-#include "allegro5/internal/aintern_thread.h"
 #include "allegro5/internal/aintern_kcm_audio.h"
 
 /* OpenAL vars */
@@ -191,14 +190,14 @@ typedef struct ALLEGRO_AL_DATA {
    ALuint source;
    ALuint format;
 
-   _AL_THREAD thread;
+   ALLEGRO_THREAD *thread;
    volatile bool stop_voice;
 } ALLEGRO_AL_DATA;
 
 /* Custom routine which runs in another thread to periodically check if OpenAL
    wants more data for a stream */
 /* TODO: review */
-static void _openal_update(_AL_THREAD* self, void* arg)
+static void *_openal_update(ALLEGRO_THREAD* self, void* arg)
 {
    unsigned long i, samples_per_update;
    const void *data;
@@ -262,6 +261,8 @@ static void _openal_update(_AL_THREAD* self, void* arg)
    alSourceStop(ex_data->source);
 
    free(silence);
+
+   return NULL;
 }
 
 /* The load_voice method loads a sample into the driver's memory. The voice's
@@ -423,7 +424,8 @@ static int _openal_start_voice(ALLEGRO_VOICE *voice)
       }
 
       ex_data->stop_voice = 0;
-      _al_thread_create(&ex_data->thread, _openal_update, (void*) voice);
+      ex_data->thread = al_create_thread(_openal_update, (void*) voice);
+      al_start_thread(ex_data->thread);
 
    }
       return 0;
@@ -458,7 +460,7 @@ static int _openal_stop_voice(ALLEGRO_VOICE* voice)
    if(ex_data->stop_voice == 0)
    {
       ex_data->stop_voice = 1;
-      _al_thread_join(&ex_data->thread);
+      al_join_thread(ex_data->thread, NULL);
    }
 
    alDeleteBuffers(ex_data->num_buffers, ex_data->buffers);
