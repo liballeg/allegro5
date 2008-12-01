@@ -3,6 +3,10 @@
 #
 #   cmake -DCMAKE_TOOLCHAIN_FILE=cmake/Toolchain-mingw.cmake .
 #
+# or for out of source:
+#
+#   cmake -DCMAKE_TOOLCHAIN_FILE=../cmake/Toolchain-mingw.cmake ..
+#
 # You will need at least CMake 2.6.0.
 #
 # Adjust the following paths to suit your environment.
