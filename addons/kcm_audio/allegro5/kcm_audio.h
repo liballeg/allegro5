@@ -440,7 +440,7 @@ A5_KCM_AUDIO_FUNC(int, al_set_voice_bool, (ALLEGRO_VOICE *voice,
 A5_KCM_AUDIO_FUNC(int,  al_install_audio, (ALLEGRO_AUDIO_DRIVER_ENUM mode));
 A5_KCM_AUDIO_FUNC(void, al_uninstall_audio, (void));
 
-A5_KCM_AUDIO_FUNC(bool, al_is_channel_configuredigured, (ALLEGRO_CHANNEL_CONF conf));
+A5_KCM_AUDIO_FUNC(bool, al_is_channel_conf, (ALLEGRO_CHANNEL_CONF conf));
 A5_KCM_AUDIO_FUNC(size_t, al_get_channel_count, (ALLEGRO_CHANNEL_CONF conf));
 A5_KCM_AUDIO_FUNC(size_t, al_get_depth_size, (ALLEGRO_AUDIO_DEPTH conf));
 

@@ -35,7 +35,7 @@ ALLEGRO_AUDIO_DRIVER *_al_kcm_driver = NULL;
 #endif
 
 /* Channel configuration helpers */
-bool al_is_channel_configuredigured(ALLEGRO_CHANNEL_CONF conf)
+bool al_is_channel_conf(ALLEGRO_CHANNEL_CONF conf)
 {
    return ((conf >= ALLEGRO_CHANNEL_CONF_1) && (conf <= ALLEGRO_CHANNEL_CONF_7_1));
 }
