@@ -12,7 +12,7 @@ void SampleResource::destroy(void)
 
 bool SampleResource::load(void)
 {
-   sample_data = al_load_sample(filename.c_str());
+   sample_data = al_load_sample_data(filename.c_str());
    if (!sample_data) {
       debug_message("Error loading sample %s\n", filename.c_str());
       return false;

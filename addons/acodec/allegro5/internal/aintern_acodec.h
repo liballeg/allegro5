@@ -13,17 +13,17 @@
 #include "allegro5/internal/aintern_acodec_cfg.h"
 
 #if defined(ALLEGRO_CFG_ACODEC_FLAC)
-   ALLEGRO_SAMPLE_DATA *al_load_sample_flac(const char *filename);
+   ALLEGRO_SAMPLE_DATA *al_load_sample_data_flac(const char *filename);
    ALLEGRO_STREAM *al_load_stream_flac(const char *filename);
 #endif
 
 #if defined(ALLEGRO_CFG_ACODEC_SNDFILE)
-   ALLEGRO_SAMPLE_DATA *al_load_sample_sndfile(const char *filename);
+   ALLEGRO_SAMPLE_DATA *al_load_sample_data_sndfile(const char *filename);
    ALLEGRO_STREAM *al_load_stream_sndfile(size_t buffer_count, unsigned long samples, const char *filename);
 #endif
 
 #if defined(ALLEGRO_CFG_ACODEC_VORBIS)
-   ALLEGRO_SAMPLE_DATA *al_load_sample_oggvorbis(const char *filename);
+   ALLEGRO_SAMPLE_DATA *al_load_sample_data_oggvorbis(const char *filename);
    ALLEGRO_STREAM *al_load_stream_oggvorbis(size_t buffer_count, unsigned long samples, const char *filename);
 #endif
 

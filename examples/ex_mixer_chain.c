@@ -59,7 +59,7 @@ int main(int argc, char **argv)
 
    for (i = 0; i < 2; i++) {
       const char *filename = argv[i + 1];
-      sample_data[i] = al_load_sample(filename);
+      sample_data[i] = al_load_sample_data(filename);
       if (!sample_data[i]) {
          fprintf(stderr, "Could not load sample from '%s'!\n", filename);
          return 1;

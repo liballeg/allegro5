@@ -28,7 +28,7 @@ struct AL_OV_DATA {
 /* Note: decoding library returns floats.  I always return 16-bit (most
  * commonly supported).
  */
-ALLEGRO_SAMPLE_DATA *al_load_sample_oggvorbis(const char *filename)
+ALLEGRO_SAMPLE_DATA *al_load_sample_data_oggvorbis(const char *filename)
 {
 #ifdef ALLEGRO_LITTLE_ENDIAN
    const int endian = 0; /* 0 for Little-Endian, 1 for Big-Endian */

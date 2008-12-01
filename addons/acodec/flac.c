@@ -126,7 +126,7 @@ static FLAC__StreamDecoderWriteStatus write_callback(
 }
 
 
-ALLEGRO_SAMPLE_DATA *al_load_sample_flac(const char *filename)
+ALLEGRO_SAMPLE_DATA *al_load_sample_data_flac(const char *filename)
 {
    ALLEGRO_SAMPLE_DATA *sample;
    FLAC__StreamDecoder *decoder = 0;

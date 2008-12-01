@@ -7,7 +7,7 @@
 #include "allegro5/internal/aintern_acodec.h"
 
 
-ALLEGRO_SAMPLE_DATA *al_load_sample(const char *filename)
+ALLEGRO_SAMPLE_DATA *al_load_sample_data(const char *filename)
 {
    const char *ext;
 
@@ -20,13 +20,13 @@ ALLEGRO_SAMPLE_DATA *al_load_sample(const char *filename)
    ext++;   /* skip '.' */
    #if defined(ALLEGRO_CFG_ACODEC_VORBIS)
       if (stricmp("ogg", ext) == 0) {
-         return al_load_sample_oggvorbis(filename);
+         return al_load_sample_data_oggvorbis(filename);
       }
    #endif
    
    #if defined(ALLEGRO_CFG_ACODEC_FLAC)
       if (stricmp("flac", ext) == 0) {
-         return al_load_sample_flac(filename);
+         return al_load_sample_data_flac(filename);
       }
    #endif
 
@@ -35,7 +35,7 @@ ALLEGRO_SAMPLE_DATA *al_load_sample(const char *filename)
          stricmp("aiff", ext) == 0 ||
          stricmp("flac", ext) == 0)
       {
-         return al_load_sample_sndfile(filename);
+         return al_load_sample_data_sndfile(filename);
       }
    #endif
  

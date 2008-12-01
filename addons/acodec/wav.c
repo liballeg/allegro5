@@ -41,7 +41,7 @@ static ALLEGRO_AUDIO_DEPTH _get_depth_enum(int format, int *word_size)
 }
 
 
-ALLEGRO_SAMPLE_DATA *al_load_sample_sndfile(const char *filename)
+ALLEGRO_SAMPLE_DATA *al_load_sample_data_sndfile(const char *filename)
 {
    ALLEGRO_AUDIO_DEPTH depth;
    SF_INFO sfinfo;
