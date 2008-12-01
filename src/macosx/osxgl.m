@@ -545,7 +545,10 @@ static int decode_allegro_format(int format, int* glfmt, int* glsize, int* depth
       // Found another compatible display. Transfer our bitmaps to it.
       _AL_VECTOR* bmps = &dpy->parent.bitmaps;
       for (i = 0; i<_al_vector_size(bmps); ++i) {
-         *(ALLEGRO_BITMAP**) _al_vector_alloc_back(&other->parent.bitmaps) = *(ALLEGRO_BITMAP**)_al_vector_ref(bmps, i);
+         ALLEGRO_BITMAP **add = _al_vector_alloc_back(&other->parent.bitmaps);
+         ALLEGRO_BITMAP **ref = _al_vector_ref(bmps, i);
+         *add = *ref;
+         (*add)->display = &(other->parent);
       }
    }
    else {
