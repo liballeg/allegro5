@@ -68,31 +68,34 @@ public:
 class Dialog {
 private:
    const Theme &        theme;
+   ALLEGRO_DISPLAY *    display;
+   ALLEGRO_EVENT_QUEUE *event_queue;
    int                  grid_m;
    int                  grid_n;
    int                  x_padding;
    int                  y_padding;
 
+   bool                 draw_requested;
    bool                 quit_requested;
    std::list<Widget *>  all_widgets;
    Widget *             mouse_over_widget;
    Widget *             mouse_down_widget;
    Widget *             key_widget;
 
-   ALLEGRO_DISPLAY *    display;
-   ALLEGRO_EVENT_QUEUE *event_queue;
-
 public:
-   Dialog(const Theme & theme, int grid_m, int grid_n);
+   Dialog(const Theme & theme, ALLEGRO_DISPLAY *display,
+      int grid_m, int grid_n);
    ~Dialog();
 
    void           set_padding(int x_padding, int y_padding);
    void           add(Widget & widget, int grid_x, int grid_y,
                      int grid_w, int grid_h);
-   void           prepare(ALLEGRO_DISPLAY *display);
+   void           prepare();
    void           run_step(bool block);
    void           request_quit();
    bool           is_quit_requested() const;
+   void           request_draw();
+   bool           is_draw_requested() const;
    void           draw();
    const Theme &  get_theme() const;
 

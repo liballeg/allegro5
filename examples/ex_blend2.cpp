@@ -27,15 +27,15 @@ private:
    VSlider a;
 
 public:
-   explicit Prog(const Theme & theme);
+   Prog(const Theme & theme, ALLEGRO_DISPLAY *display);
    void run();
 
 private:
    void draw_samples();
 };
 
-Prog::Prog(const Theme & theme) :
-   d(Dialog(theme, 20, 20)),
+Prog::Prog(const Theme & theme, ALLEGRO_DISPLAY *display) :
+   d(Dialog(theme, display, 20, 20)),
    r(VSlider(255, 255)),
    g(VSlider(255, 255)),
    b(VSlider(255, 255)),
@@ -61,13 +61,15 @@ Prog::Prog(const Theme & theme) :
 
 void Prog::run()
 {
-   d.prepare(al_get_current_display());
+   d.prepare();
 
    while (!d.is_quit_requested()) {
-      al_clear(al_map_rgb(128, 128, 128));
-      draw_samples();
-      d.draw();
-      al_flip_display();
+      if (d.is_draw_requested()) {
+         al_clear(al_map_rgb(128, 128, 128));
+         draw_samples();
+         d.draw();
+         al_flip_display();
+      }
 
       d.run_step(true);
    }
@@ -126,6 +128,7 @@ int main()
    al_font_init();
    al_iio_init();
 
+   al_set_new_display_flags(ALLEGRO_GENERATE_EXPOSE_EVENTS);
    display = al_create_display(640, 480);
    if (!display) {
       TRACE("Unable to create display\n");
@@ -156,7 +159,7 @@ int main()
    /* Don't remove these braces. */
    {
       Theme theme(font);
-      Prog prog(theme);
+      Prog prog(theme, display);
       prog.run();
    }
 

@@ -66,23 +66,28 @@ bool Widget::contains(int x, int y)
 
 /*---------------------------------------------------------------------------*/
 
-Dialog::Dialog(const Theme & theme, int grid_m, int grid_n):
+Dialog::Dialog(const Theme & theme, ALLEGRO_DISPLAY *display,
+      int grid_m, int grid_n):
    theme(theme),
+   display(display),
    grid_m(grid_m),
    grid_n(grid_n),
    x_padding(1),
    y_padding(1),
+
+   draw_requested(true),
    quit_requested(false),
    mouse_over_widget(NULL),
    mouse_down_widget(NULL),
-   key_widget(NULL),
-   display(NULL)
+   key_widget(NULL)
 {
    this->event_queue = al_create_event_queue();
    al_register_event_source(this->event_queue,
       (ALLEGRO_EVENT_SOURCE *) al_get_keyboard());
    al_register_event_source(this->event_queue,
       (ALLEGRO_EVENT_SOURCE *) al_get_mouse());
+   al_register_event_source(this->event_queue,
+      (ALLEGRO_EVENT_SOURCE *) display);
 }
 
 Dialog::~Dialog()
@@ -111,9 +116,8 @@ void Dialog::add(Widget & widget, int grid_x, int grid_y, int grid_w,
    widget.dialog = this;
 }
 
-void Dialog::prepare(ALLEGRO_DISPLAY *display)
+void Dialog::prepare()
 {
-   this->display = display;
    this->configure_all();
 
    /* XXX this isn't working right in X.  The mouse position is reported as
@@ -162,6 +166,10 @@ void Dialog::run_step(bool block)
 
          case ALLEGRO_EVENT_MOUSE_BUTTON_UP:
             on_mouse_button_up(event.mouse);
+            break;
+
+         case ALLEGRO_EVENT_DISPLAY_EXPOSE:
+            this->request_draw();
             break;
 
          default:
@@ -238,13 +246,15 @@ void Dialog::on_mouse_button_down(const ALLEGRO_MOUSE_EVENT & event)
    this->mouse_down_widget->on_mouse_button_down(event.x, event.y);
 
    /* transfer key focus */
-   if (this->mouse_down_widget != this->key_widget &&
-         this->mouse_down_widget->want_key_focus()) {
+   if (this->mouse_down_widget != this->key_widget) {
       if (this->key_widget) {
          this->key_widget->lost_key_focus();
+         this->key_widget = NULL;
       }
-      this->key_widget = this->mouse_down_widget;
-      this->key_widget->got_key_focus();
+      if (this->mouse_down_widget->want_key_focus()) {
+         this->key_widget = this->mouse_down_widget;
+         this->key_widget->got_key_focus();
+      }
    }
 }
 
@@ -272,6 +282,16 @@ bool Dialog::is_quit_requested() const
    return this->quit_requested;
 }
 
+void Dialog::request_draw()
+{
+   this->draw_requested = true;
+}
+
+bool Dialog::is_draw_requested() const
+{
+   return this->draw_requested;
+}
+
 void Dialog::draw()
 {
    int cx, cy, cw, ch;
@@ -287,6 +307,8 @@ void Dialog::draw()
    }
 
    al_set_clipping_rectangle(cx, cy, cw, ch);
+
+   this->draw_requested = false;
 }
 
 const Theme & Dialog::get_theme() const
@@ -305,11 +327,13 @@ Button::Button(std::string text):
 void Button::on_mouse_button_down(int mx, int my)
 {
    this->pushed = true;
+   dialog->request_draw();
 }
 
 void Button::on_mouse_button_up(int mx, int my)
 {
    this->pushed = false;
+   dialog->request_draw();
 }
 
 void Button::draw()
@@ -352,6 +376,7 @@ void List::on_click(int mx, int my)
    unsigned int i = (my - this->y1) / al_font_text_height(theme.font);
    if (i < this->items.size()) {
       this->selected_item = i;
+      dialog->request_draw();
    }
 }
 
@@ -415,6 +440,7 @@ void VSlider::on_mouse_button_hold(int mx, int my)
    double r = (double) (this->y2 - 1 - my) / (this->height() - 2);
    r = CLAMP(0.0, r, 1.0);
    cur_value = (int) (r * max_value);
+   dialog->request_draw();
 }
 
 void VSlider::draw()
@@ -454,11 +480,13 @@ bool TextEntry::want_key_focus()
 void TextEntry::got_key_focus()
 {
    this->focused = true;
+   dialog->request_draw();
 }
 
 void TextEntry::lost_key_focus()
 {
    this->focused = false;
+   dialog->request_draw();
 }
 
 void TextEntry::on_key_down(const ALLEGRO_KEYBOARD_EVENT & event)
@@ -499,6 +527,7 @@ void TextEntry::on_key_down(const ALLEGRO_KEYBOARD_EVENT & event)
    }
 
    maybe_scroll();
+   dialog->request_draw();
 }
 
 void TextEntry::maybe_scroll()
