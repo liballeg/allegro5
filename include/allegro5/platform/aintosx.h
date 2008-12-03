@@ -118,6 +118,8 @@ void _al_osx_mouse_move(int x, int y);
 HID_DEVICE_COLLECTION *osx_hid_scan(int type, HID_DEVICE_COLLECTION*);
 void osx_hid_free(HID_DEVICE_COLLECTION *);
 
+// Record in the keyboard state that the main window has changed
+void _al_osx_switch_keyboard_focus(ALLEGRO_DISPLAY *, bool switch_in);
 // Notify the display that the mouse driver was installed/uninstalled.
 void _al_osx_mouse_was_installed(BOOL);
 // Notify the display that the keyboard driver was installed/uninstalled.

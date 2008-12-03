@@ -340,6 +340,7 @@ void _al_osx_mouse_was_installed(BOOL install) {
 	ALLEGRO_EVENT evt;
 	evt.type = ALLEGRO_EVENT_DISPLAY_SWITCH_IN;
 	_al_event_source_emit_event(src, &evt);
+   _al_osx_switch_keyboard_focus(dpy_ptr, true);
 	_al_event_source_unlock(src);
 	osx_change_cursor(dpy, dpy->cursor);
 }
@@ -350,6 +351,7 @@ void _al_osx_mouse_was_installed(BOOL install) {
 	ALLEGRO_EVENT evt;
 	evt.type = ALLEGRO_EVENT_DISPLAY_SWITCH_OUT;
 	_al_event_source_emit_event(src, &evt);
+   _al_osx_switch_keyboard_focus(dpy_ptr, false);
 	_al_event_source_unlock(src);
 }
 -(void) windowDidResize:(NSNotification*) notification

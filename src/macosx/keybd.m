@@ -34,6 +34,21 @@ static ALLEGRO_KEYBOARD* osx_get_keyboard(void);
 static ALLEGRO_KEYBOARD keyboard;
 static ALLEGRO_KEYBOARD_STATE kbdstate;
 
+/* _al_osx_switch_keyboard_focus:
+ *  Handle a focus switch event.
+ */
+void _al_osx_switch_keyboard_focus(ALLEGRO_DISPLAY *dpy, bool switch_in)
+{
+	_al_event_source_lock(&keyboard.es);
+
+   if (switch_in)
+      kbdstate.display = dpy;
+   else
+      kbdstate.display = NULL;
+
+	_al_event_source_unlock(&keyboard.es);	
+}
+
 static void _handle_key_press(ALLEGRO_DISPLAY* dpy, int unicode, int scancode, int modifiers) {
 	int is_repeat=0;
 	int type;
@@ -55,7 +70,6 @@ static void _handle_key_press(ALLEGRO_DISPLAY* dpy, int unicode, int scancode, i
 	}
    /* Maintain the kbdstate array. */
    _AL_KEYBOARD_STATE_SET_KEY_DOWN(kbdstate, scancode);
-   kbdstate.display = dpy;
 	_al_event_source_unlock(&keyboard.es);	
 }
 static void _handle_key_release(ALLEGRO_DISPLAY* dpy, int scancode) {
@@ -76,7 +90,6 @@ static void _handle_key_release(ALLEGRO_DISPLAY* dpy, int scancode) {
 	}
    /* Maintain the kbdstate array. */
    _AL_KEYBOARD_STATE_CLEAR_KEY_DOWN(kbdstate, scancode);
-   kbdstate.display = dpy;
 	_al_event_source_unlock(&keyboard.es);
 }
 /* Mac keycode to Allegro scancode conversion table */
