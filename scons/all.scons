@@ -98,6 +98,7 @@ def examples(env):
     example("ex_bitmap_flip")
     example("ex_bitmap_target")
     example("ex_blend")
+    example("ex_blend2", files = ["ex_blend2.cpp", "nihgui.cpp"])
     example("ex_config")
     example("ex_disable_screensaver")
     example("ex_drawpixels")
