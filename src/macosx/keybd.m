@@ -55,6 +55,7 @@ static void _handle_key_press(ALLEGRO_DISPLAY* dpy, int unicode, int scancode, i
 	}
    /* Maintain the kbdstate array. */
    _AL_KEYBOARD_STATE_SET_KEY_DOWN(kbdstate, scancode);
+   kbdstate.display = dpy;
 	_al_event_source_unlock(&keyboard.es);	
 }
 static void _handle_key_release(ALLEGRO_DISPLAY* dpy, int scancode) {
@@ -75,6 +76,7 @@ static void _handle_key_release(ALLEGRO_DISPLAY* dpy, int scancode) {
 	}
    /* Maintain the kbdstate array. */
    _AL_KEYBOARD_STATE_CLEAR_KEY_DOWN(kbdstate, scancode);
+   kbdstate.display = dpy;
 	_al_event_source_unlock(&keyboard.es);
 }
 /* Mac keycode to Allegro scancode conversion table */
