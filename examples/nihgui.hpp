@@ -130,7 +130,7 @@ private:
    unsigned int   selected_item;
 
 public:
-   List();
+   List(int initial_selection = 0);
    virtual void   on_click(int mx, int my);
    virtual void   draw();
 

@@ -365,8 +365,8 @@ void Button::draw()
 
 const std::string List::empty_string;
 
-List::List() :
-   selected_item(0)
+List::List(int initial_selection) :
+   selected_item(initial_selection)
 {
 }
 
