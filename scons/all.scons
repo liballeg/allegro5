@@ -92,6 +92,7 @@ def examples(env):
 
     example("ex_acodec")
     example("ex_acodec_multi")
+    example("ex_audio_simple")
     example("ex_stream_file")
     example("ex_bitmap")
     example("ex_bitmap_flip")

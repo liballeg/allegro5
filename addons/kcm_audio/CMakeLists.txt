@@ -3,6 +3,7 @@ set(AUDIO_SOURCES
     kcm_dtor.c
     kcm_mixer.c
     kcm_sample.c
+    kcm_simple.c
     kcm_stream.c
     kcm_voice.c
     )

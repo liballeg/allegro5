@@ -444,6 +444,13 @@ A5_KCM_AUDIO_FUNC(bool, al_is_channel_conf, (ALLEGRO_CHANNEL_CONF conf));
 A5_KCM_AUDIO_FUNC(size_t, al_get_channel_count, (ALLEGRO_CHANNEL_CONF conf));
 A5_KCM_AUDIO_FUNC(size_t, al_get_depth_size, (ALLEGRO_AUDIO_DEPTH conf));
 
+/* Simple audio layer */
+A5_KCM_AUDIO_FUNC(bool, al_setup_simple_audio, (int reserve_samples));
+A5_KCM_AUDIO_FUNC(void, al_shutdown_simple_audio, (void));
+A5_KCM_AUDIO_FUNC(ALLEGRO_VOICE *, al_get_simple_audio_voice, (void));
+A5_KCM_AUDIO_FUNC(ALLEGRO_MIXER *, al_get_simple_audio_mixer, (void));
+A5_KCM_AUDIO_FUNC(bool, al_play_sample_data, (ALLEGRO_SAMPLE_DATA *data));
+A5_KCM_AUDIO_FUNC(void, al_stop_all_simple_samples, (void));
 
 #ifdef __cplusplus
 } /* End extern "C" */
