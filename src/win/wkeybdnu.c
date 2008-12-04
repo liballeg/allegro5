@@ -682,6 +682,7 @@ static void wkeybd_get_keyboard_state(ALLEGRO_KEYBOARD_STATE *ret_state)
    _al_event_source_lock(&the_keyboard.es);
    {
       *ret_state = key_state;
+      ret_state->display = (ALLEGRO_DISPLAY*)win_disp;
    }
    _al_event_source_unlock(&the_keyboard.es);
 }
