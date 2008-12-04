@@ -318,6 +318,29 @@ const Theme & Dialog::get_theme() const
 
 /*---------------------------------------------------------------------------*/
 
+Label::Label(std::string text, bool centred) :
+   text(text),
+   centred(centred)
+{
+}
+
+void Label::draw()
+{
+   const Theme & theme = this->dialog->get_theme();
+   SaveState state;
+
+   al_set_blender(ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA, theme.fg);
+   if (centred) {
+      al_font_textout_centre(theme.font, (this->x1 + this->x2 + 1)/2,
+         this->y1, this->text.c_str(), -1);
+   }
+   else {
+      al_font_textout(theme.font, this->x1, this->y1, this->text.c_str(), -1);
+   }
+}
+
+/*---------------------------------------------------------------------------*/
+
 Button::Button(std::string text):
    text(text),
    pushed(false)

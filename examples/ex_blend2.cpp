@@ -21,8 +21,8 @@ ALLEGRO_BITMAP *target_bmp;
 class Prog {
 private:
    Dialog d;
-   Button source_title;
-   Button destination_title;
+   Label source_title;
+   Label destination_title;
    List source_image;
    List destination_image;
    List slst;
@@ -31,21 +31,20 @@ private:
    VSlider g;
    VSlider b;
    VSlider a;
-   
-   void blending_test(bool memory);
 
 public:
    Prog(const Theme & theme, ALLEGRO_DISPLAY *display);
    void run();
 
 private:
+   void blending_test(bool memory);
    void draw_samples();
 };
 
 Prog::Prog(const Theme & theme, ALLEGRO_DISPLAY *display) :
    d(Dialog(theme, display, 20, 20)),
-   source_title(Button("Source")),
-   destination_title(Button("Destination")),
+   source_title(Label("Source")),
+   destination_title(Label("Destination")),
    destination_image(List(1)),
    r(VSlider(255, 255)),
    g(VSlider(255, 255)),
@@ -57,7 +56,7 @@ Prog::Prog(const Theme & theme, ALLEGRO_DISPLAY *display) :
 
    List *images[] = {&source_image, &destination_image};
    for (int i = 0; i < 2; i++) {
-      List &image = *images[i];
+      List & image = *images[i];
       image.append_item("Mysha");
       image.append_item("Allegro");
       image.append_item("Opaque Black");
@@ -118,36 +117,37 @@ int str_to_blend_mode(const std::string & str)
 
 void draw_background()
 {
-   ALLEGRO_COLOR c[] = {al_map_rgba(0x66, 0x66, 0x66, 0xff),
-   	  al_map_rgba(0x99, 0x99, 0x99, 0xff)};
+   ALLEGRO_COLOR c[] = {
+      al_map_rgba(0x66, 0x66, 0x66, 0xff),
+      al_map_rgba(0x99, 0x99, 0x99, 0xff)
+   };
+
    for (int i = 0; i < 640 / 16; i++) {
-   	  for (int j = 0; j < 200 / 16; j++) {
-   	  	  al_draw_rectangle(i * 16, j * 16, i * 16 + 16, j * 16 + 16,
-   	  	  	 c[(i + j) & 1], ALLEGRO_FILLED);
+      for (int j = 0; j < 200 / 16; j++) {
+         al_draw_rectangle(i * 16, j * 16, i * 16 + 16, j * 16 + 16,
+            c[(i + j) & 1], ALLEGRO_FILLED);
       }
    }
 }
 
 void draw_bitmap(const std::string & str, bool memory)
 {
-   ALLEGRO_COLOR opaque_black, opaque_white, transparent_black,
-      transparent_white;
-   opaque_black = al_map_rgba_f(0, 0, 0, 1);
-   opaque_white = al_map_rgba_f(1, 1, 1, 1);
-   transparent_black = al_map_rgba_f(0, 0, 0, 0.5);
-   transparent_white = al_map_rgba_f(1, 1, 1, 0.5);
-   
+   ALLEGRO_COLOR opaque_black = al_map_rgba_f(0, 0, 0, 1);
+   ALLEGRO_COLOR opaque_white = al_map_rgba_f(1, 1, 1, 1);
+   ALLEGRO_COLOR transparent_black = al_map_rgba_f(0, 0, 0, 0.5);
+   ALLEGRO_COLOR transparent_white = al_map_rgba_f(1, 1, 1, 0.5);
+
    if (str == "Mysha")
       al_draw_bitmap(memory ? mysha_bmp : mysha, 0, 0, 0);
-   if (str == "Allegro")
+   else if (str == "Allegro")
       al_draw_bitmap(memory ? allegro_bmp : allegro, 0, 0, 0);
-   if (str == "Opaque Black")
+   else if (str == "Opaque Black")
       al_draw_rectangle(0, 0, 320, 200, opaque_black, ALLEGRO_FILLED);
-   if (str == "Opaque White")
+   else if (str == "Opaque White")
       al_draw_rectangle(0, 0, 320, 200, opaque_white, ALLEGRO_FILLED);
-   if (str == "Transparent Black")
+   else if (str == "Transparent Black")
       al_draw_rectangle(0, 0, 320, 200, transparent_black, ALLEGRO_FILLED);
-   if (str == "Transparent White")
+   else if (str == "Transparent White")
       al_draw_rectangle(0, 0, 320, 200, transparent_white, ALLEGRO_FILLED);
 }
 

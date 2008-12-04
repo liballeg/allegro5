@@ -110,6 +110,16 @@ private:
 
 /*---------------------------------------------------------------------------*/
 
+class Label : public Widget {
+private:
+   std::string    text;
+   bool           centred;
+
+public:
+   Label(std::string text, bool centred=true);
+   virtual void   draw();
+};
+
 class Button : public Widget {
 private:
    std::string    text;
