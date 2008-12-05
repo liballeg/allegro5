@@ -59,6 +59,7 @@ void _al_xglx_config_select_visual(ALLEGRO_DISPLAY_XGLX *glx)
 void _al_xglx_config_create_context(ALLEGRO_DISPLAY_XGLX *glx)
 {
     ALLEGRO_SYSTEM_XGLX *system = (void *)al_system_driver();
+    ALLEGRO_DISPLAY *disp = (void*)glx;
     GLXContext existing_ctx = NULL;
 
     /* Find an existing context with which to share display lists. */
@@ -83,6 +84,8 @@ void _al_xglx_config_create_context(ALLEGRO_DISPLAY_XGLX *glx)
             existing_ctx, True);
         glx->glxwindow = glx->window;
     }
+
+    disp->ogl_extras->is_shared = true;
 
    TRACE("xglx_config: Got GLX context.\n");
 }
