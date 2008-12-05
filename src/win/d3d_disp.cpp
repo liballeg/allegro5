@@ -2036,7 +2036,7 @@ static ALLEGRO_BITMAP *d3d_get_frontbuffer(ALLEGRO_DISPLAY *display)
 
 static bool d3d_is_compatible_bitmap(ALLEGRO_DISPLAY *display, ALLEGRO_BITMAP *bitmap)
 {
-   return false;
+   return display == bitmap->display;
 }
 
 static void d3d_switch_out(ALLEGRO_DISPLAY *display)
