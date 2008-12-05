@@ -833,7 +833,7 @@ void _al_convert_to_display_bitmap(ALLEGRO_BITMAP *bitmap)
    ALLEGRO_STATE backup;
    ALLEGRO_DISPLAY *d = al_get_current_display();
 
-   /* Do nothing if it is a memory bitmap already. */
+   /* Do nothing if it is a display bitmap already. */
    if (!(bitmap->flags & ALLEGRO_MEMORY_BITMAP))
       return;
 
