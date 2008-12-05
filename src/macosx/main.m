@@ -20,6 +20,7 @@
 #include "allegro5/internal/aintern.h"
 #include "allegro5/internal/aintern_events.h"
 #include "allegro5/internal/aintern_keyboard.h"
+#include "allegro5/internal/aintern_memory.h"
 #include "allegro5/platform/aintosx.h"
 
 #ifndef ALLEGRO_MACOSX
@@ -120,8 +121,18 @@ static BOOL in_bundle(void)
 }
 - (BOOL)application: (NSApplication *)theApplication openFile: (NSString *)filename
 {
-	arg1 = strdup([filename lossyCString]);
-	return YES;
+	NSData* data = [filename dataUsingEncoding:NSASCIIStringEncoding allowLossyConversion:YES];
+	if (data != nil) {
+		unsigned int len = 1 + [data length];
+		arg1 = _AL_MALLOC(len);
+		memset(arg1, 0, len);
+		[data getBytes: arg1];
+
+		return YES;
+	}
+	else {
+		return NO;
+	}
 }
 
 

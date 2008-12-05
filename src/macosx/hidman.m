@@ -19,6 +19,7 @@
 #include "allegro5/allegro5.h"
 #include "allegro5/internal/aintern.h"
 #include "allegro5/internal/aintern_events.h"
+#include "allegro5/internal/aintern_memory.h"
 #include "allegro5/internal/aintern_keyboard.h"
 #include "allegro5/platform/aintosx.h"
 
@@ -32,6 +33,7 @@ static void hid_store_element_data(CFTypeRef element, int type, HID_DEVICE *devi
 static void hid_scan_element(CFTypeRef element, HID_DEVICE *device);
 static void hid_scan_physical_collection(CFTypeRef properties, HID_DEVICE *device, int app, int collection);
 static void hid_scan_application_collection(CFMutableDictionaryRef properties, HID_DEVICE *device);
+static char* lossy_copy(NSString*);
 
 static HID_DEVICE* add_device(HID_DEVICE_COLLECTION*);
 
@@ -511,6 +513,20 @@ void osx_hid_free(HID_DEVICE_COLLECTION *col)
 	}
 	free(col->devices);
 }
+
+char* lossy_copy(NSString* string) 
+{
+	char* cstr = NULL;
+	NSData* data = [string dataUsingEncoding:NSASCIIStringEncoding allowLossyConversion:YES];
+	if (data != nil) {
+		unsigned int len = 1 + [data length];
+		cstr = _AL_MALLOC(len);
+		memset(cstr, 0, len);
+		[data getBytes: cstr];
+	}
+	return cstr;
+}
+
 
 /* Local variables:       */
 /* c-basic-offset: 3      */
