@@ -375,6 +375,13 @@ static ALLEGRO_LOCKED_REGION *ogl_lock_region(ALLEGRO_BITMAP *bitmap,
    ALLEGRO_BITMAP_OGL *ogl_bitmap = (void *)bitmap;
    const int pixel_size = al_get_pixel_size(bitmap->format);
    const int pitch = bitmap->pitch;
+   ALLEGRO_DISPLAY *old_disp = NULL;
+
+   if (bitmap->display->ogl_extras->is_shared == false &&
+       bitmap->display != al_get_current_display()) {
+      old_disp = al_get_current_display();
+      al_set_current_display(bitmap->display);
+   }
 
    if (!(flags & ALLEGRO_LOCK_WRITEONLY)) {
       if (ogl_bitmap->is_backbuffer) {
@@ -410,6 +417,10 @@ static ALLEGRO_LOCKED_REGION *ogl_lock_region(ALLEGRO_BITMAP *bitmap,
    locked_region->format = bitmap->format;
    locked_region->pitch = pitch;
 
+   if (old_disp) {
+      al_set_current_display(old_disp);
+   }
+
    return locked_region;
 }
 
@@ -422,9 +433,16 @@ static void ogl_unlock_region(ALLEGRO_BITMAP *bitmap)
    ALLEGRO_BITMAP_OGL *ogl_bitmap = (void *)bitmap;
    const int pixel_size = al_get_pixel_size(bitmap->format);
    const int pitch = bitmap->pitch; 
+   ALLEGRO_DISPLAY *old_disp = NULL;
 
    if (bitmap->lock_flags & ALLEGRO_LOCK_READONLY)
       return;
+
+   if (bitmap->display->ogl_extras->is_shared == false &&
+       bitmap->display != al_get_current_display()) {
+      old_disp = al_get_current_display();
+      al_set_current_display(bitmap->display);
+   }
 
    if (ogl_bitmap->is_backbuffer) {
       GLint unpack_row_length;
@@ -471,6 +489,10 @@ static void ogl_unlock_region(ALLEGRO_BITMAP *bitmap)
             bitmap->format);
       }
    }
+
+   if (old_disp) {
+      al_set_current_display(old_disp);
+   }
 }
 
 
@@ -478,6 +500,13 @@ static void ogl_unlock_region(ALLEGRO_BITMAP *bitmap)
 static void ogl_destroy_bitmap(ALLEGRO_BITMAP *bitmap)
 {
    ALLEGRO_BITMAP_OGL *ogl_bitmap = (void *)bitmap;
+   ALLEGRO_DISPLAY *old_disp = NULL;
+
+   if (bitmap->display->ogl_extras->is_shared == false &&
+       bitmap->display != al_get_current_display()) {
+      old_disp = al_get_current_display();
+      al_set_current_display(bitmap->display);
+   }
 
    if (ogl_bitmap->texture) {
       glDeleteTextures(1, &ogl_bitmap->texture);
@@ -487,6 +516,10 @@ static void ogl_destroy_bitmap(ALLEGRO_BITMAP *bitmap)
    if (ogl_bitmap->fbo) {
       glDeleteFramebuffersEXT(1, &ogl_bitmap->fbo);
       ogl_bitmap->fbo = 0;
+   }
+
+   if (old_disp) {
+      al_set_current_display(old_disp);
    }
 }
 

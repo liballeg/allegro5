@@ -901,6 +901,9 @@ static bool create_display_internals(ALLEGRO_DISPLAY_WGL *wgl_disp) {
       return false;
    }
 
+   /* WGL display lists cannot be shared with the API currently in use. */
+   disp->ogl_extras->is_shared = false;
+
    /* make the context the current one */
    if (!wglMakeCurrent(wgl_disp->dc, wgl_disp->glrc)) {
       log_win32_error("create_display_internals",
@@ -1013,8 +1016,11 @@ static void wgl_destroy_display(ALLEGRO_DISPLAY *disp)
 {
    ALLEGRO_SYSTEM_WIN *system = (ALLEGRO_SYSTEM_WIN *)al_system_driver();
    ALLEGRO_DISPLAY_WGL *wgl_disp = (ALLEGRO_DISPLAY_WGL *)disp;
+   ALLEGRO_DISPLAY *old_disp = al_get_current_display();
 
-   al_set_current_display(disp);
+   if (old_disp != disp)
+      al_set_current_display(disp);
+
    destroy_display_internals(wgl_disp);
    _al_event_source_free(&disp->es);
    _al_vector_find_and_delete(&system->system.displays, &disp);
@@ -1022,6 +1028,9 @@ static void wgl_destroy_display(ALLEGRO_DISPLAY *disp)
    _al_vector_free(&disp->bitmaps);
    _AL_FREE(disp->ogl_extras);
    _AL_FREE(wgl_disp);
+
+   if (old_disp != disp)
+      al_set_current_display(old_disp);
 }
 
 
