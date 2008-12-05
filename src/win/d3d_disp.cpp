@@ -2036,13 +2036,7 @@ static ALLEGRO_BITMAP *d3d_get_frontbuffer(ALLEGRO_DISPLAY *display)
 
 static bool d3d_is_compatible_bitmap(ALLEGRO_DISPLAY *display, ALLEGRO_BITMAP *bitmap)
 {
-   if (bitmap->display->ogl_extras)
-      return false;
-   //return display == bitmap->display;
-   /* Not entirely sure on this yet, but it seems one dsiplays bitmaps
-    * can be displayed on other displays.
-    */
-   return true;
+   return false;
 }
 
 static void d3d_switch_out(ALLEGRO_DISPLAY *display)
