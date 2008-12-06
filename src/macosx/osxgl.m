@@ -700,6 +700,7 @@ static ALLEGRO_DISPLAY* create_display_fs(int w, int h) {
    _al_ogl_manage_extensions(&dpy->parent);
    _al_ogl_set_extensions(dpy->parent.ogl_extras->extension_api);
 	dpy->parent.ogl_extras->backbuffer = _al_ogl_create_backbuffer(&dpy->parent);
+   dpy->parent.ogl_extras->is_shared = true;
 	/* Set up GL as we want */
 	setup_gl(&dpy->parent);
    /* Clear and flush (for double buffering) */
@@ -752,6 +753,7 @@ static ALLEGRO_DISPLAY* create_display_win(int w, int h) {
    _al_ogl_manage_extensions(&dpy->parent);
    _al_ogl_set_extensions(dpy->parent.ogl_extras->extension_api);
 	dpy->parent.ogl_extras->backbuffer = _al_ogl_create_backbuffer(&dpy->parent);
+   dpy->parent.ogl_extras->is_shared = true;
 	/* Set up GL as we want */
 	setup_gl(&dpy->parent);
 	ALLEGRO_DISPLAY **add = _al_vector_alloc_back(&al_system_driver()->displays);
