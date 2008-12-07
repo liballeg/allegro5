@@ -473,13 +473,22 @@ static int decode_allegro_format(int format, int* glfmt, int* glsize, int* depth
    ALLEGRO_DISPLAY_OSX_WIN* dpy = [display_object pointerValue];
 	NSRect rc = NSMakeRect(0, 0, dpy->parent.w,  dpy->parent.h);
 	NSWindow* win = dpy->win = [ALWindow alloc]; 
+   int adapter = al_get_current_video_adapter();
+   NSScreen *screen;
    unsigned int mask = (dpy->parent.flags & ALLEGRO_NOFRAME) ? NSBorderlessWindowMask : 
       (NSTitledWindowMask|NSClosableWindowMask|NSMiniaturizableWindowMask);
    if (dpy->parent.flags & ALLEGRO_RESIZABLE) mask |= NSResizableWindowMask;
+  
+   if ((adapter > 0) && (adapter < al_get_num_video_adapters())) {
+      screen = [[NSScreen screens] objectAtIndex: adapter];
+   } else {
+      screen = [NSScreen mainScreen];
+   }
 	[win initWithContentRect: rc
 				   styleMask: mask
 					 backing: NSBackingStoreBuffered
-					   defer: NO];
+					   defer: NO
+                 screen: screen];
 	int depth;
 	decode_allegro_format(dpy->parent.format, &dpy->gl_fmt, 
       &dpy->gl_datasize, &depth);
@@ -652,6 +661,8 @@ NSOpenGLContext* CreateShareableContext(NSOpenGLPixelFormat* fmt, unsigned int* 
 * Create a fullscreen display - capture the display
 */
 static ALLEGRO_DISPLAY* create_display_fs(int w, int h) {
+   if (al_get_current_video_adapter() >= al_get_num_video_adapters())
+      return NULL;
 	ALLEGRO_DISPLAY_OSX_WIN* dpy = _AL_MALLOC(sizeof(ALLEGRO_DISPLAY_OSX_WIN));
 	if (dpy == NULL) {
 		//ustrzcpy(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("Not enough memory"));
@@ -724,6 +735,8 @@ static ALLEGRO_DISPLAY* create_display_fs(int w, int h) {
 * to be its content view
 */
 static ALLEGRO_DISPLAY* create_display_win(int w, int h) {
+   if (al_get_current_video_adapter() >= al_get_num_video_adapters())
+      return NULL;
 	ALLEGRO_DISPLAY_OSX_WIN* dpy = _AL_MALLOC(sizeof(ALLEGRO_DISPLAY_OSX_WIN));
 	if (dpy == NULL) {
 		return NULL;
