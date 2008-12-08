@@ -84,13 +84,13 @@
    AL_INLINE(_AL_ATOMIC,
       _al_fetch_and_add1, (volatile _AL_ATOMIC *ptr),
    {
-      return OSAtomicIncrement32Barrier(ptr) - 1;
+      return OSAtomicIncrement32Barrier((_AL_AITOMIC *)ptr) - 1;
    })
 
    AL_INLINE(_AL_ATOMIC,
       _al_sub1_and_fetch, (volatile _AL_ATOMIC *ptr),
    {
-      return OSAtomicDecrement32Barrier(ptr);
+      return OSAtomicDecrement32Barrier((_AL_AITOMIC *)ptr);
    })
 
 
