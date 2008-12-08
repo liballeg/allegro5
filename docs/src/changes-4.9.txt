@@ -4,6 +4,81 @@ See `changes._tx` for changes in earlier versions of Allegro.  These lists
 serve as summaries; the full histories are in the Subversion repository.
 
 
+Changes from 4.9.6 to 4.9.7 (December 2008)
+===========================================
+
+The main developers this time were: Trent Gamblin, Evert Glebbeek, Peter Hull,
+Milan Mimica, Peter Wang.
+
+Graphics:
+
+-  Fixed a bug where the "display" field of a bitmap was not correctly reset
+   when it was transfered to another display on OS X.
+
+-  Made al_create_display() respect al_set_new_window_position() on OS X.
+
+-  Fixed the bug that caused input focus to be lost in OS X when a
+   window was resized.
+
+-  Made resizable Allegro windows respond properly to the green "+" button at
+   the top of the screen on OS X.
+
+-  Properly implemented fullscreen resize in WGL.
+
+-  Made the memory blenders work the same as the hardware ones.
+
+-  Made al_get_pixel()/al_draw_pixel() handle sub bitmaps in case the bitmap
+   was locked.
+
+-  In the OpenGL driver, if the bitmap is locked by the user, use memory
+   drawing on the locked region.
+
+-  Added implementations of al_inhibit_screensaver() for the X and Mac OS X
+   ports.
+
+-  Added multi-monitor support to Mac OS X port (untested!).
+
+-  Other fixes.
+
+Input:
+
+-  Made al_get_keyboard_state() return structures with the `display' field
+   correctly set.
+
+-  Made keyboard event member 'unichar' uppercase when Shift/CapsLock is on,
+   in Windows.
+
+-  Made mouse cursor show/hide work with Mac OS X full screen.
+
+Config routines:
+
+-  Preserve comment and empty lines in config files when writing.
+
+Addons:
+
+-  Add a simple interface layer for kcm_audio.
+
+-  Made kcm_audio objects automatically be destroyed when it is shut down.
+
+-  Renamed functions in kcm_audio to conform better with the rest of the
+   library.
+
+-  Made the TTF addon aggregate glyph cache bitmaps into larger bitmaps for
+   faster glyph rendering (less source bitmap switching).
+
+Examples:
+
+-  Add an example to test the ALLEGRO_KEYBOARD_STATE `display' field.
+
+-  Add an example for testing config routines.
+
+-  Add an example for checking software blending routines against hardware
+   blending.
+
+-  Add an example for the simple interface for kcm_audio.
+
+
+
 Changes from 4.9.5 to 4.9.6 (November 2008)
 ===========================================
 
