@@ -870,8 +870,6 @@ static bool _al_d3d_reset_device(ALLEGRO_DISPLAY_D3D *d3d_display)
        }
     }
     else {
-       unsigned int i;
-
        ZeroMemory(&d3d_pp, sizeof(d3d_pp));
        d3d_pp.BackBufferFormat = (D3DFORMAT)_al_format_to_d3d(al_display->format);
        d3d_pp.BackBufferWidth = al_display->w;
