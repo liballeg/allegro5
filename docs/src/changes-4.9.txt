@@ -4,6 +4,13 @@ See `changes._tx` for changes in earlier versions of Allegro.  These lists
 serve as summaries; the full histories are in the Subversion repository.
 
 
+Changes from 4.9.7 to 4.9.7.1 (December 2008)
+=============================================
+
+-  Scan aintern_dtor.h for export symbols, needed for MSVC.
+
+
+
 Changes from 4.9.6 to 4.9.7 (December 2008)
 ===========================================
 
