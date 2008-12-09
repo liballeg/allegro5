@@ -29,6 +29,11 @@
 #define PREFIX_W                "al-main WARNING: "
 #define PREFIX_E                "al-main ERROR: "
 
+#ifdef ALLEGRO_AMIGA
+   #define LOGFILE "RAM:allegro.log"
+#else
+   #define LOGFILE "allegro.log"
+#endif
 
 
 /* in case you want to report version numbers */
@@ -640,7 +645,7 @@ void al_trace(AL_CONST char *msg, ...)
       if (s)
 	 trace_file = fopen(s, "w");
       else
-	 trace_file = fopen("allegro.log", "w");
+	 trace_file = fopen(LOGFILE, "w");
 
       if (debug_assert_virgin)
 	 _add_exit_func(debug_exit, "debug_exit");
