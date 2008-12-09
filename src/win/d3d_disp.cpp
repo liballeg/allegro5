@@ -1687,7 +1687,7 @@ static bool d3d_resize_display(ALLEGRO_DISPLAY *d, int width, int height)
    ALLEGRO_DISPLAY_WIN *win_display = &disp->win_display;
    bool ret;
 
-   disp->ignore_ack = true;
+   //disp->ignore_ack = true;
 
    if (d->flags & ALLEGRO_FULLSCREEN) {
       d3d_destroy_display_internals(disp);
@@ -1713,6 +1713,7 @@ static bool d3d_resize_display(ALLEGRO_DISPLAY *d, int width, int height)
       ret = true;
    }
    else {
+      /* FIXME */
       RECT win_size;
       WINDOWINFO wi;
       ALLEGRO_STATE backup;
@@ -1743,7 +1744,7 @@ static bool d3d_resize_display(ALLEGRO_DISPLAY *d, int width, int height)
       al_set_target_bitmap(&disp->backbuffer_bmp.bitmap);
       disp->backbuffer_bmp.bitmap.w = width;
       disp->backbuffer_bmp.bitmap.h = height;
-      al_set_clipping_rectangle(0, 0, width-1, height-1);
+      al_set_clipping_rectangle(0, 0, width, height);
       d3d_set_bitmap_clip(&disp->backbuffer_bmp.bitmap);
       al_restore_state(&backup);
 
@@ -1773,17 +1774,21 @@ static bool d3d_acknowledge_resize(ALLEGRO_DISPLAY *d)
 
    disp->backbuffer_bmp.bitmap.w = d->w;
    disp->backbuffer_bmp.bitmap.h = d->h;
-
-   old = al_get_current_display();
-   al_set_current_display(d);
-   al_set_clipping_rectangle(0, 0, d->w, d->h);
-   al_set_current_display(old);
+   disp->backbuffer_bmp.bitmap.cl = 0;
+   disp->backbuffer_bmp.bitmap.ct = 0;
+   disp->backbuffer_bmp.bitmap.cr = d->w;
+   disp->backbuffer_bmp.bitmap.cb = d->h;
 
    disp->do_reset = true;
    while (!disp->reset_done) {
       al_rest(0.001);
    }
    disp->reset_done = false;
+
+   old = al_get_current_display();
+   al_set_current_display(d);
+   al_set_clipping_rectangle(0, 0, d->w, d->h);
+   al_set_current_display(old);
 
    return disp->reset_success;
 }
