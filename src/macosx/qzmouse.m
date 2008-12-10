@@ -308,14 +308,6 @@ _DRIVER_INFO _al_mouse_driver_list[] =
    {  0,  NULL,  0  }
 };
 
-/*
- * osx_mouse_move:
- *  Required for compatibility with 4.2 api, may disappear soon.
- */
-void osx_mouse_move(int x, int y)
-{
-}
-
 /* Local variables:       */
 /* c-basic-offset: 3      */
 /* indent-tabs-mode: nil  */
