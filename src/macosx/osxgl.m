@@ -44,7 +44,7 @@ static unsigned int next_display_group = 1;
 static BOOL in_fullscreen = NO;
 
 /* Module functions */
-NSView* osx_view_from_display(ALLEGRO_DISPLAY* disp);
+static NSView* osx_view_from_display(ALLEGRO_DISPLAY* disp);
 ALLEGRO_DISPLAY_INTERFACE* _al_osx_get_display_driver(void);
 ALLEGRO_DISPLAY_INTERFACE* _al_osx_get_display_driver_win(void);
 ALLEGRO_DISPLAY_INTERFACE* _al_osx_get_display_driver_fs(void);
@@ -380,7 +380,7 @@ void _al_osx_mouse_was_installed(BOOL install) {
  * given an ALLEGRO_DISPLAY, return the associated Cocoa View or nil
  * if fullscreen 
  */
-NSView* osx_view_from_display(ALLEGRO_DISPLAY* disp)
+static NSView* osx_view_from_display(ALLEGRO_DISPLAY* disp)
 {
 	NSWindow* window = ((ALLEGRO_DISPLAY_OSX_WIN*) disp)->win;
    return window == nil ? nil : [window contentView];

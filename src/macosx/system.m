@@ -62,11 +62,10 @@ char **__crt0_argv;
 NSBundle *osx_bundle = NULL;
 struct _AL_MUTEX osx_event_mutex;
 //AllegroWindow *osx_window = NULL;
-char osx_window_title[ALLEGRO_MESSAGE_SIZE];
+//char osx_window_title[ALLEGRO_MESSAGE_SIZE];
 void (*osx_window_close_hook)(void) = NULL;
-int osx_gfx_mode = OSX_GFX_NONE;
-int osx_emulate_mouse_buttons = FALSE;
-int osx_window_first_expose = FALSE;
+//int osx_emulate_mouse_buttons = FALSE;
+//int osx_window_first_expose = FALSE;
 static ALLEGRO_SYSTEM osx_system;
 
 /* osx_signal_handler:
@@ -171,8 +170,6 @@ static ALLEGRO_SYSTEM* osx_sys_init(int flags)
    [version release];
 //   os_multitasking = TRUE;
    
-   
-   osx_gfx_mode = OSX_GFX_NONE;
    
    _al_osx_threads_init();
    /* Mark the beginning of time. */
@@ -294,7 +291,7 @@ NSImage* NSImageFromAllegroBitmap(ALLEGRO_BITMAP* bmp)
 
 /* This works as long as there is only one screen */
 /* Not clear from docs how mouseLocation works if > 1 */
-bool osx_get_cursor_position(int *x, int *y) 
+static bool osx_get_cursor_position(int *x, int *y) 
 {
    NSPoint p = [NSEvent mouseLocation];
    NSRect r = [[NSScreen mainScreen] frame];
