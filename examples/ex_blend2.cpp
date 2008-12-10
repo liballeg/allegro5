@@ -21,16 +21,19 @@ ALLEGRO_BITMAP *target_bmp;
 class Prog {
 private:
    Dialog d;
-   Label source_title;
-   Label destination_title;
+   Label memory_label;
+   Label texture_label;
+   Label source_label;
+   Label destination_label;
+   Label blending_label;
    List source_image;
    List destination_image;
    List slst;
    List dlst;
-   VSlider r;
-   VSlider g;
-   VSlider b;
-   VSlider a;
+   VSlider r[3];
+   VSlider g[3];
+   VSlider b[3];
+   VSlider a[3];
 
 public:
    Prog(const Theme & theme, ALLEGRO_DISPLAY *display);
@@ -39,49 +42,55 @@ public:
 private:
    void blending_test(bool memory);
    void draw_samples();
+   void draw_bitmap(const std::string &, bool, bool);
 };
 
 Prog::Prog(const Theme & theme, ALLEGRO_DISPLAY *display) :
    d(Dialog(theme, display, 20, 20)),
-   source_title(Label("Source")),
-   destination_title(Label("Destination")),
-   destination_image(List(1)),
-   r(VSlider(255, 255)),
-   g(VSlider(255, 255)),
-   b(VSlider(255, 255)),
-   a(VSlider(255, 255))
+   memory_label(Label("Memory")),
+   texture_label(Label("Texture")),
+   source_label(Label("Source", false)),
+   destination_label(Label("Destination", false)),
+   blending_label(Label("Blending", false)),
+   destination_image(List(1))
 {
-   d.add(source_title, 1, 9, 6, 1);
-   d.add(destination_title, 7, 9, 6, 1);
+   d.add(memory_label, 10, 0, 10, 1);
+   d.add(texture_label, 0, 0, 10, 1);
+   d.add(source_label, 1, 10, 6, 1);
+   d.add(destination_label, 7, 10, 6, 1);
+   d.add(blending_label, 13, 10, 6, 1);
 
    List *images[] = {&source_image, &destination_image};
    for (int i = 0; i < 2; i++) {
       List & image = *images[i];
       image.append_item("Mysha");
       image.append_item("Allegro");
-      image.append_item("Opaque Black");
-      image.append_item("Opaque White");
-      image.append_item("Transparent Black");
-      image.append_item("Transparent White");
-      d.add(image, 1 + i * 6, 10, 6, 4);
+      image.append_item("Color");
+      d.add(image, 1 + i * 6, 11, 4, 2);
    }
 
    slst.append_item("ONE");
    slst.append_item("ZERO");
    slst.append_item("ALPHA");
    slst.append_item("INVERSE_ALPHA");
-   d.add(slst, 1, 15, 6, 4);
+   d.add(slst, 1, 13, 4, 3);
 
    dlst.append_item("ONE");
    dlst.append_item("ZERO");
    dlst.append_item("ALPHA");
    dlst.append_item("INVERSE_ALPHA");
-   d.add(dlst, 7, 15, 6, 4);
+   d.add(dlst, 7, 13, 4, 3);
 
-   d.add(r, 15, 15, 1, 4);
-   d.add(g, 16, 15, 1, 4);
-   d.add(b, 17, 15, 1, 4);
-   d.add(a, 18, 15, 1, 4);
+   for (int i = 0; i < 3; i++) {
+      r[i] = VSlider(255, 255);
+      g[i] = VSlider(255, 255);
+      b[i] = VSlider(255, 255);
+      a[i] = VSlider(255, 255);
+      d.add(r[i], 1 + i * 6, 16, 1, 3);
+      d.add(g[i], 2 + i * 6, 16, 1, 3);
+      d.add(b[i], 3 + i * 6, 16, 1, 3);
+      d.add(a[i], 4 + i * 6, 16, 1, 3);
+   }
 }
 
 void Prog::run()
@@ -115,7 +124,7 @@ int str_to_blend_mode(const std::string & str)
    return ALLEGRO_ONE;
 }
 
-void draw_background()
+void draw_background(int x, int y)
 {
    ALLEGRO_COLOR c[] = {
       al_map_rgba(0x66, 0x66, 0x66, 0xff),
@@ -124,31 +133,29 @@ void draw_background()
 
    for (int i = 0; i < 640 / 16; i++) {
       for (int j = 0; j < 200 / 16; j++) {
-         al_draw_rectangle(i * 16, j * 16, i * 16 + 16, j * 16 + 16,
+         al_draw_rectangle(x + i * 16, y + j * 16,
+            x + i * 16 + 16, y + j * 16 + 16,
             c[(i + j) & 1], ALLEGRO_FILLED);
       }
    }
 }
 
-void draw_bitmap(const std::string & str, bool memory)
+void Prog::draw_bitmap(const std::string & str, bool memory,
+   bool destination)
 {
-   ALLEGRO_COLOR opaque_black = al_map_rgba_f(0, 0, 0, 1);
-   ALLEGRO_COLOR opaque_white = al_map_rgba_f(1, 1, 1, 1);
-   ALLEGRO_COLOR transparent_black = al_map_rgba_f(0, 0, 0, 0.5);
-   ALLEGRO_COLOR transparent_white = al_map_rgba_f(1, 1, 1, 0.5);
+   int i = destination ? 1 : 0;
+   int rv = r[i].get_cur_value();
+   int gv = g[i].get_cur_value();
+   int bv = b[i].get_cur_value();
+   int av = a[i].get_cur_value();
+   ALLEGRO_COLOR color = al_map_rgba(rv, gv, bv, av);
 
    if (str == "Mysha")
       al_draw_bitmap(memory ? mysha_bmp : mysha, 0, 0, 0);
    else if (str == "Allegro")
       al_draw_bitmap(memory ? allegro_bmp : allegro, 0, 0, 0);
-   else if (str == "Opaque Black")
-      al_draw_rectangle(0, 0, 320, 200, opaque_black, ALLEGRO_FILLED);
-   else if (str == "Opaque White")
-      al_draw_rectangle(0, 0, 320, 200, opaque_white, ALLEGRO_FILLED);
-   else if (str == "Transparent Black")
-      al_draw_rectangle(0, 0, 320, 200, transparent_black, ALLEGRO_FILLED);
-   else if (str == "Transparent White")
-      al_draw_rectangle(0, 0, 320, 200, transparent_white, ALLEGRO_FILLED);
+   else if (str == "Color")
+      al_draw_rectangle(0, 0, 320, 200, color, ALLEGRO_FILLED);
 }
 
 void Prog::blending_test(bool memory)
@@ -156,19 +163,19 @@ void Prog::blending_test(bool memory)
    ALLEGRO_COLOR opaque_white = al_map_rgba_f(1, 1, 1, 1);
    int src = str_to_blend_mode(slst.get_selected_item_text());
    int dst = str_to_blend_mode(dlst.get_selected_item_text());
-   int rv = r.get_cur_value();
-   int gv = g.get_cur_value();
-   int bv = b.get_cur_value();
-   int av = a.get_cur_value();
+   int rv = r[2].get_cur_value();
+   int gv = g[2].get_cur_value();
+   int bv = b[2].get_cur_value();
+   int av = a[2].get_cur_value();
 
    /* Initialize with destination. */
    al_clear(opaque_white); // Just in case.
    al_set_blender(ALLEGRO_ONE, ALLEGRO_ZERO, opaque_white);
-   draw_bitmap(destination_image.get_selected_item_text(), memory);
+   draw_bitmap(destination_image.get_selected_item_text(), memory, true);
 
    /* Now draw the blended source over it. */
    al_set_blender(src, dst, al_map_rgba(rv, gv, bv, av));
-   draw_bitmap(source_image.get_selected_item_text(), memory);
+   draw_bitmap(source_image.get_selected_item_text(), memory, false);
 }
 
 void Prog::draw_samples()
@@ -179,7 +186,7 @@ void Prog::draw_samples()
    /* Draw a background, in case our target bitmap will end up with
     * alpha in it.
     */
-   draw_background();
+   draw_background(0, 20);
    
    /* Test standard blending. */
    al_set_target_bitmap(target);
@@ -193,8 +200,8 @@ void Prog::draw_samples()
    al_set_target_bitmap(al_get_backbuffer());
    al_set_blender(ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA,
       al_map_rgba(255, 255, 255, 255));
-   al_draw_bitmap(target, 0, 0, 0);
-   al_draw_bitmap(target_bmp, 320, 0, 0);
+   al_draw_bitmap(target, 0, 20, 0);
+   al_draw_bitmap(target_bmp, 320, 20, 0);
  
    al_restore_state(&state);
 }

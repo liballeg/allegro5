@@ -155,7 +155,7 @@ private:
    int   max_value;
 
 public:
-   VSlider(int cur_value, int max_value);
+   VSlider(int cur_value = 0, int max_value = 1);
 
    virtual void   on_mouse_button_down(int mx, int my);
    virtual void   on_mouse_button_hold(int mx, int my);
