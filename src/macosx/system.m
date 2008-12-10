@@ -218,6 +218,7 @@ static int osx_get_num_video_adapters(void)
  */
 static void osx_get_monitor_info(int adapter, ALLEGRO_MONITOR_INFO* info) 
 {
+/*
    int count = osx_get_num_video_adapters();
    if (adapter < count) {
       NSScreen *screen = [[NSScreen screens] objectAtIndex: adapter];
@@ -227,11 +228,12 @@ static void osx_get_monitor_info(int adapter, ALLEGRO_MONITOR_INFO* info)
       info->y1 = (int) rc.origin.y;
       info->y2 = (int) (rc.origin.y + rc.size.height);
    }
-/*
+*/
    CGDisplayCount count;
    // Assume no more than 16 monitors connected
-   CGDirectDisplayID displays[16];
-   CGError err = CGGetActiveDisplayList(16, displays, &count);
+   static const int max_displays = 16;
+   CGDirectDisplayID displays[max_displays];
+   CGError err = CGGetActiveDisplayList(max_displays, displays, &count);
    if (err == kCGErrorSuccess && adapter >= 0 && adapter < (int) count) {
       CGRect rc = CGDisplayBounds(displays[adapter]);
       info->x1 = (int) rc.origin.x;
@@ -239,7 +241,6 @@ static void osx_get_monitor_info(int adapter, ALLEGRO_MONITOR_INFO* info)
       info->y1 = (int) rc.origin.y;
       info->y2 = (int) (rc.origin.y + rc.size.height);
    }
-*/
 }
 /* osx_inhibit_screensaver:
  * Stops the screen dimming/screen saver activation if inhibit is true
