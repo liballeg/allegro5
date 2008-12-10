@@ -951,6 +951,22 @@ static bool hide_cursor_fs(ALLEGRO_DISPLAY *d) {
    return false;
 }
 
+static bool acknowledge_resize_display_win(ALLEGRO_DISPLAY *d)
+{
+   ALLEGRO_DISPLAY_OSX_WIN *dpy = (ALLEGRO_DISPLAY_OSX_WIN *)d;
+   NSWindow* window = dpy->win;
+   NSRect frame = [window frame];
+   NSRect content = [window contentRectForFrameRect: frame];
+
+   d->w = NSWidth(content);
+   d->h = NSHeight(content);
+
+   _al_ogl_resize_backbuffer(d->ogl_extras->backbuffer, d->w, d->h);
+   setup_gl(d);
+
+   return true;
+}
+
 /* resize_display_(win|fs)
  Change the size of the display by altering the window size or changing the screen mode
  */
@@ -963,7 +979,7 @@ static bool resize_display_win(ALLEGRO_DISPLAY *d, int w, int h) {
    NSRect rc = [window frameRectForContentRect: NSMakeRect(0.0f, 0.0f, (float) w, (float) h)];
    rc.origin = current.origin;
    [window setFrame:rc display:YES animate:YES];
-	return true;
+   return acknowledge_resize_display_win(d);
 }
 static bool resize_display_fs(ALLEGRO_DISPLAY *d, int w, int h) {
 /* This causes crashes in al_destroy_display so disable for now 
@@ -982,22 +998,6 @@ static bool resize_display_fs(ALLEGRO_DISPLAY *d, int w, int h) {
 	return  err == kCGErrorSuccess;
 	*/
 	return false;
-}
-
-static bool acknowledge_resize_display_win(ALLEGRO_DISPLAY *d)
-{
-   ALLEGRO_DISPLAY_OSX_WIN *dpy = (ALLEGRO_DISPLAY_OSX_WIN *)d;
-   NSWindow* window = dpy->win;
-   NSRect frame = [window frame];
-   NSRect content = [window contentRectForFrameRect: frame];
-
-   d->w = NSWidth(content);
-   d->h = NSHeight(content);
-
-   _al_ogl_resize_backbuffer(d->ogl_extras->backbuffer, d->w, d->h);
-   setup_gl(d);
-
-   return true;
 }
 
 static bool is_compatible_bitmap(ALLEGRO_DISPLAY* disp, ALLEGRO_BITMAP* bmp) {
