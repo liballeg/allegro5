@@ -608,44 +608,46 @@ void al_restore_state(ALLEGRO_STATE const *state)
  *
  * Sets the function to use for blending for the current thread.
  *
- * Blending means, the source and destination colors are combined in drawing
- * operations.
+ * Blending means, the source and destination colors are combined in
+ * drawing operations.
  *
- * Assume, the source color (e.g. color of a rectangle to draw, or pixel of a
- * bitmap to draw), is given as its red/green/blue/alpha components:
- * sr, sg, sb, sa
+ * Assume, the source color (e.g. color of a rectangle to draw, or pixel
+ * of a bitmap to draw), is given as its red/green/blue/alpha
+ * components (if the bitmap has no alpha, it always is assumed to be
+ * fully opaque, so 255 for 8-bit or 1.0 for floating point):
+ * *sr, sg, sb, sa*.
  * And this color is drawn to a destination, which already has a color:
- * dr, dg, db, da
+ * *dr, dg, db, da*.
  *
- * The conceptional formula used by Allegro to draw any pixel then is:
+ * Blending formula:
+ * The conceptional formula used by Allegro to draw any pixel then is
+ * > r = dr * dst + sr * src
+ * > g = dg * dst + sg * src
+ * > b = db * dst + sb * src
+ * > a = da * dst + sa * src
+ * 
+ * Blending functions:
+ * Valid values for <src> and <dst> passed to this function are
+ * ALLEGRO_ZERO - src, dst = 0
+ * ALLEGRO_ONE - src, dst = 1
+ * ALLEGRO_ALPHA - src, dst = sa
+ * ALLEGRO_INVERSE_ALPHA - src, dst = 1 - sa
+ * 
+ * The color parameter specified the blend color, it is multipled with
+ * the source color before the above blending operation.
  *
- * > r = dr * dst + sr * src * color.r
- * > g = dg * dst + sg * src * color.g
- * > b = db * dst + sb * src * color.b
- * > a = da * dst + sa * src * color.a
- *
- * The src, dst and color values are specified by this function.
- * Valid values for src and dst are:
- *
- * ALLEGRO_ZERO - src = 0 / dst = 0
- * ALLEGRO_ONE - src = 1 / dst = 1
- * ALLEGRO_ALPHA - src = sa / dst = sa
- * ALLEGRO_INVERSE_ALPHA - src = (1 - sa) / dst = (1 - sa)
- *
- * So for example, to restore the default of using alpha blending, you would
- * use (pseudo code):
+ * Blending examples:
+ * So for example, to restore the default of using alpha blending, you
+ * would use (pseudo code)
  * > al_set_blender(ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA, {1, 1, 1, 1})
- * This means, the color is not modified, all source components are
- * multipled with the alpha component and combined with the destination
- * according to this same alpha value.
  *
- * If you want to tint the result to some specific color, you can also
- * change the color from white to some other color.
+ * If in addition you want to draw half transparently
+ * > al_set_blender(ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA, {1, 1, 1, 0.5})
  *
- * Additive blending would be achieved with:
+ * Additive blending would be achieved with
  * > al_set_blender(ALLEGRO_ONE, ALLEGRO_ONE, {1, 1, 1, 1})
  *
- * Copying the source to the destination (including alpha) unmodified:
+ * Copying the source to the destination (including alpha) unmodified
  * > al_set_blender(ALLEGRO_ONE, ALLEGRO_ZERO, {1, 1, 1, 1})
  *
  */
