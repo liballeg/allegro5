@@ -628,6 +628,7 @@ void al_restore_state(ALLEGRO_STATE const *state)
  * 
  * Blending functions:
  * Valid values for <src> and <dst> passed to this function are
+ * 
  * ALLEGRO_ZERO - src, dst = 0
  * ALLEGRO_ONE - src, dst = 1
  * ALLEGRO_ALPHA - src, dst = sa
