@@ -527,6 +527,7 @@ void al_config_destroy(ALLEGRO_CONFIG *config)
          ALLEGRO_CONFIG_ENTRY *tmp = e->next;
          _AL_FREE(e->key);
          _AL_FREE(e->value);
+         _AL_FREE(e->comment);
          _AL_FREE(e);
          e = tmp;
       }
