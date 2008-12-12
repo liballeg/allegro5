@@ -1192,7 +1192,7 @@ int play_sample(AL_CONST SAMPLE *spl, int vol, int pan, int freq, int loop)
    int voice;
    ASSERT(spl);
    ASSERT(vol >= 0 && vol <= 255);
-   ASSERT(pan >= 0 && vol <= 255);
+   ASSERT(pan >= 0 && pan <= 255);
    ASSERT(freq > 0);
 
    voice = allocate_voice(spl);
