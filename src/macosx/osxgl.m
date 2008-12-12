@@ -539,42 +539,8 @@ static int decode_allegro_format(int format, int* glfmt, int* glsize, int* depth
 	[view release];
 }
 +(void) destroyDisplay: (NSValue*) display_object {
-   unsigned int i;
    ALLEGRO_DISPLAY_OSX_WIN* dpy = [display_object pointerValue];
    _al_vector_find_and_delete(&al_system_driver()->displays, &dpy);
-   ALLEGRO_DISPLAY_OSX_WIN* other = NULL;
-   // Check for other displays in this display group
-   _AL_VECTOR* dpys = &al_system_driver()->displays;
-   for (i = 0; i < _al_vector_size(dpys); ++i) {
-      ALLEGRO_DISPLAY_OSX_WIN* d = *(ALLEGRO_DISPLAY_OSX_WIN**) _al_vector_ref(dpys, i);
-      if (d->display_group == dpy->display_group) {
-         other = d;
-         break;
-      }
-   }
-   if (other != NULL) {
-      // Found another compatible display. Transfer our bitmaps to it.
-      _AL_VECTOR* bmps = &dpy->parent.bitmaps;
-      for (i = 0; i<_al_vector_size(bmps); ++i) {
-         ALLEGRO_BITMAP **add = _al_vector_alloc_back(&other->parent.bitmaps);
-         ALLEGRO_BITMAP **ref = _al_vector_ref(bmps, i);
-         *add = *ref;
-         (*add)->display = &(other->parent);
-      }
-   }
-   else {
-      // This is the last in its group. Convert all its bitmaps to mem bmps
-      _AL_VECTOR* bmps = &dpy->parent.bitmaps;
-      ALLEGRO_BITMAP** tmp = (ALLEGRO_BITMAP**) _AL_MALLOC(_al_vector_size(bmps) * sizeof(ALLEGRO_BITMAP*));
-      for (i=0; i< _al_vector_size(bmps); ++i) {
-         tmp[i] = *(ALLEGRO_BITMAP**) _al_vector_ref(bmps, i);
-      }
-      for (i=0; i< _al_vector_size(bmps); ++i) {
-         _al_convert_to_memory_bitmap(tmp[i]);
-      }
-      _AL_FREE(tmp);
-   }
-   _al_vector_free(&dpy->parent.bitmaps);
    // Disconnect from its view or exit fullscreen mode
    [dpy->ctx clearDrawable];
    // Unlock the screen 
@@ -786,10 +752,43 @@ static ALLEGRO_DISPLAY* create_display_win(int w, int h) {
  */
 static void destroy_display(ALLEGRO_DISPLAY* d) {
 	ALLEGRO_DISPLAY_OSX_WIN* dpy = (ALLEGRO_DISPLAY_OSX_WIN*) d;
-   _al_ogl_unmanage_extensions(&dpy->parent);
+   ALLEGRO_DISPLAY_OSX_WIN* other = NULL;
+   unsigned int i;
+
+   /* First of all, save video bitmaps attached to this display. */
+   // Check for other displays in this display group
+   _AL_VECTOR* dpys = &al_system_driver()->displays;
+   for (i = 0; i < _al_vector_size(dpys); ++i) {
+      ALLEGRO_DISPLAY_OSX_WIN* d = *(ALLEGRO_DISPLAY_OSX_WIN**) _al_vector_ref(dpys, i);
+      if (d->display_group == dpy->display_group && (d!=dpy)) {
+         other = d;
+         break;
+      }
+   }
+   if (other != NULL) {
+      // Found another compatible display. Transfer our bitmaps to it.
+      _AL_VECTOR* bmps = &dpy->parent.bitmaps;
+      for (i = 0; i<_al_vector_size(bmps); ++i) {
+         ALLEGRO_BITMAP **add = _al_vector_alloc_back(&other->parent.bitmaps);
+         ALLEGRO_BITMAP **ref = _al_vector_ref(bmps, i);
+         *add = *ref;
+         (*add)->display = &(other->parent);
+      }
+   }
+   else {
+      // This is the last in its group. Convert all its bitmaps to memory bmps
+      while (dpy->parent.bitmaps._size > 0) {
+         ALLEGRO_BITMAP **bptr = _al_vector_ref_back(&dpy->parent.bitmaps);
+         ALLEGRO_BITMAP *bmp = *bptr;
+         _al_convert_to_memory_bitmap(bmp);
+      }
+   }
+   _al_vector_free(&dpy->parent.bitmaps);
+
    [ALDisplayHelper performSelectorOnMainThread: @selector(destroyDisplay:) 
       withObject: [NSValue valueWithPointer:dpy] 
       waitUntilDone: YES];
+   _al_ogl_unmanage_extensions(&dpy->parent);
 	[dpy->ctx release];
    [dpy->cursor release];
 	_al_event_source_free(&d->es);
@@ -982,7 +981,6 @@ static bool resize_display_win(ALLEGRO_DISPLAY *d, int w, int h) {
    return acknowledge_resize_display_win(d);
 }
 static bool resize_display_fs(ALLEGRO_DISPLAY *d, int w, int h) {
-/* This causes crashes in al_destroy_display so disable for now 
 	ALLEGRO_DISPLAY_OSX_WIN* dpy = (ALLEGRO_DISPLAY_OSX_WIN*) d;
 	CFDictionaryRef current = CGDisplayCurrentMode(dpy->display_id);
 	CFNumberRef bps = (CFNumberRef) CFDictionaryGetValue(current, kCGDisplayBitsPerPixel);
@@ -994,10 +992,9 @@ static bool resize_display_fs(ALLEGRO_DISPLAY *d, int w, int h) {
 	d->w = w;
 	d->h = h;
 	[dpy->ctx setFullScreen];
+   _al_ogl_resize_backbuffer(d->ogl_extras->backbuffer, d->w, d->h);
 	setup_gl(d);
 	return  err == kCGErrorSuccess;
-	*/
-	return false;
 }
 
 static bool is_compatible_bitmap(ALLEGRO_DISPLAY* disp, ALLEGRO_BITMAP* bmp) {
