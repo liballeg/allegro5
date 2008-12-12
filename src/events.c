@@ -26,7 +26,6 @@
 
 #include "allegro5/allegro5.h"
 #include "allegro5/internal/aintern.h"
-#include "allegro5/internal/aintern_atomicops.h"
 #include "allegro5/internal/aintern_dtor.h"
 #include "allegro5/internal/aintern_events.h"
 #include "allegro5/internal/aintern_memory.h"
@@ -46,7 +45,13 @@ struct ALLEGRO_EVENT_QUEUE
 
 
 
+/* to prevent concurrent modification of user event reference counts */
+static _AL_MUTEX user_event_refcount_mutex = _AL_MUTEX_UNINITED;
+
+
+
 /* forward declarations */
+static void shutdown_events(void);
 static bool do_wait_for_event(ALLEGRO_EVENT_QUEUE *queue,
    ALLEGRO_EVENT *ret_event, ALLEGRO_TIMEOUT *timeout);
 static void copy_event(ALLEGRO_EVENT *dest, const ALLEGRO_EVENT *src);
@@ -54,6 +59,27 @@ static void ref_if_user_event(ALLEGRO_EVENT *event);
 static void unref_if_user_event(ALLEGRO_EVENT *event);
 static void discard_events_of_source(ALLEGRO_EVENT_QUEUE *queue,
    const ALLEGRO_EVENT_SOURCE *source);
+
+
+
+/* _al_init_events:
+ *  Initialise globals for the event system.
+ */
+void _al_init_events(void)
+{
+   _al_mutex_init(&user_event_refcount_mutex);
+   _al_add_exit_func(shutdown_events, "shutdown_events");
+}
+
+
+
+/* shutdown_events:
+ *  Clean up after _al_init_events.
+ */
+static void shutdown_events(void)
+{
+   _al_mutex_destroy(&user_event_refcount_mutex);
+}
 
 
 
@@ -502,7 +528,9 @@ static void ref_if_user_event(ALLEGRO_EVENT *event)
    if (ALLEGRO_EVENT_TYPE_IS_USER(event->type)) {
       ALLEGRO_USER_EVENT_DESCRIPTOR *descr = event->user.__internal__descr;
       if (descr) {
-         _al_fetch_and_add1(&descr->refcount);
+         _al_mutex_lock(&user_event_refcount_mutex);
+         descr->refcount++;
+         _al_mutex_unlock(&user_event_refcount_mutex);
       }
    }
 }
@@ -647,12 +675,18 @@ static void discard_events_of_source(ALLEGRO_EVENT_QUEUE *queue,
 void al_unref_user_event(ALLEGRO_USER_EVENT *event)
 {
    ALLEGRO_USER_EVENT_DESCRIPTOR *descr;
+   int refcount;
+
    ASSERT(event);
 
    descr = event->__internal__descr;
    if (descr) {
+      _al_mutex_lock(&user_event_refcount_mutex);
       ASSERT(descr->refcount > 0);
-      if (_al_sub1_and_fetch(&descr->refcount) == 0) {
+      refcount = --descr->refcount;
+      _al_mutex_unlock(&user_event_refcount_mutex);
+
+      if (refcount == 0) {
          (descr->dtor)(event);
          _AL_FREE(descr);
       }

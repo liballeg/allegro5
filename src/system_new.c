@@ -163,6 +163,8 @@ bool al_install_system(int (*atexit_ptr)(void (*)(void)))
 
    _al_dtor_list = _al_init_destructors();
 
+   _al_init_events();
+
    al_set_blender(ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA, al_map_rgb(255, 255, 255));
 
    if (atexit_ptr && atexit_virgin) {
