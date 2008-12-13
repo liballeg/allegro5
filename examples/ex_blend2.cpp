@@ -28,8 +28,8 @@ private:
    Label blending_label;
    List source_image;
    List destination_image;
-   List slst;
-   List dlst;
+   Label operation_label[4];
+   List operations[4];
    VSlider r[3];
    VSlider g[3];
    VSlider b[3];
@@ -46,7 +46,7 @@ private:
 };
 
 Prog::Prog(const Theme & theme, ALLEGRO_DISPLAY *display) :
-   d(Dialog(theme, display, 20, 20)),
+   d(Dialog(theme, display, 20, 40)),
    memory_label(Label("Memory")),
    texture_label(Label("Texture")),
    source_label(Label("Source", false)),
@@ -54,11 +54,11 @@ Prog::Prog(const Theme & theme, ALLEGRO_DISPLAY *display) :
    blending_label(Label("Blending", false)),
    destination_image(List(1))
 {
-   d.add(memory_label, 10, 0, 10, 1);
-   d.add(texture_label, 0, 0, 10, 1);
-   d.add(source_label, 1, 10, 6, 1);
-   d.add(destination_label, 7, 10, 6, 1);
-   d.add(blending_label, 13, 10, 6, 1);
+   d.add(memory_label, 10, 0, 10, 2);
+   d.add(texture_label, 0, 0, 10, 2);
+   d.add(source_label, 1, 19, 6, 2);
+   d.add(destination_label, 7, 19, 6, 2);
+   d.add(blending_label, 13, 19, 6, 2);
 
    List *images[] = {&source_image, &destination_image};
    for (int i = 0; i < 2; i++) {
@@ -66,30 +66,29 @@ Prog::Prog(const Theme & theme, ALLEGRO_DISPLAY *display) :
       image.append_item("Mysha");
       image.append_item("Allegro");
       image.append_item("Color");
-      d.add(image, 1 + i * 6, 11, 4, 2);
+      d.add(image, 1 + i * 6, 21, 4, 4);
    }
 
-   slst.append_item("ONE");
-   slst.append_item("ZERO");
-   slst.append_item("ALPHA");
-   slst.append_item("INVERSE_ALPHA");
-   d.add(slst, 1, 13, 4, 3);
-
-   dlst.append_item("ONE");
-   dlst.append_item("ZERO");
-   dlst.append_item("ALPHA");
-   dlst.append_item("INVERSE_ALPHA");
-   d.add(dlst, 7, 13, 4, 3);
+   for (int i = 0; i < 4; i++) {
+      operation_label[i] = Label(i % 2 == 0 ? "Color" : "Alpha", false);
+      d.add(operation_label[i], 1 + i * 3, 25, 3, 2);
+      List &l = operations[i];
+      l.append_item("ONE");
+      l.append_item("ZERO");
+      l.append_item("ALPHA");
+      l.append_item("INVERSE");
+      d.add(l, 1 + i * 3, 27, 3, 6);
+   }
 
    for (int i = 0; i < 3; i++) {
       r[i] = VSlider(255, 255);
       g[i] = VSlider(255, 255);
       b[i] = VSlider(255, 255);
       a[i] = VSlider(255, 255);
-      d.add(r[i], 1 + i * 6, 16, 1, 3);
-      d.add(g[i], 2 + i * 6, 16, 1, 3);
-      d.add(b[i], 3 + i * 6, 16, 1, 3);
-      d.add(a[i], 4 + i * 6, 16, 1, 3);
+      d.add(r[i], 1 + i * 6, 33, 1, 6);
+      d.add(g[i], 2 + i * 6, 33, 1, 6);
+      d.add(b[i], 3 + i * 6, 33, 1, 6);
+      d.add(a[i], 4 + i * 6, 33, 1, 6);
    }
 }
 
@@ -117,7 +116,7 @@ int str_to_blend_mode(const std::string & str)
       return ALLEGRO_ONE;
    if (str == "ALPHA")
       return ALLEGRO_ALPHA;
-   if (str == "INVERSE_ALPHA")
+   if (str == "INVERSE")
       return ALLEGRO_INVERSE_ALPHA;
 
    ASSERT(false);
@@ -161,8 +160,10 @@ void Prog::draw_bitmap(const std::string & str, bool memory,
 void Prog::blending_test(bool memory)
 {
    ALLEGRO_COLOR opaque_white = al_map_rgba_f(1, 1, 1, 1);
-   int src = str_to_blend_mode(slst.get_selected_item_text());
-   int dst = str_to_blend_mode(dlst.get_selected_item_text());
+   int src = str_to_blend_mode(operations[0].get_selected_item_text());
+   int asrc = str_to_blend_mode(operations[1].get_selected_item_text());
+   int dst = str_to_blend_mode(operations[2].get_selected_item_text());
+   int adst = str_to_blend_mode(operations[3].get_selected_item_text());
    int rv = r[2].get_cur_value();
    int gv = g[2].get_cur_value();
    int bv = b[2].get_cur_value();
@@ -174,7 +175,8 @@ void Prog::blending_test(bool memory)
    draw_bitmap(destination_image.get_selected_item_text(), memory, true);
 
    /* Now draw the blended source over it. */
-   al_set_blender(src, dst, al_map_rgba(rv, gv, bv, av));
+   al_set_separate_blender(src, dst, asrc, adst,
+      al_map_rgba(rv, gv, bv, av));
    draw_bitmap(source_image.get_selected_item_text(), memory, false);
 }
 

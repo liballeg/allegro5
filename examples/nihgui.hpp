@@ -116,7 +116,7 @@ private:
    bool           centred;
 
 public:
-   Label(std::string text, bool centred=true);
+   Label(std::string text="", bool centred=true);
    virtual void   draw();
 };
 

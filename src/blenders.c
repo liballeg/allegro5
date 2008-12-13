@@ -20,7 +20,14 @@
 #include <string.h>
 
 
-
+/* TODO: Commented out optimized version without alpha separation.
+ * Note the optimization is per-pixel only - so whenever these functions
+ * get used things are going to be slow anyway (as the function is
+ * called for each single pixel). Things like drawing an alpha
+ * blended bitmap or a fully opaque filled rectangle have much more
+ * potential for optimization on a higher level.
+ */
+#if 0
 void _al_blender_zero_zero(ALLEGRO_COLOR *scol,
    ALLEGRO_COLOR *dcol, ALLEGRO_COLOR *result)
 {
@@ -238,14 +245,59 @@ void _al_blender_inverse_alpha_inverse_alpha(ALLEGRO_COLOR *scol,
 }
 
 
-void _al_blend(ALLEGRO_COLOR *scol, ALLEGRO_BITMAP *dest,
+// FIXME
+void _al_blend_combined_optimized(ALLEGRO_COLOR *scol,
+   ALLEGRO_BITMAP *dest,
    int dx, int dy, ALLEGRO_COLOR *result)
 {
    ALLEGRO_MEMORY_BLENDER blender = _al_get_memory_blender();
    ALLEGRO_COLOR dcol;
 
+   // FIXME: some blenders won't need this and it may be slow, should
+   // optimize it away for those?
    dcol = al_get_pixel(dest, dx, dy);
 
    blender(scol, &dcol, result);
 }
+#endif
 
+
+static float get_factor(int operation, float alpha)
+{
+   switch(operation) {
+       case ALLEGRO_ZERO: return 0;
+       case ALLEGRO_ONE: return 1;
+       case ALLEGRO_ALPHA: return alpha;
+       case ALLEGRO_INVERSE_ALPHA: return 1 - alpha;
+   }
+   ASSERT(false);
+   return 0; /* silence warning in release build */
+}
+
+
+// FIXME: un-optimized reference implementation
+void _al_blend(ALLEGRO_COLOR *scol,
+   ALLEGRO_BITMAP *dest,
+   int dx, int dy, ALLEGRO_COLOR *result)
+{
+   float src, dst, asrc, adst;
+   int src_, dst_, asrc_, adst_;
+   ALLEGRO_COLOR dcol;
+   ALLEGRO_COLOR bc;
+
+   dcol = al_get_pixel(dest, dx, dy);
+   al_get_separate_blender(&src_, &dst_, &asrc_, &adst_, &bc);
+   result->r = scol->r * bc.r;
+   result->g = scol->g * bc.g;
+   result->b = scol->b * bc.b;
+   result->a = scol->a * bc.a;
+   src = get_factor(src_, result->a);
+   dst = get_factor(dst_, result->a);
+   asrc = get_factor(asrc_, result->a);
+   adst = get_factor(adst_, result->a);
+
+   result->r = MIN(1, result->r * src + dcol.r * dst);
+   result->g = MIN(1, result->g * src + dcol.g * dst);
+   result->b = MIN(1, result->b * src + dcol.b * dst);
+   result->a = MIN(1, result->a * asrc + dcol.a * adst);
+}

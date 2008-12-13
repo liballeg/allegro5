@@ -68,14 +68,16 @@ static void draw_quad(ALLEGRO_BITMAP *bitmap, float sx, float sy, float sw, floa
    GLboolean on;
    GLuint current_texture;
    ALLEGRO_COLOR *bc;
-   int src_mode, dst_mode;
+   int src_color, dst_color, src_alpha, dst_alpha;
    int blend_modes[4] = {
       GL_ZERO, GL_ONE, GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA
    };
 
-   al_get_blender(&src_mode, &dst_mode, NULL);
+   al_get_separate_blender(&src_color, &dst_color, &src_alpha,
+      &dst_alpha, NULL);
    glEnable(GL_BLEND);
-   glBlendFunc(blend_modes[src_mode], blend_modes[dst_mode]);
+   glBlendFuncSeparate(blend_modes[src_color], blend_modes[dst_color],
+      blend_modes[src_alpha], blend_modes[dst_alpha]);
 
    glGetBooleanv(GL_TEXTURE_2D, &on);
    if (!on) {

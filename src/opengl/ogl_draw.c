@@ -26,14 +26,16 @@ static void set_opengl_blending(ALLEGRO_DISPLAY *d, ALLEGRO_COLOR *color)
       GL_ZERO, GL_ONE, GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA
    };
    ALLEGRO_COLOR *bc;
-   int src_mode, dst_mode;
+   int src_color, dst_color, src_alpha, dst_alpha;
    float r, g, b, a;
 
    al_unmap_rgba_f(*color, &r, &g, &b, &a);
 
-   al_get_blender(&src_mode, &dst_mode, NULL);
+   al_get_separate_blender(&src_color, &dst_color, &src_alpha,
+      &dst_alpha, NULL);
    glEnable(GL_BLEND);
-   glBlendFunc(blend_modes[src_mode], blend_modes[dst_mode]);
+   glBlendFuncSeparate(blend_modes[src_color], blend_modes[dst_color],
+      blend_modes[src_alpha], blend_modes[dst_alpha]);
    bc = _al_get_blend_color();
    glColor4f(r * bc->r, g * bc->g, b * bc->b, a * bc->a);
 }

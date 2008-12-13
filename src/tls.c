@@ -48,8 +48,11 @@ typedef struct thread_local_state {
    /* Blending modes and color */
    int blend_source;
    int blend_dest;
+   int blend_alpha_source;
+   int blend_alpha_dest;
    ALLEGRO_COLOR blend_color;
-   ALLEGRO_MEMORY_BLENDER memory_blender;
+   //FIXME: Might need this again for optimization purposes.
+   //ALLEGRO_MEMORY_BLENDER memory_blender;
    /* Error code */
    int allegro_errno;
 } thread_local_state;
@@ -100,9 +103,11 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved)
              // data->new_bitmap_format = ALLEGRO_PIXEL_FORMAT_RGB_888;
              data->blend_source = ALLEGRO_ALPHA;
              data->blend_dest = ALLEGRO_INVERSE_ALPHA;
+             data->blend_alpha_source = ALLEGRO_ONE;
+             data->blend_alpha_dest = ALLEGRO_ONE;
              data->blend_color.r = data->blend_color.g = data->blend_color.b
                 = data->blend_color.a = 1.0f;
-             data->memory_blender = _al_blender_alpha_inverse_alpha;
+             //data->memory_blender = _al_blender_alpha_inverse_alpha;
              TlsSetValue(tls_index, data); 
           }
              break; 
@@ -199,8 +204,10 @@ static THREAD_LOCAL thread_local_state _tls = {
    0,                                     /* new_bitmap_flags */
    ALLEGRO_ALPHA,                         /* blend_source */
    ALLEGRO_INVERSE_ALPHA,                 /* blend_dest */
+   ALLEGRO_ONE,                           /* blend_alpha_source */
+   ALLEGRO_ONE,                           /* blend_alpha_dest */
    { 1.0f, 1.0f, 1.0f, 1.0f },            /* blend_color  */
-   _al_blender_alpha_inverse_alpha,       /* memory_blender */
+   //_al_blender_alpha_inverse_alpha,       /* memory_blender */
    0                                      /* errno */
 };
 
@@ -546,8 +553,10 @@ void al_store_state(ALLEGRO_STATE *state, int flags)
    if (flags & ALLEGRO_STATE_BLENDER) {
       _STORE(blend_source);
       _STORE(blend_dest);
+      _STORE(blend_alpha_source);
+      _STORE(blend_alpha_dest);
       _STORE(blend_color);
-      _STORE(memory_blender);
+      //_STORE(memory_blender);
    }
 };
 #undef _STORE
@@ -596,8 +605,10 @@ void al_restore_state(ALLEGRO_STATE const *state)
    if (flags & ALLEGRO_STATE_BLENDER) {
       _STORE(blend_source);
       _STORE(blend_dest);
+      _STORE(blend_alpha_source);
+      _STORE(blend_alpha_dest);
       _STORE(blend_color);
-      _STORE(memory_blender);
+      //_STORE(memory_blender);
    }
 };
 #undef _STORE
@@ -654,6 +665,19 @@ void al_restore_state(ALLEGRO_STATE const *state)
  */
 void al_set_blender(int src, int dst, ALLEGRO_COLOR color)
 {
+   al_set_separate_blender(src, dst, src, dst, color);
+}
+
+
+
+/* Function: al_set_separate_blender
+ * 
+ * Like [al_set_blender], but allows specifying a separate blending
+ * operation for the alpha channel.
+ */
+void al_set_separate_blender(int src, int dst, int alpha_src,
+   int alpha_dst, ALLEGRO_COLOR color)
+{
    thread_local_state *tls;
 
    if ((tls = tls_get()) == NULL)
@@ -661,19 +685,35 @@ void al_set_blender(int src, int dst, ALLEGRO_COLOR color)
 
    tls->blend_source = src;
    tls->blend_dest = dst;
+   tls->blend_alpha_source = alpha_src;
+   tls->blend_alpha_dest = alpha_dst;
 
    memcpy(&tls->blend_color, &color, sizeof(ALLEGRO_COLOR));
 
-   _al_set_memory_blender(src, dst, &color);
+   //_al_set_memory_blender(src, dst, alpha_src, alpha_dst, &color);
 }
 
 
 
 /* Function: al_get_blender
  *
- * Returns the active blender for the current thread.
+ * Returns the active blender for the current thread. You can pass
+ * NULL for values you are not interested in.
  */
 void al_get_blender(int *src, int *dst, ALLEGRO_COLOR *color)
+{
+   al_get_separate_blender(src, dst, NULL, NULL, color);
+}
+
+
+
+/* Function: al_get_separate_blender
+ *
+ * Returns the active blender for the current thread. You can pass
+ * NULL for values you are not interested in.
+ */
+void al_get_separate_blender(int *src, int *dst, int *alpha_src,
+   int *alpha_dst, ALLEGRO_COLOR *color)
 {
    thread_local_state *tls;
 
@@ -685,6 +725,12 @@ void al_get_blender(int *src, int *dst, ALLEGRO_COLOR *color)
 
    if (dst)
       *dst = tls->blend_dest;
+
+   if (alpha_src)
+      *alpha_src = tls->blend_alpha_source;
+
+   if (alpha_dst)
+      *alpha_dst = tls->blend_alpha_dest;
 
    if (color)
       memcpy(color, &tls->blend_color, sizeof(ALLEGRO_COLOR));
@@ -703,6 +749,8 @@ ALLEGRO_COLOR *_al_get_blend_color()
 
 
 
+// FIXME: Do we need this for optimization?
+#if 0
 void _al_set_memory_blender(int src, int dst, ALLEGRO_COLOR *color)
 {
    thread_local_state *tls;
@@ -792,7 +840,7 @@ ALLEGRO_MEMORY_BLENDER _al_get_memory_blender()
       return NULL;
    return tls->memory_blender;
 }
-
+#endif
 
 
 /* Function: al_get_errno

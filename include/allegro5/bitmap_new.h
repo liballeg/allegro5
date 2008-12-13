@@ -240,6 +240,8 @@ AL_FUNC(bool, al_is_bitmap_locked, (ALLEGRO_BITMAP *bitmap));
 /* Blending */
 AL_FUNC(void, al_set_blender, (int source, int dest, ALLEGRO_COLOR color));
 AL_FUNC(void, al_get_blender, (int *source, int *dest, ALLEGRO_COLOR *color));
+AL_FUNC(void, al_set_separate_blender, (int source, int dest, int alpha_source, int alpha_dest, ALLEGRO_COLOR color));
+AL_FUNC(void, al_get_separate_blender, (int *source, int *dest, int *alpha_src, int *alpha_dest, ALLEGRO_COLOR *color));
 
 #ifdef __cplusplus
    }
