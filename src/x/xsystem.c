@@ -339,6 +339,8 @@ static int xglx_get_num_video_adapters(void)
       system->xinerama_screen_count = 0;
       return 1;
    }
+
+   return system->xinerama_screen_count;
    #else
    return 1;
    #endif
