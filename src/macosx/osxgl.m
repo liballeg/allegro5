@@ -775,9 +775,15 @@ static ALLEGRO_DISPLAY* create_display_win(int w, int h) {
  * Destroy display, actually close the window or exit fullscreen on the main thread
  */
 static void destroy_display(ALLEGRO_DISPLAY* d) {
+   ALLEGRO_DISPLAY *old_dpy = al_get_current_display();
 	ALLEGRO_DISPLAY_OSX_WIN* dpy = (ALLEGRO_DISPLAY_OSX_WIN*) d;
    ALLEGRO_DISPLAY_OSX_WIN* other = NULL;
    unsigned int i;
+
+   // Set the display as the current display; needed because we need to
+   // make the context current.
+   if (old_dpy != d)
+      al_set_current_display(d);
 
    /* First of all, save video bitmaps attached to this display. */
    // Check for other displays in this display group
@@ -817,6 +823,11 @@ static void destroy_display(ALLEGRO_DISPLAY* d) {
    [dpy->cursor release];
 	_al_event_source_free(&d->es);
    _AL_FREE(d->ogl_extras);
+
+   // Restore original display from before this function was called.
+   if (old_dpy != d)
+      al_set_current_display(old_dpy);
+
    _AL_FREE(d);
 }
 /* create_display:
