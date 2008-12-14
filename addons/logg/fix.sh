@@ -83,8 +83,8 @@ fi
 case "$1" in
    "beos"    ) proc_fix "BeOS"              "Makefile.be";;
    "haiku"   ) proc_fix "Haiku"             "Makefile.be";;
-   "mingw"   ) proc_fix "Windows (MinGW)"   "Makefile.migw";;
-   "mingw32" ) proc_fix "Windows (MinGW)"   "Makefile.migw";;
+   "mingw"   ) proc_fix "Windows (MinGW)"   "Makefile.mingw";;
+   "mingw32" ) proc_fix "Windows (MinGW)"   "Makefile.mingw";;
    "unix"    ) proc_fix "Unix"              "Makefile.unix";;
    "macosx"  ) proc_fix "Mac OS X"          "Makefile.osx";;
    "macosx-universal" ) proc_fix_osx_ub ;;
