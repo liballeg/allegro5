@@ -113,6 +113,7 @@ void _al_d3d_release_bitmap_textures(ALLEGRO_DISPLAY_D3D *disp);
 bool _al_d3d_recreate_bitmap_textures(ALLEGRO_DISPLAY_D3D *disp);
 void _al_d3d_set_bitmap_clip(ALLEGRO_BITMAP *bitmap);
 void _al_d3d_sync_bitmap(ALLEGRO_BITMAP *dest);
+bool _al_d3d_supports_separate_alpha_blend(ALLEGRO_DISPLAY *display);
 
 /* Helper to get smallest fitting power of two. */
 AL_INLINE_STATIC(int, pot, (int x),

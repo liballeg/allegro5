@@ -772,7 +772,7 @@ static void d3d_blit_real(ALLEGRO_BITMAP *src,
 static void d3d_draw_bitmap(ALLEGRO_BITMAP *bitmap,
    float dx, float dy, int flags)
 {
-   if (!_al_d3d_render_to_texture_supported()) {
+   if (!_al_d3d_render_to_texture_supported() || _al_d3d_supports_separate_alpha_blend(al_get_current_display())) {
       _al_draw_bitmap_memory(bitmap, (int) dx, (int) dy, flags);
       return;
    }
@@ -786,7 +786,7 @@ static void d3d_draw_bitmap(ALLEGRO_BITMAP *bitmap,
 static void d3d_draw_bitmap_region(ALLEGRO_BITMAP *bitmap,
    float sx, float sy, float sw, float sh, float dx, float dy, int flags)
 {
-   if (!_al_d3d_render_to_texture_supported()) {
+   if (!_al_d3d_render_to_texture_supported() || _al_d3d_supports_separate_alpha_blend(al_get_current_display())) {
       _al_draw_bitmap_region_memory(bitmap,
          (int) sx, (int) sy, (int) sw, (int) sh,
          (int) dx, (int) dy, flags);
@@ -803,7 +803,7 @@ static void d3d_draw_bitmap_region(ALLEGRO_BITMAP *bitmap,
 void d3d_draw_scaled_bitmap(ALLEGRO_BITMAP *bitmap, float sx, float sy,
    float sw, float sh, float dx, float dy, float dw, float dh, int flags)
 {
-   if (!_al_d3d_render_to_texture_supported()) {
+   if (!_al_d3d_render_to_texture_supported() || _al_d3d_supports_separate_alpha_blend(al_get_current_display())) {
       _al_draw_scaled_bitmap_memory(bitmap,
          (int) sx, (int) sy, (int) sw, (int) sh,
          (int) dx, (int) dy, (int) dw, (int) dh, flags);
@@ -819,7 +819,7 @@ void d3d_draw_scaled_bitmap(ALLEGRO_BITMAP *bitmap, float sx, float sy,
 void d3d_draw_rotated_bitmap(ALLEGRO_BITMAP *bitmap, float cx, float cy,
    float dx, float dy, float angle, int flags)
 {
-   if (!_al_d3d_render_to_texture_supported()) {
+   if (!_al_d3d_render_to_texture_supported() || _al_d3d_supports_separate_alpha_blend(al_get_current_display())) {
       _al_draw_rotated_bitmap_memory(bitmap, (int) cx, (int) cy,
          (int) dx, (int) dy, angle, flags);
       return;
@@ -836,7 +836,7 @@ void d3d_draw_rotated_scaled_bitmap(ALLEGRO_BITMAP *bitmap, float cx, float cy,
    float dx, float dy, float xscale, float yscale, float angle,
    int flags)
 {
-   if (!_al_d3d_render_to_texture_supported()) {
+   if (!_al_d3d_render_to_texture_supported() || _al_d3d_supports_separate_alpha_blend(al_get_current_display())) {
       _al_draw_rotated_scaled_bitmap_memory(bitmap, (int) cx, (int) cy,
          (int) dx, (int) dy, xscale, yscale, angle, flags);
       return;

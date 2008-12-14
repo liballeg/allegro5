@@ -120,6 +120,19 @@ static int d3d_formats[] = {
 };
 
 
+bool _al_d3d_supports_separate_alpha_blend(ALLEGRO_DISPLAY *display)
+{
+   ALLEGRO_DISPLAY_WIN *wdisp = (ALLEGRO_DISPLAY_WIN *)display;
+   D3DCAPS9 caps;
+
+   if (_al_d3d->GetDeviceCaps(wdisp->adapter, D3DDEVTYPE_HAL, &caps) != D3D_OK) {
+      return false;
+   }
+
+   return caps.PrimitiveMiscCaps & D3DPMISCCAPS_SEPARATEALPHABLEND;
+}
+
+
 bool al_d3d_supports_non_pow2_textures(void)
 {
    D3DCAPS9 caps;
@@ -561,6 +574,8 @@ bool _al_d3d_init_display()
       render_to_texture_supported = false;
    else
       render_to_texture_supported = true;
+
+
 
    TRACE("Render-to-texture: %d\n", render_to_texture_supported);
    
@@ -1413,18 +1428,26 @@ static int d3d_al_blender_to_d3d(int al_mode)
 
 void _al_d3d_set_blender(ALLEGRO_DISPLAY_D3D *d3d_display)
 {
-   int src, dst;
+   int src, dst, alpha_src, alpha_dst;
    ALLEGRO_COLOR color;
 
-   al_get_blender(&src, &dst, &color);
+   al_get_separate_blender(&src, &dst, &alpha_src, &alpha_dst, &color);
 
    src = d3d_al_blender_to_d3d(src);
    dst = d3d_al_blender_to_d3d(dst);
+   alpha_src = d3d_al_blender_to_d3d(alpha_src);
+   alpha_dst = d3d_al_blender_to_d3d(alpha_dst);
 
+   if (d3d_display->device->SetRenderState(D3DRS_SEPARATEALPHABLENDENABLE, TRUE) != D3D_OK)
+      TRACE("D3DRS_SEPARATEALPHABLENDENABLE failed\n");
    if (d3d_display->device->SetRenderState(D3DRS_SRCBLEND, src) != D3D_OK)
       TRACE("Failed to set source blender\n");
    if (d3d_display->device->SetRenderState(D3DRS_DESTBLEND, dst) != D3D_OK)
       TRACE("Failed to set dest blender\n");
+   if (d3d_display->device->SetRenderState(D3DRS_SRCBLENDALPHA, alpha_src) != D3D_OK)
+      TRACE("Failed to set source alpha blender\n");
+   if (d3d_display->device->SetRenderState(D3DRS_DESTBLENDALPHA, alpha_dst) != D3D_OK)
+      TRACE("Failed to set dest alpha blender\n");
    d3d_display->device->SetTextureStageState(0, D3DTSS_ALPHAOP, D3DTOP_MODULATE);
 }
 
@@ -1460,7 +1483,7 @@ static void d3d_draw_line(ALLEGRO_DISPLAY *al_display, float fx, float fy, float
 
    if (d3d_display->device_lost) return;
 
-   if (!_al_d3d_render_to_texture_supported()) {
+   if (!_al_d3d_render_to_texture_supported() || !_al_d3d_supports_separate_alpha_blend(al_display)) {
       _al_draw_line_memory((int)fx, (int)fy, (int)tx, (int)ty, color);
       return;
    }
@@ -1525,7 +1548,7 @@ static void d3d_draw_rectangle(ALLEGRO_DISPLAY *al_display, float tlx, float tly
 
    if (d3d_display->device_lost) return;
 
-   if (!_al_d3d_render_to_texture_supported()) {
+   if (!_al_d3d_render_to_texture_supported() || !_al_d3d_supports_separate_alpha_blend(al_display)) {
       _al_draw_rectangle_memory((int)tlx, (int)tly, (int)brx, (int)bry, color, flags);
       return;
    }
