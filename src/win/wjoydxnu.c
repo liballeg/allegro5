@@ -712,7 +712,7 @@ static bool joydx_init_joystick(void)
    }
 
    /* enumerate the joysticks attached to the system */
-   hr = IDirectInput8_EnumDevices(joystick_dinput, DI8DEVTYPE_JOYSTICK, joystick_enum_callback, NULL, DIEDFL_ATTACHEDONLY);
+   hr = IDirectInput8_EnumDevices(joystick_dinput, DI8DEVCLASS_GAMECTRL, joystick_enum_callback, NULL, DIEDFL_ATTACHEDONLY);
    if (FAILED(hr) || (joydx_num_joysticks == 0)) {
       IDirectInput8_Release(joystick_dinput);
       joystick_dinput = NULL;
