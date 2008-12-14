@@ -17,6 +17,10 @@
 #include <X11/extensions/xf86vmode.h>
 #endif
 
+#ifdef ALLEGRO_XWINDOWS_WITH_XINERAMA
+#include <X11/extensions/Xinerama.h>
+#endif
+
 typedef struct ALLEGRO_SYSTEM_XGLX ALLEGRO_SYSTEM_XGLX;
 typedef struct ALLEGRO_DISPLAY_XGLX ALLEGRO_DISPLAY_XGLX;
 typedef struct ALLEGRO_MOUSE_CURSOR_XGLX ALLEGRO_MOUSE_CURSOR_XGLX;
@@ -55,6 +59,12 @@ struct ALLEGRO_SYSTEM_XGLX
    _AL_COND resized; /* Condition variable to wait for resizing a window. */
    bool pointer_grabbed; /* Is an XGrabPointer in effect? */
    bool inhibit_screensaver; /* Should we inhibit the screensaver? */
+
+   #ifdef ALLEGRO_XWINDOWS_WITH_XINERAMA
+   int xinerama_available;
+   int xinerama_screen_count;
+   XineramaScreenInfo *xinerama_screen_info;
+   #endif
 };
 
 /* This is our version of ALLEGRO_DISPLAY with driver specific extra data. */

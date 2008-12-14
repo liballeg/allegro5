@@ -416,6 +416,12 @@ if(SUPPORT_X11)
         list(APPEND X11_LIBRARIES "Xxf86vm")
     endif(CAN_XF86VIDMODE)
 
+   check_library_exists(Xinerama XineramaQueryExtension "" CAN_XINERAMA)
+   if(CAN_XINERAMA)
+      set(ALLEGRO_XWINDOWS_WITH_XINERAMA 1)
+      list(APPEND X11_LIBRARIES "Xinerama")
+   endif(CAN_XINERAMA)
+
     check_library_exists(X11 XOpenIM "" CAN_XIM)
     if(CAN_XIM)
         set(ALLEGRO_XWINDOWS_WITH_XIM 1)
