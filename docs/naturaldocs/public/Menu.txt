@@ -1,4 +1,4 @@
-Format: 1.4
+Format: Development Release 12-07-2007 (1.35 base)
 
 
 Title: Allegro
@@ -42,12 +42,18 @@ Timestamp: Generated on month day, year
 
 Group: Addons  {
 
-   File: Audio  (addons/kcm_audio/allegro5/kcm_audio.h)
-   File: iio/jpg.c  (addons/iio/jpg.c)
-   File: Mixer functions  (addons/kcm_audio/kcm_mixer.c)
-   File: Sample functions  (addons/kcm_audio/kcm_sample.c)
-   File: Stream functions  (addons/kcm_audio/kcm_stream.c)
-   File: Voice functions  (addons/kcm_audio/kcm_voice.c)
+   File: jpg.c  (addons/iio/jpg.c)
+
+   Group: Kcm_audio  {
+
+      File: Audio  (addons/kcm_audio/allegro5/kcm_audio.h)
+      File: kcm_simple.c  (addons/kcm_audio/kcm_simple.c)
+      File: Mixer functions  (addons/kcm_audio/kcm_mixer.c)
+      File: Sample functions  (addons/kcm_audio/kcm_sample.c)
+      File: Stream functions  (addons/kcm_audio/kcm_stream.c)
+      File: Voice functions  (addons/kcm_audio/kcm_voice.c)
+      }  # Group: Kcm_audio
+
    }  # Group: Addons
 
 Group: Include  {
@@ -57,6 +63,8 @@ Group: Include  {
    File: Display types  (include/allegro5/display_new.h)
    File: Error handling  (include/allegro5/error.h)
    File: Events  (include/allegro5/events.h)
+   File: Filesystem path routines  (include/allegro5/path.h)
+   File: Filesystem routines  (include/allegro5/fshook.h)
    File: Joystick types  (include/allegro5/joystick.h)
    File: Keyboard constants  (include/allegro5/keycodes.h)
    File: Keyboard types  (include/allegro5/keyboard.h)
@@ -69,12 +77,15 @@ Group: Include  {
 
 Group: Src  {
 
+   File: al_inhibit_screensaver  (src/system_new.c)
    File: Bitmap routines  (src/bitmap_new.c)
    File: Configuration routines  (src/config.c)
    File: Destructors  (src/dtor.c)
    File: Display routines  (src/display_new.c)
    File: Event queues  (src/events.c)
    File: Event sources  (src/evtsrc.c)
+   File: Filesystem path routines  (src/path.c)
+   File: Filesystem routines  (src/fshook.c)
    File: Joystick routines  (src/joynu.c)
    File: Keyboard routines  (src/keybdnu.c)
    File: Memory management routines  (src/memory.c)
@@ -84,12 +95,6 @@ Group: Src  {
    File: Thread local storage  (src/tls.c)
    File: Threads  (src/threads.c)
    }  # Group: Src
-
-File: Audio  (Buildunix2/addons/kcm_audio/kcm_audio/allegro5/kcm_audio.h)
-File: Mixer functions  (Buildunix2/addons/kcm_audio/kcm_audio/kcm_mixer.c)
-File: Sample functions  (Buildunix2/addons/kcm_audio/kcm_audio/kcm_sample.c)
-File: Stream functions  (Buildunix2/addons/kcm_audio/kcm_audio/kcm_stream.c)
-File: Voice functions  (Buildunix2/addons/kcm_audio/kcm_audio/kcm_voice.c)
 
 Group: Index  {
 

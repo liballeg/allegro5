@@ -973,6 +973,7 @@ static int32_t al_fs_stdio_get_search_path(uint32_t idx, char *dest,
 
       memcpy(dest, search_path[idx], MIN(slen, len-1));
       dest[len] = '\0';
+      return 0;
    }
 
    return -1;

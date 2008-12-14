@@ -500,7 +500,10 @@ void al_path_append(ALLEGRO_PATH *path, const char *s)
 /* Function: al_path_concat
  *  Concatenate two path structures. The first path structure is
  *  modified.
- *  XXX describe details
+ *
+ *  If tail is an absolute path, this function does nothing.
+ *  tail's file/basename will overwrite path's if it exists,
+ *  if tail does not have a basename, 'path's is kept (probably shouldn't).
  */
 void al_path_concat(ALLEGRO_PATH *path, const ALLEGRO_PATH *tail)
 {
@@ -554,7 +557,9 @@ void al_path_concat(ALLEGRO_PATH *path, const ALLEGRO_PATH *tail)
 
 /* Function: al_path_to_string
  *  Get the string representation of a path.
- *  XXX describe fully
+ *
+ *  Will fill buffer upto len bytes with a string representation of path, using delim as the path separator.
+ *  To use the current native path separator use ALLEGRO_NATIVE_PATH_SEP
  */
 /* FIXME: this is a rather dumb implementation, not using ustr*cat should speed it up */
 char *al_path_to_string(ALLEGRO_PATH *path, char *buffer, size_t len, char delim)
@@ -657,6 +662,7 @@ const char *al_path_get_drive(ALLEGRO_PATH *path)
  */
 /* XXX rename; 'filename' doesn't mean 'basename' */
 /* XXX what happens if filename includes directory separators? */
+/* TF: It shouldn't. if we wanted to support that, we need to parse out 'filename' and append its paths to the current path */
 int32_t al_path_set_filename(ALLEGRO_PATH *path, const char *filename)
 {
    ASSERT(path);
@@ -714,6 +720,7 @@ const char *al_path_get_extension(ALLEGRO_PATH *path, char *buf, size_t len)
  *  Returns buf.
  */
 /* XXX rename; 'basename' doesn't imply no extension */
+/* TF: its the only meaningful distinction between the filename and basename */
 const char *al_path_get_basename(ALLEGRO_PATH *path, char *buf, size_t len)
 {
    ASSERT(path);
@@ -737,6 +744,7 @@ const char *al_path_get_basename(ALLEGRO_PATH *path, char *buf, size_t len)
  *  Returns -1 on error.
  */
 /* XXX change return value? */
+/* TF: What for? */
 uint32_t al_path_exists(ALLEGRO_PATH *path)
 {
    char buffer[PATH_MAX];

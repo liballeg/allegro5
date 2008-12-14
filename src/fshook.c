@@ -15,6 +15,9 @@
  *      See readme.txt for copyright information.
  */
 
+/* Title: Filesystem routines
+*/
+
 #ifdef _MSC_VER
    #define _POSIX_
 #endif
@@ -31,6 +34,10 @@
 struct ALLEGRO_FS_HOOK_SYS_INTERFACE  *_al_sys_fshooks = &_al_stdio_sys_fshooks;
 struct ALLEGRO_FS_HOOK_ENTRY_INTERFACE *_al_entry_fshooks = &_al_stdio_entry_fshooks;
 
+/* Function: al_fs_create_handle
+ * Creates a ALLEGRO_FS_ENTRY object pointing to path.
+ * path can be a file or a directory, should not be NULL.
+ */
 ALLEGRO_FS_ENTRY *al_fs_create_handle(AL_CONST char *path)
 {
    ALLEGRO_FS_ENTRY *handle = _al_fs_hook_create_handle(path);
@@ -40,6 +47,10 @@ ALLEGRO_FS_ENTRY *al_fs_create_handle(AL_CONST char *path)
    return handle;
 }
 
+/* Function: al_fs_destroy_handle
+ * Destroys a fs entry handle.
+ * Closes file if it was open.
+ */
 void al_fs_destroy_handle(ALLEGRO_FS_ENTRY *handle)
 {
    ASSERT(handle != NULL);
@@ -48,6 +59,10 @@ void al_fs_destroy_handle(ALLEGRO_FS_ENTRY *handle)
 
 }
 
+/* Function: al_fs_open_handle
+ * Opens handle with mode 'mode'.
+ * mode is a stdio type mode, ie: "r", "w", etc
+ */
 int32_t al_fs_open_handle(ALLEGRO_FS_ENTRY *handle, AL_CONST char *mode)
 {
    ASSERT(handle != NULL);
@@ -56,12 +71,18 @@ int32_t al_fs_open_handle(ALLEGRO_FS_ENTRY *handle, AL_CONST char *mode)
    return _al_fs_hook_open_handle(handle, mode);
 }
 
+/* Function: al_fs_close_handle
+ * Closes fs entry.
+ */
 void al_fs_close_handle(ALLEGRO_FS_ENTRY *handle)
 {
    ASSERT(handle != NULL);
    _al_fs_hook_close_handle(handle);
 }
 
+/* Function: al_fs_entry_name
+ * Fills in buf up to size bytes including trailing NULL char with the entry's name
+ */
 void al_fs_entry_name(ALLEGRO_FS_ENTRY *fp, size_t size, char *buf)
 {
    ASSERT(fp != NULL);
@@ -69,6 +90,11 @@ void al_fs_entry_name(ALLEGRO_FS_ENTRY *fp, size_t size, char *buf)
    _al_fs_hook_entry_name(fp, size, buf);
 }
 
+/* Function: al_fs_entry_open
+ * Creates and opens an ALLEGRO_FS_ENTRY object given path and mode.
+ * 'path' is the path to open
+ * 'mode' is the mode to open the entry in
+ */
 ALLEGRO_FS_ENTRY *al_fs_entry_open(const char *path, const char *mode)
 {
    ASSERT(path != NULL);
@@ -77,6 +103,12 @@ ALLEGRO_FS_ENTRY *al_fs_entry_open(const char *path, const char *mode)
    return _al_fs_hook_entry_open(path, mode);
 }
 
+/* Function: al_fs_entry_close
+ * Closes the given file entry object.
+ * Will destroy the handle if it was opened with al_fs_entry_open.
+ *
+ * If you do not wish the entry object destroyed, use al_fs_close_handle instead.
+ */
 void al_fs_entry_close(ALLEGRO_FS_ENTRY *fp)
 {
    ASSERT(fp != NULL);
@@ -84,6 +116,11 @@ void al_fs_entry_close(ALLEGRO_FS_ENTRY *fp)
    _al_fs_hook_entry_close(fp);
 }
 
+/* Function: al_fs_entry_read
+ * Read 'size' bytes into 'ptr' from entry 'fp'
+ *
+ * Return number of bytes actually read.
+ */
 size_t al_fs_entry_read(void *ptr, size_t size, ALLEGRO_FS_ENTRY *fp)
 {
    ASSERT(ptr != NULL);
@@ -92,6 +129,14 @@ size_t al_fs_entry_read(void *ptr, size_t size, ALLEGRO_FS_ENTRY *fp)
    return _al_fs_hook_entry_read(ptr, size, fp);
 }
 
+/* Function: al_fs_entry_write
+ * Write 'size' bytes from 'ptr' into file 'fp'
+ *
+ * Return number of bytes actually written or 0 on error.
+ *
+ * Does not distinguish between eof and other errors, use al_fs_entry_eof and al_fs_entry_error
+ * to tell them apart.
+ */
 size_t al_fs_entry_write(const void *ptr, size_t size, ALLEGRO_FS_ENTRY *fp)
 {
    ASSERT(ptr != NULL);
@@ -100,6 +145,9 @@ size_t al_fs_entry_write(const void *ptr, size_t size, ALLEGRO_FS_ENTRY *fp)
    return _al_fs_hook_entry_write(ptr, size, fp);
 }
 
+/* Function: al_fs_entry_flush
+ * Flush any pending writes to 'fp' to disk.
+ */
 int32_t al_fs_entry_flush(ALLEGRO_FS_ENTRY *fp)
 {
    ASSERT(fp != NULL);
@@ -107,6 +155,14 @@ int32_t al_fs_entry_flush(ALLEGRO_FS_ENTRY *fp)
    return _al_fs_hook_entry_flush(fp);
 }
 
+/* Function: al_fs_entry_seek
+ * Seek to 'offset' in file based on 'whence'.
+ *
+ * 'whence' can be:
+ * ALLEGRO_SEEK_SET - Seek from beggining of file
+ * ALLEGRO_SEEK_CUR - Seek from current position
+ * ALLEGRO_SEEK_END - Seek from end of file
+ */
 int32_t al_fs_entry_seek(ALLEGRO_FS_ENTRY *fp, uint32_t offset, uint32_t whence)
 {
    ASSERT(fp != NULL);
@@ -116,6 +172,9 @@ int32_t al_fs_entry_seek(ALLEGRO_FS_ENTRY *fp, uint32_t offset, uint32_t whence)
    return _al_fs_hook_entry_seek(fp, offset, whence);
 }
 
+/* Function: al_fs_entry_tell
+ * Returns the current position in file. Or -1 on error.
+ */
 int32_t al_fs_entry_tell(ALLEGRO_FS_ENTRY *fp)
 {
    ASSERT(fp != NULL);
@@ -123,6 +182,9 @@ int32_t al_fs_entry_tell(ALLEGRO_FS_ENTRY *fp)
    return _al_fs_hook_entry_tell(fp);
 }
 
+/* Function: al_fs_entry_error
+ * Returns non zero if there was some sort of previous error.
+ */
 int32_t al_fs_entry_error(ALLEGRO_FS_ENTRY *fp)
 {
    ASSERT(fp != NULL);
@@ -130,6 +192,9 @@ int32_t al_fs_entry_error(ALLEGRO_FS_ENTRY *fp)
    return _al_fs_hook_entry_error(fp);
 }
 
+/* Function: al_fs_entry_eof
+ * Returns non zero if we have an end of file condition.
+ */
 int32_t al_fs_entry_eof(ALLEGRO_FS_ENTRY *fp)
 {
    ASSERT(fp != NULL);
@@ -137,7 +202,9 @@ int32_t al_fs_entry_eof(ALLEGRO_FS_ENTRY *fp)
    return _al_fs_hook_entry_eof(fp);
 }
 
-
+/* Function: al_fs_entry_stat
+ * Updates stat info for entry 'fp'
+ */
 int32_t al_fs_entry_stat(ALLEGRO_FS_ENTRY *fp)
 {
    ASSERT(fp != NULL);
@@ -145,7 +212,11 @@ int32_t al_fs_entry_stat(ALLEGRO_FS_ENTRY *fp)
    return _al_fs_hook_entry_stat(fp);
 }
 
-
+/* Function: al_fs_opendir
+ * Creates and opens a filestem entry object for a directory
+ *
+ * Returns NULL on error.
+ */
 ALLEGRO_FS_ENTRY *al_fs_opendir(const char *path)
 {
    ALLEGRO_FS_ENTRY *dir = NULL;
@@ -159,6 +230,14 @@ ALLEGRO_FS_ENTRY *al_fs_opendir(const char *path)
    return dir;
 }
 
+/* Function: al_fs_closedir
+ * Closes a previously opened directory entry object.
+ *
+ * al_fs_close_handle is also a valid way to close any entry object.
+ *
+ * does not free the entry object if it was opened with al_fs_opendir.
+ * This is probably a bug.
+ */
 int32_t al_fs_closedir(ALLEGRO_FS_ENTRY *dir)
 {
    int32_t ret = 0;
@@ -170,6 +249,13 @@ int32_t al_fs_closedir(ALLEGRO_FS_ENTRY *dir)
    return ret;
 }
 
+/* Function: al_fs_readdir
+ * Reads the next dir item name into 'name' buffer up to 'size' chars.
+ *
+ * Warning this may leave the filename truncated.
+ *
+ * Returns non zero on error.
+ */
 int32_t al_fs_readdir(ALLEGRO_FS_ENTRY *dir, size_t size, char *name)
 {
    ASSERT(dir != NULL);
@@ -179,30 +265,50 @@ int32_t al_fs_readdir(ALLEGRO_FS_ENTRY *dir, size_t size, char *name)
    return _al_fs_hook_readdir(dir, size, name);
 }
 
+/* Function: al_fs_entry_mode
+ * Returns the entry's mode flags.
+ *
+ * See the ALLEGRO_FS_MODE enum for valid flags
+ */
 uint32_t al_fs_entry_mode(ALLEGRO_FS_ENTRY *e)
 {
    ASSERT(e != NULL);
    return _al_fs_hook_entry_mode(e);
 }
 
+/* Function: al_fs_entry_atime
+ * Returns the time in seonds since the epoch since the entry was last accessed.
+ *
+ * Warning, some filesystem either don't support this flag, or people turn it off to increase performance.
+ * It may not be valid in all circumstances.
+ */
 time_t al_fs_entry_atime(ALLEGRO_FS_ENTRY *e)
 {
    ASSERT(e != NULL);
    return _al_fs_hook_entry_atime(e);
 }
 
+/* Function: al_fs_entry_mtime
+ * Returns the time in seconds since the epoch since the entry was last modified.
+ */
 time_t al_fs_entry_mtime(ALLEGRO_FS_ENTRY *e)
 {
    ASSERT(e != NULL);
    return _al_fs_hook_entry_mtime(e);
 }
 
+/* Function: al_fs_entry_ctime
+ * Returns the time in seconds since the epoch this entry was created on the filsystem.
+ */
 time_t al_fs_entry_ctime(ALLEGRO_FS_ENTRY *e)
 {
    ASSERT(e != NULL);
    return _al_fs_hook_entry_ctime(e);
 }
 
+/* Function: al_fs_entry_size
+ * Returns the size of the entry.
+ */
 off_t al_fs_entry_size(ALLEGRO_FS_ENTRY *e)
 {
    ASSERT(e != NULL);
@@ -210,6 +316,9 @@ off_t al_fs_entry_size(ALLEGRO_FS_ENTRY *e)
    return _al_fs_hook_entry_size(e);
 }
 
+/* Function: al_fs_entry_unlink
+ * "unlink" or delete this file on disk.
+ */
 int32_t al_fs_entry_unlink(ALLEGRO_FS_ENTRY *e)
 {
    ASSERT(e != NULL);
@@ -217,6 +326,9 @@ int32_t al_fs_entry_unlink(ALLEGRO_FS_ENTRY *e)
    return _al_fs_hook_entry_unlink(e);
 }
 
+/* Function: al_fs_entry_exists
+ * Check if the given entry exists on disk
+ */
 int32_t al_fs_entry_exists(ALLEGRO_FS_ENTRY *e)
 {
    ASSERT(e != NULL);
@@ -224,18 +336,35 @@ int32_t al_fs_entry_exists(ALLEGRO_FS_ENTRY *e)
    return _al_fs_hook_entry_exists(e);
 }
 
+/* Function: al_fs_entry_isdir
+ * Check if this entry is a directory
+ */
 int32_t al_fs_entry_isdir(ALLEGRO_FS_ENTRY *e)
 {
    ASSERT(e != NULL);
    return al_fs_entry_mode(e) & AL_FM_ISDIR;
 }
 
+/* Function: al_fs_entry_isfile
+ * Check if this entry is a file.
+ */
 int32_t al_fs_entry_isfile(ALLEGRO_FS_ENTRY *e)
 {
    ASSERT(e != NULL);
    return al_fs_entry_mode(e) & AL_FM_ISFILE;
 }
 
+/* Function: al_fs_mktemp
+ * Make a temporary randomly named file given a filename 'template' and 'ulink' flags
+ *
+ * 'template' is a string giving the format of the generated filename and should include one or more capital Xs.
+ * Xs are replaced with random chars in the range 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'
+ *
+ * 'ulink' is one of:
+ * ALLEGRO_FS_MKTEMP_UNLINK_NOW - unlink now to create an anonymous temporary file
+ * ALLEGRO_FS_MKTEMP_UNLINK_ON_CLOSE - unlink when entry is closed
+ * ALLEGRO_FS_MKTEMP_UNLINK_NEVER - don't unlink
+ */
 ALLEGRO_FS_ENTRY *al_fs_mktemp(const char *template, uint32_t ulink)
 {
    ASSERT(template != NULL);
@@ -244,6 +373,11 @@ ALLEGRO_FS_ENTRY *al_fs_mktemp(const char *template, uint32_t ulink)
    return _al_fs_hook_mktemp(template, ulink);
 }
 
+/* Function: al_fs_getcwd
+ * Fill in 'buf' up to 'len' characters with the current working directory.
+ *
+ * If 'buf/len' is not large enough, the path may be truncated.
+ */
 int32_t al_fs_getcwd(char *buf, size_t len)
 {
    ASSERT(buf != NULL);
@@ -252,6 +386,11 @@ int32_t al_fs_getcwd(char *buf, size_t len)
    return _al_fs_hook_getcwd(buf, len);
 }
 
+/* Function: al_fs_chdir
+ * Changes the current working directory to 'path'.
+ *
+ * Returns -1 on error.
+ */
 int32_t al_fs_chdir(const char *path)
 {
    ASSERT(path);
@@ -259,6 +398,11 @@ int32_t al_fs_chdir(const char *path)
    return _al_fs_hook_chdir(path);
 }
 
+/* Function: al_fs_mkdir
+ * Creates a new directory on disk given the path 'path'.
+ *
+ * Returns -1 on error.
+ */
 int32_t al_fs_mkdir(AL_CONST char *path)
 {
    ASSERT(path);
@@ -266,6 +410,9 @@ int32_t al_fs_mkdir(AL_CONST char *path)
    return _al_fs_hook_mkdir(path);
 }
 
+/* Function: al_fs_add_search_path
+ * Adds a path to the list of directories to search for files when searching/opening files with a relative pathname.
+ */
 int32_t al_fs_add_search_path(const char *path)
 {
    ASSERT(path);
@@ -273,11 +420,27 @@ int32_t al_fs_add_search_path(const char *path)
    return _al_fs_hook_add_search_path(path);
 }
 
+/* Function: al_fs_search_path_count
+ * Returns the number of items in the search path list.
+ */
 int32_t al_fs_search_path_count()
 {
    return _al_fs_hook_search_path_count();
 }
 
+/* Function: al_fs_get_search_path
+ * Fills in 'dest' up to 'len' bytes with the 'idx'th search path item.
+ *
+ * Warning, if 'dest/len' isn't large enough, path may be truncated.
+ *
+ * Parameters:
+ *  idx - index of search path element requested
+ *  dest - memory buffer to copy path to
+ *  len - length of memory buffer
+ *
+ * Returns:
+ *  -1 on error.
+ */
 int32_t al_fs_get_search_path(uint32_t idx, char *dest, size_t len)
 {
    ASSERT(dest);
@@ -286,6 +449,9 @@ int32_t al_fs_get_search_path(uint32_t idx, char *dest, size_t len)
    return _al_fs_hook_get_search_path(idx, dest, len);
 }
 
+/* Function: al_fs_drive_sep
+ * Fills in 'sep' up to 'len' characters with the drive separator string
+ */
 int32_t al_fs_drive_sep(size_t len, char *sep)
 {
    ASSERT(len > 0);
@@ -294,6 +460,9 @@ int32_t al_fs_drive_sep(size_t len, char *sep)
    return _al_fs_hook_drive_sep(len, sep);
 }
 
+/* Function: al_fs_path_sep
+ * Fills in 'sep' up to 'len' characters with the path separator string.
+ */
 int32_t al_fs_path_sep(size_t len, char *sep)
 {
    ASSERT(len > 0);
@@ -304,6 +473,9 @@ int32_t al_fs_path_sep(size_t len, char *sep)
 
 /* not sure these two conversion hooks are needed, should the path conversion be in the driver? */
 /* yup, driver may want to expose a "environment" that doesn't match the curren't platform's */
+/* Function: al_fs_path_to_sys
+ * Converts path 'orig' to system dependant format.
+ */
 int32_t al_fs_path_to_sys(const char *orig, size_t len, char *path)
 {
    ASSERT(orig);
@@ -313,6 +485,9 @@ int32_t al_fs_path_to_sys(const char *orig, size_t len, char *path)
    return _al_fs_hook_path_to_sys(orig, len, path);
 }
 
+/* Function: al_fs_path_to_uni
+ * Converts path 'orig' to 'allegro' format.
+ */
 int32_t al_fs_path_to_uni(const char *orig, size_t len, char *path)
 {
    ASSERT(orig);
@@ -322,42 +497,84 @@ int32_t al_fs_path_to_uni(const char *orig, size_t len, char *path)
    return _al_fs_hook_path_to_uni(orig, len, path);
 }
 
+/* Function: al_fs_stat_mode
+ * Returns stat 'mode' for fs entry 'path'.
+ *
+ * See Also:
+ * <ALLEGRO_FS_MODE>
+ */
 uint32_t al_fs_stat_mode(const char *path)
 {
    ASSERT(path != NULL);
    return _al_fs_hook_stat_mode(path);
 }
 
+/* Function: al_fs_stat_atime
+ * Returns last access time for fs entry 'path'
+ *
+ * See Also:
+ * <al_fs_entry_atime>
+ */
 time_t al_fs_stat_atime(const char *path)
 {
    ASSERT(path != NULL);
    return _al_fs_hook_stat_atime(path);
 }
 
+/* Function: al_fs_stat_mtime
+* Returns last modification time for fs entry 'path'
+*
+* See Also:
+* <al_fs_entry_mtime>
+*/
 time_t al_fs_stat_mtime(const char *path)
 {
    ASSERT(path != NULL);
    return _al_fs_hook_stat_mtime(path);
 }
 
+/* Function: al_fs_stat_ctime
+* Returns creation time for fs entry 'path'
+*
+* See Also:
+* <al_fs_entry_ctime>
+*/
 time_t al_fs_stat_ctime(const char *path)
 {
    ASSERT(path != NULL);
    return _al_fs_hook_stat_ctime(path);
 }
 
+/* Function: al_fs_stat_size
+* Returns file size for fs entry 'path'
+*
+* See Also:
+* <al_fs_entry_size>
+*/
 off_t al_fs_stat_size(const char *path)
 {
    ASSERT(path != NULL);
    return _al_fs_hook_stat_size(path);
 }
 
+/* Function: al_fs_unlink
+ * Unlink 'path' entry from disk.
+ *
+ * See Also:
+ * <al_fs_entry_unlink>
+ */
 int32_t al_fs_unlink(const char *path)
 {
    ASSERT(path != NULL);
    return _al_fs_hook_unlink(path);
 }
 
+/* Function: al_fs_exists
+ * Check if entry 'path' exists on disk.
+ *
+ * See Also:
+ * <al_fs_entry_exists>
+ */
 int32_t al_fs_exists(const char *path)
 {
    ASSERT(path != NULL);
@@ -365,18 +582,34 @@ int32_t al_fs_exists(const char *path)
    return _al_fs_hook_exists(path);
 }
 
+/* Function: al_fs_isdir
+ * Return true if 'path' is a directory.
+ *
+ * See Also:
+ * <al_fs_entry_isdir>
+ */
 int32_t al_fs_isdir(AL_CONST char *path)
 {
    ASSERT(path != NULL);
    return _al_fs_hook_stat_mode(path) & AL_FM_ISDIR;
 }
 
+/* Function: al_fs_isfile
+* Return true if 'path' is a file.
+*
+* See Also:
+* <al_fs_entry_isfile>
+*/
 int32_t al_fs_isfile(AL_CONST char *path)
 {
    ASSERT(path != NULL);
    return _al_fs_hook_stat_mode(path) & AL_FM_ISFILE;
 }
 
+/* Function: al_fs_entry_getc
+ * read and return next byte in entry 'f'.
+ * Returns EOF on end of file, and 0 on other errors (this is probably a bug)
+ */
 int al_fs_entry_getc(ALLEGRO_FS_ENTRY *f)
 {
    uint8_t c = 0;
@@ -390,6 +623,16 @@ int al_fs_entry_getc(ALLEGRO_FS_ENTRY *f)
    return c;
 }
 
+/* Function: al_fs_entry_putc
+ * write a single byte to entry.
+ *
+ * Parameters:
+ *  c - byte value to write
+ *  f - entry to write to
+ *
+ * Returns:
+ *  EOF on error
+ */
 int al_fs_entry_putc(int c, ALLEGRO_FS_ENTRY *f)
 {
    ASSERT(f);
@@ -402,7 +645,12 @@ int al_fs_entry_putc(int c, ALLEGRO_FS_ENTRY *f)
    return c;
 }
 
-
+/* Function: al_fs_entry_igetw
+ * Reads a 16bit word in little-endian format (lsb first).
+ *
+ * Returns:
+ * read 16bit word or EOF on error
+ */
 int16_t al_fs_entry_igetw(ALLEGRO_FS_ENTRY *f)
 {
    int16_t b1 = 0, b2 = 0;
@@ -415,6 +663,12 @@ int16_t al_fs_entry_igetw(ALLEGRO_FS_ENTRY *f)
    return EOF;
 }
 
+/* Function: al_fs_entry_igetl
+* Reads a 32bit word in little-endian format (lsb first).
+*
+* Returns:
+* read 32bit word or EOF on error
+*/
 int32_t al_fs_entry_igetl(ALLEGRO_FS_ENTRY *f)
 {
    int32_t b1 = 0, b2 = 0, b3 = 0, b4 = 0;
@@ -430,6 +684,12 @@ int32_t al_fs_entry_igetl(ALLEGRO_FS_ENTRY *f)
    return EOF;
 }
 
+/* Function: al_fs_entry_iputw
+* Writes a 16bit word in little-endian format (lsb first).
+*
+* Returns:
+* written 16bit word or EOF on error
+*/
 int16_t al_fs_entry_iputw(int16_t w, ALLEGRO_FS_ENTRY *f)
 {
    int16_t b1 = 0, b2 = 0;
@@ -445,6 +705,12 @@ int16_t al_fs_entry_iputw(int16_t w, ALLEGRO_FS_ENTRY *f)
    return EOF;
 }
 
+/* Function: al_fs_entry_iputl
+* Writes a 16bit word in little-endian format (lsb first).
+*
+* Returns:
+* written 32bit word or EOF on error
+*/
 int32_t al_fs_entry_iputl(int32_t l, ALLEGRO_FS_ENTRY *f)
 {
    int32_t b1 = 0, b2 = 0, b3 = 0, b4 = 0;
@@ -464,6 +730,12 @@ int32_t al_fs_entry_iputl(int32_t l, ALLEGRO_FS_ENTRY *f)
    return EOF;
 }
 
+/* Function: al_fs_entry_mgetw
+ * Reads a 16bit word in big-endian format (msb first)
+ *
+ * Returns:
+ * read 16bit word or EOF on error
+ */
 int16_t al_fs_entry_mgetw(ALLEGRO_FS_ENTRY *f)
 {
    int16_t b1 = 0, b2 = 0;
@@ -476,6 +748,12 @@ int16_t al_fs_entry_mgetw(ALLEGRO_FS_ENTRY *f)
    return EOF;
 }
 
+/* Function: al_fs_entry_mgetl
+* Writes a 32bit word in big-endian format (msb first)
+*
+* Returns:
+* written 32bit word or EOF on error
+*/
 int32_t al_fs_entry_mgetl(ALLEGRO_FS_ENTRY *f)
 {
    int32_t b1 = 0, b2 = 0, b3 = 0, b4 = 0;
@@ -491,6 +769,12 @@ int32_t al_fs_entry_mgetl(ALLEGRO_FS_ENTRY *f)
    return EOF;
 }
 
+/* Function: al_fs_entry_mputw
+* Writes a 16bit word in big-endian format (msb first)
+*
+* Returns:
+* written 16bit word or EOF on error
+*/
 int16_t al_fs_entry_mputw(int16_t w, ALLEGRO_FS_ENTRY *f)
 {
    int16_t b1 = 0, b2 = 0;
@@ -506,6 +790,12 @@ int16_t al_fs_entry_mputw(int16_t w, ALLEGRO_FS_ENTRY *f)
    return EOF;
 }
 
+/* Function: al_fs_entry_mputl
+* Writes a 32bit word in big-endian format (msb first)
+*
+* Returns:
+* written 32bit word or EOF on error
+*/
 int32_t al_fs_entry_mputl(int32_t l, ALLEGRO_FS_ENTRY *f)
 {
    int32_t b1 = 0, b2 = 0, b3 = 0, b4 = 0;
@@ -525,6 +815,17 @@ int32_t al_fs_entry_mputl(int32_t l, ALLEGRO_FS_ENTRY *f)
    return EOF;
 }
 
+/* Function: al_fs_entry_fgets
+ * Reads a string of bytes terminated with a newline (\r,\n,\r\n).
+ *
+ * Parameters:
+ * p - buffer to fill
+ * max - maximum size of buffer
+ * f - entry to read from
+ *
+ * Returns:
+ * p
+ */
 char *al_fs_entry_fgets(char *p, size_t max, ALLEGRO_FS_ENTRY *f)
 {
    char *pmax = NULL, *orig_p = p;
@@ -574,6 +875,19 @@ char *al_fs_entry_fgets(char *p, size_t max, ALLEGRO_FS_ENTRY *f)
    return orig_p; /* p has changed */
 }
 
+/* Function: al_fs_entry_fputs
+ * Writes a string to file.
+ *
+ * Parameters:
+ * p - string to write
+ * f - file handle to write to
+ *
+ * Returns:
+ * 0 on Success or -1 on error
+ *
+ * Note:
+ * Function converts string to UTF8 before writing.
+ */
 int al_fs_entry_fputs(AL_CONST char *p, ALLEGRO_FS_ENTRY *f)
 {
    char *buf = NULL, *s = NULL;
@@ -608,6 +922,9 @@ int al_fs_entry_fputs(AL_CONST char *p, ALLEGRO_FS_ENTRY *f)
       return 0;
 }
 
+/* Function: al_fs_entry_ungetc
+ * Ungets a single byte from a file. Does not write to file, it only places the char back into the entry's buffer
+ */
 int32_t al_fs_entry_ungetc(int32_t c, ALLEGRO_FS_ENTRY *fp)
 {
    ASSERT(fp != NULL);
@@ -657,6 +974,30 @@ static int32_t _al_find_resource_exists(const char *path, const char *base,
    return ret;
 }
 
+/* Function: al_find_resource
+ * Returns the full path of a 'resource' given mode 'fm'.
+ *
+ * Parameters:
+ * base - sub directory name resource may be found in
+ * resource - name of resource
+ * fm - file mode/type of resource to match. See <ALLEGRO_FS_MODE>
+ * buffer - buffer to write full path to
+ * len - length of buffer
+ *
+ * Notes:
+ * If asking for a read-only resource function scans the user data path, the program path,
+ * the current working directory followed by the system data path, if it doesn't find anything,
+ * it will return a bogus path in the users data path. This is probably a bug.
+ *
+ * If asking for a writable resource, it will scan the same places as the read only scan,
+ * and will pick the first wirteable existing resource it finds.
+ * If it doesn't find any pre existing resource, it finds the first writable directory path
+ * made up of the path components of the path returned from <al_get_path>, the 'base', and 'resource'
+ * arguments, if none are writable, it will return a path made up of the USER_DATA_PATH, and the
+ * 'base' and 'resource' arguments.
+ *
+ * If someone can make this more usefull and faster, please do (it causes noticible startup lag with the demo).
+ */
 char *al_find_resource(const char *base, const char *resource, uint32_t fm,
    char *buffer, size_t len)
 {
