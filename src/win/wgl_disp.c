@@ -1027,10 +1027,11 @@ static void wgl_destroy_display(ALLEGRO_DISPLAY *disp)
 
    _al_vector_free(&disp->bitmaps);
    _AL_FREE(disp->ogl_extras);
-   _AL_FREE(wgl_disp);
 
    if (old_disp != disp)
       al_set_current_display(old_disp);
+
+   _AL_FREE(wgl_disp);
 }
 
 
