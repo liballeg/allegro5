@@ -160,26 +160,27 @@ static void _al_xsys_xinerama_init(struct ALLEGRO_SYSTEM_XGLX *s)
    s->xinerama_available = 0;
    s->xinerama_screen_count = 0;
    s->xinerama_screen_info = NULL;
-   
+
+   _al_mutex_lock(&s->lock);
+
    if (XineramaQueryExtension(s->x11display, &event_base, &error_base)) {
       int minor_version = 0, major_version = 0;
       int status = XineramaQueryVersion(s->x11display, &major_version, &minor_version);
       TRACE("xsystem: Xinerama version: %i.%i\n", major_version, minor_version);
-      
+
       if (!XineramaIsActive(s->x11display)) {
          TRACE("xsystem: Xinerama is not active\n");
-         return;
       }
       else {
          TRACE("xsystem: Xinerama is active\n");
          s->xinerama_available = 1;
-         return;
       }
    }
    else {
       TRACE("xsystem: Xinerama extension is not available.\n");
-      return;
    }
+
+   _al_mutex_unlock(&s->lock);
 }
 
 static void _al_xsys_xinerama_exit(struct ALLEGRO_SYSTEM_XGLX *s)
@@ -332,8 +333,11 @@ static int xglx_get_num_video_adapters(void)
       system->xinerama_screen_info = NULL;
       system->xinerama_screen_count = 0;
    }
-   
+
+   _al_mutex_lock(&system->lock);
    system->xinerama_screen_info = XineramaQueryScreens(system->x11display, &(system->xinerama_screen_count));
+   _al_mutex_unlock(&system->lock);
+
    if (!system->xinerama_screen_info) {
       system->xinerama_available = 0;
       system->xinerama_screen_count = 0;
