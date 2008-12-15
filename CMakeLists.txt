@@ -390,6 +390,11 @@ if(WANT_X11)
     endif(X11_FOUND)
 endif(WANT_X11)
 
+if(UNIX AND NOT SUPPORT_X11)
+    message(FATAL_ERROR
+        "X11 not found. You may need to install X11 development libraries.")
+endif(UNIX AND NOT SUPPORT_X11)
+
 if(SUPPORT_X11 AND NOT SUPPORT_OPENGL)
     message(FATAL_ERROR "X11 support currently requires OpenGL support.")
 endif(SUPPORT_X11 AND NOT SUPPORT_OPENGL)
@@ -414,6 +419,10 @@ if(SUPPORT_X11)
     if(CAN_XF86VIDMODE)
         set(ALLEGRO_XWINDOWS_WITH_XF86VIDMODE 1)
         list(APPEND X11_LIBRARIES "Xxf86vm")
+    else(CAN_XF86VIDMODE)
+        message(STATUS
+            "WARNING: missing Xxf86vm (XF86VidMode) library. "
+            "Fullscreen support will be disabled.")
     endif(CAN_XF86VIDMODE)
 
    check_library_exists(Xinerama XineramaQueryExtension "" CAN_XINERAMA)
