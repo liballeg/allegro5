@@ -152,9 +152,11 @@ static void xglx_background_thread(_AL_THREAD *self, void *arg)
 }
 
 #ifdef ALLEGRO_XWINDOWS_WITH_XINERAMA
-static void _al_xsys_xinerama_init(struct ALLEGRO_SYSTEM_XGLX *s)
+
+static void _al_xsys_xinerama_init(ALLEGRO_SYSTEM_XGLX *s)
 {
-   int event_base = 0, error_base = 0;
+   int event_base = 0;
+   int error_base = 0;
 
    /* init xinerama info to defaults */
    s->xinerama_available = 0;
@@ -183,7 +185,7 @@ static void _al_xsys_xinerama_init(struct ALLEGRO_SYSTEM_XGLX *s)
    _al_mutex_unlock(&s->lock);
 }
 
-static void _al_xsys_xinerama_exit(struct ALLEGRO_SYSTEM_XGLX *s)
+static void _al_xsys_xinerama_exit(ALLEGRO_SYSTEM_XGLX *s)
 {
    if (s->xinerama_screen_info)
       XFree(s->xinerama_screen_info);
@@ -192,7 +194,8 @@ static void _al_xsys_xinerama_exit(struct ALLEGRO_SYSTEM_XGLX *s)
    s->xinerama_screen_count = 0;
    s->xinerama_screen_info = NULL;
 }
-#endif
+
+#endif /* ALLEGRO_XWINDOWS_WITH_XINERAMA */
 
 /* Create a new system object for the dummy X11 driver. */
 static ALLEGRO_SYSTEM *xglx_initialize(int flags)
@@ -201,9 +204,9 @@ static ALLEGRO_SYSTEM *xglx_initialize(int flags)
    Display *gfxdisplay;
    ALLEGRO_SYSTEM_XGLX *s;
 
-   #ifdef DEBUG_X11
+#ifdef DEBUG_X11
    _Xdebug = 1;
-   #endif
+#endif
 
    XInitThreads();
 
@@ -244,10 +247,10 @@ static ALLEGRO_SYSTEM *xglx_initialize(int flags)
    TRACE("xsystem: X11 protocol version %d.%d.\n",
       ProtocolVersion(s->x11display), ProtocolRevision(s->x11display));
 
-   #ifdef ALLEGRO_XWINDOWS_WITH_XINERAMA
-      _al_xsys_xinerama_init(s);
-   #endif
-      
+#ifdef ALLEGRO_XWINDOWS_WITH_XINERAMA
+   _al_xsys_xinerama_init(s);
+#endif
+
    _al_xglx_store_video_mode(s);
    
    _al_thread_create(&s->thread, xglx_background_thread, s);
@@ -277,10 +280,10 @@ static void xglx_shutdown_system(void)
 
    _al_xglx_free_mode_infos(sx);
 
-   #ifdef ALLEGRO_XWINDOWS_WITH_XINERAMA
+#ifdef ALLEGRO_XWINDOWS_WITH_XINERAMA
    _al_xsys_xinerama_exit(sx);
-   #endif
-   
+#endif
+
    if (sx->x11display) {
       XCloseDisplay(sx->x11display);
       sx->x11display = None;
@@ -322,7 +325,7 @@ static ALLEGRO_JOYSTICK_DRIVER *xglx_get_joystick_driver(void)
 
 static int xglx_get_num_video_adapters(void)
 {
-   #ifdef ALLEGRO_XWINDOWS_WITH_XINERAMA
+#ifdef ALLEGRO_XWINDOWS_WITH_XINERAMA
    ALLEGRO_SYSTEM_XGLX *system = (void *)al_system_driver();
    if (!system->xinerama_available) {
       return 1;
@@ -345,9 +348,9 @@ static int xglx_get_num_video_adapters(void)
    }
 
    return system->xinerama_screen_count;
-   #else
+#else    /* !ALLEGRO_XWINDOWS_WITH_XINERAMA */
    return 1;
-   #endif
+#endif   /* !ALLEGRO_XWINDOWS_WITH_XINERAMA */
 }
 
 static void xglx_get_smonitor_info(ALLEGRO_SYSTEM_XGLX *system, ALLEGRO_MONITOR_INFO *info)
@@ -369,7 +372,8 @@ static void xglx_get_smonitor_info(ALLEGRO_SYSTEM_XGLX *system, ALLEGRO_MONITOR_
 static void xglx_get_monitor_info(int adapter, ALLEGRO_MONITOR_INFO *info)
 {
    ALLEGRO_SYSTEM_XGLX *system = (void *)al_system_driver();
-   #ifdef ALLEGRO_XWINDOWS_WITH_XINERAMA
+
+#ifdef ALLEGRO_XWINDOWS_WITH_XINERAMA
    if (system->xinerama_available) {
       if (adapter >= system->xinerama_screen_count || adapter < 0)
          return; // don't fill in single screen info if an invalid adapter number is entered.
@@ -383,10 +387,9 @@ static void xglx_get_monitor_info(int adapter, ALLEGRO_MONITOR_INFO *info)
    else {
       xglx_get_smonitor_info(system, info);
    }
-   
-   #else
+#else /* !ALLEGRO_XWINDOWS_WITH_XINERAMA */
    xglx_get_smonitor_info(system, info);
-   #endif
+#endif /* !ALLEGRO_XWINDOWS_WITH_XINERAMA */
 }
 
 static bool xglx_get_cursor_position(int *ret_x, int *ret_y)
