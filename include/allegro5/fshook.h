@@ -34,8 +34,9 @@ typedef unsigned int off_t;
 
 /* Type: ALLEGRO_FS_ENTRY
  * Opaque filesystem entry object.
- * Represents a file or a directory, check with al_fs_entry_isdir/isfile.
- * There are no user accesible member variables.
+ * Represents a file or a directory (check with <al_fs_entry_isdir>
+ * or <al_fs_entry_isfile>).
+ * There are no user accessible member variables.
  */
 typedef struct ALLEGRO_FS_ENTRY ALLEGRO_FS_ENTRY;
 
@@ -110,6 +111,9 @@ typedef enum ALLEGRO_FS_FILTER {
  * ALLEGRO_FS_SORT_CASESENSITIVE - Case Sensitive
  * ALLEGRO_FS_SORT_DIRSLAST - Directories Last
  * ALLEGRO_FS_SORT_TYPE - By Type (extension?)
+ *
+ * XXX do we need ALLEGRO_FS_SORT_TYPE?  It sounds like we don't even
+ * know what it should do.
  */
 typedef enum ALLEGRO_FS_SORT {
    ALLEGRO_FS_SORT_NAME          = 0x00,
