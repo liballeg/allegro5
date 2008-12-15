@@ -1,9 +1,6 @@
 #ifndef ALLEGRO_PATH_H
 #define ALLEGRO_PATH_H
 
-/* Title: Filesystem path routines
-*/
-
 #include "allegro5/base.h"
 AL_BEGIN_EXTERN_C
 

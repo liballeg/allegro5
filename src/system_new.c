@@ -15,6 +15,8 @@
  *      Modified by Trent Gamblin.
  */
 
+/* Title: System routines
+ */
 
 #include "allegro5/allegro5.h"
 #include "allegro5/internal/aintern.h"

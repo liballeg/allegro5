@@ -1,3 +1,23 @@
+/*         ______   ___    ___
+ *        /\  _  \ /\_ \  /\_ \
+ *        \ \ \L\ \\//\ \ \//\ \      __     __   _ __   ___
+ *         \ \  __ \ \ \ \  \ \ \   /'__`\ /'_ `\/\`'__\/ __`\
+ *          \ \ \/\ \ \_\ \_ \_\ \_/\  __//\ \L\ \ \ \//\ \L\ \
+ *           \ \_\ \_\/\____\/\____\ \____\ \____ \ \_\\ \____/
+ *            \/_/\/_/\/____/\/____/\/____/\/___L\ \/_/ \/___/
+ *                                           /\____/
+ *                                           \_/__/
+ *
+ *      Simple audio interface.
+ *
+ *      By Peter Wang.
+ *
+ *      See LICENSE.txt for copyright information.
+ */
+
+/* Title: Simple audio interface
+ */
+
 #include "allegro5/allegro5.h"
 #include "allegro5/kcm_audio.h"
 #include "allegro5/internal/aintern_vector.h"

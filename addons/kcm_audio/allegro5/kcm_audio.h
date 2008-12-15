@@ -10,7 +10,7 @@
 extern "C" {
 #endif
 
-/* Title: Audio
+/* Title: Audio types
  */
 
 #include "allegro5/allegro5.h"
