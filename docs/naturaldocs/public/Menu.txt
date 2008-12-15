@@ -1,13 +1,19 @@
-Format: Development Release 12-07-2007 (1.35 base)
+Format: 1.4
 
 
-Title: Allegro
-SubTitle: Version 4.9.5 (SVN)
+# You can add a title and sub-title to your menu like this:
+# Title: [project name]
+# SubTitle: [subtitle]
 
 # You can add a footer to your documentation like this:
 # Footer: [text]
 # If you want to add a copyright notice, this would be the place to do it.
-Timestamp: Generated on month day, year
+
+# You can add a timestamp to your documentation like one of these:
+# Timestamp: Generated on month day, year
+# Timestamp: Updated mm/dd/yyyy
+# Timestamp: Last updated mon day
+#
 #   m     - One or two digit month.  January is "1"
 #   mm    - Always two digit month.  January is "01"
 #   mon   - Short month word.  January is "Jan"
@@ -46,10 +52,10 @@ Group: Addons  {
 
    Group: Kcm_audio  {
 
-      File: Audio  (addons/kcm_audio/allegro5/kcm_audio.h)
-      File: kcm_simple.c  (addons/kcm_audio/kcm_simple.c)
+      File: Audio types  (addons/kcm_audio/allegro5/kcm_audio.h)
       File: Mixer functions  (addons/kcm_audio/kcm_mixer.c)
       File: Sample functions  (addons/kcm_audio/kcm_sample.c)
+      File: Simple audio interface  (addons/kcm_audio/kcm_simple.c)
       File: Stream functions  (addons/kcm_audio/kcm_stream.c)
       File: Voice functions  (addons/kcm_audio/kcm_voice.c)
       }  # Group: Kcm_audio
@@ -63,7 +69,6 @@ Group: Include  {
    File: Display types  (include/allegro5/display_new.h)
    File: Error handling  (include/allegro5/error.h)
    File: Events  (include/allegro5/events.h)
-   File: Filesystem path routines  (include/allegro5/path.h)
    File: Filesystem routines  (include/allegro5/fshook.h)
    File: Joystick types  (include/allegro5/joystick.h)
    File: Keyboard constants  (include/allegro5/keycodes.h)
@@ -77,7 +82,6 @@ Group: Include  {
 
 Group: Src  {
 
-   File: al_inhibit_screensaver  (src/system_new.c)
    File: Bitmap routines  (src/bitmap_new.c)
    File: Configuration routines  (src/config.c)
    File: Destructors  (src/dtor.c)
@@ -92,6 +96,7 @@ Group: Src  {
    File: Mouse routines  (src/mousenu.c)
    File: OpenGL extensions  (src/opengl/extensions.c)
    File: Pixel manipulation  (src/pixels.c)
+   File: System routines  (src/system_new.c)
    File: Thread local storage  (src/tls.c)
    File: Threads  (src/threads.c)
    }  # Group: Src
