@@ -368,7 +368,11 @@ int32_t al_fs_entry_isfile(ALLEGRO_FS_ENTRY *e)
 ALLEGRO_FS_ENTRY *al_fs_mktemp(const char *template, uint32_t ulink)
 {
    ASSERT(template != NULL);
-   ASSERT(ulink != ALLEGRO_FS_MKTEMP_UNLINK_NOW && ulink != ALLEGRO_FS_MKTEMP_UNLINK_ON_CLOSE && ulink != ALLEGRO_FS_MKTEMP_UNLINK_NEVER);
+   ASSERT(
+      ulink == ALLEGRO_FS_MKTEMP_UNLINK_NOW ||
+      ulink == ALLEGRO_FS_MKTEMP_UNLINK_ON_CLOSE ||
+      ulink == ALLEGRO_FS_MKTEMP_UNLINK_NEVER
+   );
 
    return _al_fs_hook_mktemp(template, ulink);
 }
