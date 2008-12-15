@@ -39,6 +39,9 @@ if(WANT_TTF)
         add_subdirectory(ttf)
         set(SUPPORT_TTF 1 PARENT_SCOPE)
         set(TTF_LINK_WITH ${TTF_LINK_WITH} PARENT_SCOPE)
+    else(FREETYPE_FOUND)
+        message(STATUS
+            "WARNING: FreeType not found, disabling support.")
     endif(FREETYPE_FOUND)
 endif(WANT_TTF)
 

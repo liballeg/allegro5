@@ -34,6 +34,9 @@ if(WANT_FLAC)
             list(APPEND ACODEC_EXTRA_LIBS ${FLAC_LIBRARIES})
             list(APPEND ACODEC_SOURCES flac.c)
         endif(FLAC_COMPILES)
+    else(FLAC_FOUND)
+        message(STATUS
+            "WARNING: libFLAC not found, disabling support.")
     endif(FLAC_FOUND)
 endif(WANT_FLAC)
 
@@ -63,6 +66,9 @@ if(WANT_VORBIS)
             list(APPEND ACODEC_EXTRA_LIBS ${VORBIS_LIBRARIES})
             list(APPEND ACODEC_SOURCES ogg.c)
         endif(VORBIS_COMPILES)
+    else(VORBIS_FOUND)
+        message(STATUS
+            "WARNING: libvorbis not found, disabling support.")
     endif(VORBIS_FOUND)
 endif(WANT_VORBIS)
 
@@ -74,6 +80,9 @@ if(WANT_SNDFILE)
         include_directories(${SNDFILE_INCLUDE_DIR})
         list(APPEND ACODEC_EXTRA_LIBS ${SNDFILE_LIBRARIES})
         list(APPEND ACODEC_SOURCES wav.c)
+    else(SNDFILE_FOUND)
+        message(STATUS
+            "WARNING: libsndfile not found, disabling support.")
     endif(SNDFILE_FOUND)
 endif(WANT_SNDFILE)
 

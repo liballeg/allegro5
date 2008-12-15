@@ -9,6 +9,9 @@ if(WANT_PNG)
         set(IIO_LIBRARIES ${PNG_LIBRARIES})
         set(IIO_DEFINES ${PNG_DEFINITIONS})
         include_directories(${PNG_INCLUDE_DIR})
+    else(PNG_FOUND)
+        message(STATUS
+            "WARNING: libpng not found, disabling support")
     endif(PNG_FOUND)
 endif(WANT_PNG)
 
@@ -20,6 +23,9 @@ if(WANT_JPG)
         list(APPEND IIO_LIBRARIES ${JPEG_LIBRARIES})
         list(APPEND IIO_DEFINES ${JPEG_DEFINITIONS})
         include_directories(${JPEG_INCLUDE_DIR})
+    else(JPEG_FOUND)
+        message(STATUS
+            "WARNING: libjpeg not found, disabling support")
     endif(JPEG_FOUND)
 endif(WANT_JPG)
 
