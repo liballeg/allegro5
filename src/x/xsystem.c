@@ -161,12 +161,12 @@ static void _al_xsys_xinerama_init(struct ALLEGRO_SYSTEM_XGLX *s)
    s->xinerama_screen_count = 0;
    s->xinerama_screen_info = NULL;
    
-   if(XineramaQueryExtension(s->x11display, &event_base, &error_base)) {
+   if (XineramaQueryExtension(s->x11display, &event_base, &error_base)) {
       int minor_version = 0, major_version = 0;
       int status = XineramaQueryVersion(s->x11display, &major_version, &minor_version);
       TRACE("xsystem: Xinerama version: %i.%i\n", major_version, minor_version);
       
-      if(!XineramaIsActive(s->x11display)) {
+      if (!XineramaIsActive(s->x11display)) {
          TRACE("xsystem: Xinerama is not active\n");
          return;
       }
@@ -184,7 +184,7 @@ static void _al_xsys_xinerama_init(struct ALLEGRO_SYSTEM_XGLX *s)
 
 static void _al_xsys_xinerama_exit(struct ALLEGRO_SYSTEM_XGLX *s)
 {
-   if(s->xinerama_screen_info)
+   if (s->xinerama_screen_info)
       XFree(s->xinerama_screen_info);
 
    s->xinerama_available = 0;
@@ -323,18 +323,18 @@ static int xglx_get_num_video_adapters(void)
 {
    #ifdef ALLEGRO_XWINDOWS_WITH_XINERAMA
    ALLEGRO_SYSTEM_XGLX *system = (void *)al_system_driver();
-   if(!system->xinerama_available) {
+   if (!system->xinerama_available) {
       return 1;
    }
    
-   if(system->xinerama_screen_info) {
+   if (system->xinerama_screen_info) {
       XFree(system->xinerama_screen_info);
       system->xinerama_screen_info = NULL;
       system->xinerama_screen_count = 0;
    }
    
    system->xinerama_screen_info = XineramaQueryScreens(system->x11display, &(system->xinerama_screen_count));
-   if(!system->xinerama_screen_info) {
+   if (!system->xinerama_screen_info) {
       system->xinerama_available = 0;
       system->xinerama_screen_count = 0;
       return 1;
@@ -366,8 +366,8 @@ static void xglx_get_monitor_info(int adapter, ALLEGRO_MONITOR_INFO *info)
 {
    ALLEGRO_SYSTEM_XGLX *system = (void *)al_system_driver();
    #ifdef ALLEGRO_XWINDOWS_WITH_XINERAMA
-   if(system->xinerama_available) {
-      if(adapter >= system->xinerama_screen_count || adapter < 0)
+   if (system->xinerama_available) {
+      if (adapter >= system->xinerama_screen_count || adapter < 0)
          return; // don't fill in single screen info if an invalid adapter number is entered.
                  // its a bug, and should be noticed.
 
