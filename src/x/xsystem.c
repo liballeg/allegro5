@@ -277,7 +277,7 @@ static void xglx_shutdown_system(void)
    _al_xglx_free_mode_infos(sx);
 
    #ifdef ALLEGRO_XWINDOWS_WITH_XINERAMA
-   _al_xsys_xinerama_exit(s);
+   _al_xsys_xinerama_exit(sx);
    #endif
    
    if (sx->x11display) {
