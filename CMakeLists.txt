@@ -390,10 +390,10 @@ if(WANT_X11)
     endif(X11_FOUND)
 endif(WANT_X11)
 
-if(UNIX AND NOT SUPPORT_X11 AND WANT_X11)
+if(ALLEGRO_UNIX AND NOT SUPPORT_X11 AND WANT_X11) # not MACOSX
     message(FATAL_ERROR
         "X11 not found. You may need to install X11 development libraries.")
-endif(UNIX AND NOT SUPPORT_X11 AND WANT_X11)
+endif(ALLEGRO_UNIX AND NOT SUPPORT_X11 AND WANT_X11)
 
 if(SUPPORT_X11 AND NOT SUPPORT_OPENGL)
     message(FATAL_ERROR "X11 support currently requires OpenGL support.")
