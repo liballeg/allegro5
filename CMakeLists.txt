@@ -211,7 +211,7 @@ if(COMPILER_MSVC)
     set(ALLEGRO_MSVC 1)
 endif(COMPILER_MSVC)
 
-if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
+if(APPLE)
     set(MACOSX 1)
     set(ALLEGRO_MACOSX 1)
     set(ALLEGRO_UNIX 0)
@@ -221,7 +221,7 @@ if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
     # problems with global variables which are not explicitly initialised.
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fno-common")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fno-common")
-endif(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
+endif(APPLE)
 
 if(BORLAND)
     set(ALLEGRO_BCC32 1)
