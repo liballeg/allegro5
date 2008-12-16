@@ -570,6 +570,7 @@ AL_CONST char *_unix_get_path(uint32_t id, char *dir, size_t size)
       } break;
 #endif
 
+      case AL_USER_SETTINGS_PATH:
       case AL_USER_DATA_PATH:
       case AL_USER_HOME_PATH: {
          char tmp[PATH_MAX] = "";
@@ -585,6 +586,10 @@ AL_CONST char *_unix_get_path(uint32_t id, char *dir, size_t size)
 //         do_uconvert(tmp, U_ASCII, dir, U_CURRENT, strlen(tmp)+1);
       } break;
 
+      case AL_SYSTEM_SETTINGS_PATH:
+         /* FIXME: make this a compile time define, or a allegro cfg option? or both */
+         _al_sane_strncpy(dir, "/etc/", strlen("/etc/")+1);
+         break;
       default:
          return NULL;
    }

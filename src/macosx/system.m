@@ -357,6 +357,21 @@ static AL_CONST char *osx_get_path(uint32_t id, char* path, size_t length)
          break;
       case AL_USER_HOME_PATH:
          ans = NSHomeDirectory();
+         break;
+      case AL_USER_SETTINGS_PATH:
+         paths =
+         NSSearchPathForDirectoriesInDomains(NSApplicationSupportDirectory,
+            NSUserDomainMask,
+            YES);
+         if ([paths count] > 0) ans = [paths objectAtIndex: 0];
+         break;
+      case AL_SYSTEM_SETTINGS_PATH:
+         paths =
+         NSSearchPathForDirectoriesInDomains(NSApplicationSupportDirectory,
+            NSLocalDomainMask,
+            YES);
+         if ([paths count] > 0) ans = [paths objectAtIndex: 0];
+         break;
       default:
       break;
    }

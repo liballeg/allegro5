@@ -406,8 +406,22 @@ static AL_CONST char *win_get_path(uint32_t id, char *dir, size_t size)
          csidl = CSIDL_APPDATA;
          break;
 
-      case AL_USER_HOME_PATH: /* CSIDL_PROFILE */
-         csidl = CSIDL_PROFILE;
+      case AL_USER_HOME_PATH: /* CSIDL_PERSONAL */
+         csidl = CSIDL_PERSONAL;
+         break;
+
+      case AL_USER_SETTINGS_PATH:
+         /* CHECKME: is this correct? Windows doesn't seem to have a "path"
+          * for settings; I guess these should go in the registry instead?
+          */
+         csidl = CSIDL_APPDATA;
+         break;
+
+      case AL_SYSTEM_SETTINGS_PATH:
+         /* CHECKME: is this correct? Windows doesn't seem to have a "path"
+          * for settings; I guess these should go in the registry instead?
+          */
+         csidl = CSIDL_COMMON_APPDATA;
          break;
 
       default:
