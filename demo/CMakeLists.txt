@@ -47,11 +47,11 @@ if(USE_CXX AND SUPPORT_FONT AND SUPPORT_KCM_AUDIO AND SUPPORT_ACODEC)
         ../addons/acodec
         )
 
-    if(APPLE)
+    if(MACOSX)
 	set(DEMO_EXECUTABLE_TYPE MACOSX_BUNDLE)
-    else(APPLE)
+    else(MACOSX)
 	set(DEMO_EXECUTABLE_TYPE "${EXECUTABLE_TYPE}")
-    endif(APPLE)
+    endif(MACOSX)
 
     add_executable(demo ${DEMO_EXECUTABLE_TYPE} ${DEMO_SRCS}
 	${DEMO_GFX} ${DEMO_SFX} ${DEMO_ICON})
