@@ -16,8 +16,14 @@ int main(int argc, char **argv)
    al_get_path(AL_SYSTEM_DATA_PATH, buffer, 1024);
    printf("AL_SYSTEM_DATA_PATH: %s\n", buffer);
 
+   al_get_path(AL_SYSTEM_SETTINGS_PATH, buffer, 1024);
+   printf("AL_SYSTEM_SETTINGS_PATH: %s\n", buffer);
+
    al_get_path(AL_USER_DATA_PATH, buffer, 1024);
    printf("AL_USER_DATA_PATH: %s\n", buffer);
+
+   al_get_path(AL_USER_SETTINGS_PATH, buffer, 1024);
+   printf("AL_USER_SETTINGS_PATH: %s\n", buffer);
 
    al_get_path(AL_USER_HOME_PATH, buffer, 1024);
    printf("AL_USER_HOME_PATH: %s\n", buffer);
