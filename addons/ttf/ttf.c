@@ -226,7 +226,10 @@ ALLEGRO_FONT *al_ttf_load_font(char const *filename, int size, int flags)
         vt.destroy = destroy;
         once = false;
     }
-    FT_New_Face(ft, filename, 0, &face);
+
+    if (FT_New_Face(ft, filename, 0, &face) != 0) {
+	return NULL;
+    }
     FT_Set_Pixel_Sizes(face, 0, size);
 
     unicode = FT_Get_First_Char(face, &g);
