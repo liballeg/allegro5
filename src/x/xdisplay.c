@@ -269,6 +269,18 @@ static ALLEGRO_DISPLAY *xdpy_create_display(int w, int h)
    XMapWindow(system->x11display, d->window);
    TRACE("xdisplay: X11 window mapped.\n");
 
+   /* Is there a better way to do this, that positions the window before
+    * mapping it?
+    */
+   int new_x, new_y;
+   al_get_new_window_position(&new_x, &new_y);
+   if (new_x != INT_MAX && new_y != INT_MAX) {
+      XWindowChanges wch;
+      wch.x = new_x;
+      wch.y = new_y;
+      XConfigureWindow(system->x11display, d->window, CWX | CWY, &wch);
+   }
+
    /* Send the pending request to the X server. */
    XSync(system->x11display, False);
    /* To avoid race conditions where some X11 functions fail before the window
