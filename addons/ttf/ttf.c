@@ -35,13 +35,22 @@ static int font_height(ALLEGRO_FONT const *f)
    return f->height;
 }
 
+// FIXME: Add a special case for when a single glyph rendering won't fit
+// into 256x256 pixels.
 static void push_new_cache_bitmap(ALLEGRO_TTF_FONT_DATA *data)
 {
     ALLEGRO_BITMAP **back = _al_vector_alloc_back(&data->cache_bitmaps);
     *back = al_create_bitmap(256, 256);
 }
 
-static ALLEGRO_BITMAP* create_glyph_cache(ALLEGRO_FONT const *f, int w, int h, bool new)
+// FIXME: We normally do *not* want to cache the complete font as is
+// done right now. Just image when I load a unicode font, then write the
+// game title in big letters (say pixel size 200) on the start screen.
+// This would right now eat up 100ds of MBs of texture space for
+// nothing Probably we should have a config setting to enable caching of
+// a complete font though for special cases where it is wanted.
+static ALLEGRO_BITMAP* create_glyph_cache(ALLEGRO_FONT const *f, int w,
+   int h, bool new)
 {
     ALLEGRO_TTF_FONT_DATA *data = f->data;
     ALLEGRO_BITMAP **p_cache;
@@ -51,26 +60,30 @@ static ALLEGRO_BITMAP* create_glyph_cache(ALLEGRO_FONT const *f, int w, int h, b
     if (_al_vector_is_empty(&data->cache_bitmaps) || new) {
         push_new_cache_bitmap(data);
         data->cache_pos_x = 0;
-        data->cache_pos_y = font_height(f);
+        data->cache_pos_y = 0;
     }
 
     p_cache = _al_vector_ref_back(&data->cache_bitmaps);
     cache = *p_cache;
 
-    if (data->cache_pos_x + w >= al_get_bitmap_width(cache)) {
-        if (data->cache_pos_y + font_height(f) >= al_get_bitmap_height(cache))
+    if (data->cache_pos_x + w > al_get_bitmap_width(cache)) {
+        if (data->cache_pos_y + font_height(f) >
+            al_get_bitmap_height(cache))
             return create_glyph_cache(f, w, h, true);
         else {
+            data->cache_pos_y += font_height(f) + 2;
             ret = al_create_sub_bitmap(cache, 0, data->cache_pos_y, w, h);
-            data->cache_pos_x = w;
-            data->cache_pos_y += font_height(f);
+            /* Leave 2 pixels of empty space between glyphs in case
+             * we use texture filtering where neigbor pixels bleed in.
+             */
+            data->cache_pos_x = w + 2;
             return ret;
         }
     }
     else {
         ret = al_create_sub_bitmap(cache, data->cache_pos_x,
-                data->cache_pos_y-font_height(f), w, h);
-        data->cache_pos_x += w;
+                data->cache_pos_y, w, h);
+        data->cache_pos_x += w + 2;
         return ret;
     }
 }
@@ -239,7 +252,19 @@ ALLEGRO_FONT *al_ttf_load_font(char const *filename, int size, int flags)
     TRACE("al-ttf: %s: Preparing cache for %d glyphs.\n", filename, m);
 
     f = _AL_MALLOC(sizeof *f);
+    // FIXME: We need a way to more precisely position text. A glyph
+    // is not just rectangle, but is rendered on a baseline, with
+    // parts of it extending below it. So instead of just f->height,
+    // maybe we should have something like
+    // f->height - height of bitmaps glyphs are rendered into
+    // f->line_spacing - vertical distance between two consecutive lines
+    // f->descender - where is the descender line
+    //
+    //FT_Load_Char(face, (unsigned int)0x4D, FT_LOAD_DEFAULT);
+    //FT_Render_Glyph(face->glyph, FT_RENDER_MODE_NORMAL);
+    //f->height = face->glyph->bitmap_top;
     f->height = size;
+    
     f->vtable = &vt;
     f->data = data;
 
