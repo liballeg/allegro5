@@ -1,3 +1,4 @@
+#include <stdio.h>
 #include "allegro5/a5_ttf.h"
 
 struct Example
@@ -41,8 +42,9 @@ static void render(void)
     al_font_textprintf_right(ex.f3, al_get_display_width(), 0, "%.1f FPS", ex.fps);
 }
 
-int main(void)
+int main(int argc, const char *argv[])
 {
+    const char *font_file = "data/DejaVuSans.ttf";
     ALLEGRO_DISPLAY *display;
     ALLEGRO_TIMER *timer;
     ALLEGRO_EVENT_QUEUE *queue;
@@ -60,9 +62,18 @@ int main(void)
     display = al_create_display(640, 480);
     al_install_keyboard();
 
-    ex.f1 = al_ttf_load_font("data/DejaVuSans.ttf", 48, 0);
-    ex.f2 = al_ttf_load_font("data/DejaVuSans.ttf", 48, ALLEGRO_TTF_NO_KERNING);
-    ex.f3 = al_ttf_load_font("data/DejaVuSans.ttf", 12, 0);
+    if (argc >= 2) {
+        font_file = argv[1];
+    }
+
+    ex.f1 = al_ttf_load_font(font_file, 48, 0);
+    ex.f2 = al_ttf_load_font(font_file, 48, ALLEGRO_TTF_NO_KERNING);
+    ex.f3 = al_ttf_load_font(font_file, 12, 0);
+
+    if (!ex.f1 || !ex.f2 || !ex.f3) {
+        fprintf(stderr, "Could not load font: %s\n", font_file);
+        return 1;
+    }
 
     timer = al_install_timer(1.0 / 60);
 
