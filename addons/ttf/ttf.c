@@ -43,12 +43,6 @@ static void push_new_cache_bitmap(ALLEGRO_TTF_FONT_DATA *data)
     *back = al_create_bitmap(256, 256);
 }
 
-// FIXME: We normally do *not* want to cache the complete font as is
-// done right now. Just image when I load a unicode font, then write the
-// game title in big letters (say pixel size 200) on the start screen.
-// This would right now eat up 100ds of MBs of texture space for
-// nothing Probably we should have a config setting to enable caching of
-// a complete font though for special cases where it is wanted.
 static ALLEGRO_BITMAP* create_glyph_cache(ALLEGRO_FONT const *f, int w,
    int h, bool new)
 {
