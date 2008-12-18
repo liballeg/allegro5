@@ -251,7 +251,7 @@ static void display_pixel_format(OGL_PIXEL_FORMAT *pf) {
 static bool deduce_color_format(OGL_PIXEL_FORMAT *pf)
 {
    /* dummy value to check if the format was detected */
-   pf->format = ALLEGRO_PIXEL_FORMAT_ANY_NO_ALPHA;
+   pf->format = ALLEGRO_PIXEL_FORMAT_ANY;
 
    if (pf->r_size == 8 && pf->g_size == 8 && pf->b_size == 8) {
       if (pf->a_size == 8 && pf->color_size == 32) {
@@ -291,7 +291,7 @@ static bool deduce_color_format(OGL_PIXEL_FORMAT *pf)
       }
    }
 
-   if (pf->format == ALLEGRO_PIXEL_FORMAT_ANY_NO_ALPHA)
+   if (pf->format == ALLEGRO_PIXEL_FORMAT_ANY)
       return false;
 
    return true;

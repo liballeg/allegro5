@@ -321,12 +321,14 @@ typedef void (*_draw_region_func)(void *src,
       NULL,                                                                  \
       NULL,                                                                  \
       NULL,                                                                  \
+      NULL,                                                                  \
       NULL                                                                   \
    }
 
 #define DECLARE_DRAW_REGION_FUNCS(prefix)                                    \
    {                                                                         \
       /* Fake formats */                                                     \
+      NULL,                                                                  \
       NULL,                                                                  \
       NULL,                                                                  \
       NULL,                                                                  \
@@ -357,6 +359,7 @@ typedef void (*_draw_region_func)(void *src,
 
 static _draw_region_func _draw_region_funcs[ALLEGRO_NUM_PIXEL_FORMATS][ALLEGRO_NUM_PIXEL_FORMATS] = {
       /* Fake formats */
+      DECLARE_FAKE_DRAW_REGION_FUNCS,
       DECLARE_FAKE_DRAW_REGION_FUNCS,
       DECLARE_FAKE_DRAW_REGION_FUNCS,
       DECLARE_FAKE_DRAW_REGION_FUNCS,

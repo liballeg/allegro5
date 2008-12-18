@@ -102,9 +102,7 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved)
           if (data != NULL) {
              memset(data, 0, sizeof(*data));
 
-             data->new_bitmap_format = ALLEGRO_PIXEL_FORMAT_ANY_WITH_ALPHA;
-             // FIXME: change to the below if you need to test under older GL...
-             // data->new_bitmap_format = ALLEGRO_PIXEL_FORMAT_RGB_888;
+             data->new_bitmap_format = ALLEGRO_PIXEL_FORMAT_ANY;
              data->blend_source = ALLEGRO_ALPHA;
              data->blend_dest = ALLEGRO_INVERSE_ALPHA;
              data->blend_alpha_source = ALLEGRO_ONE;

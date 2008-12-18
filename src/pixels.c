@@ -29,6 +29,7 @@
 static int pixel_sizes[] = {
    0,
    0,
+   0,
    2,
    2,
    2,
@@ -55,6 +56,7 @@ static int pixel_sizes[] = {
 };
 
 static int pixel_bits[] = {
+   0,
    0,
    0,
    15,
@@ -94,6 +96,7 @@ int al_get_pixel_format_bits(int format)
 }
 
 static bool format_alpha_table[ALLEGRO_NUM_PIXEL_FORMATS] = {
+   false,/*neutral*/
    false,
    true,
    false,
@@ -128,6 +131,7 @@ bool _al_format_has_alpha(int format)
 
 static bool format_is_real[ALLEGRO_NUM_PIXEL_FORMATS] =
 {
+   false,
    false,
    false,
    false,
@@ -173,6 +177,9 @@ bool _al_pixel_format_fits(int format1, int format2)
    ASSERT(format2 < ALLEGRO_NUM_PIXEL_FORMATS);
 
    if (format1 == format2)
+      return true;
+
+   if (format2 == ALLEGRO_PIXEL_FORMAT_ANY)
       return true;
 
    if (format_alpha_table[format1] && format2 == ALLEGRO_PIXEL_FORMAT_ANY_WITH_ALPHA)
@@ -422,6 +429,7 @@ p_get_pixel_func get_pixel_funcs[ALLEGRO_NUM_PIXEL_FORMATS] = {
    NULL,
    NULL,
    NULL,
+   NULL,
    /* End fake pixel formats */
    _get_pixel_argb_8888,
    _get_pixel_rgba_8888,
@@ -660,6 +668,7 @@ static _get_pixel_value_func _get_pixel_value_funcs[ALLEGRO_NUM_PIXEL_FORMATS] =
    NULL,
    NULL,
    NULL,
+   NULL,
    /* End fake formats */
    _get_pixel_value_argb_8888,
    _get_pixel_value_rgba_8888,
@@ -768,6 +777,7 @@ typedef void (*p_put_pixel_func)(void *data, int pixel);
 
 static p_put_pixel_func put_pixel_funcs[ALLEGRO_NUM_PIXEL_FORMATS] = {
    /* Fake pixel formats */
+   NULL,
    NULL,
    NULL,
    NULL,

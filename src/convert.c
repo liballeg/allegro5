@@ -335,12 +335,14 @@ typedef void (*p_convert_func)(void *, int, int,
       NULL,                                                                  \
       NULL,                                                                  \
       NULL,                                                                  \
+      NULL,                                                                  \
       NULL                                                                   \
    }
 
 #define DECLARE_FUNCS(prefix)                                                \
    {                                                                         \
       /* Fake formats */                                                     \
+      NULL,                                                                  \
       NULL,                                                                  \
       NULL,                                                                  \
       NULL,                                                                  \
@@ -372,6 +374,7 @@ typedef void (*p_convert_func)(void *, int, int,
 static p_convert_func
 convert_funcs[ALLEGRO_NUM_PIXEL_FORMATS][ALLEGRO_NUM_PIXEL_FORMATS] =
 {
+   DECLARE_FAKE_FUNCS,        /* ANY */
    DECLARE_FAKE_FUNCS,        /* ANY_NO_ALPHA */
    DECLARE_FAKE_FUNCS,        /* ANY_WITH_ALPHA */
    DECLARE_FAKE_FUNCS,        /* ANY_15_NO_ALPHA */

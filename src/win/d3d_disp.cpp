@@ -81,6 +81,7 @@ typedef struct new_display_parameters {
 
 
 static int allegro_formats[] = {
+   ALLEGRO_PIXEL_FORMAT_ANY,
    ALLEGRO_PIXEL_FORMAT_ANY_WITH_ALPHA,
    ALLEGRO_PIXEL_FORMAT_ANY_NO_ALPHA,
    ALLEGRO_PIXEL_FORMAT_ANY_15_WITH_ALPHA,
@@ -101,6 +102,7 @@ static int allegro_formats[] = {
 
 /* Mapping of Allegro formats to D3D formats */
 static int d3d_formats[] = {
+   ALLEGRO_PIXEL_FORMAT_ANY,
    ALLEGRO_PIXEL_FORMAT_ANY_WITH_ALPHA,
    ALLEGRO_PIXEL_FORMAT_ANY_NO_ALPHA,
    ALLEGRO_PIXEL_FORMAT_ANY_15_WITH_ALPHA,
@@ -921,6 +923,7 @@ static int d3d_choose_display_format(int fake)
 {
    /* Pick an appropriate format if the user is vague */
    switch (fake) {
+      case ALLEGRO_PIXEL_FORMAT_ANY:
       case ALLEGRO_PIXEL_FORMAT_ANY_NO_ALPHA:
          fake = ALLEGRO_PIXEL_FORMAT_XRGB_8888;
          break;
@@ -998,6 +1001,7 @@ static int d3d_choose_bitmap_format(int fake)
       case ALLEGRO_PIXEL_FORMAT_ANY_NO_ALPHA:
          fake = real_choose_bitmap_format(0, false);
          break;
+      case ALLEGRO_PIXEL_FORMAT_ANY:
       case ALLEGRO_PIXEL_FORMAT_ANY_WITH_ALPHA:
          fake = real_choose_bitmap_format(0, true);
          break;

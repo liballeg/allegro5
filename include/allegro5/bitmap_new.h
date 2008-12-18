@@ -24,7 +24,7 @@ typedef struct ALLEGRO_BITMAP ALLEGRO_BITMAP;
  */
 
 
-#define ALLEGRO_NUM_PIXEL_FORMATS      25
+#define ALLEGRO_NUM_PIXEL_FORMATS      26
 
 /* Enum: ALLEGRO_PIXEL_FORMAT
  * 
@@ -33,11 +33,14 @@ typedef struct ALLEGRO_BITMAP ALLEGRO_BITMAP;
  * to low, so for example a fully opaque red pixel in ARGB_8888 format
  * is 0xFFFF0000.
  *
+ * ALLEGRO_PIXEL_FORMAT_ANY - Let the driver choose a format. This is the
+ * default format at program start.
+ *
  * ALLEGRO_PIXEL_FORMAT_ANY_NO_ALPHA - Let the driver choose a format without
  * alpha
  *
  * ALLEGRO_PIXEL_FORMAT_ANY_WITH_ALPHA - Let the driver choose a format with
- * alpha. This is the default format at program start.
+ * alpha.
  *
  * ALLEGRO_PIXEL_FORMAT_ANY_15_NO_ALPHA - Let the driver choose a 15 bit format
  * without alpha
@@ -94,7 +97,8 @@ typedef struct ALLEGRO_BITMAP ALLEGRO_BITMAP;
  * ALLEGRO_PIXEL_FORMAT_XRGB_8888 - 32 bit
  */
 enum ALLEGRO_PIXEL_FORMAT {
-   ALLEGRO_PIXEL_FORMAT_ANY_NO_ALPHA = 0,
+   ALLEGRO_PIXEL_FORMAT_ANY = 0,
+   ALLEGRO_PIXEL_FORMAT_ANY_NO_ALPHA,
    ALLEGRO_PIXEL_FORMAT_ANY_WITH_ALPHA,
    ALLEGRO_PIXEL_FORMAT_ANY_15_NO_ALPHA,
    ALLEGRO_PIXEL_FORMAT_ANY_15_WITH_ALPHA,

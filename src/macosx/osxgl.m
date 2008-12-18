@@ -426,6 +426,7 @@ static int decode_allegro_format(int format, int* glfmt, int* glsize, int* depth
 	{0, 0, 0, 0},
 	{0, 0, 0, 0},
 	{0, 0, 0, 0},
+	{0, 0, 0, 0},
 		/* Actual formats */
 	{GL_RGBA8, GL_UNSIGNED_INT_8_8_8_8_REV, GL_BGRA, 32}, /* ARGB_8888 */
 	{GL_RGBA8, GL_UNSIGNED_INT_8_8_8_8, GL_RGBA, 32}, /* RGBA_8888 */

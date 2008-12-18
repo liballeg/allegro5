@@ -36,6 +36,7 @@ static const int glformats[][3] = {
    {0, 0, 0},
    {0, 0, 0},
    {0, 0, 0},
+   {0, 0, 0},
    /* Actual formats */
    {GL_RGBA8, GL_UNSIGNED_INT_8_8_8_8_REV, GL_BGRA}, /* ARGB_8888 */
    {GL_RGBA8, GL_UNSIGNED_INT_8_8_8_8, GL_RGBA}, /* RGBA_8888 */
@@ -576,9 +577,10 @@ ALLEGRO_BITMAP *_al_ogl_create_bitmap(ALLEGRO_DISPLAY *d, int w, int h)
       true_h = pot(h);
    }
 
-   /* FIXME: do this right */
    if (! _al_pixel_format_is_real(format)) {
-      if (format == ALLEGRO_PIXEL_FORMAT_ANY_NO_ALPHA)
+      if (format == ALLEGRO_PIXEL_FORMAT_ANY)
+         format = ALLEGRO_PIXEL_FORMAT_XBGR_8888;
+      else if (format == ALLEGRO_PIXEL_FORMAT_ANY_NO_ALPHA)
          format = ALLEGRO_PIXEL_FORMAT_XBGR_8888;
       else if (format == ALLEGRO_PIXEL_FORMAT_ANY_15_NO_ALPHA)
          return NULL;
