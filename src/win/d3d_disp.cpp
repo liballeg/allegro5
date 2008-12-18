@@ -129,7 +129,7 @@ bool _al_d3d_supports_separate_alpha_blend(ALLEGRO_DISPLAY *display)
       return false;
    }
 
-   return caps.PrimitiveMiscCaps & D3DPMISCCAPS_SEPARATEALPHABLEND;
+   return (caps.PrimitiveMiscCaps & D3DPMISCCAPS_SEPARATEALPHABLEND) == true;
 }
 
 

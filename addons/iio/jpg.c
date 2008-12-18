@@ -41,7 +41,7 @@ static void init_destination(j_compress_ptr cinfo)
    dest->pub.free_in_buffer = BUFFER_SIZE;
 }
 
-static int fill_input_buffer(j_decompress_ptr cinfo)
+static boolean fill_input_buffer(j_decompress_ptr cinfo)
 {
    struct my_src_mgr *src = (void *)cinfo->src;
    src->pub.next_input_byte = src->buffer;
@@ -49,7 +49,7 @@ static int fill_input_buffer(j_decompress_ptr cinfo)
    return 1;
 }
 
-static int empty_output_buffer(j_compress_ptr cinfo)
+static boolean empty_output_buffer(j_compress_ptr cinfo)
 {
    struct my_dest_mgr *dest = (void *)cinfo->dest;
    al_fs_entry_write(dest->buffer, BUFFER_SIZE, dest->pf);
