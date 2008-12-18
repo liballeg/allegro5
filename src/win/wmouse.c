@@ -548,6 +548,8 @@ static void mouse_dinput_handle(void)
  */
 static void mouse_set_syscursor(void *unused)
 {
+   (void)unused;
+
    if ((mouse_dinput_device && win_disp->is_mouse_on) ||
        (win_disp->display.flags & ALLEGRO_FULLSCREEN)) {
       SetCursor(win_disp->mouse_selected_hcursor);
@@ -719,6 +721,8 @@ static int mouse_dinput_exit(void)
  */
 static BOOL CALLBACK mouse_enum_callback(LPCDIDEVICEOBJECTINSTANCE lpddoi, LPVOID pvRef)
 {
+   (void)pvRef;
+
    if (memcmp(&lpddoi->guidType, &GUID_ZAxis, sizeof(GUID)) == 0)
       dinput_wheel = TRUE;
    else if (memcmp(&lpddoi->guidType, &GUID_Button, sizeof(GUID)) == 0)
@@ -1082,3 +1086,6 @@ _DRIVER_INFO _al_mouse_driver_list[] =
    {MOUSE_DIRECTX, &mousedrv_directx, TRUE},
    {0, NULL, 0}
 };
+
+
+/* vim: set sts=3 sw=3 et: */

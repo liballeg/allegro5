@@ -537,6 +537,7 @@ void *_al_kcm_feed_stream(ALLEGRO_THREAD *self, void *vstream)
 {
    ALLEGRO_STREAM *stream = vstream;
    ALLEGRO_EVENT_QUEUE *queue;
+   (void)self;
 
    TRACE(PREFIX_I "Stream feeder thread started.\n");
 

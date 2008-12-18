@@ -66,8 +66,9 @@ typedef void (*THREAD_PROC)(void *);
 static DWORD input_proc(void *unused)
 {
    DWORD result;
-   TRACE(PREFIX_I "Input thread started.\n");
+   (void)unused;
 
+   TRACE(PREFIX_I "Input thread started.\n");
    while (!input_thread_is_over) {
       if (win_input_events) {
          result = WaitForMultipleObjectsEx(win_input_events,
@@ -111,6 +112,7 @@ static DWORD input_proc(void *unused)
  */
 static VOID CALLBACK quit_input_thread(ULONG_PTR *useless)
 {
+   (void)useless;
    input_thread_is_over = true;
    TRACE(PREFIX_I "Input thread quit request was sent.\n");
 }
@@ -237,3 +239,5 @@ void _al_win_input_exit(void)
       CloseHandle(ack_event);
 }
 
+
+/* vim: set sts=3 sw=3 et: */

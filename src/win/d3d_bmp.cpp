@@ -118,9 +118,8 @@ static void d3d_set_identity_matrix(ALLEGRO_DISPLAY_D3D *disp)
 /*
  * Do a transformation for a quad drawing.
  */
-static void d3d_transform(ALLEGRO_DISPLAY_D3D *disp, D3D_TL_VERTEX vertices[],
-   float cx, float cy, float dx, float dy, 
-   float angle)
+static void d3d_transform(ALLEGRO_DISPLAY_D3D *disp,
+   float cx, float cy, float dx, float dy, float angle)
 {
    D3DMATRIX center_matrix;
    D3DMATRIX rotation_matrix;
@@ -238,7 +237,7 @@ void _al_d3d_draw_textured_quad(ALLEGRO_DISPLAY_D3D *disp, ALLEGRO_BITMAP_D3D *b
       dest_y = cy;
    }
 
-   d3d_transform(disp, vertices, cx, cy, dest_x, dest_y, angle);
+   d3d_transform(disp, cx, cy, dest_x, dest_y, angle);
 
    if (bmp) {
       if (disp->device->SetTexture(0,
@@ -372,10 +371,9 @@ static void d3d_do_upload(ALLEGRO_BITMAP_D3D *d3d_bmp, int x, int y, int width,
  * Release all default pool textures. This must be done before
  * resetting the device.
  */
-void _al_d3d_release_default_pool_textures(ALLEGRO_DISPLAY_D3D *disp)
+void _al_d3d_release_default_pool_textures(void)
 {
    unsigned int i;
-   ALLEGRO_DISPLAY *al_display = (ALLEGRO_DISPLAY *)disp;
 
    for (i = 0; i < created_bitmaps._size; i++) {
    	ALLEGRO_BITMAP **bptr = (ALLEGRO_BITMAP **)_al_vector_ref(&created_bitmaps, i);
@@ -583,7 +581,7 @@ bool _al_d3d_recreate_bitmap_textures(ALLEGRO_DISPLAY_D3D *disp)
  * Refresh the texture memory. This must be done after a device is
  * lost or after it is reset.
  */
-void _al_d3d_refresh_texture_memory(ALLEGRO_DISPLAY_D3D *disp)
+void _al_d3d_refresh_texture_memory(void)
 {
    unsigned int i;
 

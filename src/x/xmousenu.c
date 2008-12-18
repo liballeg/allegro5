@@ -185,6 +185,8 @@ static bool xmouse_set_mouse_xy(int x, int y)
 {
    ASSERT(xmouse_installed);
    //FIXME
+   (void)x;
+   (void)y;
 #if 0
    if ((x < 0) || (y < 0) || (x >= _xwin.window_width) || (y >= _xwin.window_height))
       return false;
@@ -234,10 +236,14 @@ static bool xmouse_set_mouse_axis(int which, int z)
 
 
 /* xmouse_set_mouse_range:
- *  TODO
  */
 static bool xmouse_set_mouse_range(int x1, int y1, int x2, int y2)
 {
+   // TODO
+   (void)x1;
+   (void)y1;
+   (void)x2;
+   (void)y2;
    return false;
 }
 

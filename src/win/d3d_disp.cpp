@@ -229,6 +229,9 @@ static bool d3d_format_is_valid(int format)
 
 static bool d3d_parameters_are_valid(int format, int refresh_rate, int flags)
 {
+   (void)refresh_rate;
+   (void)flags;
+
    if (!d3d_format_is_valid(format))
       return false;
 
@@ -630,6 +633,8 @@ static bool d3d_create_device(ALLEGRO_DISPLAY_D3D *d,
    ALLEGRO_DISPLAY *al_display = &win_display->display;
    int adapter = al_get_current_video_adapter();
 
+   (void)refresh_rate;
+
    /* Ideally if you're targetting vanilla Direct3D 9 you should create
     * your windowed displays before any fullscreen ones. If you don't,
     * your fullscreen displays will be turned into "faux-fullscreen"
@@ -805,7 +810,7 @@ static void d3d_destroy_display(ALLEGRO_DISPLAY *display)
 void _al_d3d_prepare_for_reset(ALLEGRO_DISPLAY_D3D *disp)
 {
    _al_d3d_prepare_bitmaps_for_reset(disp);
-   _al_d3d_release_default_pool_textures(disp);
+   _al_d3d_release_default_pool_textures();
    while (disp->render_target->Release() != 0) {
       TRACE("_al_d3d_prepare_for_reset: (bb) ref count not 0\n");
    }
@@ -903,7 +908,7 @@ static bool _al_d3d_reset_device(ALLEGRO_DISPLAY_D3D *d3d_display)
 
    d3d_display->device->GetBackBuffer(0, 0, D3DBACKBUFFER_TYPE_MONO, &d3d_display->render_target);
 
-   _al_d3d_refresh_texture_memory(d3d_display);
+   _al_d3d_refresh_texture_memory();
 
    d3d_display->device->BeginScene();
 
@@ -962,6 +967,9 @@ static BOOL IsTextureFormatOk(D3DFORMAT TextureFormat, D3DFORMAT AdapterFormat)
 static int real_choose_bitmap_format(int bits, bool alpha)
 {
    int i;
+
+   /* XXX should we be ignoring this? */
+   (void)alpha;
 
    for (i = 0; allegro_formats[i] >= 0; i++) {
       int aformat = allegro_formats[i];
@@ -1824,6 +1832,7 @@ ALLEGRO_BITMAP *_al_d3d_create_bitmap(ALLEGRO_DISPLAY *d,
    int flags;
 
    ASSERT(bitmap);
+   (void)h;
 
    bitmap->bitmap.size = sizeof *bitmap;
 
@@ -1854,10 +1863,15 @@ ALLEGRO_BITMAP *_al_d3d_create_bitmap(ALLEGRO_DISPLAY *d,
    return &bitmap->bitmap;
 }
 
-ALLEGRO_BITMAP *d3d_create_sub_bitmap(ALLEGRO_DISPLAY *display, ALLEGRO_BITMAP *parent,
-   int x, int y, int width, int height)
+static ALLEGRO_BITMAP *d3d_create_sub_bitmap(ALLEGRO_DISPLAY *display,
+   ALLEGRO_BITMAP *parent, int x, int y, int width, int height)
 {
    ALLEGRO_BITMAP_D3D *bitmap = (ALLEGRO_BITMAP_D3D*)_AL_MALLOC(sizeof *bitmap);
+
+   (void)x;
+   (void)y;
+   (void)width;
+   (void)height;
 
    bitmap->texture_w = 0;
    bitmap->texture_h = 0;
@@ -1932,6 +1946,7 @@ static ALLEGRO_BITMAP *d3d_get_backbuffer(ALLEGRO_DISPLAY *display)
 
 static ALLEGRO_BITMAP *d3d_get_frontbuffer(ALLEGRO_DISPLAY *display)
 {
+   (void)display;
    return NULL;
 }
 
@@ -1946,8 +1961,9 @@ static void d3d_switch_out(ALLEGRO_DISPLAY *display)
    _al_d3d_prepare_bitmaps_for_reset(disp);
 }
 
-static void  d3d_switch_in(ALLEGRO_DISPLAY *display)
+static void d3d_switch_in(ALLEGRO_DISPLAY *display)
 {
+   (void)display;
 }
 
 static bool d3d_wait_for_vsync(ALLEGRO_DISPLAY *display)
@@ -2083,6 +2099,8 @@ int _al_d3d_get_num_display_modes(int format, int refresh_rate, int flags)
    D3DDISPLAYMODE display_mode;
    int matches = 0;
 
+   (void)flags;
+
    /* If any, go through all formats */
    if (!_al_pixel_format_is_real(format)) {
       j = 0;
@@ -2130,6 +2148,8 @@ ALLEGRO_DISPLAY_MODE *_al_d3d_get_display_mode(int index, int format,
    UINT i, j;
    D3DDISPLAYMODE display_mode;
    int matches = 0;
+
+   (void)flags;
 
    /* If any, go through all formats */
    if (!_al_pixel_format_is_real(format)) {

@@ -285,6 +285,8 @@ void _al_win_joystick_dinput_unacquire(void *unused)
 {
    int i;
 
+   (void)unused;
+
    if (joystick_dinput && win_disp) {
       for (i=0; i < joydx_num_joysticks; i++) {
          IDirectInputDevice8_Unacquire(joydx_joystick[i].device);
@@ -560,6 +562,8 @@ static BOOL CALLBACK joystick_enum_callback(LPCDIDEVICEINSTANCE lpddi, LPVOID pv
       /* the data */
       DEVICE_BUFFER_SIZE        // number of data items
    };
+
+   (void)pvRef;
 
    ASSERT(joydx_num_joysticks >= 0 && joydx_num_joysticks < MAX_JOYSTICKS-1);
    ASSERT(!JOYSTICK_WAKER(joydx_num_joysticks));

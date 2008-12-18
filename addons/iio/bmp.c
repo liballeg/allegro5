@@ -181,7 +181,7 @@ static void read_bmicolors(int bytes, PalEntry *pal, ALLEGRO_FS_ENTRY *f, int wi
 /* read_1bit_line:
  *  Support function for reading the 1 bit bitmap file format.
  */
-static void read_1bit_line(int length, ALLEGRO_FS_ENTRY *f, unsigned char *buf, int line)
+static void read_1bit_line(int length, ALLEGRO_FS_ENTRY *f, unsigned char *buf)
 {
    unsigned char b[32];
    unsigned long n;
@@ -205,7 +205,7 @@ static void read_1bit_line(int length, ALLEGRO_FS_ENTRY *f, unsigned char *buf, 
 /* read_4bit_line:
  *  Support function for reading the 4 bit bitmap file format.
  */
-static void read_4bit_line(int length, ALLEGRO_FS_ENTRY *f, unsigned char *buf, int line)
+static void read_4bit_line(int length, ALLEGRO_FS_ENTRY *f, unsigned char *buf)
 {
    unsigned char b[8];
    unsigned long n;
@@ -233,7 +233,7 @@ static void read_4bit_line(int length, ALLEGRO_FS_ENTRY *f, unsigned char *buf, 
 /* read_8bit_line:
  *  Support function for reading the 8 bit bitmap file format.
  */
-static void read_8bit_line(int length, ALLEGRO_FS_ENTRY *f, unsigned char *buf, int line)
+static void read_8bit_line(int length, ALLEGRO_FS_ENTRY *f, unsigned char *buf)
 {
    unsigned char b[4];
    unsigned long n;
@@ -258,7 +258,7 @@ static void read_8bit_line(int length, ALLEGRO_FS_ENTRY *f, unsigned char *buf, 
  *  Support function for reading the 16 bit bitmap file format, doing
  *  our best to convert it down to a 256 color palette.
  */
-static void read_16bit_line(int length, ALLEGRO_FS_ENTRY *f, ALLEGRO_BITMAP *bmp, int line)
+static void read_16bit_line(int length, ALLEGRO_FS_ENTRY *f, int line)
 {
    int i, w;
    PalEntry c;
@@ -288,7 +288,7 @@ static void read_16bit_line(int length, ALLEGRO_FS_ENTRY *f, ALLEGRO_BITMAP *bmp
  *  Support function for reading the 24 bit bitmap file format, doing
  *  our best to convert it down to a 256 color palette.
  */
-static void read_24bit_line(int length, ALLEGRO_FS_ENTRY *f, ALLEGRO_BITMAP *bmp, int line)
+static void read_24bit_line(int length, ALLEGRO_FS_ENTRY *f, int line)
 {
    int i;
    PalEntry c;
@@ -314,7 +314,7 @@ static void read_24bit_line(int length, ALLEGRO_FS_ENTRY *f, ALLEGRO_BITMAP *bmp
  *  Support function for reading the 32 bit bitmap file format, doing
  *  our best to convert it down to a 256 color palette.
  */
-static void read_32bit_line(int length, ALLEGRO_FS_ENTRY *f, ALLEGRO_BITMAP *bmp, int line)
+static void read_32bit_line(int length, ALLEGRO_FS_ENTRY *f, int line)
 {
    int i;
    PalEntry c;
@@ -333,7 +333,7 @@ static void read_32bit_line(int length, ALLEGRO_FS_ENTRY *f, ALLEGRO_BITMAP *bmp
 /* read_bitfields_image:
  *  For reading the bitfield compressed BMP image format.
  */
-static void read_bitfields_image(ALLEGRO_FS_ENTRY *f, ALLEGRO_BITMAP *bmp, AL_CONST BMPINFOHEADER *infoheader, int bpp)
+static void read_bitfields_image(ALLEGRO_FS_ENTRY *f, AL_CONST BMPINFOHEADER *infoheader, int bpp)
 {
    int k, i, line, height, dir;
    int bytes_per_pixel;
@@ -383,7 +383,7 @@ static void read_bitfields_image(ALLEGRO_FS_ENTRY *f, ALLEGRO_BITMAP *bmp, AL_CO
 /* read_image:
  *  For reading the noncompressed BMP image format.
  */
-static void read_image(ALLEGRO_FS_ENTRY *f, ALLEGRO_BITMAP *bmp,
+static void read_image(ALLEGRO_FS_ENTRY *f,
                        AL_CONST BMPINFOHEADER *infoheader, PalEntry *pal)
 {
    int i, j, line, height, dir;
@@ -400,27 +400,27 @@ static void read_image(ALLEGRO_FS_ENTRY *f, ALLEGRO_BITMAP *bmp,
       switch (infoheader->biBitCount) {
 
          case 1:
-            read_1bit_line(infoheader->biWidth, f, buf, line);
+            read_1bit_line(infoheader->biWidth, f, buf);
             break;
 
          case 4:
-            read_4bit_line(infoheader->biWidth, f, buf, line);
+            read_4bit_line(infoheader->biWidth, f, buf);
             break;
 
          case 8:
-            read_8bit_line(infoheader->biWidth, f, buf, line);
+            read_8bit_line(infoheader->biWidth, f, buf);
             break;
 
          case 16:
-            read_16bit_line(infoheader->biWidth, f, bmp, line);
+            read_16bit_line(infoheader->biWidth, f, line);
             break;
 
          case 24:
-            read_24bit_line(infoheader->biWidth, f, bmp, line);
+            read_24bit_line(infoheader->biWidth, f, line);
             break;
 
          case 32:
-            read_32bit_line(infoheader->biWidth, f, bmp, line);
+            read_32bit_line(infoheader->biWidth, f, line);
             break;
       }
       if (infoheader->biBitCount <= 8) {
@@ -678,7 +678,7 @@ static ALLEGRO_BITMAP *iio_load_bmp_pf(ALLEGRO_FS_ENTRY *f)
    switch (infoheader.biCompression) {
 
       case BIT_RGB:
-         read_image(f, bmp, &infoheader, pal);
+         read_image(f, &infoheader, pal);
          break;
 
       case BIT_RLE8:
@@ -690,7 +690,7 @@ static ALLEGRO_BITMAP *iio_load_bmp_pf(ALLEGRO_FS_ENTRY *f)
          break;
 
       case BIT_BITFIELDS:
-         read_bitfields_image(f, bmp, &infoheader, bpp);
+         read_bitfields_image(f, &infoheader, bpp);
          break;
 
       default:

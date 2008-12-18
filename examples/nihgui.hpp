@@ -50,15 +50,16 @@ public:
 
    virtual void   got_mouse_focus() {}
    virtual void   lost_mouse_focus() {}
-   virtual void   on_mouse_button_down(int mx, int my) {}
-   virtual void   on_mouse_button_hold(int mx, int my) {}
-   virtual void   on_mouse_button_up(int mx, int my) {}
-   virtual void   on_click(int mx, int my) {}
+   virtual void   on_mouse_button_down(int mx, int my) { (void)mx; (void)my; }
+   virtual void   on_mouse_button_hold(int mx, int my) { (void)mx; (void)my; }
+   virtual void   on_mouse_button_up(int mx, int my) { (void)mx; (void)my; }
+   virtual void   on_click(int mx, int my) { (void)mx; (void)my; }
 
    virtual bool   want_key_focus() { return false; }
    virtual void   got_key_focus() {}
    virtual void   lost_key_focus() {}
-   virtual void   on_key_down(const ALLEGRO_KEYBOARD_EVENT & event) {}
+   virtual void   on_key_down(const ALLEGRO_KEYBOARD_EVENT & event) {
+                     (void)event; }
 
    virtual void   draw() = 0;
 

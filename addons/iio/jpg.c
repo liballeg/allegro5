@@ -31,6 +31,7 @@ struct my_dest_mgr
 
 static void init_source(j_decompress_ptr cinfo)
 {
+   (void)cinfo;
 }
 
 static void init_destination(j_compress_ptr cinfo)
@@ -73,6 +74,7 @@ static void skip_input_data(j_decompress_ptr cinfo, long num_bytes)
 
 static void term_source(j_decompress_ptr cinfo)
 {
+   (void)cinfo;
 }
 
 static void term_destination(j_compress_ptr cinfo)

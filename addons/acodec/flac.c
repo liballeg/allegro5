@@ -29,6 +29,9 @@ static void metadata_callback(const FLAC__StreamDecoder *decoder,
     const FLAC__StreamMetadata *metadata, void *client_data)
 {
    FLACFILE *out = (FLACFILE *) client_data;
+
+   (void)decoder;
+
    if (metadata->type == FLAC__METADATA_TYPE_STREAMINFO) {
       out->total_samples = metadata->data.stream_info.total_samples;
       out->sample_rate = metadata->data.stream_info.sample_rate;
@@ -44,6 +47,9 @@ static void metadata_callback(const FLAC__StreamDecoder *decoder,
 static void error_callback(const FLAC__StreamDecoder *decoder,
     FLAC__StreamDecoderErrorStatus status, void *client_data)
 {
+   (void)decoder;
+   (void)client_data;
+
    TRACE("Got FLAC error callback: %s\n",
       FLAC__StreamDecoderErrorStatusString[status]);
 }
@@ -65,6 +71,9 @@ static FLAC__StreamDecoderWriteStatus write_callback(
    FLAC__uint8 *buf8 = (FLAC__uint8 *) (out->buffer + out->pos);
    FLAC__int16 *buf16 = (FLAC__int16 *) buf8;
    float       *buf32 = (float *) buf8;
+
+   (void)decoder;
+   (void)client_data;
 
    /* Flatten the array */
    /* TODO: test this array flattening process on 5.1 and higher flac files */
@@ -180,6 +189,9 @@ ALLEGRO_SAMPLE_DATA *al_load_sample_data_flac(const char *filename)
 bool _flac_stream_update(ALLEGRO_STREAM *stream, void *data,
    unsigned long buf_size)
 {
+   (void)stream;
+   (void)data;
+   (void)buf_size;
    return false;
 }
 
@@ -187,6 +199,7 @@ bool _flac_stream_update(ALLEGRO_STREAM *stream, void *data,
 /* TODO implement */
 ALLEGRO_STREAM *al_load_stream_flac(const char *filename)
 {
+   (void)filename;
    return NULL;
 /*
    stream = al_create_stream(ff.sample_rate,

@@ -107,6 +107,8 @@ static void* _dsound_update(ALLEGRO_THREAD* self, void* arg)
    const void *data;
    const int bytes_per_sample = ex_data->bits_per_sample / 8;
 
+   (void)self;
+
    /* Fill buffer */
    hr = ex_data->ds8_buffer->Lock(0, BUFSIZE, &ptr1, &block1_bytes, &ptr2, &block2_bytes, DSBLOCK_ENTIREBUFFER);
    if (!FAILED(hr)) {

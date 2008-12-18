@@ -203,6 +203,8 @@ void _unix_unload_modules(void)
 
 void _unix_load_modules(int system_driver)
 {
+   (void)system_driver;
+
    /*	Fiddle dee dum,
 	Fiddle dee dee,
 	Eric, the half a bee	*/

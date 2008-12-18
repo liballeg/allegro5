@@ -101,9 +101,9 @@ void _al_d3d_set_blender(ALLEGRO_DISPLAY_D3D *disp);
 bool _al_d3d_render_to_texture_supported(void);
 void d3d_set_bitmap_clip(ALLEGRO_BITMAP *bitmap);
 
-void _al_d3d_release_default_pool_textures(ALLEGRO_DISPLAY_D3D *disp);
+void _al_d3d_release_default_pool_textures(void);
 void _al_d3d_prepare_bitmaps_for_reset(ALLEGRO_DISPLAY_D3D *disp);
-void _al_d3d_refresh_texture_memory(ALLEGRO_DISPLAY_D3D *disp);
+void _al_d3d_refresh_texture_memory(void);
 void _al_d3d_draw_textured_quad(ALLEGRO_DISPLAY_D3D *, ALLEGRO_BITMAP_D3D *bmp,
    float sx, float sy, float sw, float sh,
    float dx, float dy, float dw, float dh,

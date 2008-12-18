@@ -17,7 +17,7 @@
 
 
 
-int main(int argc, char *argv[])
+int main(void)
 {
    const int display_w = 640;
    const int display_h = 480;

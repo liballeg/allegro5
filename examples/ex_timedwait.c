@@ -9,14 +9,12 @@
 
 
 
-static void test_relative_timeout(ALLEGRO_DISPLAY *dpy,
-   ALLEGRO_EVENT_QUEUE *queue);
-static void test_absolute_timeout(ALLEGRO_DISPLAY *dpy,
-   ALLEGRO_EVENT_QUEUE *queue);
+static void test_relative_timeout(ALLEGRO_EVENT_QUEUE *queue);
+static void test_absolute_timeout(ALLEGRO_EVENT_QUEUE *queue);
 
 
 
-int main(int argc, char *argv[])
+int main(void)
 {
    ALLEGRO_DISPLAY *dpy;
    ALLEGRO_EVENT_QUEUE *queue;
@@ -37,8 +35,8 @@ int main(int argc, char *argv[])
    queue = al_create_event_queue();
    al_register_event_source(queue, (ALLEGRO_EVENT_SOURCE *)al_get_keyboard());
 
-   test_relative_timeout(dpy, queue);
-   test_absolute_timeout(dpy, queue);
+   test_relative_timeout(queue);
+   test_absolute_timeout(queue);
 
    return 0;
 }
@@ -46,8 +44,7 @@ END_OF_MAIN()
 
 
 
-static void test_relative_timeout(ALLEGRO_DISPLAY *dpy,
-   ALLEGRO_EVENT_QUEUE *queue)
+static void test_relative_timeout(ALLEGRO_EVENT_QUEUE *queue)
 {
    ALLEGRO_EVENT event;
    float shade = 0.1;
@@ -77,8 +74,7 @@ static void test_relative_timeout(ALLEGRO_DISPLAY *dpy,
 
 
 
-static void test_absolute_timeout(ALLEGRO_DISPLAY *dpy,
-   ALLEGRO_EVENT_QUEUE *queue)
+static void test_absolute_timeout(ALLEGRO_EVENT_QUEUE *queue)
 {
    ALLEGRO_TIMEOUT timeout;
    ALLEGRO_EVENT event;

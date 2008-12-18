@@ -170,7 +170,7 @@ static void _al_xsys_xinerama_init(ALLEGRO_SYSTEM_XGLX *s)
       int status = XineramaQueryVersion(s->x11display, &major_version, &minor_version);
       TRACE("xsystem: Xinerama version: %i.%i\n", major_version, minor_version);
 
-      if (!XineramaIsActive(s->x11display)) {
+      if (status && !XineramaIsActive(s->x11display)) {
          TRACE("xsystem: Xinerama is not active\n");
       }
       else {
@@ -203,6 +203,8 @@ static ALLEGRO_SYSTEM *xglx_initialize(int flags)
    Display *x11display;
    Display *gfxdisplay;
    ALLEGRO_SYSTEM_XGLX *s;
+
+   (void)flags;
 
 #ifdef DEBUG_X11
    _Xdebug = 1;

@@ -983,7 +983,7 @@ static int32_t al_fs_stdio_drive_sep(size_t len, char *sep)
 {
 #ifdef ALLEGRO_WINDOWS
    char *s = ":";
-   _al_sane_strncpy(sep, s, MIN(ustrlen(sep), ustrlen(s)));
+   _al_sane_strncpy(sep, s, len);
    return 0;
 #else
    if (len >= 1)
@@ -1011,6 +1011,9 @@ static int32_t al_fs_stdio_path_sep(size_t len, char *sep)
 static int32_t al_fs_stdio_path_to_sys(const char *orig, uint32_t len,
    char *path)
 {
+   (void)orig;
+   (void)len;
+   (void)path;
 #ifdef ALLEGRO_WINDOWS
 
 #else
@@ -1023,6 +1026,9 @@ static int32_t al_fs_stdio_path_to_sys(const char *orig, uint32_t len,
 static int32_t al_fs_stdio_path_to_uni(const char *orig, uint32_t len,
    char *path)
 {
+   (void)orig;
+   (void)len;
+   (void)path;
    /* XXX what does this do? */
    return 0;
 }

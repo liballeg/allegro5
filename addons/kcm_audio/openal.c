@@ -203,6 +203,8 @@ static void *_openal_update(ALLEGRO_THREAD* self, void* arg)
    const void *data;
    void *silence;
 
+   (void)self;
+
    ALLEGRO_VOICE* voice = (ALLEGRO_VOICE*) arg;
    ALLEGRO_AL_DATA *ex_data = (ALLEGRO_AL_DATA*)voice->extra;
 

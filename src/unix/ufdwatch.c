@@ -52,6 +52,8 @@ static _AL_VECTOR fd_watch_list = _AL_VECTOR_INITIALIZER(WATCH_ITEM);
  */
 static void fd_watch_thread_func(_AL_THREAD *self, void *unused)
 {
+   (void)unused;
+
    while (!_al_thread_should_stop(self)) {
 
       fd_set rfds;

@@ -62,6 +62,7 @@ struct ALLEGRO_COND {
 static void thread_func_trampoline(_AL_THREAD *inner, void *_outer)
 {
    ALLEGRO_THREAD *outer = (ALLEGRO_THREAD *) _outer;
+   (void)inner;
 
    /* Wait to start the actual user thread function.  The thread could also be
     * destroyed before ever running the user function.

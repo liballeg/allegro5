@@ -26,6 +26,8 @@ static ALLEGRO_MOUSE_CURSOR *xdpy_create_mouse_cursor(ALLEGRO_DISPLAY *display,
    XcursorImage *image;
    int c, ix, iy;
 
+   (void)display;
+
    bmp_w = al_get_bitmap_width(bmp);
    bmp_h = al_get_bitmap_height(bmp);
    if (!al_lock_bitmap(bmp, &lr, ALLEGRO_LOCK_READONLY)) {

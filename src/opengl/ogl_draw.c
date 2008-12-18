@@ -20,7 +20,7 @@
 
 
 
-static void set_opengl_blending(ALLEGRO_DISPLAY *d, ALLEGRO_COLOR *color)
+static void set_opengl_blending(ALLEGRO_COLOR *color)
 {
    const int blend_modes[4] = {
       GL_ZERO, GL_ONE, GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA
@@ -83,7 +83,7 @@ static void ogl_draw_pixel(ALLEGRO_DISPLAY *d, float x, float y,
       y += target->yofs;
    }
 
-   set_opengl_blending(d, color);
+   set_opengl_blending(color);
    glBegin(GL_POINTS);
    glVertex2d(x, y);
    glEnd();
@@ -113,7 +113,7 @@ static void ogl_draw_line(ALLEGRO_DISPLAY *d, float fx, float fy,
       ty += target->yofs;
    }
 
-   set_opengl_blending(d, color);
+   set_opengl_blending(color);
    glBegin(GL_LINES);
    glVertex2d(fx, fy);
    glVertex2d(tx, ty);
@@ -144,7 +144,7 @@ static void ogl_draw_rectangle(ALLEGRO_DISPLAY *d, float tlx, float tly,
       bry += target->yofs;
    }
 
-   set_opengl_blending(d, color);
+   set_opengl_blending(color);
    if (flags & ALLEGRO_FILLED) {
       glBegin(GL_QUADS);
       glVertex2d(tlx, tly);

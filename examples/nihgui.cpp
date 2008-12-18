@@ -349,12 +349,16 @@ Button::Button(std::string text):
 
 void Button::on_mouse_button_down(int mx, int my)
 {
+   (void)mx;
+   (void)my;
    this->pushed = true;
    dialog->request_draw();
 }
 
 void Button::on_mouse_button_up(int mx, int my)
 {
+   (void)mx;
+   (void)my;
    this->pushed = false;
    dialog->request_draw();
 }
@@ -401,6 +405,9 @@ void List::on_click(int mx, int my)
       this->selected_item = i;
       dialog->request_draw();
    }
+
+   (void)mx;
+   (void)my;
 }
 
 void List::draw()
@@ -464,6 +471,9 @@ void VSlider::on_mouse_button_hold(int mx, int my)
    r = CLAMP(0.0, r, 1.0);
    cur_value = (int) (r * max_value);
    dialog->request_draw();
+
+   (void)mx;
+   (void)my;
 }
 
 void VSlider::draw()

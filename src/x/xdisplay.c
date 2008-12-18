@@ -548,6 +548,8 @@ void _al_display_xglx_configure(ALLEGRO_DISPLAY *d, XEvent *xevent)
 void _al_display_xglx_closebutton(ALLEGRO_DISPLAY *d, XEvent *xevent)
 {
    ALLEGRO_EVENT_SOURCE *es = &d->es;
+   (void)xevent;
+
    _al_event_source_lock(es);
 
    if (_al_event_source_needs_to_generate_event(es)) {
@@ -611,6 +613,8 @@ static bool xdpy_is_compatible_bitmap(ALLEGRO_DISPLAY *display,
    ALLEGRO_BITMAP *bitmap)
 {
    /* All GLX bitmaps are compatible. */
+   (void)display;
+   (void)bitmap;
    return true;
 }
 

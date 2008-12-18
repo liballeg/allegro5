@@ -402,6 +402,7 @@ int al_get_sample_ptr(const ALLEGRO_SAMPLE *spl,
    ALLEGRO_AUDIO_PROPERTY setting, void **val)
 {
    ASSERT(spl);
+   (void)val;
 
    switch (setting) {
       default:
@@ -637,6 +638,7 @@ int al_set_sample_ptr(ALLEGRO_SAMPLE *spl,
    ALLEGRO_AUDIO_PROPERTY setting, void *val)
 {
    ASSERT(spl);
+   (void)val;
 
    switch (setting) {
       default:

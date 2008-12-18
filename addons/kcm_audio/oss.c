@@ -322,6 +322,7 @@ static int oss_load_voice(ALLEGRO_VOICE *voice, const void *data)
 
 static void oss_unload_voice(ALLEGRO_VOICE *voice)
 {
+   (void)voice;
 }
 
 
@@ -388,6 +389,7 @@ static void* oss_update(ALLEGRO_THREAD *self, void *arg)
 {
    ALLEGRO_VOICE *voice = arg;
    OSS_VOICE *oss_voice = voice->extra;
+   (void)self;
 
    while (!oss_voice->quit_poll_thread) {
       /*

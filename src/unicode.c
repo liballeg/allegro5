@@ -75,6 +75,7 @@ static int ascii_setc(char *s, int c)
  */
 static int ascii_width(AL_CONST char *s)
 {
+   (void)s;
    return 1;
 }
 
@@ -85,6 +86,7 @@ static int ascii_width(AL_CONST char *s)
  */
 static int ascii_cwidth(int c)
 {
+   (void)c;
    return 1;
 }
 
@@ -285,6 +287,7 @@ static int unicode_setc(char *s, int c)
  */
 static int unicode_width(AL_CONST char *s)
 {
+   (void)s;
    return sizeof(unsigned short);
 }
 
@@ -295,6 +298,7 @@ static int unicode_width(AL_CONST char *s)
  */
 static int unicode_cwidth(int c)
 {
+   (void)c;
    return sizeof(unsigned short);
 }
 
@@ -462,6 +466,7 @@ static int utf8_cwidth(int c)
  */
 static int utf8_isok(int c)
 {
+   (void)c;
    return TRUE;
 }
 

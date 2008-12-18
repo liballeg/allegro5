@@ -94,7 +94,7 @@ def buildMain(env,appendDir,buildDir,libDir):
 def makeExampleEnv():
     exampleEnv = Environment()
 
-    flags = [ "-Wall", "-Wno-unused", "-Wno-long-double", "-O2", "-funroll-loops", "-ffast-math", "-fomit-frame-pointer", "-fno-common", "-pipe", "-dynamic" ]
+    flags = [ "-Wall", "-Wno-long-double", "-O2", "-funroll-loops", "-ffast-math", "-fomit-frame-pointer", "-fno-common", "-pipe", "-dynamic" ]
     defines = [ "ALLEGRO_NO_ASM", "ALLEGRO_LIB_BUILD" ]
     includes = [ "include", "include/allegro" ]
     # linkflags = ["-prebind", "-framework", "Cocoa"]
@@ -128,13 +128,12 @@ def makeExampleEnv():
 
 # context.setExampleEnv( makeExampleEnv() )
 
-# gcc -DALLEGRO_LIB_BUILD -Wall -Wno-unused -Wno-long-double  -O2 -funroll-loops -ffast-math -fomit-frame-pointer -fno-common -pipe -dynamic -DALLEGRO_NO_ASM -I. -I./include -o obj/macosx/alleg/exupdate.o -c examples/exupdate.c
+# gcc -DALLEGRO_LIB_BUILD -Wall -Wno-long-double  -O2 -funroll-loops -ffast-math -fomit-frame-pointer -fno-common -pipe -dynamic -DALLEGRO_NO_ASM -I. -I./include -o obj/macosx/alleg/exupdate.o -c examples/exupdate.c
 
 flags = Split("""
 -O2
 -Wall
 -Wno-long-double
--Wno-unused
 -dynamic
 -ffast-math
 -fno-common

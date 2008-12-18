@@ -406,6 +406,8 @@ void _al_win_key_dinput_unacquire(void *unused)
 {
    int key;
 
+   (void)unused;
+
    if (key_dinput_device && win_disp) {
       IDirectInputDevice8_Unacquire(key_dinput_device);
 

@@ -50,7 +50,7 @@ void update(ALLEGRO_BITMAP *bmp)
 }
 
 
-int main(int argc, char *argv[])
+int main(void)
 {
    ALLEGRO_DISPLAY *display;
    ALLEGRO_TIMER *timer;

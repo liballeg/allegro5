@@ -238,6 +238,8 @@ static void* alsa_update(ALLEGRO_THREAD *self, void *arg)
    void *mmap;
    int ret;
 
+   (void)self;
+
    while (!alsa_voice->quit_poll_thread) {
       if (alsa_voice->stop && !alsa_voice->stopped) {
          snd_pcm_drop(alsa_voice->pcm_handle);
@@ -343,6 +345,7 @@ static int alsa_load_voice(ALLEGRO_VOICE *voice, const void *data)
    This method should not be called on a streaming voice. */
 static void alsa_unload_voice(ALLEGRO_VOICE *voice)
 {
+   (void)voice;
 }
 
 

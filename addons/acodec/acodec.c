@@ -56,6 +56,10 @@ ALLEGRO_STREAM *al_stream_from_file(size_t buffer_count, unsigned long samples,
 
    ASSERT(filename);
 
+   /* Can be unused if no support libraries found. */
+   (void)buffer_count;
+   (void)samples;
+
    ext = strrchr(filename, '.');
    if (ext == NULL)
       return NULL;

@@ -9,7 +9,7 @@ import helpers
 
 # env = config.Finish()
 
-flags = [ '-g', '-Wall', '-Wno-unused', '-O2', '-funroll-loops', '-ffast-math', '-fomit-frame-pointer' ]
+flags = [ '-g', '-Wall', '-O2', '-funroll-loops', '-ffast-math', '-fomit-frame-pointer' ]
 includes = [ "include", "include/allegro", "." ]
 # defines = [ "-DALLEGRO_SRC", "-DALLEGRO_NO_ASM", "-DALLEGRO_LIB_BUILD" ]
 defines = [ "ALLEGRO_SRC", "ALLEGRO_LIB_BUILD", "ALLEGRO_NO_ASM" ]

@@ -73,6 +73,8 @@ static void func1 (                                                          \
    int sx, int sy, int dx, int dy,                                           \
    int width, int height)                                                    \
 {                                                                            \
+   (void)src_format;                                                         \
+   (void)dst_format;                                                         \
    DO_CONVERT(macro1,                                                        \
       src, type, size, src_pitch, get,                                       \
       dst, uint32_t, 4, dst_pitch, bmp_write32,                              \
@@ -85,6 +87,8 @@ static void func2 (                                                          \
    int sx, int sy, int dx, int dy,                                           \
    int width, int height)                                                    \
 {                                                                            \
+   (void)src_format;                                                         \
+   (void)dst_format;                                                         \
    DO_CONVERT(macro2,                                                        \
       src, type, size, src_pitch, get,                                       \
       dst, uint32_t, 4, dst_pitch, bmp_write32,                              \
@@ -97,6 +101,8 @@ static void func3 (                                                          \
    int sx, int sy, int dx, int dy,                                           \
    int width, int height)                                                    \
 {                                                                            \
+   (void)src_format;                                                         \
+   (void)dst_format;                                                         \
    DO_CONVERT(macro3,                                                        \
       src, type, size, src_pitch, get,                                       \
       dst, uint16_t, 2, dst_pitch, bmp_write16,                              \
@@ -109,6 +115,8 @@ static void func4 (                                                          \
    int sx, int sy, int dx, int dy,                                           \
    int width, int height)                                                    \
 {                                                                            \
+   (void)src_format;                                                         \
+   (void)dst_format;                                                         \
    DO_CONVERT(macro4,                                                        \
       src, type, size, src_pitch, get,                                       \
       dst, unsigned char, 3, dst_pitch, WRITE3BYTES,                         \
@@ -121,6 +129,8 @@ static void func5 (                                                          \
    int sx, int sy, int dx, int dy,                                           \
    int width, int height)                                                    \
 {                                                                            \
+   (void)src_format;                                                         \
+   (void)dst_format;                                                         \
    DO_CONVERT(macro5,                                                        \
       src, type, size, src_pitch, get,                                       \
       dst, uint16_t, 2, dst_pitch, bmp_write16,                              \
@@ -133,6 +143,8 @@ static void func6 (                                                          \
    int sx, int sy, int dx, int dy,                                           \
    int width, int height)                                                    \
 {                                                                            \
+   (void)src_format;                                                         \
+   (void)dst_format;                                                         \
    DO_CONVERT(macro6,                                                        \
       src, type, size, src_pitch, get,                                       \
       dst, uint16_t, 2, dst_pitch, bmp_write16,                              \
@@ -145,6 +157,8 @@ static void func7 (                                                          \
    int sx, int sy, int dx, int dy,                                           \
    int width, int height)                                                    \
 {                                                                            \
+   (void)src_format;                                                         \
+   (void)dst_format;                                                         \
    DO_CONVERT(macro7,                                                        \
       src, type, size, src_pitch, get,                                       \
       dst, uint16_t, 2, dst_pitch, bmp_write16,                              \
@@ -157,19 +171,23 @@ static void func8 (                                                          \
    int sx, int sy, int dx, int dy,                                           \
    int width, int height)                                                    \
 {                                                                            \
+   (void)src_format;                                                         \
+   (void)dst_format;                                                         \
    DO_CONVERT(macro8,                                                        \
       src, type, size, src_pitch, get,                                       \
       dst, uint16_t, 2, dst_pitch, bmp_write16,                              \
       sx, sy, dx, dy, width, height);                                        \
 }                                                                            \
                                                                              \
-static void func9 (                                                         \
+static void func9 (                                                          \
    void *src, int src_format, int src_pitch,                                 \
    void *dst, int dst_format, int dst_pitch,                                 \
    int sx, int sy, int dx, int dy,                                           \
    int width, int height)                                                    \
 {                                                                            \
-   DO_CONVERT(macro9,                                                       \
+   (void)src_format;                                                         \
+   (void)dst_format;                                                         \
+   DO_CONVERT(macro9,                                                        \
       src, type, size, src_pitch, get,                                       \
       dst, uint32_t, 4, dst_pitch, bmp_write32,                              \
       sx, sy, dx, dy, width, height);                                        \
@@ -181,6 +199,8 @@ static void func10 (                                                         \
    int sx, int sy, int dx, int dy,                                           \
    int width, int height)                                                    \
 {                                                                            \
+   (void)src_format;                                                         \
+   (void)dst_format;                                                         \
    DO_CONVERT(macro10,                                                       \
       src, type, size, src_pitch, get,                                       \
       dst, uint32_t, 4, dst_pitch, bmp_write32,                              \
@@ -193,6 +213,8 @@ static void func11 (                                                         \
    int sx, int sy, int dx, int dy,                                           \
    int width, int height)                                                    \
 {                                                                            \
+   (void)src_format;                                                         \
+   (void)dst_format;                                                         \
    DO_CONVERT(macro11,                                                       \
       src, type, size, src_pitch, get,                                       \
       dst, unsigned char, 3, dst_pitch, WRITE3BYTES,                         \
@@ -205,6 +227,8 @@ static void func12 (                                                         \
    int sx, int sy, int dx, int dy,                                           \
    int width, int height)                                                    \
 {                                                                            \
+   (void)src_format;                                                         \
+   (void)dst_format;                                                         \
    DO_CONVERT(macro12,                                                       \
       src, type, size, src_pitch, get,                                       \
       dst, uint16_t, 2, dst_pitch, bmp_write16,                              \
@@ -217,6 +241,8 @@ static void func13 (                                                         \
    int sx, int sy, int dx, int dy,                                           \
    int width, int height)                                                    \
 {                                                                            \
+   (void)src_format;                                                         \
+   (void)dst_format;                                                         \
    DO_CONVERT(macro13,                                                       \
       src, type, size, src_pitch, get,                                       \
       dst, uint16_t, 2, dst_pitch, bmp_write16,                              \
@@ -229,6 +255,8 @@ static void func14 (                                                         \
    int sx, int sy, int dx, int dy,                                           \
    int width, int height)                                                    \
 {                                                                            \
+   (void)src_format;                                                         \
+   (void)dst_format;                                                         \
    DO_CONVERT(macro14,                                                       \
       src, type, size, src_pitch, get,                                       \
       dst, uint32_t, 4, dst_pitch, bmp_write32,                              \
@@ -241,6 +269,8 @@ static void func15 (                                                         \
    int sx, int sy, int dx, int dy,                                           \
    int width, int height)                                                    \
 {                                                                            \
+   (void)src_format;                                                         \
+   (void)dst_format;                                                         \
    DO_CONVERT(macro15,                                                       \
       src, type, size, src_pitch, get,                                       \
       dst, uint32_t, 4, dst_pitch, bmp_write32,                              \

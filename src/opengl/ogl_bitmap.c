@@ -306,6 +306,10 @@ static bool ogl_upload_bitmap(ALLEGRO_BITMAP *bitmap, int x, int y,
 {
    ALLEGRO_BITMAP_OGL *ogl_bitmap = (void *)bitmap;
 
+   // XXX is this right?
+   (void)x;
+   (void)y;
+
    if (ogl_bitmap->texture == 0) {
       glGenTextures(1, &ogl_bitmap->texture);
    }
@@ -630,6 +634,7 @@ ALLEGRO_BITMAP *_al_ogl_create_sub_bitmap(ALLEGRO_DISPLAY *d,
 {
    ALLEGRO_BITMAP_OGL* ogl_bmp;
    ALLEGRO_BITMAP_OGL* ogl_parent = (void*)parent;
+   (void)d;
 
    ogl_bmp = _AL_MALLOC(sizeof *ogl_bmp);
    memset(ogl_bmp, 0, sizeof *ogl_bmp);

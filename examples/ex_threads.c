@@ -26,6 +26,8 @@ void *thread_func(ALLEGRO_THREAD *thr, void *arg)
    ALLEGRO_EVENT event;
    double theta = 0.0;
 
+   (void)thr;
+
    al_set_new_display_flags(ALLEGRO_RESIZABLE);
 
    display = al_create_display(300, 300);

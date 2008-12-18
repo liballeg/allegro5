@@ -74,6 +74,11 @@ int _WinMain(void *_main, void *hInst, void *hPrev, char *Cmd, int nShow)
    int argc_max;
    int i, q;
 
+   (void)hInst;
+   (void)hPrev;
+   (void)Cmd;
+   (void)nShow;
+
    /* can't use parameter because it doesn't include the executable name */
    cmdline = GetCommandLine();
    i = strlen(cmdline) + 1;
@@ -142,6 +147,8 @@ int _WinMain(void *_main, void *hInst, void *hPrev, char *Cmd, int nShow)
 /* Create a new system object. */
 static ALLEGRO_SYSTEM *win_initialize(int flags)
 {
+   (void)flags;
+
    _al_win_system = _AL_MALLOC(sizeof *_al_win_system);
    memset(_al_win_system, 0, sizeof *_al_win_system);
 

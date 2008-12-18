@@ -1367,6 +1367,7 @@ static void wgl_switch_in(ALLEGRO_DISPLAY *display)
 
 static void wgl_switch_out(ALLEGRO_DISPLAY *display)
 {
+   (void)display;
 }
 
 
@@ -1434,13 +1435,17 @@ ALLEGRO_DISPLAY_INTERFACE *_al_display_wgl_driver(void)
 
 int _al_wgl_get_num_display_modes(int format, int refresh_rate, int flags)
 {
+   DEVMODE dm;   
+   int count = 0;
+
    /* FIXME: Ignoring format.
     * To get a list of pixel formats we have to create a window with a valid DC, which
     * would even require to change the video mode in fullscreen cases and we really
     * don't want to do that.
     */
-   DEVMODE dm;   
-   int count = 0;
+   (void)format;
+   (void)refresh_rate;
+   (void)flags;
 
    memset(&dm, 0, sizeof(dm));
    dm.dmSize = sizeof(dm);
@@ -1457,10 +1462,14 @@ ALLEGRO_DISPLAY_MODE *_al_wgl_get_display_mode(int index, int format,
                                                int refresh_rate, int flags,
                                                ALLEGRO_DISPLAY_MODE *mode)
 {
+   DEVMODE dm;   
+
    /*
     * FIXME: see the comment in _al_wgl_get_num_display_modes
     */
-   DEVMODE dm;   
+   (void)format;
+   (void)refresh_rate;
+   (void)flags;
 
    memset(&dm, 0, sizeof(dm));
    dm.dmSize = sizeof(dm);

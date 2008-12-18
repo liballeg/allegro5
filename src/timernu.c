@@ -111,6 +111,8 @@ static void timer_thread_proc(_AL_THREAD *self, void *unused)
       }
       _al_mutex_unlock(&timer_thread_mutex);
    }
+
+   (void)unused;
 }
 
 

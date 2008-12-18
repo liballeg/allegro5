@@ -174,6 +174,8 @@ ALLEGRO_FONT *al_font_load_bitmap_font(const char *fname, void *param)
    ALLEGRO_STATE backup;
    ASSERT(fname);
 
+   (void) param;
+
    /* Don't change the colourdepth of the bitmap if it is 8 bit */
    (void) color_conv_mode;
    /*

@@ -463,7 +463,7 @@ static int32_t _unix_find_home(char *dir, uint32_t len)
 
       if (pass->pw_dir) {
          /* hey, we got our home directory */
-         do_uconvert(pass->pw_dir, U_ASCII, dir, U_CURRENT, strlen(pass->pw_dir)+1);
+         do_uconvert(pass->pw_dir, U_ASCII, dir, U_CURRENT, len);
          return 0;
       }
 
@@ -471,7 +471,7 @@ static int32_t _unix_find_home(char *dir, uint32_t len)
       return -1;
    }
    else {
-      do_uconvert(home_env, U_ASCII, dir, U_CURRENT, strlen(home_env)+1);
+      do_uconvert(home_env, U_ASCII, dir, U_CURRENT, len);
       return 0;
    }
 

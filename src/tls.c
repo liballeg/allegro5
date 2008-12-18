@@ -84,6 +84,10 @@ static thread_local_state *tls_get(void)
 BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved)
 { 
    thread_local_state *data;
+
+   (void)hinstDLL;
+   (void)fdwReason;
+   (void)lpvReserved;
  
    switch (fdwReason) { 
       case DLL_PROCESS_ATTACH: 
