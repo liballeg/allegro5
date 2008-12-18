@@ -228,27 +228,6 @@ void _al_osx_keyboard_modifiers(unsigned int mods, ALLEGRO_DISPLAY* dpy)
 
 
 
-/* osx_keyboard_focused:
-*  Keyboard focus change handler.
-*/
-void osx_keyboard_focused(int focused, int state)
-{
-	int i, mask;
-	
-	if (focused) {
-		mask = ALLEGRO_KEYMOD_SCROLLLOCK | ALLEGRO_KEYMOD_NUMLOCK | ALLEGRO_KEYMOD_CAPSLOCK;
-//		_key_shifts = (_key_shifts & ~mask) | (state & mask);
-	}
-	else {
-//		for (i=0; i<KEY_MAX; i++) {
-//			if (key[i])
-//				_handle_key_release(NULL, i);
-//		}
-	}
-}
-
-
-
 /* osx_keyboard_init:
 *  Installs the keyboard handler.
 */
@@ -269,7 +248,6 @@ static void osx_keyboard_exit(void)
 {
 	_al_event_source_free(&keyboard.es);
    _al_osx_keyboard_was_installed(NO);
-	osx_keyboard_focused(FALSE, 0);
 }
 
 /* osx_get_keyboard:

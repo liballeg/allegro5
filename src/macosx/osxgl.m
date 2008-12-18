@@ -872,9 +872,6 @@ static ALLEGRO_MOUSE_CURSOR *osx_create_mouse_cursor(ALLEGRO_DISPLAY *display,
    ALLEGRO_BITMAP *bmp, int x_focus, int y_focus) {
 	ALLEGRO_DISPLAY_OSX_WIN* dpy = (ALLEGRO_DISPLAY_OSX_WIN*) display;
    ALLEGRO_MOUSE_CURSOR_OSX *cursor = NULL;
-  	int ix, iy;
-	int bmpw, bmph;
-	int sw, sh;
 	
    if (!bmp || !dpy)
       return NULL;

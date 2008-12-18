@@ -33,17 +33,10 @@ typedef struct ALLEGRO_MOUSE AL_MOUSE;
 typedef struct ALLEGRO_MOUSE_STATE AL_MOUSE_STATE;
 
 static bool osx_init_mouse(void);
-static void osx_mouse_exit(void);
-static bool osx_mouse_position(int, int);
-static bool osx_mouse_set_range(int, int, int, int);
-static void osx_mouse_get_mickeys(int *, int *);
-static void osx_enable_hardware_cursor(AL_CONST int mode);
-static int osx_select_system_cursor(AL_CONST int cursor);
 static unsigned int osx_get_mouse_num_buttons(void);
 static unsigned int osx_get_mouse_num_axes(void);
 static bool osx_set_mouse_axis(int axis, int value);
 static ALLEGRO_MOUSE* osx_get_mouse(void);
-static void osx_get_state(ALLEGRO_MOUSE_STATE *ret_state);
 
 /* Mouse info - includes extra info for OS X */
 static struct {

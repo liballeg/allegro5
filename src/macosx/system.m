@@ -46,13 +46,6 @@ extern OSErr CPSSetFrontProcess(struct CPSProcessSerNum *psn);
 static ALLEGRO_SYSTEM* osx_sys_init(int flags);
 ALLEGRO_SYSTEM_INTERFACE *_al_system_osx_driver(void);
 static void osx_sys_exit(void);
-static void osx_sys_message(AL_CONST char *);
-static void osx_sys_get_executable_name(char *, int);
-static int osx_sys_find_resource(char *, AL_CONST char *, int);
-static int osx_sys_set_close_button_callback(void (*proc)(void));
-static int osx_sys_set_display_switch_mode(int mode);
-static int osx_sys_desktop_color_depth(void);
-static int osx_sys_get_desktop_resolution(int *width, int *height);
 static AL_CONST char *osx_get_path(uint32_t id, char* path, size_t length);
 
 
@@ -136,6 +129,7 @@ int _al_osx_bootstrap_ok(void)
 static ALLEGRO_SYSTEM* osx_sys_init(int flags)
 {
    int v1 = 0, v2 = 0, v3 = 0; // version numbers read from ProductVersion
+   (void)flags;
    
    /* If we're in the 'dead bootstrap' environment, the Mac driver won't work. */
    if (!_al_osx_bootstrap_ok()) {
