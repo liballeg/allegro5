@@ -460,7 +460,7 @@ static void generate_mouse_event(unsigned int type,
 void _al_xwin_mouse_switch_handler(ALLEGRO_DISPLAY *display,
    const XFocusChangeEvent *event)
 {
-   _al_event_source_lock(&the_keyboard.parent.es);
+   _al_event_source_lock(&the_mouse.parent.es);
 
    switch (event->type) {
       case EnterNotify:
@@ -471,7 +471,7 @@ void _al_xwin_mouse_switch_handler(ALLEGRO_DISPLAY *display,
          break;
    }
 
-   _al_event_source_unlock(&the_keyboard.parent.es);
+   _al_event_source_unlock(&the_mouse.parent.es);
 }
 
 
