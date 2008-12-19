@@ -127,6 +127,10 @@ vcvars32.bat script found in the directory where MSVC is installed.
 CMake works by first creating a project solution, which can then be opened
 with MSVC IDE and built.
 
+You may have to set your path to your DirectX SDK's Include and Lib directories,
+	set INCLUDE=c:\program files\microsoft directx x.xx\include;%INCLUDE%
+	set LIB=c:\program files\microsoft directx x.xx\lib\x86;%LIB%
+
 You can use the same options from the CMake section above.
 
 Examples:
