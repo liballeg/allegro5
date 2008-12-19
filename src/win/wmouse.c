@@ -595,23 +595,16 @@ void _al_win_mouse_dinput_unacquire(void *param)
     * happen if for example the unacquire command arrives after the other
     * display has already grabbed the device, since these messages are sent
     * asynchronously to the window thread message queue. */
-   if (param && param != win_disp) {
+   if (param != win_disp) {
       return;
    }
 
-   if (mouse_dinput_device && win_disp) {
+   if (mouse_dinput_device) {
       IDirectInputDevice8_Unacquire(mouse_dinput_device);
-
       the_mouse.state.buttons = 0;
-
-      if (param) {
-         ALLEGRO_DISPLAY_WIN *win_disp = param;
-         win_disp->is_mouse_on = false;
-      }
-      else if (win_disp) {
-         win_disp->is_mouse_on = false;
-      }
    }
+
+   win_disp->is_mouse_on = false;
 }
 
 
@@ -628,7 +621,7 @@ void _al_win_mouse_dinput_grab(void *param)
       /* Release the input from the previous window just in case,
          otherwise set cooperative level will fail. */
       if (win_disp)
-         _al_win_wnd_call_proc(win_disp->window, _al_win_mouse_dinput_unacquire, NULL);
+         _al_win_wnd_call_proc(win_disp->window, _al_win_mouse_dinput_unacquire, win_disp);
 
       win_disp = param;
 
@@ -1052,6 +1045,8 @@ static void mouse_directx_get_state(ALLEGRO_MOUSE_STATE *ret_state)
 
    _al_event_source_lock(&the_mouse.parent.es);
    {
+      the_mouse.state.display = win_disp->is_mouse_on ? (void*)win_disp : NULL;
+
       *ret_state = the_mouse.state;
    }
    _al_event_source_unlock(&the_mouse.parent.es);

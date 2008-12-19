@@ -42,15 +42,18 @@ typedef struct ALLEGRO_MOUSE ALLEGRO_MOUSE;
  */
 typedef struct ALLEGRO_MOUSE_STATE
 {
-   /* (x, y) Primary mouse position */
-   /* (z) Mouse wheel position (1D 'wheel'), or,  */
-   /* (w, z) Mouse wheel position (2D 'ball') */
+   /* (x, y) Primary mouse position
+    * (z) Mouse wheel position (1D 'wheel'), or,
+    * (w, z) Mouse wheel position (2D 'ball')
+    * display - the display the mouse is on (coordinates are relative to this)
+    */
    int x;
    int y;
    int z;
    int w;
    int more_axes[ALLEGRO_MOUSE_MAX_EXTRA_AXES];
    int buttons;
+   struct ALLEGRO_DISPLAY *display;
 } ALLEGRO_MOUSE_STATE;
 
 /* Mouse cursors */

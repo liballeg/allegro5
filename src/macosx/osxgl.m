@@ -281,20 +281,28 @@ void _al_osx_mouse_was_installed(BOOL install) {
 -(void) mouseEntered: (NSEvent*) evt
 {
    ALLEGRO_DISPLAY_OSX_WIN* dpy =  (ALLEGRO_DISPLAY_OSX_WIN*) dpy_ptr;
+	ALLEGRO_EVENT_SOURCE* src = &([self allegroDisplay]->es);
    if (dpy->show_cursor) {
       [dpy->cursor set];
    }
    else {
       [NSCursor hide];
    }
+	_al_event_source_lock(src);
+   _al_osx_switch_mouse_focus(dpy_ptr, true);
+	_al_event_source_unlock(src);
    _al_osx_mouse_generate_event(evt, dpy_ptr);
 }
 -(void) mouseExited: (NSEvent*) evt
 {
    ALLEGRO_DISPLAY_OSX_WIN* dpy =  (ALLEGRO_DISPLAY_OSX_WIN*) dpy_ptr;
+	ALLEGRO_EVENT_SOURCE* src = &([self allegroDisplay]->es);
    if (!dpy->show_cursor) {
       [NSCursor unhide];
    }
+	_al_event_source_lock(src);
+   _al_osx_switch_mouse_focus(dpy_ptr, false);
+	_al_event_source_unlock(src);
 	_al_osx_mouse_generate_event(evt, dpy_ptr);
 }
 

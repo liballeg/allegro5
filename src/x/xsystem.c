@@ -45,6 +45,10 @@ static void process_x11_event(ALLEGRO_SYSTEM_XGLX *s, XEvent event)
          _al_xwin_keyboard_handler(&event.xkey, false,
             &d->display);
          break;
+      case LeaveNotify:
+         _al_xwin_mouse_switch_handler(&d->display, &event.xfocus);
+      case EnterNotify:
+         _al_xwin_mouse_switch_handler(&d->display, &event.xfocus);
       case FocusIn:
          _al_xwin_display_switch_handler(&d->display, &event.xfocus);
          _al_xwin_keyboard_switch_handler(&d->display, &event.xfocus);

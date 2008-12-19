@@ -50,6 +50,22 @@ static struct {
 	NSCursor* cursor;
 } osx_mouse;
 
+/* _al_osx_switch_keyboard_focus:
+ *  Handle a focus switch event.
+ */
+void _al_osx_switch_mouse_focus(ALLEGRO_DISPLAY *dpy, bool switch_in)
+{
+	_al_event_source_lock(&osx_mouse.parent.es);
+
+   printf("switch_mouse_focus called for diaplsy %p with flag %d\n", dpy, switch_in);
+   if (switch_in)
+      osx_mouse.state.display = dpy;
+   else
+      osx_mouse.state.display = NULL;
+
+	_al_event_source_unlock(&osx_mouse.parent.es);
+}
+
 /* osx_get_mouse:
 * Return the Allegro mouse structure
 */

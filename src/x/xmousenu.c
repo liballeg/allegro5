@@ -454,6 +454,28 @@ static void generate_mouse_event(unsigned int type,
 
 
 
+/* _al_xwin_mouse_switch_handler:
+ *  Handle a focus switch event.
+ */
+void _al_xwin_mouse_switch_handler(ALLEGRO_DISPLAY *display,
+   const XFocusChangeEvent *event)
+{
+   _al_event_source_lock(&the_keyboard.parent.es);
+
+   switch (event->type) {
+      case EnterNotify:
+         the_mouse.state.display = display;
+         break;
+      case LeaveNotify:
+         the_mouse.state.display = NULL;
+         break;
+   }
+
+   _al_event_source_unlock(&the_keyboard.parent.es);
+}
+
+
+
 /*
  * Local Variables:
  * c-basic-offset: 3
