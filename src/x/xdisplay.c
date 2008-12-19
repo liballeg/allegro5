@@ -211,8 +211,15 @@ static ALLEGRO_DISPLAY *xdpy_create_display(int w, int h)
    // TODO: What is this?
    d->xscreen = DefaultScreen(system->x11display);
 
-   if (display->flags & ALLEGRO_FULLSCREEN)
-      _al_xglx_fullscreen_set_mode(system, w, h, 0, 0);
+   // Try to set full screen mode if requested, fail if we can't
+   if (display->flags & ALLEGRO_FULLSCREEN) {
+      if (!_al_xglx_fullscreen_set_mode(system, w, h, 0, 0)) {
+         _AL_FREE(d);
+         _AL_FREE(ogl);
+         _al_mutex_unlock(&system->lock);
+         return NULL;
+      }
+   }
 
    //FIXME
    //d->display.flags |= ALLEGRO_WINDOWED;
