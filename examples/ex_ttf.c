@@ -4,7 +4,7 @@
 struct Example
 {
     double fps;
-    ALLEGRO_FONT *f1, *f2, *f3;
+    ALLEGRO_FONT *f1, *f2, *f3, *f4;
 } ex;
 
 static void render(void)
@@ -13,6 +13,8 @@ static void render(void)
     ALLEGRO_COLOR black = al_map_rgba_f(0, 0, 0, 1);
     ALLEGRO_COLOR red = al_map_rgba_f(1, 0, 0, 1);
     ALLEGRO_COLOR green = al_map_rgba_f(0, 0.5, 0, 1);
+    ALLEGRO_COLOR blue = al_map_rgba_f(0.1, 0.2, 1, 1);
+    int x, y, w, h, as, de;
 
     al_clear(white);
 
@@ -37,6 +39,17 @@ static void render(void)
     al_font_textout(ex.f3, 50, 340, "‘ìş’|shouldn't", 4);
     al_font_textout(ex.f3, 50, 360, "“cøünt”|see", 7);
     al_font_textout(ex.f3, 50, 380, "réstrïçteđ…|this.", 11);
+    
+    al_ttf_get_text_dimensions(ex.f4, "Allegro", -1,
+       &x, &y, &w, &h, &as, &de);
+
+    x += al_get_display_width() - 10 - w;
+    y += al_get_display_height() - 10 - h;
+    al_set_blender(ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA, white);
+    al_draw_rectangle(x, y, x + w, y + h, black, 0);
+    al_draw_line(x, y + as, x + w, y + as, black);
+    al_set_blender(ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA, blue);
+    al_font_textout(ex.f4, x, y, "Allegro", -1);
 
     al_set_blender(ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA, black);
     al_font_textprintf_right(ex.f3, al_get_display_width(), 0, "%.1f FPS", ex.fps);
@@ -69,8 +82,12 @@ int main(int argc, const char *argv[])
     ex.f1 = al_ttf_load_font(font_file, 48, 0);
     ex.f2 = al_ttf_load_font(font_file, 48, ALLEGRO_TTF_NO_KERNING);
     ex.f3 = al_ttf_load_font(font_file, 12, 0);
+    /* Specifying negative values means we specify the glyph height
+     * in pixels, not the usual font size.
+     */
+    ex.f4 = al_ttf_load_font(font_file, -140, 0);
 
-    if (!ex.f1 || !ex.f2 || !ex.f3) {
+    if (!ex.f1 || !ex.f2 || !ex.f3 || !ex.f4) {
         fprintf(stderr, "Could not load font: %s\n", font_file);
         return 1;
     }

@@ -65,7 +65,11 @@ static ALLEGRO_BITMAP* create_glyph_cache(ALLEGRO_FONT const *f, int w,
             al_get_bitmap_height(cache))
             return create_glyph_cache(f, w, h, true);
         else {
-            data->cache_pos_y += font_height(f) + 2;
+            // FIXME: f->height is *not* guaranteed to be bigger than
+            // the size of the largest glyph in the font. This needs to
+            // be fixed, some fonts likely have glyphs cut off right
+            // now.
+            data->cache_pos_y += f->height + 2;
             ret = al_create_sub_bitmap(cache, 0, data->cache_pos_y, w, h);
             /* Leave 2 pixels of empty space between glyphs in case
              * we use texture filtering where neigbor pixels bleed in.
@@ -128,7 +132,7 @@ static int render_glyph(ALLEGRO_FONT const *f, int prev, int ch,
         }
         al_unlock_bitmap(glyph->bitmap);
         glyph->x = face->glyph->bitmap_left;
-        glyph->y = f->height - face->glyph->bitmap_top;
+        glyph->y = (face->size->metrics.ascender >> 6) - face->glyph->bitmap_top;
 
         al_restore_state(&backup);
     }
@@ -185,6 +189,62 @@ static int text_length(ALLEGRO_FONT const *f, char const *text, int count)
     return x;
 }
 
+/* Function: al_ttf_get_text_dimensions
+ * 
+ * Sometimes, the [text_length] and [text_height] functions are not
+ * enough for exact text placement, so this function returns some
+ * additional information.
+ * 
+ * Returned variables (all in pixel):
+ * x, y - Offset to upper left corner of bounding box.
+ * w, h - Dimensions of bounding box.
+ * ascent - Ascent of the font.
+ * descent - Descent of the font.
+ * 
+ * If the X is the position you specify to draw text, the meaning of
+ * ascent and descent and the font height is like in the figure below.
+ * Note that glyphs may go to the left and upwards of the X, in which
+ * case x and y will have negative values.
+ * 
+ * > X------------------------
+ * >     /\         |        |
+ * >    /  \        |        |
+ * >   /____\       ascent   |
+ * >  /      \      |        |
+ * > /        \     |        height
+ * > ----------------        |
+ * >                |        |
+ * >                descent  |
+ * >                |        |
+ * > -------------------------
+ */
+void al_ttf_get_text_dimensions(ALLEGRO_FONT const *f, char const *text,
+    int count, int *bbx, int *bby, int *bbw, int *bbh, int *ascent,
+    int *descent)
+{
+    ALLEGRO_TTF_GLYPH_DATA *glyph;
+    ALLEGRO_TTF_FONT_DATA *data = f->data;
+    FT_Face face = data->face;
+    char prev = '\0';
+    char const *p = text;
+    int i;
+    int x = 0;
+    if (count == -1) {
+       count = ustrlen(text);
+    }
+    for (i = 0; i < count; i++) {
+        int ch = ugetxc(&p);
+        x += render_glyph(f, prev, ch, x, 0, true);
+        prev = ch;
+    }
+    *bbx = 0; // FIXME
+    *bby = 0; // FIXME
+    *bbw = x;
+    *bbh = f->height; // FIXME, we want the bounding box!
+    *ascent = face->size->metrics.ascender >> 6;
+    *descent = (-face->size->metrics.descender) >> 6;
+}
+
 static void destroy(ALLEGRO_FONT *f)
 {
     int i;
@@ -230,7 +290,28 @@ ALLEGRO_FONT *al_ttf_load_font(char const *filename, int size, int flags)
     if (FT_New_Face(ft, filename, 0, &face) != 0) {
 	return NULL;
     }
-    FT_Set_Pixel_Sizes(face, 0, size);
+    if (size > 0) {
+       FT_Set_Pixel_Sizes(face, 0, size);
+    }
+    else {
+       /* Set the "real dimension" of the font to be the passed size,
+        * in pixels.
+        */
+       FT_Size_RequestRec req;
+       req.type = FT_SIZE_REQUEST_TYPE_REAL_DIM;
+       req.width = 0;
+       req.height = (-size) << 6;
+       req.horiResolution = 0;
+       req.vertResolution = 0;
+       FT_Request_Size(face, &req);
+    }
+    
+    TRACE("al-ttf: Font %s loaded with pixel size %d.\n", filename,
+        size);
+    TRACE("al-ttf:     ascent=%.1f, descent=%.1f, height=%.1f\n",
+        face->size->metrics.ascender / 64.0,
+        face->size->metrics.descender / 64.0,
+        face->size->metrics.height / 64.0);
 
     unicode = FT_Get_First_Char(face, &g);
     while (g) {
@@ -249,18 +330,7 @@ ALLEGRO_FONT *al_ttf_load_font(char const *filename, int size, int flags)
     TRACE("al-ttf: %s: Preparing cache for %d glyphs.\n", filename, m);
 
     f = _AL_MALLOC(sizeof *f);
-    // FIXME: We need a way to more precisely position text. A glyph
-    // is not just rectangle, but is rendered on a baseline, with
-    // parts of it extending below it. So instead of just f->height,
-    // maybe we should have something like
-    // f->height - height of bitmaps glyphs are rendered into
-    // f->line_spacing - vertical distance between two consecutive lines
-    // f->descender - where is the descender line
-    //
-    //FT_Load_Char(face, (unsigned int)0x4D, FT_LOAD_DEFAULT);
-    //FT_Render_Glyph(face->glyph, FT_RENDER_MODE_NORMAL);
-    //f->height = face->glyph->bitmap_top;
-    f->height = size;
+    f->height = face->size->metrics.height >> 6;
     
     f->vtable = &vt;
     f->data = data;
