@@ -222,7 +222,6 @@ void al_ttf_get_text_dimensions(ALLEGRO_FONT const *f, char const *text,
     int count, int *bbx, int *bby, int *bbw, int *bbh, int *ascent,
     int *descent)
 {
-    ALLEGRO_TTF_GLYPH_DATA *glyph;
     ALLEGRO_TTF_FONT_DATA *data = f->data;
     FT_Face face = data->face;
     char prev = '\0';
