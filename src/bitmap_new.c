@@ -107,11 +107,17 @@ static void _al_destroy_memory_bitmap(ALLEGRO_BITMAP *bmp)
 /* Function: al_create_bitmap
  *
  * Creates a new bitmap using the bitmap format and flags for the current
- * thread. Blitting between bitmaps of differing formats, or blitting between
- * memory bitmaps and display bitmaps may be slow.
+ * thread. Blitting between bitmaps of differing formats, or blitting
+ * between memory bitmaps and display bitmaps may be slow.
  *
- * Unless you set the ALLEGRO_MEMORY_BITMAP flag, the bitmap is created for the
- * current display. Blitting to another display may be slow.
+ * Unless you set the ALLEGRO_MEMORY_BITMAP flag, the bitmap is created
+ * for the current display. Blitting to another display may be slow.
+ * 
+ * If a display bitmap is created, there may be limitations on the
+ * allowed dimensions. For example a DirectX or OpenGL backend usually
+ * has a maximum allowed texture size - so if bitmap creation fails
+ * for very large dimensions, you may want to re-try with a smaller
+ * bitmap.
  *
  * See Also: <al_set_new_bitmap_format>, <al_set_new_bitmap_flags>
  */
