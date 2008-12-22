@@ -191,9 +191,9 @@ static int text_length(ALLEGRO_FONT const *f, char const *text, int count)
 
 /* Function: al_ttf_get_text_dimensions
  * 
- * Sometimes, the [text_length] and [text_height] functions are not
- * enough for exact text placement, so this function returns some
- * additional information.
+ * Sometimes, the <al_font_text_width> and <al_font_text_height>
+ * functions are not enough for exact text placement, so this function
+ * returns some additional information.
  * 
  * Returned variables (all in pixel):
  * x, y - Offset to upper left corner of bounding box.
