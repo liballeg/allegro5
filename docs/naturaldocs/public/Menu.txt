@@ -48,7 +48,10 @@ Format: 1.4
 
 Group: Addons  {
 
-   File: jpg.c  (addons/iio/jpg.c)
+   Group: Image formats  {
+
+      File: JPG  (no auto-title, addons/iio/jpg.c)
+      }  # Group: Image formats
 
    Group: Kcm_audio  {
 
@@ -59,6 +62,12 @@ Group: Addons  {
       File: Stream functions  (addons/kcm_audio/kcm_stream.c)
       File: Voice functions  (addons/kcm_audio/kcm_voice.c)
       }  # Group: Kcm_audio
+
+   Group: Font/Text  {
+
+      File: Text output  (no auto-title, addons/font/text.c)
+      File: Freetype/TTF  (no auto-title, addons/ttf/ttf.c)
+      }  # Group: Font/Text
 
    }  # Group: Addons
 
@@ -94,6 +103,7 @@ Group: Src  {
    File: Keyboard routines  (src/keybdnu.c)
    File: Memory management routines  (src/memory.c)
    File: Mouse routines  (src/mousenu.c)
+   File: OpenGL integration  (no auto-title, src/opengl/ogl_bitmap.c)
    File: OpenGL extensions  (src/opengl/extensions.c)
    File: Pixel manipulation  (src/pixels.c)
    File: System routines  (src/system_new.c)
