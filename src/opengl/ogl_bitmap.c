@@ -658,4 +658,23 @@ ALLEGRO_BITMAP *_al_ogl_create_sub_bitmap(ALLEGRO_DISPLAY *d,
    return (void*)ogl_bmp;
 }
 
+/* Function: al_get_opengl_texture
+ * 
+ * Returns the OpenGL texture id internally used by the given bitmap if
+ * it uses one, else 0.
+ * 
+ * Example:
+ * 
+ * > bitmap = al_load_bitmap("my_texture.png")
+ * > texture = al_get_opengl_texture(bitmap)
+ * > if (texture != 0)
+ * >     glBind(GL_TEXTURE_2D, texture)
+ */
+GLuint al_get_opengl_texture(ALLEGRO_BITMAP *bitmap)
+{
+   // FIXME: Check if this is an OpenGL bitmap, if not, return 0
+   ALLEGRO_BITMAP_OGL *ogl_bitmap = (void *)bitmap;
+   return ogl_bitmap->texture;
+}
+
 /* vim: set sts=3 sw=3 et: */
