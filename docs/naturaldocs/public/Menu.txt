@@ -48,10 +48,14 @@ Format: 1.4
 
 Group: Addons  {
 
-   Group: Image formats  {
-
-      File: JPG  (no auto-title, addons/iio/jpg.c)
-      }  # Group: Image formats
+   Group: Image I/O {
+      File: Generic routines  (addons/iio/iio.c)
+      File: BMP loading/saving  (addons/iio/bmp.c)
+      File: JPEG loading/saving  (addons/iio/jpg.c)
+      File: PCX loading/saving  (addons/iio/pcx.c)
+      File: PNG loading/saving  (addons/iio/png.c)
+      File: TGA loading/saving  (addons/iio/tga.c)
+   }
 
    Group: Kcm_audio  {
 
