@@ -24,6 +24,10 @@ static bool inited = false;
 static unsigned int num_handlers = 0;
 
 
+
+/* Function: al_iio_init
+ * Initializes the IIO addon.
+ */
 bool al_iio_init(void)
 {
    int success;
@@ -41,6 +45,7 @@ bool al_iio_init(void)
 #endif
 #ifdef ALLEGRO_CFG_IIO_HAVE_JPG
    success |= al_iio_add_handler("jpg", iio_load_jpg, iio_save_jpg);
+   success |= al_iio_add_handler("jpeg", iio_load_jpg, iio_save_jpg);
 #endif
 
    if (success)
@@ -150,6 +155,10 @@ static Handler *find_handler(AL_CONST char *filename)
 }
 
 
+/* Function: al_iio_load
+ * Loads an image file into an ALLEGRO_BITMAP. File type
+ * is determined by the extension.
+ */
 ALLEGRO_BITMAP *al_iio_load(AL_CONST char *filename)
 {
    Handler *h = find_handler(filename);
@@ -159,6 +168,10 @@ ALLEGRO_BITMAP *al_iio_load(AL_CONST char *filename)
       return NULL;
 }
 
+/* Function: al_iio_save
+ * Saves an ALLEGRO_BITMAP to an image file. File type
+ * is determined by the extension.
+ */
 int al_iio_save(AL_CONST char *filename, ALLEGRO_BITMAP *bitmap)
 {
    Handler *h = find_handler(filename);

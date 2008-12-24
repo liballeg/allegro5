@@ -235,6 +235,11 @@ static int iio_save_pcx_pf(ALLEGRO_FS_ENTRY *f, ALLEGRO_BITMAP *bmp)
 }
 
 
+/* Function: iio_load_bmp
+ * Create a new ALLEGRO_BITMAP from a PCX file. The bitmap is created with
+ * <al_create_bitmap>.
+ * See Also: <al_iio_load>.
+ */
 ALLEGRO_BITMAP *iio_load_pcx(AL_CONST char *filename)
 {
    ALLEGRO_FS_ENTRY *f;
@@ -253,6 +258,10 @@ ALLEGRO_BITMAP *iio_load_pcx(AL_CONST char *filename)
 }
 
 
+/* Function: iio_save_bmp
+ * Save an ALLEGRO_BITMAP as a PCX file. 
+ * See Also: <al_iio_save>.
+ */
 int iio_save_pcx(AL_CONST char *filename, ALLEGRO_BITMAP *bmp)
 {
    ALLEGRO_FS_ENTRY *f;

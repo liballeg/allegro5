@@ -317,8 +317,10 @@ static ALLEGRO_BITMAP *load_png_pf(ALLEGRO_FS_ENTRY *fp)
 
 
 
-/* load_png:
- *  Load a PNG file from disk, doing colour coversion if required.
+/* Function: iio_load_png
+ * Create a new ALLEGRO_BITMAP from a PNG file. The bitmap is created with
+ * <al_create_bitmap>.
+ * See Also: <al_iio_load>.
  */
 ALLEGRO_BITMAP *iio_load_png(AL_CONST char *filename)
 {
@@ -490,6 +492,10 @@ static int really_save_png(ALLEGRO_FS_ENTRY *fp, ALLEGRO_BITMAP *bmp)
 }
 
 
+/* Function: iio_save_png
+ * Save an ALLEGRO_BITMAP as a PNG file. 
+ * See Also: <al_iio_save>.
+ */
 int iio_save_png(AL_CONST char *filename, ALLEGRO_BITMAP *bmp)
 {
    ALLEGRO_FS_ENTRY *fp;

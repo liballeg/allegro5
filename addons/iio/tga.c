@@ -536,10 +536,10 @@ static int iio_save_tga_pf(ALLEGRO_FS_ENTRY *f, ALLEGRO_BITMAP *bmp)
 }
 
 
-/* load_tga:
- *  Loads a TGA file, returning a bitmap structure and storing the
- *  palette data in the specified palette (this should be an array
- *  of at least 256 RGB structures).
+/* Function: iio_load_tga
+ * Create a new ALLEGRO_BITMAP from a TGA file. The bitmap is created with
+ * <al_create_bitmap>.
+ * See Also: <al_iio_load>.
  */
 ALLEGRO_BITMAP *iio_load_tga(AL_CONST char *filename)
 {
@@ -560,9 +560,9 @@ ALLEGRO_BITMAP *iio_load_tga(AL_CONST char *filename)
 
 
 
-/* save_tga:
- *  Writes a bitmap into a TGA file, using the specified palette (this
- *  should be an array of at least 256 RGB structures).
+/* Function: iio_save_tga
+ * Save an ALLEGRO_BITMAP as a TGA file. 
+ * See Also: <al_iio_save>.
  */
 int iio_save_tga(AL_CONST char *filename, ALLEGRO_BITMAP *bmp)
 {

@@ -812,12 +812,10 @@ static int iio_save_bmp_pf(ALLEGRO_FS_ENTRY *f, ALLEGRO_BITMAP *bmp)
 
 
 
-/* load_bmp:
- *  Loads a Windows BMP file, returning a bitmap structure and storing
- *  the palette data in the specified palette (this should be an array of
- *  at least 256 RGB structures).
- *
- *  Thanks to Seymour Shlien for contributing this function.
+/* Function: iio_load_bmp
+ * Create a new ALLEGRO_BITMAP from a BMP file. The bitmap is created with
+ * <al_create_bitmap>.
+ * See Also: <al_iio_load>.
  */
 ALLEGRO_BITMAP *iio_load_bmp(AL_CONST char *filename)
 {
@@ -837,9 +835,9 @@ ALLEGRO_BITMAP *iio_load_bmp(AL_CONST char *filename)
 }
 
 
-/* save_bmp:
- *  Writes a bitmap into a BMP file, using the specified palette (this
- *  should be an array of at least 256 RGB structures).
+/* Function: iio_save_bmp
+ * Save an ALLEGRO_BITMAP as a BMP file. 
+ * See Also: <al_iio_save>.
  */
 int iio_save_bmp(AL_CONST char *filename, ALLEGRO_BITMAP *bmp)
 {
