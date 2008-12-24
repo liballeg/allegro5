@@ -81,6 +81,14 @@
          #define AL_INLINE(type, name, args, code)    \
             static inline type name args;             \
             static inline type name args code
+      /* Needed if this header is included by C99 user code, as
+       * "extern __inline__" is defined differently in C99 (it exports
+       * a new global function symbol).
+       */
+      #elif __GNUC_STDC_INLINE__
+         #define AL_INLINE(type, name, args, code)    \
+            extern __inline__ __attribute__((__gnu_inline__)) type name args;         \
+            extern __inline__ __attribute__((__gnu_inline__)) type name args code
       #else
          #define AL_INLINE(type, name, args, code)    \
             extern __inline__ type name args;         \
