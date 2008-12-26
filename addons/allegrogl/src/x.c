@@ -1357,13 +1357,16 @@ old_choose_visual:
 		}
 	}
 
-	/* Wait for the first exposure event.  */
-	{
-		XEvent event;
-		do {
-			XNextEvent(_xwin.display, &event);
-		} while ((event.type != Expose) || (event.xexpose.count != 0));
-	}
+	/* Wait for the first exposure event. See comment in Allegro's
+     * xwin.c about why no blocking X11 function is used.
+     */
+    while (1) {
+       XEvent e;
+       if (XCheckTypedEvent(_xwin.display, Expose, &e)) {
+          if (e.xexpose.count == 0) break;
+       }
+       rest(1);
+   }
 
 	return 0;
 }

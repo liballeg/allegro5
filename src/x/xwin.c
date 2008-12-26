@@ -380,15 +380,26 @@ static void _xwin_hide_x_mouse(void)
 
 
 /* _xwin_wait_mapped:
- *  Wait for a window to become mapped. (shamelessly borrowed from SDL)
+ *  Wait for a window to become mapped.
  */
 static void _xwin_wait_mapped(Window win)
 {
    XEvent event;
 
-   do {
-      XMaskEvent(_xwin.display, StructureNotifyMask, &event); 
-   } while ((event.type != MapNotify) || (event.xmap.event != win));
+   /* Note:
+    * The busy loop below is just a hack to work around my broken X11.
+    * A call to XMaskEvent will block indefinitely and no Allegro
+    * programs (which create a window) will start up at all. Replacing
+    * XMaskEvent with a busy loop calling XCheckMaskEvent repeatedly
+    * somehow works though..
+    */
+   while (1) {
+       XEvent e;
+       if (XCheckTypedEvent(_xwin.display, MapNotify, &e)) {
+          if (e.xmap.event == win) break;
+       }
+       rest(1);
+   }
 }
 
 
