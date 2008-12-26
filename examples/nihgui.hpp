@@ -118,6 +118,7 @@ private:
 
 public:
    Label(std::string text="", bool centred=true);
+   void set_text(std::string text);
    virtual void   draw();
 };
 
@@ -163,6 +164,7 @@ public:
    virtual void   draw();
 
    int            get_cur_value() const;
+   void           set_cur_value(int v);
 };
 
 class TextEntry : public Widget {

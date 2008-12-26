@@ -108,6 +108,7 @@ option(WANT_IIO "Enable IIO image load/save addon" on)
 option(WANT_JPG "Enable JPEG support in IIO" on)
 option(WANT_PNG "Enable PNG support in IIO" on)
 option(WANT_TTF "Enable TTF addon" on)
+option(WANT_COLOR "Enable color addon" on)
 
 option(WANT_ALSA "Enable ALSA digital audio driver (Unix)" on)
 option(WANT_OSS "Enable OSS digital audio driver (Unix)" on)

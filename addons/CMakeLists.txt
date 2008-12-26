@@ -45,6 +45,11 @@ if(WANT_TTF)
     endif(FREETYPE_FOUND)
 endif(WANT_TTF)
 
+if(WANT_COLOR)
+    add_subdirectory(color)
+    set(SUPPORT_COLOR 1 PARENT_SCOPE)
+endif(WANT_COLOR)
+
 #-----------------------------------------------------------------------------#
 # vi: set ts=8 sts=4 sw=4 et:
 

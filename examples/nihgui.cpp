@@ -339,6 +339,11 @@ void Label::draw()
    }
 }
 
+void Label::set_text(std::string new_text)
+{
+   this->text = new_text;
+}
+
 /*---------------------------------------------------------------------------*/
 
 Button::Button(std::string text):
@@ -493,6 +498,11 @@ void VSlider::draw()
 int VSlider::get_cur_value() const
 {
    return this->cur_value;
+}
+
+void VSlider::set_cur_value(int v)
+{
+   this->cur_value = v;
 }
 
 /*---------------------------------------------------------------------------*/

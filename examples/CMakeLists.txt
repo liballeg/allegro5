@@ -58,6 +58,13 @@ if(SUPPORT_ICODEC)
     example(ex_icodec ${ICODEC_LINK_WITH})
 endif(SUPPORT_ICODEC)
 
+if(SUPPORT_COLOR)
+if(SUPPORT_TTF)
+    include_directories(../addons/color)
+    example(ex_color ex_color.cpp nihgui.cpp ${COLOR_LINK_WITH} ${TTF_LINK_WITH} ${FONT_LINK_WITH} ${IIO_LINK_WITH})
+endif(SUPPORT_TTF)
+endif(SUPPORT_COLOR)
+
 example(ex_config)
 example(ex_drawpixels)
 example(ex_get_path)

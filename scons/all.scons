@@ -56,7 +56,7 @@ def examples(env):
     examples = []
     exEnv = env.Clone()
     exEnv.Append(CPPPATH = ['addons/font', 'addons/iio', "addons/ttf",
-        "addons/kcm_audio", "addons/acodec"])
+        "addons/kcm_audio", "addons/acodec", "addons/color"])
     # exEnv.BuildDir('#examples', 'examples', duplicate = 0)
     # FIXME: those should be per-example..
     if not context.isStatic():
@@ -69,12 +69,14 @@ def examples(env):
     exEnv.Append(LIBS = [context.libraryName('a5_ttf')])
     exEnv.Append(LIBS = [context.libraryName('a5_kcm_audio')])
     exEnv.Append(LIBS = [context.libraryName('a5_acodec')])
+    exEnv.Append(LIBS = [context.libraryName('a5_color')])
     exEnv.Append(LIBS = [getLibraryName()])
     exEnv.Append(LIBPATH = ['addons/font/lib'])
     exEnv.Append(LIBPATH = ['addons/acodec/lib'])
     exEnv.Append(LIBPATH = ['addons/ttf/lib'])
     exEnv.Append(LIBPATH = ['addons/iio/lib'])
     exEnv.Append(LIBPATH = ['addons/kcm_audio/lib'])
+    exEnv.Append(LIBPATH = ['addons/color/lib'])
     exEnv.Append(LIBPATH = ['.'])
     exEnv.Append(LIBS = ["GLU"])
     exEnv.BuildDir('examples', '#examples', duplicate = 0)
@@ -82,8 +84,11 @@ def examples(env):
     ## name - filename of example and also the alias of the target
     ## files - list of files associated with the example
     def example(name, files = None, libs = []):
-        myEnv = exEnv.Clone()
-        myEnv.Append(LIBS = libs)
+        if libs:
+            myEnv = exEnv.Clone()
+            myEnv.Append(LIBS = libs)
+        else:
+            myEnv = exEnv
         if files is None:
             files = [name + ".c"]
         example = myEnv.Program('examples/' + name, appendDir('examples/', files))
@@ -99,6 +104,7 @@ def examples(env):
     example("ex_bitmap_target")
     example("ex_blend")
     example("ex_blend2", files = ["ex_blend2.cpp", "nihgui.cpp"])
+    example("ex_color", files = ["ex_color.cpp", "nihgui.cpp"])
     example("ex_config")
     example("ex_disable_screensaver")
     example("ex_drawpixels")
@@ -158,6 +164,7 @@ def installLibrary(library):
 buildAddon("iio")
 buildAddon('font')
 buildAddon("ttf")
+buildAddon("color")
 if buildAddon("kcm_audio"):
     buildAddon('acodec')
 #if buildAddon('audio'):
