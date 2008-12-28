@@ -126,6 +126,7 @@ def examples(env):
     example("ex_mouse")
     example("ex_mouse_cursor")
     example("ex_mouse_events")
+    example("ex_mouse_focus")
     example("ex_multiwin")
     example("ex_noframe")
     example("ex_opengl")
