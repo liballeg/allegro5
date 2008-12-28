@@ -458,8 +458,14 @@ static void generate_mouse_event(unsigned int type,
  *  Handle a focus switch event.
  */
 void _al_xwin_mouse_switch_handler(ALLEGRO_DISPLAY *display,
-   const XFocusChangeEvent *event)
+   const XCrossingEvent *event)
 {
+   /* Ignore events where any of the buttons are held down. */
+   if (event->state & (Button1Mask | Button2Mask | Button3Mask |
+         Button4Mask | Button5Mask)) {
+      return;
+   }
+
    _al_event_source_lock(&the_mouse.parent.es);
 
    switch (event->type) {
@@ -482,3 +488,4 @@ void _al_xwin_mouse_switch_handler(ALLEGRO_DISPLAY *display,
  * indent-tabs-mode: nil
  * End:
  */
+/* vim: set sts=3 sw=3 et: */

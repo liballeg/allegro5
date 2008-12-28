@@ -120,7 +120,7 @@ void _al_xwin_mouse_button_press_handler(int button, ALLEGRO_DISPLAY *display);
 void _al_xwin_mouse_button_release_handler(int button, ALLEGRO_DISPLAY *d);
 void _al_xwin_mouse_motion_notify_handler(int x, int y, ALLEGRO_DISPLAY *d);
 void _al_xwin_mouse_switch_handler(ALLEGRO_DISPLAY *display,
-   const XFocusChangeEvent *event);
+   const XCrossingEvent *event);
 
 /* cursor */
 void _al_xglx_add_cursor_functions(ALLEGRO_DISPLAY_INTERFACE *vt);
