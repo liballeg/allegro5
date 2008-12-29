@@ -461,7 +461,6 @@ static int alsa_allocate_voice(ALLEGRO_VOICE *voice)
    ALSA_CHECK(snd_pcm_sw_params_current(ex_data->pcm_handle, swparams));
    ALSA_CHECK(snd_pcm_sw_params_set_start_threshold(ex_data->pcm_handle, swparams, ex_data->frag_len));
    ALSA_CHECK(snd_pcm_sw_params_set_avail_min(ex_data->pcm_handle, swparams, ex_data->frag_len));
-   ALSA_CHECK(snd_pcm_sw_params_set_xfer_align(ex_data->pcm_handle, swparams, 1));
    ALSA_CHECK(snd_pcm_sw_params(ex_data->pcm_handle, swparams));
 
    ex_data->ufds_count = snd_pcm_poll_descriptors_count(ex_data->pcm_handle);
