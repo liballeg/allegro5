@@ -547,6 +547,7 @@ void *_al_kcm_feed_stream(ALLEGRO_THREAD *self, void *vstream)
    stream->quit_feed_thread = false;
 
    while (!stream->quit_feed_thread) {
+      void *fragment_void;
       char *fragment;
       ALLEGRO_EVENT event;
 
@@ -558,10 +559,11 @@ void *_al_kcm_feed_stream(ALLEGRO_THREAD *self, void *vstream)
          unsigned long bytes_written;
 
          if (al_get_stream_ptr(stream, ALLEGRO_AUDIOPROP_BUFFER,
-            (void**)&fragment) != 0) {
+            &fragment_void) != 0) {
             TRACE(PREFIX_E "Error getting stream buffer.\n");
             continue;
          }
+         fragment = fragment_void;
 
          bytes = (stream->spl.spl_data.len >> MIXER_FRAC_SHIFT) *
                al_get_channel_count(stream->spl.spl_data.chan_conf) *

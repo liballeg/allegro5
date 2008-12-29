@@ -13,6 +13,7 @@
 void saw(ALLEGRO_STREAM *stream)
 {
    ALLEGRO_EVENT_QUEUE *queue;
+   void *buf_void;
    int8_t *buf;
    int pitch = 0x10000;
    int val = 0;
@@ -30,7 +31,8 @@ void saw(ALLEGRO_STREAM *stream)
       al_wait_for_event(queue, &event);
 
       if (event.type == ALLEGRO_EVENT_STREAM_EMPTY_FRAGMENT) {
-         al_get_stream_ptr(stream, ALLEGRO_AUDIOPROP_BUFFER, (void**)&buf);
+         al_get_stream_ptr(stream, ALLEGRO_AUDIOPROP_BUFFER, &buf_void);
+         buf = buf_void;
 
          for (i = 0; i < SAMPLES_PER_BUFFER; i++) {
             buf[i] = ((val >> 16) & 0xff) >> 4;    /* not so loud please */
