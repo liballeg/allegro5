@@ -189,6 +189,7 @@ void al_release_joystick(ALLEGRO_JOYSTICK *joy)
 const char *al_get_joystick_name(ALLEGRO_JOYSTICK *joy)
 {
    ASSERT(joy);
+   (void)joy;
 
    return "Joystick"; /* TODO */
 }

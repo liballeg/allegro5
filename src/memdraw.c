@@ -48,6 +48,7 @@ static void name(ALLEGRO_BITMAP *dst, void *dst_addr, int dx, int dy,        \
    int color)                                                                \
 {                                                                            \
    ASSERT(dst);                                                              \
+   (void)dst; \
    (void)dx;                                                                 \
    (void)dy;                                                                 \
                                                                              \
@@ -73,6 +74,7 @@ static void name(ALLEGRO_BITMAP *dst, unsigned char *dst_addr,               \
    int w;                                                                    \
                                                                              \
    ASSERT(dst);                                                              \
+   (void)dst; \
    (void)dy;                                                                 \
                                                                              \
    w = dx2 - dx1;                                                            \

@@ -34,6 +34,13 @@ do {                                                                         \
    int dxi, dyi;         /* dest increments */                               \
    int pixel;                                                                \
                                                                              \
+   (void)sx;                                                                 \
+   (void)sy;                                                                 \
+   (void)sformat;                                                            \
+   (void)dx;                                                                 \
+   (void)dy;                                                                 \
+   (void)dformat;                                                            \
+                                                                             \
    /* Adjust for flipping */                                                 \
                                                                              \
    if (flags & ALLEGRO_FLIP_HORIZONTAL) {                                    \
@@ -57,9 +64,9 @@ do {                                                                         \
    for (y = 0; y < sh; y++) {                                                \
       cdx = 0;                                                               \
       for (x = 0; x < sw; x++) {                                             \
-         pixel = get(((char*)src)+y*spitch+x*ssize);                         \
+         pixel = get(((char *)src) + y * spitch + x * ssize);                \
          pixel = convert(pixel);                                             \
-         set(((char*)dst)+cdy*dpitch+cdx*dsize, pixel);                      \
+         set(((char *)dst) + cdy * dpitch + cdx * dsize, pixel);             \
          cdx += dxi;                                                         \
       }                                                                      \
       cdy += dyi;                                                            \
@@ -90,6 +97,7 @@ static void func1 (void *src,                                                \
    int dx, int dy, int dpitch, int dsize, int dformat,                       \
    int flags)                                                                \
 {                                                                            \
+   (void)dsize;                                                              \
    DO_DRAW_REGION_FAST(src,                                                  \
       sx, sy, sw, sh, spitch, ssize, sformat, get,                           \
       dst, dx, dy, dpitch, 4, dformat, bmp_write32,                          \
@@ -102,6 +110,7 @@ static void func2 (void *src,                                                \
    int dx, int dy, int dpitch, int dsize, int dformat,                       \
    int flags)                                                                \
 {                                                                            \
+   (void)dsize;                                                              \
    DO_DRAW_REGION_FAST(src,                                                  \
       sx, sy, sw, sh, spitch, ssize, sformat, get,                           \
       dst, dx, dy, dpitch, 4, dformat, bmp_write32,                          \
@@ -114,6 +123,7 @@ static void func3 (void *src,                                                \
    int dx, int dy, int dpitch, int dsize, int dformat,                       \
    int flags)                                                                \
 {                                                                            \
+   (void)dsize;                                                              \
    DO_DRAW_REGION_FAST(src,                                                  \
       sx, sy, sw, sh, spitch, ssize, sformat, get,                           \
       dst, dx, dy, dpitch, 2, dformat, bmp_write16,                          \
@@ -126,6 +136,7 @@ static void func4 (void *src,                                                \
    int dx, int dy, int dpitch, int dsize, int dformat,                       \
    int flags)                                                                \
 {                                                                            \
+   (void)dsize;                                                              \
    DO_DRAW_REGION_FAST(src,                                                  \
       sx, sy, sw, sh, spitch, ssize, sformat, get,                           \
       dst, dx, dy, dpitch, 3, dformat, WRITE3BYTES,                          \
@@ -138,6 +149,7 @@ static void func5 (void *src,                                                \
    int dx, int dy, int dpitch, int dsize, int dformat,                       \
    int flags)                                                                \
 {                                                                            \
+   (void)dsize;                                                              \
    DO_DRAW_REGION_FAST(src,                                                  \
       sx, sy, sw, sh, spitch, ssize, sformat, get,                           \
       dst, dx, dy, dpitch, 2, dformat, bmp_write16,                          \
@@ -150,6 +162,7 @@ static void func6 (void *src,                                                \
    int dx, int dy, int dpitch, int dsize, int dformat,                       \
    int flags)                                                                \
 {                                                                            \
+   (void)dsize;                                                              \
    DO_DRAW_REGION_FAST(src,                                                  \
       sx, sy, sw, sh, spitch, ssize, sformat, get,                           \
       dst, dx, dy, dpitch, 2, dformat, bmp_write16,                          \
@@ -162,6 +175,7 @@ static void func7 (void *src,                                                \
    int dx, int dy, int dpitch, int dsize, int dformat,                       \
    int flags)                                                                \
 {                                                                            \
+   (void)dsize;                                                              \
    DO_DRAW_REGION_FAST(src,                                                  \
       sx, sy, sw, sh, spitch, ssize, sformat, get,                           \
       dst, dx, dy, dpitch, 2, dformat, bmp_write16,                          \
@@ -174,22 +188,24 @@ static void func8 (void *src,                                                \
    int dx, int dy, int dpitch, int dsize, int dformat,                       \
    int flags)                                                                \
 {                                                                            \
+   (void)dsize;                                                              \
    DO_DRAW_REGION_FAST(src,                                                  \
       sx, sy, sw, sh, spitch, ssize, sformat, get,                           \
       dst, dx, dy, dpitch, 2, dformat, bmp_write16,                          \
       macro8, flags);                                                        \
 }                                                                            \
                                                                              \
-static void func9 (void *src,                                               \
+static void func9 (void *src,                                                \
    int sx, int sy, int sw, int sh, int spitch, int ssize, int sformat,       \
    void *dst,                                                                \
    int dx, int dy, int dpitch, int dsize, int dformat,                       \
    int flags)                                                                \
 {                                                                            \
+   (void)dsize;                                                              \
    DO_DRAW_REGION_FAST(src,                                                  \
       sx, sy, sw, sh, spitch, ssize, sformat, get,                           \
       dst, dx, dy, dpitch, 4, dformat, bmp_write32,                          \
-      macro9, flags);                                                       \
+      macro9, flags);                                                        \
 }                                                                            \
                                                                              \
 static void func10 (void *src,                                               \
@@ -198,6 +214,7 @@ static void func10 (void *src,                                               \
    int dx, int dy, int dpitch, int dsize, int dformat,                       \
    int flags)                                                                \
 {                                                                            \
+   (void)dsize;                                                              \
    DO_DRAW_REGION_FAST(src,                                                  \
       sx, sy, sw, sh, spitch, ssize, sformat, get,                           \
       dst, dx, dy, dpitch, 4, dformat, bmp_write32,                          \
@@ -210,10 +227,11 @@ static void func11 (void *src,                                               \
    int dx, int dy, int dpitch, int dsize, int dformat,                       \
    int flags)                                                                \
 {                                                                            \
+   (void)dsize;                                                              \
    DO_DRAW_REGION_FAST(src,                                                  \
       sx, sy, sw, sh, spitch, ssize, sformat, get,                           \
       dst, dx, dy, dpitch, 3, dformat, WRITE3BYTES,                          \
-      macro11, flags);                                                        \
+      macro11, flags);                                                       \
 }                                                                            \
                                                                              \
 static void func12 (void *src,                                               \
@@ -222,6 +240,7 @@ static void func12 (void *src,                                               \
    int dx, int dy, int dpitch, int dsize, int dformat,                       \
    int flags)                                                                \
 {                                                                            \
+   (void)dsize;                                                              \
    DO_DRAW_REGION_FAST(src,                                                  \
       sx, sy, sw, sh, spitch, ssize, sformat, get,                           \
       dst, dx, dy, dpitch, 2, dformat, bmp_write16,                          \
@@ -234,6 +253,7 @@ static void func13 (void *src,                                               \
    int dx, int dy, int dpitch, int dsize, int dformat,                       \
    int flags)                                                                \
 {                                                                            \
+   (void)dsize;                                                              \
    DO_DRAW_REGION_FAST(src,                                                  \
       sx, sy, sw, sh, spitch, ssize, sformat, get,                           \
       dst, dx, dy, dpitch, 2, dformat, bmp_write16,                          \
@@ -246,6 +266,7 @@ static void func14 (void *src,                                               \
    int dx, int dy, int dpitch, int dsize, int dformat,                       \
    int flags)                                                                \
 {                                                                            \
+   (void)dsize;                                                              \
    DO_DRAW_REGION_FAST(src,                                                  \
       sx, sy, sw, sh, spitch, ssize, sformat, get,                           \
       dst, dx, dy, dpitch, 4, dformat, bmp_write32,                          \
@@ -258,6 +279,7 @@ static void func15 (void *src,                                               \
    int dx, int dy, int dpitch, int dsize, int dformat,                       \
    int flags)                                                                \
 {                                                                            \
+   (void)dsize;                                                              \
    DO_DRAW_REGION_FAST(src,                                                  \
       sx, sy, sw, sh, spitch, ssize, sformat, get,                           \
       dst, dx, dy, dpitch, 4, dformat, bmp_write32,                          \
