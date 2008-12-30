@@ -58,9 +58,9 @@ typedef struct thread_local_state {
 } thread_local_state;
 
 
-#if defined ALLEGRO_MINGW32 && (__GNUC__ < 4 || __GNUC_MINOR__ < 2 \
-   || __GNUC_PATCHLEVEL__ < 1)
-
+#if defined ALLEGRO_MINGW32 && ( \
+   __GNUC__ < 4 || (__GNUC__ == 4 && __GNUC_MINOR__ < 2) || \
+   (__GNUC__ == 4 && __GNUC_MINOR == 2 && __GNUC_PATCHLEVEL__ < 1))
 
 /*
  * MinGW doesn't have builtin thread local storage, so we
