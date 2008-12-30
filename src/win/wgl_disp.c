@@ -903,6 +903,21 @@ static bool create_display_internals(ALLEGRO_DISPLAY_WGL *wgl_disp) {
 
    /* WGL display lists cannot be shared with the API currently in use. */
    disp->ogl_extras->is_shared = false;
+   
+   if (!select_pixel_format(wgl_disp, wgl_disp->dc)) {
+      destroy_display_internals(wgl_disp);
+      return false;
+   }
+
+   /* create an OpenGL context */
+   wgl_disp->glrc = wglCreateContext(wgl_disp->dc);
+   if (!wgl_disp->glrc) {
+      log_win32_error("wgl_disp_display_thread_proc",
+                      "Unable to create a render context!",
+                      GetLastError());
+      destroy_display_internals(wgl_disp);
+      return false;
+   }
 
    /* make the context the current one */
    if (!wglMakeCurrent(wgl_disp->dc, wgl_disp->glrc)) {
@@ -1151,24 +1166,6 @@ static void display_thread_proc(void *arg)
 
    /* get the device context of our window */
    wgl_disp->dc = GetDC(win_disp->window);
-
-   if (!select_pixel_format(wgl_disp, wgl_disp->dc)) {
-      win_disp->thread_ended = true;
-      destroy_display_internals(wgl_disp);
-      SetEvent(ndp->AckEvent);
-      return;
-   }
-
-   /* create an OpenGL context */
-   wgl_disp->glrc = wglCreateContext(wgl_disp->dc);
-   if (!wgl_disp->glrc) {
-      log_win32_error("wgl_disp_display_thread_proc", "Unable to create a render context!",
-                      GetLastError());
-      win_disp->thread_ended = true;
-      destroy_display_internals(wgl_disp);
-      SetEvent(ndp->AckEvent);
-      return;
-   }
 
    win_disp->thread_ended = false;
    win_disp->end_thread = false;
