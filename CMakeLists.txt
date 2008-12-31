@@ -75,7 +75,7 @@ option(GRADE_DEBUG "Build the debug library" off)
 option(GRADE_PROFILE "Build the profiling library" off)
 
 option(SHARED "Build shared libraries" on)
-option(STATIC "Build static libraries" on)
+option(STATIC "Build static libraries" off)
 
 option(WANT_MAGIC_MAIN "Enable magic main" off)
 
