@@ -912,7 +912,7 @@ static bool create_display_internals(ALLEGRO_DISPLAY_WGL *wgl_disp) {
    /* create an OpenGL context */
    wgl_disp->glrc = wglCreateContext(wgl_disp->dc);
    if (!wgl_disp->glrc) {
-      log_win32_error("wgl_disp_display_thread_proc",
+      log_win32_error("create_display_internals",
                       "Unable to create a render context!",
                       GetLastError());
       destroy_display_internals(wgl_disp);
@@ -1120,49 +1120,47 @@ static void display_thread_proc(void *arg)
 
    /* Yep, the following is really needed sometimes. */
    /* <rohannessian> Win98/2k/XP's window forground rules don't let us
-	 * make our window the topmost window on launch. This causes issues on 
-	 * full-screen apps, as DInput loses input focus on them.
-	 * We use this trick to force the window to be topmost, when switching
-	 * to full-screen only. Note that this only works for Win98 and greater.
-	 * Win95 will ignore our SystemParametersInfo() calls.
-	 * 
-	 * See http://support.microsoft.com:80/support/kb/articles/Q97/9/25.asp
-	 * for details.
-	 */
-	{
-		DWORD lock_time;
+    * make our window the topmost window on launch. This causes issues on 
+    * full-screen apps, as DInput loses input focus on them.
+    * We use this trick to force the window to be topmost, when switching
+    * to full-screen only. Note that this only works for Win98 and greater.
+    * Win95 will ignore our SystemParametersInfo() calls.
+    * 
+    * See http://support.microsoft.com:80/support/kb/articles/Q97/9/25.asp
+    * for details.
+    */
+   {
+      WORD lock_time;
       HWND wnd = win_disp->window;
 
 #define SPI_GETFOREGROUNDLOCKTIMEOUT 0x2000
 #define SPI_SETFOREGROUNDLOCKTIMEOUT 0x2001
       if (disp->flags & ALLEGRO_FULLSCREEN) {
-			SystemParametersInfo(SPI_GETFOREGROUNDLOCKTIMEOUT,
-			                     0, (LPVOID)&lock_time, 0);
-			SystemParametersInfo(SPI_SETFOREGROUNDLOCKTIMEOUT,
-			                     0, (LPVOID)0,
-			                     SPIF_SENDWININICHANGE | SPIF_UPDATEINIFILE);
-		}
+         SystemParametersInfo(SPI_GETFOREGROUNDLOCKTIMEOUT,
+               0, (LPVOID)&lock_time, 0);
+         SystemParametersInfo(SPI_SETFOREGROUNDLOCKTIMEOUT,
+               0, (LPVOID)0, SPIF_SENDWININICHANGE | SPIF_UPDATEINIFILE);
+      }
 
-		ShowWindow(wnd, SW_SHOWNORMAL);
-		SetForegroundWindow(wnd);
-		/* In some rare cases, it doesn't seem to work without the loop. And we
-		 * absolutely need this to succeed, else we trap the user in a
-		 * fullscreen window without input.
-		 */
-		while (GetForegroundWindow() != wnd) {
-			al_rest(0.01);
-			SetForegroundWindow(wnd);
-		}
-		UpdateWindow(wnd);
+      ShowWindow(wnd, SW_SHOWNORMAL);
+      SetForegroundWindow(wnd);
+      /* In some rare cases, it doesn't seem to work without the loop. And we
+       * absolutely need this to succeed, else we trap the user in a
+       * fullscreen window without input.
+       */
+      while (GetForegroundWindow() != wnd) {
+         al_rest(0.01);
+         SetForegroundWindow(wnd);
+      }
+      UpdateWindow(wnd);
 
-		if (disp->flags & ALLEGRO_FULLSCREEN) {
-			SystemParametersInfo(SPI_SETFOREGROUNDLOCKTIMEOUT,
-			                     0, (LPVOID)lock_time,
-			                     SPIF_SENDWININICHANGE | SPIF_UPDATEINIFILE);
-		}
+      if (disp->flags & ALLEGRO_FULLSCREEN) {
+         SystemParametersInfo(SPI_SETFOREGROUNDLOCKTIMEOUT,
+              0, (LPVOID)lock_time, SPIF_SENDWININICHANGE | SPIF_UPDATEINIFILE);
+      }
 #undef SPI_GETFOREGROUNDLOCKTIMEOUT
 #undef SPI_SETFOREGROUNDLOCKTIMEOUT
-	}
+   }
 
    /* get the device context of our window */
    wgl_disp->dc = GetDC(win_disp->window);
