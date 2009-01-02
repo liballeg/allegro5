@@ -47,6 +47,12 @@ include(Common)
 #
 #-----------------------------------------------------------------------------#
 
+if(NOT CMAKE_BUILD_TYPE)
+  set(CMAKE_BUILD_TYPE RelWithDebInfo CACHE STRING
+      "Choose the type of build, options are: None Debug Release RelWithDebInfo MinSizeRel Profile."
+      FORCE)
+endif()
+
 option(SHARED "Build shared libraries" on)
 set(BUILD_SHARED_LIBS ${SHARED})    # actual CMake variable
 
