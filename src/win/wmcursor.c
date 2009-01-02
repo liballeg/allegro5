@@ -197,6 +197,7 @@ bool _al_win_show_mouse_cursor(ALLEGRO_DISPLAY *display)
 {
    ALLEGRO_DISPLAY_WIN *win_display = (ALLEGRO_DISPLAY_WIN *) display;
    ALLEGRO_MOUSE_CURSOR_WIN tmp_cursor;
+   ALLEGRO_MOUSE_CURSOR_WIN *tmp_cursor_ptr = &tmp_cursor;
 
    /* XXX do we need this? */
    if (!win_display->mouse_selected_hcursor) {
@@ -205,7 +206,7 @@ bool _al_win_show_mouse_cursor(ALLEGRO_DISPLAY *display)
 
    tmp_cursor.hcursor = win_display->mouse_selected_hcursor;
    win_display->mouse_cursor_shown = true;
-   _al_win_set_mouse_cursor(display, (ALLEGRO_MOUSE_CURSOR*)&tmp_cursor);
+   _al_win_set_mouse_cursor(display, (ALLEGRO_MOUSE_CURSOR *)tmp_cursor_ptr);
 
    return true;
 }
@@ -256,8 +257,9 @@ bool _al_win_set_system_mouse_cursor(ALLEGRO_DISPLAY *display,
       PostMessage(wgl_display->window, WM_MOUSEMOVE, 0, 0);
       */
       ALLEGRO_MOUSE_CURSOR_WIN tmp_cursor;
+      ALLEGRO_MOUSE_CURSOR_WIN *tmp_cursor_ptr = &tmp_cursor;
       tmp_cursor.hcursor = wc;
-      _al_win_set_mouse_cursor(display, (ALLEGRO_MOUSE_CURSOR*)&tmp_cursor);
+      _al_win_set_mouse_cursor(display, (ALLEGRO_MOUSE_CURSOR *)tmp_cursor_ptr);
    }
    return true;
 }

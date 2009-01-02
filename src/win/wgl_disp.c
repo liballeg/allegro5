@@ -843,8 +843,8 @@ static bool select_pixel_format(ALLEGRO_DISPLAY_WGL *d, HDC dc) {
       pf_index = pf_index_fallback;
 
    if (SetPixelFormat(d->dc, pf_index, NULL)) {
-      OGL_PIXEL_FORMAT *pf = pf_list[pf_index - 1];
 #ifdef DEBUGMODE
+      OGL_PIXEL_FORMAT *pf = pf_list[pf_index - 1];
       TRACE(PREFIX_I "select_pixel_format(): Chose visual no. %i\n\n", pf_index);
       display_pixel_format(pf);
 #endif
@@ -1156,7 +1156,7 @@ static void display_thread_proc(void *arg)
 
       if (disp->flags & ALLEGRO_FULLSCREEN) {
          SystemParametersInfo(SPI_SETFOREGROUNDLOCKTIMEOUT,
-              0, (LPVOID)lock_time, SPIF_SENDWININICHANGE | SPIF_UPDATEINIFILE);
+              0, (LPVOID)(DWORD)lock_time, SPIF_SENDWININICHANGE | SPIF_UPDATEINIFILE);
       }
 #undef SPI_GETFOREGROUNDLOCKTIMEOUT
 #undef SPI_SETFOREGROUNDLOCKTIMEOUT

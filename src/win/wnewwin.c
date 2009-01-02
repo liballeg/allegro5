@@ -294,7 +294,7 @@ static LRESULT CALLBACK window_callback(HWND hWnd, UINT message,
     WPARAM wParam, LPARAM lParam)
 {
    ALLEGRO_DISPLAY *d = NULL;
-   ALLEGRO_DISPLAY_WIN *win_display;
+   ALLEGRO_DISPLAY_WIN *win_display = NULL;
    WINDOWINFO wi;
    int w;
    int h;
@@ -324,6 +324,8 @@ static LRESULT CALLBACK window_callback(HWND hWnd, UINT message,
          break;
       }
    }
+
+   ASSERT(win_display);
 
    if (i == system->displays._size)
       return DefWindowProc(hWnd,message,wParam,lParam); 
