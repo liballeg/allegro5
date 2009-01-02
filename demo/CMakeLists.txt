@@ -34,29 +34,33 @@ set(DEMO_SRCS
     src/wave.cpp
     )
 
+set_source_files_properties(${DEMO_SRCS} PROPERTIES LANGUAGE "CXX")
+
 file(GLOB_RECURSE DEMO_GFX data/gfx/*.tga)
 file(GLOB_RECURSE DEMO_SFX data/sfx/*.ogg)
 set(DEMO_ICON data/gfx/Icon.icns)
 
-if(USE_CXX AND SUPPORT_FONT AND SUPPORT_KCM_AUDIO AND SUPPORT_ACODEC)
-    set_source_files_properties(${DEMO_SRCS} PROPERTIES LANGUAGE "CXX")
-    include_directories(
-        include
-        ../addons/font
-        ../addons/kcm_audio
-        ../addons/acodec
-        )
+include_directories(
+    include
+    ../addons/iio
+    ../addons/font
+    ../addons/kcm_audio
+    ../addons/acodec
+    )
 
-    if(MACOSX)
-	set(DEMO_EXECUTABLE_TYPE MACOSX_BUNDLE)
-    else(MACOSX)
-	set(DEMO_EXECUTABLE_TYPE "${EXECUTABLE_TYPE}")
-    endif(MACOSX)
+if(MACOSX)
+    set(DEMO_EXECUTABLE_TYPE MACOSX_BUNDLE)
+else(MACOSX)
+    set(DEMO_EXECUTABLE_TYPE "${EXECUTABLE_TYPE}")
+endif(MACOSX)
 
-    add_executable(demo ${DEMO_EXECUTABLE_TYPE} ${DEMO_SRCS}
-	${DEMO_GFX} ${DEMO_SFX} ${DEMO_ICON})
-    set_target_properties(demo PROPERTIES
-        COMPILE_FLAGS "${MAYBE_ALLEGRO_STATICLINK} ${WFLAGS} ${EXE_CFLAGS}"
+if(SUPPORT_FONT AND SUPPORT_KCM_AUDIO AND SUPPORT_ACODEC)
+    add_executable(demo
+        ${DEMO_EXECUTABLE_TYPE}
+        ${DEMO_SRCS}
+	${DEMO_GFX}
+        ${DEMO_SFX}
+        ${DEMO_ICON}
         )
 
     target_link_libraries(demo
@@ -64,7 +68,6 @@ if(USE_CXX AND SUPPORT_FONT AND SUPPORT_KCM_AUDIO AND SUPPORT_ACODEC)
         ${IIO_LINK_WITH}
         ${ACODEC_LINK_WITH}
         ${AUDIO_LINK_WITH}
-        ${LINK_WITH}
         )
 
     # Mac OS X bundle support.
@@ -86,9 +89,9 @@ if(USE_CXX AND SUPPORT_FONT AND SUPPORT_KCM_AUDIO AND SUPPORT_ACODEC)
         MACOSX_PACKAGE_LOCATION "Resources"
 	)
 
-else(USE_CXX AND SUPPORT_FONT AND SUPPORT_KCM_AUDIO AND SUPPORT_ACODEC)
+else(SUPPORT_FONT AND SUPPORT_KCM_AUDIO AND SUPPORT_ACODEC)
     message(STATUS "Not building demo")
-endif(USE_CXX AND SUPPORT_FONT AND SUPPORT_KCM_AUDIO AND SUPPORT_ACODEC)
+endif(SUPPORT_FONT AND SUPPORT_KCM_AUDIO AND SUPPORT_ACODEC)
 
 #-----------------------------------------------------------------------------#
 # vi: set ts=8 sts=4 sw=4 et:

@@ -7,6 +7,7 @@ set(AUDIO_SOURCES
     kcm_stream.c
     kcm_voice.c
     )
+
 set(AUDIO_INCLUDE_FILES allegro5/kcm_audio.h)
 
 if(SUPPORT_OSS)
@@ -32,90 +33,35 @@ if(SUPPORT_DSOUND)
     set(ALLEGRO_CFG_KCM_DSOUND 1)
     list(APPEND AUDIO_SOURCES dsound.cpp)
     list(APPEND AUDIO_LIBRARIES ${DSOUND_LIBRARIES})
-	if(COMPILER_GCC)
-	    list(APPEND AUDIO_LIBRARIES stdc++)
-	endif(COMPILER_GCC)
+    if(COMPILER_GCC)
+        list(APPEND AUDIO_LIBRARIES stdc++)
+    endif(COMPILER_GCC)
     include_directories(${DSOUND_INCLUDE_DIR})
 endif(SUPPORT_DSOUND)
 
+configure_file(
+    allegro5/internal/aintern_kcm_cfg.h.cmake
+    ${CMAKE_BINARY_DIR}/include/allegro5/internal/aintern_kcm_cfg.h
+    )
+
 if(SUPPORT_OSS OR SUPPORT_OPENAL OR SUPPORT_ALSA OR SUPPORT_DSOUND)
+    # Let examples know that audio is supported.
     set(SUPPORT_KCM_AUDIO 1 PARENT_SCOPE)
 
-    configure_file(
-        allegro5/internal/aintern_kcm_cfg.h.cmake
-        include/allegro5/internal/aintern_kcm_cfg.h
+    add_our_library(kcm_audio -${ALLEGRO_VERSION}
+        "${AUDIO_SOURCES}"
+        "-DA5_KCM_AUDIO_SRC"
+        "${ALLEGRO_LINK_WITH};${AUDIO_LIBRARIES}"
         )
 
-    macro(add_audio_build nm extra_flags)
-        macro(really_add_audio_build nm2 target libtype more_extra_flags)
-            add_library(${target} ${libtype} ${AUDIO_SOURCES})
-            set_target_properties(${target}
-                PROPERTIES
-                COMPILE_FLAGS "${more_extra_flags} ${LIBRARY_CFLAGS} -DA5_KCM_AUDIO_SRC"
-                OUTPUT_NAME ${nm2}
-                )
-
-            target_link_libraries(${target} ${AUDIO_LIBRARIES})
-
-            install(TARGETS ${target}
-                    DESTINATION "lib${LIB_SUFFIX}"
-                    LIBRARY PERMISSIONS
-                        OWNER_READ OWNER_WRITE OWNER_EXECUTE
-                        GROUP_READ             GROUP_EXECUTE
-                        WORLD_READ             WORLD_EXECUTE
-                    )
-        endmacro(really_add_audio_build)
-
-        if(SHARED)
-            really_add_audio_build(${nm} ${nm}_shared SHARED "")
-            target_link_libraries(${nm}_shared ${ADDONS_LINK_WITH})
-        endif(SHARED)
-
-        if(STATIC)
-            really_add_audio_build(${nm}-static ${nm}_static STATIC "-DALLEGRO_STATICLINK")
-        endif(STATIC)
-
-    endmacro(add_audio_build)
-
-    if(GRADE_STANDARD)
-        add_audio_build(kcm_audio
-            "-O2 -funroll-loops -ffast-math -fomit-frame-pointer")
-    endif(GRADE_STANDARD)
-
-    if(GRADE_DEBUG)
-        add_audio_build(kcm_audio-debug
-            "-DDEBUGMODE -g")
-    endif(GRADE_DEBUG)
-
-    if(GRADE_PROFILE)
-        add_audio_build(kcm_audio-profile
-            "-pg -O2 -funroll-loops -ffast-math")
-    endif(GRADE_PROFILE)
-
-    if(GRADE_STANDARD)
-        set(AUDIO_LIB_TO_LINK kcm_audio CACHE INTERNAL "internal")
-    elseif(GRADE_DEBUG)
-        set(AUDIO_LIB_TO_LINK kcm_audio-debug CACHE INTERNAL "internal")
-    elseif(GRADE_PROFILE)
-        set(AUDIO_LIB_TO_LINK kcm_audio-profile CACHE INTERNAL "internal")
-    endif(GRADE_STANDARD)
-
-    if(STATIC)
-        set(AUDIO_LINK_WITH ${AUDIO_LIB_TO_LINK}_static CACHE INTERNAL "internal")
-        set(AUDIO_LINK_WITH ${AUDIO_LIB_TO_LINK}_static PARENT_SCOPE)
-    else(STATIC)
-        set(AUDIO_LINK_WITH ${AUDIO_LIB_TO_LINK}_shared CACHE INTERNAL "internal")
-        set(AUDIO_LINK_WITH ${AUDIO_LIB_TO_LINK}_shared PARENT_SCOPE)
-    endif(STATIC)
-
-    # Install header files.
+    set(AUDIO_LINK_WITH kcm_audio PARENT_SCOPE)
 
     install(FILES ${AUDIO_INCLUDE_FILES}
             DESTINATION include/allegro5
             )
 
 else(SUPPORT_OSS OR SUPPORT_OPENAL OR SUPPORT_ALSA OR SUPPORT_DSOUND)
-    message(STATUS "kcm_audio wanted but no supported backend found\n")
+    message("WARNING: kcm_audio wanted but no supported backend found")
 endif(SUPPORT_OSS OR SUPPORT_OPENAL OR SUPPORT_ALSA OR SUPPORT_DSOUND)
 
 #-----------------------------------------------------------------------------#

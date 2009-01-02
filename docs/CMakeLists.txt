@@ -29,7 +29,7 @@ endmacro(add_info)
 
 #-----------------------------------------------------------------------------#
 
-macro(pandoc source output) # extraargs...
+function(pandoc source output) # extraargs...
     set(abs_source ${CMAKE_CURRENT_SOURCE_DIR}/${source})
     set(abs_output ${CMAKE_CURRENT_BINARY_DIR}/${output})
 
@@ -40,12 +40,12 @@ macro(pandoc source output) # extraargs...
                 -o ${abs_output}
         DEPENDS ${abs_source}
         )
-endmacro(pandoc source output)
+endfunction(pandoc source output)
 
 # We can actually produce nicer plain text output by generating Texinfo
 # then calling makeinfo --plaintext.  But the current release (pandoc-0.46)
 # doesn't yet include a Texinfo backend so for now we use links -dump.
-macro(links source output)
+function(links source output)
     # The source file is a generated HTML file.
     set(abs_source ${CMAKE_CURRENT_BINARY_DIR}/${source})
     set(abs_output ${CMAKE_CURRENT_BINARY_DIR}/${output})
@@ -56,7 +56,7 @@ macro(links source output)
         COMMAND ${LINKS} -dump ${abs_source} > ${abs_output}
         DEPENDS ${abs_source}
         )
-endmacro(links source output)
+endfunction(links source output)
 
 if(PANDOC)
     pandoc(
@@ -91,10 +91,14 @@ make_directory(${CMAKE_CURRENT_BINARY_DIR}/txt)
 # Copy CSS files.
 configure_file(
     ${CMAKE_CURRENT_SOURCE_DIR}/src/pandoc.css
-    ${CMAKE_CURRENT_BINARY_DIR}/html/pandoc.css COPYONLY)
+    ${CMAKE_CURRENT_BINARY_DIR}/html/pandoc.css
+    COPYONLY
+    )
 configure_file(
     ${CMAKE_CURRENT_SOURCE_DIR}/src/pandoc.css
-    ${CMAKE_CURRENT_BINARY_DIR}/html/refman/pandoc.css COPYONLY)
+    ${CMAKE_CURRENT_BINARY_DIR}/html/refman/pandoc.css
+    COPYONLY
+    )
 
 #-----------------------------------------------------------------------------#
 # vi: set ts=8 sts=4 sw=4 et:

@@ -13,83 +13,18 @@ if(SUPPORT_MAGICK)
     set(SUPPORT_ICODEC 1 PARENT_SCOPE)
 endif(SUPPORT_MAGICK)
 
-macro(add_icodec_build nm extra_flags)
-    macro(really_add_icodec_build nm2 target libtype more_extra_flags)
-        add_library(${target} ${libtype} ${ICODEC_SOURCES})
-        set_target_properties(${target}
-            PROPERTIES
-            COMPILE_FLAGS "${more_extra_flags} ${LIBRARY_CFLAGS} -DA5_ICODEC_SRC"
-            OUTPUT_NAME ${nm2}
-            )
-
-        target_link_libraries(${target} ${ICODEC_EXTRA_LIBS})
-
-        install(TARGETS ${target}
-                DESTINATION "lib${LIB_SUFFIX}"
-                LIBRARY PERMISSIONS
-                    OWNER_READ OWNER_WRITE OWNER_EXECUTE
-                    GROUP_READ             GROUP_EXECUTE
-                    WORLD_READ             WORLD_EXECUTE
-                )
-    endmacro(really_add_icodec_build)
-
-    if(SHARED)
-        really_add_icodec_build(${nm} ${nm}_shared SHARED "")
-        target_link_libraries(${nm}_shared ${ADDONS_LINK_WITH})
-    endif(SHARED)
-
-    if(STATIC)
-        really_add_icodec_build(${nm}-static ${nm}_static STATIC "-DALLEGRO_STATICLINK")
-    endif(STATIC)
-
-endmacro(add_icodec_build)
-
 if(SUPPORT_ICODEC)
-    if(GRADE_STANDARD)
-        add_icodec_build(a5_icodec
-            "-O2 -funroll-loops -ffast-math -fomit-frame-pointer")
-    endif(GRADE_STANDARD)
+    add_addon_library(a5_icodec -${ALLEGRO_VERSION}
+        "${ICODEC_SOURCES}"
+        "-DA5_ICODEC_SRC"
+        "${ICODEC_EXTRA_LIBS};${ALLEGRO_LINK_WITH}"
+        )
 
-    if(GRADE_DEBUG)
-        add_icodec_build(a5_icodec-debug
-            "-DDEBUGMODE -g")
-    endif(GRADE_DEBUG)
+    set(ICODEC_LINK_WITH a5_icodec PARENT_SCOPE)
 
-    if(GRADE_PROFILE)
-        add_icodec_build(a5_icodec-profile
-            "-pg -O2 -funroll-loops -ffast-math")
-    endif(GRADE_PROFILE)
-endif(SUPPORT_ICODEC)
-
-if(GRADE_STANDARD)
-    set(ICODEC_LIB_TO_LINK a5_icodec CACHE INTERNAL "internal")
-elseif(GRADE_DEBUG)
-    set(ICODEC_LIB_TO_LINK a5_icodec-debug CACHE INTERNAL "internal")
-elseif(GRADE_PROFILE)
-    set(ICODEC_LIB_TO_LINK a5_icodec-profile CACHE INTERNAL "internal")
-endif(GRADE_STANDARD)
-
-if(STATIC)
-    set(ICODEC_LINK_WITH ${ICODEC_LIB_TO_LINK}_static CACHE INTERNAL "internal")
-    set(ICODEC_LINK_WITH ${ICODEC_LIB_TO_LINK}_static PARENT_SCOPE)
-else(STATIC)
-    set(ICODEC_LINK_WITH ${ICODEC_LIB_TO_LINK}_shared CACHE INTERNAL "internal")
-    set(ICODEC_LINK_WITH ${ICODEC_LIB_TO_LINK}_shared PARENT_SCOPE)
-endif(STATIC)
-
-if(SUPPORT_MAGICK)
-    list(APPEND ICODEC_LINK_WITH ${ImageMagick_LIBRARIES})
-endif(SUPPORT_MAGICK)
-
-#-----------------------------------------------------------------------------#
-#
-# Install header files.
-#
-
-if(SUPPORT_ICODEC)
     install(FILES ${ICODEC_INCLUDE_FILES}
-           DESTINATION include/allegro5
-           )
+            DESTINATION include/allegro5
+            )
 endif(SUPPORT_ICODEC)
 
 #-----------------------------------------------------------------------------#

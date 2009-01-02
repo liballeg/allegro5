@@ -72,15 +72,7 @@ First create a directory for the build to take place in.
 	$ mkdir Build
 	$ cd Build
 
-Run `cmake` with whatever options you want.
-Some common options are, with defaults in brackets:
-
-- GRADE_STANDARD -- Build release library (on)
-- GRADE_DEBUG -- Build debug library (off)
-- GRADE_PROFILE -- Build profiling library (off)
-- SHARED -- Build shared libraries (on)
-- STATIC -- Build static libraries (on)
-
+Run `cmake` with whatever options you want.  See below for examples.
 If you're not sure about any option, just leave it at the default.
 
 *Note:* MinGW users: if you have `sh.exe` in your PATH you should call CMake
@@ -88,6 +80,13 @@ with the options `-G "MSYS Makefiles"`.  Otherwise, use `-G "MinGW Makefiles"`.
 If you do have `sh` but it isn't from MSYS (e.g. it's from Unixutils) then
 you might need to modify your PATH so `sh` isn't in it and use "MinGW
 Makefiles" instead.
+
+The option `CMAKE_BUILD_TYPE` selects release, debug or profiling
+configurations.  Valid values are: Release, Debug, RelWithDebInfo, MinSizeRel,
+Profile.
+
+The option `SHARED` controls whether libraries are built as shared libraries
+or static libraries.  Shared libraries are built by default.
 
 *Note:* For MinGW with gcc < 4, you cannot build a static library because
 TLS (thread local storage, using __thread) support was not introduced
@@ -98,6 +97,8 @@ Examples: (you only need one)
 	$ cmake ..
 
 	$ cmake .. -G "MinGW Makefiles" -DSTATIC=off
+
+	$ cmake .. -DCMAKE_BUILD_TYPE=Debug
 
 Alternatively, you can use `ccmake` (Unix) or `cmake-gui` (Windows) to bring up
 an interactive option selector. e.g. `ccmake ..` or `cmake-gui ..`.
@@ -135,7 +136,7 @@ You can use the same options from the CMake section above.
 
 Examples:
 
-	$ cmake -G "Visual Studio 8 2005" -DGRADE_DEBUG=on -DGRADE_STANDARD=off
+	$ cmake -G "Visual Studio 8 2005" -DCMAKE_BUILD_TYPE=Debug
 
 	$ cmake -G "Visual Studio 9 2008"
 

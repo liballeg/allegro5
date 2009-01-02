@@ -2,8 +2,6 @@
 # TODO:
 #
 # - sonames on Unix
-# - most Unix drivers require testing
-#
 # - some documentation targets still missing
 # - installing documentation
 #
@@ -16,32 +14,12 @@
 
 cmake_minimum_required(VERSION 2.6 FATAL_ERROR)
 if(COMMAND cmake_policy)
-  cmake_policy(SET CMP0003 NEW)
+    cmake_policy(SET CMP0003 NEW)
 endif(COMMAND cmake_policy)
 
-option(USE_CXX "Build C++ portions." on)
-
-# Manage (MSVC) build configurations. Ideally, debug projects would only have
-# "Debug" configuration available, and release only "Release" ...
-# More ideally, we would only have one project and multiple configurations for
-# each "GRADE_", but that would require a revamp of this file.
-# Note: This needs to be done before the project command.
-set(CMAKE_CONFIGURATION_TYPES "Release" CACHE INTERNAL "internal")
-if(GRADE_DEBUG)
-    set(CMAKE_CONFIGURATION_TYPES "Debug" CACHE INTERNAL "internal")
-endif(GRADE_DEBUG)
-if(GRADE_STANDARD)
-    set(CMAKE_CONFIGURATION_TYPES "Release" CACHE INTERNAL "internal")
-endif(GRADE_STANDARD)
-if(GRADE_STANDARD AND GRADE_DEBUG)
-    set(CMAKE_CONFIGURATION_TYPES "Debug;Release" CACHE INTERNAL "internal")
-endif(GRADE_STANDARD AND GRADE_DEBUG)
-
-if(USE_CXX)
-    project(ALLEGRO C CXX)
-else(USE_CXX)
-    project(ALLEGRO C)
-endif(USE_CXX)
+# Set the project name.
+# We use C++ in a few cases.
+project(ALLEGRO C CXX)
 
 set(ALLEGRO_VERSION 4.9.8)
 
@@ -50,19 +28,18 @@ list(APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake)
 
 # Search for C header files in these directories.
 include_directories(
-    include
-    # For out-of-source builds.
+    ${CMAKE_SOURCE_DIR}/include
     ${CMAKE_BINARY_DIR}/include
-    addons/iio
     )
 
-# Put libraries into `lib' by default.  This path must be absolute.
-set(ALLEGRO_LIB_PATH "lib" CACHE INTERNAL "internal")
-set(LIBRARY_OUTPUT_PATH ${CMAKE_BINARY_DIR}/${ALLEGRO_LIB_PATH})
-mark_as_advanced(LIBRARY_OUTPUT_PATH)
+# Put libraries into `lib'.
+set(LIBRARY_OUTPUT_PATH ${CMAKE_BINARY_DIR}/lib)
 
 # Lists of all the source files.
 include(FileList)
+
+# Our own CMake macros and functions.
+include(Common)
 
 #-----------------------------------------------------------------------------#
 #
@@ -70,16 +47,8 @@ include(FileList)
 #
 #-----------------------------------------------------------------------------#
 
-option(GRADE_STANDARD "Build the standard library" on)
-option(GRADE_DEBUG "Build the debug library" off)
-option(GRADE_PROFILE "Build the profiling library" off)
-
 option(SHARED "Build shared libraries" on)
-option(STATIC "Build static libraries" off)
-
-option(WANT_MAGIC_MAIN "Enable magic main" off)
-
-set(INSTALL_PREFIX "")
+set(BUILD_SHARED_LIBS ${SHARED})    # actual CMake variable
 
 # On some 64-bit platforms, libraries should be installed into `lib64'
 # instead of `lib'.  Set this to 64 to do that.
@@ -90,7 +59,6 @@ set(LIB_SUFFIX "" CACHE STRING "Suffix for 'lib' directories, e.g. '64'")
 #
 
 option(WANT_X11 "X11 support" on)
-
 option(WANT_D3D "Enable Direct3D graphics driver (Windows)" on)
 option(WANT_D3D9EX "Enable Direct3D 9Ex extensions (Vista)" off)
 option(WANT_OPENGL "Enable OpenGL graphics driver (Windows, X11))" on)
@@ -115,34 +83,36 @@ option(WANT_OSS "Enable OSS digital audio driver (Unix)" on)
 option(WANT_OPENAL "Enable OpenAL digital audio driver" on)
 option(WANT_DSOUND "Enable Dsound digital audio driver (Windows)" on)
 
-
 #
 # For developers.
 #
 
 option(STRICT_WARN "Halt at warnings" off)
+
+#
+# Minor options.
+#
+
+option(WANT_MAGIC_MAIN "Enable magic main" off)
 option(NO_FPU "No floating point unit" off)
 
 #-----------------------------------------------------------------------------#
 #
-#   Platform configuration
+#   Set up compilers
 #
 #-----------------------------------------------------------------------------#
 
 include(CheckCSourceCompiles)
-include(CheckFunctionExists)
-include(CheckIncludeFiles)
-include(CheckLibraryExists)
-include(CheckSymbolExists)
-include(CheckTypeSize)
-include(FindPkgConfig)
 
-if(NO_FPU)
-    set(ALLEGRO_CFG_NO_FPU 1)
-endif(NO_FPU)
+set(INSTALL_PREFIX "")
 
-if(MSVC_IDE)
+if(CMAKE_COMPILER_IS_GNUCC)
+    set(COMPILER_GCC 1)
+endif(CMAKE_COMPILER_IS_GNUCC)
+
+if(MSVC)
     set(COMPILER_MSVC 1)
+    set(ALLEGRO_MSVC 1)
 
     # Guess VCINSTALLDIR from the value of CMAKE_C_COMPILER if it's not set.
     if("$ENV{VCINSTALLDIR}" STREQUAL "")
@@ -159,11 +129,7 @@ if(MSVC_IDE)
     else(INSTALL_PREFIX STREQUAL "")
         set(CMAKE_INSTALL_PREFIX ${INSTALL_PREFIX})
     endif(INSTALL_PREFIX STREQUAL "")
-endif(MSVC_IDE)
-
-if(CMAKE_COMPILER_IS_GNUCC)
-    set(COMPILER_GCC 1)
-endif(CMAKE_COMPILER_IS_GNUCC)
+endif(MSVC)
 
 if(MINGW)
     # For alplatf.h
@@ -204,13 +170,9 @@ if(MINGW)
     endif(NOT HAVE_DM_POSITION)
 endif(MINGW)
 
-if(UNIX)
+if(UNIX AND NOT APPLE)
     set(ALLEGRO_UNIX 1)
-endif(UNIX)
-
-if(COMPILER_MSVC)
-    set(ALLEGRO_MSVC 1)
-endif(COMPILER_MSVC)
+endif(UNIX AND NOT APPLE)
 
 if(APPLE)
     set(MACOSX 1)
@@ -228,7 +190,67 @@ if(BORLAND)
     set(ALLEGRO_BCC32 1)
 endif(BORLAND)
 
-# Begin tests.
+#-----------------------------------------------------------------------------#
+#
+#   Build types
+#
+#-----------------------------------------------------------------------------#
+
+# Warnings.
+
+if(STRICT_WARN)
+    if(COMPILER_GCC)
+        set(WFLAGS "-W -Wall -Wstrict-prototypes -Werror")
+    endif(COMPILER_GCC)
+    if(COMPILER_MSVC)
+        set(WFLAGS "/W4 -D_CRT_SECURE_NO_DEPRECATE -D_CRT_NONSTDC_NO_DEPRECATE")
+    endif(COMPILER_MSVC)
+else(STRICT_WARN)
+    if(COMPILER_GCC)
+        set(WFLAGS "-W -Wall")
+    endif(COMPILER_GCC)
+    if(COMPILER_MSVC)
+        set(WFLAGS "/W3 -D_CRT_SECURE_NO_DEPRECATE -D_CRT_NONSTDC_NO_DEPRECATE")
+    endif(COMPILER_MSVC)
+endif(STRICT_WARN)
+
+set(CMAKE_C_FLAGS ${CMAKE_C_FLAGS} ${WFLAGS})
+set(CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS} ${WFLAGS})
+
+# Debugging.
+
+set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -DDEBUGMODE=1")
+set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -DDEBUGMODE=1")
+
+# Profiling.
+
+list(APPEND CMAKE_BUILD_TYPES Profile)
+if(COMPILER_GCC)
+    set(CMAKE_C_FLAGS_PROFILE "-pg"
+        CACHE STRING "profiling flags")
+    set(CMAKE_CXX_FLAGS_PROFILE "${CMAKE_C_FLAGS_PROFILE}"
+        CACHE STRING "profiling flags")
+    set(CMAKE_EXE_LINKER_FLAGS_PROFILE "-pg"
+        CACHE STRING "profiling flags")
+    mark_as_advanced(
+        CMAKE_C_FLAGS_PROFILE
+        CMAKE_CXX_FLAGS_PROFILE
+        CMAKE_EXE_LINKER_FLAGS_PROFILE
+        )
+endif(COMPILER_GCC)
+
+#-----------------------------------------------------------------------------#
+#
+#   Begin tests
+#
+#-----------------------------------------------------------------------------#
+
+include(CheckFunctionExists)
+include(CheckIncludeFiles)
+include(CheckLibraryExists)
+include(CheckSymbolExists)
+include(CheckTypeSize)
+include(FindPkgConfig)
 
 include(TestBigEndian)
 test_big_endian(ALLEGRO_BIG_ENDIAN)
@@ -290,15 +312,6 @@ include(CheckCtors)
 check_ctors(ALLEGRO_USE_CONSTRUCTOR)
 
 #-----------------------------------------------------------------------------#
-
-# We no longer support hand-written assembly routines.
-set(ALLEGRO_NO_ASM 1)
-
-if(WANT_MAGIC_MAIN)
-    set(ALLEGRO_WITH_MAGIC_MAIN 1)
-endif(WANT_MAGIC_MAIN)
-
-#-----------------------------------------------------------------------------#
 #
 #   Driver configuration
 #
@@ -340,16 +353,11 @@ if(WANT_OPENAL)
     endif(OPENAL_FOUND)
 endif(WANT_OPENAL)
 
-
-# Accumulate extra libraries needed due to drivers.
-set(DRIVER_LIBS_STATIC)
-set(DRIVER_LIBS_SHARED)
-
 #
 # Unix-specific
 #
 
-if(UNIX)
+if(UNIX) # includes MACOSX
 
     find_package(Threads)
     if(CMAKE_USE_PTHREADS_INIT)
@@ -358,10 +366,6 @@ if(UNIX)
         message(FATAL_ERROR
             "Unix port requires pthreads support, not detected.")
     endif(CMAKE_USE_PTHREADS_INIT)
-
-    #
-    # Sound drivers
-    #
 
     if(WANT_ALSA)
         pkg_check_modules(ALSA alsa)
@@ -421,16 +425,16 @@ if(SUPPORT_X11)
         set(ALLEGRO_XWINDOWS_WITH_XF86VIDMODE 1)
         list(APPEND X11_LIBRARIES "Xxf86vm")
     else(CAN_XF86VIDMODE)
-        message(STATUS
+        message(
             "WARNING: missing Xxf86vm (XF86VidMode) library. "
             "Fullscreen support will be disabled.")
     endif(CAN_XF86VIDMODE)
 
-   check_library_exists(Xinerama XineramaQueryExtension "" CAN_XINERAMA)
-   if(CAN_XINERAMA)
-      set(ALLEGRO_XWINDOWS_WITH_XINERAMA 1)
-      list(APPEND X11_LIBRARIES "Xinerama")
-   endif(CAN_XINERAMA)
+    check_library_exists(Xinerama XineramaQueryExtension "" CAN_XINERAMA)
+    if(CAN_XINERAMA)
+        set(ALLEGRO_XWINDOWS_WITH_XINERAMA 1)
+        list(APPEND X11_LIBRARIES "Xinerama")
+    endif(CAN_XINERAMA)
 
     check_library_exists(X11 XOpenIM "" CAN_XIM)
     if(CAN_XIM)
@@ -478,40 +482,45 @@ if(WIN32)
     endif(WANT_DSOUND)
 endif(WIN32)
 
+#-----------------------------------------------------------------------------#
 #
-# Produce configuration files.
-# All relevant variables must be set before here.
+#   Produce configuration file
 #
+#-----------------------------------------------------------------------------#
 
+# We no longer support hand-written assembly routines.
+set(ALLEGRO_NO_ASM 1)
+
+if(WANT_MAGIC_MAIN)
+    set(ALLEGRO_WITH_MAGIC_MAIN 1)
+endif(WANT_MAGIC_MAIN)
+
+if(NO_FPU)
+    set(ALLEGRO_CFG_NO_FPU 1)
+endif(NO_FPU)
+
+# All relevant variables must be set before here.
 configure_file(
     include/allegro5/platform/alplatf.h.cmake
-    include/allegro5/platform/alplatf.h
+    ${CMAKE_BINARY_DIR}/include/allegro5/platform/alplatf.h
     )
 
 #-----------------------------------------------------------------------------#
 #
-#   Library
+#   Main library
 #
 #-----------------------------------------------------------------------------#
 
 # On Windows, disable shared build if either D3D or OpenGL are not present,
 # because it would produce a incompatible DLL.
-if(WIN32)
-    if(SHARED)
-        if(NOT SUPPORT_D3D OR NOT SUPPORT_OPENGL)
-            message(STATUS
-                "Both D3D and OpenGL must be present for the SHARED build.
-                Disabling SHARED build.")
-            set(SHARED off)
-        endif(NOT SUPPORT_D3D OR NOT SUPPORT_OPENGL)
-    endif(SHARED)
-endif(WIN32)
-
-# Sanity check.
-if(NOT STATIC AND NOT SHARED)
-    message(FATAL_ERROR
-        "You must enable at least one of the STATIC or SHARED options.")
-endif(NOT STATIC AND NOT SHARED)
+if(WIN32 AND SHARED)
+    if(NOT SUPPORT_D3D OR NOT SUPPORT_OPENGL)
+        message(
+            "Both D3D and OpenGL must be present for the SHARED build.
+            Disabling SHARED build.")
+        set(SHARED off)
+    endif(NOT SUPPORT_D3D OR NOT SUPPORT_OPENGL)
+endif(WIN32 AND SHARED)
 
 # List of source files need to compile Allegro in this configuration on
 # this platform.
@@ -520,18 +529,20 @@ set(LIBRARY_SOURCES
     ${ALLEGRO_SRC_C_FILES}
     )
 
+# For intellisense.
 if(COMPILER_MSVC)
-    list(APPEND LIBRARY_SOURCES ${ALLEGRO_INCLUDE_ALLEGRO_FILES})
-    list(APPEND LIBRARY_SOURCES ${ALLEGRO_INCLUDE_ALLEGRO_INLINE_FILES})
-    list(APPEND LIBRARY_SOURCES ${ALLEGRO_INCLUDE_ALLEGRO_INTERNAL_FILES})
-    list(APPEND LIBRARY_SOURCES ${ALLEGRO_INCLUDE_ALLEGRO_OPENGL_FILES})
-    list(APPEND LIBRARY_SOURCES ${ALLEGRO_INCLUDE_ALLEGRO_OPENGL_GLEXT_FILES})
-    list(APPEND LIBRARY_SOURCES ${ALLEGRO_INCLUDE_ALLEGRO_PLATFORM_FILES})
-    list(APPEND LIBRARY_SOURCES ${ALLEGRO_INCLUDE_ALLEGRO_PLATFORM_FILES_GENERATED})
+    list(APPEND LIBRARY_SOURCES
+        ${ALLEGRO_INCLUDE_ALLEGRO_FILES}
+        ${ALLEGRO_INCLUDE_ALLEGRO_INLINE_FILES}
+        ${ALLEGRO_INCLUDE_ALLEGRO_INTERNAL_FILES}
+        ${ALLEGRO_INCLUDE_ALLEGRO_OPENGL_FILES}
+        ${ALLEGRO_INCLUDE_ALLEGRO_OPENGL_GLEXT_FILES}
+        ${ALLEGRO_INCLUDE_ALLEGRO_PLATFORM_FILES}
+        ${ALLEGRO_INCLUDE_ALLEGRO_PLATFORM_FILES_GENERATED}
+        )
 endif(COMPILER_MSVC)
 
-# Libraries that we always need to link against on this platform
-# e.g. -lm on Unix.
+# Libraries that we always need to link against on this platform.
 set(PLATFORM_LIBS)
 
 if(ALLEGRO_UNIX) # not MACOSX
@@ -564,7 +575,6 @@ endif(WIN32)
 
 if(MACOSX)
     list(APPEND LIBRARY_SOURCES ${ALLEGRO_SRC_MACOSX_FILES})
-    # XXX someone who knows something about Macs should check this.
     find_library(APPKIT_LIBRARY AppKit)
     find_library(IOKIT_LIBRARY IOKit)
     list(APPEND PLATFORM_LIBS ${APPKIT_LIBRARY})
@@ -579,106 +589,17 @@ if(SUPPORT_OPENGL)
     list(APPEND PLATFORM_LIBS ${OPENGL_gl_LIBRARY} ${OPENGL_glu_LIBRARY})
 endif(SUPPORT_OPENGL)
 
-#-----------------------------------------------------------------------------#
+# XXX remove ALLEGRO_LIB_BUILD everywhere in favour of ALLEGRO_SRC
+add_our_library(allegro -${ALLEGRO_VERSION}
+    "${LIBRARY_SOURCES}"
+    "${LIBRARY_CFLAGS} -DALLEGRO_LIB_BUILD -DALLEGRO_SRC"
+    "${PLATFORM_LIBS}"
+    )
 
-if(STRICT_WARN)
-    if(COMPILER_GCC)
-        set(WFLAGS "-W -Wall -Wstrict-prototypes -Werror")
-    endif(COMPILER_GCC)
-    if(COMPILER_MSVC)
-        set(WFLAGS "/W4 -D_CRT_SECURE_NO_DEPRECATE -D_CRT_NONSTDC_NO_DEPRECATE")
-    endif(COMPILER_MSVC)
-else(STRICT_WARN)
-    if(COMPILER_GCC)
-        set(WFLAGS "-W -Wall")
-    endif(COMPILER_GCC)
-    if(COMPILER_MSVC)
-        set(WFLAGS "/W3 -D_CRT_SECURE_NO_DEPRECATE -D_CRT_NONSTDC_NO_DEPRECATE")
-    endif(COMPILER_MSVC)
-endif(STRICT_WARN)
+# Addons and examples should link with this target.
+set(ALLEGRO_LINK_WITH allegro)
 
-macro(add_allegro_build nm extra_flags)
-
-    set(LIBRARY_CFLAGS
-        "-DALLEGRO_LIB_BUILD ${WFLAGS} ${extra_flags}"
-        )
-
-    # Suppress errors about _mangled_main_address being undefined
-    # on Mac OS X.
-    if(MACOSX)
-        set(LIBRARY_LINK_FLAGS "-flat_namespace -undefined suppress")
-    endif(MACOSX)
-
-    macro(really_add_allegro_build nam target libtype more_extra_flags)
-        add_library(${target} ${libtype} ${LIBRARY_SOURCES})
-        set_target_properties(${target}
-            PROPERTIES
-            COMPILE_FLAGS "${more_extra_flags} ${LIBRARY_CFLAGS} -DALLEGRO_SRC"
-            LINK_FLAGS "${LIBRARY_LINK_FLAGS}"
-            OUTPUT_NAME ${nam}
-            )
-
-        target_link_libraries(${target} ${PLATFORM_LIBS})
-
-        install(TARGETS ${target}
-                DESTINATION "lib${LIB_SUFFIX}"
-                LIBRARY PERMISSIONS
-                    OWNER_READ OWNER_WRITE OWNER_EXECUTE
-                    GROUP_READ             GROUP_EXECUTE
-                    WORLD_READ             WORLD_EXECUTE
-                )
-    endmacro(really_add_allegro_build)
-
-    if(SHARED)
-        really_add_allegro_build(${nm}-${ALLEGRO_VERSION} ${nm}_shared SHARED "")
-    endif(SHARED)
-
-    if(STATIC)
-        really_add_allegro_build(${nm}-static-${ALLEGRO_VERSION} ${nm}_static STATIC
-            "-DALLEGRO_STATICLINK")
-    endif(STATIC)
-
-endmacro(add_allegro_build)
-
-if(GRADE_STANDARD)
-    if(COMPILER_GCC)
-        add_allegro_build(allegro
-            "-O2 -funroll-loops -ffast-math -fomit-frame-pointer")
-    endif(COMPILER_GCC)
-    if(COMPILER_MSVC)
-        add_allegro_build(allegro "")
-    endif(COMPILER_MSVC)
-    if(BORLAND)
-        add_allegro_build(allegro "-O2")
-    endif(BORLAND)
-endif(GRADE_STANDARD)
-
-if(GRADE_DEBUG)
-    if(COMPILER_GCC)
-        add_allegro_build(allegro-debug
-            "-DDEBUGMODE -g2 -O0")
-    endif(COMPILER_GCC)
-    if(COMPILER_MSVC)
-        add_allegro_build(allegro-debug "-DDEBUGMODE")
-    endif(COMPILER_MSVC)
-    if(BORLAND)
-        add_allegro_build(allegro-debug "-DDEBUGMODE=1 -v")
-    endif(BORLAND)
-endif(GRADE_DEBUG)
-
-if(GRADE_PROFILE)
-    if(COMPILER_GCC)
-        add_allegro_build(allegro-profile
-            "-pg -O2 -funroll-loops -ffast-math")
-    endif(COMPILER_GCC)
-    if(COMPILER_MSVC)
-        add_allegro_build(allegro-profile "")
-    endif(COMPILER_MSVC)
-endif(GRADE_PROFILE)
-
-#
 # Install header files.
-#
 
 install(FILES ${ALLEGRO_INCLUDE_FILES}
         DESTINATION include
@@ -699,10 +620,10 @@ install(FILES ${ALLEGRO_INCLUDE_ALLEGRO_PLATFORM_FILES}
 if(SUPPORT_OPENGL)
         install(FILES ${ALLEGRO_INCLUDE_ALLEGRO_OPENGL_FILES}
                 DESTINATION include/allegro5/opengl
-        )
+                )
         install(FILES ${ALLEGRO_INCLUDE_ALLEGRO_OPENGL_GLEXT_FILES}
                 DESTINATION include/allegro5/opengl/GLext
-        )
+                )
 endif(SUPPORT_OPENGL)
 
 foreach(genfile ${ALLEGRO_INCLUDE_ALLEGRO_PLATFORM_FILES_GENERATED})
@@ -710,90 +631,6 @@ foreach(genfile ${ALLEGRO_INCLUDE_ALLEGRO_PLATFORM_FILES_GENERATED})
             DESTINATION include/allegro5/platform
             )
 endforeach(genfile)
-
-
-#-----------------------------------------------------------------------------#
-#
-#   Programs
-#
-#-----------------------------------------------------------------------------#
-
-if(COMPILER_MSVC)
-    set(EXECUTABLE_TYPE "WIN32")
-endif(COMPILER_MSVC)
-
-# Select libraries to link the programs with.  We choose
-# standard, debug, profile in that order, and prefer statically linked
-# over dynamically linked.  It would be worth making this configurable.
-
-if(GRADE_STANDARD)
-    set(LIB_TO_LINK allegro)
-    if(COMPILER_MSVC)
-        set(EXE_CFLAGS "")
-    elseif(COMPILER_GCC)
-        set(EXE_CFLAGS "-O2 -funroll-loops -ffast-math -fomit-frame-pointer")
-    endif(COMPILER_MSVC)
-elseif(GRADE_DEBUG)
-    set(LIB_TO_LINK allegro-debug)
-    if(COMPILER_MSVC)
-        set(EXE_CFLAGS "-DDEBUGMODE")
-    elseif(COMPILER_GCC)
-        set(EXE_CFLAGS "-DDEBUGMODE -g2 -O0")
-    endif(COMPILER_MSVC)
-elseif(GRADE_PROFILE)
-    set(LIB_TO_LINK allegro-profile)
-    if(COMPILER_MSVC)
-        set(EXE_CFLAGS "")
-    elseif(COMPILER_GCC)
-        set(EXE_CFLAGS "-pg -O2 -funroll-loops -ffast-math")
-    endif(COMPILER_MSVC)
-endif(GRADE_STANDARD)
-
-if(STATIC)
-    set(LINK_WITH ${LIB_TO_LINK}_static)
-    set(MAYBE_ALLEGRO_STATICLINK "-DALLEGRO_STATICLINK")
-else(STATIC)
-    set(LINK_WITH ${LIB_TO_LINK}_shared)
-endif(STATIC)
-
-# shared addons are always linked to a shared allegro lib
-# (static addons are not linked to anything)
-set(ADDONS_LINK_WITH ${LIB_TO_LINK}_shared)
-
-# Arguments after nm should be source files or libraries.  Source files must
-# end with .c or .cpp.  If no source file was explicitly specified, we assume
-# an implied C source file.
-function(add_allegro_executable nm)
-    set(srcs)
-    set(libs)
-    set(regex "[.](c|cpp)$")
-    foreach(arg ${ARGN})
-        if("${arg}" MATCHES "${regex}")
-            list(APPEND srcs ${arg})
-        else("${arg}" MATCHES "${regex}")
-            list(APPEND libs ${arg})
-        endif("${arg}" MATCHES "${regex}")
-    endforeach(arg ${ARGN})
-
-    if(NOT srcs)
-        set(srcs "${nm}.c")
-    endif(NOT srcs)
-
-    add_executable(${nm} ${EXECUTABLE_TYPE} ${srcs})
-    set_target_properties(${nm} PROPERTIES
-        COMPILE_FLAGS "${MAYBE_ALLEGRO_STATICLINK} ${WFLAGS} ${EXE_CFLAGS}"
-        )
-
-    target_link_libraries(${nm} ${libs} ${LINK_WITH})
-    if(STATIC)
-        target_link_libraries(${nm} ${PLATFORM_LIBS})
-    endif(STATIC)
-
-endfunction(add_allegro_executable)
-
-macro(example nm)
-    add_allegro_executable(${nm} ${ARGN})
-endmacro(example nm)
 
 #-----------------------------------------------------------------------------#
 #
@@ -818,6 +655,14 @@ endif(NOT MSVC80)
 # Examples
 #
 #-----------------------------------------------------------------------------#
+
+if(COMPILER_MSVC)
+    set(EXECUTABLE_TYPE "WIN32")
+endif(COMPILER_MSVC)
+
+macro(example nm)
+    add_our_executable(${nm} ${ARGN} ${ALLEGRO_LINK_WITH})
+endmacro(example nm)
 
 add_subdirectory(examples)
 
@@ -872,4 +717,4 @@ endif(UNIX)
 add_subdirectory(docs)
 
 #-----------------------------------------------------------------------------#
-# vi: set ts=8 sts=4 sw=4 et:
+# vim: set sts=4 sw=4 et:

@@ -1,5 +1,5 @@
 macro(test nm)
-    add_allegro_executable(${nm} ${nm}.c)
+    add_our_executable(${nm} ${ALLEGRO_LINK_WITH})
 endmacro(test nm)
 
 test(afinfo)

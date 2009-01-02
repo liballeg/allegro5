@@ -3,7 +3,7 @@
 #
 
 macro(tool nm)
-    add_allegro_executable(${nm} ${nm}.c)
+    add_our_executable(${nm} ${ALLEGRO_LINK_WITH})
     install(TARGETS ${nm}
             DESTINATION bin
             )

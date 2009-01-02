@@ -1,18 +1,25 @@
+include_directories(
+    ../addons/iio
+    ../addons/font
+    ../addons/ttf
+    ../addons/icodec
+    ../addons/kcm_audio
+    ../addons/acodec
+    )
+
 if(SUPPORT_FONT)
-    include_directories(../addons/font)
-    set(LIBS ${FONT_LINK_WITH} ${IIO_LINK_WITH})
-    example(ex_bitmap_target ${LIBS})
-    example(ex_blend ${LIBS})
-    example(ex_blend2 ex_blend2.cpp nihgui.cpp ${LIBS})
-    example(ex_font ${LIBS})
-    example(ex_joystick_events ${LIBS})
-    example(ex_keyboard_events ${LIBS})
-    example(ex_membmp ${LIBS})
-    example(ex_mouse_cursor ${LIBS})
-    example(ex_pixelformat ${LIBS})
-    example(ex_timer ${LIBS})
-    example(ex_windows ${LIBS})
-    example(ex_disable_screensaver ${LIBS})
+    example(ex_bitmap_target ${FONT_LINK_WITH})
+    example(ex_blend ${FONT_LINK_WITH})
+    example(ex_blend2 ex_blend2.cpp nihgui.cpp ${FONT_LINK_WITH})
+    example(ex_font ${FONT_LINK_WITH})
+    example(ex_joystick_events ${FONT_LINK_WITH})
+    example(ex_keyboard_events ${FONT_LINK_WITH})
+    example(ex_membmp ${FONT_LINK_WITH})
+    example(ex_mouse_cursor ${FONT_LINK_WITH})
+    example(ex_pixelformat ${FONT_LINK_WITH})
+    example(ex_timer ${FONT_LINK_WITH})
+    example(ex_windows ${FONT_LINK_WITH})
+    example(ex_disable_screensaver ${FONT_LINK_WITH})
 endif(SUPPORT_FONT)
 
 if(SUPPORT_IIO)
@@ -35,26 +42,22 @@ if(SUPPORT_IIO)
 endif(SUPPORT_IIO)
 
 if(SUPPORT_KCM_AUDIO)
-    include_directories(../addons/kcm_audio)
     example(ex_saw ${AUDIO_LINK_WITH})
 endif(SUPPORT_KCM_AUDIO)
 
-if(SUPPORT_TTF)
-    include_directories(../addons/ttf)
-    example(ex_ttf ${TTF_LINK_WITH} ${FONT_LINK_WITH} ${IIO_LINK_WITH})
-endif(SUPPORT_TTF)
-
 if(SUPPORT_ACODEC)
-    include_directories(../addons/acodec)
-    example(ex_acodec ${ACODEC_LINK_WITH} ${AUDIO_LINK_WITH})
-    example(ex_acodec_multi ${ACODEC_LINK_WITH} ${AUDIO_LINK_WITH})
-    example(ex_audio_simple ${ACODEC_LINK_WITH} ${AUDIO_LINK_WITH})
-    example(ex_mixer_chain ${ACODEC_LINK_WITH} ${AUDIO_LINK_WITH})
-    example(ex_stream_file ${ACODEC_LINK_WITH} ${AUDIO_LINK_WITH})
+    example(ex_acodec ${ACODEC_LINK_WITH})
+    example(ex_acodec_multi ${ACODEC_LINK_WITH})
+    example(ex_audio_simple ${ACODEC_LINK_WITH})
+    example(ex_mixer_chain ${ACODEC_LINK_WITH})
+    example(ex_stream_file ${ACODEC_LINK_WITH})
 endif(SUPPORT_ACODEC)
 
+if(SUPPORT_TTF)
+    example(ex_ttf ${TTF_LINK_WITH})
+endif(SUPPORT_TTF)
+
 if(SUPPORT_ICODEC)
-    include_directories(../addons/icodec)
     example(ex_icodec ${ICODEC_LINK_WITH})
 endif(SUPPORT_ICODEC)
 
