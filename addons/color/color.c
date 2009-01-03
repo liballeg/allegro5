@@ -513,8 +513,9 @@ void al_color_html_to_rgb(char const *string,
    float *red, float *green, float *blue)
 {
    char const *ptr = string;
+   long rgb;
    if (*ptr == '#') ptr++;
-   long rgb = ustrtol(ptr, NULL, 16);
+   rgb = ustrtol(ptr, NULL, 16);
    *red = (rgb >> 16) / 255.0;
    *green = (rgb >> 16) / 255.0;
    *blue = (rgb >> 16) / 255.0;

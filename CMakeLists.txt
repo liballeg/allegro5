@@ -135,6 +135,8 @@ if(MSVC)
     else(INSTALL_PREFIX STREQUAL "")
         set(CMAKE_INSTALL_PREFIX ${INSTALL_PREFIX})
     endif(INSTALL_PREFIX STREQUAL "")
+
+    set(EXECUTABLE_TYPE "WIN32")
 endif(MSVC)
 
 if(MINGW)
@@ -673,10 +675,6 @@ endif(NOT MSVC80)
 # Examples
 #
 #-----------------------------------------------------------------------------#
-
-if(COMPILER_MSVC)
-    set(EXECUTABLE_TYPE "WIN32")
-endif(COMPILER_MSVC)
 
 macro(example nm)
     add_our_executable(${nm} ${ARGN} ${ALLEGRO_LINK_WITH})
