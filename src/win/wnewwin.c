@@ -325,8 +325,6 @@ static LRESULT CALLBACK window_callback(HWND hWnd, UINT message,
       }
    }
 
-   ASSERT(win_display);
-
    if (i == system->displays._size)
       return DefWindowProc(hWnd,message,wParam,lParam); 
 
