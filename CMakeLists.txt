@@ -541,6 +541,7 @@ if(WIN32 AND SHARED)
             "Both D3D and OpenGL must be present for the SHARED build.
             Disabling SHARED build.")
         set(SHARED off)
+        set(BUILD_SHARED_LIBS off)
     endif(NOT SUPPORT_D3D OR NOT SUPPORT_OPENGL)
 endif(WIN32 AND SHARED)
 
