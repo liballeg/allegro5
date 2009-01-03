@@ -1397,7 +1397,7 @@ static ALLEGRO_DISPLAY *d3d_create_display(int w, int h)
    }
    else {
       d3d_display->supports_separate_alpha_blend =
-         ((caps.PrimitiveMiscCaps & D3DPMISCCAPS_SEPARATEALPHABLEND) == true);
+         ((caps.PrimitiveMiscCaps & D3DPMISCCAPS_SEPARATEALPHABLEND) != 0);
    }
 
    return al_display;
