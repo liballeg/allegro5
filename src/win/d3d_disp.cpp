@@ -43,9 +43,6 @@ static LPDIRECT3D9 _al_d3d = 0;
 
 static D3DPRESENT_PARAMETERS d3d_pp;
 
-/* FIXME: This can probably go, it's kept in the system driver too */
-static _AL_VECTOR d3d_created_displays = _AL_VECTOR_INITIALIZER(ALLEGRO_DISPLAY_D3D *);
-
 static float d3d_ortho_w;
 static float d3d_ortho_h;
 
@@ -499,10 +496,12 @@ static bool d3d_create_fullscreen_device(ALLEGRO_DISPLAY_D3D *d,
 
    d->device->BeginScene();
 
+   ALLEGRO_SYSTEM *system = (ALLEGRO_SYSTEM *)al_system_driver();
+
    if (reset_all) {
       int i;
-      for (i = 0; i < (int)d3d_created_displays._size; i++) {
-         ALLEGRO_DISPLAY_D3D **dptr = (ALLEGRO_DISPLAY_D3D **)_al_vector_ref(&d3d_created_displays, i);
+      for (i = 0; i < (int)system->displays._size; i++) {
+         ALLEGRO_DISPLAY_D3D **dptr = (ALLEGRO_DISPLAY_D3D **)_al_vector_ref(&system->displays, i);
          ALLEGRO_DISPLAY_D3D *disp = *dptr;
          if (disp != d) {
             if (disp != d && (disp->win_display.display.flags & ALLEGRO_FULLSCREEN)) {
@@ -592,10 +591,11 @@ static void d3d_destroy_display_internals(ALLEGRO_DISPLAY_D3D *display);
 
 static void d3d_make_faux_fullscreen_stage_one(ALLEGRO_DISPLAY_D3D *d3d_display)
 {
+   ALLEGRO_SYSTEM *system = al_system_driver();
    if (already_fullscreen || num_faux_fullscreen_windows) {
       int i;
-      for (i = 0; i < (int)d3d_created_displays._size; i++) {
-      ALLEGRO_DISPLAY_D3D **dptr = (ALLEGRO_DISPLAY_D3D **)_al_vector_ref(&d3d_created_displays, i);
+      for (i = 0; i < (int)system->displays._size; i++) {
+      ALLEGRO_DISPLAY_D3D **dptr = (ALLEGRO_DISPLAY_D3D **)_al_vector_ref(&system->displays, i);
       ALLEGRO_DISPLAY_D3D *disp = *dptr;
          if (disp != d3d_display) {// && (disp->win_display.display.flags & ALLEGRO_FULLSCREEN)) {
             d3d_destroy_display_internals(disp);
@@ -609,11 +609,13 @@ static void d3d_make_faux_fullscreen_stage_one(ALLEGRO_DISPLAY_D3D *d3d_display)
 
 static void d3d_make_faux_fullscreen_stage_two(ALLEGRO_DISPLAY_D3D *d3d_display)
 {
+   ALLEGRO_SYSTEM *system = al_system_driver();
+
    if (already_fullscreen || num_faux_fullscreen_windows) {
       int i;
       already_fullscreen = false;
-      for (i = 0; i < (int)d3d_created_displays._size; i++) {
-         ALLEGRO_DISPLAY_D3D **dptr = (ALLEGRO_DISPLAY_D3D **)_al_vector_ref(&d3d_created_displays, i);
+      for (i = 0; i < (int)system->displays._size; i++) {
+         ALLEGRO_DISPLAY_D3D **dptr = (ALLEGRO_DISPLAY_D3D **)_al_vector_ref(&system->displays, i);
          ALLEGRO_DISPLAY_D3D *disp = *dptr;
          if (disp != d3d_display) {// && (disp->win_display.display.flags & ALLEGRO_FULLSCREEN)) {
             if (disp->win_display.display.flags & ALLEGRO_FULLSCREEN)
@@ -791,10 +793,8 @@ static void d3d_destroy_display(ALLEGRO_DISPLAY *display)
 
    _al_vector_find_and_delete(&system->system.displays, &display);
 
-   _al_vector_find_and_delete(&d3d_created_displays, &display);
-
-   if (d3d_created_displays._size > 0) {
-      ALLEGRO_DISPLAY_D3D **dptr = (ALLEGRO_DISPLAY_D3D **)_al_vector_ref(&d3d_created_displays, 0);
+   if (system->system.displays._size > 0) {
+      ALLEGRO_DISPLAY_D3D **dptr = (ALLEGRO_DISPLAY_D3D **)_al_vector_ref(&system->system.displays, 0);
       ALLEGRO_DISPLAY_D3D *d = *dptr;
       _al_win_grab_input((ALLEGRO_DISPLAY_WIN*)d);
    }
@@ -1346,7 +1346,7 @@ static ALLEGRO_DISPLAY *d3d_create_display(int w, int h)
    if (!is_vista) {
 #endif
       if (al_display->flags & ALLEGRO_FULLSCREEN) {
-         if (already_fullscreen || d3d_created_displays._size != 0) {
+         if (already_fullscreen || system->system.displays._size != 0) {
             d3d_display->faux_fullscreen = true;
          }
          else {
@@ -1378,10 +1378,6 @@ static ALLEGRO_DISPLAY *d3d_create_display(int w, int h)
 
    /* Each display is an event source. */
    _al_event_source_init(&al_display->es);
-
-   /* Keep track of the displays created */
-   add = (ALLEGRO_DISPLAY_D3D **)_al_vector_alloc_back(&d3d_created_displays);
-   *add = d3d_display;
 
    /* Setup the mouse */
    win_display->mouse_range_x1 = 0;
@@ -1751,7 +1747,8 @@ static bool d3d_resize_display(ALLEGRO_DISPLAY *d, int width, int height)
       win_display->end_thread = false;
       win_display->thread_ended = false;
       /* What's this? */
-      if (d3d_created_displays._size <= 1) {
+      ALLEGRO_SYSTEM *system = al_system_driver();
+      if (system->displays._size <= 1) {
          ffw_set = false;
       }
       if (!d3d_create_display_internals(disp)) {
@@ -1768,7 +1765,6 @@ static bool d3d_resize_display(ALLEGRO_DISPLAY *d, int width, int height)
       ret = true;
    }
    else {
-      /* FIXME */
       RECT win_size;
       WINDOWINFO wi;
       ALLEGRO_STATE backup;
