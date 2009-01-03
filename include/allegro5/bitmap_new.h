@@ -31,7 +31,13 @@ typedef struct ALLEGRO_BITMAP ALLEGRO_BITMAP;
  * Pixel formats. Each pixel format specifies the exact size and bit
  * layout of a pixel in memory. Components are specified from high bits
  * to low, so for example a fully opaque red pixel in ARGB_8888 format
- * is 0xFFFF0000.
+ * is 0xFFFF0000. In other words, the ALLEGRO_PIXEL_FORMAT_* names
+ * specify what the format is in big endian, which may confuse some
+ * users (especially OpenGL users) since some systems use little endian
+ * names (e.g., the OpenGL format RGBA normally by default is read as "first
+ * byte red, second byte green, ..." etc. However, a format with that layout
+ * in Allegro terms would be named ALLEGRO_PIXEL_FORMAT_ABGR_8888 (notice
+ * the reversal from RGBA -> ABGR)).
  *
  * ALLEGRO_PIXEL_FORMAT_ANY - Let the driver choose a format. This is the
  * default format at program start.
