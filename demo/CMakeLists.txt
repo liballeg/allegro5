@@ -70,6 +70,10 @@ if(SUPPORT_FONT AND SUPPORT_KCM_AUDIO AND SUPPORT_ACODEC)
         ${AUDIO_LINK_WITH}
         )
 
+    if(NOT BUILD_SHARED_LIBS) 
+        set_target_properties(demo PROPERTIES COMPILE_FLAGS "-DALLEGRO_STATICLINK")
+    endif(NOT BUILD_SHARED_LIBS)
+
     # Mac OS X bundle support.
     set_target_properties(demo PROPERTIES
 	MACOSX_BUNDLE_COPYRIGHT "Copyright 2008 Allegro Developers"

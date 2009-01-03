@@ -72,6 +72,9 @@ function(add_our_executable nm)
 
     add_executable(${nm} ${EXECUTABLE_TYPE} ${srcs})
     target_link_libraries(${nm} ${libs})
+    if(NOT BUILD_SHARED_LIBS)
+        set_target_properties(${nm} PROPERTIES COMPILE_FLAGS "-DALLEGRO_STATICLINK")
+    endif(NOT BUILD_SHARED_LIBS)
 endfunction(add_our_executable)
 
 #-----------------------------------------------------------------------------#
