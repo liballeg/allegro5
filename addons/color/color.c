@@ -438,9 +438,14 @@ void al_color_rgb_to_cmyk(float red, float green, float blue,
    if (green > max) max = green;
    if (blue > max) max = blue;
    *key = 1 - max;
-   *cyan = (max - red) / max;
-   *magenta = (max - green) / max;
-   *yellow = (max - blue) / max;
+   if (max > 0) {
+      *cyan = (max - red) / max;
+      *magenta = (max - green) / max;
+      *yellow = (max - blue) / max;
+   }
+   else {
+      *cyan = *magenta = *yellow = 1;
+   }
 }
 
 /* Function: al_color_cmyk

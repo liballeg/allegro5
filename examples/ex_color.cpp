@@ -1,7 +1,7 @@
 /*
- *    Example program for the Allegro library, by Peter Wang.
+ *    Example program for the Allegro library, by Elias Pschernig.
  *
- *    Compare software blending routines with hardware blending.
+ *    Demonstrates some of the conversion functions in the color addon.
  */
 
 #include <string>
@@ -13,7 +13,7 @@
 
 #define SLIDERS_COUNT 16
 char const *names[] = {"R", "G", "B", "H", "S", "V", "H", "S", "L",
-    "Y", "U", "V", "C", "Y", "M", "K"};
+    "Y", "U", "V", "C", "M", "Y", "K"};
 
 class Prog {
 private:
@@ -34,10 +34,10 @@ Prog::Prog(const Theme & theme, ALLEGRO_DISPLAY *display) :
    for (int i = 0; i < SLIDERS_COUNT; i++) {
       int j = i < 12 ? i / 3 : 4;
       sliders[i] = VSlider(1000, 1000);
-      d.add(sliders[i], i * 32 + j * 16, 0, 15, 256);
+      d.add(sliders[i], 8 + i * 32 + j * 16, 8, 15, 256);
       labels[i].set_text(names[i]);
-      d.add(labels[i], i * 32 + j * 16, 256, 32, 20);
-      d.add(labels2[i], i * 32 + j * 16, 276, 32, 20);
+      d.add(labels[i], i * 32 + j * 16, 8 + 256, 32, 20);
+      d.add(labels2[i], i * 32 + j * 16, 8 + 276, 32, 20);
    }
 }
 
@@ -67,19 +67,6 @@ void Prog::run()
             }
          }
 
-         al_draw_rectangle(0, 400, 640, 480,
-            al_map_rgb_f(v[0], v[1], v[2]), ALLEGRO_FILLED);
-         char const *name = al_color_rgb_to_name(v[0], v[1], v[2]);
-         char html[8];
-         al_color_rgb_to_html(v[0], v[1], v[2], html);
-         ALLEGRO_STATE state;
-         al_store_state(&state, ALLEGRO_STATE_ALL);
-         al_set_blender(ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA,
-            al_map_rgb(0, 0, 0));
-         al_font_textout(d.get_theme().font, 0, 380, name, -1);
-         al_font_textout(d.get_theme().font, 0, 360, html, -1);
-         al_restore_state(&state);
-         
          if (keep != -1) {
             int space = keep < 12 ? keep / 3 : 4;
             switch (space) {
@@ -137,6 +124,20 @@ void Prog::run()
          }
          
          d.draw();
+         
+         al_draw_rectangle(0, 400, 640, 480,
+            al_map_rgb_f(v[0], v[1], v[2]), ALLEGRO_FILLED);
+         char const *name = al_color_rgb_to_name(v[0], v[1], v[2]);
+         char html[8];
+         al_color_rgb_to_html(v[0], v[1], v[2], html);
+         ALLEGRO_STATE state;
+         al_store_state(&state, ALLEGRO_STATE_ALL);
+         al_set_blender(ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA,
+            al_map_rgb(0, 0, 0));
+         al_font_textout(d.get_theme().font, 0, 380, name, -1);
+         al_font_textout(d.get_theme().font, 0, 360, html, -1);
+         al_restore_state(&state);
+
          al_flip_display();
       }
 
