@@ -462,6 +462,17 @@ endif(SUPPORT_X11)
 #
 
 if(WIN32)
+    find_package(DInput)
+    if(DINPUT_FOUND)
+        if(MSVC)
+            include_directories(${DINPUT_INCLUDE_DIR})
+        endif(MSVC)
+    else(DINPUT_FOUND)
+        message(FATAL_ERROR
+            "Windows port requires DirectInput (not found).")
+    endif(DINPUT_FOUND)
+
+
     if(WANT_D3D)
         find_package(D3D9)
         if(D3D9_FOUND)
@@ -571,12 +582,13 @@ if(WIN32)
         list(APPEND LIBRARY_SOURCES lib/msvc/allegro.def)
     endif(COMPILER_MSVC AND SHARED)
     list(APPEND PLATFORM_LIBS
-        kernel32 user32 gdi32 comdlg32 ole32 dinput8 dxguid winmm psapi
+        kernel32 user32 gdi32 comdlg32 ole32 dxguid winmm psapi
         )
     if(SUPPORT_D3D)
         list(APPEND LIBRARY_SOURCES ${ALLEGRO_SRC_D3D_FILES})
         list(APPEND PLATFORM_LIBS ${D3D9_LIBRARIES})
     endif(SUPPORT_D3D)
+    list(APPEND PLATFORM_LIBS ${DINPUT_LIBRARIES})
 endif(WIN32)
 
 if(MACOSX)

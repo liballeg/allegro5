@@ -62,6 +62,8 @@ typedef struct ALLEGRO_DISPLAY_D3D
 
    bool faux_fullscreen;
 
+   bool supports_separate_alpha_blend;
+
    TCHAR *device_name;
 } ALLEGRO_DISPLAY_D3D;
 

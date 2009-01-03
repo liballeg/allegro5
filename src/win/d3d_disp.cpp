@@ -124,14 +124,8 @@ static int d3d_formats[] = {
 
 bool _al_d3d_supports_separate_alpha_blend(ALLEGRO_DISPLAY *display)
 {
-   ALLEGRO_DISPLAY_WIN *wdisp = (ALLEGRO_DISPLAY_WIN *)display;
-   D3DCAPS9 caps;
-
-   if (_al_d3d->GetDeviceCaps(wdisp->adapter, D3DDEVTYPE_HAL, &caps) != D3D_OK) {
-      return false;
-   }
-
-   return (caps.PrimitiveMiscCaps & D3DPMISCCAPS_SEPARATEALPHABLEND) == true;
+   ALLEGRO_DISPLAY_D3D *d3d_disp = (ALLEGRO_DISPLAY_D3D *)display;
+   return d3d_disp->supports_separate_alpha_blend;
 }
 
 
@@ -255,8 +249,10 @@ static void d3d_reset_state(ALLEGRO_DISPLAY_D3D *disp)
 {
    if (disp->device_lost) return;
 
-   disp->device->SetRenderState(D3DRS_ZENABLE, D3DZB_FALSE);
-   disp->device->SetRenderState(D3DRS_ZWRITEENABLE, FALSE);
+   //disp->device->SetRenderState(D3DRS_ZENABLE, D3DZB_FALSE);
+   disp->device->SetRenderState(D3DRS_ZENABLE, D3DZB_TRUE);
+   //disp->device->SetRenderState(D3DRS_ZWRITEENABLE, FALSE);
+   disp->device->SetRenderState(D3DRS_ZWRITEENABLE, TRUE);
    disp->device->SetRenderState(D3DRS_LIGHTING, FALSE);
    disp->device->SetRenderState(D3DRS_CULLMODE, D3DCULL_NONE);
    disp->device->SetRenderState(D3DRS_ALPHABLENDENABLE, TRUE);
@@ -397,6 +393,8 @@ static bool d3d_create_fullscreen_device(ALLEGRO_DISPLAY_D3D *d,
    d3d_pp.Windowed = 0;
    d3d_pp.Flags = D3DPRESENTFLAG_LOCKABLE_BACKBUFFER;
    d3d_pp.PresentationInterval = D3DPRESENT_INTERVAL_IMMEDIATE;
+   d3d_pp.EnableAutoDepthStencil = TRUE;
+   d3d_pp.AutoDepthStencilFormat = D3DFMT_D16;
    if (flags & ALLEGRO_SINGLEBUFFER) {
       d3d_pp.SwapEffect = D3DSWAPEFFECT_COPY;
    }
@@ -656,6 +654,8 @@ static bool d3d_create_device(ALLEGRO_DISPLAY_D3D *d,
    d3d_pp.Windowed = 1;
    d3d_pp.Flags = D3DPRESENTFLAG_LOCKABLE_BACKBUFFER;
    d3d_pp.PresentationInterval = D3DPRESENT_INTERVAL_IMMEDIATE;
+   d3d_pp.EnableAutoDepthStencil = TRUE;
+   d3d_pp.AutoDepthStencilFormat = D3DFMT_D16;
    if (flags & ALLEGRO_SINGLEBUFFER) {
       d3d_pp.SwapEffect = D3DSWAPEFFECT_COPY;
    }
@@ -839,6 +839,8 @@ static bool _al_d3d_reset_device(ALLEGRO_DISPLAY_D3D *d3d_display)
        d3d_pp.hDeviceWindow = win_display->window;
        d3d_pp.Flags = D3DPRESENTFLAG_LOCKABLE_BACKBUFFER;
        d3d_pp.PresentationInterval = D3DPRESENT_INTERVAL_IMMEDIATE;
+       d3d_pp.EnableAutoDepthStencil = TRUE;
+       d3d_pp.AutoDepthStencilFormat = D3DFMT_D16;
        if (al_display->flags & ALLEGRO_SINGLEBUFFER) {
           d3d_pp.SwapEffect = D3DSWAPEFFECT_COPY;
        }
@@ -1324,6 +1326,7 @@ static ALLEGRO_DISPLAY *d3d_create_display(int w, int h)
    ALLEGRO_DISPLAY_D3D **add;
    ALLEGRO_DISPLAY_WIN *win_display = &d3d_display->win_display;
    ALLEGRO_DISPLAY *al_display = &win_display->display;
+   D3DCAPS9 caps;
    int adapter = al_get_current_video_adapter();
    if (adapter == -1)
       adapter = 0;
@@ -1393,6 +1396,13 @@ static ALLEGRO_DISPLAY *d3d_create_display(int w, int h)
 
    _al_win_show_mouse_cursor(al_display);
 
+   if (_al_d3d->GetDeviceCaps(adapter, D3DDEVTYPE_HAL, &caps) != D3D_OK) {
+      d3d_display->supports_separate_alpha_blend = false;
+   }
+   else {
+      d3d_display->supports_separate_alpha_blend = (bool)(caps.PrimitiveMiscCaps & D3DPMISCCAPS_SEPARATEALPHABLEND);
+   }
+
    return al_display;
 }
 
@@ -1450,16 +1460,24 @@ void _al_d3d_set_blender(ALLEGRO_DISPLAY_D3D *d3d_display)
    alpha_src = d3d_al_blender_to_d3d(alpha_src);
    alpha_dst = d3d_al_blender_to_d3d(alpha_dst);
 
-   if (d3d_display->device->SetRenderState(D3DRS_SEPARATEALPHABLENDENABLE, TRUE) != D3D_OK)
-      TRACE("D3DRS_SEPARATEALPHABLENDENABLE failed\n");
    if (d3d_display->device->SetRenderState(D3DRS_SRCBLEND, src) != D3D_OK)
       TRACE("Failed to set source blender\n");
    if (d3d_display->device->SetRenderState(D3DRS_DESTBLEND, dst) != D3D_OK)
       TRACE("Failed to set dest blender\n");
-   if (d3d_display->device->SetRenderState(D3DRS_SRCBLENDALPHA, alpha_src) != D3D_OK)
-      TRACE("Failed to set source alpha blender\n");
-   if (d3d_display->device->SetRenderState(D3DRS_DESTBLENDALPHA, alpha_dst) != D3D_OK)
-      TRACE("Failed to set dest alpha blender\n");
+
+   //if (alpha_src != ALLEGRO_ONE || alpha_dst != ALLEGRO_ONE) {
+      if (d3d_display->device->SetRenderState(D3DRS_SEPARATEALPHABLENDENABLE, TRUE) != D3D_OK)
+         TRACE("D3DRS_SEPARATEALPHABLENDENABLE failed\n");
+      if (d3d_display->device->SetRenderState(D3DRS_SRCBLENDALPHA, alpha_src) != D3D_OK)
+         TRACE("Failed to set source alpha blender\n");
+      if (d3d_display->device->SetRenderState(D3DRS_DESTBLENDALPHA, alpha_dst) != D3D_OK)
+         TRACE("Failed to set dest alpha blender\n");
+   //}
+   //else {
+     // if (d3d_display->device->SetRenderState(D3DRS_SEPARATEALPHABLENDENABLE, FALSE) != D3D_OK)
+       //  TRACE("D3DRS_SEPARATEALPHABLENDENABLE FALSE failed\n");
+  // }
+
    d3d_display->device->SetTextureStageState(0, D3DTSS_ALPHAOP, D3DTOP_MODULATE);
 }
 
@@ -1599,9 +1617,11 @@ static void d3d_draw_rectangle(ALLEGRO_DISPLAY *al_display, float tlx, float tly
 static void d3d_clear(ALLEGRO_DISPLAY *al_display, ALLEGRO_COLOR *color)
 {
    ALLEGRO_DISPLAY_D3D* d3d_display = (ALLEGRO_DISPLAY_D3D*)al_display;
-   d3d_display->device->Clear(0, NULL, D3DCLEAR_TARGET,
+   if (d3d_display->device->Clear(0, NULL, D3DCLEAR_TARGET,
       D3DCOLOR_ARGB((int)(color->a*255), (int)(color->r*255), (int)(color->g*255), (int)(color->b*255)),
-      0, 0);
+      0, 0) != D3D_OK) {
+         TRACE("Clear failed\n");
+   }
 }
 
 
