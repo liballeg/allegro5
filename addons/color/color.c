@@ -430,6 +430,17 @@ void al_color_cmyk_to_rgb(float cyan, float magenta, float yellow,
 }
 
 /* Function: al_color_rgb_to_cmyk
+ * 
+ * Each RGB color can be represented in CMYK with a K component of 0
+ * with the following formula:
+ * 
+ * > C = 1 - R
+ * > M = 1 - G
+ * > Y = 1 - B
+ * > K = 0
+ * 
+ * This function will instead find the representation with the maximal
+ * value for K and minimal color components.
  */
 void al_color_rgb_to_cmyk(float red, float green, float blue,
    float *cyan, float *magenta, float *yellow, float *key)
@@ -444,7 +455,7 @@ void al_color_rgb_to_cmyk(float red, float green, float blue,
       *yellow = (max - blue) / max;
    }
    else {
-      *cyan = *magenta = *yellow = 1;
+      *cyan = *magenta = *yellow = 0;
    }
 }
 
