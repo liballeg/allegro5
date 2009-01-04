@@ -90,12 +90,12 @@ if(SUPPORT_OPENGL)
     example(ex_opengl)
 endif(SUPPORT_OPENGL)
 
-# Make a symbolic link to the data directory for out-of-source builds.
-if(UNIX AND NOT "${CMAKE_SOURCE_DIR}" STREQUAL "${CMAKE_BINARY_DIR}")
+# Recreate data directory for out-of-source builds.
+if(NOT "${CMAKE_SOURCE_DIR}" STREQUAL "${CMAKE_BINARY_DIR}")
     add_custom_target(link_example_data ALL DEPENDS data)
     add_custom_command(
         OUTPUT data
-        COMMAND ln -s "${CMAKE_CURRENT_SOURCE_DIR}/data" data
+        COMMAND ${SYMLINK_OR_COPYDIR} "${CMAKE_CURRENT_SOURCE_DIR}/data" data
         )
 endif()
 

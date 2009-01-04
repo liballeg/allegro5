@@ -77,5 +77,14 @@ function(add_our_executable nm)
     endif(NOT BUILD_SHARED_LIBS)
 endfunction(add_our_executable)
 
+# ${SYMLINK_OR_COPYDIR} old new
+# Make a symbolic link (on Unix) or otherwise copy.
+#
+if(UNIX)
+    set(SYMLINK_OR_COPYDIR "${CMAKE_COMMAND}" -E create_symlink)
+else(UNIX)
+    set(SYMLINK_OR_COPYDIR "${CMAKE_COMMAND}" -E copy_directory)
+endif(UNIX)
+
 #-----------------------------------------------------------------------------#
 # vim: set ft=cmake sts=4 sw=4 et:
