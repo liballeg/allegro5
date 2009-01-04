@@ -97,5 +97,14 @@ else(SUPPORT_FONT AND SUPPORT_KCM_AUDIO AND SUPPORT_ACODEC)
     message(STATUS "Not building demo")
 endif(SUPPORT_FONT AND SUPPORT_KCM_AUDIO AND SUPPORT_ACODEC)
 
+# Make a symbolic link to the data directory for out-of-source builds.
+if(UNIX AND NOT "${CMAKE_SOURCE_DIR}" STREQUAL "${CMAKE_BINARY_DIR}")
+    add_custom_target(link_demo_data ALL DEPENDS data)
+    add_custom_command(
+        OUTPUT data
+        COMMAND ln -s "${CMAKE_CURRENT_SOURCE_DIR}/data" data
+        )
+endif()
+
 #-----------------------------------------------------------------------------#
 # vi: set ts=8 sts=4 sw=4 et:
