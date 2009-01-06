@@ -488,7 +488,7 @@ static int decode_allegro_format(int format, int* glfmt, int* glsize, int* depth
       (NSTitledWindowMask|NSClosableWindowMask|NSMiniaturizableWindowMask);
    if (dpy->parent.flags & ALLEGRO_RESIZABLE) mask |= NSResizableWindowMask;
   
-   if ((adapter > 0) && (adapter < al_get_num_video_adapters())) {
+   if ((adapter >= 0) && (adapter < al_get_num_video_adapters())) {
       screen = [[NSScreen screens] objectAtIndex: adapter];
    } else {
       screen = [NSScreen mainScreen];
@@ -542,7 +542,21 @@ static int decode_allegro_format(int format, int* glfmt, int* glsize, int* depth
       /* We haven't positioned a window before */
       [win center];
    }
+   /* FIXME: Even if the window is placed on the secondary display (by setting
+    * the screen parameter above), this causes the window to move to the
+    * primary display again, effectively creating the window on the primary
+    * display.
+    * We work around this by translating to the origin of the target
+    * "screen", not sure if this is the "best" way to do this though...
+    * NB: we currently don't check that we didn't move the window off the
+    * visible area...
+    */
+   NSRect screen_rect = [screen frame];
+   last_window_pos.x += screen_rect.origin.x;
+   last_window_pos.y += screen_rect.origin.y;
    last_window_pos = [win cascadeTopLeftFromPoint:last_window_pos];
+   last_window_pos.x -= screen_rect.origin.x;
+   last_window_pos.y -= screen_rect.origin.y;
    [win makeKeyAndOrderFront:self];
 	if (!(mask & NSBorderlessWindowMask)) [win makeMainWindow];
 	[view release];
