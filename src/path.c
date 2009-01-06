@@ -743,9 +743,7 @@ const char *al_path_get_basename(ALLEGRO_PATH *path, char *buf, size_t len)
  *  or 0 if it doesn't exist.
  *  Returns -1 on error.
  */
-/* XXX change return value? */
-/* TF: What for? */
-uint32_t al_path_exists(ALLEGRO_PATH *path)
+int32_t al_path_exists(ALLEGRO_PATH *path)
 {
    char buffer[PATH_MAX];
    ASSERT(path);
