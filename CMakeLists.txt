@@ -294,7 +294,7 @@ check_function_exists(sched_yield ALLEGRO_HAVE_SCHED_YIELD)
 check_function_exists(stricmp ALLEGRO_HAVE_STRICMP)
 check_function_exists(strlwr ALLEGRO_HAVE_STRLWR)
 check_function_exists(strupr ALLEGRO_HAVE_STRUPR)
-check_function_exists(sysconf, ALLEGRO_HAVE_SYSCONF)
+check_function_exists(sysconf ALLEGRO_HAVE_SYSCONF)
 
 check_type_size("_Bool" ALLEGRO_HAVE__BOOL)
 
