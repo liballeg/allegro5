@@ -34,6 +34,8 @@ function(pandoc source output) # extraargs...
     set(abs_output ${CMAKE_CURRENT_BINARY_DIR}/${output})
 
     list(APPEND all_docs ${abs_output})
+    set(all_docs ${all_docs} PARENT_SCOPE)
+
     add_custom_command(
         OUTPUT  ${abs_output}
         COMMAND ${PANDOC} ${abs_source} --toc --standalone ${ARGN}
@@ -51,6 +53,8 @@ function(links source output)
     set(abs_output ${CMAKE_CURRENT_BINARY_DIR}/${output})
 
     list(APPEND all_docs ${abs_output})
+    set(all_docs ${all_docs} PARENT_SCOPE)
+
     add_custom_command(
         OUTPUT  ${abs_output}
         COMMAND ${LINKS} -dump ${abs_source} > ${abs_output}
