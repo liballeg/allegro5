@@ -188,30 +188,42 @@ int _al_xglx_get_num_display_modes(void)
 ALLEGRO_DISPLAY_MODE *_al_xglx_get_display_mode(int index,
    ALLEGRO_DISPLAY_MODE *mode)
 {
+   (void)index;
+   (void)mode;
    return NULL;
 }
 
 bool _al_xglx_fullscreen_set_mode(ALLEGRO_SYSTEM_XGLX *s,
    int w, int h, int format, int refresh_rate)
 {
+   (void)s;
+   (void)w;
+   (void)h;
+   (void)format;
+   (void)refresh_rate;
    return false;
 }
 
 void _al_xglx_fullscreen_to_display(ALLEGRO_SYSTEM_XGLX *s,
    ALLEGRO_DISPLAY_XGLX *d)
 {
+   (void)s;
+   (void)d;
 }
 
 void _al_xglx_store_video_mode(ALLEGRO_SYSTEM_XGLX *s)
 {
+   (void)s;
 }
 
 void _al_xglx_restore_video_mode(ALLEGRO_SYSTEM_XGLX *s)
 {
+   (void)s;
 }
 
 void _al_xglx_free_mode_infos(ALLEGRO_SYSTEM_XGLX *s)
 {
+   (void)s;
 }
 
 #endif /* !ALLEGRO_XWINDOWS_WITH_XF86VIDMODE */

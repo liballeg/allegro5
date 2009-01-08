@@ -23,6 +23,7 @@
 #include <pthread.h>
 #include <stdlib.h>
 #include <sys/types.h>
+#include <sys/select.h>
 #include <unistd.h>
 
 #include "allegro5/allegro5.h"

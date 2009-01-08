@@ -7,6 +7,8 @@
 extern int _Xdebug; /* part of Xlib */
 #endif
 
+#include <sys/time.h>
+
 #include "allegro5/allegro5.h"
 #include "allegro5/internal/aintern_memory.h"
 #include "xglx.h"
@@ -394,6 +396,7 @@ static void xglx_get_monitor_info(int adapter, ALLEGRO_MONITOR_INFO *info)
       xglx_get_smonitor_info(system, info);
    }
 #else /* !ALLEGRO_XWINDOWS_WITH_XINERAMA */
+   (void)adapter;
    xglx_get_smonitor_info(system, info);
 #endif /* !ALLEGRO_XWINDOWS_WITH_XINERAMA */
 }
