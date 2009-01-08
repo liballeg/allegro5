@@ -4,9 +4,6 @@ mark_as_advanced(MAKEINFO)
 find_program(PANDOC NAMES pandoc)
 mark_as_advanced(PANDOC)
 
-find_program(LINKS NAMES links elinks)
-mark_as_advanced(LINKS)
-
 #-----------------------------------------------------------------------------#
 
 set(all_docs)
@@ -38,48 +35,54 @@ function(pandoc source output) # extraargs...
 
     add_custom_command(
         OUTPUT  ${abs_output}
+        DEPENDS ${abs_source}
         COMMAND ${PANDOC} ${abs_source} --toc --standalone ${ARGN}
                 -o ${abs_output}
-        DEPENDS ${abs_source}
         )
 endfunction(pandoc source output)
 
-# We can actually produce nicer plain text output by generating Texinfo
-# then calling makeinfo --plaintext.  But the current release (pandoc-0.46)
-# doesn't yet include a Texinfo backend so for now we use links -dump.
-function(links source output)
-    # The source file is a generated HTML file.
+function(texi2text source output)
+    # The source file is a generated Texinfo file.
     set(abs_source ${CMAKE_CURRENT_BINARY_DIR}/${source})
     set(abs_output ${CMAKE_CURRENT_BINARY_DIR}/${output})
 
     list(APPEND all_docs ${abs_output})
     set(all_docs ${all_docs} PARENT_SCOPE)
 
+    # Writing to stdout suppresses the table of contents.
+    # To get the table of contents, use `makeinfo -o ${output}`.
     add_custom_command(
         OUTPUT  ${abs_output}
-        COMMAND ${LINKS} -dump ${abs_source} > ${abs_output}
         DEPENDS ${abs_source}
+        COMMAND ${MAKEINFO}
+                --plaintext
+                --paragraph-indent 0
+                --no-number-sections
+                ${abs_source} > ${abs_output}
         )
-endfunction(links source output)
+endfunction(texi2text)
 
 if(PANDOC)
     pandoc(
         src/changes-4.9.txt
         html/changes-4.9.html
         -c pandoc.css
-    )
-    if(LINKS)
-        links(
-            html/changes-4.9.html
-            txt/changes-4.9.txt
         )
-    endif(LINKS)
-
+    pandoc(
+        src/changes-4.9.txt
+        texi/changes-4.9.texi
+        )
+    if(MAKEINFO)
+        texi2text(
+            texi/changes-4.9.texi
+            txt/changes-4.9.txt
+            )
+    endif(MAKEINFO)
     pandoc(
         src/refman/threads.txt
         html/refman/threads.html
         -c pandoc.css
-    )
+        )
 endif(PANDOC)
 
 add_custom_target(docs
@@ -91,6 +94,7 @@ add_custom_target(docs
 
 make_directory(${CMAKE_CURRENT_BINARY_DIR}/html/refman)
 make_directory(${CMAKE_CURRENT_BINARY_DIR}/txt)
+make_directory(${CMAKE_CURRENT_BINARY_DIR}/texi)
 
 # Copy CSS files.
 configure_file(
