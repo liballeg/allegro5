@@ -281,9 +281,7 @@ static int win_get_num_display_modes(void)
    }
 #endif
 #if defined ALLEGRO_CFG_D3D
-   if (flags & ALLEGRO_DIRECT3D) {
-      return _al_d3d_get_num_display_modes(format, refresh_rate, flags);
-   }
+   return _al_d3d_get_num_display_modes(format, refresh_rate, flags);
 #endif
 
    return 0;
@@ -305,9 +303,7 @@ static ALLEGRO_DISPLAY_MODE *win_get_display_mode(int index,
    }
 #endif
 #if defined ALLEGRO_CFG_D3D
-   if (flags & ALLEGRO_DIRECT3D) {
-      return _al_d3d_get_display_mode(index, format, refresh_rate, flags, mode);
-   }
+   return _al_d3d_get_display_mode(index, format, refresh_rate, flags, mode);
 #endif
 
 
