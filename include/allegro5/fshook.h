@@ -210,25 +210,25 @@ enum {
 
 AL_FUNC(ALLEGRO_FS_ENTRY*, al_fs_create_handle, (AL_CONST char *path));
 AL_FUNC(void, al_fs_destroy_handle, (ALLEGRO_FS_ENTRY *handle));
-AL_FUNC(int32_t, al_fs_open_handle, (ALLEGRO_FS_ENTRY *handle, AL_CONST char *mode));
+AL_FUNC(bool, al_fs_open_handle, (ALLEGRO_FS_ENTRY *handle, AL_CONST char *mode));
 AL_FUNC(void, al_fs_close_handle, (ALLEGRO_FS_ENTRY *handle));
 
 AL_FUNC(ALLEGRO_FS_ENTRY*, al_fs_mktemp, (const char *tmpl, uint32_t ulink));
 
 AL_FUNC(ALLEGRO_FS_ENTRY*, al_fs_entry_open, (const char *path, const char *mode));
-AL_FUNC(void, al_fs_entry_name, (ALLEGRO_FS_ENTRY *fp, size_t, char *fn));
+AL_FUNC(bool, al_fs_entry_name, (ALLEGRO_FS_ENTRY *fp, size_t, char *fn));
 AL_FUNC(void, al_fs_entry_close, (ALLEGRO_FS_ENTRY *fp));
 AL_FUNC(size_t, al_fs_entry_read, (ALLEGRO_FS_ENTRY *fp, size_t size, void *ptr));
 AL_FUNC(size_t, al_fs_entry_write, (ALLEGRO_FS_ENTRY *fp, size_t size, const void *ptr));
-AL_FUNC(int32_t, al_fs_entry_flush, (ALLEGRO_FS_ENTRY *fp));
-AL_FUNC(int32_t, al_fs_entry_seek, (ALLEGRO_FS_ENTRY *fp, uint32_t offset, uint32_t whence));
-AL_FUNC(int32_t, al_fs_entry_tell, (ALLEGRO_FS_ENTRY *fp));
-AL_FUNC(int32_t, al_fs_entry_error, (ALLEGRO_FS_ENTRY *fp));
-AL_FUNC(int32_t, al_fs_entry_eof, (ALLEGRO_FS_ENTRY *fp));
+AL_FUNC(bool, al_fs_entry_flush, (ALLEGRO_FS_ENTRY *fp));
+AL_FUNC(bool, al_fs_entry_seek, (ALLEGRO_FS_ENTRY *fp, off_t offset, uint32_t whence));
+AL_FUNC(off_t, al_fs_entry_tell, (ALLEGRO_FS_ENTRY *fp));
+AL_FUNC(bool, al_fs_entry_error, (ALLEGRO_FS_ENTRY *fp));
+AL_FUNC(bool, al_fs_entry_eof, (ALLEGRO_FS_ENTRY *fp));
 
-AL_FUNC(int32_t, al_fs_entry_ungetc, (int32_t c, ALLEGRO_FS_ENTRY *fp));
+AL_FUNC(int, al_fs_entry_ungetc, (int c, ALLEGRO_FS_ENTRY *fp));
 
-AL_FUNC(int32_t, al_fs_entry_stat, (ALLEGRO_FS_ENTRY *fp));
+AL_FUNC(bool, al_fs_entry_stat, (ALLEGRO_FS_ENTRY *fp));
 
 AL_FUNC(uint32_t, al_fs_entry_mode, (ALLEGRO_FS_ENTRY *st));
 AL_FUNC(time_t , al_fs_entry_atime, (ALLEGRO_FS_ENTRY *st));
@@ -236,14 +236,14 @@ AL_FUNC(time_t , al_fs_entry_mtime, (ALLEGRO_FS_ENTRY *st));
 AL_FUNC(time_t , al_fs_entry_ctime, (ALLEGRO_FS_ENTRY *st));
 AL_FUNC(off_t  , al_fs_entry_size, (ALLEGRO_FS_ENTRY *st));
 
-AL_FUNC(int32_t, al_fs_entry_unlink, (ALLEGRO_FS_ENTRY *fp));
-AL_FUNC(int32_t, al_fs_entry_exists, (ALLEGRO_FS_ENTRY *));
+AL_FUNC(bool, al_fs_entry_unlink, (ALLEGRO_FS_ENTRY *fp));
+AL_FUNC(bool, al_fs_entry_exists, (ALLEGRO_FS_ENTRY *));
 
-AL_FUNC(int32_t, al_fs_entry_isdir, (ALLEGRO_FS_ENTRY *));
-AL_FUNC(int32_t, al_fs_entry_isfile, (ALLEGRO_FS_ENTRY *));
+AL_FUNC(bool, al_fs_entry_isdir, (ALLEGRO_FS_ENTRY *));
+AL_FUNC(bool, al_fs_entry_isfile, (ALLEGRO_FS_ENTRY *));
 
 AL_FUNC(ALLEGRO_FS_ENTRY *, al_fs_opendir, (const char *path));
-AL_FUNC(int32_t, al_fs_closedir, (ALLEGRO_FS_ENTRY *dir));
+AL_FUNC(bool, al_fs_closedir, (ALLEGRO_FS_ENTRY *dir));
 AL_FUNC(int32_t, al_fs_readdir, (ALLEGRO_FS_ENTRY *dir, size_t size, char *name));
 
 
@@ -253,20 +253,20 @@ AL_FUNC(time_t,   al_fs_stat_mtime, (AL_CONST char *));
 AL_FUNC(time_t,   al_fs_stat_ctime, (AL_CONST char *));
 AL_FUNC(off_t,    al_fs_stat_size,  (AL_CONST char *));
 
-AL_FUNC(int32_t, al_fs_isdir, (AL_CONST char *));
-AL_FUNC(int32_t, al_fs_isfile, (AL_CONST char *));
+AL_FUNC(bool, al_fs_isdir, (AL_CONST char *));
+AL_FUNC(bool, al_fs_isfile, (AL_CONST char *));
 
-AL_FUNC(int32_t, al_fs_unlink, (AL_CONST char *path));
-AL_FUNC(int32_t, al_fs_exists, (AL_CONST char *));
+AL_FUNC(bool, al_fs_unlink, (AL_CONST char *path));
+AL_FUNC(bool, al_fs_exists, (AL_CONST char *));
 
-AL_FUNC(int32_t, al_fs_mkdir, (AL_CONST char *));
+AL_FUNC(bool, al_fs_mkdir, (AL_CONST char *));
 
-AL_FUNC(int32_t, al_fs_getcwd, (char *buf, size_t len));
-AL_FUNC(int32_t, al_fs_chdir, (const char *path));
+AL_FUNC(bool, al_fs_getcwd, (char *buf, size_t len));
+AL_FUNC(bool, al_fs_chdir, (const char *path));
 
-AL_FUNC(int32_t, al_fs_add_search_path, (const char *path));
+AL_FUNC(bool, al_fs_add_search_path, (const char *path));
 AL_FUNC(int32_t, al_fs_search_path_count, (void));
-AL_FUNC(int32_t, al_fs_get_search_path, (uint32_t idx, char *dest, size_t len));
+AL_FUNC(bool, al_fs_get_search_path, (uint32_t idx, char *dest, size_t len));
 
 AL_FUNC(int32_t, al_fs_drive_sep, (size_t len, char *sep));
 AL_FUNC(int32_t, al_fs_path_sep, (size_t len, char *sep));

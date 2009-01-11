@@ -34,12 +34,12 @@ struct ALLEGRO_FS_HOOK_SYS_INTERFACE {
    AL_METHOD(ALLEGRO_FS_ENTRY *, fopen,         (AL_CONST char *path, AL_CONST char *mode) );
    AL_METHOD(ALLEGRO_FS_ENTRY *, mktemp,        (AL_CONST char *t, uint32_t ulink) );
 
-   AL_METHOD(int32_t, getcwd, (char *buf, size_t len) );
-   AL_METHOD(int32_t, chdir,  (AL_CONST char *path) );
+   AL_METHOD(bool, getcwd, (char *buf, size_t len) );
+   AL_METHOD(bool, chdir,  (AL_CONST char *path) );
 
-   AL_METHOD(int32_t, add_search_path,   (AL_CONST char *path) );
+   AL_METHOD(bool, add_search_path,   (AL_CONST char *path) );
    AL_METHOD(uint32_t, search_path_count, (void) );
-   AL_METHOD(int32_t, get_search_path,   (uint32_t idx, char *dest, uint32_t len) );
+   AL_METHOD(bool, get_search_path,   (uint32_t idx, char *dest, uint32_t len) );
 
    AL_METHOD(int32_t, drive_sep, (size_t len, char *sep) );
    AL_METHOD(int32_t, path_sep,  (size_t len, char *sep) );
@@ -47,10 +47,10 @@ struct ALLEGRO_FS_HOOK_SYS_INTERFACE {
    AL_METHOD(int32_t, path_to_sys, (AL_CONST char *orig, uint32_t len, char *path) );
    AL_METHOD(int32_t, path_to_uni, (AL_CONST char *orig, uint32_t len, char *path) );
 
-   AL_METHOD(int32_t, exists, (AL_CONST char *) );
-   AL_METHOD(int32_t, unlink, (AL_CONST char *) );
+   AL_METHOD(bool, exists, (AL_CONST char *) );
+   AL_METHOD(bool, unlink, (AL_CONST char *) );
 
-   AL_METHOD(int32_t, mkdir, (AL_CONST char *) );
+   AL_METHOD(bool, mkdir, (AL_CONST char *) );
 
    AL_METHOD(off_t,    stat_size,  (AL_CONST char *) );
    AL_METHOD(uint32_t, stat_mode,  (AL_CONST char *) );
@@ -61,21 +61,21 @@ struct ALLEGRO_FS_HOOK_SYS_INTERFACE {
 
 struct ALLEGRO_FS_HOOK_ENTRY_INTERFACE {
    AL_METHOD(void,     destroy_handle, (ALLEGRO_FS_ENTRY *handle) );
-   AL_METHOD(int32_t,  open_handle,    (ALLEGRO_FS_ENTRY *handle, AL_CONST char *mode) );
+   AL_METHOD(bool,  open_handle,    (ALLEGRO_FS_ENTRY *handle, AL_CONST char *mode) );
    AL_METHOD(void,  close_handle,   (ALLEGRO_FS_ENTRY *handle) );
 
-   AL_METHOD(void,     fname,  (ALLEGRO_FS_ENTRY *fh, size_t s, char *name) );
+   AL_METHOD(bool,     fname,  (ALLEGRO_FS_ENTRY *fh, size_t s, char *name) );
 
    AL_METHOD(void,  fclose, (ALLEGRO_FS_ENTRY *fp) );
    AL_METHOD(size_t,   fread,  (ALLEGRO_FS_ENTRY *fp, size_t size, void *ptr) );
    AL_METHOD(size_t,   fwrite, (ALLEGRO_FS_ENTRY *fp, size_t size, AL_CONST void *ptr) );
-   AL_METHOD(int32_t,  fflush, (ALLEGRO_FS_ENTRY *fp) );
-   AL_METHOD(int32_t,  fseek,  (ALLEGRO_FS_ENTRY *fp, uint32_t offset, uint32_t whence) );
-   AL_METHOD(int32_t,  ftell,  (ALLEGRO_FS_ENTRY *fp) );
-   AL_METHOD(int32_t,  ferror, (ALLEGRO_FS_ENTRY *fp) );
-   AL_METHOD(int32_t,  feof,   (ALLEGRO_FS_ENTRY *fp) );
-   AL_METHOD(int32_t,  fstat,  (ALLEGRO_FS_ENTRY *handle) );
-   AL_METHOD(int32_t,  ungetc, (int32_t c, ALLEGRO_FS_ENTRY *fp) );
+   AL_METHOD(bool,  fflush, (ALLEGRO_FS_ENTRY *fp) );
+   AL_METHOD(bool,  fseek,  (ALLEGRO_FS_ENTRY *fp, off_t offset, uint32_t whence) );
+   AL_METHOD(off_t,  ftell,  (ALLEGRO_FS_ENTRY *fp) );
+   AL_METHOD(bool,  ferror, (ALLEGRO_FS_ENTRY *fp) );
+   AL_METHOD(bool,  feof,   (ALLEGRO_FS_ENTRY *fp) );
+   AL_METHOD(bool,  fstat,  (ALLEGRO_FS_ENTRY *handle) );
+   AL_METHOD(int,  ungetc, (int c, ALLEGRO_FS_ENTRY *fp) );
 
    AL_METHOD(off_t,   entry_size,  (ALLEGRO_FS_ENTRY *) );
    AL_METHOD(uint32_t, entry_mode,  (ALLEGRO_FS_ENTRY *) );
@@ -83,11 +83,11 @@ struct ALLEGRO_FS_HOOK_ENTRY_INTERFACE {
    AL_METHOD(time_t,   entry_mtime, (ALLEGRO_FS_ENTRY *) );
    AL_METHOD(time_t,   entry_ctime, (ALLEGRO_FS_ENTRY *) );
 
-   AL_METHOD(int32_t,  exists,  (ALLEGRO_FS_ENTRY *) );
-   AL_METHOD(int32_t,  unlink,  (ALLEGRO_FS_ENTRY *) );
+   AL_METHOD(bool,  exists,  (ALLEGRO_FS_ENTRY *) );
+   AL_METHOD(bool,  unlink,  (ALLEGRO_FS_ENTRY *) );
 
    AL_METHOD(int32_t,  readdir,  (ALLEGRO_FS_ENTRY *dir, size_t size, char *name) );
-   AL_METHOD(int32_t,  closedir, (ALLEGRO_FS_ENTRY *dir) );
+   AL_METHOD(bool,  closedir, (ALLEGRO_FS_ENTRY *dir) );
 };
 
 extern struct ALLEGRO_FS_HOOK_SYS_INTERFACE  *_al_sys_fshooks;
