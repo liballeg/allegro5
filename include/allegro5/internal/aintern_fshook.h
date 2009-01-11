@@ -70,8 +70,8 @@ struct ALLEGRO_FS_HOOK_ENTRY_INTERFACE {
    AL_METHOD(size_t,   fread,  (ALLEGRO_FS_ENTRY *fp, size_t size, void *ptr) );
    AL_METHOD(size_t,   fwrite, (ALLEGRO_FS_ENTRY *fp, size_t size, AL_CONST void *ptr) );
    AL_METHOD(bool,  fflush, (ALLEGRO_FS_ENTRY *fp) );
-   AL_METHOD(bool,  fseek,  (ALLEGRO_FS_ENTRY *fp, off_t offset, uint32_t whence) );
-   AL_METHOD(off_t,  ftell,  (ALLEGRO_FS_ENTRY *fp) );
+   AL_METHOD(bool,  fseek,  (ALLEGRO_FS_ENTRY *fp, int64_t offset, uint32_t whence) );
+   AL_METHOD(int64_t,  ftell,  (ALLEGRO_FS_ENTRY *fp) );
    AL_METHOD(bool,  ferror, (ALLEGRO_FS_ENTRY *fp) );
    AL_METHOD(bool,  feof,   (ALLEGRO_FS_ENTRY *fp) );
    AL_METHOD(bool,  fstat,  (ALLEGRO_FS_ENTRY *handle) );

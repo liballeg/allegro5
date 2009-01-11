@@ -309,6 +309,8 @@ ALLEGRO_SEEK_END - Seek from end of file
 
 Returns true on success, false on failure and errno is set to indicate the error.
 
+On some platforms this function may not support large files.
+
 See also: <al_get_errno>
 
 ## API: al_fs_entry_size
@@ -329,6 +331,8 @@ See also <al_get_errno> <al_fs_entry_atime> <al_fs_entry_ctime> <al_fs_entry_isd
 
 Returns the current position in file, or -1 on error.
 errno is set to indicate the error.
+
+On some platforms this function may not support large files.
 
 See also: <al_get_errno>
 

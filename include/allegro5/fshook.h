@@ -221,8 +221,8 @@ AL_FUNC(void, al_fs_entry_close, (ALLEGRO_FS_ENTRY *fp));
 AL_FUNC(size_t, al_fs_entry_read, (ALLEGRO_FS_ENTRY *fp, size_t size, void *ptr));
 AL_FUNC(size_t, al_fs_entry_write, (ALLEGRO_FS_ENTRY *fp, size_t size, const void *ptr));
 AL_FUNC(bool, al_fs_entry_flush, (ALLEGRO_FS_ENTRY *fp));
-AL_FUNC(bool, al_fs_entry_seek, (ALLEGRO_FS_ENTRY *fp, off_t offset, uint32_t whence));
-AL_FUNC(off_t, al_fs_entry_tell, (ALLEGRO_FS_ENTRY *fp));
+AL_FUNC(bool, al_fs_entry_seek, (ALLEGRO_FS_ENTRY *fp, int64_t offset, uint32_t whence));
+AL_FUNC(int64_t, al_fs_entry_tell, (ALLEGRO_FS_ENTRY *fp));
 AL_FUNC(bool, al_fs_entry_error, (ALLEGRO_FS_ENTRY *fp));
 AL_FUNC(bool, al_fs_entry_eof, (ALLEGRO_FS_ENTRY *fp));
 

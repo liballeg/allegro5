@@ -180,7 +180,7 @@ bool al_fs_entry_flush(ALLEGRO_FS_ENTRY *fp)
  *
  * See also: <al_get_errno>
  */
-bool al_fs_entry_seek(ALLEGRO_FS_ENTRY *fp, long offset, uint32_t whence)
+bool al_fs_entry_seek(ALLEGRO_FS_ENTRY *fp, int64_t offset, uint32_t whence)
 {
    ASSERT(fp != NULL);
    ASSERT(offset > 0);
@@ -195,7 +195,7 @@ bool al_fs_entry_seek(ALLEGRO_FS_ENTRY *fp, long offset, uint32_t whence)
  *
  * See also: <al_get_errno>
  */
-long al_fs_entry_tell(ALLEGRO_FS_ENTRY *fp)
+int64_t al_fs_entry_tell(ALLEGRO_FS_ENTRY *fp)
 {
    ASSERT(fp != NULL);
 

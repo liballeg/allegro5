@@ -15,6 +15,12 @@
  *      See readme.txt for copyright information.
  */
 
+/* enable large file support in gcc/glibc */
+#if defined ALLEGRO_HAVE_FTELLO64 && defined ALLEGRO_HAVE_FSEEKO64
+   #define _LARGEFILE_SOURCE
+   #define _LARGEFILE_SOURCE64
+   #define _FILE_OFFSET_BITS 64
+#endif
 
 #include <stdio.h>
 
@@ -624,7 +630,7 @@ static bool al_fs_stdio_fflush(ALLEGRO_FS_ENTRY *fp)
    return true;
 }
 
-static bool al_fs_stdio_fseek(ALLEGRO_FS_ENTRY *fp, off_t offset,
+static bool al_fs_stdio_fseek(ALLEGRO_FS_ENTRY *fp, int64_t offset,
    uint32_t whence)
 {
    ALLEGRO_FS_ENTRY_STDIO *fp_stdio = (ALLEGRO_FS_ENTRY_STDIO *) fp;
@@ -637,7 +643,12 @@ static bool al_fs_stdio_fseek(ALLEGRO_FS_ENTRY *fp, off_t offset,
       case ALLEGRO_SEEK_END: whence = SEEK_END; break;
    }
 
+#ifdef ALLEGRO_HAVE_FSEEKO64
+   ret = fseeko(fp_stdio->hd.handle, offset, whence);
+#else
    ret = fseek(fp_stdio->hd.handle, offset, whence);
+#endif
+
    if (ret == -1) {
       al_set_errno(errno);
       return false;
@@ -646,13 +657,17 @@ static bool al_fs_stdio_fseek(ALLEGRO_FS_ENTRY *fp, off_t offset,
    return true;
 }
 
-static off_t al_fs_stdio_ftell(ALLEGRO_FS_ENTRY *fp)
+static int64_t al_fs_stdio_ftell(ALLEGRO_FS_ENTRY *fp)
 {
    ALLEGRO_FS_ENTRY_STDIO *fp_stdio = (ALLEGRO_FS_ENTRY_STDIO *) fp;
-   long ret = 0;
+   int64_t ret = 0;
    ASSERT(!fp_stdio->isdir);
 
+#ifdef ALLEGRO_HAVE_FTELLO64
+   ret = ftello(fp_stdio->hd.handle);
+#else
    ret = ftell(fp_stdio->hd.handle);
+#endif
    if (ret == -1) {
       al_set_errno(errno);
    }
