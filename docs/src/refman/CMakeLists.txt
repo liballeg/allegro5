@@ -138,7 +138,7 @@ if(WANT_MAN)
     add_custom_target(man ALL DEPENDS ${MAN_PAGES})
 
     install(FILES ${MAN_PAGES}
-            DESTINATION ${MANDIR}
+            DESTINATION ${MANDIR}/man3
             )
 endif(WANT_MAN)
 
