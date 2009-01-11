@@ -96,6 +96,7 @@ option(WANT_DSOUND "Enable Dsound digital audio driver (Windows)" on)
 # Documentation.
 #
 
+option(WANT_DOCS "Generate documentation" on)
 option(WANT_HTML "Generate HTML documentation" on)
 option(WANT_MAN "Generate man pages" on)
 option(WANT_INFO "Generate Info document" off)
@@ -745,7 +746,9 @@ endif(UNIX)
 #
 #-----------------------------------------------------------------------------#
 
-add_subdirectory(docs)
+if(WANT_DOCS)
+    add_subdirectory(docs)
+endif(WANT_DOCS)
 
 #-----------------------------------------------------------------------------#
 # vim: set sts=4 sw=4 et:
