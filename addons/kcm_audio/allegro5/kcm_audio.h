@@ -378,7 +378,7 @@ A5_KCM_AUDIO_FUNC(int, al_set_stream_float, (ALLEGRO_STREAM *stream,
       ALLEGRO_AUDIO_PROPERTY setting, float val));
 A5_KCM_AUDIO_FUNC(int, al_set_stream_enum, (ALLEGRO_STREAM *stream,
       ALLEGRO_AUDIO_PROPERTY setting, int val));
-A5_KCM_AUDIO_FUNC(int, al_set_stream_booll, (ALLEGRO_STREAM *stream,
+A5_KCM_AUDIO_FUNC(int, al_set_stream_bool, (ALLEGRO_STREAM *stream,
       ALLEGRO_AUDIO_PROPERTY setting, bool val));
 A5_KCM_AUDIO_FUNC(int, al_set_stream_ptr, (ALLEGRO_STREAM *spl,
       ALLEGRO_AUDIO_PROPERTY setting, void *ptr));

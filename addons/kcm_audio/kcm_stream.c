@@ -413,9 +413,9 @@ int al_set_stream_enum(ALLEGRO_STREAM *stream,
 }
 
 
-/* Function: al_set_stream_booll
+/* Function: al_set_stream_bool
  */
-int al_set_stream_booll(ALLEGRO_STREAM *stream,
+int al_set_stream_bool(ALLEGRO_STREAM *stream,
    ALLEGRO_AUDIO_PROPERTY setting, bool val)
 {
    ASSERT(stream);

@@ -379,7 +379,7 @@ be stopped and detached from its parent.
 ## API: al_set_sample_ptr
 
 
-## API: al_set_stream_booll
+## API: al_set_stream_bool
 
 
 ## API: al_set_stream_enum

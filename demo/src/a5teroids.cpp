@@ -41,7 +41,7 @@ int main(int argc, char **argv)
    for (;;) {
       player->load();
 
-      al_set_stream_booll(title_music, ALLEGRO_AUDIOPROP_PLAYING, true);
+      al_set_stream_bool(title_music, ALLEGRO_AUDIOPROP_PLAYING, true);
 
       int choice = do_menu();
       if (choice != 0) {
@@ -57,7 +57,7 @@ int main(int argc, char **argv)
       canUFO = true;
 
       w.init();
-      al_set_stream_booll(game_music, ALLEGRO_AUDIOPROP_PLAYING, true);
+      al_set_stream_bool(game_music, ALLEGRO_AUDIOPROP_PLAYING, true);
 	  al_rest(0.200);
 
       int step = 0;
