@@ -1,0 +1,86 @@
+# Font addons
+
+## API: al_font_destroy_font
+
+Frees the memory being used by a font structure.
+This is now wholly handled in the vtable.
+
+## API: al_font_text_height
+
+Returns the height of a character in the specified font.
+
+## API: al_font_text_width
+
+Calculates the length of a string in a particular font.
+
+## API: al_font_textout
+
+Writes the null terminated string str onto bmp at position x, y, using 
+the specified font, foreground color and background color (-1 is trans).
+If color is -1 and a proportional font is in use, it will be drawn
+using the colors from the original font bitmap (the one imported into
+the grabber program), which allows multicolored text output.
+If count is not -1, write only the first 'count' code points.
+
+## API: al_font_textout_centre
+
+Like <al_font_textout>, but uses the x coordinate as the centre rather than 
+the left of the string.
+
+## API: al_font_textout_justify
+
+Like textout_ex(), but justifies the string to the specified area.
+
+## API: al_font_textout_right
+
+Like <al_font_textout>, but uses the x coordinate as the right rather than 
+the left of the string.
+
+## API: al_font_textprintf
+
+Formatted text output, using a printf() style format string.
+
+## API: al_font_textprintf_centre
+
+Like <al_font_textprintf>, but uses the x coordinate as the centre rather
+than the left of the string.
+
+## API: al_font_textprintf_justify
+
+Like <al_font_textprintf>, but right justifies the string to the specified
+area.
+
+## API: al_font_textprintf_right
+
+Like <al_font_textprintf>, but uses the x coordinate as the right rather
+than the left of the string.
+
+## API: al_ttf_get_text_dimensions
+
+Sometimes, the <al_font_text_width> and <al_font_text_height>
+functions are not enough for exact text placement, so this function
+returns some additional information.
+
+Returned variables (all in pixel):
+x, y - Offset to upper left corner of bounding box.
+w, h - Dimensions of bounding box.
+ascent - Ascent of the font.
+descent - Descent of the font.
+
+If the X is the position you specify to draw text, the meaning of
+ascent and descent and the font height is like in the figure below.
+Note that glyphs may go to the left and upwards of the X, in which
+case x and y will have negative values.
+
+> X------------------------
+>     /\         |        |
+>    /  \        |        |
+>   /____\       ascent   |
+>  /      \      |        |
+> /        \     |        height
+> ----------------        |
+>                |        |
+>                descent  |
+>                |        |
+> -------------------------
+

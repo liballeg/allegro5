@@ -1,0 +1,15 @@
+#!/bin/sh
+#
+# SYNOPSIS
+#
+# make_protos SOURCE-FILE...
+#
+# DESCRIPTION
+#
+# Extract all the function prototypes and type/enum declarations which have
+# Natural Docs tags Function: Type: Enum:
+# Output goes to standard out.
+#
+
+export LC_CTYPE=C
+exec awk -f $0.awk "$@"

@@ -1,0 +1,115 @@
+#!/bin/sh
+#
+# SYNOPSIS
+#
+# insert_ndocs TARGET_FILE...
+#
+# DESCRIPTION
+#
+# Insert "summaries" from documentation files into source files.  If a summary
+# exists for `foo` then wherever we find a Natural Docs comment for `foo`, that
+# comment will be replaced by the summary.  Summaries come from the file
+# $SUMMARY_FILE.
+#
+# ENVIRONMENT VARIABLES
+#
+# - SUMMARY_FILE
+# - DRY_RUN (y or n)
+#
+# (For portability, stick to POSIX shell constructs in this script.)
+#
+
+set -e
+
+SUMMARY_FILE=${SUMMARY_FILE:-summaries}
+DRY_RUN=${DRY_RUN:-n}
+
+rawecho() {
+cat <<EOF
+$1
+EOF
+}
+
+get_summary() {
+    grep -e "^$1: " "$SUMMARY_FILE" |
+    sed -e "s/^$1: / *  /"
+}
+
+do_sub() {(
+    keep_comment=true
+    IFS=
+    while read -r line
+    do
+        # Unfortunately echo can behave differently between shells such is
+        # interpreting backslash escapes or treating lines beginning with
+        # dashes as options.  The rawecho function works but is slow.
+        case $line in
+            *'/* Function: '*|*'/* Type: '*|*'/* Enum: '*)
+                name=${line#*Function: }
+                name=${name#*Type: }
+                name=${name#*Enum: }
+                summary=$( get_summary "$name" )
+                echo "$line"
+                if test -n "$summary"
+                then
+                    echo "$summary"
+                    keep_comment=false
+                fi
+                ;;
+            ' *'|' * '*)
+                if $keep_comment
+                then
+                    echo "$line"
+                fi
+                ;;
+            '*/'|' */')
+                echo "$line"
+                keep_comment=true
+                ;;
+            -*)
+                rawecho "$line"
+                ;;
+            *)
+                echo "$line"
+                ;;
+        esac
+    done
+)}
+
+# main
+
+if test $# -eq 0
+then
+    echo "Usage: insert_ndocs TARGET_FILE..."
+    exit
+fi
+
+if test ! -f "$SUMMARY_FILE"
+then
+    echo "Error: $SUMMARY_FILE is not a file." 1>&2
+    exit 1
+fi
+
+TEMPFILE=$(mktemp -t insert_ndocs.XXXXXX)
+trap 'rm -f $TEMPFILE' 0 1 2 3 13 15
+
+for file
+do
+    do_sub < "$file" > $TEMPFILE
+    if cmp -s "$file" $TEMPFILE
+    then
+	echo "$file unchanged" 1>&2
+        continue
+    fi
+    case $DRY_RUN in
+        y*)
+            diff -u --ignore-space-change "$file" $TEMPFILE
+            ;;
+        *)
+            cat < $TEMPFILE > "$file"
+            echo "$file updated" 1>&2
+            ;;
+    esac
+done
+
+# vim: set et:

@@ -93,6 +93,14 @@ option(WANT_OPENAL "Enable OpenAL digital audio driver" on)
 option(WANT_DSOUND "Enable Dsound digital audio driver (Windows)" on)
 
 #
+# Documentation.
+#
+
+option(WANT_HTML "Generate HTML documentation" on)
+option(WANT_MAN "Generate man pages" on)
+option(WANT_INFO "Generate Info document" off)
+
+#
 # For developers.
 #
 

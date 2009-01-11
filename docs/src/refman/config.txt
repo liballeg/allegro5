@@ -1,0 +1,71 @@
+# Configuration files
+
+
+## API: ALLEGRO_CONFIG
+
+
+## API: ALLEGRO_CONFIG_ENTRY
+
+
+## API: ALLEGRO_CONFIG_SECTION
+
+
+## API: al_config_add_comment
+
+Add a comment in a section of a configuration.  If the section doesn't yet
+exist, it will be created.
+The section can be NULL or "" for the global section.
+
+## API: al_config_add_section
+
+Add a section to a configuration structure.
+
+## API: al_config_create
+
+Create an empty configuration structure.
+
+## API: al_config_destroy
+
+Free the resources used by a configuration structure.
+Does nothing if passed NULL.
+
+## API: al_config_get_value
+
+Gets a pointer to an internal character buffer that will only remain valid
+as long as the ALLEGRO_CONFIG structure is not destroyed. Copy the value
+if you need a copy.
+The section can be NULL or "" for the global section.
+Returns NULL if the section or key do not exist.
+
+## API: al_config_merge
+
+Merge two configuration structures, and return the result as a new
+configuration.  Values in configuration 'cfg2' override those in 'cfg1'.
+Neither of the input configuration structures are
+modified.
+Comments from 'cfg2' are not retained.
+
+## API: al_config_merge_into
+
+Merge one configuration structure into another.
+Values in configuration 'add' override those in 'master'.
+'master' is modified.
+Comments from 'add' are not retained.
+
+## API: al_config_read
+
+Read a configuration file.
+Returns NULL on error.
+
+## API: al_config_set_value
+
+Set a value in a section of a configuration.  If the section doesn't yet
+exist, it will be created.  If a value already existed for the given key,
+it will be overwritten.
+The section can be NULL or "" for the global section.
+
+## API: al_config_write
+
+Write out a configuration file.
+Returns zero on success, non-zero on error.
+

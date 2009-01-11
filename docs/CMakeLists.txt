@@ -4,6 +4,15 @@ mark_as_advanced(MAKEINFO)
 find_program(PANDOC NAMES pandoc)
 mark_as_advanced(PANDOC)
 
+# Our scripts run faster under ash than bash, but ash is probably not
+# the default shell.
+find_program(SH NAMES ash dash sh)
+find_program(AWK NAMES awk)
+find_program(GREP NAMES grep)
+find_program(SED NAMES sed)
+find_program(CUT NAMES cut)
+mark_as_advanced(SH AWK GREP SED CUT)
+
 #-----------------------------------------------------------------------------#
 
 set(all_docs)
@@ -109,4 +118,13 @@ configure_file(
     )
 
 #-----------------------------------------------------------------------------#
-# vi: set ts=8 sts=4 sw=4 et:
+
+# The reference manual uses a documentation system which currently
+# requires a small POSIXy environment.
+
+if(PANDOC AND SH AND AWK AND GREP AND SED AND CUT)
+    add_subdirectory(src/refman)
+endif()
+
+#-----------------------------------------------------------------------------#
+# vim: set sts=4 sw=4 et:

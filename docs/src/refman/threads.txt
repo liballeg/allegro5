@@ -1,4 +1,4 @@
-% Threading API
+# Threads
 
 Allegro 4.9 includes a simple cross-platform threading interface.
 It is a thin layer on top of two threading APIs: Windows threads
@@ -10,42 +10,19 @@ semantics and avoid edge cases.
 
 
 
-[ALLEGRO_THREAD]: #ALLEGRO_THREAD
-## ALLEGRO_THREAD
-
-    typedef struct ALLEGRO_THREAD ALLEGRO_THREAD;
+## API: ALLEGRO_THREAD
 
 
 
-[ALLEGRO_MUTEX]: #ALLEGRO_MUTEX
-## ALLEGRO_MUTEX
-
-    typedef struct ALLEGRO_MUTEX ALLEGRO_MUTEX;
+## API: ALLEGRO_MUTEX
 
 
 
-[ALLEGRO_COND]: #ALLEGRO_COND
-## ALLEGRO_COND
-
-    typedef struct ALLEGRO_COND ALLEGRO_COND;
+## API: ALLEGRO_COND
 
 
 
-[ALLEGRO_TIMEOUT]: #ALLEGRO_TIMEOUT
-## ALLEGRO_TIMEOUT
-
-    typedef struct ALLEGRO_TIMEOUT ALLEGRO_TIMEOUT;
-
-**This is shared with the events API.**
-
-
-
-[al_create_thread]: #al_create_thread
-## al_create_thread
-
-    ALLEGRO_THREAD *al_create_thread(
-                        void *(*proc)(ALLEGRO_THREAD *thread, void *arg),
-                        void *arg);
+## API: al_create_thread
 
 Spawn a new thread which begins executing `proc`.  The new thread is passed
 its own thread handle and the value `arg`.
@@ -60,10 +37,7 @@ Returns true if the thread was created, false if there was an error.
 
 
 
-[al_start_thread]: #al_start_thread
-## al_start_thread
-
-    void al_start_thread(ALLEGRO_THREAD *thread);
+## API: al_start_thread
 
 When a thread is created, it is initially in a suspended state.
 Calling `al_start_thread` will start its actual execution.
@@ -75,10 +49,7 @@ Starting a thread which has already been started does nothing.
 
 
 
-[al_join_thread]: #al_join_thread
-## al_join_thread
-
-    void al_join_thread(ALLEGRO_THREAD *thread, void **ret_value);
+## API: al_join_thread
 
 Wait for the thread to finish executing.  This implicitly calls
 `al_set_thread_should_stop` first.
@@ -93,10 +64,7 @@ will be stored at the location pointed to by `ret_value`.
 
 
 
-[al_set_thread_should_stop]: #al_set_thread_should_stop
-## al_set_thread_should_stop
-
-    void al_set_thread_should_stop(ALLEGRO_THREAD *thread);
+## API: al_set_thread_should_stop
 
 Set the flag to indicate `thread` should stop.  Returns immediately.
 
@@ -106,10 +74,7 @@ Set the flag to indicate `thread` should stop.  Returns immediately.
 
 
 
-[al_thread_should_stop]: #al_thread_should_stop
-## al_thread_should_stop
-
-    bool al_thread_should_stop(ALLEGRO_THREAD *thread);
+## API: al_thread_should_stop
 
 Check if another thread is waiting for `thread` to stop.  Threads which run
 in a loop should check this periodically and act on it when convenient.
@@ -128,10 +93,7 @@ We don't support forceful killing of threads.
 
 
 
-[al_destroy_thread]: #al_destroy_thread
-## al_destroy_thread
-
-    void al_destroy_thread(ALLEGRO_THREAD *thread);
+## API: al_destroy_thread
 
 Free the resources used by a thread.  Implicitly performs `al_join_thread`
 on the thread if it hasn't been done already.
@@ -143,10 +105,7 @@ Does nothing if `thread` is NULL.
 
 
 
-[al_create_mutex]: #al_create_mutex
-## al_create_mutex
-
-    ALLEGRO_MUTEX *al_create_mutex(void);
+## API: al_create_mutex
 
 Create the mutex object (a mutual exclusion device).  The mutex may or
 may not support "recursive" locking.
@@ -160,10 +119,7 @@ Returns the mutex on success or `NULL` on error.
 
 
 
-[al_create_mutex_recursive]: #al_create_mutex_recursive
-## al_create_mutex_recursive
-
-    ALLEGRO_MUTEX *al_create_mutex_recursive(void);
+## API: al_create_mutex_recursive
 
 Create the mutex object (a mutual exclusion device), with support for
 "recursive" locking.  That is, the mutex will count the number of times it
@@ -177,10 +133,7 @@ equal number of times, i.e. the count drops down to zero.
 
 
 
-[al_lock_mutex]: #al_lock_mutex
-## al_lock_mutex
-
-    void al_lock_mutex(ALLEGRO_MUTEX *mutex);
+## API: al_lock_mutex
 
 Acquire the lock on `mutex`.  If the mutex is already locked by another
 thread, the call will block until the mutex becomes available and locked.
@@ -198,10 +151,7 @@ mutex will be incremented and the call will return immediately.
 
 
 
-[al_unlock_mutex]: #al_unlock_mutex
-## al_unlock_mutex
-
-    void al_unlock_mutex(ALLEGRO_MUTEX *mutex);
+## API: al_unlock_mutex
 
 Release the lock on `mutex` if the calling thread holds the lock on it.
 
@@ -213,10 +163,7 @@ undefined behaviour results.
 
 
 
-[al_destroy_mutex]: #al_destroy_mutex
-## al_destroy_mutex
-
-    void al_destroy_mutex(ALLEGRO_MUTEX *mutex);
+## API: al_destroy_mutex
 
 Free the resources used by the mutex.  The mutex should be unlocked.
 Destroying a locked mutex results in undefined behaviour.
@@ -225,10 +172,7 @@ Does nothing if `mutex` is `NULL`.
 
 
 
-[al_create_cond]: #al_create_cond
-## al_create_cond
-
-    ALLEGRO_COND *al_create_cond(void);
+## API: al_create_cond
 
 Create a condition variable.
 
@@ -238,10 +182,7 @@ Returns the condition value on success or `NULL` on error.
 
 
 
-[al_destroy_cond]: #al_destroy_cond
-## al_destroy_cond
-
-    void al_destroy_cond(ALLEGRO_COND *cond);
+## API: al_destroy_cond
 
 Destroy a condition variable.
 
@@ -252,10 +193,7 @@ Does nothing if `cond` is `NULL`.
 
 
 
-[al_wait_cond]: #al_wait_cond
-## al_wait_cond
-
-    void al_wait_cond(ALLEGRO_COND *cond, ALLEGRO_MUTEX *mutex);
+## API: al_wait_cond
 
 On entering this function, `mutex` must be locked by the calling thread.
 The function will atomically release `mutex` and block on `cond`.  The
@@ -285,27 +223,7 @@ Remember not to unlock the mutex prematurely.
 
 
 
-[al_init_timeout]: #al_init_timeout
-## al_init_timeout
-
-    void al_init_timeout(ALLEGRO_TIMEOUT *timeout, double seconds);
-
-Set a timeout of the specified number of seconds after the time that the call
-is made.
-
-ALLEGRO_TIMEOUT structures can be statically allocated, e.g.
-
-    ALLEGRO_TIMEOUT timeout;
-
-    al_init_timeout(&timeout, 5.0);
-
-
-
-[al_wait_cond_timed]: #al_wait_cond_timed
-## al_wait_cond_timed
-
-    int al_wait_cond_timed(ALLEGRO_COND *cond, ALLEGRO_MUTEX *mutex,
-                          const ALLEGRO_TIMEOUT *timeout);
+## API: al_wait_cond_timed
 
 Like `al_wait_cond` but the call can return if the absolute time passes
 `timeout` before the condition is signalled.
@@ -319,10 +237,7 @@ but can return other errors.  Do we need to return other errors?**
 
 
 
-[al_broadcast_cond]: #al_broadcast_cond
-## al_broadcast_cond
-
-    void al_broadcast_cond(ALLEGRO_COND *cond);
+## API: al_broadcast_cond
 
 Unblock all threads currently waiting on a condition variable.  That is,
 broadcast that some condition which those threads were waiting for has
@@ -337,10 +252,7 @@ signalling for predictable scheduling behaviour.
 
 
 
-[al_signal_cond]: #al_signal_cond
-## al_signal_cond
-
-    void al_signal_cond(ALLEGRO_COND *cond);
+## API: al_signal_cond
 
 Unblock at least one thread waiting on a condition variable.
 
