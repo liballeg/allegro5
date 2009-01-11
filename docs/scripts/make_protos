@@ -2,14 +2,36 @@
 #
 # SYNOPSIS
 #
-# make_protos SOURCE-FILE...
+# make_protos [OPTIONS...] SOURCE-FILE...
+#
+# OPTIONS
+#
+# --protos FILE
 #
 # DESCRIPTION
 #
 # Extract all the function prototypes and type/enum declarations which have
 # Natural Docs tags Function: Type: Enum:
-# Output goes to standard out.
+# Output goes to $PROTOS.
+#
+# ENVIRONMENT VARIABLES
+#
+# - PROTOS
 #
 
+set -e
+
 export LC_CTYPE=C
-exec awk -f $0.awk "$@"
+
+PROTOS=${PROTOS:-protos}
+
+case $1 in
+    --protos)
+        PROTOS=$2
+        shift 2
+        ;;
+esac
+
+exec awk -f $0.awk "$@" > "$PROTOS"
+
+# vim: set et:

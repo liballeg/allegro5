@@ -32,8 +32,9 @@ endforeach(page)
 #-----------------------------------------------------------------------------#
 
 set(PROTOS ${CMAKE_CURRENT_BINARY_DIR}/protos)
+set(PROTOS_TIMESTAMP ${PROTOS}.timestamp)
 set(SCRIPT_DIR ${CMAKE_SOURCE_DIR}/docs/scripts)
-set(MAKE_PROTOS ${SH} ${SCRIPT_DIR}/make_protos)
+set(MAKE_PROTOS ${SH} ${SCRIPT_DIR}/make_protos --protos ${PROTOS})
 set(MAKE_PAGE ${SH} ${SCRIPT_DIR}/make_page --protos ${PROTOS})
 set(MAKE_MAN ${SH} ${SCRIPT_DIR}/make_man --protos ${PROTOS})
 
@@ -45,6 +46,13 @@ set(MAKE_MAN ${SH} ${SCRIPT_DIR}/make_man --protos ${PROTOS})
 
 # The protos file is a list of function prototypes and type declarations
 # which can then be embedded into the documentation.
+# Rebuilding the documentation whenever a source file changes is irritating,
+# especially as public prototypes rarely change.  Thus we keep a second file
+# called protos.timestamp which reflects the last time that the protos file
+# changed.  We declare _that_ file as the dependency of other targets.
+
+# XXX for some reason the html target sometimes won't build directly after
+# protos.timestamp changes.  Running make a second time works, however.
 
 file(GLOB_RECURSE ALL_SRCS
     ${CMAKE_SOURCE_DIR}/src/*.[ch]
@@ -56,13 +64,15 @@ file(GLOB_RECURSE ALL_SRCS
     )
 
 add_custom_command(
-    OUTPUT protos
+    OUTPUT ${PROTOS} ${PROTOS_TIMESTAMP}
     DEPENDS ${ALL_SRCS}
-    COMMAND ${MAKE_PROTOS} ${ALL_SRCS} > ${PROTOS}
+    COMMAND ${MAKE_PROTOS} ${ALL_SRCS}
+    POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different ${PROTOS} ${PROTOS_TIMESTAMP}
     )
 
 # For testing.
-add_custom_target(gen_protos DEPENDS protos)
+add_custom_target(gen_protos DEPENDS ${PROTOS})
 
 #-----------------------------------------------------------------------------#
 #
@@ -75,7 +85,7 @@ if(WANT_HTML)
     foreach(page ${PAGES})
         add_custom_command(
             OUTPUT ${page}.html
-            DEPENDS ${PROTOS} ${page}.txt
+            DEPENDS ${PROTOS_TIMESTAMP} ${page}.txt
             COMMAND
                 ${MAKE_PAGE} ${CMAKE_CURRENT_SOURCE_DIR}/${page}.txt
                 -o ${page}.html
@@ -117,7 +127,7 @@ if(WANT_MAN)
 
         add_custom_command(
             OUTPUT ${outputs}
-            DEPENDS ${PROTOS} ${page}
+            DEPENDS ${PROTOS_TIMESTAMP} ${page}
             COMMAND ${MAKE_MAN} ${page}
             WORKING_DIRECTORY ${MAN_DIR}
             )
@@ -147,7 +157,7 @@ if(WANT_INFO AND MAKEINFO)
         )
     add_custom_command(
         OUTPUT refman.texi
-        DEPENDS ${PROTOS} ${PAGES_TXT}
+        DEPENDS ${PROTOS_TIMESTAMP} ${PAGES_TXT}
         COMMAND ${MAKE_PAGE} ${PAGES_TXT} -o refman.texi --standalone
         )
 endif(WANT_INFO AND MAKEINFO)
