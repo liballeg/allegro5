@@ -354,6 +354,8 @@ struct ALLEGRO_FS_ENTRY_STDIO {
 static char **search_path = NULL;
 static uint32_t search_path_count = 0;
 
+static void _al_fs_update_stat_mode(ALLEGRO_FS_ENTRY_STDIO *fp_stdio);
+static bool al_fs_stdio_fstat(ALLEGRO_FS_ENTRY *fp);
 
 static ALLEGRO_FS_ENTRY *al_fs_stdio_create_handle(const char *path)
 {
@@ -407,63 +409,20 @@ static ALLEGRO_FS_ENTRY *al_fs_stdio_create_handle(const char *path)
          fnd = 1;
          fh->st = st;
          fh->found = tmp;
+
+         _al_fs_update_stat_mode(fh);
+
          break;
       }
    }
 
-   if (!fnd) {
-      /* FIXME: I'm not sure this check is needed, it might even be broken, if fh->found is set here, it could be stale info */
-      if (fh->found)
-         stat(fh->found, &(fh->st));
-      else
-         stat(fh->path, &(fh->st));
+   if(!fh->found) {
+      if(!al_fs_stdio_fstat((ALLEGRO_FS_ENTRY*)fh)) {
+      /* XXX what to do here?
+         errno:ENOENT isn't a fatal error, but are others?
+      */
+      }
    }
-
-   fh->stat_mode = 0;
-
-   if (S_ISDIR(fh->st.st_mode))
-      fh->stat_mode |= AL_FM_ISDIR;
-   else /* marks special unix files as files... might want to add enum items for symlink, CHAR, BLOCK and SOCKET files. */
-      fh->stat_mode |= AL_FM_ISFILE;
-
-   /*
-   if (S_ISREG(fh->st.st_mode))
-      fh->stat_mode |= AL_FM_ISFILE;
-   */
-
-#ifndef ALLEGRO_WINDOWS
-   if (fh->st.st_mode & S_IRUSR || fh->st.st_mode & S_IRGRP)
-      fh->stat_mode |= AL_FM_READ;
-
-   if (fh->st.st_mode & S_IWUSR || fh->st.st_mode & S_IWGRP)
-      fh->stat_mode |= AL_FM_WRITE;
-
-   if (fh->st.st_mode & S_IXUSR || fh->st.st_mode & S_IXGRP)
-      fh->stat_mode |= AL_FM_EXECUTE;
-#else
-   if (fh->st.st_mode & S_IRUSR)
-      fh->stat_mode |= AL_FM_READ;
-
-   if (fh->st.st_mode & S_IWUSR)
-      fh->stat_mode |= AL_FM_WRITE;
-
-   if (fh->st.st_mode & S_IXUSR)
-      fh->stat_mode |= AL_FM_EXECUTE;
-#endif
-
-/* TODO: do we need a special OSX section here? or are . (dot) files "proper" under osx? */
-#ifdef ALLEGRO_WINDOWS
-   {
-      DWORD attrib = GetFileAttributes(fh->found ? fh->found : fh->path);
-      if (attrib & FILE_ATTRIBUTE_HIDDEN)
-         fh->stat_mode |= AL_FM_HIDDEN;
-   }
-#else
-   if (fh->found)
-      fh->stat_mode |= (fh->found[0] == '.' ? AL_FM_HIDDEN : 0);
-   else
-      fh->stat_mode |= (fh->path[0] == '.' ? AL_FM_HIDDEN : 0);
-#endif
 
    return (ALLEGRO_FS_ENTRY *) fh;
 }
@@ -696,12 +655,61 @@ static int al_fs_stdio_ungetc(int c, ALLEGRO_FS_ENTRY *fp)
    return ungetc(c, fp_stdio->hd.handle);
 }
 
-/* XXX update the stat_mode entry */
+static void _al_fs_update_stat_mode(ALLEGRO_FS_ENTRY_STDIO *fp_stdio)
+{
+   if (S_ISDIR(fp_stdio->st.st_mode))
+      fp_stdio->stat_mode |= AL_FM_ISDIR;
+   else /* marks special unix files as files... might want to add enum items for symlink, CHAR, BLOCK and SOCKET files. */
+      fp_stdio->stat_mode |= AL_FM_ISFILE;
+
+   /*
+   if (S_ISREG(fh->st.st_mode))
+      fh->stat_mode |= AL_FM_ISFILE;
+   */
+
+#ifndef ALLEGRO_WINDOWS
+   if (fp_stdio->st.st_mode & S_IRUSR || fp_stdio->st.st_mode & S_IRGRP)
+      fp_stdio->stat_mode |= AL_FM_READ;
+
+   if (fp_stdio->st.st_mode & S_IWUSR || fp_stdio->st.st_mode & S_IWGRP)
+      fp_stdio->stat_mode |= AL_FM_WRITE;
+
+   if (fp_stdio->st.st_mode & S_IXUSR || fp_stdio->st.st_mode & S_IXGRP)
+      fp_stdio->stat_mode |= AL_FM_EXECUTE;
+#else
+   if (fp_stdio->st.st_mode & S_IRUSR)
+      fp_stdio->stat_mode |= AL_FM_READ;
+
+   if (fp_stdio->st.st_mode & S_IWUSR)
+      fp_stdio->stat_mode |= AL_FM_WRITE;
+
+   if (fp_stdio->st.st_mode & S_IXUSR)
+      fp_stdio->stat_mode |= AL_FM_EXECUTE;
+#endif
+
+/* TODO: do we need a special OSX section here? or are . (dot) files "proper" under osx? */
+#ifdef ALLEGRO_WINDOWS
+   {
+      DWORD attrib = GetFileAttributes(fp_stdio->found ? fp_stdio->found : fp_stdio->path);
+      if (attrib & FILE_ATTRIBUTE_HIDDEN)
+         fp_stdio->stat_mode |= AL_FM_HIDDEN;
+   }
+#else
+   if (fp_stdio->found)
+      fp_stdio->stat_mode |= (fp_stdio->found[0] == '.' ? AL_FM_HIDDEN : 0);
+   else
+      fp_stdio->stat_mode |= (fp_stdio->path[0] == '.' ? AL_FM_HIDDEN : 0);
+#endif
+
+   return;
+}
+
 static bool al_fs_stdio_fstat(ALLEGRO_FS_ENTRY *fp)
 {
    ALLEGRO_FS_ENTRY_STDIO *fp_stdio = (ALLEGRO_FS_ENTRY_STDIO *) fp;
    int32_t ret = 0;
 
+   /* FIXME: I'm not sure this check is needed, it might even be broken, if fh->found is set here, it could be stale info */
    if (fp_stdio->found) {
       ret = stat(fp_stdio->found, &(fp_stdio->st));
    }
@@ -713,6 +721,8 @@ static bool al_fs_stdio_fstat(ALLEGRO_FS_ENTRY *fp)
       return false;
    }
 
+   _al_fs_update_stat_mode(fp_stdio);
+   
    return true;
 }
 
