@@ -580,7 +580,7 @@ static void al_fs_stdio_fclose(ALLEGRO_FS_ENTRY *fh)
    }
 }
 
-static size_t al_fs_stdio_fread(void *ptr, size_t size, ALLEGRO_FS_ENTRY *fp)
+static size_t al_fs_stdio_fread(ALLEGRO_FS_ENTRY *fp, size_t size, void *ptr)
 {
    ALLEGRO_FS_ENTRY_STDIO *fp_stdio = (ALLEGRO_FS_ENTRY_STDIO *) fp;
    size_t ret;
@@ -594,8 +594,8 @@ static size_t al_fs_stdio_fread(void *ptr, size_t size, ALLEGRO_FS_ENTRY *fp)
    return ret;
 }
 
-static size_t al_fs_stdio_fwrite(const void *ptr, size_t size,
-   ALLEGRO_FS_ENTRY *fp)
+static size_t al_fs_stdio_fwrite(ALLEGRO_FS_ENTRY *fp, size_t size,
+                                 const void *ptr)
 {
    ALLEGRO_FS_ENTRY_STDIO *fp_stdio = (ALLEGRO_FS_ENTRY_STDIO *) fp;
    size_t ret;

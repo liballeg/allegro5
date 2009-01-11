@@ -82,8 +82,10 @@ void al_fs_close_handle(ALLEGRO_FS_ENTRY *handle)
 
 /* Function: al_fs_entry_name
  * Fills in buf up to size bytes including trailing NULL char with the entry's name
+ * If buffer is too small, the string is truncated.
+ * XXX change this to return -1 on error, and fill in errno with ERANGE
+ *  if buffer is too small.
  */
-/* XXX what happens if the buffer is too small? */
 void al_fs_entry_name(ALLEGRO_FS_ENTRY *fp, size_t size, char *buf)
 {
    ASSERT(fp != NULL);
@@ -124,13 +126,12 @@ void al_fs_entry_close(ALLEGRO_FS_ENTRY *fp)
  *
  * Return number of bytes actually read.
  */
-/* XXX the argument ordering is strange for Allegro */
-size_t al_fs_entry_read(void *ptr, size_t size, ALLEGRO_FS_ENTRY *fp)
+size_t al_fs_entry_read(ALLEGRO_FS_ENTRY *fp, size_t size, void *ptr)
 {
    ASSERT(ptr != NULL);
    ASSERT(fp != NULL);
 
-   return _al_fs_hook_entry_read(ptr, size, fp);
+   return _al_fs_hook_entry_read(fp, size, ptr);
 }
 
 /* Function: al_fs_entry_write
@@ -142,13 +143,12 @@ size_t al_fs_entry_read(void *ptr, size_t size, ALLEGRO_FS_ENTRY *fp)
  * Use <al_fs_entry_eof> and <al_fs_entry_error>
  * to tell them apart.
  */
-/* XXX the argument ordering is strange for Allegro */
-size_t al_fs_entry_write(const void *ptr, size_t size, ALLEGRO_FS_ENTRY *fp)
+size_t al_fs_entry_write(ALLEGRO_FS_ENTRY *fp, size_t size, const void *ptr)
 {
    ASSERT(ptr != NULL);
    ASSERT(fp != NULL);
 
-   return _al_fs_hook_entry_write(ptr, size, fp);
+   return _al_fs_hook_entry_write(fp, size, ptr);
 }
 
 /* Function: al_fs_entry_flush
@@ -211,8 +211,10 @@ int32_t al_fs_entry_eof(ALLEGRO_FS_ENTRY *fp)
 /* Function: al_fs_entry_stat
  * Updates stat info for entry 'fp'.
  *
- * XXX details required
- * XXX what is return code?
+ * Returns 0 on success, -1 on failure
+ *
+ * See also <al_fs_entry_atime> <al_fs_entry_ctime> <al_fs_entry_isdir>
+ *  <al_fs_entry_isfile> <al_fs_entry_mode>
  */
 int32_t al_fs_entry_stat(ALLEGRO_FS_ENTRY *fp)
 {
@@ -398,8 +400,12 @@ ALLEGRO_FS_ENTRY *al_fs_mktemp(const char *template, uint32_t ulink)
 /* Function: al_fs_getcwd
  * Fill in 'buf' up to 'len' characters with the current working directory.
  *
- * If 'buf/len' is not large enough, the path may be truncated.
- * XXX how is that reported to the user?
+ * Returns 0 on success, and -1 on error.
+ *
+ * In the unlikely event that buf is not large enough, -1 is returned and
+ * errno is set to ERANGE
+ *
+ * See also <al_get_errno>
  */
 int32_t al_fs_getcwd(char *buf, size_t len)
 {
@@ -457,6 +463,8 @@ int32_t al_fs_search_path_count()
  *
  * Warning: if 'dest/len' isn't large enough, path may be truncated.
  * XXX how is that reported to the user?
+ * XXX Will change to returning -1 if buf isn't large enough,
+ * XXX  and set errno to ERANGE
  *
  * Parameters:
  *  idx - index of search path element requested
@@ -645,7 +653,7 @@ int al_fs_entry_getc(ALLEGRO_FS_ENTRY *f)
    uint8_t c = 0;
    ASSERT(f);
 
-   if (al_fs_entry_read(&c, 1, f) != 1) {
+   if (al_fs_entry_read((void *)&c, 1, f) != 1) {
       if (al_fs_entry_eof(f))
          return EOF;
    }
@@ -667,7 +675,7 @@ int al_fs_entry_putc(int c, ALLEGRO_FS_ENTRY *f)
 {
    ASSERT(f);
 
-   if (al_fs_entry_write(&c, 1, f) != 1) {
+   if (al_fs_entry_write((void *)&c, 1, f) != 1) {
       if (al_fs_entry_error(f))
          return EOF;
    }

@@ -67,8 +67,8 @@ struct ALLEGRO_FS_HOOK_ENTRY_INTERFACE {
    AL_METHOD(void,     fname,  (ALLEGRO_FS_ENTRY *fh, size_t s, char *name) );
 
    AL_METHOD(void,  fclose, (ALLEGRO_FS_ENTRY *fp) );
-   AL_METHOD(size_t,   fread,  (void *ptr, size_t size, ALLEGRO_FS_ENTRY *fp) );
-   AL_METHOD(size_t,   fwrite, (AL_CONST void *ptr, size_t size, ALLEGRO_FS_ENTRY *fp) );
+   AL_METHOD(size_t,   fread,  (ALLEGRO_FS_ENTRY *fp, size_t size, void *ptr) );
+   AL_METHOD(size_t,   fwrite, (ALLEGRO_FS_ENTRY *fp, size_t size, AL_CONST void *ptr) );
    AL_METHOD(int32_t,  fflush, (ALLEGRO_FS_ENTRY *fp) );
    AL_METHOD(int32_t,  fseek,  (ALLEGRO_FS_ENTRY *fp, uint32_t offset, uint32_t whence) );
    AL_METHOD(int32_t,  ftell,  (ALLEGRO_FS_ENTRY *fp) );
@@ -104,8 +104,8 @@ extern struct ALLEGRO_FS_HOOK_SYS_INTERFACE _al_stdio_sys_fshooks;
 #define _al_fs_hook_entry_name(fp, s, b)           (fp)->vtable->fname(fp, s, b)
 #define _al_fs_hook_entry_open(path, mode)         _al_sys_fshooks->fopen(path, mode)
 #define _al_fs_hook_entry_close(fp)                (fp)->vtable->fclose(fp)
-#define _al_fs_hook_entry_read(ptr, size, fp)      (fp)->vtable->fread(ptr, size, fp)
-#define _al_fs_hook_entry_write(ptr, size, fp)     (fp)->vtable->fwrite(ptr, size, fp)
+#define _al_fs_hook_entry_read(fp, size, ptr)      (fp)->vtable->fread(fp, size, ptr)
+#define _al_fs_hook_entry_write(fp, size, ptr)     (fp)->vtable->fwrite(fp, size, ptr)
 #define _al_fs_hook_entry_flush(fp)                (fp)->vtable->fflush(fp)
 #define _al_fs_hook_entry_seek(fp, offset, whence) (fp)->vtable->fseek(fp,offset,whence)
 #define _al_fs_hook_entry_tell(fp)                 (fp)->vtable->ftell(fp)
