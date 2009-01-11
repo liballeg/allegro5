@@ -244,12 +244,6 @@ typedef struct ALLEGRO_USER_EVENT
  * event.  The any.timestamp field tells you when the event was generated.  The
  * time is referenced to the same starting point as al_current_time().
  */
-/* Although
- * we cannot extend this union later with user event structures, the
- * API is designed so that pointers to any user event structures can
- * be reliably cast to and from pointers to AL_EVENTs.  In that way,
- * user events are _almost_ as legitimate as builtin events.
- */
 typedef union ALLEGRO_EVENT ALLEGRO_EVENT;
 
 union ALLEGRO_EVENT

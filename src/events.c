@@ -352,9 +352,8 @@ void al_flush_event_queue(ALLEGRO_EVENT_QUEUE *queue)
 
 
 
-/* [primary thread]
- *
- * Function: al_wait_for_event
+/* [primary thread] */
+/* Function: al_wait_for_event
  *  Wait until the event queue specified is non-empty.  If RET_EVENT
  *  is not NULL, the first event packet in the queue will be copied
  *  into RET_EVENT and removed from the queue.  If RET_EVENT is NULL
@@ -382,9 +381,8 @@ void al_wait_for_event(ALLEGRO_EVENT_QUEUE *queue, ALLEGRO_EVENT *ret_event)
 
 
 
-/* [primary thread]
- *
- * Function: al_wait_for_event_timed
+/* [primary thread] */
+/* Function: al_wait_for_event_timed
  *  Wait until the event queue specified is non-empty.  If RET_EVENT
  *  is not NULL, the first event packet in the queue will be copied
  *  into RET_EVENT and removed from the queue.  If RET_EVENT is NULL

@@ -861,7 +861,7 @@ int al_get_errno(void)
 
 
 
-/* Function: al_get_errno
+/* Function: al_set_errno
  *  Set the error number for for the calling thread.
  */
 void al_set_errno(int errnum)

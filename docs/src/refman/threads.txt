@@ -12,13 +12,19 @@ semantics and avoid edge cases.
 
 ## API: ALLEGRO_THREAD
 
+An opaque structure representing a thread.
+
 
 
 ## API: ALLEGRO_MUTEX
 
+An opaque structure representing a mutex.
+
 
 
 ## API: ALLEGRO_COND
+
+An opaque structure representing a condition variable.
 
 
 

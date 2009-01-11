@@ -8,8 +8,8 @@
 
 ## API: ALLEGRO_AUDIO_PROPERTY
 
-Flags to pass to the various al_*_get_* and al_*_set_* functions. Not
-all types will apply to all functions.
+Flags to pass to the various al\_\*\_get\_\* and al\_\*\_set\_\* functions.
+Not all types will apply to all functions.
 
 ## API: ALLEGRO_CHANNEL_CONF
 

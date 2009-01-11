@@ -12,10 +12,11 @@
 ## API: al_color_hsl_to_rgb
 
 Parameters:
-hue - Color hue angle in the range 0..360.
-saturation - Color saturation in the range 0..1.
-lightness - Color lightness in the range 0..1.
-red, green, blue - returned RGB values in the range 0..1.
+
+* hue - Color hue angle in the range 0..360.
+* saturation - Color saturation in the range 0..1.
+* lightness - Color lightness in the range 0..1.
+* red, green, blue - returned RGB values in the range 0..1.
 
 ## API: al_color_hsv
 
@@ -23,10 +24,11 @@ red, green, blue - returned RGB values in the range 0..1.
 ## API: al_color_hsv_to_rgb
 
 Parameters:
-hue - Color hue angle in the range 0..360.
-saturation - Color saturation in the range 0..1.
-value - Color value in the range 0..1.
-red, green, blue - returned RGB values in the range 0..1.
+
+* hue - Color hue angle in the range 0..360.
+* saturation - Color saturation in the range 0..1.
+* value - Color value in the range 0..1.
+* red, green, blue - returned RGB values in the range 0..1.
 
 ## API: al_color_html
 
@@ -34,13 +36,15 @@ red, green, blue - returned RGB values in the range 0..1.
 ## API: al_color_html_to_rgb
 
 Parameters:
-red, green, blue - The color components in the range 0..1.
-string - A string with a size of 8 bytes into which the result will
+
+* red, green, blue - The color components in the range 0..1.
+* string - A string with a size of 8 bytes into which the result will
 be written.
 
 Example:
-> char html[8];
-> al_color_rgb_to_html(1, 0, 0, html);
+
+    char html[8];
+    al_color_rgb_to_html(1, 0, 0, html);
 
 Now html will contain "#ff0000".
 
@@ -50,12 +54,14 @@ Now html will contain "#ff0000".
 ## API: al_color_name_to_rgb
 
 Parameters:
-name - The (lowercase) name of the color.
-r, g, b - If one of the recognized color names below is passed,
+
+* name - The (lowercase) name of the color.
+* r, g, b - If one of the recognized color names below is passed,
   the corresponding RGB values in the range 0..1 are written.
 
 The recognized names are:
-aliceblue, antiquewhite, aqua, aquamarine, azure, beige, bisque,
+
+> aliceblue, antiquewhite, aqua, aquamarine, azure, beige, bisque,
 black, blanchedalmond, blue, blueviolet, brown, burlywood, cadetblue,
 chartreuse, chocolate, coral, cornflowerblue, cornsilk, crimson,
 cyan, darkblue, darkcyan, darkgoldenrod, darkgray, darkgreen,
@@ -80,7 +86,7 @@ sandybrown, seagreen, seashell, sienna, silver, skyblue, slateblue,
 slategray, snow, springgreen, steelblue, tan, teal, thistle, tomato,
 turquoise, violet, wheat, white, whitesmoke, yellow, yellowgreen
 
-They are taken from [http://en.wikipedia.org/wiki/X11_color_names],
+They are taken from <http://en.wikipedia.org/wiki/X11_color_names>,
 with CSS names being preferred over X11 ones where there is overlap.
 
 Returns:
@@ -91,10 +97,10 @@ Returns:
 Each RGB color can be represented in CMYK with a K component of 0
 with the following formula:
 
-> C = 1 - R
-> M = 1 - G
-> Y = 1 - B
-> K = 0
+    C = 1 - R
+    M = 1 - G
+    Y = 1 - B
+    K = 0
 
 This function will instead find the representation with the maximal
 value for K and minimal color components.

@@ -720,7 +720,7 @@ void _al_ogl_manage_extensions(ALLEGRO_DISPLAY *gl_disp)
 
 
 
-/* Function: al_get_opengl_ogl_extras->extension_list
+/* Function: al_get_opengl_ogl_extras
  * Returns the list of OpenGL extensions supported by Allegro, for
  * the current display.
  *

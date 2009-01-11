@@ -11,15 +11,15 @@ This is a structure that is used to hold a "snapshot" of a
 joystick's axes and buttons at a particular instant.
 All fields public and read-only.
 
-> struct {
->	float axis[num_axes];		    // -1.0 to 1.0 
-> } stick[num_sticks];
-> int button[num_buttons];		    // 0 to 32767
+    struct {
+          float axis[num_axes];             // -1.0 to 1.0 
+    } stick[num_sticks];
+    int button[num_buttons];                // 0 to 32767
 
-Joystick flags.
+Joystick flags:
 
-ALLEGRO_JOYFLAG_DIGITAL  - the stick provides digital input
-ALLEGRO_JOYFLAG_ANALOGUE - the stick provides analogue input
+* ALLEGRO_JOYFLAG_DIGITAL  - the stick provides digital input
+* ALLEGRO_JOYFLAG_ANALOGUE - the stick provides analogue input
 
 (this enum is a holdover from the old API and may be removed)
 

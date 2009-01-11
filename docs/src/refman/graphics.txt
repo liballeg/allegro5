@@ -13,13 +13,13 @@ are required to lock it first. The ALLEGRO_LOCKED_REGION
 structure represents the locked region of the bitmap. This
 call will work with any bitmap, including memory bitmaps.
 
-> typedef struct ALLEGRO_LOCKED_REGION {
->         void *data; // the bitmap data
->         int format; // the pixel format of the data
->         int pitch;  // the size in bytes of a single line
->                     // pitch may be greater than pixel_size*bitmap->w
->                     // i.e. padded with extra bytes
-> }
+    typedef struct ALLEGRO_LOCKED_REGION {
+            void *data; // the bitmap data
+            int format; // the pixel format of the data
+            int pitch;  // the size in bytes of a single line
+                        // pitch may be greater than pixel_size*bitmap->w
+                        // i.e. padded with extra bytes
+    }
 
 Pixel formats. Each pixel format specifies the exact size and bit
 layout of a pixel in memory. Components are specified from high bits
@@ -32,68 +32,68 @@ byte red, second byte green, ..." etc. However, a format with that layout
 in Allegro terms would be named ALLEGRO_PIXEL_FORMAT_ABGR_8888 (notice
 the reversal from RGBA -> ABGR)).
 
-ALLEGRO_PIXEL_FORMAT_ANY - Let the driver choose a format. This is the
+* ALLEGRO_PIXEL_FORMAT_ANY - Let the driver choose a format. This is the
 default format at program start.
 
-ALLEGRO_PIXEL_FORMAT_ANY_NO_ALPHA - Let the driver choose a format without
+* ALLEGRO_PIXEL_FORMAT_ANY_NO_ALPHA - Let the driver choose a format without
 alpha
 
-ALLEGRO_PIXEL_FORMAT_ANY_WITH_ALPHA - Let the driver choose a format with
+* ALLEGRO_PIXEL_FORMAT_ANY_WITH_ALPHA - Let the driver choose a format with
 alpha.
 
-ALLEGRO_PIXEL_FORMAT_ANY_15_NO_ALPHA - Let the driver choose a 15 bit format
+* ALLEGRO_PIXEL_FORMAT_ANY_15_NO_ALPHA - Let the driver choose a 15 bit format
 without alpha
 
-ALLEGRO_PIXEL_FORMAT_ANY_15_WITH_ALPHA - Let the driver choose a 15 bit
+* ALLEGRO_PIXEL_FORMAT_ANY_15_WITH_ALPHA - Let the driver choose a 15 bit
 format with alpha
 
-ALLEGRO_PIXEL_FORMAT_ANY_16_NO_ALPHA - Let the driver choose a 16 bit format
+* ALLEGRO_PIXEL_FORMAT_ANY_16_NO_ALPHA - Let the driver choose a 16 bit format
 without alpha
 
-ALLEGRO_PIXEL_FORMAT_ANY_16_WITH_ALPHA - Let the driver choose a 16 bit
+* ALLEGRO_PIXEL_FORMAT_ANY_16_WITH_ALPHA - Let the driver choose a 16 bit
 format with alpha
 
-ALLEGRO_PIXEL_FORMAT_ANY_24_NO_ALPHA - Let the driver choose a 24 bit format
+* ALLEGRO_PIXEL_FORMAT_ANY_24_NO_ALPHA - Let the driver choose a 24 bit format
 without alpha
 
-ALLEGRO_PIXEL_FORMAT_ANY_24_WITH_ALPHA - Let the driver choose a 24 bit
+* ALLEGRO_PIXEL_FORMAT_ANY_24_WITH_ALPHA - Let the driver choose a 24 bit
 format with alpha
 
-ALLEGRO_PIXEL_FORMAT_ANY_32_NO_ALPHA - Let the driver choose a 32 bit format
+* ALLEGRO_PIXEL_FORMAT_ANY_32_NO_ALPHA - Let the driver choose a 32 bit format
 without alpha
 
-ALLEGRO_PIXEL_FORMAT_ANY_32_WITH_ALPHA - Let the driver choose a 32 bit
+* ALLEGRO_PIXEL_FORMAT_ANY_32_WITH_ALPHA - Let the driver choose a 32 bit
 format with alpha
 
-ALLEGRO_PIXEL_FORMAT_ARGB_8888 - 32 bit
+* ALLEGRO_PIXEL_FORMAT_ARGB_8888 - 32 bit
 
-ALLEGRO_PIXEL_FORMAT_RGBA_8888 - 32 bit
+* ALLEGRO_PIXEL_FORMAT_RGBA_8888 - 32 bit
 
-ALLEGRO_PIXEL_FORMAT_ARGB_4444 - 16 bit
+* ALLEGRO_PIXEL_FORMAT_ARGB_4444 - 16 bit
 
-ALLEGRO_PIXEL_FORMAT_RGB_888 - 24 bit
+* ALLEGRO_PIXEL_FORMAT_RGB_888 - 24 bit
 
-ALLEGRO_PIXEL_FORMAT_RGB_565 - 16 bit
+* ALLEGRO_PIXEL_FORMAT_RGB_565 - 16 bit
 
-ALLEGRO_PIXEL_FORMAT_RGB_555 - 15 bit
+* ALLEGRO_PIXEL_FORMAT_RGB_555 - 15 bit
 
-ALLEGRO_PIXEL_FORMAT_RGBA_5551 - 16 bit
+* ALLEGRO_PIXEL_FORMAT_RGBA_5551 - 16 bit
 
-ALLEGRO_PIXEL_FORMAT_ARGB_1555 - 16 bit
+* ALLEGRO_PIXEL_FORMAT_ARGB_1555 - 16 bit
 
-ALLEGRO_PIXEL_FORMAT_ABGR_8888 - 32 bit
+* ALLEGRO_PIXEL_FORMAT_ABGR_8888 - 32 bit
 
-ALLEGRO_PIXEL_FORMAT_XBGR_8888 - 32 bit
+* ALLEGRO_PIXEL_FORMAT_XBGR_8888 - 32 bit
 
-ALLEGRO_PIXEL_FORMAT_BGR_888 - 24 bit
+* ALLEGRO_PIXEL_FORMAT_BGR_888 - 24 bit
 
-ALLEGRO_PIXEL_FORMAT_BGR_565 - 16 bit 
+* ALLEGRO_PIXEL_FORMAT_BGR_565 - 16 bit 
 
-ALLEGRO_PIXEL_FORMAT_BGR_555 - 15 bit
+* ALLEGRO_PIXEL_FORMAT_BGR_555 - 15 bit
 
-ALLEGRO_PIXEL_FORMAT_RGBX_8888 - 32 bit
+* ALLEGRO_PIXEL_FORMAT_RGBX_8888 - 32 bit
 
-ALLEGRO_PIXEL_FORMAT_XRGB_8888 - 32 bit
+* ALLEGRO_PIXEL_FORMAT_XRGB_8888 - 32 bit
 
 ## API: al_bitmap_is_locked
 
@@ -162,46 +162,46 @@ ALLEGRO_FLIP_VERTICAL - flip the bitmap about the x-axis
 
 Draws a region of the given bitmap to the target bitmap.
 
-sx - source x
-sy - source y
-sw - source width (width of region to blit)
-sh - source height (height of region to blit)
-dx - destination x
-dy - destination y
-flags - same as for <al_draw_bitmap>
+* sx - source x
+* sy - source y
+* sw - source width (width of region to blit)
+* sh - source height (height of region to blit)
+* dx - destination x
+* dy - destination y
+* flags - same as for <al_draw_bitmap>
 
 ## API: al_draw_line
 
 Draws a line to the current target.
 
-fx - from x
-fy - from y
-tx - to x
-ty - to y
-color - can be obtained with al_map_*
+* fx - from x
+* fy - from y
+* tx - to x
+* ty - to y
+* color - can be obtained with al_map_*
 
 ## API: al_draw_pixel
 
 Draws a single pixel at x, y. This function, unlike
 al_put_pixel, does blending.
 
-x - destination x
-y - destination y
-color - color of the pixel
+* x - destination x
+* y - destination y
+* color - color of the pixel
 
 ## API: al_draw_rectangle
 
 Draws a rectangle to the current target.
 
-tlx - top left x
-tly - top left y
-brx - bottom right x
-bry - bottom right y
+* tlx - top left x
+* tly - top left y
+* brx - bottom right x
+* bry - bottom right y
 
 flags can be:
 
-ALLEGRO_FILLED - fill the interior of the rectangle
-ALLEGRO_OUTLINED - draw only the rectangle borders
+* ALLEGRO_FILLED - fill the interior of the rectangle
+* ALLEGRO_OUTLINED - draw only the rectangle borders
 
 Outlined is the default.
 
@@ -213,12 +213,12 @@ The bitmap is rotated by 'angle' radians counter clockwise.
 The point at cx/cy inside the bitmap will be drawn at dx/dy and the
 bitmap is rotated around this point.
 
-cx - center x
-cy - center y
-dx - destination x
-dy - destination y
-angle - angle by which to rotate
-flags - same as for <al_draw_bitmap>
+* cx - center x
+* cy - center y
+* dx - destination x
+* dy - destination y
+* angle - angle by which to rotate
+* flags - same as for <al_draw_bitmap>
 
 ## API: al_draw_rotated_scaled_bitmap
 
@@ -227,29 +227,28 @@ Like <al_draw_rotated_bitmap>, but can also scale the bitmap.
 The point at cx/cy in the bitmap will be drawn at dx/dy and the bitmap is
 rotated and scaled around this point.
 
-cx - center x
-cy - center y
-dx - destination x
-dy - destination y
-xscale - how much to scale on the x-axis (e.g. 2 for twice the size)
-yscale - how much to scale on the y-axis
-angle - angle by which to rotate
-flags - same as for <al_draw_bitmap>
-
+* cx - center x
+* cy - center y
+* dx - destination x
+* dy - destination y
+* xscale - how much to scale on the x-axis (e.g. 2 for twice the size)
+* yscale - how much to scale on the y-axis
+* angle - angle by which to rotate
+* flags - same as for <al_draw_bitmap>
 
 ## API: al_draw_scaled_bitmap
 
 Draws a scaled version of the given bitmap to the target bitmap.
 
-sx - source x
-sy - source y
-sw - source width
-sh - source height
-dx - destination x
-dy - destination y
-dw - destination width
-dh - destination height
-flags - same as for <al_draw_bitmap>
+* sx - source x
+* sy - source y
+* sw - source width
+* sh - source height
+* dx - destination x
+* dy - destination y
+* dw - destination width
+* dh - destination height
+* flags - same as for <al_draw_bitmap>
 
 ## API: al_get_bitmap_flags
 
@@ -306,7 +305,9 @@ be used to know if the bitmap is compatible with the current display,
 even if it is another display than the one it was created with. It
 returns true if the bitmap is compatible (things like a cached texture
 version can be used) and false otherwise (blitting in the current
-display will be slow). The only time this function is useful is if you
+display will be slow).
+
+The only time this function is useful is if you
 are using multiple windows and need accelerated blitting of the same
 bitmaps to both. 
 
@@ -327,13 +328,15 @@ bitmap cannot be locked, e.g. the bitmap was locked previously and not
 unlocked.
 
 Flags are:
-ALLEGRO_LOCK_READONLY - The locked region will not be written to. This can
-  be faster if the bitmap is a video texture, as it can be discarded after
-  the lock instead of uploaded back to the card.
-ALLEGRO_LOCK_WRITEONLY - The locked region will not be read from. This can
-  be faster if the bitmap is a video texture, as no data need to be read
-  from the video card. You are required to fill in all pixels before
-  unlocking the bitmap again, so be careful when using this flag.
+
+* ALLEGRO_LOCK_READONLY - The locked region will not be written to. This can
+be faster if the bitmap is a video texture, as it can be discarded after
+the lock instead of uploaded back to the card.
+    
+* ALLEGRO_LOCK_WRITEONLY - The locked region will not be read from. This can
+be faster if the bitmap is a video texture, as no data need to be read
+from the video card. You are required to fill in all pixels before
+unlocking the bitmap again, so be careful when using this flag.
 
 
 ## API: al_lock_bitmap_region
@@ -392,18 +395,19 @@ And this color is drawn to a destination, which already has a color:
 
 Blending formula:
 The conceptional formula used by Allegro to draw any pixel then is
-> r = dr * dst + sr * src
-> g = dg * dst + sg * src
-> b = db * dst + sb * src
-> a = da * dst + sa * src
+
+    r = dr * dst + sr * src
+    g = dg * dst + sg * src
+    b = db * dst + sb * src
+    a = da * dst + sa * src
 
 Blending functions:
 Valid values for <src> and <dst> passed to this function are
 
-ALLEGRO_ZERO - src, dst = 0
-ALLEGRO_ONE - src, dst = 1
-ALLEGRO_ALPHA - src, dst = sa
-ALLEGRO_INVERSE_ALPHA - src, dst = 1 - sa
+* ALLEGRO_ZERO - src, dst = 0
+* ALLEGRO_ONE - src, dst = 1
+* ALLEGRO_ALPHA - src, dst = sa
+* ALLEGRO_INVERSE_ALPHA - src, dst = 1 - sa
 
 The color parameter specified the blend color, it is multipled with
 the source color before the above blending operation.
@@ -411,17 +415,20 @@ the source color before the above blending operation.
 Blending examples:
 So for example, to restore the default of using alpha blending, you
 would use (pseudo code)
-> al_set_blender(ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA, {1, 1, 1, 1})
+
+    al_set_blender(ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA, {1, 1, 1, 1})
 
 If in addition you want to draw half transparently
-> al_set_blender(ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA, {1, 1, 1, 0.5})
+
+    al_set_blender(ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA, {1, 1, 1, 0.5})
 
 Additive blending would be achieved with
-> al_set_blender(ALLEGRO_ONE, ALLEGRO_ONE, {1, 1, 1, 1})
+
+    al_set_blender(ALLEGRO_ONE, ALLEGRO_ONE, {1, 1, 1, 1})
 
 Copying the source to the destination (including alpha) unmodified
-> al_set_blender(ALLEGRO_ONE, ALLEGRO_ZERO, {1, 1, 1, 1})
 
+    al_set_blender(ALLEGRO_ONE, ALLEGRO_ZERO, {1, 1, 1, 1})
 
 ## API: al_set_clipping_rectangle
 
@@ -434,15 +441,17 @@ to the entire bitmap.
 Sets the flags to use for newly created bitmaps.
 Valid flags are:
 
-ALLEGRO_MEMORY_BITMAP - The bitmap will use a format most closely resembling
+* ALLEGRO_MEMORY_BITMAP - The bitmap will use a format most closely resembling
 the format used in the bitmap file and al_create_memory_bitmap will be used
 to create it. If this flag is not specified, al_create_bitmap will be used
 instead and the display driver will determine the format.
 
-ALLEGRO_KEEP_BITMAP_FORMAT - Only used when loading bitmaps from disk files,
+XXX al_create_memory_bitmap doesn't exist any more
+
+* ALLEGRO_KEEP_BITMAP_FORMAT - Only used when loading bitmaps from disk files,
 forces the resulting ALLEGRO_BITMAP to use the same format as the file.
 
-ALLEGRO_FORCE_LOCKING - When drawing to a bitmap with this flag set, always
+* ALLEGRO_FORCE_LOCKING - When drawing to a bitmap with this flag set, always
 use pixel locking and draw to it using Allegro's software drawing primitives.
 This should never be used as it may cause severe performance penalties, but
 can be useful for debugging.

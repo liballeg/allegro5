@@ -231,11 +231,11 @@ ALLEGRO_SAMPLE *al_create_sample(ALLEGRO_SAMPLE_DATA *sample_data)
 }
 
 
+/* This function is ALLEGRO_MIXER aware */
 /* Function: al_destroy_sample
  *  Detaches the sample stream from anything it may be attached to and frees
  *  it (the sample data is *not* freed!).
  */
-/* This function is ALLEGRO_MIXER aware */
 void al_destroy_sample(ALLEGRO_SAMPLE *spl)
 {
    _al_kcm_destroy_sample(spl, true);

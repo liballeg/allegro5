@@ -72,15 +72,15 @@ ascent and descent and the font height is like in the figure below.
 Note that glyphs may go to the left and upwards of the X, in which
 case x and y will have negative values.
 
-> X------------------------
->     /\         |        |
->    /  \        |        |
->   /____\       ascent   |
->  /      \      |        |
-> /        \     |        height
-> ----------------        |
->                |        |
->                descent  |
->                |        |
-> -------------------------
+    X------------------------
+        /\         |        |
+       /  \        |        |
+      /____\       ascent   |
+     /      \      |        |
+    /        \     |        height
+    ----------------        |
+                   |        |
+                   descent  |
+                   |        |
+    -------------------------
 

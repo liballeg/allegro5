@@ -7,6 +7,6 @@ A default function will be used in place of any function pointer which is
 NULL.
 The default debug variants simply call the non-debug variants.
 
-malloc_atomic - malloc() replacement for objects not containing pointers
-user_opaque - will be passed through to all the functions above
+* malloc_atomic - malloc() replacement for objects not containing pointers
+* user_opaque - will be passed through to all the functions above
 

@@ -2,15 +2,21 @@
 
 ## API: ALLEGRO_MOUSE_STATE
 
-x - mouse x
-y - mouse y
-w, z - Mouse wheel position (2D 'ball')
+Public fields (read only):
+
+* x - mouse x
+* y - mouse y
+* w, z - Mouse wheel position (2D 'ball')
+
 buttons - mouse buttons
 
 ## API: al_create_mouse_cursor
 
 Create a mouse cursor from the bitmap provided.  There must be a current
 display in effect.
+
+*Return value:*
+
 Returns a pointer to the cursor on success, or NULL on failure.
 
 ## API: al_destroy_mouse_cursor
@@ -29,6 +35,9 @@ On platforms where this information is available, this function returns the
 global location of the mouse cursor, relative to the desktop. You should
 not normally use this function, as the information is not useful except
 for special scenarios as moving a window.
+
+*Return value:*
+
 Returns true on success, false on failure.
 
 ## API: al_get_mouse
@@ -47,7 +56,7 @@ Return the number of buttons on the mouse.
 ## API: al_get_mouse_state
 
 Save the state of the mouse specified at the time the function
-is called into the structure pointed to by RET_STATE.
+is called into the given structure.
 
 ## API: al_get_state_axis
 
@@ -57,13 +66,21 @@ Extract the mouse axis value from the saved state.
 
 Hide the mouse cursor in the current display of the calling thread. This
 has no effect on what the current mouse cursor looks like; it just makes
-it disappear.  Returns true on success (or if the cursor already was
-hidden), false otherwise.
+it disappear.
+
+*Return value:*
+
+Returns true on success (or if the cursor already was hidden), false
+otherwise.
 
 ## API: al_install_mouse
 
-Install a mouse driver. Returns true if successful. If a driver
-was already installed, nothing happens and true is returned.
+Install a mouse driver.
+
+*Return value:*
+
+Returns true if successful. If a driver was already installed, nothing
+happens and true is returned.
 
 ## API: al_is_mouse_installed
 
@@ -77,9 +94,12 @@ specified.
 ## API: al_set_mouse_axis
 
 Set the given mouse axis to the given value.
-Returns true on success, false on failure.
 
 For now: the axis number must not be 0 or 1, which are the X and Y axes.
+
+*Return value:*
+
+Returns true on success, false on failure.
 
 ## API: al_set_mouse_cursor
 
@@ -91,41 +111,63 @@ in effect.
 XXX that's terrible and should be changed
 
 If the cursor is currently 'shown' (as opposed to 'hidden') the change is
-immediately visible.  Returns true on success, false on failure.
+immediately visible.
+
+*Return value:*
+
+Returns true on success, false on failure.
 
 ## API: al_set_mouse_range
 
 Sets the area of the screen within which the mouse can move.
 The coordinates are inclusive. (XXX: change this?)
 XXX: This should be relative to an ALLEGRO_DISPLAY.
+
+*Return value:*
+
 Returns true on success, false on failure.
 
 ## API: al_set_mouse_w
 
 Set the mouse wheel position to the given value.
+
+*Return value:*
+
 Returns true on success, false on failure.
 
 ## API: al_set_mouse_xy
 
 Try to position the mouse at the given coordinates.
+
+*Return value:*
+
 Returns true on success, false on failure.
 XXX: This should be relative to an ALLEGRO_DISPLAY.
 
 ## API: al_set_mouse_z
 
 Set the mouse wheel position to the given value.
+
+*Return value:*
+
 Returns true on success, false on failure.
 
 ## API: al_set_system_mouse_cursor
 
 Set the given system mouse cursor to be the current mouse cursor
 for the current display.  If the cursor is currently 'shown' (as opposed
-to 'hidden') the change is immediately visible.  Returns true on success,
-false on failure.
+to 'hidden') the change is immediately visible.
+
+*Return value:*
+
+Returns true on success, false on failure.
 
 ## API: al_show_mouse_cursor
 
 Make a mouse cursor visible in the current display of the calling thread.
+
+*Return value:*
+
 Returns true if a mouse cursor is shown as a result of the call (or one
 already was visible), false otherwise.
 

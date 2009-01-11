@@ -98,12 +98,12 @@ void al_font_textout_right(const ALLEGRO_FONT *f, int x, int y,
 
 
 
-/* Function: al_font_textout_justify
- *  Like textout_ex(), but justifies the string to the specified area.
- */
 #define MAX_TOKEN  128
 
 /* XXX this looks pretty inefficient */
+/* Function: al_font_textout_justify
+ *  Like textout_ex(), but justifies the string to the specified area.
+ */
 void al_font_textout_justify(const ALLEGRO_FONT *f, int x1, int x2, int y,
    int diff, const char *str)
 {

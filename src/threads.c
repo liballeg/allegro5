@@ -136,7 +136,7 @@ void al_start_thread(ALLEGRO_THREAD *outer)
 }
 
 
-/* Function: al_start_thread
+/* Function: al_join_thread
  */
 void al_join_thread(ALLEGRO_THREAD *outer, void **ret_value)
 {

@@ -21,7 +21,9 @@ Set timeout value of some number of seconds after the function call.
 Waits for the specified number seconds. This tells the system to pause
 the current thread for the given amount of time. With some operating
 systems, the accuracy can be in the order of 10ms. That is, even
-> al_rest(0.000001)
+
+    al_rest(0.000001)
+
 might pause for something like 10ms. Also see the section <Timer routines>
 on easier ways to time your program without using up all CPU.
 

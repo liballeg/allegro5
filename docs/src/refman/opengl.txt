@@ -6,10 +6,14 @@ Returns the list of OpenGL extensions supported by Allegro, for
 the current display.
 
 Allegro will keep information about all extensions it knows about in a
-structure returned by <al_get_opengl_ogl_extras->extension_list>.
+structure returned by `al_get_opengl_ogl_extras->extension_list`.
 
 For example:
-> if (al_get_opengl_ogl_extras->extension_list()->ALLEGRO_GL_ARB_multitexture) { use it }
+
+    if (al_get_opengl_ogl_extras->extension_list()
+            ->ALLEGRO_GL_ARB_multitexture) {
+        use it
+    }
 
 The extension will be set to true if available for the current display and
 false otherwise. This means to use the definitions and functions from an
@@ -29,17 +33,18 @@ can use the <al_is_opengl_extension_supported> and
 Helper to get the address of an OpenGL symbol
 
 Example:
+
 How to get the function _glMultiTexCoord3fARB_ that comes
-with ARB's Multitexture extension :
- 
->// define the type of the function
->   ALLEGRO_DEFINE_PROC_TYPE(void, MULTI_TEX_FUNC,
->      (GLenum, GLfloat, GLfloat, GLfloat));
->// declare the function pointer
->   MULTI_TEX_FUNC glMultiTexCoord3fARB;
->// get the address of the function
->   glMultiTexCoord3fARB = (MULTI_TEX_FUNC) al_get_opengl_proc_address(
->      "glMultiTexCoord3fARB");
+with ARB's Multitexture extension:
+
+    // define the type of the function
+       ALLEGRO_DEFINE_PROC_TYPE(void, MULTI_TEX_FUNC,
+          (GLenum, GLfloat, GLfloat, GLfloat));
+    // declare the function pointer
+       MULTI_TEX_FUNC glMultiTexCoord3fARB;
+    // get the address of the function
+       glMultiTexCoord3fARB = (MULTI_TEX_FUNC) al_get_opengl_proc_address(
+          "glMultiTexCoord3fARB");
 
 If _glMultiTexCoord3fARB_ is not NULL then it can be used as if it has 
 been defined in the OpenGL core library. Note that the use of the
@@ -47,9 +52,11 @@ ALLEGRO_DEFINE_PROC_TYPE macro is mandatory if you want your program to be
 portable.
 
 Parameters:
+
 name - The name of the symbol you want to link to.
 
-Returns:
+*Return value:*
+
 A pointer to the symbol if available or NULL otherwise.
 
 ## API: al_get_opengl_texture
@@ -59,10 +66,10 @@ it uses one, else 0.
 
 Example:
 
-> bitmap = al_load_bitmap("my_texture.png")
-> texture = al_get_opengl_texture(bitmap)
-> if (texture != 0)
->     glBind(GL_TEXTURE_2D, texture)
+    bitmap = al_load_bitmap("my_texture.png");
+    texture = al_get_opengl_texture(bitmap);
+    if (texture != 0)
+        glBind(GL_TEXTURE_2D, texture);
 
 ## API: al_is_opengl_extension_supported
 
@@ -71,15 +78,17 @@ available on the current display or not.
 
 Example:
 
->int packedpixels = al_is_opengl_extension_supported("GL_EXT_packed_pixels");
+    int packedpixels = al_is_opengl_extension_supported("GL_EXT_packed_pixels");
 
 If _packedpixels_ is TRUE then you can safely use the constants related
 to the packed pixels extension.
 
 Parameters:
+
 extension - The name of the extension that is needed
 
-Returns:
+*Return value:*
+
 TRUE if the extension is available FALSE otherwise.
 
 ## API: al_opengl_version
@@ -90,6 +99,5 @@ Returns the OpenGL version number of the client
 and "1.2.2" as 1.22, etc.
 
 A valid OpenGL context must exist for this function to work, which
-means you may \\b not call it before al_create_display().
-
+means you may *not* call it before al_create_display().
 
