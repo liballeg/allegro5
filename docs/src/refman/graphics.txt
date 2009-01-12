@@ -21,16 +21,33 @@ call will work with any bitmap, including memory bitmaps.
                         // i.e. padded with extra bytes
     }
 
+## API: ALLEGRO_PIXEL_FORMAT
+
 Pixel formats. Each pixel format specifies the exact size and bit
 layout of a pixel in memory. Components are specified from high bits
-to low, so for example a fully opaque red pixel in ARGB_8888 format
-is 0xFFFF0000. In other words, the ALLEGRO_PIXEL_FORMAT_* names
-specify what the format is in big endian, which may confuse some
-users (especially OpenGL users) since some systems use little endian
-names (e.g., the OpenGL format RGBA normally by default is read as "first
-byte red, second byte green, ..." etc. However, a format with that layout
-in Allegro terms would be named ALLEGRO_PIXEL_FORMAT_ABGR_8888 (notice
-the reversal from RGBA -> ABGR)).
+to low bits, so for example a fully opaque red pixel in ARGB_8888 format
+is 0xFFFF0000.
+
+Note:
+
+The pixel format is independent of endianness. That is, in the above
+example you can always get the red component with
+
+ (pixel & 0x00ff0000) >> 8
+
+But you can *not* rely on this code:
+
+ *(pixel + 2)
+
+It will return the red component on little endian systems, but the
+green component on big endian systems.
+
+Also note that Allegro's naming is different from OpenGL naming here,
+where a format of GL_RGBA8 merely defines the component order and the
+exact layout including endianness treatment is specified separately.
+Usually GL_RGBA8 will correspond to ALLEGRO_PIXEL_ABGR_8888 though on
+little endian systems, so care must be taken (note the reversal of
+RGBA <-> ABGR).
 
 * ALLEGRO_PIXEL_FORMAT_ANY - Let the driver choose a format. This is the
 default format at program start.
