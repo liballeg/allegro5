@@ -13,6 +13,56 @@
 
 #include <sndfile.h>
 
+typedef struct _sf_private _sf_private;
+struct _sf_private {
+   SF_INFO sfinfo;
+   SNDFILE *sndfile;
+   ALLEGRO_FS_ENTRY *fh;
+};
+
+sf_count_t _sf_vio_get_filelen(void *dptr)
+{
+   ALLEGRO_FS_ENTRY *fh = (ALLEGRO_FS_ENTRY *)dptr;
+
+   return (sf_count_t)al_fs_entry_size(fh);
+}
+
+sf_count_t _sf_vio_seek(sf_count_t offset, int whence, void *dptr)
+{
+   ALLEGRO_FS_ENTRY *fh = (ALLEGRO_FS_ENTRY *)dptr;
+
+   switch(whence) {
+      case SEEK_SET: whence = ALLEGRO_SEEK_SET; break;
+      case SEEK_CUR: whence = ALLEGRO_SEEK_CUR; break;
+      case SEEK_END: whence = ALLEGRO_SEEK_END; break;
+   }
+   
+   return (sf_count_t)al_fs_entry_seek(fh, offset, whence);
+}
+
+sf_count_t _sf_vio_read(void *ptr, sf_count_t count, void *dptr)
+{
+   ALLEGRO_FS_ENTRY *fh = (ALLEGRO_FS_ENTRY *)dptr;
+
+   /* is this a bug waiting to happen? what does libsndfile expect to happen? */
+   /* undocumented api's ftw */
+   return (sf_count_t)al_fs_entry_read(fh, count, ptr);
+}
+
+sf_count_t _sf_vio_write(const void *ptr, sf_count_t count, void *dptr)
+{
+   ALLEGRO_FS_ENTRY *fh = (ALLEGRO_FS_ENTRY *)dptr;
+
+   return (sf_count_t)al_fs_entry_write(fh, count, ptr);
+}
+
+sf_count_t _sf_vio_tell(void *dptr)
+{
+   ALLEGRO_FS_ENTRY *fh = (ALLEGRO_FS_ENTRY *)dptr;
+
+   return (sf_count_t)al_fs_entry_tell(fh);
+}
+
 
 static ALLEGRO_AUDIO_DEPTH _get_depth_enum(int format, int *word_size)
 {
@@ -40,12 +90,65 @@ static ALLEGRO_AUDIO_DEPTH _get_depth_enum(int format, int *word_size)
    }
 }
 
+_sf_private *_sf_open_private(AL_CONST char *filename)
+{
+   _sf_private *priv = NULL;
+   SF_VIRTUAL_IO vio;
+
+   /* Set up pointers to the locally defined vio functions. */
+   vio.get_filelen = _sf_vio_get_filelen;
+   vio.seek = _sf_vio_seek;
+   vio.read = _sf_vio_read;
+   vio.write = _sf_vio_write;
+   vio.tell = _sf_vio_tell;
+
+   priv = _AL_MALLOC(sizeof(_sf_private));
+   if (priv == NULL)
+      return NULL;
+
+   memset(priv, 0, sizeof(_sf_private));
+
+   priv->fh = al_fs_entry_open(filename, "rb");
+   if (priv->fh == NULL)
+      goto _sf_open_private_fatal;
+
+   priv->sndfile = sf_open_virtual(&vio, SFM_READ, &(priv->sfinfo), (void*)(priv->fh));
+   if(priv->sndfile == NULL)
+      goto _sf_open_private_fatal;
+   
+   return priv;
+   
+_sf_open_private_fatal:
+   if(priv->sndfile)
+      sf_close(priv->sndfile);
+   
+   if(priv->fh)
+      al_fs_entry_close(priv->fh);
+   
+   _AL_FREE(priv);
+   
+   return NULL;
+}
+
+void _sf_close_private(_sf_private *priv)
+{
+   ASSERT(priv);
+
+   if(priv->sndfile)
+      sf_close(priv->sndfile);
+
+   if(priv->fh)
+      al_fs_entry_close(priv->fh);
+
+   memset(priv, 0, sizeof(_sf_private));
+   
+   _AL_FREE(priv);
+}
 
 ALLEGRO_SAMPLE_DATA *al_load_sample_data_sndfile(const char *filename)
 {
    ALLEGRO_AUDIO_DEPTH depth;
-   SF_INFO sfinfo;
-   SNDFILE *sndfile;
+   _sf_private *priv = NULL;
    int word_size;
    int channels;
    long rate;
@@ -54,22 +157,20 @@ ALLEGRO_SAMPLE_DATA *al_load_sample_data_sndfile(const char *filename)
    void *buffer;
    ALLEGRO_SAMPLE_DATA *sample;
 
-   sfinfo.format = 0;
-   sndfile = sf_open(filename, SFM_READ, &sfinfo); 
-
-   if (sndfile == NULL)
+   priv = _sf_open_private(filename);
+   if (priv == NULL)
       return NULL;
 
    word_size = 0;
-   depth = _get_depth_enum(sfinfo.format, &word_size);  
+   depth = _get_depth_enum(priv->sfinfo.format, &word_size);  
    if (depth == 0) {
       /* XXX set error */
-      sf_close(sndfile);
+      _sf_close_private(priv);
       return NULL;
    }
-   channels = sfinfo.channels;
-   rate = sfinfo.samplerate;
-   total_samples = sfinfo.frames;
+   channels = priv->sfinfo.channels;
+   rate = priv->sfinfo.samplerate;
+   total_samples = priv->sfinfo.frames;
    total_size = total_samples * channels * word_size; 
 
    TRACE("Loaded sample %s with properties:\n", filename);
@@ -82,28 +183,28 @@ ALLEGRO_SAMPLE_DATA *al_load_sample_data_sndfile(const char *filename)
    buffer = _AL_MALLOC_ATOMIC(total_size);
    if (!buffer) {
       /* XXX set error */
-      sf_close(sndfile);
+      _sf_close_private(priv);
       return NULL;
    }
 
    /* XXX error handling */
    switch (depth) {
       case ALLEGRO_AUDIO_DEPTH_INT16:
-         sf_readf_short(sndfile, buffer, total_samples);
+         sf_readf_short(priv->sndfile, buffer, total_samples);
          break;
       case ALLEGRO_AUDIO_DEPTH_FLOAT32:
-         sf_readf_float(sndfile, buffer, total_samples);
+         sf_readf_float(priv->sndfile, buffer, total_samples);
          break;
       case ALLEGRO_AUDIO_DEPTH_UINT8:
       case ALLEGRO_AUDIO_DEPTH_INT24:
-         sf_read_raw(sndfile, buffer, total_samples);
+         sf_read_raw(priv->sndfile, buffer, total_samples);
          break;
       default:
          ASSERT(false);
          break;
    }
 
-   sf_close(sndfile);
+   _sf_close_private(priv);
 
    sample = al_create_sample_data(buffer, total_samples, rate, depth,
          _al_count_to_channel_conf(channels), true);
@@ -120,19 +221,19 @@ static size_t _sndfile_stream_update(ALLEGRO_STREAM *stream, void *data,
    int bytes_per_sample, samples, num_read, bytes_read, silence;
    ALLEGRO_AUDIO_DEPTH depth = stream->spl.spl_data.depth;
 
-   SNDFILE *sndfile = (SNDFILE *) stream->extra;
+   _sf_private *priv = (_sf_private *) stream->extra;
    bytes_per_sample = al_get_channel_count(stream->spl.spl_data.chan_conf)
                     * al_get_depth_size(depth);
    samples = buf_size / bytes_per_sample;
 
    if (depth == ALLEGRO_AUDIO_DEPTH_INT16) {
-      num_read = sf_readf_short(sndfile, data, samples);
+      num_read = sf_readf_short(priv->sndfile, data, samples);
    }
    else if (depth == ALLEGRO_AUDIO_DEPTH_FLOAT32) {
-      num_read = sf_readf_float(sndfile, data, samples);
+      num_read = sf_readf_float(priv->sndfile, data, samples);
    }
    else {
-      num_read = sf_read_raw(sndfile, data, samples);
+      num_read = sf_read_raw(priv->sndfile, data, samples);
    }
 
    if (num_read != samples) {
@@ -149,14 +250,14 @@ static size_t _sndfile_stream_update(ALLEGRO_STREAM *stream, void *data,
 
 static bool _sndfile_stream_rewind(ALLEGRO_STREAM *stream)
 {
-   SNDFILE *sndfile = (SNDFILE *) stream->extra;
-   return (sf_seek(sndfile, 0, SEEK_SET) != -1);
+   _sf_private *priv = (_sf_private *) stream->extra;
+   return (sf_seek(priv->sndfile, 0, SEEK_SET) != -1);
 }
 
 
 static void _sndfile_stream_close(ALLEGRO_STREAM *stream)
 {
-   SNDFILE *sndfile = (SNDFILE *) stream->extra;
+   _sf_private *priv = (_sf_private *) stream->extra;
    ALLEGRO_EVENT quit_event;
 
    quit_event.type = _KCM_STREAM_FEEDER_QUIT_EVENT_TYPE;
@@ -164,7 +265,7 @@ static void _sndfile_stream_close(ALLEGRO_STREAM *stream)
    al_join_thread(stream->feed_thread, NULL);
    al_destroy_thread(stream->feed_thread);
 
-   sf_close(sndfile);
+   _sf_close_private(priv);
    stream->extra = NULL;
    stream->feed_thread = NULL;
 }
@@ -175,8 +276,7 @@ ALLEGRO_STREAM *al_load_stream_sndfile(size_t buffer_count,
                                        const char *filename)
 {
    ALLEGRO_AUDIO_DEPTH depth;
-   SF_INFO sfinfo;
-   SNDFILE* sndfile;
+   _sf_private *priv = NULL;
    int word_size;
    int channels;
    long rate;
@@ -184,18 +284,16 @@ ALLEGRO_STREAM *al_load_stream_sndfile(size_t buffer_count,
    long total_size;
    ALLEGRO_STREAM* stream;
 
-   sfinfo.format = 0;
-   sndfile = sf_open(filename, SFM_READ, &sfinfo);
-
-   if (sndfile == NULL)
+   priv = _sf_open_private(filename);
+   if (priv == NULL)
       return NULL;
 
    /* supports 16-bit, 32-bit (and float) */
    word_size = 0;
-   depth = _get_depth_enum(sfinfo.format, &word_size);
-   channels = sfinfo.channels;
-   rate = sfinfo.samplerate;
-   total_samples = sfinfo.frames;
+   depth = _get_depth_enum(priv->sfinfo.format, &word_size);
+   channels = priv->sfinfo.channels;
+   rate = priv->sfinfo.samplerate;
+   total_samples = priv->sfinfo.frames;
    total_size = total_samples * channels * word_size;
 
    TRACE("loaded sample %s with properties:\n", filename);
@@ -208,7 +306,7 @@ ALLEGRO_STREAM *al_load_stream_sndfile(size_t buffer_count,
    stream = al_create_stream(buffer_count, samples, rate, depth,
                              _al_count_to_channel_conf(channels));
 
-   stream->extra = sndfile;
+   stream->extra = priv;
    stream->feed_thread = al_create_thread(_al_kcm_feed_stream, stream);
    stream->feeder = _sndfile_stream_update;
    stream->unload_feeder = _sndfile_stream_close;

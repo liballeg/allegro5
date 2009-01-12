@@ -663,7 +663,7 @@ int al_fs_entry_getc(ALLEGRO_FS_ENTRY *f)
    uint8_t c = 0;
    ASSERT(f);
 
-   if (al_fs_entry_read((void *)&c, 1, f) != 1) {
+   if (al_fs_entry_read(f, 1, (void *)&c) != 1) {
       if (al_fs_entry_eof(f))
          return EOF;
    }
@@ -685,7 +685,7 @@ int al_fs_entry_putc(ALLEGRO_FS_ENTRY *f, int c)
 {
    ASSERT(f);
 
-   if (al_fs_entry_write((void *)&c, 1, f) != 1) {
+   if (al_fs_entry_write(f, 1, (void *)&c) != 1) {
       if (al_fs_entry_error(f))
          return EOF;
    }
