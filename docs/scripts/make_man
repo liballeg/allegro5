@@ -57,9 +57,12 @@ prepare_man() {(
     get_prototype $name
     echo
     echo "# DESCRIPTION"
+    # We just assume any [al_*] or [ALLEGRO_*] is a reference to an API entry.
     sed -e 's/^[*]\?Return [Vv]alue:[*]\?/# RETURN VALUE/' \
-	-e 's/^[*]\?See [Aa]lso:[*]\?/# SEE ALSO\n/' \
-	-e 's/^[*]\?Notes\?:[*]\?/# NOTES\n/'
+        -e 's/^[*]\?See [Aa]lso:[*]\?/# SEE ALSO\n/' \
+        -e 's/^[*]\?Notes\?:[*]\?/# NOTES\n/' \
+        -e 's/\[\(al_[A-Za-z_]*\)\]/\1('$SECTION')/g' \
+        -e 's/\[\(ALLEGRO_[A-Za-z-]*\)\]/\1('$SECTION')/g'
 )}
 
 # main
