@@ -97,17 +97,7 @@ if(SUPPORT_OPENGL)
     example(ex_opengl)
 endif(SUPPORT_OPENGL)
 
-# Recreate data directory for out-of-source builds.
-# Note: a symlink is unsafe as make clean will delete the contents
-# of the pointed-to directory.
-if(NOT "${CMAKE_SOURCE_DIR}" STREQUAL "${CMAKE_BINARY_DIR}")
-    add_custom_target(copy_example_data ALL DEPENDS data)
-    add_custom_command(
-        OUTPUT data
-        COMMAND "${CMAKE_COMMAND}" -E copy_directory
-                "${CMAKE_CURRENT_SOURCE_DIR}/data" data
-        )
-endif()
+copy_data_dir_to_build(copy_example_data data)
 
 #-----------------------------------------------------------------------------#
 # vim: set ts=8 sts=4 sw=4 et:

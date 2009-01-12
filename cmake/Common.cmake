@@ -77,5 +77,41 @@ function(add_our_executable nm)
     endif(NOT BUILD_SHARED_LIBS)
 endfunction(add_our_executable)
 
+# Recreate data directory for out-of-source builds.
+# Note: a symlink is unsafe as make clean will delete the contents
+# of the pointed-to directory.
+#
+# Files are only copied if they don't are inside a .svn folder so we
+# won't end up with read-only .svn folders in the build folder.
+function(copy_data_dir_to_build target name)
+    if("${CMAKE_SOURCE_DIR}" STREQUAL "${CMAKE_BINARY_DIR}")
+        return()
+    endif()
+
+    file(GLOB_RECURSE allfiles RELATIVE ${CMAKE_CURRENT_SOURCE_DIR}
+        ${CMAKE_CURRENT_SOURCE_DIR}/${name}/*)
+    set(files)
+
+    # Filter out files inside .svn folders.
+    foreach(file ${allfiles})
+        string(REGEX MATCH .*\\.svn.* is_svn ${file})
+        if("${is_svn}" STREQUAL "")
+            list(APPEND files ${file})
+        endif()
+    endforeach(file)
+    
+    add_custom_target(${target} ALL
+        DEPENDS ${files}
+        COMMAND "${CMAKE_COMMAND}" -E make_directory ${name})
+
+    foreach(file ${files})
+        add_custom_command(
+            OUTPUT ${file}
+            COMMAND "${CMAKE_COMMAND}" -E copy
+                    "${CMAKE_CURRENT_SOURCE_DIR}/${file}" ${file}
+            )
+    endforeach(file)
+endfunction(copy_data_dir_to_build)
+
 #-----------------------------------------------------------------------------#
 # vim: set ft=cmake sts=4 sw=4 et:
