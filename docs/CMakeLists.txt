@@ -10,8 +10,7 @@ find_program(SH NAMES ash dash sh)
 find_program(AWK NAMES awk)
 find_program(GREP NAMES grep)
 find_program(SED NAMES sed)
-find_program(CUT NAMES cut)
-mark_as_advanced(SH AWK GREP SED CUT)
+mark_as_advanced(SH AWK GREP SED)
 
 #-----------------------------------------------------------------------------#
 

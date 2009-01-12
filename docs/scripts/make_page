@@ -36,7 +36,7 @@ PREPROCESS_ONLY=${PREPROCESS_ONLY:-n}
 
 # Path to faster_search program.
 FASTER_SEARCH=$(dirname $0)/faster_search
-if test ! -x $FASTER_SEARCH
+if test ! -x "$FASTER_SEARCH"
 then
     FASTER_SEARCH=
 fi
@@ -58,7 +58,7 @@ preprocess_page() {(
             *'# API: '*)
                 name=${line#*API: }
                 # POSIX shell doesn't have a way to remove substrings :(
-                echo "$line" | cut -d' ' -f1,3-
+                echo "$line" | sed 's/# API: /#/'
                 echo
                 get_prototype $name
                 echo

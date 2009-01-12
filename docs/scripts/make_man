@@ -38,12 +38,23 @@ MANUAL=${MANUAL:-Allegro reference manual}
 
 SPLIT_API_DOCS=$(dirname "$0")/split_api_docs
 
+FASTER_SEARCH=$(dirname $0)/faster_search
+if test ! -x "$FASTER_SEARCH"
+then
+    FASTER_SEARCH=
+fi
+
 # Speed up grep and sed.
 export LC_ALL=C
 
 get_prototype() {
-    grep -e "^$1: " "$PROTOS" |
-    sed -e "s/^$1: /    /"
+    if test -n "$FASTER_SEARCH"
+    then
+        "$FASTER_SEARCH" "$PROTOS" "$1: " "    "
+    else
+        grep -e "^$1: " "$PROTOS" |
+        sed -e "s/^$1: /    /"
+    fi
 }
 
 prepare_man() {(
