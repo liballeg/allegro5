@@ -25,7 +25,7 @@ typedef struct FLACFILE {
    ALLEGRO_FS_ENTRY *fh;
 } FLACFILE;
 
-FLAC__StreamDecoderReadStatus read_callback(const FLAC__StreamDecoder *decoder,
+static FLAC__StreamDecoderReadStatus read_callback(const FLAC__StreamDecoder *decoder,
    FLAC__byte buffer[], size_t *bytes, void *dptr)
 {
    FLACFILE *ff = (FLACFILE *)dptr;
@@ -45,7 +45,7 @@ FLAC__StreamDecoderReadStatus read_callback(const FLAC__StreamDecoder *decoder,
       return FLAC__STREAM_DECODER_READ_STATUS_ABORT;
 }
 
-FLAC__StreamDecoderSeekStatus seek_callback(
+static FLAC__StreamDecoderSeekStatus seek_callback(
    const FLAC__StreamDecoder *decoder,
    FLAC__uint64 absolute_byte_offset, void *dptr)
 {
@@ -59,7 +59,7 @@ FLAC__StreamDecoderSeekStatus seek_callback(
       return FLAC__STREAM_DECODER_SEEK_STATUS_OK;
 }
 
-FLAC__StreamDecoderTellStatus tell_callback(
+static FLAC__StreamDecoderTellStatus tell_callback(
    const FLAC__StreamDecoder *decoder,
    FLAC__uint64 *absolute_byte_offset, void *dptr)
 {
@@ -76,7 +76,7 @@ FLAC__StreamDecoderTellStatus tell_callback(
    return FLAC__STREAM_DECODER_TELL_STATUS_OK;
 }
 
-FLAC__StreamDecoderLengthStatus length_callback(
+static FLAC__StreamDecoderLengthStatus length_callback(
    const FLAC__StreamDecoder *decoder,
    FLAC__uint64 *stream_length, void *dptr)
 {
@@ -88,7 +88,7 @@ FLAC__StreamDecoderLengthStatus length_callback(
    return FLAC__STREAM_DECODER_LENGTH_STATUS_OK;
 }
 
-FLAC__bool eof_callback(const FLAC__StreamDecoder *decoder, void *dptr)
+static FLAC__bool eof_callback(const FLAC__StreamDecoder *decoder, void *dptr)
 {
    FLACFILE *ff = (FLACFILE *)dptr;
    ALLEGRO_FS_ENTRY *fh = ff->fh;
