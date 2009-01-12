@@ -90,8 +90,8 @@ function(copy_data_dir_to_build target name)
 
     file(GLOB_RECURSE allfiles RELATIVE ${CMAKE_CURRENT_SOURCE_DIR}
         ${CMAKE_CURRENT_SOURCE_DIR}/${name}/*)
-    set(files)
 
+    set(files)
     # Filter out files inside .svn folders.
     foreach(file ${allfiles})
         string(REGEX MATCH .*\\.svn.* is_svn ${file})
@@ -100,9 +100,7 @@ function(copy_data_dir_to_build target name)
         endif()
     endforeach(file)
     
-    add_custom_target(${target} ALL
-        DEPENDS ${files}
-        COMMAND "${CMAKE_COMMAND}" -E make_directory ${name})
+    add_custom_target(${target} ALL DEPENDS ${files})
 
     foreach(file ${files})
         add_custom_command(
