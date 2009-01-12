@@ -30,6 +30,11 @@ it will return a path made up of the USER_DATA_PATH, and the 'base' and
 
 Append a directory component.
 
+## API: al_path_clone
+
+Clones an ALLEGRO_PATH structure.
+Returns NULL on failure.
+
 ## API: al_path_concat
 
 Concatenate two path structures. The first path structure is
