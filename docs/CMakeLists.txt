@@ -121,7 +121,7 @@ configure_file(
 # The reference manual uses a documentation system which currently
 # requires a small POSIXy environment.
 
-if(PANDOC AND SH AND AWK AND GREP AND SED AND CUT)
+if(PANDOC AND SH AND AWK AND GREP AND SED)
     add_subdirectory(src/refman)
 endif()
 
