@@ -33,8 +33,13 @@ endforeach(page)
 
 set(PROTOS ${CMAKE_CURRENT_BINARY_DIR}/protos)
 set(PROTOS_TIMESTAMP ${PROTOS}.timestamp)
+
+set(HTML_REFS ${CMAKE_CURRENT_BINARY_DIR}/html_refs)
+set(HTML_REFS_TIMESTAMP ${HTML_REFS}.timestamp)
+
 set(SCRIPT_DIR ${CMAKE_SOURCE_DIR}/docs/scripts)
 set(MAKE_PROTOS ${SH} ${SCRIPT_DIR}/make_protos --protos ${PROTOS})
+set(MAKE_HTML_REFS ${SH} ${SCRIPT_DIR}/make_html_refs --html-refs ${HTML_REFS})
 set(MAKE_PAGE ${SH} ${SCRIPT_DIR}/make_page --protos ${PROTOS})
 set(MAKE_MAN ${SH} ${SCRIPT_DIR}/make_man --protos ${PROTOS})
 
@@ -80,14 +85,27 @@ add_custom_target(gen_protos DEPENDS ${PROTOS})
 #
 #-----------------------------------------------------------------------------#
 
+# The html_refs file contains link definitions for each API entry.
+# It's used to resolve references across HTML pages.
+
+add_custom_command(
+    OUTPUT ${HTML_REFS} ${HTML_REFS_TIMESTAMP}
+    DEPENDS ${PAGES_TXT}
+    COMMAND ${MAKE_HTML_REFS} ${PAGES_TXT}
+    POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different
+            ${HTML_REFS} ${HTML_REFS_TIMESTAMP}
+    )
+
 if(WANT_HTML)
     set(HTML_PAGES)
     foreach(page ${PAGES})
         add_custom_command(
             OUTPUT ${page}.html
-            DEPENDS ${PROTOS_TIMESTAMP} ${page}.txt
+            DEPENDS ${PROTOS_TIMESTAMP} ${HTML_REFS_TIMESTAMP} ${page}.txt
             COMMAND
-                ${MAKE_PAGE} ${CMAKE_CURRENT_SOURCE_DIR}/${page}.txt
+                ${MAKE_PAGE} ${HTML_REFS}
+                ${CMAKE_CURRENT_SOURCE_DIR}/${page}.txt
                 -o ${page}.html
                 -c pandoc.css
                 --standalone --toc

@@ -1,0 +1,49 @@
+#!/bin/sh
+#
+# SYNOPSIS
+#
+# make_html_refs [OPTIONS] DOC-FILE...
+#
+# OPTIONS
+#
+# --html-refs FILE
+#
+# DESCRIPTION
+#
+# Generate a file containing (HTML-specific) link definitions for each API
+# entry found.  e.g. if foo.txt contains "# API: bar" then we generate:
+#
+#   [bar]: foo.html#bar
+#
+# ENVIRONMENT VARIABLES
+#
+# - HTML_REFS
+#
+
+set -e
+
+HTML_REFS=${HTML_REFS:-html_refs}
+
+# Speed up grep and sed.
+export LC_ALL=C
+
+make_html_refs() {
+    file=$1
+    base=${file##*/}
+    base=${base%.*}     # remove any extension
+    grep -e '^#\+ API: ' "$file" |
+    sed -e 's|^#\+ API: \(.*\)|[\1]: '${base}'.html#\1|'
+}
+
+case $1 in
+    --html-refs)
+        HTML_REFS=$2
+        shift 2
+        ;;
+esac
+
+for file; do
+    make_html_refs "$file"
+done > "$HTML_REFS"
+
+# vim: set et:

@@ -57,7 +57,6 @@ preprocess_page() {(
         case "$line" in
             *'# API: '*)
                 name=${line#*API: }
-                echo "[$name]: #$name"
                 # POSIX shell doesn't have a way to remove substrings :(
                 echo "$line" | cut -d' ' -f1,3-
                 echo
