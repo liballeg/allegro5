@@ -275,7 +275,7 @@ AL_FUNC(int32_t, al_fs_path_to_sys, (AL_CONST char *orig, size_t len, char *path
 AL_FUNC(int32_t, al_fs_path_to_uni, (AL_CONST char *orig, size_t len, char *path));
 
 AL_FUNC(int, al_fs_entry_getc, (ALLEGRO_FS_ENTRY *f));
-AL_FUNC(int, al_fs_entry_putc, (int c, ALLEGRO_FS_ENTRY *f));
+AL_FUNC(int, al_fs_entry_putc, (ALLEGRO_FS_ENTRY *f, int c));
 
 AL_FUNC(int16_t, al_fs_entry_igetw, (ALLEGRO_FS_ENTRY *f));
 AL_FUNC(int32_t, al_fs_entry_igetl, (ALLEGRO_FS_ENTRY *f));
@@ -286,8 +286,8 @@ AL_FUNC(int32_t, al_fs_entry_mgetl, (ALLEGRO_FS_ENTRY *f));
 AL_FUNC(int16_t, al_fs_entry_mputw, (int16_t w, ALLEGRO_FS_ENTRY *f));
 AL_FUNC(int32_t, al_fs_entry_mputl, (int32_t l, ALLEGRO_FS_ENTRY *f));
 
-AL_FUNC(char*, al_fs_entry_fgets, (char *p, size_t max, ALLEGRO_FS_ENTRY *f));
-AL_FUNC(int, al_fs_entry_fputs, (AL_CONST char *p, ALLEGRO_FS_ENTRY *f));
+AL_FUNC(char*, al_fs_entry_fgets, (ALLEGRO_FS_ENTRY *f, size_t max, char *p));
+AL_FUNC(int, al_fs_entry_fputs, (ALLEGRO_FS_ENTRY *f, AL_CONST char *p));
 
 /* Find stuff */
 

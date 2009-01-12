@@ -681,7 +681,7 @@ int al_fs_entry_getc(ALLEGRO_FS_ENTRY *f)
  * Returns:
  *  EOF on error
  */
-int al_fs_entry_putc(int c, ALLEGRO_FS_ENTRY *f)
+int al_fs_entry_putc(ALLEGRO_FS_ENTRY *f, int c)
 {
    ASSERT(f);
 
@@ -746,8 +746,8 @@ int16_t al_fs_entry_iputw(int16_t w, ALLEGRO_FS_ENTRY *f)
    b1 = (w & 0xFF00) >> 8;
    b2 = w & 0x00FF;
 
-   if (al_fs_entry_putc(b2,f)==b2)
-      if (al_fs_entry_putc(b1,f)==b1)
+   if (al_fs_entry_putc(f, b2)==b2)
+      if (al_fs_entry_putc(f, b1)==b1)
          return w;
 
    return EOF;
@@ -769,10 +769,10 @@ int32_t al_fs_entry_iputl(int32_t l, ALLEGRO_FS_ENTRY *f)
    b3 = (int32_t)((l & 0x0000FF00L) >> 8);
    b4 = (int32_t)l & 0x00FF;
 
-   if (al_fs_entry_putc(b4,f)==b4)
-      if (al_fs_entry_putc(b3,f)==b3)
-         if (al_fs_entry_putc(b2,f)==b2)
-            if (al_fs_entry_putc(b1,f)==b1)
+   if (al_fs_entry_putc(f, b4)==b4)
+      if (al_fs_entry_putc(f, b3)==b3)
+         if (al_fs_entry_putc(f, b2)==b2)
+            if (al_fs_entry_putc(f, b1)==b1)
                return l;
 
    return EOF;
@@ -831,8 +831,8 @@ int16_t al_fs_entry_mputw(int16_t w, ALLEGRO_FS_ENTRY *f)
    b1 = (w & 0xFF00) >> 8;
    b2 = w & 0x00FF;
 
-   if (al_fs_entry_putc(b1,f)==b1)
-      if (al_fs_entry_putc(b2,f)==b2)
+   if (al_fs_entry_putc(f, b1)==b1)
+      if (al_fs_entry_putc(f, b2)==b2)
          return w;
 
    return EOF;
@@ -854,10 +854,10 @@ int32_t al_fs_entry_mputl(int32_t l, ALLEGRO_FS_ENTRY *f)
    b3 = (int32_t)((l & 0x0000FF00L) >> 8);
    b4 = (int32_t)l & 0x00FF;
 
-   if (al_fs_entry_putc(b1,f)==b1)
-      if (al_fs_entry_putc(b2,f)==b2)
-         if (al_fs_entry_putc(b3,f)==b3)
-            if (al_fs_entry_putc(b4,f)==b4)
+   if (al_fs_entry_putc(f, b1)==b1)
+      if (al_fs_entry_putc(f, b2)==b2)
+         if (al_fs_entry_putc(f, b3)==b3)
+            if (al_fs_entry_putc(f, b4)==b4)
                return l;
 
    return EOF;
@@ -874,7 +874,7 @@ int32_t al_fs_entry_mputl(int32_t l, ALLEGRO_FS_ENTRY *f)
  * Returns:
  * p
  */
-char *al_fs_entry_fgets(char *p, size_t max, ALLEGRO_FS_ENTRY *f)
+char *al_fs_entry_fgets(ALLEGRO_FS_ENTRY *f, size_t max, char *p)
 {
    char *pmax = NULL, *orig_p = p;
    int c = 0;
@@ -936,7 +936,7 @@ char *al_fs_entry_fgets(char *p, size_t max, ALLEGRO_FS_ENTRY *f)
  * Note:
  * Function converts string to UTF8 before writing.
  */
-int al_fs_entry_fputs(AL_CONST char *p, ALLEGRO_FS_ENTRY *f)
+int al_fs_entry_fputs(ALLEGRO_FS_ENTRY *f, AL_CONST char *p)
 {
    char *buf = NULL, *s = NULL;
    int bufsize = 0;
@@ -958,7 +958,7 @@ int al_fs_entry_fputs(AL_CONST char *p, ALLEGRO_FS_ENTRY *f)
             al_fs_entry_putc('\r', f);
       #endif
 
-      al_fs_entry_putc(*s, f);
+      al_fs_entry_putc(f, *s);
       s++;
    }
 

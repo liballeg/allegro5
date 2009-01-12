@@ -793,13 +793,13 @@ static int iio_save_bmp_pf(ALLEGRO_FS_ENTRY *f, ALLEGRO_BITMAP *bmp)
          ALLEGRO_COLOR c = al_get_pixel(bmp, j, i);
          unsigned char r, g, b;
          al_unmap_rgb(c, &r, &g, &b);
-         al_fs_entry_putc(b, f);
-         al_fs_entry_putc(g, f);
-         al_fs_entry_putc(r, f);
+         al_fs_entry_putc(f, b);
+         al_fs_entry_putc(f, g);
+         al_fs_entry_putc(f, r);
       }
 
       for (j = 0; j < filler; j++)
-         al_fs_entry_putc(0, f);
+         al_fs_entry_putc(f, 0);
    }
 
    al_unlock_bitmap(bmp);

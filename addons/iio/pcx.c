@@ -167,10 +167,10 @@ static int iio_save_pcx_pf(ALLEGRO_FS_ENTRY *f, ALLEGRO_BITMAP *bmp)
    w = al_get_bitmap_width(bmp);
    h = al_get_bitmap_height(bmp);
 
-   al_fs_entry_putc(10, f);     /* manufacturer */
-   al_fs_entry_putc(5, f);      /* version */
-   al_fs_entry_putc(1, f);      /* run length encoding  */
-   al_fs_entry_putc(8, f);      /* 8 bits per pixel */
+   al_fs_entry_putc(f, 10);     /* manufacturer */
+   al_fs_entry_putc(f, 5);      /* version */
+   al_fs_entry_putc(f, 1);      /* run length encoding  */
+   al_fs_entry_putc(f, 8);      /* 8 bits per pixel */
    al_fs_entry_iputw(0, f);     /* xmin */
    al_fs_entry_iputw(0, f);     /* ymin */
    al_fs_entry_iputw(w - 1, f); /* xmax */
@@ -179,17 +179,17 @@ static int iio_save_pcx_pf(ALLEGRO_FS_ENTRY *f, ALLEGRO_BITMAP *bmp)
    al_fs_entry_iputw(200, f);   /* VDpi */
 
    for (c = 0; c < 16 * 3; c++) {
-      al_fs_entry_putc(0, f);
+      al_fs_entry_putc(f, 0);
    }
 
-   al_fs_entry_putc(0, f);      /* reserved */
-   al_fs_entry_putc(3, f);      /* color planes */
+   al_fs_entry_putc(f, 0);      /* reserved */
+   al_fs_entry_putc(f, 3);      /* color planes */
    al_fs_entry_iputw(w, f);     /* number of bytes per scanline */
    al_fs_entry_iputw(1, f);     /* color palette */
    al_fs_entry_iputw(w, f);     /* hscreen size */
    al_fs_entry_iputw(h, f);     /* vscreen size */
    for (c = 0; c < 54; c++)     /* filler */
-      al_fs_entry_putc(0, f);
+      al_fs_entry_putc(f, 0);
 
    buf = malloc(w * 3);
 
@@ -216,8 +216,8 @@ static int iio_save_pcx_pf(ALLEGRO_FS_ENTRY *f, ALLEGRO_BITMAP *bmp)
                count++;
                x++;
             } while ((count < 63) && (x < w) && (color == buf[x + w * i]));
-            al_fs_entry_putc(count | 0xC0, f);
-            al_fs_entry_putc(color, f);
+            al_fs_entry_putc(f, count | 0xC0);
+            al_fs_entry_putc(f, color);
             if (x >= w)
                break;
          }

@@ -500,18 +500,18 @@ static int iio_save_tga_pf(ALLEGRO_FS_ENTRY *f, ALLEGRO_BITMAP *bmp)
    w = al_get_bitmap_width(bmp);
    h = al_get_bitmap_height(bmp);
 
-   al_fs_entry_putc(0, f);      /* id length (no id saved) */
-   al_fs_entry_putc(0, f);      /* palette type */
-   al_fs_entry_putc(2, f);      /* image type */
+   al_fs_entry_putc(f, 0);      /* id length (no id saved) */
+   al_fs_entry_putc(f, 0);      /* palette type */
+   al_fs_entry_putc(f, 2);      /* image type */
    al_fs_entry_iputw(0, f);     /* first colour */
    al_fs_entry_iputw(0, f);     /* number of colours */
-   al_fs_entry_putc(0, f);      /* palette entry size */
+   al_fs_entry_putc(f, 0);      /* palette entry size */
    al_fs_entry_iputw(0, f);     /* left */
    al_fs_entry_iputw(0, f);     /* top */
    al_fs_entry_iputw(w, f);     /* width */
    al_fs_entry_iputw(h, f);     /* height */
-   al_fs_entry_putc(32, f);     /* bits per pixel */
-   al_fs_entry_putc(8, f);      /* descriptor (bottom to top, 8-bit alpha) */
+   al_fs_entry_putc(f, 32);     /* bits per pixel */
+   al_fs_entry_putc(f, 8);      /* descriptor (bottom to top, 8-bit alpha) */
 
    al_lock_bitmap(bmp, &lr, ALLEGRO_LOCK_READONLY);
 
@@ -520,10 +520,10 @@ static int iio_save_tga_pf(ALLEGRO_FS_ENTRY *f, ALLEGRO_BITMAP *bmp)
          ALLEGRO_COLOR c = al_get_pixel(bmp, x, y);
          unsigned char r, g, b, a;
          al_unmap_rgba(c, &r, &g, &b, &a);
-         al_fs_entry_putc(b, f);
-         al_fs_entry_putc(g, f);
-         al_fs_entry_putc(r, f);
-         al_fs_entry_putc(a, f);
+         al_fs_entry_putc(f, b);
+         al_fs_entry_putc(f, g);
+         al_fs_entry_putc(f, r);
+         al_fs_entry_putc(f, a);
       }
    }
 
