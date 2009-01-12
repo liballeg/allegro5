@@ -183,7 +183,7 @@ bool al_fs_entry_flush(ALLEGRO_FS_ENTRY *fp)
 bool al_fs_entry_seek(ALLEGRO_FS_ENTRY *fp, int64_t offset, uint32_t whence)
 {
    ASSERT(fp != NULL);
-   ASSERT(offset > 0);
+   ASSERT(offset >= 0);
    ASSERT(whence == ALLEGRO_SEEK_SET || whence == ALLEGRO_SEEK_CUR || whence == ALLEGRO_SEEK_END);
 
    return _al_fs_hook_entry_seek(fp, offset, whence);
