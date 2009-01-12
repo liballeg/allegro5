@@ -98,11 +98,14 @@ else(SUPPORT_FONT AND SUPPORT_KCM_AUDIO AND SUPPORT_ACODEC)
 endif(SUPPORT_FONT AND SUPPORT_KCM_AUDIO AND SUPPORT_ACODEC)
 
 # Recreate data directory for out-of-source builds.
+# Note: a symlink is unsafe as make clean will delete the contents
+# of the pointed-to directory.
 if(NOT "${CMAKE_SOURCE_DIR}" STREQUAL "${CMAKE_BINARY_DIR}")
-    add_custom_target(link_demo_data ALL DEPENDS data)
+    add_custom_target(copy_demo_data ALL DEPENDS data)
     add_custom_command(
         OUTPUT data
-        COMMAND ${SYMLINK_OR_COPYDIR} "${CMAKE_CURRENT_SOURCE_DIR}/data" data
+        COMMAND "${CMAKE_COMMAND}" -E copy_directory
+                "${CMAKE_CURRENT_SOURCE_DIR}/data" data
         )
 endif()
 
