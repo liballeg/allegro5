@@ -20,14 +20,14 @@ struct _sf_private {
    ALLEGRO_FS_ENTRY *fh;
 };
 
-sf_count_t _sf_vio_get_filelen(void *dptr)
+static sf_count_t _sf_vio_get_filelen(void *dptr)
 {
    ALLEGRO_FS_ENTRY *fh = (ALLEGRO_FS_ENTRY *)dptr;
 
    return (sf_count_t)al_fs_entry_size(fh);
 }
 
-sf_count_t _sf_vio_seek(sf_count_t offset, int whence, void *dptr)
+static sf_count_t _sf_vio_seek(sf_count_t offset, int whence, void *dptr)
 {
    ALLEGRO_FS_ENTRY *fh = (ALLEGRO_FS_ENTRY *)dptr;
 
@@ -40,7 +40,7 @@ sf_count_t _sf_vio_seek(sf_count_t offset, int whence, void *dptr)
    return (sf_count_t)al_fs_entry_seek(fh, offset, whence);
 }
 
-sf_count_t _sf_vio_read(void *ptr, sf_count_t count, void *dptr)
+static sf_count_t _sf_vio_read(void *ptr, sf_count_t count, void *dptr)
 {
    ALLEGRO_FS_ENTRY *fh = (ALLEGRO_FS_ENTRY *)dptr;
 
@@ -49,14 +49,14 @@ sf_count_t _sf_vio_read(void *ptr, sf_count_t count, void *dptr)
    return (sf_count_t)al_fs_entry_read(fh, count, ptr);
 }
 
-sf_count_t _sf_vio_write(const void *ptr, sf_count_t count, void *dptr)
+static sf_count_t _sf_vio_write(const void *ptr, sf_count_t count, void *dptr)
 {
    ALLEGRO_FS_ENTRY *fh = (ALLEGRO_FS_ENTRY *)dptr;
 
    return (sf_count_t)al_fs_entry_write(fh, count, ptr);
 }
 
-sf_count_t _sf_vio_tell(void *dptr)
+static sf_count_t _sf_vio_tell(void *dptr)
 {
    ALLEGRO_FS_ENTRY *fh = (ALLEGRO_FS_ENTRY *)dptr;
 
