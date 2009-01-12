@@ -94,7 +94,7 @@ cat "$@" | "$SPLIT_API_DOCS" $TEMPDIR
 
 for file in $TEMPDIR/*
 do
-    name=$(basename "$file")
+    name=${file##*/}
     prepare_man "$name" < "$file" |
         "$PANDOC" - -t man -o "$name.$SECTION" --standalone
 done
