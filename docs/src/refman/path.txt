@@ -39,6 +39,8 @@ If tail is an absolute path, this function does nothing.
 tail's file/basename will overwrite path's if it exists,
 if tail does not have a basename, 'path's is kept (probably shouldn't).
 
+Returns NULL on failure.
+
 ## API: al_path_create
 
 Create a path structure from a string.
@@ -98,6 +100,21 @@ Insert a directory component at index i.
 If the index is negative then count from the right, i.e. -1 refers to
 the last path component.
 It is an error to pass an index which is out of bounds.
+
+## API: al_path_make_absolute
+
+Prepends the current working directory to 'path' if it is a relative path.
+Does nothing otherwise.
+
+## API: al_path_make_cannonical
+
+Removes any leading '..' entries in absolute paths.
+Removes all '.' entries.
+
+Note that this does *not* collapse x/../y sections into y.
+This is by design. If /foo on your system is a symlink to /bar/baz,
+then /foo/../quux is actually /bar/quux,
+not /quux as a naive ../-removal would give you.
 
 ## API: al_path_num_components
 

@@ -15,6 +15,7 @@ AL_BEGIN_EXTERN_C
 typedef struct ALLEGRO_PATH ALLEGRO_PATH;
 
 AL_FUNC(ALLEGRO_PATH*, al_path_create, (const char *str));
+AL_FUNC(ALLEGRO_PATH*, al_path_clone, (ALLEGRO_PATH *path));
 
 // FIXME: rename to, al_path_num_dir_components
 AL_FUNC(int, al_path_num_components, (ALLEGRO_PATH *path));
@@ -40,10 +41,11 @@ AL_FUNC(const char*, al_path_get_basename, (ALLEGRO_PATH *path, char *buf, size_
 
 /* FIXME: implement kthx bye */
 /*
-AL_FUNC(char*, al_path_absolute, (ALLEGRO_PATH *path, char *buffer, size_t len, char delim));
 AL_FUNC(char*, al_path_relative, (ALLEGRO_PATH *path, char *buffer, size_t len, char delim));
-AL_FUNC(char*, al_path_cannonical, (ALLEGRO_PATH *path, char *buffer, size_t len, char delim));
 */
+
+AL_FUNC(bool, al_path_make_absolute, (ALLEGRO_PATH *path));
+AL_FUNC(bool, al_path_make_cannonical, (ALLEGRO_PATH *path));
 
 AL_FUNC(int32_t, al_path_exists, (ALLEGRO_PATH *path));
 AL_FUNC(bool, al_path_emode, (ALLEGRO_PATH *path, uint32_t mode));

@@ -6,7 +6,8 @@ int main(int argc, char **argv)
 {
    ALLEGRO_PATH *dyn = NULL;
    ALLEGRO_PATH *tostring = NULL;
-
+   ALLEGRO_PATH *cloned = NULL;
+   
    al_init();
    set_uformat(U_ASCII);
 
@@ -58,6 +59,34 @@ int main(int argc, char **argv)
    /* FIXME: test out more of the al_path_ functions, ie: insert, remove,
     * concat, canonicalize, absolute, relative
     */
+
+   dyn = al_path_create(argv[1]);
+   if(dyn) {
+      cloned = al_path_clone(dyn);
+      if(cloned) {
+         char path[PATH_MAX];
+         al_path_to_string(dyn, path, PATH_MAX, '/');
+         printf("dyn: '%s'\n", path);
+
+         al_path_make_cannonical(cloned);
+         al_path_to_string(cloned, path, PATH_MAX, '/');
+         printf("can: '%s'\n", path);
+
+         al_path_make_absolute(cloned);
+         al_path_to_string(cloned, path, PATH_MAX, '/');
+         printf("abs: '%s'\n", path);
+
+         al_path_free(dyn);
+         al_path_free(cloned);
+      }
+      else {
+         printf("failed to clone ALLEGRO_PATH :(\n");
+         al_path_free(dyn);
+      }
+   }
+   else {
+      printf("failed to create new ALLEGRO_PATH for cloning...");
+   }
 
    return 0;
 }

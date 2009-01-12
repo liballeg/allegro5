@@ -346,6 +346,64 @@ ALLEGRO_PATH *al_path_create(const char *str)
    return path;
 }
 
+ALLEGRO_PATH *al_path_clone(ALLEGRO_PATH *path)
+{
+   ALLEGRO_PATH *clone = NULL;
+   int i = 0;
+   
+   ASSERT(path);
+
+   clone = al_path_create(NULL);
+   if(!clone)
+      return NULL;
+
+   if(path->drive) {
+      clone->drive = ustrdup(path->drive);
+      if(!clone->drive)
+         goto _path_clone_fatal;
+   }
+
+   if(path->segment_count) {
+      clone->segment = _AL_MALLOC(sizeof(char *) * path->segment_count);
+      if (!clone->segment)
+         goto _path_clone_fatal;
+
+      memset(clone->segment, 0, sizeof(char*) * path->segment_count);
+
+      for(i=0; i < path->segment_count; i++) {
+         clone->segment[i] = ustrdup(path->segment[i]);
+         if(!clone->segment[i])
+            goto _path_clone_fatal;
+      }
+   }
+
+   clone->segment_count = path->segment_count;
+
+   if(path->filename) {
+      clone->filename = ustrdup(path->filename);
+      if(!clone->filename)
+         goto _path_clone_fatal;
+   }
+
+   return clone;
+   
+_path_clone_fatal:
+   if(clone->segment) {
+      for(i=0; i < path->segment_count; i++) {
+         if(clone->segment[i])
+            _AL_FREE(clone->segment[i]);
+      }
+   }
+   
+   if(clone->drive)
+      _AL_FREE(clone->drive);
+
+   
+   al_path_free(clone);
+
+   return NULL;
+}
+
 /* Function: al_path_num_components
  *  Return the number of directory components in a path.
  *
@@ -562,10 +620,13 @@ void al_path_concat(ALLEGRO_PATH *path, const ALLEGRO_PATH *tail)
  *  To use the current native path separator use ALLEGRO_NATIVE_PATH_SEP
  */
 /* FIXME: this is a rather dumb implementation, not using ustr*cat should speed it up */
+/* FIXME: not only dumb, but half broken, even if buffer is too small, it'll write to it,
+            but it will at least return NULL if the buffer was too small. */
 char *al_path_to_string(ALLEGRO_PATH *path, char *buffer, size_t len, char delim)
 {
    const char delims[2] = { delim, '\0' };
    int32_t i;
+   size_t full_len = 0;
 
    ASSERT(path);
    ASSERT(buffer);
@@ -574,18 +635,25 @@ char *al_path_to_string(ALLEGRO_PATH *path, char *buffer, size_t len, char delim
 
    if (path->drive) {
       size_t drive_size = ustrlen(path->drive);
+      full_len += drive_size + 1;
+      
       ustrzncat(buffer, len, path->drive, drive_size);
       ustrzncat(buffer, len, delims, 1);
    }
 
    for (i=0; i < path->segment_count; i++) {
+      full_len += ustrlen(path->segment[i]) + 1;
       ustrzncat(buffer, len, path->segment[i], ustrlen(path->segment[i]));
       ustrzncat(buffer, len, delims, 1);
    }
 
    if (path->filename) {
+      full_len += ustrlen(path->filename);
       ustrzncat(buffer, len, path->filename, ustrlen(path->filename));
    }
+
+   if(len < full_len+1)
+      return NULL;
 
    return buffer;
 }
@@ -777,6 +845,88 @@ bool al_path_emode(ALLEGRO_PATH *path, uint32_t mode)
    al_path_to_string(path, buffer, PATH_MAX, ALLEGRO_NATIVE_PATH_SEP);
 
    return (al_fs_stat_mode(buffer) & mode) == mode;
+}
+
+bool al_path_make_absolute(ALLEGRO_PATH *path)
+{
+   char cwd[PATH_MAX];
+   char **items = NULL, **nsegment = NULL;
+   int32_t item_num = 0;
+   
+   ASSERT(path);
+
+   if(path->segment_count && ugetat(path->segment[0], 0) == 0) {
+      /* we're already an absolute path */
+      return false;
+   }
+
+   if(!al_fs_getcwd(cwd, PATH_MAX)) {
+      return false;
+   }
+
+   _fix_slashes(cwd);
+   items = _split_path(cwd, &item_num);
+   if(!items) {
+      return false;
+   }
+
+   /* resize the path's segment array to fit the new items */
+   nsegment = _AL_REALLOC(path->segment, (path->segment_count + item_num) * sizeof(char *));
+   if(!nsegment) {
+      goto _make_absolute_fatal;
+   }
+
+   /* move old path items up */
+   memmove(nsegment + item_num, nsegment, path->segment_count * sizeof(char *));
+
+   /* copy new items into path's segment array */
+   memcpy(nsegment, items, item_num * sizeof(char *));
+
+   path->segment = nsegment;
+   path->segment_count += item_num;
+   
+   /* free temp array */
+   _AL_FREE(items);
+   
+   return true;
+   
+_make_absolute_fatal:
+   if(nsegment) {
+      int i = 0;
+      for(; i < item_num; i++) {
+         _AL_FREE(nsegment[i]);
+      }
+
+      _AL_FREE(nsegment);
+   }
+
+   return false;
+}
+
+/* Note that this does *not* collapse x/../y sections into y.
+   This is by design. If /foo on your system is a symlink to /bar/baz,
+   then /foo/../quux is actually /bar/quux,
+   not /quux as a naive ../-removal would give you. */
+bool al_path_make_cannonical(ALLEGRO_PATH *path)
+{
+   int i = 0;
+   ASSERT(path);
+
+   for(i = 0; i < path->segment_count; i++) {
+      if(ustrcmp(path->segment[i], ".") == 0) {
+         al_path_remove(path, i);
+         i--;
+      }
+   }
+
+   /* remove leading '..'s on absolute paths */
+   if(path->segment_count && ugetat(path->segment[0], 0) == 0) {
+      while(ustrcmp(path->segment[1], "..") == 0) {
+         al_path_remove(path, 1);
+      }
+   }
+
+   return true;
 }
 
 /* vim: set sts=3 sw=3 et: */
