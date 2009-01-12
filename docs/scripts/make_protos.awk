@@ -1,11 +1,13 @@
-/[/][*] (Function|Type|Enum): / {
+# mawk does not like [/] for matching slash.
+
+/\/\* (Function|Type|Enum): / {
     found_tag = 1
     do_print = 0
     prefix = $3
     next
 }
 
-/^ ?[*][/]$/ {
+/^ ?\*\/$/ {
     if (found_tag) {
         found_tag = 0
         do_print = 1
