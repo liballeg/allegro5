@@ -38,7 +38,7 @@ incremented when it is started. This can be done when the timer is
 started or stopped. If the timer is currently running, it is made to
 look as though the speed change occured precisely at the last tick.
 
-*speed_secs* has exactly the same meaning as with <al_install_timer>.
+*speed_secs* has exactly the same meaning as with [al_install_timer].
 
 ## API: al_start_timer
 

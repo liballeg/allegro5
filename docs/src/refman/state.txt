@@ -2,11 +2,11 @@
 
 ## API: ALLEGRO_STATE
 
-Opaque type which is passed to <al_store_state>/<al_restore_state>.
+Opaque type which is passed to [al_store_state]/[al_restore_state].
 
 ## API: ALLEGRO_STATE_FLAGS
 
-Flags which can be passed to <al_store_state>/<al_restore_state> as bit
+Flags which can be passed to [al_store_state]/[al_restore_state] as bit
 combinations. The following flags store or restore settings corresponding
 to the following al_set\_/al_get\_ calls:
 

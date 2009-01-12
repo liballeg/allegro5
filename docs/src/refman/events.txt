@@ -103,7 +103,7 @@ the queue is destroyed.
 
 ## API: al_destroy_user_event_source
 
-Destroy an event source created with <al_create_user_event_source>.
+Destroy an event source created with [al_create_user_event_source].
 
 ## API: al_drop_next_event
 
@@ -114,7 +114,7 @@ Returns true iff an event was dropped.
 ## API: al_emit_user_event
 
 Emit a user event.
-The event source must have been created with <al_create_user_event_source>.
+The event source must have been created with [al_create_user_event_source].
 Some fields of the event being passed in may be modified.
 Returns `false` if the event source isn't registered with any queues,
 hence the event wouldn't have been delivered into any queues.
@@ -125,10 +125,10 @@ the event as an argument.  It should free the resources associated with
 the event.  If `dtor` is NULL then reference counting will not be
 performed.
 
-You need to call <al_unref_user_event> when you are done with a reference
-counted user event that you have gotten from <al_get_next_event>,
-<al_peek_next_event>, <al_wait_for_event>, etc.  You may, but do not need
-to, call <al_unref_user_event> on non-reference counted user events.
+You need to call [al_unref_user_event] when you are done with a reference
+counted user event that you have gotten from [al_get_next_event],
+[al_peek_next_event], [al_wait_for_event], etc.  You may, but do not need
+to, call [al_unref_user_event] on non-reference counted user events.
 
 ## API: al_event_queue_is_empty
 
@@ -163,11 +163,11 @@ the same event queue more than once does nothing.
 ## API: al_unref_user_event
 
 Unreference a user-defined event. This must be called on any user event
-that you get from <al_get_next_event>, <al_peek_next_event>,
-<al_wait_for_event>, etc. which is reference counted.
+that you get from [al_get_next_event], [al_peek_next_event],
+[al_wait_for_event], etc. which is reference counted.
 This function does nothing if the event is not reference counted.
 
-See also: <al_emit_user_event>.
+See also: [al_emit_user_event].
 
 ## API: al_unregister_event_source
 

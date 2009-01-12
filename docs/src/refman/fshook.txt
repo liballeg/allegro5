@@ -3,8 +3,8 @@
 ## API: ALLEGRO_FS_ENTRY
 
 Opaque filesystem entry object.
-Represents a file or a directory (check with <al_fs_entry_isdir>
-or <al_fs_entry_isfile>).
+Represents a file or a directory (check with [al_fs_entry_isdir]
+or [al_fs_entry_isfile]).
 There are no user accessible member variables.
 
 File system search filters.
@@ -89,9 +89,9 @@ Closes fs entry.
 
 Closes a previously opened directory entry object.
 
-<al_fs_close_handle> is also a valid way to close any entry object.
+[al_fs_close_handle] is also a valid way to close any entry object.
 
-Does not free the entry object if it was opened with <al_fs_opendir>.
+Does not free the entry object if it was opened with [al_fs_opendir].
 XXX This is probably a bug.
 
 Returns true on succes, false on failure and fills in errno to indicate the error.
@@ -356,7 +356,7 @@ Write 'size' bytes from 'ptr' into file 'fp'
 Return number of bytes actually written or 0 on error.
 
 Does not distinguish between EOF and other errors.
-Use <al_fs_entry_eof> and <al_fs_entry_error>
+Use [al_fs_entry_eof] and [al_fs_entry_error]
 to tell them apart.
 
 ## API: al_fs_exists
@@ -366,7 +366,7 @@ Returns true iff entry exists on disk, false iff it doesn't, or on error.
 Error is indicated by errno.
 
 See Also:
-<al_get_errno> <al_fs_entry_exists>
+[al_get_errno] [al_fs_entry_exists]
 
 ## API: al_fs_get_search_path
 
@@ -405,14 +405,14 @@ See also: <al_get_errno>
 Return true iff 'path' is a directory.
 
 See Also:
-<al_fs_entry_isdir>
+[al_fs_entry_isdir]
 
 ## API: al_fs_isfile
 
 Return true iff 'path' is a file.
 
 See Also:
-<al_fs_entry_isfile>
+[al_fs_entry_isfile]
 
 ## API: al_fs_mkdir
 
@@ -484,14 +484,14 @@ Returns the number of items in the search path list.
 Returns last access time for fs entry 'path'.
 
 See Also:
-<al_fs_entry_atime>
+[al_fs_entry_atime]
 
 ## API: al_fs_stat_ctime
 
 Returns creation time for fs entry 'path'.
 
 See Also:
-<al_fs_entry_ctime>
+[al_fs_entry_ctime]
 
 ## API: al_fs_stat_mode
 
@@ -505,14 +505,14 @@ See Also:
 Returns last modification time for fs entry 'path'.
 
 See Also:
-<al_fs_entry_mtime>
+[al_fs_entry_mtime]
 
 ## API: al_fs_stat_size
 
 Returns file size for fs entry 'path'.
 
 See Also:
-<al_fs_entry_size>
+[al_fs_entry_size]
 
 ## API: al_fs_unlink
 
@@ -523,5 +523,5 @@ Returns true on success, and false on failure.
 errno is filled in to indicate the error.
 
 See Also:
-<al_fs_entry_unlink>
+[al_fs_entry_unlink]
 

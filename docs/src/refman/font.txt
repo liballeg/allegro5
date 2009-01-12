@@ -24,7 +24,7 @@ If count is not -1, write only the first 'count' code points.
 
 ## API: al_font_textout_centre
 
-Like <al_font_textout>, but uses the x coordinate as the centre rather than 
+Like [al_font_textout], but uses the x coordinate as the centre rather than 
 the left of the string.
 
 ## API: al_font_textout_justify
@@ -33,7 +33,7 @@ Like textout_ex(), but justifies the string to the specified area.
 
 ## API: al_font_textout_right
 
-Like <al_font_textout>, but uses the x coordinate as the right rather than 
+Like [al_font_textout], but uses the x coordinate as the right rather than 
 the left of the string.
 
 ## API: al_font_textprintf
@@ -42,22 +42,22 @@ Formatted text output, using a printf() style format string.
 
 ## API: al_font_textprintf_centre
 
-Like <al_font_textprintf>, but uses the x coordinate as the centre rather
+Like [al_font_textprintf], but uses the x coordinate as the centre rather
 than the left of the string.
 
 ## API: al_font_textprintf_justify
 
-Like <al_font_textprintf>, but right justifies the string to the specified
+Like [al_font_textprintf], but right justifies the string to the specified
 area.
 
 ## API: al_font_textprintf_right
 
-Like <al_font_textprintf>, but uses the x coordinate as the right rather
+Like [al_font_textprintf], but uses the x coordinate as the right rather
 than the left of the string.
 
 ## API: al_ttf_get_text_dimensions
 
-Sometimes, the <al_font_text_width> and <al_font_text_height>
+Sometimes, the [al_font_text_width] and [al_font_text_height]
 functions are not enough for exact text placement, so this function
 returns some additional information.
 

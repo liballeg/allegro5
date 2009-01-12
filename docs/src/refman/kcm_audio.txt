@@ -169,12 +169,12 @@ ALLEGRO_AUDIOPROP_USED_FRAGMENTS (long) -
 ## API: al_attach_mixer_to_mixer
 
 Attaches a mixer onto another mixer. The same rules as with
-<al_attach_sample_to_mixer> apply, with the added caveat that both
+[al_attach_sample_to_mixer] apply, with the added caveat that both
 mixers must be the same frequency.
 
 ## API: al_attach_mixer_to_voice
 
-Attaches a mixer to a voice. The same rules as <al_attach_sample_to_voice>
+Attaches a mixer to a voice. The same rules as [al_attach_sample_to_voice]
 apply, with the exception of the depth requirement.
 
 ## API: al_attach_sample_to_mixer
@@ -193,7 +193,7 @@ selected driver doesn't support preloading sample data.
 ## API: al_attach_stream_to_voice
 
 Attaches an audio stream to a voice. The same rules as
-<al_attach_sample_to_voice> apply. This may fail if the driver can't create
+[al_attach_sample_to_voice] apply. This may fail if the driver can't create
 a voice with the buffer count and buffer size the stream uses.
 
 ## API: al_create_mixer
@@ -207,7 +207,7 @@ Only floating point mixing is currently supported.
 Creates a sample stream, using the supplied data.  This must be attached
 to a voice or mixer before it can be played.
 The argument may be NULL. You can then set the data later with
-<al_set_sample_data>.
+[al_set_sample_data].
 
 ## API: al_create_sample_data
 
@@ -289,11 +289,11 @@ Stream's playing state will change to false.
 
 ## API: al_get_simple_audio_mixer
 
-Return the mixer created by <al_setup_simple_audio>.
+Return the mixer created by [al_setup_simple_audio].
 
 ## API: al_get_simple_audio_voice
 
-Return the voice created by <al_setup_simple_audio>.
+Return the voice created by [al_setup_simple_audio].
 
 ## API: al_get_stream_bool
 
@@ -331,7 +331,7 @@ was created with. The sample count and user-data pointer is also passed.
 ## API: al_play_sample_data
 
 Play an instance of a sample data, using one of the samples created by
-<al_setup_simple_audio>.  Returns true on success, false on failure.
+[al_setup_simple_audio].  Returns true on success, false on failure.
 Playback may fail because all the reserved samples are currently used.
 
 ## API: al_set_mixer_bool
@@ -405,7 +405,7 @@ be stopped and detached from its parent.
 
 ## API: al_setup_simple_audio
 
-Set up the easy audio layer.  <al_install_audio> must have been called
+Set up the easy audio layer.  [al_install_audio] must have been called
 first.  This function will create a single voice with an attached mixer, as
 well as 'reserve_samples' number of samples attached to the mixer.
 Returns true on success, false on error.
@@ -413,7 +413,7 @@ Returns true on success, false on error.
 ## API: al_shutdown_simple_audio
 
 Shut down the easy audio layer.
-XXX should it be enough to call <al_uninstall_audio>?
+XXX should it be enough to call [al_uninstall_audio]?
 
 ## API: al_stop_all_simple_samples
 

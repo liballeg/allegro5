@@ -25,8 +25,8 @@ with GLX extensions.
 
 In case you want to manually check for extensions and load function pointers
 yourself (say, in case the Allegro developers did not include it yet), you
-can use the <al_is_opengl_extension_supported> and
-<al_get_opengl_proc_address> functions instead.
+can use the [al_is_opengl_extension_supported] and
+[al_get_opengl_proc_address] functions instead.
 
 ## API: al_get_opengl_proc_address
 

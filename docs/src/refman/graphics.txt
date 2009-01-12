@@ -3,7 +3,7 @@
 ## API: ALLEGRO_COLOR
 
 An ALLEGRO_COLOR structure describes a color in a device
-independant way. Use <al_map_rgb> et. al. and <al_unmap_rgb> et. al. to
+independant way. Use [al_map_rgb] et. al. and [al_unmap_rgb] et. al. to
 translate from and to various color representations.
 
 ## API: ALLEGRO_LOCKED_REGION
@@ -124,7 +124,7 @@ has a maximum allowed texture size - so if bitmap creation fails
 for very large dimensions, you may want to re-try with a smaller
 bitmap.
 
-See Also: <al_set_new_bitmap_format>, <al_set_new_bitmap_flags>
+See Also: [al_set_new_bitmap_format], [al_set_new_bitmap_flags]
 
 ## API: al_create_sub_bitmap
 
@@ -152,7 +152,7 @@ Does nothing if given the null pointer.
 ## API: al_draw_bitmap
 
 Draws an unscaled, unrotated bitmap at the given position
-to the current target bitmap (see <al_set_target_bitmap>).
+to the current target bitmap (see [al_set_target_bitmap]).
 flags can be a combination of:
 
 ALLEGRO_FLIP_HORIZONTAL - flip the bitmap about the y-axis
@@ -168,7 +168,7 @@ Draws a region of the given bitmap to the target bitmap.
 * sh - source height (height of region to blit)
 * dx - destination x
 * dy - destination y
-* flags - same as for <al_draw_bitmap>
+* flags - same as for [al_draw_bitmap]
 
 ## API: al_draw_line
 
@@ -218,11 +218,11 @@ bitmap is rotated around this point.
 * dx - destination x
 * dy - destination y
 * angle - angle by which to rotate
-* flags - same as for <al_draw_bitmap>
+* flags - same as for [al_draw_bitmap]
 
 ## API: al_draw_rotated_scaled_bitmap
 
-Like <al_draw_rotated_bitmap>, but can also scale the bitmap.
+Like [al_draw_rotated_bitmap], but can also scale the bitmap.
 
 The point at cx/cy in the bitmap will be drawn at dx/dy and the bitmap is
 rotated and scaled around this point.
@@ -234,7 +234,7 @@ rotated and scaled around this point.
 * xscale - how much to scale on the x-axis (e.g. 2 for twice the size)
 * yscale - how much to scale on the y-axis
 * angle - angle by which to rotate
-* flags - same as for <al_draw_bitmap>
+* flags - same as for [al_draw_bitmap]
 
 ## API: al_draw_scaled_bitmap
 
@@ -248,7 +248,7 @@ Draws a scaled version of the given bitmap to the target bitmap.
 * dy - destination y
 * dw - destination width
 * dh - destination height
-* flags - same as for <al_draw_bitmap>
+* flags - same as for [al_draw_bitmap]
 
 ## API: al_get_bitmap_flags
 
@@ -299,7 +299,7 @@ Return the target bitmap of the current display.
 ## API: al_is_compatible_bitmap
 
 D3D and OpenGL allow sharing a texture in a way so it can be used for
-multiple windows. Each ALLEGRO_BITMAP created with <al_create_bitmap>
+multiple windows. Each ALLEGRO_BITMAP created with [al_create_bitmap]
 however is usually tied to a single ALLEGRO_DISPLAY. This function can
 be used to know if the bitmap is compatible with the current display,
 even if it is another display than the one it was created with. It
@@ -316,7 +316,7 @@ bitmaps to both.
 Load a bitmap from a file using the bitmap format and flags of
 the current thread.
 
-See Also: <al_set_new_bitmap_format>, <al_set_new_bitmap_flags>
+See Also: [al_set_new_bitmap_format], [al_set_new_bitmap_flags]
 
 ## API: al_lock_bitmap
 
@@ -341,38 +341,38 @@ unlocking the bitmap again, so be careful when using this flag.
 
 ## API: al_lock_bitmap_region
 
-Like <al_lock_bitmap>, but only locks a specific area of the bitmap.
+Like [al_lock_bitmap], but only locks a specific area of the bitmap.
 If the bitmap is a display bitmap, only that area of the texture will
 be updated when it is unlocked. Locking only the region you indend to
 modify will be faster than locking the whole bitmap.
 
-See Also: <al_lock_bitmap>
+See Also: [al_lock_bitmap]
 
 ## API: al_map_rgb
 
 Convert r, g, b (ranging from 0-255) into an ALLEGRO_COLOR,
 using 255 for alpha.
 
-See also: <al_map_rgba>, <al_map_rgba_f>, <al_map_rgb_f>
+See also: [al_map_rgba], [al_map_rgba_f], [al_map_rgb_f]
 
 ## API: al_map_rgb_f
 
 Convert r, g, b, (ranging from 0.0f-1.0f) into an ALLEGRO_COLOR,
 using 1.0f for alpha.
 
-See also: <al_map_rgba>, <al_map_rgb>, <al_map_rgba_f>
+See also: [al_map_rgba], [al_map_rgb], [al_map_rgba_f]
 
 ## API: al_map_rgba
 
 Convert r, g, b, a  (ranging from 0-255) into an ALLEGRO_COLOR.
 
-See also: <al_map_rgb>, <al_map_rgba_f>, <al_map_rgb_f>
+See also: [al_map_rgb], [al_map_rgba_f], [al_map_rgb_f]
 
 ## API: al_map_rgba_f
 
 Convert r, g, b, a (ranging from 0.0f-1.0f) into an ALLEGRO_COLOR.
 
-See also: <al_map_rgba>, <al_map_rgb>, <al_map_rgb_f>
+See also: [al_map_rgba], [al_map_rgb], [al_map_rgb_f]
 
 ## API: al_put_pixel
 
@@ -459,7 +459,7 @@ can be useful for debugging.
 ## API: al_set_new_bitmap_format
 
 Sets the pixel format for newly created bitmaps. format
-is one of the same values as used for <al_set_new_display_format>.
+is one of the same values as used for [al_set_new_display_format].
 The default format is 0 and means the display driver will choose
 the best format.
 
@@ -484,28 +484,28 @@ memory copy (unless it was locked read only).
 Retrieves components of an ALLEGRO_COLOR, ignoring alpha
 Components will range from 0-255.
 
-See also: <al_unmap_rgba>, <al_unmap_rgba_f>, <al_unmap_rgb_f>
+See also: [al_unmap_rgba], [al_unmap_rgba_f], [al_unmap_rgb_f]
 
 ## API: al_unmap_rgb_f
 
 Retrieves components of an ALLEGRO_COLOR, ignoring alpha.
 Components will range from 0.0f-1.0f.
 
-See also: <al_unmap_rgba>, <al_unmap_rgb>, <al_unmap_rgba_f>
+See also: [al_unmap_rgba], [al_unmap_rgb], [al_unmap_rgba_f]
 
 ## API: al_unmap_rgba
 
 Retrieves components of an ALLEGRO_COLOR.
 Components will range from 0-255.
 
-See also: <al_unmap_rgb>, <al_unmap_rgba_f>, <al_unmap_rgb_f>
+See also: [al_unmap_rgb], [al_unmap_rgba_f], [al_unmap_rgb_f]
 
 ## API: al_unmap_rgba_f
 
 Retrieves components of an ALLEGRO_COLOR.
 Components will range from 0.0f-1.0f.
 
-See also: <al_unmap_rgba>, <al_unmap_rgb>, <al_unmap_rgb_f>
+See also: [al_unmap_rgba], [al_unmap_rgb], [al_unmap_rgb_f]
 
 ## API: al_wait_for_vsync
 

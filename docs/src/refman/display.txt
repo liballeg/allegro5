@@ -51,8 +51,8 @@ backbuffer selected for drawing.
 
 Returns NULL on error.
 
-See Also: <al_set_new_display_format>, <al_set_new_display_refresh_rate>, 
-	<al_set_new_display_flags>
+See Also: [al_set_new_display_format], [al_set_new_display_refresh_rate], 
+	[al_set_new_display_flags]
 
 ## API: al_destroy_display
 
@@ -95,8 +95,8 @@ Gets the height of the current display. This is like SCREEN_H in Allegro 4.x.
 ## API: al_get_display_mode
 
 Retrieves a display mode. Display parameters should not be
-changed between a call of <al_get_num_display_modes> and
-<al_get_display_mode>. index must be between 0 and the number
+changed between a call of [al_get_num_display_modes] and
+[al_get_display_mode]. index must be between 0 and the number
 returned from al_get_num_display_modes-1. mode must be an
 allocated ALLEGRO_DISPLAY_MODE structure. This function will
 return NULL on failure, and the mode parameter that was passed
@@ -140,14 +140,14 @@ Gets the current refresh rate used for newly created displays.
 Gets the position where newly created non-fullscreen
 displays will be placed.
 
-See Also: <al_set_new_window_position>
+See Also: [al_set_new_window_position]
 
 ## API: al_get_num_display_modes
 
 Get the number of available fullscreen display modes
 for the current set of display parameters. This will
-use the values set with <al_set_new_display_format>,
-<al_set_new_display_refresh_rate>, and <al_set_new_display_flags>
+use the values set with [al_set_new_display_format],
+[al_set_new_display_refresh_rate], and [al_set_new_display_flags]
 to find the number of modes that match. Settings the new
 display parameters to zero will give a list of all modes
 for the default driver.
@@ -163,7 +163,7 @@ to it.
 
 Gets the position of a non-fullscreen display.
 
-See Also: <al_set_window_position>
+See Also: [al_set_window_position]
 
 ## API: al_inhibit_screensaver
 
@@ -195,7 +195,7 @@ The adapter has a monitor attached to it. Information
 about the monitor can be gotten using al_get_num_video_adapters
 and al_get_monitor_info.
 
-See Also: <al_get_num_video_adapters>, <al_get_monitor_info>
+See Also: [al_get_num_video_adapters], [al_get_monitor_info]
 
 ## API: al_set_display_icon
 
@@ -247,11 +247,11 @@ Set the pixel format for al displays created after this call.
 
 Sets the refresh rate to use for newly created displays. If the refresh rate
 is not available, al_create_display will fail. A list of modes with refresh
-rates can be found with <al_get_num_display_modes> and <al_get_display_mode>,
+rates can be found with [al_get_num_display_modes] and [al_get_display_mode],
 documented above.
 
 See Also:
-  <al_get_display_mode>
+  [al_get_display_mode]
 
 ## API: al_set_new_window_position
 
@@ -259,13 +259,13 @@ Sets where the top left pixel of the client area of newly
 created windows (non-fullscreen) will be on screen.
 Negative values allowed on some multihead systems.
 
-See Also: <al_set_new_window_position>
+See Also: [al_set_new_window_position]
 
 ## API: al_set_window_position
 
 Sets the position on screen of a non-fullscreen display.
 
-See Also: <al_get_window_position>
+See Also: [al_get_window_position]
 
 ## API: al_update_display_region
 

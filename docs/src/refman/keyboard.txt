@@ -17,7 +17,7 @@ display - points to the display that had keyboard focus at the time
 		to NULL.
 
 You cannot read the state of keys directly.  Use the function
-<al_key_down>.
+[al_key_down].
 
 ## Key codes
 
@@ -80,7 +80,7 @@ was already installed, nothing happens and true is returned.
 
 ## API: al_is_keyboard_installed
 
-Returns true if <al_install_keyboard> was called successfully.
+Returns true if [al_install_keyboard] was called successfully.
 
 ## API: al_key_down
 
