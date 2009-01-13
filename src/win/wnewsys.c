@@ -430,7 +430,6 @@ static AL_CONST char *win_get_path(uint32_t id, char *dir, size_t size)
 
       case AL_EXENAME_PATH: { /* full path to the exe including its name */
          HANDLE process = GetCurrentProcess();
-         char *ptr;
          GetModuleFileNameEx(process, NULL, path, MAX_PATH);
 
          do_uconvert(path, U_ASCII, dir, U_CURRENT, strlen(path)+1);
@@ -446,6 +445,9 @@ static AL_CONST char *win_get_path(uint32_t id, char *dir, size_t size)
       return dir;
    }
 
+   if (path[strlen(path)-1] != '\\')
+      ustrcat(path, "\\");
+   
    cisdl_path = al_path_create(path);
    if(!cisdl_path)
       return NULL;
@@ -462,7 +464,6 @@ static AL_CONST char *win_get_path(uint32_t id, char *dir, size_t size)
    }
    
    do_uconvert(path, U_ASCII, dir, U_CURRENT, strlen(path)+1);
-   //ustrcat(dir, "\\");
    
    return dir;
 }
