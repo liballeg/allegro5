@@ -202,16 +202,22 @@ endif(WANT_INFO AND MAKEINFO)
 #-----------------------------------------------------------------------------#
 
 if(WANT_PDF AND PDFLATEX_COMPILER)
+    set(EXTRA_LATEX_HEADER ${CMAKE_CURRENT_SOURCE_DIR}/header.tex)
+
     add_custom_target(latex DEPENDS refman.tex)
     add_custom_command(
         OUTPUT refman.tex
-            # Let make clean delete these too.
-            refman.aux refman.aux.bak refman.log refman.out refman.toc
+        DEPENDS ${PROTOS_TIMESTAMP} ${DUMMY_REFS_TIMESTAMP} ${PAGES_TXT}
+            ${EXTRA_LATEX_HEADER}
         COMMAND ${MAKE_PAGE} --postprocess latex
             ${DUMMY_REFS} ${PAGES_TXT}
+            --include-in-header ${EXTRA_LATEX_HEADER}
             -o refman.tex
             --standalone --number-sections
         )
+
+    set_directory_properties(PROPERTIES ADDITIONAL_MAKE_CLEAN_FILES
+        "refman.aux;refman.aux.bak;refman.log;refman.out;refman.toc")
 
     add_custom_target(pdf ALL DEPENDS refman.pdf)
     add_custom_command(
