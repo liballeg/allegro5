@@ -638,7 +638,7 @@ char *al_path_to_string(ALLEGRO_PATH *path, char *buffer, size_t len, char delim
       full_len += drive_size + 1;
       
       ustrzncat(buffer, len, path->drive, drive_size);
-      ustrzncat(buffer, len, delims, 1);
+      /*ustrzncat(buffer, len, delims, 1);*/
    }
 
    for (i=0; i < path->segment_count; i++) {
