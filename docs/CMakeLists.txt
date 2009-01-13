@@ -12,6 +12,8 @@ find_program(GREP NAMES grep)
 find_program(SED NAMES sed)
 mark_as_advanced(SH AWK GREP SED)
 
+find_package(LATEX)
+
 #-----------------------------------------------------------------------------#
 
 set(all_docs)

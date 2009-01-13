@@ -2,11 +2,7 @@
 #
 # SYNOPSIS
 #
-# make_html_refs [OPTIONS] DOC-FILE...
-#
-# OPTIONS
-#
-# --html-refs FILE
+# make_html_refs --output OUTPUT-FILE DOC-FILE...
 #
 # DESCRIPTION
 #
@@ -15,14 +11,8 @@
 #
 #   [bar]: foo.html#bar
 #
-# ENVIRONMENT VARIABLES
-#
-# - HTML_REFS
-#
 
 set -e
-
-HTML_REFS=${HTML_REFS:-html_refs}
 
 # Speed up grep and sed.
 export LC_ALL=C
@@ -36,14 +26,18 @@ make_html_refs() {
 }
 
 case $1 in
-    --html-refs)
-        HTML_REFS=$2
+    -o|--output)
+        OUTPUT=$2
         shift 2
+        ;;
+    *)
+        echo "make_html_refs: Missing output file." 1>&2
+        exit 1
         ;;
 esac
 
 for file; do
     make_html_refs "$file"
-done > "$HTML_REFS"
+done > "$OUTPUT"
 
 # vim: set et:

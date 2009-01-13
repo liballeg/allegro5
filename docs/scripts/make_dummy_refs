@@ -1,0 +1,40 @@
+#!/bin/sh -e
+#
+# SYNOPSIS
+#
+# make_dummy_refs --output OUTPUT-FILE DOC-FILE...
+#
+# DESCRIPTION
+#
+# Generate a file containing dummy link definitions for each API
+# entry found.  e.g. for "# API: foo" we generate:
+#
+#   [foo]: DUMMY_REF
+#
+# Then a reference in a source document will expand to something containing
+# "DUMMY_REF" in the output.  That makes it possible to post-process generated
+# TexInfo and LaTeX documents to fix up cross-references.  It's unfortunately
+# necessary as Pandoc currently doesn't have very good cross-reference
+# support.
+#
+
+set -e
+
+# Speed up grep and sed.
+export LC_ALL=C
+
+case $1 in
+    -o|--output)
+        OUTPUT=$2
+        shift 2
+        ;;
+    *)
+        echo "make_dummy_refs: Missing output file." 1>&2
+        exit 1
+        ;;
+esac
+
+grep -h -e '^#\+ API: ' "$@" |
+sed -e 's|^#\+ API: \(.*\)|[\1]: DUMMY_REF|' > "$OUTPUT"
+
+# vim: set et:

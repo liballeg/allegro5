@@ -38,7 +38,7 @@ MANUAL=${MANUAL:-Allegro reference manual}
 
 SPLIT_API_DOCS=$(dirname "$0")/split_api_docs
 
-FASTER_SEARCH=$(dirname $0)/faster_search
+FASTER_SEARCH=$(dirname "$0")/faster_search
 if test ! -x "$FASTER_SEARCH"
 then
     FASTER_SEARCH=

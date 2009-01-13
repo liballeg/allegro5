@@ -7,6 +7,8 @@
 # OPTIONS
 #
 # --protos FILE
+# --postprocess latex
+# --postprocess texinfo
 #
 # DESCRIPTION
 #
@@ -35,7 +37,7 @@ PROTOS=${PROTOS:-protos}
 PREPROCESS_ONLY=${PREPROCESS_ONLY:-n}
 
 # Path to faster_search program.
-FASTER_SEARCH=$(dirname $0)/faster_search
+FASTER_SEARCH=$(dirname "$0")/faster_search
 if test ! -x "$FASTER_SEARCH"
 then
     FASTER_SEARCH=
@@ -83,6 +85,14 @@ get_prototype() {
     fi
 }
 
+POSTPROCESS=
+POSTPROCESS_LATEX=$(dirname "$0")/postprocess_latex
+postprocess_texinfo() {
+    # Replace dummy references by real references (see make_dummy_refs
+    # script).
+    sed 's/@uref{DUMMY_REF,/@ref{/g'
+}
+
 # main
 
 while true; do
@@ -90,6 +100,22 @@ while true; do
         --protos)
             PROTOS=$2
             shift 2
+            ;;
+        --postprocess)
+            case $2 in
+                latex)
+                    POSTPROCESS=$POSTPROCESS_LATEX
+                    shift 2
+                    ;;
+                texinfo)
+                    POSTPROCESS=postprocess_texinfo
+                    shift 2
+                    ;;
+                *)
+                    echo "make_page: wrong --postprocess argument: $2" 1>&2
+                    exit 1
+                    ;;
+            esac
             ;;
         *)
             break
@@ -123,8 +149,33 @@ while true; do
 done
 
 case $PREPROCESS_ONLY in
-    y*) cat $TEMPFILE ;;
-    *)  "$PANDOC" "$TEMPFILE" "$@" ;;
+    y*) cat $TEMPFILE
+        exit 0
+        ;;
 esac
+
+"$PANDOC" "$TEMPFILE" "$@"
+
+# Stop now if post-processing is not required.
+test -n "$POSTPROCESS" || exit 0
+
+# Pandoc options to figure out where the output went.
+OUTPUT=
+while test $# -gt 0
+do
+    case $1 in
+        -o|--output) OUTPUT=$2 ; shift ;;
+        -o*)         OUTPUT=${1#-o} ;;
+        --output=*)  OUTPUT=${1#--output=} ;;
+    esac
+    shift
+done
+
+# For simplicity, we only support post-processing if the output went to a file.
+if test -n "$OUTPUT"
+then
+    "$POSTPROCESS" < "$OUTPUT" > $TEMPFILE
+    cat < $TEMPFILE > "$OUTPUT"
+fi
 
 # vim: set et:

@@ -2,33 +2,26 @@
 #
 # SYNOPSIS
 #
-# make_protos [OPTIONS...] SOURCE-FILE...
-#
-# OPTIONS
-#
-# --protos FILE
+# make_protos --output OUTPUT-FILE SOURCE-FILE...
 #
 # DESCRIPTION
 #
 # Extract all the function prototypes and type/enum declarations which have
 # Natural Docs tags Function: Type: Enum:
-# Output goes to $PROTOS.
-#
-# ENVIRONMENT VARIABLES
-#
-# - PROTOS
 #
 
 set -e
 
 export LC_CTYPE=C
 
-PROTOS=${PROTOS:-protos}
-
 case $1 in
-    --protos)
+    --output)
         PROTOS=$2
         shift 2
+        ;;
+    *)
+        echo "make_protos: Missing --output options." 1>&2
+        exit 1
         ;;
 esac
 
