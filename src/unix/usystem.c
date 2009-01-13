@@ -521,13 +521,27 @@ AL_CONST char *_unix_get_path(uint32_t id, char *dir, size_t size)
 
          ptr+=ucwidth(*ptr);
          usetc(ptr, 0);
-         ustrcat(ptr, "/");
+         //ustrcat(ptr, "/");
 
       } break;
 
       case AL_SYSTEM_DATA_PATH: {
+         char tmp[PATH_MAX] = "";
+         ALLEGRO_PATH *sys_data_path = NULL;
+
          /* FIXME: make this a compile time define, or a allegro cfg option? or both */
-         _al_sane_strncpy(dir, "/usr/share/", strlen("/usr/share/")+1);
+         sys_data_path = al_path_create("/usr/share/");
+         al_path_append(sys_data_path, al_get_orgname());
+         al_path_append(sys_data_path, al_get_appname());
+         al_path_to_string(sys_data_path, tmp, PATH_MAX, '/');
+         if((size_t)(ustrlen(tmp)+1) > size) {
+            al_path_free(sys_data_path);
+            al_set_errno(ERANGE);
+            return NULL;
+         }
+
+         al_path_free(sys_data_path);
+         _al_sane_strncpy(dir, tmp, size);
       } break;
 
 #if 0
@@ -571,7 +585,29 @@ AL_CONST char *_unix_get_path(uint32_t id, char *dir, size_t size)
 #endif
 
       case AL_USER_SETTINGS_PATH:
-      case AL_USER_DATA_PATH:
+      case AL_USER_DATA_PATH: {
+         ALLEGRO_PATH *local_path = NULL;
+         char tmp[PATH_MAX] = "";
+         if (_unix_find_home(tmp, PATH_MAX) != 0) {
+            return NULL;
+         }
+
+         if (tmp[strlen(tmp)-1] != '/')
+            ustrcat(tmp, "/");
+
+         local_path = al_path_create(tmp);
+         al_path_append(local_path, ".config");
+         al_path_append(local_path, al_get_orgname());
+         al_path_append(local_path, al_get_appname());
+
+         al_path_to_string(local_path, tmp, PATH_MAX, '/');
+
+         if((size_t)(ustrlen(tmp)+1) > size)
+            return NULL;
+
+         ustrzcpy(dir, size, tmp);
+      } break;
+
       case AL_USER_HOME_PATH: {
          char tmp[PATH_MAX] = "";
          if (_unix_find_home(tmp, PATH_MAX) != 0) {
@@ -590,6 +626,11 @@ AL_CONST char *_unix_get_path(uint32_t id, char *dir, size_t size)
          /* FIXME: make this a compile time define, or a allegro cfg option? or both */
          _al_sane_strncpy(dir, "/etc/", strlen("/etc/")+1);
          break;
+
+      case AL_EXENAME_PATH:
+         _unix_get_executable_name(dir, size);
+         break;
+
       default:
          return NULL;
    }

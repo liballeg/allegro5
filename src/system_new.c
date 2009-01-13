@@ -35,7 +35,9 @@ _AL_DTOR_LIST *_al_dtor_list = NULL;
 
 static bool atexit_virgin = true;
 
-
+/* too large? */
+static char _al_appname[1024] = "";
+static char _al_orgname[1024] = "";
 
 #if 0
 bool al_register_system_driver(ALLEGRO_SYSTEM_INTERFACE *sys_interface)
@@ -126,6 +128,14 @@ bool al_install_system(int (*atexit_ptr)(void (*)(void)))
       return false;
    }
 
+   if(ustrcmp(al_get_orgname(), "") == 0) {
+      al_set_orgname(NULL);
+   }
+
+   if(ustrcmp(al_get_appname(), "") == 0) {
+      al_set_appname(NULL);
+   }
+   
 #ifdef ALLEGRO_UNIX
    active_sysdrv->config = al_config_read("/etc/allegrorc");
    if (active_sysdrv->config) {
@@ -223,6 +233,40 @@ AL_CONST char *al_get_path(uint32_t id, char *path, size_t size)
    return NULL;
 }
 
+
+void al_set_orgname(AL_CONST char *orgname)
+{
+   if(orgname)
+      ustrzcpy(_al_orgname, sizeof(_al_orgname), orgname);
+   else
+      ustrzcpy(_al_orgname, sizeof(_al_orgname), "allegro");
+}
+
+void al_set_appname(AL_CONST char *appname)
+{
+   if(appname) {
+      ustrzcpy(_al_appname, sizeof(_al_appname), appname);
+   }
+   else {
+      char _appname_tmp[PATH_MAX];
+      ALLEGRO_PATH *_appname_path = NULL;
+
+      al_get_path(AL_EXENAME_PATH, _appname_tmp, PATH_MAX);
+      _appname_path = al_path_create(_appname_tmp);
+      ustrzcpy(_al_appname, sizeof(_al_appname), al_path_get_filename(_appname_path) );
+      al_path_free(_appname_path);
+   }
+}
+
+AL_CONST char *al_get_orgname(void)
+{
+   return _al_orgname;
+}
+
+AL_CONST char *al_get_appname(void)
+{
+   return _al_appname;
+}
 
 /* Function: al_inhibit_screensaver
  *

@@ -366,7 +366,8 @@ static AL_CONST char *win_get_path(uint32_t id, char *dir, size_t size)
    char path[MAX_PATH];
    uint32_t csidl = 0;
    HRESULT ret = 0;
-
+   ALLEGRO_PATH *cisdl_path = NULL;
+   
    memset(dir, 0, size);
 
    switch (id) {
@@ -427,6 +428,15 @@ static AL_CONST char *win_get_path(uint32_t id, char *dir, size_t size)
          csidl = CSIDL_COMMON_APPDATA;
          break;
 
+      case AL_EXENAME_PATH: { /* full path to the exe including its name */
+         HANDLE process = GetCurrentProcess();
+         char *ptr;
+         GetModuleFileNameEx(process, NULL, path, MAX_PATH);
+
+         do_uconvert(path, U_ASCII, dir, U_CURRENT, strlen(path)+1);
+         return dir;
+      } break;
+      
       default:
          return dir;
    }
@@ -436,8 +446,23 @@ static AL_CONST char *win_get_path(uint32_t id, char *dir, size_t size)
       return dir;
    }
 
+   cisdl_path = al_path_create(path);
+   if(!cisdl_path)
+      return NULL;
+
+   if(id != AL_USER_HOME_PATH) {
+      al_path_append(cisdl_path, al_get_orgname());
+      al_path_append(cisdl_path, al_get_appname());
+   }
+
+   al_path_to_string(cisdl_path, path, sizeof(path), '\\');
+   if((size_t)(ustrlen(path)+1) > size) {
+      al_path_free(cisdl_path);
+      return NULL;
+   }
+   
    do_uconvert(path, U_ASCII, dir, U_CURRENT, strlen(path)+1);
-   ustrcat(dir, "\\");
+   //ustrcat(dir, "\\");
    
    return dir;
 }

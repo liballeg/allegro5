@@ -21,10 +21,17 @@ enum {
    AL_USER_HOME_PATH,
    AL_USER_SETTINGS_PATH,
    AL_SYSTEM_SETTINGS_PATH,
+   AL_EXENAME_PATH,
    AL_LAST_PATH // must be last
 };
 
 AL_FUNC(AL_CONST char *, al_get_path, (uint32_t id, char *path, size_t size));
+
+AL_FUNC(void, al_set_orgname, (AL_CONST char *orgname));
+AL_FUNC(void, al_set_appname, (AL_CONST char *appname));
+AL_FUNC(AL_CONST char *, al_get_orgname, (void));
+AL_FUNC(AL_CONST char *, al_get_appname, (void));
+
 AL_FUNC(bool, al_inhibit_screensaver, (bool inhibit));
 
 #ifdef __cplusplus

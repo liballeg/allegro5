@@ -6,6 +6,12 @@ int main(void)
 {
    char buffer[1024];
 
+   /* defaults to allegro */
+   al_set_orgname("liballeg.org");
+
+   /* defaults to the exename, set it here to remove the .exe on windows */
+   al_set_appname("ex_get_path");
+   
    al_init();
 
    al_get_path(AL_PROGRAM_PATH, buffer, 1024);
@@ -28,6 +34,9 @@ int main(void)
 
    al_get_path(AL_USER_HOME_PATH, buffer, 1024);
    printf("AL_USER_HOME_PATH: %s\n", buffer);
+
+   al_get_path(AL_EXENAME_PATH, buffer, 1024);
+   printf("AL_EXENAME_PATH: %s\n", buffer);
 
    return 0;
 }
