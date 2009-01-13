@@ -56,5 +56,12 @@ if(WANT_COLOR)
     set(COLOR_LINK_WITH ${COLOR_LINK_WITH} PARENT_SCOPE)
 endif(WANT_COLOR)
 
+
+if(WANT_MEMFILE)
+    add_subdirectory(memfile)
+    set(SUPPORT_MEMFILE 1 PARENT_SCOPE)
+    set(MEMFILE_LINK_WITH ${MEMFILE_LINK_WITH} PARENT_SCOPE)
+endif(WANT_MEMFILE)
+
 #-----------------------------------------------------------------------------#
 # vi: set ts=8 sts=4 sw=4 et:

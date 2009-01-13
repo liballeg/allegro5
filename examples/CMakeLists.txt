@@ -6,6 +6,7 @@ include_directories(
     ../addons/kcm_audio
     ../addons/acodec
     ../addons/color
+    ../addons/memfile
     )
 
 if(SUPPORT_FONT)
@@ -96,6 +97,10 @@ if(SUPPORT_OPENGL)
     example(ex_glext)
     example(ex_opengl)
 endif(SUPPORT_OPENGL)
+
+if(SUPPORT_MEMFILE)
+   example(ex_memfile ${MEMFILE_LINK_WITH})
+endif(SUPPORT_MEMFILE)
 
 copy_data_dir_to_build(copy_example_data data)
 
