@@ -33,7 +33,7 @@ Note:
 The pixel format is independent of endianness. That is, in the above
 example you can always get the red component with
 
- (pixel & 0x00ff0000) >> 8
+ (pixel & 0x00ff0000) >> 16
 
 But you can *not* rely on this code:
 

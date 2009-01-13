@@ -503,7 +503,7 @@ ALLEGRO_COLOR al_color_yuv(float y, float u, float v)
    return al_map_rgb_f(r, g, b);
 }
 
-/* Function: al_color_html_to_rgb
+/* Function: al_color_rgb_to_html
  * 
  * Parameters:
  * red, green, blue - The color components in the range 0..1.
@@ -523,7 +523,7 @@ void al_color_rgb_to_html(float red, float green, float blue,
       (int)(green * 255), (int)blue * 255);
 }
 
-/* Function: al_color_rgb_to_html
+/* Function: al_color_html_to_rgb
  */
 void al_color_html_to_rgb(char const *string,
    float *red, float *green, float *blue)

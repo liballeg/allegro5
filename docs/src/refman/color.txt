@@ -32,8 +32,9 @@ Parameters:
 
 ## API: al_color_html
 
-
 ## API: al_color_html_to_rgb
+
+## API: al_color_rgb_to_html
 
 Parameters:
 
