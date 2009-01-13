@@ -16,7 +16,7 @@
  */
 
 /* enable large file support in gcc/glibc */
-#if defined ALLEGRO_HAVE_FTELLO64 && defined ALLEGRO_HAVE_FSEEKO64
+#if defined ALLEGRO_HAVE_FTELLO && defined ALLEGRO_HAVE_FSEEKO
    #define _LARGEFILE_SOURCE
    #define _LARGEFILE_SOURCE64
    #define _FILE_OFFSET_BITS 64
@@ -602,7 +602,7 @@ static bool al_fs_stdio_fseek(ALLEGRO_FS_ENTRY *fp, int64_t offset,
       case ALLEGRO_SEEK_END: whence = SEEK_END; break;
    }
 
-#ifdef ALLEGRO_HAVE_FSEEKO64
+#ifdef ALLEGRO_HAVE_FSEEKO
    ret = fseeko(fp_stdio->hd.handle, offset, whence);
 #else
    ret = fseek(fp_stdio->hd.handle, offset, whence);
@@ -622,7 +622,7 @@ static int64_t al_fs_stdio_ftell(ALLEGRO_FS_ENTRY *fp)
    int64_t ret = 0;
    ASSERT(!fp_stdio->isdir);
 
-#ifdef ALLEGRO_HAVE_FTELLO64
+#ifdef ALLEGRO_HAVE_FTELLO
    ret = ftello(fp_stdio->hd.handle);
 #else
    ret = ftell(fp_stdio->hd.handle);

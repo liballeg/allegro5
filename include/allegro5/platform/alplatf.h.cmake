@@ -53,8 +53,8 @@
 #cmakedefine ALLEGRO_HAVE_STRLWR
 #cmakedefine ALLEGRO_HAVE_STRUPR
 #cmakedefine ALLEGRO_HAVE_SYSCONF
-#cmakedefine ALLEGRO_HAVE_FSEEKO64
-#cmakedefine ALLEGRO_HAVE_FTELLO64
+#cmakedefine ALLEGRO_HAVE_FSEEKO
+#cmakedefine ALLEGRO_HAVE_FTELLO
 
 /* Define to 1 if procfs reveals argc and argv */
 #cmakedefine ALLEGRO_HAVE_PROCFS_ARGCV

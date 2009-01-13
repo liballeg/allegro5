@@ -304,8 +304,8 @@ check_function_exists(stricmp ALLEGRO_HAVE_STRICMP)
 check_function_exists(strlwr ALLEGRO_HAVE_STRLWR)
 check_function_exists(strupr ALLEGRO_HAVE_STRUPR)
 check_function_exists(sysconf ALLEGRO_HAVE_SYSCONF)
-check_function_exists(fseeko64 ALLEGRO_HAVE_FSEEKO64)
-check_function_exists(ftello64 ALLEGRO_HAVE_FTELLO64)
+check_function_exists(fseeko ALLEGRO_HAVE_FSEEKO)
+check_function_exists(ftello ALLEGRO_HAVE_FTELLO)
 
 check_type_size("_Bool" ALLEGRO_HAVE__BOOL)
 
