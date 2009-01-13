@@ -118,9 +118,6 @@ Given an RGB triplet with components in the range 0..1, return
 the hue in degrees from 0..360 and saturation and value in the
 range 0..1.
 
-## API: al_color_rgb_to_html
-
-
 ## API: al_color_rgb_to_name
 
 Given an RGB triplet with components in the range 0..1, find a color
