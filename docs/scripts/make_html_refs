@@ -14,16 +14,15 @@
 
 set -e
 
-# Speed up grep and sed.
+# Speed up awk.
 export LC_ALL=C
 
-make_html_refs() {
-    file=$1
-    base=${file##*/}
-    base=${base%.*}     # remove any extension
-    grep -e '^#\+ API: ' "$file" |
-    sed -e 's|^#\+ API: \(.*\)|[\1]: '${base}'.html#\1|'
-}
+AWK_PROGRAM='
+/^#+ API: / {
+    # For C identifiers, this should be all the mangling we need.
+    sec_id = tolower($3)
+    printf "[%s]: %s#%s\n", $3, file, sec_id
+}'
 
 case $1 in
     -o|--output)
@@ -37,7 +36,9 @@ case $1 in
 esac
 
 for file; do
-    make_html_refs "$file"
+    base=${file##*/}
+    base=${base%.*}     # remove any extension
+    awk -v file="${base}.html" "$AWK_PROGRAM" "$file"
 done > "$OUTPUT"
 
 # vim: set et:
