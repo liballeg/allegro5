@@ -319,6 +319,9 @@ Return the voice created by [al_setup_simple_audio].
 ## API: al_get_voice_long
 
 
+## API: al_install_audio
+
+
 ## API: al_mixer_set_postprocess_callback
 
 Sets a post-processing filter function that's called after the attached
@@ -333,6 +336,9 @@ was created with. The sample count and user-data pointer is also passed.
 Play an instance of a sample data, using one of the samples created by
 [al_setup_simple_audio].  Returns true on success, false on failure.
 Playback may fail because all the reserved samples are currently used.
+
+## API: al_rewind_stream
+
 
 ## API: al_set_mixer_bool
 
@@ -421,4 +427,6 @@ Stop all samples started by the easy audio layer.
 
 ## API: al_stop_sample
 
+
+## API: al_uninstall_audio
 

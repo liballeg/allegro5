@@ -1,5 +1,8 @@
 # Image I/O addon
 
+## API: al_iio_add_handler
+
+
 ## API: al_iio_init
 
 Initializes the IIO addon.

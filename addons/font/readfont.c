@@ -38,7 +38,7 @@ static FONT_TYPE_INFO *font_type_list = NULL;
 
 
 
-/* register_font_file_type:
+/* Function: al_font_register_font_file_type
  *  Informs Allegro of a new font file type, telling it how to load files of 
  *  this format.
  */
@@ -66,7 +66,7 @@ void al_font_register_font_file_type(const char *ext, ALLEGRO_FONT *(*load)(cons
 
 
 
-/* load_font:
+/* Function: al_font_load_font
  *  Loads a font from disk. Will try to load a font from a bitmap if all else
  *  fails.
  */
@@ -92,10 +92,10 @@ ALLEGRO_FONT *al_font_load_font(const char *filename, void *param)
 
 
 
-/* register_font_file_type_exit:
+/* _al_font_register_font_file_type_exit:
  *  Free list of registered bitmap file types.
  */
-static void al_font_register_font_file_type_exit(void)
+static void _al_font_register_font_file_type_exit(void)
 {
    FONT_TYPE_INFO *iter = font_type_list, *next;
 
@@ -116,18 +116,18 @@ static void al_font_register_font_file_type_exit(void)
       _al_font_register_font_file_type_init();
    #endif
 
-   _al_remove_exit_func(al_font_register_font_file_type_exit);
+   _al_remove_exit_func(_al_font_register_font_file_type_exit);
 }
 
 
 
-/* _register_font_file_type_init:
+/* _al_font_register_font_file_type_init:
  *  Register built-in font file types.
  */
 void _al_font_register_font_file_type_init(void)
 {
-   _al_add_exit_func(al_font_register_font_file_type_exit,
-		  "al_font_register_font_file_type_exit");
+   _al_add_exit_func(_al_font_register_font_file_type_exit,
+		  "_al_font_register_font_file_type_exit");
 }
 
 
@@ -165,6 +165,6 @@ void _al_font_register_font_file_type_init(void)
    
       font_type_list = NULL;
 
-      _al_remove_exit_func(al_font_register_font_file_type_exit);
+      _al_remove_exit_func(_al_font_register_font_file_type_exit);
    }
 #endif

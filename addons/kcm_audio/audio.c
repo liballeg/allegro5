@@ -205,6 +205,8 @@ static int do_install_audio(ALLEGRO_AUDIO_DRIVER_ENUM mode)
    }
 }
 
+/* Function: al_install_audio
+ */
 int al_install_audio(ALLEGRO_AUDIO_DRIVER_ENUM mode)
 {
    int ret = do_install_audio(mode);
@@ -214,6 +216,8 @@ int al_install_audio(ALLEGRO_AUDIO_DRIVER_ENUM mode)
    return ret;
 }
 
+/* Function: al_uninstall_audio
+ */
 void al_uninstall_audio(void)
 {
    if (_al_kcm_driver) {

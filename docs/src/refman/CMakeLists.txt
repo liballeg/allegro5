@@ -244,8 +244,9 @@ if(CTAGS)
         COMMAND ${CTAGS}
             --langdef=allegrodoc
             --langmap=allegrodoc:.txt
-            "--regex-allegrodoc='/^\#+ API: (.+)/\\1/'"
+            "--regex-allegrodoc=/^#+ API: (.+)/\\1/"
             ${PAGES_TXT}
+        VERBATIM
         )
 endif(CTAGS)
 

@@ -7,6 +7,8 @@
 #include "allegro5/internal/aintern_acodec.h"
 
 
+/* Function: al_load_sample_data
+ */
 ALLEGRO_SAMPLE_DATA *al_load_sample_data(const char *filename)
 {
    const char *ext;
@@ -43,7 +45,7 @@ ALLEGRO_SAMPLE_DATA *al_load_sample_data(const char *filename)
 }
 
 
-/* al_stream_from_file:
+/* Function: al_stream_from_file
  * Unlike a regular stream, a stream created with al_stream_from_file() doesn't
  * have to be fed by the user. Instead, it will be fed as needed by acodec
  * addon, progressively reading a file from the disk. When the stream finishes

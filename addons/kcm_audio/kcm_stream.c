@@ -622,10 +622,11 @@ bool _al_kcm_emit_stream_event(ALLEGRO_STREAM *stream, unsigned long count)
 }
 
 
-/* al_rewind_stream:
+/* Function: al_rewind_stream
  * Set the streaming file playing position to the beginning. Returns true on
  * success. Currently this can only be called on streams created with acodec's
- * al_stream_from_file(). */
+ * al_stream_from_file().
+ */
 bool al_rewind_stream(ALLEGRO_STREAM *stream)
 {
    if (stream->rewind_feeder) {

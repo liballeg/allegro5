@@ -5,11 +5,11 @@
 Returns the full path of a 'resource' given mode 'fm'.
 
 Parameters:
-base - sub directory name resource may be found in
-resource - name of resource
-fm - file mode/type of resource to match. See <ALLEGRO_FS_MODE>
-buffer - buffer to write full path to
-len - length of buffer
+* base - sub directory name resource may be found in
+* resource - name of resource
+* fm - file mode/type of resource to match. See [ALLEGRO_FS_MODE]
+* buffer - buffer to write full path to
+* len - length of buffer
 
 Notes:
 If asking for a read-only resource function scans the user data path, the
@@ -111,7 +111,7 @@ It is an error to pass an index which is out of bounds.
 Prepends the current working directory to 'path' if it is a relative path.
 Does nothing otherwise.
 
-## API: al_path_make_cannonical
+## API: al_path_make_canonical
 
 Removes any leading '..' entries in absolute paths.
 Removes all '.' entries.

@@ -85,11 +85,15 @@ static int pixel_bits[] = {
 };
 
 
+/* Function: al_get_pixel_size
+ */
 int al_get_pixel_size(int format)
 {
    return pixel_sizes[format];
 }
 
+/* Function: al_get_pixel_format_bits
+ */
 int al_get_pixel_format_bits(int format)
 {
    return pixel_bits[format];

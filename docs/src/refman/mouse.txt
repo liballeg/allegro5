@@ -58,7 +58,7 @@ Return the number of buttons on the mouse.
 Save the state of the mouse specified at the time the function
 is called into the given structure.
 
-## API: al_get_state_axis
+## API: al_get_mouse_state_axis
 
 Extract the mouse axis value from the saved state.
 

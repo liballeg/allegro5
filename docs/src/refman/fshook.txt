@@ -7,67 +7,78 @@ Represents a file or a directory (check with [al_fs_entry_isdir]
 or [al_fs_entry_isfile]).
 There are no user accessible member variables.
 
+## API: ALLEGRO_FS_FILTER
+
 File system search filters.
 
 Type Filters:
-ALLEGRO_FS_FILTER_DRIVES - Include Drive letters
-ALLEGRO_FS_FILTER_DIRS - Include Directories
-ALLEGRO_FS_FILTER_FILES - Include Files
-ALLEGRO_FS_FILTER_NOSYMLINKS - Exclude symlinks
-ALLEGRO_FS_FILTER_ALLENTRIES - Include all entries (including symlinks)
+
+* ALLEGRO_FS_FILTER_DRIVES - Include Drive letters
+* ALLEGRO_FS_FILTER_DIRS - Include Directories
+* ALLEGRO_FS_FILTER_FILES - Include Files
+* ALLEGRO_FS_FILTER_NOSYMLINKS - Exclude symlinks
+* ALLEGRO_FS_FILTER_ALLENTRIES - Include all entries (including symlinks)
 
 Permission Filters:
-ALLEGRO_FS_FILTER_READABLE - Entry is Readable
-ALLEGRO_FS_FILTER_WRITABLE - Entry is Writeable
-ALLEGRO_FS_FILTER_EXECUTABLE - Entry is Executable
+
+* ALLEGRO_FS_FILTER_READABLE - Entry is Readable
+* ALLEGRO_FS_FILTER_WRITABLE - Entry is Writeable
+* ALLEGRO_FS_FILTER_EXECUTABLE - Entry is Executable
 
 Access Filters:
-ALLEGRO_FS_FILTER_HIDDEN - Entry is hidden
-ALLEGRO_FS_FILTER_SYSTEM - Entry is marked as a system file
+
+* ALLEGRO_FS_FILTER_HIDDEN - Entry is hidden
+* ALLEGRO_FS_FILTER_SYSTEM - Entry is marked as a system file
 
 Other Filters:
-ALLEGRO_FS_FILTER_ALLDIRS - Include all directories, including '.' and '..'
-ALLEGRO_FS_FILTER_CASESENSITIVE - Search case sentitively
-ALLEGRO_FS_FILTER_NODOTDOT - Exclude '..'
 
-ALLEGRO_FS_FILTER_NOFILTER - No filtering
+* ALLEGRO_FS_FILTER_ALLDIRS - Include all directories, including '.' and '..'
+* ALLEGRO_FS_FILTER_CASESENSITIVE - Search case sentitively
+* ALLEGRO_FS_FILTER_NODOTDOT - Exclude '..'
+* ALLEGRO_FS_FILTER_NOFILTER - No filtering
+
+## API: ALLEGRO_FS_MKTEMP_UNLINK
 
 al_fs_mktemp unlink modes
 
-ALLEGRO_FS_MKTEMP_UNLINK_NEVER - Don't auto unlink
-ALLEGRO_FS_MKTEMP_UNLINK_NOW - Unlink on open, makes file "hidden"
-ALLEGRO_FS_MKTEMP_UNLINK_ON_CLOSE - Unlink on close
+* ALLEGRO_FS_MKTEMP_UNLINK_NEVER - Don't auto unlink
+* ALLEGRO_FS_MKTEMP_UNLINK_NOW - Unlink on open, makes file "hidden"
+* ALLEGRO_FS_MKTEMP_UNLINK_ON_CLOSE - Unlink on close
+
+## API: ALLEGRO_FS_MODE
 
 Filesystem modes/types
 
-AL_FM_READ - Readable
-AL_FM_WRITE - Writable
-AL_FM_EXECUTE - Executable
-AL_FM_HIDDEN - Hidden
-AL_FM_ISFILE - Regular file
-AL_FM_ISDIR - Directory
+* AL_FM_READ - Readable
+* AL_FM_WRITE - Writable
+* AL_FM_EXECUTE - Executable
+* AL_FM_HIDDEN - Hidden
+* AL_FM_ISFILE - Regular file
+* AL_FM_ISDIR - Directory
+
+## API: ALLEGRO_FS_SORT
 
 Filesystem search sort flags
 
-ALLEGRO_FS_SORT_NAME - By name
-ALLEGRO_FS_SORT_TIME - By time
-ALLEGRO_FS_SORT_SIZE - By size
-ALLEGRO_FS_SORT_UNSORTED - Don't sort
+* ALLEGRO_FS_SORT_NAME - By name
+* ALLEGRO_FS_SORT_TIME - By time
+* ALLEGRO_FS_SORT_SIZE - By size
+* ALLEGRO_FS_SORT_UNSORTED - Don't sort
 
-ALLEGRO_FS_SORT_DIRSFIRST - Directories first
-ALLEGRO_FS_SORT_REVERSED - Reverse sort
-ALLEGRO_FS_SORT_CASESENSITIVE - Case Sensitive
-ALLEGRO_FS_SORT_DIRSLAST - Directories Last
-ALLEGRO_FS_SORT_TYPE - By Type (extension?)
+* ALLEGRO_FS_SORT_DIRSFIRST - Directories first
+* ALLEGRO_FS_SORT_REVERSED - Reverse sort
+* ALLEGRO_FS_SORT_CASESENSITIVE - Case Sensitive
+* ALLEGRO_FS_SORT_DIRSLAST - Directories Last
+* ALLEGRO_FS_SORT_TYPE - By Type (extension?)
 
 XXX do we need ALLEGRO_FS_SORT_TYPE?  It sounds like we don't even
 know what it should do.
 
-Seek modes
+## API: ALLEGRO_SEEK
 
-ALLEGRO_SEEK_SET - Seek to pos from beginning of file
-ALLEGRO_SEEK_CUR - Seek to pos from curent position
-ALLEGRO_SEEK_END - Seek to pos from end of file
+* ALLEGRO_SEEK_SET - Seek to pos from beginning of file
+* ALLEGRO_SEEK_CUR - Seek to pos from curent position
+* ALLEGRO_SEEK_END - Seek to pos from end of file
 
 ## API: al_fs_add_search_path
 
@@ -98,7 +109,7 @@ Returns true on succes, false on failure and fills in errno to indicate the erro
 
 ## API: al_fs_create_handle
 
-Creates an <ALLEGRO_FS_ENTRY> object pointing to path.
+Creates an [ALLEGRO_FS_ENTRY] object pointing to path.
 'path' can be a file or a directory and must not be NULL.
 
 ## API: al_fs_destroy_handle
@@ -146,16 +157,17 @@ Check if the given entry exists on disk.
 Returns true if it does exist or false if it doesn't exist, or an error occured.
 Error is indicated in errno.
 
-See also: <al_get_errno>
+See also: [al_get_errno]
 
 ## API: al_fs_entry_fgets
 
 Reads a string of bytes terminated with a newline (\\r,\\n,\\r\\n).
 
 Parameters:
-p - buffer to fill
-max - maximum size of buffer
-f - entry to read from
+
+* p - buffer to fill
+* max - maximum size of buffer
+* f - entry to read from
 
 Returns:
 p
@@ -166,15 +178,16 @@ Flush any pending writes to 'fp' to disk.
 
 Returns true on success, false otherwise, and errno is set to indicate the error.
 
-See also: <al_get_errno>
+See also: [al_get_errno]
 
 ## API: al_fs_entry_fputs
 
 Writes a string to file.
 
 Parameters:
-p - string to write
-f - file handle to write to
+
+* p - string to write
+* f - file handle to write to
 
 Returns:
 0 on success or -1 on error
@@ -242,7 +255,7 @@ The read 16-bit word or EOF on error.
 
 Returns the entry's mode flags.
 
-See the <ALLEGRO_FS_MODE> enum for valid flags.
+See the [ALLEGRO_FS_MODE] enum for valid flags.
 
 ## API: al_fs_entry_mputl
 
@@ -303,15 +316,16 @@ Return number of bytes actually read.
 Seek to 'offset' in file based on 'whence'.
 
 'whence' can be:
-ALLEGRO_SEEK_SET - Seek from beggining of file
-ALLEGRO_SEEK_CUR - Seek from current position
-ALLEGRO_SEEK_END - Seek from end of file
+
+* ALLEGRO_SEEK_SET - Seek from beggining of file
+* ALLEGRO_SEEK_CUR - Seek from current position
+* ALLEGRO_SEEK_END - Seek from end of file
 
 Returns true on success, false on failure and errno is set to indicate the error.
 
 On some platforms this function may not support large files.
 
-See also: <al_get_errno>
+See also: [al_get_errno]
 
 ## API: al_fs_entry_size
 
@@ -324,8 +338,8 @@ Updates stat info for entry 'fp'.
 Returns true on success, false on failure.
 Fills in errno to indicate the error.
 
-See also <al_get_errno> <al_fs_entry_atime> <al_fs_entry_ctime> <al_fs_entry_isdir>
-<al_fs_entry_isfile> <al_fs_entry_mode>
+See also [al_get_errno] [al_fs_entry_atime] [al_fs_entry_ctime] [al_fs_entry_isdir]
+[al_fs_entry_isfile] [al_fs_entry_mode]
 
 ## API: al_fs_entry_tell
 
@@ -334,7 +348,7 @@ errno is set to indicate the error.
 
 On some platforms this function may not support large files.
 
-See also: <al_get_errno>
+See also: [al_get_errno]
 
 ## API: al_fs_entry_ungetc
 
@@ -347,7 +361,7 @@ char back into the entry's buffer.
 
 Returns true on success, and false on failure, error is indicated in errno.
 
-See also <al_get_errno>
+See also [al_get_errno]
 
 ## API: al_fs_entry_write
 
@@ -385,7 +399,7 @@ Possible Errors:
 * EINVAL - invalid item selected
 * ERANGE - buffer not large enough
 
-See also: <al_get_errno>
+See also: [al_get_errno]
 
 ## API: al_fs_getcwd
 
@@ -398,7 +412,7 @@ errno is filled in to indicate the error.
 Possible Errors:
 * ERANGE - buffer is not large enough
 
-See also: <al_get_errno>
+See also: [al_get_errno]
 
 ## API: al_fs_isdir
 
@@ -420,7 +434,7 @@ Creates a new directory on disk given the path 'path'.
 
 Returns false on error and fills in errno to indicate the error.
 
-See also: <al_get_errno>
+See also: [al_get_errno]
 
 ## API: al_fs_mktemp
 
@@ -432,9 +446,10 @@ should include one or more capital Xs.  The Xs are replaced with random
 alphanumeric chars.
 
 'ulink' is one of:
-ALLEGRO_FS_MKTEMP_UNLINK_NOW - unlink now to create an anonymous temporary file
-ALLEGRO_FS_MKTEMP_UNLINK_ON_CLOSE - unlink when entry is closed
-ALLEGRO_FS_MKTEMP_UNLINK_NEVER - don't unlink
+
+* ALLEGRO_FS_MKTEMP_UNLINK_NOW - unlink now to create an anonymous temporary file
+* ALLEGRO_FS_MKTEMP_UNLINK_ON_CLOSE - unlink when entry is closed
+* ALLEGRO_FS_MKTEMP_UNLINK_NEVER - don't unlink
 
 ## API: al_fs_open_handle
 
@@ -443,7 +458,7 @@ mode is a stdio type mode, ie: "r", "w", etc
 
 Returns true on success, false on failure and fills in errno to indicate the error.
 
-See also: <al_get_errno>
+See also: [al_get_errno]
 
 ## API: al_fs_opendir
 
@@ -498,7 +513,7 @@ See Also:
 Returns stat 'mode' for fs entry 'path'.
 
 See Also:
-<ALLEGRO_FS_MODE>
+[ALLEGRO_FS_MODE]
 
 ## API: al_fs_stat_mtime
 

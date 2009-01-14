@@ -5,6 +5,31 @@
 Frees the memory being used by a font structure.
 This is now wholly handled in the vtable.
 
+## API: al_font_grab_font_from_bitmap
+
+Work horse for grabbing a font from an Allegro bitmap.
+
+## API: al_font_init
+
+
+## API: al_font_is_compatible_font
+
+Returns non-zero if the two fonts are of similar type.
+
+## API: al_font_load_font
+
+Loads a font from disk. Will try to load a font from a bitmap if all else
+fails.
+
+## API: al_font_load_bitmap_font
+
+Import routine for the Allegro bitmap font format.
+
+## API: al_font_register_font_file_type
+
+Informs Allegro of a new font file type, telling it how to load files of
+this format.
+
 ## API: al_font_text_height
 
 Returns the height of a character in the specified font.
@@ -83,4 +108,6 @@ case x and y will have negative values.
                    descent  |
                    |        |
     -------------------------
+
+## API: al_ttf_load_font
 

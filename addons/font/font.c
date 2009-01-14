@@ -195,8 +195,8 @@ ALLEGRO_FONT_VTABLE* al_font_vtable_color = &_al_font_vtable_color;
 
 
 
-/* al_font_is_compatibe_font:
- *  returns non-zero if the two fonts are of similar type
+/* Function: al_font_is_compatible_font
+ *  Returns non-zero if the two fonts are of similar type.
  */
 int al_font_is_compatible_font(ALLEGRO_FONT *f1, ALLEGRO_FONT *f2)
 {
@@ -207,6 +207,8 @@ int al_font_is_compatible_font(ALLEGRO_FONT *f1, ALLEGRO_FONT *f2)
 
 
 
+/* Function: al_font_init
+ */
 void al_font_init(void)
 {
    al_iio_init(); /* we depend on the iio addon */

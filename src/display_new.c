@@ -686,6 +686,8 @@ void al_get_window_position(ALLEGRO_DISPLAY *display, int *x, int *y)
    }
 }
 
+/* Function: al_toggle_window_frame
+ */
 void al_toggle_window_frame(ALLEGRO_DISPLAY *display, bool onoff)
 {
    ASSERT(display);
@@ -699,7 +701,8 @@ void al_toggle_window_frame(ALLEGRO_DISPLAY *display, bool onoff)
    }
 }
 
-
+/* Function: al_set_window_title
+ */
 void al_set_window_title(AL_CONST char *title)
 {
    ALLEGRO_DISPLAY *current_display = al_get_current_display();

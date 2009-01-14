@@ -774,7 +774,7 @@ ALLEGRO_BITMAP *al_create_sub_bitmap(ALLEGRO_BITMAP *parent,
 }
 
 
-/* Function al_is_sub_bitmap
+/* Function: al_is_sub_bitmap
  *
  * Returns true if the specified bitmap is a sub-bitmap, false otherwise.
  */
@@ -817,7 +817,7 @@ ALLEGRO_BITMAP *al_clone_bitmap(ALLEGRO_BITMAP *bitmap)
 }
 
 
-/* Function: al_bitmap_is_locked
+/* Function: al_is_bitmap_locked
  *
  * Returns whether or not a bitmap is already locked.
  */

@@ -112,10 +112,6 @@ format with alpha
 
 * ALLEGRO_PIXEL_FORMAT_XRGB_8888 - 32 bit
 
-## API: al_bitmap_is_locked
-
-Returns whether or not a bitmap is already locked.
-
 ## API: al_clone_bitmap
 
 Clone a bitmap "exactly", formats can be different.
@@ -304,6 +300,12 @@ Returns the format used for newly created bitmaps.
 
 Get a pixel's color value from the specified bitmap.
 
+## API: al_get_pixel_size
+
+
+## API: al_get_pixel_format_bits
+
+
 ## API: al_get_separate_blender
 
 Returns the active blender for the current thread. You can pass
@@ -312,6 +314,10 @@ NULL for values you are not interested in.
 ## API: al_get_target_bitmap
 
 Return the target bitmap of the current display.
+
+## API: al_is_bitmap_locked
+
+Returns whether or not a bitmap is already locked.
 
 ## API: al_is_compatible_bitmap
 
@@ -327,6 +333,10 @@ display will be slow).
 The only time this function is useful is if you
 are using multiple windows and need accelerated blitting of the same
 bitmaps to both. 
+
+## API: al_is_sub_bitmap
+
+Returns true if the specified bitmap is a sub-bitmap, false otherwise.
 
 ## API: al_load_bitmap
 

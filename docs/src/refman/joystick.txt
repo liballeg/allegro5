@@ -16,7 +16,7 @@ All fields public and read-only.
     } stick[num_sticks];
     int button[num_buttons];                // 0 to 32767
 
-Joystick flags:
+## API: ALLEGRO_JOYFLAGS
 
 * ALLEGRO_JOYFLAG_DIGITAL  - the stick provides digital input
 * ALLEGRO_JOYFLAG_ANALOGUE - the stick provides analogue input

@@ -46,9 +46,6 @@ extern "C" {
 #define ALLEGRO_EVENT_STREAM_EMPTY_FRAGMENT  1235
 
 
-/* Type: ALLEGRO_AUDIO_DEPTH
- */
-
 #ifndef __cplusplus
 typedef enum ALLEGRO_AUDIO_DEPTH ALLEGRO_AUDIO_DEPTH;
 typedef enum ALLEGRO_CHANNEL_CONF ALLEGRO_CHANNEL_CONF;
@@ -58,6 +55,8 @@ typedef enum ALLEGRO_AUDIO_PROPERTY ALLEGRO_AUDIO_PROPERTY;
 typedef enum ALLEGRO_AUDIO_DRIVER_ENUM ALLEGRO_AUDIO_DRIVER_ENUM;
 #endif
 
+/* Enum: ALLEGRO_AUDIO_DEPTH
+ */
 enum ALLEGRO_AUDIO_DEPTH {
    /* Sample depth and type, and signedness. Mixers only use 32-bit signed
     * float (-1..+1). The unsigned value is a bit-flag applied to the depth
@@ -80,7 +79,7 @@ enum ALLEGRO_AUDIO_DEPTH {
 };
 
 
-/* Type: ALLEGRO_CHANNEL_CONF
+/* Enum: ALLEGRO_CHANNEL_CONF
  */
 enum ALLEGRO_CHANNEL_CONF {
    /* Speaker configuration (mono, stereo, 2.1, 3, etc). With regards to
@@ -101,7 +100,7 @@ enum ALLEGRO_CHANNEL_CONF {
 };
 
 
-/* Type: ALLEGRO_PLAYMODE
+/* Enum: ALLEGRO_PLAYMODE
  *  Sample and stream looping mode.
  */
 enum ALLEGRO_PLAYMODE {
@@ -113,7 +112,7 @@ enum ALLEGRO_PLAYMODE {
 };
 
 
-/* Type: ALLEGRO_MIXER_QUALITY
+/* Enum: ALLEGRO_MIXER_QUALITY
  */
 enum ALLEGRO_MIXER_QUALITY {
    ALLEGRO_MIXER_QUALITY_POINT   = 0x110,
@@ -121,7 +120,7 @@ enum ALLEGRO_MIXER_QUALITY {
 };
 
 
-/* Type: ALLEGRO_AUDIO_PROPERTY
+/* Enum: ALLEGRO_AUDIO_PROPERTY
  *  Flags to pass to the various al_*_get_* and al_*_set_* functions. Not
  *  all types will apply to all functions.
  */
@@ -151,7 +150,7 @@ enum ALLEGRO_AUDIO_PROPERTY {
 };
 
 
-/* Type: ALLEGRO_AUDIO_DRIVER_ENUM
+/* Enum: ALLEGRO_AUDIO_DRIVER_ENUM
  */
 enum ALLEGRO_AUDIO_DRIVER_ENUM {
    /* Various driver modes. */

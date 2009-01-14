@@ -346,6 +346,8 @@ ALLEGRO_PATH *al_path_create(const char *str)
    return path;
 }
 
+/* Function: al_path_clone
+ */
 ALLEGRO_PATH *al_path_clone(ALLEGRO_PATH *path)
 {
    ALLEGRO_PATH *clone = NULL;
@@ -847,6 +849,8 @@ bool al_path_emode(ALLEGRO_PATH *path, uint32_t mode)
    return (al_fs_stat_mode(buffer) & mode) == mode;
 }
 
+/* Function: al_path_make_absolute
+ */
 bool al_path_make_absolute(ALLEGRO_PATH *path)
 {
    char cwd[PATH_MAX];
@@ -903,11 +907,13 @@ _make_absolute_fatal:
    return false;
 }
 
-/* Note that this does *not* collapse x/../y sections into y.
-   This is by design. If /foo on your system is a symlink to /bar/baz,
-   then /foo/../quux is actually /bar/quux,
-   not /quux as a naive ../-removal would give you. */
-bool al_path_make_cannonical(ALLEGRO_PATH *path)
+/* Function: al_path_make_canonical
+ * Note that this does *not* collapse x/../y sections into y.
+ * This is by design. If /foo on your system is a symlink to /bar/baz,
+ * then /foo/../quux is actually /bar/quux,
+ * not /quux as a naive ../-removal would give you.
+ */
+bool al_path_make_canonical(ALLEGRO_PATH *path)
 {
    int i = 0;
    ASSERT(path);

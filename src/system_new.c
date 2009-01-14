@@ -92,7 +92,7 @@ static void shutdown_system_driver(void)
 
 
 
-/* al_install_system:
+/* Function: al_install_system
  *  Initialize the Allegro system.  If atexit_ptr is non-NULL, and if hasn't
  *  been done already, al_uninstall_system() will be registered as an atexit
  *  function.
@@ -189,7 +189,7 @@ bool al_install_system(int (*atexit_ptr)(void (*)(void)))
 
 
 
-/* al_uninstall_system:
+/* Function: al_uninstall_system
  *  Closes down the Allegro system.
  *
  *  Note: al_uninstall_system() can be called without a corresponding
@@ -211,7 +211,7 @@ void al_uninstall_system(void)
 
 
 
-/* al_system_driver:
+/* Function: al_system_driver
  *  Returns the currently active_sysdrv system driver.
  */
 ALLEGRO_SYSTEM *al_system_driver(void)
@@ -219,7 +219,7 @@ ALLEGRO_SYSTEM *al_system_driver(void)
    return active_sysdrv;
 }
 
-/* al_get_path:
+/* Function: al_get_path
  *  Gets a system path, ie: temp, home, etc
  *  Returns -1 on failure.
  */
@@ -234,6 +234,8 @@ AL_CONST char *al_get_path(uint32_t id, char *path, size_t size)
 }
 
 
+/* Function: al_set_orgname
+ */
 void al_set_orgname(AL_CONST char *orgname)
 {
    if(orgname)
@@ -242,6 +244,8 @@ void al_set_orgname(AL_CONST char *orgname)
       ustrzcpy(_al_orgname, sizeof(_al_orgname), "allegro");
 }
 
+/* Function: al_set_appname
+ */
 void al_set_appname(AL_CONST char *appname)
 {
    if(appname) {
@@ -258,11 +262,15 @@ void al_set_appname(AL_CONST char *appname)
    }
 }
 
+/* Function: al_get_orgname
+ */
 AL_CONST char *al_get_orgname(void)
 {
    return _al_orgname;
 }
 
+/* Function: al_get_appname
+ */
 AL_CONST char *al_get_appname(void)
 {
    return _al_appname;

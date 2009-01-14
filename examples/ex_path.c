@@ -68,7 +68,7 @@ int main(int argc, char **argv)
          al_path_to_string(dyn, path, PATH_MAX, '/');
          printf("dyn: '%s'\n", path);
 
-         al_path_make_cannonical(cloned);
+         al_path_make_canonical(cloned);
          al_path_to_string(cloned, path, PATH_MAX, '/');
          printf("can: '%s'\n", path);
 

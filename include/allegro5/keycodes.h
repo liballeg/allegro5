@@ -22,7 +22,7 @@
 
 
 
-/* Type: Key codes
+/* Key codes
  *
  * > ALLEGRO_KEY_A ... ALLEGRO_KEY_Z,
  * > ALLEGRO_KEY_0 ... ALLEGRO_KEY_9,
@@ -194,7 +194,7 @@ enum
 
 
 
-/* Type: Keyboard modifier flags
+/* Keyboard modifier flags
  *
  * > ALLEGRO_KEYMOD_SHIFT     
  * > ALLEGRO_KEYMOD_CTRL      

@@ -24,8 +24,16 @@
    extern "C" {
 #endif
 
+/* Type: ALLEGRO_THREAD
+ */
 typedef struct ALLEGRO_THREAD ALLEGRO_THREAD;
+
+/* Type: ALLEGRO_MUTEX
+ */
 typedef struct ALLEGRO_MUTEX ALLEGRO_MUTEX;
+
+/* Type: ALLEGRO_COND
+ */
 typedef struct ALLEGRO_COND ALLEGRO_COND;
 
 

@@ -86,6 +86,8 @@ Fields: mouse.x, mouse.y, mouse.z, mouse.button.
 
 * ALLEGRO_EVENT_DISPLAY_SWITCH_IN - The window is the active one again.
 
+## API: ALLEGRO_EVENT_TYPE
+
 ## API: al_create_event_queue
 
 Create a new, empty event queue, returning a pointer to object if
@@ -195,4 +197,6 @@ the first event packet is left at the head of the queue.
 TIMEOUT_MSECS determines approximately how many seconds to
 wait.  If the call times out, false is returned.  Otherwise true is
 returned.
+
+## API: al_wait_for_event_until
 

@@ -524,7 +524,7 @@ static AL_CONST char *x_scancode_to_name(int scancode)
 
 
 
-/* al_xwin_get_keyboard_mapping:
+/* _al_xwin_get_keyboard_mapping:
  *  Generate a mapping from X11 keycodes to Allegro ALLEGRO_KEY_* codes. We have
  *  two goals: Every keypress should be mapped to a distinct Allegro ALLEGRO_KEY_*
  *  code. And we want the ALLEGRO_KEY_* codes to match the pressed

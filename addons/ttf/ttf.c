@@ -266,6 +266,8 @@ static void destroy(ALLEGRO_FONT *f)
     _AL_FREE(f);
 }
 
+/* Function: al_ttf_load_font
+ */
 ALLEGRO_FONT *al_ttf_load_font(char const *filename, int size, int flags)
 {
     FT_Face face;

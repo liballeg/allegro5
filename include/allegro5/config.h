@@ -5,8 +5,16 @@
 extern "C" {
 #endif
 
+/* Type: ALLEGRO_CONFIG_ENTRY
+ */
 typedef struct ALLEGRO_CONFIG_ENTRY ALLEGRO_CONFIG_ENTRY;
+
+/* Type: ALLEGRO_CONFIG_SECTION
+ */
 typedef struct ALLEGRO_CONFIG_SECTION ALLEGRO_CONFIG_SECTION;
+
+/* Type: ALLEGRO_CONFIG
+ */
 typedef struct ALLEGRO_CONFIG ALLEGRO_CONFIG;
 
 AL_FUNC(ALLEGRO_CONFIG *, al_config_create, (void));

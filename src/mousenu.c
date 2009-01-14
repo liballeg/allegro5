@@ -252,10 +252,10 @@ void al_get_mouse_state(ALLEGRO_MOUSE_STATE *ret_state)
 
 
 
-/* Function: al_get_state_axis
+/* Function: al_get_mouse_state_axis
  *  Extract the mouse axis value from the saved state.
  */
-int al_mouse_state_axis(ALLEGRO_MOUSE_STATE *ret_state, int axis)
+int al_get_mouse_state_axis(ALLEGRO_MOUSE_STATE *ret_state, int axis)
 {
    ASSERT(ret_state);
    ASSERT(axis >= 0);

@@ -45,7 +45,7 @@ AL_FUNC(char*, al_path_relative, (ALLEGRO_PATH *path, char *buffer, size_t len, 
 */
 
 AL_FUNC(bool, al_path_make_absolute, (ALLEGRO_PATH *path));
-AL_FUNC(bool, al_path_make_cannonical, (ALLEGRO_PATH *path));
+AL_FUNC(bool, al_path_make_canonical, (ALLEGRO_PATH *path));
 
 AL_FUNC(int32_t, al_path_exists, (ALLEGRO_PATH *path));
 AL_FUNC(bool, al_path_emode, (ALLEGRO_PATH *path, uint32_t mode));

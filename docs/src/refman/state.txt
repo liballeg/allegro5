@@ -34,7 +34,7 @@ Restores part of the state of the current thread from the given
 
 ## API: al_store_state
 
-Stores part of the state of the current thread in the given <ALLEGRO_STATE>
+Stores part of the state of the current thread in the given [ALLEGRO_STATE]
 objects. The flags parameter can take any bit-combination of the flags
-described under <ALLEGRO_STATE_FLAGS>.
+described under [ALLEGRO_STATE_FLAGS].
 

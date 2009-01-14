@@ -71,11 +71,13 @@ ov_callbacks callbacks = {
    tell_callback
 };
 
-/* Note: decoding library returns floats.  I always return 16-bit (most
- * commonly supported).
+/* Function: al_load_sample_data_oggvorbis
  */
 ALLEGRO_SAMPLE_DATA *al_load_sample_data_oggvorbis(const char *filename)
 {
+   /* Note: decoding library returns floats.  I always return 16-bit (most
+    * commonly supported).
+    */
 #ifdef ALLEGRO_LITTLE_ENDIAN
    const int endian = 0; /* 0 for Little-Endian, 1 for Big-Endian */
 #else
@@ -216,6 +218,8 @@ static size_t ogg_stream_update(ALLEGRO_STREAM *stream, void *data,
 }
 
 
+/* Function: al_load_stream_oggvorbis
+ */
 ALLEGRO_STREAM *al_load_stream_oggvorbis(size_t buffer_count,
                                          unsigned long samples,
                                          const char *filename)

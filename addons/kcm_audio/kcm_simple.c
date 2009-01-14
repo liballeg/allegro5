@@ -68,7 +68,7 @@ bool al_setup_simple_audio(int reserve_samples)
          goto Error;
       }
       if (al_attach_sample_to_mixer(simp_mixer, *slot) != 0) {
-         TRACE("al_attach_mixer_to_sample failed\n");
+         TRACE("al_attach_sample_to_mixer failed\n");
          goto Error;
       }
    }

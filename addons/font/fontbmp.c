@@ -162,7 +162,9 @@ static int bitmap_font_count(ALLEGRO_BITMAP* bmp)
 
 
 
-/* import routine for the Allegro .pcx font format */
+/* Function: al_font_load_bitmap_font
+ * Import routine for the Allegro bitmap font format.
+ */
 ALLEGRO_FONT *al_font_load_bitmap_font(const char *fname, void *param)
 {
    /* NB: `end' is -1 if we want every glyph */
@@ -206,7 +208,9 @@ ALLEGRO_FONT *al_font_load_bitmap_font(const char *fname, void *param)
 
 
 
-/* work horse for grabbing a font from an Allegro bitmap */
+/* Function: al_font_grab_font_from_bitmap
+ * Work horse for grabbing a font from an Allegro bitmap.
+ */
 ALLEGRO_FONT *al_font_grab_font_from_bitmap(ALLEGRO_BITMAP *bmp)
 {
    int begin = ' ';

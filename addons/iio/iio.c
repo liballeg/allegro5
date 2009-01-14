@@ -55,6 +55,8 @@ bool al_iio_init(void)
 }
 
 
+/* Function: al_iio_add_handler
+ */
 bool al_iio_add_handler(AL_CONST char *extension,
                         IIO_LOADER_FUNCTION loader, IIO_SAVER_FUNCTION saver)
 {

@@ -410,6 +410,8 @@ bool al_wait_for_event_timed(ALLEGRO_EVENT_QUEUE *queue,
 
 
 
+/* Function: al_wait_for_event_until
+ */
 bool al_wait_for_event_until(ALLEGRO_EVENT_QUEUE *queue,
    ALLEGRO_EVENT *ret_event, ALLEGRO_TIMEOUT *timeout)
 {
