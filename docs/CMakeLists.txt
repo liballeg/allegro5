@@ -14,6 +14,8 @@ mark_as_advanced(SH AWK GREP SED)
 
 find_package(LATEX)
 
+find_program(CTAGS NAMES ctags)
+
 #-----------------------------------------------------------------------------#
 
 set(all_docs)

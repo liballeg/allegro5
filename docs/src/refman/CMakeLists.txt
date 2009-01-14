@@ -231,4 +231,23 @@ if(WANT_DOCS_PDF AND PDFLATEX_COMPILER)
 endif(WANT_DOCS_PDF AND PDFLATEX_COMPILER)
 
 #-----------------------------------------------------------------------------#
+#
+#   Tags file
+#
+#-----------------------------------------------------------------------------#
+
+if(CTAGS)
+    add_custom_target(gen_tags DEPENDS tags)
+    add_custom_command(
+        OUTPUT tags
+        DEPENDS ${PAGES_TXT}
+        COMMAND ${CTAGS}
+            --langdef=allegrodoc
+            --langmap=allegrodoc:.txt
+            "--regex-allegrodoc='/^\#+ API: (.+)/\\1/'"
+            ${PAGES_TXT}
+        )
+endif(CTAGS)
+
+#-----------------------------------------------------------------------------#
 # vim: set sts=4 sw=4 et:
