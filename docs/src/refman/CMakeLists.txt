@@ -99,7 +99,7 @@ add_custom_command(
             ${HTML_REFS} ${HTML_REFS_TIMESTAMP}
     )
 
-if(WANT_HTML)
+if(WANT_DOCS_HTML)
     set(HTML_PAGES)
     foreach(page ${PAGES})
         add_custom_command(
@@ -120,7 +120,7 @@ if(WANT_HTML)
         ${CMAKE_CURRENT_SOURCE_DIR}/../pandoc.css
         ${CMAKE_CURRENT_BINARY_DIR}/pandoc.css
         COPY_ONLY)
-endif(WANT_HTML)
+endif(WANT_DOCS_HTML)
 
 #-----------------------------------------------------------------------------#
 #
@@ -130,7 +130,7 @@ endif(WANT_HTML)
 
 set(MANDIR "man" CACHE STRING "Install man pages into this directory")
 
-if(WANT_MAN)
+if(WANT_DOCS_MAN)
     set(MAN_DIR ${CMAKE_CURRENT_BINARY_DIR}/man)
     make_directory(${MAN_DIR})
 
@@ -160,7 +160,7 @@ if(WANT_MAN)
     install(FILES ${MAN_PAGES}
             DESTINATION ${MANDIR}/man3
             )
-endif(WANT_MAN)
+endif(WANT_DOCS_MAN)
 
 #-----------------------------------------------------------------------------#
 #
@@ -178,7 +178,7 @@ add_custom_command(
 
 add_custom_target(gen_dummy_refs DEPENDS ${DUMMY_REFS})
 
-if(WANT_INFO AND MAKEINFO)
+if(WANT_DOCS_INFO AND MAKEINFO)
     add_custom_target(info ALL DEPENDS refman.info)
     add_custom_command(
         OUTPUT refman.info
@@ -193,7 +193,7 @@ if(WANT_INFO AND MAKEINFO)
                 -o refman.texi
                 --standalone
         )
-endif(WANT_INFO AND MAKEINFO)
+endif(WANT_DOCS_INFO AND MAKEINFO)
 
 #-----------------------------------------------------------------------------#
 #
@@ -201,7 +201,7 @@ endif(WANT_INFO AND MAKEINFO)
 #
 #-----------------------------------------------------------------------------#
 
-if(WANT_PDF AND PDFLATEX_COMPILER)
+if(WANT_DOCS_PDF AND PDFLATEX_COMPILER)
     set(EXTRA_LATEX_HEADER ${CMAKE_CURRENT_SOURCE_DIR}/header.tex)
 
     add_custom_target(latex DEPENDS refman.tex)
@@ -228,7 +228,7 @@ if(WANT_PDF AND PDFLATEX_COMPILER)
         COMMAND ${PDFLATEX_COMPILER} refman.tex
         COMMAND ${PDFLATEX_COMPILER} refman.tex
         )
-endif(WANT_PDF AND PDFLATEX_COMPILER)
+endif(WANT_DOCS_PDF AND PDFLATEX_COMPILER)
 
 #-----------------------------------------------------------------------------#
 # vim: set sts=4 sw=4 et:

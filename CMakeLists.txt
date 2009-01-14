@@ -98,10 +98,10 @@ option(WANT_DSOUND "Enable Dsound digital audio driver (Windows)" on)
 #
 
 option(WANT_DOCS "Generate documentation" on)
-option(WANT_HTML "Generate HTML documentation" on)
-option(WANT_MAN "Generate man pages" on)
-option(WANT_INFO "Generate Info document" off)
-option(WANT_PDF "Generate PDF document (requires pdflatex)" off)
+option(WANT_DOCS_HTML "Generate HTML documentation" on)
+option(WANT_DOCS_MAN "Generate man pages" on)
+option(WANT_DOCS_INFO "Generate Info document" off)
+option(WANT_DOCS_PDF "Generate PDF document (requires pdflatex)" off)
 
 #
 # For developers.
