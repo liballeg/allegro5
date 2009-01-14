@@ -250,4 +250,16 @@ if(CTAGS)
 endif(CTAGS)
 
 #-----------------------------------------------------------------------------#
+#
+#   Consistency check
+#
+#-----------------------------------------------------------------------------#
+
+add_custom_target(check_consistency
+    DEPENDS ${PROTOS}
+    COMMAND ${SH} ${SCRIPT_DIR}/check_consistency --protos ${PROTOS}
+            ${PAGES_TXT}
+    )
+
+#-----------------------------------------------------------------------------#
 # vim: set sts=4 sw=4 et:
