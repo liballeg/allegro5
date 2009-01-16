@@ -777,11 +777,43 @@ const char *al_path_get_extension(ALLEGRO_PATH *path, char *buf, size_t len)
    if (path->filename) {
       char *ext = ustrrchr(path->filename, '.');
       if (ext) {
-         ustrncpy(buf, ext, len);
+         ustrncpy(buf, ext + 1, len);
       }
    }
 
    return buf;
+}
+
+/* Function: al_path_set_extension
+ *  Replaces the extension of the path with the given one. If the
+ *  filename of the path has no extension, the given one is appended.
+ * 
+ *  Returns false if the path contains no filename part.
+ */
+bool al_path_set_extension(ALLEGRO_PATH *path, char const *extension)
+{
+   ASSERT(path);
+
+   if (path->filename) {
+      int old_esize = 0, new_esize, name_size;
+      char *ext = ustrrchr(path->filename, '.');
+      name_size = ustrsizez(path->filename);
+      new_esize = ustrlen(extension);
+      if (ext) {
+         old_esize = ustrlen(ext);
+         ustrcpy(ext, ""); /* Remove the old extension. */
+      }
+      else {
+         new_esize += ustrlen(".");
+      }
+      path->filename = _AL_REALLOC(path->filename,
+         name_size + new_esize - old_esize);
+      ustrcat(path->filename, ".");
+      ustrcat(path->filename, extension);
+      return true;
+   }
+
+   return false;
 }
 
 /* Function: al_path_get_basename

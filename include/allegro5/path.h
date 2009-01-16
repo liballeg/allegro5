@@ -37,6 +37,7 @@ AL_FUNC(int32_t, al_path_set_filename, (ALLEGRO_PATH *path, const char *filename
 AL_FUNC(const char*, al_path_get_filename, (ALLEGRO_PATH *path));
 
 AL_FUNC(const char*, al_path_get_extension, (ALLEGRO_PATH *path, char *buf, size_t len));
+AL_FUNC(bool, al_path_set_extension, (ALLEGRO_PATH *path, char const *extension));
 AL_FUNC(const char*, al_path_get_basename, (ALLEGRO_PATH *path, char *buf, size_t len));
 
 /* FIXME: implement kthx bye */
