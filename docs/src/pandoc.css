@@ -4,7 +4,6 @@ body {
     margin: auto;
     padding-right: 1em;
     padding-left: 1em;
-    max-width: 50em; 
     border-left: 1px solid #e0e0e0;
     border-right: 1px solid #e0e0e0;
     color: black;
@@ -98,9 +97,48 @@ table td {
     padding: 0.4em;
 }
 
+table.white {
+    background-color: #ffffff;
+}
+
 #footer {
     padding-top: 1em;
     font-size: 70%;
     color: gray;
     text-align: center;
+}
+
+/* Side bar */
+div.sidebar {
+    margin-right:           1em;
+}
+
+div.sidebar ul {
+    list-style-type:        none;
+    padding:                0;
+    margin-left:            0.5em;
+    font-size:              small;
+}
+
+div.sidebar li {
+    display:                block;
+    margin-top:             0.05em;
+    margin-bottom:          0em;
+}
+
+div.sidebar ul a:hover {
+    background:             #fffff0;
+}
+
+table td.sidebar {
+    background-color:       #f0f0fa;
+    padding:                0;
+    border-right:           1px solid;
+}
+
+/* Body of page */
+table td.content {
+    margin:                 10em;
+    padding-left:           1em;
+    max-width:              50em;
 }

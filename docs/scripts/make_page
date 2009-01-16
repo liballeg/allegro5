@@ -73,6 +73,7 @@ preprocess_page() {(
                 ;;
         esac
     done
+    echo
 )}
 
 get_prototype() {

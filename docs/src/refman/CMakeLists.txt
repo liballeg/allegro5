@@ -100,15 +100,28 @@ add_custom_command(
     )
 
 if(WANT_DOCS_HTML)
+    foreach(inc inc.a inc.z)
+        add_custom_command(
+            OUTPUT ${inc}.html
+            DEPENDS ${inc}.txt
+            COMMAND ${PANDOC} ${CMAKE_CURRENT_SOURCE_DIR}/${inc}.txt
+                    -o ${inc}.html
+            )
+    endforeach(inc)
+
     set(HTML_PAGES)
-    foreach(page ${PAGES})
+    foreach(page ${PAGES} index)
         add_custom_command(
             OUTPUT ${page}.html
             DEPENDS ${PROTOS_TIMESTAMP} ${HTML_REFS_TIMESTAMP} ${page}.txt
+                inc.a.html inc.z.html
             COMMAND
-                ${MAKE_PAGE} ${HTML_REFS}
+                ${MAKE_PAGE}
                 ${CMAKE_CURRENT_SOURCE_DIR}/${page}.txt
+                ${HTML_REFS}
                 -o ${page}.html
+                --include-before-body inc.a.html
+                --include-after-body inc.z.html
                 -c pandoc.css
                 --standalone --toc
             )

@@ -1,0 +1,30 @@
+% Allegro 4.9 reference manual
+<!-- This file is only used for the HTML output. -->
+<!-- If you change this you should change inc.a as well. -->
+
+# API
+
+* [Configuration files](config.html)
+* [Display](display.html)
+* [Events](events.html)
+* [Filesystem hooks](fshook.html)
+* [Graphics](graphics.html)
+* [Joystick](joystick.html)
+* [Keyboard](keyboard.html)
+* [Memory](memory.html)
+* [Mouse](mouse.html)
+* [OpenGL](opengl.html)
+* [Path](path.html)
+* [State](state.html)
+* [System](system.html)
+* [Threads](threads.html)
+* [Time](time.html)
+* [Timer](timer.html)
+
+# Addons
+
+* [Audio addon](kcm_audio.html)
+* [Color addon](color.html)
+* [Font addons](font.html)
+* [Image I/I addon](iio.html)
+
