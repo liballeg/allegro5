@@ -63,5 +63,11 @@ if(WANT_MEMFILE)
     set(MEMFILE_LINK_WITH ${MEMFILE_LINK_WITH} PARENT_SCOPE)
 endif(WANT_MEMFILE)
 
+if(WANT_PRIMITIVES)
+    add_subdirectory(primitives)
+    set(SUPPORT_PRIMITIVES 1 PARENT_SCOPE)
+    set(PRIMITIVES_LINK_WITH ${PRIMITIVES_LINK_WITH} PARENT_SCOPE)
+endif(WANT_PRIMITIVES)
+
 #-----------------------------------------------------------------------------#
 # vi: set ts=8 sts=4 sw=4 et:

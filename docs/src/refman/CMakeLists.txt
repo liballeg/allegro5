@@ -19,6 +19,7 @@ set(PAGES
     threads
     time
     timer
+    primitives
     )
 
 set(PAGES_TXT)
