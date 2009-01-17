@@ -17,9 +17,7 @@ BEGIN {
 }
 
 # At the start of a new file.
-curfile != FILENAME {
-    curfile = FILENAME
-
+FNR == 1 {
     # Close previous pipe if any.
     if (CMD) {
         close(CMD)
