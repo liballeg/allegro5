@@ -39,10 +39,10 @@
 
 #include "allegro5/a5_primitives.h"
 
-ALLEGRO_VBUFFER* cache_buffer;
-float* cache_point_buffer;
+static ALLEGRO_VBUFFER* cache_buffer;
+static float* cache_point_buffer;
 
-static void verify_cache()
+static void verify_cache(void)
 {
    if (!cache_buffer) {
       cache_buffer = al_create_vbuff(ALLEGRO_VBUFF_CACHE_SIZE, ALLEGRO_VBUFFER_SOFT | ALLEGRO_VBUFFER_WRITE | ALLEGRO_VBUFFER_READ);
