@@ -43,8 +43,8 @@ set(DUMMY_REFS_TIMESTAMP ${DUMMY_REFS}.timestamp)
 
 set(SCRIPT_DIR ${CMAKE_SOURCE_DIR}/docs/scripts)
 set(MAKE_PROTOS ${SH} ${SCRIPT_DIR}/make_protos)
-set(MAKE_HTML_REFS ${SH} ${SCRIPT_DIR}/make_html_refs)
-set(MAKE_DUMMY_REFS ${SH} ${SCRIPT_DIR}/make_dummy_refs)
+set(MAKE_HTML_REFS ${AWK} -f ${SCRIPT_DIR}/make_html_refs)
+set(MAKE_DUMMY_REFS ${AWK} -f ${SCRIPT_DIR}/make_dummy_refs)
 set(MAKE_PAGE ${SH} ${SCRIPT_DIR}/make_page --protos ${PROTOS})
 set(MAKE_MAN ${SH} ${SCRIPT_DIR}/make_man --protos ${PROTOS})
 
@@ -76,7 +76,7 @@ file(GLOB_RECURSE ALL_SRCS
 add_custom_command(
     OUTPUT ${PROTOS} ${PROTOS_TIMESTAMP}
     DEPENDS ${ALL_SRCS}
-    COMMAND ${MAKE_PROTOS} --output ${PROTOS} ${ALL_SRCS}
+    COMMAND ${MAKE_PROTOS} ${ALL_SRCS} > ${PROTOS}
     COMMAND ${CMAKE_COMMAND} -E copy_if_different ${PROTOS} ${PROTOS_TIMESTAMP}
     )
 
@@ -95,7 +95,7 @@ add_custom_target(gen_protos DEPENDS ${PROTOS})
 add_custom_command(
     OUTPUT ${HTML_REFS} ${HTML_REFS_TIMESTAMP}
     DEPENDS ${PAGES_TXT}
-    COMMAND ${MAKE_HTML_REFS} --output ${HTML_REFS} ${PAGES_TXT}
+    COMMAND ${MAKE_HTML_REFS} ${PAGES_TXT} > ${HTML_REFS}
     COMMAND ${CMAKE_COMMAND} -E copy_if_different
             ${HTML_REFS} ${HTML_REFS_TIMESTAMP}
     )
@@ -185,7 +185,7 @@ endif(WANT_DOCS_MAN)
 add_custom_command(
     OUTPUT ${DUMMY_REFS} ${DUMMY_REFS_TIMESTAMP}
     DEPENDS ${PAGES_TXT}
-    COMMAND ${MAKE_DUMMY_REFS} --output ${DUMMY_REFS} ${PAGES_TXT}
+    COMMAND ${MAKE_DUMMY_REFS} ${PAGES_TXT} > ${DUMMY_REFS}
     COMMAND ${CMAKE_COMMAND} -E copy_if_different
             ${DUMMY_REFS} ${DUMMY_REFS_TIMESTAMP}
     )
@@ -215,24 +215,24 @@ endif(WANT_DOCS_INFO AND MAKEINFO)
 #
 #-----------------------------------------------------------------------------#
 
+set(EXTRA_LATEX_HEADER ${CMAKE_CURRENT_SOURCE_DIR}/header.tex)
+
+add_custom_target(latex DEPENDS refman.tex)
+add_custom_command(
+    OUTPUT refman.tex
+    DEPENDS ${PROTOS_TIMESTAMP} ${DUMMY_REFS_TIMESTAMP} ${PAGES_TXT}
+        ${EXTRA_LATEX_HEADER}
+    COMMAND ${MAKE_PAGE} --postprocess latex
+        ${DUMMY_REFS} ${PAGES_TXT}
+        --include-in-header ${EXTRA_LATEX_HEADER}
+        -o refman.tex
+        --standalone --number-sections
+    )
+
+set_directory_properties(PROPERTIES ADDITIONAL_MAKE_CLEAN_FILES
+    "refman.aux;refman.aux.bak;refman.log;refman.out;refman.toc")
+
 if(WANT_DOCS_PDF AND PDFLATEX_COMPILER)
-    set(EXTRA_LATEX_HEADER ${CMAKE_CURRENT_SOURCE_DIR}/header.tex)
-
-    add_custom_target(latex DEPENDS refman.tex)
-    add_custom_command(
-        OUTPUT refman.tex
-        DEPENDS ${PROTOS_TIMESTAMP} ${DUMMY_REFS_TIMESTAMP} ${PAGES_TXT}
-            ${EXTRA_LATEX_HEADER}
-        COMMAND ${MAKE_PAGE} --postprocess latex
-            ${DUMMY_REFS} ${PAGES_TXT}
-            --include-in-header ${EXTRA_LATEX_HEADER}
-            -o refman.tex
-            --standalone --number-sections
-        )
-
-    set_directory_properties(PROPERTIES ADDITIONAL_MAKE_CLEAN_FILES
-        "refman.aux;refman.aux.bak;refman.log;refman.out;refman.toc")
-
     add_custom_target(pdf ALL DEPENDS refman.pdf)
     add_custom_command(
         OUTPUT refman.pdf

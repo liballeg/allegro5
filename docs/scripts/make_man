@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/sh -e
 #
 # SYNOPSIS
 #
@@ -29,54 +29,16 @@
 # (For portability, stick to POSIX shell constructs in this script.)
 #
 
-set -e
-
-PANDOC=${PANDOC:-pandoc}
-PROTOS=${PROTOS:-protos}
-SECTION=${SECTION:-3}
-MANUAL=${MANUAL:-Allegro reference manual}
+# Passed down to make_man.awk.
+export PANDOC=${PANDOC:-pandoc}
+export PROTOS=${PROTOS:-protos}
+export SECTION=${SECTION:-3}
+export MANUAL=${MANUAL:-Allegro reference manual}
 
 SPLIT_API_DOCS=$(dirname "$0")/split_api_docs
 
-FASTER_SEARCH=$(dirname "$0")/faster_search
-if test ! -x "$FASTER_SEARCH"
-then
-    FASTER_SEARCH=
-fi
-
-# Speed up grep and sed.
+# Speed up awk.
 export LC_ALL=C
-
-get_prototype() {
-    if test -n "$FASTER_SEARCH"
-    then
-        "$FASTER_SEARCH" "$PROTOS" "$1: " "    "
-    else
-        grep -e "^$1: " "$PROTOS" |
-        sed -e "s/^$1: /    /"
-    fi
-}
-
-prepare_man() {(
-    name=$1
-
-    echo "% $name($SECTION) $MANUAL"
-    echo "# NAME"
-    echo $name
-    echo
-    echo "# SYNOPSIS"
-    get_prototype $name
-    echo
-    echo "# DESCRIPTION"
-    # We just assume any [al_*] or [ALLEGRO_*] is a reference to an API entry.
-    sed -e 's/^[*]\?Return [Vv]alue:[*]\?/# RETURN VALUE/' \
-        -e 's/^[*]\?See [Aa]lso:[*]\?/# SEE ALSO\n/' \
-        -e 's/^[*]\?Notes\?:[*]\?/# NOTES\n/' \
-        -e 's/\[\(al_[A-Za-z_]*\)\]/\1('$SECTION')/g' \
-        -e 's/\[\(ALLEGRO_[A-Za-z-]*\)\]/\1('$SECTION')/g'
-)}
-
-# main
 
 while true; do
     case $1 in
@@ -98,16 +60,11 @@ while true; do
     esac
 done
 
-TEMPDIR=$(mktemp -t -d make_man.XXXXXX)
+TEMPDIR=make_man.tmp.$$_$RANDOM
+mkdir $TEMPDIR
 trap 'rm -rf $TEMPDIR' 0 1 2 3 13 15
 
-cat "$@" | "$SPLIT_API_DOCS" $TEMPDIR
-
-for file in $TEMPDIR/*
-do
-    name=${file##*/}
-    prepare_man "$name" < "$file" |
-        "$PANDOC" - -t man -o "$name.$SECTION" --standalone
-done
+"$SPLIT_API_DOCS" $TEMPDIR "$@"
+awk -f "$0.awk" $TEMPDIR/*
 
 # vim: set et:

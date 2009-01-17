@@ -1,53 +1,42 @@
-#!/bin/sh
+#!/bin/awk -f
 #
 # SYNOPSIS
 #
+# split_api_docs OUTPUT-DIR DOC-FILE...
 # split_api_docs OUTPUT-DIR < DOC-FILE...
 #
 # DESCRIPTION
 #
-# Read documentation from standard input.  Dump the bodies of API entries
-# into separate files in OUTPUT-DIR.
-#
-# (For portability, stick to POSIX shell constructs in this script.)
+# Read documentation from standard input or file arguments. Dump the bodies of
+# API entries into separate files in OUTPUT-DIR, which must already exist.
 #
 
-set -e
-
-rawecho() {
-cat <<EOF
-$1
-EOF
+BEGIN {
+    OUTPUT_DIR = ARGV[1]
+    delete ARGV[1]
+    OUTPUT = ""
 }
 
-if test -z "$1"
-then
-    echo "Usage: split_api_docs OUTPUT-DIR"
-    exit 1
-fi
-OUTPUT_DIR=$1
-test -d "$OUTPUT_DIR" || mkdir "$OUTPUT_DIR"
+/^\#+ API: / {
+    if (OUTPUT) {
+        close(OUTPUT)
+    }
+    OUTPUT = OUTPUT_DIR "/" $3
+    next
+}
 
-exec > /dev/null
+/^#/ {
+    if (OUTPUT) {
+        close(OUTPUT)
+        OUTPUT = ""
+    }
+    next
+}
 
-IFS=
-while read -r line
-do
-    case $line in
-        *"# API: "*)
-            name=${line#*API: }
-            exec > "$OUTPUT_DIR/$name"
-            ;;
-        "#"*)
-            exec > /dev/null
-            ;;
-        -*)
-            rawecho "$line"
-            ;;
-        *)
-            echo "$line"
-            ;;
-    esac
-done
+{
+    if (OUTPUT) {
+        print $0 > OUTPUT
+    }
+}
 
 # vim: set et:

@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/sh -e
 #
 # SYNOPSIS
 #
@@ -25,69 +25,23 @@
 #
 # - PANDOC
 # - PROTOS
-# - PREPROCESS_ONLY
 #
 # (For portability, stick to POSIX shell constructs in this script.)
 #
 
-set -e
-
 PANDOC=${PANDOC:-pandoc}
 PROTOS=${PROTOS:-protos}
-PREPROCESS_ONLY=${PREPROCESS_ONLY:-n}
 
-# Path to faster_search program.
-FASTER_SEARCH=$(dirname "$0")/faster_search
-if test ! -x "$FASTER_SEARCH"
-then
-    FASTER_SEARCH=
-fi
+# Passed down to preprocess_page.awk
+export PROTOS
 
-# Speed up grep and sed.
+# Speed up utilities.
 export LC_ALL=C
 
-rawecho() {
-cat << EOF
-$1
-EOF
-}
-
-preprocess_page() {(
-    IFS=
-    while read -r line
-    do
-        case "$line" in
-            *'# API: '*)
-                name=${line#*API: }
-                # POSIX shell doesn't have a way to remove substrings :(
-                echo "$line" | sed 's/# API: /#/'
-                echo
-                get_prototype $name
-                echo
-                ;;
-            -*)
-                rawecho "$line"
-                ;;
-            *)
-                echo "$line"
-                ;;
-        esac
-    done
-    echo
-)}
-
-get_prototype() {
-    if test -n "$FASTER_SEARCH"
-    then
-        "$FASTER_SEARCH" "$PROTOS" "$1: " "    "
-    else
-        grep -e "^$1: " "$PROTOS" |
-        sed -e "s/^$1: /    /"
-    fi
-}
+PREPROCESS_PAGE=$(dirname "$0")/preprocess_page.awk
 
 POSTPROCESS=
-POSTPROCESS_LATEX=$(dirname "$0")/postprocess_latex
+POSTPROCESS_LATEX=$(dirname "$0")/postprocess_latex.awk
 postprocess_texinfo() {
     # Replace dummy references by real references (see make_dummy_refs
     # script).
@@ -105,11 +59,11 @@ while true; do
         --postprocess)
             case $2 in
                 latex)
-                    POSTPROCESS=$POSTPROCESS_LATEX
+                    POSTPROCESS=latex
                     shift 2
                     ;;
                 texinfo)
-                    POSTPROCESS=postprocess_texinfo
+                    POSTPROCESS=texinfo
                     shift 2
                     ;;
                 *)
@@ -130,7 +84,7 @@ then
     exit 1
 fi
 
-TEMPFILE=$(mktemp -t make_page.XXXXXX)
+TEMPFILE=make_page.tmp.$$_$RANDOM
 trap 'rm -f "$TEMPFILE"' 0 1 2 3 13 15
 
 while true; do
@@ -143,19 +97,14 @@ while true; do
             break
             ;;
         *)
-            preprocess_page < "$1" >> "$TEMPFILE"
+            cat "$1" >> "$TEMPFILE"
+            echo >> "$TEMPFILE"
             shift
             ;;
     esac
 done
 
-case $PREPROCESS_ONLY in
-    y*) cat $TEMPFILE
-        exit 0
-        ;;
-esac
-
-"$PANDOC" "$TEMPFILE" "$@"
+awk -f "$PREPROCESS_PAGE" "$TEMPFILE" | "$PANDOC" "$@"
 
 # Stop now if post-processing is not required.
 test -n "$POSTPROCESS" || exit 0
@@ -173,10 +122,12 @@ do
 done
 
 # For simplicity, we only support post-processing if the output went to a file.
-if test -n "$OUTPUT"
-then
-    "$POSTPROCESS" < "$OUTPUT" > $TEMPFILE
-    cat < $TEMPFILE > "$OUTPUT"
-fi
+test -n "$OUTPUT" || exit 0
+
+case $POSTPROCESS in
+    latex)   awk -f "$POSTPROCESS_LATEX" ;;
+    texinfo) postprocess_texinfo ;;
+esac < "$OUTPUT" > "$TEMPFILE"
+cat < "$TEMPFILE" > "$OUTPUT"
 
 # vim: set et:

@@ -36,8 +36,8 @@ then
     exit 1
 fi
 
-TEMP_SRC=$(mktemp -t check_consistency.XXXXXX)
-TEMP_DOC=$(mktemp -t check_consistency.XXXXXX)
+TEMP_SRC=check_consistency.tmp1.$$
+TEMP_DOC=check_consistency.tmp2.$$
 trap 'rm -f $TEMP_SRC $TEMP_DOC' 0 1 2 3 13 15
 
 cut -d':' -f1 "$PROTOS" | sort | uniq > $TEMP_SRC

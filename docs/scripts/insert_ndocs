@@ -90,7 +90,7 @@ then
     exit 1
 fi
 
-TEMPFILE=$(mktemp -t insert_ndocs.XXXXXX)
+TEMPFILE=insert_ndocs.tmp.$$_$RANDOM
 trap 'rm -f $TEMPFILE' 0 1 2 3 13 15
 
 for file

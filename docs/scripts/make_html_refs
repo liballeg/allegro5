@@ -1,8 +1,8 @@
-#!/bin/sh
+#!/bin/awk -f
 #
 # SYNOPSIS
 #
-# make_html_refs --output OUTPUT-FILE DOC-FILE...
+# make_html_refs DOC-FILE...
 #
 # DESCRIPTION
 #
@@ -12,33 +12,15 @@
 #   [bar]: foo.html#bar
 #
 
-set -e
+/^\#+ API: / {
+    file = FILENAME
+    sub(/^.*\//, "", file)
+    sub(/\.[^.]+$/, ".html", file)
 
-# Speed up awk.
-export LC_ALL=C
-
-AWK_PROGRAM='
-/^#+ API: / {
     # For C identifiers, this should be all the mangling we need.
     sec_id = tolower($3)
+
     printf "[%s]: %s#%s\n", $3, file, sec_id
-}'
-
-case $1 in
-    -o|--output)
-        OUTPUT=$2
-        shift 2
-        ;;
-    *)
-        echo "make_html_refs: Missing output file." 1>&2
-        exit 1
-        ;;
-esac
-
-for file; do
-    base=${file##*/}
-    base=${base%.*}     # remove any extension
-    awk -v file="${base}.html" "$AWK_PROGRAM" "$file"
-done > "$OUTPUT"
+}
 
 # vim: set et:

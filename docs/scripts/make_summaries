@@ -37,10 +37,11 @@ then
     exit 1
 fi
 
-TEMPDIR=$(mktemp -td make_summary.XXXXXX)
+TEMPDIR=make_summaries.tmp.$$_$RANDOM
+mkdir $TEMPDIR
 trap 'rm -rf $TEMPDIR' 0 1 2 3 13 15
 
-cat "$@" | "$SPLIT_API_DOCS" $TEMPDIR
+"$SPLIT_API_DOCS" $TEMPDIR "$@"
 
 for file in $TEMPDIR/*
 do
