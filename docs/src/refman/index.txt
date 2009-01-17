@@ -27,4 +27,5 @@
 * [Color addon](color.html)
 * [Font addons](font.html)
 * [Image I/I addon](iio.html)
+* [Primitives addon](primitives.html)
 

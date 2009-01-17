@@ -23,18 +23,6 @@
 #define A5_PRIM_FUNC      AL_FUNC
 #endif
 
-#ifndef AL_PRIM_INLINE
-#ifdef __cplusplus
-#define AL_PRIM_INLINE(type, name, args, code)    \
-   static inline type name args;                  \
-   static inline type name args code
-#else
-#define AL_PRIM_INLINE(type, name, args, code)    \
-   extern __inline__ type name args;              \
-   extern __inline__ type name args code
-#endif
-#endif
-
 #ifdef __cplusplus
 extern "C"
 {
@@ -85,8 +73,6 @@ typedef struct {
 
 typedef float ALLEGRO_TRANSFORM[4][4];
    
-#include "inline/primitives.inl"
-   
 /*
 * Primary Functions
 */
@@ -127,6 +113,14 @@ A5_PRIM_FUNC(void, al_set_prim_flag, (int flag, int value));
 */
 A5_PRIM_FUNC(void, al_use_transform, (ALLEGRO_TRANSFORM* trans));
 A5_PRIM_FUNC(void, al_copy_transform, (ALLEGRO_TRANSFORM* src, ALLEGRO_TRANSFORM* dest));
+A5_PRIM_FUNC(void, al_identity_transform, (ALLEGRO_TRANSFORM* trans));
+A5_PRIM_FUNC(void, al_build_transform, (ALLEGRO_TRANSFORM* trans, float x, float y, float sx, float sy, float theta));
+A5_PRIM_FUNC(void, al_translate_transform, (ALLEGRO_TRANSFORM* trans, float x, float y));
+A5_PRIM_FUNC(void, al_rotate_transform, (ALLEGRO_TRANSFORM* trans, float theta));
+A5_PRIM_FUNC(void, al_scale_transform, (ALLEGRO_TRANSFORM* trans, float sx, float sy));
+A5_PRIM_FUNC(void, al_transform_vertex, (ALLEGRO_TRANSFORM* trans, ALLEGRO_VERTEX* vtx));
+A5_PRIM_FUNC(void, al_transform_transform, (ALLEGRO_TRANSFORM* trans, ALLEGRO_TRANSFORM* trans2));
+
 
 /*
 *High level primitives
