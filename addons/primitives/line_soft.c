@@ -155,11 +155,16 @@ static void shader_solid_any_2d_first(uintptr_t state, int start_x, int start_y,
    s->color.g = v1->g;
    s->color.b = v1->b;
    s->color.a = v1->a;
+
+   (void)start_x;
+   (void)start_y;
+   (void)v2;
 }
 
 static void shader_solid_any_2d_step(uintptr_t state, int minor_step)
 {
-
+   (void)state;
+   (void)minor_step;
 }
 
 static void line_stepper(ALLEGRO_BITMAP* dest, uintptr_t state, shader_first first, shader_step step, shader_draw draw, ALLEGRO_VERTEX* vtx1, ALLEGRO_VERTEX* vtx2)
@@ -306,7 +311,7 @@ static void line_stepper(ALLEGRO_BITMAP* dest, uintptr_t state, shader_first fir
 This one will check to see what exactly we need to draw...
 I.e. this will call all of the actual renderers and set the appropriate callbacks
 */
-void _al_line_2d(ALLEGRO_BITMAP* texture, ALLEGRO_VBUFFER* vbuff, ALLEGRO_VERTEX* v1, ALLEGRO_VERTEX* v2)
+void _al_line_2d(ALLEGRO_BITMAP* texture, ALLEGRO_VERTEX* v1, ALLEGRO_VERTEX* v2)
 {
    /*
    ALLEGRO_VERTEX copy_v1, copy_v2; <- may be needed for clipping later on

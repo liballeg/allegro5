@@ -78,7 +78,7 @@ int _al_draw_prim_soft(ALLEGRO_BITMAP* texture, ALLEGRO_VBUFFER* vbuff, int star
          if (use_cache) {
             int ii;
             for (ii = 0; ii < num_vtx - 1; ii += 2) {
-               _al_line_2d(texture, vbuff, &vertex_cache[ii], &vertex_cache[ii + 1]);
+               _al_line_2d(texture, &vertex_cache[ii], &vertex_cache[ii + 1]);
             }
          } else {
             int ii;
@@ -87,7 +87,7 @@ int _al_draw_prim_soft(ALLEGRO_BITMAP* texture, ALLEGRO_VBUFFER* vbuff, int star
                SET_VERTEX(v1, ii);
                SET_VERTEX(v2, ii + 1);
                
-               _al_line_2d(texture, vbuff, &v1, &v2);
+               _al_line_2d(texture, &v1, &v2);
             }
          }
          num_primitives = num_vtx / 2;
@@ -97,7 +97,7 @@ int _al_draw_prim_soft(ALLEGRO_BITMAP* texture, ALLEGRO_VBUFFER* vbuff, int star
          if (use_cache) {
             int ii;
             for (ii = 1; ii < num_vtx; ii++) {
-               _al_line_2d(texture, vbuff, &vertex_cache[ii - 1], &vertex_cache[ii]);
+               _al_line_2d(texture, &vertex_cache[ii - 1], &vertex_cache[ii]);
             }
          } else {
             int ii;
@@ -106,7 +106,7 @@ int _al_draw_prim_soft(ALLEGRO_BITMAP* texture, ALLEGRO_VBUFFER* vbuff, int star
             SET_VERTEX(vtx[0], start);
             for (ii = start + 1; ii < end; ii++) {
                SET_VERTEX(vtx[idx], ii)
-               _al_line_2d(texture, vbuff, &vtx[0], &vtx[1]);
+               _al_line_2d(texture, &vtx[0], &vtx[1]);
                idx = 1 - idx;
             }
          }
@@ -117,9 +117,9 @@ int _al_draw_prim_soft(ALLEGRO_BITMAP* texture, ALLEGRO_VBUFFER* vbuff, int star
          if (use_cache) {
             int ii;
             for (ii = 1; ii < num_vtx; ii++) {
-               _al_line_2d(texture, vbuff, &vertex_cache[ii - 1], &vertex_cache[ii]);
+               _al_line_2d(texture, &vertex_cache[ii - 1], &vertex_cache[ii]);
             }
-            _al_line_2d(texture, vbuff, &vertex_cache[0], &vertex_cache[num_vtx - 1]);
+            _al_line_2d(texture, &vertex_cache[0], &vertex_cache[num_vtx - 1]);
          } else {
             int ii;
             int idx = 1;
@@ -127,11 +127,11 @@ int _al_draw_prim_soft(ALLEGRO_BITMAP* texture, ALLEGRO_VBUFFER* vbuff, int star
             SET_VERTEX(vtx[0], start);
             for (ii = start + 1; ii < end; ii++) {
                SET_VERTEX(vtx[idx], ii)
-               _al_line_2d(texture, vbuff, &vtx[0], &vtx[1]);
+               _al_line_2d(texture, &vtx[0], &vtx[1]);
                idx = 1 - idx;
             }
             SET_VERTEX(vtx[idx], start)
-            _al_line_2d(texture, vbuff, &vtx[0], &vtx[1]);
+            _al_line_2d(texture, &vtx[0], &vtx[1]);
          }
          num_primitives = num_vtx;
          break;
@@ -140,7 +140,7 @@ int _al_draw_prim_soft(ALLEGRO_BITMAP* texture, ALLEGRO_VBUFFER* vbuff, int star
          if (use_cache) {
             int ii;
             for (ii = 0; ii < num_vtx - 2; ii += 3) {
-               _al_triangle_2d(texture, vbuff, &vertex_cache[ii], &vertex_cache[ii + 1], &vertex_cache[ii + 2]);
+               _al_triangle_2d(texture, &vertex_cache[ii], &vertex_cache[ii + 1], &vertex_cache[ii + 2]);
             }
          } else {
             int ii;
@@ -150,7 +150,7 @@ int _al_draw_prim_soft(ALLEGRO_BITMAP* texture, ALLEGRO_VBUFFER* vbuff, int star
                SET_VERTEX(v2, ii + 1);
                SET_VERTEX(v3, ii + 2);
                
-               _al_triangle_2d(texture, vbuff, &v1, &v2, &v3);
+               _al_triangle_2d(texture, &v1, &v2, &v3);
             }
          }
          num_primitives = num_vtx / 3;
@@ -160,7 +160,7 @@ int _al_draw_prim_soft(ALLEGRO_BITMAP* texture, ALLEGRO_VBUFFER* vbuff, int star
          if (use_cache) {
             int ii;
             for (ii = 2; ii < num_vtx; ii++) {
-               _al_triangle_2d(texture, vbuff, &vertex_cache[ii - 2], &vertex_cache[ii - 1], &vertex_cache[ii]);
+               _al_triangle_2d(texture, &vertex_cache[ii - 2], &vertex_cache[ii - 1], &vertex_cache[ii]);
             }
          } else {
             int ii;
@@ -171,7 +171,7 @@ int _al_draw_prim_soft(ALLEGRO_BITMAP* texture, ALLEGRO_VBUFFER* vbuff, int star
             for (ii = start + 2; ii < end; ii++) {
                SET_VERTEX(vtx[idx], ii);
                
-               _al_triangle_2d(texture, vbuff, &vtx[0], &vtx[1], &vtx[2]);
+               _al_triangle_2d(texture, &vtx[0], &vtx[1], &vtx[2]);
                idx = (idx + 1) % 3;
             }
          }
@@ -182,7 +182,7 @@ int _al_draw_prim_soft(ALLEGRO_BITMAP* texture, ALLEGRO_VBUFFER* vbuff, int star
          if (use_cache) {
             int ii;
             for (ii = 1; ii < num_vtx; ii++) {
-               _al_triangle_2d(texture, vbuff, &vertex_cache[0], &vertex_cache[ii], &vertex_cache[ii - 1]);
+               _al_triangle_2d(texture, &vertex_cache[0], &vertex_cache[ii], &vertex_cache[ii - 1]);
             }
          } else {
             int ii;
@@ -193,7 +193,7 @@ int _al_draw_prim_soft(ALLEGRO_BITMAP* texture, ALLEGRO_VBUFFER* vbuff, int star
             SET_VERTEX(vtx[0], start + 1);
             for (ii = start + 1; ii < end; ii++) {
                SET_VERTEX(vtx[idx], ii)
-               _al_triangle_2d(texture, vbuff, &v0, &vtx[0], &vtx[1]);
+               _al_triangle_2d(texture, &v0, &vtx[0], &vtx[1]);
                idx = 1 - idx;
             }
          }
@@ -255,7 +255,7 @@ int _al_draw_prim_indexed_soft(ALLEGRO_BITMAP* texture, ALLEGRO_VBUFFER* vbuff, 
                int idx1 = indices[ii] - min_idx;
                int idx2 = indices[ii + 1] - min_idx;
                
-               _al_line_2d(texture, vbuff, &vertex_cache[idx1], &vertex_cache[idx2]);
+               _al_line_2d(texture, &vertex_cache[idx1], &vertex_cache[idx2]);
             }
          } else {
             int ii;
@@ -267,7 +267,7 @@ int _al_draw_prim_indexed_soft(ALLEGRO_BITMAP* texture, ALLEGRO_VBUFFER* vbuff, 
                SET_VERTEX(v1, idx1);
                SET_VERTEX(v2, idx2);
                
-               _al_line_2d(texture, vbuff, &v1, &v2);
+               _al_line_2d(texture, &v1, &v2);
             }
          }
          num_primitives = num_vtx / 2;
@@ -280,7 +280,7 @@ int _al_draw_prim_indexed_soft(ALLEGRO_BITMAP* texture, ALLEGRO_VBUFFER* vbuff, 
                int idx1 = indices[ii - 1] - min_idx;
                int idx2 = indices[ii] - min_idx;
                
-               _al_line_2d(texture, vbuff, &vertex_cache[idx1], &vertex_cache[idx2]);
+               _al_line_2d(texture, &vertex_cache[idx1], &vertex_cache[idx2]);
             }
          } else {
             int ii;
@@ -289,7 +289,7 @@ int _al_draw_prim_indexed_soft(ALLEGRO_BITMAP* texture, ALLEGRO_VBUFFER* vbuff, 
             SET_VERTEX(vtx[0], indices[0]);
             for (ii = 1; ii < num_vtx; ii++) {
                SET_VERTEX(vtx[idx], indices[ii])
-               _al_line_2d(texture, vbuff, &vtx[0], &vtx[1]);
+               _al_line_2d(texture, &vtx[0], &vtx[1]);
                idx = 1 - idx;
             }
          }
@@ -304,12 +304,12 @@ int _al_draw_prim_indexed_soft(ALLEGRO_BITMAP* texture, ALLEGRO_VBUFFER* vbuff, 
                int idx1 = indices[ii - 1] - min_idx;
                int idx2 = indices[ii] - min_idx;
                
-               _al_line_2d(texture, vbuff, &vertex_cache[idx1], &vertex_cache[idx2]);
+               _al_line_2d(texture, &vertex_cache[idx1], &vertex_cache[idx2]);
             }
             int idx1 = indices[0] - min_idx;
             int idx2 = indices[num_vtx - 1] - min_idx;
             
-            _al_line_2d(texture, vbuff, &vertex_cache[idx1], &vertex_cache[idx2]);
+            _al_line_2d(texture, &vertex_cache[idx1], &vertex_cache[idx2]);
          } else {
             int ii;
             int idx = 1;
@@ -317,11 +317,11 @@ int _al_draw_prim_indexed_soft(ALLEGRO_BITMAP* texture, ALLEGRO_VBUFFER* vbuff, 
             SET_VERTEX(vtx[0], indices[0]);
             for (ii = 1; ii < num_vtx; ii++) {
                SET_VERTEX(vtx[idx], indices[ii])
-               _al_line_2d(texture, vbuff, &vtx[0], &vtx[1]);
+               _al_line_2d(texture, &vtx[0], &vtx[1]);
                idx = 1 - idx;
             }
             SET_VERTEX(vtx[idx], indices[0])
-            _al_line_2d(texture, vbuff, &vtx[0], &vtx[1]);
+            _al_line_2d(texture, &vtx[0], &vtx[1]);
          }
          num_primitives = num_vtx;
          break;
@@ -333,7 +333,7 @@ int _al_draw_prim_indexed_soft(ALLEGRO_BITMAP* texture, ALLEGRO_VBUFFER* vbuff, 
                int idx1 = indices[ii] - min_idx;
                int idx2 = indices[ii + 1] - min_idx;
                int idx3 = indices[ii + 2] - min_idx;
-               _al_triangle_2d(texture, vbuff, &vertex_cache[idx1], &vertex_cache[idx2], &vertex_cache[idx3]);
+               _al_triangle_2d(texture, &vertex_cache[idx1], &vertex_cache[idx2], &vertex_cache[idx3]);
             }
          } else {
             int ii;
@@ -347,7 +347,7 @@ int _al_draw_prim_indexed_soft(ALLEGRO_BITMAP* texture, ALLEGRO_VBUFFER* vbuff, 
                SET_VERTEX(v2, idx2);
                SET_VERTEX(v3, idx3);
                
-               _al_triangle_2d(texture, vbuff, &v1, &v2, &v3);
+               _al_triangle_2d(texture, &v1, &v2, &v3);
             }
          }
          num_primitives = num_vtx / 3;
@@ -360,7 +360,7 @@ int _al_draw_prim_indexed_soft(ALLEGRO_BITMAP* texture, ALLEGRO_VBUFFER* vbuff, 
                int idx1 = indices[ii - 2] - min_idx;
                int idx2 = indices[ii - 1] - min_idx;
                int idx3 = indices[ii] - min_idx;
-               _al_triangle_2d(texture, vbuff, &vertex_cache[idx1], &vertex_cache[idx2], &vertex_cache[idx3]);
+               _al_triangle_2d(texture, &vertex_cache[idx1], &vertex_cache[idx2], &vertex_cache[idx3]);
             }
          } else {
             int ii;
@@ -371,7 +371,7 @@ int _al_draw_prim_indexed_soft(ALLEGRO_BITMAP* texture, ALLEGRO_VBUFFER* vbuff, 
             for (ii = 2; ii < num_vtx; ii ++) {
                SET_VERTEX(vtx[idx], indices[ii]);
                
-               _al_triangle_2d(texture, vbuff, &vtx[0], &vtx[1], &vtx[2]);
+               _al_triangle_2d(texture, &vtx[0], &vtx[1], &vtx[2]);
                idx = (idx + 1) % 3;
             }
          }
@@ -385,7 +385,7 @@ int _al_draw_prim_indexed_soft(ALLEGRO_BITMAP* texture, ALLEGRO_VBUFFER* vbuff, 
             for (ii = 1; ii < num_vtx; ii++) {
                int idx1 = indices[ii];
                int idx2 = indices[ii - 1];
-               _al_triangle_2d(texture, vbuff, &vertex_cache[idx0], &vertex_cache[idx1], &vertex_cache[idx2]);
+               _al_triangle_2d(texture, &vertex_cache[idx0], &vertex_cache[idx1], &vertex_cache[idx2]);
             }
          } else {
             int ii;
@@ -396,7 +396,7 @@ int _al_draw_prim_indexed_soft(ALLEGRO_BITMAP* texture, ALLEGRO_VBUFFER* vbuff, 
             SET_VERTEX(vtx[0], indices[1]);
             for (ii = 2; ii < num_vtx; ii ++) {
                SET_VERTEX(vtx[idx], indices[ii])
-               _al_triangle_2d(texture, vbuff, &v0, &vtx[0], &vtx[1]);
+               _al_triangle_2d(texture, &v0, &vtx[0], &vtx[1]);
                idx = 1 - idx;
             }
          }
@@ -420,6 +420,7 @@ int _al_prim_lock_vbuff_range_soft(ALLEGRO_VBUFFER* vbuff, int start, int end, i
    vbuff->flags |= ALLEGRO_VBUFFER_LOCKED;
    vbuff->lock_start = start;
    vbuff->lock_end = end;
+   (void)type;
    return 1;
 }
 

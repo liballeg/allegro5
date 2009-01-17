@@ -228,16 +228,24 @@ static void shader_solid_any_2d_init(uintptr_t state, ALLEGRO_VERTEX* v1, ALLEGR
    s->cur_color.g = v1->g;
    s->cur_color.b = v1->b;
    s->cur_color.a = v1->a;
+
+   (void)v2;
+   (void)v3;
 }
 
 static void shader_solid_any_2d_first(uintptr_t state, int x1, int y, int left_minor, int left_major)
 {
-
+   (void)state;
+   (void)x1;
+   (void)y;
+   (void)left_minor;
+   (void)left_major;
 }
 
 static void shader_solid_any_2d_step(uintptr_t state, int minor)
 {
-
+   (void)state;
+   (void)minor;
 }
 
 void triangle_stepper(ALLEGRO_BITMAP* dest, uintptr_t state, shader_init init, shader_first first, shader_step step, shader_draw draw, ALLEGRO_VERTEX* vtx1, ALLEGRO_VERTEX* vtx2, ALLEGRO_VERTEX* vtx3)
@@ -508,7 +516,7 @@ void triangle_stepper(ALLEGRO_BITMAP* dest, uintptr_t state, shader_init init, s
 This one will check to see what exactly we need to draw...
 I.e. this will call all of the actual renderers and set the appropriate callbacks
 */
-void _al_triangle_2d(ALLEGRO_BITMAP* texture, ALLEGRO_VBUFFER* vbuff, ALLEGRO_VERTEX* v1, ALLEGRO_VERTEX* v2, ALLEGRO_VERTEX* v3)
+void _al_triangle_2d(ALLEGRO_BITMAP* texture, ALLEGRO_VERTEX* v1, ALLEGRO_VERTEX* v2, ALLEGRO_VERTEX* v3)
 {
    /*
    ALLEGRO_VERTEX copy_v1, copy_v2; <- may be needed for clipping later on

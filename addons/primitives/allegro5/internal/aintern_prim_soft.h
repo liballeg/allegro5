@@ -10,8 +10,8 @@ void _al_destroy_vbuff_soft(ALLEGRO_VBUFFER* vbuff);
 int _al_draw_prim_soft(ALLEGRO_BITMAP* texture, ALLEGRO_VBUFFER* vbuff, int start, int end, int type);
 int _al_draw_prim_indexed_soft(ALLEGRO_BITMAP* texture, ALLEGRO_VBUFFER* vbuff, int* indices, int num_vtx, int type);
 
-void _al_line_2d(ALLEGRO_BITMAP* texture, ALLEGRO_VBUFFER* vbuff, ALLEGRO_VERTEX* v1, ALLEGRO_VERTEX* v2);
-void _al_triangle_2d(ALLEGRO_BITMAP* texture, ALLEGRO_VBUFFER* vbuff, ALLEGRO_VERTEX* v1, ALLEGRO_VERTEX* v2, ALLEGRO_VERTEX* v3);
+void _al_line_2d(ALLEGRO_BITMAP* texture, ALLEGRO_VERTEX* v1, ALLEGRO_VERTEX* v2);
+void _al_triangle_2d(ALLEGRO_BITMAP* texture, ALLEGRO_VERTEX* v1, ALLEGRO_VERTEX* v2, ALLEGRO_VERTEX* v3);
 
 int _al_prim_lock_vbuff_range_soft(ALLEGRO_VBUFFER* vbuff, int start, int end, int type);
 void _al_prim_unlock_vbuff_soft(ALLEGRO_VBUFFER* vbuff);

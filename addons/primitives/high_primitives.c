@@ -585,8 +585,8 @@ void al_calculate_ribbon(ALLEGRO_VBUFFER* vbuff, float *points, float thickness,
       
       float cur_dir_x;
       float cur_dir_y;
-      float prev_dir_x;
-      float prev_dir_y;
+      float prev_dir_x = 0;
+      float prev_dir_y = 0;
       float t = thickness / 2;
       float tx, ty;
       

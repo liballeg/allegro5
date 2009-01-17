@@ -29,16 +29,30 @@
 int _al_draw_prim_directx(ALLEGRO_BITMAP* texture, ALLEGRO_VBUFFER* vbuff, int start, int end, int type)
 {
    /*TODO: Implement this*/
+   (void)texture;
+   (void)vbuff;
+   (void)start;
+   (void)end;
+   (void)type;
+
    return 0;
 }
 
 int _al_draw_prim_indexed_directx(ALLEGRO_BITMAP* texture, ALLEGRO_VBUFFER* vbuff, int* indices, int num_vtx, int type)
 {
    /*TODO: Implement this*/
+   (void)texture;
+   (void)vbuff;
+   (void)indices;
+   (void)num_vtx;
+   (void)type;
+
    return 0;
 }
 
 void _al_use_transform_directx(ALLEGRO_TRANSFORM* trans)
 {
+   (void)trans;
+
    /*TODO: Implement this*/
 }
