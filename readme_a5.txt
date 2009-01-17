@@ -236,7 +236,6 @@ The libraries are:
 - FLAC
 - libsndfile, for loading .wav and other sample formats
 - OpenAL (only really needed on Mac OS X due to missing native driver)
-- ImageMagick (not really used)
 
 On Windows, OpenGL is also optional.
 

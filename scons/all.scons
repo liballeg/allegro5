@@ -110,7 +110,6 @@ def examples(env):
     example("ex_drawpixels")
     example("ex_dualies")
     example("ex_expose")
-    #example("ex_icodec")
     example("ex_font")
     example("ex_fs_resize")
     example("ex_glext", libs = ["GLU"])

@@ -2,7 +2,6 @@ include_directories(
     ../addons/iio
     ../addons/font
     ../addons/ttf
-    ../addons/icodec
     ../addons/kcm_audio
     ../addons/acodec
     ../addons/color
@@ -58,10 +57,6 @@ endif(SUPPORT_ACODEC)
 if(SUPPORT_TTF)
     example(ex_ttf ${TTF_LINK_WITH})
 endif(SUPPORT_TTF)
-
-if(SUPPORT_ICODEC)
-    example(ex_icodec ${ICODEC_LINK_WITH})
-endif(SUPPORT_ICODEC)
 
 if(SUPPORT_COLOR AND SUPPORT_TTF)
     example(ex_color ex_color.cpp nihgui.cpp ${COLOR_LINK_WITH} ${TTF_LINK_WITH} ${FONT_LINK_WITH} ${IIO_LINK_WITH})
