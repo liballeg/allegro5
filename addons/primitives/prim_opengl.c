@@ -28,7 +28,7 @@
 #include "allegro5/a5_opengl.h"
 #include "allegro5/internal/aintern_opengl.h"
 
-static void setup_blending()
+static void setup_blending(void)
 {
    const int blend_modes[4] = {
       GL_ZERO, GL_ONE, GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA

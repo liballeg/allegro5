@@ -468,7 +468,7 @@ void IndexedPrimitives(int mode)
    }
 }
 
-int main(int argc, char *argv[])
+int main(void)
 {
    // Initialize Allegro 5 and the font routines
    al_init();
