@@ -48,6 +48,7 @@ static void render(void)
     al_set_blender(ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA, white);
     al_draw_rectangle(x, y, x + w, y + h, black, 0);
     al_draw_line(x, y + as, x + w, y + as, black);
+    al_draw_line(x, y + as + de, x + w, y + as + de, black);
     al_set_blender(ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA, blue);
     al_font_textout(ex.f4, x, y, "Allegro", -1);
 
