@@ -80,7 +80,7 @@ static ALLEGRO_BITMAP* create_glyph_cache(ALLEGRO_FONT const *f, int w,
 }
 
 static int render_glyph(ALLEGRO_FONT const *f, int prev, int ch,
-    int xpos, int ypos, bool only_measure)
+    int xpos, int ypos, ALLEGRO_TTF_GLYPH_DATA **measure_glyph)
 {
     ALLEGRO_TTF_FONT_DATA *data = f->data;
     FT_Face face = data->face;
@@ -89,7 +89,7 @@ static int render_glyph(ALLEGRO_FONT const *f, int prev, int ch,
     int startpos = xpos;
 
     ALLEGRO_TTF_GLYPH_DATA *glyph = data->cache + ft_index;
-    if (glyph->bitmap || only_measure) {
+    if (glyph->bitmap) {
         FT_Load_Glyph(face, ft_index, FT_LOAD_DEFAULT);
     }
     else {
@@ -138,7 +138,9 @@ static int render_glyph(ALLEGRO_FONT const *f, int prev, int ch,
         xpos += delta.x >> 6;
     } 
 
-    if (!only_measure)
+    if (measure_glyph)
+        *measure_glyph = glyph;
+    else
         al_draw_bitmap(glyph->bitmap, xpos + glyph->x, ypos + glyph->y , 0);
 
     xpos += face->glyph->advance.x >> 6;
@@ -147,12 +149,13 @@ static int render_glyph(ALLEGRO_FONT const *f, int prev, int ch,
 
 static int render_char(ALLEGRO_FONT const *f, int ch, int xpos, int ypos)
 {
-    return render_glyph(f, '\0', ch, xpos, ypos, false);
+    return render_glyph(f, '\0', ch, xpos, ypos, NULL);
 }
 
 static int char_length(ALLEGRO_FONT const *f, int ch)
 {
-    return render_glyph(f, '\0', ch, 0, 0, true);
+    ALLEGRO_TTF_GLYPH_DATA *glyph;
+    return render_glyph(f, '\0', ch, 0, 0, &glyph);
 }
 
 static void render(ALLEGRO_FONT const *f, char const *text,
@@ -163,7 +166,7 @@ static void render(ALLEGRO_FONT const *f, char const *text,
     int i;
     for (i = 0; i < count; i++) {
         int ch = ugetxc(&p);
-        x += render_glyph(f, prev, ch, x, y, false);
+        x += render_glyph(f, prev, ch, x, y, NULL);
         prev = ch;
     }
 }
@@ -174,9 +177,10 @@ static int text_length(ALLEGRO_FONT const *f, char const *text, int count)
     char const *p = text;
     int i;
     int x = 0;
+    ALLEGRO_TTF_GLYPH_DATA *glyph;
     for (i = 0; i < count; i++) {
         int ch = ugetxc(&p);
-        x += render_glyph(f, prev, ch, x, 0, true);
+        x += render_glyph(f, prev, ch, x, 0, &glyph);
         prev = ch;
     }
     return x;
@@ -221,17 +225,24 @@ void al_ttf_get_text_dimensions(ALLEGRO_FONT const *f, char const *text,
     char const *p = text;
     int i;
     int x = 0;
+    ALLEGRO_TTF_GLYPH_DATA *glyph;
     if (count == -1) {
        count = ustrlen(text);
     }
+    *bbx = 0;
     for (i = 0; i < count; i++) {
         int ch = ugetxc(&p);
-        x += render_glyph(f, prev, ch, x, 0, true);
+        x += render_glyph(f, prev, ch, 0, 0, &glyph);
+        if (i == count - 1) {
+            x -= face->glyph->advance.x >> 6;
+            x += glyph->x + al_get_bitmap_width(glyph->bitmap);
+        }
+        if (i == 0)
+            *bbx = glyph->x;
         prev = ch;
     }
-    *bbx = 0; // FIXME
     *bby = 0; // FIXME
-    *bbw = x;
+    *bbw = x - *bbx;
     *bbh = f->height; // FIXME, we want the bounding box!
     *ascent = face->size->metrics.ascender >> 6;
     *descent = (-face->size->metrics.descender) >> 6;
