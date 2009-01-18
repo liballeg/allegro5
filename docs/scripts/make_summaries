@@ -41,7 +41,7 @@ TEMPDIR=make_summaries.tmp.$$_$RANDOM
 mkdir $TEMPDIR
 trap 'rm -rf $TEMPDIR' 0 1 2 3 13 15
 
-"$SPLIT_API_DOCS" $TEMPDIR "$@"
+awk -f "$SPLIT_API_DOCS" $TEMPDIR "$@"
 
 for file in $TEMPDIR/*
 do
