@@ -14,7 +14,7 @@ static void render(void)
     ALLEGRO_COLOR red = al_map_rgba_f(1, 0, 0, 1);
     ALLEGRO_COLOR green = al_map_rgba_f(0, 0.5, 0, 1);
     ALLEGRO_COLOR blue = al_map_rgba_f(0.1, 0.2, 1, 1);
-    int x, y, w, h, as, de;
+    int x, y, w, h, as, de, xpos, ypos;
 
     al_clear(white);
 
@@ -40,17 +40,20 @@ static void render(void)
     al_font_textout(ex.f3, 50, 360, "“cøünt”|see", 7);
     al_font_textout(ex.f3, 50, 380, "réstrïçteđ…|this.", 11);
     
+    xpos = al_get_display_width() - 10;
+    ypos = al_get_display_height() - 10;
     al_ttf_get_text_dimensions(ex.f4, "Allegro", -1,
        &x, &y, &w, &h, &as, &de);
-
-    x += al_get_display_width() - 10 - w;
-    y += al_get_display_height() - 10 - h;
+    xpos -= w;
+    ypos -= h;
+    x += xpos;
+    y += ypos;
     al_set_blender(ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA, white);
     al_draw_rectangle(x, y, x + w, y + h, black, 0);
     al_draw_line(x, y + as, x + w, y + as, black);
     al_draw_line(x, y + as + de, x + w, y + as + de, black);
     al_set_blender(ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA, blue);
-    al_font_textout(ex.f4, x, y, "Allegro", -1);
+    al_font_textout(ex.f4, xpos, ypos, "Allegro", -1);
 
     al_set_blender(ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA, black);
     al_font_textprintf_right(ex.f3, al_get_display_width(), 0, "%.1f FPS", ex.fps);
