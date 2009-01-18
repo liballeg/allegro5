@@ -111,3 +111,22 @@ case x and y will have negative values.
 
 ## API: al_ttf_load_font
 
+Loads a truetype font from a file using the FreeType library. Quoting
+from the FreeType FAQ this means support for many different font
+formats:
+
+*TrueType, OpenType, Type1, CID, CFF, Windows FON/FNT, X11 PCF, and
+others*
+
+The *size* parameter determines the size the font will be rendered at,
+specified in pixel. The standard font size is measured in *units per
+EM*, if you instead want to specify the size as the total height of
+glyphs in pixel, pass it as a negative value.
+
+Note: If you want to display text at multiple sizes, load the font
+multiple times with different size parameters.
+
+The only flag supported right now is:
+
+* ALLEGRO_TTF_NO_KERNING - Do not use any kerning even if the font file
+  supports it.
