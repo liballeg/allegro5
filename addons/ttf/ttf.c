@@ -21,6 +21,7 @@ typedef struct ALLEGRO_TTF_FONT_DATA
     _AL_VECTOR cache_bitmaps;
     int cache_pos_x;
     int cache_pos_y;
+    int cache_line_height;
     ALLEGRO_TTF_GLYPH_DATA *cache;
     int flags;
 } ALLEGRO_TTF_FONT_DATA;
@@ -61,29 +62,21 @@ static ALLEGRO_BITMAP* create_glyph_cache(ALLEGRO_FONT const *f, int w,
     cache = *p_cache;
 
     if (data->cache_pos_x + w > al_get_bitmap_width(cache)) {
-        if (data->cache_pos_y + font_height(f) >
-            al_get_bitmap_height(cache))
-            return create_glyph_cache(f, w, h, true);
-        else {
-            // FIXME: f->height is *not* guaranteed to be bigger than
-            // the size of the largest glyph in the font. This needs to
-            // be fixed, some fonts likely have glyphs cut off right
-            // now.
-            data->cache_pos_y += f->height + 2;
-            ret = al_create_sub_bitmap(cache, 0, data->cache_pos_y, w, h);
-            /* Leave 2 pixels of empty space between glyphs in case
-             * we use texture filtering where neigbor pixels bleed in.
-             */
-            data->cache_pos_x = w + 2;
-            return ret;
-        }
+        data->cache_pos_y += data->cache_line_height + 2;
+        data->cache_pos_x = 0;
+        data->cache_line_height = 0;
     }
-    else {
-        ret = al_create_sub_bitmap(cache, data->cache_pos_x,
-                data->cache_pos_y, w, h);
-        data->cache_pos_x += w + 2;
-        return ret;
+
+    if (data->cache_pos_y + h > al_get_bitmap_height(cache)) {
+        return create_glyph_cache(f, w, h, true);
     }
+    
+    ret = al_create_sub_bitmap(cache, data->cache_pos_x,
+        data->cache_pos_y, w, h);
+    data->cache_pos_x += w + 2;
+    if (h > data->cache_line_height)
+        data->cache_line_height = h;
+    return ret;
 }
 
 static int render_glyph(ALLEGRO_FONT const *f, int prev, int ch,
