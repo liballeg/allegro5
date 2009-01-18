@@ -720,15 +720,15 @@ void _al_ogl_manage_extensions(ALLEGRO_DISPLAY *gl_disp)
 
 
 
-/* Function: al_get_opengl_ogl_extras
+/* Function: al_get_opengl_extension_list
  * Returns the list of OpenGL extensions supported by Allegro, for
  * the current display.
  *
  * Allegro will keep information about all extensions it knows about in a
- * structure returned by <al_get_opengl_ogl_extras->extension_list>.
+ * structure returned by <al_get_opengl_extension_list()->extension_list>.
  *
  * For example:
- * > if (al_get_opengl_ogl_extras->extension_list()->ALLEGRO_GL_ARB_multitexture) { use it }
+ * > if (al_get_opengl_extension_list->extension_list()->ALLEGRO_GL_ARB_multitexture) { use it }
  *
  * The extension will be set to true if available for the current display and
  * false otherwise. This means to use the definitions and functions from an
