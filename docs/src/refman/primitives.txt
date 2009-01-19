@@ -573,17 +573,11 @@ Enumerates the flags that control the global operation of the entire addon. All 
 Defines the size of the transformation vertex cache for the software renderer. If you pass less than this many
 vertices to the primitve rendering functions you will get a speed boost.
 
- `#define ALLEGRO_VERTEX_CACHE_SIZE 256`
-
 ## API: ALLEGRO_VBUFF_CACHE_SIZE
 
 Defines the size of the cache vertex buffer, used for the high-level primitives.
 This corresponds to the maximum number of line segments that will be used to form them.
 
- `#define ALLEGRO_VBUFF_CACHE_SIZE 256`
-
 ## API: ALLEGRO_PRIM_QUALITY
 
 Defines the quality of the quadratic primitives. At 10, this roughly corresponds to error < 0.5 pixel.
-
-`#define ALLEGRO_PRIM_QUALITY 10`

@@ -53,7 +53,8 @@ static void verify_cache(void)
 
 /* Function: al_draw_line_ex
  */
-void al_draw_line_ex(float x1, float y1, float x2, float y2, ALLEGRO_COLOR color, float thickness)
+void al_draw_line_ex(float x1, float y1, float x2, float y2,
+   ALLEGRO_COLOR color, float thickness)
 {
    verify_cache();
    if (thickness > 0) {
@@ -98,7 +99,8 @@ void al_draw_line_ex(float x1, float y1, float x2, float y2, ALLEGRO_COLOR color
 
 /* Function: al_draw_triangle
  */
-void al_draw_triangle(float x1, float y1, float x2, float y2, float x3, float y3, ALLEGRO_COLOR color, float thickness)
+void al_draw_triangle(float x1, float y1, float x2, float y2,
+   float x3, float y3, ALLEGRO_COLOR color, float thickness)
 {
    verify_cache();
    if (thickness > 0) {
@@ -172,7 +174,8 @@ void al_draw_triangle(float x1, float y1, float x2, float y2, float x3, float y3
 
 /* Function: al_draw_filled_triangle
  */
-void al_draw_filled_triangle(float x1, float y1, float x2, float y2, float x3, float y3, ALLEGRO_COLOR color)
+void al_draw_filled_triangle(float x1, float y1, float x2, float y2,
+   float x3, float y3, ALLEGRO_COLOR color)
 {
    verify_cache();
    if (!al_lock_vbuff_range(cache_buffer, 0, 3, ALLEGRO_VBUFFER_WRITE))
@@ -193,7 +196,8 @@ void al_draw_filled_triangle(float x1, float y1, float x2, float y2, float x3, f
 
 /* Function: al_draw_rectangle_ex
  */
-void al_draw_rectangle_ex(float x1, float y1, float x2, float y2, ALLEGRO_COLOR color, float thickness)
+void al_draw_rectangle_ex(float x1, float y1, float x2, float y2,
+   ALLEGRO_COLOR color, float thickness)
 {
    verify_cache();
    int ii;
@@ -240,7 +244,8 @@ void al_draw_rectangle_ex(float x1, float y1, float x2, float y2, ALLEGRO_COLOR 
 
 /* Function: al_draw_filled_rectangle
  */
-void al_draw_filled_rectangle(float x1, float y1, float x2, float y2, ALLEGRO_COLOR color)
+void al_draw_filled_rectangle(float x1, float y1, float x2, float y2,
+   ALLEGRO_COLOR color)
 {
    verify_cache();
    if (!al_lock_vbuff_range(cache_buffer, 0, 4, ALLEGRO_VBUFFER_WRITE))
@@ -263,7 +268,9 @@ void al_draw_filled_rectangle(float x1, float y1, float x2, float y2, ALLEGRO_CO
 
 /* Function: al_calculate_arc
  */
-void al_calculate_arc(ALLEGRO_VBUFFER* vbuff, float cx, float cy, float rx, float ry, float start_theta, float delta_theta, float thickness, int start, int num_segments)
+void al_calculate_arc(ALLEGRO_VBUFFER* vbuff, float cx, float cy,
+   float rx, float ry, float start_theta, float delta_theta, float thickness,
+   int start, int num_segments)
 {
    ASSERT(vbuff);
    
@@ -367,7 +374,8 @@ void al_calculate_arc(ALLEGRO_VBUFFER* vbuff, float cx, float cy, float rx, floa
 
 /* Function: al_draw_ellipse
  */
-void al_draw_ellipse(float cx, float cy, float rx, float ry, ALLEGRO_COLOR color, float thickness)
+void al_draw_ellipse(float cx, float cy, float rx, float ry,
+   ALLEGRO_COLOR color, float thickness)
 {
    verify_cache();
    if (thickness > 0) {
@@ -401,7 +409,8 @@ void al_draw_ellipse(float cx, float cy, float rx, float ry, ALLEGRO_COLOR color
 
 /* Function: al_draw_filled_ellipse
  */
-void al_draw_filled_ellipse(float cx, float cy, float rx, float ry, ALLEGRO_COLOR color)
+void al_draw_filled_ellipse(float cx, float cy, float rx, float ry,
+   ALLEGRO_COLOR color)
 {
    verify_cache();
    
@@ -428,7 +437,8 @@ void al_draw_filled_ellipse(float cx, float cy, float rx, float ry, ALLEGRO_COLO
 
 /* Function: al_draw_circle
  */
-void al_draw_circle(float cx, float cy, float r, ALLEGRO_COLOR color, float thickness)
+void al_draw_circle(float cx, float cy, float r, ALLEGRO_COLOR color,
+   float thickness)
 {
    al_draw_ellipse(cx, cy, r, r, color, thickness);
 }
@@ -442,7 +452,8 @@ void al_draw_filled_circle(float cx, float cy, float r, ALLEGRO_COLOR color)
 
 /* Function: al_draw_arc
  */
-void al_draw_arc(float cx, float cy, float r, float start_theta, float delta_theta, ALLEGRO_COLOR color, float thickness)
+void al_draw_arc(float cx, float cy, float r, float start_theta,
+   float delta_theta, ALLEGRO_COLOR color, float thickness)
 {
    verify_cache();
    if (thickness > 0) {
@@ -480,7 +491,8 @@ void al_draw_arc(float cx, float cy, float r, float start_theta, float delta_the
 
 /* Function: al_calculate_spline
  */
-void al_calculate_spline(ALLEGRO_VBUFFER* vbuff, float points[8], float thickness, int start, int num_segments)
+void al_calculate_spline(ALLEGRO_VBUFFER* vbuff, float points[8],
+   float thickness, int start, int num_segments)
 {
    ASSERT(vbuff);
    ASSERT(points);
@@ -592,7 +604,8 @@ void al_draw_spline(float points[8], ALLEGRO_COLOR color, float thickness)
 
 /* Function: al_calculate_ribbon
  */
-void al_calculate_ribbon(ALLEGRO_VBUFFER* vbuff, float *points, float thickness, int start, int num_segments)
+void al_calculate_ribbon(ALLEGRO_VBUFFER* vbuff, float *points,
+   float thickness, int start, int num_segments)
 {
    ASSERT(vbuff);
    ASSERT(points);
@@ -688,7 +701,8 @@ void al_calculate_ribbon(ALLEGRO_VBUFFER* vbuff, float *points, float thickness,
 
 /* Function: al_draw_ribbon
  */
-void al_draw_ribbon(float *points, ALLEGRO_COLOR color, float thickness, int num_segments)
+void al_draw_ribbon(float *points, ALLEGRO_COLOR color, float thickness,
+   int num_segments)
 {
    int ii;
    verify_cache();

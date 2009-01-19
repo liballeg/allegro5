@@ -65,7 +65,8 @@ static void temp_trans(float x, float y)
 
 /* Function: al_draw_prim
  */
-int al_draw_prim(ALLEGRO_VBUFFER* vbuff, ALLEGRO_BITMAP* texture, int start, int end, int type)
+int al_draw_prim(ALLEGRO_VBUFFER* vbuff, ALLEGRO_BITMAP* texture,
+   int start, int end, int type)
 {
    ASSERT(vbuff);
    ASSERT(end >= start);
@@ -108,7 +109,8 @@ int al_draw_prim(ALLEGRO_VBUFFER* vbuff, ALLEGRO_BITMAP* texture, int start, int
 
 /* Function: al_draw_indexed_prim
  */
-int al_draw_indexed_prim(ALLEGRO_VBUFFER* vbuff, ALLEGRO_BITMAP* texture, int* indices, int num_vtx, int type)
+int al_draw_indexed_prim(ALLEGRO_VBUFFER* vbuff, ALLEGRO_BITMAP* texture,
+   int* indices, int num_vtx, int type)
 {
    ASSERT(vbuff);
    ASSERT(indices);
@@ -216,8 +218,6 @@ int al_vbuff_range_is_locked(ALLEGRO_VBUFFER* vbuff, int start, int end)
    return 0;
 }
 
-/* Function: _al_prim_check_lock_pos
- */
 int _al_prim_check_lock_pos(ALLEGRO_VBUFFER* vbuff, int idx, int type)
 {
    ASSERT(vbuff);
@@ -233,7 +233,8 @@ int _al_prim_check_lock_pos(ALLEGRO_VBUFFER* vbuff, int idx, int type)
 
 /* Function: al_set_vbuff_pos
  */
-void al_set_vbuff_pos(ALLEGRO_VBUFFER* vbuff, int idx, float x, float y, float z)
+void al_set_vbuff_pos(ALLEGRO_VBUFFER* vbuff, int idx,
+   float x, float y, float z)
 {
    ASSERT(vbuff);
    
@@ -250,7 +251,8 @@ void al_set_vbuff_pos(ALLEGRO_VBUFFER* vbuff, int idx, float x, float y, float z
 
 /* Function: al_set_vbuff_normal
  */
-void al_set_vbuff_normal(ALLEGRO_VBUFFER* vbuff, int idx, float nx, float ny, float nz)
+void al_set_vbuff_normal(ALLEGRO_VBUFFER* vbuff, int idx,
+   float nx, float ny, float nz)
 {
    ASSERT(vbuff);
    
@@ -284,7 +286,8 @@ void al_set_vbuff_uv(ALLEGRO_VBUFFER* vbuff, int idx, float u, float v)
 
 /* Function: al_set_vbuff_vertex
  */
-void al_set_vbuff_vertex(ALLEGRO_VBUFFER* vbuff, int idx, const ALLEGRO_VERTEX *vtx)
+void al_set_vbuff_vertex(ALLEGRO_VBUFFER* vbuff, int idx,
+   const ALLEGRO_VERTEX *vtx)
 {
    ASSERT(vbuff);
    ASSERT(vtx);
@@ -302,7 +305,8 @@ void al_set_vbuff_vertex(ALLEGRO_VBUFFER* vbuff, int idx, const ALLEGRO_VERTEX *
 
 /* Function: al_set_vbuff_color
  */
-void al_set_vbuff_color(ALLEGRO_VBUFFER* vbuff, int idx, const ALLEGRO_COLOR col)
+void al_set_vbuff_color(ALLEGRO_VBUFFER* vbuff, int idx,
+   const ALLEGRO_COLOR col)
 {
    ASSERT(vbuff);
    
@@ -485,7 +489,8 @@ void al_identity_transform(ALLEGRO_TRANSFORM* trans)
 
 /* Function: al_build_transform
  */
-void al_build_transform(ALLEGRO_TRANSFORM* trans, float x, float y, float sx, float sy, float theta)
+void al_build_transform(ALLEGRO_TRANSFORM* trans, float x, float y,
+   float sx, float sy, float theta)
 {
    ASSERT(trans);
    

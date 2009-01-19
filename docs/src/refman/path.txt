@@ -5,6 +5,7 @@
 Returns the full path of a 'resource' given mode 'fm'.
 
 Parameters:
+
 * base - sub directory name resource may be found in
 * resource - name of resource
 * fm - file mode/type of resource to match. See [ALLEGRO_FS_MODE]
@@ -151,6 +152,13 @@ The drive may be NULL to remove the drive letter.
 
 Set the optional filename (i.e. basename) part of the path.
 The filename may be NULL.
+
+## API: al_path_set_extension
+
+Replaces the extension of the path with the given one. If the
+filename of the path has no extension, the given one is appended.
+
+Returns false if the path contains no filename part.
 
 ## API: al_path_tail
 

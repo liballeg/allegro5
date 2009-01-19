@@ -30,6 +30,8 @@ extern "C"
 
 #include <allegro5/allegro5.h>
 
+/* Enum: ALLEGRO_PRIM_TYPE
+ */
 enum ALLEGRO_PRIM_TYPE {
   ALLEGRO_PRIM_LINE_LIST,
   ALLEGRO_PRIM_LINE_STRIP,
@@ -40,6 +42,8 @@ enum ALLEGRO_PRIM_TYPE {
   ALLEGRO_PRIM_NUM_TYPES
 };
 
+/* Enum: ALLEGRO_VBUFFER_FLAGS
+ */
 enum ALLEGRO_VBUFFER_FLAGS {
   ALLEGRO_VBUFFER_SOFT =   1 << 0,
   ALLEGRO_VBUFFER_VIDEO =  1 << 1,
@@ -48,6 +52,8 @@ enum ALLEGRO_VBUFFER_FLAGS {
   ALLEGRO_VBUFFER_WRITE =  1 << 4
 };
 
+/* Enum: ALLEGRO_PRIM_FLAGS
+ */
 enum ALLEGRO_PRIM_FLAGS {
   ALLEGRO_PRIM_LIGHT,
   ALLEGRO_PRIM_3D,
@@ -55,14 +61,25 @@ enum ALLEGRO_PRIM_FLAGS {
   ALLEGRO_PRIM_NORMAL,
   ALLEGRO_PRIM_NUM_FLAGS
 };
-   
+
+/* Enum: ALLEGRO_VERTEX_CACHE_SIZE
+ */
 #define ALLEGRO_VERTEX_CACHE_SIZE 256
+
+/* Enum: ALLEGRO_VBUFF_CACHE_SIZE
+ */
 #define ALLEGRO_VBUFF_CACHE_SIZE 256
+
+/* Enum: ALLEGRO_PRIM_QUALITY
+ */
 #define ALLEGRO_PRIM_QUALITY 10
 
-struct ALLEGRO_VBUFFER;
+/* Type: ALLEGRO_VBUFFER
+ */
 typedef struct ALLEGRO_VBUFFER ALLEGRO_VBUFFER;
 
+/* Type: ALLEGRO_VERTEX
+ */
 typedef struct {
   float x, y, z;
   float nx, ny, nz;
@@ -71,6 +88,8 @@ typedef struct {
 } ALLEGRO_VERTEX;
 
 
+/* Type: ALLEGRO_TRANSFORM
+ */
 typedef float ALLEGRO_TRANSFORM[4][4];
    
 /*
