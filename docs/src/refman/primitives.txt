@@ -4,7 +4,7 @@
 
 ## API: al_draw_line_ex
 
-Draws a line segment between two points, blending between two colours and using a provided texture.
+Draws a line segment between two points.
 
 *Parameters:*
 
@@ -14,7 +14,7 @@ Draws a line segment between two points, blending between two colours and using 
 
 ## API: al_draw_triangle
 
-Draws a triangle.
+Draws an outlined triangle.
 
 *Parameters:*
 
@@ -33,7 +33,7 @@ Draws a filled triangle.
 
 ## API: al_draw_rectangle_ex
 
-Draws a rectangle.
+Draws an outlined rectangle.
 
 *Parameters:*
 
@@ -68,7 +68,7 @@ Calculates an elliptical arc, and sets the vertices in a buffer to the calculate
 
 ## API: al_draw_ellipse
 
-Draws an ellipse
+Draws an outlined ellipse.
 
 *Parameters:*
 
@@ -79,7 +79,7 @@ Draws an ellipse
 
 ## API: al_draw_filled_ellipse
 
-Draws a filled ellipse
+Draws a filled ellipse.
 
 *Parameters:*
 
@@ -89,7 +89,7 @@ Draws a filled ellipse
 
 ## API: al_draw_circle
 
-Draws a circle
+Draws an outlined circle.
 
 *Parameters:*
 
@@ -100,7 +100,7 @@ Draws a circle
 
 ## API: al_draw_filled_circle
 
-Draws a filled circle
+Draws a filled circle.
 
 *Parameters:*
 
@@ -110,7 +110,7 @@ Draws a filled circle
 
 ## API: al_draw_arc
 
-Draws an arc
+Draws an arc.
 
 *Parameters:*
 
@@ -159,7 +159,7 @@ Calculates a ribbon given an array of points. The ribbon will go through all of 
 
 ## API: al_draw_ribbon
 
-Draws a ribbon given given an array of points.
+Draws a ribbon given given an array of points. The ribbon will go through all of the passed points.
 
 *Parameters:*
 
@@ -401,7 +401,7 @@ Destroys a vertex buffer.
 
 ## API: al_copy_transform
 
-Makes a copy of a transformation
+Makes a copy of a transformation.
 
 *Parameters:*
 
