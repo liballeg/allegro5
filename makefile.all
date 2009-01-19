@@ -23,6 +23,7 @@
 #        WITH_LOADPNG=1     Enable building of loadpng addon.
 #        WITH_LOGG=1        Enable building of logg addon.
 #        WITH_JPGALLEG=1    Enable building of jpgalleg addon.
+#        WITH_ALL_ADDONS=1  Enable building of all addons.
 #
 #     Targets: 
 #        default:           build library version, docs, and programs.
@@ -222,6 +223,13 @@ programs:
 
 
 # -------- Rules from addons ----------
+
+ifdef WITH_ALL_ADDONS
+   WITH_ALLEGRO_GL=1
+   WITH_LOADPNG=1
+   WITH_LOGG=1
+   WITH_JPGALLEG=1
+endif
 
 ifdef WITH_ALLEGRO_GL
    include addons/allegrogl/make/makefile.add
