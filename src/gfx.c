@@ -1104,7 +1104,7 @@ void do_ellipse(BITMAP *bmp, int ix, int iy, int rx0, int ry0, int d,
    float two_b_sq;
    float stopping_x;
    float stopping_y;
-   int midway_x;
+   int midway_x = 0;
 
    rx = MAX(rx0, 0);
    ry = MAX(ry0, 0);
@@ -1246,10 +1246,10 @@ void _soft_ellipsefill(BITMAP *bmp, int ix, int iy, int rx0, int ry0, int color)
    float two_b_sq;
    float stopping_x;
    float stopping_y;
-   int midway_x;
    int clip, sx, sy, dx, dy;
    int last_drawn_y;
    int old_y;
+   int midway_x = 0;
    ASSERT(bmp);
 
    rx = MAX(rx0, 0);
