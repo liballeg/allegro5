@@ -81,7 +81,8 @@ Contributors
    Linux port, fixed numerous bugs and did plenty of other things too.
 
    Anthony 'Timorg' Cassidy.<br>
-   Made d_menu_proc fill up its assigned area with the gui_bg_color.
+   Made d_menu_proc fill up its assigned area with the gui_bg_color, updated
+   required cygwin package list.
 
    Antoine Mathys (<email>mmathys@bluewin.ch</a>).<br>
    Added the Swiss keyboard mapping.

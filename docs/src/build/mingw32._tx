@@ -174,9 +174,9 @@ Setting up Cygwin to build Allegro
 <blockquote>
    1. Make sure you have a working Cygwin installation. You can download the
       <tt>setup.exe</tt> program from '<link>http://sources.redhat.com/cygwin/</a>'.
-      You will need the following packages: bash, binutils, cygwin, cygutils,
-      fileutils, gcc, gdb, login, make, man, mingw-runtime, sed, sh-utils,
-      texinfo, textutils and w32api.
+      You will need the following packages: bash, binutils, coreutils, cygwin,
+      cygutils, fileutils, gcc, gdb, login, make, man, mingw-runtime, sed,
+      texinfo and w32api.
 
    2. Get the minimal DirectX 7 SDK for MinGW. (<tt>dx70_mgw.zip</tt>) Download it
       from '<link>http://alleg.sourceforge.net/wip.html</a>' and unzip it to a
