@@ -950,7 +950,7 @@ int al_fs_entry_fputs(ALLEGRO_FS_ENTRY *f, AL_CONST char *p)
    while (*s) {
       #if (defined ALLEGRO_DOS) || (defined ALLEGRO_WINDOWS)
          if (*s == '\n')
-            al_fs_entry_putc('\r', f);
+            al_fs_entry_putc(f, '\r');
       #endif
 
       al_fs_entry_putc(f, *s);
