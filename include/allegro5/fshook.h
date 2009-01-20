@@ -28,6 +28,10 @@
 typedef unsigned int off_t;
 #endif
 
+#ifdef _MSC_VER
+#define PATH_MAX MAX_PATH
+#endif
+
 #ifdef __cplusplus
    extern "C" {
 #endif
