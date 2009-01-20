@@ -26,6 +26,6 @@
 * [Audio addon](kcm_audio.html)
 * [Color addon](color.html)
 * [Font addons](font.html)
-* [Image I/I addon](iio.html)
+* [Image I/O addon](iio.html)
 * [Primitives addon](primitives.html)
 
