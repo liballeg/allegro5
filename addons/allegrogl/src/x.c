@@ -1076,11 +1076,8 @@ old_choose_visual:
 		}
 
 		_glxwin.fullscreen = TRUE;
-		valuemask |= CWOverrideRedirect;
-		_xwin.override_redirected = 1;
 
 		/* Create the fullscreen window.  */
-		setattr.override_redirect = True;
 		_xwin.window = XCreateWindow(_xwin.display, root,
 									allegro_gl_display_info.x, allegro_gl_display_info.y,
 									fs_width, fs_height, 0,
