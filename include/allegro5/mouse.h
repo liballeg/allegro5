@@ -86,9 +86,7 @@ AL_FUNC(bool,           al_set_mouse_axis,      (int axis, int value));
 AL_FUNC(bool,           al_set_mouse_range,     (int x1, int y1, int x2, int y2));
 AL_FUNC(void,           al_get_mouse_state,     (ALLEGRO_MOUSE_STATE *ret_state));
 AL_FUNC(bool,           al_mouse_button_down,   (ALLEGRO_MOUSE_STATE *state, int button));
-/* Doesn't seem to exist. msvc fails to build with this as it was:
-AL_FUNC(int,            al_mouse_state_axis,    (ALLEGRO_MOUSE_STATE *state, int axis));
-*/
+AL_FUNC(int,            al_get_mouse_state_axis, (ALLEGRO_MOUSE_STATE *state, int axis));
 
 
 struct ALLEGRO_BITMAP;
