@@ -19,10 +19,6 @@
  */
 
 #include <stdio.h>
-#ifdef _MSC_VER
-   #define _POSIX_
-#endif
-#include <limits.h>
 #include "allegro5/debug.h"
 #include "allegro5/fshook.h"
 #include "allegro5/path.h"

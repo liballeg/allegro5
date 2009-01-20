@@ -29,7 +29,9 @@ typedef unsigned int off_t;
 #endif
 
 #ifdef _MSC_VER
-#define PATH_MAX MAX_PATH
+#define _POSIX_
+#include <limits.h>
+#undef _POSIX_
 #endif
 
 #ifdef __cplusplus

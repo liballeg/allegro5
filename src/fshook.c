@@ -18,11 +18,6 @@
 /* Title: Filesystem routines
 */
 
-#ifdef _MSC_VER
-   #define _POSIX_
-#endif
-#include <limits.h>
-
 #include "allegro5/allegro5.h"
 #include ALLEGRO_INTERNAL_HEADER
 #include "allegro5/debug.h"
