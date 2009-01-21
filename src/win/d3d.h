@@ -39,6 +39,8 @@ typedef struct ALLEGRO_BITMAP_D3D
    struct ALLEGRO_DISPLAY_D3D *display;
 
    IDirect3DSurface9 *render_target;
+
+   bool modified;
 } ALLEGRO_BITMAP_D3D;
 
 typedef struct ALLEGRO_DISPLAY_D3D

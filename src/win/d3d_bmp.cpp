@@ -386,6 +386,11 @@ void _al_d3d_release_default_pool_textures(void)
 		d3d_bmp->render_target->Release();
 		d3d_bmp->render_target = NULL;
 	}
+   	d3d_bmp->video_texture->Release();
+   	if (_al_d3d_render_to_texture_supported()) {
+   	   d3d_bmp->system_texture->Release();
+	}
+	/*
    	while (d3d_bmp->video_texture->Release() != 0) {
       	   TRACE("_al_d3d_release_default_pool_textures: video texture reference count not 0\n");
    	}
@@ -394,6 +399,7 @@ void _al_d3d_release_default_pool_textures(void)
       	   	TRACE("_al_d3d_release_default_pool_textures: system texture reference count not 0\n");
 	   }
 	}
+	*/
    }
 }
 
@@ -522,7 +528,11 @@ void _al_d3d_prepare_bitmaps_for_reset(ALLEGRO_DISPLAY_D3D *disp)
       ALLEGRO_BITMAP_D3D *bmp = *bptr;
       ALLEGRO_BITMAP *al_bmp = (ALLEGRO_BITMAP *)bmp;
       if (bmp->display == disp)
-	      d3d_sync_bitmap_memory(al_bmp);
+	      //d3d_sync_bitmap_memory(al_bmp);
+	      if (!bmp->is_backbuffer && bmp->modified && !(al_bmp->flags & ALLEGRO_MEMORY_BITMAP)) {
+	         _al_d3d_sync_bitmap(al_bmp);
+		 bmp->modified = false;
+	      }
    }
 }
 
@@ -665,6 +675,10 @@ void _al_d3d_sync_bitmap(ALLEGRO_BITMAP *dest)
    if (!_al_d3d_render_to_texture_supported())
       return;
 
+   if (dest->locked) {
+      return;
+     }
+
    if (dest->parent) {
       dest = dest->parent;
    }
@@ -763,6 +777,8 @@ static void d3d_blit_real(ALLEGRO_BITMAP *src,
       source_center_x, source_center_y,
       angle, color,
       flags, pivot);
+
+   d3d_dest->modified = true;
 }
 
 /* Blitting functions */
@@ -897,7 +913,9 @@ static ALLEGRO_LOCKED_REGION *d3d_lock_region(ALLEGRO_BITMAP *bitmap,
          /* 
 	  * Sync bitmap->memory with texture
           */
+	 bitmap->locked = false;
          _al_d3d_sync_bitmap(bitmap);
+	 bitmap->locked = true;
          texture = d3d_bmp->system_texture;
       }
       else {
@@ -919,6 +937,8 @@ static ALLEGRO_LOCKED_REGION *d3d_lock_region(ALLEGRO_BITMAP *bitmap,
 static void d3d_unlock_region(ALLEGRO_BITMAP *bitmap)
 {
    ALLEGRO_BITMAP_D3D *d3d_bmp = (ALLEGRO_BITMAP_D3D *)bitmap;
+
+   d3d_bmp->modified = true;
 
    if (d3d_bmp->is_backbuffer) {
       ALLEGRO_DISPLAY_D3D *d3d_disp = (ALLEGRO_DISPLAY_D3D *)bitmap->display;

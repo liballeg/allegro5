@@ -811,7 +811,7 @@ static void d3d_destroy_display(ALLEGRO_DISPLAY *display)
 
 void _al_d3d_prepare_for_reset(ALLEGRO_DISPLAY_D3D *disp)
 {
-   _al_d3d_prepare_bitmaps_for_reset(disp);
+   //_al_d3d_prepare_bitmaps_for_reset(disp);
    _al_d3d_release_default_pool_textures();
    while (disp->render_target->Release() != 0) {
       TRACE("_al_d3d_prepare_for_reset: (bb) ref count not 0\n");
@@ -1207,6 +1207,7 @@ static void d3d_display_thread_proc(void *arg)
                }
                _al_event_source_unlock(&al_display->es);
                lost_event_generated = true;
+               al_rest(0.5); // give user time to respond
             }
          }
          else if (hr == D3DERR_DEVICENOTRESET) {
@@ -1648,6 +1649,9 @@ static void d3d_flip_display(ALLEGRO_DISPLAY *al_display)
       d3d_display->device_lost = true;
       return;
    }
+   else {
+      _al_d3d_prepare_bitmaps_for_reset(d3d_display);
+   }
 }
 
 static bool d3d_update_display_region(ALLEGRO_DISPLAY *al_display,
@@ -1878,6 +1882,7 @@ ALLEGRO_BITMAP *_al_d3d_create_bitmap(ALLEGRO_DISPLAY *d,
    bitmap->initialized = false;
    bitmap->is_backbuffer = false;
    bitmap->render_target = NULL;
+   bitmap->modified = true;
 
    bitmap->display = (ALLEGRO_DISPLAY_D3D *)d;
 
@@ -1902,6 +1907,7 @@ static ALLEGRO_BITMAP *d3d_create_sub_bitmap(ALLEGRO_DISPLAY *display,
    bitmap->is_backbuffer = ((ALLEGRO_BITMAP_D3D *)parent)->is_backbuffer;
    bitmap->display = (ALLEGRO_DISPLAY_D3D *)display;
    bitmap->render_target = NULL;
+   bitmap->modified = true;
 
    bitmap->bitmap.vt = parent->vt;
    return (ALLEGRO_BITMAP *)bitmap;
@@ -1927,6 +1933,7 @@ static void d3d_set_target_bitmap(ALLEGRO_DISPLAY *display, ALLEGRO_BITMAP *bitm
 
    ALLEGRO_BITMAP_D3D *currtarget = (ALLEGRO_BITMAP_D3D *)al_get_target_bitmap();
    if (currtarget && currtarget->render_target) {
+      currtarget->render_target->Release();
       currtarget->render_target = NULL;
    }
 
@@ -1978,8 +1985,7 @@ static bool d3d_is_compatible_bitmap(ALLEGRO_DISPLAY *display, ALLEGRO_BITMAP *b
 
 static void d3d_switch_out(ALLEGRO_DISPLAY *display)
 {
-   ALLEGRO_DISPLAY_D3D *disp = (ALLEGRO_DISPLAY_D3D *)display;
-   _al_d3d_prepare_bitmaps_for_reset(disp);
+   (void)display;
 }
 
 static void d3d_switch_in(ALLEGRO_DISPLAY *display)
