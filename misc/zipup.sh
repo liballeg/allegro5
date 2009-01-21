@@ -170,6 +170,9 @@ gcc -o _makedoc.exe docs/src/makedoc/*.c
 for base in abi ahack allegro const faq help mistakes; do
    ./_makedoc.exe -ascii docs/txt/$base.txt docs/src/$base._tx
 done
+for base in api packfile makedoc datafile grabber dat dat2c dat2s license addons targets; do
+   ./_makedoc.exe -ascii docs/txt/$base.txt docs/src/$base._tx
+done
 for base in bcc32 beos darwin djgpp haiku linux macosx mingw32 msvc qnx unix watcom; do
    ./_makedoc.exe -ascii docs/build/$base.txt docs/src/build/$base._tx
 done
