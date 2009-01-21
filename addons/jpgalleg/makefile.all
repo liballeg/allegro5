@@ -17,17 +17,34 @@
 
 include $(MAKEFILE_INC)
 
+ifdef STATICLINK
+  ifdef DEBUG
+    BUILD_TYPE = jpgallsd
+  else
+    BUILD_TYPE = jpgalls
+  endif
+else
+  ifdef DEBUG
+    BUILD_TYPE = jpgalld
+  else
+    BUILD_TYPE = jpgall
+  endif
+endif
+
 TARGET = lib/$(PLATFORM_PATH)/$(LIB_NAME)
 
 
 HEADERS = include/jpgalleg.h include/internal.h include/mmx.h
 
-OBJECTS = obj/$(PLATFORM_PATH)/jpgalleg$(OBJ) obj/$(PLATFORM_PATH)/io$(OBJ) \
-	obj/$(PLATFORM_PATH)/encode$(OBJ) obj/$(PLATFORM_PATH)/decode$(OBJ) \
-	obj/$(PLATFORM_PATH)/init$(OBJ) obj/$(PLATFORM_PATH)/error$(OBJ)
+OBJECTS = obj/$(PLATFORM_PATH)/$(BUILD_TYPE)/jpgalleg$(OBJ) \
+		  obj/$(PLATFORM_PATH)/$(BUILD_TYPE)/io$(OBJ)       \
+		  obj/$(PLATFORM_PATH)/$(BUILD_TYPE)/encode$(OBJ)   \
+		  obj/$(PLATFORM_PATH)/$(BUILD_TYPE)/decode$(OBJ)   \
+		  obj/$(PLATFORM_PATH)/$(BUILD_TYPE)/init$(OBJ)     \
+		  obj/$(PLATFORM_PATH)/$(BUILD_TYPE)/error$(OBJ)
 
 ifndef NO_ASSEMBLER
-OBJECTS += obj/$(PLATFORM_PATH)/color$(OBJ) obj/$(PLATFORM_PATH)/dct$(OBJ)
+OBJECTS += obj/$(PLATFORM_PATH)/$(BUILD_TYPE)/color$(OBJ) obj/$(PLATFORM_PATH)/$(BUILD_TYPE)/dct$(OBJ)
 endif
 
 EXAMPLES_OBJECTS = obj/$(PLATFORM_PATH)/ex1$(OBJ) obj/$(PLATFORM_PATH)/ex2$(OBJ) \
@@ -153,10 +170,10 @@ endif
 $(TARGET): $(RUNNER) $(OBJECTS)
 	$(call CREATE_LIB,$(TARGET),$(OBJECTS))
 
-obj/$(PLATFORM_PATH)/%$(OBJ): src/%.c $(HEADERS)
+obj/$(PLATFORM_PATH)/$(BUILD_TYPE)/%$(OBJ): src/%.c $(HEADERS)
 	$(call COMPILE,$<,$@)
 
-obj/$(PLATFORM_PATH)/%$(OBJ): src/i386/%.s include/mmx.h
+obj/$(PLATFORM_PATH)/$(BUILD_TYPE)/%$(OBJ): src/i386/%.s include/mmx.h
 	$(CC) -x assembler-with-cpp -I./include -c $< -o $@
 
 obj/$(PLATFORM_PATH)/%$(OBJ): examples/%.c
