@@ -413,12 +413,12 @@ ALLEGRO_FS_ENTRY *al_fs_mktemp(const char *template, uint32_t ulink)
  *
  * See also <al_get_errno>
  */
-bool al_fs_getcwd(char *buf, size_t len)
+bool al_fs_getcwd(size_t len, char *buf)
 {
    ASSERT(buf != NULL);
    ASSERT(len != 0);
 
-   return _al_fs_hook_getcwd(buf, len);
+   return _al_fs_hook_getcwd(len, buf);
 }
 
 /* Function: al_fs_chdir
@@ -479,12 +479,12 @@ int32_t al_fs_search_path_count()
  *
  * See also: <al_get_errno>
  */
-bool al_fs_get_search_path(uint32_t idx, char *dest, size_t len)
+bool al_fs_get_search_path(uint32_t idx, size_t len, char *dest)
 {
    ASSERT(dest);
    ASSERT(len);
 
-   return _al_fs_hook_get_search_path(idx, dest, len);
+   return _al_fs_hook_get_search_path(idx, len, dest);
 }
 
 /* Function: al_fs_drive_sep
@@ -893,14 +893,14 @@ char *al_fs_entry_fgets(ALLEGRO_FS_ENTRY *f, size_t max, char *p)
             /* eat the following \n, if any */
             c = al_fs_entry_getc(f);
             if ((c != '\n') && (c != EOF))
-               al_fs_entry_ungetc(c, f);
+               al_fs_entry_ungetc(f, c);
          }
          break;
       }
 
       /* is there room in the buffer? */
       if (ucwidth(c) > pmax - p) {
-         al_fs_entry_ungetc(c, f);
+         al_fs_entry_ungetc(f, c);
          c = '\0';
          break;
       }
@@ -969,7 +969,7 @@ int al_fs_entry_fputs(ALLEGRO_FS_ENTRY *f, AL_CONST char *p)
  * Ungets a single byte from a file. Does not write to file, it only places the
  * char back into the entry's buffer.
  */
-int al_fs_entry_ungetc(int c, ALLEGRO_FS_ENTRY *fp)
+int al_fs_entry_ungetc(ALLEGRO_FS_ENTRY *fp, int c)
 {
    ASSERT(fp != NULL);
 
@@ -1078,7 +1078,7 @@ char *al_find_resource(const char *base, const char *resource, uint32_t fm,
       return buffer;
    }
 
-   al_fs_getcwd(tmp, PATH_MAX);
+al_fs_getcwd(PATH_MAX, tmp);
    //printf("find_resource: getcwd\n");
    if (_al_find_resource_exists(tmp, "data", resource, fm, buffer, len)) {
       return buffer;

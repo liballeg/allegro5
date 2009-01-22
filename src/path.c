@@ -892,7 +892,7 @@ bool al_path_make_absolute(ALLEGRO_PATH *path)
       return false;
    }
 
-   if(!al_fs_getcwd(cwd, PATH_MAX)) {
+   if(!al_fs_getcwd(PATH_MAX, cwd)) {
       return false;
    }
 
