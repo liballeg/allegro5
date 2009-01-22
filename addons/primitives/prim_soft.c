@@ -49,11 +49,15 @@ void _al_destroy_vbuff_soft(ALLEGRO_VBUFFER* vbuff)
 
 int _al_draw_prim_soft(ALLEGRO_BITMAP* texture, ALLEGRO_VBUFFER* vbuff, int start, int end, int type)
 {
+   int num_primitives;
+   int num_vtx;
+   int use_cache;
+
    ASSERT(!al_vbuff_is_locked(vbuff));
    
-   int num_primitives = 0;
-   int num_vtx = end - start;
-   int use_cache = num_vtx < ALLEGRO_VERTEX_CACHE_SIZE;
+   num_primitives = 0;
+   num_vtx = end - start;
+   use_cache = num_vtx < ALLEGRO_VERTEX_CACHE_SIZE;
    
    if (!al_lock_vbuff_range(vbuff, start, end, ALLEGRO_VBUFFER_READ))
       return 0;
@@ -186,10 +190,10 @@ int _al_draw_prim_soft(ALLEGRO_BITMAP* texture, ALLEGRO_VBUFFER* vbuff, int star
             }
          } else {
             int ii;
-            ALLEGRO_VERTEX v0;
-            SET_VERTEX(v0, start);
             int idx = 1;
+            ALLEGRO_VERTEX v0;
             ALLEGRO_VERTEX vtx[2];
+            SET_VERTEX(v0, start);
             SET_VERTEX(vtx[0], start + 1);
             for (ii = start + 1; ii < end; ii++) {
                SET_VERTEX(vtx[idx], ii)
@@ -209,17 +213,21 @@ int _al_draw_prim_soft(ALLEGRO_BITMAP* texture, ALLEGRO_VBUFFER* vbuff, int star
 
 int _al_draw_prim_indexed_soft(ALLEGRO_BITMAP* texture, ALLEGRO_VBUFFER* vbuff, int* indices, int num_vtx, int type)
 {
+   int num_primitives;
+   int use_cache;
+   int min_idx, max_idx;
+   int ii;
+
    ASSERT(!al_vbuff_is_locked(vbuff));
-   
-   int num_primitives = 0;
-   
-   int use_cache = 1;
-   int min_idx = indices[0], max_idx = indices[0];
-   
+
+   num_primitives = 0;   
+   use_cache = 1;
+   min_idx = indices[0];
+   max_idx = indices[0];
+
    /*
    Determine the range we are dealing with
    */
-   int ii;
    for (ii = 1; ii < num_vtx; ii++) {
       int idx = indices[ii];
       if (max_idx < idx)
@@ -299,6 +307,7 @@ int _al_draw_prim_indexed_soft(ALLEGRO_BITMAP* texture, ALLEGRO_VBUFFER* vbuff, 
       case ALLEGRO_PRIM_LINE_LOOP: {
          if (use_cache) {
             int ii;
+            int idx1, idx2;
             
             for (ii = 1; ii < num_vtx; ii++) {
                int idx1 = indices[ii - 1] - min_idx;
@@ -306,8 +315,8 @@ int _al_draw_prim_indexed_soft(ALLEGRO_BITMAP* texture, ALLEGRO_VBUFFER* vbuff, 
                
                _al_line_2d(texture, &vertex_cache[idx1], &vertex_cache[idx2]);
             }
-            int idx1 = indices[0] - min_idx;
-            int idx2 = indices[num_vtx - 1] - min_idx;
+            idx1 = indices[0] - min_idx;
+            idx2 = indices[num_vtx - 1] - min_idx;
             
             _al_line_2d(texture, &vertex_cache[idx1], &vertex_cache[idx2]);
          } else {
@@ -389,10 +398,10 @@ int _al_draw_prim_indexed_soft(ALLEGRO_BITMAP* texture, ALLEGRO_VBUFFER* vbuff, 
             }
          } else {
             int ii;
-            ALLEGRO_VERTEX v0;
-            SET_VERTEX(v0, indices[0]);
             int idx = 1;
+            ALLEGRO_VERTEX v0;
             ALLEGRO_VERTEX vtx[2];
+            SET_VERTEX(v0, indices[0]);
             SET_VERTEX(vtx[0], indices[1]);
             for (ii = 2; ii < num_vtx; ii ++) {
                SET_VERTEX(vtx[idx], indices[ii])

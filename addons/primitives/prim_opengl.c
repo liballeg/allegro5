@@ -68,16 +68,16 @@ static void setup_state(ALLEGRO_VERTEX* vtx, ALLEGRO_BITMAP* texture)
 }
 
 static int draw_soft_vbuff(ALLEGRO_BITMAP* texture, ALLEGRO_VBUFFER* vbuff, int start, int end, int type)
-{
-   ASSERT(!al_vbuff_is_locked(vbuff));
-   
+{   
    int num_primitives = 0;
    ALLEGRO_DISPLAY *ogl_disp = al_get_current_display();
    ALLEGRO_BITMAP *target = al_get_target_bitmap();
    ALLEGRO_BITMAP_OGL *ogl_target = (void *)target;
    ALLEGRO_VERTEX* vtx;
    int num_vtx;
-   
+
+   ASSERT(!al_vbuff_is_locked(vbuff));
+  
    if ((!ogl_target->is_backbuffer && ogl_disp->ogl_extras->opengl_target != ogl_target) || al_is_bitmap_locked(target)) {
       return _al_draw_prim_soft(texture, vbuff, start, end, type);
    }
@@ -132,14 +132,15 @@ static int draw_soft_vbuff(ALLEGRO_BITMAP* texture, ALLEGRO_VBUFFER* vbuff, int 
 }
 
 static int draw_indexed_soft_vbuff(ALLEGRO_BITMAP* texture, ALLEGRO_VBUFFER* vbuff, int* indices, int num_vtx, int type)
-{
-   ASSERT(!al_vbuff_is_locked(vbuff));
-   
+{   
    int num_primitives = 0;
    ALLEGRO_DISPLAY *ogl_disp = al_get_current_display();
    ALLEGRO_BITMAP *target = al_get_target_bitmap();
    ALLEGRO_BITMAP_OGL *ogl_target = (void *)target;
-   
+   ALLEGRO_VERTEX* vtx;
+ 
+   ASSERT(!al_vbuff_is_locked(vbuff));
+
    if ((!ogl_target->is_backbuffer && ogl_disp->ogl_extras->opengl_target != ogl_target) || al_is_bitmap_locked(target)) {
       return _al_draw_prim_indexed_soft(texture, vbuff, indices, num_vtx, type);
    }
@@ -150,7 +151,7 @@ static int draw_indexed_soft_vbuff(ALLEGRO_BITMAP* texture, ALLEGRO_VBUFFER* vbu
       return 0;
    */
    
-   ALLEGRO_VERTEX* vtx = ((ALLEGRO_VERTEX*)vbuff->data);
+   vtx = ((ALLEGRO_VERTEX*)vbuff->data);
    
    setup_blending();
    setup_state(vtx, texture);

@@ -1,4 +1,7 @@
 #include <stdio.h>
+#ifdef _MSC_VER
+   #pragma comment ( linker, "/SUBSYSTEM:CONSOLE")
+#endif
 #define ALLEGRO_USE_CONSOLE
 #include <allegro5/allegro5.h>
 #include <allegro5/memfile.h>

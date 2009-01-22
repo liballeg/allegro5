@@ -261,7 +261,8 @@ void triangle_stepper(ALLEGRO_BITMAP* dest, uintptr_t state, shader_init init, s
    
    float left_x_delta;
    float right_x_delta;
-   
+
+   int left_first, right_first, left_step, left_d_er, right_step, right_d_er;   
    int left_x, right_x, cur_y, mid_y, end_y;
    
    /*
@@ -359,17 +360,17 @@ void triangle_stepper(ALLEGRO_BITMAP* dest, uintptr_t state, shader_init init, s
       /*
       Calculate the first step of the edge steppers, it is potentially different from all other steps
       */
-      int left_first = ceilf((left_error) / left_y_delta);
-      int right_first = floorf((right_error) / right_y_delta);
+      left_first = ceilf((left_error) / left_y_delta);
+      right_first = floorf((right_error) / right_y_delta);
       
       /*
       Calculate the normal steps
       */
-      int left_step = ceilf(left_x_delta / left_y_delta);
-      float left_d_er = -(float)left_step * left_y_delta;
+      left_step = ceilf(left_x_delta / left_y_delta);
+      left_d_er = -(float)left_step * left_y_delta;
       
-      int right_step = ceilf(right_x_delta / right_y_delta);
-      float right_d_er = -(float)right_step * right_y_delta;
+      right_step = ceilf(right_x_delta / right_y_delta);
+      right_d_er = -(float)right_step * right_y_delta;
       
       /*
       Take the first step
@@ -455,14 +456,14 @@ void triangle_stepper(ALLEGRO_BITMAP* dest, uintptr_t state, shader_init init, s
          right_error = ((float)cur_y - V1[1]) * right_x_delta - ((float)right_x - V1[0]) * right_y_delta;
       }
       
-      int left_first = ceilf((left_error) / left_y_delta);
-      int right_first = floorf((right_error) / right_y_delta);
+      left_first = ceilf((left_error) / left_y_delta);
+      right_first = floorf((right_error) / right_y_delta);
       
-      int left_step = ceilf(left_x_delta / left_y_delta);
-      float left_d_er = -(float)left_step * left_y_delta;
+      left_step = ceilf(left_x_delta / left_y_delta);
+      left_d_er = -(float)left_step * left_y_delta;
       
-      int right_step = ceilf(right_x_delta / right_y_delta);
-      float right_d_er = -(float)right_step * right_y_delta;
+      right_step = ceilf(right_x_delta / right_y_delta);
+      right_d_er = -(float)right_step * right_y_delta;
       
       if (cur_y < end_y) {
          left_x += left_first;
@@ -528,6 +529,12 @@ void _al_triangle_2d(ALLEGRO_BITMAP* texture, ALLEGRO_VERTEX* v1, ALLEGRO_VERTEX
    int need_unlock = 0;
    ALLEGRO_LOCKED_REGION lr;
    int min_x, max_x, min_y, max_y;
+
+   int shade = 1;
+   int grad = 1;
+   
+   int src_mode, dst_mode;
+   ALLEGRO_COLOR *ic;
    
    /*
    TODO: Need to clip them first, make a copy of the vertices first then
@@ -567,13 +574,7 @@ void _al_triangle_2d(ALLEGRO_BITMAP* texture, ALLEGRO_VERTEX* v1, ALLEGRO_VERTEX
    /*
    TODO: Make more specialized functions (constant colour, no blending etc and etc)
    */
-   
-   int shade = 1;
-   int grad = 1;
-   
-   int src_mode, dst_mode;
-   ALLEGRO_COLOR *ic;
-   
+
    al_get_blender(&src_mode, &dst_mode, NULL);
    ic = _al_get_blend_color();
    if (src_mode == ALLEGRO_ONE && dst_mode == ALLEGRO_ZERO &&

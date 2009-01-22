@@ -52,10 +52,11 @@ void FilledPrimitives(int mode)
 {
    static ALLEGRO_VBUFFER* vbuff;
    if (mode == INIT) {
-      vbuff = al_create_vbuff(21, ALLEGRO_VBUFFER_SOFT | ALLEGRO_VBUFFER_WRITE | ALLEGRO_VBUFFER_READ);
       int ii = 0;
+      vbuff = al_create_vbuff(21, ALLEGRO_VBUFFER_SOFT | ALLEGRO_VBUFFER_WRITE | ALLEGRO_VBUFFER_READ);
       for (ii = 0; ii < 21; ii++) {
          float x, y;
+         ALLEGRO_COLOR color;
          if (ii % 2 == 0) {
             x = 150 * cosf((float)ii / 20 * 2 * AL_PI);
             y = 150 * sinf((float)ii / 20 * 2 * AL_PI);
@@ -68,7 +69,7 @@ void FilledPrimitives(int mode)
             x = y = 0;
          }
          
-         ALLEGRO_COLOR color = al_map_rgb((7 * ii + 1) % 3 * 64, (2 * ii + 2) % 3 * 64, (ii) % 3 * 64);
+         color = al_map_rgb((7 * ii + 1) % 3 * 64, (2 * ii + 2) % 3 * 64, (ii) % 3 * 64);
          
          al_set_vbuff_pos(vbuff, ii, x, y, 0);
          al_set_vbuff_color(vbuff, ii, color);
@@ -113,8 +114,9 @@ void IndexedFilledPrimitives(int mode)
    static int indices2[] = {6, 7, 8, 9, 10, 11};
    static int indices3[] = {0, 1, 2, 3, 4, 5};
    if (mode == INIT) {
-      vbuff = al_create_vbuff(21, ALLEGRO_VBUFFER_SOFT | ALLEGRO_VBUFFER_WRITE | ALLEGRO_VBUFFER_READ);
       int ii = 0;
+      ALLEGRO_COLOR color;
+      vbuff = al_create_vbuff(21, ALLEGRO_VBUFFER_SOFT | ALLEGRO_VBUFFER_WRITE | ALLEGRO_VBUFFER_READ);
       for (ii = 0; ii < 21; ii++) {
          float x, y;
          if (ii % 2 == 0) {
@@ -129,7 +131,7 @@ void IndexedFilledPrimitives(int mode)
             x = y = 0;
          }
          
-         ALLEGRO_COLOR color = al_map_rgb((7 * ii + 1) % 3 * 64, (2 * ii + 2) % 3 * 64, (ii) % 3 * 64);
+         color = al_map_rgb((7 * ii + 1) % 3 * 64, (2 * ii + 2) % 3 * 64, (ii) % 3 * 64);
          
          al_set_vbuff_pos(vbuff, ii, x, y, 0);
          al_set_vbuff_color(vbuff, ii, color);
@@ -183,6 +185,13 @@ void HighPrimitives(int mode)
       Theta += Speed;
       al_build_transform(&MainTrans, ScreenW / 2, ScreenH / 2, 1, 1, Theta);
    } else if (mode == DRAW) {
+      float points[8] = {
+         -300, -200,
+         700, 200,
+         -700, 200,
+         300, -200
+      };
+
       al_set_blender(ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA, al_map_rgba_f(1, 1, 1, 1));
       
       al_font_textprintf_centre(Font, ScreenW / 2, ScreenH - 20, "High Level Primitives");
@@ -205,12 +214,6 @@ void HighPrimitives(int mode)
       
       al_draw_ellipse(0, 0, 300, 150, al_map_rgba_f(0, 0.5, 0.5, 1), Thickness);
       al_draw_arc(0, 0, 200, -AL_PI / 2, AL_PI, al_map_rgba_f(0.5, 0.25, 0, 1), Thickness);
-      float points[8] = {
-         -300, -200,
-         700, 200,
-         -700, 200,
-         300, -200
-      };
       al_draw_spline(points, al_map_rgba_f(0.1, 0.2, 0.5, 1), Thickness);
       
       al_use_transform(&Identity);
@@ -270,6 +273,12 @@ void ShadePrimitives(int mode)
       al_build_transform(&MainTrans, ScreenW / 2, ScreenH / 2, 1, 1, Theta);
       shade_color = al_map_rgba_f(1 + 0.5 * sinf(t), 1 + 0.5 * sinf(t + AL_PI / 3), 1 + 0.5 * sinf(t + 2 * AL_PI / 3), 1);
    } else if (mode == DRAW) {
+      float points[8] = {
+         -300, -200,
+         700, 200,
+         -700, 200,
+         300, -200
+      };
       al_set_blender(ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA, shade_color);
       
       al_font_textprintf_centre(Font, ScreenW / 2, ScreenH - 20, "Shaded Primitives");
@@ -292,12 +301,6 @@ void ShadePrimitives(int mode)
       
       al_draw_ellipse(0, 0, 300, 150, al_map_rgba_f(0, 0.5, 0.5, 1), Thickness);
       al_draw_arc(0, 0, 200, -AL_PI / 2, AL_PI, al_map_rgba_f(0.5, 0.25, 0, 1), Thickness);
-      float points[8] = {
-         -300, -200,
-         700, 200,
-         -700, 200,
-         300, -200
-      };
       al_draw_spline(points, al_map_rgba_f(0.1, 0.2, 0.5, 1), Thickness);
       
       al_use_transform(&Identity);
@@ -318,6 +321,12 @@ void TransformationsPrimitives(int mode)
       Theta += Speed;
       al_build_transform(&MainTrans, ScreenW / 2, ScreenH / 2, sinf(t / 5), cosf(t / 5), Theta);
    } else if (mode == DRAW) {
+      float points[8] = {
+         -300, -200,
+         700, 200,
+         -700, 200,
+         300, -200
+      };
       al_set_blender(ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA, al_map_rgba_f(1, 1, 1, 1));
       
       al_font_textprintf_centre(Font, ScreenW / 2, ScreenH - 20, "Transformations");
@@ -340,12 +349,6 @@ void TransformationsPrimitives(int mode)
       
       al_draw_ellipse(0, 0, 300, 150, al_map_rgba_f(0, 0.5, 0.5, 1), Thickness);
       al_draw_arc(0, 0, 200, -AL_PI / 2, AL_PI, al_map_rgba_f(0.5, 0.25, 0, 1), Thickness);
-      float points[8] = {
-         -300, -200,
-         700, 200,
-         -700, 200,
-         300, -200
-      };
       al_draw_spline(points, al_map_rgba_f(0.1, 0.2, 0.5, 1), Thickness);
       
       al_use_transform(&Identity);
@@ -362,14 +365,15 @@ void LowPrimitives(int mode)
 {
    static ALLEGRO_VBUFFER* vbuff;
    if (mode == INIT) {
-      vbuff = al_create_vbuff(13, ALLEGRO_VBUFFER_SOFT | ALLEGRO_VBUFFER_WRITE | ALLEGRO_VBUFFER_READ);
       int ii = 0;
+      ALLEGRO_COLOR color;
+      vbuff = al_create_vbuff(13, ALLEGRO_VBUFFER_SOFT | ALLEGRO_VBUFFER_WRITE | ALLEGRO_VBUFFER_READ);
       for (ii = 0; ii < 13; ii++) {
          float x, y;
          x = 200 * cosf((float)ii / 13.0f * 2 * AL_PI);
          y = 200 * sinf((float)ii / 13.0f * 2 * AL_PI);
          
-         ALLEGRO_COLOR color = al_map_rgb((ii + 1) % 3 * 64, (ii + 2) % 3 * 64, (ii) % 3 * 64);
+         color = al_map_rgb((ii + 1) % 3 * 64, (ii + 2) % 3 * 64, (ii) % 3 * 64);
          
          al_set_vbuff_pos(vbuff, ii, x, y, 0);
          al_set_vbuff_color(vbuff, ii, color);
@@ -416,14 +420,15 @@ void IndexedPrimitives(int mode)
    static int indices2[] = {5, 6, 7, 8};
    static int indices3[] = {9, 10, 11, 12};
    if (mode == INIT) {
-      vbuff = al_create_vbuff(13, ALLEGRO_VBUFFER_SOFT | ALLEGRO_VBUFFER_WRITE | ALLEGRO_VBUFFER_READ);
       int ii = 0;
+      ALLEGRO_COLOR color;
+      vbuff = al_create_vbuff(13, ALLEGRO_VBUFFER_SOFT | ALLEGRO_VBUFFER_WRITE | ALLEGRO_VBUFFER_READ);
       for (ii = 0; ii < 13; ii++) {
          float x, y;
          x = 200 * cosf((float)ii / 13.0f * 2 * AL_PI);
          y = 200 * sinf((float)ii / 13.0f * 2 * AL_PI);
          
-         ALLEGRO_COLOR color = al_map_rgb((ii + 1) % 3 * 64, (ii + 2) % 3 * 64, (ii) % 3 * 64);
+         color = al_map_rgb((ii + 1) % 3 * 64, (ii + 2) % 3 * 64, (ii) % 3 * 64);
          
          al_set_vbuff_pos(vbuff, ii, x, y, 0);
          al_set_vbuff_color(vbuff, ii, color);
@@ -470,12 +475,18 @@ void IndexedPrimitives(int mode)
 
 int main(void)
 {
+   ALLEGRO_DISPLAY *display;
+   ALLEGRO_BITMAP* bkg;
+   ALLEGRO_COLOR white;
+   ALLEGRO_COLOR black;
+   ALLEGRO_EVENT_QUEUE *queue;
+
    // Initialize Allegro 5 and the font routines
    al_init();
    al_font_init();
    
    // Create a window to display things on: 640x480 pixels
-   ALLEGRO_DISPLAY *display = al_create_display(ScreenW, ScreenH);
+   display = al_create_display(ScreenW, ScreenH);
    if (!display) {
       printf("Error creating display.\n");
       return 1;
@@ -494,19 +505,20 @@ int main(void)
       return 1;
    }
    
-   ALLEGRO_BITMAP* bkg = al_iio_load("data/bkg.png");
+   bkg = al_iio_load("data/bkg.png");
    
    // Make and set some color to draw with
-   ALLEGRO_COLOR white = al_map_rgba_f(1.0, 1.0, 1.0, 1.0);
-   ALLEGRO_COLOR black = al_map_rgba_f(0.0, 0.0, 0.0, 1.0);
+   white = al_map_rgba_f(1.0, 1.0, 1.0, 1.0);
+   black = al_map_rgba_f(0.0, 0.0, 0.0, 1.0);
    
    // Start the event queue to handle keyboard input and our timer
-   ALLEGRO_EVENT_QUEUE *queue = al_create_event_queue();
+   queue = al_create_event_queue();
    al_register_event_source(queue, (ALLEGRO_EVENT_SOURCE*)al_get_keyboard());
    al_register_event_source(queue, (ALLEGRO_EVENT_SOURCE*)al_get_current_display());
    
    al_set_window_title("Primitives Example");
    
+   {
    int refresh_rate = 60;
    int frames_done = 0;
    double time_diff = al_current_time();
@@ -514,20 +526,23 @@ int main(void)
    double real_time = al_current_time();
    double game_time = al_current_time();
    int ii;
-   
-   ALLEGRO_TIMER *timer = al_install_timer(ALLEGRO_BPS_TO_SECS(refresh_rate));
+   int cur_screen = 0;
+   bool done = false;
+   ALLEGRO_TIMER *timer;
+   ALLEGRO_EVENT_QUEUE *timer_queue;
+   int old;
+
+   timer = al_install_timer(ALLEGRO_BPS_TO_SECS(refresh_rate));
    al_start_timer(timer);
-   ALLEGRO_EVENT_QUEUE *timer_queue = al_create_event_queue();
+   timer_queue = al_create_event_queue();
    al_register_event_source(timer_queue, (ALLEGRO_EVENT_SOURCE*)timer);
    
-   int old = al_get_new_bitmap_flags();
+   old = al_get_new_bitmap_flags();
    al_set_new_bitmap_flags(ALLEGRO_MEMORY_BITMAP);
    Buffer = al_create_bitmap(ScreenW, ScreenH);
    al_set_new_bitmap_flags(old);
    
    al_identity_transform(&Identity);
-   int cur_screen = 0;
-   
    
    Screens[0] = LowPrimitives;
    Screens[1] = IndexedPrimitives;
@@ -541,7 +556,6 @@ int main(void)
    for (ii = 0; ii < NUM_SCREENS; ii++)
       Screens[ii](INIT);
       
-   bool done = false;
    while (!done) {
       double frame_duration = al_current_time() - real_time;
       al_rest(fixed_timestep - frame_duration); //rest at least fixed_dt
@@ -553,12 +567,12 @@ int main(void)
       }
       
       while (real_time - game_time >= 0) {
+         ALLEGRO_EVENT key_event;
          double start_time = al_current_time();
          game_time += fixed_timestep;
          
          Screens[cur_screen](LOGIC);
          
-         ALLEGRO_EVENT key_event;
          while (al_get_next_event(queue, &key_event)) {
             switch (key_event.type) {
                case ALLEGRO_EVENT_DISPLAY_CLOSE: {
@@ -649,6 +663,7 @@ int main(void)
       al_wait_for_vsync();
       al_flip_display();
       frames_done++;
+   }
    }
    
    return 0;

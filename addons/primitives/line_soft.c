@@ -73,6 +73,7 @@ static void shader_grad_any_2d_first(uintptr_t state, int start_x, int start_y, 
    float minor_delta_param;
    float major_delta_param;
    ALLEGRO_COLOR diff;
+   state_grad_any_2d* st;
    
    if (lensq == 0) {
       lensq = 0.0001f;
@@ -91,7 +92,7 @@ static void shader_grad_any_2d_first(uintptr_t state, int start_x, int start_y, 
       minor_delta_param = dy / lensq;
    major_delta_param = (dx + dy) / lensq;
    
-   state_grad_any_2d* st = (state_grad_any_2d*)state;
+   st = (state_grad_any_2d*)state;
    
    diff.a = v2->a - v1->a;
    diff.r = v2->r - v1->r;
@@ -169,6 +170,10 @@ static void shader_solid_any_2d_step(uintptr_t state, int minor_step)
 
 static void line_stepper(ALLEGRO_BITMAP* dest, uintptr_t state, shader_first first, shader_step step, shader_draw draw, ALLEGRO_VERTEX* vtx1, ALLEGRO_VERTEX* vtx2)
 {
+   float x1, y1, x2, y2;
+   float dx, dy;
+   int end_x, end_y;
+
    if (vtx2->y < vtx1->y) {
       ALLEGRO_VERTEX* t;
       t = vtx1;
@@ -177,16 +182,16 @@ static void line_stepper(ALLEGRO_BITMAP* dest, uintptr_t state, shader_first fir
    }
    
    /*TODO: These offsets give me the best result... maybe they are not universal though?*/
-   float x1 = vtx1->x - 0.49f;
-   float y1 = vtx1->y - 0.51f;
-   float x2 = vtx2->x - 0.49f;
-   float y2 = vtx2->y - 0.51f;
+   x1 = vtx1->x - 0.49f;
+   y1 = vtx1->y - 0.51f;
+   x2 = vtx2->x - 0.49f;
+   y2 = vtx2->y - 0.51f;
    
-   const float dx = x2 - x1;
-   const float dy = y2 - y1;
+   dx = x2 - x1;
+   dy = y2 - y1;
    
-   const int end_x = floorf(x2 + 0.5f);
-   const int end_y = floorf(y2 + 0.5f);
+   end_x = floorf(x2 + 0.5f);
+   end_y = floorf(y2 + 0.5f);
    
 #define FIRST                                                              \
    first(state, x, y, vtx1, vtx2);                                         \
@@ -322,6 +327,10 @@ void _al_line_2d(ALLEGRO_BITMAP* texture, ALLEGRO_VERTEX* v1, ALLEGRO_VERTEX* v2
    int need_unlock = 0;
    ALLEGRO_LOCKED_REGION lr;
    int min_x, max_x, min_y, max_y;
+   int shade = 1;
+   int grad = 1;
+   int src_mode, dst_mode;
+   ALLEGRO_COLOR *ic;
    
    /*
    TODO: Need to clip them first, make a copy of the vertices first then
@@ -370,12 +379,6 @@ void _al_line_2d(ALLEGRO_BITMAP* texture, ALLEGRO_VERTEX* v1, ALLEGRO_VERTEX* v2
    /*
    TODO: Make more specialized functions (constant colour, no blending etc and etc)
    */
-   
-   int shade = 1;
-   int grad = 1;
-   
-   int src_mode, dst_mode;
-   ALLEGRO_COLOR *ic;
    
    al_get_blender(&src_mode, &dst_mode, NULL);
    ic = _al_get_blend_color();

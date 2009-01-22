@@ -67,15 +67,18 @@ static void temp_trans(float x, float y)
  */
 int al_draw_prim(ALLEGRO_VBUFFER* vbuff, ALLEGRO_BITMAP* texture,
    int start, int end, int type)
-{
+{  
+   ALLEGRO_BITMAP *target;
+   int ret = 0;
+   int flags;
+ 
    ASSERT(vbuff);
    ASSERT(end >= start);
    ASSERT(type >= 0 && type < ALLEGRO_PRIM_NUM_TYPES);
-   
-   ALLEGRO_BITMAP *target = al_get_target_bitmap();
-   int ret = 0;
-   int flags = al_get_display_flags();
-   
+
+   target = al_get_target_bitmap();
+   flags = al_get_display_flags();
+
    /* In theory, if we ever get a camera concept for this addon, the transformation into
     * view space should occur here
     */
@@ -112,14 +115,17 @@ int al_draw_prim(ALLEGRO_VBUFFER* vbuff, ALLEGRO_BITMAP* texture,
 int al_draw_indexed_prim(ALLEGRO_VBUFFER* vbuff, ALLEGRO_BITMAP* texture,
    int* indices, int num_vtx, int type)
 {
+   ALLEGRO_BITMAP *target;
+   int ret = 0;
+   int flags;
+ 
    ASSERT(vbuff);
    ASSERT(indices);
    ASSERT(num_vtx > 0);
    ASSERT(type >= 0 && type < ALLEGRO_PRIM_NUM_TYPES);
-   
-   ALLEGRO_BITMAP *target = al_get_target_bitmap();
-   int ret = 0;
-   int flags = al_get_display_flags();
+
+   target = al_get_target_bitmap();
+   flags = al_get_display_flags();
    
    /* In theory, if we ever get a camera concept for this addon, the transformation into
     * view space should occur here
@@ -236,9 +242,10 @@ int _al_prim_check_lock_pos(ALLEGRO_VBUFFER* vbuff, int idx, int type)
 void al_set_vbuff_pos(ALLEGRO_VBUFFER* vbuff, int idx,
    float x, float y, float z)
 {
+   int unlock;
    ASSERT(vbuff);
    
-   int unlock = _al_prim_check_lock_pos(vbuff, idx, ALLEGRO_VBUFFER_WRITE);
+   unlock = _al_prim_check_lock_pos(vbuff, idx, ALLEGRO_VBUFFER_WRITE);
    if (vbuff->flags & ALLEGRO_VBUFFER_SOFT) {
       _al_set_vbuff_pos_soft(vbuff, idx, x, y, z);
    } else {
@@ -254,9 +261,10 @@ void al_set_vbuff_pos(ALLEGRO_VBUFFER* vbuff, int idx,
 void al_set_vbuff_normal(ALLEGRO_VBUFFER* vbuff, int idx,
    float nx, float ny, float nz)
 {
+   int unlock;
    ASSERT(vbuff);
    
-   int unlock = _al_prim_check_lock_pos(vbuff, idx, ALLEGRO_VBUFFER_WRITE);
+   unlock = _al_prim_check_lock_pos(vbuff, idx, ALLEGRO_VBUFFER_WRITE);
    if (vbuff->flags & ALLEGRO_VBUFFER_SOFT) {
       _al_set_vbuff_normal_soft(vbuff, idx, nx, ny, nz);
    } else {
@@ -271,9 +279,10 @@ void al_set_vbuff_normal(ALLEGRO_VBUFFER* vbuff, int idx,
  */
 void al_set_vbuff_uv(ALLEGRO_VBUFFER* vbuff, int idx, float u, float v)
 {
+   int unlock;
    ASSERT(vbuff);
    
-   int unlock = _al_prim_check_lock_pos(vbuff, idx, ALLEGRO_VBUFFER_WRITE);
+   unlock = _al_prim_check_lock_pos(vbuff, idx, ALLEGRO_VBUFFER_WRITE);
    if (vbuff->flags & ALLEGRO_VBUFFER_SOFT) {
       _al_set_vbuff_uv_soft(vbuff, idx, u, v);
    } else {
@@ -289,10 +298,11 @@ void al_set_vbuff_uv(ALLEGRO_VBUFFER* vbuff, int idx, float u, float v)
 void al_set_vbuff_vertex(ALLEGRO_VBUFFER* vbuff, int idx,
    const ALLEGRO_VERTEX *vtx)
 {
+   int unlock;
    ASSERT(vbuff);
    ASSERT(vtx);
    
-   int unlock = _al_prim_check_lock_pos(vbuff, idx, ALLEGRO_VBUFFER_READ);
+   unlock = _al_prim_check_lock_pos(vbuff, idx, ALLEGRO_VBUFFER_READ);
    if (vbuff->flags & ALLEGRO_VBUFFER_SOFT) {
       _al_set_vbuff_vertex_soft(vbuff, idx, vtx);
    } else {
@@ -308,9 +318,10 @@ void al_set_vbuff_vertex(ALLEGRO_VBUFFER* vbuff, int idx,
 void al_set_vbuff_color(ALLEGRO_VBUFFER* vbuff, int idx,
    const ALLEGRO_COLOR col)
 {
+   int unlock;
    ASSERT(vbuff);
    
-   int unlock = _al_prim_check_lock_pos(vbuff, idx, ALLEGRO_VBUFFER_WRITE);
+   unlock = _al_prim_check_lock_pos(vbuff, idx, ALLEGRO_VBUFFER_WRITE);
    if (vbuff->flags & ALLEGRO_VBUFFER_SOFT) {
       _al_set_vbuff_color_soft(vbuff, idx, col);
    } else {
@@ -325,10 +336,11 @@ void al_set_vbuff_color(ALLEGRO_VBUFFER* vbuff, int idx,
  */
 void al_get_vbuff_vertex(ALLEGRO_VBUFFER* vbuff, int idx, ALLEGRO_VERTEX *vtx)
 {
+   int unlock;
    ASSERT(vbuff);
    ASSERT(vtx);
    
-   int unlock = _al_prim_check_lock_pos(vbuff, idx, ALLEGRO_VBUFFER_READ);
+   unlock = _al_prim_check_lock_pos(vbuff, idx, ALLEGRO_VBUFFER_READ);
    if (vbuff->flags & ALLEGRO_VBUFFER_SOFT) {
       _al_get_vbuff_vertex_soft(vbuff, idx, vtx);
    } else {
@@ -419,10 +431,11 @@ void al_copy_transform(ALLEGRO_TRANSFORM* src, ALLEGRO_TRANSFORM* dest)
  */
 void al_use_transform(ALLEGRO_TRANSFORM* trans)
 {
+   int flags;
    ASSERT(trans);
    
    al_copy_transform(trans, &_al_global_trans);
-   int flags = al_get_display_flags();
+   flags = al_get_display_flags();
    if (flags & ALLEGRO_OPENGL) {
       _al_use_transform_opengl(&_al_global_trans);
    } else if (flags & ALLEGRO_DIRECT3D) {
@@ -492,10 +505,11 @@ void al_identity_transform(ALLEGRO_TRANSFORM* trans)
 void al_build_transform(ALLEGRO_TRANSFORM* trans, float x, float y,
    float sx, float sy, float theta)
 {
+   float c, s;
    ASSERT(trans);
    
-   float c = cosf(theta);
-   float s = sinf(theta);
+   c = cosf(theta);
+   s = sinf(theta);
    
    (*trans)[0][0] = sx * c;
    (*trans)[0][1] = sy * s;
@@ -532,12 +546,12 @@ void al_translate_transform(ALLEGRO_TRANSFORM* trans, float x, float y)
  */
 void al_rotate_transform(ALLEGRO_TRANSFORM* trans, float theta)
 {
+   float c, s;
+   float t[2];
    ASSERT(trans);
    
-   float c = cosf(theta);
-   float s = sinf(theta);
-   
-   float t[2];
+   c = cosf(theta);
+   s = sinf(theta);
    
    /*
    Copy the first column
@@ -575,10 +589,10 @@ void al_scale_transform(ALLEGRO_TRANSFORM* trans, float sx, float sy)
  */
 void al_transform_vertex(ALLEGRO_TRANSFORM* trans, ALLEGRO_VERTEX* vtx)
 {
+   float t;
    ASSERT(trans);
    ASSERT(vtx);
-   
-   float t;
+
    t = vtx->x;
    
    vtx->x = t * (*trans)[0][0] + vtx->y * (*trans)[1][0] + (*trans)[3][0];
@@ -589,9 +603,9 @@ void al_transform_vertex(ALLEGRO_TRANSFORM* trans, ALLEGRO_VERTEX* vtx)
  */
 void al_transform_transform(ALLEGRO_TRANSFORM* trans, ALLEGRO_TRANSFORM* trans2)
 {
+   float t;
    ASSERT(trans);
    ASSERT(trans2);
-   float t;
    
    /*
    First column
