@@ -90,7 +90,7 @@ int _unix_find_resource(char *dest, AL_CONST char *resource, int size)
          /* FIXME: we're temporarily forgetting about these permission flags
 	 if (file_exists(buf, FA_ARCH | FA_RDONLY | FA_HIDDEN, NULL)) {
          */
-         if (al_fs_exists(buf)) {
+         if (al_is_present_str(buf)) {
 	    ustrzcpy(dest, size, buf);
 	    return 0;
 	 }
@@ -104,7 +104,7 @@ int _unix_find_resource(char *dest, AL_CONST char *resource, int size)
    al_path_set_filename(path, resource);
    al_path_to_string(path, buf, sizeof(buf), '/');
 
-   if (al_fs_exists(buf)) {
+   if (al_is_present_str(buf)) {
       ustrzcpy(dest, size, buf);
       return 0;
    }
@@ -117,7 +117,7 @@ int _unix_find_resource(char *dest, AL_CONST char *resource, int size)
       al_path_set_filename(path, buf);
       al_path_to_string(path, buf, sizeof(buf), '/');
 
-      if (al_fs_exists(buf)) {
+      if (al_is_present_str(buf)) {
 	 ustrzcpy(dest, size, buf);
 	 return 0;
       }
@@ -132,7 +132,7 @@ int _unix_find_resource(char *dest, AL_CONST char *resource, int size)
    if (ustricmp(al_path_get_extension(path, ext, sizeof(ext)), uconvert_ascii("dat", tmp)) == 0) {
       al_path_append(path, "allegro");
       al_path_to_string(path, buf, sizeof(buf), '/');
-      if (al_fs_exists(buf)) {
+      if (al_is_present_str(buf)) {
 	 ustrzcpy(dest, size, buf);
 	 return 0;
       }

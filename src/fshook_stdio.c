@@ -648,7 +648,7 @@ static bool al_fs_stdio_feof(ALLEGRO_FS_ENTRY *fp)
    return feof(fp_stdio->hd.handle) != 0;
 }
 
-static int al_fs_stdio_ungetc(int c, ALLEGRO_FS_ENTRY *fp)
+static int al_fs_stdio_ungetc(ALLEGRO_FS_ENTRY *fp, int c)
 {
    ALLEGRO_FS_ENTRY_STDIO *fp_stdio = (ALLEGRO_FS_ENTRY_STDIO *) fp;
    ASSERT(!fp_stdio->isdir);
@@ -891,7 +891,7 @@ static ALLEGRO_FS_ENTRY *al_fs_stdio_mktemp(const char *template,
 
       // changing the hook for create handle in a separate thread will cause some nice errors here,
       //    if you expect it to return a stdio handle ;)
-      fh = al_fs_create_handle(dest);
+      fh = al_create_entry(dest);
       if (!fh) {
          close(fd);
          free(dest);
@@ -926,7 +926,7 @@ static ALLEGRO_FS_ENTRY *al_fs_stdio_mktemp(const char *template,
    return NULL;
 }
 
-static bool al_fs_stdio_getcwd(char *buf, size_t len)
+static bool al_fs_stdio_getcwd(size_t len, char *buf)
 {
    char *cwd = getcwd(buf, len);
    char sep[2] = { ALLEGRO_NATIVE_PATH_SEP, 0 };
@@ -998,8 +998,8 @@ static uint32_t al_fs_stdio_search_path_count(void)
 }
 
 /* FIXME: is this the best way to handle the "search path" ? */
-static bool al_fs_stdio_get_search_path(uint32_t idx, char *dest,
-   uint32_t len)
+static bool al_fs_stdio_get_search_path(uint32_t idx, uint32_t len,
+   char *dest)
 {
    if (idx < search_path_count) {
       uint32_t slen = strlen(search_path[idx]);

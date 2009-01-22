@@ -33,8 +33,8 @@ static FLAC__StreamDecoderReadStatus read_callback(const FLAC__StreamDecoder *de
    (void)decoder;
    
    if(*bytes > 0) {
-      int ret = al_fs_entry_read(fh, *bytes, buffer);
-      if(al_fs_entry_error(fh))
+      int ret = al_fread(fh, *bytes, buffer);
+      if(al_ferror(fh))
          return FLAC__STREAM_DECODER_READ_STATUS_ABORT;
       else if(ret == 0)
          return FLAC__STREAM_DECODER_READ_STATUS_END_OF_STREAM;
@@ -53,7 +53,7 @@ static FLAC__StreamDecoderSeekStatus seek_callback(
    ALLEGRO_FS_ENTRY *fh = ff->fh;
    (void)decoder;
    
-   if(!al_fs_entry_seek(fh, ALLEGRO_SEEK_SET, absolute_byte_offset))
+   if(!al_fseek(fh, ALLEGRO_SEEK_SET, absolute_byte_offset))
       return FLAC__STREAM_DECODER_SEEK_STATUS_ERROR;
    else
       return FLAC__STREAM_DECODER_SEEK_STATUS_OK;
@@ -68,7 +68,7 @@ static FLAC__StreamDecoderTellStatus tell_callback(
    int64_t pos = 0;
    (void)decoder;
    
-   pos = al_fs_entry_tell(fh);
+   pos = al_ftell(fh);
    if(pos == -1)
       return FLAC__STREAM_DECODER_TELL_STATUS_ERROR;
 
@@ -84,7 +84,7 @@ static FLAC__StreamDecoderLengthStatus length_callback(
    ALLEGRO_FS_ENTRY *fh = ff->fh;
    (void)decoder;
    
-   *stream_length = (FLAC__uint64)al_fs_entry_size(fh);
+   *stream_length = (FLAC__uint64)al_get_entry_size(fh);
    return FLAC__STREAM_DECODER_LENGTH_STATUS_OK;
 }
 
@@ -94,7 +94,7 @@ static FLAC__bool eof_callback(const FLAC__StreamDecoder *decoder, void *dptr)
    ALLEGRO_FS_ENTRY *fh = ff->fh;
    (void)decoder;
    
-   if(al_fs_entry_eof(fh))
+   if(al_feof(fh))
       return true;
 
    return false;
@@ -225,7 +225,7 @@ ALLEGRO_SAMPLE_DATA *al_load_sample_data_flac(const char *filename)
       return NULL;
    }
 
-   ff.fh = al_fs_entry_open(filename, "rb");
+   ff.fh = al_fopen(filename, "rb");
    if(!ff.fh) {
       TRACE("Error opening FLAC file (%s)\n", filename);
       return NULL;
@@ -238,7 +238,7 @@ ALLEGRO_SAMPLE_DATA *al_load_sample_data_flac(const char *filename)
       TRACE("Error initializing FLAC decoder: %s\n",
          FLAC__StreamDecoderInitStatusString[init_status]);
       FLAC__stream_decoder_delete(decoder);
-      al_fs_entry_close(ff.fh);
+      al_fclose(ff.fh);
       return NULL;
    }
  
@@ -252,7 +252,7 @@ ALLEGRO_SAMPLE_DATA *al_load_sample_data_flac(const char *filename)
    TRACE("    total_size %ld\n", ff.total_size);
 
    FLAC__stream_decoder_delete(decoder);
-   al_fs_entry_close(ff.fh);
+   al_fclose(ff.fh);
    
    if (ff.word_size == 0) {
       TRACE("Error: don't support sub 8-bit sizes\n");

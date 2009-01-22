@@ -27,21 +27,21 @@ int main(int argc, char **argv)
 
    printf("writing data to memfile\n");
    for(i = 0; i < data_size/4; i++) {
-      if(al_fs_entry_iputl(i, memfile) != i) {
+      if(al_fwrite32le(memfile, i) != i) {
          printf("failed to write %i to memfile\n", i);
-         al_fs_entry_close(memfile);
+         al_fclose(memfile);
          return 0;
       }
    }
 
-   al_fs_entry_seek(memfile, 0, ALLEGRO_SEEK_SET);
+   al_fseek(memfile, 0, ALLEGRO_SEEK_SET);
 
    printf("reading and testing data from memfile\n");
    for(i = 0; i < data_size/4; i++) {
-      int32_t ret = al_fs_entry_igetl(memfile);
-      if(ret != i || al_fs_entry_eof(memfile)) {
+      int32_t ret = al_fread32le(memfile);
+      if(ret != i || al_feof(memfile)) {
          printf("item %i failed to verrify, got %i\n", i, ret);
-         al_fs_entry_close(memfile);
+         al_fclose(memfile);
          return 0;
       }
       else

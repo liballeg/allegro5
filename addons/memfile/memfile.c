@@ -151,7 +151,7 @@ bool al_memfile_fstat(ALLEGRO_FS_ENTRY *fp)
    return true;
 }
 
-int al_memfile_ungetc(int c, ALLEGRO_FS_ENTRY *fp)
+int al_memfile_ungetc(ALLEGRO_FS_ENTRY *fp, int c)
 {
    ALLEGRO_FS_ENTRY_MEMFILE *mf = (ALLEGRO_FS_ENTRY_MEMFILE*)fp;
 

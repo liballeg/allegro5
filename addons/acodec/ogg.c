@@ -30,7 +30,7 @@ static size_t read_callback(void *ptr, size_t size, size_t nmemb, void *dptr)
    AL_OV_DATA *ov = (AL_OV_DATA *)dptr;
    size_t ret = 0;
 
-   ret = al_fs_entry_read(ov->file, size*nmemb, ptr);
+   ret = al_fread(ov->file, size*nmemb, ptr);
 
    return ret;
 }
@@ -45,7 +45,7 @@ static int seek_callback(void *dptr, ogg_int64_t offset, int whence)
       case SEEK_END: whence = ALLEGRO_SEEK_END; break;
    }
 
-   if(!al_fs_entry_seek(ov->file, offset, whence)) {
+   if(!al_fseek(ov->file, offset, whence)) {
       return -1;
    }
 
@@ -57,7 +57,7 @@ static long tell_callback(void *dptr)
    AL_OV_DATA *ov = (AL_OV_DATA *)dptr;
    int64_t ret = 0;
 
-   ret = al_fs_entry_tell(ov->file);
+   ret = al_ftell(ov->file);
    if(ret == -1)
       return -1;
 
@@ -99,7 +99,7 @@ ALLEGRO_SAMPLE_DATA *al_load_sample_data_oggvorbis(const char *filename)
    long total_size;
    AL_OV_DATA ov;
 
-   file = al_fs_entry_open(filename, "rb");
+   file = al_fopen(filename, "rb");
    if (file == NULL) {
       TRACE("%s failed to open.\n", filename);
       return NULL;
@@ -108,7 +108,7 @@ ALLEGRO_SAMPLE_DATA *al_load_sample_data_oggvorbis(const char *filename)
    ov.file = file;
    if (ov_open_callbacks(&ov, &vf, NULL, 0, callbacks) < 0) {
       TRACE("%s does not appear to be an Ogg bitstream.\n", filename);
-      al_fs_entry_close(file);
+      al_fclose(file);
       return NULL;
    }
 
@@ -129,7 +129,7 @@ ALLEGRO_SAMPLE_DATA *al_load_sample_data_oggvorbis(const char *filename)
 
    buffer = _AL_MALLOC_ATOMIC(total_size);
    if (!buffer) {
-      al_fs_entry_close(file);
+      al_fclose(file);
       return NULL;
    }
 
@@ -144,7 +144,7 @@ ALLEGRO_SAMPLE_DATA *al_load_sample_data_oggvorbis(const char *filename)
    }
 
    ov_clear(&vf);
-   al_fs_entry_close(file);
+   al_fclose(file);
 
    sample = al_create_sample_data(buffer, total_samples, rate,
       _al_word_size_to_depth_conf(word_size),
@@ -177,7 +177,7 @@ static void ogg_stream_close(ALLEGRO_STREAM *stream)
    al_destroy_thread(stream->feed_thread);
 
    ov_clear(extra->vf);
-   al_fs_entry_close(extra->file);
+   al_fclose(extra->file);
    _AL_FREE(extra->vf);
    _AL_FREE(extra);
    stream->extra = NULL;
@@ -241,7 +241,7 @@ ALLEGRO_STREAM *al_load_stream_oggvorbis(size_t buffer_count,
       return NULL;
    }
    
-   file = al_fs_entry_open(filename, "rb");
+   file = al_fopen(filename, "rb");
    if (file == NULL) {
       TRACE("%s failed to open\n", filename);
       return NULL;
@@ -252,7 +252,7 @@ ALLEGRO_STREAM *al_load_stream_oggvorbis(size_t buffer_count,
    vf = _AL_MALLOC(sizeof(OggVorbis_File));
    if (ov_open_callbacks(extra, vf, NULL, 0, callbacks) < 0) {
       TRACE("ogg: Input does not appear to be an Ogg bitstream.\n");
-      al_fs_entry_close(file);
+      al_fclose(file);
       return NULL;
    }
 

@@ -24,7 +24,7 @@ static sf_count_t _sf_vio_get_filelen(void *dptr)
 {
    ALLEGRO_FS_ENTRY *fh = (ALLEGRO_FS_ENTRY *)dptr;
 
-   return (sf_count_t)al_fs_entry_size(fh);
+   return (sf_count_t)al_get_entry_size(fh);
 }
 
 static sf_count_t _sf_vio_seek(sf_count_t offset, int whence, void *dptr)
@@ -37,7 +37,7 @@ static sf_count_t _sf_vio_seek(sf_count_t offset, int whence, void *dptr)
       case SEEK_END: whence = ALLEGRO_SEEK_END; break;
    }
    
-   return (sf_count_t)al_fs_entry_seek(fh, offset, whence);
+   return (sf_count_t)al_fseek(fh, offset, whence);
 }
 
 static sf_count_t _sf_vio_read(void *ptr, sf_count_t count, void *dptr)
@@ -46,21 +46,21 @@ static sf_count_t _sf_vio_read(void *ptr, sf_count_t count, void *dptr)
 
    /* is this a bug waiting to happen? what does libsndfile expect to happen? */
    /* undocumented api's ftw */
-   return (sf_count_t)al_fs_entry_read(fh, count, ptr);
+   return (sf_count_t)al_fread(fh, count, ptr);
 }
 
 static sf_count_t _sf_vio_write(const void *ptr, sf_count_t count, void *dptr)
 {
    ALLEGRO_FS_ENTRY *fh = (ALLEGRO_FS_ENTRY *)dptr;
 
-   return (sf_count_t)al_fs_entry_write(fh, count, ptr);
+   return (sf_count_t)al_fwrite(fh, count, ptr);
 }
 
 static sf_count_t _sf_vio_tell(void *dptr)
 {
    ALLEGRO_FS_ENTRY *fh = (ALLEGRO_FS_ENTRY *)dptr;
 
-   return (sf_count_t)al_fs_entry_tell(fh);
+   return (sf_count_t)al_ftell(fh);
 }
 
 
@@ -108,7 +108,7 @@ _sf_private *_sf_open_private(AL_CONST char *filename)
 
    memset(priv, 0, sizeof(_sf_private));
 
-   priv->fh = al_fs_entry_open(filename, "rb");
+   priv->fh = al_fopen(filename, "rb");
    if (priv->fh == NULL)
       goto _sf_open_private_fatal;
 
@@ -123,7 +123,7 @@ _sf_open_private_fatal:
       sf_close(priv->sndfile);
    
    if(priv->fh)
-      al_fs_entry_close(priv->fh);
+      al_fclose(priv->fh);
    
    _AL_FREE(priv);
    
@@ -138,7 +138,7 @@ void _sf_close_private(_sf_private *priv)
       sf_close(priv->sndfile);
 
    if(priv->fh)
-      al_fs_entry_close(priv->fh);
+      al_fclose(priv->fh);
 
    memset(priv, 0, sizeof(_sf_private));
    

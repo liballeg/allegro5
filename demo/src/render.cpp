@@ -49,7 +49,7 @@ void showWave(int num)
    ALLEGRO_BITMAP *old_target = al_get_target_bitmap();
    al_set_target_bitmap(waveBitmap);
    al_clear(al_map_rgba(0, 0, 0, 0));
-   al_font_textprintf(myfont, 0, 0, text);
+   al_font_textprintf(myfont, 0, 0, "%s", text);
    al_set_target_bitmap(old_target);
 
    waveAngle = (M_PI*2);
