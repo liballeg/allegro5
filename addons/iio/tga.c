@@ -34,7 +34,7 @@
  */
 static INLINE unsigned char *raw_tga_read8(unsigned char *b, int w, ALLEGRO_FS_ENTRY *f)
 {
-   return b + al_fs_entry_read(f, w, (void *)b);
+   return b + al_fread(f, w, (void *)b);
 }
 
 
@@ -47,12 +47,12 @@ static void rle_tga_read8(unsigned char *b, int w, ALLEGRO_FS_ENTRY *f)
    int value, count, c = 0;
 
    do {
-      count = al_fs_entry_getc(f);
+      count = al_fgetc(f);
       if (count & 0x80) {
          /* run-length packet */
          count = (count & 0x7F) + 1;
          c += count;
-         value = al_fs_entry_getc(f);
+         value = al_fgetc(f);
          while (count--)
             *b++ = value;
       }
@@ -75,10 +75,10 @@ static INLINE int single_tga_read32(ALLEGRO_FS_ENTRY *f)
    PalEntry value;
    int alpha;
 
-   value.b = al_fs_entry_getc(f);
-   value.g = al_fs_entry_getc(f);
-   value.r = al_fs_entry_getc(f);
-   alpha = al_fs_entry_getc(f);
+   value.b = al_fgetc(f);
+   value.g = al_fgetc(f);
+   value.r = al_fgetc(f);
+   alpha = al_fgetc(f);
 
 #ifdef ALLEGRO_LITTLE_ENDIAN
    return (alpha << 24) | (value.r << 16) | (value.g << 8) | value.b;
@@ -112,7 +112,7 @@ static void rle_tga_read32(unsigned int *b, int w, ALLEGRO_FS_ENTRY *f)
    int color, count, c = 0;
 
    do {
-      count = al_fs_entry_getc(f);
+      count = al_fgetc(f);
       if (count & 0x80) {
          /* run-length packet */
          count = (count & 0x7F) + 1;
@@ -138,9 +138,9 @@ static INLINE int single_tga_read24(ALLEGRO_FS_ENTRY *f)
 {
    PalEntry value;
 
-   value.b = al_fs_entry_getc(f);
-   value.g = al_fs_entry_getc(f);
-   value.r = al_fs_entry_getc(f);
+   value.b = al_fgetc(f);
+   value.g = al_fgetc(f);
+   value.r = al_fgetc(f);
 
 #ifdef ALLEGRO_LITTLE_ENDIAN
    return (value.r << 16) | (value.g << 8) | value.b;
@@ -179,7 +179,7 @@ static void rle_tga_read24(unsigned char *b, int w, ALLEGRO_FS_ENTRY *f)
    int color, count, c = 0;
 
    do {
-      count = al_fs_entry_getc(f);
+      count = al_fgetc(f);
       if (count & 0x80) {
          /* run-length packet */
          count = (count & 0x7F) + 1;
@@ -208,7 +208,7 @@ static INLINE int single_tga_read16(ALLEGRO_FS_ENTRY *f)
 {
    int value;
 
-   value = al_fs_entry_igetw(f);
+   value = al_fread16le(f);
 
    return value;
    /*
@@ -241,7 +241,7 @@ static void rle_tga_read16(unsigned short *b, int w, ALLEGRO_FS_ENTRY *f)
    int color, count, c = 0;
 
    do {
-      count = al_fs_entry_getc(f);
+      count = al_fgetc(f);
       if (count & 0x80) {
          /* run-length packet */
          count = (count & 0x7F) + 1;
@@ -285,23 +285,23 @@ static ALLEGRO_BITMAP *iio_load_tga_pf(ALLEGRO_FS_ENTRY *f)
    unsigned char *buf;
    ASSERT(f);
 
-   id_length = al_fs_entry_getc(f);
-   palette_type = al_fs_entry_getc(f);
-   image_type = al_fs_entry_getc(f);
-   first_color = al_fs_entry_igetw(f);
-   palette_colors  = al_fs_entry_igetw(f);
-   palette_entry_size = al_fs_entry_getc(f);
-   left = al_fs_entry_igetw(f);
-   top = al_fs_entry_igetw(f);
-   image_width = al_fs_entry_igetw(f);
-   image_height = al_fs_entry_igetw(f);
-   bpp = al_fs_entry_getc(f);
-   descriptor_bits = al_fs_entry_getc(f);
+   id_length = al_fgetc(f);
+   palette_type = al_fgetc(f);
+   image_type = al_fgetc(f);
+   first_color = al_fread16le(f);
+   palette_colors  = al_fread16le(f);
+   palette_entry_size = al_fgetc(f);
+   left = al_fread16le(f);
+   top = al_fread16le(f);
+   image_width = al_fread16le(f);
+   image_height = al_fread16le(f);
+   bpp = al_fgetc(f);
+   descriptor_bits = al_fgetc(f);
 
    left_to_right = !(descriptor_bits & (1 << 4));
    top_to_bottom = (descriptor_bits & (1 << 5));
 
-   al_fs_entry_read(f, id_length, (void *)image_id);
+   al_fread(f, id_length, (void *)image_id);
 
    if (palette_type == 1) {
 
@@ -310,7 +310,7 @@ static ALLEGRO_BITMAP *iio_load_tga_pf(ALLEGRO_FS_ENTRY *f)
          switch (palette_entry_size) {
 
             case 16:
-               c = al_fs_entry_igetw(f);
+               c = al_fread16le(f);
                image_palette[i][0] = (c & 0x1F) << 3;
                image_palette[i][1] = ((c >> 5) & 0x1F) << 3;
                image_palette[i][2] = ((c >> 10) & 0x1F) << 3;
@@ -318,11 +318,11 @@ static ALLEGRO_BITMAP *iio_load_tga_pf(ALLEGRO_FS_ENTRY *f)
 
             case 24:
             case 32:
-               image_palette[i][0] = al_fs_entry_getc(f);
-               image_palette[i][1] = al_fs_entry_getc(f);
-               image_palette[i][2] = al_fs_entry_getc(f);
+               image_palette[i][0] = al_fgetc(f);
+               image_palette[i][1] = al_fgetc(f);
+               image_palette[i][2] = al_fgetc(f);
                if (palette_entry_size == 32)
-                  al_fs_entry_getc(f);
+                  al_fgetc(f);
                break;
          }
       }
@@ -500,18 +500,18 @@ static int iio_save_tga_pf(ALLEGRO_FS_ENTRY *f, ALLEGRO_BITMAP *bmp)
    w = al_get_bitmap_width(bmp);
    h = al_get_bitmap_height(bmp);
 
-   al_fs_entry_putc(f, 0);      /* id length (no id saved) */
-   al_fs_entry_putc(f, 0);      /* palette type */
-   al_fs_entry_putc(f, 2);      /* image type */
-   al_fs_entry_iputw(0, f);     /* first colour */
-   al_fs_entry_iputw(0, f);     /* number of colours */
-   al_fs_entry_putc(f, 0);      /* palette entry size */
-   al_fs_entry_iputw(0, f);     /* left */
-   al_fs_entry_iputw(0, f);     /* top */
-   al_fs_entry_iputw(w, f);     /* width */
-   al_fs_entry_iputw(h, f);     /* height */
-   al_fs_entry_putc(f, 32);     /* bits per pixel */
-   al_fs_entry_putc(f, 8);      /* descriptor (bottom to top, 8-bit alpha) */
+   al_fputc(f, 0);      /* id length (no id saved) */
+   al_fputc(f, 0);      /* palette type */
+   al_fputc(f, 2);      /* image type */
+   al_fwrite16le(f, 0);     /* first colour */
+   al_fwrite16le(f, 0);     /* number of colours */
+   al_fputc(f, 0);      /* palette entry size */
+   al_fwrite16le(f, 0);     /* left */
+   al_fwrite16le(f, 0);     /* top */
+   al_fwrite16le(f, w);     /* width */
+   al_fwrite16le(f, h);     /* height */
+   al_fputc(f, 32);     /* bits per pixel */
+   al_fputc(f, 8);      /* descriptor (bottom to top, 8-bit alpha) */
 
    al_lock_bitmap(bmp, &lr, ALLEGRO_LOCK_READONLY);
 
@@ -520,10 +520,10 @@ static int iio_save_tga_pf(ALLEGRO_FS_ENTRY *f, ALLEGRO_BITMAP *bmp)
          ALLEGRO_COLOR c = al_get_pixel(bmp, x, y);
          unsigned char r, g, b, a;
          al_unmap_rgba(c, &r, &g, &b, &a);
-         al_fs_entry_putc(f, b);
-         al_fs_entry_putc(f, g);
-         al_fs_entry_putc(f, r);
-         al_fs_entry_putc(f, a);
+         al_fputc(f, b);
+         al_fputc(f, g);
+         al_fputc(f, r);
+         al_fputc(f, a);
       }
    }
 
@@ -547,13 +547,13 @@ ALLEGRO_BITMAP *iio_load_tga(AL_CONST char *filename)
    ALLEGRO_BITMAP *bmp;
    ASSERT(filename);
 
-   f = al_fs_entry_open(filename, "rb");
+   f = al_fopen(filename, "rb");
    if (!f)
       return NULL;
 
    bmp = iio_load_tga_pf(f);
 
-   al_fs_entry_close(f);
+   al_fclose(f);
 
    return bmp;
 }
@@ -570,13 +570,13 @@ int iio_save_tga(AL_CONST char *filename, ALLEGRO_BITMAP *bmp)
    int ret;
    ASSERT(filename);
 
-   f = al_fs_entry_open(filename, "wb");
+   f = al_fopen(filename, "wb");
    if (!f)
       return -1;
 
    ret = iio_save_tga_pf(f, bmp);
 
-   al_fs_entry_close(f);
+   al_fclose(f);
 
    return ret;
 }

@@ -48,7 +48,7 @@ static double get_gamma(void)
 static void read_data(png_structp png_ptr, png_bytep data, png_uint_32 length)
 {
    ALLEGRO_FS_ENTRY *f = (ALLEGRO_FS_ENTRY *)png_get_io_ptr(png_ptr);
-   if ((png_uint_32) al_fs_entry_read(f, length, data) != length)
+   if ((png_uint_32) al_fread(f, length, data) != length)
       png_error(png_ptr, "read error (loadpng calling al_fs_entry_read)");
 }
 
@@ -65,7 +65,7 @@ static int check_if_png(ALLEGRO_FS_ENTRY *fp)
 
    ASSERT(fp);
 
-   if (al_fs_entry_read(fp, PNG_BYTES_TO_CHECK, buf) != PNG_BYTES_TO_CHECK)
+   if (al_fread(fp, PNG_BYTES_TO_CHECK, buf) != PNG_BYTES_TO_CHECK)
       return 0;
 
    return (png_sig_cmp(buf, (png_size_t) 0, PNG_BYTES_TO_CHECK) == 0);
@@ -329,13 +329,13 @@ ALLEGRO_BITMAP *iio_load_png(AL_CONST char *filename)
 
    ASSERT(filename);
 
-   fp = al_fs_entry_open(filename, "rb");
+   fp = al_fopen(filename, "rb");
    if (!fp)
       return NULL;
 
    bmp = load_png_pf(fp);
 
-   al_fs_entry_close(fp);
+   al_fclose(fp);
 
    return bmp;
 }
@@ -356,7 +356,7 @@ ALLEGRO_BITMAP *iio_load_png(AL_CONST char *filename)
 static void write_data(png_structp png_ptr, png_bytep data, png_uint_32 length)
 {
    ALLEGRO_FS_ENTRY *f = (ALLEGRO_FS_ENTRY *)png_get_io_ptr(png_ptr);
-   if ((png_uint_32) al_fs_entry_write(f, length, data) != length)
+   if ((png_uint_32) al_fwrite(f, length, data) != length)
       png_error(png_ptr, "write error (loadpng calling al_fs_entry_write)");
 }
 
@@ -504,14 +504,14 @@ int iio_save_png(AL_CONST char *filename, ALLEGRO_BITMAP *bmp)
    ASSERT(filename);
    ASSERT(bmp);
 
-   fp = al_fs_entry_open(filename, "wb");
+   fp = al_fopen(filename, "wb");
    if (!fp) {
       TRACE("Unable to open file %s for writing\n", filename);
       return -1;
    }
 
    result = really_save_png(fp, bmp);
-   al_fs_entry_close(fp);
+   al_fclose(fp);
 
    return result;
 }

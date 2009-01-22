@@ -18,37 +18,37 @@ static ALLEGRO_BITMAP *iio_load_pcx_pf(ALLEGRO_FS_ENTRY *f)
    PalEntry pal[256];
    ASSERT(f);
 
-   al_fs_entry_getc(f);                    /* skip manufacturer ID */
-   al_fs_entry_getc(f);                    /* skip version flag */
-   al_fs_entry_getc(f);                    /* skip encoding flag */
+   al_fgetc(f);                    /* skip manufacturer ID */
+   al_fgetc(f);                    /* skip version flag */
+   al_fgetc(f);                    /* skip encoding flag */
 
-   if (al_fs_entry_getc(f) != 8) {         /* we like 8 bit color planes */
+   if (al_fgetc(f) != 8) {         /* we like 8 bit color planes */
       return NULL;
    }
 
-   width = -(al_fs_entry_igetw(f));        /* xmin */
-   height = -(al_fs_entry_igetw(f));       /* ymin */
-   width += al_fs_entry_igetw(f) + 1;      /* xmax */
-   height += al_fs_entry_igetw(f) + 1;     /* ymax */
+   width = -(al_fread16le(f));        /* xmin */
+   height = -(al_fread16le(f));       /* ymin */
+   width += al_fread16le(f) + 1;      /* xmax */
+   height += al_fread16le(f) + 1;     /* ymax */
 
-   al_fs_entry_igetl(f);                   /* skip DPI values */
+   al_fread32le(f);                   /* skip DPI values */
 
    for (c = 0; c < 16 * 3; c++) {          /* skip the 16 color palette */
-      al_fs_entry_getc(f);
+      al_fgetc(f);
    }
 
-   al_fs_entry_getc(f);
+   al_fgetc(f);
 
-   bpp = al_fs_entry_getc(f) * 8;          /* how many color planes? */
+   bpp = al_fgetc(f) * 8;          /* how many color planes? */
 
    if ((bpp != 8) && (bpp != 24)) {
       return NULL;
    }
 
-   bytes_per_line = al_fs_entry_igetw(f);
+   bytes_per_line = al_fread16le(f);
 
    for (c = 0; c < 60; c++)                /* skip some more junk */
-      al_fs_entry_getc(f);
+      al_fgetc(f);
 
    b = al_create_bitmap(width, height);
    if (!b) {
@@ -79,10 +79,10 @@ static ALLEGRO_BITMAP *iio_load_pcx_pf(ALLEGRO_FS_ENTRY *f)
       x = 0;
 
       while (x < bytes_per_line * bpp / 8) {
-         ch = al_fs_entry_getc(f);
+         ch = al_fgetc(f);
          if ((ch & 0xC0) == 0xC0) { /* a run */
             c = (ch & 0x3F);
-            ch = al_fs_entry_getc(f);
+            ch = al_fgetc(f);
          }
          else {
             c = 1;                  /* single pixel */
@@ -116,12 +116,12 @@ static ALLEGRO_BITMAP *iio_load_pcx_pf(ALLEGRO_FS_ENTRY *f)
    }
 
    if (bpp == 8) {               /* look for a 256 color palette */
-      while ((c = al_fs_entry_getc(f)) != EOF) {
+      while ((c = al_fgetc(f)) != EOF) {
          if (c == 12) {
             for (c = 0; c < 256; c++) {
-               pal[c].r = al_fs_entry_getc(f);
-               pal[c].g = al_fs_entry_getc(f);
-               pal[c].b = al_fs_entry_getc(f);
+               pal[c].r = al_fgetc(f);
+               pal[c].g = al_fgetc(f);
+               pal[c].b = al_fgetc(f);
             }
             break;
          }
@@ -167,29 +167,29 @@ static int iio_save_pcx_pf(ALLEGRO_FS_ENTRY *f, ALLEGRO_BITMAP *bmp)
    w = al_get_bitmap_width(bmp);
    h = al_get_bitmap_height(bmp);
 
-   al_fs_entry_putc(f, 10);     /* manufacturer */
-   al_fs_entry_putc(f, 5);      /* version */
-   al_fs_entry_putc(f, 1);      /* run length encoding  */
-   al_fs_entry_putc(f, 8);      /* 8 bits per pixel */
-   al_fs_entry_iputw(0, f);     /* xmin */
-   al_fs_entry_iputw(0, f);     /* ymin */
-   al_fs_entry_iputw(w - 1, f); /* xmax */
-   al_fs_entry_iputw(h - 1, f); /* ymax */
-   al_fs_entry_iputw(320, f);   /* HDpi */
-   al_fs_entry_iputw(200, f);   /* VDpi */
+   al_fputc(f, 10);     /* manufacturer */
+   al_fputc(f, 5);      /* version */
+   al_fputc(f, 1);      /* run length encoding  */
+   al_fputc(f, 8);      /* 8 bits per pixel */
+   al_fwrite16le(f, 0);     /* xmin */
+   al_fwrite16le(f, 0);     /* ymin */
+   al_fwrite16le(f, w - 1); /* xmax */
+   al_fwrite16le(f, h - 1); /* ymax */
+   al_fwrite16le(f, 320);   /* HDpi */
+   al_fwrite16le(f, 200);   /* VDpi */
 
    for (c = 0; c < 16 * 3; c++) {
-      al_fs_entry_putc(f, 0);
+      al_fputc(f, 0);
    }
 
-   al_fs_entry_putc(f, 0);      /* reserved */
-   al_fs_entry_putc(f, 3);      /* color planes */
-   al_fs_entry_iputw(w, f);     /* number of bytes per scanline */
-   al_fs_entry_iputw(1, f);     /* color palette */
-   al_fs_entry_iputw(w, f);     /* hscreen size */
-   al_fs_entry_iputw(h, f);     /* vscreen size */
+   al_fputc(f, 0);      /* reserved */
+   al_fputc(f, 3);      /* color planes */
+   al_fwrite16le(f, w);     /* number of bytes per scanline */
+   al_fwrite16le(f, 1);     /* color palette */
+   al_fwrite16le(f, w);     /* hscreen size */
+   al_fwrite16le(f, h);     /* vscreen size */
    for (c = 0; c < 54; c++)     /* filler */
-      al_fs_entry_putc(f, 0);
+      al_fputc(f, 0);
 
    buf = malloc(w * 3);
 
@@ -216,8 +216,8 @@ static int iio_save_pcx_pf(ALLEGRO_FS_ENTRY *f, ALLEGRO_BITMAP *bmp)
                count++;
                x++;
             } while ((count < 63) && (x < w) && (color == buf[x + w * i]));
-            al_fs_entry_putc(f, count | 0xC0);
-            al_fs_entry_putc(f, color);
+            al_fputc(f, count | 0xC0);
+            al_fputc(f, color);
             if (x >= w)
                break;
          }
@@ -246,13 +246,13 @@ ALLEGRO_BITMAP *iio_load_pcx(AL_CONST char *filename)
    ALLEGRO_BITMAP *bmp;
    ASSERT(filename);
 
-   f = al_fs_entry_open(filename, "rb");
+   f = al_fopen(filename, "rb");
    if (!f)
       return NULL;
 
    bmp = iio_load_pcx_pf(f);
 
-   al_fs_entry_close(f);
+   al_fclose(f);
 
    return bmp;
 }
@@ -268,13 +268,13 @@ int iio_save_pcx(AL_CONST char *filename, ALLEGRO_BITMAP *bmp)
    int ret;
    ASSERT(filename);
 
-   f = al_fs_entry_open(filename, "wb");
+   f = al_fopen(filename, "wb");
    if (!f)
       return -1;
 
    ret = iio_save_pcx_pf(f, bmp);
 
-   al_fs_entry_close(f);
+   al_fclose(f);
 
    return ret;
 }

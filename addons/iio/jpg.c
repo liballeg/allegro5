@@ -45,14 +45,14 @@ static boolean fill_input_buffer(j_decompress_ptr cinfo)
 {
    struct my_src_mgr *src = (void *)cinfo->src;
    src->pub.next_input_byte = src->buffer;
-   src->pub.bytes_in_buffer = al_fs_entry_read(src->pf, BUFFER_SIZE, src->buffer);
+   src->pub.bytes_in_buffer = al_fread(src->pf, BUFFER_SIZE, src->buffer);
    return 1;
 }
 
 static boolean empty_output_buffer(j_compress_ptr cinfo)
 {
    struct my_dest_mgr *dest = (void *)cinfo->dest;
-   al_fs_entry_write(dest->pf, BUFFER_SIZE, dest->buffer);
+   al_fwrite(dest->pf, BUFFER_SIZE, dest->buffer);
    dest->pub.next_output_byte = dest->buffer;
    dest->pub.free_in_buffer = BUFFER_SIZE;
    return 1;
@@ -67,7 +67,7 @@ static void skip_input_data(j_decompress_ptr cinfo, long num_bytes)
    }
    else {
       long skip = num_bytes - src->pub.bytes_in_buffer;
-      al_fs_entry_seek(src->pf, skip, ALLEGRO_SEEK_CUR);
+      al_fseek(src->pf, skip, ALLEGRO_SEEK_CUR);
       src->pub.bytes_in_buffer = 0;
    }
 }
@@ -80,7 +80,7 @@ static void term_source(j_decompress_ptr cinfo)
 static void term_destination(j_compress_ptr cinfo)
 {
    struct my_dest_mgr *dest = (void *)cinfo->dest;
-   al_fs_entry_write(dest->pf, BUFFER_SIZE - dest->pub.free_in_buffer, dest->buffer);
+   al_fwrite(dest->pf, BUFFER_SIZE - dest->pub.free_in_buffer, dest->buffer);
 }
 
 
@@ -254,13 +254,13 @@ ALLEGRO_BITMAP *iio_load_jpg(char const *filename)
 
    ASSERT(filename);
 
-   pf = al_fs_entry_open(filename, "rb");
+   pf = al_fopen(filename, "rb");
    if (!pf)
       return NULL;
 
    bmp = load_jpg_pf(pf);
 
-   al_fs_entry_close(pf);
+   al_fclose(pf);
 
    return bmp;
 }
@@ -278,7 +278,7 @@ int iio_save_jpg(char const *filename, ALLEGRO_BITMAP *bmp)
    ASSERT(filename);
    ASSERT(bmp);
 
-   pf = al_fs_entry_open(filename, "wb");
+   pf = al_fopen(filename, "wb");
    if (!pf) {
       TRACE("Unable to open file %s for writing\n", filename);
       return -1;
@@ -286,7 +286,7 @@ int iio_save_jpg(char const *filename, ALLEGRO_BITMAP *bmp)
 
    result = save_jpg_pf(pf, bmp);
 
-   al_fs_entry_close(pf);
+   al_fclose(pf);
 
    return result;
 }

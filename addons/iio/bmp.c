@@ -88,11 +88,11 @@ typedef struct OS2BMPINFOHEADER
  */
 static int read_bmfileheader(ALLEGRO_FS_ENTRY *f, BMPFILEHEADER *fileheader)
 {
-   fileheader->bfType = al_fs_entry_igetw(f);
-   fileheader->bfSize = al_fs_entry_igetl(f);
-   fileheader->bfReserved1 = al_fs_entry_igetw(f);
-   fileheader->bfReserved2 = al_fs_entry_igetw(f);
-   fileheader->bfOffBits = al_fs_entry_igetl(f);
+   fileheader->bfType = al_fread16le(f);
+   fileheader->bfSize = al_fread32le(f);
+   fileheader->bfReserved1 = al_fread16le(f);
+   fileheader->bfReserved2 = al_fread16le(f);
+   fileheader->bfOffBits = al_fread32le(f);
 
    if (fileheader->bfType != 19778)
       return -1;
@@ -109,16 +109,16 @@ static int read_win_bminfoheader(ALLEGRO_FS_ENTRY *f, BMPINFOHEADER *infoheader)
 {
    WINBMPINFOHEADER win_infoheader;
 
-   win_infoheader.biWidth = al_fs_entry_igetl(f);
-   win_infoheader.biHeight = al_fs_entry_igetl(f);
-   win_infoheader.biPlanes = al_fs_entry_igetw(f);
-   win_infoheader.biBitCount = al_fs_entry_igetw(f);
-   win_infoheader.biCompression = al_fs_entry_igetl(f);
-   win_infoheader.biSizeImage = al_fs_entry_igetl(f);
-   win_infoheader.biXPelsPerMeter = al_fs_entry_igetl(f);
-   win_infoheader.biYPelsPerMeter = al_fs_entry_igetl(f);
-   win_infoheader.biClrUsed = al_fs_entry_igetl(f);
-   win_infoheader.biClrImportant = al_fs_entry_igetl(f);
+   win_infoheader.biWidth = al_fread32le(f);
+   win_infoheader.biHeight = al_fread32le(f);
+   win_infoheader.biPlanes = al_fread16le(f);
+   win_infoheader.biBitCount = al_fread16le(f);
+   win_infoheader.biCompression = al_fread32le(f);
+   win_infoheader.biSizeImage = al_fread32le(f);
+   win_infoheader.biXPelsPerMeter = al_fread32le(f);
+   win_infoheader.biYPelsPerMeter = al_fread32le(f);
+   win_infoheader.biClrUsed = al_fread32le(f);
+   win_infoheader.biClrImportant = al_fread32le(f);
 
    infoheader->biWidth = win_infoheader.biWidth;
    infoheader->biHeight = win_infoheader.biHeight;
@@ -137,10 +137,10 @@ static int read_os2_bminfoheader(ALLEGRO_FS_ENTRY *f, BMPINFOHEADER *infoheader)
 {
    OS2BMPINFOHEADER os2_infoheader;
 
-   os2_infoheader.biWidth = al_fs_entry_igetw(f);
-   os2_infoheader.biHeight = al_fs_entry_igetw(f);
-   os2_infoheader.biPlanes = al_fs_entry_igetw(f);
-   os2_infoheader.biBitCount = al_fs_entry_igetw(f);
+   os2_infoheader.biWidth = al_fread16le(f);
+   os2_infoheader.biHeight = al_fread16le(f);
+   os2_infoheader.biPlanes = al_fread16le(f);
+   os2_infoheader.biBitCount = al_fread16le(f);
 
    infoheader->biWidth = os2_infoheader.biWidth;
    infoheader->biHeight = os2_infoheader.biHeight;
@@ -160,20 +160,20 @@ static void read_bmicolors(int bytes, PalEntry *pal, ALLEGRO_FS_ENTRY *f, int wi
    int i, j;
 
    for (i = j = 0; (i + 3 <= bytes && j < 256); j++) {
-      pal[j].b = al_fs_entry_getc(f);
-      pal[j].g = al_fs_entry_getc(f);
-      pal[j].r = al_fs_entry_getc(f);
+      pal[j].b = al_fgetc(f);
+      pal[j].g = al_fgetc(f);
+      pal[j].r = al_fgetc(f);
 
       i += 3;
 
       if (win_flag && i < bytes) {
-         al_fs_entry_getc(f);
+         al_fgetc(f);
          i++;
       }
    }
 
    for (; i < bytes; i++)
-      al_fs_entry_getc(f);
+      al_fgetc(f);
 }
 
 
@@ -190,7 +190,7 @@ static void read_1bit_line(int length, ALLEGRO_FS_ENTRY *f, unsigned char *buf)
    for (i = 0; i < length; i++) {
       j = i % 32;
       if (j == 0) {
-         n = al_fs_entry_mgetl(f);
+         n = al_fread32be(f);
          for (k = 0; k < 32; k++) {
             b[31 - k] = (char)(n & 1);
             n = n >> 1;
@@ -215,7 +215,7 @@ static void read_4bit_line(int length, ALLEGRO_FS_ENTRY *f, unsigned char *buf)
    for (i = 0; i < length; i++) {
       j = i % 8;
       if (j == 0) {
-         n = al_fs_entry_igetl(f);
+         n = al_fread32le(f);
          for (k = 0; k < 4; k++) {
             temp = n & 255;
             b[k * 2 + 1] = temp & 15;
@@ -242,7 +242,7 @@ static void read_8bit_line(int length, ALLEGRO_FS_ENTRY *f, unsigned char *buf)
    for (i = 0; i < length; i++) {
       j = i % 4;
       if (j == 0) {
-         n = al_fs_entry_igetl(f);
+         n = al_fread32le(f);
          for (k = 0; k < 4; k++) {
             b[k] = (char)(n & 255);
             n = n >> 8;
@@ -264,7 +264,7 @@ static void read_16bit_line(int length, ALLEGRO_FS_ENTRY *f, int line)
    PalEntry c;
 
    for (i = 0; i < length; i++) {
-      w = al_fs_entry_igetw(f);
+      w = al_fread16le(f);
 
       /* the format is like a 15-bpp bitmap, not 16bpp */
       c.r = (w >> 10) & 0x1f;
@@ -278,7 +278,7 @@ static void read_16bit_line(int length, ALLEGRO_FS_ENTRY *f, int line)
    i = (i * 2) % 4;
    if (i != 0) {
       while (i++ < 4)
-         al_fs_entry_getc(f);
+         al_fgetc(f);
    }
 }
 
@@ -294,9 +294,9 @@ static void read_24bit_line(int length, ALLEGRO_FS_ENTRY *f, int line)
    PalEntry c;
 
    for (i = 0; i < length; i++) {
-      c.b = al_fs_entry_getc(f);
-      c.g = al_fs_entry_getc(f);
-      c.r = al_fs_entry_getc(f);
+      c.b = al_fgetc(f);
+      c.g = al_fgetc(f);
+      c.r = al_fgetc(f);
       al_put_pixel(i, line, al_map_rgb(c.r, c.g, c.b));
    }
 
@@ -304,7 +304,7 @@ static void read_24bit_line(int length, ALLEGRO_FS_ENTRY *f, int line)
    i = (i * 3) % 4;
    if (i != 0) {
       while (i++ < 4)
-         al_fs_entry_getc(f);
+         al_fgetc(f);
    }
 }
 
@@ -320,10 +320,10 @@ static void read_32bit_line(int length, ALLEGRO_FS_ENTRY *f, int line)
    PalEntry c;
 
    for (i = 0; i < length; i++) {
-      c.b = al_fs_entry_getc(f);
-      c.g = al_fs_entry_getc(f);
-      c.r = al_fs_entry_getc(f);
-      c.a = al_fs_entry_getc(f);
+      c.b = al_fgetc(f);
+      c.g = al_fgetc(f);
+      c.r = al_fgetc(f);
+      c.a = al_fgetc(f);
       al_put_pixel(i, line, al_map_rgba(c.r, c.g, c.b, c.a));
    }
 }
@@ -352,7 +352,7 @@ static void read_bitfields_image(ALLEGRO_FS_ENTRY *f, AL_CONST BMPINFOHEADER *in
    for (i = 0; i < height; i++, line += dir) {
       for (k = 0; k < (int)infoheader->biWidth; k++) {
 
-         al_fs_entry_read(f, bytes_per_pixel, &buffer);
+         al_fread(f, bytes_per_pixel, &buffer);
 
          if (bpp == 15) {
             pix = ALLEGRO_CONVERT_RGB_555_TO_ARGB_8888(buffer);
@@ -374,7 +374,7 @@ static void read_bitfields_image(ALLEGRO_FS_ENTRY *f, AL_CONST BMPINFOHEADER *in
       k = (k * bytes_per_pixel) % 4;
       if (k > 0) {
          while (k++ < 4)
-            al_fs_entry_getc(f);
+            al_fgetc(f);
       }
    }
 }
@@ -456,8 +456,8 @@ static void read_RLE8_compressed_image(ALLEGRO_FS_ENTRY *f, unsigned char *buf,
       eolflag = 0;              /* end of line flag */
 
       while ((eolflag == 0) && (eopicflag == 0)) {
-         count = al_fs_entry_getc(f);
-         val = al_fs_entry_getc(f);
+         count = al_fgetc(f);
+         val = al_fgetc(f);
 
          if (count > 0) {       /* repeat pixel count times */
             for (j = 0; j < count; j++) {
@@ -477,21 +477,21 @@ static void read_RLE8_compressed_image(ALLEGRO_FS_ENTRY *f, unsigned char *buf,
                   break;
 
                case 2:         /* displace picture */
-                  count = al_fs_entry_getc(f);
-                  val = al_fs_entry_getc(f);
+                  count = al_fgetc(f);
+                  val = al_fgetc(f);
                   pos += count;
                   line -= val;
                   break;
 
                default:                      /* read in absolute mode */
                   for (j=0; j<val; j++) {
-                     val0 = al_fs_entry_getc(f);
+                     val0 = al_fgetc(f);
                      buf[line * infoheader->biWidth + pos] = val0;
                      pos++;
                   }
 
                   if (j % 2 == 1)
-                     val0 = al_fs_entry_getc(f);    /* align on word boundary */
+                     val0 = al_fgetc(f);    /* align on word boundary */
 
                   break;
             }
@@ -529,8 +529,8 @@ static void read_RLE4_compressed_image(ALLEGRO_FS_ENTRY *f, unsigned char *buf,
       eolflag = 0;              /* end of line flag */
 
       while ((eolflag == 0) && (eopicflag == 0)) {
-         count = al_fs_entry_getc(f);
-         val = al_fs_entry_getc(f);
+         count = al_fgetc(f);
+         val = al_fgetc(f);
 
          if (count > 0) {       /* repeat pixels count times */
             b[1] = val & 15;
@@ -552,8 +552,8 @@ static void read_RLE4_compressed_image(ALLEGRO_FS_ENTRY *f, unsigned char *buf,
                   break;
 
                case 2:         /* displace image */
-                  count = al_fs_entry_getc(f);
-                  val = al_fs_entry_getc(f);
+                  count = al_fgetc(f);
+                  val = al_fgetc(f);
                   pos += count;
                   line -= val;
                   break;
@@ -561,7 +561,7 @@ static void read_RLE4_compressed_image(ALLEGRO_FS_ENTRY *f, unsigned char *buf,
                default:        /* read in absolute mode */
                   for (j = 0; j < val; j++) {
                      if ((j % 4) == 0) {
-                        val0 = al_fs_entry_igetw(f);
+                        val0 = al_fread16le(f);
                         for (k = 0; k < 2; k++) {
                            b[2 * k + 1] = val0 & 15;
                            val0 = val0 >> 4;
@@ -612,7 +612,7 @@ static ALLEGRO_BITMAP *iio_load_bmp_pf(ALLEGRO_FS_ENTRY *f)
       return NULL;
    }
 
-   biSize = al_fs_entry_igetl(f);
+   biSize = al_fread32le(f);
 
    if (biSize == WININFOHEADERSIZE) {
       if (read_win_bminfoheader(f, &infoheader) != 0) {
@@ -642,9 +642,9 @@ static ALLEGRO_BITMAP *iio_load_bmp_pf(ALLEGRO_FS_ENTRY *f)
       bpp = 8;
 
    if (infoheader.biCompression == BIT_BITFIELDS) {
-      unsigned long redMask = al_fs_entry_igetl(f);
-      unsigned long grnMask = al_fs_entry_igetl(f);
-      unsigned long bluMask = al_fs_entry_igetl(f);
+      unsigned long redMask = al_fread32le(f);
+      unsigned long grnMask = al_fread32le(f);
+      unsigned long bluMask = al_fread32le(f);
 
       (void)grnMask;
 
@@ -761,29 +761,29 @@ static int iio_save_bmp_pf(ALLEGRO_FS_ENTRY *f, ALLEGRO_BITMAP *bmp)
    al_set_errno(0);
 
    /* file_header */
-   al_fs_entry_iputw(0x4D42, f);              /* bfType ("BM") */
-   al_fs_entry_iputl(bfSize, f);              /* bfSize */
-   al_fs_entry_iputw(0, f);                   /* bfReserved1 */
-   al_fs_entry_iputw(0, f);                   /* bfReserved2 */
+   al_fwrite16le(f, 0x4D42);              /* bfType ("BM") */
+   al_fwrite32le(f, bfSize);              /* bfSize */
+   al_fwrite16le(f, 0);                   /* bfReserved1 */
+   al_fwrite16le(f, 0);                   /* bfReserved2 */
 
    if (bpp == 8)                /* bfOffBits */
-      al_fs_entry_iputl(54 + 256 * 4, f);
+      al_fwrite32le(f, 54 + 256 * 4);
    else
-      al_fs_entry_iputl(54, f);
+      al_fwrite32le(f, 54);
 
    /* info_header */
-   al_fs_entry_iputl(40, f);                  /* biSize */
-   al_fs_entry_iputl(w, f);                   /* biWidth */
-   al_fs_entry_iputl(h, f);                   /* biHeight */
-   al_fs_entry_iputw(1, f);                   /* biPlanes */
-   al_fs_entry_iputw(bpp, f);                 /* biBitCount */
-   al_fs_entry_iputl(0, f);                   /* biCompression */
-   al_fs_entry_iputl(biSizeImage, f);         /* biSizeImage */
-   al_fs_entry_iputl(0xB12, f);               /* biXPelsPerMeter (0xB12 = 72 dpi) */
-   al_fs_entry_iputl(0xB12, f);               /* biYPelsPerMeter */
+   al_fwrite32le(f, 40);                  /* biSize */
+   al_fwrite32le(f, w);                   /* biWidth */
+   al_fwrite32le(f, h);                   /* biHeight */
+   al_fwrite16le(f, 1);                   /* biPlanes */
+   al_fwrite16le(f, bpp);                 /* biBitCount */
+   al_fwrite32le(f, 0);                   /* biCompression */
+   al_fwrite32le(f, biSizeImage);         /* biSizeImage */
+   al_fwrite32le(f, 0xB12);               /* biXPelsPerMeter (0xB12 = 72 dpi) */
+   al_fwrite32le(f, 0xB12);               /* biYPelsPerMeter */
 
-   al_fs_entry_iputl(0, f);                   /* biClrUsed */
-   al_fs_entry_iputl(0, f);                   /* biClrImportant */
+   al_fwrite32le(f, 0);                   /* biClrUsed */
+   al_fwrite32le(f, 0);                   /* biClrImportant */
 
    al_lock_bitmap(bmp, &lr, ALLEGRO_LOCK_READONLY);
 
@@ -793,13 +793,13 @@ static int iio_save_bmp_pf(ALLEGRO_FS_ENTRY *f, ALLEGRO_BITMAP *bmp)
          ALLEGRO_COLOR c = al_get_pixel(bmp, j, i);
          unsigned char r, g, b;
          al_unmap_rgb(c, &r, &g, &b);
-         al_fs_entry_putc(f, b);
-         al_fs_entry_putc(f, g);
-         al_fs_entry_putc(f, r);
+         al_fputc(f, b);
+         al_fputc(f, g);
+         al_fputc(f, r);
       }
 
       for (j = 0; j < filler; j++)
-         al_fs_entry_putc(f, 0);
+         al_fputc(f, 0);
    }
 
    al_unlock_bitmap(bmp);
@@ -823,13 +823,13 @@ ALLEGRO_BITMAP *iio_load_bmp(AL_CONST char *filename)
    ALLEGRO_BITMAP *bmp;
    ASSERT(filename);
 
-   f = al_fs_entry_open(filename, "rb");
+   f = al_fopen(filename, "rb");
    if (!f)
       return NULL;
 
    bmp = iio_load_bmp_pf(f);
 
-   al_fs_entry_close(f);
+   al_fclose(f);
 
    return bmp;
 }
@@ -845,13 +845,13 @@ int iio_save_bmp(AL_CONST char *filename, ALLEGRO_BITMAP *bmp)
    int ret;
    ASSERT(filename);
 
-   f = al_fs_entry_open(filename, "wb");
+   f = al_fopen(filename, "wb");
    if (!f)
       return -1;
 
    ret = iio_save_bmp_pf(f, bmp);
 
-   al_fs_entry_close(f);
+   al_fclose(f);
 
    return ret;
 }
