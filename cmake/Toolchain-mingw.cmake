@@ -19,12 +19,19 @@
 # the name of the target operating system
 set(CMAKE_SYSTEM_NAME Windows)
 
-# which compilers to use for C and C++
-set(CMAKE_C_COMPILER /usr/local/cross-tools/bin/i386-mingw32-gcc)
-set(CMAKE_CXX_COMPILER /usr/local/cross-tools/bin/i386-mingw32-g++)
-
-# here is the target environment located
-set(CMAKE_FIND_ROOT_PATH /usr/local/cross-tools)
+# Which compilers to use for C and C++, and location of target
+# environment.
+if(EXISTS /usr/i586-mingw32msvc)
+    # First look in standard location as used by Debian/Ubuntu/etc.
+    set(CMAKE_C_COMPILER i586-mingw32msvc-gcc)
+    set(CMAKE_CXX_COMPILER i586-mingw32msvc-g++)
+    set(CMAKE_FIND_ROOT_PATH /usr/i586-mingw32msvc)
+else()
+    # Else fill in local path which the user will likely adjust.
+    set(CMAKE_C_COMPILER /usr/local/cross-tools/bin/i386-mingw32-gcc)
+    set(CMAKE_CXX_COMPILER /usr/local/cross-tools/bin/i386-mingw32-g++)
+    set(CMAKE_FIND_ROOT_PATH /usr/local/cross-tools)
+endif()
 
 # adjust the default behaviour of the FIND_XXX() commands:
 # search headers and libraries in the target environment, search
