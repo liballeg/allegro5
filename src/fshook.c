@@ -35,7 +35,7 @@ struct ALLEGRO_FS_HOOK_ENTRY_INTERFACE *_al_entry_fshooks = &_al_stdio_entry_fsh
  */
 ALLEGRO_FS_ENTRY *al_create_entry(AL_CONST char *path)
 {
-   ALLEGRO_FS_ENTRY *handle = _al_fs_hook_create_handle(path);
+   ALLEGRO_FS_ENTRY *handle = _al_fs_hook_create(path);
    if (!handle)
       return NULL;
 
@@ -50,7 +50,7 @@ void al_destroy_entry(ALLEGRO_FS_ENTRY *handle)
 {
    ASSERT(handle != NULL);
 
-   _al_fs_hook_destroy_handle(handle);
+   _al_fs_hook_destroy(handle);
 
 }
 
@@ -63,7 +63,7 @@ bool al_open_entry(ALLEGRO_FS_ENTRY *handle, AL_CONST char *mode)
    ASSERT(handle != NULL);
    ASSERT(mode != NULL);
 
-   return _al_fs_hook_open_handle(handle, mode);
+   return _al_fs_hook_open(handle, mode);
 }
 
 /* Function: al_close_entry
@@ -72,7 +72,7 @@ bool al_open_entry(ALLEGRO_FS_ENTRY *handle, AL_CONST char *mode)
 void al_close_entry(ALLEGRO_FS_ENTRY *handle)
 {
    ASSERT(handle != NULL);
-   _al_fs_hook_close_handle(handle);
+   _al_fs_hook_close(handle);
 }
 
 /* Function: al_get_entry_name
@@ -366,7 +366,7 @@ bool al_is_present(ALLEGRO_FS_ENTRY *e)
 bool al_is_directory(ALLEGRO_FS_ENTRY *e)
 {
    ASSERT(e != NULL);
-   return al_fs_entry_mode(e) & AL_FM_ISDIR;
+   return al_get_entry_mode(e) & AL_FM_ISDIR;
 }
 
 /* Function: al_is_file
@@ -375,7 +375,7 @@ bool al_is_directory(ALLEGRO_FS_ENTRY *e)
 bool al_is_file(ALLEGRO_FS_ENTRY *e)
 {
    ASSERT(e != NULL);
-   return al_fs_entry_mode(e) & AL_FM_ISFILE;
+   return al_get_entry_mode(e) & AL_FM_ISFILE;
 }
 
 /* Function: al_mktemp
@@ -733,7 +733,7 @@ int32_t al_fread32le(ALLEGRO_FS_ENTRY *f)
  * Returns:
  * The written 16-bit word or EOF on error.
  */
-int16_t al_fwrite16le(int16_t w, ALLEGRO_FS_ENTRY *f)
+int16_t al_fwrite16le(ALLEGRO_FS_ENTRY *f, int16_t w)
 {
    int16_t b1 = 0, b2 = 0;
    ASSERT(f);
@@ -754,7 +754,7 @@ int16_t al_fwrite16le(int16_t w, ALLEGRO_FS_ENTRY *f)
  * Returns:
  * The written 32-bit word or EOF on error.
  */
-int32_t al_fwrite16le(int32_t l, ALLEGRO_FS_ENTRY *f)
+int32_t al_fwrite32le(ALLEGRO_FS_ENTRY *f, int32_t l)
 {
    int32_t b1 = 0, b2 = 0, b3 = 0, b4 = 0;
    ASSERT(f);
@@ -818,7 +818,7 @@ int32_t al_fread32be(ALLEGRO_FS_ENTRY *f)
  * Returns:
  * written 16-bit word or EOF on error
  */
-int16_t al_fwrite16be(int16_t w, ALLEGRO_FS_ENTRY *f)
+int16_t al_fwrite16be(ALLEGRO_FS_ENTRY *f, int16_t w)
 {
    int16_t b1 = 0, b2 = 0;
    ASSERT(f);
@@ -839,7 +839,7 @@ int16_t al_fwrite16be(int16_t w, ALLEGRO_FS_ENTRY *f)
  * Returns:
  * The written 32-bit word or EOF on error.
  */
-int32_t al_fwrite32be(int32_t l, ALLEGRO_FS_ENTRY *f)
+int32_t al_fwrite32be(ALLEGRO_FS_ENTRY *f, int32_t l)
 {
    int32_t b1 = 0, b2 = 0, b3 = 0, b4 = 0;
    ASSERT(f);
@@ -973,7 +973,7 @@ int al_fungetc(ALLEGRO_FS_ENTRY *fp, int c)
 {
    ASSERT(fp != NULL);
 
-   return _al_fs_hook_entry_ungetc(c, fp);
+   return _al_fs_hook_entry_ungetc(fp, c);
 }
 
 /* maybe find a better place for this later */
@@ -996,7 +996,7 @@ static int32_t _al_find_resource_exists(const char *path, const char *base,
 
    al_path_to_string(fp, buffer, len, ALLEGRO_NATIVE_PATH_SEP);
    //printf("_find_resource: '%s' exists:%i sfm:%i fm:%i eq:%i\n", buffer, al_fs_exists(buffer), al_fs_stat_mode(buffer), fm, (al_fs_stat_mode(buffer) & fm) == fm);
-   if (al_is_present(buffer) && (al_get_entry_mode_str(buffer) & fm) == fm) {
+   if (al_is_present_str(buffer) && (al_get_entry_mode_str(buffer) & fm) == fm) {
       ret = 1;
    }
    else if (fm & AL_FM_WRITE) {
@@ -1005,7 +1005,7 @@ static int32_t _al_find_resource_exists(const char *path, const char *base,
          usetc(rchr, '\0');
 
          //printf("testing '%s' for WRITE perms.\n", buffer);
-         if (al_is_present(buffer) && al_get_entry_mode_str(buffer) & AL_FM_WRITE) {
+         if (al_is_present_str(buffer) && al_get_entry_mode_str(buffer) & AL_FM_WRITE) {
             ret = 1;
          }
 

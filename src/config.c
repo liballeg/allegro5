@@ -318,18 +318,18 @@ ALLEGRO_CONFIG *al_config_read(const char *filename)
    ALLEGRO_FS_ENTRY *file;
    int i;
 
-   file = al_fs_entry_open(filename, "r");
+   file = al_fopen(filename, "r");
    if (!file) {
       return NULL;
    }
    
    config = al_config_create();
    if (!config) {
-      al_fs_entry_close(file);
+      al_fclose(file);
       return NULL;
    }
 
-   while (al_fs_entry_fgets(file, MAXSIZE, buffer)) {
+   while (al_fgets(file, MAXSIZE, buffer)) {
       char *ptr = skip_whitespace(buffer);
       if (*ptr == '#' || *ptr == 0) {
          /* Preserve comments */
@@ -358,7 +358,7 @@ ALLEGRO_CONFIG *al_config_read(const char *filename)
       }
    }
 
-   al_fs_entry_close(file);
+   al_fclose(file);
 
    return config;
 }
@@ -372,7 +372,7 @@ int al_config_write(const ALLEGRO_CONFIG *config, const char *filename)
 {
    ALLEGRO_CONFIG_SECTION *s;
    ALLEGRO_CONFIG_ENTRY *e;
-   ALLEGRO_FS_ENTRY *file = al_fs_entry_open(filename, "w");
+   ALLEGRO_FS_ENTRY *file = al_fopen(filename, "w");
 
    if (!file) {
       return 1;
@@ -385,23 +385,23 @@ int al_config_write(const ALLEGRO_CONFIG *config, const char *filename)
          e = s->head;
          while (e != NULL) {
             if (e->comment != NULL) {
-               if (al_fs_entry_fputs(file, e->comment)) {
+               if (al_fputs(file, e->comment)) {
                   goto Error;
                }
             }
             else {
-               if (al_fs_entry_fputs(file, e->key) != 0) {
+               if (al_fputs(file, e->key) != 0) {
                   goto Error;
                }
-               if (al_fs_entry_fputs(file, "=") != 0) {
-                  goto Error;
-               }
-
-               if (al_fs_entry_fputs(file, e->value) != 0) {
+               if (al_fputs(file, "=") != 0) {
                   goto Error;
                }
 
-               if (al_fs_entry_fputs(file, "\n") != 0) {
+               if (al_fputs(file, e->value) != 0) {
+                  goto Error;
+               }
+
+               if (al_fputs(file, "\n") != 0) {
                   goto Error;
                }
             }
@@ -416,38 +416,38 @@ int al_config_write(const ALLEGRO_CONFIG *config, const char *filename)
    s = config->head;
    while (s != NULL) {
       if (strcmp(s->name, "") != 0) {
-         if (al_fs_entry_putc(file, '[') == EOF) {
+         if (al_fputc(file, '[') == EOF) {
             goto Error;
          }
          
-         if (al_fs_entry_fputs(file, s->name) != 0) {
+         if (al_fputs(file, s->name) != 0) {
             goto Error;
          }
 
-         if (al_fs_entry_fputs(file, "]\n") != 0) {
+         if (al_fputs(file, "]\n") != 0) {
             goto Error;
          }
          
          e = s->head;
          while (e != NULL) {
             if (e->comment != NULL) {
-               if (al_fs_entry_fputs(file, e->comment)) {
+               if (al_fputs(file, e->comment)) {
                   goto Error;
                }
             }
             else {
-              if (al_fs_entry_fputs(file, e->key) != 0) {
+              if (al_fputs(file, e->key) != 0) {
                   goto Error;
                }
-               if (al_fs_entry_fputs(file, "=") != 0) {
-                  goto Error;
-               }
-
-               if (al_fs_entry_fputs(file, e->value) != 0) {
+               if (al_fputs(file, "=") != 0) {
                   goto Error;
                }
 
-               if (al_fs_entry_fputs(file, "\n") != 0) {
+               if (al_fputs(file, e->value) != 0) {
+                  goto Error;
+               }
+
+               if (al_fputs(file, "\n") != 0) {
                   goto Error;
                }
             }
@@ -464,14 +464,14 @@ int al_config_write(const ALLEGRO_CONFIG *config, const char *filename)
    }
 #endif
 
-   al_fs_entry_close(file);
+   al_fclose(file);
 
    return 0;
 
 Error:
 
    /* XXX do we delete the incomplete file? */
-   al_fs_entry_close(file);
+   al_fclose(file);
    return 1;
 }
 

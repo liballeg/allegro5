@@ -74,9 +74,9 @@ int _unix_find_resource(char *dest, AL_CONST char *resource, int size)
       al_path_append(local_path, resource);
       al_path_to_string(local_path, buf, sizeof(buf), '/');
 
-      if (al_fs_exists(buf)) {
-	 ustrzcpy(dest, size, buf);
-	 return 0;
+      if (al_is_present_str(buf)) {
+         ustrzcpy(dest, size, buf);
+         return 0;
       }
 
       /* if it is a .cfg, look for ~/.filerc */
@@ -498,7 +498,7 @@ AL_CONST char *_unix_get_path(uint32_t id, char *dir, size_t size)
          /* next try: /tmp /var/tmp /usr/tmp */
          char *paths[] = { "/tmp/", "/var/tmp/", "/usr/tmp/", NULL };
          for (i=0; paths[i] != NULL; ++i) {
-            if (al_fs_stat_mode(paths[i]) & AL_FM_ISDIR) {
+            if (al_get_entry_mode_str(paths[i]) & AL_FM_ISDIR) {
                do_uconvert(paths[i], U_ASCII, dir, U_CURRENT, strlen(paths[i])+1);
                return dir;
             }

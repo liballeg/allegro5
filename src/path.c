@@ -860,7 +860,7 @@ int32_t al_path_exists(ALLEGRO_PATH *path)
    }
 #endif
 
-   return al_fs_exists(buffer);
+   return al_is_present_str(buffer);
 }
 
 /* Function: al_path_emode
@@ -874,7 +874,7 @@ bool al_path_emode(ALLEGRO_PATH *path, uint32_t mode)
 
    al_path_to_string(path, buffer, PATH_MAX, ALLEGRO_NATIVE_PATH_SEP);
 
-   return (al_fs_stat_mode(buffer) & mode) == mode;
+   return (al_get_entry_mode_str(buffer) & mode) == mode;
 }
 
 /* Function: al_path_make_absolute
@@ -892,7 +892,7 @@ bool al_path_make_absolute(ALLEGRO_PATH *path)
       return false;
    }
 
-   if(!al_fs_getcwd(PATH_MAX, cwd)) {
+   if(!al_getcwd(PATH_MAX, cwd)) {
       return false;
    }
 

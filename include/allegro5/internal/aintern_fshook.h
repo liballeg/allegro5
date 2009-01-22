@@ -111,7 +111,7 @@ extern struct ALLEGRO_FS_HOOK_SYS_INTERFACE _al_stdio_sys_fshooks;
 #define _al_fs_hook_entry_tell(fp)                 (fp)->vtable->ftell(fp)
 #define _al_fs_hook_entry_error(fp)                (fp)->vtable->ferror(fp)
 #define _al_fs_hook_entry_eof(fp)                  (fp)->vtable->feof(fp)
-#define _al_fs_hook_entry_ungetc(fp, c)            (fp)->vtable->ungetc(fp, c)
+#define _al_fs_hook_entry_ungetc(fp, c)            (fp)->vtable->fungetc(fp, c)
 
 #define _al_fs_hook_entry_stat(path) (fp)->vtable->fstat(path)
 #define _al_fs_hook_entry_mode(fp)          (fp)->vtable->entry_mode(fp)

@@ -227,7 +227,7 @@ AL_FUNC(int64_t, al_ftell, (ALLEGRO_FS_ENTRY *fp));
 AL_FUNC(bool, al_ferror, (ALLEGRO_FS_ENTRY *fp));
 AL_FUNC(bool, al_feof, (ALLEGRO_FS_ENTRY *fp));
 
-AL_FUNC(int, al_fungetc, (int c, ALLEGRO_FS_ENTRY *fp));
+AL_FUNC(int, al_fungetc, (ALLEGRO_FS_ENTRY *fp, int c));
 
 AL_FUNC(bool, al_fstat, (ALLEGRO_FS_ENTRY *fp));
 
@@ -262,12 +262,12 @@ AL_FUNC(bool, al_is_present_str, (AL_CONST char *));
 
 AL_FUNC(bool, al_mkdir, (AL_CONST char *));
 
-AL_FUNC(bool, al_getcwd, (char *buf, size_t len));
+AL_FUNC(bool, al_getcwd, (size_t len, char *buf));
 AL_FUNC(bool, al_chdir, (const char *path));
 
 AL_FUNC(bool, al_add_search_path, (const char *path));
 AL_FUNC(int32_t, al_search_path_count, (void));
-AL_FUNC(bool, al_get_search_path, (uint32_t idx, char *dest, size_t len));
+AL_FUNC(bool, al_get_search_path, (uint32_t idx, size_t len, char *dest));
 
 AL_FUNC(int32_t, al_drive_sep, (size_t len, char *sep));
 AL_FUNC(int32_t, al_path_sep, (size_t len, char *sep));
