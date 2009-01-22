@@ -75,7 +75,7 @@ struct ALLEGRO_FS_HOOK_ENTRY_INTERFACE {
    AL_METHOD(bool,  ferror, (ALLEGRO_FS_ENTRY *fp) );
    AL_METHOD(bool,  feof,   (ALLEGRO_FS_ENTRY *fp) );
    AL_METHOD(bool,  fstat,  (ALLEGRO_FS_ENTRY *handle) );
-   AL_METHOD(int,  ungetc, (ALLEGRO_FS_ENTRY *fp, int c) );
+   AL_METHOD(int,  fungetc, (ALLEGRO_FS_ENTRY *fp, int c) );
 
    AL_METHOD(off_t,   entry_size,  (ALLEGRO_FS_ENTRY *) );
    AL_METHOD(uint32_t, entry_mode,  (ALLEGRO_FS_ENTRY *) );
