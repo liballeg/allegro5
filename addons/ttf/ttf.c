@@ -56,6 +56,7 @@ static ALLEGRO_BITMAP* create_glyph_cache(ALLEGRO_FONT const *f, int w,
         push_new_cache_bitmap(data);
         data->cache_pos_x = 0;
         data->cache_pos_y = 0;
+        data->cache_line_height = 0;
     }
 
     p_cache = _al_vector_ref_back(&data->cache_bitmaps);
