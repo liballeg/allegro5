@@ -1167,18 +1167,6 @@ char *ustrpbrk(AL_CONST char *s, AL_CONST char *set)
 
 
 
-/* ustrtok:
- *  Unicode-aware version of the ANSI strtok() function.
- */
-char *ustrtok(char *s, AL_CONST char *set)
-{
-   static char *last = NULL;
-
-   return ustrtok_r(s, set, &last);
-}
-
-
-
 /* ustrtok_r:
  *  Unicode-aware version of the strtok_r() function.
  */
@@ -2019,25 +2007,6 @@ int uvszprintf(char *buf, int size, AL_CONST char *format, va_list args)
    _AL_FREE(df);  /* alias for decoded_format */
 
    return len;
-}
-
-
-
-/* usprintf:
- *  Unicode-aware version of the ANSI sprintf() function.
- */
-int usprintf(char *buf, AL_CONST char *format, ...)
-{
-   int ret;
-   va_list ap;
-   ASSERT(buf);
-   ASSERT(format);
-
-   va_start(ap, format);
-   ret = uvszprintf(buf, INT_MAX, format, ap);
-   va_end(ap);
-
-   return ret;
 }
 
 

@@ -207,7 +207,7 @@ static void save_key_map(void)
 
    for (i = 0; i < 256; i++) {
       if (keycode_to_scancode[i] > 0) {
-	 usprintf(option, option_format, i);
+	 uszprintf(option, sizeof(option), option_format, i);
 	 set_config_int(section, option, keycode_to_scancode[i]);
       }
    }

@@ -1672,7 +1672,7 @@ int keyboard_proc(void)
 	 blit(screen, screen, xoff+0, yoff+48, xoff+0, yoff+40, 320, 112);
 	 k = readkey();
 	 c = k & 0xFF;
-	 usprintf(buf,"0x%04X - '%c'", k, c);
+	 uszprintf(buf, sizeof(buf), "0x%04X - '%c'", k, c);
 	 textout_centre_ex(screen, font, buf, SCREEN_W/2, yoff+152, palette_color[15], palette_color[0]);
       }
       poll_mouse();

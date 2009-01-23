@@ -69,12 +69,10 @@ AL_FUNC(char *, ustrchr, (AL_CONST char *s, int c));
 AL_FUNC(char *, ustrrchr, (AL_CONST char *s, int c));
 AL_FUNC(char *, ustrstr, (AL_CONST char *s1, AL_CONST char *s2));
 AL_FUNC(char *, ustrpbrk, (AL_CONST char *s, AL_CONST char *set));
-AL_FUNC(char *, ustrtok, (char *s, AL_CONST char *set));
 AL_FUNC(char *, ustrtok_r, (char *s, AL_CONST char *set, char **last));
 AL_FUNC(AL_CONST char *, ustrerror, (int err));
 AL_PRINTFUNC(int, uszprintf, (char *buf, int size, AL_CONST char *format, ...), 3, 4);
 AL_FUNC(int, uvszprintf, (char *buf, int size, AL_CONST char *format, va_list args));
-AL_PRINTFUNC(int, usprintf, (char *buf, AL_CONST char *format, ...), 2, 3);
 
 #ifndef ustrdup
    #ifdef FORTIFY

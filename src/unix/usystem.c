@@ -57,7 +57,7 @@
  */
 int _unix_find_resource(char *dest, AL_CONST char *resource, int size)
 {
-   char buf[256], tmp[256];
+   char buf[256];
    char home[256], ext[256];
    ALLEGRO_PATH *path;
 
