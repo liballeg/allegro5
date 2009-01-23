@@ -58,8 +58,8 @@ void _svgalib_unwrite_line_asm(BITMAP *bmp);
 GFX_DRIVER gfx_svgalib = 
 {
    GFX_SVGALIB,
-   empty_string,
-   empty_string,
+   "",
+   "",
    "SVGAlib", 
    svga_init,
    svga_exit,
@@ -84,7 +84,7 @@ GFX_DRIVER gfx_svgalib =
 
 
 
-static char svga_desc[256] = EMPTY_STRING;
+static char svga_desc[256] = "";
 
 static int svga_mode;
 

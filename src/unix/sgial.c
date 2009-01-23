@@ -45,15 +45,15 @@ static void _al_sgial_exit(int input);
 static int _al_sgial_mixer_volume(int volume);
 static int _al_sgial_buffer_size(void);
 
-static char _al_sgial_desc[256] = EMPTY_STRING;
+static char _al_sgial_desc[256] = "";
 
 static pthread_t thread;
 
 DIGI_DRIVER digi_sgial =
 {
    DIGI_SGIAL,
-   empty_string,
-   empty_string,
+   "",
+   "",
    "Silicon Graphics Audio",
    0,
    0,

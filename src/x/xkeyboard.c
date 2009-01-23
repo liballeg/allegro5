@@ -848,8 +848,8 @@ static void xkeybd_get_keyboard_state(ALLEGRO_KEYBOARD_STATE *ret_state);
 static ALLEGRO_KEYBOARD_DRIVER keydrv_xwin =
 {
    KEYDRV_XWIN,
-   empty_string,
-   empty_string,
+   "",
+   "",
    "X11 keyboard",
    xkeybd_init_keyboard,
    xkeybd_exit_keyboard,

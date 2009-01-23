@@ -34,11 +34,6 @@
 
 
 
-/* this is a valid encoding in any of the supported formats */
-char empty_string[] = EMPTY_STRING;
-
-
-
 /* ascii_getc:
  *  Reads a character from an ASCII string.
  */

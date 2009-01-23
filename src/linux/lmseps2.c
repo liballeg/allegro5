@@ -247,8 +247,8 @@ static void mouse_exit (void)
 MOUSE_DRIVER mousedrv_linux_ps2 =
 {
 	MOUSEDRV_LINUX_PS2,
-	empty_string,
-	empty_string,
+	"",
+	"",
 	"Linux PS/2 mouse",
 	ps2_mouse_init,
 	mouse_exit,
@@ -266,8 +266,8 @@ MOUSE_DRIVER mousedrv_linux_ps2 =
 MOUSE_DRIVER mousedrv_linux_ips2 =
 {
 	MOUSEDRV_LINUX_IPS2,
-	empty_string,
-	empty_string,
+	"",
+	"",
 	"Linux PS/2 Intellimouse",
 	ips2_mouse_init,
 	mouse_exit,

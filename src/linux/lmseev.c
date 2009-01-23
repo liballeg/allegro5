@@ -835,8 +835,8 @@ static void generate_mouse_event(unsigned int type,
 ALLEGRO_MOUSE_DRIVER _al_mousedrv_linux_evdev =
 {
    AL_MOUSEDRV_LINUX_EVDEV,
-   empty_string,
-   empty_string,
+   "",
+   "",
    "Linux EVDEV mouse (and tablet)",
    mouse_init,
    mouse_exit,

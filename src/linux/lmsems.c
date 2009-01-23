@@ -214,8 +214,8 @@ static void mouse_exit (void)
 MOUSE_DRIVER mousedrv_linux_ms =
 {
 	MOUSEDRV_LINUX_MS,
-	empty_string,
-	empty_string,
+	"",
+	"",
 	"Linux MS mouse",
 	ms_mouse_init,
 	mouse_exit,
@@ -233,8 +233,8 @@ MOUSE_DRIVER mousedrv_linux_ms =
 MOUSE_DRIVER mousedrv_linux_ims =
 {
 	MOUSEDRV_LINUX_IMS,
-	empty_string,
-	empty_string,
+	"",
+	"",
 	"Linux MS Intellimouse",
 	ims_mouse_init,
 	mouse_exit,

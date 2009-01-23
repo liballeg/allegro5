@@ -130,7 +130,7 @@ int load_proc(int msg, DIALOG *d, int c)
    int ret = d_button_proc(msg, d, c);
 
    if (ret & D_CLOSE) {
-      static char name[80*6] = EMPTY_STRING;  /* 80 chars * max UTF8 char width */
+      static char name[80*6] = "";  /* 80 chars * max UTF8 char width */
 
       if (file_select_ex("Load Sample", name, "wav;voc", sizeof(name), 0, 0)) {
 	 if (the_sample)

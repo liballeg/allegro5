@@ -145,8 +145,8 @@ static unsigned int old_mods = 0;
 ALLEGRO_KEYBOARD_DRIVER keyboard_macosx =
 {
 	KEYBOARD_MACOSX, //int  id;
-	empty_string,//   AL_CONST char *name;
-	empty_string, // AL_CONST char *desc;
+	"",//   AL_CONST char *name;
+	"", // AL_CONST char *desc;
 	"MacOS X keyboard",// AL_CONST char *ascii_name;
 	osx_keyboard_init, // ALLEGRO_METHOD(bool, init, (void));
 	osx_keyboard_exit, // ALLEGRO_METHOD(void, exit, (void));

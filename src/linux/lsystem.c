@@ -65,8 +65,8 @@ static void sys_linux_restore_console_state(void);
 SYSTEM_DRIVER system_linux =
 {
    SYSTEM_LINUX,
-   empty_string,
-   empty_string,
+   "",
+   "",
    "Linux console",
    sys_linux_init,
    sys_linux_exit,

@@ -1060,8 +1060,8 @@ static void mouse_directx_get_state(ALLEGRO_MOUSE_STATE *ret_state)
 static ALLEGRO_MOUSE_DRIVER mousedrv_directx =
 {
    MOUSE_DIRECTX,
-   empty_string,
-   empty_string,
+   "",
+   "",
    "DirectInput mouse",
    mouse_directx_init,
    mouse_directx_exit,

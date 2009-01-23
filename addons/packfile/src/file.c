@@ -64,7 +64,7 @@
 
 
 
-static char the_password[256] = EMPTY_STRING;
+static char the_password[256] = "";
 
 int _packfile_filesize = 0;
 int _packfile_datasize = 0;
@@ -1137,7 +1137,7 @@ int find_allegro_resource(char *dest, AL_CONST char *resource, AL_CONST char *ex
 
    /* if the resource is a path with no filename, look in that location */
    if ((resource) && (ugetc(resource)) && (!ugetc(get_filename(resource))))
-      return find_resource(dest, resource, empty_string, datafile, objectname, subdir, size);
+      return find_resource(dest, resource, "", datafile, objectname, subdir, size);
 
    /* if we have a path+filename, just use it directly */
    if ((resource) && (ustrpbrk(resource, uconvert_ascii("\\/#", tmp)))) {

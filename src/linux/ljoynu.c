@@ -82,8 +82,8 @@ static void ljoy_generate_button_event(ALLEGRO_JOYSTICK_LINUX *joy, int button, 
 ALLEGRO_JOYSTICK_DRIVER _al_joydrv_linux =
 {
    _ALLEGRO_JOYDRV_LINUX,
-   empty_string,
-   empty_string,
+   "",
+   "",
    "Linux joystick(s)",
    ljoy_init_joystick,
    ljoy_exit_joystick,

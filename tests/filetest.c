@@ -504,7 +504,7 @@ static int fa_flist_proc(int msg, DIALOG *d, int c)
 
 int main(void)
 {
-   char path[1024] = EMPTY_STRING;
+   char path[1024] = "";
 
    if (allegro_init() != 0)
       return -1;

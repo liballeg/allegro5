@@ -42,10 +42,6 @@ AL_FUNC(int, uwidth_max, (int type));
 #define uconvert_ascii(s, buf)      uconvert(s, U_ASCII, buf, U_CURRENT, sizeof(buf))
 #define uconvert_toascii(s, buf)    uconvert(s, U_CURRENT, buf, U_ASCII, sizeof(buf))
 
-#define EMPTY_STRING    "\0\0\0"
-
-AL_ARRAY(char, empty_string);
-
 AL_FUNCPTR(int, ugetc, (AL_CONST char *s));
 AL_FUNCPTR(int, ugetx, (char **s));
 AL_FUNCPTR(int, ugetxc, (AL_CONST char **s));

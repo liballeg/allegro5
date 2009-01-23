@@ -32,7 +32,7 @@ static char *_ustrduprange(const char *start, const char *end)
    const char *ptr = start;
    int blen = 0;
    char *copy;
-   int eslen = ustrsizez(empty_string);
+   int eslen = ustrsizez("");
 
    ptr = start;
    blen = 0;
@@ -63,7 +63,7 @@ static void _ustrcpyrange(char *dest, const char *start, const char *end)
       blen += ucwidth(c);
    }
 
-   memset(dest, 0, blen + ustrsizez(empty_string) + 1);
+   memset(dest, 0, blen + ustrsizez("") + 1);
    memcpy(dest, start, blen);
 }
 

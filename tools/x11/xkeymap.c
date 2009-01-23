@@ -23,7 +23,7 @@
 
 #define FILENAME_LENGTH  1024
 
-char unicode_description[256] = EMPTY_STRING;
+char unicode_description[256] = "";
 static DIALOG main_dialog[];
 static DIALOG keymap_dialog[];
 

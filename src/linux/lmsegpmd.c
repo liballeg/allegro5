@@ -131,8 +131,8 @@ static void mouse_exit (void)
 MOUSE_DRIVER mousedrv_linux_gpmdata =
 {
 	MOUSEDRV_LINUX_GPMDATA,
-	empty_string,
-	empty_string,
+	"",
+	"",
 	ASCII_NAME,
 	mouse_init,
 	mouse_exit,

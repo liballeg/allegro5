@@ -160,8 +160,8 @@ static void generate_button_event(ALLEGRO_JOYSTICK_DIRECTX *joy, int button, ALL
 ALLEGRO_JOYSTICK_DRIVER _al_joydrv_directx =
 {
    AL_JOY_TYPE_DIRECTX,
-   empty_string,
-   empty_string,
+   "",
+   "",
    "DirectInput joystick",
    joydx_init_joystick,
    joydx_exit_joystick,

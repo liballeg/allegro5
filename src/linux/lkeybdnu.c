@@ -99,8 +99,8 @@ static void handle_key_release(int mycode);
 static ALLEGRO_KEYBOARD_DRIVER keydrv_linux =
 {
    KEYDRV_LINUX,
-   empty_string,
-   empty_string,
+   "",
+   "",
    "Linux console keyboard",
    lkeybd_init_keyboard,
    lkeybd_exit_keyboard,

@@ -3157,7 +3157,7 @@ int do_profile(BITMAP *old_screen)
 
    int old_mode = mode;
 
-   static char fname[80*6] = EMPTY_STRING; /* 80 chars * max UTF8 char width */
+   static char fname[80*6] = ""; /* 80 chars * max UTF8 char width */
    FILE *f;
 
    int i;
@@ -3597,7 +3597,7 @@ int p3d_profile_proc(void)
    int old_cpu_capabilities = cpu_capabilities;
    BITMAP *old_screen = screen;
    BITMAP *buffer;
-   static char fname[80*6] = EMPTY_STRING; /* 80 chars * max UTF8 char width */
+   static char fname[80*6] = ""; /* 80 chars * max UTF8 char width */
    FILE *f;
    int i;
 

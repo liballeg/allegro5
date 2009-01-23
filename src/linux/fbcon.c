@@ -73,8 +73,8 @@ static void fb_restore_cmap(void);
 GFX_DRIVER gfx_fbcon = 
 {
    GFX_FBCON,
-   empty_string,
-   empty_string,
+   "",
+   "",
    "fbcon", 
    fb_init,
    fb_exit,
@@ -98,7 +98,7 @@ GFX_DRIVER gfx_fbcon =
 };
 
 
-static char fb_desc[256] = EMPTY_STRING;     /* description string */
+static char fb_desc[256] = "";     /* description string */
 
 static int fb_mode_read = FALSE;             /* has orig_mode been read? */
 

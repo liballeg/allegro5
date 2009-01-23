@@ -72,8 +72,8 @@ static void generate_mouse_event(unsigned int type,
 static ALLEGRO_MOUSE_DRIVER mousedrv_xwin =
 {
    MOUSEDRV_XWIN,
-   empty_string,
-   empty_string,
+   "",
+   "",
    "X-Windows mouse",
    xmouse_init,
    xmouse_exit,

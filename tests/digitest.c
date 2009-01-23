@@ -23,7 +23,7 @@
 
 
 
-char samplename[80*6] = EMPTY_STRING; /* 80 chars * max UTF8 char width */
+char samplename[80*6] = ""; /* 80 chars * max UTF8 char width */
 
 
 extern DIALOG thedialog[];
