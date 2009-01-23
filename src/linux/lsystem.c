@@ -275,7 +275,7 @@ static void sys_linux_message (AL_CONST char *msg)
    ASSERT(msg);
 
    tmp = _AL_MALLOC_ATOMIC(ALLEGRO_MESSAGE_SIZE);
-   msg = uconvert(msg, U_CURRENT, tmp, U_ASCII, ALLEGRO_MESSAGE_SIZE);
+   msg = uconvert(msg, U_UTF8, tmp, U_ASCII, ALLEGRO_MESSAGE_SIZE);
 
    do {
       ret = write(STDERR_FILENO, msg, strlen(msg));

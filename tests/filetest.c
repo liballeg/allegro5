@@ -116,7 +116,7 @@ static int fa_button_proc(int msg, DIALOG *d, int c)
 static int fa_filename_proc(int msg, DIALOG *d, int c)
 {
    char *s = d->dp;
-   int size = (d->d1 + 1) * uwidth_max(U_CURRENT); /* of s (in bytes) */
+   int size = (d->d1 + 1) * uwidth_max(U_UTF8); /* of s (in bytes) */
    int list_size;
    int found = 0;
    char b[1024], tmp[16];
@@ -401,7 +401,7 @@ static int fa_flist_proc(int msg, DIALOG *d, int c)
    static int recurse_flag = 0;
    char *s = fa_viewer[FA_TEXT].dp;
    char tmp[32];
-   int size = (fa_viewer[FA_TEXT].d1 + 1) * uwidth_max(U_CURRENT); /* of s (in bytes) */
+   int size = (fa_viewer[FA_TEXT].d1 + 1) * uwidth_max(U_UTF8); /* of s (in bytes) */
    int sel = d->d1;
    int i, ret;
    int ch, count;
@@ -519,7 +519,7 @@ int main(void)
    }
 
    fa_viewer[FA_MESSAGE].dp = "File attribute viewer";
-   fa_viewer[FA_TEXT].d1 = sizeof(path)/uwidth_max(U_CURRENT) - 1;
+   fa_viewer[FA_TEXT].d1 = sizeof(path)/uwidth_max(U_UTF8) - 1;
    fa_viewer[FA_TEXT].dp = path;
    fa_viewer[FA_OK].dp = (void*)get_config_text("OK");
 

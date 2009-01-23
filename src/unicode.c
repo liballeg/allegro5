@@ -509,7 +509,7 @@ UTYPE_INFO *_find_utype(int type)
 {
    int i;
 
-   if (type == U_CURRENT)
+   if (type == U_UTF8)
       type = utype;
 
    for (i=0; i<(int)(sizeof(utypes)/sizeof(UTYPE_INFO)); i++)
@@ -543,10 +543,10 @@ int need_uconvert(AL_CONST char *s, int type, int newtype)
    int c;
    ASSERT(s);
    
-   if (type == U_CURRENT)
+   if (type == U_UTF8)
       type = utype;
 
-   if (newtype == U_CURRENT)
+   if (newtype == U_UTF8)
       newtype = utype;
 
    if (type == newtype)
@@ -2407,7 +2407,7 @@ static int sprint_char(STRING_ARG *string_arg, SPRINT_INFO *info, long val)
    int pos = 0;
 
    /* 1 character max for... a character */
-   string_arg->data = _AL_MALLOC((MAX(1, info->field_width) * uwidth_max(U_CURRENT)
+   string_arg->data = _AL_MALLOC((MAX(1, info->field_width) * uwidth_max(U_UTF8)
                                                    + ucwidth(0)) * sizeof(char));
 
    pos += usetc(string_arg->data, val);
@@ -2473,7 +2473,7 @@ static int sprint_int(STRING_ARG *string_arg, SPRINT_INFO *info, LONGEST val)
    int pos = 0, len = 0;
 
    /* 24 characters max for a 64-bit integer */
-   string_arg->data = _AL_MALLOC((MAX(24, info->field_width) * uwidth_max(U_CURRENT)
+   string_arg->data = _AL_MALLOC((MAX(24, info->field_width) * uwidth_max(U_UTF8)
                                                     + ucwidth(0)) * sizeof(char));
 
    if (val < 0) {
@@ -2501,7 +2501,7 @@ static int sprint_unsigned(STRING_ARG *string_arg, SPRINT_INFO *info, unsigned L
    int pos = 0;
 
    /* 24 characters max for a 64-bit integer */
-   string_arg->data = _AL_MALLOC((MAX(24, info->field_width) * uwidth_max(U_CURRENT)
+   string_arg->data = _AL_MALLOC((MAX(24, info->field_width) * uwidth_max(U_UTF8)
                                                     + ucwidth(0)) * sizeof(char));
 
    sprint_plus_sign(info->num_special);
@@ -2527,7 +2527,7 @@ static int sprint_hex(STRING_ARG *string_arg, SPRINT_INFO *info, int caps, unsig
    int len;
 
    /* 24 characters max for a 64-bit integer */
-   string_arg->data = _AL_MALLOC((MAX(24, info->field_width) * uwidth_max(U_CURRENT)
+   string_arg->data = _AL_MALLOC((MAX(24, info->field_width) * uwidth_max(U_UTF8)
                                                     + ucwidth(0)) * sizeof(char));
 
    sprint_plus_sign(info->num_special);
@@ -2572,7 +2572,7 @@ static int sprint_octal(STRING_ARG *string_arg, SPRINT_INFO *info, unsigned LONG
    int len;
 
    /* 24 characters max for a 64-bit integer */
-   string_arg->data = _AL_MALLOC((MAX(24, info->field_width) * uwidth_max(U_CURRENT)
+   string_arg->data = _AL_MALLOC((MAX(24, info->field_width) * uwidth_max(U_UTF8)
                                                     + ucwidth(0)) * sizeof(char));
 
    sprint_plus_sign(info->num_special);
@@ -2636,11 +2636,11 @@ static int sprint_float(STRING_ARG *string_arg, SPRINT_INFO *info, double val, i
    format[len] = 0;
 
    len = sprintf(tmp, format, val);
-   size = len * uwidth_max(U_CURRENT) + ucwidth(0);
+   size = len * uwidth_max(U_UTF8) + ucwidth(0);
 
    string_arg->data = _AL_MALLOC(size * sizeof(char));
 
-   do_uconvert(tmp, U_ASCII, string_arg->data, U_CURRENT, size);
+   do_uconvert(tmp, U_ASCII, string_arg->data, U_UTF8, size);
 
    info->field_width = 0;
 
@@ -2659,7 +2659,7 @@ static int sprint_string(STRING_ARG *string_arg, SPRINT_INFO *info, AL_CONST cha
    int pos = 0, len = 0;
    int c;
 
-   string_arg->data = _AL_MALLOC((MAX(ustrlen(s), info->field_width) * uwidth_max(U_CURRENT)
+   string_arg->data = _AL_MALLOC((MAX(ustrlen(s), info->field_width) * uwidth_max(U_UTF8)
                                                             + ucwidth(0)) * sizeof(char));
 
    while ((c = ugetxc(&s)) != 0) {

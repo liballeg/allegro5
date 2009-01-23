@@ -204,7 +204,7 @@ char *canonicalize_filename(char *dest, AL_CONST char *filename, int size)
 	    if (ascii_username) {
 	       /* convert the username to ASCII, find the password entry,
 		* and copy their home directory. */
-	       do_uconvert(username, U_CURRENT, ascii_username, U_ASCII, userlen);
+	       do_uconvert(username, U_UTF8, ascii_username, U_ASCII, userlen);
 
 	       if ((ch = strchr(ascii_username, '/')))
 		  *ch = '\0';
@@ -229,7 +229,7 @@ char *canonicalize_filename(char *dest, AL_CONST char *filename, int size)
 	  * anyway. :)
 	  */
 	 if (home) {
-	    do_uconvert(home, U_ASCII, buf+pos, U_CURRENT, sizeof(buf)-pos);
+	    do_uconvert(home, U_ASCII, buf+pos, U_UTF8, sizeof(buf)-pos);
 	    _AL_FREE(home);
 	    pos = ustrsize(buf);
 	    filename = tail;
@@ -1198,7 +1198,7 @@ int find_allegro_resource(char *dest, AL_CONST char *resource, AL_CONST char *ex
    s = getenv("ALLEGRO");
 
    if (s) {
-      do_uconvert(s, U_ASCII, path, U_CURRENT, sizeof(path)-ucwidth(OTHER_PATH_SEPARATOR));
+      do_uconvert(s, U_ASCII, path, U_UTF8, sizeof(path)-ucwidth(OTHER_PATH_SEPARATOR));
       put_backslash(path);
 
       if (find_resource(dest, path, rname, datafile, objectname, subdir, size) == 0)
@@ -1210,7 +1210,7 @@ int find_allegro_resource(char *dest, AL_CONST char *resource, AL_CONST char *ex
       s = getenv(uconvert_tofilename(envvar, tmp));
 
       if (s) {
-	 do_uconvert(s, U_ASCII, path, U_CURRENT, sizeof(path)-ucwidth(OTHER_PATH_SEPARATOR));
+	 do_uconvert(s, U_ASCII, path, U_UTF8, sizeof(path)-ucwidth(OTHER_PATH_SEPARATOR));
 	 put_backslash(path);
 
 	 if (find_resource(dest, path, rname, datafile, objectname, subdir, size) == 0)
@@ -2402,12 +2402,12 @@ int pack_fputs(AL_CONST char *p, PACKFILE *f)
 
    al_set_errno(0);
 
-   bufsize = uconvert_size(p, U_CURRENT, U_UTF8);
+   bufsize = uconvert_size(p, U_UTF8, U_UTF8);
    buf = _AL_MALLOC_ATOMIC(bufsize);
    if (!buf)
       return -1;
 
-   s = uconvert(p, U_CURRENT, buf, U_UTF8, bufsize);
+   s = uconvert(p, U_UTF8, buf, U_UTF8, bufsize);
 
    while (*s) {
       #if (defined ALLEGRO_DOS) || (defined ALLEGRO_WINDOWS)

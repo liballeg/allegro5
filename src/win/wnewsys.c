@@ -379,7 +379,7 @@ static AL_CONST char *win_get_path(uint32_t id, char *dir, size_t size)
             return dir;
          }
 
-         do_uconvert(path, U_ASCII, dir, U_CURRENT, strlen(path)+1);
+         do_uconvert(path, U_ASCII, dir, U_UTF8, strlen(path)+1);
          return dir;
 
       } break;
@@ -397,7 +397,7 @@ static AL_CONST char *win_get_path(uint32_t id, char *dir, size_t size)
          /* should this not chop the slash? */
          *ptr = '\0';
 
-         do_uconvert(path, U_ASCII, dir, U_CURRENT, strlen(path)+1);
+         do_uconvert(path, U_ASCII, dir, U_UTF8, strlen(path)+1);
          ustrcat(dir, "\\");
          return dir;
       } break;
@@ -432,7 +432,7 @@ static AL_CONST char *win_get_path(uint32_t id, char *dir, size_t size)
          HANDLE process = GetCurrentProcess();
          GetModuleFileNameEx(process, NULL, path, MAX_PATH);
 
-         do_uconvert(path, U_ASCII, dir, U_CURRENT, strlen(path)+1);
+         do_uconvert(path, U_ASCII, dir, U_UTF8, strlen(path)+1);
          return dir;
       } break;
       
@@ -463,7 +463,7 @@ static AL_CONST char *win_get_path(uint32_t id, char *dir, size_t size)
       return NULL;
    }
    
-   do_uconvert(path, U_ASCII, dir, U_CURRENT, strlen(path)+1);
+   do_uconvert(path, U_ASCII, dir, U_UTF8, strlen(path)+1);
    
    return dir;
 }

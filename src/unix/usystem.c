@@ -255,7 +255,7 @@ static int _find_executable_file(const char *filename, char *output, int size)
    if (strchr(filename, '/')) {
       if (filename[0] == '/') {
          /* Full path; done */
-         do_uconvert(filename, U_ASCII, output, U_CURRENT, size);
+         do_uconvert(filename, U_ASCII, output, U_UTF8, size);
          return 1;
       }
       else {
@@ -270,7 +270,7 @@ static int _find_executable_file(const char *filename, char *output, int size)
 	 _al_sane_strncpy(pathname+len+1, filename, strlen(filename));
             
 	 if ((stat(pathname, &finfo)==0) && (!S_ISDIR (finfo.st_mode))) {
-	    do_uconvert(pathname, U_ASCII, output, U_CURRENT, size);
+	    do_uconvert(pathname, U_ASCII, output, U_UTF8, size);
 	    return 1;
 	 }
       }
@@ -294,7 +294,7 @@ static int _find_executable_file(const char *filename, char *output, int size)
 	    _al_sane_strncpy(buffer + (end - start) + 1, filename, end - start + 1 + strlen (filename) + 1);
 
 	    if ((stat(buffer, &finfo)==0) && (!S_ISDIR (finfo.st_mode))) {
-	       do_uconvert(buffer, U_ASCII, output, U_CURRENT, size);
+	       do_uconvert(buffer, U_ASCII, output, U_UTF8, size);
 	       _AL_FREE (buffer);
 	       return 1;
 	    }
@@ -330,7 +330,7 @@ void _unix_get_executable_name(char *output, int size)
       const char *s = getexecname();
       if (s) {
          if (s[0] == '/') {   /* Absolute path */
-            do_uconvert(s, U_ASCII, output, U_CURRENT, size);
+            do_uconvert(s, U_ASCII, output, U_UTF8, size);
             return;
          }
          else {               /* Not an absolute path */
@@ -352,7 +352,7 @@ void _unix_get_executable_name(char *output, int size)
       if (len>-1) {
 	 filename[len] = '\0';
          
-	 do_uconvert(filename, U_ASCII, output, U_CURRENT, size);
+	 do_uconvert(filename, U_ASCII, output, U_UTF8, size);
 	 return;
       }
    }
@@ -396,7 +396,7 @@ void _unix_get_executable_name(char *output, int size)
    /* Last resort: try using the output of the ps command to at least find */
    /* the name of the file if not the full path */
    uszprintf (linkname, sizeof(linkname), "ps -p %d", (int)pid);
-   do_uconvert(linkname, U_CURRENT, filename, U_ASCII, size);
+   do_uconvert(linkname, U_UTF8, filename, U_ASCII, size);
    pipe = popen(filename, "r");
    if (pipe) {
       /* The first line of output is a header */
@@ -427,7 +427,7 @@ void _unix_get_executable_name(char *output, int size)
          return;
 
       /* Just return the output from ps... */         
-      do_uconvert(filename, U_ASCII, output, U_CURRENT, size);
+      do_uconvert(filename, U_ASCII, output, U_UTF8, size);
       return;
    }
 
@@ -438,7 +438,7 @@ void _unix_get_executable_name(char *output, int size)
 #endif
 
    /* Give up; return empty string */
-   do_uconvert("", U_ASCII, output, U_CURRENT, size);
+   do_uconvert("", U_ASCII, output, U_UTF8, size);
 }
 
 #endif
@@ -463,7 +463,7 @@ static int32_t _unix_find_home(char *dir, uint32_t len)
 
       if (pass->pw_dir) {
          /* hey, we got our home directory */
-         do_uconvert(pass->pw_dir, U_ASCII, dir, U_CURRENT, len);
+         do_uconvert(pass->pw_dir, U_ASCII, dir, U_UTF8, len);
          return 0;
       }
 
@@ -471,7 +471,7 @@ static int32_t _unix_find_home(char *dir, uint32_t len)
       return -1;
    }
    else {
-      do_uconvert(home_env, U_ASCII, dir, U_CURRENT, len);
+      do_uconvert(home_env, U_ASCII, dir, U_UTF8, len);
       return 0;
    }
 
@@ -490,7 +490,7 @@ AL_CONST char *_unix_get_path(uint32_t id, char *dir, size_t size)
             char *tmp = getenv(envs[i]);
             if (tmp) {
                /* this may truncate paths, not likely in unix */
-               do_uconvert(tmp, U_ASCII, dir, U_CURRENT, strlen(tmp)+1);
+               do_uconvert(tmp, U_ASCII, dir, U_UTF8, strlen(tmp)+1);
                return dir;
             }
          }
@@ -499,7 +499,7 @@ AL_CONST char *_unix_get_path(uint32_t id, char *dir, size_t size)
          char *paths[] = { "/tmp/", "/var/tmp/", "/usr/tmp/", NULL };
          for (i=0; paths[i] != NULL; ++i) {
             if (al_get_entry_mode_str(paths[i]) & AL_FM_ISDIR) {
-               do_uconvert(paths[i], U_ASCII, dir, U_CURRENT, strlen(paths[i])+1);
+               do_uconvert(paths[i], U_ASCII, dir, U_UTF8, strlen(paths[i])+1);
                return dir;
             }
          }
@@ -579,7 +579,7 @@ AL_CONST char *_unix_get_path(uint32_t id, char *dir, size_t size)
          //
          strncat(path, ptr, ptr_len+1);
          //*(ptr-1) = '/';
-         do_uconvert(path, U_ASCII, dir, U_CURRENT, strlen(path)+1);
+         do_uconvert(path, U_ASCII, dir, U_UTF8, strlen(path)+1);
 
       } break;
 #endif
@@ -619,7 +619,7 @@ AL_CONST char *_unix_get_path(uint32_t id, char *dir, size_t size)
 
          ustrcpy(dir, tmp);
          //printf("userhome/datapath: '%s'\n", tmp);
-//         do_uconvert(tmp, U_ASCII, dir, U_CURRENT, strlen(tmp)+1);
+//         do_uconvert(tmp, U_ASCII, dir, U_UTF8, strlen(tmp)+1);
       } break;
 
       case AL_SYSTEM_SETTINGS_PATH:

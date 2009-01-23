@@ -70,13 +70,13 @@ uint64_t _al_file_size_ex(AL_CONST char *filename)
    char tmp[1024];
 
    if (get_filename_encoding() != U_UNICODE) {
-      if (_stat(uconvert(filename, U_CURRENT, tmp, U_ASCII, sizeof(tmp)), &s) != 0) {
+      if (_stat(uconvert(filename, U_UTF8, tmp, U_ASCII, sizeof(tmp)), &s) != 0) {
          al_set_errno(errno);
          return 0;
       }
    }
    else {
-      if (_wstat((wchar_t*)uconvert(filename, U_CURRENT, tmp, U_UNICODE,
+      if (_wstat((wchar_t*)uconvert(filename, U_UTF8, tmp, U_UNICODE,
                  sizeof(tmp)), &s) != 0) {
          al_set_errno(errno);
          return 0;
@@ -97,13 +97,13 @@ time_t _al_file_time(AL_CONST char *filename)
    char tmp[1024];
 
    if (get_filename_encoding() != U_UNICODE) {
-      if (_stat(uconvert(filename, U_CURRENT, tmp, U_ASCII, sizeof(tmp)), &s) != 0) {
+      if (_stat(uconvert(filename, U_UTF8, tmp, U_ASCII, sizeof(tmp)), &s) != 0) {
          al_set_errno(errno);
          return 0;
       }
    }
    else {
-      if (_wstat((wchar_t*)uconvert(filename, U_CURRENT, tmp, U_UNICODE, sizeof(tmp)), &s) != 0) {
+      if (_wstat((wchar_t*)uconvert(filename, U_UTF8, tmp, U_UNICODE, sizeof(tmp)), &s) != 0) {
          al_set_errno(errno);
          return 0;
       }
@@ -139,7 +139,7 @@ static void fill_ffblk(struct al_ffblk *info)
       info->time = ff_data->data.a.time_write;
       info->size = ff_data->data.a.size;
 
-      do_uconvert(ff_data->data.a.name, U_ASCII, info->name, U_CURRENT,
+      do_uconvert(ff_data->data.a.name, U_ASCII, info->name, U_UTF8,
                   sizeof(info->name));
    }
    else {
@@ -148,7 +148,7 @@ static void fill_ffblk(struct al_ffblk *info)
       info->size = ff_data->data.w.size;
 
       do_uconvert((const char*)ff_data->data.w.name, U_UNICODE, info->name,
-                  U_CURRENT, sizeof(info->name));
+                  U_UTF8, sizeof(info->name));
    }
 }
 
@@ -192,7 +192,7 @@ int al_findfirst(AL_CONST char *pattern, struct al_ffblk *info, int attrib)
    al_set_errno(0);
 
    if (get_filename_encoding() != U_UNICODE) {
-      ff_data->handle = _findfirst(uconvert(pattern, U_CURRENT, tmp,
+      ff_data->handle = _findfirst(uconvert(pattern, U_UTF8, tmp,
                                             U_ASCII, sizeof(tmp)),
                                             &ff_data->data.a);
 
@@ -213,7 +213,7 @@ int al_findfirst(AL_CONST char *pattern, struct al_ffblk *info, int attrib)
       }
    }
    else {
-      ff_data->handle = _wfindfirst((wchar_t*)uconvert(pattern, U_CURRENT, tmp,
+      ff_data->handle = _wfindfirst((wchar_t*)uconvert(pattern, U_UTF8, tmp,
                                                        U_UNICODE, sizeof(tmp)),
                                                        &ff_data->data.w);
 
@@ -315,13 +315,13 @@ void _al_getdcwd(int drive, char *buf, int size)
 
    if (get_filename_encoding() != U_UNICODE) {
       if (_getdcwd(drive+1, tmp, sizeof(tmp)))
-         do_uconvert(tmp, U_ASCII, buf, U_CURRENT, size);
+         do_uconvert(tmp, U_ASCII, buf, U_UTF8, size);
       else
          usetc(buf, 0);
    }
    else {
       if (_wgetdcwd(drive+1, (wchar_t*)tmp, sizeof(tmp)/sizeof(wchar_t)))
-         do_uconvert(tmp, U_UNICODE, buf, U_CURRENT, size);
+         do_uconvert(tmp, U_UNICODE, buf, U_UTF8, size);
       else
          usetc(buf, 0);
    }

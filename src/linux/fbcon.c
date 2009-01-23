@@ -437,7 +437,7 @@ static BITMAP *fb_init(int w, int h, int v_w, int v_h, int color_depth)
    b->vtable->acquire = __al_linux_acquire_bitmap;
    b->vtable->release = __al_linux_release_bitmap;
 
-   do_uconvert(fix_info.id, U_ASCII, fb_desc, U_CURRENT, sizeof(fb_desc));
+   do_uconvert(fix_info.id, U_ASCII, fb_desc, U_UTF8, sizeof(fb_desc));
 
    if (fb_approx) {
       ustrzcat(fb_desc, sizeof(fb_desc), uconvert_ascii(", ", tmp));
@@ -551,7 +551,7 @@ static int fb_open_device(void)
    p = get_config_string(uconvert_ascii("graphics", tmp1), uconvert_ascii("framebuffer", tmp2), NULL);
 
    if (p && ugetc(p))
-      do_uconvert(p, U_CURRENT, fname, U_ASCII, sizeof(fname));
+      do_uconvert(p, U_UTF8, fname, U_ASCII, sizeof(fname));
    else {
       p = getenv("FRAMEBUFFER");
 

@@ -137,7 +137,7 @@ struct PACKFILE_VTABLE
 };
 
 
-#define uconvert_tofilename(s, buf)      uconvert(s, U_CURRENT, buf, get_filename_encoding(), sizeof(buf))
+#define uconvert_tofilename(s, buf)      uconvert(s, U_UTF8, buf, get_filename_encoding(), sizeof(buf))
 
 AL_FUNC(void, set_filename_encoding, (int encoding));
 AL_FUNC(int, get_filename_encoding, (void));
