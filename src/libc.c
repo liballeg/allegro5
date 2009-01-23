@@ -24,6 +24,7 @@
 #include "allegro5/internal/aintern.h"
 #include "allegro5/internal/aintern_memory.h"
 #include <string.h>
+#include <ctype.h>
 
 
 static int _al_rand_seed = 0;
@@ -41,7 +42,7 @@ char *_alemu_strlwr(char *string)
    ASSERT(string);
 
    for (p=string; *p; p++)
-      *p = utolower(*p);
+      *p = tolower(*p);
 
    return string;
 }
@@ -61,7 +62,7 @@ char *_alemu_strupr(char *string)
    ASSERT(string);
 
    for (p=string; *p; p++)
-      *p = utoupper(*p);
+      *p = toupper(*p);
 
    return string;
 }
@@ -82,8 +83,8 @@ int _alemu_stricmp(AL_CONST char *s1, AL_CONST char *s2)
    ASSERT(s2);
 
    do {
-      c1 = utolower(*(s1++));
-      c2 = utolower(*(s2++));
+      c1 = tolower(*(s1++));
+      c2 = tolower(*(s2++));
    } while ((c1) && (c1 == c2));
 
    return c1 - c2;

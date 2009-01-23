@@ -80,7 +80,8 @@ int _unix_find_resource(char *dest, AL_CONST char *resource, int size)
       }
 
       /* if it is a .cfg, look for ~/.filerc */
-      if (ustricmp(al_path_get_extension(local_path, ext, sizeof(ext)), uconvert_ascii("cfg", tmp)) == 0) {
+      if (strcmp(al_path_get_extension(local_path, ext, sizeof(ext)), "cfg") == 0 ||
+         strcmp(al_path_get_extension(local_path, ext, sizeof(ext)), "CFG") == 0) {
 
          al_path_get_basename(local_path, buf, sizeof(buf));
          ustrncat(buf, "rc", 2);
@@ -110,7 +111,8 @@ int _unix_find_resource(char *dest, AL_CONST char *resource, int size)
    }
 
    /* if it is a .cfg, look for /etc/filerc */
-   if (ustricmp(al_path_get_extension(path, ext, sizeof(ext)), uconvert_ascii("cfg", tmp)) == 0) {
+   if (strcmp(al_path_get_extension(path, ext, sizeof(ext)), "cfg") == 0 ||
+      strcmp(al_path_get_extension(path, ext, sizeof(ext)), "CFG") == 0) {
 
       al_path_get_basename(path, buf, sizeof(buf));
       ustrncat(buf, "rc", 2);
@@ -129,7 +131,8 @@ int _unix_find_resource(char *dest, AL_CONST char *resource, int size)
    path = al_path_create(al_get_path(AL_SYSTEM_DATA_PATH, buf, sizeof(buf)));
    al_path_set_filename(path, resource);
 
-   if (ustricmp(al_path_get_extension(path, ext, sizeof(ext)), uconvert_ascii("dat", tmp)) == 0) {
+   if (strcmp(al_path_get_extension(path, ext, sizeof(ext)), "dat") == 0 ||
+      strcmp(al_path_get_extension(path, ext, sizeof(ext)), "DAT") == 0) {
       al_path_append(path, "allegro");
       al_path_to_string(path, buf, sizeof(buf), '/');
       if (al_is_present_str(buf)) {

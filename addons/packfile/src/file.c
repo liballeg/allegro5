@@ -106,7 +106,7 @@ char *fix_filename_case(char *filename)
    ASSERT(filename);
    
    if (!ALLEGRO_LFN)
-      ustrupr(filename);
+      strupr(filename);
 
    return filename;
 }
@@ -151,7 +151,7 @@ char *canonicalize_filename(char *dest, AL_CONST char *filename, int size)
    #if (DEVICE_SEPARATOR != 0) && (DEVICE_SEPARATOR != '\0')
 
       /* check whether we have a drive letter */
-      c1 = utolower(ugetc(filename));
+      c1 = tolower(ugetc(filename));
       if ((c1 >= 'a') && (c1 <= 'z')) {
 	 int c2 = ugetat(filename, 1);
 	 if (c2 == DEVICE_SEPARATOR) {
@@ -245,7 +245,7 @@ char *canonicalize_filename(char *dest, AL_CONST char *filename, int size)
       put_backslash(buf2);
 
       p = buf2;
-      if ((utolower(p[0]) >= 'a') && (utolower(p[0]) <= 'z') && (p[1] == DEVICE_SEPARATOR))
+      if ((tolower(p[0]) >= 'a') && (tolower(p[0]) <= 'z') && (p[1] == DEVICE_SEPARATOR))
 	 p += 2;
 
       ustrzcpy(buf+pos, sizeof(buf)-pos, p);
@@ -964,7 +964,8 @@ static int find_resource(char *dest, AL_CONST char *path, AL_CONST char *name, A
    }
 
    /* try path/name#_objectname */
-   if ((ustricmp(get_extension(name), uconvert_ascii("dat", tmp)) == 0) && (objectname)) {
+   if ((strcmp(get_extension(name), "dat") == 0 ||
+      strcmp(get_extension(name), "DAT") == 0) && objectname) {
       ustrzcpy(dest, size, path);
       ustrzcat(dest, size, name);
       ustrzcat(dest, size, hash);
@@ -1145,7 +1146,8 @@ int find_allegro_resource(char *dest, AL_CONST char *resource, AL_CONST char *ex
 	 ustrzcpy(dest, size, resource);
 
 	 /* if the resource is a datafile, try looking inside it */
-	 if ((ustricmp(get_extension(dest), uconvert_ascii("dat", tmp)) == 0) && (objectname)) {
+	 if ((strcmp(get_extension(dest), "dat") == 0 ||
+        strcmp(get_extension(dest), "DAT") == 0) && objectname) {
 	    ustrzcat(dest, size, uconvert_ascii("#", tmp));
 
 	    for (i=0; i<ustrlen(objectname); i++) {

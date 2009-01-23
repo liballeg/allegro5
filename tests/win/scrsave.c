@@ -468,7 +468,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmdPa
    else
       hwnd = GetActiveWindow();
 
-   switch (utolower(args[0])) {
+   switch (tolower(args[0])) {
 
       case 'c':
 	 return do_settings(hInstance, hPrevInstance, hwnd);

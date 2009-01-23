@@ -113,7 +113,7 @@ int get_driver_id(char *s)
 
    for (i=0; i<4; i++) {
       if (s[i])
-	 tmp[i] = utoupper(s[i]);
+	 tmp[i] = toupper(s[i]);
       else
 	 break;
    }
