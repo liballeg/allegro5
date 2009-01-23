@@ -526,62 +526,6 @@ UTYPE_INFO *_find_utype(int type)
 
 
 
-/* set_uformat:
- *  Selects a new text encoding format.
- */
-void set_uformat(int type)
-{
-   UTYPE_INFO *info = _find_utype(type);
-
-   if (info) {
-      utype = info->id;
-      ugetc = info->u_getc;
-      ugetx = (int (*)(char **)) info->u_getx;
-      ugetxc = (int (*)(AL_CONST char **)) info->u_getx;
-      usetc = info->u_setc;
-      uwidth = info->u_width;
-      ucwidth = info->u_cwidth;
-      uisok = info->u_isok;
-   }
-}
-
-
-
-/* get_uformat:
- *  Returns the current text encoding format.
- */
-int get_uformat(void)
-{
-   return utype;
-}
-
-
-
-/* register_uformat:
- *  Allows the user to hook in custom routines for supporting a new string
- *  encoding format.
- */
-void register_uformat(int type, int (*ugetc)(AL_CONST char *s), int (*ugetx)(char **s), int (*usetc)(char *s, int c), int (*uwidth)(AL_CONST char *s), int (*ucwidth)(int c), int (*uisok)(int c), int uwidth_max)
-{
-   UTYPE_INFO *info = _find_utype(type);
-
-   if (!info)
-      info = _find_utype(0);
-
-   if (info) {
-      info->id = type;
-      info->u_getc = ugetc;
-      info->u_getx = ugetx;
-      info->u_setc = usetc;
-      info->u_width = uwidth;
-      info->u_cwidth = ucwidth;
-      info->u_isok = uisok;
-      info->u_width_max = uwidth_max;
-   }
-}
-
-
-
 /* set_ucodepage:
  *  Sets lookup table data for the codepage conversion functions.
  */

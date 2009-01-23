@@ -9,7 +9,6 @@ int main(int argc, char **argv)
    ALLEGRO_PATH *cloned = NULL;
    
    al_init();
-   set_uformat(U_ASCII);
 
    if (argc < 2) {
       ALLEGRO_PATH *exe = al_path_create(argv[0]);
