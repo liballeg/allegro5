@@ -324,6 +324,10 @@ static int win_get_num_video_adapters(void)
    return _al_d3d_get_num_video_adapters();
 #endif
 
+#if defined ALLEGRO_CFG_OPENGL
+   return _al_wgl_get_num_video_adapters();
+#endif
+
    return 0;
 }
 
@@ -334,12 +338,24 @@ static void win_get_monitor_info(int adapter, ALLEGRO_MONITOR_INFO *info)
 #if defined ALLEGRO_CFG_OPENGL
    if (flags & ALLEGRO_OPENGL) {
       _al_wgl_get_monitor_info(adapter, info);
+      return;
    }
 #endif
 
 #if defined ALLEGRO_CFG_D3D
    _al_d3d_get_monitor_info(adapter, info);
+   return;
 #endif
+
+#if defined ALLEGRO_CFG_OPENGL
+   _al_wgl_get_monitor_info(adapter, info);
+   return;
+#endif
+
+   /* Well, you can't disable all display drivers and expect things to
+    * work.
+    */
+   ASSERT(false);
 }
 
 static bool win_get_cursor_position(int *ret_x, int *ret_y)
