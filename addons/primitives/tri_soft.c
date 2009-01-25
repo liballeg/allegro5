@@ -262,8 +262,9 @@ void triangle_stepper(ALLEGRO_BITMAP* dest, uintptr_t state, shader_init init, s
    float left_x_delta;
    float right_x_delta;
 
-   int left_first, right_first, left_step, left_d_er, right_step, right_d_er;   
+   int left_first, right_first, left_step, right_step;   
    int left_x, right_x, cur_y, mid_y, end_y;
+   float left_d_er, right_d_er;
    
    /*
    The reason these things are declared implicitly, is because we need to determine which
