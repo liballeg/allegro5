@@ -28,7 +28,6 @@
 #include "allegro5/a5_direct3d.h"
 
 #define A5V_FVF (D3DFVF_XYZ | D3DFVF_NORMAL | D3DFVF_DIFFUSE | D3DFVF_TEX1)
-#endif
 
 static int al_blender_to_d3d(int al_mode)
 {
@@ -81,6 +80,7 @@ static void set_blender(ALLEGRO_DISPLAY *display)
 
    IDirect3DDevice9_SetTextureStageState(device, 0, D3DTSS_ALPHAOP, D3DTOP_MODULATE);
 }
+#endif
 
 int _al_draw_prim_directx(ALLEGRO_BITMAP* texture, ALLEGRO_VBUFFER* vbuff, int start, int end, int type)
 {
