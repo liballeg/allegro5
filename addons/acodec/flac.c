@@ -212,9 +212,9 @@ static FLAC__StreamDecoderWriteStatus write_callback(
 
 /* Function: al_load_sample_data_flac
  */
-ALLEGRO_SAMPLE_DATA *al_load_sample_data_flac(const char *filename)
+ALLEGRO_SAMPLE *al_load_sample_data_flac(const char *filename)
 {
-   ALLEGRO_SAMPLE_DATA *sample;
+   ALLEGRO_SAMPLE *sample;
    FLAC__StreamDecoder *decoder = 0;
    FLAC__StreamDecoderInitStatus init_status;
    FLACFILE ff;
@@ -259,7 +259,7 @@ ALLEGRO_SAMPLE_DATA *al_load_sample_data_flac(const char *filename)
       return NULL;
    }
 
-   sample = al_create_sample_data(ff.buffer, ff.total_samples, ff.sample_rate,
+   sample = al_create_sample(ff.buffer, ff.total_samples, ff.sample_rate,
       _al_word_size_to_depth_conf(ff.word_size),
       _al_count_to_channel_conf(ff.channels), true);
 

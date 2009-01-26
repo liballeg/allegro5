@@ -13,8 +13,8 @@ int main(int argc, char **argv)
    ALLEGRO_VOICE *voice;
    ALLEGRO_MIXER *mixer;
    ALLEGRO_MIXER *submixer[2];
-   ALLEGRO_SAMPLE *sample[2];
-   ALLEGRO_SAMPLE_DATA *sample_data[2];
+   ALLEGRO_SAMPLE_INSTANCE *sample[2];
+   ALLEGRO_SAMPLE *sample_data[2];
    float sample_time;
    float max_sample_time;
    int i;
@@ -64,12 +64,12 @@ int main(int argc, char **argv)
          fprintf(stderr, "Could not load sample from '%s'!\n", filename);
          return 1;
       }
-      sample[i] = al_create_sample(NULL);
+      sample[i] = al_create_sample_instance(NULL);
       if (!sample[i]) {
          fprintf(stderr, "al_create_sample failed.\n");
          return 1;
       }
-      if (al_set_sample_data(sample[i], sample_data[i]) != 0) {
+      if (al_set_sample(sample[i], sample_data[i]) != 0) {
          fprintf(stderr, "al_set_sample_ptr failed.\n");
          return 1;
       }
@@ -85,13 +85,13 @@ int main(int argc, char **argv)
 
    /* Play sample in looping mode. */
    for (i = 0; i < 2; i++) {
-      al_set_sample_enum(sample[i], ALLEGRO_AUDIOPROP_LOOPMODE,
-         ALLEGRO_PLAYMODE_ONEDIR);
-      al_play_sample(sample[i]);
+      al_set_sample_instance_enum(sample[i], ALLEGRO_AUDIOPROP_LOOPMODE,
+         ALLEGRO_PLAYMODE_LOOP);
+      al_play_sample_instance(sample[i]);
    }
 
-   al_get_sample_float(sample[0], ALLEGRO_AUDIOPROP_TIME, &max_sample_time);
-   al_get_sample_float(sample[1], ALLEGRO_AUDIOPROP_TIME, &sample_time);
+   al_get_sample_instance_float(sample[0], ALLEGRO_AUDIOPROP_TIME, &max_sample_time);
+   al_get_sample_instance_float(sample[1], ALLEGRO_AUDIOPROP_TIME, &sample_time);
    if (sample_time > max_sample_time)
       max_sample_time = sample_time;
 
@@ -100,21 +100,21 @@ int main(int argc, char **argv)
 
    al_rest(max_sample_time);
 
-   al_set_sample_float(sample[0], ALLEGRO_AUDIOPROP_GAIN, 0.5);
+   al_set_sample_instance_float(sample[0], ALLEGRO_AUDIOPROP_GAIN, 0.5);
    al_rest(max_sample_time);
 
-   al_set_sample_float(sample[1], ALLEGRO_AUDIOPROP_GAIN, 0.25);
+   al_set_sample_instance_float(sample[1], ALLEGRO_AUDIOPROP_GAIN, 0.25);
    al_rest(max_sample_time);
 
-   al_stop_sample(sample[0]);
-   al_stop_sample(sample[1]);
+   al_stop_sample_instance(sample[0]);
+   al_stop_sample_instance(sample[1]);
    printf("\n");
 
    /* Free the memory allocated. */
    for (i = 0; i < 2; i++) {
-      al_set_sample_data(sample[i], NULL);
-      al_destroy_sample_data(sample_data[i]);
-      al_destroy_sample(sample[i]);
+      al_set_sample(sample[i], NULL);
+      al_destroy_sample(sample_data[i]);
+      al_destroy_sample_instance(sample[i]);
       al_destroy_mixer(submixer[i]);
    }
    al_destroy_mixer(mixer);

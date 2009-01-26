@@ -1,143 +1,93 @@
-/**
- * Originally digi.c from allegro wiki
- * Original authors: KC/Milan
+/*         ______   ___    ___
+ *        /\  _  \ /\_ \  /\_ \
+ *        \ \ \L\ \\//\ \ \//\ \      __     __   _ __   ___
+ *         \ \  __ \ \ \ \  \ \ \   /'__`\ /'_ `\/\`'__\/ __`\
+ *          \ \ \/\ \ \_\ \_ \_\ \_/\  __//\ \L\ \ \ \//\ \L\ \
+ *           \ \_\ \_\/\____\/\____\ \____\ \____ \ \_\\ \____/
+ *            \/_/\/_/\/____/\/____/\/____/\/___L\ \/_/ \/___/
+ *                                           /\____/
+ *                                           \_/__/
  *
- * Converted to allegro5 by Ryan Dickie
+ *      Sample audio interface.
+ *
+ *      By Peter Wang.
+ *
+ *      See LICENSE.txt for copyright information.
  */
 
-/* Title: Sample functions
+/* Title: Sample audio interface
  */
 
-#include <math.h>
-#include <stdio.h>
-
+#include "allegro5/allegro5.h"
 #include "allegro5/kcm_audio.h"
 #include "allegro5/internal/aintern_kcm_audio.h"
-#include "allegro5/internal/aintern_kcm_cfg.h"
+#include "allegro5/internal/aintern_vector.h"
 
 
-/* _al_kcm_stream_set_mutex:
- *  This function sets a sample's mutex pointer to the specified value. It is
- *  ALLEGRO_MIXER aware, and will recursively set any attached streams' mutex
- *  to the same value.
- */
-void _al_kcm_stream_set_mutex(ALLEGRO_SAMPLE *stream, ALLEGRO_MUTEX *mutex)
+static ALLEGRO_VOICE *allegro_voice = NULL;
+static ALLEGRO_MIXER *allegro_mixer = NULL;
+static ALLEGRO_MIXER *default_mixer = NULL;
+
+static _AL_VECTOR auto_samples = _AL_VECTOR_INITIALIZER(ALLEGRO_SAMPLE_INSTANCE *);
+static _AL_VECTOR auto_sample_ids = _AL_VECTOR_INITIALIZER(int);
+
+static bool create_default_mixer(void);
+static bool do_play_sample(ALLEGRO_SAMPLE_INSTANCE *spl, ALLEGRO_SAMPLE *data, float gain, float pan, float speed, int loop);
+static void free_sample_vector(void);
+
+/* Creates the default voice and mixer if they haven't been created yet. */
+static bool create_default_mixer(void)
 {
-   ASSERT(stream);
-
-   if (stream->mutex == mutex)
-      return;
-   stream->mutex = mutex;
-
-   /* If this is a mixer, we need to make sure all the attached streams also
-    * set the same mutex.
-    */
-   if (stream->spl_read == _al_kcm_mixer_read) {
-      ALLEGRO_MIXER *mixer = (ALLEGRO_MIXER *)stream;
-      int i;
-
-      for (i = _al_vector_size(&mixer->streams) - 1; i >= 0; i--) {
-         ALLEGRO_SAMPLE **slot = _al_vector_ref(&mixer->streams, i);
-         ALLEGRO_SAMPLE *spl = *slot;
-         _al_kcm_stream_set_mutex(spl, mutex);
+   if (!allegro_voice) {
+      allegro_voice = al_create_voice(44100, ALLEGRO_AUDIO_DEPTH_INT16,
+         ALLEGRO_CHANNEL_CONF_2);
+      if (!allegro_voice) {
+         TRACE("al_create_voice failed\n");
+         goto Error;
       }
    }
-}
 
-
-/* stream_free:
- *  This function is ALLEGRO_MIXER aware and frees the memory associated with
- *  the sample or mixer, and detaches any attached streams or mixers.
- */
-static void stream_free(ALLEGRO_SAMPLE *spl)
-{
-   if (spl) {
-      /* Make sure we free the mixer buffer and de-reference the attached
-       * streams if this is a mixer stream.
-       */
-      if (spl->spl_read == _al_kcm_mixer_read) {
-         ALLEGRO_MIXER *mixer = (ALLEGRO_MIXER *)spl;
-         int i;
-
-         _al_kcm_stream_set_mutex(&mixer->ss, NULL);
-
-         for (i = _al_vector_size(&mixer->streams) - 1; i >= 0; i--) {
-            ALLEGRO_SAMPLE **slot = _al_vector_ref(&mixer->streams, i);
-            ALLEGRO_SAMPLE *spl = *slot;
-            spl->parent.u.ptr = NULL;
-         }
-
-         _al_vector_free(&mixer->streams);
-
-         if (spl->spl_data.buffer.ptr) {
-            ASSERT(spl->spl_data.free_buf);
-            free(spl->spl_data.buffer.ptr);
-            spl->spl_data.buffer.ptr = NULL;
-         }
-         spl->spl_data.free_buf = false;
-      }
-
-      ASSERT(! spl->spl_data.free_buf);
-
-      free(spl);
-   }
-}
-
-
-/* _al_kcm_detach_from_parent:
- *  This detaches the sample, stream, or mixer from anything it may be attached
- *  to.
- */
-void _al_kcm_detach_from_parent(ALLEGRO_SAMPLE *spl)
-{
-   ALLEGRO_MIXER *mixer;
-   int i;
-
-   if (!spl || !spl->parent.u.ptr)
-      return;
-
-   if (spl->parent.is_voice) {
-      al_detach_voice(spl->parent.u.voice);
-      return;
-   }
-   
-   mixer = spl->parent.u.mixer;
-
-   free(spl->matrix);
-   spl->matrix = NULL;
-
-   /* Search through the streams and check for this one */
-   for (i = _al_vector_size(&mixer->streams) - 1; i >= 0; i--) {
-      ALLEGRO_SAMPLE **slot = _al_vector_ref(&mixer->streams, i);
-
-      if (*slot == spl) {
-         al_lock_mutex(mixer->ss.mutex);
-
-         _al_vector_delete_at(&mixer->streams, i);
-         spl->parent.u.mixer = NULL;
-         _al_kcm_stream_set_mutex(spl, NULL);
-
-         if (spl->spl_read != _al_kcm_mixer_read)
-            spl->spl_read = NULL;
-
-         al_unlock_mutex(mixer->ss.mutex);
-
-         break;
+   if (!allegro_mixer) {
+      allegro_mixer = al_create_mixer(44100, ALLEGRO_AUDIO_DEPTH_FLOAT32,
+         ALLEGRO_CHANNEL_CONF_2);
+      if (!allegro_mixer) {
+         TRACE("al_create_voice failed\n");
+         goto Error;
       }
    }
+
+   if (al_attach_mixer_to_voice(allegro_voice, allegro_mixer) != 0) {
+      TRACE("al_attach_mixer_to_voice failed\n");
+      goto Error;
+   }
+
+   return true;
+
+Error:
+
+   if (allegro_mixer) {
+      al_destroy_mixer(allegro_mixer);
+	  allegro_mixer = NULL;
+   }
+
+   if (allegro_voice) {
+      al_destroy_voice(allegro_voice);
+	  allegro_voice = NULL;
+   }
+
+   return false;
 }
 
-
-/* Function: al_create_sample_data
+/* Function: al_create_sample
  *  Create a sample data structure from the supplied buffer.
  *  If `free_buf' is true then the buffer will be freed as well when the
  *  sample data structure is destroyed.
  */
-ALLEGRO_SAMPLE_DATA *al_create_sample_data(void *buf, unsigned long samples,
+ALLEGRO_SAMPLE *al_create_sample(void *buf, unsigned long samples,
    unsigned long freq, ALLEGRO_AUDIO_DEPTH depth,
    ALLEGRO_CHANNEL_CONF chan_conf, bool free_buf)
 {
-   ALLEGRO_SAMPLE_DATA *spl;
+   ALLEGRO_SAMPLE *spl;
 
    ASSERT(buf);
 
@@ -160,20 +110,20 @@ ALLEGRO_SAMPLE_DATA *al_create_sample_data(void *buf, unsigned long samples,
    spl->buffer.ptr = buf;
    spl->free_buf = free_buf;
 
-   _al_kcm_register_destructor(spl, (void (*)(void *)) al_destroy_sample_data);
+   _al_kcm_register_destructor(spl, (void (*)(void *)) al_destroy_sample);
 
    return spl;
 }
 
 
-/* Function: al_destroy_sample_data
+/* Function: al_destroy_sample
  *  Free the sample data structure. If it was created with the `free_buf'
  *  parameter set to true, then the buffer will be freed as well.
  *
- *  You must destroy any ALLEGRO_SAMPLE structures which reference
- *  this ALLEGRO_SAMPLE_DATA beforehand.
+ *  You must destroy any ALLEGRO_SAMPLE_INSTANCE structures which reference
+ *  this ALLEGRO_SAMPLE beforehand.
  */
-void al_destroy_sample_data(ALLEGRO_SAMPLE_DATA *spl)
+void al_destroy_sample(ALLEGRO_SAMPLE *spl)
 {
    if (spl) {
       _al_kcm_unregister_destructor(spl);
@@ -187,550 +137,244 @@ void al_destroy_sample_data(ALLEGRO_SAMPLE_DATA *spl)
    }
 }
 
-
-/* Function: al_create_sample
- *  Creates a sample stream, using the supplied data.  This must be attached
- *  to a voice or mixer before it can be played.
- *  The argument may be NULL. You can then set the data later with
- *  <al_set_sample_data>.
+/* Function: al_reserve_samples
+ *  Reserves 'reserve_samples' number of samples attached to the default mixer.
+ *  <al_install_audio> must have been called first.  If no default mixer is set,
+ *  then this function will create a voice with an attached mixer.
+ *  Returns true on success, false on error.
  */
-ALLEGRO_SAMPLE *al_create_sample(ALLEGRO_SAMPLE_DATA *sample_data)
+bool al_reserve_samples(int reserve_samples)
 {
-   ALLEGRO_SAMPLE *spl;
+   int i;
+   int current_samples_count = (int) _al_vector_size(&auto_samples);
 
-   spl = calloc(1, sizeof(*spl));
-   if (!spl) {
-      _al_set_error(ALLEGRO_GENERIC_ERROR,
-         "Out of memory allocating sample object");
-      return NULL;
+   ASSERT(reserve_samples >= 0);
+
+   /* If no default mixer has been set by the user, then create a voice
+    * and a mixer, and set them to be the default one for use with
+	* al_play_sample().
+	*/
+   if (default_mixer == NULL) {
+      if (!al_restore_default_mixer()) goto Error;
    }
 
-   if (sample_data) {
-      spl->spl_data = *sample_data;
-   }
-   spl->spl_data.free_buf = false;
-
-   spl->loop = ALLEGRO_PLAYMODE_ONCE;
-   spl->speed = 1.0f;
-   spl->gain = 1.0f;
-   spl->pos = 0;
-   spl->loop_start = 0;
-   spl->loop_end = sample_data ? sample_data->len : 0;
-   spl->step = 0;
-
-   spl->matrix = NULL;
-
-   spl->spl_read = NULL;
-
-   spl->mutex = NULL;
-   spl->parent.u.ptr = NULL;
-
-   _al_kcm_register_destructor(spl, (void (*)(void *)) al_destroy_sample);
-
-   return spl;
-}
-
-
-/* This function is ALLEGRO_MIXER aware */
-/* Function: al_destroy_sample
- *  Detaches the sample stream from anything it may be attached to and frees
- *  it (the sample data is *not* freed!).
- */
-void al_destroy_sample(ALLEGRO_SAMPLE *spl)
-{
-   _al_kcm_destroy_sample(spl, true);
-}
-
-
-/* Internal function: _al_kcm_destroy_sample
- */
-void _al_kcm_destroy_sample(ALLEGRO_SAMPLE *spl, bool unregister)
-{
-   if (spl) {
-      if (unregister) {
-         _al_kcm_unregister_destructor(spl);
+   if (current_samples_count < reserve_samples) {
+      /* We need to reserve more samples than currently are reserved. */
+      for (i = 0; i < reserve_samples - current_samples_count; i++) {
+         ALLEGRO_SAMPLE_INSTANCE **slot = _al_vector_alloc_back(&auto_samples);
+	     int *id = _al_vector_alloc_back(&auto_sample_ids);
+		 *id = 0;
+         *slot = al_create_sample_instance(NULL);
+         if (!*slot) {
+            TRACE("al_create_sample failed\n");
+            goto Error;
+         }
+         if (al_attach_sample_to_mixer(default_mixer, *slot) != 0) {
+            TRACE("al_attach_mixer_to_sample failed\n");
+            goto Error;
+         }
       }
-
-      _al_kcm_detach_from_parent(spl);
-      stream_free(spl);
    }
+   else if (current_samples_count == reserve_samples) {
+      /* We need to reserve fewer samples than currently are reserved. */
+      while (current_samples_count-- > reserve_samples)
+	  {
+		  _al_vector_delete_at(&auto_samples, current_samples_count);
+		  _al_vector_delete_at(&auto_sample_ids, current_samples_count);
+	  }
+   }
+
+   return true;
+
+ Error:
+   free_sample_vector();
+   
+   return false;
 }
 
+/* Function: al_get_default_mixer
+ *  Return the default mixer.
+ */
+ALLEGRO_MIXER *al_get_default_mixer(void)
+{
+   return default_mixer;
+}
+
+/* Function: al_set_default_mixer
+ *  Sets the default mixer. All samples started with <al_play_sample>
+ *  will be stopped. If you are using your own mixer, this should be
+ *  called before <al_reserve_samples>.
+ *  Returns true on success, false on error.
+ */
+bool al_set_default_mixer(ALLEGRO_MIXER *mixer)
+{
+   ASSERT(mixer != NULL);
+
+   if (mixer != default_mixer) {
+      int i;
+
+	  default_mixer = mixer;
+
+	  /* Destroy all current sample instances, recreate them, and
+	   * attach them to the new mixer */
+      for (i = 0; i < (int) _al_vector_size(&auto_samples); i++) {
+         ALLEGRO_SAMPLE_INSTANCE **slot = _al_vector_ref(&auto_samples, i);
+		 int *id = _al_vector_ref(&auto_sample_ids, i);
+
+         *id = 0;
+         al_destroy_sample_instance(*slot);
+
+         *slot = al_create_sample_instance(NULL);
+         if (!*slot) {
+            TRACE("al_create_sample failed\n");
+            goto Error;
+         }
+         if (al_attach_sample_to_mixer(default_mixer, *slot) != 0) {
+            TRACE("al_attach_mixer_to_sample failed\n");
+            goto Error;
+         }
+      }      
+   }
+
+   return true;
+
+Error:
+   free_sample_vector();
+   default_mixer = NULL;   
+   return false;
+}
+
+/* Function: al_restore_default_mixer
+ *  Restores Allegro's default mixer. All samples started with <al_play_sample>
+ *  will be stopped.
+ *  Returns true on success, false on error.
+ */
+bool al_restore_default_mixer(void)
+{
+   if (!create_default_mixer()) return false;
+
+   if (!al_set_default_mixer(allegro_mixer)) return false;
+
+   return true;
+}
 
 /* Function: al_play_sample
+ *  Plays a sample over the default mixer. <al_reserve_samples> must have
+ *  previously been called. Returns true on success, false on failure.
+ *  Playback may fail because all the reserved samples are currently used.
  */
-int al_play_sample(ALLEGRO_SAMPLE *spl)
+bool al_play_sample(ALLEGRO_SAMPLE *spl, float gain, float pan, float speed, int loop, ALLEGRO_SAMPLE_ID *ret_id)
 {
+   static int next_id = 0;
+   unsigned int i;
+   
    ASSERT(spl);
 
-   return al_set_sample_bool(spl, ALLEGRO_AUDIOPROP_PLAYING, true);
+   if (ret_id != NULL)
+   {
+	   ret_id->_id = -1;
+	   ret_id->_index = 0;
+   }
+
+   for (i = 0; i < _al_vector_size(&auto_samples); i++) {
+      ALLEGRO_SAMPLE_INSTANCE **slot = _al_vector_ref(&auto_samples, i);
+      ALLEGRO_SAMPLE_INSTANCE *splinst = (*slot);
+      bool playing;
+
+      if (al_get_sample_instance_bool(splinst, ALLEGRO_AUDIOPROP_PLAYING, &playing) == 0) {
+         if (playing == false) {
+            int *id = _al_vector_ref(&auto_sample_ids, i);
+			if (!do_play_sample(splinst, spl, gain, pan, speed, loop)) break;
+
+			if (ret_id != NULL) {
+			   ret_id->_index = (int) i;
+			   ret_id->_id = *id = ++next_id;
+			}
+
+			return true;
+         }
+      }
+   }
+
+   return false;
 }
 
+static bool do_play_sample(ALLEGRO_SAMPLE_INSTANCE *splinst, ALLEGRO_SAMPLE *spl, float gain, float pan, float speed, int loop)
+{
+   if (al_set_sample(splinst, spl) != 0) {
+      TRACE("al_set_sample failed\n");
+      return false;
+   }
+
+   if (al_set_sample_instance_float(splinst, ALLEGRO_AUDIOPROP_GAIN, gain) ||
+      al_set_sample_instance_float(splinst, ALLEGRO_AUDIOPROP_SPEED, speed) ||
+      al_set_sample_instance_enum(splinst, ALLEGRO_AUDIOPROP_LOOPMODE, loop)) return false;
+
+   if (al_play_sample_instance(splinst) != 0) {
+      TRACE("al_play_sample_instance failed\n");
+      return false;
+   }
+
+   return true;
+}
 
 /* Function: al_stop_sample
+ *  Stop the sample started by <al_start_sample>
  */
-int al_stop_sample(ALLEGRO_SAMPLE *spl)
+void al_stop_sample(ALLEGRO_SAMPLE_ID *spl_id)
 {
-   ASSERT(spl);
+   int *id;
 
-   return al_set_sample_bool(spl, ALLEGRO_AUDIOPROP_PLAYING, false);
-}
+   ASSERT(spl_id->_id != -1);
+   ASSERT(spl_id->_index < (int) _al_vector_size(&auto_samples));
+   ASSERT(spl_id->_index < (int) _al_vector_size(&auto_sample_ids));
 
-
-/* Function: al_get_sample_long
- */
-int al_get_sample_long(const ALLEGRO_SAMPLE *spl,
-   ALLEGRO_AUDIO_PROPERTY setting, unsigned long *val)
-{
-   ASSERT(spl);
-
-   switch (setting) {
-      case ALLEGRO_AUDIOPROP_FREQUENCY:
-         *val = spl->spl_data.frequency;
-         return 0;
-
-      case ALLEGRO_AUDIOPROP_LENGTH:
-         *val = spl->spl_data.len >> MIXER_FRAC_SHIFT;
-         return 0;
-
-      case ALLEGRO_AUDIOPROP_POSITION:
-         if (spl->parent.u.ptr && spl->parent.is_voice) {
-            ALLEGRO_VOICE *voice = spl->parent.u.voice;
-            return al_get_voice_long(voice, ALLEGRO_AUDIOPROP_POSITION, val);
-         }
-
-         *val = spl->pos >> MIXER_FRAC_SHIFT;
-         return 0;
-
-      default:
-         _al_set_error(ALLEGRO_INVALID_PARAM,
-            "Attempted to get invalid sample long setting");
-         return 1;
+   id = _al_vector_ref(&auto_sample_ids, spl_id->_index);
+   if (*id == spl_id->_id)
+   {
+      ALLEGRO_SAMPLE_INSTANCE **slot, *spl;
+      slot = _al_vector_ref(&auto_samples, spl_id->_index);
+      spl = (*slot);
+      al_stop_sample_instance(spl);
    }
 }
 
 
-/* Function: al_get_sample_float
+/* Function: al_stop_samples
+ *  Stop all samples started by <al_start_sample>
  */
-int al_get_sample_float(const ALLEGRO_SAMPLE *spl,
-   ALLEGRO_AUDIO_PROPERTY setting, float *val)
+void al_stop_samples(void)
 {
-   ASSERT(spl);
+   unsigned int i;
 
-   switch (setting) {
-      case ALLEGRO_AUDIOPROP_SPEED:
-         *val = spl->speed;
-         return 0;
-
-      case ALLEGRO_AUDIOPROP_GAIN:
-         *val = spl->gain;
-         return 0;
-
-      case ALLEGRO_AUDIOPROP_TIME:
-         *val = (float)(spl->spl_data.len >> MIXER_FRAC_SHIFT)
-                  / (float)spl->spl_data.frequency;
-         return 0;
-
-      default:
-         _al_set_error(ALLEGRO_INVALID_PARAM,
-            "Attempted to get invalid sample float setting");
-         return 1;
+   for (i = 0; i < _al_vector_size(&auto_samples); i++) {
+      ALLEGRO_SAMPLE_INSTANCE **slot = _al_vector_ref(&auto_samples, i);
+      ALLEGRO_SAMPLE_INSTANCE *spl = (*slot);
+      al_stop_sample_instance(spl);
    }
 }
 
-
-/* Function: al_get_sample_enum
- */
-int al_get_sample_enum(const ALLEGRO_SAMPLE *spl,
-   ALLEGRO_AUDIO_PROPERTY setting, int *val)
+/* Destroy all sample instances, and frees the associated vectors. */
+static void free_sample_vector(void)
 {
-   ASSERT(spl);
-
-   switch (setting) {
-      case ALLEGRO_AUDIOPROP_DEPTH:
-         *val = spl->spl_data.depth;
-         return 0;
-
-      case ALLEGRO_AUDIOPROP_CHANNELS:
-         *val = spl->spl_data.chan_conf;
-         return 0;
-
-      case ALLEGRO_AUDIOPROP_LOOPMODE:
-         *val = spl->loop;
-         return 0;
-
-      default:
-         _al_set_error(ALLEGRO_INVALID_PARAM,
-            "Attempted to get invalid sample enum setting");
-         return 1;
+   int j;
+   for (j = 0; j < (int) _al_vector_size(&auto_samples); j++) {
+      ALLEGRO_SAMPLE_INSTANCE **slot = _al_vector_ref(&auto_samples, j);
+      al_destroy_sample_instance(*slot);
    }
+   _al_vector_free(&auto_samples);
+   _al_vector_free(&auto_sample_ids);
 }
 
-
-/* Function: al_get_sample_bool
- */
-int al_get_sample_bool(const ALLEGRO_SAMPLE *spl,
-   ALLEGRO_AUDIO_PROPERTY setting, bool *val)
+void _al_kcm_shutdown_default_mixer(void)
 {
-   ASSERT(spl);
+   free_sample_vector(); 
+   if (allegro_mixer) al_destroy_mixer(allegro_mixer);
+   if (allegro_voice) al_destroy_voice(allegro_voice);
 
-   switch (setting) {
-      case ALLEGRO_AUDIOPROP_PLAYING:
-         if (spl->parent.u.ptr && spl->parent.is_voice) {
-            ALLEGRO_VOICE *voice = spl->parent.u.voice;
-            return al_get_voice_bool(voice, ALLEGRO_AUDIOPROP_PLAYING, val);
-         }
-
-         *val = spl->is_playing;
-         return 0;
-
-      case ALLEGRO_AUDIOPROP_ATTACHED:
-         *val = (spl->parent.u.ptr != NULL);
-         return 0;
-
-      default:
-         _al_set_error(ALLEGRO_INVALID_PARAM,
-            "Attempted to get invalid sample bool setting");
-         return 1;
-   }
-}
-
-
-/* Function: al_get_sample_ptr
- */
-int al_get_sample_ptr(const ALLEGRO_SAMPLE *spl,
-   ALLEGRO_AUDIO_PROPERTY setting, void **val)
-{
-   ASSERT(spl);
-   (void)spl;
-   (void)val;
-
-   switch (setting) {
-      default:
-         _al_set_error(ALLEGRO_INVALID_PARAM,
-            "Attempted to get invalid sample pointer setting");
-         return 1;
-   }
-}
-
-
-/* Function: al_set_sample_long
- */
-int al_set_sample_long(ALLEGRO_SAMPLE *spl,
-   ALLEGRO_AUDIO_PROPERTY setting, unsigned long val)
-{
-   ASSERT(spl);
-
-   switch (setting) {
-      case ALLEGRO_AUDIOPROP_POSITION:
-         if (spl->parent.u.ptr && spl->parent.is_voice) {
-            ALLEGRO_VOICE *voice = spl->parent.u.voice;
-            if (al_set_voice_long(voice, ALLEGRO_AUDIOPROP_POSITION, val) != 0)
-               return 1;
-         }
-         else {
-            al_lock_mutex(spl->mutex);
-            spl->pos = val << MIXER_FRAC_SHIFT;
-            al_unlock_mutex(spl->mutex);
-         }
-
-         return 0;
-
-      case ALLEGRO_AUDIOPROP_LENGTH:
-         if (spl->is_playing) {
-            _al_set_error(ALLEGRO_INVALID_OBJECT,
-               "Attempted to change the length of a playing sample");
-            return 1;
-         }
-         spl->spl_data.len = val << MIXER_FRAC_SHIFT;
-         return 0;
-
-      default:
-         _al_set_error(ALLEGRO_INVALID_PARAM,
-            "Attempted to set invalid sample long setting");
-         return 1;
-   }
-}
-
-
-/* Function: al_set_sample_float
- */
-int al_set_sample_float(ALLEGRO_SAMPLE *spl,
-   ALLEGRO_AUDIO_PROPERTY setting, float val)
-{
-   ASSERT(spl);
-
-   switch (setting) {
-      case ALLEGRO_AUDIOPROP_SPEED:
-         if (fabs(val) < (1.0f/64.0f)) {
-            _al_set_error(ALLEGRO_INVALID_PARAM,
-               "Attempted to set zero speed");
-            return 1;
-         }
-
-         if (spl->parent.u.ptr && spl->parent.is_voice) {
-            _al_set_error(ALLEGRO_GENERIC_ERROR,
-               "Could not set voice playback speed");
-            return 1;
-         }
-
-         spl->speed = val;
-         if (spl->parent.u.mixer) {
-            ALLEGRO_MIXER *mixer = spl->parent.u.mixer;
-
-            al_lock_mutex(spl->mutex);
-
-            spl->step = (spl->spl_data.frequency << MIXER_FRAC_SHIFT) *
-                        spl->speed / mixer->ss.spl_data.frequency;
-            /* Don't wanna be trapped with a step value of 0 */
-            if (spl->step == 0) {
-               if (spl->speed > 0.0f)
-                  spl->step = 1;
-               else
-                  spl->step = -1;
-            }
-
-            al_unlock_mutex(spl->mutex);
-         }
-
-         return 0;
-
-      case ALLEGRO_AUDIOPROP_GAIN:
-         if (spl->parent.u.ptr && spl->parent.is_voice) {
-            _al_set_error(ALLEGRO_GENERIC_ERROR,
-               "Could not set gain of sample attached to voice");
-            return 1;
-         }
-
-         if (spl->gain == val) {
-            return 0;
-         }
-         spl->gain = val;
-
-         /* If attached to a mixer already, need to recompute the sample
-          * matrix to take into account the gain.
-          */
-         if (spl->parent.u.mixer) {
-            ALLEGRO_MIXER *mixer = spl->parent.u.mixer;
-
-            al_lock_mutex(spl->mutex);
-            _al_kcm_mixer_rejig_sample_matrix(mixer, spl);
-            al_unlock_mutex(spl->mutex);
-         }
-
-         return 0;
-
-      default:
-         _al_set_error(ALLEGRO_INVALID_PARAM,
-            "Attempted to set invalid sample float setting");
-         return 1;
-   }
-}
-
-
-/* Function: al_set_sample_enum
- */
-int al_set_sample_enum(ALLEGRO_SAMPLE *spl,
-   ALLEGRO_AUDIO_PROPERTY setting, int val)
-{
-   ASSERT(spl);
-
-   switch (setting) {
-      case ALLEGRO_AUDIOPROP_LOOPMODE:
-         if (val < ALLEGRO_PLAYMODE_ONCE || val > ALLEGRO_PLAYMODE_BIDIR) {
-            _al_set_error(ALLEGRO_INVALID_PARAM,
-               "Invalid loop mode");
-            return 1;
-         }
-         if (spl->parent.u.ptr && spl->parent.is_voice) {
-            _al_set_error(ALLEGRO_GENERIC_ERROR,
-               "Unable to set voice loop mode");
-            return 1;
-         }
-
-         if (spl->parent.u.ptr)
-            al_lock_mutex(spl->mutex);
-
-         spl->loop = val;
-         if (spl->loop != ALLEGRO_PLAYMODE_ONCE) {
-            if (spl->pos < spl->loop_start)
-               spl->pos = spl->loop_start;
-            else if (spl->pos > spl->loop_end-MIXER_FRAC_ONE)
-               spl->pos = spl->loop_end-MIXER_FRAC_ONE;
-         }
-
-         if (spl->parent.u.ptr)
-            al_unlock_mutex(spl->mutex);
-
-         return 0;
-
-      default:
-         _al_set_error(ALLEGRO_INVALID_PARAM,
-            "Attempted to set invalid sample enum setting");
-         return 1;
-   }
-}
-
-
-/* Function: al_set_sample_bool
- */
-int al_set_sample_bool(ALLEGRO_SAMPLE *spl,
-   ALLEGRO_AUDIO_PROPERTY setting, bool val)
-{
-   ASSERT(spl);
-
-   switch (setting) {
-      case ALLEGRO_AUDIOPROP_PLAYING:
-         if (!spl->parent.u.ptr) {
-            _al_set_error(ALLEGRO_INVALID_OBJECT, "Sample has no parent");
-            return 1;
-         }
-         if (!spl->spl_data.buffer.ptr) {
-            _al_set_error(ALLEGRO_INVALID_OBJECT, "Sample has no data");
-            return 1;
-         }
-
-         if (spl->parent.is_voice) {
-            /* parent is voice */
-            ALLEGRO_VOICE *voice = spl->parent.u.voice;
-
-            /* FIXME: there is no else. what does this do? */
-            if (al_set_voice_bool(voice, ALLEGRO_AUDIOPROP_PLAYING, val) == 0) {
-               unsigned long pos = spl->pos >> MIXER_FRAC_SHIFT;
-               if (al_get_voice_long(voice, ALLEGRO_AUDIOPROP_POSITION, &pos) == 0)
-               {
-                  spl->pos = pos << MIXER_FRAC_SHIFT;
-                  spl->is_playing = val;
-                  return 0;
-               }
-            }
-            return 1;
-         }
-         else {
-            /* parent is mixer */
-            al_lock_mutex(spl->mutex);
-            spl->is_playing = val;
-            if (!val)
-               spl->pos = 0;
-            al_unlock_mutex(spl->mutex);
-         }
-         return 0;
-
-      case ALLEGRO_AUDIOPROP_ATTACHED:
-         if (val) {
-            _al_set_error(ALLEGRO_INVALID_PARAM,
-               "Attempted to set sample attachment status true");
-            return 1;
-         }
-         _al_kcm_detach_from_parent(spl);
-         return 0;
-
-      default:
-         _al_set_error(ALLEGRO_INVALID_PARAM,
-            "Attempted to set invalid sample long setting");
-         return 1;
-   }
-}
-
-
-/* Function: al_set_sample_ptr
- */
-int al_set_sample_ptr(ALLEGRO_SAMPLE *spl,
-   ALLEGRO_AUDIO_PROPERTY setting, void *val)
-{
-   ASSERT(spl);
-   (void)spl;
-   (void)val;
-
-   switch (setting) {
-      default:
-         _al_set_error(ALLEGRO_INVALID_PARAM,
-            "Attempted to set invalid sample long setting");
-         return 1;
-   }
-}
-
-
-/* Function: al_set_sample_data
- *  Change the sample data that a sample plays.  This can be quite an involved
- *  process.
- *
- *  First, the sample is stopped if it is not already.
- *
- *  Next, if data is NULL, the sample is detached from its parent (if any).
- *
- *  If data is not NULL, the sample may be detached and reattached to its
- *  parent (if any).  This is not necessary if the old sample data and new
- *  sample data have the same frequency, depth and channel configuration.
- *  Reattaching may not always succeed.
- *
- *  On success, the sample remains stopped.  The playback position and loop
- *  end points are reset to their default values.  The loop mode remains
- *  unchanged.
- *
- *  Returns zero on success, non-zero on failure.  On failure, the sample will
- *  be stopped and detached from its parent.
- */
-int al_set_sample_data(ALLEGRO_SAMPLE *spl, ALLEGRO_SAMPLE_DATA *data)
-{
-   sample_parent_t old_parent;
-   bool need_reattach;
-
-   ASSERT(spl);
-
-   /* Stop the sample if it is playing. */
-   if (spl->is_playing) {
-      if (al_set_sample_bool(spl, ALLEGRO_AUDIOPROP_PLAYING, false) != 0) {
-         /* Shouldn't happen. */
-         ASSERT(false);
-         return 1;
-      }
-   }
-
-   if (!data) {
-      if (spl->parent.u.ptr) {
-         _al_kcm_detach_from_parent(spl);
-      }
-      spl->spl_data.buffer.ptr = NULL;
-      return 0;
-   }
-
-   /* Have data. */
-
-   need_reattach = false;
-   if (spl->parent.u.ptr != NULL) {
-      if (spl->spl_data.frequency != data->frequency ||
-            spl->spl_data.depth != data->depth ||
-            spl->spl_data.chan_conf != data->chan_conf) {
-         old_parent = spl->parent;
-         need_reattach = true;
-         _al_kcm_detach_from_parent(spl);
-      }
-   }
-
-   spl->spl_data = *data;
-   spl->spl_data.free_buf = false;
-   spl->pos = 0;
-   spl->loop_start = 0;
-   spl->loop_end = data->len;
-   /* Should we reset the loop mode? */
-
-   if (need_reattach) {
-      if (old_parent.is_voice) {
-         if (al_attach_sample_to_voice(old_parent.u.voice, spl) != 0) {
-            spl->spl_data.buffer.ptr = NULL;
-            return 1;
-         }
-      }
-      else {
-         if (al_attach_sample_to_mixer(old_parent.u.mixer, spl) != 0) {
-            spl->spl_data.buffer.ptr = NULL;
-            return 1;
-         }
-      }
-   }
-
-   return 0;
+   allegro_mixer = NULL;
+   allegro_voice = NULL;
+   default_mixer = NULL;
 }
 
 

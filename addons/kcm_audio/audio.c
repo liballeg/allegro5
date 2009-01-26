@@ -221,6 +221,7 @@ int al_install_audio(ALLEGRO_AUDIO_DRIVER_ENUM mode)
 void al_uninstall_audio(void)
 {
    if (_al_kcm_driver) {
+      _al_kcm_shutdown_default_mixer();
       _al_kcm_shutdown_destructors();
       _al_kcm_driver->close();
       _al_kcm_driver = NULL;

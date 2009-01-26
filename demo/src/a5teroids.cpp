@@ -35,8 +35,8 @@ int main(int argc, char **argv)
    ALLEGRO_STREAM *title_music = (ALLEGRO_STREAM *)rm.getData(RES_TITLE_MUSIC);
    ALLEGRO_STREAM *game_music = (ALLEGRO_STREAM *)rm.getData(RES_GAME_MUSIC);
 
-   al_set_stream_enum(title_music, ALLEGRO_AUDIOPROP_LOOPMODE, ALLEGRO_PLAYMODE_ONEDIR);
-   al_set_stream_enum(game_music, ALLEGRO_AUDIOPROP_LOOPMODE, ALLEGRO_PLAYMODE_ONEDIR);
+   al_set_stream_enum(title_music, ALLEGRO_AUDIOPROP_LOOPMODE, ALLEGRO_PLAYMODE_LOOP);
+   al_set_stream_enum(game_music, ALLEGRO_AUDIOPROP_LOOPMODE, ALLEGRO_PLAYMODE_LOOP);
 
    for (;;) {
       player->load();

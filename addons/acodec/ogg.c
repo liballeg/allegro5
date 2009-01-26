@@ -73,7 +73,7 @@ ov_callbacks callbacks = {
 
 /* Function: al_load_sample_data_oggvorbis
  */
-ALLEGRO_SAMPLE_DATA *al_load_sample_data_oggvorbis(const char *filename)
+ALLEGRO_SAMPLE *al_load_sample_data_oggvorbis(const char *filename)
 {
    /* Note: decoding library returns floats.  I always return 16-bit (most
     * commonly supported).
@@ -91,7 +91,7 @@ ALLEGRO_SAMPLE_DATA *al_load_sample_data_oggvorbis(const char *filename)
    ALLEGRO_FS_ENTRY *file;
    char *buffer;
    long pos;
-   ALLEGRO_SAMPLE_DATA *sample;
+   ALLEGRO_SAMPLE *sample;
    int channels;
    long rate;
    long total_samples;
@@ -146,7 +146,7 @@ ALLEGRO_SAMPLE_DATA *al_load_sample_data_oggvorbis(const char *filename)
    ov_clear(&vf);
    al_fclose(file);
 
-   sample = al_create_sample_data(buffer, total_samples, rate,
+   sample = al_create_sample(buffer, total_samples, rate,
       _al_word_size_to_depth_conf(word_size),
       _al_count_to_channel_conf(channels), true);
 

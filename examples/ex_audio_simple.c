@@ -14,7 +14,7 @@
 
 int main(int argc, const char *argv[])
 {
-   ALLEGRO_SAMPLE_DATA *sample_data[MAX_SAMPLE_DATA] = {NULL};
+   ALLEGRO_SAMPLE *sample_data[MAX_SAMPLE_DATA] = {NULL};
    ALLEGRO_DISPLAY *display;
    ALLEGRO_EVENT_QUEUE *event_queue;
    ALLEGRO_EVENT event;
@@ -51,7 +51,7 @@ Restart:
       return 1;
    }
 
-   if (!al_setup_simple_audio(RESERVED_SAMPLES)) {
+   if (!al_reserve_samples(RESERVED_SAMPLES)) {
       fprintf(stderr, "Could not set up voice and mixer.\n");
       return 1;
    }
@@ -80,14 +80,14 @@ Restart:
          }
 
          if (event.keyboard.keycode == ALLEGRO_KEY_SPACE) {
-            al_stop_all_simple_samples();
+            al_stop_samples();
          }
 
          if (event.keyboard.unichar >= '0' && event.keyboard.unichar <= '9') {
             i = (event.keyboard.unichar - '0' + 9) % 10;
             if (sample_data[i]) {
                printf("Playing %d\n",i);
-               if (!al_play_sample_data(sample_data[i])) {
+               if (!al_play_sample(sample_data[i], 1.0, 0.5, 1.0, ALLEGRO_PLAYMODE_LOOP, NULL)) {
                   fprintf(stderr,
                      "al_play_sample_data failed, perhaps too many sounds\n");
                }
@@ -98,7 +98,6 @@ Restart:
           * For debugging race conditions on shutting down the audio.
           */
          if (event.keyboard.unichar == 'r') {
-            al_shutdown_simple_audio();
             al_uninstall_audio();
             goto Restart;
          }
@@ -106,7 +105,6 @@ Restart:
    }
 
    /* Sample data and other objects will be automatically freed. */
-   al_shutdown_simple_audio();
    al_uninstall_audio();
 
    return 0;

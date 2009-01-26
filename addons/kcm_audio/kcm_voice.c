@@ -118,7 +118,7 @@ void al_destroy_voice(ALLEGRO_VOICE *voice)
  *  depth (including signed-ness) as the voice. This function may fail if the
  *  selected driver doesn't support preloading sample data.
  */
-int al_attach_sample_to_voice(ALLEGRO_VOICE *voice, ALLEGRO_SAMPLE *spl)
+int al_attach_sample_to_voice(ALLEGRO_VOICE *voice, ALLEGRO_SAMPLE_INSTANCE *spl)
 {
    int ret;
 
@@ -373,7 +373,7 @@ void al_detach_voice(ALLEGRO_VOICE *voice)
    al_lock_mutex(voice->mutex);
 
    if (!voice->is_streaming) {
-      ALLEGRO_SAMPLE *spl = voice->attached_stream;
+      ALLEGRO_SAMPLE_INSTANCE *spl = voice->attached_stream;
       bool playing = false;
 
       al_get_voice_long(voice, ALLEGRO_AUDIOPROP_POSITION, &spl->pos);

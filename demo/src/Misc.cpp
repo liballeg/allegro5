@@ -148,7 +148,7 @@ bool init(void)
    ResourceManager& rm = ResourceManager::getInstance();
 
    for (int i = RES_SAMPLE_START; i < RES_SAMPLE_END; i++) {
-      ALLEGRO_SAMPLE *s = (ALLEGRO_SAMPLE *)rm.getData(i);
+      ALLEGRO_SAMPLE_INSTANCE *s = (ALLEGRO_SAMPLE_INSTANCE *)rm.getData(i);
       al_attach_sample_to_mixer(mixer, s);
    }
 

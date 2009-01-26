@@ -11,8 +11,8 @@
 int main(int argc, char **argv)
 {
    int i;
-   ALLEGRO_SAMPLE_DATA **sample_data;
-   ALLEGRO_SAMPLE **sample;
+   ALLEGRO_SAMPLE **sample_data;
+   ALLEGRO_SAMPLE_INSTANCE **sample;
    ALLEGRO_MIXER *mixer;
    ALLEGRO_VOICE *voice;
    float longest_sample;
@@ -72,10 +72,10 @@ int main(int argc, char **argv)
          continue;
       }
 
-      sample[i] = al_create_sample(sample_data[i]);
+      sample[i] = al_create_sample_instance(sample_data[i]);
       if (!sample[i]) {
          fprintf(stderr, "Could not create sample!\n");
-	 al_destroy_sample_data(sample_data[i]);
+	 al_destroy_sample(sample_data[i]);
 	 sample_data[i] = NULL;
 	 continue;
       }
@@ -96,9 +96,9 @@ int main(int argc, char **argv)
 	 continue;
 
       /* play each sample once */
-      al_play_sample(sample[i]);
+      al_play_sample_instance(sample[i]);
 
-      al_get_sample_float(sample[i], ALLEGRO_AUDIOPROP_TIME, &sample_time);
+      al_get_sample_instance_float(sample[i], ALLEGRO_AUDIOPROP_TIME, &sample_time);
       fprintf(stderr, "Playing '%s' (%.3f seconds)\n", filename, sample_time);
 
       if (sample_time > longest_sample)
@@ -110,9 +110,9 @@ int main(int argc, char **argv)
    for (i = 1; i < argc; ++i) {
       /* free the memory allocated when creating the sample + voice */
       if (sample[i]) {
-         al_stop_sample(sample[i]);
-         al_destroy_sample(sample[i]);
-	 al_destroy_sample_data(sample_data[i]);
+         al_stop_sample_instance(sample[i]);
+         al_destroy_sample_instance(sample[i]);
+	 al_destroy_sample(sample_data[i]);
       }
    }
    al_destroy_mixer(mixer);

@@ -53,9 +53,9 @@ struct ALLEGRO_VOICE {
    size_t               num_buffers;
                         /* If non-0, they must be honored by the driver. */
 
-   ALLEGRO_SAMPLE       *attached_stream;
+   ALLEGRO_SAMPLE_INSTANCE       *attached_stream;
                         /* The stream that is attached to the voice, or NULL.
-                         * May be an ALLEGRO_SAMPLE or ALLEGRO_MIXER object.
+                         * May be an ALLEGRO_SAMPLE_INSTANCE or ALLEGRO_MIXER object.
                          */
 
    bool                 is_streaming;
@@ -84,7 +84,7 @@ typedef union {
    void     *ptr;
 } any_buffer_t;
 
-struct ALLEGRO_SAMPLE_DATA {
+struct ALLEGRO_SAMPLE {
    ALLEGRO_AUDIO_DEPTH  depth;
    ALLEGRO_CHANNEL_CONF chan_conf;
    unsigned long        frequency;
@@ -95,7 +95,6 @@ struct ALLEGRO_SAMPLE_DATA {
                          * is destroyed, or when `buffer' changes.
                          */
 };
-
 
 typedef void (*stream_reader_t)(void *, void **, unsigned long *,
    ALLEGRO_AUDIO_DEPTH, size_t);
@@ -110,12 +109,12 @@ typedef struct {
 } sample_parent_t;
 
 /* The sample struct also serves the base of ALLEGRO_STREAM, ALLEGRO_MIXER. */
-struct ALLEGRO_SAMPLE {
-   /* ALLEGRO_SAMPLE does not generate any events yet but ALLEGRO_STREAM
-    * does, which can inherit only ALLEGRO_SAMPLE. */
+struct ALLEGRO_SAMPLE_INSTANCE {
+   /* ALLEGRO_SAMPLE_INSTANCE does not generate any events yet but ALLEGRO_STREAM
+    * does, which can inherit only ALLEGRO_SAMPLE_INSTANCE. */
    struct ALLEGRO_EVENT_SOURCE *es;
 
-   ALLEGRO_SAMPLE_DATA  spl_data;
+   ALLEGRO_SAMPLE  spl_data;
 
    volatile bool        is_playing;
                         /* Is this sample is playing? */
@@ -151,9 +150,9 @@ struct ALLEGRO_SAMPLE {
                          */
 };
 
-void _al_kcm_destroy_sample(ALLEGRO_SAMPLE *sample, bool unregister);
-void _al_kcm_stream_set_mutex(ALLEGRO_SAMPLE *stream, ALLEGRO_MUTEX *mutex);
-void _al_kcm_detach_from_parent(ALLEGRO_SAMPLE *spl);
+void _al_kcm_destroy_sample(ALLEGRO_SAMPLE_INSTANCE *sample, bool unregister);
+void _al_kcm_stream_set_mutex(ALLEGRO_SAMPLE_INSTANCE *stream, ALLEGRO_MUTEX *mutex);
+void _al_kcm_detach_from_parent(ALLEGRO_SAMPLE_INSTANCE *spl);
 
 
 typedef size_t (*stream_callback_t)(ALLEGRO_STREAM *, void *, size_t);
@@ -162,8 +161,8 @@ typedef bool (*rewind_feeder_t)(ALLEGRO_STREAM *);
 
 
 struct ALLEGRO_STREAM {
-   ALLEGRO_SAMPLE       spl;
-                        /* ALLEGRO_STREAM is derived from ALLEGRO_SAMPLE. */
+   ALLEGRO_SAMPLE_INSTANCE       spl;
+                        /* ALLEGRO_STREAM is derived from ALLEGRO_SAMPLE_INSTANCE. */
 
    size_t               buf_count;
                         /* The stream buffer is divided into a number of
@@ -216,15 +215,15 @@ bool _al_kcm_refill_stream(ALLEGRO_STREAM *stream);
 typedef void (*postprocess_callback_t)(void *buf, unsigned long samples,
    void *userdata);
 
-/* ALLEGRO_MIXER is derived from ALLEGRO_SAMPLE. Certain internal functions and
+/* ALLEGRO_MIXER is derived from ALLEGRO_SAMPLE_INSTANCE. Certain internal functions and
  * pointers may take either object type, and such things are explicitly noted.
  * This is never exposed to the user, though.  The sample object's read method
  * will be set to a different function that will call the read method of all
  * attached streams (which may be a sample, or another mixer).
  */
 struct ALLEGRO_MIXER {
-   ALLEGRO_SAMPLE          ss;
-                           /* ALLEGRO_MIXER is derived from ALLEGRO_SAMPLE. */
+   ALLEGRO_SAMPLE_INSTANCE          ss;
+                           /* ALLEGRO_MIXER is derived from ALLEGRO_SAMPLE_INSTANCE. */
 
    ALLEGRO_MIXER_QUALITY   quality;
 
@@ -232,13 +231,13 @@ struct ALLEGRO_MIXER {
    void                    *pp_callback_userdata;
 
    _AL_VECTOR              streams;
-                           /* Vector of ALLEGRO_SAMPLE*.  Holds the list of
+                           /* Vector of ALLEGRO_SAMPLE_INSTANCE*.  Holds the list of
                             * streams being mixed together.
                             */
 };
 
 extern void _al_kcm_mixer_rejig_sample_matrix(ALLEGRO_MIXER *mixer,
-   ALLEGRO_SAMPLE *spl);
+   ALLEGRO_SAMPLE_INSTANCE *spl);
 extern void _al_kcm_mixer_read(void *source, void **buf, unsigned long *samples,
    ALLEGRO_AUDIO_DEPTH buffer_depth, size_t dest_maxc);
 
@@ -263,6 +262,9 @@ void _al_kcm_init_destructors(void);
 void _al_kcm_shutdown_destructors(void);
 void _al_kcm_register_destructor(void *object, void (*func)(void*));
 void _al_kcm_unregister_destructor(void *object);
+
+A5_KCM_AUDIO_FUNC(void, _al_kcm_shutdown_default_mixer, (void));
+
 
 #endif
 

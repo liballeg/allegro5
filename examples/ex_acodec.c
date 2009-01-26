@@ -12,7 +12,7 @@ int main(int argc, char **argv)
 {
    ALLEGRO_VOICE *voice;
    ALLEGRO_MIXER *mixer;
-   ALLEGRO_SAMPLE *sample;
+   ALLEGRO_SAMPLE_INSTANCE *sample;
    int i;
 
    if (argc < 2) {
@@ -49,14 +49,14 @@ int main(int argc, char **argv)
       return 1;
    }
 
-   sample = al_create_sample(NULL);
+   sample = al_create_sample_instance(NULL);
    if (!sample) {
       fprintf(stderr, "al_create_sample failed.\n");
       return 1;
    }
 
    for (i = 1; i < argc; ++i) {
-      ALLEGRO_SAMPLE_DATA *sample_data = NULL;
+      ALLEGRO_SAMPLE *sample_data = NULL;
       const char *filename = argv[i];
       float sample_time = 0;
 
@@ -68,8 +68,8 @@ int main(int argc, char **argv)
          continue;
       }
 
-      if (al_set_sample_data(sample, sample_data) != 0) {
-         fprintf(stderr, "al_set_sample_ptr failed.\n");
+      if (al_set_sample(sample, sample_data) != 0) {
+         fprintf(stderr, "al_set_sample_instance_ptr failed.\n");
          continue;
       }
 
@@ -79,35 +79,35 @@ int main(int argc, char **argv)
       }
 
       /* Play sample in looping mode. */
-      al_set_sample_enum(sample, ALLEGRO_AUDIOPROP_LOOPMODE,
-         ALLEGRO_PLAYMODE_ONEDIR);
-      al_play_sample(sample);
+      al_set_sample_instance_enum(sample, ALLEGRO_AUDIOPROP_LOOPMODE,
+         ALLEGRO_PLAYMODE_LOOP);
+      al_play_sample_instance(sample);
 
-      al_get_sample_float(sample, ALLEGRO_AUDIOPROP_TIME, &sample_time);
+      al_get_sample_instance_float(sample, ALLEGRO_AUDIOPROP_TIME, &sample_time);
       fprintf(stderr, "Playing '%s' (%.3f seconds) 3 times", filename,
          sample_time);
 
       al_rest(sample_time);
 
-      if (al_set_sample_float(sample, ALLEGRO_AUDIOPROP_GAIN, 0.5) != 0) {
+      if (al_set_sample_instance_float(sample, ALLEGRO_AUDIOPROP_GAIN, 0.5) != 0) {
          fprintf(stderr, "Failed to set gain.\n");
       }
       al_rest(sample_time);
 
-      if (al_set_sample_float(sample, ALLEGRO_AUDIOPROP_GAIN, 0.25) != 0) {
+      if (al_set_sample_instance_float(sample, ALLEGRO_AUDIOPROP_GAIN, 0.25) != 0) {
          fprintf(stderr, "Failed to set gain.\n");
       }
       al_rest(sample_time);
 
-      al_stop_sample(sample);
+      al_stop_sample_instance(sample);
       fprintf(stderr, "\n");
 
       /* Free the memory allocated. */
-      al_set_sample_data(sample, NULL);
-      al_destroy_sample_data(sample_data);
+      al_set_sample(sample, NULL);
+      al_destroy_sample(sample_data);
    }
 
-   al_destroy_sample(sample);
+   al_destroy_sample_instance(sample);
    al_destroy_mixer(mixer);
    al_destroy_voice(voice);
 

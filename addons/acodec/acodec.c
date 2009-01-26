@@ -9,7 +9,7 @@
 
 /* Function: al_load_sample_data
  */
-ALLEGRO_SAMPLE_DATA *al_load_sample_data(const char *filename)
+ALLEGRO_SAMPLE *al_load_sample_data(const char *filename)
 {
    const char *ext;
 

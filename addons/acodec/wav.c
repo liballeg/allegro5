@@ -145,7 +145,7 @@ void _sf_close_private(_sf_private *priv)
    _AL_FREE(priv);
 }
 
-ALLEGRO_SAMPLE_DATA *al_load_sample_data_sndfile(const char *filename)
+ALLEGRO_SAMPLE *al_load_sample_data_sndfile(const char *filename)
 {
    ALLEGRO_AUDIO_DEPTH depth;
    _sf_private *priv = NULL;
@@ -155,7 +155,7 @@ ALLEGRO_SAMPLE_DATA *al_load_sample_data_sndfile(const char *filename)
    long total_samples;
    long total_size;
    void *buffer;
-   ALLEGRO_SAMPLE_DATA *sample;
+   ALLEGRO_SAMPLE *sample;
 
    priv = _sf_open_private(filename);
    if (priv == NULL)
@@ -206,7 +206,7 @@ ALLEGRO_SAMPLE_DATA *al_load_sample_data_sndfile(const char *filename)
 
    _sf_close_private(priv);
 
-   sample = al_create_sample_data(buffer, total_samples, rate, depth,
+   sample = al_create_sample(buffer, total_samples, rate, depth,
          _al_count_to_channel_conf(channels), true);
 
    /* XXX set error if !sample */

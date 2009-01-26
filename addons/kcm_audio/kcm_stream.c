@@ -395,7 +395,7 @@ int al_set_stream_enum(ALLEGRO_STREAM *stream,
             stream->spl.loop = _ALLEGRO_PLAYMODE_STREAM_ONCE;
             return 0;
          }
-         else if (val == ALLEGRO_PLAYMODE_ONEDIR) {
+         else if (val == ALLEGRO_PLAYMODE_LOOP) {
             /* Only streams creating by al_stream_from_file() support
              * looping. */
             if (!stream->feeder)

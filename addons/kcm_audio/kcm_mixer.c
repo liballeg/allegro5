@@ -101,7 +101,7 @@ static float *_al_rechannel_matrix(ALLEGRO_CHANNEL_CONF orig,
  *  The caller must be holding the mixer mutex.
  */
 void _al_kcm_mixer_rejig_sample_matrix(ALLEGRO_MIXER *mixer,
-   ALLEGRO_SAMPLE *spl)
+   ALLEGRO_SAMPLE_INSTANCE *spl)
 {
    float *mat;
    size_t dst_chans;
@@ -133,7 +133,7 @@ void _al_kcm_mixer_rejig_sample_matrix(ALLEGRO_MIXER *mixer,
  *  allow it to safely continue playing as expected. Returns false if it
  *  should stop being mixed.
  */
-static bool fix_looped_position(ALLEGRO_SAMPLE *spl)
+static bool fix_looped_position(ALLEGRO_SAMPLE_INSTANCE *spl)
 {
    bool is_empty;
    unsigned long count = 0;
@@ -141,7 +141,7 @@ static bool fix_looped_position(ALLEGRO_SAMPLE *spl)
 
    /* Looping! Should be mostly self-explanitory */
    switch (spl->loop) {
-      case ALLEGRO_PLAYMODE_ONEDIR:
+      case ALLEGRO_PLAYMODE_LOOP:
          if (spl->step > 0) {
             while (spl->pos < spl->loop_start || spl->pos >= spl->loop_end) {
                spl->pos -= (spl->loop_end - spl->loop_start);
@@ -208,7 +208,7 @@ static bool fix_looped_position(ALLEGRO_SAMPLE *spl)
 }
 
 
-static INLINE const float *point_spl32(const ALLEGRO_SAMPLE *spl,
+static INLINE const float *point_spl32(const ALLEGRO_SAMPLE_INSTANCE *spl,
    unsigned int maxc)
 {
    any_buffer_t *buf = (any_buffer_t *) &spl->spl_data.buffer;
@@ -244,7 +244,7 @@ static INLINE const float *point_spl32(const ALLEGRO_SAMPLE *spl,
 }
 
 
-static INLINE const float *point_spl32u(const ALLEGRO_SAMPLE *spl,
+static INLINE const float *point_spl32u(const ALLEGRO_SAMPLE_INSTANCE *spl,
    unsigned int maxc)
 {
    any_buffer_t *buf = (any_buffer_t *) &spl->spl_data.buffer;
@@ -280,7 +280,7 @@ static INLINE const float *point_spl32u(const ALLEGRO_SAMPLE *spl,
 }
 
 
-static INLINE const float *linear_spl32(const ALLEGRO_SAMPLE *spl,
+static INLINE const float *linear_spl32(const ALLEGRO_SAMPLE_INSTANCE *spl,
    unsigned int maxc)
 {
    unsigned long p1, p2;
@@ -297,7 +297,7 @@ static INLINE const float *linear_spl32(const ALLEGRO_SAMPLE *spl,
          if (spl->pos+MIXER_FRAC_ONE >= spl->spl_data.len)
             p2 = p1;
          break;
-      case ALLEGRO_PLAYMODE_ONEDIR:
+      case ALLEGRO_PLAYMODE_LOOP:
          if (spl->pos+MIXER_FRAC_ONE >= spl->loop_end)
             p2 = (spl->loop_start>>MIXER_FRAC_SHIFT)*maxc;
          break;
@@ -343,7 +343,7 @@ static INLINE const float *linear_spl32(const ALLEGRO_SAMPLE *spl,
 }
 
 
-static INLINE const float *linear_spl32u(const ALLEGRO_SAMPLE *spl,
+static INLINE const float *linear_spl32u(const ALLEGRO_SAMPLE_INSTANCE *spl,
    unsigned int maxc)
 {
    unsigned long p1, p2;
@@ -360,7 +360,7 @@ static INLINE const float *linear_spl32u(const ALLEGRO_SAMPLE *spl,
          if (spl->pos+MIXER_FRAC_ONE >= spl->spl_data.len)
             p2 = p1;
          break;
-      case ALLEGRO_PLAYMODE_ONEDIR:
+      case ALLEGRO_PLAYMODE_LOOP:
          if (spl->pos+MIXER_FRAC_ONE >= spl->loop_end)
             p2 = (spl->loop_start>>MIXER_FRAC_SHIFT)*maxc;
          break;
@@ -412,7 +412,7 @@ static void read_to_mixer_##interp##bits(void *source, void **vbuf,           \
    unsigned long *samples, ALLEGRO_AUDIO_DEPTH buffer_depth,                  \
    size_t dest_maxc)                                                          \
 {                                                                             \
-   ALLEGRO_SAMPLE *spl = (ALLEGRO_SAMPLE *)source;                            \
+   ALLEGRO_SAMPLE_INSTANCE *spl = (ALLEGRO_SAMPLE_INSTANCE *)source;                            \
    float *buf = *vbuf;                                                        \
    size_t maxc = al_get_channel_count(spl->spl_data.chan_conf);                   \
    size_t samples_l = *samples;                                               \
@@ -504,8 +504,8 @@ void _al_kcm_mixer_read(void *source, void **buf, unsigned long *samples,
 
    /* Mix the streams into the mixer buffer. */
    for (i = _al_vector_size(&mixer->streams) - 1; i >= 0; i--) {
-      ALLEGRO_SAMPLE **slot = _al_vector_ref(&mixer->streams, i);
-      ALLEGRO_SAMPLE *spl = *slot;
+      ALLEGRO_SAMPLE_INSTANCE **slot = _al_vector_ref(&mixer->streams, i);
+      ALLEGRO_SAMPLE_INSTANCE *spl = *slot;
       spl->spl_read(spl, (void **) &mixer->ss.spl_data.buffer.ptr, samples,
          ALLEGRO_AUDIO_DEPTH_FLOAT32, maxc);
    }
@@ -634,7 +634,7 @@ ALLEGRO_MIXER *al_create_mixer(unsigned long freq,
 
    mixer->quality = ALLEGRO_MIXER_QUALITY_LINEAR;
 
-   _al_vector_init(&mixer->streams, sizeof(ALLEGRO_SAMPLE *));
+   _al_vector_init(&mixer->streams, sizeof(ALLEGRO_SAMPLE_INSTANCE *));
 
    _al_kcm_register_destructor(mixer, (void (*)(void *)) al_destroy_mixer);
 
@@ -657,9 +657,9 @@ void al_destroy_mixer(ALLEGRO_MIXER *mixer)
 /* Function: al_attach_sample_to_mixer
  */
 /* This function is ALLEGRO_MIXER aware */
-int al_attach_sample_to_mixer(ALLEGRO_MIXER *mixer, ALLEGRO_SAMPLE *spl)
+int al_attach_sample_to_mixer(ALLEGRO_MIXER *mixer, ALLEGRO_SAMPLE_INSTANCE *spl)
 {
-   ALLEGRO_SAMPLE **slot;
+   ALLEGRO_SAMPLE_INSTANCE **slot;
 
    ASSERT(mixer);
    ASSERT(spl);
@@ -918,8 +918,8 @@ static void mixer_change_quality(ALLEGRO_MIXER *mixer,
    al_lock_mutex(mixer->ss.mutex);
 
    for (i = _al_vector_size(&mixer->streams) - 1; i >= 0; i--) {
-      ALLEGRO_SAMPLE **slot = _al_vector_ref(&mixer->streams, i);
-      ALLEGRO_SAMPLE *spl = *slot;
+      ALLEGRO_SAMPLE_INSTANCE **slot = _al_vector_ref(&mixer->streams, i);
+      ALLEGRO_SAMPLE_INSTANCE *spl = *slot;
 
       switch (new_quality) {
          case ALLEGRO_MIXER_QUALITY_LINEAR:
