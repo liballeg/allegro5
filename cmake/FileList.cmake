@@ -31,6 +31,7 @@ set(ALLEGRO_SRC_FILES
     src/timernu.c
     src/tls.c
     src/unicode.c
+    src/misc/bstrlib.c
     src/misc/vector.c
     )
 
