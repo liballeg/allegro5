@@ -1,0 +1,95 @@
+% UTF-8 string routines
+
+Here we should give a short overview of Unicode/UCS and in particular UTF-8
+encoding.
+
+Explain about code points and relationship to "characters".
+
+Explain that pos parameters are in byte offsets, not code point indices.
+
+Explain about half-open intervals.
+
+
+# Creating and destroying strings
+
+## API: al_ustr_new
+
+Create a new empty string. It must be freed with [al_ustr_free].
+
+
+## API: al_ustr_free
+
+Free a previously allocated string.
+
+
+## API: al_cstr
+
+Get a `char *` pointer to the data in a string.  This pointer will only be
+valid while the underlying string is not modified and not destroyed.
+The pointer may be passed to functions expecting C-style strings,
+with the following caveats:
+
+* ALLEGRO_USTRs are allowed to contain embedded NUL ('\0') bytes.
+  That means `al_ustr_size(u)` and `strlen(al_cstr(u))` may not agree.
+
+* An ALLEGRO_USTR may be created in such a way that it is not NUL terminated.
+  A string which is dynamically allocated will always be NUL terminated,
+  but a string which references the middle of another string or region
+  of memory will *not* be NUL terminated.
+
+
+# Predefined strings
+
+## API: al_ustr_empty_string
+
+Return a pointer to a static empty string.  The string is read only.
+
+
+# Creating strings by referencing other data
+
+## API: al_ref_cstr
+
+Create a string that references the storage of a C-style string.  The
+information about the string (e.g. its size) is stored in the structure
+pointed to by the `info` parameter.  The string will not have any other
+storage allocated of its own, so if you allocate the `info` structure on the
+stack then no explicit "free" operation is required.
+
+The string is valid until the underlying C string disappears.
+
+Example:
+
+    ALLEGRO_USTR_INFO info;
+    ALLEGRO_USTR us = al_ref_cstr(&info, "my string");
+
+
+## API: al_ref_buffer
+
+Like [al_ref_cstr] but the size of the string data is passed in as a
+parameter.  Hence you can use it to reference only part of a string or an
+arbitrary region of memory.
+
+The string is valid while the underlying C string is valid.
+
+
+## API: al_ref_ustr
+
+Create a read-only string that references the storage of another string.
+The information about the string (e.g. its size) is stored in the structure
+pointed to by the `info` parameter.  The string will not have any other
+storage allocated of its own, so if you allocate the `info` structure on the
+stack then no explicit "free" operation is required.
+
+The referenced interval is \[start_pos, end_pos).
+
+The string is valid until the underlying string is modified or destroyed.
+
+
+# Sizes and offsets
+
+## API: al_ustr_size
+
+Return the size of the string in bytes.  This is equal to the number of code
+points in the string if the string is empty or contains only 7-bit ASCII
+characters.
+

@@ -21,6 +21,7 @@
 * [Threads](threads.html)
 * [Time](time.html)
 * [Timer](timer.html)
+* [UTF-8](utf8.html)
 * [Audio addon](kcm_audio.html)
 * [Color addon](color.html)
 * [Font addons](font.html)

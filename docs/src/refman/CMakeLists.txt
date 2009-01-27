@@ -14,12 +14,13 @@ set(PAGES
     mouse
     opengl
     path
+    primitives
     state
     system
     threads
     time
     timer
-    primitives
+    utf8
     )
 
 set(PAGES_TXT)
