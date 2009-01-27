@@ -158,7 +158,7 @@ static int alsa_update_nonstream_voice(ALLEGRO_VOICE *voice, void **buf, int *by
             alsa_voice->stop = true;
             voice->attached_stream->pos = 0;
          }
-         if (voice->attached_stream->loop == ALLEGRO_PLAYMODE_ONEDIR) {
+         if (voice->attached_stream->loop == ALLEGRO_PLAYMODE_LOOP) {
             voice->attached_stream->pos = 0;
          }
          else if (voice->attached_stream->loop == ALLEGRO_PLAYMODE_BIDIR) {

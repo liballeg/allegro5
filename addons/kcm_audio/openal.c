@@ -277,7 +277,7 @@ static int _openal_load_voice(ALLEGRO_VOICE *voice, const void *data)
    ALLEGRO_AL_DATA *ex_data = voice->extra;
 
    if(voice->attached_stream->loop != ALLEGRO_PLAYMODE_ONCE &&
-           voice->attached_stream->loop != ALLEGRO_PLAYMODE_ONEDIR)
+           voice->attached_stream->loop != ALLEGRO_PLAYMODE_LOOP)
       return 1;
 
    ex_data->buffer_size = voice->buffer_size;
