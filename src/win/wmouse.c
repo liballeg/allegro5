@@ -925,7 +925,7 @@ static bool mouse_directx_set_mouse_xy(int x, int y)
       int wx, wy;
 
       new_x = CLAMP(win_disp->mouse_range_x1, x, win_disp->mouse_range_x2);
-      new_y = CLAMP(win_disp->mouse_range_y1, y, win_disp->mouse_range_y1);
+      new_y = CLAMP(win_disp->mouse_range_y1, y, win_disp->mouse_range_y2);
 
       dx = new_x - the_mouse.state.x;
       dy = new_y - the_mouse.state.y;

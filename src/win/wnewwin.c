@@ -34,6 +34,8 @@ static WNDCLASS window_class;
 
 static bool resize_postponed = false;
 
+static HWND capture_window = 0;
+
 
 UINT _al_win_msg_call_proc = 0;
 UINT _al_win_msg_suicide = 0;
@@ -335,6 +337,56 @@ static LRESULT CALLBACK window_callback(HWND hWnd, UINT message,
    }
 
    switch (message) {
+      case WM_MOUSEMOVE: {
+         /* Track the mouse as it enters/exits windows */
+         int mx = lParam & 0xFFFF;
+         int my = (lParam >> 16) & 0xFFFF;
+         if (!capture_window || capture_window != hWnd) {
+            capture_window = hWnd;
+            SetCapture(hWnd);
+            // emit event
+            if (al_is_mouse_installed()) {
+               ALLEGRO_MOUSE *mouse = al_get_mouse();
+               if (mouse) {
+                  es = (ALLEGRO_EVENT_SOURCE *)mouse;
+                  if (_al_event_source_needs_to_generate_event(es)) {
+                     _al_event_source_lock(es);
+                        ALLEGRO_EVENT event;
+                        event.type = ALLEGRO_EVENT_MOUSE_ENTER_DISPLAY;
+                        event.mouse.x = mx;
+                        event.mouse.y = my;
+                        event.mouse.z = 0;
+                        event.mouse.timestamp = al_current_time();
+                        _al_event_source_emit_event(es, &event);
+                     _al_event_source_unlock(es);
+                  }
+               }
+            }
+         }
+         else if (mx < 0 || my < 0 || mx >= d->w || my >= d->h) {
+            ReleaseCapture();
+            capture_window = 0;
+            // emit event
+            if (al_is_mouse_installed()) {
+               ALLEGRO_MOUSE *mouse = al_get_mouse();
+               if (mouse) {
+                  es = (ALLEGRO_EVENT_SOURCE *)mouse;
+                  if (_al_event_source_needs_to_generate_event(es)) {
+                     _al_event_source_lock(es);
+                        ALLEGRO_EVENT event;
+                        event.type = ALLEGRO_EVENT_MOUSE_LEAVE_DISPLAY;
+                        event.mouse.x = mx;
+                        event.mouse.y = my;
+                        event.mouse.z = 0;
+                        event.mouse.timestamp = al_current_time();
+                        _al_event_source_emit_event(es, &event);
+                     _al_event_source_unlock(es);
+                  }
+               }
+            }
+         }
+         break;
+      }
       case WM_SYSCOMMAND: {
          if (_al_win_disable_screensaver &&
                (wParam == SC_MONITORPOWER || wParam == SC_SCREENSAVE)) {
@@ -416,6 +468,7 @@ static LRESULT CALLBACK window_callback(HWND hWnd, UINT message,
             _al_win_grab_input(win_display);
             if (d->vt->switch_in)
             	  d->vt->switch_in(d);
+            //SetCapture(hWnd);
             _al_event_source_lock(es);
             if (_al_event_source_needs_to_generate_event(es)) {
                ALLEGRO_EVENT event;
@@ -431,6 +484,7 @@ static LRESULT CALLBACK window_callback(HWND hWnd, UINT message,
             if (d->flags & ALLEGRO_FULLSCREEN) {
                d->vt->switch_out(d);
             }
+            //ReleaseCapture();
             _al_event_source_lock(es);
             if (_al_event_source_needs_to_generate_event(es)) {
                ALLEGRO_EVENT event;
