@@ -169,12 +169,11 @@ ALLEGRO_SAMPLE_INSTANCE *al_create_sample_instance(ALLEGRO_SAMPLE *sample_data)
    return spl;
 }
 
-
+/* This function is ALLEGRO_MIXER aware */
 /* Function: al_destroy_sample_instance
  *  Detaches the sample stream from anything it may be attached to and frees
  *  it (the sample data is *not* freed!).
  */
-/* This function is ALLEGRO_MIXER aware */
 void al_destroy_sample_instance(ALLEGRO_SAMPLE_INSTANCE *spl)
 {
    _al_kcm_destroy_sample(spl, true);
@@ -341,6 +340,9 @@ int al_get_sample_instance_ptr(const ALLEGRO_SAMPLE_INSTANCE *spl,
    ALLEGRO_AUDIO_PROPERTY setting, void **val)
 {
    ASSERT(spl);
+
+   (void)spl;
+   (void)val;
 
    switch (setting) {
       default:
@@ -576,6 +578,9 @@ int al_set_sample_instance_ptr(ALLEGRO_SAMPLE_INSTANCE *spl,
    ALLEGRO_AUDIO_PROPERTY setting, void *val)
 {
    ASSERT(spl);
+
+   (void)spl;
+   (void)val;
 
    switch (setting) {
       default:

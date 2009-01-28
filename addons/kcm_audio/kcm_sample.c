@@ -301,6 +301,8 @@ bool al_play_sample(ALLEGRO_SAMPLE *spl, float gain, float pan, float speed, int
 
 static bool do_play_sample(ALLEGRO_SAMPLE_INSTANCE *splinst, ALLEGRO_SAMPLE *spl, float gain, float pan, float speed, int loop)
 {
+   (void)pan;
+
    if (al_set_sample(splinst, spl) != 0) {
       TRACE("al_set_sample failed\n");
       return false;
