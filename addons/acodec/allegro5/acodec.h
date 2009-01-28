@@ -35,7 +35,13 @@ extern "C" {
 
 #include "allegro5/kcm_audio.h"
 
-A5_ACODEC_FUNC(ALLEGRO_SAMPLE *, al_load_sample_data, (const char *filename));
+A5_ACODEC_FUNC(ALLEGRO_SAMPLE *, al_load_sample, (const char *filename));
+A5_ACODEC_FUNC(ALLEGRO_SAMPLE *, al_load_sample_wav, (const char *filename));
+
+A5_ACODEC_FUNC(bool, al_save_sample, (ALLEGRO_SAMPLE *spl, const char *filename));
+A5_ACODEC_FUNC(bool, al_save_sample_wav, (ALLEGRO_SAMPLE *spl, const char *filename));
+A5_ACODEC_FUNC(bool, al_save_sample_wav_pf, (ALLEGRO_SAMPLE *spl, ALLEGRO_FS_ENTRY *pf));
+
 A5_ACODEC_FUNC(ALLEGRO_STREAM *, al_stream_from_file, (size_t buffer_count, unsigned long samples, const char *filename));
 
 #ifdef __cplusplus

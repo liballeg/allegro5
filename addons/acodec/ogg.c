@@ -71,9 +71,9 @@ ov_callbacks callbacks = {
    tell_callback
 };
 
-/* Function: al_load_sample_data_oggvorbis
+/* Function: al_load_sample_oggvorbis
  */
-ALLEGRO_SAMPLE *al_load_sample_data_oggvorbis(const char *filename)
+ALLEGRO_SAMPLE *al_load_sample_oggvorbis(const char *filename)
 {
    /* Note: decoding library returns floats.  I always return 16-bit (most
     * commonly supported).

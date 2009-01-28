@@ -61,7 +61,7 @@ Restart:
       const char *filename = argv[i];
 
       /* Load the entire sound file from disk. */
-      sample_data[i] = al_load_sample_data(argv[i]);
+      sample_data[i] = al_load_sample(argv[i]);
       if (!sample_data[i]) {
          fprintf(stderr, "Could not load sample from '%s'!\n", filename);
          continue;

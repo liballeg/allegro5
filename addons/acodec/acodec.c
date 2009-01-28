@@ -7,9 +7,9 @@
 #include "allegro5/internal/aintern_acodec.h"
 
 
-/* Function: al_load_sample_data
+/* Function: al_load_sample
  */
-ALLEGRO_SAMPLE *al_load_sample_data(const char *filename)
+ALLEGRO_SAMPLE *al_load_sample(const char *filename)
 {
    const char *ext;
 
@@ -22,13 +22,13 @@ ALLEGRO_SAMPLE *al_load_sample_data(const char *filename)
    ext++;   /* skip '.' */
    #if defined(ALLEGRO_CFG_ACODEC_VORBIS)
       if (stricmp("ogg", ext) == 0) {
-         return al_load_sample_data_oggvorbis(filename);
+         return al_load_sample_oggvorbis(filename);
       }
    #endif
    
    #if defined(ALLEGRO_CFG_ACODEC_FLAC)
       if (stricmp("flac", ext) == 0) {
-         return al_load_sample_data_flac(filename);
+         return al_load_sample_flac(filename);
       }
    #endif
 
@@ -37,9 +37,13 @@ ALLEGRO_SAMPLE *al_load_sample_data(const char *filename)
          stricmp("aiff", ext) == 0 ||
          stricmp("flac", ext) == 0)
       {
-         return al_load_sample_data_sndfile(filename);
+         return al_load_sample_sndfile(filename);
       }
    #endif
+
+   if (stricmp("wav", ext) == 0) {
+      return al_load_sample_wav(filename);
+   }
  
    return NULL;
 }
@@ -89,11 +93,38 @@ ALLEGRO_STREAM *al_stream_from_file(size_t buffer_count, unsigned long samples,
       }
    #endif
 
+   if (stricmp("wav", ext) == 0) {
+      return al_load_stream_wav(buffer_count, samples, filename);
+   }
+
    TRACE("Error creating ALLEGRO_STREAM from '%s'.\n", filename);
 
    return NULL;
 }
 
+/* Function: al_save_sample
+ * Writes a sample into a file.
+ * Returns true on success, false on error.
+ */
+bool al_save_sample(ALLEGRO_SAMPLE *spl, const char *filename)
+{
+   const char *ext;
+
+   ASSERT(filename);
+
+   ext = strrchr(filename, '.');
+   if (ext == NULL)
+      return false;
+
+   ext++;   /* skip '.' */
+
+   if (stricmp("wav", ext) == 0)
+   {
+      return al_save_sample_wav(spl, filename);
+   }
+
+   return false;
+}
 
 /* FIXME: use the allegro provided helpers */
 ALLEGRO_CHANNEL_CONF _al_count_to_channel_conf(int num_channels)

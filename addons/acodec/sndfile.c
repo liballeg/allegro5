@@ -145,7 +145,7 @@ void _sf_close_private(_sf_private *priv)
    _AL_FREE(priv);
 }
 
-ALLEGRO_SAMPLE *al_load_sample_data_sndfile(const char *filename)
+ALLEGRO_SAMPLE *al_load_sample_sndfile(const char *filename)
 {
    ALLEGRO_AUDIO_DEPTH depth;
    _sf_private *priv = NULL;

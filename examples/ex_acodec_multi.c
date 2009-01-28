@@ -66,7 +66,7 @@ int main(int argc, char **argv)
       sample[i] = NULL;
 
       /* loads the entire sound file from disk into sample data */
-      sample_data[i] = al_load_sample_data(filename);
+      sample_data[i] = al_load_sample(filename);
       if (!sample_data[i]) {
          fprintf(stderr, "Could not load sample from '%s'!\n", filename);
          continue;

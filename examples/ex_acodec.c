@@ -61,7 +61,7 @@ int main(int argc, char **argv)
       float sample_time = 0;
 
       /* Load the entire sound file from disk. */
-      sample_data = al_load_sample_data(filename);
+      sample_data = al_load_sample(filename);
       if (!sample_data) {
          fprintf(stderr, "Could not load sample from '%s'!\n",
             filename);

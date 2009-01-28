@@ -5,7 +5,10 @@ option(WANT_VORBIS "Enable Ogg Vorbis support (acodec)" on)
 option(WANT_SNDFILE "Enable WAV/AIFF/FLAC support (acodec)" on)
 
 set(ACODEC_EXTRA_LIBS)
-set(ACODEC_SOURCES acodec.c)
+set(ACODEC_SOURCES
+    acodec.c
+    wav.c
+    )
 
 if(SUPPORT_KCM_AUDIO)
     set(SUPPORT_ACODEC 1)
@@ -74,7 +77,7 @@ if(WANT_SNDFILE)
         set(ALLEGRO_CFG_ACODEC_SNDFILE 1)
         include_directories(${SNDFILE_INCLUDE_DIR})
         list(APPEND ACODEC_EXTRA_LIBS ${SNDFILE_LIBRARIES})
-        list(APPEND ACODEC_SOURCES wav.c)
+        list(APPEND ACODEC_SOURCES sndfile.c)
     else(SNDFILE_FOUND)
         message("WARNING: libsndfile not found, disabling support.")
     endif(SNDFILE_FOUND)
