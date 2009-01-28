@@ -22,7 +22,10 @@ struct ALLEGRO_USTR_INFO {
 /* Creating strings */
 AL_FUNC(ALLEGRO_USTR, al_ustr_new, (const char *s));
 AL_FUNC(void, al_ustr_free, (ALLEGRO_USTR us));
-AL_FUNC(const char *, al_cstr, (ALLEGRO_USTR us));
+AL_FUNC(const char *, al_cstr, (const ALLEGRO_USTR us));
+AL_FUNC(ALLEGRO_USTR, al_ustr_dup, (const ALLEGRO_USTR us));
+AL_FUNC(ALLEGRO_USTR, al_ustr_dup_substr, (const ALLEGRO_USTR us,
+      int start_pos, int end_pos));
 
 /* Predefined string */
 AL_FUNC(ALLEGRO_USTR, al_ustr_empty_string, (void));
@@ -31,11 +34,32 @@ AL_FUNC(ALLEGRO_USTR, al_ustr_empty_string, (void));
 AL_FUNC(ALLEGRO_USTR, al_ref_cstr, (ALLEGRO_USTR_INFO *info, const char *s));
 AL_FUNC(ALLEGRO_USTR, al_ref_buffer, (ALLEGRO_USTR_INFO *info, const char *s,
       size_t size));
-AL_FUNC(ALLEGRO_USTR, al_ref_ustr, (ALLEGRO_USTR_INFO *info, ALLEGRO_USTR us,
-      int start_pos, int end_pos));
+AL_FUNC(ALLEGRO_USTR, al_ref_ustr, (ALLEGRO_USTR_INFO *info,
+      const ALLEGRO_USTR us, int start_pos, int end_pos));
 
 /* Sizes and offsets */
 AL_FUNC(size_t, al_ustr_size, (ALLEGRO_USTR us));
+
+/* Insert */
+AL_FUNC(bool, al_ustr_insert, (ALLEGRO_USTR us1, int pos,
+      const ALLEGRO_USTR us2));
+AL_FUNC(bool, al_ustr_insert_cstr, (ALLEGRO_USTR us, int pos,
+      const const char *us2));
+
+/* Append */
+AL_FUNC(bool, al_ustr_append, (ALLEGRO_USTR us1, const ALLEGRO_USTR us2));
+AL_FUNC(bool, al_ustr_append_cstr, (ALLEGRO_USTR us, const char *s));
+
+/* Remove */
+AL_FUNC(bool, al_ustr_remove_range, (ALLEGRO_USTR us, int start_pos,
+      int end_pos));
+AL_FUNC(bool, al_ustr_truncate, (ALLEGRO_USTR us, int start_pos));
+AL_FUNC(bool, al_ustr_ltrim_ws, (ALLEGRO_USTR us));
+AL_FUNC(bool, al_ustr_rtrim_ws, (ALLEGRO_USTR us));
+AL_FUNC(bool, al_ustr_trim_ws, (ALLEGRO_USTR us));
+
+/* Compare */
+AL_FUNC(bool, al_ustr_equal, (const ALLEGRO_USTR us1, const ALLEGRO_USTR us2));
 
 /* To be added:
 
@@ -47,8 +71,6 @@ UTF-8 HELPERS
 CREATE
 
    al_ustr_newf
-   al_ustr_dup
-   al_ustr_dup_substr
    al_cstr_dup
 
 LENGTH AND OFFSET
@@ -67,25 +89,16 @@ GET CODE POINTS
 INSERT
 
    al_ustr_insert_chr
-   al_ustr_insert
-   al_ustr_insert_cstr
 
 APPEND
 
    al_ustr_append_chr
-   al_ustr_append
-   al_ustr_append_cstr
    al_ustr_appendf
    al_ustr_vappendf
 
 REMOVE
 
    al_ustr_remove_chr
-   al_ustr_remove_range
-   al_ustr_truncate
-   al_ustr_ltrim_ws
-   al_ustr_rtrim_ws
-   al_ustr_trim_ws
 
 REPLACE
 
@@ -108,7 +121,6 @@ COMPARE
 
    al_ustr_compare
    al_ustr_ncompare
-   al_ustr_equal
    al_ustr_has_prefix
    al_ustr_has_suffix
 

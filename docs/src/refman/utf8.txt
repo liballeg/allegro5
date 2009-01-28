@@ -38,6 +38,19 @@ with the following caveats:
   of memory will *not* be NUL terminated.
 
 
+## API: al_ustr_dup
+
+Return a duplicate copy of a string.
+The new string will need to be freed with [al_ustr_free].
+
+
+## API: al_ustr_dup_substr
+
+Return a new copy of a string, containing its contents in the interval
+\[start_pos, end_pos).  The new string will be NUL terminated and will
+need to be freed with [al_ustr_free].
+
+
 # Predefined strings
 
 ## API: al_ustr_empty_string
@@ -92,4 +105,82 @@ The string is valid until the underlying string is modified or destroyed.
 Return the size of the string in bytes.  This is equal to the number of code
 points in the string if the string is empty or contains only 7-bit ASCII
 characters.
+
+
+# Inserting
+
+# API: al_ustr_insert
+
+Insert `us2` into `us1` beginning at `pos`.  `pos` cannot be less than 0.  If
+`pos` is past the end of `us1` then the space between the end of the string
+and `pos` will be padded with NUL ('\0') bytes.
+
+Returns true on success, false on error.
+
+# API: al_ustr_insert_cstr
+
+Like [al_ustr_insert] but inserts a C-style string.
+
+
+# Appending
+
+## API: al_ustr_append
+
+Append `us2` to the end of `us1`.
+
+Returns true on success, false on error.
+
+
+## API: al_ustr_append_cstr
+
+Append C-style string `s` to the end of `us`.
+
+Returns true on success, false on error.
+
+
+# Removing
+
+## API: al_ustr_remove_range
+
+Remove the interval \[start_pos, end_pos) from a string.
+`start_pos` and `end_pos` may both be past the end of the string
+but cannot be less than 0 (the start of the string).
+
+Returns true on success, false on error.
+
+## API: al_ustr_truncate
+
+Truncate a portion of a string at `start_pos` onwards.
+`start_pos` can be past the end of the string (has no effect)
+but cannot be less than 0.
+
+Returns true on success, false on error.
+
+## API: al_ustr_ltrim_ws
+
+Remove leading whitespace characters from a string, as defined by the C
+function `isspace()`.
+
+Returns true on success, or false if the function was passed an empty string.
+
+## API: al_ustr_rtrim_ws
+
+Remove trailing ("right") whitespace characters from a string, as defined by
+the C function `isspace()`.
+
+Returns true on success, or false if the function was passed an empty string.
+
+## API: al_ustr_trim_ws
+
+Remove both leading and trailing whitespace characters from a string.
+
+Returns true on success, or false if the function was passed an empty string.
+
+
+# Comparing
+
+## API: al_ustr_equal
+
+Return true iff the two strings are equal.  This function is more efficient
+than [al_ustr_compare] so is preferable if ordering is not important.
 
