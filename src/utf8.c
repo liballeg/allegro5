@@ -199,4 +199,62 @@ bool al_ustr_equal(const ALLEGRO_USTR us1, const ALLEGRO_USTR us2)
 }
 
 
+/* Function: al_utf8_width
+ */
+size_t al_utf8_width(int c)
+{
+   /* So we don't need to check for negative values nor use unsigned ints
+    * in the interface, which are a pain.
+    */
+   uint32_t uc = c;
+
+   if (uc <= 0x7f)
+      return 1;
+   if (uc <= 0x7ff)
+      return 2;
+   if (uc <= 0xffff)
+      return 3;
+   if (uc <= 0x10ffff)
+      return 4;
+   /* The rest are illegal. */
+   return 0;
+}
+
+
+/* Function: al_utf8_encode
+ */
+size_t al_utf8_encode(char s[], int32_t c)
+{
+   uint32_t uc = c;
+
+   if (uc <= 0x7f) {
+      s[0] = uc;
+      return 1;
+   }
+
+   if (uc <= 0x7ff) {
+      s[0] = 0xC0 | ((uc >> 6) & 0x1F);
+      s[1] = 0x80 |  (uc       & 0x3F);
+      return 2;
+   }
+
+   if (uc <= 0xffff) {
+      s[0] = 0xE0 | ((uc >> 12) & 0x0F);
+      s[1] = 0x80 | ((uc >>  6) & 0x3F);
+      s[2] = 0x80 |  (uc        & 0x3F);
+      return 3;
+   }
+
+   if (uc <= 0x10ffff) {
+      s[0] = 0xF0 | ((uc >> 18) & 0x07);
+      s[1] = 0x80 | ((uc >> 12) & 0x3F);
+      s[2] = 0x80 | ((uc >>  6) & 0x3F);
+      s[3] = 0x80 |  (uc        & 0x3F);
+      return 4;
+   }
+
+   /* Otherwise is illegal. */
+   return 0;
+}
+
 /* vim: set sts=3 sw=3 et: */

@@ -320,12 +320,63 @@ void t16(void)
    al_ustr_free(us1);
 }
 
+/* Test al_utf8_width. */
+void t17(void)
+{
+   CHECK(al_utf8_width(0x000000) == 1);
+   CHECK(al_utf8_width(0x00007f) == 1);
+   CHECK(al_utf8_width(0x000080) == 2);
+   CHECK(al_utf8_width(0x0007ff) == 2);
+   CHECK(al_utf8_width(0x000800) == 3);
+   CHECK(al_utf8_width(0x00ffff) == 3);
+   CHECK(al_utf8_width(0x010000) == 4);
+   CHECK(al_utf8_width(0x10ffff) == 4);
+
+   /* These are illegal. */
+   CHECK(al_utf8_width(0x110000) == 0);
+   CHECK(al_utf8_width(0xffffff) == 0);
+}
+
+/* Test al_utf8_encode. */
+void t18(void)
+{
+   char buf[4];
+
+   CHECK(al_utf8_encode(buf, 0) == 1);
+   CHECK(0 == memcmp(buf, "\x00", 1));
+
+   CHECK(al_utf8_encode(buf, 0x7f) == 1);
+   CHECK(0 == memcmp(buf, "\x7f", 1));
+
+   CHECK(al_utf8_encode(buf, 0x80) == 2);
+   CHECK(0 == memcmp(buf, "\xC2\x80", 2));
+
+   CHECK(al_utf8_encode(buf, 0x7ff) == 2);
+   CHECK(0 == memcmp(buf, "\xDF\xBF", 2));
+
+   CHECK(al_utf8_encode(buf, 0x000800) == 3);
+   CHECK(0 == memcmp(buf, "\xE0\xA0\x80", 3));
+
+   CHECK(al_utf8_encode(buf, 0x00ffff) == 3);
+   CHECK(0 == memcmp(buf, "\xEF\xBF\xBF", 3));
+
+   CHECK(al_utf8_encode(buf, 0x010000) == 4);
+   CHECK(0 == memcmp(buf, "\xF0\x90\x80\x80", 4));
+
+   CHECK(al_utf8_encode(buf, 0x10ffff) == 4);
+   CHECK(0 == memcmp(buf, "\xF4\x8f\xBF\xBF", 4));
+
+   /* These are illegal. */
+   CHECK(al_utf8_encode(buf, 0x110000) == 0);
+   CHECK(al_utf8_encode(buf, 0xffffff) == 0);
+}
+
 /*---------------------------------------------------------------------------*/
 
 const test_t all_tests[] =
 {
    NULL, t1, t2, t3, t4, t5, t6, t7, t8, t9,
-   t10, t11, t12, t13, t14, t15, t16
+   t10, t11, t12, t13, t14, t15, t16, t17, t18
 };
 
 #define NUM_TESTS (int)(sizeof(all_tests) / sizeof(all_tests[0]))

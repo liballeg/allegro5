@@ -61,12 +61,11 @@ AL_FUNC(bool, al_ustr_trim_ws, (ALLEGRO_USTR us));
 /* Compare */
 AL_FUNC(bool, al_ustr_equal, (const ALLEGRO_USTR us1, const ALLEGRO_USTR us2));
 
+/* Low level UTF-8 functions */
+AL_FUNC(size_t, al_utf8_width, (int32_t c));
+AL_FUNC(size_t, al_utf8_encode, (char s[], int32_t c));
+
 /* To be added:
-
-UTF-8 HELPERS
-
-   al_utf8_width
-   al_utf8_encode
 
 CREATE
 

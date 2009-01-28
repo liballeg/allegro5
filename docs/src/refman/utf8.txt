@@ -184,3 +184,22 @@ Returns true on success, or false if the function was passed an empty string.
 Return true iff the two strings are equal.  This function is more efficient
 than [al_ustr_compare] so is preferable if ordering is not important.
 
+
+# Low-level UTF-8 routines
+
+## API: al_utf8_width
+
+Returns the number of bytes that would be occupied by the specified code point
+when encoded in UTF-8.  This is between 1 and 4 bytes for legal code point
+values.  Otherwise returns 0.
+
+## API: al_utf8_encode
+
+Encode the specified code point to UTF-8 into the buffer `s`.  The buffer
+must have enough space to hold the encoding, which takes between 1 and 4
+bytes.  This routine will refuse to encode code points above 0x10FFFF.
+
+Returns the number of bytes written, which is the as that returned by
+[al_utf8_width].
+
+
