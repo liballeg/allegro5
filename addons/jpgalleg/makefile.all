@@ -18,13 +18,13 @@
 include $(MAKEFILE_INC)
 
 ifdef STATICLINK
-  ifdef DEBUG
+  ifdef DEBUGMODE
     BUILD_TYPE = jpgallsd
   else
     BUILD_TYPE = jpgalls
   endif
 else
-  ifdef DEBUG
+  ifdef DEBUGMODE
     BUILD_TYPE = jpgalld
   else
     BUILD_TYPE = jpgall
@@ -147,11 +147,7 @@ endif
 
 
 ifdef DEBUGMODE
-DEBUG=1
-endif
-
-ifdef DEBUG
-CFLAGS += -DDEBUG
+CFLAGS += -DDEBUG -DDEBUGMODE
 endif
 
 ifndef COMPILE

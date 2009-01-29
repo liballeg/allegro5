@@ -47,7 +47,11 @@ ifdef ALLEGRO_USE_CYGWIN
 endif
 
 CC = gcc
-OFLAGS = -march=pentium -O2 -ffast-math -fomit-frame-pointer
+ifdef DEBUGMODE
+   OFLAGS = -march=pentium -O0 -g2
+else
+   OFLAGS = -march=pentium -O2 -ffast-math -fomit-frame-pointer
+endif
 CFLAGS = -c -s -I./include -I../../include $(OFLAGS) -Wall -W $(PFLAGS)
 LDFLAGS = -s $(PFLAGS) -L../../lib/$(PLATFORM_PATH)
 
@@ -61,13 +65,13 @@ LIBS = -l$(ALLEG_LIB_BASENAME)
 ifdef STATICLINK
   LIBS += -lkernel32 -luser32 -lgdi32 -lcomdlg32 -lole32 -ldinput -lddraw -ldxguid -lwinmm -ldsound
   CFLAGS += -DALLEGRO_STATICLINK
-  ifdef DEBUG
+  ifdef DEBUGMODE
     LIB_NAME = libjpgad_s.a
   else
     LIB_NAME = libjpgal_s.a
   endif
 else
-  ifdef DEBUG
+  ifdef DEBUGMODE
     LIB_NAME = libjpgad.a
   else
     LIB_NAME = libjpgal.a

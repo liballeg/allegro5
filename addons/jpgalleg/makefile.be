@@ -13,7 +13,11 @@ OBJ = .o
 UNIX = 1
 
 CC = gcc
-OFLAGS = -mpentium -O2 -ffast-math -fomit-frame-pointer
+ifdef DEBUGMODE
+   OFLAGS = -mpentium -O0 -g2
+else
+   OFLAGS = -mpentium -O2 -ffast-math -fomit-frame-pointer
+endif
 CFLAGS = -c -s -I./include -I../../include $(OFLAGS) -Wall -W
 
 LIB = ar
@@ -25,13 +29,13 @@ MV = mv
 RM = rm -f
 
 ifdef STATICLINK
-  ifdef DEBUG
+  ifdef DEBUGMODE
     LIB_NAME = libjpgad_s.a
   else
     LIB_NAME = libjpgal_s.a
   endif
 else
-  ifdef DEBUG
+  ifdef DEBUGMODE
     LIB_NAME = libjpgad.a
   else
     LIB_NAME = libjpgal.a
