@@ -11,7 +11,7 @@
 
 typedef struct WAVFILE
 {
-   FILE *f; 
+   ALLEGRO_FS_ENTRY *f; 
    size_t dpos;     /* the starting position of the data chunk */
    int freq;        /* e.g., 44100 */
    short bits;      /* 8 (unsigned char) or 16 (signed short) */
@@ -19,16 +19,14 @@ typedef struct WAVFILE
    int samples;     /* # of samples. size = samples * (bits/8) * channels */
 } WAVFILE;
 
-/* XXX: Convert this to use ALLEGRO_FS_ENTRY */
-
 /* read16:
  *  Reads a signed, 16-bit little endian integer and places the value in 'v'.
  *
  *  Returns true on success, false on EOF
  */
-static bool read16(FILE *f, signed short *v)
+static bool read16(ALLEGRO_FS_ENTRY *f, signed short *v)
 {
-   const int a = fgetc(f), b = fgetc(f);
+   const int a = al_fgetc(f), b = al_fgetc(f);
    
    if (b != EOF) {
       *v = (a | (b << 8));
@@ -43,9 +41,9 @@ static bool read16(FILE *f, signed short *v)
  *
  *  Returns true on success, false on EOF
  */
-static bool read32(FILE *f, int *v)
+static bool read32(ALLEGRO_FS_ENTRY *f, int *v)
 {
-   const int a = fgetc(f), b = fgetc(f), c = fgetc(f), d = fgetc(f);
+   const int a = al_fgetc(f), b = al_fgetc(f), c = al_fgetc(f), d = al_fgetc(f);
 
    if (d != EOF) {
       *v = (a | (b << 8) | (c << 16) | (d << 24));
@@ -57,12 +55,12 @@ static bool read32(FILE *f, int *v)
 
 /* wav_open:
  *  Opens 'filename' and prepares a WAVFILE struct with the WAV format info.
- *  On a successful return, the file is at the beginning of the sample data.
+ *  On a successful return, the ALLEGRO_FS_ENTRY is at the beginning of the sample data.
  *  returns the WAVFILE on success, or NULL on failure.
  */
 static WAVFILE *wav_open(const char *filename)
 {
-   FILE *f = fopen(filename, "rb");
+   ALLEGRO_FS_ENTRY *f = al_fopen(filename, "rb");
    WAVFILE *wavfile = NULL;
    char buffer[12];
 
@@ -76,7 +74,7 @@ static WAVFILE *wav_open(const char *filename)
    wavfile->channels = 1;
 
    /* check the header */
-   if (fread(buffer, 12, 1, f) != 1) 
+   if (al_fread(f, 12, buffer) != 12) 
       goto wav_open_error;
 
    if (memcmp(buffer, "RIFF", 4) || memcmp(buffer+8, "WAVE", 4))
@@ -85,9 +83,9 @@ static WAVFILE *wav_open(const char *filename)
    /* read as many leading fmt chunks as exist */
    while (true) {
       int length = 0;
-	  short pcm = 0;
+      short pcm = 0;
 
-      if (fread(buffer, 4, 1, f) != 1)
+      if (al_fread(f, 4, buffer) != 4)
          goto wav_open_error;
 
 	  /* check to see if it's a fmt chunk */
@@ -111,7 +109,7 @@ static WAVFILE *wav_open(const char *filename)
       read32(f, &wavfile->freq);
       
 	  /* skip six bytes */
-	  fseek(f, 6, SEEK_CUR);   
+      al_fseek(f, 6, ALLEGRO_SEEK_CUR);   
       
 	  /* 8 or 16 bit data? */
       read16(f, &wavfile->bits);
@@ -120,7 +118,7 @@ static WAVFILE *wav_open(const char *filename)
 
 	  /* Skip remainder of chunk */
       length -= 16;
-	  if (length > 0) fseek(f, length, SEEK_CUR);
+	  if (length > 0) al_fseek(f, length, ALLEGRO_SEEK_CUR);
    }
 
    /* now there should be a data chunk */
@@ -140,20 +138,20 @@ static WAVFILE *wav_open(const char *filename)
 	   wavfile->samples /= 2;
    }
 
-   wavfile->dpos = ftell(f);
+   wavfile->dpos = al_ftell(f);
 
    return wavfile;
 
 wav_open_error:
 
-   if (f) fclose(f);
+   if (f) al_fclose(f);
    if (wavfile) free(wavfile);
 
    return NULL;
 }
 
 /* wav_read:
- *  Reads up to 'samples' number of samples from the wav file into 'data'.
+ *  Reads up to 'samples' number of samples from the wav ALLEGRO_FS_ENTRY into 'data'.
  *  Returns the actual number of samples written to 'data'.
  */
 static size_t wav_read(WAVFILE *wavfile, void *data, size_t samples)
@@ -165,7 +163,7 @@ static size_t wav_read(WAVFILE *wavfile, void *data, size_t samples)
    n = wavfile->channels * samples;
 
    if (wavfile->bits == 8) {
-      return fread(data, 1, n, wavfile->f) / wavfile->channels;
+      return al_fread(wavfile->f, n, data) / wavfile->channels;
    }
    else {
       size_t i;
@@ -182,13 +180,13 @@ static size_t wav_read(WAVFILE *wavfile, void *data, size_t samples)
 }
 
 /* wav_close:
- *  Closes the file and frees the WAVFILE struct.
+ *  Closes the ALLEGRO_FS_ENTRY and frees the WAVFILE struct.
  */
 static void wav_close(WAVFILE *wavfile)
 {
    ASSERT(wavfile);
 
-   fclose(wavfile->f);
+   al_fclose(wavfile->f);
    free(wavfile);
 }
 
@@ -217,7 +215,7 @@ static size_t wav_stream_update(ALLEGRO_STREAM *stream, void *data,
 static bool wav_stream_rewind(ALLEGRO_STREAM *stream)
 {
    WAVFILE *wavfile = (WAVFILE *) stream->extra;
-   return (fseek(wavfile->f, wavfile->dpos, SEEK_SET) != -1);
+   return (al_fseek(wavfile->f, wavfile->dpos, ALLEGRO_SEEK_SET) != -1);
 }
 
 /* wav_stream_close:
@@ -240,7 +238,7 @@ static void wav_stream_close(ALLEGRO_STREAM *stream)
 
 
 /* Function: al_load_sample_wav
- *  Reads a RIFF WAV format sample file, returning an ALLEGRO_SAMPLE
+ *  Reads a RIFF WAV format sample ALLEGRO_FS_ENTRY, returning an ALLEGRO_SAMPLE
  *  structure, or NULL on error.
  */
 ALLEGRO_SAMPLE *al_load_sample_wav(const char *filename)
@@ -300,7 +298,7 @@ ALLEGRO_STREAM *al_load_stream_wav(size_t buffer_count,
 }
 
 /* Function: al_save_sample_wav
- * Writes a sample into a wav file.
+ * Writes a sample into a wav ALLEGRO_FS_ENTRY.
  * Returns true on success, false on error.
  */ 
 bool al_save_sample_wav(ALLEGRO_SAMPLE *spl, const char *filename)
@@ -404,7 +402,7 @@ bool al_save_sample_wav_pf(ALLEGRO_SAMPLE *spl, ALLEGRO_FS_ENTRY *pf)
       }
    }
    else {
-      TRACE("Unknown audio depth (%d) when saving wav file.\n", spl->depth);
+      TRACE("Unknown audio depth (%d) when saving wav ALLEGRO_FS_ENTRY.\n", spl->depth);
 	  return false;
    }
 	    
