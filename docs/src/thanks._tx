@@ -278,7 +278,7 @@ Contributors
 
    Edgar Reynaldo.<br>
    Helped fixing several problems with gfx_mode_select_filter(), pointed out
-   two warnings.
+   two warnings, fixed two warnings in a loadpng example.
 
    Eduard Bloch (<email>edi@gmx.de</a>).<br>
    Fixed a freeze caused by the ESD detection code, fixed a bad behaviour

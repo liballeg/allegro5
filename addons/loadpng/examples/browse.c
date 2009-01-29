@@ -48,9 +48,8 @@ load_and_blit(AL_CONST char *filename)
 
     bmp = load_png(filename, pal);
     if (!bmp) {
-	textprintf(screen, font, 0, SCREEN_H/2, makecol(255,0,0),
-		   "Error loading %s", filename);
-	return;
+        textprintf_ex(screen , font , 0 , SCREEN_H/2 , makecol(255,0,0) , -1 , "Error loading %s" , filename);
+        return;
     }
 
     depth = bitmap_color_depth(bmp);
@@ -82,10 +81,8 @@ load_and_blit(AL_CONST char *filename)
 
     acquire_screen();
     blit(dbuf, screen, 0, 0, 0, 0, dbuf->w, dbuf->h);
-    text_mode(makecol(0, 0, 0));
-    textprintf(screen, font, 0, SCREEN_H-8, makecol(255, 255, 255),
-	       "%s (%dx%dx%d) gamma=%f", filename, bmp->w, bmp->h, depth,
-	       _png_screen_gamma);
+    textprintf_ex(screen , font , 0 , SCREEN_H - 8 , makecol(255,255,255) , makecol(0,0,0) , 
+                    "%s (%dx%dx%d) gamma=%f" , filename , bmp->w , bmp->h , depth , _png_screen_gamma);
     release_screen();
 
     destroy_bitmap(bmp);
