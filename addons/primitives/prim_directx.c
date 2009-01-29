@@ -121,11 +121,11 @@ int _al_draw_prim_directx(ALLEGRO_BITMAP* texture, ALLEGRO_VBUFFER* vbuff, int s
          break;
       };
       case ALLEGRO_PRIM_LINE_LOOP: {
+         ALLEGRO_VERTEX final[2];
          num_primitives = num_vtx;
          IDirect3DDevice9_DrawPrimitiveUP(device, D3DPT_LINESTRIP, num_primitives-1, vtx, sizeof(ALLEGRO_VERTEX));
-	 ALLEGRO_VERTEX final[2];
-	 memcpy(&final[0], &vtx[num_vtx-1], sizeof(ALLEGRO_VERTEX));
-	 memcpy(&final[1], &vtx[0], sizeof(ALLEGRO_VERTEX));
+         memcpy(&final[0], &vtx[num_vtx-1], sizeof(ALLEGRO_VERTEX));
+         memcpy(&final[1], &vtx[0], sizeof(ALLEGRO_VERTEX));
          IDirect3DDevice9_DrawPrimitiveUP(device, D3DPT_LINELIST, 1, final, sizeof(ALLEGRO_VERTEX));
          break;
       };
@@ -195,11 +195,11 @@ int _al_draw_prim_indexed_directx(ALLEGRO_BITMAP* texture, ALLEGRO_VBUFFER* vbuf
          break;
       };
       case ALLEGRO_PRIM_LINE_LOOP: {
+         int in[2];
          num_primitives = num_vtx;
          IDirect3DDevice9_DrawIndexedPrimitiveUP(device, D3DPT_LINESTRIP, 0, num_vtx, num_primitives-1, indices, D3DFMT_INDEX32, vtx, sizeof(ALLEGRO_VERTEX));
-	 int in[2];
-	 in[0] = indices[0];
-	 in[1] = indices[num_vtx-1];
+         in[0] = indices[0];
+         in[1] = indices[num_vtx-1];
          IDirect3DDevice9_DrawIndexedPrimitiveUP(device, D3DPT_LINELIST, 0, 2, 1, in, D3DFMT_INDEX32, vtx, sizeof(ALLEGRO_VERTEX));
          break;
       };

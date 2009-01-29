@@ -350,8 +350,8 @@ static LRESULT CALLBACK window_callback(HWND hWnd, UINT message,
                if (mouse) {
                   es = (ALLEGRO_EVENT_SOURCE *)mouse;
                   if (_al_event_source_needs_to_generate_event(es)) {
+                     ALLEGRO_EVENT event;
                      _al_event_source_lock(es);
-                        ALLEGRO_EVENT event;
                         event.type = ALLEGRO_EVENT_MOUSE_ENTER_DISPLAY;
                         event.mouse.x = mx;
                         event.mouse.y = my;
@@ -372,8 +372,8 @@ static LRESULT CALLBACK window_callback(HWND hWnd, UINT message,
                if (mouse) {
                   es = (ALLEGRO_EVENT_SOURCE *)mouse;
                   if (_al_event_source_needs_to_generate_event(es)) {
+                     ALLEGRO_EVENT event;
                      _al_event_source_lock(es);
-                        ALLEGRO_EVENT event;
                         event.type = ALLEGRO_EVENT_MOUSE_LEAVE_DISPLAY;
                         event.mouse.x = mx;
                         event.mouse.y = my;

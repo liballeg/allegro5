@@ -25,7 +25,8 @@
  */
 ALLEGRO_USTR al_ustr_new(const char *s)
 {
-   return (ALLEGRO_USTR) { _al_bfromcstr(s) };
+   struct ALLEGRO_USTR tmp = { _al_bfromcstr(s) };
+   return tmp;
 }
 
 
@@ -50,7 +51,8 @@ const char *al_cstr(const ALLEGRO_USTR us)
  */
 ALLEGRO_USTR al_ustr_dup(const ALLEGRO_USTR us)
 {
-   return (ALLEGRO_USTR) { _al_bstrcpy(us.b) };
+   struct ALLEGRO_USTR tmp = { _al_bstrcpy(us.b) };
+   return tmp;
 }
 
 
@@ -59,7 +61,8 @@ ALLEGRO_USTR al_ustr_dup(const ALLEGRO_USTR us)
 ALLEGRO_USTR al_ustr_dup_substr(const ALLEGRO_USTR us, int start_pos,
    int end_pos)
 {
-   return (ALLEGRO_USTR) { _al_bmidstr(us.b, start_pos, end_pos - start_pos) };
+   struct ALLEGRO_USTR tmp = { _al_bmidstr(us.b, start_pos, end_pos - start_pos) };
+   return tmp;
 }
 
 
@@ -68,7 +71,8 @@ ALLEGRO_USTR al_ustr_dup_substr(const ALLEGRO_USTR us, int start_pos,
 ALLEGRO_USTR al_ustr_empty_string(void)
 {
    static struct _al_tagbstring empty = _al_bsStatic("");
-   return (ALLEGRO_USTR) { &empty };
+   struct ALLEGRO_USTR tmp = { &empty };
+   return tmp;
 }
 
 
@@ -81,7 +85,10 @@ ALLEGRO_USTR al_ref_cstr(ALLEGRO_USTR_INFO *info, const char *s)
    ASSERT(s);
 
    _al_btfromcstr(*tb, s);
-   return (ALLEGRO_USTR) { tb };
+   {
+   struct ALLEGRO_USTR tmp = { tb };
+   return tmp;
+   }
 }
 
 
@@ -93,7 +100,10 @@ ALLEGRO_USTR al_ref_buffer(ALLEGRO_USTR_INFO *info, const char *s, size_t size)
    ASSERT(s);
 
    _al_blk2tbstr(*tb, s, size);
-   return (ALLEGRO_USTR) { tb };
+   {
+   struct ALLEGRO_USTR tmp = { tb };
+   return tmp;
+   }
 }
 
 
@@ -105,7 +115,10 @@ ALLEGRO_USTR al_ref_ustr(ALLEGRO_USTR_INFO *info, const ALLEGRO_USTR us,
    struct _al_tagbstring *tb = (struct _al_tagbstring *) info;
 
    _al_bmid2tbstr(*tb, us.b, start_pos, end_pos - start_pos);
-   return (ALLEGRO_USTR) { tb };
+   {
+   struct ALLEGRO_USTR tmp = { tb };
+   return tmp;
+   }
 }
 
 

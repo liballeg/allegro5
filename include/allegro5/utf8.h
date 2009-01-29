@@ -44,7 +44,7 @@ AL_FUNC(size_t, al_ustr_size, (ALLEGRO_USTR us));
 AL_FUNC(bool, al_ustr_insert, (ALLEGRO_USTR us1, int pos,
       const ALLEGRO_USTR us2));
 AL_FUNC(bool, al_ustr_insert_cstr, (ALLEGRO_USTR us, int pos,
-      const const char *us2));
+      const char *us2));
 
 /* Append */
 AL_FUNC(bool, al_ustr_append, (ALLEGRO_USTR us1, const ALLEGRO_USTR us2));
