@@ -196,8 +196,13 @@ $(INSTALLDIR)/lib/lib$(VERSION)-$(shared_version).dylib: $(LIB_NAME)
 endif
 
 
-$(INSTALLDIR)/bin/allegro-config: $(LIB_NAME)
+$(INSTALLDIR)/bin/allegro-config: allegro-config
 	install -d $(INSTALLDIR)/bin
+	@install $< $(INSTALLDIR)/bin/
+	@chmod a+x $(INSTALLDIR)/bin/allegro-config
+	@echo allegro-config script installed to $(INSTALLDIR)/bin
+
+allegro-config: $(LIB_NAME)
 ifdef STATICLINK
 	@sed -e "s/@LINK_WITH_STATIC_LIBS@/yes/" misc/allegro-config.in >temp
 else
@@ -215,10 +220,10 @@ endif
 	@sed -e "s/@FRAMEWORKS@/-framework Cocoa -framework $(FRAMEWORK_NAME) -l$(VERSION)-main/" temp2 > temp
 	@sed -e "s/accepts_frameworks=no/accepts_frameworks=yes/" temp > temp2
 	@sed -e "s/{lib_type} \$$allegro_libs/{lib_type}_s \$$allegro_libs/" temp2 > temp
-	@sed -e "s/-l\$${lib_type}_unsharable/-l\$${lib_type}-main $(LIBRARIES)/" temp >$(INSTALLDIR)/bin/allegro-config
+	@sed -e "s/-l\$${lib_type}_unsharable/-l\$${lib_type}-main $(LIBRARIES)/" temp > allegro-config
 	@rm -f temp temp2
-	@chmod a+x $(INSTALLDIR)/bin/allegro-config
-	@echo allegro-config script created in $(INSTALLDIR)/bin
+	@chmod a+x allegro-config
+	@echo allegro-config script created
 
 $(INSTALLDIR)/bin/fixbundle: tools/macosx/fixbundle
 	@install $< $(INSTALLDIR)/bin/
