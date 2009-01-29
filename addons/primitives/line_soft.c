@@ -53,15 +53,15 @@ static void shader_grad_any_2d_draw_shade(ALLEGRO_BITMAP* dest, uintptr_t state,
    */
    
    state_grad_any_2d* s = (state_grad_any_2d*)state;
-   ALLEGRO_COLOR res;
-   _al_blend(&s->cur_color, dest, x, y, &res);
-   _al_put_pixel(dest, x, y, res);
+   (void)dest;
+   al_draw_pixel(x, y, s->cur_color);
 }
 
 static void shader_grad_any_2d_draw_opaque(ALLEGRO_BITMAP* dest, uintptr_t state, int x, int y)
 {
    state_grad_any_2d* s = (state_grad_any_2d*)state;
-   _al_put_pixel(dest, x, y, s->cur_color);
+   (void)dest;
+   al_put_pixel(x, y, s->cur_color);
 }
 
 static void shader_grad_any_2d_first(uintptr_t state, int start_x, int start_y, ALLEGRO_VERTEX* v1, ALLEGRO_VERTEX* v2)
@@ -138,15 +138,15 @@ typedef struct {
 static void shader_solid_any_2d_draw_shade(ALLEGRO_BITMAP* dest, uintptr_t state, int x, int y)
 {
    state_solid_any_2d* s = (state_solid_any_2d*)state;
-   ALLEGRO_COLOR res;
-   _al_blend(&s->color, dest, x, y, &res);
-   _al_put_pixel(dest, x, y, res);
+   (void)dest;
+   al_draw_pixel(x, y, s->color);
 }
 
 static void shader_solid_any_2d_draw_opaque(ALLEGRO_BITMAP* dest, uintptr_t state, int x, int y)
 {
    state_solid_any_2d* s = (state_solid_any_2d*)state;
-   _al_put_pixel(dest, x, y, s->color);
+   (void)dest;
+   al_put_pixel(x, y, s->color);
 }
 
 static void shader_solid_any_2d_first(uintptr_t state, int start_x, int start_y, ALLEGRO_VERTEX* v1, ALLEGRO_VERTEX* v2)

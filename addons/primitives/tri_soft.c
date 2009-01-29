@@ -21,7 +21,6 @@
 #include "allegro5/internal/aintern_prim.h"
 #include "allegro5/internal/aintern_prim_soft.h"
 #include "allegro5/internal/aintern_bitmap.h"
-#include "allegro5/internal/aintern_display.h"
 #include <math.h>
 
 typedef void (*shader_draw)(ALLEGRO_BITMAP*, uintptr_t, int, int, int);
@@ -66,19 +65,15 @@ static void shader_grad_any_2d_draw_shade(ALLEGRO_BITMAP* dest, uintptr_t state,
 {
    state_grad_any_2d* s = (state_grad_any_2d*)state;
    int x;
+   (void)dest;
    
    ALLEGRO_COLOR color = s->cur_color;
    for (x = x1; x <= x2; x++) {
-      ALLEGRO_COLOR res;
-      
-      _al_blend(&color, dest, x, y - 1, &res);
-      
       /*
       TODO: This y - 1 bit bothers me, why would I need this?
       Either _al_put_pixel, or al_draw_bitmap are shifted by 1 relative to OpenGL
       */
-      
-      _al_put_pixel(dest, x, y - 1, res);
+      al_draw_pixel(x, y - 1, color);
       
       color.r += s->color_dx.r;
       color.g += s->color_dx.g;
@@ -91,10 +86,11 @@ static void shader_grad_any_2d_draw_opaque(ALLEGRO_BITMAP* dest, uintptr_t state
 {
    state_grad_any_2d* s = (state_grad_any_2d*)state;
    int x;
-   
+   (void)dest;
+
    ALLEGRO_COLOR color = s->cur_color;
    for (x = x1; x <= x2; x++) {
-      _al_put_pixel(dest, x, y - 1, color);
+      al_put_pixel(x, y - 1, color);
       
       color.r += s->color_dx.r;
       color.g += s->color_dx.g;
@@ -203,11 +199,10 @@ static void shader_solid_any_2d_draw_shade(ALLEGRO_BITMAP* dest, uintptr_t state
 {
    state_solid_any_2d* s = (state_solid_any_2d*)state;
    int x;
-   
+   (void)dest;
+
    for (x = x1; x <= x2; x++) {
-      ALLEGRO_COLOR res;
-      _al_blend(&s->cur_color, dest, x, y - 1, &res);
-      _al_put_pixel(dest, x, y - 1, res);
+      al_draw_pixel(x, y - 1, s->cur_color);
    }
 }
 
@@ -215,9 +210,10 @@ static void shader_solid_any_2d_draw_opaque(ALLEGRO_BITMAP* dest, uintptr_t stat
 {
    state_solid_any_2d* s = (state_solid_any_2d*)state;
    int x;
-   
+   (void)dest;
+
    for (x = x1; x <= x2; x++) {
-      _al_put_pixel(dest, x, y - 1, s->cur_color);
+      al_put_pixel(x, y - 1, s->cur_color);
    }
 }
 
@@ -589,7 +585,6 @@ void _al_triangle_2d(ALLEGRO_BITMAP* texture, ALLEGRO_VERTEX* v1, ALLEGRO_VERTEX
          (vtx1->r == vtx2->r && vtx2->r == vtx3->r)) {
       grad = 0;
    }
-   
    
    if (texture) {
    
