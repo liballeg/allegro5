@@ -1,9 +1,11 @@
 #ifndef ALLEGRO_PRIMITIVES_H
 #define ALLEGRO_PRIMITIVES_H
 
+#include <allegro5/allegro5.h>
+
 #if (defined ALLEGRO_MINGW32) || (defined ALLEGRO_MSVC) || (defined ALLEGRO_BCC32)
 #ifndef ALLEGRO_STATICLINK
-#ifdef A5_PRIM_SRC
+#ifdef A5_PRIMITIVES_SRC
 #define _A5_PRIM_DLL __declspec(dllexport)
 #else
 #define _A5_PRIM_DLL __declspec(dllimport)
@@ -28,7 +30,6 @@ extern "C"
 {
 #endif
 
-#include <allegro5/allegro5.h>
 
 /* Enum: ALLEGRO_PRIM_TYPE
  */
