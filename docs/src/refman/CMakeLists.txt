@@ -48,6 +48,7 @@ set(MAKE_HTML_REFS ${AWK} -f ${SCRIPT_DIR}/make_html_refs)
 set(MAKE_DUMMY_REFS ${AWK} -f ${SCRIPT_DIR}/make_dummy_refs)
 set(MAKE_PAGE ${SH} ${SCRIPT_DIR}/make_page --protos ${PROTOS})
 set(MAKE_MAN ${SH} ${SCRIPT_DIR}/make_man --protos ${PROTOS})
+set(INSERT_TIMESTAMP ${SH} ${SCRIPT_DIR}/insert_timestamp)
 
 #-----------------------------------------------------------------------------#
 #
@@ -102,7 +103,13 @@ add_custom_command(
     )
 
 if(WANT_DOCS_HTML)
-    foreach(inc inc.a inc.z)
+    add_custom_command(
+        OUTPUT inc.timestamp.txt
+        COMMAND ${INSERT_TIMESTAMP}
+                ${CMAKE_CURRENT_SOURCE_DIR}/inc.timestamp.txt
+        )
+
+    foreach(inc inc.a inc.z inc.timestamp)
         add_custom_command(
             OUTPUT ${inc}.html
             DEPENDS ${inc}.txt
@@ -116,7 +123,7 @@ if(WANT_DOCS_HTML)
         add_custom_command(
             OUTPUT ${page}.html
             DEPENDS ${PROTOS_TIMESTAMP} ${HTML_REFS_TIMESTAMP} ${page}.txt
-                inc.a.html inc.z.html
+                inc.a.html inc.z.html inc.timestamp.html
             COMMAND
                 ${MAKE_PAGE}
                 ${CMAKE_CURRENT_SOURCE_DIR}/${page}.txt
@@ -124,6 +131,7 @@ if(WANT_DOCS_HTML)
                 -o ${page}.html
                 --include-before-body inc.a.html
                 --include-after-body inc.z.html
+                --include-after-body inc.timestamp.html
                 -c pandoc.css
                 --standalone --toc
             )

@@ -34,8 +34,8 @@ def main(argv):
     path = os.path.join(options.path, "docs/src/refman")
     run("%s %s %s:htdocs/a5docs/" % (rsync, path, sf))
 
-    print("A5 docs: http://www.liballeg.org/a5docs/")
-    
+    print("Updated A5 docs at: http://docs.liballeg.org")
+
 if __name__ == "__main__":
     main(sys.argv)
 
