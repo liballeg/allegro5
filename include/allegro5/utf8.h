@@ -45,10 +45,12 @@ AL_FUNC(bool, al_ustr_insert, (ALLEGRO_USTR us1, int pos,
       const ALLEGRO_USTR us2));
 AL_FUNC(bool, al_ustr_insert_cstr, (ALLEGRO_USTR us, int pos,
       const char *us2));
+AL_FUNC(size_t, al_ustr_insert_chr, (ALLEGRO_USTR us, int pos, int32_t c));
 
 /* Append */
 AL_FUNC(bool, al_ustr_append, (ALLEGRO_USTR us1, const ALLEGRO_USTR us2));
 AL_FUNC(bool, al_ustr_append_cstr, (ALLEGRO_USTR us, const char *s));
+AL_FUNC(size_t, al_ustr_append_chr, (ALLEGRO_USTR us, int32_t c));
 
 /* Remove */
 AL_FUNC(bool, al_ustr_remove_range, (ALLEGRO_USTR us, int start_pos,
@@ -85,13 +87,8 @@ GET CODE POINTS
    al_ustr_get_next
    al_ustr_prev_get
 
-INSERT
-
-   al_ustr_insert_chr
-
 APPEND
 
-   al_ustr_append_chr
    al_ustr_appendf
    al_ustr_vappendf
 

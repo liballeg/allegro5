@@ -109,7 +109,7 @@ characters.
 
 # Inserting
 
-# API: al_ustr_insert
+## API: al_ustr_insert
 
 Insert `us2` into `us1` beginning at `pos`.  `pos` cannot be less than 0.  If
 `pos` is past the end of `us1` then the space between the end of the string
@@ -117,9 +117,17 @@ and `pos` will be padded with NUL ('\0') bytes.
 
 Returns true on success, false on error.
 
-# API: al_ustr_insert_cstr
+## API: al_ustr_insert_cstr
 
 Like [al_ustr_insert] but inserts a C-style string.
+
+## API: al_ustr_insert_chr
+
+Insert a code point into `us` beginning at `pos`.  `pos` cannot be less than 0.
+If `pos` is past the end of `us` then the space between the end of the string
+and `pos` will be padded with NUL ('\0') bytes.
+
+Returns the number of bytes inserted, or 0 on error.
 
 
 # Appending
@@ -130,12 +138,17 @@ Append `us2` to the end of `us1`.
 
 Returns true on success, false on error.
 
-
 ## API: al_ustr_append_cstr
 
 Append C-style string `s` to the end of `us`.
 
 Returns true on success, false on error.
+
+## API: al_ustr_append_chr
+
+Append a code point to the end of `us`.
+
+Returns the number of bytes added, or 0 on error.
 
 
 # Removing

@@ -148,6 +148,26 @@ bool al_ustr_insert_cstr(ALLEGRO_USTR us, int pos, const char *s)
 }
 
 
+/* Function: al_ustr_insert_chr
+ */
+size_t al_ustr_insert_chr(ALLEGRO_USTR us, int pos, int32_t c)
+{
+   uint32_t uc = c;
+   size_t sz;
+
+   if (uc < 128) {
+      return (_al_binsertch(us.b, pos, 1, uc) == _AL_BSTR_OK) ? 1 : 0;
+   }
+
+   sz = al_utf8_width(c);
+   if (_al_binsertch(us.b, pos, sz, '\0') == _AL_BSTR_OK) {
+      return al_utf8_encode(_al_bdataofs(us.b, pos), c);
+   }
+
+   return 0;
+}
+
+
 /* Function: al_ustr_append
  */
 bool al_ustr_append(ALLEGRO_USTR us1, const ALLEGRO_USTR us2)
@@ -161,6 +181,20 @@ bool al_ustr_append(ALLEGRO_USTR us1, const ALLEGRO_USTR us2)
 bool al_ustr_append_cstr(ALLEGRO_USTR us, const char *s)
 {
    return _al_bcatcstr(us.b, s) == _AL_BSTR_OK;
+}
+
+
+/* Function: al_ustr_append_chr
+ */
+size_t al_ustr_append_chr(ALLEGRO_USTR us, int32_t c)
+{
+   uint32_t uc = c;
+
+   if (uc < 128) {
+      return (_al_bconchar(us.b, uc) == _AL_BSTR_OK) ? 1 : 0;
+   }
+
+   return al_ustr_insert_chr(us, al_ustr_size(us), c);
 }
 
 

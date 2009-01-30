@@ -372,12 +372,51 @@ void t18(void)
    CHECK(al_utf8_encode(buf, 0xffffff) == 0);
 }
 
+/* Test al_ustr_insert_chr. */
+void t19(void)
+{
+   ALLEGRO_USTR us = al_ustr_new("");
+
+   CHECK(al_ustr_insert_chr(us, 0, 'a') == 1);
+   CHECK(al_ustr_insert_chr(us, 0, L'æ') == 2);
+   CHECK(al_ustr_insert_chr(us, 2, L'€') == 3);
+   CHECK(0 == strcmp(al_cstr(us), "æ€a"));
+
+   /* Past end. */
+   CHECK(al_ustr_insert_chr(us, 8, L'ö') == 2);
+   CHECK(0 == memcmp(al_cstr(us), "æ€a\0\0ö", 9));
+
+   /* Invalid code points. */
+   CHECK(al_ustr_insert_chr(us, 0, -1) == 0);
+   CHECK(al_ustr_insert_chr(us, 0, 0x110000) == 0);
+
+   al_ustr_free(us);
+}
+
+/* Test al_ustr_append_chr. */
+void t20(void)
+{
+   ALLEGRO_USTR us = al_ustr_new("");
+
+   CHECK(al_ustr_append_chr(us, 'a') == 1);
+   CHECK(al_ustr_append_chr(us, L'æ') == 2);
+   CHECK(al_ustr_append_chr(us, L'€') == 3);
+   CHECK(0 == strcmp(al_cstr(us), "aæ€"));
+
+   /* Invalid code points. */
+   CHECK(al_ustr_append_chr(us, -1) == 0);
+   CHECK(al_ustr_append_chr(us, 0x110000) == 0);
+
+   al_ustr_free(us);
+}
+
 /*---------------------------------------------------------------------------*/
 
 const test_t all_tests[] =
 {
    NULL, t1, t2, t3, t4, t5, t6, t7, t8, t9,
-   t10, t11, t12, t13, t14, t15, t16, t17, t18
+   t10, t11, t12, t13, t14, t15, t16, t17, t18, t19,
+   t20
 };
 
 #define NUM_TESTS (int)(sizeof(all_tests) / sizeof(all_tests[0]))
