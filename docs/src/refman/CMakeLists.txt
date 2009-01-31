@@ -103,13 +103,7 @@ add_custom_command(
     )
 
 if(WANT_DOCS_HTML)
-    add_custom_command(
-        OUTPUT inc.timestamp.txt
-        COMMAND ${INSERT_TIMESTAMP}
-                ${CMAKE_CURRENT_SOURCE_DIR}/inc.timestamp.txt
-        )
-
-    foreach(inc inc.a inc.z inc.timestamp)
+    foreach(inc inc.a inc.z)
         add_custom_command(
             OUTPUT ${inc}.html
             DEPENDS ${inc}.txt
@@ -123,7 +117,9 @@ if(WANT_DOCS_HTML)
         add_custom_command(
             OUTPUT ${page}.html
             DEPENDS ${PROTOS_TIMESTAMP} ${HTML_REFS_TIMESTAMP} ${page}.txt
-                inc.a.html inc.z.html inc.timestamp.html
+                inc.a.html inc.z.html
+            COMMAND
+                ${INSERT_TIMESTAMP} inc.timestamp.html
             COMMAND
                 ${MAKE_PAGE}
                 ${CMAKE_CURRENT_SOURCE_DIR}/${page}.txt

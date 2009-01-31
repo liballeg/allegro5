@@ -1,2 +1,9 @@
-#!/bin/sh
-echo "Last updated: " `date` > $1
+#!/bin/sh -e
+# Generate an fragment to be inserted at the bottom of HTML pages.
+# The timestamp follows RFC 3339.
+
+cat << EOF > $1
+<p>
+Last updated: $(date -u +'%Y-%m-%d %H:%M:%SZ')
+</p>
+EOF
