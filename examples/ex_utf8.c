@@ -4,6 +4,10 @@
  *	Test UTF-8 string routines.
  */
 
+/* TODO: we should also be checking on inputs with surrogate characters
+ * (which are not allowed)
+ */
+
 #define ALLEGRO_USE_CONSOLE
 #include <allegro5/allegro5.h>
 #include <allegro5/utf8.h>
@@ -410,13 +414,229 @@ void t20(void)
    al_ustr_free(us);
 }
 
+/* Test al_ustr_get. */
+void t21(void)
+{
+   ALLEGRO_USTR_INFO info;
+   ALLEGRO_USTR us;
+
+   us = al_ref_buffer(&info, "", 1);
+   CHECK(al_ustr_get(us, 0) == 0);
+
+   us = al_ref_cstr(&info, "\x7f");
+   CHECK(al_ustr_get(us, 0) == 0x7f);
+
+   us = al_ref_cstr(&info, "\xC2\x80");
+   CHECK(al_ustr_get(us, 0) == 0x80);
+
+   us = al_ref_cstr(&info, "\xDF\xBf");
+   CHECK(al_ustr_get(us, 0) == 0x7ff);
+
+   us = al_ref_cstr(&info, "\xE0\xA0\x80");
+   CHECK(al_ustr_get(us, 0) == 0x800);
+
+   us = al_ref_cstr(&info, "\xEF\xBF\xBF");
+   CHECK(al_ustr_get(us, 0) == 0xffff);
+
+   us = al_ref_cstr(&info, "\xF0\x90\x80\x80");
+   CHECK(al_ustr_get(us, 0) == 0x010000);
+
+   us = al_ref_cstr(&info, "\xF4\x8F\xBF\xBF");
+   CHECK(al_ustr_get(us, 0) == 0x10ffff);
+}
+
+/* Test al_ustr_get on invalid sequences. */
+void t22(void)
+{
+   ALLEGRO_USTR_INFO info;
+   ALLEGRO_USTR us;
+
+   /* Empty string. */
+   al_set_errno(0);
+   CHECK(al_ustr_get(al_ustr_empty_string(), 0) < 0);
+   CHECK(al_get_errno() == ERANGE);
+
+   /* 5-byte sequence. */
+   us = al_ref_cstr(&info, "\xf8\x88\x80\x80\x80");
+   al_set_errno(0);
+   CHECK(al_ustr_get(us, 0) < 0);
+   CHECK(al_get_errno() == EILSEQ);
+
+   /* Start in trail byte. */
+   us = al_ref_cstr(&info, "ð");
+   al_set_errno(0);
+   CHECK(al_ustr_get(us, 1) < 0);
+   CHECK(al_get_errno() == EILSEQ);
+
+   /* Truncated 3-byte sequence. */
+   us = al_ref_cstr(&info, "\xEF\xBF");
+   al_set_errno(0);
+   CHECK(al_ustr_get(us, 0) < 0);
+   CHECK(al_get_errno() == EILSEQ);
+}
+
+/* Test al_ustr_get on invalid sequences (part 2). */
+/* Get more ideas for tests from
+ * http://www.cl.cam.ac.uk/~mgk25/ucs/examples/UTF-8-test.txt
+ */
+void t23(void)
+{
+   ALLEGRO_USTR_INFO info;
+   ALLEGRO_USTR us;
+
+   /* Examples of an overlong ASCII character */
+   us = al_ref_cstr(&info, "\xc0\xaf");
+   CHECK(al_ustr_get(us, 0) < 0);
+   us = al_ref_cstr(&info, "\xe0\x80\xaf");
+   CHECK(al_ustr_get(us, 0) < 0);
+   us = al_ref_cstr(&info, "\xf0\x80\x80\xaf");
+   CHECK(al_ustr_get(us, 0) < 0);
+   us = al_ref_cstr(&info, "\xf8\x80\x80\x80\xaf");
+   CHECK(al_ustr_get(us, 0) < 0);
+   us = al_ref_cstr(&info, "\xfc\x80\x80\x80\x80\xaf");
+   CHECK(al_ustr_get(us, 0) < 0);
+
+   /* Maximum overlong sequences */
+   us = al_ref_cstr(&info, "\xc1\xbf");
+   CHECK(al_ustr_get(us, 0) < 0);
+
+   us = al_ref_cstr(&info, "\xe0\x9f\xbf");
+   CHECK(al_ustr_get(us, 0) < 0);
+
+   us = al_ref_cstr(&info, "\xf0\x8f\xbf\xbf");
+   CHECK(al_ustr_get(us, 0) < 0);
+
+   us = al_ref_cstr(&info, "\xf8\x87\xbf\xbf\xbf");
+   CHECK(al_ustr_get(us, 0) < 0);
+
+   us = al_ref_cstr(&info, "\xfc\x83\xbf\xbf\xbf\xbf");
+   CHECK(al_ustr_get(us, 0) < 0);
+
+   /* Overlong representation of the NUL character */
+   us = al_ref_cstr(&info, "\xc0\x80");
+   CHECK(al_ustr_get(us, 0) < 0);
+
+   us = al_ref_cstr(&info, "\xe0\x80\x80");
+   CHECK(al_ustr_get(us, 0) < 0);
+
+   us = al_ref_cstr(&info, "\xf0\x80\x80");
+   CHECK(al_ustr_get(us, 0) < 0);
+
+   us = al_ref_cstr(&info, "\xf8\x80\x80\x80");
+   CHECK(al_ustr_get(us, 0) < 0);
+
+   us = al_ref_cstr(&info, "\xfc\x80\x80\x80\x80");
+   CHECK(al_ustr_get(us, 0) < 0);
+}
+
+/* Test al_ustr_next. */
+void t24(void)
+{
+   const char str[] = "a\0þ€\xf4\x8f\xbf\xbf";
+   ALLEGRO_USTR_INFO info;
+   ALLEGRO_USTR us = al_ref_buffer(&info, str, sizeof(str) - 1);
+   int pos = 0;
+
+   CHECK(al_ustr_next(us, &pos));   /* a */
+   CHECK(pos == 1);
+
+   CHECK(al_ustr_next(us, &pos));   /* NUL */
+   CHECK(pos == 2);
+
+   CHECK(al_ustr_next(us, &pos));   /* þ */
+   CHECK(pos == 4);
+
+   CHECK(al_ustr_next(us, &pos));   /* € */
+   CHECK(pos == 7);
+
+   CHECK(al_ustr_next(us, &pos));   /* U+10FFFF */
+   CHECK(pos == 11);
+
+   CHECK(! al_ustr_next(us, &pos)); /* end */
+   CHECK(pos == 11);
+}
+
+/* Test al_ustr_next with invalid input. */
+void t25(void)
+{
+   const char str[] = "þ\xf4\x8f\xbf.";
+   ALLEGRO_USTR_INFO info;
+   ALLEGRO_USTR us = al_ref_buffer(&info, str, sizeof(str) - 1);
+   int pos;
+
+   /* Starting in middle of a sequence. */
+   pos = 1;
+   CHECK(al_ustr_next(us, &pos));
+   CHECK(pos == 2);
+
+   /* Unexpected end of 4-byte sequence. */
+   CHECK(al_ustr_next(us, &pos));
+   CHECK(pos == 5);
+}
+
+/* Test al_ustr_prev. */
+void t26(void)
+{
+   ALLEGRO_USTR us = al_ustr_new("aþ€\xf4\x8f\xbf\xbf");
+   int pos = al_ustr_size(us);
+
+   CHECK(al_ustr_prev(us, &pos));   /* U+10FFFF */
+   CHECK(pos == 6);
+
+   CHECK(al_ustr_prev(us, &pos));   /* € */
+   CHECK(pos == 3);
+
+   CHECK(al_ustr_prev(us, &pos));   /* þ */
+   CHECK(pos == 1);
+
+   CHECK(al_ustr_prev(us, &pos));   /* a */
+   CHECK(pos == 0);
+
+   CHECK(!al_ustr_prev(us, &pos));  /* begin */
+   CHECK(pos == 0);
+
+   al_ustr_free(us);
+}
+
+/* Test al_ustr_length. */
+void t27(void)
+{
+   ALLEGRO_USTR us = al_ustr_new("aþ€\xf4\x8f\xbf\xbf");
+
+   CHECK(0 == al_ustr_length(al_ustr_empty_string()));
+   CHECK(4 == al_ustr_length(us));
+
+   al_ustr_free(us);
+}
+
+/* Test al_ustr_offset. */
+void t28(void)
+{
+   ALLEGRO_USTR us = al_ustr_new("aþ€\xf4\x8f\xbf\xbf");
+
+   CHECK(al_ustr_offset(us, 0) == 0);
+   CHECK(al_ustr_offset(us, 1) == 1);
+   CHECK(al_ustr_offset(us, 2) == 3);
+   CHECK(al_ustr_offset(us, 3) == 6);
+   CHECK(al_ustr_offset(us, 4) == 10);
+   CHECK(al_ustr_offset(us, 5) == 10);
+
+   CHECK(al_ustr_offset(us, -1) == 6);
+   CHECK(al_ustr_offset(us, -2) == 3);
+   CHECK(al_ustr_offset(us, -3) == 1);
+   CHECK(al_ustr_offset(us, -4) == 0);
+   CHECK(al_ustr_offset(us, -5) == 0);
+
+   al_ustr_free(us);
+}
+
 /*---------------------------------------------------------------------------*/
 
 const test_t all_tests[] =
 {
    NULL, t1, t2, t3, t4, t5, t6, t7, t8, t9,
    t10, t11, t12, t13, t14, t15, t16, t17, t18, t19,
-   t20
+   t20, t21, t22, t23, t24, t25, t26, t27, t28
 };
 
 #define NUM_TESTS (int)(sizeof(all_tests) / sizeof(all_tests[0]))

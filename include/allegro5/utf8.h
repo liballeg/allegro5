@@ -38,7 +38,14 @@ AL_FUNC(ALLEGRO_USTR, al_ref_ustr, (ALLEGRO_USTR_INFO *info,
       const ALLEGRO_USTR us, int start_pos, int end_pos));
 
 /* Sizes and offsets */
-AL_FUNC(size_t, al_ustr_size, (ALLEGRO_USTR us));
+AL_FUNC(size_t, al_ustr_size, (const ALLEGRO_USTR us));
+AL_FUNC(size_t, al_ustr_length, (const ALLEGRO_USTR us));
+AL_FUNC(int, al_ustr_offset, (const ALLEGRO_USTR us, int index));
+AL_FUNC(bool, al_ustr_next, (const ALLEGRO_USTR us, int *pos));
+AL_FUNC(bool, al_ustr_prev, (const ALLEGRO_USTR us, int *pos));
+
+/* Get codepoints */
+AL_FUNC(int32_t, al_ustr_get, (const ALLEGRO_USTR us, int pos));
 
 /* Insert */
 AL_FUNC(bool, al_ustr_insert, (ALLEGRO_USTR us1, int pos,
@@ -74,16 +81,8 @@ CREATE
    al_ustr_newf
    al_cstr_dup
 
-LENGTH AND OFFSET
-
-   al_ustr_length
-   al_ustr_offset
-   al_ustr_next
-   al_ustr_prev
-
 GET CODE POINTS
 
-   al_ustr_get
    al_ustr_get_next
    al_ustr_prev_get
 

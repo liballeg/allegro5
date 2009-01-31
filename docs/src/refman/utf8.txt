@@ -106,6 +106,44 @@ Return the size of the string in bytes.  This is equal to the number of code
 points in the string if the string is empty or contains only 7-bit ASCII
 characters.
 
+## API: al_ustr_length
+
+Return the number of code points in the string.
+
+## API: al_ustr_offset
+
+Return the offset (in bytes from the start of the string) of the code point at
+the specified index in the string. A zero index parameter will return the first
+character of the string. If index is negative, it counts backward from the end
+of the string, so an index of -1 will return an offset to the last code point.
+
+If the index is past the end of the string, returns the offset of the end of
+the string.
+
+## API: al_ustr_next
+
+Find the byte offset of the next code point in string, beginning at `*pos`.
+`*pos` does not have to be at the beginning of a code point.
+Returns true on success, then value pointed to by `pos` will be updated to the
+found offset.  Otherwise returns false if `*pos` was already at the end of
+the string, then `*pos` is unmodified.
+
+This function just looks for an appropriate byte; it doesn't check if found
+offset is the beginning of a valid code point.  If you are working with
+possibly invalid UTF-8 strings then it could skip over some invalid bytes.
+
+## API: al_ustr_prev
+
+Find the byte offset of the previous code point in string, before `*pos`.
+`*pos` does not have to be at the beginning of a code point.
+Returns true on success, then value pointed to by `pos` will be updated to the
+found offset.  Otherwise returns false if `*pos` was already at the end of
+the string, then `*pos` is unmodified.
+
+This function just looks for an appropriate byte; it doesn't check if found
+offset is the beginning of a valid code point.  If you are working with
+possibly invalid UTF-8 strings then it could skip over some invalid bytes.
+
 
 # Inserting
 

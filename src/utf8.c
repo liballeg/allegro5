@@ -21,6 +21,11 @@
 #include "allegro5/internal/bstrlib.h"
 
 
+#define IS_SINGLE_BYTE(c)  (((unsigned)(c) & 0x80) == 0)
+#define IS_LEAD_BYTE(c)    (((unsigned)(c) - 0xC0) < 0x3E)
+#define IS_TRAIL_BYTE(c)   (((unsigned)(c) & 0xC0) == 0x80)
+
+
 /* Function: al_ustr_new
  */
 ALLEGRO_USTR al_ustr_new(const char *s)
@@ -124,9 +129,169 @@ ALLEGRO_USTR al_ref_ustr(ALLEGRO_USTR_INFO *info, const ALLEGRO_USTR us,
 
 /* Function: al_ustr_size
  */
-size_t al_ustr_size(ALLEGRO_USTR us)
+size_t al_ustr_size(const ALLEGRO_USTR us)
 {
    return _al_blength(us.b);
+}
+
+
+/* Function: al_ustr_length
+ */
+size_t al_ustr_length(const ALLEGRO_USTR us)
+{
+   int pos = 0;
+   int c = 0;
+
+   while (al_ustr_next(us, &pos))
+      c++;
+
+   return c;
+}
+
+
+/* Function: al_ustr_offset
+ */
+int al_ustr_offset(const ALLEGRO_USTR us, int index)
+{
+   int pos = 0;
+
+   if (index < 0)
+      index += al_ustr_length(us);
+
+   while (index-- > 0) {
+      if (!al_ustr_next(us, &pos))
+         return pos;
+   }
+
+   return pos;
+}
+
+
+/* Function: al_ustr_next
+ */
+bool al_ustr_next(const ALLEGRO_USTR us, int *pos)
+{
+   const unsigned char *data = (const unsigned char *) _al_bdata(us.b);
+   int size = _al_blength(us.b);
+   int c;
+
+   if (*pos >= size) {
+      return false;
+   }
+
+   while (++(*pos) < size) {
+      c = data[*pos];
+      if (IS_SINGLE_BYTE(c) || IS_LEAD_BYTE(c))
+         break;
+   }
+
+   return true;
+}
+
+
+/* Function: al_ustr_prev
+ */
+bool al_ustr_prev(const ALLEGRO_USTR us, int *pos)
+{
+   const unsigned char *data = (const unsigned char *) _al_bdata(us.b);
+   int c;
+
+   if (*pos <= 0)
+      return false;
+
+   while (*pos > 0) {
+      (*pos)--;
+      c = data[*pos];
+      if (IS_SINGLE_BYTE(c) || IS_LEAD_BYTE(c))
+         break;
+   }
+
+   return true;
+}
+
+
+/* Function: al_ustr_get
+ */
+int32_t al_ustr_get(const ALLEGRO_USTR ub, int pos)
+{
+   int32_t c;
+   int remain;
+   int32_t minc;
+   const unsigned char *data;
+
+   c = _al_bchare(ub.b, pos, -1);
+
+   if (c < 0) {
+      /* Out of bounds. */
+      al_set_errno(ERANGE);
+      return -1;
+   }
+
+   if (c <= 0x7F) {
+      /* Plain ASCII. */
+      return c;
+   }
+
+   if (c <= 0xC1) {
+      /* Trailing byte of multi-byte sequence or an overlong encoding for
+       * code point <= 127.
+       */
+      al_set_errno(EILSEQ);
+      return -2;
+   }
+
+   if (c <= 0xDF) {
+      /* 2-byte sequence. */
+      c &= 0x1F;
+      remain = 1;
+      minc = 0x80;
+   }
+   else if (c <= 0xEF) {
+      /* 3-byte sequence. */
+      c &= 0x0F;
+      remain = 2;
+      minc = 0x800;
+   }
+   else if (c <= 0xF4) {
+      /* 4-byte sequence. */
+      c &= 0x07;
+      remain = 3;
+      minc = 0x10000;
+   }
+   else {
+      /* Otherwise invalid. */
+      al_set_errno(EILSEQ);
+      return -2;
+   }
+
+   if (pos + remain > _al_blength(ub.b)) {
+      al_set_errno(EILSEQ);
+      return -2;
+   }
+
+   data = (const unsigned char *) _al_bdata(ub.b);
+   while (remain--) {
+      int d = data[++pos];
+
+      if (!IS_TRAIL_BYTE(d)) {
+         al_set_errno(EILSEQ);
+         return -2;
+      }
+
+      c = (c << 6) | (d & 0x3F);
+   }
+
+   /* Check for overlong forms, which could be used to bypass security
+    * validations.  We could also check code points aren't above U+10FFFF or in
+    * the surrogate ranges, but we don't.
+    */
+
+   if (c < minc) {
+      al_set_errno(EILSEQ);
+      return -2;
+   }
+
+   return c;
 }
 
 
