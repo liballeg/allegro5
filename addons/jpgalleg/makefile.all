@@ -47,16 +47,19 @@ ifndef NO_ASSEMBLER
 OBJECTS += obj/$(PLATFORM_PATH)/$(BUILD_TYPE)/color$(OBJ) obj/$(PLATFORM_PATH)/$(BUILD_TYPE)/dct$(OBJ)
 endif
 
-EXAMPLES_OBJECTS = obj/$(PLATFORM_PATH)/ex1$(OBJ) obj/$(PLATFORM_PATH)/ex2$(OBJ) \
-	obj/$(PLATFORM_PATH)/ex3$(OBJ) obj/$(PLATFORM_PATH)/ex4$(OBJ) obj/$(PLATFORM_PATH)/ex5$(OBJ)
+EXAMPLES_OBJECTS = obj/$(PLATFORM_PATH)/$(BUILD_TYPE)/ex1$(OBJ) \
+                   obj/$(PLATFORM_PATH)/$(BUILD_TYPE)/ex2$(OBJ) \
+                   obj/$(PLATFORM_PATH)/$(BUILD_TYPE)/ex3$(OBJ) \
+                   obj/$(PLATFORM_PATH)/$(BUILD_TYPE)/ex4$(OBJ) \
+                   obj/$(PLATFORM_PATH)/$(BUILD_TYPE)/ex5$(OBJ)
 
-EXAMPLES = $(subst obj/$(PLATFORM_PATH),examples,$(subst $(OBJ),$(EXE),$(EXAMPLES_OBJECTS)))
+EXAMPLES = $(subst obj/$(PLATFORM_PATH)/$(BUILD_TYPE),examples,$(subst $(OBJ),$(EXE),$(EXAMPLES_OBJECTS)))
 
 PLUGIN_FILES = plugin/datjpeg.c plugin/datjpeg.inc plugin/jpgalleg.scm plugin/jpgalleg.scr \
 	plugin/jpgalleg.scu plugin/jpgalleg.scv
 
 CLEAN_FILES = $(OBJECTS) $(EXAMPLES_OBJECTS) \
-	obj/$(PLATFORM_PATH)/test$(OBJ) misc/test$(EXE) \
+	obj/$(PLATFORM_PATH)/$(BUILD_TYPE)/test$(OBJ) misc/test$(EXE) \
 	obj/$(PLATFORM_PATH)/mmxtest$(OBJ) include/mmx.h
 
 DISTCLEAN_FILES = $(TARGET) $(EXAMPLES)
@@ -172,10 +175,10 @@ obj/$(PLATFORM_PATH)/$(BUILD_TYPE)/%$(OBJ): src/%.c $(HEADERS)
 obj/$(PLATFORM_PATH)/$(BUILD_TYPE)/%$(OBJ): src/i386/%.s include/mmx.h
 	$(CC) -x assembler-with-cpp -I./include -c $< -o $@
 
-obj/$(PLATFORM_PATH)/%$(OBJ): examples/%.c
+obj/$(PLATFORM_PATH)/$(BUILD_TYPE)/%$(OBJ): examples/%.c
 	$(call COMPILE,$<,$@)
 
-obj/$(PLATFORM_PATH)/%$(OBJ): misc/%.c
+obj/$(PLATFORM_PATH)/$(BUILD_TYPE)/%$(OBJ): misc/%.c
 	$(call COMPILE,$<,$@)
 
 ex1: examples/ex1$(EXE)
@@ -184,24 +187,24 @@ ex3: examples/ex3$(EXE)
 ex4: examples/ex4$(EXE)
 ex5: examples/ex5$(EXE)
 
-examples/ex1$(EXE): obj/$(PLATFORM_PATH)/ex1$(OBJ) $(TARGET)
+examples/ex1$(EXE): obj/$(PLATFORM_PATH)/$(BUILD_TYPE)/ex1$(OBJ) $(TARGET)
 	$(call LINK,$<,$@)
 
-examples/ex2$(EXE): obj/$(PLATFORM_PATH)/ex2$(OBJ) $(TARGET)
+examples/ex2$(EXE): obj/$(PLATFORM_PATH)/$(BUILD_TYPE)/ex2$(OBJ) $(TARGET)
 	$(call LINK,$<,$@)
 
-examples/ex3$(EXE): obj/$(PLATFORM_PATH)/ex3$(OBJ) $(TARGET)
+examples/ex3$(EXE): obj/$(PLATFORM_PATH)/$(BUILD_TYPE)/ex3$(OBJ) $(TARGET)
 	$(call LINK,$<,$@)
 
-examples/ex4$(EXE): obj/$(PLATFORM_PATH)/ex4$(OBJ) $(TARGET)
+examples/ex4$(EXE): obj/$(PLATFORM_PATH)/$(BUILD_TYPE)/ex4$(OBJ) $(TARGET)
 	$(call LINK,$<,$@)
 
-examples/ex5$(EXE): obj/$(PLATFORM_PATH)/ex5$(OBJ) $(TARGET)
+examples/ex5$(EXE): obj/$(PLATFORM_PATH)/$(BUILD_TYPE)/ex5$(OBJ) $(TARGET)
 	$(call LINK,$<,$@)
 
 
 test: misc/test$(EXE)
 
-misc/test$(EXE): obj/$(PLATFORM_PATH)/test$(OBJ) $(TARGET)
+misc/test$(EXE): obj/$(PLATFORM_PATH)/$(BUILD_TYPE)/test$(OBJ) $(TARGET)
 	$(call LINK,$<,$@)
 
