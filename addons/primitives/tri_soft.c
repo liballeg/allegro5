@@ -20,7 +20,6 @@
 #include "allegro5/a5_primitives.h"
 #include "allegro5/internal/aintern_prim.h"
 #include "allegro5/internal/aintern_prim_soft.h"
-#include "allegro5/internal/aintern_bitmap.h"
 #include <math.h>
 
 typedef void (*shader_draw)(ALLEGRO_BITMAP*, uintptr_t, int, int, int);
@@ -531,7 +530,9 @@ void _al_triangle_2d(ALLEGRO_BITMAP* texture, ALLEGRO_VERTEX* v1, ALLEGRO_VERTEX
    int grad = 1;
    
    int src_mode, dst_mode;
-   ALLEGRO_COLOR *ic;
+   int width = al_get_bitmap_width(target);
+   int height = al_get_bitmap_height(target);
+   ALLEGRO_COLOR ic;
    
    /*
    TODO: Need to clip them first, make a copy of the vertices first then
@@ -550,10 +551,10 @@ void _al_triangle_2d(ALLEGRO_BITMAP* texture, ALLEGRO_VERTEX* v1, ALLEGRO_VERTEX
    TODO: This bit is temporary, the min max's will be guaranteed to be within the bitmap
    once clipping is implemented
    */
-   if (max_x >= target->w)
-      max_x = target->w - 1;
-   if (max_y >= target->h)
-      max_y = target->h - 1;
+   if (max_x >= width)
+      max_x = width - 1;
+   if (max_y >= height)
+      max_y = height - 1;
    if (min_x < 0)
       min_x = 0;
    if (min_y < 0)
@@ -572,10 +573,9 @@ void _al_triangle_2d(ALLEGRO_BITMAP* texture, ALLEGRO_VERTEX* v1, ALLEGRO_VERTEX
    TODO: Make more specialized functions (constant colour, no blending etc and etc)
    */
 
-   al_get_blender(&src_mode, &dst_mode, NULL);
-   ic = _al_get_blend_color();
+   al_get_blender(&src_mode, &dst_mode, &ic);
    if (src_mode == ALLEGRO_ONE && dst_mode == ALLEGRO_ZERO &&
-         ic->r == 1.0f && ic->g == 1.0f && ic->b == 1.0f && ic->a == 1.0f) {
+         ic.r == 1.0f && ic.g == 1.0f && ic.b == 1.0f && ic.a == 1.0f) {
       shade = 0;
    }
    
