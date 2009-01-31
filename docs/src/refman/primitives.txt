@@ -428,7 +428,7 @@ Sets the transformation to be the identity transformation.
 ## API: al_build_transform
 
 Builds a transformation given some parameters. This call is equivalent to calling
-the transformations in this order: scale, rotate, translate, except this method is faster.
+the transformations in this order: make identity, scale, rotate, translate. This method is faster, however.
 
 *Parameters:*
 
@@ -531,7 +531,7 @@ namely the top left 2x2 matrix, and the right most 2x1 matrix, for a total of 6 
 ## API: ALLEGRO_VBUFFER
 
 Defines the generic vertex buffer type. They hold vertices in an arrangement that is conducive to rapid
-drawing. Vertex buffers have to be locked to read/write data from them, and have to be unlocked while drawing.
+drawing. Vertex buffers have to be locked to read/write data from them, and have to be unlocked before drawing.
 Use the various access routines to operate on them, never touching the internal data if possible.
 
 # Constants
@@ -542,9 +542,9 @@ Enumerates the types of primitves this addon can draw.
 
 * ALLEGRO_PRIM_LINE_LIST - A list of lines, sequential pairs of vertices define disjointed lines
 * ALLEGRO_PRIM_LINE_STRIP - A strip of lines, sequential vertices define a strip of lines
-* ALLEGRO_PRIM_LINE_LOOP - Like a line strip, except at the end the first and the last vertices are also connected
+* ALLEGRO_PRIM_LINE_LOOP - Like a line strip, except at the end the first and the last vertices are also connected by a line
 * ALLEGRO_PRIM_TRIANGLE_LIST - A list of triangles, sequential triplets of vertices define disjointed triangles
-* ALLEGRO_PRIM_TRIANGLE_STRIP - A strip of lines, sequential vertices define a strip of triangles
+* ALLEGRO_PRIM_TRIANGLE_STRIP - A strip of triangles, sequential vertices define a strip of triangles
 * ALLEGRO_PRIM_TRIANGLE_FAN - A fan of triangles, all triangles share the first vertex
 
 ## API: ALLEGRO_VBUFFER_FLAGS
