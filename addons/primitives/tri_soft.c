@@ -63,10 +63,10 @@ typedef struct {
 static void shader_grad_any_2d_draw_shade(ALLEGRO_BITMAP* dest, uintptr_t state, int x1, int y, int x2)
 {
    state_grad_any_2d* s = (state_grad_any_2d*)state;
+   ALLEGRO_COLOR color = s->cur_color;
    int x;
    (void)dest;
    
-   ALLEGRO_COLOR color = s->cur_color;
    for (x = x1; x <= x2; x++) {
       /*
       TODO: This y - 1 bit bothers me, why would I need this?
@@ -84,10 +84,10 @@ static void shader_grad_any_2d_draw_shade(ALLEGRO_BITMAP* dest, uintptr_t state,
 static void shader_grad_any_2d_draw_opaque(ALLEGRO_BITMAP* dest, uintptr_t state, int x1, int y, int x2)
 {
    state_grad_any_2d* s = (state_grad_any_2d*)state;
+   ALLEGRO_COLOR color = s->cur_color;
    int x;
    (void)dest;
 
-   ALLEGRO_COLOR color = s->cur_color;
    for (x = x1; x <= x2; x++) {
       al_put_pixel(x, y - 1, color);
       

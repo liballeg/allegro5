@@ -20,6 +20,9 @@
 #include "allegro5/utf8.h"
 #include "allegro5/internal/bstrlib.h"
 
+#ifdef ALLEGRO_MSVC
+   #pragma warning (disable: 4066)
+#endif
 
 #define IS_SINGLE_BYTE(c)  (((unsigned)(c) & 0x80) == 0)
 #define IS_LEAD_BYTE(c)    (((unsigned)(c) - 0xC0) < 0x3E)

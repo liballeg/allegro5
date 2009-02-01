@@ -34,6 +34,7 @@
    #include "allegro5/allegro5.h"
    #include "allegro5/a5_opengl.h"
    #include "allegro5/a5_direct3d.h"
+   #include "allegro5/utf8.h"
 
 #elif defined ALLEGRO_WINAPI
 
