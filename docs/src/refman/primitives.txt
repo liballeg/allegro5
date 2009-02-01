@@ -455,7 +455,7 @@ Apply a rotation to a transformation.
 * trans - Transformation to alter
 * theta - Rotation angle
 
-## API: al_rotate_transform
+## API: al_scale_transform
 
 Apply a scale to a transformation.
 
