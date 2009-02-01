@@ -822,6 +822,23 @@ void t38(void)
    al_ustr_free(us);
 }
 
+/* Test al_ustr_new_from_buffer, al_cstr_dup. */
+void t39(void)
+{
+   const char s1[] = "Корабът ми на въздушна възглавница\0е пълен със змиорки";
+   ALLEGRO_USTR us;
+   char *s2;
+
+   us = al_ustr_new_from_buffer(s1, sizeof(s1) - 1); /* missing NUL term. */
+   s2 = al_cstr_dup(us);
+   al_ustr_free(us);
+
+   CHECK(0 == strcmp(s1, s2));
+   CHECK(0 == memcmp(s1, s2, sizeof(s1))); /* including NUL terminator */
+
+   free(s2); /* should be al_free eventually */
+}
+
 /*---------------------------------------------------------------------------*/
 
 const test_t all_tests[] =
@@ -829,7 +846,7 @@ const test_t all_tests[] =
    NULL, t1, t2, t3, t4, t5, t6, t7, t8, t9,
    t10, t11, t12, t13, t14, t15, t16, t17, t18, t19,
    t20, t21, t22, t23, t24, t25, t26, t27, t28, t29,
-   t30, t31, t32, t33, t34, t35, t36, t37, t38
+   t30, t31, t32, t33, t34, t35, t36, t37, t38, t39
 };
 
 #define NUM_TESTS (int)(sizeof(all_tests) / sizeof(all_tests[0]))

@@ -14,7 +14,14 @@ Explain about half-open intervals.
 
 ## API: al_ustr_new
 
-Create a new empty string. It must be freed with [al_ustr_free].
+Create a new string containing a copy of the C-style string `s`.
+The string must eventually be freed with [al_ustr_free].
+
+
+## API: al_ustr_new_from_buffer
+
+Create a new string containing a copy of the buffer pointed to by `s` of the
+given size.  The string must eventually be freed with [al_ustr_free].
 
 
 ## API: al_ustr_free
@@ -36,6 +43,16 @@ with the following caveats:
   A string which is dynamically allocated will always be NUL terminated,
   but a string which references the middle of another string or region
   of memory will *not* be NUL terminated.
+
+
+## API: al_cstr_dup
+
+Create a NUL  ('\0') terminated copy of the string.  Any embedded NUL
+bytes will still be presented in the returned string.
+The new string must eventually be freed with free().
+If an error occurs NULL is returned.
+
+[after we introduce al_free it should be freed with al_free]
 
 
 ## API: al_ustr_dup

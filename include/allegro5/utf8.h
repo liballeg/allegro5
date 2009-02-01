@@ -21,8 +21,10 @@ struct ALLEGRO_USTR_INFO {
 
 /* Creating strings */
 AL_FUNC(ALLEGRO_USTR, al_ustr_new, (const char *s));
+AL_FUNC(ALLEGRO_USTR, al_ustr_new_from_buffer, (const char *s, size_t size));
 AL_FUNC(void, al_ustr_free, (ALLEGRO_USTR us));
 AL_FUNC(const char *, al_cstr, (const ALLEGRO_USTR us));
+AL_FUNC(char *, al_cstr_dup, (const ALLEGRO_USTR us));
 AL_FUNC(ALLEGRO_USTR, al_ustr_dup, (const ALLEGRO_USTR us));
 AL_FUNC(ALLEGRO_USTR, al_ustr_dup_substr, (const ALLEGRO_USTR us,
       int start_pos, int end_pos));
@@ -103,7 +105,6 @@ AL_FUNC(size_t, al_utf8_encode, (char s[], int32_t c));
 CREATE
 
    al_ustr_newf
-   al_cstr_dup
 
 APPEND
 

@@ -50,6 +50,15 @@ ALLEGRO_USTR al_ustr_new(const char *s)
 }
 
 
+/* Function: al_ustr_new_from_buffer
+ */
+ALLEGRO_USTR al_ustr_new_from_buffer(const char *s, size_t size)
+{
+   struct ALLEGRO_USTR tmp = { _al_blk2bstr(s, size) };
+   return tmp;
+}
+
+
 /* Function: al_ustr_free
  */
 void al_ustr_free(ALLEGRO_USTR us)
@@ -64,6 +73,14 @@ const char *al_cstr(const ALLEGRO_USTR us)
 {
    /* May or may not be NUL terminated. */
    return _al_bdata(us.b);
+}
+
+
+/* Function: al_cstr_dup
+ */
+char *al_cstr_dup(const ALLEGRO_USTR us)
+{
+   return _al_bstr2cstr(us.b, '\0');
 }
 
 
