@@ -64,6 +64,7 @@ AL_FUNC(bool, al_ustr_append_cstr, (ALLEGRO_USTR us, const char *s));
 AL_FUNC(size_t, al_ustr_append_chr, (ALLEGRO_USTR us, int32_t c));
 
 /* Remove */
+AL_FUNC(bool, al_ustr_remove_chr, (ALLEGRO_USTR us, int pos));
 AL_FUNC(bool, al_ustr_remove_range, (ALLEGRO_USTR us, int start_pos,
       int end_pos));
 AL_FUNC(bool, al_ustr_truncate, (ALLEGRO_USTR us, int start_pos));
@@ -76,6 +77,11 @@ AL_FUNC(bool, al_ustr_assign, (ALLEGRO_USTR us1, const ALLEGRO_USTR us2));
 AL_FUNC(bool, al_ustr_assign_substr, (ALLEGRO_USTR us1, const ALLEGRO_USTR us2,
       int start_pos, int end_pos));
 AL_FUNC(bool, al_ustr_assign_cstr, (ALLEGRO_USTR us1, const char *s));
+
+/* Replace */
+AL_FUNC(size_t, al_ustr_set_chr, (ALLEGRO_USTR us, int pos, int32_t c));
+AL_FUNC(bool, al_ustr_replace_range, (ALLEGRO_USTR us1, int start_pos1,
+      int end_pos1, const ALLEGRO_USTR us2));
 
 /* Searching */
 AL_FUNC(int, al_ustr_find_chr, (const ALLEGRO_USTR us, int start_pos,
@@ -117,15 +123,8 @@ APPEND
    al_ustr_appendf
    al_ustr_vappendf
 
-REMOVE
-
-   al_ustr_remove_chr
-
 REPLACE
 
-   al_ustr_set_char
-   al_ustr_replace_from
-   al_ustr_replace_range
    al_ustr_assignf
 
 COMPARE

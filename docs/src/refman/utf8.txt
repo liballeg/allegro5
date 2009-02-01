@@ -216,7 +216,7 @@ and `pos` will be padded with NUL ('\0') bytes.
 Returns the number of bytes inserted, or 0 on error.
 
 
-# Appending
+# Appending to strings
 
 ## API: al_ustr_append
 
@@ -237,7 +237,13 @@ Append a code point to the end of `us`.
 Returns the number of bytes added, or 0 on error.
 
 
-# Removing
+# Removing parts of strings
+
+## API: al_ustr_remove_chr
+
+Remove the code point beginning at `pos`.  Returns true on success.  If `pos`
+is out of range or `pos` is not the beginning of a valid code point, returns
+false leaving the string unmodified.
 
 ## API: al_ustr_remove_range
 

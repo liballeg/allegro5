@@ -430,6 +430,22 @@ size_t al_ustr_append_chr(ALLEGRO_USTR us, int32_t c)
 }
 
 
+/* Function: al_ustr_remove_chr
+ */
+bool al_ustr_remove_chr(ALLEGRO_USTR us, int pos)
+{
+   int32_t c;
+   size_t w;
+
+   c = al_ustr_get(us, pos);
+   if (c < 0)
+      return false;
+
+   w = al_utf8_width(c);
+   return _al_bdelete(us.b, pos, w) == _AL_BSTR_OK;
+}
+
+
 /* Function: al_ustr_remove_range
  */
 bool al_ustr_remove_range(ALLEGRO_USTR us, int start_pos, int end_pos)
@@ -493,6 +509,48 @@ bool al_ustr_assign_substr(ALLEGRO_USTR us1, const ALLEGRO_USTR us2,
 bool al_ustr_assign_cstr(ALLEGRO_USTR us1, const char *s)
 {
    return _al_bassigncstr(us1.b, s) == _AL_BSTR_OK;
+}
+
+
+/* Function: al_ustr_set_chr
+ */
+size_t al_ustr_set_chr(ALLEGRO_USTR us, int start_pos, int32_t c)
+{
+   int32_t oldc;
+   size_t oldw;
+   size_t neww;
+   int rc;
+
+   oldc = al_ustr_get(us, start_pos);
+   if (oldc == -2)
+      return 0;
+
+   oldw = al_utf8_width(oldc);
+   neww = al_utf8_width(c);
+   if (neww == 0)
+      return 0;
+
+   if (oldw > neww)
+      rc = _al_bdelete(us.b, start_pos, oldw - neww);
+   else if (neww > oldw)
+      rc = _al_binsertch(us.b, start_pos, neww - oldw, '\0');
+   else
+      rc = _AL_BSTR_OK;
+
+   if (rc == _AL_BSTR_OK)
+      return al_utf8_encode(_al_bdataofs(us.b, start_pos), c);
+   else
+      return 0;
+}
+
+
+/* Function: al_ustr_replace_range
+ */
+bool al_ustr_replace_range(ALLEGRO_USTR us1, int start_pos1, int end_pos1,
+   const ALLEGRO_USTR us2)
+{
+   return _al_breplace(us1.b, start_pos1, end_pos1 - start_pos1, us2.b, '\0')
+      == _AL_BSTR_OK;
 }
 
 

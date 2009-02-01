@@ -876,6 +876,111 @@ void t41(void)
    al_ustr_free(us2);
 }
 
+/* Test al_ustr_set_chr. */
+void t42(void)
+{
+   ALLEGRO_USTR us = al_ustr_new("abcdef");
+
+   /* Same size (ASCII). */
+   CHECK(al_ustr_set_chr(us, 1, 'B') == 1);
+   CHECK(0 == strcmp(al_cstr(us), "aBcdef"));
+   CHECK(6 == al_ustr_size(us));
+
+   /* Enlarge to 2-bytes. */
+   CHECK(al_ustr_set_chr(us, 1, L'β') == 2);
+   CHECK(0 == strcmp(al_cstr(us), "aβcdef"));
+   CHECK(7 == al_ustr_size(us));
+
+   /* Enlarge to 3-bytes. */
+   CHECK(al_ustr_set_chr(us, 5, L'ᴈ') == 3);
+   CHECK(0 == strcmp(al_cstr(us), "aβcdᴈf"));
+   CHECK(9 == al_ustr_size(us));
+
+   /* Reduce to 2-bytes. */
+   CHECK(al_ustr_set_chr(us, 5, L'ə') == 2);
+   CHECK(0 == strcmp(al_cstr(us), "aβcdəf"));
+   CHECK(8 == al_ustr_size(us));
+
+   /* Set at end of string. */
+   CHECK(al_ustr_set_chr(us, al_ustr_size(us), L'ῷ') == 3);
+   CHECK(0 == strcmp(al_cstr(us), "aβcdəfῷ"));
+   CHECK(11 == al_ustr_size(us));
+
+   /* Set past end of string. */
+   CHECK(al_ustr_set_chr(us, al_ustr_size(us) + 2, L'⁑') == 3);
+   CHECK(0 == memcmp(al_cstr(us), "aβcdəfῷ\0\0⁑", 16));
+   CHECK(16 == al_ustr_size(us));
+
+   /* Set before start of string (not allowed). */
+   CHECK(al_ustr_set_chr(us, -1, L'⁑') == 0);
+   CHECK(16 == al_ustr_size(us));
+
+   al_ustr_free(us);
+}
+
+/* Test al_ustr_remove_chr. */
+void t43(void)
+{
+   ALLEGRO_USTR us = al_ustr_new("«aβῷ»");
+
+   CHECK(al_ustr_remove_chr(us, 2));
+   CHECK(0 == strcmp(al_cstr(us), "«βῷ»"));
+
+   CHECK(al_ustr_remove_chr(us, 2));
+   CHECK(0 == strcmp(al_cstr(us), "«ῷ»"));
+
+   CHECK(al_ustr_remove_chr(us, 2));
+   CHECK(0 == strcmp(al_cstr(us), "«»"));
+
+   /* Not at beginning of code point. */
+   CHECK(! al_ustr_remove_chr(us, 1));
+
+   /* Out of bounds. */
+   CHECK(! al_ustr_remove_chr(us, -1));
+   CHECK(! al_ustr_remove_chr(us, al_ustr_size(us)));
+
+   al_ustr_free(us);
+}
+
+/* Test al_ustr_replace_range. */
+void t44(void)
+{
+   ALLEGRO_USTR us1 = al_ustr_new("Šis kungs par visu samaksās");
+   ALLEGRO_USTR us2 = al_ustr_new("ī kundze");
+
+   CHECK(al_ustr_replace_range(us1, 2, 10, us2));
+   CHECK(0 == strcmp(al_cstr(us1), "Šī kundze par visu samaksās"));
+
+   /* Insert into itself. */
+   CHECK(al_ustr_replace_range(us1, 5, 11, us1));
+   CHECK(0 == strcmp(al_cstr(us1),
+         "Šī Šī kundze par visu samaksās par visu samaksās"));
+
+   al_ustr_free(us1);
+   al_ustr_free(us2);
+}
+
+/* Test al_ustr_replace_range (part 2). */
+void t45(void)
+{
+   ALLEGRO_USTR us1 = al_ustr_new("abcdef");
+   ALLEGRO_USTR us2 = al_ustr_new("ABCDEF");
+
+   /* Start1 < 0 [not allowed] */
+   CHECK(! al_ustr_replace_range(us1, -1, 1, us2));
+
+   /* Start1 > end(us1) [padded] */
+   CHECK(al_ustr_replace_range(us1, 8, 100, us2));
+   CHECK(0 == memcmp(al_cstr(us1), "abcdef\0\0ABCDEF", 15));
+
+   /* Start1 > end1 [not allowed] */
+   CHECK(! al_ustr_replace_range(us1, 8, 1, us2));
+   CHECK(0 == memcmp(al_cstr(us1), "abcdef\0\0ABCDEF", 15));
+
+   al_ustr_free(us1);
+   al_ustr_free(us2);
+}
+
 /*---------------------------------------------------------------------------*/
 
 const test_t all_tests[] =
@@ -884,7 +989,7 @@ const test_t all_tests[] =
    t10, t11, t12, t13, t14, t15, t16, t17, t18, t19,
    t20, t21, t22, t23, t24, t25, t26, t27, t28, t29,
    t30, t31, t32, t33, t34, t35, t36, t37, t38, t39,
-   t40, t41
+   t40, t41, t42, t43, t44, t45
 };
 
 #define NUM_TESTS (int)(sizeof(all_tests) / sizeof(all_tests[0]))
