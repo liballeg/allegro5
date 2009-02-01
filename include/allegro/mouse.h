@@ -111,6 +111,8 @@ AL_FUNC(void, set_mouse_sprite_focus, (int x, int y));
 AL_FUNC(void, get_mouse_mickeys, (int *mickeyx, int *mickeyy));
 AL_FUNC(void, set_mouse_sprite, (struct BITMAP *sprite));
 AL_FUNC(int, show_os_cursor, (int cursor));
+AL_FUNC(int, mouse_on_screen, (void));
+
 #ifdef __cplusplus
    }
 #endif

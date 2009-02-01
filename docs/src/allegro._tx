@@ -3036,6 +3036,23 @@ information for more details.
    MOUSE_FLAG_MOVE_Z. Note that even if the mouse has more than three buttons,
    only the first three can be trapped using a callback.
 
+@@int @mouse_on_screen();
+@shortdesc Tells you whether the mouse pointer is currently on screen.
+   This function can be useful to prevent having two mouse pointers on the 
+   screen at the same time when running your program in windowed mode and 
+   drawing the mouse pointer yourself. Other possible uses include the 
+   ability to pause your game when the mouse goes off of the window, or 
+   only scrolling the view when the pointer is near the edge of the window,
+   but not while off of the window.
+   
+   Example :
+<codeblock>
+   if (mouse_on_screen()) {draw_sprite(buffer , mouse_sprite , mouse_x , mouse_y);}
+<endblock>
+
+@retval
+   Returns 0 if the mouse pointer is off of the screen, or non-zero otherwise.
+
 
 
 @heading

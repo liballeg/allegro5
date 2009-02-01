@@ -906,6 +906,17 @@ void get_mouse_mickeys(int *mickeyx, int *mickeyy)
 
 
 
+/* mouse_on_screen:
+ *  Tells whether the mouse pointer position is currently on the screen.
+ *  Returns 0 when offscreen, and non-zero otherwise.
+ */
+int mouse_on_screen()
+{
+   return _mouse_on;
+}
+
+
+
 /* enable_hardware_cursor:
  *  enabels the hardware cursor on platforms where this needs to be done
  *  explicitly and allows system cursors to be used.
