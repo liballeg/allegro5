@@ -26,6 +26,21 @@
 #define IS_TRAIL_BYTE(c)   (((unsigned)(c) & 0xC0) == 0x80)
 
 
+static bool all_ascii(const ALLEGRO_USTR us)
+{
+   const unsigned char *data = (const unsigned char *) _al_bdata(us.b);
+   int size = _al_blength(us.b);
+
+   while (size-- > 0) {
+      if (*data > 127)
+         return false;
+      data++;
+   }
+
+   return true;
+}
+
+
 /* Function: al_ustr_new
  */
 ALLEGRO_USTR al_ustr_new(const char *s)
@@ -435,6 +450,172 @@ bool al_ustr_rtrim_ws(ALLEGRO_USTR us)
 bool al_ustr_trim_ws(ALLEGRO_USTR us)
 {
    return _al_btrimws(us.b) == _AL_BSTR_OK;
+}
+
+
+/* Function: al_ustr_find_chr
+ */
+int al_ustr_find_chr(const ALLEGRO_USTR us, int start_pos, int32_t c)
+{
+   char encc[4];
+   size_t sizec;
+   struct _al_tagbstring enctb;
+   int rc;
+
+   /* Fast path for ASCII characters. */
+   if (c < 128) {
+      rc = _al_bstrchrp(us.b, c, start_pos);
+      return (rc == _AL_BSTR_ERR) ? -1 : rc;
+   }
+
+   /* Non-ASCII.  We can simply encode the character into a string and search
+    * for that.
+    */
+
+   sizec = al_utf8_encode(encc, c);
+   if (!sizec) {
+      al_set_errno(EINVAL);
+      return -1; /* error */
+   }
+
+   _al_blk2tbstr(enctb, encc, sizec);
+   rc = _al_binstr(us.b, start_pos, &enctb);
+   return (rc == _AL_BSTR_ERR) ? -1 : rc;
+}
+
+
+/* Function: al_ustr_rfind_chr
+ */
+int al_ustr_rfind_chr(const ALLEGRO_USTR us, int end_pos, int32_t c)
+{
+   char encc[4];
+   size_t sizec;
+   struct _al_tagbstring enctb;
+   int rc;
+
+   /* Fast path for ASCII characters. */
+   if (c < 128) {
+      rc = _al_bstrrchrp(us.b, c, end_pos - 1);
+      return (rc == _AL_BSTR_ERR) ? -1 : rc;
+   }
+
+   /* Non-ASCII.  We can simply encode the character into a string and search
+    * for that.
+    */
+
+   sizec = al_utf8_encode(encc, c);
+   if (!sizec) {
+      al_set_errno(EINVAL);
+      return -1; /* error */
+   }
+
+   _al_blk2tbstr(enctb, encc, sizec);
+   rc = _al_binstrr(us.b, end_pos - sizec, &enctb);
+   return (rc == _AL_BSTR_ERR) ? -1 : rc;
+}
+
+
+/* Function: al_ustr_find_set
+ */
+int al_ustr_find_set(const ALLEGRO_USTR us, int start_pos,
+   const ALLEGRO_USTR accept)
+{
+   int rc;
+   int32_t c, d;
+   int pos;
+   int set_pos;
+
+   /* Fast path for ASCII characters. */
+   if (all_ascii(accept)) {
+      rc = _al_binchr(us.b, start_pos, accept.b);
+      return (rc == _AL_BSTR_ERR) ? -1 : rc;
+   }
+
+   /* Non-ASCII. */
+   pos = 0;
+   while ((c = al_ustr_get(us, pos)) != -1) {
+      if (c == -2) {
+         /* Invalid byte sequence. */
+         pos++;
+         continue;
+      }
+
+      set_pos = 0;
+      while ((d = al_ustr_get_next(accept, &set_pos)) != -1) {
+         if (c == d)
+            return pos;
+      }
+
+      pos += al_utf8_width(c);
+   }
+
+   return -1;
+}
+
+
+/* Function: al_ustr_find_set_cstr
+ */
+int al_ustr_find_set_cstr(const ALLEGRO_USTR us, int start_pos,
+   const char *accept)
+{
+   ALLEGRO_USTR_INFO info;
+   ALLEGRO_USTR accept_us = al_ref_cstr(&info, accept);
+
+   return al_ustr_find_set(us, start_pos, accept_us);
+}
+
+
+/* Function: al_ustr_find_cset
+ */
+int al_ustr_find_cset(const ALLEGRO_USTR us, int start_pos,
+   const ALLEGRO_USTR reject)
+{
+   int rc;
+   int32_t c, d;
+   int pos;
+   int set_pos;
+
+   /* Fast path for ASCII characters. */
+   if (all_ascii(reject)) {
+      rc = _al_bninchr(us.b, start_pos, reject.b);
+      return (rc == _AL_BSTR_ERR) ? -1 : rc;
+   }
+
+   /* Non-ASCII. */
+   pos = 0;
+   while ((c = al_ustr_get(us, pos)) != -1) {
+      if (c == -2) {
+         /* Invalid byte sequence. */
+         pos++;
+         continue;
+      }
+
+      set_pos = 0;
+      while ((d = al_ustr_get_next(reject, &set_pos)) != -1) {
+         if (c == d)
+            break;
+      }
+
+      if (d == -1) {
+         return pos;
+      }
+
+      pos += al_utf8_width(c);
+   }
+
+   return -1;
+}
+
+
+/* Function: al_ustr_find_cset_cstr
+ */
+int al_ustr_find_cset_cstr(const ALLEGRO_USTR us, int start_pos,
+   const char *reject)
+{
+   ALLEGRO_USTR_INFO info;
+   ALLEGRO_USTR reject_us = al_ref_cstr(&info, reject);
+
+   return al_ustr_find_cset(us, start_pos, reject_us);
 }
 
 

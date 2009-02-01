@@ -69,6 +69,20 @@ AL_FUNC(bool, al_ustr_ltrim_ws, (ALLEGRO_USTR us));
 AL_FUNC(bool, al_ustr_rtrim_ws, (ALLEGRO_USTR us));
 AL_FUNC(bool, al_ustr_trim_ws, (ALLEGRO_USTR us));
 
+/* Searching */
+AL_FUNC(int, al_ustr_find_chr, (const ALLEGRO_USTR us, int start_pos,
+      int32_t c));
+AL_FUNC(int, al_ustr_rfind_chr, (const ALLEGRO_USTR us, int start_pos,
+      int32_t c));
+AL_FUNC(int, al_ustr_find_set, (const ALLEGRO_USTR us, int start_pos,
+      const ALLEGRO_USTR accept));
+AL_FUNC(int, al_ustr_find_set_cstr, (const ALLEGRO_USTR us, int start_pos,
+      const char *accept));
+AL_FUNC(int, al_ustr_find_cset, (const ALLEGRO_USTR us, int start_pos,
+      const ALLEGRO_USTR reject));
+AL_FUNC(int, al_ustr_find_cset_cstr, (const ALLEGRO_USTR us, int start_pos,
+      const char *reject));
+
 /* Compare */
 AL_FUNC(bool, al_ustr_equal, (const ALLEGRO_USTR us1, const ALLEGRO_USTR us2));
 
@@ -98,16 +112,12 @@ REPLACE
    al_ustr_replace_from
    al_ustr_replace_range
    al_ustr_assign
-   al_ustr_assign_mid   (too similar to replace_range?)
+   al_ustr_assignf
+   al_ustr_assign_substr   (too similar to replace_range?)
 
 SEARCHING
 
-   al_ustr_find_chr
-   al_ustr_rfind_chr
-   al_ustr_find_any
    al_ustr_find_str
-   al_ustr_find_span
-   al_ustr_find_cspan
 
 COMPARE
 

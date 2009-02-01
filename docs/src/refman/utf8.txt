@@ -259,6 +259,41 @@ Remove both leading and trailing whitespace characters from a string.
 Returns true on success, or false if the function was passed an empty string.
 
 
+# Searching
+
+## API: al_ustr_find_chr
+
+Search for the encoding of code point `c` in `us` from `start_pos` (inclusive).
+Returns the position where it is found or -1 if it is not found.
+
+## API: al_ustr_rfind_chr
+
+Search for the encoding of code point `c` in `us` backwards from `end_pos`
+(exclusive).
+Returns the position where it is found or -1 if it is not found.
+
+## API: al_ustr_find_set
+
+This function finds the first code point in `us`, beginning from `start_pos`,
+that matches any code point in `accept`.  Returns the position if a code point
+was found.  Otherwise returns -1.
+
+## API: al_ustr_find_set_cstr
+
+Like [al_ustr_find_set] but takes a C-style string for `accept`.
+
+## API: al_ustr_find_cset
+
+This function finds the first code point in `us`, beginning from `start_pos`,
+that does *not* match any code point in `reject`.  In other words it finds
+a code point in the complementary set of `reject`.
+Returns the position of that code point, if any.  Otherwise returns -1.
+
+## API: al_ustr_find_cset_cstr
+
+Like [al_ustr_find_cset] but takes a C-style string for `reject`.
+
+
 # Comparing
 
 ## API: al_ustr_equal

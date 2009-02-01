@@ -670,6 +670,121 @@ void t30(void)
    al_ustr_free(us);
 }
 
+/* Test al_ustr_find_chr. */
+void t31(void)
+{
+   ALLEGRO_USTR us = al_ustr_new("aábdðeéfghiíaábdðeéfghií");
+
+   /* Find ASCII. */
+   CHECK(al_ustr_find_chr(us, 0, 'e') == 7);
+   CHECK(al_ustr_find_chr(us, 7, 'e') == 7);    /* start_pos is inclusive */
+   CHECK(al_ustr_find_chr(us, 8, 'e') == 23);
+   CHECK(al_ustr_find_chr(us, 0, '.') == -1);
+
+   /* Find non-ASCII. */
+   CHECK(al_ustr_find_chr(us, 0, L'ð') == 5);
+   CHECK(al_ustr_find_chr(us, 5, L'ð') == 5);   /* start_pos is inclusive */
+   CHECK(al_ustr_find_chr(us, 6, L'ð') == 21);
+   CHECK(al_ustr_find_chr(us, 0, L'ƶ') == -1);
+
+   al_ustr_free(us);
+}
+
+/* Test al_ustr_rfind_chr. */
+void t32(void)
+{
+   ALLEGRO_USTR us = al_ustr_new("aábdðeéfghiíaábdðeéfghií");
+   int end = al_ustr_size(us);
+
+   /* Find ASCII. */
+   CHECK(al_ustr_rfind_chr(us, end, 'e') == 23);
+   CHECK(al_ustr_rfind_chr(us, 23, 'e') == 7);        /* end_pos exclusive */
+   CHECK(al_ustr_rfind_chr(us, end, '.') == -1);
+
+   /* Find non-ASCII. */
+   CHECK(al_ustr_rfind_chr(us, end, L'í') == 30);
+   CHECK(al_ustr_rfind_chr(us, end - 1, L'í') == 14); /* end_pos exclusive */
+   CHECK(al_ustr_rfind_chr(us, end, L'ƶ') == -1);
+
+   al_ustr_free(us);
+}
+
+/* Test al_ustr_find_set, al_ustr_find_set_cstr. */
+void t33(void)
+{
+   ALLEGRO_USTR us = al_ustr_new("aábdðeéfghiíaábdðeéfghií");
+
+   /* al_ustr_find_set_cstr is s simple wrapper for al_ustr_find_set
+    * so we test using that.
+    */
+
+   /* Find ASCII. */
+   CHECK(al_ustr_find_set_cstr(us, 0, "gfe") == 7);
+   CHECK(al_ustr_find_set_cstr(us, 7, "gfe") == 7);  /* start_pos inclusive */
+   CHECK(al_ustr_find_set_cstr(us, 0, "") == -1);
+   CHECK(al_ustr_find_set_cstr(us, 0, "xyz") == -1);
+
+   /* Find non-ASCII. */
+   CHECK(al_ustr_find_set_cstr(us, 0, "éðf") == 5);
+   CHECK(al_ustr_find_set_cstr(us, 5, "éðf") == 5);   /* start_pos inclusive */
+   CHECK(al_ustr_find_set_cstr(us, 0, "ẋỹƶ") == -1);
+
+   al_ustr_free(us);
+}
+
+/* Test al_ustr_find_set, al_ustr_find_set_cstr (invalid values).  */
+void t34(void)
+{
+   ALLEGRO_USTR us = al_ustr_new("a\x80ábdðeéfghií");
+
+   /* Invalid byte sequence in search string. */
+   CHECK(al_ustr_find_set_cstr(us, 0, "gfe") == 8);
+
+   /* Invalid byte sequence in accept set. */
+   CHECK(al_ustr_find_set_cstr(us, 0, "é\x80ðf") == 6);
+
+   al_ustr_free(us);
+}
+
+/* Test al_ustr_find_cset, al_ustr_find_cset_cstr. */
+void t35(void)
+{
+   ALLEGRO_USTR us;
+
+   /* al_ustr_find_cset_cstr is s simple wrapper for al_ustr_find_cset
+    * so we test using that.
+    */
+
+   /* Find ASCII. */
+   us = al_ustr_new("alphabetagamma");
+   CHECK(al_ustr_find_cset_cstr(us, 0, "alphbet") == 9);
+   CHECK(al_ustr_find_cset_cstr(us, 9, "alphbet") == 9);
+   CHECK(al_ustr_find_cset_cstr(us, 0, "") == -1);
+   CHECK(al_ustr_find_cset_cstr(us, 0, "alphbetgm") == -1);
+   al_ustr_free(us);
+
+   /* Find non-ASCII. */
+   us = al_ustr_new("αλφαβεταγαμμα");
+   CHECK(al_ustr_find_cset_cstr(us, 0, "αλφβετ") == 16);
+   CHECK(al_ustr_find_cset_cstr(us, 16, "αλφβετ") == 16);
+   CHECK(al_ustr_find_cset_cstr(us, 0, "αλφβετγμ") == -1);
+   al_ustr_free(us);
+}
+
+/* Test al_ustr_find_cset, al_ustr_find_set_cstr (invalid values).  */
+void t36(void)
+{
+   ALLEGRO_USTR us = al_ustr_new("a\x80ábdðeéfghií");
+
+   /* Invalid byte sequence in search string. */
+   CHECK(al_ustr_find_cset_cstr(us, 0, "aábd") == 6);
+
+   /* Invalid byte sequence in reject set. */
+   CHECK(al_ustr_find_cset_cstr(us, 0, "a\x80ábd") == 6);
+
+   al_ustr_free(us);
+}
+
 /*---------------------------------------------------------------------------*/
 
 const test_t all_tests[] =
@@ -677,7 +792,7 @@ const test_t all_tests[] =
    NULL, t1, t2, t3, t4, t5, t6, t7, t8, t9,
    t10, t11, t12, t13, t14, t15, t16, t17, t18, t19,
    t20, t21, t22, t23, t24, t25, t26, t27, t28, t29,
-   t30
+   t30, t31, t32, t33, t34, t35, t36
 };
 
 #define NUM_TESTS (int)(sizeof(all_tests) / sizeof(all_tests[0]))
