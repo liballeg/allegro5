@@ -46,6 +46,8 @@ AL_FUNC(bool, al_ustr_prev, (const ALLEGRO_USTR us, int *pos));
 
 /* Get codepoints */
 AL_FUNC(int32_t, al_ustr_get, (const ALLEGRO_USTR us, int pos));
+AL_FUNC(int32_t, al_ustr_get_next, (const ALLEGRO_USTR us, int *pos));
+AL_FUNC(int32_t, al_ustr_prev_get, (const ALLEGRO_USTR us, int *pos));
 
 /* Insert */
 AL_FUNC(bool, al_ustr_insert, (ALLEGRO_USTR us1, int pos,
@@ -80,11 +82,6 @@ CREATE
 
    al_ustr_newf
    al_cstr_dup
-
-GET CODE POINTS
-
-   al_ustr_get_next
-   al_ustr_prev_get
 
 APPEND
 

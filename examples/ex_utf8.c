@@ -630,13 +630,54 @@ void t28(void)
    al_ustr_free(us);
 }
 
+/* Test al_ustr_get_next. */
+void t29(void)
+{
+   ALLEGRO_USTR us = al_ustr_new("aþ€");
+   int pos;
+
+   pos = 0;
+   CHECK(al_ustr_get_next(us, &pos) == 'a');
+   CHECK(al_ustr_get_next(us, &pos) == L'þ');
+   CHECK(al_ustr_get_next(us, &pos) == L'€');
+   CHECK(al_ustr_get_next(us, &pos) == -1);
+   CHECK(pos == (int) al_ustr_size(us));
+
+   /* Start in the middle of þ. */
+   pos = 2;
+   CHECK(al_ustr_get_next(us, &pos) == -2);
+   CHECK(al_ustr_get_next(us, &pos) == L'€');
+
+   al_ustr_free(us);
+}
+
+/* Test al_ustr_prev_get. */
+void t30(void)
+{
+   ALLEGRO_USTR us = al_ustr_new("aþ€");
+   int pos;
+
+   pos = al_ustr_size(us);
+   CHECK(al_ustr_prev_get(us, &pos) == L'€');
+   CHECK(al_ustr_prev_get(us, &pos) == L'þ');
+   CHECK(al_ustr_prev_get(us, &pos) == 'a');
+   CHECK(al_ustr_prev_get(us, &pos) == -1);
+
+   /* Start in the middle of þ. */
+   pos = 2;
+   CHECK(al_ustr_prev_get(us, &pos) == L'þ');
+
+   al_ustr_free(us);
+}
+
 /*---------------------------------------------------------------------------*/
 
 const test_t all_tests[] =
 {
    NULL, t1, t2, t3, t4, t5, t6, t7, t8, t9,
    t10, t11, t12, t13, t14, t15, t16, t17, t18, t19,
-   t20, t21, t22, t23, t24, t25, t26, t27, t28
+   t20, t21, t22, t23, t24, t25, t26, t27, t28, t29,
+   t30
 };
 
 #define NUM_TESTS (int)(sizeof(all_tests) / sizeof(all_tests[0]))

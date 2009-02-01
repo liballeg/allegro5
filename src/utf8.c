@@ -295,6 +295,41 @@ int32_t al_ustr_get(const ALLEGRO_USTR ub, int pos)
 }
 
 
+/* Function: al_ustr_get_next
+ */
+int32_t al_ustr_get_next(const ALLEGRO_USTR us, int *pos)
+{
+   int32_t c = al_ustr_get(us, *pos);
+
+   if (c >= 0) {
+      (*pos) += al_utf8_width(c);
+      return c;
+   }
+
+   if (c == -1) {
+      /* Past end. */
+      return c;
+   }
+
+   /* Some invalid byte sequence. */
+   al_ustr_next(us, pos);
+   return c;
+}
+
+
+/* Function: al_ustr_prev_get
+ */
+int32_t al_ustr_prev_get(const ALLEGRO_USTR us, int *pos)
+{
+   if (al_ustr_prev(us, pos)) {
+      return al_ustr_get(us, *pos);
+   }
+
+   /* Past beginning. */
+   return -1;
+}
+
+
 /* Function: al_ustr_insert
  */
 bool al_ustr_insert(ALLEGRO_USTR us1, int pos, const ALLEGRO_USTR us2)

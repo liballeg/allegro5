@@ -145,6 +145,37 @@ offset is the beginning of a valid code point.  If you are working with
 possibly invalid UTF-8 strings then it could skip over some invalid bytes.
 
 
+# Getting code points
+
+## API: al_ustr_get
+
+Return the code point in `us` beginning at `pos`.
+
+On success returns the code point value.
+If `pos` was out of bounds (e.g. past the end of the string), return -1.
+On an error, such as an invalid byte sequence, return -2.
+
+## API: al_ustr_get_next
+
+Find the code point in `us` beginning at `*pos`, then advance to the next
+code point.
+
+On success return the code point value.
+If `pos` was out of bounds (e.g. past the end of the string), return -1.
+On an error, such as an invalid byte sequence, return -2.
+As with [al_ustr_next], invalid byte sequences may be skipped while advancing.
+
+## API: al_ustr_prev_get
+
+Find the beginning of a code point before `*pos`, then return it.
+Note this performs a *pre-increment*.
+
+On success returns the code point value.
+If `pos` was out of bounds (e.g. past the end of the string), return -1.
+On an error, such as an invalid byte sequence, return -2.
+As with [al_ustr_prev], invalid byte sequences may be skipped while advancing.
+
+
 # Inserting
 
 ## API: al_ustr_insert
