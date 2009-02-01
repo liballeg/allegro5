@@ -785,6 +785,43 @@ void t36(void)
    al_ustr_free(us);
 }
 
+/* Test al_ustr_find_str, al_ustr_find_cstr. */
+void t37(void)
+{
+   ALLEGRO_USTR us = al_ustr_new("aábdðeéfghiíaábdðeéfghií");
+
+   /* al_ustr_find_cstr is s simple wrapper for al_ustr_find_str
+    * so we test using that.
+    */
+
+   CHECK(al_ustr_find_cstr(us, 0, "") == 0);
+   CHECK(al_ustr_find_cstr(us, 10, "") == 10);
+   CHECK(al_ustr_find_cstr(us, 0, "ábd") == 1);
+   CHECK(al_ustr_find_cstr(us, 10, "ábd") == 17);
+   CHECK(al_ustr_find_cstr(us, 0, "ábz") == -1);
+
+   al_ustr_free(us);
+}
+
+/* Test al_ustr_rfind_str, al_ustr_rfind_cstr. */
+void t38(void)
+{
+   ALLEGRO_USTR us = al_ustr_new("aábdðeéfghiíaábdðeéfghií");
+   int end = al_ustr_size(us);
+
+   /* al_ustr_find_cstr is s simple wrapper for al_ustr_find_str
+    * so we test using that.
+    */
+
+   CHECK(al_ustr_rfind_cstr(us, 0, "") == 0);
+   CHECK(al_ustr_rfind_cstr(us, 1, "") == 1);
+   CHECK(al_ustr_rfind_cstr(us, end, "hií") == end - 4);
+   CHECK(al_ustr_rfind_cstr(us, end - 1, "hií") == 12);
+   CHECK(al_ustr_rfind_cstr(us, end, "ábz") == -1);
+
+   al_ustr_free(us);
+}
+
 /*---------------------------------------------------------------------------*/
 
 const test_t all_tests[] =
@@ -792,7 +829,7 @@ const test_t all_tests[] =
    NULL, t1, t2, t3, t4, t5, t6, t7, t8, t9,
    t10, t11, t12, t13, t14, t15, t16, t17, t18, t19,
    t20, t21, t22, t23, t24, t25, t26, t27, t28, t29,
-   t30, t31, t32, t33, t34, t35, t36
+   t30, t31, t32, t33, t34, t35, t36, t37, t38
 };
 
 #define NUM_TESTS (int)(sizeof(all_tests) / sizeof(all_tests[0]))

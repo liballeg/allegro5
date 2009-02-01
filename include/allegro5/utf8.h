@@ -82,6 +82,14 @@ AL_FUNC(int, al_ustr_find_cset, (const ALLEGRO_USTR us, int start_pos,
       const ALLEGRO_USTR reject));
 AL_FUNC(int, al_ustr_find_cset_cstr, (const ALLEGRO_USTR us, int start_pos,
       const char *reject));
+AL_FUNC(int, al_ustr_find_str, (const ALLEGRO_USTR haystack, int start_pos,
+      const ALLEGRO_USTR needle));
+AL_FUNC(int, al_ustr_find_cstr, (const ALLEGRO_USTR haystack, int start_pos,
+      const char *needle));
+AL_FUNC(int, al_ustr_rfind_str, (const ALLEGRO_USTR haystack, int start_pos,
+      const ALLEGRO_USTR needle));
+AL_FUNC(int, al_ustr_rfind_cstr, (const ALLEGRO_USTR haystack, int start_pos,
+      const char *needle));
 
 /* Compare */
 AL_FUNC(bool, al_ustr_equal, (const ALLEGRO_USTR us1, const ALLEGRO_USTR us2));
@@ -114,10 +122,6 @@ REPLACE
    al_ustr_assign
    al_ustr_assignf
    al_ustr_assign_substr   (too similar to replace_range?)
-
-SEARCHING
-
-   al_ustr_find_str
 
 COMPARE
 

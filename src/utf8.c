@@ -619,6 +619,50 @@ int al_ustr_find_cset_cstr(const ALLEGRO_USTR us, int start_pos,
 }
 
 
+/* Function: al_ustr_find_str
+ */
+int al_ustr_find_str(const ALLEGRO_USTR haystack, int start_pos,
+   const ALLEGRO_USTR needle)
+{
+   int rc = _al_binstr(haystack.b, start_pos, needle.b);
+   return (rc == _AL_BSTR_ERR) ? -1 : rc;
+}
+
+
+/* Function: al_ustr_find_cstr
+ */
+int al_ustr_find_cstr(const ALLEGRO_USTR haystack, int start_pos,
+   const char *needle)
+{
+   ALLEGRO_USTR_INFO info;
+   ALLEGRO_USTR needle_us = al_ref_cstr(&info, needle);
+
+   return al_ustr_find_str(haystack, start_pos, needle_us);
+}
+
+
+/* Function: al_ustr_rfind_str
+ */
+int al_ustr_rfind_str(const ALLEGRO_USTR haystack, int end_pos,
+   const ALLEGRO_USTR needle)
+{
+   int rc = _al_binstrr(haystack.b, end_pos - _al_blength(needle.b), needle.b);
+   return (rc == _AL_BSTR_ERR) ? -1 : rc;
+}
+
+
+/* Function: al_ustr_rfind_cstr
+ */
+int al_ustr_rfind_cstr(const ALLEGRO_USTR haystack, int end_pos,
+   const char *needle)
+{
+   ALLEGRO_USTR_INFO info;
+   ALLEGRO_USTR needle_us = al_ref_cstr(&info, needle);
+
+   return al_ustr_rfind_str(haystack, end_pos, needle_us);
+}
+
+
 /* Function: al_ustr_equal
  */
 bool al_ustr_equal(const ALLEGRO_USTR us1, const ALLEGRO_USTR us2)

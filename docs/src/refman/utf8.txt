@@ -293,6 +293,26 @@ Returns the position of that code point, if any.  Otherwise returns -1.
 
 Like [al_ustr_find_cset] but takes a C-style string for `reject`.
 
+## API: al_ustr_find_str
+
+Find the first occurrence of string `needle` in `haystack`, beginning from
+`pos` (inclusive).  Return the offset of the occurrence if it is found,
+otherwise return -1.
+
+## API: al_ustr_find_cstr
+
+Like [al_ustr_find_str] but takes a C-style string for `needle`.
+
+## API: al_ustr_rfind_str
+
+Find the last occurrence of string `needle` in `haystack` before `end_pos`
+(exclusive).  Return the offset of the occurrence if it is found, otherwise
+return -1.
+
+## API: al_ustr_rfind_cstr
+
+Like [al_ustr_rfind_str] but takes a C-style string for `needle`.
+
 
 # Comparing
 
