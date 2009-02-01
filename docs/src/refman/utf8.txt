@@ -193,7 +193,7 @@ On an error, such as an invalid byte sequence, return -2.
 As with [al_ustr_prev], invalid byte sequences may be skipped while advancing.
 
 
-# Inserting
+# Inserting into strings
 
 ## API: al_ustr_insert
 
@@ -274,6 +274,48 @@ Returns true on success, or false if the function was passed an empty string.
 Remove both leading and trailing whitespace characters from a string.
 
 Returns true on success, or false if the function was passed an empty string.
+
+
+# Assigning one string to another
+
+## API: al_ustr_assign
+
+Overwrite the string `us1` with another string `us2`.
+Returns true on success, false on error.
+
+## API: al_ustr_assign_substr
+
+Overwrite the string `us1` with the contents of `us2` in the interval
+\[start_pos, end_pos).  The end points will be clamed to the bounds of `us2`.
+Returns true on success, false on error.
+
+## API: al_ustr_assign_cstr
+
+Overwrite the string `us` with the contents of the C-style string `s`.
+Returns true on success, false on error.
+
+
+# Replacing parts of string
+
+## API: al_ustr_set_chr
+
+Replace the code point beginning at `pos` with `c`.
+`pos` cannot be less than 0.  If `pos` is past the end of `us1` then the space
+between the end of the string and `pos` will be padded with NUL ('\0') bytes.
+If `pos` is not the start of a valid code point, that is an error and
+the string will be unmodified.
+
+On success, returns the number of bytes written, i.e. the offset to the
+following code point.  On error, returns 0.
+
+## API: al_ustr_replace_range
+
+Replace the part of `us1` in the interval \[start_pos, end_pos) with the
+contents of `us2`.  `start_pos` cannot be less than 0.  If `start_pos` is past
+the end of `us1` then the space between the end of the string and `start_pos`
+will be padded with NUL ('\0') bytes.
+
+Returns true on success, false on error.
 
 
 # Searching

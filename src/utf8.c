@@ -470,6 +470,32 @@ bool al_ustr_trim_ws(ALLEGRO_USTR us)
 }
 
 
+/* Function: al_ustr_assign
+ */
+bool al_ustr_assign(ALLEGRO_USTR us1, const ALLEGRO_USTR us2)
+{
+   return _al_bassign(us1.b, us2.b) == _AL_BSTR_OK;
+}
+
+
+/* Function: al_ustr_assign_substr
+ */
+bool al_ustr_assign_substr(ALLEGRO_USTR us1, const ALLEGRO_USTR us2,
+   int start_pos, int end_pos)
+{
+   int rc = _al_bassignmidstr(us1.b, us2.b, start_pos, end_pos - start_pos);
+   return rc == _AL_BSTR_OK;
+}
+
+
+/* Function: al_ustr_assign_cstr
+ */
+bool al_ustr_assign_cstr(ALLEGRO_USTR us1, const char *s)
+{
+   return _al_bassigncstr(us1.b, s) == _AL_BSTR_OK;
+}
+
+
 /* Function: al_ustr_find_chr
  */
 int al_ustr_find_chr(const ALLEGRO_USTR us, int start_pos, int32_t c)

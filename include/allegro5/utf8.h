@@ -71,6 +71,12 @@ AL_FUNC(bool, al_ustr_ltrim_ws, (ALLEGRO_USTR us));
 AL_FUNC(bool, al_ustr_rtrim_ws, (ALLEGRO_USTR us));
 AL_FUNC(bool, al_ustr_trim_ws, (ALLEGRO_USTR us));
 
+/* Assign */
+AL_FUNC(bool, al_ustr_assign, (ALLEGRO_USTR us1, const ALLEGRO_USTR us2));
+AL_FUNC(bool, al_ustr_assign_substr, (ALLEGRO_USTR us1, const ALLEGRO_USTR us2,
+      int start_pos, int end_pos));
+AL_FUNC(bool, al_ustr_assign_cstr, (ALLEGRO_USTR us1, const char *s));
+
 /* Searching */
 AL_FUNC(int, al_ustr_find_chr, (const ALLEGRO_USTR us, int start_pos,
       int32_t c));
@@ -120,9 +126,7 @@ REPLACE
    al_ustr_set_char
    al_ustr_replace_from
    al_ustr_replace_range
-   al_ustr_assign
    al_ustr_assignf
-   al_ustr_assign_substr   (too similar to replace_range?)
 
 COMPARE
 

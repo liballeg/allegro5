@@ -839,6 +839,43 @@ void t39(void)
    free(s2); /* should be al_free eventually */
 }
 
+/* Test al_ustr_assign, al_ustr_assign_cstr. */
+void t40(void)
+{
+   ALLEGRO_USTR us1 = al_ustr_new("我隻氣墊船裝滿晒鱔");
+   ALLEGRO_USTR us2 = al_ustr_new("Τὸ χόβερκράφτ μου εἶναι γεμᾶτο χέλια");
+
+   CHECK(al_ustr_assign(us1, us2));
+   CHECK(0 == strcmp(al_cstr(us1), "Τὸ χόβερκράφτ μου εἶναι γεμᾶτο χέλια"));
+
+   CHECK(al_ustr_assign_cstr(us1, "私のホバークラフトは鰻でいっぱいです"));
+   CHECK(54 == al_ustr_size(us1));
+
+   al_ustr_free(us1);
+   al_ustr_free(us2);
+}
+
+/* Test al_ustr_assign_cstr. */
+void t41(void)
+{
+   ALLEGRO_USTR us1 = al_ustr_new("Моја лебдилица је пуна јегуља");
+   ALLEGRO_USTR us2 = al_ustr_new("");
+
+   CHECK(al_ustr_assign_substr(us2, us1, 9, 27));
+   CHECK(0 == strcmp(al_cstr(us2), "лебдилица"));
+
+   /* Start > End */
+   CHECK(al_ustr_assign_substr(us2, us1, 9, 0));
+   CHECK(0 == strcmp(al_cstr(us2), ""));
+
+   /* Start, end out of bounds */
+   CHECK(al_ustr_assign_substr(us2, us1, -INT_MAX, INT_MAX));
+   CHECK(0 == strcmp(al_cstr(us2), "Моја лебдилица је пуна јегуља"));
+
+   al_ustr_free(us1);
+   al_ustr_free(us2);
+}
+
 /*---------------------------------------------------------------------------*/
 
 const test_t all_tests[] =
@@ -846,7 +883,8 @@ const test_t all_tests[] =
    NULL, t1, t2, t3, t4, t5, t6, t7, t8, t9,
    t10, t11, t12, t13, t14, t15, t16, t17, t18, t19,
    t20, t21, t22, t23, t24, t25, t26, t27, t28, t29,
-   t30, t31, t32, t33, t34, t35, t36, t37, t38, t39
+   t30, t31, t32, t33, t34, t35, t36, t37, t38, t39,
+   t40, t41
 };
 
 #define NUM_TESTS (int)(sizeof(all_tests) / sizeof(all_tests[0]))
