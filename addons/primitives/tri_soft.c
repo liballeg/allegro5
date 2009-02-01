@@ -561,10 +561,10 @@ void _al_triangle_2d(ALLEGRO_BITMAP* texture, ALLEGRO_VERTEX* v1, ALLEGRO_VERTEX
       min_y = 0;
       
    if (al_is_bitmap_locked(target)) {
-      if (!_al_bitmap_region_is_locked(target, min_x, min_y, max_x - min_x + 1, max_y - min_y + 1))
+      if (!_al_bitmap_region_is_locked(target, min_x, min_y, max_x - min_x, max_y - min_y))
          return;
    } else {
-      if (!al_lock_bitmap_region(target, min_x, min_y, max_x - min_x + 1, max_y - min_y + 1, &lr, 0))
+      if (!al_lock_bitmap_region(target, min_x, min_y, max_x - min_x, max_y - min_y, &lr, 0))
          return;
       need_unlock = 1;
    }
