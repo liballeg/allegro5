@@ -1012,6 +1012,56 @@ bool call_vappendf(ALLEGRO_USTR us, const char *fmt, ...)
    return rc;
 }
 
+/* Test al_ustr_compare, al_ustr_ncompare. */
+void t47(void)
+{
+   ALLEGRO_USTR_INFO i1;
+   ALLEGRO_USTR_INFO i2;
+
+   CHECK(al_ustr_compare(
+            al_ref_cstr(&i1, "Thú mỏ vịt"),
+            al_ref_cstr(&i2, "Thú mỏ vịt")) == 0);
+
+   CHECK(al_ustr_compare(
+            al_ref_cstr(&i1, "Thú mỏ vị"),
+            al_ref_cstr(&i2, "Thú mỏ vịt")) < 0);
+
+   CHECK(al_ustr_compare(
+            al_ref_cstr(&i1, "Thú mỏ vịt"),
+            al_ref_cstr(&i2, "Thú mỏ vit")) > 0);
+
+   CHECK(al_ustr_ncompare(
+            al_ref_cstr(&i1, "Thú mỏ vịt"),
+            al_ref_cstr(&i2, "Thú mỏ vit"), 8) == 0);
+
+   CHECK(al_ustr_ncompare(
+            al_ref_cstr(&i1, "Thú mỏ vịt"),
+            al_ref_cstr(&i2, "Thú mỏ vit"), 9) > 0);
+
+   CHECK(al_ustr_ncompare(
+            al_ref_cstr(&i1, "Thú mỏ vịt"),
+            al_ref_cstr(&i2, "platypus"), 0) == 0);
+}
+
+/* Test al_ustr_has_prefix, al_ustr_has_suffix. */
+void t48(void)
+{
+   ALLEGRO_USTR_INFO i1;
+   ALLEGRO_USTR us1 = al_ref_cstr(&i1, "Thú mỏ vịt");
+
+   /* The _cstr versions are simple wrappers around the real functions so its
+    * okay to test them only.
+    */
+
+   CHECK(al_ustr_has_prefix_cstr(us1, ""));
+   CHECK(al_ustr_has_prefix_cstr(us1, "Thú"));
+   CHECK(! al_ustr_has_prefix_cstr(us1, "Thú mỏ vịt."));
+
+   CHECK(al_ustr_has_suffix_cstr(us1, ""));
+   CHECK(al_ustr_has_suffix_cstr(us1, "vịt"));
+   CHECK(! al_ustr_has_suffix_cstr(us1, "Thú mỏ vịt."));
+}
+
 /*---------------------------------------------------------------------------*/
 
 const test_t all_tests[] =
@@ -1020,7 +1070,7 @@ const test_t all_tests[] =
    t10, t11, t12, t13, t14, t15, t16, t17, t18, t19,
    t20, t21, t22, t23, t24, t25, t26, t27, t28, t29,
    t30, t31, t32, t33, t34, t35, t36, t37, t38, t39,
-   t40, t41, t42, t43, t44, t45, t46
+   t40, t41, t42, t43, t44, t45, t46, t47, t48
 };
 
 #define NUM_TESTS (int)(sizeof(all_tests) / sizeof(all_tests[0]))

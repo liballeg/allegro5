@@ -429,6 +429,39 @@ Like [al_ustr_rfind_str] but takes a C-style string for `needle`.
 Return true iff the two strings are equal.  This function is more efficient
 than [al_ustr_compare] so is preferable if ordering is not important.
 
+## API: al_ustr_compare
+
+This function compares `us1` and `us2` by code point values.
+Returns zero if the strings are equal, a positive number if `us1` comes after
+`us2', else a negative number.
+
+This does *not* take into account locale-specific sorting rules.
+For that you will need to use another library.
+
+## API: al_ustr_ncompare
+
+Like [al_ustr_compare] but only compares up to the first `n` code points
+of both strings.
+
+Returns zero if the strings are equal, a positive number if `us1` comes after
+`us2', else a negative number.
+
+## API: al_ustr_has_prefix
+
+Returns true iff `us1` begins with `us2`.
+
+## API: al_ustr_has_prefix_cstr
+
+Returns true iff `us1` begins with `s2`.
+
+## API: al_ustr_has_suffix
+
+Returns true iff `us1` ends with `us2`.
+
+## API: al_ustr_has_suffix_cstr
+
+Returns true iff `us1` ends with `s2`.
+
 
 # Low-level UTF-8 routines
 

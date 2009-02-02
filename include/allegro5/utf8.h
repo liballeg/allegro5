@@ -117,21 +117,17 @@ AL_FUNC(int, al_ustr_rfind_cstr, (const ALLEGRO_USTR haystack, int start_pos,
 
 /* Compare */
 AL_FUNC(bool, al_ustr_equal, (const ALLEGRO_USTR us1, const ALLEGRO_USTR us2));
+AL_FUNC(int, al_ustr_compare, (const ALLEGRO_USTR u, const ALLEGRO_USTR v));
+AL_FUNC(int, al_ustr_ncompare, (const ALLEGRO_USTR us1, const ALLEGRO_USTR us2,
+      int n));
+AL_FUNC(bool, al_ustr_has_prefix,(const ALLEGRO_USTR u, const ALLEGRO_USTR v));
+AL_FUNC(bool, al_ustr_has_prefix_cstr, (const ALLEGRO_USTR u, const char *s));
+AL_FUNC(bool, al_ustr_has_suffix,(const ALLEGRO_USTR u, const ALLEGRO_USTR v));
+AL_FUNC(bool, al_ustr_has_suffix_cstr,(const ALLEGRO_USTR us1, const char *s));
 
 /* Low level UTF-8 functions */
 AL_FUNC(size_t, al_utf8_width, (int32_t c));
 AL_FUNC(size_t, al_utf8_encode, (char s[], int32_t c));
-
-/* To be added:
-
-COMPARE
-
-   al_ustr_compare
-   al_ustr_ncompare
-   al_ustr_has_prefix
-   al_ustr_has_suffix
-
-*/
 
 #ifdef __cplusplus
    }

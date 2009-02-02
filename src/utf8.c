@@ -840,6 +840,92 @@ bool al_ustr_equal(const ALLEGRO_USTR us1, const ALLEGRO_USTR us2)
 }
 
 
+/* Function: al_ustr_compare
+ */
+int al_ustr_compare(const ALLEGRO_USTR us1, const ALLEGRO_USTR us2)
+{
+   int pos1 = 0;
+   int pos2 = 0;
+
+   for (;;) {
+      int32_t c1 = al_ustr_get_next(us1, &pos1);
+      int32_t c2 = al_ustr_get_next(us2, &pos2);
+
+      if (c1 != c2)
+	 return c1 - c2;
+
+      if (c1 == -1) /* == c2 */
+	 return 0;
+   }
+}
+
+
+/* Function: al_ustr_ncompare
+ */
+int al_ustr_ncompare(const ALLEGRO_USTR us1, const ALLEGRO_USTR us2, int n)
+{
+   int pos1 = 0;
+   int pos2 = 0;
+
+   if (n <= 0)
+      return 0;
+
+   for (;;) {
+      int32_t c1 = al_ustr_get_next(us1, &pos1);
+      int32_t c2 = al_ustr_get_next(us2, &pos2);
+
+      if (c1 != c2)
+	 return c1 - c2;
+
+      if ((c1 == -1) || (--n <= 0))
+	 return 0;
+   }
+}
+
+
+/* Function: al_ustr_has_prefix
+ */
+bool al_ustr_has_prefix(const ALLEGRO_USTR us1, const ALLEGRO_USTR us2)
+{
+   return 0 == _al_bstrncmp(us1.b, us2.b, _al_blength(us2.b));
+}
+
+
+/* Function: al_ustr_has_prefix_cstr
+ */
+bool al_ustr_has_prefix_cstr(const ALLEGRO_USTR us1, const char *s2)
+{
+   ALLEGRO_USTR_INFO info;
+   ALLEGRO_USTR us2 = al_ref_cstr(&info, s2);
+
+   return al_ustr_has_prefix(us1, us2);
+}
+
+
+/* Function: al_ustr_has_suffix
+ */
+bool al_ustr_has_suffix(const ALLEGRO_USTR us1, const ALLEGRO_USTR us2)
+{
+   struct _al_tagbstring tb1;
+   int pos;
+
+   pos = _al_blength(us1.b) - _al_blength(us2.b);
+   _al_bmid2tbstr(tb1, us1.b, pos, INT_MAX);
+   return _al_biseq(&tb1, us2.b);
+}
+
+
+/* Function: al_ustr_has_suffix_cstr
+ */
+bool al_ustr_has_suffix_cstr(const ALLEGRO_USTR us1, const char *s2)
+{
+   ALLEGRO_USTR_INFO info;
+   ALLEGRO_USTR us2 = al_ref_cstr(&info, s2);
+
+   return al_ustr_has_suffix(us1, us2);
+}
+
+
 /* Function: al_utf8_width
  */
 size_t al_utf8_width(int c)
