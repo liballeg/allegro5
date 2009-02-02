@@ -848,8 +848,12 @@ static void destroy_display(ALLEGRO_DISPLAY* d) {
    _AL_FREE(d->ogl_extras);
 
    // Restore original display from before this function was called.
+   // If the display we just destroyed is actually current, set the current
+   // display to NULL.
    if (old_dpy != d)
       al_set_current_display(old_dpy);
+   else
+      al_set_current_display(NULL);
 
    _AL_FREE(d);
 }
