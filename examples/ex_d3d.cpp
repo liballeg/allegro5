@@ -70,7 +70,7 @@ int main(void)
    long frames = 0;
 
    do {
-      d3dd->Clear(0, NULL, D3DCLEAR_TARGET, D3DCOLOR_XRGB(0, 0, 0), 1.0f, 0);
+      d3dd->Clear(0, NULL, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER, D3DCOLOR_XRGB(0, 0, 0), 1.0f, 0);
 
       D3DXMatrixTranslation(&mat, 0, 0, 2.0f);
       d3dd->SetTransform(D3DTS_WORLDMATRIX(0), &mat);
