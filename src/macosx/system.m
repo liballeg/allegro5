@@ -19,6 +19,7 @@
 #include "allegro5/allegro5.h"
 #include "allegro5/internal/aintern_memory.h"
 #include "allegro5/platform/aintosx.h"
+#include <sys/stat.h>
 
 #ifndef ALLEGRO_MACOSX
    #error something is wrong with the makefile
@@ -327,11 +328,79 @@ void _al_register_system_interfaces()
    *add = _al_system_osx_driver();
 }
 
+/* _find_executable_file:
+ *  Helper function: searches path and current directory for executable.
+ *  Returns 1 on succes, 0 on failure.
+ */
+static int _find_executable_file(const char *filename, char *output, int size)
+{
+   char *path;
+
+   /* If filename has an explicit path, search current directory */
+   if (strchr(filename, '/')) {
+      if (filename[0] == '/') {
+         /* Full path; done */
+         do_uconvert(filename, U_ASCII, output, U_UTF8, size);
+         return 1;
+      }
+      else {
+         struct stat finfo;
+         char pathname[1024];
+         int len;
+
+         /* Prepend current directory */
+         getcwd(pathname, sizeof(pathname));
+         len = strlen(pathname);
+         pathname[len] = '/';
+         _al_sane_strncpy(pathname+len+1, filename, strlen(filename)+1);
+
+         if ((stat(pathname, &finfo)==0) && (!S_ISDIR (finfo.st_mode))) {
+            do_uconvert(pathname, U_ASCII, output, U_UTF8, size);
+            return 1;
+         }
+      }
+   }
+   /* If filename has no explicit path, but we do have $PATH, search there */
+   else if ((path = getenv("PATH"))) {
+      char *start = path, *end = path, *buffer = NULL, *temp;
+      struct stat finfo;
+
+      while (*end) {
+         end = strchr(start, ':');
+         if (!end) end = strchr(start, '\0');
+
+         /* Resize `buffer' for path component, slash, filename and a '\0' */
+         temp = _AL_REALLOC (buffer, end - start + 1 + strlen (filename) + 1);
+         if (temp) {
+            buffer = temp;
+
+            _al_sane_strncpy(buffer, start, end - start);
+            *(buffer + (end - start)) = '/';
+            _al_sane_strncpy(buffer + (end - start) + 1, filename, end - start + 1 + strlen (filename) + 1);
+
+            if ((stat(buffer, &finfo)==0) && (!S_ISDIR (finfo.st_mode))) {
+               do_uconvert(buffer, U_ASCII, output, U_UTF8, size);
+               _AL_FREE (buffer);
+               return 1;
+            }
+         } /* else... ignore the failure; `buffer' is still valid anyway. */
+
+         start = end + 1;
+      }
+      /* Path search failed */
+      _AL_FREE (buffer);
+   }
+
+   return 0;
+}
+
 /* Implentation of get_path */
 static AL_CONST char *osx_get_path(uint32_t id, char* path, size_t length)
 {
    NSString* ans = nil;
    NSArray* paths = nil;
+   NSString *orgname = [[NSString alloc] initWithUTF8String: al_get_orgname()];
+   NSString *appname = [[NSString alloc] initWithUTF8String: al_get_appname()];
    BOOL ok = NO;
    switch (id) {
       case AL_PROGRAM_PATH:
@@ -342,15 +411,43 @@ static AL_CONST char *osx_get_path(uint32_t id, char* path, size_t length)
          break;
       case AL_SYSTEM_DATA_PATH:
          ans = [[NSBundle mainBundle] resourcePath];
+         if (ans != nil) {
+            /* Append program name */
+            ans = [[ans stringByAppendingPathComponent: orgname]
+                                     stringByAppendingPathComponent: appname];
+         }
          break;
       case AL_USER_DATA_PATH:
          paths = NSSearchPathForDirectoriesInDomains(NSLibraryDirectory,
             NSUserDomainMask,
             YES);
          if ([paths count] > 0) ans = [paths objectAtIndex: 0];
+         if (ans != nil) {
+            /* Append program name */
+            ans = [[ans stringByAppendingPathComponent: orgname]
+                                     stringByAppendingPathComponent: appname];
+         }
          break;
       case AL_USER_HOME_PATH:
          ans = NSHomeDirectory();
+         break;
+      case AL_EXENAME_PATH:
+         /* If the application lives in a bundle, return the bundle path as
+          * the executable path, since this is probably what is expected.
+          */
+         if (osx_bundle) {
+            ans = [[NSBundle mainBundle] bundlePath];
+         } else {
+            /* OS X path names seem to always be UTF8.
+             * Should we use the Darwin/BSD function getprogname() instead?
+             */
+            if (__crt0_argv[0][0] == '/') {
+               ans = [NSString stringWithUTF8String: __crt0_argv[0]];
+            } else {
+               if (_find_executable_file(__crt0_argv[0], path, length))
+                  ans = [NSString stringWithUTF8String: path];
+            }
+         }
          break;
       case AL_USER_SETTINGS_PATH:
          paths =
@@ -358,6 +455,11 @@ static AL_CONST char *osx_get_path(uint32_t id, char* path, size_t length)
             NSUserDomainMask,
             YES);
          if ([paths count] > 0) ans = [paths objectAtIndex: 0];
+         if (ans != nil) {
+            /* Append program name */
+            ans = [[ans stringByAppendingPathComponent: orgname]
+                                     stringByAppendingPathComponent: appname];
+         }
          break;
       case AL_SYSTEM_SETTINGS_PATH:
          paths =
@@ -365,13 +467,21 @@ static AL_CONST char *osx_get_path(uint32_t id, char* path, size_t length)
             NSLocalDomainMask,
             YES);
          if ([paths count] > 0) ans = [paths objectAtIndex: 0];
+         if (ans != nil) {
+            /* Append program name */
+            ans = [[ans stringByAppendingPathComponent: orgname]
+                                     stringByAppendingPathComponent: appname];
+         }
          break;
       default:
       break;
    }
+   [orgname release];
+   [appname release];
    if ((ans != nil) && (path != NULL)) {
       /* 10.4 and above only */
          ok = [ans getCString:path maxLength:length encoding: NSUTF8StringEncoding];
+         [ans release];
       }
    return ok == YES ? path : NULL;
 }
