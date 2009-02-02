@@ -16,6 +16,7 @@
  */
 
 
+#include <stdarg.h>
 #include "allegro5/allegro5.h"
 #include "allegro5/utf8.h"
 #include "allegro5/internal/bstrlib.h"
@@ -59,6 +60,21 @@ ALLEGRO_USTR al_ustr_new_from_buffer(const char *s, size_t size)
 {
    struct ALLEGRO_USTR tmp = { _al_blk2bstr(s, size) };
    return tmp;
+}
+
+
+/* Function: al_ustr_newf
+ */
+ALLEGRO_USTR al_ustr_newf(const char *fmt, ...)
+{
+   ALLEGRO_USTR us;
+   va_list ap;
+
+   us = al_ustr_new("");
+   va_start(ap, fmt);
+   al_ustr_vappendf(us, fmt, ap);
+   va_end(ap);
+   return us;
 }
 
 
@@ -430,6 +446,55 @@ size_t al_ustr_append_chr(ALLEGRO_USTR us, int32_t c)
    }
 
    return al_ustr_insert_chr(us, al_ustr_size(us), c);
+}
+
+
+/* Function: al_ustr_appendf
+ */
+bool al_ustr_appendf(ALLEGRO_USTR us, const char *fmt, ...)
+{
+   va_list ap;
+   bool rc;
+
+   va_start(ap, fmt);
+   rc = al_ustr_vappendf(us, fmt, ap);
+   va_end(ap);
+   return rc;
+}
+
+
+/* Function: al_ustr_vappendf
+ */
+bool al_ustr_vappendf(ALLEGRO_USTR us, const char *fmt, const va_list ap)
+{
+   va_list arglist;
+   int sz;
+   int rc;
+
+#ifdef DEBUGMODE
+   /* Exercise resizing logic more often. */
+   sz = 1;
+#else
+   sz = 128;
+#endif
+
+   for (;;) {
+      va_copy(arglist, ap);
+      rc = _al_bvcformata(us.b, sz, fmt, arglist);
+      va_end(arglist);
+
+      if (rc >= 0) {
+         return true;
+      }
+
+      if (rc == _AL_BSTR_ERR) {
+         /* A real error? */
+         return false;
+      }
+
+      /* Increase size */
+      sz = -rc;
+   }
 }
 
 

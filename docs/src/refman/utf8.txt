@@ -10,6 +10,14 @@ Explain that pos parameters are in byte offsets, not code point indices.
 Explain about half-open intervals.
 
 
+# Types
+
+## API: ALLEGRO_USTR
+
+
+## API: ALLEGRO_USTR_INFO
+
+
 # Creating and destroying strings
 
 ## API: al_ustr_new
@@ -22,6 +30,25 @@ The string must eventually be freed with [al_ustr_free].
 
 Create a new string containing a copy of the buffer pointed to by `s` of the
 given size.  The string must eventually be freed with [al_ustr_free].
+
+
+## API: al_ustr_newf
+
+Create a new string using a printf-style format string.
+
+Notes:
+
+That "%s" specifier takes C string arguments, not ALLEGRO_USTRs.  Therefore to
+pass an ALLEGRO_USTR as a parameter you must use [al_cstr], and it must be NUL
+terminated.  If the string contains an embedded NUL byte everything from that
+byte onwards will be ignored.
+
+The "%c" specifier outputs a single byte, not the UTF-8 encoding of a code
+point.  Therefore it's only usable for ASCII characters (value <= 127) or if
+you really mean to output byte values from 128--255.  To insert the UTF-8
+encoding of a code point, encode it into a memory buffer using
+[al_utf8_encode] then use the "%s" specifier.  Remember to NUL terminate the
+buffer.
 
 
 ## API: al_ustr_free
@@ -235,6 +262,22 @@ Returns true on success, false on error.
 Append a code point to the end of `us`.
 
 Returns the number of bytes added, or 0 on error.
+
+## API: al_ustr_appendf
+
+This function appends formatted output to the string `us`.  `fmt` is a
+printf-style format string.
+See [al_ustr_newf] about the "%s" and "%c" specifiers.
+
+Returns true on success, false on error.
+
+## API: al_ustr_vappendf
+
+Like [al_ustr_appendf] but you pass the variable argument list directly,
+instead of the arguments themselves.
+See [al_ustr_newf] about the "%s" and "%c" specifiers.
+
+Returns true on success, false on error.
 
 
 # Removing parts of strings

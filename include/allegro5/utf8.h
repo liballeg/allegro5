@@ -7,7 +7,12 @@
    extern "C" {
 #endif
 
+/* Type: ALLEGRO_USTR
+ */
 typedef struct ALLEGRO_USTR ALLEGRO_USTR;
+
+/* Type: ALLEGRO_USTR_INFO
+ */
 typedef const struct ALLEGRO_USTR_INFO ALLEGRO_USTR_INFO;
 
 struct ALLEGRO_USTR {
@@ -22,6 +27,7 @@ struct ALLEGRO_USTR_INFO {
 /* Creating strings */
 AL_FUNC(ALLEGRO_USTR, al_ustr_new, (const char *s));
 AL_FUNC(ALLEGRO_USTR, al_ustr_new_from_buffer, (const char *s, size_t size));
+AL_PRINTFUNC(ALLEGRO_USTR, al_ustr_newf, (const char *fmt, ...), 1, 2);
 AL_FUNC(void, al_ustr_free, (ALLEGRO_USTR us));
 AL_FUNC(const char *, al_cstr, (const ALLEGRO_USTR us));
 AL_FUNC(char *, al_cstr_dup, (const ALLEGRO_USTR us));
@@ -62,6 +68,10 @@ AL_FUNC(size_t, al_ustr_insert_chr, (ALLEGRO_USTR us, int pos, int32_t c));
 AL_FUNC(bool, al_ustr_append, (ALLEGRO_USTR us1, const ALLEGRO_USTR us2));
 AL_FUNC(bool, al_ustr_append_cstr, (ALLEGRO_USTR us, const char *s));
 AL_FUNC(size_t, al_ustr_append_chr, (ALLEGRO_USTR us, int32_t c));
+AL_PRINTFUNC(bool, al_ustr_appendf, (ALLEGRO_USTR us, const char *fmt, ...),
+      2, 3);
+AL_FUNC(bool, al_ustr_vappendf, (ALLEGRO_USTR us, const char *fmt,
+      const va_list ap));
 
 /* Remove */
 AL_FUNC(bool, al_ustr_remove_chr, (ALLEGRO_USTR us, int pos));
@@ -113,19 +123,6 @@ AL_FUNC(size_t, al_utf8_width, (int32_t c));
 AL_FUNC(size_t, al_utf8_encode, (char s[], int32_t c));
 
 /* To be added:
-
-CREATE
-
-   al_ustr_newf
-
-APPEND
-
-   al_ustr_appendf
-   al_ustr_vappendf
-
-REPLACE
-
-   al_ustr_assignf
 
 COMPARE
 

@@ -11,6 +11,7 @@
 #define ALLEGRO_USE_CONSOLE
 #include <allegro5/allegro5.h>
 #include <allegro5/utf8.h>
+#include <stdarg.h>
 #include <stdio.h>
 
 typedef void (*test_t)(void);
@@ -981,6 +982,36 @@ void t45(void)
    al_ustr_free(us2);
 }
 
+extern bool call_vappendf(ALLEGRO_USTR us, const char *fmt, ...);
+
+/* Test al_ustr_newf, al_ustr_appendf, al_ustr_vappendf. */
+void t46(void)
+{
+   ALLEGRO_USTR us;
+
+   us = al_ustr_newf("%s %c %02d", "hõljuk", 'c', 42);
+   CHECK(0 == strcmp(al_cstr(us), "hõljuk c 42"));
+
+   CHECK(al_ustr_appendf(us, " %s", "Luftchüssiboot"));
+   CHECK(0 == strcmp(al_cstr(us), "hõljuk c 42 Luftchüssiboot"));
+
+   CHECK(call_vappendf(us, " %s", "χόβερκράφτ"));
+   CHECK(0 == strcmp(al_cstr(us), "hõljuk c 42 Luftchüssiboot χόβερκράφτ"));
+
+   al_ustr_free(us);
+}
+
+bool call_vappendf(ALLEGRO_USTR us, const char *fmt, ...)
+{
+   va_list ap;
+   bool rc;
+
+   va_start(ap, fmt);
+   rc = al_ustr_vappendf(us, fmt, ap);
+   va_end(ap);
+   return rc;
+}
+
 /*---------------------------------------------------------------------------*/
 
 const test_t all_tests[] =
@@ -989,7 +1020,7 @@ const test_t all_tests[] =
    t10, t11, t12, t13, t14, t15, t16, t17, t18, t19,
    t20, t21, t22, t23, t24, t25, t26, t27, t28, t29,
    t30, t31, t32, t33, t34, t35, t36, t37, t38, t39,
-   t40, t41, t42, t43, t44, t45
+   t40, t41, t42, t43, t44, t45, t46
 };
 
 #define NUM_TESTS (int)(sizeof(all_tests) / sizeof(all_tests[0]))
