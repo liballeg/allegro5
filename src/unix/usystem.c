@@ -625,10 +625,26 @@ AL_CONST char *_unix_get_path(uint32_t id, char *dir, size_t size)
 //         do_uconvert(tmp, U_ASCII, dir, U_UTF8, strlen(tmp)+1);
       } break;
 
-      case AL_SYSTEM_SETTINGS_PATH:
-         /* FIXME: make this a compile time define, or a allegro cfg option? or both */
-         _al_sane_strncpy(dir, "/etc/", strlen("/etc/")+1);
-         break;
+      case AL_SYSTEM_SETTINGS_PATH: {
+         ALLEGRO_PATH *sys_path = NULL;
+         char tmp[PATH_MAX] = "";
+
+         /* FIXME: make this a compile time define, or something */
+         sys_path = al_path_create("/etc/");
+         al_path_append(sys_path, al_get_orgname());
+         al_path_append(sys_path, al_get_appname());
+
+         al_path_to_string(sys_path, tmp, PATH_MAX, '/');
+
+         if((size_t)(ustrlen(tmp)+1) > size) {
+            al_path_free(sys_path);
+            al_set_errno(ERANGE);
+            return NULL;
+         }
+         
+         al_path_free(sys_path);
+         _al_sane_strncpy(dir, tmp, size);
+      } break;
 
       case AL_EXENAME_PATH:
          _unix_get_executable_name(dir, size);
