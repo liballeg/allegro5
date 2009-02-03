@@ -114,6 +114,8 @@ AL_FUNC(int, al_ustr_rfind_str, (const ALLEGRO_USTR haystack, int start_pos,
       const ALLEGRO_USTR needle));
 AL_FUNC(int, al_ustr_rfind_cstr, (const ALLEGRO_USTR haystack, int start_pos,
       const char *needle));
+AL_FUNC(bool, al_ustr_find_replace, (ALLEGRO_USTR us, int start_pos,
+      const ALLEGRO_USTR find, const ALLEGRO_USTR replace));
 
 /* Compare */
 AL_FUNC(bool, al_ustr_equal, (const ALLEGRO_USTR us1, const ALLEGRO_USTR us2));

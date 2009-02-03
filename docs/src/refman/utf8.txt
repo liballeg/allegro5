@@ -421,6 +421,12 @@ return -1.
 
 Like [al_ustr_rfind_str] but takes a C-style string for `needle`.
 
+## API: al_ustr_find_replace
+
+Replace all occurrences of `find` in `us` with `replace`, beginning at
+`start_pos`.  The `find` string must be non-empty.
+Returns true on success, false on error.
+
 
 # Comparing
 

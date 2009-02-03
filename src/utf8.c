@@ -832,6 +832,15 @@ int al_ustr_rfind_cstr(const ALLEGRO_USTR haystack, int end_pos,
 }
 
 
+/* Function: al_ustr_find_replace
+ */
+bool al_ustr_find_replace(ALLEGRO_USTR us, int start_pos,
+   const ALLEGRO_USTR find, const ALLEGRO_USTR replace)
+{
+   return _al_bfindreplace(us.b, find.b, replace.b, start_pos) == _AL_BSTR_OK;
+}
+
+
 /* Function: al_ustr_equal
  */
 bool al_ustr_equal(const ALLEGRO_USTR us1, const ALLEGRO_USTR us2)

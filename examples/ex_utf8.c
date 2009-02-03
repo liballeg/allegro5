@@ -1062,6 +1062,36 @@ void t48(void)
    CHECK(! al_ustr_has_suffix_cstr(us1, "Thú mỏ vịt."));
 }
 
+/* Test al_ustr_find_replace. */
+void t49(void)
+{
+   ALLEGRO_USTR us;
+   ALLEGRO_USTR_INFO findi;
+   ALLEGRO_USTR_INFO repli;
+   ALLEGRO_USTR find;
+   ALLEGRO_USTR repl;
+
+   us = al_ustr_new("aábdðeéfghiíaábdðeéfghií");
+   find = al_ref_cstr(&findi, "ðeéf");
+   repl = al_ref_cstr(&repli, "deef");
+
+   CHECK(al_ustr_find_replace(us, 0, find, repl));
+   CHECK(0 == strcmp(al_cstr(us), "aábddeefghiíaábddeefghií"));
+
+   find = al_ref_cstr(&findi, "aá");
+   repl = al_ref_cstr(&repli, "AÁ");
+
+   CHECK(al_ustr_find_replace(us, 14, find, repl));
+   CHECK(0 == strcmp(al_cstr(us), "aábddeefghiíAÁbddeefghií"));
+
+   /* Not allowed */
+   find = al_ustr_empty_string();
+   CHECK(! al_ustr_find_replace(us, 0, find, repl));
+   CHECK(0 == strcmp(al_cstr(us), "aábddeefghiíAÁbddeefghií"));
+
+   al_ustr_free(us);
+}
+
 /*---------------------------------------------------------------------------*/
 
 const test_t all_tests[] =
@@ -1070,7 +1100,7 @@ const test_t all_tests[] =
    t10, t11, t12, t13, t14, t15, t16, t17, t18, t19,
    t20, t21, t22, t23, t24, t25, t26, t27, t28, t29,
    t30, t31, t32, t33, t34, t35, t36, t37, t38, t39,
-   t40, t41, t42, t43, t44, t45, t46, t47, t48
+   t40, t41, t42, t43, t44, t45, t46, t47, t48, t49
 };
 
 #define NUM_TESTS (int)(sizeof(all_tests) / sizeof(all_tests[0]))
