@@ -32,7 +32,7 @@ def main(argv):
     print "Copying files.."
     rsync = "rsync --delete -r -z"
     path = os.path.join(options.path, "docs/src/refman")
-    run("%s %s %s:htdocs/a5docs/" % (rsync, path, sf))
+    run("%s %s %s:%s/a5docs/" % (rsync, path, sf, htdocs))
 
     print("Updated A5 docs at: http://docs.liballeg.org")
 
