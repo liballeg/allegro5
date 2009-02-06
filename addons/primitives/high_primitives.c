@@ -42,12 +42,21 @@
 
 static ALLEGRO_VBUFFER* cache_buffer;
 static float* cache_point_buffer;
+static int cache_point_size;
 
 static void verify_cache(void)
 {
    if (!cache_buffer) {
       cache_buffer = al_create_vbuff(ALLEGRO_VBUFF_CACHE_SIZE, ALLEGRO_VBUFFER_SOFT | ALLEGRO_VBUFFER_WRITE | ALLEGRO_VBUFFER_READ);
-      cache_point_buffer = malloc(2 * sizeof(float) * ALLEGRO_VBUFF_CACHE_SIZE);
+   }
+}
+
+static void update_point_cache(int size)
+{
+   if(size >= cache_point_size) {
+      free(cache_point_buffer);
+      cache_point_buffer = malloc(2 * sizeof(float) * size);
+      cache_point_size = size;
    }
 }
 
@@ -514,6 +523,7 @@ void al_calculate_spline(ALLEGRO_VBUFFER* vbuff, float points[8],
 
    ASSERT(vbuff);
    ASSERT(points);
+   update_point_cache(num_segments);
 
    dt = 1.0 / (num_segments - 1);
    dt2 = (dt * dt);
