@@ -152,7 +152,7 @@ Calculates a ribbon given an array of points. The ribbon will go through all of 
 *Parameters:*
 
 * vbuff - Vertex buffer to fill out
-* points - An array of 4 pairs of coordinates of the 4 control points
+* points - An array of pairs of coordinates for each point
 * start - The index of the first calculated point in the vertex buffer
 * thickness - Thickness of the spline ribbon
 * num_segments - The number of points to calculate
@@ -163,7 +163,7 @@ Draws a ribbon given given an array of points. The ribbon will go through all of
 
 *Parameters:*
 
-* points - An array of 4 pairs of coordinates of the 4 control points
+* points - An array of pairs of coordinates for each point
 * color - Color of the spline
 * thickness - Thickness of the spline, pass <= 0 to draw hairline spline
 
