@@ -622,16 +622,23 @@ int main(void)
                            Thickness = 0.0f;
                         break;
                      }
-                     case ALLEGRO_KEY_UP:
-                     case ALLEGRO_KEY_DOWN: {
-                        Speed = 0;
-                        break;
-                     }
-                     default: {
+                     case ALLEGRO_KEY_UP: {
                         cur_screen++;
                         if (cur_screen >= NUM_SCREENS) {
                            cur_screen = 0;
                         }
+                        break;
+                     }
+                     case ALLEGRO_KEY_SPACE: {
+                        Speed = 0;
+                        break;
+                     }
+                     case ALLEGRO_KEY_DOWN: {
+                        cur_screen--;
+                        if (cur_screen < 0) {
+                           cur_screen = NUM_SCREENS - 1;
+                        }
+                        break;
                      }
                   }
                }
@@ -651,12 +658,13 @@ int main(void)
       
       al_set_blender(ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA, white);
       al_font_textprintf(Font, 0, 0, "FPS: %f", (float)frames_done / (al_current_time() - time_diff));
-      al_font_textprintf(Font, 0, 20, "Software (S): %d", Soft);
-      al_font_textprintf(Font, 0, 40, "Blending (L): %d", Blend);
-      al_font_textprintf(Font, 0, 60, "Background (B): %d", Background);
-      al_font_textprintf(Font, 0, 80, "Rotation (Arrow Keys): %f", Speed);
-      al_font_textprintf(Font, 0, 100, "Thickness (PgUp/PgDown): %f", Thickness);
-      al_font_textprintf(Font, 0, 120, "Any key to advance screen. Esc to Quit.");
+      al_font_textprintf(Font, 0, 20, "Change Screen (Up/Down). Esc to Quit.");
+      al_font_textprintf(Font, 0, 40, "Rotation (Left/Right/Space): %f", Speed);
+      al_font_textprintf(Font, 0, 60, "Thickness (PgUp/PgDown): %f", Thickness);
+      al_font_textprintf(Font, 0, 80, "Software (S): %d", Soft);
+      al_font_textprintf(Font, 0, 100, "Blending (L): %d", Blend);
+      al_font_textprintf(Font, 0, 120, "Background (B): %d", Background);
+
       
       Screens[cur_screen](DRAW);
       
