@@ -67,12 +67,12 @@ Error:
 
    if (allegro_mixer) {
       al_destroy_mixer(allegro_mixer);
-	  allegro_mixer = NULL;
+      allegro_mixer = NULL;
    }
 
    if (allegro_voice) {
       al_destroy_voice(allegro_voice);
-	  allegro_voice = NULL;
+      allegro_voice = NULL;
    }
 
    return false;
@@ -152,8 +152,8 @@ bool al_reserve_samples(int reserve_samples)
 
    /* If no default mixer has been set by the user, then create a voice
     * and a mixer, and set them to be the default one for use with
-	* al_play_sample().
-	*/
+    * al_play_sample().
+    */
    if (default_mixer == NULL) {
       if (!al_restore_default_mixer()) goto Error;
    }
@@ -162,8 +162,8 @@ bool al_reserve_samples(int reserve_samples)
       /* We need to reserve more samples than currently are reserved. */
       for (i = 0; i < reserve_samples - current_samples_count; i++) {
          ALLEGRO_SAMPLE_INSTANCE **slot = _al_vector_alloc_back(&auto_samples);
-	     int *id = _al_vector_alloc_back(&auto_sample_ids);
-		 *id = 0;
+         int *id = _al_vector_alloc_back(&auto_sample_ids);
+         *id = 0;
          *slot = al_create_sample_instance(NULL);
          if (!*slot) {
             TRACE("al_create_sample failed\n");
@@ -177,11 +177,10 @@ bool al_reserve_samples(int reserve_samples)
    }
    else if (current_samples_count == reserve_samples) {
       /* We need to reserve fewer samples than currently are reserved. */
-      while (current_samples_count-- > reserve_samples)
-	  {
-		  _al_vector_delete_at(&auto_samples, current_samples_count);
-		  _al_vector_delete_at(&auto_sample_ids, current_samples_count);
-	  }
+      while (current_samples_count-- > reserve_samples) {
+         _al_vector_delete_at(&auto_samples, current_samples_count);
+         _al_vector_delete_at(&auto_sample_ids, current_samples_count);
+      }
    }
 
    return true;
@@ -213,13 +212,13 @@ bool al_set_default_mixer(ALLEGRO_MIXER *mixer)
    if (mixer != default_mixer) {
       int i;
 
-	  default_mixer = mixer;
+      default_mixer = mixer;
 
-	  /* Destroy all current sample instances, recreate them, and
-	   * attach them to the new mixer */
+      /* Destroy all current sample instances, recreate them, and
+       * attach them to the new mixer */
       for (i = 0; i < (int) _al_vector_size(&auto_samples); i++) {
          ALLEGRO_SAMPLE_INSTANCE **slot = _al_vector_ref(&auto_samples, i);
-		 int *id = _al_vector_ref(&auto_sample_ids, i);
+         int *id = _al_vector_ref(&auto_sample_ids, i);
 
          *id = 0;
          al_destroy_sample_instance(*slot);
@@ -270,10 +269,9 @@ bool al_play_sample(ALLEGRO_SAMPLE *spl, float gain, float pan, float speed, int
    
    ASSERT(spl);
 
-   if (ret_id != NULL)
-   {
-	   ret_id->_id = -1;
-	   ret_id->_index = 0;
+   if (ret_id != NULL) {
+      ret_id->_id = -1;
+      ret_id->_index = 0;
    }
 
    for (i = 0; i < _al_vector_size(&auto_samples); i++) {
@@ -284,14 +282,16 @@ bool al_play_sample(ALLEGRO_SAMPLE *spl, float gain, float pan, float speed, int
       if (al_get_sample_instance_bool(splinst, ALLEGRO_AUDIOPROP_PLAYING, &playing) == 0) {
          if (playing == false) {
             int *id = _al_vector_ref(&auto_sample_ids, i);
-			if (!do_play_sample(splinst, spl, gain, pan, speed, loop)) break;
 
-			if (ret_id != NULL) {
-			   ret_id->_index = (int) i;
-			   ret_id->_id = *id = ++next_id;
-			}
+            if (!do_play_sample(splinst, spl, gain, pan, speed, loop))
+               break;
 
-			return true;
+            if (ret_id != NULL) {
+               ret_id->_index = (int) i;
+               ret_id->_id = *id = ++next_id;
+            }
+
+            return true;
          }
       }
    }
@@ -310,7 +310,9 @@ static bool do_play_sample(ALLEGRO_SAMPLE_INSTANCE *splinst, ALLEGRO_SAMPLE *spl
 
    if (al_set_sample_instance_float(splinst, ALLEGRO_AUDIOPROP_GAIN, gain) ||
       al_set_sample_instance_float(splinst, ALLEGRO_AUDIOPROP_SPEED, speed) ||
-      al_set_sample_instance_enum(splinst, ALLEGRO_AUDIOPROP_LOOPMODE, loop)) return false;
+      al_set_sample_instance_enum(splinst, ALLEGRO_AUDIOPROP_LOOPMODE, loop)) {
+      return false;
+   }
 
    if (al_play_sample_instance(splinst) != 0) {
       TRACE("al_play_sample_instance failed\n");
@@ -332,8 +334,7 @@ void al_stop_sample(ALLEGRO_SAMPLE_ID *spl_id)
    ASSERT(spl_id->_index < (int) _al_vector_size(&auto_sample_ids));
 
    id = _al_vector_ref(&auto_sample_ids, spl_id->_index);
-   if (*id == spl_id->_id)
-   {
+   if (*id == spl_id->_id) {
       ALLEGRO_SAMPLE_INSTANCE **slot, *spl;
       slot = _al_vector_ref(&auto_samples, spl_id->_index);
       spl = (*slot);
@@ -360,6 +361,7 @@ void al_stop_samples(void)
 static void free_sample_vector(void)
 {
    int j;
+
    for (j = 0; j < (int) _al_vector_size(&auto_samples); j++) {
       ALLEGRO_SAMPLE_INSTANCE **slot = _al_vector_ref(&auto_samples, j);
       al_destroy_sample_instance(*slot);

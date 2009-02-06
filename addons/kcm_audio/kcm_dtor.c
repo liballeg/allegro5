@@ -8,9 +8,9 @@
  *                                           /\____/
  *                                           \_/__/
  *
- *	Destructors.
+ *      Destructors.
  *
- *	By Peter Wang.
+ *      By Peter Wang.
  *
  *      See LICENSE.txt for copyright information.
  */

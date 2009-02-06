@@ -676,9 +676,9 @@ int al_set_sample(ALLEGRO_SAMPLE_INSTANCE *spl, ALLEGRO_SAMPLE *data)
 /* Function: al_get_sample
  *  XXX
  */
-ALLEGRO_SAMPLE* al_get_sample(ALLEGRO_SAMPLE_INSTANCE *spl)
+ALLEGRO_SAMPLE *al_get_sample(ALLEGRO_SAMPLE_INSTANCE *spl)
 {
-	return &(spl->spl_data);
+   return &(spl->spl_data);
 }
 
 

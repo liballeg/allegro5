@@ -32,7 +32,7 @@ static bool read16(ALLEGRO_FS_ENTRY *f, signed short *v)
       *v = (a | (b << 8));
       return true;
    }
-	
+
    return false;
 }
 
@@ -47,7 +47,7 @@ static bool read32(ALLEGRO_FS_ENTRY *f, int *v)
 
    if (d != EOF) {
       *v = (a | (b << 8) | (c << 16) | (d << 24));
-	  return true;
+      return true;
    }
 
    return false;
@@ -88,37 +88,38 @@ static WAVFILE *wav_open(const char *filename)
       if (al_fread(f, 4, buffer) != 4)
          goto wav_open_error;
 
-	  /* check to see if it's a fmt chunk */
+      /* check to see if it's a fmt chunk */
       if (memcmp(buffer, "fmt ", 4))
-	     break;
-	  
-	  read32(f, &length);
-	  if (length < 16) goto wav_open_error;
-	  
-	  /* should be 1 for PCM data */
-	  read16(f, &pcm);
-	  if (pcm != 1) goto wav_open_error;
-      
+         break;
+
+      read32(f, &length);
+      if (length < 16) goto wav_open_error;
+
+      /* should be 1 for PCM data */
+      read16(f, &pcm);
+      if (pcm != 1) goto wav_open_error;
+
       /* mono or stereo data */
       read16(f, &wavfile->channels);
-      
+
       if ((wavfile->channels != 1) && (wavfile->channels != 2))
          goto wav_open_error;
 
-	  /* sample frequency */
+      /* sample frequency */
       read32(f, &wavfile->freq);
-      
-	  /* skip six bytes */
+
+      /* skip six bytes */
       al_fseek(f, 6, ALLEGRO_SEEK_CUR);   
-      
-	  /* 8 or 16 bit data? */
+
+      /* 8 or 16 bit data? */
       read16(f, &wavfile->bits);
       if ((wavfile->bits != 8) && (wavfile->bits != 16))
          goto wav_open_error;
 
-	  /* Skip remainder of chunk */
+      /* Skip remainder of chunk */
       length -= 16;
-	  if (length > 0) al_fseek(f, length, ALLEGRO_SEEK_CUR);
+      if (length > 0)
+         al_fseek(f, length, ALLEGRO_SEEK_CUR);
    }
 
    /* now there should be a data chunk */
@@ -128,14 +129,12 @@ static WAVFILE *wav_open(const char *filename)
    /* find out how many samples exist */
    read32(f, &wavfile->samples);
 
-   if (wavfile->channels == 2)
-   {
-	   wavfile->samples = (wavfile->samples + 1) / 2;
+   if (wavfile->channels == 2) {
+      wavfile->samples = (wavfile->samples + 1) / 2;
    }
 
-   if (wavfile->bits == 16)
-   {
-	   wavfile->samples /= 2;
+   if (wavfile->bits == 16) {
+      wavfile->samples /= 2;
    }
 
    wavfile->dpos = al_ftell(f);
@@ -167,15 +166,16 @@ static size_t wav_read(WAVFILE *wavfile, void *data, size_t samples)
    }
    else {
       size_t i;
-	  signed short *d = (signed short *) data;
-      for (i = 0; i < n; i++) {
-	     signed short s;
-		 if (!read16(wavfile->f, &s)) break;
+      signed short *d = (signed short *) data;
 
-		 *d++ = s;
+      for (i = 0; i < n; i++) {
+         signed short s;
+         if (!read16(wavfile->f, &s)) break;
+
+         *d++ = s;
       }
 
-	  return i / wavfile->channels;
+      return i / wavfile->channels;
    }
 }
 
@@ -249,22 +249,23 @@ ALLEGRO_SAMPLE *al_load_sample_wav(const char *filename)
    if (wavfile) {
       size_t n = (wavfile->bits / 8) * wavfile->channels * wavfile->samples;
       char *data = malloc(n);
-	  if (data) {	     
-	     spl = al_create_sample(data, wavfile->samples, wavfile->freq,
-	        _al_word_size_to_depth_conf(wavfile->bits / 8),
+
+      if (data) {
+         spl = al_create_sample(data, wavfile->samples, wavfile->freq,
+            _al_word_size_to_depth_conf(wavfile->bits / 8),
             _al_count_to_channel_conf(wavfile->channels), true);
 
-		 if (spl) {
-		    memset(data, 0, n);
-		    wav_read(wavfile, data, wavfile->samples);
-		 }
-		 else {
-		    free(data);
-		 }
-	  }
-	  wav_close(wavfile);	  
+         if (spl) {
+            memset(data, 0, n);
+            wav_read(wavfile, data, wavfile->samples);
+         }
+         else {
+            free(data);
+         }
+      }
+      wav_close(wavfile);
    }
-   
+
    return spl;
 }
 
@@ -304,11 +305,11 @@ ALLEGRO_STREAM *al_load_stream_wav(size_t buffer_count,
 bool al_save_sample_wav(ALLEGRO_SAMPLE *spl, const char *filename)
 {
    ALLEGRO_FS_ENTRY *pf = al_fopen(filename, "wb");
-   if (pf)
-   {
+
+   if (pf) {
       bool rv = al_save_sample_wav_pf(spl, pf);
       al_fclose(pf);
-	  return rv;
+      return rv;
    }
 
    return false;   
@@ -398,14 +399,15 @@ bool al_save_sample_wav_pf(ALLEGRO_SAMPLE *spl, ALLEGRO_FS_ENTRY *pf)
    else if (spl->depth == ALLEGRO_AUDIO_DEPTH_FLOAT32) {
       float *data = spl->buffer.f32;
       for (i = 0; i < n; ++i) {
-	     al_fwrite16le(pf, *data++ * 0x7FFF);
+         al_fwrite16le(pf, *data * 0x7FFF);
+         data++;
       }
    }
    else {
       TRACE("Unknown audio depth (%d) when saving wav ALLEGRO_FS_ENTRY.\n", spl->depth);
-	  return false;
+      return false;
    }
-	    
+
    return true;
 }
 

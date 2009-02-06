@@ -87,17 +87,18 @@ static int alsa_open(void)
                                SND_PCM_STREAM_PLAYBACK, SND_PCM_NONBLOCK);
    if (alsa_err < 0) {
       TRACE(PREFIX_N "ALSA is not available on the system.\n");
-	  return 1;
+      return 1;
    }
-   else
+   else {
       snd_pcm_close(test_pcm_handle);
+   }
 
    return 0;
 
    /* ALSA check is a macro that 'goto' error*/
-   Error:
-      TRACE(PREFIX_E "Error initializing alsa!\n");
-      return 1;
+Error:
+   TRACE(PREFIX_E "Error initializing alsa!\n");
+   return 1;
 }
 
 
