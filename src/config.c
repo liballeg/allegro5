@@ -40,28 +40,6 @@ static void *local_calloc1(size_t size)
 }
 
 
-static char *local_strdup(const char *s)
-{
-   size_t size = strlen(s);
-   char *copy;
-
-   copy = _AL_MALLOC_ATOMIC(size + 1);
-   if (copy) {
-      memcpy(copy, s, size + 1);
-   }
-   return copy;
-}
-
-
-static char *skip_whitespace(char *s)
-{
-   while (*s && isspace(*s))
-      s++;
-
-   return s;
-}
-
-
 /* Function: al_config_create
  *  Create an empty configuration structure.
  */
@@ -75,7 +53,7 @@ ALLEGRO_CONFIG *al_config_create(void)
 
 
 static ALLEGRO_CONFIG_SECTION *find_section(const ALLEGRO_CONFIG *config,
-   const char *section)
+   const ALLEGRO_USTR section)
 {
    ALLEGRO_CONFIG_SECTION *p = config->head;
 
@@ -83,7 +61,7 @@ static ALLEGRO_CONFIG_SECTION *find_section(const ALLEGRO_CONFIG *config,
       return NULL;
 
    while (p != NULL) {
-      if (!strcmp(p->name, section))
+      if (al_ustr_equal(p->name, section))
          return p;
       p = p->next;
    }
@@ -93,12 +71,12 @@ static ALLEGRO_CONFIG_SECTION *find_section(const ALLEGRO_CONFIG *config,
 
 
 static ALLEGRO_CONFIG_ENTRY *find_entry(ALLEGRO_CONFIG_ENTRY *section_head,
-   const char *key)
+   const ALLEGRO_USTR key)
 {
    ALLEGRO_CONFIG_ENTRY *p = section_head;
 
    while (p != NULL) {
-      if (p->key && !strcmp(p->key, key)) {
+      if (!p->is_comment && al_ustr_equal(p->key, key)) {
          return p;
       }
       p = p->next;
@@ -108,67 +86,36 @@ static ALLEGRO_CONFIG_ENTRY *find_entry(ALLEGRO_CONFIG_ENTRY *section_head,
 }
 
 
-static void get_key_and_value(char *buf, char *key, char *value)
+static void get_key_and_value(const ALLEGRO_USTR buf,
+   ALLEGRO_USTR key, ALLEGRO_USTR value)
 {
-   char *p = skip_whitespace(buf);
-   int i;
+   int eq = al_ustr_find_chr(buf, 0, '=');
 
-   /* Error */
-   if (*p == 0) {
-      strcpy(key, "");
-      strcpy(value, "");
+   if (eq == -1) {
+      al_ustr_assign(key, buf);
+      al_ustr_assign_cstr(value, "");
    }
-
-   /* Read key */
-   for (i = 0; p[i] && i < MAXSIZE-1 && !isspace(p[i]) && p[i] != '='; i++) {
-      key[i] = p[i];
-   }
-   key[i] = 0;
-
-   /* Error */
-   if (!p[i]) {
-      strcpy(value, "");
-      return;
-   }
-
-   /* Skip past = */
-   if (p[i] == '=')
-      p += i+1;
    else {
-      p += i;
-      p = skip_whitespace(p);
-      /* Error */
-      if (*p != '=') {
-         strcpy(value, "");
-         return;
-      }
-      p++;
+      al_ustr_assign_substr(key, buf, 0, eq);
+      al_ustr_assign_substr(value, buf, eq + 1, al_ustr_size(buf));
    }
 
-   /* Read value, stripping leading and trailing whitespace */
-   p = skip_whitespace(p);
-   for (i = 0; p[i] && i < MAXSIZE-1 && p[i] != '\n'; i++) {
-      value[i] = p[i];
-   }
-   while (i > 0 && isspace(value[i-1]))
-      i--;
-   value[i] = 0;
+   al_ustr_trim_ws(key);
+   al_ustr_trim_ws(value);
 }
 
 
-/* Function: al_config_add_section
- *  Add a section to a configuration structure.
- */
-void al_config_add_section(ALLEGRO_CONFIG *config, const char *name)
+static ALLEGRO_CONFIG_SECTION *config_add_section(ALLEGRO_CONFIG *config,
+   const ALLEGRO_USTR name)
 {
    ALLEGRO_CONFIG_SECTION *sec = config->head;
    ALLEGRO_CONFIG_SECTION *section;
 
-   if (find_section(config, name))
-      return;
+   if ((section = find_section(config, name)))
+      return section;
 
    section = local_calloc1(sizeof(ALLEGRO_CONFIG_SECTION));
-   section->name = local_strdup(name);
+   section->name = al_ustr_dup(name);
 
    if (sec == NULL) {
       config->head = section;
@@ -177,6 +124,64 @@ void al_config_add_section(ALLEGRO_CONFIG *config, const char *name)
       while (sec->next != NULL)
          sec = sec->next;
       sec->next = section;
+   }
+
+   return section;
+}
+
+
+/* Function: al_config_add_section
+ *  Add a section to a configuration structure.
+ */
+void al_config_add_section(ALLEGRO_CONFIG *config, const char *name)
+{
+   ALLEGRO_USTR_INFO name_info;
+   ALLEGRO_USTR uname;
+
+   uname = al_ref_cstr(&name_info, name);
+   config_add_section(config, uname);
+}
+
+
+static void config_set_value(ALLEGRO_CONFIG *config,
+   const ALLEGRO_USTR section, const ALLEGRO_USTR key,
+   const ALLEGRO_USTR value)
+{
+   ALLEGRO_CONFIG_SECTION *s;
+   ALLEGRO_CONFIG_ENTRY *entry;
+
+   s = find_section(config, section);
+   if (s) {
+      entry = find_entry(s->head, key);
+   }
+   else {
+      entry = NULL;
+   }
+
+   if (entry) {
+      al_ustr_assign(entry->value, value);
+      al_ustr_trim_ws(entry->value);
+      return;
+   }
+
+   entry = local_calloc1(sizeof(ALLEGRO_CONFIG_ENTRY));
+   entry->is_comment = false;
+   entry->key = al_ustr_dup(key);
+   entry->value = al_ustr_dup(value);
+   al_ustr_trim_ws(entry->value);
+
+   if (!s) {
+      s = config_add_section(config, section);
+   }
+
+   if (s->head == NULL) {
+      s->head = entry;
+   }
+   else {
+      ALLEGRO_CONFIG_ENTRY *p = s->head;
+      while (p->next != NULL)
+         p = p->next;
+      p->next = entry;
    }
 }
 
@@ -190,8 +195,12 @@ void al_config_add_section(ALLEGRO_CONFIG *config, const char *name)
 void al_config_set_value(ALLEGRO_CONFIG *config,
    const char *section, const char *key, const char *value)
 {
-   ALLEGRO_CONFIG_SECTION *s;
-   ALLEGRO_CONFIG_ENTRY *entry;
+   ALLEGRO_USTR_INFO section_info;
+   ALLEGRO_USTR_INFO key_info;
+   ALLEGRO_USTR_INFO value_info;
+   ALLEGRO_USTR usection;
+   ALLEGRO_USTR ukey;
+   ALLEGRO_USTR uvalue;
 
    if (section == NULL) {
       section = "";
@@ -200,28 +209,33 @@ void al_config_set_value(ALLEGRO_CONFIG *config,
    ASSERT(key);
    ASSERT(value);
 
+   usection = al_ref_cstr(&section_info, section);
+   ukey = al_ref_cstr(&key_info, key);
+   uvalue = al_ref_cstr(&value_info, value);
+
+   config_set_value(config, usection, ukey, uvalue);
+}
+
+
+static void config_add_comment(ALLEGRO_CONFIG *config,
+   const ALLEGRO_USTR section, const ALLEGRO_USTR comment)
+{
+   ALLEGRO_CONFIG_SECTION *s;
+   ALLEGRO_CONFIG_ENTRY *entry;
+
    s = find_section(config, section);
-   if (s) {
-      entry = find_entry(s->head, key);
-   }
-   else {
-      entry = NULL;
-   }
 
-   if (entry) {
-      _AL_FREE(entry->value);
-      entry->value = local_strdup(value);
-      return;
-   }
-   
    entry = local_calloc1(sizeof(ALLEGRO_CONFIG_ENTRY));
+   entry->is_comment = true;
+   entry->key = al_ustr_dup(comment);
 
-   entry->key = local_strdup(key);
-   entry->value = local_strdup(value);
-   
+   /* Replace all newline characters by spaces, otherwise the written comment
+    * file will be corrupted.
+    */
+   al_ustr_find_replace_cstr(entry->key, 0, "\n", " ");
+
    if (!s) {
-      al_config_add_section(config, section);
-      s = find_section(config, section);
+      s = config_add_section(config, section);
    }
 
    if (s->head == NULL) {
@@ -244,8 +258,10 @@ void al_config_set_value(ALLEGRO_CONFIG *config,
 void al_config_add_comment(ALLEGRO_CONFIG *config,
    const char *section, const char *comment)
 {
-   ALLEGRO_CONFIG_SECTION *s;
-   ALLEGRO_CONFIG_ENTRY *entry;
+   ALLEGRO_USTR_INFO section_info;
+   ALLEGRO_USTR_INFO comment_info;
+   ALLEGRO_USTR usection;
+   ALLEGRO_USTR ucomment;
 
    if (section == NULL) {
       section = "";
@@ -253,26 +269,10 @@ void al_config_add_comment(ALLEGRO_CONFIG *config,
 
    ASSERT(comment);
 
-   s = find_section(config, section);
+   usection = al_ref_cstr(&section_info, section);
+   ucomment = al_ref_cstr(&comment_info, comment);
 
-   entry = local_calloc1(sizeof(ALLEGRO_CONFIG_ENTRY));
-
-   entry->comment = local_strdup(comment);
-   
-   if (!s) {
-      al_config_add_section(config, section);
-      s = find_section(config, section);
-   }
-
-   if (s->head == NULL) {
-      s->head = entry;
-   }
-   else {
-      ALLEGRO_CONFIG_ENTRY *p = s->head;
-      while (p->next != NULL)
-         p = p->next;
-      p->next = entry;
-   }
+   return config_add_comment(config, usection, ucomment);
 }
 
 
@@ -283,26 +283,47 @@ void al_config_add_comment(ALLEGRO_CONFIG *config,
  *  The section can be NULL or "" for the global section.
  *  Returns NULL if the section or key do not exist.
  */
-const char *al_config_get_value(const ALLEGRO_CONFIG *config,
-   const char *section, const char *key)
+static bool config_get_value(const ALLEGRO_CONFIG *config,
+   const ALLEGRO_USTR section, const ALLEGRO_USTR key,
+   ALLEGRO_USTR *ret_value)
 {
    ALLEGRO_CONFIG_SECTION *s;
    ALLEGRO_CONFIG_ENTRY *e;
+
+   s = find_section(config, section);
+   if (!s)
+      return false;
+   e = s->head;
+
+   e = find_entry(e, key);
+   if (!e)
+      return false;
+
+   *ret_value = e->value;
+   return true;
+}
+
+
+const char *al_config_get_value(const ALLEGRO_CONFIG *config,
+   const char *section, const char *key)
+{
+   ALLEGRO_USTR_INFO section_info;
+   ALLEGRO_USTR_INFO key_info;
+   ALLEGRO_USTR usection;
+   ALLEGRO_USTR ukey;
+   ALLEGRO_USTR value;
 
    if (section == NULL) {
       section = "";
    }
 
-   s = find_section(config, section);
-   if (!s)
-      return NULL;
-   e = s->head;
+   usection = al_ref_cstr(&section_info, section);
+   ukey = al_ref_cstr(&key_info, key);
 
-   e = find_entry(e, key);
-   if (!e)
+   if (config_get_value(config, usection, ukey, &value))
+      return al_cstr(value);
+   else
       return NULL;
-
-   return e->value;
 }
 
 
@@ -314,9 +335,12 @@ ALLEGRO_CONFIG *al_config_read(const char *filename)
 {
    ALLEGRO_CONFIG *config;
    ALLEGRO_CONFIG_SECTION *current_section = NULL;
-   char buffer[MAXSIZE], section[MAXSIZE], key[MAXSIZE], value[MAXSIZE];
+   char buffer[MAXSIZE];
+   ALLEGRO_USTR line;
+   ALLEGRO_USTR section;
+   ALLEGRO_USTR key;
+   ALLEGRO_USTR value;
    ALLEGRO_FS_ENTRY *file;
-   int i;
 
    file = al_fopen(filename, "r");
    if (!file) {
@@ -329,38 +353,103 @@ ALLEGRO_CONFIG *al_config_read(const char *filename)
       return NULL;
    }
 
+   line = al_ustr_new("");
+   section = al_ustr_new("");
+   key = al_ustr_new("");
+   value = al_ustr_new("");
+
    while (al_fgets(file, MAXSIZE, buffer)) {
-      char *ptr = skip_whitespace(buffer);
-      if (*ptr == '#' || *ptr == 0) {
-         /* Preserve comments */
-         const char *name = (current_section && current_section->name) ?
-            current_section->name : "";
-         const char *comment = (*ptr == 0) ? "\n" : ptr;
-         al_config_add_comment(config, name, comment);
+      al_ustr_assign_cstr(line, buffer);
+      al_ustr_trim_ws(line);
+
+      if (al_ustr_has_prefix_cstr(line, "#") || al_ustr_size(line) == 0) {
+         /* Preserve comments and blank lines */
+         ALLEGRO_USTR name;
+         if (current_section)
+            name = current_section->name;
+         else
+            name = al_ustr_empty_string();
+         config_add_comment(config, name, line);
       }
-      else if (*ptr == '[') {
-         strcpy(section, ptr+1);
-         for (i = strlen(section)-1; i >= 0; i--) {
-            if (section[i] == ']') {
-               section[i] = 0;
-               break;
-            }
-         }
-         al_config_add_section(config, section);
-         current_section = find_section(config, section);
+      else if (al_ustr_has_prefix_cstr(line, "[")) {
+         int rbracket = al_ustr_rfind_chr(line, al_ustr_size(line), ']');
+         if (rbracket == -1)
+            rbracket = al_ustr_size(line);
+         al_ustr_assign_substr(section, line, 1, rbracket);
+         current_section = config_add_section(config, section);
       }
       else {
-         get_key_and_value(buffer, key, value);
+         get_key_and_value(line, key, value);
          if (current_section == NULL)
-            al_config_set_value(config, "", key, value);
+            config_set_value(config, al_ustr_empty_string(), key, value);
          else
-            al_config_set_value(config, current_section->name, key, value);
+            config_set_value(config, current_section->name, key, value);
       }
    }
+
+   al_ustr_free(line);
+   al_ustr_free(section);
+   al_ustr_free(key);
+   al_ustr_free(value);
 
    al_fclose(file);
 
    return config;
+}
+
+
+static bool config_write_section(ALLEGRO_FS_ENTRY *file,
+   const ALLEGRO_CONFIG_SECTION *s)
+{
+   ALLEGRO_CONFIG_ENTRY *e;
+
+   if (al_ustr_size(s->name) > 0) {
+      if (al_fputc(file, '[') == EOF) {
+         return false;
+      }
+      if (al_fputs(file, al_cstr(s->name)) != 0) {
+         return false;
+      }
+      if (al_fputs(file, "]\n") != 0) {
+         return false;
+      }
+   }
+
+   e = s->head;
+   while (e != NULL) {
+      if (e->is_comment) {
+         if (al_ustr_size(e->key) > 0) {
+            if (!al_ustr_has_prefix_cstr(e->key, "#")) {
+               if (al_fputs(file, "# ")) {
+                  return false;
+               }
+            }
+            if (al_fputs(file, al_cstr(e->key))) {
+               return false;
+            }
+         }
+         if (al_fputs(file, "\n") != 0) {
+            return false;
+         }
+      }
+      else {
+         if (al_fputs(file, al_cstr(e->key)) != 0) {
+            return false;
+         }
+         if (al_fputs(file, "=") != 0) {
+            return false;
+         }
+         if (al_fputs(file, al_cstr(e->value)) != 0) {
+            return false;
+         }
+         if (al_fputs(file, "\n") != 0) {
+            return false;
+         }
+      }
+      e = e->next;
+   }
+
+   return true;
 }
 
 
@@ -371,7 +460,6 @@ ALLEGRO_CONFIG *al_config_read(const char *filename)
 int al_config_write(const ALLEGRO_CONFIG *config, const char *filename)
 {
    ALLEGRO_CONFIG_SECTION *s;
-   ALLEGRO_CONFIG_ENTRY *e;
    ALLEGRO_FS_ENTRY *file = al_fopen(filename, "w");
 
    if (!file) {
@@ -381,31 +469,9 @@ int al_config_write(const ALLEGRO_CONFIG *config, const char *filename)
    /* Save global section */
    s = config->head;
    while (s != NULL) {
-      if (strcmp(s->name, "") == 0) {
-         e = s->head;
-         while (e != NULL) {
-            if (e->comment != NULL) {
-               if (al_fputs(file, e->comment)) {
-                  goto Error;
-               }
-            }
-            else {
-               if (al_fputs(file, e->key) != 0) {
-                  goto Error;
-               }
-               if (al_fputs(file, "=") != 0) {
-                  goto Error;
-               }
-
-               if (al_fputs(file, e->value) != 0) {
-                  goto Error;
-               }
-
-               if (al_fputs(file, "\n") != 0) {
-                  goto Error;
-               }
-            }
-            e = e->next;
+      if (al_ustr_size(s->name) == 0) {
+         if (!config_write_section(file, s)) {
+            goto Error;
          }
          break;
       }
@@ -415,43 +481,9 @@ int al_config_write(const ALLEGRO_CONFIG *config, const char *filename)
    /* Save other sections */
    s = config->head;
    while (s != NULL) {
-      if (strcmp(s->name, "") != 0) {
-         if (al_fputc(file, '[') == EOF) {
+      if (al_ustr_size(s->name) > 0) {
+         if (!config_write_section(file, s)) {
             goto Error;
-         }
-         
-         if (al_fputs(file, s->name) != 0) {
-            goto Error;
-         }
-
-         if (al_fputs(file, "]\n") != 0) {
-            goto Error;
-         }
-         
-         e = s->head;
-         while (e != NULL) {
-            if (e->comment != NULL) {
-               if (al_fputs(file, e->comment)) {
-                  goto Error;
-               }
-            }
-            else {
-              if (al_fputs(file, e->key) != 0) {
-                  goto Error;
-               }
-               if (al_fputs(file, "=") != 0) {
-                  goto Error;
-               }
-
-               if (al_fputs(file, e->value) != 0) {
-                  goto Error;
-               }
-
-               if (al_fputs(file, "\n") != 0) {
-                  goto Error;
-               }
-            }
-            e = e->next;
          }
       }
       s = s->next;
@@ -493,15 +525,14 @@ void do_config_merge_into(ALLEGRO_CONFIG *master, const ALLEGRO_CONFIG *add,
    /* Save each section */
    s = add->head;
    while (s != NULL) {
-      al_config_add_section(master, s->name);
+      config_add_section(master, s->name);
       e = s->head;
       while (e != NULL) {
-         if (e->key) {
-            al_config_set_value(master, s->name, e->key, e->value);
+         if (!e->is_comment) {
+            config_set_value(master, s->name, e->key, e->value);
          }
          else if (merge_comments) {
-            ASSERT(e->comment);
-            al_config_add_comment(master, s->name, e->comment);
+            config_add_comment(master, s->name, e->key);
          }
          e = e->next;
       }
@@ -560,13 +591,12 @@ void al_config_destroy(ALLEGRO_CONFIG *config)
       e = s->head;
       while (e) {
          ALLEGRO_CONFIG_ENTRY *tmp = e->next;
-         _AL_FREE(e->key);
-         _AL_FREE(e->value);
-         _AL_FREE(e->comment);
+         al_ustr_free(e->key);
+         al_ustr_free(e->value);
          _AL_FREE(e);
          e = tmp;
       }
-      _AL_FREE(s->name);
+      al_ustr_free(s->name);
       _AL_FREE(s);
       s = tmp;
    }

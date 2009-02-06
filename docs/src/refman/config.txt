@@ -16,6 +16,9 @@ Add a comment in a section of a configuration.  If the section doesn't yet
 exist, it will be created.
 The section can be NULL or "" for the global section.
 
+The comment may or may not begin with a hash character.
+Any newlines in the comment string will be replaced by space characters.
+
 ## API: al_config_add_section
 
 Add a section to a configuration structure.
@@ -63,6 +66,11 @@ Set a value in a section of a configuration.  If the section doesn't yet
 exist, it will be created.  If a value already existed for the given key,
 it will be overwritten.
 The section can be NULL or "" for the global section.
+
+For consistency with the on-disk format of config files, any leading and
+trailing whitespace will be stripped from the value.  If you have significant
+whitespace you wish to preserve, you should add your own quote characters
+and remove them when reading the values back in.
 
 ## API: al_config_write
 
