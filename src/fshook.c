@@ -29,7 +29,7 @@
 struct ALLEGRO_FS_HOOK_SYS_INTERFACE  *_al_sys_fshooks = &_al_stdio_sys_fshooks;
 struct ALLEGRO_FS_HOOK_ENTRY_INTERFACE *_al_entry_fshooks = &_al_stdio_entry_fshooks;
 
-/* Function: al_create_handle
+/* Function: al_create_entry
  * Creates an <ALLEGRO_FS_ENTRY> object pointing to path.
  * 'path' can be a file or a directory and must not be NULL.
  */
@@ -254,9 +254,9 @@ ALLEGRO_FS_ENTRY *al_opendir(const char *path)
 /* Function: al_closedir
  * Closes a previously opened directory entry object.
  *
- * <al_fs_close_handle> is also a valid way to close any entry object.
+ * <al_close_entry> is also a valid way to close any entry object.
  *
- * Does not free the entry object if it was opened with <al_fs_opendir>.
+ * Does not free the entry object if it was opened with <al_opendir>.
  * XXX This is probably a bug.
  */
 bool al_closedir(ALLEGRO_FS_ENTRY *dir)
@@ -748,8 +748,8 @@ int16_t al_fwrite16le(ALLEGRO_FS_ENTRY *f, int16_t w)
    return EOF;
 }
 
-/* Function: al_fwrite16le
- * Writes a 16-bit word in little-endian format (LSB first).
+/* Function: al_fwrite32le
+ * Writes a 32-bit word in little-endian format (LSB first).
  *
  * Returns:
  * The written 32-bit word or EOF on error.

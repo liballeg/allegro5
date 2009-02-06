@@ -1,11 +1,13 @@
-# File system hooks
+% File system hooks
 
 ## API: ALLEGRO_FS_ENTRY
 
 Opaque filesystem entry object.
-Represents a file or a directory (check with [al_fs_entry_isdir]
-or [al_fs_entry_isfile]).
+Represents a file or a directory (check with [al_is_directory]
+or [al_is_file]).
 There are no user accessible member variables.
+
+# Enumerations
 
 ## API: ALLEGRO_FS_FILTER
 
@@ -80,309 +82,14 @@ know what it should do.
 * ALLEGRO_SEEK_CUR - Seek to pos from curent position
 * ALLEGRO_SEEK_END - Seek to pos from end of file
 
-## API: al_fs_add_search_path
+# Search Path Routines
+
+## API: al_add_search_path
 
 Adds a path to the list of directories to search for files when
 searching/opening files with a relative pathname.
 
-## API: al_fs_chdir
-
-Changes the current working directory to 'path'.
-
-Returns true on success, and false on error.
-Fills in errno to indicate the error.
-
-## API: al_fs_close_handle
-
-Closes fs entry.
-
-## API: al_fs_closedir
-
-Closes a previously opened directory entry object.
-
-[al_fs_close_handle] is also a valid way to close any entry object.
-
-Does not free the entry object if it was opened with [al_fs_opendir].
-XXX This is probably a bug.
-
-Returns true on succes, false on failure and fills in errno to indicate the error.
-
-## API: al_fs_create_handle
-
-Creates an [ALLEGRO_FS_ENTRY] object pointing to path.
-'path' can be a file or a directory and must not be NULL.
-
-## API: al_fs_destroy_handle
-
-Destroys a fs entry handle.
-Closes file if it was open.
-
-## API: al_fs_drive_sep
-
-Fills in 'sep' up to 'len' characters with the drive separator string.
-XXX return code?
-
-## API: al_fs_entry_atime
-
-Returns the time in seonds since the epoch since the entry was last
-accessed.
-
-Warning: some filesystem either don't support this flag, or people turn it
-off to increase performance.
-It may not be valid in all circumstances.
-
-## API: al_fs_entry_close
-
-Closes the given file entry object.
-Will destroy the handle if it was opened with al_fs_entry_open.
-
-If you do not wish the entry object destroyed, use al_fs_close_handle instead.
-
-## API: al_fs_entry_ctime
-
-Returns the time in seconds since the epoch this entry was created on the
-filsystem.
-
-## API: al_fs_entry_eof
-
-Returns true if we have an end of file condition.
-
-## API: al_fs_entry_error
-
-Returns true if there was some sort of previous error.
-
-## API: al_fs_entry_exists
-
-Check if the given entry exists on disk.
-Returns true if it does exist or false if it doesn't exist, or an error occured.
-Error is indicated in errno.
-
-See also: [al_get_errno]
-
-## API: al_fs_entry_fgets
-
-Reads a string of bytes terminated with a newline (\\r,\\n,\\r\\n).
-
-Parameters:
-
-* p - buffer to fill
-* max - maximum size of buffer
-* f - entry to read from
-
-Returns:
-p
-
-## API: al_fs_entry_flush
-
-Flush any pending writes to 'fp' to disk.
-
-Returns true on success, false otherwise, and errno is set to indicate the error.
-
-See also: [al_get_errno]
-
-## API: al_fs_entry_fputs
-
-Writes a string to file.
-
-Parameters:
-
-* p - string to write
-* f - file handle to write to
-
-Returns:
-0 on success or -1 on error
-
-Note:
-Function converts string to UTF8 before writing.
-
-## API: al_fs_entry_getc
-
-Read and return next byte in entry 'f'.
-Returns EOF on end of file, and 0 on other errors
-(XXX this is probably a bug)
-
-## API: al_fs_entry_igetl
-
-Reads a 32-bit word in little-endian format (LSB first).
-
-Returns:
-The read 32-bit word or EOF on error.
-
-## API: al_fs_entry_igetw
-
-Reads a 16-bit word in little-endian format (LSB first).
-
-Returns:
-The read 16-bit word or EOF on error
-
-## API: al_fs_entry_iputl
-
-Writes a 16-bit word in little-endian format (LSB first).
-
-Returns:
-The written 32-bit word or EOF on error.
-
-## API: al_fs_entry_iputw
-
-Writes a 16-bit word in little-endian format (LSB first).
-
-Returns:
-The written 16-bit word or EOF on error.
-
-## API: al_fs_entry_isdir
-
-Return true iff this entry is a directory.
-
-## API: al_fs_entry_isfile
-
-Return true iff this entry is a regular file.
-
-## API: al_fs_entry_mgetl
-
-Writes a 32-bit word in big-endian format (MSB first).
-
-Returns:
-written 32-bit word or EOF on error
-
-## API: al_fs_entry_mgetw
-
-Reads a 16-bit word in big-endian format (MSB first).
-
-Returns:
-The read 16-bit word or EOF on error.
-
-## API: al_fs_entry_mode
-
-Returns the entry's mode flags.
-
-See the [ALLEGRO_FS_MODE] enum for valid flags.
-
-## API: al_fs_entry_mputl
-
-Writes a 32-bit word in big-endian format (MSB first).
-
-Returns:
-The written 32-bit word or EOF on error.
-
-## API: al_fs_entry_mputw
-
-Writes a 16-bit word in big-endian format (MSB first).
-
-Returns:
-written 16-bit word or EOF on error
-
-## API: al_fs_entry_mtime
-
-Returns the time in seconds since the epoch since the entry was last
-modified.
-
-## API: al_fs_entry_name
-
-Fills in buf up to size bytes including trailing NULL char with the entry's name
-
-Returns true on success, and false on error.
-
-errno is set to indicate the error.
-
-If buf isn't large enough, errno will be set to ERANGE
-
-## API: al_fs_entry_open
-
-Creates and opens an ALLEGRO_FS_ENTRY object given path and mode.
-
-'path' - the path to open
-
-'mode' - mode to open the entry in ("r", "w", etc.)
-
-## API: al_fs_entry_putc
-
-Write a single byte to entry.
-
-Parameters:
-c - byte value to write
-f - entry to write to
-
-Returns:
-EOF on error
-
-## API: al_fs_entry_read
-
-Read 'size' bytes into 'ptr' from entry 'fp'
-
-Return number of bytes actually read.
-
-## API: al_fs_entry_seek
-
-Seek to 'offset' in file based on 'whence'.
-
-'whence' can be:
-
-* ALLEGRO_SEEK_SET - Seek from beggining of file
-* ALLEGRO_SEEK_CUR - Seek from current position
-* ALLEGRO_SEEK_END - Seek from end of file
-
-Returns true on success, false on failure and errno is set to indicate the error.
-
-On some platforms this function may not support large files.
-
-See also: [al_get_errno]
-
-## API: al_fs_entry_size
-
-Returns the size, in bytes, of the given entry.
-
-## API: al_fs_entry_stat
-
-Updates stat info for entry 'fp'.
-
-Returns true on success, false on failure.
-Fills in errno to indicate the error.
-
-See also [al_get_errno] [al_fs_entry_atime] [al_fs_entry_ctime] [al_fs_entry_isdir]
-[al_fs_entry_isfile] [al_fs_entry_mode]
-
-## API: al_fs_entry_tell
-
-Returns the current position in file, or -1 on error.
-errno is set to indicate the error.
-
-On some platforms this function may not support large files.
-
-See also: [al_get_errno]
-
-## API: al_fs_entry_ungetc
-
-Ungets a single byte from a file. Does not write to file, it only places the
-char back into the entry's buffer.
-
-## API: al_fs_entry_unlink
-
-"Unlink" or delete this file on disk.
-
-Returns true on success, and false on failure, error is indicated in errno.
-
-See also [al_get_errno]
-
-## API: al_fs_entry_write
-
-Write 'size' bytes from 'ptr' into file 'fp'
-
-Return number of bytes actually written or 0 on error.
-
-Does not distinguish between EOF and other errors.
-Use [al_fs_entry_eof] and [al_fs_entry_error]
-to tell them apart.
-
-## API: al_fs_exists
-
-Returns true iff entry exists on disk, false iff it doesn't, or on error.
-
-Error is indicated by errno.
-
-See Also:
-[al_get_errno] [al_fs_entry_exists]
-
-## API: al_fs_get_search_path
+## API: al_get_search_path
 
 Fills in 'dest' up to 'len' bytes with the 'idx'th search path item.
 
@@ -401,34 +108,38 @@ Possible Errors:
 
 See also: [al_get_errno]
 
-## API: al_fs_getcwd
+## API: al_search_path_count
 
-Fill in 'buf' up to 'len' characters with the current working directory.
+Returns the number of items in the search path list.
 
-Returns true on success, false on failure.
+# File Manipulation
 
-errno is filled in to indicate the error.
+## API: al_create_entry
 
-Possible Errors:
-* ERANGE - buffer is not large enough
+Creates an [ALLEGRO_FS_ENTRY] object pointing to path.
+'path' can be a file or a directory and must not be NULL.
 
-See also: [al_get_errno]
+## API: al_destroy_entry
 
-## API: al_fs_isdir
+Destroys a fs entry handle.
+Closes file if it was open.
 
-Return true iff 'path' is a directory.
+## API: al_close_entry
 
-See Also:
-[al_fs_entry_isdir]
+Closes fs entry.
 
-## API: al_fs_isfile
+## API: al_closedir
 
-Return true iff 'path' is a file.
+Closes a previously opened directory entry object.
 
-See Also:
-[al_fs_entry_isfile]
+[al_close_entry] is also a valid way to close any entry object.
 
-## API: al_fs_mkdir
+Does not free the entry object if it was opened with [al_opendir].
+XXX This is probably a bug.
+
+Returns true on succes, false on failure and fills in errno to indicate the error.
+
+## API: al_mkdir
 
 Creates a new directory on disk given the path 'path'.
 
@@ -436,7 +147,7 @@ Returns false on error and fills in errno to indicate the error.
 
 See also: [al_get_errno]
 
-## API: al_fs_mktemp
+## API: al_mktemp
 
 Make a temporary randomly named file given a filename 'template' and 'ulink'
 flags.
@@ -451,7 +162,7 @@ alphanumeric chars.
 * ALLEGRO_FS_MKTEMP_UNLINK_ON_CLOSE - unlink when entry is closed
 * ALLEGRO_FS_MKTEMP_UNLINK_NEVER - don't unlink
 
-## API: al_fs_open_handle
+## API: al_open_entry
 
 Opens handle with mode 'mode'.
 mode is a stdio type mode, ie: "r", "w", etc
@@ -460,28 +171,13 @@ Returns true on success, false on failure and fills in errno to indicate the err
 
 See also: [al_get_errno]
 
-## API: al_fs_opendir
+## API: al_opendir
 
 Creates and opens a filesystem entry object for a directory.
 
 Returns NULL on error.
 
-## API: al_fs_path_sep
-
-Fills in 'sep' up to 'len' characters with the path separator string.
-XXX return code?
-
-## API: al_fs_path_to_sys
-
-Converts path 'orig' to system dependant format.
-XXX return code?
-
-## API: al_fs_path_to_uni
-
-Converts path 'orig' to 'allegro' format.
-XXX return code?
-
-## API: al_fs_readdir
+## API: al_readdir
 
 Reads the next dir item name into 'name' buffer, up to 'size' chars.
 
@@ -490,46 +186,13 @@ XXX and how do users know if that's the case?
 
 Returns non zero on error.
 
-## API: al_fs_search_path_count
+## API: al_unlink_entry
 
-Returns the number of items in the search path list.
+"Unlink" or delete this file on disk.
 
-## API: al_fs_stat_atime
+Returns true on success, and false on failure, error is indicated in errno.
 
-Returns last access time for fs entry 'path'.
-
-See Also:
-[al_fs_entry_atime]
-
-## API: al_fs_stat_ctime
-
-Returns creation time for fs entry 'path'.
-
-See Also:
-[al_fs_entry_ctime]
-
-## API: al_fs_stat_mode
-
-Returns stat 'mode' for fs entry 'path'.
-
-See Also:
-[ALLEGRO_FS_MODE]
-
-## API: al_fs_stat_mtime
-
-Returns last modification time for fs entry 'path'.
-
-See Also:
-[al_fs_entry_mtime]
-
-## API: al_fs_stat_size
-
-Returns file size for fs entry 'path'.
-
-See Also:
-[al_fs_entry_size]
-
-## API: al_fs_unlink
+## API: al_unlink_str
 
 Unlink 'path' entry from disk.
 
@@ -538,5 +201,352 @@ Returns true on success, and false on failure.
 errno is filled in to indicate the error.
 
 See Also:
-[al_fs_entry_unlink]
+[al_unlink_entry]
+
+## API: al_fstat
+
+Updates stat info for entry 'fp'.
+
+Returns true on success, false on failure.
+Fills in errno to indicate the error.
+
+See also [al_get_errno] [al_get_entry_atime] [al_get_entry_ctime] [al_is_directory]
+[al_is_file] [al_get_entry_mode]
+
+# File Properties
+
+## API: al_is_present
+
+Check if the given entry exists on disk.
+Returns true if it does exist or false if it doesn't exist, or an error occured.
+Error is indicated in errno.
+
+## API: al_is_present_str
+
+Check if entry 'path' exists on disk.
+
+See Also:
+[al_is_present]
+
+## API: al_is_file
+
+Return true iff this entry is a regular file.
+
+## API: al_is_file_str
+
+Return true if 'path' is a file.
+
+See Also:
+[al_is_file]
+
+## API: al_is_directory
+
+Return true iff this entry is a directory.
+
+## API: al_is_directory_str
+
+Return true if 'path' is a directory.
+
+See Also:
+[al_is_directory]
+
+## API: al_get_entry_mode
+
+Returns the entry's mode flags.
+
+See also: [al_get_errno]
+
+See the [ALLEGRO_FS_MODE] enum for valid flags.
+
+## API: al_get_entry_mode_str
+
+Returns stat 'mode' for fs entry 'path'.
+
+See Also:
+[ALLEGRO_FS_MODE]
+
+## API: al_get_entry_atime
+
+Returns the time in seonds since the epoch since the entry was last
+accessed.
+
+Warning: some filesystem either don't support this flag, or people turn it
+off to increase performance.
+It may not be valid in all circumstances.
+
+## API: al_get_entry_atime_str
+
+Returns last access time for fs entry 'path'.
+
+See Also:
+[al_get_entry_atime]
+
+## API: al_get_entry_ctime
+
+Returns the time in seconds since the epoch this entry was created on the
+filsystem.
+
+## API: al_get_entry_ctime_str
+
+Returns creation time for fs entry 'path'.
+
+See Also:
+[al_get_entry_ctime]
+
+## API: al_get_entry_mtime
+
+Returns the time in seconds since the epoch since the entry was last
+modified.
+
+## API: al_get_entry_mtime_str
+
+Returns last modification time for fs entry 'path'.
+
+See Also:
+[al_get_entry_mtime]
+
+## API: al_get_entry_name
+
+Fills in buf up to size bytes including trailing NULL char with the entry's name
+
+Returns true on success, and false on error.
+
+errno is set to indicate the error.
+
+If buf isn't large enough, errno will be set to ERANGE
+
+## API: al_get_entry_size
+
+Returns the size, in bytes, of the given entry.
+
+## API: al_get_entry_size_str
+
+Returns file size for fs entry 'path'.
+
+See Also:
+[al_get_entry_size]
+
+# File I/O
+
+## API: al_fopen
+
+Creates and opens an ALLEGRO_FS_ENTRY object given path and mode.
+
+'path' - the path to open
+
+'mode' - mode to open the entry in ("r", "w", etc.)
+
+## API: al_fclose
+
+Closes the given file entry object.
+Will destroy the handle if it was opened with al_fopen.
+
+If you do not wish the entry object destroyed, use [al_close_entry] instead.
+
+## API: al_feof
+
+Returns true if we have an end of file condition.
+
+## API: al_ferror
+
+Returns true if there was some sort of previous error.
+
+## API: al_fgets
+
+Reads a string of bytes terminated with a newline (\\r,\\n,\\r\\n).
+
+Parameters:
+
+* p - buffer to fill
+* max - maximum size of buffer
+* f - entry to read from
+
+Returns:
+p
+
+## API: al_fputs
+
+Writes a string to file.
+
+Parameters:
+
+* p - string to write
+* f - file handle to write to
+
+Returns:
+0 on success or -1 on error
+
+Note:
+Function converts string to UTF8 before writing.
+
+## API: al_fflush
+
+Flush any pending writes to 'fp' to disk.
+
+Returns true on success, false otherwise, and errno is set to indicate the error.
+
+See also: [al_get_errno]
+
+## API: al_fgetc
+
+Read and return next byte in entry 'f'.
+Returns EOF on end of file, and 0 on other errors
+(XXX this is probably a bug)
+
+## API: al_fputc
+
+Write a single byte to entry.
+
+Parameters:
+c - byte value to write
+f - entry to write to
+
+Returns:
+EOF on error
+
+## API: al_fungetc
+
+Ungets a single byte from a file. Does not write to file, it only places the
+char back into the entry's buffer.
+
+See also [al_get_errno]
+
+## API: al_fread32le
+
+Reads a 32-bit word in little-endian format (LSB first).
+
+Returns:
+The read 32-bit word or EOF on error.
+
+## API: al_fwrite32le
+
+Writes a 32-bit word in little-endian format (LSB first).
+
+Returns:
+The written 32-bit word or EOF on error.
+
+## API: al_fread16le
+
+Reads a 16-bit word in little-endian format (LSB first).
+
+Returns:
+The read 16-bit word or EOF on error
+
+## API: al_fwrite16le
+
+Writes a 16-bit word in little-endian format (LSB first).
+
+Returns:
+The written 16-bit word or EOF on error.
+
+## API: al_fread32be
+
+Read a 32-bit word in big-endian format (MSB first).
+
+Returns:
+The read 32-bit word or EOF on error
+
+## API: al_fwrite32be
+
+Writes a 32-bit word in big-endian format (MSB first).
+
+Returns:
+The written 32-bit word or EOF on error.
+
+## API: al_fread16be
+
+Reads a 16-bit word in big-endian format (MSB first).
+
+Returns:
+The read 16-bit word or EOF on error.
+
+## API: al_fwrite16be
+
+Writes a 16-bit word in big-endian format (MSB first).
+
+Returns:
+The written 16-bit word or EOF on error
+
+## API: al_fread
+
+Read 'size' bytes into 'ptr' from entry 'fp'
+
+Return number of bytes actually read.
+
+## API: al_fwrite
+
+Write 'size' bytes from 'ptr' into file 'fp'
+
+Return number of bytes actually written or 0 on error.
+
+Does not distinguish between EOF and other errors.
+Use [al_feof] and [al_ferror]
+to tell them apart.
+
+## API: al_fseek
+
+Seek to 'offset' in file based on 'whence'.
+
+'whence' can be:
+
+* ALLEGRO_SEEK_SET - Seek from beggining of file
+* ALLEGRO_SEEK_CUR - Seek from current position
+* ALLEGRO_SEEK_END - Seek from end of file
+
+Returns true on success, false on failure and errno is set to indicate the error.
+
+On some platforms this function may not support large files.
+
+See also: [al_get_errno]
+
+## API: al_ftell
+
+Returns the current position in file, or -1 on error.
+errno is set to indicate the error.
+
+On some platforms this function may not support large files.
+
+See also: [al_get_errno]
+
+# Other
+
+## API: al_getcwd
+
+Fill in 'buf' up to 'len' characters with the current working directory.
+
+Returns true on success, false on failure.
+
+errno is filled in to indicate the error.
+
+Possible Errors:
+* ERANGE - buffer is not large enough
+
+See also: [al_get_errno]
+
+## API: al_chdir
+
+Changes the current working directory to 'path'.
+
+Returns -1 on error.
+
+## API: al_path_to_sys
+
+Converts path 'orig' to system dependant format.
+XXX return code?
+
+## API: al_path_to_uni
+
+Converts path 'orig' to 'allegro' format.
+XXX return code?
+
+## API: al_path_sep
+
+Fills in 'sep' up to 'len' characters with the path separator string.
+XXX return code?
+
+## API: al_drive_sep
+
+Fills in 'sep' up to 'len' characters with the drive separator string.
+XXX return code?
+
 
