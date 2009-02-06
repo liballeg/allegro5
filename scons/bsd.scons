@@ -1,7 +1,0 @@
-import os
-
-Import( 'addFiles', 'addExtra' )
-
-env = SConscript( 'unix.scons', exports = [ 'addFiles', 'addExtra' ] )
-
-Return( 'env' )
