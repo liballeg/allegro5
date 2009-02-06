@@ -309,6 +309,7 @@ set(ALLEGRO_INCLUDE_ALLEGRO_FILES
     include/allegro5/tls.h
     include/allegro5/timer.h
     include/allegro5/unicode.h
+    include/allegro5/utf8.h
     )
 
 set(ALLEGRO_INCLUDE_ALLEGRO_INLINE_FILES
