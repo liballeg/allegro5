@@ -300,6 +300,7 @@ static int32_t _al_path_init(ALLEGRO_PATH *path, const char *str)
       path->segment = _split_path(part_path, &(path->segment_count));
       if (!path->segment)
          goto _path_init_fatal;
+      _AL_FREE(part_path);
    }
 
    return 1;
