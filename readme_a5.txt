@@ -53,8 +53,6 @@ problem since OpenAL should be installed by default.
 Compilation
 ===========
 
-We provide two build systems, *CMake* and *scons*.
-
 You will need CMake 2.6 or later.
 
 
@@ -96,7 +94,7 @@ Examples: (you only need one)
 
 	$ cmake ..
 
-	$ cmake .. -G "MinGW Makefiles" -DSTATIC=off
+	$ cmake .. -G "MinGW Makefiles" -DSHARED=off
 
 	$ cmake .. -DCMAKE_BUILD_TYPE=Debug
 
@@ -176,51 +174,6 @@ runtime.  It's really useful.
 
 
 
-Scons
------
-
-Scons uses more sophisticated dependency tracking than make, for example it
-does not use timestamps, and in general will always know what to rebuild even
-if files are added/removed/renamed, options are changed, or even external
-dependencies are changed.
-
-You should use scons 1.0.0 or above.
-
-See the Allegro wiki for more info on the scons build system:
-<http://wiki.allegro.cc/Scons>
-
-To compile Allegro, simply type this inside the allegro directory:
-
-	$ scons
-
-To install, run (as root):
-
-	$ scons install
-
-To build different types of libraries, use different targets
-
-Example:
-
-	$ scons all # normal shared, non-debug
-	$ scons all-static
-	$ scons all-debug
-	$ scons all-static-debug
-	$ scons all-profile
-
-To build all the versions at once
-	
-	$ scons everything
-
-To install as a non-root user, you can do:
-
-	$ scons install install=/home/myuser/mydirectory
-
-To install all versions at once
-
-	$ scons install-everything
-
-
-
 Optional dependencies
 =====================
 
@@ -262,13 +215,14 @@ Or symlink the data directory into the build directory:
 API documentation
 =================
 
-The documentation is all linked to from the wiki:
-<http://wiki.allegro.cc/NewAPI>
+To build the documentation you will need Pandoc, and to run the build in a
+POSIXy environment, i.e. containing sh, awk, sed, etc.  MSYS works on Windows.
 
-If you have NaturalDocs installed you can build the documentation by
-running `make` in the `docs/naturaldocs` directory. You need at least
-version 1.4 of NaturalDocs.
+Pandoc's home page is <http://johnmacfarlane.net/pandoc/>
 
-There is also the `docs/src/refman` directory, which doesn't contain
-much yet.
+HTML and man page documentation will be built by default, but Info and PDF
+(through pdfLaTeX) can also be selected from the CMake options.
+
+Online documentation is available on the Allegro web site:
+<http://docs.liballeg.org/>
 
