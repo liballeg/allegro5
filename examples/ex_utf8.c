@@ -1062,7 +1062,7 @@ void t48(void)
    CHECK(! al_ustr_has_suffix_cstr(us1, "Thú mỏ vịt."));
 }
 
-/* Test al_ustr_find_replace. */
+/* Test al_ustr_find_replace, al_ustr_find_replace_cstr. */
 void t49(void)
 {
    ALLEGRO_USTR us;
@@ -1084,10 +1084,13 @@ void t49(void)
    CHECK(al_ustr_find_replace(us, 14, find, repl));
    CHECK(0 == strcmp(al_cstr(us), "aábddeefghiíAÁbddeefghií"));
 
+   CHECK(al_ustr_find_replace_cstr(us, 0, "dd", "đ"));
+   CHECK(0 == strcmp(al_cstr(us), "aábđeefghiíAÁbđeefghií"));
+
    /* Not allowed */
    find = al_ustr_empty_string();
    CHECK(! al_ustr_find_replace(us, 0, find, repl));
-   CHECK(0 == strcmp(al_cstr(us), "aábddeefghiíAÁbddeefghií"));
+   CHECK(0 == strcmp(al_cstr(us), "aábđeefghiíAÁbđeefghií"));
 
    al_ustr_free(us);
 }

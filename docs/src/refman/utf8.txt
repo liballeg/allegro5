@@ -427,6 +427,10 @@ Replace all occurrences of `find` in `us` with `replace`, beginning at
 `start_pos`.  The `find` string must be non-empty.
 Returns true on success, false on error.
 
+## API: al_ustr_find_replace_cstr
+
+Like [al_ustr_find_replace] but takes C-style strings for `find` and `replace`.
+
 
 # Comparing
 

@@ -841,6 +841,20 @@ bool al_ustr_find_replace(ALLEGRO_USTR us, int start_pos,
 }
 
 
+/* Function: al_ustr_find_replace_cstr
+ */
+bool al_ustr_find_replace_cstr(ALLEGRO_USTR us, int start_pos,
+   const char *find, const char *replace)
+{
+   ALLEGRO_USTR_INFO find_info;
+   ALLEGRO_USTR_INFO repl_info;
+   ALLEGRO_USTR find_us = al_ref_cstr(&find_info, find);
+   ALLEGRO_USTR repl_us = al_ref_cstr(&repl_info, replace);
+
+   return al_ustr_find_replace(us, start_pos, find_us, repl_us);
+}
+
+
 /* Function: al_ustr_equal
  */
 bool al_ustr_equal(const ALLEGRO_USTR us1, const ALLEGRO_USTR us2)

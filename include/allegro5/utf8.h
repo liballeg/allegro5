@@ -13,7 +13,7 @@ typedef struct ALLEGRO_USTR ALLEGRO_USTR;
 
 /* Type: ALLEGRO_USTR_INFO
  */
-typedef const struct ALLEGRO_USTR_INFO ALLEGRO_USTR_INFO;
+typedef struct ALLEGRO_USTR_INFO ALLEGRO_USTR_INFO;
 
 struct ALLEGRO_USTR {
    struct _al_tagbstring *b;  /* internal */
@@ -116,6 +116,8 @@ AL_FUNC(int, al_ustr_rfind_cstr, (const ALLEGRO_USTR haystack, int start_pos,
       const char *needle));
 AL_FUNC(bool, al_ustr_find_replace, (ALLEGRO_USTR us, int start_pos,
       const ALLEGRO_USTR find, const ALLEGRO_USTR replace));
+AL_FUNC(bool, al_ustr_find_replace_cstr, (ALLEGRO_USTR us, int start_pos,
+      const char *find, const char *replace));
 
 /* Compare */
 AL_FUNC(bool, al_ustr_equal, (const ALLEGRO_USTR us1, const ALLEGRO_USTR us2));
