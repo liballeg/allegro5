@@ -796,7 +796,7 @@ bool al_path_set_extension(ALLEGRO_PATH *path, char const *extension)
       name_size = ustrsizez(path->filename);
       new_esize = ustrlen(extension);
       if (ext) {
-         old_esize = ustrlen(ext);
+         old_esize = ustrlen(ext + 1);
          ustrcpy(ext, ""); /* Remove the old extension. */
       }
       else {
