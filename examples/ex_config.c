@@ -33,6 +33,8 @@ int main(void)
 
    al_config_write(cfg, "test.cfg");
 
+   al_config_destroy(cfg);
+
    return 0;
 }
 END_OF_MAIN()
