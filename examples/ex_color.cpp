@@ -38,6 +38,7 @@ Prog::Prog(const Theme & theme, ALLEGRO_DISPLAY *display) :
       labels[i].set_text(names[i]);
       d.add(labels[i], i * 32 + j * 16, 8 + 256, 32, 20);
       d.add(labels2[i], i * 32 + j * 16, 8 + 276, 32, 20);
+      previous[i] = 0;
    }
 }
 
