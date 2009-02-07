@@ -4,6 +4,134 @@ See `changes._tx` for changes in earlier versions of Allegro.  These lists
 serve as summaries; the full histories are in the Subversion repository.
 
 
+Changes from 4.9.7.1 to 4.9.8 (February 2009)
+=============================================
+
+The main developers this time were: Thomas Fjellstrom, Trent Gamblin,
+Evert Glebbeek, Matthew Leverton, Milan Mimica, Elias Pschernig, Paul Suntsov,
+Peter Wang.
+
+General:
+
+-  Lots of bug fixes.
+
+File system hooks:
+
+-  Rationalised file system hook functions.  Failure reasons can be retrieved
+   with al_get_errno().
+
+-  Enable large file support on 32-bit systems.
+
+-  Converted the library and addons to use file system hook functions.
+
+Path functions:
+
+-  Added al_path_clone(), al_path_make_canonical(), al_path_make_absolute(),
+   al_path_set\_extension(), al\_{get,set}\_orgname, al\_{get,set}_appname}
+   functions.
+
+-  Made al_path_get_extension() not include the leading "." of the extension,
+
+-  Add AL_EXENAME_PATH, AL_USER_SETTINGS_PATH, AL_SYSTEM_SETTINGS_PATH enums
+   for al_get_path().
+
+String routines:
+
+-  Added a new, dynamically allocating UTF-8 string API.  This uses bstrlib
+   internally, which is distributed under a BSD licence.  Allegro 5 will
+   expect all strings to be either ASCII compatible, or in UTF-8 encoding.
+
+-  Removed many old Unicode string functions. (Eventually they will all be
+   removed.)
+
+Config routines:
+
+-  Clarified behaviour of al_config_add_comment, al_config_set_value with
+   regards to whitespace and leading comment marks.
+
+Graphics:
+
+-  Bug fixes on Windows and Mac OS X for resizing, switching away, setting full
+   screens, multi-monitor, etc.
+
+-  Added an al_get_opengl_texture() convenience function.
+
+-  Added separate alpha blending.
+
+-  Added ALLEGRO_PIXEL_FORMAT_ANY.
+
+-  Honour al_set_new_window_position() in X11 port.
+
+-  Made the X11 port fail to set a full screen mode if the requested resolution
+   cannot be set rather than falling back to a windowed mode.
+
+Input:
+
+-  Added a field to the mouse state struct to indicate the display the mouse is
+   currently on.
+
+-  Made DirectX enumerate all joysticks/gamepads properly by using a device
+   type new to DirectInput 8.
+
+-  Fixed a bug in wmouse.c where y was not changed in al_set_mouse_xy.
+
+-  Support ALLEGRO_EVENT_MOUSE_ENTER/LEAVE_DISPLAY events in Windows.
+
+Addons:
+
+-  Added a primitives addon.
+
+-  Revamp interface for kcm_audio addon to make simple cases easier.
+
+-  Added native .wav support and save sample routines to acodec addon.
+
+-  Added a colors addon.
+
+-  Added memory file addon and example.
+
+TTF addon:
+
+-  Added al_ttf_get_text_dimensions() function.
+
+-  Allow specifying the font size more precisely by passing a negative font
+   size.
+
+-  Guess the filenames of kerning info for Type1 fonts.
+
+Documentation:
+
+-  Added a new documentation system using Pandoc.  Now we can generate HTML,
+   man, Info and PDF formats.
+
+-  Added and fixed lots of documentation.
+
+Examples:
+
+-  Added ex_prim, ex_mouse_focus examples.
+
+-  Made ex_blend2 more comprehensive.
+
+-  Updated ex_get_path example.
+
+-  Made ex_ttf accept the TTF file name on the command line.
+
+Build system:
+
+-  Use official CMAKE_BUILD_TYPE method of selecting which build configuration.
+   This should work better for non-make builds, however, it's no longer
+   possible to build multiple configurations with a single configuration step
+   as we could previously.
+
+Removals:
+
+-  Remove outdated A4 tools.
+
+-  Remove icodec addon.
+
+-  SCons build was unmaintained and not working.
+
+
+
 Changes from 4.9.7 to 4.9.7.1 (December 2008)
 =============================================
 
