@@ -14,6 +14,10 @@
 #include <stdarg.h>
 #include <stdio.h>
 
+#ifdef ALLEGRO_MSVC
+   #pragma warning (disable: 4066)
+#endif
+
 typedef void (*test_t)(void);
 
 int error = 0;

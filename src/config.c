@@ -272,7 +272,7 @@ void al_config_add_comment(ALLEGRO_CONFIG *config,
    usection = al_ref_cstr(&section_info, section);
    ucomment = al_ref_cstr(&comment_info, comment);
 
-   return config_add_comment(config, usection, ucomment);
+   config_add_comment(config, usection, ucomment);
 }
 
 
