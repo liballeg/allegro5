@@ -467,7 +467,6 @@ bool al_ustr_appendf(ALLEGRO_USTR us, const char *fmt, ...)
  */
 bool al_ustr_vappendf(ALLEGRO_USTR us, const char *fmt, const va_list ap)
 {
-   va_list arglist;
    int sz;
    int rc;
 
@@ -479,10 +478,7 @@ bool al_ustr_vappendf(ALLEGRO_USTR us, const char *fmt, const va_list ap)
 #endif
 
    for (;;) {
-      va_copy(arglist, ap);
-      rc = _al_bvcformata(us.b, sz, fmt, arglist);
-      va_end(arglist);
-
+      rc = _al_bvcformata(us.b, sz, fmt, ap);
       if (rc >= 0) {
          return true;
       }
