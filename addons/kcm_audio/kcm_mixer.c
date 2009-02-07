@@ -654,9 +654,9 @@ void al_destroy_mixer(ALLEGRO_MIXER *mixer)
 }
 
 
+/* This function is ALLEGRO_MIXER aware */
 /* Function: al_attach_sample_to_mixer
  */
-/* This function is ALLEGRO_MIXER aware */
 int al_attach_sample_to_mixer(ALLEGRO_MIXER *mixer, ALLEGRO_SAMPLE_INSTANCE *spl)
 {
    ALLEGRO_SAMPLE_INSTANCE **slot;

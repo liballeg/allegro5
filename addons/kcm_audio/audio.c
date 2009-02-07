@@ -138,9 +138,6 @@ static int do_install_audio(ALLEGRO_AUDIO_DRIVER_ENUM mode)
          retVal = al_install_audio(ALLEGRO_AUDIO_DRIVER_OSS);
          if (retVal == 0)
             return 0;
-         /* Disfavour the OpenAL driver as it doesn't play stereo samples
-          * with their stereo separation.
-          */
          retVal = al_install_audio(ALLEGRO_AUDIO_DRIVER_OPENAL);
          if (retVal == 0)
             return 0;

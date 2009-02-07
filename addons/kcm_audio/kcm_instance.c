@@ -127,6 +127,7 @@ void _al_kcm_detach_from_parent(ALLEGRO_SAMPLE_INSTANCE *spl)
    }
 }
 
+
 /* Function: al_create_sample_instance
  *  Creates a sample stream, using the supplied data.  This must be attached
  *  to a voice or mixer before it can be played.
@@ -169,6 +170,7 @@ ALLEGRO_SAMPLE_INSTANCE *al_create_sample_instance(ALLEGRO_SAMPLE *sample_data)
    return spl;
 }
 
+
 /* This function is ALLEGRO_MIXER aware */
 /* Function: al_destroy_sample_instance
  *  Detaches the sample stream from anything it may be attached to and frees
@@ -195,7 +197,7 @@ void _al_kcm_destroy_sample(ALLEGRO_SAMPLE_INSTANCE *spl, bool unregister)
 }
 
 
-/* Function: al_play_sample
+/* Function: al_play_sample_instance
  */
 int al_play_sample_instance(ALLEGRO_SAMPLE_INSTANCE *spl)
 {
@@ -205,7 +207,7 @@ int al_play_sample_instance(ALLEGRO_SAMPLE_INSTANCE *spl)
 }
 
 
-/* Function: al_stop_sample
+/* Function: al_stop_sample_instance
  */
 int al_stop_sample_instance(ALLEGRO_SAMPLE_INSTANCE *spl)
 {
@@ -215,7 +217,7 @@ int al_stop_sample_instance(ALLEGRO_SAMPLE_INSTANCE *spl)
 }
 
 
-/* Function: al_get_sample_long
+/* Function: al_get_sample_instance_long
  */
 int al_get_sample_instance_long(const ALLEGRO_SAMPLE_INSTANCE *spl,
    ALLEGRO_AUDIO_PROPERTY setting, unsigned long *val)
@@ -248,7 +250,7 @@ int al_get_sample_instance_long(const ALLEGRO_SAMPLE_INSTANCE *spl,
 }
 
 
-/* Function: al_get_sample_float
+/* Function: al_get_sample_instance_float
  */
 int al_get_sample_instance_float(const ALLEGRO_SAMPLE_INSTANCE *spl,
    ALLEGRO_AUDIO_PROPERTY setting, float *val)
@@ -277,7 +279,7 @@ int al_get_sample_instance_float(const ALLEGRO_SAMPLE_INSTANCE *spl,
 }
 
 
-/* Function: al_get_sample_enum
+/* Function: al_get_sample_instance_enum
  */
 int al_get_sample_instance_enum(const ALLEGRO_SAMPLE_INSTANCE *spl,
    ALLEGRO_AUDIO_PROPERTY setting, int *val)
@@ -305,7 +307,7 @@ int al_get_sample_instance_enum(const ALLEGRO_SAMPLE_INSTANCE *spl,
 }
 
 
-/* Function: al_get_sample_bool
+/* Function: al_get_sample_instance_bool
  */
 int al_get_sample_instance_bool(const ALLEGRO_SAMPLE_INSTANCE *spl,
    ALLEGRO_AUDIO_PROPERTY setting, bool *val)
@@ -334,7 +336,7 @@ int al_get_sample_instance_bool(const ALLEGRO_SAMPLE_INSTANCE *spl,
 }
 
 
-/* Function: al_get_sample_ptr
+/* Function: al_get_sample_instance_ptr
  */
 int al_get_sample_instance_ptr(const ALLEGRO_SAMPLE_INSTANCE *spl,
    ALLEGRO_AUDIO_PROPERTY setting, void **val)
@@ -353,7 +355,7 @@ int al_get_sample_instance_ptr(const ALLEGRO_SAMPLE_INSTANCE *spl,
 }
 
 
-/* Function: al_set_sample_long
+/* Function: al_set_sample_instance_long
  */
 int al_set_sample_instance_long(ALLEGRO_SAMPLE_INSTANCE *spl,
    ALLEGRO_AUDIO_PROPERTY setting, unsigned long val)
@@ -392,7 +394,7 @@ int al_set_sample_instance_long(ALLEGRO_SAMPLE_INSTANCE *spl,
 }
 
 
-/* Function: al_set_sample_float
+/* Function: al_set_sample_instance_float
  */
 int al_set_sample_instance_float(ALLEGRO_SAMPLE_INSTANCE *spl,
    ALLEGRO_AUDIO_PROPERTY setting, float val)
@@ -467,7 +469,7 @@ int al_set_sample_instance_float(ALLEGRO_SAMPLE_INSTANCE *spl,
 }
 
 
-/* Function: al_set_sample_enum
+/* Function: al_set_sample_instance_enum
  */
 int al_set_sample_instance_enum(ALLEGRO_SAMPLE_INSTANCE *spl,
    ALLEGRO_AUDIO_PROPERTY setting, int val)
@@ -511,7 +513,7 @@ int al_set_sample_instance_enum(ALLEGRO_SAMPLE_INSTANCE *spl,
 }
 
 
-/* Function: al_set_sample_bool
+/* Function: al_set_sample_instance_bool
  */
 int al_set_sample_instance_bool(ALLEGRO_SAMPLE_INSTANCE *spl,
    ALLEGRO_AUDIO_PROPERTY setting, bool val)
@@ -572,7 +574,7 @@ int al_set_sample_instance_bool(ALLEGRO_SAMPLE_INSTANCE *spl,
 }
 
 
-/* Function: al_set_sample_ptr
+/* Function: al_set_sample_instance_ptr
  */
 int al_set_sample_instance_ptr(ALLEGRO_SAMPLE_INSTANCE *spl,
    ALLEGRO_AUDIO_PROPERTY setting, void *val)
@@ -672,6 +674,7 @@ int al_set_sample(ALLEGRO_SAMPLE_INSTANCE *spl, ALLEGRO_SAMPLE *data)
 
    return 0;
 }
+
 
 /* Function: al_get_sample
  *  XXX

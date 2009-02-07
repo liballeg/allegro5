@@ -137,6 +137,7 @@ void al_destroy_sample(ALLEGRO_SAMPLE *spl)
    }
 }
 
+
 /* Function: al_reserve_samples
  *  Reserves 'reserve_samples' number of samples attached to the default mixer.
  *  <al_install_audio> must have been called first.  If no default mixer is set,
@@ -155,7 +156,8 @@ bool al_reserve_samples(int reserve_samples)
     * al_play_sample().
     */
    if (default_mixer == NULL) {
-      if (!al_restore_default_mixer()) goto Error;
+      if (!al_restore_default_mixer())
+         goto Error;
    }
 
    if (current_samples_count < reserve_samples) {
@@ -191,6 +193,7 @@ bool al_reserve_samples(int reserve_samples)
    return false;
 }
 
+
 /* Function: al_get_default_mixer
  *  Return the default mixer.
  */
@@ -198,6 +201,7 @@ ALLEGRO_MIXER *al_get_default_mixer(void)
 {
    return default_mixer;
 }
+
 
 /* Function: al_set_default_mixer
  *  Sets the default mixer. All samples started with <al_play_sample>
@@ -243,6 +247,7 @@ Error:
    return false;
 }
 
+
 /* Function: al_restore_default_mixer
  *  Restores Allegro's default mixer. All samples started with <al_play_sample>
  *  will be stopped.
@@ -250,19 +255,23 @@ Error:
  */
 bool al_restore_default_mixer(void)
 {
-   if (!create_default_mixer()) return false;
+   if (!create_default_mixer())
+      return false;
 
-   if (!al_set_default_mixer(allegro_mixer)) return false;
+   if (!al_set_default_mixer(allegro_mixer))
+      return false;
 
    return true;
 }
+
 
 /* Function: al_play_sample
  *  Plays a sample over the default mixer. <al_reserve_samples> must have
  *  previously been called. Returns true on success, false on failure.
  *  Playback may fail because all the reserved samples are currently used.
  */
-bool al_play_sample(ALLEGRO_SAMPLE *spl, float gain, float pan, float speed, int loop, ALLEGRO_SAMPLE_ID *ret_id)
+bool al_play_sample(ALLEGRO_SAMPLE *spl, float gain, float pan, float speed,
+   int loop, ALLEGRO_SAMPLE_ID *ret_id)
 {
    static int next_id = 0;
    unsigned int i;
@@ -279,7 +288,8 @@ bool al_play_sample(ALLEGRO_SAMPLE *spl, float gain, float pan, float speed, int
       ALLEGRO_SAMPLE_INSTANCE *splinst = (*slot);
       bool playing;
 
-      if (al_get_sample_instance_bool(splinst, ALLEGRO_AUDIOPROP_PLAYING, &playing) == 0) {
+      if (al_get_sample_instance_bool(splinst, ALLEGRO_AUDIOPROP_PLAYING,
+            &playing) == 0) {
          if (playing == false) {
             int *id = _al_vector_ref(&auto_sample_ids, i);
 
@@ -299,7 +309,9 @@ bool al_play_sample(ALLEGRO_SAMPLE *spl, float gain, float pan, float speed, int
    return false;
 }
 
-static bool do_play_sample(ALLEGRO_SAMPLE_INSTANCE *splinst, ALLEGRO_SAMPLE *spl, float gain, float pan, float speed, int loop)
+
+static bool do_play_sample(ALLEGRO_SAMPLE_INSTANCE *splinst,
+   ALLEGRO_SAMPLE *spl, float gain, float pan, float speed, int loop)
 {
    (void)pan;
 
@@ -321,6 +333,7 @@ static bool do_play_sample(ALLEGRO_SAMPLE_INSTANCE *splinst, ALLEGRO_SAMPLE *spl
 
    return true;
 }
+
 
 /* Function: al_stop_sample
  *  Stop the sample started by <al_start_sample>
@@ -357,6 +370,7 @@ void al_stop_samples(void)
    }
 }
 
+
 /* Destroy all sample instances, and frees the associated vectors. */
 static void free_sample_vector(void)
 {
@@ -370,11 +384,12 @@ static void free_sample_vector(void)
    _al_vector_free(&auto_sample_ids);
 }
 
+
 void _al_kcm_shutdown_default_mixer(void)
 {
    free_sample_vector(); 
-   if (allegro_mixer) al_destroy_mixer(allegro_mixer);
-   if (allegro_voice) al_destroy_voice(allegro_voice);
+   al_destroy_mixer(allegro_mixer);
+   al_destroy_voice(allegro_voice);
 
    allegro_mixer = NULL;
    allegro_voice = NULL;
