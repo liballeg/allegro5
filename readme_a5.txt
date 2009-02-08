@@ -198,17 +198,9 @@ Running the examples
 ====================
 
 Remember that some examples look for data files in the current directory, so if
-you used an external build directory you will need to change into the examples
-directory and specify the path to the example in the build directory, e.g.
-
-	$ cd examples
-	$ ../Build/examples/ex_bitmap
-
-Or symlink the data directory into the build directory:
-
-	$ cd Build/examples
-	$ ln -s ../../examples/data .
-	$ ./ex_bitmap
+you used an external build directory you will need to make sure the examples
+can find the data files.  The CMake build has been set up to copy the data files
+from the source directory to the build directory.
 
 
 
