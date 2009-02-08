@@ -117,7 +117,8 @@ if(WANT_DOCS_HTML)
         add_custom_command(
             OUTPUT ${page}.html
             DEPENDS ${PROTOS_TIMESTAMP} ${HTML_REFS_TIMESTAMP} ${page}.txt
-                inc.a.html inc.z.html
+                ${CMAKE_CURRENT_BINARY_DIR}/inc.a.html
+                ${CMAKE_CURRENT_BINARY_DIR}/inc.z.html
             COMMAND
                 ${INSERT_TIMESTAMP} inc.timestamp.html
             COMMAND
@@ -131,7 +132,7 @@ if(WANT_DOCS_HTML)
                 -c pandoc.css
                 --standalone --toc
             )
-        list(APPEND HTML_PAGES ${page}.html)
+        list(APPEND HTML_PAGES ${CMAKE_CURRENT_BINARY_DIR}/${page}.html)
     endforeach(page)
     add_custom_target(html ALL DEPENDS ${HTML_PAGES})
 
