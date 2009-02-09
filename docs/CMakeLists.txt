@@ -91,11 +91,6 @@ if(PANDOC)
             txt/changes-4.9.txt
             )
     endif(MAKEINFO)
-    pandoc(
-        src/refman/threads.txt
-        html/refman/threads.html
-        -c pandoc.css
-        )
 endif(PANDOC)
 
 add_custom_target(docs

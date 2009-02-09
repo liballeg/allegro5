@@ -182,9 +182,10 @@ then
    mkdir $builddir
    ( cd $builddir
        cmake ..
-       make docs
+       make docs html
        mv docs/txt/changes-4.9.txt ../CHANGES-4.9.txt
-       mv docs/html ../docs/html
+       test -d ../docs/html/refman || mkdir -p ../docs/html/refman
+       mv docs/src/refman/*.{html,css} ../docs/html/refman
    ) || exit 1
    rm -rf $builddir
 else
@@ -193,16 +194,16 @@ fi
 
 
 # generate NaturalDocs documentation
-if which NaturalDocs >/dev/null
-then
-   echo "Generating NaturalDocs..."
-   ( cd docs/naturaldocs
-      make clean
-      make public
-   ) || exit 1
-else
-   echo "WARNING: NaturalDocs not found, skipping step" 1>&2
-fi
+# if which NaturalDocs >/dev/null
+# then
+#    echo "Generating NaturalDocs..."
+#    ( cd docs/naturaldocs
+#       make clean
+#       make public
+#    ) || exit 1
+# else
+#    echo "WARNING: NaturalDocs not found, skipping step" 1>&2
+# fi
 
 
 # create language.dat and keyboard.dat files

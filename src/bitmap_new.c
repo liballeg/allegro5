@@ -44,6 +44,7 @@ static ALLEGRO_BITMAP *_al_create_memory_bitmap(int w, int h)
       case ALLEGRO_PIXEL_FORMAT_ANY_32_NO_ALPHA:
          format = ALLEGRO_PIXEL_FORMAT_XRGB_8888;
          break;
+      case ALLEGRO_PIXEL_FORMAT_ANY:
       case ALLEGRO_PIXEL_FORMAT_ANY_WITH_ALPHA:
       case ALLEGRO_PIXEL_FORMAT_ANY_32_WITH_ALPHA:
          format = ALLEGRO_PIXEL_FORMAT_ARGB_8888;
