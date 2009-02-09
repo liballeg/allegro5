@@ -1,0 +1,425 @@
+/*         ______   ___    ___ 
+*        /\  _  \ /\_ \  /\_ \ 
+*        \ \ \L\ \\//\ \ \//\ \      __     __   _ __   ___ 
+*         \ \  __ \ \ \ \  \ \ \   /'__`\ /'_ `\/\`'__\/ __`\
+*          \ \ \/\ \ \_\ \_ \_\ \_/\  __//\ \L\ \ \ \//\ \L\ \
+*           \ \_\ \_\/\____\/\____\ \____\ \____ \ \_\\ \____/
+*            \/_/\/_/\/____/\/____/\/____/\/___L\ \/_/ \/___/
+*                                           /\____/
+*                                           \_/__/
+*
+*      HID Joystick driver routines for MacOS X.
+*
+*      By Angelo Mottola.
+*
+*      See readme.txt for copyright information.
+*/
+
+#include "allegro5/allegro5.h"
+#include "allegro5/platform/aintosx.h"
+#include "allegro5/internal/aintern_memory.h"
+#import <IOKit/hid/IOHIDLib.h>
+#import <IOKit/hid/IOHIDKeys.h>
+#import <IOKit/hid/IOHIDUsageTables.h>
+
+
+#ifndef ALLEGRO_MACOSX
+#error something is wrong with the makefile
+#endif                
+
+#define _AL_MAX_JOYSTICKS 8
+
+static bool init_joystick(void);
+static void exit_joystick(void);
+static int num_joysticks(void);
+static ALLEGRO_JOYSTICK* get_joystick(int);
+static void release_joystick(ALLEGRO_JOYSTICK*);
+static void get_joystick_state(ALLEGRO_JOYSTICK*, ALLEGRO_JOYSTICK_STATE*);
+
+/* ALJoystickHelper:
+* The joystick events are delivered through the run loop. We need to
+* attach the callback to the main thread's run loop 
+* (otherwise the events are never delivered)
+* The class methods are used with performOnMainThread:withObject:waitUntilDone:
+* to ensure that we access the main thread
+*/
+@interface ALJoystickHelper : NSObject
+{ }
++(void)startQueues;
++(void)stopQueues;
+@end
+
+/* OSX HID Joystick 
+ * Maintains an array of links which connect a HID cookie to 
+ * an element in the ALLEGRO_JOYSTICK_STATE structure.
+ */
+typedef struct {
+	ALLEGRO_JOYSTICK parent;
+	struct {
+		IOHIDElementCookie cookie;
+		int* ppressed;
+	} button_link[_AL_MAX_JOYSTICK_BUTTONS];
+	struct {
+		IOHIDElementCookie cookie;
+		SInt32 intvalue;
+		float* pvalue;
+		float offset;
+		float multiplier;
+		int stick, axis;
+	} axis_link[_AL_MAX_JOYSTICK_AXES * _AL_MAX_JOYSTICK_STICKS];
+	int num_axis_links;
+	ALLEGRO_JOYSTICK_STATE state;
+	IOHIDDeviceInterface122** interface;
+	IOHIDQueueInterface** queue;
+	CFRunLoopSourceRef source;
+} ALLEGRO_JOYSTICK_OSX;
+
+static ALLEGRO_JOYSTICK_OSX joysticks[_AL_MAX_JOYSTICKS];
+static unsigned int joystick_count;
+
+/* create_device_iterator:
+* Create an iterator which will match all joysticks/
+* gamepads on the system. 
+*/
+static io_iterator_t create_device_iterator(UInt16 usage)
+{
+	NSMutableDictionary* matching;
+	io_iterator_t iter;
+	matching = (NSMutableDictionary*) IOServiceMatching(kIOHIDDeviceKey);
+	// Add in our criteria:
+	[matching setObject:[NSNumber numberWithShort: usage] forKey: (NSString*) CFSTR(kIOHIDPrimaryUsageKey)];
+	[matching setObject:[NSNumber numberWithShort: kHIDPage_GenericDesktop] forKey: (NSString*) CFSTR(kIOHIDPrimaryUsagePageKey)];
+	// Get the iterator
+	IOReturn err = IOServiceGetMatchingServices(kIOMasterPortDefault, (CFDictionaryRef) matching, &iter);
+	return (err == kIOReturnSuccess) ? iter : 0;
+}
+
+/* create_interface:
+* Create the interface to access this device, via
+* the intermediate plug-in interface
+*/
+BOOL create_interface(io_object_t device, IOHIDDeviceInterface122*** interface)
+{
+	io_name_t class_name;
+	IOReturn err = IOObjectGetClass(device,class_name);
+	SInt32 score;
+	IOCFPlugInInterface** plugin;
+	err = IOCreatePlugInInterfaceForService(device,
+											kIOHIDDeviceUserClientTypeID,
+											kIOCFPlugInInterfaceID,
+											&plugin,
+											&score);
+	(*plugin)->QueryInterface(plugin,
+							  CFUUIDGetUUIDBytes(kIOHIDDeviceInterfaceID122),
+							  (LPVOID) interface);
+	
+	(*plugin)->Release(plugin);
+	return YES;
+}
+/* joystick_callback:
+* Called when an event occurs on the joystick event queue
+* target: the joystick
+* refcon: always null
+* sender: the queue
+*/
+void joystick_callback(void *target, IOReturn result, void *refcon, void *sender)
+{
+	ALLEGRO_JOYSTICK_OSX* joy = (ALLEGRO_JOYSTICK_OSX*) target;
+	IOHIDQueueInterface** queue = (IOHIDQueueInterface**) sender;
+	AbsoluteTime past = {0,0};
+	ALLEGRO_EVENT_SOURCE* src = &(joy->parent.es);
+	_al_event_source_lock(src);
+	while (result == kIOReturnSuccess) {
+		IOHIDEventStruct event;
+		result = (*queue)->getNextEvent(queue, &event, past, 0);
+		if (result == kIOReturnSuccess) {
+			int i;
+			for (i=0; i<joy->parent.info.num_buttons; ++i) {
+				if (joy->button_link[i].cookie == event.elementCookie) {
+					int newvalue = event.value;
+					if (*joy->button_link[i].ppressed != newvalue) {
+						*joy->button_link[i].ppressed = newvalue;
+						// emit event
+						ALLEGRO_EVENT evt;
+						if (newvalue)
+							evt.type = ALLEGRO_EVENT_JOYSTICK_BUTTON_DOWN;
+						else
+							evt.type = ALLEGRO_EVENT_JOYSTICK_BUTTON_UP;
+						evt.joystick.button = i;
+						_al_event_source_emit_event(src, &evt);
+					}
+				}
+			}
+			for (i=0; i<joy->num_axis_links; ++i) {
+				if (joy->axis_link[i].cookie == event.elementCookie) {
+					SInt32 newvalue = event.value;
+					if (joy->axis_link[i].intvalue != newvalue) {
+						joy->axis_link[i].intvalue = newvalue;
+						*joy->axis_link[i].pvalue = (joy->axis_link[i].offset + newvalue) * joy->axis_link[i].multiplier;
+						// emit event
+						ALLEGRO_EVENT evt;
+						evt.type = ALLEGRO_EVENT_JOYSTICK_AXIS;
+						evt.joystick.axis = joy->axis_link[i].axis;
+						evt.joystick.pos = *joy->axis_link[i].pvalue;
+						evt.joystick.stick = joy->axis_link[i].stick;
+						_al_event_source_emit_event(src, &evt);
+					}
+				}
+			}
+		}
+	}
+	_al_event_source_unlock(src);
+}
+/* add_device:
+* Create the joystick structure for this device
+* and add it to the 'joysticks' vector
+* TODO this only works for simple joysticks and
+* only allows access to the primary X & Y axes.
+* In reality there can be more axes than this and
+* more that one distinct controller handled by the same
+* interface. 
+* We should iterate through the application collections to
+* find the joysticks then through the physical collections
+* therein to identify the individual sticks.
+*/
+static void add_device(io_object_t device)
+{
+	ALLEGRO_JOYSTICK_OSX* joy;
+	NSArray* elements = nil;
+	int num_buttons = 0;
+	BOOL have_x = NO, have_y = NO;
+	int num = joystick_count;
+	IOReturn err;
+	joy = &joysticks[joystick_count++];
+	memset(joy, 0, sizeof(*joy));
+	joy->parent.num = num;
+	joy->parent.info.num_sticks = 0;
+	joy->parent.info.num_buttons = 0;
+	_al_event_source_init(&joy->parent.es);
+	IOHIDDeviceInterface122** interface;
+	create_interface(device, &interface);
+	// Open the device
+	err = (*interface)->open(interface, 0);
+	// Create an event queue
+	IOHIDQueueInterface** queue = (*interface)->allocQueue(interface);
+	err = (*queue)->create(queue, 0, 8);
+	// Create a source
+	err = (*queue)->createAsyncEventSource(queue, &joy->source);
+	err = (*queue)->setEventCallout(queue, joystick_callback, joy, NULL);
+	joy->queue = queue;
+	(*interface)->copyMatchingElements(interface, NULL, (CFArrayRef*) &elements);
+	NSEnumerator* enumerator = [elements objectEnumerator];
+	NSDictionary* element;
+	while ((element = (NSDictionary*) [enumerator nextObject])) {
+		short usage = [((NSNumber*) [element objectForKey: (NSString*) CFSTR(kIOHIDElementUsageKey)]) shortValue];
+		short usage_page = [((NSNumber*) [element objectForKey: (NSString*) CFSTR(kIOHIDElementUsagePageKey)]) shortValue];
+		if (usage_page == kHIDPage_Button && num_buttons < _AL_MAX_JOYSTICK_BUTTONS) {
+			joy->button_link[num_buttons].cookie = (IOHIDElementCookie) [((NSNumber*) [element objectForKey: (NSString*) CFSTR(kIOHIDElementCookieKey)]) pointerValue];
+			joy->button_link[num_buttons].ppressed = &joy->state.button[num_buttons];
+			// Use the provided name or make one up.
+			NSString* name = (NSString*) [element objectForKey: (NSString*) CFSTR(kIOHIDElementNameKey)];
+			if (name == nil) {
+				name = [NSString stringWithFormat:@"Button %d", (num_buttons+1)];
+			}
+			joy->parent.info.button[num_buttons].name = strdup([name cString]);
+			// Say that we want events from this button
+			err = (*queue)->addElement(queue, joy->button_link[num_buttons].cookie, 0);
+			++num_buttons; 
+		}
+		if (usage_page == kHIDPage_GenericDesktop) {
+			if ((usage == kHIDUsage_GD_X) && (!have_x)) {
+				have_x = YES;
+				NSNumber* minValue = (NSNumber*) [element objectForKey: (NSString*) CFSTR(kIOHIDElementMinKey)];
+				NSNumber* maxValue = (NSNumber*) [element objectForKey: (NSString*) CFSTR(kIOHIDElementMaxKey)];
+				joy->axis_link[0].axis = 0;
+				joy->axis_link[0].stick = 0;
+				joy->axis_link[0].offset = - ([minValue floatValue] + [maxValue floatValue]) / 2.0f;
+				joy->axis_link[0].multiplier = 2.0f / ([maxValue floatValue] - [minValue floatValue]);
+				joy->axis_link[0].cookie = (IOHIDElementCookie) [((NSNumber*) [element objectForKey: (NSString*) CFSTR(kIOHIDElementCookieKey)]) pointerValue];
+				joy->axis_link[0].pvalue = &joy->state.stick[0].axis[0];
+				NSString* name = (NSString*) [element objectForKey: (NSString*) CFSTR(kIOHIDElementNameKey)];
+				if (name == nil) {
+					name = @"X-axis";
+				}
+				joy->parent.info.stick[0].axis[0].name = strdup([name cString]);
+				err = (*queue)->addElement(queue, joy->axis_link[0].cookie, 0);
+			}
+			if ((usage == kHIDUsage_GD_Y) && (!have_y)) {
+				have_y = YES;
+				NSNumber* minValue = (NSNumber*) [element objectForKey: (NSString*) CFSTR(kIOHIDElementMinKey)];
+				NSNumber* maxValue = (NSNumber*) [element objectForKey: (NSString*) CFSTR(kIOHIDElementMaxKey)];
+				joy->axis_link[1].axis = 1;
+				joy->axis_link[1].stick = 0;
+				joy->axis_link[1].offset = - ([minValue floatValue] + [maxValue floatValue]) / 2.0f;
+				joy->axis_link[1].multiplier = 2.0f / ([maxValue floatValue] - [minValue floatValue]);
+				joy->axis_link[1].cookie = (IOHIDElementCookie) [((NSNumber*) [element objectForKey: (NSString*) CFSTR(kIOHIDElementCookieKey)]) pointerValue];
+				joy->axis_link[1].pvalue = &joy->state.stick[0].axis[1];
+				NSString* name = (NSString*) [element objectForKey: (NSString*) CFSTR(kIOHIDElementNameKey)];
+				if (name == nil) {
+					name = @"Y-axis";
+				}
+				joy->parent.info.stick[0].axis[1].name = strdup([name cString]);
+				err = (*queue)->addElement(queue, joy->axis_link[1].cookie, 0);
+			}
+		}
+	}
+	joy->parent.info.num_buttons = num_buttons;
+	if (have_x && have_y) {
+		joy->parent.info.stick[0].name = strdup("Primary axis");
+		joy->parent.info.num_sticks = 1;
+		joy->parent.info.stick[0].num_axes = 2;
+		joy->num_axis_links = 2;
+	}
+	joy->interface = interface;
+	joystick_callback(joy,kIOReturnSuccess,NULL,queue);
+	[elements release];
+}
+
+ALLEGRO_JOYSTICK_DRIVER* osx_get_joystick_driver(void)
+{
+	static ALLEGRO_JOYSTICK_DRIVER* vt = NULL;
+	if (vt == NULL) {
+		vt = _AL_MALLOC(sizeof(*vt));
+		memset(vt, 0, sizeof(*vt));
+		vt->joydrv_ascii_name = "OSX HID Driver";
+		vt->init_joystick = init_joystick;
+		vt->exit_joystick = exit_joystick;
+		vt->num_joysticks = num_joysticks;
+		vt->get_joystick = get_joystick;
+		vt->release_joystick = release_joystick;
+		vt->get_joystick_state = get_joystick_state;
+	}
+	return vt;
+}
+
+/* init_joystick:
+*  Initializes the HID joystick driver.
+*/
+static bool init_joystick(void)
+{
+	joystick_count = 0;
+	io_iterator_t iterator;
+	io_object_t device;
+	iterator = create_device_iterator(kHIDUsage_GD_GamePad);
+	if (iterator != 0) {
+		while ((device = IOIteratorNext(iterator))) {
+			add_device(device);
+		}
+		IOObjectRelease(iterator);
+	}
+	iterator = create_device_iterator(kHIDUsage_GD_Joystick);
+	if (iterator != 0) {
+		while ((device = IOIteratorNext(iterator))) {
+			add_device(device);
+		}
+		IOObjectRelease(iterator);
+	}
+	[ALJoystickHelper performSelectorOnMainThread: @selector(startQueues)
+									   withObject: nil
+									waitUntilDone: YES];
+	return TRUE;
+}
+
+
+
+/* exit_joystick:
+*  Shuts down the HID joystick driver.
+*/
+static void exit_joystick(void)
+{
+	[ALJoystickHelper performSelectorOnMainThread: @selector(stopQueues)
+									   withObject: nil
+									waitUntilDone: YES];
+	unsigned int i;
+	for (i=0; i< joystick_count; ++i) {
+		ALLEGRO_JOYSTICK_OSX* joy = &joysticks[i];
+		CFRelease(joy->source);
+		if (joy->queue) {
+			(*joy->queue)->dispose(joy->queue);
+			(*joy->queue)->Release(joy->queue);
+		}
+		if (joy->interface) {
+			(*joy->interface)->close(joy->interface);
+			(*joy->interface)->Release(joy->interface);
+		}
+		int a, b, s;
+		/* Free everything we might have created 
+		* (all fields set to NULL initially so this is OK.)
+		*/
+		for (b = 0; b < _AL_MAX_JOYSTICK_BUTTONS; ++ b) {
+			free((void*) joy->parent.info.button[b].name);
+		}
+		for (s = 0; s < _AL_MAX_JOYSTICK_STICKS; ++s) {
+			free((void*) joy->parent.info.stick[s].name);
+			for (a = 0; a < _AL_MAX_JOYSTICK_AXES; ++a) {
+				free((void*) joy->parent.info.stick[s].axis[a].name);
+			}
+		}
+	}
+}
+
+/* num_joysticks:
+*  Return number of active joysticks
+*/
+int num_joysticks(void) 
+{
+	return joystick_count;
+}
+
+/* get_joystick:
+* Get a pointer to a joystick structure
+*/
+ALLEGRO_JOYSTICK* get_joystick(int index) 
+{
+	ALLEGRO_JOYSTICK* joy = NULL;
+	if (index >= 0 && index < (int) joystick_count) {
+		joy =&joysticks[index];
+	}
+	return joy;
+}
+
+/* release_joystick:
+* Release a pointer that has been obtained
+*/
+void release_joystick(ALLEGRO_JOYSTICK* joy)
+{
+	// No-op
+}
+
+/* get_state:
+* Get the current status of a joystick
+*/
+void get_joystick_state(ALLEGRO_JOYSTICK* ajoy, ALLEGRO_JOYSTICK_STATE* state)
+{
+	ALLEGRO_JOYSTICK_OSX* joy = (ALLEGRO_JOYSTICK_OSX*) ajoy;
+	memcpy(state, &joy->state,sizeof(*state));
+}
+
+@implementation ALJoystickHelper
++(void)startQueues 
+{
+	unsigned int i;
+	CFRunLoopRef current = CFRunLoopGetCurrent();
+	for (i=0; i<joystick_count; ++i) {
+		ALLEGRO_JOYSTICK_OSX* joy = &joysticks[i];
+		CFRunLoopAddSource(current,joy->source,kCFRunLoopDefaultMode);
+		(*joy->queue)->start(joy->queue);
+	}
+}
++(void) stopQueues 
+{
+	unsigned int i;
+	CFRunLoopRef current = CFRunLoopGetCurrent();
+	for (i=0; i<joystick_count; ++i) {
+		ALLEGRO_JOYSTICK_OSX* joy = &joysticks[i];
+		(*joy->queue)->stop(joy->queue);
+		CFRunLoopRemoveSource(current,joy->source,kCFRunLoopDefaultMode);
+	}	
+}
+@end
+
+
+/* Local variables:       */
+/* c-basic-offset: 3      */
+/* indent-tabs-mode: nil  */
+/* End:                   */

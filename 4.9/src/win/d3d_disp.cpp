@@ -1,0 +1,2259 @@
+/*         ______   ___    ___
+ *        /\  _  \ /\_ \  /\_ \ 
+ *        \ \ \L\ \\//\ \ \//\ \      __     __   _ __   ___ 
+ *         \ \  __ \ \ \ \  \ \ \   /'__`\ /'_ `\/\`'__\/ __`\
+ *          \ \ \/\ \ \_\ \_ \_\ \_/\  __//\ \L\ \ \ \//\ \L\ \
+ *           \ \_\ \_\/\____\/\____\ \____\ \____ \ \_\\ \____/
+ *            \/_/\/_/\/____/\/____/\/____/\/___L\ \/_/ \/___/
+ *                                           /\____/
+ *                                           \_/__/
+ *
+ *      Direct3D display driver
+ *
+ *      By Trent Gamblin.
+ *
+ */
+
+#include <string.h>
+#include <stdio.h>
+#include <process.h>
+#include <cmath>
+
+#include "allegro5/allegro5.h"
+
+extern "C" {
+#include "allegro5/system_new.h"
+#include "allegro5/internal/aintern.h"
+#include "allegro5/internal/aintern_bitmap.h"
+#include "allegro5/internal/aintern_display.h"
+#include "allegro5/internal/aintern_memory.h"
+#include "allegro5/internal/aintern_system.h"
+#include "allegro5/internal/aintern_thread.h"
+#include "allegro5/internal/aintern_vector.h"
+#include "allegro5/platform/aintwin.h"
+}
+
+#include "d3d.h"
+
+extern "C" {
+
+static ALLEGRO_DISPLAY_INTERFACE *vt = 0;
+
+static LPDIRECT3D9 _al_d3d = 0;
+
+static D3DPRESENT_PARAMETERS d3d_pp;
+
+static float d3d_ortho_w;
+static float d3d_ortho_h;
+
+static HWND fullscreen_focus_window;
+static bool ffw_set = false;
+
+#ifdef ALLEGRO_CFG_D3D9EX
+// Stuff dynamically loaded from dlls
+typedef HRESULT (WINAPI *_dyn_create_type)(UINT, IDirect3D9Ex **);
+static _dyn_create_type _dyn_create;
+#endif
+
+
+static bool d3d_can_wait_for_vsync;
+
+static bool render_to_texture_supported = true;
+static bool is_vista = false;
+static int num_faux_fullscreen_windows = 0;
+static bool already_fullscreen = false; /* real fullscreen */
+
+static DWORD d3d_min_filter = D3DTEXF_POINT;
+static DWORD d3d_mag_filter = D3DTEXF_POINT;
+
+/*
+ * These parameters cannot be gotten by the display thread because
+ * they're thread local. We get them in the calling thread first.
+ */
+typedef struct new_display_parameters {
+   ALLEGRO_DISPLAY_D3D *display;
+   volatile bool init_failed;
+   HANDLE AckEvent;
+} new_display_parameters;
+
+
+static int allegro_formats[] = {
+   ALLEGRO_PIXEL_FORMAT_ANY,
+   ALLEGRO_PIXEL_FORMAT_ANY_WITH_ALPHA,
+   ALLEGRO_PIXEL_FORMAT_ANY_NO_ALPHA,
+   ALLEGRO_PIXEL_FORMAT_ANY_15_WITH_ALPHA,
+   ALLEGRO_PIXEL_FORMAT_ANY_15_NO_ALPHA,
+   ALLEGRO_PIXEL_FORMAT_ANY_16_WITH_ALPHA,
+   ALLEGRO_PIXEL_FORMAT_ANY_16_NO_ALPHA,
+   ALLEGRO_PIXEL_FORMAT_ANY_24_WITH_ALPHA,
+   ALLEGRO_PIXEL_FORMAT_ANY_24_NO_ALPHA,
+   ALLEGRO_PIXEL_FORMAT_ANY_32_WITH_ALPHA,
+   ALLEGRO_PIXEL_FORMAT_ANY_32_NO_ALPHA,
+   ALLEGRO_PIXEL_FORMAT_ARGB_8888,
+   ALLEGRO_PIXEL_FORMAT_ARGB_4444,
+   ALLEGRO_PIXEL_FORMAT_RGB_565,
+   ALLEGRO_PIXEL_FORMAT_ARGB_1555,
+   ALLEGRO_PIXEL_FORMAT_XRGB_8888,
+   -1
+};
+
+/* Mapping of Allegro formats to D3D formats */
+static int d3d_formats[] = {
+   ALLEGRO_PIXEL_FORMAT_ANY,
+   ALLEGRO_PIXEL_FORMAT_ANY_WITH_ALPHA,
+   ALLEGRO_PIXEL_FORMAT_ANY_NO_ALPHA,
+   ALLEGRO_PIXEL_FORMAT_ANY_15_WITH_ALPHA,
+   ALLEGRO_PIXEL_FORMAT_ANY_15_NO_ALPHA,
+   ALLEGRO_PIXEL_FORMAT_ANY_16_WITH_ALPHA,
+   ALLEGRO_PIXEL_FORMAT_ANY_16_NO_ALPHA,
+   ALLEGRO_PIXEL_FORMAT_ANY_24_WITH_ALPHA,
+   ALLEGRO_PIXEL_FORMAT_ANY_24_NO_ALPHA,
+   ALLEGRO_PIXEL_FORMAT_ANY_32_WITH_ALPHA,
+   ALLEGRO_PIXEL_FORMAT_ANY_32_NO_ALPHA,
+   D3DFMT_A8R8G8B8,
+   D3DFMT_A4R4G4B4,
+   D3DFMT_R5G6B5,
+   D3DFMT_A1R5G5B5,
+   D3DFMT_X8R8G8B8,
+   -1
+};
+
+
+bool _al_d3d_supports_separate_alpha_blend(ALLEGRO_DISPLAY *display)
+{
+   ALLEGRO_DISPLAY_D3D *d3d_disp = (ALLEGRO_DISPLAY_D3D *)display;
+   return d3d_disp->supports_separate_alpha_blend;
+}
+
+
+bool al_d3d_supports_non_pow2_textures(void)
+{
+   D3DCAPS9 caps;
+   int adapter = al_get_current_video_adapter();
+   if (adapter == -1)
+         adapter = 0;
+
+   /* This might have to change for multihead */
+   if (_al_d3d->GetDeviceCaps(adapter, D3DDEVTYPE_HAL, &caps) != D3D_OK) {
+      return false;
+   }
+
+   if ((caps.TextureCaps & D3DPTEXTURECAPS_POW2) == 0) {
+      return true;
+   }
+
+   return false;
+}
+
+
+bool al_d3d_supports_non_square_textures(void)
+{
+   D3DCAPS9 caps;
+   int adapter = al_get_current_video_adapter();
+   if (adapter == -1)
+      adapter = 0;
+
+   /* This might have to change for multihead */
+   if (_al_d3d->GetDeviceCaps(adapter, D3DDEVTYPE_HAL, &caps) != D3D_OK) {
+      return false;
+   }
+
+   if ((caps.TextureCaps & D3DPTEXTURECAPS_SQUAREONLY) == 0) {
+      return true;
+   }
+
+   return false;
+}
+
+
+
+
+int _al_format_to_d3d(int format)
+{
+   int i;
+
+   for (i = 0; allegro_formats[i] >= 0; i++) {
+      if (!_al_pixel_format_is_real(allegro_formats[i]))
+         continue;
+      if (allegro_formats[i] == format) {
+         return d3d_formats[i];
+      }
+   }
+
+   return D3DFMT_R5G6B5;
+}
+
+int _al_d3d_format_to_allegro(int d3d_fmt)
+{
+   int i;
+
+   for (i = 0; d3d_formats[i] >= 0; i++) {
+      if (!_al_pixel_format_is_real(allegro_formats[i]))
+         continue;
+      if (d3d_formats[i] == d3d_fmt) {
+         return allegro_formats[i];
+      }
+   }
+
+   return -1;
+}
+
+static int d3d_al_color_to_d3d(ALLEGRO_COLOR color)
+{
+   unsigned char r, g, b, a;
+   int result;
+   al_unmap_rgba(color, &r, &g, &b, &a);
+   result = D3DCOLOR_ARGB(a, r, g, b);
+   return result;
+}
+
+static bool d3d_format_is_valid(int format)
+{
+   int i;
+
+   for (i = 0; allegro_formats[i] >= 0; i++) {
+      if (allegro_formats[i] == format)
+         return true;
+   }
+
+   return false;
+}
+
+
+static bool d3d_parameters_are_valid(int format, int refresh_rate, int flags)
+{
+   (void)refresh_rate;
+   (void)flags;
+
+   if (!d3d_format_is_valid(format))
+      return false;
+
+   return true;
+}
+
+
+static DWORD d3d_get_filter(AL_CONST char *s)
+{
+   if (!stricmp(s, "LINEAR"))
+      return D3DTEXF_LINEAR;
+   if (!stricmp(s, "ANISOTROPIC"))
+      return D3DTEXF_ANISOTROPIC;
+   return D3DTEXF_POINT;
+}
+
+
+static void d3d_reset_state(ALLEGRO_DISPLAY_D3D *disp)
+{
+   if (disp->device_lost) return;
+
+   //disp->device->SetRenderState(D3DRS_ZENABLE, D3DZB_FALSE);
+   disp->device->SetRenderState(D3DRS_ZENABLE, D3DZB_TRUE);
+   //disp->device->SetRenderState(D3DRS_ZWRITEENABLE, FALSE);
+   disp->device->SetRenderState(D3DRS_ZWRITEENABLE, TRUE);
+   disp->device->SetRenderState(D3DRS_LIGHTING, FALSE);
+   disp->device->SetRenderState(D3DRS_CULLMODE, D3DCULL_NONE);
+   disp->device->SetRenderState(D3DRS_ALPHABLENDENABLE, TRUE);
+
+   /* Set up filtering */
+   if (disp->device->SetSamplerState(0, D3DSAMP_MINFILTER, d3d_min_filter) != D3D_OK)
+      TRACE("SetSamplerState failed\n");
+   if (disp->device->SetSamplerState(0, D3DSAMP_MAGFILTER, d3d_mag_filter) != D3D_OK)
+      TRACE("SetSamplerState failed\n");
+}
+
+void _al_d3d_get_current_ortho_projection_parameters(float *w, float *h)
+{
+   *w = d3d_ortho_w;
+   *h = d3d_ortho_h;
+}
+
+static void d3d_get_ortho_matrix(float w, float h, D3DMATRIX *matrix)
+{
+   float left = 0.0f;
+   float right = w;
+   float top = 0.0f;
+   float bottom = h;
+   float neer = -1.0f;
+   float farr = 1.0f;
+
+   matrix->m[1][0] = 0.0f;
+   matrix->m[2][0] = 0.0f;
+   matrix->m[0][1] = 0.0f;
+   matrix->m[2][1] = 0.0f;
+   matrix->m[0][2] = 0.0f;
+   matrix->m[1][2] = 0.0f;
+   matrix->m[0][3] = 0.0f;
+   matrix->m[1][3] = 0.0f;
+   matrix->m[2][3] = 0.0f;
+
+   matrix->m[0][0] = 2.0f / (right - left);
+   matrix->m[1][1] = 2.0f / (top - bottom);
+   matrix->m[2][2] = 2.0f / (farr - neer);
+
+   matrix->m[3][0] = -((right+left)/(right-left));
+   matrix->m[3][1] = -((top+bottom)/(top-bottom));
+   matrix->m[3][2] = -((farr+neer)/(farr-neer));
+   matrix->m[3][3] = 1.0f;
+}
+
+static void d3d_get_identity_matrix(D3DMATRIX *matrix)
+{
+   int i, j;
+   int one = 0;
+
+   for (i = 0; i < 4; i++) {
+      for (j = 0; j < 4; j++) {
+         if (j == one)
+            matrix->m[j][i] = 1.0f;
+         else
+            matrix->m[j][i] = 0.0f;
+      }
+      one++;
+   }
+}
+
+static void _al_d3d_set_ortho_projection(ALLEGRO_DISPLAY_D3D *disp, float w, float h)
+{
+   D3DMATRIX matOrtho;
+   D3DMATRIX matIdentity;
+
+   if (disp->device_lost) return;
+
+   d3d_ortho_w = w;
+   d3d_ortho_h = h;
+
+   d3d_get_identity_matrix(&matIdentity);
+   d3d_get_ortho_matrix(w, h, &matOrtho);
+
+   disp->device->SetTransform(D3DTS_PROJECTION, &matOrtho);
+   disp->device->SetTransform(D3DTS_WORLD, &matIdentity);
+   disp->device->SetTransform(D3DTS_VIEW, &matIdentity);
+}
+
+static bool d3d_display_mode_matches(D3DDISPLAYMODE *dm, int w, int h, int format, int refresh_rate)
+{
+   if ((dm->Width == (unsigned int)w) &&
+       (dm->Height == (unsigned int)h) &&
+       ((!refresh_rate) || (dm->RefreshRate == (unsigned int)refresh_rate)) &&
+       ((int)dm->Format == (int)_al_format_to_d3d(format))) {
+          return true;
+   }
+   return false;
+}
+
+static bool d3d_check_mode(int w, int h, int format, int refresh_rate, UINT adapter)
+{
+   UINT num_modes;
+   UINT i;
+   D3DDISPLAYMODE display_mode;
+
+   num_modes = _al_d3d->GetAdapterModeCount(adapter, (D3DFORMAT)_al_format_to_d3d(format));
+
+   for (i = 0; i < num_modes; i++) {
+      if (_al_d3d->EnumAdapterModes(adapter, (D3DFORMAT)_al_format_to_d3d(format), i, &display_mode) != D3D_OK) {
+         return false;
+      }
+      if (d3d_display_mode_matches(&display_mode, w, h, format, refresh_rate)) {
+         return true;
+      }
+   }
+
+   return false;
+}
+
+static int d3d_get_default_refresh_rate(UINT adapter)
+{
+   D3DDISPLAYMODE d3d_dm;
+   _al_d3d->GetAdapterDisplayMode(adapter, &d3d_dm);
+   return d3d_dm.RefreshRate;
+}
+
+
+static bool d3d_create_fullscreen_device(ALLEGRO_DISPLAY_D3D *d,
+   int format, int refresh_rate, int flags)
+{
+   int ret;
+   bool reset_all = false;
+   ALLEGRO_DISPLAY_WIN *win_display = &d->win_display;
+   ALLEGRO_DISPLAY *al_display = &win_display->display;
+
+   if (!d3d_check_mode(al_display->w, al_display->h, format, refresh_rate, win_display->adapter)) {
+      TRACE("d3d_create_fullscreen_device: Mode not supported.\n");
+      return 0;
+   }
+
+   ZeroMemory(&d3d_pp, sizeof(d3d_pp));
+   d3d_pp.BackBufferFormat = (D3DFORMAT)_al_format_to_d3d(format);
+   d3d_pp.BackBufferWidth = al_display->w;
+   d3d_pp.BackBufferHeight = al_display->h;
+   d3d_pp.BackBufferCount = 1;
+   d3d_pp.Windowed = 0;
+   d3d_pp.Flags = D3DPRESENTFLAG_LOCKABLE_BACKBUFFER;
+   d3d_pp.PresentationInterval = D3DPRESENT_INTERVAL_IMMEDIATE;
+   d3d_pp.EnableAutoDepthStencil = TRUE;
+   d3d_pp.AutoDepthStencilFormat = D3DFMT_D16;
+   if (flags & ALLEGRO_SINGLEBUFFER) {
+      d3d_pp.SwapEffect = D3DSWAPEFFECT_COPY;
+   }
+   else {
+      d3d_pp.SwapEffect = D3DSWAPEFFECT_DISCARD;
+   }
+   d3d_pp.hDeviceWindow = win_display->window;
+
+   if (refresh_rate) {
+      d3d_pp.FullScreen_RefreshRateInHz = refresh_rate;
+   }
+   else {
+      d3d_pp.FullScreen_RefreshRateInHz = d3d_get_default_refresh_rate(win_display->adapter);
+   }
+
+   if (ffw_set == false) {
+      fullscreen_focus_window = win_display->window;
+      ffw_set = true;
+   }
+   else {
+      reset_all = true;
+   }
+
+#ifdef ALLEGRO_CFG_D3D9EX
+   if (is_vista) {
+      D3DDISPLAYMODEEX mode;
+      IDirect3D9Ex *d3d = (IDirect3D9Ex *)_al_d3d;
+      mode.Size = sizeof(D3DDISPLAYMODEEX);
+      mode.Width = al_display->w;
+      mode.Height = al_display->h;
+      mode.RefreshRate = d3d_pp.FullScreen_RefreshRateInHz;
+      mode.Format = d3d_pp.BackBufferFormat;
+      mode.ScanLineOrdering = D3DSCANLINEORDERING_PROGRESSIVE;
+
+      if ((ret = d3d->CreateDeviceEx(win_display->adapter,
+               D3DDEVTYPE_HAL, fullscreen_focus_window,
+               D3DCREATE_HARDWARE_VERTEXPROCESSING|D3DCREATE_FPU_PRESERVE|D3DCREATE_MULTITHREADED,
+               &d3d_pp, &mode, (IDirect3DDevice9Ex **)(&d->device))) != D3D_OK) {
+         if ((ret = d3d->CreateDeviceEx(win_display->adapter,
+                  D3DDEVTYPE_HAL, fullscreen_focus_window,
+                  D3DCREATE_SOFTWARE_VERTEXPROCESSING|D3DCREATE_FPU_PRESERVE|D3DCREATE_MULTITHREADED,
+                  &d3d_pp, &mode, (IDirect3DDevice9Ex **)(&d->device))) != D3D_OK) {
+            switch (ret) {
+               case D3DERR_INVALIDCALL:
+                  TRACE("D3DERR_INVALIDCALL in create_device.\n");
+                  break;
+               case D3DERR_NOTAVAILABLE:
+                  TRACE("D3DERR_NOTAVAILABLE in create_device.\n");
+                  break;
+               case D3DERR_OUTOFVIDEOMEMORY:
+                  TRACE("D3DERR_OUTOFVIDEOMEMORY in create_device.\n");
+                  break;
+               case D3DERR_DEVICELOST:
+                  TRACE("D3DERR_DEVICELOST in create_device.\n");
+                  break;
+               default:
+                  TRACE("Direct3D Device creation failed.\n");
+                  break;
+            }
+            return 0;
+         }
+      }
+   }
+   else {
+#endif
+      if ((ret = _al_d3d->CreateDevice(win_display->adapter,
+               D3DDEVTYPE_HAL, fullscreen_focus_window,
+               D3DCREATE_HARDWARE_VERTEXPROCESSING|D3DCREATE_FPU_PRESERVE|D3DCREATE_MULTITHREADED,
+               &d3d_pp, &d->device)) != D3D_OK) {
+         if ((ret = _al_d3d->CreateDevice(win_display->adapter,
+                  D3DDEVTYPE_HAL, fullscreen_focus_window,
+                  D3DCREATE_SOFTWARE_VERTEXPROCESSING|D3DCREATE_FPU_PRESERVE|D3DCREATE_MULTITHREADED,
+                  &d3d_pp, &d->device)) != D3D_OK) {
+            switch (ret) {
+               case D3DERR_INVALIDCALL:
+                  TRACE("D3DERR_INVALIDCALL in create_device.\n");
+                  break;
+               case D3DERR_NOTAVAILABLE:
+                  TRACE("D3DERR_NOTAVAILABLE in create_device.\n");
+                  break;
+               case D3DERR_OUTOFVIDEOMEMORY:
+                  TRACE("D3DERR_OUTOFVIDEOMEMORY in create_device.\n");
+                  break;
+               case D3DERR_DEVICELOST:
+                  TRACE("D3DERR_DEVICELOST in create_device.\n");
+                  break;
+               default:
+                  TRACE("Direct3D Device creation failed.\n");
+                  break;
+            }
+            return 0;
+         }
+      }
+#ifdef ALLEGRO_CFG_D3D9EX
+   }
+#endif
+
+   d->device->GetBackBuffer(0, 0, D3DBACKBUFFER_TYPE_MONO, &d->render_target);
+   //d->device->GetRenderTarget(0, &d->render_target);
+
+   TRACE("Fullscreen Direct3D device created.\n");
+
+   d->device->BeginScene();
+
+   ALLEGRO_SYSTEM *system = (ALLEGRO_SYSTEM *)al_system_driver();
+
+   if (reset_all) {
+      int i;
+      for (i = 0; i < (int)system->displays._size; i++) {
+         ALLEGRO_DISPLAY_D3D **dptr = (ALLEGRO_DISPLAY_D3D **)_al_vector_ref(&system->displays, i);
+         ALLEGRO_DISPLAY_D3D *disp = *dptr;
+         if (disp != d) {
+            if (disp != d && (disp->win_display.display.flags & ALLEGRO_FULLSCREEN)) {
+               disp->do_reset = true;
+               while (!disp->reset_done) {
+                  al_rest(0.001);
+               }
+               disp->reset_done = false;
+            }
+         }
+      }
+   }
+
+   return 1;
+}
+
+static void d3d_destroy_device(ALLEGRO_DISPLAY_D3D *disp)
+{
+   while (disp->device->Release() != 0) {
+      TRACE("d3d_destroy_device: ref count not 0\n");
+   }
+   disp->device = NULL;
+}
+
+
+bool _al_d3d_render_to_texture_supported(void)
+{
+   return render_to_texture_supported;
+}
+
+
+
+bool _al_d3d_init_display()
+{
+   D3DDISPLAYMODE d3d_dm;
+   OSVERSIONINFO info;
+
+   info.dwOSVersionInfoSize = sizeof(info);
+   GetVersionEx(&info);
+   is_vista = info.dwMajorVersion >= 6;
+
+#ifdef ALLEGRO_CFG_D3D9EX
+   if (is_vista) {
+      _dyn_create = (_dyn_create_type)GetProcAddress(GetModuleHandle(TEXT("d3d9.dll")), "Direct3DCreate9Ex");
+      if (_dyn_create != NULL) {
+         if (_dyn_create(D3D_SDK_VERSION, (LPDIRECT3D9EX *)&_al_d3d) != D3D_OK) {
+            TRACE("Direct3DCreate9Ex failed\n");
+            return false;
+         }
+      }
+      else {
+         TRACE("Direct3DCreate9Ex not in d3d9.dll\n");
+         is_vista = false;
+      }
+   }
+
+   if (!is_vista) {
+#endif
+      if ((_al_d3d = Direct3DCreate9(D3D9b_SDK_VERSION)) == NULL) {
+         TRACE("Direct3DCreate9 failed.\n");
+         return false;
+      }
+#ifdef ALLEGRO_CFG_D3D9EX
+   }
+#endif
+
+   _al_d3d->GetAdapterDisplayMode(D3DADAPTER_DEFAULT, &d3d_dm);
+
+   if (_al_d3d->CheckDeviceFormat(D3DADAPTER_DEFAULT,
+         D3DDEVTYPE_HAL, d3d_dm.Format, D3DUSAGE_RENDERTARGET,
+         D3DRTYPE_TEXTURE, d3d_dm.Format) != D3D_OK)
+      render_to_texture_supported = false;
+   else
+      render_to_texture_supported = true;
+
+
+
+   TRACE("Render-to-texture: %d\n", render_to_texture_supported);
+   
+   return true;
+}
+
+
+static bool d3d_create_display_internals(ALLEGRO_DISPLAY_D3D *display);
+static void d3d_destroy_display_internals(ALLEGRO_DISPLAY_D3D *display);
+
+
+static void d3d_make_faux_fullscreen_stage_one(ALLEGRO_DISPLAY_D3D *d3d_display)
+{
+   ALLEGRO_SYSTEM *system = al_system_driver();
+   if (already_fullscreen || num_faux_fullscreen_windows) {
+      int i;
+      for (i = 0; i < (int)system->displays._size; i++) {
+      ALLEGRO_DISPLAY_D3D **dptr = (ALLEGRO_DISPLAY_D3D **)_al_vector_ref(&system->displays, i);
+      ALLEGRO_DISPLAY_D3D *disp = *dptr;
+         if (disp != d3d_display) {// && (disp->win_display.display.flags & ALLEGRO_FULLSCREEN)) {
+            d3d_destroy_display_internals(disp);
+            disp->win_display.end_thread = false;
+            disp->win_display.thread_ended = false;
+         }
+      }
+   }
+}
+
+
+static void d3d_make_faux_fullscreen_stage_two(ALLEGRO_DISPLAY_D3D *d3d_display)
+{
+   ALLEGRO_SYSTEM *system = al_system_driver();
+
+   if (already_fullscreen || num_faux_fullscreen_windows) {
+      int i;
+      already_fullscreen = false;
+      for (i = 0; i < (int)system->displays._size; i++) {
+         ALLEGRO_DISPLAY_D3D **dptr = (ALLEGRO_DISPLAY_D3D **)_al_vector_ref(&system->displays, i);
+         ALLEGRO_DISPLAY_D3D *disp = *dptr;
+         if (disp != d3d_display) {// && (disp->win_display.display.flags & ALLEGRO_FULLSCREEN)) {
+            if (disp->win_display.display.flags & ALLEGRO_FULLSCREEN)
+               disp->faux_fullscreen = true;
+            d3d_create_display_internals(disp);
+            _al_d3d_recreate_bitmap_textures(disp);
+         }
+      }
+   }
+}
+
+static bool d3d_create_device(ALLEGRO_DISPLAY_D3D *d,
+   int format, int refresh_rate, int flags, bool convert_to_faux)
+{
+   HRESULT hr;
+   ALLEGRO_DISPLAY_WIN *win_display = &d->win_display;
+   ALLEGRO_DISPLAY *al_display = &win_display->display;
+   int adapter = al_get_current_video_adapter();
+
+   (void)refresh_rate;
+
+   /* Ideally if you're targetting vanilla Direct3D 9 you should create
+    * your windowed displays before any fullscreen ones. If you don't,
+    * your fullscreen displays will be turned into "faux-fullscreen"
+    * displays, basically screen-filling windows set out in front of
+    * everything else.
+    */
+#ifndef ALLEGRO_CFG_D3D9EX
+   if (convert_to_faux)
+      d3d_make_faux_fullscreen_stage_one(d);
+#endif
+
+   ZeroMemory(&d3d_pp, sizeof(d3d_pp));
+   d3d_pp.BackBufferFormat = (D3DFORMAT)_al_format_to_d3d(format);
+   d3d_pp.BackBufferWidth = al_display->w;
+   d3d_pp.BackBufferHeight = al_display->h;
+   d3d_pp.BackBufferCount = 1;
+   d3d_pp.Windowed = 1;
+   d3d_pp.Flags = D3DPRESENTFLAG_LOCKABLE_BACKBUFFER;
+   d3d_pp.PresentationInterval = D3DPRESENT_INTERVAL_IMMEDIATE;
+   d3d_pp.EnableAutoDepthStencil = TRUE;
+   d3d_pp.AutoDepthStencilFormat = D3DFMT_D16;
+   if (flags & ALLEGRO_SINGLEBUFFER) {
+      d3d_pp.SwapEffect = D3DSWAPEFFECT_COPY;
+   }
+   else {
+      d3d_pp.SwapEffect = D3DSWAPEFFECT_DISCARD;
+   }
+   d3d_pp.hDeviceWindow = win_display->window;
+
+   if (adapter == -1) adapter = 0;
+
+   if ((hr = _al_d3d->CreateDevice(adapter,
+         D3DDEVTYPE_HAL, win_display->window,
+         D3DCREATE_HARDWARE_VERTEXPROCESSING|D3DCREATE_FPU_PRESERVE|D3DCREATE_MULTITHREADED,
+         &d3d_pp, (LPDIRECT3DDEVICE9 *)&d->device)) != D3D_OK) {
+      if ((hr = _al_d3d->CreateDevice(adapter,
+            D3DDEVTYPE_HAL, win_display->window,
+            D3DCREATE_SOFTWARE_VERTEXPROCESSING|D3DCREATE_FPU_PRESERVE|D3DCREATE_MULTITHREADED,
+            &d3d_pp, (LPDIRECT3DDEVICE9 *)&d->device)) != D3D_OK) {
+         if (hr == D3DERR_NOTAVAILABLE) {
+            TRACE("CreateDevice failed: 1\n");
+         }
+         else if (hr == D3DERR_DEVICELOST) {
+            TRACE("CreateDevice failed: 2\n");
+         }
+         else if (hr == D3DERR_INVALIDCALL) {
+            TRACE("CreateDevice failed: 3\n");
+         }
+         else if (hr == D3DERR_OUTOFVIDEOMEMORY) {
+            TRACE("CreateDevice failed: 4\n");
+         }
+         else if (hr == E_OUTOFMEMORY) {
+            TRACE("CreateDevice failed: 5\n");
+         }
+         else {
+            TRACE("Unknown error %u\n", (unsigned)hr);
+         }
+         TRACE("d3d_create_device: CreateDevice failed.\n");
+         return 0;
+      }
+   }
+
+   if (d->device->GetBackBuffer(0, 0, D3DBACKBUFFER_TYPE_MONO, &d->render_target) != D3D_OK) {
+   //if (d->device->GetRenderTarget(0, &d->render_target) != D3D_OK) {
+      TRACE("d3d_create_device: GetBackBuffer failed.\n");
+      return 0;
+   }
+
+   if (d->device->BeginScene() != D3D_OK) {
+      TRACE("BeginScene failed in create_device\n");
+   }
+   else {
+      TRACE("BeginScene succeeded in create_device\n");
+   }
+
+#ifndef ALLEGRO_CFG_D3D9EX
+   if (convert_to_faux)
+      d3d_make_faux_fullscreen_stage_two(d);
+#endif
+
+   TRACE("Success\n");
+
+   return 1;
+}
+
+/* When a display is destroyed, its bitmaps get converted
+ * to memory bitmaps
+ */
+static void d3d_release_bitmaps(ALLEGRO_DISPLAY *display)
+{
+   while (display->bitmaps._size > 0) {
+      ALLEGRO_BITMAP **bptr = (ALLEGRO_BITMAP **)_al_vector_ref_back(&display->bitmaps);
+      ALLEGRO_BITMAP *b = *bptr;
+      _al_convert_to_memory_bitmap(b);
+   }
+}
+
+
+static void d3d_release_current_target(bool release_backbuffer)
+{
+   ALLEGRO_BITMAP *curr;
+   ALLEGRO_BITMAP_D3D *curr_d3d;
+
+   curr = al_get_target_bitmap();
+   if (curr && !(curr->flags & ALLEGRO_MEMORY_BITMAP)) {
+      curr_d3d = (ALLEGRO_BITMAP_D3D *)curr;
+      if (curr_d3d->render_target) {
+         if (curr_d3d->is_backbuffer && release_backbuffer) {
+            ALLEGRO_DISPLAY_D3D *dd = (ALLEGRO_DISPLAY_D3D *)curr->display;
+            if (dd->render_target->Release() != 0) {
+               TRACE("d3d_release_current_target: (bb) ref count not 0\n");
+            }
+         }
+         else if (!curr_d3d->is_backbuffer) {
+            if (curr_d3d->render_target->Release() != 0) {
+               TRACE("d3d_release_current_target: (bmp) ref count not 0\n");
+            }
+            curr_d3d->render_target = NULL;
+         }
+      }
+   }
+}
+
+
+static void d3d_destroy_display_internals(ALLEGRO_DISPLAY_D3D *d3d_display)
+{
+   ALLEGRO_DISPLAY_WIN *win_display = &d3d_display->win_display;
+
+   if (d3d_display->device)
+      d3d_display->device->EndScene();
+
+   d3d_release_bitmaps((ALLEGRO_DISPLAY *)d3d_display);
+   //_al_d3d_release_default_pool_textures();
+
+   d3d_release_current_target(false);
+
+   if (d3d_display->render_target) {
+      if (d3d_display->render_target->Release() != 0) {
+         TRACE("d3d_destroy_d3d_display_internals: (bb) ref count not 0\n");
+      }
+   }
+
+   SendMessage(win_display->window, _al_win_msg_suicide, 0, 0);
+   while (!win_display->thread_ended)
+      al_rest(0.001);
+}
+
+static void d3d_destroy_display(ALLEGRO_DISPLAY *display)
+{
+   ALLEGRO_SYSTEM_WIN *system = (ALLEGRO_SYSTEM_WIN *)al_system_driver();
+   ALLEGRO_DISPLAY_D3D *d3d_display = (ALLEGRO_DISPLAY_D3D *)display;
+
+   d3d_destroy_display_internals(d3d_display);
+
+   _al_vector_find_and_delete(&system->system.displays, &display);
+
+   if (system->system.displays._size > 0) {
+      ALLEGRO_DISPLAY_D3D **dptr = (ALLEGRO_DISPLAY_D3D **)_al_vector_ref(&system->system.displays, 0);
+      ALLEGRO_DISPLAY_D3D *d = *dptr;
+      _al_win_grab_input((ALLEGRO_DISPLAY_WIN*)d);
+   }
+   else {
+      ffw_set = false;
+      already_fullscreen = false;
+   }
+
+   _al_event_source_free(&display->es);
+
+   _al_vector_free(&display->bitmaps);
+   _AL_FREE(display);
+}
+
+void _al_d3d_prepare_for_reset(ALLEGRO_DISPLAY_D3D *disp)
+{
+   //_al_d3d_prepare_bitmaps_for_reset(disp);
+   _al_d3d_release_default_pool_textures();
+   while (disp->render_target->Release() != 0) {
+      TRACE("_al_d3d_prepare_for_reset: (bb) ref count not 0\n");
+   }
+}
+
+static bool _al_d3d_reset_device(ALLEGRO_DISPLAY_D3D *d3d_display)
+{
+   ALLEGRO_DISPLAY_WIN *win_display = &d3d_display->win_display;
+   ALLEGRO_DISPLAY *al_display = &win_display->display;
+
+
+    _al_d3d_prepare_for_reset(d3d_display);
+
+    if (al_display->flags & ALLEGRO_FULLSCREEN) {
+       HRESULT hr;
+
+       ZeroMemory(&d3d_pp, sizeof(d3d_pp));
+       d3d_pp.BackBufferFormat = (D3DFORMAT)_al_format_to_d3d(al_display->format);
+       d3d_pp.BackBufferWidth = al_display->w;
+       d3d_pp.BackBufferHeight = al_display->h;
+       d3d_pp.BackBufferCount = 1;
+       d3d_pp.Windowed = 0;
+       d3d_pp.SwapEffect = D3DSWAPEFFECT_DISCARD;
+       d3d_pp.hDeviceWindow = win_display->window;
+       d3d_pp.Flags = D3DPRESENTFLAG_LOCKABLE_BACKBUFFER;
+       d3d_pp.PresentationInterval = D3DPRESENT_INTERVAL_IMMEDIATE;
+       d3d_pp.EnableAutoDepthStencil = TRUE;
+       d3d_pp.AutoDepthStencilFormat = D3DFMT_D16;
+       if (al_display->flags & ALLEGRO_SINGLEBUFFER) {
+          d3d_pp.SwapEffect = D3DSWAPEFFECT_COPY;
+       }
+       else {
+          d3d_pp.SwapEffect = D3DSWAPEFFECT_DISCARD;
+       }
+       if (al_display->refresh_rate) {
+          d3d_pp.FullScreen_RefreshRateInHz =
+             al_display->refresh_rate;
+       }
+       else {
+          d3d_pp.FullScreen_RefreshRateInHz = d3d_get_default_refresh_rate(win_display->adapter);
+       }
+#ifdef ALLEGRO_CFG_D3D9EX
+       if (is_vista) {
+          D3DDISPLAYMODEEX mode;
+          IDirect3DDevice9Ex *dev = (IDirect3DDevice9Ex *)d3d_display->device;
+          mode.Size = sizeof(D3DDISPLAYMODEEX);
+          mode.Width = d3d_pp.BackBufferWidth;
+          mode.Height = d3d_pp.BackBufferHeight;
+          mode.RefreshRate = d3d_pp.FullScreen_RefreshRateInHz;
+          mode.Format = d3d_pp.BackBufferFormat;
+          mode.ScanLineOrdering = D3DSCANLINEORDERING_PROGRESSIVE;
+          hr = dev->ResetEx(&d3d_pp, &mode);
+       }
+       else {
+#endif
+          hr = d3d_display->device->Reset(&d3d_pp);
+#ifdef ALLEGRO_CFG_D3D9EX
+       }
+#endif
+       if (hr != D3D_OK) {
+          switch (hr) {
+             case D3DERR_INVALIDCALL:
+                TRACE("D3DERR_INVALIDCALL in reset.\n");
+                break;
+             case D3DERR_NOTAVAILABLE:
+                TRACE("D3DERR_NOTAVAILABLE in reset.\n");
+                break;
+             case D3DERR_OUTOFVIDEOMEMORY:
+                TRACE("D3DERR_OUTOFVIDEOMEMORY in reset.\n");
+                break;
+             case D3DERR_DEVICELOST:
+                TRACE("D3DERR_DEVICELOST in reset.\n");
+                break;
+             default:
+                TRACE("Direct3D Device reset failed (unknown reason).\n");
+                break;
+          }
+          return 0;
+       }
+    }
+    else {
+       ZeroMemory(&d3d_pp, sizeof(d3d_pp));
+       d3d_pp.BackBufferFormat = (D3DFORMAT)_al_format_to_d3d(al_display->format);
+       d3d_pp.BackBufferWidth = al_display->w;
+       d3d_pp.BackBufferHeight = al_display->h;
+       d3d_pp.BackBufferCount = 1;
+       d3d_pp.Windowed = 1;
+       d3d_pp.SwapEffect = D3DSWAPEFFECT_DISCARD;
+       d3d_pp.hDeviceWindow = win_display->window;
+       d3d_pp.Flags = D3DPRESENTFLAG_LOCKABLE_BACKBUFFER;
+
+       if (d3d_display->device->Reset(&d3d_pp) != D3D_OK) {
+          TRACE("Reset failed\n");
+          return 0;
+       }
+    }
+
+   d3d_display->device->GetBackBuffer(0, 0, D3DBACKBUFFER_TYPE_MONO, &d3d_display->render_target);
+
+   _al_d3d_refresh_texture_memory();
+
+   d3d_display->device->BeginScene();
+
+   d3d_reset_state(d3d_display);
+
+   return 1;
+}
+
+static int d3d_choose_display_format(int fake)
+{
+   /* Pick an appropriate format if the user is vague */
+   switch (fake) {
+      case ALLEGRO_PIXEL_FORMAT_ANY:
+      case ALLEGRO_PIXEL_FORMAT_ANY_NO_ALPHA:
+         fake = ALLEGRO_PIXEL_FORMAT_XRGB_8888;
+         break;
+      case ALLEGRO_PIXEL_FORMAT_ANY_WITH_ALPHA:
+      case ALLEGRO_PIXEL_FORMAT_ANY_32_WITH_ALPHA:
+         fake = ALLEGRO_PIXEL_FORMAT_ARGB_8888;
+         break;
+      case ALLEGRO_PIXEL_FORMAT_ANY_32_NO_ALPHA:
+         fake = ALLEGRO_PIXEL_FORMAT_XRGB_8888;
+         break;
+      case ALLEGRO_PIXEL_FORMAT_ANY_15_WITH_ALPHA:
+         fake = ALLEGRO_PIXEL_FORMAT_ARGB_1555;
+         break;
+      case ALLEGRO_PIXEL_FORMAT_ANY_16_NO_ALPHA:
+         fake = ALLEGRO_PIXEL_FORMAT_RGB_565;
+         break;
+      case ALLEGRO_PIXEL_FORMAT_ANY_16_WITH_ALPHA:
+         fake = ALLEGRO_PIXEL_FORMAT_ARGB_4444;
+         break;
+      case ALLEGRO_PIXEL_FORMAT_ANY_15_NO_ALPHA:
+      case ALLEGRO_PIXEL_FORMAT_ANY_24_WITH_ALPHA:
+      case ALLEGRO_PIXEL_FORMAT_ANY_24_NO_ALPHA:
+         fake = -1;
+         break;
+      default:
+         break;
+   }
+
+   return fake;
+}
+
+static BOOL IsTextureFormatOk(D3DFORMAT TextureFormat, D3DFORMAT AdapterFormat)
+{
+   HRESULT hr = _al_d3d->CheckDeviceFormat(D3DADAPTER_DEFAULT,
+      D3DDEVTYPE_HAL,
+      AdapterFormat,
+      0,
+      D3DRTYPE_TEXTURE,
+      TextureFormat);
+
+   return SUCCEEDED(hr);
+}
+
+static int real_choose_bitmap_format(int bits, bool alpha)
+{
+   int i;
+
+   /* XXX should we be ignoring this? */
+   (void)alpha;
+
+   for (i = 0; allegro_formats[i] >= 0; i++) {
+      int aformat = allegro_formats[i];
+      D3DFORMAT dformat;
+      D3DFORMAT adapter_format;
+      int adapter_format_allegro;
+      if (!_al_pixel_format_is_real(aformat))
+         continue;
+      if (bits && al_get_pixel_format_bits(aformat) != bits)
+         continue;
+      dformat = (D3DFORMAT)d3d_formats[i];
+      adapter_format_allegro = al_get_new_display_format();
+      if (!_al_pixel_format_is_real(adapter_format_allegro))
+         adapter_format_allegro = d3d_choose_display_format(adapter_format_allegro);
+      adapter_format = (D3DFORMAT)_al_format_to_d3d(adapter_format_allegro);
+      if (IsTextureFormatOk(dformat, adapter_format))
+         return aformat;
+   }
+
+   return -1;
+}
+
+static int d3d_choose_bitmap_format(int fake)
+{
+   switch (fake) {
+      case ALLEGRO_PIXEL_FORMAT_ANY_NO_ALPHA:
+         fake = real_choose_bitmap_format(0, false);
+         break;
+      case ALLEGRO_PIXEL_FORMAT_ANY:
+      case ALLEGRO_PIXEL_FORMAT_ANY_WITH_ALPHA:
+         fake = real_choose_bitmap_format(0, true);
+         break;
+      case ALLEGRO_PIXEL_FORMAT_ANY_32_NO_ALPHA:
+         fake = real_choose_bitmap_format(32, false);
+         break;
+      case ALLEGRO_PIXEL_FORMAT_ANY_32_WITH_ALPHA:
+         fake = real_choose_bitmap_format(32, true);
+         break;
+      case ALLEGRO_PIXEL_FORMAT_ANY_24_NO_ALPHA:
+         fake = real_choose_bitmap_format(24, false);
+         break;
+      case ALLEGRO_PIXEL_FORMAT_ANY_24_WITH_ALPHA:
+         fake = real_choose_bitmap_format(24, true);
+         break;
+      case ALLEGRO_PIXEL_FORMAT_ANY_16_NO_ALPHA:
+         fake = real_choose_bitmap_format(16, false);
+         break;
+      case ALLEGRO_PIXEL_FORMAT_ANY_16_WITH_ALPHA:
+         fake = real_choose_bitmap_format(16, true);
+         break;
+      case ALLEGRO_PIXEL_FORMAT_ANY_15_NO_ALPHA:
+         fake = real_choose_bitmap_format(15, false);
+         break;
+      case ALLEGRO_PIXEL_FORMAT_ANY_15_WITH_ALPHA:
+         fake = real_choose_bitmap_format(15, true);
+         break;
+      default:
+         fake = -1;
+   }
+
+   return fake;
+}
+
+
+/*
+ * The window and swap chain must be created in the same
+ * thread that runs the message loop. It also must be
+ * reset from the same thread.
+ */
+static void d3d_display_thread_proc(void *arg)
+{
+   ALLEGRO_DISPLAY_D3D *d3d_display;
+   ALLEGRO_DISPLAY_WIN *win_display;
+   ALLEGRO_DISPLAY *al_display;
+   MSG msg;
+   HRESULT hr;
+   bool lost_event_generated = false;
+   new_display_parameters *params = (new_display_parameters *)arg;
+   D3DCAPS9 caps;
+   int new_format;
+   bool convert_to_faux = true;
+
+   d3d_display = params->display;
+   win_display = &d3d_display->win_display;
+   al_display = &win_display->display;
+
+   /* So that we can call the functions using TLS from this thread. */
+   al_set_new_display_flags(al_display->flags);
+
+   new_format = al_display->format;
+
+   if (!_al_pixel_format_is_real(al_display->format)) {
+      int f = d3d_choose_display_format(al_display->format);
+      if (f < 0) {
+         SetEvent(params->AckEvent);
+         return;
+      }
+      new_format = f;
+   }
+
+   if (!d3d_parameters_are_valid(al_display->format, al_display->refresh_rate, al_display->flags)) {
+      TRACE("d3d_display_thread_proc: Invalid parameters.\n");
+      SetEvent(params->AckEvent);
+      return;
+   }
+
+   al_display->format = new_format;
+
+   if (d3d_display->faux_fullscreen) {
+      ALLEGRO_MONITOR_INFO mi;
+      DEVMODE dm;
+      bool found = true;
+      int refresh_rate;
+      DISPLAY_DEVICE dd;
+
+      num_faux_fullscreen_windows++;
+
+      d3d_make_faux_fullscreen_stage_one(d3d_display);
+
+      al_get_monitor_info(win_display->adapter, &mi);
+      /* Yes this is an "infinite" loop (suggested by MS on msdn) */
+      for (int i = 0; ; i++) {
+         dd.cb = sizeof(dd);
+         if (!EnumDisplayDevices(NULL, i, &dd, 0)) {
+            found = false;
+            break;
+         }
+         if (!EnumDisplaySettings(dd.DeviceName, ENUM_CURRENT_SETTINGS, &dm)) {
+            continue;
+         }
+         if (mi.x1 == dm.dmPosition.x && mi.y1 == dm.dmPosition.y) {
+            break;
+         }
+
+      }
+      if (!found) {
+         TRACE("d3d_display_thread_proc: Error setting faux fullscreen mode.\n");
+         num_faux_fullscreen_windows--;
+         SetEvent(params->AckEvent);
+         return;
+      }
+      if (al_display->refresh_rate) {
+         refresh_rate = al_display->refresh_rate;
+      }
+      else {
+         refresh_rate = d3d_get_default_refresh_rate(win_display->adapter);
+      }
+      d3d_display->device_name = (TCHAR *)_AL_MALLOC(sizeof(TCHAR)*32);
+      strcpy(d3d_display->device_name, dd.DeviceName);
+      TRACE("going to call _al_win_create_faux_fullscreen_window\n");
+      win_display->window = _al_win_create_faux_fullscreen_window(dd.DeviceName, al_display,
+         mi.x1, mi.y1, al_display->w, al_display->h,
+         refresh_rate, al_display->flags);
+      TRACE("Called _al_win_create_faux_fullscreen_window\n");
+
+      d3d_make_faux_fullscreen_stage_two(d3d_display);
+
+      convert_to_faux = false;
+   }
+   else {
+      TRACE("Normal window\n");
+      win_display->window = _al_win_create_window(al_display, al_display->w,
+         al_display->h, al_display->flags);
+   }
+
+   if (!win_display->window) {
+      SetEvent(params->AckEvent);
+      return;
+   }
+
+   if (!(al_display->flags & ALLEGRO_FULLSCREEN) || d3d_display->faux_fullscreen) {
+      if (!d3d_create_device(d3d_display, al_display->format,
+            al_display->refresh_rate, al_display->flags, convert_to_faux)) {
+         win_display->thread_ended = true;
+         d3d_destroy_display(al_display);
+         SetEvent(params->AckEvent);
+         return;
+      }
+   }
+   else {
+      TRACE("Creating real fullscreen device\n");
+      if (!d3d_create_fullscreen_device(d3d_display, al_display->format,
+            al_display->refresh_rate, al_display->flags)) {
+         win_display->thread_ended = true;
+         d3d_destroy_display(al_display);
+         SetEvent(params->AckEvent);
+         return;
+      }
+      TRACE("Real fullscreen device created\n");
+   }
+
+
+   d3d_display->device->GetDeviceCaps(&caps);
+   d3d_can_wait_for_vsync = ((caps.Caps & D3DCAPS_READ_SCANLINE) != 0);
+
+   params->init_failed = false;
+   win_display->thread_ended = false;
+   win_display->end_thread = false;
+   SetEvent(params->AckEvent);
+
+   while (!win_display->end_thread) {
+      if (WaitMessage()) {
+         /* messages are waiting in the queue */
+         while (PeekMessage(&msg, NULL, 0, 0, PM_NOREMOVE)) {
+            if (GetMessage(&msg, NULL, 0, 0)) {
+               DispatchMessage(&msg);
+            }
+            else {
+               goto End;
+            }
+         }
+
+         if (!d3d_display->device)
+            continue;
+
+         hr = d3d_display->device->TestCooperativeLevel();
+
+         if (hr == D3D_OK) {
+            d3d_display->device_lost = false;
+         }
+         else if (hr == D3DERR_DEVICELOST) {
+            /* device remains lost */
+            if (!lost_event_generated) {
+               _al_event_source_lock(&al_display->es);
+               if (_al_event_source_needs_to_generate_event(&al_display->es)) {
+                  ALLEGRO_EVENT event;
+                  event.display.type = ALLEGRO_EVENT_DISPLAY_LOST;
+                  event.display.timestamp = al_current_time();
+                  _al_event_source_emit_event(&al_display->es, &event);
+               }
+               _al_event_source_unlock(&al_display->es);
+               lost_event_generated = true;
+               al_rest(0.5); // give user time to respond
+            }
+         }
+         else if (hr == D3DERR_DEVICENOTRESET) {
+            if (_al_d3d_reset_device(d3d_display)) {
+               d3d_display->device_lost = false;
+               _al_event_source_lock(&al_display->es);
+               if (_al_event_source_needs_to_generate_event(&al_display->es)) {
+                  ALLEGRO_EVENT event;
+                  event.display.type = ALLEGRO_EVENT_DISPLAY_FOUND;
+                  event.display.timestamp = al_current_time();
+                  _al_event_source_emit_event(&al_display->es, &event);
+               }
+               _al_event_source_unlock(&al_display->es);
+               lost_event_generated = false;
+            }
+         }
+         if (d3d_display->do_reset) {
+            d3d_display->reset_success = _al_d3d_reset_device(d3d_display);
+            d3d_display->reset_done = true;
+            d3d_display->do_reset = false;
+         }
+      }
+      else {
+         TRACE("Wait failed.\n");
+         break;
+      }
+   }
+
+End:
+
+   d3d_destroy_device(d3d_display);
+
+   if (d3d_display->faux_fullscreen) {
+      ChangeDisplaySettingsEx(d3d_display->device_name, NULL, NULL, 0, NULL);//CDS_FULLSCREEN
+      _AL_FREE(d3d_display->device_name);
+      num_faux_fullscreen_windows--;
+   }
+
+   win_display->thread_ended = true;
+
+   TRACE("d3d display thread exits\n");
+}
+
+static bool d3d_create_display_internals(ALLEGRO_DISPLAY_D3D *d3d_display)
+{
+   new_display_parameters params;
+   ALLEGRO_DISPLAY_WIN *win_display = &d3d_display->win_display;
+   ALLEGRO_DISPLAY *al_display = &win_display->display;
+   static bool cfg_read = false;
+   ALLEGRO_SYSTEM *sys;
+   AL_CONST char *s;
+
+   params.display = d3d_display;
+   params.init_failed = true;
+   params.AckEvent = CreateEvent(NULL, FALSE, FALSE, NULL);
+
+   _beginthread(d3d_display_thread_proc, 0, &params);
+   /* Wait some _finite_ time (10 secs or so) for display thread to init, and
+    * give up if something horrible happened to it, unless we're in debug mode
+    * and we may have intentionally stopped the execution to analyze the code.
+    */
+#ifdef DEBUGMODE
+   WaitForSingleObject(params.AckEvent, INFINITE);
+#else
+   WaitForSingleObject(params.AckEvent, 10*1000);
+#endif
+
+   CloseHandle(params.AckEvent);
+   if (params.init_failed) {
+      return false;
+   }
+
+   if (!cfg_read) {
+      cfg_read = true;
+
+      sys = al_system_driver();
+
+      if (sys->config) {
+         s = al_config_get_value(sys->config, "graphics", "min_filter");
+         if (s)
+            d3d_min_filter = d3d_get_filter(s);
+         s = al_config_get_value(sys->config, "graphics", "mag_filter");
+         if (s)
+            d3d_mag_filter = d3d_get_filter(s);
+      }
+   }
+
+   d3d_reset_state(d3d_display);
+
+   //d3d_display->backbuffer_bmp.render_target = d3d_display->render_target;
+   d3d_display->backbuffer_bmp.is_backbuffer = true;
+   d3d_display->backbuffer_bmp.bitmap.display = al_display;
+   d3d_display->backbuffer_bmp.bitmap.format = al_display->format;
+   d3d_display->backbuffer_bmp.bitmap.flags = 0;
+   d3d_display->backbuffer_bmp.bitmap.w = al_display->w;
+   d3d_display->backbuffer_bmp.bitmap.h = al_display->h;
+   d3d_display->backbuffer_bmp.bitmap.cl = 0;
+   d3d_display->backbuffer_bmp.bitmap.ct = 0;
+   d3d_display->backbuffer_bmp.bitmap.cr = al_display->w;
+   d3d_display->backbuffer_bmp.bitmap.cb = al_display->h;
+   d3d_display->backbuffer_bmp.bitmap.vt = (ALLEGRO_BITMAP_INTERFACE *)_al_bitmap_d3d_driver();
+   d3d_display->backbuffer_bmp.display = d3d_display;
+
+   /* Alpha blending is the default */
+   d3d_display->device->SetRenderState(D3DRS_ALPHABLENDENABLE, TRUE);
+   d3d_display->device->SetRenderState(D3DRS_SRCBLEND, D3DBLEND_SRCALPHA);
+   d3d_display->device->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_INVSRCALPHA);
+
+   return true;
+}
+
+
+static ALLEGRO_DISPLAY *d3d_create_display(int w, int h)
+{
+   ALLEGRO_SYSTEM_WIN *system = (ALLEGRO_SYSTEM_WIN *)al_system_driver();
+   ALLEGRO_DISPLAY_D3D *d3d_display = (ALLEGRO_DISPLAY_D3D *)_AL_MALLOC(sizeof(ALLEGRO_DISPLAY_D3D));
+   ALLEGRO_DISPLAY_D3D **add;
+   ALLEGRO_DISPLAY_WIN *win_display = &d3d_display->win_display;
+   ALLEGRO_DISPLAY *al_display = &win_display->display;
+   D3DCAPS9 caps;
+   int adapter = al_get_current_video_adapter();
+   if (adapter == -1)
+      adapter = 0;
+
+   memset(d3d_display, 0, sizeof *d3d_display);
+
+   win_display->adapter = adapter;
+   d3d_display->ignore_ack = false;
+   al_display->w = w;
+   al_display->h = h;
+   al_display->format = al_get_new_display_format();
+   al_display->refresh_rate = al_get_new_display_refresh_rate();
+   al_display->flags = al_get_new_display_flags();
+   al_display->vt = vt;
+
+#ifdef ALLEGRO_CFG_D3D9EX
+   if (!is_vista) {
+#endif
+      if (al_display->flags & ALLEGRO_FULLSCREEN) {
+         if (already_fullscreen || system->system.displays._size != 0) {
+            d3d_display->faux_fullscreen = true;
+         }
+         else {
+            already_fullscreen = true;
+            d3d_display->faux_fullscreen = false;
+         }
+      }
+      else {
+         d3d_display->faux_fullscreen = false;
+      }
+#ifdef ALLEGRO_CFG_D3D9EX
+   }
+   else {
+      d3d_display->faux_fullscreen = false;
+   }
+#endif
+
+   TRACE("faux_fullscreen=%d\n", d3d_display->faux_fullscreen);
+
+   if (!d3d_create_display_internals(d3d_display)) {
+      TRACE("d3d_create_display failed.\n");
+      _AL_FREE(d3d_display);
+      return NULL;
+   }
+
+   /* Add ourself to the list of displays. */
+   add = (ALLEGRO_DISPLAY_D3D **)_al_vector_alloc_back(&system->system.displays);
+   *add = d3d_display;
+
+   /* Each display is an event source. */
+   _al_event_source_init(&al_display->es);
+
+   /* Setup the mouse */
+   win_display->mouse_range_x1 = 0;
+   win_display->mouse_range_y1 = 0;
+   win_display->mouse_range_x2 = w;
+   win_display->mouse_range_y2 = h;
+
+   win_display->mouse_selected_hcursor = 0;
+   win_display->mouse_cursor_shown = false;
+
+   _al_win_grab_input(win_display);
+
+   _al_win_show_mouse_cursor(al_display);
+
+   if (_al_d3d->GetDeviceCaps(adapter, D3DDEVTYPE_HAL, &caps) != D3D_OK) {
+      d3d_display->supports_separate_alpha_blend = false;
+   }
+   else {
+      d3d_display->supports_separate_alpha_blend =
+         ((caps.PrimitiveMiscCaps & D3DPMISCCAPS_SEPARATEALPHABLEND) != 0);
+   }
+
+   return al_display;
+}
+
+static bool d3d_set_current_display(ALLEGRO_DISPLAY *d)
+{
+   ALLEGRO_DISPLAY_D3D *d3d_display = (ALLEGRO_DISPLAY_D3D *)d;
+
+   if (d3d_display->do_reset)
+      return false;
+
+   return true;
+}
+
+
+static int d3d_al_blender_to_d3d(int al_mode)
+{
+   int num_modes = 4;
+
+   int allegro_modes[] = {
+      ALLEGRO_ZERO,
+      ALLEGRO_ONE,
+      ALLEGRO_ALPHA,
+      ALLEGRO_INVERSE_ALPHA
+   };
+
+   int d3d_modes[] = {
+      D3DBLEND_ZERO,
+      D3DBLEND_ONE,
+      D3DBLEND_SRCALPHA,
+      D3DBLEND_INVSRCALPHA
+   };
+
+   int i;
+
+   for (i = 0; i < num_modes; i++) {
+      if (al_mode == allegro_modes[i]) {
+         return d3d_modes[i];
+      }
+   }
+
+   TRACE("Unknown blend mode.\n");
+
+   return D3DBLEND_ONE;
+}
+
+void _al_d3d_set_blender(ALLEGRO_DISPLAY_D3D *d3d_display)
+{
+   int src, dst, alpha_src, alpha_dst;
+   ALLEGRO_COLOR color;
+
+   al_get_separate_blender(&src, &dst, &alpha_src, &alpha_dst, &color);
+
+   src = d3d_al_blender_to_d3d(src);
+   dst = d3d_al_blender_to_d3d(dst);
+   alpha_src = d3d_al_blender_to_d3d(alpha_src);
+   alpha_dst = d3d_al_blender_to_d3d(alpha_dst);
+
+   if (d3d_display->device->SetRenderState(D3DRS_SRCBLEND, src) != D3D_OK)
+      TRACE("Failed to set source blender\n");
+   if (d3d_display->device->SetRenderState(D3DRS_DESTBLEND, dst) != D3D_OK)
+      TRACE("Failed to set dest blender\n");
+
+   //if (alpha_src != ALLEGRO_ONE || alpha_dst != ALLEGRO_ONE) {
+      if (d3d_display->device->SetRenderState(D3DRS_SEPARATEALPHABLENDENABLE, TRUE) != D3D_OK)
+         TRACE("D3DRS_SEPARATEALPHABLENDENABLE failed\n");
+      if (d3d_display->device->SetRenderState(D3DRS_SRCBLENDALPHA, alpha_src) != D3D_OK)
+         TRACE("Failed to set source alpha blender\n");
+      if (d3d_display->device->SetRenderState(D3DRS_DESTBLENDALPHA, alpha_dst) != D3D_OK)
+         TRACE("Failed to set dest alpha blender\n");
+   //}
+   //else {
+     // if (d3d_display->device->SetRenderState(D3DRS_SEPARATEALPHABLENDENABLE, FALSE) != D3D_OK)
+       //  TRACE("D3DRS_SEPARATEALPHABLENDENABLE FALSE failed\n");
+  // }
+
+   d3d_display->device->SetTextureStageState(0, D3DTSS_ALPHAOP, D3DTOP_MODULATE);
+}
+
+
+
+static DWORD d3d_blend_colors(
+   ALLEGRO_COLOR *color,
+   ALLEGRO_COLOR *bc)
+{
+   ALLEGRO_COLOR result;
+   float r, g, b, a;
+
+   al_unmap_rgba_f(*color, &r, &g, &b, &a);
+
+   result = al_map_rgba_f(
+      r*bc->r,
+      g*bc->g,
+      b*bc->b,
+      a*bc->a);
+
+   return d3d_al_color_to_d3d(result);
+}
+
+/* Dummy implementation of line. */
+static void d3d_draw_line(ALLEGRO_DISPLAY *al_display, float fx, float fy, float tx, float ty,
+   ALLEGRO_COLOR *color)
+{
+   static D3D_COLORED_VERTEX points[2] = { { 0.0f, 0.0f, 0.0f, 0 }, };
+   ALLEGRO_BITMAP *target = al_get_target_bitmap();
+   ALLEGRO_COLOR *bc = _al_get_blend_color();
+   DWORD d3d_color;
+   ALLEGRO_DISPLAY_D3D *d3d_display = (ALLEGRO_DISPLAY_D3D *)al_display;
+
+   if (d3d_display->device_lost) return;
+
+   if (!_al_d3d_render_to_texture_supported() || !_al_d3d_supports_separate_alpha_blend(al_display)) {
+      _al_draw_line_memory((int)fx, (int)fy, (int)tx, (int)ty, color);
+      return;
+   }
+
+   d3d_set_bitmap_clip(target);
+
+   d3d_color = d3d_blend_colors(color, bc);
+
+   fx -= 0.5f;
+   fy -= 0.5f;
+   tx -= 0.5f;
+   ty -= 0.5f;
+
+   if (target->parent) {
+      fx += target->xofs;
+      tx += target->xofs;
+      fy += target->yofs;
+      ty += target->yofs;
+   }
+
+   points[0].x = fx;
+   points[0].y = fy;
+   points[0].color = d3d_color;
+
+   points[1].x = tx;
+   points[1].y = ty;
+   points[1].color = d3d_color;
+
+   _al_d3d_set_blender(d3d_display);
+
+   d3d_display->device->SetFVF(D3DFVF_COLORED_VERTEX);
+
+   if (d3d_display->device->DrawPrimitiveUP(D3DPT_LINELIST, 1,
+         points, sizeof(D3D_COLORED_VERTEX)) != D3D_OK) {
+      TRACE("DrawPrimitive failed in d3d_draw_line.\n");
+   }
+}
+
+static void d3d_draw_rectangle(ALLEGRO_DISPLAY *al_display, float tlx, float tly,
+   float brx, float bry, ALLEGRO_COLOR *color, int flags)
+{
+   D3DRECT rect;
+   float w = brx - tlx;
+   float h = bry - tly;
+   ALLEGRO_BITMAP *target;
+   ALLEGRO_COLOR *bc = _al_get_blend_color();
+   DWORD d3d_color;
+   ALLEGRO_DISPLAY_D3D *d3d_display = (ALLEGRO_DISPLAY_D3D *)al_display;
+
+   if (!(flags & ALLEGRO_FILLED)) {
+      d3d_draw_line(al_display, tlx, tly, brx, tly, color);
+      d3d_draw_line(al_display, tlx, bry, brx, bry, color);
+      d3d_draw_line(al_display, tlx, tly, tlx, bry, color);
+      d3d_draw_line(al_display, brx, tly, brx, bry, color);
+      return;
+   }
+
+   tlx -= 0.5f;
+   tly -= 0.5f;
+   brx -= 0.5f;
+   bry -= 0.5f;
+
+   if (d3d_display->device_lost) return;
+
+   if (!_al_d3d_render_to_texture_supported() || !_al_d3d_supports_separate_alpha_blend(al_display)) {
+      _al_draw_rectangle_memory((int)tlx, (int)tly, (int)brx, (int)bry, color, flags);
+      return;
+   }
+
+   target = al_get_target_bitmap();
+
+   d3d_set_bitmap_clip(target);
+
+   d3d_color = d3d_blend_colors(color, bc);
+
+   if (w < 1 || h < 1) {
+      return;
+   }
+
+   if (target->parent) {
+      tlx += target->xofs;
+      brx += target->xofs;
+      tly += target->yofs;
+      bry += target->yofs;
+   }
+
+   rect.x1 = (LONG)tlx;
+   rect.y1 = (LONG)tly;
+   rect.x2 = (LONG)brx;
+   rect.y2 = (LONG)bry;
+
+   _al_d3d_set_blender(d3d_display);
+
+   _al_d3d_draw_textured_quad(d3d_display, NULL,
+      0.0f, 0.0f, w, h,
+      tlx, tly, w, h,
+      w/2, h/2, 0.0f,
+      d3d_color, 0, false);
+}
+
+static void d3d_clear(ALLEGRO_DISPLAY *al_display, ALLEGRO_COLOR *color)
+{
+   ALLEGRO_DISPLAY_D3D* d3d_display = (ALLEGRO_DISPLAY_D3D*)al_display;
+   if (d3d_display->device->Clear(0, NULL, D3DCLEAR_TARGET,
+      D3DCOLOR_ARGB((int)(color->a*255), (int)(color->r*255), (int)(color->g*255), (int)(color->b*255)),
+      0, 0) != D3D_OK) {
+         TRACE("Clear failed\n");
+   }
+}
+
+
+
+void d3d_draw_pixel(ALLEGRO_DISPLAY *al_display, float x, float y, ALLEGRO_COLOR *color)
+{
+   d3d_draw_rectangle(al_display, x, y, x+1, y+1, color, ALLEGRO_FILLED);
+}
+
+
+
+static void d3d_flip_display(ALLEGRO_DISPLAY *al_display)
+{
+   ALLEGRO_DISPLAY_D3D* d3d_display = (ALLEGRO_DISPLAY_D3D*)al_display;
+   ALLEGRO_DISPLAY_WIN *win_display = &d3d_display->win_display;
+   HRESULT hr;
+
+   if (d3d_display->device_lost) return;
+
+   d3d_display->device->EndScene();
+
+   hr = d3d_display->device->Present(NULL, NULL, win_display->window, NULL);
+
+   d3d_display->device->BeginScene();
+
+   if (hr == D3DERR_DEVICELOST) {
+      d3d_display->device_lost = true;
+      return;
+   }
+   else {
+      _al_d3d_prepare_bitmaps_for_reset(d3d_display);
+   }
+}
+
+static bool d3d_update_display_region(ALLEGRO_DISPLAY *al_display,
+   int x, int y,
+   int width, int height)
+{
+   ALLEGRO_DISPLAY_D3D* d3d_display = (ALLEGRO_DISPLAY_D3D*)al_display;
+   ALLEGRO_DISPLAY_WIN *win_display = &d3d_display->win_display;
+   HRESULT hr;
+   RGNDATA *rgndata;
+   bool ret;
+
+   if (d3d_display->device_lost) return false;
+
+   if (al_display->flags & ALLEGRO_SINGLEBUFFER) {
+      RECT rect;
+
+      rect.left = x;
+      rect.right = x+width;
+      rect.top = y;
+      rect.bottom = y+height;
+
+      rgndata = (RGNDATA *)malloc(sizeof(RGNDATA)+sizeof(RECT)-1);
+      rgndata->rdh.dwSize = sizeof(RGNDATAHEADER);
+      rgndata->rdh.iType = RDH_RECTANGLES;
+      rgndata->rdh.nCount = 1;
+      rgndata->rdh.nRgnSize = sizeof(RECT);
+      memcpy(&rgndata->rdh.rcBound, &rect, sizeof(RECT));
+      memcpy(rgndata->Buffer, &rect, sizeof(RECT));
+
+      d3d_display->device->EndScene();
+
+      hr = d3d_display->device->Present(&rect, &rect, win_display->window, rgndata);
+
+      d3d_display->device->BeginScene();
+
+      free(rgndata);
+
+      if (hr == D3DERR_DEVICELOST) {
+         d3d_display->device_lost = true;
+         return true;
+      }
+
+      ret = true;
+   }
+   else {
+      ret = false;
+   }
+
+   return ret;
+}
+
+/*
+ * Sets a clipping rectangle
+ */
+void d3d_set_bitmap_clip(ALLEGRO_BITMAP *bitmap)
+{
+   ALLEGRO_DISPLAY_D3D *disp = ((ALLEGRO_BITMAP_D3D *)bitmap)->display;
+   RECT rect;
+
+   if (!disp)
+      return;
+
+   if (bitmap->parent) {
+      rect.left = bitmap->xofs + bitmap->cl;
+      rect.right = bitmap->xofs + bitmap->cr;
+      rect.top = bitmap->yofs + bitmap->ct;
+      rect.bottom = bitmap->yofs + bitmap->cb;
+   }
+   else {
+      rect.left = bitmap->cl;
+      rect.right = bitmap->cr;
+      rect.top = bitmap->ct;
+      rect.bottom = bitmap->cb;
+   }
+
+   if (rect.left == 0 && rect.top == 0 && rect.right == disp->win_display.display.w && rect.left == disp->win_display.display.h) {
+      disp->device->SetRenderState(D3DRS_SCISSORTESTENABLE, FALSE);
+      return;
+   }   
+
+   disp->device->SetRenderState(D3DRS_SCISSORTESTENABLE, TRUE);
+   disp->device->SetScissorRect(&rect);
+}
+
+static bool d3d_resize_display(ALLEGRO_DISPLAY *d, int width, int height)
+{
+   ALLEGRO_DISPLAY_D3D *disp = (ALLEGRO_DISPLAY_D3D *)d;
+   ALLEGRO_DISPLAY_WIN *win_display = &disp->win_display;
+   bool ret;
+
+   //disp->ignore_ack = true;
+
+   if (d->flags & ALLEGRO_FULLSCREEN) {
+      d3d_destroy_display_internals(disp);
+      d->w = width;
+      d->h = height;
+      win_display->end_thread = false;
+      win_display->thread_ended = false;
+      /* What's this? */
+      ALLEGRO_SYSTEM *system = al_system_driver();
+      if (system->displays._size <= 1) {
+         ffw_set = false;
+      }
+      if (!d3d_create_display_internals(disp)) {
+         _AL_FREE(disp);
+         return false;
+      }
+      al_set_current_display(d);
+      al_set_target_bitmap(al_get_backbuffer());
+      _al_d3d_recreate_bitmap_textures(disp);
+
+      disp->backbuffer_bmp.bitmap.w = width;
+      disp->backbuffer_bmp.bitmap.h = height;
+
+      ret = true;
+   }
+   else {
+      RECT win_size;
+      WINDOWINFO wi;
+      ALLEGRO_STATE backup;
+
+      win_size.left = 0;
+      win_size.top = 0;
+      win_size.right = width;
+      win_size.bottom = height;
+
+      wi.cbSize = sizeof(WINDOWINFO);
+      GetWindowInfo(win_display->window, &wi);
+
+      AdjustWindowRectEx(&win_size, wi.dwStyle, FALSE, wi.dwExStyle);
+
+      ret = (SetWindowPos(win_display->window, HWND_TOP,
+         0, 0,
+         win_size.right-win_size.left,
+         win_size.bottom-win_size.top,
+         SWP_NOMOVE|SWP_NOZORDER)) != 0;
+
+      PostMessage(win_display->window, WM_USER+0, 0, 0);
+
+      /*
+       * The clipping rectangle and bitmap size must be
+       * changed to match the new size.
+       */
+      al_store_state(&backup, ALLEGRO_STATE_TARGET_BITMAP);
+      al_set_target_bitmap(&disp->backbuffer_bmp.bitmap);
+      disp->backbuffer_bmp.bitmap.w = width;
+      disp->backbuffer_bmp.bitmap.h = height;
+      al_set_clipping_rectangle(0, 0, width, height);
+      d3d_set_bitmap_clip(&disp->backbuffer_bmp.bitmap);
+      al_restore_state(&backup);
+
+      ret = true;
+   }
+
+
+   return ret;
+}
+
+static bool d3d_acknowledge_resize(ALLEGRO_DISPLAY *d)
+{
+   WINDOWINFO wi;
+   ALLEGRO_DISPLAY *old;
+   ALLEGRO_DISPLAY_D3D *disp = (ALLEGRO_DISPLAY_D3D *)d;
+   ALLEGRO_DISPLAY_WIN *win_display = &disp->win_display;
+
+   if (disp->ignore_ack) {
+      disp->ignore_ack = false;
+      return true;
+   }
+
+   wi.cbSize = sizeof(WINDOWINFO);
+   GetWindowInfo(win_display->window, &wi);
+   d->w = wi.rcClient.right - wi.rcClient.left;
+   d->h = wi.rcClient.bottom - wi.rcClient.top;
+
+   disp->backbuffer_bmp.bitmap.w = d->w;
+   disp->backbuffer_bmp.bitmap.h = d->h;
+   disp->backbuffer_bmp.bitmap.cl = 0;
+   disp->backbuffer_bmp.bitmap.ct = 0;
+   disp->backbuffer_bmp.bitmap.cr = d->w;
+   disp->backbuffer_bmp.bitmap.cb = d->h;
+
+   disp->do_reset = true;
+   while (!disp->reset_done) {
+      al_rest(0.001);
+   }
+   disp->reset_done = false;
+
+   old = al_get_current_display();
+   al_set_current_display(d);
+   al_set_clipping_rectangle(0, 0, d->w, d->h);
+   al_set_current_display(old);
+
+   return disp->reset_success;
+}
+
+ALLEGRO_BITMAP *_al_d3d_create_bitmap(ALLEGRO_DISPLAY *d,
+   int w, int h)
+{
+   ALLEGRO_BITMAP_D3D *bitmap = (ALLEGRO_BITMAP_D3D*)_AL_MALLOC(sizeof *bitmap);
+   int format;
+   int flags;
+
+   ASSERT(bitmap);
+   (void)h;
+
+   bitmap->bitmap.size = sizeof *bitmap;
+
+   format = al_get_new_bitmap_format();
+   flags = al_get_new_bitmap_flags();
+
+   if (!_al_pixel_format_is_real(format)) {
+      format = d3d_choose_bitmap_format(format);
+      if (format < 0) {
+         return NULL;
+      }
+   }
+
+   bitmap->bitmap.vt = _al_bitmap_d3d_driver();
+   bitmap->bitmap.memory = NULL;
+   bitmap->bitmap.format = format;
+   bitmap->bitmap.flags = flags;
+   bitmap->bitmap.pitch = w * al_get_pixel_size(format);
+
+   bitmap->video_texture = 0;
+   bitmap->system_texture = 0;
+   bitmap->initialized = false;
+   bitmap->is_backbuffer = false;
+   bitmap->render_target = NULL;
+   bitmap->modified = true;
+
+   bitmap->display = (ALLEGRO_DISPLAY_D3D *)d;
+
+   return &bitmap->bitmap;
+}
+
+static ALLEGRO_BITMAP *d3d_create_sub_bitmap(ALLEGRO_DISPLAY *display,
+   ALLEGRO_BITMAP *parent, int x, int y, int width, int height)
+{
+   ALLEGRO_BITMAP_D3D *bitmap = (ALLEGRO_BITMAP_D3D*)_AL_MALLOC(sizeof *bitmap);
+
+   (void)x;
+   (void)y;
+   (void)width;
+   (void)height;
+
+   bitmap->texture_w = 0;
+   bitmap->texture_h = 0;
+   bitmap->video_texture = NULL;
+   bitmap->system_texture = NULL;
+   bitmap->initialized = false;
+   bitmap->is_backbuffer = ((ALLEGRO_BITMAP_D3D *)parent)->is_backbuffer;
+   bitmap->display = (ALLEGRO_DISPLAY_D3D *)display;
+   bitmap->render_target = NULL;
+   bitmap->modified = true;
+
+   bitmap->bitmap.vt = parent->vt;
+   return (ALLEGRO_BITMAP *)bitmap;
+}
+
+static void d3d_set_target_bitmap(ALLEGRO_DISPLAY *display, ALLEGRO_BITMAP *bitmap)
+{
+   ALLEGRO_BITMAP *target;
+   ALLEGRO_BITMAP_D3D *d3d_target;
+   ALLEGRO_DISPLAY_D3D *d3d_display = (ALLEGRO_DISPLAY_D3D *)display;
+
+   if (d3d_display->device_lost) return;
+
+   if (bitmap->parent) {
+      target = bitmap->parent;
+   }
+   else {
+      target = bitmap;
+   }
+   d3d_target = (ALLEGRO_BITMAP_D3D *)target;
+
+   /* Release the previous target bitmap if it was not the backbuffer */
+
+   ALLEGRO_BITMAP_D3D *currtarget = (ALLEGRO_BITMAP_D3D *)al_get_target_bitmap();
+   if (currtarget && currtarget->render_target) {
+      currtarget->render_target->Release();
+      currtarget->render_target = NULL;
+   }
+
+   /* Set the render target */
+   if (d3d_target->is_backbuffer) {
+      d3d_display = d3d_target->display;
+      if (d3d_display->device->SetRenderTarget(0, d3d_display->render_target) != D3D_OK) {
+         TRACE("d3d_set_target_bitmap: Unable to set render target to texture surface.\n");
+         return;
+      }
+      _al_d3d_set_ortho_projection(d3d_display, display->w, display->h);
+   }
+   else {
+      d3d_display = (ALLEGRO_DISPLAY_D3D *)display;
+      if (_al_d3d_render_to_texture_supported()) {
+         if (d3d_target->video_texture->GetSurfaceLevel(0, &d3d_target->render_target) != D3D_OK) {
+            TRACE("d3d_set_target_bitmap: Unable to get texture surface level.\n");
+            return;
+         }
+         if (d3d_display->device->SetRenderTarget(0, d3d_target->render_target) != D3D_OK) {
+            TRACE("d3d_set_target_bitmap: Unable to set render target to texture surface.\n");
+            d3d_target->render_target->Release();
+            return;
+         }
+         _al_d3d_set_ortho_projection(d3d_display, d3d_target->texture_w, d3d_target->texture_h);
+      }
+   }
+
+   d3d_reset_state(d3d_display);
+
+   d3d_set_bitmap_clip(bitmap);
+}
+
+static ALLEGRO_BITMAP *d3d_get_backbuffer(ALLEGRO_DISPLAY *display)
+{
+   return (ALLEGRO_BITMAP *)&(((ALLEGRO_DISPLAY_D3D *)display)->backbuffer_bmp);
+}
+
+static ALLEGRO_BITMAP *d3d_get_frontbuffer(ALLEGRO_DISPLAY *display)
+{
+   (void)display;
+   return NULL;
+}
+
+static bool d3d_is_compatible_bitmap(ALLEGRO_DISPLAY *display, ALLEGRO_BITMAP *bitmap)
+{
+   return display == bitmap->display;
+}
+
+static void d3d_switch_out(ALLEGRO_DISPLAY *display)
+{
+   (void)display;
+}
+
+static void d3d_switch_in(ALLEGRO_DISPLAY *display)
+{
+   (void)display;
+}
+
+static bool d3d_wait_for_vsync(ALLEGRO_DISPLAY *display)
+{
+   ALLEGRO_DISPLAY_D3D *d3d_display;
+   D3DRASTER_STATUS status;
+
+   if (!d3d_can_wait_for_vsync)
+      return false;
+
+   d3d_display = (ALLEGRO_DISPLAY_D3D *)display;
+
+   do {
+      d3d_display->device->GetRasterStatus(0, &status);
+   } while (!status.InVBlank);
+
+   return true;
+}
+
+
+/* Exposed stuff */
+
+LPDIRECT3DDEVICE9 al_d3d_get_device(ALLEGRO_DISPLAY *display)
+{
+   ALLEGRO_DISPLAY_D3D *d3d_display = (ALLEGRO_DISPLAY_D3D *)display;
+   return d3d_display->device;
+}
+
+
+HWND al_d3d_get_hwnd(ALLEGRO_DISPLAY *display)
+{
+   return ((ALLEGRO_DISPLAY_WIN *)display)->window;
+}
+
+
+LPDIRECT3DTEXTURE9 al_d3d_get_system_texture(ALLEGRO_BITMAP *bitmap)
+{
+   return ((ALLEGRO_BITMAP_D3D *)bitmap)->system_texture;
+}
+
+
+LPDIRECT3DTEXTURE9 al_d3d_get_video_texture(ALLEGRO_BITMAP *bitmap)
+{
+   return ((ALLEGRO_BITMAP_D3D *)bitmap)->video_texture;
+}
+
+static void d3d_set_window_position(ALLEGRO_DISPLAY *display, int x, int y)
+{
+   _al_win_set_window_position(((ALLEGRO_DISPLAY_WIN *)display)->window, x, y);
+}
+
+static void d3d_get_window_position(ALLEGRO_DISPLAY *display, int *x, int *y)
+{
+   if (display->flags & ALLEGRO_FULLSCREEN) {
+      ALLEGRO_MONITOR_INFO info;
+      ALLEGRO_DISPLAY_WIN *win_display = (ALLEGRO_DISPLAY_WIN *)display;
+      al_get_monitor_info(win_display->adapter, &info);
+      *x = info.x1;
+      *y = info.y1;
+   }
+   else {
+      _al_win_get_window_position(((ALLEGRO_DISPLAY_WIN *)display)->window, x, y);
+   }
+}
+
+static void d3d_toggle_frame(ALLEGRO_DISPLAY *display, bool onoff)
+{
+   _al_win_toggle_window_frame(
+      display,
+      ((ALLEGRO_DISPLAY_WIN *)display)->window,
+      display->w, display->h, onoff);
+}
+
+
+static void d3d_shutdown(void)
+{
+   _al_d3d->Release();
+}
+
+
+
+/* Obtain a reference to this driver. */
+ALLEGRO_DISPLAY_INTERFACE *_al_display_d3d_driver(void)
+{
+   if (vt) return vt;
+
+   vt = (ALLEGRO_DISPLAY_INTERFACE *)_AL_MALLOC(sizeof *vt);
+   memset(vt, 0, sizeof *vt);
+
+   vt->create_display = d3d_create_display;
+   vt->destroy_display = d3d_destroy_display;
+   vt->set_current_display = d3d_set_current_display;
+   vt->clear = d3d_clear;
+   vt->draw_line = d3d_draw_line;
+   vt->draw_rectangle = d3d_draw_rectangle;
+   vt->draw_pixel = d3d_draw_pixel;
+   vt->flip_display = d3d_flip_display;
+   vt->update_display_region = d3d_update_display_region;
+   vt->acknowledge_resize = d3d_acknowledge_resize;
+   vt->resize_display = d3d_resize_display;
+   vt->create_bitmap = _al_d3d_create_bitmap;
+   vt->set_target_bitmap = d3d_set_target_bitmap;
+   vt->get_backbuffer = d3d_get_backbuffer;
+   vt->get_frontbuffer = d3d_get_frontbuffer;
+   vt->is_compatible_bitmap = d3d_is_compatible_bitmap;
+   vt->switch_out = d3d_switch_out;
+   vt->switch_in = d3d_switch_in;
+   vt->draw_memory_bitmap_region = NULL;
+   vt->create_sub_bitmap = d3d_create_sub_bitmap;
+   vt->wait_for_vsync = d3d_wait_for_vsync;
+
+   vt->create_mouse_cursor = _al_win_create_mouse_cursor;
+   vt->destroy_mouse_cursor = _al_win_destroy_mouse_cursor;
+   vt->set_mouse_cursor = _al_win_set_mouse_cursor;
+   vt->set_system_mouse_cursor = _al_win_set_system_mouse_cursor;
+   vt->show_mouse_cursor = _al_win_show_mouse_cursor;
+   vt->hide_mouse_cursor = _al_win_hide_mouse_cursor;
+
+   vt->set_icon = _al_win_set_display_icon;
+   vt->set_window_position = d3d_set_window_position;
+   vt->get_window_position = d3d_get_window_position;
+   vt->toggle_frame = d3d_toggle_frame;
+   vt->set_window_title = _al_win_set_window_title;
+   vt->shutdown = d3d_shutdown;
+
+   return vt;
+}
+
+int _al_d3d_get_num_display_modes(int format, int refresh_rate, int flags)
+{
+   UINT num_modes;
+   UINT i, j;
+   D3DDISPLAYMODE display_mode;
+   int matches = 0;
+
+   (void)flags;
+
+   /* If any, go through all formats */
+   if (!_al_pixel_format_is_real(format)) {
+      j = 0;
+   }
+   /* Else find the matching format */
+   else {
+      for (j = 0; allegro_formats[j] != -1; j++) {
+         if (allegro_formats[j] == format)
+            break;
+      }
+      if (allegro_formats[j] == -1)
+         return 0;
+   }
+
+   for (; allegro_formats[j] != -1; j++) {
+      int adapter = al_get_current_video_adapter();
+      if (adapter == -1)
+         adapter = 0;
+
+      if (!_al_pixel_format_is_real(allegro_formats[j]))
+         continue;
+
+      num_modes = _al_d3d->GetAdapterModeCount(adapter, (D3DFORMAT)d3d_formats[j]);
+
+      for (i = 0; i < num_modes; i++) {
+         if (_al_d3d->EnumAdapterModes(adapter, (D3DFORMAT)_al_format_to_d3d(format), i, &display_mode) != D3D_OK) {
+            return matches;
+         }
+         if (refresh_rate && display_mode.RefreshRate != (unsigned)refresh_rate)
+            continue;
+         matches++;
+      }
+
+      if (_al_pixel_format_is_real(format))
+         break;
+   }
+
+   return matches;
+}
+
+ALLEGRO_DISPLAY_MODE *_al_d3d_get_display_mode(int index, int format,
+   int refresh_rate, int flags, ALLEGRO_DISPLAY_MODE *mode)
+{
+   UINT num_modes;
+   UINT i, j;
+   D3DDISPLAYMODE display_mode;
+   int matches = 0;
+
+   (void)flags;
+
+   /* If any, go through all formats */
+   if (!_al_pixel_format_is_real(format)) {
+      j = 0;
+   }
+   /* Else find the matching format */
+   else {
+      for (j = 0; allegro_formats[j] != -1; j++) {
+         if (allegro_formats[j] == format)
+            break;
+      }
+      if (allegro_formats[j] == -1)
+         return NULL;
+   }
+
+   for (; allegro_formats[j] != -1; j++) {
+      int adapter = al_get_current_video_adapter();
+      if (adapter == -1)
+         adapter = 0;
+
+      if (!_al_pixel_format_is_real(allegro_formats[j]))
+         continue;
+
+      num_modes = _al_d3d->GetAdapterModeCount(adapter, (D3DFORMAT)d3d_formats[j]);
+
+      for (i = 0; i < num_modes; i++) {
+         if (_al_d3d->EnumAdapterModes(adapter, (D3DFORMAT)_al_format_to_d3d(format), i, &display_mode) != D3D_OK) {
+            return NULL;
+         }
+         if (refresh_rate && display_mode.RefreshRate != (unsigned)refresh_rate)
+            continue;
+         if (matches == index) {
+            mode->width = display_mode.Width;
+            mode->height = display_mode.Height;
+            mode->format = allegro_formats[j];
+            mode->refresh_rate = display_mode.RefreshRate;
+            return mode;
+         }
+         matches++;
+      }
+
+      if (_al_pixel_format_is_real(format))
+         break;
+   }
+
+   return mode;
+}
+
+
+int _al_d3d_get_num_video_adapters(void)
+{
+   return _al_d3d->GetAdapterCount();
+   //return num_video_adapters;
+}
+
+void _al_d3d_get_monitor_info(int adapter, ALLEGRO_MONITOR_INFO *info)
+{
+   HMONITOR mon = _al_d3d->GetAdapterMonitor(adapter);
+   MONITORINFO mi;
+
+   if (!mon) {
+      info->x1 =
+         info->y1 =
+         info->x2 =
+         info->y2 = -1;
+   }
+   else {
+      mi.cbSize = sizeof(mi);
+      GetMonitorInfo(mon, &mi);
+      info->x1 = mi.rcMonitor.left;
+      info->y1 = mi.rcMonitor.top;
+      info->x2 = mi.rcMonitor.right;
+      info->y2 = mi.rcMonitor.bottom;
+   }
+}
+
+
+} // end extern "C"
+
+/* vim: set sts=3 sw=3 et: */

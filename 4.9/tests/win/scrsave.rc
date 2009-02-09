@@ -1,0 +1,25 @@
+// Windows resource file for the Allegro screensaver example
+
+#include <windows.h>
+#include "scrsave.rh"
+
+
+STRINGTABLE DISCARDABLE
+BEGIN
+   1 "Allegro Screensaver"
+END
+
+
+ID_CONFIG_DLG DIALOG DISCARDABLE  6, 18, 164, 86
+STYLE DS_MODALFRAME | WS_POPUP | WS_VISIBLE | WS_CAPTION | WS_SYSMENU
+CAPTION "Allegro Screensaver Setup"
+FONT 8, "MS Shell Dlg"
+BEGIN
+   DEFPUSHBUTTON  "OK", IDOK, 28, 62, 50, 14
+   PUSHBUTTON  "Cancel", IDCANCEL, 84, 62, 50, 14
+   EDITTEXT  IDC_EDIT_MESSAGE, 24, 36, 124, 12, ES_AUTOHSCROLL
+   CONTROL  "Display Blue Cross", IDC_CHECK_BLUECROSS, "Button",
+            BS_AUTOCHECKBOX | WS_TABSTOP, 12, 8, 72, 8
+   CONTROL  "Display the following mesasage:", IDC_CHECK_SHOWMESSAGE,
+            "Button", BS_AUTOCHECKBOX | WS_TABSTOP, 12, 26, 116, 8
+END

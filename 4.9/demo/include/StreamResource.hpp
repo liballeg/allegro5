@@ -1,0 +1,18 @@
+#ifndef STREAMRESOURCE_HPP
+#define STREAMRESOURCE_HPP
+
+#include "a5teroids.hpp"
+
+class StreamResource : public Resource {
+public:
+   void destroy(void);
+   bool load(void);
+   void* get(void);
+   StreamResource(const char* filename);
+private:
+   ALLEGRO_STREAM *stream;
+   std::string filename;
+};
+
+#endif // STREAMRESOURCE_HPP
+

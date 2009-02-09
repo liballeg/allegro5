@@ -1,0 +1,17 @@
+// Windows resource header file for the dibsound example
+
+#define CMD_FILE_OPEN           100
+#define CMD_FILE_PLAY           101
+#define CMD_FILE_STOP           102
+#define CMD_FILE_EXIT           103
+#define CMD_SET_VOLUME_UP       110
+#define CMD_SET_VOLUME_DOWN     111
+#define CMD_SET_VOLUME_DEFAULT  112
+#define CMD_SET_PAN_LEFT        113
+#define CMD_SET_PAN_RIGHT       114
+#define CMD_SET_PAN_CENTER      115
+#define CMD_SET_SPEED_UP        116
+#define CMD_SET_SPEED_DOWN      117
+#define CMD_SET_SPEED_NORMAL    118
+#define CMD_SET_LOOP_MODE       119
+#define CMD_HELP_ABOUT          130

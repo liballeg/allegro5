@@ -1,0 +1,173 @@
+# Path
+
+## API: al_find_resource
+
+Returns the full path of a 'resource' given mode 'fm'.
+
+Parameters:
+
+* base - sub directory name resource may be found in
+* resource - name of resource
+* fm - file mode/type of resource to match. See [ALLEGRO_FS_MODE]
+* buffer - buffer to write full path to
+* len - length of buffer
+
+Notes:
+If asking for a read-only resource function scans the user data path, the
+program path, the current working directory followed by the system data
+path, if it doesn't find anything, it will return a bogus path in the users
+data path.
+XXX This is probably a bug.
+
+If asking for a writable resource, it will scan the same places as the read
+only scan, and will pick the first wirteable existing resource it finds.
+If it doesn't find any pre-existing resource, it finds the first writable
+directory path made up of the path components of the path returned from
+[al_get_path], the 'base', and 'resource' arguments. If none are writable,
+it will return a path made up of the USER_DATA_PATH, and the 'base' and
+'resource' arguments.
+
+## API: al_path_append
+
+Append a directory component.
+
+## API: al_path_clone
+
+Clones an ALLEGRO_PATH structure.
+Returns NULL on failure.
+
+## API: al_path_concat
+
+Concatenate two path structures. The first path structure is
+modified.
+
+If tail is an absolute path, this function does nothing.
+tail's file/basename will overwrite path's if it exists,
+if tail does not have a basename, 'path's is kept (probably shouldn't).
+
+Returns NULL on failure.
+
+## API: al_path_create
+
+Create a path structure from a string.
+The string may be NULL for an empty path.
+
+## API: al_path_drop_tail
+
+Drop the last directory component.
+
+## API: al_path_emode
+
+Return true iff the path represents a file on the system that exists with
+the given mode bits.
+
+## API: al_path_exists
+
+Return 1 if path represents an existing file on the system,
+or 0 if it doesn't exist.
+Returns -1 on error.
+
+## API: al_path_free
+
+Free a path structure.
+Does nothing if passed NULL.
+
+## API: al_path_get_basename
+
+Fill buf with filename part of the path, with the extension removed.
+If there is no filename part then buf is filled with the empty string.
+Returns buf.
+
+## API: al_path_get_drive
+
+Return the drive letter on a path, or NULL if there is none.
+
+## API: al_path_get_extension
+
+Fill buf with extension of the filename part of the path.
+If there is no filename part then buf is filled with the empty string.
+Returns buf.
+
+## API: al_path_get_filename
+
+Return the filename (i.e. basename) part of the path,
+or NULL if there is none.
+
+## API: al_path_index
+
+Return the i'th directory component of a path, counting from zero.
+If the index is negative then count from the right, i.e. -1 refers to
+the last path component.
+It is an error to pass an index which is out of bounds.
+
+## API: al_path_insert
+
+Insert a directory component at index i.
+If the index is negative then count from the right, i.e. -1 refers to
+the last path component.
+It is an error to pass an index which is out of bounds.
+
+## API: al_path_make_absolute
+
+Prepends the current working directory to 'path' if it is a relative path.
+Does nothing otherwise.
+
+## API: al_path_make_canonical
+
+Removes any leading '..' entries in absolute paths.
+Removes all '.' entries.
+
+Note that this does *not* collapse x/../y sections into y.
+This is by design. If /foo on your system is a symlink to /bar/baz,
+then /foo/../quux is actually /bar/quux,
+not /quux as a naive ../-removal would give you.
+
+## API: al_path_num_components
+
+Return the number of directory components in a path.
+
+The directory components do not include the final part of a path
+(the basename).
+
+## API: al_path_remove
+
+Delete the i'th directory component.
+If the index is negative then count from the right, i.e. -1 refers to
+the last path component.
+It is an error to pass an index which is out of bounds.
+
+## API: al_path_replace
+
+Replace the i'th directory component by another string.
+If the index is negative then count from the right, i.e. -1 refers to
+the last path component.
+It is an error to pass an index which is out of bounds.
+
+## API: al_path_set_drive
+
+Set the drive letter on a path.
+The drive may be NULL to remove the drive letter.
+
+## API: al_path_set_filename
+
+Set the optional filename (i.e. basename) part of the path.
+The filename may be NULL.
+
+## API: al_path_set_extension
+
+Replaces the extension of the path with the given one. If the
+filename of the path has no extension, the given one is appended.
+
+Returns false if the path contains no filename part.
+
+## API: al_path_tail
+
+Returns the last directory component, or NULL if there are none.
+
+## API: al_path_to_string
+
+Get the string representation of a path.
+
+Will fill buffer upto len bytes with a string representation of path, using delim as the path separator.
+To use the current native path separator use ALLEGRO_NATIVE_PATH_SEP
+

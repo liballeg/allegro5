@@ -1,0 +1,5 @@
+-kr -nce -ss -ncs -i3 -cli3 -nut -bls -l80
+-T ALLEGRO_BITMAP
+-T PACKFILE
+-T BMPINFOHEADER
+-T PalEntry

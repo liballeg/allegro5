@@ -1,0 +1,52 @@
+# System
+
+## API: al_get_appname
+
+Returns the global application name string.
+
+## API: al_get_orgname
+
+Returns the global organization name string.
+
+## API: al_get_path
+
+Gets a system path, ie: temp, home, etc
+Returns -1 on failure.
+
+## API: al_install_system
+
+Initialize the Allegro system.  If atexit_ptr is non-NULL, and if hasn't
+been done already, al_uninstall_system() will be registered as an atexit
+function.
+
+## API: al_set_appname
+
+Sets the global application name.
+
+The Application name is used by [al_get_path] to build the full path to
+an application's files.
+
+Should be called once at the start of a program, before [al_init] or [al_install_system]
+and never touched again.
+
+## API: al_set_orgname
+
+Sets the global organization name.
+
+The Organization name is used by [al_get_path] to build the full path to
+an application's files.
+
+Should be called once at the start of a program, before [al_init] or [al_install_system]
+and never touched again.
+
+## API: al_system_driver
+
+Returns the currently active_sysdrv system driver.
+
+## API: al_uninstall_system
+
+Closes down the Allegro system.
+
+Note: al_uninstall_system() can be called without a corresponding
+al_install_system() call, e.g. from atexit().
+

@@ -1,0 +1,967 @@
+/*         ______   ___    ___
+ *        /\  _  \ /\_ \  /\_ \
+ *        \ \ \L\ \\//\ \ \//\ \      __     __   _ __   ___
+ *         \ \  __ \ \ \ \  \ \ \   /'__`\ /'_ `\/\`'__\/ __`\
+ *          \ \ \/\ \ \_\ \_ \_\ \_/\  __//\ \L\ \ \ \//\ \L\ \
+ *           \ \_\ \_\/\____\/\____\ \____\ \____ \ \_\\ \____/
+ *            \/_/\/_/\/____/\/____/\/____/\/___L\ \/_/ \/___/
+ *                                           /\____/
+ *                                           \_/__/
+ *
+ *      Filesystem path routines.
+ *
+ *      By Thomas Fjellstrom.
+ *
+ *      See LICENSE.txt for copyright information.
+ */
+
+/* Title: Filesystem path routines
+ */
+
+#include <stdio.h>
+#include "allegro5/debug.h"
+#include "allegro5/fshook.h"
+#include "allegro5/path.h"
+#include "allegro5/unicode.h"
+#include "allegro5/internal/aintern_memory.h"
+#include "allegro5/internal/aintern_path.h"
+
+
+static char *_ustrduprange(const char *start, const char *end)
+{
+   const char *ptr = start;
+   int blen = 0;
+   char *copy;
+   int eslen = ustrsizez("");
+
+   ptr = start;
+   blen = 0;
+   while (ptr < end) {
+      int c = ugetxc(&ptr);
+      blen += ucwidth(c);
+   }
+
+   copy = _AL_MALLOC(blen + eslen + 1);
+   ASSERT(copy);
+   if (!copy) {
+      return NULL;
+   }
+
+   memset(copy, 0, blen + eslen + 1);
+   memcpy(copy, start, blen);
+
+   return copy;
+}
+
+static void _ustrcpyrange(char *dest, const char *start, const char *end)
+{
+   const char *ptr = start;
+   int blen = 0;
+
+   while (ptr < end) {
+      int c = ugetxc(&ptr);
+      blen += ucwidth(c);
+   }
+
+   memset(dest, 0, blen + ustrsizez("") + 1);
+   memcpy(dest, start, blen);
+}
+
+static void _fix_slashes(char *path)
+{
+   char *ptr = path;
+   int cc = ugetc(ptr);
+
+   while (cc) {
+      if (cc == '\\')
+         usetc(ptr, '/');
+
+      ptr++;
+      cc = ugetc(ptr);
+   }
+}
+
+// last component if its not followed by a `dirsep` is interpreted as a file component, if it is not a . or ..
+static int32_t _parse_path(const char *p, char **drive, char **path, char **file)
+{
+   const char *ptr = p;
+   char *path_info_end;
+   int32_t path_info_len;
+   const char dirsep = '/';
+#ifdef ALLEGRO_WINDOWS
+   const char drivesep = ':';
+#endif
+
+#ifdef ALLEGRO_WINDOWS
+   // UNC \\server\share name
+   if (ugetc(ptr) == dirsep && ugetat(ptr, 1) == dirsep) {
+      char *uncdrive = NULL;
+
+      ptr += uwidth(ptr);
+      ptr += uwidth(ptr);
+
+      ptr = ustrchr(ptr, dirsep);
+      if (!ptr)
+         goto _parse_path_error;
+
+      if (!ugetc(ptr)) {
+         goto _parse_path_error;
+      }
+
+      ptr += uwidth(ptr);
+      if (!ugetc(ptr))
+         goto _parse_path_error;
+
+      ptr = ustrchr(ptr, dirsep);
+      if (!ptr) {
+         ptr = p + ustrsize(p);
+      }
+
+      uncdrive = _ustrduprange(p, ptr);
+      if (!uncdrive) {
+         goto _parse_path_error;
+      }
+
+      *drive = uncdrive;
+   }
+   // drive name
+   else if (ugetc(ptr) != dirsep && ugetat(ptr, 1) == drivesep) {
+      char *tmp = NULL;
+
+      tmp = _ustrduprange(ptr, ptr+uoffset(ptr, 2));
+      if (!tmp) {
+         // ::)
+         goto _parse_path_error;
+      }
+
+      *drive = tmp;
+      ptr = ustrchr(ptr+uoffset(ptr,1), dirsep);
+   }
+
+   if (!ptr || !ugetc(ptr)) {
+      // no path, or file info
+      return 0;
+   }
+#endif
+
+   // grab path, and/or file info
+
+   path_info_end = ustrrchr(ptr, dirsep);
+   if (!path_info_end) { // no path, just file
+      char *file_info = NULL;
+
+      file_info = ustrdup(ptr);
+      if (!file_info)
+         goto _parse_path_error;
+
+      /* if the last bit is a . or .., its actually a dir, not a file */
+      if (ustrcmp(file_info, ".") == 0 || ustrcmp(file_info, "..") == 0) {
+         *path = file_info;
+         return 0;
+      }
+
+      *file = file_info;
+      return 0;
+   }
+   else if (ugetat(path_info_end, 1)) {
+      // dirsep is not at end
+      const char *tmp_file_info = path_info_end + uoffset(path_info_end, 1);
+
+      /* if the last bit is a . or .., its actually a dir, not a file */
+      if (ustrcmp(tmp_file_info, ".") == 0 ||
+            ustrcmp(tmp_file_info, "..") == 0)
+      {
+         path_info_end = (char *)(ptr + ustrsize(ptr));
+      }
+      else {
+         char *file_info = ustrdup(tmp_file_info);
+         if (!file_info)
+            goto _parse_path_error;
+
+	 *file = file_info;
+      }
+   }
+
+   /* detect if the path_info should be a single '/' */
+   if (ugetc(ptr) == dirsep && (!ugetat(ptr, 2) || ptr == path_info_end)) {
+      path_info_end += ucwidth(dirsep);
+   }
+
+   path_info_len = path_info_end - ptr;
+   if (path_info_len) {
+      char *path_info = _ustrduprange(ptr, path_info_end);
+      if (!path_info)
+         goto _parse_path_error;
+
+      *path = path_info;
+   }
+
+   return 0;
+
+_parse_path_error:
+   if (*drive) {
+      _AL_FREE(*drive);
+      *drive = NULL;
+   }
+
+   if (*path) {
+      _AL_FREE(*path);
+      *path = NULL;
+   }
+
+   if (*file) {
+      _AL_FREE(*file);
+      *file = NULL;
+   }
+
+   return -1;
+}
+
+static char **_split_path(char *path, int32_t *num)
+{
+   char **arr, *ptr, *lptr = NULL;
+   int count = 0, i = 0;
+
+   for (ptr=path; ugetc(ptr); ptr+=ucwidth(*ptr)) {
+      if (ugetc(ptr) == '/')
+         count++;
+      lptr = ptr;
+   }
+
+   if (ugetc(lptr) != '/') {
+      count++;
+   }
+
+   arr = _AL_MALLOC(sizeof(char *) * count);
+   if (!arr)
+      return NULL;
+
+   lptr = path;
+   for (ptr=path; ugetc(ptr); ptr++) {
+      if (ugetc(ptr) == '/') {
+         char *seg = _ustrduprange(lptr, ptr);
+         if (!seg)
+            goto _split_path_getout;
+
+         arr[i++] = seg;
+         lptr = ptr+uoffset(ptr, 1);
+      }
+   }
+
+   if (ugetc(lptr)) {
+      char *seg = _ustrduprange(lptr, ptr);
+      if (!seg)
+         goto _split_path_getout;
+
+      arr[i++] = seg;
+   }
+
+   *num = count;
+   return arr;
+
+_split_path_getout:
+
+   if (arr) {
+      for (i = 0; arr[i]; i++) {
+         _AL_FREE(arr[i]);
+      }
+
+      _AL_FREE(arr);
+   }
+
+   return NULL;
+}
+
+static int32_t _al_path_init(ALLEGRO_PATH *path, const char *str)
+{
+   char *part_path = NULL;
+   char *orig;
+
+   memset(path, 0, sizeof(ALLEGRO_PATH));
+
+   if (str == NULL) {
+      /* Empty path. */
+      return 1;
+   }
+
+   orig = ustrdup(str);
+   if (!orig)
+      goto _path_init_fatal;
+
+   _fix_slashes(orig);
+
+   if (_parse_path(orig, &(path->drive), &part_path, &(path->filename)) != 0)
+      goto _path_init_fatal;
+
+   _AL_FREE(orig);
+   orig = NULL;
+
+   if (part_path) {
+      path->segment = _split_path(part_path, &(path->segment_count));
+      if (!path->segment)
+         goto _path_init_fatal;
+      _AL_FREE(part_path);
+   }
+
+   return 1;
+
+_path_init_fatal:
+
+   if (path->segment) {
+      int i = 0;
+      for (i = 0; i < path->segment_count; i++)
+         _AL_FREE(path->segment[i]);
+
+      _AL_FREE(path->segment);
+   }
+
+   _AL_FREE(path->drive);
+   _AL_FREE(path->filename);
+   _AL_FREE(part_path);
+   _AL_FREE(orig);
+
+   return 0;
+}
+
+/* Function: al_path_create
+ *  Create a path structure from a string.
+ *  The string may be NULL for an empty path.
+ */
+ALLEGRO_PATH *al_path_create(const char *str)
+{
+   ALLEGRO_PATH *path;
+
+   path = _AL_MALLOC(sizeof(ALLEGRO_PATH));
+   if (!path)
+      return NULL;
+
+   if (!_al_path_init(path, str)) {
+      _AL_FREE(path);
+      return NULL;
+   }
+
+   return path;
+}
+
+/* Function: al_path_clone
+ */
+ALLEGRO_PATH *al_path_clone(ALLEGRO_PATH *path)
+{
+   ALLEGRO_PATH *clone = NULL;
+   int i = 0;
+   
+   ASSERT(path);
+
+   clone = al_path_create(NULL);
+   if(!clone)
+      return NULL;
+
+   if(path->drive) {
+      clone->drive = ustrdup(path->drive);
+      if(!clone->drive)
+         goto _path_clone_fatal;
+   }
+
+   if(path->segment_count) {
+      clone->segment = _AL_MALLOC(sizeof(char *) * path->segment_count);
+      if (!clone->segment)
+         goto _path_clone_fatal;
+
+      memset(clone->segment, 0, sizeof(char*) * path->segment_count);
+
+      for(i=0; i < path->segment_count; i++) {
+         clone->segment[i] = ustrdup(path->segment[i]);
+         if(!clone->segment[i])
+            goto _path_clone_fatal;
+      }
+   }
+
+   clone->segment_count = path->segment_count;
+
+   if(path->filename) {
+      clone->filename = ustrdup(path->filename);
+      if(!clone->filename)
+         goto _path_clone_fatal;
+   }
+
+   return clone;
+   
+_path_clone_fatal:
+   if(clone->segment) {
+      for(i=0; i < path->segment_count; i++) {
+         if(clone->segment[i])
+            _AL_FREE(clone->segment[i]);
+      }
+   }
+   
+   if(clone->drive)
+      _AL_FREE(clone->drive);
+
+   
+   al_path_free(clone);
+
+   return NULL;
+}
+
+/* Function: al_path_num_components
+ *  Return the number of directory components in a path.
+ *
+ *  The directory components do not include the final part of a path
+ *  (the basename).
+ */
+int al_path_num_components(ALLEGRO_PATH *path)
+{
+   ASSERT(path);
+   return path->segment_count;
+}
+
+/* Function: al_path_index
+ *  Return the i'th directory component of a path, counting from zero.
+ *  If the index is negative then count from the right, i.e. -1 refers to
+ *  the last path component.
+ *  It is an error to pass an index which is out of bounds.
+ */
+const char *al_path_index(ALLEGRO_PATH *path, int i)
+{
+   ASSERT(path);
+   ASSERT(i < path->segment_count);
+
+   if (i < 0)
+      i = path->segment_count + i;
+
+   ASSERT(i >= 0);
+
+   return path->segment[i];
+}
+
+/* Function: al_path_replace
+ *  Replace the i'th directory component by another string.
+ *  If the index is negative then count from the right, i.e. -1 refers to
+ *  the last path component.
+ *  It is an error to pass an index which is out of bounds.
+ */
+void al_path_replace(ALLEGRO_PATH *path, int i, const char *s)
+{
+   char *tmp = NULL;
+
+   ASSERT(path);
+   ASSERT(s);
+   ASSERT(i < path->segment_count);
+
+   if (i < 0)
+      i = path->segment_count + i;
+
+   ASSERT(i >= 0);
+
+   tmp = ustrdup(s);
+   if (!tmp)
+      return;
+
+   _AL_FREE(path->segment[i]);
+   path->segment[i] = tmp;
+}
+
+/* Function: al_path_remove
+ *  Delete the i'th directory component.
+ *  If the index is negative then count from the right, i.e. -1 refers to
+ *  the last path component.
+ *  It is an error to pass an index which is out of bounds.
+ */
+void al_path_remove(ALLEGRO_PATH *path, int i)
+{
+   ASSERT(path);
+   ASSERT(i < path->segment_count);
+
+   if (i < 0)
+      i = path->segment_count + i;
+
+   ASSERT(i >= 0);
+
+   _AL_FREE(path->segment[i]);
+   memmove(path->segment+i, path->segment+i+1, sizeof(char *)*(path->segment_count-i-1));
+   path->segment = (char **)_AL_REALLOC(path->segment, (path->segment_count-1) * sizeof(char *));
+   /* I don't think realloc can fail if its just shrinking the existing block,
+      so I'm not bothering to check for it, or work around it */
+
+   path->segment_count--;
+}
+
+/* Function: al_path_insert
+ *  Insert a directory component at index i.
+ *  If the index is negative then count from the right, i.e. -1 refers to
+ *  the last path component.
+ *  It is an error to pass an index which is out of bounds.
+ */
+void al_path_insert(ALLEGRO_PATH *path, int i, const char *s)
+{
+   char *copy_s;
+   char **tmp;
+
+   ASSERT(path);
+   ASSERT(i < path->segment_count);
+
+   if (i < 0)
+      i = path->segment_count - (-i) + 1;
+
+   ASSERT(i >= 0);
+
+   copy_s = ustrdup(s);
+   ASSERT(copy_s);
+   if (!copy_s) {
+      /* XXX what to do? */
+      return;
+   }
+
+   tmp = _AL_REALLOC(path->segment, sizeof(char *) * (path->segment_count+1));
+   ASSERT(tmp);
+   if (!tmp) {
+      /* XXX what to do? */
+      return;
+   }
+
+   path->segment = tmp;
+
+   memmove(path->segment+i, path->segment+i+1, path->segment_count - i);
+   path->segment[i] = copy_s;
+   path->segment_count++;
+}
+
+/* Function: al_path_tail
+ *  Returns the last directory component, or NULL if there are none.
+ */
+const char *al_path_tail(ALLEGRO_PATH *path)
+{
+   ASSERT(path);
+
+   /* XXX handle empty path */
+   return al_path_index(path, -1);
+}
+
+/* Function: al_path_drop_tail
+ *  Drop the last directory component.
+ */
+void al_path_drop_tail(ALLEGRO_PATH *path)
+{
+   /* XXX handle empty path */
+   al_path_remove(path, -1);
+}
+
+/* Function: al_path_append
+ *  Append a directory component.
+ */
+void al_path_append(ALLEGRO_PATH *path, const char *s)
+{
+   al_path_insert(path, -1, s);
+}
+
+/* Function: al_path_concat
+ *  Concatenate two path structures. The first path structure is
+ *  modified.
+ *
+ *  If tail is an absolute path, this function does nothing.
+ *  tail's file/basename will overwrite path's if it exists,
+ *  if tail does not have a basename, 'path's is kept (probably shouldn't).
+ */
+void al_path_concat(ALLEGRO_PATH *path, const ALLEGRO_PATH *tail)
+{
+   char *new_filename;
+   char **tmp;
+   int i;
+
+   ASSERT(path);
+   ASSERT(tail);
+
+   if (tail->drive)
+      /* don't bother concating if the tail is an absolute path */
+      return;
+
+   if (tail->segment_count) {
+      if (tail->segment[0] && ustrcmp(tail->segment[0], "")==0) {
+         /* if the first segment is empty, we have an absolute path */
+         return;
+      }
+   }
+
+   if (tail->filename) {
+      new_filename = ustrdup(tail->filename);
+      if (!new_filename)
+         return;
+
+      if (path->filename) _AL_FREE(path->filename);
+      path->filename = new_filename;
+   }
+
+   tmp = _AL_REALLOC(path->segment, (path->segment_count + tail->segment_count) * sizeof(char *));
+   if (!tmp)
+      return;
+
+   path->segment = tmp;
+
+   memset(tmp+path->segment_count, 0, sizeof(char*)*tail->segment_count);
+
+   for (i = 0; i < tail->segment_count; i++) {
+      char *seg = ustrdup(tail->segment[i]);
+      if (!seg) {
+         i--;
+         break;
+      }
+
+      tmp[path->segment_count+i] = seg;
+   }
+
+   path->segment_count += i;
+}
+
+/* Function: al_path_to_string
+ *  Get the string representation of a path.
+ *
+ *  Will fill buffer upto len bytes with a string representation of path, using delim as the path separator.
+ *  To use the current native path separator use ALLEGRO_NATIVE_PATH_SEP
+ */
+/* FIXME: this is a rather dumb implementation, not using ustr*cat should speed it up */
+/* FIXME: not only dumb, but half broken, even if buffer is too small, it'll write to it,
+            but it will at least return NULL if the buffer was too small. */
+char *al_path_to_string(ALLEGRO_PATH *path, char *buffer, size_t len, char delim)
+{
+   const char delims[2] = { delim, '\0' };
+   int32_t i;
+   size_t full_len = 0;
+
+   ASSERT(path);
+   ASSERT(buffer);
+
+   memset(buffer, 0, len);
+
+   if (path->drive) {
+      size_t drive_size = ustrlen(path->drive);
+      full_len += drive_size + 1;
+      
+      ustrzncat(buffer, len, path->drive, drive_size);
+      /*ustrzncat(buffer, len, delims, 1);*/
+   }
+
+   for (i=0; i < path->segment_count; i++) {
+      full_len += ustrlen(path->segment[i]) + 1;
+      ustrzncat(buffer, len, path->segment[i], ustrlen(path->segment[i]));
+      ustrzncat(buffer, len, delims, 1);
+   }
+
+   if (path->filename) {
+      full_len += ustrlen(path->filename);
+      ustrzncat(buffer, len, path->filename, ustrlen(path->filename));
+   }
+
+   if(len < full_len+1)
+      return NULL;
+
+   return buffer;
+}
+
+/* Function: al_path_free
+ *  Free a path structure.
+ *  Does nothing if passed NULL.
+ */
+void al_path_free(ALLEGRO_PATH *path)
+{
+   int32_t i;
+
+   if (!path) {
+      return;
+   }
+
+   if (path->drive) {
+      _AL_FREE(path->drive);
+      path->drive = NULL;
+   }
+
+   if (path->filename) {
+      _AL_FREE(path->filename);
+      path->filename = NULL;
+   }
+
+   for (i = 0; i < path->segment_count; i++) {
+      _AL_FREE(path->segment[i]);
+      path->segment[i] = NULL;
+   }
+
+   _AL_FREE(path->segment);
+   path->segment = NULL;
+
+   path->segment_count = 0;
+
+   _AL_FREE(path);
+}
+
+/* Function: al_path_set_drive
+ *  Set the drive letter on a path.
+ *  The drive may be NULL to remove the drive letter.
+ */
+int32_t al_path_set_drive(ALLEGRO_PATH *path, const char *drive)
+{
+   ASSERT(path);
+
+   if (path->drive) {
+      _AL_FREE(path->drive);
+      path->drive = NULL;
+   }
+
+   if (drive) {
+      path->drive = ustrdup(drive);
+      if (!path->drive)
+         return -1;
+   }
+
+   return 0;
+}
+
+/* Function: al_path_get_drive
+ *  Return the drive letter on a path, or NULL if there is none.
+ */
+const char *al_path_get_drive(ALLEGRO_PATH *path)
+{
+   ASSERT(path);
+   return path->drive;
+}
+
+/* Function: al_path_set_filename
+ *  Set the optional filename (i.e. basename) part of the path.
+ *  The filename may be NULL.
+ */
+/* XXX rename; 'filename' doesn't mean 'basename' */
+/* XXX what happens if filename includes directory separators? */
+/* TF: It shouldn't. if we wanted to support that, we need to parse out 'filename' and append its paths to the current path */
+int32_t al_path_set_filename(ALLEGRO_PATH *path, const char *filename)
+{
+   ASSERT(path);
+
+   if (path->filename) {
+      _AL_FREE(path->filename);
+      path->filename = NULL;
+   }
+
+   if (filename) {
+      path->filename = ustrdup(filename);
+      if (!path->filename)
+         return -1;
+   }
+
+   return 0;
+}
+
+/* Function: al_path_get_filename
+ *  Return the filename (i.e. basename) part of the path,
+ *  or NULL if there is none.
+ */
+/* XXX rename; 'filename' doesn't mean 'basename' */
+const char *al_path_get_filename(ALLEGRO_PATH *path)
+{
+   ASSERT(path);
+   return path->filename;
+}
+
+/* Function: al_path_get_extension
+ *  Fill buf with extension of the filename part of the path.
+ *  If there is no filename part then buf is filled with the empty string.
+ *  Returns buf.
+ */
+const char *al_path_get_extension(ALLEGRO_PATH *path, char *buf, size_t len)
+{
+   ASSERT(path);
+   ASSERT(buf);
+
+   memset(buf, 0, len);
+
+   if (path->filename) {
+      char *ext = ustrrchr(path->filename, '.');
+      if (ext) {
+         ustrncpy(buf, ext + 1, len);
+      }
+   }
+
+   return buf;
+}
+
+/* Function: al_path_set_extension
+ *  Replaces the extension of the path with the given one. If the
+ *  filename of the path has no extension, the given one is appended.
+ * 
+ *  Returns false if the path contains no filename part.
+ */
+bool al_path_set_extension(ALLEGRO_PATH *path, char const *extension)
+{
+   ASSERT(path);
+
+   if (path->filename) {
+      int old_esize = 0, new_esize, name_size;
+      char *ext = ustrrchr(path->filename, '.');
+      name_size = ustrsizez(path->filename);
+      new_esize = ustrlen(extension);
+      if (ext) {
+         old_esize = ustrlen(ext + 1);
+         ustrcpy(ext, ""); /* Remove the old extension. */
+      }
+      else {
+         new_esize += ustrlen(".");
+      }
+      path->filename = _AL_REALLOC(path->filename,
+         name_size + new_esize - old_esize);
+      ustrcat(path->filename, ".");
+      ustrcat(path->filename, extension);
+      return true;
+   }
+
+   return false;
+}
+
+/* Function: al_path_get_basename
+ *  Fill buf with filename part of the path, with the extension removed.
+ *  If there is no filename part then buf is filled with the empty string.
+ *  Returns buf.
+ */
+/* XXX rename; 'basename' doesn't imply no extension */
+/* TF: its the only meaningful distinction between the filename and basename */
+const char *al_path_get_basename(ALLEGRO_PATH *path, char *buf, size_t len)
+{
+   ASSERT(path);
+   ASSERT(buf);
+
+   memset(buf, 0, len);
+
+   if (path->filename) {
+      char *ext = ustrrchr(path->filename, '.');
+      if (ext) {
+         _ustrcpyrange(buf, path->filename, ext);
+      }
+   }
+
+   return buf;
+}
+
+/* Function: al_path_exists
+ *  Return 1 if path represents an existing file on the system,
+ *  or 0 if it doesn't exist.
+ *  Returns -1 on error.
+ */
+int32_t al_path_exists(ALLEGRO_PATH *path)
+{
+   char buffer[PATH_MAX];
+   ASSERT(path);
+
+   al_path_to_string(path, buffer, PATH_MAX, ALLEGRO_NATIVE_PATH_SEP);
+
+   /* Windows' stat() doesn't like the slash at the end of the path when
+    * the path is pointing to a directory. There are other places which
+    * might require the same fix.
+    */
+#ifdef ALLEGRO_WINDOWS
+   if (ugetat(buffer, ustrlen(buffer) - 1) == '\\' &&
+      al_path_num_components(path))
+   {
+      usetc(buffer + ustrlen(buffer) - 1, '\0');
+   }
+#endif
+
+   return al_is_present_str(buffer);
+}
+
+/* Function: al_path_emode
+ *  Return true iff the path represents a file on the system that exists with
+ *  the given mode bits.
+ */
+bool al_path_emode(ALLEGRO_PATH *path, uint32_t mode)
+{
+   char buffer[PATH_MAX];
+   ASSERT(path);
+
+   al_path_to_string(path, buffer, PATH_MAX, ALLEGRO_NATIVE_PATH_SEP);
+
+   return (al_get_entry_mode_str(buffer) & mode) == mode;
+}
+
+/* Function: al_path_make_absolute
+ */
+bool al_path_make_absolute(ALLEGRO_PATH *path)
+{
+   char cwd[PATH_MAX];
+   char **items = NULL, **nsegment = NULL;
+   int32_t item_num = 0;
+   
+   ASSERT(path);
+
+   if(path->segment_count && ugetat(path->segment[0], 0) == 0) {
+      /* we're already an absolute path */
+      return false;
+   }
+
+   if(!al_getcwd(PATH_MAX, cwd)) {
+      return false;
+   }
+
+   _fix_slashes(cwd);
+   items = _split_path(cwd, &item_num);
+   if(!items) {
+      return false;
+   }
+
+   /* resize the path's segment array to fit the new items */
+   nsegment = _AL_REALLOC(path->segment, (path->segment_count + item_num) * sizeof(char *));
+   if(!nsegment) {
+      goto _make_absolute_fatal;
+   }
+
+   /* move old path items up */
+   memmove(nsegment + item_num, nsegment, path->segment_count * sizeof(char *));
+
+   /* copy new items into path's segment array */
+   memcpy(nsegment, items, item_num * sizeof(char *));
+
+   path->segment = nsegment;
+   path->segment_count += item_num;
+   
+   /* free temp array */
+   _AL_FREE(items);
+   
+   return true;
+   
+_make_absolute_fatal:
+   if(nsegment) {
+      int i = 0;
+      for(; i < item_num; i++) {
+         _AL_FREE(nsegment[i]);
+      }
+
+      _AL_FREE(nsegment);
+   }
+
+   return false;
+}
+
+/* Function: al_path_make_canonical
+ * Note that this does *not* collapse x/../y sections into y.
+ * This is by design. If /foo on your system is a symlink to /bar/baz,
+ * then /foo/../quux is actually /bar/quux,
+ * not /quux as a naive ../-removal would give you.
+ */
+bool al_path_make_canonical(ALLEGRO_PATH *path)
+{
+   int i = 0;
+   ASSERT(path);
+
+   for(i = 0; i < path->segment_count; i++) {
+      if(ustrcmp(path->segment[i], ".") == 0) {
+         al_path_remove(path, i);
+         i--;
+      }
+   }
+
+   /* remove leading '..'s on absolute paths */
+   if(path->segment_count && ugetat(path->segment[0], 0) == 0) {
+      while(ustrcmp(path->segment[1], "..") == 0) {
+         al_path_remove(path, 1);
+      }
+   }
+
+   return true;
+}
+
+/* vim: set sts=3 sw=3 et: */

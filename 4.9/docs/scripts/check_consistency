@@ -1,0 +1,58 @@
+#!/bin/sh -e
+#
+# SYNOPSIS
+#
+# check_consistency [OPTION...] DOC-FILE...
+#
+# OPTION
+#
+# --protos FILE
+#
+# DESCRIPTION
+#
+# Check that functions and types marked in source code have corresponding
+# entries in the documentation, and vice versa.  The protos file must be
+# present.
+#
+# ENVIRONMENT VARIABLES
+#
+# - PROTOS
+#
+
+export LC_ALL=C
+
+PROTOS=${PROTOS:-protos}
+
+case $1 in
+    --protos)
+        PROTOS=$2
+        shift 2
+        ;;
+esac
+
+if test ! -f "$PROTOS"
+then
+    echo "check_consistency: missing protos file: $PROTOS" 1>&2
+    exit 1
+fi
+
+TEMP_SRC=check_consistency.tmp1.$$
+TEMP_DOC=check_consistency.tmp2.$$
+trap 'rm -f $TEMP_SRC $TEMP_DOC' 0 1 2 3 13 15
+
+cut -d':' -f1 "$PROTOS" | sort | uniq > $TEMP_SRC
+grep -h '# API: ' "$@" | cut -d' ' -f 3- | sort | uniq > $TEMP_DOC
+
+diff $TEMP_SRC $TEMP_DOC | while read -r marker name
+do
+    case $marker in
+        '>')
+            echo "$name not in source (or missing Function: marker)"
+            ;;
+        '<')
+            echo "$name not documented"
+            ;;
+    esac
+done
+
+# vim: set et:

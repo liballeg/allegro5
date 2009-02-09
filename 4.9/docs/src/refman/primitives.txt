@@ -1,0 +1,583 @@
+%Primitives Addon
+
+# High Level Drawing Routines
+
+## API: al_draw_line_ex
+
+Draws a line segment between two points.
+
+*Parameters:*
+
+* x1, y1, x2, y2 - Start and end points of the line
+* color - Color of the line
+* thickness - Thickness of the line, pass <= 0 to draw hairline lines
+
+## API: al_draw_triangle
+
+Draws an outlined triangle.
+
+*Parameters:*
+
+* x1, y1, x2, y2, x3, y3 - Three points of the triangle
+* color - Color of the triangle
+* thickness - Thickness of the lines, pass <= 0 to draw hairline lines
+
+## API: al_draw_filled_triangle
+
+Draws a filled triangle.
+
+*Parameters:*
+
+* x1, y1, x2, y2, x3, y3 - Three points of the triangle
+* color - Color of the triangle
+
+## API: al_draw_rectangle_ex
+
+Draws an outlined rectangle.
+
+*Parameters:*
+
+* x1, y1, x2, y2 - Upper left and lower right points of a triangle
+* color - Color of the rectangle
+* thickness - Thickness of the lines, pass <= 0 to draw hairline lines
+
+## API: al_draw_filled_rectangle
+
+Draws a filled rectangle.
+
+*Parameters:*
+
+* x1, y1, x2, y2 - Upper left and lower right points of a triangle
+* color - Color of the rectangle
+
+## API: al_calculate_arc
+
+Calculates an elliptical arc, and sets the vertices in a buffer to the calculated positions. If thickness <= 0, then
+`num_points` of points are required in the vbuff, otherwise twice as many are needed.
+
+*Parameters:*
+
+* vbuff - Vertex buffer to fill out
+* cx, cy - Center of the arc
+* rx, ry - Radii of the arc
+* start_theta - The initial angle from which the arc is calculated
+* delta_theta - Angular span of the arc (pass a negative number to switch direction)
+* thickness - Thickness of the arc
+* start - The index of the first calculated point in the vertex buffer
+* num_points - The number of points to calculate
+
+## API: al_draw_ellipse
+
+Draws an outlined ellipse.
+
+*Parameters:*
+
+* cx, cy - Center of the ellipse
+* rx, ry - Radii of the ellipse
+* color - Color of the ellipse
+* thickness - Thickness of the ellipse, pass <= 0 to draw hairline ellipse
+
+## API: al_draw_filled_ellipse
+
+Draws a filled ellipse.
+
+*Parameters:*
+
+* cx, cy - Center of the ellipse
+* rx, ry - Radii of the ellipse
+* color - Color of the ellipse
+
+## API: al_draw_circle
+
+Draws an outlined circle.
+
+*Parameters:*
+
+* cx, cy - Center of the circle
+* r - Radius of the circle
+* color - Color of the circle
+* thickness - Thickness of the circle, pass <= 0 to draw hairline circle
+
+## API: al_draw_filled_circle
+
+Draws a filled circle.
+
+*Parameters:*
+
+* cx, cy - Center of the circle
+* r - Radius of the circle
+* color - Color of the circle
+
+## API: al_draw_arc
+
+Draws an arc.
+
+*Parameters:*
+
+* cx, cy - Center of the arc
+* r - Radius of the arc
+* color - Color of the arc
+* start_theta - The initial angle from which the arc is calculated
+* delta_theta - Angular span of the arc (pass a negative number to switch direction)
+* thickness - Thickness of the circle, pass <= 0 to draw hairline circle
+
+## API: al_calculate_spline
+
+Calculates a spline given 4 control points. If thickness <= 0, then
+`num_segments` of points are required in the vbuff, otherwise twice as many are needed.
+
+*Parameters:*
+
+* vbuff - Vertex buffer to fill out
+* points - An array of 4 pairs of coordinates of the 4 control points
+* start - The index of the first calculated point in the vertex buffer
+* thickness - Thickness of the spline ribbon
+* num_segments - The number of points to calculate
+
+## API: al_draw_spline
+
+Draws a spline given 4 control points.
+
+*Parameters:*
+
+* points - An array of 4 pairs of coordinates of the 4 control points
+* color - Color of the spline
+* thickness - Thickness of the spline, pass <= 0 to draw hairline spline
+
+## API: al_calculate_ribbon
+
+Calculates a ribbon given an array of points. The ribbon will go through all of the passed points. If thickness <= 0, then
+`num_segments` of points are required in the vbuff, otherwise twice as many are needed.
+
+*Parameters:*
+
+* vbuff - Vertex buffer to fill out
+* points - An array of pairs of coordinates for each point
+* start - The index of the first calculated point in the vertex buffer
+* thickness - Thickness of the spline ribbon
+* num_segments - The number of points to calculate
+
+## API: al_draw_ribbon
+
+Draws a ribbon given given an array of points. The ribbon will go through all of the passed points.
+
+*Parameters:*
+
+* points - An array of pairs of coordinates for each point
+* color - Color of the spline
+* thickness - Thickness of the spline, pass <= 0 to draw hairline spline
+
+# Low Level Drawing Routines
+
+## API: al_draw_prim
+
+Draws a subset of the passed vertex buffer.
+
+*Parameters:*
+
+* texture - Texture to use, pass 0 to use only shaded primitves
+* vbuff - Vertex buffer to use
+* start, end - Start and end of the subset of the vertex buffer to draw
+* type - Primitive type to draw
+
+*Returns:*
+Number of primitives drawn
+
+*See Also:*
+[ALLEGRO_VBUFFER], [ALLEGRO_PRIM_TYPE], [al_draw_indexed_prim]
+
+## API: al_draw_indexed_prim
+
+Draws a subset of the passed vertex buffer. This function uses an index array to specify which vertices to use.
+
+*Parameters:*
+
+* texture - Texture to use, pass 0 to use only shaded primitves
+* vbuff - Vertex buffer to use
+* indices - An array of indices into the vertex buffer
+* num_vtx - Number of indices from the indices array you want to draw
+* type - Primitive type to draw
+
+*Returns:*
+Number of primitives drawn
+
+*See Also:*
+[ALLEGRO_VBUFFER], [ALLEGRO_PRIM_TYPE], [al_draw_prim]
+
+# Vertex Buffer Locking
+
+## API: al_lock_vbuff_range
+
+Locks a range of the vertex buffer.
+
+*Parameters:*
+
+* vbuff - Vertex buffer to lock
+* start, end - Range to lock
+* type - Lock type; can be read, write or both
+
+*Returns:*
+1 if locking was successful, 0 otherwise
+
+*See Also:*
+[ALLEGRO_VBUFFER], [ALLEGRO_VBUFFER_FLAGS]
+
+## API: al_lock_vbuff
+
+Locks a the whole vertex buffer.
+
+*Parameters:*
+
+ * vbuff - Vertex buffer to lock
+ * type - Lock type; can be read, write or both
+
+*Returns:*
+1 if locking was successful, 0 otherwise
+
+*See Also:*[ALLEGRO_VBUFFER], [ALLEGRO_VBUFFER_FLAGS]
+
+## API: al_unlock_vbuff
+
+Unlocks a the whole vertex buffer.
+
+*Parameters:*
+
+* vbuff - Vertex buffer to unlock
+
+*See Also:*
+[ALLEGRO_VBUFFER]
+
+## API: al_vbuff_is_locked
+
+Checks to see if the vertex buffer is locked or not.
+
+*Parameters:*
+
+* vbuff - Vertex buffer to check
+
+*Returns:*
+1 if it is locked, 0 otherwise
+
+*See Also:*
+[ALLEGRO_VBUFFER]
+
+## API: al_vbuff_range_is_locked
+
+Checks to see if a range in the vertex buffer is locked or not.
+
+*Parameters:*
+
+* vbuff - Vertex buffer to check
+* start, end - Range to check
+
+*Returns:*
+0 if it not locked at all, or the range does not match, 1 otherwise
+
+*See Also:*
+[ALLEGRO_VBUFFER]
+
+# Vertex Buffer Access
+
+## API: al_set_vbuff_pos
+
+Sets the position variables of a vertex in a vertex buffer.
+
+*Parameters:*
+
+* vbuff - Vertex buffer to modify
+* idx - Index of the vertex to modify
+* x, y, z - New position
+
+## API: al_set_vbuff_normal
+
+Sets the normal variables of a vertex in a vertex buffer.
+
+*Parameters:*
+
+* vbuff - Vertex buffer to modify
+* idx - Index of the vertex to modify
+* nx, ny, nz - New normal
+
+## API: al_set_vbuff_uv
+
+Sets the uv coordinates of a vertex in a vertex buffer.
+
+*Parameters:*
+
+* vbuff - Vertex buffer to modify
+* idx - Index of the vertex to modify
+* u,v - New texture coordinates
+
+## API: al_set_vbuff_vertex
+
+Sets a vertex in a vertex buffer.
+
+*Parameters:*
+
+* vbuff - Vertex buffer to modify
+* idx - Index of the vertex to modify
+* vtx - New vertex definition
+
+## API: al_set_vbuff_color
+
+Sets the colour of a vertex in a vertex buffer.
+
+*Parameters:*
+
+* vbuff - Vertex buffer to modify
+* idx - Index of the vertex to modify
+* col - New colour
+
+## API: al_get_vbuff_vertex
+
+Gets a vertex from the vertex buffer.
+
+*Parameters:*
+
+* vbuff - Vertex buffer to modify
+* idx - Index of the vertex to modify
+* vtx - Vertex structure to fill out definition
+
+## API: al_get_vbuff_flags
+
+Return the flags of a vertex buffer
+
+*Parameters:*
+
+* vbuff - Vertex buffer to get flags from
+
+*Returns:*
+The flags of the buffer
+
+*See Also:*
+[ALLEGRO_VBUFFER_FLAGS]
+
+## API: al_get_vbuff_len
+
+Return the length of a vertex buffer
+
+*Parameters:*
+
+* vbuff - Vertex buffer to get length of
+
+*Returns:*
+The length of the buffer
+
+## API: al_get_vbuff_lock_range
+
+Queries the start and the end of the locked range of a vertex buffer
+
+*Parameters:*
+
+* vbuff - Vertex buffer to examine
+* start, end - Will hold the start/end pointers after the call is done
+
+# Vertex Buffer Creation/Destruction
+
+## API: al_create_vbuff
+
+Creates a vertex buffer.
+
+*Parameters:*
+
+* len - Number of vertices to put in this buffer
+* type -Type of the vertex buffer to create
+
+*Returns:*
+A newly created vertex buffer, 0 on failure.
+
+*See Also:*
+[ALLEGRO_VBUFFER_FLAGS]
+
+## API: al_destroy_vbuff
+
+Destroys a vertex buffer.
+
+*Parameters:*
+
+* vbuff - Vertex buffer to destroy. 0 is ignored.
+
+# Transfomations
+
+## API: al_copy_transform
+
+Makes a copy of a transformation.
+
+*Parameters:*
+
+* src - Source transformation
+* dest - Destination transformation
+
+## API: al_use_transform
+
+Sets the transformation to be used for the primitive drawing operations. Every drawing operation after this call will
+be transformed using this transformation.
+
+*Parameters:*
+
+* trans - Transformation to use
+
+## API: al_identity_transform
+
+Sets the transformation to be the identity transformation.
+
+*Parameters:*
+
+* trans - Transformation to alter
+
+## API: al_build_transform
+
+Builds a transformation given some parameters. This call is equivalent to calling
+the transformations in this order: make identity, scale, rotate, translate. This method is faster, however.
+
+*Parameters:*
+
+* trans - Transformation to alter
+* x, y - Translation
+* sx, sy - Scale
+* theta - Rotation angle
+
+## API: al_translate_transform
+
+Apply a translation to a transformation.
+
+*Parameters:*
+
+* trans - Transformation to alter
+* x, y - Translation
+
+## API: al_rotate_transform
+
+Apply a rotation to a transformation.
+
+*Parameters:*
+
+* trans - Transformation to alter
+* theta - Rotation angle
+
+## API: al_scale_transform
+
+Apply a scale to a transformation.
+
+*Parameters:*
+
+* trans - Transformation to alter
+* sx, sy - Scale
+
+## API: al_transform_vertex
+
+Transform a vertex.
+
+*Parameters:*
+
+* trans - Transformation to use
+* vtx - Vertex to transform
+
+## API: al_transform_transform
+
+Transform a transformation.
+
+*Parameters:*
+
+* trans - Transformation to use
+* trans2 - Transformation to transform
+
+# Miscellaneous
+
+## API: al_set_prim_flag
+
+Sets a certain global flag.
+
+*Parameters:*
+
+* flag - Flag index
+* value - New value of the flag
+
+*See Also:*
+[ALLEGRO_PRIM_FLAGS]
+
+## API: al_get_prim_flag
+
+Returns the value of a certain global flag.
+
+*Parameters:*
+
+* flag - Flag index
+
+*Returns:*
+Value of the flag
+
+*See Also:*
+[ALLEGRO_PRIM_FLAGS]
+
+# Structures and Types
+
+## API: ALLEGRO_VERTEX
+
+Defines the generic vertex type, with a 3D position, 3D normal, 4 component colour and texture coordinates
+for a single texture. If the vertex is within the `ALLEGRO_VBUFFER` You should use the `al_set_vbuff_*` functions to
+manipulate the values within this struct.
+
+* x, y, z - Position of the vertex. Use z = 0 if you are only dealing with 2D primitives
+* r, g, b, a - Color components
+* nx, ny, nz - Normal components
+* u, v - Texture coordinates
+
+## API: ALLEGRO_TRANSFORM
+
+Defines the generic transformation type, a 4x4 matrix. 2D transforms use only a small subsection of this matrix,
+namely the top left 2x2 matrix, and the right most 2x1 matrix, for a total of 6 values.
+
+## API: ALLEGRO_VBUFFER
+
+Defines the generic vertex buffer type. They hold vertices in an arrangement that is conducive to rapid
+drawing. Vertex buffers have to be locked to read/write data from them, and have to be unlocked before drawing.
+Use the various access routines to operate on them, never touching the internal data if possible.
+
+# Constants
+
+## API: ALLEGRO_PRIM_TYPE
+
+Enumerates the types of primitves this addon can draw.
+
+* ALLEGRO_PRIM_LINE_LIST - A list of lines, sequential pairs of vertices define disjointed lines
+* ALLEGRO_PRIM_LINE_STRIP - A strip of lines, sequential vertices define a strip of lines
+* ALLEGRO_PRIM_LINE_LOOP - Like a line strip, except at the end the first and the last vertices are also connected by a line
+* ALLEGRO_PRIM_TRIANGLE_LIST - A list of triangles, sequential triplets of vertices define disjointed triangles
+* ALLEGRO_PRIM_TRIANGLE_STRIP - A strip of triangles, sequential vertices define a strip of triangles
+* ALLEGRO_PRIM_TRIANGLE_FAN - A fan of triangles, all triangles share the first vertex
+
+## API: ALLEGRO_VBUFFER_FLAGS
+
+Enumerates the flags that describe vertex buffers, and access to them.
+
+* ALLEGRO_VBUFFER_SOFT - A software buffer, can be drawn by any backend
+* ALLEGRO_VBUFFER_VIDEO - A video buffer, can be drawn by the software backend, 
+                          and the hardware accelerated backend that created it
+* ALLEGRO_VBUFFER_LOCKED - Signifies that the vertex buffer is locked, meaning you can access its values. A buffer
+                           has to be unlocked before it can be drawn
+* ALLEGRO_VBUFFER_READ - Signifies that a buffer is read only, or that you are requesting read access
+* ALLEGRO_VBUFFER_WRITE - Signifies that a buffer is write only, or that you are requesting read access
+
+## API: ALLEGRO_PRIM_FLAGS
+
+Enumerates the flags that control the global operation of the entire addon. All are off by default.
+
+* ALLEGRO_PRIM_LIGHT - Signifies whether the lighting engine should be used
+* ALLEGRO_PRIM_3D - Signifies whether the addon should operate in 2D mode or 3D mode.
+* ALLEGRO_PRIM_ZBUFFER - Signifies whether the software Z-buffer should be used
+* ALLEGRO_PRIM_NORMAL - Signifies whether the normals of vertices should be used
+
+## API: ALLEGRO_VERTEX_CACHE_SIZE
+
+Defines the size of the transformation vertex cache for the software renderer. If you pass less than this many
+vertices to the primitve rendering functions you will get a speed boost.
+
+## API: ALLEGRO_VBUFF_CACHE_SIZE
+
+Defines the size of the cache vertex buffer, used for the high-level primitives.
+This corresponds to the maximum number of line segments that will be used to form them.
+
+## API: ALLEGRO_PRIM_QUALITY
+
+Defines the quality of the quadratic primitives. At 10, this roughly corresponds to error < 0.5 pixel.

@@ -1,0 +1,121 @@
+xkeymap - X Window System keyboard mapping utility for Allegro
+
+by Michael Bukin, modified by Elias Pschernig
+
+
+
+0. Quickstart
+
+- Make sure you have an appropriate "keyboard=" entry in your
+  allegro.cfg.
+
+- Run xkeymap, and click on the "Setup key mappings" button.
+
+- Select Allegro scancodes from the list, and hit corresponding keys
+  on your keyboard.
+  
+- "Save and exit", and paste the generated file xkeymap.cfg into your
+  allegro.cfg.
+
+- If Allegro's keyboard mapping is still broken, reading on probably
+  won't help - in this case you can write to the mailing lists or the
+  web forum on allegro.cc.
+
+
+
+1. Why it is needed
+
+To achieve maximum portability, Allegro does its own key-mapping,
+directly reading in raw scancodes from the keyboard. While on some
+platforms, like DOS, Windows or QNX, it is possible to directly read
+in these scancodes, on other platforms, like X, this is not possible.
+In X, Allegro can only read in virtual keycodes produced by X, which
+already depend on the keyboard layout specifications. Because of that,
+you have to provide a keyboard configuration which maps the X virtual
+keycodes back to the raw scancodes. This utility makes it easy to
+create the right configuration, by giving you a selection of Allegro
+keycodes and asking you to press the corresponding key on your
+keyboard, so the X virtual keycode can be detected.
+
+Note that X may completely block some keys which, therefore, can't be
+detected at all by user programs. (For me, this is the case for the
+left control key and the menu key.)
+
+
+
+2. How to use it
+
+Make sure your standard allegro.cfg (either ./allegro.cfg,
+~/allegro.cfg, ~/.allegrorc, /etc/allegro.cfg, or /etc/allegrorc)
+contains the right "keyboard=" line for your keyboard layout, for
+example "keyboard=es" for a Spanish layout - before running the
+program. Alternatively, you can click on the button labelled "Default"
+to directly load a keyboard layout file. Some layouts ship with
+Allegro and can be found in the "resources/keyboard" folder. Or you
+can create your own with the keyconf utility.
+
+Now click on the "Setup key mappings" button. It shows you a list
+containing all Allegro keycodes. Select any keycode with the mouse or
+cursor keys, and hit return (or double-click, or click the button
+below it). Then press the key on your keyboard whose X code should be
+seen by Allegro as the selected key. Normally, you want to ignore the
+"KEY_" name of the key, and only look at the letters displayed below
+the "Produces:" button, which tell what characters are produced when
+hitting the key, or Shift+key or AltGr+key combinations. For example,
+if you have "keyboard=de" in your allegro.cfg, the key KEY_Y will show
+"z Z", and you should press the key labelled 'Z' on your keyboard, not
+'Y'. The "Done" button takes you back to the main menu, where you can
+test the current mapping with the "Test key mappings" button.
+
+Use "Save and exit" to write the X mappings into a file called
+"xkeymap.cfg", the contents of which you should paste into your
+allegro.cfg.
+
+
+
+3. Example from my current system
+
+I'm using a Debian-Linux-i386 version with XFree86 4.2.1 and a PC
+keyboard, and the following standard keyboard layout is specified in
+/etc/X11/XF86Config (for a german keyboard layout):
+
+Section "InputDevice"
+ Identifier  "Keyboard0"
+ Driver      "keyboard"
+ Option  "XkbKeycodes"      "xfree86"
+ Option  "XkbTypes"         "default"
+ Option  "XkbCompat"        "default"
+ Option  "XkbSymbols"       "en_US(pc105)+de"
+ Option  "XkbGeometry"      "pc(pc105)"
+EndSection
+
+My allegro.cfg is in /etc/allegro.cfg, and contains this:
+
+[system]
+keyboard = de
+language = de
+
+Using the xkeymap utility, and typing in all keys which were not
+working before, produced the following xkeymap.cfg for me. I just
+pasted it at the beginning of my /etc/allegro.cfg - and now have
+a 100% working keyboard in Allegro programs :)
+
+[xkeymap]
+keycode20 = 12
+keycode21 = 13
+keycode29 = 21
+keycode34 = 26
+keycode35 = 27
+keycode47 = 39
+keycode48 = 40
+keycode49 = 41
+keycode51 = 43
+keycode52 = 44
+keycode59 = 51
+keycode60 = 52
+keycode61 = 53
+keycode64 = 56
+keycode94 = 214
+keycode113 = 184
+keycode115 = 219
+keycode116 = 220

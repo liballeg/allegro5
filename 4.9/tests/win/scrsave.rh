@@ -1,0 +1,5 @@
+// Windows resource header file for the Allegro screensaver example
+
+#define IDC_EDIT_MESSAGE                100
+#define IDC_CHECK_BLUECROSS             101
+#define IDC_CHECK_SHOWMESSAGE           102

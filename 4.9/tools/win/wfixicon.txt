@@ -1,0 +1,65 @@
+
+   ____ _ _  _ _ ___  __  _
+   |_   |  \/  | |    | | |\ |
+   |    | _/\_ | |__  |_| | \|
+
+
+        by Elias Pschernig
+
+
+
+The wfixicon utility converts Allegro images to Windows icons, that
+is it lets you convert one or several images in any format supported by
+Allegro into icons suitable to be included in your Windows executable.
+
+It has two main execution modes: you can either directly pass it image files
+from your hard drive or bitmaps and RLE sprites from an Allegro datafile.
+The only difference between the two modes is for 8-bit images: in the former
+case, wfixicon will automatically extract the palette from the image file,
+whereas in the latter case you will have to explicitly provide a palette
+object from the datafile.
+
+The general syntax for the first mode is as follows:
+
+   'wfixicon icon [options] bitmap [bitmap...]'
+
+where 'icon' is the icon file to be generated (usually with the standard
+.ico extension) and each 'bitmap' is a source bitmaps to be processed.
+
+The general syntax for the second mode is as follows:
+
+   'wfixicon icon [options] -d datafile object [palette] [object...]'
+
+where 'icon' is the icon file to be generated (see above), 'datafile' is the
+source from which all objects are taken, and each 'object' is a bitmap
+or RLE sprite (DAT_BITMAP or DAT_RLE) within the datafile, specified by
+name.
+
+If you have used any 8-bit images, you must also specify a palette. For
+each palette object you include on the command line, any images between
+it and the last palette will be given that palette. For example:
+
+
+   'wfixicon i.ico -d d.dat icon icon2 pal1 tool tool2 pal2'
+
+will give the icons called 'icon' and 'icon2' the palette 'pal1', and
+the icons 'tool' and 'tool2' will be given 'pal2'.
+
+The wfixicon utility accepts the following options:
+
+   '-r'
+      Outputs a resource source file (.rc) suited to the icon, in addition
+      to the icon itself. When compiled and linked to an Allegro Windows
+      executable, this file attachs the icon to the executable and makes it
+      the default icon, displayed in the window caption and the task list.
+
+   '-ro'
+      Same as '-r' but additionally call the resource compiler on the .rc
+      file, making it produce an object file ready to be linked to an
+      Allegro Windows executable, with the same effects as described above.
+
+
+An example of use is provided in the Allegro distribution: the demo program
+gets a nice little icon (or an ugly one, it's up to you...) extracted from
+its datafile (with the Borland C++ compiler you need to type 'make fixdemo'
+from the main directory once you have properly installed the library).
