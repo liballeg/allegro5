@@ -74,6 +74,14 @@ struct ALLEGRO_DISPLAY_INTERFACE
 
 struct ALLEGRO_OGL_EXTRAS;
 
+/* These are settings Allegro itself doesn't really care about on its
+ * own, but which users may want to specify for a display anyway.
+ */
+typedef struct
+{
+   int required, suggested;
+   int settings[ALLEGRO_DISPLAY_OPTIONS_COUNT];
+} ALLEGRO_EXTRA_DISPLAY_SETTINGS;
 
 struct ALLEGRO_DISPLAY
 {
@@ -85,6 +93,7 @@ struct ALLEGRO_DISPLAY
    int flags;
    int w, h;
 
+   ALLEGRO_EXTRA_DISPLAY_SETTINGS extra_settings;
    struct ALLEGRO_OGL_EXTRAS *ogl_extras;
 
    _AL_VECTOR bitmaps; /* A list of bitmaps created for this display. */
@@ -98,6 +107,9 @@ void _al_draw_pixel_memory(ALLEGRO_BITMAP *bmp, int x, int y, ALLEGRO_COLOR *col
 
 void _al_destroy_display_bitmaps(ALLEGRO_DISPLAY *d);
 
+/* Defined in tls.c */
+void _al_set_new_display_settings(ALLEGRO_EXTRA_DISPLAY_SETTINGS *settings);
+ALLEGRO_EXTRA_DISPLAY_SETTINGS *_al_get_new_display_settings(void);
 
 #ifdef __cplusplus
 }

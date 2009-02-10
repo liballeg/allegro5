@@ -24,6 +24,39 @@
 #define ALLEGRO_NOFRAME      64
 #define ALLEGRO_GENERATE_EXPOSE_EVENTS 128
 
+
+
+/* Possible parameters for al_set_display_option.
+ * Make sure to update ALLEGRO_EXTRA_DISPLAY_SETTINGS if you modify
+ * anything here.
+ */
+enum ALLEGRO_DISPLAY_OPTIONS {
+   ALLEGRO_RED_SIZE,
+   ALLEGRO_GREEN_SIZE,
+   ALLEGRO_BLUE_SIZE,
+   ALLEGRO_ALPHA_SIZE,
+   ALLEGRO_ACC_RED_SIZE,
+   ALLEGRO_ACC_GREEN_SIZE,
+   ALLEGRO_ACC_BLUE_SIZE,
+   ALLEGRO_ACC_ALPHA_SIZE,
+   ALLEGRO_STEREO,
+   ALLEGRO_AUX_BUFFERS,
+   ALLEGRO_DEPTH_SIZE,
+   ALLEGRO_STENCIL_SIZE,
+   ALLEGRO_SAMPLE_BUFFERS,
+   ALLEGRO_SAMPLES,
+   ALLEGRO_DISPLAY_OPTIONS_COUNT
+};
+
+enum
+{
+   ALLEGRO_DONTCARE,
+   ALLEGRO_REQUIRE,
+   ALLEGRO_SUGGEST
+};
+
+
+
 /* Type: ALLEGRO_DISPLAY_MODE
  *
  * Used for display mode queries. Contains information
@@ -123,6 +156,11 @@ AL_FUNC(void, al_set_window_position, (ALLEGRO_DISPLAY *display, int x, int y));
 AL_FUNC(void, al_get_window_position, (ALLEGRO_DISPLAY *display, int *x, int *y));
 AL_FUNC(void, al_toggle_window_frame, (ALLEGRO_DISPLAY *display, bool onoff));
 AL_FUNC(void, al_set_window_title, (AL_CONST char *title));
+
+/* Defined in display_settings.c */
+AL_FUNC(void, al_set_display_option, (int option, int value, int importance));
+AL_FUNC(int, al_get_display_option, (int option, int *importance));
+AL_FUNC(void, al_clear_display_options, (void));
 
 #ifdef __cplusplus
    }

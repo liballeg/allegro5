@@ -207,6 +207,54 @@ bitmap, it will be scaled.
 TODO: Describe best practice for the size?
 TODO: Allow providing multiple icons in differet sizes?
 
+## API: al_set_display_option
+
+Sets an extra display option. Allegro itself will not care about those
+options itself, but you may want to specify them, for example if you
+want to use multisampling.
+
+The 'importance' parameter can be either:
+
+* ALLEGRO_REQUEST - The display will not be created if the setting can
+    not be met.
+* ALLEGRO_SUGGEST - If the setting is not available, the display will
+    be created anyway.
+    FIXME: We need a way to query the settings back from a created display.
+* ALLEGRO_DONTCARE - If you added a display option with one of the above
+    two settings before, it will be removed again. Else this does
+    nothing.
+
+The supported options are:
+
+*   ALLEGRO_RED_SIZE
+*   ALLEGRO_GREEN_SIZE
+*   ALLEGRO_BLUE_SIZE
+*   ALLEGRO_ALPHA_SIZE
+*   ALLEGRO_ACC_RED_SIZE
+*   ALLEGRO_ACC_GREEN_SIZE
+*   ALLEGRO_ACC_BLUE_SIZE
+*   ALLEGRO_ACC_ALPHA_SIZE
+*   ALLEGRO_STEREO
+*   ALLEGRO_AUX_BUFFERS
+*   ALLEGRO_DEPTH_SIZE
+*   ALLEGRO_STENCIL_SIZE
+*   ALLEGRO_SAMPLE_BUFFERS
+*   ALLEGRO_SAMPLES
+
+FIXME: document them all in detail
+
+## API: al_get_display_option
+
+Retrieve an extra display setting which was previously set with
+[al_set_display_option].
+
+FIXME: Maybe this should instead read the actual settings of the
+currently active display?
+
+## API: al_clear_display_options
+
+This undoes any previous calls to [al_set_display_option].
+
 ## API: al_set_new_display_flags
 
 Sets various flags for display creation. flags is a bitfield containing any

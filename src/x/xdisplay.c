@@ -176,7 +176,7 @@ static void xdpy_toggle_frame(ALLEGRO_DISPLAY *display, bool onoff)
 
 
 
-/* Create a new X11 dummy display, which maps directly to a GLX window. */
+/* Create a new X11 display, which maps directly to a GLX window. */
 static ALLEGRO_DISPLAY *xdpy_create_display(int w, int h)
 {
    ALLEGRO_DISPLAY_XGLX *d = _AL_MALLOC(sizeof *d);
@@ -185,7 +185,7 @@ static ALLEGRO_DISPLAY *xdpy_create_display(int w, int h)
    memset(d, 0, sizeof *d);
    memset(ogl, 0, sizeof *ogl);
    display->ogl_extras = ogl;
-   
+
    ALLEGRO_SYSTEM_XGLX *system = (void *)al_system_driver();
 
    _al_mutex_lock(&system->lock);

@@ -38,6 +38,7 @@ typedef struct thread_local_state {
    int new_display_format;
    int new_display_refresh_rate;
    int new_display_flags;
+   ALLEGRO_EXTRA_DISPLAY_SETTINGS *new_display_settings;
    /* Current display */
    ALLEGRO_DISPLAY *current_display;
    /* Target bitmap */
@@ -200,6 +201,7 @@ static THREAD_LOCAL thread_local_state _tls = {
    0,                                     /* new_display_format */
    0,                                     /* new_display_refresh_rate */
    0,                                     /* new_display_flags */
+   NULL,                                  /* new_display_settings */
    NULL,                                  /* current_display */
    NULL,                                  /* target_bitmap */
    ALLEGRO_PIXEL_FORMAT_ANY_WITH_ALPHA,   /* new_bitmap_format */
@@ -223,6 +225,27 @@ static thread_local_state *tls_get(void)
 
 
 #endif /* end not defined ALLEGRO_MINGW32 */
+
+
+
+void _al_set_new_display_settings(ALLEGRO_EXTRA_DISPLAY_SETTINGS *settings)
+{
+   thread_local_state *tls;
+   if ((tls = tls_get()) == NULL)
+      return;
+   tls->new_display_settings = settings;
+}
+
+
+
+ALLEGRO_EXTRA_DISPLAY_SETTINGS *_al_get_new_display_settings(void)
+{
+   thread_local_state *tls;
+
+   if ((tls = tls_get()) == NULL)
+      return 0;
+   return tls->new_display_settings;
+}
 
 
 

@@ -84,6 +84,7 @@ example(ex_threads)
 example(ex_threads2)
 example(ex_timedwait)
 example(ex_user_events)
+example(ex_multisample)
 
 if(SUPPORT_D3D)
     example(ex_d3d ex_d3d.cpp d3dx9)

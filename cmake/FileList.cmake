@@ -5,6 +5,7 @@ set(ALLEGRO_SRC_FILES
     src/config.c
     src/convert.c
     src/display_new.c
+    src/display_settings.c
     src/dtor.c
     src/events.c
     src/evtsrc.c
