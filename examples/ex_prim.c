@@ -19,7 +19,6 @@
 
 #include <allegro5/allegro5.h>
 #include <allegro5/a5_font.h>
-#include <allegro5/a5_ttf.h>
 #include <allegro5/a5_iio.h>
 #include "allegro5/a5_primitives.h"
 #include <math.h>
@@ -499,9 +498,9 @@ int main(void)
    }
    
    // Load a font
-   Font = al_ttf_load_font("data/DejaVuSans.ttf", 16, 0);
+   Font = al_font_load_font("data/fixed_font.tga", 0);
    if (!Font) {
-      printf("Error loading \"data/DejaVuSans.ttf\".\n");
+      printf("Error loading \"data/fixed_font.tga\".\n");
       return 1;
    }
    

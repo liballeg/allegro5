@@ -98,11 +98,11 @@ if(SUPPORT_MEMFILE)
    example(ex_memfile ${MEMFILE_LINK_WITH})
 endif(SUPPORT_MEMFILE)
 
-if(SUPPORT_PRIMITIVES AND SUPPORT_TTF)
+if(SUPPORT_PRIMITIVES AND SUPPORT_FONT)
     include_directories(../addons/primitives)
-    example(ex_prim ${PRIMITIVES_LINK_WITH} ${TTF_LINK_WITH} ${FONT_LINK_WITH}
+    example(ex_prim ${PRIMITIVES_LINK_WITH} ${FONT_LINK_WITH}
         ${IIO_LINK_WITH})
-endif(SUPPORT_PRIMITIVES AND SUPPORT_TTF)
+endif(SUPPORT_PRIMITIVES AND SUPPORT_FONT)
 
 copy_data_dir_to_build(copy_example_data data)
 
