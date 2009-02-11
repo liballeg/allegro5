@@ -44,7 +44,7 @@ Clear a complete display, but confined by the clipping rectangle.
 
 Create a display, or window, with the specified dimensions.
 The parameters of the display are determined by the last calls to
-al_set_new_display_\*. Default parameters are used if none are set
+al_set_new_display\_\*. Default parameters are used if none are set
 explicitly.
 Creating a new display will automatically make it the active one, with the
 backbuffer selected for drawing. 

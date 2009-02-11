@@ -22,7 +22,8 @@
 
 
 
-/* Function: al_set_display_option */
+/* Function: al_set_display_option
+ */
 void al_set_display_option(int option, int value, int importance)
 {
    ALLEGRO_EXTRA_DISPLAY_SETTINGS *extras;
@@ -51,7 +52,8 @@ void al_set_display_option(int option, int value, int importance)
 
 
 
-/* Function: al_get_display_option */
+/* Function: al_get_display_option
+ */
 int al_get_display_option(int option, int *importance)
 {
    ALLEGRO_EXTRA_DISPLAY_SETTINGS *extras;
@@ -74,7 +76,8 @@ int al_get_display_option(int option, int *importance)
 
 
 
-/* Function: al_clear_display_options */
+/* Function: al_clear_display_options
+ */
 void al_clear_display_options(void)
 {
    ALLEGRO_EXTRA_DISPLAY_SETTINGS *extras;

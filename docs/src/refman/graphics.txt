@@ -168,8 +168,8 @@ Draws an unscaled, unrotated bitmap at the given position
 to the current target bitmap (see [al_set_target_bitmap]).
 flags can be a combination of:
 
-ALLEGRO_FLIP_HORIZONTAL - flip the bitmap about the y-axis
-ALLEGRO_FLIP_VERTICAL - flip the bitmap about the x-axis
+* ALLEGRO_FLIP_HORIZONTAL - flip the bitmap about the y-axis
+* ALLEGRO_FLIP_VERTICAL - flip the bitmap about the x-axis
 
 ## API: al_draw_bitmap_region
 
@@ -191,7 +191,7 @@ Draws a line to the current target.
 * fy - from y
 * tx - to x
 * ty - to y
-* color - can be obtained with al_map_*
+* color - can be obtained with al\_map\_*
 
 ## API: al_draw_pixel
 
