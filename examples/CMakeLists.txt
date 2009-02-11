@@ -56,6 +56,7 @@ endif(SUPPORT_ACODEC)
 
 if(SUPPORT_TTF)
     example(ex_ttf ${TTF_LINK_WITH})
+    example(ex_logo  ${TTF_LINK_WITH})
 endif(SUPPORT_TTF)
 
 if(SUPPORT_COLOR AND SUPPORT_TTF)
