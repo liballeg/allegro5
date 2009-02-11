@@ -63,9 +63,6 @@ set(INSERT_TIMESTAMP ${SH} ${SCRIPT_DIR}/insert_timestamp)
 # called protos.timestamp which reflects the last time that the protos file
 # changed.  We declare _that_ file as the dependency of other targets.
 
-# XXX for some reason the html target sometimes won't build directly after
-# protos.timestamp changes.  Running make a second time works, however.
-
 file(GLOB_RECURSE ALL_SRCS
     ${CMAKE_SOURCE_DIR}/src/*.[ch]
     ${CMAKE_SOURCE_DIR}/src/*.[ch]pp
@@ -76,7 +73,9 @@ file(GLOB_RECURSE ALL_SRCS
     )
 
 add_custom_command(
-    OUTPUT ${PROTOS} ${PROTOS_TIMESTAMP}
+    # For some reason the timestamp file must be listed first, otherwise make
+    # doesn't notice that it's updated until you run make a second time.
+    OUTPUT ${PROTOS_TIMESTAMP} ${PROTOS}
     DEPENDS ${ALL_SRCS}
     COMMAND ${MAKE_PROTOS} ${ALL_SRCS} > ${PROTOS}
     COMMAND ${CMAKE_COMMAND} -E copy_if_different ${PROTOS} ${PROTOS_TIMESTAMP}
@@ -95,7 +94,8 @@ add_custom_target(gen_protos DEPENDS ${PROTOS})
 # It's used to resolve references across HTML pages.
 
 add_custom_command(
-    OUTPUT ${HTML_REFS} ${HTML_REFS_TIMESTAMP}
+    # As above, the timestamp file must be listed first.
+    OUTPUT ${HTML_REFS_TIMESTAMP} ${HTML_REFS}
     DEPENDS ${PAGES_TXT}
     COMMAND ${MAKE_HTML_REFS} ${PAGES_TXT} > ${HTML_REFS}
     COMMAND ${CMAKE_COMMAND} -E copy_if_different
@@ -189,7 +189,8 @@ endif(WANT_DOCS_MAN)
 #-----------------------------------------------------------------------------#
 
 add_custom_command(
-    OUTPUT ${DUMMY_REFS} ${DUMMY_REFS_TIMESTAMP}
+    # As above, the timestamp file must be listed first.
+    OUTPUT ${DUMMY_REFS_TIMESTAMP} ${DUMMY_REFS}
     DEPENDS ${PAGES_TXT}
     COMMAND ${MAKE_DUMMY_REFS} ${PAGES_TXT} > ${DUMMY_REFS}
     COMMAND ${CMAKE_COMMAND} -E copy_if_different
