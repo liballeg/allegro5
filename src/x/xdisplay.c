@@ -221,19 +221,26 @@ static ALLEGRO_DISPLAY *xdpy_create_display(int w, int h)
       }
    }
 
-   //FIXME
-   //d->display.flags |= ALLEGRO_WINDOWED;
+   _al_xglx_config_select_visual(d);
+   
+   if (!d->xvinfo) {
+      TRACE("FIXME: Need better visual selection.\n");
+      TRACE("xdisplay: No matching visual found.\n");
+      _AL_FREE(d);
+      _AL_FREE(ogl);
+      _al_mutex_unlock(&system->lock);
+      return NULL;
+   }
 
+   TRACE("xdisplay: Selected visual %lx.\n", d->xvinfo->visualid);
+   
    /* Add ourself to the list of displays. */
-   ALLEGRO_DISPLAY_XGLX **add = _al_vector_alloc_back(&system->system.displays);
+   ALLEGRO_DISPLAY_XGLX **add;
+   add = _al_vector_alloc_back(&system->system.displays);
    *add = d;
 
    /* Each display is an event source. */
    _al_event_source_init(&display->es);
-
-   _al_xglx_config_select_visual(d);
-
-   TRACE("xdisplay: Selected visual %lx.\n", d->xvinfo->visualid);
 
    /* Create a colormap. */
    Colormap cmap = XCreateColormap(system->x11display,
