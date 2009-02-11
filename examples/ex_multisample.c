@@ -10,7 +10,7 @@ static void draw(void)
    al_draw_line(190, 10, 10, 190, al_map_rgb_f(0, 0, 0));
 }
 
-int main(int argc, char **argv)
+int main(void)
 {
    ALLEGRO_DISPLAY *display, *ms_display;
    ALLEGRO_EVENT_QUEUE *queue;
@@ -75,5 +75,4 @@ int main(int argc, char **argv)
 
    return 0;
 }
-
-
+END_OF_MAIN()
