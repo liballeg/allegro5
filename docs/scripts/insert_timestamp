@@ -4,6 +4,6 @@
 
 cat << EOF > $1
 <p>
-Last updated: $(date -u +'%Y-%m-%d %H:%M:%SZ')
+Last updated: $(date -u +'%Y-%m-%d %H:%M:%S %Z')
 </p>
 EOF
