@@ -19,6 +19,23 @@ mark_as_advanced(CTAGS)
 
 #-----------------------------------------------------------------------------#
 
+# Pandoc < 1.0 is usable but doesn't have Texinfo support.
+if(PANDOC AND NOT DEFINED PANDOC_WITH_TEXINFO)
+    message(STATUS "Checking Pandoc version")
+    execute_process(
+        COMMAND ${PANDOC} --version
+        ERROR_VARIABLE PANDOC_VERSION_TEXT
+        )
+    if(PANDOC_VERSION_TEXT MATCHES "pandoc [1-9]")
+        set(PANDOC_WITH_TEXINFO 1 CACHE BOOL "Pandoc supports Texinfo")
+    else()
+        set(PANDOC_WITH_TEXINFO 0 CACHE BOOL "Pandoc supports Texinfo")
+    endif()
+    mark_as_advanced(PANDOC_WITH_TEXINFO)
+endif()
+
+#-----------------------------------------------------------------------------#
+
 set(all_docs)
 
 macro(add_info n)
@@ -81,6 +98,9 @@ if(PANDOC)
         html/changes-4.9.html
         -c pandoc.css
         )
+endif(PANDOC)
+
+if(PANDOC_WITH_TEXINFO)
     pandoc(
         src/changes-4.9.txt
         texi/changes-4.9.texi
@@ -91,7 +111,7 @@ if(PANDOC)
             txt/changes-4.9.txt
             )
     endif(MAKEINFO)
-endif(PANDOC)
+endif(PANDOC_WITH_TEXINFO)
 
 add_custom_target(docs
     ALL

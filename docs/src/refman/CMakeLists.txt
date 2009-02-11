@@ -198,7 +198,7 @@ add_custom_command(
 
 add_custom_target(gen_dummy_refs DEPENDS ${DUMMY_REFS})
 
-if(WANT_DOCS_INFO AND MAKEINFO)
+if(WANT_DOCS_INFO AND PANDOC_WITH_TEXINFO AND MAKEINFO)
     add_custom_target(info ALL DEPENDS refman.info)
     add_custom_command(
         OUTPUT refman.info
@@ -213,7 +213,7 @@ if(WANT_DOCS_INFO AND MAKEINFO)
                 -o refman.texi
                 --standalone
         )
-endif(WANT_DOCS_INFO AND MAKEINFO)
+endif(WANT_DOCS_INFO AND PANDOC_WITH_TEXINFO AND MAKEINFO)
 
 #-----------------------------------------------------------------------------#
 #
