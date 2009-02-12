@@ -55,6 +55,7 @@ if(SUPPORT_ACODEC)
 endif(SUPPORT_ACODEC)
 
 if(SUPPORT_TTF)
+    example(ex_font_justify ex_font_justify.cpp nihgui.cpp ${TTF_LINK_WITH})
     example(ex_ttf ${TTF_LINK_WITH})
     example(ex_logo  ${TTF_LINK_WITH})
 endif(SUPPORT_TTF)

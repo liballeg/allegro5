@@ -167,6 +167,22 @@ public:
    void           set_cur_value(int v);
 };
 
+class HSlider : public Widget {
+private:
+   int   cur_value;
+   int   max_value;
+
+public:
+   HSlider(int cur_value = 0, int max_value = 1);
+
+   virtual void   on_mouse_button_down(int mx, int my);
+   virtual void   on_mouse_button_hold(int mx, int my);
+   virtual void   draw();
+
+   int            get_cur_value() const;
+   void           set_cur_value(int v);
+};
+
 class TextEntry : public Widget {
 private:
    static const int CURSOR_WIDTH = 8;

@@ -478,7 +478,6 @@ void VSlider::on_mouse_button_hold(int mx, int my)
    dialog->request_draw();
 
    (void)mx;
-   (void)my;
 }
 
 void VSlider::draw()
@@ -501,6 +500,53 @@ int VSlider::get_cur_value() const
 }
 
 void VSlider::set_cur_value(int v)
+{
+   this->cur_value = v;
+}
+
+/*---------------------------------------------------------------------------*/
+
+HSlider::HSlider(int cur_value, int max_value) :
+   cur_value(cur_value),
+   max_value(max_value)
+{
+}
+
+void HSlider::on_mouse_button_down(int mx, int my)
+{
+   this->on_mouse_button_hold(mx, my);
+}
+
+void HSlider::on_mouse_button_hold(int mx, int my)
+{
+   double r = (double) (mx - 1 - this->x1) / (this->width() - 2);
+   r = CLAMP(0.0, r, 1.0);
+   cur_value = (int) (r * max_value);
+   dialog->request_draw();
+
+   (void)my;
+}
+
+void HSlider::draw()
+{
+   const Theme & theme = dialog->get_theme();
+   const int cy = (y1 + y2) / 2;
+   SaveState state;
+
+   al_draw_rectangle(x1, y1, x2, y2, theme.bg, ALLEGRO_FILLED);
+   al_draw_line(x1, cy, x2, cy, theme.fg);
+
+   double ratio = (double) this->cur_value / (double) this->max_value;
+   int xpos = x1 + (int) (ratio * (width() - 2));
+   al_draw_rectangle(xpos - 2, y1, xpos + 2, y2, theme.fg, ALLEGRO_FILLED);
+}
+
+int HSlider::get_cur_value() const
+{
+   return this->cur_value;
+}
+
+void HSlider::set_cur_value(int v)
 {
    this->cur_value = v;
 }
