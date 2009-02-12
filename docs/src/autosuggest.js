@@ -47,7 +47,7 @@ function actb(id, ca, url)
 	this.actb_useIFrame   = true;		// should the control use an IFrame element to fix suggestion list positioning (MS IE only)?
 	this.actb_useScroll   = true;		// should the control use a scroll bar (true) or a up/down buttons (false)?
 	this.actb_mouse       = true;		// enable mouse support
-	this.actb_noDefault   = true;		// should the control omit selecting the 1st item in a suggestion list?
+	this.actb_noDefault   = false;		// should the control omit selecting the 1st item in a suggestion list?
 	this.actb_startcheck  = 0;			// show widget only after this number of characters is typed in.
 
 	this.actb_delimiter   = [";", ","];	// delimiter for multiple autocomplete. Set it to empty array ( [] ) for single autocomplete
