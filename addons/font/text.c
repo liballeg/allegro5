@@ -41,15 +41,18 @@
 void al_font_textout(const ALLEGRO_FONT *f, int x, int y,
    const char *str, int count)
 {
+   ALLEGRO_USTR_INFO str_info;
+   ALLEGRO_USTR ustr;
    ASSERT(f);
    ASSERT(str);
+   ASSERT(count >= -1);
 
-   if (count == -1) {
-      count = ustrlen(str);
+   ustr = al_ref_cstr(&str_info, str);
+   if (count > -1) {
+      ustr = al_ref_buffer(&str_info, str, al_ustr_offset(ustr, count));
    }
-   ASSERT(count >= 0);
 
-   f->vtable->render(f, str, x, y, count);
+   f->vtable->render(f, ustr, x, y);
 }
 
 
@@ -61,17 +64,20 @@ void al_font_textout(const ALLEGRO_FONT *f, int x, int y,
 void al_font_textout_centre(const ALLEGRO_FONT *f, int x, int y,
    const char *str, int count)
 {
+   ALLEGRO_USTR_INFO str_info;
+   ALLEGRO_USTR ustr;
    int len;
    ASSERT(f);
    ASSERT(str);
+   ASSERT(count >= -1);
 
-   if (count == -1) {
-      count = ustrlen(str);
+   ustr = al_ref_cstr(&str_info, str);
+   if (count > -1) {
+      ustr = al_ref_buffer(&str_info, str, al_ustr_offset(ustr, count));
    }
-   ASSERT(count >= 0);
 
-   len = al_font_text_width(f, str, count);
-   f->vtable->render(f, str, x - len/2, y, count);
+   len = f->vtable->text_length(f, ustr);
+   f->vtable->render(f, ustr, x - len/2, y);
 }
 
 
@@ -83,82 +89,89 @@ void al_font_textout_centre(const ALLEGRO_FONT *f, int x, int y,
 void al_font_textout_right(const ALLEGRO_FONT *f, int x, int y,
    const char *str, int count)
 {
+   ALLEGRO_USTR_INFO str_info;
+   ALLEGRO_USTR ustr;
    int len;
    ASSERT(f);
    ASSERT(str);
+   ASSERT(count >= -1);
 
-   if (count == -1) {
-      count = ustrlen(str);
+   ustr = al_ref_cstr(&str_info, str);
+   if (count > -1) {
+      ustr = al_ref_buffer(&str_info, str, al_ustr_offset(ustr, count));
    }
-   ASSERT(count >= 0);
 
-   len = al_font_text_width(f, str, count);
-   f->vtable->render(f, str, x - len, y, count);
+   len = f->vtable->text_length(f, ustr);
+   f->vtable->render(f, ustr, x - len, y);
 }
 
 
 
-#define MAX_TOKEN  128
-
-/* XXX this looks pretty inefficient */
 /* Function: al_font_textout_justify
  *  Like textout_ex(), but justifies the string to the specified area.
  */
 void al_font_textout_justify(const ALLEGRO_FONT *f, int x1, int x2, int y,
    int diff, const char *str)
 {
-   char toks[32];
-   char *tok[MAX_TOKEN];
-   char *strbuf, *strlast;
-   int i, minlen, last, space;
+   const char *whitespace = " \t\n\r";
+   ALLEGRO_USTR_INFO str_info;
+   ALLEGRO_USTR_INFO word_info;
+   ALLEGRO_USTR ustr;
+   ALLEGRO_USTR word;
+   int pos1, pos2;
+   int minlen;
+   int num_words;
+   int space;
    float fleft, finc;
-   ASSERT(f);
-   ASSERT(str);
 
-   i = usetc(toks, ' ');
-   i += usetc(toks+i, '\t');
-   i += usetc(toks+i, '\n');
-   i += usetc(toks+i, '\r');
-   usetc(toks+i, 0);
+   ustr = al_ref_cstr(&str_info, str);
 
    /* count words and measure min length (without spaces) */ 
-   strbuf = ustrdup(str);
-   if (!strbuf) {
-      /* Can't justify ! */
-      f->vtable->render(f, str, x1, y, ustrlen(str));
-      return;
-   }
-
+   num_words = 0;
    minlen = 0;
-   last = 0;
-   tok[last] = ustrtok_r(strbuf, toks, &strlast);
-
-   while (tok[last]) {
-      minlen += al_font_text_width(f, tok[last], -1);
-      if (++last == MAX_TOKEN)
+   pos1 = 0;
+   for (;;) {
+      pos1 = al_ustr_find_cset_cstr(ustr, pos1, whitespace);
+      if (pos1 == -1)
          break;
-      tok[last] = ustrtok_r(NULL, toks, &strlast);
+      pos2 = al_ustr_find_set_cstr(ustr, pos1, whitespace);
+      if (pos2 == -1)
+         pos2 = al_ustr_size(ustr);
+
+      word = al_ref_ustr(&word_info, ustr, pos1, pos2);
+      minlen += f->vtable->text_length(f, word);
+      num_words++;
+
+      pos1 = pos2;
    }
 
    /* amount of room for space between words */
    space = x2 - x1 - minlen;
 
-   if ((space <= 0) || (space > diff) || (last < 2)) {
+   if ((space <= 0) || (space > diff) || (num_words < 2)) {
       /* can't justify */
-      _AL_FREE(strbuf);
-      f->vtable->render(f, str, x1, y, ustrlen(str));
+      f->vtable->render(f, ustr, x1, y);
       return; 
    }
 
    /* distribute space left evenly between words */
    fleft = (float)x1;
-   finc = (float)space / (float)(last-1);
-   for (i=0; i<last; i++) {
-      f->vtable->render(f, tok[i], (int)fleft, y, ustrlen(tok[i]));
-      fleft += (float)al_font_text_width(f, tok[i], -1) + finc;
-   }
+   finc = (float)space / (float)(num_words-1);
+   pos1 = 0;
+   for (;;) {
+      pos1 = al_ustr_find_cset_cstr(ustr, pos1, whitespace);
+      if (pos1 == -1)
+         break;
+      pos2 = al_ustr_find_set_cstr(ustr, pos1, whitespace);
+      if (pos2 == -1)
+         pos2 = al_ustr_size(ustr);
 
-   _AL_FREE(strbuf);
+      word = al_ref_ustr(&word_info, ustr, pos1, pos2);
+      fleft += f->vtable->render(f, word, (int)fleft, y);
+      fleft += finc;
+
+      pos1 = pos2;
+   }
 }
 
 
@@ -166,18 +179,22 @@ void al_font_textout_justify(const ALLEGRO_FONT *f, int x1, int x2, int y,
 /* Function: al_font_textprintf
  *  Formatted text output, using a printf() style format string.
  */
-void al_font_textprintf(const ALLEGRO_FONT *f, int x, int y, const char *format, ...)
+void al_font_textprintf(const ALLEGRO_FONT *f, int x, int y,
+   const char *format, ...)
 {
-   char buf[512];
+   ALLEGRO_USTR buf;
    va_list ap;
    ASSERT(f);
    ASSERT(format);
 
    va_start(ap, format);
-   uvszprintf(buf, sizeof(buf), format, ap);
+   buf = al_ustr_new("");
+   al_ustr_vappendf(buf, format, ap);
    va_end(ap);
 
-   al_font_textout(f, x, y, buf, -1);
+   al_font_textout(f, x, y, al_cstr(buf), -1);
+
+   al_ustr_free(buf);
 }
 
 
@@ -186,18 +203,22 @@ void al_font_textprintf(const ALLEGRO_FONT *f, int x, int y, const char *format,
  *  Like <al_font_textprintf>, but uses the x coordinate as the centre rather
  *  than the left of the string.
  */
-void al_font_textprintf_centre(const ALLEGRO_FONT *f, int x, int y, const char *format, ...)
+void al_font_textprintf_centre(const ALLEGRO_FONT *f, int x, int y,
+   const char *format, ...)
 {
-   char buf[512];
+   ALLEGRO_USTR buf;
    va_list ap;
    ASSERT(f);
    ASSERT(format);
 
    va_start(ap, format);
-   uvszprintf(buf, sizeof(buf), format, ap);
+   buf = al_ustr_new("");
+   al_ustr_vappendf(buf, format, ap);
    va_end(ap);
 
-   al_font_textout_centre(f, x, y, buf, -1);
+   al_font_textout_centre(f, x, y, al_cstr(buf), -1);
+
+   al_ustr_free(buf);
 }
 
 
@@ -206,18 +227,22 @@ void al_font_textprintf_centre(const ALLEGRO_FONT *f, int x, int y, const char *
  *  Like <al_font_textprintf>, but uses the x coordinate as the right rather
  *  than the left of the string.
  */
-void al_font_textprintf_right(const ALLEGRO_FONT *f, int x, int y, const char *format, ...)
+void al_font_textprintf_right(const ALLEGRO_FONT *f, int x, int y,
+   const char *format, ...)
 {
-   char buf[512];
+   ALLEGRO_USTR buf;
    va_list ap;
    ASSERT(f);
    ASSERT(format);
 
    va_start(ap, format);
-   uvszprintf(buf, sizeof(buf), format, ap);
+   buf = al_ustr_new("");
+   al_ustr_vappendf(buf, format, ap);
    va_end(ap);
 
-   al_font_textout_right(f, x, y, buf, -1);
+   al_font_textout_right(f, x, y, al_cstr(buf), -1);
+
+   al_ustr_free(buf);
 }
 
 
@@ -226,18 +251,22 @@ void al_font_textprintf_right(const ALLEGRO_FONT *f, int x, int y, const char *f
  *  Like <al_font_textprintf>, but right justifies the string to the specified
  *  area.
  */
-void al_font_textprintf_justify(const ALLEGRO_FONT *f, int x1, int x2, int y, int diff, const char *format, ...)
+void al_font_textprintf_justify(const ALLEGRO_FONT *f, int x1, int x2, int y,
+   int diff, const char *format, ...)
 {
-   char buf[512];
+   ALLEGRO_USTR buf;
    va_list ap;
    ASSERT(f);
    ASSERT(format);
 
    va_start(ap, format);
-   uvszprintf(buf, sizeof(buf), format, ap);
+   buf = al_ustr_new("");
+   al_ustr_vappendf(buf, format, ap);
    va_end(ap);
 
-   al_font_textout_justify(f, x1, x2, y, diff, buf);
+   al_font_textout_justify(f, x1, x2, y, diff, al_cstr(buf));
+
+   al_ustr_free(buf);
 }
 
 
@@ -247,15 +276,18 @@ void al_font_textprintf_justify(const ALLEGRO_FONT *f, int x1, int x2, int y, in
  */
 int al_font_text_width(const ALLEGRO_FONT *f, const char *str, int count)
 {
+   ALLEGRO_USTR_INFO str_info;
+   ALLEGRO_USTR ustr;
    ASSERT(f);
    ASSERT(str);
+   ASSERT(count >= -1);
 
-   if (count == -1) {
-      count = ustrlen(str);
+   ustr = al_ref_cstr(&str_info, str);
+   if (count > -1) {
+      ustr = al_ref_buffer(&str_info, str, al_ustr_offset(ustr, count));
    }
-   ASSERT(count >= 0);
 
-   return f->vtable->text_length(f, str, count);
+   return f->vtable->text_length(f, ustr);
 }
 
 

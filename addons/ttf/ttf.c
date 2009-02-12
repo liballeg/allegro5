@@ -159,28 +159,30 @@ static int char_length(ALLEGRO_FONT const *f, int ch)
     return render_glyph(f, '\0', ch, 0, 0, &glyph);
 }
 
-static void render(ALLEGRO_FONT const *f, char const *text,
-    int x, int y, int count)
+static int render(ALLEGRO_FONT const *f, const ALLEGRO_USTR text,
+    int x0, int y)
 {
-    char prev = '\0';
-    char const *p = text;
-    int i;
-    for (i = 0; i < count; i++) {
-        int ch = ugetxc(&p);
+    int pos = 0;
+    int x = x0;
+    int32_t prev = '\0';
+    int32_t ch;
+
+    while ((ch = al_ustr_get_next(text, &pos)) >= 0) {
         x += render_glyph(f, prev, ch, x, y, NULL);
         prev = ch;
     }
+    return x - x0;
 }
 
-static int text_length(ALLEGRO_FONT const *f, char const *text, int count)
+static int text_length(ALLEGRO_FONT const *f, const ALLEGRO_USTR text)
 {
-    char prev = '\0';
-    char const *p = text;
-    int i;
+    int pos = 0;
+    int32_t prev = '\0';
+    int32_t ch;
     int x = 0;
     ALLEGRO_TTF_GLYPH_DATA *glyph;
-    for (i = 0; i < count; i++) {
-        int ch = ugetxc(&p);
+
+    while ((ch = al_ustr_get_next(text, &pos)) >= 0) {
         x += render_glyph(f, prev, ch, x, 0, &glyph);
         prev = ch;
     }
@@ -222,17 +224,20 @@ void al_ttf_get_text_dimensions(ALLEGRO_FONT const *f, char const *text,
 {
     ALLEGRO_TTF_FONT_DATA *data = f->data;
     FT_Face face = data->face;
+    ALLEGRO_USTR_INFO text_info;
+    ALLEGRO_USTR utext = al_ref_cstr(&text_info, text);
     char prev = '\0';
-    char const *p = text;
+    int pos = 0;
     int i;
     int x = 0;
     ALLEGRO_TTF_GLYPH_DATA *glyph;
+
     if (count == -1) {
-       count = ustrlen(text);
+       count = al_ustr_length(utext);
     }
     *bbx = 0;
     for (i = 0; i < count; i++) {
-        int ch = ugetxc(&p);
+        int32_t ch = al_ustr_get_next(utext, &pos);
         x += render_glyph(f, prev, ch, 0, 0, &glyph);
         if (i == count - 1) {
             x -= face->glyph->advance.x >> 6;
@@ -303,7 +308,7 @@ ALLEGRO_FONT *al_ttf_load_font(char const *filename, int size, int flags)
      */
     path = al_path_create(filename);
     al_path_get_extension(path, extension, sizeof extension);
-    if (!ustrcmp(extension, "pfa")) {
+    if (!0 == strcmp(extension, "pfa")) {
         char helper[PATH_MAX];
         TRACE("a5-ttf: Type1 font assumed for %s.\n", filename);
 

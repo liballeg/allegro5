@@ -55,15 +55,13 @@ static int font_height(const ALLEGRO_FONT *f)
  *  (mono and color vtable entry)
  *  Returns the length, in pixels, of a string as rendered in a font.
  */
-static int length(const ALLEGRO_FONT* f, const char* text, int count)
+static int length(const ALLEGRO_FONT* f, const ALLEGRO_USTR text)
 {
-    int ch = 0, w = 0, i;
-    const char* p = text;
-    ASSERT(text);
+    int ch = 0, w = 0;
+    int pos = 0;
     ASSERT(f);
 
-    for (i = 0; i < count; i++) {
-        ch = ugetxc(&p);
+    while ((ch = al_ustr_get_next(text, &pos)) >= 0) {
         w += f->vtable->char_length(f, ch);
     }
 
@@ -122,7 +120,7 @@ static int color_render_char(const ALLEGRO_FONT* f, int ch, int x, int y)
     if(g) {
         al_draw_bitmap(g, x, y + ((float)h - al_get_bitmap_height(g))/2.0f, 0);
 
-	w = al_get_bitmap_width(g);
+        w = al_get_bitmap_width(g);
     }
 
     return w;
@@ -136,15 +134,17 @@ static int color_render_char(const ALLEGRO_FONT* f, int ch, int x, int y)
  *  the specified colors. If fg == -1, render as color, else render as
  *  mono; if bg == -1, render as transparent, else render as opaque.
  */
-static void color_render(const ALLEGRO_FONT* f, const char* text, int x, int y, int count)
+static int color_render(const ALLEGRO_FONT* f, const ALLEGRO_USTR text,
+    int x0, int y)
 {
-    const char* p = text;
-    int i = 0, ch;
+    int pos = 0;
+    int x = x0;
+    int32_t ch;
 
-    for (; i < count; i++) {
-        ch = ugetxc(&p);
+    while ((ch = al_ustr_get_next(text, &pos)) >= 0) {
         x += f->vtable->render_char(f, ch, x, y);
     }
+    return x - x0;
 }
 
 
@@ -214,3 +214,5 @@ void al_font_init(void)
    al_iio_init(); /* we depend on the iio addon */
 }
 
+
+/* vim: set sts=4 sw=4 et: */

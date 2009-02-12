@@ -101,11 +101,22 @@ int main()
       TRACE("Unable to create display\n");
       return 1;
    }
+
+   /* Test TTF fonts or bitmap fonts. */
+#if 1
    font = al_ttf_load_font("data/DejaVuSans.ttf", 24, 0);
    if (!font) {
       TRACE("Failed to load data/DejaVuSans.ttf\n");
       return 1;
    }
+#else
+   font = al_font_load_font("data/font.tga", 0);
+   if (!font) {
+      TRACE("Failed to load data/font.tga\n");
+      return 1;
+   }
+#endif
+
    font_gui = al_font_load_font("data/fixed_font.tga", 0);
    if (!font_gui) {
       TRACE("Failed to load data/DejaVuSans.ttf\n");
