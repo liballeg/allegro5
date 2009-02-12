@@ -93,9 +93,12 @@ table th {
 }
 
 table.white {
-    padding: 0.4em;
     background-color: #ffffff;
     line-height: 140%;
+}
+
+table.white td {
+    padding: 0.4em;
 }
 
 #footer {
