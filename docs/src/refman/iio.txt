@@ -21,44 +21,65 @@ is determined by the extension.
 
 Create a new ALLEGRO_BITMAP from a PCX file. The bitmap is created with
 [al_create_bitmap].
+
 See Also: [al_iio_load].
 
 ## API: iio_load_jpg
 
 Create a new ALLEGRO_BITMAP from a JPEG file. The bitmap is created with
 [al_create_bitmap].
+
+See Also: [al_iio_load].
+
+## API: iio_load_pcx
+
+Create a new ALLEGRO_BITMAP from a PCX file. The bitmap is created with
+[al_create_bitmap].
+
 See Also: [al_iio_load].
 
 ## API: iio_load_png
 
 Create a new ALLEGRO_BITMAP from a PNG file. The bitmap is created with
 [al_create_bitmap].
+
 See Also: [al_iio_load].
 
 ## API: iio_load_tga
 
 Create a new ALLEGRO_BITMAP from a TGA file. The bitmap is created with
 [al_create_bitmap].
+
 See Also: [al_iio_load].
 
 ## API: iio_save_bmp
 
 Save an ALLEGRO_BITMAP as a PCX file. 
+
 See Also: [al_iio_save].
 
 ## API: iio_save_jpg
 
 Save an ALLEGRO_BITMAP as a JPEG file. 
 FIXME: This function is 100% untested right now and not expected to work yet.
+
+See Also: [al_iio_save].
+
+## API: iio_save_pcx
+
+Save an ALLEGRO_BITMAP as a PCX file.
+
 See Also: [al_iio_save].
 
 ## API: iio_save_png
 
 Save an ALLEGRO_BITMAP as a PNG file. 
+
 See Also: [al_iio_save].
 
 ## API: iio_save_tga
 
 Save an ALLEGRO_BITMAP as a TGA file. 
+
 See Also: [al_iio_save].
 
