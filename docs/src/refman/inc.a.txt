@@ -31,5 +31,29 @@
 <!-- keep blank line for correct HTML -->
 </div>
 
+<div class="searchbox">
+<script type="text/javascript">
+function onSubmit(form) {
+    for (i = 0; i < search_index.length; i++) {
+        if (search_index[i] == form.q.value) {
+            form.action = search_urls[i];
+            form.method = "POST";
+            return true;
+        }
+    }
+    // Search-term is not in the index.
+    // We could add an URL here which does a fulltext search - for
+    // now we simply do nothing by return false to the form.
+    return false;
+}
+</script>
+<form action="search.py" onSubmit="return onSubmit(this);">
+<input type="text" name="q" id="q" autocomplete="off"/><br/>
+<input type="submit" value="Search"/>
+<script>actb = new actb("q", search_index);</script>
+</form>
+</div>
+
+
 </td>
 <td class="content">

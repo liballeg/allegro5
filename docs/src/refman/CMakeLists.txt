@@ -49,6 +49,7 @@ set(MAKE_DUMMY_REFS ${AWK} -f ${SCRIPT_DIR}/make_dummy_refs)
 set(MAKE_PAGE ${SH} ${SCRIPT_DIR}/make_page --protos ${PROTOS})
 set(MAKE_MAN ${SH} ${SCRIPT_DIR}/make_man --protos ${PROTOS})
 set(INSERT_TIMESTAMP ${SH} ${SCRIPT_DIR}/insert_timestamp)
+set(MAKE_SEARCH_INDEX ${PYTHON} ${SCRIPT_DIR}/make_search_index.py)
 
 #-----------------------------------------------------------------------------#
 #
@@ -102,6 +103,17 @@ add_custom_command(
             ${HTML_REFS} ${HTML_REFS_TIMESTAMP}
     )
 
+if(PYTHON)
+    set(SEARCH_INDEX_JS search_index.js)
+    add_custom_command(
+        DEPENDS ${HTML_REFS}
+        OUTPUT search_index.js
+        COMMAND ${MAKE_SEARCH_INDEX}
+        )
+else()
+    set(SEARCH_INDEX_JS)
+endif()
+
 if(WANT_DOCS_HTML)
     foreach(inc inc.a inc.z)
         add_custom_command(
@@ -119,6 +131,7 @@ if(WANT_DOCS_HTML)
             DEPENDS ${PROTOS_TIMESTAMP} ${HTML_REFS_TIMESTAMP} ${page}.txt
                 ${CMAKE_CURRENT_BINARY_DIR}/inc.a.html
                 ${CMAKE_CURRENT_BINARY_DIR}/inc.z.html
+                ${SEARCH_INDEX_JS}
             COMMAND
                 ${INSERT_TIMESTAMP} inc.timestamp.html
             COMMAND
@@ -130,16 +143,19 @@ if(WANT_DOCS_HTML)
                 --include-after-body inc.z.html
                 --include-after-body inc.timestamp.html
                 -c pandoc.css
+                -C custom_header.html
                 --standalone --toc
             )
         list(APPEND HTML_PAGES ${CMAKE_CURRENT_BINARY_DIR}/${page}.html)
     endforeach(page)
     add_custom_target(html ALL DEPENDS ${HTML_PAGES})
 
-    configure_file(
-        ${CMAKE_CURRENT_SOURCE_DIR}/../pandoc.css
-        ${CMAKE_CURRENT_BINARY_DIR}/pandoc.css
-        COPY_ONLY)
+    foreach(file pandoc.css custom_header.html autosuggest.js)
+        configure_file(
+            ${CMAKE_CURRENT_SOURCE_DIR}/../${file}
+            ${CMAKE_CURRENT_BINARY_DIR}/${file}
+            COPY_ONLY)
+    endforeach(file)
 endif(WANT_DOCS_HTML)
 
 #-----------------------------------------------------------------------------#
