@@ -9,7 +9,6 @@ body {
     color: black;
     font-family: sans-serif;
     font-size: 100%;
-    line-height: 140%;
     color: #333; 
 }
 
@@ -93,12 +92,10 @@ table th {
     padding: 0.5em;
 }
 
-table td {
-    padding: 0.4em;
-}
-
 table.white {
+    padding: 0.4em;
     background-color: #ffffff;
+    line-height: 140%;
 }
 
 #footer {
