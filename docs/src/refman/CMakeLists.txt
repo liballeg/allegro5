@@ -60,10 +60,17 @@ set(MAKE_SEARCH_INDEX ${AWK} -f ${SCRIPT_DIR}/make_search_index)
 
 # The protos file is a list of function prototypes and type declarations
 # which can then be embedded into the documentation.
+
 # Rebuilding the documentation whenever a source file changes is irritating,
 # especially as public prototypes rarely change.  Thus we keep a second file
 # called protos.timestamp which reflects the last time that the protos file
 # changed.  We declare _that_ file as the dependency of other targets.
+
+# We can get into a situation where the protos file is newer than the source
+# files (up-to-date) but the protos.timestamp is older than the source files.
+# If the protos and protos.timestamp files are identical then each time
+# you run make, it will compare them and find them equal, so protos.timestamp
+# won't be updated.  However that check is instantaneous.
 
 file(GLOB_RECURSE ALL_SRCS
     ${CMAKE_SOURCE_DIR}/src/*.[ch]
@@ -75,11 +82,14 @@ file(GLOB_RECURSE ALL_SRCS
     )
 
 add_custom_command(
-    # For some reason the timestamp file must be listed first, otherwise make
-    # doesn't notice that it's updated until you run make a second time.
-    OUTPUT ${PROTOS_TIMESTAMP} ${PROTOS}
+    OUTPUT ${PROTOS}
     DEPENDS ${ALL_SRCS}
     COMMAND ${MAKE_PROTOS} ${ALL_SRCS} > ${PROTOS}
+    )
+
+add_custom_command(
+    OUTPUT ${PROTOS_TIMESTAMP}
+    DEPENDS ${PROTOS}
     COMMAND ${CMAKE_COMMAND} -E copy_if_different ${PROTOS} ${PROTOS_TIMESTAMP}
     )
 
@@ -97,10 +107,14 @@ add_custom_target(gen_protos DEPENDS ${PROTOS})
 # The search_index.js file contains definitions for the autosuggest widget.
 
 add_custom_command(
-    # As above, the timestamp file must be listed first.
-    OUTPUT ${HTML_REFS_TIMESTAMP} ${HTML_REFS}
+    OUTPUT ${HTML_REFS}
     DEPENDS ${PAGES_TXT}
     COMMAND ${MAKE_HTML_REFS} ${PAGES_TXT} > ${HTML_REFS}
+    )
+
+add_custom_command(
+    OUTPUT ${HTML_REFS_TIMESTAMP}
+    DEPENDS ${HTML_REFS}
     COMMAND ${CMAKE_COMMAND} -E copy_if_different
             ${HTML_REFS} ${HTML_REFS_TIMESTAMP}
     )
@@ -202,10 +216,14 @@ endif(WANT_DOCS_MAN)
 #-----------------------------------------------------------------------------#
 
 add_custom_command(
-    # As above, the timestamp file must be listed first.
-    OUTPUT ${DUMMY_REFS_TIMESTAMP} ${DUMMY_REFS}
+    OUTPUT ${DUMMY_REFS}
     DEPENDS ${PAGES_TXT}
     COMMAND ${MAKE_DUMMY_REFS} ${PAGES_TXT} > ${DUMMY_REFS}
+    )
+
+add_custom_command(
+    OUTPUT ${DUMMY_REFS_TIMESTAMP}
+    DEPENDS ${DUMMY_REFS}
     COMMAND ${CMAKE_COMMAND} -E copy_if_different
             ${DUMMY_REFS} ${DUMMY_REFS_TIMESTAMP}
     )
