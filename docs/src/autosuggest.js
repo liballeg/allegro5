@@ -216,11 +216,11 @@ actb.prototype = {
 
 		tobuild[c++] = n.substr(0, p);
 
-		tobuild[c++] = "<u><font face=\"" + this.actb_fFamily + "\">";
+		tobuild[c++] = "<b><font face=\"" + this.actb_fFamily + "\">";
 
 		tobuild[c++] = n.substring(p, plen + p);
 
-		tobuild[c++] = "</font></u>";
+		tobuild[c++] = "</font></b>";
 
 		tobuild[c++] = n.substring(plen + p, n.length);
 
