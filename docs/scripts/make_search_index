@@ -1,0 +1,34 @@
+#!/usr/bin/awk -f
+#
+# SYNOPSIS
+#
+# make_search_index html_refs > search_index.js
+#
+# DESCRIPTION
+#
+# Read html_refs and convert it to a Javascript index for autosuggest.js.
+#
+
+BEGIN {
+    FS = ": "
+    n = 1
+}
+
+/^\[.*\]: / {
+    search_index[n] = substr($1, 2, length($1) - 2)
+    search_urls[n] = $2
+    n++
+}
+
+END {
+    print "var search_index = ["
+    for (i = 1; i < n; i++)
+	print "'" search_index[i] "',"
+    print "]"
+    print "var search_urls = ["
+    for (i = 1; i < n; i++)
+	print "'" search_urls[i] "',"
+    print "]"
+}
+
+# vim: set et:

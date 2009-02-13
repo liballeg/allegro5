@@ -41,6 +41,7 @@ set(HTML_REFS ${CMAKE_CURRENT_BINARY_DIR}/html_refs)
 set(HTML_REFS_TIMESTAMP ${HTML_REFS}.timestamp)
 set(DUMMY_REFS ${CMAKE_CURRENT_BINARY_DIR}/dummy_refs)
 set(DUMMY_REFS_TIMESTAMP ${DUMMY_REFS}.timestamp)
+set(SEARCH_INDEX_JS ${CMAKE_CURRENT_BINARY_DIR}/search_index.js)
 
 set(SCRIPT_DIR ${CMAKE_SOURCE_DIR}/docs/scripts)
 set(MAKE_PROTOS ${SH} ${SCRIPT_DIR}/make_protos)
@@ -49,7 +50,7 @@ set(MAKE_DUMMY_REFS ${AWK} -f ${SCRIPT_DIR}/make_dummy_refs)
 set(MAKE_PAGE ${SH} ${SCRIPT_DIR}/make_page --protos ${PROTOS})
 set(MAKE_MAN ${SH} ${SCRIPT_DIR}/make_man --protos ${PROTOS})
 set(INSERT_TIMESTAMP ${SH} ${SCRIPT_DIR}/insert_timestamp)
-set(MAKE_SEARCH_INDEX ${PYTHON} ${SCRIPT_DIR}/make_search_index.py)
+set(MAKE_SEARCH_INDEX ${AWK} -f ${SCRIPT_DIR}/make_search_index)
 
 #-----------------------------------------------------------------------------#
 #
@@ -93,6 +94,7 @@ add_custom_target(gen_protos DEPENDS ${PROTOS})
 
 # The html_refs file contains link definitions for each API entry.
 # It's used to resolve references across HTML pages.
+# The search_index.js file contains definitions for the autosuggest widget.
 
 add_custom_command(
     # As above, the timestamp file must be listed first.
@@ -103,16 +105,11 @@ add_custom_command(
             ${HTML_REFS} ${HTML_REFS_TIMESTAMP}
     )
 
-if(PYTHON)
-    set(SEARCH_INDEX_JS search_index.js)
-    add_custom_command(
-        DEPENDS ${HTML_REFS}
-        OUTPUT search_index.js
-        COMMAND ${MAKE_SEARCH_INDEX}
-        )
-else()
-    set(SEARCH_INDEX_JS)
-endif()
+add_custom_command(
+    OUTPUT ${SEARCH_INDEX_JS}
+    DEPENDS ${HTML_REFS_TIMESTAMP}
+    COMMAND ${MAKE_SEARCH_INDEX} ${HTML_REFS} > ${SEARCH_INDEX_JS}
+    )
 
 if(WANT_DOCS_HTML)
     foreach(inc inc.a inc.z)
