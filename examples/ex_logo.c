@@ -13,6 +13,10 @@
 #include "allegro5/a5_ttf.h"
 #include "allegro5/a5_iio.h"
 
+#ifndef M_PI
+   #define M_PI 3.141592653589793238462643
+#endif
+
 static ALLEGRO_BITMAP *logo, *logo_flash;
 static int logo_x, logo_y;
 static ALLEGRO_FONT *font;
@@ -174,11 +178,10 @@ static ALLEGRO_BITMAP *generate_logo(char const *text,
 /* Draw the checkerboard background. */
 static void draw_background(void)
 {
-   ALLEGRO_COLOR c[] = {
-      al_map_rgba(0xaa, 0xaa, 0xaa, 0xff),
-      al_map_rgba(0x99, 0x99, 0x99, 0xff)
-   };
+   ALLEGRO_COLOR c[2];
    int i, j;
+   c[0] = al_map_rgba(0xaa, 0xaa, 0xaa, 0xff);
+   c[1] = al_map_rgba(0x99, 0x99, 0x99, 0xff);
 
    for (i = 0; i < 640 / 16; i++) {
       for (j = 0; j < 480 / 16; j++) {
