@@ -294,6 +294,9 @@ void al_calculate_arc(ALLEGRO_VBUFFER* vbuff, float cx, float cy,
    int ii;
  
    ASSERT(vbuff);
+   ASSERT(num_segments > 1);
+   ASSERT(rx >= 0);
+   ASSERT(ry >= 0);
 
    if (thickness > 0.0f) {
       theta = delta_theta / ((float)(num_segments) - 1);
@@ -395,6 +398,9 @@ void al_draw_ellipse(float cx, float cy, float rx, float ry,
    ALLEGRO_COLOR color, float thickness)
 {
    verify_cache();
+   ASSERT(rx > 0);
+   ASSERT(ry > 0);
+
    if (thickness > 0) {
       int num_segments = ALLEGRO_PRIM_QUALITY * sqrtf((rx + ry) / 2.0f);
       int ii;
@@ -431,6 +437,8 @@ void al_draw_filled_ellipse(float cx, float cy, float rx, float ry,
 {
    int num_segments, ii;
    verify_cache();
+   ASSERT(rx > 0);
+   ASSERT(ry > 0);
    
    num_segments = ALLEGRO_PRIM_QUALITY * sqrtf((rx + ry) / 2.0f);
    
@@ -473,8 +481,9 @@ void al_draw_arc(float cx, float cy, float r, float start_theta,
    float delta_theta, ALLEGRO_COLOR color, float thickness)
 {
    verify_cache();
+   ASSERT(r >= 0);
    if (thickness > 0) {
-      int num_segments = delta_theta / (2 * AL_PI) * ALLEGRO_PRIM_QUALITY * sqrtf(r);
+      int num_segments = fabs(delta_theta / (2 * AL_PI) * ALLEGRO_PRIM_QUALITY * sqrtf(r));
       int ii;
       
       if (2 * num_segments >= ALLEGRO_VBUFF_CACHE_SIZE) {
@@ -489,7 +498,7 @@ void al_draw_arc(float cx, float cy, float r, float start_theta,
       
       al_draw_prim(cache_buffer, 0, 0, 2 * num_segments, ALLEGRO_PRIM_TRIANGLE_STRIP);
    } else {
-      int num_segments = delta_theta / (2 * AL_PI) * ALLEGRO_PRIM_QUALITY * sqrtf(r);
+      int num_segments = fabs(delta_theta / (2 * AL_PI) * ALLEGRO_PRIM_QUALITY * sqrtf(r));
       int ii;
       
       if (num_segments >= ALLEGRO_VBUFF_CACHE_SIZE) {
@@ -521,6 +530,7 @@ void al_calculate_spline(ALLEGRO_VBUFFER* vbuff, float points[8],
    float xdt2_term, xdt3_term;
    float ydt2_term, ydt3_term;
 
+   ASSERT(num_segments > 1);
    ASSERT(vbuff);
    ASSERT(points);
    update_point_cache(num_segments);
@@ -582,7 +592,7 @@ void al_draw_spline(float points[8], ALLEGRO_COLOR color, float thickness)
                             1.2 * ALLEGRO_PRIM_QUALITY / 10);
                             
    verify_cache();
-   
+
    if (thickness > 0) {
       if (2 * num_segments >= ALLEGRO_VBUFF_CACHE_SIZE) {
          num_segments = (ALLEGRO_VBUFF_CACHE_SIZE - 1) / 2;
