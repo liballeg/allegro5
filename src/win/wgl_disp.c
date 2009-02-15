@@ -778,8 +778,6 @@ static bool select_pixel_format(ALLEGRO_DISPLAY_WGL *d, HDC dc)
 
    qsort(eds, eds_count, sizeof(eds), _al_display_settings_sorter);
 
-   /* Sorted pixel formats are tested until one of them succeeds to
-    * make a GL context current */
    for (i = 0; i < eds_count ; i++) {
       if (SetPixelFormat(d->dc, eds[i]->index, NULL)) {
    #ifdef DEBUGMODE
