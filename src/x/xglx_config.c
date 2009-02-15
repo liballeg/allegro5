@@ -7,33 +7,54 @@ static int allegro_to_glx_setting[] = {
    GLX_GREEN_SIZE,
    GLX_BLUE_SIZE,
    GLX_ALPHA_SIZE,
+   0 /*shifts*/,
+   0,
+   0,
+   0,
    GLX_ACCUM_RED_SIZE,
    GLX_ACCUM_GREEN_SIZE,
    GLX_ACCUM_BLUE_SIZE,
    GLX_ACCUM_ALPHA_SIZE,
    GLX_STEREO,
    GLX_AUX_BUFFERS,
+   0 /*ALLEGRO_COLOR_SIZE*/,
    GLX_DEPTH_SIZE,
    GLX_STENCIL_SIZE,
    GLX_SAMPLE_BUFFERS,
-   GLX_SAMPLES
+   GLX_SAMPLES,
+   0, /*ALLEGRO_RENDER_METHOD*/
+   0, /*GLX_RGBA_FLOAT_BIT*/
+   0, /*ALLEGRO_FLOAT_DEPTH*/
+   GLX_DOUBLEBUFFER,
+   0 /*GLX_SWAP_METHOD_OML*/
 };
+
 
 static char const *names[] = {
    "GLX_RED_SIZE",
    "GLX_GREEN_SIZE",
    "GLX_BLUE_SIZE",
    "GLX_ALPHA_SIZE",
+   "GLX_RED_SHIFT",
+   "GLX_GREEN_SHIFT",
+   "GLX_BLUE_SHIFT",
+   "GLX_ALPHA_SHIFT",
    "GLX_ACCUM_RED_SIZE",
    "GLX_ACCUM_GREEN_SIZE",
    "GLX_ACCUM_BLUE_SIZE",
    "GLX_ACCUM_ALPHA_SIZE",
    "GLX_STEREO",
    "GLX_AUX_BUFFERS",
+   "",
    "GLX_DEPTH_SIZE",
    "GLX_STENCIL_SIZE",
    "GLX_SAMPLE_BUFFERS",
-   "GLX_SAMPLES"
+   "GLX_SAMPLES",
+   "",
+   "",
+   "",
+   "GLX_DOUBLEBUFFER",
+   ""
 };
 
 static int add_glx_options(ALLEGRO_EXTRA_DISPLAY_SETTINGS *extras,
@@ -42,8 +63,8 @@ static int add_glx_options(ALLEGRO_EXTRA_DISPLAY_SETTINGS *extras,
    int i;
    if (!extras) return a;
    for (i = 0; i < ALLEGRO_DISPLAY_OPTIONS_COUNT; i++) {
-      if ((extras->required & (1 << i)) ||
-         (extras->suggested & (1 << i))) {
+      if (((extras->required & (1 << i)) ||
+         (extras->suggested & (1 << i))) && allegro_to_glx_setting[i]) {
          attributes[a++] = allegro_to_glx_setting[i];
          attributes[a++] = extras->settings[i];
          TRACE("xglx: %s=%d\n", names[i], extras->settings[i]);
@@ -63,12 +84,6 @@ static void choose_visual_fbconfig(ALLEGRO_DISPLAY_XGLX *glx)
    extras = _al_get_new_display_settings();
 
    a = add_glx_options(extras, attributes, a);
-   
-   attributes[a++] = GLX_DOUBLEBUFFER;
-   if (glx->display.flags & ALLEGRO_SINGLEBUFFER)
-      attributes[a++] =  False;
-   else
-      attributes[a++] = True;
    attributes[a++] = None;
 
    glx->fbc = glXChooseFBConfig(system->gfxdisplay,
@@ -88,8 +103,9 @@ static void choose_visual_old(ALLEGRO_DISPLAY_XGLX *glx)
    
    attributes[a++] = GLX_RGBA;
    
-   a = add_glx_options(extras, attributes, a);
-
+   /* glXChooseVisual will fail for values like GLX_SAMPLE_BUFFERS
+	* if the extension is not supported.
+   a = add_glx_options(extras, attributes, a);*/
    if ((glx->display.flags & ALLEGRO_SINGLEBUFFER) == 0)
       attributes[a++] = GLX_DOUBLEBUFFER;
    attributes[a++] = None;

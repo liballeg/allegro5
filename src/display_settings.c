@@ -177,7 +177,7 @@ void _al_fill_display_settings(ALLEGRO_EXTRA_DISPLAY_SETTINGS *ref)
 
    /* Prefer accelerated */
    if (!((req | sug) & (1<<ALLEGRO_RENDER_METHOD))) {
-      al_set_display_option(ALLEGRO_STEREO, 1, ALLEGRO_SUGGEST);
+      al_set_display_option(ALLEGRO_RENDER_METHOD, 1, ALLEGRO_SUGGEST);
    }
 
    /* Prefer unsigned normalized buffers */
