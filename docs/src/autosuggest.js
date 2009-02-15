@@ -295,7 +295,7 @@ actb.prototype = {
 		this.cur_x = bb.style.left = curLeft(this.actb_curr);
 		bb.style.left = this.cur_x + "px";
 
-		this.cur_w = this.actb_curr.offsetWidth - (msie ? 2 : 6);
+		this.cur_w = this.actb_curr.offsetWidth - (msie ? 2 : 6) + 25;
 		bb.style.width = this.cur_w + "px";
 
 		this.cur_h = 1;
