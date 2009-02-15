@@ -35,24 +35,6 @@ typedef struct OPENGL_INFO {
 } OPENGL_INFO;
 
 
-typedef struct OGL_PIXEL_FORMAT {
-   enum ALLEGRO_PIXEL_FORMAT format;
-   int doublebuffered;
-   int swap_method;
-   int depth_size;
-   int rmethod;
-   int stencil_size;
-   int r_shift, g_shift, b_shift, a_shift;
-   int r_size, g_size, b_size, a_size;
-   int color_size;
-   int fullscreen;
-   int sample_buffers;
-   int samples;
-   int float_color;
-   int float_depth;
-} OGL_PIXEL_FORMAT;
-
-
 typedef struct ALLEGRO_OGL_EXTRAS
 {
    /* A list of extensions supported by Allegro, for this context. */

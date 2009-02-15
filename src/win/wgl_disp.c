@@ -58,8 +58,8 @@ typedef struct new_display_parameters {
 /* Logs a Win32 error/warning message in the log file.
  */
 static void log_win32_msg(const char *prefix, const char *func,
-                          const char *error_msg, DWORD err) {
-
+                          const char *error_msg, DWORD err)
+{
    char *err_msg = NULL;
    BOOL free_msg = TRUE;
 
@@ -93,13 +93,15 @@ static void log_win32_msg(const char *prefix, const char *func,
 
 
 /* Logs an error */
-static void log_win32_error(const char *func, const char *error_msg, DWORD err) {
+static void log_win32_error(const char *func, const char *error_msg, DWORD err)
+{
    log_win32_msg(PREFIX_E, func, error_msg, err);
 }
 
 
 /* Logs a warning */
-static void log_win32_warning(const char *func, const char *error_msg, DWORD err) {
+static void log_win32_warning(const char *func, const char *error_msg, DWORD err)
+{
    log_win32_msg(PREFIX_W, func, error_msg, err);
 }
 
@@ -134,7 +136,8 @@ static bool is_wgl_extension_supported(AL_CONST char *extension, HDC dc)
 }
 
 
-static HGLRC init_temp_context(HWND wnd) {
+static HGLRC init_temp_context(HWND wnd)
+{
    PIXELFORMATDESCRIPTOR pfd;
    int pf;
    HDC dc;
@@ -204,7 +207,8 @@ static bool init_pixel_format_extensions(void)
 }
 
 
-static int get_pixel_formats_count_old(HDC dc) {
+static int get_pixel_formats_count_old(HDC dc)
+{
    PIXELFORMATDESCRIPTOR pfd;
    int ret;
 
@@ -218,7 +222,8 @@ static int get_pixel_formats_count_old(HDC dc) {
 }
 
 
-static int get_pixel_formats_count_ext(HDC dc) {
+static int get_pixel_formats_count_ext(HDC dc)
+{
    int attrib[1];
    int value[1];
 
@@ -234,71 +239,29 @@ static int get_pixel_formats_count_ext(HDC dc) {
 
 
 #ifdef DEBUGMODE
-static void display_pixel_format(OGL_PIXEL_FORMAT *pf) {
-   TRACE(PREFIX_I "Accelarated: %s\n", pf->rmethod ? "yes" : "no");
-   TRACE(PREFIX_I "Doublebuffer: %s\n", pf->doublebuffered ? "yes" : "no");
-   if (pf->swap_method > 0)
-      TRACE(PREFIX_I "Swap method: %s\n", pf->swap_method == 2 ? "flip" : "copy");
+static void display_pixel_format(ALLEGRO_EXTRA_DISPLAY_SETTINGS *eds)
+{
+   TRACE(PREFIX_I "Accelarated: %s\n", eds->settings[ALLEGRO_RENDER_METHOD] ? "yes" : "no");
+   TRACE(PREFIX_I "Doublebuffer: %s\n", eds->settings[ALLEGRO_DOUBLEBUFFERED] ? "yes" : "no");
+   if (eds->settings[ALLEGRO_SWAP_METHOD] > 0)
+      TRACE(PREFIX_I "Swap method: %s\n", eds->settings[ALLEGRO_SWAP_METHOD] == 2 ? "flip" : "copy");
    else
       TRACE(PREFIX_I "Swap method: undefined\n");
-   TRACE(PREFIX_I "Color format: r%i g%i b%i a%i, %i bit\n", pf->r_size,
-      pf->g_size, pf->b_size, pf->a_size, pf->color_size);
-   TRACE(PREFIX_I "Depth buffer: %i bits\n", pf->depth_size);
+   TRACE(PREFIX_I "Color format: r%i g%i b%i a%i, %i bit\n",
+      eds->settings[ALLEGRO_RED_SIZE],
+      eds->settings[ALLEGRO_GREEN_SIZE],
+      eds->settings[ALLEGRO_BLUE_SIZE],
+      eds->settings[ALLEGRO_ALPHA_SIZE],
+      eds->settings[ALLEGRO_COLOR_SIZE]);
+   TRACE(PREFIX_I "Depth buffer: %i bits\n", eds->settings[ALLEGRO_DEPTH_SIZE]);
+   TRACE(PREFIX_I "Sample buffers: %s\n", eds->settings[ALLEGRO_SAMPLE_BUFFERS] ? "yes" : "no");
+   TRACE(PREFIX_I "Samples: %i\n", eds->settings[ALLEGRO_SAMPLES]);
 }
 #endif
 
 
-static bool deduce_color_format(OGL_PIXEL_FORMAT *pf)
-{
-   /* dummy value to check if the format was detected */
-   pf->format = ALLEGRO_PIXEL_FORMAT_ANY;
-
-   if (pf->r_size == 8 && pf->g_size == 8 && pf->b_size == 8) {
-      if (pf->a_size == 8 && pf->color_size == 32) {
-         if (pf->a_shift == 0 && pf->b_shift == 8 && pf->g_shift == 16 && pf->r_shift == 24) {
-            pf->format = ALLEGRO_PIXEL_FORMAT_RGBA_8888;
-         }
-         else if (pf->a_shift == 24 && pf->r_shift == 0 && pf->g_shift == 8 && pf->b_shift == 16) {
-            pf->format = ALLEGRO_PIXEL_FORMAT_ABGR_8888;
-         }
-         else if (pf->a_shift == 24 && pf->r_shift == 16 && pf->g_shift == 8 && pf->b_shift == 0) {
-            pf->format = ALLEGRO_PIXEL_FORMAT_ARGB_8888;
-         }
-      }
-      else if (pf->a_size == 0 && pf->color_size == 24) {
-         if (pf->b_shift == 0 && pf->g_shift == 8 && pf->r_shift == 16) {
-            pf->format = ALLEGRO_PIXEL_FORMAT_RGB_888;
-         }
-         else if (pf->r_shift == 0 && pf->g_shift == 8 && pf->b_shift == 16) {
-            pf->format = ALLEGRO_PIXEL_FORMAT_BGR_888;
-         }
-      }
-      else if (pf->a_size == 0 && pf->color_size == 32) {
-         if (pf->b_shift == 0 && pf->g_shift == 8 && pf->r_shift == 16) {
-            pf->format = ALLEGRO_PIXEL_FORMAT_XRGB_8888;
-         }
-         else if (pf->r_shift == 0 && pf->g_shift == 8 && pf->b_shift == 16) {
-            pf->format = ALLEGRO_PIXEL_FORMAT_XBGR_8888;
-         }
-      }
-   }
-   else if (pf->r_size == 5 && pf->g_size == 6 && pf->b_size == 5) {
-      if (pf->r_shift == 0 && pf->g_shift == 5 && pf->b_shift == 11) {
-         pf->format = ALLEGRO_PIXEL_FORMAT_BGR_565;
-      }
-      else if (pf->b_shift == 0 && pf->g_shift == 5 && pf->r_shift == 11) {
-         pf->format = ALLEGRO_PIXEL_FORMAT_RGB_565;
-      }
-   }
-
-   if (pf->format == ALLEGRO_PIXEL_FORMAT_ANY)
-      return false;
-
-   return true;
-}
-
-
-static int decode_pixel_format_old(PIXELFORMATDESCRIPTOR *pfd, OGL_PIXEL_FORMAT *pf)
+static int decode_pixel_format_old(PIXELFORMATDESCRIPTOR *pfd,
+                                   ALLEGRO_EXTRA_DISPLAY_SETTINGS *eds)
 {
    TRACE(PREFIX_I "Decoding: \n");
 
@@ -315,66 +278,68 @@ static int decode_pixel_format_old(PIXELFORMATDESCRIPTOR *pfd, OGL_PIXEL_FORMAT 
    /* hardware acceleration */
    if (((pfd->dwFlags & PFD_GENERIC_ACCELERATED) && (pfd->dwFlags & PFD_GENERIC_FORMAT))
    || (!(pfd->dwFlags & PFD_GENERIC_ACCELERATED) && !(pfd->dwFlags & PFD_GENERIC_FORMAT)))
-      pf->rmethod = 1;
+      eds->settings[ALLEGRO_RENDER_METHOD] = 1;
    else
-      pf->rmethod = 0;
+      eds->settings[ALLEGRO_RENDER_METHOD] = 0;
 
    /* Depths of colour buffers */
-   pf->r_size = pfd->cRedBits;
-   pf->g_size = pfd->cGreenBits;
-   pf->b_size = pfd->cBlueBits;
-   pf->a_size = pfd->cAlphaBits;
+   eds->settings[ALLEGRO_RED_SIZE] = pfd->cRedBits;
+   eds->settings[ALLEGRO_GREEN_SIZE] = pfd->cGreenBits;
+   eds->settings[ALLEGRO_BLUE_SIZE] = pfd->cBlueBits;
+   eds->settings[ALLEGRO_ALPHA_SIZE] = pfd->cAlphaBits;
+
+   /* Depths of accumulation buffer */
+   eds->settings[ALLEGRO_ACC_RED_SIZE] = pfd->cAccumRedBits;
+   eds->settings[ALLEGRO_ACC_GREEN_SIZE] = pfd->cAccumGreenBits;
+   eds->settings[ALLEGRO_ACC_BLUE_SIZE] = pfd->cAccumBlueBits;
+   eds->settings[ALLEGRO_ACC_ALPHA_SIZE] = pfd->cAccumAlphaBits;
 
    /* Miscellaneous settings */
-   pf->doublebuffered = pfd->dwFlags & PFD_DOUBLEBUFFER;
-   pf->depth_size = pfd->cDepthBits;
-   pf->stencil_size = pfd->cStencilBits;
-   pf->color_size = pfd->cColorBits;
+   eds->settings[ALLEGRO_DOUBLEBUFFERED] = pfd->dwFlags & PFD_DOUBLEBUFFER;
+   eds->settings[ALLEGRO_DEPTH_SIZE] = pfd->cDepthBits;
+   eds->settings[ALLEGRO_STENCIL_SIZE] = pfd->cStencilBits;
+   eds->settings[ALLEGRO_COLOR_SIZE] = pfd->cColorBits;
+   eds->settings[ALLEGRO_STEREO] = pfd->dwFlags & PFD_STEREO;
+   eds->settings[ALLEGRO_AUX_BUFFERS] = pfd->cAuxBuffers;
 
    /* These are the component shifts. */
-   pf->r_shift = pfd->cRedShift;
-   pf->g_shift = pfd->cGreenShift;
-   pf->b_shift = pfd->cBlueShift;
-   pf->a_shift = pfd->cAlphaShift;
+   eds->settings[ALLEGRO_RED_SHIFT] = pfd->cRedShift;
+   eds->settings[ALLEGRO_GREEN_SHIFT] = pfd->cGreenShift;
+   eds->settings[ALLEGRO_BLUE_SHIFT] = pfd->cBlueShift;
+   eds->settings[ALLEGRO_ALPHA_SHIFT] = pfd->cAlphaShift;
 
    /* Multisampling isn't supported under Windows if we don't also use
     * WGL_ARB_pixel_format or WGL_EXT_pixel_format.
     */
-   pf->sample_buffers = 0;
-   pf->samples = 0;
+   eds->settings[ALLEGRO_SAMPLE_BUFFERS] = 0;
+   eds->settings[ALLEGRO_SAMPLES] = 0;
 
    /* Swap method can't be detected without WGL_ARB_pixel_format or
     * WGL_EXT_pixel_format
     */
-   pf->swap_method = 0;
+   eds->settings[ALLEGRO_SWAP_METHOD] = 0;
 
    /* Float depth/color isn't supported under Windows if we don't also use
     * AGL_ARB_pixel_format or WGL_EXT_pixel_format.
     */
-   pf->float_color = 0;
-   pf->float_depth = 0;
-
-   /* FIXME: there is other, potetialy usefull, info in pfd. */
-
-   if (!deduce_color_format(pf)) {
-      TRACE(PREFIX_I "Color format not supported by allegro.\n");
-      return false;
-   }
+   eds->settings[ALLEGRO_FLOAT_COLOR] = 0;
+   eds->settings[ALLEGRO_FLOAT_DEPTH] = 0;
 
 	return true;
 }
 
 
-static bool decode_pixel_format_attrib(OGL_PIXEL_FORMAT *pf, int num_attribs,
-                                      const int *attrib, const int *value) {
+static bool decode_pixel_format_attrib(ALLEGRO_EXTRA_DISPLAY_SETTINGS *eds, int num_attribs,
+                                      const int *attrib, const int *value)
+{
    int i;
 
    TRACE(PREFIX_I "Decoding: \n");
 
-   pf->samples = 0;
-   pf->sample_buffers = 0;
-   pf->float_depth = 0;
-   pf->float_color = 0;
+   eds->settings[ALLEGRO_SAMPLES] = 0;
+   eds->settings[ALLEGRO_SAMPLE_BUFFERS] = 0;
+   eds->settings[ALLEGRO_FLOAT_DEPTH] = 0;
+   eds->settings[ALLEGRO_FLOAT_COLOR] = 0;
 
    for (i = 0; i < num_attribs; i++) {
       /* Not interested if it doesn't support OpenGL or window drawing or RGBA. */
@@ -393,132 +358,123 @@ static bool decode_pixel_format_attrib(OGL_PIXEL_FORMAT *pf, int num_attribs,
       }
       /* hardware acceleration */
       else if (attrib[i] == WGL_ACCELERATION_ARB) {
-         pf->rmethod = (value[i] == WGL_NO_ACCELERATION_ARB) ? 0 : 1;
+         eds->settings[ALLEGRO_RENDER_METHOD] = (value[i] == WGL_NO_ACCELERATION_ARB) ? 0 : 1;
       }
       /* Depths of colour buffers */
       else if (attrib[i] == WGL_RED_BITS_ARB) {
-         pf->r_size = value[i];
+         eds->settings[ALLEGRO_RED_SIZE] = value[i];
       }
       else if (attrib[i] == WGL_GREEN_BITS_ARB) {
-         pf->g_size = value[i];
+         eds->settings[ALLEGRO_GREEN_SIZE] = value[i];
       }
       else if (attrib[i] == WGL_BLUE_BITS_ARB) {
-         pf->b_size = value[i];
+         eds->settings[ALLEGRO_BLUE_SIZE] = value[i];
       }
       else if (attrib[i] == WGL_ALPHA_BITS_ARB) {
-         pf->a_size = value[i];
+         eds->settings[ALLEGRO_ALPHA_SIZE] = value[i];
       }
       /* Shift of color components */
       else if (attrib[i] == WGL_RED_SHIFT_ARB) {
-         pf->r_shift = value[i];
+         eds->settings[ALLEGRO_RED_SHIFT] = value[i];
       }
       else if (attrib[i] == WGL_GREEN_SHIFT_ARB) {
-         pf->g_shift = value[i];
+         eds->settings[ALLEGRO_GREEN_SHIFT] = value[i];
       }
       else if (attrib[i] == WGL_BLUE_SHIFT_ARB) {
-         pf->b_shift = value[i];
+         eds->settings[ALLEGRO_BLUE_SHIFT] = value[i];
       }
       else if (attrib[i] == WGL_ALPHA_SHIFT_ARB) {
-         pf->a_shift = value[i];
+         eds->settings[ALLEGRO_ALPHA_SHIFT] = value[i];
       }
       /* Miscellaneous settings */
       else if (attrib[i] == WGL_DOUBLE_BUFFER_ARB) {
-         pf->doublebuffered = value[i];
+         eds->settings[ALLEGRO_DOUBLEBUFFERED] = value[i];
       }
       else if (attrib[i] == WGL_SWAP_METHOD_ARB) {
          if (value[i] == WGL_SWAP_UNDEFINED_ARB)
-            pf->swap_method = 0;
+            eds->settings[ALLEGRO_SWAP_METHOD] = 0;
          else if (value[i] == WGL_SWAP_COPY_ARB)
-            pf->swap_method = 1;
+            eds->settings[ALLEGRO_SWAP_METHOD] = 1;
          else if (value[i] == WGL_SWAP_EXCHANGE_ARB) 
-            pf->swap_method = 2;
+            eds->settings[ALLEGRO_SWAP_METHOD] = 2;
       }
 
-      /* XXX: enable if needed, unused currently */
-#if 0
       else if (attrib[i] == WGL_STEREO_ARB) {
-         pf->stereo = value[i];
+         eds->settings[ALLEGRO_STEREO] = value[i];
       }
       else if (attrib[i] == WGL_AUX_BUFFERS_ARB) {
-         pf->aux_buffers = value[i];
+         eds->settings[ALLEGRO_AUX_BUFFERS] = value[i];
       }
       else if (attrib[i] == WGL_STENCIL_BITS_ARB) {
-         pf->stencil_size = value[i];
+         eds->settings[ALLEGRO_STENCIL_SIZE] = value[i];
       }
       /* Depths of accumulation buffer */
       else if (attrib[i] == WGL_ACCUM_RED_BITS_ARB) {
-         pf->accum_size.rgba.r = value[i];
+         eds->settings[ALLEGRO_ACC_RED_SIZE] = value[i];
       }
       else if (attrib[i] == WGL_ACCUM_GREEN_BITS_ARB) {
-         pf->accum_size.rgba.g = value[i];
+         eds->settings[ALLEGRO_ACC_GREEN_SIZE] = value[i];
       }
       else if (attrib[i] == WGL_ACCUM_BLUE_BITS_ARB) {
-         pf->accum_size.rgba.b = value[i];
+         eds->settings[ALLEGRO_ACC_BLUE_SIZE] = value[i];
       }
       else if (attrib[i] == WGL_ACCUM_ALPHA_BITS_ARB) {
-         pf->accum_size.rgba.a = value[i];
+         eds->settings[ALLEGRO_ACC_ALPHA_SIZE] = value[i];
       }
-#endif // #if 0
 
       else if (attrib[i] == WGL_DEPTH_BITS_ARB) {
-         pf->depth_size = value[i];
+         eds->settings[ALLEGRO_DEPTH_SIZE] = value[i];
       }
       else if (attrib[i] == WGL_COLOR_BITS_ARB) {
-         pf->color_size = value[i];
+         eds->settings[ALLEGRO_COLOR_SIZE] = value[i];
       }
       /* Multisampling bits */
       else if (attrib[i] == WGL_SAMPLE_BUFFERS_ARB) {
-         pf->sample_buffers = value[i];
+         eds->settings[ALLEGRO_SAMPLE_BUFFERS] = value[i];
       }
       else if (attrib[i] == WGL_SAMPLES_ARB) {
-         pf->samples = value[i];
+         eds->settings[ALLEGRO_SAMPLES] = value[i];
       }
       /* Float color */
       if (attrib[i] == WGL_PIXEL_TYPE_ARB && value[i] == WGL_TYPE_RGBA_FLOAT_ARB) {
-         pf->float_color = TRUE;
+         eds->settings[ALLEGRO_FLOAT_COLOR] = TRUE;
       }
       /* Float depth */
       else if (attrib[i] == WGL_DEPTH_FLOAT_EXT) {
-         pf->float_depth = value[i];
+         eds->settings[ALLEGRO_FLOAT_DEPTH] = value[i];
       }
    }
-
-   /* Setting some things based on what we've read out of the PFD. */
-
-   if (!deduce_color_format(pf)) {
-      TRACE(PREFIX_I "Color format not supported by allegro.\n");
-      return false;
-   }
-
 
    return true;
 }
 
 
-static OGL_PIXEL_FORMAT* read_pixel_format_old(int fmt, HDC dc) {
-   OGL_PIXEL_FORMAT *pf = NULL;
+static ALLEGRO_EXTRA_DISPLAY_SETTINGS* read_pixel_format_old(int fmt, HDC dc)
+{
+   ALLEGRO_EXTRA_DISPLAY_SETTINGS *eds = NULL;
    PIXELFORMATDESCRIPTOR pfd;
    int result;
 
-   result = DescribePixelFormat(dc, fmt, sizeof(pfd), &pfd);
+   result = DescribePixelFormat(dc, fmt+1, sizeof(pfd), &pfd);
    if (!result) {
       log_win32_warning("read_pixel_format_old",
                         "DescribePixelFormat() failed!", GetLastError());
       return NULL;
    }
 
-   pf = malloc(sizeof *pf);
-   if (!decode_pixel_format_old(&pfd, pf)) {
-      free(pf);
+   eds = malloc(sizeof *eds);
+   if (!decode_pixel_format_old(&pfd, eds)) {
+      free(eds);
       return NULL;
    }
 
-   return pf;
+   return eds;
 }
 
 
-static OGL_PIXEL_FORMAT* read_pixel_format_ext(int fmt, HDC dc) {
-   OGL_PIXEL_FORMAT *pf = NULL;
+static ALLEGRO_EXTRA_DISPLAY_SETTINGS* read_pixel_format_ext(int fmt, HDC dc)
+{
+   ALLEGRO_EXTRA_DISPLAY_SETTINGS *eds = NULL;
 
    /* Note: Even though we use te ARB suffix, all those enums are compatible
     * with EXT_pixel_format.
@@ -578,10 +534,10 @@ static OGL_PIXEL_FORMAT* read_pixel_format_ext(int fmt, HDC dc) {
 
    /* Get the pf attributes */
    if (__wglGetPixelFormatAttribivARB) {
-      ret = __wglGetPixelFormatAttribivARB(dc, fmt, 0, num_attribs, attrib, value);
+      ret = __wglGetPixelFormatAttribivARB(dc, fmt+1, 0, num_attribs, attrib, value);
    }
    else if (__wglGetPixelFormatAttribivEXT) {
-      ret = __wglGetPixelFormatAttribivEXT(dc, fmt, 0, num_attribs, attrib, value);
+      ret = __wglGetPixelFormatAttribivEXT(dc, fmt+1, 0, num_attribs, attrib, value);
    }
    else {
       ret = 0;
@@ -594,19 +550,20 @@ static OGL_PIXEL_FORMAT* read_pixel_format_ext(int fmt, HDC dc) {
       return NULL;
    }
 
-   pf = malloc(sizeof *pf);
-   if (!decode_pixel_format_attrib(pf, num_attribs, attrib, value)) {
-      free(pf);
-      pf = NULL;
+   eds = malloc(sizeof *eds);
+   if (!decode_pixel_format_attrib(eds, num_attribs, attrib, value)) {
+      free(eds);
+      eds = NULL;
    }
 
    free(value);
 
-   return pf;
+   return eds;
 }
 
 
-static bool change_display_mode(ALLEGRO_DISPLAY *d) {
+static bool change_display_mode(ALLEGRO_DISPLAY *d)
+{
    DEVMODE dm;
    DEVMODE fallback_dm;
    DISPLAY_DEVICE dd;
@@ -686,15 +643,20 @@ static bool change_display_mode(ALLEGRO_DISPLAY *d) {
 }
 
 
-static OGL_PIXEL_FORMAT** get_available_pixel_formats_ext(int *count) {
+static ALLEGRO_EXTRA_DISPLAY_SETTINGS** get_available_pixel_formats_ext(int *count)
+{
    HWND testwnd = NULL;
    HDC testdc   = NULL;
    HGLRC testrc = NULL;
    HGLRC old_rc = NULL;
    HDC old_dc   = NULL;
-   OGL_PIXEL_FORMAT **pf_list = NULL;
+   ALLEGRO_EXTRA_DISPLAY_SETTINGS **eds_list = NULL;
+   ALLEGRO_EXTRA_DISPLAY_SETTINGS *ref;
    int maxindex;
-   int i;
+   int i, j;
+
+   *count = 0;
+   ref =  _al_get_new_display_settings();
 
    /* We need to create a dummy window with a pixel format to get the
     * list of valid PFDs
@@ -717,22 +679,30 @@ static OGL_PIXEL_FORMAT** get_available_pixel_formats_ext(int *count) {
    maxindex = get_pixel_formats_count_ext(testdc);
    if (maxindex < 1)
       goto bail;
-   *count = maxindex;
+
    TRACE(PREFIX_I "get_available_pixel_formats_ext(): Got %i visuals.\n", maxindex);
 
-   pf_list = malloc(maxindex * sizeof(*pf_list));
-   if (!pf_list)
+   eds_list = malloc(maxindex * sizeof(*eds_list));
+   if (!eds_list)
       goto bail;
 
-   for (i = 1; i <= maxindex; i++) {
-      pf_list[i-1] = read_pixel_format_ext(i, testdc);
+   for (j = i = 0; i < maxindex; i++) {
+      TRACE(PREFIX_I "Decoding visual no. %i...\n", i+1);
+      eds_list[j] = read_pixel_format_ext(i, testdc);
+      if (!eds_list[j])
+         continue;
 #ifdef DEBUGMODE
-      if (pf_list[i-1]) {
-         display_pixel_format(pf_list[i-1]);
-         TRACE("-- \n");
-      }
+      display_pixel_format(eds_list[j]);
 #endif
+      eds_list[j]->score = _al_score_display_settings(eds_list[j], ref);
+      /* In WinAPI first index is 1 ::) */
+      eds_list[j]->index = i+1;
+      TRACE("-- \n");
+      j++;
    }
+
+   TRACE(PREFIX_I "get_available_pixel_formats_ext(): %i visuals are good enough.\n", j-1);
+   *count = j-1;
 
 bail:
    wglMakeCurrent(NULL, NULL);
@@ -750,129 +720,106 @@ bail:
       DestroyWindow(testwnd);
    }
 
-   return pf_list;
+   return eds_list;
 }
 
 
-static OGL_PIXEL_FORMAT** get_available_pixel_formats_old(int *count, HDC dc) {
-   OGL_PIXEL_FORMAT **pf_list = NULL;
+static ALLEGRO_EXTRA_DISPLAY_SETTINGS** get_available_pixel_formats_old(int *count, HDC dc)
+{
+   ALLEGRO_EXTRA_DISPLAY_SETTINGS **eds_list = NULL;
+   ALLEGRO_EXTRA_DISPLAY_SETTINGS *ref;
    int maxindex;
-   int i;
+   int i, j;
+
+   *count = 0;
+   ref =  _al_get_new_display_settings();
 
    maxindex = get_pixel_formats_count_old(dc);
    if (maxindex < 1)
       return NULL;
-   *count = maxindex;
+
    TRACE(PREFIX_I "get_available_pixel_formats_old(): Got %i visuals.\n", maxindex);
 
-   pf_list = malloc(maxindex * sizeof(*pf_list));
-   if (!pf_list)
+   eds_list = malloc(maxindex * sizeof(*eds_list));
+   if (!eds_list)
       return NULL;
 
-   for (i = 1; i <= maxindex; i++) {
-      TRACE(PREFIX_I "Decoding visual no. %i...\n", i);
-      pf_list[i-1] = read_pixel_format_old(i, dc);
+   for (j = i = 0; i < maxindex; i++) {
+      TRACE(PREFIX_I "Decoding visual no. %i...\n", i+1);
+      eds_list[j] = read_pixel_format_old(i, dc);
+      if (!eds_list[j])
+         continue;
 #ifdef DEBUGMODE
-      if (pf_list[i-1]) {
-         display_pixel_format(pf_list[i-1]);
-         TRACE("-- \n");
-      }
+      display_pixel_format(eds_list[j]);
 #endif
+      eds_list[j]->score = _al_score_display_settings(eds_list[j], ref);
+      /* In WinAPI first index is 1 ::) */
+      eds_list[j]->index = i+1;
+      TRACE("-- \n");
+      j++;
    }
 
-   return pf_list;
+   TRACE(PREFIX_I "get_available_pixel_formats_ext(): %i visuals are good enough.\n", j-1);
+   *count = j-1;
+
+   return eds_list;
 }
 
 
-static bool select_pixel_format(ALLEGRO_DISPLAY_WGL *d, HDC dc) {
-   OGL_PIXEL_FORMAT **pf_list = NULL;
-   enum ALLEGRO_PIXEL_FORMAT format = ((ALLEGRO_DISPLAY *) d)->format;
-   bool want_sb = ((ALLEGRO_DISPLAY *) d)->flags & ALLEGRO_SINGLEBUFFER;
-   int maxindex = 0;
+static bool select_pixel_format(ALLEGRO_DISPLAY_WGL *d, HDC dc)
+{
+   ALLEGRO_EXTRA_DISPLAY_SETTINGS **eds = NULL;
+   int eds_count = 0;
    int i;
-   int pf_index_fallback = -1;
-   int pf_index = -1;
 
-   /* XXX
-    * The correct and more logical way would be to first try the more
-    * modern _ext mode and then fallback to the _old mode, but the _old
-    * mode is less complicated and better supported by WINE. And faster.
-    * We don't use any of the potential features provided by _ext anyway.
-    */
-/*
-   pf_list = get_available_pixel_formats_ext(&maxindex);
-   if (!pf_list)
-      pf_list = get_available_pixel_formats_old(&maxindex, dc);
-*/
-   pf_list = get_available_pixel_formats_old(&maxindex, dc);
-   if (!pf_list)
-      pf_list = get_available_pixel_formats_ext(&maxindex);
+   eds = get_available_pixel_formats_ext(&eds_count);
+   if (!eds)
+      eds = get_available_pixel_formats_old(&eds_count, dc);
 
-   for (i = 1; i <= maxindex; i++) {
-      OGL_PIXEL_FORMAT *pf = pf_list[i-1];
-      /* TODO: implement a choice system (scoring?) */
-      if (pf
-         && pf->doublebuffered == !want_sb
-         && _al_pixel_format_fits(pf->format, format)
-         && pf->float_color == 0
-         && pf->float_depth == 0
-         && pf->sample_buffers == 0) {
+   qsort(eds, eds_count, sizeof(eds), _al_display_settings_sorter);
 
-         if (pf->rmethod && pf_index == -1) {
-            pf_index = i;
-         }
-         else if (!pf->rmethod && pf_index_fallback == -1) {
-            pf_index_fallback = i;
-         }
-
-         /* we chose our pixels formats */
-         if (pf_index != -1 && pf_index_fallback != -1)
-            break;
+   /* Sorted pixel formats are tested until one of them succeeds to
+    * make a GL context current */
+   for (i = 0; i < eds_count ; i++) {
+      if (SetPixelFormat(d->dc, eds[i]->index, NULL)) {
+   #ifdef DEBUGMODE
+         TRACE(PREFIX_I "select_pixel_format(): Chose visual no. %i\n\n", eds[i]->index);
+         display_pixel_format(eds[i]);
+   #endif
+         break;
+      }
+      else {
+         TRACE(PREFIX_W "Unable to set pixel format! Trying next one.\n");
+         log_win32_warning("select_pixel_format", "Unable to set any pixel format!",
+            GetLastError());
       }
    }
 
-   if (pf_index == -1 && pf_index_fallback == -1) {
-      TRACE(PREFIX_E "Couldn't find a suitable pixel format\n");
-      for (i = 0; i < maxindex; i++)
-         free(pf_list[i]);
-      free(pf_list);
-      return false;
-   }
-
-   if (pf_index == -1 && pf_index_fallback != -1)
-      pf_index = pf_index_fallback;
-
-   if (SetPixelFormat(d->dc, pf_index, NULL)) {
-#ifdef DEBUGMODE
-      OGL_PIXEL_FORMAT *pf = pf_list[pf_index - 1];
-      TRACE(PREFIX_I "select_pixel_format(): Chose visual no. %i\n\n", pf_index);
-      display_pixel_format(pf);
-#endif
-   }
-   else {
-      TRACE(PREFIX_E "Unable to set pixel format!\n");
-      log_win32_error("select_pixel_format", "Unable to set pixel format!",
+   if (i == eds_count) {
+      TRACE(PREFIX_E "Unable to any pixel format! Trying next one.\n");
+      log_win32_error("select_pixel_format", "Unable to set any pixel format!",
          GetLastError());
 
-      for (i = 0; i < maxindex; i++)
-         free(pf_list[i]);
-      free(pf_list);
+      for (i = 0; i < eds_count; i++)
+         free(eds[i]);
+      free(eds);
       return false;
    }
 
-   d->win_display.display.format = pf_list[pf_index - 1]->format;
+   d->win_display.display.format = _al_deduce_color_format(eds[i]);
+   _al_set_new_display_settings(eds[i]);
 
-   for (i = 0; i < maxindex; i++)
-      free(pf_list[i]);
-
-   if (pf_list)
-      free(pf_list);
+   for (i = 0; i < eds_count; i++)
+      free(eds[i]);
+   if (eds)
+      free(eds);
 
    return true;
 }
 
 
-static bool create_display_internals(ALLEGRO_DISPLAY_WGL *wgl_disp) {
+static bool create_display_internals(ALLEGRO_DISPLAY_WGL *wgl_disp)
+{
    ALLEGRO_DISPLAY     *disp     = (void*)wgl_disp;
    ALLEGRO_DISPLAY_WIN *win_disp = (void*)wgl_disp;
    new_display_parameters ndp;
@@ -960,7 +907,8 @@ static bool create_display_internals(ALLEGRO_DISPLAY_WGL *wgl_disp) {
 }
 
 
-static ALLEGRO_DISPLAY* wgl_create_display(int w, int h) {
+static ALLEGRO_DISPLAY* wgl_create_display(int w, int h)
+{
    ALLEGRO_SYSTEM_WIN *system = (ALLEGRO_SYSTEM_WIN *)al_system_driver();
    ALLEGRO_DISPLAY_WGL **add;
    ALLEGRO_DISPLAY_WGL *wgl_display = _AL_MALLOC(sizeof *wgl_display);
@@ -1003,7 +951,8 @@ static ALLEGRO_DISPLAY* wgl_create_display(int w, int h) {
 }
 
 
-static void destroy_display_internals(ALLEGRO_DISPLAY_WGL *wgl_disp) {
+static void destroy_display_internals(ALLEGRO_DISPLAY_WGL *wgl_disp)
+{
    ALLEGRO_DISPLAY *disp = (ALLEGRO_DISPLAY *)wgl_disp;
    ALLEGRO_DISPLAY_WIN *win_disp = (ALLEGRO_DISPLAY_WIN *)wgl_disp;
 

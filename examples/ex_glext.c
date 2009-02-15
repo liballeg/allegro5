@@ -206,10 +206,19 @@ int main(void)
    }
 
    al_set_new_display_flags(ALLEGRO_OPENGL);
+   al_set_display_option(ALLEGRO_SAMPLE_BUFFERS, 1, ALLEGRO_SUGGEST);
+   al_set_display_option(ALLEGRO_SAMPLES, 4, ALLEGRO_SUGGEST);
    d = al_create_display(WINDOW_W, WINDOW_H);
    if (!d) {
       TRACE("Unable to open a OpenGL display.\n");
       return -1;
+   }
+
+   if (al_get_display_option(ALLEGRO_SAMPLE_BUFFERS, NULL)) {
+      TRACE("With multisampling, level %i\n", al_get_display_option(ALLEGRO_SAMPLES, NULL));
+   }
+   else {
+      TRACE("Without multisampling.\n");
    }
 
    al_install_keyboard();

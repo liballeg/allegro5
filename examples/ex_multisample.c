@@ -25,6 +25,7 @@ int main(void)
 
    al_install_keyboard();
 
+   al_set_display_option(ALLEGRO_SAMPLE_BUFFERS, 1, ALLEGRO_REQUIRE);
    al_set_display_option(ALLEGRO_SAMPLES, 4, ALLEGRO_REQUIRE);
    ms_display = al_create_display(200, 200);
    if (!ms_display) {
@@ -33,7 +34,8 @@ int main(void)
    }
    al_set_window_title("Multisampling");
 
-   al_set_display_option(ALLEGRO_SAMPLES, 0, ALLEGRO_DONTCARE);
+   al_set_display_option(ALLEGRO_SAMPLE_BUFFERS, 0, ALLEGRO_REQUIRE);
+   al_set_display_option(ALLEGRO_SAMPLES, 0, ALLEGRO_REQUIRE);
    display = al_create_display(200, 200);
    al_set_window_title("Normal");
    

@@ -251,7 +251,7 @@ ALLEGRO_EXTRA_DISPLAY_SETTINGS *_al_get_new_display_settings(void)
 
 /* Function: al_set_new_display_format
  *
- * Set the pixel format for al displays created after this call.
+ * Set the pixel format for all displays created after this call.
  */
 void al_set_new_display_format(int format)
 {
@@ -260,6 +260,12 @@ void al_set_new_display_format(int format)
    if ((tls = tls_get()) == NULL)
       return;
    tls->new_display_format = format;
+
+   {
+      ALLEGRO_EXTRA_DISPLAY_SETTINGS *eds;
+      eds = _al_get_new_display_settings();
+      _al_set_color_components(format, eds, ALLEGRO_REQUIRE);
+   }
 }
 
 
@@ -324,6 +330,12 @@ void al_set_new_display_flags(int flags)
    if ((tls = tls_get()) == NULL)
       return;
    tls->new_display_flags = flags;
+
+   {
+      if (flags & ALLEGRO_SINGLEBUFFER) {
+         al_set_display_option(ALLEGRO_DOUBLEBUFFERED, 0, ALLEGRO_REQUIRE);
+      }
+   }
 }
 
 

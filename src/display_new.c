@@ -24,6 +24,7 @@
 
 #include "allegro5/allegro5.h"
 #include "allegro5/internal/aintern.h"
+#include "allegro5/internal/aintern_memory.h"
 #include ALLEGRO_INTERNAL_HEADER
 #include "allegro5/internal/aintern_system.h"
 #include "allegro5/internal/aintern_display.h"
@@ -51,14 +52,21 @@ static int new_window_y = INT_MAX;
  */
 ALLEGRO_DISPLAY *al_create_display(int w, int h)
 {
-   // FIXME: We need to ask the system driver for a list of possible display
-   // drivers here, then select a suitable one according to configuration
-   // variables like "display/driver" and according to flags (e.g. OpenGL
-   // requested or not).
+   ALLEGRO_SYSTEM *system;
+   ALLEGRO_DISPLAY_INTERFACE *driver;
+   ALLEGRO_DISPLAY *display;
+   ALLEGRO_EXTRA_DISPLAY_SETTINGS *eds;
 
-   ALLEGRO_SYSTEM *system = al_system_driver();
-   ALLEGRO_DISPLAY_INTERFACE *driver = system->vt->get_display_driver();
-   ALLEGRO_DISPLAY *display = driver->create_display(w, h);
+   eds = _al_get_new_display_settings();
+   if (!eds)
+      al_clear_display_options();
+   else
+      _al_fill_display_settings(eds);
+
+   system = al_system_driver();
+   driver = system->vt->get_display_driver();
+   display = driver->create_display(w, h);
+
 
    if (!display)
       return NULL;

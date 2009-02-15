@@ -81,6 +81,7 @@ typedef struct
 {
    int required, suggested;
    int settings[ALLEGRO_DISPLAY_OPTIONS_COUNT];
+   int index, score;
 } ALLEGRO_EXTRA_DISPLAY_SETTINGS;
 
 struct ALLEGRO_DISPLAY
@@ -99,6 +100,11 @@ struct ALLEGRO_DISPLAY
    _AL_VECTOR bitmaps; /* A list of bitmaps created for this display. */
 };
 
+int  _al_score_display_settings(ALLEGRO_EXTRA_DISPLAY_SETTINGS *eds, ALLEGRO_EXTRA_DISPLAY_SETTINGS *ref);
+void _al_fill_display_settings(ALLEGRO_EXTRA_DISPLAY_SETTINGS *eds);
+void _al_set_color_components(int format, ALLEGRO_EXTRA_DISPLAY_SETTINGS *eds, int importance);
+int  _al_deduce_color_format(ALLEGRO_EXTRA_DISPLAY_SETTINGS *eds);
+int  _al_display_settings_sorter(const void *p0, const void *p1);
 
 void _al_clear_memory(ALLEGRO_COLOR *color);
 void _al_draw_rectangle_memory(int x1, int y1, int x2, int y2, ALLEGRO_COLOR *color, int flags);
