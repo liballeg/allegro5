@@ -398,8 +398,8 @@ void al_draw_ellipse(float cx, float cy, float rx, float ry,
    ALLEGRO_COLOR color, float thickness)
 {
    verify_cache();
-   ASSERT(rx > 0);
-   ASSERT(ry > 0);
+   ASSERT(rx >= 0);
+   ASSERT(ry >= 0);
 
    if (thickness > 0) {
       int num_segments = ALLEGRO_PRIM_QUALITY * sqrtf((rx + ry) / 2.0f);
@@ -437,8 +437,8 @@ void al_draw_filled_ellipse(float cx, float cy, float rx, float ry,
 {
    int num_segments, ii;
    verify_cache();
-   ASSERT(rx > 0);
-   ASSERT(ry > 0);
+   ASSERT(rx >= 0);
+   ASSERT(ry >= 0);
    
    num_segments = ALLEGRO_PRIM_QUALITY * sqrtf((rx + ry) / 2.0f);
    
