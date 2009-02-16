@@ -13,6 +13,9 @@
 #include "allegro5/allegro5.h"
 #include "allegro5/a5_iio.h"
 
+#define MIN(x,y)     (((x) < (y)) ? (x) : (y))
+#define MAX(x,y)     (((x) > (y)) ? (x) : (y))
+#define CLAMP(x,y,z) MAX((x), MIN((y), (z)))
 
 typedef enum {
    PLAIN_BLIT,

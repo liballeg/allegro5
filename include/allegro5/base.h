@@ -19,6 +19,9 @@
 #ifndef ALLEGRO_BASE_H
 #define ALLEGRO_BASE_H
 
+#define TRUE true
+#define FALSE false
+
 #ifndef ALLEGRO_NO_STD_HEADERS
    #include <errno.h>
    #ifdef _MSC_VER
@@ -70,32 +73,6 @@
 /*******************************************/
 /************ Some global stuff ************/
 /*******************************************/
-
-#ifndef TRUE 
-   #define TRUE         true
-   #define FALSE        false
-#endif
-
-#undef MIN
-#undef MAX
-#undef MID
-     
-#define MIN(x,y)     (((x) < (y)) ? (x) : (y))
-#define MAX(x,y)     (((x) > (y)) ? (x) : (y))
-
-/* Returns the median of x, y, z */
-#define MID(x,y,z)   ((x) > (y) ? ((y) > (z) ? (y) : ((x) > (z) ?    \
-                       (z) : (x))) : ((y) > (z) ? ((z) > (x) ? (z) : \
-                       (x)): (y)))
-
-/* Optimized version of MID for when x <= z. */
-#define CLAMP(x,y,z) MAX((x), MIN((y), (z)))
-     
-#undef ABS
-#define ABS(x)       (((x) >= 0) ? (x) : (-(x)))
-     
-#undef SGN
-#define SGN(x)       (((x) >= 0) ? 1 : -1)
 
 #define AL_PI        3.14159265358979323846
 

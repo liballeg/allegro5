@@ -41,6 +41,7 @@
 #define PREFIX_W                "al-wmouse WARNING: "
 #define PREFIX_E                "al-wmouse ERROR: "
 
+#define CLAMP _ALLEGRO_CLAMP
 
 
 typedef struct AL_MOUSE_DIRECTX

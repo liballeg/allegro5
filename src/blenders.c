@@ -16,9 +16,12 @@
 
 
 #include "allegro5/allegro5.h"
+#include "allegro5/internal/aintern.h"
 #include "allegro5/internal/aintern_bitmap.h"
 #include <string.h>
 
+#define MIN _ALLEGRO_MIN
+#define MAX _ALLEGRO_MAX
 
 /* TODO: Commented out optimized version without alpha separation.
  * Note the optimization is per-pixel only - so whenever these functions

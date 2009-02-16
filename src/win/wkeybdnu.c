@@ -354,9 +354,9 @@ static void get_autorepeat_parameters(void)
    DWORD delay, speed;
 
    SystemParametersInfo(SPI_GETKEYBOARDDELAY, 0, &delay, 0);
-   delay = MIN(delay, 3);
+   delay = _ALLEGRO_MIN(delay, 3);
    SystemParametersInfo(SPI_GETKEYBOARDSPEED, 0, &speed, 0);
-   speed = MIN(speed, 31);
+   speed = _ALLEGRO_MIN(speed, 31);
 
    /* units are 100e-9 seconds; negative means relative time */
    /* 0 ==> 0.25 seconds, 3 ==> 1.0 second */

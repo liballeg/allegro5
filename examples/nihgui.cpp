@@ -6,10 +6,13 @@
 
 #include <iostream>
 #include <string>
+#include <algorithm>
 #include "allegro5/allegro5.h"
 #include "allegro5/a5_font.h"
 
 #include "nihgui.hpp"
+
+#define CLAMP(x,y,z) std::max(x, std::min(y, z))
 
 class SaveState
 {

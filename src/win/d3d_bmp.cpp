@@ -632,9 +632,9 @@ static bool d3d_upload_bitmap(ALLEGRO_BITMAP *bitmap, int x, int y,
       }
       else if (non_pow2) {
          // Must be sqaure
-         int max = MAX(w,  h);
-	 d3d_bmp->texture_w = max;
-	 d3d_bmp->texture_h = max;
+         int max = _ALLEGRO_MAX(w,  h);
+         d3d_bmp->texture_w = max;
+         d3d_bmp->texture_h = max;
       }
       else {
          // Must be POW2

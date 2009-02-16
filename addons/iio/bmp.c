@@ -344,7 +344,7 @@ static void read_bitfields_image(ALLEGRO_FS_ENTRY *f, AL_CONST BMPINFOHEADER *in
    height = infoheader->biHeight;
    line = height < 0 ? 0 : height - 1;
    dir = height < 0 ? 1 : -1;
-   height = ABS(height);
+   height = abs(height);
 
    //bpp = _al_get_pixel_format_bits(bmp->format);
    bytes_per_pixel = (bpp + 1) / 8;
@@ -392,7 +392,7 @@ static void read_image(ALLEGRO_FS_ENTRY *f,
    height = infoheader->biHeight;
    line = height < 0 ? 0 : height - 1;
    dir = height < 0 ? 1 : -1;
-   height = ABS(height);
+   height = abs(height);
 
    buf = malloc(infoheader->biWidth);
 
@@ -661,7 +661,7 @@ static ALLEGRO_BITMAP *iio_load_bmp_pf(ALLEGRO_FS_ENTRY *f)
    }
 
 
-   bmp = al_create_bitmap(infoheader.biWidth, ABS(infoheader.biHeight));
+   bmp = al_create_bitmap(infoheader.biWidth, abs(infoheader.biHeight));
    if (!bmp) {
       return NULL;
    }

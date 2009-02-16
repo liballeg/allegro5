@@ -392,13 +392,13 @@ static ALLEGRO_FS_ENTRY *al_fs_stdio_create_handle(const char *path)
          struct stat st;
 
          tmp = _AL_REALLOC(tmp, splen + len + 1);
-         memcpy(tmp, search_path[spi], MIN(splen, PATH_MAX));
+         memcpy(tmp, search_path[spi], _ALLEGRO_MIN(splen, PATH_MAX));
          if (tmp[splen-1] == '/') {
             tmp[splen] = '/';
             splen++;
          }
 
-         memcpy(tmp+splen, fh->path, MIN(len + splen, PATH_MAX));
+         memcpy(tmp+splen, fh->path, _ALLEGRO_MIN(len + splen, PATH_MAX));
          tmp[splen+len] = '\0';
 
          if (stat(tmp, &st) != 0) {
@@ -779,7 +779,7 @@ static int32_t al_fs_stdio_readdir(ALLEGRO_FS_ENTRY *fp, size_t size,
    }
 
    ent_len = strlen(ent->d_name);
-   memcpy(buf, ent->d_name, MIN(ent_len+1, size));
+   memcpy(buf, ent->d_name, _ALLEGRO_MIN(ent_len+1, size));
 
    return 0;
 }
@@ -1004,7 +1004,7 @@ static bool al_fs_stdio_get_search_path(uint32_t idx, uint32_t len,
    if (idx < search_path_count) {
       uint32_t slen = strlen(search_path[idx]);
 
-      memcpy(dest, search_path[idx], MIN(slen, len-1));
+      memcpy(dest, search_path[idx], _ALLEGRO_MIN(slen, len-1));
       dest[len] = '\0';
       return true;
    }
@@ -1164,7 +1164,7 @@ static bool al_fs_stdio_fname(ALLEGRO_FS_ENTRY *fp, size_t size, char *buf)
       return false;
    }
    
-   memcpy(buf, fp_stdio->path, MIN(len+1, size));
+   memcpy(buf, fp_stdio->path, _ALLEGRO_MIN(len+1, size));
 
    return true;
 }

@@ -2652,7 +2652,7 @@ static int normal_fseek(void *_f, int offset)
 
    /* skip forward through the buffer */
    if (f->normal.buf_size > 0) {
-      i = MIN(offset, f->normal.buf_size);
+      i = _ALLEGRO_MIN(offset, f->normal.buf_size);
       f->normal.buf_size -= i;
       f->normal.buf_pos += i;
       offset -= i;
@@ -2662,7 +2662,7 @@ static int normal_fseek(void *_f, int offset)
 
    /* need to seek some more? */
    if (offset > 0) {
-      i = MIN(offset, f->normal.todo);
+      i = _ALLEGRO_MIN(offset, f->normal.todo);
 
       if ((f->normal.flags & PACKFILE_FLAG_PACK) || (f->normal.passpos)) {
 	 /* for compressed or encrypted files, we just have to read through the data */
@@ -2730,10 +2730,15 @@ static int normal_refill_buffer(PACKFILE *f)
 
    if (f->normal.parent) {
       if (f->normal.flags & PACKFILE_FLAG_PACK) {
-	 f->normal.buf_size = lzss_read(f->normal.parent, f->normal.unpack_data, MIN(F_BUF_SIZE, f->normal.todo), f->normal.buf);
+         f->normal.buf_size = lzss_read(f->normal.parent,
+            f->normal.unpack_data,
+            _ALLEGRO_MIN(F_BUF_SIZE, f->normal.todo),
+            f->normal.buf);
       }
       else {
-	 f->normal.buf_size = pack_fread(f->normal.buf, MIN(F_BUF_SIZE, f->normal.todo), f->normal.parent);
+         f->normal.buf_size = pack_fread(f->normal.buf,
+            _ALLEGRO_MIN(F_BUF_SIZE, f->normal.todo),
+            f->normal.parent);
       } 
       if (f->normal.parent->normal.flags & PACKFILE_FLAG_EOF)
 	 f->normal.todo = 0;
@@ -2741,7 +2746,7 @@ static int normal_refill_buffer(PACKFILE *f)
 	 goto Error;
    }
    else {
-      f->normal.buf_size = MIN(F_BUF_SIZE, f->normal.todo);
+      f->normal.buf_size = _ALLEGRO_MIN(F_BUF_SIZE, f->normal.todo);
 
       offset = lseek(f->normal.hndl, 0, SEEK_CUR);
       done = 0;

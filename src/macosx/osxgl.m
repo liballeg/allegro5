@@ -1014,8 +1014,8 @@ static bool resize_display_win(ALLEGRO_DISPLAY *d, int w, int h) {
 	ALLEGRO_DISPLAY_OSX_WIN* dpy = (ALLEGRO_DISPLAY_OSX_WIN*) d;
    NSWindow* window = dpy->win;
    NSRect current = [window frame];
-   w = MAX(w, MINIMUM_WIDTH);
-   h = MAX(h, MINIMUM_HEIGHT);
+   w = _ALLEGRO_MAX(w, MINIMUM_WIDTH);
+   h = _ALLEGRO_MAX(h, MINIMUM_HEIGHT);
    NSRect rc = [window frameRectForContentRect: NSMakeRect(0.0f, 0.0f, (float) w, (float) h)];
    rc.origin = current.origin;
    [window setFrame:rc display:YES animate:YES];

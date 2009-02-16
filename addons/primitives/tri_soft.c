@@ -18,9 +18,13 @@
 
 
 #include "allegro5/a5_primitives.h"
+#include "allegro5/internal/aintern.h"
 #include "allegro5/internal/aintern_prim.h"
 #include "allegro5/internal/aintern_prim_soft.h"
 #include <math.h>
+
+#define MIN _ALLEGRO_MIN
+#define MAX _ALLEGRO_MAX
 
 typedef void (*shader_draw)(ALLEGRO_BITMAP*, uintptr_t, int, int, int);
 typedef void (*shader_init)(uintptr_t, ALLEGRO_VERTEX*, ALLEGRO_VERTEX*, ALLEGRO_VERTEX*);

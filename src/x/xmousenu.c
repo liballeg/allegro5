@@ -159,7 +159,9 @@ static unsigned int xmouse_get_mouse_num_buttons(void)
    num_buttons = XGetPointerMapping(system->x11display, map, sizeof(map));
    _al_mutex_unlock(&system->lock);
 
-   num_buttons = CLAMP(2, num_buttons, 3);
+   if (num_buttons < 2) num_buttons = 2;
+   if (num_buttons > 3) num_buttons = 3;
+
    return num_buttons;
 }
 

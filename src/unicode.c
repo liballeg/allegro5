@@ -32,6 +32,7 @@
 #include "allegro5/internal/aintern.h"
 #include "allegro5/internal/aintern_memory.h"
 
+#define MAX _ALLEGRO_MAX
 
 
 /* ascii_getc:
