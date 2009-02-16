@@ -9,6 +9,7 @@
 #include <algorithm>
 #include "allegro5/allegro5.h"
 #include "allegro5/a5_font.h"
+#include <allegro5/a5_primitives.h>
 
 #include "nihgui.hpp"
 
@@ -388,9 +389,9 @@ void Button::draw()
    }
 
    al_draw_rectangle(this->x1, this->y1, this->x2, this->y2,
-      fg, ALLEGRO_OUTLINED);
-   al_draw_rectangle(this->x1 + 1, this->y1 + 1, this->x2 - 1, this->y2 - 1,
-      bg, ALLEGRO_FILLED);
+      fg, 0);
+   al_draw_filled_rectangle(this->x1 + 1, this->y1 + 1, this->x2 - 1, this->y2 - 1,
+      bg);
    al_set_blender(ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA, fg);
    al_font_textout_centre(theme.font, (this->x1 + this->x2 + 1)/2,
       this->y1, this->text.c_str(), -1);
@@ -423,7 +424,7 @@ void List::draw()
    const Theme & theme = dialog->get_theme();
    SaveState state;
 
-   al_draw_rectangle(x1 + 1, y1 + 1, x2 - 1, y2 - 1, theme.bg, ALLEGRO_FILLED);
+   al_draw_filled_rectangle(x1 + 1, y1 + 1, x2 - 1, y2 - 1, theme.bg);
 
    al_set_blender(ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA, theme.fg);
    const int font_height = al_font_text_height(theme.font);
@@ -432,8 +433,8 @@ void List::draw()
 
       if (i == selected_item) {
          al_set_blender(ALLEGRO_ONE, ALLEGRO_ZERO, al_map_rgb(255, 255, 255));
-         al_draw_rectangle(x1 + 1, yi, x2 - 1, yi + font_height - 1,
-            theme.highlight, ALLEGRO_FILLED);
+         al_draw_filled_rectangle(x1 + 1, yi, x2 - 1, yi + font_height - 1,
+            theme.highlight);
          al_set_blender(ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA, theme.fg);
       }
 
@@ -489,12 +490,12 @@ void VSlider::draw()
    const int cx = (x1 + x2) / 2;
    SaveState state;
 
-   al_draw_rectangle(x1, y1, x2, y2, theme.bg, ALLEGRO_FILLED);
-   al_draw_line(cx, y1, cx, y2, theme.fg);
+   al_draw_rectangle(x1, y1, x2, y2, theme.bg, 0);
+   al_draw_line(cx, y1, cx, y2, theme.fg, 0);
 
    double ratio = (double) this->cur_value / (double) this->max_value;
    int ypos = y2 - (int) (ratio * (height() - 2));
-   al_draw_rectangle(x1, ypos - 2, x2, ypos + 2, theme.fg, ALLEGRO_FILLED);
+   al_draw_filled_rectangle(x1, ypos - 2, x2, ypos + 2, theme.fg);
 }
 
 int VSlider::get_cur_value() const
@@ -536,12 +537,12 @@ void HSlider::draw()
    const int cy = (y1 + y2) / 2;
    SaveState state;
 
-   al_draw_rectangle(x1, y1, x2, y2, theme.bg, ALLEGRO_FILLED);
-   al_draw_line(x1, cy, x2, cy, theme.fg);
+   al_draw_filled_rectangle(x1, y1, x2, y2, theme.bg);
+   al_draw_line(x1, cy, x2, cy, theme.fg, 0);
 
    double ratio = (double) this->cur_value / (double) this->max_value;
    int xpos = x1 + (int) (ratio * (width() - 2));
-   al_draw_rectangle(xpos - 2, y1, xpos + 2, y2, theme.fg, ALLEGRO_FILLED);
+   al_draw_filled_rectangle(xpos - 2, y1, xpos + 2, y2, theme.fg);
 }
 
 int HSlider::get_cur_value() const
@@ -651,7 +652,7 @@ void TextEntry::draw()
    const char *s = text.c_str();
    SaveState state;
 
-   al_draw_rectangle(x1, y1, x2, y2, theme.bg, ALLEGRO_FILLED);
+   al_draw_filled_rectangle(x1, y1, x2, y2, theme.bg);
 
    al_set_blender(ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA, theme.fg);
 
@@ -665,8 +666,8 @@ void TextEntry::draw()
       x += al_font_text_width(theme.font, s + left_pos, cursor_pos - left_pos);
 
       if (cursor_pos == text.size()) {
-         al_draw_rectangle(x, y1, x + CURSOR_WIDTH,
-            y1 + al_font_text_height(theme.font), theme.fg, ALLEGRO_FILLED);
+         al_draw_filled_rectangle(x, y1, x + CURSOR_WIDTH,
+            y1 + al_font_text_height(theme.font), theme.fg);
       }
       else {
          al_set_blender(ALLEGRO_INVERSE_ALPHA, ALLEGRO_ALPHA, theme.fg);

@@ -1499,59 +1499,10 @@ static DWORD d3d_blend_colors(
    return d3d_al_color_to_d3d(result);
 }
 
-/* Dummy implementation of line. */
-static void d3d_draw_line(ALLEGRO_DISPLAY *al_display, float fx, float fy, float tx, float ty,
-   ALLEGRO_COLOR *color)
-{
-   static D3D_COLORED_VERTEX points[2] = { { 0.0f, 0.0f, 0.0f, 0 }, };
-   ALLEGRO_BITMAP *target = al_get_target_bitmap();
-   ALLEGRO_COLOR *bc = _al_get_blend_color();
-   DWORD d3d_color;
-   ALLEGRO_DISPLAY_D3D *d3d_display = (ALLEGRO_DISPLAY_D3D *)al_display;
 
-   if (d3d_display->device_lost) return;
 
-   if (!_al_d3d_render_to_texture_supported() || !_al_d3d_supports_separate_alpha_blend(al_display)) {
-      _al_draw_line_memory((int)fx, (int)fy, (int)tx, (int)ty, color);
-      return;
-   }
-
-   d3d_set_bitmap_clip(target);
-
-   d3d_color = d3d_blend_colors(color, bc);
-
-   fx -= 0.5f;
-   fy -= 0.5f;
-   tx -= 0.5f;
-   ty -= 0.5f;
-
-   if (target->parent) {
-      fx += target->xofs;
-      tx += target->xofs;
-      fy += target->yofs;
-      ty += target->yofs;
-   }
-
-   points[0].x = fx;
-   points[0].y = fy;
-   points[0].color = d3d_color;
-
-   points[1].x = tx;
-   points[1].y = ty;
-   points[1].color = d3d_color;
-
-   _al_d3d_set_blender(d3d_display);
-
-   d3d_display->device->SetFVF(D3DFVF_COLORED_VERTEX);
-
-   if (d3d_display->device->DrawPrimitiveUP(D3DPT_LINELIST, 1,
-         points, sizeof(D3D_COLORED_VERTEX)) != D3D_OK) {
-      TRACE("DrawPrimitive failed in d3d_draw_line.\n");
-   }
-}
-
-static void d3d_draw_rectangle(ALLEGRO_DISPLAY *al_display, float tlx, float tly,
-   float brx, float bry, ALLEGRO_COLOR *color, int flags)
+static void d3d_draw_filled_rectangle(ALLEGRO_DISPLAY *al_display, float tlx, float tly,
+   float brx, float bry, ALLEGRO_COLOR *color)
 {
    D3DRECT rect;
    float w = brx - tlx;
@@ -1561,14 +1512,6 @@ static void d3d_draw_rectangle(ALLEGRO_DISPLAY *al_display, float tlx, float tly
    DWORD d3d_color;
    ALLEGRO_DISPLAY_D3D *d3d_display = (ALLEGRO_DISPLAY_D3D *)al_display;
 
-   if (!(flags & ALLEGRO_FILLED)) {
-      d3d_draw_line(al_display, tlx, tly, brx, tly, color);
-      d3d_draw_line(al_display, tlx, bry, brx, bry, color);
-      d3d_draw_line(al_display, tlx, tly, tlx, bry, color);
-      d3d_draw_line(al_display, brx, tly, brx, bry, color);
-      return;
-   }
-
    tlx -= 0.5f;
    tly -= 0.5f;
    brx -= 0.5f;
@@ -1577,7 +1520,7 @@ static void d3d_draw_rectangle(ALLEGRO_DISPLAY *al_display, float tlx, float tly
    if (d3d_display->device_lost) return;
 
    if (!_al_d3d_render_to_texture_supported() || !_al_d3d_supports_separate_alpha_blend(al_display)) {
-      _al_draw_rectangle_memory((int)tlx, (int)tly, (int)brx, (int)bry, color, flags);
+      _al_draw_filled_rectangle_memory((int)tlx, (int)tly, (int)brx, (int)bry, color);
       return;
    }
 
@@ -1626,7 +1569,7 @@ static void d3d_clear(ALLEGRO_DISPLAY *al_display, ALLEGRO_COLOR *color)
 
 void d3d_draw_pixel(ALLEGRO_DISPLAY *al_display, float x, float y, ALLEGRO_COLOR *color)
 {
-   d3d_draw_rectangle(al_display, x, y, x+1, y+1, color, ALLEGRO_FILLED);
+   d3d_draw_filled_rectangle(al_display, x, y, x+1, y+1, color);
 }
 
 
@@ -2084,8 +2027,6 @@ ALLEGRO_DISPLAY_INTERFACE *_al_display_d3d_driver(void)
    vt->destroy_display = d3d_destroy_display;
    vt->set_current_display = d3d_set_current_display;
    vt->clear = d3d_clear;
-   vt->draw_line = d3d_draw_line;
-   vt->draw_rectangle = d3d_draw_rectangle;
    vt->draw_pixel = d3d_draw_pixel;
    vt->flip_display = d3d_flip_display;
    vt->update_display_region = d3d_update_display_region;

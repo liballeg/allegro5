@@ -1,4 +1,5 @@
 #include "allegro5/allegro5.h"
+#include <allegro5/a5_primitives.h>
 
 static void redraw(void)
 {
@@ -11,9 +12,9 @@ static void redraw(void)
     al_clear(white);
     w = al_get_display_width();
     h = al_get_display_height();
-    al_draw_line(0, h, w / 2, 0, black);
-    al_draw_line(w / 2, 0, w, h, black);
-    al_draw_line(w / 4, h / 2, 3 * w / 4, h / 2, black);
+    al_draw_line(0, h, w / 2, 0, black, 0);
+    al_draw_line(w / 2, 0, w, h, black, 0);
+    al_draw_line(w / 4, h / 2, 3 * w / 4, h / 2, black, 0);
     al_flip_display();
 }
 

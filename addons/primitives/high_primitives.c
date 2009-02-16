@@ -60,9 +60,9 @@ static void update_point_cache(int size)
    }
 }
 
-/* Function: al_draw_line_ex
+/* Function: al_draw_line
  */
-void al_draw_line_ex(float x1, float y1, float x2, float y2,
+void al_draw_line(float x1, float y1, float x2, float y2,
    ALLEGRO_COLOR color, float thickness)
 {
    verify_cache();
@@ -209,9 +209,9 @@ void al_draw_filled_triangle(float x1, float y1, float x2, float y2,
    al_draw_prim(cache_buffer, 0, 0, 3, ALLEGRO_PRIM_TRIANGLE_LIST);
 }
 
-/* Function: al_draw_rectangle_ex
+/* Function: al_draw_rectangle
  */
-void al_draw_rectangle_ex(float x1, float y1, float x2, float y2,
+void al_draw_rectangle(float x1, float y1, float x2, float y2,
    ALLEGRO_COLOR color, float thickness)
 {
    int ii;

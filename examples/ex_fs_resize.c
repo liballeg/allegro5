@@ -1,5 +1,6 @@
 #include "allegro5/allegro5.h"
 #include "allegro5/a5_iio.h"
+#include <allegro5/a5_primitives.h>
 
 void redraw(ALLEGRO_BITMAP *picture)
 {
@@ -11,8 +12,8 @@ void redraw(ALLEGRO_BITMAP *picture)
    al_clear(color);
 
    color = al_map_rgb(255, 0, 0);
-   al_draw_line(0, 0, w, h, color);
-   al_draw_line(0, h, w, 0, color);
+   al_draw_line(0, 0, w, h, color, 0);
+   al_draw_line(0, h, w, 0, color, 0);
 
    al_draw_bitmap(picture, 0, 0, 0);
    al_flip_display();

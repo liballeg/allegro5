@@ -8,6 +8,7 @@
 #include "allegro5/allegro5.h"
 #include "allegro5/a5_ttf.h"
 #include "allegro5/a5_color.h"
+#include <allegro5/a5_primitives.h>
 
 #include "nihgui.hpp"
 
@@ -126,8 +127,8 @@ void Prog::run()
          
          d.draw();
          
-         al_draw_rectangle(0, 400, 640, 480,
-            al_map_rgb_f(v[0], v[1], v[2]), ALLEGRO_FILLED);
+         al_draw_filled_rectangle(0, 400, 640, 480,
+            al_map_rgb_f(v[0], v[1], v[2]));
          char const *name = al_color_rgb_to_name(v[0], v[1], v[2]);
          char html[8];
          al_color_rgb_to_html(v[0], v[1], v[2], html);

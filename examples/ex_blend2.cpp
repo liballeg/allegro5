@@ -8,6 +8,7 @@
 #include "allegro5/allegro5.h"
 #include "allegro5/a5_font.h"
 #include "allegro5/a5_iio.h"
+#include <allegro5/a5_primitives.h>
 
 #include "nihgui.hpp"
 
@@ -132,9 +133,9 @@ void draw_background(int x, int y)
 
    for (int i = 0; i < 640 / 16; i++) {
       for (int j = 0; j < 200 / 16; j++) {
-         al_draw_rectangle(x + i * 16, y + j * 16,
+         al_draw_filled_rectangle(x + i * 16, y + j * 16,
             x + i * 16 + 16, y + j * 16 + 16,
-            c[(i + j) & 1], ALLEGRO_FILLED);
+            c[(i + j) & 1]);
       }
    }
 }
@@ -154,7 +155,7 @@ void Prog::draw_bitmap(const std::string & str, bool memory,
    else if (str == "Allegro")
       al_draw_bitmap(memory ? allegro_bmp : allegro, 0, 0, 0);
    else if (str == "Color")
-      al_draw_rectangle(0, 0, 320, 200, color, ALLEGRO_FILLED);
+      al_draw_filled_rectangle(0, 0, 320, 200, color);
 }
 
 void Prog::blending_test(bool memory)

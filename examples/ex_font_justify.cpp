@@ -8,6 +8,7 @@
 #include "allegro5/allegro5.h"
 #include "allegro5/a5_font.h"
 #include "allegro5/a5_ttf.h"
+#include <allegro5/a5_primitives.h>
 #include "nihgui.hpp"
 
 ALLEGRO_FONT *font;
@@ -75,11 +76,10 @@ void Prog::draw_text()
    al_font_textout_justify(font, x1, x2, 50, diff,
       text_entry.get_text().c_str());
 
-   al_draw_rectangle(x1, 50, x2, 50 + th, al_map_rgb(0, 0, 255),
-      ALLEGRO_OUTLINED);
+   al_draw_rectangle(x1, 50, x2, 50 + th, al_map_rgb(0, 0, 255), 0);
 
    al_draw_line(cx - diff / 2, 53 + th, cx + diff / 2, 53 + th,
-      al_map_rgb(0, 255, 0));
+      al_map_rgb(0, 255, 0), 0);
 }
 
 int main()

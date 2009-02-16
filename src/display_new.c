@@ -231,69 +231,6 @@ void al_clear(ALLEGRO_COLOR color)
 
 
 
-/* Function: al_draw_line
- *
- * Draws a line to the current target.
- *
- * fx - from x
- * fy - from y
- * tx - to x
- * ty - to y
- * color - can be obtained with al_map_*
- */
-void al_draw_line(float fx, float fy, float tx, float ty,
-   ALLEGRO_COLOR color)
-{
-   ALLEGRO_DISPLAY *display = al_get_current_display();
-   ALLEGRO_BITMAP *target = al_get_target_bitmap();
-
-   ASSERT(target);
-   ASSERT(display);
-
-   if (target->flags & ALLEGRO_MEMORY_BITMAP) {
-      _al_draw_line_memory(fx, fy, tx, ty, &color);
-   }
-   else {
-      display->vt->draw_line(display, fx, fy, tx, ty, &color);
-   }
-}
-
-
-
-/* Function: al_draw_rectangle
- *
- * Draws a rectangle to the current target.
- *
- * tlx - top left x
- * tly - top left y
- * brx - bottom right x
- * bry - bottom right y
- *
- * flags can be:
- *
- * ALLEGRO_FILLED - fill the interior of the rectangle
- * ALLEGRO_OUTLINED - draw only the rectangle borders
- * 
- * Outlined is the default.
- */
-void al_draw_rectangle(float tlx, float tly, float brx, float bry,
-   ALLEGRO_COLOR color, int flags)
-{
-   ALLEGRO_DISPLAY *display = al_get_current_display();
-   ALLEGRO_BITMAP *target = al_get_target_bitmap();
-
-   ASSERT(target);
-   ASSERT(display);
-
-   if (target->flags & ALLEGRO_MEMORY_BITMAP) {
-      _al_draw_rectangle_memory(tlx, tly, brx, bry, &color, flags);
-   }
-   else {
-      display->vt->draw_rectangle(display, tlx, tly, brx, bry, &color, flags);
-   }
-}
-
-
 /* Function: al_draw_pixel
  *
  * Draws a single pixel at x, y. This function, unlike

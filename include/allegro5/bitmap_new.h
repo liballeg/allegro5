@@ -144,10 +144,6 @@ enum ALLEGRO_PIXEL_FORMAT {
 #define ALLEGRO_FLIP_HORIZONTAL       0x00001
 #define ALLEGRO_FLIP_VERTICAL         0x00002
 
-/* Flags for primitives */
-#define ALLEGRO_OUTLINED              0x00000
-#define ALLEGRO_FILLED                0x00001
-
 
 /*
  * Locking flags

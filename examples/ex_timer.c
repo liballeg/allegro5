@@ -3,6 +3,7 @@
  */
 #include <allegro5/allegro5.h>
 #include <allegro5/a5_font.h>
+#include <allegro5/a5_primitives.h>
 #include <stdio.h>
 #include <stdarg.h>
 #include <math.h>
@@ -88,8 +89,8 @@ static void draw(void)
 
    y = 240;
    for (i = 0; i < 4; i++) {
-      al_draw_rectangle(ex.x[i], y + i * 60, ex.x[i] + (1 << i),
-         y + i * 60 + 60, al_map_rgb(1, 0, 0), ALLEGRO_FILLED);
+      al_draw_filled_rectangle(ex.x[i], y + i * 60, ex.x[i] + (1 << i),
+         y + i * 60 + 60, al_map_rgb(1, 0, 0));
    }
 }
 

@@ -1,5 +1,6 @@
 #include <allegro5/allegro5.h>
 #include <allegro5/a5_iio.h>
+#include <allegro5/a5_primitives.h>
 
 const int W = 320;
 const int H = 200;
@@ -66,8 +67,7 @@ int main(void)
             h = event.display.height;
          /* Draw a red rectangle over the damaged area. */
          al_set_blender(ALLEGRO_ONE, ALLEGRO_ZERO, al_map_rgba_f(1, 1, 1, 1));
-         al_draw_rectangle(x, y, x + w, y + h, al_map_rgba_f(1, 0, 0, 1),
-            ALLEGRO_FILLED);
+         al_draw_filled_rectangle(x, y, x + w, y + h, al_map_rgba_f(1, 0, 0, 1));
          al_flip_display();
       }
       if (event.type == ALLEGRO_EVENT_TIMER) {

@@ -12,6 +12,7 @@
 #include <math.h>
 #include "allegro5/a5_ttf.h"
 #include "allegro5/a5_iio.h"
+#include <allegro5/a5_primitives.h>
 
 #ifndef M_PI
    #define M_PI 3.141592653589793238462643
@@ -185,9 +186,9 @@ static void draw_background(void)
 
    for (i = 0; i < 640 / 16; i++) {
       for (j = 0; j < 480 / 16; j++) {
-         al_draw_rectangle(i * 16, j * 16,
+         al_draw_filled_rectangle(i * 16, j * 16,
                            i * 16 + 16, j * 16 + 16,
-                           c[(i + j) & 1], ALLEGRO_FILLED);
+                           c[(i + j) & 1]);
       }
    }
 }
@@ -215,8 +216,8 @@ static void print_parameters(void)
       // memory blenders (i.e. no FBO available)
       // al_set_blender(ALLEGRO_ONE, ALLEGRO_ONE, white)
       al_set_blender(ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA, white);
-      al_draw_rectangle(75, y, 375, y + th - 2,
-                        al_map_rgba_f(1, 1, 1, 0.5), ALLEGRO_FILLED);
+      al_draw_filled_rectangle(75, y, 375, y + th - 2,
+                        al_map_rgba_f(1, 1, 1, 0.5));
       al_set_blender(ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA,
                      i == selection ? light : normal);
       al_font_textprintf(font, 75, y, "%s", param_values[i]);
@@ -224,7 +225,7 @@ static void print_parameters(void)
          (((int)(al_current_time() * 2)) & 1)) {
          int x = 75 + al_font_text_width(font, param_values[i], -1);
          al_set_blender(ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA, normal);
-         al_draw_line(x, y, x, y + th, white);
+         al_draw_line(x, y, x, y + th, white, 0);
       }
    }
 

@@ -5,6 +5,7 @@
 
 #include <allegro5/allegro5.h>
 #include <allegro5/a5_font.h>
+#include <allegro5/a5_primitives.h>
 #include <stdio.h>
 #include <stdarg.h>
 #include <math.h>
@@ -51,9 +52,8 @@ static void draw(void)
    al_set_blender(ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA,
       al_map_rgba_f(1, 1, 1, 1));
 
-   al_draw_rectangle(x, y, x + RW, y + RH, al_map_rgba_f(1, 0, 0, 1),
-      ALLEGRO_FILLED);
-   al_draw_rectangle(0, 0, W, H, al_map_rgba_f(1, 1, 0, 0.1), ALLEGRO_FILLED);
+   al_draw_filled_rectangle(x, y, x + RW, y + RH, al_map_rgba_f(1, 0, 0, 1));
+   al_draw_filled_rectangle(0, 0, W, H, al_map_rgba_f(1, 1, 0, 0.1));
 
    x += dx * dt;
    if (x < 0) {

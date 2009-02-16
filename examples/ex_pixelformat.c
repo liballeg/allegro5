@@ -8,6 +8,7 @@
 #include "allegro5/allegro5.h"
 #include "allegro5/a5_font.h"
 #include "allegro5/a5_iio.h"
+#include <allegro5/a5_primitives.h>
 
 
 typedef struct FORMAT
@@ -136,8 +137,8 @@ int main(void)
          al_draw_bitmap(bitmap2, 0, 0, 0);
       }
       else {
-         al_draw_line(0, 0, 320, 200, al_map_rgb_f(1, 0, 0));
-         al_draw_line(0, 200, 320, 0, al_map_rgb_f(1, 0, 0));
+         al_draw_line(0, 0, 320, 200, al_map_rgb_f(1, 0, 0), 0);
+         al_draw_line(0, 200, 320, 0, al_map_rgb_f(1, 0, 0), 0);
       }
 
       al_flip_display();

@@ -91,90 +91,10 @@ static void ogl_draw_pixel(ALLEGRO_DISPLAY *d, float x, float y,
 
 
 
-/* Dummy implementation of line. */
-static void ogl_draw_line(ALLEGRO_DISPLAY *d, float fx, float fy,
-   float tx, float ty, ALLEGRO_COLOR *color)
-{
-   ALLEGRO_DISPLAY *ogl_disp = (void *)d;
-   ALLEGRO_BITMAP *target = al_get_target_bitmap();
-   ALLEGRO_BITMAP_OGL *ogl_target = (void *)target;
-
-   if ((!ogl_target->is_backbuffer && ogl_disp->ogl_extras->opengl_target != ogl_target)
-      || target->locked) {
-      _al_draw_line_memory(fx, fy, tx, ty, color);
-      return;
-   }
-
-   /* For sub bitmaps. */
-   if (target->parent) {
-      fx += target->xofs;
-      fy += target->yofs;
-      tx += target->xofs;
-      ty += target->yofs;
-   }
-
-   set_opengl_blending(color);
-   glBegin(GL_LINES);
-   glVertex2d(fx, fy);
-   glVertex2d(tx, ty);
-   glEnd();
-}
-
-
-
-/* Dummy implementation of a filled rectangle. */
-static void ogl_draw_rectangle(ALLEGRO_DISPLAY *d, float tlx, float tly,
-   float brx, float bry, ALLEGRO_COLOR *color, int flags)
-{
-   ALLEGRO_DISPLAY *ogl_disp = (void *)d;
-   ALLEGRO_BITMAP *target = al_get_target_bitmap();
-   ALLEGRO_BITMAP_OGL *ogl_target = (void *)target;
-
-   if ((!ogl_target->is_backbuffer && ogl_disp->ogl_extras->opengl_target != ogl_target)
-     || target->locked) {
-      _al_draw_rectangle_memory(tlx, tly, brx, bry, color, flags);
-      return;
-   }
-
-   /* For sub bitmaps. */
-   if (target->parent) {
-      tlx += target->xofs;
-      tly += target->yofs;
-      brx += target->xofs;
-      bry += target->yofs;
-   }
-
-   set_opengl_blending(color);
-   if (flags & ALLEGRO_FILLED) {
-      glBegin(GL_QUADS);
-      glVertex2d(tlx, tly);
-      glVertex2d(brx, tly);
-      glVertex2d(brx, bry);
-      glVertex2d(tlx, bry);
-      glEnd();
-   }
-   else {
-      /* GL_LINE_STRIP works more reliably than GL_LINE_LOOP on two of my
-       * machines --pw
-       */
-      glBegin(GL_LINE_STRIP);
-      glVertex2d(tlx, tly);
-      glVertex2d(brx, tly);
-      glVertex2d(brx, bry);
-      glVertex2d(tlx, bry);
-      glVertex2d(tlx, tly);
-      glEnd();
-   }
-}
-
-
-
 /* Add drawing commands to the vtable. */
 void _al_ogl_add_drawing_functions(ALLEGRO_DISPLAY_INTERFACE *vt)
 {
    vt->clear = ogl_clear;
-   vt->draw_line = ogl_draw_line;
-   vt->draw_rectangle = ogl_draw_rectangle;
    vt->draw_pixel = ogl_draw_pixel;
 }
 

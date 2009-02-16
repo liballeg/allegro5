@@ -12,6 +12,7 @@
 
 #include "allegro5/allegro5.h"
 #include "allegro5/a5_iio.h"
+#include <allegro5/a5_primitives.h>
 
 #define MIN(x,y)     (((x) < (y)) ? (x) : (y))
 #define MAX(x,y)     (((x) > (y)) ? (x) : (y))
@@ -205,14 +206,14 @@ int main(void)
 
          al_set_target_bitmap(al_get_backbuffer());
          al_draw_rectangle(dst_x1, dst_y1, dst_x2, dst_y2,
-            al_map_rgb(0, 255, 255), ALLEGRO_OUTLINED);
+            al_map_rgb(0, 255, 255), 0);
          al_flip_display();
 
          al_set_current_display(src_display);
          al_clear(al_map_rgb(0, 0, 0));
          al_draw_bitmap(mem_bmp, 0, 0, 0);
          al_draw_rectangle(src_x1, src_y1, src_x2, src_y2,
-            al_map_rgb(0, 255, 255), ALLEGRO_OUTLINED);
+            al_map_rgb(0, 255, 255), 0);
          al_flip_display();
 
          redraw = false;

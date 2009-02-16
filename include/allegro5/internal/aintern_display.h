@@ -20,10 +20,6 @@ struct ALLEGRO_DISPLAY_INTERFACE
    void (*destroy_display)(ALLEGRO_DISPLAY *display);
    bool (*set_current_display)(ALLEGRO_DISPLAY *d);
    void (*clear)(ALLEGRO_DISPLAY *d, ALLEGRO_COLOR *color);
-   void (*draw_line)(ALLEGRO_DISPLAY *d, float fx, float fy, float tx, float ty,
-      ALLEGRO_COLOR *color);
-   void (*draw_rectangle)(ALLEGRO_DISPLAY *d, float fx, float fy, float tx,
-    float ty, ALLEGRO_COLOR *color, int flags);
    void (*draw_pixel)(ALLEGRO_DISPLAY *d, float x, float y, ALLEGRO_COLOR *color);
    void (*flip_display)(ALLEGRO_DISPLAY *d);
    bool (*update_display_region)(ALLEGRO_DISPLAY *d, int x, int y,
@@ -107,8 +103,7 @@ int  _al_deduce_color_format(ALLEGRO_EXTRA_DISPLAY_SETTINGS *eds);
 int  _al_display_settings_sorter(const void *p0, const void *p1);
 
 void _al_clear_memory(ALLEGRO_COLOR *color);
-void _al_draw_rectangle_memory(int x1, int y1, int x2, int y2, ALLEGRO_COLOR *color, int flags);
-void _al_draw_line_memory(int x1, int y1, int x2, int y2, ALLEGRO_COLOR *color);
+void _al_draw_filled_rectangle_memory(int x1, int y1, int x2, int y2, ALLEGRO_COLOR *color);
 void _al_draw_pixel_memory(ALLEGRO_BITMAP *bmp, int x, int y, ALLEGRO_COLOR *color);
 
 void _al_destroy_display_bitmaps(ALLEGRO_DISPLAY *d);

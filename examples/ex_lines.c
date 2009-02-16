@@ -4,6 +4,7 @@
 
 #include <math.h>
 #include "allegro5/allegro5.h"
+#include <allegro5/a5_primitives.h>
 
 /* Define this to test drawing to memory bitmaps.
  * XXX the software line drawer currently doesn't perform clipping properly
@@ -33,13 +34,12 @@ int last_y = -1;
 void fade(void)
 {
    al_set_blender(ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA, background);
-   al_draw_rectangle(0, 0, W, H, al_map_rgba_f(1, 1, 1, 0.2), ALLEGRO_FILLED);
+   al_draw_filled_rectangle(0, 0, W, H, al_map_rgba_f(1, 1, 1, 0.2));
 }
 
 void red_dot(int x, int y)
 {
-   al_draw_rectangle(x - 2, y - 2, x + 2, y + 2, al_map_rgb_f(1, 0, 0),
-      ALLEGRO_FILLED);
+   al_draw_filled_rectangle(x - 2, y - 2, x + 2, y + 2, al_map_rgb_f(1, 0, 0));
 }
 
 void draw_clip_rect(void)
@@ -80,7 +80,7 @@ void plonk(const int x, const int y, bool blend)
          al_set_blender(ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA,
             al_map_rgb_f(0.5, 1, 1));
       }
-      al_draw_line(last_x, last_y, x, y, white);
+      al_draw_line(last_x, last_y, x, y, white, 0);
       last_x = last_y = -1;
       reset_clip_rect();
    }
@@ -114,7 +114,7 @@ void splat(const int x, const int y, bool blend)
          al_map_rgb_f(0.5, 1, 1));
    }
    for (theta = 0.0; theta < 2.0 * AL_PI; theta += AL_PI/16.0) {
-      al_draw_line(x, y, x + 40.0 * cos(theta), y + 40.0 * sin(theta), white);
+      al_draw_line(x, y, x + 40.0 * cos(theta), y + 40.0 * sin(theta), white, 0);
    }
    reset_clip_rect();
 

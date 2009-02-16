@@ -2,6 +2,7 @@
  */
 #include <allegro5/allegro5.h>
 #include <allegro5/a5_font.h>
+#include <allegro5/a5_primitives.h>
 #include <stdio.h>
 #include <stdarg.h>
 #include <math.h>
@@ -151,9 +152,8 @@ static void draw(void)
          if (ex.image == 0)
             al_draw_bitmap(ex.example, x + i * 110, y + j * 110, 0);
          else if (ex.image >= 1 && ex.image <= 6) {
-            al_draw_rectangle(x + i * 110, y + j * 110,
-               x + i * 110 + 100, y + j * 110 + 100, test[ex.image - 1],
-               ALLEGRO_FILLED);
+            al_draw_filled_rectangle(x + i * 110, y + j * 110,
+               x + i * 110 + 100, y + j * 110 + 100, test[ex.image - 1]);
          }
       }
    }

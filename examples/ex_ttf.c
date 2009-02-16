@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include "allegro5/a5_ttf.h"
+#include <allegro5/a5_primitives.h>
 
 struct Example
 {
@@ -50,8 +51,8 @@ static void render(void)
     y += ypos;
     al_set_blender(ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA, white);
     al_draw_rectangle(x, y, x + w, y + h, black, 0);
-    al_draw_line(x, y + as, x + w, y + as, black);
-    al_draw_line(x, y + as + de, x + w, y + as + de, black);
+    al_draw_line(x, y + as, x + w, y + as, black, 0);
+    al_draw_line(x, y + as + de, x + w, y + as + de, black, 0);
     al_set_blender(ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA, blue);
     al_font_textout(ex.f4, xpos, ypos, "Allegro", -1);
 

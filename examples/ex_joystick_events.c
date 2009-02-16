@@ -5,6 +5,7 @@
  */
 
 #include <allegro5/allegro5.h>
+#include <allegro5/a5_primitives.h>
 
 
 #define MAX_BUTTONS  24
@@ -27,11 +28,9 @@ void draw_joystick_axes(void)
    int x = 320 + joys_x * 100;
    int y = 200 + joys_y * 100;
 
-   al_draw_rectangle(320-107, 200-107, 320+107.5, 200+107.5, grey,
-      ALLEGRO_FILLED);
-   al_draw_rectangle(320-107, 200-107, 320+107.5, 200+107.5, black,
-      ALLEGRO_OUTLINED);
-   al_draw_rectangle(x-5, y-5, x+5.5, y+5.5, black, ALLEGRO_FILLED);
+   al_draw_filled_rectangle(320-107, 200-107, 320+107.5, 200+107.5, grey);
+   al_draw_rectangle(320-107, 200-107, 320+107.5, 200+107.5, black, 0);
+   al_draw_filled_rectangle(x-5, y-5, x+5.5, y+5.5, black);
 }
 
 
@@ -41,11 +40,10 @@ void draw_joystick_button(int button, bool down)
    int x = 250 + (button % 5) * 30;
    int y = 380 + (button / 5) * 30;
 
-   al_draw_rectangle(x, y, x + 25.5, y + 25.5, grey, ALLEGRO_FILLED);
-   al_draw_rectangle(x, y, x + 25.5, y + 25.5, black, ALLEGRO_OUTLINED);
+   al_draw_filled_rectangle(x, y, x + 25.5, y + 25.5, grey);
+   al_draw_rectangle(x, y, x + 25.5, y + 25.5, black, 0);
    if (down) {
-      al_draw_rectangle(x + 2, y + 2, x + 24.5, y + 24.5, black,
-         ALLEGRO_FILLED);
+      al_draw_filled_rectangle(x + 2, y + 2, x + 24.5, y + 24.5, black);
    }
 }
 
