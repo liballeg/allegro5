@@ -141,7 +141,7 @@ static ALLEGRO_BITMAP *load_jpg_pf(ALLEGRO_FS_ENTRY *pf)
 
    jpeg_create_decompress(&cinfo);
    jpeg_packfile_src(&cinfo, pf, buffer);
-   jpeg_read_header(&cinfo, TRUE);
+   jpeg_read_header(&cinfo, true);
    jpeg_start_decompress(&cinfo);
 
    w = cinfo.output_width;

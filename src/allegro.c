@@ -33,8 +33,8 @@
 
 
 /* debugging stuff */
-static int debug_assert_virgin = TRUE;
-static int debug_trace_virgin = TRUE;
+static int debug_assert_virgin = true;
+static int debug_trace_virgin = true;
 
 static FILE *assert_file = NULL;
 static FILE *trace_file = NULL;
@@ -133,8 +133,8 @@ static void debug_exit(void)
       trace_file = NULL;
    }
 
-   debug_assert_virgin = TRUE;
-   debug_trace_virgin = TRUE;
+   debug_assert_virgin = true;
+   debug_trace_virgin = true;
 }
 
 
@@ -144,7 +144,7 @@ static void debug_exit(void)
  */
 void al_assert(AL_CONST char *file, int line)
 {
-   static int asserted = FALSE;
+   static int asserted = false;
    int olderr = errno;
    char buf[128];
    char *s;
@@ -171,7 +171,7 @@ void al_assert(AL_CONST char *file, int line)
       if (debug_trace_virgin)
 	 _al_add_exit_func(debug_exit, "debug_exit");
 
-      debug_assert_virgin = FALSE;
+      debug_assert_virgin = false;
    }
 
    if (assert_file) {
@@ -179,7 +179,7 @@ void al_assert(AL_CONST char *file, int line)
       fflush(assert_file);
    }
    else {
-      asserted = TRUE;
+      asserted = true;
 
 /*
       if ((system_driver) && (system_driver->assert)) {
@@ -231,7 +231,7 @@ void al_trace(AL_CONST char *msg, ...)
       if (debug_assert_virgin)
 	 _al_add_exit_func(debug_exit, "debug_exit");
 
-      debug_trace_virgin = FALSE;
+      debug_trace_virgin = false;
    }
 
    if (trace_file) {

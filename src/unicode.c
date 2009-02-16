@@ -230,17 +230,17 @@ static int ascii_cp_isok(int c)
 
    for (i=0; i<256; i++) {
       if (codepage_table[i] == c)
-	 return TRUE;
+	 return true;
    }
 
    if (codepage_extras) {
       for (i=0; codepage_extras[i]; i+=2) {
 	 if (codepage_extras[i] == c)
-	    return TRUE;
+	    return true;
       } 
    }
 
-   return FALSE;
+   return false;
 }
 
 
@@ -463,7 +463,7 @@ static int utf8_cwidth(int c)
 static int utf8_isok(int c)
 {
    (void)c;
-   return TRUE;
+   return true;
 }
 
 
@@ -551,17 +551,17 @@ int need_uconvert(AL_CONST char *s, int type, int newtype)
       newtype = utype;
 
    if (type == newtype)
-      return FALSE;
+      return false;
 
    if (((type == U_ASCII) || (type == U_UTF8)) && ((newtype == U_ASCII) || (newtype == U_UTF8))) {
       do {
 	 c = *((unsigned char *)(s++));
 	 if (!c)
-	    return FALSE;
+	    return false;
       } while (c <= 127);
    }
 
-   return TRUE;
+   return true;
 }
 
 
@@ -973,7 +973,7 @@ int ustrcmp(AL_CONST char *s1, AL_CONST char *s2)
 char *ustrzncpy(char *dest, int size, AL_CONST char *src, int n)
 {
    int pos = 0, len = 0;
-   int ansi_oddness = FALSE;
+   int ansi_oddness = false;
    int c;
    ASSERT(dest);
    ASSERT(src);
@@ -982,7 +982,7 @@ char *ustrzncpy(char *dest, int size, AL_CONST char *src, int n)
 
    /* detect raw ustrncpy() call */
    if (size == INT_MAX)
-      ansi_oddness = TRUE;
+      ansi_oddness = true;
 
    size -= ucwidth(0);
    ASSERT(size >= 0);
@@ -1678,7 +1678,7 @@ static int decode_format_string(char *buf, STRING_ARG *string_arg, AL_CONST char
 	    info.num_special = 0;
 
 	    /* check for conversion flags */
-	    done = FALSE;
+	    done = false;
 
 	    do {
 	       switch (c) {
@@ -1709,7 +1709,7 @@ static int decode_format_string(char *buf, STRING_ARG *string_arg, AL_CONST char
 		     break;
 
 		  default:
-		     done = TRUE;
+		     done = true;
 		     break;
 	       }
 
@@ -1753,7 +1753,7 @@ static int decode_format_string(char *buf, STRING_ARG *string_arg, AL_CONST char
 	    }
 
 	    /* check for size qualifiers */
-	    done = FALSE;
+	    done = false;
 
 	    do {
 	       switch (c) {
@@ -1777,7 +1777,7 @@ static int decode_format_string(char *buf, STRING_ARG *string_arg, AL_CONST char
 		     break;
 
 		  default:
-		     done = TRUE;
+		     done = true;
 		     break;
 	       }
 
@@ -1834,7 +1834,7 @@ static int decode_format_string(char *buf, STRING_ARG *string_arg, AL_CONST char
 
 	       case 'p':
 		  /* pointer */
-		  slen = sprint_hex(string_arg, &info, FALSE, (unsigned long)(va_arg(args, void *)));
+		  slen = sprint_hex(string_arg, &info, false, (unsigned long)(va_arg(args, void *)));
 		  NEXT_C();
 		  break;
 

@@ -231,7 +231,7 @@ static void key_dinput_handle_scancode(unsigned char scancode, int pressed)
     * ctrl-alt-del combo. We want to ignore them all, especially ctrl-alt-end,
     * which would cause Allegro to terminate.
     */
-   static int ignore_three_finger_flag = FALSE;
+   static int ignore_three_finger_flag = false;
 
    /* ignore special Windows keys (alt+tab, alt+space, (ctrl|alt)+esc) */
    if (((scancode == DIK_TAB) && (key_modifiers & (ALLEGRO_KEYMOD_ALT | ALLEGRO_KEYMOD_ALTGR)))
@@ -252,7 +252,7 @@ static void key_dinput_handle_scancode(unsigned char scancode, int pressed)
       if (_al_three_finger_flag && (key_modifiers & ALLEGRO_KEYMOD_CTRL) && (key_modifiers & ALLEGRO_KEYMOD_ALT)) {
          if (scancode == 0x00) {
             /* when pressing CTRL-ALT-DEL, Windows launches CTRL-ALT-EVERYTHING */
-            ignore_three_finger_flag = TRUE;
+            ignore_three_finger_flag = true;
          }
          else if (!ignore_three_finger_flag && (scancode == DIK_END || scancode == DIK_NUMPAD1)) {
             /* we can now safely assume the user hit CTRL-ALT-END as opposed to CTRL-ALT-DEL */
@@ -261,7 +261,7 @@ static void key_dinput_handle_scancode(unsigned char scancode, int pressed)
          }
          else if (ignore_three_finger_flag && scancode == 0xff) {
          /* Windows is finished with CTRL-ALT-EVERYTHING - lets return to normality */
-            ignore_three_finger_flag = FALSE;
+            ignore_three_finger_flag = false;
             key_modifiers = 0;
          }
       }
@@ -335,7 +335,7 @@ static void key_dinput_handle(void)
 static void key_dinput_repeat(void)
 {
    _al_event_source_lock(&the_keyboard.es);
-   key_dinput_handle_scancode(key_scancode_to_repeat, TRUE);
+   key_dinput_handle_scancode(key_scancode_to_repeat, true);
    _al_event_source_unlock(&the_keyboard.es);
 }
 
@@ -414,7 +414,7 @@ void _al_win_key_dinput_unacquire(void *unused)
       /* release all keys */
       for (key=0; key<256; key++)
          if (key != DIK_PAUSE)
-            key_dinput_handle_scancode((unsigned char) key, FALSE);
+            key_dinput_handle_scancode((unsigned char) key, false);
    }
 }
 
@@ -533,7 +533,7 @@ static int key_dinput_init(void)
    }
 
    /* Enable event notification */
-   key_input_event = CreateEvent(NULL, FALSE, FALSE, NULL);
+   key_input_event = CreateEvent(NULL, false, false, NULL);
    hr = IDirectInputDevice8_SetEventNotification(key_dinput_device, key_input_event);
    if (FAILED(hr)) {
       TRACE(PREFIX_E "IDirectInputDevice8_SetEventNotification failed.\n");
@@ -541,7 +541,7 @@ static int key_dinput_init(void)
    }
 
    /* Set up the timer for autorepeat emulation */
-   key_autorepeat_timer = CreateWaitableTimer(NULL, FALSE, NULL);
+   key_autorepeat_timer = CreateWaitableTimer(NULL, false, NULL);
    if (!key_autorepeat_timer) {
       TRACE(PREFIX_E "CreateWaitableTimer failed.\n");
       goto Error;
@@ -595,7 +595,7 @@ static ALLEGRO_KEYBOARD_DRIVER keyboard_directx =
 /* list the available drivers */
 _DRIVER_INFO _al_keyboard_driver_list[] =
 {
-   {  KEYBOARD_DIRECTX, &keyboard_directx, TRUE  },
+   {  KEYBOARD_DIRECTX, &keyboard_directx, true  },
    {  0,                NULL,              0     }
 };
 
@@ -823,7 +823,7 @@ static void handle_key_press(unsigned char scancode)
       key_scancode_to_repeat = scancode;
       SetWaitableTimer(key_autorepeat_timer, &repeat_delay, repeat_period,
                        NULL, NULL, /* completion routine and userdata */
-                       FALSE);     /* don't wake suspended machine */
+                       false);     /* don't wake suspended machine */
    }
 }
 

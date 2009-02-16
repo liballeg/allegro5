@@ -617,7 +617,7 @@ static BOOL CALLBACK joystick_enum_callback(LPCDIDEVICEINSTANCE lpddi, LPVOID pv
    joydx_joystick[joydx_num_joysticks].gotten = false;
 
    /* create a thread event for this joystick */
-   JOYSTICK_WAKER(joydx_num_joysticks) = CreateEvent(NULL, FALSE, FALSE, NULL);
+   JOYSTICK_WAKER(joydx_num_joysticks) = CreateEvent(NULL, false, false, NULL);
 
    /* tell the joystick background thread to wake up when this joystick
     * device's state changes
@@ -641,7 +641,7 @@ static BOOL CALLBACK joystick_enum_callback(LPCDIDEVICEINSTANCE lpddi, LPVOID pv
 
       CloseHandle(JOYSTICK_WAKER(joydx_num_joysticks));
 
-      JOYSTICK_WAKER(joydx_num_joysticks) = CreateWaitableTimer(NULL, FALSE, NULL);
+      JOYSTICK_WAKER(joydx_num_joysticks) = CreateWaitableTimer(NULL, false, NULL);
       if (JOYSTICK_WAKER(joydx_num_joysticks) == NULL) {
          TRACE(PREFIX_E "CreateWaitableTimer failed in wjoydxnu.c\n");
          goto Error;
@@ -652,8 +652,8 @@ static BOOL CALLBACK joystick_enum_callback(LPCDIDEVICEINSTANCE lpddi, LPVOID pv
          due_time.HighPart = 0;
          due_time.LowPart = 150; /* 15 ms (arbitrary) */
          SetWaitableTimer(JOYSTICK_WAKER(joydx_num_joysticks), 
-                          &due_time, TRUE, /* periodic */
-                          NULL, NULL, FALSE);
+                          &due_time, true, /* periodic */
+                          NULL, NULL, false);
       }
    }
 
@@ -735,7 +735,7 @@ static bool joydx_init_joystick(void)
    }
 
    /* create the dedicated thread stopping event */
-   STOP_EVENT = CreateEvent(NULL, FALSE, FALSE, NULL);
+   STOP_EVENT = CreateEvent(NULL, false, false, NULL);
 
    /* initialise the lock for the background thread */
    InitializeCriticalSection(&joydx_thread_cs);
@@ -930,7 +930,7 @@ static void joydx_thread_proc(LPVOID unused)
 
       result = WaitForMultipleObjects(joydx_num_joysticks+1, /* +1 for STOP_EVENT */
                                       joydx_thread_wakers,
-                                      FALSE,       /* wait for any */
+                                      false,       /* wait for any */
                                       INFINITE);   /* indefinite wait */
 
       if (result == WAIT_OBJECT_0)

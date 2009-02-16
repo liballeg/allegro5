@@ -115,7 +115,7 @@ static ALLEGRO_KEYBOARD_DRIVER keydrv_linux =
 /* list the available drivers */
 _DRIVER_INFO _al_linux_keyboard_driver_list[] =
 {
-   {  KEYDRV_LINUX, &keydrv_linux, TRUE  },
+   {  KEYDRV_LINUX, &keydrv_linux, true  },
    {  0,            NULL,          0     }
 };
 

@@ -59,7 +59,7 @@ static void get_window_pos(HWND window, RECT *pos)
    memcpy(&adjusted, &with_decorations, sizeof(RECT));
 
    GetWindowInfo(window, &wi);
-   AdjustWindowRectEx(&adjusted, wi.dwStyle, FALSE, wi.dwExStyle);
+   AdjustWindowRectEx(&adjusted, wi.dwStyle, false, wi.dwExStyle);
 
    top = with_decorations.top - adjusted.top;
    left = with_decorations.left - adjusted.left;
@@ -160,7 +160,7 @@ HWND _al_win_create_window(ALLEGRO_DISPLAY *display, int width, int height, int 
       win_size.top = info.y1 + (info.y2 - info.y1 - height) / 2;
       win_size.bottom = win_size.top + height;
 
-      AdjustWindowRectEx(&win_size, style, FALSE, ex_style);
+      AdjustWindowRectEx(&win_size, style, false, ex_style);
 
       pos_x = win_size.left;
       pos_y = win_size.top;
@@ -192,7 +192,7 @@ HWND _al_win_create_window(ALLEGRO_DISPLAY *display, int width, int height, int 
    if (!(flags & ALLEGRO_RESIZABLE) && !(flags & ALLEGRO_FULLSCREEN)) {
       /* Make the window non-resizable */
       HMENU menu;
-      menu = GetSystemMenu(my_window, FALSE);
+      menu = GetSystemMenu(my_window, false);
       DeleteMenu(menu, SC_SIZE, MF_BYCOMMAND);
       DeleteMenu(menu, SC_MAXIMIZE, MF_BYCOMMAND);
       DrawMenuBar(my_window);
@@ -401,7 +401,7 @@ static LRESULT CALLBACK window_callback(HWND hWnd, UINT message,
             HRGN hrgn;
             GetWindowRect(win_display->window, &r);
             hrgn = CreateRectRgn(r.left, r.top, r.right, r.bottom);
-            if (GetUpdateRgn(win_display->window, hrgn, FALSE) != ERROR) {
+            if (GetUpdateRgn(win_display->window, hrgn, false) != ERROR) {
                PAINTSTRUCT ps;
                DWORD size;
                LPRGNDATA rgndata;
@@ -691,7 +691,7 @@ void _al_win_toggle_window_frame(ALLEGRO_DISPLAY *display, HWND hWnd,
       }
 
       GetWindowRect(hWnd, &r);
-      AdjustWindowRectEx(&r, style, FALSE, exStyle);
+      AdjustWindowRectEx(&r, style, false, exStyle);
 
       w = r.right - r.left;
       h = r.bottom - r.top;

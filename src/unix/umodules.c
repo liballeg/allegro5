@@ -116,7 +116,7 @@ void _unix_load_modules(int system_driver)
 
    fullpath_slash = strrchr(fullpath, '/');
    
-   while (TRUE) {
+   while (true) {
       if (!pack_fgets(buf, sizeof buf, f))
          break;
       filename = uconvert_toascii(buf, buf2);

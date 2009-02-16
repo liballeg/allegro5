@@ -39,7 +39,7 @@
  */
 int _al_file_isok(AL_CONST char *filename)
 {
-   return TRUE;
+   return true;
 }
 
 

@@ -185,7 +185,7 @@ static int mouse_init (void)
  */
 static int ms_mouse_init (void)
 {
-	intellimouse = FALSE;
+	intellimouse = false;
     	packet_size = 3;
 	intdrv.num_buttons = 2;
 	return mouse_init ();
@@ -196,7 +196,7 @@ static int ms_mouse_init (void)
  */
 static int ims_mouse_init (void)
 {
-	intellimouse = TRUE;
+	intellimouse = true;
     	packet_size = 4;
 	intdrv.num_buttons = 3;
 	return mouse_init ();

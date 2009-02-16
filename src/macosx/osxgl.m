@@ -194,12 +194,12 @@ void _al_osx_mouse_was_installed(BOOL install) {
 -(void) keyDown:(NSEvent*) event
 {
 	if (_osx_keyboard_installed)
-		_al_osx_keyboard_handler(TRUE, event, dpy_ptr);
+		_al_osx_keyboard_handler(true, event, dpy_ptr);
 }
 -(void) keyUp:(NSEvent*) event 
 {
 	if (_osx_keyboard_installed)
-		_al_osx_keyboard_handler(FALSE, event, dpy_ptr);
+		_al_osx_keyboard_handler(false, event, dpy_ptr);
 }
 -(void) flagsChanged:(NSEvent*) event
 {
@@ -569,7 +569,7 @@ static int decode_allegro_format(int format, int* glfmt, int* glsize, int* depth
    // Unlock the screen 
    if (dpy->parent.flags & ALLEGRO_FULLSCREEN) {
       CGDisplayRelease(dpy->display_id);
-      in_fullscreen = FALSE;
+      in_fullscreen = false;
    }
    else {
       // Destroy the containing window if there is one
@@ -594,10 +594,10 @@ static int decode_allegro_format(int format, int* glfmt, int* glsize, int* depth
       // Process it as required.
 	  switch ([event type]) {
          case NSKeyDown:
-            _al_osx_keyboard_handler(TRUE,event,display);
+            _al_osx_keyboard_handler(true,event,display);
             break;
          case NSKeyUp:
-            _al_osx_keyboard_handler(FALSE,event,display);
+            _al_osx_keyboard_handler(false,event,display);
             break;
          case NSFlagsChanged:
             _al_osx_keyboard_modifiers([event modifierFlags],display);

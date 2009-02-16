@@ -56,7 +56,7 @@
  */
 int _al_file_isok(AL_CONST char *filename)
 {
-   return TRUE;
+   return true;
 }
 
 
@@ -403,7 +403,7 @@ int al_findnext(struct al_ffblk *info)
    if (!ff_data->dir)
       return -1;
 
-   while (TRUE) {
+   while (true) {
       /* read directory entry */
       entry = readdir(ff_data->dir);
       if (!entry) {

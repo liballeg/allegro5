@@ -84,7 +84,7 @@ static ALLEGRO_BITMAP *really_load_png(png_structp png_ptr, png_infop info_ptr)
    double image_gamma, screen_gamma;
    int intent;
    int bpp;
-   int tRNS_to_alpha = FALSE;
+   int tRNS_to_alpha = false;
    int number_passes, pass;
    PalEntry pal[256];
    ALLEGRO_LOCKED_REGION lock;
@@ -114,7 +114,7 @@ static ALLEGRO_BITMAP *really_load_png(png_structp png_ptr, png_infop info_ptr)
     * in a tRNS chunk. */
    if (png_get_valid(png_ptr, info_ptr, PNG_INFO_tRNS)) {
       png_set_tRNS_to_alpha(png_ptr);
-      tRNS_to_alpha = TRUE;
+      tRNS_to_alpha = true;
    }
 
    /* Convert 16-bits per colour component to 8-bits per colour component. */

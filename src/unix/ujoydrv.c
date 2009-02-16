@@ -25,6 +25,6 @@
 
 _AL_BEGIN_JOYSTICK_DRIVER_LIST
 #ifdef ALLEGRO_HAVE_LINUX_JOYSTICK_H
-   { _ALLEGRO_JOYDRV_LINUX,   &_al_joydrv_linux,   TRUE  },
+   { _ALLEGRO_JOYDRV_LINUX,   &_al_joydrv_linux,   true  },
 #endif
 _AL_END_JOYSTICK_DRIVER_LIST

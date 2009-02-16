@@ -76,8 +76,8 @@ GFX_DRIVER gfx_svgalib =
    NULL,                        /* AL_METHOD(void, set_blender_mode, (int mode, int r, int g, int b, int a)); */
    NULL,			 /* svga_fetch_mode_list disabled */
    0, 0,
-   TRUE,
-   0, 0, 0, 0, FALSE,
+   true,
+   0, 0, 0, 0, false,
    /* new_api_branch additions */
    NULL, NULL, NULL, NULL, NULL, NULL
 };
@@ -670,7 +670,7 @@ static GFX_MODE_LIST *svga_fetch_mode_list(void)
 void _module_init(int system_driver)
 {
    if (system_driver == SYSTEM_LINUX)
-      _unix_register_gfx_driver(GFX_SVGALIB, &gfx_svgalib, TRUE, FALSE);
+      _unix_register_gfx_driver(GFX_SVGALIB, &gfx_svgalib, true, false);
 }
 
 #endif      /* ifdef ALLEGRO_MODULE */

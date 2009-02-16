@@ -291,9 +291,9 @@ static void _al_draw_line_memory_fast(int x1, int y1, int x2, int y2,
 
    if ((bb_x1 >= bitmap->cl) && (bb_y1 >= bitmap->ct) &&
        (bb_x2 <  bitmap->cr) && (bb_y2 <  bitmap->cb))
-      clip = FALSE;
+      clip = false;
    else
-      clip = TRUE;
+      clip = true;
 
    /* XXX this is completely wrong */
    if (x1 < 0)

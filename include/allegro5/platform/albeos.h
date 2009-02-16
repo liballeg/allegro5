@@ -59,18 +59,18 @@ AL_VAR(DIGI_DRIVER, digi_beos);
 AL_VAR(MIDI_DRIVER, midi_beos);
 
 #define GFX_DRIVER_BEOS                                                 \
-   { GFX_BWINDOWSCREEN_ACCEL,  &gfx_beos_bwindowscreen_accel, TRUE },	\
-   { GFX_BWINDOWSCREEN,        &gfx_beos_bwindowscreen,       TRUE },	\
-   { GFX_BDIRECTWINDOW,        &gfx_beos_bdirectwindow,       TRUE },	\
-   { GFX_BWINDOW,              &gfx_beos_bwindow,             TRUE },   \
-   { GFX_BWINDOW_OVERLAY,      &gfx_beos_overlay,             TRUE },
+   { GFX_BWINDOWSCREEN_ACCEL,  &gfx_beos_bwindowscreen_accel, true },	\
+   { GFX_BWINDOWSCREEN,        &gfx_beos_bwindowscreen,       true },	\
+   { GFX_BDIRECTWINDOW,        &gfx_beos_bdirectwindow,       true },	\
+   { GFX_BWINDOW,              &gfx_beos_bwindow,             true },   \
+   { GFX_BWINDOW_OVERLAY,      &gfx_beos_overlay,             true },
 
 #define DIGI_DRIVER_BEOS                                                \
-   {  DIGI_BEOS,       &digi_beos,      TRUE  },
+   {  DIGI_BEOS,       &digi_beos,      true  },
    
 #define MIDI_DRIVER_BEOS                                                \
-   {  MIDI_BEOS,       &midi_beos,      TRUE  },
+   {  MIDI_BEOS,       &midi_beos,      true  },
 
 #define JOYSTICK_DRIVER_BEOS                                            \
-   {  JOYSTICK_BEOS,   &joystick_beos,  TRUE  },
+   {  JOYSTICK_BEOS,   &joystick_beos,  true  },
 

@@ -73,10 +73,10 @@ static DWORD input_proc(void *unused)
       if (win_input_events) {
          result = WaitForMultipleObjectsEx(win_input_events,
                                            win_input_event_id,
-                                           FALSE, INFINITE, TRUE);
+                                           false, INFINITE, true);
       }
       else {
-         result = SleepEx(INFINITE, TRUE);
+         result = SleepEx(INFINITE, true);
       }
 
       if (result < (DWORD) WAIT_OBJECT_0 + win_input_events) {
@@ -216,7 +216,7 @@ void _al_win_input_init(void)
       TRACE(PREFIX_E "Failed to spawn the input thread.\n");
    }
 
-   ack_event = CreateEvent(NULL, FALSE, FALSE, NULL);
+   ack_event = CreateEvent(NULL, false, false, NULL);
 }
 
 

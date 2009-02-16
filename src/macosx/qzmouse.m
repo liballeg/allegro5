@@ -137,7 +137,7 @@ void _al_osx_mouse_generate_event(NSEvent* evt, ALLEGRO_DISPLAY* dpy)
 			return;
 	}
 	pos = [evt locationInWindow];
-	BOOL within = TRUE;			
+	BOOL within = true;			
 	if ([evt window])
 	{
 		NSRect frm = [[[evt window] contentView] frame];
@@ -225,13 +225,13 @@ static bool osx_init_mouse(void)
 		}
 		osx_hid_free(&devices);
 	}
-	if (buttons <= 0) return FALSE;
+	if (buttons <= 0) return false;
 	_al_event_source_init(&osx_mouse.parent.es);
 	osx_mouse.button_count = buttons;
 	osx_mouse.axis_count = axes;
 	memset(&osx_mouse.state, 0, sizeof(ALLEGRO_MOUSE_STATE));
    _al_osx_mouse_was_installed(YES);
-	return TRUE;
+	return true;
 }
 
 /* osx_exit_mouse:
@@ -280,13 +280,13 @@ static bool osx_set_mouse_axis(int axis, int value)
 			break;
 		case 2:
 			osx_mouse.z_axis = value;
-			return TRUE;
+			return true;
 		case 3:
 			osx_mouse.w_axis = value;
-			return TRUE;
+			return true;
 	}
 	_al_event_source_unlock(&osx_mouse.parent.es);
-	return FALSE;
+	return false;
 }
 /* Mouse driver */
 static ALLEGRO_MOUSE_DRIVER osx_mouse_driver =

@@ -67,13 +67,7 @@
 
 
 #ifdef ALLEGRO_MACOSX
-   #undef TRUE
-   #undef FALSE
    #include <CoreFoundation/CoreFoundation.h>
-   #undef TRUE
-   #undef FALSE
-   #define TRUE  -1
-   #define FALSE 0
    static CFBundleRef opengl_bundle_ref;
 #endif
 
@@ -321,7 +315,7 @@ int _al_ogl_look_for_an_extension(AL_CONST char *name, AL_CONST GLubyte *extensi
    /* Extension names should not have spaces. */
    where = (GLubyte *) strchr(name, ' ');
    if (where || *name == '\0')
-      return FALSE;
+      return false;
    /* It takes a bit of care to be fool-proof about parsing the
     * OpenGL extensions string. Don't be fooled by sub-strings, etc.
     */
@@ -333,10 +327,10 @@ int _al_ogl_look_for_an_extension(AL_CONST char *name, AL_CONST GLubyte *extensi
       terminator = where + strlen(name);
       if (where == start || *(where - 1) == ' ')
          if (*terminator == ' ' || *terminator == '\0')
-            return TRUE;
+            return true;
       start = terminator;
    }
-   return FALSE;
+   return false;
 }
 
 
@@ -347,7 +341,7 @@ static int _ogl_is_extension_supported(AL_CONST char *extension,
    int ret;
    
    if (!glGetString(GL_EXTENSIONS))
-      return FALSE;
+      return false;
 
    ret = _al_ogl_look_for_an_extension(extension, glGetString(GL_EXTENSIONS));
 
@@ -357,7 +351,7 @@ static int _ogl_is_extension_supported(AL_CONST char *extension,
       ALLEGRO_GetExtensionsStringARB_t __wglGetExtensionsStringARB;
 
       if (!wgl_disp->dc)
-         return FALSE;
+         return false;
 
       __wglGetExtensionsStringARB =
          (ALLEGRO_GetExtensionsStringARB_t)wglGetProcAddress("wglGetExtensionsStringARB");
@@ -373,7 +367,7 @@ static int _ogl_is_extension_supported(AL_CONST char *extension,
       ALLEGRO_DISPLAY_XGLX *glx_disp = (void*)disp;
 
       if (!sys->gfxdisplay || !glx_disp->xscreen)
-         return FALSE;
+         return false;
 
       ret = _al_ogl_look_for_an_extension(extension, (const GLubyte *)
          glXQueryExtensionsString(sys->gfxdisplay, glx_disp->xscreen));
@@ -392,14 +386,14 @@ static int _ogl_is_extension_supported(AL_CONST char *extension,
  *
  *  >int packedpixels = al_is_opengl_extension_supported("GL_EXT_packed_pixels");
  *
- *  If _packedpixels_ is TRUE then you can safely use the constants related
+ *  If _packedpixels_ is true then you can safely use the constants related
  *  to the packed pixels extension.
  *
  * Parameters:
  * extension - The name of the extension that is needed
  *
  * Returns:
- * TRUE if the extension is available FALSE otherwise.
+ * true if the extension is available false otherwise.
  */
 int al_is_opengl_extension_supported(AL_CONST char *extension)
 {
@@ -407,10 +401,10 @@ int al_is_opengl_extension_supported(AL_CONST char *extension)
    
    disp = al_get_current_display();
    if (!disp)
-      return FALSE;
+      return false;
 
    if (!(disp->flags & ALLEGRO_OPENGL))
-      return FALSE;
+      return false;
 
    return _ogl_is_extension_supported(extension, (ALLEGRO_DISPLAY*)disp);
 }
@@ -454,10 +448,10 @@ void *al_get_opengl_proc_address(AL_CONST char *name)
    
    disp = al_get_current_display();
    if (!disp)
-      return FALSE;
+      return false;
 
    if (!(disp->flags & ALLEGRO_OPENGL))
-      return FALSE;
+      return false;
 
 #if defined ALLEGRO_WINDOWS
    /* For once Windows is the easiest platform to use :)
@@ -469,7 +463,7 @@ void *al_get_opengl_proc_address(AL_CONST char *name)
       ALLEGRO_DISPLAY_WGL *wgl_disp = (void*)disp;
 
       if (!wgl_disp->dc)
-         return FALSE;
+         return false;
 
       symbol = wglGetProcAddress(name);
    }

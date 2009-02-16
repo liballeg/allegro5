@@ -58,8 +58,8 @@ struct _AL_MUTEX osx_event_mutex;
 //AllegroWindow *osx_window = NULL;
 //char osx_window_title[ALLEGRO_MESSAGE_SIZE];
 void (*osx_window_close_hook)(void) = NULL;
-//int osx_emulate_mouse_buttons = FALSE;
-//int osx_window_first_expose = FALSE;
+//int osx_emulate_mouse_buttons = false;
+//int osx_window_first_expose = false;
 static ALLEGRO_SYSTEM osx_system;
 
 /* osx_signal_handler:
@@ -163,7 +163,7 @@ static ALLEGRO_SYSTEM* osx_sys_init(int flags)
 //   os_version = 10 * v1 + v2;
 //   os_revision = v3;
    [version release];
-//   os_multitasking = TRUE;
+//   os_multitasking = true;
    
    
    _al_osx_threads_init();

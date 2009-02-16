@@ -59,10 +59,10 @@
  *  bitmap. With the default scanline drawer, a pixel in the destination
  *  bitmap is drawn if and only if its center is covered by any pixel in the
  *  sprite. The color of this covering sprite pixel is used to draw.
- *  If sub_pixel_accuracy=FALSE, then the scanline drawer will be called with
+ *  If sub_pixel_accuracy=false, then the scanline drawer will be called with
  *  *_bmp_x being a fixed point representation of the integers representing
  *  the x coordinate of the first and last point in bmp whose centre is
- *  covered by the sprite. If sub_pixel_accuracy=TRUE, then the scanline
+ *  covered by the sprite. If sub_pixel_accuracy=true, then the scanline
  *  drawer will be called with the exact fixed point position of the first
  *  and last point in which the horizontal line passing through the centre is
  *  at least partly covered by the sprite. This is useful for doing

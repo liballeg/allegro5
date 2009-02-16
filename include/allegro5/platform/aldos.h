@@ -131,62 +131,62 @@ AL_VAR(JOYSTICK_DRIVER, joystick_ww);
 
 
 #define JOYSTICK_DRIVER_STANDARD                                  \
-      { JOY_TYPE_STANDARD,       &joystick_standard,  TRUE  },    \
-      { JOY_TYPE_2PADS,          &joystick_2pads,     FALSE },    \
-      { JOY_TYPE_4BUTTON,        &joystick_4button,   FALSE },    \
-      { JOY_TYPE_6BUTTON,        &joystick_6button,   FALSE },    \
-      { JOY_TYPE_8BUTTON,        &joystick_8button,   FALSE },    \
-      { JOY_TYPE_FSPRO,          &joystick_fspro,     FALSE },    \
-      { JOY_TYPE_WINGEX,         &joystick_wingex,    FALSE },
+      { JOY_TYPE_STANDARD,       &joystick_standard,  true  },    \
+      { JOY_TYPE_2PADS,          &joystick_2pads,     false },    \
+      { JOY_TYPE_4BUTTON,        &joystick_4button,   false },    \
+      { JOY_TYPE_6BUTTON,        &joystick_6button,   false },    \
+      { JOY_TYPE_8BUTTON,        &joystick_8button,   false },    \
+      { JOY_TYPE_FSPRO,          &joystick_fspro,     false },    \
+      { JOY_TYPE_WINGEX,         &joystick_wingex,    false },
 
 #define JOYSTICK_DRIVER_SIDEWINDER                                \
-      { JOY_TYPE_SIDEWINDER,     &joystick_sw,        TRUE  },    \
-      { JOY_TYPE_SIDEWINDER_AG,  &joystick_sw_ag,     TRUE  },    \
-      { JOY_TYPE_SIDEWINDER_PP,  &joystick_sw_pp,     TRUE  },
+      { JOY_TYPE_SIDEWINDER,     &joystick_sw,        true  },    \
+      { JOY_TYPE_SIDEWINDER_AG,  &joystick_sw_ag,     true  },    \
+      { JOY_TYPE_SIDEWINDER_PP,  &joystick_sw_pp,     true  },
 
 #define JOYSTICK_DRIVER_GAMEPAD_PRO                               \
-      { JOY_TYPE_GAMEPAD_PRO,    &joystick_gpro,      TRUE  },
+      { JOY_TYPE_GAMEPAD_PRO,    &joystick_gpro,      true  },
 
 #define JOYSTICK_DRIVER_GRIP                                      \
-      { JOY_TYPE_GRIP,           &joystick_grip,      TRUE  },    \
-      { JOY_TYPE_GRIP4,          &joystick_grip4,     TRUE  },
+      { JOY_TYPE_GRIP,           &joystick_grip,      true  },    \
+      { JOY_TYPE_GRIP4,          &joystick_grip4,     true  },
 
 #define JOYSTICK_DRIVER_SNESPAD                                   \
-      { JOY_TYPE_SNESPAD_LPT1,   &joystick_sp1,       FALSE },    \
-      { JOY_TYPE_SNESPAD_LPT2,   &joystick_sp2,       FALSE },    \
-      { JOY_TYPE_SNESPAD_LPT3,   &joystick_sp3,       FALSE },
+      { JOY_TYPE_SNESPAD_LPT1,   &joystick_sp1,       false },    \
+      { JOY_TYPE_SNESPAD_LPT2,   &joystick_sp2,       false },    \
+      { JOY_TYPE_SNESPAD_LPT3,   &joystick_sp3,       false },
 
 #define JOYSTICK_DRIVER_PSXPAD                                    \
-      { JOY_TYPE_PSXPAD_LPT1,    &joystick_psx1,      FALSE },    \
-      { JOY_TYPE_PSXPAD_LPT2,    &joystick_psx2,      FALSE },    \
-      { JOY_TYPE_PSXPAD_LPT3,    &joystick_psx3,      FALSE },
+      { JOY_TYPE_PSXPAD_LPT1,    &joystick_psx1,      false },    \
+      { JOY_TYPE_PSXPAD_LPT2,    &joystick_psx2,      false },    \
+      { JOY_TYPE_PSXPAD_LPT3,    &joystick_psx3,      false },
 
 #define JOYSTICK_DRIVER_N64PAD                                    \
-      { JOY_TYPE_N64PAD_LPT1,    &joystick_n641,      FALSE },    \
-      { JOY_TYPE_N64PAD_LPT2,    &joystick_n642,      FALSE },    \
-      { JOY_TYPE_N64PAD_LPT3,    &joystick_n643,      FALSE },
+      { JOY_TYPE_N64PAD_LPT1,    &joystick_n641,      false },    \
+      { JOY_TYPE_N64PAD_LPT2,    &joystick_n642,      false },    \
+      { JOY_TYPE_N64PAD_LPT3,    &joystick_n643,      false },
 
 #define JOYSTICK_DRIVER_DB9                                       \
-      { JOY_TYPE_DB9_LPT1,       &joystick_db91,      FALSE },    \
-      { JOY_TYPE_DB9_LPT2,       &joystick_db92,      FALSE },    \
-      { JOY_TYPE_DB9_LPT3,       &joystick_db93,      FALSE },
+      { JOY_TYPE_DB9_LPT1,       &joystick_db91,      false },    \
+      { JOY_TYPE_DB9_LPT2,       &joystick_db92,      false },    \
+      { JOY_TYPE_DB9_LPT3,       &joystick_db93,      false },
 
 #define JOYSTICK_DRIVER_TURBOGRAFX                                \
-      { JOY_TYPE_TURBOGRAFX_LPT1,&joystick_tgx1,      FALSE },    \
-      { JOY_TYPE_TURBOGRAFX_LPT2,&joystick_tgx2,      FALSE },    \
-      { JOY_TYPE_TURBOGRAFX_LPT3,&joystick_tgx3,      FALSE },
+      { JOY_TYPE_TURBOGRAFX_LPT1,&joystick_tgx1,      false },    \
+      { JOY_TYPE_TURBOGRAFX_LPT2,&joystick_tgx2,      false },    \
+      { JOY_TYPE_TURBOGRAFX_LPT3,&joystick_tgx3,      false },
 
 #define JOYSTICK_DRIVER_IFSEGA_ISA                                \
-      { JOY_TYPE_IFSEGA_ISA,     &joystick_sg1,       FALSE },
+      { JOY_TYPE_IFSEGA_ISA,     &joystick_sg1,       false },
 
 #define JOYSTICK_DRIVER_IFSEGA_PCI                                \
-      { JOY_TYPE_IFSEGA_PCI,     &joystick_sg2,       FALSE },
+      { JOY_TYPE_IFSEGA_PCI,     &joystick_sg2,       false },
 
 #define JOYSTICK_DRIVER_IFSEGA_PCI_FAST                           \
-      { JOY_TYPE_IFSEGA_PCI_FAST,&joystick_sg2f,      FALSE },
+      { JOY_TYPE_IFSEGA_PCI_FAST,&joystick_sg2f,      false },
 
 #define JOYSTICK_DRIVER_WINGWARRIOR                               \
-      { JOY_TYPE_WINGWARRIOR,    &joystick_ww,        TRUE  },
+      { JOY_TYPE_WINGWARRIOR,    &joystick_ww,        true  },
 
 
 #define joy_FSPRO_trigger     joy_b1
@@ -235,28 +235,28 @@ AL_VAR(GFX_DRIVER, gfx_xtended);
 
 
 #define GFX_DRIVER_VGA                                            \
-   {  GFX_VGA,          &gfx_vga,            TRUE  },
+   {  GFX_VGA,          &gfx_vga,            true  },
 
 #define GFX_DRIVER_MODEX                                          \
-   {  GFX_MODEX,        &gfx_modex,          TRUE  },
+   {  GFX_MODEX,        &gfx_modex,          true  },
 
 #define GFX_DRIVER_VBEAF                                          \
-   {  GFX_VBEAF,        &gfx_vbeaf,          TRUE   },
+   {  GFX_VBEAF,        &gfx_vbeaf,          true   },
 
 #define GFX_DRIVER_VESA3                                          \
-   {  GFX_VESA3,        &gfx_vesa_3,         TRUE   },
+   {  GFX_VESA3,        &gfx_vesa_3,         true   },
 
 #define GFX_DRIVER_VESA2L                                         \
-   {  GFX_VESA2L,       &gfx_vesa_2l,        TRUE   },
+   {  GFX_VESA2L,       &gfx_vesa_2l,        true   },
 
 #define GFX_DRIVER_VESA2B                                         \
-   {  GFX_VESA2B,       &gfx_vesa_2b,        TRUE   },
+   {  GFX_VESA2B,       &gfx_vesa_2b,        true   },
 
 #define GFX_DRIVER_XTENDED                                        \
-   {  GFX_XTENDED,      &gfx_xtended,        FALSE  },
+   {  GFX_XTENDED,      &gfx_xtended,        false  },
 
 #define GFX_DRIVER_VESA1                                          \
-   {  GFX_VESA1,        &gfx_vesa_1,         TRUE   },
+   {  GFX_VESA1,        &gfx_vesa_1,         true   },
 
 
 AL_FUNC_DEPRECATED(void, split_modex_screen, (int lyne));
@@ -313,34 +313,34 @@ AL_VAR(MIDI_DRIVER, midi_awe32);
 
 
 #define DIGI_DRIVER_WINSOUNDSYS                                   \
-      {  DIGI_WINSOUNDSYS, &digi_wss,           FALSE  },
+      {  DIGI_WINSOUNDSYS, &digi_wss,           false  },
 
 #define DIGI_DRIVER_AUDIODRIVE                                    \
-      {  DIGI_AUDIODRIVE,  &digi_audiodrive,    TRUE   },
+      {  DIGI_AUDIODRIVE,  &digi_audiodrive,    true   },
 
 #define DIGI_DRIVER_SOUNDSCAPE                                    \
-      {  DIGI_SOUNDSCAPE,  &digi_soundscape,    TRUE   },
+      {  DIGI_SOUNDSCAPE,  &digi_soundscape,    true   },
 
 #define DIGI_DRIVER_SB                                            \
-      {  DIGI_SB16,        &digi_sb16,          TRUE   },         \
-      {  DIGI_SBPRO,       &digi_sbpro,         TRUE   },         \
-      {  DIGI_SB20,        &digi_sb20,          TRUE   },         \
-      {  DIGI_SB15,        &digi_sb15,          TRUE   },         \
-      {  DIGI_SB10,        &digi_sb10,          TRUE   },
+      {  DIGI_SB16,        &digi_sb16,          true   },         \
+      {  DIGI_SBPRO,       &digi_sbpro,         true   },         \
+      {  DIGI_SB20,        &digi_sb20,          true   },         \
+      {  DIGI_SB15,        &digi_sb15,          true   },         \
+      {  DIGI_SB10,        &digi_sb10,          true   },
 
 #define MIDI_DRIVER_AWE32                                         \
-      {  MIDI_AWE32,       &midi_awe32,         TRUE   },
+      {  MIDI_AWE32,       &midi_awe32,         true   },
 
 #define MIDI_DRIVER_ADLIB                                         \
-      {  MIDI_OPL3,        &midi_opl3,          TRUE   },         \
-      {  MIDI_2XOPL2,      &midi_2xopl2,        TRUE   },         \
-      {  MIDI_OPL2,        &midi_opl2,          TRUE   },
+      {  MIDI_OPL3,        &midi_opl3,          true   },         \
+      {  MIDI_2XOPL2,      &midi_2xopl2,        true   },         \
+      {  MIDI_OPL2,        &midi_opl2,          true   },
 
 #define MIDI_DRIVER_SB_OUT                                        \
-      {  MIDI_SB_OUT,      &midi_sb_out,        FALSE  },
+      {  MIDI_SB_OUT,      &midi_sb_out,        false  },
 
 #define MIDI_DRIVER_MPU                                           \
-      {  MIDI_MPU,         &midi_mpu401,        FALSE  },
+      {  MIDI_MPU,         &midi_mpu401,        false  },
 
 
 #ifdef __cplusplus

@@ -146,11 +146,11 @@ static int _al_sgial_detect(int input)
 {
    if (input) {
       ustrzcpy(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("Input is not supported"));
-      return FALSE;
+      return false;
    }
 
    /* A link error would have occured if the audio library was unavailable */
-   return TRUE;
+   return true;
 }
 
 
@@ -283,7 +283,7 @@ static int _al_sgial_mixer_volume(int volume)
  */
 void _module_init(int system_driver)
 {
-   _unix_register_digi_driver(DIGI_SGIAL, &digi_sgial, TRUE, TRUE);
+   _unix_register_digi_driver(DIGI_SGIAL, &digi_sgial, true, true);
 }
 
 #endif

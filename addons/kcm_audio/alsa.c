@@ -191,7 +191,7 @@ static int alsa_update_nonstream_voice(ALLEGRO_VOICE *voice, void **buf, int *by
 }
 
 
-/* Returns TRUE if the voice is ready for more data. */
+/* Returns true if the voice is ready for more data. */
 static int alsa_voice_is_ready(ALSA_VOICE *alsa_voice)
 {
    unsigned short revents;
@@ -221,9 +221,9 @@ static int alsa_voice_is_ready(ALSA_VOICE *alsa_voice)
    }
 
    if (revents & POLLOUT)
-      return TRUE;
+      return true;
 
-   return FALSE;
+   return false;
 }
 
 

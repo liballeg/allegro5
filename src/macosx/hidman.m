@@ -384,7 +384,7 @@ HID_DEVICE_COLLECTION *osx_hid_scan(int type, HID_DEVICE_COLLECTION* col)
 			/* Ok, we have a list of attached HID devices; scan them. */
 			while ((hid_device = IOIteratorNext(hid_object_iterator))!=0) {
 				if ((IORegistryEntryCreateCFProperties(hid_device, &properties, kCFAllocatorDefault, kNilOptions) == KERN_SUCCESS) && (properties != NULL)) {
-					error = FALSE;
+					error = false;
 					this_device = add_device(col);
 					this_device->type = type;
 					if (col->count==0) {
@@ -428,13 +428,13 @@ HID_DEVICE_COLLECTION *osx_hid_scan(int type, HID_DEVICE_COLLECTION* col)
 					if ((type == HID_JOYSTICK) || (type == HID_GAMEPAD)) {
 						/* Joystick or gamepad device: create HID interface */
 						if (IOCreatePlugInInterfaceForService(hid_device, kIOHIDDeviceUserClientTypeID, kIOCFPlugInInterfaceID, &plugin_interface, &score) != kIOReturnSuccess)
-							error = TRUE;
+							error = true;
 						else {
 							if ((*plugin_interface)->QueryInterface(plugin_interface, CFUUIDGetUUIDBytes(kIOHIDDeviceInterfaceID), (void *)&(this_device->interface)) != S_OK)
-								error = TRUE;
+								error = true;
 							(*plugin_interface)->Release(plugin_interface);
 							if ((*(this_device->interface))->open(this_device->interface, 0) != KERN_SUCCESS)
-								error = TRUE;
+								error = true;
 						}
 					}
 					if (error) {

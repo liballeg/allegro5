@@ -217,7 +217,7 @@ void _unix_read_os_type(void)
 
    #endif
    
-   os_multitasking = TRUE;
+   os_multitasking = true;
 }
 
 #endif

@@ -317,7 +317,7 @@ static bool init_joystick(void)
 	[ALJoystickHelper performSelectorOnMainThread: @selector(startQueues)
 									   withObject: nil
 									waitUntilDone: YES];
-	return TRUE;
+	return true;
 }
 
 

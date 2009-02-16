@@ -66,9 +66,9 @@ static LPDIRECTINPUT mouse_dinput = NULL;
 static LPDIRECTINPUTDEVICE mouse_dinput_device = NULL;
 
 static int dinput_buttons = 0;
-static int dinput_wheel = FALSE;
+static int dinput_wheel = false;
 
-static int mouse_swap_button = FALSE;     /* TRUE means buttons 1 and 2 are swapped */
+static int mouse_swap_button = false;     /* true means buttons 1 and 2 are swapped */
 
 static int mouse_sx = 2;              /* mickey -> pixel scaling factor */
 static int mouse_sy = 2;
@@ -718,7 +718,7 @@ static BOOL CALLBACK mouse_enum_callback(LPCDIDEVICEOBJECTINSTANCE lpddoi, LPVOI
    (void)pvRef;
 
    if (memcmp(&lpddoi->guidType, &GUID_ZAxis, sizeof(GUID)) == 0)
-      dinput_wheel = TRUE;
+      dinput_wheel = true;
    else if (memcmp(&lpddoi->guidType, &GUID_Button, sizeof(GUID)) == 0)
       dinput_buttons++;
 
@@ -760,7 +760,7 @@ static int mouse_dinput_init(void)
 
    /* Find how many buttons */
    dinput_buttons = 0;
-   dinput_wheel = FALSE;
+   dinput_wheel = false;
 
    hr = IDirectInputDevice8_EnumObjects(mouse_dinput_device, mouse_enum_callback, NULL, DIDFT_PSHBUTTON | DIDFT_AXIS);
    if (FAILED(hr))
@@ -780,7 +780,7 @@ static int mouse_dinput_init(void)
       goto Error;
 
    /* Enable event notification */
-   mouse_input_event = CreateEvent(NULL, FALSE, FALSE, NULL);
+   mouse_input_event = CreateEvent(NULL, false, false, NULL);
    hr = IDirectInputDevice8_SetEventNotification(mouse_dinput_device, mouse_input_event);
    if (FAILED(hr))
       goto Error;
@@ -1079,7 +1079,7 @@ static ALLEGRO_MOUSE_DRIVER mousedrv_directx =
 
 _DRIVER_INFO _al_mouse_driver_list[] =
 {
-   {MOUSE_DIRECTX, &mousedrv_directx, TRUE},
+   {MOUSE_DIRECTX, &mousedrv_directx, true},
    {0, NULL, 0}
 };
 

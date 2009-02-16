@@ -220,7 +220,7 @@ static int mouse_init (void)
  */
 static int ps2_mouse_init (void)
 {
-	intellimouse = FALSE;
+	intellimouse = false;
 	packet_size = 3;
     	return mouse_init ();
 }
@@ -230,7 +230,7 @@ static int ps2_mouse_init (void)
  */
 static int ips2_mouse_init (void)
 {
-	intellimouse = TRUE;
+	intellimouse = true;
     	packet_size = 4;
     	return mouse_init ();
 }

@@ -61,7 +61,7 @@ static void log_win32_msg(const char *prefix, const char *func,
                           const char *error_msg, DWORD err)
 {
    char *err_msg = NULL;
-   BOOL free_msg = TRUE;
+   BOOL free_msg = true;
 
    /* Get the formatting error string from Windows. Note that only the
     * bottom 14 bits matter - the rest are reserved for various library
@@ -74,7 +74,7 @@ static void log_win32_msg(const char *prefix, const char *func,
                       MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
                      (LPTSTR) &err_msg, 0, NULL)) {
       err_msg = "(Unable to decode error code)";
-      free_msg = FALSE;
+      free_msg = false;
    }
 
    /* Remove two trailing characters */
@@ -437,7 +437,7 @@ static bool decode_pixel_format_attrib(ALLEGRO_EXTRA_DISPLAY_SETTINGS *eds, int 
       }
       /* Float color */
       if (attrib[i] == WGL_PIXEL_TYPE_ARB && value[i] == WGL_TYPE_RGBA_FLOAT_ARB) {
-         eds->settings[ALLEGRO_FLOAT_COLOR] = TRUE;
+         eds->settings[ALLEGRO_FLOAT_COLOR] = true;
       }
       /* Float depth */
       else if (attrib[i] == WGL_DEPTH_FLOAT_EXT) {
@@ -576,7 +576,7 @@ static bool change_display_mode(ALLEGRO_DISPLAY *d)
    if (adapter != -1) {
       memset(&dd, 0, sizeof(dd));
       dd.cb = sizeof(dd);
-      if (EnumDisplayDevices(NULL, adapter, &dd, 0) == FALSE)
+      if (EnumDisplayDevices(NULL, adapter, &dd, 0) == false)
          return false;
       dev_name = dd.DeviceName;
    }
@@ -825,7 +825,7 @@ static bool create_display_internals(ALLEGRO_DISPLAY_WGL *wgl_disp)
 
    ndp.display = wgl_disp;
    ndp.init_failed = true;
-   ndp.AckEvent = CreateEvent(NULL, FALSE, FALSE, NULL);
+   ndp.AckEvent = CreateEvent(NULL, false, false, NULL);
    window_thread = (HANDLE)_beginthread(display_thread_proc, 0, &ndp);
 
    /* Wait some _finite_ time (10 secs or so) for display thread to init, and
@@ -1243,7 +1243,7 @@ static bool wgl_resize_display(ALLEGRO_DISPLAY *d, int width, int height)
       wi.cbSize = sizeof(WINDOWINFO);
       GetWindowInfo(win_disp->window, &wi);
 
-      AdjustWindowRectEx(&win_size, wi.dwStyle, FALSE, wi.dwExStyle);
+      AdjustWindowRectEx(&win_size, wi.dwStyle, false, wi.dwExStyle);
 
       if (!SetWindowPos(win_disp->window, HWND_TOP,
          0, 0,
@@ -1392,7 +1392,7 @@ int _al_wgl_get_num_display_modes(int format, int refresh_rate, int flags)
    memset(&dm, 0, sizeof(dm));
    dm.dmSize = sizeof(dm);
 
-   while (EnumDisplaySettings(NULL, count, &dm) != FALSE) {
+   while (EnumDisplaySettings(NULL, count, &dm) != false) {
       count++;
    }
 
@@ -1436,7 +1436,7 @@ int _al_wgl_get_num_video_adapters(void)
    memset(&dd, 0, sizeof(dd));
    dd.cb = sizeof(dd);
 
-   while (EnumDisplayDevices(NULL, count, &dd, 0) != FALSE) {
+   while (EnumDisplayDevices(NULL, count, &dd, 0) != false) {
       if (dd.StateFlags & DISPLAY_DEVICE_ATTACHED_TO_DESKTOP)
          c++;
       count++;

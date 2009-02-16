@@ -283,7 +283,7 @@ static void sys_linux_message (AL_CONST char *msg)
 	 break;
    } while (ret < (int)strlen(msg));
 
-   __al_linux_got_text_message = TRUE;
+   __al_linux_got_text_message = true;
 
    _AL_FREE(tmp);
 }

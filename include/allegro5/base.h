@@ -19,9 +19,6 @@
 #ifndef ALLEGRO_BASE_H
 #define ALLEGRO_BASE_H
 
-#define TRUE true
-#define FALSE false
-
 #ifndef ALLEGRO_NO_STD_HEADERS
    #include <errno.h>
    #ifdef _MSC_VER

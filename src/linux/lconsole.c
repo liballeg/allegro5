@@ -39,7 +39,7 @@
 int __al_linux_vt = -1;
 int __al_linux_console_fd = -1;
 int __al_linux_prev_vt = -1;
-int __al_linux_got_text_message = FALSE;
+int __al_linux_got_text_message = false;
 
 /* Startup termios and working copy */
 struct termios __al_linux_startup_termio;
@@ -250,7 +250,7 @@ static int done_console (void)
 	       break;
 	 } while (ret < (int)strlen(msg));
 
-	 __al_linux_got_text_message = FALSE;
+	 __al_linux_got_text_message = false;
       }
       else
 	 ioctl (__al_linux_console_fd, VT_ACTIVATE, __al_linux_prev_vt);

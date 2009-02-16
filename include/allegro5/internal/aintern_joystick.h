@@ -30,7 +30,7 @@ AL_ARRAY(_DRIVER_INFO, _al_joystick_driver_list);
    {
 
 #define _AL_END_JOYSTICK_DRIVER_LIST                           \
-      {  0,                NULL,                FALSE }        \
+      {  0,                NULL,                false }        \
    };
 
 

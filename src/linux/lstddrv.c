@@ -32,7 +32,7 @@
 /* List of standard drivers */
 STD_DRIVER *__al_linux_std_drivers[N_STD_DRIVERS];
 
-static int std_drivers_suspended = FALSE;
+static int std_drivers_suspended = false;
 
 
 /* __al_linux_add_standard_driver:
@@ -92,7 +92,7 @@ void __al_linux_update_standard_drivers (int threaded)
 void __al_linux_suspend_standard_drivers (void)
 {
    ASSERT(!std_drivers_suspended);
-   std_drivers_suspended = TRUE;
+   std_drivers_suspended = true;
 }
 
 /* __al_linux_resume_standard_drivers:
@@ -101,6 +101,6 @@ void __al_linux_suspend_standard_drivers (void)
 void __al_linux_resume_standard_drivers (void)
 {
    ASSERT(std_drivers_suspended);
-   std_drivers_suspended = FALSE;
+   std_drivers_suspended = false;
 }
 

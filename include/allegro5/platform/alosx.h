@@ -32,8 +32,6 @@
    #include <signal.h>
    #include <pthread.h>
    #if defined __OBJC__ && defined ALLEGRO_SRC
-      #undef TRUE
-      #undef FALSE
       #import <mach/mach.h>
       #import <mach/mach_error.h>
       #import <AppKit/AppKit.h>
@@ -48,11 +46,7 @@
       #import <IOKit/hid/IOHIDLib.h>
       #import <IOKit/hid/IOHIDKeys.h>
       #import <Kernel/IOKit/hidsystem/IOHIDUsageTables.h>
-      #undef TRUE
-      #undef FALSE
       #undef assert
-      #define TRUE  -1
-      #define FALSE 0
    #endif
 #endif
 

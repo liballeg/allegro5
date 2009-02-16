@@ -74,7 +74,7 @@ static void set_blender(ALLEGRO_DISPLAY *display)
    IDirect3DDevice9_SetRenderState(device, D3DRS_SRCBLEND, src);
    IDirect3DDevice9_SetRenderState(device, D3DRS_DESTBLEND, dst);
 
-   IDirect3DDevice9_SetRenderState(device, D3DRS_SEPARATEALPHABLENDENABLE, TRUE);
+   IDirect3DDevice9_SetRenderState(device, D3DRS_SEPARATEALPHABLENDENABLE, true);
    IDirect3DDevice9_SetRenderState(device, D3DRS_SRCBLENDALPHA, alpha_src);
    IDirect3DDevice9_SetRenderState(device, D3DRS_DESTBLENDALPHA, alpha_dst);
 

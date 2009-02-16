@@ -472,20 +472,20 @@ int is_relative_filename(AL_CONST char *filename)
 
    /* All filenames that start with a '.' are relative. */
    if (ugetc(filename) == '.')
-      return TRUE;
+      return true;
 
    /* Filenames that contain a device separator (DOS/Windows)
     * or start with a '/' (Unix) are considered absolute.
     */
 #if (defined ALLEGRO_DOS) || (defined ALLEGRO_WINDOWS)
    if (ustrchr(filename, DEVICE_SEPARATOR)) 
-      return FALSE;
+      return false;
 #endif
 
    if ((ugetc(filename) == '/') || (ugetc(filename) == OTHER_PATH_SEPARATOR))
-      return FALSE;
+      return false;
 
-   return TRUE;
+   return true;
 }
 
 
@@ -704,14 +704,14 @@ int file_exists(AL_CONST char *filename, int attrib, int *aret)
    ASSERT(filename);
 
    if (!_al_file_isok(filename))
-      return FALSE;
+      return false;
 
    if (al_findfirst(filename, &info, attrib) != 0) {
       /* no entry is not an error for file_exists() */
       if (al_get_errno() == ENOENT)
          al_set_errno(0);
 
-      return FALSE;
+      return false;
    }
 
    al_findclose(&info);
@@ -719,7 +719,7 @@ int file_exists(AL_CONST char *filename, int attrib, int *aret)
    if (aret)
       *aret = info.attrib;
 
-   return TRUE;
+   return true;
 }
 
 
@@ -1305,7 +1305,7 @@ static PACKFILE *pack_fopen_exe_file(void)
    /* seek to the start of the appended data */
    pack_fseek(f, f->normal.todo-size);
 
-   f = pack_fopen_chunk(f, FALSE);
+   f = pack_fopen_chunk(f, false);
 
    if (f)
       f->normal.flags |= PACKFILE_FLAG_EXEDAT;
@@ -1377,7 +1377,7 @@ static int clone_password(PACKFILE *f)
    if (the_password[0]) {
       if ((f->normal.passdata = _AL_MALLOC_ATOMIC(strlen(the_password)+1)) == NULL) {
 	 al_set_errno(ENOMEM);
-	 return FALSE;
+	 return false;
       }
       _al_sane_strncpy(f->normal.passdata, the_password, strlen(the_password)+1);
       f->normal.passpos = f->normal.passdata;
@@ -1387,7 +1387,7 @@ static int clone_password(PACKFILE *f)
       f->normal.passdata = NULL;
    }
 
-   return TRUE;
+   return true;
 }
 
 
@@ -1412,12 +1412,12 @@ static PACKFILE *create_packfile(int is_normal_packfile)
    if (!is_normal_packfile) {
       f->vtable = NULL;
       f->userdata = NULL;
-      f->is_normal_packfile = FALSE;
+      f->is_normal_packfile = false;
    }
    else {
       f->vtable = &normal_vtable;
       f->userdata = f;
-      f->is_normal_packfile = TRUE;
+      f->is_normal_packfile = true;
 
       f->normal.buf_pos = f->normal.buf;
       f->normal.flags = 0;
@@ -1472,10 +1472,10 @@ static void free_packfile(PACKFILE *f)
 PACKFILE *_pack_fdopen(int fd, AL_CONST char *mode)
 {
    PACKFILE *f, *f2;
-   long header = FALSE;
+   long header = false;
    int c;
 
-   if ((f = create_packfile(TRUE)) == NULL)
+   if ((f = create_packfile(true)) == NULL)
       return NULL;
 
    ASSERT(f->is_normal_packfile);
@@ -1485,7 +1485,7 @@ PACKFILE *_pack_fdopen(int fd, AL_CONST char *mode)
 	 case 'r': case 'R': f->normal.flags &= ~PACKFILE_FLAG_WRITE; break;
 	 case 'w': case 'W': f->normal.flags |= PACKFILE_FLAG_WRITE; break;
 	 case 'p': case 'P': f->normal.flags |= PACKFILE_FLAG_PACK; break;
-	 case '!': f->normal.flags &= ~PACKFILE_FLAG_PACK; header = TRUE; break;
+	 case '!': f->normal.flags &= ~PACKFILE_FLAG_PACK; header = true; break;
       }
    }
 
@@ -1507,7 +1507,7 @@ PACKFILE *_pack_fdopen(int fd, AL_CONST char *mode)
 	    return NULL;
 	 }
 
-	 pack_mputl(encrypt_id(F_PACK_MAGIC, TRUE), f->normal.parent);
+	 pack_mputl(encrypt_id(F_PACK_MAGIC, true), f->normal.parent);
 
 	 f->normal.todo = 4;
       }
@@ -1524,7 +1524,7 @@ PACKFILE *_pack_fdopen(int fd, AL_CONST char *mode)
 	 errno = 0;
 
 	 if (header)
-	    pack_mputl(encrypt_id(F_NOPACK_MAGIC, TRUE), f);
+	    pack_mputl(encrypt_id(F_NOPACK_MAGIC, true), f);
       }
    }
    else { 
@@ -1548,8 +1548,8 @@ PACKFILE *_pack_fdopen(int fd, AL_CONST char *mode)
 	 header = pack_mgetl(f->normal.parent);
 
 	 if ((f->normal.parent->normal.passpos) &&
-	     ((header == encrypt_id(F_PACK_MAGIC, FALSE)) ||
-	      (header == encrypt_id(F_NOPACK_MAGIC, FALSE))))
+	     ((header == encrypt_id(F_PACK_MAGIC, false)) ||
+	      (header == encrypt_id(F_NOPACK_MAGIC, false))))
 	 {
 	    /* duplicate the file descriptor */
 	    int fd2 = dup(fd);
@@ -1584,16 +1584,16 @@ PACKFILE *_pack_fdopen(int fd, AL_CONST char *mode)
   
 	    pack_mgetl(f->normal.parent);
   
-	    if (header == encrypt_id(F_PACK_MAGIC, FALSE))
-	       header = encrypt_id(F_PACK_MAGIC, TRUE);
+	    if (header == encrypt_id(F_PACK_MAGIC, false))
+	       header = encrypt_id(F_PACK_MAGIC, true);
 	    else
-	       header = encrypt_id(F_NOPACK_MAGIC, TRUE);
+	       header = encrypt_id(F_NOPACK_MAGIC, true);
 	 }
 
-	 if (header == encrypt_id(F_PACK_MAGIC, TRUE)) {
+	 if (header == encrypt_id(F_PACK_MAGIC, true)) {
 	    f->normal.todo = LONG_MAX;
 	 }
-	 else if (header == encrypt_id(F_NOPACK_MAGIC, TRUE)) {
+	 else if (header == encrypt_id(F_NOPACK_MAGIC, true)) {
 	    f2 = f->normal.parent;
 	    free_lzss_unpack_data(f->normal.unpack_data);
 	    f->normal.unpack_data = NULL;
@@ -1718,7 +1718,7 @@ PACKFILE *pack_fopen_vtable(AL_CONST PACKFILE_VTABLE *vtable, void *userdata)
    ASSERT(vtable->pf_feof);
    ASSERT(vtable->pf_ferror);
 
-   if ((f = create_packfile(FALSE)) == NULL)
+   if ((f = create_packfile(false)) == NULL)
       return NULL;
 
    f->vtable = vtable;
@@ -1892,7 +1892,7 @@ PACKFILE *pack_fopen_chunk(PACKFILE *f, int pack)
       _packfile_filesize = pack_mgetl(f);
       _packfile_datasize = pack_mgetl(f);
 
-      if ((chunk = create_packfile(TRUE)) == NULL)
+      if ((chunk = create_packfile(true)) == NULL)
          return NULL;
 
       chunk->normal.flags = PACKFILE_FLAG_CHUNK;
@@ -2006,7 +2006,7 @@ PACKFILE *pack_fclose_chunk(PACKFILE *f)
 
       pack_mputl(_packfile_filesize, parent);
 
-      if (header == encrypt_id(F_PACK_MAGIC, TRUE))
+      if (header == encrypt_id(F_PACK_MAGIC, true))
 	 pack_mputl(-_packfile_datasize, parent);
       else
 	 pack_mputl(_packfile_datasize, parent);
@@ -2499,7 +2499,7 @@ static int normal_fclose(void *_f)
 	 return pack_fclose(f);
       }
 
-      normal_flush_buffer(f, TRUE);
+      normal_flush_buffer(f, true);
    }
 
    if (f->normal.parent) {
@@ -2614,7 +2614,7 @@ static int normal_putc(int c, void *_f)
    PACKFILE *f = _f;
 
    if (f->normal.buf_size + 1 >= F_BUF_SIZE) {
-      if (normal_flush_buffer(f, FALSE))
+      if (normal_flush_buffer(f, false))
 	 return EOF;
    }
 

@@ -113,5 +113,5 @@ AL_FUNC(int, _WinMain, (void *_main, void *hInst, void *hPrev, char *Cmd, int nS
 AL_VAR(struct ALLEGRO_JOYSTICK_DRIVER, _al_joydrv_directx);
 
 #define _AL_JOYSTICK_DRIVER_DIRECTX                                     \
-   { AL_JOY_TYPE_DIRECTX,  &_al_joydrv_directx,    TRUE  },
+   { AL_JOY_TYPE_DIRECTX,  &_al_joydrv_directx,    true  },
 

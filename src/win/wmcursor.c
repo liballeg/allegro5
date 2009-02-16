@@ -108,7 +108,7 @@ HICON _al_win_create_icon(HWND wnd,
    DeleteDC(h_xor_dc);
    ReleaseDC(wnd, h_dc);
 
-   iconinfo.fIcon = is_cursor ? FALSE : TRUE;
+   iconinfo.fIcon = is_cursor ? false : true;
    iconinfo.xHotspot = xfocus;
    iconinfo.yHotspot = yfocus;
    iconinfo.hbmMask = and_mask;
