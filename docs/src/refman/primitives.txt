@@ -2,7 +2,7 @@
 
 # High Level Drawing Routines
 
-## API: al_draw_line_ex
+## API: al_draw_line
 
 Draws a line segment between two points.
 
@@ -31,7 +31,7 @@ Draws a filled triangle.
 * x1, y1, x2, y2, x3, y3 - Three points of the triangle
 * color - Color of the triangle
 
-## API: al_draw_rectangle_ex
+## API: al_draw_rectangle
 
 Draws an outlined rectangle.
 

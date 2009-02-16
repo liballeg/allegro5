@@ -183,15 +183,6 @@ Draws a region of the given bitmap to the target bitmap.
 * dy - destination y
 * flags - same as for [al_draw_bitmap]
 
-## API: al_draw_line
-
-Draws a line to the current target.
-
-* fx - from x
-* fy - from y
-* tx - to x
-* ty - to y
-* color - can be obtained with al\_map\_*
 
 ## API: al_draw_pixel
 
@@ -202,21 +193,6 @@ al_put_pixel, does blending.
 * y - destination y
 * color - color of the pixel
 
-## API: al_draw_rectangle
-
-Draws a rectangle to the current target.
-
-* tlx - top left x
-* tly - top left y
-* brx - bottom right x
-* bry - bottom right y
-
-flags can be:
-
-* ALLEGRO_FILLED - fill the interior of the rectangle
-* ALLEGRO_OUTLINED - draw only the rectangle borders
-
-Outlined is the default.
 
 ## API: al_draw_rotated_bitmap
 
