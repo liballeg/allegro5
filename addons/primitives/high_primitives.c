@@ -632,7 +632,7 @@ void al_draw_spline(float points[8], ALLEGRO_COLOR color, float thickness)
 
 /* Function: al_calculate_ribbon
  */
-void al_calculate_ribbon(ALLEGRO_VBUFFER* vbuff, float *points,
+void al_calculate_ribbon(ALLEGRO_VBUFFER* vbuff, const float *points,
    float thickness, int start, int num_segments)
 {
    int need_unlock = 0;
@@ -731,7 +731,7 @@ void al_calculate_ribbon(ALLEGRO_VBUFFER* vbuff, float *points,
 
 /* Function: al_draw_ribbon
  */
-void al_draw_ribbon(float *points, ALLEGRO_COLOR color, float thickness,
+void al_draw_ribbon(const float *points, ALLEGRO_COLOR color, float thickness,
    int num_segments)
 {
    int ii;

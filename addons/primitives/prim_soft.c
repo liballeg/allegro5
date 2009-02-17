@@ -211,7 +211,8 @@ int _al_draw_prim_soft(ALLEGRO_BITMAP* texture, ALLEGRO_VBUFFER* vbuff, int star
    return num_primitives;
 }
 
-int _al_draw_prim_indexed_soft(ALLEGRO_BITMAP* texture, ALLEGRO_VBUFFER* vbuff, int* indices, int num_vtx, int type)
+int _al_draw_prim_indexed_soft(ALLEGRO_BITMAP* texture, ALLEGRO_VBUFFER* vbuff,
+   const int* indices, int num_vtx, int type)
 {
    int num_primitives;
    int use_cache;

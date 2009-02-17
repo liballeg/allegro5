@@ -397,7 +397,7 @@ Destroys a vertex buffer.
 
 * vbuff - Vertex buffer to destroy. 0 is ignored.
 
-# Transfomations
+# Transformations
 
 ## API: al_copy_transform
 

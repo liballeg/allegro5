@@ -158,7 +158,7 @@ int _al_draw_prim_directx(ALLEGRO_BITMAP* texture, ALLEGRO_VBUFFER* vbuff, int s
 #endif
 }
 
-int _al_draw_prim_indexed_directx(ALLEGRO_BITMAP* texture, ALLEGRO_VBUFFER* vbuff, int* indices, int num_vtx, int type)
+int _al_draw_prim_indexed_directx(ALLEGRO_BITMAP* texture, ALLEGRO_VBUFFER* vbuff, const int* indices, int num_vtx, int type)
 {
 #ifdef ALLEGRO_CFG_D3D
    int num_primitives = 0;

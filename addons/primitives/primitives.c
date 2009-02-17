@@ -113,7 +113,7 @@ int al_draw_prim(ALLEGRO_VBUFFER* vbuff, ALLEGRO_BITMAP* texture,
 /* Function: al_draw_indexed_prim
  */
 int al_draw_indexed_prim(ALLEGRO_VBUFFER* vbuff, ALLEGRO_BITMAP* texture,
-   int* indices, int num_vtx, int type)
+   const int* indices, int num_vtx, int type)
 {
    ALLEGRO_BITMAP *target;
    int ret = 0;
