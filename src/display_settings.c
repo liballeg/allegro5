@@ -780,4 +780,6 @@ void _al_set_color_components(int format, ALLEGRO_EXTRA_DISPLAY_SETTINGS *eds,
          al_set_display_option(ALLEGRO_RED_SHIFT,   0, importance);      
       break;
    }
+
+   (void)eds;
 }
