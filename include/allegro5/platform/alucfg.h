@@ -38,12 +38,6 @@
 #define O_TEXT    0
 #endif
 
-/* These defines will be provided by configure script.  */
-#undef ALLEGRO_COLOR8
-#undef ALLEGRO_COLOR16
-#undef ALLEGRO_COLOR24
-#undef ALLEGRO_COLOR32
-
 /* Include configuration information.  */
 #include "allegro5/platform/alplatf.h"
 

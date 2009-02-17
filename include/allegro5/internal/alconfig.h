@@ -16,13 +16,6 @@
  */
 
 
-/* which color depths to include? */
-#define ALLEGRO_COLOR8
-#define ALLEGRO_COLOR16
-#define ALLEGRO_COLOR24
-#define ALLEGRO_COLOR32
-
-
 /* for backward compatibility */
 #ifdef USE_CONSOLE
    #define ALLEGRO_NO_MAGIC_MAIN
@@ -273,18 +266,6 @@
 #endif
 
 
-/* fill in default memory locking macros */
-#ifndef END_OF_FUNCTION
-   #define END_OF_FUNCTION(x)
-   #define END_OF_STATIC_FUNCTION(x)
-   #define LOCK_DATA(d, s)
-   #define LOCK_CODE(c, s)
-   #define UNLOCK_DATA(d, s)
-   #define LOCK_VARIABLE(x)
-   #define LOCK_FUNCTION(x)
-#endif
-
-
 /* fill in default filename behaviour */
 #ifndef ALLEGRO_LFN
    #define ALLEGRO_LFN  1
@@ -335,24 +316,6 @@
 #ifdef ALLEGRO_NO_MEMCMP
    AL_FUNC(int, _alemu_memcmp, (AL_CONST void *s1, AL_CONST void *s2, size_t num));
    #define memcmp _alemu_memcmp
-#endif
-
-
-/* if nobody put them elsewhere, video bitmaps go in regular memory */
-#ifndef _video_ds
-   #define _video_ds()  _default_ds()
-#endif
-
-
-/* not many places actually use these, but still worth emulating */
-#ifndef ALLEGRO_DJGPP
-   #define _farsetsel(seg)
-   #define _farnspokeb(addr, val)   (*((uint8_t  *)(addr)) = (val))
-   #define _farnspokew(addr, val)   (*((uint16_t *)(addr)) = (val))
-   #define _farnspokel(addr, val)   (*((uint32_t *)(addr)) = (val))
-   #define _farnspeekb(addr)        (*((uint8_t  *)(addr)))
-   #define _farnspeekw(addr)        (*((uint16_t *)(addr)))
-   #define _farnspeekl(addr)        (*((uint32_t *)(addr)))
 #endif
 
 
