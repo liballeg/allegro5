@@ -143,12 +143,15 @@ private:
 
 public:
    List(int initial_selection = 0);
+   virtual bool   want_key_focus();
+   virtual void   on_key_down(const ALLEGRO_KEYBOARD_EVENT & event);
    virtual void   on_click(int mx, int my);
    virtual void   draw();
 
    void           clear_items();
    void           append_item(std::string text);
    const std::string & get_selected_item_text() const;
+   int            get_cur_value() const;
 };
 
 class VSlider : public Widget {

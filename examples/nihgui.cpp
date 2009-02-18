@@ -406,6 +406,30 @@ List::List(int initial_selection) :
 {
 }
 
+bool List::want_key_focus()
+{
+   return true;
+}
+
+void List::on_key_down(const ALLEGRO_KEYBOARD_EVENT & event)
+{
+   switch (event.keycode) {
+      case ALLEGRO_KEY_DOWN:
+         if (selected_item < items.size() - 1) {
+            selected_item++;
+            dialog->request_draw();
+         }
+         break;
+
+      case ALLEGRO_KEY_UP:
+         if (selected_item > 0) {
+            selected_item--;
+            dialog->request_draw();
+         }
+         break;
+   }
+}
+
 void List::on_click(int mx, int my)
 {
    const Theme & theme = dialog->get_theme();
@@ -459,6 +483,11 @@ const std::string & List::get_selected_item_text() const
       return this->items.at(this->selected_item);
    else
       return List::empty_string;
+}
+
+int List::get_cur_value() const
+{
+   return this->selected_item;
 }
 
 /*---------------------------------------------------------------------------*/
