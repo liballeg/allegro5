@@ -270,6 +270,8 @@ ALLEGRO_SAMPLE *al_load_sample_wav(const char *filename)
 }
 
 
+/* Function: al_load_stream_wav
+ */
 ALLEGRO_STREAM *al_load_stream_wav(size_t buffer_count,
                                        unsigned long samples,
                                        const char *filename)
