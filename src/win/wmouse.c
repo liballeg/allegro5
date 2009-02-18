@@ -1046,7 +1046,10 @@ static void mouse_directx_get_state(ALLEGRO_MOUSE_STATE *ret_state)
 
    _al_event_source_lock(&the_mouse.parent.es);
    {
-      the_mouse.state.display = win_disp->is_mouse_on ? (void*)win_disp : NULL;
+      if (win_disp)
+         the_mouse.state.display = win_disp->is_mouse_on ? (void*)win_disp : NULL;
+      else
+         the_mouse.state.display = NULL;
 
       *ret_state = the_mouse.state;
    }
