@@ -333,7 +333,7 @@ void al_set_new_display_flags(int flags)
 
    {
       if (flags & ALLEGRO_SINGLEBUFFER) {
-         al_set_display_option(ALLEGRO_DOUBLEBUFFERED, 0, ALLEGRO_REQUIRE);
+         al_set_new_display_option(ALLEGRO_DOUBLEBUFFERED, 0, ALLEGRO_REQUIRE);
       }
    }
 }

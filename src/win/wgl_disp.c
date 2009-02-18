@@ -805,7 +805,7 @@ static bool select_pixel_format(ALLEGRO_DISPLAY_WGL *d, HDC dc)
    }
 
    d->win_display.display.format = _al_deduce_color_format(eds[i]);
-   _al_set_new_display_settings(eds[i]);
+   memcpy(&d->win_display.display.extra_settings, eds[i], sizeof(ALLEGRO_EXTRA_DISPLAY_SETTINGS));
 
    for (i = 0; i < eds_count; i++)
       free(eds[i]);
