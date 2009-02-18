@@ -9,15 +9,11 @@
 
 /* Type: ALLEGRO_USTR
  */
-typedef struct ALLEGRO_USTR ALLEGRO_USTR;
+typedef struct _al_tagbstring *ALLEGRO_USTR;
 
 /* Type: ALLEGRO_USTR_INFO
  */
 typedef struct ALLEGRO_USTR_INFO ALLEGRO_USTR_INFO;
-
-struct ALLEGRO_USTR {
-   struct _al_tagbstring *b;  /* internal */
-};
 
 struct ALLEGRO_USTR_INFO {
    /* This struct needs to be at least as big as struct _al_tagbstring. */

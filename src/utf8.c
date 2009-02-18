@@ -32,8 +32,8 @@
 
 static bool all_ascii(const ALLEGRO_USTR us)
 {
-   const unsigned char *data = (const unsigned char *) _al_bdata(us.b);
-   int size = _al_blength(us.b);
+   const unsigned char *data = (const unsigned char *) _al_bdata(us);
+   int size = _al_blength(us);
 
    while (size-- > 0) {
       if (*data > 127)
@@ -49,8 +49,7 @@ static bool all_ascii(const ALLEGRO_USTR us)
  */
 ALLEGRO_USTR al_ustr_new(const char *s)
 {
-   struct ALLEGRO_USTR tmp = { _al_bfromcstr(s) };
-   return tmp;
+   return _al_bfromcstr(s);
 }
 
 
@@ -58,8 +57,7 @@ ALLEGRO_USTR al_ustr_new(const char *s)
  */
 ALLEGRO_USTR al_ustr_new_from_buffer(const char *s, size_t size)
 {
-   struct ALLEGRO_USTR tmp = { _al_blk2bstr(s, size) };
-   return tmp;
+   return _al_blk2bstr(s, size);
 }
 
 
@@ -82,7 +80,7 @@ ALLEGRO_USTR al_ustr_newf(const char *fmt, ...)
  */
 void al_ustr_free(ALLEGRO_USTR us)
 {
-   _al_bdestroy(us.b);
+   _al_bdestroy(us);
 }
 
 
@@ -91,7 +89,7 @@ void al_ustr_free(ALLEGRO_USTR us)
 const char *al_cstr(const ALLEGRO_USTR us)
 {
    /* May or may not be NUL terminated. */
-   return _al_bdata(us.b);
+   return _al_bdata(us);
 }
 
 
@@ -99,7 +97,7 @@ const char *al_cstr(const ALLEGRO_USTR us)
  */
 char *al_cstr_dup(const ALLEGRO_USTR us)
 {
-   return _al_bstr2cstr(us.b, '\0');
+   return _al_bstr2cstr(us, '\0');
 }
 
 
@@ -107,8 +105,7 @@ char *al_cstr_dup(const ALLEGRO_USTR us)
  */
 ALLEGRO_USTR al_ustr_dup(const ALLEGRO_USTR us)
 {
-   struct ALLEGRO_USTR tmp = { _al_bstrcpy(us.b) };
-   return tmp;
+   return _al_bstrcpy(us);
 }
 
 
@@ -117,8 +114,7 @@ ALLEGRO_USTR al_ustr_dup(const ALLEGRO_USTR us)
 ALLEGRO_USTR al_ustr_dup_substr(const ALLEGRO_USTR us, int start_pos,
    int end_pos)
 {
-   struct ALLEGRO_USTR tmp = { _al_bmidstr(us.b, start_pos, end_pos - start_pos) };
-   return tmp;
+   return _al_bmidstr(us, start_pos, end_pos - start_pos);
 }
 
 
@@ -127,8 +123,7 @@ ALLEGRO_USTR al_ustr_dup_substr(const ALLEGRO_USTR us, int start_pos,
 ALLEGRO_USTR al_ustr_empty_string(void)
 {
    static struct _al_tagbstring empty = _al_bsStatic("");
-   struct ALLEGRO_USTR tmp = { &empty };
-   return tmp;
+   return &empty;
 }
 
 
@@ -141,10 +136,7 @@ ALLEGRO_USTR al_ref_cstr(ALLEGRO_USTR_INFO *info, const char *s)
    ASSERT(s);
 
    _al_btfromcstr(*tb, s);
-   {
-   struct ALLEGRO_USTR tmp = { tb };
-   return tmp;
-   }
+   return tb;
 }
 
 
@@ -156,10 +148,7 @@ ALLEGRO_USTR al_ref_buffer(ALLEGRO_USTR_INFO *info, const char *s, size_t size)
    ASSERT(s);
 
    _al_blk2tbstr(*tb, s, size);
-   {
-   struct ALLEGRO_USTR tmp = { tb };
-   return tmp;
-   }
+   return tb;
 }
 
 
@@ -170,11 +159,8 @@ ALLEGRO_USTR al_ref_ustr(ALLEGRO_USTR_INFO *info, const ALLEGRO_USTR us,
 {
    struct _al_tagbstring *tb = (struct _al_tagbstring *) info;
 
-   _al_bmid2tbstr(*tb, us.b, start_pos, end_pos - start_pos);
-   {
-   struct ALLEGRO_USTR tmp = { tb };
-   return tmp;
-   }
+   _al_bmid2tbstr(*tb, us, start_pos, end_pos - start_pos);
+   return tb;
 }
 
 
@@ -182,7 +168,7 @@ ALLEGRO_USTR al_ref_ustr(ALLEGRO_USTR_INFO *info, const ALLEGRO_USTR us,
  */
 size_t al_ustr_size(const ALLEGRO_USTR us)
 {
-   return _al_blength(us.b);
+   return _al_blength(us);
 }
 
 
@@ -222,8 +208,8 @@ int al_ustr_offset(const ALLEGRO_USTR us, int index)
  */
 bool al_ustr_next(const ALLEGRO_USTR us, int *pos)
 {
-   const unsigned char *data = (const unsigned char *) _al_bdata(us.b);
-   int size = _al_blength(us.b);
+   const unsigned char *data = (const unsigned char *) _al_bdata(us);
+   int size = _al_blength(us);
    int c;
 
    if (*pos >= size) {
@@ -244,7 +230,7 @@ bool al_ustr_next(const ALLEGRO_USTR us, int *pos)
  */
 bool al_ustr_prev(const ALLEGRO_USTR us, int *pos)
 {
-   const unsigned char *data = (const unsigned char *) _al_bdata(us.b);
+   const unsigned char *data = (const unsigned char *) _al_bdata(us);
    int c;
 
    if (*pos <= 0)
@@ -270,7 +256,7 @@ int32_t al_ustr_get(const ALLEGRO_USTR ub, int pos)
    int32_t minc;
    const unsigned char *data;
 
-   c = _al_bchare(ub.b, pos, -1);
+   c = _al_bchare(ub, pos, -1);
 
    if (c < 0) {
       /* Out of bounds. */
@@ -315,12 +301,12 @@ int32_t al_ustr_get(const ALLEGRO_USTR ub, int pos)
       return -2;
    }
 
-   if (pos + remain > _al_blength(ub.b)) {
+   if (pos + remain > _al_blength(ub)) {
       al_set_errno(EILSEQ);
       return -2;
    }
 
-   data = (const unsigned char *) _al_bdata(ub.b);
+   data = (const unsigned char *) _al_bdata(ub);
    while (remain--) {
       int d = data[++pos];
 
@@ -385,7 +371,7 @@ int32_t al_ustr_prev_get(const ALLEGRO_USTR us, int *pos)
  */
 bool al_ustr_insert(ALLEGRO_USTR us1, int pos, const ALLEGRO_USTR us2)
 {
-   return _al_binsert(us1.b, pos, us2.b, '\0') == _AL_BSTR_OK;
+   return _al_binsert(us1, pos, us2, '\0') == _AL_BSTR_OK;
 }
 
 
@@ -407,12 +393,12 @@ size_t al_ustr_insert_chr(ALLEGRO_USTR us, int pos, int32_t c)
    size_t sz;
 
    if (uc < 128) {
-      return (_al_binsertch(us.b, pos, 1, uc) == _AL_BSTR_OK) ? 1 : 0;
+      return (_al_binsertch(us, pos, 1, uc) == _AL_BSTR_OK) ? 1 : 0;
    }
 
    sz = al_utf8_width(c);
-   if (_al_binsertch(us.b, pos, sz, '\0') == _AL_BSTR_OK) {
-      return al_utf8_encode(_al_bdataofs(us.b, pos), c);
+   if (_al_binsertch(us, pos, sz, '\0') == _AL_BSTR_OK) {
+      return al_utf8_encode(_al_bdataofs(us, pos), c);
    }
 
    return 0;
@@ -423,7 +409,7 @@ size_t al_ustr_insert_chr(ALLEGRO_USTR us, int pos, int32_t c)
  */
 bool al_ustr_append(ALLEGRO_USTR us1, const ALLEGRO_USTR us2)
 {
-   return _al_bconcat(us1.b, us2.b) == _AL_BSTR_OK;
+   return _al_bconcat(us1, us2) == _AL_BSTR_OK;
 }
 
 
@@ -431,7 +417,7 @@ bool al_ustr_append(ALLEGRO_USTR us1, const ALLEGRO_USTR us2)
  */
 bool al_ustr_append_cstr(ALLEGRO_USTR us, const char *s)
 {
-   return _al_bcatcstr(us.b, s) == _AL_BSTR_OK;
+   return _al_bcatcstr(us, s) == _AL_BSTR_OK;
 }
 
 
@@ -442,7 +428,7 @@ size_t al_ustr_append_chr(ALLEGRO_USTR us, int32_t c)
    uint32_t uc = c;
 
    if (uc < 128) {
-      return (_al_bconchar(us.b, uc) == _AL_BSTR_OK) ? 1 : 0;
+      return (_al_bconchar(us, uc) == _AL_BSTR_OK) ? 1 : 0;
    }
 
    return al_ustr_insert_chr(us, al_ustr_size(us), c);
@@ -478,7 +464,7 @@ bool al_ustr_vappendf(ALLEGRO_USTR us, const char *fmt, const va_list ap)
 #endif
 
    for (;;) {
-      rc = _al_bvcformata(us.b, sz, fmt, ap);
+      rc = _al_bvcformata(us, sz, fmt, ap);
       if (rc >= 0) {
          return true;
       }
@@ -506,7 +492,7 @@ bool al_ustr_remove_chr(ALLEGRO_USTR us, int pos)
       return false;
 
    w = al_utf8_width(c);
-   return _al_bdelete(us.b, pos, w) == _AL_BSTR_OK;
+   return _al_bdelete(us, pos, w) == _AL_BSTR_OK;
 }
 
 
@@ -514,7 +500,7 @@ bool al_ustr_remove_chr(ALLEGRO_USTR us, int pos)
  */
 bool al_ustr_remove_range(ALLEGRO_USTR us, int start_pos, int end_pos)
 {
-   return _al_bdelete(us.b, start_pos, end_pos - start_pos) == _AL_BSTR_OK;
+   return _al_bdelete(us, start_pos, end_pos - start_pos) == _AL_BSTR_OK;
 }
 
 
@@ -522,7 +508,7 @@ bool al_ustr_remove_range(ALLEGRO_USTR us, int start_pos, int end_pos)
  */
 bool al_ustr_truncate(ALLEGRO_USTR us, int start_pos)
 {
-   return _al_btrunc(us.b, start_pos) == _AL_BSTR_OK;
+   return _al_btrunc(us, start_pos) == _AL_BSTR_OK;
 }
 
 
@@ -530,7 +516,7 @@ bool al_ustr_truncate(ALLEGRO_USTR us, int start_pos)
  */
 bool al_ustr_ltrim_ws(ALLEGRO_USTR us)
 {
-   return _al_bltrimws(us.b) == _AL_BSTR_OK;
+   return _al_bltrimws(us) == _AL_BSTR_OK;
 }
 
 
@@ -538,7 +524,7 @@ bool al_ustr_ltrim_ws(ALLEGRO_USTR us)
  */
 bool al_ustr_rtrim_ws(ALLEGRO_USTR us)
 {
-   return _al_brtrimws(us.b) == _AL_BSTR_OK;
+   return _al_brtrimws(us) == _AL_BSTR_OK;
 }
 
 
@@ -546,7 +532,7 @@ bool al_ustr_rtrim_ws(ALLEGRO_USTR us)
  */
 bool al_ustr_trim_ws(ALLEGRO_USTR us)
 {
-   return _al_btrimws(us.b) == _AL_BSTR_OK;
+   return _al_btrimws(us) == _AL_BSTR_OK;
 }
 
 
@@ -554,7 +540,7 @@ bool al_ustr_trim_ws(ALLEGRO_USTR us)
  */
 bool al_ustr_assign(ALLEGRO_USTR us1, const ALLEGRO_USTR us2)
 {
-   return _al_bassign(us1.b, us2.b) == _AL_BSTR_OK;
+   return _al_bassign(us1, us2) == _AL_BSTR_OK;
 }
 
 
@@ -563,7 +549,7 @@ bool al_ustr_assign(ALLEGRO_USTR us1, const ALLEGRO_USTR us2)
 bool al_ustr_assign_substr(ALLEGRO_USTR us1, const ALLEGRO_USTR us2,
    int start_pos, int end_pos)
 {
-   int rc = _al_bassignmidstr(us1.b, us2.b, start_pos, end_pos - start_pos);
+   int rc = _al_bassignmidstr(us1, us2, start_pos, end_pos - start_pos);
    return rc == _AL_BSTR_OK;
 }
 
@@ -572,7 +558,7 @@ bool al_ustr_assign_substr(ALLEGRO_USTR us1, const ALLEGRO_USTR us2,
  */
 bool al_ustr_assign_cstr(ALLEGRO_USTR us1, const char *s)
 {
-   return _al_bassigncstr(us1.b, s) == _AL_BSTR_OK;
+   return _al_bassigncstr(us1, s) == _AL_BSTR_OK;
 }
 
 
@@ -595,14 +581,14 @@ size_t al_ustr_set_chr(ALLEGRO_USTR us, int start_pos, int32_t c)
       return 0;
 
    if (oldw > neww)
-      rc = _al_bdelete(us.b, start_pos, oldw - neww);
+      rc = _al_bdelete(us, start_pos, oldw - neww);
    else if (neww > oldw)
-      rc = _al_binsertch(us.b, start_pos, neww - oldw, '\0');
+      rc = _al_binsertch(us, start_pos, neww - oldw, '\0');
    else
       rc = _AL_BSTR_OK;
 
    if (rc == _AL_BSTR_OK)
-      return al_utf8_encode(_al_bdataofs(us.b, start_pos), c);
+      return al_utf8_encode(_al_bdataofs(us, start_pos), c);
    else
       return 0;
 }
@@ -613,7 +599,7 @@ size_t al_ustr_set_chr(ALLEGRO_USTR us, int start_pos, int32_t c)
 bool al_ustr_replace_range(ALLEGRO_USTR us1, int start_pos1, int end_pos1,
    const ALLEGRO_USTR us2)
 {
-   return _al_breplace(us1.b, start_pos1, end_pos1 - start_pos1, us2.b, '\0')
+   return _al_breplace(us1, start_pos1, end_pos1 - start_pos1, us2, '\0')
       == _AL_BSTR_OK;
 }
 
@@ -629,7 +615,7 @@ int al_ustr_find_chr(const ALLEGRO_USTR us, int start_pos, int32_t c)
 
    /* Fast path for ASCII characters. */
    if (c < 128) {
-      rc = _al_bstrchrp(us.b, c, start_pos);
+      rc = _al_bstrchrp(us, c, start_pos);
       return (rc == _AL_BSTR_ERR) ? -1 : rc;
    }
 
@@ -644,7 +630,7 @@ int al_ustr_find_chr(const ALLEGRO_USTR us, int start_pos, int32_t c)
    }
 
    _al_blk2tbstr(enctb, encc, sizec);
-   rc = _al_binstr(us.b, start_pos, &enctb);
+   rc = _al_binstr(us, start_pos, &enctb);
    return (rc == _AL_BSTR_ERR) ? -1 : rc;
 }
 
@@ -660,7 +646,7 @@ int al_ustr_rfind_chr(const ALLEGRO_USTR us, int end_pos, int32_t c)
 
    /* Fast path for ASCII characters. */
    if (c < 128) {
-      rc = _al_bstrrchrp(us.b, c, end_pos - 1);
+      rc = _al_bstrrchrp(us, c, end_pos - 1);
       return (rc == _AL_BSTR_ERR) ? -1 : rc;
    }
 
@@ -675,7 +661,7 @@ int al_ustr_rfind_chr(const ALLEGRO_USTR us, int end_pos, int32_t c)
    }
 
    _al_blk2tbstr(enctb, encc, sizec);
-   rc = _al_binstrr(us.b, end_pos - sizec, &enctb);
+   rc = _al_binstrr(us, end_pos - sizec, &enctb);
    return (rc == _AL_BSTR_ERR) ? -1 : rc;
 }
 
@@ -692,7 +678,7 @@ int al_ustr_find_set(const ALLEGRO_USTR us, int start_pos,
 
    /* Fast path for ASCII characters. */
    if (all_ascii(accept)) {
-      rc = _al_binchr(us.b, start_pos, accept.b);
+      rc = _al_binchr(us, start_pos, accept);
       return (rc == _AL_BSTR_ERR) ? -1 : rc;
    }
 
@@ -742,7 +728,7 @@ int al_ustr_find_cset(const ALLEGRO_USTR us, int start_pos,
 
    /* Fast path for ASCII characters. */
    if (all_ascii(reject)) {
-      rc = _al_bninchr(us.b, start_pos, reject.b);
+      rc = _al_bninchr(us, start_pos, reject);
       return (rc == _AL_BSTR_ERR) ? -1 : rc;
    }
 
@@ -789,7 +775,7 @@ int al_ustr_find_cset_cstr(const ALLEGRO_USTR us, int start_pos,
 int al_ustr_find_str(const ALLEGRO_USTR haystack, int start_pos,
    const ALLEGRO_USTR needle)
 {
-   int rc = _al_binstr(haystack.b, start_pos, needle.b);
+   int rc = _al_binstr(haystack, start_pos, needle);
    return (rc == _AL_BSTR_ERR) ? -1 : rc;
 }
 
@@ -811,7 +797,7 @@ int al_ustr_find_cstr(const ALLEGRO_USTR haystack, int start_pos,
 int al_ustr_rfind_str(const ALLEGRO_USTR haystack, int end_pos,
    const ALLEGRO_USTR needle)
 {
-   int rc = _al_binstrr(haystack.b, end_pos - _al_blength(needle.b), needle.b);
+   int rc = _al_binstrr(haystack, end_pos - _al_blength(needle), needle);
    return (rc == _AL_BSTR_ERR) ? -1 : rc;
 }
 
@@ -833,7 +819,7 @@ int al_ustr_rfind_cstr(const ALLEGRO_USTR haystack, int end_pos,
 bool al_ustr_find_replace(ALLEGRO_USTR us, int start_pos,
    const ALLEGRO_USTR find, const ALLEGRO_USTR replace)
 {
-   return _al_bfindreplace(us.b, find.b, replace.b, start_pos) == _AL_BSTR_OK;
+   return _al_bfindreplace(us, find, replace, start_pos) == _AL_BSTR_OK;
 }
 
 
@@ -855,7 +841,7 @@ bool al_ustr_find_replace_cstr(ALLEGRO_USTR us, int start_pos,
  */
 bool al_ustr_equal(const ALLEGRO_USTR us1, const ALLEGRO_USTR us2)
 {
-   return _al_biseq(us1.b, us2.b) == 1;
+   return _al_biseq(us1, us2) == 1;
 }
 
 
@@ -906,7 +892,7 @@ int al_ustr_ncompare(const ALLEGRO_USTR us1, const ALLEGRO_USTR us2, int n)
  */
 bool al_ustr_has_prefix(const ALLEGRO_USTR us1, const ALLEGRO_USTR us2)
 {
-   return 0 == _al_bstrncmp(us1.b, us2.b, _al_blength(us2.b));
+   return 0 == _al_bstrncmp(us1, us2, _al_blength(us2));
 }
 
 
@@ -928,9 +914,9 @@ bool al_ustr_has_suffix(const ALLEGRO_USTR us1, const ALLEGRO_USTR us2)
    struct _al_tagbstring tb1;
    int pos;
 
-   pos = _al_blength(us1.b) - _al_blength(us2.b);
-   _al_bmid2tbstr(tb1, us1.b, pos, INT_MAX);
-   return _al_biseq(&tb1, us2.b);
+   pos = _al_blength(us1) - _al_blength(us2);
+   _al_bmid2tbstr(tb1, us1, pos, INT_MAX);
+   return _al_biseq(&tb1, us2);
 }
 
 
