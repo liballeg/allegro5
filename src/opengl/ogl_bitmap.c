@@ -579,7 +579,7 @@ ALLEGRO_BITMAP *_al_ogl_create_bitmap(ALLEGRO_DISPLAY *d, int w, int h)
 
    if (! _al_pixel_format_is_real(format)) {
       if (format == ALLEGRO_PIXEL_FORMAT_ANY)
-         format = ALLEGRO_PIXEL_FORMAT_XBGR_8888;
+         format = ALLEGRO_PIXEL_FORMAT_ABGR_8888;
       else if (format == ALLEGRO_PIXEL_FORMAT_ANY_NO_ALPHA)
          format = ALLEGRO_PIXEL_FORMAT_XBGR_8888;
       else if (format == ALLEGRO_PIXEL_FORMAT_ANY_15_NO_ALPHA)
