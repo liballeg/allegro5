@@ -221,7 +221,8 @@ endif(BORLAND)
 
 if(STRICT_WARN)
     if(COMPILER_GCC)
-        set(WFLAGS "-W -Wall -Wstrict-prototypes -Werror")
+        set(WFLAGS "-W -Wall -Werror")
+        set(WFLAGS_C_ONLY "-Wstrict-prototypes")
     endif(COMPILER_GCC)
     if(COMPILER_MSVC)
         set(WFLAGS "/W4 -D_CRT_SECURE_NO_DEPRECATE -D_CRT_NONSTDC_NO_DEPRECATE")
@@ -235,7 +236,7 @@ else(STRICT_WARN)
     endif(COMPILER_MSVC)
 endif(STRICT_WARN)
 
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${WFLAGS}")
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${WFLAGS} ${WFLAGS_C_ONLY}")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${WFLAGS}")
 
 # Debugging.
