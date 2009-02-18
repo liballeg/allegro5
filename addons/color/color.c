@@ -161,8 +161,9 @@ static ColorName _al_color_names[] = {
 
 static int compare(const void *va, const void *vb)
 {
-   ColorName const *ca = va, *cb = vb;
-   return strcmp(ca->name, cb->name);
+   char const *ca = va;
+   ColorName const *cb = vb;
+   return strcmp(ca, cb->name);
 }
 
 /* Function: al_color_name_to_rgb
