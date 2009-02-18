@@ -13,7 +13,7 @@
 
 #include "nihgui.hpp"
 
-#define CLAMP(x,y,z) std::max(x, std::min(y, z))
+#define CLAMP(x,y,z) (std::max)(x, (std::min)(y, z))
 
 class SaveState
 {
