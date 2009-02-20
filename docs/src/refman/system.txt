@@ -19,6 +19,15 @@ Initialize the Allegro system.  If atexit_ptr is non-NULL, and if hasn't
 been done already, al_uninstall_system() will be registered as an atexit
 function.
 
+Returns true if Allegro was successfully initialized by this function
+call (or already was initialized previously), false if Allegro cannot
+be used.
+
+## API: al_init
+
+Like [al_install_system], but automatically uses the atexit function
+visible in the current compilation unit.
+
 ## API: al_set_appname
 
 Sets the global application name.
