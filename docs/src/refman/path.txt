@@ -1,5 +1,14 @@
 # Path
 
+We define a path as an optional *drive*, followed by zero or more *directory
+components*, followed by an optional *filename*.  The filename may be broken
+up into a *basename* and an *extension*, where the basename includes the start
+of the filename up to, but not including, the last dot (.) character.
+If no dot character exists the basename is the whole filename.
+
+XXX later define extension to include the full stop; currently the code
+doesn't include it
+
 ## API: al_find_resource
 
 Returns the full path of a 'resource' given mode 'fm'.
@@ -39,13 +48,16 @@ Returns NULL on failure.
 ## API: al_path_concat
 
 Concatenate two path structures. The first path structure is
-modified.
+modified.  If 'tail' is an absolute path, this function does nothing.
 
-If tail is an absolute path, this function does nothing.
-tail's file/basename will overwrite path's if it exists,
-if tail does not have a basename, 'path's is kept (probably shouldn't).
+If 'tail' is a relative path, all of its directory components will be
+appended to 'path'.  tail's filename will also overwrite path's filename,
+even if it is just the empty string.
 
-Returns NULL on failure.
+Tail's drive is ignored.
+
+Returns true if 'tail' was a relative path and so concatenated to 'path',
+otherwise returns false.
 
 ## API: al_path_create
 
@@ -59,13 +71,15 @@ Drop the last directory component.
 ## API: al_path_emode
 
 Return true iff the path represents a file on the system that exists with
-the given mode bits.
+the given mode bits (at least).
 
 ## API: al_path_exists
 
 Return 1 if path represents an existing file on the system,
 or 0 if it doesn't exist.
 Returns -1 on error.
+
+XXX errors would never be returned by the implementation
 
 ## API: al_path_free
 
@@ -80,7 +94,11 @@ Returns buf.
 
 ## API: al_path_get_drive
 
-Return the drive letter on a path, or NULL if there is none.
+Return the drive letter on a path, or the empty string if there is none.
+
+The "drive letter" is only used on Windows, and is usually a string like
+"c:", but may be something like "\\\\Computer Name" in the case of UNC
+(Uniform Naming Convention) syntax.
 
 ## API: al_path_get_extension
 
@@ -90,8 +108,7 @@ Returns buf.
 
 ## API: al_path_get_filename
 
-Return the filename (i.e. basename) part of the path,
-or NULL if there is none.
+Return the filename part of the path, or the empty string if there is none.
 
 ## API: al_path_index
 
@@ -105,29 +122,32 @@ It is an error to pass an index which is out of bounds.
 Insert a directory component at index i.
 If the index is negative then count from the right, i.e. -1 refers to
 the last path component.
-It is an error to pass an index which is out of bounds.
+
+It is an error to pass an index i which is not within these bounds:
+0 <= i <= al_path_num_components(path).
 
 ## API: al_path_make_absolute
 
 Prepends the current working directory to 'path' if it is a relative path.
-Does nothing otherwise.
+The drive is also set to the driver of the current working directory.
+Does nothing if 'path' is an absolute path.
 
 ## API: al_path_make_canonical
 
-Removes any leading '..' entries in absolute paths.
-Removes all '.' entries.
+Removes any leading '..' directory components in absolute paths.
+Removes all '.' directory components.
 
-Note that this does *not* collapse x/../y sections into y.
-This is by design. If /foo on your system is a symlink to /bar/baz,
-then /foo/../quux is actually /bar/quux,
-not /quux as a naive ../-removal would give you.
+Note that this does *not* collapse "x/../y" sections into "y".
+This is by design. If "/foo" on your system is a symlink to "/bar/baz",
+then "/foo/../quux" is actually "/bar/quux",
+not "/quux" as a naive removal of ".." components would give you.
 
 ## API: al_path_num_components
 
 Return the number of directory components in a path.
 
 The directory components do not include the final part of a path
-(the basename).
+(the filename).
 
 ## API: al_path_remove
 
@@ -145,29 +165,35 @@ It is an error to pass an index which is out of bounds.
 
 ## API: al_path_set_drive
 
-Set the drive letter on a path.
-The drive may be NULL to remove the drive letter.
+Set the drive string on a path.
+The drive may be NULL, which is equivalent to setting the drive
+string to the empty string.
 
 ## API: al_path_set_filename
 
-Set the optional filename (i.e. basename) part of the path.
-The filename may be NULL.
+Set the optional filename part of the path.
+The filename may be NULL, which is equivalent to setting the
+filename to the empty string.
 
 ## API: al_path_set_extension
 
 Replaces the extension of the path with the given one. If the
 filename of the path has no extension, the given one is appended.
 
-Returns false if the path contains no filename part.
+Returns false if the path contains no filename part,
+i.e. the filename part is the empty string.
 
 ## API: al_path_tail
 
-Returns the last directory component, or NULL if there are none.
+Returns the last directory component, or NULL if there are no directory
+components.
 
 ## API: al_path_to_string
 
-Get the string representation of a path.
+Convert a path to its string representation, i.e. optional drive,
+followed by directory components separated by 'delim',
+followed by an optional filename.
 
-Will fill buffer upto len bytes with a string representation of path, using delim as the path separator.
-To use the current native path separator use ALLEGRO_NATIVE_PATH_SEP
+Will fill buffer up to 'len' bytes with a string representation of path.
+To use the current native path separator, use ALLEGRO_NATIVE_PATH_SEP
 

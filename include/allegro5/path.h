@@ -26,24 +26,19 @@ AL_FUNC(void, al_path_insert, (ALLEGRO_PATH *path, int i, const char *s));
 AL_FUNC(const char*, al_path_tail, (ALLEGRO_PATH *path));
 AL_FUNC(void, al_path_drop_tail, (ALLEGRO_PATH *path));
 AL_FUNC(void, al_path_append, (ALLEGRO_PATH *path, const char *s));
-AL_FUNC(void, al_path_concat, (ALLEGRO_PATH *path, const ALLEGRO_PATH *tail));
+AL_FUNC(bool, al_path_concat, (ALLEGRO_PATH *path, const ALLEGRO_PATH *tail));
 AL_FUNC(char*, al_path_to_string, (ALLEGRO_PATH *path, char *buffer, size_t len, char delim));
 AL_FUNC(void, al_path_free, (ALLEGRO_PATH *path));
 
-AL_FUNC(int32_t, al_path_set_drive, (ALLEGRO_PATH *path, const char *drive));
+AL_FUNC(void, al_path_set_drive, (ALLEGRO_PATH *path, const char *drive));
 AL_FUNC(const char*, al_path_get_drive, (ALLEGRO_PATH *path));
 
-AL_FUNC(int32_t, al_path_set_filename, (ALLEGRO_PATH *path, const char *filename));
+AL_FUNC(void, al_path_set_filename, (ALLEGRO_PATH *path, const char *filename));
 AL_FUNC(const char*, al_path_get_filename, (ALLEGRO_PATH *path));
 
 AL_FUNC(const char*, al_path_get_extension, (ALLEGRO_PATH *path, char *buf, size_t len));
 AL_FUNC(bool, al_path_set_extension, (ALLEGRO_PATH *path, char const *extension));
 AL_FUNC(const char*, al_path_get_basename, (ALLEGRO_PATH *path, char *buf, size_t len));
-
-/* FIXME: implement kthx bye */
-/*
-AL_FUNC(char*, al_path_relative, (ALLEGRO_PATH *path, char *buffer, size_t len, char delim));
-*/
 
 AL_FUNC(bool, al_path_make_absolute, (ALLEGRO_PATH *path));
 AL_FUNC(bool, al_path_make_canonical, (ALLEGRO_PATH *path));

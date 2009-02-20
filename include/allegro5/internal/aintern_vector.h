@@ -35,6 +35,7 @@ AL_FUNC(void*, _al_vector_ref, (const _AL_VECTOR*, unsigned int index));
 AL_FUNC(void*, _al_vector_ref_front, (const _AL_VECTOR*));
 AL_FUNC(void*, _al_vector_ref_back, (const _AL_VECTOR*));
 AL_FUNC(void*, _al_vector_alloc_back, (_AL_VECTOR*));
+AL_FUNC(void*, _al_vector_alloc_mid, (_AL_VECTOR*, unsigned int index));
 AL_FUNC(int,  _al_vector_find, (const _AL_VECTOR*, const void *ptr_item));
 AL_FUNC(bool, _al_vector_contains, (const _AL_VECTOR*, const void *ptr_item));
 AL_FUNC(void, _al_vector_delete_at, (_AL_VECTOR*, unsigned int index));

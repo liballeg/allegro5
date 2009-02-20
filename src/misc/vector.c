@@ -162,6 +162,47 @@ void* _al_vector_alloc_back(_AL_VECTOR *vec)
 
 
 
+/* Internal function: _al_vector_alloc_mid
+ *
+ *  Allocate a block of memory in the middle of the vector of the vector's
+ *  item
+ *  size (see _AL_VECTOR_INITIALIZER and _al_vector_init).  Returns a pointer
+ *  to the start of this block.  This address should only be used while the
+ *  vector is not modified; after that it is invalid.  You may fill the block
+ *  with whatever you want.
+ */
+void* _al_vector_alloc_mid(_AL_VECTOR *vec, unsigned int index)
+{
+   ASSERT(vec);
+   ASSERT(vec->_itemsize > 0);
+   {
+      if (vec->_items == NULL) {
+	 ASSERT(index == 0);
+	 return _al_vector_alloc_back(vec);
+      }
+
+      if (vec->_unused == 0) {
+         char *new_items = _AL_REALLOC(vec->_items, 2 * vec->_size * vec->_itemsize);
+         ASSERT(new_items);
+         if (!new_items)
+            return NULL;
+
+         vec->_items = new_items;
+         vec->_unused = vec->_size;
+      }
+
+      memmove(ITEM_START(vec, index + 1), ITEM_START(vec, index),
+	  vec->_itemsize * (vec->_size - index));
+
+      vec->_size++;
+      vec->_unused--;
+
+      return ITEM_START(vec, index);
+   }
+}
+
+
+
 /* Internal function: _al_vector_find
  *
  *  Find the slot in the vector where the contents of the slot
