@@ -1,0 +1,43 @@
+# Audio Codec Loader
+
+## API: al_load_sample
+
+Loads a few different audio file formats based on their extension.
+Some formats require external libraries to be installed prior to compiling
+the library.
+
+Note that this stores the entire file in memory at once, which
+may be time consuming.  To read the file as it is needed, 
+use [al_stream_from_file].
+
+File types supported:
+
+* wav
+* ogg (requires libvorbis)
+* flac (requires flac or libsndfile)
+* aiff (requires libsndfile)
+
+
+## API: al_stream_from_file
+
+Loads an audio file from disk as it is needed.  Supports the
+same file types as [al_load_sample].
+
+Unlike regular streams, the one returned by this function
+need not be fed by the user; the library will automatically
+read more of the file as it is needed.  The stream will 
+contain *buffer_count* buffers with *samples* samples.
+
+FLAC streaming is currently unimplemented.
+
+A stream must be attached to a voice to be used.  See
+[ALLEGRO_STREAM] for more details.
+
+## API: al_save_sample
+
+Writes a sample into a file.  Currently, wav is
+the only supported format, and the extension
+must be 'wav'.
+
+Returns true on success, false on error.
+

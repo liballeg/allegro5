@@ -1,4 +1,5 @@
 set(PAGES
+    acodec
     color
     config
     display
