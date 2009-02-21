@@ -79,7 +79,7 @@ int al_get_new_display_option(int option, int *importance)
 }
 
 
-/* Function: al_get_new_display_option
+/* Function: al_get_display_option
  */
 int al_get_display_option(int option)
 {
@@ -198,6 +198,11 @@ void _al_fill_display_settings(ALLEGRO_EXTRA_DISPLAY_SETTINGS *ref)
       al_set_new_display_option(ALLEGRO_FLOAT_DEPTH, 0, ALLEGRO_SUGGEST);
       al_set_new_display_option(ALLEGRO_FLOAT_COLOR, 0, ALLEGRO_SUGGEST);
    }
+
+   /* The display must meet Allegro requrements. */
+   if (!((req | sug) & (1<<ALLEGRO_COMPATIBLE_DISPLAY))) {
+      al_set_new_display_option(ALLEGRO_COMPATIBLE_DISPLAY, 1, ALLEGRO_REQUIRE);
+   }
 }
 
 
@@ -205,6 +210,16 @@ int _al_score_display_settings(ALLEGRO_EXTRA_DISPLAY_SETTINGS *eds,
                                ALLEGRO_EXTRA_DISPLAY_SETTINGS *ref)
 {
    int score = 0;
+
+   if (eds->settings[ALLEGRO_COMPATIBLE_DISPLAY] != ref->settings[ALLEGRO_COMPATIBLE_DISPLAY]) {
+      if (req & (1<<ALLEGRO_COMPATIBLE_DISPLAY)) {
+         TRACE(PREFIX_I "Display not compatible with Allegro.");
+         return -1;
+      }
+   }
+   else {
+      score += 128;
+   }
 
    if (eds->settings[ALLEGRO_COLOR_SIZE] != ref->settings[ALLEGRO_COLOR_SIZE]) {
       if (req & (1<<ALLEGRO_COLOR_SIZE)) {
@@ -423,7 +438,7 @@ int _al_score_display_settings(ALLEGRO_EXTRA_DISPLAY_SETTINGS *eds,
       score += 1024;
    }
    else if (eds->settings[ALLEGRO_RENDER_METHOD] == 1) {
-      score++; /* Add 1 for h/w accel */
+      score++; /* Add 1 for hw accel */
    }
 
    if ((req & (1<<ALLEGRO_SAMPLE_BUFFERS))
@@ -431,13 +446,9 @@ int _al_score_display_settings(ALLEGRO_EXTRA_DISPLAY_SETTINGS *eds,
          TRACE(PREFIX_I "Multisample Buffers requirement not met");
          return -1;
    }
-
-   if (sug & (1<<ALLEGRO_SAMPLE_BUFFERS)) {
-      if (eds->settings[ALLEGRO_SAMPLE_BUFFERS] < ref->settings[ALLEGRO_SAMPLE_BUFFERS]) {
-         score += (64 * eds->settings[ALLEGRO_SAMPLE_BUFFERS]) / ref->settings[ALLEGRO_SAMPLE_BUFFERS];
-      }
-      else {
-         score += 64 + 64 / (1 + eds->settings[ALLEGRO_SAMPLE_BUFFERS] - ref->settings[ALLEGRO_SAMPLE_BUFFERS]);
+   else if (sug & (1<<ALLEGRO_SAMPLE_BUFFERS)) {
+      if (eds->settings[ALLEGRO_SAMPLE_BUFFERS] == ref->settings[ALLEGRO_SAMPLE_BUFFERS]) {
+         score += 128;
       }
    }
 

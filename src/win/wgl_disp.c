@@ -325,6 +325,9 @@ static int decode_pixel_format_old(PIXELFORMATDESCRIPTOR *pfd,
    eds->settings[ALLEGRO_FLOAT_COLOR] = 0;
    eds->settings[ALLEGRO_FLOAT_DEPTH] = 0;
 
+    eds->settings[ALLEGRO_COMPATIBLE_DISPLAY] =
+      (_al_deduce_color_format(eds) != ALLEGRO_PIXEL_FORMAT_ANY);
+
 	return true;
 }
 
@@ -444,6 +447,9 @@ static bool decode_pixel_format_attrib(ALLEGRO_EXTRA_DISPLAY_SETTINGS *eds, int 
          eds->settings[ALLEGRO_FLOAT_DEPTH] = value[i];
       }
    }
+
+   eds->settings[ALLEGRO_COMPATIBLE_DISPLAY] =
+      (_al_deduce_color_format(eds) != ALLEGRO_PIXEL_FORMAT_ANY);
 
    return true;
 }
