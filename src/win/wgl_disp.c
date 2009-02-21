@@ -882,6 +882,17 @@ static bool create_display_internals(ALLEGRO_DISPLAY_WGL *wgl_disp)
    _al_ogl_manage_extensions(disp);
    _al_ogl_set_extensions(disp->ogl_extras->extension_api);
 
+   if (disp->ogl_extras->ogl_info.version < 1.2 ||
+      !disp->ogl_extras->extension_list->ALLEGRO_GL_EXT_packed_pixels) {
+      ALLEGRO_EXTRA_DISPLAY_SETTINGS *eds = _al_get_new_display_settings();
+      if (eds->required & (1<<ALLEGRO_COMPATIBLE_DISPLAY)) {
+         TRACE(PREFIX_I "Allegro requires at least OpenGL version 1.2 to work.");
+         destroy_display_internals(wgl_disp);
+         return false;
+      }
+      disp->extra_settings.settings[ALLEGRO_COMPATIBLE_DISPLAY] = 0;
+   }
+
    disp->ogl_extras->backbuffer = _al_ogl_create_backbuffer(disp);
    if (!disp->ogl_extras->backbuffer) {
       TRACE(PREFIX_E "Failed to create a backbuffer.\n");
