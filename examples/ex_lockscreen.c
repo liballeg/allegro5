@@ -5,7 +5,7 @@ int main(void)
    ALLEGRO_DISPLAY *display;
    ALLEGRO_BITMAP *bitmap;
    ALLEGRO_LOCKED_REGION locked;
-   int i;
+   int i, j, k, size;
    ALLEGRO_EVENT_QUEUE *events;
    ALLEGRO_EVENT event;
 
@@ -25,8 +25,14 @@ int main(void)
 
    bitmap = al_get_backbuffer();
    al_lock_bitmap(bitmap, &locked, 0);
-   for (i = 0; i < 100 * locked.pitch; i++) {
-      ((char *)locked.data)[i] = (i / locked.pitch) * 255 / 99;
+   size = al_get_pixel_size(locked.format);
+   for (i = 0; i < 100; i++) {
+      for (j = 0; j < 100; j++) {
+         for (k = 0; k < size; k++) {
+            *((char *)locked.data + k + i * size + j * locked.pitch) =
+               j * 255 / 99;
+         }
+      }
    }
    al_unlock_bitmap(bitmap);
 

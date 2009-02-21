@@ -48,15 +48,8 @@ void _al_ogl_set_target_bitmap(ALLEGRO_DISPLAY *display, ALLEGRO_BITMAP *bitmap)
 
          glMatrixMode(GL_PROJECTION);
          glLoadIdentity();
-         /* Allegro's bitmaps start at the top left pixel. OpenGL's bitmaps
-          * at the bottom left. Therefore, Allegro's OpenGL drawing commands
-          * all appear upside-down to OpenGL. To counter this when drawing to
-          * a texture, we can actually use regular projection now, so we draw
-          * upside down into it, and it appears right again when the texture
-          * is drawn (upside-down) to the screen.
-          * TODO: Verify this a bit more.. is there really no better way?
-          */
-         glOrtho(0, bitmap->w, 0, bitmap->h, -1, 1);
+
+         glOrtho(0, bitmap->w, bitmap->h, 0, -1, 1);
 
          glMatrixMode(GL_MODELVIEW);
          glLoadIdentity();

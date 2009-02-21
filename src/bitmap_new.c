@@ -170,7 +170,7 @@ ALLEGRO_BITMAP *al_create_bitmap(int w, int h)
       //memset(bitmap->memory, 0, bytes);
    }
 
-   if (!bitmap->vt->upload_bitmap(bitmap, 0, 0, w, h)) {
+   if (!bitmap->vt->upload_bitmap(bitmap)) {
       al_destroy_bitmap(bitmap);
       return NULL;
    }
@@ -297,7 +297,7 @@ ALLEGRO_BITMAP *al_load_bitmap(char const *filename)
 
    /* If it's a display bitmap */
    if ((bitmap!=NULL) && ((bitmap->flags & ALLEGRO_MEMORY_BITMAP) == 0)) {
-      bitmap->vt->upload_bitmap(bitmap, 0, 0, bitmap->w, bitmap->h);
+      bitmap->vt->upload_bitmap(bitmap);
    }
 
    return bitmap;

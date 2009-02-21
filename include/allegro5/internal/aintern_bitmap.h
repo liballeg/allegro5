@@ -82,7 +82,7 @@ struct ALLEGRO_BITMAP_INTERFACE
     * to update the display-specific copy. E.g. with an OpenGL driver, this
     * might create/update a texture. Returns false on failure.
     */
-   bool (*upload_bitmap)(ALLEGRO_BITMAP *bitmap, int x, int y, int width, int height);
+   bool (*upload_bitmap)(ALLEGRO_BITMAP *bitmap);
    /* If the display version of the bitmap has been modified, use this to update
     * the memory copy accordingly. E.g. with an OpenGL driver, this might
     * read the contents of an associated texture.

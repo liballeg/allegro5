@@ -612,8 +612,7 @@ void _al_d3d_refresh_texture_memory(void)
    }
 }
 
-static bool d3d_upload_bitmap(ALLEGRO_BITMAP *bitmap, int x, int y,
-   int width, int height)
+static bool d3d_upload_bitmap(ALLEGRO_BITMAP *bitmap)
 {
    ALLEGRO_BITMAP_D3D *d3d_bmp = (ALLEGRO_BITMAP_D3D *)bitmap;
    int w = bitmap->w;
@@ -659,7 +658,7 @@ static bool d3d_upload_bitmap(ALLEGRO_BITMAP *bitmap, int x, int y,
       d3d_bmp->initialized = true;
    }
 
-   d3d_do_upload(d3d_bmp, x, y, width, height, true);
+   d3d_do_upload(d3d_bmp, 0, 0, w, h, true);
 
    return true;
 }

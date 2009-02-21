@@ -60,7 +60,11 @@ static ALLEGRO_BITMAP_INTERFACE *glbmp_vt;
 
 
 
-static void draw_quad(ALLEGRO_BITMAP *bitmap, float sx, float sy, float sw, float sh,
+/* Helper function to draw a bitmap with an internal OpenGL texture as
+ * a textured OpenGL quad.
+ */
+static void draw_quad(ALLEGRO_BITMAP *bitmap, float sx, float sy,
+    float sw, float sh,
     float cx, float cy, float dx, float dy, float dw, float dh,
     float xscale, float yscale, float angle, int flags)
 {
@@ -126,14 +130,14 @@ static void draw_quad(ALLEGRO_BITMAP *bitmap, float sx, float sy, float sw, floa
    glTranslatef(-dx - cx, -dy - cy, 0);
 
    glBegin(GL_QUADS);
-   glTexCoord2f(l, t);
-   glVertex2f(dx, dy);
-   glTexCoord2f(r, t);
-   glVertex2f(dx + dw, dy);
-   glTexCoord2f(r, b);
-   glVertex2f(dx + dw, dy + dh);
    glTexCoord2f(l, b);
    glVertex2f(dx, dy + dh);
+   glTexCoord2f(r, b);
+   glVertex2f(dx + dw, dy + dh);
+   glTexCoord2f(r, t);
+   glVertex2f(dx + dw, dy);
+   glTexCoord2f(l, t);
+   glVertex2f(dx, dy);
    glEnd();
 
    glPopMatrix();
@@ -204,6 +208,39 @@ static void ogl_draw_bitmap_region(ALLEGRO_BITMAP *bitmap, float sx, float sy,
    ALLEGRO_BITMAP *target = al_get_target_bitmap();
    ALLEGRO_BITMAP_OGL *ogl_target = (ALLEGRO_BITMAP_OGL *)target;
    ALLEGRO_DISPLAY *disp = (void *)al_get_current_display();
+   
+   if (!(bitmap->flags & ALLEGRO_MEMORY_BITMAP)) {
+      ALLEGRO_BITMAP_OGL *ogl_source = (void *)bitmap;
+      if (ogl_source->is_backbuffer) {
+         if (ogl_target->is_backbuffer) {
+            /* Oh fun. Someone draws the screen to itself. */
+            // FIXME: What if the target is locked?
+            // FIXME: OpenGL refuses to do clipping with CopyPixels,
+            // have to do it ourselves.
+            glRasterPos2f(dx, dy + sh);
+            glCopyPixels(sx, bitmap->h - sy - sh, sw, sh, GL_COLOR);
+            return;
+         }
+         else {
+            /* Our source bitmap is the OpenGL backbuffer, the target
+             * is an OpenGL texture.
+             */
+            // FIXME: What if the target is locked?
+            /* In general, we can't modify the texture while it's
+             * FBO bound - so we temporarily disable the FBO.
+             */
+            glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
+            glBindTexture(GL_TEXTURE_2D, ogl_target->texture);
+            glCopyTexSubImage2D(GL_TEXTURE_2D, 0,
+                dx, dy,
+                sx, bitmap->h - sy - sh,
+                sw, sh);
+            // Fix up FBO again after the copy.
+            _al_ogl_set_target_bitmap(disp, target);
+            return;
+         }
+      }
+   }
    if (disp->ogl_extras->opengl_target != ogl_target || target->locked) {
       _al_draw_bitmap_region_memory(bitmap, sx, sy, sw, sh, dx, dy, flags);
       return;
@@ -282,34 +319,13 @@ static int pot(int x)
 
 
 
-static void upside_down(ALLEGRO_BITMAP *bitmap, int x, int y, int w, int h)
-{
-   const int pixel_size = al_get_pixel_size(bitmap->format);
-   const int pitch = bitmap->pitch;
-   const size_t bytes = w * pixel_size;
-   unsigned char *temp = malloc(bytes);
-   unsigned char *ptr = bitmap->memory + pitch * y + pixel_size * x;
-   int i;
-   for (i = 0; i < h / 2; i++) {
-      memcpy(temp, ptr + pitch * i, bytes);
-      memcpy(ptr + pitch * i, ptr + pitch * (h - 1 - i), bytes);
-      memcpy(ptr + pitch * (h - 1 - i), temp, bytes);
-   }
-   free(temp);
-}
-
-
-
 // FIXME: need to do all the logic AllegroGL does, checking extensions,
 // proxy textures, formats, limits ...
-static bool ogl_upload_bitmap(ALLEGRO_BITMAP *bitmap, int x, int y,
-   int w, int h)
+static bool ogl_upload_bitmap(ALLEGRO_BITMAP *bitmap)
 {
    ALLEGRO_BITMAP_OGL *ogl_bitmap = (void *)bitmap;
-
-   // XXX is this right?
-   (void)x;
-   (void)y;
+   int w = bitmap->w;
+   int h = bitmap->h;
 
    if (ogl_bitmap->texture == 0) {
       glGenTextures(1, &ogl_bitmap->texture);
@@ -341,8 +357,8 @@ static bool ogl_upload_bitmap(ALLEGRO_BITMAP *bitmap, int x, int y,
    /* XXX take into account (x,y) */
    ogl_bitmap->left = 0;
    ogl_bitmap->right = (float) w / ogl_bitmap->true_w;
-   ogl_bitmap->top = 0;
-   ogl_bitmap->bottom = (float) h / ogl_bitmap->true_h;
+   ogl_bitmap->top = (float) h / ogl_bitmap->true_h;
+   ogl_bitmap->bottom = 0;
 
    /* We try to create a frame buffer object for each bitmap we upload to
     * OpenGL.
@@ -398,14 +414,12 @@ static ALLEGRO_LOCKED_REGION *ogl_lock_region(ALLEGRO_BITMAP *bitmap,
          glReadPixels(x, bitmap->h - y - h, w, h,
             glformats[bitmap->format][2],
             glformats[bitmap->format][1],
-            bitmap->memory + pitch * y + pixel_size * x);
+            bitmap->memory + pitch * (bitmap->h - y - h) + pixel_size * x);
          if (glGetError()) {
             TRACE("ogl_bitmap: glReadPixels for format %d failed.\n",
                bitmap->format);
          }
          glPixelStorei(GL_PACK_ROW_LENGTH, pack_row_length);
-         //FIXME: ugh. isn't there a better way?
-         upside_down(bitmap, x, y, w, h);
       }
       else {
          //FIXME: use glPixelStore or similar to only synchronize the required
@@ -420,9 +434,9 @@ static ALLEGRO_LOCKED_REGION *ogl_lock_region(ALLEGRO_BITMAP *bitmap,
       }
    }
 
-   locked_region->data = bitmap->memory + pitch * y + pixel_size * x;
+   locked_region->data = bitmap->memory + pitch * (ogl_bitmap->true_h - 1 - y) + pixel_size * x;
    locked_region->format = bitmap->format;
-   locked_region->pitch = pitch;
+   locked_region->pitch = -pitch;
 
    if (old_disp) {
       al_set_current_display(old_disp);
@@ -453,9 +467,6 @@ static void ogl_unlock_region(ALLEGRO_BITMAP *bitmap)
 
    if (ogl_bitmap->is_backbuffer) {
       GLint unpack_row_length;
-      //FIXME: ugh. isn't there a better way?
-      upside_down(bitmap, bitmap->lock_x, bitmap->lock_y, bitmap->lock_w, bitmap->lock_h);
-
       /* glWindowPos2i may not be available. */
       if (al_opengl_version() >= 1.4) {
          glWindowPos2i(bitmap->lock_x, bitmap->h - bitmap->lock_y - bitmap->lock_h);
@@ -476,7 +487,7 @@ static void ogl_unlock_region(ALLEGRO_BITMAP *bitmap)
       glDrawPixels(bitmap->lock_w, bitmap->lock_h,
          glformats[bitmap->format][2],
          glformats[bitmap->format][1],
-         bitmap->memory + bitmap->lock_y * pitch + pixel_size * bitmap->lock_x);
+         bitmap->memory + (bitmap->h - bitmap->lock_y - bitmap->lock_h) * pitch + pixel_size * bitmap->lock_x);
       if (glGetError()) {
          TRACE("ogl_bitmap: glDrawPixels for format %d failed.\n",
             bitmap->format);
@@ -648,8 +659,8 @@ ALLEGRO_BITMAP *_al_ogl_create_sub_bitmap(ALLEGRO_DISPLAY *d,
 
    ogl_bmp->left = x / (float)ogl_parent->true_w;
    ogl_bmp->right = (x + w) / (float)ogl_parent->true_w;
-   ogl_bmp->top = y / (float)ogl_parent->true_h;
-   ogl_bmp->bottom = (y + h) / (float)ogl_parent->true_h;
+   ogl_bmp->top = (parent->h - y) / (float)ogl_parent->true_h;
+   ogl_bmp->bottom = (parent->h - y - h) / (float)ogl_parent->true_h;
 
    ogl_bmp->is_backbuffer = ogl_parent->is_backbuffer;
 
