@@ -24,6 +24,8 @@
 #include "allegro5/platform/aintunix.h"
 #include "allegro5/platform/aintuthr.h"
 
+ALLEGRO_STATIC_ASSERT(sizeof(ALLEGRO_TIMEOUT_UNIX) <= sizeof(ALLEGRO_TIMEOUT));
+
 
 /* Marks the time Allegro was initialised, for al_current_time(). */
 struct timeval _al_unix_initial_time;
@@ -82,7 +84,6 @@ void al_init_timeout(ALLEGRO_TIMEOUT *timeout, double seconds)
     double integral;
     double frac;
 
-    ASSERT(sizeof(ALLEGRO_TIMEOUT_UNIX) <= sizeof(ALLEGRO_TIMEOUT));
     ASSERT(ut);
 
     gettimeofday(&now, NULL);

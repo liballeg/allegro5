@@ -58,6 +58,10 @@ typedef struct thread_local_state {
    int allegro_errno;
 } thread_local_state;
 
+/* The extra sizeof(int) is for flags. */
+ALLEGRO_STATIC_ASSERT(
+   sizeof(ALLEGRO_STATE) > sizeof(thread_local_state) + sizeof(int));
+
 
 #if defined ALLEGRO_MINGW32 && ( \
    __GNUC__ < 4 || (__GNUC__ == 4 && __GNUC_MINOR__ < 2) || \
@@ -563,7 +567,6 @@ void al_store_state(ALLEGRO_STATE *state, int flags)
    if ((tls = tls_get()) == NULL)
       return;
       
-   ASSERT(sizeof(ALLEGRO_STATE) > sizeof(thread_local_state) + sizeof(int));
    state->flags = flags;
    
    stored = (void *)&state->_tls;

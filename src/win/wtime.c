@@ -24,6 +24,9 @@
    #include <mmsystem.h>
 #endif
 
+ALLEGRO_STATIC_ASSERT(sizeof(ALLEGRO_TIMEOUT_WIN) <= sizeof(ALLEGRO_TIMEOUT));
+
+
 #define LARGE_INTEGER_TO_INT64(li) (((int64_t)li.HighPart << 32) | \
 	(int64_t)li.LowPart)
 
@@ -34,6 +37,7 @@ static double _al_win_total_time;
 static double (*real_current_time_func)(void);
 
 static _AL_MUTEX time_mutex = _AL_MUTEX_UNINITED;
+
 
 static double low_res_current_time(void)
 {
@@ -134,7 +138,6 @@ void al_init_timeout(ALLEGRO_TIMEOUT *timeout, double seconds)
 {
    ALLEGRO_TIMEOUT_WIN *wt = (ALLEGRO_TIMEOUT_WIN *) timeout;
 
-   ASSERT(sizeof(ALLEGRO_TIMEOUT_WIN) <= sizeof(ALLEGRO_TIMEOUT));
    ASSERT(wt);
 
    if (seconds <= 0.0) {

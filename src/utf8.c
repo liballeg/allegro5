@@ -21,6 +21,9 @@
 #include "allegro5/utf8.h"
 #include "allegro5/internal/bstrlib.h"
 
+ALLEGRO_STATIC_ASSERT(
+   sizeof(ALLEGRO_USTR_INFO) >= sizeof(struct _al_tagbstring));
+
 #ifdef ALLEGRO_MSVC
    #pragma warning (disable: 4066)
 #endif
