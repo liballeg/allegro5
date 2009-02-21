@@ -53,7 +53,7 @@ ALLEGRO_CONFIG *al_config_create(void)
 
 
 static ALLEGRO_CONFIG_SECTION *find_section(const ALLEGRO_CONFIG *config,
-   const ALLEGRO_USTR section)
+   const ALLEGRO_USTR *section)
 {
    ALLEGRO_CONFIG_SECTION *p = config->head;
 
@@ -71,7 +71,7 @@ static ALLEGRO_CONFIG_SECTION *find_section(const ALLEGRO_CONFIG *config,
 
 
 static ALLEGRO_CONFIG_ENTRY *find_entry(ALLEGRO_CONFIG_ENTRY *section_head,
-   const ALLEGRO_USTR key)
+   const ALLEGRO_USTR *key)
 {
    ALLEGRO_CONFIG_ENTRY *p = section_head;
 
@@ -86,8 +86,8 @@ static ALLEGRO_CONFIG_ENTRY *find_entry(ALLEGRO_CONFIG_ENTRY *section_head,
 }
 
 
-static void get_key_and_value(const ALLEGRO_USTR buf,
-   ALLEGRO_USTR key, ALLEGRO_USTR value)
+static void get_key_and_value(const ALLEGRO_USTR *buf,
+   ALLEGRO_USTR *key, ALLEGRO_USTR *value)
 {
    int eq = al_ustr_find_chr(buf, 0, '=');
 
@@ -106,7 +106,7 @@ static void get_key_and_value(const ALLEGRO_USTR buf,
 
 
 static ALLEGRO_CONFIG_SECTION *config_add_section(ALLEGRO_CONFIG *config,
-   const ALLEGRO_USTR name)
+   const ALLEGRO_USTR *name)
 {
    ALLEGRO_CONFIG_SECTION *sec = config->head;
    ALLEGRO_CONFIG_SECTION *section;
@@ -136,7 +136,7 @@ static ALLEGRO_CONFIG_SECTION *config_add_section(ALLEGRO_CONFIG *config,
 void al_config_add_section(ALLEGRO_CONFIG *config, const char *name)
 {
    ALLEGRO_USTR_INFO name_info;
-   ALLEGRO_USTR uname;
+   ALLEGRO_USTR *uname;
 
    uname = al_ref_cstr(&name_info, name);
    config_add_section(config, uname);
@@ -144,8 +144,8 @@ void al_config_add_section(ALLEGRO_CONFIG *config, const char *name)
 
 
 static void config_set_value(ALLEGRO_CONFIG *config,
-   const ALLEGRO_USTR section, const ALLEGRO_USTR key,
-   const ALLEGRO_USTR value)
+   const ALLEGRO_USTR *section, const ALLEGRO_USTR *key,
+   const ALLEGRO_USTR *value)
 {
    ALLEGRO_CONFIG_SECTION *s;
    ALLEGRO_CONFIG_ENTRY *entry;
@@ -198,9 +198,9 @@ void al_config_set_value(ALLEGRO_CONFIG *config,
    ALLEGRO_USTR_INFO section_info;
    ALLEGRO_USTR_INFO key_info;
    ALLEGRO_USTR_INFO value_info;
-   ALLEGRO_USTR usection;
-   ALLEGRO_USTR ukey;
-   ALLEGRO_USTR uvalue;
+   ALLEGRO_USTR *usection;
+   ALLEGRO_USTR *ukey;
+   ALLEGRO_USTR *uvalue;
 
    if (section == NULL) {
       section = "";
@@ -218,7 +218,7 @@ void al_config_set_value(ALLEGRO_CONFIG *config,
 
 
 static void config_add_comment(ALLEGRO_CONFIG *config,
-   const ALLEGRO_USTR section, const ALLEGRO_USTR comment)
+   const ALLEGRO_USTR *section, const ALLEGRO_USTR *comment)
 {
    ALLEGRO_CONFIG_SECTION *s;
    ALLEGRO_CONFIG_ENTRY *entry;
@@ -260,8 +260,8 @@ void al_config_add_comment(ALLEGRO_CONFIG *config,
 {
    ALLEGRO_USTR_INFO section_info;
    ALLEGRO_USTR_INFO comment_info;
-   ALLEGRO_USTR usection;
-   ALLEGRO_USTR ucomment;
+   ALLEGRO_USTR *usection;
+   ALLEGRO_USTR *ucomment;
 
    if (section == NULL) {
       section = "";
@@ -284,8 +284,8 @@ void al_config_add_comment(ALLEGRO_CONFIG *config,
  *  Returns NULL if the section or key do not exist.
  */
 static bool config_get_value(const ALLEGRO_CONFIG *config,
-   const ALLEGRO_USTR section, const ALLEGRO_USTR key,
-   ALLEGRO_USTR *ret_value)
+   const ALLEGRO_USTR *section, const ALLEGRO_USTR *key,
+   ALLEGRO_USTR **ret_value)
 {
    ALLEGRO_CONFIG_SECTION *s;
    ALLEGRO_CONFIG_ENTRY *e;
@@ -309,9 +309,9 @@ const char *al_config_get_value(const ALLEGRO_CONFIG *config,
 {
    ALLEGRO_USTR_INFO section_info;
    ALLEGRO_USTR_INFO key_info;
-   ALLEGRO_USTR usection;
-   ALLEGRO_USTR ukey;
-   ALLEGRO_USTR value;
+   ALLEGRO_USTR *usection;
+   ALLEGRO_USTR *ukey;
+   ALLEGRO_USTR *value;
 
    if (section == NULL) {
       section = "";
@@ -336,10 +336,10 @@ ALLEGRO_CONFIG *al_config_read(const char *filename)
    ALLEGRO_CONFIG *config;
    ALLEGRO_CONFIG_SECTION *current_section = NULL;
    char buffer[MAXSIZE];
-   ALLEGRO_USTR line;
-   ALLEGRO_USTR section;
-   ALLEGRO_USTR key;
-   ALLEGRO_USTR value;
+   ALLEGRO_USTR *line;
+   ALLEGRO_USTR *section;
+   ALLEGRO_USTR *key;
+   ALLEGRO_USTR *value;
    ALLEGRO_FS_ENTRY *file;
 
    file = al_fopen(filename, "r");
@@ -364,7 +364,7 @@ ALLEGRO_CONFIG *al_config_read(const char *filename)
 
       if (al_ustr_has_prefix_cstr(line, "#") || al_ustr_size(line) == 0) {
          /* Preserve comments and blank lines */
-         ALLEGRO_USTR name;
+         ALLEGRO_USTR *name;
          if (current_section)
             name = current_section->name;
          else

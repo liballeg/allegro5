@@ -3,14 +3,14 @@
 
 struct ALLEGRO_CONFIG_ENTRY {
    bool is_comment;
-   ALLEGRO_USTR key;    /* comment if is_comment is true */
-   ALLEGRO_USTR value;
+   ALLEGRO_USTR *key;    /* comment if is_comment is true */
+   ALLEGRO_USTR *value;
    ALLEGRO_CONFIG_ENTRY *next;
 };
 
 
 struct ALLEGRO_CONFIG_SECTION {
-   ALLEGRO_USTR name;
+   ALLEGRO_USTR *name;
    ALLEGRO_CONFIG_ENTRY *head;
    ALLEGRO_CONFIG_SECTION *next;
 };

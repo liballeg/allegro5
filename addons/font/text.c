@@ -42,7 +42,7 @@ void al_font_textout(const ALLEGRO_FONT *f, int x, int y,
    const char *str, int count)
 {
    ALLEGRO_USTR_INFO str_info;
-   ALLEGRO_USTR ustr;
+   ALLEGRO_USTR *ustr;
    ASSERT(f);
    ASSERT(str);
    ASSERT(count >= -1);
@@ -65,7 +65,7 @@ void al_font_textout_centre(const ALLEGRO_FONT *f, int x, int y,
    const char *str, int count)
 {
    ALLEGRO_USTR_INFO str_info;
-   ALLEGRO_USTR ustr;
+   ALLEGRO_USTR *ustr;
    int len;
    ASSERT(f);
    ASSERT(str);
@@ -90,7 +90,7 @@ void al_font_textout_right(const ALLEGRO_FONT *f, int x, int y,
    const char *str, int count)
 {
    ALLEGRO_USTR_INFO str_info;
-   ALLEGRO_USTR ustr;
+   ALLEGRO_USTR *ustr;
    int len;
    ASSERT(f);
    ASSERT(str);
@@ -116,8 +116,8 @@ void al_font_textout_justify(const ALLEGRO_FONT *f, int x1, int x2, int y,
    const char *whitespace = " \t\n\r";
    ALLEGRO_USTR_INFO str_info;
    ALLEGRO_USTR_INFO word_info;
-   ALLEGRO_USTR ustr;
-   ALLEGRO_USTR word;
+   ALLEGRO_USTR *ustr;
+   ALLEGRO_USTR *word;
    int pos1, pos2;
    int minlen;
    int num_words;
@@ -182,7 +182,7 @@ void al_font_textout_justify(const ALLEGRO_FONT *f, int x1, int x2, int y,
 void al_font_textprintf(const ALLEGRO_FONT *f, int x, int y,
    const char *format, ...)
 {
-   ALLEGRO_USTR buf;
+   ALLEGRO_USTR *buf;
    va_list ap;
    ASSERT(f);
    ASSERT(format);
@@ -206,7 +206,7 @@ void al_font_textprintf(const ALLEGRO_FONT *f, int x, int y,
 void al_font_textprintf_centre(const ALLEGRO_FONT *f, int x, int y,
    const char *format, ...)
 {
-   ALLEGRO_USTR buf;
+   ALLEGRO_USTR *buf;
    va_list ap;
    ASSERT(f);
    ASSERT(format);
@@ -230,7 +230,7 @@ void al_font_textprintf_centre(const ALLEGRO_FONT *f, int x, int y,
 void al_font_textprintf_right(const ALLEGRO_FONT *f, int x, int y,
    const char *format, ...)
 {
-   ALLEGRO_USTR buf;
+   ALLEGRO_USTR *buf;
    va_list ap;
    ASSERT(f);
    ASSERT(format);
@@ -254,7 +254,7 @@ void al_font_textprintf_right(const ALLEGRO_FONT *f, int x, int y,
 void al_font_textprintf_justify(const ALLEGRO_FONT *f, int x1, int x2, int y,
    int diff, const char *format, ...)
 {
-   ALLEGRO_USTR buf;
+   ALLEGRO_USTR *buf;
    va_list ap;
    ASSERT(f);
    ASSERT(format);
@@ -277,7 +277,7 @@ void al_font_textprintf_justify(const ALLEGRO_FONT *f, int x1, int x2, int y,
 int al_font_text_width(const ALLEGRO_FONT *f, const char *str, int count)
 {
    ALLEGRO_USTR_INFO str_info;
-   ALLEGRO_USTR ustr;
+   ALLEGRO_USTR *ustr;
    ASSERT(f);
    ASSERT(str);
    ASSERT(count >= -1);

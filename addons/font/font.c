@@ -55,7 +55,7 @@ static int font_height(const ALLEGRO_FONT *f)
  *  (mono and color vtable entry)
  *  Returns the length, in pixels, of a string as rendered in a font.
  */
-static int length(const ALLEGRO_FONT* f, const ALLEGRO_USTR text)
+static int length(const ALLEGRO_FONT* f, const ALLEGRO_USTR *text)
 {
     int ch = 0, w = 0;
     int pos = 0;
@@ -134,7 +134,7 @@ static int color_render_char(const ALLEGRO_FONT* f, int ch, int x, int y)
  *  the specified colors. If fg == -1, render as color, else render as
  *  mono; if bg == -1, render as transparent, else render as opaque.
  */
-static int color_render(const ALLEGRO_FONT* f, const ALLEGRO_USTR text,
+static int color_render(const ALLEGRO_FONT* f, const ALLEGRO_USTR *text,
     int x0, int y)
 {
     int pos = 0;

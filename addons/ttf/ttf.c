@@ -159,7 +159,7 @@ static int char_length(ALLEGRO_FONT const *f, int ch)
     return render_glyph(f, '\0', ch, 0, 0, &glyph);
 }
 
-static int render(ALLEGRO_FONT const *f, const ALLEGRO_USTR text,
+static int render(ALLEGRO_FONT const *f, const ALLEGRO_USTR *text,
     int x0, int y)
 {
     int pos = 0;
@@ -174,7 +174,7 @@ static int render(ALLEGRO_FONT const *f, const ALLEGRO_USTR text,
     return x - x0;
 }
 
-static int text_length(ALLEGRO_FONT const *f, const ALLEGRO_USTR text)
+static int text_length(ALLEGRO_FONT const *f, const ALLEGRO_USTR *text)
 {
     int pos = 0;
     int32_t prev = '\0';
@@ -225,7 +225,7 @@ void al_ttf_get_text_dimensions(ALLEGRO_FONT const *f, char const *text,
     ALLEGRO_TTF_FONT_DATA *data = f->data;
     FT_Face face = data->face;
     ALLEGRO_USTR_INFO text_info;
-    ALLEGRO_USTR utext = al_ref_cstr(&text_info, text);
+    ALLEGRO_USTR *utext = al_ref_cstr(&text_info, text);
     char prev = '\0';
     int pos = 0;
     int i;
