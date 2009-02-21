@@ -34,7 +34,7 @@ int last_y = -1;
 void fade(void)
 {
    al_set_blender(ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA, background);
-   al_draw_filled_rectangle(0, 0, W, H, al_map_rgba_f(1, 1, 1, 0.2));
+   al_draw_filled_rectangle(0, 0, W, H, al_map_rgba_f(0.5, 0.5, 0.6, 0.2));
 }
 
 void red_dot(int x, int y)
