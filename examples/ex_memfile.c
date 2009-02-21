@@ -63,5 +63,5 @@ Error:
    free(data);
    return 1;
 }
-
+END_OF_MAIN()
 /* vim: set sts=3 sw=3 et: */
