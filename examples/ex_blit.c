@@ -34,9 +34,9 @@ static ALLEGRO_BITMAP *example_bitmap(int w, int h)
       for (j = 0; j < h; j++) {
          float a = atan2(i - mx, j - my);
          float d = sqrt(pow(i - mx, 2) + pow(j - my, 2));
+         float sat = pow(1.0 - 1 / (1 + d * 0.1), 5);
          float hue = 3 * a * 180 / AL_PI;
          hue = (hue / 360 - floor(hue / 360)) * 360;
-         float sat = pow(1.0 - 1 / (1 + d * 0.1), 5);
          al_put_pixel(i, j, al_color_hsv(hue, sat, 1));
       }
    }
@@ -167,12 +167,12 @@ static void draw(void)
    start_timer(3);
    al_lock_bitmap_region(screen, x, y, iw, ih, &lock, ALLEGRO_LOCK_READONLY);
    for (i = 0; i < ih; i++)
-      memcpy(data + i * size * iw, lock.data + i * lock.pitch, size * iw);
+      memcpy((char*)data + i * size * iw, (char*)lock.data + i * lock.pitch, size * iw);
    al_unlock_bitmap(screen);
    
    al_lock_bitmap_region(screen, x + 8 + iw, y,  iw, ih, &lock, ALLEGRO_LOCK_WRITEONLY);
    for (i = 0; i < ih; i++)
-      memcpy(lock.data + i * lock.pitch, data + i * size * iw, size * iw);
+      memcpy((char*)lock.data + i * lock.pitch, (char*)data + i * size * iw, size * iw);
    al_unlock_bitmap(screen);
    stop_timer(3);
    free(data);
