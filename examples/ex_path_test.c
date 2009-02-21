@@ -18,7 +18,7 @@ int error = 0;
 
 #define CHECK(x)                                                            \
    do {                                                                     \
-      bool ok = (x);                                                        \
+      bool ok = (bool)(x);                                                  \
       if (!ok) {                                                            \
          printf("FAIL %s\n", #x);                                           \
          error++;                                                           \
