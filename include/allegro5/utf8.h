@@ -67,7 +67,7 @@ AL_FUNC(size_t, al_ustr_append_chr, (ALLEGRO_USTR *us, int32_t c));
 AL_PRINTFUNC(bool, al_ustr_appendf, (ALLEGRO_USTR *us, const char *fmt, ...),
       2, 3);
 AL_FUNC(bool, al_ustr_vappendf, (ALLEGRO_USTR *us, const char *fmt,
-      const va_list ap));
+      va_list ap));
 
 /* Remove */
 AL_FUNC(bool, al_ustr_remove_chr, (ALLEGRO_USTR *us, int pos));

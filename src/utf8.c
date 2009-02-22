@@ -454,14 +454,15 @@ bool al_ustr_appendf(ALLEGRO_USTR *us, const char *fmt, ...)
 
 /* Function: al_ustr_vappendf
  */
-bool al_ustr_vappendf(ALLEGRO_USTR *us, const char *fmt, const va_list ap)
+bool al_ustr_vappendf(ALLEGRO_USTR *us, const char *fmt, va_list ap)
 {
    int sz;
    int rc;
 
 #ifdef DEBUGMODE
    /* Exercise resizing logic more often. */
-   sz = 1;
+   // FIXME: Anything smaller and it crashes for me.
+   sz = 32;
 #else
    sz = 128;
 #endif
