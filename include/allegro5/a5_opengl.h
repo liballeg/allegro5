@@ -89,6 +89,8 @@
 
 /* Display creation flag. */
 #define ALLEGRO_OPENGL     4
+#define ALLEGRO_OPENGL_3_0 256
+#define ALLEGRO_OPENGL_FORWARD_COMPATIBLE 512
 
 
 AL_FUNC(float,                 al_opengl_version,                (void));

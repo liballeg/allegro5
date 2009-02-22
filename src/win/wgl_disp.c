@@ -207,6 +207,22 @@ static bool init_pixel_format_extensions(void)
 }
 
 
+static ALLEGRO_CreateContextAttribsARB_t __wglCreateContextAttribsARB = NULL;
+
+static bool init_context_creation_extensions(void)
+{
+   __wglCreateContextAttribsARB =
+      (ALLEGRO_CreateContextAttribsARB_t)wglGetProcAddress("wglCreateContextAttribsARB");
+
+   if (!__wglCreateContextAttribsARB) {
+      TRACE(PREFIX_E "init_context_creation_extensions(): WGL_CCA not supported!\n");
+      return false;
+   }
+
+   return true;
+}
+
+
 static int get_pixel_formats_count_old(HDC dc)
 {
    PIXELFORMATDESCRIPTOR pfd;
@@ -861,7 +877,26 @@ static bool create_display_internals(ALLEGRO_DISPLAY_WGL *wgl_disp)
    }
 
    /* create an OpenGL context */
-   wgl_disp->glrc = wglCreateContext(wgl_disp->dc);
+   if (is_wgl_extension_supported("wglCreateContextAttribsARB", wgl_disp->dc)) {
+      init_context_creation_extensions();
+      if (disp->flags & ALLEGRO_OPENGL_3_0) {
+         int attrib[] = {WGL_CONTEXT_MAJOR_VERSION_ARB, 3,
+                         WGL_CONTEXT_MINOR_VERSION_ARB, 0,
+                         WGL_CONTEXT_FORWARD_COMPATIBLE_BIT_ARB, 0,
+                         0};
+         if (disp->flags & ALLEGRO_OPENGL_FORWARD_COMPATIBLE) {
+            attrib[5] = 1;
+         }
+         wgl_disp->glrc = __wglCreateContextAttribsARB(wgl_disp->dc, 0, attrib);
+      }
+      else
+         /* TODO: we could use the context sharing feature */
+         wgl_disp->glrc = __wglCreateContextAttribsARB(wgl_disp->dc, 0, NULL);
+   }
+   else {
+      wgl_disp->glrc = wglCreateContext(wgl_disp->dc);
+   }
+
    if (!wgl_disp->glrc) {
       log_win32_error("create_display_internals",
                       "Unable to create a render context!",
@@ -882,14 +917,17 @@ static bool create_display_internals(ALLEGRO_DISPLAY_WGL *wgl_disp)
    _al_ogl_manage_extensions(disp);
    _al_ogl_set_extensions(disp->ogl_extras->extension_api);
 
-   if (disp->ogl_extras->ogl_info.version < 1.2 ||
-      !disp->ogl_extras->extension_list->ALLEGRO_GL_EXT_packed_pixels) {
+   if (disp->ogl_extras->ogl_info.version < 1.2) {
       ALLEGRO_EXTRA_DISPLAY_SETTINGS *eds = _al_get_new_display_settings();
       if (eds->required & (1<<ALLEGRO_COMPATIBLE_DISPLAY)) {
          TRACE(PREFIX_I "Allegro requires at least OpenGL version 1.2 to work.");
          destroy_display_internals(wgl_disp);
          return false;
       }
+      disp->extra_settings.settings[ALLEGRO_COMPATIBLE_DISPLAY] = 0;
+   }
+   else if (disp->ogl_extras->ogl_info.version > 2.1) {
+      /* We don't have OpenGL3 a driver. */
       disp->extra_settings.settings[ALLEGRO_COMPATIBLE_DISPLAY] = 0;
    }
 
