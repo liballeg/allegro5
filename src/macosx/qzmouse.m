@@ -57,7 +57,6 @@ void _al_osx_switch_mouse_focus(ALLEGRO_DISPLAY *dpy, bool switch_in)
 {
 	_al_event_source_lock(&osx_mouse.parent.es);
 
-   printf("switch_mouse_focus called for diaplsy %p with flag %d\n", dpy, switch_in);
    if (switch_in)
       osx_mouse.state.display = dpy;
    else
