@@ -317,6 +317,13 @@ static LRESULT CALLBACK window_callback(HWND hWnd, UINT message,
       return DefWindowProc(hWnd,message,wParam,lParam); 
    }
 
+   if (message == _al_win_msg_suicide && wParam) {
+      win_display = (ALLEGRO_DISPLAY_WIN*)wParam;
+      win_display->end_thread = true;
+      DestroyWindow(hWnd);
+      return 0;
+   }
+
    for (i = 0; i < system->displays._size; i++) {
       ALLEGRO_DISPLAY **dptr = _al_vector_ref(&system->displays, i);
       d = *dptr;

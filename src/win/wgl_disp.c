@@ -665,6 +665,59 @@ static bool change_display_mode(ALLEGRO_DISPLAY *d)
 }
 
 
+static HGLRC init_ogl_context_ex(HDC dc, int fc, int major, int minor)
+{
+   HWND testwnd = NULL;
+   HDC testdc   = NULL;
+   HGLRC testrc = NULL;
+   HGLRC old_rc = NULL;
+   HDC old_dc   = NULL;
+   HGLRC glrc   = NULL;
+
+   testwnd = _al_win_create_hidden_window();
+   if (!testwnd)
+      return NULL;
+
+   old_rc = wglGetCurrentContext();
+   old_dc = wglGetCurrentDC();
+
+   testdc = GetDC(testwnd);
+   testrc = init_temp_context(testwnd);
+   if (!testrc)
+      goto bail;
+
+   if (is_wgl_extension_supported("wglCreateContextAttribsARB", testdc)) {
+      int attrib[] = {WGL_CONTEXT_MAJOR_VERSION_ARB, major,
+                      WGL_CONTEXT_MINOR_VERSION_ARB, minor,
+                      WGL_CONTEXT_FORWARD_COMPATIBLE_BIT_ARB, fc,
+                      0};
+      if (!init_context_creation_extensions())
+         goto bail;
+      /* TODO: we could use the context sharing feature */
+      glrc = __wglCreateContextAttribsARB(dc, 0, attrib);
+   }
+   else
+      goto bail;
+
+bail:
+   wglMakeCurrent(NULL, NULL);
+   if (testrc) {
+      wglDeleteContext(testrc);
+   }
+
+   wglMakeCurrent(old_dc, old_rc);
+
+   __wglCreateContextAttribsARB = NULL;
+
+   if (testwnd) {
+      ReleaseDC(testwnd, testdc);
+      DestroyWindow(testwnd);
+   }
+
+   return glrc;
+}
+
+
 static ALLEGRO_EXTRA_DISPLAY_SETTINGS** get_available_pixel_formats_ext(int *count)
 {
    HWND testwnd = NULL;
@@ -876,22 +929,9 @@ static bool create_display_internals(ALLEGRO_DISPLAY_WGL *wgl_disp)
       return false;
    }
 
-   /* create an OpenGL context */
-   if (is_wgl_extension_supported("wglCreateContextAttribsARB", wgl_disp->dc)) {
-      init_context_creation_extensions();
-      if (disp->flags & ALLEGRO_OPENGL_3_0) {
-         int attrib[] = {WGL_CONTEXT_MAJOR_VERSION_ARB, 3,
-                         WGL_CONTEXT_MINOR_VERSION_ARB, 0,
-                         WGL_CONTEXT_FORWARD_COMPATIBLE_BIT_ARB, 0,
-                         0};
-         if (disp->flags & ALLEGRO_OPENGL_FORWARD_COMPATIBLE) {
-            attrib[5] = 1;
-         }
-         wgl_disp->glrc = __wglCreateContextAttribsARB(wgl_disp->dc, 0, attrib);
-      }
-      else
-         /* TODO: we could use the context sharing feature */
-         wgl_disp->glrc = __wglCreateContextAttribsARB(wgl_disp->dc, 0, NULL);
+   if (disp->flags & ALLEGRO_OPENGL_3_0) {
+      int fc = disp->flags & ALLEGRO_OPENGL_FORWARD_COMPATIBLE;
+      wgl_disp->glrc = init_ogl_context_ex(wgl_disp->dc, fc, 3, 0);
    }
    else {
       wgl_disp->glrc = wglCreateContext(wgl_disp->dc);
@@ -954,7 +994,8 @@ static bool create_display_internals(ALLEGRO_DISPLAY_WGL *wgl_disp)
 
    _al_win_grab_input(win_disp);
 
-   setup_gl(disp);
+   if (disp->extra_settings.settings[ALLEGRO_COMPATIBLE_DISPLAY])
+      setup_gl(disp);
 
    return true;
 }
@@ -1023,7 +1064,7 @@ static void destroy_display_internals(ALLEGRO_DISPLAY_WGL *wgl_disp)
 
    _al_ogl_unmanage_extensions(disp);
 
-   PostMessage(win_disp->window, _al_win_msg_suicide, 0, 0);
+   PostMessage(win_disp->window, _al_win_msg_suicide, (WPARAM)win_disp, 0);
    while (!win_disp->thread_ended)
       al_rest(0.001);
 }

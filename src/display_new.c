@@ -74,9 +74,9 @@ ALLEGRO_DISPLAY *al_create_display(int w, int h)
    _al_vector_init(&display->bitmaps, sizeof(ALLEGRO_BITMAP*));
 
    {
-   ALLEGRO_COLOR black = al_map_rgb(0, 0, 0);
    al_set_current_display(display);
-   al_clear(black);
+   if (display->extra_settings.settings[ALLEGRO_COMPATIBLE_DISPLAY])
+      al_clear(al_map_rgb(0, 0, 0));
    al_flip_display();
    }
 
