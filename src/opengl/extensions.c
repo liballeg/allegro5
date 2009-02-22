@@ -25,6 +25,11 @@
 #include "allegro5/internal/aintern_opengl.h"
 #include "allegro5/internal/aintern_display.h"
 
+/* Disable FBO and NPOT extensions for testing purposes. */
+/*
+#define _AL_GLEXT_NO_FBO   1
+#define _AL_GLEXT_NO_NPOT  1
+*/
 
 /* We need some driver specific details not worth of a vtable entry. */
 #if defined ALLEGRO_WINDOWS
@@ -710,6 +715,13 @@ void _al_ogl_manage_extensions(ALLEGRO_DISPLAY *gl_disp)
          }
       }
    }
+
+#ifdef _AL_GLEXT_NO_NPOT
+   ext_list->ALLEGRO_GL_ARB_texture_non_power_of_two = 0;
+#endif
+#ifdef _AL_GLEXT_NO_FBO
+   ext_list->ALLEGRO_GL_EXT_framebuffer_object = 0;
+#endif
 }
 
 
