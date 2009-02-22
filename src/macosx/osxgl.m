@@ -506,8 +506,13 @@ static int decode_allegro_format(int format, int* glfmt, int* glsize, int* depth
 		NSOpenGLPFAColorSize,
 		depth, 
 		NSOpenGLPFAWindow,
+      NSOpenGLPFADoubleBuffer,
 		0
 	};
+   /* Disable DoubleBuffer if only a single buffer is requested */
+   if (dpy->parent.flags & ALLEGRO_SINGLEBUFFER) {
+      attrs[3] = 0;
+   }
 	NSOpenGLPixelFormat* fmt = [[NSOpenGLPixelFormat alloc] initWithAttributes: attrs];
 	ALOpenGLView* view = [[ALOpenGLView alloc] initWithFrame: rc];
    dpy->ctx = osx_create_shareable_context(fmt, &dpy->display_group);
@@ -768,7 +773,7 @@ static ALLEGRO_DISPLAY* create_display_win(int w, int h) {
 	dpy->parent.vt = _al_osx_get_display_driver_win();
 	dpy->parent.format = ALLEGRO_PIXEL_FORMAT_RGBA_8888; // To do: use the actual format and flags
 	dpy->parent.refresh_rate = al_get_new_display_refresh_rate();
-	dpy->parent.flags = al_get_new_display_flags() | ALLEGRO_OPENGL | ALLEGRO_WINDOWED | ALLEGRO_SINGLEBUFFER;
+	dpy->parent.flags = al_get_new_display_flags() | ALLEGRO_OPENGL | ALLEGRO_WINDOWED;
 	dpy->parent.w = w;
 	dpy->parent.h = h;
 	_al_event_source_init(&dpy->parent.es);
