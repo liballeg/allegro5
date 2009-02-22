@@ -26,7 +26,8 @@ static int allegro_to_glx_setting[] = {
    0, /*GLX_RGBA_FLOAT_BIT*/
    0, /*ALLEGRO_FLOAT_DEPTH*/
    GLX_DOUBLEBUFFER,
-   0 /*GLX_SWAP_METHOD_OML*/
+   0, /*GLX_SWAP_METHOD_OML*/
+   0  /*COMPATIBLE_DISPLAY*/
 };
 
 
@@ -54,6 +55,7 @@ static char const *names[] = {
    "",
    "",
    "GLX_DOUBLEBUFFER",
+   "",
    ""
 };
 
