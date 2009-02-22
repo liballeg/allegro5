@@ -378,6 +378,8 @@ static int save_rgba(png_structp png_ptr, ALLEGRO_BITMAP *bmp)
    const int bmp_h = al_get_bitmap_height(bmp);
    unsigned char *rowdata;
    int x, y;
+   ALLEGRO_LOCKED_REGION lock;
+   al_lock_bitmap(bmp, &lock, ALLEGRO_LOCK_READONLY);
 
    rowdata = (unsigned char *)malloc(bmp_w * 4);
    if (!rowdata)
@@ -400,6 +402,8 @@ static int save_rgba(png_structp png_ptr, ALLEGRO_BITMAP *bmp)
    }
 
    free(rowdata);
+   
+   al_unlock_bitmap(bmp);
 
    return 1;
 }

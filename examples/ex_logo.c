@@ -264,12 +264,7 @@ static void randomize(void)
 
 static void save(void)
 {
-   ALLEGRO_LOCKED_REGION r;
-   // FIXME: Locking should not be required, but right now it is very
-   // slow without.
-   al_lock_bitmap(logo, &r, ALLEGRO_LOCK_READONLY);
    al_iio_save("logo.png", logo);
-   al_unlock_bitmap(logo);
 }
 
 static void mouse_click(int x, int y)
