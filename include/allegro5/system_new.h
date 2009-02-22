@@ -7,6 +7,8 @@
 
 typedef struct ALLEGRO_SYSTEM ALLEGRO_SYSTEM;
 
+/* Function: al_init
+ */
 #define al_init()    (al_install_system(atexit))
 
 AL_FUNC(bool, al_install_system, (int (*atexit_ptr)(void (*)(void))));

@@ -207,7 +207,7 @@ bitmap, it will be scaled.
 TODO: Describe best practice for the size?
 TODO: Allow providing multiple icons in differet sizes?
 
-## API: al_set_display_option
+## API: al_set_new_display_option
 
 Sets an extra display option. Allegro itself will not care about those
 options itself, but you may want to specify them, for example if you
@@ -243,17 +243,18 @@ The supported options are:
 
 FIXME: document them all in detail
 
-## API: al_get_display_option
+## API: al_get_new_display_option
 
 Retrieve an extra display setting which was previously set with
-[al_set_display_option].
+[al_set_new_display_option].
 
-FIXME: Maybe this should instead read the actual settings of the
-currently active display?
+## API: al_get_display_option
+
+Return an extra display setting of the current display.
 
 ## API: al_clear_display_options
 
-This undoes any previous calls to [al_set_display_option].
+This undoes any previous calls to [al_set_new_display_option].
 
 ## API: al_set_new_display_flags
 
