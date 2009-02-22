@@ -500,7 +500,7 @@ static void ogl_unlock_region(ALLEGRO_BITMAP *bitmap)
       glBindTexture(GL_TEXTURE_2D, ogl_bitmap->texture);
       /* We don't copy anything past bitmap->h on purpose. */
       glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0,
-         ogl_bitmap->true_w, ogl_bitmap->true_h,
+         ogl_bitmap->true_w, bitmap->h,
          glformats[bitmap->format][2],
          glformats[bitmap->format][1],
          bitmap->memory);
