@@ -456,19 +456,23 @@ bool al_ustr_appendf(ALLEGRO_USTR *us, const char *fmt, ...)
  */
 bool al_ustr_vappendf(ALLEGRO_USTR *us, const char *fmt, va_list ap)
 {
+   va_list arglist;
    int sz;
    int rc;
 
 #ifdef DEBUGMODE
    /* Exercise resizing logic more often. */
    // FIXME: Anything smaller and it crashes for me.
-   sz = 32;
+   sz = 1;
 #else
    sz = 128;
 #endif
 
    for (;;) {
-      rc = _al_bvcformata(us, sz, fmt, ap);
+      va_copy(arglist, ap);
+      rc = _al_bvcformata(us, sz, fmt, arglist);
+      va_end(arglist);
+
       if (rc >= 0) {
          return true;
       }

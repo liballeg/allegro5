@@ -1007,6 +1007,7 @@ void t46(void)
    // FIXME: This crashes with revision 11638
    us = al_ustr_new("");
    call_vappendf(us, "%s", "test");
+   CHECK(0 == strcmp(al_cstr(us), "test"));
    al_ustr_free(us);
 }
 
