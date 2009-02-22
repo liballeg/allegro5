@@ -5,9 +5,9 @@ includedir=@includedir@
 version=@ALLEGRO_VERSION@
 suffix=@lib_type@@lib_linkage@
 
-Name: a5_prim
+Name: a5_primitives
 Description: Allegro game programming library, primitives addon
 Version: ${version}
-Libs: -L${libdir} -la5_prim${suffix}-${version}
+Libs: -L${libdir} -la5_primitives${suffix}-${version}
 Requires: allegro${suffix}-4.9 >= ${version}
 Cflags: -I${includedir}

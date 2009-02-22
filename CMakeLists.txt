@@ -758,7 +758,7 @@ set(PKG_CONFIG_FILES
     a5_font
     a5_iio
     a5_memfile
-    a5_prim
+    a5_primitives
     a5_ttf
     kcm_audio
     )
@@ -774,10 +774,10 @@ if(UNIX)
         set(outname ${name}${lib_type}${lib_linkage}-4.9.pc)
         configure_file(
             misc/${name}-4.9.pc.in
-            ${CMAKE_BINARY_DIR}/${outname}
+            ${LIBRARY_OUTPUT_PATH}/pkgconfig/${outname}
             @ONLY
             )
-        install(FILES ${CMAKE_BINARY_DIR}/${outname}
+        install(FILES ${LIBRARY_OUTPUT_PATH}/pkgconfig/${outname}
             DESTINATION "lib${LIB_SUFFIX}/pkgconfig"
             )
     endforeach(name)
