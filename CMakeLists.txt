@@ -747,6 +747,44 @@ endif(UNIX)
 
 #-----------------------------------------------------------------------------#
 #
+#   pkg-config files
+#
+#-----------------------------------------------------------------------------#
+
+set(PKG_CONFIG_FILES
+    allegro
+    a5_acodec
+    a5_color
+    a5_font
+    a5_iio
+    a5_memfile
+    a5_prim
+    a5_ttf
+    kcm_audio
+    )
+
+# Probably usable on Windows as well but we shouldn't install it
+# indiscriminantly there.
+
+if(UNIX)
+    append_lib_type_suffix(lib_type)
+    append_lib_linkage_suffix(lib_linkage)
+
+    foreach(name ${PKG_CONFIG_FILES})
+        set(outname ${name}${lib_type}${lib_linkage}-4.9.pc)
+        configure_file(
+            misc/${name}-4.9.pc.in
+            ${CMAKE_BINARY_DIR}/${outname}
+            @ONLY
+            )
+        install(FILES ${CMAKE_BINARY_DIR}/${outname}
+            DESTINATION "lib${LIB_SUFFIX}/pkgconfig"
+            )
+    endforeach(name)
+endif(UNIX)
+
+#-----------------------------------------------------------------------------#
+#
 #   Documentation
 #
 #-----------------------------------------------------------------------------#

@@ -1,0 +1,13 @@
+prefix=@prefix@
+exec_prefix=${prefix}
+libdir=@libdir@
+includedir=@includedir@
+version=@ALLEGRO_VERSION@
+suffix=@lib_type@@lib_linkage@
+
+Name: a5_font
+Description: Allegro game programming library, font addon
+Version: ${version}
+Libs: -L${libdir} -la5_font${suffix}-${version}
+Requires: a5_iio${suffix}-4.9 >= ${version}
+Cflags: -I${includedir}

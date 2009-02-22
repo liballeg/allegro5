@@ -1,21 +1,30 @@
+function(append_lib_type_suffix var)
+    string(TOLOWER "${CMAKE_BUILD_TYPE}" CMAKE_BUILD_TYPE_TOLOWER)
+    if(CMAKE_BUILD_TYPE_TOLOWER STREQUAL "debug")
+        set(${var} "${${var}}-debug" PARENT_SCOPE)
+    endif(CMAKE_BUILD_TYPE_TOLOWER STREQUAL "debug")
+    if(CMAKE_BUILD_TYPE_TOLOWER MATCHES "profile")
+        set(${var} "${${var}}-profile" PARENT_SCOPE)
+    endif(CMAKE_BUILD_TYPE_TOLOWER MATCHES "profile")
+endfunction(append_lib_type_suffix)
+
+function(append_lib_linkage_suffix var)
+    if(NOT BUILD_SHARED_LIBS)
+        set(${var} "${${var}}-static" PARENT_SCOPE)
+    endif(NOT BUILD_SHARED_LIBS)
+endfunction(append_lib_linkage_suffix)
+
 function(add_our_library target name_suffix sources extra_flags link_with)
 
     # Construct the output name.
     set(output_name ${target})
-    string(TOLOWER "${CMAKE_BUILD_TYPE}" CMAKE_BUILD_TYPE_TOLOWER)
-    if(CMAKE_BUILD_TYPE_TOLOWER STREQUAL "debug")
-        set(output_name ${output_name}-debug)
-    endif(CMAKE_BUILD_TYPE_TOLOWER STREQUAL "debug")
-    if(CMAKE_BUILD_TYPE_TOLOWER MATCHES "profile")
-        set(output_name ${output_name}-profile)
-    endif(CMAKE_BUILD_TYPE_TOLOWER MATCHES "profile")
+    append_lib_type_suffix(output_name)
+    append_lib_linkage_suffix(output_name)
+    set(output_name ${output_name}${name_suffix})
 
     if(NOT BUILD_SHARED_LIBS)
-        set(output_name ${output_name}-static)
         set(static_flag "-DALLEGRO_STATICLINK")
     endif(NOT BUILD_SHARED_LIBS)
-
-    set(output_name ${output_name}${name_suffix})
 
     # Suppress errors about _mangled_main_address being undefined
     # on Mac OS X.
