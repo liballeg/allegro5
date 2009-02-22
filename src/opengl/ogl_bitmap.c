@@ -243,6 +243,12 @@ static void ogl_draw_bitmap_region(ALLEGRO_BITMAP *bitmap, float sx, float sy,
    ALLEGRO_BITMAP_OGL *ogl_target = (ALLEGRO_BITMAP_OGL *)target;
    ALLEGRO_DISPLAY *disp = (void *)al_get_current_display();
    
+   /* For sub-bitmaps */
+   if (target->parent) {
+      dx += target->xofs;
+      dy += target->yofs;
+   }
+   
    if (!(bitmap->flags & ALLEGRO_MEMORY_BITMAP)) {
       ALLEGRO_BITMAP_OGL *ogl_source = (void *)bitmap;
       if (ogl_source->is_backbuffer) {
@@ -267,7 +273,7 @@ static void ogl_draw_bitmap_region(ALLEGRO_BITMAP *bitmap, float sx, float sy,
                _al_ogl_set_target_bitmap(disp, bitmap);
             glBindTexture(GL_TEXTURE_2D, ogl_target->texture);
             glCopyTexSubImage2D(GL_TEXTURE_2D, 0,
-                dx, dy,
+                dx, target->h - dy - sh,
                 sx, bitmap->h - sy - sh,
                 sw, sh);
             /* Fix up FBO again after the copy. */
@@ -280,12 +286,6 @@ static void ogl_draw_bitmap_region(ALLEGRO_BITMAP *bitmap, float sx, float sy,
    if (disp->ogl_extras->opengl_target != ogl_target || target->locked) {
       _al_draw_bitmap_region_memory(bitmap, sx, sy, sw, sh, dx, dy, flags);
       return;
-   }
-
-   /* For sub-bitmaps */
-   if (target->parent) {
-      dx += target->xofs;
-      dy += target->yofs;
    }
 
    draw_quad(bitmap, sx, sy, sw, sh, 0, 0, dx, dy, sw, sh, 1, 1, 0, flags);
