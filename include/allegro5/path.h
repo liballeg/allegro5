@@ -43,7 +43,7 @@ AL_FUNC(const char*, al_path_get_basename, (ALLEGRO_PATH *path, char *buf, size_
 AL_FUNC(bool, al_path_make_absolute, (ALLEGRO_PATH *path));
 AL_FUNC(bool, al_path_make_canonical, (ALLEGRO_PATH *path));
 
-AL_FUNC(int32_t, al_path_exists, (ALLEGRO_PATH *path));
+AL_FUNC(bool, al_path_exists, (ALLEGRO_PATH *path));
 AL_FUNC(bool, al_path_emode, (ALLEGRO_PATH *path, uint32_t mode));
 
 AL_END_EXTERN_C

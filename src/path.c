@@ -537,7 +537,7 @@ const char *al_path_get_basename(ALLEGRO_PATH *path, char *buf, size_t len)
 
 /* Function: al_path_exists
  */
-int32_t al_path_exists(ALLEGRO_PATH *path)
+bool al_path_exists(ALLEGRO_PATH *path)
 {
    ALLEGRO_USTR *ustr;
    bool rc;
@@ -557,8 +557,8 @@ int32_t al_path_exists(ALLEGRO_PATH *path)
 
    rc = al_is_present_str(al_cstr(ustr));
    al_ustr_free(ustr);
-   /* XXX change return type? */
-   return rc ? 1 : 0;
+
+   return rc;
 }
 
 
