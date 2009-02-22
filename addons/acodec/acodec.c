@@ -79,8 +79,7 @@ ALLEGRO_STREAM *al_stream_from_file(size_t buffer_count, unsigned long samples,
 
    #if defined(ALLEGRO_CFG_ACODEC_FLAC)
       if (stricmp("flac", ext) == 0) {
-         /* Disabled until flac streaming is implemented */
-         //return al_load_stream_flac(buffer_count, samples, filename);
+         return NULL; // unimplemented
       }
    #endif
 

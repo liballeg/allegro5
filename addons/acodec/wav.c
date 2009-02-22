@@ -17,6 +17,8 @@ typedef struct WAVFILE
    short bits;      /* 8 (unsigned char) or 16 (signed short) */
    short channels;  /* 1 (mono) or 2 (stereo) */
    int samples;     /* # of samples. size = samples * (bits/8) * channels */
+   double loop_start;
+   double loop_end;
 } WAVFILE;
 
 /* read16:
@@ -68,6 +70,9 @@ static WAVFILE *wav_open(const char *filename)
 
    /* prepare default values */
    wavfile = malloc(sizeof(WAVFILE));
+   if(!wavfile){
+      return NULL;
+   }
    wavfile->f = f;
    wavfile->freq = 22050;
    wavfile->bits = 8;
@@ -190,6 +195,49 @@ static void wav_close(WAVFILE *wavfile)
    free(wavfile);
 }
 
+static bool wav_stream_seek(ALLEGRO_STREAM * stream, double time)
+{
+   WAVFILE *wavfile = (WAVFILE *) stream->extra;
+   int align = (wavfile->bits / 8) * wavfile->channels;
+   unsigned long cpos = time * (double)(wavfile->freq * (wavfile->bits / 8) * wavfile->channels);
+   if (time >= wavfile->loop_end)
+      return false;
+   cpos += cpos % align;
+   return (al_fseek(wavfile->f, wavfile->dpos + cpos, ALLEGRO_SEEK_SET) != -1);
+}
+
+/* wav_stream_rewind:
+ *  Rewinds 'stream' to the beginning of the data chunk.
+ *  Returns true on success, false on failure.
+ */
+static bool wav_stream_rewind(ALLEGRO_STREAM *stream)
+{
+   WAVFILE *wavfile = (WAVFILE *) stream->extra;
+   return wav_stream_seek(stream, wavfile->loop_start);
+}
+
+static double wav_stream_get_position(ALLEGRO_STREAM * stream)
+{
+   WAVFILE *wavfile = (WAVFILE *) stream->extra;
+   double samples_per = (double)((wavfile->bits / 8) * wavfile->channels) * (double)(wavfile->freq);
+   return ((double)(al_ftell(wavfile->f) - wavfile->dpos) / samples_per);
+}
+
+static double wav_stream_get_length(ALLEGRO_STREAM * stream)
+{
+   WAVFILE *wavfile = (WAVFILE *) stream->extra;
+   double total_time = (double)(wavfile->samples) / (double)(wavfile->freq);
+   return total_time;
+}
+
+static bool wav_stream_set_loop(ALLEGRO_STREAM * stream, double start, double end)
+{
+   WAVFILE *wavfile = (WAVFILE *) stream->extra;
+   wavfile->loop_start = start;
+   wavfile->loop_end = end;
+   return true;
+}
+
 /* wav_stream_update:
  *  Updates 'stream' with the next chunk of data.
  *  Returns the actual number of bytes written.
@@ -201,21 +249,22 @@ static size_t wav_stream_update(ALLEGRO_STREAM *stream, void *data,
 
    WAVFILE *wavfile = (WAVFILE *) stream->extra;
    bytes_per_sample = (wavfile->bits / 8) * wavfile->channels;
-   samples = buf_size / bytes_per_sample;
+   double ctime = wav_stream_get_position(stream);
+   bytes_per_sample = (wavfile->bits / 8) * wavfile->channels;
+   double btime = ((double)buf_size / (double)bytes_per_sample) / (double)(wavfile->freq);
+   
+   if(stream->spl.loop == _ALLEGRO_PLAYMODE_STREAM_ONEDIR && ctime + btime > wavfile->loop_end) {
+      samples = ((wavfile->loop_end - ctime) * (double)(wavfile->freq));
+   }
+   else {
+      samples = buf_size / bytes_per_sample;
+   }
+   if(samples < 0)
+      return 0;
 
    samples_read = wav_read(wavfile, data, samples);
 
    return samples_read * bytes_per_sample;
-}
-
-/* wav_stream_rewind:
- *  Rewinds 'stream' to the beginning of the data chunk.
- *  Returns true on success, false on failure.
- */
-static bool wav_stream_rewind(ALLEGRO_STREAM *stream)
-{
-   WAVFILE *wavfile = (WAVFILE *) stream->extra;
-   return (al_fseek(wavfile->f, wavfile->dpos, ALLEGRO_SEEK_SET) != -1);
 }
 
 /* wav_stream_close:
@@ -289,11 +338,18 @@ ALLEGRO_STREAM *al_load_stream_wav(size_t buffer_count,
       _al_count_to_channel_conf(wavfile->channels));
 
    if (stream) {
+      stream->spl.mutex = al_create_mutex();
       stream->extra = wavfile;
+      wavfile->loop_start = 0.0;
+      wavfile->loop_end = wav_stream_get_length(stream);
       stream->feed_thread = al_create_thread(_al_kcm_feed_stream, stream);
       stream->feeder = wav_stream_update;
       stream->unload_feeder = wav_stream_close;
       stream->rewind_feeder = wav_stream_rewind;
+      stream->seek_feeder = wav_stream_seek;
+      stream->get_feeder_position = wav_stream_get_position;
+      stream->get_feeder_length = wav_stream_get_length;
+      stream->set_feeder_loop = wav_stream_set_loop;
       al_start_thread(stream->feed_thread);
    }
 

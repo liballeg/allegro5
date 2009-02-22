@@ -158,7 +158,10 @@ void _al_kcm_detach_from_parent(ALLEGRO_SAMPLE_INSTANCE *spl);
 typedef size_t (*stream_callback_t)(ALLEGRO_STREAM *, void *, size_t);
 typedef void (*unload_feeder_t)(ALLEGRO_STREAM *);
 typedef bool (*rewind_feeder_t)(ALLEGRO_STREAM *);
-
+typedef bool (*seek_feeder_t)(ALLEGRO_STREAM *, double);
+typedef double (*get_feeder_position_t)(ALLEGRO_STREAM *);
+typedef double (*get_feeder_length_t)(ALLEGRO_STREAM *);
+typedef bool (*set_feeder_loop_t)(ALLEGRO_STREAM *, double, double);
 
 struct ALLEGRO_STREAM {
    ALLEGRO_SAMPLE_INSTANCE       spl;
@@ -198,6 +201,10 @@ struct ALLEGRO_STREAM {
    volatile bool         quit_feed_thread;
    unload_feeder_t       unload_feeder;
    rewind_feeder_t       rewind_feeder;
+   seek_feeder_t         seek_feeder;
+   get_feeder_position_t get_feeder_position;
+   get_feeder_length_t   get_feeder_length;
+   set_feeder_loop_t     set_feeder_loop;
    stream_callback_t     feeder;
                          /* If ALLEGRO_STREAM has been created by
                           * al_stream_from_file(), acodec will be feeding the stream

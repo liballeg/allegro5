@@ -18,6 +18,8 @@ struct _sf_private {
    SF_INFO sfinfo;
    SNDFILE *sndfile;
    ALLEGRO_FS_ENTRY *fh;
+   double loop_start;
+   double loop_end;
 };
 
 static sf_count_t _sf_vio_get_filelen(void *dptr)
@@ -215,6 +217,46 @@ ALLEGRO_SAMPLE *al_load_sample_sndfile(const char *filename)
 }
 
 
+static bool _sndfile_stream_seek(ALLEGRO_STREAM *stream, double time)
+{
+   _sf_private *priv = (_sf_private *) stream->extra;
+   unsigned long spos = (double)(priv->sfinfo.samplerate) * time;
+   if (time >= priv->loop_end)
+      return false;
+   return (sf_seek(priv->sndfile, spos, SEEK_SET) != -1);
+}
+
+
+static bool _sndfile_stream_rewind(ALLEGRO_STREAM *stream)
+{
+   _sf_private *priv = (_sf_private *) stream->extra;
+   return _sndfile_stream_seek(stream, priv->loop_start);
+}
+
+
+static double _sndfile_stream_get_position(ALLEGRO_STREAM *stream)
+{
+   _sf_private *priv = (_sf_private *) stream->extra;
+   return (double)sf_seek(priv->sndfile, 0, SEEK_CUR) / (double)(priv->sfinfo.samplerate);
+}
+
+
+static double _sndfile_stream_get_length(ALLEGRO_STREAM *stream)
+{
+   _sf_private *priv = (_sf_private *) stream->extra;
+   return (double)priv->sfinfo.frames / (double)priv->sfinfo.samplerate;
+}
+
+
+static bool _sndfile_stream_set_loop(ALLEGRO_STREAM *stream, double start, double end)
+{
+   _sf_private *priv = (_sf_private *) stream->extra;
+   priv->loop_start = start;
+   priv->loop_end = end;
+   return true;
+}
+
+
 static size_t _sndfile_stream_update(ALLEGRO_STREAM *stream, void *data,
    size_t buf_size)
 {
@@ -224,7 +266,15 @@ static size_t _sndfile_stream_update(ALLEGRO_STREAM *stream, void *data,
    _sf_private *priv = (_sf_private *) stream->extra;
    bytes_per_sample = al_get_channel_count(stream->spl.spl_data.chan_conf)
                     * al_get_depth_size(depth);
-   samples = buf_size / bytes_per_sample;
+   double ctime = _sndfile_stream_get_position(stream);
+   double btime = ((double)buf_size / (double)bytes_per_sample) / (double)(priv->sfinfo.samplerate);
+   
+   if(stream->spl.loop == _ALLEGRO_PLAYMODE_STREAM_ONEDIR && ctime + btime > priv->loop_end) {
+      samples = ((priv->loop_end - ctime) * (double)(priv->sfinfo.samplerate));
+   }
+   else {
+      samples = buf_size / bytes_per_sample;
+   }
 
    if (depth == ALLEGRO_AUDIO_DEPTH_INT16) {
       num_read = sf_readf_short(priv->sndfile, data, samples);
@@ -245,13 +295,6 @@ static size_t _sndfile_stream_update(ALLEGRO_STREAM *stream, void *data,
 
    /* return the number of usefull bytes written */
    return num_read * bytes_per_sample;
-}
-
-
-static bool _sndfile_stream_rewind(ALLEGRO_STREAM *stream)
-{
-   _sf_private *priv = (_sf_private *) stream->extra;
-   return (sf_seek(priv->sndfile, 0, SEEK_SET) != -1);
 }
 
 
@@ -295,7 +338,7 @@ ALLEGRO_STREAM *al_load_stream_sndfile(size_t buffer_count,
    rate = priv->sfinfo.samplerate;
    total_samples = priv->sfinfo.frames;
    total_size = total_samples * channels * word_size;
-
+   
    TRACE("loaded sample %s with properties:\n", filename);
    TRACE("      channels %d\n", channels);
    TRACE("      word_size %d\n", word_size);
@@ -306,11 +349,18 @@ ALLEGRO_STREAM *al_load_stream_sndfile(size_t buffer_count,
    stream = al_create_stream(buffer_count, samples, rate, depth,
                              _al_count_to_channel_conf(channels));
 
+   stream->spl.mutex = al_create_mutex();
    stream->extra = priv;
+   priv->loop_start = 0.0;
+   priv->loop_end = _sndfile_stream_get_length(stream);
    stream->feed_thread = al_create_thread(_al_kcm_feed_stream, stream);
    stream->feeder = _sndfile_stream_update;
    stream->unload_feeder = _sndfile_stream_close;
    stream->rewind_feeder = _sndfile_stream_rewind;
+   stream->seek_feeder = _sndfile_stream_seek;
+   stream->get_feeder_position = _sndfile_stream_get_position;
+   stream->get_feeder_length = _sndfile_stream_get_length;
+   stream->set_feeder_loop = _sndfile_stream_set_loop;
    al_start_thread(stream->feed_thread);
 
    return stream;

@@ -393,6 +393,10 @@ A5_KCM_AUDIO_FUNC(int, al_set_stream_bool, (ALLEGRO_STREAM *stream,
 A5_KCM_AUDIO_FUNC(int, al_set_stream_ptr, (ALLEGRO_STREAM *spl,
       ALLEGRO_AUDIO_PROPERTY setting, void *ptr));
 A5_KCM_AUDIO_FUNC(bool, al_rewind_stream, (ALLEGRO_STREAM *stream));
+A5_KCM_AUDIO_FUNC(bool, al_seek_stream, (ALLEGRO_STREAM *stream, double time));
+A5_KCM_AUDIO_FUNC(double, al_get_stream_position, (ALLEGRO_STREAM *stream));
+A5_KCM_AUDIO_FUNC(double, al_get_stream_length, (ALLEGRO_STREAM *stream));
+A5_KCM_AUDIO_FUNC(bool, al_set_stream_loop, (ALLEGRO_STREAM *stream, double start, double end));
 
 /* Mixer functions */
 A5_KCM_AUDIO_FUNC(ALLEGRO_MIXER*, al_create_mixer, (unsigned long freq,

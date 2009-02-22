@@ -22,6 +22,8 @@ struct AL_OV_DATA {
    vorbis_info *vi;
    ALLEGRO_FS_ENTRY *file;
    int bitstream;
+   double loop_start;
+   double loop_end;
 };
 
 
@@ -158,12 +160,40 @@ ALLEGRO_SAMPLE *al_load_sample_oggvorbis(const char *filename)
 }
 
 
+static bool ogg_stream_seek(ALLEGRO_STREAM *stream, double time)
+{
+   AL_OV_DATA *extra = (AL_OV_DATA *) stream->extra;
+   if (time >= extra->loop_end)
+      return false;
+   return (ov_time_seek_lap(extra->vf, time) != -1);
+}
+
 static bool ogg_stream_rewind(ALLEGRO_STREAM *stream)
 {
    AL_OV_DATA *extra = (AL_OV_DATA *) stream->extra;
-   return (ov_raw_seek(extra->vf, 0) != -1);
+   return ogg_stream_seek(stream, extra->loop_start);
 }
 
+static double ogg_stream_get_position(ALLEGRO_STREAM *stream)
+{
+   AL_OV_DATA *extra = (AL_OV_DATA *) stream->extra;
+   return ov_time_tell(extra->vf);
+}
+
+static double ogg_stream_get_length(ALLEGRO_STREAM *stream)
+{
+   AL_OV_DATA *extra = (AL_OV_DATA *) stream->extra;
+   double ret = ov_time_total(extra->vf, -1);
+   return ret;
+}
+
+static bool ogg_stream_set_loop(ALLEGRO_STREAM *stream, double start, double end)
+{
+   AL_OV_DATA *extra = (AL_OV_DATA *) stream->extra;
+   extra->loop_start = start;
+   extra->loop_end = end;
+   return true;
+}
 
 /* To be called when stream is destroyed */
 static void ogg_stream_close(ALLEGRO_STREAM *stream)
@@ -199,9 +229,22 @@ static size_t ogg_stream_update(ALLEGRO_STREAM *stream, void *data,
    const int signedness = 1;  /* 0 for unsigned, 1 for signed */
 
    unsigned long pos = 0;
-   while (pos < buf_size) {
+   int read_length = buf_size;
+   double ctime = ov_time_tell(extra->vf);
+   double rate = extra->vi->rate;
+   double btime = ((double)buf_size / (double)word_size) / rate;
+   
+   if (stream->spl.loop == _ALLEGRO_PLAYMODE_STREAM_ONEDIR) {
+      if (ctime + btime > extra->loop_end) {
+         read_length = (extra->loop_end - ctime) * rate * (double)word_size;
+         if (read_length < 0)
+            return 0;
+         read_length += read_length % word_size;
+         }
+      }
+   while (pos < (unsigned long)read_length) {
       unsigned long read = ov_read(extra->vf, (char *)data + pos,
-                                   buf_size - pos, endian, word_size,
+                                   read_length - pos, endian, word_size,
                                    signedness, &extra->bitstream);
       pos += read;
 
@@ -278,13 +321,25 @@ ALLEGRO_STREAM *al_load_stream_oggvorbis(size_t buffer_count,
    stream = al_create_stream(buffer_count, samples, rate,
             _al_word_size_to_depth_conf(word_size),
             _al_count_to_channel_conf(channels));
+   if(!stream)
+   {
+	   free(vf);
+	   return NULL;
+   }
+   stream->spl.mutex = al_create_mutex();
 
    stream->extra = extra;
 
+   extra->loop_start = 0.0;
+   extra->loop_end = ogg_stream_get_length(stream);
    stream->feed_thread = al_create_thread(_al_kcm_feed_stream, stream);
    stream->quit_feed_thread = false;
    stream->feeder = ogg_stream_update;
    stream->rewind_feeder = ogg_stream_rewind;
+   stream->seek_feeder = ogg_stream_seek;
+   stream->get_feeder_position = ogg_stream_get_position;
+   stream->get_feeder_length = ogg_stream_get_length;
+   stream->set_feeder_loop = ogg_stream_set_loop;
    stream->unload_feeder = ogg_stream_close;
    al_start_thread(stream->feed_thread);
 

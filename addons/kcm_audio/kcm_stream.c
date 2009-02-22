@@ -569,7 +569,9 @@ void *_al_kcm_feed_stream(ALLEGRO_THREAD *self, void *vstream)
                al_get_channel_count(stream->spl.spl_data.chan_conf) *
                al_get_depth_size(stream->spl.spl_data.depth);
 
+         al_lock_mutex(stream->spl.mutex);
          bytes_written = stream->feeder(stream, fragment, bytes);
+         al_unlock_mutex(stream->spl.mutex);
 
         /* In case it reaches the end of the stream source, stream feeder will
          * fill the remaining space with silence. If we should loop, rewind the
@@ -578,8 +580,10 @@ void *_al_kcm_feed_stream(ALLEGRO_THREAD *self, void *vstream)
             stream->spl.loop == _ALLEGRO_PLAYMODE_STREAM_ONEDIR) {
             size_t bw;
             al_rewind_stream(stream);
+            al_lock_mutex(stream->spl.mutex);
             bw = stream->feeder(stream, fragment + bytes_written,
                bytes - bytes_written);
+            al_unlock_mutex(stream->spl.mutex);
             ASSERT(bw == bytes - bytes_written);
          }
 
@@ -629,8 +633,87 @@ bool _al_kcm_emit_stream_event(ALLEGRO_STREAM *stream, unsigned long count)
  */
 bool al_rewind_stream(ALLEGRO_STREAM *stream)
 {
+   bool ret;
    if (stream->rewind_feeder) {
-      return stream->rewind_feeder(stream);
+      al_lock_mutex(stream->spl.mutex);
+      ret = stream->rewind_feeder(stream);
+      al_unlock_mutex(stream->spl.mutex);
+      return ret;
+   }
+
+   return false;
+}
+
+/* Function: al_seek_stream
+ * Set the streaming file playing position to time. Returns true on success.
+ * Currently this can only be called on streams created with acodec's
+ * al_stream_from_file().
+ */
+bool al_seek_stream(ALLEGRO_STREAM *stream, double time)
+{
+   bool ret;
+   if (stream->seek_feeder) {
+      al_lock_mutex(stream->spl.mutex);
+      ret = stream->seek_feeder(stream, time);
+      al_unlock_mutex(stream->spl.mutex);
+      return ret;
+   }
+
+   return false;
+}
+
+/* Function: al_get_stream_position
+ * Return the position of the stream in seconds.
+ * Currently this can only be called on streams created with acodec's
+ * al_stream_from_file().
+ */
+double al_get_stream_position(ALLEGRO_STREAM *stream)
+{
+   double ret;
+   if (stream->get_feeder_position) {
+      al_lock_mutex(stream->spl.mutex);
+      ret = stream->get_feeder_position(stream);
+      al_unlock_mutex(stream->spl.mutex);
+      return ret;
+   }
+
+   return 0.0;
+}
+
+/* Function: al_get_stream_length
+ * Return the position of the stream in seconds.
+ * Currently this can only be called on streams created with acodec's
+ * al_stream_from_file().
+ */
+double al_get_stream_length(ALLEGRO_STREAM *stream)
+{
+   double ret;
+   if (stream->get_feeder_length) {
+      al_lock_mutex(stream->spl.mutex);
+      ret = stream->get_feeder_length(stream);
+      al_unlock_mutex(stream->spl.mutex);
+      return ret;
+   }
+   return 0.0;
+}
+
+/* Function: al_set_stream_loop
+ * Return the position of the stream in seconds.
+ * Currently this can only be called on streams created with acodec's
+ * al_stream_from_file().
+ */
+bool al_set_stream_loop(ALLEGRO_STREAM *stream, double start, double end)
+{
+   bool ret;
+
+   if (start >= end)
+      return false;
+
+   if (stream->set_feeder_loop) {
+      al_lock_mutex(stream->spl.mutex);
+      ret = stream->set_feeder_loop(stream, start, end);
+      al_unlock_mutex(stream->spl.mutex);
+      return ret;
    }
 
    return false;
