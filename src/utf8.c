@@ -28,6 +28,14 @@ ALLEGRO_STATIC_ASSERT(
    #pragma warning (disable: 4066)
 #endif
 
+#ifndef ALLEGRO_HAVE_VA_COPY
+   /* If va_copy() is not defined we assume that a simple assignment suffices.
+    * From a few web searches, this appears to be true for MSVC 7.
+    */
+   #define va_copy(a, b)   ((a) = (b))
+#endif
+
+
 #define IS_SINGLE_BYTE(c)  (((unsigned)(c) & 0x80) == 0)
 #define IS_LEAD_BYTE(c)    (((unsigned)(c) - 0xC0) < 0x3E)
 #define IS_TRAIL_BYTE(c)   (((unsigned)(c) & 0xC0) == 0x80)
@@ -462,13 +470,13 @@ bool al_ustr_vappendf(ALLEGRO_USTR *us, const char *fmt, va_list ap)
 
 #ifdef DEBUGMODE
    /* Exercise resizing logic more often. */
-   // FIXME: Anything smaller and it crashes for me.
    sz = 1;
 #else
    sz = 128;
 #endif
 
    for (;;) {
+      /* Make a copy of the argument list as vsnprintf() may clobber it. */
       va_copy(arglist, ap);
       rc = _al_bvcformata(us, sz, fmt, arglist);
       va_end(arglist);

@@ -332,6 +332,16 @@ check_c_source_compiles("
     ALLEGRO_HAVE_SV_PROCFS_H
     )
 
+check_c_source_compiles("
+    #include <stdarg.h>
+    int main(void) {
+        va_list a, b;
+        va_copy(a, b);
+        return 0;
+    }"
+    ALLEGRO_HAVE_VA_COPY
+    )
+
 include(CheckCtors)
 check_ctors(ALLEGRO_USE_CONSTRUCTOR)
 

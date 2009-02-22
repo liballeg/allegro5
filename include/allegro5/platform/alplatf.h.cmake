@@ -55,6 +55,7 @@
 #cmakedefine ALLEGRO_HAVE_SYSCONF
 #cmakedefine ALLEGRO_HAVE_FSEEKO
 #cmakedefine ALLEGRO_HAVE_FTELLO
+#cmakedefine ALLEGRO_HAVE_VA_COPY
 
 /* Define to 1 if procfs reveals argc and argv */
 #cmakedefine ALLEGRO_HAVE_PROCFS_ARGCV
