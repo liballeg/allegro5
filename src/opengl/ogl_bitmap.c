@@ -63,12 +63,12 @@ static ALLEGRO_BITMAP_INTERFACE *glbmp_vt;
 /* Helper function to draw a bitmap with an internal OpenGL texture as
  * a textured OpenGL quad.
  */
-static void draw_quad(ALLEGRO_BITMAP *bitmap, float sx, float sy,
-    float sw, float sh,
+static void draw_quad(ALLEGRO_BITMAP *bitmap,
+    float sx, float sy, float sw, float sh,
     float cx, float cy, float dx, float dy, float dw, float dh,
     float xscale, float yscale, float angle, int flags)
 {
-   float l, t, r, b, w, h;
+   float tex_l, tex_t, tex_r, tex_b, w, h;
    ALLEGRO_BITMAP_OGL *ogl_bitmap = (void *)bitmap;
    GLboolean on;
    GLuint current_texture;
@@ -95,30 +95,30 @@ static void draw_quad(ALLEGRO_BITMAP *bitmap, float sx, float sy,
    }
 
    if (flags & ALLEGRO_FLIP_HORIZONTAL) {
-      l = ogl_bitmap->right;
-      r = ogl_bitmap->left;
+      tex_l = ogl_bitmap->right;
+      tex_r = ogl_bitmap->left;
    }
    else {
-      l = ogl_bitmap->left;
-      r = ogl_bitmap->right;
+      tex_l = ogl_bitmap->left;
+      tex_r = ogl_bitmap->right;
    }
 
    if (flags & ALLEGRO_FLIP_VERTICAL) {
-      t = ogl_bitmap->bottom;
-      b = ogl_bitmap->top;
+      tex_t = ogl_bitmap->bottom;
+      tex_b = ogl_bitmap->top;
    }
    else {
-      t = ogl_bitmap->top;
-      b = ogl_bitmap->bottom;
+      tex_t = ogl_bitmap->top;
+      tex_b = ogl_bitmap->bottom;
    }
 
    w = bitmap->w;
    h = bitmap->h;
 
-   l += sx / w * r;
-   t += sy / h * b;
-   r -= (w - sx - sw) / w * r;
-   b -= (h - sy - sh) / h * b;
+   tex_l += sx / w * tex_r;
+   tex_t += sy / h * tex_b;
+   tex_r -= (w - sx - sw) / w * tex_r;
+   tex_b -= (h - sy - sh) / h * tex_b;
 
    bc = _al_get_blend_color();
    glColor4f(bc->r, bc->g, bc->b, bc->a);
@@ -130,13 +130,13 @@ static void draw_quad(ALLEGRO_BITMAP *bitmap, float sx, float sy,
    glTranslatef(-dx - cx, -dy - cy, 0);
 
    glBegin(GL_QUADS);
-   glTexCoord2f(l, b);
+   glTexCoord2f(tex_l, tex_b);
    glVertex2f(dx, dy + dh);
-   glTexCoord2f(r, b);
+   glTexCoord2f(tex_r, tex_b);
    glVertex2f(dx + dw, dy + dh);
-   glTexCoord2f(r, t);
+   glTexCoord2f(tex_r, tex_t);
    glVertex2f(dx + dw, dy);
-   glTexCoord2f(l, t);
+   glTexCoord2f(tex_l, tex_t);
    glVertex2f(dx, dy);
    glEnd();
 
@@ -229,14 +229,16 @@ static void ogl_draw_bitmap_region(ALLEGRO_BITMAP *bitmap, float sx, float sy,
             /* In general, we can't modify the texture while it's
              * FBO bound - so we temporarily disable the FBO.
              */
-            glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
+            if (ogl_target->fbo)
+               _al_ogl_set_target_bitmap(disp, bitmap);
             glBindTexture(GL_TEXTURE_2D, ogl_target->texture);
             glCopyTexSubImage2D(GL_TEXTURE_2D, 0,
                 dx, dy,
                 sx, bitmap->h - sy - sh,
                 sw, sh);
-            // Fix up FBO again after the copy.
-            _al_ogl_set_target_bitmap(disp, target);
+            /* Fix up FBO again after the copy. */
+            if (ogl_target->fbo)
+               _al_ogl_set_target_bitmap(disp, target);
             return;
          }
       }
@@ -354,7 +356,6 @@ static bool ogl_upload_bitmap(ALLEGRO_BITMAP *bitmap)
    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 
-   /* XXX take into account (x,y) */
    ogl_bitmap->left = 0;
    ogl_bitmap->right = (float) w / ogl_bitmap->true_w;
    ogl_bitmap->top = (float) h / ogl_bitmap->true_h;
@@ -399,6 +400,7 @@ static ALLEGRO_LOCKED_REGION *ogl_lock_region(ALLEGRO_BITMAP *bitmap,
    const int pixel_size = al_get_pixel_size(bitmap->format);
    const int pitch = bitmap->pitch;
    ALLEGRO_DISPLAY *old_disp = NULL;
+   GLint gl_y = bitmap->h - y - h;
 
    if (bitmap->display->ogl_extras->is_shared == false &&
        bitmap->display != al_get_current_display()) {
@@ -411,10 +413,10 @@ static ALLEGRO_LOCKED_REGION *ogl_lock_region(ALLEGRO_BITMAP *bitmap,
          GLint pack_row_length;
          glGetIntegerv(GL_PACK_ROW_LENGTH, &pack_row_length);
          glPixelStorei(GL_PACK_ROW_LENGTH, ogl_bitmap->true_w);
-         glReadPixels(x, bitmap->h - y - h, w, h,
+         glReadPixels(x, gl_y, w, h,
             glformats[bitmap->format][2],
             glformats[bitmap->format][1],
-            bitmap->memory + pitch * (bitmap->h - y - h) + pixel_size * x);
+            bitmap->memory + pitch * gl_y + pixel_size * x);
          if (glGetError()) {
             TRACE("ogl_bitmap: glReadPixels for format %d failed.\n",
                bitmap->format);
@@ -434,7 +436,7 @@ static ALLEGRO_LOCKED_REGION *ogl_lock_region(ALLEGRO_BITMAP *bitmap,
       }
    }
 
-   locked_region->data = bitmap->memory + pitch * (ogl_bitmap->true_h - 1 - y) + pixel_size * x;
+   locked_region->data = bitmap->memory + pitch * (gl_y + h - 1) + pixel_size * x;
    locked_region->format = bitmap->format;
    locked_region->pitch = -pitch;
 
@@ -467,9 +469,10 @@ static void ogl_unlock_region(ALLEGRO_BITMAP *bitmap)
 
    if (ogl_bitmap->is_backbuffer) {
       GLint unpack_row_length;
+      GLint gl_y = bitmap->h - bitmap->lock_y - bitmap->lock_h;
       /* glWindowPos2i may not be available. */
       if (al_opengl_version() >= 1.4) {
-         glWindowPos2i(bitmap->lock_x, bitmap->h - bitmap->lock_y - bitmap->lock_h);
+         glWindowPos2i(bitmap->lock_x, gl_y);
       }
       else {
          /* The offset is to keep the coordinate within bounds, which was at
@@ -479,15 +482,13 @@ static void ogl_unlock_region(ALLEGRO_BITMAP *bitmap)
             bitmap->lock_y + bitmap->lock_h - 1e-4f);
       }
 
-      /* XXX would it be more efficient to avoid copying padding,
-       * when true_w > w?
-       */
+      /* This is to avoid copy padding when true_w > w. */
       glGetIntegerv(GL_UNPACK_ROW_LENGTH, &unpack_row_length);
       glPixelStorei(GL_UNPACK_ROW_LENGTH, ogl_bitmap->true_w);
       glDrawPixels(bitmap->lock_w, bitmap->lock_h,
          glformats[bitmap->format][2],
          glformats[bitmap->format][1],
-         bitmap->memory + (bitmap->h - bitmap->lock_y - bitmap->lock_h) * pitch + pixel_size * bitmap->lock_x);
+         bitmap->memory + gl_y * pitch + pixel_size * bitmap->lock_x);
       if (glGetError()) {
          TRACE("ogl_bitmap: glDrawPixels for format %d failed.\n",
             bitmap->format);
@@ -499,7 +500,8 @@ static void ogl_unlock_region(ALLEGRO_BITMAP *bitmap)
       glBindTexture(GL_TEXTURE_2D, ogl_bitmap->texture);
       /* We don't copy anything past bitmap->h on purpose. */
       glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0,
-         ogl_bitmap->true_w, bitmap->h, glformats[bitmap->format][2],
+         ogl_bitmap->true_w, ogl_bitmap->true_h,
+         glformats[bitmap->format][2],
          glformats[bitmap->format][1],
          bitmap->memory);
       if (glGetError()) {
