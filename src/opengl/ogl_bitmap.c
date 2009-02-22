@@ -20,6 +20,40 @@
 #include "allegro5/internal/aintern_memory.h"
 #include "allegro5/internal/aintern_opengl.h"
 
+/* OpenGL does not support "locking", i.e. direct access to a memory
+ * buffer with pixel data. Instead, the data can be copied from/to
+ * client memory. Because OpenGL stores pixel data starting with the
+ * pixel in the lower left corner, that's also how we return locked
+ * data. Otherwise (and as was done in earlier versions of this code)
+ * we would have to flip all locked memory after receiving and before
+ * sending it to OpenGL.
+ * 
+ * Also, we do support old OpenGL drivers where textures must have
+ * power-of-two dimensions. If a non-power-of-two bitmap is created in
+ * such a case, we use a texture with the next larger POT dimensions,
+ * and just keep some unused padding space to the right/bottom of the
+ * pixel data.
+ * 
+ * Putting it all together, if we have an Allegro bitmap like this,
+ * with Allegro's y-coordinates:
+ * 0 ###########
+ * 1 #111      #
+ * 2 #222      #
+ * 3 #333      #
+ * 4 ###########
+ *
+ * Then the corresponding texture looks like this with OpenGL
+ * y-coordinates (assuming we use an old driver which needs padding to
+ * POT):
+ * 7 ................
+ * 6 ................
+ * 5 ................
+ * 4 ###########.....
+ * 3 #333      #.....
+ * 2 #222      #.....
+ * 1 #111      #.....
+ * 0 ###########.....
+ */
 
 /* Conversion table from Allegro's pixel formats to corresponding OpenGL
  * formats. The three entries are GL internal format, GL type, GL format.
