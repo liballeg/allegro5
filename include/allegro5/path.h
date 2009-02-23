@@ -27,7 +27,8 @@ AL_FUNC(const char*, al_path_tail, (const ALLEGRO_PATH *path));
 AL_FUNC(void, al_path_drop_tail, (ALLEGRO_PATH *path));
 AL_FUNC(void, al_path_append, (ALLEGRO_PATH *path, const char *s));
 AL_FUNC(bool, al_path_concat, (ALLEGRO_PATH *path, const ALLEGRO_PATH *tail));
-AL_FUNC(char*, al_path_to_string, (ALLEGRO_PATH *path, char *buffer, size_t len, char delim));
+AL_FUNC(size_t, al_get_path_string_length, (const ALLEGRO_PATH *path));
+AL_FUNC(char*, al_path_to_string, (const ALLEGRO_PATH *path, char *buffer, size_t len, char delim));
 AL_FUNC(void, al_path_free, (ALLEGRO_PATH *path));
 
 AL_FUNC(void, al_path_set_drive, (ALLEGRO_PATH *path, const char *drive));
@@ -38,7 +39,7 @@ AL_FUNC(const char*, al_path_get_filename, (const ALLEGRO_PATH *path));
 
 AL_FUNC(const char*, al_path_get_extension, (const ALLEGRO_PATH *path, char *buf, size_t len));
 AL_FUNC(bool, al_path_set_extension, (ALLEGRO_PATH *path, char const *extension));
-AL_FUNC(const char*, al_path_get_basename, (ALLEGRO_PATH *path, char *buf, size_t len));
+AL_FUNC(const char*, al_path_get_basename, (const ALLEGRO_PATH *path, char *buf, size_t len));
 
 AL_FUNC(bool, al_path_make_absolute, (ALLEGRO_PATH *path));
 AL_FUNC(bool, al_path_make_canonical, (ALLEGRO_PATH *path));

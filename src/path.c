@@ -371,7 +371,7 @@ static ALLEGRO_USTR *path_to_ustr(const ALLEGRO_PATH *path, int32_t delim)
 
 /* Function: al_path_to_string
  */
-char *al_path_to_string(ALLEGRO_PATH *path, char *buffer, size_t len,
+char *al_path_to_string(const ALLEGRO_PATH *path, char *buffer, size_t len,
    char delim)
 {
    ALLEGRO_USTR *ustr;
@@ -393,6 +393,29 @@ char *al_path_to_string(ALLEGRO_PATH *path, char *buffer, size_t len,
 }
 
 
+/* Function: al_get_path_string_length
+ *
+ * Returns the minimum size of the buffer that needs to be passed to
+ * al_path_to_string.
+ */
+size_t al_get_path_string_length(const ALLEGRO_PATH *path)
+{
+   size_t size = 0;
+
+   if (path) {
+      /* FIXME: there is probably a better way to do this than convert the
+       * entire path and then throwing it away?
+       */
+      ALLEGRO_USTR *ustr;
+      ustr = path_to_ustr(path, '/');
+      size = al_ustr_size(ustr) + 1;
+      al_ustr_free(ustr);
+   }
+
+   return size;
+}
+
+ 
 /* Function: al_path_free
  */
 void al_path_free(ALLEGRO_PATH *path)
@@ -517,7 +540,7 @@ bool al_path_set_extension(ALLEGRO_PATH *path, char const *extension)
 
 /* Function: al_path_get_basename
  */
-const char *al_path_get_basename(ALLEGRO_PATH *path, char *buf, size_t len)
+const char *al_path_get_basename(const ALLEGRO_PATH *path, char *buf, size_t len)
 {
    int dot;
    ASSERT(path);
