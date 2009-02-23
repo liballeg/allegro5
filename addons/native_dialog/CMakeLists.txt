@@ -19,6 +19,7 @@ add_our_library(a5_dialog -${ALLEGRO_VERSION}
     "${GTK_LIBRARIES}"
     )
 
+set(SUPPORT_NATIVE_DIALOG 1 PARENT_SCOPE)
 set(NATIVE_DIALOG_LINK_WITH a5_dialog PARENT_SCOPE)
 
 install(FILES ${INCLUDE_FILES}
