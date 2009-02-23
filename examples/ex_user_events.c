@@ -6,9 +6,8 @@
 #include "allegro5/allegro5.h"
 
 
-/* XXX Currently we have no formal way to allocate event type numbers. */
-#define MY_SIMPLE_EVENT_TYPE     1025
-#define MY_COMPLEX_EVENT_TYPE    1026
+#define MY_SIMPLE_EVENT_TYPE     ALLEGRO_GET_EVENT_TYPE('m', 's', 'e', 't')
+#define MY_COMPLEX_EVENT_TYPE    ALLEGRO_GET_EVENT_TYPE('m', 'c', 'e', 't')
 
 
 /* Just some fantasy event, supposedly used in an RPG - it's just to show that

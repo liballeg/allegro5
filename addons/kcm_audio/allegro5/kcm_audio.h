@@ -40,10 +40,10 @@ extern "C" {
 
 
 /* Internal, used to communicate with acodec. */
-#define _KCM_STREAM_FEEDER_QUIT_EVENT_TYPE   1234
+#define _KCM_STREAM_FEEDER_QUIT_EVENT_TYPE   ALLEGRO_GET_EVENT_TYPE('k', 's', 'q', 'e')
 /* User event type emitted when a stream fragment is ready to be
  * refilled with more audio data.*/
-#define ALLEGRO_EVENT_STREAM_EMPTY_FRAGMENT  1235
+#define ALLEGRO_EVENT_STREAM_EMPTY_FRAGMENT  ALLEGRO_GET_EVENT_TYPE('a', 's', 'e', 'f')
 
 
 #ifndef __cplusplus

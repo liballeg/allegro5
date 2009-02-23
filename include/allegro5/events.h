@@ -132,7 +132,7 @@ enum
 };
 
 #define ALLEGRO_EVENT_TYPE_IS_USER(t)        ((t) >= 1024)
-
+#define ALLEGRO_GET_EVENT_TYPE               AL_ID
 
 
 /*

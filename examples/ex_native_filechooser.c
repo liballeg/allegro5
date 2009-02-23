@@ -5,7 +5,7 @@
 #include <allegro5/a5_color.h>
 
 /* To communicate from a separate thread, we need a user event. */
-#define MY_EVENT 1024
+#define MY_EVENT ALLEGRO_GET_EVENT_TYPE('e', 'N', 'F', 'C')
 typedef struct
 {
     ALLEGRO_NATIVE_FILE_DIALOG *fd;
