@@ -13,17 +13,15 @@
 #include "allegro5/internal/aintern_native_dialog.h"
 #include "allegro5/internal/aintern_memory.h"
 
-typedef struct
+struct ALLEGRO_NATIVE_FILE_DIALOG
 {
-   ALLEGRO_EVENT_SOURCE *event_source;
-   ALLEGRO_THREAD *thread;
    ALLEGRO_PATH *initial_path;
-   ALLEGRO_PATH **pathes;
-   int n;
-   char *patterns;
+   ALLEGRO_USTR *title;
+   ALLEGRO_USTR *patterns;
    int mode;
-   GtkWidget *window;
-} ALLEGRO_NATIVE_FILE_CHOOSER;
+   int count;
+   ALLEGRO_PATH **pathes;
+};
 
 static void destroy(GtkWidget *w, gpointer data)
 {
@@ -34,43 +32,35 @@ static void destroy(GtkWidget *w, gpointer data)
 
 static void ok(GtkWidget *w, GtkFileSelection *fs)
 {
-   ALLEGRO_NATIVE_FILE_CHOOSER *fc;
+   ALLEGRO_NATIVE_FILE_DIALOG *fc;
    fc = g_object_get_data(G_OBJECT(w), "ALLEGRO_NATIVE_FILE_CHOOSER");
    gchar **pathes = gtk_file_selection_get_selections(fs);
    int n = 0, i;
    while (pathes[n]) {
       n++;
    }
-   fc->n = n;
+   fc->count = n;
    fc->pathes = _AL_MALLOC(n * sizeof(void *));
    for (i = 0; i < n; i++)
       fc->pathes[i] = al_path_create(pathes[i]);
+   g_strfreev(pathes);
 }
 
-/* Because of the way Allegro5's event handling works, we cannot hook
- * our own event handler in there. Therefore we spawn an extra thread
- * and simply use the standard GTK main loop.
+/* Function: al_show_native_file_dialog
  * 
- * If A5 would allow hooking extra system event handlers, this could
- * be done without an extra thread - we simply would add a callback
- * which would be called by A5 whenever the user waits for new events,
- * and do GTK event handling in there.
- * 
- * Running GTK from an extra thread works just fine though.
+ * This functions completely blocks the calling thread until it returns,
+ * so usually you may want to spawn a thread with [al_create_thread] and
+ * call it from inside that thread.
  */
-static void *gtk_thread(ALLEGRO_THREAD *thread, void *arg)
+void al_show_native_file_dialog(ALLEGRO_NATIVE_FILE_DIALOG *fd)
 {
-   (void)thread;
    int argc = 0;
    char **argv = NULL;
    GtkWidget *window;
    gtk_init_check(&argc, &argv);
 
    /* Create a new file selection widget */
-   window = gtk_file_selection_new("File selection");
-   
-   ALLEGRO_NATIVE_FILE_CHOOSER *fc = arg;
-   fc->window = window;
+   window = gtk_file_selection_new(al_cstr(fd->title));
 
    /* Connect the destroy signal */
    g_signal_connect(G_OBJECT(window), "destroy", G_CALLBACK(destroy), NULL);
@@ -86,34 +76,29 @@ static void *gtk_thread(ALLEGRO_THREAD *thread, void *arg)
                             "clicked", G_CALLBACK(gtk_widget_destroy), window);
 
    g_object_set_data(G_OBJECT(GTK_FILE_SELECTION(window)->ok_button),
-      "ALLEGRO_NATIVE_FILE_CHOOSER", fc);
+      "ALLEGRO_NATIVE_FILE_CHOOSER", fd);
 
-   if (fc->initial_path) {
+   if (fd->initial_path) {
       char name[PATH_MAX];
-      al_path_to_string(fc->initial_path, name,
+      al_path_to_string(fd->initial_path, name,
                         sizeof name, '/');
       gtk_file_selection_set_filename(GTK_FILE_SELECTION(window), name);
    }
 
-   if (fc->mode & ALLEGRO_FILECHOOSER_MULTIPLE)
+   if (fd->mode & ALLEGRO_FILECHOOSER_MULTIPLE)
       gtk_file_selection_set_select_multiple(GTK_FILE_SELECTION(window), true);
 
    gtk_widget_show(window);
    gtk_main();
-
-   ALLEGRO_EVENT event;
-   event.user.type = ALLEGRO_EVENT_NATIVE_FILE_CHOOSER;
-   event.user.data1 = (intptr_t)fc;
-   al_emit_user_event(fc->event_source, &event, NULL);
-
-   return NULL;
 }
 
-/* Function: al_spawn_native_file_dialog
+/* Function: al_create_native_file_dialog
+ * 
+ * Creates a new native file dialog.
  * 
  * Parameters:
- * - queue: Event queue which gets the cancel/ok event.
  * - initial_path: The initial search path and filename. Can be NULL.
+ * - title: Title of the dialog.
  * - patterns: A list of semi-colon separated patterns to match. You
  *   should always include the pattern "*.*" as usually the MIME type
  *   and not the file pattern is relevant. If no file patterns are
@@ -138,66 +123,59 @@ static void *gtk_thread(ALLEGRO_THREAD *thread, void *arg)
  *   multiple files.
  *
  * Returns:
- * False if no dialog could be shown.
+ * A handle to the dialog from which you can query the results. When you
+ * are done, call [al_destroy_native_file_dialog] on it.
  */
-ALLEGRO_EVENT_SOURCE *al_spawn_native_file_dialog(
-    ALLEGRO_PATH const *initial_path, char const *patterns, int mode)
+ALLEGRO_NATIVE_FILE_DIALOG *al_create_native_file_dialog(
+    ALLEGRO_PATH const *initial_path,
+    char const *title,
+    char const *patterns,
+    int mode)
 {
-   ALLEGRO_NATIVE_FILE_CHOOSER *fc;
+   ALLEGRO_NATIVE_FILE_DIALOG *fc;
    fc = _AL_MALLOC(sizeof *fc);
    memset(fc, 0, sizeof *fc);
-   fc->event_source = al_create_user_event_source();
-   fc->mode = mode;
+
    if (initial_path)
       fc->initial_path = al_path_clone(initial_path);
-   if (patterns)
-      fc->patterns = strdup(patterns);
+   fc->title = al_ustr_new(title);
+   fc->patterns = al_ustr_new(patterns);
    fc->mode = mode;
 
-   fc->thread = al_create_thread(gtk_thread, fc);
-   al_start_thread(fc->thread);
-   return fc->event_source;
+   return fc;
 }
 
-/* Function: al_finalize_native_file_dialog
- * 
- * Parameters:
- * - queue: Pass the same queue you passed when spawning the dialog.
- * - event: The notification event.
- * - pathes: An array of pathes which will receive the selection.
- * - n: Maximum number of pathes to retrieve. Usually you will use 1
- *   here, unless the ALLEGRO_FILECHOOSER_MULTIPLE flags was used.
- * 
- * Returns:
- * 0 if the dialog was cancelled by the user, else the number of
- * stored pathes (at most n).
+/* al_get_native_file_dialog_count
  */
-int al_finalize_native_file_dialog(ALLEGRO_EVENT *event,
-    ALLEGRO_PATH * pathes[], int n)
+int al_get_native_file_dialog_count(ALLEGRO_NATIVE_FILE_DIALOG *fc)
 {
-   int count = 0;
-   ASSERT(event->user.type == ALLEGRO_EVENT_NATIVE_FILE_CHOOSER);
+   return fc->count;
+}
 
-   ALLEGRO_NATIVE_FILE_CHOOSER *fc = (void *)event->user.data1;
+/* al_get_native_file_dialog_path
+ */
+ALLEGRO_PATH *al_get_native_file_dialog_path(
+   ALLEGRO_NATIVE_FILE_DIALOG *fc, int i)
+{
+   if (i < fc->count)
+      return fc->pathes[i];
+   return NULL;
+}
 
-   if (fc->pathes) {
+/* al_destroy_native_file_dialog
+ */
+void al_destroy_native_file_dialog(ALLEGRO_NATIVE_FILE_DIALOG *fd)
+{
+   if (fd->pathes) {
       int i;
-      for (i = 0; i < fc->n; i++) {
-         if (i < n) {
-            count++;
-            pathes[i] = fc->pathes[i];
-         }
-         else
-            al_path_free(fc->pathes[i]);
+      for (i = 0; i < fd->count; i++) {
+         al_path_free(fd->pathes[i]);
       }
    }
-
-   al_destroy_user_event_source(fc->event_source);
-   al_destroy_thread(fc->thread);
-   if (fc->initial_path)
-      al_path_free(fc->initial_path);
-   if (fc->patterns)
-      free(fc->patterns);
-   _AL_FREE(fc);
-   return count;
+   _AL_FREE(fd->pathes);
+   if (fd->initial_path)
+      al_path_free(fd->initial_path);
+   al_ustr_free(fd->title);
+   al_ustr_free(fd->patterns);
+   _AL_FREE(fd);
 }
