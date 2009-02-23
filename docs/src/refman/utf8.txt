@@ -10,7 +10,7 @@ Explain that pos parameters are in byte offsets, not code point indices.
 Explain about half-open intervals.
 
 
-# Types
+# UTF-8 string types
 
 ## API: ALLEGRO_USTR
 

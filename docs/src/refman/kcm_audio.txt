@@ -1,6 +1,6 @@
 % Audio addon
 
-# Types
+# Audio types
 
 ## API: ALLEGRO_AUDIO_DEPTH
 
