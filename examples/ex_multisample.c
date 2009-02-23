@@ -52,7 +52,7 @@ int main(void)
    while (!quit) {
       ALLEGRO_EVENT event;
       /* Check for ESC key or close button event and quit in either case. */
-      al_get_next_event(queue, &event);
+      al_wait_for_event(queue, &event);
       switch (event.type) {
          case ALLEGRO_EVENT_DISPLAY_CLOSE:
             quit = true;
