@@ -15,6 +15,7 @@ set(PAGES
     kcm_audio
     keyboard
     memory
+    misc
     mouse
     opengl
     path

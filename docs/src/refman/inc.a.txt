@@ -13,6 +13,7 @@
 * [Joystick](joystick.html)
 * [Keyboard](keyboard.html)
 * [Memory](memory.html)
+* [Miscellaneous](misc.html)
 * [Mouse](mouse.html)
 * [OpenGL](opengl.html)
 * [Path](path.html)
