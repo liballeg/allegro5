@@ -159,7 +159,7 @@ static void draw_quad(ALLEGRO_BITMAP *bitmap,
 
    glPushMatrix();
    glTranslatef(dx, dy, 0);
-   glRotatef(angle * 180 / AL_PI, 0, 0, -1);
+   glRotatef(angle * 180 / ALLEGRO_PI, 0, 0, -1);
    glScalef(xscale, yscale, 1);
    glTranslatef(-dx - cx, -dy - cy, 0);
 

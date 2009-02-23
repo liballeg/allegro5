@@ -57,11 +57,11 @@ void FilledPrimitives(int mode)
          float x, y;
          ALLEGRO_COLOR color;
          if (ii % 2 == 0) {
-            x = 150 * cosf((float)ii / 20 * 2 * AL_PI);
-            y = 150 * sinf((float)ii / 20 * 2 * AL_PI);
+            x = 150 * cosf((float)ii / 20 * 2 * ALLEGRO_PI);
+            y = 150 * sinf((float)ii / 20 * 2 * ALLEGRO_PI);
          } else {
-            x = 200 * cosf((float)ii / 20 * 2 * AL_PI);
-            y = 200 * sinf((float)ii / 20 * 2 * AL_PI);
+            x = 200 * cosf((float)ii / 20 * 2 * ALLEGRO_PI);
+            y = 200 * sinf((float)ii / 20 * 2 * ALLEGRO_PI);
          }
          
          if (ii == 0) {
@@ -119,11 +119,11 @@ void IndexedFilledPrimitives(int mode)
       for (ii = 0; ii < 21; ii++) {
          float x, y;
          if (ii % 2 == 0) {
-            x = 150 * cosf((float)ii / 20 * 2 * AL_PI);
-            y = 150 * sinf((float)ii / 20 * 2 * AL_PI);
+            x = 150 * cosf((float)ii / 20 * 2 * ALLEGRO_PI);
+            y = 150 * sinf((float)ii / 20 * 2 * ALLEGRO_PI);
          } else {
-            x = 200 * cosf((float)ii / 20 * 2 * AL_PI);
-            y = 200 * sinf((float)ii / 20 * 2 * AL_PI);
+            x = 200 * cosf((float)ii / 20 * 2 * ALLEGRO_PI);
+            y = 200 * sinf((float)ii / 20 * 2 * ALLEGRO_PI);
          }
          
          if (ii == 0) {
@@ -212,7 +212,7 @@ void HighPrimitives(int mode)
       al_draw_rectangle(-300, -200, 300, 200, al_map_rgba_f(0.5, 0, 0, 1), Thickness);
       
       al_draw_ellipse(0, 0, 300, 150, al_map_rgba_f(0, 0.5, 0.5, 1), Thickness);
-      al_draw_arc(0, 0, 200, -AL_PI / 2, AL_PI, al_map_rgba_f(0.5, 0.25, 0, 1), Thickness);
+      al_draw_arc(0, 0, 200, -ALLEGRO_PI / 2, ALLEGRO_PI, al_map_rgba_f(0.5, 0.25, 0, 1), Thickness);
       al_draw_spline(points, al_map_rgba_f(0.1, 0.2, 0.5, 1), Thickness);
       
       al_use_transform(&Identity);
@@ -270,7 +270,7 @@ void ShadePrimitives(int mode)
    } else if (mode == LOGIC) {
       Theta += Speed;
       al_build_transform(&MainTrans, ScreenW / 2, ScreenH / 2, 1, 1, Theta);
-      shade_color = al_map_rgba_f(1 + 0.5 * sinf(t), 1 + 0.5 * sinf(t + AL_PI / 3), 1 + 0.5 * sinf(t + 2 * AL_PI / 3), 1);
+      shade_color = al_map_rgba_f(1 + 0.5 * sinf(t), 1 + 0.5 * sinf(t + ALLEGRO_PI / 3), 1 + 0.5 * sinf(t + 2 * ALLEGRO_PI / 3), 1);
    } else if (mode == DRAW) {
       float points[8] = {
          -300, -200,
@@ -299,7 +299,7 @@ void ShadePrimitives(int mode)
       al_draw_rectangle(-300, -200, 300, 200, al_map_rgba_f(0.5, 0, 0, 0.5), Thickness);
       
       al_draw_ellipse(0, 0, 300, 150, al_map_rgba_f(0, 0.5, 0.5, 1), Thickness);
-      al_draw_arc(0, 0, 200, -AL_PI / 2, AL_PI, al_map_rgba_f(0.5, 0.25, 0, 1), Thickness);
+      al_draw_arc(0, 0, 200, -ALLEGRO_PI / 2, ALLEGRO_PI, al_map_rgba_f(0.5, 0.25, 0, 1), Thickness);
       al_draw_spline(points, al_map_rgba_f(0.1, 0.2, 0.5, 1), Thickness);
       
       al_use_transform(&Identity);
@@ -347,7 +347,7 @@ void TransformationsPrimitives(int mode)
       al_draw_rectangle(-300, -200, 300, 200, al_map_rgba_f(0.5, 0, 0, 0.5), Thickness);
       
       al_draw_ellipse(0, 0, 300, 150, al_map_rgba_f(0, 0.5, 0.5, 1), Thickness);
-      al_draw_arc(0, 0, 200, -AL_PI / 2, AL_PI, al_map_rgba_f(0.5, 0.25, 0, 1), Thickness);
+      al_draw_arc(0, 0, 200, -ALLEGRO_PI / 2, ALLEGRO_PI, al_map_rgba_f(0.5, 0.25, 0, 1), Thickness);
       al_draw_spline(points, al_map_rgba_f(0.1, 0.2, 0.5, 1), Thickness);
       
       al_use_transform(&Identity);
@@ -369,8 +369,8 @@ void LowPrimitives(int mode)
       vbuff = al_create_vbuff(13, ALLEGRO_VBUFFER_SOFT | ALLEGRO_VBUFFER_WRITE | ALLEGRO_VBUFFER_READ);
       for (ii = 0; ii < 13; ii++) {
          float x, y;
-         x = 200 * cosf((float)ii / 13.0f * 2 * AL_PI);
-         y = 200 * sinf((float)ii / 13.0f * 2 * AL_PI);
+         x = 200 * cosf((float)ii / 13.0f * 2 * ALLEGRO_PI);
+         y = 200 * sinf((float)ii / 13.0f * 2 * ALLEGRO_PI);
          
          color = al_map_rgb((ii + 1) % 3 * 64, (ii + 2) % 3 * 64, (ii) % 3 * 64);
          
@@ -424,8 +424,8 @@ void IndexedPrimitives(int mode)
       vbuff = al_create_vbuff(13, ALLEGRO_VBUFFER_SOFT | ALLEGRO_VBUFFER_WRITE | ALLEGRO_VBUFFER_READ);
       for (ii = 0; ii < 13; ii++) {
          float x, y;
-         x = 200 * cosf((float)ii / 13.0f * 2 * AL_PI);
-         y = 200 * sinf((float)ii / 13.0f * 2 * AL_PI);
+         x = 200 * cosf((float)ii / 13.0f * 2 * ALLEGRO_PI);
+         y = 200 * sinf((float)ii / 13.0f * 2 * ALLEGRO_PI);
          
          color = al_map_rgb((ii + 1) % 3 * 64, (ii + 2) % 3 * 64, (ii) % 3 * 64);
          

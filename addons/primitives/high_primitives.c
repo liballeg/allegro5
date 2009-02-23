@@ -409,7 +409,7 @@ void al_draw_ellipse(float cx, float cy, float rx, float ry,
          num_segments = (ALLEGRO_VBUFF_CACHE_SIZE - 1) / 2;
       }
       
-      al_calculate_arc(cache_buffer, cx, cy, rx, ry, 0, AL_PI * 2, thickness, 0, num_segments);
+      al_calculate_arc(cache_buffer, cx, cy, rx, ry, 0, ALLEGRO_PI * 2, thickness, 0, num_segments);
       for (ii = 0; ii < 2 * num_segments; ii++)
          al_set_vbuff_color(cache_buffer, ii, color);
          
@@ -422,7 +422,7 @@ void al_draw_ellipse(float cx, float cy, float rx, float ry,
          num_segments = ALLEGRO_VBUFF_CACHE_SIZE - 1;
       }
       
-      al_calculate_arc(cache_buffer, cx, cy, rx, ry, 0, AL_PI * 2, 0, 0, num_segments);
+      al_calculate_arc(cache_buffer, cx, cy, rx, ry, 0, ALLEGRO_PI * 2, 0, 0, num_segments);
       for (ii = 0; ii < num_segments; ii++)
          al_set_vbuff_color(cache_buffer, ii, color);
          
@@ -449,7 +449,7 @@ void al_draw_filled_ellipse(float cx, float cy, float rx, float ry,
    if (!al_lock_vbuff_range(cache_buffer, 0, num_segments + 1, ALLEGRO_VBUFFER_WRITE))
       return;
       
-   al_calculate_arc(cache_buffer, cx, cy, rx, ry, 0, AL_PI * 2, 0, 1, num_segments);
+   al_calculate_arc(cache_buffer, cx, cy, rx, ry, 0, ALLEGRO_PI * 2, 0, 1, num_segments);
    al_set_vbuff_pos(cache_buffer, 0, cx, cy, 0);
    
    for (ii = 0; ii < num_segments + 1; ii++)
@@ -483,7 +483,7 @@ void al_draw_arc(float cx, float cy, float r, float start_theta,
    verify_cache();
    ASSERT(r >= 0);
    if (thickness > 0) {
-      int num_segments = fabs(delta_theta / (2 * AL_PI) * ALLEGRO_PRIM_QUALITY * sqrtf(r));
+      int num_segments = fabs(delta_theta / (2 * ALLEGRO_PI) * ALLEGRO_PRIM_QUALITY * sqrtf(r));
       int ii;
       
       if (2 * num_segments >= ALLEGRO_VBUFF_CACHE_SIZE) {
@@ -498,7 +498,7 @@ void al_draw_arc(float cx, float cy, float r, float start_theta,
       
       al_draw_prim(cache_buffer, 0, 0, 2 * num_segments, ALLEGRO_PRIM_TRIANGLE_STRIP);
    } else {
-      int num_segments = fabs(delta_theta / (2 * AL_PI) * ALLEGRO_PRIM_QUALITY * sqrtf(r));
+      int num_segments = fabs(delta_theta / (2 * ALLEGRO_PI) * ALLEGRO_PRIM_QUALITY * sqrtf(r));
       int ii;
       
       if (num_segments >= ALLEGRO_VBUFF_CACHE_SIZE) {

@@ -14,10 +14,6 @@
 #include "allegro5/a5_iio.h"
 #include <allegro5/a5_primitives.h>
 
-#ifndef M_PI
-   #define M_PI 3.141592653589793238462643
-#endif
-
 static ALLEGRO_BITMAP *logo, *logo_flash;
 static int logo_x, logo_y;
 static ALLEGRO_FONT *font;
@@ -358,7 +354,7 @@ static void render(void)
    if (t - anim < 0.5) {
       ALLEGRO_STATE state;
       int w, h, i, j;
-      float f = sin(M_PI * ((t - anim) / 0.5));
+      float f = sin(ALLEGRO_PI * ((t - anim) / 0.5));
       ALLEGRO_COLOR c = al_map_rgb_f(f * 0.3, f * 0.3, f * 0.3);
       w = al_get_bitmap_width(logo);
       h = al_get_bitmap_height(logo);

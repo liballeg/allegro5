@@ -35,7 +35,7 @@ static ALLEGRO_BITMAP *example_bitmap(int w, int h)
          float a = atan2(i - mx, j - my);
          float d = sqrt(pow(i - mx, 2) + pow(j - my, 2));
          float sat = pow(1.0 - 1 / (1 + d * 0.1), 5);
-         float hue = 3 * a * 180 / AL_PI;
+         float hue = 3 * a * 180 / ALLEGRO_PI;
          hue = (hue / 360 - floor(hue / 360)) * 360;
          al_put_pixel(i, j, al_color_hsv(hue, sat, 1));
       }

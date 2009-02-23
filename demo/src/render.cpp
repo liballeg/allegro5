@@ -14,7 +14,7 @@ static void renderWave(void)
    int w = al_get_bitmap_width(waveBitmap);
    int h = al_get_bitmap_height(waveBitmap);
 
-   float a = -(waveAngle + M_PI/2);
+   float a = -(waveAngle + ALLEGRO_PI/2);
 
    int x = (int)(BB_W/2 + 64*cos(a));
    int y = (int)(BB_H/2 + 64*sin(a));
@@ -52,7 +52,7 @@ void showWave(int num)
    al_font_textprintf(myfont, 0, 0, "%s", text);
    al_set_target_bitmap(old_target);
 
-   waveAngle = (M_PI*2);
+   waveAngle = (ALLEGRO_PI*2);
 }
 
 void shake(void)

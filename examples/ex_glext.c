@@ -14,10 +14,6 @@
 #include <GL/glu.h>
 #endif
 
-#ifndef M_PI
-#define M_PI 3.1415926535897932384626433832795
-#endif
-
 #define WINDOW_W 640
 #define WINDOW_H 480
 
@@ -179,7 +175,7 @@ void draw_mesh(void)
 
          wave_movement += 0.00001f;
 
-         if (wave_movement > 2 * M_PI) {
+         if (wave_movement > 2 * ALLEGRO_PI) {
                wave_movement = 0.0f;
          }
       }

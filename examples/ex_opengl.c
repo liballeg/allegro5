@@ -81,7 +81,7 @@ void draw_opengl(void)
 
       glDisable(GL_TEXTURE_2D);
       glColor3f(1, 1, 0);
-      glTranslatef(128, 128 + sin(ms * AL_PI * 2 * 2) * 20, 0);
+      glTranslatef(128, 128 + sin(ms * ALLEGRO_PI * 2 * 2) * 20, 0);
       glBegin(GL_TRIANGLES);
       glVertex2f(0, -100);
       glVertex2f(100, 0);

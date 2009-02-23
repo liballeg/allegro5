@@ -27,7 +27,7 @@ bool UFO::logic(int step)
       Player *p = (Player *)rm.getData(RES_PLAYER);
       float px = p->getX();
       float py = p->getY();
-      float shot_angle = atan2(x-px, y-py) + M_PI/2.0f;
+      float shot_angle = atan2(x-px, y-py) + ALLEGRO_PI/2.0f;
       LargeSlowBullet *b = new LargeSlowBullet(x, y, shot_angle, this);
       new_entities.push_back(b);
       my_play_sample(RES_FIRELARGE);

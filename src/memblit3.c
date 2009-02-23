@@ -105,7 +105,7 @@ void _al_draw_rotated_scaled_bitmap_memory_fast(ALLEGRO_BITMAP *src,
    fixed fix_dy = ftofix(dy);
    fixed fix_cx = ftofix(cx);
    fixed fix_cy = ftofix(cy);
-   fixed fix_angle = ftofix(angle*256/(AL_PI*2));
+   fixed fix_angle = ftofix(angle*256/(ALLEGRO_PI*2));
    fixed fix_xscale = ftofix(xscale);
    fixed fix_yscale = ftofix(yscale);
 

@@ -113,7 +113,7 @@ void splat(const int x, const int y, bool blend)
       al_set_blender(ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA,
          al_map_rgb_f(0.5, 1, 1));
    }
-   for (theta = 0.0; theta < 2.0 * AL_PI; theta += AL_PI/16.0) {
+   for (theta = 0.0; theta < 2.0 * ALLEGRO_PI; theta += ALLEGRO_PI/16.0) {
       al_draw_line(x, y, x + 40.0 * cos(theta), y + 40.0 * sin(theta), white, 0);
    }
    reset_clip_rect();

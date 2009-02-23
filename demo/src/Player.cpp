@@ -138,26 +138,26 @@ void Player::render(int offx, int offy)
 
    if (!isDestructable) {
       al_draw_rotated_bitmap(trans_bitmap, draw_radius, draw_radius, rx, ry,
-         angle-(M_PI/2.0f), 0);
+         angle-(ALLEGRO_PI/2.0f), 0);
    }
    else {
       al_draw_rotated_bitmap(bitmap, draw_radius, draw_radius, rx, ry,
-         angle-(M_PI/2.0f), 0);
+         angle-(ALLEGRO_PI/2.0f), 0);
    }
    if (draw_trail) {
       int tw = al_get_bitmap_width(trail_bitmap);
       int th = al_get_bitmap_height(trail_bitmap);
-      float ca = (M_PI*2)-angle;
-      float a = ca - ((210.0f / 180.0f) * M_PI);
+      float ca = (ALLEGRO_PI*2)-angle;
+      float a = ca - ((210.0f / 180.0f) * ALLEGRO_PI);
       float tx = rx + 42.0f * cos(a);
       float ty = ry + 42.0f * sin(a);
       al_draw_rotated_bitmap(trail_bitmap, tw, th/2,
-         tx, ty, (M_PI*2)-a, 0);
-      a = ca - ((150.0f / 180.0f) * M_PI);
+         tx, ty, (ALLEGRO_PI*2)-a, 0);
+      a = ca - ((150.0f / 180.0f) * ALLEGRO_PI);
       tx = rx + 42.0f * cos(a);
       ty = ry + 42.0f * sin(a);
       al_draw_rotated_bitmap(trail_bitmap, tw, th/2,
-         tx, ty, (M_PI*2)-a, 0);
+         tx, ty, (ALLEGRO_PI*2)-a, 0);
    }
 }
 
@@ -273,7 +273,7 @@ void Player::reset(void)
    y = BB_H/2;
    dx = 0;
    dy = 0;
-   angle = M_PI/2;
+   angle = ALLEGRO_PI/2;
    draw_trail = false;
    weapon = WEAPON_SMALL;
 }

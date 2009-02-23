@@ -49,7 +49,7 @@ void _rotate_scale_flip_coordinates(fixed w, fixed h,
    if (angle >= 0x800000)
       angle -= 0x1000000;
 
-   _AL_SINCOS(angle * (AL_PI / (double)0x800000), sin_angle, cos_angle);
+   _AL_SINCOS(angle * (ALLEGRO_PI / (double)0x800000), sin_angle, cos_angle);
 
    if (cos_angle >= 0)
       fix_cos = (int)(cos_angle * 0x10000 + 0.5);

@@ -53,7 +53,7 @@ Asteroid::Asteroid(float radius, int bitmapID)
 {
    this->radius = radius;
 
-   angle = randf(0.0f, M_PI*2.0f);
+   angle = randf(0.0f, ALLEGRO_PI*2.0f);
 
    ResourceManager& rm = ResourceManager::getInstance();
    bitmap = (ALLEGRO_BITMAP *)rm.getData(bitmapID);
