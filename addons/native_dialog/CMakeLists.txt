@@ -16,7 +16,17 @@ include_directories(${GTK_INCLUDE_DIRS})
 add_our_library(a5_dialog -${ALLEGRO_VERSION}
     "${SOURCES}"
     "-DA5_NATIVE_DIALOG_SRC"
-    "${GTK_LIBRARIES}"
+    "${GTK_LIBRARIES};${ALLEGRO_LINK_WITH}"
+    )
+
+# For example, on Windows, GTK+ requires gcc -mms-bitfields (MinGW).
+foreach(arg ${GTK_CFLAGS})
+    set(GTK_CFLAGS_STRING "${GTK_CFLAGS_STRING} ${arg}")
+endforeach(arg)
+set_source_files_properties(
+    gtk_dialog.c
+    PROPERTIES
+    COMPILE_FLAGS "${GTK_CFLAGS_STRING}"
     )
 
 set(SUPPORT_NATIVE_DIALOG 1 PARENT_SCOPE)
