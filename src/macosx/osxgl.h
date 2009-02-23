@@ -8,11 +8,15 @@
 #include "allegro5/opengl/gl_ext.h"
 
 
+/* Number of pixel format attributes we can set */
+#define AL_OSX_NUM_PFA  64
+
 /* This is our version of ALLEGRO_DISPLAY with driver specific extra data. */
 typedef struct ALLEGRO_DISPLAY_OSX_WIN {
 	ALLEGRO_DISPLAY parent;
-	int gl_fmt, gl_datasize;
+	int depth;
 	NSOpenGLContext* ctx;
+   NSOpenGLPixelFormatAttribute attributes[AL_OSX_NUM_PFA];
 	NSWindow* win;
    NSCursor* cursor;
    CGDirectDisplayID display_id;

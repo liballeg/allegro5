@@ -188,6 +188,20 @@ void _al_osx_mouse_was_installed(BOOL install) {
 -(void) drawRect: (NSRect) rc
 {
 	// To do: pass on notifications to the display queue
+   ALLEGRO_DISPLAY_OSX_WIN* dpy =  (ALLEGRO_DISPLAY_OSX_WIN*) dpy_ptr;
+   ALLEGRO_EVENT_SOURCE *es = &dpy->parent.es;
+   _al_event_source_lock(es);
+   if (_al_event_source_needs_to_generate_event(es)) {
+      ALLEGRO_EVENT event;
+      event.display.type = ALLEGRO_EVENT_DISPLAY_EXPOSE;
+      event.display.timestamp = al_current_time();
+      event.display.x = rc.origin.x;
+      event.display.y = rc.origin.y;
+      event.display.width = rc.size.width;
+      event.display.height = rc.size.height;
+      _al_event_source_emit_event(es, &event);
+   }
+   _al_event_source_unlock(es);
 }
 
 /* Keyboard event handler */
@@ -421,49 +435,146 @@ static void setup_gl(ALLEGRO_DISPLAY *d)
 	[dpy->ctx update];
 }
 
-static int decode_allegro_format(int format, int* glfmt, int* glsize, int* depth) {
-	static int glformats[][4] = {
-		/* Skip pseudo formats */
-	{0, 0, 0, 0},
-	{0, 0, 0, 0},
-	{0, 0, 0, 0},
-	{0, 0, 0, 0},
-	{0, 0, 0, 0},
-	{0, 0, 0, 0},
-	{0, 0, 0, 0},
-	{0, 0, 0, 0},
-	{0, 0, 0, 0},
-	{0, 0, 0, 0},
-	{0, 0, 0, 0},
-		/* Actual formats */
-	{GL_RGBA8, GL_UNSIGNED_INT_8_8_8_8_REV, GL_BGRA, 32}, /* ARGB_8888 */
-	{GL_RGBA8, GL_UNSIGNED_INT_8_8_8_8, GL_RGBA, 32}, /* RGBA_8888 */
-	{GL_RGBA4, GL_UNSIGNED_SHORT_4_4_4_4_REV, GL_BGRA, 16}, /* ARGB_4444 */
-	{GL_RGB8, GL_UNSIGNED_BYTE, GL_BGR, 32}, /* RGB_888 */
-	{GL_RGB, GL_UNSIGNED_SHORT_5_6_5, GL_RGB, 16}, /* RGB_565 */
-	{0, 0, 0, 16}, /* RGB_555 */ //FIXME: how?
-	{GL_INTENSITY, GL_UNSIGNED_BYTE, GL_COLOR_INDEX, 8}, /* PALETTE_8 */
-	{GL_RGB5_A1, GL_UNSIGNED_SHORT_5_5_5_1, GL_RGBA, 16}, /* RGBA_5551 */
-	{0, 0, 0, 16}, /* ARGB_1555 */ //FIXME: how?
-	{GL_RGBA8, GL_UNSIGNED_INT_8_8_8_8_REV, GL_RGBA, 32}, /* ABGR_8888 */
-	{GL_RGBA8, GL_UNSIGNED_INT_8_8_8_8_REV, GL_RGBA, 32}, /* XBGR_8888 */
-	{GL_RGB8, GL_UNSIGNED_BYTE, GL_RGB, 32}, /* BGR_888 */
-	{GL_RGB, GL_UNSIGNED_SHORT_5_6_5, GL_BGR, 32}, /* BGR_565 */
-	{0, 0, 0, 16}, /* BGR_555 */ //FIXME: how?
-	{GL_RGBA8, GL_UNSIGNED_INT_8_8_8_8, GL_RGBA, 32}, /* RGBX_8888 */
-	{GL_RGBA8, GL_UNSIGNED_INT_8_8_8_8_REV, GL_BGRA, 32}, /* XRGB_8888 */
-	};
-	// To do: map the pseudo formats
-	if (format >= ALLEGRO_PIXEL_FORMAT_ARGB_8888 && format <= ALLEGRO_PIXEL_FORMAT_XRGB_8888) {
-		if (glfmt != NULL) *glfmt = glformats[format][2];
-		if (glsize != NULL) *glsize = glformats[format][1];
-		if (depth != NULL) *depth = glformats[format][3];
-		return 0;
-	}
-	else {
-		return -1;
-	}
+
+/* Fills the array of NSOpenGLPixelFormatAttributes, which has a specfied
+ * maximum size, with the options appropriate for the display.
+ */
+static void osx_set_opengl_pixelformat_attributes(ALLEGRO_DISPLAY_OSX_WIN *dpy)
+{
+   int i, n;
+   bool want_double_buffer;
+   NSOpenGLPixelFormatAttribute *a;
+   ALLEGRO_EXTRA_DISPLAY_SETTINGS *extras;
+   /* Dictionary to map Allegro's DISPLAY_OPTIONS to OS X
+    * PixelFormatAttributes. 
+    * The first column is Allegro's name, the second column is the OS X
+    * PixelFormatAttribute (or 0), the third column indicates whether we
+    * need an extra parameter or not (eg, colour depth).
+    */
+   int allegro_to_osx_settings[][3] = {
+      { ALLEGRO_RED_SIZE,           0, 0},   // Not supported per component
+      { ALLEGRO_GREEN_SIZE,         0, 0},   // Not supported per component
+      { ALLEGRO_BLUE_SIZE,          0, 0},   // Not supported per component
+      { ALLEGRO_ALPHA_SIZE,         NSOpenGLPFAAlphaSize, 1},
+      { ALLEGRO_RED_SHIFT,          0, 0},   // Not available
+      { ALLEGRO_GREEN_SHIFT,        0, 0},   // Not available
+      { ALLEGRO_BLUE_SHIFT,         0, 0},   // Not available
+      { ALLEGRO_ALPHA_SHIFT,        0, 0},   // Not available
+      { ALLEGRO_ACC_RED_SIZE,       NSOpenGLPFAAccumSize, 1}, // Correct?
+      { ALLEGRO_ACC_GREEN_SIZE,     NSOpenGLPFAAccumSize, 1}, // Correct?
+      { ALLEGRO_ACC_BLUE_SIZE,      NSOpenGLPFAAccumSize, 1}, // Correct?
+      { ALLEGRO_ACC_ALPHA_SIZE,     NSOpenGLPFAAccumSize, 1}, // Correct?
+      { ALLEGRO_STEREO,             NSOpenGLPFAStereo, 0},
+      { ALLEGRO_AUX_BUFFERS,        NSOpenGLPFAAuxBuffers, 1},
+      { ALLEGRO_COLOR_SIZE,         NSOpenGLPFAColorSize, 1},
+      { ALLEGRO_DEPTH_SIZE,         NSOpenGLPFADepthSize, 1},
+      { ALLEGRO_STENCIL_SIZE,       NSOpenGLPFAStencilSize, 1},
+      { ALLEGRO_SAMPLE_BUFFERS,     NSOpenGLPFASampleBuffers, 1},
+      { ALLEGRO_SAMPLES,            NSOpenGLPFASamples, 1},
+      { ALLEGRO_RENDER_METHOD,      NSOpenGLPFAAccelerated, 0},
+      { ALLEGRO_FLOAT_COLOR,        NSOpenGLPFAColorFloat, 0},
+      { ALLEGRO_FLOAT_DEPTH,        NSOpenGLPFAColorSize, 1},  // Correct?
+      { ALLEGRO_DOUBLEBUFFERED,     0, 0},   // Only have inverse of this
+      { ALLEGRO_SWAP_METHOD,        0, 0},
+      { ALLEGRO_COMPATIBLE_DISPLAY, 0, 0},
+      { ALLEGRO_DISPLAY_OPTIONS_COUNT, 0, 0}
+   };
+   const int number_of_settings =
+      sizeof(allegro_to_osx_settings)/sizeof(*allegro_to_osx_settings);
+   /* The following combination of flags indicates that multi-sampling is
+    * requested.
+    */
+   const int sample_flags = (1<<ALLEGRO_SAMPLES)|(1<<ALLEGRO_SAMPLE_BUFFERS);
+
+   /* Get extra display settings */
+   extras = _al_get_new_display_settings();
+
+   /* Begin by setting all elements in the array to 0 */
+   memset(dpy->attributes, 0, AL_OSX_NUM_PFA*sizeof(*dpy->attributes));
+
+   /* We normally want a double buffer */
+   want_double_buffer = true;
+
+   /* Begin with the first attribute */
+   a = dpy->attributes;
+
+   /* First, check the display flags, so we know if we want a fullscreen
+    * mode or a windowed mode.
+    */
+   if (dpy->parent.flags & ALLEGRO_FULLSCREEN) {
+      *a = NSOpenGLPFAFullScreen; a++;
+      // Take over the screen.
+       *a = NSOpenGLPFAScreenMask; a++;
+       *a = CGDisplayIDToOpenGLDisplayMask(dpy->display_id); a++;
+   } else {
+      *a = NSOpenGLPFAWindow; a++;
+   }
+
+   /* Find the requested colour depth */
+   if (extras)
+      dpy->depth = extras->settings[ALLEGRO_COLOR_SIZE];
+   if (!dpy->depth)
+      dpy->depth = 32;  // FIXME
+   *a = NSOpenGLPFAColorSize; a++;
+   *a = dpy->depth; a++; 
+   /* This should be set automatically because al_set_new_display_format
+    * sets this.
+    */
+
+   /* Say we don't need an exact match for the depth of the colour buffer.
+    * FIXME: right now, this is set whenever nothing is required or
+    * something is suggested. Probably need finer control over this...
+    */
+   if (!extras || !(extras->required) || extras->suggested) {
+      *a = NSOpenGLPFAClosestPolicy; a++;
+   }
+
+   /* Should we set double buffering? There are two ways to specify this:
+    * Either the flags indicate we want one buffer, or the options indicate
+    * we require a double buffer. If it's not required we don't care and go
+    * with the default.
+    */
+   if (dpy->parent.flags & ALLEGRO_SINGLEBUFFER) {
+      want_double_buffer = false;
+   }
+   if (extras && (extras->required & (1 << ALLEGRO_DOUBLEBUFFERED)) && 
+         !extras->settings[ALLEGRO_DOUBLEBUFFERED]) {
+      want_double_buffer = false;
+   }
+   if (want_double_buffer) {
+      *a = NSOpenGLPFADoubleBuffer; a++;
+   }
+
+   /* Detect if multi-sampling is requested */
+   /* Or "NSOpenGLPFASupersample" ? */
+   if (extras && (extras->required & sample_flags) &&
+       (extras->settings[ALLEGRO_SAMPLES]||extras->settings[ALLEGRO_SAMPLE_BUFFERS])) {
+      *a = NSOpenGLPFAMultisample; a++;
+   }
+
+   /* Now go through all other options, if set */
+   for (n = 0; n < number_of_settings; n++) {
+      i = allegro_to_osx_settings[n][0];
+      if (allegro_to_osx_settings[i][1] && extras &&
+          ((extras->required & (1 << i)) || (extras->suggested & (1 << i)))) {
+         /* Need to distinguish between boolean attributes and settings that
+          * require a value.
+          */
+         if (allegro_to_osx_settings[i][2]) {   /* Value */
+            /* We must make sure the value is non-zero because the list are
+             * building is 0-terminated.
+             */
+            if (extras->settings[i]) {
+               *a = allegro_to_osx_settings[i][1]; a++;
+               *a = extras->settings[i]; a++;
+            }
+         } else if (extras->settings[i]) {      /* Boolean, just turn this on */
+            *a = allegro_to_osx_settings[i][1]; a++;
+         }
+      }
+   }
 }
+
 
 /* The purpose of this object is to provide a receiver for "perform on main 
  * thread" messages - we can't call C function directly so we do it
@@ -498,22 +609,9 @@ static int decode_allegro_format(int format, int* glfmt, int* glsize, int* depth
 					 backing: NSBackingStoreBuffered
 					   defer: NO
                  screen: screen];
-	int depth;
-	decode_allegro_format(dpy->parent.format, &dpy->gl_fmt, 
-      &dpy->gl_datasize, &depth);
-   NSOpenGLPixelFormatAttribute attrs[] = 
-	{
-		NSOpenGLPFAColorSize,
-		depth, 
-		NSOpenGLPFAWindow,
-      NSOpenGLPFADoubleBuffer,
-		0
-	};
-   /* Disable DoubleBuffer if only a single buffer is requested */
-   if (dpy->parent.flags & ALLEGRO_SINGLEBUFFER) {
-      attrs[3] = 0;
-   }
-	NSOpenGLPixelFormat* fmt = [[NSOpenGLPixelFormat alloc] initWithAttributes: attrs];
+   osx_set_opengl_pixelformat_attributes(dpy);
+	NSOpenGLPixelFormat* fmt =
+      [[NSOpenGLPixelFormat alloc] initWithAttributes: dpy->attributes];
 	ALOpenGLView* view = [[ALOpenGLView alloc] initWithFrame: rc];
    dpy->ctx = osx_create_shareable_context(fmt, &dpy->display_group);
    [fmt release];
@@ -687,9 +785,6 @@ static ALLEGRO_DISPLAY* create_display_fs(int w, int h) {
 	dpy->parent.flags = al_get_new_display_flags() | ALLEGRO_OPENGL | ALLEGRO_FULLSCREEN;
 	_al_event_source_init(&dpy->parent.es);
    dpy->cursor = [[NSCursor arrowCursor] retain];
-   int depth;
-  	decode_allegro_format(dpy->parent.format, &dpy->gl_fmt, 
-                         &dpy->gl_datasize, &depth);
    dpy->display_id = CGMainDisplayID();
    /* Get display ID for the requested display */
    if (al_get_current_video_adapter() > 0) {
@@ -700,21 +795,9 @@ static ALLEGRO_DISPLAY* create_display_fs(int w, int h) {
       dpy->display_id = (CGDirectDisplayID) [display_id pointerValue];
    }
    // Set up a pixel format to describe the mode we want.
-   NSOpenGLPixelFormatAttribute attrs[] = {
-      
-      // Specify that we want a full-screen OpenGL context.
-      NSOpenGLPFAFullScreen,
-      
-      // Take over the screen.
-      NSOpenGLPFAScreenMask, CGDisplayIDToOpenGLDisplayMask(dpy->display_id),
-      
-      NSOpenGLPFAColorSize, depth,
-      NSOpenGLPFADoubleBuffer,
-      NSOpenGLPFAAccelerated,
-      0
-   };
-   
-   NSOpenGLPixelFormat* fmt = [[NSOpenGLPixelFormat alloc] initWithAttributes: attrs];
+   osx_set_opengl_pixelformat_attributes(dpy);
+   NSOpenGLPixelFormat* fmt =
+      [[NSOpenGLPixelFormat alloc] initWithAttributes: dpy->attributes];
    if (fmt == nil) return NULL;
    // Create a context which shares with any other contexts with the same format
    NSOpenGLContext* context = osx_create_shareable_context(fmt, &dpy->display_group);
@@ -727,7 +810,7 @@ static ALLEGRO_DISPLAY* create_display_fs(int w, int h) {
    // Prevent other apps from writing to this display and switch it to our
    // chosen mode.
    CGDisplayCapture(dpy->display_id);
-   CFDictionaryRef mode = CGDisplayBestModeForParametersAndRefreshRate(dpy->display_id, depth, w, h, dpy->parent.refresh_rate, NULL);
+   CFDictionaryRef mode = CGDisplayBestModeForParametersAndRefreshRate(dpy->display_id, dpy->depth, w, h, dpy->parent.refresh_rate, NULL);
    CGDisplaySwitchToMode(dpy->display_id, mode);
    [context setFullScreen];
    // Set up the Allegro OpenGL implementation
@@ -868,12 +951,6 @@ static void destroy_display(ALLEGRO_DISPLAY* d) {
 static ALLEGRO_DISPLAY* create_display(int w, int h)
 {
    int flags = al_get_new_display_flags();
-#if 0
-   if (flags & ALLEGRO_DIRECT3D) {
-      // Can't handle this if the user asked for it
-      return NULL;
-   }
-#endif
    if (flags & ALLEGRO_FULLSCREEN) {
       return create_display_fs(w,h);
    }
