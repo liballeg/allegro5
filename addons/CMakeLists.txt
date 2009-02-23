@@ -48,7 +48,6 @@ if(WANT_COLOR)
     set(COLOR_LINK_WITH ${COLOR_LINK_WITH} PARENT_SCOPE)
 endif(WANT_COLOR)
 
-
 if(WANT_MEMFILE)
     add_subdirectory(memfile)
     set(SUPPORT_MEMFILE 1 PARENT_SCOPE)
@@ -60,6 +59,12 @@ if(WANT_PRIMITIVES)
     set(SUPPORT_PRIMITIVES 1 PARENT_SCOPE)
     set(PRIMITIVES_LINK_WITH ${PRIMITIVES_LINK_WITH} PARENT_SCOPE)
 endif(WANT_PRIMITIVES)
+
+if(WANT_NATIVE_DIALOG)
+    add_subdirectory(native_dialog)
+    set(SUPPORT_NATIVE_DIALOG 1 PARENT_SCOPE)
+    set(NATIVE_DIALOG_LINK_WITH ${NATIVE_DIALOG_LINK_WITH} PARENT_SCOPE)
+endif(WANT_NATIVE_DIALOG)
 
 #-----------------------------------------------------------------------------#
 # vi: set ts=8 sts=4 sw=4 et:

@@ -7,6 +7,7 @@ include_directories(
     ../addons/color
     ../addons/memfile
     ../addons/primitives
+    ../addons/native_dialog
     )
 
 if(SUPPORT_FONT)
@@ -114,6 +115,11 @@ if(SUPPORT_PRIMITIVES AND SUPPORT_FONT)
     example(ex_prim ${PRIMITIVES_LINK_WITH} ${FONT_LINK_WITH}
         ${IIO_LINK_WITH})
 endif(SUPPORT_PRIMITIVES AND SUPPORT_FONT)
+
+if(SUPPORT_NATIVE_DIALOG AND SUPPORT_FONT AND SUPPORT_COLOR)
+    example(ex_native_filechooser ${NATIVE_DIALOG_LINK_WITH}
+        ${FONT_LINK_WITH} ${COLOR_LINK_WITH})
+endif()
 
 copy_data_dir_to_build(copy_example_data data)
 
