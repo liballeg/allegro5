@@ -24,6 +24,7 @@ int main(void)
    al_init();
    al_install_keyboard();
    al_set_new_display_flags(ALLEGRO_DIRECT3D);
+   al_set_new_display_option(ALLEGRO_DEPTH_SIZE, 16, ALLEGRO_REQUIRE);
    display = al_create_display(640, 480);
 
    ALLEGRO_KEYBOARD_STATE state;
