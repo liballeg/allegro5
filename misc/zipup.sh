@@ -184,8 +184,9 @@ then
        cmake ..
        make docs html
        mv docs/txt/changes-4.9.txt ../CHANGES-4.9.txt
-       test -d ../docs/html/refman || mkdir -p ../docs/html/refman
-       mv docs/src/refman/*.{html,css} ../docs/html/refman
+       test -d ../docs/html || mkdir -p ../docs/html
+       rm -rf ../docs/html/refman
+       mv docs/html/refman ../docs/html/refman
    ) || exit 1
    rm -rf $builddir
 else

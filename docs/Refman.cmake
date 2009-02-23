@@ -1,3 +1,6 @@
+set(SRC_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src)
+set(SRC_REFMAN_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src/refman)
+
 set(PAGES
     acodec
     color
@@ -26,7 +29,7 @@ set(PAGES
 
 set(PAGES_TXT)
 foreach(page ${PAGES})
-    list(APPEND PAGES_TXT ${CMAKE_CURRENT_SOURCE_DIR}/${page}.txt)
+    list(APPEND PAGES_TXT ${SRC_REFMAN_DIR}/${page}.txt)
 endforeach(page)
 
 #-----------------------------------------------------------------------------#
@@ -35,6 +38,13 @@ endforeach(page)
 #
 #-----------------------------------------------------------------------------#
 
+set(HTML_DIR ${CMAKE_CURRENT_BINARY_DIR}/html/refman)
+set(MAN_DIR ${CMAKE_CURRENT_BINARY_DIR}/man)
+set(INFO_DIR ${CMAKE_CURRENT_BINARY_DIR}/info)
+set(TEXI_DIR ${CMAKE_CURRENT_BINARY_DIR}/texi)
+set(LATEX_DIR ${CMAKE_CURRENT_BINARY_DIR}/latex)
+set(PDF_DIR ${CMAKE_CURRENT_BINARY_DIR}/pdf)
+
 set(PROTOS ${CMAKE_CURRENT_BINARY_DIR}/protos)
 set(PROTOS_TIMESTAMP ${PROTOS}.timestamp)
 
@@ -42,7 +52,7 @@ set(HTML_REFS ${CMAKE_CURRENT_BINARY_DIR}/html_refs)
 set(HTML_REFS_TIMESTAMP ${HTML_REFS}.timestamp)
 set(DUMMY_REFS ${CMAKE_CURRENT_BINARY_DIR}/dummy_refs)
 set(DUMMY_REFS_TIMESTAMP ${DUMMY_REFS}.timestamp)
-set(SEARCH_INDEX_JS ${CMAKE_CURRENT_BINARY_DIR}/search_index.js)
+set(SEARCH_INDEX_JS ${HTML_DIR}/search_index.js)
 
 set(SCRIPT_DIR ${CMAKE_SOURCE_DIR}/docs/scripts)
 set(MAKE_PROTOS ${SH} ${SCRIPT_DIR}/make_protos)
@@ -130,17 +140,17 @@ if(WANT_DOCS_HTML)
     foreach(inc inc.a inc.z)
         add_custom_command(
             OUTPUT ${inc}.html
-            DEPENDS ${inc}.txt
-            COMMAND ${PANDOC} ${CMAKE_CURRENT_SOURCE_DIR}/${inc}.txt
-                    -o ${inc}.html
+            DEPENDS ${SRC_REFMAN_DIR}/${inc}.txt
+            COMMAND ${PANDOC} ${SRC_REFMAN_DIR}/${inc}.txt -o ${inc}.html
             )
     endforeach(inc)
 
     set(HTML_PAGES)
     foreach(page ${PAGES} index)
         add_custom_command(
-            OUTPUT ${page}.html
-            DEPENDS ${PROTOS_TIMESTAMP} ${HTML_REFS_TIMESTAMP} ${page}.txt
+            OUTPUT ${HTML_DIR}/${page}.html
+            DEPENDS ${PROTOS_TIMESTAMP} ${HTML_REFS_TIMESTAMP}
+                ${SRC_REFMAN_DIR}/${page}.txt
                 ${CMAKE_CURRENT_BINARY_DIR}/inc.a.html
                 ${CMAKE_CURRENT_BINARY_DIR}/inc.z.html
                 ${SEARCH_INDEX_JS}
@@ -148,24 +158,24 @@ if(WANT_DOCS_HTML)
                 ${INSERT_TIMESTAMP} inc.timestamp.html
             COMMAND
                 ${MAKE_PAGE}
-                ${CMAKE_CURRENT_SOURCE_DIR}/${page}.txt
+                ${SRC_REFMAN_DIR}/${page}.txt
                 ${HTML_REFS}
-                -o ${page}.html
+                -o ${HTML_DIR}/${page}.html
                 --include-before-body inc.a.html
                 --include-after-body inc.z.html
                 --include-after-body inc.timestamp.html
                 -c pandoc.css
-                -C custom_header.html
+                -C ${SRC_DIR}/custom_header.html
                 --standalone --toc
             )
-        list(APPEND HTML_PAGES ${CMAKE_CURRENT_BINARY_DIR}/${page}.html)
+        list(APPEND HTML_PAGES ${HTML_DIR}/${page}.html)
     endforeach(page)
     add_custom_target(html ALL DEPENDS ${HTML_PAGES})
 
-    foreach(file pandoc.css custom_header.html autosuggest.js)
+    foreach(file pandoc.css autosuggest.js)
         configure_file(
-            ${CMAKE_CURRENT_SOURCE_DIR}/../${file}
-            ${CMAKE_CURRENT_BINARY_DIR}/${file}
+            ${SRC_DIR}/${file}
+            ${HTML_DIR}/${file}
             COPY_ONLY)
     endforeach(file)
 endif(WANT_DOCS_HTML)
@@ -179,7 +189,6 @@ endif(WANT_DOCS_HTML)
 set(MANDIR "man" CACHE STRING "Install man pages into this directory")
 
 if(WANT_DOCS_MAN)
-    set(MAN_DIR ${CMAKE_CURRENT_BINARY_DIR}/man)
     make_directory(${MAN_DIR})
 
     set(MAN_PAGES)
@@ -190,7 +199,7 @@ if(WANT_DOCS_MAN)
 
         set(outputs)
         foreach(entry ${entries})
-            list(APPEND outputs ${CMAKE_CURRENT_BINARY_DIR}/man/${entry}.3)
+            list(APPEND outputs ${MAN_DIR}/${entry}.3)
         endforeach(entry)
 
         add_custom_command(
@@ -232,18 +241,22 @@ add_custom_command(
 add_custom_target(gen_dummy_refs DEPENDS ${DUMMY_REFS})
 
 if(WANT_DOCS_INFO AND PANDOC_WITH_TEXINFO AND MAKEINFO)
-    add_custom_target(info ALL DEPENDS refman.info)
+    make_directory(${INFO_DIR})
+    make_directory(${TEXI_DIR})
+
+    add_custom_target(info ALL DEPENDS ${INFO_DIR}/refman.info)
     add_custom_command(
-        OUTPUT refman.info
-        DEPENDS refman.texi
-        COMMAND ${MAKEINFO} --paragraph-indent 0 refman.texi
+        OUTPUT ${INFO_DIR}/refman.info
+        DEPENDS ${TEXI_DIR}/refman.texi
+        COMMAND ${MAKEINFO} --paragraph-indent 0 ${TEXI_DIR}/refman.texi
+                -o ${INFO_DIR}/refman.info
         )
     add_custom_command(
-        OUTPUT refman.texi
+        OUTPUT ${TEXI_DIR}/refman.texi
         DEPENDS ${PROTOS_TIMESTAMP} ${DUMMY_REFS_TIMESTAMP} ${PAGES_TXT}
         COMMAND ${MAKE_PAGE} --postprocess texinfo
                 ${DUMMY_REFS} ${PAGES_TXT}
-                -o refman.texi
+                -o ${TEXI_DIR}/refman.texi
                 --standalone
         )
 endif(WANT_DOCS_INFO AND PANDOC_WITH_TEXINFO AND MAKEINFO)
@@ -254,32 +267,31 @@ endif(WANT_DOCS_INFO AND PANDOC_WITH_TEXINFO AND MAKEINFO)
 #
 #-----------------------------------------------------------------------------#
 
-set(EXTRA_LATEX_HEADER ${CMAKE_CURRENT_SOURCE_DIR}/header.tex)
+make_directory(${LATEX_DIR})
 
-add_custom_target(latex DEPENDS refman.tex)
+add_custom_target(latex DEPENDS ${LATEX_DIR}/refman.tex)
 add_custom_command(
-    OUTPUT refman.tex
+    OUTPUT ${LATEX_DIR}/refman.tex
     DEPENDS ${PROTOS_TIMESTAMP} ${DUMMY_REFS_TIMESTAMP} ${PAGES_TXT}
-        ${EXTRA_LATEX_HEADER}
+        ${SRC_REFMAN_DIR}/header.tex
     COMMAND ${MAKE_PAGE} --postprocess latex
         ${DUMMY_REFS} ${PAGES_TXT}
-        --include-in-header ${EXTRA_LATEX_HEADER}
-        -o refman.tex
+        --include-in-header ${SRC_REFMAN_DIR}/header.tex
+        -o ${LATEX_DIR}/refman.tex
         --standalone --number-sections
     )
 
-set_directory_properties(PROPERTIES ADDITIONAL_MAKE_CLEAN_FILES
-    "refman.aux;refman.aux.bak;refman.log;refman.out;refman.toc")
-
 if(WANT_DOCS_PDF AND PDFLATEX_COMPILER)
-    add_custom_target(pdf ALL DEPENDS refman.pdf)
+    make_directory(${PDF_DIR})
+
+    add_custom_target(pdf ALL DEPENDS ${PDF_DIR}/refman.pdf)
     add_custom_command(
-        OUTPUT refman.pdf
-        DEPENDS refman.tex
+        OUTPUT ${PDF_DIR}/refman.pdf
+        DEPENDS ${LATEX_DIR}/refman.tex
         # Repeat three times to get cross references correct.
-        COMMAND ${PDFLATEX_COMPILER} refman.tex
-        COMMAND ${PDFLATEX_COMPILER} refman.tex
-        COMMAND ${PDFLATEX_COMPILER} refman.tex
+        COMMAND ${PDFLATEX_COMPILER} -output-directory ${PDF_DIR} ${LATEX_DIR}/refman.tex
+        COMMAND ${PDFLATEX_COMPILER} -output-directory ${PDF_DIR} ${LATEX_DIR}/refman.tex
+        COMMAND ${PDFLATEX_COMPILER} -output-directory ${PDF_DIR} ${LATEX_DIR}/refman.tex
         )
 endif(WANT_DOCS_PDF AND PDFLATEX_COMPILER)
 

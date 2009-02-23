@@ -142,7 +142,7 @@ configure_file(
 # requires a small POSIXy environment.
 
 if(PANDOC AND SH AND AWK AND GREP AND SED)
-    add_subdirectory(src/refman)
+    include(Refman.cmake)
 endif()
 
 #-----------------------------------------------------------------------------#
