@@ -15,15 +15,15 @@ AL_BEGIN_EXTERN_C
 typedef struct ALLEGRO_PATH ALLEGRO_PATH;
 
 AL_FUNC(ALLEGRO_PATH*, al_path_create, (const char *str));
-AL_FUNC(ALLEGRO_PATH*, al_path_clone, (ALLEGRO_PATH *path));
+AL_FUNC(ALLEGRO_PATH*, al_path_clone, (const ALLEGRO_PATH *path));
 
 // FIXME: rename to, al_path_num_dir_components
-AL_FUNC(int, al_path_num_components, (ALLEGRO_PATH *path));
-AL_FUNC(const char*, al_path_index, (ALLEGRO_PATH *path, int i));
+AL_FUNC(int, al_path_num_components, (const ALLEGRO_PATH *path));
+AL_FUNC(const char*, al_path_index, (const ALLEGRO_PATH *path, int i));
 AL_FUNC(void, al_path_replace, (ALLEGRO_PATH *path, int i, const char *s));
 AL_FUNC(void, al_path_remove, (ALLEGRO_PATH *path, int i));
 AL_FUNC(void, al_path_insert, (ALLEGRO_PATH *path, int i, const char *s));
-AL_FUNC(const char*, al_path_tail, (ALLEGRO_PATH *path));
+AL_FUNC(const char*, al_path_tail, (const ALLEGRO_PATH *path));
 AL_FUNC(void, al_path_drop_tail, (ALLEGRO_PATH *path));
 AL_FUNC(void, al_path_append, (ALLEGRO_PATH *path, const char *s));
 AL_FUNC(bool, al_path_concat, (ALLEGRO_PATH *path, const ALLEGRO_PATH *tail));
@@ -31,20 +31,20 @@ AL_FUNC(char*, al_path_to_string, (ALLEGRO_PATH *path, char *buffer, size_t len,
 AL_FUNC(void, al_path_free, (ALLEGRO_PATH *path));
 
 AL_FUNC(void, al_path_set_drive, (ALLEGRO_PATH *path, const char *drive));
-AL_FUNC(const char*, al_path_get_drive, (ALLEGRO_PATH *path));
+AL_FUNC(const char*, al_path_get_drive, (const ALLEGRO_PATH *path));
 
 AL_FUNC(void, al_path_set_filename, (ALLEGRO_PATH *path, const char *filename));
-AL_FUNC(const char*, al_path_get_filename, (ALLEGRO_PATH *path));
+AL_FUNC(const char*, al_path_get_filename, (const ALLEGRO_PATH *path));
 
-AL_FUNC(const char*, al_path_get_extension, (ALLEGRO_PATH *path, char *buf, size_t len));
+AL_FUNC(const char*, al_path_get_extension, (const ALLEGRO_PATH *path, char *buf, size_t len));
 AL_FUNC(bool, al_path_set_extension, (ALLEGRO_PATH *path, char const *extension));
 AL_FUNC(const char*, al_path_get_basename, (ALLEGRO_PATH *path, char *buf, size_t len));
 
 AL_FUNC(bool, al_path_make_absolute, (ALLEGRO_PATH *path));
 AL_FUNC(bool, al_path_make_canonical, (ALLEGRO_PATH *path));
 
-AL_FUNC(bool, al_path_exists, (ALLEGRO_PATH *path));
-AL_FUNC(bool, al_path_emode, (ALLEGRO_PATH *path, uint32_t mode));
+AL_FUNC(bool, al_path_exists, (const ALLEGRO_PATH *path));
+AL_FUNC(bool, al_path_emode, (const ALLEGRO_PATH *path, uint32_t mode));
 
 AL_END_EXTERN_C
 

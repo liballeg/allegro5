@@ -182,7 +182,7 @@ ALLEGRO_PATH *al_path_create(const char *str)
 
 /* Function: al_path_clone
  */
-ALLEGRO_PATH *al_path_clone(ALLEGRO_PATH *path)
+ALLEGRO_PATH *al_path_clone(const ALLEGRO_PATH *path)
 {
    ALLEGRO_PATH *clone;
    unsigned int i;
@@ -208,7 +208,7 @@ ALLEGRO_PATH *al_path_clone(ALLEGRO_PATH *path)
 
 /* Function: al_path_num_components
  */
-int al_path_num_components(ALLEGRO_PATH *path)
+int al_path_num_components(const ALLEGRO_PATH *path)
 {
    ASSERT(path);
 
@@ -218,7 +218,7 @@ int al_path_num_components(ALLEGRO_PATH *path)
 
 /* Function: al_path_index
  */
-const char *al_path_index(ALLEGRO_PATH *path, int i)
+const char *al_path_index(const ALLEGRO_PATH *path, int i)
 {
    ASSERT(path);
    ASSERT(i < (int)_al_vector_size(&path->segments));
@@ -286,7 +286,7 @@ void al_path_insert(ALLEGRO_PATH *path, int i, const char *s)
 
 /* Function: al_path_tail
  */
-const char *al_path_tail(ALLEGRO_PATH *path)
+const char *al_path_tail(const ALLEGRO_PATH *path)
 {
    ASSERT(path);
 
@@ -351,7 +351,7 @@ bool al_path_concat(ALLEGRO_PATH *path, const ALLEGRO_PATH *tail)
 }
 
 
-static ALLEGRO_USTR *path_to_ustr(ALLEGRO_PATH *path, int32_t delim)
+static ALLEGRO_USTR *path_to_ustr(const ALLEGRO_PATH *path, int32_t delim)
 {
    ALLEGRO_USTR *str;
    unsigned i;
@@ -437,7 +437,7 @@ void al_path_set_drive(ALLEGRO_PATH *path, const char *drive)
 
 /* Function: al_path_get_drive
  */
-const char *al_path_get_drive(ALLEGRO_PATH *path)
+const char *al_path_get_drive(const ALLEGRO_PATH *path)
 {
    ASSERT(path);
 
@@ -460,7 +460,7 @@ void al_path_set_filename(ALLEGRO_PATH *path, const char *filename)
 
 /* Function: al_path_get_filename
  */
-const char *al_path_get_filename(ALLEGRO_PATH *path)
+const char *al_path_get_filename(const ALLEGRO_PATH *path)
 {
    ASSERT(path);
 
@@ -470,7 +470,8 @@ const char *al_path_get_filename(ALLEGRO_PATH *path)
 
 /* Function: al_path_get_extension
  */
-const char *al_path_get_extension(ALLEGRO_PATH *path, char *buf, size_t len)
+const char *al_path_get_extension(const ALLEGRO_PATH *path,
+   char *buf, size_t len)
 {
    int pos;
    ASSERT(path);
@@ -537,7 +538,7 @@ const char *al_path_get_basename(ALLEGRO_PATH *path, char *buf, size_t len)
 
 /* Function: al_path_exists
  */
-bool al_path_exists(ALLEGRO_PATH *path)
+bool al_path_exists(const ALLEGRO_PATH *path)
 {
    ALLEGRO_USTR *ustr;
    bool rc;
@@ -566,7 +567,7 @@ bool al_path_exists(ALLEGRO_PATH *path)
  *  Return true iff the path represents a file on the system that exists with
  *  the given mode bits.
  */
-bool al_path_emode(ALLEGRO_PATH *path, uint32_t mode)
+bool al_path_emode(const ALLEGRO_PATH *path, uint32_t mode)
 {
    ALLEGRO_USTR *ustr;
    bool rc;
