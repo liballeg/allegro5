@@ -226,8 +226,11 @@ static ALLEGRO_EXTRA_DISPLAY_SETTINGS** get_visuals_new(int *count, ALLEGRO_DISP
       display_pixel_format(eds_list[j]);
 #endif
       eds_list[j]->score = _al_score_display_settings(eds_list[j], ref);
-      if (eds_list[j]->score == -1)
+      if (eds_list[j]->score == -1) {
+         free(eds_list[j]);
+         eds_list[j] = NULL;
          continue;
+	  }
       eds_list[j]->index = i;
       eds_list[j]->info = glXGetVisualFromFBConfig(system->gfxdisplay, fbconfig[i]);
       j++;
