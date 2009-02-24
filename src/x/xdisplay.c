@@ -450,7 +450,16 @@ static void xdpy_flip_display(ALLEGRO_DISPLAY *d)
       glXSwapBuffers(system->gfxdisplay, glx->glxwindow);
 }
 
-
+static bool xdpy_update_display_region(ALLEGRO_DISPLAY *d, int x, int y,
+   int w, int h)
+{
+   (void)x;
+   (void)y;
+   (void)w;
+   (void)h;
+   xdpy_flip_display(d);
+   return true;
+}
 
 static bool xdpy_acknowledge_resize(ALLEGRO_DISPLAY *d)
 {
@@ -673,6 +682,7 @@ ALLEGRO_DISPLAY_INTERFACE *_al_display_xglx_driver(void)
    xdpy_vt->destroy_display = xdpy_destroy_display;
    xdpy_vt->set_current_display = xdpy_set_current_display;
    xdpy_vt->flip_display = xdpy_flip_display;
+   xdpy_vt->update_display_region = xdpy_update_display_region;
    xdpy_vt->acknowledge_resize = xdpy_acknowledge_resize;
    xdpy_vt->create_bitmap = _al_ogl_create_bitmap;
    xdpy_vt->create_sub_bitmap = _al_ogl_create_sub_bitmap;
@@ -686,7 +696,7 @@ ALLEGRO_DISPLAY_INTERFACE *_al_display_xglx_driver(void)
    xdpy_vt->set_window_position = xdpy_set_window_position;
    xdpy_vt->get_window_position = xdpy_get_window_position;
    xdpy_vt->toggle_frame = xdpy_toggle_frame;
-   
+
    _al_xglx_add_cursor_functions(xdpy_vt);
    _al_ogl_add_drawing_functions(xdpy_vt);
 
