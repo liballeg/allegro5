@@ -473,7 +473,7 @@ static void osx_set_opengl_pixelformat_attributes(ALLEGRO_DISPLAY_OSX_WIN *dpy)
       { ALLEGRO_SAMPLES,            NSOpenGLPFASamples, 1},
       { ALLEGRO_RENDER_METHOD,      NSOpenGLPFAAccelerated, 0},
       { ALLEGRO_FLOAT_COLOR,        NSOpenGLPFAColorFloat, 0},
-      { ALLEGRO_FLOAT_DEPTH,        NSOpenGLPFAColorSize, 1},  // Correct?
+      { ALLEGRO_FLOAT_DEPTH,        0, 0},
       { ALLEGRO_DOUBLEBUFFERED,     0, 0},   // Only have inverse of this
       { ALLEGRO_SWAP_METHOD,        0, 0},
       { ALLEGRO_COMPATIBLE_DISPLAY, 0, 0},
@@ -555,21 +555,21 @@ static void osx_set_opengl_pixelformat_attributes(ALLEGRO_DISPLAY_OSX_WIN *dpy)
    /* Now go through all other options, if set */
    for (n = 0; n < number_of_settings; n++) {
       i = allegro_to_osx_settings[n][0];
-      if (allegro_to_osx_settings[i][1] && extras &&
+      if (allegro_to_osx_settings[n][1] && extras &&
           ((extras->required & (1 << i)) || (extras->suggested & (1 << i)))) {
          /* Need to distinguish between boolean attributes and settings that
           * require a value.
           */
-         if (allegro_to_osx_settings[i][2]) {   /* Value */
+         if (allegro_to_osx_settings[n][2]) {   /* Value */
             /* We must make sure the value is non-zero because the list are
              * building is 0-terminated.
              */
             if (extras->settings[i]) {
-               *a = allegro_to_osx_settings[i][1]; a++;
+               *a = allegro_to_osx_settings[n][1]; a++;
                *a = extras->settings[i]; a++;
             }
          } else if (extras->settings[i]) {      /* Boolean, just turn this on */
-            *a = allegro_to_osx_settings[i][1]; a++;
+            *a = allegro_to_osx_settings[n][1]; a++;
          }
       }
    }
