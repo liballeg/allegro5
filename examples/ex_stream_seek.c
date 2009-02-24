@@ -1,3 +1,9 @@
+/*
+ *    Example program for the Allegro library, by Todd Cope.
+ *
+ *    Stream seeking.
+ */
+
 #include <allegro5/allegro5.h>
 #include <allegro5/a5_font.h>
 #include <allegro5/kcm_audio.h>
@@ -16,7 +22,7 @@ float slider_pos = 0.0;
 float loop_start, loop_end;
 int mouse_button[16] = {0};
 
-int exiting = 0;
+bool exiting = false;
 
 int initialize(void)
 {
@@ -101,21 +107,42 @@ void render(void)
    al_flip_display();
 }
 
-int myexit(void)
+void myexit(void)
 {
    al_drain_stream(music_stream);
    al_destroy_stream(music_stream);
-   return 1;
 }
 
-void event_handler(ALLEGRO_EVENT * event)
+void maybe_fiddle_sliders(int mx, int my)
+{
+   float seek_pos;
+
+   if (!(mx >= 10 && mx < 310 && my >= 48 && my < 64)) {
+      return;
+   }
+
+   if (mouse_button[1]) {
+      seek_pos = al_get_stream_length(music_stream) * ((mx - 10) / 300.0);
+      al_seek_stream(music_stream, seek_pos);
+   }
+   else if (mouse_button[2]) {
+      loop_end = al_get_stream_length(music_stream) * ((mx - 10) / 300.0);
+      al_set_stream_loop(music_stream, loop_start, loop_end);
+   }
+   else if (mouse_button[3]) {
+      loop_start = al_get_stream_length(music_stream) * ((mx - 10) / 300.0);
+      al_set_stream_loop(music_stream, loop_start, loop_end);
+   }
+}
+
+void event_handler(const ALLEGRO_EVENT * event)
 {
    int i;
 
    switch (event->type) {
       /* Was the X button on the window pressed? */
       case ALLEGRO_EVENT_DISPLAY_CLOSE:
-         exiting = 1;
+         exiting = true;
          break;
 
       /* Was a key pressed? */
@@ -124,37 +151,30 @@ void event_handler(ALLEGRO_EVENT * event)
          if (event->keyboard.keycode == ALLEGRO_KEY_LEFT) {
             double pos = al_get_stream_position(music_stream);
             pos -= 5.0;
-            if(pos < 0.0)
+            if (pos < 0.0)
                pos = 0.0;
             al_seek_stream(music_stream, pos);
          }
          else if (event->keyboard.keycode == ALLEGRO_KEY_RIGHT) {
             double pos = al_get_stream_position(music_stream);
             pos += 5.0;
-            if(!al_seek_stream(music_stream, pos))
+            if (!al_seek_stream(music_stream, pos))
                printf("seek error!\n");
+         }
+         else if (event->keyboard.keycode == ALLEGRO_KEY_ESCAPE) {
+            exiting = true;
          }
          break;
 
       case ALLEGRO_EVENT_MOUSE_BUTTON_DOWN:
          mouse_button[event->mouse.button] = 1;
+	 maybe_fiddle_sliders(event->mouse.x, event->mouse.y);
+         break;
+      case ALLEGRO_EVENT_MOUSE_AXES:
+	 maybe_fiddle_sliders(event->mouse.x, event->mouse.y);
          break;
       case ALLEGRO_EVENT_MOUSE_BUTTON_UP:
          mouse_button[event->mouse.button] = 0;
-         break;
-      case ALLEGRO_EVENT_MOUSE_AXES:
-         if(mouse_button[1] && event->mouse.x >= 10 && event->mouse.x < 310 && event->mouse.y >= 48 && event->mouse.y < 64) {
-            float seek_pos = al_get_stream_length(music_stream) * ((event->mouse.x - 10) / 300.0);
-            al_seek_stream(music_stream, seek_pos);
-         }
-         else if(mouse_button[2] && event->mouse.x >= 10 && event->mouse.x < 310 && event->mouse.y >= 48 && event->mouse.y < 64) {
-            loop_end = al_get_stream_length(music_stream) * ((event->mouse.x - 10) / 300.0);
-            al_set_stream_loop(music_stream, loop_start, loop_end);
-         }
-         else if(mouse_button[3] && event->mouse.x >= 10 && event->mouse.x < 310 && event->mouse.y >= 48 && event->mouse.y < 64) {
-            loop_start = al_get_stream_length(music_stream) * ((event->mouse.x - 10) / 300.0);
-            al_set_stream_loop(music_stream, loop_start, loop_end);
-         }
          break;
       case ALLEGRO_EVENT_MOUSE_LEAVE_DISPLAY:
          for (i = 0; i < 16; i++)
@@ -174,28 +194,34 @@ int main(int argc, char * argv[])
    ALLEGRO_EVENT event;
 	
    if (argc < 2) {
-      printf("Usage: a5streamtest <filename>\n");
+      printf("Usage: ex_stream_seek <filename>\n");
       return -1;
    }
 	
    if (!initialize())
-      return -1;
+      return 1;
+
    stream_filename = argv[1];
    music_stream = al_stream_from_file(4, 4096, stream_filename);
    if (!music_stream) {
       printf("Stream error!\n");
-      return -1;
+      return 1;
    }
+
    loop_start = 0.0;
    loop_end = al_get_stream_length(music_stream);
    al_set_stream_enum(music_stream, ALLEGRO_AUDIOPROP_LOOPMODE, ALLEGRO_PLAYMODE_LOOP);
    al_attach_stream_to_mixer(al_get_default_mixer(), music_stream);
    al_start_timer(timer);
-   while(!exiting) {
+
+   while (!exiting) {
       al_wait_for_event(queue, &event);
       event_handler(&event);
    }
+
    myexit();
    return 0;
 }
 END_OF_MAIN()
+
+/* vim: set sts=3 sw=3 et: */
