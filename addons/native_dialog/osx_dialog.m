@@ -155,20 +155,20 @@ ALLEGRO_NATIVE_FILE_DIALOG *al_create_native_file_dialog(
 
 /* al_get_native_file_dialog_count
  */
-int al_get_native_file_dialog_count(ALLEGRO_NATIVE_FILE_DIALOG *fd)
+int al_get_native_file_dialog_count(const ALLEGRO_NATIVE_FILE_DIALOG *fd)
 {
    return [fd->files count];
 }
 
 /* al_get_native_file_dialog_path
  */
-ALLEGRO_PATH *al_get_native_file_dialog_path(
-   ALLEGRO_NATIVE_FILE_DIALOG *fd, size_t i)
+const ALLEGRO_PATH *al_get_native_file_dialog_path(
+   const ALLEGRO_NATIVE_FILE_DIALOG *fd, size_t i)
 {
    if (i < [fd->files count]) {
       /* NOTE: at first glance, it looks as if this code might leak
        * memory, but in fact it doesn't: the string returned by
-       * UTF8String is freed automatically when it goed out of scope
+       * UTF8String is freed automatically when it goes out of scope
        * (according to the UTF8String docs anyway).
        */
       const char *s = [[fd->files objectAtIndex:i] UTF8String];
@@ -181,6 +181,9 @@ ALLEGRO_PATH *al_get_native_file_dialog_path(
  */
 void al_destroy_native_file_dialog(ALLEGRO_NATIVE_FILE_DIALOG *fd)
 {
+   if (!fd)
+      return;
+
    [fd->files release];
    if (fd->initial_path)
       al_path_free(fd->initial_path);

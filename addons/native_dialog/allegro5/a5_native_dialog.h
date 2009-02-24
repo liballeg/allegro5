@@ -1,3 +1,6 @@
+#ifndef __al_included_a5_native_dialog_h
+#define __al_included_a5_native_dialog_h
+
 #include "allegro5/allegro5.h"
 
 #ifdef __cplusplus
@@ -29,20 +32,19 @@
 typedef struct ALLEGRO_NATIVE_FILE_DIALOG ALLEGRO_NATIVE_FILE_DIALOG;
 
 A5_DIALOG_FUNC(
-ALLEGRO_NATIVE_FILE_DIALOG *, al_create_native_file_dialog, (
-    ALLEGRO_PATH const *initial_path,
-    char const *title,
-    char const *patterns,
-    int mode));
+   ALLEGRO_NATIVE_FILE_DIALOG *, al_create_native_file_dialog, (
+      ALLEGRO_PATH const *initial_path, char const *title,
+      char const *patterns, int mode));
 A5_DIALOG_FUNC(
-void, al_show_native_file_dialog, (ALLEGRO_NATIVE_FILE_DIALOG *fd));
+   void, al_show_native_file_dialog, (ALLEGRO_NATIVE_FILE_DIALOG *fd));
 A5_DIALOG_FUNC(
-int, al_get_native_file_dialog_count, (ALLEGRO_NATIVE_FILE_DIALOG *fc));
+   int, al_get_native_file_dialog_count, (
+      const ALLEGRO_NATIVE_FILE_DIALOG *fc));
 A5_DIALOG_FUNC(
-ALLEGRO_PATH *, al_get_native_file_dialog_path, (
-   ALLEGRO_NATIVE_FILE_DIALOG *fc, size_t index);
-void al_destroy_native_file_dialog(ALLEGRO_NATIVE_FILE_DIALOG *fc));
-
+   const ALLEGRO_PATH *, al_get_native_file_dialog_path, (
+      const ALLEGRO_NATIVE_FILE_DIALOG *fc, size_t index));
+A5_DIALOG_FUNC(
+   void, al_destroy_native_file_dialog, (ALLEGRO_NATIVE_FILE_DIALOG *fc));
 
 #define ALLEGRO_FILECHOOSER_FILE_MUST_EXIST 1
 #define ALLEGRO_FILECHOOSER_SAVE 2
@@ -54,3 +56,5 @@ void al_destroy_native_file_dialog(ALLEGRO_NATIVE_FILE_DIALOG *fc));
 #ifdef __cplusplus
    }
 #endif
+
+#endif   /* __al_included_a5_native_dialog_h */

@@ -20,7 +20,7 @@ struct ALLEGRO_NATIVE_FILE_DIALOG
    ALLEGRO_USTR *patterns;
    int mode;
    size_t count;
-   ALLEGRO_PATH **pathes;
+   ALLEGRO_PATH **paths;
 };
 
 static void destroy(GtkWidget *w, gpointer data)
@@ -34,16 +34,16 @@ static void ok(GtkWidget *w, GtkFileSelection *fs)
 {
    ALLEGRO_NATIVE_FILE_DIALOG *fc;
    fc = g_object_get_data(G_OBJECT(w), "ALLEGRO_NATIVE_FILE_CHOOSER");
-   gchar **pathes = gtk_file_selection_get_selections(fs);
+   gchar **paths = gtk_file_selection_get_selections(fs);
    int n = 0, i;
-   while (pathes[n]) {
+   while (paths[n]) {
       n++;
    }
    fc->count = n;
-   fc->pathes = _AL_MALLOC(n * sizeof(void *));
+   fc->paths = _AL_MALLOC(n * sizeof(void *));
    for (i = 0; i < n; i++)
-      fc->pathes[i] = al_path_create(pathes[i]);
-   g_strfreev(pathes);
+      fc->paths[i] = al_path_create(paths[i]);
+   g_strfreev(paths);
 }
 
 /* Function: al_show_native_file_dialog
@@ -147,18 +147,18 @@ ALLEGRO_NATIVE_FILE_DIALOG *al_create_native_file_dialog(
 
 /* al_get_native_file_dialog_count
  */
-int al_get_native_file_dialog_count(ALLEGRO_NATIVE_FILE_DIALOG *fc)
+int al_get_native_file_dialog_count(const ALLEGRO_NATIVE_FILE_DIALOG *fc)
 {
    return fc->count;
 }
 
 /* al_get_native_file_dialog_path
  */
-ALLEGRO_PATH *al_get_native_file_dialog_path(
-   ALLEGRO_NATIVE_FILE_DIALOG *fc, size_t i)
+const ALLEGRO_PATH *al_get_native_file_dialog_path(
+   const ALLEGRO_NATIVE_FILE_DIALOG *fc, size_t i)
 {
    if (i < fc->count)
-      return fc->pathes[i];
+      return fc->paths[i];
    return NULL;
 }
 
@@ -166,13 +166,16 @@ ALLEGRO_PATH *al_get_native_file_dialog_path(
  */
 void al_destroy_native_file_dialog(ALLEGRO_NATIVE_FILE_DIALOG *fd)
 {
-   if (fd->pathes) {
+   if (!fd)
+      return;
+
+   if (fd->paths) {
       size_t i;
       for (i = 0; i < fd->count; i++) {
-         al_path_free(fd->pathes[i]);
+         al_path_free(fd->paths[i]);
       }
    }
-   _AL_FREE(fd->pathes);
+   _AL_FREE(fd->paths);
    if (fd->initial_path)
       al_path_free(fd->initial_path);
    al_ustr_free(fd->title);

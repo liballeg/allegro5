@@ -87,7 +87,7 @@ static void show_files_list(ALLEGRO_NATIVE_FILE_DIALOG *dialog,
 
    for (i = 0; i < count; i++) {
       char name[PATH_MAX];
-      ALLEGRO_PATH *path;
+      const ALLEGRO_PATH *path;
 
       path = al_get_native_file_dialog_path(dialog, i);
       al_path_to_string(path, name, sizeof name, '/');
@@ -152,7 +152,7 @@ int main(void)
        */
       if (event.type == ALLEGRO_EVENT_MOUSE_BUTTON_DOWN) {
           if (!cur_dialog) {
-             ALLEGRO_PATH *last_path = NULL;
+             const ALLEGRO_PATH *last_path = NULL;
              /* If available, use the path from the last dialog as
               * initial path for the new one.
               */
