@@ -77,6 +77,9 @@ typedef struct
 {
    int required, suggested;
    int settings[ALLEGRO_DISPLAY_OPTIONS_COUNT];
+
+   /* These are come in handy when creating a context. */
+   void *info;
    int index, score;
 } ALLEGRO_EXTRA_DISPLAY_SETTINGS;
 
