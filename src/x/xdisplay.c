@@ -457,8 +457,8 @@ static bool xdpy_update_display_region(ALLEGRO_DISPLAY *d, int x, int y,
    (void)y;
    (void)w;
    (void)h;
-   xdpy_flip_display(d);
-   return true;
+   (void)d;
+   return false;
 }
 
 static bool xdpy_acknowledge_resize(ALLEGRO_DISPLAY *d)
