@@ -253,10 +253,10 @@ static ALLEGRO_BITMAP *really_load_png(png_structp png_ptr, png_infop info_ptr)
 }
 
 
-/* load_png_pf:
+/* iio_load_png_entry:
  *  Load a PNG file from disk, doing colour coversion if required.
  */
-static ALLEGRO_BITMAP *load_png_pf(ALLEGRO_FS_ENTRY *fp)
+ALLEGRO_BITMAP *iio_load_png_entry(ALLEGRO_FS_ENTRY *fp)
 {
    ALLEGRO_BITMAP *bmp;
    png_structp png_ptr;
@@ -333,7 +333,7 @@ ALLEGRO_BITMAP *iio_load_png(AL_CONST char *filename)
    if (!fp)
       return NULL;
 
-   bmp = load_png_pf(fp);
+   bmp = iio_load_png_entry(fp);
 
    al_fclose(fp);
 
@@ -414,7 +414,7 @@ static int save_rgba(png_structp png_ptr, ALLEGRO_BITMAP *bmp)
  *  Writes a non-interlaced, no-frills PNG, taking the usual save_xyz
  *  parameters.  Returns non-zero on error.
  */
-static int really_save_png(ALLEGRO_FS_ENTRY *fp, ALLEGRO_BITMAP *bmp)
+int iio_save_png_entry(ALLEGRO_FS_ENTRY *fp, ALLEGRO_BITMAP *bmp)
 {
    png_structp png_ptr = NULL;
    png_infop info_ptr = NULL;
@@ -514,7 +514,7 @@ int iio_save_png(AL_CONST char *filename, ALLEGRO_BITMAP *bmp)
       return -1;
    }
 
-   result = really_save_png(fp, bmp);
+   result = iio_save_png_entry(fp, bmp);
    al_fclose(fp);
 
    return result;

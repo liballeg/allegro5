@@ -19,11 +19,25 @@ ALLEGRO_BITMAP *iio_load_png(AL_CONST char *filename);
 ALLEGRO_BITMAP *iio_load_jpg(AL_CONST char *filename);
 
 
+ALLEGRO_BITMAP *iio_load_pcx_entry(ALLEGRO_FS_ENTRY *pf);
+ALLEGRO_BITMAP *iio_load_bmp_entry(ALLEGRO_FS_ENTRY *pf);
+ALLEGRO_BITMAP *iio_load_tga_entry(ALLEGRO_FS_ENTRY *pf);
+ALLEGRO_BITMAP *iio_load_png_entry(ALLEGRO_FS_ENTRY *pf);
+ALLEGRO_BITMAP *iio_load_jpg_entry(ALLEGRO_FS_ENTRY *pf);
+
+
 int iio_save_pcx(AL_CONST char *filename, ALLEGRO_BITMAP *bmp);
 int iio_save_bmp(AL_CONST char *filename, ALLEGRO_BITMAP *bmp);
 int iio_save_tga(AL_CONST char *filename, ALLEGRO_BITMAP *bmp);
 int iio_save_png(AL_CONST char *filename, ALLEGRO_BITMAP *bmp);
 int iio_save_jpg(AL_CONST char *filename, ALLEGRO_BITMAP *bmp);
+
+
+int iio_save_pcx_entry(ALLEGRO_FS_ENTRY *pf, ALLEGRO_BITMAP *bmp);
+int iio_save_bmp_entry(ALLEGRO_FS_ENTRY *pf, ALLEGRO_BITMAP *bmp);
+int iio_save_tga_entry(ALLEGRO_FS_ENTRY *pf, ALLEGRO_BITMAP *bmp);
+int iio_save_png_entry(ALLEGRO_FS_ENTRY *pf, ALLEGRO_BITMAP *bmp);
+int iio_save_jpg_entry(ALLEGRO_FS_ENTRY *pf, ALLEGRO_BITMAP *bmp);
 
 
 

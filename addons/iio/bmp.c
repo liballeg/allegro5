@@ -588,14 +588,14 @@ static void read_RLE4_compressed_image(ALLEGRO_FS_ENTRY *f, unsigned char *buf,
 
 
 
-/* load_bmp_pf:
+/* iio_load_bmp_entry:
  *  Like load_bmp, but starts loading from the current place in the ALLEGRO_FS_ENTRY
  *  specified. If successful the offset into the file will be left just after
  *  the image data. If unsuccessful the offset into the file is unspecified,
  *  i.e. you must either reset the offset to some known place or close the
  *  packfile. The packfile is not closed by this function.
  */
-static ALLEGRO_BITMAP *iio_load_bmp_pf(ALLEGRO_FS_ENTRY *f)
+ALLEGRO_BITMAP *iio_load_bmp_entry(ALLEGRO_FS_ENTRY *f)
 {
    BMPFILEHEADER fileheader;
    BMPINFOHEADER infoheader;
@@ -721,13 +721,13 @@ static ALLEGRO_BITMAP *iio_load_bmp_pf(ALLEGRO_FS_ENTRY *f)
 
 
 
-/* save_bmp_pf:
+/* iio_save_bmp_entry:
  *  Like save_bmp but writes into the ALLEGRO_FS_ENTRY given instead of a new file.
  *  The packfile is not closed after writing is completed. On success the
  *  offset into the file is left after the TGA file just written. On failure
  *  the offset is left at the end of whatever incomplete data was written.
  */
-static int iio_save_bmp_pf(ALLEGRO_FS_ENTRY *f, ALLEGRO_BITMAP *bmp)
+int iio_save_bmp_entry(ALLEGRO_FS_ENTRY *f, ALLEGRO_BITMAP *bmp)
 {
    int bfSize;
    int biSizeImage;
@@ -827,7 +827,7 @@ ALLEGRO_BITMAP *iio_load_bmp(AL_CONST char *filename)
    if (!f)
       return NULL;
 
-   bmp = iio_load_bmp_pf(f);
+   bmp = iio_load_bmp_entry(f);
 
    al_fclose(f);
 
@@ -849,7 +849,7 @@ int iio_save_bmp(AL_CONST char *filename, ALLEGRO_BITMAP *bmp)
    if (!f)
       return -1;
 
-   ret = iio_save_bmp_pf(f, bmp);
+   ret = iio_save_bmp_entry(f, bmp);
 
    al_fclose(f);
 

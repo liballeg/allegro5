@@ -124,7 +124,7 @@ static void jpeg_packfile_dest(j_compress_ptr cinfo, ALLEGRO_FS_ENTRY *pf,
    dest->pf = pf;
 }
 
-static ALLEGRO_BITMAP *load_jpg_pf(ALLEGRO_FS_ENTRY *pf)
+ALLEGRO_BITMAP *iio_load_jpg_entry(ALLEGRO_FS_ENTRY *pf)
 {
    struct jpeg_decompress_struct cinfo;
    struct jpeg_error_mgr jerr;
@@ -189,7 +189,7 @@ static ALLEGRO_BITMAP *load_jpg_pf(ALLEGRO_FS_ENTRY *pf)
    return bmp;
 }
 
-static int save_jpg_pf(ALLEGRO_FS_ENTRY *pf, ALLEGRO_BITMAP *bmp)
+int iio_save_jpg_entry(ALLEGRO_FS_ENTRY *pf, ALLEGRO_BITMAP *bmp)
 {
    struct jpeg_compress_struct cinfo;
    struct jpeg_error_mgr jerr;
@@ -258,7 +258,7 @@ ALLEGRO_BITMAP *iio_load_jpg(char const *filename)
    if (!pf)
       return NULL;
 
-   bmp = load_jpg_pf(pf);
+   bmp = load_jpg_entry(pf);
 
    al_fclose(pf);
 
@@ -284,7 +284,7 @@ int iio_save_jpg(char const *filename, ALLEGRO_BITMAP *bmp)
       return -1;
    }
 
-   result = save_jpg_pf(pf, bmp);
+   result = save_jpg_entry(pf, bmp);
 
    al_fclose(pf);
 
