@@ -167,7 +167,7 @@ ALLEGRO_PATH *al_get_native_file_dialog_path(
 void al_destroy_native_file_dialog(ALLEGRO_NATIVE_FILE_DIALOG *fd)
 {
    if (fd->pathes) {
-      int i;
+      size_t i;
       for (i = 0; i < fd->count; i++) {
          al_path_free(fd->pathes[i]);
       }
