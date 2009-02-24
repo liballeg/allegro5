@@ -1,76 +1,101 @@
+/*
+ *    Example program for the Allegro library.
+ *
+ *    The native file dialog addon only supports a blocking interface.  This
+ *    example makes the blocking call from another thread, using a user event
+ *    source to communicate back to the main program.
+ */
+
 #include <stdio.h>
 #include <allegro5/allegro5.h>
 #include <allegro5/a5_native_dialog.h>
 #include <allegro5/a5_font.h>
 #include <allegro5/a5_color.h>
 
+
 /* To communicate from a separate thread, we need a user event. */
-#define MY_EVENT ALLEGRO_GET_EVENT_TYPE('e', 'N', 'F', 'C')
+#define ASYNC_DIALOG_EVENT    ALLEGRO_GET_EVENT_TYPE('e', 'N', 'F', 'D')
+
+
 typedef struct
 {
-    ALLEGRO_NATIVE_FILE_DIALOG *fd;
-    ALLEGRO_EVENT_SOURCE *event_source;
-} MyEventData;
+   ALLEGRO_NATIVE_FILE_DIALOG *file_dialog;
+   ALLEGRO_EVENT_SOURCE *event_source;
+   ALLEGRO_THREAD *thread;
+} AsyncDialog;
+
 
 /* Our thread to show the native file dialog. */
-static void *dialog_thread(ALLEGRO_THREAD *thread, void *arg)
+static void *async_file_dialog_thread_func(ALLEGRO_THREAD *thread, void *arg)
 {
+   AsyncDialog *data = arg;
    ALLEGRO_EVENT event;
-   MyEventData *data = arg;
-   
+   (void)thread;
+
    /* The next line is the heart of this example - we display the
     * native file dialog.
     */
-   al_show_native_file_dialog(data->fd);
+   al_show_native_file_dialog(data->file_dialog);
 
    /* We emit an event to let the main program now that the thread has
     * finished.
     */
-   event.user.type = MY_EVENT;
-   event.user.data1 = (intptr_t)data->fd;
+   event.user.type = ASYNC_DIALOG_EVENT;
    al_emit_user_event(data->event_source, &event, NULL);
 
-   // FIXME: Can we do this? If not, where else should we do it?
-   //al_destroy_thread(thread);
    return NULL;
 }
 
-/* Function to start the new thread. */
-ALLEGRO_EVENT_SOURCE *spawn_dialog_thread(ALLEGRO_PATH *initial_path)
-{
-   ALLEGRO_THREAD *thread;
-   MyEventData *data = malloc(sizeof *data);
 
-   data->fd = al_create_native_file_dialog(
+/* Function to start the new thread. */
+AsyncDialog *spawn_async_dialog(const ALLEGRO_PATH *initial_path)
+{
+   AsyncDialog *data = malloc(sizeof *data);
+
+   data->file_dialog = al_create_native_file_dialog(
       initial_path, "Choose files", NULL,
       ALLEGRO_FILECHOOSER_MULTIPLE);
-   
    data->event_source = al_create_user_event_source();
-   thread = al_create_thread(dialog_thread, data);
-   al_start_thread(thread);
-   return data->event_source;
+   data->thread = al_create_thread(async_file_dialog_thread_func, data);
+
+   al_start_thread(data->thread);
+
+   return data;
 }
+
+
+void stop_async_dialog(AsyncDialog *data)
+{
+   if (data) {
+      al_destroy_thread(data->thread);
+      al_destroy_user_event_source(data->event_source);
+      al_destroy_native_file_dialog(data->file_dialog);
+      free(data);
+   }
+}
+
 
 /* Helper function to display the result from a file dialog. */
 static void show_files_list(ALLEGRO_NATIVE_FILE_DIALOG *dialog,
-   ALLEGRO_FONT *font,
-   ALLEGRO_COLOR info)
+   const ALLEGRO_FONT *font, ALLEGRO_COLOR info)
 {
    int count = al_get_native_file_dialog_count(dialog);
    int th = al_font_text_height(font);
    float x = al_get_display_width() / 2;
    float y = al_get_display_height() / 2 - (count * th) / 2;
    int i;
+
    for (i = 0; i < count; i++) {
       char name[PATH_MAX];
       ALLEGRO_PATH *path;
+
       path = al_get_native_file_dialog_path(dialog, i);
       al_path_to_string(path, name, sizeof name, '/');
-      al_set_blender(ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA,
-         info);
-      al_font_textprintf_centre(font, x, y + i * th, name);
+      al_set_blender(ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA, info);
+      al_font_textout_centre(font, x, y + i * th, name, -1);
    }
 }
+
 
 int main(void)
 {
@@ -78,11 +103,10 @@ int main(void)
    ALLEGRO_TIMER *timer;
    ALLEGRO_EVENT_QUEUE *queue;
    ALLEGRO_FONT *font;
-   bool redraw = true;
    ALLEGRO_COLOR background, active, inactive, info;
-   ALLEGRO_NATIVE_FILE_DIALOG *dialog = NULL;
-   bool already_shown = false;
-   ALLEGRO_EVENT_SOURCE *my_event;
+   AsyncDialog *old_dialog = NULL;
+   AsyncDialog *cur_dialog = NULL;
+   bool redraw = false;
 
    al_init();
    al_font_init();
@@ -114,53 +138,56 @@ int main(void)
    while (1) {
       ALLEGRO_EVENT event;
       al_wait_for_event(queue, &event);
+
       if (event.type == ALLEGRO_EVENT_DISPLAY_CLOSE)
          break;
+
       if (event.type == ALLEGRO_EVENT_KEY_DOWN) {
          if (event.keyboard.keycode == ALLEGRO_KEY_ESCAPE)
             break;
       }
+
       /* When a mouse button is pressed, and no native dialog is
        * shown already, we show a new one.
        */
       if (event.type == ALLEGRO_EVENT_MOUSE_BUTTON_DOWN) {
-          if (!already_shown) {
+          if (!cur_dialog) {
              ALLEGRO_PATH *last_path = NULL;
              /* If available, use the path from the last dialog as
               * initial path for the new one.
               */
-             if (dialog)
-                last_path = al_get_native_file_dialog_path(dialog, 0);
-             my_event = spawn_dialog_thread(last_path);
-             al_register_event_source(queue, my_event);
-             already_shown = true;
+             if (old_dialog) {
+                last_path = al_get_native_file_dialog_path(
+                   old_dialog->file_dialog, 0);
+             }
+             cur_dialog = spawn_async_dialog(last_path);
+             al_register_event_source(queue, cur_dialog->event_source);
           }
       }
+
       /* We receive this event from the other thread when the dialog is
        * closed.
        */
-      if (event.type == MY_EVENT) {
-         ALLEGRO_NATIVE_FILE_DIALOG *new_dialog;
-         new_dialog = (void *)event.user.data1;
-         /* If files were selected, we replace the old files list. */
-         if (al_get_native_file_dialog_count(new_dialog)) {
-            if (dialog)
-                al_destroy_native_file_dialog(dialog);
-            dialog = new_dialog;
-         }
-         /* Otherwise the dialog was cancelled, and we keep the old
-          * results.
+      if (event.type == ASYNC_DIALOG_EVENT) {
+         al_unregister_event_source(queue, cur_dialog->event_source);
+
+         /* If files were selected, we replace the old files list.
+          * Otherwise the dialog was cancelled, and we keep the old results.
           */
-         else {
-             al_destroy_native_file_dialog(new_dialog);
+         if (al_get_native_file_dialog_count(cur_dialog->file_dialog) > 0) {
+            if (old_dialog)
+               stop_async_dialog(old_dialog);
+            old_dialog = cur_dialog;
          }
-         al_unregister_event_source(queue, my_event);
-         al_destroy_user_event_source(my_event);
-         already_shown = false;
+         else {
+            stop_async_dialog(cur_dialog);
+         }
+         cur_dialog = NULL;
       }
 
-      if (event.type == ALLEGRO_EVENT_TIMER)
+      if (event.type == ALLEGRO_EVENT_TIMER) {
          redraw = true;
+      }
 
       if (redraw && al_event_queue_is_empty(queue)) {
          float x = al_get_display_width() / 2;
@@ -168,14 +195,19 @@ int main(void)
          redraw = false;
          al_clear(background);
          al_set_blender(ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA,
-                        already_shown ? inactive : active);
+                        cur_dialog ? inactive : active);
          al_font_textprintf_centre(font, x, y, "Open");
-         if (dialog)
-            show_files_list(dialog, font, info);
+         if (old_dialog)
+            show_files_list(old_dialog->file_dialog, font, info);
          al_flip_display();
       }
    }
 
+   stop_async_dialog(old_dialog);
+   stop_async_dialog(cur_dialog);
+
    return 0;
 }
 END_OF_MAIN()
+
+/* vim: set sts=3 sw=3 et: */
