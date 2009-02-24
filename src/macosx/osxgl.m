@@ -43,6 +43,43 @@ static NSPoint last_window_pos;
 static unsigned int next_display_group = 1;
 static BOOL in_fullscreen = NO;
 
+/* Dictionary to map Allegro's DISPLAY_OPTIONS to OS X
+ * PixelFormatAttributes. 
+ * The first column is Allegro's name, the second column is the OS X
+ * PixelFormatAttribute (or 0), the third column indicates whether we
+ * need an extra parameter or not (eg, colour depth).
+ */
+static const unsigned int allegro_to_osx_settings[][3] = {
+   { ALLEGRO_RED_SIZE,           0, 0},   // Not supported per component
+   { ALLEGRO_GREEN_SIZE,         0, 0},   // Not supported per component
+   { ALLEGRO_BLUE_SIZE,          0, 0},   // Not supported per component
+   { ALLEGRO_ALPHA_SIZE,         NSOpenGLPFAAlphaSize, 1},
+   { ALLEGRO_RED_SHIFT,          0, 0},   // Not available
+   { ALLEGRO_GREEN_SHIFT,        0, 0},   // Not available
+   { ALLEGRO_BLUE_SHIFT,         0, 0},   // Not available
+   { ALLEGRO_ALPHA_SHIFT,        0, 0},   // Not available
+   { ALLEGRO_ACC_RED_SIZE,       NSOpenGLPFAAccumSize, 1}, // Correct?
+   { ALLEGRO_ACC_GREEN_SIZE,     NSOpenGLPFAAccumSize, 1}, // Correct?
+   { ALLEGRO_ACC_BLUE_SIZE,      NSOpenGLPFAAccumSize, 1}, // Correct?
+   { ALLEGRO_ACC_ALPHA_SIZE,     NSOpenGLPFAAccumSize, 1}, // Correct?
+   { ALLEGRO_STEREO,             NSOpenGLPFAStereo, 0},
+   { ALLEGRO_AUX_BUFFERS,        NSOpenGLPFAAuxBuffers, 1},
+   { ALLEGRO_COLOR_SIZE,         NSOpenGLPFAColorSize, 1},
+   { ALLEGRO_DEPTH_SIZE,         NSOpenGLPFADepthSize, 1},
+   { ALLEGRO_STENCIL_SIZE,       NSOpenGLPFAStencilSize, 1},
+   { ALLEGRO_SAMPLE_BUFFERS,     NSOpenGLPFASampleBuffers, 1},
+   { ALLEGRO_SAMPLES,            NSOpenGLPFASamples, 1},
+   { ALLEGRO_RENDER_METHOD,      NSOpenGLPFAAccelerated, 0},
+   { ALLEGRO_FLOAT_COLOR,        NSOpenGLPFAColorFloat, 0},
+   { ALLEGRO_FLOAT_DEPTH,        0, 0},
+   { ALLEGRO_DOUBLEBUFFERED,     0, 0},   // Only have inverse of this
+   { ALLEGRO_SWAP_METHOD,        0, 0},
+   { ALLEGRO_COMPATIBLE_DISPLAY, 0, 0},
+   { ALLEGRO_DISPLAY_OPTIONS_COUNT, 0, 0}
+};
+static const int number_of_settings =
+   sizeof(allegro_to_osx_settings)/sizeof(*allegro_to_osx_settings);
+
 /* Module functions */
 static NSView* osx_view_from_display(ALLEGRO_DISPLAY* disp);
 ALLEGRO_DISPLAY_INTERFACE* _al_osx_get_display_driver(void);
@@ -445,42 +482,6 @@ static void osx_set_opengl_pixelformat_attributes(ALLEGRO_DISPLAY_OSX_WIN *dpy)
    bool want_double_buffer;
    NSOpenGLPixelFormatAttribute *a;
    ALLEGRO_EXTRA_DISPLAY_SETTINGS *extras;
-   /* Dictionary to map Allegro's DISPLAY_OPTIONS to OS X
-    * PixelFormatAttributes. 
-    * The first column is Allegro's name, the second column is the OS X
-    * PixelFormatAttribute (or 0), the third column indicates whether we
-    * need an extra parameter or not (eg, colour depth).
-    */
-   int allegro_to_osx_settings[][3] = {
-      { ALLEGRO_RED_SIZE,           0, 0},   // Not supported per component
-      { ALLEGRO_GREEN_SIZE,         0, 0},   // Not supported per component
-      { ALLEGRO_BLUE_SIZE,          0, 0},   // Not supported per component
-      { ALLEGRO_ALPHA_SIZE,         NSOpenGLPFAAlphaSize, 1},
-      { ALLEGRO_RED_SHIFT,          0, 0},   // Not available
-      { ALLEGRO_GREEN_SHIFT,        0, 0},   // Not available
-      { ALLEGRO_BLUE_SHIFT,         0, 0},   // Not available
-      { ALLEGRO_ALPHA_SHIFT,        0, 0},   // Not available
-      { ALLEGRO_ACC_RED_SIZE,       NSOpenGLPFAAccumSize, 1}, // Correct?
-      { ALLEGRO_ACC_GREEN_SIZE,     NSOpenGLPFAAccumSize, 1}, // Correct?
-      { ALLEGRO_ACC_BLUE_SIZE,      NSOpenGLPFAAccumSize, 1}, // Correct?
-      { ALLEGRO_ACC_ALPHA_SIZE,     NSOpenGLPFAAccumSize, 1}, // Correct?
-      { ALLEGRO_STEREO,             NSOpenGLPFAStereo, 0},
-      { ALLEGRO_AUX_BUFFERS,        NSOpenGLPFAAuxBuffers, 1},
-      { ALLEGRO_COLOR_SIZE,         NSOpenGLPFAColorSize, 1},
-      { ALLEGRO_DEPTH_SIZE,         NSOpenGLPFADepthSize, 1},
-      { ALLEGRO_STENCIL_SIZE,       NSOpenGLPFAStencilSize, 1},
-      { ALLEGRO_SAMPLE_BUFFERS,     NSOpenGLPFASampleBuffers, 1},
-      { ALLEGRO_SAMPLES,            NSOpenGLPFASamples, 1},
-      { ALLEGRO_RENDER_METHOD,      NSOpenGLPFAAccelerated, 0},
-      { ALLEGRO_FLOAT_COLOR,        NSOpenGLPFAColorFloat, 0},
-      { ALLEGRO_FLOAT_DEPTH,        0, 0},
-      { ALLEGRO_DOUBLEBUFFERED,     0, 0},   // Only have inverse of this
-      { ALLEGRO_SWAP_METHOD,        0, 0},
-      { ALLEGRO_COMPATIBLE_DISPLAY, 0, 0},
-      { ALLEGRO_DISPLAY_OPTIONS_COUNT, 0, 0}
-   };
-   const int number_of_settings =
-      sizeof(allegro_to_osx_settings)/sizeof(*allegro_to_osx_settings);
    /* The following combination of flags indicates that multi-sampling is
     * requested.
     */
@@ -573,6 +574,53 @@ static void osx_set_opengl_pixelformat_attributes(ALLEGRO_DISPLAY_OSX_WIN *dpy)
          }
       }
    }
+}
+
+
+/* Set the extra_settings[] array in the display, to report which options
+ * we have selected.
+ */
+static void osx_get_opengl_pixelformat_attributes(ALLEGRO_DISPLAY_OSX_WIN *dpy)
+{
+   int n;
+   NSOpenGLPixelFormatAttribute *a;
+   NSOpenGLPixelFormatAttribute *attributes;
+
+   if (!dpy) return;
+
+   /* Get pixelformat attributes selected for the display
+    * FIXME: right now, we just return the settings that were chosen by the
+    * user. To be correct, we should query the pixelformat corresponding to
+    * the display, using the NSOpenGLView pixelFormat method and the
+    * NSOpenGLPixelFormat getValues:forAttribute:forVirtualScreen: method,
+    * for which we need to know the logical screen number that the display
+    * is on.
+    */
+   attributes = dpy->attributes;
+
+   /* Clear list of settings (none selected) */
+   memset(&dpy->parent.extra_settings, 0, sizeof(dpy->parent.extra_settings));
+
+   for (n = 0; n < number_of_settings; n++) {
+      /* Go through the list of options and relist the ones that we have
+       * set to Allegro's option list.
+       */
+      a = dpy->attributes;
+      while (*a) {
+         if (*a == allegro_to_osx_settings[n][1]) {
+            int al_setting = allegro_to_osx_settings[n][0];
+            int value = 1;
+            if (allegro_to_osx_settings[n][2])
+               value = a[1];
+            dpy->parent.extra_settings.settings[al_setting] = value;
+         }
+         /* Advance to next option */
+         if (allegro_to_osx_settings[n][2]) /* Has a parameter in the list */
+            a++;
+         a++;
+      }
+   }
+   dpy->parent.extra_settings.settings[ALLEGRO_COMPATIBLE_DISPLAY] = 1;
 }
 
 
@@ -837,6 +885,8 @@ static ALLEGRO_DISPLAY* create_display_fs(int w, int h) {
    [ALDisplayHelper performSelectorOnMainThread: @selector(runFullScreenDisplay:) 
                                      withObject: [NSValue valueWithPointer:dpy] 
                                   waitUntilDone: NO];
+   /* Retrieve the options that were set */
+   osx_get_opengl_pixelformat_attributes(dpy);
    return &dpy->parent;
 }
 
@@ -877,6 +927,10 @@ static ALLEGRO_DISPLAY* create_display_win(int w, int h) {
    _al_ogl_set_extensions(dpy->parent.ogl_extras->extension_api);
 	dpy->parent.ogl_extras->backbuffer = _al_ogl_create_backbuffer(&dpy->parent);
    dpy->parent.ogl_extras->is_shared = true;
+
+   /* Retrieve the options that were set */
+   osx_get_opengl_pixelformat_attributes(dpy);
+
 	/* Set up GL as we want */
 	setup_gl(&dpy->parent);
 	ALLEGRO_DISPLAY **add = _al_vector_alloc_back(&al_system_driver()->displays);
