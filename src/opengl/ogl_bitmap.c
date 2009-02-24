@@ -93,6 +93,7 @@ static const int glformats[][3] = {
 static ALLEGRO_BITMAP_INTERFACE *glbmp_vt;
 
 
+#define SWAP(type, x, y) {type temp = x; x = y; y = temp;}
 
 /* Helper function to draw a bitmap with an internal OpenGL texture as
  * a textured OpenGL quad.
@@ -102,7 +103,7 @@ static void draw_quad(ALLEGRO_BITMAP *bitmap,
     float cx, float cy, float dx, float dy, float dw, float dh,
     float xscale, float yscale, float angle, int flags)
 {
-   float tex_l, tex_t, tex_r, tex_b, w, h;
+   float tex_l, tex_t, tex_r, tex_b, w, h, tex_w, tex_h;
    ALLEGRO_BITMAP_OGL *ogl_bitmap = (void *)bitmap;
    GLboolean on;
    GLuint current_texture;
@@ -127,32 +128,27 @@ static void draw_quad(ALLEGRO_BITMAP *bitmap,
    if (current_texture != ogl_bitmap->texture) {
       glBindTexture(GL_TEXTURE_2D, ogl_bitmap->texture);
    }
-
-   if (flags & ALLEGRO_FLIP_HORIZONTAL) {
-      tex_l = ogl_bitmap->right;
-      tex_r = ogl_bitmap->left;
-   }
-   else {
-      tex_l = ogl_bitmap->left;
-      tex_r = ogl_bitmap->right;
-   }
-
-   if (flags & ALLEGRO_FLIP_VERTICAL) {
-      tex_t = ogl_bitmap->bottom;
-      tex_b = ogl_bitmap->top;
-   }
-   else {
-      tex_t = ogl_bitmap->top;
-      tex_b = ogl_bitmap->bottom;
-   }
+   
+   tex_l = ogl_bitmap->left;
+   tex_r = ogl_bitmap->right;
+   tex_t = ogl_bitmap->top;
+   tex_b = ogl_bitmap->bottom;
 
    w = bitmap->w;
    h = bitmap->h;
+   tex_w = 1.0 / ogl_bitmap->true_w;
+   tex_h = 1.0 / ogl_bitmap->true_h;
 
-   tex_l += sx / w * tex_r;
-   tex_t += sy / h * tex_b;
-   tex_r -= (w - sx - sw) / w * tex_r;
-   tex_b -= (h - sy - sh) / h * tex_b;
+   tex_l += sx * tex_w;
+   tex_t -= sy * tex_h;
+   tex_r -= (w - sx - sw) * tex_w;
+   tex_b += (h - sy - sh) * tex_h;
+   
+   if (flags & ALLEGRO_FLIP_HORIZONTAL)
+      SWAP(float, tex_l, tex_r);
+
+   if (flags & ALLEGRO_FLIP_VERTICAL)
+      SWAP(float, tex_t, tex_b);
 
    bc = _al_get_blend_color();
    glColor4f(bc->r, bc->g, bc->b, bc->a);
@@ -180,6 +176,7 @@ static void draw_quad(ALLEGRO_BITMAP *bitmap,
       glDisable(GL_TEXTURE_2D);
    }
 }
+#undef SWAP
 
 
 
