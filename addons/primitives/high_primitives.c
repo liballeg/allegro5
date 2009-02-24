@@ -404,7 +404,10 @@ void al_draw_ellipse(float cx, float cy, float rx, float ry,
    if (thickness > 0) {
       int num_segments = ALLEGRO_PRIM_QUALITY * sqrtf((rx + ry) / 2.0f);
       int ii;
-      
+
+      /* In case rx and ry are both 0. */
+      if (!num_segments) return;
+
       if (2 * num_segments >= ALLEGRO_VBUFF_CACHE_SIZE) {
          num_segments = (ALLEGRO_VBUFF_CACHE_SIZE - 1) / 2;
       }
@@ -418,6 +421,9 @@ void al_draw_ellipse(float cx, float cy, float rx, float ry,
       int num_segments = ALLEGRO_PRIM_QUALITY * sqrtf((rx + ry) / 2.0f);
       int ii;
       
+      /* In case rx and ry are both 0. */
+      if (!num_segments) return;
+
       if (num_segments >= ALLEGRO_VBUFF_CACHE_SIZE) {
          num_segments = ALLEGRO_VBUFF_CACHE_SIZE - 1;
       }
@@ -441,6 +447,9 @@ void al_draw_filled_ellipse(float cx, float cy, float rx, float ry,
    ASSERT(ry >= 0);
    
    num_segments = ALLEGRO_PRIM_QUALITY * sqrtf((rx + ry) / 2.0f);
+
+   /* In case rx and ry are both 0. */
+   if (!num_segments) return;
    
    if (num_segments >= ALLEGRO_VBUFF_CACHE_SIZE) {
       num_segments = ALLEGRO_VBUFF_CACHE_SIZE - 1;
