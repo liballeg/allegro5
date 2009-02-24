@@ -116,14 +116,18 @@ int main(void)
    inactive = al_color_name("gray");
    info = al_color_name("red");
 
-   font = al_font_load_font("data/fixed_font.tga", 0);
-
    al_install_mouse();
    al_install_keyboard();
 
    display = al_create_display(640, 480);
    if (!display) {
       TRACE("Error creating display\n");
+      return 1;
+   }
+
+   font = al_font_load_font("data/fixed_font.tga", 0);
+   if (!font) {
+      TRACE("Error loading data/fixed_font.tga\n");
       return 1;
    }
 
@@ -139,11 +143,11 @@ int main(void)
       ALLEGRO_EVENT event;
       al_wait_for_event(queue, &event);
 
-      if (event.type == ALLEGRO_EVENT_DISPLAY_CLOSE)
+      if (event.type == ALLEGRO_EVENT_DISPLAY_CLOSE && !cur_dialog)
          break;
 
       if (event.type == ALLEGRO_EVENT_KEY_DOWN) {
-         if (event.keyboard.keycode == ALLEGRO_KEY_ESCAPE)
+         if (event.keyboard.keycode == ALLEGRO_KEY_ESCAPE && !cur_dialog)
             break;
       }
 
