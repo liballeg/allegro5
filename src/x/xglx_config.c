@@ -252,13 +252,13 @@ static ALLEGRO_EXTRA_DISPLAY_SETTINGS* read_xvisual(Display *dpy,
    int rgba, buffer_size, use_gl, sbuffers, samples;
    ALLEGRO_EXTRA_DISPLAY_SETTINGS *eds;
 
-   eds = malloc(sizeof(ALLEGRO_EXTRA_DISPLAY_SETTINGS));
-   eds->settings[ALLEGRO_RENDER_METHOD] = 2;
-
    /* We can only support TrueColor and DirectColor visuals --
     * we only support RGBA mode */
    if (v->class != TrueColor && v->class != DirectColor)
       return NULL;
+
+   eds = malloc(sizeof(ALLEGRO_EXTRA_DISPLAY_SETTINGS));
+   eds->settings[ALLEGRO_RENDER_METHOD] = 2;
 
    if (glXGetConfig (dpy, v, GLX_RGBA,         &rgba)
     || glXGetConfig (dpy, v, GLX_USE_GL,       &use_gl)
@@ -341,6 +341,7 @@ static ALLEGRO_EXTRA_DISPLAY_SETTINGS** get_visuals_old(int *count)
       return NULL;
 
    eds_list = malloc(num_visuals * sizeof(*eds_list));
+   memset(eds_list, 0, num_visuals * sizeof(*eds_list));
 
    TRACE(PREFIX_I "get_visuals_new: %i formats.\n", num_visuals);
 
@@ -354,8 +355,11 @@ static ALLEGRO_EXTRA_DISPLAY_SETTINGS** get_visuals_old(int *count)
       display_pixel_format(eds_list[j]);
 #endif
       eds_list[j]->score = _al_score_display_settings(eds_list[j], ref);
-      if (eds_list[j]->score == -1)
+      if (eds_list[j]->score == -1) {
+         free(eds_list[j]);
+         eds_list[j] = NULL;
          continue;
+      }
       eds_list[j]->index = i;
       /* Seems that XVinfo is static. */
       eds_list[j]->info = malloc(sizeof(XVisualInfo));
@@ -366,8 +370,9 @@ static ALLEGRO_EXTRA_DISPLAY_SETTINGS** get_visuals_old(int *count)
    TRACE(PREFIX_I "get_visuals_new(): %i visuals are good enough.\n", j);
    *count = j;
    if (j == 0) {
-      for (i = 0; i < num_visuals; i++)
+      for (i = 0; i < num_visuals; i++) {
          free(eds_list[i]);
+      }
       free(eds_list);
       XFree(xv);
       return NULL;
