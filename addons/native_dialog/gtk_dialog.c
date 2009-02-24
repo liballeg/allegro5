@@ -19,7 +19,7 @@ struct ALLEGRO_NATIVE_FILE_DIALOG
    ALLEGRO_USTR *title;
    ALLEGRO_USTR *patterns;
    int mode;
-   int count;
+   size_t count;
    ALLEGRO_PATH **pathes;
 };
 
@@ -155,7 +155,7 @@ int al_get_native_file_dialog_count(ALLEGRO_NATIVE_FILE_DIALOG *fc)
 /* al_get_native_file_dialog_path
  */
 ALLEGRO_PATH *al_get_native_file_dialog_path(
-   ALLEGRO_NATIVE_FILE_DIALOG *fc, int i)
+   ALLEGRO_NATIVE_FILE_DIALOG *fc, size_t i)
 {
    if (i < fc->count)
       return fc->pathes[i];

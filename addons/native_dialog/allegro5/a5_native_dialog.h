@@ -40,7 +40,7 @@ A5_DIALOG_FUNC(
 int, al_get_native_file_dialog_count, (ALLEGRO_NATIVE_FILE_DIALOG *fc));
 A5_DIALOG_FUNC(
 ALLEGRO_PATH *, al_get_native_file_dialog_path, (
-   ALLEGRO_NATIVE_FILE_DIALOG *fc, int i);
+   ALLEGRO_NATIVE_FILE_DIALOG *fc, size_t index);
 void al_destroy_native_file_dialog(ALLEGRO_NATIVE_FILE_DIALOG *fc));
 
 
