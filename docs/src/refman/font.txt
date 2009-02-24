@@ -9,6 +9,30 @@ This is now wholly handled in the vtable.
 
 Work horse for grabbing a font from an Allegro bitmap.
 
+Parameters:
+- bmp: The bitmap with the glyphs drawn onto it
+  (TODO: describe expected format - opaque yellow background,
+  fully transparent boxes all of same height but possibly variable
+  width, white, possibly anti-aliased glyphs)
+- ranges: Number of unicode ranges in the bitmap, followed by a pair
+  of first and last unicode point to map glyphs to for each range.
+
+Examples:
+
+    al_font_grab_font_from_bitmap(bitmap, 1, 32, 126)
+    al_font_grab_font_from_bitmap(bitmap, 4,
+        0x0020, 0x007F,  /* ASCII */
+        0x00A1, 0x00FF,  /* Latin 1 */
+        0x0100, 0x017F,  /* Extended-A */
+        0x20AC, 0x20AC); /* Euro */
+
+The first example will grab glyphs for the 95 standard printable ASCII
+characters, beginning with the space character (32) and ending with the
+tilde character (126). The second example will map the first 96 glyphs
+found in the bitmap to ASCII range, the next 95 glyphs to Latin 1, the
+next 128 glyphs to Extended-A, and the last glyph to the Euro character.
+(This is just the characters found in the Allegro 4 font.)
+
 ## API: al_font_init
 
 

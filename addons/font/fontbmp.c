@@ -199,7 +199,11 @@ ALLEGRO_FONT *al_font_load_bitmap_font(const char *fname, void *param)
    col = al_get_pixel(import_bmp, 0, 0);
    al_unmap_rgba(col, &r, &g, &b, &a);
 
-   f = al_font_grab_font_from_bitmap(import_bmp);
+   /* We assume a single unicode range, starting at the space
+    * character.
+    */
+   f = al_font_grab_font_from_bitmap(import_bmp, 1, 32,
+      32 + bitmap_font_count(import_bmp) - 1);
 
    al_destroy_bitmap(import_bmp);
 
@@ -209,59 +213,76 @@ ALLEGRO_FONT *al_font_load_bitmap_font(const char *fname, void *param)
 
 
 /* Function: al_font_grab_font_from_bitmap
- * Work horse for grabbing a font from an Allegro bitmap.
  */
-ALLEGRO_FONT *al_font_grab_font_from_bitmap(ALLEGRO_BITMAP *bmp)
+ALLEGRO_FONT *al_font_grab_font_from_bitmap(
+   ALLEGRO_BITMAP *bmp,
+   int ranges, ...)
 {
-   int begin = ' ';
-   int end = -1;
+   va_list args;
    ALLEGRO_FONT *f;
-   ALLEGRO_FONT_COLOR_DATA* cf;
+   ALLEGRO_FONT_COLOR_DATA *cf, *prev = NULL;
    ALLEGRO_STATE backup;
+   int i;
+   ALLEGRO_COLOR white = al_map_rgb(255, 255, 255);
+
    ASSERT(bmp)
+   
+   va_start(args, ranges);
 
    import_x = 0;
    import_y = 0;
 
    f = _AL_MALLOC(sizeof *f);
-   if (end == -1) end = bitmap_font_count(bmp) + begin;
+   memset(f, 0, sizeof *f);
+   f->vtable = al_font_vtable_color;
 
-   cf = _AL_MALLOC(sizeof(ALLEGRO_FONT_COLOR_DATA));
-   cf->bitmaps = _AL_MALLOC(sizeof(ALLEGRO_BITMAP*) * (end - begin));
-   
    al_store_state(&backup, ALLEGRO_STATE_BITMAP | ALLEGRO_STATE_BLENDER);
-   //al_set_new_bitmap_flags(0);
    al_set_new_bitmap_format(ALLEGRO_PIXEL_FORMAT_ANY_WITH_ALPHA);
 
-   cf->glyphs = al_create_bitmap(
-      al_get_bitmap_width(bmp), al_get_bitmap_height(bmp));
-   if (!cf->glyphs)
-      return 0;
+   for (i = 0; i < ranges; i++) {
+      int first = va_arg(args, int);
+      int last = va_arg(args, int);
+      int n = 1 + last - first;
+      cf = _AL_MALLOC(sizeof(ALLEGRO_FONT_COLOR_DATA));
+      memset(cf, 0, sizeof *cf);
 
-   al_set_target_bitmap(cf->glyphs);
+      if (prev)
+         prev->next = cf;
+      else
+         f->data = cf;
+      
+      cf->bitmaps = _AL_MALLOC(sizeof(ALLEGRO_BITMAP*) * n);
 
-   al_set_blender(ALLEGRO_ONE, ALLEGRO_ZERO, al_map_rgb(255, 255, 255));
+      cf->glyphs = al_create_bitmap(
+         al_get_bitmap_width(bmp), al_get_bitmap_height(bmp));
+      if (!cf->glyphs)
+         goto cleanup_and_fail_on_error;
 
-   al_draw_bitmap(bmp, 0, 0, 0);
+      al_set_target_bitmap(cf->glyphs);
+      al_set_blender(ALLEGRO_ONE, ALLEGRO_ZERO, white);
+      al_draw_bitmap(bmp, 0, 0, 0);
 
-   al_restore_state(&backup);
-
-   if( import_bitmap_font_color(bmp, cf->bitmaps, cf->glyphs, end - begin) ) {
-      _AL_FREE(cf->bitmaps);
-      _AL_FREE(cf);
-      _AL_FREE(f);
-      f = 0;
+      if(import_bitmap_font_color(bmp, cf->bitmaps, cf->glyphs, n)) {
+         goto cleanup_and_fail_on_error;
+      }
+      else {
+         cf->begin = first;
+         cf->end = last + 1;
+         prev = cf;
+      }
    }
-   else {
-      f->data = cf;
-      f->vtable = al_font_vtable_color;
+   va_end(args);
+   al_restore_state(&backup);
+   
+   cf = f->data;
+   if (cf)
       f->height = al_get_bitmap_height(cf->bitmaps[0]);
 
-      cf->begin = begin;
-      cf->end = end;
-      cf->next = 0;
-   }
-   
    return f;
+cleanup_and_fail_on_error:
+   va_end(args);
+   al_restore_state(&backup);
+   al_font_destroy_font(f);
+   return NULL;
 }
 

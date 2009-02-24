@@ -77,7 +77,7 @@ ALLEGRO_FONT_FUNC(void, al_font_register_font_file_type, (const char *ext, ALLEG
 ALLEGRO_FONT_FUNC(ALLEGRO_FONT *, al_font_load_bitmap_font, (const char *filename, void *param));
 ALLEGRO_FONT_FUNC(ALLEGRO_FONT *, al_font_load_font, (const char *filename, void *param));
 
-ALLEGRO_FONT_FUNC(ALLEGRO_FONT *, al_font_grab_font_from_bitmap, (ALLEGRO_BITMAP *bmp));
+ALLEGRO_FONT_FUNC(ALLEGRO_FONT *, al_font_grab_font_from_bitmap, (ALLEGRO_BITMAP *bmp, int ranges, ...));
 
 ALLEGRO_FONT_FUNC(void, al_font_textout, (const ALLEGRO_FONT *f, int x, int y, const char *str, int count));
 ALLEGRO_FONT_FUNC(void, al_font_textout_centre, (const ALLEGRO_FONT *f, int x, int y, const char *str, int count));
