@@ -15,7 +15,6 @@ void al_show_native_file_dialog(ALLEGRO_NATIVE_FILE_DIALOG *fd)
 {
    int mode = fd->mode;
    NSString *directory, *filename;
-   NSArray *files;
 
    /* Since this is designed to be run from a separate thread, we setup
     * release pool, or we get memory leaks
@@ -57,9 +56,17 @@ void al_show_native_file_dialog(ALLEGRO_NATIVE_FILE_DIALOG *fd)
       [panel setAllowsOtherFileTypes: YES];
 
       /* Open dialog box */
-      if ([panel runModalForDirectory:directory file:filename] == NSOKButton)
-         files = [NSArray arrayWithObject: [panel filename]];
-      [panel release];
+      if ([panel runModalForDirectory:directory file:filename] == NSOKButton) {
+         /* NOTE: at first glance, it looks as if this code might leak
+          * memory, but in fact it doesn't: the string returned by
+          * UTF8String is freed automatically when it goes out of scope
+          * (according to the UTF8String docs anyway).
+          */
+         const char *s = [[panel filename] UTF8String];
+         fd->count = 1;
+         fd->paths = _AL_MALLOC(fd->count * sizeof *fd->paths);
+         fd->paths[0] = al_path_create(s);
+      }
    } else {                                  // Open dialog
       NSOpenPanel *panel = [NSOpenPanel openPanel];
 
@@ -79,25 +86,21 @@ void al_show_native_file_dialog(ALLEGRO_NATIVE_FILE_DIALOG *fd)
          [panel setAllowsMultipleSelection:NO];
 
       /* Open dialog box */
-      if ([panel runModalForDirectory:directory file:filename] == NSOKButton)
-         files = [panel filenames];
-      [panel release];
-   }
-
-   if (files) {
-      size_t i;
-      fd->count = [files count];
-      fd->paths = _AL_MALLOC(fd->count * sizeof *fd->paths);
-      for (i = 0; i < fd->count; i++) {
-         /* NOTE: at first glance, it looks as if this code might leak
-          * memory, but in fact it doesn't: the string returned by
-          * UTF8String is freed automatically when it goes out of scope
-          * (according to the UTF8String docs anyway).
-          */
-         const char *s = [[files objectAtIndex: i] UTF8String];
-         fd->paths[i] = al_path_create(s);
+      if ([panel runModalForDirectory:directory file:filename] == NSOKButton) {
+         size_t i;
+         fd->count = [[panel filenames] count];
+         fd->paths = _AL_MALLOC(fd->count * sizeof *fd->paths);
+         for (i = 0; i < fd->count; i++) {
+            /* NOTE: at first glance, it looks as if this code might leak
+             * memory, but in fact it doesn't: the string returned by
+             * UTF8String is freed automatically when it goes out of scope
+             * (according to the UTF8String docs anyway).
+             */
+            const char *s = [[[panel filenames] objectAtIndex: i] UTF8String];
+            fd->paths[i] = al_path_create(s);
+         }
       }
    }
 
-   [pool release];
+   [pool drain];
 }
