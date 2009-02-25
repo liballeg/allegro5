@@ -511,8 +511,8 @@ Error:
 /* do_config_merge_into:
  *  Helper function for merging.
  */
-void do_config_merge_into(ALLEGRO_CONFIG *master, const ALLEGRO_CONFIG *add,
-   bool merge_comments)
+static void do_config_merge_into(ALLEGRO_CONFIG *master,
+   const ALLEGRO_CONFIG *add, bool merge_comments)
 {
    ALLEGRO_CONFIG_SECTION *s;
    ALLEGRO_CONFIG_ENTRY *e;

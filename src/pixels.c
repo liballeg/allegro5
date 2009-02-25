@@ -421,7 +421,7 @@ static void _get_pixel_xrgb_8888(void *data, ALLEGRO_COLOR *color)
 
 typedef void (*p_get_pixel_func)(void *, ALLEGRO_COLOR *);
 
-p_get_pixel_func get_pixel_funcs[ALLEGRO_NUM_PIXEL_FORMATS] = {
+static p_get_pixel_func get_pixel_funcs[ALLEGRO_NUM_PIXEL_FORMATS] = {
    /* Fake pixel formats */
    NULL,
    NULL,

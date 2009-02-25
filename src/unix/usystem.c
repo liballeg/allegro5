@@ -647,17 +647,3 @@ AL_CONST char *_unix_get_path(uint32_t id, char *dir, size_t size)
 
    return dir;
 }
-
-/* _unix_get_page_size:
- *  Get size of a memory page in bytes.  If we can't do it, we make a guess.
- */
-size_t _unix_get_page_size(void)
-{
-#if defined(ALLEGRO_HAVE_SYSCONF) && defined(_SC_PAGESIZE)
-   long page_size = sysconf(_SC_PAGESIZE); 
-#else
-   long page_size = -1;
-#endif
-
-   return (page_size == -1) ? 4096 : page_size;
-}

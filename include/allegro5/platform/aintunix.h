@@ -61,13 +61,6 @@ extern "C" {
    AL_FUNC(void, _unix_driver_lists_init, (void));
    AL_FUNC(void, _unix_driver_lists_shutdown, (void));
 
-   /* Get size of a memory page in bytes */
-   AL_FUNC(size_t, _unix_get_page_size, (void));
-
-
-
-   /* Get size of a memory page in bytes */
-   AL_FUNC(size_t, _unix_get_page_size, (void));
 
 #ifdef ALLEGRO_WITH_XWINDOWS
    AL_ARRAY(_DRIVER_INFO, _al_xwin_keyboard_driver_list);
