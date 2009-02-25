@@ -10,6 +10,7 @@
 
 #include <stdio.h>
 #include <math.h>
+#include <values.h>
 
 #include "allegro5/kcm_audio.h"
 #include "allegro5/internal/aintern_kcm_audio.h"
@@ -33,7 +34,7 @@ static float _samp_buf[ALLEGRO_MAX_CHANNELS]; /* max: 7.1 */
  *  Returns a pointer to a statically allocated array.
  */
 static float *_al_rechannel_matrix(ALLEGRO_CHANNEL_CONF orig,
-   ALLEGRO_CHANNEL_CONF target, float gain)
+   ALLEGRO_CHANNEL_CONF target, float gain, float pan)
 {
    /* Max 7.1 (8 channels) for input and output */
    static float mat[ALLEGRO_MAX_CHANNELS][ALLEGRO_MAX_CHANNELS];
@@ -72,6 +73,21 @@ static float *_al_rechannel_matrix(ALLEGRO_CHANNEL_CONF orig,
       (orig & 0xF) && (target & 0xF))
    {
       mat[dst_chans-1][src_chans-1] = 1.0;
+   }
+
+   /* Apply panning, which is supposed to maintain a constant power level.
+    * I took that to mean we want:
+    *    sqrt(rgain^2 + lgain^2) = 1.0
+    */
+   if (pan != FLT_MIN) {
+      float rgain = gain * sqrt(( pan + 1.0f) / 2.0f);
+      float lgain = gain * sqrt((-pan + 1.0f) / 2.0f);
+
+      /* I dunno what to do about >2 channels, so don't even try for now. */
+      for (j = 0; j < src_chans; j++) {
+         mat[0][j] *= lgain;
+         mat[1][j] *= rgain;
+      }
    }
 
    /* Apply gain */
@@ -113,7 +129,7 @@ void _al_kcm_mixer_rejig_sample_matrix(ALLEGRO_MIXER *mixer,
    }
 
    mat = _al_rechannel_matrix(spl->spl_data.chan_conf,
-      mixer->ss.spl_data.chan_conf, spl->gain);
+      mixer->ss.spl_data.chan_conf, spl->gain, spl->pan);
 
    dst_chans = al_get_channel_count(mixer->ss.spl_data.chan_conf);
    src_chans = al_get_channel_count(spl->spl_data.chan_conf);

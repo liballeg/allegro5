@@ -9,6 +9,7 @@
  */
 
 #include <stdio.h>
+#include <values.h>
 
 #include "allegro5/kcm_audio.h"
 #include "allegro5/internal/aintern_kcm_audio.h"
@@ -65,6 +66,7 @@ ALLEGRO_STREAM *al_create_stream(size_t buffer_count, unsigned long samples,
    stream->spl.spl_data.frequency = freq;
    stream->spl.speed     = 1.0f;
    stream->spl.gain      = 1.0f;
+   stream->spl.pan       = 1.0f;
 
    stream->spl.step = 0;
    stream->spl.pos  = samples << MIXER_FRAC_SHIFT;
@@ -190,6 +192,10 @@ int al_get_stream_float(const ALLEGRO_STREAM *stream,
 
       case ALLEGRO_AUDIOPROP_GAIN:
          *val = stream->spl.gain;
+         return 0;
+
+      case ALLEGRO_AUDIOPROP_PAN:
+         *val = stream->spl.pan;
          return 0;
 
       default:
@@ -363,6 +369,35 @@ int al_set_stream_float(ALLEGRO_STREAM *stream,
 
          /* If attached to a mixer already, need to recompute the sample
           * matrix to take into account the gain.
+          */
+         if (stream->spl.parent.u.mixer) {
+            ALLEGRO_MIXER *mixer = stream->spl.parent.u.mixer;
+
+            al_lock_mutex(stream->spl.mutex);
+            _al_kcm_mixer_rejig_sample_matrix(mixer, &stream->spl);
+            al_unlock_mutex(stream->spl.mutex);
+         }
+
+         return 0;
+
+      case ALLEGRO_AUDIOPROP_PAN:
+         if (stream->spl.parent.u.ptr && stream->spl.parent.is_voice) {
+            _al_set_error(ALLEGRO_GENERIC_ERROR,
+               "Could not set gain of stream attached to voice");
+            return 1;
+         }
+         if (val != FLT_MIN && (val < -1.0 || val > 1.0)) {
+            _al_set_error(ALLEGRO_GENERIC_ERROR, "Invalid pan value");
+            return 1;
+         }
+
+         if (stream->spl.pan == val) {
+            return 0;
+         }
+         stream->spl.pan = val;
+
+         /* If attached to a mixer already, need to recompute the sample
+          * matrix to take into account the panning.
           */
          if (stream->spl.parent.u.mixer) {
             ALLEGRO_MIXER *mixer = stream->spl.parent.u.mixer;

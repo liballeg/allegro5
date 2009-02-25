@@ -122,6 +122,7 @@ struct ALLEGRO_SAMPLE_INSTANCE {
    ALLEGRO_PLAYMODE     loop;
    float                speed;
    float                gain;
+   float                pan;
 
    unsigned long        pos;
    unsigned long        loop_start;

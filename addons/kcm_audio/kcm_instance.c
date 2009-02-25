@@ -10,6 +10,7 @@
 
 #include <math.h>
 #include <stdio.h>
+#include <values.h>
 
 #include "allegro5/kcm_audio.h"
 #include "allegro5/internal/aintern_kcm_audio.h"
@@ -153,6 +154,7 @@ ALLEGRO_SAMPLE_INSTANCE *al_create_sample_instance(ALLEGRO_SAMPLE *sample_data)
    spl->loop = ALLEGRO_PLAYMODE_ONCE;
    spl->speed = 1.0f;
    spl->gain = 1.0f;
+   spl->pan = 0.0f;
    spl->pos = 0;
    spl->loop_start = 0;
    spl->loop_end = sample_data ? sample_data->len : 0;
@@ -264,6 +266,10 @@ int al_get_sample_instance_float(const ALLEGRO_SAMPLE_INSTANCE *spl,
 
       case ALLEGRO_AUDIOPROP_GAIN:
          *val = spl->gain;
+         return 0;
+
+      case ALLEGRO_AUDIOPROP_PAN:
+         *val = spl->pan;
          return 0;
 
       case ALLEGRO_AUDIOPROP_TIME:
@@ -450,6 +456,35 @@ int al_set_sample_instance_float(ALLEGRO_SAMPLE_INSTANCE *spl,
 
          /* If attached to a mixer already, need to recompute the sample
           * matrix to take into account the gain.
+          */
+         if (spl->parent.u.mixer) {
+            ALLEGRO_MIXER *mixer = spl->parent.u.mixer;
+
+            al_lock_mutex(spl->mutex);
+            _al_kcm_mixer_rejig_sample_matrix(mixer, spl);
+            al_unlock_mutex(spl->mutex);
+         }
+
+         return 0;
+
+      case ALLEGRO_AUDIOPROP_PAN:
+         if (spl->parent.u.ptr && spl->parent.is_voice) {
+            _al_set_error(ALLEGRO_GENERIC_ERROR,
+               "Could not set panning of sample attached to voice");
+            return 1;
+         }
+         if (val != FLT_MIN && (val < -1.0 || val > 1.0)) {
+            _al_set_error(ALLEGRO_GENERIC_ERROR, "Invalid pan value");
+            return 1;
+         }
+
+         if (spl->pan == val) {
+            return 0;
+         }
+         spl->pan = val;
+
+         /* If attached to a mixer already, need to recompute the sample
+          * matrix to take into account the panning.
           */
          if (spl->parent.u.mixer) {
             ALLEGRO_MIXER *mixer = spl->parent.u.mixer;

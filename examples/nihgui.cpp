@@ -397,6 +397,39 @@ void Button::draw()
       this->y1, this->text.c_str(), -1);
 }
 
+bool Button::get_pushed()
+{
+   return pushed;
+}
+
+/*---------------------------------------------------------------------------*/
+
+ToggleButton::ToggleButton(std::string text) :
+   Button(text)
+{
+}
+
+void ToggleButton::on_mouse_button_down(int mx, int my)
+{
+   (void)mx;
+   (void)my;
+   this->pushed = !this->pushed;
+   dialog->request_draw();
+}
+
+void ToggleButton::on_mouse_button_up(int mx, int my)
+{
+   (void)mx;
+   (void)my;
+}
+
+void ToggleButton::set_pushed(bool pushed)
+{
+   this->pushed = pushed;
+   if (dialog)
+      dialog->request_draw();
+}
+
 /*---------------------------------------------------------------------------*/
 
 const std::string List::empty_string;

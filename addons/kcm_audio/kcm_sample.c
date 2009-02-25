@@ -31,9 +31,11 @@ static ALLEGRO_MIXER *default_mixer = NULL;
 static _AL_VECTOR auto_samples = _AL_VECTOR_INITIALIZER(ALLEGRO_SAMPLE_INSTANCE *);
 static _AL_VECTOR auto_sample_ids = _AL_VECTOR_INITIALIZER(int);
 
+
 static bool create_default_mixer(void);
 static bool do_play_sample(ALLEGRO_SAMPLE_INSTANCE *spl, ALLEGRO_SAMPLE *data, float gain, float pan, float speed, int loop);
 static void free_sample_vector(void);
+
 
 /* Creates the default voice and mixer if they haven't been created yet. */
 static bool create_default_mixer(void)
@@ -77,6 +79,7 @@ Error:
 
    return false;
 }
+
 
 /* Function: al_create_sample
  *  Create a sample data structure from the supplied buffer.
@@ -313,14 +316,13 @@ bool al_play_sample(ALLEGRO_SAMPLE *spl, float gain, float pan, float speed,
 static bool do_play_sample(ALLEGRO_SAMPLE_INSTANCE *splinst,
    ALLEGRO_SAMPLE *spl, float gain, float pan, float speed, int loop)
 {
-   (void)pan;
-
    if (al_set_sample(splinst, spl) != 0) {
       TRACE("al_set_sample failed\n");
       return false;
    }
 
    if (al_set_sample_instance_float(splinst, ALLEGRO_AUDIOPROP_GAIN, gain) ||
+      al_set_sample_instance_float(splinst, ALLEGRO_AUDIOPROP_PAN, pan) ||
       al_set_sample_instance_float(splinst, ALLEGRO_AUDIOPROP_SPEED, speed) ||
       al_set_sample_instance_enum(splinst, ALLEGRO_AUDIOPROP_LOOPMODE, loop)) {
       return false;

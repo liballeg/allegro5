@@ -123,7 +123,7 @@ public:
 };
 
 class Button : public Widget {
-private:
+protected:
    std::string    text;
    bool           pushed;
 
@@ -132,6 +132,17 @@ public:
    virtual void   on_mouse_button_down(int mx, int my);
    virtual void   on_mouse_button_up(int mx, int my);
    virtual void   draw();
+
+   bool           get_pushed();
+};
+
+class ToggleButton : public Button {
+public:
+   explicit ToggleButton(std::string text);
+   virtual void   on_mouse_button_down(int mx, int my);
+   virtual void   on_mouse_button_up(int mx, int my);
+
+   void           set_pushed(bool pushed);
 };
 
 class List : public Widget {

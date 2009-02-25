@@ -47,6 +47,7 @@ Not all types will apply to all functions.
 * ALLEGRO_AUDIOPROP_SPEED
 * ALLEGRO_AUDIOPROP_POSITION
 * ALLEGRO_AUDIOPROP_GAIN
+* ALLEGRO_AUDIOPROP_PAN
 * ALLEGRO_AUDIOPROP_FRAGMENTS
 * ALLEGRO_AUDIOPROP_USED_FRAGMENTS
 * ALLEGRO_AUDIOPROP_QUALITY
@@ -168,6 +169,17 @@ XXX much of this will probably change soon
   sample into a parent mixer. Has no effect if the object is attached
   directly to a voice.
 
+* ALLEGRO_AUDIOPROP_PAN (float) -
+  Gets or sets the object's panning (-1.0 to 1.0, from left to right).
+  The panning is only applied when mixing the sample into a parent mixer.
+  Has no effect if the object is attached directly to a voice.
+
+    To maintain a constant sound power level, when a sound is played in the
+  middle, it will be output equally from both front speakers but reduced in
+  level by 3 dB (about 0.707 of the original).  To play a sound centred
+  and at its original level, set its ALLEGRO_AUDIOPROP_PAN property to
+  FLT_MIN (from values.h).
+
 ## API: ALLEGRO_STREAM
 
 An ALLEGRO_STREAM object is used to stream generated audio to the sound
@@ -210,6 +222,9 @@ ALLEGRO_STREAM objects use the following fields:
   allowed.
 
 * ALLEGRO_AUDIOPROP_GAIN (float) -
+  Same as ALLEGRO_SAMPLE.
+
+* ALLEGRO_AUDIOPROP_PAN (float) -
   Same as ALLEGRO_SAMPLE.
 
 * ALLEGRO_AUDIOPROP_LENGTH (long) -
