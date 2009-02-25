@@ -74,11 +74,8 @@ the given mode bits (at least).
 
 ## API: al_path_exists
 
-Return 1 if path represents an existing file on the system,
-or 0 if it doesn't exist.
-Returns -1 on error.
-
-XXX errors would never be returned by the implementation
+Return true if path represents an existing file on the system,
+or false if it doesn't exist.
 
 ## API: al_path_free
 
@@ -204,6 +201,9 @@ Convert a path to its string representation, i.e. optional drive,
 followed by directory components separated by 'delim',
 followed by an optional filename.
 
-Will fill buffer up to 'len' bytes with a string representation of path.
 To use the current native path separator, use ALLEGRO_NATIVE_PATH_SEP
+for 'delim'.
+
+The returned pointer is valid only until the path is modified in any way,
+or until the path is destroyed.
 
