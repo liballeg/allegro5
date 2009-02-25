@@ -70,10 +70,8 @@ void al_show_native_file_dialog(ALLEGRO_NATIVE_FILE_DIALOG *fd)
       "ALLEGRO_NATIVE_FILE_CHOOSER", fd);
 
    if (fd->initial_path) {
-      char name[PATH_MAX];
-      al_path_to_string(fd->initial_path, name,
-                        sizeof name, '/');
-      gtk_file_selection_set_filename(GTK_FILE_SELECTION(window), name);
+      gtk_file_selection_set_filename(GTK_FILE_SELECTION(window),
+         al_path_to_string(fd->initial_path, '/'));
    }
 
    if (fd->mode & ALLEGRO_FILECHOOSER_MULTIPLE)

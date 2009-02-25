@@ -465,20 +465,23 @@ static AL_CONST char *win_get_path(uint32_t id, char *dir, size_t size)
       ustrcat(path, "\\");
    
    cisdl_path = al_path_create(path);
-   if(!cisdl_path)
+   if (!cisdl_path)
       return NULL;
 
-   if(id != AL_USER_HOME_PATH) {
+   if (id != AL_USER_HOME_PATH) {
       al_path_append(cisdl_path, al_get_orgname());
       al_path_append(cisdl_path, al_get_appname());
    }
 
-   al_path_to_string(cisdl_path, path, sizeof(path), '\\');
-   if((size_t)(ustrlen(path)+1) > size) {
+   const char *s = al_path_to_string(cisdl_path, '\\');
+   if (strlen(s) + 1 > size) {
       al_path_free(cisdl_path);
       return NULL;
    }
-   
+   _al_sane_strncpy(path, s, size);
+   al_path_free(cisdl_path);
+
+   /* XXX */
    do_uconvert(path, U_ASCII, dir, U_UTF8, strlen(path)+1);
    
    return dir;

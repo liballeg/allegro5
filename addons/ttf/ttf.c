@@ -307,16 +307,16 @@ ALLEGRO_FONT *al_ttf_load_font(char const *filename, int size, int flags)
      */
     path = al_path_create(filename);
     if (!0 == strcmp(al_path_get_extension(path), ".pfa")) {
-        char helper[PATH_MAX];
+        const char *helper;
         TRACE("a5-ttf: Type1 font assumed for %s.\n", filename);
 
         al_path_set_extension(path, ".afm");
-        al_path_to_string(path, helper, sizeof(helper), '/');
+        helper = al_path_to_string(path, '/');
         FT_Attach_File(face, helper); 
         TRACE("a5-ttf: Guessed afm file %s.\n", helper);
 
         al_path_set_extension(path, ".tfm");
-        al_path_to_string(path, helper, sizeof(helper), '/');
+        helper = al_path_to_string(path, '/');
         FT_Attach_File(face, helper); 
         TRACE("a5-ttf: Guessed tfm file %s.\n", helper);
     }

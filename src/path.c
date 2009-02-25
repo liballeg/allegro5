@@ -164,6 +164,7 @@ ALLEGRO_PATH *al_path_create(const char *str)
    path->filename = al_ustr_new("");
    _al_vector_init(&path->segments, sizeof(ALLEGRO_USTR *));
    path->basename = al_ustr_new("");
+   path->full_string = al_ustr_new("");
 
    if (str != NULL) {
       ALLEGRO_USTR *copy = al_ustr_new(str);
@@ -352,12 +353,12 @@ bool al_path_concat(ALLEGRO_PATH *path, const ALLEGRO_PATH *tail)
 }
 
 
-static ALLEGRO_USTR *path_to_ustr(const ALLEGRO_PATH *path, int32_t delim)
+static void path_to_ustr(const ALLEGRO_PATH *path, int32_t delim,
+   ALLEGRO_USTR *str)
 {
-   ALLEGRO_USTR *str;
    unsigned i;
 
-   str = al_ustr_dup(path->drive);
+   al_ustr_assign(str, path->drive);
 
    for (i = 0; i < _al_vector_size(&path->segments); i++) {
       al_ustr_append(str, get_segment(path, i));
@@ -365,58 +366,18 @@ static ALLEGRO_USTR *path_to_ustr(const ALLEGRO_PATH *path, int32_t delim)
    }
 
    al_ustr_append(str, path->filename);
-
-   return str;
 }
 
 
 /* Function: al_path_to_string
  */
-char *al_path_to_string(const ALLEGRO_PATH *path, char *buffer, size_t len,
-   char delim)
+const char *al_path_to_string(const ALLEGRO_PATH *path, char delim)
 {
-   ALLEGRO_USTR *ustr;
-   char *ret;
-
-   ustr = path_to_ustr(path, delim);
-
-   if (al_ustr_size(ustr) < len) {
-      _al_sane_strncpy(buffer, al_cstr(ustr), len);
-      ret = buffer;
-   }
-   else {
-      ret = NULL;
-   }
-
-   al_ustr_free(ustr);
-
-   return ret;
+   path_to_ustr(path, delim, path->full_string);
+   return al_cstr(path->full_string);
 }
 
 
-/* Function: al_get_path_string_length
- *
- * Returns the minimum size of the buffer that needs to be passed to
- * al_path_to_string.
- */
-size_t al_get_path_string_length(const ALLEGRO_PATH *path)
-{
-   size_t size = 0;
-
-   if (path) {
-      /* FIXME: there is probably a better way to do this than convert the
-       * entire path and then throwing it away?
-       */
-      ALLEGRO_USTR *ustr;
-      ustr = path_to_ustr(path, '/');
-      size = al_ustr_size(ustr) + 1;
-      al_ustr_free(ustr);
-   }
-
-   return size;
-}
-
- 
 /* Function: al_path_free
  */
 void al_path_free(ALLEGRO_PATH *path)
@@ -445,6 +406,11 @@ void al_path_free(ALLEGRO_PATH *path)
    if (path->basename) {
       al_ustr_free(path->basename);
       path->basename = NULL;
+   }
+
+   if (path->full_string) {
+      al_ustr_free(path->full_string);
+      path->full_string = NULL;
    }
 
    _AL_FREE(path);
@@ -561,7 +527,8 @@ bool al_path_exists(const ALLEGRO_PATH *path)
    bool rc;
    ASSERT(path);
 
-   ustr = path_to_ustr(path, ALLEGRO_NATIVE_PATH_SEP);
+   ustr = al_ustr_new("");
+   path_to_ustr(path, ALLEGRO_NATIVE_PATH_SEP, ustr);
 
    /* Windows' stat() doesn't like the slash at the end of the path when
     * the path is pointing to a directory. There are other places which
@@ -590,7 +557,8 @@ bool al_path_emode(const ALLEGRO_PATH *path, uint32_t mode)
    bool rc;
    ASSERT(path);
 
-   ustr = path_to_ustr(path, ALLEGRO_NATIVE_PATH_SEP);
+   ustr = al_ustr_new("");
+   path_to_ustr(path, ALLEGRO_NATIVE_PATH_SEP, ustr);
    rc = (al_get_entry_mode_str(al_cstr(ustr)) & mode) == mode;
    al_ustr_free(ustr);
    return rc;

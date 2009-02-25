@@ -86,11 +86,11 @@ static void show_files_list(ALLEGRO_NATIVE_FILE_DIALOG *dialog,
    int i;
 
    for (i = 0; i < count; i++) {
-      char name[PATH_MAX];
       const ALLEGRO_PATH *path;
+      const char *name;
 
       path = al_get_native_file_dialog_path(dialog, i);
-      al_path_to_string(path, name, sizeof name, '/');
+      name = al_path_to_string(path, '/');
       al_set_blender(ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA, info);
       al_font_textout_centre(font, x, y + i * th, name, -1);
    }

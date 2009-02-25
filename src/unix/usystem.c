@@ -28,6 +28,7 @@
 #include "allegro5/internal/aintern_memory.h"
 #include "allegro5/platform/aintunix.h"
 #include "allegro5/fshook.h"
+#include "allegro5/path.h"
 
 #if defined(ALLEGRO_HAVE_SCHED_YIELD) && defined(_POSIX_PRIORITY_SCHEDULING)
    /* ALLEGRO_HAVE_SCHED_YIELD is set by configure */
@@ -49,16 +50,15 @@
    #include <fcntl.h>
 #endif
 
-#include "allegro5/path.h"
-
 /* _unix_find_resource:
  *  Helper for locating a Unix config file. Looks in the home directory
  *  of the current user, and in /etc.
  */
 int _unix_find_resource(char *dest, AL_CONST char *resource, int size)
 {
-   char buf[256];
-   char home[256];
+   char home[PATH_MAX];
+   char data_path[PATH_MAX];
+   const char *buf;
    ALLEGRO_PATH *path;
 
    _unix_get_path(AL_USER_HOME_PATH, home, sizeof(home));
@@ -72,23 +72,23 @@ int _unix_find_resource(char *dest, AL_CONST char *resource, int size)
       }
 
       al_path_append(local_path, resource);
-      al_path_to_string(local_path, buf, sizeof(buf), '/');
-
+      buf = al_path_to_string(local_path, '/');
       if (al_is_present_str(buf)) {
-         ustrzcpy(dest, size, buf);
+         _al_sane_strncpy(dest, buf, size);
+         al_path_free(local_path);
          return 0;
       }
 
       /* if it is a .cfg, look for ~/.filerc */
       if (stricmp(al_path_get_extension(local_path), ".cfg") == 0) {
          al_path_set_extension(local_path, "rc");
-         al_path_to_string(local_path, buf, sizeof(buf), '/');
-
+         buf = al_path_to_string(local_path, '/');
          /* FIXME: we're temporarily forgetting about these permission flags
 	 if (file_exists(buf, FA_ARCH | FA_RDONLY | FA_HIDDEN, NULL)) {
          */
          if (al_is_present_str(buf)) {
-	    ustrzcpy(dest, size, buf);
+            _al_sane_strncpy(dest, buf, size);
+            al_path_free(local_path);
 	    return 0;
 	 }
       }
@@ -99,20 +99,20 @@ int _unix_find_resource(char *dest, AL_CONST char *resource, int size)
    /* look for /etc/file */
    path = al_path_create("/etc");
    al_path_set_filename(path, resource);
-   al_path_to_string(path, buf, sizeof(buf), '/');
-
+   buf = al_path_to_string(path, '/');
    if (al_is_present_str(buf)) {
-      ustrzcpy(dest, size, buf);
+      _al_sane_strncpy(dest, buf, size);
+      al_path_free(path);
       return 0;
    }
 
    /* if it is a .cfg, look for /etc/filerc */
    if (stricmp(al_path_get_extension(path), ".cfg") == 0) {
       al_path_set_extension(path, "rc");
-      al_path_to_string(path, buf, sizeof(buf), '/');
-
+      buf = al_path_to_string(path, '/');
       if (al_is_present_str(buf)) {
-	 ustrzcpy(dest, size, buf);
+         _al_sane_strncpy(dest, buf, size);
+         al_path_free(path);
 	 return 0;
       }
    }
@@ -120,14 +120,15 @@ int _unix_find_resource(char *dest, AL_CONST char *resource, int size)
    al_path_free(path);
 
    /* if it is a .dat, look in AL_SYSTEM_DATA_PATH */
-   path = al_path_create(al_get_path(AL_SYSTEM_DATA_PATH, buf, sizeof(buf)));
+   path = al_path_create(al_get_path(AL_SYSTEM_DATA_PATH, data_path, sizeof(data_path)));
    al_path_set_filename(path, resource);
 
    if (stricmp(al_path_get_extension(path), ".dat") == 0) {
       al_path_append(path, "allegro");
-      al_path_to_string(path, buf, sizeof(buf), '/');
+      buf = al_path_to_string(path, '/');
       if (al_is_present_str(buf)) {
-	 ustrzcpy(dest, size, buf);
+         _al_sane_strncpy(dest, buf, size);
+         al_path_free(path);
 	 return 0;
       }
    }
@@ -468,9 +469,6 @@ static int32_t _unix_find_home(char *dir, uint32_t len)
       do_uconvert(home_env, U_ASCII, dir, U_UTF8, len);
       return 0;
    }
-
-   /* should not reach here */
-   return -1;
 }
 
 AL_CONST char *_unix_get_path(uint32_t id, char *dir, size_t size)
@@ -520,22 +518,21 @@ AL_CONST char *_unix_get_path(uint32_t id, char *dir, size_t size)
       } break;
 
       case AL_SYSTEM_DATA_PATH: {
-         char tmp[PATH_MAX] = "";
+         const char *tmp;
          ALLEGRO_PATH *sys_data_path = NULL;
 
          /* FIXME: make this a compile time define, or a allegro cfg option? or both */
          sys_data_path = al_path_create("/usr/share/");
          al_path_append(sys_data_path, al_get_orgname());
          al_path_append(sys_data_path, al_get_appname());
-         al_path_to_string(sys_data_path, tmp, PATH_MAX, '/');
-         if((size_t)(ustrlen(tmp)+1) > size) {
+         tmp = al_path_to_string(sys_data_path, '/');
+         if (strlen(tmp) + 1 > size) {
             al_path_free(sys_data_path);
             al_set_errno(ERANGE);
             return NULL;
          }
-
-         al_path_free(sys_data_path);
          _al_sane_strncpy(dir, tmp, size);
+         al_path_free(sys_data_path);
       } break;
 
 #if 0
@@ -582,6 +579,8 @@ AL_CONST char *_unix_get_path(uint32_t id, char *dir, size_t size)
       case AL_USER_DATA_PATH: {
          ALLEGRO_PATH *local_path = NULL;
          char tmp[PATH_MAX] = "";
+         const char *s;
+
          if (_unix_find_home(tmp, PATH_MAX) != 0) {
             return NULL;
          }
@@ -594,12 +593,13 @@ AL_CONST char *_unix_get_path(uint32_t id, char *dir, size_t size)
          al_path_append(local_path, al_get_orgname());
          al_path_append(local_path, al_get_appname());
 
-         al_path_to_string(local_path, tmp, PATH_MAX, '/');
-
-         if((size_t)(ustrlen(tmp)+1) > size)
+         s = al_path_to_string(local_path, '/');
+         if (strlen(s) + 1 > size) {
+            /* XXX set errno */
             return NULL;
+         }
 
-         ustrzcpy(dir, size, tmp);
+         _al_sane_strncpy(dir, s, size);
       } break;
 
       case AL_USER_HOME_PATH: {
@@ -618,23 +618,23 @@ AL_CONST char *_unix_get_path(uint32_t id, char *dir, size_t size)
 
       case AL_SYSTEM_SETTINGS_PATH: {
          ALLEGRO_PATH *sys_path = NULL;
-         char tmp[PATH_MAX] = "";
+         const char *s;
 
          /* FIXME: make this a compile time define, or something */
          sys_path = al_path_create("/etc/");
          al_path_append(sys_path, al_get_orgname());
          al_path_append(sys_path, al_get_appname());
 
-         al_path_to_string(sys_path, tmp, PATH_MAX, '/');
+         s = al_path_to_string(sys_path, '/');
 
-         if((size_t)(ustrlen(tmp)+1) > size) {
+         if (strlen(s) + 1 > size) {
             al_path_free(sys_path);
             al_set_errno(ERANGE);
             return NULL;
          }
          
+         _al_sane_strncpy(dir, s, size);
          al_path_free(sys_path);
-         _al_sane_strncpy(dir, tmp, size);
       } break;
 
       case AL_EXENAME_PATH:

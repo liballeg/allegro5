@@ -23,6 +23,7 @@
 #include "allegro5/debug.h"
 #include "allegro5/fshook.h"
 #include "allegro5/path.h"
+#include "allegro5/internal/aintern.h"
 #include "allegro5/internal/aintern_fshook.h"
 #include "allegro5/internal/aintern_memory.h"
 
@@ -977,15 +978,16 @@ int al_fungetc(ALLEGRO_FS_ENTRY *fp, int c)
 }
 
 /* maybe find a better place for this later */
-static int32_t _al_find_resource_exists(const char *path, const char *base,
+static bool _al_find_resource_exists(const char *path, const char *base,
    const char *resource, uint32_t fm, char *buffer, size_t len)
 {
    ALLEGRO_PATH *fp;
-   int32_t ret = 0;
+   bool ret = false;
 
    memset(buffer, 0, len);
 
    fp = al_path_create(path);
+   /* XXX this isn't strictly correct, is it? */
    al_path_append(fp, base);
 
    if (resource) {
@@ -994,19 +996,21 @@ static int32_t _al_find_resource_exists(const char *path, const char *base,
       al_path_free(resp);
    }
 
-   al_path_to_string(fp, buffer, len, ALLEGRO_NATIVE_PATH_SEP);
-   //printf("_find_resource: '%s' exists:%i sfm:%i fm:%i eq:%i\n", buffer, al_fs_exists(buffer), al_fs_stat_mode(buffer), fm, (al_fs_stat_mode(buffer) & fm) == fm);
+   const char *s = al_path_to_string(fp, ALLEGRO_NATIVE_PATH_SEP);
+   _al_sane_strncpy(buffer, s, len);
+
    if (al_is_present_str(buffer) && (al_get_entry_mode_str(buffer) & fm) == fm) {
-      ret = 1;
+      ret = true;
    }
    else if (fm & AL_FM_WRITE) {
+      /* XXX update this */
+      /* XXX is this supposed to be chr or rchr? */
       char *rchr = ustrchr(buffer, ALLEGRO_NATIVE_PATH_SEP);
       if (rchr) {
          usetc(rchr, '\0');
 
-         //printf("testing '%s' for WRITE perms.\n", buffer);
          if (al_is_present_str(buffer) && al_get_entry_mode_str(buffer) & AL_FM_WRITE) {
-            ret = 1;
+            ret = true;
          }
 
          usetc(rchr, ALLEGRO_NATIVE_PATH_SEP);
@@ -1103,7 +1107,9 @@ char *al_find_resource(const char *base, const char *resource, uint32_t fm,
       al_path_free(resp);
    }
 
-   al_path_to_string(path, buffer, len, ALLEGRO_NATIVE_PATH_SEP);
+   const char *s = al_path_to_string(path, ALLEGRO_NATIVE_PATH_SEP);
+   _al_sane_strncpy(buffer, s, len);
+
    al_path_free(path);
 
    return buffer;

@@ -123,7 +123,6 @@ void t3(void)
 {
 #ifdef ALLEGRO_WINDOWS
    ALLEGRO_PATH *path;
-   char buf[PATH_MAX];
 
    /* The mixed slashes are deliberate. */
 
@@ -133,8 +132,7 @@ void t3(void)
    CHECK_EQ(al_path_index(path, 0), "abc");
    CHECK_EQ(al_path_index(path, 1), "def");
    CHECK_EQ(al_path_get_filename(path), "ghi");
-   CHECK_EQ(al_path_to_string(path, buf, sizeof(buf), '\\'),
-      "c:abc\\def\\ghi");
+   CHECK_EQ(al_path_to_string(path, '\\'), "c:abc\\def\\ghi");
    al_path_free(path);
 
    CHECK(path = al_path_create("c:\\abc/def\\ghi"));
@@ -144,8 +142,7 @@ void t3(void)
    CHECK_EQ(al_path_index(path, 1), "abc");
    CHECK_EQ(al_path_index(path, 2), "def");
    CHECK_EQ(al_path_get_filename(path), "ghi");
-   CHECK_EQ(al_path_to_string(path, buf, sizeof(buf), '\\'),
-      "c:\\abc\\def\\ghi");
+   CHECK_EQ(al_path_to_string(path, '\\'), "c:\\abc\\def\\ghi");
    al_path_free(path);
 #endif
 }
@@ -277,45 +274,38 @@ void t8(void)
 void t9(void)
 {
    ALLEGRO_PATH *path = al_path_create(NULL);
-   char buf[PATH_MAX];
 
-   CHECK_EQ(al_path_to_string(path, buf, sizeof(buf), '/'), "");
+   CHECK_EQ(al_path_to_string(path, '/'), "");
 
    /* Drive letters. */
    al_path_set_drive(path, "c:");
-   CHECK_EQ(al_path_to_string(path, buf, sizeof(buf), '/'), "c:");
+   CHECK_EQ(al_path_to_string(path, '/'), "c:");
    CHECK_EQ(al_path_get_drive(path), "c:");
 
    al_path_set_drive(path, "d:");
-   CHECK_EQ(al_path_to_string(path, buf, sizeof(buf), '/'), "d:");
+   CHECK_EQ(al_path_to_string(path, '/'), "d:");
 
    /* Plus directory components. */
    al_path_append(path, "abc");
    al_path_append(path, "def");
-   CHECK_EQ(al_path_to_string(path, buf, sizeof(buf), '/'), "d:abc/def/");
+   CHECK_EQ(al_path_to_string(path, '/'), "d:abc/def/");
 
    /* Plus filename. */
    al_path_set_filename(path, "uvw");
-   CHECK_EQ(al_path_to_string(path, buf, sizeof(buf), '/'), "d:abc/def/uvw");
+   CHECK_EQ(al_path_to_string(path, '/'), "d:abc/def/uvw");
    CHECK_EQ(al_path_get_filename(path), "uvw");
 
    /* Replace filename. */
    al_path_set_filename(path, "xyz");
-   CHECK_EQ(al_path_to_string(path, buf, sizeof(buf), '/'), "d:abc/def/xyz");
+   CHECK_EQ(al_path_to_string(path, '/'), "d:abc/def/xyz");
 
    /* Remove drive. */
    al_path_set_drive(path, NULL);
-   CHECK_EQ(al_path_to_string(path, buf, sizeof(buf), '/'), "abc/def/xyz");
+   CHECK_EQ(al_path_to_string(path, '/'), "abc/def/xyz");
 
    /* Remove filename. */
    al_path_set_filename(path, NULL);
-   CHECK_EQ(al_path_to_string(path, buf, sizeof(buf), '/'), "abc/def/");
-
-   /* Buffer too short. */
-   CHECK(! al_path_to_string(path, buf, 0, '/'));
-   CHECK(! al_path_to_string(path, buf, 2, '/'));
-   CHECK(! al_path_to_string(path, buf, 8, '/'));
-   CHECK_EQ(al_path_to_string(path, buf, 9, '/'), "abc/def/");
+   CHECK_EQ(al_path_to_string(path, '/'), "abc/def/");
 
    al_path_free(path);
 }
@@ -325,13 +315,12 @@ void t10(void)
 {
    ALLEGRO_PATH *path1;
    ALLEGRO_PATH *path2;
-   char buf[PATH_MAX];
 
    /* Both empty. */
    path1 = al_path_create(NULL);
    path2 = al_path_create(NULL);
    al_path_concat(path1, path2);
-   CHECK_EQ(al_path_to_string(path1, buf, sizeof(buf), '/'), "");
+   CHECK_EQ(al_path_to_string(path1, '/'), "");
    al_path_free(path1);
    al_path_free(path2);
 
@@ -339,7 +328,7 @@ void t10(void)
    path1 = al_path_create("file1");
    path2 = al_path_create("file2");
    al_path_concat(path1, path2);
-   CHECK_EQ(al_path_to_string(path1, buf, sizeof(buf), '/'), "file2");
+   CHECK_EQ(al_path_to_string(path1, '/'), "file2");
    al_path_free(path1);
    al_path_free(path2);
 
@@ -347,7 +336,7 @@ void t10(void)
    path1 = al_path_create("dir1a/dir1b/file1");
    path2 = al_path_create("dir2a/dir2b/file2");
    al_path_concat(path1, path2);
-   CHECK_EQ(al_path_to_string(path1, buf, sizeof(buf), '/'),
+   CHECK_EQ(al_path_to_string(path1, '/'),
       "dir1a/dir1b/dir2a/dir2b/file2");
    al_path_free(path1);
    al_path_free(path2);
@@ -357,8 +346,7 @@ void t10(void)
    path1 = al_path_create("d:dir1a/dir1b/file1");
    path2 = al_path_create("e:dir2a/dir2b/file2");
    al_path_concat(path1, path2);
-   CHECK_EQ(al_path_to_string(path1, buf, sizeof(buf), '/'),
-      "d:dir1a/dir1b/dir2a/dir2b/file2");
+   CHECK_EQ(al_path_to_string(path1, '/'), "d:dir1a/dir1b/dir2a/dir2b/file2");
    al_path_free(path1);
    al_path_free(path2);
 #endif
@@ -367,8 +355,7 @@ void t10(void)
    path1 = al_path_create("/dir1a/dir1b/file1");
    path2 = al_path_create("dir2a/dir2b/file2");
    al_path_concat(path1, path2);
-   CHECK_EQ(al_path_to_string(path1, buf, sizeof(buf), '/'),
-      "/dir1a/dir1b/dir2a/dir2b/file2");
+   CHECK_EQ(al_path_to_string(path1, '/'), "/dir1a/dir1b/dir2a/dir2b/file2");
    al_path_free(path1);
    al_path_free(path2);
 
@@ -376,8 +363,7 @@ void t10(void)
    path1 = al_path_create("/dir1a/dir1b/file1");
    path2 = al_path_create("/dir2a/dir2b/file2");
    al_path_concat(path1, path2);
-   CHECK_EQ(al_path_to_string(path1, buf, sizeof(buf), '/'),
-      "/dir1a/dir1b/file1");
+   CHECK_EQ(al_path_to_string(path1, '/'), "/dir1a/dir1b/file1");
    al_path_free(path1);
    al_path_free(path2);
 }
@@ -443,20 +429,16 @@ void t13(void)
 {
    ALLEGRO_PATH *path1;
    ALLEGRO_PATH *path2;
-   char buf1[PATH_MAX];
-   char buf2[PATH_MAX];
 
    path1 = al_path_create("/abc/def/ghi");
    path2 = al_path_clone(path1);
 
-   CHECK_EQ(
-      al_path_to_string(path1, buf1, sizeof(buf1), '/'),
-      al_path_to_string(path2, buf2, sizeof(buf2), '/'));
+   CHECK_EQ(al_path_to_string(path1, '/'), al_path_to_string(path2, '/'));
 
    al_path_replace(path2, 2, "DEF");
    al_path_set_filename(path2, "GHI");
-   CHECK_EQ(al_path_to_string(path1, buf1, sizeof(buf1), '/'), "/abc/def/ghi");
-   CHECK_EQ(al_path_to_string(path2, buf2, sizeof(buf2), '/'), "/abc/DEF/GHI");
+   CHECK_EQ(al_path_to_string(path1, '/'), "/abc/def/ghi");
+   CHECK_EQ(al_path_to_string(path2, '/'), "/abc/DEF/GHI");
 
    al_path_free(path1);
    al_path_free(path2);
@@ -496,13 +478,13 @@ void t16(void)
 {
    ALLEGRO_PATH *path;
    char cwd[PATH_MAX];
-   char buf[PATH_MAX];
+   const char *buf;
 
    path = al_path_create("abc/def");
    CHECK(al_path_make_absolute(path));
 
    al_getcwd(PATH_MAX, cwd);
-   al_path_to_string(path, buf, sizeof(buf), ALLEGRO_NATIVE_PATH_SEP);
+   buf = al_path_to_string(path, ALLEGRO_NATIVE_PATH_SEP);
    CHECK(0 == strncmp(buf, cwd, strlen(cwd)));
    CHECK(0 == strcmp(buf + strlen(cwd), "abc/def") ||
          0 == strcmp(buf + strlen(cwd), "abc\\def"));
@@ -514,20 +496,17 @@ void t16(void)
 void t17(void)
 {
    ALLEGRO_PATH *path;
-   char buf[PATH_MAX];
 
    path = al_path_create("/../.././abc/./def/../../ghi/jkl");
    CHECK(al_path_make_canonical(path));
    CHECK(al_path_num_components(path) == 6);
-   CHECK_EQ(al_path_to_string(path, buf, sizeof(buf), '/'),
-      "/abc/def/../../ghi/jkl");
+   CHECK_EQ(al_path_to_string(path, '/'), "/abc/def/../../ghi/jkl");
    al_path_free(path);
 
    path = al_path_create("../.././abc/./def/../../ghi/jkl");
    CHECK(al_path_make_canonical(path));
    CHECK(al_path_num_components(path) == 7);
-   CHECK_EQ(al_path_to_string(path, buf, sizeof(buf), '/'),
-      "../../abc/def/../../ghi/jkl");
+   CHECK_EQ(al_path_to_string(path, '/'), "../../abc/def/../../ghi/jkl");
    al_path_free(path);
 }
 

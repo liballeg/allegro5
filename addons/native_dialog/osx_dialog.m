@@ -24,18 +24,12 @@ void al_show_native_file_dialog(ALLEGRO_NATIVE_FILE_DIALOG *fd)
    /* Set initial directory to pass to the file selector */
    if (fd->initial_path) {
       ALLEGRO_PATH *initial_directory = al_path_clone(fd->initial_path);
-      char *path_str;
-      size_t size = al_get_path_string_length(fd->initial_path);
-
       /* Strip filename from path  */
       al_path_set_filename(initial_directory, NULL);
 
       /* Convert path and filename to NSString objects */
-      path_str = malloc(size);
-      al_path_to_string(initial_directory, path_str, size, '/');
-      directory = [NSString stringWithUTF8String: path_str];
+      directory = [NSString stringWithUTF8String: al_path_to_string(initial_directory, '/')];
       filename = [NSString stringWithUTF8String: al_path_get_filename(fd->initial_path)];
-      free(path_str);
       al_path_free(initial_directory);
    } else {
       directory = nil;

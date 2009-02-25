@@ -39,11 +39,9 @@ int main(int argc, char **argv)
       printf("Failed to create path structure for tostring test\n");
    }
    else {
-      char tostring_string[1024];
       int i;
 
-      al_path_to_string(tostring, tostring_string, 1024, '/');
-      printf("tostring: '%s'\n", tostring_string);
+      printf("tostring: '%s'\n", al_path_to_string(tostring, '/'));
       printf("tostring: drive:'%s'", al_path_get_drive(tostring));
       printf(" dirs:");
       for (i = 0; i < al_path_num_components(tostring); i++) {
@@ -63,17 +61,13 @@ int main(int argc, char **argv)
    if(dyn) {
       cloned = al_path_clone(dyn);
       if(cloned) {
-         char path[PATH_MAX];
-         al_path_to_string(dyn, path, PATH_MAX, '/');
-         printf("dyn: '%s'\n", path);
+         printf("dyn: '%s'\n", al_path_to_string(dyn, '/'));
 
          al_path_make_canonical(cloned);
-         al_path_to_string(cloned, path, PATH_MAX, '/');
-         printf("can: '%s'\n", path);
+         printf("can: '%s'\n", al_path_to_string(cloned, '/'));
 
          al_path_make_absolute(cloned);
-         al_path_to_string(cloned, path, PATH_MAX, '/');
-         printf("abs: '%s'\n", path);
+         printf("abs: '%s'\n", al_path_to_string(cloned, '/'));
 
          al_path_free(dyn);
          al_path_free(cloned);
