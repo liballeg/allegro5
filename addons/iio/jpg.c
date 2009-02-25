@@ -258,7 +258,7 @@ ALLEGRO_BITMAP *iio_load_jpg(char const *filename)
    if (!pf)
       return NULL;
 
-   bmp = load_jpg_entry(pf);
+   bmp = iio_load_jpg_entry(pf);
 
    al_fclose(pf);
 
@@ -284,7 +284,7 @@ int iio_save_jpg(char const *filename, ALLEGRO_BITMAP *bmp)
       return -1;
    }
 
-   result = save_jpg_entry(pf, bmp);
+   result = iio_save_jpg_entry(pf, bmp);
 
    al_fclose(pf);
 
