@@ -1,14 +1,14 @@
 set(INCLUDE_FILES allegro5/a5_native_dialog.h)
 
 if(APPLE)
-   set(SOURCES osx_dialog.m)
+   set(SOURCES dialog.c osx_dialog.m)
    set(SUPPORT_NATIVE_DIALOG 1)
 endif(APPLE)
 
 if(NOT SUPPORT_NATIVE_DIALOG)
     pkg_check_modules(GTK gtk+-2.0)
     if(GTK_FOUND)
-        set(SOURCES gtk_dialog.c)
+        set(SOURCES dialog.c gtk_dialog.c)
         include_directories(${GTK_INCLUDE_DIRS})
 
         # For example, on Windows, GTK+ requires gcc -mms-bitfields (MinGW).
