@@ -493,21 +493,16 @@ const char *al_path_get_filename(const ALLEGRO_PATH *path)
 
 /* Function: al_path_get_extension
  */
-const char *al_path_get_extension(const ALLEGRO_PATH *path,
-   char *buf, size_t len)
+const char *al_path_get_extension(const ALLEGRO_PATH *path)
 {
    int pos;
    ASSERT(path);
-   ASSERT(buf);
-
-   memset(buf, 0, len);
 
    pos = al_ustr_rfind_chr(path->filename, al_ustr_size(path->filename), '.');
-   if (pos >= 0) {
-      _al_sane_strncpy(buf, al_cstr(path->filename) + pos + 1, len);
-   }
+   if (pos == -1)
+      pos = al_ustr_size(path->filename);
 
-   return buf;
+   return al_cstr(path->filename) + pos;  /* include dot */
 }
 
 
@@ -527,11 +522,8 @@ bool al_path_set_extension(ALLEGRO_PATH *path, char const *extension)
    }
 
    dot = al_ustr_rfind_chr(path->filename, al_ustr_size(path->filename), '.');
-   if (dot == -1) {
-      al_ustr_append_chr(path->filename, '.');
-   }
-   else {
-      al_ustr_truncate(path->filename, dot + 1);
+   if (dot >= 0) {
+      al_ustr_truncate(path->filename, dot);
    }
    al_ustr_append_cstr(path->filename, extension);
    return true;

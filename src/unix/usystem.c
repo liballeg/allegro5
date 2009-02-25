@@ -58,7 +58,7 @@
 int _unix_find_resource(char *dest, AL_CONST char *resource, int size)
 {
    char buf[256];
-   char home[256], ext[256];
+   char home[256];
    ALLEGRO_PATH *path;
 
    _unix_get_path(AL_USER_HOME_PATH, home, sizeof(home));
@@ -80,12 +80,8 @@ int _unix_find_resource(char *dest, AL_CONST char *resource, int size)
       }
 
       /* if it is a .cfg, look for ~/.filerc */
-      if (strcmp(al_path_get_extension(local_path, ext, sizeof(ext)), "cfg") == 0 ||
-         strcmp(al_path_get_extension(local_path, ext, sizeof(ext)), "CFG") == 0) {
-
-         al_path_get_basename(local_path, buf, sizeof(buf));
-         ustrncat(buf, "rc", 2);
-         al_path_set_filename(local_path, buf);
+      if (stricmp(al_path_get_extension(local_path), ".cfg") == 0) {
+         al_path_set_extension(local_path, "rc");
          al_path_to_string(local_path, buf, sizeof(buf), '/');
 
          /* FIXME: we're temporarily forgetting about these permission flags
@@ -111,12 +107,8 @@ int _unix_find_resource(char *dest, AL_CONST char *resource, int size)
    }
 
    /* if it is a .cfg, look for /etc/filerc */
-   if (strcmp(al_path_get_extension(path, ext, sizeof(ext)), "cfg") == 0 ||
-      strcmp(al_path_get_extension(path, ext, sizeof(ext)), "CFG") == 0) {
-
-      al_path_get_basename(path, buf, sizeof(buf));
-      ustrncat(buf, "rc", 2);
-      al_path_set_filename(path, buf);
+   if (stricmp(al_path_get_extension(path), ".cfg") == 0) {
+      al_path_set_extension(path, "rc");
       al_path_to_string(path, buf, sizeof(buf), '/');
 
       if (al_is_present_str(buf)) {
@@ -131,8 +123,7 @@ int _unix_find_resource(char *dest, AL_CONST char *resource, int size)
    path = al_path_create(al_get_path(AL_SYSTEM_DATA_PATH, buf, sizeof(buf)));
    al_path_set_filename(path, resource);
 
-   if (strcmp(al_path_get_extension(path, ext, sizeof(ext)), "dat") == 0 ||
-      strcmp(al_path_get_extension(path, ext, sizeof(ext)), "DAT") == 0) {
+   if (stricmp(al_path_get_extension(path), ".dat") == 0) {
       al_path_append(path, "allegro");
       al_path_to_string(path, buf, sizeof(buf), '/');
       if (al_is_present_str(buf)) {

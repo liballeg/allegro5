@@ -5,9 +5,8 @@ components*, followed by an optional *filename*.  The filename may be broken
 up into a *basename* and an *extension*, where the basename includes the start
 of the filename up to, but not including, the last dot (.) character.
 If no dot character exists the basename is the whole filename.
-
-XXX later define extension to include the full stop; currently the code
-doesn't include it
+The extension is everything from the last dot character to the end of the
+filename.
 
 ## API: al_find_resource
 
@@ -102,13 +101,19 @@ The "drive letter" is only used on Windows, and is usually a string like
 
 ## API: al_path_get_extension
 
-Fill buf with extension of the filename part of the path.
-If there is no filename part then buf is filled with the empty string.
-Returns buf.
+Return a pointer to the start of the extension of the filename,
+i.e. everything from the final dot ('.') character onwards.
+If no dot exists, returns an empty string.
+
+The returned pointer is valid only until the filename part of the path
+is modified in any way, or until the path is destroyed.
 
 ## API: al_path_get_filename
 
 Return the filename part of the path, or the empty string if there is none.
+
+The returned pointer is valid only until the filename part of the path
+is modified in any way, or until the path is destroyed.
 
 ## API: al_path_index
 
@@ -177,8 +182,10 @@ filename to the empty string.
 
 ## API: al_path_set_extension
 
-Replaces the extension of the path with the given one. If the
-filename of the path has no extension, the given one is appended.
+Replaces the extension of the path with the given one, i.e. replaces
+everything from the final dot ('.') character onwards, including the dot.
+If the filename of the path has no extension, the given one is appended.
+Usually the new extension you supply should include a leading dot.
 
 Returns false if the path contains no filename part,
 i.e. the filename part is the empty string.

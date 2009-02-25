@@ -287,7 +287,6 @@ ALLEGRO_FONT *al_ttf_load_font(char const *filename, int size, int flags)
     ALLEGRO_FONT *f;
     int bytes;
     ALLEGRO_PATH *path;
-    char extension[32];
 
     if (once) {
         FT_Init_FreeType(&ft);
@@ -307,17 +306,16 @@ ALLEGRO_FONT *al_ttf_load_font(char const *filename, int size, int flags)
      * a separate file - and we try to guess the name of that file.
      */
     path = al_path_create(filename);
-    al_path_get_extension(path, extension, sizeof extension);
-    if (!0 == strcmp(extension, "pfa")) {
+    if (!0 == strcmp(al_path_get_extension(path), ".pfa")) {
         char helper[PATH_MAX];
         TRACE("a5-ttf: Type1 font assumed for %s.\n", filename);
 
-        al_path_set_extension(path, "afm");
+        al_path_set_extension(path, ".afm");
         al_path_to_string(path, helper, sizeof(helper), '/');
         FT_Attach_File(face, helper); 
         TRACE("a5-ttf: Guessed afm file %s.\n", helper);
 
-        al_path_set_extension(path, "tfm");
+        al_path_set_extension(path, ".tfm");
         al_path_to_string(path, helper, sizeof(helper), '/');
         FT_Attach_File(face, helper); 
         TRACE("a5-ttf: Guessed tfm file %s.\n", helper);

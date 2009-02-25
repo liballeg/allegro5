@@ -386,10 +386,9 @@ void t10(void)
 void t11(void)
 {
    ALLEGRO_PATH *path = al_path_create(NULL);
-   char buf[PATH_MAX];
 
    /* Get null extension. */
-   CHECK_EQ(al_path_get_extension(path, buf, sizeof(buf)), "");
+   CHECK_EQ(al_path_get_extension(path), "");
 
    /* Set extension on null filename. */
    CHECK(! al_path_set_extension(path, "ext"));
@@ -397,17 +396,20 @@ void t11(void)
 
    /* Set extension on extension-less filename. */
    al_path_set_filename(path, "abc");
-   CHECK(al_path_set_extension(path, "ext"));
+   CHECK(al_path_set_extension(path, ".ext"));
    CHECK_EQ(al_path_get_filename(path), "abc.ext");
 
    /* Replacing extension. */
    al_path_set_filename(path, "abc.def");
-   CHECK(al_path_set_extension(path, "ext"));
+   CHECK(al_path_set_extension(path, ".ext"));
    CHECK_EQ(al_path_get_filename(path), "abc.ext");
-   CHECK_EQ(al_path_get_extension(path, buf, sizeof(buf)), "ext");
+   CHECK_EQ(al_path_get_extension(path), ".ext");
 
-   /* Too short buffer. */
-   CHECK_EQ(al_path_get_extension(path, buf, 2), "e");
+   /* Filename with multiple dots. */
+   al_path_set_filename(path, "abc.def.ghi");
+   CHECK(al_path_set_extension(path, ".ext"));
+   CHECK_EQ(al_path_get_filename(path), "abc.def.ext");
+   CHECK_EQ(al_path_get_extension(path), ".ext");
 
    al_path_free(path);
 }
@@ -418,15 +420,21 @@ void t12(void)
    ALLEGRO_PATH *path = al_path_create(NULL);
    char buf[PATH_MAX];
 
+   /* No filename. */
+   al_path_set_filename(path, NULL);
+   CHECK_EQ(al_path_get_basename(path, buf, sizeof(buf)), "");
+
+   /* No extension. */
    al_path_set_filename(path, "abc");
-
-   /* Get filename without extension. */
    CHECK_EQ(al_path_get_basename(path, buf, sizeof(buf)), "abc");
 
-   /* Get filename without extension when no extension exists. */
-   CHECK(al_path_set_extension(path, NULL));
-   CHECK_EQ(al_path_get_filename(path), "abc.");
+   /* Filename with a single dot. */
+   al_path_set_filename(path, "abc.ext");
    CHECK_EQ(al_path_get_basename(path, buf, sizeof(buf)), "abc");
+
+   /* Filename with multiple dots. */
+   al_path_set_filename(path, "abc.def.ghi");
+   CHECK_EQ(al_path_get_basename(path, buf, sizeof(buf)), "abc.def");
 
    al_path_free(path);
 }
