@@ -11,8 +11,8 @@
 #include "iio.h"
 
 
-double _png_screen_gamma = -1.0;
-int _png_compression_level = Z_BEST_COMPRESSION;
+double _al_png_screen_gamma = -1.0;
+int _al_png_compression_level = Z_BEST_COMPRESSION;
 
 
 
@@ -21,7 +21,7 @@ int _png_compression_level = Z_BEST_COMPRESSION;
  */
 static double get_gamma(void)
 {
-   if (_png_screen_gamma == -1.0) {
+   if (_al_png_screen_gamma == -1.0) {
       /* Use the environment variable if available.
        * 2.2 is a good guess for PC monitors.
        * 1.1 is good for my laptop.
@@ -30,7 +30,7 @@ static double get_gamma(void)
       return (gamma_str) ? atof(gamma_str) : 2.2;
    }
 
-   return _png_screen_gamma;
+   return _al_png_screen_gamma;
 }
 
 
@@ -127,7 +127,7 @@ static ALLEGRO_BITMAP *really_load_png(png_structp png_ptr, png_infop info_ptr)
       png_set_gray_to_rgb(png_ptr);
 
    /* Optionally, tell libpng to handle the gamma correction for us. */
-   if (_png_screen_gamma != 0.0) {
+   if (_al_png_screen_gamma != 0.0) {
       screen_gamma = get_gamma();
 
       if (png_get_sRGB(png_ptr, info_ptr, &intent))
@@ -456,7 +456,7 @@ int iio_save_png_entry(ALLEGRO_FS_ENTRY *fp, ALLEGRO_BITMAP *bmp)
    colour_type = PNG_COLOR_TYPE_RGB_ALPHA;
 
    /* Set compression level. */
-   png_set_compression_level(png_ptr, _png_compression_level);
+   png_set_compression_level(png_ptr, _al_png_compression_level);
 
    png_set_IHDR(png_ptr, info_ptr,
                 al_get_bitmap_width(bmp), al_get_bitmap_height(bmp),

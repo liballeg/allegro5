@@ -247,7 +247,9 @@ static void shader_solid_any_2d_step(uintptr_t state, int minor)
    (void)minor;
 }
 
-void triangle_stepper(ALLEGRO_BITMAP* dest, uintptr_t state, shader_init init, shader_first first, shader_step step, shader_draw draw, ALLEGRO_VERTEX* vtx1, ALLEGRO_VERTEX* vtx2, ALLEGRO_VERTEX* vtx3)
+static void triangle_stepper(ALLEGRO_BITMAP* dest, uintptr_t state,
+   shader_init init, shader_first first, shader_step step, shader_draw draw,
+   ALLEGRO_VERTEX* vtx1, ALLEGRO_VERTEX* vtx2, ALLEGRO_VERTEX* vtx3)
 {
    float Coords[6] = {vtx1->x - 0.5f, vtx1->y + 0.5f, vtx2->x - 0.5f, vtx2->y + 0.5f, vtx3->x - 0.5f, vtx3->y + 0.5f};
    float *V1 = Coords, *V2 = &Coords[2], *V3 = &Coords[4], *s;

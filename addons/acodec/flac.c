@@ -272,17 +272,6 @@ ALLEGRO_SAMPLE *al_load_sample_flac(const char *filename)
 
 
 /* TODO implement */
-bool _flac_stream_update(ALLEGRO_STREAM *stream, void *data,
-   unsigned long buf_size)
-{
-   (void)stream;
-   (void)data;
-   (void)buf_size;
-   return false;
-}
-
-
-/* TODO implement */
 ALLEGRO_STREAM *al_load_stream_flac(const char *filename)
 {
    (void)filename;

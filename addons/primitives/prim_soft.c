@@ -33,7 +33,7 @@ extern ALLEGRO_TRANSFORM _al_global_trans;
 /*
 The vertex cache allows for bulk transformation of vertices, for faster run speeds
 */
-ALLEGRO_VERTEX vertex_cache[ALLEGRO_VERTEX_CACHE_SIZE];
+static ALLEGRO_VERTEX vertex_cache[ALLEGRO_VERTEX_CACHE_SIZE];
 
 void _al_create_vbuff_soft(ALLEGRO_VBUFFER* vbuff)
 {

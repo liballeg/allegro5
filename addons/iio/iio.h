@@ -43,7 +43,7 @@ int iio_save_jpg_entry(ALLEGRO_FS_ENTRY *pf, ALLEGRO_BITMAP *bmp);
 
 /* FIXME: Not sure if these should be made accessible. Hide them for now. */
 
-/* _png_screen_gamma is slightly overloaded (sorry):
+/* _al_png_screen_gamma is slightly overloaded (sorry):
  *
  * A value of 0.0 means: Don't do any gamma correction in load_png()
  * and load_memory_png().  This meaning was introduced in v1.4.
@@ -53,14 +53,14 @@ int iio_save_jpg_entry(ALLEGRO_FS_ENTRY *pf, ALLEGRO_BITMAP *bmp);
  * (a good guess for PC monitors, and the value for sRGB colourspace).
  * This is the default.
  *
- * Otherwise, the value of _png_screen_gamma is taken as-is.
+ * Otherwise, the value of _al_png_screen_gamma is taken as-is.
  */
-extern double _png_screen_gamma;
+extern double _al_png_screen_gamma;
 
 /* Choose zlib compression level for saving file.
  * Default is Z_BEST_COMPRESSION.
  */
-extern int _png_compression_level;
+extern int _al_png_compression_level;
 
 
 

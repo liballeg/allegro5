@@ -66,7 +66,7 @@ static long tell_callback(void *dptr)
    return (long)ret;
 }
 
-ov_callbacks callbacks = {
+static ov_callbacks callbacks = {
    read_callback,
    seek_callback,
    NULL,
