@@ -42,6 +42,14 @@ static void push_new_cache_bitmap(ALLEGRO_TTF_FONT_DATA *data)
 {
     ALLEGRO_BITMAP **back = _al_vector_alloc_back(&data->cache_bitmaps);
     *back = al_create_bitmap(256, 256);
+    al_set_target_bitmap(*back);
+    /* Sometimes OpenGL will partly sample texels from the border of
+     * glyphs, and empty Freetype bitmaps (like space) are rendered from
+     * the empty texture space. So we better clear the texture to
+     * transparency.
+     */
+    al_clear(al_map_rgba_f(0, 0, 0, 0));
+    
 }
 
 static ALLEGRO_BITMAP* create_glyph_cache(ALLEGRO_FONT const *f, int w,
@@ -71,7 +79,7 @@ static ALLEGRO_BITMAP* create_glyph_cache(ALLEGRO_FONT const *f, int w,
     if (data->cache_pos_y + h > al_get_bitmap_height(cache)) {
         return create_glyph_cache(f, w, h, true);
     }
-    
+
     ret = al_create_sub_bitmap(cache, data->cache_pos_x,
         data->cache_pos_y, w, h);
     data->cache_pos_x += w + 2;
