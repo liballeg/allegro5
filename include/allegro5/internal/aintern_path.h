@@ -5,6 +5,7 @@ struct ALLEGRO_PATH {
    ALLEGRO_USTR *drive;
    ALLEGRO_USTR *filename;
    _AL_VECTOR segments;    /* vector of ALLEGRO_USTR * */
+   ALLEGRO_USTR *basename;
 };
 
 #endif

@@ -87,9 +87,12 @@ Does nothing if passed NULL.
 
 ## API: al_path_get_basename
 
-Fill buf with filename part of the path, with the extension removed.
-If there is no filename part then buf is filled with the empty string.
-Returns buf.
+Return the basename, i.e. filename with the extension removed.
+If the filename doesn't have an extension, the whole filename is the basename.
+If there is no filename part then the empty string is returned.
+
+The returned pointer is valid only until the filename part of the path
+is modified in any way, or until the path is destroyed.
 
 ## API: al_path_get_drive
 

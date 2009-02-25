@@ -163,6 +163,7 @@ ALLEGRO_PATH *al_path_create(const char *str)
    path->drive = al_ustr_new("");
    path->filename = al_ustr_new("");
    _al_vector_init(&path->segments, sizeof(ALLEGRO_USTR *));
+   path->basename = al_ustr_new("");
 
    if (str != NULL) {
       ALLEGRO_USTR *copy = al_ustr_new(str);
@@ -441,6 +442,11 @@ void al_path_free(ALLEGRO_PATH *path)
    }
    _al_vector_free(&path->segments);
 
+   if (path->basename) {
+      al_ustr_free(path->basename);
+      path->basename = NULL;
+   }
+
    _AL_FREE(path);
 }
 
@@ -532,22 +538,18 @@ bool al_path_set_extension(ALLEGRO_PATH *path, char const *extension)
 
 /* Function: al_path_get_basename
  */
-const char *al_path_get_basename(const ALLEGRO_PATH *path, char *buf, size_t len)
+const char *al_path_get_basename(const ALLEGRO_PATH *path)
 {
    int dot;
    ASSERT(path);
-   ASSERT(buf);
 
    dot = al_ustr_rfind_chr(path->filename, al_ustr_size(path->filename), '.');
-   if (dot == -1) {
-      _al_sane_strncpy(buf, al_cstr(path->filename), len);
-   }
-   else {
-      _al_sane_strncpy(buf, al_cstr(path->filename),
-         _ALLEGRO_MIN(len, (size_t)dot+1));
+   if (dot >= 0) {
+      al_ustr_assign_substr(path->basename, path->filename, 0, dot);
+      return al_cstr(path->basename);
    }
 
-   return buf;
+   return al_cstr(path->filename);
 }
 
 

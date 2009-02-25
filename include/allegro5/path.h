@@ -39,7 +39,7 @@ AL_FUNC(const char*, al_path_get_filename, (const ALLEGRO_PATH *path));
 
 AL_FUNC(const char*, al_path_get_extension, (const ALLEGRO_PATH *path));
 AL_FUNC(bool, al_path_set_extension, (ALLEGRO_PATH *path, char const *extension));
-AL_FUNC(const char*, al_path_get_basename, (const ALLEGRO_PATH *path, char *buf, size_t len));
+AL_FUNC(const char*, al_path_get_basename, (const ALLEGRO_PATH *path));
 
 AL_FUNC(bool, al_path_make_absolute, (ALLEGRO_PATH *path));
 AL_FUNC(bool, al_path_make_canonical, (ALLEGRO_PATH *path));

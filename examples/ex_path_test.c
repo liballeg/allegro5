@@ -418,23 +418,22 @@ void t11(void)
 void t12(void)
 {
    ALLEGRO_PATH *path = al_path_create(NULL);
-   char buf[PATH_MAX];
 
    /* No filename. */
    al_path_set_filename(path, NULL);
-   CHECK_EQ(al_path_get_basename(path, buf, sizeof(buf)), "");
+   CHECK_EQ(al_path_get_basename(path), "");
 
    /* No extension. */
    al_path_set_filename(path, "abc");
-   CHECK_EQ(al_path_get_basename(path, buf, sizeof(buf)), "abc");
+   CHECK_EQ(al_path_get_basename(path), "abc");
 
    /* Filename with a single dot. */
    al_path_set_filename(path, "abc.ext");
-   CHECK_EQ(al_path_get_basename(path, buf, sizeof(buf)), "abc");
+   CHECK_EQ(al_path_get_basename(path), "abc");
 
    /* Filename with multiple dots. */
    al_path_set_filename(path, "abc.def.ghi");
-   CHECK_EQ(al_path_get_basename(path, buf, sizeof(buf)), "abc.def");
+   CHECK_EQ(al_path_get_basename(path), "abc.def");
 
    al_path_free(path);
 }
