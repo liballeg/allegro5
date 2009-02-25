@@ -4,7 +4,7 @@
  *    Test audio properties (gain and panning, for now).
  */
 
-#include <values.h>
+#include <float.h>
 #include "allegro5/allegro5.h"
 #include "allegro5/a5_font.h"
 #include "allegro5/acodec.h"

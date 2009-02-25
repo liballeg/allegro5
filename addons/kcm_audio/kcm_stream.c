@@ -8,8 +8,8 @@
 /* Title: Stream functions
  */
 
+#include <float.h>
 #include <stdio.h>
-#include <values.h>
 
 #include "allegro5/kcm_audio.h"
 #include "allegro5/internal/aintern_kcm_audio.h"

@@ -8,9 +8,9 @@
 /* Title: Mixer functions
  */
 
-#include <stdio.h>
+#include <float.h>
 #include <math.h>
-#include <values.h>
+#include <stdio.h>
 
 #include "allegro5/kcm_audio.h"
 #include "allegro5/internal/aintern_kcm_audio.h"

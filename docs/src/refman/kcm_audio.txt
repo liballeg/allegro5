@@ -178,7 +178,7 @@ XXX much of this will probably change soon
   middle, it will be output equally from both front speakers but reduced in
   level by 3 dB (about 0.707 of the original).  To play a sound centred
   and at its original level, set its ALLEGRO_AUDIOPROP_PAN property to
-  FLT_MIN (from values.h).
+  FLT_MIN (from float.h).
 
 ## API: ALLEGRO_STREAM
 

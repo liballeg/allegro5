@@ -8,9 +8,9 @@
 /* Title: Sample Instance functions
  */
 
+#include <float.h>
 #include <math.h>
 #include <stdio.h>
-#include <values.h>
 
 #include "allegro5/kcm_audio.h"
 #include "allegro5/internal/aintern_kcm_audio.h"
