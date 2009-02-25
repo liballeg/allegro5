@@ -30,5 +30,6 @@
 * [Color addon](color.html)
 * [Font addons](font.html)
 * [Image I/O addon](iio.html)
+* [Native dialogs addon](native_dialog.html)
 * [Primitives addon](primitives.html)
 

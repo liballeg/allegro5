@@ -4,38 +4,6 @@
 #include "allegro5/internal/aintern_memory.h"
 
 /* Function: al_create_native_file_dialog
- * 
- * Creates a new native file dialog.
- * 
- * Parameters:
- * - initial_path: The initial search path and filename. Can be NULL.
- * - title: Title of the dialog.
- * - patterns: A list of semi-colon separated patterns to match. You
- *   should always include the pattern "*.*" as usually the MIME type
- *   and not the file pattern is relevant. If no file patterns are
- *   supported by the native dialog, this parameter is ignored.
- * - mode: 0, or a combination of the flags below.
- * 
- * Possible flags for the 'mode' parameter are:
- * 
- * - ALLEGRO_FILECHOOSER_FILE_MUST_EXIST: If supported by the native dialog,
- *   it will not allow entering new names, but just allow existing files
- *   to be selected. Else it is ignored.
- * - ALLEGRO_FILECHOOSER_SAVE: If the native dialog system has a
- *   different dialog for saving (for example one which allows creating
- *   new directories), it is used. Else ignored.
- * - ALLEGRO_FILECHOOSER_FOLDER: If there is support for a separate
- *   dialog to select a folder instead of a file, it will be used.
- * - ALLEGRO_FILECHOOSER_PICTURES: If a different dialog is available
- *   for selecting pictures, it is used. Else ignored.
- * - ALLEGRO_FILECHOOSER_SHOW_HIDDEN: If the platform supports it, also
- *   hidden files will be shown.
- * - ALLEGRO_FILECHOOSER_MULTIPLE: If supported, allow selecting
- *   multiple files.
- *
- * Returns:
- * A handle to the dialog from which you can query the results. When you
- * are done, call [al_destroy_native_file_dialog] on it.
  */
 ALLEGRO_NATIVE_FILE_DIALOG *al_create_native_file_dialog(
     ALLEGRO_PATH const *initial_path,

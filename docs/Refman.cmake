@@ -17,6 +17,7 @@ set(PAGES
     memory
     misc
     mouse
+    native_dialog
     opengl
     path
     primitives
