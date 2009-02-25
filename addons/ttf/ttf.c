@@ -44,9 +44,7 @@ static void push_new_cache_bitmap(ALLEGRO_TTF_FONT_DATA *data)
     *back = al_create_bitmap(256, 256);
     al_set_target_bitmap(*back);
     /* Sometimes OpenGL will partly sample texels from the border of
-     * glyphs, and empty Freetype bitmaps (like space) are rendered from
-     * the empty texture space. So we better clear the texture to
-     * transparency.
+     * glyphs. So we better clear the texture to transparency.
      */
     al_clear(al_map_rgba_f(0, 0, 0, 0));
     
@@ -120,8 +118,13 @@ static int render_glyph(ALLEGRO_FONT const *f, int prev, int ch,
         glyph->bitmap = create_glyph_cache(f, w, h, false);
 
         al_set_target_bitmap(glyph->bitmap);
-        al_clear(al_map_rgba(0, 0, 0, 0));
         al_lock_bitmap(glyph->bitmap, &lr, ALLEGRO_LOCK_WRITEONLY);
+        /* In case this is an empty bitmap, we need to at least draw
+         * the one pixel we use as minimum size.
+         * TODO: Does A5 not support bitmap with zero dimensions?
+         * If it does, we can simpligy this.
+         */
+        al_put_pixel(0, 0, al_map_rgba(0, 0, 0, 0));
         row = face->glyph->bitmap.buffer;
         for (y = 0; y < face->glyph->bitmap.rows; y++) {
             unsigned char *ptr = row;
