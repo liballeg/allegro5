@@ -224,6 +224,7 @@ ALLEGRO_FONT *al_font_grab_font_from_bitmap(
    ALLEGRO_STATE backup;
    int i;
    ALLEGRO_COLOR white = al_map_rgb(255, 255, 255);
+   ALLEGRO_COLOR mask = al_map_rgb(255, 255, 0);
 
    ASSERT(bmp)
    
@@ -261,6 +262,12 @@ ALLEGRO_FONT *al_font_grab_font_from_bitmap(
       al_set_target_bitmap(cf->glyphs);
       al_set_blender(ALLEGRO_ONE, ALLEGRO_ZERO, white);
       al_draw_bitmap(bmp, 0, 0, 0);
+      /* At least with OpenGL, texture pixels at the very border of
+       * the glyph are sometimes partly sampled from the yellow mask
+       * pixels. To work around this, we replace the mask with full
+       * transparency.
+       */
+      al_convert_mask_to_alpha(cf->glyphs, mask);
 
       if(import_bitmap_font_color(bmp, cf->bitmaps, cf->glyphs, n)) {
          goto cleanup_and_fail_on_error;
