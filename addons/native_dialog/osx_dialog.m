@@ -5,12 +5,6 @@
 
 #import <Cocoa/Cocoa.h>
 
-/* Function: al_show_native_file_dialog
- * 
- * This functions completely blocks the calling thread until it returns,
- * so usually you may want to spawn a thread with [al_create_thread] and
- * call it from inside that thread.
- */
 void al_show_native_file_dialog(ALLEGRO_NATIVE_FILE_DIALOG *fd)
 {
    int mode = fd->mode;

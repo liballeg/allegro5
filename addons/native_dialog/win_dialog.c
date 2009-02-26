@@ -26,8 +26,6 @@ static int next(char *s)
    return i+1;
 }
 
-/* Function: al_show_native_file_dialog
- */
 void al_show_native_file_dialog(ALLEGRO_NATIVE_FILE_DIALOG *fd)
 {
    OPENFILENAME ofn;

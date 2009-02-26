@@ -45,8 +45,10 @@ query the results. When you are done, call
 
 ## API: al_show_native_file_dialog
 
-This function completely blocks the calling thread until it returns,
-so usually you may want to spawn a thread with [al_create_thread] and
+Show the dialog window.
+
+This function blocks the calling thread until it returns,
+so you may want to spawn a thread with [al_create_thread] and
 call it from inside that thread.
 
 ## API: al_get_native_file_dialog_count
@@ -55,7 +57,7 @@ Returns the number of files selected, or 0 if the dialog was cancelled.
 
 ## API: al_get_native_file_dialog_path
 
-Returns one of the selected pathes. 
+Returns one of the selected paths.
 
 ## API: al_destroy_native_file_dialog
 

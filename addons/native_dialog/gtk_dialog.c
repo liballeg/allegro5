@@ -37,8 +37,6 @@ static void ok(GtkWidget *w, GtkFileSelection *fs)
    g_strfreev(paths);
 }
 
-/* Function: al_show_native_file_dialog
- */
 void al_show_native_file_dialog(ALLEGRO_NATIVE_FILE_DIALOG *fd)
 {
    int argc = 0;

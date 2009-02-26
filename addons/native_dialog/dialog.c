@@ -24,14 +24,14 @@ ALLEGRO_NATIVE_FILE_DIALOG *al_create_native_file_dialog(
    return fc;
 }
 
-/* al_get_native_file_dialog_count
+/* Function: al_get_native_file_dialog_count
  */
 int al_get_native_file_dialog_count(const ALLEGRO_NATIVE_FILE_DIALOG *fc)
 {
    return fc->count;
 }
 
-/* al_get_native_file_dialog_path
+/* Function: al_get_native_file_dialog_path
  */
 const ALLEGRO_PATH *al_get_native_file_dialog_path(
    const ALLEGRO_NATIVE_FILE_DIALOG *fc, size_t i)
@@ -41,7 +41,7 @@ const ALLEGRO_PATH *al_get_native_file_dialog_path(
    return NULL;
 }
 
-/* al_destroy_native_file_dialog
+/* Function: al_destroy_native_file_dialog
  */
 void al_destroy_native_file_dialog(ALLEGRO_NATIVE_FILE_DIALOG *fd)
 {
@@ -62,3 +62,15 @@ void al_destroy_native_file_dialog(ALLEGRO_NATIVE_FILE_DIALOG *fd)
    _AL_FREE(fd);
 }
 
+/* Hack for documentation, since al_show_native_file_dialog() is defined
+ * in multiple files.
+ */
+#if 0
+
+/* Function: al_show_native_file_dialog
+ */
+void al_show_native_file_dialog(ALLEGRO_NATIVE_FILE_DIALOG *fd)
+{
+}
+
+#endif
