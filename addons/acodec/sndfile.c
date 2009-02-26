@@ -261,13 +261,14 @@ static size_t _sndfile_stream_update(ALLEGRO_STREAM *stream, void *data,
    size_t buf_size)
 {
    int bytes_per_sample, samples, num_read, bytes_read, silence;
+   double ctime, btime;
    ALLEGRO_AUDIO_DEPTH depth = stream->spl.spl_data.depth;
 
    _sf_private *priv = (_sf_private *) stream->extra;
    bytes_per_sample = al_get_channel_count(stream->spl.spl_data.chan_conf)
                     * al_get_depth_size(depth);
-   double ctime = _sndfile_stream_get_position(stream);
-   double btime = ((double)buf_size / (double)bytes_per_sample) / (double)(priv->sfinfo.samplerate);
+   ctime = _sndfile_stream_get_position(stream);
+   btime = ((double)buf_size / (double)bytes_per_sample) / (double)(priv->sfinfo.samplerate);
    
    if(stream->spl.loop == _ALLEGRO_PLAYMODE_STREAM_ONEDIR && ctime + btime > priv->loop_end) {
       samples = ((priv->loop_end - ctime) * (double)(priv->sfinfo.samplerate));

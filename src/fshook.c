@@ -983,6 +983,7 @@ static bool _al_find_resource_exists(const char *path, const char *base,
 {
    ALLEGRO_PATH *fp;
    bool ret = false;
+   const char *s;
 
    memset(buffer, 0, len);
 
@@ -996,7 +997,7 @@ static bool _al_find_resource_exists(const char *path, const char *base,
       al_path_free(resp);
    }
 
-   const char *s = al_path_to_string(fp, ALLEGRO_NATIVE_PATH_SEP);
+   s = al_path_to_string(fp, ALLEGRO_NATIVE_PATH_SEP);
    _al_sane_strncpy(buffer, s, len);
 
    if (al_is_present_str(buffer) && (al_get_entry_mode_str(buffer) & fm) == fm) {
@@ -1053,6 +1054,7 @@ char *al_find_resource(const char *base, const char *resource, uint32_t fm,
    ALLEGRO_PATH *path;
    char tmp[PATH_MAX];
    char base_new[256];
+   const char *s;
 
    ASSERT(base != NULL);
    ASSERT(resource != NULL);
@@ -1107,7 +1109,7 @@ char *al_find_resource(const char *base, const char *resource, uint32_t fm,
       al_path_free(resp);
    }
 
-   const char *s = al_path_to_string(path, ALLEGRO_NATIVE_PATH_SEP);
+   s = al_path_to_string(path, ALLEGRO_NATIVE_PATH_SEP);
    _al_sane_strncpy(buffer, s, len);
 
    al_path_free(path);

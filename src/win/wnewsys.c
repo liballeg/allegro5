@@ -383,6 +383,7 @@ static AL_CONST char *win_get_path(uint32_t id, char *dir, size_t size)
    uint32_t csidl = 0;
    HRESULT ret = 0;
    ALLEGRO_PATH *cisdl_path = NULL;
+   const char *s;
    
    memset(dir, 0, size);
 
@@ -473,7 +474,7 @@ static AL_CONST char *win_get_path(uint32_t id, char *dir, size_t size)
       al_path_append(cisdl_path, al_get_appname());
    }
 
-   const char *s = al_path_to_string(cisdl_path, '\\');
+   s = al_path_to_string(cisdl_path, '\\');
    if (strlen(s) + 1 > size) {
       al_path_free(cisdl_path);
       return NULL;

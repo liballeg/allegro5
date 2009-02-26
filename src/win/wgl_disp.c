@@ -762,8 +762,10 @@ static ALLEGRO_EXTRA_DISPLAY_SETTINGS** get_available_pixel_formats_ext(int *cou
    eds_list = malloc(maxindex * sizeof(*eds_list));
    if (!eds_list)
       goto bail;
+   memset(eds_list, 0, sizeof *eds_list);
 
    for (j = i = 0; i < maxindex; i++) {
+      TRACE("-- \n");
       TRACE(PREFIX_I "Decoding visual no. %i...\n", i+1);
       eds_list[j] = read_pixel_format_ext(i, testdc);
       if (!eds_list[j])
@@ -772,14 +774,18 @@ static ALLEGRO_EXTRA_DISPLAY_SETTINGS** get_available_pixel_formats_ext(int *cou
       display_pixel_format(eds_list[j]);
 #endif
       eds_list[j]->score = _al_score_display_settings(eds_list[j], ref);
+      if (eds_list[j]->score == -1) {
+         free(eds_list[j]);
+         eds_list[j] = NULL;
+         continue;
+      }
       /* In WinAPI first index is 1 ::) */
       eds_list[j]->index = i+1;
-      TRACE("-- \n");
       j++;
    }
 
-   TRACE(PREFIX_I "get_available_pixel_formats_ext(): %i visuals are good enough.\n", j-1);
-   *count = j-1;
+   TRACE(PREFIX_I "get_available_pixel_formats_ext(): %i visuals are good enough.\n", j);
+   *count = j;
 
 bail:
    wglMakeCurrent(NULL, NULL);
@@ -820,8 +826,10 @@ static ALLEGRO_EXTRA_DISPLAY_SETTINGS** get_available_pixel_formats_old(int *cou
    eds_list = malloc(maxindex * sizeof(*eds_list));
    if (!eds_list)
       return NULL;
+   memset(eds_list, 0, sizeof *eds_list);
 
    for (j = i = 0; i < maxindex; i++) {
+      TRACE("-- \n");
       TRACE(PREFIX_I "Decoding visual no. %i...\n", i+1);
       eds_list[j] = read_pixel_format_old(i, dc);
       if (!eds_list[j])
@@ -830,14 +838,18 @@ static ALLEGRO_EXTRA_DISPLAY_SETTINGS** get_available_pixel_formats_old(int *cou
       display_pixel_format(eds_list[j]);
 #endif
       eds_list[j]->score = _al_score_display_settings(eds_list[j], ref);
+      if (eds_list[j]->score == -1) {
+         free(eds_list[j]);
+         eds_list[j] = NULL;
+         continue;
+      }
       /* In WinAPI first index is 1 ::) */
       eds_list[j]->index = i+1;
-      TRACE("-- \n");
       j++;
    }
 
-   TRACE(PREFIX_I "get_available_pixel_formats_ext(): %i visuals are good enough.\n", j-1);
-   *count = j-1;
+   TRACE(PREFIX_I "get_available_pixel_formats_ext(): %i visuals are good enough.\n", j);
+   *count = j;
 
    return eds_list;
 }
@@ -852,6 +864,11 @@ static bool select_pixel_format(ALLEGRO_DISPLAY_WGL *d, HDC dc)
    eds = get_available_pixel_formats_ext(&eds_count);
    if (!eds)
       eds = get_available_pixel_formats_old(&eds_count, dc);
+
+   if (!eds || !eds_count) {
+      TRACE(PREFIX_E "Didn't find any suitable pixel format!\n");
+      return false;
+   }
 
    qsort(eds, eds_count, sizeof(eds), _al_display_settings_sorter);
 
@@ -871,7 +888,7 @@ static bool select_pixel_format(ALLEGRO_DISPLAY_WGL *d, HDC dc)
    }
 
    if (i == eds_count) {
-      TRACE(PREFIX_E "Unable to any pixel format! Trying next one.\n");
+      TRACE(PREFIX_E "Unable to set any pixel format!\n");
       log_win32_error("select_pixel_format", "Unable to set any pixel format!",
          GetLastError());
 
