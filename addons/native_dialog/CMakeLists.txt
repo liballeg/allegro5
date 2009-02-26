@@ -5,6 +5,11 @@ if(APPLE)
    set(SUPPORT_NATIVE_DIALOG 1)
 endif(APPLE)
 
+if(WIN32)
+   set(SOURCES dialog.c win_dialog.c)
+   set(SUPPORT_NATIVE_DIALOG 1)
+endif(WIN32)
+
 if(NOT SUPPORT_NATIVE_DIALOG)
     pkg_check_modules(GTK gtk+-2.0)
     if(GTK_FOUND)

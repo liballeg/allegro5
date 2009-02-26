@@ -1527,10 +1527,6 @@ static bool d3d_create_display_internals(ALLEGRO_DISPLAY_D3D *d3d_display)
 
    int i;
    for (i = 0; i < total_count; i++) {
-      for (int j = 0; j < ALLEGRO_DISPLAY_OPTIONS_COUNT; j++) {
-         printf("%d, ", eds_list[i]->settings[j]);
-      }
-      printf("\n");
       d3d_display->depth_stencil_format = d3d_get_depth_stencil_format(eds_list[i]);
       d3d_display->samples = eds_list[i]->settings[ALLEGRO_SAMPLES];
       if (eds_list[i]->settings[ALLEGRO_DOUBLEBUFFERED]) {
