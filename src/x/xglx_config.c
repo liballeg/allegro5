@@ -241,8 +241,6 @@ static ALLEGRO_EXTRA_DISPLAY_SETTINGS** get_visuals_new(int *count, ALLEGRO_DISP
    *count = j;
    XFree(fbconfig);
    if (j == 0) {
-      for (i = 0; i < num_fbconfigs; i++)
-         free(eds_list[i]);
       free(eds_list);
       return NULL;
    }
@@ -375,9 +373,6 @@ static ALLEGRO_EXTRA_DISPLAY_SETTINGS** get_visuals_old(int *count)
    TRACE(PREFIX_I "get_visuals_new(): %i visuals are good enough.\n", j);
    *count = j;
    if (j == 0) {
-      for (i = 0; i < num_visuals; i++) {
-         free(eds_list[i]);
-      }
       free(eds_list);
       XFree(xv);
       return NULL;
