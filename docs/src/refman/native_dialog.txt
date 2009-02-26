@@ -1,0 +1,62 @@
+# Native dialogs support
+
+## API: ALLEGRO_NATIVE_FILE_DIALOG
+
+Opaque handle to a native file dialog. You should only have one such
+dialog opened at a time.
+
+## API: al_create_native_file_dialog
+
+Creates a new native file dialog.
+
+Parameters:
+
+- initial_path: The initial search path and filename. Can be NULL.
+- title: Title of the dialog.
+- patterns: A list of semi-colon separated patterns to match. You
+  should always include the pattern "*.*" as usually the MIME type
+  and not the file pattern is relevant. If no file patterns are
+  supported by the native dialog, this parameter is ignored.
+- mode: 0, or a combination of the flags below.
+
+Possible flags for the 'mode' parameter are:
+
+- ALLEGRO_FILECHOOSER_FILE_MUST_EXIST: If supported by the native dialog,
+  it will not allow entering new names, but just allow existing files
+  to be selected. Else it is ignored.
+- ALLEGRO_FILECHOOSER_SAVE: If the native dialog system has a
+  different dialog for saving (for example one which allows creating
+  new directories), it is used. Else ignored.
+- ALLEGRO_FILECHOOSER_FOLDER: If there is support for a separate
+  dialog to select a folder instead of a file, it will be used.
+- ALLEGRO_FILECHOOSER_PICTURES: If a different dialog is available
+  for selecting pictures, it is used. Else ignored.
+- ALLEGRO_FILECHOOSER_SHOW_HIDDEN: If the platform supports it, also
+  hidden files will be shown.
+- ALLEGRO_FILECHOOSER_MULTIPLE: If supported, allow selecting
+  multiple files.
+
+Returns:
+
+A handle to the dialog which you can pass to
+[al_show_native_file_dialog] to display it, and from which you then can
+query the results. When you are done, call
+[al_destroy_native_file_dialog] on it.
+
+## API: al_show_native_file_dialog
+
+This function completely blocks the calling thread until it returns,
+so usually you may want to spawn a thread with [al_create_thread] and
+call it from inside that thread.
+
+## API: al_get_native_file_dialog_count
+
+Returns the number of files selected, or 0 if the dialog was cancelled.
+
+## API: al_get_native_file_dialog_path
+
+Returns one of the selected pathes. 
+
+## API: al_destroy_native_file_dialog
+
+Frees up all resources used by the dialog.
