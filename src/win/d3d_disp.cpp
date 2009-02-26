@@ -1882,7 +1882,7 @@ static void d3d_flip_display(ALLEGRO_DISPLAY *al_display)
    }
 }
 
-static bool d3d_update_display_region(ALLEGRO_DISPLAY *al_display,
+static void d3d_update_display_region(ALLEGRO_DISPLAY *al_display,
    int x, int y,
    int width, int height)
 {
@@ -1890,9 +1890,8 @@ static bool d3d_update_display_region(ALLEGRO_DISPLAY *al_display,
    ALLEGRO_DISPLAY_WIN *win_display = &d3d_display->win_display;
    HRESULT hr;
    RGNDATA *rgndata;
-   bool ret;
 
-   if (d3d_display->device_lost) return false;
+   if (d3d_display->device_lost) return;
 
    if (al_display->flags & ALLEGRO_SINGLEBUFFER) {
       RECT rect;
@@ -1920,16 +1919,13 @@ static bool d3d_update_display_region(ALLEGRO_DISPLAY *al_display,
 
       if (hr == D3DERR_DEVICELOST) {
          d3d_display->device_lost = true;
-         return true;
+         return;
       }
 
-      ret = true;
    }
    else {
-      ret = false;
+      d3d_flip_display(al_display);
    }
-
-   return ret;
 }
 
 /*

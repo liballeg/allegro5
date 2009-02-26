@@ -240,6 +240,9 @@ The supported options are:
 *   ALLEGRO_STENCIL_SIZE
 *   ALLEGRO_SAMPLE_BUFFERS
 *   ALLEGRO_SAMPLES
+*   ALLEGRO_UPDATE_DISPLAY_REGION: Set to 1 if the current display is
+    capable of updating just a region, and is 0 if calling
+    [al_update_display_region] is equivalent to [al_flip_display].
 
 FIXME: document them all in detail
 

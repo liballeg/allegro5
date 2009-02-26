@@ -22,7 +22,7 @@ struct ALLEGRO_DISPLAY_INTERFACE
    void (*clear)(ALLEGRO_DISPLAY *d, ALLEGRO_COLOR *color);
    void (*draw_pixel)(ALLEGRO_DISPLAY *d, float x, float y, ALLEGRO_COLOR *color);
    void (*flip_display)(ALLEGRO_DISPLAY *d);
-   bool (*update_display_region)(ALLEGRO_DISPLAY *d, int x, int y,
+   void (*update_display_region)(ALLEGRO_DISPLAY *d, int x, int y,
    	int width, int height);
    bool (*acknowledge_resize)(ALLEGRO_DISPLAY *d);
    bool (*resize_display)(ALLEGRO_DISPLAY *d, int width, int height);

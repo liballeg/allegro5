@@ -148,19 +148,13 @@ void al_flip_display(void)
 
 
 /* Function: al_update_display_region
- *
- * Update the the front buffer from the backbuffer in the
- * specified region. This does not flip the whole buffer
- * and preserves the contents of the front buffer outside of
- * the given rectangle. This may not be supported by all drivers,
- * in which case it returns false.
  */
-bool al_update_display_region(int x, int y, int width, int height)
+void al_update_display_region(int x, int y, int width, int height)
 {
    ALLEGRO_DISPLAY *display = al_get_current_display();
    ASSERT(display);
 
-   return display->vt->update_display_region(display, x, y, width, height);
+   display->vt->update_display_region(display, x, y, width, height);
 }
 
 

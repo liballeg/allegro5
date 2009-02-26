@@ -85,6 +85,7 @@ static ALLEGRO_EXTRA_DISPLAY_SETTINGS* read_fbconfig(Display *dpy,
    XVisualInfo *v;
 
    eds = malloc(sizeof(ALLEGRO_EXTRA_DISPLAY_SETTINGS));
+   memset(eds, 0, sizeof *eds);
    eds->settings[ALLEGRO_RENDER_METHOD] = 2;
 
    if (glXGetFBConfigAttrib (dpy, fbc, GLX_RENDER_TYPE,
@@ -261,6 +262,7 @@ static ALLEGRO_EXTRA_DISPLAY_SETTINGS* read_xvisual(Display *dpy,
       return NULL;
 
    eds = malloc(sizeof(ALLEGRO_EXTRA_DISPLAY_SETTINGS));
+   memset(eds, 0, sizeof *eds);
    eds->settings[ALLEGRO_RENDER_METHOD] = 2;
 
    if (glXGetConfig (dpy, v, GLX_RGBA,         &rgba)

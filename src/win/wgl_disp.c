@@ -485,6 +485,7 @@ static ALLEGRO_EXTRA_DISPLAY_SETTINGS* read_pixel_format_old(int fmt, HDC dc)
    }
 
    eds = malloc(sizeof *eds);
+   memset(eds, 0, sizeof *eds);
    if (!decode_pixel_format_old(&pfd, eds)) {
       free(eds);
       return NULL;
@@ -573,6 +574,7 @@ static ALLEGRO_EXTRA_DISPLAY_SETTINGS* read_pixel_format_ext(int fmt, HDC dc)
    }
 
    eds = malloc(sizeof *eds);
+   memset(eds, 0, sizeof *eds);
    if (!decode_pixel_format_attrib(eds, num_attribs, attrib, value)) {
       free(eds);
       eds = NULL;
@@ -1265,7 +1267,7 @@ static void wgl_flip_display(ALLEGRO_DISPLAY *d)
 }
 
 
-static bool wgl_update_display_region(ALLEGRO_DISPLAY *d,
+static void wgl_update_display_region(ALLEGRO_DISPLAY *d,
                                       int x, int y, int width, int height)
 {
    if (al_get_opengl_extension_list()->ALLEGRO_WGL_WIN_swap_hint) {
@@ -1276,9 +1278,9 @@ static bool wgl_update_display_region(ALLEGRO_DISPLAY *d,
       wglAddSwapHintRectWIN(x, y, width, height);
       glFlush();
       SwapBuffers(disp->dc);
-      return true;
+      return;
    }
-   return false;
+   wgl_flip_display(d);
 }
 
 

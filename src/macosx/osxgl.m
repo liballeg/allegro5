@@ -1016,7 +1016,7 @@ static ALLEGRO_DISPLAY* create_display(int w, int h)
  * though in fact they are composited offscreen */
 static void flip_display(ALLEGRO_DISPLAY *disp) 
 {
-	ALLEGRO_DISPLAY_OSX_WIN* dpy = (ALLEGRO_DISPLAY_OSX_WIN*) disp;
+   ALLEGRO_DISPLAY_OSX_WIN* dpy = (ALLEGRO_DISPLAY_OSX_WIN*) disp;
    if (disp->ogl_extras->opengl_target->is_backbuffer) {
       if (disp->flags & ALLEGRO_SINGLEBUFFER) {
          glFlush();
@@ -1025,6 +1025,12 @@ static void flip_display(ALLEGRO_DISPLAY *disp)
          [dpy->ctx flushBuffer];
       }
    }
+}
+
+static void update_display_region(ALLEGRO_DISPLAY *disp,
+   int x, int y, int width, int height)
+{
+   flip_display(disp);
 }
 
 /* osx_create_mouse_cursor:
@@ -1237,6 +1243,7 @@ ALLEGRO_DISPLAY_INTERFACE* _al_osx_get_display_driver_win(void)
       vt->destroy_display = destroy_display;
       vt->set_current_display = set_current_display;
       vt->flip_display = flip_display;
+      vt->update_display_region = update_display_region;
       vt->resize_display = resize_display_win;
       vt->acknowledge_resize = acknowledge_resize_display_win;
       vt->create_bitmap = _al_ogl_create_bitmap;

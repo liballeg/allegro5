@@ -450,15 +450,14 @@ static void xdpy_flip_display(ALLEGRO_DISPLAY *d)
       glXSwapBuffers(system->gfxdisplay, glx->glxwindow);
 }
 
-static bool xdpy_update_display_region(ALLEGRO_DISPLAY *d, int x, int y,
+static void xdpy_update_display_region(ALLEGRO_DISPLAY *d, int x, int y,
    int w, int h)
 {
    (void)x;
    (void)y;
    (void)w;
    (void)h;
-   (void)d;
-   return false;
+   xdpy_flip_display(d);
 }
 
 static bool xdpy_acknowledge_resize(ALLEGRO_DISPLAY *d)

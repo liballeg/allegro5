@@ -55,6 +55,7 @@ enum ALLEGRO_DISPLAY_OPTIONS {
    ALLEGRO_DOUBLEBUFFERED,
    ALLEGRO_SWAP_METHOD,
    ALLEGRO_COMPATIBLE_DISPLAY,
+   ALLEGRO_UPDATE_DISPLAY_REGION,
    ALLEGRO_DISPLAY_OPTIONS_COUNT
 };
 
@@ -137,7 +138,7 @@ AL_FUNC(ALLEGRO_BITMAP*, al_get_target_bitmap, (void));
 AL_FUNC(bool, al_acknowledge_resize, (ALLEGRO_DISPLAY *display));
 AL_FUNC(bool, al_resize_display,     (int width, int height));
 AL_FUNC(void, al_flip_display,       (void));
-AL_FUNC(bool, al_update_display_region, (int x, int y, int width, int height));
+AL_FUNC(void, al_update_display_region, (int x, int y, int width, int height));
 AL_FUNC(bool, al_is_compatible_bitmap, (ALLEGRO_BITMAP *bitmap));
 
 AL_FUNC(int, al_get_num_display_modes, (void));
