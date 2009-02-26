@@ -14,22 +14,16 @@
 #endif
 
 #if defined ALLEGRO_MSVC
-   #define ALLEGRO_FONT_VAR(type, name)             extern _ALLEGRO_FONT_DLL type name
-   #define ALLEGRO_FONT_ARRAY(type, name)           extern _ALLEGRO_FONT_DLL type name[]
    #define ALLEGRO_FONT_FUNC(type, name, args)      _ALLEGRO_FONT_DLL type __cdecl name args
    #define ALLEGRO_FONT_METHOD(type, name, args)    type (__cdecl *name) args
    #define ALLEGRO_FONT_FUNCPTR(type, name, args)   extern _ALLEGRO_FONT_DLL type (__cdecl *name) args
    #define ALLEGRO_FONT_PRINTFUNC(type, name, args, a, b)  ALLEGRO_FONT_FUNC(type, name, args)
 #elif defined ALLEGRO_MINGW32
-   #define ALLEGRO_FONT_VAR(type, name)                   extern _ALLEGRO_FONT_DLL type name
-   #define ALLEGRO_FONT_ARRAY(type, name)                 extern _ALLEGRO_FONT_DLL type name[]
    #define ALLEGRO_FONT_FUNC(type, name, args)            extern type name args
    #define ALLEGRO_FONT_METHOD(type, name, args)          type (*name) args
    #define ALLEGRO_FONT_FUNCPTR(type, name, args)         extern _ALLEGRO_FONT_DLL type (*name) args
    #define ALLEGRO_FONT_PRINTFUNC(type, name, args, a, b) ALLEGRO_FONT_FUNC(type, name, args) __attribute__ ((format (printf, a, b)))
 #elif defined ALLEGRO_BCC32
-   #define ALLEGRO_FONT_VAR(type, name)             extern _ALLEGRO_FONT_DLL type name
-   #define ALLEGRO_FONT_ARRAY(type, name)           extern _ALLEGRO_FONT_DLL type name[]
    #define ALLEGRO_FONT_FUNC(type, name, args)      extern _ALLEGRO_FONT_DLL type name args
    #define ALLEGRO_FONT_METHOD(type, name, args)    type (*name) args
    #define ALLEGRO_FONT_FUNCPTR(type, name, args)   extern _ALLEGRO_FONT_DLL type (*name) args

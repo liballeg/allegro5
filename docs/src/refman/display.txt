@@ -230,18 +230,41 @@ The supported options are:
 *   ALLEGRO_GREEN_SIZE
 *   ALLEGRO_BLUE_SIZE
 *   ALLEGRO_ALPHA_SIZE
+*   ALLEGRO_COLOR_SIZE
+*   ALLEGRO_RED_SHIFT
+*   ALLEGRO_GREEN_SHIFT
+*   ALLEGRO_BLUE_SHIFT
+*   ALLEGRO_ALPHA_SHIFT: These settings can be used to specify the
+    pixel layout the display should use.
 *   ALLEGRO_ACC_RED_SIZE
 *   ALLEGRO_ACC_GREEN_SIZE
 *   ALLEGRO_ACC_BLUE_SIZE
-*   ALLEGRO_ACC_ALPHA_SIZE
-*   ALLEGRO_STEREO
-*   ALLEGRO_AUX_BUFFERS
-*   ALLEGRO_DEPTH_SIZE
-*   ALLEGRO_STENCIL_SIZE
-*   ALLEGRO_SAMPLE_BUFFERS
-*   ALLEGRO_SAMPLES
+*   ALLEGRO_ACC_ALPHA_SIZE: This and the preceding three settings can
+    be used to define the required accumulation buffer size.
+*   ALLEGRO_STEREO: Whether the display is a stereo display.
+*   ALLEGRO_AUX_BUFFERS: Number of auxiliary buffers the display should
+    have.
+*   ALLEGRO_DEPTH_SIZE: How many depth buffer (z-buffer) bits to use.
+*   ALLEGRO_STENCIL_SIZE: How many bits to use for the stencil buffer.
+*   ALLEGRO_SAMPLE_BUFFERS: Whether to use multisampling (1) or not (0).
+*   ALLEGRO_SAMPLES: If the above is 1, the number of samples to use
+    per pixel. Else 0.
+*   ALLEGRO_RENDER_METHOD: 0 if hardware acceleration is not used with
+    this display.
+*   ALLEGRO_FLOAT_COLOR: Whether to use floating point color components.
+*   ALLEGRO_FLOAT_DEPTH: Whether to use a floating point depth buffer.
+*   ALLEGRO_DOUBLEBUFFERED: Whether the display uses a single buffer (0)
+    or a buffered/flipped update method (1).
+*   ALLEGRO_SWAP_METHOD: If the above is 1, this is set to 1 to indicate
+    the display is using a copying method to make the next buffer in
+    the flip chain available, or to 2 to indicate a flipping method.
+    (TODO: Can't we remove ALLEGRO_DOUBLEBUFFERED since we have this?)
+*   ALLEGRO_COMPATIBLE_DISPLAY: Indicates if Allegro's graphics
+    functions can use this display. If you request a display not
+    useable by Allegro, you can still use for example OpenGL to draw
+    graphics.
 *   ALLEGRO_UPDATE_DISPLAY_REGION: Set to 1 if the current display is
-    capable of updating just a region, and is 0 if calling
+    capable of updating just a region, and 0 if calling
     [al_update_display_region] is equivalent to [al_flip_display].
 
 FIXME: document them all in detail
@@ -325,9 +348,6 @@ See Also: [al_get_window_position]
 
 ## API: al_update_display_region
 
-Update the the front buffer from the backbuffer in the
-specified region. This does not flip the whole buffer
-and preserves the contents of the front buffer outside of
-the given rectangle. This may not be supported by all drivers,
-in which case it returns false.
-
+Does the same as [al_flip_display], but tries to update only the
+specified region. With many drivers this is not possible, but for
+some it can improve performance.

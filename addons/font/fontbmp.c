@@ -108,14 +108,13 @@ static int import_bitmap_font_color(ALLEGRO_BITMAP *import_bmp, ALLEGRO_BITMAP**
    col = al_map_rgb(255, 255, 0);
 
    al_store_state(&backup, ALLEGRO_STATE_BITMAP);
-   //al_set_new_bitmap_flags(0);
    al_set_new_bitmap_format(ALLEGRO_PIXEL_FORMAT_ANY_WITH_ALPHA);
    
    for(i = 0; i < num; i++) {
       if(w > 0 && h > 0) font_find_character(import_bmp, &import_x, &import_y, &w, &h);
       if(w <= 0 || h <= 0) {
-	 bits[i] = al_create_bitmap(8, 8);
-	 if(!bits[i]) {
+         bits[i] = al_create_bitmap(8, 8);
+         if(!bits[i]) {
             ret = -1;
             goto done;
          }
@@ -124,11 +123,11 @@ static int import_bitmap_font_color(ALLEGRO_BITMAP *import_bmp, ALLEGRO_BITMAP**
       }
       else {
          bits[i] = al_create_sub_bitmap(glyphs, import_x + 1, import_y + 1, w, h);
-	 if(!bits[i]) {
+         if(!bits[i]) {
             ret = -1;
             goto done;
          }
-	 import_x += w;
+         import_x += w;
       }
    }
 
@@ -167,25 +166,14 @@ static int bitmap_font_count(ALLEGRO_BITMAP* bmp)
  */
 ALLEGRO_FONT *al_font_load_bitmap_font(const char *fname, void *param)
 {
-   /* NB: `end' is -1 if we want every glyph */
-   int color_conv_mode;
    ALLEGRO_BITMAP *import_bmp;
    ALLEGRO_FONT *f;
    ALLEGRO_COLOR col;
-   unsigned char r,g,b,a;
+   unsigned char r, g, b, a;
    ALLEGRO_STATE backup;
    ASSERT(fname);
 
    (void) param;
-
-   /* Don't change the colourdepth of the bitmap if it is 8 bit */
-   (void) color_conv_mode;
-   /*
-   color_conv_mode = get_color_conversion();
-   set_color_conversion(COLORCONV_MOST | COLORCONV_KEEP_TRANS);
-   import_bmp = load_bitmap(fname, pal);
-   set_color_conversion(color_conv_mode);
-   */
 
    al_store_state(&backup, ALLEGRO_STATE_NEW_BITMAP_PARAMETERS);
    al_set_new_bitmap_flags(ALLEGRO_MEMORY_BITMAP);
