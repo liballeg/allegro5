@@ -171,6 +171,7 @@ ALLEGRO_FONT *al_font_load_bitmap_font(const char *fname, void *param)
    ALLEGRO_COLOR col;
    unsigned char r, g, b, a;
    ALLEGRO_STATE backup;
+   int range[2];
    ASSERT(fname);
 
    (void) param;
@@ -190,8 +191,9 @@ ALLEGRO_FONT *al_font_load_bitmap_font(const char *fname, void *param)
    /* We assume a single unicode range, starting at the space
     * character.
     */
-   f = al_font_grab_font_from_bitmap(import_bmp, 1, 32,
-      32 + bitmap_font_count(import_bmp) - 1);
+   range[0] = 32;
+   range[1] = 32 + bitmap_font_count(import_bmp) - 1;
+   f = al_font_grab_font_from_bitmap(import_bmp, 1, range);
 
    al_destroy_bitmap(import_bmp);
 
@@ -204,9 +206,8 @@ ALLEGRO_FONT *al_font_load_bitmap_font(const char *fname, void *param)
  */
 ALLEGRO_FONT *al_font_grab_font_from_bitmap(
    ALLEGRO_BITMAP *bmp,
-   int ranges, ...)
+   int ranges_n, int ranges[])
 {
-   va_list args;
    ALLEGRO_FONT *f;
    ALLEGRO_FONT_COLOR_DATA *cf, *prev = NULL;
    ALLEGRO_STATE backup;
@@ -215,8 +216,6 @@ ALLEGRO_FONT *al_font_grab_font_from_bitmap(
    ALLEGRO_COLOR mask = al_map_rgb(255, 255, 0);
 
    ASSERT(bmp)
-   
-   va_start(args, ranges);
 
    import_x = 0;
    import_y = 0;
@@ -228,9 +227,9 @@ ALLEGRO_FONT *al_font_grab_font_from_bitmap(
    al_store_state(&backup, ALLEGRO_STATE_BITMAP | ALLEGRO_STATE_BLENDER);
    al_set_new_bitmap_format(ALLEGRO_PIXEL_FORMAT_ANY_WITH_ALPHA);
 
-   for (i = 0; i < ranges; i++) {
-      int first = va_arg(args, int);
-      int last = va_arg(args, int);
+   for (i = 0; i < ranges_n; i++) {
+      int first = ranges[i * 2];
+      int last = ranges[i * 2 + 1];
       int n = 1 + last - first;
       cf = _AL_MALLOC(sizeof(ALLEGRO_FONT_COLOR_DATA));
       memset(cf, 0, sizeof *cf);
@@ -266,7 +265,6 @@ ALLEGRO_FONT *al_font_grab_font_from_bitmap(
          prev = cf;
       }
    }
-   va_end(args);
    al_restore_state(&backup);
    
    cf = f->data;
@@ -275,7 +273,6 @@ ALLEGRO_FONT *al_font_grab_font_from_bitmap(
 
    return f;
 cleanup_and_fail_on_error:
-   va_end(args);
    al_restore_state(&backup);
    al_font_destroy_font(f);
    return NULL;

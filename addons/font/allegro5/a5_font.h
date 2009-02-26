@@ -29,8 +29,6 @@
    #define ALLEGRO_FONT_FUNCPTR(type, name, args)   extern _ALLEGRO_FONT_DLL type (*name) args
    #define ALLEGRO_FONT_PRINTFUNC(type, name, args, a, b)    ALLEGRO_FONT_FUNC(type, name, args)
 #else
-   #define ALLEGRO_FONT_VAR       AL_VAR
-   #define ALLEGRO_FONT_ARRAY     AL_ARRAY
    #define ALLEGRO_FONT_FUNC      AL_FUNC
    #define ALLEGRO_FONT_METHOD    AL_METHOD
    #define ALLEGRO_FONT_FUNCPTR   AL_FUNCPTR
@@ -71,7 +69,7 @@ ALLEGRO_FONT_FUNC(void, al_font_register_font_file_type, (const char *ext, ALLEG
 ALLEGRO_FONT_FUNC(ALLEGRO_FONT *, al_font_load_bitmap_font, (const char *filename, void *param));
 ALLEGRO_FONT_FUNC(ALLEGRO_FONT *, al_font_load_font, (const char *filename, void *param));
 
-ALLEGRO_FONT_FUNC(ALLEGRO_FONT *, al_font_grab_font_from_bitmap, (ALLEGRO_BITMAP *bmp, int ranges, ...));
+ALLEGRO_FONT_FUNC(ALLEGRO_FONT *, al_font_grab_font_from_bitmap, (ALLEGRO_BITMAP *bmp, int n, int ranges[]));
 
 ALLEGRO_FONT_FUNC(void, al_font_textout, (const ALLEGRO_FONT *f, int x, int y, const char *str, int count));
 ALLEGRO_FONT_FUNC(void, al_font_textout_centre, (const ALLEGRO_FONT *f, int x, int y, const char *str, int count));

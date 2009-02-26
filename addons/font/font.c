@@ -8,16 +8,6 @@
  *                                           /\____/
  *                                           \_/__/
  *
- *      The default 8x8 font, and mono and color font vtables.
- *
- *      Contains characters:
- *
- *          ASCII          (0x0020 to 0x007F)
- *          Latin-1        (0x00A1 to 0x00FF)
- *          Extended-A     (0x0100 to 0x017F)
- *          Euro           (0x20AC)
- *
- *      Elias Pschernig added the Euro character.
  *
  *      See readme.txt for copyright information.
  */
