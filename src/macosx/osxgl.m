@@ -1013,7 +1013,7 @@ static void flip_display(ALLEGRO_DISPLAY *disp)
 {
    ALLEGRO_DISPLAY_OSX_WIN* dpy = (ALLEGRO_DISPLAY_OSX_WIN*) disp;
    if (disp->ogl_extras->opengl_target->is_backbuffer) {
-      if (disp->extra_settings[ALLEGRO_SINGLE_BUFFER]) {
+      if (disp->extra_settings.settings[ALLEGRO_SINGLE_BUFFER]) {
          glFlush();
       }
       else {
