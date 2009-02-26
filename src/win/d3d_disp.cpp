@@ -584,7 +584,7 @@ static bool d3d_create_fullscreen_device(ALLEGRO_DISPLAY_D3D *d,
    else
       d3d_pp.Flags = D3DPRESENTFLAG_LOCKABLE_BACKBUFFER;
 
-   if (flags & ALLEGRO_SINGLEBUFFER) {
+   if (d->single_buffer) {
       d3d_pp.SwapEffect = D3DSWAPEFFECT_COPY;
    }
    else {
@@ -861,7 +861,7 @@ static bool d3d_create_device(ALLEGRO_DISPLAY_D3D *d,
    else
       d3d_pp.Flags = D3DPRESENTFLAG_LOCKABLE_BACKBUFFER;
 
-   if (flags & ALLEGRO_SINGLEBUFFER) {
+   if (d->single_buffer) {
       d3d_pp.SwapEffect = D3DSWAPEFFECT_COPY;
    }
    else {
@@ -1053,7 +1053,7 @@ static bool _al_d3d_reset_device(ALLEGRO_DISPLAY_D3D *d3d_display)
       else
          d3d_pp.Flags = D3DPRESENTFLAG_LOCKABLE_BACKBUFFER;
 
-       if (al_display->flags & ALLEGRO_SINGLEBUFFER) {
+       if (d3d_display->single_buffer) {
           d3d_pp.SwapEffect = D3DSWAPEFFECT_COPY;
        }
        else {
@@ -1529,12 +1529,7 @@ static bool d3d_create_display_internals(ALLEGRO_DISPLAY_D3D *d3d_display)
    for (i = 0; i < total_count; i++) {
       d3d_display->depth_stencil_format = d3d_get_depth_stencil_format(eds_list[i]);
       d3d_display->samples = eds_list[i]->settings[ALLEGRO_SAMPLES];
-      if (eds_list[i]->settings[ALLEGRO_DOUBLEBUFFERED]) {
-         al_display->flags &= ~(ALLEGRO_SINGLEBUFFER);
-      }
-      else {
-         al_display->flags |= ALLEGRO_SINGLEBUFFER;
-      }
+      d3d_display->single_buffer = eds_list[i]->settings[ALLEGRO_SINGLE_BUFFER];
 
       params.init_failed = true;
       params.AckEvent = CreateEvent(NULL, false, false, NULL);
@@ -1893,7 +1888,7 @@ static void d3d_update_display_region(ALLEGRO_DISPLAY *al_display,
 
    if (d3d_display->device_lost) return;
 
-   if (al_display->flags & ALLEGRO_SINGLEBUFFER) {
+   if (d3d_display->single_buffer) {
       RECT rect;
 
       rect.left = x;

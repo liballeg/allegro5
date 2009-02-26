@@ -173,8 +173,8 @@ void _al_fill_display_settings(ALLEGRO_EXTRA_DISPLAY_SETTINGS *ref)
    }
 
    /* Require double-buffering */
-   if (!((req | sug) & (1<<ALLEGRO_DOUBLEBUFFERED))) {
-      al_set_new_display_option(ALLEGRO_DOUBLEBUFFERED, 1, ALLEGRO_REQUIRE);
+   if (!((req | sug) & (1<<ALLEGRO_SINGLE_BUFFER))) {
+      al_set_new_display_option(ALLEGRO_SINGLE_BUFFER, 0, ALLEGRO_REQUIRE);
    }
 
    /* Prefer no multisamping */
@@ -287,7 +287,8 @@ int _al_score_display_settings(ALLEGRO_EXTRA_DISPLAY_SETTINGS *eds,
 
    if ((req & (1<<ALLEGRO_ALPHA_SIZE))
     && (eds->settings[ALLEGRO_ALPHA_SIZE] != ref->settings[ALLEGRO_ALPHA_SIZE])) {
-      TRACE(PREFIX_I "Alpha depth requirement not met.\n");
+      TRACE(PREFIX_I "Alpha depth requirement not met (%d instead of %d).\n",
+         eds->settings[ALLEGRO_ALPHA_SIZE], ref->settings[ALLEGRO_ALPHA_SIZE]);
       return -1;
    }
 
@@ -360,14 +361,14 @@ int _al_score_display_settings(ALLEGRO_EXTRA_DISPLAY_SETTINGS *eds,
       }
    }
 
-   if (!eds->settings[ALLEGRO_DOUBLEBUFFERED] != !ref->settings[ALLEGRO_DOUBLEBUFFERED]) {
-      if (req & (1<<ALLEGRO_DOUBLEBUFFERED)) {
-         TRACE(PREFIX_I "Double Buffer requirement not met.\n");
+   if (!eds->settings[ALLEGRO_SINGLE_BUFFER] != !ref->settings[ALLEGRO_SINGLE_BUFFER]) {
+      if (req & (1<<ALLEGRO_SINGLE_BUFFER)) {
+         TRACE(PREFIX_I "Single Buffer requirement not met.\n");
          return -1;
       }
    }
    else {
-      score += (sug & (1<<ALLEGRO_DOUBLEBUFFERED)) ? 256 : 1;
+      score += (sug & (1<<ALLEGRO_SINGLE_BUFFER)) ? 256 : 1;
    }
 
    if (!eds->settings[ALLEGRO_STEREO] != !ref->settings[ALLEGRO_STEREO]) {

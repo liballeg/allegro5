@@ -140,7 +140,7 @@ int main(void)
    al_install_keyboard();
    al_install_mouse();
 
-   al_set_new_display_flags(ALLEGRO_SINGLEBUFFER);
+   al_set_new_display_option(ALLEGRO_SINGLE_BUFFER, true, ALLEGRO_SUGGEST);
    display = al_create_display(W, H);
    if (!display) {
       TRACE("Error creating display\n");

@@ -444,7 +444,7 @@ static void xdpy_flip_display(ALLEGRO_DISPLAY *d)
 {
    ALLEGRO_SYSTEM_XGLX *system = (ALLEGRO_SYSTEM_XGLX *)al_system_driver();
    ALLEGRO_DISPLAY_XGLX *glx = (ALLEGRO_DISPLAY_XGLX *)d;
-   if (d->flags & ALLEGRO_SINGLEBUFFER)
+   if (d->extra_settings.settings[ALLEGRO_SINGLE_BUFFER])
       glFlush();
    else
       glXSwapBuffers(system->gfxdisplay, glx->glxwindow);

@@ -258,7 +258,7 @@ static int get_pixel_formats_count_ext(HDC dc)
 static void display_pixel_format(ALLEGRO_EXTRA_DISPLAY_SETTINGS *eds)
 {
    TRACE(PREFIX_I "Accelarated: %s\n", eds->settings[ALLEGRO_RENDER_METHOD] ? "yes" : "no");
-   TRACE(PREFIX_I "Doublebuffer: %s\n", eds->settings[ALLEGRO_DOUBLEBUFFERED] ? "yes" : "no");
+   TRACE(PREFIX_I "Single-buffer: %s\n", eds->settings[ALLEGRO_SINGLE_BUFFER] ? "yes" : "no");
    if (eds->settings[ALLEGRO_SWAP_METHOD] > 0)
       TRACE(PREFIX_I "Swap method: %s\n", eds->settings[ALLEGRO_SWAP_METHOD] == 2 ? "flip" : "copy");
    else
@@ -311,7 +311,7 @@ static int decode_pixel_format_old(PIXELFORMATDESCRIPTOR *pfd,
    eds->settings[ALLEGRO_ACC_ALPHA_SIZE] = pfd->cAccumAlphaBits;
 
    /* Miscellaneous settings */
-   eds->settings[ALLEGRO_DOUBLEBUFFERED] = pfd->dwFlags & PFD_DOUBLEBUFFER;
+   eds->settings[ALLEGRO_SINGLE_BUFFER] = !(pfd->dwFlags & PFD_DOUBLEBUFFER);
    eds->settings[ALLEGRO_DEPTH_SIZE] = pfd->cDepthBits;
    eds->settings[ALLEGRO_STENCIL_SIZE] = pfd->cStencilBits;
    eds->settings[ALLEGRO_COLOR_SIZE] = pfd->cColorBits;
@@ -407,7 +407,7 @@ static bool decode_pixel_format_attrib(ALLEGRO_EXTRA_DISPLAY_SETTINGS *eds, int 
       }
       /* Miscellaneous settings */
       else if (attrib[i] == WGL_DOUBLE_BUFFER_ARB) {
-         eds->settings[ALLEGRO_DOUBLEBUFFERED] = value[i];
+         eds->settings[ALLEGRO_SINGLE_BUFFER] = !(value[i]);
       }
       else if (attrib[i] == WGL_SWAP_METHOD_ARB) {
          if (value[i] == WGL_SWAP_UNDEFINED_ARB)
@@ -1277,7 +1277,7 @@ End:
 static void wgl_flip_display(ALLEGRO_DISPLAY *d)
 {
    ALLEGRO_DISPLAY_WGL* disp = (ALLEGRO_DISPLAY_WGL*)d;
-   if (d->flags & ALLEGRO_SINGLEBUFFER)
+   if (d->extra_settings.settings[ALLEGRO_SINGLE_BUFFER])
       glFlush();
    else
       SwapBuffers(disp->dc);

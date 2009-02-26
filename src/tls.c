@@ -296,36 +296,6 @@ void al_set_new_display_refresh_rate(int refresh_rate)
 
 
 /* Function: al_set_new_display_flags
- *
- * Sets various flags for display creation. flags is a bitfield containing any
- * reasonable combination of the following:
- *
- * ALLEGRO_WINDOWED - prefer a windowed mode
- *
- * ALLEGRO_FULLSCREEN - prefer a fullscreen mode
- *
- * ALLEGRO_RESIZABLE - the display is resizable (only applicable if combined
- * with ALLEGRO_WINDOWED)
- *
- * ALLEGRO_OPENGL - require the driver to provide an initialized opengl context
- * after returning successfully
- *
- * ALLEGRO_DIRECT3D - require the driver to do rendering with Direct3D and
- * provide a Direct3D device
- *
- * ALLEGRO_DOUBLEBUFFER - use double buffering
- *
- * ALLEGRO_PAGEFLIP - use page flipping
- *
- * ALLEGRO_SINGLEBUFFER - use only one buffer (front and back buffer are the
- * same) 
- * 
- * ALLEGRO_NOFRAME - Try to create a window without a frame (i.e. no border or
- * titlebar). This usualy does nothing for fullscreen modes, and even in
- * windowed moded it depends on the underlying platform whether it is supported
- * or not.
- * 
- * 0 can be used for default values. 
  */
 void al_set_new_display_flags(int flags)
 {
@@ -334,12 +304,6 @@ void al_set_new_display_flags(int flags)
    if ((tls = tls_get()) == NULL)
       return;
    tls->new_display_flags = flags;
-
-   {
-      if (flags & ALLEGRO_SINGLEBUFFER) {
-         al_set_new_display_option(ALLEGRO_DOUBLEBUFFERED, 0, ALLEGRO_REQUIRE);
-      }
-   }
 }
 
 

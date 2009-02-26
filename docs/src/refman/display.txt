@@ -253,12 +253,12 @@ The supported options are:
     this display.
 *   ALLEGRO_FLOAT_COLOR: Whether to use floating point color components.
 *   ALLEGRO_FLOAT_DEPTH: Whether to use a floating point depth buffer.
-*   ALLEGRO_DOUBLEBUFFERED: Whether the display uses a single buffer (0)
-    or a buffered/flipped update method (1).
-*   ALLEGRO_SWAP_METHOD: If the above is 1, this is set to 1 to indicate
+*   ALLEGRO_SINGLE_BUFFER: Whether the display uses a single buffer (1)
+    or another update method (0).
+*   ALLEGRO_SWAP_METHOD: If the above is 0, this is set to 1 to indicate
     the display is using a copying method to make the next buffer in
-    the flip chain available, or to 2 to indicate a flipping method.
-    (TODO: Can't we remove ALLEGRO_DOUBLEBUFFERED since we have this?)
+    the flip chain available, or to 2 to indicate a flipping or other
+    method.
 *   ALLEGRO_COMPATIBLE_DISPLAY: Indicates if Allegro's graphics
     functions can use this display. If you request a display not
     useable by Allegro, you can still use for example OpenGL to draw
@@ -299,13 +299,6 @@ after returning successfully
 
 * ALLEGRO_DIRECT3D - require the driver to do rendering with Direct3D and
 provide a Direct3D device
-
-* ALLEGRO_DOUBLEBUFFER - use double buffering
-
-* ALLEGRO_PAGEFLIP - use page flipping
-
-* ALLEGRO_SINGLEBUFFER - use only one buffer (front and back buffer are the
-same) 
 
 * ALLEGRO_NOFRAME - Try to create a window without a frame (i.e. no border or
 titlebar). This usualy does nothing for fullscreen modes, and even in

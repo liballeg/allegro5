@@ -72,7 +72,7 @@ static const unsigned int allegro_to_osx_settings[][3] = {
    { ALLEGRO_RENDER_METHOD,      NSOpenGLPFAAccelerated, 0},
    { ALLEGRO_FLOAT_COLOR,        NSOpenGLPFAColorFloat, 0},
    { ALLEGRO_FLOAT_DEPTH,        0, 0},
-   { ALLEGRO_DOUBLEBUFFERED,     0, 0},   // Only have inverse of this
+   { ALLEGRO_SINGLE_BUFFER ,     0, 0},   // Only have inverse of this
    { ALLEGRO_SWAP_METHOD,        0, 0},
    { ALLEGRO_COMPATIBLE_DISPLAY, 0, 0},
    { ALLEGRO_DISPLAY_OPTIONS_COUNT, 0, 0}
@@ -530,16 +530,11 @@ static void osx_set_opengl_pixelformat_attributes(ALLEGRO_DISPLAY_OSX_WIN *dpy)
       *a = NSOpenGLPFAClosestPolicy; a++;
    }
 
-   /* Should we set double buffering? There are two ways to specify this:
-    * Either the flags indicate we want one buffer, or the options indicate
-    * we require a double buffer. If it's not required we don't care and go
-    * with the default.
+   /* Should we set double buffering? If it's not required we don't care
+    * and go with the default.
     */
-   if (dpy->parent.flags & ALLEGRO_SINGLEBUFFER) {
-      want_double_buffer = false;
-   }
-   if (extras && (extras->required & (1 << ALLEGRO_DOUBLEBUFFERED)) && 
-         !extras->settings[ALLEGRO_DOUBLEBUFFERED]) {
+   if (extras && (extras->required & (1 << ALLEGRO_SINGLE_BUFFER)) && 
+         extras->settings[ALLEGRO_SINGLE_BUFFER]) {
       want_double_buffer = false;
    }
    if (want_double_buffer) {
@@ -1018,7 +1013,7 @@ static void flip_display(ALLEGRO_DISPLAY *disp)
 {
    ALLEGRO_DISPLAY_OSX_WIN* dpy = (ALLEGRO_DISPLAY_OSX_WIN*) disp;
    if (disp->ogl_extras->opengl_target->is_backbuffer) {
-      if (disp->flags & ALLEGRO_SINGLEBUFFER) {
+      if (disp->extra_settings[ALLEGRO_SINGLE_BUFFER]) {
          glFlush();
       }
       else {

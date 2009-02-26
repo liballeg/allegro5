@@ -7,7 +7,7 @@
 #ifdef DEBUGMODE
 static void display_pixel_format(ALLEGRO_EXTRA_DISPLAY_SETTINGS *eds)
 {
-   TRACE(PREFIX_I "Doublebuffer: %s\n", eds->settings[ALLEGRO_DOUBLEBUFFERED] ? "yes" : "no");
+   TRACE(PREFIX_I "Single-buffer: %s\n", eds->settings[ALLEGRO_SINGLE_BUFFER] ? "yes" : "no");
    if (eds->settings[ALLEGRO_SWAP_METHOD] > 0)
       TRACE(PREFIX_I "Swap method: %s\n", eds->settings[ALLEGRO_SWAP_METHOD] == 2 ? "flip" : "copy");
    else
@@ -80,7 +80,7 @@ static ALLEGRO_EXTRA_DISPLAY_SETTINGS* read_fbconfig(Display *dpy,
                                                      GLXFBConfig fbc)
 {
    int render_type, visual_type, buffer_size, sbuffers, samples;
-   int drawable_type, renderable, swap_method;
+   int drawable_type, renderable, swap_method, double_buffer;
    ALLEGRO_EXTRA_DISPLAY_SETTINGS *eds;
    XVisualInfo *v;
 
@@ -111,7 +111,7 @@ static ALLEGRO_EXTRA_DISPLAY_SETTINGS* read_fbconfig(Display *dpy,
     || glXGetFBConfigAttrib (dpy, fbc, GLX_ALPHA_SIZE,
                      &eds->settings[ALLEGRO_ALPHA_SIZE])
     || glXGetFBConfigAttrib (dpy, fbc, GLX_DOUBLEBUFFER,
-                     &eds->settings[ALLEGRO_DOUBLEBUFFERED])
+                     &double_buffer)
     || glXGetFBConfigAttrib (dpy, fbc, GLX_AUX_BUFFERS,
                      &eds->settings[ALLEGRO_AUX_BUFFERS])
     || glXGetFBConfigAttrib (dpy, fbc, GLX_STENCIL_SIZE,
@@ -128,6 +128,7 @@ static ALLEGRO_EXTRA_DISPLAY_SETTINGS* read_fbconfig(Display *dpy,
       free(eds);
       return NULL;
    }
+   eds->settings[ALLEGRO_SINGLE_BUFFER] = !double_buffer;
 
    if (!(render_type & GLX_RGBA_BIT) && !(render_type & GLX_RGBA_FLOAT_BIT)) {
       TRACE(PREFIX_I "read_fbconfig: Not RGBA mode\n");
@@ -251,7 +252,7 @@ static ALLEGRO_EXTRA_DISPLAY_SETTINGS** get_visuals_new(int *count, ALLEGRO_DISP
 static ALLEGRO_EXTRA_DISPLAY_SETTINGS* read_xvisual(Display *dpy,
                                                     XVisualInfo *v)
 {
-   int rgba, buffer_size, use_gl, sbuffers, samples;
+   int rgba, buffer_size, use_gl, sbuffers, samples, double_buffer;
    ALLEGRO_EXTRA_DISPLAY_SETTINGS *eds;
 
    /* We can only support TrueColor and DirectColor visuals --
@@ -270,7 +271,7 @@ static ALLEGRO_EXTRA_DISPLAY_SETTINGS* read_xvisual(Display *dpy,
     || glXGetConfig (dpy, v, GLX_GREEN_SIZE,   &eds->settings[ALLEGRO_GREEN_SIZE])
     || glXGetConfig (dpy, v, GLX_BLUE_SIZE,    &eds->settings[ALLEGRO_BLUE_SIZE])
     || glXGetConfig (dpy, v, GLX_ALPHA_SIZE,   &eds->settings[ALLEGRO_ALPHA_SIZE])
-    || glXGetConfig (dpy, v, GLX_DOUBLEBUFFER, &eds->settings[ALLEGRO_DOUBLEBUFFERED])
+    || glXGetConfig (dpy, v, GLX_DOUBLEBUFFER, &double_buffer)
     || glXGetConfig (dpy, v, GLX_STEREO,       &eds->settings[ALLEGRO_STEREO])
     || glXGetConfig (dpy, v, GLX_AUX_BUFFERS,  &eds->settings[ALLEGRO_AUX_BUFFERS])
     || glXGetConfig (dpy, v, GLX_DEPTH_SIZE,   &eds->settings[ALLEGRO_DEPTH_SIZE])
@@ -287,6 +288,7 @@ static ALLEGRO_EXTRA_DISPLAY_SETTINGS* read_xvisual(Display *dpy,
       free(eds);
       return NULL;
    }
+   eds->settings[ALLEGRO_SINGLE_BUFFER] = !double_buffer;
 
    if (!rgba) {
       TRACE(PREFIX_I "read_xvisual: Not RGBA mode\n");

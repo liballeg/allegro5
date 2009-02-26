@@ -55,7 +55,7 @@ int main(void)
     al_iio_init();
     al_font_init();
 
-    al_set_new_display_option(ALLEGRO_DOUBLEBUFFERED, false, ALLEGRO_SUGGEST);
+    al_set_new_display_option(ALLEGRO_SINGLE_BUFFER, true, ALLEGRO_SUGGEST);
     al_set_new_display_flags(ALLEGRO_GENERATE_EXPOSE_EVENTS);
     display = al_create_display(320, 200);
     if (!display) {
