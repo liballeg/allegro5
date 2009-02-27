@@ -1530,7 +1530,7 @@ static bool d3d_create_display_internals(ALLEGRO_DISPLAY_D3D *d3d_display)
    for (i = 0; i < total_count; i++) {
       d3d_display->depth_stencil_format = d3d_get_depth_stencil_format(eds_list[i]);
       d3d_display->samples = eds_list[i]->settings[ALLEGRO_SAMPLES];
-      d3d_display->single_buffer = eds_list[i]->settings[ALLEGRO_SINGLE_BUFFER];
+      d3d_display->single_buffer = eds_list[i]->settings[ALLEGRO_SINGLE_BUFFER] ? true : false;
 
       params.init_failed = true;
       params.AckEvent = CreateEvent(NULL, false, false, NULL);
