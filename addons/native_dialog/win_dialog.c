@@ -49,10 +49,10 @@ void al_show_native_file_dialog(ALLEGRO_NATIVE_FILE_DIALOG *fd)
 
    flags |= OFN_NOCHANGEDIR | OFN_EXPLORER;
    if (fd->mode & ALLEGRO_FILECHOOSER_SAVE) {
-   	flags |= OFN_OVERWRITEPROMPT;
+      flags |= OFN_OVERWRITEPROMPT;
    }
    else {
-   	flags |= (fd->mode & ALLEGRO_FILECHOOSER_FILE_MUST_EXIST) ? OFN_FILEMUSTEXIST : 0;
+      flags |= (fd->mode & ALLEGRO_FILECHOOSER_FILE_MUST_EXIST) ? OFN_FILEMUSTEXIST : 0;
    }
    flags |= (fd->mode & ALLEGRO_FILECHOOSER_MULTIPLE) ? OFN_ALLOWMULTISELECT : 0;
    flags |= (fd->mode & ALLEGRO_FILECHOOSER_SHOW_HIDDEN) ? 0x10000000 : 0; // NOTE: 0x10000000 is FORCESHOWHIDDEN
@@ -87,25 +87,25 @@ void al_show_native_file_dialog(ALLEGRO_NATIVE_FILE_DIALOG *fd)
       /* Count selected */
       fd->count = 0;
       while (1) {
-   	   if (buf[i] == 0) {
-   	      fd->count++;
-	      if (buf[i+1] == 0)
-	         break;
-           }
-	   i++;
+         if (buf[i] == 0) {
+            fd->count++;
+            if (buf[i+1] == 0)
+               break;
+         }
+         i++;
       }
 
       fd->paths = _AL_MALLOC(fd->count * sizeof(void *));
       i = next(buf);
       for (p = 0; p < (int)fd->count; p++) {
-      	 fd->paths[p] = al_path_create(path);
-	 al_path_concat(fd->paths[p], al_path_create(buf+i));
-	 i += next(buf+i);
+         fd->paths[p] = al_path_create(path);
+         al_path_concat(fd->paths[p], al_path_create(buf+i));
+         i += next(buf+i);
       }
    }
    else {
-   	fd->count = 1;
-	fd->paths = _AL_MALLOC(sizeof(void *));
-	fd->paths[0] = al_path_create(buf);
+      fd->count = 1;
+      fd->paths = _AL_MALLOC(sizeof(void *));
+      fd->paths[0] = al_path_create(buf);
    }
 }
