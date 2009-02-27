@@ -350,7 +350,7 @@ static LRESULT CALLBACK window_callback(HWND hWnd, UINT message,
          int my = (lParam >> 16) & 0xFFFF;
          if (!capture_window || capture_window != hWnd) {
             capture_window = hWnd;
-            SetCapture(hWnd);
+            //SetCapture(hWnd);
             // emit event
             if (al_is_mouse_installed()) {
                ALLEGRO_MOUSE *mouse = al_get_mouse();
@@ -371,7 +371,7 @@ static LRESULT CALLBACK window_callback(HWND hWnd, UINT message,
             }
          }
          else if (mx < 0 || my < 0 || mx >= d->w || my >= d->h) {
-            ReleaseCapture();
+            //ReleaseCapture();
             capture_window = 0;
             // emit event
             if (al_is_mouse_installed()) {
