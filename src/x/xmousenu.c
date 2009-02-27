@@ -186,7 +186,7 @@ static unsigned int xmouse_get_mouse_num_axes(void)
 static bool xmouse_set_mouse_xy(int x, int y)
 {
    if (!xmouse_installed)
-      return;
+      return false;
 
    // TODO: Multi display warps.
 
@@ -198,8 +198,6 @@ static bool xmouse_set_mouse_xy(int x, int y)
    if (x < 0 || y < 0 || x >= window_width || y >= window_height)
       return false;
 
-   ALLEGRO_DISPLAY *win_disp = (void*)al_get_current_display();
-  
    int new_x = x;
    int new_y = y;
    int dx = new_x - the_mouse.state.x;
