@@ -185,21 +185,30 @@ static unsigned int xmouse_get_mouse_num_axes(void)
  */
 static bool xmouse_set_mouse_xy(int x, int y)
 {
-   ASSERT(xmouse_installed);
-   //FIXME
-   (void)x;
-   (void)y;
-#if 0
-   if ((x < 0) || (y < 0) || (x >= _xwin.window_width) || (y >= _xwin.window_height))
+   if (!xmouse_installed)
+      return;
+
+   // TODO: Multi display warps.
+
+   ALLEGRO_SYSTEM_XGLX *system = (void *)al_system_driver();
+   Display *display = system->x11display;
+
+   int window_width = al_get_display_width();
+   int window_height = al_get_display_height();
+   if (x < 0 || y < 0 || x >= window_width || y >= window_height)
       return false;
 
-   _al_event_source_lock(&the_mouse.parent.es);
-   {
-      XWarpPointer(_xwin.display, _xwin.window, _xwin.window, 0, 0,
-                   _xwin.window_width, _xwin.window_height, x, y);
+   ALLEGRO_DISPLAY *win_disp = (void*)al_get_current_display();
+  
+   int new_x = x;
+   int new_y = y;
+   int dx = new_x - the_mouse.state.x;
+   int dy = new_y - the_mouse.state.y;
+
+   if (dx != 0 || dy != 0) {
+      XWarpPointer(display, None, None, 0, 0, 0, 0, dx, dy);
    }
-   _al_event_source_unlock(&the_mouse.parent.es);
-#endif
+
    return true;
 }
 
@@ -371,9 +380,10 @@ void _al_xwin_mouse_motion_notify_handler(int x, int y,
       return;
 
    _al_event_source_lock(&the_mouse.parent.es);
-   {
-      int dx = x - the_mouse.state.x;
-      int dy = y - the_mouse.state.y;
+   int dx = x - the_mouse.state.x;
+   int dy = y - the_mouse.state.y;
+
+   if (dx != 0 || dy != 0) {
       the_mouse.state.x = x;
       the_mouse.state.y = y;
 
