@@ -22,6 +22,7 @@ typedef struct
    ALLEGRO_NATIVE_FILE_DIALOG *file_dialog;
    ALLEGRO_EVENT_SOURCE *event_source;
    ALLEGRO_THREAD *thread;
+   ALLEGRO_DISPLAY *display;
 } AsyncDialog;
 
 
@@ -31,6 +32,11 @@ static void *async_file_dialog_thread_func(ALLEGRO_THREAD *thread, void *arg)
    AsyncDialog *data = arg;
    ALLEGRO_EVENT event;
    (void)thread;
+
+   /* We need to set the current display for this thread becuse
+    * al_show_native_file_dialog() shows the dialog on the current window.
+    */
+   al_set_current_display(data->display);
 
    /* The next line is the heart of this example - we display the
     * native file dialog.
@@ -56,6 +62,7 @@ AsyncDialog *spawn_async_dialog(const ALLEGRO_PATH *initial_path)
       initial_path, "Choose files", NULL,
       ALLEGRO_FILECHOOSER_MULTIPLE);
    data->event_source = al_create_user_event_source();
+   data->display = al_get_current_display();
    data->thread = al_create_thread(async_file_dialog_thread_func, data);
 
    al_start_thread(data->thread);
