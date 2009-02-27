@@ -79,6 +79,7 @@ void al_show_native_file_dialog(ALLEGRO_NATIVE_FILE_DIALOG *fd)
 
       /* Copy the path portion */
       strncpy(path, buf, 999);
+      /* FIXME: This appends a slash to a filename. */
       strcat(path, "/");
 
       /* Skip path portion */

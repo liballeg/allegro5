@@ -1531,6 +1531,9 @@ static bool d3d_create_display_internals(ALLEGRO_DISPLAY_D3D *d3d_display)
       d3d_display->depth_stencil_format = d3d_get_depth_stencil_format(eds_list[i]);
       d3d_display->samples = eds_list[i]->settings[ALLEGRO_SAMPLES];
       d3d_display->single_buffer = eds_list[i]->settings[ALLEGRO_SINGLE_BUFFER] ? true : false;
+      al_display->format = _al_deduce_color_format(eds_list[i]);
+      memset(&al_display->extra_settings, 0, sizeof al_display->extra_settings);
+      al_display->extra_settings.settings[ALLEGRO_COMPATIBLE_DISPLAY] = 1;
 
       params.init_failed = true;
       params.AckEvent = CreateEvent(NULL, false, false, NULL);
