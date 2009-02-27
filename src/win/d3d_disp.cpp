@@ -2037,6 +2037,7 @@ static bool d3d_acknowledge_resize(ALLEGRO_DISPLAY *d)
    ALLEGRO_DISPLAY *old;
    ALLEGRO_DISPLAY_D3D *disp = (ALLEGRO_DISPLAY_D3D *)d;
    ALLEGRO_DISPLAY_WIN *win_display = &disp->win_display;
+   int w, h;
 
    if (disp->ignore_ack) {
       disp->ignore_ack = false;
@@ -2045,8 +2046,13 @@ static bool d3d_acknowledge_resize(ALLEGRO_DISPLAY *d)
 
    wi.cbSize = sizeof(WINDOWINFO);
    GetWindowInfo(win_display->window, &wi);
-   d->w = wi.rcClient.right - wi.rcClient.left;
-   d->h = wi.rcClient.bottom - wi.rcClient.top;
+   w = wi.rcClient.right - wi.rcClient.left;
+   h = wi.rcClient.bottom - wi.rcClient.top;
+
+   if (w > 0 && h > 0) {
+      d->w = w;
+      d->h = h;
+   }
 
    disp->backbuffer_bmp.bitmap.w = d->w;
    disp->backbuffer_bmp.bitmap.h = d->h;
