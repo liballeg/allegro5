@@ -59,7 +59,7 @@ ALLEGRO_DISPLAY *al_create_display(int w, int h)
 
    eds = _al_get_new_display_settings();
    if (!eds)
-      al_clear_display_options();
+      al_reset_display_options();
    else
       _al_fill_display_settings(eds);
 
