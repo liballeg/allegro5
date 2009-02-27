@@ -14,7 +14,7 @@
 #include "allegro5/internal/aintern_memory.h"
 
 #include "allegro5/platform/aintwin.h"
-#include "allegro5/a5_direct3d.h"
+
 
 static int next(char *s)
 {
@@ -29,6 +29,7 @@ static int next(char *s)
 void al_show_native_file_dialog(ALLEGRO_NATIVE_FILE_DIALOG *fd)
 {
    OPENFILENAME ofn;
+   ALLEGRO_DISPLAY_WIN *display;
    int flags = 0;
    bool ret;
    char buf[4096] = { 0, };
@@ -37,7 +38,8 @@ void al_show_native_file_dialog(ALLEGRO_NATIVE_FILE_DIALOG *fd)
    memset(&ofn, 0, sizeof(OPENFILENAME));
 
    ofn.lStructSize = sizeof(OPENFILENAME);
-   ofn.hwndOwner = al_d3d_get_hwnd(al_get_current_display());
+   display = (ALLEGRO_DISPLAY_WIN*)al_get_current_display();
+   ofn.hwndOwner = display->window;
    if (fd->initial_path) {
       strncpy(buf, al_path_to_string(fd->initial_path, '/'), 4096);
    }
