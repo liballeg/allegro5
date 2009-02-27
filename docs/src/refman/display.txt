@@ -278,7 +278,7 @@ Retrieve an extra display setting which was previously set with
 
 Return an extra display setting of the current display.
 
-## API: al_clear_display_options
+## API: al_reset_display_options
 
 This undoes any previous calls to [al_set_new_display_option].
 

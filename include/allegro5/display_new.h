@@ -52,7 +52,7 @@ enum ALLEGRO_DISPLAY_OPTIONS {
    ALLEGRO_RENDER_METHOD,
    ALLEGRO_FLOAT_COLOR,
    ALLEGRO_FLOAT_DEPTH,
-   ALLEGRO_SINGLE_BUFFER = 32, /* Must keep in sync with other options. */
+   ALLEGRO_SINGLE_BUFFER,
    ALLEGRO_SWAP_METHOD,
    ALLEGRO_COMPATIBLE_DISPLAY,
    ALLEGRO_UPDATE_DISPLAY_REGION,
@@ -169,7 +169,7 @@ AL_FUNC(void, al_set_window_title, (AL_CONST char *title));
 AL_FUNC(void, al_set_new_display_option, (int option, int value, int importance));
 AL_FUNC(int, al_get_new_display_option, (int option, int *importance));
 AL_FUNC(int, al_get_display_option, (int option));
-AL_FUNC(void, al_clear_display_options, (void));
+AL_FUNC(void, al_reset_display_options, (void));
 
 #ifdef __cplusplus
    }

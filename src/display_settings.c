@@ -93,10 +93,10 @@ int al_get_display_option(int option)
 }
 
 
-/* Function: al_clear_display_options
+/* Function: al_reset_display_options
  * Resets display settings to some sensitive defaults.
  */
-void al_clear_display_options(void)
+void al_reset_display_options(void)
 {
    ALLEGRO_EXTRA_DISPLAY_SETTINGS *extras;
    extras = _al_get_new_display_settings();
