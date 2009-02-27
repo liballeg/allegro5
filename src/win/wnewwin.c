@@ -420,7 +420,7 @@ static LRESULT CALLBACK window_callback(HWND hWnd, UINT message,
                GetRegionData(hrgn, size, rgndata);
                n = rgndata->rdh.nCount;
                rects = (RECT *)rgndata->Buffer;
-               GetWindowInfo(win_display->window, &wi);
+               //GetWindowInfo(win_display->window, &wi);
                _al_event_source_lock(es);
                while (n--) {
                   ALLEGRO_EVENT event;
