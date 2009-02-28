@@ -1,5 +1,6 @@
 #include <allegro5/allegro5.h>
 #include <allegro5/a5_font.h>
+#include <allegro5/a5_primitives.h>
 
 int width = 640;
 int height = 480;
@@ -9,6 +10,9 @@ int main()
    ALLEGRO_FONT *font;
    ALLEGRO_DISPLAY *display;
    ALLEGRO_EVENT_QUEUE *event_queue;
+   bool right_button_down = false;
+   bool redraw = true;
+   int fake_x = 0, fake_y = 0;
 
    al_init();
    al_font_init();
@@ -28,6 +32,32 @@ int main()
 
    while (1) {
       ALLEGRO_EVENT event;
+      
+      if (redraw) {
+         int th = al_font_text_height(font);
+         
+         al_clear(al_map_rgb_f(0, 0, 0));
+         
+         if (right_button_down) {
+            al_draw_line(width / 2, height / 2, fake_x, fake_y,
+               al_map_rgb_f(1, 0, 0), 1);
+            al_draw_line(fake_x - 5, fake_y, fake_x + 5, fake_y,
+               al_map_rgb_f(1, 1, 1), 2);
+            al_draw_line(fake_x, fake_y - 5, fake_x, fake_y + 5,
+               al_map_rgb_f(1, 1, 1), 2);
+         }
+         
+         al_font_textprintf(font, 0, 0, "x: %i y: %i dx: %i dy %i",
+            event.mouse.x, event.mouse.y,
+            event.mouse.dx, event.mouse.dy);
+         al_font_textprintf_centre(font, width / 2, height / 2 - th,
+            "Left-Click to warp pointer to the middle once.");
+         al_font_textprintf_centre(font, width / 2, height / 2,
+            "Hold right mouse button to constantly move pointer to the middle.");
+         al_flip_display();
+         redraw = false;
+      }
+
       al_wait_for_event(event_queue, &event);
 
       if (event.type == ALLEGRO_EVENT_DISPLAY_CLOSE) {
@@ -38,17 +68,26 @@ int main()
             break;
       }
       if (event.type == ALLEGRO_EVENT_MOUSE_AXES) {
-         al_clear(al_map_rgb_f(0, 0, 0));
-         al_font_textprintf(font, 0, 0, "x: %i y: %i dx: %i dy %i",
-            event.mouse.x, event.mouse.y,
-            event.mouse.dx, event.mouse.dy);
-         al_font_textprintf_centre(font, width / 2,
-            (height - al_font_text_height(font)) / 2,
-            "Click to warp pointer to the middle.");
-         al_flip_display();
+         if (right_button_down) {
+            al_set_mouse_xy(width / 2, height / 2);
+            fake_x += event.mouse.dx;
+            fake_y += event.mouse.dy;
+         }
+         redraw = true;
       }
       if (event.type == ALLEGRO_EVENT_MOUSE_BUTTON_DOWN) {
-         al_set_mouse_xy(width / 2, height / 2);
+         if (event.mouse.button == 1)
+            al_set_mouse_xy(width / 2, height / 2);
+         if (event.mouse.button == 2) {
+            right_button_down = true;
+            fake_x = width / 2;
+            fake_y = height / 2;
+         }
+      }
+      if (event.type == ALLEGRO_EVENT_MOUSE_BUTTON_UP) {
+         if (event.mouse.button == 2) {
+            right_button_down = false;
+         }
       }
    }
 

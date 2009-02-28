@@ -45,6 +45,8 @@ struct ALLEGRO_SYSTEM_XGLX
     * only use this in the main thread.
     */
 
+   Atom AllegroAtom;
+
    #ifdef ALLEGRO_XWINDOWS_WITH_XF86VIDMODE
    /* For VidMode extension. */
    int modes_count;
@@ -93,6 +95,9 @@ struct ALLEGRO_DISPLAY_XGLX
    
    /* Desktop position. */
    int x, y;
+   
+   /* al_set_mouse_xy implementation */
+   bool mouse_warp;
 };
 
 struct ALLEGRO_MOUSE_CURSOR_XGLX

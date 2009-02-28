@@ -88,6 +88,10 @@ static void process_x11_event(ALLEGRO_SYSTEM_XGLX *s, XEvent event)
             _al_display_xglx_closebutton(&d->display, &event);
             break;
          }
+         if (event.xclient.message_type == s->AllegroAtom) {
+            d->mouse_warp = true;
+            break;
+         }
    }
 }
 
@@ -237,6 +241,12 @@ static ALLEGRO_SYSTEM *xglx_initialize(int flags)
 
    s = _AL_MALLOC(sizeof *s);
    memset(s, 0, sizeof *s);
+
+   /* We need to put *some* atom into the ClientMessage we send for
+    * faking mouse movements with al_set_mouse_xy - so lets ask X11
+    * for one here.
+    */
+   s->AllegroAtom = XInternAtom(x11display, "AllegroAtom", False);
 
    _al_mutex_init_recursive(&s->lock);
    _al_cond_init(&s->mapped);

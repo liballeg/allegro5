@@ -119,6 +119,7 @@ enum
    ALLEGRO_EVENT_MOUSE_BUTTON_UP             = 22,
    ALLEGRO_EVENT_MOUSE_ENTER_DISPLAY         = 23,
    ALLEGRO_EVENT_MOUSE_LEAVE_DISPLAY         = 24,
+   ALLEGRO_EVENT_MOUSE_WARPED                = 25,
 
    ALLEGRO_EVENT_TIMER                       = 30,
 

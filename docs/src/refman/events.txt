@@ -45,12 +45,18 @@ Each event is of one of the following types
 
 * ALLEGRO_EVENT_MOUSE_AXES - one or more mouse axis values changed.
   Fields: mouse.x, mouse.y, mouse.z, mouse.dx, mouse.dy, mouse.dz.
+  Note: Calling al_set_mouse_xy also will result in a change of axis
+  values, but such a change is reported with ALLEGRO_EVENT_MOUSE_WARPED
+  events instead.
 
 * ALLEGRO_EVENT_MOUSE_BUTTON_DOWN - a mouse button was pressed.
   Fields: mouse.x, mouse.y, mouse.z, mouse.button.
 
 * ALLEGRO_EVENT_MOUSE_BUTTON_UP - a mouse button was released.
 Fields: mouse.x, mouse.y, mouse.z, mouse.button.
+
+* ALLEGRO_EVENT_MOUSE_WARPED - al_set_mouse_xy was called to move the
+  mouse. This event is identical to ALLEGRO_EVENT_MOUSE_AXES otherwise.
 
 * ALLEGRO_EVENT_MOUSE_ENTER_DISPLAY - the mouse cursor entered a window
   opened by the program.

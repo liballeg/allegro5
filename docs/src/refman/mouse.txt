@@ -137,7 +137,9 @@ Returns true on success, false on failure.
 
 ## API: al_set_mouse_xy
 
-Try to position the mouse at the given coordinates.
+Try to position the mouse at the given coordinates. The mouse movement
+resulting from a successful move will generate an
+ALLEGRO_EVENT_MOUSE_WARPED event.
 
 *Return value:*
 

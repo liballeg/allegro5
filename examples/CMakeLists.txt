@@ -25,7 +25,7 @@ if(SUPPORT_FONT)
     example(ex_windows ${FONT_LINK_WITH})
     example(ex_disable_screensaver ${FONT_LINK_WITH})
     example(ex_blit ${FONT_LINK_WITH} ${COLOR_LINK_WITH})
-    example(ex_warp_mouse ${FONT_LINK_WITH})
+    example(ex_warp_mouse ${FONT_LINK_WITH} ${PRIMITIVES_LINK_WITH})
 endif(SUPPORT_FONT)
 
 if(SUPPORT_IIO)
