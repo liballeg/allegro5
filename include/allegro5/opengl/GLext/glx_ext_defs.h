@@ -451,3 +451,13 @@ typedef unsigned int GLXVideoDeviceNV;
 #define GLX_NV_swap_group
 #define AGLX_NV_swap_group
 #endif
+
+#ifndef GLX_ARB_create_context
+#define GLX_ARB_create_context
+#define AGLX_ARB_create_context
+#define GLX_CONTEXT_DEBUG_BIT_ARB          0x00000001
+#define GLX_CONTEXT_FORWARD_COMPATIBLE_BIT_ARB 0x00000002
+#define GLX_CONTEXT_MAJOR_VERSION_ARB      0x2091
+#define GLX_CONTEXT_MINOR_VERSION_ARB      0x2092
+#define GLX_CONTEXT_FLAGS_ARB              0x2094
+#endif

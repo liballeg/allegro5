@@ -191,3 +191,7 @@
 #define glXQueryFrameCountNV __aglXQueryFrameCountNV
 #define glXResetFrameCountNV __aglXResetFrameCountNV
 #endif
+
+#ifdef AGLX_ARB_create_context
+#define glXCreateContextAttribsARB __aglXCreateContextAttribsARB
+#endif

@@ -190,3 +190,7 @@ AGL_API(Bool, QueryMaxSwapGroupsNV, (Display *dpy, int screen, GLuint *maxGroups
 AGL_API(Bool, QueryFrameCountNV, (Display *dpy, int screen, GLuint *count))
 AGL_API(Bool, ResetFrameCountNV, (Display *dpy, int screen))
 #endif
+
+#ifdef AGLX_ARB_create_context
+AGL_API(GLXContext, CreateContextAttribsARB, (Display *, GLXFBConfig, GLXContext, Bool, const int *))
+#endif

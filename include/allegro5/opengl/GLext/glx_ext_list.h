@@ -32,4 +32,4 @@ AGL_EXT(EXT_packed_float,             0)
 AGL_EXT(EXT_texture_from_pixmap,      0)
 AGL_EXT(NV_video_out,                 0)
 AGL_EXT(NV_swap_group,                0)
-
+AGL_EXT(ARB_create_context,           0)
