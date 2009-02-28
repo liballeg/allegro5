@@ -406,7 +406,6 @@ void _al_xglx_config_select_visual(ALLEGRO_DISPLAY_XGLX *glx)
    display_pixel_format(eds[0]);
 #endif
    glx->xvinfo = eds[0]->info;
-   glx->display.format = _al_deduce_color_format(eds[0]);
    memcpy(&glx->display.extra_settings, eds[0], sizeof(ALLEGRO_EXTRA_DISPLAY_SETTINGS));
 
    for (i = 0; i < eds_count; i++) {
@@ -419,34 +418,34 @@ void _al_xglx_config_select_visual(ALLEGRO_DISPLAY_XGLX *glx)
 
 void _al_xglx_config_create_context(ALLEGRO_DISPLAY_XGLX *glx)
 {
-    ALLEGRO_SYSTEM_XGLX *system = (void *)al_system_driver();
-    ALLEGRO_DISPLAY *disp = (void*)glx;
-    GLXContext existing_ctx = NULL;
+   ALLEGRO_SYSTEM_XGLX *system = (void *)al_system_driver();
+   ALLEGRO_DISPLAY *disp = (void*)glx;
+   GLXContext existing_ctx = NULL;
 
-    /* Find an existing context with which to share display lists. */
-    if (_al_vector_size(&system->system.displays) > 1) {
-        ALLEGRO_DISPLAY_XGLX **existing_dpy;
-        existing_dpy = _al_vector_ref_front(&system->system.displays);
-        if (*existing_dpy != glx)
-            existing_ctx = (*existing_dpy)->context;
-    }
+   /* Find an existing context with which to share display lists. */
+   if (_al_vector_size(&system->system.displays) > 1) {
+      ALLEGRO_DISPLAY_XGLX **existing_dpy;
+      existing_dpy = _al_vector_ref_front(&system->system.displays);
+      if (*existing_dpy != glx)
+         existing_ctx = (*existing_dpy)->context;
+   }
 
-    if (glx->fbc) {
-        /* Create a GLX context from FBC. */
-        glx->context = glXCreateNewContext(system->gfxdisplay, glx->fbc[0],
-            GLX_RGBA_TYPE, existing_ctx, True);
-        /* Create a GLX subwindow inside our window. */
-        glx->glxwindow = glXCreateWindow(system->gfxdisplay, glx->fbc[0],
-            glx->window, 0);
-    }
-    else {
-        /* Create a GLX context from visual info. */
-        glx->context = glXCreateContext(system->gfxdisplay, glx->xvinfo,
-            existing_ctx, True);
-        glx->glxwindow = glx->window;
-    }
+   if (glx->fbc) {
+      /* Create a GLX context from FBC. */
+      glx->context = glXCreateNewContext(system->gfxdisplay, glx->fbc[0],
+         GLX_RGBA_TYPE, existing_ctx, True);
+      /* Create a GLX subwindow inside our window. */
+      glx->glxwindow = glXCreateWindow(system->gfxdisplay, glx->fbc[0],
+         glx->window, 0);
+   }
+   else {
+      /* Create a GLX context from visual info. */
+      glx->context = glXCreateContext(system->gfxdisplay, glx->xvinfo,
+         existing_ctx, True);
+      glx->glxwindow = glx->window;
+   }
 
-    disp->ogl_extras->is_shared = true;
+   disp->ogl_extras->is_shared = true;
 
    TRACE("xglx_config: Got GLX context.\n");
 }

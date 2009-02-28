@@ -198,10 +198,7 @@ static ALLEGRO_DISPLAY *xdpy_create_display(int w, int h)
    display->w = w;
    display->h = h;
    display->vt = xdpy_vt;
-   //FIXME
-   //display->format = al_get_new_display_format();
-   display->format = ALLEGRO_PIXEL_FORMAT_ABGR_8888;
-
+   display->format = al_get_new_display_format();
    display->refresh_rate = al_get_new_display_refresh_rate();
    display->flags = al_get_new_display_flags();
 
@@ -222,7 +219,7 @@ static ALLEGRO_DISPLAY *xdpy_create_display(int w, int h)
    }
 
    _al_xglx_config_select_visual(d);
-   
+
    if (!d->xvinfo) {
       TRACE("FIXME: Need better visual selection.\n");
       TRACE("xdisplay: No matching visual found.\n");
@@ -233,7 +230,12 @@ static ALLEGRO_DISPLAY *xdpy_create_display(int w, int h)
    }
 
    TRACE("xdisplay: Selected visual %lx.\n", d->xvinfo->visualid);
-   
+
+   /* Override the format field with the actual format selected. */
+   int format = _al_deduce_color_format(&display->extra_settings);
+   ASSERT(_al_pixel_format_fits(format, display->format));
+   display->format = format;
+
    /* Add ourself to the list of displays. */
    ALLEGRO_DISPLAY_XGLX **add;
    add = _al_vector_alloc_back(&system->system.displays);
@@ -268,7 +270,7 @@ static ALLEGRO_DISPLAY *xdpy_create_display(int w, int h)
    d->window = XCreateWindow(system->x11display, RootWindow(
       system->x11display, d->xvinfo->screen), 0, 0, w, h, 0, d->xvinfo->depth,
       InputOutput, d->xvinfo->visual, mask, &swa);
-   
+
    if (display->flags & ALLEGRO_NOFRAME)
       xdpy_toggle_frame(display, false);
 
@@ -466,7 +468,7 @@ static bool xdpy_acknowledge_resize(ALLEGRO_DISPLAY *d)
    ALLEGRO_DISPLAY_XGLX *glx = (ALLEGRO_DISPLAY_XGLX *)d;
    XWindowAttributes xwa;
    unsigned int w, h;
-   
+
    _al_mutex_lock(&system->lock);
 
    /* glXQueryDrawable is GLX 1.3+. */
@@ -483,7 +485,7 @@ static bool xdpy_acknowledge_resize(ALLEGRO_DISPLAY *d)
    d->h = h;
 
    setup_gl(d);
-   
+
    _al_mutex_unlock(&system->lock);
 
    return true;
