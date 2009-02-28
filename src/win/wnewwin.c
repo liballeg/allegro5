@@ -349,12 +349,12 @@ static LRESULT CALLBACK window_callback(HWND hWnd, UINT message,
          int mx = lParam & 0xFFFF;
          int my = (lParam >> 16) & 0xFFFF;
          if (!capture_window || capture_window != hWnd) {
-            capture_window = hWnd;
             //SetCapture(hWnd);
             // emit event
             if (al_is_mouse_installed()) {
                ALLEGRO_MOUSE *mouse = al_get_mouse();
                if (mouse) {
+                  capture_window = hWnd;
                   es = (ALLEGRO_EVENT_SOURCE *)mouse;
                   if (_al_event_source_needs_to_generate_event(es)) {
                      ALLEGRO_EVENT event;
@@ -372,11 +372,11 @@ static LRESULT CALLBACK window_callback(HWND hWnd, UINT message,
          }
          else if (mx < 0 || my < 0 || mx >= d->w || my >= d->h) {
             //ReleaseCapture();
-            capture_window = 0;
             // emit event
             if (al_is_mouse_installed()) {
                ALLEGRO_MOUSE *mouse = al_get_mouse();
                if (mouse) {
+                  capture_window = 0;
                   es = (ALLEGRO_EVENT_SOURCE *)mouse;
                   if (_al_event_source_needs_to_generate_event(es)) {
                      ALLEGRO_EVENT event;
@@ -413,6 +413,7 @@ static LRESULT CALLBACK window_callback(HWND hWnd, UINT message,
                DWORD size;
                LPRGNDATA rgndata;
                int n;
+               int i;
                RECT *rects;
                BeginPaint(win_display->window, &ps);
                size = GetRegionData(hrgn, 0, NULL);
@@ -422,14 +423,14 @@ static LRESULT CALLBACK window_callback(HWND hWnd, UINT message,
                rects = (RECT *)rgndata->Buffer;
                //GetWindowInfo(win_display->window, &wi);
                _al_event_source_lock(es);
-               while (n--) {
+               for (i = 0; i < n; i++) {
                   ALLEGRO_EVENT event;
                   event.display.type = ALLEGRO_EVENT_DISPLAY_EXPOSE;
                   event.display.timestamp = al_current_time();
-                  event.display.x = rects[n].left;
-                  event.display.y = rects[n].top;
-                  event.display.width = rects[n].right - rects[n].left;
-                  event.display.height = rects[n].bottom - rects[n].top;
+                  event.display.x = rects[i].left;
+                  event.display.y = rects[i].top;
+                  event.display.width = rects[i].right - rects[i].left;
+                  event.display.height = rects[i].bottom - rects[i].top;
                   _al_event_source_emit_event(es, &event);
                }
                _al_event_source_unlock(es);

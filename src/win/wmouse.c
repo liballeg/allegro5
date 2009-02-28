@@ -936,7 +936,7 @@ static bool mouse_directx_set_mouse_xy(int x, int y)
          the_mouse.state.y = y;
 
          generate_mouse_event(
-            ALLEGRO_EVENT_MOUSE_AXES,
+            ALLEGRO_EVENT_MOUSE_WARPED,
             the_mouse.state.x, the_mouse.state.y, the_mouse.state.z,
             dx, dy, 0,
             0, (void*)win_disp);
