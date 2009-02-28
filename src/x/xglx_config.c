@@ -232,9 +232,10 @@ static ALLEGRO_EXTRA_DISPLAY_SETTINGS** get_visuals_new(int *count, ALLEGRO_DISP
          free(eds_list[j]);
          eds_list[j] = NULL;
          continue;
-	  }
+      }
       eds_list[j]->index = i;
-      eds_list[j]->info = glXGetVisualFromFBConfig(system->gfxdisplay, fbconfig[i]);
+      eds_list[j]->info = malloc(sizeof(GLXFBConfig));
+      memcpy(eds_list[j]->info, &fbconfig[i], sizeof(GLXFBConfig));
       j++;
    }
 
@@ -348,7 +349,7 @@ static ALLEGRO_EXTRA_DISPLAY_SETTINGS** get_visuals_old(int *count)
    eds_list = malloc(num_visuals * sizeof(*eds_list));
    memset(eds_list, 0, num_visuals * sizeof(*eds_list));
 
-   TRACE(PREFIX_I "get_visuals_new: %i formats.\n", num_visuals);
+   TRACE(PREFIX_I "get_visuals_old: %i formats.\n", num_visuals);
 
    for (j = i = 0; i < num_visuals; i++) {
       TRACE("-- \n");
@@ -372,11 +373,11 @@ static ALLEGRO_EXTRA_DISPLAY_SETTINGS** get_visuals_old(int *count)
       j++;
    }
 
-   TRACE(PREFIX_I "get_visuals_new(): %i visuals are good enough.\n", j);
+   TRACE(PREFIX_I "get_visuals_old(): %i visuals are good enough.\n", j);
    *count = j;
+   XFree(xv);
    if (j == 0) {
       free(eds_list);
-      XFree(xv);
       return NULL;
    }
    return eds_list;
@@ -386,13 +387,19 @@ static ALLEGRO_EXTRA_DISPLAY_SETTINGS** get_visuals_old(int *count)
 void _al_xglx_config_select_visual(ALLEGRO_DISPLAY_XGLX *glx)
 {
    ALLEGRO_EXTRA_DISPLAY_SETTINGS **eds = NULL;
+   ALLEGRO_SYSTEM_XGLX *system = (void *)al_system_driver();
    int eds_count = 0;
    int i;
+   bool using_fbc;
 
    if (glx->glx_version >= 130)
       eds = get_visuals_new(&eds_count, glx);
-   if (!eds)
+   if (!eds) {
       eds = get_visuals_old(&eds_count);
+      using_fbc = false;
+   }
+   else
+      using_fbc = true;
 
    if (!eds) {
       TRACE(PREFIX_E "_al_xglx_config_select_visual(): Failed to get any visual info.\n");
@@ -405,18 +412,48 @@ void _al_xglx_config_select_visual(ALLEGRO_DISPLAY_XGLX *glx)
 #ifdef DEBUGMODE
    display_pixel_format(eds[0]);
 #endif
-   glx->xvinfo = eds[0]->info;
+   if (using_fbc) {
+      glx->fbc = eds[0]->info;
+      glx->xvinfo = glXGetVisualFromFBConfig(system->gfxdisplay, *glx->fbc);
+   }
+   else
+      glx->xvinfo = eds[0]->info;
    memcpy(&glx->display.extra_settings, eds[0], sizeof(ALLEGRO_EXTRA_DISPLAY_SETTINGS));
 
    for (i = 0; i < eds_count; i++) {
-      if (glx->xvinfo != eds[i]->info)
-         XFree(eds[i]->info);
+      if (i != 0)
+         free(eds[i]->info);
       free(eds[i]);
    }
    free(eds);
 }
 
-void _al_xglx_config_create_context(ALLEGRO_DISPLAY_XGLX *glx)
+static GLXContext create_context_new(int ver, Display *dpy, GLXFBConfig fb,
+   GLXContext ctx, int fc, int major, int minor)
+{
+   typedef GLXContext (*GCCA_PROC) (Display*, GLXFBConfig, GLXContext, Bool, const int*);
+   GCCA_PROC _xglx_glXCreateContextAttribsARB;
+   if (ver >= 140) {
+      /* GLX 1.4 should have this */
+      _xglx_glXCreateContextAttribsARB = glXCreateContextAttribsARB;
+   }
+   else {
+      /* Load the extension manually. */
+      _xglx_glXCreateContextAttribsARB =
+         (GCCA_PROC)glXGetProcAddress((const GLubyte*)"glXCreateContextAttribsARB");
+      if (!_xglx_glXCreateContextAttribsARB) {
+         TRACE("GLX_ARB_create_context not supported and needed for OpenGL 3\n");
+         return NULL;
+      }
+   }
+   int attrib[] = {GLX_CONTEXT_MAJOR_VERSION_ARB, major,
+                   GLX_CONTEXT_MINOR_VERSION_ARB, minor,
+                   GLX_CONTEXT_FORWARD_COMPATIBLE_BIT_ARB, fc,
+                   0};
+   return _xglx_glXCreateContextAttribsARB(dpy, fb, ctx, True, attrib);
+}
+
+bool _al_xglx_config_create_context(ALLEGRO_DISPLAY_XGLX *glx)
 {
    ALLEGRO_SYSTEM_XGLX *system = (void *)al_system_driver();
    ALLEGRO_DISPLAY *disp = (void*)glx;
@@ -432,10 +469,18 @@ void _al_xglx_config_create_context(ALLEGRO_DISPLAY_XGLX *glx)
 
    if (glx->fbc) {
       /* Create a GLX context from FBC. */
-      glx->context = glXCreateNewContext(system->gfxdisplay, glx->fbc[0],
-         GLX_RGBA_TYPE, existing_ctx, True);
+      if (disp->flags & ALLEGRO_OPENGL_3_0) {
+         int fc = disp->flags & ALLEGRO_OPENGL_FORWARD_COMPATIBLE;
+         glx->context = create_context_new(glx->glx_version, system->gfxdisplay,
+                           *glx->fbc, existing_ctx, fc, 3, 0);
+      }
+      else {
+         glx->context = glXCreateNewContext(system->gfxdisplay, *glx->fbc,
+            GLX_RGBA_TYPE, existing_ctx, True);
+      }
+
       /* Create a GLX subwindow inside our window. */
-      glx->glxwindow = glXCreateWindow(system->gfxdisplay, glx->fbc[0],
+      glx->glxwindow = glXCreateWindow(system->gfxdisplay, *glx->fbc,
          glx->window, 0);
    }
    else {
@@ -445,7 +490,12 @@ void _al_xglx_config_create_context(ALLEGRO_DISPLAY_XGLX *glx)
       glx->glxwindow = glx->window;
    }
 
+   if (!glx->context || !glx->glxwindow) {
+      return false;
+   }
+
    disp->ogl_extras->is_shared = true;
 
    TRACE("xglx_config: Got GLX context.\n");
+   return true;
 }

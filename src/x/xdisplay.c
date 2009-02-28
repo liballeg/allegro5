@@ -307,7 +307,14 @@ static ALLEGRO_DISPLAY *xdpy_create_display(int w, int h)
     */
    _al_cond_wait(&system->mapped, &system->lock);
 
-   _al_xglx_config_create_context(d);
+   if (!_al_xglx_config_create_context(d)) {
+      TRACE("xdisplay: Failed to create a context.\n");
+      _AL_FREE(d);
+      _AL_FREE(ogl);
+      _al_mutex_unlock(&system->lock);
+      /* FIXME: make it a clean exit */
+      return NULL;
+   }
 
    if (display->flags & ALLEGRO_FULLSCREEN) {
       _al_xglx_fullscreen_to_display(system, d);
@@ -327,7 +334,25 @@ static ALLEGRO_DISPLAY *xdpy_create_display(int w, int h)
    _al_ogl_manage_extensions(display);
    _al_ogl_set_extensions(ogl->extension_api);
 
-   setup_gl(display);
+   if (display->ogl_extras->ogl_info.version < 1.2) {
+      ALLEGRO_EXTRA_DISPLAY_SETTINGS *eds = _al_get_new_display_settings();
+      if (eds->required & (1<<ALLEGRO_COMPATIBLE_DISPLAY)) {
+         TRACE("Allegro requires at least OpenGL version 1.2 to work.");
+         _AL_FREE(d);
+         _AL_FREE(ogl);
+         _al_mutex_unlock(&system->lock);
+         /* FIXME: make it a clean exit */
+         return NULL;
+      }
+      display->extra_settings.settings[ALLEGRO_COMPATIBLE_DISPLAY] = 0;
+   }
+   else if (display->ogl_extras->ogl_info.version > 2.1) {
+      /* We don't have OpenGL3 a driver. */
+      display->extra_settings.settings[ALLEGRO_COMPATIBLE_DISPLAY] = 0;
+   }
+
+   if (display->extra_settings.settings[ALLEGRO_COMPATIBLE_DISPLAY])
+      setup_gl(display);
 
    d->invisible_cursor = None; /* Will be created on demand. */
    d->current_cursor = None; /* Initially, we use the root cursor. */
@@ -399,8 +424,14 @@ static void xdpy_destroy_display(ALLEGRO_DISPLAY *d)
       glx->context = NULL;
    }
 
-   if (glx->xvinfo) {
+   if (glx->fbc) {
+      free(glx->fbc);
+      glx->fbc = NULL;
       XFree(glx->xvinfo);
+      glx->xvinfo = NULL;
+   }
+   else if (glx->xvinfo) {
+      free(glx->xvinfo);
       glx->xvinfo = NULL;
    }
 

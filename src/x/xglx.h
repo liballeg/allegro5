@@ -144,4 +144,4 @@ void _al_xglx_fullscreen_to_display(ALLEGRO_SYSTEM_XGLX *s,
 
 /* glx_config */
 void _al_xglx_config_select_visual(ALLEGRO_DISPLAY_XGLX *glx);
-void _al_xglx_config_create_context(ALLEGRO_DISPLAY_XGLX *glx);
+bool _al_xglx_config_create_context(ALLEGRO_DISPLAY_XGLX *glx);
