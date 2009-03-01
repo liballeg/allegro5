@@ -658,8 +658,19 @@ void _al_set_color_components(int format, ALLEGRO_EXTRA_DISPLAY_SETTINGS *eds,
          al_set_new_display_option(ALLEGRO_COLOR_SIZE,   24, importance);
          return;
       case ALLEGRO_PIXEL_FORMAT_ANY_32_NO_ALPHA:
+         /* With OpenGL drivers, we never "know" the actual pixel
+          * format. We use glReadPixels when we lock the screen, so
+          * we can always lock the screen in any format we want. There
+          * is no "display format".
+          * 
+          * Therefore it makes no sense to fail display creation
+          * if either an RGB or RGBX format was requested but the
+          * other seems available only in WGL/GLX (those really report
+          * the number of bits used for red/green/blue/alpha to us only.
+          * They never report any "X bits".).
+          */
          al_set_new_display_option(ALLEGRO_ALPHA_SIZE,   0, importance);
-         al_set_new_display_option(ALLEGRO_COLOR_SIZE,   32, importance);
+         al_set_new_display_option(ALLEGRO_COLOR_SIZE,   32, ALLEGRO_SUGGEST);
          return;
       case ALLEGRO_PIXEL_FORMAT_ANY_32_WITH_ALPHA:
          al_set_new_display_option(ALLEGRO_ALPHA_SIZE,   8, importance);

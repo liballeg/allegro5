@@ -231,9 +231,11 @@ static ALLEGRO_DISPLAY *xdpy_create_display(int w, int h)
 
    TRACE("xdisplay: Selected visual %lx.\n", d->xvinfo->visualid);
 
-   /* Override the format field with the actual format selected. */
+   /* Override the format field with the actual format selected.
+    * Note that the only time this matters is in our calls to
+    * gl[Read/Write]Pixels, where we can use any format anyway.
+    */
    int format = _al_deduce_color_format(&display->extra_settings);
-   ASSERT(_al_pixel_format_fits(format, display->format));
    display->format = format;
 
    /* Add ourself to the list of displays. */
