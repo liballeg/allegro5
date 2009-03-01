@@ -4389,6 +4389,52 @@ GFX_SAFE:<br>
    it is a fullscreen mode. You should not call this function if you are not
    in graphics mode.
 
+@@int @get_gfx_mode_type(int graphics_card);
+@xref gfx_mode_select_filter, get_gfx_mode, set_gfx_mode, is_windowed_mode
+@shortdesc Retrieves type information for a specific graphics card.
+   This function lets you determine the types of operating modes that a
+   specific graphics card driver operates in. It will tell you whether it is
+   a windowed, fullscreen, definitely windowed or fullscreen, and/or a magic
+   driver.
+   
+   The value returned is a bitfield consisting of these fields :
+   GFX_TYPE_UNKNOWN
+   GFX_TYPE_WINDOWED
+   GFX_TYPE_FULLSCREEN
+   GFX_TYPE_DEFINITE
+   GFX_TYPE_MAGIC
+   
+   The return value will only be equivalent to GFX_TYPE_UNKNOWN when it is
+   a driver unrecognized on that platform, or it is a bogus value. Test for
+   the other types by using a bitwise AND. If the driver is windowed or
+   fullscreen, it will also have the definite flag set. 
+   For example, get_gfx_mode_type(GFX_AUTODETECT_WINDOWED) would have the
+   flags GFX_TYPE_WINDOWED, GFX_TYPE_DEFINITE, and GFX_TYPE_MAGIC set.
+   
+   Allegro needs to be initialized first.
+   
+   Example :
+<codeblock>
+   /* Accept the use of only windowed drivers in our selection dialog */
+   int accept_windowed(int card , int w , int h , int color_depth) {
+      if (get_gfx_mode_type(card) & GFX_TYPE_WINDOWED) {return 0;}
+      return 1;
+   }
+   /* In main : */
+   gfx_mode_select_filter(&card , &w , &h , &color_depth , accept_windowed);
+<endblock>
+@retval Bitfield describing graphics mode type.
+
+@@int @get_gfx_mode();
+@xref set_gfx_mode, is_windowed_mode
+@shortdesc Returns the id of the current graphics driver.
+   This function will let you determine which graphics driver is currently
+   set by allegro. If no graphics driver is set, it will return GFX_NONE.
+   
+@retval
+   The id of the current graphics driver if there is one, or
+   GFX_NONE if none is set.
+
 @@extern int @gfx_capabilities;
 @xref screen, create_video_bitmap, scroll_screen, request_scroll, show_mouse
 @xref enable_triple_buffer

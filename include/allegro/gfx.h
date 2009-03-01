@@ -428,6 +428,16 @@ AL_FUNC(void, clear_bitmap, (BITMAP *bitmap));
 AL_FUNC(void, vsync, (void));
 
 
+/* Bitfield for relaying graphics driver type information */
+#define GFX_TYPE_UNKNOWN     0
+#define GFX_TYPE_WINDOWED    1
+#define GFX_TYPE_FULLSCREEN  2
+#define GFX_TYPE_DEFINITE    4
+#define GFX_TYPE_MAGIC       8
+
+AL_FUNC(int , get_gfx_mode_type , (int graphics_card));
+AL_FUNC(int , get_gfx_mode , (void));
+
 
 #define SWITCH_NONE           0
 #define SWITCH_PAUSE          1

@@ -279,7 +279,7 @@ Contributors
    Edgar Reynaldo.<br>
    Helped fixing several problems with gfx_mode_select_filter(), pointed out
    two warnings, fixed two warnings in a loadpng example, provided
-   mouse_on_screen() function.
+   mouse_on_screen(), get_gfx_mode_type() and get_gfx_mode() functions.
 
    Eduard Bloch (<email>edi@gmx.de</a>).<br>
    Fixed a freeze caused by the ESD detection code, fixed a bad behaviour

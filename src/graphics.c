@@ -1750,3 +1750,76 @@ int enable_triple_buffer(void)
 }
 
 
+
+/* get_gfx_mode_type:
+ *  Evaluates the type of the graphics driver card
+ *  and tells you whether it is a windowed, fullscreen,
+ *  definitely windowed or fullscreen, and/or a magic driver.
+ *  See gfx.h for the GFX_TYPE_* defines.
+ */
+int get_gfx_mode_type(int graphics_card)
+{
+   int gfx_type = GFX_TYPE_UNKNOWN;
+   _DRIVER_INFO* gfx_driver_info;
+   GFX_DRIVER*   gfx_driver_entry;
+
+   ASSERT(system_driver);
+
+   /* Ask the system driver for a list of graphics hardware drivers */
+   if (system_driver->gfx_drivers) {
+      gfx_driver_info = system_driver->gfx_drivers();
+   }
+   else {
+      gfx_driver_info = _gfx_driver_list;
+   }
+
+   ASSERT(gfx_driver_info);
+
+   while(gfx_driver_info->driver) {
+      if (gfx_driver_info->id == graphics_card) {
+         gfx_driver_entry = (GFX_DRIVER*)gfx_driver_info->driver;
+         if (gfx_driver_entry->windowed) {
+            gfx_type |= (GFX_TYPE_WINDOWED   | GFX_TYPE_DEFINITE);
+         }
+         else {
+            gfx_type |= (GFX_TYPE_FULLSCREEN | GFX_TYPE_DEFINITE);
+         }
+         break;
+      }
+      ++gfx_driver_info;
+   }
+
+   switch (graphics_card) {
+      case GFX_AUTODETECT:
+         gfx_type |= GFX_TYPE_MAGIC;
+         break;
+      case GFX_AUTODETECT_FULLSCREEN:
+         gfx_type |= (GFX_TYPE_MAGIC | GFX_TYPE_FULLSCREEN | GFX_TYPE_DEFINITE);
+         break;
+      case GFX_AUTODETECT_WINDOWED:
+         gfx_type |= (GFX_TYPE_MAGIC | GFX_TYPE_WINDOWED   | GFX_TYPE_DEFINITE);
+         break;
+      case GFX_SAFE:
+         gfx_type |= GFX_TYPE_MAGIC;
+         break;
+      case GFX_TEXT:
+         gfx_type |= GFX_TYPE_MAGIC;
+         break;
+   }
+   return gfx_type;
+}
+
+
+
+/* get_gfx_mode:
+ *  Tells you which graphics mode is currently set.
+ *  Useful for determining the actual driver that
+ *  GFX_AUTODETECT* or GFX_SAFE set successfully.
+ */
+int get_gfx_mode(void) {
+   if (!gfx_driver) {return GFX_NONE;}
+   return gfx_driver->id;
+}
+
+
+
