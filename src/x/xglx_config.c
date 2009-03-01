@@ -391,8 +391,24 @@ void _al_xglx_config_select_visual(ALLEGRO_DISPLAY_XGLX *glx)
    int eds_count = 0;
    int i;
    bool using_fbc;
+   bool force_old = false;
 
-   if (glx->glx_version >= 130)
+   if (system->system.config) {
+      const char *selection_mode;
+      selection_mode = al_config_get_value(system->system.config, "graphics",
+                          "config_selection");
+      if (selection_mode && selection_mode[0] != '\0') {
+         if (!stricmp(selection_mode, "old")) {
+            TRACE(PREFIX_I "_al_xglx_config_select_visual(): Forcing OLD visual "
+                           "selection method.\n");
+            force_old = true;
+         }
+         else if (!stricmp(selection_mode, "new"))
+            force_old = false;
+      }
+   }
+
+   if (glx->glx_version >= 130 && !force_old)
       eds = get_visuals_new(&eds_count, glx);
    if (!eds) {
       eds = get_visuals_old(&eds_count);
