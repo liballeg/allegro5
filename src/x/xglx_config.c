@@ -489,6 +489,7 @@ bool _al_xglx_config_create_context(ALLEGRO_DISPLAY_XGLX *glx)
          int fc = disp->flags & ALLEGRO_OPENGL_FORWARD_COMPATIBLE;
          glx->context = create_context_new(glx->glx_version, system->gfxdisplay,
                            *glx->fbc, existing_ctx, fc, 3, 0);
+		 disp->extra_settings.settings[ALLEGRO_COMPATIBLE_DISPLAY] = !fc;
       }
       else {
          glx->context = glXCreateNewContext(system->gfxdisplay, *glx->fbc,

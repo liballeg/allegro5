@@ -348,10 +348,15 @@ static ALLEGRO_DISPLAY *xdpy_create_display(int w, int h)
       }
       display->extra_settings.settings[ALLEGRO_COMPATIBLE_DISPLAY] = 0;
    }
+#if 0
+   Apparently, you can get a OpenGL 3.0 context without specifically creating
+   it with glXCreateContextAttribsARB, and not every OpenGL 3.0 is evil, but we
+   can't tell the difference at this stage.
    else if (display->ogl_extras->ogl_info.version > 2.1) {
       /* We don't have OpenGL3 a driver. */
       display->extra_settings.settings[ALLEGRO_COMPATIBLE_DISPLAY] = 0;
    }
+#endif
 
    if (display->extra_settings.settings[ALLEGRO_COMPATIBLE_DISPLAY])
       setup_gl(display);
