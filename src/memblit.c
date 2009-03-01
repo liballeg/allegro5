@@ -40,14 +40,14 @@ void _al_draw_bitmap_region_memory(ALLEGRO_BITMAP *bitmap,
    al_get_blender(&src_mode, &dst_mode, NULL);
    ic = _al_get_blend_color();
 
-#ifndef DEBUGMODE
+//#ifndef DEBUGMODE
    if (src_mode == ALLEGRO_ONE && dst_mode == ALLEGRO_ZERO &&
       ic->r == 1.0f && ic->g == 1.0f && ic->b == 1.0f && ic->a == 1.0f)
    {
       _al_draw_bitmap_region_memory_fast(bitmap, sx, sy, sw, sh, dx, dy, flags);
       return;
    }
-#endif
+//#endif
 
    ASSERT(_al_pixel_format_is_real(bitmap->format));
    ASSERT(_al_pixel_format_is_real(dest->format));

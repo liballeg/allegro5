@@ -20,7 +20,7 @@
 #include <math.h>
 
 
-#ifndef DEBUGMODE
+//#ifndef DEBUGMODE
 
 /* draw_region_memory workhorse */
 #define DO_DRAW_REGION_FAST(src,                                             \
@@ -503,6 +503,6 @@ void _al_draw_bitmap_memory_fast(ALLEGRO_BITMAP *bitmap,
       dx, dy, flags);
 }
 
-#endif /* !DEBUGMODE */
+//#endif /* !DEBUGMODE */
 
 /* vim: set sts=3 sw=3 et: */
