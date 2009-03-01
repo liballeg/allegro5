@@ -12,7 +12,7 @@ struct Example
    ALLEGRO_BITMAP *pattern;
    ALLEGRO_FONT *font;
    ALLEGRO_EVENT_QUEUE *queue;
-   ALLEGRO_COLOR background, text;
+   ALLEGRO_COLOR background, text, white;
 
    double timer[4], counter[4];
    int FPS;
@@ -104,6 +104,8 @@ static void draw(void)
    void *data;
    int size, i;
    
+   al_set_blender(ALLEGRO_ONE, ALLEGRO_ZERO, ex.white);
+
    al_clear(ex.background);
 
    screen = al_get_target_bitmap();
@@ -226,6 +228,7 @@ static void init(void)
    }
    ex.background = al_color_name("beige");
    ex.text = al_color_name("black");
+   ex.white = al_color_name("white");
    ex.pattern = example_bitmap(100, 100);
 }
 
