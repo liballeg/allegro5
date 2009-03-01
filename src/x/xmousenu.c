@@ -394,8 +394,6 @@ void _al_xwin_mouse_motion_notify_handler(int x, int y,
 
    /* Is this an event generated in response to al_set_mouse_xy? */
    if (glx->mouse_warp) {
-      the_mouse.state.x = x;
-      the_mouse.state.y = y;
       glx->mouse_warp = false;
       event_type = ALLEGRO_EVENT_MOUSE_WARPED;
    }
