@@ -267,11 +267,15 @@ ALLEGRO_COLOR al_color_name(char const *name)
 void al_color_hsv_to_rgb(float hue, float saturation, float value,
    float *red, float *green, float *blue)
 {
-   int d = hue / 60;
-   float e = hue / 60 - d;
-   float a = value * (1 - saturation);
-   float b = value * (1 - e * saturation);
-   float c = value * (1 - (1 - e) * saturation);
+   int d;
+   float e, a, b, c;
+   hue = fmod(hue, 360);
+   if (hue < 0) hue += 360;
+   d = hue / 60;
+   e = hue / 60 - d;
+   a = value * (1 - saturation);
+   b = value * (1 - e * saturation);
+   c = value * (1 - (1 - e) * saturation);
    switch(d) {
       case 0: *red = value, *green = c,     *blue = a;     return;
       case 1: *red = b,     *green = value, *blue = a;     return;
@@ -355,8 +359,10 @@ static float helper(float x, float a, float b)
 void al_color_hsl_to_rgb(float hue, float saturation, float lightness,
    float *red, float *green, float *blue)
 {
-   float h = hue / 360.0;
-   float a, b;
+   float a, b, h;
+   hue = fmod(hue, 360);
+   if (hue < 0) hue += 360;
+   h = hue / 360;
    if (lightness < 0.5)
       a = lightness + lightness * saturation;
    else
