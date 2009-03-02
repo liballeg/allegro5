@@ -27,8 +27,8 @@ static void wait_for_esc(void)
          int h = event.display.height;
          al_set_blender(ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA,
             al_map_rgb_f(1, 1, 1));
-         al_draw_bitmap_region(screen_clone, x, y - 2, w, h + 4,
-            x, y - 2, 0);
+         al_draw_bitmap_region(screen_clone, x, y, w, h,
+            x, y, 0);
          al_update_display_region(x, y, w, h);
       }
    }
