@@ -8,6 +8,7 @@
  */
 #include "allegro5/allegro5.h"
 #include "allegro5/a5_color.h"
+#include <math.h>
 
 typedef struct {
    char const *name;
