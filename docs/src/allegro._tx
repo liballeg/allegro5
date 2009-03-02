@@ -4397,19 +4397,23 @@ GFX_SAFE:<br>
    a windowed, fullscreen, definitely windowed or fullscreen, and/or a magic
    driver.
    
-   The value returned is a bitfield consisting of these fields :
-   GFX_TYPE_UNKNOWN
-   GFX_TYPE_WINDOWED
-   GFX_TYPE_FULLSCREEN
-   GFX_TYPE_DEFINITE
-   GFX_TYPE_MAGIC
-   
+   The value returned is a bitfield consisting of these fields :<br>
+   <b>GFX_TYPE_UNKNOWN</b><br>
+   <b>GFX_TYPE_WINDOWED</b><br>
+   <b>GFX_TYPE_FULLSCREEN</b><br>
+   <b>GFX_TYPE_DEFINITE</b><br>
+   <b>GFX_TYPE_MAGIC</b><br>
+   <br>
    The return value will only be equivalent to GFX_TYPE_UNKNOWN when it is
    a driver unrecognized on that platform, or it is a bogus value. Test for
    the other types by using a bitwise AND. If the driver is windowed or
    fullscreen, it will also have the definite flag set. 
-   For example, get_gfx_mode_type(GFX_AUTODETECT_WINDOWED) would have the
-   flags GFX_TYPE_WINDOWED, GFX_TYPE_DEFINITE, and GFX_TYPE_MAGIC set.
+   For example,
+<codeblock>
+   int gfx_type = get_gfx_mode_type(GFX_AUTODETECT_WINDOWED);
+<endblock>
+   gfx_type would have the GFX_TYPE_WINDOWED, GFX_TYPE_DEFINITE, and
+   GFX_TYPE_MAGIC flags set.
    
    Allegro needs to be initialized first.
    
@@ -4423,7 +4427,8 @@ GFX_SAFE:<br>
    /* In main : */
    gfx_mode_select_filter(&card , &w , &h , &color_depth , accept_windowed);
 <endblock>
-@retval Bitfield describing graphics mode type.
+@retval
+   Bitfield describing graphics mode type.
 
 @@int @get_gfx_mode();
 @xref set_gfx_mode, is_windowed_mode
@@ -4432,8 +4437,8 @@ GFX_SAFE:<br>
    set by allegro. If no graphics driver is set, it will return GFX_NONE.
    
 @retval
-   The id of the current graphics driver if there is one, or
-   GFX_NONE if none is set.
+   The id of the current graphics driver if there is one, or GFX_NONE if none
+   is set.
 
 @@extern int @gfx_capabilities;
 @xref screen, create_video_bitmap, scroll_screen, request_scroll, show_mouse
