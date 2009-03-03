@@ -265,11 +265,49 @@ static void osx_get_mouse_state(ALLEGRO_MOUSE_STATE *ret_state)
 	_al_event_source_unlock(&osx_mouse.parent.es);
 }
 
+/* osx_set_mouse_xy:
+* Set the current mouse position
+*/
+static bool osx_set_mouse_xy(int x, int y)
+{
+	CGPoint pos;
+	CGDirectDisplayID display = 0;
+    ALLEGRO_DISPLAY_OSX_WIN *dpy = (ALLEGRO_DISPLAY_OSX_WIN *)al_get_current_display();
+    
+    if ((dpy) && !(dpy->parent.flags & ALLEGRO_FULLSCREEN) && (dpy->win)) {
+        NSWindow *window = dpy->win;
+        NSRect content = [window contentRectForFrameRect: [window frame]];
+        NSRect frame = [[window screen] frame];
+        CGRect rect = { { NSMinX(frame), NSMinY(frame) }, { NSWidth(frame), NSHeight(frame) } };
+        CGDirectDisplayID displays[16];
+        CGDisplayCount displayCount;
+        
+        if ((CGGetDisplaysWithRect(rect, 16, displays, &displayCount) == 0) && (displayCount >= 1))
+        	display = displays[0];
+        pos.x = content.origin.x + x;
+        pos.y = frame.size.height - content.origin.y - y;
+    }
+    else {
+        if (dpy)
+            display = dpy->display_id;
+        pos.x = x;
+        pos.y = y;
+    }
+    
+    _al_event_source_lock(&osx_mouse.parent.es);
+    CGDisplayMoveCursorToPoint(display, pos);
+    osx_mouse.state.x = x;
+    osx_mouse.state.y = y;
+    _al_event_source_unlock(&osx_mouse.parent.es);
+    return true;
+}
+
 /* osx_set_mouse_axis:
 * Set the axis value of the mouse
 */
 static bool osx_set_mouse_axis(int axis, int value) 
 {
+    bool result = false;
 	_al_event_source_lock(&osx_mouse.parent.es);	
 	switch (axis)
 	{
@@ -279,13 +317,15 @@ static bool osx_set_mouse_axis(int axis, int value)
 			break;
 		case 2:
 			osx_mouse.z_axis = value;
-			return true;
+			result = true;
+			break;
 		case 3:
 			osx_mouse.w_axis = value;
-			return true;
+			result = true;
+			break;
 	}
 	_al_event_source_unlock(&osx_mouse.parent.es);
-	return false;
+	return result;
 }
 /* Mouse driver */
 static ALLEGRO_MOUSE_DRIVER osx_mouse_driver =
@@ -299,7 +339,7 @@ static ALLEGRO_MOUSE_DRIVER osx_mouse_driver =
    osx_get_mouse, //AL_METHOD(ALLEGRO_MOUSE*, get_mouse, (void));
    osx_get_mouse_num_buttons, //AL_METHOD(unsigned int, get_mouse_num_buttons, (void));
    osx_get_mouse_num_axes, //AL_METHOD(unsigned int, get_mouse_num_axes, (void));
-   NULL, //AL_METHOD(bool, set_mouse_xy, (int x, int y));
+   osx_set_mouse_xy, //AL_METHOD(bool, set_mouse_xy, (int x, int y));
    osx_set_mouse_axis, //AL_METHOD(bool, set_mouse_axis, (int which, int value));
    NULL, //AL_METHOD(bool, set_mouse_range, (int x1, int y1, int x2, int y2));
    osx_get_mouse_state, //AL_METHOD(void, get_mouse_state, (ALLEGRO_MOUSE_STATE *ret_state));

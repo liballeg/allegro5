@@ -479,10 +479,8 @@ static AL_CONST char *osx_get_path(uint32_t id, char* path, size_t length)
    [orgname release];
    [appname release];
    if ((ans != nil) && (path != NULL)) {
-      /* 10.4 and above only */
-         ok = [ans getCString:path maxLength:length encoding: NSUTF8StringEncoding];
-         [ans release];
-      }
+      _al_sane_strncpy(path, [ans UTF8String], length);
+   }
    return ok == YES ? path : NULL;
 }
 
