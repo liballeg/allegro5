@@ -106,6 +106,10 @@ if(SUPPORT_OPENGL)
     example(ex_opengl)
 endif(SUPPORT_OPENGL)
 
+if(SUPPORT_OPENGL AND SUPPORT_FONT)
+    example(ex_gldepth ${FONT_LINK_WITH})
+endif(SUPPORT_OPENGL AND SUPPORT_FONT)
+
 if(SUPPORT_MEMFILE)
    example(ex_memfile ${MEMFILE_LINK_WITH})
 endif(SUPPORT_MEMFILE)
