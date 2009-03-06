@@ -652,7 +652,6 @@ static void osx_get_opengl_pixelformat_attributes(ALLEGRO_DISPLAY_OSX_WIN *dpy)
 					 backing: NSBackingStoreBuffered
 					   defer: NO
                  screen: screen];
-   osx_set_opengl_pixelformat_attributes(dpy);
 	NSOpenGLPixelFormat* fmt =
       [[NSOpenGLPixelFormat alloc] initWithAttributes: dpy->attributes];
 	ALOpenGLView* view = [[ALOpenGLView alloc] initWithFrame: rc];
@@ -911,6 +910,7 @@ static ALLEGRO_DISPLAY* create_display_win(int w, int h) {
    if (_al_vector_is_empty(&al_system_driver()->displays)) {
       last_window_pos = NSZeroPoint;
    }
+   osx_set_opengl_pixelformat_attributes(dpy);
    /* OSX specific part - finish the initialisation on the main thread */
    [ALDisplayHelper performSelectorOnMainThread: @selector(initialiseDisplay:) 
       withObject: [NSValue valueWithPointer:dpy] 
