@@ -140,8 +140,8 @@ void setup_textures(void)
    int w, h, depth;
 
    font = al_font_load_font("data/fixed_font.tga", NULL);
-   if(!tmp_bmp) {
-      TRACE("Error loading `data/font.tga'\n");
+   if(!font) {
+      TRACE("Error loading `data/fixed_font.tga'\n");
       exit(1);
    }
 
@@ -160,9 +160,9 @@ void setup_textures(void)
    al_set_blender(ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA, al_map_rgb(255, 0, 0));
    depth = al_get_display_option(ALLEGRO_DEPTH_SIZE);
    if (!depth)
-      al_font_textprintf(font, 5, 5, "No Z-buffer!");
+      al_font_textprintf(font, 0, 5, "No Z-buffer!");
    else
-      al_font_textprintf(font, 0, 0, "Z-buffer: %i bits", depth);
+      al_font_textprintf(font, 0, 5, "Z-buffer: %i bits", depth);
    al_set_target_bitmap(al_get_backbuffer());
    al_destroy_bitmap(tmp_bmp);
    al_font_destroy_font(font);
