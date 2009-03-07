@@ -4,7 +4,7 @@ int main(void)
 {
    ALLEGRO_DISPLAY *display;
    ALLEGRO_BITMAP *bitmap;
-   ALLEGRO_LOCKED_REGION locked;
+   ALLEGRO_LOCKED_REGION *locked;
    int i, j, k, size;
    ALLEGRO_EVENT_QUEUE *events;
    ALLEGRO_EVENT event;
@@ -16,7 +16,6 @@ int main(void)
 
    al_install_keyboard();
 
-   al_set_new_display_format(ALLEGRO_PIXEL_FORMAT_ANY_32_NO_ALPHA);
    display = al_create_display(100, 100);
    if (!display) {
       TRACE("Error creating display\n");
@@ -24,12 +23,12 @@ int main(void)
    }
 
    bitmap = al_get_backbuffer();
-   al_lock_bitmap(bitmap, &locked, 0);
-   size = al_get_pixel_size(locked.format);
+   locked = al_lock_bitmap(bitmap, ALLEGRO_PIXEL_FORMAT_ANY_32_NO_ALPHA, 0);
+   size = al_get_pixel_size(locked->format);
    for (i = 0; i < 100; i++) {
       for (j = 0; j < 100; j++) {
          for (k = 0; k < size; k++) {
-            *((char *)locked.data + k + i * size + j * locked.pitch) =
+            *((char *)locked->data + k + i * size + j * locked->pitch) =
                j * 255 / 99;
          }
       }

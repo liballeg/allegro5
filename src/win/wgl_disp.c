@@ -1049,7 +1049,7 @@ static ALLEGRO_DISPLAY* wgl_create_display(int w, int h)
    memset(display, 0, sizeof *wgl_display);
    display->w = w;
    display->h = h;
-   display->format = al_get_new_display_format();
+   //display->format = al_get_new_display_format();
    display->refresh_rate = al_get_new_display_refresh_rate();
    display->flags = al_get_new_display_flags();
    display->vt = vt;

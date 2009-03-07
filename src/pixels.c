@@ -201,6 +201,43 @@ bool _al_pixel_format_fits(int format1, int format2)
 }
 
 
+int _al_get_real_pixel_format(int format)
+{
+   /* Pick an appropriate format if the user is vague */
+   switch (format) {
+      case ALLEGRO_PIXEL_FORMAT_ANY_NO_ALPHA:
+      case ALLEGRO_PIXEL_FORMAT_ANY_32_NO_ALPHA:
+         format = ALLEGRO_PIXEL_FORMAT_XRGB_8888;
+         break;
+      case ALLEGRO_PIXEL_FORMAT_ANY:
+      case ALLEGRO_PIXEL_FORMAT_ANY_WITH_ALPHA:
+      case ALLEGRO_PIXEL_FORMAT_ANY_32_WITH_ALPHA:
+         format = ALLEGRO_PIXEL_FORMAT_ARGB_8888;
+         break;
+      case ALLEGRO_PIXEL_FORMAT_ANY_15_NO_ALPHA:
+         format = ALLEGRO_PIXEL_FORMAT_RGB_555;
+         break;
+      case ALLEGRO_PIXEL_FORMAT_ANY_16_NO_ALPHA:
+         format = ALLEGRO_PIXEL_FORMAT_RGB_565;
+         break;
+      case ALLEGRO_PIXEL_FORMAT_ANY_16_WITH_ALPHA:
+         format = ALLEGRO_PIXEL_FORMAT_ARGB_4444;
+         break;
+      case ALLEGRO_PIXEL_FORMAT_ANY_24_NO_ALPHA:
+         format = ALLEGRO_PIXEL_FORMAT_RGB_888;
+         break;
+      case ALLEGRO_PIXEL_FORMAT_ANY_15_WITH_ALPHA:
+      case ALLEGRO_PIXEL_FORMAT_ANY_24_WITH_ALPHA:
+         /* We don't support any 24 or 15 bit formats with alpha. */
+         return -1;
+      default:
+         break;
+   }
+
+   return format;
+}
+
+
 /* Color mapping functions */
 
 /* Function: al_map_rgba
@@ -466,7 +503,7 @@ static ALLEGRO_COLOR *_al_get_pixel(ALLEGRO_BITMAP *bitmap, void *data,
  */
 ALLEGRO_COLOR al_get_pixel(ALLEGRO_BITMAP *bitmap, int x, int y)
 {
-   ALLEGRO_LOCKED_REGION lr;
+   ALLEGRO_LOCKED_REGION *lr;
    ALLEGRO_COLOR color;
 
    if (bitmap->parent) {
@@ -496,8 +533,8 @@ ALLEGRO_COLOR al_get_pixel(ALLEGRO_BITMAP *bitmap, int x, int y)
          return color;
       }
 
-      if (!al_lock_bitmap_region(bitmap, x, y, 1, 1, &lr,
-            ALLEGRO_LOCK_READONLY))
+      if (!(lr = al_lock_bitmap_region(bitmap, x, y, 1, 1, ALLEGRO_PIXEL_FORMAT_ANY,
+            ALLEGRO_LOCK_READONLY)))
       {
          memset(&color, 0, sizeof(ALLEGRO_COLOR));
          return color;
@@ -505,7 +542,7 @@ ALLEGRO_COLOR al_get_pixel(ALLEGRO_BITMAP *bitmap, int x, int y)
       
       /* FIXME: check for valid pixel format */
 
-      _al_get_pixel(bitmap, lr.data, &color);
+      _al_get_pixel(bitmap, lr->data, &color);
 
       al_unlock_bitmap(bitmap);
    }
@@ -819,7 +856,7 @@ static void _al_put_pixel_raw(void *data, int format, int color)
 
 void _al_put_pixel(ALLEGRO_BITMAP *bitmap, int x, int y, ALLEGRO_COLOR color)
 {
-   ALLEGRO_LOCKED_REGION lr;
+   ALLEGRO_LOCKED_REGION *lr;
    int color_value;
 
    if (bitmap->parent) {
@@ -850,12 +887,12 @@ void _al_put_pixel(ALLEGRO_BITMAP *bitmap, int x, int y, ALLEGRO_COLOR color)
          return;
       }
 
-      if (!al_lock_bitmap_region(bitmap, x, y, 1, 1, &lr, 0))
+      if (!(lr = al_lock_bitmap_region(bitmap, x, y, 1, 1, ALLEGRO_PIXEL_FORMAT_ANY, 0)))
          return;
 
       /* FIXME: check for valid pixel format */
 
-      _al_put_pixel_raw(lr.data, bitmap->format, color_value);
+      _al_put_pixel_raw(lr->data, bitmap->format, color_value);
 
       al_unlock_bitmap(bitmap);
    }

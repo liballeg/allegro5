@@ -20,13 +20,12 @@
 #include <math.h>
 
 
-
 void _al_draw_bitmap_region_memory(ALLEGRO_BITMAP *bitmap,
    int sx, int sy, int sw, int sh,
    int dx, int dy, int flags)
 {
-   ALLEGRO_LOCKED_REGION src_region;
-   ALLEGRO_LOCKED_REGION dst_region;
+   ALLEGRO_LOCKED_REGION *src_region;
+   ALLEGRO_LOCKED_REGION *dst_region;
    ALLEGRO_BITMAP *dest = al_get_target_bitmap();
    int x, y;
    ALLEGRO_COLOR src_color, result;
@@ -93,14 +92,14 @@ void _al_draw_bitmap_region_memory(ALLEGRO_BITMAP *bitmap,
    }
 
    /* Lock the bitmaps */
-   if (!al_lock_bitmap_region(bitmap, sx, sy, sw, sh, &src_region,
-      ALLEGRO_LOCK_READONLY))
+   if (!(src_region = al_lock_bitmap_region(bitmap, sx, sy, sw, sh, ALLEGRO_PIXEL_FORMAT_ANY,
+      ALLEGRO_LOCK_READONLY)))
    {
       return;
    }
 
    if (!al_is_bitmap_locked(dest)) {
-      if (!al_lock_bitmap_region(dest, dx, dy, sw, sh, &dst_region, 0)) {
+      if (!(dst_region = al_lock_bitmap_region(dest, dx, dy, sw, sh, ALLEGRO_PIXEL_FORMAT_ANY, 0))) {
          al_unlock_bitmap(bitmap);
          return;
       }
@@ -154,8 +153,8 @@ void _al_draw_scaled_bitmap_memory(ALLEGRO_BITMAP *src,
    int dx, int dy, int dw, int dh, int flags)
 {
    ALLEGRO_BITMAP *dest = al_get_target_bitmap();
-   ALLEGRO_LOCKED_REGION src_region;
-   ALLEGRO_LOCKED_REGION dst_region;
+   ALLEGRO_LOCKED_REGION *src_region;
+   ALLEGRO_LOCKED_REGION *dst_region;
    int src_mode, dst_mode;
    ALLEGRO_COLOR *bc;
 
@@ -213,11 +212,11 @@ void _al_draw_scaled_bitmap_memory(ALLEGRO_BITMAP *src,
       src = src->parent;
    }
 
-   if (!al_lock_bitmap(src, &src_region, ALLEGRO_LOCK_READONLY)) {
+   if (!(src_region = al_lock_bitmap(src, ALLEGRO_PIXEL_FORMAT_ANY, ALLEGRO_LOCK_READONLY))) {
       return;
    }
    /* XXX we should be able to lock less of the destination */
-   if (!al_lock_bitmap(dest, &dst_region, 0)) {
+   if (!(dst_region = al_lock_bitmap(dest, ALLEGRO_PIXEL_FORMAT_ANY, 0))) {
       al_unlock_bitmap(src);
       return;
    }
@@ -328,8 +327,8 @@ do {                                                                         \
    /* Top scanline of destination */                                         \
    int clip_top_i;                                                           \
                                                                              \
-   ALLEGRO_LOCKED_REGION src_region;                                         \
-   ALLEGRO_LOCKED_REGION dst_region;                                         \
+   ALLEGRO_LOCKED_REGION *src_region;                                         \
+   ALLEGRO_LOCKED_REGION *dst_region;                                         \
                                                                              \
    /*                                                                        \
     * Variables used in the loop                                             \
@@ -496,16 +495,16 @@ do {                                                                         \
                      (xs[1] - xs[0]) * (double)(ys[3] - ys[0])));            \
                                                                              \
    /* Lock the bitmaps */                                                    \
-   al_lock_bitmap(src, &src_region, ALLEGRO_LOCK_READONLY);                  \
+   src_region = al_lock_bitmap(src, ALLEGRO_PIXEL_FORMAT_ANY, ALLEGRO_LOCK_READONLY);                  \
                                                                              \
    clip_top_i = bmp_y_i;                                                     \
                                                                              \
-   if (!al_lock_bitmap_region(dst,                                           \
+   if (!(dst_region = al_lock_bitmap_region(dst,                             \
          clip_left>>16,                                                      \
          clip_top_i,                                                         \
          (clip_right>>16)-(clip_left>>16),                                   \
          clip_bottom_i-clip_top_i,                                           \
-         &dst_region, 0))                                                    \
+         ALLEGRO_PIXEL_FORMAT_ANY, 0)))                                      \
       return;                                                                \
                                                                              \
                                                                              \
@@ -804,6 +803,702 @@ void _al_draw_rotated_bitmap_memory(ALLEGRO_BITMAP *src,
 {
    _al_draw_rotated_scaled_bitmap_memory(src,
       cx, cy, dx, dy, 1.0f, 1.0f, angle, flags);
+}
+
+void _al_draw_bitmap_region_memory_fast(ALLEGRO_BITMAP *bitmap,
+   int sx, int sy, int sw, int sh,
+   int dx, int dy, int flags)
+{
+   ALLEGRO_LOCKED_REGION *src_region;
+   ALLEGRO_LOCKED_REGION *dst_region;
+   ALLEGRO_BITMAP *dest = al_get_target_bitmap();
+
+   ASSERT(_al_pixel_format_is_real(bitmap->format));
+   ASSERT(_al_pixel_format_is_real(dest->format));
+
+   /* Do clipping */
+   if (dx < dest->cl) {
+      int inc = dest->cl - dx;
+      sx += inc;
+      dx = dest->cl;
+      sw -= inc;
+   }
+   if (dx+sw-1 > dest->cr) {
+      int inc = (dx+sw-1) - dest->cr;
+      sw -= inc;
+   }
+
+   if (dy < dest->ct) {
+      int inc = dest->ct - dy;
+      sy += inc;
+      dy = dest->ct;
+      sh -= inc;
+   }
+   if (dy+sh-1 > dest->cb) {
+      int inc = (dy+sh-1) - dest->cb;
+      sh -= inc;
+   }
+
+   /* Handle sub bitmaps */
+   if (dest->parent) {
+      dx += dest->xofs;
+      dy += dest->yofs;
+      dest = dest->parent;
+   }
+
+   if (bitmap->parent) {
+      sx += bitmap->xofs;
+      sy += bitmap->yofs;
+      bitmap = bitmap->parent;
+   }
+
+   /* Lock the bitmaps */
+   if (!(src_region = al_lock_bitmap_region(bitmap, sx, sy, sw, sh, ALLEGRO_PIXEL_FORMAT_ARGB_8888, ALLEGRO_LOCK_READONLY))) {
+      return;
+   }
+
+   if (!(dst_region = al_lock_bitmap_region(dest, dx, dy, sw, sh, ALLEGRO_PIXEL_FORMAT_ARGB_8888, 0))) {
+      al_unlock_bitmap(bitmap);
+      return;
+   }
+
+   do {
+      int x;
+      int y;
+      int cdx, cdy;         /* current dest */
+      int dxi, dyi;         /* dest increments */
+      int pixel;
+
+      (void)sx;
+      (void)sy;
+      (void)dx;
+      (void)dy;
+
+      /* Adjust for flipping */
+
+      if (flags & ALLEGRO_FLIP_HORIZONTAL) {
+         cdx = sw - 1;
+         dxi = -1;
+      }
+      else {
+         cdx = 0;
+         dxi = 1;
+      }
+
+      if (flags & ALLEGRO_FLIP_VERTICAL) {
+         cdy = sh - 1;
+         dyi = -1;
+      }
+      else {
+         cdy = 0;
+         dyi = 1;
+      }
+
+      for (y = 0; y < sh; y++) {
+         cdx = 0;
+         for (x = 0; x < sw; x++) {
+            pixel = *(uint32_t *)(((char *)src_region->data) + y * src_region->pitch + x * 4);
+            *(uint32_t *)(((char *)dst_region->data) + cdy * dst_region->pitch + cdx * 4) = pixel;
+            cdx += dxi;
+         }
+         cdy += dyi;
+      }
+   } while (0);
+
+   al_unlock_bitmap(bitmap);
+   al_unlock_bitmap(dest);
+}
+
+
+void _al_draw_scaled_bitmap_memory_fast(ALLEGRO_BITMAP *src,
+   int sx, int sy, int sw, int sh,
+   int dx, int dy, int dw, int dh, int flags)
+{
+   ALLEGRO_BITMAP *dest = al_get_target_bitmap();
+   ALLEGRO_LOCKED_REGION *src_region;
+   ALLEGRO_LOCKED_REGION *dst_region;
+
+   float sxinc;
+   float syinc;
+   float _sx;
+   float _sy;
+   float dxinc;
+   float dyinc;
+   float _dx;
+   float _dy;
+   int x, y;
+   int xend;
+   int yend;
+
+   if ((sw <= 0) || (sh <= 0))
+      return;
+
+   /* This must be calculated before clipping dw, dh. */
+   sxinc = fabs((float)sw / dw);
+   syinc = fabs((float)sh / dh);
+
+   /* Do clipping */
+   dy = ((dy > dest->ct) ? dy : dest->ct);
+   dh = (((dy + dh) < dest->cb + 1) ? (dy + dh) : dest->cb + 1) - dy;
+
+   dx = ((dx > dest->cl) ? dx : dest->cl);
+   dw = (((dx + dw) < dest->cr + 1) ? (dx + dw) : dest->cr + 1) - dx;
+
+   if (dw == 0 || dh == 0)
+      return;
+
+   /* Handle sub bitmaps */
+   if (dest->parent) {
+      dx += dest->xofs;
+      dy += dest->yofs;
+      dest = dest->parent;
+   }
+
+   if (src->parent) {
+      sx += src->xofs;
+      sy += src->yofs;
+      src = src->parent;
+   }
+
+   if (!(src_region = al_lock_bitmap(src, ALLEGRO_PIXEL_FORMAT_ARGB_8888, ALLEGRO_LOCK_READONLY))) {
+      return;
+   }
+   /* XXX we should be able to lock less of the destination and use
+    * ALLEGRO_LOCK_WRITEONLY
+    */
+   if (!(dst_region = al_lock_bitmap(dest, ALLEGRO_PIXEL_FORMAT_ARGB_8888, 0))) {
+      al_unlock_bitmap(src);
+      return;
+   }
+
+   dxinc = dw < 0 ? -1 : 1;
+   dyinc = dh < 0 ? -1 : 1;
+   _dy = dy;
+   xend = abs(dw);
+   yend = abs(dh);
+
+   if (flags & ALLEGRO_FLIP_HORIZONTAL) {
+      sxinc = -sxinc;
+      sx = sx + sw - 1;
+   }
+
+   if (flags & ALLEGRO_FLIP_VERTICAL) {
+      syinc = -syinc;
+      _sy = sy + sh - 1;
+   }
+   else {
+      _sy = sy;
+   }
+
+   for (y = 0; y < yend; y++) {
+      _sx = sx;
+      _dx = dx;
+      for (x = 0; x < xend; x++) {
+         uint32_t pix = bmp_read32((char *)src_region->data+(int)_sy*src_region->pitch+(int)_sx*4);
+         bmp_write32((char *)dst_region->data+(int)_dy*dst_region->pitch+(int)_dy*4, pix);
+      }
+      _sy += syinc;
+      _dy += dyinc;
+   }
+
+   al_unlock_bitmap(src);
+   al_unlock_bitmap(dest);
+}
+
+/*
+* Get scanline starts, ends and deltas, and clipping coordinates.
+*/
+#define top_bmp_y    corner_bmp_y[0]
+#define right_bmp_y  corner_bmp_y[1]
+#define bottom_bmp_y corner_bmp_y[2]
+#define left_bmp_y   corner_bmp_y[3]
+#define top_bmp_x    corner_bmp_x[0]
+#define right_bmp_x  corner_bmp_x[1]
+#define bottom_bmp_x corner_bmp_x[2]
+#define left_bmp_x   corner_bmp_x[3]
+#define top_spr_y    corner_spr_y[0]
+#define right_spr_y  corner_spr_y[1]
+#define bottom_spr_y corner_spr_y[2]
+#define left_spr_y   corner_spr_y[3]
+#define top_spr_x    corner_spr_x[0]
+#define right_spr_x  corner_spr_x[1]
+#define bottom_spr_x corner_spr_x[2]
+#define left_spr_x   corner_spr_x[3]
+
+/* Copied from rotate.c */
+
+/* _parallelogram_map:
+ *  Worker routine for drawing rotated and/or scaled and/or flipped sprites:
+ *  It actually maps the sprite to any parallelogram-shaped area of the
+ *  bitmap. The top left corner is mapped to (xs[0], ys[0]), the top right to
+ *  (xs[1], ys[1]), the bottom right to x (xs[2], ys[2]), and the bottom left
+ *  to (xs[3], ys[3]). The corners are assumed to form a perfect
+ *  parallelogram, i.e. xs[0]+xs[2] = xs[1]+xs[3]. The corners are given in
+ *  fixed point format, so xs[] and ys[] are coordinates of the outer corners
+ *  of corner pixels in clockwise order beginning with top left.
+ *  All coordinates begin with 0 in top left corner of pixel (0, 0). So a
+ *  rotation by 0 degrees of a sprite to the top left of a bitmap can be
+ *  specified with coordinates (0, 0) for the top left pixel in source
+ *  bitmap. With the default scanline drawer, a pixel in the destination
+ *  bitmap is drawn if and only if its center is covered by any pixel in the
+ *  sprite. The color of this covering sprite pixel is used to draw.
+ *  If sub_pixel_accuracy=false, then the scanline drawer will be called with
+ *  *_bmp_x being a fixed point representation of the integers representing
+ *  the x coordinate of the first and last point in bmp whose centre is
+ *  covered by the sprite. If sub_pixel_accuracy=true, then the scanline
+ *  drawer will be called with the exact fixed point position of the first
+ *  and last point in which the horizontal line passing through the centre is
+ *  at least partly covered by the sprite. This is useful for doing
+ *  anti-aliased blending.
+ */
+void _al_draw_rotated_scaled_bitmap_memory_fast(ALLEGRO_BITMAP *src,
+   int cx, int cy, int dx, int dy, float xscale, float yscale,
+   float angle, int flags)
+{
+   /* Index in xs[] and ys[] to topmost point. */
+   int top_index;
+   /* Rightmost point has index (top_index+right_index) int xs[] and ys[]. */
+   int right_index;
+   /* Loop variables. */
+   int index, i;
+   /* Coordinates in bmp ordered as top-right-bottom-left. */
+   fixed corner_bmp_x[4], corner_bmp_y[4];
+   /* Coordinates in spr ordered as top-right-bottom-left. */
+   fixed corner_spr_x[4], corner_spr_y[4];
+   /* y coordinate of bottom point, left point and right point. */
+   int clip_bottom_i, l_bmp_y_bottom_i, r_bmp_y_bottom_i;
+   /* Left and right clipping. */
+   fixed clip_left, clip_right;
+   /* Temporary variable. */
+   fixed extra_scanline_fraction;
+   /* Top scanline of destination */
+   int clip_top_i;
+
+   ALLEGRO_LOCKED_REGION *src_region;
+   ALLEGRO_LOCKED_REGION *dst_region;
+   int ssize;
+   int dsize;
+
+   ALLEGRO_BITMAP *dst = al_get_target_bitmap();
+
+   bool sub_pixel_accuracy = false;
+   
+   fixed xs[4], ys[4];
+   fixed fix_dx = ftofix(dx);
+   fixed fix_dy = ftofix(dy);
+   fixed fix_cx = ftofix(cx);
+   fixed fix_cy = ftofix(cy);
+   fixed fix_angle = ftofix(angle*256/(ALLEGRO_PI*2));
+   fixed fix_xscale = ftofix(xscale);
+   fixed fix_yscale = ftofix(yscale);
+
+   /*
+    * Variables used in the loop
+    */
+   /* Coordinates of sprite and bmp points in beginning of scanline. */
+   fixed l_spr_x, l_spr_y, l_bmp_x, l_bmp_dx;
+   /* Increment of left sprite point as we move a scanline down. */
+   fixed l_spr_dx, l_spr_dy;
+   /* Coordinates of sprite and bmp points in end of scanline. */
+   fixed r_bmp_x, r_bmp_dx;
+   /*#ifdef KEEP_TRACK_OF_RIGHT_SPRITE_SCANLINE*/
+   fixed r_spr_x, r_spr_y;
+   /* Increment of right sprite point as we move a scanline down. */
+   fixed r_spr_dx, r_spr_dy;
+   /*#endif*/
+   /* Increment of sprite point as we move right inside a scanline. */
+   fixed spr_dx, spr_dy;
+   /* Positions of beginning of scanline after rounding to integer coordinate
+      in bmp. */
+   fixed l_spr_x_rounded, l_spr_y_rounded, l_bmp_x_rounded;
+   fixed r_bmp_x_rounded;
+   /* Current scanline. */
+   int bmp_y_i;
+   /* Right edge of scanline. */
+   int right_edge_test;
+
+   _rotate_scale_flip_coordinates(src->w << 16, src->h << 16,
+      fix_dx, fix_dy, fix_cx, fix_cy, fix_angle, fix_xscale, fix_yscale,
+      flags & ALLEGRO_FLIP_HORIZONTAL, flags & ALLEGRO_FLIP_VERTICAL, xs, ys);
+
+   /* Get index of topmost point. */
+   top_index = 0;
+   if (ys[1] < ys[0])
+      top_index = 1;
+   if (ys[2] < ys[top_index])
+      top_index = 2;
+   if (ys[3] < ys[top_index])
+      top_index = 3;
+
+   /* Get direction of points: clockwise or anti-clockwise. */
+   right_index = (double)(xs[(top_index+1) & 3] - xs[top_index]) *
+      (double)(ys[(top_index-1) & 3] - ys[top_index]) >
+      (double)(xs[(top_index-1) & 3] - xs[top_index]) *
+      (double)(ys[(top_index+1) & 3] - ys[top_index]) ? 1 : -1;
+   /*FIXME: why does fixmul overflow below?*/
+   /*if (fixmul(xs[(top_index+1) & 3] - xs[top_index],
+      ys[(top_index-1) & 3] - ys[top_index]) >
+         fixmul(xs[(top_index-1) & 3] - xs[top_index],
+            ys[(top_index+1) & 3] - ys[top_index]))
+      right_index = 1;
+   else
+      right_index = -1;*/
+
+   /*
+    * Get coordinates of the corners.
+    */
+
+   /* corner_*[0] is top, [1] is right, [2] is bottom, [3] is left. */
+   index = top_index;
+   for (i = 0; i < 4; i++) {
+      corner_bmp_x[i] = xs[index];
+      corner_bmp_y[i] = ys[index];
+      if (index < 2)
+         corner_spr_y[i] = 0;
+      else
+         /* Need `- 1' since otherwise it would be outside sprite. */
+         corner_spr_y[i] = (src->h << 16) - 1;
+      if ((index == 0) || (index == 3))
+         corner_spr_x[i] = 0;
+      else
+         corner_spr_x[i] = (src->w << 16) - 1;
+      index = (index + right_index) & 3;
+   }
+
+   /* Calculate left and right clipping. */
+   clip_left = dst->cl << 16;
+   clip_right = (dst->cr << 16) - 1;
+
+   /* Quit if we're totally outside. */
+   if ((left_bmp_x > clip_right) &&
+       (top_bmp_x > clip_right) &&
+       (bottom_bmp_x > clip_right))
+      return;
+   if ((right_bmp_x < clip_left) &&
+       (top_bmp_x < clip_left) &&
+       (bottom_bmp_x < clip_left))
+      return;
+
+   /* Bottom clipping. */
+   if (sub_pixel_accuracy)
+      clip_bottom_i = (bottom_bmp_y + 0xffff) >> 16;
+   else
+      clip_bottom_i = (bottom_bmp_y + 0x8000) >> 16;
+
+   /* Bottom clipping */
+   if (clip_bottom_i > dst->cb)
+      clip_bottom_i = dst->cb;
+
+   /* Calculate y coordinate of first scanline. */
+   if (sub_pixel_accuracy)
+      bmp_y_i = top_bmp_y >> 16;
+   else
+      bmp_y_i = (top_bmp_y + 0x8000) >> 16;
+
+   /* Top clipping */
+   if (bmp_y_i < dst->ct)
+      bmp_y_i = dst->ct;
+
+   if (bmp_y_i < 0)
+      bmp_y_i = 0;
+
+   /* Sprite is above or below bottom clipping area. */
+   if (bmp_y_i >= clip_bottom_i)
+      return;
+
+   /* Vertical gap between top corner and centre of topmost scanline. */
+   extra_scanline_fraction = (bmp_y_i << 16) + 0x8000 - top_bmp_y;
+   /* Calculate x coordinate of beginning of scanline in bmp. */
+   l_bmp_dx = fixdiv(left_bmp_x - top_bmp_x,
+                   left_bmp_y - top_bmp_y);
+   l_bmp_x = top_bmp_x + fixmul(extra_scanline_fraction, l_bmp_dx);
+   /* Calculate x coordinate of beginning of scanline in spr. */
+   /* note: all these are rounded down which is probably a Good Thing (tm) */
+   l_spr_dx = fixdiv(left_spr_x - top_spr_x,
+                   left_bmp_y - top_bmp_y);
+   l_spr_x = top_spr_x + fixmul(extra_scanline_fraction, l_spr_dx);
+   /* Calculate y coordinate of beginning of scanline in spr. */
+   l_spr_dy = fixdiv(left_spr_y - top_spr_y,
+                   left_bmp_y - top_bmp_y);
+   l_spr_y = top_spr_y + fixmul(extra_scanline_fraction, l_spr_dy);
+
+   /* Calculate left loop bound. */
+   l_bmp_y_bottom_i = (left_bmp_y + 0x8000) >> 16;
+   if (l_bmp_y_bottom_i > clip_bottom_i)
+      l_bmp_y_bottom_i = clip_bottom_i;
+
+   /* Calculate x coordinate of end of scanline in bmp. */
+   r_bmp_dx = fixdiv(right_bmp_x - top_bmp_x,
+                   right_bmp_y - top_bmp_y);
+   r_bmp_x = top_bmp_x + fixmul(extra_scanline_fraction, r_bmp_dx);
+   /*#ifdef KEEP_TRACK_OF_RIGHT_SPRITE_SCANLINE*/
+   /* Calculate x coordinate of end of scanline in spr. */
+   r_spr_dx = fixdiv(right_spr_x - top_spr_x,
+                   right_bmp_y - top_bmp_y);
+   r_spr_x = top_spr_x + fixmul(extra_scanline_fraction, r_spr_dx);
+   /* Calculate y coordinate of end of scanline in spr. */
+   r_spr_dy = fixdiv(right_spr_y - top_spr_y,
+                   right_bmp_y - top_bmp_y);
+   r_spr_y = top_spr_y + fixmul(extra_scanline_fraction, r_spr_dy);
+   /*#endif*/
+
+   /* Calculate right loop bound. */
+   r_bmp_y_bottom_i = (right_bmp_y + 0x8000) >> 16;
+
+   /* Get dx and dy, the offsets to add to the source coordinates as we move
+      one pixel rightwards along a scanline. This formula can be derived by
+      considering the 2x2 matrix that transforms the sprite to the
+      parallelogram.
+      We'd better use double to get this as exact as possible, since any
+      errors will be accumulated along the scanline.
+   */
+   spr_dx = (fixed)((ys[3] - ys[0]) * 65536.0 * (65536.0 * src->w) /
+                    ((xs[1] - xs[0]) * (double)(ys[3] - ys[0]) -
+                     (xs[3] - xs[0]) * (double)(ys[1] - ys[0])));
+   spr_dy = (fixed)((ys[1] - ys[0]) * 65536.0 * (65536.0 * src->h) /
+                    ((xs[3] - xs[0]) * (double)(ys[1] - ys[0]) -
+                     (xs[1] - xs[0]) * (double)(ys[3] - ys[0])));
+
+   /* Lock the bitmaps */
+   src_region = al_lock_bitmap(src, ALLEGRO_PIXEL_FORMAT_ARGB_8888, ALLEGRO_LOCK_READONLY);
+
+   clip_top_i = bmp_y_i;
+
+   if (!(dst_region = al_lock_bitmap_region(dst,
+         clip_left>>16,
+         clip_top_i,
+         (clip_right>>16)-(clip_left>>16),
+         clip_bottom_i-clip_top_i,
+         ALLEGRO_PIXEL_FORMAT_ARGB_8888, 0)))
+      return;
+
+   ssize = al_get_pixel_size(src->format);
+   dsize = al_get_pixel_size(dst->format);
+
+   /*
+    * Loop through scanlines.
+    */
+
+   while (1) {
+      /* Has beginning of scanline passed a corner? */
+      if (bmp_y_i >= l_bmp_y_bottom_i) {
+         /* Are we done? */
+         if (bmp_y_i >= clip_bottom_i)
+            break;
+
+         /* Vertical gap between left corner and centre of scanline. */
+         extra_scanline_fraction = (bmp_y_i << 16) + 0x8000 - left_bmp_y;
+         /* Update x coordinate of beginning of scanline in bmp. */
+         l_bmp_dx = fixdiv(bottom_bmp_x - left_bmp_x,
+                         bottom_bmp_y - left_bmp_y);
+         l_bmp_x = left_bmp_x + fixmul(extra_scanline_fraction, l_bmp_dx);
+         /* Update x coordinate of beginning of scanline in spr. */
+         l_spr_dx = fixdiv(bottom_spr_x - left_spr_x,
+                         bottom_bmp_y - left_bmp_y);
+         l_spr_x = left_spr_x + fixmul(extra_scanline_fraction, l_spr_dx);
+         /* Update y coordinate of beginning of scanline in spr. */
+         l_spr_dy = fixdiv(bottom_spr_y - left_spr_y,
+                         bottom_bmp_y - left_bmp_y);
+         l_spr_y = left_spr_y + fixmul(extra_scanline_fraction, l_spr_dy);
+
+         /* Update loop bound. */
+         if (sub_pixel_accuracy)
+            l_bmp_y_bottom_i = (bottom_bmp_y + 0xffff) >> 16;
+         else
+            l_bmp_y_bottom_i = (bottom_bmp_y + 0x8000) >> 16;
+         if (l_bmp_y_bottom_i > clip_bottom_i)
+            l_bmp_y_bottom_i = clip_bottom_i;
+      }
+
+      /* Has end of scanline passed a corner? */
+      if (bmp_y_i >= r_bmp_y_bottom_i) {
+         /* Vertical gap between right corner and centre of scanline. */
+         extra_scanline_fraction = (bmp_y_i << 16) + 0x8000 - right_bmp_y;
+         /* Update x coordinate of end of scanline in bmp. */
+         r_bmp_dx = fixdiv(bottom_bmp_x - right_bmp_x,
+                         bottom_bmp_y - right_bmp_y);
+         r_bmp_x = right_bmp_x + fixmul(extra_scanline_fraction, r_bmp_dx);
+         /*#ifdef KEEP_TRACK_OF_RIGHT_SPRITE_SCANLINE*/
+         /* Update x coordinate of beginning of scanline in spr. */
+         r_spr_dx = fixdiv(bottom_spr_x - right_spr_x,
+                         bottom_bmp_y - right_bmp_y);
+         r_spr_x = right_spr_x + fixmul(extra_scanline_fraction, r_spr_dx);
+         /* Update y coordinate of beginning of scanline in spr. */
+         r_spr_dy = fixdiv(bottom_spr_y - right_spr_y,
+                         bottom_bmp_y - right_bmp_y);
+         r_spr_y = right_spr_y + fixmul(extra_scanline_fraction, r_spr_dy);
+         /*#endif*/
+
+         /* Update loop bound: We aren't supposed to use this any more, so
+            just set it to some big enough value. */
+         r_bmp_y_bottom_i = clip_bottom_i;
+      }
+
+      /* Make left bmp coordinate be an integer and clip it. */
+      if (sub_pixel_accuracy)
+         l_bmp_x_rounded = l_bmp_x;
+      else
+         l_bmp_x_rounded = (l_bmp_x + 0x8000) & ~0xffff;
+      if (l_bmp_x_rounded < clip_left)
+         l_bmp_x_rounded = clip_left;
+
+      /* ... and move starting point in sprite accordingly. */
+      if (sub_pixel_accuracy) {
+         l_spr_x_rounded = l_spr_x +
+                           fixmul((l_bmp_x_rounded - l_bmp_x), spr_dx);
+         l_spr_y_rounded = l_spr_y +
+                           fixmul((l_bmp_x_rounded - l_bmp_x), spr_dy);
+      }
+      else {
+         l_spr_x_rounded = l_spr_x +
+            fixmul(l_bmp_x_rounded + 0x7fff - l_bmp_x, spr_dx);
+         l_spr_y_rounded = l_spr_y +
+            fixmul(l_bmp_x_rounded + 0x7fff - l_bmp_x, spr_dy);
+      }
+
+      /* Make right bmp coordinate be an integer and clip it. */
+      if (sub_pixel_accuracy)
+         r_bmp_x_rounded = r_bmp_x;
+      else
+         r_bmp_x_rounded = (r_bmp_x - 0x8000) & ~0xffff;
+      if (r_bmp_x_rounded > clip_right)
+         r_bmp_x_rounded = clip_right;
+
+      /* Draw! */
+      if (l_bmp_x_rounded <= r_bmp_x_rounded) {
+         if (!sub_pixel_accuracy) {
+            /* The bodies of these ifs are only reached extremely seldom,
+               it's an ugly hack to avoid reading outside the sprite when
+               the rounding errors are accumulated the wrong way. It would
+               be nicer if we could ensure that this never happens by making
+               all multiplications and divisions be rounded up or down at
+               the correct places.
+               I did try another approach: recalculate the edges of the
+               scanline from scratch each scanline rather than incrementally.
+               Drawing a sprite with that routine took about 25% longer time
+               though.
+            */
+            if ((unsigned)(l_spr_x_rounded >> 16) >= (unsigned)src->w) {
+               if (((l_spr_x_rounded < 0) && (spr_dx <= 0)) ||
+                   ((l_spr_x_rounded > 0) && (spr_dx >= 0))) {
+                  /* This can happen. */
+                  goto skip_draw;
+               }
+               else {
+                  /* I don't think this can happen, but I can't prove it. */
+                  do {
+                     l_spr_x_rounded += spr_dx;
+                     l_bmp_x_rounded += 65536;
+                     if (l_bmp_x_rounded > r_bmp_x_rounded)
+                        goto skip_draw;
+                  } while ((unsigned)(l_spr_x_rounded >> 16) >=
+                           (unsigned)src->w);
+
+               }
+            }
+            right_edge_test = l_spr_x_rounded +
+                              ((r_bmp_x_rounded - l_bmp_x_rounded) >> 16) *
+                              spr_dx;
+            if ((unsigned)(right_edge_test >> 16) >= (unsigned)src->w) {
+               if (((right_edge_test < 0) && (spr_dx <= 0)) ||
+                   ((right_edge_test > 0) && (spr_dx >= 0))) {
+                  /* This can happen. */
+                  do {
+                     r_bmp_x_rounded -= 65536;
+                     right_edge_test -= spr_dx;
+                     if (l_bmp_x_rounded > r_bmp_x_rounded)
+                        goto skip_draw;
+                  } while ((unsigned)(right_edge_test >> 16) >=
+                           (unsigned)src->w);
+               }
+               else {
+                  /* I don't think this can happen, but I can't prove it. */
+                  goto skip_draw;
+               }
+            }
+            if ((unsigned)(l_spr_y_rounded >> 16) >= (unsigned)src->h) {
+               if (((l_spr_y_rounded < 0) && (spr_dy <= 0)) ||
+                   ((l_spr_y_rounded > 0) && (spr_dy >= 0))) {
+                  /* This can happen. */
+                  goto skip_draw;
+               }
+               else {
+                  /* I don't think this can happen, but I can't prove it. */
+                  do {
+                     l_spr_y_rounded += spr_dy;
+                     l_bmp_x_rounded += 65536;
+                     if (l_bmp_x_rounded > r_bmp_x_rounded)
+                        goto skip_draw;
+                  } while (((unsigned)l_spr_y_rounded >> 16) >=
+                           (unsigned)src->h);
+               }
+            }
+            right_edge_test = l_spr_y_rounded +
+                              ((r_bmp_x_rounded - l_bmp_x_rounded) >> 16) *
+                              spr_dy;
+            if ((unsigned)(right_edge_test >> 16) >= (unsigned)src->h) {
+               if (((right_edge_test < 0) && (spr_dy <= 0)) ||
+                   ((right_edge_test > 0) && (spr_dy >= 0))) {
+                  /* This can happen. */
+                  do {
+                     r_bmp_x_rounded -= 65536;
+                     right_edge_test -= spr_dy;
+                     if (l_bmp_x_rounded > r_bmp_x_rounded)
+                        goto skip_draw;
+                  } while ((unsigned)(right_edge_test >> 16) >=
+                           (unsigned)src->h);
+               }
+               else {
+                  /* I don't think this can happen, but I can't prove it. */
+                  goto skip_draw;
+               }
+            }
+         }
+
+   {
+      int c;
+      unsigned char *addr;
+      unsigned char *end_addr;
+      int my_r_bmp_x_i = r_bmp_x_rounded >> 16;
+      int my_l_bmp_x_i = l_bmp_x_rounded >> 16;
+      fixed my_l_spr_x = l_spr_x_rounded;
+      fixed my_l_spr_y = l_spr_y_rounded;
+      addr = (void *)(((char *)dst_region->data) +
+         (bmp_y_i - clip_top_i) * dst_region->pitch);
+      /* adjust for locking offset */
+      addr -= (clip_left >> 16) * dsize;
+      end_addr = addr + my_r_bmp_x_i * dsize;
+      addr += my_l_bmp_x_i * dsize;
+      for (; addr < end_addr; addr += dsize) {
+       c = bmp_read32((void *)(((char *)src_region->data) +
+	  (my_l_spr_y>>16) * src_region->pitch + ssize * (my_l_spr_x>>16)));
+       bmp_write32(addr, c);
+       my_l_spr_x += spr_dx;
+       my_l_spr_y += spr_dy;
+      }
+   }
+
+      }
+      /* I'm not going to apoligize for this label and its gotos: to get
+         rid of it would just make the code look worse. */
+      skip_draw:
+
+      /* Jump to next scanline. */
+      bmp_y_i++;
+      /* Update beginning of scanline. */
+      l_bmp_x += l_bmp_dx;
+      l_spr_x += l_spr_dx;
+      l_spr_y += l_spr_dy;
+      /* Update end of scanline. */
+      r_bmp_x += r_bmp_dx;
+      /*#ifdef KEEP_TRACK_OF_RIGHT_SPRITE_SCANLINE*/
+      r_spr_x += r_spr_dx;
+      r_spr_y += r_spr_dy;
+      /*#endif*/
+   }
+
+   al_unlock_bitmap(src);
+   al_unlock_bitmap(dst);
 }
 
 /* vim: set sts=3 sw=3 et: */

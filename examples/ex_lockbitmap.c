@@ -5,7 +5,7 @@ int main(void)
 {
    ALLEGRO_DISPLAY *display;
    ALLEGRO_BITMAP *bitmap;
-   ALLEGRO_LOCKED_REGION locked;
+   ALLEGRO_LOCKED_REGION *locked;
    uint8_t *ptr;
    int i, j;
    ALLEGRO_EVENT_QUEUE *events;
@@ -39,8 +39,8 @@ int main(void)
    /* Locking the bitmap means, we get direct access to its pixel data, in
     * whatever format it uses.
     */
-   al_lock_bitmap(bitmap, &locked, 0);
-   ptr = locked.data;
+   locked = al_lock_bitmap(bitmap, ALLEGRO_PIXEL_FORMAT_ANY_32_NO_ALPHA, 0);
+   ptr = locked->data;
    for (j = 0; j < 100; j++) {
       for (i = 0; i < 100; i++) {
          uint8_t red = 0;
@@ -73,7 +73,7 @@ int main(void)
          ptr+=4;
       }
 
-      ptr += locked.pitch - (4 * 100);
+      ptr += locked->pitch - (4 * 100);
    }
    al_unlock_bitmap(bitmap);
 

@@ -129,7 +129,7 @@ ALLEGRO_BITMAP *iio_load_jpg_entry(ALLEGRO_FS_ENTRY *pf)
    struct jpeg_decompress_struct cinfo;
    struct jpeg_error_mgr jerr;
    ALLEGRO_BITMAP *bmp = NULL;
-   ALLEGRO_LOCKED_REGION lock;
+   ALLEGRO_LOCKED_REGION *lock;
    ALLEGRO_STATE backup;
    unsigned char *buffer = NULL;
    unsigned char *rows[1] = { NULL };
@@ -154,7 +154,7 @@ ALLEGRO_BITMAP *iio_load_jpg_entry(ALLEGRO_FS_ENTRY *pf)
    }
 
    bmp = al_create_bitmap(w, h);
-   al_lock_bitmap(bmp, &lock, ALLEGRO_LOCK_WRITEONLY);
+   lock = al_lock_bitmap(bmp, ALLEGRO_PIXEL_FORMAT_ANY, ALLEGRO_LOCK_WRITEONLY);
    al_store_state(&backup, ALLEGRO_STATE_TARGET_BITMAP);
    al_set_target_bitmap(bmp);
 
@@ -193,7 +193,7 @@ int iio_save_jpg_entry(ALLEGRO_FS_ENTRY *pf, ALLEGRO_BITMAP *bmp)
 {
    struct jpeg_compress_struct cinfo;
    struct jpeg_error_mgr jerr;
-   ALLEGRO_LOCKED_REGION lock;
+   ALLEGRO_LOCKED_REGION *lock;
    ALLEGRO_STATE backup;
    unsigned char *buffer = NULL;
    unsigned char *rows[1] = { NULL };
@@ -213,7 +213,7 @@ int iio_save_jpg_entry(ALLEGRO_FS_ENTRY *pf, ALLEGRO_BITMAP *bmp)
 
    jpeg_start_compress(&cinfo, 1);
 
-   al_lock_bitmap(bmp, &lock, ALLEGRO_LOCK_READONLY);
+   lock = al_lock_bitmap(bmp, ALLEGRO_PIXEL_FORMAT_ANY, ALLEGRO_LOCK_READONLY);
    al_store_state(&backup, ALLEGRO_STATE_TARGET_BITMAP);
    al_set_target_bitmap(bmp);
 

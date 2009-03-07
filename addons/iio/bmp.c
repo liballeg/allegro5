@@ -603,7 +603,7 @@ ALLEGRO_BITMAP *iio_load_bmp_entry(ALLEGRO_FS_ENTRY *f)
    PalEntry pal[256];
    unsigned long biSize;
    unsigned char *buf = NULL;
-   ALLEGRO_LOCKED_REGION lr;
+   ALLEGRO_LOCKED_REGION *lr;
    ALLEGRO_STATE backup;
    int bpp;
    ASSERT(f);
@@ -668,7 +668,7 @@ ALLEGRO_BITMAP *iio_load_bmp_entry(ALLEGRO_FS_ENTRY *f)
 
    al_store_state(&backup, ALLEGRO_STATE_TARGET_BITMAP);
    al_set_target_bitmap(bmp);
-   al_lock_bitmap(bmp, &lr, ALLEGRO_LOCK_WRITEONLY);
+   lr = al_lock_bitmap(bmp, ALLEGRO_PIXEL_FORMAT_ANY, ALLEGRO_LOCK_WRITEONLY);
 
    if (infoheader.biCompression == BIT_RLE8
        || infoheader.biCompression == BIT_RLE4) {
@@ -736,7 +736,7 @@ int iio_save_bmp_entry(ALLEGRO_FS_ENTRY *f, ALLEGRO_BITMAP *bmp)
    int filler;
    int i, j;
    int w, h;
-   ALLEGRO_LOCKED_REGION lr;
+   ALLEGRO_LOCKED_REGION *lr;
    ASSERT(f);
    ASSERT(bmp);
 
@@ -785,7 +785,7 @@ int iio_save_bmp_entry(ALLEGRO_FS_ENTRY *f, ALLEGRO_BITMAP *bmp)
    al_fwrite32le(f, 0);                   /* biClrUsed */
    al_fwrite32le(f, 0);                   /* biClrImportant */
 
-   al_lock_bitmap(bmp, &lr, ALLEGRO_LOCK_READONLY);
+   lr = al_lock_bitmap(bmp, ALLEGRO_PIXEL_FORMAT_ANY, ALLEGRO_LOCK_READONLY);
 
    /* image data */
    for (i = h - 1; i >= 0; i--) {

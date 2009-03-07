@@ -30,7 +30,6 @@ int main(void)
       return 1;
    }
 
-   al_set_new_bitmap_format(ALLEGRO_PIXEL_FORMAT_ANY_32_WITH_ALPHA);
    bitmap = al_iio_load("data/mysha.pcx");
    if (!bitmap) {
       TRACE("mysha.pcx not found or failed to load\n");

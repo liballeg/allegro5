@@ -887,12 +887,16 @@ static void d3d_destroy_bitmap(ALLEGRO_BITMAP *bitmap)
 }
 
 static ALLEGRO_LOCKED_REGION *d3d_lock_region(ALLEGRO_BITMAP *bitmap,
-   int x, int y, int w, int h, ALLEGRO_LOCKED_REGION *locked_region,
+   int x, int y, int w, int h, int format,
    int flags)
 {
    ALLEGRO_BITMAP_D3D *d3d_bmp = (ALLEGRO_BITMAP_D3D *)bitmap;
    RECT rect;
    DWORD Flags = flags & ALLEGRO_LOCK_READONLY ? D3DLOCK_READONLY : 0;
+   int f = _al_get_real_pixel_format(format);
+   if (f < 0) {
+      return NULL;
+   }
 
    rect.left = x;
    rect.right = x + w;
@@ -926,11 +930,24 @@ static ALLEGRO_LOCKED_REGION *d3d_lock_region(ALLEGRO_BITMAP *bitmap,
       }
    }
 
-   locked_region->data = d3d_bmp->locked_rect.pBits;
-   locked_region->format = bitmap->format;
-   locked_region->pitch = d3d_bmp->locked_rect.Pitch;
+   if (format == ALLEGRO_PIXEL_FORMAT_ANY || bitmap->format == format || f == bitmap->format) {
+      bitmap->locked_region.data = d3d_bmp->locked_rect.pBits;
+      bitmap->locked_region.format = bitmap->format;
+      bitmap->locked_region.pitch = d3d_bmp->locked_rect.Pitch;
+   }
+   else {
+      bitmap->locked_region.pitch = al_get_pixel_size(f) * w;
+      bitmap->locked_region.data = _AL_MALLOC(bitmap->locked_region.pitch*h);
+      bitmap->locked_region.format = f;
+      if (!(bitmap->lock_flags & ALLEGRO_LOCK_WRITEONLY)) {
+         _al_convert_bitmap_data(
+            d3d_bmp->locked_rect.pBits, bitmap->format, d3d_bmp->locked_rect.Pitch,
+            bitmap->locked_region.data, f, bitmap->locked_region.pitch,
+            0, 0, 0, 0, w, h);
+      }
+   }
 
-   return locked_region;
+   return &bitmap->locked_region;
 }
 
 static void d3d_unlock_region(ALLEGRO_BITMAP *bitmap)
@@ -938,6 +955,16 @@ static void d3d_unlock_region(ALLEGRO_BITMAP *bitmap)
    ALLEGRO_BITMAP_D3D *d3d_bmp = (ALLEGRO_BITMAP_D3D *)bitmap;
 
    d3d_bmp->modified = true;
+
+   if (bitmap->locked_region.format != 0 && bitmap->locked_region.format != bitmap->format) {
+      if (!(bitmap->lock_flags & ALLEGRO_LOCK_READONLY)) {
+         _al_convert_bitmap_data(
+            bitmap->locked_region.data, bitmap->locked_region.format, bitmap->locked_region.pitch,
+            d3d_bmp->locked_rect.pBits, bitmap->format, d3d_bmp->locked_rect.Pitch,
+            0, 0, 0, 0, bitmap->lock_w, bitmap->lock_h);
+      }
+      _AL_FREE(bitmap->locked_region.data);
+   }
 
    if (d3d_bmp->is_backbuffer) {
       ALLEGRO_DISPLAY_D3D *d3d_disp = (ALLEGRO_DISPLAY_D3D *)bitmap->display;

@@ -103,7 +103,7 @@ void random_palette(unsigned char palette[256][3], int *seed)
 void draw_mandel_line(ALLEGRO_BITMAP *bitmap, const Viewport *viewport,
    unsigned char palette[256][3], const int y)
 {
-   ALLEGRO_LOCKED_REGION lr;
+   ALLEGRO_LOCKED_REGION *lr;
    unsigned char *rgb;
    double xlower, ylower;
    double xscale, yscale;
@@ -116,8 +116,8 @@ void draw_mandel_line(ALLEGRO_BITMAP *bitmap, const Viewport *viewport,
    w = al_get_bitmap_width(bitmap);
    h = al_get_bitmap_height(bitmap);
 
-   if (!al_lock_bitmap_region(bitmap, 0, y, w, 1, &lr,
-         ALLEGRO_LOCK_WRITEONLY)) {
+   if (!(lr = al_lock_bitmap_region(bitmap, 0, y, w, 1, ALLEGRO_PIXEL_FORMAT_ANY_24_NO_ALPHA,
+         ALLEGRO_LOCK_WRITEONLY))) {
       TRACE("draw_mandel_line: al_lock_bitmap_region failed\n");
       return;
    }
@@ -129,7 +129,7 @@ void draw_mandel_line(ALLEGRO_BITMAP *bitmap, const Viewport *viewport,
 
    re = xlower;
    im = ylower + y * yscale;
-   rgb = lr.data;
+   rgb = lr->data;
 
    for (x = 0; x < w; x++) {
       int i = mandel(re, im, n);

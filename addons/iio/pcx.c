@@ -12,7 +12,7 @@ ALLEGRO_BITMAP *iio_load_pcx_entry(ALLEGRO_FS_ENTRY *f)
    int bpp, bytes_per_line;
    int x, xx, y;
    char ch;
-   ALLEGRO_LOCKED_REGION lr;
+   ALLEGRO_LOCKED_REGION *lr;
    ALLEGRO_STATE backup;
    unsigned char *buf;
    PalEntry pal[256];
@@ -70,7 +70,7 @@ ALLEGRO_BITMAP *iio_load_pcx_entry(ALLEGRO_FS_ENTRY *f)
 
    al_store_state(&backup, ALLEGRO_STATE_TARGET_BITMAP);
    al_set_target_bitmap(b);
-   al_lock_bitmap(b, &lr, ALLEGRO_LOCK_WRITEONLY);
+   lr = al_lock_bitmap(b, ALLEGRO_PIXEL_FORMAT_ANY, ALLEGRO_LOCK_WRITEONLY);
 
    xx = 0;                      /* index into buf, only for bpp = 8 */
 
@@ -158,7 +158,7 @@ int iio_save_pcx_entry(ALLEGRO_FS_ENTRY *f, ALLEGRO_BITMAP *bmp)
    int i;
    int w, h;
    unsigned char *buf;
-   ALLEGRO_LOCKED_REGION lr;
+   ALLEGRO_LOCKED_REGION *lr;
    ASSERT(f);
    ASSERT(bmp);
 
@@ -193,7 +193,7 @@ int iio_save_pcx_entry(ALLEGRO_FS_ENTRY *f, ALLEGRO_BITMAP *bmp)
 
    buf = malloc(w * 3);
 
-   al_lock_bitmap(bmp, &lr, ALLEGRO_LOCK_READONLY);
+   lr = al_lock_bitmap(bmp, ALLEGRO_PIXEL_FORMAT_ANY, ALLEGRO_LOCK_READONLY);
 
    for (y = 0; y < h; y++) {    /* for each scanline... */
       for (x = 0; x < w; x++) {

@@ -29,7 +29,6 @@
 #include "allegro5/internal/aintern_system.h"
 
 
-
 /* Creates a memory bitmap.
  */
 static ALLEGRO_BITMAP *_al_create_memory_bitmap(int w, int h)
@@ -38,37 +37,8 @@ static ALLEGRO_BITMAP *_al_create_memory_bitmap(int w, int h)
    int pitch;
    int format = al_get_new_bitmap_format();
    
-   /* Pick an appropriate format if the user is vague */
-   switch (format) {
-      case ALLEGRO_PIXEL_FORMAT_ANY_NO_ALPHA:
-      case ALLEGRO_PIXEL_FORMAT_ANY_32_NO_ALPHA:
-         format = ALLEGRO_PIXEL_FORMAT_XRGB_8888;
-         break;
-      case ALLEGRO_PIXEL_FORMAT_ANY:
-      case ALLEGRO_PIXEL_FORMAT_ANY_WITH_ALPHA:
-      case ALLEGRO_PIXEL_FORMAT_ANY_32_WITH_ALPHA:
-         format = ALLEGRO_PIXEL_FORMAT_ARGB_8888;
-         break;
-      case ALLEGRO_PIXEL_FORMAT_ANY_15_NO_ALPHA:
-         format = ALLEGRO_PIXEL_FORMAT_RGB_555;
-         break;
-      case ALLEGRO_PIXEL_FORMAT_ANY_16_NO_ALPHA:
-         format = ALLEGRO_PIXEL_FORMAT_RGB_565;
-         break;
-      case ALLEGRO_PIXEL_FORMAT_ANY_16_WITH_ALPHA:
-         format = ALLEGRO_PIXEL_FORMAT_ARGB_4444;
-         break;
-      case ALLEGRO_PIXEL_FORMAT_ANY_24_NO_ALPHA:
-         format = ALLEGRO_PIXEL_FORMAT_RGB_888;
-         break;
-      case ALLEGRO_PIXEL_FORMAT_ANY_15_WITH_ALPHA:
-      case ALLEGRO_PIXEL_FORMAT_ANY_24_WITH_ALPHA:
-         /* We don't support any 24 or 15 bit formats with alpha. */
-         return NULL;
-      default:
-         break;
-   }
-
+   format = _al_get_real_pixel_format(format);
+   
    bitmap = _AL_MALLOC(sizeof *bitmap);
    memset(bitmap, 0, sizeof(*bitmap));
    bitmap->size = sizeof(*bitmap);
@@ -510,7 +480,7 @@ void al_draw_rotated_scaled_bitmap(ALLEGRO_BITMAP *bitmap, float cx, float cy,
 ALLEGRO_LOCKED_REGION *al_lock_bitmap_region(ALLEGRO_BITMAP *bitmap,
 	int x, int y,
 	int width, int height,
-	ALLEGRO_LOCKED_REGION *locked_region,
+        int format,
 	int flags)
 {
    ASSERT(x >= 0);
@@ -531,7 +501,6 @@ ALLEGRO_LOCKED_REGION *al_lock_bitmap_region(ALLEGRO_BITMAP *bitmap,
    ASSERT(x+width <= bitmap->w);
    ASSERT(y+height <= bitmap->h);
 
-   bitmap->locked = true;
    bitmap->lock_x = x;
    bitmap->lock_y = y;
    bitmap->lock_w = width;
@@ -539,25 +508,37 @@ ALLEGRO_LOCKED_REGION *al_lock_bitmap_region(ALLEGRO_BITMAP *bitmap,
    bitmap->lock_flags = flags;
 
    if (bitmap->flags & ALLEGRO_MEMORY_BITMAP) {
-      locked_region->data = bitmap->memory
-         + bitmap->pitch * y + x * al_get_pixel_size(bitmap->format);
-      locked_region->format = bitmap->format;
-      //locked_region->pitch = bitmap->w*al_get_pixel_size(bitmap->format);
-      locked_region->pitch = bitmap->pitch;
+      int f = _al_get_real_pixel_format(format);
+      if (f < 0) {
+         return NULL;
+      }
+      if (format == ALLEGRO_PIXEL_FORMAT_ANY || bitmap->format == format || f == bitmap->format) {
+         bitmap->locked_region.data = bitmap->memory
+            + bitmap->pitch * y + x * al_get_pixel_size(bitmap->format);
+         bitmap->locked_region.format = bitmap->format;
+         bitmap->locked_region.pitch = bitmap->pitch;
+      }
+      else {
+         bitmap->locked_region.pitch = al_get_pixel_size(f) * width;
+         bitmap->locked_region.data = _AL_MALLOC(bitmap->locked_region.pitch*height);
+         bitmap->locked_region.format = f;
+         if (!(bitmap->lock_flags & ALLEGRO_LOCK_WRITEONLY)) {
+            _al_convert_bitmap_data(
+               bitmap->memory, bitmap->format, bitmap->pitch,
+               bitmap->locked_region.data, f, bitmap->locked_region.pitch,
+               x, y, 0, 0, width, height);
+         }
+      }
    }
    else {
-      locked_region = bitmap->vt->lock_region(bitmap, x, y, width, height,
-         locked_region, flags);
+      if (!bitmap->vt->lock_region(bitmap, x, y, width, height, format, flags)) {
+         return NULL;
+      }
    }
 
-   if (locked_region) {
-      bitmap->locked_region = *locked_region;
-   }
-   else {
-      bitmap->locked = false;
-   }
+   bitmap->locked = true;
 
-   return locked_region;
+   return &bitmap->locked_region;
 }
 
 
@@ -579,14 +560,16 @@ ALLEGRO_LOCKED_REGION *al_lock_bitmap_region(ALLEGRO_BITMAP *bitmap,
  *    be faster if the bitmap is a video texture, as no data need to be read
  *    from the video card. You are required to fill in all pixels before
  *    unlocking the bitmap again, so be careful when using this flag.
+ *
+ * format indicates the pixel format that the returned buffer will be in.
+ * To lock in the same format as the bitmap stores it's data internally,
+ * call with al_get_bitmap_format(bitmap) as the format or use
+ * ALLEGRO_FORMAT_ANY. Locking in the native format will usually be faster.
  * 
  */
-ALLEGRO_LOCKED_REGION *al_lock_bitmap(ALLEGRO_BITMAP *bitmap,
-   ALLEGRO_LOCKED_REGION *locked_region,
-   int flags)
+ALLEGRO_LOCKED_REGION *al_lock_bitmap(ALLEGRO_BITMAP *bitmap, int format, int flags)
 {
-   return al_lock_bitmap_region(bitmap, 0, 0, bitmap->w, bitmap->h,
-      locked_region, flags);
+   return al_lock_bitmap_region(bitmap, 0, 0, bitmap->w, bitmap->h, format, flags);
 }
 
 
@@ -607,6 +590,17 @@ void al_unlock_bitmap(ALLEGRO_BITMAP *bitmap)
    if (!(bitmap->flags & ALLEGRO_MEMORY_BITMAP)) {
       bitmap->vt->unlock_region(bitmap);
    }
+   else {
+      if (bitmap->locked_region.format != 0 && bitmap->locked_region.format != bitmap->format) {
+         if (!(bitmap->lock_flags & ALLEGRO_LOCK_READONLY)) {
+            _al_convert_bitmap_data(
+               bitmap->locked_region.data, bitmap->locked_region.format, bitmap->locked_region.pitch,
+               bitmap->memory, bitmap->format, bitmap->pitch,
+               0, 0, bitmap->lock_x, bitmap->lock_y, bitmap->lock_w, bitmap->lock_h);
+         }
+         _AL_FREE(bitmap->locked_region.data);
+      }
+   }
 
    bitmap->locked = false;
 }
@@ -621,13 +615,13 @@ void al_unlock_bitmap(ALLEGRO_BITMAP *bitmap)
  */
 void al_convert_mask_to_alpha(ALLEGRO_BITMAP *bitmap, ALLEGRO_COLOR mask_color)
 {
-   ALLEGRO_LOCKED_REGION lr;
+   ALLEGRO_LOCKED_REGION *lr;
    int x, y;
    ALLEGRO_COLOR pixel;
    ALLEGRO_COLOR alpha_pixel;
    ALLEGRO_STATE backup;
 
-   if (!al_lock_bitmap(bitmap, &lr, 0)) {
+   if (!(lr = al_lock_bitmap(bitmap, ALLEGRO_PIXEL_FORMAT_ANY, 0))) {
       TRACE("al_convert_mask_to_alpha: Couldn't lock bitmap.\n");
       return;
    }
@@ -792,23 +786,23 @@ bool al_is_sub_bitmap(ALLEGRO_BITMAP *bitmap)
 ALLEGRO_BITMAP *al_clone_bitmap(ALLEGRO_BITMAP *bitmap)
 {
    ALLEGRO_BITMAP *clone = al_create_bitmap(bitmap->w, bitmap->h);
-   ALLEGRO_LOCKED_REGION dst_region;
-   ALLEGRO_LOCKED_REGION src_region;
+   ALLEGRO_LOCKED_REGION *dst_region;
+   ALLEGRO_LOCKED_REGION *src_region;
 
    if (!clone)
       return NULL;
 
-   if (!al_lock_bitmap(bitmap, &src_region, ALLEGRO_LOCK_READONLY))
+   if (!(src_region = al_lock_bitmap(bitmap, ALLEGRO_PIXEL_FORMAT_ANY, ALLEGRO_LOCK_READONLY)))
       return NULL;
 
-   if (!al_lock_bitmap(clone, &dst_region, ALLEGRO_LOCK_WRITEONLY)) {
+   if (!(dst_region = al_lock_bitmap(clone, ALLEGRO_PIXEL_FORMAT_ANY, ALLEGRO_LOCK_WRITEONLY))) {
       al_unlock_bitmap(bitmap);
       return NULL;
    }
 
    _al_convert_bitmap_data(
-	src_region.data, src_region.format, src_region.pitch,
-        dst_region.data, dst_region.format, dst_region.pitch,
+	src_region->data, src_region->format, src_region->pitch,
+        dst_region->data, dst_region->format, dst_region->pitch,
         0, 0, 0, 0, bitmap->w, bitmap->h);
 
    al_unlock_bitmap(bitmap);

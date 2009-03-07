@@ -280,7 +280,7 @@ ALLEGRO_BITMAP *iio_load_tga_entry(ALLEGRO_FS_ENTRY *f)
    int y;
    int compressed;
    ALLEGRO_BITMAP *bmp;
-   ALLEGRO_LOCKED_REGION lr;
+   ALLEGRO_LOCKED_REGION *lr;
    ALLEGRO_STATE backup;
    unsigned char *buf;
    ASSERT(f);
@@ -388,7 +388,7 @@ ALLEGRO_BITMAP *iio_load_tga_entry(ALLEGRO_FS_ENTRY *f)
 
    al_set_errno(0);
 
-   al_lock_bitmap(bmp, &lr, ALLEGRO_LOCK_WRITEONLY);
+   lr = al_lock_bitmap(bmp, ALLEGRO_PIXEL_FORMAT_ANY, ALLEGRO_LOCK_WRITEONLY);
    buf = malloc(image_width * ((bpp + 1 / 8)));
 
    al_store_state(&backup, ALLEGRO_STATE_TARGET_BITMAP);
@@ -491,7 +491,7 @@ int iio_save_tga_entry(ALLEGRO_FS_ENTRY *f, ALLEGRO_BITMAP *bmp)
 {
    int x, y;
    int w, h;
-   ALLEGRO_LOCKED_REGION lr;
+   ALLEGRO_LOCKED_REGION *lr;
    ASSERT(f);
    ASSERT(bmp);
 
@@ -513,7 +513,7 @@ int iio_save_tga_entry(ALLEGRO_FS_ENTRY *f, ALLEGRO_BITMAP *bmp)
    al_fputc(f, 32);     /* bits per pixel */
    al_fputc(f, 8);      /* descriptor (bottom to top, 8-bit alpha) */
 
-   al_lock_bitmap(bmp, &lr, ALLEGRO_LOCK_READONLY);
+   lr = al_lock_bitmap(bmp, ALLEGRO_PIXEL_FORMAT_ANY, ALLEGRO_LOCK_READONLY);
 
    for (y = h - 1; y >= 0; y--) {
       for (x = 0; x < w; x++) {

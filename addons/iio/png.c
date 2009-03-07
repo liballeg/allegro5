@@ -87,7 +87,7 @@ static ALLEGRO_BITMAP *really_load_png(png_structp png_ptr, png_infop info_ptr)
    int tRNS_to_alpha = false;
    int number_passes, pass;
    PalEntry pal[256];
-   ALLEGRO_LOCKED_REGION lock;
+   ALLEGRO_LOCKED_REGION *lock;
    ALLEGRO_STATE backup;
    unsigned char *buf;
 
@@ -187,7 +187,7 @@ static ALLEGRO_BITMAP *really_load_png(png_structp png_ptr, png_infop info_ptr)
 
    buf = malloc(((bpp + 7) / 8) * width);
 
-   al_lock_bitmap(bmp, &lock, ALLEGRO_LOCK_WRITEONLY);
+   lock = al_lock_bitmap(bmp, ALLEGRO_PIXEL_FORMAT_ANY, ALLEGRO_LOCK_WRITEONLY);
    al_store_state(&backup, ALLEGRO_STATE_TARGET_BITMAP);
    al_set_target_bitmap(bmp);
 
@@ -378,8 +378,8 @@ static int save_rgba(png_structp png_ptr, ALLEGRO_BITMAP *bmp)
    const int bmp_h = al_get_bitmap_height(bmp);
    unsigned char *rowdata;
    int x, y;
-   ALLEGRO_LOCKED_REGION lock;
-   al_lock_bitmap(bmp, &lock, ALLEGRO_LOCK_READONLY);
+   ALLEGRO_LOCKED_REGION *lock;
+   lock = al_lock_bitmap(bmp, ALLEGRO_PIXEL_FORMAT_ANY, ALLEGRO_LOCK_READONLY);
 
    rowdata = (unsigned char *)malloc(bmp_w * 4);
    if (!rowdata)

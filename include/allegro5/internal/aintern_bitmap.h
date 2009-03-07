@@ -93,8 +93,7 @@ struct ALLEGRO_BITMAP_INTERFACE
    void (*destroy_bitmap)(ALLEGRO_BITMAP *bitmap);
 
    ALLEGRO_LOCKED_REGION * (*lock_region)(ALLEGRO_BITMAP *bitmap,
-   	int x, int y, int w, int h,
-   	ALLEGRO_LOCKED_REGION *locked_region,
+   	int x, int y, int w, int h, int format,
 	int flags);
 
    void (*unlock_region)(ALLEGRO_BITMAP *bitmap);
@@ -113,6 +112,7 @@ void _al_put_pixel(ALLEGRO_BITMAP *bitmap, int x, int y, ALLEGRO_COLOR color);
 bool _al_format_has_alpha(int format);
 bool _al_pixel_format_is_real(int format);
 bool _al_pixel_format_fits(int format1, int format2);
+int _al_get_real_pixel_format(int format);
 
 /* Memory bitmap blitting */
 void _al_draw_bitmap_region_memory(ALLEGRO_BITMAP *bitmap,

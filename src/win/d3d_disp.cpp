@@ -120,40 +120,34 @@ static int d3d_formats[] = {
 
 
 // 5 formats, 7 depth/stencil formats, sample buffers 1/0, double buffered 1/0
-static const int NUM_FORMATS = 5*7*2*2;
+static const int NUM_DISPLAY_FORMATS = 2;
+static const int _16BIT_DS = 2; /* # 16 bit depth stencil formats */
+static const int _32BIT_DS = 4; /* # 32 bit depth stencil formats */
 
 // +2 for friendly mode and d3d depth/stencil format
-static int d3d_fmt_desc[NUM_FORMATS][ALLEGRO_DISPLAY_OPTIONS_COUNT+2] =
+static int d3d_fmt_desc[][ALLEGRO_DISPLAY_OPTIONS_COUNT+2] =
 {
    { 8, 8, 8, 0, 16, 8, 0,  0, 0, 0, 0, 0, 0, 0, 32,  0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 11, 0 },
    { 8, 8, 8, 0, 16, 8, 0,  0, 0, 0, 0, 0, 0, 0, 32, 32, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 11, D3DFMT_D32 },
-   { 8, 8, 8, 0, 16, 8, 0,  0, 0, 0, 0, 0, 0, 0, 32, 15, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 11, D3DFMT_D15S1 },
    { 8, 8, 8, 0, 16, 8, 0,  0, 0, 0, 0, 0, 0, 0, 32, 24, 8, 0, 0, 0, 0, 0, 0, 0, 1, 0, 11, D3DFMT_D24S8 },
    { 8, 8, 8, 0, 16, 8, 0,  0, 0, 0, 0, 0, 0, 0, 32, 24, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 11, D3DFMT_D24X8 },
    { 8, 8, 8, 0, 16, 8, 0,  0, 0, 0, 0, 0, 0, 0, 32, 24, 4, 0, 0, 0, 0, 0, 0, 0, 1, 0, 11, D3DFMT_D24X4S4 },
-   { 8, 8, 8, 0, 16, 8, 0,  0, 0, 0, 0, 0, 0, 0, 32, 16, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 11, D3DFMT_D16 },
    { 8, 8, 8, 0, 16, 8, 0,  0, 0, 0, 0, 0, 0, 0, 32,  0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 11, 0 },
    { 8, 8, 8, 0, 16, 8, 0,  0, 0, 0, 0, 0, 0, 0, 32, 32, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 11, D3DFMT_D32 },
-   { 8, 8, 8, 0, 16, 8, 0,  0, 0, 0, 0, 0, 0, 0, 32, 15, 1, 1, 0, 0, 0, 0, 0, 0, 1, 0, 11, D3DFMT_D15S1 },
    { 8, 8, 8, 0, 16, 8, 0,  0, 0, 0, 0, 0, 0, 0, 32, 24, 8, 1, 0, 0, 0, 0, 0, 0, 1, 0, 11, D3DFMT_D24S8 },
    { 8, 8, 8, 0, 16, 8, 0,  0, 0, 0, 0, 0, 0, 0, 32, 24, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 11, D3DFMT_D24X8 },
    { 8, 8, 8, 0, 16, 8, 0,  0, 0, 0, 0, 0, 0, 0, 32, 24, 4, 1, 0, 0, 0, 0, 0, 0, 1, 0, 11, D3DFMT_D24X4S4 },
-   { 8, 8, 8, 0, 16, 8, 0,  0, 0, 0, 0, 0, 0, 0, 32, 16, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 11, D3DFMT_D16 },
    { 8, 8, 8, 0, 16, 8, 0,  0, 0, 0, 0, 0, 0, 0, 32,  0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 1, 11, 0 },
    { 8, 8, 8, 0, 16, 8, 0,  0, 0, 0, 0, 0, 0, 0, 32, 32, 0, 0, 0, 0, 0, 0, 1, 0, 1, 1, 11, D3DFMT_D32 },
-   { 8, 8, 8, 0, 16, 8, 0,  0, 0, 0, 0, 0, 0, 0, 32, 15, 1, 0, 0, 0, 0, 0, 1, 0, 1, 1, 11, D3DFMT_D15S1 },
    { 8, 8, 8, 0, 16, 8, 0,  0, 0, 0, 0, 0, 0, 0, 32, 24, 8, 0, 0, 0, 0, 0, 1, 0, 1, 1, 11, D3DFMT_D24S8 },
    { 8, 8, 8, 0, 16, 8, 0,  0, 0, 0, 0, 0, 0, 0, 32, 24, 0, 0, 0, 0, 0, 0, 1, 0, 1, 1, 11, D3DFMT_D24X8 },
    { 8, 8, 8, 0, 16, 8, 0,  0, 0, 0, 0, 0, 0, 0, 32, 24, 4, 0, 0, 0, 0, 0, 1, 0, 1, 1, 11, D3DFMT_D24X4S4 },
-   { 8, 8, 8, 0, 16, 8, 0,  0, 0, 0, 0, 0, 0, 0, 32, 16, 0, 0, 0, 0, 0, 0, 1, 0, 1, 1, 11, D3DFMT_D16 },
    { 8, 8, 8, 0, 16, 8, 0,  0, 0, 0, 0, 0, 0, 0, 32,  0, 0, 1, 0, 0, 0, 0, 1, 0, 1, 1, 11, 0 },
    { 8, 8, 8, 0, 16, 8, 0,  0, 0, 0, 0, 0, 0, 0, 32, 32, 0, 1, 0, 0, 0, 0, 1, 0, 1, 1, 11, D3DFMT_D32 },
-   { 8, 8, 8, 0, 16, 8, 0,  0, 0, 0, 0, 0, 0, 0, 32, 15, 1, 1, 0, 0, 0, 0, 1, 0, 1, 1, 11, D3DFMT_D15S1 },
    { 8, 8, 8, 0, 16, 8, 0,  0, 0, 0, 0, 0, 0, 0, 32, 24, 8, 1, 0, 0, 0, 0, 1, 0, 1, 1, 11, D3DFMT_D24S8 },
    { 8, 8, 8, 0, 16, 8, 0,  0, 0, 0, 0, 0, 0, 0, 32, 24, 0, 1, 0, 0, 0, 0, 1, 0, 1, 1, 11, D3DFMT_D24X8 },
    { 8, 8, 8, 0, 16, 8, 0,  0, 0, 0, 0, 0, 0, 0, 32, 24, 4, 1, 0, 0, 0, 0, 1, 0, 1, 1, 11, D3DFMT_D24X4S4 },
-   { 8, 8, 8, 0, 16, 8, 0,  0, 0, 0, 0, 0, 0, 0, 32, 16, 0, 1, 0, 0, 0, 0, 1, 0, 1, 1, 11, D3DFMT_D16 },
-
+/*
    { 8, 8, 8, 8, 16, 8, 0, 24, 0, 0, 0, 0, 0, 0, 32,  0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 12, 0 },
    { 8, 8, 8, 8, 16, 8, 0, 24, 0, 0, 0, 0, 0, 0, 32, 32, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 12, D3DFMT_D32 },
    { 8, 8, 8, 8, 16, 8, 0, 24, 0, 0, 0, 0, 0, 0, 32, 15, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 12, D3DFMT_D15S1 },
@@ -211,7 +205,7 @@ static int d3d_fmt_desc[NUM_FORMATS][ALLEGRO_DISPLAY_OPTIONS_COUNT+2] =
    { 4, 4, 4, 4,  8, 4, 0, 12, 0, 0, 0, 0, 0, 0, 16, 24, 0, 1, 0, 0, 0, 0, 1, 0, 1, 1, 13, D3DFMT_D24X8 },
    { 4, 4, 4, 4,  8, 4, 0, 12, 0, 0, 0, 0, 0, 0, 16, 24, 4, 1, 0, 0, 0, 0, 1, 0, 1, 1, 13, D3DFMT_D24X4S4 },
    { 4, 4, 4, 4,  8, 4, 0, 12, 0, 0, 0, 0, 0, 0, 16, 16, 0, 1, 0, 0, 0, 0, 1, 0, 1, 1, 13, D3DFMT_D16 },
-
+*/
    { 5, 6, 5, 0, 11, 5, 0,  0, 0, 0, 0, 0, 0, 0, 16,  0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 14, 0 },
    { 5, 6, 5, 0, 11, 5, 0,  0, 0, 0, 0, 0, 0, 0, 16, 32, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 14, D3DFMT_D32 },
    { 5, 6, 5, 0, 11, 5, 0,  0, 0, 0, 0, 0, 0, 0, 16, 15, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 14, D3DFMT_D15S1 },
@@ -239,8 +233,8 @@ static int d3d_fmt_desc[NUM_FORMATS][ALLEGRO_DISPLAY_OPTIONS_COUNT+2] =
    { 5, 6, 5, 0, 11, 5, 0,  0, 0, 0, 0, 0, 0, 0, 16, 24, 8, 1, 0, 0, 0, 0, 1, 0, 1, 1, 14, D3DFMT_D24S8 },
    { 5, 6, 5, 0, 11, 5, 0,  0, 0, 0, 0, 0, 0, 0, 16, 24, 0, 1, 0, 0, 0, 0, 1, 0, 1, 1, 14, D3DFMT_D24X8 },
    { 5, 6, 5, 0, 11, 5, 0,  0, 0, 0, 0, 0, 0, 0, 16, 24, 4, 1, 0, 0, 0, 0, 1, 0, 1, 1, 14, D3DFMT_D24X4S4 },
-   { 5, 6, 5, 0, 11, 5, 0,  0, 0, 0, 0, 0, 0, 0, 16, 16, 0, 1, 0, 0, 0, 0, 1, 0, 1, 1, 14, D3DFMT_D16 },
-
+   { 5, 6, 5, 0, 11, 5, 0,  0, 0, 0, 0, 0, 0, 0, 16, 16, 0, 1, 0, 0, 0, 0, 1, 0, 1, 1, 14, D3DFMT_D16 }
+/*
    { 5, 5, 5, 1, 10, 5, 0, 15, 0, 0, 0, 0, 0, 0, 16,  0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 15, 0 },
    { 5, 5, 5, 1, 10, 5, 0, 15, 0, 0, 0, 0, 0, 0, 16, 32, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 15, D3DFMT_D32 },
    { 5, 5, 5, 1, 10, 5, 0, 15, 0, 0, 0, 0, 0, 0, 16, 15, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 15, D3DFMT_D15S1 },
@@ -269,7 +263,10 @@ static int d3d_fmt_desc[NUM_FORMATS][ALLEGRO_DISPLAY_OPTIONS_COUNT+2] =
    { 5, 5, 5, 1, 10, 5, 0, 15, 0, 0, 0, 0, 0, 0, 16, 24, 0, 1, 0, 0, 0, 0, 1, 0, 1, 1, 15, D3DFMT_D24X8 },
    { 5, 5, 5, 1, 10, 5, 0, 15, 0, 0, 0, 0, 0, 0, 16, 24, 4, 1, 0, 0, 0, 0, 1, 0, 1, 1, 15, D3DFMT_D24X4S4 },
    { 5, 5, 5, 1, 10, 5, 0, 15, 0, 0, 0, 0, 0, 0, 16, 16, 0, 1, 0, 0, 0, 0, 1, 0, 1, 1, 15, D3DFMT_D16 },
+*/
 };
+
+static const int NUM_FORMATS = sizeof(d3d_fmt_desc) / sizeof(*d3d_fmt_desc);
 
 
 static D3DFORMAT d3d_get_depth_stencil_format(ALLEGRO_EXTRA_DISPLAY_SETTINGS *settings)
@@ -1190,20 +1187,32 @@ static int real_choose_bitmap_format(int bits, bool alpha)
       D3DFORMAT dformat;
       D3DFORMAT adapter_format;
       int adapter_format_allegro;
-      if (!_al_pixel_format_is_real(aformat))
+      if (!_al_pixel_format_is_real(aformat)) {
+         TRACE("Fake format\n");
          continue;
-      if (bits && al_get_pixel_format_bits(aformat) != bits)
+      }
+      if (bits && al_get_pixel_format_bits(aformat) != bits) {
+         TRACE("#Bits don't match\n");
          continue;
-      if (alpha && !_al_format_has_alpha(aformat))
+      }
+      if (alpha && !_al_format_has_alpha(aformat)) {
+         TRACE("Alpha doesn't match\n");
          continue;
+      }
       dformat = (D3DFORMAT)d3d_formats[i];
-      adapter_format_allegro = al_get_new_display_format();
+      adapter_format_allegro = al_get_display_format();
       if (!_al_pixel_format_is_real(adapter_format_allegro))
          adapter_format_allegro = d3d_choose_display_format(adapter_format_allegro);
+      TRACE("Adapter format is %d\n", adapter_format_allegro);
       adapter_format = (D3DFORMAT)_al_format_to_d3d(adapter_format_allegro);
-      if (IsTextureFormatOk(dformat, adapter_format))
+      if (IsTextureFormatOk(dformat, adapter_format)) {
+         TRACE("Found a format\n");
          return aformat;
+      }
+      TRACE("Texture format not OK\n");
    }
+
+   TRACE("Failed to find format\n");
 
    return -1;
 }
@@ -1277,6 +1286,7 @@ static void d3d_display_thread_proc(void *arg)
 
    new_format = al_display->format;
 
+   /* This should never happen, I think */
    if (!_al_pixel_format_is_real(al_display->format)) {
       int f = d3d_choose_display_format(al_display->format);
       if (f < 0) {
@@ -1477,16 +1487,22 @@ static bool d3d_create_display_internals(ALLEGRO_DISPLAY_D3D *d3d_display)
    ALLEGRO_EXTRA_DISPLAY_SETTINGS *ref =  _al_get_new_display_settings();
    ALLEGRO_EXTRA_DISPLAY_SETTINGS **eds_list = NULL;
 
-   DWORD quality_levels[5];
-   int total_count = 5*7*2*2;
+   DWORD quality_levels[NUM_DISPLAY_FORMATS];
+   int total_count = NUM_FORMATS;
    int count = 0;
 
    for (int i = 0; allegro_formats[i] >= 0; i++) {
-      if (_al_pixel_format_is_real(allegro_formats[i])) {
+      if (_al_pixel_format_is_real(allegro_formats[i]) && !_al_format_has_alpha(allegro_formats[i])) {
          _al_d3d->CheckDeviceMultiSampleType(win_display->adapter, D3DDEVTYPE_HAL, (D3DFORMAT)d3d_formats[i],
             !(al_display->flags & ALLEGRO_FULLSCREEN), D3DMULTISAMPLE_NONMASKABLE, &quality_levels[count]);
-         if (quality_levels[count] > 0)
-            total_count += (quality_levels[count]-1) * 7 * 2;
+         if (quality_levels[count] > 0) {
+            if (al_get_pixel_size(allegro_formats[i]) == 4) {
+               total_count += (quality_levels[count]-1) * (_32BIT_DS+1) * 2; /* +1 for no DepthStencil */
+            }
+            else {
+               total_count += (quality_levels[count]-1) * (_16BIT_DS+_32BIT_DS+1) * 2;
+            }
+         }
          count++;
       }
    }
@@ -1502,20 +1518,24 @@ static bool d3d_create_display_internals(ALLEGRO_DISPLAY_D3D *d3d_display)
 
    count = 0;
 
-   for (int i = 0; i < 5; i++) {
-      for (int j = 0; j < 7*2*2; j++) {
-         int index = j+(i*7*2*2);
-         if (d3d_fmt_desc[index][ALLEGRO_SAMPLE_BUFFERS]) {
-            for (int k = 0; k < (int)quality_levels[i]; k++) {
-               memcpy(eds_list[count]->settings, &d3d_fmt_desc[index], sizeof(int)*ALLEGRO_DISPLAY_OPTIONS_COUNT);
-               eds_list[count]->settings[ALLEGRO_SAMPLES] = k;
-               count++;
-            }
-         }
-         else {
-            memcpy(eds_list[count]->settings, &d3d_fmt_desc[index], sizeof(int)*ALLEGRO_DISPLAY_OPTIONS_COUNT);
+   int fmt_num = 0;
+   int curr_fmt = d3d_fmt_desc[0][ALLEGRO_DISPLAY_OPTIONS_COUNT];
+
+   for (int i = 0; i < NUM_FORMATS; i++) {
+      if (d3d_fmt_desc[i][ALLEGRO_SAMPLE_BUFFERS]) {
+         for (int k = 0; k < (int)quality_levels[fmt_num]; k++) {
+            memcpy(eds_list[count]->settings, &d3d_fmt_desc[i], sizeof(int)*ALLEGRO_DISPLAY_OPTIONS_COUNT);
+            eds_list[count]->settings[ALLEGRO_SAMPLES] = k;
             count++;
          }
+      }
+      else {
+         memcpy(eds_list[count]->settings, &d3d_fmt_desc[i], sizeof(int)*ALLEGRO_DISPLAY_OPTIONS_COUNT);
+         count++;
+      }
+      if (d3d_fmt_desc[i][ALLEGRO_DISPLAY_OPTIONS_COUNT] != curr_fmt) {
+         curr_fmt = d3d_fmt_desc[i][ALLEGRO_DISPLAY_OPTIONS_COUNT];
+         fmt_num++;
       }
    }
 
@@ -1531,6 +1551,7 @@ static bool d3d_create_display_internals(ALLEGRO_DISPLAY_D3D *d3d_display)
       d3d_display->samples = eds_list[i]->settings[ALLEGRO_SAMPLES];
       d3d_display->single_buffer = eds_list[i]->settings[ALLEGRO_SINGLE_BUFFER] ? true : false;
       al_display->format = _al_deduce_color_format(eds_list[i]);
+      TRACE("Chose a display with format %d\n", al_display->format);
       memset(&al_display->extra_settings, 0, sizeof al_display->extra_settings);
       al_display->extra_settings.settings[ALLEGRO_COMPATIBLE_DISPLAY] = 1;
 
@@ -1621,7 +1642,7 @@ static ALLEGRO_DISPLAY *d3d_create_display(int w, int h)
    d3d_display->ignore_ack = false;
    al_display->w = w;
    al_display->h = h;
-   al_display->format = al_get_new_display_format();
+   //al_display->format = al_get_new_display_format();
    al_display->refresh_rate = al_get_new_display_refresh_rate();
    al_display->flags = al_get_new_display_flags();
    al_display->vt = vt;

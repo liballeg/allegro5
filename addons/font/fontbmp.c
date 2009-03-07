@@ -45,11 +45,11 @@ static void font_find_character(ALLEGRO_BITMAP *bmp, int *x, int *y, int *w, int
    const int bmp_w = al_get_bitmap_width(bmp);
    const int bmp_h = al_get_bitmap_height(bmp);
    ALLEGRO_COLOR c;
-   ALLEGRO_LOCKED_REGION lr;
+   ALLEGRO_LOCKED_REGION *lr;
 
    c = al_map_rgb(255, 255, 0);
 
-   al_lock_bitmap(bmp, &lr, ALLEGRO_LOCK_READONLY);
+   lr = al_lock_bitmap(bmp, ALLEGRO_PIXEL_FORMAT_ANY, ALLEGRO_LOCK_READONLY);
 
    /* look for top left corner of character */
    while (1) {

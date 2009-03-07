@@ -529,7 +529,7 @@ void _al_triangle_2d(ALLEGRO_BITMAP* texture, ALLEGRO_VERTEX* v1, ALLEGRO_VERTEX
    ALLEGRO_VERTEX* vtx3 = v3;
    ALLEGRO_BITMAP *target = al_get_target_bitmap();
    int need_unlock = 0;
-   ALLEGRO_LOCKED_REGION lr;
+   ALLEGRO_LOCKED_REGION *lr;
    int min_x, max_x, min_y, max_y;
 
    int shade = 1;
@@ -570,7 +570,7 @@ void _al_triangle_2d(ALLEGRO_BITMAP* texture, ALLEGRO_VERTEX* v1, ALLEGRO_VERTEX
       if (!_al_bitmap_region_is_locked(target, min_x, min_y, max_x - min_x, max_y - min_y))
          return;
    } else {
-      if (!al_lock_bitmap_region(target, min_x, min_y, max_x - min_x, max_y - min_y, &lr, 0))
+      if (!(lr = al_lock_bitmap_region(target, min_x, min_y, max_x - min_x, max_y - min_y, ALLEGRO_PIXEL_FORMAT_ANY, 0)))
          return;
       need_unlock = 1;
    }
