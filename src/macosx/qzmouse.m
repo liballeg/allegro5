@@ -47,6 +47,7 @@ static struct {
 	ALLEGRO_MOUSE_STATE state;
 	float z_axis, w_axis;
 	BOOL captured;
+	BOOL warped;
 	NSCursor* cursor;
 } osx_mouse;
 
@@ -148,6 +149,11 @@ void _al_osx_mouse_generate_event(NSEvent* evt, ALLEGRO_DISPLAY* dpy)
 	{
       pos.y = [[NSScreen mainScreen] frame].size.height - pos.y;
 	}
+	if (osx_mouse.warped) {
+	    dx = 0;
+	    dy = 0;
+	    osx_mouse.warped = FALSE;
+	}
 	_al_event_source_lock(&osx_mouse.parent.es);
 	if ((within || osx_mouse.captured) && _al_event_source_needs_to_generate_event(&osx_mouse.parent.es))
 	{
@@ -157,7 +163,7 @@ void _al_osx_mouse_generate_event(NSEvent* evt, ALLEGRO_DISPLAY* dpy)
 		// Note: we use 'allegro time' rather than the time stamp 
 		// from the event 
 		mouse_event->timestamp = al_current_time();
-      mouse_event->display = dpy;
+        mouse_event->display = dpy;
 		mouse_event->button = b;
 		mouse_event->x = pos.x;
 		mouse_event->y = pos.y; 
@@ -228,6 +234,7 @@ static bool osx_init_mouse(void)
 	_al_event_source_init(&osx_mouse.parent.es);
 	osx_mouse.button_count = buttons;
 	osx_mouse.axis_count = axes;
+	osx_mouse.warped = FALSE;
 	memset(&osx_mouse.state, 0, sizeof(ALLEGRO_MOUSE_STATE));
    _al_osx_mouse_was_installed(YES);
 	return true;
@@ -295,6 +302,26 @@ static bool osx_set_mouse_xy(int x, int y)
     }
     
     _al_event_source_lock(&osx_mouse.parent.es);
+    if (_al_event_source_needs_to_generate_event(&osx_mouse.parent.es)) {
+        ALLEGRO_EVENT new_event;
+        ALLEGRO_MOUSE_EVENT* mouse_event = &new_event.mouse;
+        mouse_event->type = ALLEGRO_EVENT_MOUSE_WARPED;
+        // Note: we use 'allegro time' rather than the time stamp 
+        // from the event 
+        mouse_event->timestamp = al_current_time();
+        mouse_event->display = (ALLEGRO_DISPLAY *)dpy;
+        mouse_event->button = 0;
+        mouse_event->x = x;
+        mouse_event->y = y; 
+        mouse_event->z = osx_mouse.z_axis;
+        mouse_event->dx = x - osx_mouse.state.x;
+        mouse_event->dy = y - osx_mouse.state.y;
+        mouse_event->dz = 0;
+        if (mouse_event->dx || mouse_event->dy) {
+            osx_mouse.warped = TRUE;
+            _al_event_source_emit_event(&osx_mouse.parent.es, &new_event);
+        }
+    }
     CGDisplayMoveCursorToPoint(display, pos);
     osx_mouse.state.x = x;
     osx_mouse.state.y = y;
