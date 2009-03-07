@@ -957,6 +957,18 @@ static void d3d_unlock_region(ALLEGRO_BITMAP *bitmap)
    }
 }
 
+
+static void d3d_update_clipping_rectangle(ALLEGRO_BITMAP *bitmap)
+{
+   ALLEGRO_DISPLAY_D3D *d3d_display = (ALLEGRO_DISPLAY_D3D *)al_get_current_display();
+   ALLEGRO_BITMAP_D3D *d3d_bitmap = (ALLEGRO_BITMAP_D3D *)bitmap;
+
+   if (d3d_display->render_target == d3d_bitmap->render_target) {
+      d3d_set_bitmap_clip(bitmap);
+   }
+}
+
+
 /* Obtain a reference to this driver. */
 ALLEGRO_BITMAP_INTERFACE *_al_bitmap_d3d_driver(void)
 {
@@ -975,6 +987,7 @@ ALLEGRO_BITMAP_INTERFACE *_al_bitmap_d3d_driver(void)
    vt->destroy_bitmap = d3d_destroy_bitmap;
    vt->lock_region = d3d_lock_region;
    vt->unlock_region = d3d_unlock_region;
+   vt->update_clipping_rectangle = d3d_update_clipping_rectangle;
 
    return vt;
 }
