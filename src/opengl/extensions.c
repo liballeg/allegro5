@@ -25,12 +25,6 @@
 #include "allegro5/internal/aintern_opengl.h"
 #include "allegro5/internal/aintern_display.h"
 
-/* Disable FBO and NPOT extensions for testing purposes. */
-/*
-#define _AL_GLEXT_NO_FBO   1
-#define _AL_GLEXT_NO_NPOT  1
-*/
-
 /* We need some driver specific details not worth of a vtable entry. */
 #if defined ALLEGRO_WINDOWS
    #include "../win/wgl.h"
@@ -344,7 +338,7 @@ static int _ogl_is_extension_supported(AL_CONST char *extension,
                                        ALLEGRO_DISPLAY *disp)
 {
    int ret;
-   
+
    if (!glGetString(GL_EXTENSIONS))
       return false;
 
@@ -381,6 +375,41 @@ static int _ogl_is_extension_supported(AL_CONST char *extension,
 
    return ret;
 }
+
+
+
+static bool _ogl_is_extension_with_version_supported(
+   AL_CONST char *extension, ALLEGRO_DISPLAY *disp, float ver)
+{
+   char const *value;
+
+  /* For testing purposes, any OpenGL extension can be disable in
+    * the config by using something like:
+    * 
+    * [opengl_disabled_extensions]
+    * GL_ARB_texture_non_power_of_two=0
+    * GL_EXT_framebuffer_object=0
+    * 
+    */
+   if (al_system_driver()->config) {
+      value = al_config_get_value(al_system_driver()->config,
+         "opengl_disabled_extensions", extension);
+      if (value) {
+         TRACE(PREFIX_I "%s found in [opengl_disabled_extensions].\n",
+            extension);
+         return false;
+      }
+   }
+
+   /* If the extension is included in the OpenGL version, there is no
+    * need to check the extensions list.
+    */
+   if (disp->ogl_extras->ogl_info.version >= ver && ver > 0)
+      return true;
+      
+   return _ogl_is_extension_supported(extension, disp);
+}
+
 
 
 /* Function: al_is_opengl_extension_supported
@@ -627,25 +656,25 @@ void _al_ogl_manage_extensions(ALLEGRO_DISPLAY *gl_disp)
    gl_disp->ogl_extras->extension_list = ext_list;
 
    /* Fill the list. */
-#define AGL_EXT(name, ver) {                                                             \
-		ext_list->ALLEGRO_GL_##name =  _ogl_is_extension_supported("GL_" #name, gl_disp) \
-		                      || (gl_disp->ogl_extras->ogl_info.version >= ver && ver > 0);          \
-	}
+#define AGL_EXT(name, ver) { \
+      ext_list->ALLEGRO_GL_##name = \
+         _ogl_is_extension_with_version_supported("GL_" #name, gl_disp, ver); \
+   }
    #include "allegro5/opengl/GLext/gl_ext_list.h"
 #undef AGL_EXT
 
 #ifdef ALLEGRO_UNIX
-#define AGL_EXT(name, ver) {                                                              \
-		ext_list->ALLEGRO_GLX_##name = _ogl_is_extension_supported("GLX_" #name, gl_disp) \
-		                      || (gl_disp->ogl_extras->ogl_info.version >= ver && ver > 0);           \
-	}
+#define AGL_EXT(name, ver) { \
+      ext_list->ALLEGRO_GLX_##name = \
+         _ogl_is_extension_with_version_supported("GLX_" #name, gl_disp, ver); \
+   }
    #include "allegro5/opengl/GLext/glx_ext_list.h"
 #undef AGL_EXT
 #elif defined ALLEGRO_WINDOWS
-#define AGL_EXT(name, ver) {                                                              \
-		ext_list->ALLEGRO_WGL_##name = _ogl_is_extension_supported("WGL_" #name, gl_disp) \
-		                      || (gl_disp->ogl_extras->ogl_info.version >= ver && ver > 0);           \
-	}
+#define AGL_EXT(name, ver) { \
+      ext_list->ALLEGRO_WGL_##name = \
+         _ogl_is_extension_with_version_supported("WGL_" #name, gl_disp, ver); \
+   }
    #include "allegro5/opengl/GLext/wgl_ext_list.h"
 #undef AGL_EXT
 #endif
@@ -716,12 +745,12 @@ void _al_ogl_manage_extensions(ALLEGRO_DISPLAY *gl_disp)
       }
    }
 
-#ifdef _AL_GLEXT_NO_NPOT
-   ext_list->ALLEGRO_GL_ARB_texture_non_power_of_two = 0;
-#endif
-#ifdef _AL_GLEXT_NO_FBO
-   ext_list->ALLEGRO_GL_EXT_framebuffer_object = 0;
-#endif
+   TRACE(PREFIX_I "Use of non-power-of-two textures %s.\n",
+      ext_list->ALLEGRO_GL_ARB_texture_non_power_of_two ? "enabled" :
+      "disabled");
+   TRACE(PREFIX_I "Use of FBO to draw to textures %s.\n",
+      ext_list->ALLEGRO_GL_EXT_framebuffer_object ? "enabled" :
+      "disabled");
 }
 
 
