@@ -120,6 +120,7 @@ AL_FUNC(int,  al_get_new_display_flags, (void));
 
 AL_FUNC(int, al_get_display_width,  (void));
 AL_FUNC(int, al_get_display_height, (void));
+AL_FUNC(int, al_get_display_format, (void));
 AL_FUNC(int, al_get_display_refresh_rate, (void));
 AL_FUNC(int, al_get_display_flags,  (void));
 

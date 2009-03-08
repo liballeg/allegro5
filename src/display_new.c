@@ -303,6 +303,16 @@ int al_get_display_height(void)
 }
 
 
+/* Function: al_get_display_format
+ *
+ * Gets the pixel format of the current display.
+ */
+int al_get_display_format(void)
+{
+   ALLEGRO_DISPLAY *display = al_get_current_display();
+   return _al_deduce_color_format(&display->extra_settings);
+}
+
 
 /* Function: al_get_display_refresh_rate
  *

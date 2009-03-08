@@ -83,6 +83,10 @@ will be created.
 
 Gets the flags of the current display.
 
+## API: al_get_display_format
+
+Gets the pixel format of the current display.
+
 ## API: al_get_display_height
 
 Gets the height of the current display. This is like SCREEN_H in Allegro 4.x.
