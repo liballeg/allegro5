@@ -471,11 +471,17 @@ static ALLEGRO_LOCKED_REGION *ogl_lock_region(ALLEGRO_BITMAP *bitmap,
    }
    else {
       //FIXME: use glPixelStore or similar to only synchronize the required
-      //region
+      //region?
+      // Maybe using FBO and glReadPixels is the only way to do that,
+      // but we really should.
       pitch = bitmap->pitch;
       ogl_bitmap->lock_buffer = _AL_MALLOC(pitch * ogl_bitmap->true_h);
 
-      if (!(flags & ALLEGRO_LOCK_WRITEONLY)) {
+      // FIXME: ALLEGRO_LOCK_WRITEONLY only does not have to "download"
+      // the texture if the area is exactly the same we are going
+      // to "upload" when unlocking.
+      if (!(flags & ALLEGRO_LOCK_WRITEONLY) || x != 0 || y != 0 ||
+        w != ogl_bitmap->true_w || h != bitmap->h ) {
          glBindTexture(GL_TEXTURE_2D, ogl_bitmap->texture);
          glGetTexImage(GL_TEXTURE_2D, 0, glformats[format][2],
             glformats[format][1], ogl_bitmap->lock_buffer);
