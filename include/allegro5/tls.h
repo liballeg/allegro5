@@ -31,8 +31,7 @@
  * combinations. The following flags store or restore settings corresponding
  * to the following al_set_/al_get_ calls:
  * 
- * ALLEGRO_STATE_NEW_DISPLAY_PARAMETERS - new_display_format,
- *                                        new_display_refresh_rate,
+ * ALLEGRO_STATE_NEW_DISPLAY_PARAMETERS - new_display_refresh_rate,
  *                                        new_display_flags
  * ALLEGRO_STATE_NEW_BITMAP_PARAMETERS  - new_bitmap_format,
  *                                        new_bitmap_flags

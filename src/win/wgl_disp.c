@@ -341,8 +341,7 @@ static int decode_pixel_format_old(PIXELFORMATDESCRIPTOR *pfd,
    eds->settings[ALLEGRO_FLOAT_COLOR] = 0;
    eds->settings[ALLEGRO_FLOAT_DEPTH] = 0;
 
-    eds->settings[ALLEGRO_COMPATIBLE_DISPLAY] =
-      (_al_deduce_color_format(eds) != ALLEGRO_PIXEL_FORMAT_ANY);
+   eds->settings[ALLEGRO_COMPATIBLE_DISPLAY] = 1;
 
 	return true;
 }
@@ -359,6 +358,7 @@ static bool decode_pixel_format_attrib(ALLEGRO_EXTRA_DISPLAY_SETTINGS *eds, int 
    eds->settings[ALLEGRO_SAMPLE_BUFFERS] = 0;
    eds->settings[ALLEGRO_FLOAT_DEPTH] = 0;
    eds->settings[ALLEGRO_FLOAT_COLOR] = 0;
+   eds->settings[ALLEGRO_COMPATIBLE_DISPLAY] = 1;
 
    for (i = 0; i < num_attribs; i++) {
       /* Not interested if it doesn't support OpenGL or window drawing or RGBA. */
@@ -463,9 +463,6 @@ static bool decode_pixel_format_attrib(ALLEGRO_EXTRA_DISPLAY_SETTINGS *eds, int 
          eds->settings[ALLEGRO_FLOAT_DEPTH] = value[i];
       }
    }
-
-   eds->settings[ALLEGRO_COMPATIBLE_DISPLAY] =
-      (_al_deduce_color_format(eds) != ALLEGRO_PIXEL_FORMAT_ANY);
 
    return true;
 }
@@ -609,7 +606,7 @@ static bool change_display_mode(ALLEGRO_DISPLAY *d)
    memset(&dm, 0, sizeof(dm));
    dm.dmSize = sizeof(DEVMODE);
 
-   bpp = al_get_pixel_format_bits(d->format);
+   bpp = d->extra_settings.settings[ALLEGRO_COLOR_SIZE];
    if (!bpp)
       bpp = 32;
 
@@ -916,7 +913,6 @@ static bool select_pixel_format(ALLEGRO_DISPLAY_WGL *d, HDC dc)
       return false;
    }
 
-   d->win_display.display.format = _al_deduce_color_format(eds[i]);
    memcpy(&d->win_display.display.extra_settings, eds[i], sizeof(ALLEGRO_EXTRA_DISPLAY_SETTINGS));
 
    for (i = 0; i < eds_count; i++)
@@ -949,7 +945,6 @@ static bool create_display_internals(ALLEGRO_DISPLAY_WGL *wgl_disp)
 #else
    WaitForSingleObject(ndp.AckEvent, 10*1000);
 #endif
-
 
    CloseHandle(ndp.AckEvent);
 
@@ -1049,7 +1044,6 @@ static ALLEGRO_DISPLAY* wgl_create_display(int w, int h)
    memset(display, 0, sizeof *wgl_display);
    display->w = w;
    display->h = h;
-   //display->format = al_get_new_display_format();
    display->refresh_rate = al_get_new_display_refresh_rate();
    display->flags = al_get_new_display_flags();
    display->vt = vt;

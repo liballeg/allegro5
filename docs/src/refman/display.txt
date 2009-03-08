@@ -51,8 +51,7 @@ backbuffer selected for drawing.
 
 Returns NULL on error.
 
-See Also: [al_set_new_display_format], [al_set_new_display_refresh_rate], 
-	[al_set_new_display_flags]
+See Also: [al_set_new_display_refresh_rate], [al_set_new_display_flags]
 
 ## API: al_destroy_display
 
@@ -83,10 +82,6 @@ will be created.
 ## API: al_get_display_flags
 
 Gets the flags of the current display.
-
-## API: al_get_display_format
-
-Gets the pixel format of the current display.
 
 ## API: al_get_display_height
 
@@ -127,10 +122,6 @@ See Also: [ALLEGRO_MONITOR_INFO]
 
 Gets the current flags used for newly created displays.
 
-## API: al_get_new_display_format
-
-Gets the current pixel format used for newly created displays.
-
 ## API: al_get_new_display_refresh_rate
 
 Gets the current refresh rate used for newly created displays.
@@ -146,7 +137,7 @@ See Also: [al_set_new_window_position]
 
 Get the number of available fullscreen display modes
 for the current set of display parameters. This will
-use the values set with [al_set_new_display_format],
+use the values set with [al_set_new_display_option],
 [al_set_new_display_refresh_rate], and [al_set_new_display_flags]
 to find the number of modes that match. Settings the new
 display parameters to zero will give a list of all modes
@@ -306,10 +297,6 @@ windowed moded it depends on the underlying platform whether it is supported
 or not.
 
 0 can be used for default values. 
-
-## API: al_set_new_display_format
-
-Set the pixel format for al displays created after this call.
 
 ## API: al_set_new_display_refresh_rate
 

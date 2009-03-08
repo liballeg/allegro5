@@ -188,7 +188,7 @@ int main(void)
       return 1;
    }
 
-   printf("Display format = %d\n", al_get_display_format());
+   //printf("Display format = %d\n", al_get_display_format());
 
    font = al_font_load_font("data/fixed_font.tga", NULL);
    if (!font) {

@@ -1030,7 +1030,7 @@ static bool _al_d3d_reset_device(ALLEGRO_DISPLAY_D3D *d3d_display)
        HRESULT hr;
 
        ZeroMemory(&d3d_pp, sizeof(d3d_pp));
-       d3d_pp.BackBufferFormat = (D3DFORMAT)_al_format_to_d3d(al_display->format);
+       d3d_pp.BackBufferFormat = (D3DFORMAT)_al_format_to_d3d(_al_deduce_color_format(&al_display->extra_settings));
        d3d_pp.BackBufferWidth = al_display->w;
        d3d_pp.BackBufferHeight = al_display->h;
        d3d_pp.BackBufferCount = 1;
@@ -1104,7 +1104,7 @@ static bool _al_d3d_reset_device(ALLEGRO_DISPLAY_D3D *d3d_display)
     }
     else {
        ZeroMemory(&d3d_pp, sizeof(d3d_pp));
-       d3d_pp.BackBufferFormat = (D3DFORMAT)_al_format_to_d3d(al_display->format);
+       d3d_pp.BackBufferFormat = (D3DFORMAT)_al_format_to_d3d(_al_deduce_color_format(&al_display->extra_settings));
        d3d_pp.BackBufferWidth = al_display->w;
        d3d_pp.BackBufferHeight = al_display->h;
        d3d_pp.BackBufferCount = 1;
@@ -1200,7 +1200,7 @@ static int real_choose_bitmap_format(int bits, bool alpha)
          continue;
       }
       dformat = (D3DFORMAT)d3d_formats[i];
-      adapter_format_allegro = al_get_display_format();
+      adapter_format_allegro = _al_deduce_color_format(_al_get_new_display_settings());
       if (!_al_pixel_format_is_real(adapter_format_allegro))
          adapter_format_allegro = d3d_choose_display_format(adapter_format_allegro);
       TRACE("Adapter format is %d\n", adapter_format_allegro);
@@ -1284,11 +1284,11 @@ static void d3d_display_thread_proc(void *arg)
    /* So that we can call the functions using TLS from this thread. */
    al_set_new_display_flags(al_display->flags);
 
-   new_format = al_display->format;
+   new_format = _al_deduce_color_format(&al_display->extra_settings);
 
    /* This should never happen, I think */
-   if (!_al_pixel_format_is_real(al_display->format)) {
-      int f = d3d_choose_display_format(al_display->format);
+   if (!_al_pixel_format_is_real(_al_deduce_color_format(&al_display->extra_settings))) {
+      int f = d3d_choose_display_format(_al_deduce_color_format(&al_display->extra_settings));
       if (f < 0) {
          SetEvent(params->AckEvent);
          return;
@@ -1296,13 +1296,13 @@ static void d3d_display_thread_proc(void *arg)
       new_format = f;
    }
 
-   if (!d3d_parameters_are_valid(al_display->format, al_display->refresh_rate, al_display->flags)) {
+   if (!d3d_parameters_are_valid(_al_deduce_color_format(&al_display->extra_settings), al_display->refresh_rate, al_display->flags)) {
       TRACE("d3d_display_thread_proc: Invalid parameters.\n");
       SetEvent(params->AckEvent);
       return;
    }
 
-   al_display->format = new_format;
+   _al_set_color_components(new_format, &al_display->extra_settings, ALLEGRO_REQUIRE);
 
    if (d3d_display->faux_fullscreen) {
       ALLEGRO_MONITOR_INFO mi;
@@ -1367,7 +1367,7 @@ static void d3d_display_thread_proc(void *arg)
    }
 
    if (!(al_display->flags & ALLEGRO_FULLSCREEN) || d3d_display->faux_fullscreen) {
-      if (!d3d_create_device(d3d_display, al_display->format,
+      if (!d3d_create_device(d3d_display, _al_deduce_color_format(&al_display->extra_settings),
             al_display->refresh_rate, al_display->flags, convert_to_faux)) {
          win_display->thread_ended = true;
          d3d_destroy_display(al_display);
@@ -1377,7 +1377,7 @@ static void d3d_display_thread_proc(void *arg)
    }
    else {
       TRACE("Creating real fullscreen device\n");
-      if (!d3d_create_fullscreen_device(d3d_display, al_display->format,
+      if (!d3d_create_fullscreen_device(d3d_display, _al_deduce_color_format(&al_display->extra_settings),
             al_display->refresh_rate, al_display->flags)) {
          win_display->thread_ended = true;
          d3d_destroy_display(al_display);
@@ -1550,8 +1550,7 @@ static bool d3d_create_display_internals(ALLEGRO_DISPLAY_D3D *d3d_display)
       d3d_display->depth_stencil_format = d3d_get_depth_stencil_format(eds_list[i]);
       d3d_display->samples = eds_list[i]->settings[ALLEGRO_SAMPLES];
       d3d_display->single_buffer = eds_list[i]->settings[ALLEGRO_SINGLE_BUFFER] ? true : false;
-      al_display->format = _al_deduce_color_format(eds_list[i]);
-      TRACE("Chose a display with format %d\n", al_display->format);
+      TRACE("Chose a display with format %d\n", _al_deduce_color_format(&al_display->extra_settings));
       memset(&al_display->extra_settings, 0, sizeof al_display->extra_settings);
       al_display->extra_settings.settings[ALLEGRO_COMPATIBLE_DISPLAY] = 1;
 
@@ -1604,7 +1603,7 @@ static bool d3d_create_display_internals(ALLEGRO_DISPLAY_D3D *d3d_display)
    //d3d_display->backbuffer_bmp.render_target = d3d_display->render_target;
    d3d_display->backbuffer_bmp.is_backbuffer = true;
    d3d_display->backbuffer_bmp.bitmap.display = al_display;
-   d3d_display->backbuffer_bmp.bitmap.format = al_display->format;
+   d3d_display->backbuffer_bmp.bitmap.format = _al_deduce_color_format(&al_display->extra_settings);
    d3d_display->backbuffer_bmp.bitmap.flags = 0;
    d3d_display->backbuffer_bmp.bitmap.w = al_display->w;
    d3d_display->backbuffer_bmp.bitmap.h = al_display->h;
@@ -1642,7 +1641,6 @@ static ALLEGRO_DISPLAY *d3d_create_display(int w, int h)
    d3d_display->ignore_ack = false;
    al_display->w = w;
    al_display->h = h;
-   //al_display->format = al_get_new_display_format();
    al_display->refresh_rate = al_get_new_display_refresh_rate();
    al_display->flags = al_get_new_display_flags();
    al_display->vt = vt;

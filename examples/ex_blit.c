@@ -164,10 +164,10 @@ static void draw(void)
    get_xy(&x, &y);
    al_draw_bitmap(ex.pattern, x, y, 0);
 
-   size = al_get_pixel_size(al_get_display_format());
+   size = al_get_pixel_size(ALLEGRO_PIXEL_FORMAT_ABGR_8888);
    data = malloc(size * iw * ih);
    start_timer(3);
-   lock = al_lock_bitmap_region(screen, x, y, iw, ih, ALLEGRO_PIXEL_FORMAT_ANY, ALLEGRO_LOCK_READONLY);
+   lock = al_lock_bitmap_region(screen, x, y, iw, ih, ALLEGRO_PIXEL_FORMAT_ABGR_8888, ALLEGRO_LOCK_READONLY);
    for (i = 0; i < ih; i++)
       memcpy((char*)data + i * size * iw, (char*)lock->data + i * lock->pitch, size * iw);
    al_unlock_bitmap(screen);

@@ -230,7 +230,7 @@ HWND _al_win_create_faux_fullscreen_window(LPCTSTR devname, ALLEGRO_DISPLAY *dis
    memset(&mode, 0, sizeof(DEVMODE));
    mode.dmSize = sizeof(DEVMODE);
    mode.dmDriverExtra = 0;
-   mode.dmBitsPerPel = al_get_pixel_format_bits(display->format);
+   mode.dmBitsPerPel = al_get_new_display_option(ALLEGRO_COLOR_SIZE, NULL);
    mode.dmPelsWidth = display->w;
    mode.dmPelsHeight = display->h;
    mode.dmDisplayFlags = 0;

@@ -113,16 +113,13 @@ typedef struct ALLEGRO_MONITOR_INFO
    int y2;
 } ALLEGRO_MONITOR_INFO;
 
-AL_FUNC(void, al_set_new_display_format, (int format));
 AL_FUNC(void, al_set_new_display_refresh_rate, (int refresh_rate));
 AL_FUNC(void, al_set_new_display_flags, (int flags));
-AL_FUNC(int,  al_get_new_display_format, (void));
 AL_FUNC(int,  al_get_new_display_refresh_rate, (void));
 AL_FUNC(int,  al_get_new_display_flags, (void));
 
 AL_FUNC(int, al_get_display_width,  (void));
 AL_FUNC(int, al_get_display_height, (void));
-AL_FUNC(int, al_get_display_format, (void));
 AL_FUNC(int, al_get_display_refresh_rate, (void));
 AL_FUNC(int, al_get_display_flags,  (void));
 

@@ -486,7 +486,7 @@ static ALLEGRO_LOCKED_REGION *ogl_lock_region(ALLEGRO_BITMAP *bitmap,
       }
 
       bitmap->lock_offs = pitch * (gl_y + h - 1) + pixel_size * x;
-      bitmap->locked_region.data += bitmap->lock_offs;
+      (char*)bitmap->locked_region.data += bitmap->lock_offs;
    }
 
    bitmap->locked_region.format = format;
@@ -551,7 +551,7 @@ static void ogl_unlock_region(ALLEGRO_BITMAP *bitmap)
       glPixelStorei(GL_UNPACK_ROW_LENGTH, unpack_row_length);
    }
    else {
-      bitmap->locked_region.data -= bitmap->lock_offs;
+      (char*)bitmap->locked_region.data -= bitmap->lock_offs;
       // FIXME: don't copy the whole bitmap
       glBindTexture(GL_TEXTURE_2D, ogl_bitmap->texture);
       /* We don't copy anything past bitmap->h on purpose. */

@@ -35,7 +35,6 @@
 /* Thread local storage for graphics API state */
 typedef struct thread_local_state {
    /* Display parameters */
-   int new_display_format;
    int new_display_refresh_rate;
    int new_display_flags;
    ALLEGRO_EXTRA_DISPLAY_SETTINGS *new_display_settings;
@@ -202,7 +201,6 @@ static thread_local_state* tls_get(void)
 
 
 static THREAD_LOCAL thread_local_state _tls = {
-   0,                                     /* new_display_format */
    0,                                     /* new_display_refresh_rate */
    0,                                     /* new_display_flags */
    NULL,                                  /* new_display_settings */
@@ -252,8 +250,6 @@ ALLEGRO_EXTRA_DISPLAY_SETTINGS *_al_get_new_display_settings(void)
 }
 
 
-
-
 /* Function: al_set_new_display_refresh_rate
  *
  * Sets the refresh rate to use for newly created displays. If the refresh rate
@@ -285,7 +281,6 @@ void al_set_new_display_flags(int flags)
       return;
    tls->new_display_flags = flags;
 }
-
 
 
 /* Function: al_get_new_display_refresh_rate
@@ -500,7 +495,6 @@ void al_store_state(ALLEGRO_STATE *state, int flags)
    stored = (void *)&state->_tls;
 
    if (flags & ALLEGRO_STATE_NEW_DISPLAY_PARAMETERS) {
-      _STORE(new_display_format);
       _STORE(new_display_refresh_rate);
       _STORE(new_display_flags);
    }
@@ -550,7 +544,6 @@ void al_restore_state(ALLEGRO_STATE const *state)
    stored = (void *)&state->_tls;
 
    if (flags & ALLEGRO_STATE_NEW_DISPLAY_PARAMETERS) {
-      _STORE(new_display_format);
       _STORE(new_display_refresh_rate);
       _STORE(new_display_flags);
    }

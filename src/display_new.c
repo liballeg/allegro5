@@ -47,8 +47,7 @@ static int new_window_y = INT_MAX;
  *
  * Returns NULL on error.
  *
- * See Also: <al_set_new_display_refresh_rate>, 
- * 	<al_set_new_display_flags>
+ * See Also: <al_set_new_display_refresh_rate>, <al_set_new_display_flags>
  */
 ALLEGRO_DISPLAY *al_create_display(int w, int h)
 {
@@ -305,20 +304,6 @@ int al_get_display_height(void)
 
 
 
-/* Function: al_get_display_format
- *
- * Gets the pixel format of the current display.
- */
-int al_get_display_format(void)
-{
-   ALLEGRO_DISPLAY *display = al_get_current_display();
-   ASSERT(display);
-
-   return display->format;
-}
-
-
-
 /* Function: al_get_display_refresh_rate
  *
  * Gets the refresh rate of the current display.
@@ -352,10 +337,9 @@ int al_get_display_flags(void)
  * Get the number of available fullscreen display modes
  * for the current set of display parameters. This will
  * use the values set with, <al_set_new_display_refresh_rate>,
- * and <al_set_new_display_flags>
- * to find the number of modes that match. Settings the new
- * display parameters to zero will give a list of all modes
- * for the default driver.
+ * and <al_set_new_display_flags> to find the number of modes
+ * that match. Settings the new display parameters to zero will
+ * give a list of all modes for the default driver.
  */
 int al_get_num_display_modes(void)
 {

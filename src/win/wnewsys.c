@@ -268,8 +268,7 @@ static ALLEGRO_JOYSTICK_DRIVER *win_get_joystick_driver(void)
 
 static int win_get_num_display_modes(void)
 {
-   //int format = al_get_new_display_format();
-   int format = ALLEGRO_PIXEL_FORMAT_ANY;
+   int format = _al_deduce_color_format(_al_get_new_display_settings());
    int refresh_rate = al_get_new_display_refresh_rate();
    int flags = al_get_new_display_flags();
 
@@ -291,7 +290,7 @@ static int win_get_num_display_modes(void)
 static ALLEGRO_DISPLAY_MODE *win_get_display_mode(int index,
    ALLEGRO_DISPLAY_MODE *mode)
 {
-   int format = ALLEGRO_PIXEL_FORMAT_ANY; //al_get_new_display_format();
+   int format = _al_deduce_color_format(_al_get_new_display_settings());
    int refresh_rate = al_get_new_display_refresh_rate();
    int flags = al_get_new_display_flags();
 

@@ -628,6 +628,9 @@ int _al_deduce_color_format(ALLEGRO_EXTRA_DISPLAY_SETTINGS *eds)
 void _al_set_color_components(int format, ALLEGRO_EXTRA_DISPLAY_SETTINGS *eds,
                               int importance)
 {
+   ALLEGRO_EXTRA_DISPLAY_SETTINGS *old_eds = _al_get_new_display_settings();
+   _al_set_new_display_settings(eds);
+
    al_set_new_display_option(ALLEGRO_RED_SIZE,    0, ALLEGRO_DONTCARE);
    al_set_new_display_option(ALLEGRO_RED_SHIFT,   0, ALLEGRO_DONTCARE);
    al_set_new_display_option(ALLEGRO_GREEN_SIZE,  0, ALLEGRO_DONTCARE);
@@ -641,22 +644,22 @@ void _al_set_color_components(int format, ALLEGRO_EXTRA_DISPLAY_SETTINGS *eds,
    switch (format) {
       case ALLEGRO_PIXEL_FORMAT_ANY_NO_ALPHA:
          al_set_new_display_option(ALLEGRO_ALPHA_SIZE,   0, importance);
-         return;
+         break;
       case ALLEGRO_PIXEL_FORMAT_ANY_WITH_ALPHA:
          al_set_new_display_option(ALLEGRO_ALPHA_SIZE,   8, importance);
-         return;
+         break;
       case ALLEGRO_PIXEL_FORMAT_ANY_16_NO_ALPHA:
          al_set_new_display_option(ALLEGRO_ALPHA_SIZE,   0, importance);
          al_set_new_display_option(ALLEGRO_COLOR_SIZE,   16, importance);
-         return;
+         break;
       case ALLEGRO_PIXEL_FORMAT_ANY_16_WITH_ALPHA:
          al_set_new_display_option(ALLEGRO_ALPHA_SIZE,   1, importance);
          al_set_new_display_option(ALLEGRO_COLOR_SIZE,   16, importance);
-         return;
+         break;
       case ALLEGRO_PIXEL_FORMAT_ANY_24_NO_ALPHA:
          al_set_new_display_option(ALLEGRO_ALPHA_SIZE,   0, importance);
          al_set_new_display_option(ALLEGRO_COLOR_SIZE,   24, importance);
-         return;
+         break;
       case ALLEGRO_PIXEL_FORMAT_ANY_32_NO_ALPHA:
          /* With OpenGL drivers, we never "know" the actual pixel
           * format. We use glReadPixels when we lock the screen, so
@@ -671,11 +674,11 @@ void _al_set_color_components(int format, ALLEGRO_EXTRA_DISPLAY_SETTINGS *eds,
           */
          al_set_new_display_option(ALLEGRO_ALPHA_SIZE,   0, importance);
          al_set_new_display_option(ALLEGRO_COLOR_SIZE,   32, ALLEGRO_SUGGEST);
-         return;
+         break;
       case ALLEGRO_PIXEL_FORMAT_ANY_32_WITH_ALPHA:
          al_set_new_display_option(ALLEGRO_ALPHA_SIZE,   8, importance);
          al_set_new_display_option(ALLEGRO_COLOR_SIZE,   32, importance);
-         return;
+         break;
    }
 
    switch (format) {
@@ -775,9 +778,9 @@ void _al_set_color_components(int format, ALLEGRO_EXTRA_DISPLAY_SETTINGS *eds,
       break;
       case ALLEGRO_PIXEL_FORMAT_XRGB_8888:
          al_set_new_display_option(ALLEGRO_ALPHA_SHIFT, 0, importance);
-         al_set_new_display_option(ALLEGRO_BLUE_SHIFT,  8, importance);
-         al_set_new_display_option(ALLEGRO_GREEN_SHIFT, 16, importance);
-         al_set_new_display_option(ALLEGRO_RED_SHIFT,   24, importance);
+         al_set_new_display_option(ALLEGRO_BLUE_SHIFT,  0, importance);
+         al_set_new_display_option(ALLEGRO_GREEN_SHIFT, 8, importance);
+         al_set_new_display_option(ALLEGRO_RED_SHIFT,   16, importance);
       break;
       case ALLEGRO_PIXEL_FORMAT_XBGR_8888:
          al_set_new_display_option(ALLEGRO_ALPHA_SHIFT, 0, importance);
@@ -817,5 +820,5 @@ void _al_set_color_components(int format, ALLEGRO_EXTRA_DISPLAY_SETTINGS *eds,
       break;
    }
 
-   (void)eds;
+   _al_set_new_display_settings(old_eds);
 }
