@@ -572,6 +572,11 @@ int _al_deduce_color_format(ALLEGRO_EXTRA_DISPLAY_SETTINGS *eds)
                   eds->settings[ALLEGRO_BLUE_SHIFT] == 16) {
             format = ALLEGRO_PIXEL_FORMAT_XBGR_8888;
          }
+         else if (eds->settings[ALLEGRO_RED_SHIFT] == 24 &&
+                  eds->settings[ALLEGRO_GREEN_SHIFT] == 16 &&
+                  eds->settings[ALLEGRO_BLUE_SHIFT] == 8) {
+            format = ALLEGRO_PIXEL_FORMAT_RGBX_8888;
+         }
       }
    }
    else if (eds->settings[ALLEGRO_RED_SIZE] == 5 &&
@@ -687,6 +692,7 @@ void _al_set_color_components(int format, ALLEGRO_EXTRA_DISPLAY_SETTINGS *eds,
       case ALLEGRO_PIXEL_FORMAT_ARGB_8888:
       case ALLEGRO_PIXEL_FORMAT_RGB_888:
       case ALLEGRO_PIXEL_FORMAT_BGR_888:
+      case ALLEGRO_PIXEL_FORMAT_RGBX_8888:
       case ALLEGRO_PIXEL_FORMAT_XRGB_8888:
       case ALLEGRO_PIXEL_FORMAT_XBGR_8888:
          al_set_new_display_option(ALLEGRO_RED_SIZE,   8, importance);
@@ -724,6 +730,7 @@ void _al_set_color_components(int format, ALLEGRO_EXTRA_DISPLAY_SETTINGS *eds,
          al_set_new_display_option(ALLEGRO_ALPHA_SIZE, 0, importance);
          al_set_new_display_option(ALLEGRO_COLOR_SIZE, 24, importance);
       break;
+      case ALLEGRO_PIXEL_FORMAT_RGBX_8888:
       case ALLEGRO_PIXEL_FORMAT_XRGB_8888:
       case ALLEGRO_PIXEL_FORMAT_XBGR_8888:
          al_set_new_display_option(ALLEGRO_ALPHA_SIZE, 0, importance);
@@ -781,6 +788,12 @@ void _al_set_color_components(int format, ALLEGRO_EXTRA_DISPLAY_SETTINGS *eds,
          al_set_new_display_option(ALLEGRO_BLUE_SHIFT,  0, importance);
          al_set_new_display_option(ALLEGRO_GREEN_SHIFT, 8, importance);
          al_set_new_display_option(ALLEGRO_RED_SHIFT,   16, importance);
+      break;
+      case ALLEGRO_PIXEL_FORMAT_RGBX_8888:
+         al_set_new_display_option(ALLEGRO_ALPHA_SHIFT, 0, importance);
+         al_set_new_display_option(ALLEGRO_BLUE_SHIFT,  8, importance);
+         al_set_new_display_option(ALLEGRO_GREEN_SHIFT, 16, importance);
+         al_set_new_display_option(ALLEGRO_RED_SHIFT,   24, importance);
       break;
       case ALLEGRO_PIXEL_FORMAT_XBGR_8888:
          al_set_new_display_option(ALLEGRO_ALPHA_SHIFT, 0, importance);
