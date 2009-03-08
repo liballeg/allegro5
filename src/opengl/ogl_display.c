@@ -152,9 +152,20 @@ ALLEGRO_BITMAP_OGL* _al_ogl_create_backbuffer(ALLEGRO_DISPLAY *disp)
    ALLEGRO_BITMAP_OGL *ogl_backbuffer;
    ALLEGRO_BITMAP *backbuffer;
    ALLEGRO_STATE backup;
+   int format;
 
    al_store_state(&backup, ALLEGRO_STATE_NEW_BITMAP_PARAMETERS);
-   al_set_new_bitmap_format(_al_deduce_color_format(&disp->extra_settings));
+   
+   format = _al_deduce_color_format(&disp->extra_settings);
+   /* Eww. No OpenGL hardware in the world does that - let's just
+    * switch to some default.
+    */
+   if (al_get_pixel_size(format) == 3) {
+      /* Or should we use RGBA? Maybe only if not Nvidia cards? */
+      format = ALLEGRO_PIXEL_FORMAT_ABGR_8888;
+   }
+   TRACE("ogl_display: Format %d used for backbuffer.\n", format);
+   al_set_new_bitmap_format(format);
    al_set_new_bitmap_flags(0);
    backbuffer = _al_ogl_create_bitmap(disp, disp->w, disp->h);
    al_restore_state(&backup);
