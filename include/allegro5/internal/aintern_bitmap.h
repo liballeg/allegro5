@@ -44,7 +44,6 @@ struct ALLEGRO_BITMAP
    int lock_w;
    int lock_h;
    int lock_flags;
-   int lock_offs; /* Used for OpenGL */
    ALLEGRO_LOCKED_REGION locked_region;
 
    /* Info for sub-bitmaps */

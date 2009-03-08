@@ -446,47 +446,46 @@ static ALLEGRO_LOCKED_REGION *ogl_lock_region(ALLEGRO_BITMAP *bitmap,
       al_set_current_display(bitmap->display);
    }
 
-   bitmap->lock_offs = 0;
-
    if (ogl_bitmap->is_backbuffer) {
-      pitch = w*pixel_size;
-      bitmap->locked_region.data = _AL_MALLOC(pitch*h);
-      
+      pitch = w * pixel_size;
+      ogl_bitmap->lock_buffer = _AL_MALLOC(pitch * h);
+
       if (!(flags & ALLEGRO_LOCK_WRITEONLY)) {
-         GLint pack_row_length;
-         glGetIntegerv(GL_PACK_ROW_LENGTH, &pack_row_length);
+         //GLint pack_row_length;
+         //glGetIntegerv(GL_PACK_ROW_LENGTH, &pack_row_length);
          //glPixelStorei(GL_PACK_ROW_LENGTH, ogl_bitmap->true_w);
-         glPixelStorei(GL_PACK_ROW_LENGTH, w);
+         //glPixelStorei(GL_PACK_ROW_LENGTH, w);
          glReadPixels(x, gl_y, w, h,
             glformats[format][2],
             glformats[format][1],
-            bitmap->locked_region.data);
+            ogl_bitmap->lock_buffer);
             //bitmap->memory + pitch * gl_y + pixel_size * x);
          if (glGetError()) {
             TRACE("ogl_bitmap: glReadPixels for format %d failed.\n",
                format);
          }
-         glPixelStorei(GL_PACK_ROW_LENGTH, pack_row_length);
+         //glPixelStorei(GL_PACK_ROW_LENGTH, pack_row_length);
       }
+      bitmap->locked_region.data = ogl_bitmap->lock_buffer +
+         pitch * (h - 1);
    }
    else {
       //FIXME: use glPixelStore or similar to only synchronize the required
       //region
       pitch = bitmap->pitch;
-      bitmap->locked_region.data = _AL_MALLOC(pitch*bitmap->h);
-      
+      ogl_bitmap->lock_buffer = _AL_MALLOC(pitch * ogl_bitmap->true_h);
+
       if (!(flags & ALLEGRO_LOCK_WRITEONLY)) {
          glBindTexture(GL_TEXTURE_2D, ogl_bitmap->texture);
          glGetTexImage(GL_TEXTURE_2D, 0, glformats[format][2],
-            glformats[format][1], bitmap->locked_region.data);
+            glformats[format][1], ogl_bitmap->lock_buffer);
          if (glGetError()) {
             TRACE("ogl_bitmap: glGetTexImage for format %d failed.\n",
                format);
          }
       }
-
-      bitmap->lock_offs = pitch * (gl_y + h - 1) + pixel_size * x;
-      (char*)bitmap->locked_region.data += bitmap->lock_offs;
+      bitmap->locked_region.data = ogl_bitmap->lock_buffer +
+         pitch * (gl_y + h - 1) + pixel_size * x;
    }
 
    bitmap->locked_region.format = format;
@@ -495,7 +494,6 @@ static ALLEGRO_LOCKED_REGION *ogl_lock_region(ALLEGRO_BITMAP *bitmap,
    if (old_disp) {
       al_set_current_display(old_disp);
    }
-
    return &bitmap->locked_region;
 }
 
@@ -507,12 +505,12 @@ static void ogl_unlock_region(ALLEGRO_BITMAP *bitmap)
 {
    ALLEGRO_BITMAP_OGL *ogl_bitmap = (void *)bitmap;
    const int format = bitmap->locked_region.format;
-   const int pixel_size = al_get_pixel_size(format);
-   const int pitch = bitmap->locked_region.pitch; 
+   //const int pixel_size = al_get_pixel_size(format);
+   //const int pitch = bitmap->locked_region.pitch; 
    ALLEGRO_DISPLAY *old_disp = NULL;
 
    if (bitmap->lock_flags & ALLEGRO_LOCK_READONLY) {
-      _AL_FREE(bitmap->locked_region.data);
+      _AL_FREE(ogl_bitmap->lock_buffer);
       return;
    }
 
@@ -523,7 +521,7 @@ static void ogl_unlock_region(ALLEGRO_BITMAP *bitmap)
    }
 
    if (ogl_bitmap->is_backbuffer) {
-      GLint unpack_row_length;
+      //GLint unpack_row_length;
       GLint gl_y = bitmap->h - bitmap->lock_y - bitmap->lock_h;
       /* glWindowPos2i may not be available. */
       if (al_opengl_version() >= 1.4) {
@@ -538,30 +536,27 @@ static void ogl_unlock_region(ALLEGRO_BITMAP *bitmap)
       }
 
       /* This is to avoid copy padding when true_w > w. */
-      glGetIntegerv(GL_UNPACK_ROW_LENGTH, &unpack_row_length);
-      glPixelStorei(GL_UNPACK_ROW_LENGTH, ogl_bitmap->true_w);
+      //glGetIntegerv(GL_UNPACK_ROW_LENGTH, &unpack_row_length);
+      //glPixelStorei(GL_UNPACK_ROW_LENGTH, ogl_bitmap->true_w);
       glDrawPixels(bitmap->lock_w, bitmap->lock_h,
          glformats[format][2],
          glformats[format][1],
-         bitmap->locked_region.data);
+         ogl_bitmap->lock_buffer);
       if (glGetError()) {
          TRACE("ogl_bitmap: glDrawPixels for format %d failed.\n",
             format);
       }
-      glPixelStorei(GL_UNPACK_ROW_LENGTH, unpack_row_length);
+      //glPixelStorei(GL_UNPACK_ROW_LENGTH, unpack_row_length);
    }
    else {
-      (char*)bitmap->locked_region.data -= bitmap->lock_offs;
       // FIXME: don't copy the whole bitmap
       glBindTexture(GL_TEXTURE_2D, ogl_bitmap->texture);
       /* We don't copy anything past bitmap->h on purpose. */
-      //glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0,
-         //ogl_bitmap->true_w, bitmap->h,
-      glTexSubImage2D(GL_TEXTURE_2D, 0, bitmap->lock_x, bitmap->lock_y,
-         bitmap->lock_w, bitmap->lock_h,
+      glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0,
+         ogl_bitmap->true_w, bitmap->h,
          glformats[format][2],
          glformats[format][1],
-         bitmap->locked_region.data);
+         ogl_bitmap->lock_buffer);
       if (glGetError()) {
          TRACE("ogl_bitmap: glTexSubImage2D for format %d failed.\n",
             format);
@@ -572,7 +567,7 @@ static void ogl_unlock_region(ALLEGRO_BITMAP *bitmap)
       al_set_current_display(old_disp);
    }
 
-   _AL_FREE(bitmap->locked_region.data);
+   _AL_FREE(ogl_bitmap->lock_buffer);
 }
 
 

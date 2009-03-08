@@ -73,17 +73,18 @@ static void xdpy_set_icon(ALLEGRO_DISPLAY *d, ALLEGRO_BITMAP *bitmap)
    image->data = _AL_MALLOC_ATOMIC(image->bytes_per_line * h);
 
    // FIXME: Do this properly.
-   ALLEGRO_LOCKED_REGION lr;
-   if (al_lock_bitmap(bitmap, &lr, ALLEGRO_LOCK_READONLY)) {
+   ALLEGRO_LOCKED_REGION *lr;
+   lr = al_lock_bitmap(bitmap, 0, ALLEGRO_LOCK_READONLY);
+   if (lr) {
       const char *src;
       char *dst;
       int i;
 
-      src = lr.data;
+      src = lr->data;
       dst = image->data;
       for (i = 0; i < h; i++) {
          memcpy(dst, src, w * 4);
-         src += lr.pitch;
+         src += lr->pitch;
          dst += w * 4;
       }
 
@@ -198,7 +199,6 @@ static ALLEGRO_DISPLAY *xdpy_create_display(int w, int h)
    display->w = w;
    display->h = h;
    display->vt = xdpy_vt;
-   display->format = al_get_new_display_format();
    display->refresh_rate = al_get_new_display_refresh_rate();
    display->flags = al_get_new_display_flags();
 
@@ -230,13 +230,6 @@ static ALLEGRO_DISPLAY *xdpy_create_display(int w, int h)
    }
 
    TRACE("xdisplay: Selected visual %lx.\n", d->xvinfo->visualid);
-
-   /* Override the format field with the actual format selected.
-    * Note that the only time this matters is in our calls to
-    * gl[Read/Write]Pixels, where we can use any format anyway.
-    */
-   int format = _al_deduce_color_format(&display->extra_settings);
-   display->format = format;
 
    /* Add ourself to the list of displays. */
    ALLEGRO_DISPLAY_XGLX **add;
@@ -349,9 +342,9 @@ static ALLEGRO_DISPLAY *xdpy_create_display(int w, int h)
       display->extra_settings.settings[ALLEGRO_COMPATIBLE_DISPLAY] = 0;
    }
 #if 0
-   Apparently, you can get a OpenGL 3.0 context without specifically creating
-   it with glXCreateContextAttribsARB, and not every OpenGL 3.0 is evil, but we
-   can't tell the difference at this stage.
+   // Apparently, you can get a OpenGL 3.0 context without specifically creating
+   // it with glXCreateContextAttribsARB, and not every OpenGL 3.0 is evil, but we
+   // can't tell the difference at this stage.
    else if (display->ogl_extras->ogl_info.version > 2.1) {
       /* We don't have OpenGL3 a driver. */
       display->extra_settings.settings[ALLEGRO_COMPATIBLE_DISPLAY] = 0;

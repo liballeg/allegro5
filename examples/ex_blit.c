@@ -138,7 +138,7 @@ static void draw(void)
    set_xy(x, y + ih);
    
    al_destroy_bitmap(temp);
-   
+
    /* Test 3. */
    print("Screen -> Memory -> Screen (%.1f fps)", get_fps(2));
    get_xy(&x, &y);
@@ -158,7 +158,7 @@ static void draw(void)
    
    al_destroy_bitmap(temp);
    al_set_new_bitmap_flags(0);
-   
+
    /* Test 4. */
    print("Screen -> Locked -> Screen (%.1f fps)", get_fps(3));
    get_xy(&x, &y);
@@ -172,7 +172,7 @@ static void draw(void)
       memcpy((char*)data + i * size * iw, (char*)lock->data + i * lock->pitch, size * iw);
    al_unlock_bitmap(screen);
    
-   lock = al_lock_bitmap_region(screen, x + 8 + iw, y,  iw, ih, ALLEGRO_PIXEL_FORMAT_ANY, ALLEGRO_LOCK_WRITEONLY);
+   lock = al_lock_bitmap_region(screen, x + 8 + iw, y, iw, ih, ALLEGRO_PIXEL_FORMAT_ABGR_8888, ALLEGRO_LOCK_WRITEONLY);
    for (i = 0; i < ih; i++)
       memcpy((char*)lock->data + i * lock->pitch, (char*)data + i * size * iw, size * iw);
    al_unlock_bitmap(screen);

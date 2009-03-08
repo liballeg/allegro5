@@ -16,6 +16,8 @@ typedef struct ALLEGRO_BITMAP_OGL
    GLuint texture; /* 0 means, not uploaded yet. */
    GLuint fbo; /* 0 means, no fbo yet. */
 
+   unsigned char *lock_buffer;
+
    float left, top, right, bottom; /* Texture coordinates. */
    bool is_backbuffer; /* This is not a real bitmap, but the backbuffer. */
 } ALLEGRO_BITMAP_OGL;
