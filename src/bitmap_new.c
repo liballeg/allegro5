@@ -800,11 +800,20 @@ ALLEGRO_BITMAP *al_clone_bitmap(ALLEGRO_BITMAP *bitmap)
       return NULL;
    }
 
+   unsigned char *s = src_region->data;
+   printf("src0= %d %d %d\n", *s, *(s+1), *(s+2));
+
+   printf("src: %p %d %d (%d %d)\n", src_region->data, src_region->format, src_region->pitch, bitmap->w, bitmap->h);
+   printf("dst: %p %d %d (%d %d)\n", dst_region->data, dst_region->format, dst_region->pitch, bitmap->w, bitmap->h);
+
    _al_convert_bitmap_data(
 	src_region->data, src_region->format, src_region->pitch,
         dst_region->data, dst_region->format, dst_region->pitch,
         0, 0, 0, 0, bitmap->w, bitmap->h);
 
+   s = dst_region->data;
+   printf("dst0= %d %d %d\n", *s, *(s+1), *(s+2));
+   
    al_unlock_bitmap(bitmap);
    al_unlock_bitmap(clone);
 

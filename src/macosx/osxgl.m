@@ -822,7 +822,7 @@ static ALLEGRO_DISPLAY* create_display_fs(int w, int h) {
    memset(dpy, 0, sizeof(*dpy));
 	/* Set up the ALLEGRO_DISPLAY part */
 	dpy->parent.vt = _al_osx_get_display_driver_fs();
-	dpy->parent.format = al_get_new_display_format();
+	//dpy->parent.format = al_get_new_display_format();
 	dpy->parent.refresh_rate = al_get_new_display_refresh_rate();
 	dpy->parent.flags = al_get_new_display_flags() | ALLEGRO_OPENGL | ALLEGRO_FULLSCREEN;
 	_al_event_source_init(&dpy->parent.es);
@@ -881,6 +881,7 @@ static ALLEGRO_DISPLAY* create_display_fs(int w, int h) {
                                   waitUntilDone: NO];
    /* Retrieve the options that were set */
    osx_get_opengl_pixelformat_attributes(dpy);
+   dpy->parent.format = _al_deduce_color_format(&dpy->parent.extra_settings);
    return &dpy->parent;
 }
 
@@ -898,7 +899,7 @@ static ALLEGRO_DISPLAY* create_display_win(int w, int h) {
    memset(dpy, 0, sizeof(*dpy));
 	/* Set up the ALLEGRO_DISPLAY part */
 	dpy->parent.vt = _al_osx_get_display_driver_win();
-	dpy->parent.format = al_get_new_display_format();
+	//dpy->parent.format = al_get_new_display_format();
 	dpy->parent.refresh_rate = al_get_new_display_refresh_rate();
 	dpy->parent.flags = al_get_new_display_flags() | ALLEGRO_OPENGL | ALLEGRO_WINDOWED;
 	dpy->parent.w = w;
@@ -925,6 +926,7 @@ static ALLEGRO_DISPLAY* create_display_win(int w, int h) {
 
    /* Retrieve the options that were set */
    osx_get_opengl_pixelformat_attributes(dpy);
+   dpy->parent.format = _al_deduce_color_format(&dpy->parent.extra_settings);
 
 	/* Set up GL as we want */
 	setup_gl(&dpy->parent);
