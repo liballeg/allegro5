@@ -451,37 +451,36 @@ static ALLEGRO_LOCKED_REGION *ogl_lock_region(ALLEGRO_BITMAP *bitmap,
       ogl_bitmap->lock_buffer = _AL_MALLOC(pitch * h);
 
       if (!(flags & ALLEGRO_LOCK_WRITEONLY)) {
-         //GLint pack_row_length;
-         //glGetIntegerv(GL_PACK_ROW_LENGTH, &pack_row_length);
-         //glPixelStorei(GL_PACK_ROW_LENGTH, ogl_bitmap->true_w);
-         //glPixelStorei(GL_PACK_ROW_LENGTH, w);
          glReadPixels(x, gl_y, w, h,
             glformats[format][2],
             glformats[format][1],
             ogl_bitmap->lock_buffer);
-            //bitmap->memory + pitch * gl_y + pixel_size * x);
          if (glGetError()) {
             TRACE("ogl_bitmap: glReadPixels for format %d failed.\n",
                format);
          }
-         //glPixelStorei(GL_PACK_ROW_LENGTH, pack_row_length);
       }
       bitmap->locked_region.data = ogl_bitmap->lock_buffer +
          pitch * (h - 1);
    }
    else {
-      //FIXME: use glPixelStore or similar to only synchronize the required
-      //region?
-      // Maybe using FBO and glReadPixels is the only way to do that,
-      // but we really should.
-      pitch = bitmap->pitch;
-      ogl_bitmap->lock_buffer = _AL_MALLOC(pitch * ogl_bitmap->true_h);
+      if (flags & ALLEGRO_LOCK_WRITEONLY) {
+         /* For write-only locking, we allocate a buffer just big enough
+          * to later be passed to glTexSubImage2D.
+          */
+         pitch = w * pixel_size;
+         ogl_bitmap->lock_buffer = _AL_MALLOC(pitch * h);
+         bitmap->locked_region.data = ogl_bitmap->lock_buffer +
+            pitch * (h - 1);
+      }
+      else {
+         // FIXME: Using glGetTexImage means we always read the complete
+         // texture - even when only a single pixel is locked. Likely
+         // using FBO and glReadPixels to just read the locked part
+         // would be faster.
+         pitch = bitmap->pitch;
+         ogl_bitmap->lock_buffer = _AL_MALLOC(pitch * ogl_bitmap->true_h);
 
-      // FIXME: ALLEGRO_LOCK_WRITEONLY only does not have to "download"
-      // the texture if the area is exactly the same we are going
-      // to "upload" when unlocking.
-      if (!(flags & ALLEGRO_LOCK_WRITEONLY) || x != 0 || y != 0 ||
-        w != ogl_bitmap->true_w || h != bitmap->h ) {
          glBindTexture(GL_TEXTURE_2D, ogl_bitmap->texture);
          glGetTexImage(GL_TEXTURE_2D, 0, glformats[format][2],
             glformats[format][1], ogl_bitmap->lock_buffer);
@@ -489,9 +488,10 @@ static ALLEGRO_LOCKED_REGION *ogl_lock_region(ALLEGRO_BITMAP *bitmap,
             TRACE("ogl_bitmap: glGetTexImage for format %d failed.\n",
                format);
          }
+
+         bitmap->locked_region.data = ogl_bitmap->lock_buffer +
+            pitch * (gl_y + h - 1) + pixel_size * x;
       }
-      bitmap->locked_region.data = ogl_bitmap->lock_buffer +
-         pitch * (gl_y + h - 1) + pixel_size * x;
    }
 
    bitmap->locked_region.format = format;
@@ -511,8 +511,6 @@ static void ogl_unlock_region(ALLEGRO_BITMAP *bitmap)
 {
    ALLEGRO_BITMAP_OGL *ogl_bitmap = (void *)bitmap;
    const int format = bitmap->locked_region.format;
-   //const int pixel_size = al_get_pixel_size(format);
-   //const int pitch = bitmap->locked_region.pitch; 
    ALLEGRO_DISPLAY *old_disp = NULL;
 
    if (bitmap->lock_flags & ALLEGRO_LOCK_READONLY) {
@@ -527,7 +525,6 @@ static void ogl_unlock_region(ALLEGRO_BITMAP *bitmap)
    }
 
    if (ogl_bitmap->is_backbuffer) {
-      //GLint unpack_row_length;
       GLint gl_y = bitmap->h - bitmap->lock_y - bitmap->lock_h;
       /* glWindowPos2i may not be available. */
       if (al_opengl_version() >= 1.4) {
@@ -540,10 +537,6 @@ static void ogl_unlock_region(ALLEGRO_BITMAP *bitmap)
          glRasterPos2f(bitmap->lock_x,
             bitmap->lock_y + bitmap->lock_h - 1e-4f);
       }
-
-      /* This is to avoid copy padding when true_w > w. */
-      //glGetIntegerv(GL_UNPACK_ROW_LENGTH, &unpack_row_length);
-      //glPixelStorei(GL_UNPACK_ROW_LENGTH, ogl_bitmap->true_w);
       glDrawPixels(bitmap->lock_w, bitmap->lock_h,
          glformats[format][2],
          glformats[format][1],
@@ -555,17 +548,35 @@ static void ogl_unlock_region(ALLEGRO_BITMAP *bitmap)
       //glPixelStorei(GL_UNPACK_ROW_LENGTH, unpack_row_length);
    }
    else {
-      // FIXME: don't copy the whole bitmap
       glBindTexture(GL_TEXTURE_2D, ogl_bitmap->texture);
-      /* We don't copy anything past bitmap->h on purpose. */
-      glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0,
-         ogl_bitmap->true_w, bitmap->h,
-         glformats[format][2],
-         glformats[format][1],
-         ogl_bitmap->lock_buffer);
-      if (glGetError()) {
-         TRACE("ogl_bitmap: glTexSubImage2D for format %d failed.\n",
-            format);
+      if (bitmap->lock_flags & ALLEGRO_LOCK_WRITEONLY) {
+         GLint gl_y = bitmap->h - bitmap->lock_y - bitmap->lock_h;
+         glTexSubImage2D(GL_TEXTURE_2D, 0,
+            bitmap->lock_x, gl_y,
+            bitmap->lock_w, bitmap->lock_h,
+            glformats[format][2],
+            glformats[format][1],
+            ogl_bitmap->lock_buffer);
+         if (glGetError()) {
+            TRACE("ogl_bitmap: glTexSubImage2D for format %d failed.\n",
+               format);
+         }
+      }
+      else {
+         // FIXME: Don't copy the whole bitmap. For example use
+         // FBO and glDrawPixels to draw the locked area back
+         // into the texture.
+
+         /* We don't copy anything past bitmap->h on purpose. */
+         glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0,
+            ogl_bitmap->true_w, bitmap->h,
+            glformats[format][2],
+            glformats[format][1],
+            ogl_bitmap->lock_buffer);
+         if (glGetError()) {
+            TRACE("ogl_bitmap: glTexSubImage2D for format %d failed.\n",
+               format);
+         }
       }
    }
 

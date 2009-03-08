@@ -102,7 +102,7 @@ static void draw(void)
    ALLEGRO_BITMAP *screen, *temp;
    ALLEGRO_LOCKED_REGION *lock;
    void *data;
-   int size, i;
+   int size, i, format;
    
    al_set_blender(ALLEGRO_ONE, ALLEGRO_ZERO, ex.white);
 
@@ -164,20 +164,25 @@ static void draw(void)
    get_xy(&x, &y);
    al_draw_bitmap(ex.pattern, x, y, 0);
 
-   size = al_get_pixel_size(ALLEGRO_PIXEL_FORMAT_ABGR_8888);
-   data = malloc(size * iw * ih);
    start_timer(3);
-   lock = al_lock_bitmap_region(screen, x, y, iw, ih, ALLEGRO_PIXEL_FORMAT_ABGR_8888, ALLEGRO_LOCK_READONLY);
+   lock = al_lock_bitmap_region(screen, x, y, iw, ih,
+      ALLEGRO_PIXEL_FORMAT_ANY, ALLEGRO_LOCK_READONLY);
+   format = lock->format;
+   size = al_get_pixel_size(format);
+   data = malloc(size * iw * ih);
    for (i = 0; i < ih; i++)
-      memcpy((char*)data + i * size * iw, (char*)lock->data + i * lock->pitch, size * iw);
+      memcpy((char*)data + i * size * iw,
+         (char*)lock->data + i * lock->pitch, size * iw);
    al_unlock_bitmap(screen);
    
-   lock = al_lock_bitmap_region(screen, x + 8 + iw, y, iw, ih, ALLEGRO_PIXEL_FORMAT_ABGR_8888, ALLEGRO_LOCK_WRITEONLY);
+   lock = al_lock_bitmap_region(screen, x + 8 + iw, y, iw, ih, format,
+      ALLEGRO_LOCK_WRITEONLY);
    for (i = 0; i < ih; i++)
-      memcpy((char*)lock->data + i * lock->pitch, (char*)data + i * size * iw, size * iw);
+      memcpy((char*)lock->data + i * lock->pitch,
+         (char*)data + i * size * iw, size * iw);
    al_unlock_bitmap(screen);
-   stop_timer(3);
    free(data);
+   stop_timer(3);
    set_xy(x, y + ih);
 
 }
