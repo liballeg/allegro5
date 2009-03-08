@@ -511,12 +511,6 @@ static void ogl_unlock_region(ALLEGRO_BITMAP *bitmap)
    const int pitch = bitmap->locked_region.pitch; 
    ALLEGRO_DISPLAY *old_disp = NULL;
 
-   printf("format=%d pixel_size=%d pitch=%d\n", format, pixel_size, pitch);
-
-   printf("x y w h = %d %d %d %d\n", bitmap->lock_x, bitmap->lock_y, bitmap->lock_w, bitmap->lock_h);
-      printf("HERE\n");
-      char *s = bitmap->locked_region.data;
-      printf("%d %d %d\n", *s, *(s+1), *(s+2));
    if (bitmap->lock_flags & ALLEGRO_LOCK_READONLY) {
       _AL_FREE(bitmap->locked_region.data);
       return;
@@ -572,9 +566,6 @@ static void ogl_unlock_region(ALLEGRO_BITMAP *bitmap)
          TRACE("ogl_bitmap: glTexSubImage2D for format %d failed.\n",
             format);
       }
-      printf("HERE\n");
-      char *s = bitmap->locked_region.data;
-      printf("%d %d %d\n", *s, *(s+1), *(s+2));
    }
 
    if (old_disp) {
