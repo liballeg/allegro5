@@ -333,7 +333,7 @@ static void read_32bit_line(int length, ALLEGRO_FS_ENTRY *f, int line)
 /* read_bitfields_image:
  *  For reading the bitfield compressed BMP image format.
  */
-static void read_bitfields_image(ALLEGRO_FS_ENTRY *f, AL_CONST BMPINFOHEADER *infoheader, int bpp)
+static void read_bitfields_image(ALLEGRO_FS_ENTRY *f, const BMPINFOHEADER *infoheader, int bpp)
 {
    int k, i, line, height, dir;
    int bytes_per_pixel;
@@ -384,7 +384,7 @@ static void read_bitfields_image(ALLEGRO_FS_ENTRY *f, AL_CONST BMPINFOHEADER *in
  *  For reading the noncompressed BMP image format.
  */
 static void read_image(ALLEGRO_FS_ENTRY *f,
-                       AL_CONST BMPINFOHEADER *infoheader, PalEntry *pal)
+                       const BMPINFOHEADER *infoheader, PalEntry *pal)
 {
    int i, j, line, height, dir;
    unsigned char *buf;
@@ -442,7 +442,7 @@ static void read_image(ALLEGRO_FS_ENTRY *f,
  *  For reading the 8 bit RLE compressed BMP image format.
  */
 static void read_RLE8_compressed_image(ALLEGRO_FS_ENTRY *f, unsigned char *buf,
-                                       AL_CONST BMPINFOHEADER *infoheader)
+                                       const BMPINFOHEADER *infoheader)
 {
    unsigned char count, val, val0;
    int j, pos, line;
@@ -513,7 +513,7 @@ static void read_RLE8_compressed_image(ALLEGRO_FS_ENTRY *f, unsigned char *buf,
  *  For reading the 4 bit RLE compressed BMP image format.
  */
 static void read_RLE4_compressed_image(ALLEGRO_FS_ENTRY *f, unsigned char *buf,
-                                       AL_CONST BMPINFOHEADER *infoheader)
+                                       const BMPINFOHEADER *infoheader)
 {
    unsigned char b[8];
    unsigned char count;
@@ -817,7 +817,7 @@ int iio_save_bmp_entry(ALLEGRO_FS_ENTRY *f, ALLEGRO_BITMAP *bmp)
  * <al_create_bitmap>.
  * See Also: <al_iio_load>.
  */
-ALLEGRO_BITMAP *iio_load_bmp(AL_CONST char *filename)
+ALLEGRO_BITMAP *iio_load_bmp(const char *filename)
 {
    ALLEGRO_FS_ENTRY *f;
    ALLEGRO_BITMAP *bmp;
@@ -839,7 +839,7 @@ ALLEGRO_BITMAP *iio_load_bmp(AL_CONST char *filename)
  * Save an ALLEGRO_BITMAP as a BMP file. 
  * See Also: <al_iio_save>.
  */
-int iio_save_bmp(AL_CONST char *filename, ALLEGRO_BITMAP *bmp)
+int iio_save_bmp(const char *filename, ALLEGRO_BITMAP *bmp)
 {
    ALLEGRO_FS_ENTRY *f;
    int ret;

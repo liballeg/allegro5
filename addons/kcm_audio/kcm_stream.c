@@ -680,9 +680,6 @@ bool al_rewind_stream(ALLEGRO_STREAM *stream)
 }
 
 /* Function: al_seek_stream
- * Set the streaming file playing position to time. Returns true on success.
- * Currently this can only be called on streams created with acodec's
- * al_stream_from_file().
  */
 bool al_seek_stream(ALLEGRO_STREAM *stream, double time)
 {
@@ -698,9 +695,6 @@ bool al_seek_stream(ALLEGRO_STREAM *stream, double time)
 }
 
 /* Function: al_get_stream_position
- * Return the position of the stream in seconds.
- * Currently this can only be called on streams created with acodec's
- * al_stream_from_file().
  */
 double al_get_stream_position(ALLEGRO_STREAM *stream)
 {
@@ -716,9 +710,6 @@ double al_get_stream_position(ALLEGRO_STREAM *stream)
 }
 
 /* Function: al_get_stream_length
- * Return the position of the stream in seconds.
- * Currently this can only be called on streams created with acodec's
- * al_stream_from_file().
  */
 double al_get_stream_length(ALLEGRO_STREAM *stream)
 {
@@ -733,9 +724,6 @@ double al_get_stream_length(ALLEGRO_STREAM *stream)
 }
 
 /* Function: al_set_stream_loop
- * Return the position of the stream in seconds.
- * Currently this can only be called on streams created with acodec's
- * al_stream_from_file().
  */
 bool al_set_stream_loop(ALLEGRO_STREAM *stream, double start, double end)
 {

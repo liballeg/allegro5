@@ -240,7 +240,7 @@ int iio_save_pcx_entry(ALLEGRO_FS_ENTRY *f, ALLEGRO_BITMAP *bmp)
  * <al_create_bitmap>.
  * See Also: <al_iio_load>.
  */
-ALLEGRO_BITMAP *iio_load_pcx(AL_CONST char *filename)
+ALLEGRO_BITMAP *iio_load_pcx(const char *filename)
 {
    ALLEGRO_FS_ENTRY *f;
    ALLEGRO_BITMAP *bmp;
@@ -262,7 +262,7 @@ ALLEGRO_BITMAP *iio_load_pcx(AL_CONST char *filename)
  * Save an ALLEGRO_BITMAP as a PCX file. 
  * See Also: <al_iio_save>.
  */
-int iio_save_pcx(AL_CONST char *filename, ALLEGRO_BITMAP *bmp)
+int iio_save_pcx(const char *filename, ALLEGRO_BITMAP *bmp)
 {
    ALLEGRO_FS_ENTRY *f;
    int ret;

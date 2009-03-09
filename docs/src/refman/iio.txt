@@ -9,13 +9,25 @@ Initializes the IIO addon.
 
 ## API: al_iio_load
 
-Loads an image file into an ALLEGRO_BITMAP. File type
-is determined by the extension.
+Loads an image file into an ALLEGRO_BITMAP.
+The file type is determined by the extension.
+
+## API: al_iio_load_entry
+
+Loads an image from an ALLEGRO_FS_ENTRY into an ALLEGRO_BITMAP.
+The file type is determined by the passed 'ident' parameter, which is a file
+name extension including the leading dot.
 
 ## API: al_iio_save
 
-Saves an ALLEGRO_BITMAP to an image file. File type
-is determined by the extension.
+Saves an ALLEGRO_BITMAP to an image file.
+The file type is determined by the extension.
+
+## API: al_iio_save_entry
+
+Saves an ALLEGRO_BITMAP to an ALLEGRO_FS_ENTRY.
+The file type is determined by the passed 'ident' parameter, which is a file
+name extension including the leading dot.
 
 ## API: iio_load_bmp
 

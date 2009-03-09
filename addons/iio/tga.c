@@ -541,7 +541,7 @@ int iio_save_tga_entry(ALLEGRO_FS_ENTRY *f, ALLEGRO_BITMAP *bmp)
  * <al_create_bitmap>.
  * See Also: <al_iio_load>.
  */
-ALLEGRO_BITMAP *iio_load_tga(AL_CONST char *filename)
+ALLEGRO_BITMAP *iio_load_tga(const char *filename)
 {
    ALLEGRO_FS_ENTRY *f;
    ALLEGRO_BITMAP *bmp;
@@ -564,7 +564,7 @@ ALLEGRO_BITMAP *iio_load_tga(AL_CONST char *filename)
  * Save an ALLEGRO_BITMAP as a TGA file. 
  * See Also: <al_iio_save>.
  */
-int iio_save_tga(AL_CONST char *filename, ALLEGRO_BITMAP *bmp)
+int iio_save_tga(const char *filename, ALLEGRO_BITMAP *bmp)
 {
    ALLEGRO_FS_ENTRY *f;
    int ret;

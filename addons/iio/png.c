@@ -26,7 +26,7 @@ static double get_gamma(void)
        * 2.2 is a good guess for PC monitors.
        * 1.1 is good for my laptop.
        */
-      AL_CONST char *gamma_str = getenv("SCREEN_GAMMA");
+      const char *gamma_str = getenv("SCREEN_GAMMA");
       return (gamma_str) ? atof(gamma_str) : 2.2;
    }
 
@@ -322,7 +322,7 @@ ALLEGRO_BITMAP *iio_load_png_entry(ALLEGRO_FS_ENTRY *fp)
  * <al_create_bitmap>.
  * See Also: <al_iio_load>.
  */
-ALLEGRO_BITMAP *iio_load_png(AL_CONST char *filename)
+ALLEGRO_BITMAP *iio_load_png(const char *filename)
 {
    ALLEGRO_FS_ENTRY *fp;
    ALLEGRO_BITMAP *bmp;
@@ -500,7 +500,7 @@ int iio_save_png_entry(ALLEGRO_FS_ENTRY *fp, ALLEGRO_BITMAP *bmp)
  * Save an ALLEGRO_BITMAP as a PNG file. 
  * See Also: <al_iio_save>.
  */
-int iio_save_png(AL_CONST char *filename, ALLEGRO_BITMAP *bmp)
+int iio_save_png(const char *filename, ALLEGRO_BITMAP *bmp)
 {
    ALLEGRO_FS_ENTRY *fp;
    int result;

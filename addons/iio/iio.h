@@ -12,11 +12,11 @@ typedef struct PalEntry {
 } PalEntry;
 
 
-ALLEGRO_BITMAP *iio_load_pcx(AL_CONST char *filename);
-ALLEGRO_BITMAP *iio_load_bmp(AL_CONST char *filename);
-ALLEGRO_BITMAP *iio_load_tga(AL_CONST char *filename);
-ALLEGRO_BITMAP *iio_load_png(AL_CONST char *filename);
-ALLEGRO_BITMAP *iio_load_jpg(AL_CONST char *filename);
+ALLEGRO_BITMAP *iio_load_pcx(const char *filename);
+ALLEGRO_BITMAP *iio_load_bmp(const char *filename);
+ALLEGRO_BITMAP *iio_load_tga(const char *filename);
+ALLEGRO_BITMAP *iio_load_png(const char *filename);
+ALLEGRO_BITMAP *iio_load_jpg(const char *filename);
 
 
 ALLEGRO_BITMAP *iio_load_pcx_entry(ALLEGRO_FS_ENTRY *pf);
@@ -26,11 +26,11 @@ ALLEGRO_BITMAP *iio_load_png_entry(ALLEGRO_FS_ENTRY *pf);
 ALLEGRO_BITMAP *iio_load_jpg_entry(ALLEGRO_FS_ENTRY *pf);
 
 
-int iio_save_pcx(AL_CONST char *filename, ALLEGRO_BITMAP *bmp);
-int iio_save_bmp(AL_CONST char *filename, ALLEGRO_BITMAP *bmp);
-int iio_save_tga(AL_CONST char *filename, ALLEGRO_BITMAP *bmp);
-int iio_save_png(AL_CONST char *filename, ALLEGRO_BITMAP *bmp);
-int iio_save_jpg(AL_CONST char *filename, ALLEGRO_BITMAP *bmp);
+int iio_save_pcx(const char *filename, ALLEGRO_BITMAP *bmp);
+int iio_save_bmp(const char *filename, ALLEGRO_BITMAP *bmp);
+int iio_save_tga(const char *filename, ALLEGRO_BITMAP *bmp);
+int iio_save_png(const char *filename, ALLEGRO_BITMAP *bmp);
+int iio_save_jpg(const char *filename, ALLEGRO_BITMAP *bmp);
 
 
 int iio_save_pcx_entry(ALLEGRO_FS_ENTRY *pf, ALLEGRO_BITMAP *bmp);

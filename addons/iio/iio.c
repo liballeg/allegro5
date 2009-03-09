@@ -59,8 +59,9 @@ bool al_iio_init(void)
 
 /* Function: al_iio_add_handler
  */
-bool al_iio_add_handler(AL_CONST char *extension,
-                        IIO_LOADER_FUNCTION loader, IIO_SAVER_FUNCTION saver, IIO_FS_LOADER_FUNCTION fs_loader, IIO_FS_SAVER_FUNCTION fs_saver)
+bool al_iio_add_handler(const char *extension,
+   IIO_LOADER_FUNCTION loader, IIO_SAVER_FUNCTION saver,
+   IIO_FS_LOADER_FUNCTION fs_loader, IIO_FS_SAVER_FUNCTION fs_saver)
 {
    Handler *l;
 
@@ -98,7 +99,7 @@ bool al_iio_add_handler(AL_CONST char *extension,
 }
 
 
-static char *iio_get_extension(AL_CONST char *filename)
+static char *iio_get_extension(const char *filename)
 {
    int count = 0;
    int pos = strlen(filename) - 1;
@@ -120,7 +121,7 @@ static char *iio_get_extension(AL_CONST char *filename)
 }
 
 
-static int iio_stricmp(AL_CONST char *s1, AL_CONST char *s2)
+static int iio_stricmp(const char *s1, const char *s2)
 {
    int i;
 
@@ -140,7 +141,7 @@ static int iio_stricmp(AL_CONST char *s1, AL_CONST char *s2)
 }
 
 
-static Handler *find_handler(AL_CONST char *filename)
+static Handler *find_handler(const char *filename)
 {
    char *p = iio_get_extension(filename);
    char extension[MAX_EXTENSION];
@@ -165,7 +166,7 @@ static Handler *find_handler(AL_CONST char *filename)
  * Loads an image file into an ALLEGRO_BITMAP. File type
  * is determined by the extension.
  */
-ALLEGRO_BITMAP *al_iio_load(AL_CONST char *filename)
+ALLEGRO_BITMAP *al_iio_load(const char *filename)
 {
    Handler *h = find_handler(filename);
    if (h)
@@ -178,7 +179,7 @@ ALLEGRO_BITMAP *al_iio_load(AL_CONST char *filename)
  * Saves an ALLEGRO_BITMAP to an image file. File type
  * is determined by the extension.
  */
-int al_iio_save(AL_CONST char *filename, ALLEGRO_BITMAP *bitmap)
+int al_iio_save(const char *filename, ALLEGRO_BITMAP *bitmap)
 {
    Handler *h = find_handler(filename);
    if (h)
@@ -189,11 +190,9 @@ int al_iio_save(AL_CONST char *filename, ALLEGRO_BITMAP *bitmap)
    }
 }
 
-/* Function: al_iio_load_fs
- * Loads an image from an ALLEGRO_FS_ENTRY into an ALLEGRO_BITMAP. File type
- * is determined by the ident.
+/* Function: al_iio_load_entry
  */
-ALLEGRO_BITMAP *al_iio_load_entry(ALLEGRO_FS_ENTRY *pf, AL_CONST char *ident)
+ALLEGRO_BITMAP *al_iio_load_entry(ALLEGRO_FS_ENTRY *pf, const char *ident)
 {
    Handler *h = find_handler(ident);
    if (h)
@@ -202,11 +201,10 @@ ALLEGRO_BITMAP *al_iio_load_entry(ALLEGRO_FS_ENTRY *pf, AL_CONST char *ident)
       return NULL;
 }
 
-/* Function: al_iio_save_fs
- * Saves an ALLEGRO_BITMAP to an ALLEGRO_FS_ENTRY. File type
- * is determined by the passed ident.
+/* Function: al_iio_save_entry
  */
-int al_iio_save_entry(ALLEGRO_FS_ENTRY *pf, AL_CONST char *ident, ALLEGRO_BITMAP *bitmap)
+int al_iio_save_entry(ALLEGRO_FS_ENTRY *pf, const char *ident,
+   ALLEGRO_BITMAP *bitmap)
 {
    Handler *h = find_handler(ident);
    if (h)

@@ -523,3 +523,27 @@ success. Currently this can only be called on streams created with acodec's
 
 ## API: al_set_stream_ptr
 
+## API: al_seek_stream
+
+Set the streaming file playing position to time. Returns true on success.
+Currently this can only be called on streams created with acodec's
+[al_stream_from_file].
+
+## API: al_get_stream_position
+
+Return the position of the stream in seconds.
+Currently this can only be called on streams created with acodec's
+[al_stream_from_file].
+
+## API: al_get_stream_length
+
+Return the position of the stream in seconds.
+Currently this can only be called on streams created with acodec's
+[al_stream_from_file].
+
+## API: al_set_stream_loop
+
+Return the position of the stream in seconds.
+Currently this can only be called on streams created with acodec's
+[al_stream_from_file].
+
