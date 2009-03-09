@@ -317,7 +317,7 @@ ALLEGRO_FONT *al_ttf_load_font(char const *filename, int size, int flags)
      * a separate file - and we try to guess the name of that file.
      */
     path = al_path_create(filename);
-    if (!0 == strcmp(al_path_get_extension(path), ".pfa")) {
+    if (!strcmp(al_path_get_extension(path), ".pfa")) {
         const char *helper;
         TRACE("a5-ttf: Type1 font assumed for %s.\n", filename);
 
