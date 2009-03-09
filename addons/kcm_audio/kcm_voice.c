@@ -52,11 +52,6 @@ const void *_al_voice_update(ALLEGRO_VOICE *voice, unsigned long *samples)
 
 
 /* Function: al_create_voice
- *  Creates a voice struct and allocates a voice from the digital sound driver.
- *  The sound driver's allocate_voice function should change the voice's
- *  frequency, depth, chan_conf, and settings fields to match what is actually
- *  allocated. If it cannot create a voice with exact settings it will fail.
- *  Use a mixer in such a case.
  */
 ALLEGRO_VOICE *al_create_voice(unsigned long freq,
    ALLEGRO_AUDIO_DEPTH depth, ALLEGRO_CHANNEL_CONF chan_conf)
@@ -95,8 +90,6 @@ ALLEGRO_VOICE *al_create_voice(unsigned long freq,
 
 
 /* Function: al_destroy_voice
- *  Destroys the voice and deallocates it from the digital driver.
- *  Does nothing if the voice is NULL.
  */
 void al_destroy_voice(ALLEGRO_VOICE *voice)
 {
@@ -113,10 +106,6 @@ void al_destroy_voice(ALLEGRO_VOICE *voice)
 
 
 /* Function: al_attach_sample_to_voice
- *  Attaches a sample to a voice, and allows it to play. The sample's volume
- *  and loop mode will be ignored, and it must have the same frequency and
- *  depth (including signed-ness) as the voice. This function may fail if the
- *  selected driver doesn't support preloading sample data.
  */
 int al_attach_sample_to_voice(ALLEGRO_VOICE *voice, ALLEGRO_SAMPLE_INSTANCE *spl)
 {
@@ -241,9 +230,6 @@ static void stream_read(void *source, void **vbuf, unsigned long *samples,
 
 
 /* Function: al_attach_stream_to_voice
- *  Attaches an audio stream to a voice. The same rules as
- *  <al_attach_sample_to_voice> apply. This may fail if the driver can't create
- *  a voice with the buffer count and buffer size the stream uses.
  */
 int al_attach_stream_to_voice(ALLEGRO_VOICE *voice, ALLEGRO_STREAM *stream)
 {
@@ -310,8 +296,6 @@ int al_attach_stream_to_voice(ALLEGRO_VOICE *voice, ALLEGRO_STREAM *stream)
 
 
 /* Function: al_attach_mixer_to_voice
- *  Attaches a mixer to a voice. The same rules as <al_attach_sample_to_voice>
- *  apply, with the exception of the depth requirement.
  */
 int al_attach_mixer_to_voice(ALLEGRO_VOICE *voice, ALLEGRO_MIXER *mixer)
 {
@@ -360,7 +344,6 @@ int al_attach_mixer_to_voice(ALLEGRO_VOICE *voice, ALLEGRO_MIXER *mixer)
 
 
 /* Function: al_detach_voice
- *  Detaches the sample or mixer stream from the voice.
  */
 void al_detach_voice(ALLEGRO_VOICE *voice)
 {

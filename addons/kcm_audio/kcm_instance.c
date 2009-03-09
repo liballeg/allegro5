@@ -130,10 +130,6 @@ void _al_kcm_detach_from_parent(ALLEGRO_SAMPLE_INSTANCE *spl)
 
 
 /* Function: al_create_sample_instance
- *  Creates a sample stream, using the supplied data.  This must be attached
- *  to a voice or mixer before it can be played.
- *  The argument may be NULL. You can then set the data later with
- *  <al_set_sample_data>.
  */
 ALLEGRO_SAMPLE_INSTANCE *al_create_sample_instance(ALLEGRO_SAMPLE *sample_data)
 {
@@ -175,8 +171,6 @@ ALLEGRO_SAMPLE_INSTANCE *al_create_sample_instance(ALLEGRO_SAMPLE *sample_data)
 
 /* This function is ALLEGRO_MIXER aware */
 /* Function: al_destroy_sample_instance
- *  Detaches the sample stream from anything it may be attached to and frees
- *  it (the sample data is *not* freed!).
  */
 void al_destroy_sample_instance(ALLEGRO_SAMPLE_INSTANCE *spl)
 {
@@ -629,24 +623,6 @@ int al_set_sample_instance_ptr(ALLEGRO_SAMPLE_INSTANCE *spl,
 
 
 /* Function: al_set_sample
- *  Change the sample data that a sample plays.  This can be quite an involved
- *  process.
- *
- *  First, the sample is stopped if it is not already.
- *
- *  Next, if data is NULL, the sample is detached from its parent (if any).
- *
- *  If data is not NULL, the sample may be detached and reattached to its
- *  parent (if any).  This is not necessary if the old sample data and new
- *  sample data have the same frequency, depth and channel configuration.
- *  Reattaching may not always succeed.
- *
- *  On success, the sample remains stopped.  The playback position and loop
- *  end points are reset to their default values.  The loop mode remains
- *  unchanged.
- *
- *  Returns zero on success, non-zero on failure.  On failure, the sample will
- *  be stopped and detached from its parent.
  */
 int al_set_sample(ALLEGRO_SAMPLE_INSTANCE *spl, ALLEGRO_SAMPLE *data)
 {

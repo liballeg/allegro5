@@ -20,8 +20,6 @@
 
 
 /* Function: al_create_stream
- *  Creates an audio stream, using the supplied values. The stream will be
- *  set to play by default.
  */
 ALLEGRO_STREAM *al_create_stream(size_t buffer_count, unsigned long samples,
    unsigned long freq, ALLEGRO_AUDIO_DEPTH depth,
@@ -126,9 +124,6 @@ void al_destroy_stream(ALLEGRO_STREAM *stream)
 
 
 /* Function: al_drain_stream
- * Called by the user if sample data is not going to be passed to the stream
- * any longer. This function waits for all pending buffers to finish playing.
- * Stream's playing state will change to false.
  */
 void al_drain_stream(ALLEGRO_STREAM *stream)
 {
@@ -662,9 +657,6 @@ bool _al_kcm_emit_stream_event(ALLEGRO_STREAM *stream, unsigned long count)
 
 
 /* Function: al_rewind_stream
- * Set the streaming file playing position to the beginning. Returns true on
- * success. Currently this can only be called on streams created with acodec's
- * al_stream_from_file().
  */
 bool al_rewind_stream(ALLEGRO_STREAM *stream)
 {

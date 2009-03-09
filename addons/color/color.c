@@ -168,43 +168,6 @@ static int compare(const void *va, const void *vb)
 }
 
 /* Function: al_color_name_to_rgb
- * 
- * Parameters:
- * name - The (lowercase) name of the color.
- * r, g, b - If one of the recognized color names below is passed,
- *    the corresponding RGB values in the range 0..1 are written.
- * 
- * The recognized names are:
- * aliceblue, antiquewhite, aqua, aquamarine, azure, beige, bisque,
- * black, blanchedalmond, blue, blueviolet, brown, burlywood, cadetblue,
- * chartreuse, chocolate, coral, cornflowerblue, cornsilk, crimson,
- * cyan, darkblue, darkcyan, darkgoldenrod, darkgray, darkgreen,
- * darkkhaki, darkmagenta, darkolivegreen, darkorange, darkorchid,
- * darkred, darksalmon, darkseagreen, darkslateblue, darkslategray,
- * darkturquoise, darkviolet, deeppink, deepskyblue, dimgray,
- * dodgerblue, firebrick, floralwhite, forestgreen, fuchsia, gainsboro,
- * ghostwhite, goldenrod, gold, gray, green, greenyellow, honeydew,
- * hotpink, indianred, indigo, ivory, khaki, lavenderblush, lavender,
- * lawngreen, lemonchiffon, lightblue, lightcoral, lightcyan,
- * lightgoldenrodyellow, lightgreen, lightgrey, lightpink,
- * lightsalmon, lightseagreen, lightskyblue, lightslategray,
- * lightsteelblue, lightyellow, lime, limegreen, linen, magenta, maroon,
- * mediumaquamarine, mediumblue, mediumorchid, mediumpurple,
- * mediumseagreen, mediumslateblue, mediumspringgreen, mediumturquoise,
- * mediumvioletred, midnightblue, mintcream, mistyrose, moccasin, 
- * avajowhite, navy, oldlace, olive, olivedrab, orange, orangered,
- * orchid, palegoldenrod, palegreen, paleturquoise, palevioletred,
- * papayawhip, peachpuff, peru, pink, plum, powderblue, purple,
- * purwablue, red, rosybrown, royalblue, saddlebrown, salmon,
- * sandybrown, seagreen, seashell, sienna, silver, skyblue, slateblue,
- * slategray, snow, springgreen, steelblue, tan, teal, thistle, tomato,
- * turquoise, violet, wheat, white, whitesmoke, yellow, yellowgreen
- * 
- * They are taken from [http://en.wikipedia.org/wiki/X11_color_names],
- * with CSS names being preferred over X11 ones where there is overlap.
- * 
- * Returns:
- * 0 if a name from the list above was passed, else 1.
  */
 int al_color_name_to_rgb(char const *name, float *r, float *g, float *b)
 {
@@ -222,9 +185,6 @@ int al_color_name_to_rgb(char const *name, float *r, float *g, float *b)
 }
 
 /* Function: al_color_rgb_to_name
- * 
- * Given an RGB triplet with components in the range 0..1, find a color
- * name describing it approximately.
  */
 char const *al_color_rgb_to_name(float r, float g, float b)
 {
@@ -258,12 +218,6 @@ ALLEGRO_COLOR al_color_name(char const *name)
 }
 
 /* Function: al_color_hsv_to_rgb
- * 
- * Parameters:
- * hue - Color hue angle in the range 0..360.
- * saturation - Color saturation in the range 0..1.
- * value - Color value in the range 0..1.
- * red, green, blue - returned RGB values in the range 0..1.
  */
 void al_color_hsv_to_rgb(float hue, float saturation, float value,
    float *red, float *green, float *blue)
@@ -288,9 +242,6 @@ void al_color_hsv_to_rgb(float hue, float saturation, float value,
 }
 
 /* Function: al_color_rgb_to_hsv
- * Given an RGB triplet with components in the range 0..1, return
- * the hue in degrees from 0..360 and saturation and value in the
- * range 0..1.
  */
 void al_color_rgb_to_hsv(float red, float green, float blue,
    float *hue, float *saturation, float *value)
@@ -350,12 +301,6 @@ static float helper(float x, float a, float b)
 }
 
 /* Function: al_color_hsl_to_rgb
- * 
- * Parameters:
- * hue - Color hue angle in the range 0..360.
- * saturation - Color saturation in the range 0..1.
- * lightness - Color lightness in the range 0..1.
- * red, green, blue - returned RGB values in the range 0..1.
  */
 void al_color_hsl_to_rgb(float hue, float saturation, float lightness,
    float *red, float *green, float *blue)
@@ -375,9 +320,6 @@ void al_color_hsl_to_rgb(float hue, float saturation, float lightness,
 }
 
 /* Function: al_color_rgb_to_hsl
- * Given an RGB triplet with components in the range 0..1, return
- * the hue in degrees from 0..360 and saturation and lightness in the
- * range 0..1.
  */
 void al_color_rgb_to_hsl(float red, float green, float blue,
    float *hue, float *saturation, float *lightness)
@@ -438,17 +380,6 @@ void al_color_cmyk_to_rgb(float cyan, float magenta, float yellow,
 }
 
 /* Function: al_color_rgb_to_cmyk
- * 
- * Each RGB color can be represented in CMYK with a K component of 0
- * with the following formula:
- * 
- * > C = 1 - R
- * > M = 1 - G
- * > Y = 1 - B
- * > K = 0
- * 
- * This function will instead find the representation with the maximal
- * value for K and minimal color components.
  */
 void al_color_rgb_to_cmyk(float red, float green, float blue,
    float *cyan, float *magenta, float *yellow, float *key)
@@ -512,17 +443,6 @@ ALLEGRO_COLOR al_color_yuv(float y, float u, float v)
 }
 
 /* Function: al_color_rgb_to_html
- * 
- * Parameters:
- * red, green, blue - The color components in the range 0..1.
- * string - A string with a size of 8 bytes into which the result will
- * be written.
- * 
- * Example:
- * > char html[8];
- * > al_color_rgb_to_html(1, 0, 0, html);
- * 
- * Now html will contain "#ff0000".
  */
 void al_color_rgb_to_html(float red, float green, float blue,
     char *string)

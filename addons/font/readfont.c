@@ -39,8 +39,6 @@ static FONT_TYPE_INFO *font_type_list = NULL;
 
 
 /* Function: al_font_register_font_file_type
- *  Informs Allegro of a new font file type, telling it how to load files of 
- *  this format.
  */
 void al_font_register_font_file_type(const char *ext, ALLEGRO_FONT *(*load)(const char *filename, void *param))
 {
@@ -67,8 +65,6 @@ void al_font_register_font_file_type(const char *ext, ALLEGRO_FONT *(*load)(cons
 
 
 /* Function: al_font_load_font
- *  Loads a font from disk. Will try to load a font from a bitmap if all else
- *  fails.
  */
 ALLEGRO_FONT *al_font_load_font(const char *filename, void *param)
 {

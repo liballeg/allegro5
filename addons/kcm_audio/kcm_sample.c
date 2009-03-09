@@ -82,9 +82,6 @@ Error:
 
 
 /* Function: al_create_sample
- *  Create a sample data structure from the supplied buffer.
- *  If `free_buf' is true then the buffer will be freed as well when the
- *  sample data structure is destroyed.
  */
 ALLEGRO_SAMPLE *al_create_sample(void *buf, unsigned long samples,
    unsigned long freq, ALLEGRO_AUDIO_DEPTH depth,
@@ -120,11 +117,6 @@ ALLEGRO_SAMPLE *al_create_sample(void *buf, unsigned long samples,
 
 
 /* Function: al_destroy_sample
- *  Free the sample data structure. If it was created with the `free_buf'
- *  parameter set to true, then the buffer will be freed as well.
- *
- *  You must destroy any ALLEGRO_SAMPLE_INSTANCE structures which reference
- *  this ALLEGRO_SAMPLE beforehand.
  */
 void al_destroy_sample(ALLEGRO_SAMPLE *spl)
 {
@@ -142,10 +134,6 @@ void al_destroy_sample(ALLEGRO_SAMPLE *spl)
 
 
 /* Function: al_reserve_samples
- *  Reserves 'reserve_samples' number of samples attached to the default mixer.
- *  <al_install_audio> must have been called first.  If no default mixer is set,
- *  then this function will create a voice with an attached mixer.
- *  Returns true on success, false on error.
  */
 bool al_reserve_samples(int reserve_samples)
 {
@@ -198,7 +186,6 @@ bool al_reserve_samples(int reserve_samples)
 
 
 /* Function: al_get_default_mixer
- *  Return the default mixer.
  */
 ALLEGRO_MIXER *al_get_default_mixer(void)
 {
@@ -207,10 +194,6 @@ ALLEGRO_MIXER *al_get_default_mixer(void)
 
 
 /* Function: al_set_default_mixer
- *  Sets the default mixer. All samples started with <al_play_sample>
- *  will be stopped. If you are using your own mixer, this should be
- *  called before <al_reserve_samples>.
- *  Returns true on success, false on error.
  */
 bool al_set_default_mixer(ALLEGRO_MIXER *mixer)
 {
@@ -252,9 +235,6 @@ Error:
 
 
 /* Function: al_restore_default_mixer
- *  Restores Allegro's default mixer. All samples started with <al_play_sample>
- *  will be stopped.
- *  Returns true on success, false on error.
  */
 bool al_restore_default_mixer(void)
 {
@@ -269,9 +249,6 @@ bool al_restore_default_mixer(void)
 
 
 /* Function: al_play_sample
- *  Plays a sample over the default mixer. <al_reserve_samples> must have
- *  previously been called. Returns true on success, false on failure.
- *  Playback may fail because all the reserved samples are currently used.
  */
 bool al_play_sample(ALLEGRO_SAMPLE *spl, float gain, float pan, float speed,
    int loop, ALLEGRO_SAMPLE_ID *ret_id)
@@ -338,7 +315,6 @@ static bool do_play_sample(ALLEGRO_SAMPLE_INSTANCE *splinst,
 
 
 /* Function: al_stop_sample
- *  Stop the sample started by <al_start_sample>
  */
 void al_stop_sample(ALLEGRO_SAMPLE_ID *spl_id)
 {
@@ -359,7 +335,6 @@ void al_stop_sample(ALLEGRO_SAMPLE_ID *spl_id)
 
 
 /* Function: al_stop_samples
- *  Stop all samples started by <al_start_sample>
  */
 void al_stop_samples(void)
 {

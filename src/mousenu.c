@@ -35,7 +35,6 @@ static ALLEGRO_MOUSE_DRIVER *new_mouse_driver = NULL;
 
 
 /* Function: al_is_mouse_installed
- *  Returns true if <al_install_mouse> was called successfully.
  */
 bool al_is_mouse_installed(void)
 {
@@ -45,8 +44,6 @@ bool al_is_mouse_installed(void)
 
 
 /* Function: al_install_mouse
- *  Install a mouse driver. Returns true if successful. If a driver
- *  was already installed, nothing happens and true is returned.
  */
 bool al_install_mouse(void)
 {
@@ -102,11 +99,6 @@ bool al_install_mouse(void)
 
 
 /* Function: al_uninstall_mouse
- *  Uninstalls the active mouse driver, if any.  This will
- *  automatically unregister the mouse event source with any event
- *  queues.
- *
- *  This function is automatically called when Allegro is shut down.
  */
 void al_uninstall_mouse(void)
 {
@@ -120,8 +112,6 @@ void al_uninstall_mouse(void)
 
 
 /* Function: al_get_mouse
- *  Return a pointer to an object representing the mouse, that can
- *  be used as an event source.
  */
 ALLEGRO_MOUSE *al_get_mouse(void)
 {
@@ -138,7 +128,6 @@ ALLEGRO_MOUSE *al_get_mouse(void)
 
 
 /* Function: al_get_mouse_num_buttons
- *  Return the number of buttons on the mouse.
  */
 unsigned int al_get_mouse_num_buttons(void)
 {
@@ -150,7 +139,6 @@ unsigned int al_get_mouse_num_buttons(void)
 
 
 /* Function: al_get_mouse_num_axes
- *  Return the number of buttons on the mouse.
  */
 unsigned int al_get_mouse_num_axes(void)
 {
@@ -162,9 +150,6 @@ unsigned int al_get_mouse_num_axes(void)
 
 
 /* Function: al_set_mouse_xy
- *  Try to position the mouse at the given coordinates.
- *  Returns true on success, false on failure.
- *  XXX: This should be relative to an ALLEGRO_DISPLAY.
  */
 bool al_set_mouse_xy(int x, int y)
 {
@@ -177,8 +162,6 @@ bool al_set_mouse_xy(int x, int y)
 
 
 /* Function: al_set_mouse_z
- *  Set the mouse wheel position to the given value.
- *  Returns true on success, false on failure.
  */
 bool al_set_mouse_z(int z)
 {
@@ -191,8 +174,6 @@ bool al_set_mouse_z(int z)
 
 
 /* Function: al_set_mouse_w
- *  Set the mouse wheel position to the given value.
- *  Returns true on success, false on failure.
  */
 bool al_set_mouse_w(int w)
 {
@@ -205,10 +186,6 @@ bool al_set_mouse_w(int w)
 
 
 /* Function: al_set_mouse_axis
- *  Set the given mouse axis to the given value.
- *  Returns true on success, false on failure.
- *
- *  For now: the axis number must not be 0 or 1, which are the X and Y axes.
  */
 bool al_set_mouse_axis(int which, int value)
 {
@@ -223,10 +200,6 @@ bool al_set_mouse_axis(int which, int value)
 
 
 /* Function: al_set_mouse_range
- *  Sets the area of the screen within which the mouse can move.
- *  The coordinates are inclusive. (XXX: change this?)
- *  XXX: This should be relative to an ALLEGRO_DISPLAY.
- *  Returns true on success, false on failure.
  */
 bool al_set_mouse_range(int x1, int y1, int x2, int y2)
 {
@@ -239,8 +212,6 @@ bool al_set_mouse_range(int x1, int y1, int x2, int y2)
 
 
 /* Function: al_get_mouse_state
- *  Save the state of the mouse specified at the time the function
- *  is called into the structure pointed to by RET_STATE.
  */
 void al_get_mouse_state(ALLEGRO_MOUSE_STATE *ret_state)
 {
@@ -253,7 +224,6 @@ void al_get_mouse_state(ALLEGRO_MOUSE_STATE *ret_state)
 
 
 /* Function: al_get_mouse_state_axis
- *  Extract the mouse axis value from the saved state.
  */
 int al_get_mouse_state_axis(ALLEGRO_MOUSE_STATE *ret_state, int axis)
 {
@@ -278,8 +248,6 @@ int al_get_mouse_state_axis(ALLEGRO_MOUSE_STATE *ret_state, int axis)
 
 
 /* Function: al_mouse_button_down
- *  Return true if the mouse button specified was held down in the state
- *  specified.
  */
 bool al_mouse_button_down(ALLEGRO_MOUSE_STATE *state, int button)
 {
@@ -297,9 +265,6 @@ bool al_mouse_button_down(ALLEGRO_MOUSE_STATE *state, int button)
 
 
 /* Function: al_create_mouse_cursor
- *  Create a mouse cursor from the bitmap provided.  There must be a current
- *  display in effect.
- *  Returns a pointer to the cursor on success, or NULL on failure.
  */
 ALLEGRO_MOUSE_CURSOR *al_create_mouse_cursor(ALLEGRO_BITMAP *bmp,
    int x_focus, int y_focus)
@@ -318,13 +283,6 @@ ALLEGRO_MOUSE_CURSOR *al_create_mouse_cursor(ALLEGRO_BITMAP *bmp,
 
 
 /* Function: al_destroy_mouse_cursor
- *  Free the memory used by the given cursor.
- *
- *  The display that was in effect when the cursor was created must
- *  still be in effect.
- *  XXX that's terrible and should be changed
- *
- *  Has no effect if `cursor' is NULL.
  */
 void al_destroy_mouse_cursor(ALLEGRO_MOUSE_CURSOR *cursor)
 {
@@ -342,15 +300,6 @@ void al_destroy_mouse_cursor(ALLEGRO_MOUSE_CURSOR *cursor)
 
 
 /* Function: al_set_mouse_cursor
- *  Set the given mouse cursor to be the current mouse cursor for the current
- *  display.
- *
- *  The display that was in effect when the cursor was created must still be
- *  in effect.
- *  XXX that's terrible and should be changed
- *
- *  If the cursor is currently 'shown' (as opposed to 'hidden') the change is
- *  immediately visible.  Returns true on success, false on failure.
  */
 bool al_set_mouse_cursor(ALLEGRO_MOUSE_CURSOR *cursor)
 {
@@ -371,10 +320,6 @@ bool al_set_mouse_cursor(ALLEGRO_MOUSE_CURSOR *cursor)
 
 
 /* Function: al_set_system_mouse_cursor
- *  Set the given system mouse cursor to be the current mouse cursor
- *  for the current display.  If the cursor is currently 'shown' (as opposed
- *  to 'hidden') the change is immediately visible.  Returns true on success,
- *  false on failure.
  */
 bool al_set_system_mouse_cursor(ALLEGRO_SYSTEM_MOUSE_CURSOR cursor_id)
 {
@@ -402,9 +347,6 @@ bool al_set_system_mouse_cursor(ALLEGRO_SYSTEM_MOUSE_CURSOR cursor_id)
 
 
 /* Function: al_show_mouse_cursor
- *  Make a mouse cursor visible in the current display of the calling thread.
- *  Returns true if a mouse cursor is shown as a result of the call (or one
- *  already was visible), false otherwise.
  */
 bool al_show_mouse_cursor(void)
 {
@@ -421,10 +363,6 @@ bool al_show_mouse_cursor(void)
 
 
 /* Function: al_hide_mouse_cursor
- *  Hide the mouse cursor in the current display of the calling thread. This
- *  has no effect on what the current mouse cursor looks like; it just makes
- *  it disappear.  Returns true on success (or if the cursor already was
- *  hidden), false otherwise.
  */
 bool al_hide_mouse_cursor(void)
 {
@@ -441,11 +379,6 @@ bool al_hide_mouse_cursor(void)
 
 
 /* Function: al_get_cursor_position
- * On platforms where this information is available, this function returns the
- * global location of the mouse cursor, relative to the desktop. You should
- * not normally use this function, as the information is not useful except
- * for special scenarios as moving a window.
- * Returns true on success, false on failure.
  */
 bool al_get_cursor_position(int *ret_x, int *ret_y)
 {

@@ -50,10 +50,6 @@ ALLEGRO_SAMPLE *al_load_sample(const char *filename)
 
 
 /* Function: al_stream_from_file
- * Unlike a regular stream, a stream created with al_stream_from_file() doesn't
- * have to be fed by the user. Instead, it will be fed as needed by acodec
- * addon, progressively reading a file from the disk. When the stream finishes
- * the ALLEGRO_AUDIOPROP_PLAYING field will be set to false.
  */
 ALLEGRO_STREAM *al_stream_from_file(size_t buffer_count, unsigned long samples,
                                     const char *filename)
@@ -102,8 +98,6 @@ ALLEGRO_STREAM *al_stream_from_file(size_t buffer_count, unsigned long samples,
 }
 
 /* Function: al_save_sample
- * Writes a sample into a file.
- * Returns true on success, false on error.
  */
 bool al_save_sample(ALLEGRO_SAMPLE *spl, const char *filename)
 {

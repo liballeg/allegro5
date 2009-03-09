@@ -165,7 +165,6 @@ void _al_event_source_emit_event(ALLEGRO_EVENT_SOURCE *this, ALLEGRO_EVENT *even
 
 
 /* Function: al_create_user_event_source
- *  Allocate an event source for emitting user events.
  */
 ALLEGRO_EVENT_SOURCE *al_create_user_event_source(void)
 {
@@ -183,7 +182,6 @@ ALLEGRO_EVENT_SOURCE *al_create_user_event_source(void)
 
 
 /* Function: al_destroy_user_event_source
- *  Destroy an event source created with <al_create_user_event_source>.
  */
 void al_destroy_user_event_source(ALLEGRO_EVENT_SOURCE *src)
 {
@@ -197,22 +195,6 @@ void al_destroy_user_event_source(ALLEGRO_EVENT_SOURCE *src)
 
 
 /* Function: al_emit_user_event
- *  Emit a user event.
- *  The event source must have been created with <al_create_user_event_source>.
- *  Some fields of the event being passed in may be modified.
- *  Returns `false' if the event source isn't registered with any queues,
- *  hence the event wouldn't have been delivered into any queues.
- *
- *  Reference counting will be performed on the event if `dtor' is non-NULL.
- *  When the reference count drops to zero `dtor' will be called with a copy of
- *  the event as an argument.  It should free the resources associated with
- *  the event.  If `dtor' is NULL then reference counting will not be
- *  performed.
- *
- *  You need to call <al_unref_user_event> when you are done with a reference
- *  counted user event that you have gotten from <al_get_next_event>,
- *  <al_peek_next_event>, <al_wait_for_event>, etc.  You may, but do not need
- *  to, call <al_unref_user_event> on non-reference counted user events.
  */
 bool al_emit_user_event(ALLEGRO_EVENT_SOURCE *src,
    ALLEGRO_EVENT *event, void (*dtor)(ALLEGRO_USER_EVENT *))

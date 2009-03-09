@@ -94,7 +94,6 @@ int al_get_display_option(int option)
 
 
 /* Function: al_reset_display_options
- * Resets display settings to some sensitive defaults.
  */
 void al_reset_display_options(void)
 {

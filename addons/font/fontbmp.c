@@ -162,7 +162,6 @@ static int bitmap_font_count(ALLEGRO_BITMAP* bmp)
 
 
 /* Function: al_font_load_bitmap_font
- * Import routine for the Allegro bitmap font format.
  */
 ALLEGRO_FONT *al_font_load_bitmap_font(const char *fname, void *param)
 {

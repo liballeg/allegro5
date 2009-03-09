@@ -95,9 +95,6 @@ static void shutdown_system_driver(void)
 
 
 /* Function: al_install_system
- *  Initialize the Allegro system.  If atexit_ptr is non-NULL, and if hasn't
- *  been done already, al_uninstall_system() will be registered as an atexit
- *  function.
  */
 bool al_install_system(int (*atexit_ptr)(void (*)(void)))
 {
@@ -192,10 +189,6 @@ bool al_install_system(int (*atexit_ptr)(void (*)(void)))
 
 
 /* Function: al_uninstall_system
- *  Closes down the Allegro system.
- *
- *  Note: al_uninstall_system() can be called without a corresponding
- *  al_install_system() call, e.g. from atexit().
  */
 void al_uninstall_system(void)
 {
@@ -214,7 +207,6 @@ void al_uninstall_system(void)
 
 
 /* Function: al_system_driver
- *  Returns the currently active_sysdrv system driver.
  */
 ALLEGRO_SYSTEM *al_system_driver(void)
 {
@@ -222,8 +214,6 @@ ALLEGRO_SYSTEM *al_system_driver(void)
 }
 
 /* Function: al_get_path
- *  Gets a system path, ie: temp, home, etc
- *  Returns -1 on failure.
  */
 AL_CONST char *al_get_path(uint32_t id, char *path, size_t size)
 {
@@ -279,13 +269,6 @@ AL_CONST char *al_get_appname(void)
 }
 
 /* Function: al_inhibit_screensaver
- *
- * This function allows the user to stop the system
- * screensaver from starting up if true is passed,
- * or resets the system back to the default state
- * (the state at program start) if false is passed.
- * It returns true if the state was set successfully,
- * otherwise false.
  */
 bool al_inhibit_screensaver(bool inhibit)
 {

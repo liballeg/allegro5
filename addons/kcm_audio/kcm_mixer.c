@@ -609,9 +609,6 @@ void _al_kcm_mixer_read(void *source, void **buf, unsigned long *samples,
 
 
 /* Function: al_create_mixer
- *  Creates a mixer stream, to attach sample streams or other mixers to. It
- *  will mix into a buffer at the requested frequency and channel count.
- *  Only floating point mixing is currently supported.
  */
 ALLEGRO_MIXER *al_create_mixer(unsigned long freq,
    ALLEGRO_AUDIO_DEPTH depth, ALLEGRO_CHANNEL_CONF chan_conf)
@@ -659,7 +656,6 @@ ALLEGRO_MIXER *al_create_mixer(unsigned long freq,
 
 
 /* Function: al_destroy_mixer
- *  Destroys the mixer stream.
  */
 void al_destroy_mixer(ALLEGRO_MIXER *mixer)
 {
@@ -757,9 +753,6 @@ int al_attach_stream_to_mixer(ALLEGRO_MIXER *mixer, ALLEGRO_STREAM *stream)
 
 
 /* Function: al_attach_mixer_to_mixer
- *  Attaches a mixer onto another mixer. The same rules as with
- *  <al_attach_sample_to_mixer> apply, with the added caveat that both
- *  mixers must be the same frequency.
  */
 int al_attach_mixer_to_mixer(ALLEGRO_MIXER *mixer, ALLEGRO_MIXER *stream)
 {
@@ -777,9 +770,6 @@ int al_attach_mixer_to_mixer(ALLEGRO_MIXER *mixer, ALLEGRO_MIXER *stream)
 
 
 /* Function: al_mixer_set_postprocess_callback
- *  Sets a post-processing filter function that's called after the attached
- *  streams have been mixed. The buffer's format will be whatever the mixer
- *  was created with. The sample count and user-data pointer is also passed.
  */
 int al_mixer_set_postprocess_callback(ALLEGRO_MIXER *mixer,
    postprocess_callback_t postprocess_callback, void *pp_callback_userdata)

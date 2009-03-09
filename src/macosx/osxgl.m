@@ -770,7 +770,7 @@ static void osx_get_opengl_pixelformat_attributes(ALLEGRO_DISPLAY_OSX_WIN *dpy)
 /* End of ALDisplayHelper implementation */
 @end
 
-/* Function: osx_create_shareable_context
+/* osx_create_shareable_context:
  *
  * Create an NSOpenGLContext with a given pixel format. If possible, make
  * the context compatible with one that has already been created and 
@@ -1079,7 +1079,7 @@ static bool osx_set_mouse_cursor(ALLEGRO_DISPLAY *display,
    return true;
 }
 
-/* Function: osx_set_system_mouse_cursor
+/* osx_set_system_mouse_cursor:
  * change the mouse cursor to one of the system default cursors.
  * NOTE: Allegro defines four of these, but OS X has no dedicated "busy" or
  * "question" cursors, so we just set an arrow in those cases.

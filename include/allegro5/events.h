@@ -231,19 +231,6 @@ typedef struct ALLEGRO_USER_EVENT
 
 
 /* Type: ALLEGRO_EVENT
- *
- * An ALLEGRO_EVENT is a union of all builtin event structures, i.e. it is an
- * object large enough to hold the data of any event type.  All events
- * have the following fields in common:
- *
- * >	ALLEGRO_EVENT_TYPE	    type;
- * >	ALLEGRO_EVENT_SOURCE *      any.source;
- * >	double		            any.timestamp;
- *
- * By examining the type field you can then access type-specific fields.  The
- * any.source field tells you which event source generated that particular
- * event.  The any.timestamp field tells you when the event was generated.  The
- * time is referenced to the same starting point as al_current_time().
  */
 typedef union ALLEGRO_EVENT ALLEGRO_EVENT;
 
@@ -269,11 +256,6 @@ union ALLEGRO_EVENT
 /* Event sources */
 
 /* Type: ALLEGRO_EVENT_SOURCE
- *
- * An event source is any object which can generate events.  Event sources are
- * usually referred to by distinct types, e.g. ALLEGRO_KEYBOARD*, but can be
- * casted to ALLEGRO_EVENT_SOURCE* when used in contexts that accept generic
- * event sources.
  */
 typedef struct ALLEGRO_EVENT_SOURCE ALLEGRO_EVENT_SOURCE;
 

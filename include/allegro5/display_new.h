@@ -69,17 +69,6 @@ enum
 
 
 /* Type: ALLEGRO_DISPLAY_MODE
- *
- * Used for display mode queries. Contains information
- * about a supported fullscreen display mode.
- *
- * >
- * > typedef struct ALLEGRO_DISPLAY_MODE {
- * >        int width;          // Screen width
- * >        int height;         // Screen height
- * >        int format;         // The pixel format of the mode
- * >        int refresh_rate;   // The refresh rate of the mode
- * > } ALLEGRO_DISPLAY_MODE;
  */
 typedef struct ALLEGRO_DISPLAY_MODE
 {
@@ -91,19 +80,6 @@ typedef struct ALLEGRO_DISPLAY_MODE
 
 
 /* Type: ALLEGRO_MONITOR_INFO
- *
- * Describes a monitors size and position relative to other
- * monitors. x1, y1 will be 0, 0 on the primary display.
- * Other monitors can have negative values if they are to the
- * left or above the primary display.
- *
- * > typedef struct ALLEGRO_MONITOR_INFO
- * > {
- * >    int x1;
- * >    int y1;
- * >    int x2;
- * >    int y2;
- * > } ALLEGRO_MONITOR_INFO;
  */
 typedef struct ALLEGRO_MONITOR_INFO
 {

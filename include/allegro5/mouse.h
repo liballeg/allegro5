@@ -34,11 +34,6 @@
 typedef struct ALLEGRO_MOUSE ALLEGRO_MOUSE;
 
 /* Type: ALLEGRO_MOUSE_STATE
- *
- * x - mouse x
- * y - mouse y
- * w, z - Mouse wheel position (2D 'ball')
- * buttons - mouse buttons
  */
 typedef struct ALLEGRO_MOUSE_STATE
 {

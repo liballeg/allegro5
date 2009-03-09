@@ -746,16 +746,6 @@ ALLEGRO_BITMAP *_al_ogl_create_sub_bitmap(ALLEGRO_DISPLAY *d,
 }
 
 /* Function: al_get_opengl_texture
- * 
- * Returns the OpenGL texture id internally used by the given bitmap if
- * it uses one, else 0.
- * 
- * Example:
- * 
- * > bitmap = al_load_bitmap("my_texture.png")
- * > texture = al_get_opengl_texture(bitmap)
- * > if (texture != 0)
- * >     glBind(GL_TEXTURE_2D, texture)
  */
 GLuint al_get_opengl_texture(ALLEGRO_BITMAP *bitmap)
 {

@@ -101,7 +101,6 @@ enum ALLEGRO_CHANNEL_CONF {
 
 
 /* Enum: ALLEGRO_PLAYMODE
- *  Sample and stream looping mode.
  */
 enum ALLEGRO_PLAYMODE {
    ALLEGRO_PLAYMODE_ONCE   = 0x100,
@@ -121,8 +120,6 @@ enum ALLEGRO_MIXER_QUALITY {
 
 
 /* Enum: ALLEGRO_AUDIO_PROPERTY
- *  Flags to pass to the various al_*_get_* and al_*_set_* functions. Not
- *  all types will apply to all functions.
  */
 enum ALLEGRO_AUDIO_PROPERTY {
    ALLEGRO_AUDIOPROP_DEPTH          = 0x200,
@@ -164,19 +161,10 @@ enum ALLEGRO_AUDIO_DRIVER_ENUM {
 
 
 /* Type: ALLEGRO_SAMPLE
- *
- * An ALLEGRO_SAMPLE object stores the data necessary for playing
- * pre-defined digital audio. It holds information pertaining to data length,
- * frequency, channel configuration, etc.  You can have an ALLEGRO_SAMPLE
- * objects playing multiple times simultaneously.  The object holds a
- * user-specified PCM data buffer, of the format the object is created with.
  */
 typedef struct ALLEGRO_SAMPLE ALLEGRO_SAMPLE;
 
 /* Type: ALLEGRO_SAMPLE_ID
- *
- * An ALLEGRO_SAMPLE_ID represents a sample being played via al_play_sample().
- * It can be used to later stop the sample with al_stop_sample().
  */
 typedef struct {
    int _index;
@@ -185,138 +173,11 @@ typedef struct {
 
 
 /* Type: ALLEGRO_SAMPLE_INSTANCE
- *
- * An ALLEGRO_SAMPLE_INSTANCE object represents a playable instance of a predefined
- * sound effect. It holds information pertaining to the looping mode, loop
- * start/end points, playing position, etc.  A ALLEGRO_SAMPLE_INSTANCE uses the data
- * from an ALLEGRO_SAMPLE object.  Multiple ALLEGRO_SAMPLE_INSTANCEs may be created
- * from the same ALLEGRO_SAMPLE. An ALLEGRO_SAMPLE must not be
- * destroyed while there are ALLEGRO_SAMPLE_INSTANCEs which reference it.
- *
- * To be played, an ALLEGRO_SAMPLE_INSTANCE object must be attached to an ALLEGRO_VOICE
- * object, or to an ALLEGRO_MIXER object which is itself attached to an
- * ALLEGRO_VOICE object (or to another ALLEGRO_MIXER object which is attached
- * to an ALLEGRO_VOICE object, etc).
- *
- * An ALLEGRO_SAMPLE_INSTANCE object uses the following fields:
- * XXX much of this will probably change soon
- *
- * ALLEGRO_AUDIOPROP_DEPTH (enum) -
- *    Gets the bit depth format the object was created with. This may not be
- *    changed after the object is created.
- *
- * ALLEGRO_AUDIOPROP_CHANNELS (enum) -
- *    Gets the channel configuration the object was created with. This may not
- *    be changed after the object is created.
- *
- * ALLEGRO_AUDIOPROP_FREQUENCY (long) -
- *    Gets the frequency (in hz) the object was created with. This may not be
- *    changed after the object is created. To change playback speed, see
- *    ALLEGRO_AUDIOPROP_SPEED.
- *
- * ALLEGRO_AUDIOPROP_PLAYING (bool) -
- *    Gets or sets the object's playing status. By default, it is stopped.
- *    Note that simply setting it true does not cause the object to play. It
- *    must also be attached to a voice, directly or indirectly (eg.
- *    sample->voice, sample->mixer->voice, sample->mixer->...->voice).
- *
- * ALLEGRO_AUDIOPROP_ATTACHED (bool) -
- *    Gets the object's attachment status (true if it is attached to a
- *    something, false if not). Setting this to false detaches the object from
- *    whatever it is attached to. You may not directly set this to true.
- *
- * ALLEGRO_AUDIOPROP_LENGTH (long) -
- *    Gets or sets the length of the object's data buffer, in
- *    samples-per-channel. When changing the length, you must make sure the
- *    current buffer is large enough. You may not change the length while the
- *    object is set to play.
- *
- * ALLEGRO_AUDIOPROP_BUFFER (ptr) -
- *    Gets or sets the object's data buffer. You may not get or set this if the
- *    object is set to play.
- *
- * ALLEGRO_AUDIOPROP_LOOPMODE (enum) -
- *    Gets or sets the object's looping mode. Setting this may fail if the
- *    object is attached to a voice and the audio driver does not support the
- *    requested looping mode.
- *
- * ALLEGRO_AUDIOPROP_SPEED (float) -
- *    Gets or sets the object's playing speed. Negative values will cause the
- *    object to play backwards. If the value is set too close to 0, this will
- *    fail to set.
- *
- * ALLEGRO_AUDIOPROP_POSITION (long) -
- *    Gets or sets the object's playing position. The value is in
- *    samples-per-channel.
- *
- * ALLEGRO_AUDIOPROP_GAIN (float) -
- *    Gets or sets the object's gain. The gain is only applied when mixing the
- *    sample into a parent mixer. Has no effect if the object is attached
- *    directly to a voice.
  */
 typedef struct ALLEGRO_SAMPLE_INSTANCE ALLEGRO_SAMPLE_INSTANCE;
 
 
 /* Type: ALLEGRO_STREAM
- *
- * An ALLEGRO_STREAM object is used to stream generated audio to the sound
- * device, in real-time. As with ALLEGRO_SAMPLE_INSTANCE objects, they store information
- * necessary for playback, so you may not play one multiple times
- * simultaneously. They also need to be attached to an ALLEGRO_VOICE object, or
- * to an ALLEGRO_MIXER object which, eventually, reaches an ALLEGRO_VOICE
- * object.
- *
- * While playing, you must periodically supply new buffer data by first
- * checking ALLEGRO_AUDIOPROP_USED_FRAGMENTS, then refilling the buffers via
- * ALLEGRO_AUDIOPROP_BUFFER. If you're late with supplying new data, the object
- * will be silenced until new data is provided. You must call al_drain_stream()
- * when you're finished supplying the stream.
- *
- * ALLEGRO_STREAM objects use the following fields:
- *
- * ALLEGRO_AUDIOPROP_DEPTH (enum) -
- *    Same as ALLEGRO_SAMPLE_INSTANCE
- *
- * ALLEGRO_AUDIOPROP_CHANNELS (enum) -
- *    Same as ALLEGRO_SAMPLE_INSTANCE
- *
- * ALLEGRO_AUDIOPROP_FREQUENCY (enum) -
- *    Same as ALLEGRO_SAMPLE_INSTANCE
- *
- * ALLEGRO_AUDIOPROP_ATTACHED (bool) -
- *    Same as ALLEGRO_SAMPLE_INSTANCE
- *
- * ALLEGRO_AUDIOPROP_PLAYING (bool) -
- *    Same as ALLEGRO_SAMPLE_INSTANCE, with the exception that ALLEGRO_STREAM objects
- *    are set to play by default.
- *
- * ALLEGRO_AUDIOPROP_LOOPMODE (enum) -
- *    Same as ALLEGRO_SAMPLE_INSTANCE
- *
- * ALLEGRO_AUDIOPROP_SPEED (float) -
- *    Same as ALLEGRO_SAMPLE_INSTANCE, with the added caveat that negative values aren't
- *    allowed.
- *
- * ALLEGRO_AUDIOPROP_GAIN (float) -
- *    Same as ALLEGRO_SAMPLE_INSTANCE.
- *
- * ALLEGRO_AUDIOPROP_LENGTH (long) -
- *    This gets the length, in samples-per-channel, of the individual buffer
- *    fragments. You may not set this after the object is created.
- *
- * ALLEGRO_AUDIOPROP_BUFFER (ptr) -
- *    This gets the next buffer fragment that needs to be filled. After the
- *    buffer is filled, this field must be set to the same pointer value to let
- *    the object know the new data is ready.
- *
- * ALLEGRO_AUDIOPROP_FRAGMENTS (long) -
- *    This gets the total number of buffer fragments the object was created
- *    with. You may not set this after the object is created.
- *
- * ALLEGRO_AUDIOPROP_USED_FRAGMENTS (long) -
- *    This gets the number of buffer fragments that are waiting to be refilled.
- *    This value is decreased when ALLEGRO_AUDIOPROP_BUFFER is used to retrieve a
- *    waiting buffer fragment. You may not set this value.
  */
 typedef struct ALLEGRO_STREAM ALLEGRO_STREAM;
 

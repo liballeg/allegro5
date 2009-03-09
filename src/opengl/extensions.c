@@ -134,15 +134,6 @@ static float _al_ogl_version(void)
 
 
 /* Function: al_opengl_version
- *
- *  Returns the OpenGL version number of the client
- *  (the computer the program is running on), for the current DISPLAY.
- *  "1.0" is returned as 1.0, "1.2.1" is returned as 1.21,
- *  and "1.2.2" as 1.22, etc.
- *
- *  A valid OpenGL context must exist for this function to work, which
- *  means you may \b not call it before al_create_display().
- *
  */
 float al_opengl_version(void)
 {
@@ -414,21 +405,6 @@ static bool _ogl_is_extension_with_version_supported(
 
 
 /* Function: al_is_opengl_extension_supported
- *  This function is a helper to determine whether an OpenGL extension is
- *  available on the current display or not.
- *
- *  Example:
- *
- *  >int packedpixels = al_is_opengl_extension_supported("GL_EXT_packed_pixels");
- *
- *  If _packedpixels_ is true then you can safely use the constants related
- *  to the packed pixels extension.
- *
- * Parameters:
- * extension - The name of the extension that is needed
- *
- * Returns:
- * true if the extension is available false otherwise.
  */
 int al_is_opengl_extension_supported(AL_CONST char *extension)
 {
@@ -447,31 +423,6 @@ int al_is_opengl_extension_supported(AL_CONST char *extension)
 
 
 /* Function: al_get_opengl_proc_address
- *  Helper to get the address of an OpenGL symbol
- *
- *  Example:
- *  How to get the function _glMultiTexCoord3fARB_ that comes
- *  with ARB's Multitexture extension :
- *   
- *  >// define the type of the function
- *  >   ALLEGRO_DEFINE_PROC_TYPE(void, MULTI_TEX_FUNC,
- *  >      (GLenum, GLfloat, GLfloat, GLfloat));
- *  >// declare the function pointer
- *  >   MULTI_TEX_FUNC glMultiTexCoord3fARB;
- *  >// get the address of the function
- *  >   glMultiTexCoord3fARB = (MULTI_TEX_FUNC) al_get_opengl_proc_address(
- *  >      "glMultiTexCoord3fARB");
- *
- *  If _glMultiTexCoord3fARB_ is not NULL then it can be used as if it has 
- *  been defined in the OpenGL core library. Note that the use of the
- *  ALLEGRO_DEFINE_PROC_TYPE macro is mandatory if you want your program to be
- *  portable.
- *
- *  Parameters:
- *  name - The name of the symbol you want to link to.
- *
- *  Returns:
- *  A pointer to the symbol if available or NULL otherwise.
  */
 void *al_get_opengl_proc_address(AL_CONST char *name)
 {
@@ -757,27 +708,6 @@ void _al_ogl_manage_extensions(ALLEGRO_DISPLAY *gl_disp)
 
 
 /* Function: al_get_opengl_extension_list
- * Returns the list of OpenGL extensions supported by Allegro, for
- * the current display.
- *
- * Allegro will keep information about all extensions it knows about in a
- * structure returned by <al_get_opengl_extension_list()->extension_list>.
- *
- * For example:
- * > if (al_get_opengl_extension_list->extension_list()->ALLEGRO_GL_ARB_multitexture) { use it }
- *
- * The extension will be set to true if available for the current display and
- * false otherwise. This means to use the definitions and functions from an
- * OpenGL extension, all you need to do is to check for it as above at
- * run time, after acquiring the OpenGL display from Allegro.
- *
- * Under Windows, this will also work with WGL extensions, and under Unix
- * with GLX extensions.
- *
- * In case you want to manually check for extensions and load function pointers
- * yourself (say, in case the Allegro developers did not include it yet), you
- * can use the <al_is_opengl_extension_supported> and
- * <al_get_opengl_proc_address> functions instead.
  */
 ALLEGRO_OGL_EXT_LIST *al_get_opengl_extension_list(void)
 {

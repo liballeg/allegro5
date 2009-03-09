@@ -33,24 +33,12 @@
 
 
 /* Type: ALLEGRO_JOYSTICK
- *
- *  This is an abstract data type representing a physical joystick.  Joystick
- *  objects are also event sources so can be casted to ALLEGRO_EVENT_SOURCE*.
  */
 typedef struct ALLEGRO_JOYSTICK ALLEGRO_JOYSTICK;
 
 
 
 /* Type: ALLEGRO_JOYSTICK_STATE
- *
- * This is a structure that is used to hold a "snapshot" of a
- * joystick's axes and buttons at a particular instant.
- * All fields public and read-only.
- *
- * > struct {
- * >	float axis[num_axes];		    // -1.0 to 1.0 
- * > } stick[num_sticks];
- * > int button[num_buttons];		    // 0 to 32767
  */
 typedef struct ALLEGRO_JOYSTICK_STATE
 {
@@ -66,13 +54,6 @@ typedef struct ALLEGRO_JOYSTICK_STATE
 typedef int ALLEGRO_JOYFLAGS;
 
 /* Enum: ALLEGRO_JOYFLAGS
- *
- * Joystick flags.
- *
- * ALLEGRO_JOYFLAG_DIGITAL  - the stick provides digital input
- * ALLEGRO_JOYFLAG_ANALOGUE - the stick provides analogue input
- *
- * (this enum is a holdover from the old API and may be removed)
  */
 enum
 {

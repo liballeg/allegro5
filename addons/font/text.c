@@ -31,12 +31,6 @@
 
 
 /* Function: al_font_textout
- *  Writes the null terminated string str onto bmp at position x, y, using 
- *  the specified font, foreground color and background color (-1 is trans).
- *  If color is -1 and a proportional font is in use, it will be drawn
- *  using the colors from the original font bitmap (the one imported into
- *  the grabber program), which allows multicolored text output.
- *  If count is not -1, write only the first 'count' code points.
  */
 void al_font_textout(const ALLEGRO_FONT *f, int x, int y,
    const char *str, int count)
@@ -58,8 +52,6 @@ void al_font_textout(const ALLEGRO_FONT *f, int x, int y,
 
 
 /* Function: al_font_textout_centre
- *  Like <al_font_textout>, but uses the x coordinate as the centre rather than 
- *  the left of the string.
  */
 void al_font_textout_centre(const ALLEGRO_FONT *f, int x, int y,
    const char *str, int count)
@@ -83,8 +75,6 @@ void al_font_textout_centre(const ALLEGRO_FONT *f, int x, int y,
 
 
 /* Function: al_font_textout_right
- *  Like <al_font_textout>, but uses the x coordinate as the right rather than 
- *  the left of the string.
  */
 void al_font_textout_right(const ALLEGRO_FONT *f, int x, int y,
    const char *str, int count)
@@ -108,7 +98,6 @@ void al_font_textout_right(const ALLEGRO_FONT *f, int x, int y,
 
 
 /* Function: al_font_textout_justify
- *  Like textout_ex(), but justifies the string to the specified area.
  */
 void al_font_textout_justify(const ALLEGRO_FONT *f, int x1, int x2, int y,
    int diff, const char *str)
@@ -177,7 +166,6 @@ void al_font_textout_justify(const ALLEGRO_FONT *f, int x1, int x2, int y,
 
 
 /* Function: al_font_textprintf
- *  Formatted text output, using a printf() style format string.
  */
 void al_font_textprintf(const ALLEGRO_FONT *f, int x, int y,
    const char *format, ...)
@@ -200,8 +188,6 @@ void al_font_textprintf(const ALLEGRO_FONT *f, int x, int y,
 
 
 /* Function: al_font_textprintf_centre
- *  Like <al_font_textprintf>, but uses the x coordinate as the centre rather
- *  than the left of the string.
  */
 void al_font_textprintf_centre(const ALLEGRO_FONT *f, int x, int y,
    const char *format, ...)
@@ -224,8 +210,6 @@ void al_font_textprintf_centre(const ALLEGRO_FONT *f, int x, int y,
 
 
 /* Function: al_font_textprintf_right
- *  Like <al_font_textprintf>, but uses the x coordinate as the right rather
- *  than the left of the string.
  */
 void al_font_textprintf_right(const ALLEGRO_FONT *f, int x, int y,
    const char *format, ...)
@@ -248,8 +232,6 @@ void al_font_textprintf_right(const ALLEGRO_FONT *f, int x, int y,
 
 
 /* Function: al_font_textprintf_justify
- *  Like <al_font_textprintf>, but right justifies the string to the specified
- *  area.
  */
 void al_font_textprintf_justify(const ALLEGRO_FONT *f, int x1, int x2, int y,
    int diff, const char *format, ...)
@@ -272,7 +254,6 @@ void al_font_textprintf_justify(const ALLEGRO_FONT *f, int x1, int x2, int y,
 
 
 /* Function: al_font_text_width
- *  Calculates the length of a string in a particular font.
  */
 int al_font_text_width(const ALLEGRO_FONT *f, const char *str, int count)
 {
@@ -293,7 +274,6 @@ int al_font_text_width(const ALLEGRO_FONT *f, const char *str, int count)
 
 
 /* Function: al_font_text_height
- *  Returns the height of a character in the specified font.
  */
 int al_font_text_height(const ALLEGRO_FONT *f)
 {
@@ -304,8 +284,6 @@ int al_font_text_height(const ALLEGRO_FONT *f)
 
 
 /* Function: al_font_destroy_font
- *  Frees the memory being used by a font structure.
- *  This is now wholly handled in the vtable.
  */
 void al_font_destroy_font(ALLEGRO_FONT *f)
 {

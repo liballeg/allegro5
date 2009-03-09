@@ -251,14 +251,6 @@ ALLEGRO_EXTRA_DISPLAY_SETTINGS *_al_get_new_display_settings(void)
 
 
 /* Function: al_set_new_display_refresh_rate
- *
- * Sets the refresh rate to use for newly created displays. If the refresh rate
- * is not available, al_create_display will fail. A list of modes with refresh
- * rates can be found with <al_get_num_display_modes> and <al_get_display_mode>,
- * documented above.
- *
- * See Also:
- *    <al_get_display_mode>
  */
 void al_set_new_display_refresh_rate(int refresh_rate)
 {
@@ -284,8 +276,6 @@ void al_set_new_display_flags(int flags)
 
 
 /* Function: al_get_new_display_refresh_rate
- *
- * Gets the current refresh rate used for newly created displays.
  */
 int al_get_new_display_refresh_rate(void)
 {
@@ -299,8 +289,6 @@ int al_get_new_display_refresh_rate(void)
 
 
 /* Function: al_get_new_display_flags
- *
- * Gets the current flags used for newly created displays.
  */
 int al_get_new_display_flags(void)
 {
@@ -314,10 +302,6 @@ int al_get_new_display_flags(void)
 
 
 /* Function: al_set_current_display
- *
- * Change the current display for the calling thread.
- * Also sets the target bitmap to the display's
- * backbuffer. Returns true on success.
  */
 bool al_set_current_display(ALLEGRO_DISPLAY *display)
 {
@@ -346,8 +330,6 @@ bool al_set_current_display(ALLEGRO_DISPLAY *display)
 
 
 /* Function: al_get_current_display
- *
- * Query for the current display in the calling thread.
  */
 ALLEGRO_DISPLAY *al_get_current_display(void)
 {
@@ -361,9 +343,6 @@ ALLEGRO_DISPLAY *al_get_current_display(void)
 
 
 /* Function: al_set_target_bitmap
- *
- * Select the bitmap to which all subsequent drawing operations in the calling
- * thread will draw. 
  */
 void al_set_target_bitmap(ALLEGRO_BITMAP *bitmap)
 {
@@ -385,8 +364,6 @@ void al_set_target_bitmap(ALLEGRO_BITMAP *bitmap)
 
 
 /* Function: al_get_target_bitmap
- *
- * Return the target bitmap of the current display.
  */
 ALLEGRO_BITMAP *al_get_target_bitmap(void)
 {
@@ -400,10 +377,6 @@ ALLEGRO_BITMAP *al_get_target_bitmap(void)
 
 
 /* Function: al_set_new_bitmap_format
- *
- * Sets the pixel format for newly created bitmaps.
- * The default format is 0 and means the display driver will choose
- * the best format.
  */
 void al_set_new_bitmap_format(int format)
 {
@@ -417,22 +390,6 @@ void al_set_new_bitmap_format(int format)
 
 
 /* Function: al_set_new_bitmap_flags
- *
- * Sets the flags to use for newly created bitmaps.
- * Valid flags are:
- *
- * ALLEGRO_MEMORY_BITMAP - The bitmap will use a format most closely resembling
- * the format used in the bitmap file and al_create_memory_bitmap will be used
- * to create it. If this flag is not specified, al_create_bitmap will be used
- * instead and the display driver will determine the format.
- *
- * ALLEGRO_KEEP_BITMAP_FORMAT - Only used when loading bitmaps from disk files,
- * forces the resulting ALLEGRO_BITMAP to use the same format as the file.
- *
- * ALLEGRO_FORCE_LOCKING - When drawing to a bitmap with this flag set, always
- * use pixel locking and draw to it using Allegro's software drawing primitives.
- * This should never be used as it may cause severe performance penalties, but
- * can be useful for debugging.
  */
 void al_set_new_bitmap_flags(int flags)
 {
@@ -446,8 +403,6 @@ void al_set_new_bitmap_flags(int flags)
 
 
 /* Function: al_get_new_bitmap_format
- *
- * Returns the format used for newly created bitmaps.
  */
 int al_get_new_bitmap_format(void)
 {
@@ -461,8 +416,6 @@ int al_get_new_bitmap_format(void)
 
 
 /* Function: al_get_new_bitmap_flags
- *
- * Returns the flags used for newly created bitmaps.
  */
 int al_get_new_bitmap_flags(void)
 {
@@ -477,10 +430,6 @@ int al_get_new_bitmap_flags(void)
 
 #define _STORE(x) stored->x = tls->x;
 /* Function: al_store_state
- * 
- * Stores part of the state of the current thread in the given <ALLEGRO_STATE>
- * objects. The flags parameter can take any bit-combination of the flags
- * described under <ALLEGRO_STATE_FLAGS>.
  */
 void al_store_state(ALLEGRO_STATE *state, int flags)
 {
@@ -527,9 +476,6 @@ void al_store_state(ALLEGRO_STATE *state, int flags)
 
 #define _STORE(x) tls->x = stored->x;
 /* Function: al_restore_state
- * 
- * Restores part of the state of the current thread from the given
- * <ALLEGRO_STATE> object.
  */
 void al_restore_state(ALLEGRO_STATE const *state)
 {
@@ -577,52 +523,6 @@ void al_restore_state(ALLEGRO_STATE const *state)
 
 
 /* Function: al_set_blender
- *
- * Sets the function to use for blending for the current thread.
- *
- * Blending means, the source and destination colors are combined in
- * drawing operations.
- *
- * Assume, the source color (e.g. color of a rectangle to draw, or pixel
- * of a bitmap to draw), is given as its red/green/blue/alpha
- * components (if the bitmap has no alpha, it always is assumed to be
- * fully opaque, so 255 for 8-bit or 1.0 for floating point):
- * *sr, sg, sb, sa*.
- * And this color is drawn to a destination, which already has a color:
- * *dr, dg, db, da*.
- *
- * Blending formula:
- * The conceptional formula used by Allegro to draw any pixel then is
- * > r = dr * dst + sr * src
- * > g = dg * dst + sg * src
- * > b = db * dst + sb * src
- * > a = da * dst + sa * src
- * 
- * Blending functions:
- * Valid values for <src> and <dst> passed to this function are
- * 
- * ALLEGRO_ZERO - src, dst = 0
- * ALLEGRO_ONE - src, dst = 1
- * ALLEGRO_ALPHA - src, dst = sa
- * ALLEGRO_INVERSE_ALPHA - src, dst = 1 - sa
- * 
- * The color parameter specified the blend color, it is multipled with
- * the source color before the above blending operation.
- *
- * Blending examples:
- * So for example, to restore the default of using alpha blending, you
- * would use (pseudo code)
- * > al_set_blender(ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA, {1, 1, 1, 1})
- *
- * If in addition you want to draw half transparently
- * > al_set_blender(ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA, {1, 1, 1, 0.5})
- *
- * Additive blending would be achieved with
- * > al_set_blender(ALLEGRO_ONE, ALLEGRO_ONE, {1, 1, 1, 1})
- *
- * Copying the source to the destination (including alpha) unmodified
- * > al_set_blender(ALLEGRO_ONE, ALLEGRO_ZERO, {1, 1, 1, 1})
- *
  */
 void al_set_blender(int src, int dst, ALLEGRO_COLOR color)
 {
@@ -632,9 +532,6 @@ void al_set_blender(int src, int dst, ALLEGRO_COLOR color)
 
 
 /* Function: al_set_separate_blender
- * 
- * Like [al_set_blender], but allows specifying a separate blending
- * operation for the alpha channel.
  */
 void al_set_separate_blender(int src, int dst, int alpha_src,
    int alpha_dst, ALLEGRO_COLOR color)
@@ -657,9 +554,6 @@ void al_set_separate_blender(int src, int dst, int alpha_src,
 
 
 /* Function: al_get_blender
- *
- * Returns the active blender for the current thread. You can pass
- * NULL for values you are not interested in.
  */
 void al_get_blender(int *src, int *dst, ALLEGRO_COLOR *color)
 {
@@ -669,9 +563,6 @@ void al_get_blender(int *src, int *dst, ALLEGRO_COLOR *color)
 
 
 /* Function: al_get_separate_blender
- *
- * Returns the active blender for the current thread. You can pass
- * NULL for values you are not interested in.
  */
 void al_get_separate_blender(int *src, int *dst, int *alpha_src,
    int *alpha_dst, ALLEGRO_COLOR *color)
@@ -805,9 +696,6 @@ ALLEGRO_MEMORY_BLENDER _al_get_memory_blender()
 
 
 /* Function: al_get_errno
- *  Some Allegro functions will set an error number as well as returning an
- *  error code.  Call this function to retrieve the last error number set
- *  for the calling thread.
  */
 int al_get_errno(void)
 {
@@ -821,7 +709,6 @@ int al_get_errno(void)
 
 
 /* Function: al_set_errno
- *  Set the error number for for the calling thread.
  */
 void al_set_errno(int errnum)
 {

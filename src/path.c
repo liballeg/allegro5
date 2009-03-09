@@ -479,10 +479,6 @@ const char *al_path_get_extension(const ALLEGRO_PATH *path)
 
 
 /* Function: al_path_set_extension
- *  Replaces the extension of the path with the given one. If the
- *  filename of the path has no extension, the given one is appended.
- *
- *  Returns false if the path contains no filename part.
  */
 bool al_path_set_extension(ALLEGRO_PATH *path, char const *extension)
 {
@@ -548,8 +544,6 @@ bool al_path_exists(const ALLEGRO_PATH *path)
 
 
 /* Function: al_path_emode
- *  Return true iff the path represents a file on the system that exists with
- *  the given mode bits.
  */
 bool al_path_emode(const ALLEGRO_PATH *path, uint32_t mode)
 {

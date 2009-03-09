@@ -242,10 +242,6 @@ int _al_get_real_pixel_format(int format)
 /* Color mapping functions */
 
 /* Function: al_map_rgba
- *
- * Convert r, g, b, a  (ranging from 0-255) into an ALLEGRO_COLOR.
- *
- * See also: <al_map_rgb>, <al_map_rgba_f>, <al_map_rgb_f>
  */
 ALLEGRO_COLOR al_map_rgba(
    unsigned char r, unsigned char g, unsigned char b, unsigned char a)
@@ -260,11 +256,6 @@ ALLEGRO_COLOR al_map_rgba(
 
 
 /* Function: al_map_rgb
- *
- * Convert r, g, b (ranging from 0-255) into an ALLEGRO_COLOR,
- * using 255 for alpha.
- *
- * See also: <al_map_rgba>, <al_map_rgba_f>, <al_map_rgb_f>
  */
 ALLEGRO_COLOR al_map_rgb(
    unsigned char r, unsigned char g, unsigned char b)
@@ -274,10 +265,6 @@ ALLEGRO_COLOR al_map_rgb(
 
 
 /* Function: al_map_rgba_f
- *
- * Convert r, g, b, a (ranging from 0.0f-1.0f) into an ALLEGRO_COLOR.
- *
- * See also: <al_map_rgba>, <al_map_rgb>, <al_map_rgb_f>
  */
 ALLEGRO_COLOR al_map_rgba_f(float r, float g, float b, float a)
 {
@@ -291,11 +278,6 @@ ALLEGRO_COLOR al_map_rgba_f(float r, float g, float b, float a)
 
 
 /* Function: al_map_rgb_f
- *
- * Convert r, g, b, (ranging from 0.0f-1.0f) into an ALLEGRO_COLOR,
- * using 1.0f for alpha.
- *
- * See also: <al_map_rgba>, <al_map_rgb>, <al_map_rgba_f>
  */
 ALLEGRO_COLOR al_map_rgb_f(float r, float g, float b)
 {
@@ -499,8 +481,6 @@ static ALLEGRO_COLOR *_al_get_pixel(ALLEGRO_BITMAP *bitmap, void *data,
 }
 
 /* Function: al_get_pixel
- *
- * Get a pixel's color value from the specified bitmap.
  */
 ALLEGRO_COLOR al_get_pixel(ALLEGRO_BITMAP *bitmap, int x, int y)
 {
@@ -900,8 +880,6 @@ void _al_put_pixel(ALLEGRO_BITMAP *bitmap, int x, int y, ALLEGRO_COLOR color)
 }
 
 /* Function: al_put_pixel
- *
- * Draw a single pixel on the target bitmap.
  */
 void al_put_pixel(int x, int y, ALLEGRO_COLOR color)
 {
@@ -913,11 +891,6 @@ void al_put_pixel(int x, int y, ALLEGRO_COLOR color)
 
 
 /* Function: al_unmap_rgba
- *
- * Retrieves components of an ALLEGRO_COLOR.
- * Components will range from 0-255.
- *
- * See also: <al_unmap_rgb>, <al_unmap_rgba_f>, <al_unmap_rgb_f>
  */
 void al_unmap_rgba(ALLEGRO_COLOR color,
    unsigned char *r, unsigned char *g, unsigned char *b, unsigned char *a)
@@ -930,11 +903,6 @@ void al_unmap_rgba(ALLEGRO_COLOR color,
 
 
 /* Function: al_unmap_rgb
- *
- * Retrieves components of an ALLEGRO_COLOR, ignoring alpha
- * Components will range from 0-255.
- *
- * See also: <al_unmap_rgba>, <al_unmap_rgba_f>, <al_unmap_rgb_f>
  */
 void al_unmap_rgb(ALLEGRO_COLOR color,
    unsigned char *r, unsigned char *g, unsigned char *b)
@@ -946,11 +914,6 @@ void al_unmap_rgb(ALLEGRO_COLOR color,
 
 
 /* Function: al_unmap_rgba_f
- *
- * Retrieves components of an ALLEGRO_COLOR.
- * Components will range from 0.0f-1.0f.
- *
- * See also: <al_unmap_rgba>, <al_unmap_rgb>, <al_unmap_rgb_f>
  */
 void al_unmap_rgba_f(ALLEGRO_COLOR color,
    float *r, float *g, float *b, float *a)
@@ -963,11 +926,6 @@ void al_unmap_rgba_f(ALLEGRO_COLOR color,
 
 
 /* Function: al_unmap_rgb_f
- *
- * Retrieves components of an ALLEGRO_COLOR, ignoring alpha.
- * Components will range from 0.0f-1.0f.
- *
- * See also: <al_unmap_rgba>, <al_unmap_rgb>, <al_unmap_rgba_f>
  */
 void al_unmap_rgb_f(ALLEGRO_COLOR color, float *r, float *g, float *b)
 {

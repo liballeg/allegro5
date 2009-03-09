@@ -38,9 +38,6 @@ static _AL_VECTOR opened_joysticks = _AL_VECTOR_INITIALIZER(ALLEGRO_JOYSTICK *);
 
 
 /* Function: al_install_joystick
- *
- *  Install a joystick driver, returning true if successful.  If a
- *  joystick driver was already installed, returns true immediately.
  */
 bool al_install_joystick(void)
 {
@@ -71,12 +68,6 @@ bool al_install_joystick(void)
 
 
 /* Function: al_uninstall_joystick
- *
- *  Uninstalls the active joystick driver.  All outstanding
- *  ALLEGRO_JOYSTICKs are automatically released.  If no joystick driver
- *  was active, this function does nothing.
- *
- *  This function is automatically called when Allegro is shut down.
  */
 void al_uninstall_joystick(void)
 {
@@ -97,10 +88,6 @@ void al_uninstall_joystick(void)
 
 
 /* Function: al_num_joysticks
- *
- *  Return the number of joysticks on the system (depending on the OS
- *  this may not be accurate).  Returns 0 if there is no joystick driver
- *  installed.
  */
 int al_num_joysticks(void)
 {
@@ -134,13 +121,6 @@ static ALLEGRO_JOYSTICK *find_opened_joystick_by_num(int num)
 
 
 /* Function: al_get_joystick
- *
- *  Get a handle for joystick number NUM on the system.  If successful
- *  a pointer to a joystick object is returned.  Otherwise NULL is
- *  returned.
- *
- *  If the joystick was previously 'gotten' (and not yet released)
- *  then the returned pointer will be the same as in previous calls.
  */
 ALLEGRO_JOYSTICK *al_get_joystick(int num)
 {
@@ -169,7 +149,6 @@ ALLEGRO_JOYSTICK *al_get_joystick(int num)
 
 
 /* Function: al_release_joystick
- *  Release a previously 'gotten' joystick object.
  */
 void al_release_joystick(ALLEGRO_JOYSTICK *joy)
 {
@@ -184,7 +163,6 @@ void al_release_joystick(ALLEGRO_JOYSTICK *joy)
 
 
 /* Function: al_get_joystick_name
- *  Return the name of the given joystick.
  */
 const char *al_get_joystick_name(ALLEGRO_JOYSTICK *joy)
 {
@@ -197,7 +175,6 @@ const char *al_get_joystick_name(ALLEGRO_JOYSTICK *joy)
 
 
 /* Function: al_get_num_joystick_sticks
- *  Return the number of "sticks" on the given joystick.
  */
 int al_get_num_joystick_sticks(const ALLEGRO_JOYSTICK *joy)
 {
@@ -209,8 +186,6 @@ int al_get_num_joystick_sticks(const ALLEGRO_JOYSTICK *joy)
 
 
 /* Function: al_get_joystick_stick_flags
- *  Return the flags of the given "stick".  If the stick doesn't
- *  exist, NULL is returned.
  */
 int al_get_joystick_stick_flags(const ALLEGRO_JOYSTICK *joy, int stick)
 {
@@ -226,8 +201,6 @@ int al_get_joystick_stick_flags(const ALLEGRO_JOYSTICK *joy, int stick)
 
 
 /* Function: al_get_joystick_stick_name
- *  Return the name of the given "stick".  If the stick doesn't
- *  exist, NULL is returned.
  */
 const char *al_get_joystick_stick_name(const ALLEGRO_JOYSTICK *joy, int stick)
 {
@@ -243,8 +216,6 @@ const char *al_get_joystick_stick_name(const ALLEGRO_JOYSTICK *joy, int stick)
 
 
 /* Function: al_get_num_joystick_axes
- *  Return the number of axes on the given "stick".  If the stick
- *  doesn't exist, 0 is returned.
  */
 int al_get_num_joystick_axes(const ALLEGRO_JOYSTICK *joy, int stick)
 {
@@ -259,8 +230,6 @@ int al_get_num_joystick_axes(const ALLEGRO_JOYSTICK *joy, int stick)
 
 
 /* Function: al_get_joystick_axis_name
- *  Return the name of the given axis.  If the axis doesn't exist,
- *  NULL is returned.
  */
 const char *al_get_joystick_axis_name(const ALLEGRO_JOYSTICK *joy, int stick, int axis)
 {
@@ -278,7 +247,6 @@ const char *al_get_joystick_axis_name(const ALLEGRO_JOYSTICK *joy, int stick, in
 
 
 /* Function: al_get_num_joystick_buttons
- *  Return the number of buttons on the joystick.
  */
 int al_get_num_joystick_buttons(const ALLEGRO_JOYSTICK *joy)
 {
@@ -290,8 +258,6 @@ int al_get_num_joystick_buttons(const ALLEGRO_JOYSTICK *joy)
 
 
 /* Function: al_get_joystick_button_name
- *  Return the name of the given button.  If the button doesn't exist,
- *  NULL is returned.
  */
 const char *al_get_joystick_button_name(const ALLEGRO_JOYSTICK *joy, int button)
 {
@@ -307,7 +273,6 @@ const char *al_get_joystick_button_name(const ALLEGRO_JOYSTICK *joy, int button)
 
 
 /* Function: al_get_joystick_state
- *  Get the current joystick state.
  */
 void al_get_joystick_state(ALLEGRO_JOYSTICK *joy, ALLEGRO_JOYSTICK_STATE *ret_state)
 {

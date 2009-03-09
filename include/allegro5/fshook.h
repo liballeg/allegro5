@@ -33,10 +33,6 @@ typedef unsigned int off_t;
 #endif
 
 /* Type: ALLEGRO_FS_ENTRY
- * Opaque filesystem entry object.
- * Represents a file or a directory (check with <al_fs_entry_isdir>
- * or <al_fs_entry_isfile>).
- * There are no user accessible member variables.
  */
 typedef struct ALLEGRO_FS_ENTRY ALLEGRO_FS_ENTRY;
 
@@ -48,30 +44,6 @@ struct ALLEGRO_FS_ENTRY {
 #endif /* ALLEGRO_LIB_BUILD */
 
 /* Enum: ALLEGRO_FS_FILTER
- * File system search filters.
- *
- * Type Filters:
- * ALLEGRO_FS_FILTER_DRIVES - Include Drive letters
- * ALLEGRO_FS_FILTER_DIRS - Include Directories
- * ALLEGRO_FS_FILTER_FILES - Include Files
- * ALLEGRO_FS_FILTER_NOSYMLINKS - Exclude symlinks
- * ALLEGRO_FS_FILTER_ALLENTRIES - Include all entries (including symlinks)
- *
- * Permission Filters:
- * ALLEGRO_FS_FILTER_READABLE - Entry is Readable
- * ALLEGRO_FS_FILTER_WRITABLE - Entry is Writeable
- * ALLEGRO_FS_FILTER_EXECUTABLE - Entry is Executable
- *
- * Access Filters:
- * ALLEGRO_FS_FILTER_HIDDEN - Entry is hidden
- * ALLEGRO_FS_FILTER_SYSTEM - Entry is marked as a system file
- *
- * Other Filters:
- * ALLEGRO_FS_FILTER_ALLDIRS - Include all directories, including '.' and '..'
- * ALLEGRO_FS_FILTER_CASESENSITIVE - Search case sentitively
- * ALLEGRO_FS_FILTER_NODOTDOT - Exclude '..'
- * 
- * ALLEGRO_FS_FILTER_NOFILTER - No filtering
  */
 typedef enum ALLEGRO_FS_FILTER {
    ALLEGRO_FS_FILTER_DRIVES         = 0x001,
@@ -99,21 +71,6 @@ typedef enum ALLEGRO_FS_FILTER {
 } ALLEGRO_FS_FILTER;
 
 /* Enum: ALLEGRO_FS_SORT
- * Filesystem search sort flags
- *
- * ALLEGRO_FS_SORT_NAME - By name
- * ALLEGRO_FS_SORT_TIME - By time
- * ALLEGRO_FS_SORT_SIZE - By size
- * ALLEGRO_FS_SORT_UNSORTED - Don't sort
- * 
- * ALLEGRO_FS_SORT_DIRSFIRST - Directories first
- * ALLEGRO_FS_SORT_REVERSED - Reverse sort
- * ALLEGRO_FS_SORT_CASESENSITIVE - Case Sensitive
- * ALLEGRO_FS_SORT_DIRSLAST - Directories Last
- * ALLEGRO_FS_SORT_TYPE - By Type (extension?)
- *
- * XXX do we need ALLEGRO_FS_SORT_TYPE?  It sounds like we don't even
- * know what it should do.
  */
 typedef enum ALLEGRO_FS_SORT {
    ALLEGRO_FS_SORT_NAME          = 0x00,
@@ -130,11 +87,6 @@ typedef enum ALLEGRO_FS_SORT {
 } ALLEGRO_FS_SORT;
 
 /* Enum: ALLEGRO_FS_MKTEMP_UNLINK
- * al_fs_mktemp unlink modes
- * 
- * ALLEGRO_FS_MKTEMP_UNLINK_NEVER - Don't auto unlink
- * ALLEGRO_FS_MKTEMP_UNLINK_NOW - Unlink on open, makes file "hidden"
- * ALLEGRO_FS_MKTEMP_UNLINK_ON_CLOSE - Unlink on close
  */
 enum {
    ALLEGRO_FS_MKTEMP_UNLINK_NEVER = 0,
@@ -144,14 +96,6 @@ enum {
 
 // TODO: rename to ALLEGRO_FS_MODE_*/ALLEGRO_FS_TYPE_*
 /* Enum: ALLEGRO_FS_MODE
- * Filesystem modes/types
- *
- * AL_FM_READ - Readable
- * AL_FM_WRITE - Writable
- * AL_FM_EXECUTE - Executable
- * AL_FM_HIDDEN - Hidden
- * AL_FM_ISFILE - Regular file
- * AL_FM_ISDIR - Directory
  */
 enum {
    AL_FM_READ    = 1,
@@ -163,11 +107,6 @@ enum {
 };
 
 /* Enum: ALLEGRO_SEEK
- * Seek modes
- *
- * ALLEGRO_SEEK_SET - Seek to pos from beginning of file
- * ALLEGRO_SEEK_CUR - Seek to pos from curent position
- * ALLEGRO_SEEK_END - Seek to pos from end of file
  */
 enum {
    ALLEGRO_SEEK_SET = 0,

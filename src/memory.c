@@ -55,13 +55,6 @@ void *(*_al_debug_realloc)(int line, const char *file, const char *func,
 
 
 /* Function: al_set_memory_management_functions
- *  Customise the memory management functions used by the library.
- *  A default function will be used in place of any function pointer which is
- *  NULL.
- *  The default debug variants simply call the non-debug variants.
- *
- *  malloc_atomic - malloc() replacement for objects not containing pointers
- *  user_opaque - will be passed through to all the functions above
  */
 void al_set_memory_management_functions(
    void *(*malloc)(void *opaque, size_t size),

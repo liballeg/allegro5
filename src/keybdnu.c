@@ -84,7 +84,6 @@ const char *_al_keyboard_common_names[ALLEGRO_KEY_MAX] =
 
 
 /* Function: al_is_keyboard_installed
- *  Returns true if <al_install_keyboard> was called successfully.
  */
 bool al_is_keyboard_installed(void)
 {
@@ -94,8 +93,6 @@ bool al_is_keyboard_installed(void)
 
 
 /* Function: al_install_keyboard
- *  Install a keyboard driver. Returns true if successful. If a driver
- *  was already installed, nothing happens and true is returned.
  */
 bool al_install_keyboard(void)
 {
@@ -147,11 +144,6 @@ bool al_install_keyboard(void)
 
 
 /* Function: al_uninstall_keyboard
- *  Uninstalls the active keyboard driver, if any.  This will
- *  automatically unregister the keyboard event source with any event
- *  queues.
- *
- *  This function is automatically called when Allegro is shut down.
  */
 void al_uninstall_keyboard(void)
 {
@@ -167,8 +159,6 @@ void al_uninstall_keyboard(void)
 
 
 /* Function: al_get_keyboard
- *  Return a pointer to an object representing the keyboard, that can
- *  be used as an event source.
  */
 ALLEGRO_KEYBOARD *al_get_keyboard(void)
 {
@@ -184,9 +174,6 @@ ALLEGRO_KEYBOARD *al_get_keyboard(void)
 
 
 /* Function: al_set_keyboard_leds
- *  Overrides the state of the keyboard LED indicators.
- *  Set to -1 to return to default behavior.
- *  False is returned if the current keyboard driver cannot set LED indicators.
  */
 bool al_set_keyboard_leds(int leds)
 {
@@ -201,7 +188,6 @@ bool al_set_keyboard_leds(int leds)
 
 
 /* Function: al_keycode_to_name
- *  Converts the given keycode to a description of the key.
  */
 const char *al_keycode_to_name(int keycode)
 {
@@ -224,8 +210,6 @@ const char *al_keycode_to_name(int keycode)
 
 
 /* Function: al_get_keyboard_state
- *  Save the state of the keyboard specified at the time the function
- *  is called into the structure pointed to by RET_STATE.
  */
 void al_get_keyboard_state(ALLEGRO_KEYBOARD_STATE *ret_state)
 {
@@ -238,8 +222,6 @@ void al_get_keyboard_state(ALLEGRO_KEYBOARD_STATE *ret_state)
 
 
 /* Function: al_key_down
- *  Return true if the key specified was held down in the state
- *  specified.
  */
 bool al_key_down(const ALLEGRO_KEYBOARD_STATE *state, int keycode)
 {

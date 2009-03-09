@@ -27,25 +27,14 @@
 #endif
 
 /* Type: ALLEGRO_KEYBOARD
- *  This is an abstract data type representing the physical keyboard.
- *  Keyboard objects are also event sources so can be casted to
- *  ALLEGRO_EVENT_SOURCE*.
  */
 typedef struct ALLEGRO_KEYBOARD ALLEGRO_KEYBOARD;
 
 
 
 /* Type: ALLEGRO_KEYBOARD_STATE
- *  This is a structure that is used to hold a "snapshot" of a keyboard's
- *  state at a particular instant.  It contains the following publically
- *  readable fields:
- *
- *  display - points to the display that had keyboard focus at the time
  *		the state was saved.  If no display was focused, this points
  *		to NULL.
- *
- *  You cannot read the state of keys directly.  Use the function
- *  <al_key_down>.
  */
 typedef struct ALLEGRO_KEYBOARD_STATE
 {

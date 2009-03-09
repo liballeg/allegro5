@@ -28,7 +28,6 @@ static unsigned int num_handlers = 0;
 
 
 /* Function: al_iio_init
- * Initializes the IIO addon.
  */
 bool al_iio_init(void)
 {
@@ -163,8 +162,6 @@ static Handler *find_handler(const char *filename)
 
 
 /* Function: al_iio_load
- * Loads an image file into an ALLEGRO_BITMAP. File type
- * is determined by the extension.
  */
 ALLEGRO_BITMAP *al_iio_load(const char *filename)
 {
@@ -176,8 +173,6 @@ ALLEGRO_BITMAP *al_iio_load(const char *filename)
 }
 
 /* Function: al_iio_save
- * Saves an ALLEGRO_BITMAP to an image file. File type
- * is determined by the extension.
  */
 int al_iio_save(const char *filename, ALLEGRO_BITMAP *bitmap)
 {

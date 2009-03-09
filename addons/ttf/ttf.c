@@ -201,33 +201,6 @@ static int text_length(ALLEGRO_FONT const *f, const ALLEGRO_USTR *text)
 }
 
 /* Function: al_ttf_get_text_dimensions
- * 
- * Sometimes, the <al_font_text_width> and <al_font_text_height>
- * functions are not enough for exact text placement, so this function
- * returns some additional information.
- * 
- * Returned variables (all in pixel):
- * x, y - Offset to upper left corner of bounding box.
- * w, h - Dimensions of bounding box.
- * ascent - Ascent of the font.
- * descent - Descent of the font.
- * 
- * If the X is the position you specify to draw text, the meaning of
- * ascent and descent and the font height is like in the figure below.
- * Note that glyphs may go to the left and upwards of the X, in which
- * case x and y will have negative values.
- * 
- * > X------------------------
- * >     /\         |        |
- * >    /  \        |        |
- * >   /____\       ascent   |
- * >  /      \      |        |
- * > /        \     |        height
- * > ----------------        |
- * >                |        |
- * >                descent  |
- * >                |        |
- * > -------------------------
  */
 void al_ttf_get_text_dimensions(ALLEGRO_FONT const *f, char const *text,
     int count, int *bbx, int *bby, int *bbw, int *bbh, int *ascent,

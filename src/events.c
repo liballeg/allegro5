@@ -84,8 +84,6 @@ static void shutdown_events(void)
 
 
 /* Function: al_create_event_queue
- *  Create a new, empty event queue, returning a pointer to object if
- *  successful.  Returns NULL on error.
  */
 ALLEGRO_EVENT_QUEUE *al_create_event_queue(void)
 {
@@ -115,9 +113,6 @@ ALLEGRO_EVENT_QUEUE *al_create_event_queue(void)
 
 
 /* Function: al_destroy_event_queue
- *  Destroy the event queue specified.  All event sources currently
- *  registered with the queue will be automatically unregistered before
- *  the queue is destroyed.
  */
 void al_destroy_event_queue(ALLEGRO_EVENT_QUEUE *queue)
 {
@@ -146,10 +141,6 @@ void al_destroy_event_queue(ALLEGRO_EVENT_QUEUE *queue)
 
 
 /* Function: al_register_event_source
- *  Register the event source with the event queue specified.  An
- *  event source may be registered with any number of event queues
- *  simultaneously, or none.  Trying to register an event source with
- *  the same event queue more than once does nothing.
  */
 void al_register_event_source(ALLEGRO_EVENT_QUEUE *queue,
    ALLEGRO_EVENT_SOURCE *source)
@@ -170,12 +161,6 @@ void al_register_event_source(ALLEGRO_EVENT_QUEUE *queue,
 
 
 /* Function: al_unregister_event_source
- *  Unregister an event source with an event queue.  If the event
- *  source is not actually registered with the event queue, nothing
- *  happens.
- *
- *  If the queue had any events in it which originated from the event
- *  source, they will no longer be in the queue after this call.
  */
 void al_unregister_event_source(ALLEGRO_EVENT_QUEUE *queue,
    ALLEGRO_EVENT_SOURCE *source)
@@ -203,7 +188,6 @@ void al_unregister_event_source(ALLEGRO_EVENT_QUEUE *queue,
 
 
 /* Function: al_event_queue_is_empty
- *  Return true if the event queue specified is currently empty.
  */
 bool al_event_queue_is_empty(ALLEGRO_EVENT_QUEUE *queue)
 {
@@ -250,10 +234,6 @@ static ALLEGRO_EVENT *get_next_event_if_any(ALLEGRO_EVENT_QUEUE *queue,
 
 
 /* Function: al_get_next_event
- *  Take the next event packet out of the event queue specified, and
- *  copy the contents into RET_EVENT, returning true.  The original
- *  event packet will be removed from the queue.  If the event queue is
- *  empty, return false and the contents of RET_EVENT are unspecified.
  */
 bool al_get_next_event(ALLEGRO_EVENT_QUEUE *queue, ALLEGRO_EVENT *ret_event)
 {
@@ -277,11 +257,6 @@ bool al_get_next_event(ALLEGRO_EVENT_QUEUE *queue, ALLEGRO_EVENT *ret_event)
 
 
 /* Function: al_peek_next_event
- *  Copy the contents of the next event packet in the event queue
- *  specified into RET_EVENT and return true.  The original event
- *  packet will remain at the head of the queue.  If the event queue is
- *  actually empty, this function returns false and the contents of
- *  RET_EVENT are unspecified.
  */
 bool al_peek_next_event(ALLEGRO_EVENT_QUEUE *queue, ALLEGRO_EVENT *ret_event)
 {
@@ -305,9 +280,6 @@ bool al_peek_next_event(ALLEGRO_EVENT_QUEUE *queue, ALLEGRO_EVENT *ret_event)
 
 
 /* Function: al_drop_next_event
- *  Drop the next event packet from the queue.  If the queue is empty,
- *  nothing happens.
- *  Returns true iff an event was dropped.
  */
 bool al_drop_next_event(ALLEGRO_EVENT_QUEUE *queue)
 {
@@ -329,7 +301,6 @@ bool al_drop_next_event(ALLEGRO_EVENT_QUEUE *queue)
 
 
 /* Function: al_flush_event_queue
- *  Drops all events, if any, from the queue.
  */
 void al_flush_event_queue(ALLEGRO_EVENT_QUEUE *queue)
 {
@@ -354,10 +325,6 @@ void al_flush_event_queue(ALLEGRO_EVENT_QUEUE *queue)
 
 /* [primary thread] */
 /* Function: al_wait_for_event
- *  Wait until the event queue specified is non-empty.  If RET_EVENT
- *  is not NULL, the first event packet in the queue will be copied
- *  into RET_EVENT and removed from the queue.  If RET_EVENT is NULL
- *  the first event packet is left at the head of the queue.
  */
 void al_wait_for_event(ALLEGRO_EVENT_QUEUE *queue, ALLEGRO_EVENT *ret_event)
 {
@@ -383,14 +350,6 @@ void al_wait_for_event(ALLEGRO_EVENT_QUEUE *queue, ALLEGRO_EVENT *ret_event)
 
 /* [primary thread] */
 /* Function: al_wait_for_event_timed
- *  Wait until the event queue specified is non-empty.  If RET_EVENT
- *  is not NULL, the first event packet in the queue will be copied
- *  into RET_EVENT and removed from the queue.  If RET_EVENT is NULL
- *  the first event packet is left at the head of the queue.
- *
- *  TIMEOUT_MSECS determines approximately how many seconds to
- *  wait.  If the call times out, false is returned.  Otherwise true is
- *  returned.
  */
 bool al_wait_for_event_timed(ALLEGRO_EVENT_QUEUE *queue,
    ALLEGRO_EVENT *ret_event, float secs)
@@ -665,12 +624,6 @@ static void discard_events_of_source(ALLEGRO_EVENT_QUEUE *queue,
 
 
 /* Function: al_unref_user_event
- *  Unreference a user-defined event. This must be called on any user event
- *  that you get from <al_get_next_event>, <al_peek_next_event>,
- *  <al_wait_for_event>, etc. which is reference counted.
- *  This function does nothing if the event is not reference counted.
- *
- *  See also: <al_emit_user_event>.
  */
 void al_unref_user_event(ALLEGRO_USER_EVENT *event)
 {

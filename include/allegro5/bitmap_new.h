@@ -27,80 +27,6 @@ typedef struct ALLEGRO_BITMAP ALLEGRO_BITMAP;
 #define ALLEGRO_NUM_PIXEL_FORMATS      26
 
 /* Enum: ALLEGRO_PIXEL_FORMAT
- * 
- * Pixel formats. Each pixel format specifies the exact size and bit
- * layout of a pixel in memory. Components are specified from high bits
- * to low, so for example a fully opaque red pixel in ARGB_8888 format
- * is 0xFFFF0000. In other words, the ALLEGRO_PIXEL_FORMAT_* names
- * specify what the format is in big endian, which may confuse some
- * users (especially OpenGL users) since some systems use little endian
- * names (e.g., the OpenGL format RGBA normally by default is read as "first
- * byte red, second byte green, ..." etc. However, a format with that layout
- * in Allegro terms would be named ALLEGRO_PIXEL_FORMAT_ABGR_8888 (notice
- * the reversal from RGBA -> ABGR)).
- *
- * ALLEGRO_PIXEL_FORMAT_ANY - Let the driver choose a format. This is the
- * default format at program start.
- *
- * ALLEGRO_PIXEL_FORMAT_ANY_NO_ALPHA - Let the driver choose a format without
- * alpha
- *
- * ALLEGRO_PIXEL_FORMAT_ANY_WITH_ALPHA - Let the driver choose a format with
- * alpha.
- *
- * ALLEGRO_PIXEL_FORMAT_ANY_15_NO_ALPHA - Let the driver choose a 15 bit format
- * without alpha
- *
- * ALLEGRO_PIXEL_FORMAT_ANY_15_WITH_ALPHA - Let the driver choose a 15 bit
- * format with alpha
- *
- * ALLEGRO_PIXEL_FORMAT_ANY_16_NO_ALPHA - Let the driver choose a 16 bit format
- * without alpha
- *
- * ALLEGRO_PIXEL_FORMAT_ANY_16_WITH_ALPHA - Let the driver choose a 16 bit
- * format with alpha
- *
- * ALLEGRO_PIXEL_FORMAT_ANY_24_NO_ALPHA - Let the driver choose a 24 bit format
- * without alpha
- *
- * ALLEGRO_PIXEL_FORMAT_ANY_24_WITH_ALPHA - Let the driver choose a 24 bit
- * format with alpha
- *
- * ALLEGRO_PIXEL_FORMAT_ANY_32_NO_ALPHA - Let the driver choose a 32 bit format
- * without alpha
- *
- * ALLEGRO_PIXEL_FORMAT_ANY_32_WITH_ALPHA - Let the driver choose a 32 bit
- * format with alpha
- *
- * ALLEGRO_PIXEL_FORMAT_ARGB_8888 - 32 bit
- *
- * ALLEGRO_PIXEL_FORMAT_RGBA_8888 - 32 bit
- *
- * ALLEGRO_PIXEL_FORMAT_ARGB_4444 - 16 bit
- *
- * ALLEGRO_PIXEL_FORMAT_RGB_888 - 24 bit
- *
- * ALLEGRO_PIXEL_FORMAT_RGB_565 - 16 bit
- *
- * ALLEGRO_PIXEL_FORMAT_RGB_555 - 15 bit
- *
- * ALLEGRO_PIXEL_FORMAT_RGBA_5551 - 16 bit
- *
- * ALLEGRO_PIXEL_FORMAT_ARGB_1555 - 16 bit
- *
- * ALLEGRO_PIXEL_FORMAT_ABGR_8888 - 32 bit
- *
- * ALLEGRO_PIXEL_FORMAT_XBGR_8888 - 32 bit
- *
- * ALLEGRO_PIXEL_FORMAT_BGR_888 - 24 bit
- *
- * ALLEGRO_PIXEL_FORMAT_BGR_565 - 16 bit 
- *
- * ALLEGRO_PIXEL_FORMAT_BGR_555 - 15 bit
- *
- * ALLEGRO_PIXEL_FORMAT_RGBX_8888 - 32 bit
- *
- * ALLEGRO_PIXEL_FORMAT_XRGB_8888 - 32 bit
  */
 enum ALLEGRO_PIXEL_FORMAT {
    ALLEGRO_PIXEL_FORMAT_ANY = 0,
@@ -164,18 +90,6 @@ enum ALLEGRO_BLEND_MODE {
 
 
 /* Type: ALLEGRO_LOCKED_REGION
- * Users who wish to manually edit or read from a bitmap
- * are required to lock it first. The ALLEGRO_LOCKED_REGION
- * structure represents the locked region of the bitmap. This
- * call will work with any bitmap, including memory bitmaps.
- *
- * > typedef struct ALLEGRO_LOCKED_REGION {
- * >         void *data; // the bitmap data
- * >         int format; // the pixel format of the data
- * >         int pitch;  // the size in bytes of a single line
- * >                     // pitch may be greater than pixel_size*bitmap->w
- * >                     // i.e. padded with extra bytes
- * > }
  */
 typedef struct ALLEGRO_LOCKED_REGION {
    void *data;

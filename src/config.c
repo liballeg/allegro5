@@ -41,7 +41,6 @@ static void *local_calloc1(size_t size)
 
 
 /* Function: al_config_create
- *  Create an empty configuration structure.
  */
 ALLEGRO_CONFIG *al_config_create(void)
 {
@@ -131,7 +130,6 @@ static ALLEGRO_CONFIG_SECTION *config_add_section(ALLEGRO_CONFIG *config,
 
 
 /* Function: al_config_add_section
- *  Add a section to a configuration structure.
  */
 void al_config_add_section(ALLEGRO_CONFIG *config, const char *name)
 {
@@ -187,10 +185,6 @@ static void config_set_value(ALLEGRO_CONFIG *config,
 
 
 /* Function: al_config_set_value
- *  Set a value in a section of a configuration.  If the section doesn't yet
- *  exist, it will be created.  If a value already existed for the given key,
- *  it will be overwritten.
- *  The section can be NULL or "" for the global section.
  */
 void al_config_set_value(ALLEGRO_CONFIG *config,
    const char *section, const char *key, const char *value)
@@ -251,9 +245,6 @@ static void config_add_comment(ALLEGRO_CONFIG *config,
 
 
 /* Function: al_config_add_comment
- *  Add a comment in a section of a configuration.  If the section doesn't yet
- *  exist, it will be created.
- *  The section can be NULL or "" for the global section.
  */
 void al_config_add_comment(ALLEGRO_CONFIG *config,
    const char *section, const char *comment)
@@ -277,11 +268,6 @@ void al_config_add_comment(ALLEGRO_CONFIG *config,
 
 
 /* Function: al_config_get_value
- *  Gets a pointer to an internal character buffer that will only remain valid
- *  as long as the ALLEGRO_CONFIG structure is not destroyed. Copy the value
- *  if you need a copy.
- *  The section can be NULL or "" for the global section.
- *  Returns NULL if the section or key do not exist.
  */
 static bool config_get_value(const ALLEGRO_CONFIG *config,
    const ALLEGRO_USTR *section, const ALLEGRO_USTR *key,
@@ -328,8 +314,6 @@ const char *al_config_get_value(const ALLEGRO_CONFIG *config,
 
 
 /* Function: al_config_read
- *  Read a configuration file.
- *  Returns NULL on error.
  */
 ALLEGRO_CONFIG *al_config_read(const char *filename)
 {
@@ -454,8 +438,6 @@ static bool config_write_section(ALLEGRO_FS_ENTRY *file,
 
 
 /* Function: al_config_write
- *  Write out a configuration file.
- *  Returns zero on success, non-zero on error.
  */
 int al_config_write(const ALLEGRO_CONFIG *config, const char *filename)
 {
@@ -542,10 +524,6 @@ static void do_config_merge_into(ALLEGRO_CONFIG *master,
 
 
 /* Function: al_config_merge_into
- *  Merge one configuration structure into another.
- *  Values in configuration 'add' override those in 'master'.
- *  'master' is modified.
- *  Comments from 'add' are not retained.
  */
 void al_config_merge_into(ALLEGRO_CONFIG *master, const ALLEGRO_CONFIG *add)
 {
@@ -554,11 +532,6 @@ void al_config_merge_into(ALLEGRO_CONFIG *master, const ALLEGRO_CONFIG *add)
 
 
 /* Function: al_config_merge
- *  Merge two configuration structures, and return the result as a new
- *  configuration.  Values in configuration 'cfg2' override those in 'cfg1'.
- *  Neither of the input configuration structures are
- *  modified.
- *  Comments from 'cfg2' are not retained.
  */
 ALLEGRO_CONFIG *al_config_merge(const ALLEGRO_CONFIG *cfg1,
     const ALLEGRO_CONFIG *cfg2)
@@ -573,8 +546,6 @@ ALLEGRO_CONFIG *al_config_merge(const ALLEGRO_CONFIG *cfg1,
 
 
 /* Function: al_config_destroy
- *  Free the resources used by a configuration structure.
- *  Does nothing if passed NULL.
  */
 void al_config_destroy(ALLEGRO_CONFIG *config)
 {

@@ -26,18 +26,6 @@
 #endif
 
 /* Enum: ALLEGRO_STATE_FLAGS
- * 
- * Flags which can be passed to <al_store_state>/<al_restore_state> as bit
- * combinations. The following flags store or restore settings corresponding
- * to the following al_set_/al_get_ calls:
- * 
- * ALLEGRO_STATE_NEW_DISPLAY_PARAMETERS - new_display_refresh_rate,
- *                                        new_display_flags
- * ALLEGRO_STATE_NEW_BITMAP_PARAMETERS  - new_bitmap_format,
- *                                        new_bitmap_flags
- * ALLEGRO_STATE_DISPLAY                - current_display
- * ALLEGRO_STATE_TARGET_BITMAP          - target_bitmap 
- * ALLEGRO_STATE_BLENDER                - blender
  */
 enum ALLEGRO_STATE_FLAGS {
     ALLEGRO_STATE_NEW_DISPLAY_PARAMETERS = 0x0001,
@@ -54,8 +42,6 @@ enum ALLEGRO_STATE_FLAGS {
 };
 
 /* Type: ALLEGRO_STATE
- * 
- * Opaque type which is passed to <al_store_state>/<al_restore_state>.
  */
 typedef struct ALLEGRO_STATE
 {
