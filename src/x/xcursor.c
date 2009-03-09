@@ -21,7 +21,7 @@ static ALLEGRO_MOUSE_CURSOR *xdpy_create_mouse_cursor(ALLEGRO_DISPLAY *display,
 
    int bmp_w;
    int bmp_h;
-   ALLEGRO_LOCKED_REGION lr;
+   ALLEGRO_LOCKED_REGION *lr;
    ALLEGRO_MOUSE_CURSOR_XGLX *xcursor;
    XcursorImage *image;
    int c, ix, iy;
@@ -30,7 +30,9 @@ static ALLEGRO_MOUSE_CURSOR *xdpy_create_mouse_cursor(ALLEGRO_DISPLAY *display,
 
    bmp_w = al_get_bitmap_width(bmp);
    bmp_h = al_get_bitmap_height(bmp);
-   if (!al_lock_bitmap(bmp, &lr, ALLEGRO_LOCK_READONLY)) {
+
+   lr = al_lock_bitmap(bmp, ALLEGRO_PIXEL_FORMAT_ANY, ALLEGRO_LOCK_READONLY);
+   if (!lr) {
       return NULL;
    }
 

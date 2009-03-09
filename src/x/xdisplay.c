@@ -74,7 +74,7 @@ static void xdpy_set_icon(ALLEGRO_DISPLAY *d, ALLEGRO_BITMAP *bitmap)
 
    // FIXME: Do this properly.
    ALLEGRO_LOCKED_REGION *lr;
-   lr = al_lock_bitmap(bitmap, 0, ALLEGRO_LOCK_READONLY);
+   lr = al_lock_bitmap(bitmap, ALLEGRO_PIXEL_FORMAT_ANY, ALLEGRO_LOCK_READONLY);
    if (lr) {
       const char *src;
       char *dst;
