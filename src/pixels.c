@@ -231,6 +231,7 @@ int _al_get_real_pixel_format(int format)
          /* We don't support any 24 or 15 bit formats with alpha. */
          return -1;
       default:
+         format = ALLEGRO_PIXEL_FORMAT_ARGB_8888;
          break;
    }
 

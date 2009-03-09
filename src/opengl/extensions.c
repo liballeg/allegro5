@@ -24,6 +24,7 @@
 #include "allegro5/opengl/gl_ext.h"
 #include "allegro5/internal/aintern_opengl.h"
 #include "allegro5/internal/aintern_display.h"
+#include "allegro5/internal/aintern_system.h"
 
 /* We need some driver specific details not worth of a vtable entry. */
 #if defined ALLEGRO_WINDOWS
