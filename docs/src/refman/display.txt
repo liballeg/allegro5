@@ -141,11 +141,10 @@ See Also: [al_set_new_window_position]
 
 Get the number of available fullscreen display modes
 for the current set of display parameters. This will
-use the values set with [al_set_new_display_option],
-[al_set_new_display_refresh_rate], and [al_set_new_display_flags]
-to find the number of modes that match. Settings the new
-display parameters to zero will give a list of all modes
-for the default driver.
+use the values set with [al_set_new_display_refresh_rate],
+and [al_set_new_display_flags] to find the number of modes
+that match. Settings the new display parameters to zero will
+give a list of all modes for the default driver.
 
 ## API: al_get_num_video_adapters
 

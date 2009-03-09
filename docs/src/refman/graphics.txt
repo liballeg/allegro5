@@ -341,6 +341,10 @@ be faster if the bitmap is a video texture, as no data need to be read
 from the video card. You are required to fill in all pixels before
 unlocking the bitmap again, so be careful when using this flag.
 
+'format' indicates the pixel format that the returned buffer will be in.
+To lock in the same format as the bitmap stores it's data internally,
+call with `al_get_bitmap_format(bitmap)` as the format or use
+ALLEGRO_FORMAT_ANY. Locking in the native format will usually be faster.
 
 ## API: al_lock_bitmap_region
 
@@ -461,8 +465,7 @@ can be useful for debugging.
 
 ## API: al_set_new_bitmap_format
 
-Sets the pixel format for newly created bitmaps. format
-is one of the same values as used for [al_set_new_display_format].
+Sets the pixel format for newly created bitmaps.
 The default format is 0 and means the display driver will choose
 the best format.
 

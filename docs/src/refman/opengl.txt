@@ -111,5 +111,5 @@ a section like this in allegro.cfg:
     GL_ARB_texture_non_power_of_two=0
     GL_EXT_framebuffer_object=0
 
-Any extencion which appears in the section is treated as not available
+Any extension which appears in the section is treated as not available
 (it does not matter if you set it to 0 or any other value).
