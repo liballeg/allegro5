@@ -1760,8 +1760,8 @@ int enable_triple_buffer(void)
 int get_gfx_mode_type(int graphics_card)
 {
    int gfx_type = GFX_TYPE_UNKNOWN;
-   _DRIVER_INFO* gfx_driver_info;
-   GFX_DRIVER*   gfx_driver_entry;
+   _DRIVER_INFO *gfx_driver_info;
+   GFX_DRIVER *gfx_driver_entry;
 
    ASSERT(system_driver);
 
@@ -1775,7 +1775,7 @@ int get_gfx_mode_type(int graphics_card)
 
    ASSERT(gfx_driver_info);
 
-   while(gfx_driver_info->driver) {
+   while (gfx_driver_info->driver) {
       if (gfx_driver_info->id == graphics_card) {
          gfx_driver_entry = (GFX_DRIVER*)gfx_driver_info->driver;
          if (gfx_driver_entry->windowed) {
@@ -1786,7 +1786,7 @@ int get_gfx_mode_type(int graphics_card)
          }
          break;
       }
-      ++gfx_driver_info;
+      gfx_driver_info++;
    }
 
    switch (graphics_card) {
@@ -1816,8 +1816,11 @@ int get_gfx_mode_type(int graphics_card)
  *  Useful for determining the actual driver that
  *  GFX_AUTODETECT* or GFX_SAFE set successfully.
  */
-int get_gfx_mode(void) {
-   if (!gfx_driver) {return GFX_NONE;}
+int get_gfx_mode(void)
+{
+   if (!gfx_driver)
+      return GFX_NONE;
+
    return gfx_driver->id;
 }
 

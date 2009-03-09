@@ -435,8 +435,8 @@ AL_FUNC(void, vsync, (void));
 #define GFX_TYPE_DEFINITE    4
 #define GFX_TYPE_MAGIC       8
 
-AL_FUNC(int , get_gfx_mode_type , (int graphics_card));
-AL_FUNC(int , get_gfx_mode , (void));
+AL_FUNC(int, get_gfx_mode_type, (int graphics_card));
+AL_FUNC(int, get_gfx_mode, (void));
 
 
 #define SWITCH_NONE           0
