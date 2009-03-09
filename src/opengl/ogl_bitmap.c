@@ -436,7 +436,9 @@ static ALLEGRO_LOCKED_REGION *ogl_lock_region(ALLEGRO_BITMAP *bitmap,
    if (format == ALLEGRO_PIXEL_FORMAT_ANY)
       format = bitmap->format;
 
-   format = _al_get_real_pixel_format(format);
+   if (!_al_pixel_format_is_real(format)) {
+      format = _al_get_real_pixel_format(format);
+   }
 
    pixel_size = al_get_pixel_size(format);
 
