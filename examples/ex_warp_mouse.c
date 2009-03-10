@@ -5,7 +5,7 @@
 int width = 640;
 int height = 480;
 
-int main()
+int main(void)
 {
    ALLEGRO_FONT *font;
    ALLEGRO_DISPLAY *display;

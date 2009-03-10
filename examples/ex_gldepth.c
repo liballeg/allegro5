@@ -175,7 +175,7 @@ void setup_textures(void)
 
 
 
-int main()
+int main(void)
 {
    ALLEGRO_DISPLAY *display;
    ALLEGRO_EVENT_QUEUE *queue;
