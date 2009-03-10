@@ -71,7 +71,7 @@ int initialize(void)
    al_register_event_source(queue, (ALLEGRO_EVENT_SOURCE *)al_get_mouse());
    al_register_event_source(queue, (ALLEGRO_EVENT_SOURCE *)display);
    al_register_event_source(queue, (ALLEGRO_EVENT_SOURCE *)timer);
-	
+
    return 1;
 }
 
@@ -161,6 +161,14 @@ void event_handler(const ALLEGRO_EVENT * event)
             if (!al_seek_stream(music_stream, pos))
                printf("seek error!\n");
          }
+         else if (event->keyboard.keycode == ALLEGRO_KEY_SPACE) {
+            bool playing;
+            al_get_mixer_bool(al_get_default_mixer(),
+               ALLEGRO_AUDIOPROP_PLAYING, &playing);
+            playing = !playing;
+            al_set_mixer_bool(al_get_default_mixer(),
+               ALLEGRO_AUDIOPROP_PLAYING, playing);
+         }
          else if (event->keyboard.keycode == ALLEGRO_KEY_ESCAPE) {
             exiting = true;
          }
@@ -168,10 +176,10 @@ void event_handler(const ALLEGRO_EVENT * event)
 
       case ALLEGRO_EVENT_MOUSE_BUTTON_DOWN:
          mouse_button[event->mouse.button] = 1;
-	 maybe_fiddle_sliders(event->mouse.x, event->mouse.y);
+         maybe_fiddle_sliders(event->mouse.x, event->mouse.y);
          break;
       case ALLEGRO_EVENT_MOUSE_AXES:
-	 maybe_fiddle_sliders(event->mouse.x, event->mouse.y);
+         maybe_fiddle_sliders(event->mouse.x, event->mouse.y);
          break;
       case ALLEGRO_EVENT_MOUSE_BUTTON_UP:
          mouse_button[event->mouse.button] = 0;
@@ -180,7 +188,7 @@ void event_handler(const ALLEGRO_EVENT * event)
          for (i = 0; i < 16; i++)
             mouse_button[i] = 0;
          break;
-		
+
       /* Is it time for the next timer tick? */
       case ALLEGRO_EVENT_TIMER:
          logic();
@@ -192,12 +200,12 @@ void event_handler(const ALLEGRO_EVENT * event)
 int main(int argc, char * argv[])
 {
    ALLEGRO_EVENT event;
-	
+
    if (argc < 2) {
       printf("Usage: ex_stream_seek <filename>\n");
       return -1;
    }
-	
+
    if (!initialize())
       return 1;
 
