@@ -328,22 +328,6 @@ typedef void (*_draw_region_func)(void *src,
 
 #define DECLARE_FAKE_DRAW_REGION_FUNCS                                       \
    {                                                                         \
-      NULL,                                                                  \
-      NULL,                                                                  \
-      NULL,                                                                  \
-      NULL,                                                                  \
-      NULL,                                                                  \
-      NULL,                                                                  \
-      NULL,                                                                  \
-      NULL,                                                                  \
-      NULL,                                                                  \
-      NULL,                                                                  \
-      NULL,                                                                  \
-      NULL,                                                                  \
-      NULL,                                                                  \
-      NULL,                                                                  \
-      NULL,                                                                  \
-      NULL,                                                                  \
       NULL                                                                   \
    }
 
@@ -376,7 +360,8 @@ typedef void (*_draw_region_func)(void *src,
       prefix ## _to_bgr_565,                                                 \
       prefix ## _to_bgr_555,                                                 \
       prefix ## _to_rgbx_8888,                                               \
-      prefix ## _to_xrgb_8888                                                \
+      prefix ## _to_xrgb_8888,                                               \
+      NULL /* ALLEGRO_PIXEL_FORMAT_ABGR_F32 */
    }
 
 static _draw_region_func _draw_region_funcs[ALLEGRO_NUM_PIXEL_FORMATS][ALLEGRO_NUM_PIXEL_FORMATS] = {
@@ -407,10 +392,18 @@ static _draw_region_func _draw_region_funcs[ALLEGRO_NUM_PIXEL_FORMATS][ALLEGRO_N
       DECLARE_DRAW_REGION_FUNCS(_draw_region_memory_bgr_565),
       DECLARE_DRAW_REGION_FUNCS(_draw_region_memory_bgr_555),
       DECLARE_DRAW_REGION_FUNCS(_draw_region_memory_rgbx_8888),
-      DECLARE_DRAW_REGION_FUNCS(_draw_region_memory_xrgb_8888)
+      DECLARE_DRAW_REGION_FUNCS(_draw_region_memory_xrgb_8888),
+      // FIXME: No fast floating point version is possible as long as
+      // the #define machinery above converts all colors to an
+      // intermediate int. It should use ALLEGRO_COLOR instead.
+      DECLARE_FAKE_DRAW_REGION_FUNCS, /* ALLEGRO_PIXEL_FORMAT_ABGR_F32 */
    };
 
 
+// FIXME: ALLEGRO_PIXEL_FORMAT_ABGR_F32 is not supported by this,
+// neither as source nor as destination. So make sure to only call
+// it after checking the formats. This is only temporary - see
+// comment above.
 void _al_draw_bitmap_region_memory_fast(ALLEGRO_BITMAP *bitmap,
    int sx, int sy, int sw, int sh,
    int dx, int dy, int flags)

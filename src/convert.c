@@ -20,6 +20,16 @@
 #include "allegro5/internal/aintern_bitmap.h"
 #include "allegro5/convert.h"
 
+static ALLEGRO_COLOR read128(ALLEGRO_COLOR *ptr)
+{
+   return *ptr;
+}
+
+static void write128(ALLEGRO_COLOR *ptr, ALLEGRO_COLOR x)
+{
+   *ptr = x;
+}
+
 /* Copy with conversion */
 #define DO_CONVERT(convert, src, stype, ssize, spitch, get,                  \
    dst, dtype, dsize, dpitch, set,                                           \
@@ -65,7 +75,8 @@ do {                                                                         \
    func12, macro12,                                                          \
    func13, macro13,                                                          \
    func14, macro14,                                                          \
-   func15, macro15)                                                          \
+   func15, macro15,                                                          \
+   func16, macro16)                                                          \
                                                                              \
 static void func1 (                                                          \
    void *src, int src_format, int src_pitch,                                 \
@@ -276,6 +287,20 @@ static void func15 (                                                         \
       dst, uint32_t, 4, dst_pitch, bmp_write32,                              \
       sx, sy, dx, dy, width, height);                                        \
 }                                                                            \
+                                                                             \
+static void func16 (                                                         \
+   void *src, int src_format, int src_pitch,                                 \
+   void *dst, int dst_format, int dst_pitch,                                 \
+   int sx, int sy, int dx, int dy,                                           \
+   int width, int height)                                                    \
+{                                                                            \
+   (void)src_format;                                                         \
+   (void)dst_format;                                                         \
+   DO_CONVERT(macro16,                                                       \
+      src, type, size, src_pitch, get,                                       \
+      dst, ALLEGRO_COLOR, 16, dst_pitch, write128,                                \
+      sx, sy, dx, dy, width, height);                                        \
+}                                                                            \
 
 
 #define DEFINE_CONVERSION(type, size, get, fprefix, mprefix)                 \
@@ -294,7 +319,9 @@ static void func15 (                                                         \
       fprefix ## _to_bgr_565, mprefix ## _TO_BGR_565,                        \
       fprefix ## _to_bgr_555, mprefix ## _TO_BGR_555,                        \
       fprefix ## _to_rgbx_8888, mprefix ## _TO_RGBX_8888,                    \
-      fprefix ## _to_xrgb_8888, mprefix ## _TO_XRGB_8888)
+      fprefix ## _to_xrgb_8888, mprefix ## _TO_XRGB_8888,                    \
+      fprefix ## _to_abgr_f32, mprefix ## _TO_ABGR_F32                       \
+      )
 
 DEFINE_CONVERSION(uint32_t, 4, bmp_read32, _argb_8888, ALLEGRO_CONVERT_ARGB_8888)
 DEFINE_CONVERSION(uint32_t, 4, bmp_read32, _rgba_8888, ALLEGRO_CONVERT_RGBA_8888)
@@ -311,6 +338,7 @@ DEFINE_CONVERSION(uint16_t, 2, bmp_read16, _bgr_565, ALLEGRO_CONVERT_BGR_565)
 DEFINE_CONVERSION(uint16_t, 2, bmp_read16, _bgr_555, ALLEGRO_CONVERT_BGR_555)
 DEFINE_CONVERSION(uint32_t, 4, bmp_read32, _rgbx_8888, ALLEGRO_CONVERT_RGBX_8888)
 DEFINE_CONVERSION(uint32_t, 4, bmp_read32, _xrgb_8888, ALLEGRO_CONVERT_XRGB_8888)
+DEFINE_CONVERSION(ALLEGRO_COLOR, 16, read128, _abgr_f32, ALLEGRO_CONVERT_ABGR_F32)
 
 /* Conversion map */
 
@@ -320,23 +348,7 @@ typedef void (*p_convert_func)(void *, int, int,
 
 #define DECLARE_FAKE_FUNCS                                                   \
    {                                                                         \
-      NULL,                                                                  \
-      NULL,                                                                  \
-      NULL,                                                                  \
-      NULL,                                                                  \
-      NULL,                                                                  \
-      NULL,                                                                  \
-      NULL,                                                                  \
-      NULL,                                                                  \
-      NULL,                                                                  \
-      NULL,                                                                  \
-      NULL,                                                                  \
-      NULL,                                                                  \
-      NULL,                                                                  \
-      NULL,                                                                  \
-      NULL,                                                                  \
-      NULL,                                                                  \
-      NULL                                                                   \
+      NULL \
    }
 
 #define DECLARE_FUNCS(prefix)                                                \
@@ -368,7 +380,8 @@ typedef void (*p_convert_func)(void *, int, int,
       prefix ## _to_bgr_565,                                                 \
       prefix ## _to_bgr_555,                                                 \
       prefix ## _to_rgbx_8888,                                               \
-      prefix ## _to_xrgb_8888                                                \
+      prefix ## _to_xrgb_8888,                                               \
+      prefix ## _to_abgr_f32                                                 \
    }
 
 static p_convert_func
@@ -399,7 +412,8 @@ convert_funcs[ALLEGRO_NUM_PIXEL_FORMATS][ALLEGRO_NUM_PIXEL_FORMATS] =
    DECLARE_FUNCS(_bgr_565),
    DECLARE_FUNCS(_bgr_555),
    DECLARE_FUNCS(_rgbx_8888),
-   DECLARE_FUNCS(_xrgb_8888)
+   DECLARE_FUNCS(_xrgb_8888),
+   DECLARE_FUNCS(_abgr_f32)
 };
 
 

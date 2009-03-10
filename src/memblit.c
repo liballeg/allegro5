@@ -41,7 +41,11 @@ void _al_draw_bitmap_region_memory(ALLEGRO_BITMAP *bitmap,
 
 //#ifndef DEBUGMODE
    if (src_mode == ALLEGRO_ONE && dst_mode == ALLEGRO_ZERO &&
-      ic->r == 1.0f && ic->g == 1.0f && ic->b == 1.0f && ic->a == 1.0f)
+      ic->r == 1.0f && ic->g == 1.0f && ic->b == 1.0f && ic->a == 1.0f &&
+      // FIXME: Those should not have to be special cased - but see
+      // comments in memblit1.c.
+      bitmap->format != ALLEGRO_PIXEL_FORMAT_ABGR_F32 &&
+      dest->format != ALLEGRO_PIXEL_FORMAT_ABGR_F32)
    {
       _al_draw_bitmap_region_memory_fast(bitmap, sx, sy, sw, sh, dx, dy, flags);
       return;

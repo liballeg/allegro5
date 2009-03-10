@@ -18,8 +18,9 @@ typedef struct FORMAT
    char const *name;
 } FORMAT;
 
-const FORMAT formats[] = {
-   {ALLEGRO_PIXEL_FORMAT_ANY_NO_ALPHA, "any"},
+const FORMAT formats[ALLEGRO_NUM_PIXEL_FORMATS] = {
+   {ALLEGRO_PIXEL_FORMAT_ANY, "any"},
+   {ALLEGRO_PIXEL_FORMAT_ANY_NO_ALPHA, "no alpha"},
    {ALLEGRO_PIXEL_FORMAT_ANY_WITH_ALPHA, "alpha"},
    {ALLEGRO_PIXEL_FORMAT_ANY_15_NO_ALPHA, "15"},
    {ALLEGRO_PIXEL_FORMAT_ANY_15_WITH_ALPHA, "15 alpha"},
@@ -44,9 +45,10 @@ const FORMAT formats[] = {
    {ALLEGRO_PIXEL_FORMAT_BGR_555, "BGR555"},
    {ALLEGRO_PIXEL_FORMAT_RGBX_8888, "RGBX8888"},
    {ALLEGRO_PIXEL_FORMAT_XRGB_8888, "XRGB8888"},
+   {ALLEGRO_PIXEL_FORMAT_ABGR_F32, "ABGR32F"},
 };
 
-#define NUM_FORMATS  (sizeof(formats) / sizeof(formats[0]))
+#define NUM_FORMATS ALLEGRO_NUM_PIXEL_FORMATS
 
 
 const char *get_format_name(ALLEGRO_BITMAP *bmp)
@@ -90,9 +92,9 @@ Prog::Prog(const Theme & theme, ALLEGRO_DISPLAY *display) :
    true_formats(Label(""))
 {
    d.add(source_label, 11, 0, 4,  1);
-   d.add(source_list,  11, 1, 4, 25);
+   d.add(source_list,  11, 1, 4, 27);
    d.add(dest_label,   15, 0, 4,  1);
-   d.add(dest_list,    15, 1, 4, 25);
+   d.add(dest_list,    15, 1, 4, 27);
    d.add(true_formats, 0, 15, 10, 1);
 
    for (unsigned i = 0; i < NUM_FORMATS; i++) {

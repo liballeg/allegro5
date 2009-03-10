@@ -27,9 +27,9 @@
 
 
 static int pixel_sizes[] = {
+   0, /* ALLEGRO_PIXEL_FORMAT_ANY */
    0,
    0,
-   0,
    2,
    2,
    2,
@@ -38,7 +38,7 @@ static int pixel_sizes[] = {
    3,
    4,
    4,
-   4,
+   4, /* ALLEGRO_PIXEL_FORMAT_ARGB_8888 */
    4,
    2,
    3,
@@ -52,13 +52,14 @@ static int pixel_sizes[] = {
    2,
    2,
    4,
-   4
+   4,
+   16 /* ALLEGRO_PIXEL_FORMAT_ABGR_F32 */
 };
 
 static int pixel_bits[] = {
+   0, /* ALLEGRO_PIXEL_FORMAT_ANY */
    0,
    0,
-   0,
    15,
    15,
    16,
@@ -67,7 +68,7 @@ static int pixel_bits[] = {
    24,
    32,
    32,
-   32,
+   32, /* ALLEGRO_PIXEL_FORMAT_ARGB_8888 */
    32,
    16,
    24,
@@ -81,7 +82,8 @@ static int pixel_bits[] = {
    16,
    15,
    32,
-   32
+   32,
+   128 /* ALLEGRO_PIXEL_FORMAT_ABGR_F32 */
 };
 
 
@@ -100,7 +102,7 @@ int al_get_pixel_format_bits(int format)
 }
 
 static bool format_alpha_table[ALLEGRO_NUM_PIXEL_FORMATS] = {
-   false,/*neutral*/
+   false, /* neutral (ALLEGRO_PIXEL_FORMAT_ANY) */
    false,
    true,
    false,
@@ -111,21 +113,22 @@ static bool format_alpha_table[ALLEGRO_NUM_PIXEL_FORMATS] = {
    true,
    false,
    true,
+   true, /* ALLEGRO_PIXEL_FORMAT_ARGB_8888 */
+   true,
+   true,
+   false,
+   false,
+   false,
    true,
    true,
    true,
    false,
    false,
    false,
-   true,
-   true,
-   true,
    false,
    false,
    false,
-   false,
-   false,
-   false
+   true /* ALLEGRO_PIXEL_FORMAT_ABGR_F32 */
 };
 
 bool _al_format_has_alpha(int format)
@@ -135,6 +138,7 @@ bool _al_format_has_alpha(int format)
 
 static bool format_is_real[ALLEGRO_NUM_PIXEL_FORMATS] =
 {
+   false, /* ALLEGRO_PIXEL_FORMAT_ANY */
    false,
    false,
    false,
@@ -145,7 +149,7 @@ static bool format_is_real[ALLEGRO_NUM_PIXEL_FORMATS] =
    false,
    false,
    false,
-   false,
+   true, /* ALLEGRO_PIXEL_FORMAT_ARGB_8888 */
    true,
    true,
    true,
@@ -160,7 +164,7 @@ static bool format_is_real[ALLEGRO_NUM_PIXEL_FORMATS] =
    true,
    true,
    true,
-   true
+   true /* ALLEGRO_PIXEL_FORMAT_ABGR_F32 */
 };
 
 bool _al_pixel_format_is_real(int format)
@@ -437,6 +441,15 @@ static void _get_pixel_xrgb_8888(void *data, ALLEGRO_COLOR *color)
       255);
 }
 
+static void _get_pixel_abgr_f32(void *data, ALLEGRO_COLOR *color)
+{
+   float *f = data;
+   color->r = f[0];
+   color->g = f[1];
+   color->b = f[2];
+   color->a = f[3];
+}
+
 /* get pixel lookup table */
 
 typedef void (*p_get_pixel_func)(void *, ALLEGRO_COLOR *);
@@ -469,7 +482,8 @@ static p_get_pixel_func get_pixel_funcs[ALLEGRO_NUM_PIXEL_FORMATS] = {
    _get_pixel_bgr_565,
    _get_pixel_bgr_555,
    _get_pixel_rgbx_8888,
-   _get_pixel_xrgb_8888
+   _get_pixel_xrgb_8888,
+   _get_pixel_abgr_f32
 };
 
 static ALLEGRO_COLOR *_al_get_pixel(ALLEGRO_BITMAP *bitmap, void *data,
@@ -529,6 +543,56 @@ ALLEGRO_COLOR al_get_pixel(ALLEGRO_BITMAP *bitmap, int x, int y)
    }
 
    return color;
+}
+
+static void _put_pixel_abgr_f32(void *data, ALLEGRO_COLOR *color)
+{
+   float *f = data;
+   f[0] = color->r;
+   f[1] = color->g;
+   f[2] = color->b;
+   f[3] = color->a;
+}
+
+/* put pixel lookup table */
+
+typedef void (*p_put_pixel_func)(void *, ALLEGRO_COLOR *);
+
+static p_put_pixel_func put_pixel_funcs[ALLEGRO_NUM_PIXEL_FORMATS] = {
+   /* Fake pixel formats */
+   NULL,
+   NULL,
+   NULL,
+   NULL,
+   NULL,
+   NULL,
+   NULL,
+   NULL,
+   NULL,
+   NULL,
+   NULL,
+   /* End fake pixel formats */
+   NULL, /* FIXME: implement */
+   NULL, /* FIXME: implement */
+   NULL, /* FIXME: implement */
+   NULL, /* FIXME: implement */
+   NULL, /* FIXME: implement */
+   NULL, /* FIXME: implement */
+   NULL, /* FIXME: implement */
+   NULL, /* FIXME: implement */
+   NULL, /* FIXME: implement */
+   NULL, /* FIXME: implement */
+   NULL, /* FIXME: implement */
+   NULL, /* FIXME: implement */
+   NULL, /* FIXME: implement */
+   NULL, /* FIXME: implement */
+   NULL, /* FIXME: implement */
+   _put_pixel_abgr_f32
+};
+
+static void _al_put_pixel_raw(void *data, int format, ALLEGRO_COLOR *color)
+{
+   (*put_pixel_funcs[format])(data, color);
 }
 
 /* get_pixel_value functions */
@@ -706,7 +770,9 @@ static _get_pixel_value_func _get_pixel_value_funcs[ALLEGRO_NUM_PIXEL_FORMATS] =
    _get_pixel_value_bgr_565,
    _get_pixel_value_bgr_555,
    _get_pixel_value_rgbx_8888,
-   _get_pixel_value_xrgb_8888
+   _get_pixel_value_xrgb_8888,
+   /* Not representable as integer. */
+   NULL /* ALLEGRO_PIXEL_FORMAT_ABGR_F32 */
 };
 
 int _al_get_pixel_value(int src_format, ALLEGRO_COLOR *src_color)
@@ -718,86 +784,86 @@ int _al_get_pixel_value(int src_format, ALLEGRO_COLOR *src_color)
 
 /* put_pixel functions */
 
-static void _put_pixel_argb_8888(void *data, int pixel)
+static void _put_pixel_value_argb_8888(void *data, int pixel)
 {
    *(uint32_t *)(data) = pixel;
 }
 
-static void _put_pixel_rgba_8888(void *data, int pixel)
+static void _put_pixel_value_rgba_8888(void *data, int pixel)
 {
    *(uint32_t *)(data) = pixel;
 }
 
-static void _put_pixel_argb_4444(void *data, int pixel)
+static void _put_pixel_value_argb_4444(void *data, int pixel)
 {
    *(uint16_t *)(data) = pixel;
 }
 
-static void _put_pixel_rgb_888(void *data, int pixel)
+static void _put_pixel_value_rgb_888(void *data, int pixel)
 {
    WRITE3BYTES(data, pixel);
 }
 
-static void _put_pixel_rgb_565(void *data, int pixel)
+static void _put_pixel_value_rgb_565(void *data, int pixel)
 {
    *(uint16_t *)(data) = pixel;
 }
 
-static void _put_pixel_rgb_555(void *data, int pixel)
+static void _put_pixel_value_rgb_555(void *data, int pixel)
 {
    *(uint16_t *)(data) = pixel;
 }
 
-static void _put_pixel_rgba_5551(void *data, int pixel)
+static void _put_pixel_value_rgba_5551(void *data, int pixel)
 {
    *(uint16_t *)(data) = pixel;
 }
 
-static void _put_pixel_argb_1555(void *data, int pixel)
+static void _put_pixel_value_argb_1555(void *data, int pixel)
 {
    *(uint16_t *)(data) = pixel;
 }
 
-static void _put_pixel_abgr_8888(void *data, int pixel)
+static void _put_pixel_value_abgr_8888(void *data, int pixel)
 {
    *(uint32_t *)(data) = pixel;
 }
 
-static void _put_pixel_xbgr_8888(void *data, int pixel)
+static void _put_pixel_value_xbgr_8888(void *data, int pixel)
 {
    *(uint32_t *)(data) = pixel;
 }
 
-static void _put_pixel_bgr_888(void *data, int pixel)
+static void _put_pixel_value_bgr_888(void *data, int pixel)
 {
    WRITE3BYTES(data, pixel);
 }
 
-static void _put_pixel_bgr_565(void *data, int pixel)
+static void _put_pixel_value_bgr_565(void *data, int pixel)
 {
    *(uint16_t *)(data) = pixel;
 }
 
-static void _put_pixel_bgr_555(void *data, int pixel)
+static void _put_pixel_value_bgr_555(void *data, int pixel)
 {
    *(uint16_t *)(data) = pixel;
 }
 
-static void _put_pixel_rgbx_8888(void *data, int pixel)
+static void _put_pixel_value_rgbx_8888(void *data, int pixel)
 {
    *(uint32_t *)(data) = pixel;
 }
 
-static void _put_pixel_xrgb_8888(void *data, int pixel)
+static void _put_pixel_value_xrgb_8888(void *data, int pixel)
 {
    *(uint32_t *)(data) = pixel;
 }
 
 /* put pixel lookup table */
 
-typedef void (*p_put_pixel_func)(void *data, int pixel);
+typedef void (*p_put_pixel_value_func)(void *data, int pixel);
 
-static p_put_pixel_func put_pixel_funcs[ALLEGRO_NUM_PIXEL_FORMATS] = {
+static p_put_pixel_value_func put_pixel_value_funcs[ALLEGRO_NUM_PIXEL_FORMATS] = {
    /* Fake pixel formats */
    NULL,
    NULL,
@@ -811,34 +877,35 @@ static p_put_pixel_func put_pixel_funcs[ALLEGRO_NUM_PIXEL_FORMATS] = {
    NULL,
    NULL,
    /* End fake pixel formats */
-   _put_pixel_argb_8888,
-   _put_pixel_rgba_8888,
-   _put_pixel_argb_4444,
-   _put_pixel_rgb_888,
-   _put_pixel_rgb_565,
-   _put_pixel_rgb_555,
-   _put_pixel_rgba_5551,
-   _put_pixel_argb_1555,
-   _put_pixel_abgr_8888,
-   _put_pixel_xbgr_8888,
-   _put_pixel_bgr_888,
-   _put_pixel_bgr_565,
-   _put_pixel_bgr_555,
-   _put_pixel_rgbx_8888,
-   _put_pixel_xrgb_8888
+   _put_pixel_value_argb_8888,
+   _put_pixel_value_rgba_8888,
+   _put_pixel_value_argb_4444,
+   _put_pixel_value_rgb_888,
+   _put_pixel_value_rgb_565,
+   _put_pixel_value_rgb_555,
+   _put_pixel_value_rgba_5551,
+   _put_pixel_value_argb_1555,
+   _put_pixel_value_abgr_8888,
+   _put_pixel_value_xbgr_8888,
+   _put_pixel_value_bgr_888,
+   _put_pixel_value_bgr_565,
+   _put_pixel_value_bgr_555,
+   _put_pixel_value_rgbx_8888,
+   _put_pixel_value_xrgb_8888,
+   /* Not representable as integer. */
+   NULL /* ALLEGRO_PIXEL_FORMAT_ABGR_F32 */
 };
 
-static void _al_put_pixel_raw(void *data, int format, int color)
+static void _al_put_pixel_value(void *data, int format, int color)
 {
    ASSERT(_al_pixel_format_is_real(format));
 
-   (*put_pixel_funcs[format])(data, color);
+   (*put_pixel_value_funcs[format])(data, color);
 }
 
 void _al_put_pixel(ALLEGRO_BITMAP *bitmap, int x, int y, ALLEGRO_COLOR color)
 {
    ALLEGRO_LOCKED_REGION *lr;
-   int color_value;
 
    if (bitmap->parent) {
        x += bitmap->xofs;
@@ -846,20 +913,26 @@ void _al_put_pixel(ALLEGRO_BITMAP *bitmap, int x, int y, ALLEGRO_COLOR color)
        bitmap = bitmap->parent;
    }
 
-   color_value = _al_get_pixel_value(bitmap->format, &color);
-
    if (bitmap->locked) {
+      char *data;
       x -= bitmap->lock_x;
       y -= bitmap->lock_y;
       if (x < 0 || y < 0 || x >= bitmap->lock_w || y >= bitmap->lock_h) { 
          return;
       }
-
-      _al_put_pixel_raw(
-         (char *)bitmap->locked_region.data
-            + y * bitmap->locked_region.pitch
-            + x * al_get_pixel_size(bitmap->format),
-         bitmap->format, color_value);
+      data = bitmap->locked_region.data;
+      data += y * bitmap->locked_region.pitch;
+      data += x * al_get_pixel_size(bitmap->format);
+      
+      // FIXME: Temporary hack - once the tables above are sorted out,
+      // no extra case should be required.
+      if (bitmap->format == ALLEGRO_PIXEL_FORMAT_ABGR_F32) {
+         _al_put_pixel_raw(data, bitmap->format, &color);
+      }
+      else {
+         int color_value = _al_get_pixel_value(bitmap->format, &color);
+         _al_put_pixel_value(data, bitmap->format, color_value);
+      }
    }
    else {
       if (x < bitmap->cl || y < bitmap->ct ||
@@ -868,12 +941,22 @@ void _al_put_pixel(ALLEGRO_BITMAP *bitmap, int x, int y, ALLEGRO_COLOR color)
          return;
       }
 
-      if (!(lr = al_lock_bitmap_region(bitmap, x, y, 1, 1, ALLEGRO_PIXEL_FORMAT_ANY, 0)))
+      lr = al_lock_bitmap_region(bitmap, x, y, 1, 1,
+         ALLEGRO_PIXEL_FORMAT_ANY, 0);
+      if (!lr)
          return;
 
       /* FIXME: check for valid pixel format */
 
-      _al_put_pixel_raw(lr->data, bitmap->format, color_value);
+      // FIXME: Temporary hack - once the tables above are sorted out,
+      // no extra case should be required.
+      if (bitmap->format == ALLEGRO_PIXEL_FORMAT_ABGR_F32) {
+         _al_put_pixel_raw(lr->data, bitmap->format, &color);
+      }
+      else {
+         int color_value = _al_get_pixel_value(bitmap->format, &color);
+         _al_put_pixel_value(lr->data, bitmap->format, color_value);
+      }
 
       al_unlock_bitmap(bitmap);
    }

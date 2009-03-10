@@ -58,7 +58,7 @@
 /* Conversion table from Allegro's pixel formats to corresponding OpenGL
  * formats. The three entries are GL internal format, GL type, GL format.
  */
-static const int glformats[][3] = {
+static const int glformats[ALLEGRO_NUM_PIXEL_FORMATS][3] = {
    /* Skip pseudo formats */
    {0, 0, 0},
    {0, 0, 0},
@@ -87,6 +87,7 @@ static const int glformats[][3] = {
    {0, 0, 0}, /* BGR_555 */ //FIXME: how?
    {GL_RGBA8, GL_UNSIGNED_INT_8_8_8_8, GL_RGBA}, /* RGBX_8888 */
    {GL_RGBA8, GL_UNSIGNED_INT_8_8_8_8_REV, GL_BGRA}, /* XRGB_8888 */
+   {GL_RGBA32F_ARB, GL_FLOAT, GL_RGBA} /* ABGR_F32 */
 };
 
 

@@ -1513,4 +1513,109 @@
 #define ALLEGRO_CONVERT_XRGB_8888_TO_XRGB_8888(p) \
 	(p)
 
+/* ABGR_F32 */
+
+#define ALLEGRO_CONVERT_ARGB_8888_TO_ABGR_F32(p) al_map_rgba( \
+   (p >> 16) & 255, (p >> 8) & 255, p & 255, (p >> 24) & 255)
+
+#define ALLEGRO_CONVERT_RGBA_8888_TO_ABGR_F32(p) al_map_rgba( \
+   (p >> 24) & 255, (p >> 16) & 255, (p >> 8) & 255, p & 255)
+
+#define ALLEGRO_CONVERT_ARGB_4444_TO_ABGR_F32(p) al_map_rgba( \
+   (p & 0x0f00) >> 4, p & 0x00f0, (p & 0x0004) << 4, (p & 0xf000) >> 8)
+
+#define ALLEGRO_CONVERT_RGB_888_TO_ABGR_F32(p) al_map_rgb( \
+   (p >> 16) & 255, (p >> 8) & 255, p & 255)
+
+#define ALLEGRO_CONVERT_RGB_565_TO_ABGR_F32(p) al_map_rgb( \
+   (p & 0xf800) >> 8, (p & 0x07e0) >> 3, (p & 0x1f) << 3)
+
+#define ALLEGRO_CONVERT_RGB_555_TO_ABGR_F32(p) al_map_rgb( \
+   (p & 0x7c00) >> 7, (p & 0x03e0) >> 2, (p & 0x1f) << 3)
+
+#define ALLEGRO_CONVERT_RGBA_5551_TO_ABGR_F32(p) al_map_rgba( \
+   (p & 0xf800) >> 8, (p & 0x07c0) >> 3, (p & 0x3e) << 2, (p & 1) * 255)
+
+#define ALLEGRO_CONVERT_ARGB_1555_TO_ABGR_F32(p) al_map_rgba( \
+   (p & 0x7c00) >> 7, (p & 0x03e0) >> 2, (p & 0x1f) << 3, ((p & 0x8000) >> 15) * 255)
+
+#define ALLEGRO_CONVERT_ABGR_8888_TO_ABGR_F32(p) al_map_rgba( \
+   p & 255, (p >> 8) & 255, (p >> 16) & 255, (p >> 24) & 255)
+
+#define ALLEGRO_CONVERT_XBGR_8888_TO_ABGR_F32(p) al_map_rgb( \
+   p & 255, (p >> 8) & 255, (p >> 16) & 255)
+
+#define ALLEGRO_CONVERT_BGR_888_TO_ABGR_F32(p) al_map_rgb( \
+   p & 255, (p >> 8) & 255, (p >> 16) & 255)
+
+#define ALLEGRO_CONVERT_BGR_565_TO_ABGR_F32(p) al_map_rgb( \
+   (p & 0x1f) << 3, (p & 0x07e0) >> 3, (p & 0xf800) >> 8)
+
+#define ALLEGRO_CONVERT_BGR_555_TO_ABGR_F32(p) al_map_rgb( \
+   (p & 0x1f) << 3, (p & 0x03e0) >> 2, (p & 0x7c00) >> 7)
+
+#define ALLEGRO_CONVERT_RGBX_8888_TO_ABGR_F32(p) al_map_rgb( \
+   (p & 0xf800) >> 8, (p & 0x07c0) >> 3, (p & 0x3e) << 2)
+
+#define ALLEGRO_CONVERT_XRGB_8888_TO_ABGR_F32(p) al_map_rgb( \
+   (p & 0x7c00) >> 7, (p & 0x03e0) >> 2, (p & 0x1f) << 3)
+
+#define ALLEGRO_CONVERT_ABGR_F32_TO_ABGR_F32(p) (p)
+
+#define ALLEGRO_C3_CONVERT(c, rm, rp, gm, gp, bm, bp) ( \
+   ((uint32_t)(c.r * rm) << rp) + \
+   ((uint32_t)(c.g * gm) << gp) + \
+   ((uint32_t)(c.b * bm) << bp))
+
+#define ALLEGRO_C4_CONVERT(c, rm, rp, gm, gp, bm, bp, am, ap) ( \
+   ((uint32_t)(c.r * rm) << rp) + \
+   ((uint32_t)(c.g * gm) << gp) + \
+   ((uint32_t)(c.b * bm) << bp) + \
+   ((uint32_t)(c.a * am) << ap))
+
+#define ALLEGRO_CONVERT_ABGR_F32_TO_ARGB_8888(c) \
+   ALLEGRO_C4_CONVERT(c, 255, 16, 255, 8, 255, 0, 255, 24)
+
+#define ALLEGRO_CONVERT_ABGR_F32_TO_RGBA_8888(c) \
+   ALLEGRO_C4_CONVERT(c, 255, 0, 255, 8, 255, 16, 255, 24)
+
+#define ALLEGRO_CONVERT_ABGR_F32_TO_ARGB_4444(c) \
+   ALLEGRO_C4_CONVERT(c, 15, 8, 15, 4, 15, 0, 15, 12)
+   
+#define ALLEGRO_CONVERT_ABGR_F32_TO_RGB_888(c) \
+   ALLEGRO_C3_CONVERT(c, 255, 16, 255, 8, 255, 0)
+
+#define ALLEGRO_CONVERT_ABGR_F32_TO_RGB_565(c) \
+   ALLEGRO_C3_CONVERT(c, 31, 11, 63, 5, 31, 0)
+
+#define ALLEGRO_CONVERT_ABGR_F32_TO_RGB_555(c) \
+   ALLEGRO_C3_CONVERT(c, 31, 10, 31, 5, 31, 0)
+
+#define ALLEGRO_CONVERT_ABGR_F32_TO_RGBA_5551(c) \
+   ALLEGRO_C4_CONVERT(c, 31, 11, 31, 6, 31, 1, 1, 0)
+
+#define ALLEGRO_CONVERT_ABGR_F32_TO_ARGB_1555(c) \
+   ALLEGRO_C4_CONVERT(c, 31, 10, 31, 5, 31, 0, 1, 15)
+
+#define ALLEGRO_CONVERT_ABGR_F32_TO_ABGR_8888(c) \
+   ALLEGRO_C4_CONVERT(c, 255, 0, 255, 8, 255, 16, 255, 24)
+
+#define ALLEGRO_CONVERT_ABGR_F32_TO_XBGR_8888(c) \
+   ALLEGRO_C3_CONVERT(c, 255, 0, 255, 8, 255, 16)
+
+#define ALLEGRO_CONVERT_ABGR_F32_TO_BGR_888(c) \
+   ALLEGRO_C3_CONVERT(c, 255, 0, 255, 8, 255, 16)
+
+#define ALLEGRO_CONVERT_ABGR_F32_TO_BGR_565(c) \
+   ALLEGRO_C3_CONVERT(c, 31, 0, 63, 6, 31, 11)
+
+#define ALLEGRO_CONVERT_ABGR_F32_TO_BGR_555(c) \
+   ALLEGRO_C3_CONVERT(c, 31, 0, 31, 5, 31, 10)
+
+#define ALLEGRO_CONVERT_ABGR_F32_TO_RGBX_8888(c) \
+   ALLEGRO_C3_CONVERT(c, 255, 24, 255, 16, 255, 8)
+
+#define ALLEGRO_CONVERT_ABGR_F32_TO_XRGB_8888(c) \
+   ALLEGRO_C3_CONVERT(c, 255, 16, 255, 8, 255, 0)
+
 #endif
