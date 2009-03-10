@@ -96,6 +96,75 @@ int main(void)
    redraw = true;
 
    while (true) {
+      if (recreate_subbitmaps) {
+         int l, r, t, b;
+
+         al_destroy_bitmap(src_subbmp);
+         al_destroy_bitmap(dst_subbmp);
+
+         l = MIN(src_x1, src_x2);
+         r = MAX(src_x1, src_x2);
+         t = MIN(src_y1, src_y2);
+         b = MAX(src_y1, src_y2);
+
+         l = CLAMP(0, l, SRC_WIDTH-1);
+         r = CLAMP(0, r, SRC_WIDTH-1);
+         t = CLAMP(0, t, SRC_HEIGHT-1);
+         b = CLAMP(0, b, SRC_HEIGHT-1);
+
+         src_subbmp = al_create_sub_bitmap(mem_bmp, l, t, r-l+1, b-t+1);
+
+         l = MIN(dst_x1, dst_x2);
+         r = MAX(dst_x1, dst_x2);
+         t = MIN(dst_y1, dst_y2);
+         b = MAX(dst_y1, dst_y2);
+
+         l = CLAMP(0, l, DST_WIDTH-1);
+         r = CLAMP(0, r, DST_WIDTH-1);
+         t = CLAMP(0, t, DST_HEIGHT-1);
+         b = CLAMP(0, b, DST_HEIGHT-1);
+
+         al_set_current_display(dst_display);
+         dst_subbmp = al_create_sub_bitmap(al_get_backbuffer(),
+            l, t, r-l+1, b-t+1);
+
+         recreate_subbitmaps = false;
+      }
+
+      if (redraw && al_event_queue_is_empty(queue)) {
+         al_set_current_display(dst_display);
+         al_clear(al_map_rgb(0, 0, 0));
+
+         al_set_target_bitmap(dst_subbmp);
+         switch (mode) {
+            case PLAIN_BLIT:
+               al_draw_bitmap(src_subbmp, 0, 0, 0);
+               break;
+            case SCALED_BLIT:
+               al_draw_scaled_bitmap(src_subbmp,
+                  0, 0, al_get_bitmap_width(src_subbmp),
+                  al_get_bitmap_height(src_subbmp),
+                  0, 0, al_get_bitmap_width(dst_subbmp),
+                  al_get_bitmap_height(dst_subbmp),
+                  0);
+               break;
+         }
+
+         al_set_target_bitmap(al_get_backbuffer());
+         al_draw_rectangle(dst_x1, dst_y1, dst_x2, dst_y2,
+            al_map_rgb(0, 255, 255), 0);
+         al_flip_display();
+
+         al_set_current_display(src_display);
+         al_clear(al_map_rgb(0, 0, 0));
+         al_draw_bitmap(mem_bmp, 0, 0, 0);
+         al_draw_rectangle(src_x1, src_y1, src_x2, src_y2,
+            al_map_rgb(0, 255, 255), 0);
+         al_flip_display();
+
+         redraw = false;
+      }
+
       al_wait_for_event(queue, &event);
       if (event.type == ALLEGRO_EVENT_DISPLAY_CLOSE) {
          break;
@@ -136,8 +205,7 @@ int main(void)
                dst_x2 = event.mouse.x;
                dst_y2 = event.mouse.y;
             }
-            /* too slow */
-            /* redraw = true; */
+            redraw = true;
          }
       }
       else if (event.type == ALLEGRO_EVENT_MOUSE_BUTTON_UP &&
@@ -148,75 +216,6 @@ int main(void)
       }
       else if (event.type == ALLEGRO_EVENT_DISPLAY_EXPOSE) {
          redraw = true;
-      }
-
-      if (recreate_subbitmaps) {
-         int l, r, t, b;
-
-         al_destroy_bitmap(src_subbmp);
-         al_destroy_bitmap(dst_subbmp);
-
-         l = MIN(src_x1, src_x2);
-         r = MAX(src_x1, src_x2);
-         t = MIN(src_y1, src_y2);
-         b = MAX(src_y1, src_y2);
-
-         l = CLAMP(0, l, SRC_WIDTH-1);
-         r = CLAMP(0, r, SRC_WIDTH-1);
-         t = CLAMP(0, t, SRC_HEIGHT-1);
-         b = CLAMP(0, b, SRC_HEIGHT-1);
-
-         src_subbmp = al_create_sub_bitmap(mem_bmp, l, t, r-l+1, b-t+1);
-
-         l = MIN(dst_x1, dst_x2);
-         r = MAX(dst_x1, dst_x2);
-         t = MIN(dst_y1, dst_y2);
-         b = MAX(dst_y1, dst_y2);
-
-         l = CLAMP(0, l, DST_WIDTH-1);
-         r = CLAMP(0, r, DST_WIDTH-1);
-         t = CLAMP(0, t, DST_HEIGHT-1);
-         b = CLAMP(0, b, DST_HEIGHT-1);
-
-         al_set_current_display(dst_display);
-         dst_subbmp = al_create_sub_bitmap(al_get_backbuffer(),
-            l, t, r-l+1, b-t+1);
-
-         recreate_subbitmaps = false;
-      }
-
-      if (redraw) {
-         al_set_current_display(dst_display);
-         al_clear(al_map_rgb(0, 0, 0));
-
-         al_set_target_bitmap(dst_subbmp);
-         switch (mode) {
-            case PLAIN_BLIT:
-               al_draw_bitmap(src_subbmp, 0, 0, 0);
-               break;
-            case SCALED_BLIT:
-               al_draw_scaled_bitmap(src_subbmp,
-                  0, 0, al_get_bitmap_width(src_subbmp),
-                  al_get_bitmap_height(src_subbmp),
-                  0, 0, al_get_bitmap_width(dst_subbmp),
-                  al_get_bitmap_height(dst_subbmp),
-                  0);
-               break;
-         }
-
-         al_set_target_bitmap(al_get_backbuffer());
-         al_draw_rectangle(dst_x1, dst_y1, dst_x2, dst_y2,
-            al_map_rgb(0, 255, 255), 0);
-         al_flip_display();
-
-         al_set_current_display(src_display);
-         al_clear(al_map_rgb(0, 0, 0));
-         al_draw_bitmap(mem_bmp, 0, 0, 0);
-         al_draw_rectangle(src_x1, src_y1, src_x2, src_y2,
-            al_map_rgb(0, 255, 255), 0);
-         al_flip_display();
-
-         redraw = false;
       }
    }
 
