@@ -8,7 +8,9 @@
 #include <allegro5/a5_primitives.h>
 
 
-#define MAX_BUTTONS  24
+#define MAX_STICKS   8
+#define MAX_BUTTONS  32
+
 
 /* globals */
 ALLEGRO_EVENT_QUEUE  *event_queue;
@@ -16,20 +18,23 @@ ALLEGRO_COLOR        black;
 ALLEGRO_COLOR        grey;
 ALLEGRO_COLOR        white;
 
-float joys_x;
-float joys_y;
+int num_sticks;
+float joys_x[MAX_STICKS];
+float joys_y[MAX_STICKS];
 int num_buttons;
 bool joys_buttons[MAX_BUTTONS];
 
 
 
-void draw_joystick_axes(void)
+void draw_joystick_axes(int cx, int cy, int stick)
 {
-   int x = 320 + joys_x * 100;
-   int y = 200 + joys_y * 100;
+   const int size = 30;
+   const int osize = 35;
+   int x = cx + joys_x[stick] * size;
+   int y = cy + joys_y[stick] * size;
 
-   al_draw_filled_rectangle(320-107, 200-107, 320+107.5, 200+107.5, grey);
-   al_draw_rectangle(320-107, 200-107, 320+107.5, 200+107.5, black, 0);
+   al_draw_filled_rectangle(cx-osize, cy-osize, cx+osize, cy+osize, grey);
+   al_draw_rectangle(cx-osize, cy-osize, cx+osize, cy+osize, black, 0);
    al_draw_filled_rectangle(x-5, y-5, x+5.5, y+5.5, black);
 }
 
@@ -54,10 +59,17 @@ void draw_all(void)
    int i;
 
    al_clear(al_map_rgb(0xff, 0xff, 0xc0));
-   draw_joystick_axes();
+
+   for (i = 0; i < num_sticks; i++) {
+      int cx = (i + 0.5) * al_get_display_width() / num_sticks;
+      int cy = al_get_display_height() / 2;
+      draw_joystick_axes(cx, cy, i);
+   }
+
    for (i = 0; i < num_buttons; i++) {
       draw_joystick_button(i, joys_buttons[i]);
    }
+
    al_flip_display();
 }
 
@@ -79,11 +91,12 @@ void main_loop(void)
           * 'stick' on the first joystick on the system.
           */
          case ALLEGRO_EVENT_JOYSTICK_AXIS:
-            if (event.joystick.stick == 0) {
+            if (event.joystick.stick < MAX_STICKS) {
+               int stick = event.joystick.stick;
                if (event.joystick.axis == 0)
-                  joys_x = event.joystick.pos;
+                  joys_x[stick] = event.joystick.pos;
                else if (event.joystick.axis == 1)
-                  joys_y = event.joystick.pos;
+                  joys_y[stick] = event.joystick.pos;
             }
             break;
 
@@ -166,8 +179,15 @@ int main(void)
 
    /* Initialise values. */
    al_get_joystick_state(zero_joy, &jst);
-   joys_x = jst.stick[0].axis[0];
-   joys_y = jst.stick[0].axis[1];
+
+   num_sticks = al_get_num_joystick_sticks(zero_joy);
+   if (num_sticks > MAX_STICKS)
+      num_sticks = MAX_STICKS;
+   for (i = 0; i < num_sticks; i++) {
+      joys_x[i] = jst.stick[i].axis[0];
+      joys_y[i] = jst.stick[i].axis[1];
+   }
+
    num_buttons = al_get_num_joystick_buttons(zero_joy);
    if (num_buttons > MAX_BUTTONS) {
       num_buttons = MAX_BUTTONS;
