@@ -64,7 +64,7 @@ ALLEGRO_STREAM *al_create_stream(size_t buffer_count, unsigned long samples,
    stream->spl.spl_data.frequency = freq;
    stream->spl.speed     = 1.0f;
    stream->spl.gain      = 1.0f;
-   stream->spl.pan       = 1.0f;
+   stream->spl.pan       = 0.0f;
 
    stream->spl.step = 0;
    stream->spl.pos  = samples << MIXER_FRAC_SHIFT;
