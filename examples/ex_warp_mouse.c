@@ -33,7 +33,7 @@ int main()
    while (1) {
       ALLEGRO_EVENT event;
       
-      if (redraw) {
+      if (redraw && al_event_queue_is_empty(event_queue)) {
          int th = al_font_text_height(font);
          
          al_clear(al_map_rgb_f(0, 0, 0));
