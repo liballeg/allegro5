@@ -8,7 +8,6 @@
 /* Title: Sample Instance functions
  */
 
-#include <float.h>
 #include <math.h>
 #include <stdio.h>
 
@@ -467,7 +466,7 @@ int al_set_sample_instance_float(ALLEGRO_SAMPLE_INSTANCE *spl,
                "Could not set panning of sample attached to voice");
             return 1;
          }
-         if (val != FLT_MIN && (val < -1.0 || val > 1.0)) {
+         if (val != ALLEGRO_AUDIO_PAN_NONE && (val < -1.0 || val > 1.0)) {
             _al_set_error(ALLEGRO_GENERIC_ERROR, "Invalid pan value");
             return 1;
          }

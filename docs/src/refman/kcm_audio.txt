@@ -31,6 +31,12 @@ ALLEGRO_AUDIO_DRIVER_AUTODETECT whenever possible.
 * ALLEGRO_AUDIO_DRIVER_DSOUND
 * ALLEGRO_AUDIO_DRIVER_OSS
 
+## API: ALLEGRO_AUDIO_PAN_NONE
+
+Special value for the ALLEGRO_AUDIOPROP_PAN property.
+Use this value to play samples at their original volume with panning
+disabled.
+
 ## API: ALLEGRO_AUDIO_PROPERTY
 
 Flags to pass to the various al\_\*\_get\_\* and al\_\*\_set\_\* functions.
@@ -178,7 +184,7 @@ XXX much of this will probably change soon
   middle, it will be output equally from both front speakers but reduced in
   level by 3 dB (about 0.707 of the original).  To play a sound centred
   and at its original level, set its ALLEGRO_AUDIOPROP_PAN property to
-  FLT_MIN (from float.h).
+  [ALLEGRO_AUDIO_PAN_NONE].
 
 ## API: ALLEGRO_STREAM
 

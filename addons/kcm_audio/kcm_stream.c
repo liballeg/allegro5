@@ -8,7 +8,6 @@
 /* Title: Stream functions
  */
 
-#include <float.h>
 #include <stdio.h>
 
 #include "allegro5/kcm_audio.h"
@@ -381,7 +380,7 @@ int al_set_stream_float(ALLEGRO_STREAM *stream,
                "Could not set gain of stream attached to voice");
             return 1;
          }
-         if (val != FLT_MIN && (val < -1.0 || val > 1.0)) {
+         if (val != ALLEGRO_AUDIO_PAN_NONE && (val < -1.0 || val > 1.0)) {
             _al_set_error(ALLEGRO_GENERIC_ERROR, "Invalid pan value");
             return 1;
          }

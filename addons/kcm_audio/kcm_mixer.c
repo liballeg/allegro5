@@ -8,7 +8,6 @@
 /* Title: Mixer functions
  */
 
-#include <float.h>
 #include <math.h>
 #include <stdio.h>
 
@@ -79,7 +78,7 @@ static float *_al_rechannel_matrix(ALLEGRO_CHANNEL_CONF orig,
     * I took that to mean we want:
     *    sqrt(rgain^2 + lgain^2) = 1.0
     */
-   if (pan != FLT_MIN) {
+   if (pan != ALLEGRO_AUDIO_PAN_NONE) {
       float rgain = gain * sqrt(( pan + 1.0f) / 2.0f);
       float lgain = gain * sqrt((-pan + 1.0f) / 2.0f);
 

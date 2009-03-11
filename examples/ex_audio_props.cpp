@@ -4,7 +4,6 @@
  *    Test audio properties (gain and panning, for now).
  */
 
-#include <float.h>
 #include "allegro5/allegro5.h"
 #include "allegro5/a5_font.h"
 #include "allegro5/acodec.h"
@@ -76,7 +75,7 @@ void Prog::update_properties()
    if (pan_button.get_pushed())
       pan = pan_slider.get_cur_value() / 1000.0f - 1.0f;
    else
-      pan = FLT_MIN;
+      pan = ALLEGRO_AUDIO_PAN_NONE;
    al_set_sample_instance_float(sample_inst, ALLEGRO_AUDIOPROP_PAN, pan);
 
    speed = speed_slider.get_cur_value() / 1000.0f;
