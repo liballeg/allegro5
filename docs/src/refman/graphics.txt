@@ -513,9 +513,4 @@ Components will range from 0.0f-1.0f.
 
 See also: [al_unmap_rgba], [al_unmap_rgb], [al_unmap_rgb_f]
 
-## API: al_wait_for_vsync
-
-Wait for the beginning of a vertical retrace. Some
-driver/card/monitor combinations may not be capable
-of this. Returns false if not possible, true if successful.
 

@@ -65,6 +65,24 @@ visible on screen. Pointers to the special back and front buffer
 bitmaps remain valid and retain their semantics as back and front
 buffers respectively, although their contents may have changed.
 
+Several display options change how this function behaves:
+
+With ALLEGRO_SINGLE_BUFFER, no flipping is done. You still have to
+call this function to display graphics, depending on how to used
+graphics system works.
+
+The ALLEGRO_SWAP_METHOD option may have additional information what
+kind of operation is internally used to flipt he front and back buffers.
+
+If ALLEGRO_VSYNC is 1, this function will force waiting for vsync. If
+ALLEGRO_VSYNC is 2, this function will not wait for vsync. With many
+drivers the vsync behavior is controlled by the user and not the
+application, and ALLEGRO_VSYNC will not be set - in this case
+al_flip_display will wait for vsync depending on the settings users
+made in their system's graphics preferences.
+
+See also: [al_set_new_display_flags], [al_set_new_display_options]
+
 ## API: al_get_backbuffer
 
 Return a special bitmap representing the back-buffer of the
@@ -260,6 +278,11 @@ The supported options are:
 *   ALLEGRO_UPDATE_DISPLAY_REGION: Set to 1 if the current display is
     capable of updating just a region, and 0 if calling
     [al_update_display_region] is equivalent to [al_flip_display].
+*   ALLEGRO_VSYNC: Set to 1 to tell the driver to wait for vsync
+    in [al_flip_display], or to 2 to force vsync off. Usually this is a
+    setting the user controls in their graphics card settings and
+    applications are not supposed to try and force this. Currently all
+    drivers ignore this option.
 
 FIXME: document them all in detail
 
@@ -334,3 +357,18 @@ See Also: [al_get_window_position]
 Does the same as [al_flip_display], but tries to update only the
 specified region. With many drivers this is not possible, but for
 some it can improve performance.
+
+The ALLEGRO_UPDATE_DISPLAY_REGION option (see [al_get_display_option])
+will specify the behavior of this function in the current display.
+
+## API: al_wait_for_vsync
+
+Wait for the beginning of a vertical retrace. Some
+driver/card/monitor combinations may not be capable
+of this. Right now only the D3D9 driver has an implementation for
+this functions - on other drivers it does nothing. Also note how
+[al_flip_display] usually already waits for the vertical retrace, so
+unless you are doing something special, there is no reason to call
+this function.
+
+Returns false if not possible, true if successful.
