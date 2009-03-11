@@ -21,6 +21,7 @@ struct Example
    int FPS;
    float text_x, text_y;
 
+   bool software;
    int samples;
    int what;
    int thickness;
@@ -116,6 +117,7 @@ static void draw(void)
    int w = al_get_bitmap_width(ex.zoom);
    int h = al_get_bitmap_height(ex.zoom);
    ALLEGRO_BITMAP *screen = al_get_target_bitmap();
+   ALLEGRO_BITMAP *mem;
    int rects_num = 16, i, j;
    float rects[16 * 4];
    for (j = 0; j < 4; j++) {
@@ -140,9 +142,18 @@ static void draw(void)
    print("Enlarged x 16");
 
    al_set_blender(ALLEGRO_ONE, ALLEGRO_ZERO, ex.white);
-
-   x = 8;
-   y = 40;
+   
+   if (ex.software) {
+      al_set_new_bitmap_flags(ALLEGRO_MEMORY_BITMAP);
+      mem = al_create_bitmap(w, h);
+      al_set_target_bitmap(mem);
+      x = 0;
+      y = 0;
+   }
+   else {
+      x = 8;
+      y = 40;
+   }
    al_draw_bitmap(ex.pattern, x, y, 0);
    
    /* Draw the test scene. */
@@ -153,6 +164,14 @@ static void draw(void)
          x + rects[i * 4 + 2],
          y + rects[i * 4 + 3],
          ex.foreground, false);
+   
+   if (ex.software) {
+      al_set_target_bitmap(screen);
+      x = 8;
+      y = 40;
+      al_draw_bitmap(mem, x, y, 0);
+      al_destroy_bitmap(mem);
+   }
 
    /* Grab screen contents into our bitmap. */
    al_set_target_bitmap(ex.zoom);
@@ -174,8 +193,10 @@ static void draw(void)
          ex.outline, true);
    }
 
-   set_xy(8, 640 - 32);
+   set_xy(8, 640 - 48);
    print("Thickness: %d (press T to change)", ex.thickness);
+   print("Drawing with: %s (press S to change)",
+      ex.software ? "software" : "hardware");
    print("Supersampling: %dx (edit ex_draw.ini to change)", ex.samples);
 
 // FIXME: doesn't work
@@ -211,6 +232,9 @@ static void run(void)
             if (event.keyboard.keycode == ALLEGRO_KEY_SPACE) {
                ex.what++;
                if (ex.what == 5) ex.what = 0;
+            }
+            if (event.keyboard.keycode == ALLEGRO_KEY_S) {
+               ex.software = !ex.software;
             }
             if (event.keyboard.keycode == ALLEGRO_KEY_T) {
                ex.thickness++;
