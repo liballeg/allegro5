@@ -21,7 +21,9 @@ struct Example
    int FPS;
    float text_x, text_y;
 
+   int samples;
    int what;
+   int thickness;
 } ex;
 
 char const *names[] = {
@@ -96,14 +98,15 @@ static void primitive(float l, float t, float r, float b,
    float cy = (t + b) / 2;
    float rx = (r - l) / 2;
    float ry = (b - t) / 2;
+   int tk = never_fill ? 0 : ex.thickness;
    int w = ex.what;
    if (w == 0 && never_fill) w = 1;
    if (w == 2 && never_fill) w = 3;
    if (w == 0) al_draw_filled_rectangle(l, t, r, b, color);
-   if (w == 1) al_draw_rectangle(l, t, r, b, color, 0);
+   if (w == 1) al_draw_rectangle(l, t, r, b, color, tk);
    if (w == 2) al_draw_filled_ellipse(cx, cy, rx, ry, color);
-   if (w == 3) al_draw_ellipse(cx, cy, rx, ry, color, 0);
-   if (w == 4) al_draw_line(l, t, r, b, color, 0);
+   if (w == 3) al_draw_ellipse(cx, cy, rx, ry, color, tk);
+   if (w == 4) al_draw_line(l, t, r, b, color, tk);
 }
 
 static void draw(void)
@@ -170,6 +173,13 @@ static void draw(void)
          y + rects[i * 4 + 3] * 16,
          ex.outline, true);
    }
+
+   set_xy(8, 640 - 32);
+   print("Thickness: %d (press T to change)", ex.thickness);
+   print("Supersampling: %dx (edit ex_draw.ini to change)", ex.samples);
+
+// FIXME: doesn't work
+//      al_get_display_option(ALLEGRO_SAMPLE_BUFFERS));
 }
 
 static void tick(void)
@@ -201,6 +211,10 @@ static void run(void)
             if (event.keyboard.keycode == ALLEGRO_KEY_SPACE) {
                ex.what++;
                if (ex.what == 5) ex.what = 0;
+            }
+            if (event.keyboard.keycode == ALLEGRO_KEY_T) {
+               ex.thickness++;
+               if (ex.thickness == 2) ex.thickness = 0;
             }
             break;
 
@@ -234,6 +248,9 @@ int main(void)
 {
    ALLEGRO_DISPLAY *display;
    ALLEGRO_TIMER *timer;
+   ALLEGRO_CONFIG *config;
+   char const *value;
+   char str[256];
 
    if (!al_init()) {
       printf("Could not init Allegro.\n");
@@ -244,6 +261,22 @@ int main(void)
    al_install_mouse();
    al_font_init();
 
+   /* Read supersampling info from ex_draw.ini. */
+   ex.samples = 0;
+   config = al_config_read("ex_draw.ini");
+   if (!config) config = al_config_create();
+   value = al_config_get_value(config, "settings", "samples");
+   if (value)
+      ex.samples = strtol(value, NULL, 0);
+   snprintf(str, sizeof str, "%d", ex.samples);
+   al_config_set_value(config, "settings", "samples", str);
+   al_config_write(config, "ex_draw.ini");
+   al_config_destroy(config);
+
+   if (ex.samples) {
+      al_set_new_display_option(ALLEGRO_SAMPLE_BUFFERS, 1, ALLEGRO_REQUIRE);
+      al_set_new_display_option(ALLEGRO_SAMPLES, ex.samples, ALLEGRO_REQUIRE);
+   }
    display = al_create_display(640, 640);
    if (!display) {
       printf("Error creating display.\n");
