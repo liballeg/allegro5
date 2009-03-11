@@ -27,6 +27,7 @@ if(SUPPORT_FONT)
     example(ex_blit ${FONT_LINK_WITH} ${COLOR_LINK_WITH})
     example(ex_clip ${FONT_LINK_WITH} ${COLOR_LINK_WITH})
     example(ex_warp_mouse ${FONT_LINK_WITH} ${PRIMITIVES_LINK_WITH})
+    example(ex_draw ${FONT_LINK_WITH} ${COLOR_LINK_WITH} ${PRIMITIVES_LINK_WITH})
 endif(SUPPORT_FONT)
 
 if(SUPPORT_IIO)
