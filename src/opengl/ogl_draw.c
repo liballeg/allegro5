@@ -48,7 +48,7 @@ static void ogl_clear(ALLEGRO_DISPLAY *d, ALLEGRO_COLOR *color)
    ALLEGRO_DISPLAY *ogl_disp = (void *)d;
    ALLEGRO_BITMAP *target = al_get_target_bitmap();
    ALLEGRO_BITMAP_OGL *ogl_target = (void *)target;
-   unsigned char r, g, b, a;
+   float r, g, b, a;
 
    if ((!ogl_target->is_backbuffer && ogl_disp->ogl_extras->opengl_target != ogl_target)
      || target->locked) {
@@ -56,9 +56,9 @@ static void ogl_clear(ALLEGRO_DISPLAY *d, ALLEGRO_COLOR *color)
       return;
    }
 
-   al_unmap_rgba(*color, &r, &g, &b, &a);
+   al_unmap_rgba_f(*color, &r, &g, &b, &a);
 
-   glClearColor(r / 255.0, g / 255.0, b / 255.0, a / 255.0);
+   glClearColor(r, g, b, a);
    glClear(GL_COLOR_BUFFER_BIT);
 }
 
