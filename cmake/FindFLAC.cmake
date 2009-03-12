@@ -13,6 +13,9 @@ endif(FLAC_INCLUDE_DIR)
 find_path(FLAC_INCLUDE_DIR FLAC/stream_decoder.h)
 
 find_library(FLAC_LIBRARY NAMES FLAC)
+if(NOT ${FLAC_LIBRARY})
+   find_library(FLAC_LIBRARY NAMES libFLAC)
+endif(NOT ${FLAC_LIBRARY})
 
 # Handle the QUIETLY and REQUIRED arguments and set FLAC_FOUND to TRUE if
 # all listed variables are TRUE.
