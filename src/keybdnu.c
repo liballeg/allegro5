@@ -75,12 +75,36 @@ const char *_al_keyboard_common_names[ALLEGRO_KEY_MAX] =
    "KEY100",     "KEY101",     "KEY102",     "PAD =",
    "KEY104",     "KEY105",     "KEY106",     "KEY107",
    "KEY108",     "KEY109",     "KEY110",     "KEY111",
-   "KEY112",     "KEY113",     "KEY114",     "LSHIFT",
+   "KEY112",     "KEY113",     "KEY114",     "KEY115",
+   "KEY116",     "KEY117",     "KEY118",     "KEY119",
+   "KEY120",     "KEY121",     "KEY122",     "KEY123",
+   "KEY124",     "KEY125",     "KEY126",     "KEY127",
+   "KEY128",     "KEY129",     "KEY130",     "KEY131",
+   "KEY132",     "KEY133",     "KEY134",     "KEY135",
+   "KEY136",     "KEY137",     "KEY138",     "KEY139",
+   "KEY140",     "KEY141",     "KEY142",     "KEY143",
+   "KEY144",     "KEY145",     "KEY146",     "KEY147",
+   "KEY148",     "KEY149",     "KEY150",     "KEY151",
+   "KEY152",     "KEY153",     "KEY154",     "KEY155",
+   "KEY156",     "KEY157",     "KEY158",     "KEY159",
+   "KEY160",     "KEY161",     "KEY162",     "KEY163",
+   "KEY164",     "KEY165",     "KEY166",     "KEY167",
+   "KEY168",     "KEY169",     "KEY170",     "KEY171",
+   "KEY172",     "KEY173",     "KEY174",     "KEY175",
+   "KEY176",     "KEY177",     "KEY178",     "KEY179",
+   "KEY180",     "KEY181",     "KEY182",     "KEY183",
+   "KEY184",     "KEY185",     "KEY186",     "KEY187",
+   "KEY188",     "KEY189",     "KEY190",     "KEY191",
+   "KEY192",     "KEY193",     "KEY194",     "KEY195",
+   "KEY196",     "KEY197",     "KEY198",     "KEY199",
+   "KEY200",     "KEY201",     "KEY202",     "KEY203",
+   "KEY204",     "KEY205",     "KEY206",     "KEY207",
+   "KEY208",     "KEY209",     "KEY210",     "KEY211",
+   "KEY212",     "KEY213",     "KEY214",     "LSHIFT",
    "RSHIFT",     "LCTRL",      "RCTRL",      "ALT",
    "ALTGR",      "LWIN",       "RWIN",       "MENU",
    "SCROLLLOCK", "NUMLOCK",    "CAPSLOCK"
 };
-
 
 
 /* Function: al_is_keyboard_installed
