@@ -1346,6 +1346,7 @@ static void d3d_display_thread_proc(void *arg)
          return;
       }
       new_format = f;
+      _al_set_color_components(new_format, &al_display->extra_settings, ALLEGRO_REQUIRE);
    }
 
    if (!d3d_parameters_are_valid(_al_deduce_color_format(&al_display->extra_settings), al_display->refresh_rate, al_display->flags)) {
@@ -1353,8 +1354,6 @@ static void d3d_display_thread_proc(void *arg)
       SetEvent(params->AckEvent);
       return;
    }
-
-   _al_set_color_components(new_format, &al_display->extra_settings, ALLEGRO_REQUIRE);
 
    if (d3d_display->faux_fullscreen) {
       ALLEGRO_MONITOR_INFO mi;
@@ -1602,9 +1601,8 @@ static bool d3d_create_display_internals(ALLEGRO_DISPLAY_D3D *d3d_display)
       d3d_display->depth_stencil_format = d3d_get_depth_stencil_format(eds_list[i]);
       d3d_display->samples = eds_list[i]->settings[ALLEGRO_SAMPLES];
       d3d_display->single_buffer = eds_list[i]->settings[ALLEGRO_SINGLE_BUFFER] ? true : false;
-      TRACE("Chose a display with format %d\n", _al_deduce_color_format(&al_display->extra_settings));
-      memset(&al_display->extra_settings, 0, sizeof al_display->extra_settings);
-      al_display->extra_settings.settings[ALLEGRO_COMPATIBLE_DISPLAY] = 1;
+      TRACE("Chose a display with format %d\n", _al_deduce_color_format(eds_list[i]));
+      memcpy(&al_display->extra_settings, eds_list[i], sizeof al_display->extra_settings);
 
       params.init_failed = true;
       params.AckEvent = CreateEvent(NULL, false, false, NULL);
