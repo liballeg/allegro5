@@ -40,7 +40,7 @@ typedef struct ALLEGRO_KEYBOARD_STATE
 {
    struct ALLEGRO_DISPLAY *display;  /* public */
    /* internal */
-   unsigned int __key_down__internal__[(ALLEGRO_KEY_MAX + 31) / 32)]; 
+   unsigned int __key_down__internal__[(ALLEGRO_KEY_MAX + 31) / 32]; 
 } ALLEGRO_KEYBOARD_STATE;
 
 
