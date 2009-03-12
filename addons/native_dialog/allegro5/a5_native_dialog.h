@@ -9,7 +9,7 @@
 
 #if (defined ALLEGRO_MINGW32) || (defined ALLEGRO_MSVC) || (defined ALLEGRO_BCC32)
    #ifndef ALLEGRO_STATICLINK
-      #ifdef A5_DIALOG_SRC
+      #ifdef A5_NATIVE_DIALOG_SRC
          #define _A5_DIALOG_DLL __declspec(dllexport)
       #else
          #define _A5_DIALOG_DLL __declspec(dllimport)

@@ -292,7 +292,7 @@ int main(void)
    value = al_config_get_value(config, "settings", "samples");
    if (value)
       ex.samples = strtol(value, NULL, 0);
-   snprintf(str, sizeof str, "%d", ex.samples);
+   sprintf(str, "%d", ex.samples);
    al_config_set_value(config, "settings", "samples", str);
    al_config_write(config, "ex_draw.ini");
    al_config_destroy(config);
