@@ -299,8 +299,23 @@ void _al_blend(ALLEGRO_COLOR *scol,
    asrc = get_factor(asrc_, result->a);
    adst = get_factor(adst_, result->a);
 
-   result->r = MIN(1, result->r * src + dcol.r * dst);
-   result->g = MIN(1, result->g * src + dcol.g * dst);
-   result->b = MIN(1, result->b * src + dcol.b * dst);
-   result->a = MIN(1, result->a * asrc + dcol.a * adst);
+   // FIXME: Better not do the check for each pixel but already at the
+   // caller.
+   // The check is necessary though because the target may be
+   // uninitialized (so e.g. all NaN or Inf) and so multiplying with 0
+   // doesn't mean the value is ignored.
+   if (dst == 0) {
+      result->r = result->r * src;
+      result->g = result->g * src;
+      result->b = result->b * src;
+   }
+   else {
+      result->r = MIN(1, result->r * src + dcol.r * dst);
+      result->g = MIN(1, result->g * src + dcol.g * dst);
+      result->b = MIN(1, result->b * src + dcol.b * dst);
+   }
+   if (adst == 0)
+      result->a = result->a * asrc;
+   else
+      result->a = MIN(1, result->a * asrc + dcol.a * adst);
 }
