@@ -73,6 +73,7 @@ private:
    List source_list;
    List dest_list;
    Label true_formats;
+   ToggleButton use_memory_button;
 
 public:
    Prog(const Theme & theme, ALLEGRO_DISPLAY *display);
@@ -89,13 +90,15 @@ Prog::Prog(const Theme & theme, ALLEGRO_DISPLAY *display) :
    dest_label(Label("Destination")),
    source_list(List()),
    dest_list(List()),
-   true_formats(Label(""))
+   true_formats(Label("")),
+   use_memory_button(ToggleButton("Use Memory"))
 {
    d.add(source_label, 11, 0, 4,  1);
    d.add(source_list,  11, 1, 4, 27);
    d.add(dest_label,   15, 0, 4,  1);
    d.add(dest_list,    15, 1, 4, 27);
    d.add(true_formats, 0, 15, 10, 1);
+   d.add(use_memory_button,  0, 17, 10, 2);
 
    for (unsigned i = 0; i < NUM_FORMATS; i++) {
       source_list.append_item(formats[i].name);
@@ -127,6 +130,12 @@ void Prog::draw_sample()
    const int j = dest_list.get_cur_value();
    ALLEGRO_BITMAP *bitmap1;
    ALLEGRO_BITMAP *bitmap2;
+   bool use_memory = use_memory_button.get_pushed();
+   
+   if (use_memory)
+      al_set_new_bitmap_flags(ALLEGRO_MEMORY_BITMAP);
+   else
+      al_set_new_bitmap_flags(0);
 
    al_set_new_bitmap_format(formats[i].format);
 
