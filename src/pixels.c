@@ -528,7 +528,7 @@ ALLEGRO_COLOR al_get_pixel(ALLEGRO_BITMAP *bitmap, int x, int y)
          return color;
       }
 
-      if (!(lr = al_lock_bitmap_region(bitmap, x, y, 1, 1, ALLEGRO_PIXEL_FORMAT_ANY,
+      if (!(lr = al_lock_bitmap_region(bitmap, x, y, 1, 1, bitmap->format,
             ALLEGRO_LOCK_READONLY)))
       {
          memset(&color, 0, sizeof(ALLEGRO_COLOR));
@@ -942,7 +942,7 @@ void _al_put_pixel(ALLEGRO_BITMAP *bitmap, int x, int y, ALLEGRO_COLOR color)
       }
 
       lr = al_lock_bitmap_region(bitmap, x, y, 1, 1,
-         ALLEGRO_PIXEL_FORMAT_ANY, 0);
+         bitmap->format, 0);
       if (!lr)
          return;
 
