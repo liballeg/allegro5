@@ -2193,7 +2193,9 @@ static void d3d_set_target_bitmap(ALLEGRO_DISPLAY *display, ALLEGRO_BITMAP *bitm
          }
          _al_d3d_set_ortho_projection(d3d_display, d3d_target->texture_w, d3d_target->texture_h);
       }
-      d3d_display->device->SetDepthStencilSurface(NULL);
+      if (d3d_display->samples) {
+         d3d_display->device->SetDepthStencilSurface(NULL);
+      }
    }
 
    d3d_reset_state(d3d_display);
