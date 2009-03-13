@@ -64,9 +64,6 @@ static void name(ALLEGRO_BITMAP *dst, unsigned char *dst_addr,               \
 }
 
 
-DEFINE_HLINE(_hline8, 1, bmp_read8, bmp_write8)
-DEFINE_HLINE(_hline16, 2, bmp_read16, bmp_write16)
-DEFINE_HLINE(_hline24, 3, READ3BYTES, WRITE3BYTES)
 DEFINE_HLINE(_hline32, 4, bmp_read32, bmp_write32)
 
 
