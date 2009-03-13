@@ -38,6 +38,10 @@
 
 
 #include "allegro5/a5_primitives.h"
+#ifdef ALLEGRO_CFG_OPENGL
+#include "allegro5/a5_opengl.h"
+#endif
+#include "allegro5/internal/aintern_bitmap.h"
 #include <math.h>
 
 static ALLEGRO_VBUFFER* cache_buffer;
@@ -60,11 +64,32 @@ static void update_point_cache(int size)
    }
 }
 
+/* The software drawer ends up using gl_draw_pixel for each pixel, so
+ * blending works as expected.
+ * However with OpenGL, Allegro's "blend color" needs to be
+ * pre-multiplied with the vertex colors to produce the correct
+ * result.
+ */
+static void check_color_blending(ALLEGRO_COLOR *color)
+{
+   ALLEGRO_BITMAP *target = al_get_target_bitmap();
+#ifdef ALLEGRO_CFG_OPENGL
+   if (!(target->flags & ALLEGRO_MEMORY_BITMAP)) {
+      ALLEGRO_COLOR *bc = _al_get_blend_color();
+      color->r *= bc->r;
+      color->g *= bc->g;
+      color->b *= bc->b;
+      color->a *= bc->a;
+   }
+#endif
+}
+
 /* Function: al_draw_line
  */
 void al_draw_line(float x1, float y1, float x2, float y2,
    ALLEGRO_COLOR color, float thickness)
 {
+   check_color_blending(&color);
    verify_cache();
    if (thickness > 0) {
       int ii;
@@ -111,6 +136,7 @@ void al_draw_line(float x1, float y1, float x2, float y2,
 void al_draw_triangle(float x1, float y1, float x2, float y2,
    float x3, float y3, ALLEGRO_COLOR color, float thickness)
 {
+   check_color_blending(&color);
    verify_cache();
    if (thickness > 0) {
       int ii;
@@ -192,6 +218,7 @@ void al_draw_triangle(float x1, float y1, float x2, float y2,
 void al_draw_filled_triangle(float x1, float y1, float x2, float y2,
    float x3, float y3, ALLEGRO_COLOR color)
 {
+   check_color_blending(&color);
    verify_cache();
    if (!al_lock_vbuff_range(cache_buffer, 0, 3, ALLEGRO_VBUFFER_WRITE))
       return;
@@ -214,6 +241,7 @@ void al_draw_filled_triangle(float x1, float y1, float x2, float y2,
 void al_draw_rectangle(float x1, float y1, float x2, float y2,
    ALLEGRO_COLOR color, float thickness)
 {
+   check_color_blending(&color);
    int ii;
    verify_cache();
    if (thickness > 0) {
@@ -261,6 +289,7 @@ void al_draw_rectangle(float x1, float y1, float x2, float y2,
 void al_draw_filled_rectangle(float x1, float y1, float x2, float y2,
    ALLEGRO_COLOR color)
 {
+   check_color_blending(&color);
    verify_cache();
    if (!al_lock_vbuff_range(cache_buffer, 0, 4, ALLEGRO_VBUFFER_WRITE))
       return;
@@ -397,6 +426,7 @@ void al_calculate_arc(ALLEGRO_VBUFFER* vbuff, float cx, float cy,
 void al_draw_ellipse(float cx, float cy, float rx, float ry,
    ALLEGRO_COLOR color, float thickness)
 {
+   check_color_blending(&color);
    verify_cache();
    ASSERT(rx >= 0);
    ASSERT(ry >= 0);
@@ -442,6 +472,7 @@ void al_draw_filled_ellipse(float cx, float cy, float rx, float ry,
    ALLEGRO_COLOR color)
 {
    int num_segments, ii;
+   check_color_blending(&color);
    verify_cache();
    ASSERT(rx >= 0);
    ASSERT(ry >= 0);
@@ -489,6 +520,7 @@ void al_draw_filled_circle(float cx, float cy, float r, ALLEGRO_COLOR color)
 void al_draw_arc(float cx, float cy, float r, float start_theta,
    float delta_theta, ALLEGRO_COLOR color, float thickness)
 {
+   check_color_blending(&color);
    verify_cache();
    ASSERT(r >= 0);
    if (thickness > 0) {
@@ -599,7 +631,7 @@ void al_draw_spline(float points[8], ALLEGRO_COLOR color, float thickness)
                                   (float)hypot(points[4] - points[2], points[5] - points[3]) +
                                   (float)hypot(points[6] - points[4], points[7] - points[5])) *
                             1.2 * ALLEGRO_PRIM_QUALITY / 10);
-                            
+   check_color_blending(&color);
    verify_cache();
 
    if (thickness > 0) {
@@ -744,6 +776,7 @@ void al_draw_ribbon(const float *points, ALLEGRO_COLOR color, float thickness,
    int num_segments)
 {
    int ii;
+   check_color_blending(&color);
    verify_cache();
    
    if (thickness > 0) {
