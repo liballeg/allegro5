@@ -857,11 +857,13 @@ void _al_draw_bitmap_region_memory_fast(ALLEGRO_BITMAP *bitmap,
    }
 
    /* Lock the bitmaps */
-   if (!(src_region = al_lock_bitmap_region(bitmap, sx, sy, sw, sh, ALLEGRO_PIXEL_FORMAT_ARGB_8888, ALLEGRO_LOCK_READONLY))) {
+   if (!(src_region = al_lock_bitmap_region(bitmap, sx, sy, sw, sh,
+      ALLEGRO_PIXEL_FORMAT_ANY_32_WITH_ALPHA, ALLEGRO_LOCK_READONLY))) {
       return;
    }
 
-   if (!(dst_region = al_lock_bitmap_region(dest, dx, dy, sw, sh, ALLEGRO_PIXEL_FORMAT_ARGB_8888, 0))) {
+   if (!(dst_region = al_lock_bitmap_region(dest, dx, dy, sw, sh,
+      src_region->format, ALLEGRO_LOCK_WRITEONLY))) {
       al_unlock_bitmap(bitmap);
       return;
    }
