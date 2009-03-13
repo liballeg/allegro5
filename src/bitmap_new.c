@@ -58,9 +58,6 @@ static ALLEGRO_BITMAP *_al_create_memory_bitmap(int w, int h)
    bitmap->cb = h;
    bitmap->parent = NULL;
    bitmap->xofs = bitmap->yofs = 0;
-   // FIXME: Of course, we do need to handle all the possible different formats,
-   // this will easily fill up its own file of 1000 lines, but for now,
-   // RGBA with 8-bit per component is hardcoded.
    bitmap->memory = _AL_MALLOC(pitch * h);
    return bitmap;
 }
