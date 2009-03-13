@@ -50,6 +50,7 @@ typedef struct ALLEGRO_DISPLAY_D3D
    /* Driver specifics */
    LPDIRECT3DDEVICE9 device;
    LPDIRECT3DSURFACE9 render_target;
+   LPDIRECT3DSURFACE9 depth_stencil;
 
    bool do_reset;
    bool reset_done;
