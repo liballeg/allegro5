@@ -6,6 +6,22 @@ This is an abstract data type representing a timer object.
 A timer object can act as an event source so can be casted to
 ALLEGRO_EVENT_SOURCE*.
 
+## API: ALLEGRO_USECS_TO_SECS
+
+Convert microseconds to seconds.
+
+## API: ALLEGRO_MSECS_TO_SECS
+
+Convert milliseconds to seconds.
+
+## API: ALLEGRO_BPS_TO_SECS
+
+Convert beats per second to seconds.
+
+## API: ALLEGRO_BPM_TO_SECS
+
+Convert beats per minute to seconds.
+
 ## API: al_get_timer_count
 
 Return the timer's counter value. The timer can be started or stopped.

@@ -152,8 +152,7 @@ static double timer_thread_handle_tick(double interval)
  */
 
 
-/* al_install_timer: [primary thread]
- *  Create a new timer object.
+/* Function: al_install_timer
  */
 ALLEGRO_TIMER* al_install_timer(double speed_secs)
 {
@@ -180,8 +179,7 @@ ALLEGRO_TIMER* al_install_timer(double speed_secs)
 
 
 
-/* al_uninstall_timer: [primary thread]
- *  Destroy this timer object.
+/* Function: al_uninstall_timer
  */
 void al_uninstall_timer(ALLEGRO_TIMER *this)
 {
@@ -197,9 +195,7 @@ void al_uninstall_timer(ALLEGRO_TIMER *this)
 
 
 
-/* al_start_timer: [primary thread]
- *  Start this timer.  If it is the first started timer, the
- *  background timer thread is subsequently started.
+/* Function: al_start_timer
  */
 void al_start_timer(ALLEGRO_TIMER *this)
 {
@@ -233,9 +229,7 @@ void al_start_timer(ALLEGRO_TIMER *this)
 
 
 
-/* al_stop_timer: [primary thread]
- *  Stop this timer.  If it is the last started timer, the background
- *  timer thread is subsequently stopped.
+/* Function: al_stop_timer
  */
 void al_stop_timer(ALLEGRO_TIMER *this)
 {
@@ -265,8 +259,7 @@ void al_stop_timer(ALLEGRO_TIMER *this)
 
 
 
-/* al_timer_is_started: [primary thread]
- *  Return if this timer is started.
+/* Function: al_timer_is_started
  */
 bool al_timer_is_started(ALLEGRO_TIMER *this)
 {
@@ -277,8 +270,7 @@ bool al_timer_is_started(ALLEGRO_TIMER *this)
 
 
 
-/* al_get_timer_speed: [primary thread]
- *  Return this timer's speed.
+/* Function: al_get_timer_speed
  */
 double al_get_timer_speed(ALLEGRO_TIMER *this)
 {
@@ -289,8 +281,7 @@ double al_get_timer_speed(ALLEGRO_TIMER *this)
 
 
 
-/* al_set_timer_speed: [primary thread]
- *  Change this timer's speed.
+/* Function: al_set_timer_speed
  */
 void al_set_timer_speed(ALLEGRO_TIMER *this, double new_speed_secs)
 {
@@ -311,8 +302,7 @@ void al_set_timer_speed(ALLEGRO_TIMER *this, double new_speed_secs)
 
 
 
-/* al_get_timer_count: [primary thread]
- *  Return this timer's count.
+/* Function: al_get_timer_count
  */
 long al_get_timer_count(ALLEGRO_TIMER *this)
 {
@@ -323,8 +313,7 @@ long al_get_timer_count(ALLEGRO_TIMER *this)
 
 
 
-/* al_set_timer_count: [primary thread]
- *  Change this timer's count.
+/* Function: al_set_timer_count
  */
 void al_set_timer_count(ALLEGRO_TIMER *this, long new_count)
 {
