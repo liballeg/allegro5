@@ -641,7 +641,7 @@
 
 #define ALLEGRO_CONVERT_RGBA_5551_TO_ARGB_8888(p) \
 	ALLEGRO_SHIFT_CONVERT_555(p, \
-		0x1, 31, 0, \
+		0x1, 24, 0, \
 		0xF800, 16, 11, \
 		0x07C0, 8, 6, \
 		0x003E, 0, 1)
