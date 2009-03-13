@@ -75,14 +75,14 @@ static const int glformats[ALLEGRO_NUM_PIXEL_FORMATS][3] = {
    {GL_RGBA4, GL_UNSIGNED_SHORT_4_4_4_4_REV, GL_BGRA}, /* ARGB_4444 */
    {GL_RGB8, GL_UNSIGNED_BYTE, GL_BGR}, /* RGB_888 */
    {GL_RGB, GL_UNSIGNED_SHORT_5_6_5, GL_RGB}, /* RGB_565 */
-   {GL_RGB5, GL_UNSIGNED_SHORT, GL_RGB}, /* RGB_555 */
+   {GL_RGB5_A1, GL_UNSIGNED_SHORT_1_5_5_5_REV, GL_BGRA}, /* RGB_555 */
    {GL_RGB5_A1, GL_UNSIGNED_SHORT_5_5_5_1, GL_RGBA}, /* RGBA_5551 */
    {GL_RGB5_A1, GL_UNSIGNED_SHORT_1_5_5_5_REV, GL_BGRA}, /* ARGB_1555 */
    {GL_RGBA8, GL_UNSIGNED_INT_8_8_8_8_REV, GL_RGBA}, /* ABGR_8888 */
    {GL_RGBA8, GL_UNSIGNED_INT_8_8_8_8_REV, GL_RGBA}, /* XBGR_8888 */
    {GL_RGB8, GL_UNSIGNED_BYTE, GL_RGB}, /* BGR_888 */
    {GL_RGB, GL_UNSIGNED_SHORT_5_6_5_REV, GL_RGB}, /* BGR_565 */
-   {GL_RGB5, GL_UNSIGNED_SHORT, GL_BGR}, /* BGR_555 */
+   {GL_RGB5_A1, GL_UNSIGNED_SHORT_1_5_5_5_REV, GL_RGBA}, /* BGR_555 */
    {GL_RGBA8, GL_UNSIGNED_INT_8_8_8_8, GL_RGBA}, /* RGBX_8888 */
    {GL_RGBA8, GL_UNSIGNED_INT_8_8_8_8_REV, GL_BGRA}, /* XRGB_8888 */
    {GL_RGBA32F_ARB, GL_FLOAT, GL_RGBA} /* ABGR_F32 */
@@ -660,27 +660,8 @@ ALLEGRO_BITMAP *_al_ogl_create_bitmap(ALLEGRO_DISPLAY *d, int w, int h)
       true_w = pot(w);
       true_h = pot(h);
    }
-
-   if (! _al_pixel_format_is_real(format)) {
-      if (format == ALLEGRO_PIXEL_FORMAT_ANY)
-         format = ALLEGRO_PIXEL_FORMAT_ABGR_8888;
-      else if (format == ALLEGRO_PIXEL_FORMAT_ANY_NO_ALPHA)
-         format = ALLEGRO_PIXEL_FORMAT_XBGR_8888;
-      else if (format == ALLEGRO_PIXEL_FORMAT_ANY_15_NO_ALPHA)
-         format = ALLEGRO_PIXEL_FORMAT_RGB_555;
-      else if (format == ALLEGRO_PIXEL_FORMAT_ANY_16_NO_ALPHA)
-         format = ALLEGRO_PIXEL_FORMAT_BGR_565;
-      else if (format == ALLEGRO_PIXEL_FORMAT_ANY_24_NO_ALPHA)
-         format = ALLEGRO_PIXEL_FORMAT_BGR_888;
-      else if (format == ALLEGRO_PIXEL_FORMAT_ANY_32_NO_ALPHA)
-         format = ALLEGRO_PIXEL_FORMAT_XBGR_8888;
-      else if (format == ALLEGRO_PIXEL_FORMAT_ANY_16_WITH_ALPHA)
-         format = ALLEGRO_PIXEL_FORMAT_RGBA_5551;
-      else if (format == ALLEGRO_PIXEL_FORMAT_ANY_32_WITH_ALPHA)
-         format = ALLEGRO_PIXEL_FORMAT_ABGR_8888;
-      else if (format == ALLEGRO_PIXEL_FORMAT_ANY_WITH_ALPHA)
-         format = ALLEGRO_PIXEL_FORMAT_ABGR_8888;
-   }
+   
+   format = _al_get_real_pixel_format(format);
 
    pitch = true_w * al_get_pixel_size(format);
 
@@ -704,6 +685,12 @@ ALLEGRO_BITMAP *_al_ogl_create_bitmap(ALLEGRO_DISPLAY *d, int w, int h)
 
    bytes = pitch * true_h;
    bitmap->bitmap.memory = _AL_MALLOC_ATOMIC(bytes);
+   
+   /* We never allow un-initialized memory for OpenGL bitmaps, if it
+    * is uploaded to a floating point texture it can lead to Inf and
+    * NaN values which break all subsequent blending.
+    */
+   memset(bitmap->bitmap.memory, 0, bytes);
 
    return &bitmap->bitmap;
 }

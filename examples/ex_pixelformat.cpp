@@ -89,7 +89,7 @@ Prog::Prog(const Theme & theme, ALLEGRO_DISPLAY *display) :
    source_list(List()),
    dest_list(List()),
    true_formats(Label("")),
-   use_memory_button(ToggleButton("Use Memory"))
+   use_memory_button(ToggleButton("Use memory bitmaps"))
 {
    d.add(source_label, 11, 0, 4,  1);
    d.add(source_list,  11, 1, 4, 27);
