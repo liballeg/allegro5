@@ -506,7 +506,7 @@ int _al_display_settings_sorter(const void *p0, const void *p1)
    const ALLEGRO_EXTRA_DISPLAY_SETTINGS *f1 = *((ALLEGRO_EXTRA_DISPLAY_SETTINGS **)p1);
 
    if (f0->score == f1->score) {
-      return 0;
+      return f0->index > f1->index;
    }
    else if (f0->score > f1->score) {
       return -1;
