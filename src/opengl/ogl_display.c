@@ -40,19 +40,30 @@ void _al_ogl_set_target_bitmap(ALLEGRO_DISPLAY *display, ALLEGRO_BITMAP *bitmap)
             GL_TEXTURE_2D, ogl_bitmap->texture, 0);
          if (glCheckFramebufferStatusEXT(GL_FRAMEBUFFER_EXT) !=
             GL_FRAMEBUFFER_COMPLETE_EXT) {
-            // FIXME: handle this somehow!
+            /* For some reason, we cannot use the FBO with this
+             * texture. So no reason to keep re-trying, output a log
+             * message and switch to (extremely slow) software mode.
+             */
+            TRACE("ogl_display: "
+               "Could not use FBO for bitmap with format %d.\n",
+               bitmap->format);
+            TRACE("ogl_display: *** SWITCHING TO SOFTWARE MODE ***\n");
+            glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
+            glDeleteFramebuffersEXT(1, &ogl_bitmap->fbo);
+            ogl_bitmap->fbo = 0;
          }
+         else {
+            ogl_disp->ogl_extras->opengl_target = ogl_bitmap;
+            glViewport(0, 0, bitmap->w, bitmap->h);
 
-         ogl_disp->ogl_extras->opengl_target = ogl_bitmap;
-         glViewport(0, 0, bitmap->w, bitmap->h);
+            glMatrixMode(GL_PROJECTION);
+            glLoadIdentity();
 
-         glMatrixMode(GL_PROJECTION);
-         glLoadIdentity();
+            glOrtho(0, bitmap->w, bitmap->h, 0, -1, 1);
 
-         glOrtho(0, bitmap->w, bitmap->h, 0, -1, 1);
-
-         glMatrixMode(GL_MODELVIEW);
-         glLoadIdentity();
+            glMatrixMode(GL_MODELVIEW);
+            glLoadIdentity();
+         }
       }
    }
    else {
