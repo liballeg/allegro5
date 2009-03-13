@@ -34,7 +34,7 @@
 
 /* forward declarations */
 static double timer_thread_handle_tick(double interval);
-static void timer_handle_tick(ALLEGRO_TIMER *this);
+static void timer_handle_tick(ALLEGRO_TIMER *timer);
 
 
 struct ALLEGRO_TIMER
@@ -181,40 +181,40 @@ ALLEGRO_TIMER* al_install_timer(double speed_secs)
 
 /* Function: al_uninstall_timer
  */
-void al_uninstall_timer(ALLEGRO_TIMER *this)
+void al_uninstall_timer(ALLEGRO_TIMER *timer)
 {
-   ASSERT(this);
+   if (timer) {
+      al_stop_timer(timer);
 
-   al_stop_timer(this);
+      _al_unregister_destructor(_al_dtor_list, timer);
 
-   _al_unregister_destructor(_al_dtor_list, this);
-
-   _al_event_source_free(&this->es);
-   _AL_FREE(this);
+      _al_event_source_free(&timer->es);
+      _AL_FREE(timer);
+   }
 }
 
 
 
 /* Function: al_start_timer
  */
-void al_start_timer(ALLEGRO_TIMER *this)
+void al_start_timer(ALLEGRO_TIMER *timer)
 {
-   ASSERT(this);
+   ASSERT(timer);
    {
       size_t new_size;
 
-      if (this->started)
+      if (timer->started)
          return;
 
       _al_mutex_lock(&timer_thread_mutex);
       {
          ALLEGRO_TIMER **slot;
 
-         this->started = true;
-         this->counter = this->speed_secs;
+         timer->started = true;
+         timer->counter = timer->speed_secs;
 
          slot = _al_vector_alloc_back(&active_timers);
-         *slot = this;
+         *slot = timer;
 
          new_size = _al_vector_size(&active_timers);
       }
@@ -231,19 +231,19 @@ void al_start_timer(ALLEGRO_TIMER *this)
 
 /* Function: al_stop_timer
  */
-void al_stop_timer(ALLEGRO_TIMER *this)
+void al_stop_timer(ALLEGRO_TIMER *timer)
 {
-   ASSERT(this);
+   ASSERT(timer);
    {
       size_t new_size;
 
-      if (!this->started)
+      if (!timer->started)
          return;
 
       _al_mutex_lock(&timer_thread_mutex);
       {
-         _al_vector_find_and_delete(&active_timers, &this);
-         this->started = false;
+         _al_vector_find_and_delete(&active_timers, &timer);
+         timer->started = false;
 
          new_size = _al_vector_size(&active_timers);
       }
@@ -261,41 +261,41 @@ void al_stop_timer(ALLEGRO_TIMER *this)
 
 /* Function: al_timer_is_started
  */
-bool al_timer_is_started(ALLEGRO_TIMER *this)
+bool al_timer_is_started(const ALLEGRO_TIMER *timer)
 {
-   ASSERT(this);
+   ASSERT(timer);
 
-   return this->started;
+   return timer->started;
 }
 
 
 
 /* Function: al_get_timer_speed
  */
-double al_get_timer_speed(ALLEGRO_TIMER *this)
+double al_get_timer_speed(const ALLEGRO_TIMER *timer)
 {
-   ASSERT(this);
+   ASSERT(timer);
 
-   return this->speed_secs;
+   return timer->speed_secs;
 }
 
 
 
 /* Function: al_set_timer_speed
  */
-void al_set_timer_speed(ALLEGRO_TIMER *this, double new_speed_secs)
+void al_set_timer_speed(ALLEGRO_TIMER *timer, double new_speed_secs)
 {
-   ASSERT(this);
+   ASSERT(timer);
    ASSERT(new_speed_secs > 0);
 
    _al_mutex_lock(&timer_thread_mutex);
    {
-      if (this->started) {
-         this->counter -= this->speed_secs;
-         this->counter += new_speed_secs;
+      if (timer->started) {
+         timer->counter -= timer->speed_secs;
+         timer->counter += new_speed_secs;
       }
 
-      this->speed_secs = new_speed_secs;
+      timer->speed_secs = new_speed_secs;
    }
    _al_mutex_unlock(&timer_thread_mutex);
 }
@@ -304,24 +304,24 @@ void al_set_timer_speed(ALLEGRO_TIMER *this, double new_speed_secs)
 
 /* Function: al_get_timer_count
  */
-long al_get_timer_count(ALLEGRO_TIMER *this)
+long al_get_timer_count(const ALLEGRO_TIMER *timer)
 {
-   ASSERT(this);
+   ASSERT(timer);
 
-   return this->count;
+   return timer->count;
 }
 
 
 
 /* Function: al_set_timer_count
  */
-void al_set_timer_count(ALLEGRO_TIMER *this, long new_count)
+void al_set_timer_count(ALLEGRO_TIMER *timer, long new_count)
 {
-   ASSERT(this);
+   ASSERT(timer);
 
    _al_mutex_lock(&timer_thread_mutex);
    {
-      this->count = new_count;
+      timer->count = new_count;
    }
    _al_mutex_unlock(&timer_thread_mutex);
 }
@@ -331,27 +331,27 @@ void al_set_timer_count(ALLEGRO_TIMER *this, long new_count)
 /* timer_handle_tick: [timer thread]
  *  Handle a single tick.
  */
-static void timer_handle_tick(ALLEGRO_TIMER *this)
+static void timer_handle_tick(ALLEGRO_TIMER *timer)
 {
    /* Lock out event source helper functions (e.g. the release hook
     * could be invoked simultaneously with this function).
     */
-   _al_event_source_lock(&this->es);
+   _al_event_source_lock(&timer->es);
    {
       /* Update the count.  */
-      this->count++;
+      timer->count++;
 
       /* Generate an event, maybe.  */
-      if (_al_event_source_needs_to_generate_event(&this->es)) {
+      if (_al_event_source_needs_to_generate_event(&timer->es)) {
          ALLEGRO_EVENT event;
          event.timer.type = ALLEGRO_EVENT_TIMER;
          event.timer.timestamp = al_current_time();
-         event.timer.count = this->count;
-         event.timer.error = -this->counter;
-         _al_event_source_emit_event(&this->es, &event);
+         event.timer.count = timer->count;
+         event.timer.error = -timer->counter;
+         _al_event_source_emit_event(&timer->es, &event);
       }
    }
-   _al_event_source_unlock(&this->es);
+   _al_event_source_unlock(&timer->es);
 }
 
 
