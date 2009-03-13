@@ -825,7 +825,12 @@ static bool d3d_create_device(ALLEGRO_DISPLAY_D3D *d,
    if (d->depth_stencil_format) {
       d3d_pp.EnableAutoDepthStencil = true;
       d3d_pp.AutoDepthStencilFormat = d->depth_stencil_format;
+      TRACE("Chose depth stencil format %d\n", d->depth_stencil_format);
    }
+   else {
+      TRACE("Using no depth stencil buffer\n");
+   }
+
    if (d->samples) {
       d3d_pp.MultiSampleType = D3DMULTISAMPLE_NONMASKABLE;
       d3d_pp.MultiSampleQuality = d->samples;
@@ -1153,6 +1158,7 @@ static BOOL IsTextureFormatOk(D3DFORMAT TextureFormat, D3DFORMAT AdapterFormat)
 static int real_choose_bitmap_format(int bits, bool alpha)
 {
    int i;
+   ALLEGRO_DISPLAY_D3D *d3d_display = (ALLEGRO_DISPLAY_D3D *)al_get_current_display();
 
    for (i = 0; allegro_formats[i] >= 0; i++) {
       int aformat = allegro_formats[i];
@@ -1172,7 +1178,7 @@ static int real_choose_bitmap_format(int bits, bool alpha)
          continue;
       }
       dformat = (D3DFORMAT)d3d_formats[i];
-      adapter_format_allegro = _al_deduce_color_format(_al_get_new_display_settings());
+      adapter_format_allegro = d3d_display->format;
       if (!_al_pixel_format_is_real(adapter_format_allegro))
          adapter_format_allegro = d3d_choose_display_format(adapter_format_allegro);
       TRACE("Adapter format is %d\n", adapter_format_allegro);
@@ -1262,6 +1268,9 @@ static void d3d_display_thread_proc(void *arg)
       new_format = f;
       _al_set_color_components(new_format, &al_display->extra_settings, ALLEGRO_REQUIRE);
    }
+
+   TRACE("Chose a display format: %d\n", new_format);
+   d3d_display->format = new_format;
 
    if (!d3d_parameters_are_valid(_al_deduce_color_format(&al_display->extra_settings), al_display->refresh_rate, al_display->flags)) {
       TRACE("d3d_display_thread_proc: Invalid parameters.\n");
@@ -1516,7 +1525,6 @@ static bool d3d_create_display_internals(ALLEGRO_DISPLAY_D3D *d3d_display)
       d3d_display->depth_stencil_format = d3d_get_depth_stencil_format(eds_list[i]);
       d3d_display->samples = eds_list[i]->settings[ALLEGRO_SAMPLES];
       d3d_display->single_buffer = eds_list[i]->settings[ALLEGRO_SINGLE_BUFFER] ? true : false;
-      TRACE("Chose a display with format %d\n", _al_deduce_color_format(eds_list[i]));
       memcpy(&al_display->extra_settings, eds_list[i], sizeof al_display->extra_settings);
 
       params.init_failed = true;

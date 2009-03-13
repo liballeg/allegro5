@@ -68,7 +68,8 @@ typedef struct ALLEGRO_DISPLAY_D3D
    bool supports_separate_alpha_blend;
 
    TCHAR *device_name;
-
+	
+   int format;
    D3DFORMAT depth_stencil_format;
    int samples;
    bool single_buffer;
