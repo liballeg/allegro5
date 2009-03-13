@@ -511,6 +511,7 @@ static ALLEGRO_BITMAP *d3d_create_bitmap_from_surface(LPDIRECT3DSURFACE9 surface
    return bitmap;
 }
 
+
 /*
  * Must be called before the D3D device is reset (e.g., when
  * resizing a window). All non-synced display bitmaps must be
@@ -754,16 +755,58 @@ static void d3d_blit_real(ALLEGRO_BITMAP *src,
    angle = -angle;
 
    if (d3d_src->is_backbuffer) {
-      ALLEGRO_DISPLAY_D3D *d3d_display = (ALLEGRO_DISPLAY_D3D *)src->display;
-      ALLEGRO_BITMAP *tmp_bmp =
-         d3d_create_bitmap_from_surface(
-            d3d_display->render_target,
-            src->flags);
-      d3d_blit_real(tmp_bmp, sx, sy, sw, sh,
+      ALLEGRO_BITMAP_D3D *tmp_bmp = NULL;
+      int ox, oy;
+      if (d3d_src->display->samples) {
+         int w;
+         int h;
+         if (d3d_src->display->win_display.display.flags & ALLEGRO_FULLSCREEN) {
+            w = d3d_src->display->win_display.display.w;
+            h = d3d_src->display->win_display.display.h;
+         }
+         else {
+            ALLEGRO_MONITOR_INFO mi;
+            int num = al_get_num_video_adapters();
+            int min_x = INT_MAX, max_x = 0, min_y = INT_MAX, max_y = 0;
+            for (int i = 0; i < num; i++) {
+                   al_get_monitor_info(i, &mi);
+                   if (mi.x1 < min_x) min_x = mi.x1;
+                   if (mi.x2 > max_x) max_x = mi.x2;
+                   if (mi.y1 < min_y) min_y = mi.y1;
+                   if (mi.y2 > max_y) max_y = mi.y2;
+            }
+            w = max_x - min_x;
+            h = max_y - min_y;
+         }
+         LPDIRECT3DSURFACE9 surface;
+         ALLEGRO_STATE s;
+         al_store_state(&s, ALLEGRO_STATE_NEW_BITMAP_PARAMETERS);
+         al_set_new_bitmap_flags(0);
+         al_set_new_bitmap_format(ALLEGRO_PIXEL_FORMAT_ARGB_8888);
+         tmp_bmp = (ALLEGRO_BITMAP_D3D *)al_create_bitmap(w, h);
+         al_restore_state(&s);
+         tmp_bmp->system_texture->GetSurfaceLevel(0, &surface);
+         d3d_src->display->device->GetFrontBufferData(0, surface);
+         surface->Release();
+         if (tmp_bmp->display->device->UpdateTexture(
+               (IDirect3DBaseTexture9 *)tmp_bmp->system_texture,
+               (IDirect3DBaseTexture9 *)tmp_bmp->video_texture) != D3D_OK) {
+            TRACE("d3d_blit_real: Couldn't update texture.\n");
+         }
+         al_get_window_position(&d3d_src->display->win_display.display, &ox, &oy);
+      }
+      else {
+         tmp_bmp =
+            (ALLEGRO_BITMAP_D3D *)d3d_create_bitmap_from_surface(
+               ((ALLEGRO_BITMAP_D3D *)d3d_src)->display->render_target,
+               src->flags);
+         ox = oy = 0;
+      }
+      d3d_blit_real((ALLEGRO_BITMAP *)tmp_bmp, sx+ox, sy+oy, sw, sh,
          source_center_x, source_center_y,
          dx, dy, dw, dh,
          angle, flags, pivot);
-      al_destroy_bitmap(tmp_bmp);
+      al_destroy_bitmap((ALLEGRO_BITMAP *)tmp_bmp);
       return;
    }
 
