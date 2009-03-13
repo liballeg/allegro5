@@ -479,7 +479,7 @@ static ALLEGRO_LOCKED_REGION *ogl_lock_region(ALLEGRO_BITMAP *bitmap,
          // texture - even when only a single pixel is locked. Likely
          // using FBO and glReadPixels to just read the locked part
          // would be faster.
-         pitch = bitmap->pitch;
+         pitch = ogl_bitmap->true_w * pixel_size;
          ogl_bitmap->lock_buffer = _AL_MALLOC(pitch * ogl_bitmap->true_h);
 
          glBindTexture(GL_TEXTURE_2D, ogl_bitmap->texture);
