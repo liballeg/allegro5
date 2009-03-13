@@ -33,8 +33,6 @@ static int pixel_sizes[] = {
    2,
    2,
    2,
-   2,
-   3,
    3,
    4,
    4,
@@ -61,10 +59,8 @@ static int pixel_bits[] = {
    0,
    0,
    15,
-   15,
    16,
    16,
-   24,
    24,
    32,
    32,
@@ -106,11 +102,9 @@ static bool format_alpha_table[ALLEGRO_NUM_PIXEL_FORMATS] = {
    false,
    true,
    false,
-   true,
    false,
    true,
    false,
-   true,
    false,
    true,
    true, /* ALLEGRO_PIXEL_FORMAT_ARGB_8888 */
@@ -139,8 +133,6 @@ bool _al_format_has_alpha(int format)
 static bool format_is_real[ALLEGRO_NUM_PIXEL_FORMATS] =
 {
    false, /* ALLEGRO_PIXEL_FORMAT_ANY */
-   false,
-   false,
    false,
    false,
    false,
@@ -230,10 +222,6 @@ int _al_get_real_pixel_format(int format)
       case ALLEGRO_PIXEL_FORMAT_ANY_24_NO_ALPHA:
          format = ALLEGRO_PIXEL_FORMAT_RGB_888;
          break;
-      case ALLEGRO_PIXEL_FORMAT_ANY_15_WITH_ALPHA:
-      case ALLEGRO_PIXEL_FORMAT_ANY_24_WITH_ALPHA:
-         /* We don't support any 24 or 15 bit formats with alpha. */
-         return -1;
       default:
          /* Already a real format - don't change it. */
          break;
@@ -465,8 +453,6 @@ static p_get_pixel_func get_pixel_funcs[ALLEGRO_NUM_PIXEL_FORMATS] = {
    NULL,
    NULL,
    NULL,
-   NULL,
-   NULL,
    /* End fake pixel formats */
    _get_pixel_argb_8888,
    _get_pixel_rgba_8888,
@@ -560,8 +546,6 @@ typedef void (*p_put_pixel_func)(void *, ALLEGRO_COLOR *);
 
 static p_put_pixel_func put_pixel_funcs[ALLEGRO_NUM_PIXEL_FORMATS] = {
    /* Fake pixel formats */
-   NULL,
-   NULL,
    NULL,
    NULL,
    NULL,
@@ -753,8 +737,6 @@ static _get_pixel_value_func _get_pixel_value_funcs[ALLEGRO_NUM_PIXEL_FORMATS] =
    NULL,
    NULL,
    NULL,
-   NULL,
-   NULL,
    /* End fake formats */
    _get_pixel_value_argb_8888,
    _get_pixel_value_rgba_8888,
@@ -865,8 +847,6 @@ typedef void (*p_put_pixel_value_func)(void *data, int pixel);
 
 static p_put_pixel_value_func put_pixel_value_funcs[ALLEGRO_NUM_PIXEL_FORMATS] = {
    /* Fake pixel formats */
-   NULL,
-   NULL,
    NULL,
    NULL,
    NULL,

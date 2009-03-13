@@ -69,8 +69,6 @@ static const int glformats[ALLEGRO_NUM_PIXEL_FORMATS][3] = {
    {0, 0, 0},
    {0, 0, 0},
    {0, 0, 0},
-   {0, 0, 0},
-   {0, 0, 0},
    /* Actual formats */
    {GL_RGBA8, GL_UNSIGNED_INT_8_8_8_8_REV, GL_BGRA}, /* ARGB_8888 */
    {GL_RGBA8, GL_UNSIGNED_INT_8_8_8_8, GL_RGBA}, /* RGBA_8888 */
@@ -669,19 +667,15 @@ ALLEGRO_BITMAP *_al_ogl_create_bitmap(ALLEGRO_DISPLAY *d, int w, int h)
       else if (format == ALLEGRO_PIXEL_FORMAT_ANY_NO_ALPHA)
          format = ALLEGRO_PIXEL_FORMAT_XBGR_8888;
       else if (format == ALLEGRO_PIXEL_FORMAT_ANY_15_NO_ALPHA)
-         return NULL;
+         format = ALLEGRO_PIXEL_FORMAT_RGB_555;
       else if (format == ALLEGRO_PIXEL_FORMAT_ANY_16_NO_ALPHA)
          format = ALLEGRO_PIXEL_FORMAT_BGR_565;
       else if (format == ALLEGRO_PIXEL_FORMAT_ANY_24_NO_ALPHA)
          format = ALLEGRO_PIXEL_FORMAT_BGR_888;
       else if (format == ALLEGRO_PIXEL_FORMAT_ANY_32_NO_ALPHA)
          format = ALLEGRO_PIXEL_FORMAT_XBGR_8888;
-      else if (format == ALLEGRO_PIXEL_FORMAT_ANY_15_WITH_ALPHA)
-         return NULL;
       else if (format == ALLEGRO_PIXEL_FORMAT_ANY_16_WITH_ALPHA)
          format = ALLEGRO_PIXEL_FORMAT_RGBA_5551;
-      else if (format == ALLEGRO_PIXEL_FORMAT_ANY_24_WITH_ALPHA)
-         return NULL;
       else if (format == ALLEGRO_PIXEL_FORMAT_ANY_32_WITH_ALPHA)
          format = ALLEGRO_PIXEL_FORMAT_ABGR_8888;
       else if (format == ALLEGRO_PIXEL_FORMAT_ANY_WITH_ALPHA)

@@ -363,8 +363,6 @@ typedef void (*p_convert_func)(void *, int, int,
       NULL,                                                                  \
       NULL,                                                                  \
       NULL,                                                                  \
-      NULL,                                                                  \
-      NULL,                                                                  \
       /* End fake formats */                                                 \
       prefix ## _to_argb_8888,                                               \
       prefix ## _to_rgba_8888,                                               \
@@ -391,11 +389,9 @@ convert_funcs[ALLEGRO_NUM_PIXEL_FORMATS][ALLEGRO_NUM_PIXEL_FORMATS] =
    DECLARE_FAKE_FUNCS,        /* ANY_NO_ALPHA */
    DECLARE_FAKE_FUNCS,        /* ANY_WITH_ALPHA */
    DECLARE_FAKE_FUNCS,        /* ANY_15_NO_ALPHA */
-   DECLARE_FAKE_FUNCS,        /* ANY_15_WITH_ALPHA */
    DECLARE_FAKE_FUNCS,        /* ANY_16_NO_ALPHA */
    DECLARE_FAKE_FUNCS,        /* ANY_16_WITH_ALPHA */
    DECLARE_FAKE_FUNCS,        /* ANY_24_NO_ALPHA */
-   DECLARE_FAKE_FUNCS,        /* ANY_24_WITH_ALPHA */
    DECLARE_FAKE_FUNCS,        /* ANY_32_NO_ALPHA */
    DECLARE_FAKE_FUNCS,        /* ANY_32_WITH_ALPHA */
    DECLARE_FUNCS(_argb_8888),
