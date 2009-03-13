@@ -157,6 +157,8 @@ static void draw(void)
    al_draw_bitmap(ex.pattern, x, y, 0);
    
    /* Draw the test scene. */
+   al_set_blender(ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA,
+      al_map_rgba_f(1, 1, 1, 0.5));
    for (i = 0; i < rects_num; i++)
       primitive(
          x + rects[i * 4 + 0],
@@ -164,7 +166,8 @@ static void draw(void)
          x + rects[i * 4 + 2],
          y + rects[i * 4 + 3],
          ex.foreground, false);
-   
+
+   al_set_blender(ALLEGRO_ONE, ALLEGRO_ZERO, ex.white);
    if (ex.software) {
       al_set_target_bitmap(screen);
       x = 8;
