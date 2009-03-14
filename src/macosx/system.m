@@ -305,7 +305,7 @@ ALLEGRO_SYSTEM_INTERFACE *_al_system_osx_driver(void)
       vt->get_display_driver = _al_osx_get_display_driver;
       vt->get_keyboard_driver = _al_osx_get_keyboard_driver;
       vt->get_mouse_driver = _al_osx_get_mouse_driver;
-      vt->get_joystick_driver = osx_get_joystick_driver; 
+      vt->get_joystick_driver = _al_osx_get_joystick_driver; 
       vt->shutdown_system = osx_sys_exit;
       vt->get_num_video_adapters = osx_get_num_video_adapters;
       vt->get_monitor_info = osx_get_monitor_info;

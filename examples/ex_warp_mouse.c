@@ -67,6 +67,10 @@ int main(void)
          if (event.keyboard.keycode == ALLEGRO_KEY_ESCAPE)
             break;
       }
+      if (event.type == ALLEGRO_EVENT_MOUSE_WARPED) {
+         printf("Warp\n");
+
+      }
       if (event.type == ALLEGRO_EVENT_MOUSE_AXES) {
          if (right_button_down) {
             al_set_mouse_xy(width / 2, height / 2);

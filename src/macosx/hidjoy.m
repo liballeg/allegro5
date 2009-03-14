@@ -122,7 +122,7 @@ BOOL create_interface(io_object_t device, IOHIDDeviceInterface122*** interface)
 * refcon: always null
 * sender: the queue
 */
-void joystick_callback(void *target, IOReturn result, void *refcon, void *sender)
+static void joystick_callback(void *target, IOReturn result, void *refcon __attribute__((unused)), void *sender)
 {
 	ALLEGRO_JOYSTICK_OSX* joy = (ALLEGRO_JOYSTICK_OSX*) target;
 	IOHIDQueueInterface** queue = (IOHIDQueueInterface**) sender;
@@ -221,7 +221,7 @@ static void add_device(io_object_t device)
 			if (name == nil) {
 				name = [NSString stringWithFormat:@"Button %d", (num_buttons+1)];
 			}
-			joy->parent.info.button[num_buttons].name = strdup([name cString]);
+			joy->parent.info.button[num_buttons].name = strdup([name UTF8String]);
 			// Say that we want events from this button
 			err = (*queue)->addElement(queue, joy->button_link[num_buttons].cookie, 0);
 			++num_buttons; 
@@ -241,7 +241,7 @@ static void add_device(io_object_t device)
 				if (name == nil) {
 					name = @"X-axis";
 				}
-				joy->parent.info.stick[0].axis[0].name = strdup([name cString]);
+				joy->parent.info.stick[0].axis[0].name = strdup([name UTF8String]);
 				err = (*queue)->addElement(queue, joy->axis_link[0].cookie, 0);
 			}
 			if ((usage == kHIDUsage_GD_Y) && (!have_y)) {
@@ -258,7 +258,7 @@ static void add_device(io_object_t device)
 				if (name == nil) {
 					name = @"Y-axis";
 				}
-				joy->parent.info.stick[0].axis[1].name = strdup([name cString]);
+				joy->parent.info.stick[0].axis[1].name = strdup([name UTF8String]);
 				err = (*queue)->addElement(queue, joy->axis_link[1].cookie, 0);
 			}
 		}
@@ -275,7 +275,7 @@ static void add_device(io_object_t device)
 	[elements release];
 }
 
-ALLEGRO_JOYSTICK_DRIVER* osx_get_joystick_driver(void)
+ALLEGRO_JOYSTICK_DRIVER* _al_osx_get_joystick_driver(void)
 {
 	static ALLEGRO_JOYSTICK_DRIVER* vt = NULL;
 	if (vt == NULL) {
@@ -373,7 +373,7 @@ ALLEGRO_JOYSTICK* get_joystick(int index)
 {
 	ALLEGRO_JOYSTICK* joy = NULL;
 	if (index >= 0 && index < (int) joystick_count) {
-		joy =&joysticks[index];
+		joy = (ALLEGRO_JOYSTICK *)&joysticks[index];
 	}
 	return joy;
 }
@@ -381,7 +381,7 @@ ALLEGRO_JOYSTICK* get_joystick(int index)
 /* release_joystick:
 * Release a pointer that has been obtained
 */
-void release_joystick(ALLEGRO_JOYSTICK* joy)
+void release_joystick(ALLEGRO_JOYSTICK* joy __attribute__((unused)) )
 {
 	// No-op
 }

@@ -115,8 +115,8 @@ int _al_osx_mouse_show(ALLEGRO_BITMAP *bmp, int x, int y);
 void _al_osx_mouse_hide(void);
 void _al_osx_mouse_move(int x, int y);
 
-HID_DEVICE_COLLECTION *osx_hid_scan(int type, HID_DEVICE_COLLECTION*);
-void osx_hid_free(HID_DEVICE_COLLECTION *);
+HID_DEVICE_COLLECTION *_al_osx_hid_scan(int type, HID_DEVICE_COLLECTION*);
+void _al_osx_hid_free(HID_DEVICE_COLLECTION *);
 
 // Record in the keyboard state that the main window has changed
 void _al_osx_switch_keyboard_focus(ALLEGRO_DISPLAY *, bool switch_in);
@@ -138,7 +138,7 @@ void _al_osx_threads_init(void);
 AL_FUNC(ALLEGRO_KEYBOARD_DRIVER*, _al_osx_get_keyboard_driver, (void));
 AL_FUNC(ALLEGRO_DISPLAY_INTERFACE*, _al_osx_get_display_driver, (void));
 AL_FUNC(ALLEGRO_MOUSE_DRIVER*, _al_osx_get_mouse_driver, (void));
-AL_FUNC(ALLEGRO_JOYSTICK_DRIVER*, osx_get_joystick_driver, (void));
+AL_FUNC(ALLEGRO_JOYSTICK_DRIVER*, _al_osx_get_joystick_driver, (void));
 #endif
 
 #endif

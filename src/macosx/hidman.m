@@ -118,12 +118,12 @@ static void hid_scan_application(CFTypeRef properties, HID_DEVICE *device, int a
 				usage_page = i_val(element, CFSTR(kIOHIDElementUsagePageKey));
 				if (type == kIOHIDElementTypeCollection) 
 				{
-					/* It is a collection; recurse into it, if it is
-					part of the generic desktop (sometimes the whole
-												 joystick is wrapped up inside a collection like
-												 this. */
+               /* It is a collection; recurse into it, if it is part of the
+                * generic desktop (sometimes the whole joystick is wrapped
+                * up inside a collection like this.
+                */
 					if (usage_page == kHIDPage_GenericDesktop)
-						hid_scan_application(element, device, app);                     
+						hid_scan_application(element, device, app);
                }
 				else
 				{ 
@@ -301,7 +301,7 @@ static CFMutableDictionaryRef get_usb_properties(io_object_t device)
  * that isn't parsed by this code, you can ask them to dump _their_ scan
  * as a plist, then reload it here in order to debug it.
  */
-HID_DEVICE_COLLECTION *osx_hid_scan(int type, HID_DEVICE_COLLECTION* col)
+HID_DEVICE_COLLECTION *_al_osx_hid_scan(int type, HID_DEVICE_COLLECTION* col)
 {
 	HID_DEVICE* this_device;
 	NSDictionary* properties = nil;
@@ -333,11 +333,11 @@ HID_DEVICE_COLLECTION *osx_hid_scan(int type, HID_DEVICE_COLLECTION* col)
 	return col;
 }
 #else
-/* osx_hid_scan:
+/* _al_osx_hid_scan:
 * Scan the hid manager for devices of type 'type',
 * and append to the collection col
 */
-HID_DEVICE_COLLECTION *osx_hid_scan(int type, HID_DEVICE_COLLECTION* col)
+HID_DEVICE_COLLECTION *_al_osx_hid_scan(int type, HID_DEVICE_COLLECTION* col)
 {
 	ASSERT(col);
 	HID_DEVICE *device, *this_device;
@@ -485,10 +485,10 @@ static HID_DEVICE* add_device(HID_DEVICE_COLLECTION* o) {
 	return d;
 }
 
-/* osx_hid_free:
+/* _al_osx_hid_free:
 * Release the memory taken up by a collection 
 */
-void osx_hid_free(HID_DEVICE_COLLECTION *col)
+void _al_osx_hid_free(HID_DEVICE_COLLECTION *col)
 {
 	HID_DEVICE *device;
 	HID_ELEMENT *element;

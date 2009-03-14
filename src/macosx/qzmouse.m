@@ -203,7 +203,7 @@ static bool osx_init_mouse(void)
 		axes = 2;
 	}
 	else {
-		osx_hid_scan(HID_MOUSE, &devices);
+		_al_osx_hid_scan(HID_MOUSE, &devices);
 		if (devices.count > 0) 
 		{
             device=&devices.devices[i];
@@ -228,7 +228,7 @@ static bool osx_init_mouse(void)
  device->manufacturer ? device->manufacturer : "",
 		   device->product ? device->product : ""];
 		}
-		osx_hid_free(&devices);
+		_al_osx_hid_free(&devices);
 	}
 	if (buttons <= 0) return false;
 	_al_event_source_init(&osx_mouse.parent.es);
