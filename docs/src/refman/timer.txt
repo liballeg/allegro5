@@ -78,5 +78,5 @@ Uninstall the timer specified. If the timer is started, it will
 automatically be stopped before uninstallation. It will also
 automatically unregister the timer with any event queues.
 
-TIMER may not be NULL.
+Does nothing if passed the NULL pointer.
 
