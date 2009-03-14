@@ -39,10 +39,11 @@ AL_VAR(int, _rgb_g_shift_32);
 AL_VAR(int, _rgb_b_shift_32);
 AL_VAR(int, _rgb_a_shift_32);
 
-AL_ARRAY(int, _rgb_scale_1);
-AL_ARRAY(int, _rgb_scale_4);
-AL_ARRAY(int, _rgb_scale_5);
-AL_ARRAY(int, _rgb_scale_6);
+AL_ARRAY(const int, _rgb_scale_1);
+AL_ARRAY(const int, _rgb_scale_4);
+AL_ARRAY(const int, _rgb_scale_5);
+AL_ARRAY(const int, _rgb_scale_6);
+AL_ARRAY(const float, _al_u8_to_float);
 
 /*
 #define MASK_COLOR_8       0

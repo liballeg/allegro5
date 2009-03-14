@@ -590,7 +590,7 @@ void al_get_separate_blender(int *src, int *dst, int *alpha_src,
 
 
 
-ALLEGRO_COLOR *_al_get_blend_color()
+ALLEGRO_COLOR *_al_get_blend_color(void)
 {
    thread_local_state *tls;
 

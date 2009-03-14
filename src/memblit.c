@@ -20,6 +20,450 @@
 #include <math.h>
 
 
+#define MIN _ALLEGRO_MIN
+
+
+/* Inline copy of al_map_rgba().  We may want this to be a header instead. */
+static inline void _al_map_rgba(ALLEGRO_COLOR *color,
+   unsigned char r, unsigned char g, unsigned char b, unsigned char a)
+{
+   color->r = _al_u8_to_float[r];
+   color->g = _al_u8_to_float[g];
+   color->b = _al_u8_to_float[b];
+   color->a = _al_u8_to_float[a];
+}
+
+
+static inline float get_factor(enum ALLEGRO_BLEND_MODE operation, float alpha)
+{
+   switch (operation) {
+       case ALLEGRO_ZERO: return 0;
+       case ALLEGRO_ONE: return 1;
+       case ALLEGRO_ALPHA: return alpha;
+       case ALLEGRO_INVERSE_ALPHA: return 1 - alpha;
+   }
+   ASSERT(false);
+   return 0; /* silence warning in release build */
+}
+
+
+static void _al_blend_inline(
+   const ALLEGRO_COLOR *scol, const ALLEGRO_COLOR *dcol,
+   int src_, int dst_, int asrc_, int adst_, const ALLEGRO_COLOR *bc,
+   ALLEGRO_COLOR *result)
+{
+   float src, dst, asrc, adst;
+
+   result->r = scol->r * bc->r;
+   result->g = scol->g * bc->g;
+   result->b = scol->b * bc->b;
+   result->a = scol->a * bc->a;
+   src = get_factor(src_, result->a);
+   dst = get_factor(dst_, result->a);
+   asrc = get_factor(asrc_, result->a);
+   adst = get_factor(adst_, result->a);
+
+   // FIXME: Better not do the check for each pixel but already at the
+   // caller.
+   // The check is necessary though because the target may be
+   // uninitialized (so e.g. all NaN or Inf) and so multiplying with 0
+   // doesn't mean the value is ignored.
+   if (dst == 0) {
+      result->r = result->r * src;
+      result->g = result->g * src;
+      result->b = result->b * src;
+   }
+   else {
+      result->r = MIN(1, result->r * src + dcol->r * dst);
+      result->g = MIN(1, result->g * src + dcol->g * dst);
+      result->b = MIN(1, result->b * src + dcol->b * dst);
+   }
+   if (adst == 0)
+      result->a = result->a * asrc;
+   else
+      result->a = MIN(1, result->a * asrc + dcol->a * adst);
+}
+
+
+#define INLINE_GET(format, data, color, advance)                              \
+   do {                                                                       \
+      switch (format) {                                                       \
+         case ALLEGRO_PIXEL_FORMAT_ARGB_8888: {                               \
+            uint32_t pixel = *(uint32_t *)(data);                             \
+            _al_map_rgba(&color,                                              \
+               (pixel & 0x00FF0000) >> 16,                                    \
+               (pixel & 0x0000FF00) >>  8,                                    \
+               (pixel & 0x000000FF) >>  0,                                    \
+               (pixel & 0xFF000000) >> 24);                                   \
+            if (advance)                                                      \
+               data += 4;                                                     \
+            break;                                                            \
+         }                                                                    \
+                                                                              \
+         case ALLEGRO_PIXEL_FORMAT_RGBA_8888: {                               \
+            uint32_t pixel = *(uint32_t *)(data);                             \
+            _al_map_rgba(&color,                                              \
+               (pixel & 0xFF000000) >> 24,                                    \
+               (pixel & 0x00FF0000) >> 16,                                    \
+               (pixel & 0x0000FF00) >>  8,                                    \
+               (pixel & 0x000000FF) >>  0);                                   \
+            if (advance)                                                      \
+               data += 4;                                                     \
+            break;                                                            \
+         }                                                                    \
+                                                                              \
+         case ALLEGRO_PIXEL_FORMAT_ARGB_4444: {                               \
+            uint16_t pixel = *(uint16_t *)(data);                             \
+            _al_map_rgba(&color,                                              \
+               _rgb_scale_4[(pixel & 0x0F00) >> 8],                           \
+               _rgb_scale_4[(pixel & 0x00F0) >> 4],                           \
+               _rgb_scale_4[(pixel & 0x000F)],                                \
+               _rgb_scale_4[(pixel & 0xF000) >>  12]);                        \
+            if (advance)                                                      \
+               data += 2;                                                     \
+            break;                                                            \
+         }                                                                    \
+                                                                              \
+         case ALLEGRO_PIXEL_FORMAT_RGB_888: {                                 \
+            uint32_t pixel = READ3BYTES(data);                                \
+            _al_map_rgba(&color,                                              \
+               (pixel & 0xFF0000) >> 16,                                      \
+               (pixel & 0x00FF00) >>  8,                                      \
+               (pixel & 0x0000FF) >>  0,                                      \
+               255);                                                          \
+            if (advance)                                                      \
+               data += 3;                                                     \
+            break;                                                            \
+         }                                                                    \
+                                                                              \
+         case ALLEGRO_PIXEL_FORMAT_RGB_565: {                                 \
+            uint16_t pixel = *(uint16_t *)(data);                             \
+            _al_map_rgba(&color,                                              \
+               _rgb_scale_5[(pixel & 0xF800) >> 11],                          \
+               _rgb_scale_6[(pixel & 0x07E0) >> 5],                           \
+               _rgb_scale_5[(pixel & 0x001F)],                                \
+               255);                                                          \
+            if (advance)                                                      \
+               data += 2;                                                     \
+            break;                                                            \
+         }                                                                    \
+                                                                              \
+         case ALLEGRO_PIXEL_FORMAT_RGB_555: {                                 \
+            uint16_t pixel = *(uint16_t *)(data);                             \
+            _al_map_rgba(&color,                                              \
+               _rgb_scale_5[(pixel & 0x7C00) >> 10],                          \
+               _rgb_scale_5[(pixel & 0x03E0) >> 5],                           \
+               _rgb_scale_5[(pixel & 0x001F)],                                \
+               255);                                                          \
+            if (advance)                                                      \
+               data += 2;                                                     \
+            break;                                                            \
+         }                                                                    \
+                                                                              \
+         case ALLEGRO_PIXEL_FORMAT_RGBA_5551: {                               \
+            uint16_t pixel = *(uint16_t *)(data);                             \
+            _al_map_rgba(&color,                                              \
+               _rgb_scale_5[(pixel & 0xF800) >> 11],                          \
+               _rgb_scale_5[(pixel & 0x07C0) >> 6],                           \
+               _rgb_scale_5[(pixel & 0x003E) >> 1],                           \
+               255);                                                          \
+            if (advance)                                                      \
+               data += 2;                                                     \
+            break;                                                            \
+         }                                                                    \
+                                                                              \
+         case ALLEGRO_PIXEL_FORMAT_ARGB_1555: {                               \
+            uint16_t pixel = *(uint16_t *)(data);                             \
+            _al_map_rgba(&color,                                              \
+               _rgb_scale_5[(pixel & 0x7C00) >> 10],                          \
+               _rgb_scale_5[(pixel & 0x03E0) >> 5],                           \
+               _rgb_scale_5[(pixel & 0x001F)],                                \
+               255);                                                          \
+            if (advance)                                                      \
+               data += 2;                                                     \
+            break;                                                            \
+         }                                                                    \
+                                                                              \
+         case ALLEGRO_PIXEL_FORMAT_ABGR_8888: {                               \
+            uint32_t pixel = *(uint32_t *)(data);                             \
+            _al_map_rgba(&color,                                              \
+               (pixel & 0x000000FF) >>  0,                                    \
+               (pixel & 0x0000FF00) >>  8,                                    \
+               (pixel & 0x00FF0000) >> 16,                                    \
+               (pixel & 0xFF000000) >> 24);                                   \
+            if (advance)                                                      \
+               data += 4;                                                     \
+            break;                                                            \
+         }                                                                    \
+                                                                              \
+         case ALLEGRO_PIXEL_FORMAT_XBGR_8888: {                               \
+            uint32_t pixel = *(uint32_t *)(data);                             \
+            _al_map_rgba(&color,                                              \
+               (pixel & 0x000000FF) >>  0,                                    \
+               (pixel & 0x0000FF00) >>  8,                                    \
+               (pixel & 0x00FF0000) >> 16,                                    \
+               255);                                                          \
+            if (advance)                                                      \
+               data += 4;                                                     \
+            break;                                                            \
+         }                                                                    \
+                                                                              \
+         case ALLEGRO_PIXEL_FORMAT_BGR_888: {                                 \
+            uint32_t pixel = READ3BYTES(data);                                \
+            _al_map_rgba(&color,                                              \
+               (pixel & 0x000000FF) >>  0,                                    \
+               (pixel & 0x0000FF00) >>  8,                                    \
+               (pixel & 0x00FF0000) >> 16,                                    \
+               255);                                                          \
+            if (advance)                                                      \
+               data += 4;                                                     \
+            break;                                                            \
+         }                                                                    \
+                                                                              \
+         case ALLEGRO_PIXEL_FORMAT_BGR_565: {                                 \
+            uint16_t pixel = *(uint16_t *)(data);                             \
+            _al_map_rgba(&color,                                              \
+               _rgb_scale_5[(pixel & 0x001F)],                                \
+               _rgb_scale_6[(pixel & 0x07E0) >> 5],                           \
+               _rgb_scale_5[(pixel & 0xF800) >> 11],                          \
+               255);                                                          \
+            if (advance)                                                      \
+               data += 2;                                                     \
+            break;                                                            \
+         }                                                                    \
+                                                                              \
+         case ALLEGRO_PIXEL_FORMAT_BGR_555: {                                 \
+            uint16_t pixel = *(uint16_t *)(data);                             \
+            _al_map_rgba(&color,                                              \
+               _rgb_scale_5[(pixel & 0x001F)],                                \
+               _rgb_scale_5[(pixel & 0x03E0) >> 5],                           \
+               _rgb_scale_5[(pixel & 0x7C00) >> 10],                          \
+               255);                                                          \
+            if (advance)                                                      \
+               data += 2;                                                     \
+            break;                                                            \
+         }                                                                    \
+                                                                              \
+         case ALLEGRO_PIXEL_FORMAT_RGBX_8888: {                               \
+            uint32_t pixel = *(uint32_t *)(data);                             \
+            _al_map_rgba(&color,                                              \
+               (pixel & 0xFF000000) >> 24,                                    \
+               (pixel & 0x00FF0000) >> 16,                                    \
+               (pixel & 0x0000FF00) >>  8,                                    \
+               255);                                                          \
+            if (advance)                                                      \
+               data += 4;                                                     \
+            break;                                                            \
+         }                                                                    \
+                                                                              \
+         case ALLEGRO_PIXEL_FORMAT_XRGB_8888: {                               \
+            uint32_t pixel = *(uint32_t *)(data);                             \
+            _al_map_rgba(&color,                                              \
+               (pixel & 0x00FF0000) >> 16,                                    \
+               (pixel & 0x0000FF00) >>  8,                                    \
+               (pixel & 0x000000FF),                                          \
+               255);                                                          \
+            if (advance)                                                      \
+               data += 4;                                                     \
+            break;                                                            \
+         }                                                                    \
+                                                                              \
+         case ALLEGRO_PIXEL_FORMAT_ABGR_F32: {                                \
+            float *f = (float *)data;                                         \
+            color.r = f[0];                                                   \
+            color.g = f[1];                                                   \
+            color.b = f[2];                                                   \
+            color.a = f[3];                                                   \
+            if (advance)                                                      \
+               data += 4 * sizeof(float);                                     \
+            break;                                                            \
+         }                                                                    \
+                                                                              \
+         case ALLEGRO_PIXEL_FORMAT_ANY:                                       \
+         case ALLEGRO_PIXEL_FORMAT_ANY_NO_ALPHA:                              \
+         case ALLEGRO_PIXEL_FORMAT_ANY_WITH_ALPHA:                            \
+         case ALLEGRO_PIXEL_FORMAT_ANY_15_NO_ALPHA:                           \
+         case ALLEGRO_PIXEL_FORMAT_ANY_16_NO_ALPHA:                           \
+         case ALLEGRO_PIXEL_FORMAT_ANY_16_WITH_ALPHA:                         \
+         case ALLEGRO_PIXEL_FORMAT_ANY_24_NO_ALPHA:                           \
+         case ALLEGRO_PIXEL_FORMAT_ANY_32_NO_ALPHA:                           \
+         case ALLEGRO_PIXEL_FORMAT_ANY_32_WITH_ALPHA:                         \
+            TRACE("INLINE_GET got fake pixel format: %d\n", format);          \
+            abort();                                                          \
+            break;                                                            \
+                                                                              \
+         case ALLEGRO_NUM_PIXEL_FORMATS:                                      \
+            TRACE("INLINE_GET got non pixel format: %d\n", format);           \
+            abort();                                                          \
+            break;                                                            \
+      }                                                                       \
+   } while (0)
+
+
+#define INLINE_PUT(format, data, color)                                       \
+   do {                                                                       \
+      uint32_t pixel;                                                         \
+      switch (format) {                                                       \
+         case ALLEGRO_PIXEL_FORMAT_ARGB_8888:                                 \
+            pixel  = (int)(color.a * 255) << 24;                              \
+            pixel |= (int)(color.r * 255) << 16;                              \
+            pixel |= (int)(color.g * 255) <<  8;                              \
+            pixel |= (int)(color.b * 255);                                    \
+            *(uint32_t *)(data) = pixel;                                      \
+            data += 4;                                                        \
+            break;                                                            \
+                                                                              \
+         case ALLEGRO_PIXEL_FORMAT_RGBA_8888:                                 \
+            pixel  = (int)(color.r * 255) << 24;                              \
+            pixel |= (int)(color.g * 255) << 16;                              \
+            pixel |= (int)(color.b * 255) <<  8;                              \
+            pixel |= (int)(color.a * 255);                                    \
+            *(uint32_t *)(data) = pixel;                                      \
+            data += 4;                                                        \
+            break;                                                            \
+                                                                              \
+         case ALLEGRO_PIXEL_FORMAT_ARGB_4444:                                 \
+            pixel  = (int)(color.a * 15) << 12;                               \
+            pixel |= (int)(color.r * 15) <<  8;                               \
+            pixel |= (int)(color.g * 15) <<  4;                               \
+            pixel |= (int)(color.b * 15);                                     \
+            *(uint16_t *)(data) = pixel;                                      \
+            data += 2;                                                        \
+            break;                                                            \
+                                                                              \
+         case ALLEGRO_PIXEL_FORMAT_RGB_888:                                   \
+            pixel  = (int)(color.r * 255) << 16;                              \
+            pixel |= (int)(color.g * 255) << 8;                               \
+            pixel |= (int)(color.b * 255);                                    \
+            WRITE3BYTES(data, pixel);                                         \
+            data += 3;                                                        \
+            break;                                                            \
+                                                                              \
+         case ALLEGRO_PIXEL_FORMAT_RGB_565:                                   \
+            pixel  = (int)(color.r * 0x1f) << 11;                             \
+            pixel |= (int)(color.g * 0x3f) << 5;                              \
+            pixel |= (int)(color.b * 0x1f);                                   \
+            *(uint16_t *)(data) = pixel;                                      \
+            data += 2;                                                        \
+            break;                                                            \
+                                                                              \
+         case ALLEGRO_PIXEL_FORMAT_RGB_555:                                   \
+            pixel  = (int)(color.r * 0x1f) << 10;                             \
+            pixel |= (int)(color.g * 0x1f) << 5;                              \
+            pixel |= (int)(color.b * 0x1f);                                   \
+            *(uint16_t *)(data) = pixel;                                      \
+            data += 2;                                                        \
+            break;                                                            \
+                                                                              \
+         case ALLEGRO_PIXEL_FORMAT_RGBA_5551:                                 \
+            pixel  = (int)(color.r * 0x1f) << 11;                             \
+            pixel |= (int)(color.g * 0x1f) << 6;                              \
+            pixel |= (int)(color.b * 0x1f) << 1;                              \
+            pixel |= (int)color.a;                                            \
+            *(uint16_t *)(data) = pixel;                                      \
+            data += 2;                                                        \
+            break;                                                            \
+                                                                              \
+         case ALLEGRO_PIXEL_FORMAT_ARGB_1555:                                 \
+            pixel  = (int)(color.a) << 15;                                    \
+            pixel |= (int)(color.r * 0x1f) << 10;                             \
+            pixel |= (int)(color.g * 0x1f) <<  5;                             \
+            pixel |= (int)(color.b * 0x1f);                                   \
+            *(uint16_t *)(data) = pixel;                                      \
+            data += 2;                                                        \
+            break;                                                            \
+                                                                              \
+         case ALLEGRO_PIXEL_FORMAT_ABGR_8888:                                 \
+            pixel  = (int)(color.a * 0xff) << 24;                             \
+            pixel |= (int)(color.b * 0xff) << 16;                             \
+            pixel |= (int)(color.g * 0xff) << 8;                              \
+            pixel |= (int)(color.r * 0xff);                                   \
+            *(uint32_t *)(data) = pixel;                                      \
+            data += 4;                                                        \
+            break;                                                            \
+                                                                              \
+         case ALLEGRO_PIXEL_FORMAT_XBGR_8888:                                 \
+            pixel  = 0xff000000;                                              \
+            pixel |= (int)(color.b * 0xff) << 16;                             \
+            pixel |= (int)(color.g * 0xff) << 8;                              \
+            pixel |= (int)(color.r * 0xff);                                   \
+            *(uint32_t *)(data) = pixel;                                      \
+            data += 4;                                                        \
+            break;                                                            \
+                                                                              \
+         case ALLEGRO_PIXEL_FORMAT_BGR_888:                                   \
+            pixel  = (int)(color.b * 0xff) << 16;                             \
+            pixel |= (int)(color.g * 0xff) << 8;                              \
+            pixel |= (int)(color.r * 0xff);                                   \
+            WRITE3BYTES(data, pixel);                                         \
+            data += 3;                                                        \
+            break;                                                            \
+                                                                              \
+         case ALLEGRO_PIXEL_FORMAT_BGR_565:                                   \
+            pixel  = (int)(color.b * 0x1f) << 11;                             \
+            pixel |= (int)(color.g * 0x3f) << 5;                              \
+            pixel |= (int)(color.r * 0x1f);                                   \
+            *(uint16_t *)(data) = pixel;                                      \
+            data += 2;                                                        \
+            break;                                                            \
+                                                                              \
+         case ALLEGRO_PIXEL_FORMAT_BGR_555:                                   \
+            pixel  = (int)(color.b * 0x1f) << 10;                             \
+            pixel |= (int)(color.g * 0x1f) << 5;                              \
+            pixel |= (int)(color.r * 0x1f);                                   \
+            *(uint16_t *)(data) = pixel;                                      \
+            data += 2;                                                        \
+            break;                                                            \
+                                                                              \
+         case ALLEGRO_PIXEL_FORMAT_RGBX_8888:                                 \
+            pixel  = 0xff;                                                    \
+            pixel |= (int)(color.r * 0xff) << 24;                             \
+            pixel |= (int)(color.g * 0xff) << 16;                             \
+            pixel |= (int)(color.b * 0xff) << 8;                              \
+            *(uint32_t *)(data) = pixel;                                      \
+            data += 4;                                                        \
+            break;                                                            \
+                                                                              \
+         case ALLEGRO_PIXEL_FORMAT_XRGB_8888:                                 \
+            pixel  = 0xff000000;                                              \
+            pixel |= (int)(color.r * 0xff) << 16;                             \
+            pixel |= (int)(color.g * 0xff) << 8;                              \
+            pixel |= (int)(color.b * 0xff);                                   \
+            *(uint32_t *)(data) = pixel;                                      \
+            data += 4;                                                        \
+            break;                                                            \
+                                                                              \
+         case ALLEGRO_PIXEL_FORMAT_ABGR_F32: {                                \
+            float *f = (float *)data;                                         \
+            f[0] = color.r;                                                   \
+            f[1] = color.g;                                                   \
+            f[2] = color.b;                                                   \
+            f[3] = color.a;                                                   \
+            data += 4 * sizeof(float);                                        \
+            break;                                                            \
+         }                                                                    \
+                                                                              \
+         case ALLEGRO_PIXEL_FORMAT_ANY:                                       \
+         case ALLEGRO_PIXEL_FORMAT_ANY_NO_ALPHA:                              \
+         case ALLEGRO_PIXEL_FORMAT_ANY_WITH_ALPHA:                            \
+         case ALLEGRO_PIXEL_FORMAT_ANY_15_NO_ALPHA:                           \
+         case ALLEGRO_PIXEL_FORMAT_ANY_16_NO_ALPHA:                           \
+         case ALLEGRO_PIXEL_FORMAT_ANY_16_WITH_ALPHA:                         \
+         case ALLEGRO_PIXEL_FORMAT_ANY_24_NO_ALPHA:                           \
+         case ALLEGRO_PIXEL_FORMAT_ANY_32_NO_ALPHA:                           \
+         case ALLEGRO_PIXEL_FORMAT_ANY_32_WITH_ALPHA:                         \
+            TRACE("INLINE_PUT got fake pixel format: %d\n", format);          \
+            abort();                                                          \
+            break;                                                            \
+                                                                              \
+         case ALLEGRO_NUM_PIXEL_FORMATS:                                      \
+            TRACE("INLINE_PUT got non pixel format: %d\n", format);           \
+            abort();                                                          \
+            break;                                                            \
+      }                                                                       \
+   } while (0)
+
+
 void _al_draw_bitmap_region_memory(ALLEGRO_BITMAP *bitmap,
    int sx, int sy, int sw, int sh,
    int dx, int dy, int flags)
@@ -28,18 +472,16 @@ void _al_draw_bitmap_region_memory(ALLEGRO_BITMAP *bitmap,
    ALLEGRO_LOCKED_REGION *dst_region;
    ALLEGRO_BITMAP *dest = al_get_target_bitmap();
    int x, y;
-   ALLEGRO_COLOR src_color, result;
    int src_mode, dst_mode;
    ALLEGRO_COLOR *ic;
    bool unlock_dest = false;
    int xinc, yinc;
-   int xd, yd;
+   int yd;
    int sxd;
 
    al_get_blender(&src_mode, &dst_mode, NULL);
    ic = _al_get_blend_color();
 
-//#ifndef DEBUGMODE
    if (src_mode == ALLEGRO_ONE && dst_mode == ALLEGRO_ZERO &&
       ic->r == 1.0f && ic->g == 1.0f && ic->b == 1.0f && ic->a == 1.0f &&
       // FIXME: Those should not have to be special cased - but see
@@ -50,7 +492,6 @@ void _al_draw_bitmap_region_memory(ALLEGRO_BITMAP *bitmap,
       _al_draw_bitmap_region_memory_fast(bitmap, sx, sy, sw, sh, dx, dy, flags);
       return;
    }
-//#endif
 
    ASSERT(_al_pixel_format_is_real(bitmap->format));
    ASSERT(_al_pixel_format_is_real(dest->format));
@@ -127,12 +568,35 @@ void _al_draw_bitmap_region_memory(ALLEGRO_BITMAP *bitmap,
       sxd = 0;
    }
 
-   for (y = 0; y < sh; y++, yd += yinc) {
-      xd = sxd;
-      for (x = 0; x < sw; x++, xd += xinc) {
-         src_color = al_get_pixel(bitmap, x+sx, y+sy);
-         _al_blend(&src_color, dest, x+dx, y+dy, &result);
-         _al_put_pixel(dest, xd+dx, yd+dy, result);
+   ASSERT(!bitmap->parent);
+   ASSERT(!dest->parent);
+
+   {
+      ALLEGRO_COLOR src_color = {0, 0, 0, 0};   /* avoid bogus warnings */
+      ALLEGRO_COLOR dst_color = {0, 0, 0, 0};
+      int src_, dst_, asrc_, adst_;
+      ALLEGRO_COLOR bc;
+
+      al_get_separate_blender(&src_, &dst_, &asrc_, &adst_, &bc);
+
+      for (y = 0; y < sh; y++, yd += yinc) {
+         char *src_data =
+            (((char *) bitmap->locked_region.data)
+             + y * bitmap->locked_region.pitch);
+
+         char *dest_data =
+            (((char *) dest->locked_region.data)
+             + yd * dest->locked_region.pitch);
+
+         for (x = 0; x < sw; x++) {
+            ALLEGRO_COLOR result;
+
+            INLINE_GET(bitmap->format, src_data, src_color, true);
+            INLINE_GET(dest->format, dest_data, dst_color, false);
+            _al_blend_inline(&src_color, &dst_color,
+               src_, dst_, asrc_, adst_, &bc, &result);
+            INLINE_PUT(dest->format, dest_data, result);
+         }
       }
    }
 
@@ -244,7 +708,7 @@ void _al_draw_scaled_bitmap_memory(ALLEGRO_BITMAP *src,
       _sy = sy;
    }
 
-
+   /* XXX optimise this */
    for (y = 0; y < yend; y++) {
       _sx = sx;
       _dx = dx;
@@ -709,6 +1173,7 @@ do {                                                                         \
       end_addr = addr + my_r_bmp_x_i * dsize;                                \
       addr += my_l_bmp_x_i * dsize;*/                                        \
       /*for (; addr < end_addr; addr += dsize) {*/                           \
+      /* XXX optimise this */                                                \
       for (x = 0; x < endx-startx; x++) {                                    \
          src_color = al_get_pixel(src, my_l_spr_x>>16, my_l_spr_y>>16);      \
          _al_blend(&src_color, dst, x+my_l_bmp_x_i, bmp_y_i, &result);       \

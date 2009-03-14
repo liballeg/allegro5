@@ -239,10 +239,10 @@ ALLEGRO_COLOR al_map_rgba(
    unsigned char r, unsigned char g, unsigned char b, unsigned char a)
 {
    ALLEGRO_COLOR color;
-   color.r = (float)r / 255.0f;
-   color.g = (float)g / 255.0f;
-   color.b = (float)b / 255.0f;
-   color.a = (float)a / 255.0f;
+   color.r = _al_u8_to_float[r];
+   color.g = _al_u8_to_float[g];
+   color.b = _al_u8_to_float[b];
+   color.a = _al_u8_to_float[a];
    return color;
 }
 
