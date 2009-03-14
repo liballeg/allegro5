@@ -109,7 +109,11 @@ void render(void)
 
 void myexit(void)
 {
-   al_drain_stream(music_stream);
+   bool playing;
+   al_get_mixer_bool(al_get_default_mixer(), ALLEGRO_AUDIOPROP_PLAYING,
+      &playing);
+   if (playing)
+      al_drain_stream(music_stream);
    al_destroy_stream(music_stream);
 }
 
