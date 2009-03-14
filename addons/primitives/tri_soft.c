@@ -561,6 +561,15 @@ void _al_triangle_2d(ALLEGRO_BITMAP* texture, ALLEGRO_VERTEX* v1, ALLEGRO_VERTEX
       max_x = width - 1;
    if (max_y >= height)
       max_y = height - 1;
+   if (min_x >= width)
+      min_x = width - 1;
+   if (min_y >= height)
+      min_y = height - 1;
+
+   if (max_x < 0)
+      max_x = 0;
+   if (max_y < 0)
+      max_y = 0;
    if (min_x < 0)
       min_x = 0;
    if (min_y < 0)
