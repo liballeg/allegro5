@@ -323,10 +323,10 @@ I.e. this will call all of the actual renderers and set the appropriate callback
 void _al_line_2d(ALLEGRO_BITMAP* texture, ALLEGRO_VERTEX* v1, ALLEGRO_VERTEX* v2)
 {
    /*
-   ALLEGRO_VERTEX copy_v1, copy_v2; <- may be needed for clipping later on
+   Copy the vertices, because we need to alter them a bit before drawing.
    */
-   ALLEGRO_VERTEX* vtx1 = v1;
-   ALLEGRO_VERTEX* vtx2 = v2;
+   ALLEGRO_VERTEX vtx1 = *v1;
+   ALLEGRO_VERTEX vtx2 = *v2;
    ALLEGRO_BITMAP *target = al_get_target_bitmap();
    int need_unlock = 0;
    ALLEGRO_LOCKED_REGION *lr;
@@ -346,19 +346,19 @@ void _al_line_2d(ALLEGRO_BITMAP* texture, ALLEGRO_VERTEX* v1, ALLEGRO_VERTEX* v2
    Lock the region we are drawing too
    */
    
-   if (vtx1->x >= vtx2->x) {
-      max_x = (int)ceilf(vtx1->x) + 1;
-      min_x = (int)floorf(vtx2->x) - 1;
+   if (vtx1.x >= vtx2.x) {
+      max_x = (int)ceilf(vtx1.x) + 1;
+      min_x = (int)floorf(vtx2.x) - 1;
    } else {
-      max_x = (int)ceilf(vtx2->x) + 1;
-      min_x = (int)floorf(vtx1->x) - 1;
+      max_x = (int)ceilf(vtx2.x) + 1;
+      min_x = (int)floorf(vtx1.x) - 1;
    }
-   if (vtx1->y >= vtx2->y) {
-      max_y = (int)ceilf(vtx1->y) + 1;
-      min_y = (int)floorf(vtx2->y) - 1;
+   if (vtx1.y >= vtx2.y) {
+      max_y = (int)ceilf(vtx1.y) + 1;
+      min_y = (int)floorf(vtx2.y) - 1;
    } else {
-      max_y = (int)ceilf(vtx2->y) + 1;
-      min_y = (int)floorf(vtx1->y) - 1;
+      max_y = (int)ceilf(vtx2.y) + 1;
+      min_y = (int)floorf(vtx1.y) - 1;
    }
    /*
    TODO: This bit is temporary, the min max's will be guaranteed to be within the bitmap
@@ -392,7 +392,7 @@ void _al_line_2d(ALLEGRO_BITMAP* texture, ALLEGRO_VERTEX* v1, ALLEGRO_VERTEX* v2
       shade = 0;
    }
    
-   if (vtx1->r == vtx2->r && vtx1->g == vtx2->g && vtx1->b == vtx2->b && vtx1->a == vtx2->a) {
+   if (vtx1.r == vtx2.r && vtx1.g == vtx2.g && vtx1.b == vtx2.b && vtx1.a == vtx2.a) {
       grad = 0;
    }
    
@@ -402,16 +402,16 @@ void _al_line_2d(ALLEGRO_BITMAP* texture, ALLEGRO_VERTEX* v1, ALLEGRO_VERTEX* v2
       if (grad) {
          state_grad_any_2d state;
          if (shade) {
-            line_stepper(target, (uintptr_t)&state, shader_grad_any_2d_first, shader_grad_any_2d_step, shader_grad_any_2d_draw_shade, vtx1, vtx2);
+            line_stepper(target, (uintptr_t)&state, shader_grad_any_2d_first, shader_grad_any_2d_step, shader_grad_any_2d_draw_shade, &vtx1, &vtx2);
          } else {
-            line_stepper(target, (uintptr_t)&state, shader_grad_any_2d_first, shader_grad_any_2d_step, shader_grad_any_2d_draw_opaque, vtx1, vtx2);
+            line_stepper(target, (uintptr_t)&state, shader_grad_any_2d_first, shader_grad_any_2d_step, shader_grad_any_2d_draw_opaque, &vtx1, &vtx2);
          }
       } else {
          state_solid_any_2d state;
          if (shade) {
-            line_stepper(target, (uintptr_t)&state, shader_solid_any_2d_first, shader_solid_any_2d_step, shader_solid_any_2d_draw_shade, vtx1, vtx2);
+            line_stepper(target, (uintptr_t)&state, shader_solid_any_2d_first, shader_solid_any_2d_step, shader_solid_any_2d_draw_shade, &vtx1, &vtx2);
          } else {
-            line_stepper(target, (uintptr_t)&state, shader_solid_any_2d_first, shader_solid_any_2d_step, shader_solid_any_2d_draw_opaque, vtx1, vtx2);
+            line_stepper(target, (uintptr_t)&state, shader_solid_any_2d_first, shader_solid_any_2d_step, shader_solid_any_2d_draw_opaque, &vtx1, &vtx2);
          }
       }
    }
