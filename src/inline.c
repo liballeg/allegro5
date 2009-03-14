@@ -29,5 +29,6 @@
 /* not used now */
 /* #include "allegro5/internal/aintern_atomicops.h" */
 
+#include "allegro5/internal/aintern_float.h"
 #include "allegro5/internal/aintern_vector.h"
 

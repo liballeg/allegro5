@@ -16,6 +16,7 @@
 #include "allegro5/internal/aintern.h"
 #include ALLEGRO_INTERNAL_HEADER
 #include "allegro5/internal/aintern_bitmap.h"
+#include "allegro5/internal/aintern_float.h"
 #include "allegro5/convert.h"
 #include <math.h>
 
@@ -305,130 +306,130 @@ static void _al_blend_inline(
       uint32_t pixel;                                                         \
       switch (format) {                                                       \
          case ALLEGRO_PIXEL_FORMAT_ARGB_8888:                                 \
-            pixel  = (int)(color.a * 255) << 24;                              \
-            pixel |= (int)(color.r * 255) << 16;                              \
-            pixel |= (int)(color.g * 255) <<  8;                              \
-            pixel |= (int)(color.b * 255);                                    \
+            pixel  = _al_fast_float_to_int(color.a * 255) << 24;              \
+            pixel |= _al_fast_float_to_int(color.r * 255) << 16;              \
+            pixel |= _al_fast_float_to_int(color.g * 255) <<  8;              \
+            pixel |= _al_fast_float_to_int(color.b * 255);                    \
             *(uint32_t *)(data) = pixel;                                      \
             data += 4;                                                        \
             break;                                                            \
                                                                               \
          case ALLEGRO_PIXEL_FORMAT_RGBA_8888:                                 \
-            pixel  = (int)(color.r * 255) << 24;                              \
-            pixel |= (int)(color.g * 255) << 16;                              \
-            pixel |= (int)(color.b * 255) <<  8;                              \
-            pixel |= (int)(color.a * 255);                                    \
+            pixel  = _al_fast_float_to_int(color.r * 255) << 24;              \
+            pixel |= _al_fast_float_to_int(color.g * 255) << 16;              \
+            pixel |= _al_fast_float_to_int(color.b * 255) <<  8;              \
+            pixel |= _al_fast_float_to_int(color.a * 255);                    \
             *(uint32_t *)(data) = pixel;                                      \
             data += 4;                                                        \
             break;                                                            \
                                                                               \
          case ALLEGRO_PIXEL_FORMAT_ARGB_4444:                                 \
-            pixel  = (int)(color.a * 15) << 12;                               \
-            pixel |= (int)(color.r * 15) <<  8;                               \
-            pixel |= (int)(color.g * 15) <<  4;                               \
-            pixel |= (int)(color.b * 15);                                     \
+            pixel  = _al_fast_float_to_int(color.a * 15) << 12;               \
+            pixel |= _al_fast_float_to_int(color.r * 15) <<  8;               \
+            pixel |= _al_fast_float_to_int(color.g * 15) <<  4;               \
+            pixel |= _al_fast_float_to_int(color.b * 15);                     \
             *(uint16_t *)(data) = pixel;                                      \
             data += 2;                                                        \
             break;                                                            \
                                                                               \
          case ALLEGRO_PIXEL_FORMAT_RGB_888:                                   \
-            pixel  = (int)(color.r * 255) << 16;                              \
-            pixel |= (int)(color.g * 255) << 8;                               \
-            pixel |= (int)(color.b * 255);                                    \
+            pixel  = _al_fast_float_to_int(color.r * 255) << 16;              \
+            pixel |= _al_fast_float_to_int(color.g * 255) << 8;               \
+            pixel |= _al_fast_float_to_int(color.b * 255);                    \
             WRITE3BYTES(data, pixel);                                         \
             data += 3;                                                        \
             break;                                                            \
                                                                               \
          case ALLEGRO_PIXEL_FORMAT_RGB_565:                                   \
-            pixel  = (int)(color.r * 0x1f) << 11;                             \
-            pixel |= (int)(color.g * 0x3f) << 5;                              \
-            pixel |= (int)(color.b * 0x1f);                                   \
+            pixel  = _al_fast_float_to_int(color.r * 0x1f) << 11;             \
+            pixel |= _al_fast_float_to_int(color.g * 0x3f) << 5;              \
+            pixel |= _al_fast_float_to_int(color.b * 0x1f);                   \
             *(uint16_t *)(data) = pixel;                                      \
             data += 2;                                                        \
             break;                                                            \
                                                                               \
          case ALLEGRO_PIXEL_FORMAT_RGB_555:                                   \
-            pixel  = (int)(color.r * 0x1f) << 10;                             \
-            pixel |= (int)(color.g * 0x1f) << 5;                              \
-            pixel |= (int)(color.b * 0x1f);                                   \
+            pixel  = _al_fast_float_to_int(color.r * 0x1f) << 10;             \
+            pixel |= _al_fast_float_to_int(color.g * 0x1f) << 5;              \
+            pixel |= _al_fast_float_to_int(color.b * 0x1f);                   \
             *(uint16_t *)(data) = pixel;                                      \
             data += 2;                                                        \
             break;                                                            \
                                                                               \
          case ALLEGRO_PIXEL_FORMAT_RGBA_5551:                                 \
-            pixel  = (int)(color.r * 0x1f) << 11;                             \
-            pixel |= (int)(color.g * 0x1f) << 6;                              \
-            pixel |= (int)(color.b * 0x1f) << 1;                              \
-            pixel |= (int)color.a;                                            \
+            pixel  = _al_fast_float_to_int(color.r * 0x1f) << 11;             \
+            pixel |= _al_fast_float_to_int(color.g * 0x1f) << 6;              \
+            pixel |= _al_fast_float_to_int(color.b * 0x1f) << 1;              \
+            pixel |= _al_fast_float_to_int(color.a);                          \
             *(uint16_t *)(data) = pixel;                                      \
             data += 2;                                                        \
             break;                                                            \
                                                                               \
          case ALLEGRO_PIXEL_FORMAT_ARGB_1555:                                 \
-            pixel  = (int)(color.a) << 15;                                    \
-            pixel |= (int)(color.r * 0x1f) << 10;                             \
-            pixel |= (int)(color.g * 0x1f) <<  5;                             \
-            pixel |= (int)(color.b * 0x1f);                                   \
+            pixel  = _al_fast_float_to_int(color.a) << 15;                    \
+            pixel |= _al_fast_float_to_int(color.r * 0x1f) << 10;             \
+            pixel |= _al_fast_float_to_int(color.g * 0x1f) <<  5;             \
+            pixel |= _al_fast_float_to_int(color.b * 0x1f);                   \
             *(uint16_t *)(data) = pixel;                                      \
             data += 2;                                                        \
             break;                                                            \
                                                                               \
          case ALLEGRO_PIXEL_FORMAT_ABGR_8888:                                 \
-            pixel  = (int)(color.a * 0xff) << 24;                             \
-            pixel |= (int)(color.b * 0xff) << 16;                             \
-            pixel |= (int)(color.g * 0xff) << 8;                              \
-            pixel |= (int)(color.r * 0xff);                                   \
+            pixel  = _al_fast_float_to_int(color.a * 0xff) << 24;             \
+            pixel |= _al_fast_float_to_int(color.b * 0xff) << 16;             \
+            pixel |= _al_fast_float_to_int(color.g * 0xff) << 8;              \
+            pixel |= _al_fast_float_to_int(color.r * 0xff);                   \
             *(uint32_t *)(data) = pixel;                                      \
             data += 4;                                                        \
             break;                                                            \
                                                                               \
          case ALLEGRO_PIXEL_FORMAT_XBGR_8888:                                 \
             pixel  = 0xff000000;                                              \
-            pixel |= (int)(color.b * 0xff) << 16;                             \
-            pixel |= (int)(color.g * 0xff) << 8;                              \
-            pixel |= (int)(color.r * 0xff);                                   \
+            pixel |= _al_fast_float_to_int(color.b * 0xff) << 16;             \
+            pixel |= _al_fast_float_to_int(color.g * 0xff) << 8;              \
+            pixel |= _al_fast_float_to_int(color.r * 0xff);                   \
             *(uint32_t *)(data) = pixel;                                      \
             data += 4;                                                        \
             break;                                                            \
                                                                               \
          case ALLEGRO_PIXEL_FORMAT_BGR_888:                                   \
-            pixel  = (int)(color.b * 0xff) << 16;                             \
-            pixel |= (int)(color.g * 0xff) << 8;                              \
-            pixel |= (int)(color.r * 0xff);                                   \
+            pixel  = _al_fast_float_to_int(color.b * 0xff) << 16;             \
+            pixel |= _al_fast_float_to_int(color.g * 0xff) << 8;              \
+            pixel |= _al_fast_float_to_int(color.r * 0xff);                   \
             WRITE3BYTES(data, pixel);                                         \
             data += 3;                                                        \
             break;                                                            \
                                                                               \
          case ALLEGRO_PIXEL_FORMAT_BGR_565:                                   \
-            pixel  = (int)(color.b * 0x1f) << 11;                             \
-            pixel |= (int)(color.g * 0x3f) << 5;                              \
-            pixel |= (int)(color.r * 0x1f);                                   \
+            pixel  = _al_fast_float_to_int(color.b * 0x1f) << 11;             \
+            pixel |= _al_fast_float_to_int(color.g * 0x3f) << 5;              \
+            pixel |= _al_fast_float_to_int(color.r * 0x1f);                   \
             *(uint16_t *)(data) = pixel;                                      \
             data += 2;                                                        \
             break;                                                            \
                                                                               \
          case ALLEGRO_PIXEL_FORMAT_BGR_555:                                   \
-            pixel  = (int)(color.b * 0x1f) << 10;                             \
-            pixel |= (int)(color.g * 0x1f) << 5;                              \
-            pixel |= (int)(color.r * 0x1f);                                   \
+            pixel  = _al_fast_float_to_int(color.b * 0x1f) << 10;             \
+            pixel |= _al_fast_float_to_int(color.g * 0x1f) << 5;              \
+            pixel |= _al_fast_float_to_int(color.r * 0x1f);                   \
             *(uint16_t *)(data) = pixel;                                      \
             data += 2;                                                        \
             break;                                                            \
                                                                               \
          case ALLEGRO_PIXEL_FORMAT_RGBX_8888:                                 \
             pixel  = 0xff;                                                    \
-            pixel |= (int)(color.r * 0xff) << 24;                             \
-            pixel |= (int)(color.g * 0xff) << 16;                             \
-            pixel |= (int)(color.b * 0xff) << 8;                              \
+            pixel |= _al_fast_float_to_int(color.r * 0xff) << 24;             \
+            pixel |= _al_fast_float_to_int(color.g * 0xff) << 16;             \
+            pixel |= _al_fast_float_to_int(color.b * 0xff) << 8;              \
             *(uint32_t *)(data) = pixel;                                      \
             data += 4;                                                        \
             break;                                                            \
                                                                               \
          case ALLEGRO_PIXEL_FORMAT_XRGB_8888:                                 \
             pixel  = 0xff000000;                                              \
-            pixel |= (int)(color.r * 0xff) << 16;                             \
-            pixel |= (int)(color.g * 0xff) << 8;                              \
-            pixel |= (int)(color.b * 0xff);                                   \
+            pixel |= _al_fast_float_to_int(color.r * 0xff) << 16;             \
+            pixel |= _al_fast_float_to_int(color.g * 0xff) << 8;              \
+            pixel |= _al_fast_float_to_int(color.b * 0xff);                   \
             *(uint32_t *)(data) = pixel;                                      \
             data += 4;                                                        \
             break;                                                            \
