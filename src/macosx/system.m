@@ -62,24 +62,6 @@ void (*osx_window_close_hook)(void) = NULL;
 //int osx_window_first_expose = false;
 static ALLEGRO_SYSTEM osx_system;
 
-/* osx_signal_handler:
- *  Used to trap various signals, to make sure things get shut down cleanly.
- */
-static RETSIGTYPE osx_signal_handler(int num)
-{
-   _al_mutex_unlock(&osx_event_mutex);
-   //_al_mutex_unlock(&osx_window_mutex);
-   
-   al_uninstall_system();
-   
-   _al_mutex_destroy(&osx_event_mutex);
-   //_al_mutex_destroy(&osx_window_mutex);
-   
-   fprintf(stderr, "Shutting down Allegro due to signal #%d\n", num);
-   raise(num);
-}
-
-
 /* osx_tell_dock:
  *  Tell the dock about us; the origins of this hack are unknown, but it's
  *  currently the only way to make a Cocoa app to work when started from a
@@ -104,6 +86,7 @@ static void osx_tell_dock(void)
  *  use NSApplication, and instead have to go directly to main.
  *  Returns 1 if ok, 0 if not.
  */
+#if OSX_BOOTSTRAP_DETECTION
 int _al_osx_bootstrap_ok(void)
 {
    static int _ok = -1;
@@ -121,6 +104,7 @@ int _al_osx_bootstrap_ok(void)
    _ok = (ret == KERN_SUCCESS) ? 1 : 0;
    return _ok;
 }
+#endif
 
 
 
@@ -132,10 +116,12 @@ static ALLEGRO_SYSTEM* osx_sys_init(int flags)
    int v1 = 0, v2 = 0, v3 = 0; // version numbers read from ProductVersion
    (void)flags;
    
+#if OSX_BOOTSTRAP_DETECTION
    /* If we're in the 'dead bootstrap' environment, the Mac driver won't work. */
    if (!_al_osx_bootstrap_ok()) {
       return NULL;
    }
+#endif
 	/* Initialise the vt and display list */
 	osx_system.vt = _al_system_osx_driver();
 	_al_vector_init(&osx_system.displays, sizeof(ALLEGRO_DISPLAY*));
