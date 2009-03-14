@@ -181,10 +181,15 @@ static void line_stepper(ALLEGRO_BITMAP* dest, uintptr_t state, shader_first fir
    }
    
    /*TODO: These offsets give me the best result... maybe they are not universal though?*/
-   x1 = vtx1->x - 0.49f;
-   y1 = vtx1->y - 0.51f;
-   x2 = vtx2->x - 0.49f;
-   y2 = vtx2->y - 0.51f;
+   vtx1->x -= 0.49f;
+   vtx1->y -= 0.51f;
+   vtx2->x -= 0.49f;
+   vtx2->y -= 0.51f;
+
+   x1 = vtx1->x;
+   y1 = vtx1->y;
+   x2 = vtx2->x;
+   y2 = vtx2->y;
    
    dx = x2 - x1;
    dy = y2 - y1;
