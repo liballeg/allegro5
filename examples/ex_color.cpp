@@ -118,7 +118,7 @@ void Prog::run()
          }
          
          for (int i = 0; i < SLIDERS_COUNT; i++) {
-            sliders[i].set_cur_value(v[i] * 1000);
+            sliders[i].set_cur_value((int)(v[i] * 1000));
             previous[i] = sliders[i].get_cur_value();
             char c[100];
             sprintf(c, "%d", (int)(v[i] * 100));

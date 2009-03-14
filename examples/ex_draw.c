@@ -63,14 +63,8 @@ static void draw_pattern(ALLEGRO_BITMAP *b)
 
 static void set_xy(float x, float y)
 {
-    ex.text_x = x;
-    ex.text_y = y;
-}
-
-static void get_xy(float *x, float *y)
-{
-    *x = ex.text_x;
-    *y = ex.text_y;
+   ex.text_x = x;
+   ex.text_y = y;
 }
 
 static void print(char const *format, ...)
@@ -142,7 +136,7 @@ static void draw(void)
    print("Enlarged x 16");
 
    al_set_blender(ALLEGRO_ONE, ALLEGRO_ZERO, ex.white);
-   
+
    if (ex.software) {
       al_set_new_bitmap_flags(ALLEGRO_MEMORY_BITMAP);
       mem = al_create_bitmap(w, h);
@@ -151,23 +145,27 @@ static void draw(void)
       y = 0;
    }
    else {
+      mem = NULL;
       x = 8;
       y = 40;
    }
    al_draw_bitmap(ex.pattern, x, y, 0);
-   
+
    /* Draw the test scene. */
+
    al_set_blender(ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA,
       al_map_rgba_f(1, 1, 1, 0.5));
-   for (i = 0; i < rects_num; i++)
+   for (i = 0; i < rects_num; i++) {
       primitive(
          x + rects[i * 4 + 0],
          y + rects[i * 4 + 1],
          x + rects[i * 4 + 2],
          y + rects[i * 4 + 3],
          ex.foreground, false);
+   }
 
    al_set_blender(ALLEGRO_ONE, ALLEGRO_ZERO, ex.white);
+
    if (ex.software) {
       al_set_target_bitmap(screen);
       x = 8;
@@ -291,7 +289,8 @@ int main(void)
    /* Read supersampling info from ex_draw.ini. */
    ex.samples = 0;
    config = al_config_read("ex_draw.ini");
-   if (!config) config = al_config_create();
+   if (!config)
+      config = al_config_create();
    value = al_config_get_value(config, "settings", "samples");
    if (value)
       ex.samples = strtol(value, NULL, 0);
@@ -328,3 +327,5 @@ int main(void)
    return 0;
 }
 END_OF_MAIN()
+
+/* vim: set sts=3 sw=3 et: */
