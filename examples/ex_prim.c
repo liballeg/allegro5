@@ -296,7 +296,7 @@ void ShadePrimitives(int mode)
       
       al_draw_line(-300, -200, 300, 200, al_map_rgba_f(0, 0.5, 0.5, 1), Thickness);
       al_draw_triangle(-150, -250, 0, 250, 150, -250, al_map_rgba_f(0.5, 0, 0.5, 1), Thickness);
-      al_draw_rectangle(-300, -200, 300, 200, al_map_rgba_f(0.5, 0, 0, 0.5), Thickness);
+      al_draw_rectangle(-300, -200, 300, 200, al_map_rgba_f(0.5, 0, 0, 1), Thickness);
       
       al_draw_ellipse(0, 0, 300, 150, al_map_rgba_f(0, 0.5, 0.5, 1), Thickness);
       al_draw_arc(0, 0, 200, -ALLEGRO_PI / 2, ALLEGRO_PI, al_map_rgba_f(0.5, 0.25, 0, 1), Thickness);
@@ -344,7 +344,7 @@ void TransformationsPrimitives(int mode)
       
       al_draw_line(-300, -200, 300, 200, al_map_rgba_f(0, 0.5, 0.5, 1), Thickness);
       al_draw_triangle(-150, -250, 0, 250, 150, -250, al_map_rgba_f(0.5, 0, 0.5, 1), Thickness);
-      al_draw_rectangle(-300, -200, 300, 200, al_map_rgba_f(0.5, 0, 0, 0.5), Thickness);
+      al_draw_rectangle(-300, -200, 300, 200, al_map_rgba_f(0.5, 0, 0, 1), Thickness);
       
       al_draw_ellipse(0, 0, 300, 150, al_map_rgba_f(0, 0.5, 0.5, 1), Thickness);
       al_draw_arc(0, 0, 200, -ALLEGRO_PI / 2, ALLEGRO_PI, al_map_rgba_f(0.5, 0.25, 0, 1), Thickness);
