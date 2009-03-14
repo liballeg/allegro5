@@ -326,10 +326,11 @@ set(ALLEGRO_INCLUDE_ALLEGRO_INTERNAL_FILES
     include/allegro5/internal/aintern_joystick.h
     include/allegro5/internal/aintern_keyboard.h
     include/allegro5/internal/aintern_mouse.h
+    include/allegro5/internal/aintern_opengl.h
+    include/allegro5/internal/aintern_pixels.h
     include/allegro5/internal/aintern_system.h
     include/allegro5/internal/aintern_thread.h
     include/allegro5/internal/aintern_vector.h
-    include/allegro5/internal/aintern_opengl.h
     include/allegro5/internal/aintvga.h
     include/allegro5/internal/alconfig.h
     )
