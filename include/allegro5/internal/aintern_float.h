@@ -17,7 +17,7 @@
  * Other architectures may not benefit from this so we just
  * use it on x86/x86-64.
  */
-#if defined(__i386__) || defined(__x86_64__)
+#if defined(ALLEGRO_I386) || defined(ALLEGRO_AMD64)
 
    union _al_UFloatInt {
       int32_t i;
