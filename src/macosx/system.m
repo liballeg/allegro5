@@ -86,7 +86,7 @@ static void osx_tell_dock(void)
  *  use NSApplication, and instead have to go directly to main.
  *  Returns 1 if ok, 0 if not.
  */
-#if OSX_BOOTSTRAP_DETECTION
+#ifdef OSX_BOOTSTRAP_DETECTION
 int _al_osx_bootstrap_ok(void)
 {
    static int _ok = -1;
@@ -116,7 +116,7 @@ static ALLEGRO_SYSTEM* osx_sys_init(int flags)
    int v1 = 0, v2 = 0, v3 = 0; // version numbers read from ProductVersion
    (void)flags;
    
-#if OSX_BOOTSTRAP_DETECTION
+#ifdef OSX_BOOTSTRAP_DETECTION
    /* If we're in the 'dead bootstrap' environment, the Mac driver won't work. */
    if (!_al_osx_bootstrap_ok()) {
       return NULL;
