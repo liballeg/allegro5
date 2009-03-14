@@ -774,6 +774,9 @@ actb.prototype = {
 
 		this.actb_selectedIndex = c;
 		this.actb_insertword(word);
+		
+		onSubmit(document.forms["search"]);
+		document.forms["search"].submit();
 	},
 
 	actb_insertword: function(a)

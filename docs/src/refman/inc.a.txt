@@ -50,7 +50,7 @@ function onSubmit(form) {
     return false;
 }
 </script>
-<form action="search.py" onSubmit="return onSubmit(this);">
+<form id="search" action="search.py" onSubmit="return onSubmit(this);">
 <input type="text" name="q" id="q" autocomplete="off"/><br/>
 <input type="submit" value="Search"/>
 <script>actb = new actb("q", search_index);</script>
