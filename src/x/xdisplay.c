@@ -354,6 +354,37 @@ static ALLEGRO_DISPLAY *xdpy_create_display(int w, int h)
    if (display->extra_settings.settings[ALLEGRO_COMPATIBLE_DISPLAY])
       setup_gl(display);
 
+   /* vsync */
+   
+   /* Fill in the user setting. */
+   display->extra_settings.settings[ALLEGRO_VSYNC] =
+      _al_get_new_display_settings()->settings[ALLEGRO_VSYNC];
+   
+   /* We set the swap interval to 0 if vsync is forced off, and to 1
+    * if it is forced on.
+    * http://www.opengl.org/registry/specs/SGI/swap_control.txt
+    * If the option is set to 0, we simply use the system default. The
+    * above extension specifies vsync on as default to, so in the end
+    * with GLX we can't force vsync on, just off.
+    */
+   TRACE("xdisplay: requested vsync=%d.\n",
+      display->extra_settings.settings[ALLEGRO_VSYNC]);
+   if (display->extra_settings.settings[ALLEGRO_VSYNC]) {
+      if (display->ogl_extras->extension_list->ALLEGRO_GLX_SGI_swap_control) {
+         int x = 1;
+         if (display->extra_settings.settings[ALLEGRO_VSYNC] == 2)
+            x = 0;
+         if (glXSwapIntervalSGI(x)) {
+            TRACE("xdisplay: glXSwapIntervalSGI(%d) failed.\n", x);
+         }
+      }
+      else {
+         TRACE("xdisplay: no vsync, GLX_SGI_swap_control missing.\n");
+         display->extra_settings.settings[ALLEGRO_VSYNC] = 0;
+      }
+   }
+   
+
    d->invisible_cursor = None; /* Will be created on demand. */
    d->current_cursor = None; /* Initially, we use the root cursor. */
    d->cursor_hidden = false;
