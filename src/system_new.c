@@ -136,7 +136,7 @@ bool al_install_system(int (*atexit_ptr)(void (*)(void)))
    }
    
 #ifdef ALLEGRO_UNIX
-   active_sysdrv->config = al_save_config_file("/etc/allegrorc");
+   active_sysdrv->config = al_load_config_file("/etc/allegrorc");
    if (active_sysdrv->config) {
       TRACE("Applying system settings from /etc/allegrorc\n");
    }

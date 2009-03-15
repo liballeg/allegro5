@@ -19,7 +19,6 @@ static int option(ALLEGRO_CONFIG *config, char *name, int v)
 int main(void)
 {
    ALLEGRO_DISPLAY *display;
-   ALLEGRO_TIMER *timer;
    ALLEGRO_CONFIG *config;
    ALLEGRO_EVENT_QUEUE *queue;
    int vsync, fullscreen, frequency;
