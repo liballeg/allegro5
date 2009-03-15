@@ -1078,7 +1078,9 @@ void _al_draw_scaled_bitmap_memory_fast(ALLEGRO_BITMAP *src,
       _dx = dx;
       for (x = 0; x < xend; x++) {
          uint32_t pix = bmp_read32((char *)src_region->data+(int)_sy*src_region->pitch+(int)_sx*4);
-         bmp_write32((char *)dst_region->data+(int)_dy*dst_region->pitch+(int)_dy*4, pix);
+         bmp_write32((char *)dst_region->data+(int)_dy*dst_region->pitch+(int)_dx*4, pix);
+	_sx += sxinc;
+	_dx += dxinc;
       }
       _sy += syinc;
       _dy += dyinc;
