@@ -133,6 +133,31 @@ static float _al_ogl_version(void)
 
 
 
+/* print_extensions:
+ * Given a string containing extensions (i.e. a NULL terminated string where
+ * each extension are separated by a space and which names do not contain any
+ * space)
+ */
+static void print_extensions(char const *extension)
+{
+   char buf[80];
+   char *start;
+
+   while (*extension != '\0') {
+      start = buf;
+      strncpy(buf, extension, 80);
+      while ((*start != ' ') && (*start != '\0')) {
+         extension++;
+         start++;
+      }
+      *start = '\0';
+      extension++;
+      TRACE(PREFIX_I "%s\n", buf);
+   }
+}
+
+
+
 /* Function: al_opengl_version
  */
 float al_opengl_version(void)
@@ -554,10 +579,8 @@ void _al_ogl_manage_extensions(ALLEGRO_DISPLAY *gl_disp)
    ALLEGRO_OGL_EXT_LIST *ext_list;
 
    /* Print out OpenGL extensions */
-#if LOGLEVEL >= 1
-   TRACE("OpenGL Extensions:\n");
-   print_extensions((AL_CONST char *)glGetString(GL_EXTENSIONS));
-#endif
+   TRACE(PREFIX_I "OpenGL Extensions:\n");
+   print_extensions((char const *)glGetString(GL_EXTENSIONS));
 
    /* Print out GLU version */
    //buf = gluGetString(GLU_VERSION);
@@ -594,6 +617,14 @@ void _al_ogl_manage_extensions(ALLEGRO_DISPLAY *gl_disp)
                                               kCFURLPOSIXPathStyle, true);
    opengl_bundle_ref = CFBundleCreate(kCFAllocatorDefault, bundle_url);
    CFRelease(bundle_url);
+#endif
+
+#ifdef ALLEGRO_UNIX
+   TRACE(PREFIX_I "GLX Extensions:\n");
+   ALLEGRO_SYSTEM_XGLX *glx_sys = (void*)al_system_driver();
+   ALLEGRO_DISPLAY_XGLX *glx_disp = (void *)gl_disp;
+   print_extensions((char const *)glXQueryExtensionsString(
+      glx_sys->gfxdisplay, glx_disp->xscreen));
 #endif
 
    fill_in_info_struct(glGetString(GL_RENDERER), &(gl_disp->ogl_extras->ogl_info));
@@ -717,33 +748,6 @@ ALLEGRO_OGL_EXT_LIST *al_get_opengl_extension_list(void)
    ASSERT(disp);
    return ((ALLEGRO_DISPLAY*)disp)->ogl_extras->extension_list;
 }
-
-
-
-#if 0
-/* print_extensions:
- * Given a string containing extensions (i.e. a NULL terminated string where
- * each extension are separated by a space and which names do not contain any
- * space)
- */
-static void print_extensions(AL_CONST char *extension)
-{
-   char buf[80];
-   char *start;
-
-   while (*extension != '\0') {
-      start = buf;
-      strncpy(buf, extension, 80);
-      while ((*start != ' ') && (*start != '\0')) {
-         extension++;
-         start++;
-      }
-      *start = '\0';
-      extension++;
-      TRACE(PREFIX_I "%s\n", buf);
-   }
-}
-#endif
 
 
 
