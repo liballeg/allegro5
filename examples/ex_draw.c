@@ -288,16 +288,16 @@ int main(void)
 
    /* Read supersampling info from ex_draw.ini. */
    ex.samples = 0;
-   config = al_config_read("ex_draw.ini");
+   config = al_load_config_file("ex_draw.ini");
    if (!config)
-      config = al_config_create();
-   value = al_config_get_value(config, "settings", "samples");
+      config = al_create_config();
+   value = al_get_config_value(config, "settings", "samples");
    if (value)
       ex.samples = strtol(value, NULL, 0);
    sprintf(str, "%d", ex.samples);
-   al_config_set_value(config, "settings", "samples", str);
-   al_config_write(config, "ex_draw.ini");
-   al_config_destroy(config);
+   al_set_config_value(config, "settings", "samples", str);
+   al_save_config_file(config, "ex_draw.ini");
+   al_destroy_config(config);
 
    if (ex.samples) {
       al_set_new_display_option(ALLEGRO_SAMPLE_BUFFERS, 1, ALLEGRO_REQUIRE);

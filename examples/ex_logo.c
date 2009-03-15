@@ -397,11 +397,11 @@ int main(void)
    al_install_keyboard();
 
    /* Read logo parameters from logo.ini (if it exists). */
-   config = al_config_read("logo.ini");
+   config = al_load_config_file("logo.ini");
    if (!config)
-      config = al_config_create();
+      config = al_create_config();
    for (i = 0; param_names[i]; i++) {
-      char const *value = al_config_get_value(config, "logo",
+      char const *value = al_get_config_value(config, "logo",
                                               param_names[i]);
       if (value)
          ustrzcpy(param_values[i], sizeof(param_values[i]), value);
@@ -487,11 +487,11 @@ int main(void)
 
    /* Write modified parameters back to logo.ini. */
    for (i = 0; param_names[i]; i++) {
-      al_config_set_value(config, "logo", param_names[i],
+      al_set_config_value(config, "logo", param_names[i],
          param_values[i]);
    }
-   al_config_write(config, "logo.ini");
-   al_config_destroy(config);
+   al_save_config_file(config, "logo.ini");
+   al_destroy_config(config);
 
    return 0;
 }

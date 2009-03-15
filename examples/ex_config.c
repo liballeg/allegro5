@@ -16,24 +16,24 @@ int main(void)
       return 1;
    }
 
-   cfg = al_config_read("data/sample.cfg");
+   cfg = al_load_config_file("data/sample.cfg");
    if (!cfg) {
       printf("Couldn't load data/sample.cfg\n");
       return 1;
    }
 
-   value = al_config_get_value(cfg, NULL, "old_var");
+   value = al_get_config_value(cfg, NULL, "old_var");
    printf("global old_var = %s\n", value);
 
-   value = al_config_get_value(cfg, "section", "old_var");
+   value = al_get_config_value(cfg, "section", "old_var");
    printf("section old_var = %s\n", value);
 
-   al_config_set_value(cfg, "", "new_var", "new value");
-   al_config_set_value(cfg, "section", "old_var", "new value");
+   al_set_config_value(cfg, "", "new_var", "new value");
+   al_set_config_value(cfg, "section", "old_var", "new value");
 
-   al_config_write(cfg, "test.cfg");
+   al_save_config_file(cfg, "test.cfg");
 
-   al_config_destroy(cfg);
+   al_destroy_config(cfg);
 
    return 0;
 }

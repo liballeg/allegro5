@@ -395,7 +395,7 @@ void _al_xglx_config_select_visual(ALLEGRO_DISPLAY_XGLX *glx)
 
    if (system->system.config) {
       const char *selection_mode;
-      selection_mode = al_config_get_value(system->system.config, "graphics",
+      selection_mode = al_get_config_value(system->system.config, "graphics",
                           "config_selection");
       if (selection_mode && selection_mode[0] != '\0') {
          if (!stricmp(selection_mode, "old")) {

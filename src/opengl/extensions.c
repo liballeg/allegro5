@@ -409,7 +409,7 @@ static bool _ogl_is_extension_with_version_supported(
     * 
     */
    if (al_system_driver()->config) {
-      value = al_config_get_value(al_system_driver()->config,
+      value = al_get_config_value(al_system_driver()->config,
          "opengl_disabled_extensions", extension);
       if (value) {
          TRACE(PREFIX_I "%s found in [opengl_disabled_extensions].\n",

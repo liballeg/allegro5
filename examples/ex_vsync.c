@@ -8,11 +8,11 @@ static int option(ALLEGRO_CONFIG *config, char *name, int v)
 {
    char const *value;
    char str[256];
-   value = al_config_get_value(config, "settings", name);
+   value = al_get_config_value(config, "settings", name);
    if (value)
       v = strtol(value, NULL, 0);
    sprintf(str, "%d", v);
-   al_config_set_value(config, "settings", name, str);
+   al_set_config_value(config, "settings", name, str);
    return v;
 }
 
@@ -35,9 +35,9 @@ int main(void)
    al_install_mouse();
 
    /* Read parameters from ex_vsync.ini. */
-   config = al_config_read("ex_vsync.ini");
+   config = al_load_config_file("ex_vsync.ini");
    if (!config)
-      config = al_config_create();
+      config = al_create_config();
 
    /* 0 -> Driver chooses.
     * 1 -> Force vsync on.
@@ -49,8 +49,8 @@ int main(void)
    frequency = option(config, "frequency", 0);
 
    /* Write the file back (so a template is generated on first run). */
-   al_config_write(config, "ex_vsync.ini");
-   al_config_destroy(config);
+   al_save_config_file(config, "ex_vsync.ini");
+   al_destroy_config(config);
 
    /* Vsync 1 means force on, 2 means forced off. */
    if (vsync)

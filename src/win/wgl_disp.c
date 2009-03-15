@@ -862,7 +862,7 @@ static bool select_pixel_format(ALLEGRO_DISPLAY_WGL *d, HDC dc)
 
    if (system->config) {
       const char *selection_mode;
-      selection_mode = al_config_get_value(system->config, "graphics",
+      selection_mode = al_get_config_value(system->config, "graphics",
                           "config_selection");
       if (selection_mode && selection_mode[0] != '\0') {
          if (!stricmp(selection_mode, "old")) {

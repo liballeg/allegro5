@@ -40,9 +40,9 @@ static void *local_calloc1(size_t size)
 }
 
 
-/* Function: al_config_create
+/* Function: al_create_config
  */
-ALLEGRO_CONFIG *al_config_create(void)
+ALLEGRO_CONFIG *al_create_config(void)
 {
    ALLEGRO_CONFIG *config = local_calloc1(sizeof(ALLEGRO_CONFIG));
    ASSERT(config);
@@ -129,9 +129,9 @@ static ALLEGRO_CONFIG_SECTION *config_add_section(ALLEGRO_CONFIG *config,
 }
 
 
-/* Function: al_config_add_section
+/* Function: al_add_config_section
  */
-void al_config_add_section(ALLEGRO_CONFIG *config, const char *name)
+void al_add_config_section(ALLEGRO_CONFIG *config, const char *name)
 {
    ALLEGRO_USTR_INFO name_info;
    ALLEGRO_USTR *uname;
@@ -184,9 +184,9 @@ static void config_set_value(ALLEGRO_CONFIG *config,
 }
 
 
-/* Function: al_config_set_value
+/* Function: al_set_config_value
  */
-void al_config_set_value(ALLEGRO_CONFIG *config,
+void al_set_config_value(ALLEGRO_CONFIG *config,
    const char *section, const char *key, const char *value)
 {
    ALLEGRO_USTR_INFO section_info;
@@ -244,9 +244,9 @@ static void config_add_comment(ALLEGRO_CONFIG *config,
 }
 
 
-/* Function: al_config_add_comment
+/* Function: al_add_config_comment
  */
-void al_config_add_comment(ALLEGRO_CONFIG *config,
+void al_add_config_comment(ALLEGRO_CONFIG *config,
    const char *section, const char *comment)
 {
    ALLEGRO_USTR_INFO section_info;
@@ -267,7 +267,7 @@ void al_config_add_comment(ALLEGRO_CONFIG *config,
 }
 
 
-/* Function: al_config_get_value
+/* Function: al_get_config_value
  */
 static bool config_get_value(const ALLEGRO_CONFIG *config,
    const ALLEGRO_USTR *section, const ALLEGRO_USTR *key,
@@ -290,7 +290,7 @@ static bool config_get_value(const ALLEGRO_CONFIG *config,
 }
 
 
-const char *al_config_get_value(const ALLEGRO_CONFIG *config,
+const char *al_get_config_value(const ALLEGRO_CONFIG *config,
    const char *section, const char *key)
 {
    ALLEGRO_USTR_INFO section_info;
@@ -313,9 +313,9 @@ const char *al_config_get_value(const ALLEGRO_CONFIG *config,
 }
 
 
-/* Function: al_config_read
+/* Function: al_load_config_file
  */
-ALLEGRO_CONFIG *al_config_read(const char *filename)
+ALLEGRO_CONFIG *al_load_config_file(const char *filename)
 {
    ALLEGRO_CONFIG *config;
    ALLEGRO_CONFIG_SECTION *current_section = NULL;
@@ -331,7 +331,7 @@ ALLEGRO_CONFIG *al_config_read(const char *filename)
       return NULL;
    }
    
-   config = al_config_create();
+   config = al_create_config();
    if (!config) {
       al_fclose(file);
       return NULL;
@@ -437,9 +437,9 @@ static bool config_write_section(ALLEGRO_FS_ENTRY *file,
 }
 
 
-/* Function: al_config_write
+/* Function: al_save_config_file
  */
-int al_config_write(const ALLEGRO_CONFIG *config, const char *filename)
+int al_save_config_file(const ALLEGRO_CONFIG *config, const char *filename)
 {
    ALLEGRO_CONFIG_SECTION *s;
    ALLEGRO_FS_ENTRY *file = al_fopen(filename, "w");
@@ -523,20 +523,20 @@ static void do_config_merge_into(ALLEGRO_CONFIG *master,
 }
 
 
-/* Function: al_config_merge_into
+/* Function: al_merge_config_into
  */
-void al_config_merge_into(ALLEGRO_CONFIG *master, const ALLEGRO_CONFIG *add)
+void al_merge_config_into(ALLEGRO_CONFIG *master, const ALLEGRO_CONFIG *add)
 {
    do_config_merge_into(master, add, false);
 }
 
 
-/* Function: al_config_merge
+/* Function: al_merge_config
  */
-ALLEGRO_CONFIG *al_config_merge(const ALLEGRO_CONFIG *cfg1,
+ALLEGRO_CONFIG *al_merge_config(const ALLEGRO_CONFIG *cfg1,
     const ALLEGRO_CONFIG *cfg2)
 {
-   ALLEGRO_CONFIG *config = al_config_create();
+   ALLEGRO_CONFIG *config = al_create_config();
 
    do_config_merge_into(config, cfg1, true);
    do_config_merge_into(config, cfg2, false);
@@ -545,9 +545,9 @@ ALLEGRO_CONFIG *al_config_merge(const ALLEGRO_CONFIG *cfg1,
 }
 
 
-/* Function: al_config_destroy
+/* Function: al_destroy_config
  */
-void al_config_destroy(ALLEGRO_CONFIG *config)
+void al_destroy_config(ALLEGRO_CONFIG *config)
 {
    ALLEGRO_CONFIG_ENTRY *e;
    ALLEGRO_CONFIG_SECTION *s;

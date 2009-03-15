@@ -218,7 +218,7 @@ static ALLEGRO_DISPLAY_INTERFACE *win_get_display_driver(void)
 #endif
 
    if (sys->config) {
-      s = al_config_get_value(sys->config, "graphics", "driver");
+      s = al_get_config_value(sys->config, "graphics", "driver");
       if (s) {
          if (!stricmp(s, "OPENGL")) {
 #if defined ALLEGRO_CFG_OPENGL

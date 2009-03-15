@@ -88,7 +88,7 @@ static void shutdown_system_driver(void)
          active_sysdrv->vt->shutdown_system();
       active_sysdrv = NULL;
       /* active_sysdrv is not accessible here so we copied it */
-      al_config_destroy(temp);
+      al_destroy_config(temp);
    }
 }
 
@@ -136,38 +136,38 @@ bool al_install_system(int (*atexit_ptr)(void (*)(void)))
    }
    
 #ifdef ALLEGRO_UNIX
-   active_sysdrv->config = al_config_read("/etc/allegrorc");
+   active_sysdrv->config = al_save_config_file("/etc/allegrorc");
    if (active_sysdrv->config) {
       TRACE("Applying system settings from /etc/allegrorc\n");
    }
 
    ustrzcpy(buf, sizeof(buf) - ucwidth(OTHER_PATH_SEPARATOR), uconvert_ascii(getenv("HOME"), tmp));
    ustrzcat(buf, sizeof(buf), uconvert_ascii("/.allegrorc", tmp));
-   temp = al_config_read(buf);
+   temp = al_load_config_file(buf);
    if (temp) {
       TRACE("Applying system settings from %s\n", buf);
       if (active_sysdrv->config) {
-         al_config_merge_into(active_sysdrv->config, temp);
-         al_config_destroy(temp);
+         al_merge_config_into(active_sysdrv->config, temp);
+         al_destroy_config(temp);
       }
       else {
          active_sysdrv->config = temp;
       }
    }
    
-   temp = al_config_read("allegro.cfg");
+   temp = al_load_config_file("allegro.cfg");
    if (temp) {
       TRACE("Applying system settings from allegro.cfg\n");
       if (active_sysdrv->config) {
-         al_config_merge_into(active_sysdrv->config, temp);
-         al_config_destroy(temp);
+         al_merge_config_into(active_sysdrv->config, temp);
+         al_destroy_config(temp);
       }
       else {
          active_sysdrv->config = temp;
       }
    }
 #else
-   active_sysdrv->config = al_config_read("allegro.cfg");
+   active_sysdrv->config = al_load_config_file("allegro.cfg");
 #endif
 
    _al_add_exit_func(shutdown_system_driver, "shutdown_system_driver");
