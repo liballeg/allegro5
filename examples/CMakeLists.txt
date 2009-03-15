@@ -99,6 +99,7 @@ example(ex_threads2)
 example(ex_timedwait)
 example(ex_user_events)
 example(ex_multisample ${PRIMITIVES_LINK_WITH})
+example(ex_vsync)
 
 if(SUPPORT_D3D)
     example(ex_d3d ex_d3d.cpp d3dx9)
