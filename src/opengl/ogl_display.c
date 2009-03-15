@@ -97,8 +97,8 @@ void _al_ogl_setup_bitmap_clipping(const ALLEGRO_BITMAP *bitmap)
 
    x_1 = bitmap->cl;
    y_1 = bitmap->ct;
-   x_2 = bitmap->cr;
-   y_2 = bitmap->cb;
+   x_2 = bitmap->cr_excl;
+   y_2 = bitmap->cb_excl;
    h = bitmap->h;
 
    /* Drawing onto the sub bitmap is handled by clipping the parent. */
@@ -140,8 +140,8 @@ bool _al_ogl_resize_backbuffer(ALLEGRO_BITMAP_OGL *b, int w, int h)
    b->bitmap.pitch = pitch;
    b->bitmap.cl = 0;
    b->bitmap.ct = 0;
-   b->bitmap.cr = w;
-   b->bitmap.cb = h;
+   b->bitmap.cr_excl = w;
+   b->bitmap.cb_excl = h;
 
    /* There is no texture associated with the backbuffer so no need to care
     * about texture size limitations. */

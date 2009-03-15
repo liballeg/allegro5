@@ -115,8 +115,8 @@ void _al_draw_bitmap_region_memory(ALLEGRO_BITMAP *bitmap,
       dx = dest->cl;
       sw -= inc;
    }
-   if (dx+sw > dest->cr) {
-      int inc = (dx+sw) - dest->cr;
+   if (dx+sw > dest->cr_excl) {
+      int inc = (dx+sw) - dest->cr_excl;
       sw -= inc;
    }
 
@@ -126,8 +126,8 @@ void _al_draw_bitmap_region_memory(ALLEGRO_BITMAP *bitmap,
       dy = dest->ct;
       sh -= inc;
    }
-   if (dy+sh > dest->cb) {
-      int inc = (dy+sh) - dest->cb;
+   if (dy+sh > dest->cb_excl) {
+      int inc = (dy+sh) - dest->cb_excl;
       sh -= inc;
    }
 
@@ -273,10 +273,10 @@ void _al_draw_scaled_bitmap_memory(ALLEGRO_BITMAP *src,
     * but dw, dh are exclusive.
     */
    dy = ((dy > dest->ct) ? dy : dest->ct);
-   dh = _ALLEGRO_CLAMP(dest->ct - 1, dy + dh, dest->cb) - dy;
+   dh = _ALLEGRO_CLAMP(dest->ct - 1, dy + dh, dest->cb_excl) - dy;
 
    dx = ((dx > dest->cl) ? dx : dest->cl);
-   dw = _ALLEGRO_CLAMP(dest->cl - 1, dx + dw, dest->cr) - dx;
+   dw = _ALLEGRO_CLAMP(dest->cl - 1, dx + dw, dest->cr_excl) - dx;
 
    if (dw == 0 || dh == 0)
       return;
@@ -484,7 +484,7 @@ do {                                                                         \
                                                                              \
    /* Calculate left and right clipping. */                                  \
    clip_left = dst->cl << 16;                                                \
-   clip_right = dst->cr << 16;                                               \
+   clip_right = dst->cr_excl << 16;                                          \
                                                                              \
    /* Quit if we're totally outside. */                                      \
    if ((left_bmp_x > clip_right) &&                                          \
@@ -503,8 +503,8 @@ do {                                                                         \
       clip_bottom_i = (bottom_bmp_y + 0x8000) >> 16;                         \
                                                                              \
    /* Bottom clipping */                                                     \
-   if (clip_bottom_i > dst->cb)                                              \
-      clip_bottom_i = dst->cb;                                               \
+   if (clip_bottom_i > dst->cb_excl)                                         \
+      clip_bottom_i = dst->cb_excl;                                          \
                                                                              \
    /* Calculate y coordinate of first scanline. */                           \
    if (sub_pixel_accuracy)                                                   \
@@ -906,8 +906,8 @@ void _al_draw_bitmap_region_memory_fast(ALLEGRO_BITMAP *bitmap,
       dx = dest->cl;
       sw -= inc;
    }
-   if (dx+sw > dest->cr) {
-      int inc = (dx+sw) - dest->cr;
+   if (dx+sw > dest->cr_excl) {
+      int inc = (dx+sw) - dest->cr_excl;
       sw -= inc;
    }
 
@@ -917,8 +917,8 @@ void _al_draw_bitmap_region_memory_fast(ALLEGRO_BITMAP *bitmap,
       dy = dest->ct;
       sh -= inc;
    }
-   if (dy+sh > dest->cb) {
-      int inc = (dy+sh) - dest->cb;
+   if (dy+sh > dest->cb_excl) {
+      int inc = (dy+sh) - dest->cb_excl;
       sh -= inc;
    }
 
@@ -1026,10 +1026,10 @@ void _al_draw_scaled_bitmap_memory_fast(ALLEGRO_BITMAP *src,
     * but dw, dh are exclusive.
     */
    dy = ((dy > dest->ct) ? dy : dest->ct);
-   dh = _ALLEGRO_CLAMP(dest->ct - 1, dy + dh, dest->cb) - dy;
+   dh = _ALLEGRO_CLAMP(dest->ct - 1, dy + dh, dest->cb_excl) - dy;
 
    dx = ((dx > dest->cl) ? dx : dest->cl);
-   dw = _ALLEGRO_CLAMP(dest->cl - 1, dx + dw, dest->cr) - dx;
+   dw = _ALLEGRO_CLAMP(dest->cl - 1, dx + dw, dest->cr_excl) - dx;
 
    if (dw == 0 || dh == 0)
       return;
@@ -1257,7 +1257,7 @@ void _al_draw_rotated_scaled_bitmap_memory_fast(ALLEGRO_BITMAP *src,
 
    /* Calculate left and right clipping. */
    clip_left = dst->cl << 16;
-   clip_right = dst->cr << 16;
+   clip_right = dst->cr_excl << 16;
 
    /* Quit if we're totally outside. */
    if ((left_bmp_x > clip_right) &&
@@ -1276,8 +1276,8 @@ void _al_draw_rotated_scaled_bitmap_memory_fast(ALLEGRO_BITMAP *src,
       clip_bottom_i = (bottom_bmp_y + 0x8000) >> 16;
 
    /* Bottom clipping */
-   if (clip_bottom_i > dst->cb)
-      clip_bottom_i = dst->cb;
+   if (clip_bottom_i > dst->cb_excl)
+      clip_bottom_i = dst->cb_excl;
 
    /* Calculate y coordinate of first scanline. */
    if (sub_pixel_accuracy)

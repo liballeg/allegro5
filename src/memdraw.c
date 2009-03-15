@@ -36,8 +36,8 @@ static void name(ALLEGRO_BITMAP *dst, void *dst_addr, int dx, int dy,        \
 {                                                                            \
    ASSERT(dst);                                                              \
                                                                              \
-   if ((dx < dst->cl) || (dx >= dst->cr) ||                                  \
-       (dy < dst->ct) || (dy >= dst->cb))                                    \
+   if ((dx < dst->cl) || (dx >= dst->cr_excl) ||                             \
+       (dy < dst->ct) || (dy >= dst->cb_excl))                               \
       return;                                                                \
                                                                              \
    set(dst_addr, color);                                                     \
@@ -52,7 +52,7 @@ static void name(ALLEGRO_BITMAP *dst, unsigned char *dst_addr,               \
    int w;                                                                    \
                                                                              \
    ASSERT(dst);                                                              \
-   (void)dst; \
+   (void)dst;                                                                \
    (void)dy;                                                                 \
                                                                              \
    w = dx2 - dx1;                                                            \
@@ -109,8 +109,8 @@ static void _al_draw_filled_rectangle_memory_fast(int x1, int y1, int x2, int y2
    /* Do clipping */
    if (x1 < bitmap->cl) x1 = bitmap->cl;
    if (y1 < bitmap->ct) y1 = bitmap->ct;
-   if (x2 > bitmap->cr - 1) x2 = bitmap->cr - 1;
-   if (y2 > bitmap->cb - 1) y2 = bitmap->cb - 1;
+   if (x2 > bitmap->cr_excl - 1) x2 = bitmap->cr_excl - 1;
+   if (y2 > bitmap->cb_excl - 1) y2 = bitmap->cb_excl - 1;
 
    w = x2 - x1 + 1;
    h = y2 - y1 + 1;
@@ -198,8 +198,8 @@ void _al_draw_filled_rectangle_memory(int x1, int y1, int x2, int y2,
    /* Do clipping */
    if (x1 < bitmap->cl) x1 = bitmap->cl;
    if (y1 < bitmap->ct) y1 = bitmap->ct;
-   if (x2 > bitmap->cr - 1) x2 = bitmap->cr - 1;
-   if (y2 > bitmap->cb - 1) y2 = bitmap->cb - 1;
+   if (x2 > bitmap->cr_excl - 1) x2 = bitmap->cr_excl - 1;
+   if (y2 > bitmap->cb_excl - 1) y2 = bitmap->cb_excl - 1;
 
    w = x2 - x1 + 1;
    h = y2 - y1 + 1;

@@ -27,8 +27,14 @@ struct ALLEGRO_BITMAP
     * Clip anything outside of this. cr/cb are exclusive, that is (0, 0, 1, 1)
     * is the single pixel spawning a rectangle from floating point 0/0 to 1/1 -
     * or in other words, the single pixel 0/0.
+    *
+    * There is always confusion as to whether cr/cb are exclusive, leading to
+    * subtle bugs.  The suffixes are supposed to help with that.
     */
-   int cl, cr, ct, cb;
+   int cl;
+   int cr_excl;
+   int ct;
+   int cb_excl;
    /*
     * Locking info.
     *

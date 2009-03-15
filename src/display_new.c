@@ -334,8 +334,8 @@ void al_set_clipping_rectangle(int x, int y, int width, int height)
 
    bitmap->cl = x;
    bitmap->ct = y;
-   bitmap->cr = x + width;
-   bitmap->cb = y + height;
+   bitmap->cr_excl = x + width;
+   bitmap->cb_excl = y + height;
 
    if (bitmap->vt && bitmap->vt->update_clipping_rectangle) {
       bitmap->vt->update_clipping_rectangle(bitmap);
@@ -355,8 +355,8 @@ void al_get_clipping_rectangle(int *x, int *y, int *w, int *h)
 
    if (x) *x = bitmap->cl;
    if (y) *y = bitmap->ct;
-   if (w) *w = bitmap->cr - bitmap->cl;
-   if (h) *h = bitmap->cb - bitmap->ct;
+   if (w) *w = bitmap->cr_excl - bitmap->cl;
+   if (h) *h = bitmap->cb_excl - bitmap->ct;
 }
 
 

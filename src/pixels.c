@@ -542,7 +542,7 @@ void _al_put_pixel(ALLEGRO_BITMAP *bitmap, int x, int y, ALLEGRO_COLOR color)
    }
    else {
       if (x < bitmap->cl || y < bitmap->ct ||
-          x >= bitmap->cr || y >= bitmap->cb)
+          x >= bitmap->cr_excl || y >= bitmap->cb_excl)
       {
          return;
       }

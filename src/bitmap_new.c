@@ -54,8 +54,8 @@ static ALLEGRO_BITMAP *_al_create_memory_bitmap(int w, int h)
    bitmap->display = NULL;
    bitmap->locked = false;
    bitmap->cl = bitmap->ct = 0;
-   bitmap->cr = w;
-   bitmap->cb = h;
+   bitmap->cr_excl = w;
+   bitmap->cb_excl = h;
    bitmap->parent = NULL;
    bitmap->xofs = bitmap->yofs = 0;
    bitmap->memory = _AL_MALLOC(pitch * h);
@@ -105,8 +105,8 @@ ALLEGRO_BITMAP *al_create_bitmap(int w, int h)
    bitmap->locked = false;
    bitmap->cl = 0;
    bitmap->ct = 0;
-   bitmap->cr = w;
-   bitmap->cb = h;
+   bitmap->cr_excl = w;
+   bitmap->cb_excl = h;
    bitmap->parent = NULL;
    bitmap->xofs = 0;
    bitmap->yofs = 0;
@@ -608,8 +608,8 @@ ALLEGRO_BITMAP *al_create_sub_bitmap(ALLEGRO_BITMAP *parent,
    bitmap->display = parent->display;
    bitmap->locked = false;
    bitmap->cl = bitmap->ct = 0;
-   bitmap->cr = w;
-   bitmap->cb = h;
+   bitmap->cr_excl = w;
+   bitmap->cb_excl = h;
    bitmap->parent = parent;
    bitmap->xofs = x;
    bitmap->yofs = y;
@@ -715,8 +715,8 @@ void _al_convert_to_display_bitmap(ALLEGRO_BITMAP *bitmap)
    al_set_blender(ALLEGRO_ONE, ALLEGRO_ZERO, al_map_rgb(255, 255, 255));
    al_set_target_bitmap(tmp);
    al_draw_bitmap(bitmap, 0, 0, 0);
-   tmp->cb = bitmap->cb;
-   tmp->cr = bitmap->cr;
+   tmp->cb_excl = bitmap->cb_excl;
+   tmp->cr_excl = bitmap->cr_excl;
    tmp->cl = bitmap->cl;
    tmp->ct = bitmap->ct;
    
@@ -770,8 +770,8 @@ void _al_convert_to_memory_bitmap(ALLEGRO_BITMAP *bitmap)
    al_set_blender(ALLEGRO_ONE, ALLEGRO_ZERO, al_map_rgb(255, 255, 255));
    al_set_target_bitmap(tmp);
    al_draw_bitmap(bitmap, 0, 0, 0);
-   tmp->cb = bitmap->cb;
-   tmp->cr = bitmap->cr;
+   tmp->cb_excl = bitmap->cb_excl;
+   tmp->cr_excl = bitmap->cr_excl;
    tmp->cl = bitmap->cl;
    tmp->ct = bitmap->ct;
    

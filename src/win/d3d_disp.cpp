@@ -1582,8 +1582,8 @@ static bool d3d_create_display_internals(ALLEGRO_DISPLAY_D3D *d3d_display)
    d3d_display->backbuffer_bmp.bitmap.h = al_display->h;
    d3d_display->backbuffer_bmp.bitmap.cl = 0;
    d3d_display->backbuffer_bmp.bitmap.ct = 0;
-   d3d_display->backbuffer_bmp.bitmap.cr = al_display->w;
-   d3d_display->backbuffer_bmp.bitmap.cb = al_display->h;
+   d3d_display->backbuffer_bmp.bitmap.cr_excl = al_display->w;
+   d3d_display->backbuffer_bmp.bitmap.cb_excl = al_display->h;
    d3d_display->backbuffer_bmp.bitmap.vt = (ALLEGRO_BITMAP_INTERFACE *)_al_bitmap_d3d_driver();
    d3d_display->backbuffer_bmp.display = d3d_display;
 
@@ -1935,15 +1935,15 @@ void d3d_set_bitmap_clip(ALLEGRO_BITMAP *bitmap)
 
    if (bitmap->parent) {
       rect.left = bitmap->xofs + bitmap->cl;
-      rect.right = bitmap->xofs + bitmap->cr;
+      rect.right = bitmap->xofs + bitmap->cr_excl;
       rect.top = bitmap->yofs + bitmap->ct;
-      rect.bottom = bitmap->yofs + bitmap->cb;
+      rect.bottom = bitmap->yofs + bitmap->cb_excl;
    }
    else {
       rect.left = bitmap->cl;
-      rect.right = bitmap->cr;
+      rect.right = bitmap->cr_excl;
       rect.top = bitmap->ct;
-      rect.bottom = bitmap->cb;
+      rect.bottom = bitmap->cb_excl;
    }
 
    if (rect.left == 0 && rect.top == 0 && rect.right == disp->win_display.display.w && rect.left == disp->win_display.display.h) {
@@ -2056,8 +2056,8 @@ static bool d3d_acknowledge_resize(ALLEGRO_DISPLAY *d)
    disp->backbuffer_bmp.bitmap.h = d->h;
    disp->backbuffer_bmp.bitmap.cl = 0;
    disp->backbuffer_bmp.bitmap.ct = 0;
-   disp->backbuffer_bmp.bitmap.cr = d->w;
-   disp->backbuffer_bmp.bitmap.cb = d->h;
+   disp->backbuffer_bmp.bitmap.cr_excl = d->w;
+   disp->backbuffer_bmp.bitmap.cb_excl = d->h;
 
    disp->do_reset = true;
    while (!disp->reset_done) {
