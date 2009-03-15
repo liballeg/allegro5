@@ -220,6 +220,16 @@ int _al_score_display_settings(ALLEGRO_EXTRA_DISPLAY_SETTINGS *eds,
       score += 128;
    }
 
+   if (eds->settings[ALLEGRO_VSYNC] != ref->settings[ALLEGRO_VSYNC]) {
+      if (req & (1<<ALLEGRO_VSYNC)) {
+         TRACE(PREFIX_I "Vsync requirement not met.\n");
+         return -1;
+      }
+   }
+   else {
+      score += 128;
+   }
+
    if (eds->settings[ALLEGRO_COLOR_SIZE] != ref->settings[ALLEGRO_COLOR_SIZE]) {
       if (req & (1<<ALLEGRO_COLOR_SIZE)) {
          TRACE(PREFIX_I "Color depth requirement not met.\n");

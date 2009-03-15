@@ -845,6 +845,15 @@ static ALLEGRO_DISPLAY* create_display_fs(int w, int h) {
    [fmt release];
    if (context == nil) return NULL;
    [context makeCurrentContext];
+   /* Turn on vsyncing possibly */
+   if (_al_get_new_display_settings()->settings[ALLEGRO_VSYNC] == 1) {
+      GLint swapInterval = 1;
+      [context setValues:&swapInterval forParameter: NSOpenGLCPSwapInterval];
+   }
+   else {
+      GLint swapInterval = 0;
+      [context setValues:&swapInterval forParameter: NSOpenGLCPSwapInterval];
+   }
    dpy->ctx = context;
    dpy->parent.w = w;
    dpy->parent.h = h;
@@ -923,6 +932,15 @@ static ALLEGRO_DISPLAY* create_display_win(int w, int h) {
 
    /* Retrieve the options that were set */
    osx_get_opengl_pixelformat_attributes(dpy);
+   
+   if (_al_get_new_display_settings()->settings[ALLEGRO_VSYNC] == 1) {
+      GLint swapInterval = 1;
+      [dpy->ctx setValues:&swapInterval forParameter: NSOpenGLCPSwapInterval];
+   }
+   else {
+      GLint swapInterval = 0;
+      [dpy->ctx setValues:&swapInterval forParameter: NSOpenGLCPSwapInterval];
+   }
 
 	/* Set up GL as we want */
 	setup_gl(&dpy->parent);
