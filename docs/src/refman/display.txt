@@ -279,10 +279,7 @@ The supported options are:
     capable of updating just a region, and 0 if calling
     [al_update_display_region] is equivalent to [al_flip_display].
 *   ALLEGRO_VSYNC: Set to 1 to tell the driver to wait for vsync
-    in [al_flip_display], or to 2 to force vsync off. Usually this is a
-    setting the user controls in their graphics card settings and
-    applications are not supposed to try and force this. Currently all
-    drivers except D3D ignore this option.
+    in [al_flip_display], or to 2 to force vsync off. 
 
 FIXME: document them all in detail
 
@@ -365,10 +362,10 @@ will specify the behavior of this function in the current display.
 
 Wait for the beginning of a vertical retrace. Some
 driver/card/monitor combinations may not be capable
-of this. Right now only the D3D9 driver has an implementation for
-this functions - on other drivers it does nothing. Also note how
-[al_flip_display] usually already waits for the vertical retrace, so
-unless you are doing something special, there is no reason to call
-this function.
+of this.
+
+Note how [al_flip_display] usually already waits for the vertical
+retrace, so unless you are doing something special, there is no reason
+to call this function.
 
 Returns false if not possible, true if successful.
