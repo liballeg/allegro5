@@ -31,7 +31,10 @@
 #define _ALLEGRO_MAX(x,y)     (((x) > (y)) ? (x) : (y))
 #define _ALLEGRO_CLAMP(x,y,z) _ALLEGRO_MAX((x), _ALLEGRO_MIN((y), (z)))
 
-AL_FUNC(void, _rotate_scale_flip_coordinates, (fixed w, fixed h, fixed x, fixed y, fixed cx, fixed cy, fixed angle, fixed scale_x, fixed scale_y, int h_flip, int v_flip, fixed xs[4], fixed ys[4]));
+AL_FUNC(void, _al_rotate_scale_flip_coordinates, (fixed w, fixed h,
+   fixed x, fixed y, fixed cx, fixed cy, fixed angle,
+   fixed scale_x, fixed scale_y, int h_flip, int v_flip,
+   fixed xs[4], fixed ys[4]));
 
 /* default truecolor pixel format */
 #define DEFAULT_RGB_R_SHIFT_15  0

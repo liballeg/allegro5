@@ -843,7 +843,7 @@ do {                                                                         \
    fixed fix_xscale = ftofix(fl_xscale);                                     \
    fixed fix_yscale = ftofix(fl_yscale);                                     \
                                                                              \
-   _rotate_scale_flip_coordinates(src->w << 16, src->h << 16,                \
+   _al_rotate_scale_flip_coordinates(src->w << 16, src->h << 16,             \
       fix_dx, fix_dy, fix_cx, fix_cy, fix_angle, fix_xscale, fix_yscale,     \
       flags & ALLEGRO_FLIP_HORIZONTAL, flags & ALLEGRO_FLIP_VERTICAL,        \
       xs, ys);                                                               \
@@ -1202,7 +1202,7 @@ void _al_draw_rotated_scaled_bitmap_memory_fast(ALLEGRO_BITMAP *src,
    /* Right edge of scanline. */
    int right_edge_test;
 
-   _rotate_scale_flip_coordinates(src->w << 16, src->h << 16,
+   _al_rotate_scale_flip_coordinates(src->w << 16, src->h << 16,
       fix_dx, fix_dy, fix_cx, fix_cy, fix_angle, fix_xscale, fix_yscale,
       flags & ALLEGRO_FLIP_HORIZONTAL, flags & ALLEGRO_FLIP_VERTICAL, xs, ys);
 

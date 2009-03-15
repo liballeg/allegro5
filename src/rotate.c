@@ -24,11 +24,11 @@
 #include "allegro5/internal/aintern.h"
 #include <math.h>
 
-/* _rotate_scale_flip_coordinates:
+/* _al_rotate_scale_flip_coordinates:
  *  Calculates the coordinates for the rotated, scaled and flipped sprite,
  *  and passes them on to the given function.
  */
-void _rotate_scale_flip_coordinates(fixed w, fixed h,
+void _al_rotate_scale_flip_coordinates(fixed w, fixed h,
 				    fixed x, fixed y, fixed cx, fixed cy,
 				    fixed angle,
 				    fixed scale_x, fixed scale_y,
