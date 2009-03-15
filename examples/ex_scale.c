@@ -4,10 +4,9 @@
  *    Press 'w' to toggle "wide" mode.
  *    Press 's' to toggle memory source bitmap.
  *    Press ' ' to toggle scaling to backbuffer or off-screen bitmap.
- *
- *    Future work:
- *       test flipping
- *       make it easier to test both fast/non-fast software routines
+ *    Press 't' to toggle translucency.
+ *    Press 'h' to toggle horizontal flipping.
+ *    Press 'v' to toggle vertical flipping.
  */
 
 
@@ -36,6 +35,8 @@ int main(void)
    int mode = 0;
    bool wide_mode = false;
    bool mem_src_mode = false;
+   bool trans_mode = false;
+   int flags = 0;
 
    if (!al_init()) {
       TRACE("Could not init Allegro.\n");
@@ -87,6 +88,12 @@ int main(void)
                wide_mode = !wide_mode;
             if (event.keyboard.unichar == 's')
                mem_src_mode = !mem_src_mode;
+	    if (event.keyboard.unichar == 't')
+		trans_mode = !trans_mode;
+            if (event.keyboard.unichar == 'h')
+               flags ^= ALLEGRO_FLIP_HORIZONTAL;
+            if (event.keyboard.unichar == 'v')
+               flags ^= ALLEGRO_FLIP_VERTICAL;
          }
       }
 
@@ -106,19 +113,26 @@ int main(void)
       src_bmp = (mem_src_mode) ? mem_bmp : bmp;
       k = (wide_mode) ? 2.0 : 1.0;
 
+      al_set_blender(ALLEGRO_ONE, ALLEGRO_ZERO, al_map_rgba_f(1, 1, 1, 1));
       if (mode == 0)
          al_clear(al_map_rgba_f(1, 0, 0, 1));
       else
          al_clear(al_map_rgba_f(0, 0, 1, 1));
 
+      if (trans_mode) {
+         al_set_blender(ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA,
+            al_map_rgba_f(1, 1, 1, 0.5));
+      }
+
       al_draw_scaled_bitmap(src_bmp,
          0, 0, bmp_w, bmp_h,
          display_w/2, display_h/2,
          k * cos(theta) * display_w/2, k * sin(theta) * display_h/2,
-         0);
+         flags);
 
       if (mode == 0) {
          al_set_target_bitmap(al_get_backbuffer());
+         al_set_blender(ALLEGRO_ONE, ALLEGRO_ZERO, al_map_rgba_f(1, 1, 1, 1));
          al_draw_bitmap(buf, 0, 0, 0);
       }
 
@@ -134,3 +148,5 @@ int main(void)
    return 0;
 }
 END_OF_MAIN()
+
+/* vim: set sts=3 sw=3 et: */
