@@ -701,6 +701,22 @@ static void xdpy_set_window_title(
 
 
 
+static bool xdpy_wait_for_vsync(ALLEGRO_DISPLAY *display)
+{
+   (void) display;
+
+   if (al_get_opengl_extension_list()->ALLEGRO_GLX_SGI_video_sync) {
+      unsigned int count;
+      glXGetVideoSyncSGI(&count);
+      glXWaitVideoSyncSGI(2, (count+1) & 1, &count);
+      return true;
+   }
+
+   return false;
+}
+
+
+
 /* Obtain a reference to this driver. */
 ALLEGRO_DISPLAY_INTERFACE *_al_display_xglx_driver(void)
 {
@@ -728,6 +744,7 @@ ALLEGRO_DISPLAY_INTERFACE *_al_display_xglx_driver(void)
    xdpy_vt->set_window_position = xdpy_set_window_position;
    xdpy_vt->get_window_position = xdpy_get_window_position;
    xdpy_vt->toggle_frame = xdpy_toggle_frame;
+   xdpy_vt->wait_for_vsync = xdpy_wait_for_vsync;
 
    _al_xglx_add_cursor_functions(xdpy_vt);
    _al_ogl_add_drawing_functions(xdpy_vt);
