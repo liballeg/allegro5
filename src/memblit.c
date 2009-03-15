@@ -269,12 +269,14 @@ void _al_draw_scaled_bitmap_memory(ALLEGRO_BITMAP *src,
    sxinc = fabs((float)sw / dw);
    syinc = fabs((float)sh / dh);
 
-   /* Do clipping */
+   /* Do clipping.  We subtract 1 from ct and cl as they are inclusive,
+    * but dw, dh are exclusive.
+    */
    dy = ((dy > dest->ct) ? dy : dest->ct);
-   dh = (((dy + dh) < dest->cb + 1) ? (dy + dh) : dest->cb + 1) - dy;
+   dh = _ALLEGRO_CLAMP(dest->ct - 1, dy + dh, dest->cb) - dy;
 
    dx = ((dx > dest->cl) ? dx : dest->cl);
-   dw = (((dx + dw) < dest->cr + 1) ? (dx + dw) : dest->cr + 1) - dx;
+   dw = _ALLEGRO_CLAMP(dest->cl - 1, dx + dw, dest->cr) - dx;
 
    if (dw == 0 || dh == 0)
       return;
@@ -303,7 +305,6 @@ void _al_draw_scaled_bitmap_memory(ALLEGRO_BITMAP *src,
 
    dxinc = dw < 0 ? -1 : 1;
    dyinc = dh < 0 ? -1 : 1;
-   _dy = dy;
    xend = abs(dw);
    yend = abs(dh);
 
@@ -321,6 +322,7 @@ void _al_draw_scaled_bitmap_memory(ALLEGRO_BITMAP *src,
    }
 
    /* XXX optimise this */
+   _dy = dy;
    for (y = 0; y < yend; y++) {
       _sx = sx;
       _dx = dx;
@@ -482,7 +484,7 @@ do {                                                                         \
                                                                              \
    /* Calculate left and right clipping. */                                  \
    clip_left = dst->cl << 16;                                                \
-   clip_right = (dst->cr << 16) - 1;                                         \
+   clip_right = dst->cr << 16;                                               \
                                                                              \
    /* Quit if we're totally outside. */                                      \
    if ((left_bmp_x > clip_right) &&                                          \
@@ -904,8 +906,8 @@ void _al_draw_bitmap_region_memory_fast(ALLEGRO_BITMAP *bitmap,
       dx = dest->cl;
       sw -= inc;
    }
-   if (dx+sw-1 > dest->cr) {
-      int inc = (dx+sw-1) - dest->cr;
+   if (dx+sw > dest->cr) {
+      int inc = (dx+sw) - dest->cr;
       sw -= inc;
    }
 
@@ -915,8 +917,8 @@ void _al_draw_bitmap_region_memory_fast(ALLEGRO_BITMAP *bitmap,
       dy = dest->ct;
       sh -= inc;
    }
-   if (dy+sh-1 > dest->cb) {
-      int inc = (dy+sh-1) - dest->cb;
+   if (dy+sh > dest->cb) {
+      int inc = (dy+sh) - dest->cb;
       sh -= inc;
    }
 
@@ -1020,12 +1022,14 @@ void _al_draw_scaled_bitmap_memory_fast(ALLEGRO_BITMAP *src,
    sxinc = fabs((float)sw / dw);
    syinc = fabs((float)sh / dh);
 
-   /* Do clipping */
+   /* Do clipping.  We subtract 1 from ct and cl as they are inclusive,
+    * but dw, dh are exclusive.
+    */
    dy = ((dy > dest->ct) ? dy : dest->ct);
-   dh = (((dy + dh) < dest->cb + 1) ? (dy + dh) : dest->cb + 1) - dy;
+   dh = _ALLEGRO_CLAMP(dest->ct - 1, dy + dh, dest->cb) - dy;
 
    dx = ((dx > dest->cl) ? dx : dest->cl);
-   dw = (((dx + dw) < dest->cr + 1) ? (dx + dw) : dest->cr + 1) - dx;
+   dw = _ALLEGRO_CLAMP(dest->cl - 1, dx + dw, dest->cr) - dx;
 
    if (dw == 0 || dh == 0)
       return;
@@ -1043,7 +1047,8 @@ void _al_draw_scaled_bitmap_memory_fast(ALLEGRO_BITMAP *src,
       src = src->parent;
    }
 
-   if (!(src_region = al_lock_bitmap(src, ALLEGRO_PIXEL_FORMAT_ARGB_8888, ALLEGRO_LOCK_READONLY))) {
+   if (!(src_region = al_lock_bitmap(src, ALLEGRO_PIXEL_FORMAT_ARGB_8888,
+         ALLEGRO_LOCK_READONLY))) {
       return;
    }
    /* XXX we should be able to lock less of the destination and use
@@ -1056,7 +1061,6 @@ void _al_draw_scaled_bitmap_memory_fast(ALLEGRO_BITMAP *src,
 
    dxinc = dw < 0 ? -1 : 1;
    dyinc = dh < 0 ? -1 : 1;
-   _dy = dy;
    xend = abs(dw);
    yend = abs(dh);
 
@@ -1073,6 +1077,7 @@ void _al_draw_scaled_bitmap_memory_fast(ALLEGRO_BITMAP *src,
       _sy = sy;
    }
 
+   _dy = dy;
    for (y = 0; y < yend; y++) {
       _sx = sx;
       _dx = dx;
@@ -1252,7 +1257,7 @@ void _al_draw_rotated_scaled_bitmap_memory_fast(ALLEGRO_BITMAP *src,
 
    /* Calculate left and right clipping. */
    clip_left = dst->cl << 16;
-   clip_right = (dst->cr << 16) - 1;
+   clip_right = dst->cr << 16;
 
    /* Quit if we're totally outside. */
    if ((left_bmp_x > clip_right) &&
