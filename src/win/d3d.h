@@ -73,6 +73,7 @@ typedef struct ALLEGRO_DISPLAY_D3D
    D3DFORMAT depth_stencil_format;
    int samples;
    bool single_buffer;
+   bool vsync;
 } ALLEGRO_DISPLAY_D3D;
 
 

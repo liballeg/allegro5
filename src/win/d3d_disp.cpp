@@ -538,7 +538,12 @@ static bool d3d_create_fullscreen_device(ALLEGRO_DISPLAY_D3D *d,
    d3d_pp.BackBufferHeight = al_display->h;
    d3d_pp.BackBufferCount = 1;
    d3d_pp.Windowed = 0;
-   d3d_pp.PresentationInterval = D3DPRESENT_INTERVAL_IMMEDIATE;
+   if (d->vsync) {
+      d3d_pp.PresentationInterval = D3DPRESENT_INTERVAL_ONE;
+   }
+   else {
+      d3d_pp.PresentationInterval = D3DPRESENT_INTERVAL_IMMEDIATE;
+   }
 
    if (d->depth_stencil_format) {
       d3d_pp.EnableAutoDepthStencil = true;
@@ -820,7 +825,12 @@ static bool d3d_create_device(ALLEGRO_DISPLAY_D3D *d,
    d3d_pp.BackBufferHeight = al_display->h;
    d3d_pp.BackBufferCount = 1;
    d3d_pp.Windowed = 1;
-   d3d_pp.PresentationInterval = D3DPRESENT_INTERVAL_IMMEDIATE;
+   if (d->vsync) {
+      d3d_pp.PresentationInterval = D3DPRESENT_INTERVAL_ONE;
+   }
+   else {
+      d3d_pp.PresentationInterval = D3DPRESENT_INTERVAL_IMMEDIATE;
+   }
 
    if (d->depth_stencil_format) {
       d3d_pp.EnableAutoDepthStencil = true;
@@ -1027,7 +1037,12 @@ static bool _al_d3d_reset_device(ALLEGRO_DISPLAY_D3D *d3d_display)
        d3d_pp.Windowed = 0;
        d3d_pp.SwapEffect = D3DSWAPEFFECT_DISCARD;
        d3d_pp.hDeviceWindow = win_display->window;
-       d3d_pp.PresentationInterval = D3DPRESENT_INTERVAL_IMMEDIATE;
+      if (d3d_display->vsync) {
+         d3d_pp.PresentationInterval = D3DPRESENT_INTERVAL_ONE;
+      }
+      else {
+         d3d_pp.PresentationInterval = D3DPRESENT_INTERVAL_IMMEDIATE;
+      }
 
       if (d3d_display->depth_stencil_format) {
          d3d_pp.EnableAutoDepthStencil = true;
@@ -1525,6 +1540,7 @@ static bool d3d_create_display_internals(ALLEGRO_DISPLAY_D3D *d3d_display)
       d3d_display->depth_stencil_format = d3d_get_depth_stencil_format(eds_list[i]);
       d3d_display->samples = eds_list[i]->settings[ALLEGRO_SAMPLES];
       d3d_display->single_buffer = eds_list[i]->settings[ALLEGRO_SINGLE_BUFFER] ? true : false;
+      d3d_display->vsync = eds_list[i]->settings[ALLEGRO_VSYNC] == 1;
       memcpy(&al_display->extra_settings, eds_list[i], sizeof al_display->extra_settings);
 
       params.init_failed = true;
