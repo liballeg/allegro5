@@ -5,8 +5,18 @@
 #include <stdio.h>
 #include <allegro5/allegro5.h>
 #include <allegro5/a5_iio.h>
+#include <time.h>
 
-#define REPEAT 300
+/* Do a few un-timed runs to switch CPU to performance mode and cache
+ * data and so on - seems to make the results more stable here.
+ * Also used to guess the number of timed iterations.
+ */
+#define WARMUP 100
+/* How many seconds the timing should approximately take - a fixed
+ * number of iterations is not enough on very fast systems but takes
+ * too long on slow systems.
+ */
+#define TEST_TIME 5.0
 
 enum Mode {
    PLAIN_BLIT,
@@ -30,12 +40,22 @@ void step(enum Mode mode, ALLEGRO_BITMAP *b2)
    }
 }
 
+/* al_get_current_time() measures wallclock time - but for the benchmark
+ * result we prefer CPU time so clock() is better.
+ */
+double current_clock(void)
+{
+   clock_t c = clock();
+   return (double)c / CLOCKS_PER_SEC;
+}
+
 int main(int argc, const char *argv[])
 {
    enum Mode mode = PLAIN_BLIT;
    ALLEGRO_STATE state;
    ALLEGRO_BITMAP *b1;
    ALLEGRO_BITMAP *b2;
+   int REPEAT;
    double t0, t1;
    int i;
 
@@ -93,13 +113,23 @@ int main(int argc, const char *argv[])
 
    printf("Please wait...\n");
 
-   t0 = al_current_time();
+   /* Do warmup run and estimate required runs for real test. */
+   t0 = current_clock();
+   for (i = 0; i < WARMUP; i++) {
+      step(mode, b2);
+   }
+   t1 = current_clock();
+   REPEAT = TEST_TIME * 100 / (t1 - t0);
+
+   /* Do the real test. */
+   t0 = current_clock();
    for (i = 0; i < REPEAT; i++) {
       step(mode, b2);
    }
-   t1 = al_current_time();
+   t1 = current_clock();
 
-   printf("Time = %g s, FPS = %g\n", t1 - t0, REPEAT / (t1 - t0));
+   printf("Time = %g s, %d steps, FPS = %g\n",
+      t1 - t0, REPEAT, REPEAT / (t1 - t0));
 
    return 0;
 }
