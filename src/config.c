@@ -267,8 +267,6 @@ void al_add_config_comment(ALLEGRO_CONFIG *config,
 }
 
 
-/* Function: al_get_config_value
- */
 static bool config_get_value(const ALLEGRO_CONFIG *config,
    const ALLEGRO_USTR *section, const ALLEGRO_USTR *key,
    ALLEGRO_USTR **ret_value)
@@ -290,6 +288,8 @@ static bool config_get_value(const ALLEGRO_CONFIG *config,
 }
 
 
+/* Function: al_get_config_value
+ */
 const char *al_get_config_value(const ALLEGRO_CONFIG *config,
    const char *section, const char *key)
 {

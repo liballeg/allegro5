@@ -10,7 +10,7 @@
 ## API: ALLEGRO_CONFIG_SECTION
 
 
-## API: al_config_add_comment
+## API: al_add_config_comment
 
 Add a comment in a section of a configuration.  If the section doesn't yet
 exist, it will be created.
@@ -19,20 +19,20 @@ The section can be NULL or "" for the global section.
 The comment may or may not begin with a hash character.
 Any newlines in the comment string will be replaced by space characters.
 
-## API: al_config_add_section
+## API: al_add_config_section
 
 Add a section to a configuration structure.
 
-## API: al_config_create
+## API: al_create_config
 
 Create an empty configuration structure.
 
-## API: al_config_destroy
+## API: al_destroy_config
 
 Free the resources used by a configuration structure.
 Does nothing if passed NULL.
 
-## API: al_config_get_value
+## API: al_get_config_value
 
 Gets a pointer to an internal character buffer that will only remain valid
 as long as the ALLEGRO_CONFIG structure is not destroyed. Copy the value
@@ -40,7 +40,7 @@ if you need a copy.
 The section can be NULL or "" for the global section.
 Returns NULL if the section or key do not exist.
 
-## API: al_config_merge
+## API: al_merge_config
 
 Merge two configuration structures, and return the result as a new
 configuration.  Values in configuration 'cfg2' override those in 'cfg1'.
@@ -48,19 +48,19 @@ Neither of the input configuration structures are
 modified.
 Comments from 'cfg2' are not retained.
 
-## API: al_config_merge_into
+## API: al_merge_config_into
 
 Merge one configuration structure into another.
 Values in configuration 'add' override those in 'master'.
 'master' is modified.
 Comments from 'add' are not retained.
 
-## API: al_config_read
+## API: al_load_config_file
 
-Read a configuration file.
+Read a configuration file from disk.
 Returns NULL on error.
 
-## API: al_config_set_value
+## API: al_set_config_value
 
 Set a value in a section of a configuration.  If the section doesn't yet
 exist, it will be created.  If a value already existed for the given key,
@@ -72,8 +72,8 @@ trailing whitespace will be stripped from the value.  If you have significant
 whitespace you wish to preserve, you should add your own quote characters
 and remove them when reading the values back in.
 
-## API: al_config_write
+## API: al_save_config_file
 
-Write out a configuration file.
+Write out a configuration file to disk.
 Returns zero on success, non-zero on error.
 
