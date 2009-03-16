@@ -49,30 +49,38 @@ static void _al_blend_inline(
    result->g = scol->g * bc->g;
    result->b = scol->b * bc->b;
    result->a = scol->a * bc->a;
+
    src = get_factor(src_, result->a);
    dst = get_factor(dst_, result->a);
    asrc = get_factor(asrc_, result->a);
    adst = get_factor(adst_, result->a);
 
-   // FIXME: Better not do the check for each pixel but already at the
-   // caller.
-   // The check is necessary though because the target may be
-   // uninitialized (so e.g. all NaN or Inf) and so multiplying with 0
-   // doesn't mean the value is ignored.
-   if (dst == 0) {
-      result->r = result->r * src;
-      result->g = result->g * src;
-      result->b = result->b * src;
-   }
-   else {
-      result->r = MIN(1, result->r * src + dcol->r * dst);
-      result->g = MIN(1, result->g * src + dcol->g * dst);
-      result->b = MIN(1, result->b * src + dcol->b * dst);
-   }
-   if (adst == 0)
-      result->a = result->a * asrc;
-   else
-      result->a = MIN(1, result->a * asrc + dcol->a * adst);
+   result->r = MIN(1, result->r * src + dcol->r * dst);
+   result->g = MIN(1, result->g * src + dcol->g * dst);
+   result->b = MIN(1, result->b * src + dcol->b * dst);
+   result->a = MIN(1, result->a * asrc + dcol->a * adst);
+}
+
+
+static void _al_blend_inline_dest_zero(
+   const ALLEGRO_COLOR *scol,
+   int src_, int asrc_, const ALLEGRO_COLOR *bc,
+   ALLEGRO_COLOR *result)
+{
+   float src, asrc;
+
+   result->r = scol->r * bc->r;
+   result->g = scol->g * bc->g;
+   result->b = scol->b * bc->b;
+   result->a = scol->a * bc->a;
+
+   src = get_factor(src_, result->a);
+   asrc = get_factor(asrc_, result->a);
+
+   result->r *= src;
+   result->g *= src;
+   result->b *= src;
+   result->a *= asrc;
 }
 
 
@@ -186,6 +194,7 @@ void _al_draw_bitmap_region_memory(ALLEGRO_BITMAP *bitmap,
    {
       ALLEGRO_COLOR src_color = {0, 0, 0, 0};   /* avoid bogus warnings */
       ALLEGRO_COLOR dst_color = {0, 0, 0, 0};
+      ALLEGRO_COLOR result;
       int src_, dst_, asrc_, adst_;
       ALLEGRO_COLOR bc;
 
@@ -200,14 +209,27 @@ void _al_draw_bitmap_region_memory(ALLEGRO_BITMAP *bitmap,
             (((char *) dest->locked_region.data)
              + yd * dest->locked_region.pitch);
 
-         for (x = 0; x < sw; x++) {
-            ALLEGRO_COLOR result;
-
-            _AL_INLINE_GET_PIXEL(bitmap->format, src_data, src_color, true);
-            _AL_INLINE_GET_PIXEL(dest->format, dest_data, dst_color, false);
-            _al_blend_inline(&src_color, &dst_color,
-               src_, dst_, asrc_, adst_, &bc, &result);
-            _AL_INLINE_PUT_PIXEL(dest->format, dest_data, result);
+         /* Special case this for two reasons:
+          * - we don't need to read and blend with the destination pixel;
+          * - the destination may be uninitialised and may contain NaNs, Inf
+          *   which would not be clobbered when multiplied with zero.
+          */
+         if (dst_ == ALLEGRO_ZERO) {
+            for (x = 0; x < sw; x++) {
+               _AL_INLINE_GET_PIXEL(bitmap->format, src_data, src_color, true);
+                  _al_blend_inline_dest_zero(&src_color, src_, asrc_, &bc,
+                     &result);
+               _AL_INLINE_PUT_PIXEL(dest->format, dest_data, result);
+            }
+         }
+         else {
+            for (x = 0; x < sw; x++) {
+               _AL_INLINE_GET_PIXEL(bitmap->format, src_data, src_color, true);
+               _AL_INLINE_GET_PIXEL(dest->format, dest_data, dst_color, false);
+               _al_blend_inline(&src_color, &dst_color,
+                  src_, dst_, asrc_, adst_, &bc, &result);
+               _AL_INLINE_PUT_PIXEL(dest->format, dest_data, result);
+            }
          }
       }
    }
@@ -219,8 +241,7 @@ void _al_draw_bitmap_region_memory(ALLEGRO_BITMAP *bitmap,
 
 
 
-void _al_draw_bitmap_memory(ALLEGRO_BITMAP *bitmap,
-  int dx, int dy, int flags)
+void _al_draw_bitmap_memory(ALLEGRO_BITMAP *bitmap, int dx, int dy, int flags)
 {
    _al_draw_bitmap_region_memory(bitmap, 0, 0, bitmap->w, bitmap->h,
       dx, dy, flags);
