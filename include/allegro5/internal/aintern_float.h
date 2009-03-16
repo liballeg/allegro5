@@ -15,9 +15,12 @@
  *
  * Note that it does not truncate like (int)f.
  * Other architectures may not benefit from this so we just
- * use it on x86/x86-64.
+ * use it on x86.
+ *
+ * XXX this is actually a pessimisation depending on the target architecture
+ * and compiler settings
  */
-#if defined(ALLEGRO_I386) || defined(ALLEGRO_AMD64)
+#if defined(ALLEGRO_I386)
 
    union _al_UFloatInt {
       int32_t i;
@@ -34,7 +37,7 @@
 
 #else
 
-   #define _al_fast_float_to_int(f)  ((int)f)
+   #define _al_fast_float_to_int(f)  ((int)(f))
 
 #endif   /* _al_fast_float_to_int */
 
