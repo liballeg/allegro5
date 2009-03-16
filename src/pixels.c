@@ -538,7 +538,7 @@ void _al_put_pixel(ALLEGRO_BITMAP *bitmap, int x, int y, ALLEGRO_COLOR color)
       data += y * bitmap->locked_region.pitch;
       data += x * al_get_pixel_size(bitmap->format);
 
-      _AL_INLINE_PUT_PIXEL(bitmap->format, data, color);
+      _AL_INLINE_PUT_PIXEL(bitmap->format, data, color, false);
    }
    else {
       if (x < bitmap->cl || y < bitmap->ct ||
@@ -554,7 +554,7 @@ void _al_put_pixel(ALLEGRO_BITMAP *bitmap, int x, int y, ALLEGRO_COLOR color)
       /* FIXME: check for valid pixel format */
 
       data = lr->data;
-      _AL_INLINE_PUT_PIXEL(bitmap->format, data, color);
+      _AL_INLINE_PUT_PIXEL(bitmap->format, data, color, false);
 
       al_unlock_bitmap(bitmap);
    }

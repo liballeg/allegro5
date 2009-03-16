@@ -228,7 +228,7 @@
    } while (0)
 
 
-#define _AL_INLINE_PUT_PIXEL(format, data, color)                             \
+#define _AL_INLINE_PUT_PIXEL(format, data, color, advance)                    \
    do {                                                                       \
       uint32_t _pp_pixel;                                                     \
       switch (format) {                                                       \
@@ -238,7 +238,8 @@
             _pp_pixel |= _al_fast_float_to_int(color.g * 255) <<  8;          \
             _pp_pixel |= _al_fast_float_to_int(color.b * 255);                \
             *(uint32_t *)(data) = _pp_pixel;                                  \
-            data += 4;                                                        \
+            if (advance)                                                      \
+               data += 4;                                                     \
             break;                                                            \
                                                                               \
          case ALLEGRO_PIXEL_FORMAT_RGBA_8888:                                 \
@@ -247,7 +248,8 @@
             _pp_pixel |= _al_fast_float_to_int(color.b * 255) <<  8;          \
             _pp_pixel |= _al_fast_float_to_int(color.a * 255);                \
             *(uint32_t *)(data) = _pp_pixel;                                  \
-            data += 4;                                                        \
+            if (advance)                                                      \
+               data += 4;                                                     \
             break;                                                            \
                                                                               \
          case ALLEGRO_PIXEL_FORMAT_ARGB_4444:                                 \
@@ -256,7 +258,8 @@
             _pp_pixel |= _al_fast_float_to_int(color.g * 15) <<  4;           \
             _pp_pixel |= _al_fast_float_to_int(color.b * 15);                 \
             *(uint16_t *)(data) = _pp_pixel;                                  \
-            data += 2;                                                        \
+            if (advance)                                                      \
+               data += 2;                                                     \
             break;                                                            \
                                                                               \
          case ALLEGRO_PIXEL_FORMAT_RGB_888:                                   \
@@ -264,7 +267,8 @@
             _pp_pixel |= _al_fast_float_to_int(color.g * 255) << 8;           \
             _pp_pixel |= _al_fast_float_to_int(color.b * 255);                \
             WRITE3BYTES(data, _pp_pixel);                                     \
-            data += 3;                                                        \
+            if (advance)                                                      \
+               data += 3;                                                     \
             break;                                                            \
                                                                               \
          case ALLEGRO_PIXEL_FORMAT_RGB_565:                                   \
@@ -272,7 +276,8 @@
             _pp_pixel |= _al_fast_float_to_int(color.g * 0x3f) << 5;          \
             _pp_pixel |= _al_fast_float_to_int(color.b * 0x1f);               \
             *(uint16_t *)(data) = _pp_pixel;                                  \
-            data += 2;                                                        \
+            if (advance)                                                      \
+               data += 2;                                                     \
             break;                                                            \
                                                                               \
          case ALLEGRO_PIXEL_FORMAT_RGB_555:                                   \
@@ -280,7 +285,8 @@
             _pp_pixel |= _al_fast_float_to_int(color.g * 0x1f) << 5;          \
             _pp_pixel |= _al_fast_float_to_int(color.b * 0x1f);               \
             *(uint16_t *)(data) = _pp_pixel;                                  \
-            data += 2;                                                        \
+            if (advance)                                                      \
+               data += 2;                                                     \
             break;                                                            \
                                                                               \
          case ALLEGRO_PIXEL_FORMAT_RGBA_5551:                                 \
@@ -289,7 +295,8 @@
             _pp_pixel |= _al_fast_float_to_int(color.b * 0x1f) << 1;          \
             _pp_pixel |= _al_fast_float_to_int(color.a);                      \
             *(uint16_t *)(data) = _pp_pixel;                                  \
-            data += 2;                                                        \
+            if (advance)                                                      \
+               data += 2;                                                     \
             break;                                                            \
                                                                               \
          case ALLEGRO_PIXEL_FORMAT_ARGB_1555:                                 \
@@ -298,7 +305,8 @@
             _pp_pixel |= _al_fast_float_to_int(color.g * 0x1f) <<  5;         \
             _pp_pixel |= _al_fast_float_to_int(color.b * 0x1f);               \
             *(uint16_t *)(data) = _pp_pixel;                                  \
-            data += 2;                                                        \
+            if (advance)                                                      \
+               data += 2;                                                     \
             break;                                                            \
                                                                               \
          case ALLEGRO_PIXEL_FORMAT_ABGR_8888:                                 \
@@ -307,7 +315,8 @@
             _pp_pixel |= _al_fast_float_to_int(color.g * 0xff) << 8;          \
             _pp_pixel |= _al_fast_float_to_int(color.r * 0xff);               \
             *(uint32_t *)(data) = _pp_pixel;                                  \
-            data += 4;                                                        \
+            if (advance)                                                      \
+               data += 4;                                                     \
             break;                                                            \
                                                                               \
          case ALLEGRO_PIXEL_FORMAT_XBGR_8888:                                 \
@@ -316,7 +325,8 @@
             _pp_pixel |= _al_fast_float_to_int(color.g * 0xff) << 8;          \
             _pp_pixel |= _al_fast_float_to_int(color.r * 0xff);               \
             *(uint32_t *)(data) = _pp_pixel;                                  \
-            data += 4;                                                        \
+            if (advance)                                                      \
+               data += 4;                                                     \
             break;                                                            \
                                                                               \
          case ALLEGRO_PIXEL_FORMAT_BGR_888:                                   \
@@ -324,7 +334,8 @@
             _pp_pixel |= _al_fast_float_to_int(color.g * 0xff) << 8;          \
             _pp_pixel |= _al_fast_float_to_int(color.r * 0xff);               \
             WRITE3BYTES(data, _pp_pixel);                                     \
-            data += 3;                                                        \
+            if (advance)                                                      \
+               data += 3;                                                     \
             break;                                                            \
                                                                               \
          case ALLEGRO_PIXEL_FORMAT_BGR_565:                                   \
@@ -332,7 +343,8 @@
             _pp_pixel |= _al_fast_float_to_int(color.g * 0x3f) << 5;          \
             _pp_pixel |= _al_fast_float_to_int(color.r * 0x1f);               \
             *(uint16_t *)(data) = _pp_pixel;                                  \
-            data += 2;                                                        \
+            if (advance)                                                      \
+               data += 2;                                                     \
             break;                                                            \
                                                                               \
          case ALLEGRO_PIXEL_FORMAT_BGR_555:                                   \
@@ -340,7 +352,8 @@
             _pp_pixel |= _al_fast_float_to_int(color.g * 0x1f) << 5;          \
             _pp_pixel |= _al_fast_float_to_int(color.r * 0x1f);               \
             *(uint16_t *)(data) = _pp_pixel;                                  \
-            data += 2;                                                        \
+            if (advance)                                                      \
+               data += 2;                                                     \
             break;                                                            \
                                                                               \
          case ALLEGRO_PIXEL_FORMAT_RGBX_8888:                                 \
@@ -349,7 +362,8 @@
             _pp_pixel |= _al_fast_float_to_int(color.g * 0xff) << 16;         \
             _pp_pixel |= _al_fast_float_to_int(color.b * 0xff) << 8;          \
             *(uint32_t *)(data) = _pp_pixel;                                  \
-            data += 4;                                                        \
+            if (advance)                                                      \
+               data += 4;                                                     \
             break;                                                            \
                                                                               \
          case ALLEGRO_PIXEL_FORMAT_XRGB_8888:                                 \
@@ -358,7 +372,8 @@
             _pp_pixel |= _al_fast_float_to_int(color.g * 0xff) << 8;          \
             _pp_pixel |= _al_fast_float_to_int(color.b * 0xff);               \
             *(uint32_t *)(data) = _pp_pixel;                                  \
-            data += 4;                                                        \
+            if (advance)                                                      \
+               data += 4;                                                     \
             break;                                                            \
                                                                               \
          case ALLEGRO_PIXEL_FORMAT_ABGR_F32: {                                \
@@ -367,7 +382,8 @@
             f[1] = color.g;                                                   \
             f[2] = color.b;                                                   \
             f[3] = color.a;                                                   \
-            data += 4 * sizeof(float);                                        \
+            if (advance)                                                      \
+               data += 4 * sizeof(float);                                     \
             break;                                                            \
          }                                                                    \
                                                                               \

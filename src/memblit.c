@@ -38,7 +38,7 @@ static inline float get_factor(enum ALLEGRO_BLEND_MODE operation, float alpha)
 }
 
 
-static void _al_blend_inline(
+static inline void _al_blend_inline(
    const ALLEGRO_COLOR *scol, const ALLEGRO_COLOR *dcol,
    int src_, int dst_, int asrc_, int adst_, const ALLEGRO_COLOR *bc,
    ALLEGRO_COLOR *result)
@@ -217,9 +217,9 @@ void _al_draw_bitmap_region_memory(ALLEGRO_BITMAP *bitmap,
          if (dst_ == ALLEGRO_ZERO) {
             for (x = 0; x < sw; x++) {
                _AL_INLINE_GET_PIXEL(bitmap->format, src_data, src_color, true);
-                  _al_blend_inline_dest_zero(&src_color, src_, asrc_, &bc,
-                     &result);
-               _AL_INLINE_PUT_PIXEL(dest->format, dest_data, result);
+               _al_blend_inline_dest_zero(&src_color, src_, asrc_, &bc,
+                  &result);
+               _AL_INLINE_PUT_PIXEL(dest->format, dest_data, result, true);
             }
          }
          else {
@@ -228,7 +228,7 @@ void _al_draw_bitmap_region_memory(ALLEGRO_BITMAP *bitmap,
                _AL_INLINE_GET_PIXEL(dest->format, dest_data, dst_color, false);
                _al_blend_inline(&src_color, &dst_color,
                   src_, dst_, asrc_, adst_, &bc, &result);
-               _AL_INLINE_PUT_PIXEL(dest->format, dest_data, result);
+               _AL_INLINE_PUT_PIXEL(dest->format, dest_data, result, true);
             }
          }
       }
@@ -265,12 +265,10 @@ void _al_draw_scaled_bitmap_memory(ALLEGRO_BITMAP *src,
    float _sy;
    float dxinc;
    float dyinc;
-   float _dx;
    float _dy;
    int x, y;
    int xend;
    int yend;
-   ALLEGRO_COLOR src_color, result;
 
    al_get_blender(&src_mode, &dst_mode, NULL);
    bc = _al_get_blend_color();
@@ -342,20 +340,65 @@ void _al_draw_scaled_bitmap_memory(ALLEGRO_BITMAP *src,
       _sy = sy;
    }
 
-   /* XXX optimise this */
    _dy = dy;
-   for (y = 0; y < yend; y++) {
-      _sx = sx;
-      _dx = dx;
-      for (x = 0; x < xend; x++) {
-         src_color = al_get_pixel(src, _sx, _sy);
-         _al_blend(&src_color, dest, _dx, _dy, &result);
-         _al_put_pixel(dest, _dx, _dy, result);
-         _sx += sxinc;
-         _dx += dxinc;
+
+   {
+      const int src_size = al_get_pixel_size(src->format);
+      const int dst_size = al_get_pixel_size(dest->format);
+      const int dst_inc = dst_size * (int)dxinc;
+
+      ALLEGRO_COLOR src_color = {0, 0, 0, 0};   /* avoid bogus warnings */
+      ALLEGRO_COLOR dst_color = {0, 0, 0, 0};
+      int src_, dst_, asrc_, adst_;
+      ALLEGRO_COLOR bc;
+
+      al_get_separate_blender(&src_, &dst_, &asrc_, &adst_, &bc);
+
+      for (y = 0; y < yend; y++) {
+         const char *src_row =
+            (((char *) src->locked_region.data)
+             + _al_fast_float_to_int(_sy) * src->locked_region.pitch);
+
+         char *dst_data =
+            (((char *) dest->locked_region.data)
+             + _al_fast_float_to_int(_dy) * dest->locked_region.pitch
+             + dst_size * dx);
+
+         ALLEGRO_COLOR result;
+
+         _sx = sx;
+
+         if (dst_ == ALLEGRO_ZERO) {
+            for (x = 0; x < xend; x++) {
+               const char *src_data = src_row
+                  + src_size * _al_fast_float_to_int(_sx);
+               _AL_INLINE_GET_PIXEL(src->format, src_data, src_color, false);
+               _al_blend_inline_dest_zero(&src_color, src_, asrc_, &bc,
+                  &result);
+               _AL_INLINE_PUT_PIXEL(dest->format, dst_data, result, false);
+
+               _sx += sxinc;
+               dst_data += dst_inc;
+            }
+         }
+         else {
+            for (x = 0; x < xend; x++) {
+               const char * src_data = src_row
+                  + src_size * _al_fast_float_to_int(_sx);
+               _AL_INLINE_GET_PIXEL(src->format, src_data, src_color, false);
+               _AL_INLINE_GET_PIXEL(dest->format, dst_data, dst_color, false);
+               _al_blend_inline(&src_color, &dst_color,
+                  src_, dst_, asrc_, adst_, &bc, &result);
+               _AL_INLINE_PUT_PIXEL(dest->format, dst_data, result, false);
+
+               _sx += sxinc;
+               dst_data += dst_inc;
+            }
+         }
+
+         _sy += syinc;
+         _dy += dyinc;
       }
-      _sy += syinc;
-      _dy += dyinc;
    }
 
    al_unlock_bitmap(src);

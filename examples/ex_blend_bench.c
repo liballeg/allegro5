@@ -8,13 +8,43 @@
 
 #define REPEAT 300
 
-int main(void)
+enum Mode {
+   PLAIN_BLIT,
+   SCALED_BLIT
+};
+
+void step(enum Mode mode, ALLEGRO_BITMAP *b2)
 {
+   switch (mode) {
+      case PLAIN_BLIT:
+         al_draw_bitmap(b2, 0, 0, 0);
+         break;
+      case SCALED_BLIT:
+         al_draw_scaled_bitmap(b2, 0, 0, 320, 200, 0, 0, 640, 480, 0);
+         break;
+   }
+}
+
+int main(int argc, const char *argv[])
+{
+   enum Mode mode = PLAIN_BLIT;
    ALLEGRO_STATE state;
    ALLEGRO_BITMAP *b1;
    ALLEGRO_BITMAP *b2;
    double t0, t1;
    int i;
+
+   if (argc > 1) {
+      i = strtol(argv[1], NULL, 10);
+      switch (i) {
+         case 1:
+            mode = SCALED_BLIT;
+            break;
+         default:
+            mode = PLAIN_BLIT;
+            break;
+      }
+   }
 
    if (!al_init())
       return 1;
@@ -43,7 +73,7 @@ int main(void)
    al_set_target_bitmap(b1);
    al_set_blender(ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA,
       al_map_rgba_f(1, 1, 1, 0.5));
-   al_draw_bitmap(b2, 0, 0, 0);
+   step(mode, b2);
 
    /* Display the blended bitmap to the screen so we can see something. */
    al_store_state(&state, ALLEGRO_STATE_ALL);
@@ -57,7 +87,7 @@ int main(void)
 
    t0 = al_current_time();
    for (i = 0; i < REPEAT; i++) {
-      al_draw_bitmap(b2, 0, 0, 0);
+      step(mode, b2);
    }
    t1 = al_current_time();
 
