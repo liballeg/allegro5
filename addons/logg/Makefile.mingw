@@ -1,6 +1,13 @@
 include ../../makefile.name
 
-CC=gcc
+ifdef CROSSCOMPILE
+  UNIX_TOOLS = 1
+  CC = $(XPREFIX)gcc
+  AR = $(XPREFIX)ar
+else
+  CC=gcc
+  AR=ar
+endif
 PREFIX=$(MINGDIR)
 LIBS=-L. -L../../lib/mingw32/ -llogg -lvorbisfile -lvorbis -logg -l$(ALLEG_LIB_BASENAME)
 
@@ -38,7 +45,7 @@ all: lib play_ogg stream_ogg
 lib: liblogg.a
 
 liblogg.a: logg.o
-	ar rc $@ $^
+	$(AR) rc $@ $^
 	ranlib $@
 
 logg.o: logg.c logg.h
