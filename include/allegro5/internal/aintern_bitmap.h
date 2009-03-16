@@ -113,7 +113,6 @@ void _al_convert_bitmap_data(
 	int width, int height);
 void _al_convert_to_memory_bitmap(ALLEGRO_BITMAP *bitmap);
 void _al_convert_to_display_bitmap(ALLEGRO_BITMAP *bitmap);
-int _al_get_pixel_value(int src_format, ALLEGRO_COLOR *src_color);
 void _al_put_pixel(ALLEGRO_BITMAP *bitmap, int x, int y, ALLEGRO_COLOR color);
 bool _al_format_has_alpha(int format);
 bool _al_pixel_format_is_real(int format);

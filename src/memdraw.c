@@ -10,17 +10,22 @@
  *
  *      Memory bitmap drawing routines
  *
- *      Based on Michael Bukin's C drawing functions
- *      Conversion to the new API by Trent Gamblin.
+ *      Based on Michael Bukin's C drawing functions.
  *
+ *      Conversion to the new API by Trent Gamblin.
  */
 
-/* Memory bitmap drawing functions */
 
 #include "allegro5/allegro5.h"
 #include "allegro5/internal/aintern.h"
 #include "allegro5/internal/aintern_bitmap.h"
 #include "allegro5/internal/aintern_display.h"
+
+
+typedef struct {
+   float x[4];
+} float4;
+
 
 void _al_draw_pixel_memory(ALLEGRO_BITMAP *bitmap, int x, int y,
    ALLEGRO_COLOR *color)
@@ -29,55 +34,6 @@ void _al_draw_pixel_memory(ALLEGRO_BITMAP *bitmap, int x, int y,
    _al_blend(color, bitmap, x, y, &result);
    _al_put_pixel(bitmap, x, y, result);
 }
-
-#define DEFINE_PUT_PIXEL(name, size, get, set)                               \
-static void name(ALLEGRO_BITMAP *dst, void *dst_addr, int dx, int dy,        \
-   int color)                                                                \
-{                                                                            \
-   ASSERT(dst);                                                              \
-                                                                             \
-   if ((dx < dst->cl) || (dx >= dst->cr_excl) ||                             \
-       (dy < dst->ct) || (dy >= dst->cb_excl))                               \
-      return;                                                                \
-                                                                             \
-   set(dst_addr, color);                                                     \
-}
-
-
-
-#define DEFINE_HLINE(name, size, get, set)                                   \
-static void name(ALLEGRO_BITMAP *dst, unsigned char *dst_addr,               \
-   int dx1, int dy, int dx2, int color)                                      \
-{                                                                            \
-   int w;                                                                    \
-                                                                             \
-   ASSERT(dst);                                                              \
-   (void)dst;                                                                \
-   (void)dy;                                                                 \
-                                                                             \
-   w = dx2 - dx1;                                                            \
-                                                                             \
-   do {                                                                      \
-      set(dst_addr, color);                                                  \
-      dst_addr += size;                                                      \
-   } while (--w >= 0);                                                       \
-}
-
-
-DEFINE_HLINE(_hline32, 4, bmp_read32, bmp_write32)
-
-
-
-#define DO_FILLED_RECTANGLE_FAST(dst, dst_addr, func, dx, dy, w, h, value)   \
-do {                                                                         \
-   int y;                                                                    \
-   unsigned char *line_ptr = dst_addr;                                       \
-                                                                             \
-   for (y = 0; y < h; y++) {                                                 \
-      func(dst, line_ptr, dx, dy+y, dx+w-1, value);                          \
-      line_ptr += lr->pitch;                                                 \
-   }                                                                         \
-} while (0)
 
 
 /* Coordinates are inclusive full-pixel positions. So (0, 0, 0, 0) draws a
@@ -90,7 +46,8 @@ static void _al_draw_filled_rectangle_memory_fast(int x1, int y1, int x2, int y2
    ALLEGRO_LOCKED_REGION *lr;
    int w, h;
    int tmp;
-   int pixel_value;
+   int x, y;
+   unsigned char *line_ptr;
 
    bitmap = al_get_target_bitmap();
 
@@ -118,11 +75,88 @@ static void _al_draw_filled_rectangle_memory_fast(int x1, int y1, int x2, int y2
    if (w <= 0 || h <= 0)
       return;
 
-   pixel_value = _al_get_pixel_value(bitmap->format, color);
+   /* XXX what about pre-locked bitmaps? */
+   lr = al_lock_bitmap_region(bitmap, x1, y1, w, h, ALLEGRO_PIXEL_FORMAT_ANY, 0);
+   if (!lr)
+      return;
 
-   lr = al_lock_bitmap_region(bitmap, x1, y1, w, h, ALLEGRO_PIXEL_FORMAT_ARGB_8888, 0);
+   /* Write a single pixel so we can get the raw value. */
+   _al_put_pixel(bitmap, x1, y1, *color);
 
-   DO_FILLED_RECTANGLE_FAST(bitmap, lr->data, _hline32, x1, y1, w, h, pixel_value);
+   /* Fill in the region. */
+   line_ptr = lr->data;
+   switch (al_get_pixel_size(bitmap->format)) {
+      case 2: {
+         int pixel_value = bmp_read16(line_ptr);
+         for (y = y1; y < y1 + h; y++) {
+            uint16_t *data = (uint16_t *)line_ptr;
+            if (pixel_value == 0) {    /* fast path */
+               memset(data, 0, 2 * w);
+            }
+            else {
+               for (x = 0; x < w; x++) {
+                  bmp_write16(data, pixel_value);
+                  data++;
+               }
+            }
+            line_ptr += lr->pitch;
+         }
+         break;
+      }
+
+      case 3: {
+         int pixel_value = READ3BYTES(line_ptr);
+         for (y = y1; y < y1 + h; y++) {
+            unsigned char *data = (unsigned char *)line_ptr;
+            if (pixel_value == 0) {    /* fast path */
+               memset(data, 0, 3 * w);
+            }
+            else {
+               for (x = 0; x < w; x++) {
+                  WRITE3BYTES(data, pixel_value);
+                  data += 3;
+               }
+            }
+            line_ptr += lr->pitch;
+         }
+         break;
+      }
+
+      case 4: {
+         int pixel_value = bmp_read32(line_ptr);
+         for (y = y1; y < y1 + h; y++) {
+            uint32_t *data = (uint32_t *)line_ptr;
+            /* Special casing pixel_value == 0 doesn't seem to make any
+             * difference to speed, so don't bother.
+             */
+            for (x = 0; x < w; x++) {
+               bmp_write32(data, pixel_value);
+               data++;
+            }
+            line_ptr += lr->pitch;
+         }
+         break;
+      }
+
+      case sizeof(float4): {
+         float4 *data = (float4 *)line_ptr;
+         float4 pixel_value = *data;
+
+         for (y = y1; y < y1 + h; y++) {
+            data = (float4 *)line_ptr;
+            for (x = 0; x < w; x++) {
+               *data = pixel_value;
+               data++;
+            }
+            line_ptr += lr->pitch;
+         }
+         break;
+      }
+
+      default:
+        ASSERT(false);
+        break;
+   }
 
    al_unlock_bitmap(bitmap);
 }
