@@ -611,14 +611,22 @@ static AL_CONST char *gfx_depth_getter(int index, int *list_size)
 /* gfx_mode_select_filter:
  *  Extended version of the graphics mode selection dialog, which allows the 
  *  user to select the color depth as well as the resolution and hardware 
- *  driver. This version of the function reads the initial values from the 
- *  parameters when it activates, so you can specify the default values.
- *  An optional filter can be passed to check whether a particular entry
- *  should be displayed or not.
+ *  driver. An optional filter can be passed to check whether a particular
+ *  entry should be displayed or not. Initial values for the selections may be
+ *  given at the addresses passed to the function, and the user's selection
+ *  will be stored at those addresses if the dialog is OK'd. Initial values
+ *  at the addresses passed to the function may be set to 0 or -1 to indicate
+ *  not to search for the values but to default to the first entries in each 
+ *  selection list.
+ *  In the case of an error, *card is set to GFX_NONE and FALSE is returned.
+ *  In the case that the filter filtered out all of the modes, *card is set to
+ *  GFX_NONE and TRUE is returned.
  */
 int gfx_mode_select_filter(int *card, int *w, int *h, int *color_depth, FILTER_FUNCTION filter)
 {
    int i, ret, what_driver, what_mode, what_bpp, extd;
+   MODE_LIST* mode_iter;
+   
    ASSERT(card);
    ASSERT(w);
    ASSERT(h);
@@ -647,43 +655,49 @@ int gfx_mode_select_filter(int *card, int *w, int *h, int *color_depth, FILTER_F
       return TRUE;
    }
 
-   /* We try to use the values passed through the argument pointers
-    * as initial settings for the dialog boxes, but only if we have
-    * been called from the extended function.
+   /* The data stored at the addresses passed to this function is used to
+    * search for initial selections in the dialog lists. If the requested
+    * entries are not found, default to the first selection in each list in
+    * order of the driver, the mode w/h, and also the color depth when in
+    * extended mode (called directly or from gfx_mode_select_ex).
     */
-   if (extd) {
-      /* firstly the driver */
-      what_dialog[GFX_DRIVERLIST].d1 = 0;  /* GFX_AUTODETECT */
-
-      for (i=0; i<driver_count; i++) {
+   /* Check for the user suggested driver first */
+   what_driver = 0;/* Default to first entry if not found */
+   /* Don't search for initial values if *card is 0 or -1 */
+   if (!((*card == 0) || (*card == -1))) {
+      for (i = 0 ; i < driver_count ; ++i) {
          if (driver_list[i].id == *card) {
-            what_dialog[GFX_DRIVERLIST].d1 = i;
+            what_driver = i;
+         }
+      }
+   }
+   what_dialog[GFX_DRIVERLIST].d1 = what_driver;
+   what_dialog[GFX_CHANGEPROC].d1 = what_driver;
+   
+   /* Check for suggested resolution dimensions second */
+   what_mode = 0;/* Default to first entry if not found */
+   mode_iter = &(driver_list[what_driver].mode_list[0]);
+   /* Don't search for initial values if *w or *h is 0 or -1 */
+   if (!(((*w == 0) || (*w == -1)) || ((*h == 0) || (*h == -1)))) {
+      for (i = 0 ; i < driver_list[what_driver].mode_count ; ++i) {
+         if ((mode_iter->w == *w) && (mode_iter->h == *h)) {
+            what_mode = i;
             break;
          }
+         ++mode_iter;
       }
-
-      what_driver = what_dialog[GFX_DRIVERLIST].d1;
-      what_dialog[GFX_CHANGEPROC].d1 = what_dialog[GFX_DRIVERLIST].d1;
-
-      /* secondly the resolution */
-      what_dialog[GFX_MODELIST].d1 = 0;
-
-      for (i=0; driver_list[what_driver].mode_list[i].w; i++) {
-         if ((driver_list[what_driver].mode_list[i].w == *w)
-              && (driver_list[what_driver].mode_list[i].h == *h)) {
-            what_dialog[GFX_MODELIST].d1 = i;
-            break; 
-         }
+   }
+   what_dialog[GFX_MODELIST].d1 = what_mode;
+   what_dialog[GFX_CHANGEPROC].d2 = what_mode;
+   
+   /* Check for suggested color depth when in extended mode */
+   if (extd) {
+      what_bpp = 0;
+      /* Don't search for initial values if *color_depth is 0 or -1 */
+      if (!((*color_depth == 0) || (*color_depth == -1))) {
+         what_bpp = bpp_index_for_mode(*color_depth , what_driver , what_mode);
+         if (what_bpp < 0) {what_bpp = 0;} /* Default to first entry if not found */
       }
-
-      what_mode = what_dialog[GFX_MODELIST].d1;
-      what_dialog[GFX_CHANGEPROC].d2 = what_dialog[GFX_MODELIST].d1;  /* not d2 */
-
-      /* thirdly the color depth */
-      what_bpp = bpp_index_for_mode(*color_depth, what_driver, what_mode);
-      if (what_bpp < 0)
-         what_bpp = 0;
-
       what_dialog[GFX_DEPTHLIST].d1 = what_bpp;
    }
 
@@ -699,13 +713,14 @@ int gfx_mode_select_filter(int *card, int *w, int *h, int *color_depth, FILTER_F
    else
       what_bpp = 0;
 
-   *card = driver_list[what_driver].id;
-
-   *w = driver_list[what_driver].mode_list[what_mode].w;
-   *h = driver_list[what_driver].mode_list[what_mode].h;
-
-   if (extd)
-      *color_depth = bpp_value_for_mode(what_bpp, what_driver, what_mode);
+   if (ret != GFX_CANCEL) {
+      *card = driver_list[what_driver].id;
+      *w = driver_list[what_driver].mode_list[what_mode].w;
+      *h = driver_list[what_driver].mode_list[what_mode].h;
+      if (extd) {
+         *color_depth = bpp_value_for_mode(what_bpp, what_driver, what_mode);
+      }
+   }
 
    destroy_driver_list();
 
@@ -718,10 +733,12 @@ int gfx_mode_select_filter(int *card, int *w, int *h, int *color_depth, FILTER_F
 
 
 /* gfx_mode_select_ex:
- *  Extended version of the graphics mode selection dialog, which allows the 
- *  user to select the color depth as well as the resolution and hardware 
- *  driver. This version of the function reads the initial values from the 
- *  parameters when it activates, so you can specify the default values.
+ *  Extended version of the graphics mode selection dialog, which allows the
+ *  user to select the color depth as well as the resolution and hardware
+ *  driver. Initial values for the selections will be looked for at the
+ *  addresses passed to the function, and selections will be stored there if
+ *  the user does not cancel the dialog. See gfx_mode_select_filter for
+ *  details and return values.
  */
 int gfx_mode_select_ex(int *card, int *w, int *h, int *color_depth)
 {
@@ -736,22 +753,17 @@ int gfx_mode_select_ex(int *card, int *w, int *h, int *color_depth)
 
 /* gfx_mode_select:
  *  Displays the Allegro graphics mode selection dialog, which allows the
- *  user to select a screen mode and graphics card. Stores the selection
- *  in the three variables, and returns zero if it was closed with the 
- *  Cancel button, or non-zero if it was OK'd.
+ *  user to select a screen mode and graphics card. Initial values for the
+ *  selection will be looked for at the addresses passed to the function, and
+ *  the selection will be stored in the three variables if the dialog is not
+ *  cancelled. See gfx_mode_select_filter for details and return values.
  */
 int gfx_mode_select(int *card, int *w, int *h)
 {
    ASSERT(card);
    ASSERT(w);
    ASSERT(h);
-
-   /* Make sure these values are not used uninitialised.
-    * This is different to the other gfx_mode_select_* functions.
-    */
-   *card = GFX_AUTODETECT;
-   *w = 0;
-   *h = 0;
-
    return gfx_mode_select_filter(card, w, h, NULL, NULL);
 }
+
+

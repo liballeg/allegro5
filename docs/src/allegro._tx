@@ -13214,30 +13214,44 @@ ensure there is room for the check.
 @xref gfx_mode_select_ex, gfx_mode_select_filter, set_gfx_mode, gui_fg_color
 @shortdesc Displays the Allegro graphics mode selection dialog.
    Displays the Allegro graphics mode selection dialog, which allows the 
-   user to select a screen mode and graphics card. Stores the selection in 
-   the three variables, and returns zero if it was closed with the Cancel 
-   button or non-zero if it was OK'd.
-   If an error occurred, `card' will be set to GFX_NONE and zero will be
-   returned.
-
-   The initial values of card, w, h are not used.
+   user to select a screen mode and graphics card.
+   
+   The initial values at the addresses provided by card, w, and h are used as
+   the default selections in the dialog if they are found in the driver and
+   mode lists. If they are not found then the initial selections will be the
+   first in each list. If you wish to ensure that the initial selection is
+   always the first entry, then initialize the data at the addresses passed
+   to the function to the value of 0 or -1.
+   
+   If the dialog is OK'd, it stores the selections at the addresses passed to
+   the function.
+@retval
+   See the gfx_mode_select_filter function for the return values.
 
 @@int @gfx_mode_select_ex(int *card, int *w, int *h, int *color_depth);
 @xref gfx_mode_select, gfx_mode_select_filter, set_color_depth, set_gfx_mode
 @xref gui_fg_color
 @eref ex3d, exscn3d, exswitch, exupdate, exzbuf
 @shortdesc Extended version of the graphics mode selection dialog.
-   Extended version of the graphics mode selection dialog, which allows the 
-   user to select the color depth as well as the resolution and hardware 
-   driver.
+   Extended version of the graphics mode selection dialog, which also allows
+   the user to select the color depth.
    
-   This version of the function reads the initial values from the 
-   parameters when it activates so you can specify the default values.
-   In fact, you should be sure not to pass in uninitialised values.
+   As with gfx_mode_select, the values stored at the addresses passed to the
+   function will be used as suggestions for the initial selections in the
+   dialog, defaulting to the first entry in each list if the values are not
+   found. Initialize the data stored at the addresses passed to the function
+   to the value of 0 or -1 if you want to ensure that the initial selection
+   for each list will be the first entry.
+
+   If the dialog is OK'd, it stores the selections at the addresses passed to
+   the function.
+@retval
+   See the gfx_mode_select_filter function for the return values.
 
 @\int @gfx_mode_select_filter(int *card, int *w, int *h, int *color_depth,
 @@                            int (*filter)(int, int, int, int));
-@xref gfx_mode_select, gfx_mode_select_ex, set_color_depth, set_gfx_mode, gui_fg_color
+@xref gfx_mode_select, gfx_mode_select_ex, set_color_depth, set_gfx_mode
+@xref gui_fg_color
 @shortdesc Even more extended version of the graphics mode selection dialog.
    Even more extended version of the graphics mode selection dialog, which
    allows the programmer to customize the contents of the dialog and the user
@@ -13246,12 +13260,44 @@ ensure there is room for the check.
    return 0 to let the specified quadruplet be added to the list of displayed
    modes.
 
-   This version of the function reads the initial values from the 
-   parameters when it activates so you can specify the default values.
-   In fact, you should be sure not to pass in uninitialised values.
+   As with gfx_mode_select, the values stored at the addresses passed to the
+   function will be used as suggestions for the initial selections in the
+   dialog, defaulting to the first entry in each list if the values are not
+   found. Initialize the data stored at the addresses passed to the function
+   to the value of 0 or -1 if you want to ensure that the initial selection
+   for each list will be the first entry.
 
-   If all the modes were filtered out and the resulting list was empty, `card'
-   will be set to GFX_NONE and non-zero will be returned.
+   If the dialog is OK'd, it stores the selections at the addresses passed to
+   the function.
+
+   Example usage :
+<codeblock>
+   ret = gfx_mode_select_filter(&card, &w, &h, &color_depth, user_filter);
+   if (ret) {/* User okayed dialog or user_filter removed all modes */
+      if (card == GFX_NONE) {
+         // No modes available
+         *card = 0;/* Make sure not to leave *card == GFX_NONE */
+         return -1;
+      }
+      /* Handle changing to new mode here... */
+      
+   } else {/* User cancelled dialog or there was an error (unlikely) */
+      if (card == GFX_NONE) {
+         /* Error, probably out of memory */
+         *card = 0;/* Make sure not to leave *card == GFX_NONE */
+         return -2;
+      }
+      /* Carry on in current graphics mode if that is acceptable */
+   }
+<endblock>
+@retval
+   Returns zero if the user cancelled the dialog or an error occurred. In the
+   case of an error then *card is assigned the value GFX_NONE. The functions
+   return non-zero if the user made a selection OR if all the modes were
+   filtered out. In the case that all of the modes were filtered out, then
+   *card is assigned the value GFX_NONE. This means you should NOT initialize
+   the *card to the value of GFX_NONE, as it could interfere with determining
+   the proper return value.
 
 @@extern int (*@gui_shadow_box_proc)(int msg, struct DIALOG *d, int c);
 @@extern int (*@gui_ctext_proc)(int msg, struct DIALOG *d, int c);

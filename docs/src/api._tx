@@ -38,6 +38,14 @@ Introduction
    only by the revision (3rd) number will be strictly backward compatible.
 
 @heading
+Changes between 4.2.x and 4.4.x series
+<ul><li>
+   The output parameters to gfx_mode_select should be initialized in
+   4.4.x as they are used for the initial selection now.
+</ul>
+
+
+@heading
 Changes between 4.0.x and 4.2.x series
 <ul><li>
    The 'aspect' parameter of get_camera_matrix() and get_camera_matrix_f()
