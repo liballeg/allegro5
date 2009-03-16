@@ -7,6 +7,7 @@
  *    Press 't' to toggle translucency.
  *    Press 'h' to toggle horizontal flipping.
  *    Press 'v' to toggle vertical flipping.
+ *    Press 'c' to toggle clipping.
  */
 
 
@@ -37,6 +38,7 @@ int main(void)
    bool mem_src_mode = false;
    bool trans_mode = false;
    int flags = 0;
+   bool clip_mode = false;
 
    if (!al_init()) {
       TRACE("Could not init Allegro.\n");
@@ -94,6 +96,8 @@ int main(void)
                flags ^= ALLEGRO_FLIP_HORIZONTAL;
             if (event.keyboard.unichar == 'v')
                flags ^= ALLEGRO_FLIP_VERTICAL;
+            if (event.keyboard.unichar == 'c')
+               clip_mode = !clip_mode;
          }
       }
 
@@ -122,6 +126,15 @@ int main(void)
       if (trans_mode) {
          al_set_blender(ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA,
             al_map_rgba_f(1, 1, 1, 0.5));
+      }
+
+      if (clip_mode) {
+         al_set_clipping_rectangle(50, 50,
+            al_get_display_width() - 100, al_get_display_height() - 100);
+      }
+      else {
+         al_set_clipping_rectangle(0, 0,
+            al_get_display_width(), al_get_display_height());
       }
 
       al_draw_scaled_bitmap(src_bmp,
