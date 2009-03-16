@@ -19,6 +19,11 @@
 # the name of the target operating system
 set(CMAKE_SYSTEM_NAME Windows)
 
+# Assume the target architecture.
+# XXX for some reason the value set here gets cleared before we reach the
+# main CMakeLists.txt; see that file for a workaround.
+# set(CMAKE_SYSTEM_PROCESSOR i686)
+
 # Which compilers to use for C and C++, and location of target
 # environment.
 if(EXISTS /usr/i586-mingw32msvc)

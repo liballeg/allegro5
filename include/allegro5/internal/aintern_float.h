@@ -14,13 +14,12 @@
  * Efficient on x86 platform
  *
  * Note that it does not truncate like (int)f.
- * Other architectures may not benefit from this so we just
- * use it on x86.
  *
- * XXX this is actually a pessimisation depending on the target architecture
- * and compiler settings
+ * The SSE instruction CVTTSS2SI is faster, and the compiler should
+ * automatically use it if you allow it to.  Hence this trick is only useful
+ * when compatibility with Pentium 3's and below is required.
  */
-#if defined(ALLEGRO_I386)
+#if defined(ALLEGRO_I386) && !defined(ALLEGRO_CFG_ALLOW_SSE)
 
    union _al_UFloatInt {
       int32_t i;
@@ -39,7 +38,7 @@
 
    #define _al_fast_float_to_int(f)  ((int)(f))
 
-#endif   /* _al_fast_float_to_int */
+#endif
 
 
 #endif   /* __al_included_aintern_float_h */

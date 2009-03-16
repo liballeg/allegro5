@@ -113,6 +113,7 @@ option(STRICT_WARN "Halt at warnings" off)
 # Minor options.
 #
 
+option(WANT_ALLOW_SSE "Allow compiler to use SSE instructions (x86)" on)
 option(WANT_MAGIC_MAIN "Enable magic main" off)
 option(NO_FPU "No floating point unit" off)
 
@@ -211,6 +212,39 @@ endif(APPLE)
 if(BORLAND)
     set(ALLEGRO_BCC32 1)
 endif(BORLAND)
+
+# Tell the compiler it can use SSE instructions on x86 architectures.
+# If compatibility with Pentium 3's and below is required then the user
+# should switch WANT_ALLOW_SSE off.
+
+# Workaround for a possible bug in CMake.  Even if we set this variable in
+# the toolchain file when cross-compiling, as we should, it is empty.
+if(NOT CMAKE_SYSTEM_PROCESSOR AND CMAKE_SYSTEM_NAME STREQUAL Windows)
+    set(CMAKE_SYSTEM_PROCESSOR i686)
+endif()
+
+if(CMAKE_SYSTEM_PROCESSOR MATCHES "i.86")
+    set(ARCH_X86 1)
+endif()
+
+if(ARCH_X86 AND WANT_ALLOW_SSE)
+    set(ALLEGRO_CFG_ALLOW_SSE 1)
+
+    if(COMPILER_GCC)
+        message(STATUS "Allowing GCC to use SSE instructions")
+        set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -msse")
+        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -msse")
+    endif(COMPILER_GCC)
+
+    # Flags for other compilers should be added here.
+
+    # To be confirmed.
+    # if(COMPILER_MSVC)
+    #     message(STATUS "Allowing MSVC to use SSE instructions")
+    #     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /arch:SSE")
+    #     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /arch:SSE")
+    # endif(COMPILER_MSVC)
+endif()
 
 #-----------------------------------------------------------------------------#
 #
