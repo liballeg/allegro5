@@ -835,33 +835,51 @@ do {                                                                         \
          }                                                                   \
                                                                              \
    {                                                                         \
-      int c;                                                                 \
-      int x;                                                                 \
-      /*unsigned char *addr;                                                 \
-      unsigned char *end_addr;*/                                             \
-      int my_r_bmp_x_i = r_bmp_x_rounded >> 16;                              \
-      int my_l_bmp_x_i = l_bmp_x_rounded >> 16;                              \
+      const int my_r_bmp_x_i = r_bmp_x_rounded >> 16;                        \
+      const int my_l_bmp_x_i = l_bmp_x_rounded >> 16;                        \
       fixed my_l_spr_x = l_spr_x_rounded;                                    \
       fixed my_l_spr_y = l_spr_y_rounded;                                    \
-      int startx = my_l_bmp_x_i;                                             \
-      int endx = my_r_bmp_x_i;                                               \
-      /*addr = dst_region.data+(bmp_y_i-clip_top_i)*dst_region.pitch;*/      \
-      /* adjust for locking offset */                                        \
-      /*addr -= (clip_left >> 16) * dsize;                                   \
-      end_addr = addr + my_r_bmp_x_i * dsize;                                \
-      addr += my_l_bmp_x_i * dsize;*/                                        \
-      /*for (; addr < end_addr; addr += dsize) {*/                           \
-      /* XXX optimise this */                                                \
-      for (x = 0; x < endx-startx; x++) {                                    \
-         src_color = al_get_pixel(src, my_l_spr_x>>16, my_l_spr_y>>16);      \
-         _al_blend(&src_color, dst, x+my_l_bmp_x_i, bmp_y_i, &result);       \
-         _al_put_pixel(dst, x+my_l_bmp_x_i, bmp_y_i, result);                \
-         (void) c;                                                           \
-         /*c = get(src_region.data+(my_l_spr_y>>16)*src_region.pitch+ssize*(my_l_spr_x>>16));\
-         c = convert(c);                                                     \
-         set(addr, c);*/                                                     \
-         my_l_spr_x += spr_dx;                                               \
-         my_l_spr_y += spr_dy;                                               \
+      int src_, dst_, asrc_, adst_;                                          \
+      ALLEGRO_COLOR bc;                                                      \
+      const int src_size = al_get_pixel_size(src->format);                   \
+      char *dst_data;                                                        \
+      ALLEGRO_COLOR dst_color = {0, 0, 0, 0};   /* avoid bogus warning */    \
+      int x;                                                                 \
+                                                                             \
+      al_get_separate_blender(&src_, &dst_, &asrc_, &adst_, &bc);            \
+                                                                             \
+      dst_data = dst_region->data                                            \
+         + dst_region->pitch * (bmp_y_i - clip_top_i)                        \
+         + al_get_pixel_size(dst->format) * (my_l_bmp_x_i - (clip_left>>16));\
+                                                                             \
+      if (dst_ == ALLEGRO_ZERO) {                                            \
+         for (x = my_l_bmp_x_i; x < my_r_bmp_x_i; x++) {                     \
+            const char *src_data = src_region->data                          \
+                  + src_region->pitch * (my_l_spr_y>>16)                     \
+                  + src_size * (my_l_spr_x>>16);                             \
+            _AL_INLINE_GET_PIXEL(src->format, src_data, src_color, false);   \
+            _al_blend_inline_dest_zero(&src_color, src_, asrc_, &bc,         \
+               &result);                                                     \
+            _AL_INLINE_PUT_PIXEL(dst->format, dst_data, result, true);       \
+                                                                             \
+            my_l_spr_x += spr_dx;                                            \
+            my_l_spr_y += spr_dy;                                            \
+         }                                                                   \
+      }                                                                      \
+      else {                                                                 \
+         for (x = my_l_bmp_x_i; x < my_r_bmp_x_i; x++) {                     \
+            const char *src_data = src_region->data                          \
+                  + src_region->pitch * (my_l_spr_y>>16)                     \
+                  + src_size * (my_l_spr_x>>16);                             \
+            _AL_INLINE_GET_PIXEL(src->format, src_data, src_color, false);   \
+            _AL_INLINE_GET_PIXEL(dst->format, dst_data, dst_color, false);   \
+            _al_blend_inline(&src_color, &dst_color,                         \
+               src_, dst_, asrc_, adst_, &bc, &result);                      \
+            _AL_INLINE_PUT_PIXEL(dst->format, dst_data, result, true);       \
+                                                                             \
+            my_l_spr_x += spr_dx;                                            \
+            my_l_spr_y += spr_dy;                                            \
+         }                                                                   \
       }                                                                      \
    }                                                                         \
                                                                              \

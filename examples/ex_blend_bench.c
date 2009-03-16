@@ -10,7 +10,8 @@
 
 enum Mode {
    PLAIN_BLIT,
-   SCALED_BLIT
+   SCALED_BLIT,
+   ROTATE_BLIT
 };
 
 void step(enum Mode mode, ALLEGRO_BITMAP *b2)
@@ -21,6 +22,10 @@ void step(enum Mode mode, ALLEGRO_BITMAP *b2)
          break;
       case SCALED_BLIT:
          al_draw_scaled_bitmap(b2, 0, 0, 320, 200, 0, 0, 640, 480, 0);
+         break;
+      case ROTATE_BLIT:
+         al_draw_rotated_scaled_bitmap(b2, 10, 10, 10, 10, 2.0, 2.0,
+            ALLEGRO_PI/30, 0);
          break;
    }
 }
@@ -39,6 +44,9 @@ int main(int argc, const char *argv[])
       switch (i) {
          case 1:
             mode = SCALED_BLIT;
+            break;
+         case 2:
+            mode = ROTATE_BLIT;
             break;
          default:
             mode = PLAIN_BLIT;
