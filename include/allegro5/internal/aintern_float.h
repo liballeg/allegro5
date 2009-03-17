@@ -17,7 +17,7 @@
  *
  * The SSE instruction CVTTSS2SI is faster, and the compiler should
  * automatically use it if you allow it to.  Hence this trick is only useful
- * when compatibility with Pentium 3's and below is required.
+ * when compatibility with Pentium 2's and below is required.
  */
 #if defined(ALLEGRO_I386) && !defined(ALLEGRO_CFG_ALLOW_SSE)
 

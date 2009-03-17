@@ -214,7 +214,7 @@ if(BORLAND)
 endif(BORLAND)
 
 # Tell the compiler it can use SSE instructions on x86 architectures.
-# If compatibility with Pentium 3's and below is required then the user
+# If compatibility with Pentium 2's and below is required then the user
 # should switch WANT_ALLOW_SSE off.
 
 # Workaround for a possible bug in CMake.  Even if we set this variable in
