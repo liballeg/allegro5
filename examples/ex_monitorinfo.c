@@ -5,7 +5,7 @@ int main(void)
 {
    ALLEGRO_MONITOR_INFO info;
    int num_adapters;
-   int i;
+   int i, j;
 
    if (!al_init()) {
       TRACE("Could not init Allegro.\n");
@@ -20,6 +20,16 @@ int main(void)
       al_get_monitor_info(i, &info);
       printf("Adapter %d: ", i);
       printf("(%d, %d) - (%d, %d)\n", info.x1, info.y1, info.x2, info.y2);
+      al_set_current_video_adapter(i);
+      printf("   Available fullscreen display modes:\n");
+      for (j = 0; j < al_get_num_display_modes(); j++) {
+         ALLEGRO_DISPLAY_MODE mode;
+
+         al_get_display_mode(j, &mode);
+
+         printf("   Mode %3d: %4d x %4d, %d Hz\n",
+            j, mode.width, mode.height, mode.refresh_rate);
+      }
    }
 
    return 0;
