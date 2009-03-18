@@ -31,7 +31,7 @@ name extension including the leading dot.
 
 ## API: iio_load_bmp
 
-Create a new ALLEGRO_BITMAP from a PCX file. The bitmap is created with
+Create a new ALLEGRO_BITMAP from a BMP file. The bitmap is created with
 [al_create_bitmap].
 
 See Also: [al_iio_load].
@@ -66,7 +66,7 @@ See Also: [al_iio_load].
 
 ## API: iio_save_bmp
 
-Save an ALLEGRO_BITMAP as a PCX file. 
+Save an ALLEGRO_BITMAP as a BMP file.
 
 See Also: [al_iio_save].
 
