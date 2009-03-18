@@ -32,11 +32,11 @@
    extern "C" {
 #endif
 
-/*
- * Event type tags
- */
 
+/* Type: ALLEGRO_EVENT_TYPE
+ */
 typedef unsigned int ALLEGRO_EVENT_TYPE;
+
 
 /* Enum: ALLEGRO_EVENT_TYPE
  *
@@ -132,8 +132,16 @@ enum
    ALLEGRO_EVENT_DISPLAY_SWITCH_OUT          = 46
 };
 
+
+/* ALLEGRO_EVENT_TYPE_IS_USER
+ * Not sure if this should be official part of the API or not.
+ */
 #define ALLEGRO_EVENT_TYPE_IS_USER(t)        ((t) >= 1024)
-#define ALLEGRO_GET_EVENT_TYPE               AL_ID
+
+
+/* Function: ALLEGRO_GET_EVENT_TYPE
+ */
+#define ALLEGRO_GET_EVENT_TYPE(a, b, c, d)   AL_ID(a, b, c, d)
 
 
 /*

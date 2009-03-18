@@ -94,6 +94,20 @@ Fields: mouse.x, mouse.y, mouse.z, mouse.button.
 
 ## API: ALLEGRO_EVENT_TYPE
 
+An integer used to distinguish between different types of events.
+
+## API: ALLEGRO_GET_EVENT_TYPE
+
+Make an event type identifier, which is a 32-bit integer.
+Usually this will be made from four 8-bit character codes, for example:
+
+    #define MY_EVENT_TYPE   ALLEGRO_GET_EVENT_TYPE('M','I','N','E')
+
+You should try to make your IDs unique so they don't clash with any 3rd party
+code you may be using.
+
+IDs less than 1024 are reserved for Allegro or its addons.
+
 ## API: al_create_event_queue
 
 Create a new, empty event queue, returning a pointer to object if
