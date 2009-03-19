@@ -92,7 +92,7 @@ static ALLEGRO_AUDIO_DEPTH _get_depth_enum(int format, int *word_size)
    }
 }
 
-_sf_private *_sf_open_private(AL_CONST char *filename)
+static _sf_private *_sf_open_private(AL_CONST char *filename)
 {
    _sf_private *priv = NULL;
    SF_VIRTUAL_IO vio;
@@ -132,7 +132,7 @@ _sf_open_private_fatal:
    return NULL;
 }
 
-void _sf_close_private(_sf_private *priv)
+static void _sf_close_private(_sf_private *priv)
 {
    ASSERT(priv);
 
