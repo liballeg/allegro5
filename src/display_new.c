@@ -171,12 +171,12 @@ void al_clear(ALLEGRO_COLOR color)
    ALLEGRO_BITMAP *target = al_get_target_bitmap();
 
    ASSERT(target);
-   ASSERT(display);
 
    if (target->flags & ALLEGRO_MEMORY_BITMAP) {
       _al_clear_memory(&color);
    }
    else {
+      ASSERT(display);
       display->vt->clear(display, &color);
    }
 }
