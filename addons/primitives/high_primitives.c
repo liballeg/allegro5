@@ -102,11 +102,11 @@ void al_draw_line(float x1, float y1, float x2, float y2,
       
       if (!al_lock_vbuff_range(cache_buffer, 0, 4, ALLEGRO_VBUFFER_WRITE))
          return;
-         
-      al_set_vbuff_pos(cache_buffer, 0, x1 - tx, y1 - ty, 0);
-      al_set_vbuff_pos(cache_buffer, 1, x1 + tx, y1 + ty, 0);
-      al_set_vbuff_pos(cache_buffer, 2, x2 + tx, y2 + ty, 0);
-      al_set_vbuff_pos(cache_buffer, 3, x2 - tx, y2 - ty, 0);
+            
+      al_set_vbuff_pos(cache_buffer, 0, x1 + tx, y1 + ty, 0);   
+      al_set_vbuff_pos(cache_buffer, 1, x1 - tx, y1 - ty, 0);
+      al_set_vbuff_pos(cache_buffer, 2, x2 - tx, y2 - ty, 0);
+      al_set_vbuff_pos(cache_buffer, 3, x2 + tx, y2 + ty, 0);
       
       for (ii = 0; ii < 4; ii++)
          al_set_vbuff_color(cache_buffer, ii, color);
@@ -176,17 +176,17 @@ void al_draw_triangle(float x1, float y1, float x2, float y2,
       vert_x3 = x3 - incenter_x;
       vert_y3 = y3 - incenter_y;
 
-      al_set_vbuff_pos(cache_buffer, 0, incenter_x + vert_x1 * outer_frac, incenter_y + vert_y1 * outer_frac, 0);
-      al_set_vbuff_pos(cache_buffer, 1, incenter_x + vert_x1 * inner_frac, incenter_y + vert_y1 * inner_frac, 0);
+      al_set_vbuff_pos(cache_buffer, 1, incenter_x + vert_x1 * outer_frac, incenter_y + vert_y1 * outer_frac, 0);
+      al_set_vbuff_pos(cache_buffer, 0, incenter_x + vert_x1 * inner_frac, incenter_y + vert_y1 * inner_frac, 0);
       
-      al_set_vbuff_pos(cache_buffer, 2, incenter_x + vert_x2 * outer_frac, incenter_y + vert_y2 * outer_frac, 0);
-      al_set_vbuff_pos(cache_buffer, 3, incenter_x + vert_x2 * inner_frac, incenter_y + vert_y2 * inner_frac, 0);
+      al_set_vbuff_pos(cache_buffer, 3, incenter_x + vert_x2 * outer_frac, incenter_y + vert_y2 * outer_frac, 0);
+      al_set_vbuff_pos(cache_buffer, 2, incenter_x + vert_x2 * inner_frac, incenter_y + vert_y2 * inner_frac, 0);
       
-      al_set_vbuff_pos(cache_buffer, 4, incenter_x + vert_x3 * outer_frac, incenter_y + vert_y3 * outer_frac, 0);
-      al_set_vbuff_pos(cache_buffer, 5, incenter_x + vert_x3 * inner_frac, incenter_y + vert_y3 * inner_frac, 0);
+      al_set_vbuff_pos(cache_buffer, 5, incenter_x + vert_x3 * outer_frac, incenter_y + vert_y3 * outer_frac, 0);
+      al_set_vbuff_pos(cache_buffer, 4, incenter_x + vert_x3 * inner_frac, incenter_y + vert_y3 * inner_frac, 0);
       
-      al_set_vbuff_pos(cache_buffer, 6, incenter_x + vert_x1 * outer_frac, incenter_y + vert_y1 * outer_frac, 0);
-      al_set_vbuff_pos(cache_buffer, 7, incenter_x + vert_x1 * inner_frac, incenter_y + vert_y1 * inner_frac, 0);
+      al_set_vbuff_pos(cache_buffer, 7, incenter_x + vert_x1 * outer_frac, incenter_y + vert_y1 * outer_frac, 0);
+      al_set_vbuff_pos(cache_buffer, 6, incenter_x + vert_x1 * inner_frac, incenter_y + vert_y1 * inner_frac, 0);
       
       for (ii = 0; ii < 8; ii++)
          al_set_vbuff_color(cache_buffer, ii, color);
@@ -295,9 +295,9 @@ void al_draw_filled_rectangle(float x1, float y1, float x2, float y2,
       return;
       
    al_set_vbuff_pos(cache_buffer, 0, x1, y1, 0);
-   al_set_vbuff_pos(cache_buffer, 1, x2, y1, 0);
+   al_set_vbuff_pos(cache_buffer, 3, x2, y1, 0);
    al_set_vbuff_pos(cache_buffer, 2, x2, y2, 0);
-   al_set_vbuff_pos(cache_buffer, 3, x1, y2, 0);
+   al_set_vbuff_pos(cache_buffer, 1, x1, y2, 0);
    
    al_set_vbuff_color(cache_buffer, 0, color);
    al_set_vbuff_color(cache_buffer, 1, color);
@@ -317,9 +317,9 @@ void al_calculate_arc(ALLEGRO_VBUFFER* vbuff, float cx, float cy,
 {   
    int need_unlock = 0;
    float theta;
-   float tangetial_factor;
-   float radial_factor;
-   float x, y;
+   float c;
+   float s;
+   float x, y, t;
    int ii;
  
    ASSERT(vbuff);
@@ -329,8 +329,8 @@ void al_calculate_arc(ALLEGRO_VBUFFER* vbuff, float cx, float cy,
 
    if (thickness > 0.0f) {
       theta = delta_theta / ((float)(num_segments) - 1);
-      tangetial_factor = tanf(theta);
-      radial_factor = cosf(theta);
+      c = cosf(theta);
+      s = sinf(theta);
       x = cosf(start_theta);
       y = sinf(start_theta);
       
@@ -350,19 +350,13 @@ void al_calculate_arc(ALLEGRO_VBUFFER* vbuff, float cx, float cy,
          */
          float r1 = rx - thickness / 2.0f;
          float r2 = rx + thickness / 2.0f;
-         float tx, ty;
          for (ii = 0; ii < num_segments; ii ++) {
-            al_set_vbuff_pos(vbuff, 2 * ii + start, r1 * x + cx, r1 * y + cy, 0);
-            al_set_vbuff_pos(vbuff, 2 * ii + 1 + start, r2 * x + cx, r2 * y + cy, 0);
+            al_set_vbuff_pos(vbuff, 2 * ii + start, r2 * x + cx, r2 * y + cy, 0);
+            al_set_vbuff_pos(vbuff, 2 * ii + 1 + start, r1 * x + cx, r1 * y + cy, 0);
             
-            tx = -y;
-            ty = x;
-            
-            x += tx * tangetial_factor;
-            y += ty * tangetial_factor;
-            
-            x *= radial_factor;
-            y *= radial_factor;
+            t = x;
+            x = c * x - s * y;
+            y = s * t + c * y;
          }
       } else {
          if (rx != 0 && !ry == 0) {
@@ -370,26 +364,20 @@ void al_calculate_arc(ALLEGRO_VBUFFER* vbuff, float cx, float cy,
                float denom = (float)hypot(ry * x, rx * y);
                float nx = thickness / 2 * ry * x / denom;
                float ny = thickness / 2 * rx * y / denom;
-               float tx, ty;
 
                al_set_vbuff_pos(vbuff, 2 * ii + start, rx * x + cx + nx, ry * y + cy + ny, 0);
                al_set_vbuff_pos(vbuff, 2 * ii + 1 + start, rx * x + cx - nx, ry * y + cy - ny, 0);
 
-               tx = -y;
-               ty = x;
-
-               x += tx * tangetial_factor;
-               y += ty * tangetial_factor;
-               
-               x *= radial_factor;
-               y *= radial_factor;
+               t = x;
+               x = c * x - s * y;
+               y = s * t + c * y;
             }
          }
       }
    } else {
       theta = delta_theta / ((float)num_segments - 1);
-      tangetial_factor = tanf(theta);
-      radial_factor = cosf(theta);
+      c = cosf(theta);
+      s = sinf(theta);
       x = cosf(start_theta);
       y = sinf(start_theta);
       
@@ -403,17 +391,11 @@ void al_calculate_arc(ALLEGRO_VBUFFER* vbuff, float cx, float cy,
       }
       
       for (ii = 0; ii < num_segments; ii++) {
-         float tx, ty;
          al_set_vbuff_pos(vbuff, ii + start, rx * x + cx, ry * y + cy, 0);
 
-         tx = -y;
-         ty = x;
-
-         x += tx * tangetial_factor;
-         y += ty * tangetial_factor;
-         
-         x *= radial_factor;
-         y *= radial_factor;
+         t = x;
+         x = c * x - s * y;
+         y = s * t + c * y;
       }
    }
    
@@ -719,8 +701,8 @@ void al_calculate_ribbon(ALLEGRO_VBUFFER* vbuff, const float *points,
             tx = -t * cur_dir_y;
             ty = t * cur_dir_x;
             
-            al_set_vbuff_pos(vbuff, start + ii, x + tx, y + ty, 0);
-            al_set_vbuff_pos(vbuff, start + ii + 1, x - tx, y - ty, 0);
+            al_set_vbuff_pos(vbuff, start + ii, x - tx, y - ty, 0);
+            al_set_vbuff_pos(vbuff, start + ii + 1, x + tx, y + ty, 0);
          } else {
             float norm_len, new_norm_len, cosine;
             tx = cur_dir_x - prev_dir_x;
@@ -736,8 +718,8 @@ void al_calculate_ribbon(ALLEGRO_VBUFFER* vbuff, const float *points,
             ty *= new_norm_len;
          }
          
-         al_set_vbuff_pos(vbuff, start + ii, x + tx, y + ty, 0);
-         al_set_vbuff_pos(vbuff, start + ii + 1, x - tx, y - ty, 0);
+         al_set_vbuff_pos(vbuff, start + ii, x - tx, y - ty, 0);
+         al_set_vbuff_pos(vbuff, start + ii + 1, x + tx, y + ty, 0);
          
          
          prev_dir_x = cur_dir_x;
@@ -749,8 +731,8 @@ void al_calculate_ribbon(ALLEGRO_VBUFFER* vbuff, const float *points,
       x = points[ii];
       y = points[ii + 1];
       
-      al_set_vbuff_pos(vbuff, start + ii, x + tx, y + ty, 0);
-      al_set_vbuff_pos(vbuff, start + ii + 1, x - tx, y - ty, 0);
+      al_set_vbuff_pos(vbuff, start + ii, x - tx, y - ty, 0);
+      al_set_vbuff_pos(vbuff, start + ii + 1, x + tx, y + ty, 0);
    } else {
       int ii;
       if (al_vbuff_is_locked(vbuff)) {
