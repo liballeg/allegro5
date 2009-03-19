@@ -473,6 +473,29 @@ Returns true iff `us1` ends with `us2`.
 Returns true iff `us1` ends with `s2`.
 
 
+# UTF-16 conversion
+
+## API: al_ustr_new_from_utf16
+
+Create a new string containing a copy of the 0-terminated string `s`
+which must be encoded as UTF-16.
+The string must eventually be freed with [al_ustr_free].
+
+## API: al_ustr_size_utf16
+
+Returns the number of bytes required to encode the string in UTF-16
+(including the terminating 0). Usually called before
+[al_ustr_encode_utf16] to determine the size of the buffer to allocate.
+
+## API: al_ustr_encode_utf16
+
+Encode the string into the given buffer, in UTF-16. Returns the number
+of bytes written. There are never more than `n` bytes written. The
+minimum size to encode the complete string can be queried with
+[al_ustr_size_utf16]. If the `n` parameter is smaller than that, the
+string will be truncated but still always 0 terminated.
+
+
 # Low-level UTF-8 routines
 
 ## API: al_utf8_width
@@ -487,7 +510,25 @@ Encode the specified code point to UTF-8 into the buffer `s`.  The buffer
 must have enough space to hold the encoding, which takes between 1 and 4
 bytes.  This routine will refuse to encode code points above 0x10FFFF.
 
-Returns the number of bytes written, which is the as that returned by
-[al_utf8_width].
+Returns the number of bytes written, which is the same as that returned
+by [al_utf8_width].
+
+
+# Low-level UTF-16 routines
+
+## API: al_utf16_width
+
+Returns the number of bytes that would be occupied by the specified code
+point when encoded in UTF-16. This is either 2 or 4 bytes for legal code
+point values. Otherwise returns 0.
+
+## API: al_utf16_encode
+
+Encode the specified code point to UTF-8 into the buffer `s`. The buffer
+must have enough space to hold the encoding, which takes either 2 or 4
+bytes. This routine will refuse to encode code points above 0x10FFFF.
+
+Returns the number of bytes written, which is the same as that returned
+by [al_utf16_width].
 
 

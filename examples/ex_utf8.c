@@ -1104,6 +1104,46 @@ void t49(void)
    al_ustr_free(us);
 }
 
+/* Test UTF-16 conversion. */
+void t50(void)
+{
+   ALLEGRO_USTR *us;
+   char utf8[] = "⅛-note: 𝅘𝅥𝅮, domino: 🁡";
+   uint16_t *utf16;
+   size_t s;
+   uint16_t small[8];
+   /* Only native byte order supported right now, so have to specify
+    * elements as uint16_t and not as char.
+    */
+   uint16_t utf16_ref[] = {
+      0x215b, 0x002d, 0x006e, 0x006f, 0x0074,
+      0x0065, 0x003a, 0x0020, 0xd834, 0xdd60,
+      0x002c, 0x0020, 0x0064, 0x006f, 0x006d,
+      0x0069, 0x006e, 0x006f, 0x003a, 0x0020,
+      0xd83c, 0xdc61, 0x0000};
+   uint16_t truncated[] = {
+      0x215b, 0x002d, 0x006e, 0x006f, 0x0074,
+      0x0065, 0x003a, 0x0000};
+
+   us = al_ustr_new_from_utf16(utf16_ref);
+   CHECK(20 == al_ustr_length(us));
+   CHECK(0 == strcmp(utf8, al_cstr(us)));
+   al_ustr_free(us);
+
+   us = al_ustr_new(utf8);
+   s = al_ustr_size_utf16(us);
+   CHECK(46 == s);
+   utf16 = malloc(s);
+   al_ustr_encode_utf16(us, utf16, s);
+   CHECK(0 == memcmp(utf16, utf16_ref, s));
+   free(utf16);
+   
+   s = al_ustr_encode_utf16(us, small, sizeof small);
+   CHECK(16 == s);
+   CHECK(0 == memcmp(truncated, small, s));
+   al_ustr_free(us);
+}
+
 /*---------------------------------------------------------------------------*/
 
 const test_t all_tests[] =
@@ -1112,7 +1152,8 @@ const test_t all_tests[] =
    t10, t11, t12, t13, t14, t15, t16, t17, t18, t19,
    t20, t21, t22, t23, t24, t25, t26, t27, t28, t29,
    t30, t31, t32, t33, t34, t35, t36, t37, t38, t39,
-   t40, t41, t42, t43, t44, t45, t46, t47, t48, t49
+   t40, t41, t42, t43, t44, t45, t46, t47, t48, t49,
+   t50
 };
 
 #define NUM_TESTS (int)(sizeof(all_tests) / sizeof(all_tests[0]))

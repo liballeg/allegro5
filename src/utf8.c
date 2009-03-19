@@ -1005,4 +1005,129 @@ size_t al_utf8_encode(char s[], int32_t c)
    return 0;
 }
 
+
+/* Function: al_utf16_width
+ */
+size_t al_utf16_width(int c)
+{
+   /* So we don't need to check for negative values nor use unsigned ints
+    * in the interface, which are a pain.
+    */
+   uint32_t uc = c;
+
+   /* We do not check for invalid code points. */
+   if (uc <= 0xffff)
+      return 2;
+   if (uc <= 0x10ffff)
+      return 4;
+
+   /* The rest are illegal. */
+   return 0;
+}
+
+
+/* Function: al_utf16_encode
+ */
+size_t al_utf16_encode(uint16_t s[], int32_t c)
+{
+   uint32_t uc = c;
+
+   if (uc <= 0xffff) {
+      /* Note: We always assume the native endianness here. */
+      s[0] = uc;
+      return 2;
+   }
+
+   if (uc <= 0x10ffff) {
+      uint32_t u_ = uc - 0x10000;
+      /* Note: We always assume the native endianness here. */
+      s[0] = 0xd800 | (u_ >> 10);
+      s[1] = 0xdc00 | (u_ & 0x3ff);
+      return 4;
+   }
+
+   /* Otherwise is illegal. */
+   return 0;
+}
+
+
+static size_t _al_utf16_get(uint16_t const *s, int n, int *c)
+{
+   if (s[0] < 0xd800 || s[0] > 0xdfff) {
+      *c = s[0];
+      return 1;
+   }
+   if (n < 2) return 0;
+   *c = 0x10000 | ((s[0] & 0x3ff) << 10) | (s[1] & 0x3ff);
+   return 2;
+}
+
+
+/* Function: al_ustr_new_from_utf16
+ */
+ALLEGRO_USTR *al_ustr_new_from_utf16(uint16_t const *s)
+{
+   unsigned int i = 0;
+   ALLEGRO_USTR *ustr = al_ustr_new("");
+   while (1) {
+      int c;
+      /* We expect the passed string to be 0 terminated, so there are
+       * always 2 words available.
+       */
+      size_t n = _al_utf16_get(s + i, 2, &c);
+      /* Note: The string already is 0 terminated. */
+      if (c == 0) break;
+      al_ustr_append_chr(ustr, c);
+      i += n;
+   }
+   return ustr;
+}
+
+
+/* Function: al_ustr_size_utf16
+ */
+size_t al_ustr_size_utf16(const ALLEGRO_USTR *us)
+{
+   int pos = 0;
+   size_t sz = 0;
+   while (1) {
+      int32_t c = al_ustr_get_next(us, &pos);
+      if (c < 0) break;
+      sz += al_utf16_width(c);
+   }
+   /* Size of terminating 0 character - al_ustr_get_next will not
+    * return it.
+    */
+   sz += 2;
+   return sz;
+}
+
+
+/* Function: al_ustr_encode_utf16
+ */
+size_t al_ustr_encode_utf16(const ALLEGRO_USTR *us, uint16_t *s,
+   size_t n)
+{
+   int pos = 0;
+   size_t i = 0;
+   while (1) {
+      /* Used to hold one encoded UTF-16 character. */
+      uint16_t encoded[2];
+      size_t sz;
+      int32_t c = al_ustr_get_next(us, &pos);
+      if (c < 0) break;
+      sz = al_utf16_encode(encoded, c);
+      /* Need two bytes for terminating 0. */
+      if (i * 2 + sz > n - 2) break;
+      s[i++] = encoded[0];
+      if (sz == 4) s[i++] = encoded[1];
+   }
+   /* Append terminating 0 - al_ustr_get_next withheld it. */
+   if (i * 2 + 1 < n)
+      s[i++] = 0;
+
+   return i * 2;
+}
+
+
 /* vim: set sts=3 sw=3 et: */

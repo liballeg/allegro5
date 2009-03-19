@@ -129,6 +129,13 @@ AL_FUNC(bool, al_ustr_has_suffix_cstr,(const ALLEGRO_USTR *us1, const char *s));
 AL_FUNC(size_t, al_utf8_width, (int32_t c));
 AL_FUNC(size_t, al_utf8_encode, (char s[], int32_t c));
 
+/* UTF-16 */
+AL_FUNC(ALLEGRO_USTR *, al_ustr_new_from_utf16, (uint16_t const *s));
+AL_FUNC(size_t, al_ustr_size_utf16, (const ALLEGRO_USTR *us));
+AL_FUNC(size_t, al_ustr_encode_utf16, (const ALLEGRO_USTR *us, uint16_t *s, size_t n));
+AL_FUNC(size_t, al_utf16_width, (int c));
+AL_FUNC(size_t, al_utf16_encode, (uint16_t s[], int32_t c));
+
 #ifdef __cplusplus
    }
 #endif
