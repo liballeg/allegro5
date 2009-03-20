@@ -93,16 +93,18 @@ void _al_draw_bitmap_region_memory(ALLEGRO_BITMAP *bitmap,
    ALLEGRO_BITMAP *dest = al_get_target_bitmap();
    int x, y;
    int src_mode, dst_mode;
+   int src_alpha, dst_alpha;
    ALLEGRO_COLOR *ic;
    bool unlock_dest = false;
    int xinc, yinc;
    int yd;
    int sxd;
 
-   al_get_blender(&src_mode, &dst_mode, NULL);
+   al_get_separate_blender(&src_mode, &dst_mode, &src_alpha, &dst_alpha, NULL);
    ic = _al_get_blend_color();
 
-   if (src_mode == ALLEGRO_ONE && dst_mode == ALLEGRO_ZERO &&
+   if (src_mode == ALLEGRO_ONE && src_alpha == ALLEGRO_ONE &&
+      dst_mode == ALLEGRO_ZERO && dst_alpha == ALLEGRO_ZERO &&
       ic->r == 1.0f && ic->g == 1.0f && ic->b == 1.0f && ic->a == 1.0f &&
       // FIXME: Those should not have to be special cased - but see
       // comments in memblit1.c.
@@ -214,7 +216,7 @@ void _al_draw_bitmap_region_memory(ALLEGRO_BITMAP *bitmap,
           * - the destination may be uninitialised and may contain NaNs, Inf
           *   which would not be clobbered when multiplied with zero.
           */
-         if (dst_ == ALLEGRO_ZERO) {
+         if (dst_ == ALLEGRO_ZERO && adst_ == ALLEGRO_ZERO) {
             for (x = 0; x < sw; x++) {
                _AL_INLINE_GET_PIXEL(bitmap->format, src_data, src_color, true);
                _al_blend_inline_dest_zero(&src_color, src_, asrc_, &bc,
