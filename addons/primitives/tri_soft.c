@@ -595,9 +595,9 @@ void _al_triangle_2d(ALLEGRO_BITMAP* texture, ALLEGRO_VERTEX* v1, ALLEGRO_VERTEX
    }
    
    if ((vtx1->r == vtx2->r && vtx2->r == vtx3->r) &&
-         (vtx1->r == vtx2->r && vtx2->r == vtx3->r) &&
-         (vtx1->r == vtx2->r && vtx2->r == vtx3->r) &&
-         (vtx1->r == vtx2->r && vtx2->r == vtx3->r)) {
+         (vtx1->g == vtx2->g && vtx2->g == vtx3->g) &&
+         (vtx1->b == vtx2->b && vtx2->b == vtx3->b) &&
+         (vtx1->a == vtx2->a && vtx2->a == vtx3->a)) {
       grad = 0;
    }
    

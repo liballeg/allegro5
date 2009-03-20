@@ -333,7 +333,7 @@ void _al_line_2d(ALLEGRO_BITMAP* texture, ALLEGRO_VERTEX* v1, ALLEGRO_VERTEX* v2
    int min_x, max_x, min_y, max_y;
    int shade = 1;
    int grad = 1;
-   int src_mode, dst_mode;
+   int src_mode, dst_mode, src_alpha, dst_alpha;
    int width = al_get_bitmap_width(target);
    int height = al_get_bitmap_height(target);
    ALLEGRO_COLOR ic;
@@ -345,7 +345,9 @@ void _al_line_2d(ALLEGRO_BITMAP* texture, ALLEGRO_VERTEX* v1, ALLEGRO_VERTEX* v2
    /*
    Lock the region we are drawing too
    */
-   
+
+   // FIXME: What for is the +/- 1 here? Please explain in a comment.
+
    if (vtx1.x >= vtx2.x) {
       max_x = (int)ceilf(vtx1.x) + 1;
       min_x = (int)floorf(vtx2.x) - 1;
@@ -381,12 +383,15 @@ void _al_line_2d(ALLEGRO_BITMAP* texture, ALLEGRO_VERTEX* v1, ALLEGRO_VERTEX* v2
       min_x = 0;
    if (min_y < 0)
       min_y = 0;
-      
+
+   // FIXME: Something is wrong here. Above, the integer pixels are
+   // clipped to the range 0...w-1. So e.g. in a 1x1 bitmap, min_x and
+   // max_x are both 0, no matter how long the line is...
    if (al_is_bitmap_locked(target)) {
-      if (!_al_bitmap_region_is_locked(target, min_x, min_y, max_x - min_x, max_y - min_y))
+      if (!_al_bitmap_region_is_locked(target, min_x, min_y, 1 + max_x - min_x, 1 + max_y - min_y))
          return;
    } else {
-      if (!(lr = al_lock_bitmap_region(target, min_x, min_y, max_x - min_x, max_y - min_y, ALLEGRO_PIXEL_FORMAT_ANY, 0)))
+      if (!(lr = al_lock_bitmap_region(target, min_x, min_y, 1 + max_x - min_x, 1 + max_y - min_y, ALLEGRO_PIXEL_FORMAT_ANY, 0)))
          return;
       need_unlock = 1;
    }
@@ -395,8 +400,9 @@ void _al_line_2d(ALLEGRO_BITMAP* texture, ALLEGRO_VERTEX* v1, ALLEGRO_VERTEX* v2
    TODO: Make more specialized functions (constant colour, no blending etc and etc)
    */
    
-   al_get_blender(&src_mode, &dst_mode, &ic);
-   if (src_mode == ALLEGRO_ONE && dst_mode == ALLEGRO_ZERO &&
+   al_get_separate_blender(&src_mode, &dst_mode, &src_alpha, &dst_alpha, &ic);
+   if (src_mode == ALLEGRO_ONE && src_alpha == ALLEGRO_ONE &&
+      dst_mode == ALLEGRO_ZERO && dst_alpha == ALLEGRO_ZERO &&
          ic.r == 1.0f && ic.g == 1.0f && ic.b == 1.0f && ic.a == 1.0f) {
       shade = 0;
    }

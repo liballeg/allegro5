@@ -77,7 +77,6 @@ int al_draw_prim(ALLEGRO_VBUFFER* vbuff, ALLEGRO_BITMAP* texture,
    ASSERT(type >= 0 && type < ALLEGRO_PRIM_NUM_TYPES);
 
    target = al_get_target_bitmap();
-   flags = al_get_display_flags();
 
    /* In theory, if we ever get a camera concept for this addon, the transformation into
     * view space should occur here
@@ -93,9 +92,9 @@ int al_draw_prim(ALLEGRO_VBUFFER* vbuff, ALLEGRO_BITMAP* texture,
    if (target->flags & ALLEGRO_MEMORY_BITMAP) {
       ret =  _al_draw_prim_soft(texture, vbuff, start, end, type);
    } else {
-      if (flags & ALLEGRO_OPENGL) {
+      if (al_get_display_flags() & ALLEGRO_OPENGL) {
          ret =  _al_draw_prim_opengl(texture, vbuff, start, end, type);
-      } else if (flags & ALLEGRO_DIRECT3D) {
+      } else if (al_get_display_flags() & ALLEGRO_DIRECT3D) {
          ret =  _al_draw_prim_directx(texture, vbuff, start, end, type);
       }
    }

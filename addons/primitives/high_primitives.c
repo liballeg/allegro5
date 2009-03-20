@@ -64,7 +64,7 @@ static void update_point_cache(int size)
    }
 }
 
-/* The software drawer ends up using gl_draw_pixel for each pixel, so
+/* The software drawer ends up using al_draw_pixel for each pixel, so
  * blending works as expected.
  * However with OpenGL, Allegro's "blend color" needs to be
  * pre-multiplied with the vertex colors to produce the correct
