@@ -191,12 +191,12 @@ void al_draw_pixel(float x, float y, ALLEGRO_COLOR color)
    ALLEGRO_BITMAP *target = al_get_target_bitmap();
 
    ASSERT(target);
-   ASSERT(display);
 
    if (target->flags & ALLEGRO_MEMORY_BITMAP || !display->vt->draw_pixel) {
       _al_draw_pixel_memory(target, x, y, &color);
    }
    else {
+      ASSERT(display);
       display->vt->draw_pixel(display, x, y, &color);
    }
 }
