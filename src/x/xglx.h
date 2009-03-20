@@ -12,6 +12,7 @@
 #include "allegro5/internal/aintern_bitmap.h"
 #include "allegro5/platform/aintxglx.h"
 #include "allegro5/internal/aintern_opengl.h"
+#include "allegro5/internal/aintern_memory.h"
 
 #ifdef ALLEGRO_XWINDOWS_WITH_XF86VIDMODE
 #include <X11/extensions/xf86vmode.h>
@@ -67,6 +68,10 @@ struct ALLEGRO_SYSTEM_XGLX
    int xinerama_screen_count;
    XineramaScreenInfo *xinerama_screen_info;
    #endif
+
+   /* Keep all decoded X11 visuals around for users to query. */
+   int visuals_count;
+   ALLEGRO_EXTRA_DISPLAY_SETTINGS **visuals;
 };
 
 /* This is our version of ALLEGRO_DISPLAY with driver specific extra data. */
