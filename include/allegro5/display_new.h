@@ -146,6 +146,12 @@ AL_FUNC(int, al_get_new_display_option, (int option, int *importance));
 AL_FUNC(int, al_get_display_option, (int option));
 AL_FUNC(void, al_reset_display_options, (void));
 
+/* Display formats. */
+AL_FUNC(int, al_get_num_display_formats, (void));
+AL_FUNC(int, al_get_display_format_option, (int i, int option));
+AL_FUNC(void, al_set_new_display_format, (int i));
+
+
 #ifdef __cplusplus
    }
 #endif

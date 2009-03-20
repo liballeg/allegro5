@@ -369,3 +369,40 @@ retrace, so unless you are doing something special, there is no reason
 to call this function.
 
 Returns false if not possible, true if successful.
+
+##API: al_get_num_display_formats
+
+Returns the number of available display formats.
+
+Note that on some platforms this may return 0 unless there is a current
+display already. In that case, first create a small window using
+Allegro's standard settings to query the available formats and create
+your actual display later.
+
+In pseudo-code:
+
+    display = al_create_display();
+    n = al_get_num_display_formats();
+    for (i = 0; i < n; i++) {
+       /* Use al_get_display_format_option to inspect each available
+        * format and select the one you want.
+        */
+    }
+    al_destroy_display(display); 
+   
+    /* Now create the real display. */
+    al_set_new_display_format(i);
+    real_display = al_create_display();
+
+##API: al_get_display_format_option
+
+Queries information about one of the available display formats. The
+parameter must be between 0 and [al_get_num_display_formats] - 1. The
+same options as with [al_set_new_display_option] are supported.
+
+##API: al_set_new_display_format
+
+Sets one of the available display formats. The index must be between
+0 and [al_get_num_display_formats] - 1. Calling this functions is
+equivalent to calling [al_set_new_display_option] with all of the
+available display format options.
