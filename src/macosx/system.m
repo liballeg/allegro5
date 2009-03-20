@@ -60,6 +60,7 @@ struct _AL_MUTEX osx_event_mutex;
 void (*osx_window_close_hook)(void) = NULL;
 //int osx_emulate_mouse_buttons = false;
 //int osx_window_first_expose = false;
+static _AL_VECTOR osx_display_modes;
 static ALLEGRO_SYSTEM osx_system;
 
 /* osx_tell_dock:
@@ -156,6 +157,8 @@ static ALLEGRO_SYSTEM* osx_sys_init(int flags)
    /* Mark the beginning of time. */
    _al_unix_init_time();
 
+   _al_vector_init(&osx_display_modes, sizeof(ALLEGRO_DISPLAY_MODE));
+
    return &osx_system;
 }
 
@@ -166,8 +169,96 @@ static ALLEGRO_SYSTEM* osx_sys_init(int flags)
  */
 static void osx_sys_exit(void)
 {
-   
+   _al_vector_free(&osx_display_modes);
 }
+
+
+
+/*
+ * _al_osx_get_num_display_modes:
+ *  Gets the number of available display modes
+ */
+static int _al_osx_get_num_display_modes(void)
+{
+   ALLEGRO_EXTRA_DISPLAY_SETTINGS *extras = _al_get_new_display_settings();
+   ALLEGRO_EXTRA_DISPLAY_SETTINGS temp;
+   int refresh_rate = al_get_new_display_refresh_rate();
+   int adapter = al_get_current_video_adapter();
+   int depth = 0;
+   CGDirectDisplayID display;
+   CFArrayRef modes;
+   CFIndex i;
+   
+   if (extras)
+      depth = extras->settings[ALLEGRO_COLOR_SIZE];
+   memset(&temp, 0, sizeof(ALLEGRO_EXTRA_DISPLAY_SETTINGS));
+   
+   display = CGMainDisplayID();
+   /* Get display ID for the requested display */
+   if (adapter > 0) {
+      NSScreen *screen = [[NSScreen screens] objectAtIndex: adapter];
+      NSDictionary *dict = [screen deviceDescription];
+      NSNumber *display_id = [dict valueForKey: @"NSScreenNumber"];
+      display = (CGDirectDisplayID) [display_id pointerValue];
+   }
+   
+   _al_vector_free(&osx_display_modes);
+   modes = CGDisplayAvailableModes(display);
+   for (i = 0; i < CFArrayGetCount(modes); i++) {
+      ALLEGRO_DISPLAY_MODE *mode;
+      CFDictionaryRef dict = (CFDictionaryRef)CFArrayGetValueAtIndex(modes, i);
+      CFNumberRef number;
+      int value, samples;
+      number = CFDictionaryGetValue(dict, kCGDisplayBitsPerPixel);
+      CFNumberGetValue(number, kCFNumberIntType, &value);
+      if (depth && value != depth)
+         continue;
+      number = CFDictionaryGetValue(dict, kCGDisplayRefreshRate);
+      CFNumberGetValue(number, kCFNumberIntType, &value);
+      if (refresh_rate && value != refresh_rate)
+         continue;
+      mode = (ALLEGRO_DISPLAY_MODE *)_al_vector_alloc_back(&osx_display_modes);
+      number = CFDictionaryGetValue(dict, kCGDisplayWidth);
+      CFNumberGetValue(number, kCFNumberIntType, &mode->width);
+      number = CFDictionaryGetValue(dict, kCGDisplayHeight);
+      CFNumberGetValue(number, kCFNumberIntType, &mode->height);
+      number = CFDictionaryGetValue(dict, kCGDisplayRefreshRate);
+      CFNumberGetValue(number, kCFNumberIntType, &mode->refresh_rate);
+      
+      number = CFDictionaryGetValue(dict, kCGDisplayBitsPerPixel);
+      CFNumberGetValue(number, kCFNumberIntType, &temp.settings[ALLEGRO_COLOR_SIZE]);
+      number = CFDictionaryGetValue(dict, kCGDisplaySamplesPerPixel);
+      CFNumberGetValue(number, kCFNumberIntType, &samples);
+      number = CFDictionaryGetValue(dict, kCGDisplayBitsPerSample);
+      CFNumberGetValue(number, kCFNumberIntType, &value);
+      if (samples >= 3) {
+         temp.settings[ALLEGRO_RED_SIZE] = value;
+         temp.settings[ALLEGRO_GREEN_SIZE] = value;
+         temp.settings[ALLEGRO_BLUE_SIZE] = value;
+         if (samples == 4)
+            temp.settings[ALLEGRO_ALPHA_SIZE] = value;
+      }
+      _al_fill_display_settings(&temp);
+      mode->format = _al_deduce_color_format(&temp);
+   }
+   return _al_vector_size(&osx_display_modes);
+}
+
+
+
+/*
+ * _al_osx_get_num_display_modes:
+ *  Gets the number of available display modes
+ */
+static ALLEGRO_DISPLAY_MODE *_al_osx_get_display_mode(int index, ALLEGRO_DISPLAY_MODE *mode)
+{
+   if ((unsigned)index >= _al_vector_size(&osx_display_modes))
+      return NULL;
+   memcpy(mode, _al_vector_ref(&osx_display_modes, index), sizeof(ALLEGRO_DISPLAY_MODE));
+   return mode;
+}
+
+
 
 /* osx_get_num_video_adapters:
  * Return the number of video adapters i.e displays
@@ -292,6 +383,8 @@ ALLEGRO_SYSTEM_INTERFACE *_al_system_osx_driver(void)
       vt->get_keyboard_driver = _al_osx_get_keyboard_driver;
       vt->get_mouse_driver = _al_osx_get_mouse_driver;
       vt->get_joystick_driver = _al_osx_get_joystick_driver; 
+	  vt->get_num_display_modes = _al_osx_get_num_display_modes;
+      vt->get_display_mode = _al_osx_get_display_mode;
       vt->shutdown_system = osx_sys_exit;
       vt->get_num_video_adapters = osx_get_num_video_adapters;
       vt->get_monitor_info = osx_get_monitor_info;
