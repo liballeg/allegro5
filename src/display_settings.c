@@ -31,12 +31,6 @@ void al_set_new_display_option(int option, int value, int importance)
 {
    ALLEGRO_EXTRA_DISPLAY_SETTINGS *extras;
    extras = _al_get_new_display_settings();
-   if (!extras) {
-      extras = _AL_MALLOC(sizeof *extras);
-      memset(extras, 0, sizeof *extras);
-      _al_set_new_display_settings(extras);
-      _al_fill_display_settings(extras);
-   }
    switch (importance) {
       case ALLEGRO_REQUIRE:
          extras->required |= 1 << option;
@@ -62,10 +56,6 @@ int al_get_new_display_option(int option, int *importance)
 {
    ALLEGRO_EXTRA_DISPLAY_SETTINGS *extras;
    extras = _al_get_new_display_settings();
-   if (!extras) {
-      if (importance) *importance = ALLEGRO_DONTCARE;
-      return 0;
-   }
    if (extras->required & (1 << option)) {
       if (importance) *importance = ALLEGRO_REQUIRE;
       return extras->settings[option];
@@ -87,15 +77,13 @@ int al_get_display_option(int option)
    ALLEGRO_DISPLAY *display;
    display = al_get_current_display();
    extras = &display->extra_settings;
-   if (!extras)
-      return -1;
    return extras->settings[option];
 }
 
 
-/* Function: al_reset_display_options
+/* Function: al_reset_new_display_options
  */
-void al_reset_display_options(void)
+void al_reset_new_display_options(void)
 {
    ALLEGRO_EXTRA_DISPLAY_SETTINGS *extras;
    extras = _al_get_new_display_settings();

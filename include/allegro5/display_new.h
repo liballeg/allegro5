@@ -143,8 +143,8 @@ AL_FUNC(void, al_set_window_title, (AL_CONST char *title));
 /* Defined in display_settings.c */
 AL_FUNC(void, al_set_new_display_option, (int option, int value, int importance));
 AL_FUNC(int, al_get_new_display_option, (int option, int *importance));
+AL_FUNC(void, al_reset_new_display_options, (void));
 AL_FUNC(int, al_get_display_option, (int option));
-AL_FUNC(void, al_reset_display_options, (void));
 
 /* Display formats. */
 AL_FUNC(int, al_get_num_display_formats, (void));

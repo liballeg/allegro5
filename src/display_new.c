@@ -46,10 +46,7 @@ ALLEGRO_DISPLAY *al_create_display(int w, int h)
    ALLEGRO_EXTRA_DISPLAY_SETTINGS *eds;
 
    eds = _al_get_new_display_settings();
-   if (!eds)
-      al_reset_display_options();
-   else
-      _al_fill_display_settings(eds);
+   _al_fill_display_settings(eds);
 
    system = al_system_driver();
    driver = system->vt->get_display_driver();
