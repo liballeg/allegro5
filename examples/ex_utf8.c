@@ -1111,7 +1111,7 @@ void t50(void)
    char utf8[] = "⅛-note: 𝅘𝅥𝅮, domino: 🁡";
    uint16_t *utf16;
    size_t s;
-   uint16_t small[8];
+   uint16_t little[8];
    /* Only native byte order supported right now, so have to specify
     * elements as uint16_t and not as char.
     */
@@ -1138,9 +1138,9 @@ void t50(void)
    CHECK(0 == memcmp(utf16, utf16_ref, s));
    free(utf16);
    
-   s = al_ustr_encode_utf16(us, small, sizeof small);
+   s = al_ustr_encode_utf16(us, little, sizeof little);
    CHECK(16 == s);
-   CHECK(0 == memcmp(truncated, small, s));
+   CHECK(0 == memcmp(truncated, little, s));
    al_ustr_free(us);
 }
 
