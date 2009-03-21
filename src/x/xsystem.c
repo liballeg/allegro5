@@ -413,7 +413,7 @@ static void xglx_get_monitor_info(int adapter, ALLEGRO_MONITOR_INFO *info)
 
 
 
-int xglx_get_num_display_formats(void)
+static int xglx_get_num_display_formats(void)
 {
    ALLEGRO_SYSTEM_XGLX *system = (void *)al_system_driver();
    return system->visuals_count;
@@ -421,7 +421,7 @@ int xglx_get_num_display_formats(void)
 
 
 
-int xglx_get_display_format_option(int i, int option)
+static int xglx_get_display_format_option(int i, int option)
 {
    ALLEGRO_SYSTEM_XGLX *system = (void *)al_system_driver();
    return system->visuals[i]->settings[option];
@@ -429,7 +429,7 @@ int xglx_get_display_format_option(int i, int option)
 
 
 
-void xglx_set_new_display_format(int i)
+static void xglx_set_new_display_format(int i)
 {
    ALLEGRO_SYSTEM_XGLX *system = (void *)al_system_driver();
    int j;
