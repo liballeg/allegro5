@@ -194,6 +194,10 @@ al_put_pixel, does blending.
 * color - color of the pixel
 
 
+## API: al_clear
+
+Clear a complete display, but confined by the clipping rectangle.
+
 ## API: al_draw_rotated_bitmap
 
 Draws a rotated version of the given bitmap to the target bitmap.

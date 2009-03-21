@@ -36,10 +36,6 @@ the display. Returns true on success.
 
 Adjusts the clipping rectangle to the full size of the backbuffer.
 
-## API: al_clear
-
-Clear a complete display, but confined by the clipping rectangle.
-
 ## API: al_create_display
 
 Create a display, or window, with the specified dimensions.
