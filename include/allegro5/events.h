@@ -135,8 +135,12 @@ enum
 
 /* ALLEGRO_EVENT_TYPE_IS_USER
  * Not sure if this should be official part of the API or not.
+ *
+ *    1 <= n < 512  - builtin events
+ *  512 <= n < 1024 - reserved user events (for addons)
+ * 1024 <= n        - unreserved user events
  */
-#define ALLEGRO_EVENT_TYPE_IS_USER(t)        ((t) >= 1024)
+#define ALLEGRO_EVENT_TYPE_IS_USER(t)        ((t) >= 512)
 
 
 /* Function: ALLEGRO_GET_EVENT_TYPE
