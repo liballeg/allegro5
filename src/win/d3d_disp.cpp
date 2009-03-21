@@ -118,11 +118,11 @@ static int d3d_formats[] = {
    -1
 };
 
-
-// 5 formats, 7 depth/stencil formats, sample buffers 1/0, double buffered 1/0
 static const int NUM_DISPLAY_FORMATS = 2;
 static const int _16BIT_DS = 2; /* # 16 bit depth stencil formats */
 static const int _32BIT_DS = 4; /* # 32 bit depth stencil formats */
+static ALLEGRO_EXTRA_DISPLAY_SETTINGS **eds_list = NULL;
+static int eds_list_count = 0;
 
 /*
  * This is a list of all supported display modes. Some other information will be
@@ -233,7 +233,7 @@ static int d3d_fmt_desc[][ALLEGRO_DISPLAY_OPTIONS_COUNT+2] =
    { 5, 6, 5, 0, 11, 5, 0,  0, 0, 0, 0, 0, 0, 0, 16, 24, 4, 1, 0, 0, 0, 0, 1, 0, 1, 1, 1, 14, D3DFMT_D24X4S4 }
 };
 
-static const int NUM_FORMATS = sizeof(d3d_fmt_desc) / sizeof(*d3d_fmt_desc);
+static const int D3D_DISPLAY_COMBINATIONS = sizeof(d3d_fmt_desc) / sizeof(*d3d_fmt_desc);
 
 
 static D3DFORMAT d3d_get_depth_stencil_format(ALLEGRO_EXTRA_DISPLAY_SETTINGS *settings)
@@ -517,6 +517,91 @@ static int d3d_get_default_refresh_rate(UINT adapter)
 }
 
 
+static void d3d_destroy_display_format_list(void)
+{
+   /* Free the display format list */
+   for (int j = 0; j < eds_list_count; j++) {
+      _AL_FREE(eds_list[j]);
+   }
+   _AL_FREE(eds_list);
+   eds_list = 0;
+   eds_list_count = 0;
+}
+
+
+static void d3d_generate_display_format_list(void)
+{
+   static bool fullscreen = !(al_get_new_display_flags() & ALLEGRO_FULLSCREEN); /* stop warning */
+   static int adapter = ~al_get_current_video_adapter(); /* stop warning */
+
+   if ((eds_list != NULL) && (fullscreen == (al_get_new_display_flags() & ALLEGRO_FULLSCREEN))
+         && (adapter == al_get_current_video_adapter())) {
+      return;
+   }
+   else if (eds_list != NULL) {
+      d3d_destroy_display_format_list();
+   }
+
+   // Create display format list
+   DWORD quality_levels[NUM_DISPLAY_FORMATS];
+   eds_list_count = D3D_DISPLAY_COMBINATIONS;
+   int count = 0;
+
+   fullscreen = al_get_new_display_flags() & ALLEGRO_FULLSCREEN;
+   adapter = al_get_current_video_adapter();
+   if (adapter < 0)
+      adapter = 0;
+
+   for (int i = 0; allegro_formats[i] >= 0; i++) {
+      if (_al_pixel_format_is_real(allegro_formats[i]) && !_al_format_has_alpha(allegro_formats[i])) {
+         _al_d3d->CheckDeviceMultiSampleType(adapter, D3DDEVTYPE_HAL, (D3DFORMAT)d3d_formats[i],
+            !fullscreen, D3DMULTISAMPLE_NONMASKABLE, &quality_levels[count]);
+         if (quality_levels[count] > 0) {
+            if (al_get_pixel_size(allegro_formats[i]) == 4) {
+               eds_list_count += (quality_levels[count]-1) * (_32BIT_DS+1) * 4; /* +1 for no DepthStencil */
+            }
+            else {
+               eds_list_count += (quality_levels[count]-1) * (_16BIT_DS+_32BIT_DS+1) * 4;
+            }
+         }
+         count++;
+      }
+   }
+
+   eds_list = (ALLEGRO_EXTRA_DISPLAY_SETTINGS **)_AL_MALLOC(
+      eds_list_count * sizeof(*eds_list)
+   );
+   memset(eds_list, 0, eds_list_count * sizeof(*eds_list));
+   for (int i = 0; i < eds_list_count; i++) {
+      eds_list[i] = (ALLEGRO_EXTRA_DISPLAY_SETTINGS *)_AL_MALLOC(sizeof(ALLEGRO_EXTRA_DISPLAY_SETTINGS));
+      memset(eds_list[i], 0, sizeof(ALLEGRO_EXTRA_DISPLAY_SETTINGS));
+   }
+
+   count = 0;
+
+   int fmt_num = 0;
+   int curr_fmt = d3d_fmt_desc[0][ALLEGRO_DISPLAY_OPTIONS_COUNT];
+
+   for (int i = 0; i < D3D_DISPLAY_COMBINATIONS; i++) {
+      if (d3d_fmt_desc[i][ALLEGRO_SAMPLE_BUFFERS]) {
+         for (int k = 0; k < (int)quality_levels[fmt_num]; k++) {
+            memcpy(eds_list[count]->settings, &d3d_fmt_desc[i], sizeof(int)*ALLEGRO_DISPLAY_OPTIONS_COUNT);
+            eds_list[count]->settings[ALLEGRO_SAMPLES] = k;
+            count++;
+         }
+      }
+      else {
+         memcpy(eds_list[count]->settings, &d3d_fmt_desc[i], sizeof(int)*ALLEGRO_DISPLAY_OPTIONS_COUNT);
+         count++;
+      }
+      if (d3d_fmt_desc[i][ALLEGRO_DISPLAY_OPTIONS_COUNT] != curr_fmt) {
+         curr_fmt = d3d_fmt_desc[i][ALLEGRO_DISPLAY_OPTIONS_COUNT];
+         fmt_num++;
+      }
+   }
+}
+
+
 static bool d3d_create_fullscreen_device(ALLEGRO_DISPLAY_D3D *d,
    int format, int refresh_rate, int flags)
 {
@@ -748,7 +833,7 @@ bool _al_d3d_init_display()
    TRACE("Render-to-texture: %d\n", render_to_texture_supported);
 
    present_mutex = al_create_mutex();
-   
+
    return true;
 }
 
@@ -1262,11 +1347,18 @@ static void d3d_display_thread_proc(void *arg)
    new_display_parameters *params = (new_display_parameters *)arg;
    D3DCAPS9 caps;
    int new_format;
-   bool convert_to_faux = true;
-
+   bool convert_to_faux;
+   
    d3d_display = params->display;
    win_display = &d3d_display->win_display;
    al_display = &win_display->display;
+
+   if (al_display->flags & ALLEGRO_FULLSCREEN) {
+      convert_to_faux = true;
+   }
+   else {
+      convert_to_faux = false;
+   }
 
    /* So that we can call the functions using TLS from this thread. */
    al_set_new_display_flags(al_display->flags);
@@ -1461,6 +1553,26 @@ End:
    TRACE("d3d display thread exits\n");
 }
 
+
+/* Helper function for sorting pixel formats by index */
+static int d3d_display_list_resorter(const void *p0, const void *p1)
+{
+   const ALLEGRO_EXTRA_DISPLAY_SETTINGS *f0 = *((ALLEGRO_EXTRA_DISPLAY_SETTINGS **)p0);
+   const ALLEGRO_EXTRA_DISPLAY_SETTINGS *f1 = *((ALLEGRO_EXTRA_DISPLAY_SETTINGS **)p1);
+   if (!f0) return 1;
+   if (!f1) return -1;
+   if (f0->index == f1->index) {
+      return 0;
+   }
+   else if (f0->index < f1->index) {
+      return -1;
+   }
+   else {
+      return 1;
+   }
+}
+
+
 static bool d3d_create_display_internals(ALLEGRO_DISPLAY_D3D *d3d_display)
 {
    new_display_parameters params;
@@ -1472,71 +1584,18 @@ static bool d3d_create_display_internals(ALLEGRO_DISPLAY_D3D *d3d_display)
    
    params.display = d3d_display;
   
-
    ALLEGRO_EXTRA_DISPLAY_SETTINGS *ref =  _al_get_new_display_settings();
-   ALLEGRO_EXTRA_DISPLAY_SETTINGS **eds_list = NULL;
+   d3d_generate_display_format_list();
 
-   DWORD quality_levels[NUM_DISPLAY_FORMATS];
-   int total_count = NUM_FORMATS;
-   int count = 0;
-
-   for (int i = 0; allegro_formats[i] >= 0; i++) {
-      if (_al_pixel_format_is_real(allegro_formats[i]) && !_al_format_has_alpha(allegro_formats[i])) {
-         _al_d3d->CheckDeviceMultiSampleType(win_display->adapter, D3DDEVTYPE_HAL, (D3DFORMAT)d3d_formats[i],
-            !(al_display->flags & ALLEGRO_FULLSCREEN), D3DMULTISAMPLE_NONMASKABLE, &quality_levels[count]);
-         if (quality_levels[count] > 0) {
-            if (al_get_pixel_size(allegro_formats[i]) == 4) {
-               total_count += (quality_levels[count]-1) * (_32BIT_DS+1) * 4; /* +1 for no DepthStencil */
-            }
-            else {
-               total_count += (quality_levels[count]-1) * (_16BIT_DS+_32BIT_DS+1) * 4;
-            }
-         }
-         count++;
-      }
-   }
-
-   eds_list = (ALLEGRO_EXTRA_DISPLAY_SETTINGS **)_AL_MALLOC(
-      total_count * sizeof(*eds_list)
-   );
-   memset(eds_list, 0, total_count * sizeof(*eds_list));
-   for (int i = 0; i < total_count; i++) {
-      eds_list[i] = (ALLEGRO_EXTRA_DISPLAY_SETTINGS *)_AL_MALLOC(sizeof(ALLEGRO_EXTRA_DISPLAY_SETTINGS));
-      memset(eds_list[i], 0, sizeof(ALLEGRO_EXTRA_DISPLAY_SETTINGS));
-   }
-
-   count = 0;
-
-   int fmt_num = 0;
-   int curr_fmt = d3d_fmt_desc[0][ALLEGRO_DISPLAY_OPTIONS_COUNT];
-
-   for (int i = 0; i < NUM_FORMATS; i++) {
-      if (d3d_fmt_desc[i][ALLEGRO_SAMPLE_BUFFERS]) {
-         for (int k = 0; k < (int)quality_levels[fmt_num]; k++) {
-            memcpy(eds_list[count]->settings, &d3d_fmt_desc[i], sizeof(int)*ALLEGRO_DISPLAY_OPTIONS_COUNT);
-            eds_list[count]->settings[ALLEGRO_SAMPLES] = k;
-            count++;
-         }
-      }
-      else {
-         memcpy(eds_list[count]->settings, &d3d_fmt_desc[i], sizeof(int)*ALLEGRO_DISPLAY_OPTIONS_COUNT);
-         count++;
-      }
-      if (d3d_fmt_desc[i][ALLEGRO_DISPLAY_OPTIONS_COUNT] != curr_fmt) {
-         curr_fmt = d3d_fmt_desc[i][ALLEGRO_DISPLAY_OPTIONS_COUNT];
-         fmt_num++;
-      }
-   }
-
-   for (int i = 0; i < total_count; i++) {
+   for (int i = 0; i < eds_list_count; i++) {
       eds_list[i]->score = _al_score_display_settings(eds_list[i], ref);
       eds_list[i]->index = i;
    }
 
-   qsort(eds_list, total_count, sizeof(void*), _al_display_settings_sorter);
+   qsort(eds_list, eds_list_count, sizeof(void*), _al_display_settings_sorter);
 
    int i;
-   for (i = 0; i < total_count; i++) {
+   for (i = 0; i < eds_list_count; i++) {
       d3d_display->depth_stencil_format = d3d_get_depth_stencil_format(eds_list[i]);
       d3d_display->samples = eds_list[i]->settings[ALLEGRO_SAMPLES];
       d3d_display->single_buffer = eds_list[i]->settings[ALLEGRO_SINGLE_BUFFER] ? true : false;
@@ -1563,12 +1622,11 @@ static bool d3d_create_display_internals(ALLEGRO_DISPLAY_D3D *d3d_display)
       }
    }
 
-   for (int j = 0; j < total_count; j++) {
-      _AL_FREE(eds_list[j]);
-   }
-   _AL_FREE(eds_list);
+   // Re-sort the display format list for use later
+   qsort(eds_list, eds_list_count, sizeof(void*), d3d_display_list_resorter);
 
-   if (i == total_count) {
+   if (i == eds_list_count) {
+      TRACE("All %d formats failed.\n", eds_list_count);
       return false;
    }
 
@@ -2319,6 +2377,10 @@ static void d3d_toggle_frame(ALLEGRO_DISPLAY *display, bool onoff)
 
 static void d3d_shutdown(void)
 {
+   if (eds_list) {
+      d3d_destroy_display_format_list();
+      eds_list = NULL;
+   }
    _al_d3d->Release();
    al_destroy_mutex(present_mutex);
 }
@@ -2392,19 +2454,19 @@ int _al_d3d_get_num_display_modes(int format, int refresh_rate, int flags)
       if (allegro_formats[j] == -1)
          return 0;
    }
-
+   
    for (; allegro_formats[j] != -1; j++) {
       int adapter = al_get_current_video_adapter();
       if (adapter == -1)
          adapter = 0;
 
-      if (!_al_pixel_format_is_real(allegro_formats[j]))
+      if (!_al_pixel_format_is_real(allegro_formats[j]) || _al_format_has_alpha(allegro_formats[j]))
          continue;
 
       num_modes = _al_d3d->GetAdapterModeCount(adapter, (D3DFORMAT)d3d_formats[j]);
 
       for (i = 0; i < num_modes; i++) {
-         if (_al_d3d->EnumAdapterModes(adapter, (D3DFORMAT)_al_format_to_d3d(format), i, &display_mode) != D3D_OK) {
+         if (_al_d3d->EnumAdapterModes(adapter, (D3DFORMAT)d3d_formats[j], i, &display_mode) != D3D_OK) {
             return matches;
          }
          if (refresh_rate && display_mode.RefreshRate != (unsigned)refresh_rate)
@@ -2448,13 +2510,13 @@ ALLEGRO_DISPLAY_MODE *_al_d3d_get_display_mode(int index, int format,
       if (adapter == -1)
          adapter = 0;
 
-      if (!_al_pixel_format_is_real(allegro_formats[j]))
+      if (!_al_pixel_format_is_real(allegro_formats[j]) || _al_format_has_alpha(allegro_formats[j]))
          continue;
 
       num_modes = _al_d3d->GetAdapterModeCount(adapter, (D3DFORMAT)d3d_formats[j]);
 
       for (i = 0; i < num_modes; i++) {
-         if (_al_d3d->EnumAdapterModes(adapter, (D3DFORMAT)_al_format_to_d3d(format), i, &display_mode) != D3D_OK) {
+         if (_al_d3d->EnumAdapterModes(adapter, (D3DFORMAT)d3d_formats[j], i, &display_mode) != D3D_OK) {
             return NULL;
          }
          if (refresh_rate && display_mode.RefreshRate != (unsigned)refresh_rate)
@@ -2501,6 +2563,29 @@ void _al_d3d_get_monitor_info(int adapter, ALLEGRO_MONITOR_INFO *info)
       info->y1 = mi.rcMonitor.top;
       info->x2 = mi.rcMonitor.right;
       info->y2 = mi.rcMonitor.bottom;
+   }
+}
+
+int _al_d3d_get_num_display_formats(void)
+{
+   d3d_generate_display_format_list();
+   return NUM_DISPLAY_FORMATS;
+}
+
+
+int _al_d3d_get_display_format_option(int i, int option)
+{
+   ASSERT(i < eds_list_count);
+   ASSERT(option < ALLEGRO_DISPLAY_OPTIONS_COUNT);
+
+   return eds_list[i]->settings[option];
+}
+
+
+void _al_d3d_set_new_display_format(int i)
+{
+   for (int j = 0; j < ALLEGRO_DISPLAY_OPTIONS_COUNT; j++) {
+      al_set_new_display_option(j, eds_list[i]->settings[j], ALLEGRO_REQUIRE);
    }
 }
 
