@@ -1,4 +1,4 @@
-# Display
+% Display
 
 # Display creation
 
