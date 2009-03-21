@@ -370,7 +370,7 @@ to call this function.
 
 Returns false if not possible, true if successful.
 
-##API: al_get_num_display_formats
+## API: al_get_num_display_formats
 
 Returns the number of available display formats.
 
@@ -394,13 +394,13 @@ In pseudo-code:
     al_set_new_display_format(i);
     real_display = al_create_display();
 
-##API: al_get_display_format_option
+## API: al_get_display_format_option
 
 Queries information about one of the available display formats. The
 parameter must be between 0 and [al_get_num_display_formats] - 1. The
 same options as with [al_set_new_display_option] are supported.
 
-##API: al_set_new_display_format
+## API: al_set_new_display_format
 
 Sets one of the available display formats. The index must be between
 0 and [al_get_num_display_formats] - 1. Calling this functions is
