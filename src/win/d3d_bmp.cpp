@@ -934,6 +934,9 @@ static ALLEGRO_LOCKED_REGION *d3d_lock_region(ALLEGRO_BITMAP *bitmap,
    int flags)
 {
    ALLEGRO_BITMAP_D3D *d3d_bmp = (ALLEGRO_BITMAP_D3D *)bitmap;
+
+   if (d3d_bmp->display->device_lost) return NULL;
+
    RECT rect;
    DWORD Flags = flags & ALLEGRO_LOCK_READONLY ? D3DLOCK_READONLY : 0;
    int f = _al_get_real_pixel_format(format);
