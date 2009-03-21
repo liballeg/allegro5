@@ -4,6 +4,143 @@ See `changes._tx` for changes in earlier versions of Allegro.  These lists
 serve as summaries; the full histories are in the Subversion repository.
 
 
+Changes from 4.9.8 to 4.9.9 (March 2009)
+========================================
+
+The main developers this time were: Trent Gamblin, Evert Glebbeek, Milan
+Mimica, Elias Pschernig, Paul Suntsov, Peter Wang.  Other contributions
+from: Todd Cope, Angelo Mottola, Trezker.
+
+Graphics:
+
+-  Added display options API and scoring, based on AllegroGL, for finer
+   control over display creation.
+
+-  Added API to query possible display formats (implemented on X, Mac OS X).
+
+-  Changed the bitmap locking mechanism.  The caller can choose a pixel
+   format.
+
+-  Added support for multisampling.
+
+-  Simplified the semantics of al_update_display_region().
+
+-  Optimised software blitting routines.
+
+-  Optimised al_map_rgb/al_map_rgba.
+
+-  Replaced al_draw_rectangle() and al_draw_line() from core library with
+   al_draw_rectangle_ex() and al_draw_line_ex() from the primitives addon.
+
+-  Implemented al_wait_for_vsync() everywhere except WGL.
+
+-  Fixed problems with sub-bitmaps with the OpenGL driver.
+
+-  Fixed bugs in software scaled/rotated blit routines.
+
+-  Added a new pixel format ALLEGRO_PIXEL_FORMAT_ABGR_F32.
+   Removed ALLEGRO_PIXEL_FORMAT_ANY_15_WITH_ALPHA,
+   ALLEGRO_PIXEL_FORMAT_ANY_24_WITH_ALPHA.
+
+-  Added support for creating OpenGL 3.0 contexts (untested; only WGL/GLX for
+   now).  Relevant display flags are ALLEGRO_OPENGL_3_0 and
+   ALLEGRO_OPENGL_FORWARD_COMPATIBLE.
+
+-  Allow disabling any OpenGL extensions from allegro.cfg to
+   test alternative rendering paths.
+
+-  Fixed problem with windows only activating on title bar clicks (Windows).
+
+-  Fixed a minimize/restore bug in D3D (with the help of Christopher Bludau).
+
+Input:
+
+-  Implemented al_set_mouse_xy under X11.
+
+-  Added ALLEGRO_EVENT_MOUSE_WARPED event for al_set_mouse_xy().
+
+Path routines:
+
+-  Made al_path_get_drive/filename return the empty string instead of NULL
+   if the drive or filename is missing.
+
+-  Changed al_path_set_extension/al_path_get_extension to include the leading
+   dot.
+
+-  Made al_path_get_extension(), al_path_get_basename(), al_path_to_string()
+   return pointers to internal strings.
+
+Unicode:
+
+-  Changed type of ALLEGRO_USTR; now you should use pointers to ALLEGRO_USTRs.
+
+-  Added UTF-16 conversion routines.
+
+Other core:
+
+-  Added ALLEGRO_GET_EVENT_TYPE for constructing integers for event type IDs.
+
+-  Renamed configuration function names to conform to conventions.
+
+-  Removed public MIN/MAX/ABS/MID/SGN/CLAMP/TRUE/FALSE macros.
+
+-  Replaced AL_PI by ALLEGRO_PI and documented it as part of public API.
+
+Audio addons:
+
+-  Added stream seeking and stream start/end loop points.
+
+-  Add panning support for kcm_audio (stereo only).
+
+Font addons:
+
+-  Made al_font_grab_font_from_bitmap() accept code point ranges.
+
+-  Made font routines use new UTF-8 routines; lifted some arbitrary limits.
+
+-  Fixed artefacts in bitmap font and TTF rendering.
+
+Image I/O addon:
+
+-  Made the capability to load/save images from/to ALLEGRO_FS_ENTRYs public.
+
+-  Added missing locking to .png save function.
+
+Other addons:
+
+-  Added native_dialog addon, with file selector dialogs.
+
+-  Fixed many bugs in the primitives addon.
+
+-  Made hsv/hsl color functions accept angles outside the 0..360° range.
+
+-  Fixed a bug in al_color_name_to_rgb.
+
+Examples:
+
+-  New programs: ex_audio_props, ex_blend_bench, ex_blend_test, ex_blit,
+   ex_clip, ex_draw, ex_font_justify, ex_gl_depth, ex_logo, ex_multisample,
+   ex_native_filechooser, ex_path_test, ex_rotate, ex_stream_seek, ex_vsync,
+   ex_warp_mouse.
+   (ex_draw demonstrated known bugs currently.)
+
+-  Updated programs: ex_joystick_events, ex_monitorinfo ex_pixelformat,
+   ex_scale, ex_subbitmap.
+
+Build system:
+
+-  Added pkg-config support.  .pc files are generated and installed on Unix.
+
+-  Allowed gcc to generate SSE instructions on x86 by default.  For Pentium 2
+   (or lower) compatibility you must uncheck a CMake option before building
+   Allegro.
+
+Other:
+
+-  Many other bug fixes.
+
+
+
 Changes from 4.9.7.1 to 4.9.8 (February 2009)
 =============================================
 

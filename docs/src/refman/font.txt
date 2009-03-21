@@ -10,11 +10,14 @@ This is now wholly handled in the vtable.
 Work horse for grabbing a font from an Allegro bitmap.
 
 Parameters:
+
 - bmp: The bitmap with the glyphs drawn onto it
   (TODO: describe expected format - opaque yellow background,
   fully transparent boxes all of same height but possibly variable
   width, white, possibly anti-aliased glyphs)
+
 - n: Number of unicode ranges in the bitmap.
+
 - ranges: 'n' pairs of first and last unicode point to map glyphs to for
   each range.
 
