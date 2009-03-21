@@ -1,10 +1,70 @@
-# Graphics
+% Graphics
+
+# Colors
 
 ## API: ALLEGRO_COLOR
 
 An ALLEGRO_COLOR structure describes a color in a device
-independant way. Use [al_map_rgb] et. al. and [al_unmap_rgb] et. al. to
+independant way. Use [al_map_rgb] et al. and [al_unmap_rgb] et al. to
 translate from and to various color representations.
+
+## API: al_map_rgb
+
+Convert r, g, b (ranging from 0-255) into an ALLEGRO_COLOR,
+using 255 for alpha.
+
+See also: [al_map_rgba], [al_map_rgba_f], [al_map_rgb_f]
+
+## API: al_map_rgb_f
+
+Convert r, g, b, (ranging from 0.0f-1.0f) into an ALLEGRO_COLOR,
+using 1.0f for alpha.
+
+See also: [al_map_rgba], [al_map_rgb], [al_map_rgba_f]
+
+## API: al_map_rgba
+
+Convert r, g, b, a  (ranging from 0-255) into an ALLEGRO_COLOR.
+
+See also: [al_map_rgb], [al_map_rgba_f], [al_map_rgb_f]
+
+## API: al_map_rgba_f
+
+Convert r, g, b, a (ranging from 0.0f-1.0f) into an ALLEGRO_COLOR.
+
+See also: [al_map_rgba], [al_map_rgb], [al_map_rgb_f]
+
+## API: al_unmap_rgb
+
+Retrieves components of an ALLEGRO_COLOR, ignoring alpha
+Components will range from 0-255.
+
+See also: [al_unmap_rgba], [al_unmap_rgba_f], [al_unmap_rgb_f]
+
+## API: al_unmap_rgb_f
+
+Retrieves components of an ALLEGRO_COLOR, ignoring alpha.
+Components will range from 0.0f-1.0f.
+
+See also: [al_unmap_rgba], [al_unmap_rgb], [al_unmap_rgba_f]
+
+## API: al_unmap_rgba
+
+Retrieves components of an ALLEGRO_COLOR.
+Components will range from 0-255.
+
+See also: [al_unmap_rgb], [al_unmap_rgba_f], [al_unmap_rgb_f]
+
+## API: al_unmap_rgba_f
+
+Retrieves components of an ALLEGRO_COLOR.
+Components will range from 0.0f-1.0f.
+
+See also: [al_unmap_rgba], [al_unmap_rgb], [al_unmap_rgb_f]
+
+
+
+# Locking and pixel formats
 
 ## API: ALLEGRO_LOCKED_REGION
 
@@ -112,15 +172,59 @@ format with alpha
 
 * ALLEGRO_PIXEL_FORMAT_XRGB_8888 - 32 bit
 
+* ALLEGRO_PIXEL_FORMAT_ABGR_F32 - 128 bit
+
+## API: al_get_pixel_size
+
+## API: al_get_pixel_format_bits
+
+## API: al_lock_bitmap
+
+Lock an entire bitmap for reading or writing. If the bitmap is a
+display bitmap it will be updated from system memory after the bitmap
+is unlocked (unless locked read only). locked_region must point to an
+already allocated ALLEGRO_LOCKED_REGION structure. Returns NULL if the
+bitmap cannot be locked, e.g. the bitmap was locked previously and not
+unlocked.
+
+Flags are:
+
+* ALLEGRO_LOCK_READONLY - The locked region will not be written to. This can
+be faster if the bitmap is a video texture, as it can be discarded after
+the lock instead of uploaded back to the card.
+    
+* ALLEGRO_LOCK_WRITEONLY - The locked region will not be read from. This can
+be faster if the bitmap is a video texture, as no data need to be read
+from the video card. You are required to fill in all pixels before
+unlocking the bitmap again, so be careful when using this flag.
+
+'format' indicates the pixel format that the returned buffer will be in.
+To lock in the same format as the bitmap stores it's data internally,
+call with `al_get_bitmap_format(bitmap)` as the format or use
+ALLEGRO_FORMAT_ANY. Locking in the native format will usually be faster.
+
+## API: al_lock_bitmap_region
+
+Like [al_lock_bitmap], but only locks a specific area of the bitmap.
+If the bitmap is a display bitmap, only that area of the texture will
+be updated when it is unlocked. Locking only the region you indend to
+modify will be faster than locking the whole bitmap.
+
+See Also: [al_lock_bitmap]
+
+## API: al_unlock_bitmap
+
+Unlock a previously locked bitmap or bitmap region. If the bitmap
+is a display bitmap, the texture will be updated to match the system
+memory copy (unless it was locked read only).
+
+
+
+# Bitmap creation
+
 ## API: al_clone_bitmap
 
 Clone a bitmap "exactly", formats can be different.
-
-## API: al_convert_mask_to_alpha
-
-Convert the given mask color to an alpha channel in the bitmap.
-Can be used to convert older 4.2-style bitmaps with magic pink
-to alpha-ready bitmaps.
 
 ## API: al_create_bitmap
 
@@ -162,6 +266,107 @@ longer be used.
 Destroys the given bitmap, freeing all resources used by it.
 Does nothing if given the null pointer.
 
+## API: al_get_new_bitmap_flags
+
+Returns the flags used for newly created bitmaps.
+
+## API: al_get_new_bitmap_format
+
+Returns the format used for newly created bitmaps.
+
+## API: al_load_bitmap
+
+Load a bitmap from a file using the bitmap format and flags of
+the current thread.
+
+See Also: [al_set_new_bitmap_format], [al_set_new_bitmap_flags]
+
+## API: al_set_new_bitmap_flags
+
+Sets the flags to use for newly created bitmaps.
+Valid flags are:
+
+* ALLEGRO_MEMORY_BITMAP - The bitmap will use a format most closely resembling
+the format used in the bitmap file and al_create_memory_bitmap will be used
+to create it. If this flag is not specified, al_create_bitmap will be used
+instead and the display driver will determine the format.
+
+XXX al_create_memory_bitmap doesn't exist any more
+
+* ALLEGRO_KEEP_BITMAP_FORMAT - Only used when loading bitmaps from disk files,
+forces the resulting ALLEGRO_BITMAP to use the same format as the file.
+
+* ALLEGRO_FORCE_LOCKING - When drawing to a bitmap with this flag set, always
+use pixel locking and draw to it using Allegro's software drawing primitives.
+This should never be used as it may cause severe performance penalties, but
+can be useful for debugging.
+
+## API: al_set_new_bitmap_format
+
+Sets the pixel format for newly created bitmaps.
+The default format is 0 and means the display driver will choose
+the best format.
+
+
+
+
+# Bitmap properties
+
+## API: al_get_bitmap_flags
+
+Return the flags user to create the bitmap.
+
+## API: al_get_bitmap_format
+
+Returns the pixel format of a bitmap.
+
+## API: al_get_bitmap_height
+
+Returns the height of a bitmap in pixels.
+
+## API: al_get_bitmap_width
+
+Returns the width of a bitmap in pixels.
+
+## API: al_get_pixel
+
+Get a pixel's color value from the specified bitmap.
+
+## API: al_is_bitmap_locked
+
+Returns whether or not a bitmap is already locked.
+
+## API: al_is_compatible_bitmap
+
+D3D and OpenGL allow sharing a texture in a way so it can be used for
+multiple windows. Each ALLEGRO_BITMAP created with [al_create_bitmap]
+however is usually tied to a single ALLEGRO_DISPLAY. This function can
+be used to know if the bitmap is compatible with the current display,
+even if it is another display than the one it was created with. It
+returns true if the bitmap is compatible (things like a cached texture
+version can be used) and false otherwise (blitting in the current
+display will be slow).
+
+The only time this function is useful is if you
+are using multiple windows and need accelerated blitting of the same
+bitmaps to both. 
+
+## API: al_is_sub_bitmap
+
+Returns true if the specified bitmap is a sub-bitmap, false otherwise.
+
+
+
+# Drawing operations
+
+All drawing operations draw to the current "target bitmap" of the
+current thread. Initially, the target bitmap will be the backbuffer of
+the last display created in a thread.
+
+## API: al_clear
+
+Clear the complete target bitmap, but confined by the clipping rectangle.
+
 ## API: al_draw_bitmap
 
 Draws an unscaled, unrotated bitmap at the given position
@@ -183,7 +388,6 @@ Draws a region of the given bitmap to the target bitmap.
 * dy - destination y
 * flags - same as for [al_draw_bitmap]
 
-
 ## API: al_draw_pixel
 
 Draws a single pixel at x, y. This function, unlike
@@ -192,11 +396,6 @@ al_put_pixel, does blending.
 * x - destination x
 * y - destination y
 * color - color of the pixel
-
-
-## API: al_clear
-
-Clear a complete display, but confined by the clipping rectangle.
 
 ## API: al_draw_rotated_bitmap
 
@@ -243,151 +442,32 @@ Draws a scaled version of the given bitmap to the target bitmap.
 * dh - destination height
 * flags - same as for [al_draw_bitmap]
 
-## API: al_get_bitmap_flags
+## API: al_get_target_bitmap
 
-Return the flags user to create the bitmap.
+Return the target bitmap of the current display.
 
-## API: al_get_bitmap_format
+## API: al_put_pixel
 
-Returns the pixel format of a bitmap.
+Draw a single pixel on the target bitmap.
 
-## API: al_get_bitmap_height
+## API: al_set_target_bitmap
 
-Returns the height of a bitmap in pixels.
+Select the bitmap to which all subsequent drawing operations in the calling
+thread will draw. 
 
-## API: al_get_bitmap_width
 
-Returns the width of a bitmap in pixels.
+
+# Blending modes
 
 ## API: al_get_blender
 
 Returns the active blender for the current thread. You can pass
 NULL for values you are not interested in.
 
-## API: al_get_clipping_rectangle
-
-Gets the clipping rectangle of the target bitmap.
-
-## API: al_get_new_bitmap_flags
-
-Returns the flags used for newly created bitmaps.
-
-## API: al_get_new_bitmap_format
-
-Returns the format used for newly created bitmaps.
-
-## API: al_get_pixel
-
-Get a pixel's color value from the specified bitmap.
-
-## API: al_get_pixel_size
-
-
-## API: al_get_pixel_format_bits
-
-
 ## API: al_get_separate_blender
 
 Returns the active blender for the current thread. You can pass
 NULL for values you are not interested in.
-
-## API: al_get_target_bitmap
-
-Return the target bitmap of the current display.
-
-## API: al_is_bitmap_locked
-
-Returns whether or not a bitmap is already locked.
-
-## API: al_is_compatible_bitmap
-
-D3D and OpenGL allow sharing a texture in a way so it can be used for
-multiple windows. Each ALLEGRO_BITMAP created with [al_create_bitmap]
-however is usually tied to a single ALLEGRO_DISPLAY. This function can
-be used to know if the bitmap is compatible with the current display,
-even if it is another display than the one it was created with. It
-returns true if the bitmap is compatible (things like a cached texture
-version can be used) and false otherwise (blitting in the current
-display will be slow).
-
-The only time this function is useful is if you
-are using multiple windows and need accelerated blitting of the same
-bitmaps to both. 
-
-## API: al_is_sub_bitmap
-
-Returns true if the specified bitmap is a sub-bitmap, false otherwise.
-
-## API: al_load_bitmap
-
-Load a bitmap from a file using the bitmap format and flags of
-the current thread.
-
-See Also: [al_set_new_bitmap_format], [al_set_new_bitmap_flags]
-
-## API: al_lock_bitmap
-
-Lock an entire bitmap for reading or writing. If the bitmap is a
-display bitmap it will be updated from system memory after the bitmap
-is unlocked (unless locked read only). locked_region must point to an
-already allocated ALLEGRO_LOCKED_REGION structure. Returns NULL if the
-bitmap cannot be locked, e.g. the bitmap was locked previously and not
-unlocked.
-
-Flags are:
-
-* ALLEGRO_LOCK_READONLY - The locked region will not be written to. This can
-be faster if the bitmap is a video texture, as it can be discarded after
-the lock instead of uploaded back to the card.
-    
-* ALLEGRO_LOCK_WRITEONLY - The locked region will not be read from. This can
-be faster if the bitmap is a video texture, as no data need to be read
-from the video card. You are required to fill in all pixels before
-unlocking the bitmap again, so be careful when using this flag.
-
-'format' indicates the pixel format that the returned buffer will be in.
-To lock in the same format as the bitmap stores it's data internally,
-call with `al_get_bitmap_format(bitmap)` as the format or use
-ALLEGRO_FORMAT_ANY. Locking in the native format will usually be faster.
-
-## API: al_lock_bitmap_region
-
-Like [al_lock_bitmap], but only locks a specific area of the bitmap.
-If the bitmap is a display bitmap, only that area of the texture will
-be updated when it is unlocked. Locking only the region you indend to
-modify will be faster than locking the whole bitmap.
-
-See Also: [al_lock_bitmap]
-
-## API: al_map_rgb
-
-Convert r, g, b (ranging from 0-255) into an ALLEGRO_COLOR,
-using 255 for alpha.
-
-See also: [al_map_rgba], [al_map_rgba_f], [al_map_rgb_f]
-
-## API: al_map_rgb_f
-
-Convert r, g, b, (ranging from 0.0f-1.0f) into an ALLEGRO_COLOR,
-using 1.0f for alpha.
-
-See also: [al_map_rgba], [al_map_rgb], [al_map_rgba_f]
-
-## API: al_map_rgba
-
-Convert r, g, b, a  (ranging from 0-255) into an ALLEGRO_COLOR.
-
-See also: [al_map_rgb], [al_map_rgba_f], [al_map_rgb_f]
-
-## API: al_map_rgba_f
-
-Convert r, g, b, a (ranging from 0.0f-1.0f) into an ALLEGRO_COLOR.
-
-See also: [al_map_rgba], [al_map_rgb], [al_map_rgb_f]
-
-## API: al_put_pixel
-
-Draw a single pixel on the target bitmap.
 
 ## API: al_set_blender
 
@@ -441,80 +521,32 @@ Copying the source to the destination (including alpha) unmodified
 
     al_set_blender(ALLEGRO_ONE, ALLEGRO_ZERO, {1, 1, 1, 1})
 
+## API: al_set_separate_blender
+
+Like [al_set_blender], but allows specifying a separate blending
+operation for the alpha channel.
+
+
+
+# Clipping
+
+## API: al_get_clipping_rectangle
+
+Gets the clipping rectangle of the target bitmap.
+
 ## API: al_set_clipping_rectangle
 
 Set the region of the target bitmap or display that
 pixels get clipped to. The default is to clip pixels
 to the entire bitmap.
 
-## API: al_set_new_bitmap_flags
-
-Sets the flags to use for newly created bitmaps.
-Valid flags are:
-
-* ALLEGRO_MEMORY_BITMAP - The bitmap will use a format most closely resembling
-the format used in the bitmap file and al_create_memory_bitmap will be used
-to create it. If this flag is not specified, al_create_bitmap will be used
-instead and the display driver will determine the format.
-
-XXX al_create_memory_bitmap doesn't exist any more
-
-* ALLEGRO_KEEP_BITMAP_FORMAT - Only used when loading bitmaps from disk files,
-forces the resulting ALLEGRO_BITMAP to use the same format as the file.
-
-* ALLEGRO_FORCE_LOCKING - When drawing to a bitmap with this flag set, always
-use pixel locking and draw to it using Allegro's software drawing primitives.
-This should never be used as it may cause severe performance penalties, but
-can be useful for debugging.
-
-## API: al_set_new_bitmap_format
-
-Sets the pixel format for newly created bitmaps.
-The default format is 0 and means the display driver will choose
-the best format.
-
-## API: al_set_separate_blender
-
-Like [al_set_blender], but allows specifying a separate blending
-operation for the alpha channel.
-
-## API: al_set_target_bitmap
-
-Select the bitmap to which all subsequent drawing operations in the calling
-thread will draw. 
-
-## API: al_unlock_bitmap
-
-Unlock a previously locked bitmap or bitmap region. If the bitmap
-is a display bitmap, the texture will be updated to match the system
-memory copy (unless it was locked read only).
-
-## API: al_unmap_rgb
-
-Retrieves components of an ALLEGRO_COLOR, ignoring alpha
-Components will range from 0-255.
-
-See also: [al_unmap_rgba], [al_unmap_rgba_f], [al_unmap_rgb_f]
-
-## API: al_unmap_rgb_f
-
-Retrieves components of an ALLEGRO_COLOR, ignoring alpha.
-Components will range from 0.0f-1.0f.
-
-See also: [al_unmap_rgba], [al_unmap_rgb], [al_unmap_rgba_f]
-
-## API: al_unmap_rgba
-
-Retrieves components of an ALLEGRO_COLOR.
-Components will range from 0-255.
-
-See also: [al_unmap_rgb], [al_unmap_rgba_f], [al_unmap_rgb_f]
-
-## API: al_unmap_rgba_f
-
-Retrieves components of an ALLEGRO_COLOR.
-Components will range from 0.0f-1.0f.
-
-See also: [al_unmap_rgba], [al_unmap_rgb], [al_unmap_rgb_f]
 
 
+
+# Miscellaneous
+
+## API: al_convert_mask_to_alpha
+
+Convert the given mask color to an alpha channel in the bitmap.
+Can be used to convert older 4.2-style bitmaps with magic pink
+to alpha-ready bitmaps.
