@@ -1551,6 +1551,8 @@ static void d3d_display_thread_proc(void *arg)
          else if (hr == D3DERR_DEVICENOTRESET) {
             if (_al_d3d_reset_device(d3d_display)) {
                d3d_display->device_lost = false;
+               d3d_reset_state(d3d_display);
+               _al_d3d_set_ortho_projection(d3d_display, al_display->w, al_display->h);
                _al_event_source_lock(&al_display->es);
                if (_al_event_source_needs_to_generate_event(&al_display->es)) {
                   ALLEGRO_EVENT event;
