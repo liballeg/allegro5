@@ -205,9 +205,7 @@ static thread_local_state* tls_get(void)
 static THREAD_LOCAL thread_local_state _tls = {
    0,                                     /* new_display_refresh_rate */
    0,                                     /* new_display_flags */
-   {0, 0, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-           0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-           0, 0, 0, 0, 0, 0, 0},
+   {0, 0, { 0 },
     NULL, 0, 0},                          /* new_display_settings */
    NULL,                                  /* current_display */
    NULL,                                  /* target_bitmap */
@@ -245,8 +243,7 @@ void _al_set_new_display_settings(ALLEGRO_EXTRA_DISPLAY_SETTINGS *settings)
    thread_local_state *tls;
    if ((tls = tls_get()) == NULL)
       return;
-   /* Isn't it true that &tls->new_display_settings == settings? */
-   memcpy(&tls->new_display_settings, settings, sizeof(ALLEGRO_EXTRA_DISPLAY_SETTINGS));
+   memmove(&tls->new_display_settings, settings, sizeof(ALLEGRO_EXTRA_DISPLAY_SETTINGS));
 }
 
 

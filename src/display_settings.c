@@ -87,11 +87,6 @@ void al_reset_new_display_options(void)
 {
    ALLEGRO_EXTRA_DISPLAY_SETTINGS *extras;
    extras = _al_get_new_display_settings();
-   if (!extras) {
-      extras = _AL_MALLOC(sizeof *extras);
-      memset(extras, 0, sizeof *extras);
-      _al_set_new_display_settings(extras);
-   }
    _al_fill_display_settings(extras);
 }
 
@@ -636,7 +631,8 @@ int _al_deduce_color_format(ALLEGRO_EXTRA_DISPLAY_SETTINGS *eds)
 void _al_set_color_components(int format, ALLEGRO_EXTRA_DISPLAY_SETTINGS *eds,
                               int importance)
 {
-   ALLEGRO_EXTRA_DISPLAY_SETTINGS *old_eds = _al_get_new_display_settings();
+   ALLEGRO_EXTRA_DISPLAY_SETTINGS old_eds;
+   memcpy(&old_eds, _al_get_new_display_settings(), sizeof(old_eds));
    _al_set_new_display_settings(eds);
 
    al_set_new_display_option(ALLEGRO_RED_SIZE,    0, ALLEGRO_DONTCARE);
@@ -836,5 +832,6 @@ void _al_set_color_components(int format, ALLEGRO_EXTRA_DISPLAY_SETTINGS *eds,
       break;
    }
 
-   _al_set_new_display_settings(old_eds);
+   memcpy(&eds, _al_get_new_display_settings(), sizeof(*eds));
+   _al_set_new_display_settings(&old_eds);
 }
