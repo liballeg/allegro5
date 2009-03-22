@@ -226,6 +226,10 @@ endif()
 if(CMAKE_SYSTEM_PROCESSOR MATCHES "i.86")
     set(ARCH_X86 1)
 endif()
+# CMake reports "x86" on my Windows Vista machine
+if(CMAKE_SYSTEM_PROCESSOR MATCHES "x86")
+    set(ARCH_X86 1)
+endif()
 
 if(ARCH_X86 AND WANT_ALLOW_SSE)
     set(ALLEGRO_CFG_ALLOW_SSE 1)
