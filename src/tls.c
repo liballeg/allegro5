@@ -37,7 +37,7 @@ typedef struct thread_local_state {
    /* Display parameters */
    int new_display_refresh_rate;
    int new_display_flags;
-   ALLEGRO_EXTRA_DISPLAY_SETTINGS *new_display_settings;
+   ALLEGRO_EXTRA_DISPLAY_SETTINGS new_display_settings;
    /* Current display */
    ALLEGRO_DISPLAY *current_display;
    /* Target bitmap */
@@ -114,6 +114,7 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved)
              data->blend_color.r = data->blend_color.g = data->blend_color.b
                 = data->blend_color.a = 1.0f;
              //data->memory_blender = _al_blender_alpha_inverse_alpha;
+             _al_fill_display_settings(&data->new_display_settings);
              TlsSetValue(tls_index, data); 
           }
              break; 
@@ -188,6 +189,7 @@ static thread_local_state* tls_get(void)
    {
       /* Must create object */
       ptr = osx_thread_init();
+      _al_fill_display_settings(&ptr->new_display_settings);
    }
    return ptr;
 }
@@ -203,7 +205,10 @@ static thread_local_state* tls_get(void)
 static THREAD_LOCAL thread_local_state _tls = {
    0,                                     /* new_display_refresh_rate */
    0,                                     /* new_display_flags */
-   NULL,                                  /* new_display_settings */
+   {0, 0, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+           0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+           0, 0, 0, 0, 0, 0, 0},
+    NULL, 0, 0},                          /* new_display_settings */
    NULL,                                  /* current_display */
    NULL,                                  /* target_bitmap */
    ALLEGRO_PIXEL_FORMAT_ANY_WITH_ALPHA,   /* new_bitmap_format */
@@ -221,7 +226,12 @@ static THREAD_LOCAL thread_local_state _tls = {
 #ifdef HAVE_NATIVE_TLS
 static thread_local_state *tls_get(void)
 {
-   return &_tls;
+   static thread_local_state *ptr = NULL;
+   if (!ptr) {
+      ptr = &_tls;
+      _al_fill_display_settings(&ptr->new_display_settings);
+   }
+   return ptr;
 }
 #endif /* end HAVE_NATIVE_TLS */
 
@@ -235,7 +245,7 @@ void _al_set_new_display_settings(ALLEGRO_EXTRA_DISPLAY_SETTINGS *settings)
    thread_local_state *tls;
    if ((tls = tls_get()) == NULL)
       return;
-   tls->new_display_settings = settings;
+   memcpy(&tls->new_display_settings, settings, sizeof(ALLEGRO_EXTRA_DISPLAY_SETTINGS));
 }
 
 
@@ -246,7 +256,7 @@ ALLEGRO_EXTRA_DISPLAY_SETTINGS *_al_get_new_display_settings(void)
 
    if ((tls = tls_get()) == NULL)
       return 0;
-   return tls->new_display_settings;
+   return &tls->new_display_settings;
 }
 
 
