@@ -725,7 +725,7 @@ static void d3d_blit_real(ALLEGRO_BITMAP *src,
 
    if (d3d_dest->display->device_lost) return;
 
-   d3d_set_bitmap_clip(dest);
+   _al_d3d_set_bitmap_clip(dest);
 
    al_get_blender(NULL, NULL, &bc);
    al_unmap_rgba(bc, &r, &g, &b, &a);
@@ -849,7 +849,7 @@ static void d3d_draw_bitmap_region(ALLEGRO_BITMAP *bitmap,
       0.0f, flags, false);
 }
 
-void d3d_draw_scaled_bitmap(ALLEGRO_BITMAP *bitmap, float sx, float sy,
+static void d3d_draw_scaled_bitmap(ALLEGRO_BITMAP *bitmap, float sx, float sy,
    float sw, float sh, float dx, float dy, float dw, float dh, int flags)
 {
    if (!_al_d3d_render_to_texture_supported() || !_al_d3d_supports_separate_alpha_blend(al_get_current_display())) {
@@ -865,7 +865,7 @@ void d3d_draw_scaled_bitmap(ALLEGRO_BITMAP *bitmap, float sx, float sy,
       flags, false);
 }
 
-void d3d_draw_rotated_bitmap(ALLEGRO_BITMAP *bitmap, float cx, float cy,
+static void d3d_draw_rotated_bitmap(ALLEGRO_BITMAP *bitmap, float cx, float cy,
    float dx, float dy, float angle, int flags)
 {
    if (!_al_d3d_render_to_texture_supported() || !_al_d3d_supports_separate_alpha_blend(al_get_current_display())) {
@@ -881,7 +881,7 @@ void d3d_draw_rotated_bitmap(ALLEGRO_BITMAP *bitmap, float cx, float cy,
       angle, flags, true);
 }
 
-void d3d_draw_rotated_scaled_bitmap(ALLEGRO_BITMAP *bitmap, float cx, float cy,
+static void d3d_draw_rotated_scaled_bitmap(ALLEGRO_BITMAP *bitmap, float cx, float cy,
    float dx, float dy, float xscale, float yscale, float angle,
    int flags)
 {
@@ -1030,7 +1030,7 @@ static void d3d_update_clipping_rectangle(ALLEGRO_BITMAP *bitmap)
    ALLEGRO_BITMAP_D3D *d3d_bitmap = (ALLEGRO_BITMAP_D3D *)bitmap;
 
    if (d3d_display->render_target == d3d_bitmap->render_target) {
-      d3d_set_bitmap_clip(bitmap);
+      _al_d3d_set_bitmap_clip(bitmap);
    }
 }
 

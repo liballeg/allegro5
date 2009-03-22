@@ -1230,16 +1230,17 @@ static void get_window_position(ALLEGRO_DISPLAY* display, int* px, int* py)
 /* set_window_title:
  * Set the title of the window with this display
  */
-void set_window_title(ALLEGRO_DISPLAY *display, AL_CONST char *title)
+static void set_window_title(ALLEGRO_DISPLAY *display, AL_CONST char *title)
 {
    ALLEGRO_DISPLAY_OSX_WIN* dpy = (ALLEGRO_DISPLAY_OSX_WIN*) display;
    [dpy->win setTitle: [NSString stringWithCString:title]];
 }
-/* set_display_icon:
+
+/* set_icon:
  * Set the icon - OS X doesn't have per-window icons so 
  * ignore the display parameter
  */
-void set_icon(ALLEGRO_DISPLAY *display, ALLEGRO_BITMAP* bitmap)
+static void set_icon(ALLEGRO_DISPLAY *display, ALLEGRO_BITMAP* bitmap)
 {
    [NSApp setApplicationIconImage: NSImageFromAllegroBitmap(bitmap)];
 }

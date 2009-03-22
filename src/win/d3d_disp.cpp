@@ -1911,7 +1911,7 @@ static void d3d_draw_filled_rectangle(ALLEGRO_DISPLAY *al_display, float tlx, fl
 
    target = al_get_target_bitmap();
 
-   d3d_set_bitmap_clip(target);
+   _al_d3d_set_bitmap_clip(target);
 
    d3d_color = d3d_blend_colors(color, bc);
 
@@ -2035,7 +2035,7 @@ static void d3d_update_display_region(ALLEGRO_DISPLAY *al_display,
 /*
  * Sets a clipping rectangle
  */
-void d3d_set_bitmap_clip(ALLEGRO_BITMAP *bitmap)
+void _al_d3d_set_bitmap_clip(ALLEGRO_BITMAP *bitmap)
 {
    ALLEGRO_DISPLAY_D3D *disp = ((ALLEGRO_BITMAP_D3D *)bitmap)->display;
    RECT rect;
@@ -2129,7 +2129,7 @@ static bool d3d_resize_display(ALLEGRO_DISPLAY *d, int width, int height)
       disp->backbuffer_bmp.bitmap.w = width;
       disp->backbuffer_bmp.bitmap.h = height;
       al_set_clipping_rectangle(0, 0, width, height);
-      d3d_set_bitmap_clip(&disp->backbuffer_bmp.bitmap);
+      _al_d3d_set_bitmap_clip(&disp->backbuffer_bmp.bitmap);
       al_restore_state(&backup);
 
       ret = true;
@@ -2310,7 +2310,7 @@ static void d3d_set_target_bitmap(ALLEGRO_DISPLAY *display, ALLEGRO_BITMAP *bitm
 
    d3d_reset_state(d3d_display);
 
-   d3d_set_bitmap_clip(bitmap);
+   _al_d3d_set_bitmap_clip(bitmap);
 }
 
 static ALLEGRO_BITMAP *d3d_get_backbuffer(ALLEGRO_DISPLAY *display)

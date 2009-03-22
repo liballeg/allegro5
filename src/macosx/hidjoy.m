@@ -98,7 +98,7 @@ static io_iterator_t create_device_iterator(UInt16 usage)
 * Create the interface to access this device, via
 * the intermediate plug-in interface
 */
-BOOL create_interface(io_object_t device, IOHIDDeviceInterface122*** interface)
+static BOOL create_interface(io_object_t device, IOHIDDeviceInterface122*** interface)
 {
 	io_name_t class_name;
 	IOReturn err = IOObjectGetClass(device,class_name);
@@ -361,7 +361,7 @@ static void exit_joystick(void)
 /* num_joysticks:
 *  Return number of active joysticks
 */
-int num_joysticks(void) 
+static int num_joysticks(void)
 {
 	return joystick_count;
 }
@@ -369,7 +369,7 @@ int num_joysticks(void)
 /* get_joystick:
 * Get a pointer to a joystick structure
 */
-ALLEGRO_JOYSTICK* get_joystick(int index) 
+static ALLEGRO_JOYSTICK* get_joystick(int index)
 {
 	ALLEGRO_JOYSTICK* joy = NULL;
 	if (index >= 0 && index < (int) joystick_count) {
@@ -381,15 +381,15 @@ ALLEGRO_JOYSTICK* get_joystick(int index)
 /* release_joystick:
 * Release a pointer that has been obtained
 */
-void release_joystick(ALLEGRO_JOYSTICK* joy __attribute__((unused)) )
+static void release_joystick(ALLEGRO_JOYSTICK* joy __attribute__((unused)) )
 {
 	// No-op
 }
 
-/* get_state:
+/* get_joystick_state:
 * Get the current status of a joystick
 */
-void get_joystick_state(ALLEGRO_JOYSTICK* ajoy, ALLEGRO_JOYSTICK_STATE* state)
+static void get_joystick_state(ALLEGRO_JOYSTICK* ajoy, ALLEGRO_JOYSTICK_STATE* state)
 {
 	ALLEGRO_JOYSTICK_OSX* joy = (ALLEGRO_JOYSTICK_OSX*) ajoy;
 	memcpy(state, &joy->state,sizeof(*state));
