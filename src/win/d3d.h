@@ -125,7 +125,7 @@ void _al_d3d_set_bitmap_clip(ALLEGRO_BITMAP *bitmap);
 void _al_d3d_sync_bitmap(ALLEGRO_BITMAP *dest);
 bool _al_d3d_supports_separate_alpha_blend(ALLEGRO_DISPLAY *display);
 
-extern ALLEGRO_MUTEX *lost_device_mutex;
+extern ALLEGRO_MUTEX *_al_d3d_lost_device_mutex;
 
 /* Helper to get smallest fitting power of two. */
 AL_INLINE_STATIC(int, pot, (int x),

@@ -67,7 +67,7 @@ static DWORD d3d_min_filter = D3DTEXF_POINT;
 static DWORD d3d_mag_filter = D3DTEXF_POINT;
 
 static ALLEGRO_MUTEX *present_mutex;
-ALLEGRO_MUTEX *lost_device_mutex;
+ALLEGRO_MUTEX *_al_d3d_lost_device_mutex;
 
 /*
  * These parameters cannot be gotten by the display thread because
@@ -834,7 +834,7 @@ bool _al_d3d_init_display()
    TRACE("Render-to-texture: %d\n", render_to_texture_supported);
 
    present_mutex = al_create_mutex();
-   lost_device_mutex = al_create_mutex();
+   _al_d3d_lost_device_mutex = al_create_mutex();
 
    return true;
 }
@@ -1113,7 +1113,7 @@ static bool _al_d3d_reset_device(ALLEGRO_DISPLAY_D3D *d3d_display)
    ALLEGRO_DISPLAY_WIN *win_display = &d3d_display->win_display;
    ALLEGRO_DISPLAY *al_display = &win_display->display;
 
-   al_lock_mutex(lost_device_mutex);
+   al_lock_mutex(_al_d3d_lost_device_mutex);
 
     _al_d3d_prepare_for_reset(d3d_display);
 
@@ -1195,7 +1195,7 @@ static bool _al_d3d_reset_device(ALLEGRO_DISPLAY_D3D *d3d_display)
                 TRACE("Direct3D Device reset failed (unknown reason).\n");
                 break;
           }
-          al_unlock_mutex(lost_device_mutex);
+          al_unlock_mutex(_al_d3d_lost_device_mutex);
           return 0;
        }
     }
@@ -1238,7 +1238,7 @@ static bool _al_d3d_reset_device(ALLEGRO_DISPLAY_D3D *d3d_display)
 
        if (d3d_display->device->Reset(&d3d_pp) != D3D_OK) {
           TRACE("Reset failed\n");
-          al_unlock_mutex(lost_device_mutex);
+          al_unlock_mutex(_al_d3d_lost_device_mutex);
           return 0;
        }
     }
@@ -1255,7 +1255,7 @@ static bool _al_d3d_reset_device(ALLEGRO_DISPLAY_D3D *d3d_display)
 
    d3d_reset_state(d3d_display);
    
-   al_unlock_mutex(lost_device_mutex);
+   al_unlock_mutex(_al_d3d_lost_device_mutex);
 
    return 1;
 }
@@ -2419,7 +2419,7 @@ static void d3d_shutdown(void)
    }
    _al_d3d->Release();
    al_destroy_mutex(present_mutex);
-   al_destroy_mutex(lost_device_mutex);
+   al_destroy_mutex(_al_d3d_lost_device_mutex);
 }
 
 
