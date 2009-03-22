@@ -331,6 +331,11 @@ static void render(void)
       }
       al_unlock_bitmap(fulllogo);
 
+      if (right < left)
+         right = left;
+      if (bottom < top)
+         bottom = top;
+
       crop = al_create_sub_bitmap(fulllogo, left, top,
                                   1 + right - left, 1 + bottom - top);
       logo = al_clone_bitmap(crop);
