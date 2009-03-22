@@ -226,7 +226,7 @@ static THREAD_LOCAL thread_local_state _tls = {
 #ifdef HAVE_NATIVE_TLS
 static thread_local_state *tls_get(void)
 {
-   static thread_local_state *ptr = NULL;
+   static THREAD_LOCAL thread_local_state *ptr = NULL;
    if (!ptr) {
       ptr = &_tls;
       _al_fill_display_settings(&ptr->new_display_settings);
@@ -245,6 +245,7 @@ void _al_set_new_display_settings(ALLEGRO_EXTRA_DISPLAY_SETTINGS *settings)
    thread_local_state *tls;
    if ((tls = tls_get()) == NULL)
       return;
+   /* Isn't it true that &tls->new_display_settings == settings? */
    memcpy(&tls->new_display_settings, settings, sizeof(ALLEGRO_EXTRA_DISPLAY_SETTINGS));
 }
 
