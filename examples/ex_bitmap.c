@@ -94,6 +94,8 @@ int main(int argc, const char *argv[])
         }
     }
 
+    al_destroy_bitmap(bitmap);
+
     return 0;
 }
 END_OF_MAIN()
