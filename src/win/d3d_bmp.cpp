@@ -390,12 +390,14 @@ void _al_d3d_release_default_pool_textures(void)
 	   d3d_bmp->video_texture->Release();
 	   d3d_bmp->video_texture = NULL;
 	}
+	/*
    	if (_al_d3d_render_to_texture_supported()) {
 	   if (d3d_bmp->system_texture) {
    	      d3d_bmp->system_texture->Release();
 	      d3d_bmp->system_texture = NULL;
 	   }
 	}
+	*/
 	/*
    	while (d3d_bmp->video_texture->Release() != 0) {
       	   TRACE("_al_d3d_release_default_pool_textures: video texture reference count not 0\n");
@@ -527,8 +529,12 @@ void _al_d3d_prepare_bitmaps_for_reset(ALLEGRO_DISPLAY_D3D *disp)
 {
    unsigned int i;
 
+   if (disp->device_lost) return;
+
    if (!_al_d3d_render_to_texture_supported())
       return;
+
+   al_lock_mutex(lost_device_mutex);
 
    for (i = 0; i < created_bitmaps._size; i++) {
       ALLEGRO_BITMAP_D3D **bptr = (ALLEGRO_BITMAP_D3D **)_al_vector_ref(&created_bitmaps, i);
@@ -541,6 +547,8 @@ void _al_d3d_prepare_bitmaps_for_reset(ALLEGRO_DISPLAY_D3D *disp)
 		 bmp->modified = false;
 	      }
    }
+
+   al_unlock_mutex(lost_device_mutex);
 }
 
 /*
@@ -582,7 +590,7 @@ void _al_d3d_refresh_texture_memory(void)
       ALLEGRO_BITMAP *al_bmp = (ALLEGRO_BITMAP *)bmp;
       ALLEGRO_DISPLAY_D3D *bmps_display = (ALLEGRO_DISPLAY_D3D *)al_bmp->display;
       d3d_create_textures(bmps_display, bmp->texture_w, bmp->texture_h,
-	 &bmp->video_texture, &bmp->system_texture/*0*/, al_bmp->format);
+	 &bmp->video_texture, /*&bmp->system_texture*/0, al_bmp->format);
       d3d_sync_bitmap_texture(al_bmp,
 	 0, 0, al_bmp->w, al_bmp->h);
       if (_al_d3d_render_to_texture_supported()) {
@@ -657,12 +665,17 @@ void _al_d3d_sync_bitmap(ALLEGRO_BITMAP *dest)
 
    if (dest->locked) {
       return;
-     }
+   }
+
+   d3d_dest = (ALLEGRO_BITMAP_D3D *)dest;
+
+   if (d3d_dest->system_texture == NULL || d3d_dest->video_texture == NULL) {
+      return;
+   }
 
    if (dest->parent) {
       dest = dest->parent;
    }
-   d3d_dest = (ALLEGRO_BITMAP_D3D *)dest;
 
    if (d3d_dest->system_texture->GetSurfaceLevel(
          0, &system_texture_surface) != D3D_OK) {
