@@ -214,7 +214,8 @@ HWND _al_win_create_faux_fullscreen_window(LPCTSTR devname, ALLEGRO_DISPLAY *dis
    (void)flags;
 
    style = WS_VISIBLE;
-   ex_style = WS_EX_TOPMOST;
+   /* Not WS_EX_TOPMOST because user might want to tab away */
+   ex_style = 0;
 
    my_window = CreateWindowEx(ex_style,
       "ALEX", "Allegro", style,
@@ -473,6 +474,8 @@ static LRESULT CALLBACK window_callback(HWND hWnd, UINT message,
          return 1;
       case WM_ACTIVATE:
          if (LOWORD(wParam) != WA_INACTIVE) {
+            SetWindowPos(win_display->window, HWND_TOP, 0, 0, 0, 0,
+               SWP_NOMOVE | SWP_NOSIZE);
             _al_win_grab_input(win_display);
             if (d->vt->switch_in)
             	  d->vt->switch_in(d);

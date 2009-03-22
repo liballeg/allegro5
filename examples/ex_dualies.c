@@ -6,6 +6,8 @@ void go(void)
 {
    ALLEGRO_DISPLAY *d1, *d2;
    ALLEGRO_BITMAP *b1, *b2;
+   ALLEGRO_EVENT_QUEUE *queue;
+   ALLEGRO_EVENT event;
 
    al_set_new_display_flags(ALLEGRO_FULLSCREEN);
 
@@ -33,15 +35,29 @@ void go(void)
       return;
    }
 
-   al_set_current_display(d1);
-   al_draw_scaled_bitmap(b1, 0, 0, 320, 200, 0, 0, 640, 480, 0);
-   al_flip_display();
+   queue = al_create_event_queue();
+   al_register_event_source(queue, (ALLEGRO_EVENT_SOURCE *)al_get_keyboard());
 
-   al_set_current_display(d2);
-   al_draw_scaled_bitmap(b2, 0, 0, 320, 200, 0, 0, 640, 480, 0);
-   al_flip_display();
+   while (1) {
+      if (!al_event_queue_is_empty(queue)) {
+         al_get_next_event(queue, &event);
+	 if (event.type == ALLEGRO_EVENT_KEY_DOWN) {
+	    if (event.keyboard.keycode == ALLEGRO_KEY_ESCAPE) {
+	       break;
+	    }
+	 }
+      }
 
-   al_rest(10);
+      al_set_current_display(d1);
+      al_draw_scaled_bitmap(b1, 0, 0, 320, 200, 0, 0, 640, 480, 0);
+      al_flip_display();
+
+      al_set_current_display(d2);
+      al_draw_scaled_bitmap(b2, 0, 0, 320, 200, 0, 0, 640, 480, 0);
+      al_flip_display();
+
+      al_rest(0.1);
+   }
 
    al_destroy_bitmap(b1);
    al_destroy_bitmap(b2);
@@ -55,6 +71,8 @@ int main(void)
       TRACE("Could not init Allegro.\n");
       return 1;
    }
+
+   al_install_keyboard();
 
    al_iio_init();
 
