@@ -46,24 +46,26 @@ ALLEGRO_DISPLAY *al_create_display(int w, int h)
    ALLEGRO_EXTRA_DISPLAY_SETTINGS *eds;
 
    eds = _al_get_new_display_settings();
-   _al_fill_display_settings(eds);
+   /* We cannot depend on al_reset_new_display_options() having been called
+    * anywhere because al_create_display() may be called from new threads.
+    */
+   if (!eds)
+      al_reset_new_display_options();
+   else
+      _al_fill_display_settings(eds);
 
    system = al_system_driver();
    driver = system->vt->get_display_driver();
    display = driver->create_display(w, h);
-
-
    if (!display)
       return NULL;
 
    _al_vector_init(&display->bitmaps, sizeof(ALLEGRO_BITMAP*));
 
-   {
    al_set_current_display(display);
    if (display->extra_settings.settings[ALLEGRO_COMPATIBLE_DISPLAY])
       al_clear(al_map_rgb(0, 0, 0));
    al_flip_display();
-   }
 
    return display;
 }

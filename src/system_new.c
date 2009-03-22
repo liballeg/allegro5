@@ -178,8 +178,6 @@ bool al_install_system(int (*atexit_ptr)(void (*)(void)))
 
    al_set_blender(ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA, al_map_rgb(255, 255, 255));
 
-   al_reset_new_display_options();
-
    if (atexit_ptr && atexit_virgin) {
       atexit_ptr(al_uninstall_system);
       atexit_virgin = false;

@@ -110,6 +110,8 @@ void _al_fill_display_settings(ALLEGRO_EXTRA_DISPLAY_SETTINGS *ref)
                       | (1<<ALLEGRO_BLUE_SIZE)
                       | (1<<ALLEGRO_ALPHA_SIZE);
 
+   ASSERT(ref);
+
    /* If all color components were set, but not the color depth */
    if ((((req | sug) & (1<<ALLEGRO_COLOR_SIZE)) == 0)
     && (((req | sug) & all_components) == all_components)) {
