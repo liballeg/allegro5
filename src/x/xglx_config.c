@@ -212,6 +212,7 @@ static void free_previous_visuals(void)
       }
       _AL_FREE(system->visuals);
       system->visuals = NULL;
+      system->visuals_count = 0;
    }
 }
 
@@ -230,6 +231,7 @@ static void get_visuals_new(ALLEGRO_DISPLAY_XGLX *glx)
 
    system->visuals = _AL_MALLOC(num_fbconfigs * sizeof(*system->visuals));
    system->visuals_count = num_fbconfigs;
+   memset(system->visuals, 0, num_fbconfigs * sizeof(*system->visuals));
 
    TRACE(PREFIX_I "get_visuals_new: %i formats.\n", num_fbconfigs);
 
@@ -350,6 +352,9 @@ static void get_visuals_old(void)
    xv = XGetVisualInfo(system->gfxdisplay, 0, NULL, &num_visuals);
    if (!xv || !num_visuals)
       return;
+
+   /* XXX not sure if this is needed; quick hack pre-release */
+   free_previous_visuals();
 
    system->visuals = _AL_MALLOC(num_visuals * sizeof(*system->visuals));
    system->visuals_count = num_visuals;

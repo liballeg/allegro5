@@ -455,6 +455,9 @@ static void xdpy_destroy_display(ALLEGRO_DISPLAY *d)
       glx->context = NULL;
    }
 
+   /* XXX quick pre-release hack */
+   /* In multi-window programs these result in a double-free bugs. */
+#if 0
    if (glx->fbc) {
       free(glx->fbc);
       glx->fbc = NULL;
@@ -465,6 +468,7 @@ static void xdpy_destroy_display(ALLEGRO_DISPLAY *d)
       free(glx->xvinfo);
       glx->xvinfo = NULL;
    }
+#endif
 
    _al_vector_free(&d->bitmaps);
    _al_event_source_free(&d->es);
