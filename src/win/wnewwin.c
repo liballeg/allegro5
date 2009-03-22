@@ -474,6 +474,9 @@ static LRESULT CALLBACK window_callback(HWND hWnd, UINT message,
          return 1;
       case WM_ACTIVATE:
          if (LOWORD(wParam) != WA_INACTIVE) {
+            /* This SetWindowPos is for faux-fullscreen windows that lost focus
+             * so they can get place back on top
+             */
             SetWindowPos(win_display->window, HWND_TOP, 0, 0, 0, 0,
                SWP_NOMOVE | SWP_NOSIZE);
             _al_win_grab_input(win_display);
