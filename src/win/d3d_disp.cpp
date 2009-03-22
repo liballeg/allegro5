@@ -1201,7 +1201,37 @@ static bool _al_d3d_reset_device(ALLEGRO_DISPLAY_D3D *d3d_display)
        d3d_pp.Windowed = 1;
        d3d_pp.SwapEffect = D3DSWAPEFFECT_DISCARD;
        d3d_pp.hDeviceWindow = win_display->window;
-       d3d_pp.Flags = D3DPRESENTFLAG_LOCKABLE_BACKBUFFER;
+      if (d3d_display->vsync) {
+         d3d_pp.PresentationInterval = D3DPRESENT_INTERVAL_ONE;
+      }
+      else {
+         d3d_pp.PresentationInterval = D3DPRESENT_INTERVAL_IMMEDIATE;
+      }
+
+      if (d3d_display->depth_stencil_format) {
+         d3d_pp.EnableAutoDepthStencil = true;
+         d3d_pp.AutoDepthStencilFormat = d3d_display->depth_stencil_format;
+      }
+      if (d3d_display->samples) {
+         d3d_pp.MultiSampleType = D3DMULTISAMPLE_NONMASKABLE;
+         d3d_pp.MultiSampleQuality = d3d_display->samples;
+      }
+      else
+         d3d_pp.Flags |= D3DPRESENTFLAG_LOCKABLE_BACKBUFFER;
+
+       if (d3d_display->single_buffer) {
+          d3d_pp.SwapEffect = D3DSWAPEFFECT_COPY;
+       }
+       else {
+          d3d_pp.SwapEffect = D3DSWAPEFFECT_DISCARD;
+       }
+       if (al_display->refresh_rate) {
+          d3d_pp.FullScreen_RefreshRateInHz =
+             al_display->refresh_rate;
+       }
+       else {
+          d3d_pp.FullScreen_RefreshRateInHz = d3d_get_default_refresh_rate(win_display->adapter);
+       }
 
        if (d3d_display->device->Reset(&d3d_pp) != D3D_OK) {
           TRACE("Reset failed\n");

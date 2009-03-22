@@ -120,7 +120,6 @@ void _al_d3d_draw_textured_quad(ALLEGRO_DISPLAY_D3D *, ALLEGRO_BITMAP_D3D *bmp,
    float dx, float dy, float dw, float dh,
    float cx, float cy, float angle,
    D3DCOLOR color, int flags, bool pivot);
-void _al_d3d_release_bitmap_textures(ALLEGRO_DISPLAY_D3D *disp);
 bool _al_d3d_recreate_bitmap_textures(ALLEGRO_DISPLAY_D3D *disp);
 void _al_d3d_set_bitmap_clip(ALLEGRO_BITMAP *bitmap);
 void _al_d3d_sync_bitmap(ALLEGRO_BITMAP *dest);

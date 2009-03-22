@@ -386,9 +386,15 @@ void _al_d3d_release_default_pool_textures(void)
 		d3d_bmp->render_target->Release();
 		d3d_bmp->render_target = NULL;
 	}
-   	d3d_bmp->video_texture->Release();
+	if (d3d_bmp->video_texture) {
+	   d3d_bmp->video_texture->Release();
+	   d3d_bmp->video_texture = NULL;
+	}
    	if (_al_d3d_render_to_texture_supported()) {
-   	   d3d_bmp->system_texture->Release();
+	   if (d3d_bmp->system_texture) {
+   	      d3d_bmp->system_texture->Release();
+	      d3d_bmp->system_texture = NULL;
+	   }
 	}
 	/*
    	while (d3d_bmp->video_texture->Release() != 0) {
@@ -534,32 +540,6 @@ void _al_d3d_prepare_bitmaps_for_reset(ALLEGRO_DISPLAY_D3D *disp)
 	         _al_d3d_sync_bitmap(al_bmp);
 		 bmp->modified = false;
 	      }
-   }
-}
-
-/*
- * Must be done for fullscreen devices when their thread exits so
- * that they aren't lost in a resize.
- */
-void _al_d3d_release_bitmap_textures(ALLEGRO_DISPLAY_D3D *disp)
-{
-   unsigned int i;
-
-   for (i = 0; i < created_bitmaps._size; i++) {
-      ALLEGRO_BITMAP_D3D **bptr = (ALLEGRO_BITMAP_D3D **)_al_vector_ref(&created_bitmaps, i);
-      ALLEGRO_BITMAP_D3D *bmp = *bptr;
-      ALLEGRO_BITMAP *al_bmp = (ALLEGRO_BITMAP *)bmp;
-      if (bmp->display != disp)
-         continue;
-      if (_al_d3d_render_to_texture_supported()) {
-         d3d_sync_bitmap_memory(al_bmp);
-         if (bmp->system_texture->Release() != 0) {
-            TRACE("_al_d3d_release_bitmap_textures: (system) ref count not 0\n");
-         }
-      }
-      if (bmp->video_texture->Release() != 0) {
-         TRACE("_al_d3d_release_bitmap_textures: (video) ref count not 0\n");
-      }
    }
 }
 
