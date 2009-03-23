@@ -199,7 +199,7 @@ static ALLEGRO_EXTRA_DISPLAY_SETTINGS* read_fbconfig(Display *dpy,
    return eds;
 }
 
-static void free_previous_visuals(void)
+void _al_xglx_free_visuals_info(void)
 {
    ALLEGRO_SYSTEM_XGLX *system = (void *)al_system_driver();
    if (system->visuals) {
@@ -353,9 +353,6 @@ static void get_visuals_old(void)
    if (!xv || !num_visuals)
       return;
 
-   /* XXX not sure if this is needed; quick hack pre-release */
-   free_previous_visuals();
-
    system->visuals = _AL_MALLOC(num_visuals * sizeof(*system->visuals));
    system->visuals_count = num_visuals;
    memset(system->visuals, 0, num_visuals * sizeof(*system->visuals));
@@ -387,13 +384,36 @@ static void get_visuals_old(void)
 }
 
 
+static void select_best_visual(ALLEGRO_DISPLAY_XGLX *glx)
+{
+   ALLEGRO_SYSTEM_XGLX *system = (void *)al_system_driver();
+
+   ALLEGRO_EXTRA_DISPLAY_SETTINGS *eds[system->visuals_count];
+   memcpy(eds, system->visuals, sizeof(*eds) * system->visuals_count);
+   qsort(eds, system->visuals_count, sizeof(*eds), _al_display_settings_sorter);
+
+   TRACE(PREFIX_I "_al_xglx_config_select_visual(): Chose visual no. %i\n", eds[0]->index);
+#ifdef DEBUGMODE
+   display_pixel_format(eds[0]);
+#endif
+   if (system->using_fbc) {
+      glx->fbc = eds[0]->info;
+      glx->xvinfo = glXGetVisualFromFBConfig(system->gfxdisplay, *glx->fbc);
+   }
+   else
+      glx->xvinfo = eds[0]->info;
+   memcpy(&glx->display.extra_settings, eds[0], sizeof(ALLEGRO_EXTRA_DISPLAY_SETTINGS));
+}
+
+
+
 void _al_xglx_config_select_visual(ALLEGRO_DISPLAY_XGLX *glx)
 {
    ALLEGRO_SYSTEM_XGLX *system = (void *)al_system_driver();
-   bool using_fbc;
    bool force_old = false;
-
-   free_previous_visuals();
+   
+   if (system->visuals) 
+      select_best_visual(glx);
 
    if (system->system.config) {
       const char *selection_mode;
@@ -414,31 +434,17 @@ void _al_xglx_config_select_visual(ALLEGRO_DISPLAY_XGLX *glx)
       get_visuals_new(glx);
    if (!system->visuals) {
       get_visuals_old();
-      using_fbc = false;
+      system->using_fbc = false;
    }
    else
-      using_fbc = true;
+      system->using_fbc = true;
 
    if (!system->visuals) {
       TRACE(PREFIX_E "_al_xglx_config_select_visual(): Failed to get any visual info.\n");
       return;
    }
 
-   ALLEGRO_EXTRA_DISPLAY_SETTINGS *eds[system->visuals_count];
-   memcpy(eds, system->visuals, sizeof(*eds) * system->visuals_count);
-   qsort(eds, system->visuals_count, sizeof(*eds), _al_display_settings_sorter);
-
-   TRACE(PREFIX_I "_al_xglx_config_select_visual(): Chose visual no. %i\n", eds[0]->index);
-#ifdef DEBUGMODE
-   display_pixel_format(eds[0]);
-#endif
-   if (using_fbc) {
-      glx->fbc = eds[0]->info;
-      glx->xvinfo = glXGetVisualFromFBConfig(system->gfxdisplay, *glx->fbc);
-   }
-   else
-      glx->xvinfo = eds[0]->info;
-   memcpy(&glx->display.extra_settings, eds[0], sizeof(ALLEGRO_EXTRA_DISPLAY_SETTINGS));
+   select_best_visual(glx);
 }
 
 static GLXContext create_context_new(int ver, Display *dpy, GLXFBConfig fb,

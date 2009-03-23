@@ -413,6 +413,7 @@ static void xdpy_destroy_display(ALLEGRO_DISPLAY *d)
          ALLEGRO_BITMAP *b = *bptr;
          _al_convert_to_memory_bitmap(b);
       }
+      _al_xglx_free_visuals_info();
    }
    else {
       /* Pass all bitmaps to any other living display. (We assume all displays
