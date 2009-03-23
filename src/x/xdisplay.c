@@ -208,6 +208,9 @@ static ALLEGRO_DISPLAY *xdpy_create_display(int w, int h)
    // TODO: What is this?
    d->xscreen = DefaultScreen(system->x11display);
 
+   d->is_mapped = false;
+   _al_cond_init(&d->mapped);
+
    // Try to set full screen mode if requested, fail if we can't
    if (display->flags & ALLEGRO_FULLSCREEN) {
       if (!_al_xglx_fullscreen_set_mode(system, w, h, 0, 0)) {
@@ -300,7 +303,9 @@ static ALLEGRO_DISPLAY *xdpy_create_display(int w, int h)
     * events thread. So as long as no other map events occur, the condition
     * should only be signalled when our window gets mapped.
     */
-   _al_cond_wait(&system->mapped, &system->lock);
+   while (!d->is_mapped) {
+      _al_cond_wait(&d->mapped, &system->lock);
+   }
 
    if (!_al_xglx_config_create_context(d)) {
       TRACE("xdisplay: Failed to create a context.\n");
@@ -470,6 +475,8 @@ static void xdpy_destroy_display(ALLEGRO_DISPLAY *d)
       glx->xvinfo = NULL;
    }
 #endif
+
+   _al_cond_destroy(&glx->mapped);
 
    _al_vector_free(&d->bitmaps);
    _al_event_source_free(&d->es);

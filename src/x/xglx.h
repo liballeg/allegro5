@@ -58,7 +58,6 @@ struct ALLEGRO_SYSTEM_XGLX
    _AL_THREAD thread; /* background thread. */
    _AL_MUTEX lock; /* thread lock for whenever we access internals. */
    // FIXME: One condition variable really would be enough.
-   _AL_COND mapped; /* Condition variable to wait for mapping a window. */
    _AL_COND resized; /* Condition variable to wait for resizing a window. */
    bool pointer_grabbed; /* Is an XGrabPointer in effect? */
    bool inhibit_screensaver; /* Should we inhibit the screensaver? */
@@ -90,6 +89,9 @@ struct ALLEGRO_DISPLAY_XGLX
    XVisualInfo *xvinfo; /* Used when selecting the X11 visual to use. */
    GLXFBConfig *fbc; /* Used when creating the OpenGL context. */
    int glx_version; /* 130 means 1 major and 3 minor, aka 1.3 */
+
+   _AL_COND mapped; /* Condition variable to wait for mapping a window. */
+   bool is_mapped;  /* Set to true when mapped. */
 
    /* Cursor for this window. */
    Cursor invisible_cursor;

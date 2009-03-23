@@ -76,7 +76,8 @@ static void process_x11_event(ALLEGRO_SYSTEM_XGLX *s, XEvent event)
          _al_cond_signal(&s->resized);
          break;
       case MapNotify:
-         _al_cond_signal(&s->mapped);
+         d->is_mapped = true;
+         _al_cond_signal(&d->mapped);
          break;
       case Expose:
          if (d->display.flags & ALLEGRO_GENERATE_EXPOSE_EVENTS) {
@@ -249,7 +250,6 @@ static ALLEGRO_SYSTEM *xglx_initialize(int flags)
    s->AllegroAtom = XInternAtom(x11display, "AllegroAtom", False);
 
    _al_mutex_init_recursive(&s->lock);
-   _al_cond_init(&s->mapped);
    _al_cond_init(&s->resized);
    s->inhibit_screensaver = false;
 
