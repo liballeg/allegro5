@@ -145,6 +145,8 @@ int main(void)
 
       if (mode == 0) {
          al_set_target_bitmap(al_get_backbuffer());
+         al_set_clipping_rectangle(0, 0,
+            al_get_display_width(), al_get_display_height());
          al_set_blender(ALLEGRO_ONE, ALLEGRO_ZERO, al_map_rgba_f(1, 1, 1, 1));
          al_draw_bitmap(buf, 0, 0, 0);
       }
