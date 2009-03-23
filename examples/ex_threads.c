@@ -8,7 +8,8 @@
 #include <allegro5/allegro5.h>
 
 
-#define MAX_THREADS  100
+#define MAX_THREADS     100
+#define MAX_BACKGROUNDS 10
 
 typedef struct Background {
    double rmax;
@@ -93,7 +94,7 @@ Quit:
 int main(int argc, const char *argv[])
 {
    ALLEGRO_THREAD *thread[MAX_THREADS];
-   Background background[MAX_THREADS] = {
+   Background background[MAX_BACKGROUNDS] = {
       { 1.0, 0.5, 0.5 },
       { 0.5, 1.0, 0.5 },
       { 0.5, 0.5, 1.0 },
@@ -128,7 +129,8 @@ int main(int argc, const char *argv[])
    al_install_mouse();
 
    for (i = 0; i < num_threads; i++) {
-      thread[i] = al_create_thread(thread_func, &background[i % 10]);
+      thread[i] = al_create_thread(thread_func,
+         &background[i % MAX_BACKGROUNDS]);
    }
    for (i = 0; i < num_threads; i++) {
       al_start_thread(thread[i]);
