@@ -8,7 +8,7 @@
 #include <allegro5/allegro5.h>
 
 
-#define NUM_THREADS  3
+#define MAX_THREADS  10
 
 typedef struct Background {
    double rmax;
@@ -90,15 +90,34 @@ Quit:
 }
 
 
-int main(void)
+int main(int argc, const char *argv[])
 {
-   ALLEGRO_THREAD *thread[NUM_THREADS];
-   Background background[NUM_THREADS] = {
+   ALLEGRO_THREAD *thread[MAX_THREADS];
+   Background background[MAX_THREADS] = {
       { 1.0, 0.5, 0.5 },
       { 0.5, 1.0, 0.5 },
-      { 0.5, 0.5, 1.0 }
+      { 0.5, 0.5, 1.0 },
+      { 1.0, 1.0, 0.5 },
+      { 0.5, 1.0, 1.0 },
+      { 1.0, 0.7, 0.5 },
+      { 0.5, 1.0, 0.7 },
+      { 0.7, 0.5, 1.0 },
+      { 1.0, 0.7, 0.5 },
+      { 0.5, 0.7, 1.0 }
    };
+   int num_threads;
    int i;
+
+   if (argc > 1) {
+      num_threads = strtol(argv[1], NULL, 10);
+      if (num_threads > MAX_THREADS)
+         num_threads = MAX_THREADS;
+      else if (num_threads < 1)
+         num_threads = 1;
+   }
+   else {
+      num_threads = 3;
+   }
 
    if (!al_init()) {
       TRACE("Could not init Allegro.\n");
@@ -108,14 +127,14 @@ int main(void)
    al_install_keyboard();
    al_install_mouse();
 
-   for (i = 0; i < NUM_THREADS; i++) {
+   for (i = 0; i < num_threads; i++) {
       thread[i] = al_create_thread(thread_func, &background[i]);
    }
-   for (i = 0; i < NUM_THREADS; i++) {
+   for (i = 0; i < num_threads; i++) {
       al_start_thread(thread[i]);
       al_rest(0.5);
    }
-   for (i = 0; i < NUM_THREADS; i++) {
+   for (i = 0; i < num_threads; i++) {
       al_join_thread(thread[i], NULL);
       al_destroy_thread(thread[i]);
    }
