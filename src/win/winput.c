@@ -101,7 +101,7 @@ static DWORD input_proc(void *unused)
       }
    }
 
-   ExitThread(0);
+   _endthread();
    return 0;
 }
 
