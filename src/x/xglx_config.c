@@ -412,8 +412,10 @@ void _al_xglx_config_select_visual(ALLEGRO_DISPLAY_XGLX *glx)
    ALLEGRO_SYSTEM_XGLX *system = (void *)al_system_driver();
    bool force_old = false;
    
-   if (system->visuals) 
+   if (system->visuals) {
       select_best_visual(glx);
+      return;
+   }
 
    if (system->system.config) {
       const char *selection_mode;
