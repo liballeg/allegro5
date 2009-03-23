@@ -241,8 +241,8 @@ void al_draw_filled_triangle(float x1, float y1, float x2, float y2,
 void al_draw_rectangle(float x1, float y1, float x2, float y2,
    ALLEGRO_COLOR color, float thickness)
 {
-   check_color_blending(&color);
    int ii;
+   check_color_blending(&color);
    verify_cache();
    if (thickness > 0) {
       float t = thickness / 2;

@@ -317,7 +317,7 @@ int al_get_display_format_option(int i, int option)
 void al_set_new_display_format(int i)
 {
    ALLEGRO_SYSTEM *system = al_system_driver();
-   return system->vt->set_new_display_format(i);
+   system->vt->set_new_display_format(i);
 }
 
 

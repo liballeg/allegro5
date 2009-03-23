@@ -25,7 +25,7 @@
 #define MIN _ALLEGRO_MIN
 
 
-static inline float get_factor(enum ALLEGRO_BLEND_MODE operation, float alpha)
+static INLINE float get_factor(enum ALLEGRO_BLEND_MODE operation, float alpha)
 {
    switch (operation) {
        case ALLEGRO_ZERO: return 0;
@@ -38,7 +38,7 @@ static inline float get_factor(enum ALLEGRO_BLEND_MODE operation, float alpha)
 }
 
 
-static inline void _al_blend_inline(
+static INLINE void _al_blend_inline(
    const ALLEGRO_COLOR *scol, const ALLEGRO_COLOR *dcol,
    int src_, int dst_, int asrc_, int adst_, const ALLEGRO_COLOR *bc,
    ALLEGRO_COLOR *result)
@@ -850,13 +850,13 @@ do {                                                                         \
                                                                              \
       al_get_separate_blender(&src_, &dst_, &asrc_, &adst_, &bc);            \
                                                                              \
-      dst_data = dst_region->data                                            \
+      dst_data = (char*)dst_region->data                                     \
          + dst_region->pitch * (bmp_y_i - clip_top_i)                        \
          + al_get_pixel_size(dst->format) * (my_l_bmp_x_i - (clip_left>>16));\
                                                                              \
       if (dst_ == ALLEGRO_ZERO) {                                            \
          for (x = my_l_bmp_x_i; x < my_r_bmp_x_i; x++) {                     \
-            const char *src_data = src_region->data                          \
+            const char *src_data = (char*)src_region->data                   \
                   + src_region->pitch * (my_l_spr_y>>16)                     \
                   + src_size * (my_l_spr_x>>16);                             \
             _AL_INLINE_GET_PIXEL(src->format, src_data, src_color, false);   \
@@ -870,7 +870,7 @@ do {                                                                         \
       }                                                                      \
       else {                                                                 \
          for (x = my_l_bmp_x_i; x < my_r_bmp_x_i; x++) {                     \
-            const char *src_data = src_region->data                          \
+            const char *src_data = (char*)src_region->data                   \
                   + src_region->pitch * (my_l_spr_y>>16)                     \
                   + src_size * (my_l_spr_x>>16);                             \
             _AL_INLINE_GET_PIXEL(src->format, src_data, src_color, false);   \

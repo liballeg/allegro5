@@ -25,7 +25,7 @@
 
 #include "allegro5/platform/alplatf.h"
 
-#pragma warning (disable: 4200 4244 4305)
+#pragma warning (disable: 4200 4244 4305 4800)
 
 
 /* describe this platform */

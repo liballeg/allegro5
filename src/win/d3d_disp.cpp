@@ -535,7 +535,7 @@ static void d3d_generate_display_format_list(void)
    static bool fullscreen = !(al_get_new_display_flags() & ALLEGRO_FULLSCREEN); /* stop warning */
    static int adapter = ~al_get_current_video_adapter(); /* stop warning */
 
-   if ((eds_list != NULL) && (fullscreen == (al_get_new_display_flags() & ALLEGRO_FULLSCREEN))
+   if ((eds_list != NULL) && (fullscreen == (bool)(al_get_new_display_flags() & ALLEGRO_FULLSCREEN))
          && (adapter == al_get_current_video_adapter())) {
       return;
    }

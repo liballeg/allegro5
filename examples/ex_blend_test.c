@@ -256,6 +256,23 @@ void do_test1(ALLEGRO_COLOR src_col, ALLEGRO_COLOR dst_col,
 int main(int argc, char **argv)
 {
    int i, j, k, l, m;
+   ALLEGRO_COLOR src_colors[2];
+   ALLEGRO_COLOR dst_colors[2];
+   ALLEGRO_COLOR blend_colors[2];
+   int src_formats[2] = {
+      ALLEGRO_PIXEL_FORMAT_ABGR_8888,
+      ALLEGRO_PIXEL_FORMAT_BGR_888
+      };
+   int dst_formats[2] = {
+      ALLEGRO_PIXEL_FORMAT_ABGR_8888,
+      ALLEGRO_PIXEL_FORMAT_BGR_888
+      };
+   src_colors[0] = C(0, 0, 0, 1);
+   src_colors[1] = C(1, 1, 1, 1);
+   dst_colors[0] = C(1, 1, 1, 1);
+   dst_colors[1] = C(0, 0, 0, 0);
+   blend_colors[0] = C(1, 1, 1, 0.5);
+   blend_colors[1] = C(1, 1, 1, 1);
 
    for (i = 1; i < argc; i++) {
       if (!strcmp(argv[i], "-d"))
@@ -268,24 +285,6 @@ int main(int argc, char **argv)
    
    if (test_display)
       al_create_display(100, 100);
-
-   ALLEGRO_COLOR src_colors[2] = {
-      C(0, 0, 0, 1),
-      C(1, 1, 1, 1)};
-   ALLEGRO_COLOR dst_colors[2] = {
-      C(1, 1, 1, 1),
-      C(0, 0, 0, 0)};
-   ALLEGRO_COLOR blend_colors[2] = {
-      C(1, 1, 1, 0.5),
-      C(1, 1, 1, 1)};
-   int src_formats[2] = {
-      ALLEGRO_PIXEL_FORMAT_ABGR_8888,
-      ALLEGRO_PIXEL_FORMAT_BGR_888
-      };
-   int dst_formats[2] = {
-      ALLEGRO_PIXEL_FORMAT_ABGR_8888,
-      ALLEGRO_PIXEL_FORMAT_BGR_888
-      };
 
    for (i = 0; i < 2; i++) {
       for (j = 0; j < 2; j++) {
