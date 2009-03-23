@@ -242,12 +242,11 @@ if(ARCH_X86 AND WANT_ALLOW_SSE)
 
     # Flags for other compilers should be added here.
 
-    # To be confirmed.
-    # if(COMPILER_MSVC)
-    #     message(STATUS "Allowing MSVC to use SSE instructions")
-    #     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /arch:SSE")
-    #     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /arch:SSE")
-    # endif(COMPILER_MSVC)
+    if(COMPILER_MSVC)
+        message(STATUS "Allowing MSVC to use SSE instructions")
+        set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /arch:SSE")
+        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /arch:SSE")
+    endif(COMPILER_MSVC)
 endif()
 
 #-----------------------------------------------------------------------------#
