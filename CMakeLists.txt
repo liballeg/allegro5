@@ -108,6 +108,8 @@ option(WANT_DOCS_PDF "Generate PDF document (requires pdflatex)" off)
 #
 
 option(STRICT_WARN "Halt at warnings" off)
+option(WARN_DECL_AFTER_STMT "Warn about declarations after statements (GCC)"
+    off)
 
 #
 # Minor options.
@@ -273,6 +275,13 @@ else(STRICT_WARN)
         set(WFLAGS "/W3 -D_CRT_SECURE_NO_DEPRECATE -D_CRT_NONSTDC_NO_DEPRECATE")
     endif(COMPILER_MSVC)
 endif(STRICT_WARN)
+
+if(WARN_DECL_AFTER_STMT)
+    if(COMPILER_GCC)
+        # This is useful in the Windows port to check compatibility with MSVC.
+        set(WFLAGS_C_ONLY "${WFLAGS_C_ONLY} -Wdeclaration-after-statement")
+    endif(COMPILER_GCC)
+endif(WARN_DECL_AFTER_STMT)
 
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${WFLAGS} ${WFLAGS_C_ONLY}")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${WFLAGS}")
