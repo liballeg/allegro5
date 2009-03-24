@@ -157,29 +157,7 @@ typedef void (*ALLEGRO_MEMORY_BLENDER)(
    ALLEGRO_COLOR *dest_color,
    ALLEGRO_COLOR *result);
 
-/* Blending stuff (should this be somewhere else? */
-ALLEGRO_COLOR *_al_get_blend_color(void);
 void _al_blend(ALLEGRO_COLOR *src_color, ALLEGRO_BITMAP *dest, int dx, int dy, ALLEGRO_COLOR *result);
-# if 0
-void _al_set_memory_blender(int src, int dst, int asrc, int adst, ALLEGRO_COLOR *color);
-ALLEGRO_MEMORY_BLENDER _al_get_memory_blender(void);
-void _al_blender_zero_zero(ALLEGRO_COLOR *src_color, ALLEGRO_COLOR *dst_color, ALLEGRO_COLOR *result);
-void _al_blender_zero_one(ALLEGRO_COLOR *src_color, ALLEGRO_COLOR *dst_color, ALLEGRO_COLOR *result);
-void _al_blender_zero_alpha(ALLEGRO_COLOR *src_color, ALLEGRO_COLOR *dst_color, ALLEGRO_COLOR *result);
-void _al_blender_zero_inverse_alpha(ALLEGRO_COLOR *src_color, ALLEGRO_COLOR *dst_color, ALLEGRO_COLOR *result);
-void _al_blender_one_zero(ALLEGRO_COLOR *src_color, ALLEGRO_COLOR *dst_color, ALLEGRO_COLOR *result);
-void _al_blender_one_one(ALLEGRO_COLOR *src_color, ALLEGRO_COLOR *dst_color, ALLEGRO_COLOR *result);
-void _al_blender_one_alpha(ALLEGRO_COLOR *src_color, ALLEGRO_COLOR *dst_color, ALLEGRO_COLOR *result);
-void _al_blender_one_inverse_alpha(ALLEGRO_COLOR *src_color, ALLEGRO_COLOR *dst_color, ALLEGRO_COLOR *result);
-void _al_blender_alpha_zero(ALLEGRO_COLOR *src_color, ALLEGRO_COLOR *dst_color, ALLEGRO_COLOR *result);
-void _al_blender_alpha_one(ALLEGRO_COLOR *src_color, ALLEGRO_COLOR *dst_color, ALLEGRO_COLOR *result);
-void _al_blender_alpha_alpha(ALLEGRO_COLOR *src_color, ALLEGRO_COLOR *dst_color, ALLEGRO_COLOR *result);
-void _al_blender_alpha_inverse_alpha(ALLEGRO_COLOR *src_color, ALLEGRO_COLOR *dst_color, ALLEGRO_COLOR *result);
-void _al_blender_inverse_alpha_zero(ALLEGRO_COLOR *src_color, ALLEGRO_COLOR *dst_color, ALLEGRO_COLOR *result);
-void _al_blender_inverse_alpha_one(ALLEGRO_COLOR *src_color, ALLEGRO_COLOR *dst_color, ALLEGRO_COLOR *result);
-void _al_blender_inverse_alpha_alpha(ALLEGRO_COLOR *src_color, ALLEGRO_COLOR *dst_color, ALLEGRO_COLOR *result);
-void _al_blender_inverse_alpha_inverse_alpha(ALLEGRO_COLOR *src_color, ALLEGRO_COLOR *dst_color, ALLEGRO_COLOR *result);
-#endif
 
 #ifdef __cplusplus
 }

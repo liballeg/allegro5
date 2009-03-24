@@ -67,9 +67,8 @@ ALLEGRO_STATIC_ASSERT(
    (__GNUC__ == 4 && __GNUC_MINOR == 2 && __GNUC_PATCHLEVEL__ < 1))
 
 /*
- * MinGW doesn't have builtin thread local storage, so we
- * must use the Windows API. This means that the MinGW
- * build must be built as a DLL.
+ * MinGW 3.x doesn't have builtin thread local storage, so we
+ * must use the Windows API.
  */
 
 #include <windows.h>
@@ -95,8 +94,9 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved)
  
    switch (fdwReason) { 
       case DLL_PROCESS_ATTACH: 
-         if ((tls_index = TlsAlloc()) == TLS_OUT_OF_INDEXES)
+         if ((tls_index = TlsAlloc()) == TLS_OUT_OF_INDEXES) {
             return false;
+	 }
             // No break: Initialize the index for first thread.
             // The attached process creates a new thread. 
 
@@ -114,8 +114,8 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved)
              data->blend_color.r = data->blend_color.g = data->blend_color.b
                 = data->blend_color.a = 1.0f;
              //data->memory_blender = _al_blender_alpha_inverse_alpha;
+             TlsSetValue(tls_index, data);
              _al_fill_display_settings(&data->new_display_settings);
-             TlsSetValue(tls_index, data); 
           }
              break; 
  

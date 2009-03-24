@@ -161,6 +161,8 @@ AL_FUNC(void, al_set_blender, (int source, int dest, ALLEGRO_COLOR color));
 AL_FUNC(void, al_get_blender, (int *source, int *dest, ALLEGRO_COLOR *color));
 AL_FUNC(void, al_set_separate_blender, (int source, int dest, int alpha_source, int alpha_dest, ALLEGRO_COLOR color));
 AL_FUNC(void, al_get_separate_blender, (int *source, int *dest, int *alpha_src, int *alpha_dest, ALLEGRO_COLOR *color));
+AL_FUNC(ALLEGRO_COLOR *, _al_get_blend_color, (void));
+
 
 #ifdef __cplusplus
    }
