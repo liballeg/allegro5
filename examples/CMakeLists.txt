@@ -109,6 +109,7 @@ endif(SUPPORT_D3D)
 if(SUPPORT_OPENGL)
     example(ex_glext)
     example(ex_opengl)
+    example(ex_opengl2)
 endif(SUPPORT_OPENGL)
 
 if(SUPPORT_OPENGL AND SUPPORT_FONT)
