@@ -4,6 +4,17 @@ See `changes._tx` for changes in earlier versions of Allegro.  These lists
 serve as summaries; the full histories are in the Subversion repository.
 
 
+Changes from 4.9.9 to 4.9.9.1 (March 2009)
+==========================================
+
+-  Made it compile and work with MSVC and MinGW 3.4.5.
+
+-  Enabled SSE instruction set in MSVC.
+
+-  Fixed X11 XIM keyboard input (partially?).
+
+
+
 Changes from 4.9.8 to 4.9.9 (March 2009)
 ========================================
 
