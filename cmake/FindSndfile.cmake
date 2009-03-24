@@ -12,7 +12,7 @@ endif(SNDFILE_INCLUDE_DIR)
 
 find_path(SNDFILE_INCLUDE_DIR sndfile.h)
 
-find_library(SNDFILE_LIBRARY NAMES sndfile)
+find_library(SNDFILE_LIBRARY NAMES sndfile sndfile-1)
 
 # Handle the QUIETLY and REQUIRED arguments and set SNDFILE_FOUND to TRUE if
 # all listed variables are TRUE.
