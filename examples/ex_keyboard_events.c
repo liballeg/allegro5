@@ -6,6 +6,7 @@
  */
 
 #include <allegro5/allegro5.h>
+#include <allegro5/a5_iio.h>
 #include <allegro5/a5_font.h>
 
 
@@ -89,7 +90,7 @@ void log_key_down(int keycode, int unichar, int modifiers)
 
    usetat(unistr, 0, unichar);
    uszprintf(buf, sizeof(buf),
-      "Down: %3d <%1s> %04x [%08x]", keycode, unistr, unichar, modifiers);
+      "Down: %3d <%1s> %08x [%08x]", keycode, unistr, unichar, modifiers);
    log_message(buf);
 }
 
@@ -102,7 +103,7 @@ void log_key_repeat(int keycode, int unichar, int modifiers)
 
    usetat(unistr, 0, unichar);
    uszprintf(buf, sizeof(buf),
-      "Rept: %3d <%1s> %04x [%08x]", keycode, unistr, unichar, modifiers);
+      "Rept: %3d <%1s> %08x [%08x]", keycode, unistr, unichar, modifiers);
    log_message(buf);
 }
 
@@ -115,7 +116,7 @@ void log_key_up(int keycode, int unichar, int modifiers)
 
    usetat(unistr, 0, unichar);
    uszprintf(buf, sizeof(buf),
-      "Up:   %3d <%1s> %04x [%08x]", keycode, unistr, unichar, modifiers);
+      "Up:   %3d <%1s> %08x [%08x]", keycode, unistr, unichar, modifiers);
    log_message(buf);
 }
 
@@ -224,6 +225,13 @@ void main_loop(void)
 
 int main(void)
 {
+   ALLEGRO_BITMAP *a4font;
+   int ranges[] = {
+       0x0020, 0x007F,  /* ASCII */
+       0x00A1, 0x00FF,  /* Latin 1 */
+       0x0100, 0x017F,  /* Extended-A */
+       0x20AC, 0x20AC}; /* Euro */
+
    if (!al_init()) {
       TRACE("Could not init Allegro.\n");
       return 1;
@@ -242,11 +250,13 @@ int main(void)
       return 1;
    }
 
-   myfont = al_font_load_font("data/fixed_font.tga", 0);
-   if (!myfont) {
-      TRACE("fixed_font.tga not found\n");
+   a4font = al_iio_load("data/a4_font.png");
+   if (!a4font) {
+      TRACE("Failed to load a4_font.png\n");
       return 1;
    }
+
+   myfont = al_font_grab_font_from_bitmap(a4font, 4, ranges);
    black = al_map_rgb(0, 0, 0);
    white = al_map_rgb(255, 255, 255);
 

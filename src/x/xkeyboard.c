@@ -483,6 +483,12 @@ void _al_xwin_keyboard_switch_handler(ALLEGRO_DISPLAY *display,
    switch (event->type) {
       case FocusIn:
          the_keyboard.state.display = display;
+#ifdef ALLEGRO_XWINDOWS_WITH_XIM
+         if (xic) {
+            ALLEGRO_DISPLAY_XGLX *display_glx = (void *)display;
+            XSetICValues(xic, XNClientWindow, display_glx->window, NULL);
+         }
+#endif
          break;
       case FocusOut:
          the_keyboard.state.display = NULL;
@@ -720,16 +726,8 @@ static int x_keyboard_init(void)
    }
 
 #ifdef ALLEGRO_XWINDOWS_WITH_XIM
-/* TODO: is this needed?
-   if (setlocale(LC_ALL,"") == NULL) {
-      TRACE(PREFIX_W "Could not set default locale.\n");
-   }
+   TRACE (PREFIX_I "Using X Input Method.\n");
 
-   modifiers = XSetLocaleModifiers("@im=none");
-   if (modifiers == NULL) {
-      TRACE(PREFIX_W "XSetLocaleModifiers failed.\n");
-   }
-*/
    xim = XOpenIM (s->x11display, NULL, NULL, NULL);
    if (xim == NULL) {
       TRACE(PREFIX_W "XOpenIM failed.\n");
@@ -761,13 +759,18 @@ static int x_keyboard_init(void)
    if (xim && xim_style) {
       xic = XCreateIC(xim,
          XNInputStyle, xim_style,
-         //XNClientWindow, window,
-         //XNFocusWindow, window,
          NULL);
-
       if (xic == NULL) {
          TRACE (PREFIX_W "XCreateIC failed.\n");
       }
+
+      /* In case al_install_keyboard() is called when there already is
+       * a display, we set it as client window.
+       */
+      ALLEGRO_DISPLAY *display = al_get_current_display();
+      ALLEGRO_DISPLAY_XGLX *display_glx = (void *)display;
+      if (display_glx && xic)
+         XSetICValues(xic, XNClientWindow, display_glx->window, NULL);
    }
 #endif
 
