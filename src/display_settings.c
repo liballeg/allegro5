@@ -832,6 +832,6 @@ void _al_set_color_components(int format, ALLEGRO_EXTRA_DISPLAY_SETTINGS *eds,
       break;
    }
 
-   memcpy(&eds, _al_get_new_display_settings(), sizeof(*eds));
+   memcpy(eds, _al_get_new_display_settings(), sizeof(*eds));
    _al_set_new_display_settings(&old_eds);
 }
