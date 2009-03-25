@@ -61,7 +61,7 @@ static bool test(ALLEGRO_BITMAP *bitmap, ALLEGRO_FONT *font, char *message)
 
       print(font, message, 0, 0);
       sprintf(second_line, "%.1f FPS", fps);
-      print(font, second_line, 0, al_font_text_height(font)+5);
+      print(font, second_line, 0, al_get_font_line_height(font)+5);
 
       al_flip_display();
 
@@ -88,7 +88,7 @@ int main(void)
    }
 
    al_install_keyboard();
-   al_font_init();
+   al_init_font_addon();
 
    display = al_create_display(640, 400);
    if (!display) {
@@ -96,7 +96,7 @@ int main(void)
       return 1;
    }
 
-   accelfont = al_font_load_font("data/font.tga", 0);
+   accelfont = al_load_font("data/font.tga", 0, 0);
    if (!accelfont) {
       TRACE("font.tga not found\n");
       return 1;
@@ -109,7 +109,7 @@ int main(void)
 
    al_set_new_bitmap_flags(ALLEGRO_MEMORY_BITMAP);
 
-   memfont = al_font_load_font("data/font.tga", 0);
+   memfont = al_load_font("data/font.tga", 0, 0);
    membmp = al_iio_load("data/mysha.pcx");
 
    for (;;) {

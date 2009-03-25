@@ -10,8 +10,10 @@
  */
 #include <stdio.h>
 #include <math.h>
-#include "allegro5/a5_ttf.h"
-#include "allegro5/a5_iio.h"
+#include <allegro5/allegro5.h>
+#include <allegro5/a5_font.h>
+#include <allegro5/a5_ttf.h>
+#include <allegro5/a5_iio.h>
 #include <allegro5/a5_primitives.h>
 
 static ALLEGRO_BITMAP *logo, *logo_flash;
@@ -79,8 +81,8 @@ static ALLEGRO_BITMAP *generate_logo(char const *text,
    cx = dw * 0.5;
    cy = dh * 0.5;
 
-   logofont = al_ttf_load_font(fontname, -font_size, 0);
-   al_ttf_get_text_dimensions(logofont, text, -1, &xp, &yp, &w, &h, &as, &de);
+   logofont = al_load_font(fontname, -font_size, 0);
+   al_get_text_dimensions(logofont, text, -1, &xp, &yp, &w, &h, &as, &de);
 
    al_store_state(&state, ALLEGRO_STATE_TARGET_BITMAP | ALLEGRO_STATE_BLENDER);
 
@@ -167,7 +169,7 @@ static ALLEGRO_BITMAP *generate_logo(char const *text,
    al_destroy_bitmap(light);
 
    al_restore_state(&state);
-   al_font_destroy_font(logofont);
+   al_destroy_font(logofont);
 
    return logo;
 }
@@ -201,7 +203,7 @@ static void print_parameters(void)
 
    al_store_state(&state, ALLEGRO_STATE_BLENDER);
 
-   th = al_font_text_height(font) + 3;
+   th = al_get_font_line_height(font) + 3;
    for (i = 0; param_names[i]; i++) {
       al_set_blender(ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA, label);
       al_font_textprintf(font, 2, 2 + i * th, "%s", param_names[i]);
@@ -219,7 +221,7 @@ static void print_parameters(void)
       al_font_textprintf(font, 75, y, "%s", param_values[i]);
       if (i == selection && editing &&
          (((int)(al_current_time() * 2)) & 1)) {
-         int x = 75 + al_font_text_width(font, param_values[i], -1);
+         int x = 75 + al_get_text_width(font, param_values[i], -1);
          al_set_blender(ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA, normal);
          al_draw_line(x, y, x, y + th, white, 0);
       }
@@ -265,7 +267,7 @@ static void save(void)
 
 static void mouse_click(int x, int y)
 {
-   int th = al_font_text_height(font) + 3;
+   int th = al_get_font_line_height(font) + 3;
    int sel = (y - 2) / th;
    int i;
    if (x < 400) {
@@ -392,7 +394,8 @@ int main(void)
 
    al_init();
    al_install_mouse();
-   al_font_init();
+   al_init_font_addon();
+   al_init_ttf_addon();
    srand(time(NULL));
 
    white = al_map_rgba_f(1, 1, 1, 1);
@@ -412,7 +415,7 @@ int main(void)
          ustrzcpy(param_values[i], sizeof(param_values[i]), value);
    }
 
-   font = al_ttf_load_font("data/DejaVuSans.ttf", 12, 0);
+   font = al_load_font("data/DejaVuSans.ttf", 12, 0);
 
    timer = al_install_timer(1.0 / 60);
 

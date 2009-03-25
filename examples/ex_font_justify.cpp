@@ -71,7 +71,7 @@ void Prog::draw_text()
    const int x1 = cx - width_slider.get_cur_value() / 2;
    const int x2 = cx + width_slider.get_cur_value() / 2;
    const int diff = diff_slider.get_cur_value();
-   const int th = al_font_text_height(font);
+   const int th = al_get_font_line_height(font);
 
    al_font_textout_justify(font, x1, x2, 50, diff,
       text_entry.get_text().c_str());
@@ -93,7 +93,8 @@ int main()
    al_install_keyboard();
    al_install_mouse();
 
-   al_font_init();
+   al_init_font_addon();
+   al_init_ttf_addon();
 
    al_set_new_display_flags(ALLEGRO_GENERATE_EXPOSE_EVENTS);
    display = al_create_display(640, 480);
@@ -104,20 +105,20 @@ int main()
 
    /* Test TTF fonts or bitmap fonts. */
 #if 1
-   font = al_ttf_load_font("data/DejaVuSans.ttf", 24, 0);
+   font = al_load_font("data/DejaVuSans.ttf", 24, 0);
    if (!font) {
       TRACE("Failed to load data/DejaVuSans.ttf\n");
       return 1;
    }
 #else
-   font = al_font_load_font("data/font.tga", 0);
+   font = al_load_font("data/font.tga", 0, 0);
    if (!font) {
       TRACE("Failed to load data/font.tga\n");
       return 1;
    }
 #endif
 
-   font_gui = al_font_load_font("data/fixed_font.tga", 0);
+   font_gui = al_load_font("data/fixed_font.tga", 0, 0);
    if (!font_gui) {
       TRACE("Failed to load data/DejaVuSans.ttf\n");
       return 1;
@@ -132,8 +133,8 @@ int main()
       prog.run();
    }
 
-   al_font_destroy_font(font);
-   al_font_destroy_font(font_gui);
+   al_destroy_font(font);
+   al_destroy_font(font_gui);
 
    return 0;
 }

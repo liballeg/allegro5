@@ -1,11 +1,11 @@
 # Font addons
 
-## API: al_font_destroy_font
+## API: al_destroy_font
 
 Frees the memory being used by a font structure.
 This is now wholly handled in the vtable.
 
-## API: al_font_grab_font_from_bitmap
+## API: al_grab_font_from_bitmap
 
 Work horse for grabbing a font from an Allegro bitmap.
 
@@ -15,9 +15,7 @@ Parameters:
   (TODO: describe expected format - opaque yellow background,
   fully transparent boxes all of same height but possibly variable
   width, white, possibly anti-aliased glyphs)
-
 - n: Number of unicode ranges in the bitmap.
-
 - ranges: 'n' pairs of first and last unicode point to map glyphs to for
   each range.
 
@@ -40,32 +38,28 @@ found in the bitmap to ASCII range, the next 95 glyphs to Latin 1, the
 next 128 glyphs to Extended-A, and the last glyph to the Euro character.
 (This is just the characters found in the Allegro 4 font.)
 
-## API: al_font_init
+## API: al_init_font_addon
 
+## API: al_load_bitmap_font
 
-## API: al_font_is_compatible_font
+## API: al_load_font
 
-Returns non-zero if the two fonts are of similar type.
+Loads a font from disk.
 
-## API: al_font_load_font
-
-Loads a font from disk. Will try to load a font from a bitmap if all else
-fails.
-
-## API: al_font_load_bitmap_font
+## API: al_load_bitmap_font
 
 Import routine for the Allegro bitmap font format.
 
-## API: al_font_register_font_file_type
+## API: al_register_font_extension
 
 Informs Allegro of a new font file type, telling it how to load files of
 this format.
 
-## API: al_font_text_height
+## API: al_get_font_line_height
 
 Returns the height of a character in the specified font.
 
-## API: al_font_text_width
+## API: al_get_text_width
 
 Calculates the length of a string in a particular font.
 
@@ -111,20 +105,21 @@ area.
 Like [al_font_textprintf], but uses the x coordinate as the right rather
 than the left of the string.
 
-## API: al_ttf_get_text_dimensions
+## API: al_get_text_dimensions
 
-Sometimes, the [al_font_text_width] and [al_font_text_height]
+Sometimes, the [al_get_text_width] and [al_get_font_line_height]
 functions are not enough for exact text placement, so this function
 returns some additional information.
 
 Returned variables (all in pixel):
-x, y - Offset to upper left corner of bounding box.
-w, h - Dimensions of bounding box.
-ascent - Ascent of the font.
-descent - Descent of the font.
+
+- x, y - Offset to upper left corner of bounding box.
+- w, h - Dimensions of bounding box.
+- ascent - Ascent of the font.
+- descent - Descent of the font.
 
 If the X is the position you specify to draw text, the meaning of
-ascent and descent and the font height is like in the figure below.
+ascent and descent and the line height is like in the figure below.
 Note that glyphs may go to the left and upwards of the X, in which
 case x and y will have negative values.
 
@@ -140,7 +135,7 @@ case x and y will have negative values.
                    |        |
     -------------------------
 
-## API: al_ttf_load_font
+## API: al_load_ttf_font
 
 Loads a truetype font from a file using the FreeType library. Quoting
 from the FreeType FAQ this means support for many different font
@@ -161,3 +156,8 @@ The only flag supported right now is:
 
 * ALLEGRO_TTF_NO_KERNING - Do not use any kerning even if the font file
   supports it.
+
+## API: al_init_ttf_addon
+
+Call this after [al_init_font_addon] to make [al_load_font] recognize
+.ttf and other formats supported by [al_load_ttf_font].

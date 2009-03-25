@@ -101,7 +101,7 @@ int main(int argc, const char *argv[])
    al_install_keyboard();
    al_install_mouse();
 
-   al_font_init();
+   al_init_font_addon();
 
    if (al_install_audio(ALLEGRO_AUDIO_DRIVER_AUTODETECT)) {
       TRACE("Could not init sound!\n");
@@ -126,7 +126,7 @@ int main(int argc, const char *argv[])
       return 1;
    }
 
-   font_gui = al_font_load_font("data/fixed_font.tga", 0);
+   font_gui = al_load_font("data/fixed_font.tga", 0, 0);
    if (!font_gui) {
       TRACE("Failed to load data/fixed_font.tga\n");
       return 1;
@@ -152,7 +152,7 @@ int main(int argc, const char *argv[])
    al_destroy_sample(sample);
    al_uninstall_audio();
 
-   al_font_destroy_font(font_gui);
+   al_destroy_font(font_gui);
 
    return 0;
 }

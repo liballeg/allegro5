@@ -1,4 +1,4 @@
-set(FONT_SOURCES font.c fontbmp.c readfont.c text.c)
+set(FONT_SOURCES font.c fontbmp.c text.c)
 
 set(FONT_INCLUDE_FILES allegro5/a5_font.h)
 

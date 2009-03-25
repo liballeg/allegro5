@@ -38,7 +38,7 @@ static void print(int x, int y, bool vertical, char const *format, ...)
    uvszprintf(message, sizeof message, format, list);
    va_end(list);
 
-   h = al_font_text_height(ex.myfont);
+   h = al_get_font_line_height(ex.myfont);
 
    for (j = 0; j < 2; j++) {
       if (j == 0)
@@ -283,7 +283,7 @@ static void init(void)
    ex.BUTTONS_X = 40 + 110 * 4;
    ex.FPS = 60;
 
-   ex.myfont = al_font_load_font("data/font.tga", 0);
+   ex.myfont = al_load_font("data/font.tga", 0, 0);
    if (!ex.myfont) {
       TRACE("data/font.tga not found\n");
       exit(1);
@@ -307,7 +307,7 @@ int main(void)
 
    al_install_keyboard();
    al_install_mouse();
-   al_font_init();
+   al_init_font_addon();
 
    display = al_create_display(640, 480);
    if (!display) {

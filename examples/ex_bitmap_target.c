@@ -122,12 +122,12 @@ void run(void)
       draw();
       print(0, 0, "FPS: %.1f", frames / (al_current_time() - start));
       if (al_get_new_bitmap_flags() & ALLEGRO_FORCE_LOCKING) {
-         print(0, al_font_text_height(myfont), "using forced bitmap locking");
+         print(0, al_get_font_line_height(myfont), "using forced bitmap locking");
       }
       else {
-         print(0, al_font_text_height(myfont), "drawing directly to bitmap");
+         print(0, al_get_font_line_height(myfont), "drawing directly to bitmap");
       }
-      print(0, al_font_text_height(myfont) * 2,
+      print(0, al_get_font_line_height(myfont) * 2,
          "Press SPACE to toggle drawing method.");
       al_flip_display();
       frames++;
@@ -148,7 +148,7 @@ int main(void)
    }
 
    al_install_keyboard();
-   al_font_init();
+   al_init_font_addon();
 
    display = al_create_display(640, 480);
    if (!display) {
@@ -160,7 +160,7 @@ int main(void)
    al_register_event_source(queue, (ALLEGRO_EVENT_SOURCE *)al_get_keyboard());
    al_register_event_source(queue, (ALLEGRO_EVENT_SOURCE *)display);
 
-   myfont = al_font_load_font("data/font.tga", 0);
+   myfont = al_load_font("data/font.tga", 0, 0);
    if (!myfont) {
       TRACE("font.tga not found\n");
       return 1;

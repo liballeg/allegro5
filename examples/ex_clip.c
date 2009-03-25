@@ -71,7 +71,7 @@ static void print(char const *format, ...)
    va_list list;
    char message[1024];
    ALLEGRO_STATE state;
-   int th = al_font_text_height(ex.font);
+   int th = al_get_font_line_height(ex.font);
    al_store_state(&state, ALLEGRO_STATE_BLENDER);
 
    va_start(list, format);
@@ -192,7 +192,7 @@ static void init(void)
 {
    ex.FPS = 60;
 
-   ex.font = al_font_load_font("data/fixed_font.tga", 0);
+   ex.font = al_load_font("data/fixed_font.tga", 0, 0);
    if (!ex.font) {
       printf("data/fixed_font.tga not found.\n");
       exit(1);
@@ -215,7 +215,7 @@ int main(void)
 
    al_install_keyboard();
    al_install_mouse();
-   al_font_init();
+   al_init_font_addon();
 
    display = al_create_display(640, 480);
    if (!display) {

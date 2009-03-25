@@ -53,7 +53,7 @@ int main(void)
     }
 
     al_iio_init();
-    al_font_init();
+    al_init_font_addon();
 
     al_set_new_display_option(ALLEGRO_SINGLE_BUFFER, true, ALLEGRO_SUGGEST);
     al_set_new_display_flags(ALLEGRO_GENERATE_EXPOSE_EVENTS);
@@ -68,7 +68,7 @@ int main(void)
         return 1;
     }
 
-    f = al_font_load_font("data/bmpfont.tga", NULL);
+    f = al_load_font("data/bmpfont.tga", 0, 0);
     if (!f) {
         TRACE("Failed to load bmpfont.tga\n");
         return 1;
@@ -79,7 +79,7 @@ int main(void)
         TRACE("Failed to load a4_font.png\n");
         return 1;
     }
-    a4f = al_font_grab_font_from_bitmap(font_bitmap, 4, ranges);
+    a4f = al_grab_font_from_bitmap(font_bitmap, 4, ranges);
 
     /* Draw background */
     al_draw_bitmap(bitmap, 0, 0, 0);
@@ -105,8 +105,8 @@ int main(void)
 
     al_destroy_bitmap(bitmap);
     al_destroy_bitmap(font_bitmap);
-    al_font_destroy_font(f);
-    al_font_destroy_font(a4f);
+    al_destroy_font(f);
+    al_destroy_font(a4f);
     return 0;
 }
 END_OF_MAIN()

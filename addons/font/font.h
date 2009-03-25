@@ -11,7 +11,8 @@ typedef struct ALLEGRO_FONT_COLOR_DATA
    struct ALLEGRO_FONT_COLOR_DATA *next;  /* linked list structure */
 } ALLEGRO_FONT_COLOR_DATA;
 
-void _al_font_register_font_file_type_init(void);
+ALLEGRO_FONT *_al_load_bitmap_font(const char *filename,
+   int size, int flags);
 
 
 #endif /* INT_FONT_H */

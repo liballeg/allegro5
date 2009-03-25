@@ -159,8 +159,9 @@ int main()
    al_install_keyboard();
    al_install_mouse();
 
-   al_font_init();
+   al_init_font_addon();
    al_iio_init();
+   al_init_ttf_addon();
 
    al_set_new_display_flags(ALLEGRO_GENERATE_EXPOSE_EVENTS);
    display = al_create_display(640, 480);
@@ -168,7 +169,7 @@ int main()
       TRACE("Unable to create display\n");
       return 1;
    }
-   font = al_ttf_load_font("data/DejaVuSans.ttf", 12, 0);
+   font = al_load_font("data/DejaVuSans.ttf", 12, 0);
    if (!font) {
       TRACE("Failed to load data/DejaVuSans.ttf\n");
       return 1;
@@ -180,7 +181,7 @@ int main()
    Prog prog(theme, display);
    prog.run();
 
-   al_font_destroy_font(font);
+   al_destroy_font(font);
 
    return 0;
 }

@@ -33,7 +33,7 @@ static void init(void)
    ex.FPS = 50;
    ex.first_tick = true;
 
-   ex.myfont = al_font_load_font("data/fixed_font.tga", 0);
+   ex.myfont = al_load_font("data/fixed_font.tga", 0, 0);
    if (!ex.myfont) {
       TRACE("data/fixed_font.tga not found\n");
       exit(1);
@@ -43,7 +43,7 @@ static void init(void)
 /* Cleanup. Always a good idea. */
 static void cleanup(void)
 {
-   al_font_destroy_font(ex.myfont);
+   al_destroy_font(ex.myfont);
    ex.myfont = NULL;
 }
 
@@ -73,7 +73,7 @@ static void draw(void)
    event_overhead = cur_time - ex.timestamp;
    total_error = event_overhead + ex.timer_error;
 
-   h = al_font_text_height(ex.myfont);
+   h = al_get_font_line_height(ex.myfont);
    al_clear(al_map_rgb_f(1, 1, 1));
 
    print(0, 0, "%.9f target for %.0f Hz Timer", 1.0 / ex.FPS, ex.FPS);
@@ -171,7 +171,7 @@ int main(void)
 
    al_install_keyboard();
    al_install_mouse();
-   al_font_init();
+   al_init_font_addon();
 
    display = al_create_display(640, 480);
 

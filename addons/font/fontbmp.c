@@ -161,9 +161,7 @@ static int bitmap_font_count(ALLEGRO_BITMAP* bmp)
 
 
 
-/* Function: al_font_load_bitmap_font
- */
-ALLEGRO_FONT *al_font_load_bitmap_font(const char *fname, void *param)
+ALLEGRO_FONT *_al_load_bitmap_font(const char *fname, int size, int flags)
 {
    ALLEGRO_BITMAP *import_bmp;
    ALLEGRO_FONT *f;
@@ -173,7 +171,8 @@ ALLEGRO_FONT *al_font_load_bitmap_font(const char *fname, void *param)
    int range[2];
    ASSERT(fname);
 
-   (void) param;
+   (void)size;
+   (void)flags;
 
    al_store_state(&backup, ALLEGRO_STATE_NEW_BITMAP_PARAMETERS);
    al_set_new_bitmap_flags(ALLEGRO_MEMORY_BITMAP);
@@ -192,7 +191,7 @@ ALLEGRO_FONT *al_font_load_bitmap_font(const char *fname, void *param)
     */
    range[0] = 32;
    range[1] = 32 + bitmap_font_count(import_bmp) - 1;
-   f = al_font_grab_font_from_bitmap(import_bmp, 1, range);
+   f = al_grab_font_from_bitmap(import_bmp, 1, range);
 
    al_destroy_bitmap(import_bmp);
 
@@ -201,9 +200,18 @@ ALLEGRO_FONT *al_font_load_bitmap_font(const char *fname, void *param)
 
 
 
-/* Function: al_font_grab_font_from_bitmap
+/* Function: al_load_bitmap_font
  */
-ALLEGRO_FONT *al_font_grab_font_from_bitmap(
+ALLEGRO_FONT *al_load_bitmap_font(const char *fname)
+{
+   return _al_load_bitmap_font(fname, 0, 0);
+}
+
+
+
+/* Function: al_grab_font_from_bitmap
+ */
+ALLEGRO_FONT *al_grab_font_from_bitmap(
    ALLEGRO_BITMAP *bmp,
    int ranges_n, int ranges[])
 {
@@ -273,7 +281,7 @@ ALLEGRO_FONT *al_font_grab_font_from_bitmap(
    return f;
 cleanup_and_fail_on_error:
    al_restore_state(&backup);
-   al_font_destroy_font(f);
+   al_destroy_font(f);
    return NULL;
 }
 

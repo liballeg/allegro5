@@ -29,10 +29,8 @@
    #define A5_TTF_FUNC      AL_FUNC
 #endif
 
-A5_TTF_FUNC(ALLEGRO_FONT *, al_ttf_load_font, (char const *filename, int size, int flags));
-A5_TTF_FUNC(void, al_ttf_get_text_dimensions, (ALLEGRO_FONT const *f, char const *text,
-    int count, int *bbx, int *bby, int *bbw, int *bbh, int *ascent,
-    int *descent));
+A5_TTF_FUNC(ALLEGRO_FONT *, al_load_ttf_font, (char const *filename, int size, int flags));
+A5_TTF_FUNC(bool, al_init_ttf_addon, (void));
 
 #ifdef __cplusplus
    }

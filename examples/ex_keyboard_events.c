@@ -54,7 +54,7 @@ static int num_messages(void)
 
 static void draw_message_log(void)
 {
-   const int th = al_font_text_height(myfont);
+   const int th = al_get_font_line_height(myfont);
    int y;
    int i;
 
@@ -229,7 +229,7 @@ int main(void)
       return 1;
    }
 
-   al_font_init();
+   al_init_font_addon();
 
    display = al_create_display(WIDTH, HEIGHT);
    if (!display) {
@@ -242,7 +242,7 @@ int main(void)
       return 1;
    }
 
-   myfont = al_font_load_font("data/fixed_font.tga", 0);
+   myfont = al_load_font("data/fixed_font.tga", 0, 0);
    if (!myfont) {
       TRACE("Failed to load fixed_font.tga\n");
       return 1;

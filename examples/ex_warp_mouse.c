@@ -16,7 +16,7 @@ int main(void)
    int fake_x = 0, fake_y = 0;
 
    al_init();
-   al_font_init();
+   al_init_font_addon();
    al_install_mouse();
    al_install_keyboard();
 
@@ -29,13 +29,13 @@ int main(void)
    al_register_event_source(event_queue, (void *)al_get_mouse());
    al_register_event_source(event_queue, (void *)al_get_keyboard());
 
-   font = al_font_load_font("data/fixed_font.tga", NULL);
+   font = al_load_font("data/fixed_font.tga", 0, 0);
 
    while (1) {
       ALLEGRO_EVENT event;
       
       if (redraw && al_event_queue_is_empty(event_queue)) {
-         int th = al_font_text_height(font);
+         int th = al_get_font_line_height(font);
          
          al_clear(al_map_rgb_f(0, 0, 0));
          

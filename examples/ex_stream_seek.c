@@ -28,7 +28,7 @@ int initialize(void)
 {
    al_init();
 
-   al_font_init();
+   al_init_font_addon();
    if (!al_install_keyboard()) {
       printf("Could not init keyboard!\n");
       return 0;
@@ -52,7 +52,7 @@ int initialize(void)
       return 0;
    }
    
-   basic_font = al_font_load_font("data/font.tga", NULL);
+   basic_font = al_load_font("data/font.tga", 0, 0);
    if (!basic_font) {
       printf("Could not load font!\n");
       return 0;

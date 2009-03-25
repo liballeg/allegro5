@@ -202,7 +202,7 @@ static int text_length(ALLEGRO_FONT const *f, const ALLEGRO_USTR *text)
 
 /* Function: al_ttf_get_text_dimensions
  */
-void al_ttf_get_text_dimensions(ALLEGRO_FONT const *f, char const *text,
+static void get_text_dimensions(ALLEGRO_FONT const *f, char const *text,
     int count, int *bbx, int *bby, int *bbw, int *bbh, int *ascent,
     int *descent)
 {
@@ -260,9 +260,9 @@ static void destroy(ALLEGRO_FONT *f)
     _AL_FREE(f);
 }
 
-/* Function: al_ttf_load_font
+/* Function: al_load_ttf_font
  */
-ALLEGRO_FONT *al_ttf_load_font(char const *filename, int size, int flags)
+ALLEGRO_FONT *al_load_ttf_font(char const *filename, int size, int flags)
 {
     FT_Face face;
     FT_ULong unicode;
@@ -280,6 +280,7 @@ ALLEGRO_FONT *al_ttf_load_font(char const *filename, int size, int flags)
         vt.render_char = render_char;
         vt.render = render;
         vt.destroy = destroy;
+        vt.get_text_dimensions = get_text_dimensions;
         once = false;
     }
 
@@ -352,4 +353,16 @@ ALLEGRO_FONT *al_ttf_load_font(char const *filename, int size, int flags)
     f->data = data;
 
     return f;
+}
+
+
+
+bool al_init_ttf_addon(void)
+{
+   al_register_font_extension(".ttf", al_load_ttf_font);
+   /* Can't fail right now - in the future we might dynamically load
+    * the FreeType DLL here and/or initialize FreeType (which both
+    * could fail and would cause a false return).
+    */
+   return true;
 }

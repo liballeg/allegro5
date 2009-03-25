@@ -87,7 +87,7 @@ static void show_files_list(ALLEGRO_NATIVE_FILE_DIALOG *dialog,
    const ALLEGRO_FONT *font, ALLEGRO_COLOR info)
 {
    int count = al_get_native_file_dialog_count(dialog);
-   int th = al_font_text_height(font);
+   int th = al_get_font_line_height(font);
    float x = al_get_display_width() / 2;
    float y = al_get_display_height() / 2 - (count * th) / 2;
    int i;
@@ -116,7 +116,7 @@ int main(void)
    bool redraw = false;
 
    al_init();
-   al_font_init();
+   al_init_font_addon();
 
    background = al_color_name("white");
    active = al_color_name("black");
@@ -132,7 +132,7 @@ int main(void)
       return 1;
    }
 
-   font = al_font_load_font("data/fixed_font.tga", 0);
+   font = al_load_font("data/fixed_font.tga", 0, 0);
    if (!font) {
       TRACE("Error loading data/fixed_font.tga\n");
       return 1;

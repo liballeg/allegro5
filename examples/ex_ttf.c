@@ -43,7 +43,7 @@ static void render(void)
     
     xpos = al_get_display_width() - 10;
     ypos = al_get_display_height() - 10;
-    al_ttf_get_text_dimensions(ex.f4, "Allegro", -1,
+    al_get_text_dimensions(ex.f4, "Allegro", -1,
        &x, &y, &w, &h, &as, &de);
     xpos -= w;
     ypos -= h;
@@ -75,7 +75,8 @@ int main(int argc, const char *argv[])
     }
 
     al_install_mouse();
-    al_font_init();
+    al_init_font_addon();
+    al_init_ttf_addon();
 
     display = al_create_display(640, 480);
     al_install_keyboard();
@@ -84,13 +85,13 @@ int main(int argc, const char *argv[])
         font_file = argv[1];
     }
 
-    ex.f1 = al_ttf_load_font(font_file, 48, 0);
-    ex.f2 = al_ttf_load_font(font_file, 48, ALLEGRO_TTF_NO_KERNING);
-    ex.f3 = al_ttf_load_font(font_file, 12, 0);
+    ex.f1 = al_load_font(font_file, 48, 0);
+    ex.f2 = al_load_font(font_file, 48, ALLEGRO_TTF_NO_KERNING);
+    ex.f3 = al_load_font(font_file, 12, 0);
     /* Specifying negative values means we specify the glyph height
      * in pixels, not the usual font size.
      */
-    ex.f4 = al_ttf_load_font(font_file, -140, 0);
+    ex.f4 = al_load_font(font_file, -140, 0);
 
     if (!ex.f1 || !ex.f2 || !ex.f3 || !ex.f4) {
         fprintf(stderr, "Could not load font: %s\n", font_file);

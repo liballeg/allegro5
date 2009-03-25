@@ -15,12 +15,20 @@
 #include <string.h>
 #include "allegro5/allegro5.h"
 #include "allegro5/internal/aintern_memory.h"
+#include "allegro5/internal/aintern_vector.h"
 #include "allegro5/a5_font.h"
 #include "allegro5/a5_iio.h"
 
 
 #include "font.h"
 
+typedef struct
+{
+   ALLEGRO_USTR *extension;
+   ALLEGRO_FONT *(*load_font)(char const *filename, int size, int flags);
+} HANDLER;
+
+static _AL_VECTOR handlers;
 
 /* al_font_404_character:
  *  This is what we render missing glyphs as.
@@ -56,6 +64,27 @@ static int length(const ALLEGRO_FONT* f, const ALLEGRO_USTR *text)
     }
 
     return w;
+}
+
+
+
+static void color_get_text_dimensions(ALLEGRO_FONT const *f,
+   char const *text,
+   int count, int *bbx, int *bby, int *bbw, int *bbh, int *ascent,
+   int *descent)
+{
+   /* Dummy implementation - for A4-style bitmap fonts the bounding
+    * box of text is its width and line-height. And since we have no
+    * idea about the baseline position, ascent is the full height and
+    * descent is 0.
+    */
+   int h = al_get_font_line_height(f);
+   if (bbx) *bbx = 0;
+   if (bby) *bby = 0;
+   if (bbw) *bbw = al_get_text_width(f, text, count);
+   if (bbh) *bbh = h;
+   if (ascent) *ascent = h;
+   if (descent) *descent = 0;
 }
 
 
@@ -178,30 +207,97 @@ ALLEGRO_FONT_VTABLE _al_font_vtable_color = {
     length,
     color_render_char,
     color_render,
-    color_destroy
+    color_destroy,
+    color_get_text_dimensions
 };
 
 ALLEGRO_FONT_VTABLE* al_font_vtable_color = &_al_font_vtable_color;
 
 
 
-/* Function: al_font_is_compatible_font
+/* Function: al_init_font_addon
  */
-int al_font_is_compatible_font(ALLEGRO_FONT *f1, ALLEGRO_FONT *f2)
+void al_init_font_addon(void)
 {
-   ASSERT(f1);
-   ASSERT(f2);
-   return f1->vtable == f2->vtable;
-}
-
-
-
-/* Function: al_font_init
- */
-void al_font_init(void)
-{
+   _al_vector_init(&handlers, sizeof(HANDLER));
    al_iio_init(); /* we depend on the iio addon */
+   
+   al_register_font_extension(".bmp", _al_load_bitmap_font);
+   al_register_font_extension(".pcx", _al_load_bitmap_font);
+   al_register_font_extension(".png", _al_load_bitmap_font);
+   al_register_font_extension(".jpg", _al_load_bitmap_font);
 }
+
+
+
+static HANDLER *find_extension(char const *extension)
+{
+   int i;
+   /* Go backwards so a handler registered later for the same extension
+    * has precedence.
+    */
+   for (i = _al_vector_size(&handlers) - 1; i >= 0 ; i--) {
+      HANDLER *handler = _al_vector_ref(&handlers, i);
+      if (al_ustr_has_suffix_cstr(handler->extension, extension))
+         return handler;
+   }
+   return NULL;
+}
+
+
+
+/* Function: al_register_font_extension
+ */
+bool al_register_font_extension(char const *extension,
+   ALLEGRO_FONT *(*load_font)(char const *filename, int size, int flags))
+{
+   HANDLER *handler = find_extension(extension);
+   if (!handler) {
+      if (!load_font) return false; /* Nothing to remove. */
+      handler = _al_vector_alloc_back(&handlers);
+   }
+   else {
+      if (!load_font)
+         return _al_vector_find_and_delete(&handlers, handler);
+      al_ustr_free(handler->extension);
+   }
+   handler->extension = al_ustr_new(extension);
+   handler->load_font = load_font;
+   return true;
+}
+
+
+
+/* Function: al_load_font
+ */
+ALLEGRO_FONT *al_load_font(char const *filename, int size, int flags)
+{
+   int i;
+   ALLEGRO_PATH *path = al_path_create(filename);
+   HANDLER *handler = find_extension(al_path_get_extension(path));
+   if (handler)
+      return handler->load_font(filename, size, flags);
+
+   /* No handler for the extension was registered - try to load with
+    * all registered handlers and see if one works. So if the user
+    * does:
+    * 
+    * al_init_font_addon()
+    * al_init_ttf_addon()
+    * 
+    * This will first try to load an unknown (let's say Type1) font file
+    * with Freetype (and load it successfully in this case), then try
+    * to load it as a bitmap font.
+    */
+   for (i = _al_vector_size(&handlers) - 1; i >= 0 ; i--) {
+      HANDLER *handler = _al_vector_ref(&handlers, i);
+      ALLEGRO_FONT *try = handler->load_font(filename, size, flags);
+      if (try)
+         return try;
+   }
+   return NULL;
+}
+
 
 
 /* vim: set sts=4 sw=4 et: */

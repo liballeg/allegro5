@@ -253,9 +253,9 @@ void al_font_textprintf_justify(const ALLEGRO_FONT *f, int x1, int x2, int y,
 
 
 
-/* Function: al_font_text_width
+/* Function: al_get_text_width
  */
-int al_font_text_width(const ALLEGRO_FONT *f, const char *str, int count)
+int al_get_text_width(const ALLEGRO_FONT *f, const char *str, int count)
 {
    ALLEGRO_USTR_INFO str_info;
    ALLEGRO_USTR *ustr;
@@ -273,9 +273,9 @@ int al_font_text_width(const ALLEGRO_FONT *f, const char *str, int count)
 
 
 
-/* Function: al_font_text_height
+/* Function: al_get_font_line_height
  */
-int al_font_text_height(const ALLEGRO_FONT *f)
+int al_get_font_line_height(const ALLEGRO_FONT *f)
 {
    ASSERT(f);
    return f->vtable->font_height(f);
@@ -283,9 +283,22 @@ int al_font_text_height(const ALLEGRO_FONT *f)
 
 
 
-/* Function: al_font_destroy_font
+/* Function: al_get_text_dimensions
  */
-void al_font_destroy_font(ALLEGRO_FONT *f)
+void al_get_text_dimensions(const ALLEGRO_FONT *f,
+   char const *text, int count,
+   int *bbx, int *bby, int *bbw, int *bbh, int *ascent, int *descent)
+{
+   ASSERT(f);
+   return f->vtable->get_text_dimensions(f, text, count, bbx, bby,
+      bbw, bbh, ascent, descent);
+}
+
+
+
+/* Function: al_destroy_font
+ */
+void al_destroy_font(ALLEGRO_FONT *f)
 {
    ASSERT(f);
    f->vtable->destroy(f);

@@ -27,7 +27,7 @@ int main(void)
    }
 
    al_install_mouse();
-   al_font_init();
+   al_init_font_addon();
 
    adapter_count = al_get_num_video_adapters();
 
@@ -51,7 +51,7 @@ int main(void)
    al_show_mouse_cursor();
 
    al_set_new_bitmap_flags(ALLEGRO_MEMORY_BITMAP);
-   myfont = al_font_load_font("data/fixed_font.tga", 0);
+   myfont = al_load_font("data/fixed_font.tga", 0, 0);
 
    events = al_create_event_queue();
    al_register_event_source(events, (ALLEGRO_EVENT_SOURCE *)al_get_mouse());

@@ -482,7 +482,7 @@ int main(void)
 
    // Initialize Allegro 5 and the font routines
    al_init();
-   al_font_init();
+   al_init_font_addon();
    
    // Create a window to display things on: 640x480 pixels
    display = al_create_display(ScreenW, ScreenH);
@@ -498,7 +498,7 @@ int main(void)
    }
    
    // Load a font
-   Font = al_font_load_font("data/fixed_font.tga", 0);
+   Font = al_load_font("data/fixed_font.tga", 0, 0);
    if (!Font) {
       printf("Error loading \"data/fixed_font.tga\".\n");
       return 1;

@@ -221,7 +221,7 @@ int main()
    al_install_keyboard();
    al_install_mouse();
 
-   al_font_init();
+   al_init_font_addon();
    al_iio_init();
 
    al_set_new_display_flags(ALLEGRO_GENERATE_EXPOSE_EVENTS);
@@ -230,7 +230,7 @@ int main()
       TRACE("Unable to create display\n");
       return 1;
    }
-   font = al_font_load_font("data/fixed_font.tga", 0);
+   font = al_load_font("data/fixed_font.tga", 0, 0);
    if (!font) {
       TRACE("Failed to load data/fixed_font.tga\n");
       return 1;
@@ -269,7 +269,7 @@ int main()
    al_destroy_bitmap(target);
    al_destroy_bitmap(target_bmp);
 
-   al_font_destroy_font(font);
+   al_destroy_font(font);
 
    return 0;
 }

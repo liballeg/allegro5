@@ -13,12 +13,12 @@ int main(void)
 
    al_init();
    al_install_keyboard();
-   al_font_init();
+   al_init_font_addon();
 
    al_set_new_display_flags(ALLEGRO_GENERATE_EXPOSE_EVENTS);
 
    display = al_create_display(200, 32);
-   font = al_font_load_font("data/font.tga", 0);
+   font = al_load_font("data/font.tga", 0, 0);
 
    if (!font) {
       printf("Error loading font\n");
@@ -48,7 +48,7 @@ int main(void)
       }
    } while (!done);
 
-   al_font_destroy_font(font);
+   al_destroy_font(font);
    al_destroy_event_queue(events);
 
    return 0;

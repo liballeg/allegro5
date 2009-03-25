@@ -139,7 +139,7 @@ void setup_textures(void)
    ALLEGRO_FONT *font;
    int w, h, depth;
 
-   font = al_font_load_font("data/fixed_font.tga", NULL);
+   font = al_load_font("data/fixed_font.tga", 0, 0);
    if(!font) {
       TRACE("Error loading `data/fixed_font.tga'\n");
       exit(1);
@@ -165,7 +165,7 @@ void setup_textures(void)
       al_font_textprintf(font, 0, 5, "Z-buffer: %i bits", depth);
    al_set_target_bitmap(al_get_backbuffer());
    al_destroy_bitmap(tmp_bmp);
-   al_font_destroy_font(font);
+   al_destroy_font(font);
 
    glEnable(GL_TEXTURE_2D);
    glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL);

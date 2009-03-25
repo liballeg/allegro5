@@ -42,8 +42,8 @@ void showWave(int num)
    char text[20];
    sprintf(text, "WAVE %d", num);
 
-   int w = al_font_text_width(myfont, text, -1);
-   int h = al_font_text_height(myfont);
+   int w = al_get_text_width(myfont, text, -1);
+   int h = al_get_font_line_height(myfont);
 
    waveBitmap = al_create_bitmap(w, h);
    ALLEGRO_BITMAP *old_target = al_get_target_bitmap();

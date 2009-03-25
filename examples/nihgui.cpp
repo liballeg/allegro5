@@ -466,7 +466,7 @@ void List::on_key_down(const ALLEGRO_KEYBOARD_EVENT & event)
 void List::on_click(int mx, int my)
 {
    const Theme & theme = dialog->get_theme();
-   unsigned int i = (my - this->y1) / al_font_text_height(theme.font);
+   unsigned int i = (my - this->y1) / al_get_font_line_height(theme.font);
    if (i < this->items.size()) {
       this->selected_item = i;
       dialog->request_draw();
@@ -484,7 +484,7 @@ void List::draw()
    al_draw_filled_rectangle(x1 + 1, y1 + 1, x2 - 1, y2 - 1, theme.bg);
 
    al_set_blender(ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA, theme.fg);
-   const int font_height = al_font_text_height(theme.font);
+   const int font_height = al_get_font_line_height(theme.font);
    for (unsigned i = 0; i < items.size(); i++) {
       int yi = y1 + i * font_height;
 
@@ -698,7 +698,7 @@ void TextEntry::maybe_scroll()
    else {
       for (;;) {
          const char *s = text.c_str();
-         const int tw = al_font_text_width(theme.font,
+         const int tw = al_get_text_width(theme.font,
             s + left_pos, cursor_pos - left_pos);
          if (x1 + tw + CURSOR_WIDTH < x2) {
             break;
@@ -725,16 +725,16 @@ void TextEntry::draw()
       int x = x1;
 
       al_font_textout(theme.font, x1, y1, s + left_pos, cursor_pos - left_pos);
-      x += al_font_text_width(theme.font, s + left_pos, cursor_pos - left_pos);
+      x += al_get_text_width(theme.font, s + left_pos, cursor_pos - left_pos);
 
       if (cursor_pos == text.size()) {
          al_draw_filled_rectangle(x, y1, x + CURSOR_WIDTH,
-            y1 + al_font_text_height(theme.font), theme.fg);
+            y1 + al_get_font_line_height(theme.font), theme.fg);
       }
       else {
          al_set_blender(ALLEGRO_INVERSE_ALPHA, ALLEGRO_ALPHA, theme.fg);
          al_font_textout(theme.font, x, y1, s + cursor_pos, 1);
-         x += al_font_text_width(theme.font, s + cursor_pos, 1);
+         x += al_get_text_width(theme.font, s + cursor_pos, 1);
 
          al_set_blender(ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA, theme.fg);
          al_font_textout(theme.font, x, y1, s + cursor_pos + 1,

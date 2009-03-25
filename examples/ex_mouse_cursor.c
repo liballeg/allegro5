@@ -91,7 +91,7 @@ int main(void)
       return 1;
    }
 
-   font = al_font_load_bitmap_font("data/font.tga", NULL);
+   font = al_load_bitmap_font("data/font.tga");
    if (!font) {
       TRACE("Error loading data/font.tga\n");
       return 1;
