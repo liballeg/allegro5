@@ -13,6 +13,8 @@ Changes from 4.9.9 to 4.9.9.1 (March 2009)
 
 -  Fixed X11 XIM keyboard input (partially?).
 
+-  Fall back on the reference (software) rasterizer in D3D.
+
 
 
 Changes from 4.9.8 to 4.9.9 (March 2009)
