@@ -147,9 +147,11 @@ void main_loop(void)
    ALLEGRO_EVENT event;
 
    while (true) {
-      al_clear(white);
-      draw_message_log();
-      al_flip_display();
+      if (al_event_queue_is_empty(event_queue)) {
+         al_clear(white);
+         draw_message_log();
+         al_flip_display();
+      }
 
       /* Take the next event out of the event queue, and store it in `event'. */
       al_wait_for_event(event_queue, &event);
