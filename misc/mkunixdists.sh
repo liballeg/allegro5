@@ -55,7 +55,9 @@ echo "Running 'convert_line_endings.sh --dtou'"
 		sh misc/convert_line_endings.sh --dtou >/dev/null
 	) || error
 echo "Checking version number"
-	version=$( awk -F '[() ]' '/set\(ALLEGRO_VERSION / { print $3 }' < allegro/CMakeLists.txt )
+	# Derive version number from the archive name, as the number in
+	# CMakeLists.txt won't reflect the fourth version digit.
+	version=$( echo $1 | sed -e 's/^allegro-// ; s/\.zip$//' )
 	test -n "$version" || error
 	basename="allegro-$version"
 	basename2="allegro-enduser-$version"
