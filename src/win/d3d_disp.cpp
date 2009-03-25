@@ -283,7 +283,9 @@ bool al_d3d_supports_non_pow2_textures(void)
 
    /* This might have to change for multihead */
    if (_al_d3d->GetDeviceCaps(adapter, D3DDEVTYPE_HAL, &caps) != D3D_OK) {
-      return false;
+      if (_al_d3d->GetDeviceCaps(adapter, D3DDEVTYPE_REF, &caps) != D3D_OK) {
+         return false;
+      }
    }
 
    if ((caps.TextureCaps & D3DPTEXTURECAPS_POW2) == 0) {
@@ -303,7 +305,9 @@ bool al_d3d_supports_non_square_textures(void)
 
    /* This might have to change for multihead */
    if (_al_d3d->GetDeviceCaps(adapter, D3DDEVTYPE_HAL, &caps) != D3D_OK) {
-      return false;
+      if (_al_d3d->GetDeviceCaps(adapter, D3DDEVTYPE_REF, &caps) != D3D_OK) {
+         return false;
+      }
    }
 
    if ((caps.TextureCaps & D3DPTEXTURECAPS_SQUAREONLY) == 0) {
@@ -544,7 +548,7 @@ static void d3d_generate_display_format_list(void)
    }
 
    // Create display format list
-   DWORD quality_levels[NUM_DISPLAY_FORMATS];
+   DWORD quality_levels[NUM_DISPLAY_FORMATS] = { 0, };
    eds_list_count = D3D_DISPLAY_COMBINATIONS;
    int count = 0;
 
@@ -555,8 +559,11 @@ static void d3d_generate_display_format_list(void)
 
    for (int i = 0; allegro_formats[i] >= 0; i++) {
       if (_al_pixel_format_is_real(allegro_formats[i]) && !_al_format_has_alpha(allegro_formats[i])) {
-         _al_d3d->CheckDeviceMultiSampleType(adapter, D3DDEVTYPE_HAL, (D3DFORMAT)d3d_formats[i],
-            !fullscreen, D3DMULTISAMPLE_NONMASKABLE, &quality_levels[count]);
+         if (_al_d3d->CheckDeviceMultiSampleType(adapter, D3DDEVTYPE_HAL, (D3DFORMAT)d3d_formats[i],
+            !fullscreen, D3DMULTISAMPLE_NONMASKABLE, &quality_levels[count]) != D3D_OK) {
+            _al_d3d->CheckDeviceMultiSampleType(adapter, D3DDEVTYPE_REF, (D3DFORMAT)d3d_formats[i],
+               !fullscreen, D3DMULTISAMPLE_NONMASKABLE, &quality_levels[count]);
+         }
          if (quality_levels[count] > 0) {
             if (al_get_pixel_size(allegro_formats[i]) == 4) {
                eds_list_count += (quality_levels[count]-1) * (_32BIT_DS+1) * 4; /* +1 for no DepthStencil */
@@ -684,24 +691,33 @@ static bool d3d_create_fullscreen_device(ALLEGRO_DISPLAY_D3D *d,
                   D3DDEVTYPE_HAL, fullscreen_focus_window,
                   D3DCREATE_SOFTWARE_VERTEXPROCESSING|D3DCREATE_FPU_PRESERVE|D3DCREATE_MULTITHREADED,
                   &d3d_pp, &mode, (IDirect3DDevice9Ex **)(&d->device))) != D3D_OK) {
-            switch (ret) {
-               case D3DERR_INVALIDCALL:
-                  TRACE("D3DERR_INVALIDCALL in create_device.\n");
-                  break;
-               case D3DERR_NOTAVAILABLE:
-                  TRACE("D3DERR_NOTAVAILABLE in create_device.\n");
-                  break;
-               case D3DERR_OUTOFVIDEOMEMORY:
-                  TRACE("D3DERR_OUTOFVIDEOMEMORY in create_device.\n");
-                  break;
-               case D3DERR_DEVICELOST:
-                  TRACE("D3DERR_DEVICELOST in create_device.\n");
-                  break;
-               default:
-                  TRACE("Direct3D Device creation failed.\n");
-                  break;
-            }
-            return 0;
+            if ((ret = d3d->CreateDeviceEx(win_display->adapter,
+                     D3DDEVTYPE_REF, fullscreen_focus_window,
+                     D3DCREATE_HARDWARE_VERTEXPROCESSING|D3DCREATE_FPU_PRESERVE|D3DCREATE_MULTITHREADED,
+                     &d3d_pp, &mode, (IDirect3DDevice9Ex **)(&d->device))) != D3D_OK) {
+               if ((ret = d3d->CreateDeviceEx(win_display->adapter,
+                        D3DDEVTYPE_REF, fullscreen_focus_window,
+                        D3DCREATE_SOFTWARE_VERTEXPROCESSING|D3DCREATE_FPU_PRESERVE|D3DCREATE_MULTITHREADED,
+                        &d3d_pp, &mode, (IDirect3DDevice9Ex **)(&d->device))) != D3D_OK) {
+                  switch (ret) {
+                     case D3DERR_INVALIDCALL:
+                        TRACE("D3DERR_INVALIDCALL in create_device.\n");
+                        break;
+                     case D3DERR_NOTAVAILABLE:
+                        TRACE("D3DERR_NOTAVAILABLE in create_device.\n");
+                        break;
+                     case D3DERR_OUTOFVIDEOMEMORY:
+                        TRACE("D3DERR_OUTOFVIDEOMEMORY in create_device.\n");
+                        break;
+                     case D3DERR_DEVICELOST:
+                        TRACE("D3DERR_DEVICELOST in create_device.\n");
+                        break;
+                     default:
+                        TRACE("Direct3D Device creation failed.\n");
+                        break;
+                  }
+                  return 0;
+            }  }
          }
       }
    }
@@ -715,24 +731,34 @@ static bool d3d_create_fullscreen_device(ALLEGRO_DISPLAY_D3D *d,
                   D3DDEVTYPE_HAL, fullscreen_focus_window,
                   D3DCREATE_SOFTWARE_VERTEXPROCESSING|D3DCREATE_FPU_PRESERVE|D3DCREATE_MULTITHREADED,
                   &d3d_pp, &d->device)) != D3D_OK) {
-            switch (ret) {
-               case D3DERR_INVALIDCALL:
-                  TRACE("D3DERR_INVALIDCALL in create_device.\n");
-                  break;
-               case D3DERR_NOTAVAILABLE:
-                  TRACE("D3DERR_NOTAVAILABLE in create_device.\n");
-                  break;
-               case D3DERR_OUTOFVIDEOMEMORY:
-                  TRACE("D3DERR_OUTOFVIDEOMEMORY in create_device.\n");
-                  break;
-               case D3DERR_DEVICELOST:
-                  TRACE("D3DERR_DEVICELOST in create_device.\n");
-                  break;
-               default:
-                  TRACE("Direct3D Device creation failed.\n");
-                  break;
+            if ((ret = _al_d3d->CreateDevice(win_display->adapter,
+                     D3DDEVTYPE_REF, fullscreen_focus_window,
+                     D3DCREATE_HARDWARE_VERTEXPROCESSING|D3DCREATE_FPU_PRESERVE|D3DCREATE_MULTITHREADED,
+                     &d3d_pp, &d->device)) != D3D_OK) {
+               if ((ret = _al_d3d->CreateDevice(win_display->adapter,
+                        D3DDEVTYPE_REF, fullscreen_focus_window,
+                        D3DCREATE_SOFTWARE_VERTEXPROCESSING|D3DCREATE_FPU_PRESERVE|D3DCREATE_MULTITHREADED,
+                        &d3d_pp, &d->device)) != D3D_OK) {
+                  switch (ret) {
+                     case D3DERR_INVALIDCALL:
+                        TRACE("D3DERR_INVALIDCALL in create_device.\n");
+                        break;
+                     case D3DERR_NOTAVAILABLE:
+                        TRACE("D3DERR_NOTAVAILABLE in create_device.\n");
+                        break;
+                     case D3DERR_OUTOFVIDEOMEMORY:
+                        TRACE("D3DERR_OUTOFVIDEOMEMORY in create_device.\n");
+                        break;
+                     case D3DERR_DEVICELOST:
+                        TRACE("D3DERR_DEVICELOST in create_device.\n");
+                        break;
+                     default:
+                        TRACE("Direct3D Device creation failed.\n");
+                        break;
+                  }
+                  return 0;
+               }
             }
-            return 0;
          }
       }
 #ifdef ALLEGRO_CFG_D3D9EX
@@ -825,8 +851,15 @@ bool _al_d3d_init_display()
 
    if (_al_d3d->CheckDeviceFormat(D3DADAPTER_DEFAULT,
          D3DDEVTYPE_HAL, d3d_dm.Format, D3DUSAGE_RENDERTARGET,
-         D3DRTYPE_TEXTURE, d3d_dm.Format) != D3D_OK)
-      render_to_texture_supported = false;
+         D3DRTYPE_TEXTURE, d3d_dm.Format) != D3D_OK) {
+      if (_al_d3d->CheckDeviceFormat(D3DADAPTER_DEFAULT,
+            D3DDEVTYPE_REF, d3d_dm.Format, D3DUSAGE_RENDERTARGET,
+            D3DRTYPE_TEXTURE, d3d_dm.Format) != D3D_OK) {
+               render_to_texture_supported = false;
+      }
+      else
+         render_to_texture_supported = true;
+   }
    else
       render_to_texture_supported = true;
 
@@ -953,26 +986,36 @@ static bool d3d_create_device(ALLEGRO_DISPLAY_D3D *d,
             D3DDEVTYPE_HAL, win_display->window,
             D3DCREATE_SOFTWARE_VERTEXPROCESSING|D3DCREATE_FPU_PRESERVE|D3DCREATE_MULTITHREADED,
             &d3d_pp, (LPDIRECT3DDEVICE9 *)&d->device)) != D3D_OK) {
-         if (hr == D3DERR_NOTAVAILABLE) {
-            TRACE("CreateDevice failed: 1\n");
+         if ((hr = _al_d3d->CreateDevice(adapter,
+               D3DDEVTYPE_REF, win_display->window,
+               D3DCREATE_HARDWARE_VERTEXPROCESSING|D3DCREATE_FPU_PRESERVE|D3DCREATE_MULTITHREADED,
+               &d3d_pp, (LPDIRECT3DDEVICE9 *)&d->device)) != D3D_OK) {
+            if ((hr = _al_d3d->CreateDevice(adapter,
+                  D3DDEVTYPE_REF, win_display->window,
+                  D3DCREATE_SOFTWARE_VERTEXPROCESSING|D3DCREATE_FPU_PRESERVE|D3DCREATE_MULTITHREADED,
+                  &d3d_pp, (LPDIRECT3DDEVICE9 *)&d->device)) != D3D_OK) {
+               if (hr == D3DERR_NOTAVAILABLE) {
+                  TRACE("CreateDevice failed: 1\n");
+               }
+               else if (hr == D3DERR_DEVICELOST) {
+                  TRACE("CreateDevice failed: 2\n");
+               }
+               else if (hr == D3DERR_INVALIDCALL) {
+                  TRACE("CreateDevice failed: 3\n");
+               }
+               else if (hr == D3DERR_OUTOFVIDEOMEMORY) {
+                  TRACE("CreateDevice failed: 4\n");
+               }
+               else if (hr == E_OUTOFMEMORY) {
+                  TRACE("CreateDevice failed: 5\n");
+               }
+               else {
+                  TRACE("Unknown error %u\n", (unsigned)hr);
+               }
+               TRACE("d3d_create_device: CreateDevice failed.\n");
+               return 0;
+            }
          }
-         else if (hr == D3DERR_DEVICELOST) {
-            TRACE("CreateDevice failed: 2\n");
-         }
-         else if (hr == D3DERR_INVALIDCALL) {
-            TRACE("CreateDevice failed: 3\n");
-         }
-         else if (hr == D3DERR_OUTOFVIDEOMEMORY) {
-            TRACE("CreateDevice failed: 4\n");
-         }
-         else if (hr == E_OUTOFMEMORY) {
-            TRACE("CreateDevice failed: 5\n");
-         }
-         else {
-            TRACE("Unknown error %u\n", (unsigned)hr);
-         }
-         TRACE("d3d_create_device: CreateDevice failed.\n");
-         return 0;
       }
    }
 
@@ -1287,6 +1330,15 @@ static BOOL IsTextureFormatOk(D3DFORMAT TextureFormat, D3DFORMAT AdapterFormat)
       0,
       D3DRTYPE_TEXTURE,
       TextureFormat);
+
+   if (hr != D3D_OK) {
+      hr = _al_d3d->CheckDeviceFormat(D3DADAPTER_DEFAULT,
+         D3DDEVTYPE_REF,
+         AdapterFormat,
+         0,
+         D3DRTYPE_TEXTURE,
+         TextureFormat);
+   }
 
    return SUCCEEDED(hr);
 }
@@ -1780,7 +1832,8 @@ static ALLEGRO_DISPLAY *d3d_create_display(int w, int h)
 
    _al_win_show_mouse_cursor(al_display);
 
-   if (_al_d3d->GetDeviceCaps(adapter, D3DDEVTYPE_HAL, &caps) != D3D_OK) {
+   if (_al_d3d->GetDeviceCaps(adapter, D3DDEVTYPE_HAL, &caps) != D3D_OK
+         && _al_d3d->GetDeviceCaps(adapter, D3DDEVTYPE_REF, &caps) != D3D_OK) {
       d3d_display->supports_separate_alpha_blend = false;
    }
    else {
