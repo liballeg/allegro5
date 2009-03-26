@@ -28,69 +28,49 @@
 #include "font.h"
 
 
-/* state information for the bitmap font importer */
-static int import_x = 0;
-static int import_y = 0;
 
-
-
-static bool color_compare(ALLEGRO_COLOR c1, ALLEGRO_COLOR c2)
+static void font_find_character(uint32_t *data, int pitch,
+   int bmp_w, int bmp_h,
+   int *x, int *y, int *w, int *h)
 {
-   return c1.r != c2.r || c1.g != c2.g || c1.b != c2.b || c1.a != c2.a;
-}
-
-/* splits bitmaps into sub-sprites, using regions bounded by col #255 */
-static void font_find_character(ALLEGRO_BITMAP *bmp, int *x, int *y, int *w, int *h)
-{
-   const int bmp_w = al_get_bitmap_width(bmp);
-   const int bmp_h = al_get_bitmap_height(bmp);
-   ALLEGRO_COLOR c;
-   ALLEGRO_LOCKED_REGION *lr;
-
-   c = al_map_rgb(255, 255, 0);
-
-   lr = al_lock_bitmap(bmp, ALLEGRO_PIXEL_FORMAT_ANY, ALLEGRO_LOCK_READONLY);
+   uint32_t c = 0xffff00ff;
+   pitch >>= 2;
 
    /* look for top left corner of character */
    while (1) {
-      if (*x+1 >= bmp_w) {
+      /* Reached border? */
+      if (*x >= bmp_w - 1) {
          *x = 0;
          (*y)++;
-         if (*y+1 >= bmp_h) {
+         if (*y + 1 >= bmp_h - 1) {
             *w = 0;
             *h = 0;
-            al_unlock_bitmap(bmp);
             return;
          }
       }
-      if (!(
-         color_compare(al_get_pixel(bmp, *x, *y), c) ||
-         color_compare(al_get_pixel(bmp, *x+1, *y), c) ||
-         color_compare(al_get_pixel(bmp, *x, *y+1), c) ||
-         !color_compare(al_get_pixel(bmp, *x+1, *y+1), c)
-      )) {
+      if (
+         data[*x + *y * pitch] == c &&
+         data[(*x + 1) + *y * pitch] == c &&
+         data[*x + (*y + 1) * pitch] == c &&
+         data[(*x + 1) + (*y + 1) * pitch] != c) {
          break;
       }
       (*x)++;
    }
 
    /* look for right edge of character */
-   *w = 0;
-   while ((*x+*w+1 < bmp_w) &&
-      (!color_compare(al_get_pixel(bmp, *x+*w+1, *y), c) &&
-      color_compare(al_get_pixel(bmp, *x+*w+1, *y+1), c))) {
+   *w = 1;
+   while ((*x + *w + 1 < bmp_w) &&
+      data[(*x + *w + 1) + (*y + 1) * pitch] != c) {
       (*w)++;
    }
 
    /* look for bottom edge of character */
-   *h = 0;
-   while ((*y+*h+1 < bmp_h) &&
-      (!color_compare(al_get_pixel(bmp, *x, *y+*h+1), c) &&
-      color_compare(al_get_pixel(bmp, *x+1, *y+*h+1), c))) {
-         (*h)++;
+   *h = 1;
+   while ((*y + *h + 1 < bmp_h) &&
+      data[*x + 1 + (*y + *h + 1) * pitch] != c) {
+      (*h)++;
    }
-
-   al_unlock_bitmap(bmp);
 }
 
 
@@ -98,42 +78,26 @@ static void font_find_character(ALLEGRO_BITMAP *bmp, int *x, int *y, int *w, int
 /* import_bitmap_font_color:
  *  Helper for import_bitmap_font, below.
  */
-static int import_bitmap_font_color(ALLEGRO_BITMAP *import_bmp, ALLEGRO_BITMAP** bits, ALLEGRO_BITMAP* glyphs, int num)
+static int import_bitmap_font_color(uint32_t *data, int pitch,
+   int bmp_w, int bmp_h,
+   ALLEGRO_BITMAP **bits, ALLEGRO_BITMAP *glyphs, int num,
+   int *import_x, int *import_y)
 {
-   int w = 1, h = 1, i;
+   int w, h, i;
    int ret = 0;
-   ALLEGRO_COLOR col;
-   ALLEGRO_STATE backup;
-         
-   col = al_map_rgb(255, 255, 0);
 
-   al_store_state(&backup, ALLEGRO_STATE_BITMAP);
-   al_set_new_bitmap_format(ALLEGRO_PIXEL_FORMAT_ANY_WITH_ALPHA);
-   
    for(i = 0; i < num; i++) {
-      if(w > 0 && h > 0) font_find_character(import_bmp, &import_x, &import_y, &w, &h);
+      font_find_character(data, pitch, bmp_w, bmp_h,
+         import_x, import_y, &w, &h);
       if(w <= 0 || h <= 0) {
-         bits[i] = al_create_bitmap(8, 8);
-         if(!bits[i]) {
-            ret = -1;
-            goto done;
-         }
-         al_set_target_bitmap(bits[i]);
-         al_clear(col);
+         bits[i] = NULL;
       }
       else {
-         bits[i] = al_create_sub_bitmap(glyphs, import_x + 1, import_y + 1, w, h);
-         if(!bits[i]) {
-            ret = -1;
-            goto done;
-         }
-         import_x += w;
+         bits[i] = al_create_sub_bitmap(glyphs,
+            *import_x + 1, *import_y + 1, w, h);
+         *import_x += w;
       }
    }
-
-done:
-   al_restore_state(&backup);
-
    return ret;
 }
 
@@ -147,14 +111,22 @@ static int bitmap_font_count(ALLEGRO_BITMAP* bmp)
 {
    int x = 0, y = 0, w = 0, h = 0;
    int num = 0;
+   ALLEGRO_LOCKED_REGION *lock;
+   
+   lock = al_lock_bitmap(bmp, ALLEGRO_PIXEL_FORMAT_RGBA_8888,
+      ALLEGRO_LOCK_READONLY);
 
    while (1) {
-      font_find_character(bmp, &x, &y, &w, &h);
+      font_find_character(lock->data, lock->pitch,
+         al_get_bitmap_width(bmp), al_get_bitmap_height(bmp),
+         &x, &y, &w, &h);
       if (w <= 0 || h <= 0)
          break;
       num++;
       x += w;
    }
+   
+   al_unlock_bitmap(bmp);
 
    return num;
 }
@@ -165,8 +137,6 @@ ALLEGRO_FONT *_al_load_bitmap_font(const char *fname, int size, int flags)
 {
    ALLEGRO_BITMAP *import_bmp;
    ALLEGRO_FONT *f;
-   ALLEGRO_COLOR col;
-   unsigned char r, g, b, a;
    ALLEGRO_STATE backup;
    int range[2];
    ASSERT(fname);
@@ -180,17 +150,15 @@ ALLEGRO_FONT *_al_load_bitmap_font(const char *fname, int size, int flags)
    import_bmp = al_iio_load(fname);
    al_restore_state(&backup);
 
-   if(!import_bmp) 
+   if (!import_bmp) 
      return NULL;
-
-   col = al_get_pixel(import_bmp, 0, 0);
-   al_unmap_rgba(col, &r, &g, &b, &a);
 
    /* We assume a single unicode range, starting at the space
     * character.
     */
    range[0] = 32;
    range[1] = 32 + bitmap_font_count(import_bmp) - 1;
+
    f = al_grab_font_from_bitmap(import_bmp, 1, range);
 
    al_destroy_bitmap(import_bmp);
@@ -221,11 +189,15 @@ ALLEGRO_FONT *al_grab_font_from_bitmap(
    int i;
    ALLEGRO_COLOR white = al_map_rgb(255, 255, 255);
    ALLEGRO_COLOR mask = al_map_rgb(255, 255, 0);
+   ALLEGRO_BITMAP *glyphs = NULL;
+   int import_x = 0, import_y = 0;
+   ALLEGRO_LOCKED_REGION *lock = NULL;
+   int w, h;
 
    ASSERT(bmp)
-
-   import_x = 0;
-   import_y = 0;
+   
+   w = al_get_bitmap_width(bmp);
+   h = al_get_bitmap_height(bmp);
 
    f = _AL_MALLOC(sizeof *f);
    memset(f, 0, sizeof *f);
@@ -248,22 +220,28 @@ ALLEGRO_FONT *al_grab_font_from_bitmap(
       
       cf->bitmaps = _AL_MALLOC(sizeof(ALLEGRO_BITMAP*) * n);
 
-      cf->glyphs = al_create_bitmap(
-         al_get_bitmap_width(bmp), al_get_bitmap_height(bmp));
-      if (!cf->glyphs)
-         goto cleanup_and_fail_on_error;
+      if (!glyphs) {
+         glyphs = al_create_bitmap(w, h);
+         if (!glyphs)
+            goto cleanup_and_fail_on_error;
+         al_set_target_bitmap(glyphs);
+         al_set_blender(ALLEGRO_ONE, ALLEGRO_ZERO, white);
+         al_draw_bitmap(bmp, 0, 0, 0);
+         /* At least with OpenGL, texture pixels at the very border of
+          * the glyph are sometimes partly sampled from the yellow mask
+          * pixels. To work around this, we replace the mask with full
+          * transparency.
+          */
+         al_convert_mask_to_alpha(glyphs, mask);
+         
+         lock = al_lock_bitmap(bmp,
+            ALLEGRO_PIXEL_FORMAT_RGBA_8888, ALLEGRO_LOCK_READONLY);
+      }
+      cf->glyphs = glyphs;
 
-      al_set_target_bitmap(cf->glyphs);
-      al_set_blender(ALLEGRO_ONE, ALLEGRO_ZERO, white);
-      al_draw_bitmap(bmp, 0, 0, 0);
-      /* At least with OpenGL, texture pixels at the very border of
-       * the glyph are sometimes partly sampled from the yellow mask
-       * pixels. To work around this, we replace the mask with full
-       * transparency.
-       */
-      al_convert_mask_to_alpha(cf->glyphs, mask);
-
-      if(import_bitmap_font_color(bmp, cf->bitmaps, cf->glyphs, n)) {
+      if (import_bitmap_font_color(lock->data, lock->pitch, w, h,
+         cf->bitmaps, cf->glyphs, n,
+         &import_x, &import_y)) {
          goto cleanup_and_fail_on_error;
       }
       else {
@@ -278,8 +256,13 @@ ALLEGRO_FONT *al_grab_font_from_bitmap(
    if (cf)
       f->height = al_get_bitmap_height(cf->bitmaps[0]);
 
+   if (lock)
+      al_unlock_bitmap(bmp);
+
    return f;
 cleanup_and_fail_on_error:
+   if (lock)
+      al_unlock_bitmap(bmp);
    al_restore_state(&backup);
    al_destroy_font(f);
    return NULL;

@@ -175,17 +175,22 @@ static int color_render(const ALLEGRO_FONT* f, const ALLEGRO_USTR *text,
 static void color_destroy(ALLEGRO_FONT* f)
 {
     ALLEGRO_FONT_COLOR_DATA* cf;
+    ALLEGRO_BITMAP *glyphs = NULL;
 
     if(!f) return;
 
     cf = (ALLEGRO_FONT_COLOR_DATA*)(f->data);
+    
+    if (cf)
+        glyphs = cf->glyphs;
 
     while(cf) {
         ALLEGRO_FONT_COLOR_DATA* next = cf->next;
         int i = 0;
 
         for(i = cf->begin; i < cf->end; i++) al_destroy_bitmap(cf->bitmaps[i - cf->begin]);
-        al_destroy_bitmap(cf->glyphs);
+        /* Each range might point to the same bitmap. */
+        if (cf->glyphs != glyphs) al_destroy_bitmap(cf->glyphs);
 
         _AL_FREE(cf->bitmaps);
         _AL_FREE(cf);
