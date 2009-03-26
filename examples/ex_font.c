@@ -74,9 +74,9 @@ int main(void)
         return 1;
     }
     
-    font_bitmap = al_iio_load("data/a4_font.png");
+    font_bitmap = al_iio_load("data/a4_font.tga");
     if (!font_bitmap) {
-        TRACE("Failed to load a4_font.png\n");
+        TRACE("Failed to load a4_font.tga\n");
         return 1;
     }
     a4f = al_grab_font_from_bitmap(font_bitmap, 4, ranges);

@@ -5,7 +5,9 @@
  *    This program tests keyboard events.
  */
 
+#include <stdio.h>
 #include <allegro5/allegro5.h>
+#include <allegro5/a5_iio.h>
 #include <allegro5/a5_font.h>
 
 
@@ -226,6 +228,13 @@ void main_loop(void)
 
 int main(void)
 {
+   ALLEGRO_BITMAP *a4font;
+   int ranges[] = {
+       0x0020, 0x007F,  /* ASCII */
+       0x00A1, 0x00FF,  /* Latin 1 */
+       0x0100, 0x017F,  /* Extended-A */
+       0x20AC, 0x20AC}; /* Euro */
+
    if (!al_init()) {
       TRACE("Could not init Allegro.\n");
       return 1;
@@ -244,12 +253,15 @@ int main(void)
       return 1;
    }
 
-   myfont = al_load_font("data/fixed_font.tga", 0, 0);
-   if (!myfont) {
-      TRACE("Failed to load fixed_font.tga\n");
+   /* Unlike data/fixed_font.tga this contains some non-ASCII characters. */
+   printf("Loading a4_font.tga, might be a bit slow...\n");
+   a4font = al_iio_load("data/a4_font.tga");
+   if (!a4font) {
+      TRACE("Failed to load a4_font.tga\n");
       return 1;
    }
 
+   myfont = al_grab_font_from_bitmap(a4font, 4, ranges);
    black = al_map_rgb(0, 0, 0);
    white = al_map_rgb(255, 255, 255);
 
