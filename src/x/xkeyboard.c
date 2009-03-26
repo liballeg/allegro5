@@ -728,7 +728,19 @@ static int x_keyboard_init(void)
 #ifdef ALLEGRO_XWINDOWS_WITH_XIM
    TRACE (PREFIX_I "Using X Input Method.\n");
 
-   xim = XOpenIM (s->x11display, NULL, NULL, NULL);
+   /* Otherwise we are restricted to ISO-8859-1 characters. */
+   if (setlocale(LC_ALL, "") == NULL) {
+      TRACE(PREFIX_W "Could not set default locale.\n");
+   }
+
+/* TODO: is this needed?
+   modifiers = XSetLocaleModifiers("@im=none");
+   if (modifiers == NULL) {
+      TRACE(PREFIX_W "XSetLocaleModifiers failed.\n");
+   }
+*/
+
+   xim = XOpenIM(s->x11display, NULL, NULL, NULL);
    if (xim == NULL) {
       TRACE(PREFIX_W "XOpenIM failed.\n");
    }
@@ -750,7 +762,10 @@ static int x_keyboard_init(void)
          }
 
          if (xim_style == 0) {
-            TRACE (PREFIX_W "Input method doesn't support the style we support.\n");
+            TRACE(PREFIX_W "Input method doesn't support the style we support.\n");
+         }
+         else {
+            TRACE(PREFIX_I "Input method style = %ld\n", xim_style);
          }
          XFree(xim_styles);
       }
@@ -761,7 +776,10 @@ static int x_keyboard_init(void)
          XNInputStyle, xim_style,
          NULL);
       if (xic == NULL) {
-         TRACE (PREFIX_W "XCreateIC failed.\n");
+         TRACE(PREFIX_W "XCreateIC failed.\n");
+      }
+      else {
+         TRACE(PREFIX_I "XCreateIC succeeded.\n");
       }
 
       /* In case al_install_keyboard() is called when there already is
