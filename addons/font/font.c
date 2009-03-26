@@ -223,9 +223,10 @@ void al_init_font_addon(void)
    al_iio_init(); /* we depend on the iio addon */
    
    al_register_font_extension(".bmp", _al_load_bitmap_font);
+   al_register_font_extension(".jpg", _al_load_bitmap_font);
    al_register_font_extension(".pcx", _al_load_bitmap_font);
    al_register_font_extension(".png", _al_load_bitmap_font);
-   al_register_font_extension(".jpg", _al_load_bitmap_font);
+   al_register_font_extension(".tga", _al_load_bitmap_font);
 }
 
 
@@ -238,7 +239,7 @@ static HANDLER *find_extension(char const *extension)
     */
    for (i = _al_vector_size(&handlers) - 1; i >= 0 ; i--) {
       HANDLER *handler = _al_vector_ref(&handlers, i);
-      if (al_ustr_has_suffix_cstr(handler->extension, extension))
+      if (0 == strcmp(al_cstr(handler->extension), extension))
          return handler;
    }
    return NULL;
