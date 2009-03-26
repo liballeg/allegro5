@@ -11,6 +11,7 @@ include_directories(
     )
 
 if(SUPPORT_FONT)
+    example(ex_bitmap_flip ${FONT_LINK_WITH})
     example(ex_bitmap_target ${FONT_LINK_WITH} ${PRIMITIVES_LINK_WITH})
     example(ex_blend ${FONT_LINK_WITH} ${PRIMITIVES_LINK_WITH})
     example(ex_blend2 ex_blend2.cpp nihgui.cpp ${FONT_LINK_WITH} ${PRIMITIVES_LINK_WITH})
@@ -32,7 +33,6 @@ endif(SUPPORT_FONT)
 
 if(SUPPORT_IIO)
     example(ex_bitmap ${IIO_LINK_WITH})
-    example(ex_bitmap_flip ${IIO_LINK_WITH})
     example(ex_blend_bench ${IIO_LINK_WITH})
     example(ex_convert ${IIO_LINK_WITH})
     example(ex_dualies ${IIO_LINK_WITH})

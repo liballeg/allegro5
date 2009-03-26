@@ -2,6 +2,7 @@
 
 #include <allegro5/allegro5.h>
 #include <allegro5/a5_iio.h>
+#include <allegro5/a5_font.h>
 
 #define INTERVAL 0.01
 
@@ -56,6 +57,10 @@ int main(void)
    ALLEGRO_TIMER *timer;
    ALLEGRO_EVENT_QUEUE *queue;
    ALLEGRO_BITMAP *bmp;
+   ALLEGRO_BITMAP *mem_bmp;
+   ALLEGRO_BITMAP *disp_bmp;
+   ALLEGRO_FONT *font;
+   char *text;
    bool done = false;
 
    if (!al_init()) {
@@ -68,6 +73,8 @@ int main(void)
       return 1;
    }
 
+   al_init_font_addon();
+
    display = al_create_display(640, 480);
    if (!display) {
       TRACE("Error creating display.\n");
@@ -79,11 +86,26 @@ int main(void)
       return 1;
    }
 
-   bmp = al_iio_load("data/mysha.pcx");
+   font = al_load_font("data/fixed_font.tga", 0, 0);
+   if (!font) {
+      TRACE("Error loading data/fixed_font.tga\n");
+      return 1;
+   }
+
+   bmp = disp_bmp = al_iio_load("data/mysha.pcx");
    if (!bmp) {
       TRACE("Error loading data/mysha.pcx\n");
       return 1;
    }
+   text = "Display bitmap";
+
+   al_set_new_bitmap_flags(ALLEGRO_MEMORY_BITMAP);
+   mem_bmp = al_iio_load("data/mysha.pcx");
+   if (!bmp) {
+      TRACE("Error loading data/mysha.pcx\n");
+      return 1;
+   }
+
 
    timer = al_install_timer(INTERVAL);
 
@@ -102,6 +124,17 @@ int main(void)
          case ALLEGRO_EVENT_KEY_DOWN:
             if (event.keyboard.keycode == ALLEGRO_KEY_ESCAPE)
                done = true;
+            else if (event.keyboard.keycode == ALLEGRO_KEY_SPACE) {
+               if (bmp == mem_bmp) {
+                  bmp = disp_bmp;
+                  text = "Display bitmap";
+               }
+               else {
+                  bmp = mem_bmp;
+                  text = "Memory bitmap";
+               }
+            }
+               
             break;
 
          case ALLEGRO_EVENT_DISPLAY_CLOSE:
@@ -112,6 +145,7 @@ int main(void)
             update(bmp);
             al_clear(al_map_rgb(0, 0, 0));
             al_draw_bitmap(bmp, bmp_x, bmp_y, bmp_flag);
+            al_font_textout(font, 0, 0, text, -1);
             al_flip_display();
             break;
       }
