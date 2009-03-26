@@ -42,7 +42,7 @@ static void font_find_character(uint32_t *data, int pitch,
       if (*x >= bmp_w - 1) {
          *x = 0;
          (*y)++;
-         if (*y + 1 >= bmp_h - 1) {
+         if (*y >= bmp_h - 1) {
             *w = 0;
             *h = 0;
             return;
