@@ -37,16 +37,14 @@
 #include "allegro5/internal/aintern_keyboard.h"
 #include "xglx.h"
 
+ALLEGRO_DEBUG_CHANNEL("keyboard")
+
 /*----------------------------------------------------------------------*/
 static void handle_key_press(int mycode, int unichar, unsigned int modifiers,
     ALLEGRO_DISPLAY *display);
 static void handle_key_release(int mycode, ALLEGRO_DISPLAY *display);
 static int _key_shifts;
 /*----------------------------------------------------------------------*/
-
-#define PREFIX_I                "al-xkey INFO: "
-#define PREFIX_W                "al-xkey WARNING: "
-#define PREFIX_E                "al-xkey ERROR: "
 
 
 typedef struct ALLEGRO_KEYBOARD_XWIN
@@ -371,17 +369,18 @@ static int find_unknown_key_assignment(int i)
    }
 
    if (j == ALLEGRO_KEY_MAX) {
-      TRACE (PREFIX_E "You have more keys reported by X than Allegro's "
+      ALLEGRO_ERROR("You have more keys reported by X than Allegro's "
              "maximum of %i keys. Please send a bug report.\n", ALLEGRO_KEY_MAX);
       keycode_to_scancode[i] = 0;
    }
 
-   TRACE(PREFIX_I "Key %i missing:", i);
+   char str[1024];
+   sprintf(str, "Key %i missing:", i);
    for (j = 0; j < sym_per_key; j++) {
       char *sym_str = XKeysymToString(keysyms[sym_per_key * (i - min_keycode) + j]);
-      TRACE(" %s", sym_str ? sym_str : "NULL");
+      sprintf(str + strlen(str), " %s", sym_str ? sym_str : "NULL");
    }
-   TRACE(" - assigned to %i.\n", keycode_to_scancode[i]);
+   ALLEGRO_DEBUG("%s assigned to %i.\n", str, keycode_to_scancode[i]);
 
    return keycode_to_scancode[i];
 }
@@ -563,7 +562,7 @@ static void _al_xwin_get_keyboard_mapping(void)
    keysyms = XGetKeyboardMapping(system->x11display, min_keycode,
       count, &sym_per_key);
 
-   TRACE (PREFIX_I "%i keys, %i symbols per key.\n", count, sym_per_key);
+   ALLEGRO_INFO("%i keys, %i symbols per key.\n", count, sym_per_key);
 
    missing = 0;
 
@@ -572,12 +571,13 @@ static void _al_xwin_get_keyboard_mapping(void)
       KeySym sym2 =  keysyms[sym_per_key * (i - min_keycode) + 1];
       char *sym_str, *sym2_str;
       int allegro_key = 0;
+      char str[1024];
 
       sym_str = XKeysymToString(sym);
       sym2_str = XKeysymToString(sym2);
 
-      TRACE (PREFIX_I "key [%i: %s %s]", i, sym_str ? sym_str : "NULL", sym2_str ?
-         sym2_str : "NULL");
+      snprintf(str, sizeof str, "key [%i: %s %s]", i,
+         sym_str ? sym_str : "NULL", sym2_str ? sym2_str : "NULL");
 
       /* Hack for French keyboards, to correctly map ALLEGRO_KEY_0 to ALLEGRO_KEY_9. */
       if (sym2 >= XK_0 && sym2 <= XK_9) {
@@ -590,25 +590,27 @@ static void _al_xwin_get_keyboard_mapping(void)
 
             if (allegro_key == 0) {
                missing++;
-               TRACE (" defering.\n");
+               ALLEGRO_DEBUG("%s defering.\n", str);
             }
          }
          else {
             /* No KeySym for this key - ignore it. */
             keycode_to_scancode[i] = -1;
-            TRACE (" not assigned.\n");
+            ALLEGRO_DEBUG("%s not assigned.\n", str);
          }
       }
 
       if (allegro_key) {
+         bool is_double = false;
          if (used[allegro_key]) {
-            TRACE(" *double*");
+            is_double = true;
          }
          keycode_to_scancode[i] = allegro_key;
          key_names[allegro_key] =
             XKeysymToString(keysyms[sym_per_key * (i - min_keycode)]);
          used[allegro_key] = 1;
-         TRACE(" assigned to %i.\n", allegro_key);
+         ALLEGRO_DEBUG("%s%s assigned to %i.\n", str,
+            is_double ? " *double*" : "", allegro_key);
       }
    }
 
@@ -626,15 +628,15 @@ static void _al_xwin_get_keyboard_mapping(void)
    xmodmap = XGetModifierMapping(system->x11display);
    for (i = 0; i < 8; i++) {
       int j;
-
-      TRACE (PREFIX_I "Modifier %d:", i + 1);
+      char str[1024];
+      sprintf(str, "Modifier %d:", i + 1);
       for (j = 0; j < xmodmap->max_keypermod; j++) {
          KeySym sym = XKeycodeToKeysym(system->x11display,
             xmodmap->modifiermap[i * xmodmap->max_keypermod + j], 0);
          char *sym_str = XKeysymToString(sym);
-         TRACE(" %s", sym_str ? sym_str : "NULL");
+         sprintf(str + strlen(str), " %s", sym_str ? sym_str : "NULL");
       }
-      TRACE("\n");
+      ALLEGRO_DEBUG("%s\n", str);
    }
 
    /* The [xkeymap] section can be useful, e.g. if trying to play a
@@ -722,15 +724,15 @@ static int x_keyboard_init(void)
    Bool supported;
    XkbSetDetectableAutoRepeat(s->x11display, True, &supported);
    if (!supported) {
-    TRACE(PREFIX_W "XkbSetDetectableAutoRepeat failed.\n");
+      ALLEGRO_WARN("XkbSetDetectableAutoRepeat failed.\n");
    }
 
 #ifdef ALLEGRO_XWINDOWS_WITH_XIM
-   TRACE (PREFIX_I "Using X Input Method.\n");
+   ALLEGRO_INFO("Using X Input Method.\n");
 
    /* Otherwise we are restricted to ISO-8859-1 characters. */
    if (setlocale(LC_ALL, "") == NULL) {
-      TRACE(PREFIX_W "Could not set default locale.\n");
+      ALLEGRO_WARN("Could not set default locale.\n");
    }
 
 /* TODO: is this needed?
@@ -742,13 +744,13 @@ static int x_keyboard_init(void)
 
    xim = XOpenIM(s->x11display, NULL, NULL, NULL);
    if (xim == NULL) {
-      TRACE(PREFIX_W "XOpenIM failed.\n");
+      ALLEGRO_WARN("XOpenIM failed.\n");
    }
 
    if (xim) {
       imvalret = XGetIMValues(xim, XNQueryInputStyle, &xim_styles, NULL);
       if (imvalret != NULL || xim_styles == NULL) {
-         TRACE(PREFIX_W "Input method doesn't support any styles.\n");
+         ALLEGRO_WARN("Input method doesn't support any styles.\n");
       }
 
       if (xim_styles) {
@@ -762,10 +764,10 @@ static int x_keyboard_init(void)
          }
 
          if (xim_style == 0) {
-            TRACE(PREFIX_W "Input method doesn't support the style we support.\n");
+            ALLEGRO_WARN("Input method doesn't support the style we support.\n");
          }
          else {
-            TRACE(PREFIX_I "Input method style = %ld\n", xim_style);
+            ALLEGRO_INFO("Input method style = %ld\n", xim_style);
          }
          XFree(xim_styles);
       }
@@ -776,10 +778,10 @@ static int x_keyboard_init(void)
          XNInputStyle, xim_style,
          NULL);
       if (xic == NULL) {
-         TRACE(PREFIX_W "XCreateIC failed.\n");
+         ALLEGRO_WARN("XCreateIC failed.\n");
       }
       else {
-         TRACE(PREFIX_I "XCreateIC succeeded.\n");
+         ALLEGRO_INFO("XCreateIC succeeded.\n");
       }
 
       /* In case al_install_keyboard() is called when there already is
@@ -1011,8 +1013,8 @@ static void handle_key_press(int mycode, int unichar, unsigned int modifiers,
        && (modifiers & ALLEGRO_KEYMOD_CTRL)
        && (modifiers & (ALLEGRO_KEYMOD_ALT | ALLEGRO_KEYMOD_ALTGR)))
    {
-      TRACE(PREFIX_W "Three finger combo detected. SIGTERMing "
-            "pid %d\n", main_pid);
+      ALLEGRO_WARN("Three finger combo detected. SIGTERMing "
+         "pid %d\n", main_pid);
       kill(main_pid, SIGTERM);
    }
 }

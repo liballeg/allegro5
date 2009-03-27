@@ -25,6 +25,9 @@
    extern "C" {
 #endif
 
+AL_FUNC(bool, _al_trace_prefix, (char const *channel, int level,
+   char const *file, int line, char const *function));
+
 AL_FUNC(void, al_assert, (AL_CONST char *file, int linenr));
 AL_PRINTFUNC(void, al_trace, (AL_CONST char *msg, ...), 1, 2);
 
@@ -33,20 +36,30 @@ AL_FUNC(void, register_trace_handler, (AL_METHOD(int, handler, (AL_CONST char *m
 
 
 #ifdef DEBUGMODE
+   #define ALLEGRO_DEBUG_CHANNEL(x) static char const *debug_channel = x;
+   #define ALLEGRO_TRACE_CHANNEL_LEVEL(channel, level) \
+      !_al_trace_prefix(channel, level, __FILE__, __LINE__, __func__) \
+      ? (void)0 : al_trace
    #define ASSERT(condition)     { if (!(condition)) al_assert(__FILE__, __LINE__); }
    #define TRACE                 al_trace
 #else
    #define ASSERT(condition)
    #define TRACE                 1 ? (void) 0 : al_trace
+   #define ALLEGRO_TRACE_CHANNEL_LEVEL(x) 1 ? (void) 0 : al_trace
+   #define ALLEGRO_DEBUG_CHANNEL(x)
 #endif
 
+#define ALLEGRO_TRACE_LEVEL(x) ALLEGRO_TRACE_CHANNEL_LEVEL(debug_channel, x)
+#define ALLEGRO_DEBUG ALLEGRO_TRACE_LEVEL(0)
+#define ALLEGRO_INFO  ALLEGRO_TRACE_LEVEL(1)
+#define ALLEGRO_WARN  ALLEGRO_TRACE_LEVEL(2)
+#define ALLEGRO_ERROR ALLEGRO_TRACE_LEVEL(3)
 
 /* Compile time assertions. */
 #define ALLEGRO_ASSERT_CONCAT_(a, b)   a##b
 #define ALLEGRO_ASSERT_CONCAT(a, b)    ALLEGRO_ASSERT_CONCAT_(a, b)
 #define ALLEGRO_STATIC_ASSERT(e) \
    enum { ALLEGRO_ASSERT_CONCAT(static_assert_line_, __LINE__) = 1/!!(e) }
-
 
 #ifdef __cplusplus
    }

@@ -25,7 +25,7 @@
 #include "allegro5/internal/aintern_system.h"
 #include "allegro5/internal/aintern_vector.h"
 
-
+ALLEGRO_DEBUG_CHANNEL("system");
 static ALLEGRO_SYSTEM *active_sysdrv = NULL;
 
 _AL_VECTOR _al_system_interfaces = _AL_VECTOR_INITIALIZER(ALLEGRO_SYSTEM_INTERFACE *);
@@ -94,18 +94,69 @@ static void shutdown_system_driver(void)
 
 
 
-/* Function: al_install_system
- */
-bool al_install_system(int (*atexit_ptr)(void (*)(void)))
+static void read_allegro_cfg(void)
 {
 #ifdef ALLEGRO_UNIX
    ALLEGRO_CONFIG *temp;
    char buf[256], tmp[256];
 #endif
+
+#ifdef ALLEGRO_UNIX
+   active_sysdrv->config = al_load_config_file("/etc/allegrorc");
+   if (active_sysdrv->config) {
+      ALLEGRO_INFO("Applying system settings from /etc/allegrorc\n");
+   }
+
+   ustrzcpy(buf, sizeof(buf) - ucwidth(OTHER_PATH_SEPARATOR), uconvert_ascii(getenv("HOME"), tmp));
+   ustrzcat(buf, sizeof(buf), uconvert_ascii("/.allegrorc", tmp));
+   temp = al_load_config_file(buf);
+   if (temp) {
+      if (active_sysdrv->config) {
+         al_merge_config_into(active_sysdrv->config, temp);
+         al_destroy_config(temp);
+      }
+      else {
+         active_sysdrv->config = temp;
+      }
+      ALLEGRO_INFO("Applying system settings from %s\n", buf);
+   }
+   
+   temp = al_load_config_file("allegro.cfg");
+   if (temp) {
+      if (active_sysdrv->config) {
+         al_merge_config_into(active_sysdrv->config, temp);
+         al_destroy_config(temp);
+      }
+      else {
+         active_sysdrv->config = temp;
+      }
+      ALLEGRO_INFO("Applying system settings from allegro.cfg\n");
+   }
+#else
+   active_sysdrv->config = al_load_config_file("allegro.cfg");
+#endif
+}
+
+
+
+/* Function: al_install_system
+ */
+bool al_install_system(int (*atexit_ptr)(void (*)(void)))
+{
+   ALLEGRO_SYSTEM bootstrap;
+   ALLEGRO_SYSTEM *real_system;
    
    if (active_sysdrv) {
       return true;
    }
+
+   /* We want active_sysdrv->config to be available as soon as
+    * possible - for example what if a system driver need to read
+    * settings out of there. Hence we use a dummy ALLEGRO_SYSTEM
+    * here to load the initial config.
+    */
+   active_sysdrv = &bootstrap;
+   read_allegro_cfg();
 
 #ifdef ALLEGRO_BCC32
    /* This supresses exceptions on floating point divide by zero */
@@ -116,16 +167,19 @@ bool al_install_system(int (*atexit_ptr)(void (*)(void)))
    _al_register_system_interfaces();
 
    /* Check for a user-defined system driver first */
-   active_sysdrv = find_system(&_user_system_interfaces);
+   real_system = find_system(&_user_system_interfaces);
 
    /* If a user-defined driver is not found, look for a builtin one */
-   if (active_sysdrv == NULL) {
-      active_sysdrv = find_system(&_al_system_interfaces);
+   if (real_system == NULL) {
+      real_system = find_system(&_al_system_interfaces);
    }
 
-   if (active_sysdrv == NULL) {
+   if (real_system == NULL) {
+      active_sysdrv = NULL;
       return false;
    }
+   
+   active_sysdrv = real_system;
 
    if(ustrcmp(al_get_orgname(), "") == 0) {
       al_set_orgname(NULL);
@@ -134,41 +188,6 @@ bool al_install_system(int (*atexit_ptr)(void (*)(void)))
    if(ustrcmp(al_get_appname(), "") == 0) {
       al_set_appname(NULL);
    }
-   
-#ifdef ALLEGRO_UNIX
-   active_sysdrv->config = al_load_config_file("/etc/allegrorc");
-   if (active_sysdrv->config) {
-      TRACE("Applying system settings from /etc/allegrorc\n");
-   }
-
-   ustrzcpy(buf, sizeof(buf) - ucwidth(OTHER_PATH_SEPARATOR), uconvert_ascii(getenv("HOME"), tmp));
-   ustrzcat(buf, sizeof(buf), uconvert_ascii("/.allegrorc", tmp));
-   temp = al_load_config_file(buf);
-   if (temp) {
-      TRACE("Applying system settings from %s\n", buf);
-      if (active_sysdrv->config) {
-         al_merge_config_into(active_sysdrv->config, temp);
-         al_destroy_config(temp);
-      }
-      else {
-         active_sysdrv->config = temp;
-      }
-   }
-   
-   temp = al_load_config_file("allegro.cfg");
-   if (temp) {
-      TRACE("Applying system settings from allegro.cfg\n");
-      if (active_sysdrv->config) {
-         al_merge_config_into(active_sysdrv->config, temp);
-         al_destroy_config(temp);
-      }
-      else {
-         active_sysdrv->config = temp;
-      }
-   }
-#else
-   active_sysdrv->config = al_load_config_file("allegro.cfg");
-#endif
 
    _al_add_exit_func(shutdown_system_driver, "shutdown_system_driver");
 

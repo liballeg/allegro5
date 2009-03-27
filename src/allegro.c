@@ -24,12 +24,8 @@
 #include "allegro5/internal/aintern.h"
 #include "allegro5/internal/aintern_dtor.h"
 #include "allegro5/internal/aintern_memory.h"
+#include "allegro5/internal/aintern_system.h"
 
-
-
-#define PREFIX_I                "al-main INFO: "
-#define PREFIX_W                "al-main WARNING: "
-#define PREFIX_E                "al-main ERROR: "
 
 
 /* debugging stuff */
@@ -42,6 +38,17 @@ static FILE *trace_file = NULL;
 static int (*assert_handler)(AL_CONST char *msg) = NULL;
 int (*_al_trace_handler)(AL_CONST char *msg) = NULL;
 
+struct
+{
+   /* 0: debug, 1: info, 2: warn, 3: error */
+   int level;
+   /* 1: line number, 2: function name, 4: timestamp */
+   int flags;
+   /* List of channels to log. NULL to log all channels. */
+   ALLEGRO_USTR **channels;
+   /* Whether settings have been read from allegro.cfg or not. */
+   bool configured;
+} _al_debug_info = {0, 7, NULL, false};
 
 /* dynamic registration system for cleanup code */
 struct al_exit_func {
@@ -200,6 +207,112 @@ void al_assert(AL_CONST char *file, int line)
 
 
 
+bool _al_trace_prefix(char const *channel, int level,
+   char const *file, int line, char const *function)
+{
+   int i;
+   char *name;
+   double t = al_current_time();
+
+   if (!_al_debug_info.configured) {
+      ALLEGRO_SYSTEM *sys = al_system_driver();
+      /* Messages logged before the system driver and allegro.cfg are
+       * up will always use defaults - but usually nothing is logged
+       * before al_init.
+       */
+      if (sys && sys->config) {
+         ALLEGRO_USTR *u;
+         char const *v;
+         bool got_all = false;
+         int n = 0, pos = 0;
+         v = al_get_config_value(sys->config, "trace", "channels");
+         if (v) {
+            ALLEGRO_USTR **channels = NULL;
+            u = al_ustr_new(v);
+            while (pos >= 0) {
+               int comma = al_ustr_find_chr(u, pos, ',');
+               ALLEGRO_USTR *u2;
+               if (comma == -1)
+                  u2 = al_ustr_dup_substr(u, pos, al_ustr_length(u));
+               else
+                  u2 = al_ustr_dup_substr(u, pos, comma);
+               al_ustr_trim_ws(u2);
+               n++;
+               channels = _AL_REALLOC(channels, n * sizeof *channels);
+               channels[n - 1] = u2;
+               if (!strcmp(al_cstr(u2), "all"))
+                  got_all = true;
+               pos = comma;
+               al_ustr_get_next(u, &pos);
+            }
+            n++;
+            channels = _AL_REALLOC(channels, n * sizeof *channels);
+            channels[n - 1] = NULL;
+            al_ustr_free(u);
+            _al_debug_info.channels = channels;
+            
+            if (got_all) {
+               for (i = 0; _al_debug_info.channels[i]; i++) {
+                  al_ustr_free(_al_debug_info.channels[i]);
+               }
+               _AL_FREE(_al_debug_info.channels);
+               _al_debug_info.channels = NULL;
+            }
+         }
+         v = al_get_config_value(sys->config, "trace", "level");
+         if (v) {
+            if (!strcmp(v, "error")) _al_debug_info.level = 3;
+            else if (!strcmp(v, "warn")) _al_debug_info.level = 2;
+            else if (!strcmp(v, "info")) _al_debug_info.level = 1;
+         }
+         v = al_get_config_value(sys->config, "trace", "timestamps");
+         if (v && strcmp(v, "0"))
+            _al_debug_info.flags |= 4;
+         else
+            _al_debug_info.flags &= ~4;
+         v = al_get_config_value(sys->config, "trace", "functions");
+         if (!v || strcmp(v, "0"))
+            _al_debug_info.flags |= 2;
+         else
+            _al_debug_info.flags &= ~2;
+         v = al_get_config_value(sys->config, "trace", "lines");
+         if (!v || strcmp(v, "0"))
+            _al_debug_info.flags |= 1;
+         else
+            _al_debug_info.flags &= ~1;
+         _al_debug_info.configured = true;
+      }
+   }
+
+   if (level < _al_debug_info.level) return false;
+   if (_al_debug_info.channels == NULL) goto yes;
+   if (_al_debug_info.channels[0] == NULL) return false;
+   for (i = 0; _al_debug_info.channels[i]; i++) {
+      if (!strcmp(al_cstr(_al_debug_info.channels[i]), channel))
+         goto yes;
+   }
+   return false;
+yes:
+   al_trace("%-8s ", channel);
+   if (level == 0) al_trace("D ");
+   if (level == 1) al_trace("I ");
+   if (level == 2) al_trace("W ");
+   if (level == 3) al_trace("E ");
+
+   name = strrchr(file, '/');
+   if (_al_debug_info.flags & 1) al_trace("%20s:%-4d ",
+      name ? name + 1 : file, line);
+   if (_al_debug_info.flags & 2) al_trace("%-32s ", function);
+   /* Kludge:
+    * Very high timers (more than a year?) likely mean the timer
+    * subsystem isn't initialized yet, so print 0.
+    */
+   if (t > 3600 * 24 * 365) t = 0;
+   if (_al_debug_info.flags & 4) al_trace("[%10.5f] ", t);
+
+   return true;
+}
+
 /* al_trace:
  *  Outputs a trace message (uses ASCII strings).
  */
@@ -224,12 +337,12 @@ void al_trace(AL_CONST char *msg, ...)
       s = getenv("ALLEGRO_TRACE");
 
       if (s)
-	 trace_file = fopen(s, "w");
+         trace_file = fopen(s, "w");
       else
-	 trace_file = fopen("allegro.log", "w");
+         trace_file = fopen("allegro.log", "w");
 
       if (debug_assert_virgin)
-	 _al_add_exit_func(debug_exit, "debug_exit");
+         _al_add_exit_func(debug_exit, "debug_exit");
 
       debug_trace_virgin = false;
    }

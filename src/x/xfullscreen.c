@@ -1,5 +1,7 @@
 #include "xglx.h"
 
+ALLEGRO_DEBUG_CHANNEL("display")
+
 #ifdef ALLEGRO_XWINDOWS_WITH_XF86VIDMODE
 
 static int check_xf86_vidmode_ext(ALLEGRO_SYSTEM_XGLX *s)
@@ -84,11 +86,11 @@ bool _al_xglx_fullscreen_set_mode(ALLEGRO_SYSTEM_XGLX *s,
       }
    }
 
-   TRACE("xfullscreen: best mode [%d] = (%d, %d)\n", best_mode,
+   ALLEGRO_INFO("best mode [%d] = (%d, %d)\n", best_mode,
       s->modes[best_mode]->hdisplay, s->modes[best_mode]->vdisplay);
 
    if (!XF86VidModeSwitchToMode(s->gfxdisplay, 0, s->modes[best_mode])) {
-      TRACE("xfullscreen: XF86VidModeSwitchToMode failed\n");
+      ALLEGRO_ERROR("xfullscreen: XF86VidModeSwitchToMode failed\n");
       return false;
    }
 
@@ -118,7 +120,7 @@ void _al_xglx_store_video_mode(ALLEGRO_SYSTEM_XGLX *s)
    int n;
    int i;
 
-   TRACE("xfullscreen: _al_xglx_store_video_mode\n");
+   ALLEGRO_DEBUG("xfullscreen: _al_xglx_store_video_mode\n");
 
    n = get_num_display_modes(s);
    if (n == 0) {
@@ -129,10 +131,10 @@ void _al_xglx_store_video_mode(ALLEGRO_SYSTEM_XGLX *s)
    s->original_mode = s->modes[0];
 
    for (i = 0; i < n; i++) {
-      TRACE("xfullscreen: mode[%d] = (%d, %d)\n",
+      ALLEGRO_DEBUG("mode[%d] = (%d, %d)\n",
          i, s->modes[i]->hdisplay, s->modes[i]->vdisplay);
    }
-   TRACE("xfullscreen: original mode = (%d, %d)\n",
+   ALLEGRO_INFO("xfullscreen: original mode = (%d, %d)\n",
       s->original_mode->hdisplay, s->original_mode->vdisplay);
 }
 
@@ -141,12 +143,12 @@ void _al_xglx_restore_video_mode(ALLEGRO_SYSTEM_XGLX *s)
    Bool ok;
 
    ASSERT(s->original_mode);
-   TRACE("xfullscreen: _al_xglx_restore_video_mode (%d, %d)\n",
+   ALLEGRO_DEBUG("xfullscreen: _al_xglx_restore_video_mode (%d, %d)\n",
       s->original_mode->hdisplay, s->original_mode->vdisplay);
 
    ok = XF86VidModeSwitchToMode(s->gfxdisplay, 0, s->original_mode);
    if (!ok) {
-      TRACE("xfullscreen: XF86VidModeSwitchToMode failed\n");
+      ALLEGRO_ERROR("xfullscreen: XF86VidModeSwitchToMode failed\n");
    }
 
    if (s->pointer_grabbed) {

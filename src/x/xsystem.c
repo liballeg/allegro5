@@ -13,6 +13,8 @@ extern int _Xdebug; /* part of Xlib */
 #include "allegro5/internal/aintern_memory.h"
 #include "xglx.h"
 
+ALLEGRO_DEBUG_CHANNEL("system")
+
 AL_CONST char *_unix_get_path(uint32_t id, char *dir, size_t size);
 
 static ALLEGRO_SYSTEM_INTERFACE *xglx_vt;
@@ -179,18 +181,18 @@ static void _al_xsys_xinerama_init(ALLEGRO_SYSTEM_XGLX *s)
    if (XineramaQueryExtension(s->x11display, &event_base, &error_base)) {
       int minor_version = 0, major_version = 0;
       int status = XineramaQueryVersion(s->x11display, &major_version, &minor_version);
-      TRACE("xsystem: Xinerama version: %i.%i\n", major_version, minor_version);
+      ALLEGRO_INFO("Xinerama version: %i.%i\n", major_version, minor_version);
 
       if (status && !XineramaIsActive(s->x11display)) {
-         TRACE("xsystem: Xinerama is not active\n");
+         ALLEGRO_WARN("Xinerama is not active\n");
       }
       else {
-         TRACE("xsystem: Xinerama is active\n");
+         ALLEGRO_INFO("Xinerama is active\n");
          s->xinerama_available = 1;
       }
    }
    else {
-      TRACE("xsystem: Xinerama extension is not available.\n");
+      ALLEGRO_WARN("Xinerama extension is not available.\n");
    }
 
    _al_mutex_unlock(&s->lock);
@@ -226,14 +228,14 @@ static ALLEGRO_SYSTEM *xglx_initialize(int flags)
    /* Get an X11 display handle. */
    x11display = XOpenDisplay(0);
    if (!x11display) {
-      TRACE("xsystem: XOpenDisplay failed.\n");
+      ALLEGRO_ERROR("XOpenDisplay failed.\n");
       return NULL;
    }
 
    /* Never ask. */
    gfxdisplay = XOpenDisplay(0);
    if (!gfxdisplay) {
-      TRACE("xsystem: XOpenDisplay failed.\n");
+      ALLEGRO_ERROR("XOpenDisplay failed.\n");
       XCloseDisplay(x11display);
       return NULL;
    }
@@ -260,9 +262,9 @@ static ALLEGRO_SYSTEM *xglx_initialize(int flags)
 
    s->system.vt = xglx_vt;
 
-   TRACE("xsystem: XGLX driver connected to X11 (%sys %d).\n",
+   ALLEGRO_INFO("XGLX driver connected to X11 (%sys %d).\n",
       ServerVendor(s->x11display), VendorRelease(s->x11display));
-   TRACE("xsystem: X11 protocol version %d.%d.\n",
+   ALLEGRO_INFO("X11 protocol version %d.%d.\n",
       ProtocolVersion(s->x11display), ProtocolRevision(s->x11display));
 
 #ifdef ALLEGRO_XWINDOWS_WITH_XINERAMA
@@ -273,7 +275,7 @@ static ALLEGRO_SYSTEM *xglx_initialize(int flags)
    
    _al_thread_create(&s->thread, xglx_background_thread, s);
 
-   TRACE("xsystem: events thread spawned.\n");
+   ALLEGRO_INFO("events thread spawned.\n");
 
    return &s->system;
 }
@@ -284,7 +286,7 @@ static void xglx_shutdown_system(void)
    ALLEGRO_SYSTEM *s = al_system_driver();
    ALLEGRO_SYSTEM_XGLX *sx = (void *)s;
 
-   TRACE("shutting down.\n");
+   ALLEGRO_INFO("shutting down.\n");
 
    _al_thread_join(&sx->thread);
 

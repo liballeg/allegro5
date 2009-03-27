@@ -1,26 +1,24 @@
 #include "xglx.h"
 
-#define PREFIX_I                "xglx-config INFO: "
-#define PREFIX_W                "xglx-config WARNING: "
-#define PREFIX_E                "xglx-config ERROR: "
+ALLEGRO_DEBUG_CHANNEL("display")
 
 #ifdef DEBUGMODE
 static void display_pixel_format(ALLEGRO_EXTRA_DISPLAY_SETTINGS *eds)
 {
-   TRACE(PREFIX_I "Single-buffer: %s\n", eds->settings[ALLEGRO_SINGLE_BUFFER] ? "yes" : "no");
+   ALLEGRO_DEBUG("Single-buffer: %s\n", eds->settings[ALLEGRO_SINGLE_BUFFER] ? "yes" : "no");
    if (eds->settings[ALLEGRO_SWAP_METHOD] > 0)
-      TRACE(PREFIX_I "Swap method: %s\n", eds->settings[ALLEGRO_SWAP_METHOD] == 2 ? "flip" : "copy");
+      ALLEGRO_DEBUG("Swap method: %s\n", eds->settings[ALLEGRO_SWAP_METHOD] == 2 ? "flip" : "copy");
    else
-      TRACE(PREFIX_I "Swap method: undefined\n");
-   TRACE(PREFIX_I "Color format: r%i g%i b%i a%i, %i bit\n",
+      ALLEGRO_DEBUG("Swap method: undefined\n");
+   ALLEGRO_DEBUG("Color format: r%i g%i b%i a%i, %i bit\n",
       eds->settings[ALLEGRO_RED_SIZE],
       eds->settings[ALLEGRO_GREEN_SIZE],
       eds->settings[ALLEGRO_BLUE_SIZE],
       eds->settings[ALLEGRO_ALPHA_SIZE],
       eds->settings[ALLEGRO_COLOR_SIZE]);
-   TRACE(PREFIX_I "Depth buffer: %i bits\n", eds->settings[ALLEGRO_DEPTH_SIZE]);
-   TRACE(PREFIX_I "Sample buffers: %s\n", eds->settings[ALLEGRO_SAMPLE_BUFFERS] ? "yes" : "no");
-   TRACE(PREFIX_I "Samples: %i\n", eds->settings[ALLEGRO_SAMPLES]);
+   ALLEGRO_DEBUG("Depth buffer: %i bits\n", eds->settings[ALLEGRO_DEPTH_SIZE]);
+   ALLEGRO_DEBUG("Sample buffers: %s\n", eds->settings[ALLEGRO_SAMPLE_BUFFERS] ? "yes" : "no");
+   ALLEGRO_DEBUG("Samples: %i\n", eds->settings[ALLEGRO_SAMPLES]);
 }
 #endif
 
@@ -124,32 +122,32 @@ static ALLEGRO_EXTRA_DISPLAY_SETTINGS* read_fbconfig(Display *dpy,
                      &eds->settings[ALLEGRO_ACC_BLUE_SIZE])
     || glXGetFBConfigAttrib (dpy, fbc, GLX_ACCUM_ALPHA_SIZE,
                      &eds->settings[ALLEGRO_ACC_ALPHA_SIZE])) {
-      TRACE(PREFIX_I "read_fbconfig: Incomplete glX mode ...\n");
+      ALLEGRO_DEBUG("Incomplete glX mode ...\n");
       free(eds);
       return NULL;
    }
    eds->settings[ALLEGRO_SINGLE_BUFFER] = !double_buffer;
 
    if (!(render_type & GLX_RGBA_BIT) && !(render_type & GLX_RGBA_FLOAT_BIT)) {
-      TRACE(PREFIX_I "read_fbconfig: Not RGBA mode\n");
+      ALLEGRO_DEBUG("Not RGBA mode\n");
       free(eds);
       return NULL;
    }
 
    if (!(drawable_type & GLX_WINDOW_BIT)) {
-      TRACE(PREFIX_I "read_fbconfig: Cannot render to a window.\n");
+      ALLEGRO_DEBUG("Cannot render to a window.\n");
       free(eds);
       return NULL;
    }
 
    if (renderable == False) {
-      TRACE(PREFIX_I "read_fbconfig: GLX windows not supported.\n");
+      ALLEGRO_DEBUG("GLX windows not supported.\n");
       free(eds);
       return NULL;
    }
 
    if (visual_type != GLX_TRUE_COLOR && visual_type != GLX_DIRECT_COLOR) {
-      TRACE(PREFIX_I "read_fbconfig: visual type other than TrueColor and "
+      ALLEGRO_DEBUG("visual type other than TrueColor and "
                   "DirectColor.\n");
       free(eds);
       return NULL;
@@ -162,7 +160,7 @@ static ALLEGRO_EXTRA_DISPLAY_SETTINGS* read_fbconfig(Display *dpy,
 
    v = glXGetVisualFromFBConfig(dpy, fbc);
    if (!v) {
-      TRACE(PREFIX_I "read_fbconfig: Cannot get associated visual for the FBConfig.\n");
+      ALLEGRO_DEBUG("Cannot get associated visual for the FBConfig.\n");
       free(eds);
       return NULL;
    }
@@ -233,11 +231,11 @@ static void get_visuals_new(ALLEGRO_DISPLAY_XGLX *glx)
    system->visuals_count = num_fbconfigs;
    memset(system->visuals, 0, num_fbconfigs * sizeof(*system->visuals));
 
-   TRACE(PREFIX_I "get_visuals_new: %i formats.\n", num_fbconfigs);
+   ALLEGRO_INFO("%i formats.\n", num_fbconfigs);
 
    for (i = 0; i < num_fbconfigs; i++) {
-      TRACE(PREFIX_I "-- \n");
-      TRACE(PREFIX_I "Decoding visual no. %i...\n", i);
+      ALLEGRO_DEBUG("-- \n");
+      ALLEGRO_DEBUG("Decoding visual no. %i...\n", i);
       system->visuals[i] = read_fbconfig(system->gfxdisplay, fbconfig[i]);
       if (!system->visuals[i])
          continue;
@@ -253,7 +251,7 @@ static void get_visuals_new(ALLEGRO_DISPLAY_XGLX *glx)
       memcpy(system->visuals[i]->info, &fbconfig[i], sizeof(GLXFBConfig));
    }
 
-   TRACE(PREFIX_I "get_visuals_new(): %i visuals are good enough.\n", i);
+   ALLEGRO_INFO("%i visuals are good enough.\n", i);
 
    XFree(fbconfig);
 }
@@ -294,20 +292,20 @@ static ALLEGRO_EXTRA_DISPLAY_SETTINGS* read_xvisual(Display *dpy,
                      &eds->settings[ALLEGRO_ACC_BLUE_SIZE])
     || glXGetConfig (dpy, v, GLX_ACCUM_ALPHA_SIZE,
                      &eds->settings[ALLEGRO_ACC_ALPHA_SIZE])) {
-      TRACE(PREFIX_I "read_xvisual: Incomplete glX mode ...\n");
+      ALLEGRO_DEBUG("Incomplete glX mode ...\n");
       free(eds);
       return NULL;
    }
    eds->settings[ALLEGRO_SINGLE_BUFFER] = !double_buffer;
 
    if (!rgba) {
-      TRACE(PREFIX_I "read_xvisual: Not RGBA mode\n");
+      ALLEGRO_DEBUG("Not RGBA mode\n");
       free(eds);
       return NULL;
    }
 
    if (!use_gl) {
-      TRACE(PREFIX_I "read_xvisual: OpenGL Unsupported\n");
+      ALLEGRO_DEBUG("OpenGL Unsupported\n");
       free(eds);
       return NULL;
    }
@@ -357,11 +355,11 @@ static void get_visuals_old(void)
    system->visuals_count = num_visuals;
    memset(system->visuals, 0, num_visuals * sizeof(*system->visuals));
 
-   TRACE(PREFIX_I "get_visuals_old: %i formats.\n", num_visuals);
+   ALLEGRO_INFO("%i formats.\n", num_visuals);
 
    for (i = 0; i < num_visuals; i++) {
-      TRACE(PREFIX_I "-- \n");
-      TRACE(PREFIX_I "Decoding visual no. %i...\n", i);
+      ALLEGRO_DEBUG("-- \n");
+      ALLEGRO_DEBUG("Decoding visual no. %i...\n", i);
       system->visuals[i] = read_xvisual(system->gfxdisplay, xv+i);
       if (!system->visuals[i])
          continue;
@@ -379,7 +377,7 @@ static void get_visuals_old(void)
       memcpy(system->visuals[i]->info, xv + i, sizeof(XVisualInfo));
    }
 
-   TRACE(PREFIX_I "get_visuals_old(): %i visuals are good enough.\n", i);
+   ALLEGRO_INFO("%i visuals are good enough.\n", i);
    XFree(xv);
 }
 
@@ -392,7 +390,7 @@ static void select_best_visual(ALLEGRO_DISPLAY_XGLX *glx)
    memcpy(eds, system->visuals, sizeof(*eds) * system->visuals_count);
    qsort(eds, system->visuals_count, sizeof(*eds), _al_display_settings_sorter);
 
-   TRACE(PREFIX_I "_al_xglx_config_select_visual(): Chose visual no. %i\n", eds[0]->index);
+   ALLEGRO_INFO("Chose visual no. %i\n", eds[0]->index);
 #ifdef DEBUGMODE
    display_pixel_format(eds[0]);
 #endif
@@ -423,8 +421,7 @@ void _al_xglx_config_select_visual(ALLEGRO_DISPLAY_XGLX *glx)
                           "config_selection");
       if (selection_mode && selection_mode[0] != '\0') {
          if (!stricmp(selection_mode, "old")) {
-            TRACE(PREFIX_I "_al_xglx_config_select_visual(): Forcing OLD visual "
-                           "selection method.\n");
+            ALLEGRO_WARN("Forcing OLD visual selection method.\n");
             force_old = true;
          }
          else if (!stricmp(selection_mode, "new"))
@@ -442,7 +439,7 @@ void _al_xglx_config_select_visual(ALLEGRO_DISPLAY_XGLX *glx)
       system->using_fbc = true;
 
    if (!system->visuals) {
-      TRACE(PREFIX_E "_al_xglx_config_select_visual(): Failed to get any visual info.\n");
+      ALLEGRO_ERROR("Failed to get any visual info.\n");
       return;
    }
 
@@ -518,6 +515,6 @@ bool _al_xglx_config_create_context(ALLEGRO_DISPLAY_XGLX *glx)
 
    disp->ogl_extras->is_shared = true;
 
-   TRACE(PREFIX_I "Got GLX context.\n");
+   ALLEGRO_DEBUG("Got GLX context.\n");
    return true;
 }

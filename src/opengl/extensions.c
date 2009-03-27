@@ -41,9 +41,7 @@
 #endif
 
 
-#define PREFIX_I                "al-ext INFO: "
-#define PREFIX_W                "al-ext WARNING: "
-#define PREFIX_E                "al-ext ERROR: "
+ALLEGRO_DEBUG_CHANNEL("opengl")
 
 
 #ifdef ALLEGRO_HAVE_DYNAMIC_LINK
@@ -152,7 +150,7 @@ static void print_extensions(char const *extension)
       }
       *start = '\0';
       extension++;
-      TRACE(PREFIX_I "%s\n", buf);
+      ALLEGRO_DEBUG("%s\n", buf);
    }
 }
 
@@ -225,7 +223,7 @@ static void load_extensions(ALLEGRO_OGL_EXT_API *ext)
 
    #define AGL_API(type, name, args)                                 \
       ext->name = (ALLEGRO_##name##_t)wglGetProcAddress("gl" #name); \
-      if (ext->name) { TRACE("gl" #name " successfully loaded\n"); }
+      if (ext->name) { ALLEGRO_DEBUG("gl" #name " successfully loaded\n"); }
 
       #include "allegro5/opengl/GLext/gl_ext_api.h"
 
@@ -233,7 +231,7 @@ static void load_extensions(ALLEGRO_OGL_EXT_API *ext)
 
    #define AGL_API(type, name, args)                                  \
       ext->name = (ALLEGRO_##name##_t)wglGetProcAddress("wgl" #name); \
-      if (ext->name) { TRACE("wgl" #name " successfully loaded\n"); }
+      if (ext->name) { ALLEGRO_DEBUG("wgl" #name " successfully loaded\n"); }
 
       #include "allegro5/opengl/GLext/wgl_ext_api.h"
 
@@ -243,7 +241,7 @@ static void load_extensions(ALLEGRO_OGL_EXT_API *ext)
 
    #define AGL_API(type, name, args)                                               \
       ext->name = (ALLEGRO_##name##_t)alXGetProcAddress((const GLubyte*)"gl" #name);  \
-      if (ext->name) { TRACE("gl" #name " successfully loaded\n"); }
+      if (ext->name) { ALLEGRO_DEBUG("gl" #name " successfully loaded\n"); }
 
       #include "allegro5/opengl/GLext/gl_ext_api.h"
 
@@ -251,7 +249,7 @@ static void load_extensions(ALLEGRO_OGL_EXT_API *ext)
 
    #define AGL_API(type, name, args)                                               \
       ext->name = (ALLEGRO_##name##_t)alXGetProcAddress((const GLubyte*)"glX" #name); \
-      if (ext->name) { TRACE("glX" #name " successfully loaded\n"); }
+      if (ext->name) { ALLEGRO_DEBUG("glX" #name " successfully loaded\n"); }
 
       #include "allegro5/opengl/GLext/glx_ext_api.h"
 
@@ -261,7 +259,7 @@ static void load_extensions(ALLEGRO_OGL_EXT_API *ext)
 
 #define AGL_API(type, name, args)                                                                 \
       ext->name = (ALLEGRO_##name##_t)CFBundleGetFunctionPointerForName(opengl_bundle_ref, CFSTR("gl" # name)); \
-      if (ext->name) { TRACE("gl" #name " successfully loaded\n"); }
+      if (ext->name) { ALLEGRO_DEBUG("gl" #name " successfully loaded\n"); }
 
       #include "allegro5/opengl/GLext/gl_ext_api.h"
 
@@ -412,7 +410,7 @@ static bool _ogl_is_extension_with_version_supported(
       value = al_get_config_value(al_system_driver()->config,
          "opengl_disabled_extensions", extension);
       if (value) {
-         TRACE(PREFIX_I "%s found in [opengl_disabled_extensions].\n",
+         ALLEGRO_WARN("%s found in [opengl_disabled_extensions].\n",
             extension);
          return false;
       }
@@ -512,14 +510,14 @@ void *al_get_opengl_proc_address(AL_CONST char *name)
 
 #if defined ALLEGRO_HAVE_DYNAMIC_LINK
       if (!alXGetProcAddress) {
-         TRACE(PREFIX_W "get_proc_address: libdl::dlsym: %s\n", dlerror());
+         ALLEGRO_WARN("get_proc_address: libdl::dlsym: %s\n", dlerror());
       }
 #endif
 
-      TRACE(PREFIX_W "get_proc_address : Unable to load symbol %s\n", name);
+      ALLEGRO_WARN("get_proc_address : Unable to load symbol %s\n", name);
    }
    else {
-      TRACE(PREFIX_I "get_proc_address : Symbol %s successfully loaded\n", name);
+      ALLEGRO_DEBUG("get_proc_address : Symbol %s successfully loaded\n", name);
    }
    return symbol;
 }
@@ -579,7 +577,7 @@ void _al_ogl_manage_extensions(ALLEGRO_DISPLAY *gl_disp)
    ALLEGRO_OGL_EXT_LIST *ext_list;
 
    /* Print out OpenGL extensions */
-   TRACE(PREFIX_I "OpenGL Extensions:\n");
+   ALLEGRO_DEBUG("OpenGL Extensions:\n");
    print_extensions((char const *)glGetString(GL_EXTENSIONS));
 
    /* Print out GLU version */
@@ -598,15 +596,15 @@ void _al_ogl_manage_extensions(ALLEGRO_DISPLAY *gl_disp)
       }
    }
    else {
-      TRACE(PREFIX_W "Failed to dlopen libGL.so : %s\n", dlerror());
+      ALLEGRO_WARN("Failed to dlopen libGL.so : %s\n", dlerror());
    }
-   TRACE(PREFIX_I "glXGetProcAddress Extension: %s\n",
+   ALLEGRO_INFO("glXGetProcAddress Extension: %s\n",
          alXGetProcAddress ? "Supported" : "Unsupported");
 #elif defined ALLEGRO_UNIX
 #ifdef ALLEGROGL_GLXGETPROCADDRESSARB
-   TRACE(PREFIX_I "glXGetProcAddressARB Extension: supported\n");
+   ALLEGRO_INFO("glXGetProcAddressARB Extension: supported\n");
 #else
-   TRACE(PREFIX_I "glXGetProcAddress Extension: supported\n");
+   ALLEGRO_INFO("glXGetProcAddress Extension: supported\n");
 #endif
 #endif
 
@@ -620,7 +618,7 @@ void _al_ogl_manage_extensions(ALLEGRO_DISPLAY *gl_disp)
 #endif
 
 #ifdef ALLEGRO_UNIX
-   TRACE(PREFIX_I "GLX Extensions:\n");
+   ALLEGRO_DEBUG("GLX Extensions:\n");
    ALLEGRO_SYSTEM_XGLX *glx_sys = (void*)al_system_driver();
    ALLEGRO_DISPLAY_XGLX *glx_disp = (void *)gl_disp;
    print_extensions((char const *)glXQueryExtensionsString(
@@ -694,7 +692,7 @@ void _al_ogl_manage_extensions(ALLEGRO_DISPLAY *gl_disp)
 
    if (ext_list->ALLEGRO_GL_EXT_packed_pixels) {
 
-      TRACE("Packed Pixels formats available\n");
+      ALLEGRO_INFO("Packed Pixels formats available\n");
 
       /* XXX On NV cards, we want to use BGRA instead of RGBA for speed */
       /* Fills the __allegro_gl_texture_format array */
@@ -728,10 +726,10 @@ void _al_ogl_manage_extensions(ALLEGRO_DISPLAY *gl_disp)
       }
    }
 
-   TRACE(PREFIX_I "Use of non-power-of-two textures %s.\n",
+   ALLEGRO_INFO("Use of non-power-of-two textures %s.\n",
       ext_list->ALLEGRO_GL_ARB_texture_non_power_of_two ? "enabled" :
       "disabled");
-   TRACE(PREFIX_I "Use of FBO to draw to textures %s.\n",
+   ALLEGRO_INFO("Use of FBO to draw to textures %s.\n",
       ext_list->ALLEGRO_GL_EXT_framebuffer_object ? "enabled" :
       "disabled");
 }

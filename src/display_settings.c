@@ -22,7 +22,7 @@
 #include "allegro5/internal/aintern_display.h"
 #include <math.h>
 
-#define PREFIX_I                "display_settings INFO: "
+ALLEGRO_DEBUG_CHANNEL("display")
 
 
 /* Function: al_set_new_display_option
@@ -197,7 +197,7 @@ int _al_score_display_settings(ALLEGRO_EXTRA_DISPLAY_SETTINGS *eds,
 
    if (eds->settings[ALLEGRO_COMPATIBLE_DISPLAY] != ref->settings[ALLEGRO_COMPATIBLE_DISPLAY]) {
       if (req & (1<<ALLEGRO_COMPATIBLE_DISPLAY)) {
-         TRACE(PREFIX_I "Display not compatible with Allegro.\n");
+         ALLEGRO_DEBUG("Display not compatible with Allegro.\n");
          return -1;
       }
    }
@@ -207,7 +207,7 @@ int _al_score_display_settings(ALLEGRO_EXTRA_DISPLAY_SETTINGS *eds,
 
    if (eds->settings[ALLEGRO_VSYNC] != ref->settings[ALLEGRO_VSYNC]) {
       if (req & (1<<ALLEGRO_VSYNC)) {
-         TRACE(PREFIX_I "Vsync requirement not met.\n");
+         ALLEGRO_DEBUG("Vsync requirement not met.\n");
          return -1;
       }
    }
@@ -217,7 +217,7 @@ int _al_score_display_settings(ALLEGRO_EXTRA_DISPLAY_SETTINGS *eds,
 
    if (eds->settings[ALLEGRO_COLOR_SIZE] != ref->settings[ALLEGRO_COLOR_SIZE]) {
       if (req & (1<<ALLEGRO_COLOR_SIZE)) {
-         TRACE(PREFIX_I "Color depth requirement not met.\n");
+         ALLEGRO_DEBUG("Color depth requirement not met.\n");
          return -1;
       }
    }
@@ -236,7 +236,7 @@ int _al_score_display_settings(ALLEGRO_EXTRA_DISPLAY_SETTINGS *eds,
    /* check colour component widths here and Allegro formatness */
    if ((req & (1<<ALLEGRO_RED_SIZE))
     && (eds->settings[ALLEGRO_RED_SIZE] != ref->settings[ALLEGRO_RED_SIZE])) {
-      TRACE(PREFIX_I "Red depth requirement not met.\n");
+      ALLEGRO_DEBUG("Red depth requirement not met.\n");
       return -1;
    }
 
@@ -251,7 +251,7 @@ int _al_score_display_settings(ALLEGRO_EXTRA_DISPLAY_SETTINGS *eds,
 
    if ((req & (1<<ALLEGRO_GREEN_SIZE))
     && (eds->settings[ALLEGRO_GREEN_SIZE] != ref->settings[ALLEGRO_GREEN_SIZE])) {
-      TRACE(PREFIX_I "Green depth requirement not met.\n");
+      ALLEGRO_DEBUG("Green depth requirement not met.\n");
       return -1;
    }
 
@@ -266,7 +266,7 @@ int _al_score_display_settings(ALLEGRO_EXTRA_DISPLAY_SETTINGS *eds,
 
    if ((req & (1<<ALLEGRO_BLUE_SIZE))
     && (eds->settings[ALLEGRO_BLUE_SIZE] != ref->settings[ALLEGRO_BLUE_SIZE])) {
-      TRACE(PREFIX_I "Blue depth requirement not met.\n");
+      ALLEGRO_DEBUG("Blue depth requirement not met.\n");
       return -1;
    }
 
@@ -281,7 +281,7 @@ int _al_score_display_settings(ALLEGRO_EXTRA_DISPLAY_SETTINGS *eds,
 
    if ((req & (1<<ALLEGRO_ALPHA_SIZE))
     && (eds->settings[ALLEGRO_ALPHA_SIZE] != ref->settings[ALLEGRO_ALPHA_SIZE])) {
-      TRACE(PREFIX_I "Alpha depth requirement not met (%d instead of %d).\n",
+      ALLEGRO_DEBUG("Alpha depth requirement not met (%d instead of %d).\n",
          eds->settings[ALLEGRO_ALPHA_SIZE], ref->settings[ALLEGRO_ALPHA_SIZE]);
       return -1;
    }
@@ -297,7 +297,7 @@ int _al_score_display_settings(ALLEGRO_EXTRA_DISPLAY_SETTINGS *eds,
 
    if ((req & (1<<ALLEGRO_ACC_RED_SIZE))
     && (eds->settings[ALLEGRO_ACC_RED_SIZE] != ref->settings[ALLEGRO_ACC_RED_SIZE])) {
-      TRACE(PREFIX_I "Accumulator Red depth requirement not met.\n");
+      ALLEGRO_DEBUG("Accumulator Red depth requirement not met.\n");
       return -1;
    }
 
@@ -312,7 +312,7 @@ int _al_score_display_settings(ALLEGRO_EXTRA_DISPLAY_SETTINGS *eds,
 
    if ((req & (1<<ALLEGRO_ACC_GREEN_SIZE))
     && (eds->settings[ALLEGRO_ACC_GREEN_SIZE] != ref->settings[ALLEGRO_ACC_GREEN_SIZE])) {
-      TRACE(PREFIX_I "Accumulator Green depth requirement not met.\n");
+      ALLEGRO_DEBUG("Accumulator Green depth requirement not met.\n");
       return -1;
    }
 
@@ -327,7 +327,7 @@ int _al_score_display_settings(ALLEGRO_EXTRA_DISPLAY_SETTINGS *eds,
 
    if ((req & (1<<ALLEGRO_ACC_BLUE_SIZE))
     && (eds->settings[ALLEGRO_ACC_BLUE_SIZE] != ref->settings[ALLEGRO_ACC_BLUE_SIZE])) {
-      TRACE(PREFIX_I "Accumulator Blue depth requirement not met.\n");
+      ALLEGRO_DEBUG("Accumulator Blue depth requirement not met.\n");
       return -1;
    }
 
@@ -342,7 +342,7 @@ int _al_score_display_settings(ALLEGRO_EXTRA_DISPLAY_SETTINGS *eds,
 
    if ((req & (1<<ALLEGRO_ACC_ALPHA_SIZE))
     && (eds->settings[ALLEGRO_ACC_ALPHA_SIZE] != ref->settings[ALLEGRO_ACC_ALPHA_SIZE])) {
-      TRACE(PREFIX_I "Accumulator Alpha depth requirement not met.\n");
+      ALLEGRO_DEBUG("Accumulator Alpha depth requirement not met.\n");
       return -1;
    }
 
@@ -357,7 +357,7 @@ int _al_score_display_settings(ALLEGRO_EXTRA_DISPLAY_SETTINGS *eds,
 
    if (!eds->settings[ALLEGRO_SINGLE_BUFFER] != !ref->settings[ALLEGRO_SINGLE_BUFFER]) {
       if (req & (1<<ALLEGRO_SINGLE_BUFFER)) {
-         TRACE(PREFIX_I "Single Buffer requirement not met.\n");
+         ALLEGRO_DEBUG("Single Buffer requirement not met.\n");
          return -1;
       }
    }
@@ -367,7 +367,7 @@ int _al_score_display_settings(ALLEGRO_EXTRA_DISPLAY_SETTINGS *eds,
 
    if (!eds->settings[ALLEGRO_STEREO] != !ref->settings[ALLEGRO_STEREO]) {
       if (req & (1<<ALLEGRO_STEREO)) {
-         TRACE(PREFIX_I "Stereo Buffer requirement not met.\n");
+         ALLEGRO_DEBUG("Stereo Buffer requirement not met.\n");
          return -1;
       }
    }
@@ -379,7 +379,7 @@ int _al_score_display_settings(ALLEGRO_EXTRA_DISPLAY_SETTINGS *eds,
 
    if ((req & (1<<ALLEGRO_AUX_BUFFERS)) &&
       (eds->settings[ALLEGRO_AUX_BUFFERS] < ref->settings[ALLEGRO_AUX_BUFFERS])) {
-      TRACE(PREFIX_I "Aux Buffer requirement not met.\n");
+      ALLEGRO_DEBUG("Aux Buffer requirement not met.\n");
       return -1;
    }
 
@@ -394,7 +394,7 @@ int _al_score_display_settings(ALLEGRO_EXTRA_DISPLAY_SETTINGS *eds,
 
    if ((req & (1<<ALLEGRO_DEPTH_SIZE)) &&
       (eds->settings[ALLEGRO_DEPTH_SIZE] != ref->settings[ALLEGRO_DEPTH_SIZE])) {
-      TRACE(PREFIX_I "Z-Buffer requirement not met.\n");
+      ALLEGRO_DEBUG("Z-Buffer requirement not met.\n");
       return -1;
    }
    if (sug & (1<<ALLEGRO_DEPTH_SIZE)) {
@@ -408,7 +408,7 @@ int _al_score_display_settings(ALLEGRO_EXTRA_DISPLAY_SETTINGS *eds,
 
    if ((req & (1<<ALLEGRO_STENCIL_SIZE))
     && (eds->settings[ALLEGRO_STENCIL_SIZE] != ref->settings[ALLEGRO_STENCIL_SIZE])) {
-      TRACE(PREFIX_I "Stencil depth requirement not met.\n");
+      ALLEGRO_DEBUG("Stencil depth requirement not met.\n");
       return -1;
    }
 
@@ -424,7 +424,7 @@ int _al_score_display_settings(ALLEGRO_EXTRA_DISPLAY_SETTINGS *eds,
    if ((req & (1<<ALLEGRO_RENDER_METHOD))
      && ((eds->settings[ALLEGRO_RENDER_METHOD] != ref->settings[ALLEGRO_RENDER_METHOD])
      || (ref->settings[ALLEGRO_RENDER_METHOD] == 2))) {
-      TRACE(PREFIX_I "Render Method requirement not met.\n");
+      ALLEGRO_DEBUG("Render Method requirement not met.\n");
       return -1;
    }
 
@@ -438,7 +438,7 @@ int _al_score_display_settings(ALLEGRO_EXTRA_DISPLAY_SETTINGS *eds,
 
    if ((req & (1<<ALLEGRO_SAMPLE_BUFFERS))
     && (eds->settings[ALLEGRO_SAMPLE_BUFFERS] != ref->settings[ALLEGRO_SAMPLE_BUFFERS])) {
-         TRACE(PREFIX_I "Multisample Buffers requirement not met\n");
+         ALLEGRO_DEBUG("Multisample Buffers requirement not met\n");
          return -1;
    }
    else if (sug & (1<<ALLEGRO_SAMPLE_BUFFERS)) {
@@ -449,7 +449,7 @@ int _al_score_display_settings(ALLEGRO_EXTRA_DISPLAY_SETTINGS *eds,
 
    if ((req & (1<<ALLEGRO_SAMPLES))
       && (eds->settings[ALLEGRO_SAMPLES] != ref->settings[ALLEGRO_SAMPLES])) {
-      TRACE(PREFIX_I "Multisample Samples requirement not met\n");
+      ALLEGRO_DEBUG("Multisample Samples requirement not met\n");
       return -1;
    }
 
@@ -464,7 +464,7 @@ int _al_score_display_settings(ALLEGRO_EXTRA_DISPLAY_SETTINGS *eds,
 
    if (!eds->settings[ALLEGRO_FLOAT_COLOR] != !ref->settings[ALLEGRO_FLOAT_COLOR]) {
       if (req & (1<<ALLEGRO_FLOAT_COLOR)) {
-         TRACE(PREFIX_I "Float Color requirement not met.\n");
+         ALLEGRO_DEBUG("Float Color requirement not met.\n");
          return -1;
       }
    }
@@ -476,7 +476,7 @@ int _al_score_display_settings(ALLEGRO_EXTRA_DISPLAY_SETTINGS *eds,
 
    if (!eds->settings[ALLEGRO_FLOAT_DEPTH] != !ref->settings[ALLEGRO_FLOAT_DEPTH]) {
       if (req & (1<<ALLEGRO_FLOAT_DEPTH)) {
-         TRACE(PREFIX_I "Float Depth requirement not met.\n");
+         ALLEGRO_DEBUG("Float Depth requirement not met.\n");
          return -1;
       }
    }
@@ -486,7 +486,7 @@ int _al_score_display_settings(ALLEGRO_EXTRA_DISPLAY_SETTINGS *eds,
       }
    }
 
-   TRACE(PREFIX_I "Score is : %i\n", score);
+   ALLEGRO_DEBUG("Score is : %i\n", score);
    return score;
 }
 

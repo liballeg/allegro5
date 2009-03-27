@@ -4,6 +4,7 @@
 #include "allegro5/internal/aintern_opengl.h"
 
 
+ALLEGRO_DEBUG_CHANNEL("display")
 
 static ALLEGRO_DISPLAY_INTERFACE *xdpy_vt;
 
@@ -194,7 +195,7 @@ static ALLEGRO_DISPLAY *xdpy_create_display(int w, int h)
    int major, minor;
    glXQueryVersion(system->x11display, &major, &minor);
    d->glx_version = major * 100 + minor * 10;
-   TRACE("xdisplay: GLX %.1f.\n", d->glx_version / 100.f);
+   ALLEGRO_INFO("GLX %.1f.\n", d->glx_version / 100.f);
 
    display->w = w;
    display->h = h;
@@ -224,15 +225,15 @@ static ALLEGRO_DISPLAY *xdpy_create_display(int w, int h)
    _al_xglx_config_select_visual(d);
 
    if (!d->xvinfo) {
-      TRACE("FIXME: Need better visual selection.\n");
-      TRACE("xdisplay: No matching visual found.\n");
+      ALLEGRO_ERROR("FIXME: Need better visual selection.\n");
+      ALLEGRO_ERROR("No matching visual found.\n");
       _AL_FREE(d);
       _AL_FREE(ogl);
       _al_mutex_unlock(&system->lock);
       return NULL;
    }
 
-   TRACE("xdisplay: Selected visual %lx.\n", d->xvinfo->visualid);
+   ALLEGRO_INFO("Selected visual %lx.\n", d->xvinfo->visualid);
 
    /* Add ourself to the list of displays. */
    ALLEGRO_DISPLAY_XGLX **add;
@@ -272,7 +273,7 @@ static ALLEGRO_DISPLAY *xdpy_create_display(int w, int h)
    if (display->flags & ALLEGRO_NOFRAME)
       xdpy_toggle_frame(display, false);
 
-   TRACE("xdisplay: X11 window created.\n");
+   ALLEGRO_DEBUG("X11 window created.\n");
 
    set_size_hints(display, w, h);
 
@@ -281,7 +282,7 @@ static ALLEGRO_DISPLAY *xdpy_create_display(int w, int h)
    XSetWMProtocols(system->x11display, d->window, &d->wm_delete_window_atom, 1);
 
    XMapWindow(system->x11display, d->window);
-   TRACE("xdisplay: X11 window mapped.\n");
+   ALLEGRO_DEBUG("X11 window mapped.\n");
 
    /* Is there a better way to do this, that positions the window before
     * mapping it?
@@ -308,7 +309,7 @@ static ALLEGRO_DISPLAY *xdpy_create_display(int w, int h)
    }
 
    if (!_al_xglx_config_create_context(d)) {
-      TRACE("xdisplay: Failed to create a context.\n");
+      ALLEGRO_ERROR("Failed to create a context.\n");
       _AL_FREE(d);
       _AL_FREE(ogl);
       _al_mutex_unlock(&system->lock);
@@ -337,7 +338,7 @@ static ALLEGRO_DISPLAY *xdpy_create_display(int w, int h)
    if (display->ogl_extras->ogl_info.version < 1.2) {
       ALLEGRO_EXTRA_DISPLAY_SETTINGS *eds = _al_get_new_display_settings();
       if (eds->required & (1<<ALLEGRO_COMPATIBLE_DISPLAY)) {
-         TRACE("Allegro requires at least OpenGL version 1.2 to work.");
+         ALLEGRO_ERROR("Allegro requires at least OpenGL version 1.2 to work.");
          _AL_FREE(d);
          _AL_FREE(ogl);
          _al_mutex_unlock(&system->lock);
@@ -372,7 +373,7 @@ static ALLEGRO_DISPLAY *xdpy_create_display(int w, int h)
     * above extension specifies vsync on as default to, so in the end
     * with GLX we can't force vsync on, just off.
     */
-   TRACE("xdisplay: requested vsync=%d.\n",
+   ALLEGRO_DEBUG("requested vsync=%d.\n",
       display->extra_settings.settings[ALLEGRO_VSYNC]);
    if (display->extra_settings.settings[ALLEGRO_VSYNC]) {
       if (display->ogl_extras->extension_list->ALLEGRO_GLX_SGI_swap_control) {
@@ -380,11 +381,11 @@ static ALLEGRO_DISPLAY *xdpy_create_display(int w, int h)
          if (display->extra_settings.settings[ALLEGRO_VSYNC] == 2)
             x = 0;
          if (glXSwapIntervalSGI(x)) {
-            TRACE("xdisplay: glXSwapIntervalSGI(%d) failed.\n", x);
+            ALLEGRO_WARN("glXSwapIntervalSGI(%d) failed.\n", x);
          }
       }
       else {
-         TRACE("xdisplay: no vsync, GLX_SGI_swap_control missing.\n");
+         ALLEGRO_WARN("no vsync, GLX_SGI_swap_control missing.\n");
          display->extra_settings.settings[ALLEGRO_VSYNC] = 0;
       }
    }

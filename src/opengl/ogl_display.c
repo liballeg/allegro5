@@ -20,6 +20,7 @@
 #include "allegro5/internal/aintern_memory.h"
 #include "allegro5/internal/aintern_opengl.h"
 
+ALLEGRO_DEBUG_CHANNEL("opengl")
 
 void _al_ogl_set_target_bitmap(ALLEGRO_DISPLAY *display, ALLEGRO_BITMAP *bitmap)
 {
@@ -44,10 +45,9 @@ void _al_ogl_set_target_bitmap(ALLEGRO_DISPLAY *display, ALLEGRO_BITMAP *bitmap)
              * texture. So no reason to keep re-trying, output a log
              * message and switch to (extremely slow) software mode.
              */
-            TRACE("ogl_display: "
-               "Could not use FBO for bitmap with format %d.\n",
+            ALLEGRO_ERROR("Could not use FBO for bitmap with format %d.\n",
                bitmap->format);
-            TRACE("ogl_display: *** SWITCHING TO SOFTWARE MODE ***\n");
+            ALLEGRO_ERROR("*** SWITCHING TO SOFTWARE MODE ***\n");
             glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
             glDeleteFramebuffersEXT(1, &ogl_bitmap->fbo);
             ogl_bitmap->fbo = 0;
@@ -175,7 +175,7 @@ ALLEGRO_BITMAP_OGL* _al_ogl_create_backbuffer(ALLEGRO_DISPLAY *disp)
       /* Or should we use RGBA? Maybe only if not Nvidia cards? */
       format = ALLEGRO_PIXEL_FORMAT_ABGR_8888;
    }
-   TRACE("ogl_display: Format %d used for backbuffer.\n", format);
+   ALLEGRO_TRACE_CHANNEL_LEVEL("display", 1)("Format %d used for backbuffer.\n", format);
    al_set_new_bitmap_format(format);
    al_set_new_bitmap_flags(0);
    backbuffer = _al_ogl_create_bitmap(disp, disp->w, disp->h);

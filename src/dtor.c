@@ -31,6 +31,7 @@
 #include "allegro5/internal/aintern_thread.h"
 #include "allegro5/internal/aintern_vector.h"
 
+ALLEGRO_DEBUG_CHANNEL("system")
 
 
 struct _AL_DTOR_LIST {
@@ -77,7 +78,7 @@ void _al_run_destructors(_AL_DTOR_LIST *dtors)
       while (!_al_vector_is_empty(&dtors->dtors)) {
          DTOR *dtor = _al_vector_ref_back(&dtors->dtors);
 
-         TRACE("calling dtor for object %p, func %p\n", dtor->object, dtor->func);
+         ALLEGRO_INFO("calling dtor for object %p, func %p\n", dtor->object, dtor->func);
          _al_mutex_unlock(&dtors->mutex);
          {
             (*dtor->func)(dtor->object);
