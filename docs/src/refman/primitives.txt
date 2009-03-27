@@ -234,7 +234,8 @@ Locks a the whole vertex buffer.
 *Returns:*
 1 if locking was successful, 0 otherwise
 
-*See Also:*[ALLEGRO_VBUFFER], [ALLEGRO_VBUFFER_FLAGS]
+*See Also:*
+[ALLEGRO_VBUFFER], [ALLEGRO_VBUFFER_FLAGS]
 
 ## API: al_unlock_vbuff
 
