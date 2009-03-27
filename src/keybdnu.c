@@ -45,7 +45,7 @@ bool _al_key_led_flag = true;
  * provide their own implementation though, especially if they use
  * positional mapping.
  */
-const char *_al_keyboard_common_names[ALLEGRO_KEY_MAX] =
+const char *_al_keyboard_common_names[/* leave empty */] =
 {
    "(none)",     "A",          "B",          "C",
    "D",          "E",          "F",          "G",
@@ -105,6 +105,11 @@ const char *_al_keyboard_common_names[ALLEGRO_KEY_MAX] =
    "ALTGR",      "LWIN",       "RWIN",       "MENU",
    "SCROLLLOCK", "NUMLOCK",    "CAPSLOCK"
 };
+
+ALLEGRO_STATIC_ASSERT(
+   sizeof(_al_keyboard_common_names) / sizeof(_al_keyboard_common_names[0])
+   == ALLEGRO_KEY_MAX);
+
 
 
 /* Function: al_is_keyboard_installed
@@ -260,3 +265,4 @@ bool al_key_down(const ALLEGRO_KEYBOARD_STATE *state, int keycode)
  * indent-tabs-mode: nil
  * End:
  */
+/* vim: set sts=3 sw=3 et: */

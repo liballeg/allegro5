@@ -267,7 +267,7 @@ static int modifier_flags[8][3] = {
 };
 
 /* Table of key names. */
-static char AL_CONST *key_names[1 + ALLEGRO_KEY_MAX];
+static char const *key_names[ALLEGRO_KEY_MAX];
 
 
 
