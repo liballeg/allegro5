@@ -19,7 +19,8 @@
 #ifndef ALLEGRO_FSHOOK_H
 #define ALLEGRO_FSHOOK_H
 
-#include "base.h"
+#include "allegro5/base.h"
+#include "allegro5/path.h"
 
 #ifdef ALLEGRO_HAVE_SYS_TYPES_H
    #include <sys/types.h>
@@ -156,7 +157,7 @@ AL_FUNC(ALLEGRO_FS_ENTRY*, al_mktemp, (const char *tmpl, uint32_t ulink));
 
 AL_FUNC(ALLEGRO_FS_ENTRY*, al_fopen, (const char *path, const char *mode));
 AL_FUNC(void, al_fclose, (ALLEGRO_FS_ENTRY *fp));
-AL_FUNC(bool, al_get_entry_name, (ALLEGRO_FS_ENTRY *fp, size_t, char *fn));
+AL_FUNC(ALLEGRO_PATH *, al_get_entry_name, (ALLEGRO_FS_ENTRY *fp));
 
 AL_FUNC(size_t, al_fread, (ALLEGRO_FS_ENTRY *fp, size_t size, void *ptr));
 AL_FUNC(size_t, al_fwrite, (ALLEGRO_FS_ENTRY *fp, size_t size, const void *ptr));
@@ -184,7 +185,7 @@ AL_FUNC(bool, al_is_file, (ALLEGRO_FS_ENTRY *));
 
 AL_FUNC(ALLEGRO_FS_ENTRY *, al_opendir, (const char *path));
 AL_FUNC(bool, al_closedir, (ALLEGRO_FS_ENTRY *dir));
-AL_FUNC(int32_t, al_readdir, (ALLEGRO_FS_ENTRY *dir, size_t size, char *name));
+AL_FUNC(ALLEGRO_FS_ENTRY *, al_readdir, (ALLEGRO_FS_ENTRY *dir));
 
 
 AL_FUNC(uint32_t, al_get_entry_mode_str,  (AL_CONST char *));
@@ -201,7 +202,7 @@ AL_FUNC(bool, al_is_present_str, (AL_CONST char *));
 
 AL_FUNC(bool, al_mkdir, (AL_CONST char *));
 
-AL_FUNC(bool, al_getcwd, (size_t len, char *buf));
+AL_FUNC(ALLEGRO_PATH *, al_getcwd, (void));
 AL_FUNC(bool, al_chdir, (const char *path));
 
 AL_FUNC(bool, al_add_search_path, (const char *path));

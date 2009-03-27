@@ -766,22 +766,29 @@ static bool al_fs_stdio_closedir(ALLEGRO_FS_ENTRY *fp)
    return true;
 }
 
-static int32_t al_fs_stdio_readdir(ALLEGRO_FS_ENTRY *fp, size_t size,
-   char *buf)
+static ALLEGRO_FS_ENTRY *al_fs_stdio_readdir(ALLEGRO_FS_ENTRY *fp)
 {
    ALLEGRO_FS_ENTRY_STDIO *fp_stdio = (ALLEGRO_FS_ENTRY_STDIO *) fp;
+   // FIXME: Must use readdir_r as Allegro allows file functions being
+   // called from different threads.
    struct dirent *ent = readdir(fp_stdio->hd.dir);
-   uint32_t ent_len = 0;
+   ALLEGRO_PATH *path;
+   ALLEGRO_FS_ENTRY *ret;
 
    if (!ent) {
       al_set_errno(errno);
-      return -1;
+      return NULL;
    }
 
-   ent_len = strlen(ent->d_name);
-   memcpy(buf, ent->d_name, _ALLEGRO_MIN(ent_len+1, size));
-
-   return 0;
+   /* TODO: Maybe we should keep an ALLEGRO_PATH for each entry in
+    * the first place?
+    */
+   path = al_path_create_dir(fp_stdio->found ? fp_stdio->found :
+      fp_stdio->path);
+   al_path_set_filename(path, ent->d_name);
+   ret = al_fs_stdio_create_handle(al_path_to_string(path, '/'));
+   al_path_free(path);
+   return ret;
 }
 
 static off_t al_fs_stdio_entry_size(ALLEGRO_FS_ENTRY *fp)
@@ -926,17 +933,18 @@ static ALLEGRO_FS_ENTRY *al_fs_stdio_mktemp(const char *template,
    return NULL;
 }
 
-static bool al_fs_stdio_getcwd(size_t len, char *buf)
+static ALLEGRO_PATH *al_fs_stdio_getcwd(void)
 {
-   char *cwd = getcwd(buf, len);
-   char sep[2] = { ALLEGRO_NATIVE_PATH_SEP, 0 };
+   char tmpdir[PATH_MAX];
+   char *cwd = getcwd(tmpdir, PATH_MAX);
+   size_t len;
    if (!cwd) {
       al_set_errno(errno);
-      return false;
+      return NULL;
    }
-   
-   ustrcat(buf, sep);
-   return true;
+   len = strlen(cwd);
+
+   return al_path_create_dir(tmpdir);
 }
 
 static bool al_fs_stdio_chdir(const char *path)
@@ -1154,19 +1162,13 @@ static bool al_fs_stdio_file_unlink(const char *path)
    return true;
 }
 
-static bool al_fs_stdio_fname(ALLEGRO_FS_ENTRY *fp, size_t size, char *buf)
+static ALLEGRO_PATH *al_fs_stdio_fname(ALLEGRO_FS_ENTRY *fp)
 {
    ALLEGRO_FS_ENTRY_STDIO *fp_stdio = (ALLEGRO_FS_ENTRY_STDIO *) fp;
-   uint32_t len = strlen(fp_stdio->path);
-
-   if(size < len+1) {
-      al_set_errno(ERANGE);
-      return false;
-   }
-   
-   memcpy(buf, fp_stdio->path, _ALLEGRO_MIN(len+1, size));
-
-   return true;
+   if (al_is_directory(fp))
+      return al_path_create_dir(fp_stdio->path);
+   else
+      return al_path_create(fp_stdio->path);
 }
 
 static off_t al_fs_stdio_file_size(const char *path)

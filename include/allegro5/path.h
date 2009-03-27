@@ -15,6 +15,7 @@ AL_BEGIN_EXTERN_C
 typedef struct ALLEGRO_PATH ALLEGRO_PATH;
 
 AL_FUNC(ALLEGRO_PATH*, al_path_create, (const char *str));
+AL_FUNC(ALLEGRO_PATH*, al_path_create_dir, (const char *str));
 AL_FUNC(ALLEGRO_PATH*, al_path_clone, (const ALLEGRO_PATH *path));
 
 // FIXME: rename to, al_path_num_dir_components

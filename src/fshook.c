@@ -71,11 +71,11 @@ void al_close_entry(ALLEGRO_FS_ENTRY *handle)
 
 /* Function: al_get_entry_name
  */
-bool al_get_entry_name(ALLEGRO_FS_ENTRY *fp, size_t size, char *buf)
+ALLEGRO_PATH *al_get_entry_name(ALLEGRO_FS_ENTRY *fp)
 {
    ASSERT(fp != NULL);
 
-   return _al_fs_hook_entry_name(fp, size, buf);
+   return _al_fs_hook_entry_name(fp);
 }
 
 /* Function: al_fopen
@@ -199,13 +199,11 @@ bool al_closedir(ALLEGRO_FS_ENTRY *dir)
 
 /* Function: al_readdir
  */
-int32_t al_readdir(ALLEGRO_FS_ENTRY *dir, size_t size, char *name)
+ALLEGRO_FS_ENTRY *al_readdir(ALLEGRO_FS_ENTRY *dir)
 {
    ASSERT(dir != NULL);
-   ASSERT(size > 0);
-   ASSERT(name != NULL);
 
-   return _al_fs_hook_readdir(dir, size, name);
+   return _al_fs_hook_readdir(dir);
 }
 
 /* Function: al_get_entry_mode
@@ -299,12 +297,9 @@ ALLEGRO_FS_ENTRY *al_mktemp(const char *template, uint32_t ulink)
 
 /* Function: al_getcwd
  */
-bool al_getcwd(size_t len, char *buf)
+ALLEGRO_PATH *al_getcwd(void)
 {
-   ASSERT(buf != NULL);
-   ASSERT(len != 0);
-
-   return _al_fs_hook_getcwd(len, buf);
+   return _al_fs_hook_getcwd();
 }
 
 /* Function: al_chdir
@@ -786,6 +781,7 @@ char *al_find_resource(const char *base, const char *resource, uint32_t fm,
    char tmp[PATH_MAX];
    char base_new[256];
    const char *s;
+   bool r;
 
    ASSERT(base != NULL);
    ASSERT(resource != NULL);
@@ -815,9 +811,12 @@ char *al_find_resource(const char *base, const char *resource, uint32_t fm,
       return buffer;
    }
 
-   al_getcwd(PATH_MAX, tmp);
+   path = al_getcwd();
+   r = _al_find_resource_exists(al_path_to_string(path, '/'), "data",
+      resource, fm, buffer, len);
+   al_path_free(path);
    //printf("find_resource: getcwd\n");
-   if (_al_find_resource_exists(tmp, "data", resource, fm, buffer, len)) {
+   if (r) {
       return buffer;
    }
 

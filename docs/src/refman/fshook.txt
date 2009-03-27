@@ -179,12 +179,9 @@ Returns NULL on error.
 
 ## API: al_readdir
 
-Reads the next dir item name into 'name' buffer, up to 'size' chars.
+Reads the next dir item and returns a filesystem entry for it.
 
-Warning: this may leave the filename truncated.
-XXX and how do users know if that's the case?
-
-Returns non zero on error.
+Returns NULL on error.
 
 ## API: al_unlink_entry
 
@@ -307,13 +304,12 @@ See Also:
 
 ## API: al_get_entry_name
 
-Fills in buf up to size bytes including trailing NULL char with the entry's name
+Returns the entry's filename path. Note that the path will not be an
+absolute path if the entry wasn't created from an absolute path.
 
-Returns true on success, and false on error.
+Returns NULL on error.
 
 errno is set to indicate the error.
-
-If buf isn't large enough, errno will be set to ERANGE
 
 ## API: al_get_entry_size
 
@@ -512,9 +508,9 @@ See also: [al_get_errno]
 
 ## API: al_getcwd
 
-Fill in 'buf' up to 'len' characters with the current working directory.
+Returns the path to the current working directory.
 
-Returns true on success, false on failure.
+Returns NULL on failure.
 
 errno is filled in to indicate the error.
 

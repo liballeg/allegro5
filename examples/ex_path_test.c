@@ -476,18 +476,18 @@ void t15(void)
 /* Test al_path_make_absolute. */
 void t16(void)
 {
-   ALLEGRO_PATH *path;
-   char cwd[PATH_MAX];
-   const char *buf;
+   ALLEGRO_PATH *path, *cwd;
+   const char *buf, *buf2;
 
    path = al_path_create("abc/def");
    CHECK(al_path_make_absolute(path));
 
-   al_getcwd(PATH_MAX, cwd);
+   cwd = al_getcwd();
    buf = al_path_to_string(path, ALLEGRO_NATIVE_PATH_SEP);
-   CHECK(0 == strncmp(buf, cwd, strlen(cwd)));
-   CHECK(0 == strcmp(buf + strlen(cwd), "abc/def") ||
-         0 == strcmp(buf + strlen(cwd), "abc\\def"));
+   buf2 = al_path_to_string(cwd, ALLEGRO_NATIVE_PATH_SEP);
+   CHECK(0 == strncmp(buf, buf2, strlen(buf2)));
+   CHECK(0 == strcmp(buf + strlen(buf2), "abc/def") ||
+         0 == strcmp(buf + strlen(buf2), "abc\\def"));
 
    al_path_free(path);
 }

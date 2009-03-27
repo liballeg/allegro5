@@ -181,6 +181,20 @@ ALLEGRO_PATH *al_path_create(const char *str)
    return path;
 }
 
+/* Function: al_path_create_dir
+ */
+ALLEGRO_PATH *al_path_create_dir(const char *str)
+{
+   ALLEGRO_PATH *path = al_path_create(str);
+   if (al_ustr_length(path->filename)) {
+      ALLEGRO_USTR *last = path->filename;
+      path->filename = al_ustr_new("");
+      al_path_append(path, al_cstr(last));
+      al_ustr_free(last);
+   }
+   return path;
+}
+
 
 /* Function: al_path_clone
  */
@@ -563,7 +577,6 @@ bool al_path_emode(const ALLEGRO_PATH *path, uint32_t mode)
  */
 bool al_path_make_absolute(ALLEGRO_PATH *path)
 {
-   char cwd[PATH_MAX];
    ALLEGRO_PATH *cwd_path;
    int i;
 
@@ -573,11 +586,8 @@ bool al_path_make_absolute(ALLEGRO_PATH *path)
       return false;
    }
 
-   if (!al_getcwd(PATH_MAX, cwd)) {
-      return false;
-   }
-
-   cwd_path = al_path_create(cwd);
+   cwd_path = al_getcwd();
+   if (!cwd_path) return false;
 
    al_path_set_drive(path, al_path_get_drive(cwd_path));
 

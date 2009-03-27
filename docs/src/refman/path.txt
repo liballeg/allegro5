@@ -63,6 +63,12 @@ otherwise returns false.
 Create a path structure from a string.
 The string may be NULL for an empty path.
 
+## API: al_path_create_dir
+
+This is the same as [al_path_create], but interprets the passed string
+as a directory path. The filename component of the returned path will
+always be empty.
+
 ## API: al_path_drop_tail
 
 Drop the last directory component.

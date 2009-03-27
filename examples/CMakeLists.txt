@@ -101,6 +101,7 @@ example(ex_user_events)
 example(ex_multisample ${PRIMITIVES_LINK_WITH})
 example(ex_vsync)
 example(ex_blend_test ${PRIMITIVES_LINK_WITH})
+example(ex_dir)
 
 if(SUPPORT_D3D)
     example(ex_d3d ex_d3d.cpp d3dx9)
