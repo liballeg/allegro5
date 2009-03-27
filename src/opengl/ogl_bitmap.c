@@ -94,6 +94,20 @@ static ALLEGRO_BITMAP_INTERFACE *glbmp_vt;
 
 #define SWAP(type, x, y) {type temp = x; x = y; y = temp;}
 
+static inline void setup_blending(void)
+{
+   int src_color, dst_color, src_alpha, dst_alpha;
+   int blend_modes[4] = {
+      GL_ZERO, GL_ONE, GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA
+   };
+
+   al_get_separate_blender(&src_color, &dst_color, &src_alpha,
+      &dst_alpha, NULL);
+   glEnable(GL_BLEND);
+   glBlendFuncSeparate(blend_modes[src_color], blend_modes[dst_color],
+      blend_modes[src_alpha], blend_modes[dst_alpha]);
+}
+
 /* Helper function to draw a bitmap with an internal OpenGL texture as
  * a textured OpenGL quad.
  */
@@ -107,16 +121,8 @@ static void draw_quad(ALLEGRO_BITMAP *bitmap,
    GLboolean on;
    GLuint current_texture;
    ALLEGRO_COLOR *bc;
-   int src_color, dst_color, src_alpha, dst_alpha;
-   int blend_modes[4] = {
-      GL_ZERO, GL_ONE, GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA
-   };
 
-   al_get_separate_blender(&src_color, &dst_color, &src_alpha,
-      &dst_alpha, NULL);
-   glEnable(GL_BLEND);
-   glBlendFuncSeparate(blend_modes[src_color], blend_modes[dst_color],
-      blend_modes[src_alpha], blend_modes[dst_alpha]);
+   setup_blending();
 
    glGetBooleanv(GL_TEXTURE_2D, &on);
    if (!on) {
@@ -253,6 +259,9 @@ static void ogl_draw_bitmap_region(ALLEGRO_BITMAP *bitmap, float sx, float sy,
             // FIXME: What if the target is locked?
             // FIXME: OpenGL refuses to do clipping with CopyPixels,
             // have to do it ourselves.
+
+            setup_blending();
+
             glRasterPos2f(dx, dy + sh);
             glCopyPixels(sx, bitmap->h - sy - sh, sw, sh, GL_COLOR);
             return;
@@ -262,6 +271,7 @@ static void ogl_draw_bitmap_region(ALLEGRO_BITMAP *bitmap, float sx, float sy,
              * is an OpenGL texture.
              */
             // FIXME: What if the target is locked?
+            // FIXME: This does no blending.
             /* In general, we can't modify the texture while it's
              * FBO bound - so we temporarily disable the FBO.
              */
@@ -536,6 +546,7 @@ static void ogl_unlock_region(ALLEGRO_BITMAP *bitmap)
          glRasterPos2f(bitmap->lock_x,
             bitmap->lock_y + bitmap->lock_h - 1e-4f);
       }
+      glDisable(GL_BLEND);
       glDrawPixels(bitmap->lock_w, bitmap->lock_h,
          glformats[format][2],
          glformats[format][1],
@@ -544,7 +555,6 @@ static void ogl_unlock_region(ALLEGRO_BITMAP *bitmap)
          TRACE("ogl_bitmap: glDrawPixels for format %d failed.\n",
             format);
       }
-      //glPixelStorei(GL_UNPACK_ROW_LENGTH, unpack_row_length);
    }
    else {
       glBindTexture(GL_TEXTURE_2D, ogl_bitmap->texture);
