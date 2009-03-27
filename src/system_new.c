@@ -180,6 +180,7 @@ bool al_install_system(int (*atexit_ptr)(void (*)(void)))
    }
    
    active_sysdrv = real_system;
+   active_sysdrv->config = bootstrap.config;
 
    if(ustrcmp(al_get_orgname(), "") == 0) {
       al_set_orgname(NULL);
