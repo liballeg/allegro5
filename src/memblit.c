@@ -194,6 +194,7 @@ void _al_draw_bitmap_region_memory(ALLEGRO_BITMAP *bitmap,
    ASSERT(!dest->parent);
 
    {
+      const int src_data_inc = xinc * al_get_pixel_size(bitmap->format);
       ALLEGRO_COLOR src_color = {0, 0, 0, 0};   /* avoid bogus warnings */
       ALLEGRO_COLOR dst_color = {0, 0, 0, 0};
       ALLEGRO_COLOR result;
@@ -203,13 +204,16 @@ void _al_draw_bitmap_region_memory(ALLEGRO_BITMAP *bitmap,
       al_get_separate_blender(&src_, &dst_, &asrc_, &adst_, &bc);
 
       for (y = 0; y < sh; y++, yd += yinc) {
+         char *dest_data =
+            (((char *) dest->locked_region.data)
+             + yd * dest->locked_region.pitch);
+
          char *src_data =
             (((char *) bitmap->locked_region.data)
              + y * bitmap->locked_region.pitch);
 
-         char *dest_data =
-            (((char *) dest->locked_region.data)
-             + yd * dest->locked_region.pitch);
+         if (src_data_inc < 0)
+            src_data += (sw - 1) * -src_data_inc;
 
          /* Special case this for two reasons:
           * - we don't need to read and blend with the destination pixel;
@@ -218,19 +222,23 @@ void _al_draw_bitmap_region_memory(ALLEGRO_BITMAP *bitmap,
           */
          if (dst_ == ALLEGRO_ZERO && adst_ == ALLEGRO_ZERO) {
             for (x = 0; x < sw; x++) {
-               _AL_INLINE_GET_PIXEL(bitmap->format, src_data, src_color, true);
+               _AL_INLINE_GET_PIXEL(bitmap->format, src_data, src_color, false);
                _al_blend_inline_dest_zero(&src_color, src_, asrc_, &bc,
                   &result);
                _AL_INLINE_PUT_PIXEL(dest->format, dest_data, result, true);
+
+               src_data += src_data_inc;
             }
          }
          else {
             for (x = 0; x < sw; x++) {
-               _AL_INLINE_GET_PIXEL(bitmap->format, src_data, src_color, true);
+               _AL_INLINE_GET_PIXEL(bitmap->format, src_data, src_color, false);
                _AL_INLINE_GET_PIXEL(dest->format, dest_data, dst_color, false);
                _al_blend_inline(&src_color, &dst_color,
                   src_, dst_, asrc_, adst_, &bc, &result);
                _AL_INLINE_PUT_PIXEL(dest->format, dest_data, result, true);
+
+               src_data += src_data_inc;
             }
          }
       }
@@ -972,6 +980,7 @@ void _al_draw_rotated_bitmap_memory(ALLEGRO_BITMAP *src,
       cx, cy, dx, dy, 1.0f, 1.0f, angle, flags);
 }
 
+
 void _al_draw_bitmap_region_memory_fast(ALLEGRO_BITMAP *bitmap,
    int sx, int sy, int sw, int sh,
    int dx, int dy, int flags)
@@ -1020,6 +1029,7 @@ void _al_draw_bitmap_region_memory_fast(ALLEGRO_BITMAP *bitmap,
    }
 
    /* Lock the bitmaps */
+   /* XXX should use bitmap native format */
    if (!(src_region = al_lock_bitmap_region(bitmap, sx, sy, sw, sh,
       ALLEGRO_PIXEL_FORMAT_ANY_32_WITH_ALPHA, ALLEGRO_LOCK_READONLY))) {
       return;
@@ -1034,7 +1044,7 @@ void _al_draw_bitmap_region_memory_fast(ALLEGRO_BITMAP *bitmap,
    do {
       int x;
       int y;
-      int cdx, cdy;         /* current dest */
+      int cdx_start, cdy;   /* current dest */
       int dxi, dyi;         /* dest increments */
       int pixel;
 
@@ -1046,11 +1056,11 @@ void _al_draw_bitmap_region_memory_fast(ALLEGRO_BITMAP *bitmap,
       /* Adjust for flipping */
 
       if (flags & ALLEGRO_FLIP_HORIZONTAL) {
-         cdx = sw - 1;
+         cdx_start = sw - 1;
          dxi = -1;
       }
       else {
-         cdx = 0;
+         cdx_start = 0;
          dxi = 1;
       }
 
@@ -1064,7 +1074,7 @@ void _al_draw_bitmap_region_memory_fast(ALLEGRO_BITMAP *bitmap,
       }
 
       for (y = 0; y < sh; y++) {
-         cdx = 0;
+         int cdx = cdx_start;
          for (x = 0; x < sw; x++) {
             pixel = *(uint32_t *)(((char *)src_region->data) + y * src_region->pitch + x * 4);
             *(uint32_t *)(((char *)dst_region->data) + cdy * dst_region->pitch + cdx * 4) = pixel;
