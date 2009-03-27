@@ -262,7 +262,7 @@ static ALLEGRO_SYSTEM *xglx_initialize(int flags)
 
    s->system.vt = xglx_vt;
 
-   ALLEGRO_INFO("XGLX driver connected to X11 (%sys %d).\n",
+   ALLEGRO_INFO("XGLX driver connected to X11 (%s %d).\n",
       ServerVendor(s->x11display), VendorRelease(s->x11display));
    ALLEGRO_INFO("X11 protocol version %d.%d.\n",
       ProtocolVersion(s->x11display), ProtocolRevision(s->x11display));
