@@ -108,6 +108,7 @@ option(WANT_DOCS_PDF "Generate PDF document (requires pdflatex)" off)
 #
 
 option(STRICT_WARN "Halt at warnings" off)
+option(WANT_MUDFLAP "Enable gcc mudflap (requires gcc 4.0+)" off)
 
 #
 # Minor options.
@@ -281,6 +282,12 @@ endif(WIN32 AND COMPILER_GCC)
 
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${WFLAGS} ${WFLAGS_C_ONLY}")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${WFLAGS}")
+
+if(WANT_MUDFLAP AND COMPILER_GCC)
+    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fmudflapth")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fmudflapth")
+    set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -fmudflapth -lmudflapth")
+endif(WANT_MUDFLAP AND COMPILER_GCC)
 
 # Debugging.
 
