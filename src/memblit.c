@@ -95,7 +95,6 @@ void _al_draw_bitmap_region_memory(ALLEGRO_BITMAP *bitmap,
    int src_mode, dst_mode;
    int src_alpha, dst_alpha;
    ALLEGRO_COLOR *ic;
-   bool unlock_dest = false;
    int xinc, yinc;
    int yd;
    int sxd;
@@ -165,12 +164,12 @@ void _al_draw_bitmap_region_memory(ALLEGRO_BITMAP *bitmap,
       return;
    }
 
-   if (!al_is_bitmap_locked(dest)) {
-      if (!(dst_region = al_lock_bitmap_region(dest, dx, dy, sw, sh, ALLEGRO_PIXEL_FORMAT_ANY, 0))) {
-         al_unlock_bitmap(bitmap);
-         return;
-      }
-      unlock_dest = true;
+   /* Blitting to a locked bitmap is a user mistake. */
+   ASSERT(!al_is_bitmap_locked(dest));
+
+   if (!(dst_region = al_lock_bitmap_region(dest, dx, dy, sw, sh, ALLEGRO_PIXEL_FORMAT_ANY, 0))) {
+      al_unlock_bitmap(bitmap);
+      return;
    }
 
    if (flags & ALLEGRO_FLIP_VERTICAL) {
@@ -194,7 +193,7 @@ void _al_draw_bitmap_region_memory(ALLEGRO_BITMAP *bitmap,
    ASSERT(!dest->parent);
 
    {
-      const int src_data_inc = xinc * al_get_pixel_size(bitmap->format);
+      const int src_data_inc = xinc * al_get_pixel_size(src_region->format);
       ALLEGRO_COLOR src_color = {0, 0, 0, 0};   /* avoid bogus warnings */
       ALLEGRO_COLOR dst_color = {0, 0, 0, 0};
       ALLEGRO_COLOR result;
@@ -205,12 +204,12 @@ void _al_draw_bitmap_region_memory(ALLEGRO_BITMAP *bitmap,
 
       for (y = 0; y < sh; y++, yd += yinc) {
          char *dest_data =
-            (((char *) dest->locked_region.data)
-             + yd * dest->locked_region.pitch);
+            (((char *) dst_region->data)
+             + yd * dst_region->pitch);
 
          char *src_data =
-            (((char *) bitmap->locked_region.data)
-             + y * bitmap->locked_region.pitch);
+            (((char *) src_region->data)
+             + y * src_region->pitch);
 
          if (src_data_inc < 0)
             src_data += (sw - 1) * -src_data_inc;
@@ -222,21 +221,21 @@ void _al_draw_bitmap_region_memory(ALLEGRO_BITMAP *bitmap,
           */
          if (dst_ == ALLEGRO_ZERO && adst_ == ALLEGRO_ZERO) {
             for (x = 0; x < sw; x++) {
-               _AL_INLINE_GET_PIXEL(bitmap->format, src_data, src_color, false);
+               _AL_INLINE_GET_PIXEL(src_region->format, src_data, src_color, false);
                _al_blend_inline_dest_zero(&src_color, src_, asrc_, &bc,
                   &result);
-               _AL_INLINE_PUT_PIXEL(dest->format, dest_data, result, true);
+               _AL_INLINE_PUT_PIXEL(dst_region->format, dest_data, result, true);
 
                src_data += src_data_inc;
             }
          }
          else {
             for (x = 0; x < sw; x++) {
-               _AL_INLINE_GET_PIXEL(bitmap->format, src_data, src_color, false);
-               _AL_INLINE_GET_PIXEL(dest->format, dest_data, dst_color, false);
+               _AL_INLINE_GET_PIXEL(src_region->format, src_data, src_color, false);
+               _AL_INLINE_GET_PIXEL(dst_region->format, dest_data, dst_color, false);
                _al_blend_inline(&src_color, &dst_color,
                   src_, dst_, asrc_, adst_, &bc, &result);
-               _AL_INLINE_PUT_PIXEL(dest->format, dest_data, result, true);
+               _AL_INLINE_PUT_PIXEL(dst_region->format, dest_data, result, true);
 
                src_data += src_data_inc;
             }
@@ -245,8 +244,7 @@ void _al_draw_bitmap_region_memory(ALLEGRO_BITMAP *bitmap,
    }
 
    al_unlock_bitmap(bitmap);
-   if (unlock_dest)
-      al_unlock_bitmap(dest);
+   al_unlock_bitmap(dest);
 }
 
 
