@@ -33,7 +33,6 @@ void print_entry(ALLEGRO_FS_ENTRY *entry)
 {
    if (al_is_directory(entry)) {
       ALLEGRO_FS_ENTRY *next;
-      print_file(entry);
       al_open_entry(entry, "r");
       while (1) {
          next = al_readdir(entry);
@@ -58,6 +57,7 @@ int main(int argc, char **argv)
    if (argc == 1) {
       ALLEGRO_FS_ENTRY *entry = al_create_entry(".");
       print_entry(entry);
+      return 0;
    }
    
    for (i = 1; i < argc; i++) {
