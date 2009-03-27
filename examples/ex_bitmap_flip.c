@@ -7,8 +7,8 @@
 #define INTERVAL 0.01
 
 
-float bmp_x = 0;
-float bmp_y = 0;
+float bmp_x = 200;
+float bmp_y = 200;
 float bmp_dx = 96;
 float bmp_dy = 96;
 int bmp_flag = 0;
@@ -62,6 +62,7 @@ int main(void)
    ALLEGRO_FONT *font;
    char *text;
    bool done = false;
+   bool redraw = true;
 
    if (!al_init()) {
       TRACE("Failed to init Allegro.\n");
@@ -116,8 +117,32 @@ int main(void)
 
    al_start_timer(timer);
 
+   /* opaque: software version matches hardware version */
+   /*
+   al_set_blender(ALLEGRO_ONE, ALLEGRO_ZERO, al_map_rgba_f(1, 1, 1, 1));
+   */
+
+   /* XXX dest zero: software version much darker */
+   /*
+   al_set_blender(ALLEGRO_ALPHA, ALLEGRO_ZERO,
+      al_map_rgba_f(1, 1, 1, 0.5));
+   */
+
+   /* XXX: software version darker */
+   al_set_blender(ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA,
+      al_map_rgba_f(1, 1, 1, 0.5));
+
    while (!done) {
       ALLEGRO_EVENT event;
+
+      if (redraw && al_event_queue_is_empty(queue)) {
+         update(bmp);
+         al_clear(al_map_rgb_f(0, 0, 0));
+         al_draw_bitmap(bmp, bmp_x, bmp_y, bmp_flag);
+         al_font_textout(font, 0, 0, text, -1);
+         al_flip_display();
+         redraw = false;
+      }
 
       al_wait_for_event(queue, &event);
       switch (event.type) {
@@ -142,11 +167,7 @@ int main(void)
             break;
 
          case ALLEGRO_EVENT_TIMER:
-            update(bmp);
-            al_clear(al_map_rgb(0, 0, 0));
-            al_draw_bitmap(bmp, bmp_x, bmp_y, bmp_flag);
-            al_font_textout(font, 0, 0, text, -1);
-            al_flip_display();
+            redraw = true;
             break;
       }
    }
