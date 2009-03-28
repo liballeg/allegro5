@@ -207,6 +207,92 @@ void al_assert(AL_CONST char *file, int line)
 
 
 
+static void configure_logging(void)
+{
+   ALLEGRO_SYSTEM *sys = al_system_driver();
+   char const *v;
+   bool got_all = false;
+
+   /* Messages logged before the system driver and allegro.cfg are
+    * up will always use defaults - but usually nothing is logged
+    * before al_init.
+    */
+   if (!sys || !sys->config)
+      return;
+
+   v = al_get_config_value(sys->config, "trace", "channels");
+   if (v) {
+      ALLEGRO_USTR **channels = NULL;
+      ALLEGRO_USTR_INFO uinfo;
+      ALLEGRO_USTR *u = al_ref_cstr(&uinfo, v);
+      int pos = 0;
+      int n = 0;
+
+      while (pos >= 0) {
+         int comma = al_ustr_find_chr(u, pos, ',');
+         ALLEGRO_USTR *u2;
+         if (comma == -1)
+            u2 = al_ustr_dup_substr(u, pos, al_ustr_length(u));
+         else
+            u2 = al_ustr_dup_substr(u, pos, comma);
+         al_ustr_trim_ws(u2);
+         n++;
+         channels = _AL_REALLOC(channels, n * sizeof *channels);
+         channels[n - 1] = u2;
+         if (!strcmp(al_cstr(u2), "all"))
+            got_all = true;
+         pos = comma;
+         al_ustr_get_next(u, &pos);
+      }
+
+      /* Sentinel. */
+      n++;
+      channels = _AL_REALLOC(channels, n * sizeof *channels);
+      channels[n - 1] = NULL;
+
+      _al_debug_info.channels = channels;
+
+      if (got_all) {
+         int i;
+
+         for (i = 0; _al_debug_info.channels[i]; i++) {
+            al_ustr_free(_al_debug_info.channels[i]);
+         }
+         _AL_FREE(_al_debug_info.channels);
+         _al_debug_info.channels = NULL;
+      }
+   }
+
+   v = al_get_config_value(sys->config, "trace", "level");
+   if (v) {
+      if (!strcmp(v, "error")) _al_debug_info.level = 3;
+      else if (!strcmp(v, "warn")) _al_debug_info.level = 2;
+      else if (!strcmp(v, "info")) _al_debug_info.level = 1;
+   }
+
+   v = al_get_config_value(sys->config, "trace", "timestamps");
+   if (v && strcmp(v, "0"))
+      _al_debug_info.flags |= 4;
+   else
+      _al_debug_info.flags &= ~4;
+
+   v = al_get_config_value(sys->config, "trace", "functions");
+   if (!v || strcmp(v, "0"))
+      _al_debug_info.flags |= 2;
+   else
+      _al_debug_info.flags &= ~2;
+
+   v = al_get_config_value(sys->config, "trace", "lines");
+   if (!v || strcmp(v, "0"))
+      _al_debug_info.flags |= 1;
+   else
+      _al_debug_info.flags &= ~1;
+
+   _al_debug_info.configured = true;
+}
+
+
+
 bool _al_trace_prefix(char const *channel, int level,
    char const *file, int line, char const *function)
 {
@@ -214,74 +300,9 @@ bool _al_trace_prefix(char const *channel, int level,
    char *name;
    double t = al_current_time();
 
+   /* XXX logging should be reconfigured if the system driver is reinstalled */
    if (!_al_debug_info.configured) {
-      ALLEGRO_SYSTEM *sys = al_system_driver();
-      /* Messages logged before the system driver and allegro.cfg are
-       * up will always use defaults - but usually nothing is logged
-       * before al_init.
-       */
-      if (sys && sys->config) {
-         ALLEGRO_USTR *u;
-         char const *v;
-         bool got_all = false;
-         int n = 0, pos = 0;
-         v = al_get_config_value(sys->config, "trace", "channels");
-         if (v) {
-            ALLEGRO_USTR **channels = NULL;
-            u = al_ustr_new(v);
-            while (pos >= 0) {
-               int comma = al_ustr_find_chr(u, pos, ',');
-               ALLEGRO_USTR *u2;
-               if (comma == -1)
-                  u2 = al_ustr_dup_substr(u, pos, al_ustr_length(u));
-               else
-                  u2 = al_ustr_dup_substr(u, pos, comma);
-               al_ustr_trim_ws(u2);
-               n++;
-               channels = _AL_REALLOC(channels, n * sizeof *channels);
-               channels[n - 1] = u2;
-               if (!strcmp(al_cstr(u2), "all"))
-                  got_all = true;
-               pos = comma;
-               al_ustr_get_next(u, &pos);
-            }
-            n++;
-            channels = _AL_REALLOC(channels, n * sizeof *channels);
-            channels[n - 1] = NULL;
-            al_ustr_free(u);
-            _al_debug_info.channels = channels;
-            
-            if (got_all) {
-               for (i = 0; _al_debug_info.channels[i]; i++) {
-                  al_ustr_free(_al_debug_info.channels[i]);
-               }
-               _AL_FREE(_al_debug_info.channels);
-               _al_debug_info.channels = NULL;
-            }
-         }
-         v = al_get_config_value(sys->config, "trace", "level");
-         if (v) {
-            if (!strcmp(v, "error")) _al_debug_info.level = 3;
-            else if (!strcmp(v, "warn")) _al_debug_info.level = 2;
-            else if (!strcmp(v, "info")) _al_debug_info.level = 1;
-         }
-         v = al_get_config_value(sys->config, "trace", "timestamps");
-         if (v && strcmp(v, "0"))
-            _al_debug_info.flags |= 4;
-         else
-            _al_debug_info.flags &= ~4;
-         v = al_get_config_value(sys->config, "trace", "functions");
-         if (!v || strcmp(v, "0"))
-            _al_debug_info.flags |= 2;
-         else
-            _al_debug_info.flags &= ~2;
-         v = al_get_config_value(sys->config, "trace", "lines");
-         if (!v || strcmp(v, "0"))
-            _al_debug_info.flags |= 1;
-         else
-            _al_debug_info.flags &= ~1;
-         _al_debug_info.configured = true;
-      }
+      configure_logging();
    }
 
    if (level < _al_debug_info.level) return false;
@@ -374,3 +395,6 @@ void register_trace_handler(int (*handler)(AL_CONST char *msg))
 {
    _al_trace_handler = handler;
 }
+
+
+/* vim: set sts=3 sw=3 et: */

@@ -25,7 +25,6 @@
 #include "allegro5/internal/aintern_system.h"
 #include "allegro5/internal/aintern_vector.h"
 
-ALLEGRO_DEBUG_CHANNEL("system");
 static ALLEGRO_SYSTEM *active_sysdrv = NULL;
 
 _AL_VECTOR _al_system_interfaces = _AL_VECTOR_INITIALIZER(ALLEGRO_SYSTEM_INTERFACE *);
@@ -96,16 +95,16 @@ static void shutdown_system_driver(void)
 
 static void read_allegro_cfg(void)
 {
+   /* We cannot use any logging in this function as it would cause the
+    * logging system to be initialised before all the relevant config files
+    * have been read in.
+    */
+
 #ifdef ALLEGRO_UNIX
    ALLEGRO_CONFIG *temp;
    char buf[256], tmp[256];
-#endif
 
-#ifdef ALLEGRO_UNIX
    active_sysdrv->config = al_load_config_file("/etc/allegrorc");
-   if (active_sysdrv->config) {
-      ALLEGRO_INFO("Applying system settings from /etc/allegrorc\n");
-   }
 
    ustrzcpy(buf, sizeof(buf) - ucwidth(OTHER_PATH_SEPARATOR), uconvert_ascii(getenv("HOME"), tmp));
    ustrzcat(buf, sizeof(buf), uconvert_ascii("/.allegrorc", tmp));
@@ -118,9 +117,8 @@ static void read_allegro_cfg(void)
       else {
          active_sysdrv->config = temp;
       }
-      ALLEGRO_INFO("Applying system settings from %s\n", buf);
    }
-   
+
    temp = al_load_config_file("allegro.cfg");
    if (temp) {
       if (active_sysdrv->config) {
@@ -130,7 +128,6 @@ static void read_allegro_cfg(void)
       else {
          active_sysdrv->config = temp;
       }
-      ALLEGRO_INFO("Applying system settings from allegro.cfg\n");
    }
 #else
    active_sysdrv->config = al_load_config_file("allegro.cfg");
@@ -233,6 +230,7 @@ ALLEGRO_SYSTEM *al_system_driver(void)
    return active_sysdrv;
 }
 
+
 /* Function: al_get_path
  */
 AL_CONST char *al_get_path(uint32_t id, char *path, size_t size)
@@ -256,6 +254,7 @@ void al_set_orgname(AL_CONST char *orgname)
       ustrzcpy(_al_orgname, sizeof(_al_orgname), "allegro");
 }
 
+
 /* Function: al_set_appname
  */
 void al_set_appname(AL_CONST char *appname)
@@ -274,6 +273,7 @@ void al_set_appname(AL_CONST char *appname)
    }
 }
 
+
 /* Function: al_get_orgname
  */
 AL_CONST char *al_get_orgname(void)
@@ -281,12 +281,14 @@ AL_CONST char *al_get_orgname(void)
    return _al_orgname;
 }
 
+
 /* Function: al_get_appname
  */
 AL_CONST char *al_get_appname(void)
 {
    return _al_appname;
 }
+
 
 /* Function: al_inhibit_screensaver
  */
