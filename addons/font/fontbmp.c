@@ -194,7 +194,7 @@ ALLEGRO_FONT *al_grab_font_from_bitmap(
    ALLEGRO_LOCKED_REGION *lock = NULL;
    int w, h;
 
-   ASSERT(bmp)
+   ASSERT(bmp);
    
    w = al_get_bitmap_width(bmp);
    h = al_get_bitmap_height(bmp);

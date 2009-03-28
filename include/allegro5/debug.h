@@ -36,24 +36,28 @@ AL_FUNC(void, register_trace_handler, (AL_METHOD(int, handler, (AL_CONST char *m
 
 
 #ifdef DEBUGMODE
-   #define ALLEGRO_DEBUG_CHANNEL(x) static char const *debug_channel = x;
-   #define ALLEGRO_TRACE_CHANNEL_LEVEL(channel, level) \
-      !_al_trace_prefix(channel, level, __FILE__, __LINE__, __func__) \
+   /* Must not be used with a trailing semicolon. */
+   #define ALLEGRO_DEBUG_CHANNEL(x) static char const *__al_debug_channel = x;
+   #define ALLEGRO_TRACE_CHANNEL_LEVEL(channel, level)                        \
+      !_al_trace_prefix(channel, level, __FILE__, __LINE__, __func__)         \
       ? (void)0 : al_trace
-   #define ASSERT(condition)     { if (!(condition)) al_assert(__FILE__, __LINE__); }
+   #define ASSERT(condition)     do {                                         \
+                                    if (!(condition))                         \
+                                       al_assert(__FILE__, __LINE__);         \
+                                 } while (0)
    #define TRACE                 al_trace
 #else
    #define ASSERT(condition)
-   #define TRACE                 1 ? (void) 0 : al_trace
-   #define ALLEGRO_TRACE_CHANNEL_LEVEL(x) 1 ? (void) 0 : al_trace
+   #define TRACE                             1 ? (void) 0 : al_trace
+   #define ALLEGRO_TRACE_CHANNEL_LEVEL(x)    1 ? (void) 0 : al_trace
    #define ALLEGRO_DEBUG_CHANNEL(x)
 #endif
 
-#define ALLEGRO_TRACE_LEVEL(x) ALLEGRO_TRACE_CHANNEL_LEVEL(debug_channel, x)
-#define ALLEGRO_DEBUG ALLEGRO_TRACE_LEVEL(0)
-#define ALLEGRO_INFO  ALLEGRO_TRACE_LEVEL(1)
-#define ALLEGRO_WARN  ALLEGRO_TRACE_LEVEL(2)
-#define ALLEGRO_ERROR ALLEGRO_TRACE_LEVEL(3)
+#define ALLEGRO_TRACE_LEVEL(x)   ALLEGRO_TRACE_CHANNEL_LEVEL(__al_debug_channel, x)
+#define ALLEGRO_DEBUG            ALLEGRO_TRACE_LEVEL(0)
+#define ALLEGRO_INFO             ALLEGRO_TRACE_LEVEL(1)
+#define ALLEGRO_WARN             ALLEGRO_TRACE_LEVEL(2)
+#define ALLEGRO_ERROR            ALLEGRO_TRACE_LEVEL(3)
 
 /* Compile time assertions. */
 #define ALLEGRO_ASSERT_CONCAT_(a, b)   a##b
