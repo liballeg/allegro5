@@ -93,6 +93,16 @@ ALLEGRO_DEBUG_CHANNEL("opengl")
 static float _al_ogl_version(void)
 {
    const char *str;
+   
+   if (al_system_driver()->config) {
+      char const *value = al_get_config_value(
+         al_system_driver()->config, "opengl", "force_opengl_version");
+      if (value) {
+         float v = strtod(value, NULL);
+         ALLEGRO_WARN("OpenGL version forced to %.1f.\n", v);
+         return v;
+      }
+   }
 
    str = (const char *)glGetString(GL_VERSION);
 

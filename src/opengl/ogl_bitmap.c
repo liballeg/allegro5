@@ -111,6 +111,7 @@ static inline bool setup_blending(ALLEGRO_DISPLAY *ogl_disp)
    }
    else {
       if (src_color == src_alpha && dst_color == dst_alpha) {
+         glEnable(GL_BLEND);
          glBlendFunc(blend_modes[src_color], blend_modes[dst_color]);
       }
       else {
