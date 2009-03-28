@@ -12,11 +12,10 @@ static void memfile_destroy_handle(ALLEGRO_FS_ENTRY *handle)
    _AL_FREE(handle);
 }
 
-static bool memfile_fname(ALLEGRO_FS_ENTRY *fh, size_t s, char *name)
+static ALLEGRO_PATH *memfile_fname(ALLEGRO_FS_ENTRY *fh)
 {
    (void)fh;
-   ustrzcpy(name, s, "<memfile>");
-   return true;
+   return al_path_create("");
 }
 
 static void memfile_fclose(ALLEGRO_FS_ENTRY *fp)
