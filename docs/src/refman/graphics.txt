@@ -182,10 +182,8 @@ format with alpha
 
 Lock an entire bitmap for reading or writing. If the bitmap is a
 display bitmap it will be updated from system memory after the bitmap
-is unlocked (unless locked read only). locked_region must point to an
-already allocated ALLEGRO_LOCKED_REGION structure. Returns NULL if the
-bitmap cannot be locked, e.g. the bitmap was locked previously and not
-unlocked.
+is unlocked (unless locked read only). Returns NULL if the bitmap cannot
+be locked, e.g. the bitmap was locked previously and not unlocked.
 
 Flags are:
 
@@ -202,6 +200,11 @@ unlocking the bitmap again, so be careful when using this flag.
 To lock in the same format as the bitmap stores it's data internally,
 call with `al_get_bitmap_format(bitmap)` as the format or use
 ALLEGRO_FORMAT_ANY. Locking in the native format will usually be faster.
+
+Note:
+
+While a bitmap is locked, you can not use any drawing operations on
+it (with the solo exception of [al_put_pixel] and [al_draw_pixel]).
 
 ## API: al_lock_bitmap_region
 
