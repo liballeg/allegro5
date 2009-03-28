@@ -737,7 +737,7 @@ static ALLEGRO_FS_ENTRY *al_fs_stdio_opendir(const char *path)
 
    fp_stdio = (ALLEGRO_FS_ENTRY_STDIO *) fp;
    if (fp_stdio->stat_mode & AL_FM_ISDIR) {
-      if (al_fs_stdio_open_handle(fp, 0) != 0) {
+      if (!al_fs_stdio_open_handle(fp, 0)) {
          al_fs_stdio_destroy_handle(fp);
          return NULL;
       }
@@ -753,17 +753,21 @@ static ALLEGRO_FS_ENTRY *al_fs_stdio_opendir(const char *path)
 static bool al_fs_stdio_closedir(ALLEGRO_FS_ENTRY *fp)
 {
    ALLEGRO_FS_ENTRY_STDIO *fp_stdio = (ALLEGRO_FS_ENTRY_STDIO *) fp;
-   int ret = closedir(fp_stdio->hd.dir);
-   if (ret == -1) {
+   bool ret;
+
+   if (closedir(fp_stdio->hd.dir) == -1) {
       al_set_errno(errno);
-      return false;
+      ret = false;
+   }
+   else {
+      ret = true;
    }
 
    fp_stdio->hd.dir = NULL;
    fp_stdio->isdir = 0;
    _AL_FREE(fp_stdio);
 
-   return true;
+   return ret;
 }
 
 static ALLEGRO_FS_ENTRY *al_fs_stdio_readdir(ALLEGRO_FS_ENTRY *fp)
