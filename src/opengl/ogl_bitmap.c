@@ -94,7 +94,7 @@ static ALLEGRO_BITMAP_INTERFACE *glbmp_vt;
 
 #define SWAP(type, x, y) {type temp = x; x = y; y = temp;}
 
-static inline void setup_blending(void)
+static inline bool setup_blending(ALLEGRO_DISPLAY *ogl_disp)
 {
    int src_color, dst_color, src_alpha, dst_alpha;
    int blend_modes[4] = {
@@ -103,9 +103,21 @@ static inline void setup_blending(void)
 
    al_get_separate_blender(&src_color, &dst_color, &src_alpha,
       &dst_alpha, NULL);
-   glEnable(GL_BLEND);
-   glBlendFuncSeparate(blend_modes[src_color], blend_modes[dst_color],
-      blend_modes[src_alpha], blend_modes[dst_alpha]);
+   /* glBlendFuncSeparate was only included with OpenGL 1.4 */
+   if (ogl_disp->ogl_extras->ogl_info.version >= 1.4) {
+      glEnable(GL_BLEND);
+      glBlendFuncSeparate(blend_modes[src_color], blend_modes[dst_color],
+         blend_modes[src_alpha], blend_modes[dst_alpha]);
+   }
+   else {
+      if (src_color == src_alpha && dst_color == dst_alpha) {
+         glBlendFunc(blend_modes[src_color], blend_modes[dst_color]);
+      }
+      else {
+         return false;
+      }
+   }
+   return true;
 }
 
 /* Helper function to draw a bitmap with an internal OpenGL texture as
@@ -121,8 +133,6 @@ static void draw_quad(ALLEGRO_BITMAP *bitmap,
    GLboolean on;
    GLuint current_texture;
    ALLEGRO_COLOR *bc;
-
-   setup_blending();
 
    glGetBooleanv(GL_TEXTURE_2D, &on);
    if (!on) {
@@ -194,7 +204,8 @@ static void ogl_draw_bitmap(ALLEGRO_BITMAP *bitmap, float x, float y,
    ALLEGRO_BITMAP *target = al_get_target_bitmap();
    ALLEGRO_BITMAP_OGL *ogl_target = (ALLEGRO_BITMAP_OGL *)target;
    ALLEGRO_DISPLAY *disp = (void *)al_get_current_display();
-   if (disp->ogl_extras->opengl_target != ogl_target || target->locked) {
+   if (disp->ogl_extras->opengl_target != ogl_target ||
+      !setup_blending(disp)) {
       _al_draw_bitmap_memory(bitmap, x, y, flags);
       return;
    }
@@ -259,12 +270,11 @@ static void ogl_draw_bitmap_region(ALLEGRO_BITMAP *bitmap, float sx, float sy,
             // FIXME: What if the target is locked?
             // FIXME: OpenGL refuses to do clipping with CopyPixels,
             // have to do it ourselves.
-
-            setup_blending();
-
-            glRasterPos2f(dx, dy + sh);
-            glCopyPixels(sx, bitmap->h - sy - sh, sw, sh, GL_COLOR);
-            return;
+            if (setup_blending(disp)) {
+               glRasterPos2f(dx, dy + sh);
+               glCopyPixels(sx, bitmap->h - sy - sh, sw, sh, GL_COLOR);
+               return;
+            }
          }
          else {
             /* Our source bitmap is the OpenGL backbuffer, the target
@@ -289,12 +299,17 @@ static void ogl_draw_bitmap_region(ALLEGRO_BITMAP *bitmap, float sx, float sy,
          }
       }
    }
-   if (disp->ogl_extras->opengl_target != ogl_target || target->locked) {
-      _al_draw_bitmap_region_memory(bitmap, sx, sy, sw, sh, dx, dy, flags);
-      return;
+   if (disp->ogl_extras->opengl_target == ogl_target) {
+      if (setup_blending(disp)) {
+         draw_quad(bitmap, sx, sy, sw, sh, 0, 0, dx, dy, sw, sh, 1, 1, 0, flags);
+         return;
+      }
    }
 
-   draw_quad(bitmap, sx, sy, sw, sh, 0, 0, dx, dy, sw, sh, 1, 1, 0, flags);
+   
+   
+   /* If all else fails, fall back to software implementation. */
+   _al_draw_bitmap_region_memory(bitmap, sx, sy, sw, sh, dx, dy, flags);
 }
 
 
@@ -307,7 +322,8 @@ static void ogl_draw_rotated_bitmap(ALLEGRO_BITMAP *bitmap, float cx, float cy,
    ALLEGRO_BITMAP *target = al_get_target_bitmap();
    ALLEGRO_BITMAP_OGL *ogl_target = (ALLEGRO_BITMAP_OGL *)target;
    ALLEGRO_DISPLAY *disp = (void *)al_get_current_display();
-   if (disp->ogl_extras->opengl_target != ogl_target || target->locked) {
+   if (disp->ogl_extras->opengl_target != ogl_target ||
+      !setup_blending(disp)) {
       _al_draw_rotated_bitmap_memory(bitmap, cx, cy, dx, dy, angle, flags);
       return;
    }
@@ -333,7 +349,8 @@ static void ogl_draw_rotated_scaled_bitmap(ALLEGRO_BITMAP *bitmap,
    ALLEGRO_BITMAP *target = al_get_target_bitmap();
    ALLEGRO_BITMAP_OGL *ogl_target = (ALLEGRO_BITMAP_OGL *)target;
    ALLEGRO_DISPLAY *disp = (void *)al_get_current_display();
-   if (disp->ogl_extras->opengl_target != ogl_target || target->locked) {
+   if (disp->ogl_extras->opengl_target != ogl_target ||
+      !setup_blending(disp)) {
       _al_draw_rotated_scaled_bitmap_memory(bitmap, cx, cy, dx, dy,
                                             xscale, yscale, angle, flags);
       return;
