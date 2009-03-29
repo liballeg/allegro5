@@ -7,6 +7,10 @@
 #include <stdio.h>
 #include "allegro5/allegro5.h"
 
+#define TEST(name, expr) \
+   if (expr) printf("PASS - %s\n", name); \
+   else      printf("FAIL - %s\n", name);
+
 int main(void)
 {
    ALLEGRO_CONFIG *cfg;
@@ -23,10 +27,16 @@ int main(void)
    }
 
    value = al_get_config_value(cfg, NULL, "old_var");
-   printf("global old_var = %s\n", value);
+   TEST("global var", value && !strcmp(value, "old global value"));
 
    value = al_get_config_value(cfg, "section", "old_var");
-   printf("section old_var = %s\n", value);
+   TEST("section var", value && !strcmp(value, "old section value"));
+
+   value = al_get_config_value(cfg, "", "mysha.xpm");
+   TEST("long value", strlen(value) == 1394);
+
+   value = al_get_config_value(cfg, "adição", "€");
+   TEST("unicode", value && !strcmp(value, "¿"));
 
    al_set_config_value(cfg, "", "new_var", "new value");
    al_set_config_value(cfg, "section", "old_var", "new value");

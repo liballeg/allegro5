@@ -25,8 +25,6 @@
 #include "allegro5/internal/aintern_memory.h"
 
 
-#define MAXSIZE 1024
-
 
 static void *local_calloc1(size_t size)
 {
@@ -313,13 +311,29 @@ const char *al_get_config_value(const ALLEGRO_CONFIG *config,
 }
 
 
+static int readline(ALLEGRO_FS_ENTRY *file, ALLEGRO_USTR *line)
+{
+   int n = 0;
+   while (1) {
+      char str[2];
+      int c = al_fgetc(file);
+      if (c == EOF) return n;
+      if (c == '\r') continue;
+      str[0] = c;
+      str[1] = 0;
+      al_ustr_append_cstr(line, str);
+      n++;
+      if (c == '\n') break;
+   }
+   return n;
+}
+
 /* Function: al_load_config_file
  */
 ALLEGRO_CONFIG *al_load_config_file(const char *filename)
 {
    ALLEGRO_CONFIG *config;
    ALLEGRO_CONFIG_SECTION *current_section = NULL;
-   char buffer[MAXSIZE];
    ALLEGRO_USTR *line;
    ALLEGRO_USTR *section;
    ALLEGRO_USTR *key;
@@ -342,8 +356,9 @@ ALLEGRO_CONFIG *al_load_config_file(const char *filename)
    key = al_ustr_new("");
    value = al_ustr_new("");
 
-   while (al_fgets(file, MAXSIZE, buffer)) {
-      al_ustr_assign_cstr(line, buffer);
+   while (1) {
+      al_ustr_assign_cstr(line, "");
+      if (!readline(file, line)) break;
       al_ustr_trim_ws(line);
 
       if (al_ustr_has_prefix_cstr(line, "#") || al_ustr_size(line) == 0) {
