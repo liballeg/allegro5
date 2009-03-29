@@ -271,7 +271,7 @@ static void configure_logging(void)
    }
 
    v = al_get_config_value(sys->config, "trace", "timestamps");
-   if (v && strcmp(v, "0"))
+   if (!v || strcmp(v, "0"))
       _al_debug_info.flags |= 4;
    else
       _al_debug_info.flags &= ~4;
@@ -298,7 +298,6 @@ bool _al_trace_prefix(char const *channel, int level,
 {
    int i;
    char *name;
-   double t = al_current_time();
 
    /* XXX logging should be reconfigured if the system driver is reinstalled */
    if (!_al_debug_info.configured) {
@@ -324,12 +323,15 @@ yes:
    if (_al_debug_info.flags & 1) al_trace("%20s:%-4d ",
       name ? name + 1 : file, line);
    if (_al_debug_info.flags & 2) al_trace("%-32s ", function);
-   /* Kludge:
-    * Very high timers (more than a year?) likely mean the timer
-    * subsystem isn't initialized yet, so print 0.
-    */
-   if (t > 3600 * 24 * 365) t = 0;
-   if (_al_debug_info.flags & 4) al_trace("[%10.5f] ", t);
+   if (_al_debug_info.flags & 4) {
+      double t = al_current_time();
+      /* Kludge:
+       * Very high timers (more than a year?) likely mean the timer
+       * subsystem isn't initialized yet, so print 0.
+       */
+      if (t > 3600 * 24 * 365) t = 0;
+      al_trace("[%10.5f] ", t);
+   }
 
    return true;
 }
