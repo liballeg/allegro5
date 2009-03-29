@@ -590,4 +590,67 @@ void al_destroy_config(ALLEGRO_CONFIG *config)
    _AL_FREE(config);
 }
 
+
+/* Function: al_get_first_config_section
+ */
+char const *al_get_first_config_section(ALLEGRO_CONFIG const *config,
+   void **iterator)
+{
+   ALLEGRO_CONFIG_SECTION *s = config->head;
+   if (iterator) *iterator = s;
+   return s ? al_cstr(s->name) : NULL;
+}
+
+
+/* Function: al_get_next_config_section
+ */
+char const *al_get_next_config_section(void **iterator)
+{
+   ALLEGRO_CONFIG_SECTION *s;
+   if (!iterator) return NULL;
+   s = *iterator;
+   if (s) s = s->next;
+   *iterator = s;
+   return s ? al_cstr(s->name) : NULL;
+}
+
+
+/* Function: al_get_first_config_entry
+ */
+char const *al_get_first_config_entry(ALLEGRO_CONFIG const *config,
+   char const *section, void **iterator)
+{
+   ALLEGRO_USTR_INFO section_info;
+   ALLEGRO_USTR *usection;
+   ALLEGRO_CONFIG_SECTION *s;
+   ALLEGRO_CONFIG_ENTRY *e;
+
+   if (section == NULL)
+      section = "";
+
+   usection = al_ref_cstr(&section_info, section);
+   s = find_section(config, usection);
+   if (!s) return NULL;
+   e = s->head;
+   while (e && e->is_comment)
+      e = e->next;
+   if (iterator) *iterator = e;
+   return e ? al_cstr(e->key) : NULL;
+}
+
+
+/* Function: al_get_next_config_entry
+ */
+char const *al_get_next_config_entry(void **iterator)
+{
+   ALLEGRO_CONFIG_ENTRY *e;
+   if (!iterator) return NULL;
+   e = *iterator;
+   if (e) e = e->next;
+   while (e && e->is_comment)
+      e = e->next;
+   *iterator = e;
+   return e ? al_cstr(e->key) : NULL;
+}
+
 /* vim: set sts=3 sw=3 et: */

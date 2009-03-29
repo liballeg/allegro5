@@ -1,6 +1,9 @@
 #ifndef AINTERN_CONFIG_H
 #define AINTERN_CONFIG_H
 
+typedef struct ALLEGRO_CONFIG_ENTRY ALLEGRO_CONFIG_ENTRY;
+typedef struct ALLEGRO_CONFIG_SECTION ALLEGRO_CONFIG_SECTION;
+
 struct ALLEGRO_CONFIG_ENTRY {
    bool is_comment;
    ALLEGRO_USTR *key;    /* comment if is_comment is true */

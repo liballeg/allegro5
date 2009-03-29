@@ -3,13 +3,6 @@
 
 ## API: ALLEGRO_CONFIG
 
-
-## API: ALLEGRO_CONFIG_ENTRY
-
-
-## API: ALLEGRO_CONFIG_SECTION
-
-
 ## API: al_add_config_comment
 
 Add a comment in a section of a configuration.  If the section doesn't yet
@@ -77,3 +70,34 @@ and remove them when reading the values back in.
 Write out a configuration file to disk.
 Returns zero on success, non-zero on error.
 
+## API: al_get_first_config_section
+
+Returns the name of the first section in the given config file. Usually
+this will return an empty string for the global section. The `iterator`
+parameter will receive an opaque iterator which is used by
+[al_get_next_config_section] to iterate over the remaining sections.
+
+Note:
+The returned string and the iterator are only valid as long as no
+change is made to the passed ALLEGRO_CONFIG.
+
+## API: al_get_next_config_section
+
+Returns the name of the next section in the given config file. The
+`iterator` must have been obtained with [al_get_first_config_section]
+first.
+
+## API: al_get_first_config_entry
+
+Returns the name of the first key in the given section in the given
+config. The `iterator` works like the one for
+[al_get_first_config_section].
+
+Note:
+The returned string and the iterator are only valid as long as no
+change is made to the passed ALLEGRO_CONFIG.
+
+## API: al_get_next_config_entry
+
+Returns the next key for the iterator obtained by
+[al_get_first_config_entry];
