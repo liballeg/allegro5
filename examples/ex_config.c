@@ -35,7 +35,7 @@ int main(void)
    TEST("section var", value && !strcmp(value, "old section value"));
 
    value = al_get_config_value(cfg, "", "mysha.xpm");
-   TEST("long value", strlen(value) == 1394);
+   TEST("long value", value && strlen(value) == 1394);
    
    /* Test whether iterating through our whole sample.cfg returns all
     * sections and entries, in order.
