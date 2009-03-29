@@ -8,6 +8,8 @@
 #include <ft2build.h>
 #include FT_FREETYPE_H
 
+ALLEGRO_DEBUG_CHANNEL("font");
+
 typedef struct ALLEGRO_TTF_GLYPH_DATA
 {
     ALLEGRO_BITMAP *bitmap;
@@ -293,17 +295,17 @@ ALLEGRO_FONT *al_load_ttf_font(char const *filename, int size, int flags)
     path = al_path_create(filename);
     if (!strcmp(al_path_get_extension(path), ".pfa")) {
         const char *helper;
-        TRACE("a5-ttf: Type1 font assumed for %s.\n", filename);
+        ALLEGRO_DEBUG("Type1 font assumed for %s.\n", filename);
 
         al_path_set_extension(path, ".afm");
         helper = al_path_to_string(path, '/');
         FT_Attach_File(face, helper); 
-        TRACE("a5-ttf: Guessed afm file %s.\n", helper);
+        ALLEGRO_DEBUG("Guessed afm file %s.\n", helper);
 
         al_path_set_extension(path, ".tfm");
         helper = al_path_to_string(path, '/');
         FT_Attach_File(face, helper); 
-        TRACE("a5-ttf: Guessed tfm file %s.\n", helper);
+        ALLEGRO_DEBUG("Guessed tfm file %s.\n", helper);
     }
     al_path_free(path);
 
@@ -323,9 +325,9 @@ ALLEGRO_FONT *al_load_ttf_font(char const *filename, int size, int flags)
        FT_Request_Size(face, &req);
     }
     
-    TRACE("al-ttf: Font %s loaded with pixel size %d.\n", filename,
+    ALLEGRO_DEBUG("Font %s loaded with pixel size %d.\n", filename,
         size);
-    TRACE("al-ttf:     ascent=%.1f, descent=%.1f, height=%.1f\n",
+    ALLEGRO_DEBUG("    ascent=%.1f, descent=%.1f, height=%.1f\n",
         face->size->metrics.ascender / 64.0,
         face->size->metrics.descender / 64.0,
         face->size->metrics.height / 64.0);
@@ -344,7 +346,7 @@ ALLEGRO_FONT *al_load_ttf_font(char const *filename, int size, int flags)
     data->cache = _AL_MALLOC(bytes);
     memset(data->cache, 0, bytes);
     _al_vector_init(&data->cache_bitmaps, sizeof(ALLEGRO_BITMAP*));
-    TRACE("al-ttf: %s: Preparing cache for %d glyphs.\n", filename, m);
+    ALLEGRO_DEBUG("%s: Preparing cache for %d glyphs.\n", filename, m);
 
     f = _AL_MALLOC(sizeof *f);
     f->height = face->size->metrics.height >> 6;

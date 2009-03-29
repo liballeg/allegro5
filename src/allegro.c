@@ -45,10 +45,16 @@ struct
    /* 1: line number, 2: function name, 4: timestamp */
    int flags;
    /* List of channels to log. NULL to log all channels. */
-   ALLEGRO_USTR **channels;
+   _AL_VECTOR channels;
+   _AL_VECTOR excluded;
    /* Whether settings have been read from allegro.cfg or not. */
    bool configured;
-} _al_debug_info = {0, 7, NULL, false};
+} _al_debug_info = {
+   0,
+   7,
+   _AL_VECTOR_INITIALIZER(ALLEGRO_USTR *),
+   _AL_VECTOR_INITIALIZER(ALLEGRO_USTR *),
+   false};
 
 /* dynamic registration system for cleanup code */
 struct al_exit_func {
@@ -206,6 +212,17 @@ void al_assert(AL_CONST char *file, int line)
 }
 
 
+static void delete_string_list(_AL_VECTOR *v)
+{
+   while (_al_vector_is_nonempty(v)) {
+      int i = _al_vector_size(v) - 1;
+      ALLEGRO_USTR **iter = _al_vector_ref(v, i);
+      al_ustr_free(*iter);
+      _al_vector_delete_at(v, i);
+   }
+   _al_vector_free(v);
+}
+
 
 static void configure_logging(void)
 {
@@ -222,45 +239,39 @@ static void configure_logging(void)
 
    v = al_get_config_value(sys->config, "trace", "channels");
    if (v) {
-      ALLEGRO_USTR **channels = NULL;
       ALLEGRO_USTR_INFO uinfo;
       ALLEGRO_USTR *u = al_ref_cstr(&uinfo, v);
       int pos = 0;
-      int n = 0;
 
       while (pos >= 0) {
          int comma = al_ustr_find_chr(u, pos, ',');
-         ALLEGRO_USTR *u2;
+         int first;
+         ALLEGRO_USTR *u2, **iter;
          if (comma == -1)
             u2 = al_ustr_dup_substr(u, pos, al_ustr_length(u));
          else
             u2 = al_ustr_dup_substr(u, pos, comma);
          al_ustr_trim_ws(u2);
-         n++;
-         channels = _AL_REALLOC(channels, n * sizeof *channels);
-         channels[n - 1] = u2;
-         if (!strcmp(al_cstr(u2), "all"))
-            got_all = true;
+         first = al_ustr_get(u2, 0);
+
+         if (first == '-') {
+            al_ustr_remove_chr(u2, 0);
+            iter = _al_vector_alloc_back(&_al_debug_info.excluded);
+            *iter = u2;
+         }
+         else {
+            if (first == '+') al_ustr_remove_chr(u2, 0);
+            iter = _al_vector_alloc_back(&_al_debug_info.channels);
+            *iter = u2;
+            if (!strcmp(al_cstr(u2), "all"))
+               got_all = true;
+         }
          pos = comma;
          al_ustr_get_next(u, &pos);
       }
 
-      /* Sentinel. */
-      n++;
-      channels = _AL_REALLOC(channels, n * sizeof *channels);
-      channels[n - 1] = NULL;
-
-      _al_debug_info.channels = channels;
-
-      if (got_all) {
-         int i;
-
-         for (i = 0; _al_debug_info.channels[i]; i++) {
-            al_ustr_free(_al_debug_info.channels[i]);
-         }
-         _AL_FREE(_al_debug_info.channels);
-         _al_debug_info.channels = NULL;
-      }
+      if (got_all)
+         delete_string_list(&_al_debug_info.channels);
    }
 
    v = al_get_config_value(sys->config, "trace", "level");
@@ -296,8 +307,9 @@ static void configure_logging(void)
 bool _al_trace_prefix(char const *channel, int level,
    char const *file, int line, char const *function)
 {
-   int i;
+   size_t i;
    char *name;
+   _AL_VECTOR const *v;
 
    /* XXX logging should be reconfigured if the system driver is reinstalled */
    if (!_al_debug_info.configured) {
@@ -305,14 +317,23 @@ bool _al_trace_prefix(char const *channel, int level,
    }
 
    if (level < _al_debug_info.level) return false;
-   if (_al_debug_info.channels == NULL) goto yes;
-   if (_al_debug_info.channels[0] == NULL) return false;
-   for (i = 0; _al_debug_info.channels[i]; i++) {
-      if (!strcmp(al_cstr(_al_debug_info.channels[i]), channel))
+   v = &_al_debug_info.channels;
+   if (_al_vector_is_empty(v)) goto yes;
+   for (i = 0; i < _al_vector_size(v); i++) {
+      ALLEGRO_USTR **iter = _al_vector_ref(v, i);
+      if (!strcmp(al_cstr(*iter), channel))
          goto yes;
    }
    return false;
 yes:
+   v = &_al_debug_info.excluded;
+   if (_al_vector_is_nonempty(v)) {
+      for (i = 0; i < _al_vector_size(v); i++) {
+         ALLEGRO_USTR **iter = _al_vector_ref(v, i);
+         if (!strcmp(al_cstr(*iter), channel))
+            return false;
+      }
+   }
    al_trace("%-8s ", channel);
    if (level == 0) al_trace("D ");
    if (level == 1) al_trace("I ");
