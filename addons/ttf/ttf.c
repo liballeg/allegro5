@@ -8,7 +8,7 @@
 #include <ft2build.h>
 #include FT_FREETYPE_H
 
-ALLEGRO_DEBUG_CHANNEL("font");
+ALLEGRO_DEBUG_CHANNEL("font")
 
 typedef struct ALLEGRO_TTF_GLYPH_DATA
 {
