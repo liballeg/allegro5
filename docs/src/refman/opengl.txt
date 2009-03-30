@@ -69,7 +69,7 @@ Example:
     bitmap = al_load_bitmap("my_texture.png");
     texture = al_get_opengl_texture(bitmap);
     if (texture != 0)
-        glBind(GL_TEXTURE_2D, texture);
+        glBindTexture(GL_TEXTURE_2D, texture);
 
 ## API: al_is_opengl_extension_supported
 
