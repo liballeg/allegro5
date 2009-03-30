@@ -14,6 +14,31 @@ function(append_lib_linkage_suffix var)
     endif(NOT BUILD_SHARED_LIBS)
 endfunction(append_lib_linkage_suffix)
 
+# Oh my. CMake really is bad for this - but I couldn't find a better
+# way.
+function(sanitize_cmake_link_flags ...)
+   SET(return)
+   foreach(lib ${ARGV})
+
+      # Remove absolute path.
+      string(REGEX REPLACE "/.*/(.*)" "\\1" lib ${lib})
+
+      # Remove .a/.so.
+      string(REGEX REPLACE "lib(.*)\\.a" "\\1" lib ${lib})
+      string(REGEX REPLACE "lib(.*)\\.so" "\\1" lib ${lib})
+
+      # Remove -l prefix if it's there already.
+      string(REGEX REPLACE "-l(.*)" "\\1" lib ${lib})
+      
+      # Make sure we don't include our own libraries.
+      # FIXME: Use a global list instead of a very unstable regexp.
+      IF(NOT lib MATCHES "a5_.*" AND NOT lib STREQUAL "allegro")
+         set(return "${return} -l${lib}")
+      ENDIF()
+   endforeach(lib)
+   set(return ${return} PARENT_SCOPE)
+endfunction(sanitize_cmake_link_flags)
+
 function(add_our_library target name_suffix sources extra_flags link_with)
 
     # Construct the output name.
@@ -34,12 +59,15 @@ function(add_our_library target name_suffix sources extra_flags link_with)
 
     # BUILD_SHARED_LIBS controls whether this is a shared or static library.
     add_library(${target} ${sources})
+    
+    sanitize_cmake_link_flags(${link_with})
 
     set_target_properties(${target}
         PROPERTIES
         COMPILE_FLAGS "${extra_flags} ${static_flag}"
         LINK_FLAGS "${LIBRARY_LINK_FLAGS}"
         OUTPUT_NAME ${output_name}
+        static_link_with "${return}"
         )
 
     # Specify a list of libraries to be linked into the specified target.

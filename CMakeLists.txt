@@ -831,7 +831,10 @@ if(UNIX)
     append_lib_linkage_suffix(lib_linkage)
 
     foreach(name ${PKG_CONFIG_FILES})
-        set(outname ${name}${lib_type}${lib_linkage}-4.9.pc)
+        # For static linking: get extra libraries to link with.
+        get_target_property(link_with ${name} static_link_with)
+
+        set(outname ${name}${lib_type}-4.9.pc)
         configure_file(
             misc/${name}-4.9.pc.in
             ${LIBRARY_OUTPUT_PATH}/pkgconfig/${outname}

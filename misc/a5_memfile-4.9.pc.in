@@ -9,5 +9,6 @@ Name: a5_memfile
 Description: Allegro game programming library, memory files addon
 Version: ${version}
 Libs: -L${libdir} -la5_memfile${suffix}-${version}
-Requires: allegro${suffix}-4.9 >= ${version}
+Libs.private: @link_with@
+Requires: allegro@lib_type@-4.9 >= ${version}
 Cflags: -I${includedir}

@@ -9,4 +9,5 @@ Name: allegro
 Description: Allegro game programming library
 Version: ${version}
 Libs: -L${libdir} -lallegro${suffix}-${version}
+Libs.private: @link_with@
 Cflags: -I${includedir}

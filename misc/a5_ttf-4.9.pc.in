@@ -9,5 +9,6 @@ Name: a5_ttf
 Description: Allegro game programming library, TrueType fonts addon
 Version: ${version}
 Libs: -L${libdir} -la5_ttf${suffix}-${version}
-Requires: a5_font${suffix}-4.9 >= ${version}
+Libs.private: @link_with@
+Requires: a5_font@lib_type@-4.9 >= ${version}
 Cflags: -I${includedir}

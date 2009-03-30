@@ -9,5 +9,6 @@ Name: a5_font
 Description: Allegro game programming library, font addon
 Version: ${version}
 Libs: -L${libdir} -la5_font${suffix}-${version}
-Requires: a5_iio${suffix}-4.9 >= ${version}
+Libs.private: @link_with@
+Requires: a5_iio@lib_type@-4.9 >= ${version}
 Cflags: -I${includedir}
