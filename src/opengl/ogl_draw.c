@@ -20,7 +20,8 @@
 
 
 
-static void set_opengl_blending(ALLEGRO_COLOR *color)
+static bool set_opengl_blending(ALLEGRO_DISPLAY *d,
+   ALLEGRO_COLOR *color)
 {
    const int blend_modes[4] = {
       GL_ZERO, GL_ONE, GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA
@@ -33,11 +34,25 @@ static void set_opengl_blending(ALLEGRO_COLOR *color)
 
    al_get_separate_blender(&src_color, &dst_color, &src_alpha,
       &dst_alpha, NULL);
-   glEnable(GL_BLEND);
-   glBlendFuncSeparate(blend_modes[src_color], blend_modes[dst_color],
-      blend_modes[src_alpha], blend_modes[dst_alpha]);
-   bc = _al_get_blend_color();
-   glColor4f(r * bc->r, g * bc->g, b * bc->b, a * bc->a);
+   if (d->ogl_extras->ogl_info.version >= 1.4) {
+      glEnable(GL_BLEND);
+      glBlendFuncSeparate(blend_modes[src_color],
+         blend_modes[dst_color], blend_modes[src_alpha],
+         blend_modes[dst_alpha]);
+      bc = _al_get_blend_color();
+      glColor4f(r * bc->r, g * bc->g, b * bc->b, a * bc->a);
+      return true;
+   }
+   else {
+      if (src_color == src_alpha && dst_color == dst_alpha) {
+         glEnable(GL_BLEND);
+         glBlendFunc(blend_modes[src_color], blend_modes[dst_color]);
+         bc = _al_get_blend_color();
+         glColor4f(r * bc->r, g * bc->g, b * bc->b, a * bc->a);
+         return true;
+      }
+   }
+   return false;
 }
 
 
@@ -50,8 +65,9 @@ static void ogl_clear(ALLEGRO_DISPLAY *d, ALLEGRO_COLOR *color)
    ALLEGRO_BITMAP_OGL *ogl_target = (void *)target;
    float r, g, b, a;
 
-   if ((!ogl_target->is_backbuffer && ogl_disp->ogl_extras->opengl_target != ogl_target)
-     || target->locked) {
+   if ((!ogl_target->is_backbuffer &&
+      ogl_disp->ogl_extras->opengl_target != ogl_target) ||
+      target->locked) {
       _al_clear_memory(color);
       return;
    }
@@ -67,12 +83,12 @@ static void ogl_clear(ALLEGRO_DISPLAY *d, ALLEGRO_COLOR *color)
 static void ogl_draw_pixel(ALLEGRO_DISPLAY *d, float x, float y,
    ALLEGRO_COLOR *color)
 {
-   ALLEGRO_DISPLAY *ogl_disp = (void *)d;
    ALLEGRO_BITMAP *target = al_get_target_bitmap();
    ALLEGRO_BITMAP_OGL *ogl_target = (void *)target;
 
-   if ((!ogl_target->is_backbuffer && ogl_disp->ogl_extras->opengl_target != ogl_target)
-      || target->locked)  {
+   if ((!ogl_target->is_backbuffer &&
+      d->ogl_extras->opengl_target != ogl_target) ||
+      target->locked || !set_opengl_blending(d, color))  {
       _al_draw_pixel_memory(target, x, y, color);
       return;
    }
@@ -83,7 +99,6 @@ static void ogl_draw_pixel(ALLEGRO_DISPLAY *d, float x, float y,
       y += target->yofs;
    }
 
-   set_opengl_blending(color);
    glBegin(GL_POINTS);
    glVertex2d(x, y);
    glEnd();
