@@ -73,7 +73,6 @@ typedef struct ALLEGRO_VBUFFER ALLEGRO_VBUFFER;
  */
 typedef struct {
   float x, y, z;
-  float nx, ny, nz;
   uint32_t d3d_color;
   float u, v;
   float r, g, b, a;
