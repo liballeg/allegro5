@@ -214,13 +214,12 @@ Locks a range of the vertex buffer.
 
 * vbuff - Vertex buffer to lock
 * start, end - Range to lock
-* type - Lock type; can be read, write or both
 
 *Returns:*
 1 if locking was successful, 0 otherwise
 
 *See Also:*
-[ALLEGRO_VBUFFER], [ALLEGRO_VBUFFER_FLAGS]
+[ALLEGRO_VBUFFER]
 
 ## API: al_lock_vbuff
 
@@ -229,13 +228,12 @@ Locks a the whole vertex buffer.
 *Parameters:*
 
  * vbuff - Vertex buffer to lock
- * type - Lock type; can be read, write or both
 
 *Returns:*
 1 if locking was successful, 0 otherwise
 
 *See Also:*
-[ALLEGRO_VBUFFER], [ALLEGRO_VBUFFER_FLAGS]
+[ALLEGRO_VBUFFER]
 
 ## API: al_unlock_vbuff
 
@@ -511,15 +509,13 @@ Enumerates the types of primitves this addon can draw.
 
 ## API: ALLEGRO_VBUFFER_FLAGS
 
-Enumerates the flags that describe vertex buffers, and access to them.
+Enumerates the flags that describe vertex buffers, and access to them. When no flags are set, the vertex buffer is assumed to be an unlocked software 2D vertex buffer.
 
-* ALLEGRO_VBUFFER_SOFT - A software buffer, can be drawn by any backend
 * ALLEGRO_VBUFFER_VIDEO - A video buffer, can be drawn by the software backend, 
                           and the hardware accelerated backend that created it
 * ALLEGRO_VBUFFER_LOCKED - Signifies that the vertex buffer is locked, meaning you can access its values. A buffer
                            has to be unlocked before it can be drawn
-* ALLEGRO_VBUFFER_READ - Signifies that a buffer is read only, or that you are requesting read access
-* ALLEGRO_VBUFFER_WRITE - Signifies that a buffer is write only, or that you are requesting read access
+* ALLEGRO_VBUFFER_3D - Signifies that when drawing this buffer the z coordinate should be taken into account
 
 ## API: ALLEGRO_VERTEX_CACHE_SIZE
 

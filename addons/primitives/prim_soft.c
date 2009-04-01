@@ -59,7 +59,7 @@ int _al_draw_prim_soft(ALLEGRO_BITMAP* texture, ALLEGRO_VBUFFER* vbuff, int star
    num_vtx = end - start;
    use_cache = num_vtx < ALLEGRO_VERTEX_CACHE_SIZE;
    
-   if (!al_lock_vbuff_range(vbuff, start, end, ALLEGRO_VBUFFER_READ))
+   if (!al_lock_vbuff_range(vbuff, start, end))
       return 0;
       
    if (use_cache) {
@@ -240,7 +240,7 @@ int _al_draw_prim_indexed_soft(ALLEGRO_BITMAP* texture, ALLEGRO_VBUFFER* vbuff,
       use_cache = 0;
    }
    
-   if (!al_lock_vbuff_range(vbuff, min_idx, max_idx, ALLEGRO_VBUFFER_READ))
+   if (!al_lock_vbuff_range(vbuff, min_idx, max_idx))
       return 0;
       
    if (use_cache) {
@@ -425,12 +425,11 @@ void _al_prim_unlock_vbuff_soft(ALLEGRO_VBUFFER* vbuff)
    vbuff->flags &= ~ALLEGRO_VBUFFER_LOCKED;
 }
 
-int _al_prim_lock_vbuff_range_soft(ALLEGRO_VBUFFER* vbuff, int start, int end, int type)
+int _al_prim_lock_vbuff_range_soft(ALLEGRO_VBUFFER* vbuff, int start, int end)
 {
    vbuff->flags |= ALLEGRO_VBUFFER_LOCKED;
    vbuff->lock_start = start;
    vbuff->lock_end = end;
-   (void)type;
    return 1;
 }
 

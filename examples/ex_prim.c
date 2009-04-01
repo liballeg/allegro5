@@ -52,7 +52,7 @@ void FilledPrimitives(int mode)
    static ALLEGRO_VBUFFER* vbuff;
    if (mode == INIT) {
       int ii = 0;
-      vbuff = al_create_vbuff(21, ALLEGRO_VBUFFER_SOFT | ALLEGRO_VBUFFER_WRITE | ALLEGRO_VBUFFER_READ);
+      vbuff = al_create_vbuff(21, 0);
       for (ii = 0; ii < 21; ii++) {
          float x, y;
          ALLEGRO_COLOR color;
@@ -115,7 +115,7 @@ void IndexedFilledPrimitives(int mode)
    if (mode == INIT) {
       int ii = 0;
       ALLEGRO_COLOR color;
-      vbuff = al_create_vbuff(21, ALLEGRO_VBUFFER_SOFT | ALLEGRO_VBUFFER_WRITE | ALLEGRO_VBUFFER_READ);
+      vbuff = al_create_vbuff(21, 0);
       for (ii = 0; ii < 21; ii++) {
          float x, y;
          if (ii % 2 == 0) {
@@ -366,7 +366,7 @@ void LowPrimitives(int mode)
    if (mode == INIT) {
       int ii = 0;
       ALLEGRO_COLOR color;
-      vbuff = al_create_vbuff(13, ALLEGRO_VBUFFER_SOFT | ALLEGRO_VBUFFER_WRITE | ALLEGRO_VBUFFER_READ);
+      vbuff = al_create_vbuff(13, 0);
       for (ii = 0; ii < 13; ii++) {
          float x, y;
          x = 200 * cosf((float)ii / 13.0f * 2 * ALLEGRO_PI);
@@ -421,7 +421,7 @@ void IndexedPrimitives(int mode)
    if (mode == INIT) {
       int ii = 0;
       ALLEGRO_COLOR color;
-      vbuff = al_create_vbuff(13, ALLEGRO_VBUFFER_SOFT | ALLEGRO_VBUFFER_WRITE | ALLEGRO_VBUFFER_READ);
+      vbuff = al_create_vbuff(13, 0);
       for (ii = 0; ii < 13; ii++) {
          float x, y;
          x = 200 * cosf((float)ii / 13.0f * 2 * ALLEGRO_PI);

@@ -51,7 +51,7 @@ static int cache_point_size;
 static void verify_cache(void)
 {
    if (!cache_buffer) {
-      cache_buffer = al_create_vbuff(ALLEGRO_VBUFF_CACHE_SIZE, ALLEGRO_VBUFFER_SOFT | ALLEGRO_VBUFFER_WRITE | ALLEGRO_VBUFFER_READ);
+      cache_buffer = al_create_vbuff(ALLEGRO_VBUFF_CACHE_SIZE, 0);
    }
 }
 
@@ -100,7 +100,7 @@ void al_draw_line(float x1, float y1, float x2, float y2,
       tx = 0.5f * thickness * (y2 - y1) / len;
       ty = 0.5f * thickness * -(x2 - x1) / len;
       
-      if (!al_lock_vbuff_range(cache_buffer, 0, 4, ALLEGRO_VBUFFER_WRITE))
+      if (!al_lock_vbuff_range(cache_buffer, 0, 4))
          return;
             
       al_set_vbuff_pos(cache_buffer, 0, x1 + tx, y1 + ty, 0);   
@@ -116,7 +116,7 @@ void al_draw_line(float x1, float y1, float x2, float y2,
       al_draw_prim(cache_buffer, 0, 0, 4, ALLEGRO_PRIM_TRIANGLE_FAN);
       
    } else {
-      if (!al_lock_vbuff_range(cache_buffer, 0, 2, ALLEGRO_VBUFFER_WRITE))
+      if (!al_lock_vbuff_range(cache_buffer, 0, 2))
          return;
          
       al_set_vbuff_pos(cache_buffer, 0, x1, y1, 0);
@@ -147,7 +147,7 @@ void al_draw_triangle(float x1, float y1, float x2, float y2,
       float vert_x1, vert_y1, vert_x2, vert_y2, vert_x3, vert_y3;
       float incircle_rad;
 
-      if (!al_lock_vbuff_range(cache_buffer, 0, 8, ALLEGRO_VBUFFER_WRITE))
+      if (!al_lock_vbuff_range(cache_buffer, 0, 8))
          return;      
       side1 = (float)hypot(x2 - x1, y2 - y1);
       side2 = (float)hypot(x3 - x1, y3 - y1);
@@ -196,7 +196,7 @@ void al_draw_triangle(float x1, float y1, float x2, float y2,
       al_draw_prim(cache_buffer, 0, 0, 8, ALLEGRO_PRIM_TRIANGLE_STRIP);
       
    } else {
-      if (!al_lock_vbuff_range(cache_buffer, 0, 3, ALLEGRO_VBUFFER_WRITE))
+      if (!al_lock_vbuff_range(cache_buffer, 0, 3))
          return;
          
       al_set_vbuff_pos(cache_buffer, 0, x1, y1, 0);
@@ -220,7 +220,7 @@ void al_draw_filled_triangle(float x1, float y1, float x2, float y2,
 {
    check_color_blending(&color);
    verify_cache();
-   if (!al_lock_vbuff_range(cache_buffer, 0, 3, ALLEGRO_VBUFFER_WRITE))
+   if (!al_lock_vbuff_range(cache_buffer, 0, 3))
       return;
       
    al_set_vbuff_pos(cache_buffer, 0, x1, y1, 0);
@@ -246,7 +246,7 @@ void al_draw_rectangle(float x1, float y1, float x2, float y2,
    verify_cache();
    if (thickness > 0) {
       float t = thickness / 2;
-      if (!al_lock_vbuff_range(cache_buffer, 0, 10, ALLEGRO_VBUFFER_WRITE))
+      if (!al_lock_vbuff_range(cache_buffer, 0, 10))
          return;
                
       al_set_vbuff_pos(cache_buffer, 0, x1 - t, y1 - t, 0);
@@ -267,7 +267,7 @@ void al_draw_rectangle(float x1, float y1, float x2, float y2,
       
       al_draw_prim(cache_buffer, 0, 0, 10, ALLEGRO_PRIM_TRIANGLE_STRIP);
    } else {
-      if (!al_lock_vbuff_range(cache_buffer, 0, 4, ALLEGRO_VBUFFER_WRITE))
+      if (!al_lock_vbuff_range(cache_buffer, 0, 4))
          return;
          
       al_set_vbuff_pos(cache_buffer, 0, x1, y1, 0);
@@ -291,7 +291,7 @@ void al_draw_filled_rectangle(float x1, float y1, float x2, float y2,
 {
    check_color_blending(&color);
    verify_cache();
-   if (!al_lock_vbuff_range(cache_buffer, 0, 4, ALLEGRO_VBUFFER_WRITE))
+   if (!al_lock_vbuff_range(cache_buffer, 0, 4))
       return;
       
    al_set_vbuff_pos(cache_buffer, 0, x1, y1, 0);
@@ -338,7 +338,7 @@ void al_calculate_arc(ALLEGRO_VBUFFER* vbuff, float cx, float cy,
          if (!al_vbuff_range_is_locked(vbuff, start, start + 2 * num_segments))
             return;
       } else {
-         if (!al_lock_vbuff_range(vbuff, start, start + 2 * num_segments, ALLEGRO_VBUFFER_WRITE))
+         if (!al_lock_vbuff_range(vbuff, start, start + 2 * num_segments))
             return;
          need_unlock = 1;
       }
@@ -385,7 +385,7 @@ void al_calculate_arc(ALLEGRO_VBUFFER* vbuff, float cx, float cy,
          if (!al_vbuff_range_is_locked(vbuff, start, start + num_segments))
             return;
       } else {
-         if (!al_lock_vbuff_range(vbuff, start, start + num_segments, ALLEGRO_VBUFFER_WRITE))
+         if (!al_lock_vbuff_range(vbuff, start, start + num_segments))
             return;
          need_unlock = 1;
       }
@@ -468,7 +468,7 @@ void al_draw_filled_ellipse(float cx, float cy, float rx, float ry,
       num_segments = ALLEGRO_VBUFF_CACHE_SIZE - 1;
    }
    
-   if (!al_lock_vbuff_range(cache_buffer, 0, num_segments + 1, ALLEGRO_VBUFFER_WRITE))
+   if (!al_lock_vbuff_range(cache_buffer, 0, num_segments + 1))
       return;
       
    al_calculate_arc(cache_buffer, cx, cy, rx, ry, 0, ALLEGRO_PI * 2, 0, 1, num_segments);
@@ -621,7 +621,7 @@ void al_draw_spline(float points[8], ALLEGRO_COLOR color, float thickness)
          num_segments = (ALLEGRO_VBUFF_CACHE_SIZE - 1) / 2;
       }
       
-      if (!al_lock_vbuff_range(cache_buffer, 0, 2 * num_segments, ALLEGRO_VBUFFER_WRITE))
+      if (!al_lock_vbuff_range(cache_buffer, 0, 2 * num_segments))
          return;
          
       al_calculate_spline(cache_buffer, points, thickness, 0, num_segments);
@@ -638,7 +638,7 @@ void al_draw_spline(float points[8], ALLEGRO_COLOR color, float thickness)
          num_segments = ALLEGRO_VBUFF_CACHE_SIZE - 1;
       }
       
-      if (!al_lock_vbuff_range(cache_buffer, 0, num_segments, ALLEGRO_VBUFFER_WRITE))
+      if (!al_lock_vbuff_range(cache_buffer, 0, num_segments))
          return;
          
       al_calculate_spline(cache_buffer, points, thickness, 0, num_segments);
@@ -679,7 +679,7 @@ void al_calculate_ribbon(ALLEGRO_VBUFFER* vbuff, const float *points,
          if (!al_vbuff_range_is_locked(vbuff, start, start + 2 * num_segments))
             return;
       } else {
-         if (!al_lock_vbuff_range(vbuff, start, start + 2 * num_segments, ALLEGRO_VBUFFER_WRITE))
+         if (!al_lock_vbuff_range(vbuff, start, start + 2 * num_segments))
             return;
          need_unlock = 1;
       }
@@ -739,7 +739,7 @@ void al_calculate_ribbon(ALLEGRO_VBUFFER* vbuff, const float *points,
          if (!al_vbuff_range_is_locked(vbuff, start, start + num_segments))
             return;
       } else {
-         if (!al_lock_vbuff_range(vbuff, start, start + num_segments, ALLEGRO_VBUFFER_WRITE))
+         if (!al_lock_vbuff_range(vbuff, start, start + num_segments))
             return;
          need_unlock = 1;
       }
@@ -762,7 +762,7 @@ void al_draw_ribbon(const float *points, ALLEGRO_COLOR color, float thickness,
    verify_cache();
    
    if (thickness > 0) {
-      if (!al_lock_vbuff_range(cache_buffer, 0, 2 * num_segments, ALLEGRO_VBUFFER_WRITE))
+      if (!al_lock_vbuff_range(cache_buffer, 0, 2 * num_segments))
          return;
          
       al_calculate_ribbon(cache_buffer, points, thickness, 0, num_segments);
@@ -775,7 +775,7 @@ void al_draw_ribbon(const float *points, ALLEGRO_COLOR color, float thickness,
       
       al_draw_prim(cache_buffer, 0, 0, 2 * num_segments, ALLEGRO_PRIM_TRIANGLE_STRIP);
    } else {
-      if (!al_lock_vbuff_range(cache_buffer, 0, num_segments, ALLEGRO_VBUFFER_WRITE))
+      if (!al_lock_vbuff_range(cache_buffer, 0, num_segments))
          return;
          
       al_calculate_ribbon(cache_buffer, points, thickness, 0, num_segments);

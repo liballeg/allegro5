@@ -46,11 +46,9 @@ enum ALLEGRO_PRIM_TYPE {
 /* Enum: ALLEGRO_VBUFFER_FLAGS
  */
 enum ALLEGRO_VBUFFER_FLAGS {
-  ALLEGRO_VBUFFER_SOFT =   1 << 0,
-  ALLEGRO_VBUFFER_VIDEO =  1 << 1,
-  ALLEGRO_VBUFFER_LOCKED = 1 << 2,
-  ALLEGRO_VBUFFER_READ =   1 << 3,
-  ALLEGRO_VBUFFER_WRITE =  1 << 4
+  ALLEGRO_VBUFFER_VIDEO =  1 << 0,
+  ALLEGRO_VBUFFER_LOCKED = 1 << 1,
+  ALLEGRO_VBUFFER_3D     = 1 << 2
 };
 
 /* Enum: ALLEGRO_VERTEX_CACHE_SIZE
@@ -96,8 +94,8 @@ A5_PRIM_FUNC(ALLEGRO_VBUFFER*, al_create_vbuff, (int len, int type));
 A5_PRIM_FUNC(void, al_destroy_vbuff, (ALLEGRO_VBUFFER* vbuff));
 
 A5_PRIM_FUNC(void, al_unlock_vbuff, (ALLEGRO_VBUFFER* vbuff));
-A5_PRIM_FUNC(int, al_lock_vbuff, (ALLEGRO_VBUFFER* vbuff, int type));
-A5_PRIM_FUNC(int, al_lock_vbuff_range, (ALLEGRO_VBUFFER* vbuff, int start, int end, int type));
+A5_PRIM_FUNC(int, al_lock_vbuff, (ALLEGRO_VBUFFER* vbuff));
+A5_PRIM_FUNC(int, al_lock_vbuff_range, (ALLEGRO_VBUFFER* vbuff, int start, int end));
 A5_PRIM_FUNC(int, al_vbuff_is_locked, (ALLEGRO_VBUFFER* vbuff));
 A5_PRIM_FUNC(int, al_vbuff_range_is_locked, (ALLEGRO_VBUFFER* vbuff, int start, int end));
 A5_PRIM_FUNC(void, al_set_vbuff_pos, (ALLEGRO_VBUFFER* vbuff, int idx, float x, float y, float z));

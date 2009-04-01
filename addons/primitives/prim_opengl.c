@@ -206,7 +206,9 @@ static int draw_indexed_soft_vbuff(ALLEGRO_BITMAP* texture, ALLEGRO_VBUFFER* vbu
 int _al_draw_prim_opengl(ALLEGRO_BITMAP* texture, ALLEGRO_VBUFFER* vbuff, int start, int end, int type)
 {
 #ifdef ALLEGRO_CFG_OPENGL
-   if (vbuff->flags & ALLEGRO_VBUFFER_SOFT) {
+   if (vbuff->flags & ALLEGRO_VBUFFER_VIDEO) {
+      ASSERT(0);
+   } else {
       return draw_soft_vbuff(texture, vbuff, start, end, type);
    }
 #endif
@@ -216,7 +218,9 @@ int _al_draw_prim_opengl(ALLEGRO_BITMAP* texture, ALLEGRO_VBUFFER* vbuff, int st
 int _al_draw_prim_indexed_opengl(ALLEGRO_BITMAP* texture, ALLEGRO_VBUFFER* vbuff, const int* indices, int num_vtx, int type)
 {
 #ifdef ALLEGRO_CFG_OPENGL
-   if (vbuff->flags & ALLEGRO_VBUFFER_SOFT) {
+   if (vbuff->flags & ALLEGRO_VBUFFER_VIDEO) {
+      ASSERT(0);
+   } else {
       return draw_indexed_soft_vbuff(texture, vbuff, indices, num_vtx, type);
    }
    return 0;

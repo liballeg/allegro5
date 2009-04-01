@@ -13,7 +13,7 @@ int _al_draw_prim_indexed_soft(ALLEGRO_BITMAP* texture, ALLEGRO_VBUFFER* vbuff, 
 void _al_line_2d(ALLEGRO_BITMAP* texture, ALLEGRO_VERTEX* v1, ALLEGRO_VERTEX* v2);
 void _al_triangle_2d(ALLEGRO_BITMAP* texture, ALLEGRO_VERTEX* v1, ALLEGRO_VERTEX* v2, ALLEGRO_VERTEX* v3);
 
-int _al_prim_lock_vbuff_range_soft(ALLEGRO_VBUFFER* vbuff, int start, int end, int type);
+int _al_prim_lock_vbuff_range_soft(ALLEGRO_VBUFFER* vbuff, int start, int end);
 void _al_prim_unlock_vbuff_soft(ALLEGRO_VBUFFER* vbuff);
 
 void _al_set_vbuff_pos_soft(ALLEGRO_VBUFFER* vbuff, int idx, float x, float y, float z);
