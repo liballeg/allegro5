@@ -102,7 +102,6 @@ A5_PRIM_FUNC(int, al_lock_vbuff_range, (ALLEGRO_VBUFFER* vbuff, int start, int e
 A5_PRIM_FUNC(int, al_vbuff_is_locked, (ALLEGRO_VBUFFER* vbuff));
 A5_PRIM_FUNC(int, al_vbuff_range_is_locked, (ALLEGRO_VBUFFER* vbuff, int start, int end));
 A5_PRIM_FUNC(void, al_set_vbuff_pos, (ALLEGRO_VBUFFER* vbuff, int idx, float x, float y, float z));
-A5_PRIM_FUNC(void, al_set_vbuff_normal, (ALLEGRO_VBUFFER* vbuff, int idx, float nx, float ny, float nz));
 A5_PRIM_FUNC(void, al_set_vbuff_uv, (ALLEGRO_VBUFFER* vbuff, int idx, float u, float v));
 A5_PRIM_FUNC(void, al_set_vbuff_color, (ALLEGRO_VBUFFER* vbuff, int idx, const ALLEGRO_COLOR col));
 

@@ -17,7 +17,6 @@ int _al_prim_lock_vbuff_range_soft(ALLEGRO_VBUFFER* vbuff, int start, int end, i
 void _al_prim_unlock_vbuff_soft(ALLEGRO_VBUFFER* vbuff);
 
 void _al_set_vbuff_pos_soft(ALLEGRO_VBUFFER* vbuff, int idx, float x, float y, float z);
-void _al_set_vbuff_normal_soft(ALLEGRO_VBUFFER* vbuff, int idx, float nx, float ny, float nz);
 void _al_set_vbuff_uv_soft(ALLEGRO_VBUFFER* vbuff, int idx, float u, float v);
 void _al_set_vbuff_color_soft(ALLEGRO_VBUFFER* vbuff, int idx, const ALLEGRO_COLOR col);
 

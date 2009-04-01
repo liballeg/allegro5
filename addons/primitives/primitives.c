@@ -253,25 +253,6 @@ void al_set_vbuff_pos(ALLEGRO_VBUFFER* vbuff, int idx,
    }
 }
 
-/* Function: al_set_vbuff_normal
- */
-void al_set_vbuff_normal(ALLEGRO_VBUFFER* vbuff, int idx,
-   float nx, float ny, float nz)
-{
-   int unlock;
-   ASSERT(vbuff);
-   
-   unlock = _al_prim_check_lock_pos(vbuff, idx, ALLEGRO_VBUFFER_WRITE);
-   if (vbuff->flags & ALLEGRO_VBUFFER_SOFT) {
-      _al_set_vbuff_normal_soft(vbuff, idx, nx, ny, nz);
-   } else {
-      ASSERT(0);
-   }
-   if (unlock) {
-      al_unlock_vbuff(vbuff);
-   }
-}
-
 /* Function: al_set_vbuff_uv
  */
 void al_set_vbuff_uv(ALLEGRO_VBUFFER* vbuff, int idx, float u, float v)

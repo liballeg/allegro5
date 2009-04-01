@@ -289,16 +289,6 @@ Sets the position variables of a vertex in a vertex buffer.
 * idx - Index of the vertex to modify
 * x, y, z - New position
 
-## API: al_set_vbuff_normal
-
-Sets the normal variables of a vertex in a vertex buffer.
-
-*Parameters:*
-
-* vbuff - Vertex buffer to modify
-* idx - Index of the vertex to modify
-* nx, ny, nz - New normal
-
 ## API: al_set_vbuff_uv
 
 Sets the uv coordinates of a vertex in a vertex buffer.
@@ -487,13 +477,12 @@ Transform a transformation.
 
 ## API: ALLEGRO_VERTEX
 
-Defines the generic vertex type, with a 3D position, 3D normal, 4 component colour and texture coordinates
+Defines the generic vertex type, with a 3D position, 4 component colour and texture coordinates
 for a single texture. If the vertex is within the `ALLEGRO_VBUFFER` You should use the `al_set_vbuff_*` functions to
 manipulate the values within this struct.
 
 * x, y, z - Position of the vertex. Use z = 0 if you are only dealing with 2D primitives
 * r, g, b, a - Color components
-* nx, ny, nz - Normal components
 * u, v - Texture coordinates
 
 ## API: ALLEGRO_TRANSFORM

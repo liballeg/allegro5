@@ -442,14 +442,6 @@ void _al_set_vbuff_pos_soft(ALLEGRO_VBUFFER* vbuff, int idx, float x, float y, f
    vtx->z = z;
 }
 
-void _al_set_vbuff_normal_soft(ALLEGRO_VBUFFER* vbuff, int idx, float nx, float ny, float nz)
-{
-   ALLEGRO_VERTEX* vtx = &((ALLEGRO_VERTEX*)vbuff->data)[idx];
-   vtx->nx = nx;
-   vtx->ny = ny;
-   vtx->nz = nz;
-}
-
 void _al_set_vbuff_uv_soft(ALLEGRO_VBUFFER* vbuff, int idx, float u, float v)
 {
    ALLEGRO_VERTEX* vtx = &((ALLEGRO_VERTEX*)vbuff->data)[idx];
