@@ -33,15 +33,23 @@ static void setup_blending(void)
    const int blend_modes[4] = {
       GL_ZERO, GL_ONE, GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA
    };
-   /*   ALLEGRO_COLOR *bc;*/
    int src_color, dst_color, src_alpha, dst_alpha;
-   
+   ALLEGRO_DISPLAY *d = al_get_current_display();
+
    al_get_separate_blender(&src_color, &dst_color, &src_alpha,
-                           &dst_alpha, NULL);
-   glEnable(GL_BLEND);
-   glBlendFuncSeparate(blend_modes[src_color], blend_modes[dst_color],
-                       blend_modes[src_alpha], blend_modes[dst_alpha]);
-                       
+      &dst_alpha, NULL);
+   if (d->ogl_extras->ogl_info.version >= 1.4) {
+      glEnable(GL_BLEND);
+      glBlendFuncSeparate(blend_modes[src_color],
+         blend_modes[dst_color], blend_modes[src_alpha],
+         blend_modes[dst_alpha]);
+   }
+   else {
+      if (src_color == src_alpha && dst_color == dst_alpha) {
+         glEnable(GL_BLEND);
+         glBlendFunc(blend_modes[src_color], blend_modes[dst_color]);
+      }
+   }
    /*
    TODO: Should do something about colour shading... I think disabling it is simplest
    since reintroducing it would require shaders, I believe
