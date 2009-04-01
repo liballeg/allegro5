@@ -64,11 +64,8 @@ static void setup_state(ALLEGRO_VERTEX* vtx, ALLEGRO_BITMAP* texture)
       glEnableClientState(GL_VERTEX_ARRAY);
    if (texture && !glIsEnabled(GL_TEXTURE_COORD_ARRAY))
       glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-      
-   if (al_get_prim_flag(ALLEGRO_PRIM_3D))
-      glVertexPointer(3, GL_FLOAT, sizeof(ALLEGRO_VERTEX), &vtx[0].x);
-   else
-      glVertexPointer(2, GL_FLOAT, sizeof(ALLEGRO_VERTEX), &vtx[0].x);
+
+   glVertexPointer(2, GL_FLOAT, sizeof(ALLEGRO_VERTEX), &vtx[0].x);
    glColorPointer(4, GL_FLOAT, sizeof(ALLEGRO_VERTEX), &vtx[0].r);
    
    if (texture)

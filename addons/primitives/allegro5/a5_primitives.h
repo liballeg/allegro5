@@ -53,16 +53,6 @@ enum ALLEGRO_VBUFFER_FLAGS {
   ALLEGRO_VBUFFER_WRITE =  1 << 4
 };
 
-/* Enum: ALLEGRO_PRIM_FLAGS
- */
-enum ALLEGRO_PRIM_FLAGS {
-  ALLEGRO_PRIM_LIGHT,
-  ALLEGRO_PRIM_3D,
-  ALLEGRO_PRIM_ZBUFFER,
-  ALLEGRO_PRIM_NORMAL,
-  ALLEGRO_PRIM_NUM_FLAGS
-};
-
 /* Enum: ALLEGRO_VERTEX_CACHE_SIZE
  */
 #define ALLEGRO_VERTEX_CACHE_SIZE 256
@@ -122,12 +112,6 @@ A5_PRIM_FUNC(void, al_get_vbuff_vertex, (ALLEGRO_VBUFFER* vbuff, int idx, ALLEGR
 A5_PRIM_FUNC(int, al_get_vbuff_flags, (ALLEGRO_VBUFFER* vbuff));
 A5_PRIM_FUNC(int, al_get_vbuff_len, (ALLEGRO_VBUFFER* vbuff));
 A5_PRIM_FUNC(void, al_get_vbuff_lock_range, (ALLEGRO_VBUFFER* vbuff, int* start, int* end));
-
-/*
-* Other
-*/
-A5_PRIM_FUNC(int, al_get_prim_flag, (int flag));
-A5_PRIM_FUNC(void, al_set_prim_flag, (int flag, int value));
 
 /*
 * Transformations

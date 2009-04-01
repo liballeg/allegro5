@@ -483,34 +483,6 @@ Transform a transformation.
 * trans - Transformation to use
 * trans2 - Transformation to transform
 
-# Miscellaneous
-
-## API: al_set_prim_flag
-
-Sets a certain global flag.
-
-*Parameters:*
-
-* flag - Flag index
-* value - New value of the flag
-
-*See Also:*
-[ALLEGRO_PRIM_FLAGS]
-
-## API: al_get_prim_flag
-
-Returns the value of a certain global flag.
-
-*Parameters:*
-
-* flag - Flag index
-
-*Returns:*
-Value of the flag
-
-*See Also:*
-[ALLEGRO_PRIM_FLAGS]
-
 # Structures and Types
 
 ## API: ALLEGRO_VERTEX
@@ -559,15 +531,6 @@ Enumerates the flags that describe vertex buffers, and access to them.
                            has to be unlocked before it can be drawn
 * ALLEGRO_VBUFFER_READ - Signifies that a buffer is read only, or that you are requesting read access
 * ALLEGRO_VBUFFER_WRITE - Signifies that a buffer is write only, or that you are requesting read access
-
-## API: ALLEGRO_PRIM_FLAGS
-
-Enumerates the flags that control the global operation of the entire addon. All are off by default.
-
-* ALLEGRO_PRIM_LIGHT - Signifies whether the lighting engine should be used
-* ALLEGRO_PRIM_3D - Signifies whether the addon should operate in 2D mode or 3D mode.
-* ALLEGRO_PRIM_ZBUFFER - Signifies whether the software Z-buffer should be used
-* ALLEGRO_PRIM_NORMAL - Signifies whether the normals of vertices should be used
 
 ## API: ALLEGRO_VERTEX_CACHE_SIZE
 

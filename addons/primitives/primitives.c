@@ -43,7 +43,6 @@ TODO: This is a hack... I need to know the values of these without actually incl
 #define ALLEGRO_DIRECT3D 8
 #endif
 
-int _al_prim_global_flags[ALLEGRO_PRIM_NUM_FLAGS];
 ALLEGRO_TRANSFORM _al_global_trans = 
 {
    {1, 0, 0, 0},
@@ -449,25 +448,6 @@ int _al_bitmap_region_is_locked(ALLEGRO_BITMAP* bmp, int x1, int y1, int w, int 
       return 0;
    if (x1 + w > bmp->lock_x && y1 + h > bmp->lock_y && x1 < bmp->lock_x + bmp->lock_w && y1 < bmp->lock_y + bmp->lock_h)
       return 1;
-   return 0;
-}
-
-/* Function: al_set_prim_flag
- */
-void al_set_prim_flag(int flag, int value)
-{
-   if (flag > 0 && flag < ALLEGRO_PRIM_NUM_FLAGS) {
-      _al_prim_global_flags[flag] = value;
-   }
-}
-
-/* Function: al_get_prim_flag
- */
-int al_get_prim_flag(int flag)
-{
-   if (flag > 0 && flag < ALLEGRO_PRIM_NUM_FLAGS) {
-      return _al_prim_global_flags[flag];
-   }
    return 0;
 }
 
