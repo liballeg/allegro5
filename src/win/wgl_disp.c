@@ -29,10 +29,7 @@
 
 #include <process.h>
 
-#define PREFIX_I                "wgl-win INFO: "
-#define PREFIX_W                "wgl-win WARNING: "
-#define PREFIX_E                "wgl-win ERROR: "
-
+ALLEGRO_DEBUG_CHANNEL("display")
 
 static ALLEGRO_DISPLAY_INTERFACE *vt = 0;
 
@@ -57,54 +54,30 @@ typedef struct new_display_parameters {
 
 /* Logs a Win32 error/warning message in the log file.
  */
-static void log_win32_msg(const char *prefix, const char *func,
-                          const char *error_msg, DWORD err)
+static char* _wgl_get_error_desc(DWORD err)
 {
-   char *err_msg = NULL;
-   BOOL free_msg = true;
+   #define MSGLEN 2048
+   static char err_msg[MSGLEN];
 
    /* Get the formatting error string from Windows. Note that only the
     * bottom 14 bits matter - the rest are reserved for various library
     * IDs and type of error.
     */
-   if (!FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER
-                    | FORMAT_MESSAGE_FROM_SYSTEM
+   if (!FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM
                     | FORMAT_MESSAGE_IGNORE_INSERTS,
                       NULL, err & 0x3FFF,
                       MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
-                     (LPTSTR) &err_msg, 0, NULL)) {
-      err_msg = "(Unable to decode error code)";
-      free_msg = false;
+                     (LPTSTR) &err_msg, MSGLEN, NULL)) {
+      strcpy(err_msg, "(Unable to decode the error code)");
+   }
+   else {
+      /* Remove two trailing characters */
+      if (err_msg && strlen(err_msg) > 1)
+         *(err_msg + strlen(err_msg) - 2) = '\0';
    }
 
-   /* Remove two trailing characters */
-   if (free_msg && err_msg && strlen(err_msg) > 1)
-      *(err_msg + strlen(err_msg) - 2) = '\0';
-
-   TRACE("%s%s(): %s %s (0x%08lx)\n", prefix, func, error_msg ? error_msg : "",
-      err_msg ? err_msg : "(null)", (unsigned long)err);
-
-   if (free_msg) {
-      LocalFree(err_msg);
-   }
-
-   return;
+   return err_msg;
 }
-
-
-/* Logs an error */
-static void log_win32_error(const char *func, const char *error_msg, DWORD err)
-{
-   log_win32_msg(PREFIX_E, func, error_msg, err);
-}
-
-
-/* Logs a warning */
-static void log_win32_warning(const char *func, const char *error_msg, DWORD err)
-{
-   log_win32_msg(PREFIX_W, func, error_msg, err);
-}
-
 
 /* Helper to set up GL state as we want it. */
 static void setup_gl(ALLEGRO_DISPLAY *d)
@@ -155,28 +128,28 @@ static HGLRC init_temp_context(HWND wnd)
 
    pf = ChoosePixelFormat(dc, &pfd);
    if (!pf) {
-      log_win32_error("init_pixel_format_extensions", "Unable to chose a temporary pixel format!",
-                      GetLastError());
+      ALLEGRO_ERROR("Unable to chose a temporary pixel format. %s\n",
+                     _wgl_get_error_desc(GetLastError()));
       return NULL;
    }
 
    memset(&pfd, 0, sizeof(pfd));
    if (!SetPixelFormat(dc, pf, &pfd)) {
-      log_win32_error("init_pixel_format_extensions", "Unable to set a temporary pixel format!",
-                      GetLastError());
+      ALLEGRO_ERROR("Unable to set a temporary pixel format. %s\n",
+                     _wgl_get_error_desc(GetLastError()));
       return NULL;
    }
 
    glrc = wglCreateContext(dc);
    if (!glrc) {
-      log_win32_error("init_pixel_format_extensions", "Unable to create a render context!",
-                      GetLastError());
+      ALLEGRO_ERROR("Unable to create a render context. %s\n",
+                     _wgl_get_error_desc(GetLastError()));
       return NULL;
    }
 
    if (!wglMakeCurrent(dc, glrc)) {
-      log_win32_error("init_pixel_format_extensions", "Unable to set the render context as current!",
-                      GetLastError());
+      ALLEGRO_ERROR("Unable to set the render context as current. %s\n",
+                     _wgl_get_error_desc(GetLastError()));
       wglDeleteContext(glrc);
       return NULL;
    }
@@ -199,7 +172,7 @@ static bool init_pixel_format_extensions(void)
       (ALLEGRO_GetPixelFormatAttribivEXT_t)wglGetProcAddress("wglGetPixelFormatAttribivEXT");
 
    if (!__wglGetPixelFormatAttribivARB && !__wglGetPixelFormatAttribivEXT) {
-      TRACE(PREFIX_E "init_pixel_format_extensions(): WGL_ARB/EXT_pf not supported!\n");
+      ALLEGRO_ERROR("WGL_ARB/EXT_pf not supported.\n");
       return false;
    }
 
@@ -215,7 +188,7 @@ static bool init_context_creation_extensions(void)
       (ALLEGRO_CreateContextAttribsARB_t)wglGetProcAddress("wglCreateContextAttribsARB");
 
    if (!__wglCreateContextAttribsARB) {
-      TRACE(PREFIX_E "init_context_creation_extensions(): WGL_CCA not supported!\n");
+      ALLEGRO_ERROR("wglCreateContextAttribs not supported!\n");
       return false;
    }
 
@@ -230,8 +203,8 @@ static int get_pixel_formats_count_old(HDC dc)
 
    ret = DescribePixelFormat(dc, 1, sizeof(pfd), &pfd);
    if (!ret) {
-      log_win32_error("get_pixel_formats_count_old",
-                      "DescribePixelFormat failed!", GetLastError());
+      ALLEGRO_ERROR("DescribePixelFormat failed! %s\n",
+                     _wgl_get_error_desc(GetLastError()));
    }
 
    return ret;
@@ -246,48 +219,46 @@ static int get_pixel_formats_count_ext(HDC dc)
    attrib[0] = WGL_NUMBER_PIXEL_FORMATS_ARB;
    if ((__wglGetPixelFormatAttribivARB(dc, 0, 0, 1, attrib, value) == GL_FALSE)
     && (__wglGetPixelFormatAttribivEXT(dc, 0, 0, 1, attrib, value) == GL_FALSE)) {
-        log_win32_error("get_pixel_formats_count", "WGL_ARB/EXT_pixel_format use failed!",
-                     GetLastError());
+        ALLEGRO_ERROR("WGL_ARB/EXT_pixel_format use failed! %s\n",
+                       _wgl_get_error_desc(GetLastError()));
    }
 
    return value[0];
 }
 
 
-#ifdef DEBUGMODE
 static void display_pixel_format(ALLEGRO_EXTRA_DISPLAY_SETTINGS *eds)
 {
-   TRACE(PREFIX_I "Accelarated: %s\n", eds->settings[ALLEGRO_RENDER_METHOD] ? "yes" : "no");
-   TRACE(PREFIX_I "Single-buffer: %s\n", eds->settings[ALLEGRO_SINGLE_BUFFER] ? "yes" : "no");
+   ALLEGRO_INFO("Accelarated: %s\n", eds->settings[ALLEGRO_RENDER_METHOD] ? "yes" : "no");
+   ALLEGRO_INFO("Single-buffer: %s\n", eds->settings[ALLEGRO_SINGLE_BUFFER] ? "yes" : "no");
    if (eds->settings[ALLEGRO_SWAP_METHOD] > 0)
-      TRACE(PREFIX_I "Swap method: %s\n", eds->settings[ALLEGRO_SWAP_METHOD] == 2 ? "flip" : "copy");
+      ALLEGRO_INFO("Swap method: %s\n", eds->settings[ALLEGRO_SWAP_METHOD] == 2 ? "flip" : "copy");
    else
-      TRACE(PREFIX_I "Swap method: undefined\n");
-   TRACE(PREFIX_I "Color format: r%i g%i b%i a%i, %i bit\n",
+      ALLEGRO_INFO("Swap method: undefined\n");
+   ALLEGRO_INFO("Color format: r%i g%i b%i a%i, %i bit\n",
       eds->settings[ALLEGRO_RED_SIZE],
       eds->settings[ALLEGRO_GREEN_SIZE],
       eds->settings[ALLEGRO_BLUE_SIZE],
       eds->settings[ALLEGRO_ALPHA_SIZE],
       eds->settings[ALLEGRO_COLOR_SIZE]);
-   TRACE(PREFIX_I "Depth buffer: %i bits\n", eds->settings[ALLEGRO_DEPTH_SIZE]);
-   TRACE(PREFIX_I "Sample buffers: %s\n", eds->settings[ALLEGRO_SAMPLE_BUFFERS] ? "yes" : "no");
-   TRACE(PREFIX_I "Samples: %i\n", eds->settings[ALLEGRO_SAMPLES]);
+   ALLEGRO_INFO("Depth buffer: %i bits\n", eds->settings[ALLEGRO_DEPTH_SIZE]);
+   ALLEGRO_INFO("Sample buffers: %s\n", eds->settings[ALLEGRO_SAMPLE_BUFFERS] ? "yes" : "no");
+   ALLEGRO_INFO("Samples: %i\n", eds->settings[ALLEGRO_SAMPLES]);
 }
-#endif
 
 
 static int decode_pixel_format_old(PIXELFORMATDESCRIPTOR *pfd,
                                    ALLEGRO_EXTRA_DISPLAY_SETTINGS *eds)
 {
-   TRACE(PREFIX_I "Decoding: \n");
+   ALLEGRO_INFO("Decoding:\n");
 
 	/* Not interested if it doesn't support OpenGL and RGBA */
    if (!(pfd->dwFlags & PFD_SUPPORT_OPENGL)) {
-      TRACE(PREFIX_I "OpenGL Unsupported\n");
+      ALLEGRO_INFO("OpenGL Unsupported\n");
       return false;
    }
    if (pfd->iPixelType != PFD_TYPE_RGBA) {
-      TRACE(PREFIX_I "Not RGBA mode\n");
+      ALLEGRO_INFO("Not RGBA mode\n");
       return false;
    }
 
@@ -352,7 +323,7 @@ static bool decode_pixel_format_attrib(ALLEGRO_EXTRA_DISPLAY_SETTINGS *eds, int 
 {
    int i;
 
-   TRACE(PREFIX_I "Decoding: \n");
+   ALLEGRO_INFO("Decoding:\n");
 
    eds->settings[ALLEGRO_SAMPLES] = 0;
    eds->settings[ALLEGRO_SAMPLE_BUFFERS] = 0;
@@ -363,16 +334,16 @@ static bool decode_pixel_format_attrib(ALLEGRO_EXTRA_DISPLAY_SETTINGS *eds, int 
    for (i = 0; i < num_attribs; i++) {
       /* Not interested if it doesn't support OpenGL or window drawing or RGBA. */
       if (attrib[i] == WGL_SUPPORT_OPENGL_ARB && value[i] == 0) {	
-         TRACE(PREFIX_I "OpenGL Unsupported\n");
+         ALLEGRO_INFO("OpenGL Unsupported\n");
          return false;
       }
       else if (attrib[i] == WGL_DRAW_TO_WINDOW_ARB && value[i] == 0) {	
-         TRACE(PREFIX_I "Can't draw to window\n");
+         ALLEGRO_INFO("Can't draw to window\n");
          return false;
       }
       else if (attrib[i] == WGL_PIXEL_TYPE_ARB
          && (value[i] != WGL_TYPE_RGBA_ARB && value[i] != WGL_TYPE_RGBA_FLOAT_ARB)) {
-         TRACE(PREFIX_I "Not RGBA mode\n");
+         ALLEGRO_INFO("Not RGBA mode\n");
          return false;
       }
       /* hardware acceleration */
@@ -476,8 +447,8 @@ static ALLEGRO_EXTRA_DISPLAY_SETTINGS* read_pixel_format_old(int fmt, HDC dc)
 
    result = DescribePixelFormat(dc, fmt+1, sizeof(pfd), &pfd);
    if (!result) {
-      log_win32_warning("read_pixel_format_old",
-                        "DescribePixelFormat() failed!", GetLastError());
+      ALLEGRO_WARN("DescribePixelFormat() failed. %s\n",
+                    _wgl_get_error_desc(GetLastError()));
       return NULL;
    }
 
@@ -564,8 +535,8 @@ static ALLEGRO_EXTRA_DISPLAY_SETTINGS* read_pixel_format_ext(int fmt, HDC dc)
    }
    
    if (!ret) {
-      log_win32_error("read_pixel_format_ext", "wglGetPixelFormatAttrib failed!",
-                      GetLastError());
+      ALLEGRO_ERROR("wglGetPixelFormatAttrib failed! %s\n",
+                     _wgl_get_error_desc(GetLastError()));
       free(value);
       return NULL;
    }
@@ -643,7 +614,7 @@ static bool change_display_mode(ALLEGRO_DISPLAY *d)
        || (dm.dmDisplayFrequency != (unsigned) d->refresh_rate));
 
    if (!modeswitch && !fallback_dm_valid) {
-      TRACE(PREFIX_E "change_display_mode: Mode not found.\n");
+      ALLEGRO_ERROR("Mode not found.\n");
       return false;
    }
 
@@ -654,12 +625,12 @@ static bool change_display_mode(ALLEGRO_DISPLAY *d)
    result = ChangeDisplaySettingsEx(dev_name, &dm, NULL, CDS_FULLSCREEN, 0);
 
    if (result != DISP_CHANGE_SUCCESSFUL) {
-      log_win32_error("change_display_mode", "Unable to set mode!",
-                      GetLastError());
+      ALLEGRO_ERROR("Unable to set mode. %s\n",
+                     _wgl_get_error_desc(GetLastError()));
       return false;
    }
 
-   TRACE(PREFIX_I "change_display_mode: Mode seccessfuly set.\n");
+   ALLEGRO_INFO("Mode seccessfuly set.\n");
    return true;
 }
 
@@ -754,7 +725,7 @@ static ALLEGRO_EXTRA_DISPLAY_SETTINGS** get_available_pixel_formats_ext(int *cou
    if (maxindex < 1)
       goto bail;
 
-   TRACE(PREFIX_I "get_available_pixel_formats_ext(): Got %i visuals.\n", maxindex);
+   ALLEGRO_INFO("Got %i visuals.\n", maxindex);
 
    eds_list = malloc(maxindex * sizeof(*eds_list));
    if (!eds_list)
@@ -762,14 +733,12 @@ static ALLEGRO_EXTRA_DISPLAY_SETTINGS** get_available_pixel_formats_ext(int *cou
    memset(eds_list, 0, sizeof *eds_list);
 
    for (j = i = 0; i < maxindex; i++) {
-      TRACE("-- \n");
-      TRACE(PREFIX_I "Decoding visual no. %i...\n", i+1);
+      ALLEGRO_INFO("-- \n");
+      ALLEGRO_INFO("Decoding visual no. %i...\n", i+1);
       eds_list[j] = read_pixel_format_ext(i, testdc);
       if (!eds_list[j])
          continue;
-#ifdef DEBUGMODE
       display_pixel_format(eds_list[j]);
-#endif
       eds_list[j]->score = _al_score_display_settings(eds_list[j], ref);
       if (eds_list[j]->score == -1) {
          free(eds_list[j]);
@@ -781,7 +750,7 @@ static ALLEGRO_EXTRA_DISPLAY_SETTINGS** get_available_pixel_formats_ext(int *cou
       j++;
    }
 
-   TRACE(PREFIX_I "get_available_pixel_formats_ext(): %i visuals are good enough.\n", j);
+   ALLEGRO_INFO("%i visuals are good enough.\n", j);
    *count = j;
 
 bail:
@@ -818,7 +787,7 @@ static ALLEGRO_EXTRA_DISPLAY_SETTINGS** get_available_pixel_formats_old(int *cou
    if (maxindex < 1)
       return NULL;
 
-   TRACE(PREFIX_I "get_available_pixel_formats_old(): Got %i visuals.\n", maxindex);
+   ALLEGRO_INFO("Got %i visuals.\n", maxindex);
 
    eds_list = malloc(maxindex * sizeof(*eds_list));
    if (!eds_list)
@@ -826,8 +795,8 @@ static ALLEGRO_EXTRA_DISPLAY_SETTINGS** get_available_pixel_formats_old(int *cou
    memset(eds_list, 0, sizeof *eds_list);
 
    for (j = i = 0; i < maxindex; i++) {
-      TRACE("-- \n");
-      TRACE(PREFIX_I "Decoding visual no. %i...\n", i+1);
+      ALLEGRO_INFO("-- \n");
+      ALLEGRO_INFO("Decoding visual no. %i...\n", i+1);
       eds_list[j] = read_pixel_format_old(i, dc);
       if (!eds_list[j])
          continue;
@@ -845,7 +814,7 @@ static ALLEGRO_EXTRA_DISPLAY_SETTINGS** get_available_pixel_formats_old(int *cou
       j++;
    }
 
-   TRACE(PREFIX_I "get_available_pixel_formats_ext(): %i visuals are good enough.\n", j);
+   ALLEGRO_INFO("%i visuals are good enough.\n", j);
    *count = j;
 
    return eds_list;
@@ -866,8 +835,7 @@ static bool select_pixel_format(ALLEGRO_DISPLAY_WGL *d, HDC dc)
                           "config_selection");
       if (selection_mode && selection_mode[0] != '\0') {
          if (!stricmp(selection_mode, "old")) {
-            TRACE(PREFIX_I "select_pixel_format(): Forcing OLD visual "
-                           "selection method.\n");
+            ALLEGRO_INFO("Forcing OLD visual selection method.\n");
             force_old = true;
          }
          else if (!stricmp(selection_mode, "new"))
@@ -881,7 +849,7 @@ static bool select_pixel_format(ALLEGRO_DISPLAY_WGL *d, HDC dc)
       eds = get_available_pixel_formats_old(&eds_count, dc);
 
    if (!eds || !eds_count) {
-      TRACE(PREFIX_E "Didn't find any suitable pixel format!\n");
+      ALLEGRO_ERROR("Didn't find any suitable pixel format!\n");
       return false;
    }
 
@@ -889,24 +857,20 @@ static bool select_pixel_format(ALLEGRO_DISPLAY_WGL *d, HDC dc)
 
    for (i = 0; i < eds_count ; i++) {
       if (SetPixelFormat(d->dc, eds[i]->index, NULL)) {
-   #ifdef DEBUGMODE
-         TRACE(PREFIX_I "select_pixel_format(): Chose visual no. %i\n\n", eds[i]->index);
+         ALLEGRO_INFO("Chose visual no. %i\n\n", eds[i]->index);
          display_pixel_format(eds[i]);
-   #endif
          break;
       }
       else {
-         TRACE(PREFIX_W "Unable to set pixel format! Trying next one.\n");
-         log_win32_warning("select_pixel_format", "Unable to set any pixel format!",
-            GetLastError());
+         ALLEGRO_WARN("Unable to set pixel format! %s\n",
+                       _wgl_get_error_desc(GetLastError()));
+         ALLEGRO_WARN("Trying next one.\n");
       }
    }
 
    if (i == eds_count) {
-      TRACE(PREFIX_E "Unable to set any pixel format!\n");
-      log_win32_error("select_pixel_format", "Unable to set any pixel format!",
-         GetLastError());
-
+      ALLEGRO_ERROR("Unable to set any pixel format! %s\n",
+                     _wgl_get_error_desc(GetLastError()));
       for (i = 0; i < eds_count; i++)
          free(eds[i]);
       free(eds);
@@ -949,7 +913,7 @@ static bool create_display_internals(ALLEGRO_DISPLAY_WGL *wgl_disp)
    CloseHandle(ndp.AckEvent);
 
    if (ndp.init_failed) {
-      TRACE(PREFIX_E "Failed to create display.\n");
+      ALLEGRO_ERROR("Failed to create display.\n");
       return false;
    }
 
@@ -970,18 +934,16 @@ static bool create_display_internals(ALLEGRO_DISPLAY_WGL *wgl_disp)
    }
 
    if (!wgl_disp->glrc) {
-      log_win32_error("create_display_internals",
-                      "Unable to create a render context!",
-                      GetLastError());
+      ALLEGRO_ERROR("Unable to create a render context! %s\n",
+                     _wgl_get_error_desc(GetLastError()));
       destroy_display_internals(wgl_disp);
       return false;
    }
 
    /* make the context the current one */
    if (!wglMakeCurrent(wgl_disp->dc, wgl_disp->glrc)) {
-      log_win32_error("create_display_internals",
-                      "Unable to make the context current!",
-                       GetLastError());
+      ALLEGRO_ERROR("Unable to make the context current! %s\n",
+                     _wgl_get_error_desc(GetLastError()));
       destroy_display_internals(wgl_disp);
       return false;
    }
@@ -992,7 +954,7 @@ static bool create_display_internals(ALLEGRO_DISPLAY_WGL *wgl_disp)
    if (disp->ogl_extras->ogl_info.version < 1.2) {
       ALLEGRO_EXTRA_DISPLAY_SETTINGS *eds = _al_get_new_display_settings();
       if (eds->required & (1<<ALLEGRO_COMPATIBLE_DISPLAY)) {
-         TRACE(PREFIX_I "Allegro requires at least OpenGL version 1.2 to work.");
+         ALLEGRO_WARN("Allegro requires at least OpenGL version 1.2 to work.\n");
          destroy_display_internals(wgl_disp);
          return false;
       }
@@ -1005,7 +967,7 @@ static bool create_display_internals(ALLEGRO_DISPLAY_WGL *wgl_disp)
 
    disp->ogl_extras->backbuffer = _al_ogl_create_backbuffer(disp);
    if (!disp->ogl_extras->backbuffer) {
-      TRACE(PREFIX_E "Failed to create a backbuffer.\n");
+      ALLEGRO_ERROR("Failed to create a backbuffer.\n");
       destroy_display_internals(wgl_disp);
       return false;
    }
@@ -1058,9 +1020,9 @@ static ALLEGRO_DISPLAY* wgl_create_display(int w, int h)
    }
 
    /* Print out OpenGL version info */
-   TRACE(PREFIX_I "OpenGL Version: %s\n", (const char*)glGetString(GL_VERSION));
-   TRACE(PREFIX_I "Vendor: %s\n", (const char*)glGetString(GL_VENDOR));
-   TRACE(PREFIX_I "Renderer: %s\n\n", (const char*)glGetString(GL_RENDERER));
+   ALLEGRO_INFO("OpenGL Version: %s\n", (const char*)glGetString(GL_VERSION));
+   ALLEGRO_INFO("Vendor: %s\n", (const char*)glGetString(GL_VENDOR));
+   ALLEGRO_INFO("Renderer: %s\n\n", (const char*)glGetString(GL_RENDERER));
 
    /* Add ourself to the list of displays. */
    add = _al_vector_alloc_back(&system->system.displays);
@@ -1135,8 +1097,8 @@ static bool wgl_set_current_display(ALLEGRO_DISPLAY *d)
    if (current_glrc && current_glrc != wgl_disp->glrc) {
       /* make the context the current one */
       if (!wglMakeCurrent(wgl_disp->dc, wgl_disp->glrc)) {
-         log_win32_error("wgl_set_current_display", "Unable to make the context current!",
-                          GetLastError());
+         ALLEGRO_ERROR("Unable to make the context current! s%\n",
+                        _wgl_get_error_desc(GetLastError()));
          return false;
       }
 
@@ -1257,7 +1219,7 @@ static void display_thread_proc(void *arg)
          }
       }
       else {
-         TRACE(PREFIX_E "Wait failed.\n");
+         ALLEGRO_ERROR("Wait failed.\n");
          break;
       }
    }
@@ -1281,7 +1243,7 @@ End:
       win_disp->window = NULL;
    }
 
-   TRACE("wgl display thread exits\n");
+   ALLEGRO_INFO("wgl display thread exits\n");
    win_disp->thread_ended = true;
 }
 
