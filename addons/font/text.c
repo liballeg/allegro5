@@ -290,7 +290,7 @@ void al_get_text_dimensions(const ALLEGRO_FONT *f,
    int *bbx, int *bby, int *bbw, int *bbh, int *ascent, int *descent)
 {
    ASSERT(f);
-   return f->vtable->get_text_dimensions(f, text, count, bbx, bby,
+   f->vtable->get_text_dimensions(f, text, count, bbx, bby,
       bbw, bbh, ascent, descent);
 }
 

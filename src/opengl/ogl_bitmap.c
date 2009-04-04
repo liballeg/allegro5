@@ -94,7 +94,7 @@ static ALLEGRO_BITMAP_INTERFACE *glbmp_vt;
 
 #define SWAP(type, x, y) {type temp = x; x = y; y = temp;}
 
-static inline bool setup_blending(ALLEGRO_DISPLAY *ogl_disp)
+static INLINE bool setup_blending(ALLEGRO_DISPLAY *ogl_disp)
 {
    int src_color, dst_color, src_alpha, dst_alpha;
    int blend_modes[4] = {
