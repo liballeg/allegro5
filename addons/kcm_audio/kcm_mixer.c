@@ -15,6 +15,7 @@
 #include "allegro5/internal/aintern_kcm_audio.h"
 #include "allegro5/internal/aintern_kcm_cfg.h"
 
+ALLEGRO_DEBUG_CHANNEL("sound")
 
 /* forward declarations */
 static void mixer_change_quality(ALLEGRO_MIXER *mixer,
@@ -98,14 +99,17 @@ static float *_al_rechannel_matrix(ALLEGRO_CHANNEL_CONF orig,
       }
    }
 
-   TRACE("sample matrix:\n");
-   for (i = 0; i < dst_chans; i++) {
-      for (j = 0; j < src_chans; j++) {
-         TRACE(" %f", mat[i][j]);
+   {
+      char debug[1024];
+      ALLEGRO_DEBUG("sample matrix:\n");
+      for (i = 0; i < dst_chans; i++) {
+         strcpy(debug, "");
+         for (j = 0; j < src_chans; j++) {
+            sprintf(debug + strlen(debug), " %f", mat[i][j]);
+         }
+         ALLEGRO_DEBUG("%s\n", debug);
       }
-      TRACE("\n");
    }
-   TRACE("\n");
 
    return &mat[0][0];
 }

@@ -14,9 +14,11 @@
 #include "allegro5/internal/aintern_kcm_audio.h"
 #include "allegro5/internal/aintern_kcm_cfg.h"
 
+ALLEGRO_DEBUG_CHANNEL("sound")
+
 void _al_set_error(int error, char* string)
 {
-   TRACE("%s (error code: %d)\n", string, error);
+   ALLEGRO_ERROR("%s (error code: %d)\n", string, error);
 }
 
 ALLEGRO_AUDIO_DRIVER *_al_kcm_driver = NULL;
@@ -147,7 +149,7 @@ static int do_install_audio(ALLEGRO_AUDIO_DRIVER_ENUM mode)
       case ALLEGRO_AUDIO_DRIVER_OPENAL:
          #if defined(ALLEGRO_CFG_KCM_OPENAL)
             if (_al_kcm_openal_driver.open() == 0) {
-               fprintf(stderr, "Using OpenAL driver\n"); 
+               ALLEGRO_INFO("Using OpenAL driver\n"); 
                _al_kcm_driver = &_al_kcm_openal_driver;
                return 0;
             }
@@ -160,7 +162,7 @@ static int do_install_audio(ALLEGRO_AUDIO_DRIVER_ENUM mode)
       case ALLEGRO_AUDIO_DRIVER_ALSA:
          #if defined(ALLEGRO_CFG_KCM_ALSA)
             if (_al_kcm_alsa_driver.open() == 0) {
-               fprintf(stderr, "Using ALSA driver\n"); 
+               ALLEGRO_INFO("Using ALSA driver\n"); 
                _al_kcm_driver = &_al_kcm_alsa_driver;
                return 0;
             }
@@ -173,7 +175,7 @@ static int do_install_audio(ALLEGRO_AUDIO_DRIVER_ENUM mode)
       case ALLEGRO_AUDIO_DRIVER_OSS:
          #if defined(ALLEGRO_CFG_KCM_OSS)
             if (_al_kcm_oss_driver.open() == 0) {
-               fprintf(stderr, "Using OSS driver\n");
+               ALLEGRO_INFO("Using OSS driver\n");
                _al_kcm_driver = &_al_kcm_oss_driver;
                return 0;
             }
@@ -186,7 +188,7 @@ static int do_install_audio(ALLEGRO_AUDIO_DRIVER_ENUM mode)
       case ALLEGRO_AUDIO_DRIVER_DSOUND:
          #if defined(ALLEGRO_CFG_KCM_DSOUND)
             if (_al_kcm_dsound_driver.open() == 0) {
-               fprintf(stderr, "Using DirectSound driver\n"); 
+               ALLEGRO_INFO("Using DirectSound driver\n"); 
                _al_kcm_driver = &_al_kcm_dsound_driver;
                return 0;
             }

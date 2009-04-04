@@ -26,16 +26,13 @@
 
 #include <alsa/asoundlib.h>
 
-
-#define PREFIX_E "a5-kcm-alsa Error: "
-#define PREFIX_N "a5-kcm-alsa Notice: "
-
+ALLEGRO_DEBUG_CHANNEL("alsa")
 
 #define ALSA_CHECK(a) \
 do {                                                                  \
    int err = (a);                                                     \
    if (err < 0) {                                                     \
-      TRACE(PREFIX_E "%s: %s\n", snd_strerror(err), #a);              \
+      ALLEGRO_ERROR("%s: %s\n", snd_strerror(err), #a);               \
       goto Error;                                                     \
    }                                                                  \
 } while(0)
@@ -86,7 +83,7 @@ static int alsa_open(void)
    int alsa_err = snd_pcm_open(&test_pcm_handle, alsa_device,
                                SND_PCM_STREAM_PLAYBACK, SND_PCM_NONBLOCK);
    if (alsa_err < 0) {
-      TRACE(PREFIX_N "ALSA is not available on the system.\n");
+      ALLEGRO_WARN("ALSA is not available on the system.\n");
       return 1;
    }
    else {
@@ -97,7 +94,7 @@ static int alsa_open(void)
 
    /* ALSA check is a macro that 'goto' error*/
 Error:
-   TRACE(PREFIX_E "Error initializing alsa!\n");
+   ALLEGRO_ERROR("Error initializing alsa!\n");
    return 1;
 }
 
@@ -122,7 +119,7 @@ static int xrun_recovery(snd_pcm_t *handle, int err)
    if (err == -EPIPE) { /* under-run */
       err = snd_pcm_prepare(handle);
       if (err < 0) {
-         TRACE(PREFIX_E "Can't recover from underrun, prepare failed: %s\n", snd_strerror(err));
+         ALLEGRO_ERROR("Can't recover from underrun, prepare failed: %s\n", snd_strerror(err));
       }
       return 0;
    }
@@ -211,11 +208,11 @@ static int alsa_voice_is_ready(ALSA_VOICE *alsa_voice)
             err = -ESTRPIPE;
 
          if (xrun_recovery(alsa_voice->pcm_handle, err) < 0) {
-            TRACE(PREFIX_E "Write error: %s\n", snd_strerror(err));
+            ALLEGRO_ERROR("Write error: %s\n", snd_strerror(err));
             return -POLLERR;
          }
       } else {
-         TRACE(PREFIX_E "Wait for poll failed\n");
+         ALLEGRO_ERROR("Wait for poll failed\n");
          return -POLLERR;
       }
    }
@@ -268,7 +265,7 @@ static void* alsa_update(ALLEGRO_THREAD *self, void *arg)
       ret = snd_pcm_mmap_begin(alsa_voice->pcm_handle, &areas, &offset, &frames);
       if (ret < 0) {
          if ((ret = xrun_recovery(alsa_voice->pcm_handle, ret)) < 0) {
-            TRACE(PREFIX_E "MMAP begin avail error: %s\n", snd_strerror(ret));
+            ALLEGRO_ERROR("MMAP begin avail error: %s\n", snd_strerror(ret));
          }
          return NULL;
       }
@@ -314,7 +311,7 @@ silence:
       snd_pcm_sframes_t commitres = snd_pcm_mmap_commit(alsa_voice->pcm_handle, offset, frames);
       if (commitres < 0 || (snd_pcm_uframes_t)commitres != frames) {
          if ((ret = xrun_recovery(alsa_voice->pcm_handle, commitres >= 0 ? -EPIPE : commitres)) < 0) {
-            TRACE(PREFIX_E "MMAP commit error: %s\n", snd_strerror(ret));
+            ALLEGRO_ERROR("MMAP commit error: %s\n", snd_strerror(ret));
             return NULL;
          }
       }
@@ -452,7 +449,7 @@ static int alsa_allocate_voice(ALLEGRO_VOICE *voice)
    ALSA_CHECK(snd_pcm_hw_params(ex_data->pcm_handle, hwparams));
 
    if (voice->frequency != req_freq) {
-      TRACE(PREFIX_E "Unsupported rate! Requested %lu, got %iu.\n", voice->frequency, req_freq);
+      ALLEGRO_ERROR("Unsupported rate! Requested %lu, got %iu.\n", voice->frequency, req_freq);
       goto Error;
    }
 
