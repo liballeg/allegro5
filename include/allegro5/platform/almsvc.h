@@ -87,7 +87,7 @@
 /* __func__ is C99 */
 #ifndef __func__
    /* MSVC versions before VC7 don't have __FUNCTION__ */
-   #if _MSVC_VER < 1300
+   #if _MSC_VER < 1300
       #define __func__ "???"
    #else
       #define __func__ __FUNCTION__
