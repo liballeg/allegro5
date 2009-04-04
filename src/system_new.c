@@ -104,10 +104,10 @@ static void read_allegro_cfg(void)
    ALLEGRO_CONFIG *temp;
    char buf[256], tmp[256];
 
-   active_sysdrv->config = al_load_config_file("/etc/allegrorc");
+   active_sysdrv->config = al_load_config_file("/etc/allegro5rc");
 
    ustrzcpy(buf, sizeof(buf) - ucwidth(OTHER_PATH_SEPARATOR), uconvert_ascii(getenv("HOME"), tmp));
-   ustrzcat(buf, sizeof(buf), uconvert_ascii("/.allegrorc", tmp));
+   ustrzcat(buf, sizeof(buf), uconvert_ascii("/.allegro5rc", tmp));
    temp = al_load_config_file(buf);
    if (temp) {
       if (active_sysdrv->config) {
@@ -119,7 +119,7 @@ static void read_allegro_cfg(void)
       }
    }
 
-   temp = al_load_config_file("allegro.cfg");
+   temp = al_load_config_file("allegro5.cfg");
    if (temp) {
       if (active_sysdrv->config) {
          al_merge_config_into(active_sysdrv->config, temp);
@@ -130,7 +130,7 @@ static void read_allegro_cfg(void)
       }
    }
 #else
-   active_sysdrv->config = al_load_config_file("allegro.cfg");
+   active_sysdrv->config = al_load_config_file("allegro5.cfg");
 #endif
 }
 

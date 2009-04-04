@@ -47,7 +47,7 @@ struct
    /* List of channels to log. NULL to log all channels. */
    _AL_VECTOR channels;
    _AL_VECTOR excluded;
-   /* Whether settings have been read from allegro.cfg or not. */
+   /* Whether settings have been read from allegro5.cfg or not. */
    bool configured;
 } _al_debug_info = {
    0,
@@ -230,7 +230,7 @@ static void configure_logging(void)
    char const *v;
    bool got_all = false;
 
-   /* Messages logged before the system driver and allegro.cfg are
+   /* Messages logged before the system driver and allegro5.cfg are
     * up will always use defaults - but usually nothing is logged
     * before al_init.
     */

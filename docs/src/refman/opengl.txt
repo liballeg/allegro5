@@ -105,7 +105,7 @@ means you may *not* call it before al_create_display().
 ## Configuration
 
 You can disable the detection of any OpenGL extension by Allegro with
-a section like this in allegro.cfg:
+a section like this in allegro5.cfg:
 
     [opengl_disabled_extensions]
     GL_ARB_texture_non_power_of_two=0

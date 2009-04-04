@@ -596,7 +596,7 @@ int main(void)
    if (install_sound_input(DIGI_AUTODETECT, MIDI_AUTODETECT) != 0) {
       allegro_message("\nError initialising sound input\n%s\n\n"
 		      "Try changing the digi_input_card and midi_input_card settings in your\n"
-		      "allegro.cfg, in particular disabling (set to zero) one of those drivers.\n",
+		      "allegro5.cfg, in particular disabling (set to zero) one of those drivers.\n",
 		      allegro_error);
       return 1;
    }
