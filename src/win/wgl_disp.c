@@ -1563,5 +1563,87 @@ void _al_wgl_get_monitor_info(int adapter, ALLEGRO_MONITOR_INFO *info)
    info->y2 = info->y1 + dm.dmPelsHeight;
 }
 
+static ALLEGRO_EXTRA_DISPLAY_SETTINGS **cached_eds = NULL;
+static int cached_eds_size = 0;
+
+int _al_wgl_get_num_display_formats()
+{
+   ALLEGRO_SYSTEM *system = (void *)al_system_driver();
+   int eds_count = 0;
+   int i;
+   bool force_old = false;
+
+   if (cached_eds) {
+      for (i = 0; i < cached_eds_size; i++)
+         free(cached_eds[i]);
+      free(cached_eds);
+      cached_eds = NULL;
+      cached_eds_size = 0;
+   }
+
+   if (system->config) {
+      const char *selection_mode;
+      selection_mode = al_get_config_value(system->config, "graphics",
+                          "config_selection");
+      if (selection_mode && selection_mode[0] != '\0') {
+         if (!stricmp(selection_mode, "old"))
+            force_old = true;
+         else if (!stricmp(selection_mode, "new"))
+            force_old = false;
+      }
+   }
+
+   if (!force_old)
+      cached_eds = get_available_pixel_formats_ext(&eds_count);
+   if (!cached_eds) {
+      HWND testwnd;
+      HDC testdc;
+
+      testwnd = _al_win_create_hidden_window();
+      if (!testwnd)
+         return 0;
+      testdc = GetDC(testwnd);
+
+      cached_eds = get_available_pixel_formats_old(&eds_count, testdc);
+
+      if (testwnd) {
+         ReleaseDC(testwnd, testdc);
+         DestroyWindow(testwnd);
+      }
+   }
+
+   cached_eds_size = eds_count;
+   return eds_count;
+}
+
+
+int _al_wgl_get_display_format_option(i, option)
+{
+   if (!cached_eds)
+      _al_wgl_get_num_display_formats();
+
+   if (!cached_eds)
+      return -1;
+
+   if (i >= cached_eds_size || option >= ALLEGRO_DISPLAY_OPTIONS_COUNT)
+      return -1; /* may be a valid value */
+
+   return cached_eds[i]->settings[option];
+}
+
+
+void _al_wgl_set_new_display_format(int i)
+{
+   int j;
+
+   if (i >= cached_eds_size || !cached_eds)
+      return;
+
+   for (j = 0; j < ALLEGRO_DISPLAY_OPTIONS_COUNT; j++) {
+      al_set_new_display_option(j, cached_eds[i]->settings[j], ALLEGRO_REQUIRE);
+   }
+}
+
+
 /* vi: set sts=3 sw=3 et: */
 

@@ -495,14 +495,14 @@ static int win_get_num_display_formats(void)
 
 #if defined ALLEGRO_CFG_OPENGL
    if (flags & ALLEGRO_OPENGL) {
-      return 0; /* FIXME: implement for wgl */
+      _al_wgl_get_num_display_formats();
    }
 #endif
 #if defined ALLEGRO_CFG_D3D
    return _al_d3d_get_num_display_formats();
 #endif
 #if defined ALLEGRO_CFG_OPENGL
-   /* FIXME: implement for wgl */
+   _al_wgl_get_num_display_formats();
 #endif
 
    return 0;
@@ -515,14 +515,14 @@ static int win_get_display_format_option(int i, int option)
 
 #if defined ALLEGRO_CFG_OPENGL
    if (flags & ALLEGRO_OPENGL) {
-      return 0; /* FIXME: implement for wgl */
+      return _al_wgl_get_display_format_option(i, option);
    }
 #endif
 #if defined ALLEGRO_CFG_D3D
    return _al_d3d_get_display_format_option(i, option);
 #endif
 #if defined ALLEGRO_CFG_OPENGL
-   /* FIXME: implement for wgl */
+   _al_wgl_get_display_format_option(i, option);
 #endif
 
    return 0;
@@ -542,7 +542,7 @@ static void win_set_new_display_format(int i)
    _al_d3d_set_new_display_format(i);
 #endif
 #if defined ALLEGRO_CFG_OPENGL
-   /* FIXME: implement for wgl */
+   _al_wgl_set_new_display_format(i);
 #endif
 }
 
