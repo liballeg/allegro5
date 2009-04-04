@@ -656,7 +656,7 @@ static HGLRC init_ogl_context_ex(HDC dc, int fc, int major, int minor)
    if (!testrc)
       goto bail;
 
-   if (is_wgl_extension_supported("wglCreateContextAttribsARB", testdc)) {
+   if (is_wgl_extension_supported("WGL_ARB_create_context", testdc)) {
       int attrib[] = {WGL_CONTEXT_MAJOR_VERSION_ARB, major,
                       WGL_CONTEXT_MINOR_VERSION_ARB, minor,
                       WGL_CONTEXT_FORWARD_COMPATIBLE_BIT_ARB, fc,
@@ -717,6 +717,12 @@ static ALLEGRO_EXTRA_DISPLAY_SETTINGS** get_available_pixel_formats_ext(int *cou
    testrc = init_temp_context(testwnd);
    if (!testrc)
       goto bail;
+
+  if (!is_wgl_extension_supported("WGL_ARB_pixel_format", testdc) &&
+      !is_wgl_extension_supported("WGL_EXT_pixel_format", testdc)) {
+      ALLEGRO_ERROR("WGL_ARB/EXT_pf not supported.\n");
+      goto bail;
+  }
 
    if (!init_pixel_format_extensions())
       goto bail;
