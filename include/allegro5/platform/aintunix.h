@@ -18,6 +18,8 @@
 #ifndef AINTUNIX_H
 #define AINTUNIX_H
 
+#include "allegro5/path.h"
+
 /* Need right now for XKeyEvent --pw */
 #ifdef ALLEGRO_WITH_XWINDOWS
 #include <X11/Xlib.h>
@@ -34,7 +36,7 @@ extern "C" {
 
 
    /* Generic system driver entry for finding the executable */
-   AL_FUNC(void, _unix_get_executable_name, (char *output, int size));
+   AL_FUNC(ALLEGRO_PATH *, _unix_get_executable_name, (void));
 
 
    /* Helper for setting os_type */

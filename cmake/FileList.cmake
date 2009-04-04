@@ -191,7 +191,7 @@ set(ALLEGRO_SRC_UNIX_FILES
     src/unix/umain.c
     src/unix/umodules.c
     src/unix/umouse.c
-    src/unix/usystem.c
+    src/unix/upath.c
     src/unix/utime.c
     src/unix/uxthread.c
     )
