@@ -8,11 +8,11 @@
 static void print(ALLEGRO_FONT *myfont, char *message, int x, int y)
 {
    al_set_blender(ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA, al_map_rgb(0, 0, 0));
-   al_font_textout(myfont, x+2, y+2, message, -1);
+   al_draw_text(myfont, x+2, y+2, 0, message, 0, 0);
 
    al_set_blender(ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA,
       al_map_rgb(255, 255, 255));
-   al_font_textout(myfont, x, y, message, -1);
+   al_draw_text(myfont, x, y, 0, message, 0, 0);
 }
 
 static bool test(ALLEGRO_BITMAP *bitmap, ALLEGRO_FONT *font, char *message)

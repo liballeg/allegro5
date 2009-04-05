@@ -99,7 +99,7 @@ static void show_files_list(ALLEGRO_NATIVE_FILE_DIALOG *dialog,
       path = al_get_native_file_dialog_path(dialog, i);
       name = al_path_to_string(path, '/');
       al_set_blender(ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA, info);
-      al_font_textout_centre(font, x, y + i * th, name, -1);
+      al_draw_textf(font, x, y + i * th, ALLEGRO_CENTER, name, 0, 0);
    }
 }
 
@@ -207,7 +207,7 @@ int main(void)
          al_clear(background);
          al_set_blender(ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA,
                         cur_dialog ? inactive : active);
-         al_font_textprintf_centre(font, x, y, "Open");
+         al_draw_textf(font, x, y, ALLEGRO_CENTER, "Open");
          if (old_dialog)
             show_files_list(old_dialog->file_dialog, font, info);
          al_flip_display();

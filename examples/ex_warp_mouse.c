@@ -48,12 +48,12 @@ int main(void)
                al_map_rgb_f(1, 1, 1), 2);
          }
          
-         al_font_textprintf(font, 0, 0, "x: %i y: %i dx: %i dy %i",
+         al_draw_textf(font, 0, 0, 0, "x: %i y: %i dx: %i dy %i",
             event.mouse.x, event.mouse.y,
             event.mouse.dx, event.mouse.dy);
-         al_font_textprintf_centre(font, width / 2, height / 2 - th,
+         al_draw_textf(font, width / 2, height / 2 - th, ALLEGRO_CENTER,
             "Left-Click to warp pointer to the middle once.");
-         al_font_textprintf_centre(font, width / 2, height / 2,
+         al_draw_textf(font, width / 2, height / 2, ALLEGRO_CENTER,
             "Hold right mouse button to constantly move pointer to the middle.");
          al_flip_display();
          redraw = false;

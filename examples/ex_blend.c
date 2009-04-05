@@ -50,14 +50,12 @@ static void print(int x, int y, bool vertical, char const *format, ...)
       if (vertical) {
          int i;
          for (i = 0; i < ustrlen(message); i++) {
-            char c[10] = "";
-            int u = ugetat(message, i);
-            usetat(c, 0, u);
-            al_font_textout(ex.myfont, x + 1 - j, y + 1 - j + h * i, c, -1);
+            al_draw_text(ex.myfont, x + 1 - j, y + 1 - j + h * i, 0, message,
+               i, i + 1);
          }
       }
       else {
-         al_font_textout(ex.myfont, x + 1 - j, y + 1 - j, message, -1);
+         al_draw_text(ex.myfont, x + 1 - j, y + 1 - j, 0, message, 0, 0);
       }
    }
 }

@@ -136,8 +136,8 @@ void Prog::run()
          al_store_state(&state, ALLEGRO_STATE_ALL);
          al_set_blender(ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA,
             al_map_rgb(0, 0, 0));
-         al_font_textout(d.get_theme().font, 0, 380, name, -1);
-         al_font_textout(d.get_theme().font, 0, 360, html, -1);
+         al_draw_text(d.get_theme().font, 0, 380, 0, name, 0, 0);
+         al_draw_text(d.get_theme().font, 0, 360, 0, html, 0, 0);
          al_restore_state(&state);
 
          al_flip_display();

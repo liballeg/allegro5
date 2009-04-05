@@ -127,9 +127,9 @@ void Player::render_extra(void)
 
    small_font = (ALLEGRO_FONT *)rm.getData(RES_SMALLFONT);
 
-   al_font_textprintf(small_font, 20, 2, "x%d", lives);
+   al_draw_textf(small_font, 20, 2, 0, "x%d", lives);
 
-   al_font_textprintf(small_font, 2, 18, "%d", score);
+   al_draw_textf(small_font, 2, 18, 0, "%d", score);
 }
 
 void Player::render(int offx, int offy)
@@ -295,8 +295,8 @@ void Player::die(void)
       ResourceManager& rm = ResourceManager::getInstance();
       ALLEGRO_FONT *large_font = (ALLEGRO_FONT *)rm.getData(RES_LARGEFONT);
       ALLEGRO_FONT *small_font = (ALLEGRO_FONT *)rm.getData(RES_SMALLFONT);
-      al_font_textprintf_centre(large_font, w/2, h/2-16, "GAME OVER");
-      al_font_textprintf_centre(small_font, w/2, h/2+16, "%d Points", score);
+      al_draw_textf(large_font, w/2, h/2-16, ALLEGRO_CENTER, "GAME OVER");
+      al_draw_textf(small_font, w/2, h/2+16, ALLEGRO_CENTER, "%d Points", score);
       al_set_target_bitmap(old_target);
    }
    else {

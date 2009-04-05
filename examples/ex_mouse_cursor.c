@@ -16,15 +16,15 @@ static void draw_display(ALLEGRO_FONT *font)
    al_set_target_bitmap(al_get_backbuffer());
    al_clear(al_map_rgb(128, 128, 128));
    al_set_blender(ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA, al_map_rgba_f(0, 0, 0, 1));
-   al_font_textout(font, 50, 20, "Instructions:", -1);
-   al_font_textout(font, 50, 50, "<s> - show cursor", -1);
-   al_font_textout(font, 50, 70, "<h> - hide cursor", -1);
-   al_font_textout(font, 50, 90, "<1> - show cursor 1", -1);
-   al_font_textout(font, 50, 110, "<2> - show cursor 2", -1);
-   al_font_textout(font, 50, 130, "<3> - show cursor 3", -1);
-   al_font_textout(font, 50, 150, "<4> - show cursor 4", -1);
-   al_font_textout(font, 50, 170, "<c> - show custom cursor", -1);
-   al_font_textout(font, 50, 190, "<esc> - exit program", -1);
+   al_draw_textf(font, 50, 20, 0, "Instructions:");
+   al_draw_textf(font, 50, 50, 0, "<s> - show cursor");
+   al_draw_textf(font, 50, 70, 0, "<h> - hide cursor");
+   al_draw_textf(font, 50, 90, 0, "<1> - show cursor 1");
+   al_draw_textf(font, 50, 110, 0, "<2> - show cursor 2");
+   al_draw_textf(font, 50, 130, 0, "<3> - show cursor 3");
+   al_draw_textf(font, 50, 150, 0, "<4> - show cursor 4");
+   al_draw_textf(font, 50, 170, 0, "<c> - show custom cursor");
+   al_draw_textf(font, 50, 190, 0, "<esc> - exit program");
    al_flip_display();
 }
 

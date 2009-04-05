@@ -79,7 +79,7 @@ static void print(char const *format, ...)
    va_end(list);
    
    al_set_blender(ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA, ex.text);
-   al_font_textprintf(ex.font, ex.text_x, ex.text_y, "%s", message);
+   al_draw_textf(ex.font, ex.text_x, ex.text_y, 0, "%s", message);
    al_restore_state(&state);
    
    ex.text_y += th;   

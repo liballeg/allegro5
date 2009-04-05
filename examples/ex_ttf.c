@@ -21,29 +21,29 @@ static void render(void)
 
     al_set_blender(ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA, black);
 
-    al_font_textout(ex.f1, 50,  50, "Tulip (kerning)", -1);
-    al_font_textout(ex.f2, 50, 100, "Tulip (no kerning)", -1);
-    al_font_textout(ex.f3, 50, 200, "This font has a size of 12 pixels, "
-        "the one above has 48 pixels.", -1);
+    al_draw_textf(ex.f1, 50,  50, 0, "Tulip (kerning)");
+    al_draw_textf(ex.f2, 50, 100, 0, "Tulip (no kerning)");
+    al_draw_textf(ex.f3, 50, 200, 0, "This font has a size of 12 pixels, "
+        "the one above has 48 pixels.");
 
     al_set_blender(ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA, red);
-    al_font_textout(ex.f3, 50, 220, "The color can be changed simply "
-        "by using a different blender.", -1);
+    al_draw_textf(ex.f3, 50, 220, 0, "The color can be changed simply "
+        "by using a different blender.");
         
     al_set_blender(ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA, green);
-    al_font_textout(ex.f3, 50, 240, "Some unicode symbols:", -1);
-    al_font_textout(ex.f3, 50, 260, "■□▢▣▤▥▦▧▨▩▪▫▬▭▮▯▰▱", -1);
-    al_font_textout(ex.f3, 50, 280, "▲△▴▵▶▷▸▹►▻▼▽▾▿◀◁◂◃◄◅◆◇◈◉◊", -1);
-    al_font_textout(ex.f3, 50, 300, "○◌◍◎●◐◑◒◓◔◕◖◗◘◙", -1);
+    al_draw_textf(ex.f3, 50, 240, 0, "Some unicode symbols:");
+    al_draw_textf(ex.f3, 50, 260, 0, "■□▢▣▤▥▦▧▨▩▪▫▬▭▮▯▰▱");
+    al_draw_textf(ex.f3, 50, 280, 0, "▲△▴▵▶▷▸▹►▻▼▽▾▿◀◁◂◃◄◅◆◇◈◉◊");
+    al_draw_textf(ex.f3, 50, 300, 0, "○◌◍◎●◐◑◒◓◔◕◖◗◘◙");
 
-    al_font_textout(ex.f3, 50, 320, "«Thís»|you", 6);
-    al_font_textout(ex.f3, 50, 340, "‘ìş’|shouldn't", 4);
-    al_font_textout(ex.f3, 50, 360, "“cøünt”|see", 7);
-    al_font_textout(ex.f3, 50, 380, "réstrïçteđ…|this.", 11);
+    al_draw_text(ex.f3, 50, 320, 0, "«Thís»|you", 0, 6);
+    al_draw_text(ex.f3, 50, 340, 0, "should|‘ìş’", 7, 0);
+    al_draw_text(ex.f3, 50, 360, 0, "not|“cøünt”|see", 4, 11);
+    al_draw_text(ex.f3, 50, 380, 0, "réstrïçteđ…|this.", 0, 11);
     
     xpos = al_get_display_width() - 10;
     ypos = al_get_display_height() - 10;
-    al_get_text_dimensions(ex.f4, "Allegro", -1,
+    al_get_text_dimensions(ex.f4, "Allegro", 0, 0,
        &x, &y, &w, &h, &as, &de);
     xpos -= w;
     ypos -= h;
@@ -54,10 +54,11 @@ static void render(void)
     al_draw_line(x, y + as, x + w, y + as, black, 0);
     al_draw_line(x, y + as + de, x + w, y + as + de, black, 0);
     al_set_blender(ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA, blue);
-    al_font_textout(ex.f4, xpos, ypos, "Allegro", -1);
+    al_draw_textf(ex.f4, xpos, ypos, 0, "Allegro");
 
     al_set_blender(ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA, black);
-    al_font_textprintf_right(ex.f3, al_get_display_width(), 0, "%.1f FPS", ex.fps);
+    al_draw_textf(ex.f3, al_get_display_width(), 0, ALLEGRO_RIGHT,
+       "%.1f FPS", ex.fps);
 }
 
 int main(int argc, const char *argv[])

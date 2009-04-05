@@ -70,7 +70,7 @@ static void draw_message_log(void)
    y = 0;
    i = msg_tail;
    while (1) {
-      al_font_textout(myfont, 5, y, msg_log[i], -1);
+      al_draw_text(myfont, 5, y, 0, msg_log[i], 0, 0);
       y += th;
 
       i = (i + 1) % SIZE_LOG;

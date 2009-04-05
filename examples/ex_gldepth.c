@@ -160,9 +160,9 @@ void setup_textures(void)
    al_set_blender(ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA, al_map_rgb(255, 0, 0));
    depth = al_get_display_option(ALLEGRO_DEPTH_SIZE);
    if (!depth)
-      al_font_textprintf(font, 0, 5, "No Z-buffer!");
+      al_draw_textf(font, 0, 5, 0, "No Z-buffer!");
    else
-      al_font_textprintf(font, 0, 5, "Z-buffer: %i bits", depth);
+      al_draw_textf(font, 0, 5, 0, "Z-buffer: %i bits", depth);
    al_set_target_bitmap(al_get_backbuffer());
    al_destroy_bitmap(tmp_bmp);
    al_destroy_font(font);

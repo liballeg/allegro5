@@ -82,7 +82,7 @@ static ALLEGRO_BITMAP *generate_logo(char const *text,
    cy = dh * 0.5;
 
    logofont = al_load_font(fontname, -font_size, 0);
-   al_get_text_dimensions(logofont, text, -1, &xp, &yp, &w, &h, &as, &de);
+   al_get_text_dimensions(logofont, text, 0, 0, &xp, &yp, &w, &h, &as, &de);
 
    al_store_state(&state, ALLEGRO_STATE_TARGET_BITMAP | ALLEGRO_STATE_BLENDER);
 
@@ -97,9 +97,9 @@ static ALLEGRO_BITMAP *generate_logo(char const *text,
                            ALLEGRO_ONE, ALLEGRO_ONE, c);
    for (i = -br; i <= br; i++) {
       for (j = -br; j <= br; j++) {
-         al_font_textout(logofont,
+         al_draw_text(logofont,
                          cx - xp * 0.5 - w * 0.5 + i,
-                         cy - yp * 0.5 - h * 0.5 + j, text, -1);
+                         cy - yp * 0.5 - h * 0.5 + j, 0, text, 0, 0);
       }
    }
 
@@ -157,10 +157,10 @@ static ALLEGRO_BITMAP *generate_logo(char const *text,
                            ALLEGRO_ONE, ALLEGRO_ONE, c);
    for (i = -1; i <= 1; i++)
       for (j = -1; j <= 1; j++)
-         al_font_textout(logofont,
+         al_draw_text(logofont,
                          cx - xp * 0.5 - w * 0.5 + shadow_offset + i,
                          cy - yp * 0.5 - h * 0.5 + shadow_offset + j,
-                         text, -1);
+                         0, text, 0, 0);
 
    /* Then draw the lit text we made before on top. */
    al_set_separate_blender(ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA,
@@ -206,7 +206,7 @@ static void print_parameters(void)
    th = al_get_font_line_height(font) + 3;
    for (i = 0; param_names[i]; i++) {
       al_set_blender(ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA, label);
-      al_font_textprintf(font, 2, 2 + i * th, "%s", param_names[i]);
+      al_draw_textf(font, 2, 2 + i * th, 0, "%s", param_names[i]);
    }
    for (i = 0; param_names[i]; i++) {
       int y = 2 + i * th;
@@ -218,23 +218,23 @@ static void print_parameters(void)
                         al_map_rgba_f(1, 1, 1, 0.5));
       al_set_blender(ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA,
                      i == selection ? light : normal);
-      al_font_textprintf(font, 75, y, "%s", param_values[i]);
+      al_draw_textf(font, 75, y, 0, "%s", param_values[i]);
       if (i == selection && editing &&
          (((int)(al_current_time() * 2)) & 1)) {
-         int x = 75 + al_get_text_width(font, param_values[i], -1);
+         int x = 75 + al_get_text_width(font, param_values[i], 0, 0);
          al_set_blender(ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA, normal);
          al_draw_line(x, y, x, y + th, white, 0);
       }
    }
 
    al_set_blender(ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA, normal);
-   al_font_textprintf(font, 400, 2, "%s", "R - Randomize");
-   al_font_textprintf(font, 400, 2 + th, "%s", "S - Save as logo.png");
+   al_draw_textf(font, 400, 2, 0, "%s", "R - Randomize");
+   al_draw_textf(font, 400, 2 + th, 0, "%s", "S - Save as logo.png");
 
-   al_font_textprintf(font, 2, 480 - th * 2 - 2, "%s",
+   al_draw_textf(font, 2, 480 - th * 2 - 2, 0, "%s",
                       "To modify, press Return, then enter value, "
                       "then Return again.");
-   al_font_textprintf(font, 2, 480 - th - 2, "%s",
+   al_draw_textf(font, 2, 480 - th - 2, 0, "%s",
                       "Use cursor up/down to "
                       "select the value to modify.");
    al_restore_state(&state);

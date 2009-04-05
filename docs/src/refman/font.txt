@@ -63,47 +63,46 @@ Returns the height of a character in the specified font.
 
 Calculates the length of a string in a particular font.
 
-## API: al_font_textout
+## API: al_draw_text
 
-Writes the null terminated string str onto bmp at position x, y, using 
-the specified font, foreground color and background color (-1 is trans).
-If color is -1 and a proportional font is in use, it will be drawn
-using the colors from the original font bitmap (the one imported into
-the grabber program), which allows multicolored text output.
-If count is not -1, write only the first 'count' code points.
+Writes the 0-terminated string `text` onto `bmp` at position `x`, `y`, using 
+the specified `font`.
 
-## API: al_font_textout_centre
+The `flags` parameter can be 0 or a combination of the following flags:
 
-Like [al_font_textout], but uses the x coordinate as the centre rather than 
-the left of the string.
+- ALLEGRO_CENTER Draw the text centered around the given position.
+- ALLEGRO_RIGHT Draw the text right-aligned to the given position.
 
-## API: al_font_textout_justify
+The `start` and `end` parameters can be used to only draw a sub-string, measured
+in code-points (i.e. letters, not bytes). If start/end are less than zero,
+the position is measured from the end. If `end` is zero, it means the end of
+the string.
 
-Like textout_ex(), but justifies the string to the specified area.
+For example:
 
-## API: al_font_textout_right
+    al_draw_text(..., "Allegro 5", 0, 0) // prints "Allegro 5"
+    al_draw_text(..., "Allegro 5", 0, 9) // same
+    al_draw_text(..., "Allegro 5", -9, 9) // same
+    al_draw_text(..., "Allegro 5", -9, 0) // same
+    al_draw_text(..., "Allegro 5", 0, 1) // prints "A"
+    al_draw_text(..., "Allegro 5", -1, 0) // prints "5"
+    al_draw_text(..., "Allegro 5", 2, 5) // prints "leg"
+    al_draw_text(..., "Allegro 5", -7, -4) // same
 
-Like [al_font_textout], but uses the x coordinate as the right rather than 
-the left of the string.
 
-## API: al_font_textprintf
+## API: al_draw_justified_text
 
-Formatted text output, using a printf() style format string.
+Like [al_draw_text](), but justifies the string to the specified area.
 
-## API: al_font_textprintf_centre
 
-Like [al_font_textprintf], but uses the x coordinate as the centre rather
-than the left of the string.
+## API: al_draw_textf
 
-## API: al_font_textprintf_justify
+Formatted text output, using a printf() style format string, all parameters
+have the same meaning as with [al_draw_text] otherwise.
 
-Like [al_font_textprintf], but right justifies the string to the specified
-area.
+## API: al_draw_justified_textf
 
-## API: al_font_textprintf_right
-
-Like [al_font_textprintf], but uses the x coordinate as the right rather
-than the left of the string.
+Like [al_draw_justified_text] and [al_draw_textf].
 
 ## API: al_get_text_dimensions
 

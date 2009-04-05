@@ -69,8 +69,8 @@ static int length(const ALLEGRO_FONT* f, const ALLEGRO_USTR *text)
 
 
 static void color_get_text_dimensions(ALLEGRO_FONT const *f,
-   char const *text,
-   int count, int *bbx, int *bby, int *bbw, int *bbh, int *ascent,
+   const ALLEGRO_USTR *text,
+   int *bbx, int *bby, int *bbw, int *bbh, int *ascent,
    int *descent)
 {
    /* Dummy implementation - for A4-style bitmap fonts the bounding
@@ -81,7 +81,7 @@ static void color_get_text_dimensions(ALLEGRO_FONT const *f,
    int h = al_get_font_line_height(f);
    if (bbx) *bbx = 0;
    if (bby) *bby = 0;
-   if (bbw) *bbw = al_get_text_width(f, text, count);
+   if (bbw) *bbw = length(f, text);
    if (bbh) *bbh = h;
    if (ascent) *ascent = h;
    if (descent) *descent = 0;

@@ -204,26 +204,22 @@ static int text_length(ALLEGRO_FONT const *f, const ALLEGRO_USTR *text)
 
 /* Function: al_ttf_get_text_dimensions
  */
-static void get_text_dimensions(ALLEGRO_FONT const *f, char const *text,
-    int count, int *bbx, int *bby, int *bbw, int *bbh, int *ascent,
+static void get_text_dimensions(ALLEGRO_FONT const *f, ALLEGRO_USTR const *text,
+    int *bbx, int *bby, int *bbw, int *bbh, int *ascent,
     int *descent)
 {
     ALLEGRO_TTF_FONT_DATA *data = f->data;
     FT_Face face = data->face;
-    ALLEGRO_USTR_INFO text_info;
-    ALLEGRO_USTR *utext = al_ref_cstr(&text_info, text);
     char prev = '\0';
     int pos = 0;
     int i;
     int x = 0;
     ALLEGRO_TTF_GLYPH_DATA *glyph;
 
-    if (count == -1) {
-       count = al_ustr_length(utext);
-    }
+    int count = al_ustr_length(text);
     *bbx = 0;
     for (i = 0; i < count; i++) {
-        int32_t ch = al_ustr_get_next(utext, &pos);
+        int32_t ch = al_ustr_get_next(text, &pos);
         x += render_glyph(f, prev, ch, 0, 0, &glyph);
         if (i == count - 1) {
             x -= face->glyph->advance.x >> 6;

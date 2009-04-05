@@ -30,77 +30,46 @@
 
 
 
-/* Function: al_font_textout
- */
-void al_font_textout(const ALLEGRO_FONT *f, int x, int y,
-   const char *str, int count)
+static ALLEGRO_USTR *ref_str(ALLEGRO_USTR_INFO *info, const char *text,
+   int start, int end)
 {
-   ALLEGRO_USTR_INFO str_info;
-   ALLEGRO_USTR *ustr;
-   ASSERT(f);
-   ASSERT(str);
-   ASSERT(count >= -1);
+   ALLEGRO_USTR *ustr = al_ref_cstr(info, text);
+   if (start == 0 && end == 0) return ustr;
 
-   ustr = al_ref_cstr(&str_info, str);
-   if (count > -1) {
-      ustr = al_ref_buffer(&str_info, str, al_ustr_offset(ustr, count));
-   }
+   if (end == 0)
+      end = al_ustr_length(ustr);
 
-   f->vtable->render(f, ustr, x, y);
+   ustr = al_ref_buffer(info, text + al_ustr_offset(ustr, start),
+      al_ustr_offset(ustr, end));
+
+   return ustr;
 }
 
-
-
-/* Function: al_font_textout_centre
+/* Function: al_draw_text
  */
-void al_font_textout_centre(const ALLEGRO_FONT *f, int x, int y,
-   const char *str, int count)
+void al_draw_text(const ALLEGRO_FONT *font, float x, float y, int flags,
+   const char *text, int start, int end) 
 {
    ALLEGRO_USTR_INFO str_info;
    ALLEGRO_USTR *ustr;
-   int len;
-   ASSERT(f);
-   ASSERT(str);
-   ASSERT(count >= -1);
+   ASSERT(font);
+   ASSERT(text);
 
-   ustr = al_ref_cstr(&str_info, str);
-   if (count > -1) {
-      ustr = al_ref_buffer(&str_info, str, al_ustr_offset(ustr, count));
-   }
+   ustr = ref_str(&str_info, text, start, end);
 
-   len = f->vtable->text_length(f, ustr);
-   f->vtable->render(f, ustr, x - len/2, y);
-}
-
-
-
-/* Function: al_font_textout_right
- */
-void al_font_textout_right(const ALLEGRO_FONT *f, int x, int y,
-   const char *str, int count)
-{
-   ALLEGRO_USTR_INFO str_info;
-   ALLEGRO_USTR *ustr;
-   int len;
-   ASSERT(f);
-   ASSERT(str);
-   ASSERT(count >= -1);
-
-   ustr = al_ref_cstr(&str_info, str);
-   if (count > -1) {
-      ustr = al_ref_buffer(&str_info, str, al_ustr_offset(ustr, count));
-   }
-
-   len = f->vtable->text_length(f, ustr);
-   f->vtable->render(f, ustr, x - len, y);
+   if (flags & ALLEGRO_CENTER)
+      x -= font->vtable->text_length(font, ustr) * 0.5;
+   if (flags & ALLEGRO_RIGHT)
+      x -= font->vtable->text_length(font, ustr);
+   font->vtable->render(font, ustr, x, y);
 }
 
 
 
 /* Function: al_font_textout_justify
  */
-void al_font_textout_justify(const ALLEGRO_FONT *f, int x1, int x2, int y,
-   int diff, const char *str)
+void al_draw_justified_text(const ALLEGRO_FONT *font, float x1, float x2,
+   float y, float diff, int flags, const char *text, int start, int end)
 {
    const char *whitespace = " \t\n\r";
    ALLEGRO_USTR_INFO str_info;
@@ -113,7 +82,9 @@ void al_font_textout_justify(const ALLEGRO_FONT *f, int x1, int x2, int y,
    int space;
    float fleft, finc;
 
-   ustr = al_ref_cstr(&str_info, str);
+   (void)flags;
+
+   ustr = ref_str(&str_info, text, start, end);
 
    /* count words and measure min length (without spaces) */ 
    num_words = 0;
@@ -128,7 +99,7 @@ void al_font_textout_justify(const ALLEGRO_FONT *f, int x1, int x2, int y,
          pos2 = al_ustr_size(ustr);
 
       word = al_ref_ustr(&word_info, ustr, pos1, pos2);
-      minlen += f->vtable->text_length(f, word);
+      minlen += font->vtable->text_length(font, word);
       num_words++;
 
       pos1 = pos2;
@@ -139,7 +110,7 @@ void al_font_textout_justify(const ALLEGRO_FONT *f, int x1, int x2, int y,
 
    if ((space <= 0) || (space > diff) || (num_words < 2)) {
       /* can't justify */
-      f->vtable->render(f, ustr, x1, y);
+      font->vtable->render(font, ustr, x1, y);
       return; 
    }
 
@@ -156,7 +127,7 @@ void al_font_textout_justify(const ALLEGRO_FONT *f, int x1, int x2, int y,
          pos2 = al_ustr_size(ustr);
 
       word = al_ref_ustr(&word_info, ustr, pos1, pos2);
-      fleft += f->vtable->render(f, word, (int)fleft, y);
+      fleft += font->vtable->render(font, word, (int)fleft, y);
       fleft += finc;
 
       pos1 = pos2;
@@ -165,14 +136,14 @@ void al_font_textout_justify(const ALLEGRO_FONT *f, int x1, int x2, int y,
 
 
 
-/* Function: al_font_textprintf
+/* Function: al_draw_textf
  */
-void al_font_textprintf(const ALLEGRO_FONT *f, int x, int y,
+void al_draw_textf(const ALLEGRO_FONT *font, float x, float y, int flags,
    const char *format, ...)
 {
    ALLEGRO_USTR *buf;
    va_list ap;
-   ASSERT(f);
+   ASSERT(font);
    ASSERT(format);
 
    va_start(ap, format);
@@ -180,17 +151,17 @@ void al_font_textprintf(const ALLEGRO_FONT *f, int x, int y,
    al_ustr_vappendf(buf, format, ap);
    va_end(ap);
 
-   al_font_textout(f, x, y, al_cstr(buf), -1);
+   al_draw_text(font, x, y, flags, al_cstr(buf), 0, 0);
 
    al_ustr_free(buf);
 }
 
 
 
-/* Function: al_font_textprintf_centre
+/* Function: al_draw_justified_textf
  */
-void al_font_textprintf_centre(const ALLEGRO_FONT *f, int x, int y,
-   const char *format, ...)
+void al_draw_justified_textf(const ALLEGRO_FONT *f, float x1, float x2, float y,
+   float diff, int flags, const char *format, ...)
 {
    ALLEGRO_USTR *buf;
    va_list ap;
@@ -202,51 +173,7 @@ void al_font_textprintf_centre(const ALLEGRO_FONT *f, int x, int y,
    al_ustr_vappendf(buf, format, ap);
    va_end(ap);
 
-   al_font_textout_centre(f, x, y, al_cstr(buf), -1);
-
-   al_ustr_free(buf);
-}
-
-
-
-/* Function: al_font_textprintf_right
- */
-void al_font_textprintf_right(const ALLEGRO_FONT *f, int x, int y,
-   const char *format, ...)
-{
-   ALLEGRO_USTR *buf;
-   va_list ap;
-   ASSERT(f);
-   ASSERT(format);
-
-   va_start(ap, format);
-   buf = al_ustr_new("");
-   al_ustr_vappendf(buf, format, ap);
-   va_end(ap);
-
-   al_font_textout_right(f, x, y, al_cstr(buf), -1);
-
-   al_ustr_free(buf);
-}
-
-
-
-/* Function: al_font_textprintf_justify
- */
-void al_font_textprintf_justify(const ALLEGRO_FONT *f, int x1, int x2, int y,
-   int diff, const char *format, ...)
-{
-   ALLEGRO_USTR *buf;
-   va_list ap;
-   ASSERT(f);
-   ASSERT(format);
-
-   va_start(ap, format);
-   buf = al_ustr_new("");
-   al_ustr_vappendf(buf, format, ap);
-   va_end(ap);
-
-   al_font_textout_justify(f, x1, x2, y, diff, al_cstr(buf));
+   al_draw_justified_text(f, x1, x2, y, diff, flags, al_cstr(buf), 0, 0);
 
    al_ustr_free(buf);
 }
@@ -255,18 +182,15 @@ void al_font_textprintf_justify(const ALLEGRO_FONT *f, int x1, int x2, int y,
 
 /* Function: al_get_text_width
  */
-int al_get_text_width(const ALLEGRO_FONT *f, const char *str, int count)
+int al_get_text_width(const ALLEGRO_FONT *f, const char *str, int start,
+   int end)
 {
    ALLEGRO_USTR_INFO str_info;
    ALLEGRO_USTR *ustr;
    ASSERT(f);
    ASSERT(str);
-   ASSERT(count >= -1);
 
-   ustr = al_ref_cstr(&str_info, str);
-   if (count > -1) {
-      ustr = al_ref_buffer(&str_info, str, al_ustr_offset(ustr, count));
-   }
+   ustr = ref_str(&str_info, str, start, end);
 
    return f->vtable->text_length(f, ustr);
 }
@@ -286,11 +210,14 @@ int al_get_font_line_height(const ALLEGRO_FONT *f)
 /* Function: al_get_text_dimensions
  */
 void al_get_text_dimensions(const ALLEGRO_FONT *f,
-   char const *text, int count,
+   char const *text, int start, int end,
    int *bbx, int *bby, int *bbw, int *bbh, int *ascent, int *descent)
 {
+   ALLEGRO_USTR_INFO str_info;
+   ALLEGRO_USTR *ustr;
    ASSERT(f);
-   f->vtable->get_text_dimensions(f, text, count, bbx, bby,
+   ustr = ref_str(&str_info, text, start, end);
+   f->vtable->get_text_dimensions(f, ustr, bbx, bby,
       bbw, bbh, ascent, descent);
 }
 

@@ -42,14 +42,14 @@ void showWave(int num)
    char text[20];
    sprintf(text, "WAVE %d", num);
 
-   int w = al_get_text_width(myfont, text, -1);
+   int w = al_get_text_width(myfont, text, 0, 0);
    int h = al_get_font_line_height(myfont);
 
    waveBitmap = al_create_bitmap(w, h);
    ALLEGRO_BITMAP *old_target = al_get_target_bitmap();
    al_set_target_bitmap(waveBitmap);
    al_clear(al_map_rgba(0, 0, 0, 0));
-   al_font_textprintf(myfont, 0, 0, "%s", text);
+   al_draw_textf(myfont, 0, 0, 0, "%s", text);
    al_set_target_bitmap(old_target);
 
    waveAngle = (ALLEGRO_PI*2);

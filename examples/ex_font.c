@@ -87,17 +87,17 @@ int main(void)
     /* Draw red text */
     al_set_blender(ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA,
       al_map_rgb(255, 0, 0));
-    al_font_textout(f, 10, 10, "red", -1);
+    al_draw_textf(f, 10, 10, 0, "red");
 
     /* Draw green text */
     al_set_blender(ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA,
       al_map_rgb(0, 255, 0));
-    al_font_textout(f, 10, 50, "green", -1);
+    al_draw_textf(f, 10, 50, 0, "green");
     
     /* Draw a unicode symbol */
     al_set_blender(ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA,
       al_map_rgb(0, 0, 255));
-    al_font_textout(a4f, 10, 90, "Mysha's 0.02€", -1);
+    al_draw_textf(a4f, 10, 90, 0, "Mysha's 0.02€");
 
     al_flip_display();
 

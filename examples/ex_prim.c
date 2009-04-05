@@ -79,7 +79,7 @@ void FilledPrimitives(int mode)
    } else if (mode == DRAW) {
       al_set_blender(ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA, al_map_rgba_f(1, 1, 1, 1));
       
-      al_font_textprintf_centre(Font, ScreenW / 2, ScreenH - 20, "Low Level Filled Primitives");
+      al_draw_textf(Font, ScreenW / 2, ScreenH - 20, ALLEGRO_CENTER, "Low Level Filled Primitives");
       
       if (Blend)
          al_set_blender(ALLEGRO_ONE, ALLEGRO_ONE, al_map_rgba_f(1, 1, 1, 1));
@@ -149,7 +149,7 @@ void IndexedFilledPrimitives(int mode)
    } else if (mode == DRAW) {
       al_set_blender(ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA, al_map_rgba_f(1, 1, 1, 1));
       
-      al_font_textprintf_centre(Font, ScreenW / 2, ScreenH - 20, "Indexed Filled Primitives");
+      al_draw_textf(Font, ScreenW / 2, ScreenH - 20, ALLEGRO_CENTER, "Indexed Filled Primitives");
       
       if (Blend)
          al_set_blender(ALLEGRO_ONE, ALLEGRO_ONE, al_map_rgba_f(1, 1, 1, 1));
@@ -193,7 +193,7 @@ void HighPrimitives(int mode)
 
       al_set_blender(ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA, al_map_rgba_f(1, 1, 1, 1));
       
-      al_font_textprintf_centre(Font, ScreenW / 2, ScreenH - 20, "High Level Primitives");
+      al_draw_textf(Font, ScreenW / 2, ScreenH - 20, ALLEGRO_CENTER, "High Level Primitives");
       
       if (Blend)
          al_set_blender(ALLEGRO_ONE, ALLEGRO_ONE, al_map_rgba_f(1, 1, 1, 1));
@@ -234,7 +234,7 @@ void HighFilledPrimitives(int mode)
    } else if (mode == DRAW) {
       al_set_blender(ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA, al_map_rgba_f(1, 1, 1, 1));
       
-      al_font_textprintf_centre(Font, ScreenW / 2, ScreenH - 20, "High Level Filled Primitives");
+      al_draw_textf(Font, ScreenW / 2, ScreenH - 20, ALLEGRO_CENTER, "High Level Filled Primitives");
       
       if (Blend)
          al_set_blender(ALLEGRO_ONE, ALLEGRO_ONE, al_map_rgba_f(1, 1, 1, 1));
@@ -280,7 +280,7 @@ void ShadePrimitives(int mode)
       };
       al_set_blender(ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA, shade_color);
       
-      al_font_textprintf_centre(Font, ScreenW / 2, ScreenH - 20, "Shaded Primitives");
+      al_draw_textf(Font, ScreenW / 2, ScreenH - 20, ALLEGRO_CENTER, "Shaded Primitives");
       
       if (Blend)
          al_set_blender(ALLEGRO_ONE, ALLEGRO_ONE, shade_color);
@@ -328,7 +328,7 @@ void TransformationsPrimitives(int mode)
       };
       al_set_blender(ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA, al_map_rgba_f(1, 1, 1, 1));
       
-      al_font_textprintf_centre(Font, ScreenW / 2, ScreenH - 20, "Transformations");
+      al_draw_textf(Font, ScreenW / 2, ScreenH - 20, ALLEGRO_CENTER, "Transformations");
       
       if (Blend)
          al_set_blender(ALLEGRO_ONE, ALLEGRO_ONE, al_map_rgba_f(1, 1, 1, 1));
@@ -383,7 +383,7 @@ void LowPrimitives(int mode)
    } else if (mode == DRAW) {
       al_set_blender(ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA, al_map_rgba_f(1, 1, 1, 1));
       
-      al_font_textprintf_centre(Font, ScreenW / 2, ScreenH - 20, "Low Level Primitives");
+      al_draw_textf(Font, ScreenW / 2, ScreenH - 20, ALLEGRO_CENTER, "Low Level Primitives");
       
       if (Blend)
          al_set_blender(ALLEGRO_ONE, ALLEGRO_ONE, al_map_rgba_f(1, 1, 1, 1));
@@ -445,7 +445,7 @@ void IndexedPrimitives(int mode)
    } else if (mode == DRAW) {
       al_set_blender(ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA, al_map_rgba_f(1, 1, 1, 1));
       
-      al_font_textprintf_centre(Font, ScreenW / 2, ScreenH - 20, "Indexed Primitives");
+      al_draw_textf(Font, ScreenW / 2, ScreenH - 20, ALLEGRO_CENTER, "Indexed Primitives");
       
       if (Blend)
          al_set_blender(ALLEGRO_ONE, ALLEGRO_ONE, al_map_rgba_f(1, 1, 1, 1));
@@ -656,13 +656,13 @@ int main(void)
       }
       
       al_set_blender(ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA, white);
-      al_font_textprintf(Font, 0, 0, "FPS: %f", (float)frames_done / (al_current_time() - time_diff));
-      al_font_textprintf(Font, 0, 20, "Change Screen (Up/Down). Esc to Quit.");
-      al_font_textprintf(Font, 0, 40, "Rotation (Left/Right/Space): %f", Speed);
-      al_font_textprintf(Font, 0, 60, "Thickness (PgUp/PgDown): %f", Thickness);
-      al_font_textprintf(Font, 0, 80, "Software (S): %d", Soft);
-      al_font_textprintf(Font, 0, 100, "Blending (L): %d", Blend);
-      al_font_textprintf(Font, 0, 120, "Background (B): %d", Background);
+      al_draw_textf(Font, 0, 0, 0, "FPS: %f", (float)frames_done / (al_current_time() - time_diff));
+      al_draw_textf(Font, 0, 20, 0, "Change Screen (Up/Down). Esc to Quit.");
+      al_draw_textf(Font, 0, 40, 0, "Rotation (Left/Right/Space): %f", Speed);
+      al_draw_textf(Font, 0, 60, 0, "Thickness (PgUp/PgDown): %f", Thickness);
+      al_draw_textf(Font, 0, 80, 0, "Software (S): %d", Soft);
+      al_draw_textf(Font, 0, 100, 0, "Blending (L): %d", Blend);
+      al_draw_textf(Font, 0, 120, 0, "Background (B): %d", Background);
 
       
       Screens[cur_screen](DRAW);
