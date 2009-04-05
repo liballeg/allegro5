@@ -1,6 +1,8 @@
 #ifndef ALLEGRO_SYSTEM_NEW_H
 #define ALLEGRO_SYSTEM_NEW_H
 
+#include "allegro5/path.h"
+
 #ifdef __cplusplus
    extern "C" {
 #endif
@@ -27,7 +29,7 @@ enum {
    AL_LAST_PATH // must be last
 };
 
-AL_FUNC(AL_CONST char *, al_get_path, (uint32_t id, char *path, size_t size));
+AL_FUNC(ALLEGRO_PATH *, al_get_path, (int id));
 
 AL_FUNC(void, al_set_orgname, (AL_CONST char *orgname));
 AL_FUNC(void, al_set_appname, (AL_CONST char *appname));

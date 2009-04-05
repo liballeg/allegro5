@@ -371,15 +371,12 @@ static ALLEGRO_MOUSE_DRIVER *win_get_mouse_driver(void)
  *  Returns full path to various system and user diretories
  */
 
-static AL_CONST char *win_get_path(uint32_t id, char *dir, size_t size)
+static ALLEGRO_PATH *win_get_path(int id)
 {
    char path[MAX_PATH];
    uint32_t csidl = 0;
    HRESULT ret = 0;
    ALLEGRO_PATH *cisdl_path = NULL;
-   const char *s;
-   
-   memset(dir, 0, size);
 
    switch (id) {
       case AL_TEMP_PATH: {
@@ -387,11 +384,10 @@ static AL_CONST char *win_get_path(uint32_t id, char *dir, size_t size)
          DWORD ret = GetTempPath(MAX_PATH, path);
          if (ret > MAX_PATH) {
             /* should this ever happen, windows is more broken than I ever thought */
-            return dir;
+            return NULL;
          }
 
-         do_uconvert(path, U_ASCII, dir, U_UTF8, strlen(path)+1);
-         return dir;
+         return al_path_create_dir(path);
 
       } break;
 
@@ -401,16 +397,14 @@ static AL_CONST char *win_get_path(uint32_t id, char *dir, size_t size)
          GetModuleFileNameEx(process, NULL, path, MAX_PATH);
          ptr = strrchr(path, '\\');
          if (!ptr) { /* shouldn't happen */
-            return dir;
+            return NULL;
          }
 
          /* chop off everything including and after the last slash */
          /* should this not chop the slash? */
          *ptr = '\0';
 
-         do_uconvert(path, U_ASCII, dir, U_UTF8, strlen(path)+1);
-         ustrcat(dir, "\\");
-         return dir;
+         return al_path_create_dir(path);
       } break;
 
       case AL_SYSTEM_DATA_PATH: /* CSIDL_COMMON_APPDATA */
@@ -443,23 +437,19 @@ static AL_CONST char *win_get_path(uint32_t id, char *dir, size_t size)
          HANDLE process = GetCurrentProcess();
          GetModuleFileNameEx(process, NULL, path, MAX_PATH);
 
-         do_uconvert(path, U_ASCII, dir, U_UTF8, strlen(path)+1);
-         return dir;
+         return al_path_create(path);
       } break;
       
       default:
-         return dir;
+         return NULL;
    }
 
    ret = SHGetFolderPath(NULL, csidl, NULL, SHGFP_TYPE_CURRENT, path);
    if (ret != S_OK) {
-      return dir;
+      return NULL;
    }
 
-   if (path[strlen(path)-1] != '\\')
-      ustrcat(path, "\\");
-   
-   cisdl_path = al_path_create(path);
+   cisdl_path = al_path_create_dir(path);
    if (!cisdl_path)
       return NULL;
 
@@ -468,18 +458,7 @@ static AL_CONST char *win_get_path(uint32_t id, char *dir, size_t size)
       al_path_append(cisdl_path, al_get_appname());
    }
 
-   s = al_path_to_string(cisdl_path, '\\');
-   if (strlen(s) + 1 > size) {
-      al_path_free(cisdl_path);
-      return NULL;
-   }
-   _al_sane_strncpy(path, s, size);
-   al_path_free(cisdl_path);
-
-   /* XXX */
-   do_uconvert(path, U_ASCII, dir, U_UTF8, strlen(path)+1);
-   
-   return dir;
+   return cisdl_path;
 }
 
 static bool win_inhibit_screensaver(bool inhibit)

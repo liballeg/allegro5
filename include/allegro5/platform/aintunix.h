@@ -29,7 +29,7 @@
 extern "C" {
 #endif
 
-   AL_FUNC(AL_CONST char *, _unix_get_path, (uint32_t id, char *dir, size_t size));
+   AL_FUNC(ALLEGRO_PATH *, _unix_get_path, (int id));
 
    /* Helper for locating config files */
    AL_FUNC(int, _unix_find_resource, (char *dest, AL_CONST char *resource, int size));

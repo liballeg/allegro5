@@ -26,7 +26,7 @@ struct ALLEGRO_SYSTEM_INTERFACE
    int (*get_num_video_adapters)(void);
    void (*get_monitor_info)(int adapter, ALLEGRO_MONITOR_INFO *info);
    bool (*get_cursor_position)(int *ret_x, int *ret_y);
-   AL_CONST char *(*get_path)(uint32_t id, char *path, size_t size);
+   ALLEGRO_PATH *(*get_path)(int id);
    bool (*inhibit_screensaver)(bool inhibit);
    int (*get_num_display_formats)(void);
    int (*get_display_format_option)(int i, int option);

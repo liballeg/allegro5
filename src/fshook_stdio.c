@@ -861,15 +861,20 @@ static ALLEGRO_FS_ENTRY *al_fs_stdio_mktemp(const char *template,
    ALLEGRO_FS_ENTRY_STDIO *fh_stdio = NULL;
    char *dest = NULL;
    char tmpdir[PATH_MAX];
+   ALLEGRO_PATH *path;
 
    template_len = strlen(template);
 
-   if (al_get_path(AL_TEMP_PATH, tmpdir, PATH_MAX) != 0) {
+   path = al_get_path(AL_TEMP_PATH);
+   if (!path) {
       /* allegro_error disappeared on me :(
       ustrzcpy(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("Failed to find temp directory"));
       */
       return NULL;
    }
+
+   _al_sane_strncpy(tmpdir, al_path_to_string(path, '/'), sizeof tmpdir);
+   al_path_free(path);
 
    tmpdir_len = strlen(tmpdir);
 

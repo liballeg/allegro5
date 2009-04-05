@@ -254,7 +254,7 @@ static ALLEGRO_PATH *_unix_find_home(void)
    }
 }
 
-ALLEGRO_PATH *_real_unix_get_path(uint32_t id)
+ALLEGRO_PATH *_unix_get_path(int id)
 {
    switch (id) {
       case AL_TEMP_PATH: {
@@ -374,15 +374,4 @@ ALLEGRO_PATH *_real_unix_get_path(uint32_t id)
    }
 
    return NULL;
-}
-
-// FIXME: Why doesn't this return an ALLEGRO_PATH in the first place???
-AL_CONST char *_unix_get_path(uint32_t id, char *dir, size_t size)
-{
-   ALLEGRO_PATH *path = _real_unix_get_path(id);
-   if (!path) return NULL;
-   char const *str = al_path_to_string(path, '/');
-   _al_sane_strncpy(dir, str, size);
-   al_path_free(path);
-   return dir;
 }

@@ -233,12 +233,12 @@ ALLEGRO_SYSTEM *al_system_driver(void)
 
 /* Function: al_get_path
  */
-AL_CONST char *al_get_path(uint32_t id, char *path, size_t size)
+ALLEGRO_PATH *al_get_path(int id)
 {
    ASSERT(active_sysdrv);
 
    if (active_sysdrv->vt->get_path)
-      return active_sysdrv->vt->get_path(id, path, size);
+      return active_sysdrv->vt->get_path(id);
 
    return NULL;
 }
@@ -263,11 +263,8 @@ void al_set_appname(AL_CONST char *appname)
       ustrzcpy(_al_appname, sizeof(_al_appname), appname);
    }
    else {
-      char _appname_tmp[PATH_MAX];
-      ALLEGRO_PATH *_appname_path = NULL;
-
-      al_get_path(AL_EXENAME_PATH, _appname_tmp, PATH_MAX);
-      _appname_path = al_path_create(_appname_tmp);
+      ALLEGRO_PATH *_appname_path;
+      _appname_path = al_get_path(AL_EXENAME_PATH);
       ustrzcpy(_al_appname, sizeof(_al_appname), al_path_get_filename(_appname_path) );
       al_path_free(_appname_path);
    }

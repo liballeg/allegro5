@@ -4,7 +4,7 @@
 
 int main(void)
 {
-   char buffer[1024];
+   ALLEGRO_PATH *path;
 
    /* defaults to allegro */
    al_set_orgname("liballeg.org");
@@ -14,29 +14,36 @@ int main(void)
    
    al_init();
 
-   al_get_path(AL_PROGRAM_PATH, buffer, 1024);
-   printf("AL_PROGRAM_PATH: %s\n", buffer);
+   path = al_get_path(AL_PROGRAM_PATH);
+   printf("AL_PROGRAM_PATH: %s\n", al_path_to_string(path, '/'));
+   al_path_free(path);
 
-   al_get_path(AL_TEMP_PATH, buffer, 1024);
-   printf("AL_TEMP_PATH: %s\n", buffer);
+   path = al_get_path(AL_TEMP_PATH);
+   printf("AL_TEMP_PATH: %s\n", al_path_to_string(path, '/'));
+   al_path_free(path);
 
-   al_get_path(AL_SYSTEM_DATA_PATH, buffer, 1024);
-   printf("AL_SYSTEM_DATA_PATH: %s\n", buffer);
+   path = al_get_path(AL_SYSTEM_DATA_PATH);
+   printf("AL_SYSTEM_DATA_PATH: %s\n", al_path_to_string(path, '/'));
+   al_path_free(path);
 
-   al_get_path(AL_SYSTEM_SETTINGS_PATH, buffer, 1024);
-   printf("AL_SYSTEM_SETTINGS_PATH: %s\n", buffer);
+   path = al_get_path(AL_SYSTEM_SETTINGS_PATH);
+   printf("AL_SYSTEM_SETTINGS_PATH: %s\n", al_path_to_string(path, '/'));
+   al_path_free(path);
 
-   al_get_path(AL_USER_DATA_PATH, buffer, 1024);
-   printf("AL_USER_DATA_PATH: %s\n", buffer);
+   path = al_get_path(AL_USER_DATA_PATH);
+   printf("AL_USER_DATA_PATH: %s\n", al_path_to_string(path, '/'));
+   al_path_free(path);
 
-   al_get_path(AL_USER_SETTINGS_PATH, buffer, 1024);
-   printf("AL_USER_SETTINGS_PATH: %s\n", buffer);
+   path = al_get_path(AL_USER_SETTINGS_PATH);
+   printf("AL_USER_SETTINGS_PATH: %s\n", al_path_to_string(path, '/'));
 
-   al_get_path(AL_USER_HOME_PATH, buffer, 1024);
-   printf("AL_USER_HOME_PATH: %s\n", buffer);
+   path = al_get_path(AL_USER_HOME_PATH);
+   printf("AL_USER_HOME_PATH: %s\n", al_path_to_string(path, '/'));
+   al_path_free(path);
 
-   al_get_path(AL_EXENAME_PATH, buffer, 1024);
-   printf("AL_EXENAME_PATH: %s\n", buffer);
+   path = al_get_path(AL_EXENAME_PATH);
+   printf("AL_EXENAME_PATH: %s\n", al_path_to_string(path, '/'));
+   al_path_free(path);
 
    return 0;
 }

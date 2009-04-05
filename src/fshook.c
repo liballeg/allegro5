@@ -772,6 +772,15 @@ static bool _al_find_resource_exists(const char *path, const char *base,
    return ret;
 }
 
+// FIXME: Not needed after some code cleanup.
+static char const *path_to_buffer(ALLEGRO_PATH *path, char *buffer, size_t size)
+{
+   char const *str = al_path_to_string(path, '/');
+   _al_sane_strncpy(buffer, str, size);
+   al_path_free(path);
+   return buffer;
+}
+
 /* Function: al_find_resource
  */
 char *al_find_resource(const char *base, const char *resource, uint32_t fm,
@@ -799,15 +808,17 @@ char *al_find_resource(const char *base, const char *resource, uint32_t fm,
 
    ustrcat(base_new, base);
 
-   al_get_path(AL_USER_DATA_PATH, tmp, PATH_MAX);
+   path = al_get_path(AL_USER_DATA_PATH);
    //printf("find_resource: AL_USER_DATA_PATH\n");
-   if (_al_find_resource_exists(tmp, base_new, resource, fm, buffer, len)) {
+   if (_al_find_resource_exists(path_to_buffer(path, tmp, PATH_MAX),
+      base_new, resource, fm, buffer, len)) {
       return buffer;
    }
 
-   al_get_path(AL_PROGRAM_PATH, tmp, PATH_MAX);
+   path = al_get_path(AL_PROGRAM_PATH);
    //printf("find_resource: AL_PROGRAM_PATH\n");
-   if (_al_find_resource_exists(tmp, "data", resource, fm, buffer, len)) {
+   if (_al_find_resource_exists(path_to_buffer(path, tmp, PATH_MAX),
+      "data", resource, fm, buffer, len)) {
       return buffer;
    }
 
@@ -820,17 +831,17 @@ char *al_find_resource(const char *base, const char *resource, uint32_t fm,
       return buffer;
    }
 
-   al_get_path(AL_SYSTEM_DATA_PATH, tmp, PATH_MAX);
+   path = al_get_path(AL_SYSTEM_DATA_PATH);
    //printf("find_resource: AL_SYSTEM_DATA_PATH\n");
-   if (_al_find_resource_exists(tmp, base_new, resource, fm, buffer, len)) {
+   if (_al_find_resource_exists(path_to_buffer(path, tmp, PATH_MAX),
+      base_new, resource, fm, buffer, len)) {
       return buffer;
    }
 
    /* file didn't exist anywhere, lets return whatever we can */
 
-   al_get_path(AL_USER_DATA_PATH, tmp, PATH_MAX);
+   path = al_get_path(AL_USER_DATA_PATH);
    //printf("find_resource: def AL_USER_DATA_PATH\n");
-   path = al_path_create(tmp);
    al_path_append(path, base_new);
 
    if (resource) {

@@ -474,7 +474,7 @@ static int _find_executable_file(const char *filename, char *output, int size)
 }
 
 /* Implentation of get_path */
-static AL_CONST char *osx_get_path(uint32_t id, char* path, size_t length)
+static AL_CONST char *_fixme_osx_get_path(uint32_t id, char* path, size_t length)
 {
    NSString* ans = nil;
    NSArray* paths = nil;
@@ -561,6 +561,14 @@ static AL_CONST char *osx_get_path(uint32_t id, char* path, size_t length)
       _al_sane_strncpy(path, [ans UTF8String], length);
    }
    return ok == YES ? path : NULL;
+}
+
+static ALLEGRO_PATH *_osx_get_path(int id)
+{
+   // FIXME: get rid of arbitrary length
+   char temp[PATH_MAX];
+   _fixme_osx_get_path(id, temp, sizeof temp);
+   return al_path_create(temp);
 }
 
 /* _al_osx_post_quit
