@@ -16,6 +16,7 @@
  */
 
 #include "allegro5/allegro.h"
+#include "allegro5/internal/aintern_system.h"
 #include "allegro5/internal/aintern_kcm_audio.h"
 
 #include <stdlib.h>
@@ -195,6 +196,14 @@ static int oss_open_ver4()
 
 static int oss_open_ver3(void)
 {
+   ALLEGRO_SYSTEM *sys = al_system_driver();
+   if (sys->config) {
+      const char *config_device;
+      config_device = al_get_config_value(sys->config, "oss", "device");
+      if (config_device && config_device[0] != '\0')
+         oss_audio_device_ver3 = config_device;
+   }
+
    int fd = open(oss_audio_device_ver3, O_WRONLY);
    if (fd == -1) {
       switch (errno) {
@@ -230,13 +239,30 @@ static int oss_open_ver3(void)
 
 static int oss_open(void)
 {
+   bool force_oss3 = false;
+   ALLEGRO_SYSTEM *sys = al_system_driver();
+   if (sys->config) {
+      const char *force_oss3_cfg;
+      force_oss3_cfg = al_get_config_value(sys->config, "oss", "force_ver3");
+      if (force_oss3_cfg && force_oss3_cfg[0] != '\0')
+         force_oss3 = strcmp(force_oss3_cfg, "yes") ? false : true;
+   }
+
+   if (force_oss3) {
+      ALLEGRO_WARN("Skipping OSS4 probe.\n");
+   }
+
 #ifdef OSS_VER_4
-   if (oss_open_ver4()) {
-      ALLEGRO_WARN("OSS ver. 4 init failed, trying ver. 3...\n");
-      if (oss_open_ver3()) {
-         ALLEGRO_ERROR("Failed to init OSS.\n");
-         return 1;
-      }
+   bool inited = false;
+   if (!force_oss3) {
+      if (oss_open_ver4())
+         ALLEGRO_WARN("OSS ver. 4 init failed, trying ver. 3...\n");
+      else
+         inited = true;
+   }
+   if (!inited && oss_open_ver3()) {
+      ALLEGRO_ERROR("Failed to init OSS.\n");
+      return 1;
    }
 #else
    ALLEGRO_INFO("OSS4 support not compiled in. Skipping OSS4 probe.\n");
