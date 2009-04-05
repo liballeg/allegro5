@@ -71,7 +71,7 @@ static int alsa_open(void)
    ALLEGRO_SYSTEM *sys = al_system_driver();
    if (sys->config) {
       const char *config_device;
-      config_device = al_get_config_value(sys->config, "sound", "alsa_device");
+      config_device = al_get_config_value(sys->config, "alsa", "device");
       if (config_device && config_device[0] != '\0')
          alsa_device = strdup(config_device);
    }
