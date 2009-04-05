@@ -47,7 +47,7 @@ extern OSErr CPSSetFrontProcess(struct CPSProcessSerNum *psn);
 static ALLEGRO_SYSTEM* osx_sys_init(int flags);
 ALLEGRO_SYSTEM_INTERFACE *_al_system_osx_driver(void);
 static void osx_sys_exit(void);
-static AL_CONST char *osx_get_path(uint32_t id, char* path, size_t length);
+static ALLEGRO_PATH *osx_get_path(int id);
 
 
 /* Global variables */
@@ -563,7 +563,7 @@ static AL_CONST char *_fixme_osx_get_path(uint32_t id, char* path, size_t length
    return ok == YES ? path : NULL;
 }
 
-static ALLEGRO_PATH *_osx_get_path(int id)
+static ALLEGRO_PATH *osx_get_path(int id)
 {
    // FIXME: get rid of arbitrary length
    char temp[PATH_MAX];
