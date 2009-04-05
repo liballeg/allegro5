@@ -25,6 +25,7 @@
 #include <string.h>
 #include <poll.h>
 
+ALLEGRO_DEBUG_CHANNEL("oss")
 
 #if defined ALLEGRO_HAVE_SOUNDCARD_H
   #include <soundcard.h>
@@ -35,10 +36,6 @@
 #elif defined ALLEGRO_HAVE_MACHINE_SOUNDCARD_H
   #include <machine/soundcard.h>
 #endif
-
-#define PREFIX_E "a5-oss Error: "
-#define PREFIX_N "a5-oss Notice: "
-
 
 #if OSS_VERSION >= 0x040000
    #define OSS_VER_4
@@ -110,19 +107,17 @@ static int oss_open_ver4()
       switch (errno) {
          case ENXIO:
          case ENODEV:
-            TRACE(PREFIX_E "Open Sound System is not running in your ");
-            TRACE("system.\n");
+            ALLEGRO_ERROR("Open Sound System is not running in your system.\n");
          break;
 
          case ENOENT:
-            TRACE(PREFIX_E "No /dev/mixer device available in your ");
-            TRACE("system.\n");
-            TRACE(PREFIX_E "Perhaps Open Sound System is not installed ");
-            TRACE("or running.\n");
+            ALLEGRO_ERROR("No /dev/mixer device available in your system.\n");
+            ALLEGRO_ERROR("Perhaps Open Sound System is not installed or "
+                          "running.\n");
          break;
 
          default:
-            TRACE(PREFIX_E "errno: %i -- %s\n", errno, strerror(errno));
+            ALLEGRO_ERROR("errno: %i -- %s\n", errno, strerror(errno));
       }
 
       return 1;
@@ -130,15 +125,15 @@ static int oss_open_ver4()
 
    if (ioctl(mixer_fd, SNDCTL_SYSINFO, &sysinfo) == -1) {
       if (errno == ENXIO) {
-         TRACE(PREFIX_E "OSS has not detected any supported sound");
-         TRACE("hardware in your system.\n");
+         ALLEGRO_ERROR("OSS has not detected any supported sound hardware in "
+                       "your system.\n");
       }
       else if (errno == EINVAL) {
-         TRACE(PREFIX_N "The version of OSS installed on the system is not ");
-         TRACE("compatible with OSS4.\n");
+         ALLEGRO_INFO("The version of OSS installed on the system is not "
+                      "compatible with OSS4.\n");
       }
       else
-         TRACE(PREFIX_E "errno: %i -- %s\n", errno, strerror(errno));
+         ALLEGRO_ERROR("errno: %i -- %s\n", errno, strerror(errno));
 
       close(mixer_fd);
       return 1;
@@ -147,20 +142,20 @@ static int oss_open_ver4()
    /* Some OSS implementations (ALSA emulation) don't fail on SNDCTL_SYSINFO even
     * though they don't support OSS4. They *seem* to set numcards to 0. */
    if (sysinfo.numcards < 1) {
-      TRACE(PREFIX_N "The version of OSS installed on the system is not ");
-      TRACE("compatible with OSS4.\n");
+      ALLEGRO_WARN("The version of OSS installed on the system is not "
+                   "compatible with OSS4.\n");
       return 1;
    }
 
-   TRACE(PREFIX_N "OSS Version: %s\n", sysinfo.version);
-   TRACE(PREFIX_N "Found %i sound cards.\n", sysinfo.numcards);
+   ALLEGRO_INFO("OSS Version: %s\n", sysinfo.version);
+   ALLEGRO_INFO("Found %i sound cards.\n", sysinfo.numcards);
 
    for (i = 0; i < sysinfo.numcards; i++) {
       oss_audioinfo audioinfo;
       memset(&audioinfo, 0, sizeof(oss_audioinfo));
       audioinfo.dev = i;
 
-      TRACE(PREFIX_N "Trying sound card no. %i ...\n", audioinfo.dev);
+      ALLEGRO_INFO("Trying sound card no. %i ...\n", audioinfo.dev);
 
       ioctl(mixer_fd, SNDCTL_AUDIOINFO, &audioinfo);
 
@@ -172,20 +167,20 @@ static int oss_open_ver4()
             sprintf(oss_audio_device, "/dev/dsp%i", audioinfo.legacy_device);
          }
          else {
-            TRACE(PREFIX_E "Cannot find device name.\n");
+            ALLEGRO_ERROR("Cannot find device name.\n");
          }
 
-         TRACE(PREFIX_N "Using device: %s\n", oss_audio_device);
+         ALLEGRO_INFO("Using device: %s\n", oss_audio_device);
 
          break;
       }
       else {
-         TRACE(PREFIX_N "Device disabled.\n");
+         ALLEGRO_INFO("Device disabled.\n");
       }
    }
 
    if (i == sysinfo.numcards) {
-      TRACE(PREFIX_E "Couldn't find a suitable device.\n");
+      ALLEGRO_ERROR("Couldn't find a suitable device.\n");
       close(mixer_fd);
       return 1;
    }
@@ -205,19 +200,19 @@ static int oss_open_ver3(void)
       switch (errno) {
          case ENXIO:
          case ENODEV:
-            TRACE(PREFIX_E "Open Sound System is not running in your ");
-            TRACE("system.\n");
+            ALLEGRO_ERROR("Open Sound System is not running in your "
+                          "system.\n");
          break;
 
          case ENOENT:
-            TRACE(PREFIX_E "No '%s' device available in your system.\n",
-                  oss_audio_device_ver3);
-            TRACE(PREFIX_E "Perhaps Open Sound System is not installed ");
-            TRACE("or running.\n");
+            ALLEGRO_ERROR("No '%s' device available in your system.\n",
+               oss_audio_device_ver3);
+            ALLEGRO_ERROR("Perhaps Open Sound System is not installed "
+                          "or running.\n");
          break;
 
          default:
-            TRACE(PREFIX_E "errno: %i -- %s\n", errno, strerror(errno));
+            ALLEGRO_ERROR("errno: %i -- %s\n", errno, strerror(errno));
       }
 
       return 1;
@@ -225,7 +220,7 @@ static int oss_open_ver3(void)
 
    close(fd);
    strncpy(oss_audio_device, oss_audio_device_ver3, 512);
-   TRACE(PREFIX_N "Using device: %s\n", oss_audio_device);
+   ALLEGRO_INFO("Using device: %s\n", oss_audio_device);
 
    using_ver_4 = false;
 
@@ -237,16 +232,16 @@ static int oss_open(void)
 {
 #ifdef OSS_VER_4
    if (oss_open_ver4()) {
-      TRACE(PREFIX_N "OSS ver. 4 init failed, trying ver. 3...\n");
+      ALLEGRO_WARN("OSS ver. 4 init failed, trying ver. 3...\n");
       if (oss_open_ver3()) {
-         TRACE(PREFIX_E "Failed to init OSS.\n");
+         ALLEGRO_ERROR("Failed to init OSS.\n");
          return 1;
       }
    }
 #else
-   TRACE(PREFIX_N "OSS4 support not compiled in. Skipping OSS4 probe.\n");
+   ALLEGRO_INFO("OSS4 support not compiled in. Skipping OSS4 probe.\n");
    if (oss_open_ver3()) {
-      TRACE(PREFIX_E "Failed to init OSS.\n");
+      ALLEGRO_ERROR("Failed to init OSS.\n");
       return 1;
    }
 #endif
@@ -308,7 +303,7 @@ static int oss_load_voice(ALLEGRO_VOICE *voice, const void *data)
     * an optional feature IMO. -- milan
     */
    if (voice->attached_stream->loop == ALLEGRO_PLAYMODE_BIDIR) {
-      TRACE(PREFIX_N "Backwards playing not supported by the driver.\n");
+      ALLEGRO_INFO("Backwards playing not supported by the driver.\n");
       return -1;
    }
 
@@ -424,7 +419,7 @@ static void* oss_update(ALLEGRO_THREAD *self, void *arg)
          oss_update_nonstream_voice(voice, &buf, &bytes);
          frames = bytes / oss_voice->frame_size;
          if (write(oss_voice->fd, buf, bytes) == -1) {
-            TRACE(PREFIX_E "errno: %i -- %s\n", errno, strerror(errno));
+            ALLEGRO_ERROR("errno: %i -- %s\n", errno, strerror(errno));
             if (errno != EINTR)
                return NULL;
          }
@@ -435,7 +430,7 @@ static void* oss_update(ALLEGRO_THREAD *self, void *arg)
             goto silence;
 
          if (write(oss_voice->fd, data, frames * oss_voice->frame_size) == -1) {
-            TRACE(PREFIX_E "errno: %i -- %s\n", errno, strerror(errno));
+            ALLEGRO_ERROR("errno: %i -- %s\n", errno, strerror(errno));
             if (errno != EINTR)
                return NULL;
          }
@@ -463,9 +458,9 @@ static int oss_allocate_voice(ALLEGRO_VOICE *voice)
 
    ex_data->fd = open(oss_audio_device, O_WRONLY/*, O_NONBLOCK*/);
    if (ex_data->fd == -1) {
-      TRACE(PREFIX_E "Failed to open audio device '%s'.\n",
+      ALLEGRO_ERROR("Failed to open audio device '%s'.\n",
             oss_audio_device);
-      TRACE(PREFIX_E "errno: %i -- %s\n", errno, strerror(errno));
+      ALLEGRO_ERROR("errno: %i -- %s\n", errno, strerror(errno));
       free(ex_data);
       return 1;
    }
@@ -494,8 +489,8 @@ static int oss_allocate_voice(ALLEGRO_VOICE *voice)
       format = AFMT_FLOAT;
 #endif
    else {
-         TRACE(PREFIX_E "Unsupported OSS sound format.\n");
-         goto Error;
+      ALLEGRO_ERROR("Unsupported OSS sound format.\n");
+      goto Error;
    }
 
    int tmp_format = format;
@@ -507,50 +502,49 @@ static int oss_allocate_voice(ALLEGRO_VOICE *voice)
 #ifdef OSS_VER_4
       int tmp_oss_timing_policy = oss_timing_policy;
       if (ioctl(ex_data->fd, SNDCTL_DSP_POLICY, &tmp_oss_timing_policy) == -1) {
-          TRACE(PREFIX_E "Failed to set_timig policity to '%i'.\n",
+         ALLEGRO_ERROR("Failed to set_timig policity to '%i'.\n",
                tmp_oss_timing_policy);
-         TRACE(PREFIX_E "errno: %i -- %s\n", errno, strerror(errno));
+         ALLEGRO_ERROR("errno: %i -- %s\n", errno, strerror(errno));
          goto Error;
       }
-      TRACE(PREFIX_N "Accepted timing policy value: %i\n",
-            tmp_oss_timing_policy);
+      ALLEGRO_INFO("Accepted timing policy value: %i\n", tmp_oss_timing_policy);
 #endif
    }
    else {
       if (ioctl(ex_data->fd, SNDCTL_DSP_SETFRAGMENT, &tmp_oss_fragsize) == -1) {
-          TRACE(PREFIX_E "Failed to set fragment size.\n");
-          TRACE(PREFIX_E "errno: %i -- %s\n", errno, strerror(errno));
+          ALLEGRO_ERROR("Failed to set fragment size.\n");
+          ALLEGRO_ERROR("errno: %i -- %s\n", errno, strerror(errno));
           goto Error;
       }
    }
 
    if (ioctl(ex_data->fd, SNDCTL_DSP_SETFMT, &tmp_format) == -1) {
-      TRACE(PREFIX_E "Failed to set sample format.\n");
-      TRACE(PREFIX_E "errno: %i -- %s\n", errno, strerror(errno));
+      ALLEGRO_ERROR("Failed to set sample format.\n");
+      ALLEGRO_ERROR("errno: %i -- %s\n", errno, strerror(errno));
       goto Error;
    }
    if (tmp_format != format) {
-      TRACE(PREFIX_E "Sample format not supported by the driver.\n");
+      ALLEGRO_ERROR("Sample format not supported by the driver.\n");
       goto Error;
    }
 
    if (ioctl(ex_data->fd, SNDCTL_DSP_CHANNELS, &tmp_chan_count)) {
-      TRACE(PREFIX_E "Failed to set channel count.\n");
-      TRACE(PREFIX_E "errno: %i -- %s\n", errno, strerror(errno));
+      ALLEGRO_ERROR("Failed to set channel count.\n");
+      ALLEGRO_ERROR("errno: %i -- %s\n", errno, strerror(errno));
       goto Error;
    }
    if (tmp_chan_count != chan_count) {
-      TRACE(PREFIX_E "Requested sample channe count %i, got %i.\n",
+      ALLEGRO_ERROR("Requested sample channe count %i, got %i.\n",
             tmp_chan_count, chan_count);
    }
 
    if (ioctl(ex_data->fd, SNDCTL_DSP_SPEED, &tmp_freq) == -1) {
-      TRACE(PREFIX_E "Failed to set sample rate.\n");
-      TRACE(PREFIX_E "errno: %i -- %s\n", errno, strerror(errno));
+      ALLEGRO_ERROR("Failed to set sample rate.\n");
+      ALLEGRO_ERROR("errno: %i -- %s\n", errno, strerror(errno));
       goto Error;
    }
    if (voice->frequency != tmp_freq) {
-      TRACE(PREFIX_E "Requested sample rate %lu, got %iu.\n", voice->frequency,
+      ALLEGRO_ERROR("Requested sample rate %lu, got %iu.\n", voice->frequency,
             tmp_freq);
    }
 
