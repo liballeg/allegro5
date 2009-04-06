@@ -256,7 +256,7 @@ static ALLEGRO_PATH *_unix_find_home(void)
 ALLEGRO_PATH *_al_unix_get_path(int id)
 {
    switch (id) {
-      case AL_TEMP_PATH: {
+      case ALLEGRO_TEMP_PATH: {
          /* Check: TMP, TMPDIR, TEMP or TEMPDIR */
          char *envs[] = { "TMP", "TMPDIR", "TEMP", "TEMPDIR", NULL};
          uint32_t i = 0;
@@ -279,13 +279,13 @@ ALLEGRO_PATH *_al_unix_get_path(int id)
          return NULL;
       } break;
 
-      case AL_PROGRAM_PATH: {
+      case ALLEGRO_PROGRAM_PATH: {
 
          return get_executable_name();
 
       } break;
 
-      case AL_SYSTEM_DATA_PATH: {
+      case ALLEGRO_SYSTEM_DATA_PATH: {
          ALLEGRO_PATH *sys_data_path = NULL;
 
          /* FIXME: make this a compile time define, or a allegro cfg option? or both */
@@ -297,7 +297,7 @@ ALLEGRO_PATH *_al_unix_get_path(int id)
       } break;
 
 #if 0
-      case AL_USER_DATA_PATH: {
+      case ALLEGRO_USER_DATA_PATH: {
          int32_t ret = 0;
          uint32_t path_len = 0, ptr_len = 0, prog_len = 0;
          char path[PATH_MAX] = "", *ptr = NULL;
@@ -336,8 +336,8 @@ ALLEGRO_PATH *_al_unix_get_path(int id)
       } break;
 #endif
 
-      case AL_USER_SETTINGS_PATH:
-      case AL_USER_DATA_PATH: {
+      case ALLEGRO_USER_SETTINGS_PATH:
+      case ALLEGRO_USER_DATA_PATH: {
          ALLEGRO_PATH *local_path = NULL;
 
          local_path = _unix_find_home();
@@ -350,10 +350,10 @@ ALLEGRO_PATH *_al_unix_get_path(int id)
         return local_path;
       } break;
 
-      case AL_USER_HOME_PATH:
+      case ALLEGRO_USER_HOME_PATH:
          return _unix_find_home();
 
-      case AL_SYSTEM_SETTINGS_PATH: {
+      case ALLEGRO_SYSTEM_SETTINGS_PATH: {
          ALLEGRO_PATH *sys_path;
 
          /* FIXME: make this a compile time define, or something */
@@ -364,7 +364,7 @@ ALLEGRO_PATH *_al_unix_get_path(int id)
          return sys_path;
       } break;
 
-      case AL_EXENAME_PATH:
+      case ALLEGRO_EXENAME_PATH:
          return get_executable_name();
          break;
 

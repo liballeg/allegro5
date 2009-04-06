@@ -379,7 +379,7 @@ static ALLEGRO_PATH *win_get_path(int id)
    ALLEGRO_PATH *cisdl_path = NULL;
 
    switch (id) {
-      case AL_TEMP_PATH: {
+      case ALLEGRO_TEMP_PATH: {
          /* Check: TMP, TMPDIR, TEMP or TEMPDIR */
          DWORD ret = GetTempPath(MAX_PATH, path);
          if (ret > MAX_PATH) {
@@ -391,7 +391,7 @@ static ALLEGRO_PATH *win_get_path(int id)
 
       } break;
 
-      case AL_PROGRAM_PATH: { /* where the program is in */
+      case ALLEGRO_PROGRAM_PATH: { /* where the program is in */
          HANDLE process = GetCurrentProcess();
          char *ptr;
          GetModuleFileNameEx(process, NULL, path, MAX_PATH);
@@ -407,33 +407,33 @@ static ALLEGRO_PATH *win_get_path(int id)
          return al_path_create_dir(path);
       } break;
 
-      case AL_SYSTEM_DATA_PATH: /* CSIDL_COMMON_APPDATA */
+      case ALLEGRO_SYSTEM_DATA_PATH: /* CSIDL_COMMON_APPDATA */
          csidl = CSIDL_COMMON_APPDATA;
          break;
 
-      case AL_USER_DATA_PATH: /* CSIDL_APPDATA */
+      case ALLEGRO_USER_DATA_PATH: /* CSIDL_APPDATA */
          csidl = CSIDL_APPDATA;
          break;
 
-      case AL_USER_HOME_PATH: /* CSIDL_PERSONAL */
+      case ALLEGRO_USER_HOME_PATH: /* CSIDL_PERSONAL */
          csidl = CSIDL_PERSONAL;
          break;
 
-      case AL_USER_SETTINGS_PATH:
+      case ALLEGRO_USER_SETTINGS_PATH:
          /* CHECKME: is this correct? Windows doesn't seem to have a "path"
           * for settings; I guess these should go in the registry instead?
           */
          csidl = CSIDL_APPDATA;
          break;
 
-      case AL_SYSTEM_SETTINGS_PATH:
+      case ALLEGRO_SYSTEM_SETTINGS_PATH:
          /* CHECKME: is this correct? Windows doesn't seem to have a "path"
           * for settings; I guess these should go in the registry instead?
           */
          csidl = CSIDL_COMMON_APPDATA;
          break;
 
-      case AL_EXENAME_PATH: { /* full path to the exe including its name */
+      case ALLEGRO_EXENAME_PATH: { /* full path to the exe including its name */
          HANDLE process = GetCurrentProcess();
          GetModuleFileNameEx(process, NULL, path, MAX_PATH);
 
@@ -453,7 +453,7 @@ static ALLEGRO_PATH *win_get_path(int id)
    if (!cisdl_path)
       return NULL;
 
-   if (id != AL_USER_HOME_PATH) {
+   if (id != ALLEGRO_USER_HOME_PATH) {
       al_path_append(cisdl_path, al_get_orgname());
       al_path_append(cisdl_path, al_get_appname());
    }

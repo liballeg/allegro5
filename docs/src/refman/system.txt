@@ -8,10 +8,23 @@ Returns the global application name string.
 
 Returns the global organization name string.
 
-## API: al_get_path
+## API: al_get_standard_path
 
-Gets a system path, ie: temp, home, etc
-Returns -1 on failure.
+Gets a system path, depending on the `id` parameter:
+
+id                            description
+----------------------------- ------------------------
+ALLEGRO_PROGRAM_PATH          Directory with the executed program.
+ALLEGRO_TEMP_PATH             Path to the directory for temporary files.
+ALLEGRO_SYSTEM_DATA_PATH      Data path for system-wide installation.
+ALLEGRO_USER_DATA_PATH        Data path for per-user installation.
+ALLEGRO_USER_HOME_PATH        Path to the user's home directory.
+ALLEGRO_USER_SETTINGS_PATH    Path to per-user settings directory.
+ALLEGRO_SYSTEM_SETTINGS_PATH  Path to system-wide settings directory.
+ALLEGRO_EXENAME_PATH          The full path to the executable. 
+
+
+Returns NULL on failure.
 
 ## API: al_install_system
 
@@ -32,7 +45,7 @@ visible in the current compilation unit.
 
 Sets the global application name.
 
-The Application name is used by [al_get_path] to build the full path to
+The Application name is used by [al_get_standard_path] to build the full path to
 an application's files.
 
 Should be called once at the start of a program, before [al_init] or [al_install_system]
@@ -42,7 +55,7 @@ and never touched again.
 
 Sets the global organization name.
 
-The Organization name is used by [al_get_path] to build the full path to
+The Organization name is used by [al_get_standard_path] to build the full path to
 an application's files.
 
 Should be called once at the start of a program, before [al_init] or [al_install_system]

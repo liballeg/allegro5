@@ -106,7 +106,7 @@ static void read_allegro_cfg(void)
 
    active_sysdrv->config = al_load_config_file("/etc/allegro5rc");
 
-   path = _al_unix_get_path(AL_USER_HOME_PATH);
+   path = _al_unix_get_path(ALLEGRO_USER_HOME_PATH);
    al_path_set_filename(path, "allegro5rc");
    temp = al_load_config_file(al_path_to_string(path, '/'));
    if (temp) {
@@ -232,9 +232,9 @@ ALLEGRO_SYSTEM *al_system_driver(void)
 }
 
 
-/* Function: al_get_path
+/* Function: al_get_standard_path
  */
-ALLEGRO_PATH *al_get_path(int id)
+ALLEGRO_PATH *al_get_standard_path(int id)
 {
    ASSERT(active_sysdrv);
 
@@ -265,7 +265,7 @@ void al_set_appname(AL_CONST char *appname)
    }
    else {
       ALLEGRO_PATH *_appname_path;
-      _appname_path = al_get_path(AL_EXENAME_PATH);
+      _appname_path = al_get_standard_path(ALLEGRO_EXENAME_PATH);
       ustrzcpy(_al_appname, sizeof(_al_appname), al_path_get_filename(_appname_path) );
       al_path_free(_appname_path);
    }

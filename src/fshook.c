@@ -808,14 +808,14 @@ char *al_find_resource(const char *base, const char *resource, uint32_t fm,
 
    ustrcat(base_new, base);
 
-   path = al_get_path(AL_USER_DATA_PATH);
+   path = al_get_standard_path(ALLEGRO_USER_DATA_PATH);
    //printf("find_resource: AL_USER_DATA_PATH\n");
    if (_al_find_resource_exists(path_to_buffer(path, tmp, PATH_MAX),
       base_new, resource, fm, buffer, len)) {
       return buffer;
    }
 
-   path = al_get_path(AL_PROGRAM_PATH);
+   path = al_get_standard_path(ALLEGRO_PROGRAM_PATH);
    //printf("find_resource: AL_PROGRAM_PATH\n");
    if (_al_find_resource_exists(path_to_buffer(path, tmp, PATH_MAX),
       "data", resource, fm, buffer, len)) {
@@ -831,7 +831,7 @@ char *al_find_resource(const char *base, const char *resource, uint32_t fm,
       return buffer;
    }
 
-   path = al_get_path(AL_SYSTEM_DATA_PATH);
+   path = al_get_standard_path(ALLEGRO_SYSTEM_DATA_PATH);
    //printf("find_resource: AL_SYSTEM_DATA_PATH\n");
    if (_al_find_resource_exists(path_to_buffer(path, tmp, PATH_MAX),
       base_new, resource, fm, buffer, len)) {
@@ -840,7 +840,7 @@ char *al_find_resource(const char *base, const char *resource, uint32_t fm,
 
    /* file didn't exist anywhere, lets return whatever we can */
 
-   path = al_get_path(AL_USER_DATA_PATH);
+   path = al_get_standard_path(ALLEGRO_USER_DATA_PATH);
    //printf("find_resource: def AL_USER_DATA_PATH\n");
    al_path_append(path, base_new);
 

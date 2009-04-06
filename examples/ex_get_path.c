@@ -14,35 +14,35 @@ int main(void)
    
    al_init();
 
-   path = al_get_path(AL_PROGRAM_PATH);
-   printf("AL_PROGRAM_PATH: %s\n", al_path_to_string(path, '/'));
+   path = al_get_standard_path(ALLEGRO_PROGRAM_PATH);
+   printf("PROGRAM_PATH: %s\n", al_path_to_string(path, '/'));
    al_path_free(path);
 
-   path = al_get_path(AL_TEMP_PATH);
-   printf("AL_TEMP_PATH: %s\n", al_path_to_string(path, '/'));
+   path = al_get_standard_path(ALLEGRO_TEMP_PATH);
+   printf("TEMP_PATH: %s\n", al_path_to_string(path, '/'));
    al_path_free(path);
 
-   path = al_get_path(AL_SYSTEM_DATA_PATH);
-   printf("AL_SYSTEM_DATA_PATH: %s\n", al_path_to_string(path, '/'));
+   path = al_get_standard_path(ALLEGRO_SYSTEM_DATA_PATH);
+   printf("SYSTEM_DATA_PATH: %s\n", al_path_to_string(path, '/'));
    al_path_free(path);
 
-   path = al_get_path(AL_SYSTEM_SETTINGS_PATH);
-   printf("AL_SYSTEM_SETTINGS_PATH: %s\n", al_path_to_string(path, '/'));
+   path = al_get_standard_path(ALLEGRO_SYSTEM_SETTINGS_PATH);
+   printf("SYSTEM_SETTINGS_PATH: %s\n", al_path_to_string(path, '/'));
    al_path_free(path);
 
-   path = al_get_path(AL_USER_DATA_PATH);
-   printf("AL_USER_DATA_PATH: %s\n", al_path_to_string(path, '/'));
+   path = al_get_standard_path(ALLEGRO_USER_DATA_PATH);
+   printf("ASER_DATA_PATH: %s\n", al_path_to_string(path, '/'));
    al_path_free(path);
 
-   path = al_get_path(AL_USER_SETTINGS_PATH);
-   printf("AL_USER_SETTINGS_PATH: %s\n", al_path_to_string(path, '/'));
+   path = al_get_standard_path(ALLEGRO_USER_SETTINGS_PATH);
+   printf("USER_SETTINGS_PATH: %s\n", al_path_to_string(path, '/'));
 
-   path = al_get_path(AL_USER_HOME_PATH);
-   printf("AL_USER_HOME_PATH: %s\n", al_path_to_string(path, '/'));
+   path = al_get_standard_path(ALLEGRO_USER_HOME_PATH);
+   printf("USER_HOME_PATH: %s\n", al_path_to_string(path, '/'));
    al_path_free(path);
 
-   path = al_get_path(AL_EXENAME_PATH);
-   printf("AL_EXENAME_PATH: %s\n", al_path_to_string(path, '/'));
+   path = al_get_standard_path(ALLEGRO_EXENAME_PATH);
+   printf("EXENAME_PATH: %s\n", al_path_to_string(path, '/'));
    al_path_free(path);
 
    return 0;

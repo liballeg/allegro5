@@ -18,18 +18,18 @@ AL_FUNC(void, al_uninstall_system, (void));
 AL_FUNC(ALLEGRO_SYSTEM *, al_system_driver, (void));
 
 enum {
-   AL_PROGRAM_PATH = 0,
-   AL_TEMP_PATH,
-   AL_SYSTEM_DATA_PATH,
-   AL_USER_DATA_PATH,
-   AL_USER_HOME_PATH,
-   AL_USER_SETTINGS_PATH,
-   AL_SYSTEM_SETTINGS_PATH,
-   AL_EXENAME_PATH,
-   AL_LAST_PATH // must be last
+   ALLEGRO_PROGRAM_PATH = 0,
+   ALLEGRO_TEMP_PATH,
+   ALLEGRO_SYSTEM_DATA_PATH,
+   ALLEGRO_USER_DATA_PATH,
+   ALLEGRO_USER_HOME_PATH,
+   ALLEGRO_USER_SETTINGS_PATH,
+   ALLEGRO_SYSTEM_SETTINGS_PATH,
+   ALLEGRO_EXENAME_PATH,
+   ALLEGRO_LAST_PATH // must be last
 };
 
-AL_FUNC(ALLEGRO_PATH *, al_get_path, (int id));
+AL_FUNC(ALLEGRO_PATH *, al_get_standard_path, (int id));
 
 AL_FUNC(void, al_set_orgname, (AL_CONST char *orgname));
 AL_FUNC(void, al_set_appname, (AL_CONST char *appname));

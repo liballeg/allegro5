@@ -31,7 +31,7 @@ If asking for a writable resource, it will scan the same places as the read
 only scan, and will pick the first wirteable existing resource it finds.
 If it doesn't find any pre-existing resource, it finds the first writable
 directory path made up of the path components of the path returned from
-[al_get_path], the 'base', and 'resource' arguments. If none are writable,
+[al_get_standard_path], the 'base', and 'resource' arguments. If none are writable,
 it will return a path made up of the USER_DATA_PATH, and the 'base' and
 'resource' arguments.
 

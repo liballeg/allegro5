@@ -482,13 +482,13 @@ static AL_CONST char *_fixme_osx_get_path(uint32_t id, char* path, size_t length
    NSString *appname = [[NSString alloc] initWithUTF8String: al_get_appname()];
    BOOL ok = NO;
    switch (id) {
-      case AL_PROGRAM_PATH:
+      case ALLEGRO_PROGRAM_PATH:
          ans = [[NSBundle mainBundle] bundlePath];
          break;
-      case AL_TEMP_PATH:
+      case ALLEGRO_TEMP_PATH:
          ans = NSTemporaryDirectory();
          break;
-      case AL_SYSTEM_DATA_PATH:
+      case ALLEGRO_SYSTEM_DATA_PATH:
          ans = [[NSBundle mainBundle] resourcePath];
          if (ans != nil) {
             /* Append program name */
@@ -496,7 +496,7 @@ static AL_CONST char *_fixme_osx_get_path(uint32_t id, char* path, size_t length
                                      stringByAppendingPathComponent: appname];
          }
          break;
-      case AL_USER_DATA_PATH:
+      case ALLEGRO_USER_DATA_PATH:
          paths = NSSearchPathForDirectoriesInDomains(NSLibraryDirectory,
             NSUserDomainMask,
             YES);
@@ -507,10 +507,10 @@ static AL_CONST char *_fixme_osx_get_path(uint32_t id, char* path, size_t length
                                      stringByAppendingPathComponent: appname];
          }
          break;
-      case AL_USER_HOME_PATH:
+      case ALLEGRO_USER_HOME_PATH:
          ans = NSHomeDirectory();
          break;
-      case AL_EXENAME_PATH:
+      case ALLEGRO_EXENAME_PATH:
          /* If the application lives in a bundle, return the bundle path as
           * the executable path, since this is probably what is expected.
           */
@@ -528,7 +528,7 @@ static AL_CONST char *_fixme_osx_get_path(uint32_t id, char* path, size_t length
             }
          }
          break;
-      case AL_USER_SETTINGS_PATH:
+      case ALLEGRO_USER_SETTINGS_PATH:
          paths =
          NSSearchPathForDirectoriesInDomains(NSApplicationSupportDirectory,
             NSUserDomainMask,
@@ -540,7 +540,7 @@ static AL_CONST char *_fixme_osx_get_path(uint32_t id, char* path, size_t length
                                      stringByAppendingPathComponent: appname];
          }
          break;
-      case AL_SYSTEM_SETTINGS_PATH:
+      case ALLEGRO_SYSTEM_SETTINGS_PATH:
          paths =
          NSSearchPathForDirectoriesInDomains(NSApplicationSupportDirectory,
             NSLocalDomainMask,
