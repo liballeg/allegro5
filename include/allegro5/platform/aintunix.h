@@ -29,15 +29,10 @@
 extern "C" {
 #endif
 
-   AL_FUNC(ALLEGRO_PATH *, _unix_get_path, (int id));
+   AL_FUNC(ALLEGRO_PATH *, _al_unix_get_path, (int id));
 
    /* Helper for locating config files */
    AL_FUNC(int, _unix_find_resource, (char *dest, AL_CONST char *resource, int size));
-
-
-   /* Generic system driver entry for finding the executable */
-   AL_FUNC(ALLEGRO_PATH *, _unix_get_executable_name, (void));
-
 
    /* Helper for setting os_type */
    AL_FUNC(void, _unix_read_os_type, (void));

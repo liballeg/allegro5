@@ -596,7 +596,9 @@ void al_destroy_config(ALLEGRO_CONFIG *config)
 char const *al_get_first_config_section(ALLEGRO_CONFIG const *config,
    void **iterator)
 {
-   ALLEGRO_CONFIG_SECTION *s = config->head;
+   ALLEGRO_CONFIG_SECTION *s;
+   if (!config) return NULL;
+   s = config->head;
    if (iterator) *iterator = s;
    return s ? al_cstr(s->name) : NULL;
 }
@@ -624,6 +626,8 @@ char const *al_get_first_config_entry(ALLEGRO_CONFIG const *config,
    ALLEGRO_USTR *usection;
    ALLEGRO_CONFIG_SECTION *s;
    ALLEGRO_CONFIG_ENTRY *e;
+
+   if (!config) return NULL;
 
    if (section == NULL)
       section = "";

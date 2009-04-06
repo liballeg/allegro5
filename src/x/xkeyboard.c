@@ -424,7 +424,6 @@ void _al_xwin_keyboard_handler(XKeyEvent *event, bool dga2_hack,
    if (event->type == KeyPress) { /* Key pressed.  */
       int len;
       char buffer[16];
-      char buffer2[16];
       int unicode = 0, r = 0;
 
 #if defined (ALLEGRO_XWINDOWS_WITH_XIM) && defined(X_HAVE_UTF8_STRING)
@@ -438,8 +437,9 @@ void _al_xwin_keyboard_handler(XKeyEvent *event, bool dga2_hack,
          len = XLookupString(event, buffer, sizeof buffer, NULL, NULL);
       }
       buffer[len] = '\0';
-      uconvert(buffer, U_UTF8, buffer2, U_UNICODE, sizeof buffer2);
-      unicode = *(unsigned short *)buffer2;
+      ALLEGRO_USTR_INFO info;
+      ALLEGRO_USTR *ustr = al_ref_cstr(&info, buffer);
+      unicode = al_ustr_get(ustr, 0);
 
 #ifdef ALLEGRO_XWINDOWS_WITH_XIM
       ALLEGRO_DISPLAY_XGLX *glx = (void *)display;
@@ -645,27 +645,23 @@ static void _al_xwin_get_keyboard_mapping(void)
     * For normal use, a user never should have to touch [xkeymap] anymore
     * though, and proper written programs will not hardcode such mappings.
     */
-   /* XXX commented out as it depends on A4 config routines */
-#if 0
-   {
-      char *section, *option_format;
-      char option[128], tmp1[128], tmp2[128];
-
-      section = uconvert_ascii("xkeymap", tmp1);
-      option_format = uconvert_ascii("keycode%d", tmp2);
-
-      for (i = min_keycode; i <= max_keycode; i++) {
-         int scancode;
-
-         uszprintf(option, sizeof(option), option_format, i);
-         scancode = get_config_int(section, option, -1);
-         if (scancode > 0) {
-            keycode_to_scancode[i] = scancode;
-            TRACE(PREFIX_I "User override: KeySym %i assigned to %i.\n", i, scancode);
-         }
+   ALLEGRO_CONFIG *c = system->system.config;
+   
+   char const *key;
+   void *it;
+   key = al_get_first_config_entry(c, "xkeymap", &it);
+   while (key) {
+      char const *val;
+      val = al_get_config_value(c, "xkeymap", key);
+      int keycode = strtol(key, NULL, 10);
+      int scancode = strtol(val, NULL, 10);
+      if (keycode > 0 && scancode > 0) {
+         keycode_to_scancode[keycode] = scancode;
+         ALLEGRO_WARN("User override: KeySym %i assigned to %i.\n",
+            keycode, scancode);
       }
+      key = al_get_next_config_entry(&it);
    }
-#endif
 }
 
 

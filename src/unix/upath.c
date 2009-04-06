@@ -99,11 +99,10 @@ static ALLEGRO_PATH *_find_executable_file(const char *filename)
    return NULL;
 }
 
-/* _unix_get_executable_name:
- * Return full path to the current executable, use proc fs if
+/* Return full path to the current executable, use proc fs if
  * available.
  */
-ALLEGRO_PATH *_unix_get_executable_name(void)
+static ALLEGRO_PATH *get_executable_name(void)
 {
    ALLEGRO_PATH *path;
    #ifdef ALLEGRO_HAVE_GETEXECNAME
@@ -254,7 +253,7 @@ static ALLEGRO_PATH *_unix_find_home(void)
    }
 }
 
-ALLEGRO_PATH *_unix_get_path(int id)
+ALLEGRO_PATH *_al_unix_get_path(int id)
 {
    switch (id) {
       case AL_TEMP_PATH: {
@@ -282,7 +281,7 @@ ALLEGRO_PATH *_unix_get_path(int id)
 
       case AL_PROGRAM_PATH: {
 
-         return _unix_get_executable_name();
+         return get_executable_name();
 
       } break;
 
@@ -318,7 +317,7 @@ ALLEGRO_PATH *_unix_get_path(int id)
             making a ~/.test_program dir for a exe named "test_program" might not be what people have in mind.
          */
 
-         _unix_get_executable_name(prog, PATH_MAX);
+         get_executable_name(prog, PATH_MAX);
 
          ptr = strrchr(prog, '/');
          if (!ptr) {
@@ -366,7 +365,7 @@ ALLEGRO_PATH *_unix_get_path(int id)
       } break;
 
       case AL_EXENAME_PATH:
-         return _unix_get_executable_name();
+         return get_executable_name();
          break;
 
       default:

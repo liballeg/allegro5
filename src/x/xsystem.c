@@ -485,7 +485,7 @@ ALLEGRO_SYSTEM_INTERFACE *_al_system_xglx_driver(void)
    xglx_vt->get_num_video_adapters = xglx_get_num_video_adapters;
    xglx_vt->get_monitor_info = xglx_get_monitor_info;
    xglx_vt->get_cursor_position = xglx_get_cursor_position;
-   xglx_vt->get_path = _unix_get_path;
+   xglx_vt->get_path = _al_unix_get_path;
    xglx_vt->inhibit_screensaver = xglx_inhibit_screensaver;
    xglx_vt->get_num_display_formats = xglx_get_num_display_formats;
    xglx_vt->get_display_format_option = xglx_get_display_format_option;

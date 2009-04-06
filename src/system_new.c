@@ -102,13 +102,13 @@ static void read_allegro_cfg(void)
 
 #ifdef ALLEGRO_UNIX
    ALLEGRO_CONFIG *temp;
-   char buf[256], tmp[256];
+   ALLEGRO_PATH *path;
 
    active_sysdrv->config = al_load_config_file("/etc/allegro5rc");
 
-   ustrzcpy(buf, sizeof(buf) - ucwidth(OTHER_PATH_SEPARATOR), uconvert_ascii(getenv("HOME"), tmp));
-   ustrzcat(buf, sizeof(buf), uconvert_ascii("/.allegro5rc", tmp));
-   temp = al_load_config_file(buf);
+   path = _al_unix_get_path(AL_USER_HOME_PATH);
+   al_path_set_filename(path, "allegro5rc");
+   temp = al_load_config_file(al_path_to_string(path, '/'));
    if (temp) {
       if (active_sysdrv->config) {
          al_merge_config_into(active_sysdrv->config, temp);
@@ -118,6 +118,7 @@ static void read_allegro_cfg(void)
          active_sysdrv->config = temp;
       }
    }
+   al_path_free(path);
 
    temp = al_load_config_file("allegro5.cfg");
    if (temp) {
