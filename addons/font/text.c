@@ -45,6 +45,8 @@ static ALLEGRO_USTR *ref_str(ALLEGRO_USTR_INFO *info, const char *text,
    return ustr;
 }
 
+
+
 /* Function: al_draw_text
  */
 void al_draw_text(const ALLEGRO_FONT *font, float x, float y, int flags,
@@ -73,7 +75,7 @@ void al_draw_text(const ALLEGRO_FONT *font, float x, float y, int flags,
 
 
 
-/* Function: al_font_textout_justify
+/* Function: al_draw_justified_text
  */
 void al_draw_justified_text(const ALLEGRO_FONT *font, float x1, float x2,
    float y, float diff, int flags, const char *text, int start, int end)
@@ -150,8 +152,18 @@ void al_draw_textf(const ALLEGRO_FONT *font, float x, float y, int flags,
 {
    ALLEGRO_USTR *buf;
    va_list ap;
+   const char *s;
    ASSERT(font);
    ASSERT(format);
+
+   /* Fast path for common case. */
+   if (0 == strcmp(format, "%s")) {
+      va_start(ap, format);
+      s = va_arg(ap, const char *);
+      al_draw_text(font, x, y, flags, s, 0, 0);
+      va_end(ap);
+      return;
+   }
 
    va_start(ap, format);
    buf = al_ustr_new("");
