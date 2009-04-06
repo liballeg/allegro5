@@ -683,21 +683,13 @@ char *al_fgets(ALLEGRO_FS_ENTRY *f, size_t max, char *p)
 
 /* Function: al_fputs
  */
-int al_fputs(ALLEGRO_FS_ENTRY *f, AL_CONST char *p)
+int al_fputs(ALLEGRO_FS_ENTRY *f, char const *p)
 {
-   char *buf = NULL, *s = NULL;
-   int bufsize = 0;
+   char const *s = p;
    ASSERT(f);
    ASSERT(p);
 
    al_set_errno(0);
-
-   bufsize = uconvert_size(p, U_UTF8, U_UTF8);
-   buf = _AL_MALLOC_ATOMIC(bufsize);
-   if (!buf)
-      return -1;
-
-   s = uconvert(p, U_UTF8, buf, U_UTF8, bufsize);
 
    while (*s) {
       #if (defined ALLEGRO_DOS) || (defined ALLEGRO_WINDOWS)
@@ -708,8 +700,6 @@ int al_fputs(ALLEGRO_FS_ENTRY *f, AL_CONST char *p)
       al_fputc(f, *s);
       s++;
    }
-
-   _AL_FREE(buf);
 
    if (al_get_errno())
       return -1;

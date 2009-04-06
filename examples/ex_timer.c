@@ -54,7 +54,7 @@ static void print(int x, int y, char const *format, ...)
    char message[1024];
 
    va_start(list, format);
-   uvszprintf(message, sizeof message, format, list);
+   vsnprintf(message, sizeof message, format, list);
    va_end(list);
 
    /* Actual text. */

@@ -90,7 +90,7 @@ void log_key_down(int keycode, int unichar, int modifiers)
    char unistr[10] = "";
 
    usetat(unistr, 0, unichar);
-   uszprintf(buf, sizeof(buf),
+   snprintf(buf, sizeof(buf),
       "Down: %3d <%1s> %08x [%08x]", keycode, unistr, unichar, modifiers);
    log_message(buf);
 }
@@ -103,7 +103,7 @@ void log_key_repeat(int keycode, int unichar, int modifiers)
    char unistr[10] = "";
 
    usetat(unistr, 0, unichar);
-   uszprintf(buf, sizeof(buf),
+   snprintf(buf, sizeof(buf),
       "Rept: %3d <%1s> %08x [%08x]", keycode, unistr, unichar, modifiers);
    log_message(buf);
 }
@@ -116,7 +116,7 @@ void log_key_up(int keycode, int unichar, int modifiers)
    char unistr[10] = "";
 
    usetat(unistr, 0, unichar);
-   uszprintf(buf, sizeof(buf),
+   snprintf(buf, sizeof(buf),
       "Up:   %3d <%1s> %08x [%08x]", keycode, unistr, unichar, modifiers);
    log_message(buf);
 }
@@ -129,7 +129,7 @@ void log_general(char const *format, ...)
    va_list args;
    va_start(args, format);
 
-   uvszprintf(buf, sizeof(buf), format, args);
+   vsnprintf(buf, sizeof(buf), format, args);
    va_end(args);
 
    log_message(buf);

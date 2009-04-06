@@ -340,54 +340,54 @@ static BOOL CALLBACK object_enum_callback(LPCDIDEVICEOBJECTINSTANCE lpddoi, LPVO
    if (GUIDTYPE_EQ(GUID_XAxis)) {
       if (!can->have_x) {
          can->have_x = true;
-         can->name_x = ustrdup(uconvert_ascii(lpddoi->tszName, tmp));
+         can->name_x = ustrdup(lpddoi->tszName);
       }
    }
    else if (GUIDTYPE_EQ(GUID_YAxis)) {
       if (!can->have_y) {
          can->have_y = true;
-         can->name_y = ustrdup(uconvert_ascii(lpddoi->tszName, tmp));
+         can->name_y = ustrdup(lpddoi->tszName);
       }
    }
    else if (GUIDTYPE_EQ(GUID_ZAxis)) {
       if (!can->have_z) {
          can->have_z = true;
-         can->name_z = ustrdup(uconvert_ascii(lpddoi->tszName, tmp));
+         can->name_z = ustrdup(lpddoi->tszName);
       }
    }
    else if (GUIDTYPE_EQ(GUID_RxAxis)) {
       if (!can->have_rx) {
          can->have_rx = true;
-         can->name_rx = ustrdup(uconvert_ascii(lpddoi->tszName, tmp));
+         can->name_rx = ustrdup(lpddoi->tszName);
       }
    }
    else if (GUIDTYPE_EQ(GUID_RyAxis)) {
       if (!can->have_ry) {
          can->have_ry = true;
-         can->name_ry = ustrdup(uconvert_ascii(lpddoi->tszName, tmp));
+         can->name_ry = ustrdup(lpddoi->tszName);
       }
    }
    else if (GUIDTYPE_EQ(GUID_RzAxis)) {
       if (!can->have_rz) {
          can->have_rz = true;
-         can->name_rz = ustrdup(uconvert_ascii(lpddoi->tszName, tmp));
+         can->name_rz = ustrdup(lpddoi->tszName);
       }
    }
    else if (GUIDTYPE_EQ(GUID_Slider)) {
       if (can->num_sliders < MAX_SLIDERS) {
-         can->name_slider[can->num_sliders] = ustrdup(uconvert_ascii(lpddoi->tszName, tmp));
+         can->name_slider[can->num_sliders] = ustrdup(lpddoi->tszName);
          can->num_sliders++;
       }
    }
    else if (GUIDTYPE_EQ(GUID_POV)) {
       if (can->num_povs < MAX_POVS) {
-         can->name_pov[can->num_povs] = ustrdup(uconvert_ascii(lpddoi->tszName, tmp));
+         can->name_pov[can->num_povs] = ustrdup(lpddoi->tszName);
          can->num_povs++;
       }
    }
    else if (GUIDTYPE_EQ(GUID_Button)) {
       if (can->num_buttons < MAX_BUTTONS) {
-         can->name_button[can->num_buttons] = ustrdup(uconvert_ascii(lpddoi->tszName, tmp));
+         can->name_button[can->num_buttons] = ustrdup(lpddoi->tszName);
          can->num_buttons++;
       }
    }

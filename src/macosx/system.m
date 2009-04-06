@@ -419,7 +419,7 @@ static int _find_executable_file(const char *filename, char *output, int size)
    if (strchr(filename, '/')) {
       if (filename[0] == '/') {
          /* Full path; done */
-         do_uconvert(filename, U_ASCII, output, U_UTF8, size);
+         _al_sane_strncpy(output, filename, size);
          return 1;
       }
       else {
@@ -434,7 +434,7 @@ static int _find_executable_file(const char *filename, char *output, int size)
          _al_sane_strncpy(pathname+len+1, filename, strlen(filename)+1);
 
          if ((stat(pathname, &finfo)==0) && (!S_ISDIR (finfo.st_mode))) {
-            do_uconvert(pathname, U_ASCII, output, U_UTF8, size);
+            _al_sane_strncpy(output, pathname, size);
             return 1;
          }
       }
@@ -458,7 +458,7 @@ static int _find_executable_file(const char *filename, char *output, int size)
             _al_sane_strncpy(buffer + (end - start) + 1, filename, end - start + 1 + strlen (filename) + 1);
 
             if ((stat(buffer, &finfo)==0) && (!S_ISDIR (finfo.st_mode))) {
-               do_uconvert(buffer, U_ASCII, output, U_UTF8, size);
+               _al_sane_strncpy(output, buffer, size);
                _AL_FREE (buffer);
                return 1;
             }

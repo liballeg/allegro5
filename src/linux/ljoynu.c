@@ -143,18 +143,18 @@ static int try_open_joy_device(int num)
    device_name = NULL;
 #if 0
    /* Check for a user override on the device to use. */
-   uszprintf(tmp, sizeof(tmp), uconvert_ascii("joystick_device_%d", tmp1), num);
-   device_name = get_config_string(uconvert_ascii("joystick", tmp1), tmp, NULL);
+   snprintf(tmp, sizeof(tmp), "joystick_device_%d", num);
+   device_name = get_config_string("joystick", tmp, NULL);
 
    /* Special case for the first joystick. */
    if (!device_name && (num == 0))
-      device_name = get_config_string(uconvert_ascii("joystick", tmp1),
-                                      uconvert_ascii("joystick_device", tmp2),
+      device_name = get_config_string("joystick",
+                                      "joystick_device",
                                       NULL);
 #endif
 
    if (device_name)
-      fd = open(uconvert_toascii(device_name, tmp), O_RDONLY|O_NONBLOCK);
+      fd = open(device_name, O_RDONLY|O_NONBLOCK);
    else {
       snprintf(tmp, sizeof(tmp), "/dev/input/js%d", num);
       tmp[sizeof(tmp)-1] = 0;
@@ -284,11 +284,11 @@ static ALLEGRO_JOYSTICK *ljoy_get_joystick(int num)
 #if 0
       /* User is allowed to override our simple assumption of which
        * axis number (kernel) the throttle is located at. */
-      uszprintf(tmp, sizeof(tmp), uconvert_ascii("throttle_axis_%d", tmp1), num);
-      throttle = get_config_int(uconvert_ascii("joystick", tmp1), tmp, -1);
+      snprintf(tmp, sizeof(tmp), "throttle_axis_%d", num);
+      throttle = get_config_int("joystick", tmp, -1);
       if (throttle == -1) {
-         throttle = get_config_int(uconvert_ascii("joystick", tmp1), 
-                                   uconvert_ascii("throttle_axis", tmp2), -1);
+         throttle = get_config_int("joystick", 
+                                   "throttle_axis", -1);
       }
 #endif
 
@@ -317,7 +317,7 @@ static ALLEGRO_JOYSTICK *ljoy_get_joystick(int num)
             joy->parent.info.stick[s].axis[0].name = "X";
             joy->parent.info.stick[s].axis[1].name = "Y";
             joy->parent.info.stick[s].name = _AL_MALLOC_ATOMIC (32);
-            uszprintf((char *)joy->parent.info.stick[s].name, 32, "Stick %d", s+1);
+            snprintf((char *)joy->parent.info.stick[s].name, 32, "Stick %d", s+1);
             joy->axis_mapping[a].stick = s;
             joy->axis_mapping[a].axis = 0;
             a++;
@@ -333,7 +333,7 @@ static ALLEGRO_JOYSTICK *ljoy_get_joystick(int num)
 
       for (b = 0; b < num_buttons; b++) {
          joy->parent.info.button[b].name = _AL_MALLOC_ATOMIC (32);
-         uszprintf((char *)joy->parent.info.button[b].name, 32, "B%d", b+1);
+         snprintf((char *)joy->parent.info.button[b].name, 32, "B%d", b+1);
       }
 
       joy->parent.info.num_buttons = num_buttons;

@@ -806,8 +806,8 @@ static bool mouse_directx_init(void)
    size_t i;
 
    /* get user acceleration factor */
-   mouse_accel_fact = 1; /*get_config_int(uconvert_ascii("mouse", tmp1),
-                                     uconvert_ascii("mouse_accel_factor", tmp2),
+   mouse_accel_fact = 1; /*get_config_int("mouse",
+                                     "mouse_accel_factor",
                                      MAF_DEFAULT);*/
 
    if (mouse_dinput_init() != 0) {

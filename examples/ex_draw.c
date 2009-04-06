@@ -76,7 +76,7 @@ static void print(char const *format, ...)
    al_store_state(&state, ALLEGRO_STATE_BLENDER);
 
    va_start(list, format);
-   uvszprintf(message, sizeof message, format, list);
+   vsnprintf(message, sizeof message, format, list);
    va_end(list);
    
    al_set_blender(ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA, ex.text);

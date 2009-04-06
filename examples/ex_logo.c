@@ -245,7 +245,7 @@ static char const *rnum(float min, float max)
    static char s[256];
    double x = rand() / (double)RAND_MAX;
    x = min + x * (max - min);
-   uszprintf(s, sizeof s, "%.1f", x);
+   snprintf(s, sizeof s, "%.1f", x);
    return s;
 }
 

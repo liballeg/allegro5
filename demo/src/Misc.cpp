@@ -25,7 +25,7 @@ const char* getUserResource(const char* fmt, ...) throw (Error)
    
    va_start(ap, fmt);
    memset(res, 0, 512);
-   uvszprintf(res, 511, fmt, ap);
+   snprintf(res, 511, fmt, ap);
 
    al_find_resource("a5teroids", res, AL_FM_WRITE, name, MAX_PATH);
    
@@ -42,7 +42,7 @@ const char* getResource(const char* fmt, ...)
    
    va_start(ap, fmt);
    memset(res, 0, 512);
-   uvszprintf(res, 511, fmt, ap);
+   snprintf(res, 511, fmt, ap);
 
    al_find_resource("a5teroids", res, 0, name, MAX_PATH);
    //printf("getResource: '%s'\n", name);

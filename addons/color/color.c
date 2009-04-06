@@ -9,6 +9,7 @@
 #include "allegro5/allegro5.h"
 #include "allegro5/a5_color.h"
 #include <math.h>
+#include <stdio.h>
 
 typedef struct {
    char const *name;
@@ -447,7 +448,7 @@ ALLEGRO_COLOR al_color_yuv(float y, float u, float v)
 void al_color_rgb_to_html(float red, float green, float blue,
     char *string)
 {
-   uszprintf(string, 8, "#%02x%02x%02x", (int)(red * 255),
+   sprintf(string, "#%02x%02x%02x", (int)(red * 255),
       (int)(green * 255), (int)blue * 255);
 }
 

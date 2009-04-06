@@ -35,7 +35,7 @@ static void print(int x, int y, bool vertical, char const *format, ...)
    int j;
 
    va_start(list, format);
-   uvszprintf(message, sizeof message, format, list);
+   vsnprintf(message, sizeof message, format, list);
    va_end(list);
 
    h = al_get_font_line_height(ex.myfont);

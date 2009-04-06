@@ -26,7 +26,7 @@ static void print(int x, int y, char const *format, ...)
    char message[1024];
 
    va_start(list, format);
-   uvszprintf(message, sizeof message, format, list);
+   vsnprintf(message, sizeof message, format, list);
    va_end(list);
 
    al_set_blender(ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA, al_map_rgb(0, 0, 0));
