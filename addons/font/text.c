@@ -36,11 +36,14 @@ static ALLEGRO_USTR *ref_str(ALLEGRO_USTR_INFO *info, const char *text,
    ALLEGRO_USTR *ustr = al_ref_cstr(info, text);
    if (start == 0 && end == 0) return ustr;
 
-   if (end == 0)
-      end = al_ustr_length(ustr);
+   start = al_ustr_offset(ustr, start);
 
-   ustr = al_ref_buffer(info, text + al_ustr_offset(ustr, start),
-      al_ustr_offset(ustr, end));
+   if (end == 0)
+      end = al_ustr_size(ustr);
+   else
+      end = al_ustr_offset(ustr, end);
+
+   ustr = al_ref_buffer(info, text + start, end - start);
 
    return ustr;
 }
