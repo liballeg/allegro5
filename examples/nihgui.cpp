@@ -336,7 +336,7 @@ void Label::draw()
    al_set_blender(ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA, theme.fg);
    if (centred) {
       al_draw_text(theme.font, (this->x1 + this->x2 + 1)/2,
-         this->y1, ALLEGRO_CENTER, this->text.c_str(), 0, 0);
+         this->y1, ALLEGRO_ALIGN_CENTRE, this->text.c_str(), 0, 0);
    }
    else {
       al_draw_text(theme.font, this->x1, this->y1, 0, this->text.c_str(), 0, 0);
@@ -394,7 +394,7 @@ void Button::draw()
       bg);
    al_set_blender(ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA, fg);
    al_draw_text(theme.font, (this->x1 + this->x2 + 1)/2,
-      this->y1, ALLEGRO_CENTER, this->text.c_str(), 0, 0);
+      this->y1, ALLEGRO_ALIGN_CENTRE, this->text.c_str(), 0, 0);
 }
 
 bool Button::get_pushed()

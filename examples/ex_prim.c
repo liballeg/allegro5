@@ -79,7 +79,7 @@ void FilledPrimitives(int mode)
    } else if (mode == DRAW) {
       al_set_blender(ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA, al_map_rgba_f(1, 1, 1, 1));
       
-      al_draw_textf(Font, ScreenW / 2, ScreenH - 20, ALLEGRO_CENTER, "Low Level Filled Primitives");
+      al_draw_textf(Font, ScreenW / 2, ScreenH - 20, ALLEGRO_ALIGN_CENTRE, "Low Level Filled Primitives");
       
       if (Blend)
          al_set_blender(ALLEGRO_ONE, ALLEGRO_ONE, al_map_rgba_f(1, 1, 1, 1));
@@ -149,7 +149,7 @@ void IndexedFilledPrimitives(int mode)
    } else if (mode == DRAW) {
       al_set_blender(ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA, al_map_rgba_f(1, 1, 1, 1));
       
-      al_draw_textf(Font, ScreenW / 2, ScreenH - 20, ALLEGRO_CENTER, "Indexed Filled Primitives");
+      al_draw_textf(Font, ScreenW / 2, ScreenH - 20, ALLEGRO_ALIGN_CENTRE, "Indexed Filled Primitives");
       
       if (Blend)
          al_set_blender(ALLEGRO_ONE, ALLEGRO_ONE, al_map_rgba_f(1, 1, 1, 1));
@@ -193,7 +193,7 @@ void HighPrimitives(int mode)
 
       al_set_blender(ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA, al_map_rgba_f(1, 1, 1, 1));
       
-      al_draw_textf(Font, ScreenW / 2, ScreenH - 20, ALLEGRO_CENTER, "High Level Primitives");
+      al_draw_textf(Font, ScreenW / 2, ScreenH - 20, ALLEGRO_ALIGN_CENTRE, "High Level Primitives");
       
       if (Blend)
          al_set_blender(ALLEGRO_ONE, ALLEGRO_ONE, al_map_rgba_f(1, 1, 1, 1));
@@ -234,7 +234,7 @@ void HighFilledPrimitives(int mode)
    } else if (mode == DRAW) {
       al_set_blender(ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA, al_map_rgba_f(1, 1, 1, 1));
       
-      al_draw_textf(Font, ScreenW / 2, ScreenH - 20, ALLEGRO_CENTER, "High Level Filled Primitives");
+      al_draw_textf(Font, ScreenW / 2, ScreenH - 20, ALLEGRO_ALIGN_CENTRE, "High Level Filled Primitives");
       
       if (Blend)
          al_set_blender(ALLEGRO_ONE, ALLEGRO_ONE, al_map_rgba_f(1, 1, 1, 1));
@@ -280,7 +280,7 @@ void ShadePrimitives(int mode)
       };
       al_set_blender(ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA, shade_color);
       
-      al_draw_textf(Font, ScreenW / 2, ScreenH - 20, ALLEGRO_CENTER, "Shaded Primitives");
+      al_draw_textf(Font, ScreenW / 2, ScreenH - 20, ALLEGRO_ALIGN_CENTRE, "Shaded Primitives");
       
       if (Blend)
          al_set_blender(ALLEGRO_ONE, ALLEGRO_ONE, shade_color);
@@ -328,7 +328,7 @@ void TransformationsPrimitives(int mode)
       };
       al_set_blender(ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA, al_map_rgba_f(1, 1, 1, 1));
       
-      al_draw_textf(Font, ScreenW / 2, ScreenH - 20, ALLEGRO_CENTER, "Transformations");
+      al_draw_textf(Font, ScreenW / 2, ScreenH - 20, ALLEGRO_ALIGN_CENTRE, "Transformations");
       
       if (Blend)
          al_set_blender(ALLEGRO_ONE, ALLEGRO_ONE, al_map_rgba_f(1, 1, 1, 1));
@@ -383,7 +383,7 @@ void LowPrimitives(int mode)
    } else if (mode == DRAW) {
       al_set_blender(ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA, al_map_rgba_f(1, 1, 1, 1));
       
-      al_draw_textf(Font, ScreenW / 2, ScreenH - 20, ALLEGRO_CENTER, "Low Level Primitives");
+      al_draw_textf(Font, ScreenW / 2, ScreenH - 20, ALLEGRO_ALIGN_CENTRE, "Low Level Primitives");
       
       if (Blend)
          al_set_blender(ALLEGRO_ONE, ALLEGRO_ONE, al_map_rgba_f(1, 1, 1, 1));
@@ -445,7 +445,7 @@ void IndexedPrimitives(int mode)
    } else if (mode == DRAW) {
       al_set_blender(ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA, al_map_rgba_f(1, 1, 1, 1));
       
-      al_draw_textf(Font, ScreenW / 2, ScreenH - 20, ALLEGRO_CENTER, "Indexed Primitives");
+      al_draw_textf(Font, ScreenW / 2, ScreenH - 20, ALLEGRO_ALIGN_CENTRE, "Indexed Primitives");
       
       if (Blend)
          al_set_blender(ALLEGRO_ONE, ALLEGRO_ONE, al_map_rgba_f(1, 1, 1, 1));

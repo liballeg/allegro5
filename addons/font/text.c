@@ -57,10 +57,17 @@ void al_draw_text(const ALLEGRO_FONT *font, float x, float y, int flags,
 
    ustr = ref_str(&str_info, text, start, end);
 
-   if (flags & ALLEGRO_CENTER)
-      x -= font->vtable->text_length(font, ustr) * 0.5;
-   if (flags & ALLEGRO_RIGHT)
-      x -= font->vtable->text_length(font, ustr);
+   switch (flags) {
+      case ALLEGRO_ALIGN_CENTRE:
+         x -= font->vtable->text_length(font, ustr) * 0.5;
+         break;
+      case ALLEGRO_ALIGN_RIGHT:
+         x -= font->vtable->text_length(font, ustr);
+         break;
+      case ALLEGRO_ALIGN_LEFT:
+      default:
+         break;
+   }
    font->vtable->render(font, ustr, x, y);
 }
 

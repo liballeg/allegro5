@@ -57,7 +57,7 @@ static void render(void)
     al_draw_textf(ex.f4, xpos, ypos, 0, "Allegro");
 
     al_set_blender(ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA, black);
-    al_draw_textf(ex.f3, al_get_display_width(), 0, ALLEGRO_RIGHT,
+    al_draw_textf(ex.f3, al_get_display_width(), 0, ALLEGRO_ALIGN_RIGHT,
        "%.1f FPS", ex.fps);
 }
 

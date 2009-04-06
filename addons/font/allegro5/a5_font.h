@@ -65,8 +65,11 @@ struct ALLEGRO_FONT_VTABLE
       int *bbh, int *ascent, int *descent));
 };
 
-#define ALLEGRO_CENTER (1 << 0)
-#define ALLEGRO_RIGHT  (1 << 1)
+enum {
+   ALLEGRO_ALIGN_LEFT   = 0,
+   ALLEGRO_ALIGN_CENTRE = 1,
+   ALLEGRO_ALIGN_RIGHT  = 2
+};
 
 ALLEGRO_FONT_FUNC(bool, al_register_font_extension, (const char *ext, ALLEGRO_FONT *(*load)(const char *filename, int size, int flags)));
 ALLEGRO_FONT_FUNC(ALLEGRO_FONT *, al_load_bitmap_font, (const char *filename));

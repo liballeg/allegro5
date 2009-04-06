@@ -38,7 +38,7 @@ int do_gui(std::vector<Widget *>& widgets, unsigned int selected)
 
       al_set_blender(ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA,
          al_map_rgb(255, 255, 0));
-      al_draw_textf(myfont, BB_W/2, BB_H/2, ALLEGRO_CENTER, "z/y to start");
+      al_draw_textf(myfont, BB_W/2, BB_H/2, ALLEGRO_ALIGN_CENTRE, "z/y to start");
       al_set_blender(ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA,
          al_map_rgb(255, 255, 255));
 

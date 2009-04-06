@@ -68,10 +68,11 @@ Calculates the length of a string in a particular font.
 Writes the 0-terminated string `text` onto `bmp` at position `x`, `y`, using 
 the specified `font`.
 
-The `flags` parameter can be 0 or a combination of the following flags:
+The `flags` parameter can be 0 or one of the following flags:
 
-- ALLEGRO_CENTER Draw the text centered around the given position.
-- ALLEGRO_RIGHT Draw the text right-aligned to the given position.
+- ALLEGRO_ALIGN_LEFT - Draw the text left-aligned (same as 0).
+- ALLEGRO_ALIGN_CENTRE - Draw the text centered around the given position.
+- ALLEGRO_ALIGN_RIGHT - Draw the text right-aligned to the given position.
 
 The `start` and `end` parameters can be used to only draw a sub-string, measured
 in code-points (i.e. letters, not bytes). If start/end are less than zero,
