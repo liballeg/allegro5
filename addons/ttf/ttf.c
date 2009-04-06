@@ -202,8 +202,6 @@ static int text_length(ALLEGRO_FONT const *f, const ALLEGRO_USTR *text)
     return x;
 }
 
-/* Function: al_ttf_get_text_dimensions
- */
 static void get_text_dimensions(ALLEGRO_FONT const *f, ALLEGRO_USTR const *text,
     int *bbx, int *bby, int *bbw, int *bbh, int *ascent,
     int *descent)
@@ -355,6 +353,8 @@ ALLEGRO_FONT *al_load_ttf_font(char const *filename, int size, int flags)
 
 
 
+/* Function: al_init_ttf_addon
+ */
 bool al_init_ttf_addon(void)
 {
    al_register_font_extension(".ttf", al_load_ttf_font);
