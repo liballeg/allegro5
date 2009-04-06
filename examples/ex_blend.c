@@ -49,7 +49,7 @@ static void print(int x, int y, bool vertical, char const *format, ...)
       al_set_blender(ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA, color);
       if (vertical) {
          int i;
-         for (i = 0; i < ustrlen(message); i++) {
+         for (i = 0; i < strlen(message); i++) {
             al_draw_text(ex.myfont, x + 1 - j, y + 1 - j + h * i, 0, message,
                i, i + 1);
          }

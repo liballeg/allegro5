@@ -796,7 +796,7 @@ char *al_find_resource(const char *base, const char *resource, uint32_t fm,
    ustrcpy(base_new, ".");
 #endif
 
-   ustrcat(base_new, base);
+   strcat(base_new, base);
 
    path = al_get_standard_path(ALLEGRO_USER_DATA_PATH);
    //printf("find_resource: AL_USER_DATA_PATH\n");

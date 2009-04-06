@@ -52,17 +52,8 @@ AL_FUNC(int, ustrsize, (AL_CONST char *s));
 AL_FUNC(int, ustrsizez, (AL_CONST char *s));
 AL_FUNC(char *, _ustrdup, (AL_CONST char *src, AL_METHOD(void *, malloc_func, (size_t))));
 AL_FUNC(char *, ustrzcpy, (char *dest, int size, AL_CONST char *src));
-AL_FUNC(char *, ustrzcat, (char *dest, int size, AL_CONST char *src));
-AL_FUNC(int, ustrlen, (AL_CONST char *s));
-AL_FUNC(int, ustrcmp, (AL_CONST char *s1, AL_CONST char *s2));
-AL_FUNC(char *, ustrzncpy, (char *dest, int size, AL_CONST char *src, int n));
-AL_FUNC(char *, ustrzncat, (char *dest, int size, AL_CONST char *src, int n));
-AL_FUNC(int, ustrncmp, (AL_CONST char *s1, AL_CONST char *s2, int n));
 AL_FUNC(char *, ustrchr, (AL_CONST char *s, int c));
-AL_FUNC(char *, ustrrchr, (AL_CONST char *s, int c));
-AL_FUNC(char *, ustrstr, (AL_CONST char *s1, AL_CONST char *s2));
-AL_FUNC(char *, ustrpbrk, (AL_CONST char *s, AL_CONST char *set));
-AL_FUNC(char *, ustrtok_r, (char *s, AL_CONST char *set, char **last));
+
 
 #ifndef ustrdup
    #ifdef FORTIFY
