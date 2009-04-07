@@ -30,7 +30,6 @@
 #include "allegro5/debug.h"
 #include "allegro5/error.h"
 
-#include "allegro5/unicode.h"
 #include "allegro5/utf8.h"
 
 #include "allegro5/altime.h"

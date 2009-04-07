@@ -634,24 +634,21 @@ int32_t al_fwrite32be(ALLEGRO_FS_ENTRY *f, int32_t l)
  */
 char *al_fgets(ALLEGRO_FS_ENTRY *f, size_t max, char *p)
 {
-   char *pmax = NULL, *orig_p = p;
    int c = 0;
+   ALLEGRO_USTR *u;
    ASSERT(f);
 
    al_set_errno(0);
 
-   pmax = p+max - ucwidth(0);
-
    if ((c = al_fgetc(f)) == EOF) {
-      if ((unsigned) ucwidth(0) <= max)
-         usetc(p,0);
       return NULL;
    }
 
+   u = al_ustr_new("");
+
    do {
+      char c2[] = " ";
       if (c == '\r' || c == '\n') {
-         /* Technically we should check there's space in the buffer, and if so,
-          * add a \n.  But pack_fgets has never done this. */
          if (c == '\r') {
             /* eat the following \n, if any */
             c = al_fgetc(f);
@@ -661,24 +658,18 @@ char *al_fgets(ALLEGRO_FS_ENTRY *f, size_t max, char *p)
          break;
       }
 
-      /* is there room in the buffer? */
-      if (ucwidth(c) > pmax - p) {
-         al_fungetc(f, c);
-         c = '\0';
-         break;
-      }
-
       /* write the character */
-      p += usetc(p, c);
+      c2[0] = c;
+      al_ustr_append_cstr(u, c2);
    } while ((c = al_fgetc(f)) != EOF);
 
-   /* terminate the string */
-   usetc(p, 0);
+   _al_sane_strncpy(p, al_cstr(u), max);
+   al_ustr_free(u);
 
    if (c == '\0' || al_get_errno())
       return NULL;
 
-   return orig_p; /* p has changed */
+   return p;
 }
 
 /* Function: al_fputs
@@ -745,7 +736,8 @@ static bool _al_find_resource_exists(const char *path, const char *base,
    else if (fm & AL_FM_WRITE) {
       /* XXX update this */
       /* XXX is this supposed to be chr or rchr? */
-      char *rchr = ustrchr(buffer, ALLEGRO_NATIVE_PATH_SEP);
+      /* FIXME: Or rather, what was this even supposed to accomplish??? */
+      /*char *rchr = strchr(buffer, ALLEGRO_NATIVE_PATH_SEP);
       if (rchr) {
          usetc(rchr, '\0');
 
@@ -753,8 +745,9 @@ static bool _al_find_resource_exists(const char *path, const char *base,
             ret = true;
          }
 
-         usetc(rchr, ALLEGRO_NATIVE_PATH_SEP);
+         *rchr = ALLEGRO_NATIVE_PATH_SEP;
       }
+      * */
    }
 
    al_path_free(fp);
@@ -793,7 +786,7 @@ char *al_find_resource(const char *base, const char *resource, uint32_t fm,
 #ifdef ALLEGRO_WINDOWS
    memset(base_new, 0, 256);
 #else
-   ustrcpy(base_new, ".");
+   strcpy(base_new, ".");
 #endif
 
    strcat(base_new, base);

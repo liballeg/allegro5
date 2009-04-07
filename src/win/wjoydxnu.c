@@ -327,6 +327,14 @@ void _al_win_joystick_dinput_grab(void *param)
 }
 
 
+static char *my_strdup(char const *str)
+{
+   char *dup = _AL_MALLOC(strlen(str) + 1);
+   strcpy(dup, str);
+   return dup;
+}
+
+
 /* object_enum_callback: [primary thread]
  *  Helper function to find out what objects we have on the device.
  */
@@ -340,54 +348,54 @@ static BOOL CALLBACK object_enum_callback(LPCDIDEVICEOBJECTINSTANCE lpddoi, LPVO
    if (GUIDTYPE_EQ(GUID_XAxis)) {
       if (!can->have_x) {
          can->have_x = true;
-         can->name_x = ustrdup(lpddoi->tszName);
+         can->name_x = my_strdup(lpddoi->tszName);
       }
    }
    else if (GUIDTYPE_EQ(GUID_YAxis)) {
       if (!can->have_y) {
          can->have_y = true;
-         can->name_y = ustrdup(lpddoi->tszName);
+         can->name_y = my_strdup(lpddoi->tszName);
       }
    }
    else if (GUIDTYPE_EQ(GUID_ZAxis)) {
       if (!can->have_z) {
          can->have_z = true;
-         can->name_z = ustrdup(lpddoi->tszName);
+         can->name_z = my_strdup(lpddoi->tszName);
       }
    }
    else if (GUIDTYPE_EQ(GUID_RxAxis)) {
       if (!can->have_rx) {
          can->have_rx = true;
-         can->name_rx = ustrdup(lpddoi->tszName);
+         can->name_rx = my_strdup(lpddoi->tszName);
       }
    }
    else if (GUIDTYPE_EQ(GUID_RyAxis)) {
       if (!can->have_ry) {
          can->have_ry = true;
-         can->name_ry = ustrdup(lpddoi->tszName);
+         can->name_ry = my_strdup(lpddoi->tszName);
       }
    }
    else if (GUIDTYPE_EQ(GUID_RzAxis)) {
       if (!can->have_rz) {
          can->have_rz = true;
-         can->name_rz = ustrdup(lpddoi->tszName);
+         can->name_rz = my_strdup(lpddoi->tszName);
       }
    }
    else if (GUIDTYPE_EQ(GUID_Slider)) {
       if (can->num_sliders < MAX_SLIDERS) {
-         can->name_slider[can->num_sliders] = ustrdup(lpddoi->tszName);
+         can->name_slider[can->num_sliders] = my_strdup(lpddoi->tszName);
          can->num_sliders++;
       }
    }
    else if (GUIDTYPE_EQ(GUID_POV)) {
       if (can->num_povs < MAX_POVS) {
-         can->name_pov[can->num_povs] = ustrdup(lpddoi->tszName);
+         can->name_pov[can->num_povs] = my_strdup(lpddoi->tszName);
          can->num_povs++;
       }
    }
    else if (GUIDTYPE_EQ(GUID_Button)) {
       if (can->num_buttons < MAX_BUTTONS) {
-         can->name_button[can->num_buttons] = ustrdup(lpddoi->tszName);
+         can->name_button[can->num_buttons] = my_strdup(lpddoi->tszName);
          can->num_buttons++;
       }
    }

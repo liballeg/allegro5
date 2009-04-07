@@ -988,11 +988,12 @@ static bool al_fs_stdio_add_search_path(const char *path)
    char *new_path = NULL;
 
    /* dup path first to elimiate need to re-resize search_path if dup fails */
-   new_path = ustrdup(path);
+   new_path = _AL_MALLOC(strlen(path) + 1);
    if (!new_path) {
       al_set_errno(ENOMEM);
       return false;
    }
+   strcpy(new_path, path);
 
    /* extend search_path, store temporarily so original var isn't overwritten with NULL on failure */
    new_search_path = (char **)_AL_REALLOC(search_path, sizeof(char *) * (search_path_count + 1));

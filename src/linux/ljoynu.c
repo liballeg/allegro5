@@ -305,7 +305,9 @@ static ALLEGRO_JOYSTICK *ljoy_get_joystick(int num)
             joy->parent.info.stick[s].flags = ALLEGRO_JOYFLAG_ANALOGUE;
             joy->parent.info.stick[s].num_axes = 1;
             joy->parent.info.stick[s].axis[0].name = "Throttle";
-            joy->parent.info.stick[s].name = ustrdup(joy->parent.info.stick[s].axis[0].name);
+            char *name = joy->parent.info.stick[s].axis[0].name;
+            joy->parent.info.stick[s].name = _AL_MALLOC_ATOMIC(strlen(name) + 1);
+            strcpy(joy->parent.info.stick[s].name, name);
             joy->axis_mapping[a].stick = s;
             joy->axis_mapping[a].axis = 0;
             a++;

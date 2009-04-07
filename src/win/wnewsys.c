@@ -18,6 +18,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
+#include <ctype.h>
 
 #include "allegro5/allegro5.h"
 #include "allegro5/internal/aintern.h"
@@ -97,7 +98,7 @@ int _WinMain(void *_main, void *hInst, void *hPrev, char *Cmd, int nShow)
 
    /* parse commandline into argc/argv format */
    while (argbuf[i]) {
-      while ((argbuf[i]) && (uisspace(argbuf[i])))
+      while ((argbuf[i]) && (isspace(argbuf[i])))
          i++;
 
       if (argbuf[i]) {
@@ -120,7 +121,7 @@ int _WinMain(void *_main, void *hInst, void *hPrev, char *Cmd, int nShow)
             }
          }
 
-         while ((argbuf[i]) && ((q) ? (argbuf[i] != q) : (!uisspace(argbuf[i]))))
+         while ((argbuf[i]) && ((q) ? (argbuf[i] != q) : (!isspace(argbuf[i]))))
             i++;
 
             if (argbuf[i]) {

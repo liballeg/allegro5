@@ -251,12 +251,12 @@ static char const *rnum(float min, float max)
 
 static void randomize(void)
 {
-   ustrcpy(param_values[3], rnum(2, 12));
-   ustrcpy(param_values[4], rnum(1, 8));
-   ustrcpy(param_values[5], rnum(0.1, 1));
-   ustrcpy(param_values[6], rnum(0, 5));
-   ustrcpy(param_values[7], rnum(0, 5));
-   ustrcpy(param_values[8], rnum(0, 5));
+   strcpy(param_values[3], rnum(2, 12));
+   strcpy(param_values[4], rnum(1, 8));
+   strcpy(param_values[5], rnum(0.1, 1));
+   strcpy(param_values[6], rnum(0, 5));
+   strcpy(param_values[7], rnum(0, 5));
+   strcpy(param_values[8], rnum(0, 5));
    regenerate = true;
 }
 
@@ -412,7 +412,7 @@ int main(void)
       char const *value = al_get_config_value(config, "logo",
                                               param_names[i]);
       if (value)
-         ustrzcpy(param_values[i], sizeof(param_values[i]), value);
+         strncpy(param_values[i], value, sizeof(param_values[i]));
    }
 
    font = al_load_font("data/DejaVuSans.ttf", 12, 0);
@@ -463,9 +463,13 @@ int main(void)
             int c = event.keyboard.unichar;
             if (editing) {
                if (c >= 32) {
-                  usetat(param_values[selection], cursor, c);
+                  ALLEGRO_USTR *u = al_ustr_new(param_values[selection]);
+                  al_ustr_set_chr(u, cursor, c);
                   cursor++;
-                  usetat(param_values[selection], cursor, 0);
+                  al_ustr_set_chr(u, cursor, 0);
+                  strncpy(param_values[selection], al_cstr(u),
+                     sizeof param_values[selection]);
+                  al_ustr_free(u);
                }
             }
             else {

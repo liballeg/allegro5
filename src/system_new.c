@@ -250,9 +250,9 @@ ALLEGRO_PATH *al_get_standard_path(int id)
 void al_set_orgname(AL_CONST char *orgname)
 {
    if(orgname)
-      ustrzcpy(_al_orgname, sizeof(_al_orgname), orgname);
+      strncpy(_al_orgname, orgname, sizeof(_al_orgname));
    else
-      ustrzcpy(_al_orgname, sizeof(_al_orgname), "allegro");
+      strncpy(_al_orgname, "allegro", sizeof(_al_orgname));
 }
 
 
@@ -261,12 +261,12 @@ void al_set_orgname(AL_CONST char *orgname)
 void al_set_appname(AL_CONST char *appname)
 {
    if(appname) {
-      ustrzcpy(_al_appname, sizeof(_al_appname), appname);
+      strncpy(_al_appname, appname, sizeof(_al_appname));
    }
    else {
       ALLEGRO_PATH *_appname_path;
       _appname_path = al_get_standard_path(ALLEGRO_EXENAME_PATH);
-      ustrzcpy(_al_appname, sizeof(_al_appname), al_path_get_filename(_appname_path) );
+      strncpy(_al_appname, al_path_get_filename(_appname_path), sizeof(_al_appname));
       al_path_free(_appname_path);
    }
 }

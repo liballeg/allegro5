@@ -34,7 +34,7 @@ static int msg_tail = 0;
 /* Add a message to the log. */
 static void log_message(char const *message)
 {
-   ustrzcpy(msg_log[msg_head], MAX_MSG_LEN, message);
+   strncpy(msg_log[msg_head], message, MAX_MSG_LEN);
    msg_head = (msg_head + 1) % SIZE_LOG;
    if (msg_head == msg_tail) {
       msg_tail = (msg_tail + 1) % SIZE_LOG;
@@ -87,11 +87,9 @@ static void draw_message_log(void)
 void log_key_down(int keycode, int unichar, int modifiers)
 {
    char buf[MAX_MSG_LEN];
-   char unistr[10] = "";
 
-   usetat(unistr, 0, unichar);
    snprintf(buf, sizeof(buf),
-      "Down: %3d <%1s> %08x [%08x]", keycode, unistr, unichar, modifiers);
+      "Down: %3d <%c> %08x [%08x]", keycode, unichar, unichar, modifiers);
    log_message(buf);
 }
 
@@ -100,11 +98,9 @@ void log_key_down(int keycode, int unichar, int modifiers)
 void log_key_repeat(int keycode, int unichar, int modifiers)
 {
    char buf[MAX_MSG_LEN];
-   char unistr[10] = "";
 
-   usetat(unistr, 0, unichar);
    snprintf(buf, sizeof(buf),
-      "Rept: %3d <%1s> %08x [%08x]", keycode, unistr, unichar, modifiers);
+      "Rept: %3d <%c> %08x [%08x]", keycode, unichar, unichar, modifiers);
    log_message(buf);
 }
 
@@ -113,11 +109,9 @@ void log_key_repeat(int keycode, int unichar, int modifiers)
 void log_key_up(int keycode, int unichar, int modifiers)
 {
    char buf[MAX_MSG_LEN];
-   char unistr[10] = "";
 
-   usetat(unistr, 0, unichar);
    snprintf(buf, sizeof(buf),
-      "Up:   %3d <%1s> %08x [%08x]", keycode, unistr, unichar, modifiers);
+      "Up:   %3d <%c> %08x [%08x]", keycode, unichar, unichar, modifiers);
    log_message(buf);
 }
 
