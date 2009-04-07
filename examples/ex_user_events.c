@@ -89,7 +89,7 @@ int main(void)
       }
       else if (event.type == MY_SIMPLE_EVENT_TYPE) {
          int n = (int) event.user.data1;
-         ASSERT(event.user.source == user_src);
+         ALLEGRO_ASSERT(event.user.source == user_src);
 
          al_unref_user_event(&event.user);
 
@@ -100,7 +100,7 @@ int main(void)
       }
       else if (event.type == MY_COMPLEX_EVENT_TYPE) {
          MY_EVENT *my_event = (void *)event.user.data1;
-         ASSERT(event.user.source == user_src);
+         ALLEGRO_ASSERT(event.user.source == user_src);
 
          printf("Got complex user event %d\n", my_event->id);
          al_unref_user_event(&event.user);

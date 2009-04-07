@@ -120,7 +120,7 @@ int str_to_blend_mode(const std::string & str)
    if (str == "INVERSE")
       return ALLEGRO_INVERSE_ALPHA;
 
-   ASSERT(false);
+   ALLEGRO_ASSERT(false);
    return ALLEGRO_ONE;
 }
 

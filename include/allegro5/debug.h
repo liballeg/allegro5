@@ -41,13 +41,13 @@ AL_FUNC(void, register_trace_handler, (AL_METHOD(int, handler, (AL_CONST char *m
    #define ALLEGRO_TRACE_CHANNEL_LEVEL(channel, level)                        \
       !_al_trace_prefix(channel, level, __FILE__, __LINE__, __func__)         \
       ? (void)0 : al_trace
-   #define ASSERT(condition)     do {                                         \
+   #define ALLEGRO_ASSERT(condition) do {                                     \
                                     if (!(condition))                         \
                                        al_assert(__FILE__, __LINE__);         \
                                  } while (0)
    #define TRACE                 al_trace
 #else
-   #define ASSERT(condition)
+   #define ALLEGRO_ASSERT(condition)
    #define TRACE                                    1 ? (void) 0 : al_trace
    #define ALLEGRO_TRACE_CHANNEL_LEVEL(channel, x)  1 ? (void) 0 : al_trace
    #define ALLEGRO_DEBUG_CHANNEL(x)
@@ -64,6 +64,10 @@ AL_FUNC(void, register_trace_handler, (AL_METHOD(int, handler, (AL_CONST char *m
 #define ALLEGRO_ASSERT_CONCAT(a, b)    ALLEGRO_ASSERT_CONCAT_(a, b)
 #define ALLEGRO_STATIC_ASSERT(e) \
    enum { ALLEGRO_ASSERT_CONCAT(static_assert_line_, __LINE__) = 1/!!(e) }
+
+#ifdef ALLEGRO_SRC
+    #define ASSERT(x) ALLEGRO_ASSERT(x)
+#endif
 
 #ifdef __cplusplus
    }

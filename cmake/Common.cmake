@@ -64,7 +64,7 @@ function(add_our_library target name_suffix sources extra_flags link_with)
 
     set_target_properties(${target}
         PROPERTIES
-        COMPILE_FLAGS "${extra_flags} ${static_flag}"
+        COMPILE_FLAGS "${extra_flags} ${static_flag} -DALLEGRO_SRC"
         LINK_FLAGS "${LIBRARY_LINK_FLAGS}"
         OUTPUT_NAME ${output_name}
         static_link_with "${return}"

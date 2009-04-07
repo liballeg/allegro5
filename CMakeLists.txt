@@ -692,7 +692,7 @@ endif(SUPPORT_OPENGL)
 # XXX remove ALLEGRO_LIB_BUILD everywhere in favour of ALLEGRO_SRC
 add_our_library(allegro -${ALLEGRO_VERSION}
     "${LIBRARY_SOURCES}"
-    "${LIBRARY_CFLAGS} -DALLEGRO_LIB_BUILD -DALLEGRO_SRC"
+    "${LIBRARY_CFLAGS} -DALLEGRO_LIB_BUILD"
     "${PLATFORM_LIBS}"
     )
 
