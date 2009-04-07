@@ -26,8 +26,13 @@
 #include "allegro5/a5_font.h"
 
 /* If you call this, you're probably making a mistake. */
+/*
 #define strlen(s)   __are_you_sure__
-
+*/
+/* Removed the above define since some compilers seem to use some
+ * preprocessor magic when calling strcmp() that inserts a call to strlen.
+ * There might be a better way to do this.
+ */
 
 
 static ALLEGRO_USTR *ref_str(ALLEGRO_USTR_INFO *info, const char *text,
