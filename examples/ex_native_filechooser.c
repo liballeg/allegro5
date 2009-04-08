@@ -14,12 +14,13 @@
 
 
 /* To communicate from a separate thread, we need a user event. */
-#define ASYNC_DIALOG_EVENT    ALLEGRO_GET_EVENT_TYPE('e', 'N', 'F', 'D')
+#define ASYNC_DIALOG_EVENT1   ALLEGRO_GET_EVENT_TYPE('e', 'N', 'F', '1')
+#define ASYNC_DIALOG_EVENT2   ALLEGRO_GET_EVENT_TYPE('e', 'N', 'F', '2')
 
 
 typedef struct
 {
-   ALLEGRO_NATIVE_FILE_DIALOG *file_dialog;
+   ALLEGRO_NATIVE_DIALOG *file_dialog;
    ALLEGRO_EVENT_SOURCE *event_source;
    ALLEGRO_THREAD *thread;
    ALLEGRO_DISPLAY *display;
@@ -46,7 +47,30 @@ static void *async_file_dialog_thread_func(ALLEGRO_THREAD *thread, void *arg)
    /* We emit an event to let the main program now that the thread has
     * finished.
     */
-   event.user.type = ASYNC_DIALOG_EVENT;
+   event.user.type = ASYNC_DIALOG_EVENT1;
+   al_emit_user_event(data->event_source, &event, NULL);
+
+   return NULL;
+}
+
+
+/* A thread to show the message boxes. */
+static void *message_box_thread(ALLEGRO_THREAD *thread, void *arg)
+{
+   AsyncDialog *data = arg;
+   ALLEGRO_EVENT event;
+   (void)thread;
+   int button = al_native_message_box(
+      "Warning! Click Detected!",
+      "This is the last warning. There is nothing to click here.",
+      "Oh no!|Don't press|Ok", ALLEGRO_MESSAGEBOX_WARN);
+   if (button == 2) {
+      button = al_native_message_box("Error!",
+         "Invalid button press detected.",
+         NULL, ALLEGRO_MESSAGEBOX_ERROR);
+   }
+
+   event.user.type = ASYNC_DIALOG_EVENT2;
    al_emit_user_event(data->event_source, &event, NULL);
 
    return NULL;
@@ -54,7 +78,7 @@ static void *async_file_dialog_thread_func(ALLEGRO_THREAD *thread, void *arg)
 
 
 /* Function to start the new thread. */
-AsyncDialog *spawn_async_dialog(const ALLEGRO_PATH *initial_path)
+AsyncDialog *spawn_async_file_dialog(const ALLEGRO_PATH *initial_path)
 {
    AsyncDialog *data = malloc(sizeof *data);
 
@@ -70,20 +94,33 @@ AsyncDialog *spawn_async_dialog(const ALLEGRO_PATH *initial_path)
    return data;
 }
 
+AsyncDialog *spawn_async_message_dialog(void)
+{
+   AsyncDialog *data = calloc(1, sizeof *data);
+
+   data->event_source = al_create_user_event_source();
+   data->display = al_get_current_display();
+   data->thread = al_create_thread(message_box_thread, data);
+
+   al_start_thread(data->thread);
+
+   return data;
+}
+
 
 void stop_async_dialog(AsyncDialog *data)
 {
    if (data) {
       al_destroy_thread(data->thread);
       al_destroy_user_event_source(data->event_source);
-      al_destroy_native_file_dialog(data->file_dialog);
+      if (data->file_dialog) al_destroy_native_dialog(data->file_dialog);
       free(data);
    }
 }
 
 
 /* Helper function to display the result from a file dialog. */
-static void show_files_list(ALLEGRO_NATIVE_FILE_DIALOG *dialog,
+static void show_files_list(ALLEGRO_NATIVE_DIALOG *dialog,
    const ALLEGRO_FONT *font, ALLEGRO_COLOR info)
 {
    int count = al_get_native_file_dialog_count(dialog);
@@ -113,7 +150,9 @@ int main(void)
    ALLEGRO_COLOR background, active, inactive, info;
    AsyncDialog *old_dialog = NULL;
    AsyncDialog *cur_dialog = NULL;
+   AsyncDialog *message_box = NULL;
    bool redraw = false;
+   int button;
 
    al_init();
    al_init_font_addon();
@@ -139,6 +178,7 @@ int main(void)
    }
 
    timer = al_install_timer(1.0 / 30);
+restart:
    queue = al_create_event_queue();
    al_register_event_source(queue, (void *)al_get_keyboard());
    al_register_event_source(queue, (void *)al_get_mouse());
@@ -162,7 +202,13 @@ int main(void)
        * shown already, we show a new one.
        */
       if (event.type == ALLEGRO_EVENT_MOUSE_BUTTON_DOWN) {
-          if (!cur_dialog) {
+          if (event.mouse.y > 30) {
+             if (!message_box) {
+                message_box = spawn_async_message_dialog();
+                al_register_event_source(queue, message_box->event_source);
+             }
+          }
+          else if (!cur_dialog) {
              const ALLEGRO_PATH *last_path = NULL;
              /* If available, use the path from the last dialog as
               * initial path for the new one.
@@ -171,15 +217,14 @@ int main(void)
                 last_path = al_get_native_file_dialog_path(
                    old_dialog->file_dialog, 0);
              }
-             cur_dialog = spawn_async_dialog(last_path);
+             cur_dialog = spawn_async_file_dialog(last_path);
              al_register_event_source(queue, cur_dialog->event_source);
           }
       }
-
       /* We receive this event from the other thread when the dialog is
        * closed.
        */
-      if (event.type == ASYNC_DIALOG_EVENT) {
+      if (event.type == ASYNC_DIALOG_EVENT1) {
          al_unregister_event_source(queue, cur_dialog->event_source);
 
          /* If files were selected, we replace the old files list.
@@ -194,6 +239,11 @@ int main(void)
             stop_async_dialog(cur_dialog);
          }
          cur_dialog = NULL;
+      }
+      if (event.type == ASYNC_DIALOG_EVENT2) {
+         al_unregister_event_source(queue, message_box->event_source);
+         stop_async_dialog(message_box);
+         message_box = NULL;
       }
 
       if (event.type == ALLEGRO_EVENT_TIMER) {
@@ -213,6 +263,17 @@ int main(void)
          al_flip_display();
       }
    }
+
+   al_destroy_event_queue(queue);
+
+   button = al_native_message_box(
+      "Are you sure?",
+      "If you click yes then this example will inevitably close."
+      " This is your last chance to rethink your decision."
+      " Do you really want to quit?",
+      NULL,
+      ALLEGRO_MESSAGEBOX_YES_NO);
+   if (button != 1) goto restart;
 
    stop_async_dialog(old_dialog);
    stop_async_dialog(cur_dialog);

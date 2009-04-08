@@ -26,7 +26,7 @@ static int next(char *s)
    return i+1;
 }
 
-void al_show_native_file_dialog(ALLEGRO_NATIVE_FILE_DIALOG *fd)
+void al_show_native_file_dialog(ALLEGRO_NATIVE_DIALOG *fd)
 {
    OPENFILENAME ofn;
    ALLEGRO_DISPLAY_WIN *display;
@@ -109,4 +109,9 @@ void al_show_native_file_dialog(ALLEGRO_NATIVE_FILE_DIALOG *fd)
       fd->paths = _AL_MALLOC(sizeof(void *));
       fd->paths[0] = al_path_create(buf);
    }
+}
+
+int al_show_native_message_box(ALLEGRO_NATIVE_DIALOG *fd)
+{
+   return 0;
 }

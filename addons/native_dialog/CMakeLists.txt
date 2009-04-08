@@ -12,7 +12,8 @@ endif(WIN32)
 
 if(NOT SUPPORT_NATIVE_DIALOG)
     pkg_check_modules(GTK gtk+-2.0)
-    if(GTK_FOUND)
+    pkg_check_modules(GT gthread-2.0)
+    if(GTK_FOUND AND GT_FOUND)
         set(SOURCES dialog.c gtk_dialog.c)
         include_directories(${GTK_INCLUDE_DIRS})
 
@@ -26,9 +27,10 @@ if(NOT SUPPORT_NATIVE_DIALOG)
             COMPILE_FLAGS "${GTK_CFLAGS_STRING}"
             )
 
-        set(NATIVE_DIALOG_LIBRARIES ${GTK_LIBRARIES})
+        set(NATIVE_DIALOG_LIBRARIES ${GTK_LIBRARIES} ${GT_LIBRARIES})
+
         set(SUPPORT_NATIVE_DIALOG 1)
-    endif(GTK_FOUND)
+    endif(GTK_FOUND AND GT_FOUND)
 endif(NOT SUPPORT_NATIVE_DIALOG)
 
 if(SUPPORT_NATIVE_DIALOG)

@@ -5,7 +5,7 @@
 
 #import <Cocoa/Cocoa.h>
 
-void al_show_native_file_dialog(ALLEGRO_NATIVE_FILE_DIALOG *fd)
+void al_show_native_file_dialog(ALLEGRO_NATIVE_DIALOG *fd)
 {
    int mode = fd->mode;
    NSString *directory, *filename;
@@ -91,4 +91,9 @@ void al_show_native_file_dialog(ALLEGRO_NATIVE_FILE_DIALOG *fd)
    }
 
    [pool drain];
+}
+
+int al_show_native_message_box(ALLEGRO_NATIVE_DIALOG *fd)
+{
+   return 0;
 }

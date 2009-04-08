@@ -1,6 +1,6 @@
 # Native dialogs support
 
-## API: ALLEGRO_NATIVE_FILE_DIALOG
+## API: ALLEGRO_NATIVE_DIALOG
 
 Opaque handle to a native file dialog. You should only have one such
 dialog opened at a time.
@@ -62,3 +62,51 @@ Returns one of the selected paths.
 ## API: al_destroy_native_file_dialog
 
 Frees up all resources used by the dialog.
+
+## API: al_native_message_box
+
+Show a native GUI message box. This can be used for example to display an error
+message if creation of an initial display fails. You should usually not use this
+function as long as an ALLEGRO_DISPLAY is active (but you may).
+
+The message box will have a single "OK" button and use the style informative
+dialog boxes usually have on the natve system. If the `buttons` parameter is
+not NULL, you can instead specify the button text in a string, with buttons
+separated by a vertical bar (|).
+
+--------------------------------------------------------------------------------
+Flags
+----------------------------- --------------------------------------------------
+ALLEGRO_MESSAGEBOX_WARN       The message is a warning.
+                                 This may cause a different icon
+                                 (or other effects).
+
+ALLEGRO_MESSAGEBOX_ERROR      The message is an error.
+
+ALLEGRO_MESSAGEBOX_QUESTION   The message is a question.
+
+ALLEGRO_MESSAGEBOX_OK_CANCEL  Instead of the "OK" button also display a cancel
+                                 button. Ignored if `buttons` is not NULL.
+
+ALLEGRO_MESSAGEBOX_YES_NO     Instead of the "OK" button display yes/no
+                                 buttons. Ignored if `buttons` is not NULL.
+--------------------------------------------------------------------------------
+
+Returns:
+
+- 0 if the dialog window was closed without activating a button.
+- 1 if the OK or Yes button was pressed.
+- 2 if the Cancel or No button was pressed.
+
+If `buttons` is not NULL, the number of the pressed button is returned, starting
+with 1.
+
+Example:
+
+      button = al_native_message_box("Fullscreen?",
+         "Do you want to run this game in fullscreen mode?",
+         "Never|Always|Not this time|Only this time",
+         ALLEGRO_MESSAGEBOX_QUESTION);
+      /* button is 1/2/3/4 if one of the buttons is pressed, 0 if the window
+       * is closed.
+       */
