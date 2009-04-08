@@ -29,7 +29,7 @@ int main(void)
       return 1;
    }
 
-   al_iio_init();
+   al_init_iio_addon();
 
    al_set_new_display_flags(ALLEGRO_FULLSCREEN);
    display = al_create_display(640, 480);
@@ -38,7 +38,7 @@ int main(void)
       return 1;
    }
 
-   picture = al_iio_load("data/mysha.pcx");
+   picture = al_load_image("data/mysha.pcx");
    if (!picture) {
       TRACE("mysha.pcx not found\n");
       return 1;

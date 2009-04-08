@@ -137,7 +137,7 @@ void Prog::draw_sample()
 
    al_set_new_bitmap_format(formats[i].format);
 
-   bitmap1 = al_iio_load("data/allegro.pcx");
+   bitmap1 = al_load_image("data/allegro.pcx");
    if (!bitmap1) {
       TRACE("Could not load image, bitmap format = %d\n", formats[i].format);
       printf("Could not load image, bitmap format = %d\n", formats[i].format);
@@ -184,7 +184,7 @@ int main(void)
       return 1;
    }
 
-   al_iio_init();
+   al_init_iio_addon();
    al_init_font_addon();
 
    al_install_keyboard();

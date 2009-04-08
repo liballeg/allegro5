@@ -46,7 +46,7 @@ int main(void)
    }
 
    al_install_keyboard();
-   al_iio_init();
+   al_init_iio_addon();
 
    dpy = al_create_display(display_w, display_h);
    if (!dpy) {
@@ -60,14 +60,14 @@ int main(void)
       return 1;
    }
 
-   bmp = al_iio_load("data/mysha.pcx");
+   bmp = al_load_image("data/mysha.pcx");
    if (!bmp) {
       TRACE("Unable to load image\n");
       return 1;
    }
 
    al_set_new_bitmap_flags(ALLEGRO_MEMORY_BITMAP);
-   mem_bmp = al_iio_load("data/mysha.pcx");
+   mem_bmp = al_load_image("data/mysha.pcx");
    if (!mem_bmp) {
       TRACE("Unable to load image\n");
       return 1;

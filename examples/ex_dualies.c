@@ -17,7 +17,7 @@ void go(void)
       printf("Error creating first display\n");
       return;
    }
-   b1 = al_iio_load("data/mysha.pcx");
+   b1 = al_load_image("data/mysha.pcx");
    if (!b1) {
       printf("Error loading mysha.pcx\n");
       return;
@@ -29,7 +29,7 @@ void go(void)
       printf("Error creating second display\n");
       return;
    }
-   b2 = al_iio_load("data/allegro.pcx");
+   b2 = al_load_image("data/allegro.pcx");
    if (!b2) {
       printf("Error loading allegro.pcx\n");
       return;
@@ -74,7 +74,7 @@ int main(void)
 
    al_install_keyboard();
 
-   al_iio_init();
+   al_init_iio_addon();
 
    if (al_get_num_video_adapters() < 2) {
       TRACE("You need 2 or more adapters/monitors for this example.\n");

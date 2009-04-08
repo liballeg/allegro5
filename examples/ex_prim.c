@@ -504,7 +504,7 @@ int main(void)
       return 1;
    }
    
-   bkg = al_iio_load("data/bkg.png");
+   bkg = al_load_image("data/bkg.png");
    
    // Make and set some color to draw with
    white = al_map_rgba_f(1.0, 1.0, 1.0, 1.0);

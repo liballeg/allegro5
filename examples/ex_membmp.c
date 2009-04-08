@@ -101,7 +101,7 @@ int main(void)
       TRACE("font.tga not found\n");
       return 1;
    }
-   accelbmp = al_iio_load("data/mysha.pcx");
+   accelbmp = al_load_image("data/mysha.pcx");
    if (!accelbmp) {
       TRACE("mysha.pcx not found\n");
       return 1;
@@ -110,7 +110,7 @@ int main(void)
    al_set_new_bitmap_flags(ALLEGRO_MEMORY_BITMAP);
 
    memfont = al_load_font("data/font.tga", 0, 0);
-   membmp = al_iio_load("data/mysha.pcx");
+   membmp = al_load_image("data/mysha.pcx");
 
    for (;;) {
       if (test(membmp, memfont, "Memory bitmap (press SPACE key)"))

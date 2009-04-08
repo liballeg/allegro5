@@ -4,7 +4,7 @@
 #include "iio.h"
 
 
-ALLEGRO_BITMAP *iio_load_pcx_entry(ALLEGRO_FS_ENTRY *f)
+ALLEGRO_BITMAP *al_load_pcx_entry(ALLEGRO_FS_ENTRY *f)
 {
    ALLEGRO_BITMAP *b;
    int c;
@@ -151,7 +151,7 @@ ALLEGRO_BITMAP *iio_load_pcx_entry(ALLEGRO_FS_ENTRY *f)
 }
 
 
-int iio_save_pcx_entry(ALLEGRO_FS_ENTRY *f, ALLEGRO_BITMAP *bmp)
+int al_save_pcx_entry(ALLEGRO_FS_ENTRY *f, ALLEGRO_BITMAP *bmp)
 {
    int c;
    int x, y;
@@ -235,9 +235,9 @@ int iio_save_pcx_entry(ALLEGRO_FS_ENTRY *f, ALLEGRO_BITMAP *bmp)
 }
 
 
-/* Function: iio_load_pcx
+/* Function: al_load_pcx
  */
-ALLEGRO_BITMAP *iio_load_pcx(const char *filename)
+ALLEGRO_BITMAP *al_load_pcx(const char *filename)
 {
    ALLEGRO_FS_ENTRY *f;
    ALLEGRO_BITMAP *bmp;
@@ -247,7 +247,7 @@ ALLEGRO_BITMAP *iio_load_pcx(const char *filename)
    if (!f)
       return NULL;
 
-   bmp = iio_load_pcx_entry(f);
+   bmp = al_load_pcx_entry(f);
 
    al_fclose(f);
 
@@ -255,9 +255,9 @@ ALLEGRO_BITMAP *iio_load_pcx(const char *filename)
 }
 
 
-/* Function: iio_save_pcx
+/* Function: al_save_pcx
  */
-int iio_save_pcx(const char *filename, ALLEGRO_BITMAP *bmp)
+int al_save_pcx(const char *filename, ALLEGRO_BITMAP *bmp)
 {
    ALLEGRO_FS_ENTRY *f;
    int ret;
@@ -267,7 +267,7 @@ int iio_save_pcx(const char *filename, ALLEGRO_BITMAP *bmp)
    if (!f)
       return -1;
 
-   ret = iio_save_pcx_entry(f, bmp);
+   ret = al_save_pcx_entry(f, bmp);
 
    al_fclose(f);
 

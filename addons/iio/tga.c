@@ -260,14 +260,14 @@ static void rle_tga_read16(unsigned short *b, int w, ALLEGRO_FS_ENTRY *f)
 }
 
 
-/* iio_load_tga_entry:
+/* al_load_tga_entry:
  *  Like load_tga, but starts loading from the current place in the ALLEGRO_FS_ENTRY
  *  specified. If successful the offset into the file will be left just after
  *  the image data. If unsuccessful the offset into the file is unspecified,
  *  i.e. you must either reset the offset to some known place or close the
  *  packfile. The packfile is not closed by this function.
  */
-ALLEGRO_BITMAP *iio_load_tga_entry(ALLEGRO_FS_ENTRY *f)
+ALLEGRO_BITMAP *al_load_tga_entry(ALLEGRO_FS_ENTRY *f)
 {
    unsigned char image_id[256], image_palette[256][3];
    unsigned char id_length, palette_type, image_type, palette_entry_size;
@@ -481,13 +481,13 @@ ALLEGRO_BITMAP *iio_load_tga_entry(ALLEGRO_FS_ENTRY *f)
 
 
 
-/* iio_save_tga_entry:
+/* al_save_tga_entry:
  *  Like save_tga but writes into the ALLEGRO_FS_ENTRY given instead of a new file.
  *  The packfile is not closed after writing is completed. On success the
  *  offset into the file is left after the TGA file just written. On failure
  *  the offset is left at the end of whatever incomplete data was written.
  */
-int iio_save_tga_entry(ALLEGRO_FS_ENTRY *f, ALLEGRO_BITMAP *bmp)
+int al_save_tga_entry(ALLEGRO_FS_ENTRY *f, ALLEGRO_BITMAP *bmp)
 {
    int x, y;
    int w, h;
@@ -536,9 +536,9 @@ int iio_save_tga_entry(ALLEGRO_FS_ENTRY *f, ALLEGRO_BITMAP *bmp)
 }
 
 
-/* Function: iio_load_tga
+/* Function: al_load_tga
  */
-ALLEGRO_BITMAP *iio_load_tga(const char *filename)
+ALLEGRO_BITMAP *al_load_tga(const char *filename)
 {
    ALLEGRO_FS_ENTRY *f;
    ALLEGRO_BITMAP *bmp;
@@ -548,7 +548,7 @@ ALLEGRO_BITMAP *iio_load_tga(const char *filename)
    if (!f)
       return NULL;
 
-   bmp = iio_load_tga_entry(f);
+   bmp = al_load_tga_entry(f);
 
    al_fclose(f);
 
@@ -557,9 +557,9 @@ ALLEGRO_BITMAP *iio_load_tga(const char *filename)
 
 
 
-/* Function: iio_save_tga
+/* Function: al_save_tga
  */
-int iio_save_tga(const char *filename, ALLEGRO_BITMAP *bmp)
+int al_save_tga(const char *filename, ALLEGRO_BITMAP *bmp)
 {
    ALLEGRO_FS_ENTRY *f;
    int ret;
@@ -569,7 +569,7 @@ int iio_save_tga(const char *filename, ALLEGRO_BITMAP *bmp)
    if (!f)
       return -1;
 
-   ret = iio_save_tga_entry(f, bmp);
+   ret = al_save_tga_entry(f, bmp);
 
    al_fclose(f);
 

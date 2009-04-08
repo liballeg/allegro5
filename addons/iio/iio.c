@@ -14,10 +14,10 @@
 typedef struct Handler
 {
    char *extension;
-   IIO_LOADER_FUNCTION loader;
-   IIO_SAVER_FUNCTION saver;
-   IIO_FS_LOADER_FUNCTION fs_loader;
-   IIO_FS_SAVER_FUNCTION fs_saver;
+   ALLEGRO_IIO_LOADER_FUNCTION loader;
+   ALLEGRO_IIO_SAVER_FUNCTION saver;
+   ALLEGRO_IIO_FS_LOADER_FUNCTION fs_loader;
+   ALLEGRO_IIO_FS_SAVER_FUNCTION fs_saver;
 } Handler;
 
 
@@ -27,9 +27,9 @@ static unsigned int num_handlers = 0;
 
 
 
-/* Function: al_iio_init
+/* Function: al_init_iio_addon
  */
-bool al_iio_init(void)
+bool al_init_iio_addon(void)
 {
    int success;
 
@@ -38,15 +38,15 @@ bool al_iio_init(void)
 
    success = 0;
 
-   success |= al_iio_add_handler("pcx", iio_load_pcx, iio_save_pcx, iio_load_pcx_entry, iio_save_pcx_entry);
-   success |= al_iio_add_handler("bmp", iio_load_bmp, iio_save_bmp, iio_load_bmp_entry, iio_save_bmp_entry);
-   success |= al_iio_add_handler("tga", iio_load_tga, iio_save_tga, iio_load_tga_entry, iio_save_tga_entry);
+   success |= al_add_image_handler("pcx", al_load_pcx, al_save_pcx, al_load_pcx_entry, al_save_pcx_entry);
+   success |= al_add_image_handler("bmp", al_load_bmp, al_save_bmp, al_load_bmp_entry, al_save_bmp_entry);
+   success |= al_add_image_handler("tga", al_load_tga, al_save_tga, al_load_tga_entry, al_save_tga_entry);
 #ifdef ALLEGRO_CFG_IIO_HAVE_PNG
-   success |= al_iio_add_handler("png", iio_load_png, iio_save_png, iio_load_png_entry, iio_save_png_entry);
+   success |= al_add_image_handler("png", al_load_png, al_save_png, al_load_png_entry, al_save_png_entry);
 #endif
 #ifdef ALLEGRO_CFG_IIO_HAVE_JPG
-   success |= al_iio_add_handler("jpg", iio_load_jpg, iio_save_jpg, iio_load_jpg_entry, iio_save_jpg_entry);
-   success |= al_iio_add_handler("jpeg", iio_load_jpg, iio_save_jpg, iio_load_jpg_entry, iio_save_jpg_entry);
+   success |= al_add_image_handler("jpg", al_load_jpg, al_save_jpg, al_load_jpg_entry, al_save_jpg_entry);
+   success |= al_add_image_handler("jpeg", al_load_jpg, al_save_jpg, al_load_jpg_entry, al_save_jpg_entry);
 #endif
 
    if (success)
@@ -56,11 +56,11 @@ bool al_iio_init(void)
 }
 
 
-/* Function: al_iio_add_handler
+/* Function: al_add_image_handler
  */
-bool al_iio_add_handler(const char *extension,
-   IIO_LOADER_FUNCTION loader, IIO_SAVER_FUNCTION saver,
-   IIO_FS_LOADER_FUNCTION fs_loader, IIO_FS_SAVER_FUNCTION fs_saver)
+bool al_add_image_handler(const char *extension,
+   ALLEGRO_IIO_LOADER_FUNCTION loader, ALLEGRO_IIO_SAVER_FUNCTION saver,
+   ALLEGRO_IIO_FS_LOADER_FUNCTION fs_loader, ALLEGRO_IIO_FS_SAVER_FUNCTION fs_saver)
 {
    Handler *l;
 
@@ -161,9 +161,9 @@ static Handler *find_handler(const char *filename)
 }
 
 
-/* Function: al_iio_load
+/* Function: al_load_image
  */
-ALLEGRO_BITMAP *al_iio_load(const char *filename)
+ALLEGRO_BITMAP *al_load_image(const char *filename)
 {
    Handler *h = find_handler(filename);
    if (h)
@@ -172,9 +172,9 @@ ALLEGRO_BITMAP *al_iio_load(const char *filename)
       return NULL;
 }
 
-/* Function: al_iio_save
+/* Function: al_save_image
  */
-int al_iio_save(const char *filename, ALLEGRO_BITMAP *bitmap)
+int al_save_image(const char *filename, ALLEGRO_BITMAP *bitmap)
 {
    Handler *h = find_handler(filename);
    if (h)
@@ -185,9 +185,9 @@ int al_iio_save(const char *filename, ALLEGRO_BITMAP *bitmap)
    }
 }
 
-/* Function: al_iio_load_entry
+/* Function: al_load_image_entry
  */
-ALLEGRO_BITMAP *al_iio_load_entry(ALLEGRO_FS_ENTRY *pf, const char *ident)
+ALLEGRO_BITMAP *al_load_image_entry(ALLEGRO_FS_ENTRY *pf, const char *ident)
 {
    Handler *h = find_handler(ident);
    if (h)
@@ -196,9 +196,9 @@ ALLEGRO_BITMAP *al_iio_load_entry(ALLEGRO_FS_ENTRY *pf, const char *ident)
       return NULL;
 }
 
-/* Function: al_iio_save_entry
+/* Function: al_save_image_entry
  */
-int al_iio_save_entry(ALLEGRO_FS_ENTRY *pf, const char *ident,
+int al_save_image_entry(ALLEGRO_FS_ENTRY *pf, const char *ident,
    ALLEGRO_BITMAP *bitmap)
 {
    Handler *h = find_handler(ident);

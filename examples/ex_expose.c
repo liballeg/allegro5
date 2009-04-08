@@ -17,7 +17,7 @@ int main(void)
       return 1;
    }
 
-   al_iio_init();
+   al_init_iio_addon();
    al_install_keyboard();
    al_install_mouse();
 
@@ -30,7 +30,7 @@ int main(void)
       return 1;
    }
 
-   bitmap = al_iio_load("data/mysha.pcx");
+   bitmap = al_load_image("data/mysha.pcx");
    if (!bitmap) {
       TRACE("mysha.pcx not found or failed to load\n");
       return 1;

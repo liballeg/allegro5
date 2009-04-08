@@ -60,7 +60,7 @@ int main(void)
    if (!al_init()) {
       return 1;
    }
-   al_iio_init();
+   al_init_iio_addon();
 
    al_set_new_display_flags(ALLEGRO_GENERATE_EXPOSE_EVENTS);
    src_display = al_create_display(SRC_WIDTH, SRC_HEIGHT);
@@ -76,7 +76,7 @@ int main(void)
    al_set_window_title("Destination");
 
    al_set_new_bitmap_flags(ALLEGRO_MEMORY_BITMAP);
-   mem_bmp = al_iio_load("data/mysha.pcx");
+   mem_bmp = al_load_image("data/mysha.pcx");
    if (!mem_bmp) {
       TRACE("Could not load data/mysha.pcx\n");
       return 1;

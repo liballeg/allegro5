@@ -52,7 +52,7 @@ int main(void)
         return 1;
     }
 
-    al_iio_init();
+    al_init_iio_addon();
     al_init_font_addon();
 
     al_set_new_display_option(ALLEGRO_SINGLE_BUFFER, true, ALLEGRO_SUGGEST);
@@ -62,7 +62,7 @@ int main(void)
         TRACE("Failed to create display\n");
         return 1;
     }
-    bitmap = al_iio_load("data/mysha.pcx");
+    bitmap = al_load_image("data/mysha.pcx");
     if (!bitmap) {
         TRACE("Failed to load mysha.pcx\n");
         return 1;
@@ -74,7 +74,7 @@ int main(void)
         return 1;
     }
     
-    font_bitmap = al_iio_load("data/a4_font.tga");
+    font_bitmap = al_load_image("data/a4_font.tga");
     if (!font_bitmap) {
         TRACE("Failed to load a4_font.tga\n");
         return 1;

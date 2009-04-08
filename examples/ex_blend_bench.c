@@ -77,7 +77,7 @@ int main(int argc, const char *argv[])
    if (!al_init())
       return 1;
 
-   al_iio_init();
+   al_init_iio_addon();
 
    if (!al_create_display(640, 480)) {
       TRACE("Error creating display\n");
@@ -86,13 +86,13 @@ int main(int argc, const char *argv[])
 
    al_set_new_bitmap_flags(ALLEGRO_MEMORY_BITMAP);
 
-   b1 = al_iio_load("data/mysha.pcx");
+   b1 = al_load_image("data/mysha.pcx");
    if (!b1) {
       TRACE("Error loading data/mysha.pcx\n");
       return 1;
    }
 
-   b2 = al_iio_load("data/allegro.pcx");
+   b2 = al_load_image("data/allegro.pcx");
    if (!b2) {
       TRACE("Error loading data/mysha.pcx\n");
       return 1;

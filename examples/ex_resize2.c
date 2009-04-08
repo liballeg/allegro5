@@ -23,7 +23,7 @@ int main(void)
       return 1;
    }
    al_install_keyboard();
-   al_iio_init();
+   al_init_iio_addon();
 
    al_set_new_display_flags(ALLEGRO_RESIZABLE |
       ALLEGRO_GENERATE_EXPOSE_EVENTS);
@@ -34,7 +34,7 @@ int main(void)
    }
 
    al_set_new_bitmap_flags(ALLEGRO_MEMORY_BITMAP);
-   bmp = al_iio_load("data/mysha.pcx");
+   bmp = al_load_image("data/mysha.pcx");
    if (!bmp) {
       TRACE("Unable to load image\n");
       return 1;

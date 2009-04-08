@@ -26,7 +26,7 @@ int main(int argc, const char *argv[])
     al_install_mouse();
     al_install_keyboard();
 
-    al_iio_init();
+    al_init_iio_addon();
 
     display = al_create_display(320, 200);
     if (!display) {
@@ -42,7 +42,7 @@ int main(int argc, const char *argv[])
      * FIXME: Or should A5 automatically created multiple display bitmaps?
      */
     al_set_new_bitmap_flags(ALLEGRO_MEMORY_BITMAP);
-    membitmap = al_iio_load(filename);
+    membitmap = al_load_image(filename);
     if (!membitmap) {
        TRACE("%s not found or failed to load\n", filename);
        return 1;

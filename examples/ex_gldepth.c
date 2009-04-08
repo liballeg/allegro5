@@ -145,7 +145,7 @@ void setup_textures(void)
       exit(1);
    }
 
-   tmp_bmp = al_iio_load("data/mysha.pcx");
+   tmp_bmp = al_load_image("data/mysha.pcx");
    if(!tmp_bmp) {
       TRACE("Error loading `data/mysha.pcx'\n");
       exit(1);
@@ -187,7 +187,7 @@ int main(void)
       return 1;
    }
 
-   al_iio_init();
+   al_init_iio_addon();
    al_install_keyboard();
 
    al_set_new_display_flags(ALLEGRO_OPENGL);

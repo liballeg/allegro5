@@ -222,7 +222,7 @@ int main()
    al_install_mouse();
 
    al_init_font_addon();
-   al_iio_init();
+   al_init_iio_addon();
 
    al_set_new_display_flags(ALLEGRO_GENERATE_EXPOSE_EVENTS);
    display = al_create_display(640, 480);
@@ -235,12 +235,12 @@ int main()
       TRACE("Failed to load data/fixed_font.tga\n");
       return 1;
    }
-   allegro = al_iio_load("data/allegro.pcx");
+   allegro = al_load_image("data/allegro.pcx");
    if (!allegro) {
       TRACE("Failed to load data/allegro.pcx\n");
       return 1;
    }
-   mysha = al_iio_load("data/mysha.pcx");
+   mysha = al_load_image("data/mysha.pcx");
    if (!mysha) {
       TRACE("Failed to load data/mysha.pcx\n");
       return 1;

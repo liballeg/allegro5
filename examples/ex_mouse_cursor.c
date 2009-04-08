@@ -65,7 +65,7 @@ int main(void)
       return 1;
    }
 
-   al_iio_init();
+   al_init_iio_addon();
 
    if (!al_install_mouse()) {
       TRACE("Error installing mouse\n");
@@ -85,7 +85,7 @@ int main(void)
       return 1;
    }
 
-   bmp = al_iio_load("data/allegro.pcx");
+   bmp = al_load_image("data/allegro.pcx");
    if (!bmp) {
       TRACE("Error loading data/allegro.pcx\n");
       return 1;

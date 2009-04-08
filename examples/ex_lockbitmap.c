@@ -17,7 +17,6 @@ int main(void)
    }
 
    al_install_keyboard();
-   al_iio_init();
 
    /* Create a 100 x 100 window. */
    display = al_create_display(100, 100);

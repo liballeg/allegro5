@@ -123,7 +123,6 @@ bool init(void)
    srand(time(NULL));
 
    al_init();
-   al_iio_init();
    al_init_font_addon();
 
    al_set_new_bitmap_format(ALLEGRO_PIXEL_FORMAT_ANY_WITH_ALPHA);

@@ -225,7 +225,7 @@ ALLEGRO_FONT_VTABLE* al_font_vtable_color = &_al_font_vtable_color;
 void al_init_font_addon(void)
 {
    _al_vector_init(&handlers, sizeof(HANDLER));
-   al_iio_init(); /* we depend on the iio addon */
+   al_init_iio_addon(); /* we depend on the iio addon */
    
    al_register_font_extension(".bmp", _al_load_bitmap_font);
    al_register_font_extension(".jpg", _al_load_bitmap_font);

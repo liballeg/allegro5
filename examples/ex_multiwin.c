@@ -20,7 +20,7 @@ int main(void)
 
    al_install_keyboard();
    al_install_mouse();
-   al_iio_init();
+   al_init_iio_addon();
 
    events = al_create_event_queue();
 
@@ -28,14 +28,14 @@ int main(void)
 
    /* Create two windows. */
    display[0] = al_create_display(W, H);
-   pictures[0] = al_iio_load("data/mysha.pcx");
+   pictures[0] = al_load_image("data/mysha.pcx");
    if (!pictures[0]) {
       TRACE("failed to load mysha.pcx\n");
       return 1;
    }
 
    display[1] = al_create_display(W, H);
-   pictures[1] = al_iio_load("data/allegro.pcx");
+   pictures[1] = al_load_image("data/allegro.pcx");
    if (!pictures[1]) {
       TRACE("failed to load allegro.pcx\n");
       return 1;
