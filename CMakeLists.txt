@@ -689,10 +689,13 @@ if(SUPPORT_OPENGL)
     list(APPEND PLATFORM_LIBS ${OPENGL_gl_LIBRARY} ${OPENGL_glu_LIBRARY})
 endif(SUPPORT_OPENGL)
 
-# XXX remove ALLEGRO_LIB_BUILD everywhere in favour of ALLEGRO_SRC
+# ALLEGRO_LIB_BUILD is defined for all Allegro sources (core and addon)
+# ALLEGRO_SRC is defined only while compiling the core sources (its use is
+# to get the DLL #defines right under Windows for creating DLL export functions
+# when it is defined or import DLL functions when it is not).
 add_our_library(allegro -${ALLEGRO_VERSION}
     "${LIBRARY_SOURCES}"
-    "${LIBRARY_CFLAGS} -DALLEGRO_LIB_BUILD"
+    "${LIBRARY_CFLAGS} -DALLEGRO_SRC"
     "${PLATFORM_LIBS}"
     )
 

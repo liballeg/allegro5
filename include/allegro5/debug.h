@@ -65,7 +65,8 @@ AL_FUNC(void, register_trace_handler, (AL_METHOD(int, handler, (AL_CONST char *m
 #define ALLEGRO_STATIC_ASSERT(e) \
    enum { ALLEGRO_ASSERT_CONCAT(static_assert_line_, __LINE__) = 1/!!(e) }
 
-#ifdef ALLEGRO_SRC
+/* We are lazy and use just ASSERT while Allegro itself is compiled. */
+#ifdef ALLEGRO_LIB_BUILD
     #define ASSERT(x) ALLEGRO_ASSERT(x)
 #endif
 
