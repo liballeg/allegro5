@@ -133,22 +133,22 @@ static int eds_list_count = 0;
 static int d3d_fmt_desc[][ALLEGRO_DISPLAY_OPTIONS_COUNT+2] =
 {
    { 8, 8, 8, 0, 16, 8, 0,  0, 0, 0, 0, 0, 0, 0, 32,  0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 11, 0 },
-   { 8, 8, 8, 0, 16, 8, 0,  0, 0, 0, 0, 0, 0, 0, 32, 32, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 11, D3DFMT_D32 },
+   //{ 8, 8, 8, 0, 16, 8, 0,  0, 0, 0, 0, 0, 0, 0, 32, 32, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 11, D3DFMT_D32 },
    { 8, 8, 8, 0, 16, 8, 0,  0, 0, 0, 0, 0, 0, 0, 32, 24, 8, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 11, D3DFMT_D24S8 },
    { 8, 8, 8, 0, 16, 8, 0,  0, 0, 0, 0, 0, 0, 0, 32, 24, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 11, D3DFMT_D24X8 },
    { 8, 8, 8, 0, 16, 8, 0,  0, 0, 0, 0, 0, 0, 0, 32, 24, 4, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 11, D3DFMT_D24X4S4 },
    { 8, 8, 8, 0, 16, 8, 0,  0, 0, 0, 0, 0, 0, 0, 32,  0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 11, 0 },
-   { 8, 8, 8, 0, 16, 8, 0,  0, 0, 0, 0, 0, 0, 0, 32, 32, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 11, D3DFMT_D32 },
+   //{ 8, 8, 8, 0, 16, 8, 0,  0, 0, 0, 0, 0, 0, 0, 32, 32, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 11, D3DFMT_D32 },
    { 8, 8, 8, 0, 16, 8, 0,  0, 0, 0, 0, 0, 0, 0, 32, 24, 8, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 11, D3DFMT_D24S8 },
    { 8, 8, 8, 0, 16, 8, 0,  0, 0, 0, 0, 0, 0, 0, 32, 24, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 11, D3DFMT_D24X8 },
    { 8, 8, 8, 0, 16, 8, 0,  0, 0, 0, 0, 0, 0, 0, 32, 24, 4, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 11, D3DFMT_D24X4S4 },
    { 8, 8, 8, 0, 16, 8, 0,  0, 0, 0, 0, 0, 0, 0, 32,  0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 1, 0, 11, 0 },
-   { 8, 8, 8, 0, 16, 8, 0,  0, 0, 0, 0, 0, 0, 0, 32, 32, 0, 0, 0, 0, 0, 0, 1, 0, 1, 1, 0, 11, D3DFMT_D32 },
+   //{ 8, 8, 8, 0, 16, 8, 0,  0, 0, 0, 0, 0, 0, 0, 32, 32, 0, 0, 0, 0, 0, 0, 1, 0, 1, 1, 0, 11, D3DFMT_D32 },
    { 8, 8, 8, 0, 16, 8, 0,  0, 0, 0, 0, 0, 0, 0, 32, 24, 8, 0, 0, 0, 0, 0, 1, 0, 1, 1, 0, 11, D3DFMT_D24S8 },
    { 8, 8, 8, 0, 16, 8, 0,  0, 0, 0, 0, 0, 0, 0, 32, 24, 0, 0, 0, 0, 0, 0, 1, 0, 1, 1, 0, 11, D3DFMT_D24X8 },
    { 8, 8, 8, 0, 16, 8, 0,  0, 0, 0, 0, 0, 0, 0, 32, 24, 4, 0, 0, 0, 0, 0, 1, 0, 1, 1, 0, 11, D3DFMT_D24X4S4 },
    { 8, 8, 8, 0, 16, 8, 0,  0, 0, 0, 0, 0, 0, 0, 32,  0, 0, 1, 0, 0, 0, 0, 1, 0, 1, 1, 0, 11, 0 },
-   { 8, 8, 8, 0, 16, 8, 0,  0, 0, 0, 0, 0, 0, 0, 32, 32, 0, 1, 0, 0, 0, 0, 1, 0, 1, 1, 0, 11, D3DFMT_D32 },
+   //{ 8, 8, 8, 0, 16, 8, 0,  0, 0, 0, 0, 0, 0, 0, 32, 32, 0, 1, 0, 0, 0, 0, 1, 0, 1, 1, 0, 11, D3DFMT_D32 },
    { 8, 8, 8, 0, 16, 8, 0,  0, 0, 0, 0, 0, 0, 0, 32, 24, 8, 1, 0, 0, 0, 0, 1, 0, 1, 1, 0, 11, D3DFMT_D24S8 },
    { 8, 8, 8, 0, 16, 8, 0,  0, 0, 0, 0, 0, 0, 0, 32, 24, 0, 1, 0, 0, 0, 0, 1, 0, 1, 1, 0, 11, D3DFMT_D24X8 },
    { 8, 8, 8, 0, 16, 8, 0,  0, 0, 0, 0, 0, 0, 0, 32, 24, 4, 1, 0, 0, 0, 0, 1, 0, 1, 1, 0, 11, D3DFMT_D24X4S4 },
@@ -373,6 +373,7 @@ static bool d3d_format_is_valid(int format)
 }
 
 
+/*
 static bool d3d_parameters_are_valid(int format, int refresh_rate, int flags)
 {
    (void)refresh_rate;
@@ -383,6 +384,7 @@ static bool d3d_parameters_are_valid(int format, int refresh_rate, int flags)
 
    return true;
 }
+*/
 
 
 static DWORD d3d_get_filter(AL_CONST char *s)
@@ -940,7 +942,9 @@ static bool d3d_create_device(ALLEGRO_DISPLAY_D3D *d,
 #endif
 
    ZeroMemory(&d3d_pp, sizeof(d3d_pp));
+
    d3d_pp.BackBufferFormat = (D3DFORMAT)_al_format_to_d3d(format);
+
    d3d_pp.BackBufferWidth = al_display->w;
    d3d_pp.BackBufferHeight = al_display->h;
    d3d_pp.BackBufferCount = 1;
@@ -986,6 +990,7 @@ static bool d3d_create_device(ALLEGRO_DISPLAY_D3D *d,
             D3DDEVTYPE_HAL, win_display->window,
             D3DCREATE_SOFTWARE_VERTEXPROCESSING|D3DCREATE_FPU_PRESERVE|D3DCREATE_MULTITHREADED,
             &d3d_pp, (LPDIRECT3DDEVICE9 *)&d->device)) != D3D_OK) {
+         TRACE("Trying reference device\n");
          if ((hr = _al_d3d->CreateDevice(adapter,
                D3DDEVTYPE_REF, win_display->window,
                D3DCREATE_HARDWARE_VERTEXPROCESSING|D3DCREATE_FPU_PRESERVE|D3DCREATE_MULTITHREADED,
@@ -1132,7 +1137,10 @@ static void d3d_destroy_display(ALLEGRO_DISPLAY *display)
       already_fullscreen = false;
    }
 
-   _al_event_source_free(&display->es);
+   if (d3d_display->es_inited) {
+      _al_event_source_free(&display->es);
+      d3d_display->es_inited = false;
+   }
 
    _al_vector_free(&display->bitmaps);
    _AL_FREE(display);
@@ -1457,6 +1465,7 @@ static void d3d_display_thread_proc(void *arg)
    if (!_al_pixel_format_is_real(_al_deduce_color_format(&al_display->extra_settings))) {
       int f = d3d_choose_display_format(_al_deduce_color_format(&al_display->extra_settings));
       if (f < 0) {
+         d3d_destroy_display(al_display);
          SetEvent(params->AckEvent);
          return;
       }
@@ -1467,11 +1476,13 @@ static void d3d_display_thread_proc(void *arg)
    TRACE("Chose a display format: %d\n", new_format);
    d3d_display->format = new_format;
 
+/*
    if (!d3d_parameters_are_valid(_al_deduce_color_format(&al_display->extra_settings), al_display->refresh_rate, al_display->flags)) {
       TRACE("d3d_display_thread_proc: Invalid parameters.\n");
       SetEvent(params->AckEvent);
       return;
    }
+   */
 
    if (d3d_display->faux_fullscreen) {
       ALLEGRO_MONITOR_INFO mi;
@@ -1503,6 +1514,7 @@ static void d3d_display_thread_proc(void *arg)
       if (!found) {
          TRACE("d3d_display_thread_proc: Error setting faux fullscreen mode.\n");
          num_faux_fullscreen_windows--;
+         d3d_destroy_display(al_display);
          SetEvent(params->AckEvent);
          return;
       }
@@ -1531,6 +1543,7 @@ static void d3d_display_thread_proc(void *arg)
    }
 
    if (!win_display->window) {
+      d3d_destroy_display(al_display);
       SetEvent(params->AckEvent);
       return;
    }
@@ -1538,7 +1551,6 @@ static void d3d_display_thread_proc(void *arg)
    if (!(al_display->flags & ALLEGRO_FULLSCREEN) || d3d_display->faux_fullscreen) {
       if (!d3d_create_device(d3d_display, _al_deduce_color_format(&al_display->extra_settings),
             al_display->refresh_rate, al_display->flags, convert_to_faux)) {
-         win_display->thread_ended = true;
          d3d_destroy_display(al_display);
          SetEvent(params->AckEvent);
          return;
@@ -1548,7 +1560,6 @@ static void d3d_display_thread_proc(void *arg)
       TRACE("Creating real fullscreen device\n");
       if (!d3d_create_fullscreen_device(d3d_display, _al_deduce_color_format(&al_display->extra_settings),
             al_display->refresh_rate, al_display->flags)) {
-         win_display->thread_ended = true;
          d3d_destroy_display(al_display);
          SetEvent(params->AckEvent);
          return;
@@ -1663,6 +1674,51 @@ static int d3d_display_list_resorter(const void *p0, const void *p1)
 }
 
 
+static ALLEGRO_DISPLAY_D3D *d3d_create_display_helper(int w, int h)
+{
+   ALLEGRO_SYSTEM_WIN *system = (ALLEGRO_SYSTEM_WIN *)al_system_driver();
+   ALLEGRO_DISPLAY_D3D *d3d_display = (ALLEGRO_DISPLAY_D3D *)_AL_MALLOC(sizeof(ALLEGRO_DISPLAY_D3D));
+   ALLEGRO_DISPLAY_WIN *win_display = &d3d_display->win_display;
+   ALLEGRO_DISPLAY *al_display = &win_display->display;
+   int adapter = al_get_current_video_adapter();
+   if (adapter == -1)
+      adapter = 0;
+
+   memset(d3d_display, 0, sizeof *d3d_display);
+
+   win_display->adapter = adapter;
+   d3d_display->ignore_ack = false;
+   al_display->w = w;
+   al_display->h = h;
+   al_display->refresh_rate = al_get_new_display_refresh_rate();
+   al_display->flags = al_get_new_display_flags();
+   al_display->vt = vt;
+
+#ifdef ALLEGRO_CFG_D3D9EX
+   if (!is_vista) {
+#endif
+      if (al_display->flags & ALLEGRO_FULLSCREEN) {
+         if (already_fullscreen || system->system.displays._size != 0) {
+            d3d_display->faux_fullscreen = true;
+         }
+         else {
+            already_fullscreen = true;
+            d3d_display->faux_fullscreen = false;
+         }
+      }
+      else {
+         d3d_display->faux_fullscreen = false;
+      }
+#ifdef ALLEGRO_CFG_D3D9EX
+   }
+   else {
+      d3d_display->faux_fullscreen = false;
+   }
+#endif
+
+   return d3d_display;
+}
+
 static bool d3d_create_display_internals(ALLEGRO_DISPLAY_D3D *d3d_display)
 {
    new_display_parameters params;
@@ -1671,6 +1727,8 @@ static bool d3d_create_display_internals(ALLEGRO_DISPLAY_D3D *d3d_display)
    static bool cfg_read = false;
    ALLEGRO_SYSTEM *sys;
    AL_CONST char *s;
+   int w = al_display->w;
+   int h = al_display->h;
    
    params.display = d3d_display;
   
@@ -1690,9 +1748,11 @@ static bool d3d_create_display_internals(ALLEGRO_DISPLAY_D3D *d3d_display)
       d3d_display->samples = eds_list[i]->settings[ALLEGRO_SAMPLES];
       d3d_display->single_buffer = eds_list[i]->settings[ALLEGRO_SINGLE_BUFFER] ? true : false;
       d3d_display->vsync = eds_list[i]->settings[ALLEGRO_VSYNC] == 1;
+
       memcpy(&al_display->extra_settings, eds_list[i], sizeof al_display->extra_settings);
 
       params.init_failed = true;
+      win_display->thread_ended = true;
       params.AckEvent = CreateEvent(NULL, false, false, NULL);
 
       _beginthread(d3d_display_thread_proc, 0, &params);
@@ -1707,9 +1767,15 @@ static bool d3d_create_display_internals(ALLEGRO_DISPLAY_D3D *d3d_display)
 #endif
 
       CloseHandle(params.AckEvent);
+
       if (!params.init_failed) {
          break;
       }
+      // Display has been destroyed in d3d_display_thread_proc, create empty template again
+      d3d_display = d3d_create_display_helper(w, h);
+      win_display = &d3d_display->win_display;
+      al_display = &win_display->display;
+      params.display = d3d_display;
    }
 
    // Re-sort the display format list for use later
@@ -1763,46 +1829,11 @@ static bool d3d_create_display_internals(ALLEGRO_DISPLAY_D3D *d3d_display)
 static ALLEGRO_DISPLAY *d3d_create_display(int w, int h)
 {
    ALLEGRO_SYSTEM_WIN *system = (ALLEGRO_SYSTEM_WIN *)al_system_driver();
-   ALLEGRO_DISPLAY_D3D *d3d_display = (ALLEGRO_DISPLAY_D3D *)_AL_MALLOC(sizeof(ALLEGRO_DISPLAY_D3D));
-   ALLEGRO_DISPLAY_D3D **add;
+   ALLEGRO_DISPLAY_D3D *d3d_display = d3d_create_display_helper(w, h);
    ALLEGRO_DISPLAY_WIN *win_display = &d3d_display->win_display;
    ALLEGRO_DISPLAY *al_display = &win_display->display;
+   ALLEGRO_DISPLAY_D3D **add;
    D3DCAPS9 caps;
-   int adapter = al_get_current_video_adapter();
-   if (adapter == -1)
-      adapter = 0;
-
-   memset(d3d_display, 0, sizeof *d3d_display);
-
-   win_display->adapter = adapter;
-   d3d_display->ignore_ack = false;
-   al_display->w = w;
-   al_display->h = h;
-   al_display->refresh_rate = al_get_new_display_refresh_rate();
-   al_display->flags = al_get_new_display_flags();
-   al_display->vt = vt;
-
-#ifdef ALLEGRO_CFG_D3D9EX
-   if (!is_vista) {
-#endif
-      if (al_display->flags & ALLEGRO_FULLSCREEN) {
-         if (already_fullscreen || system->system.displays._size != 0) {
-            d3d_display->faux_fullscreen = true;
-         }
-         else {
-            already_fullscreen = true;
-            d3d_display->faux_fullscreen = false;
-         }
-      }
-      else {
-         d3d_display->faux_fullscreen = false;
-      }
-#ifdef ALLEGRO_CFG_D3D9EX
-   }
-   else {
-      d3d_display->faux_fullscreen = false;
-   }
-#endif
 
    TRACE("faux_fullscreen=%d\n", d3d_display->faux_fullscreen);
 
@@ -1818,6 +1849,7 @@ static ALLEGRO_DISPLAY *d3d_create_display(int w, int h)
 
    /* Each display is an event source. */
    _al_event_source_init(&al_display->es);
+   d3d_display->es_inited = true;
 
    /* Setup the mouse */
    win_display->mouse_range_x1 = 0;
@@ -1828,12 +1860,13 @@ static ALLEGRO_DISPLAY *d3d_create_display(int w, int h)
    win_display->mouse_selected_hcursor = 0;
    win_display->mouse_cursor_shown = false;
 
+   SetForegroundWindow(win_display->window);
    _al_win_grab_input(win_display);
 
    _al_win_show_mouse_cursor(al_display);
 
-   if (_al_d3d->GetDeviceCaps(adapter, D3DDEVTYPE_HAL, &caps) != D3D_OK
-         && _al_d3d->GetDeviceCaps(adapter, D3DDEVTYPE_REF, &caps) != D3D_OK) {
+   if (_al_d3d->GetDeviceCaps(win_display->adapter, D3DDEVTYPE_HAL, &caps) != D3D_OK
+         && _al_d3d->GetDeviceCaps(win_display->adapter, D3DDEVTYPE_REF, &caps) != D3D_OK) {
       d3d_display->supports_separate_alpha_blend = false;
    }
    else {

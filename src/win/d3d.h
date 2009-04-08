@@ -46,6 +46,7 @@ typedef struct ALLEGRO_BITMAP_D3D
 typedef struct ALLEGRO_DISPLAY_D3D
 {
    ALLEGRO_DISPLAY_WIN win_display; /* This must be the first member. */
+   bool es_inited;
 
    /* Driver specifics */
    LPDIRECT3DDEVICE9 device;
