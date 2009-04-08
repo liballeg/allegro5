@@ -28,6 +28,9 @@ UNIX_TOOLS = 1
 RM_OPTS = -f
 
 
+ALLEGRO_CONFIG=allegro-config
+
+
 # -------- local variables --------
 
 FRAMEWORK_DIR = /Library/Frameworks

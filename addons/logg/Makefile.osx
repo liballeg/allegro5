@@ -6,8 +6,8 @@ CC = ../../misc/gcc-uni.sh
 else
 CC = gcc
 endif
-FLAGS=-O2 -g0 `../../allegro-config --cflags --addon` -I../../include
-LFLAGS=-L. -L../../lib/macosx -llogg -logg -lvorbis -lvorbisfile `../../allegro-config --libs --addon` -lm
+CFLAGS+=-O2 -g0 `../../allegro-config --cflags --addon` -I../../include
+LDFLAGS=-L. -L../../lib/macosx -llogg -logg -lvorbis -lvorbisfile `../../allegro-config --libs --addon` -lm
 
 all: lib play_ogg stream_ogg
 
@@ -18,13 +18,13 @@ liblogg.a: logg.o
 	ranlib $@
 
 logg.o: logg.c logg.h
-	$(CC) $(FLAGS) -c logg.c
+	$(CC) $(CFLAGS) -c logg.c
 
 play_ogg: play_ogg.c liblogg.a
-	$(CC) $(FLAGS) play_ogg.c -o play_ogg $(LFLAGS)
+	$(CC) $(CFLAGS) play_ogg.c -o play_ogg $(LDFLAGS)
 
 stream_ogg: stream_ogg.c liblogg.a
-	$(CC) $(FLAGS) stream_ogg.c -o stream_ogg $(LFLAGS)
+	$(CC) $(CFLAGS) stream_ogg.c -o stream_ogg $(LDFLAGS)
 
 clean:
 	rm -f logg.o

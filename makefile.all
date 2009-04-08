@@ -257,7 +257,7 @@ ifndef ADDONS_LIST
    ADDONS_LIST = "none"
 endif
 
-addons: $(ADDON_LIB_TARGETS)
+addons: $(ALLEGRO_CONFIG) $(ADDON_LIB_TARGETS)
 
 
 # -------- rules for deleting the generated files --------
