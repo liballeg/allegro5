@@ -1144,6 +1144,24 @@ void t50(void)
    al_ustr_free(us);
 }
 
+/* Test al_ustr_to_buffer */
+void t51(void)
+{
+   char str[256];
+   ALLEGRO_USTR *us;
+   ALLEGRO_USTR_INFO info;
+
+   us = al_ref_buffer(&info, "Allegro", 3);
+   al_ustr_to_buffer(us, str, 10);
+   CHECK(0 == memcmp(str, "All", 4));
+   al_ustr_to_buffer(us, str, 4);
+   CHECK(0 == memcmp(str, "All", 4));
+   al_ustr_to_buffer(us, str, 3);
+   CHECK(0 == memcmp(str, "Al", 3));
+
+   al_ustr_free(us);
+}
+
 /*---------------------------------------------------------------------------*/
 
 const test_t all_tests[] =
@@ -1153,7 +1171,7 @@ const test_t all_tests[] =
    t20, t21, t22, t23, t24, t25, t26, t27, t28, t29,
    t30, t31, t32, t33, t34, t35, t36, t37, t38, t39,
    t40, t41, t42, t43, t44, t45, t46, t47, t48, t49,
-   t50
+   t50, t51
 };
 
 #define NUM_TESTS (int)(sizeof(all_tests) / sizeof(all_tests[0]))

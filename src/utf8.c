@@ -20,6 +20,7 @@
 #include "allegro5/allegro5.h"
 #include "allegro5/utf8.h"
 #include "allegro5/internal/bstrlib.h"
+#include "allegro5/internal/aintern.h"
 
 ALLEGRO_STATIC_ASSERT(
    sizeof(ALLEGRO_USTR_INFO) >= sizeof(struct _al_tagbstring));
@@ -101,6 +102,19 @@ const char *al_cstr(const ALLEGRO_USTR *us)
 {
    /* May or may not be NUL terminated. */
    return _al_bdata(us);
+}
+
+
+/* Function: al_ustr_to_buffer
+ */
+void al_ustr_to_buffer(const ALLEGRO_USTR *us, char *buffer, int size)
+{
+   int need;
+   if (size <= 0) return;
+   /* add 1 for terminating 0 byte */
+   need = _al_blength(us) + 1;
+   if (size > need) size = need;
+   _al_sane_strncpy(buffer, _al_bdata(us), size);
 }
 
 

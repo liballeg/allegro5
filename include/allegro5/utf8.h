@@ -26,6 +26,7 @@ AL_FUNC(ALLEGRO_USTR *, al_ustr_new_from_buffer, (const char *s, size_t size));
 AL_PRINTFUNC(ALLEGRO_USTR *, al_ustr_newf, (const char *fmt, ...), 1, 2);
 AL_FUNC(void, al_ustr_free, (ALLEGRO_USTR *us));
 AL_FUNC(const char *, al_cstr, (const ALLEGRO_USTR *us));
+AL_FUNC(void, al_ustr_to_buffer, (const ALLEGRO_USTR *us, char *buffer, int size));
 AL_FUNC(char *, al_cstr_dup, (const ALLEGRO_USTR *us));
 AL_FUNC(ALLEGRO_USTR *, al_ustr_dup, (const ALLEGRO_USTR *us));
 AL_FUNC(ALLEGRO_USTR *, al_ustr_dup_substr, (const ALLEGRO_USTR *us,
