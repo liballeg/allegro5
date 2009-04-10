@@ -1,14 +1,23 @@
 % UTF-8 string routines
 
+# Introduction
+
 Here we should give a short overview of Unicode/UCS and in particular UTF-8
 encoding.
 
 Explain about code points and relationship to "characters".
 
-Explain that pos parameters are in byte offsets, not code point indices.
-
 Explain about half-open intervals.
 
+Always be careful whether a function takes byte offsets or code-point indices.
+In general, all position parameters are in byte offsets, not code point indices.
+This may be surprising, but it is because the functions are designed to be
+highly performant and to also work with arbitrary byte buffers. Therefore UTF8
+decoding is not done by default.
+
+For actual text processing, where you want to specify positions with code point
+indices, you should use [al_ustr_offset] to find the byte position of
+a code point.
 
 # UTF-8 string types
 
@@ -97,9 +106,12 @@ The new string will need to be freed with [al_ustr_free].
 
 ## API: al_ustr_dup_substr
 
-Return a new copy of a string, containing its contents in the interval
+Return a new copy of a string, containing its contents in the byte interval
 \[start_pos, end_pos).  The new string will be NUL terminated and will
 need to be freed with [al_ustr_free].
+
+If you need a range of code-points instead of bytes, use [al_ustr_offset]
+to find the byte offsets.
 
 
 # Predefined strings
@@ -147,6 +159,9 @@ stack then no explicit "free" operation is required.
 The referenced interval is \[start_pos, end_pos).
 
 The string is valid until the underlying string is modified or destroyed.
+
+If you need a range of code-points instead of bytes, use [al_ustr_offset]
+to find the byte offsets.
 
 
 # Sizes and offsets
@@ -233,7 +248,9 @@ As with [al_ustr_prev], invalid byte sequences may be skipped while advancing.
 
 Insert `us2` into `us1` beginning at `pos`.  `pos` cannot be less than 0.  If
 `pos` is past the end of `us1` then the space between the end of the string
-and `pos` will be padded with NUL ('\0') bytes.
+and `pos` will be padded with NUL ('\0') bytes. `pos` is specified in bytes.
+
+Use [al_ustr_offset] to find the byte offset for a code-points offset
 
 Returns true on success, false on error.
 
@@ -243,9 +260,9 @@ Like [al_ustr_insert] but inserts a C-style string.
 
 ## API: al_ustr_insert_chr
 
-Insert a code point into `us` beginning at `pos`.  `pos` cannot be less than 0.
-If `pos` is past the end of `us` then the space between the end of the string
-and `pos` will be padded with NUL ('\0') bytes.
+Insert a code point into `us` beginning at byte offset `pos`.  `pos` cannot be
+less than 0. If `pos` is past the end of `us` then the space between the end of
+the string and `pos` will be padded with NUL ('\0') bytes.
 
 Returns the number of bytes inserted, or 0 on error.
 
@@ -291,13 +308,15 @@ Returns true on success, false on error.
 
 ## API: al_ustr_remove_chr
 
-Remove the code point beginning at `pos`.  Returns true on success.  If `pos`
-is out of range or `pos` is not the beginning of a valid code point, returns
-false leaving the string unmodified.
+Remove the code point beginning at byte offset `pos`.  Returns true on success.
+If `pos` is out of range or `pos` is not the beginning of a valid code point,
+returns false leaving the string unmodified.
+
+Use [al_ustr_offset] to find the byte offset for a code-points offset.
 
 ## API: al_ustr_remove_range
 
-Remove the interval \[start_pos, end_pos) from a string.
+Remove the interval \[start_pos, end_pos) (in bytes) from a string.
 `start_pos` and `end_pos` may both be past the end of the string
 but cannot be less than 0 (the start of the string).
 
@@ -305,7 +324,7 @@ Returns true on success, false on error.
 
 ## API: al_ustr_truncate
 
-Truncate a portion of a string at `start_pos` onwards.
+Truncate a portion of a string at byte offset `start_pos` onwards.
 `start_pos` can be past the end of the string (has no effect)
 but cannot be less than 0.
 
@@ -341,8 +360,11 @@ Returns true on success, false on error.
 
 ## API: al_ustr_assign_substr
 
-Overwrite the string `us1` with the contents of `us2` in the interval
+Overwrite the string `us1` with the contents of `us2` in the byte interval
 \[start_pos, end_pos).  The end points will be clamed to the bounds of `us2`.
+
+Usually you will first have to use [al_ustr_offset] to find the byte offsets.
+
 Returns true on success, false on error.
 
 ## API: al_ustr_assign_cstr
@@ -355,7 +377,7 @@ Returns true on success, false on error.
 
 ## API: al_ustr_set_chr
 
-Replace the code point beginning at `pos` with `c`.
+Replace the code point beginning at byte offset `pos` with `c`.
 `pos` cannot be less than 0.  If `pos` is past the end of `us1` then the space
 between the end of the string and `pos` will be padded with NUL ('\0') bytes.
 If `pos` is not the start of a valid code point, that is an error and
@@ -366,10 +388,12 @@ following code point.  On error, returns 0.
 
 ## API: al_ustr_replace_range
 
-Replace the part of `us1` in the interval \[start_pos, end_pos) with the
+Replace the part of `us1` in the byte interval \[start_pos, end_pos) with the
 contents of `us2`.  `start_pos` cannot be less than 0.  If `start_pos` is past
 the end of `us1` then the space between the end of the string and `start_pos`
 will be padded with NUL ('\0') bytes.
+
+Use [al_ustr_offset] to find the byte offsets.
 
 Returns true on success, false on error.
 
@@ -378,20 +402,22 @@ Returns true on success, false on error.
 
 ## API: al_ustr_find_chr
 
-Search for the encoding of code point `c` in `us` from `start_pos` (inclusive).
+Search for the encoding of code point `c` in `us` from byte offset `start_pos`
+(inclusive).
+
 Returns the position where it is found or -1 if it is not found.
 
 ## API: al_ustr_rfind_chr
 
-Search for the encoding of code point `c` in `us` backwards from `end_pos`
-(exclusive).
+Search for the encoding of code point `c` in `us` backwards from byte offset
+`end_pos` (exclusive).
 Returns the position where it is found or -1 if it is not found.
 
 ## API: al_ustr_find_set
 
-This function finds the first code point in `us`, beginning from `start_pos`,
-that matches any code point in `accept`.  Returns the position if a code point
-was found.  Otherwise returns -1.
+This function finds the first code point in `us`, beginning from byte offset
+`start_pos`, that matches any code point in `accept`.  Returns the position if
+a code point was found.  Otherwise returns -1.
 
 ## API: al_ustr_find_set_cstr
 
@@ -399,10 +425,10 @@ Like [al_ustr_find_set] but takes a C-style string for `accept`.
 
 ## API: al_ustr_find_cset
 
-This function finds the first code point in `us`, beginning from `start_pos`,
-that does *not* match any code point in `reject`.  In other words it finds
-a code point in the complementary set of `reject`.
-Returns the position of that code point, if any.  Otherwise returns -1.
+This function finds the first code point in `us`, beginning from byte offset
+`start_pos`, that does *not* match any code point in `reject`.  In other words
+it finds a code point in the complementary set of `reject`.
+Returns the byte position of that code point, if any.  Otherwise returns -1.
 
 ## API: al_ustr_find_cset_cstr
 
@@ -410,9 +436,9 @@ Like [al_ustr_find_cset] but takes a C-style string for `reject`.
 
 ## API: al_ustr_find_str
 
-Find the first occurrence of string `needle` in `haystack`, beginning from
-`pos` (inclusive).  Return the offset of the occurrence if it is found,
-otherwise return -1.
+Find the first occurrence of string `needle` in `haystack`, beginning from byte
+offset `pos` (inclusive).  Return the byte offset of the occurrence if it is
+found, otherwise return -1.
 
 ## API: al_ustr_find_cstr
 
@@ -420,9 +446,9 @@ Like [al_ustr_find_str] but takes a C-style string for `needle`.
 
 ## API: al_ustr_rfind_str
 
-Find the last occurrence of string `needle` in `haystack` before `end_pos`
-(exclusive).  Return the offset of the occurrence if it is found, otherwise
-return -1.
+Find the last occurrence of string `needle` in `haystack` before byte offset
+`end_pos` (exclusive).  Return the byte offset of the occurrence if it is found,
+otherwise return -1.
 
 ## API: al_ustr_rfind_cstr
 
@@ -430,8 +456,8 @@ Like [al_ustr_rfind_str] but takes a C-style string for `needle`.
 
 ## API: al_ustr_find_replace
 
-Replace all occurrences of `find` in `us` with `replace`, beginning at
-`start_pos`.  The `find` string must be non-empty.
+Replace all occurrences of `find` in `us` with `replace`, beginning at byte
+offset `start_pos`.  The `find` string must be non-empty.
 Returns true on success, false on error.
 
 ## API: al_ustr_find_replace_cstr
@@ -450,7 +476,7 @@ than [al_ustr_compare] so is preferable if ordering is not important.
 
 This function compares `us1` and `us2` by code point values.
 Returns zero if the strings are equal, a positive number if `us1` comes after
-`us2', else a negative number.
+`us2`, else a negative number.
 
 This does *not* take into account locale-specific sorting rules.
 For that you will need to use another library.
@@ -461,7 +487,7 @@ Like [al_ustr_compare] but only compares up to the first `n` code points
 of both strings.
 
 Returns zero if the strings are equal, a positive number if `us1` comes after
-`us2', else a negative number.
+`us2`, else a negative number.
 
 ## API: al_ustr_has_prefix
 
