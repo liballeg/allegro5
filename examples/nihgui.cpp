@@ -723,8 +723,10 @@ void TextEntry::draw()
    else {
       int x = x1;
 
-      al_draw_text(theme.font, x1, y1, 0, s, left_pos, cursor_pos);
-      x += al_get_text_width(theme.font, s, left_pos, cursor_pos);
+      if (cursor_pos > 0) {
+         al_draw_text(theme.font, x1, y1, 0, s, left_pos, cursor_pos);
+         x += al_get_text_width(theme.font, s, left_pos, cursor_pos);
+      }
 
       if (cursor_pos == text.size()) {
          al_draw_filled_rectangle(x, y1, x + CURSOR_WIDTH,
