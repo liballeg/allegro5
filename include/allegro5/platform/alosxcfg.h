@@ -43,10 +43,6 @@
 #define ALLEGRO_NO_STRUPR
 #endif
 
-#ifndef ALLEGRO_HAVE_MEMCMP
-#define ALLEGRO_NO_MEMCMP
-#endif
-
 /* Arrange for other headers to be included later on */
 #define ALLEGRO_EXTRA_HEADER     "allegro5/platform/alosx.h"
 #define ALLEGRO_INTERNAL_HEADER  "allegro5/platform/aintosx.h"

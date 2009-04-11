@@ -65,7 +65,3 @@
 #ifndef ALLEGRO_HAVE_STRUPR
 #define ALLEGRO_NO_STRUPR
 #endif
-
-#ifndef ALLEGRO_HAVE_MEMCMP
-#define ALLEGRO_NO_MEMCMP
-#endif

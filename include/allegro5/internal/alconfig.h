@@ -313,11 +313,6 @@
    #define strupr _alemu_strupr
 #endif
 
-#ifdef ALLEGRO_NO_MEMCMP
-   AL_FUNC(int, _alemu_memcmp, (AL_CONST void *s1, AL_CONST void *s2, size_t num));
-   #define memcmp _alemu_memcmp
-#endif
-
 
 /* endian-independent 3-byte accessor macros */
 #ifdef ALLEGRO_LITTLE_ENDIAN

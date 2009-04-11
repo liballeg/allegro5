@@ -94,28 +94,6 @@ int _alemu_stricmp(AL_CONST char *s1, AL_CONST char *s2)
 
 
 
-#ifdef ALLEGRO_NO_MEMCMP
-
-/* _alemu_memcmp:
- *  Comparison of two memory blocks.
- */
-int _alemu_memcmp(AL_CONST void *s1, AL_CONST void *s2, size_t num)
-{
-   size_t i;
-   ASSERT(s1);
-   ASSERT(s2);
-
-   for (i=0; i<num; i++)
-      if (((unsigned char *)s1)[i] != ((unsigned char *)s2)[i])
-	 return ((((unsigned char *)s1)[i] < ((unsigned char *)s2)[i]) ? -1 : 1);
-
-   return 0;
-}
-
-#endif
-
-
-
 /* _al_sane_realloc:
  *  _AL_REALLOC() substitution with guaranteed behaviour.
  */
