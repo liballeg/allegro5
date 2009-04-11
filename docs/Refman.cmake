@@ -261,6 +261,10 @@ if(WANT_DOCS_INFO AND PANDOC_WITH_TEXINFO AND MAKEINFO)
                 -o ${TEXI_DIR}/refman.texi
                 --standalone
         )
+else()
+    if(WANT_DOCS_INFO)
+        message("Info documentation requires Pandoc 1.1+ and makeinfo")
+    endif(WANT_DOCS_INFO)
 endif(WANT_DOCS_INFO AND PANDOC_WITH_TEXINFO AND MAKEINFO)
 
 #-----------------------------------------------------------------------------#
@@ -295,6 +299,10 @@ if(WANT_DOCS_PDF AND PDFLATEX_COMPILER)
         COMMAND ${PDFLATEX_COMPILER} -output-directory ${PDF_DIR} ${LATEX_DIR}/refman.tex
         COMMAND ${PDFLATEX_COMPILER} -output-directory ${PDF_DIR} ${LATEX_DIR}/refman.tex
         )
+else()
+    if(WANT_DOCS_PDF)
+        message("PDF generation requires pdflatex")
+    endif(WANT_DOCS_PDF)
 endif(WANT_DOCS_PDF AND PDFLATEX_COMPILER)
 
 #-----------------------------------------------------------------------------#
