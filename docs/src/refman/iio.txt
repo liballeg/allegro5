@@ -1,97 +1,97 @@
 # Image I/O addon
 
-## API: al_iio_add_handler
+## API: al_add_image_handler
 
 
-## API: al_iio_init
+## API: al_init_iio_addon
 
 Initializes the IIO addon.
 
-## API: al_iio_load
+## API: al_load_image
 
 Loads an image file into an ALLEGRO_BITMAP.
 The file type is determined by the extension.
 
-## API: al_iio_load_entry
+## API: al_load_image_entry
 
 Loads an image from an ALLEGRO_FS_ENTRY into an ALLEGRO_BITMAP.
 The file type is determined by the passed 'ident' parameter, which is a file
 name extension including the leading dot.
 
-## API: al_iio_save
+## API: al_save_image
 
 Saves an ALLEGRO_BITMAP to an image file.
 The file type is determined by the extension.
 
-## API: al_iio_save_entry
+## API: al_save_image_entry
 
 Saves an ALLEGRO_BITMAP to an ALLEGRO_FS_ENTRY.
 The file type is determined by the passed 'ident' parameter, which is a file
 name extension including the leading dot.
 
-## API: iio_load_bmp
+## API: al_load_bmp
 
 Create a new ALLEGRO_BITMAP from a BMP file. The bitmap is created with
 [al_create_bitmap].
 
-See Also: [al_iio_load].
+See Also: [al_load_image].
 
-## API: iio_load_jpg
+## API: al_load_jpg
 
 Create a new ALLEGRO_BITMAP from a JPEG file. The bitmap is created with
 [al_create_bitmap].
 
-See Also: [al_iio_load].
+See Also: [al_load_image].
 
-## API: iio_load_pcx
+## API: al_load_pcx
 
 Create a new ALLEGRO_BITMAP from a PCX file. The bitmap is created with
 [al_create_bitmap].
 
-See Also: [al_iio_load].
+See Also: [al_load_image].
 
-## API: iio_load_png
+## API: al_load_png
 
 Create a new ALLEGRO_BITMAP from a PNG file. The bitmap is created with
 [al_create_bitmap].
 
-See Also: [al_iio_load].
+See Also: [al_load_image].
 
-## API: iio_load_tga
+## API: al_load_tga
 
 Create a new ALLEGRO_BITMAP from a TGA file. The bitmap is created with
 [al_create_bitmap].
 
-See Also: [al_iio_load].
+See Also: [al_load_image].
 
-## API: iio_save_bmp
+## API: al_save_bmp
 
 Save an ALLEGRO_BITMAP as a BMP file.
 
-See Also: [al_iio_save].
+See Also: [al_save_image].
 
-## API: iio_save_jpg
+## API: al_save_jpg
 
 Save an ALLEGRO_BITMAP as a JPEG file. 
 FIXME: This function is 100% untested right now and not expected to work yet.
 
-See Also: [al_iio_save].
+See Also: [al_save_image].
 
-## API: iio_save_pcx
+## API: al_save_pcx
 
 Save an ALLEGRO_BITMAP as a PCX file.
 
-See Also: [al_iio_save].
+See Also: [al_save_image].
 
-## API: iio_save_png
+## API: al_save_png
 
 Save an ALLEGRO_BITMAP as a PNG file. 
 
-See Also: [al_iio_save].
+See Also: [al_save_image].
 
-## API: iio_save_tga
+## API: al_save_tga
 
 Save an ALLEGRO_BITMAP as a TGA file. 
 
-See Also: [al_iio_save].
+See Also: [al_save_image].
 
