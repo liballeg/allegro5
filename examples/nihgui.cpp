@@ -34,15 +34,23 @@ public:
 
 class UString
 {
-public:
    ALLEGRO_USTR_INFO info;
    ALLEGRO_USTR *ustr;
-   UString(std::string s, int first, int count = -1)
+
+public:
+   UString(const std::string & s, int first, int count = -1)
    {
       ustr = al_ref_cstr(&info, s.c_str());
       ustr = al_ref_ustr(&info, ustr, al_ustr_offset(ustr, first),
-         count == -1 ? al_ustr_size(ustr) :
-         al_ustr_offset(ustr, first + count));
+         (count == -1)
+            ? al_ustr_size(ustr)
+            : al_ustr_offset(ustr, first + count));
+   }
+
+   // Conversion
+   operator const ALLEGRO_USTR *() const
+   {
+      return ustr;
    }
 };
 
@@ -715,8 +723,8 @@ void TextEntry::maybe_scroll()
    }
    else {
       for (;;) {
-         const int tw = al_get_ustr_width(theme.font, UString(text, left_pos,
-            cursor_pos - left_pos).ustr);
+         const int tw = al_get_ustr_width(theme.font,
+            UString(text, left_pos, cursor_pos - left_pos));
          if (x1 + tw + CURSOR_WIDTH < x2) {
             break;
          }
@@ -735,16 +743,15 @@ void TextEntry::draw()
    al_set_blender(ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA, theme.fg);
 
    if (!focused) {
-      al_draw_ustr(theme.font, x1, y1, 0, UString(text, left_pos).ustr);
+      al_draw_ustr(theme.font, x1, y1, 0, UString(text, left_pos));
    }
    else {
       int x = x1;
 
       if (cursor_pos > 0) {
-         al_draw_ustr(theme.font, x1, y1, 0, UString(text, left_pos,
-            cursor_pos - left_pos).ustr);
-         x += al_get_ustr_width(theme.font, UString(text, left_pos,
-            left_pos - cursor_pos).ustr);
+         UString sub(text, left_pos, cursor_pos);
+         al_draw_ustr(theme.font, x1, y1, 0, sub);
+         x += al_get_ustr_width(theme.font, sub);
       }
 
       if (cursor_pos == text.size()) {
@@ -752,12 +759,13 @@ void TextEntry::draw()
             y1 + al_get_font_line_height(theme.font), theme.fg);
       }
       else {
+         UString sub(text, cursor_pos, 1);
          al_set_blender(ALLEGRO_INVERSE_ALPHA, ALLEGRO_ALPHA, theme.fg);
-         al_draw_ustr(theme.font, x, y1, 0, UString(text, cursor_pos, 1).ustr);
-         x += al_get_ustr_width(theme.font, UString(text, cursor_pos, 1).ustr);
+         al_draw_ustr(theme.font, x, y1, 0, sub);
+         x += al_get_ustr_width(theme.font, sub);
 
          al_set_blender(ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA, theme.fg);
-         al_draw_ustr(theme.font, x, y1, 0, UString(text, cursor_pos + 1).ustr);
+         al_draw_ustr(theme.font, x, y1, 0, UString(text, cursor_pos + 1));
       }
    }
 }
