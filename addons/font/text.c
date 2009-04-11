@@ -35,37 +35,14 @@
  */
 
 
-static ALLEGRO_USTR *ref_str(ALLEGRO_USTR_INFO *info, const char *text,
-   int start, int end)
-{
-   ALLEGRO_USTR *ustr = al_ref_cstr(info, text);
-   if (start == 0 && end == 0) return ustr;
 
-   start = al_ustr_offset(ustr, start);
-
-   if (end == 0)
-      end = al_ustr_size(ustr);
-   else
-      end = al_ustr_offset(ustr, end);
-
-   ustr = al_ref_buffer(info, text + start, end - start);
-
-   return ustr;
-}
-
-
-
-/* Function: al_draw_text
+/* Function: al_draw_ustr
  */
-void al_draw_text(const ALLEGRO_FONT *font, float x, float y, int flags,
-   const char *text, int start, int end) 
+void al_draw_ustr(const ALLEGRO_FONT *font, float x, float y, int flags,
+   const ALLEGRO_USTR *ustr) 
 {
-   ALLEGRO_USTR_INFO str_info;
-   ALLEGRO_USTR *ustr;
    ASSERT(font);
-   ASSERT(text);
-
-   ustr = ref_str(&str_info, text, start, end);
+   ASSERT(ustr);
 
    switch (flags) {
       case ALLEGRO_ALIGN_CENTRE:
@@ -83,15 +60,25 @@ void al_draw_text(const ALLEGRO_FONT *font, float x, float y, int flags,
 
 
 
-/* Function: al_draw_justified_text
+/* Function: al_draw_text
  */
-void al_draw_justified_text(const ALLEGRO_FONT *font, float x1, float x2,
-   float y, float diff, int flags, const char *text, int start, int end)
+void al_draw_text(const ALLEGRO_FONT *font, float x, float y, int flags,
+   char const *text) 
+{
+   ALLEGRO_USTR_INFO info;
+   ASSERT(text);
+   al_draw_ustr(font, x, y, flags, al_ref_cstr(&info, text));
+}
+
+
+
+/* Function: al_draw_justified_ustr
+ */
+void al_draw_justified_ustr(const ALLEGRO_FONT *font, float x1, float x2,
+   float y, float diff, int flags, const ALLEGRO_USTR *ustr)
 {
    const char *whitespace = " \t\n\r";
-   ALLEGRO_USTR_INFO str_info;
    ALLEGRO_USTR_INFO word_info;
-   ALLEGRO_USTR *ustr;
    ALLEGRO_USTR *word;
    int pos1, pos2;
    int minlen;
@@ -100,8 +87,6 @@ void al_draw_justified_text(const ALLEGRO_FONT *font, float x1, float x2,
    float fleft, finc;
 
    (void)flags;
-
-   ustr = ref_str(&str_info, text, start, end);
 
    /* count words and measure min length (without spaces) */ 
    num_words = 0;
@@ -152,6 +137,16 @@ void al_draw_justified_text(const ALLEGRO_FONT *font, float x1, float x2,
 }
 
 
+/* Function: al_draw_justified_text
+ */
+void al_draw_justified_text(const ALLEGRO_FONT *font, float x1, float x2,
+   float y, float diff, int flags, const char *text)
+{
+   ALLEGRO_USTR_INFO info;
+   ASSERT(text);
+   al_draw_justified_ustr(font, x1, x2, y, diff, flags, al_ref_cstr(&info, text));
+}
+
 
 /* Function: al_draw_textf
  */
@@ -168,7 +163,7 @@ void al_draw_textf(const ALLEGRO_FONT *font, float x, float y, int flags,
    if (0 == strcmp(format, "%s")) {
       va_start(ap, format);
       s = va_arg(ap, const char *);
-      al_draw_text(font, x, y, flags, s, 0, 0);
+      al_draw_text(font, x, y, flags, s);
       va_end(ap);
       return;
    }
@@ -178,7 +173,7 @@ void al_draw_textf(const ALLEGRO_FONT *font, float x, float y, int flags,
    al_ustr_vappendf(buf, format, ap);
    va_end(ap);
 
-   al_draw_text(font, x, y, flags, al_cstr(buf), 0, 0);
+   al_draw_text(font, x, y, flags, al_cstr(buf));
 
    al_ustr_free(buf);
 }
@@ -200,24 +195,35 @@ void al_draw_justified_textf(const ALLEGRO_FONT *f, float x1, float x2, float y,
    al_ustr_vappendf(buf, format, ap);
    va_end(ap);
 
-   al_draw_justified_text(f, x1, x2, y, diff, flags, al_cstr(buf), 0, 0);
+   al_draw_justified_text(f, x1, x2, y, diff, flags, al_cstr(buf));
 
    al_ustr_free(buf);
 }
 
 
 
+/* Function: al_get_ustr_width
+ */
+int al_get_ustr_width(const ALLEGRO_FONT *f, ALLEGRO_USTR const *ustr)
+{
+   ASSERT(f);
+   ASSERT(ustr);
+
+   return f->vtable->text_length(f, ustr);
+}
+
+
+
 /* Function: al_get_text_width
  */
-int al_get_text_width(const ALLEGRO_FONT *f, const char *str, int start,
-   int end)
+int al_get_text_width(const ALLEGRO_FONT *f, const char *str)
 {
    ALLEGRO_USTR_INFO str_info;
    ALLEGRO_USTR *ustr;
    ASSERT(f);
    ASSERT(str);
 
-   ustr = ref_str(&str_info, str, start, end);
+   ustr = al_ref_cstr(&str_info, str);
 
    return f->vtable->text_length(f, ustr);
 }
@@ -236,19 +242,28 @@ int al_get_font_line_height(const ALLEGRO_FONT *f)
 
 /* Function: al_get_text_dimensions
  */
-void al_get_text_dimensions(const ALLEGRO_FONT *f,
-   char const *text, int start, int end,
+void al_get_ustr_dimensions(const ALLEGRO_FONT *f,
+   ALLEGRO_USTR const *ustr,
    int *bbx, int *bby, int *bbw, int *bbh, int *ascent, int *descent)
 {
-   ALLEGRO_USTR_INFO str_info;
-   ALLEGRO_USTR *ustr;
    ASSERT(f);
-   ustr = ref_str(&str_info, text, start, end);
+   ASSERT(ustr);
    f->vtable->get_text_dimensions(f, ustr, bbx, bby,
       bbw, bbh, ascent, descent);
 }
 
 
+
+void al_get_text_dimensions(const ALLEGRO_FONT *f,
+   char const *text,
+   int *bbx, int *bby, int *bbw, int *bbh, int *ascent, int *descent)
+{
+   ASSERT(f);
+   ASSERT(text);
+   ALLEGRO_USTR_INFO info;
+   f->vtable->get_text_dimensions(f, al_ref_cstr(&info, text), bbx, bby,
+      bbw, bbh, ascent, descent);
+}
 
 /* Function: al_destroy_font
  */

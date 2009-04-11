@@ -30,11 +30,11 @@ static void print(int x, int y, char const *format, ...)
    va_end(list);
 
    al_set_blender(ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA, al_map_rgb(0, 0, 0));
-   al_draw_text(myfont, x + 2, y + 2, 0, message, 0, 0);
+   al_draw_text(myfont, x + 2, y + 2, 0, message);
 
    al_set_blender(ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA,
       al_map_rgb(255, 255, 255));
-   al_draw_text(myfont, x, y, 0, message, 0, 0);
+   al_draw_text(myfont, x, y, 0, message);
 }
 
 /* Draw our example scene. */

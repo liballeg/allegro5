@@ -82,7 +82,7 @@ static ALLEGRO_BITMAP *generate_logo(char const *text,
    cy = dh * 0.5;
 
    logofont = al_load_font(fontname, -font_size, 0);
-   al_get_text_dimensions(logofont, text, 0, 0, &xp, &yp, &w, &h, &as, &de);
+   al_get_text_dimensions(logofont, text, &xp, &yp, &w, &h, &as, &de);
 
    al_store_state(&state, ALLEGRO_STATE_TARGET_BITMAP | ALLEGRO_STATE_BLENDER);
 
@@ -99,7 +99,7 @@ static ALLEGRO_BITMAP *generate_logo(char const *text,
       for (j = -br; j <= br; j++) {
          al_draw_text(logofont,
                          cx - xp * 0.5 - w * 0.5 + i,
-                         cy - yp * 0.5 - h * 0.5 + j, 0, text, 0, 0);
+                         cy - yp * 0.5 - h * 0.5 + j, 0, text);
       }
    }
 
@@ -160,7 +160,7 @@ static ALLEGRO_BITMAP *generate_logo(char const *text,
          al_draw_text(logofont,
                          cx - xp * 0.5 - w * 0.5 + shadow_offset + i,
                          cy - yp * 0.5 - h * 0.5 + shadow_offset + j,
-                         0, text, 0, 0);
+                         0, text);
 
    /* Then draw the lit text we made before on top. */
    al_set_separate_blender(ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA,
@@ -221,7 +221,7 @@ static void print_parameters(void)
       al_draw_textf(font, 75, y, 0, "%s", param_values[i]);
       if (i == selection && editing &&
          (((int)(al_current_time() * 2)) & 1)) {
-         int x = 75 + al_get_text_width(font, param_values[i], 0, 0);
+         int x = 75 + al_get_text_width(font, param_values[i]);
          al_set_blender(ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA, normal);
          al_draw_line(x, y, x, y + th, white, 0);
       }

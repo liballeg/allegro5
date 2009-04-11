@@ -139,7 +139,7 @@ int main(void)
          update(bmp);
          al_clear(al_map_rgb_f(0, 0, 0));
          al_draw_bitmap(bmp, bmp_x, bmp_y, bmp_flag);
-         al_draw_text(font, 0, 0, 0, text, 0, 0);
+         al_draw_text(font, 0, 0, 0, text);
          al_flip_display();
          redraw = false;
       }

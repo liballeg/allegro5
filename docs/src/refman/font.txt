@@ -63,6 +63,10 @@ Returns the height of a character in the specified font.
 
 Calculates the length of a string in a particular font.
 
+## API: al_get_ustr_width
+
+See [al_get_text_width].
+
 ## API: al_draw_text
 
 Writes the 0-terminated string `text` onto `bmp` at position `x`, `y`, using 
@@ -74,27 +78,18 @@ The `flags` parameter can be 0 or one of the following flags:
 - ALLEGRO_ALIGN_CENTRE - Draw the text centered around the given position.
 - ALLEGRO_ALIGN_RIGHT - Draw the text right-aligned to the given position.
 
-The `start` and `end` parameters can be used to only draw a sub-string, measured
-in code-points (i.e. letters, not bytes). If start/end are less than zero,
-the position is measured from the end. If `end` is zero, it means the end of
-the string.
+## API: al_draw_ustr
 
-For example:
-
-    al_draw_text(..., "Allegro 5", 0, 0) // prints "Allegro 5"
-    al_draw_text(..., "Allegro 5", 0, 9) // same
-    al_draw_text(..., "Allegro 5", -9, 9) // same
-    al_draw_text(..., "Allegro 5", -9, 0) // same
-    al_draw_text(..., "Allegro 5", 0, 1) // prints "A"
-    al_draw_text(..., "Allegro 5", -1, 0) // prints "5"
-    al_draw_text(..., "Allegro 5", 2, 5) // prints "leg"
-    al_draw_text(..., "Allegro 5", -7, -4) // same
-
+Like [al_draw_text], except the text is passed as an ALLEGRO_USTR instead of
+a 0-terminated char array.
 
 ## API: al_draw_justified_text
 
 Like [al_draw_text](), but justifies the string to the specified area.
 
+## API: al_draw_justified_ustr
+
+See [al_draw_justified_text].
 
 ## API: al_draw_textf
 
@@ -134,6 +129,10 @@ case x and y will have negative values.
                    descent  |
                    |        |
     -------------------------
+
+## API: al_get_ustr_dimensions
+
+See [al_get_text_dimensions].
 
 ## API: al_load_ttf_font
 

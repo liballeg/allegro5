@@ -15,6 +15,8 @@
 
 #define CLAMP(x,y,z) (std::max)(x, (std::min)(y, z))
 
+namespace {
+   
 class SaveState
 {
    ALLEGRO_STATE state;
@@ -28,6 +30,22 @@ public:
    {
       al_restore_state(&state);
    }
+};
+
+class UString
+{
+public:
+   ALLEGRO_USTR_INFO info;
+   ALLEGRO_USTR *ustr;
+   UString(std::string s, int first, int count = -1)
+   {
+      ustr = al_ref_cstr(&info, s.c_str());
+      ustr = al_ref_ustr(&info, ustr, al_ustr_offset(ustr, first),
+         count == -1 ? al_ustr_size(ustr) :
+         al_ustr_offset(ustr, first + count));
+   }
+};
+
 };
 
 /*---------------------------------------------------------------------------*/
@@ -336,10 +354,10 @@ void Label::draw()
    al_set_blender(ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA, theme.fg);
    if (centred) {
       al_draw_text(theme.font, (this->x1 + this->x2 + 1)/2,
-         this->y1, ALLEGRO_ALIGN_CENTRE, this->text.c_str(), 0, 0);
+         this->y1, ALLEGRO_ALIGN_CENTRE, this->text.c_str());
    }
    else {
-      al_draw_text(theme.font, this->x1, this->y1, 0, this->text.c_str(), 0, 0);
+      al_draw_text(theme.font, this->x1, this->y1, 0, this->text.c_str());
    }
 }
 
@@ -394,7 +412,7 @@ void Button::draw()
       bg);
    al_set_blender(ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA, fg);
    al_draw_text(theme.font, (this->x1 + this->x2 + 1)/2,
-      this->y1, ALLEGRO_ALIGN_CENTRE, this->text.c_str(), 0, 0);
+      this->y1, ALLEGRO_ALIGN_CENTRE, this->text.c_str());
 }
 
 bool Button::get_pushed()
@@ -495,7 +513,7 @@ void List::draw()
          al_set_blender(ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA, theme.fg);
       }
 
-      al_draw_text(theme.font, x1, yi, 0, items.at(i).c_str(), 0, 0);
+      al_draw_text(theme.font, x1, yi, 0, items.at(i).c_str());
    }
 }
 
@@ -697,8 +715,8 @@ void TextEntry::maybe_scroll()
    }
    else {
       for (;;) {
-         const char *s = text.c_str();
-         const int tw = al_get_text_width(theme.font, s, left_pos, cursor_pos);
+         const int tw = al_get_ustr_width(theme.font, UString(text, left_pos,
+            cursor_pos - left_pos).ustr);
          if (x1 + tw + CURSOR_WIDTH < x2) {
             break;
          }
@@ -710,7 +728,6 @@ void TextEntry::maybe_scroll()
 void TextEntry::draw()
 {
    const Theme & theme = dialog->get_theme();
-   const char *s = text.c_str();
    SaveState state;
 
    al_draw_filled_rectangle(x1, y1, x2, y2, theme.bg);
@@ -718,14 +735,16 @@ void TextEntry::draw()
    al_set_blender(ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA, theme.fg);
 
    if (!focused) {
-      al_draw_text(theme.font, x1, y1, 0, s, left_pos, 0);
+      al_draw_ustr(theme.font, x1, y1, 0, UString(text, left_pos).ustr);
    }
    else {
       int x = x1;
 
       if (cursor_pos > 0) {
-         al_draw_text(theme.font, x1, y1, 0, s, left_pos, cursor_pos);
-         x += al_get_text_width(theme.font, s, left_pos, cursor_pos);
+         al_draw_ustr(theme.font, x1, y1, 0, UString(text, left_pos,
+            cursor_pos - left_pos).ustr);
+         x += al_get_ustr_width(theme.font, UString(text, left_pos,
+            left_pos - cursor_pos).ustr);
       }
 
       if (cursor_pos == text.size()) {
@@ -734,11 +753,11 @@ void TextEntry::draw()
       }
       else {
          al_set_blender(ALLEGRO_INVERSE_ALPHA, ALLEGRO_ALPHA, theme.fg);
-         al_draw_text(theme.font, x, y1, 0, s, cursor_pos, cursor_pos + 1);
-         x += al_get_text_width(theme.font, s, cursor_pos, cursor_pos + 1);
+         al_draw_ustr(theme.font, x, y1, 0, UString(text, cursor_pos, 1).ustr);
+         x += al_get_ustr_width(theme.font, UString(text, cursor_pos, 1).ustr);
 
          al_set_blender(ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA, theme.fg);
-         al_draw_text(theme.font, x, y1, 0, s, cursor_pos + 1, text.size());
+         al_draw_ustr(theme.font, x, y1, 0, UString(text, cursor_pos + 1).ustr);
       }
    }
 }
@@ -747,5 +766,6 @@ const std::string & TextEntry::get_text()
 {
    return text;
 }
+
 
 /* vim: set sts=3 sw=3 et: */

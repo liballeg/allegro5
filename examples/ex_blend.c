@@ -49,13 +49,17 @@ static void print(int x, int y, bool vertical, char const *format, ...)
       al_set_blender(ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA, color);
       if (vertical) {
          int i;
-         for (i = 0; i < strlen(message); i++) {
-            al_draw_text(ex.myfont, x + 1 - j, y + 1 - j + h * i, 0, message,
-               i, i + 1);
+         ALLEGRO_USTR_INFO ui;
+         ALLEGRO_USTR *us = al_ref_cstr(&ui, message);
+         for (i = 0; i < (int)al_ustr_length(us); i++) {
+            ALLEGRO_USTR_INFO letter;
+            al_draw_ustr(ex.myfont, x + 1 - j, y + 1 - j + h * i, 0,
+               al_ref_ustr(&letter, us, al_ustr_offset(us, i),
+               al_ustr_offset(us, i + 1)));
          }
       }
       else {
-         al_draw_text(ex.myfont, x + 1 - j, y + 1 - j, 0, message, 0, 0);
+         al_draw_text(ex.myfont, x + 1 - j, y + 1 - j, 0, message);
       }
    }
 }

@@ -16,6 +16,8 @@ static void render(void)
     ALLEGRO_COLOR green = al_map_rgba_f(0, 0.5, 0, 1);
     ALLEGRO_COLOR blue = al_map_rgba_f(0.1, 0.2, 1, 1);
     int x, y, w, h, as, de, xpos, ypos;
+    ALLEGRO_USTR_INFO info, sub_info;
+    ALLEGRO_USTR *u;
 
     al_clear(white);
 
@@ -36,15 +38,20 @@ static void render(void)
     al_draw_textf(ex.f3, 50, 280, 0, "▲△▴▵▶▷▸▹►▻▼▽▾▿◀◁◂◃◄◅◆◇◈◉◊");
     al_draw_textf(ex.f3, 50, 300, 0, "○◌◍◎●◐◑◒◓◔◕◖◗◘◙");
 
-    al_draw_text(ex.f3, 50, 320, 0, "«Thís»|you", 0, 6);
-    al_draw_text(ex.f3, 50, 340, 0, "should|‘ìş’", 7, 0);
-    al_draw_text(ex.f3, 50, 360, 0, "not|“cøünt”|see", 4, 11);
-    al_draw_text(ex.f3, 50, 380, 0, "réstrïçteđ…|this.", 0, 11);
+   #define OFF(x) al_ustr_offset(u, x)
+   #define SUB(x, y) al_ref_ustr(&sub_info, u, OFF(x), OFF(y))
+    u = al_ref_cstr(&info, "«Thís»|you");
+    al_draw_ustr(ex.f3, 50, 320, 0, SUB(0, 6));
+    u = al_ref_cstr(&info, "should|‘ìş’");
+    al_draw_ustr(ex.f3, 50, 340, 0, SUB(7, 11));
+    u = al_ref_cstr(&info, "not|“cøünt”|see");
+    al_draw_ustr(ex.f3, 50, 360, 0, SUB(4, 11));
+    u = al_ref_cstr(&info, "réstrïçteđ…|this.");
+    al_draw_ustr(ex.f3, 50, 380, 0, SUB(0, 11));
     
     xpos = al_get_display_width() - 10;
     ypos = al_get_display_height() - 10;
-    al_get_text_dimensions(ex.f4, "Allegro", 0, 0,
-       &x, &y, &w, &h, &as, &de);
+    al_get_text_dimensions(ex.f4, "Allegro", &x, &y, &w, &h, &as, &de);
     xpos -= w;
     ypos -= h;
     x += xpos;
