@@ -70,7 +70,7 @@ message if creation of an initial display fails. You should usually not use this
 function as long as an ALLEGRO_DISPLAY is active (but you may).
 
 The message box will have a single "OK" button and use the style informative
-dialog boxes usually have on the natve system. If the `buttons` parameter is
+dialog boxes usually have on the native system. If the `buttons` parameter is
 not NULL, you can instead specify the button text in a string, with buttons
 separated by a vertical bar (|).
 
@@ -88,7 +88,7 @@ ALLEGRO_MESSAGEBOX_QUESTION   The message is a question.
 ALLEGRO_MESSAGEBOX_OK_CANCEL  Instead of the "OK" button also display a cancel
                                  button. Ignored if `buttons` is not NULL.
 
-ALLEGRO_MESSAGEBOX_YES_NO     Instead of the "OK" button display yes/no
+ALLEGRO_MESSAGEBOX_YES_NO     Instead of the "OK" button display Yes/No
                                  buttons. Ignored if `buttons` is not NULL.
 --------------------------------------------------------------------------------
 
