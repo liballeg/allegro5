@@ -93,7 +93,9 @@ void al_show_native_file_dialog(ALLEGRO_NATIVE_DIALOG *fd)
    [pool drain];
 }
 
-int al_show_native_message_box(ALLEGRO_NATIVE_DIALOG *fd)
+int _al_show_native_message_box(ALLEGRO_NATIVE_DIALOG *fd)
 {
+   /* XXX to be implemented */
+   (void)fd;
    return 0;
 }
