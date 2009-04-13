@@ -60,16 +60,16 @@ exist, NULL is returned.
 Return the name of the given "stick".  If the stick doesn't
 exist, NULL is returned.
 
-## API: al_get_num_joystick_axes
+## API: al_get_joystick_num_axes
 
 Return the number of axes on the given "stick".  If the stick
 doesn't exist, 0 is returned.
 
-## API: al_get_num_joystick_buttons
+## API: al_get_joystick_num_buttons
 
 Return the number of buttons on the joystick.
 
-## API: al_get_num_joystick_sticks
+## API: al_get_joystick_num_sticks
 
 Return the number of "sticks" on the given joystick.
 

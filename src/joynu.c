@@ -174,9 +174,9 @@ const char *al_get_joystick_name(ALLEGRO_JOYSTICK *joy)
 
 
 
-/* Function: al_get_num_joystick_sticks
+/* Function: al_get_joystick_num_sticks
  */
-int al_get_num_joystick_sticks(const ALLEGRO_JOYSTICK *joy)
+int al_get_joystick_num_sticks(const ALLEGRO_JOYSTICK *joy)
 {
    ASSERT(joy);
 
@@ -215,9 +215,9 @@ const char *al_get_joystick_stick_name(const ALLEGRO_JOYSTICK *joy, int stick)
 
 
 
-/* Function: al_get_num_joystick_axes
+/* Function: al_get_joystick_num_axes
  */
-int al_get_num_joystick_axes(const ALLEGRO_JOYSTICK *joy, int stick)
+int al_get_joystick_num_axes(const ALLEGRO_JOYSTICK *joy, int stick)
 {
    ASSERT(joy);
 
@@ -246,9 +246,9 @@ const char *al_get_joystick_axis_name(const ALLEGRO_JOYSTICK *joy, int stick, in
 
 
 
-/* Function: al_get_num_joystick_buttons
+/* Function: al_get_joystick_num_buttons
  */
-int al_get_num_joystick_buttons(const ALLEGRO_JOYSTICK *joy)
+int al_get_joystick_num_buttons(const ALLEGRO_JOYSTICK *joy)
 {
    ASSERT(joy);
 

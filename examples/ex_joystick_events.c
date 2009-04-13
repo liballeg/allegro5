@@ -180,7 +180,7 @@ int main(void)
    /* Initialise values. */
    al_get_joystick_state(zero_joy, &jst);
 
-   num_sticks = al_get_num_joystick_sticks(zero_joy);
+   num_sticks = al_get_joystick_num_sticks(zero_joy);
    if (num_sticks > MAX_STICKS)
       num_sticks = MAX_STICKS;
    for (i = 0; i < num_sticks; i++) {
@@ -188,7 +188,7 @@ int main(void)
       joys_y[i] = jst.stick[i].axis[1];
    }
 
-   num_buttons = al_get_num_joystick_buttons(zero_joy);
+   num_buttons = al_get_joystick_num_buttons(zero_joy);
    if (num_buttons > MAX_BUTTONS) {
       num_buttons = MAX_BUTTONS;
    }
