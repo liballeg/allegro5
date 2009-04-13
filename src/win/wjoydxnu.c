@@ -343,7 +343,6 @@ static BOOL CALLBACK object_enum_callback(LPCDIDEVICEOBJECTINSTANCE lpddoi, LPVO
 #define GUIDTYPE_EQ(x) (memcmp(&lpddoi->guidType, &x, sizeof(GUID)) == 0)
 
    CAPS_AND_NAMES *can = pvRef;
-   char tmp[128];
 
    if (GUIDTYPE_EQ(GUID_XAxis)) {
       if (!can->have_x) {

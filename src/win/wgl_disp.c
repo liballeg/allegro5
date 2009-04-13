@@ -1102,7 +1102,7 @@ static bool wgl_set_current_display(ALLEGRO_DISPLAY *d)
    if (current_glrc && current_glrc != wgl_disp->glrc) {
       /* make the context the current one */
       if (!wglMakeCurrent(wgl_disp->dc, wgl_disp->glrc)) {
-         ALLEGRO_ERROR("Unable to make the context current! s%\n",
+         ALLEGRO_ERROR("Unable to make the context current! %s\n",
                         get_error_desc(GetLastError()));
          return false;
       }
@@ -1617,7 +1617,7 @@ int _al_wgl_get_num_display_formats()
 }
 
 
-int _al_wgl_get_display_format_option(i, option)
+int _al_wgl_get_display_format_option(int i, int option)
 {
    if (!cached_eds)
       _al_wgl_get_num_display_formats();

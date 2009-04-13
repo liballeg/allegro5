@@ -360,6 +360,8 @@ static int d3d_al_color_to_d3d(ALLEGRO_COLOR color)
    return result;
 }
 
+
+/*
 static bool d3d_format_is_valid(int format)
 {
    int i;
@@ -373,7 +375,6 @@ static bool d3d_format_is_valid(int format)
 }
 
 
-/*
 static bool d3d_parameters_are_valid(int format, int refresh_rate, int flags)
 {
    (void)refresh_rate;

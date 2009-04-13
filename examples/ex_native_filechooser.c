@@ -59,8 +59,11 @@ static void *message_box_thread(ALLEGRO_THREAD *thread, void *arg)
 {
    AsyncDialog *data = arg;
    ALLEGRO_EVENT event;
+   int button;
+
    (void)thread;
-   int button = al_native_message_box(
+
+   button = al_native_message_box(
       "Warning! Click Detected!",
       "This is the last warning. There is nothing to click here.",
       "Oh no!|Don't press|Ok", ALLEGRO_MESSAGEBOX_WARN);
