@@ -82,7 +82,7 @@ bool Input::load(void)
    if (!joy_installed)
       joy_installed = al_install_joystick();
 
-   if (joy_installed && !joystick && al_num_joysticks()) {
+   if (joy_installed && !joystick && al_get_num_joysticks()) {
       joystick = al_get_joystick(0);
    }
    if (kb_installed)

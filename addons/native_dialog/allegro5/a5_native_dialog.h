@@ -39,7 +39,7 @@ A5_DIALOG_FUNC(
       char const *patterns, int mode));
 A5_DIALOG_FUNC(
    void, al_show_native_file_dialog, (ALLEGRO_NATIVE_DIALOG *fd));
-A5_DIALOG_FUNC(int, al_native_message_box, (
+A5_DIALOG_FUNC(int, al_show_native_message_box, (
       char const *title, char const *text, char const *buttons, int flags));
 A5_DIALOG_FUNC(
    int, al_get_native_file_dialog_count, (

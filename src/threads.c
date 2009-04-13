@@ -178,12 +178,12 @@ void al_set_thread_should_stop(ALLEGRO_THREAD *outer)
 }
 
 
-/* Function: al_thread_should_stop
+/* Function: al_get_thread_should_stop
  */
-bool al_thread_should_stop(ALLEGRO_THREAD *outer)
+bool al_get_thread_should_stop(ALLEGRO_THREAD *outer)
 {
    ASSERT(outer);
-   return _al_thread_should_stop(&outer->thread);
+   return _al_get_thread_should_stop(&outer->thread);
 }
 
 

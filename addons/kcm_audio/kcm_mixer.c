@@ -772,9 +772,9 @@ int al_attach_mixer_to_mixer(ALLEGRO_MIXER *mixer, ALLEGRO_MIXER *stream)
 }
 
 
-/* Function: al_mixer_set_postprocess_callback
+/* Function: al_set_mixer_postprocess_callback
  */
-int al_mixer_set_postprocess_callback(ALLEGRO_MIXER *mixer,
+int al_set_mixer_postprocess_callback(ALLEGRO_MIXER *mixer,
    postprocess_callback_t postprocess_callback, void *pp_callback_userdata)
 {
    ASSERT(mixer);

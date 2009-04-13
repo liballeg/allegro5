@@ -161,7 +161,7 @@ int main(void)
    white = al_map_rgb(255, 255, 255);
 
    al_install_joystick();
-   if (al_num_joysticks() == 0) {
+   if (al_get_num_joysticks() == 0) {
       TRACE("No joysticks found.\n");
       return 1;
    }

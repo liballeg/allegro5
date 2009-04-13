@@ -554,7 +554,7 @@ static void ogl_unlock_region(ALLEGRO_BITMAP *bitmap)
    if (ogl_bitmap->is_backbuffer) {
       GLint gl_y = bitmap->h - bitmap->lock_y - bitmap->lock_h;
       /* glWindowPos2i may not be available. */
-      if (al_opengl_version() >= 1.4) {
+      if (al_get_opengl_version() >= 1.4) {
          glWindowPos2i(bitmap->lock_x, gl_y);
       }
       else {

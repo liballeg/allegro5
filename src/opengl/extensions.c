@@ -166,9 +166,9 @@ static void print_extensions(char const *extension)
 
 
 
-/* Function: al_opengl_version
+/* Function: al_get_opengl_version
  */
-float al_opengl_version(void)
+float al_get_opengl_version(void)
 {
    ALLEGRO_DISPLAY *ogl_disp;
 

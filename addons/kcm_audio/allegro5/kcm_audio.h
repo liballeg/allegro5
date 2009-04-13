@@ -279,7 +279,7 @@ A5_KCM_AUDIO_FUNC(int, al_attach_stream_to_mixer, (ALLEGRO_MIXER *mixer,
       ALLEGRO_STREAM *stream));
 A5_KCM_AUDIO_FUNC(int, al_attach_mixer_to_mixer, (ALLEGRO_MIXER *mixer,
       ALLEGRO_MIXER *stream));
-A5_KCM_AUDIO_FUNC(int, al_mixer_set_postprocess_callback, (
+A5_KCM_AUDIO_FUNC(int, al_set_mixer_postprocess_callback, (
       ALLEGRO_MIXER *mixer,
       void (*cb)(void *buf, unsigned long samples, void *data),
       void *data));

@@ -480,7 +480,7 @@ mixers must be the same frequency.
 
 ## API: al_set_mixer_long
 
-## API: al_mixer_set_postprocess_callback
+## API: al_set_mixer_postprocess_callback
 
 Sets a post-processing filter function that's called after the attached
 streams have been mixed. The buffer's format will be whatever the mixer

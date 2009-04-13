@@ -166,14 +166,14 @@ void *thread_func(ALLEGRO_THREAD *thr, void *arg)
    info->target_x = 0;
    info->target_y = 0;
 
-   while (!al_thread_should_stop(thr)) {
+   while (!al_get_thread_should_stop(thr)) {
       al_lock_mutex(info->mutex);
 
       while (info->is_paused) {
          al_wait_cond(info->cond, info->mutex);
 
          /* We might be awoken because the program is terminating. */
-         if (al_thread_should_stop(thr)) {
+         if (al_get_thread_should_stop(thr)) {
             break;
          }
       }

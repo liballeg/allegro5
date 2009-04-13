@@ -63,7 +63,7 @@ Returns one of the selected paths.
 
 Frees up all resources used by the dialog.
 
-## API: al_native_message_box
+## API: al_show_native_message_box
 
 Show a native GUI message box. This can be used for example to display an error
 message if creation of an initial display fails. You should usually not use this
@@ -103,7 +103,7 @@ with 1.
 
 Example:
 
-      button = al_native_message_box("Fullscreen?",
+      button = al_show_native_message_box("Fullscreen?",
          "Do you want to run this game in fullscreen mode?",
          "Never|Always|Not this time|Only this time",
          ALLEGRO_MESSAGEBOX_QUESTION);

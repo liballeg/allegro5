@@ -55,7 +55,7 @@ static void fd_watch_thread_func(_AL_THREAD *self, void *unused)
 {
    (void)unused;
 
-   while (!_al_thread_should_stop(self)) {
+   while (!_al_get_thread_should_stop(self)) {
 
       fd_set rfds;
       int max_fd;

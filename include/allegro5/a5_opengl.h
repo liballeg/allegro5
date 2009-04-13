@@ -93,7 +93,7 @@
 #define ALLEGRO_OPENGL_FORWARD_COMPATIBLE 512
 
 
-AL_FUNC(float,                 al_opengl_version,                (void));
+AL_FUNC(float,                 al_get_opengl_version,            (void));
 AL_FUNC(int,                   al_is_opengl_extension_supported, (AL_CONST char *extension));
 AL_FUNC(void*,                 al_get_opengl_proc_address,       (AL_CONST char *name));
 AL_FUNC(ALLEGRO_OGL_EXT_LIST*, al_get_opengl_extension_list,     (void));

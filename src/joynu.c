@@ -87,9 +87,9 @@ void al_uninstall_joystick(void)
 
 
 
-/* Function: al_num_joysticks
+/* Function: al_get_num_joysticks
  */
-int al_num_joysticks(void)
+int al_get_num_joysticks(void)
 {
    if (new_joystick_driver)
       return new_joystick_driver->num_joysticks();

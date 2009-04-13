@@ -44,7 +44,7 @@ struct ALLEGRO_TIMEOUT_WIN
 };
 
 
-AL_INLINE(bool, _al_thread_should_stop, (struct _AL_THREAD *t),
+AL_INLINE(bool, _al_get_thread_should_stop, (struct _AL_THREAD *t),
 {
    bool ret;
    EnterCriticalSection(&t->cs);

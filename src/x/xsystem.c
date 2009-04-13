@@ -103,7 +103,7 @@ static void xglx_background_thread(_AL_THREAD *self, void *arg)
    XEvent event;
    double last_reset_screensaver_time = 0.0;
 
-   while (!_al_thread_should_stop(self)) {
+   while (!_al_get_thread_should_stop(self)) {
       /* Note:
        * Most older X11 implementations are not thread-safe no matter what, so
        * we simply cannot sit inside a blocking XNextEvent from another thread

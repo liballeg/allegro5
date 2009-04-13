@@ -67,9 +67,9 @@ void al_destroy_native_dialog(ALLEGRO_NATIVE_DIALOG *fd)
    _AL_FREE(fd);
 }
 
-/* Function: al_native_message_box
+/* Function: al_show_native_message_box
  */
-int al_native_message_box(
+int al_show_native_message_box(
     char const *title, char const *text, char const *buttons,
     int flags)
 {

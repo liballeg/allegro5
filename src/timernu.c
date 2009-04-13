@@ -96,7 +96,7 @@ static void timer_thread_proc(_AL_THREAD *self, void *unused)
    double new_time;
    double interval = 0.032768;
 
-   while (!_al_thread_should_stop(self)) {
+   while (!_al_get_thread_should_stop(self)) {
       al_rest(interval);
 
       _al_mutex_lock(&timer_thread_mutex);

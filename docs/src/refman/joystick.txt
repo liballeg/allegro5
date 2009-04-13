@@ -78,7 +78,7 @@ Return the number of "sticks" on the given joystick.
 Install a joystick driver, returning true if successful.  If a
 joystick driver was already installed, returns true immediately.
 
-## API: al_num_joysticks
+## API: al_get_num_joysticks
 
 Return the number of joysticks on the system (depending on the OS
 this may not be accurate).  Returns 0 if there is no joystick driver

@@ -42,7 +42,7 @@ AL_FUNC(ALLEGRO_THREAD *, al_create_thread,
 AL_FUNC(void, al_start_thread, (ALLEGRO_THREAD *outer));
 AL_FUNC(void, al_join_thread, (ALLEGRO_THREAD *outer, void **ret_value));
 AL_FUNC(void, al_set_thread_should_stop, (ALLEGRO_THREAD *outer));
-AL_FUNC(bool, al_thread_should_stop, (ALLEGRO_THREAD *outer));
+AL_FUNC(bool, al_get_thread_should_stop, (ALLEGRO_THREAD *outer));
 AL_FUNC(void, al_destroy_thread, (ALLEGRO_THREAD *thread));
 
 AL_FUNC(ALLEGRO_MUTEX *, al_create_mutex, (void));

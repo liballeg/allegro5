@@ -90,7 +90,7 @@ extension - The name of the extension that is needed
 
 TRUE if the extension is available FALSE otherwise.
 
-## API: al_opengl_version
+## API: al_get_opengl_version
 
 Returns the OpenGL version number of the client
 (the computer the program is running on), for the current DISPLAY.
