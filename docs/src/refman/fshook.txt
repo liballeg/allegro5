@@ -51,12 +51,12 @@ al_fs_mktemp unlink modes
 
 Filesystem modes/types
 
-* AL_FM_READ - Readable
-* AL_FM_WRITE - Writable
-* AL_FM_EXECUTE - Executable
-* AL_FM_HIDDEN - Hidden
-* AL_FM_ISFILE - Regular file
-* AL_FM_ISDIR - Directory
+* ALLEGRO_FM_READ - Readable
+* ALLEGRO_FM_WRITE - Writable
+* ALLEGRO_FM_EXECUTE - Executable
+* ALLEGRO_FM_HIDDEN - Hidden
+* ALLEGRO_FM_ISFILE - Regular file
+* ALLEGRO_FM_ISDIR - Directory
 
 ## API: ALLEGRO_FS_SORT
 

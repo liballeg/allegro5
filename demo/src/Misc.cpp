@@ -27,7 +27,7 @@ const char* getUserResource(const char* fmt, ...) throw (Error)
    memset(res, 0, 512);
    snprintf(res, 511, fmt, ap);
 
-   al_find_resource("a5teroids", res, AL_FM_WRITE, name, MAX_PATH);
+   al_find_resource("a5teroids", res, ALLEGRO_FM_WRITE, name, MAX_PATH);
    
    //printf("getUserResource: '%s'\n", name);
 

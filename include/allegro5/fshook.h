@@ -99,12 +99,12 @@ enum {
 /* Enum: ALLEGRO_FS_MODE
  */
 enum {
-   AL_FM_READ    = 1,
-   AL_FM_WRITE   = 1 << 1,
-   AL_FM_EXECUTE = 1 << 2,
-   AL_FM_HIDDEN  = 1 << 3,
-   AL_FM_ISFILE  = 1 << 4,
-   AL_FM_ISDIR   = 1 << 5,
+   ALLEGRO_FM_READ    = 1,
+   ALLEGRO_FM_WRITE   = 1 << 1,
+   ALLEGRO_FM_EXECUTE = 1 << 2,
+   ALLEGRO_FM_HIDDEN  = 1 << 3,
+   ALLEGRO_FM_ISFILE  = 1 << 4,
+   ALLEGRO_FM_ISDIR   = 1 << 5,
 };
 
 /* Enum: ALLEGRO_SEEK

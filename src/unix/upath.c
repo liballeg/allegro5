@@ -270,7 +270,7 @@ ALLEGRO_PATH *_al_unix_get_path(int id)
          /* next try: /tmp /var/tmp /usr/tmp */
          char *paths[] = { "/tmp/", "/var/tmp/", "/usr/tmp/", NULL };
          for (i=0; paths[i] != NULL; ++i) {
-            if (al_get_entry_mode_str(paths[i]) & AL_FM_ISDIR) {
+            if (al_get_entry_mode_str(paths[i]) & ALLEGRO_FM_ISDIR) {
                return al_path_create(paths[i]);
             }
          }

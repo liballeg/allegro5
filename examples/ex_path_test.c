@@ -464,12 +464,12 @@ void t15(void)
    ALLEGRO_PATH *path;
 
    path = al_path_create("data");
-   CHECK(al_path_emode(path, AL_FM_READ | AL_FM_EXECUTE | AL_FM_ISDIR));
+   CHECK(al_path_emode(path, ALLEGRO_FM_READ | ALLEGRO_FM_EXECUTE | ALLEGRO_FM_ISDIR));
    al_path_free(path);
 
    path = al_path_create("data/allegro.pcx");
-   CHECK(al_path_emode(path, AL_FM_READ | AL_FM_ISFILE));
-   CHECK(! al_path_emode(path, AL_FM_EXECUTE));
+   CHECK(al_path_emode(path, ALLEGRO_FM_READ | ALLEGRO_FM_ISFILE));
+   CHECK(! al_path_emode(path, ALLEGRO_FM_EXECUTE));
    al_path_free(path);
 }
 
