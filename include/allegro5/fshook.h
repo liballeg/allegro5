@@ -212,9 +212,6 @@ AL_FUNC(bool, al_get_search_path, (uint32_t idx, size_t len, char *dest));
 AL_FUNC(int32_t, al_drive_sep, (size_t len, char *sep));
 AL_FUNC(int32_t, al_path_sep, (size_t len, char *sep));
 
-AL_FUNC(int32_t, al_path_to_sys, (AL_CONST char *orig, size_t len, char *path));
-AL_FUNC(int32_t, al_path_to_uni, (AL_CONST char *orig, size_t len, char *path));
-
 AL_FUNC(int, al_fgetc, (ALLEGRO_FS_ENTRY *f));
 AL_FUNC(int, al_fputc, (ALLEGRO_FS_ENTRY *f, int c));
 

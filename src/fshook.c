@@ -366,30 +366,6 @@ int32_t al_path_sep(size_t len, char *sep)
    return _al_fs_hook_path_sep(len, sep);
 }
 
-/* not sure these two conversion hooks are needed, should the path conversion be in the driver? */
-/* yup, driver may want to expose a "environment" that doesn't match the curren't platform's */
-/* Function: al_path_to_sys
- */
-int32_t al_path_to_sys(const char *orig, size_t len, char *path)
-{
-   ASSERT(orig);
-   ASSERT(len > 0);
-   ASSERT(path);
-
-   return _al_fs_hook_path_to_sys(orig, len, path);
-}
-
-/* Function: al_path_to_uni
- */
-int32_t al_path_to_uni(const char *orig, size_t len, char *path)
-{
-   ASSERT(orig);
-   ASSERT(len > 0);
-   ASSERT(path);
-
-   return _al_fs_hook_path_to_uni(orig, len, path);
-}
-
 /* Function: al_get_entry_mode_str
  */
 uint32_t al_get_entry_mode_str(const char *path)

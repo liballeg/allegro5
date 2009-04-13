@@ -525,16 +525,6 @@ Changes the current working directory to 'path'.
 
 Returns -1 on error.
 
-## API: al_path_to_sys
-
-Converts path 'orig' to system dependant format.
-XXX return code?
-
-## API: al_path_to_uni
-
-Converts path 'orig' to 'allegro' format.
-XXX return code?
-
 ## API: al_path_sep
 
 Fills in 'sep' up to 'len' characters with the path separator string.

@@ -1058,33 +1058,6 @@ static int32_t al_fs_stdio_path_sep(size_t len, char *sep)
    return 0;
 }
 
-/* not sure these two conversion hooks are needed, should the path conversion be in the driver? */
-/* yup. */
-static int32_t al_fs_stdio_path_to_sys(const char *orig, uint32_t len,
-   char *path)
-{
-   (void)orig;
-   (void)len;
-   (void)path;
-#ifdef ALLEGRO_WINDOWS
-
-#else
-
-#endif
-   /* XXX what does this do? */
-   return 0;
-}
-
-static int32_t al_fs_stdio_path_to_uni(const char *orig, uint32_t len,
-   char *path)
-{
-   (void)orig;
-   (void)len;
-   (void)path;
-   /* XXX what does this do? */
-   return 0;
-}
-
 
 static bool al_fs_stdio_entry_exists(ALLEGRO_FS_ENTRY *fp)
 {
@@ -1272,8 +1245,6 @@ struct ALLEGRO_FS_HOOK_SYS_INTERFACE _al_stdio_sys_fshooks = {
 
    al_fs_stdio_path_sep,
    al_fs_stdio_drive_sep,
-   al_fs_stdio_path_to_sys,
-   al_fs_stdio_path_to_uni,
 
    al_fs_stdio_file_exists,
    al_fs_stdio_file_unlink,

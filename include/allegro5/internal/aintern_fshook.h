@@ -44,9 +44,6 @@ struct ALLEGRO_FS_HOOK_SYS_INTERFACE {
    AL_METHOD(int32_t, drive_sep, (size_t len, char *sep) );
    AL_METHOD(int32_t, path_sep,  (size_t len, char *sep) );
 
-   AL_METHOD(int32_t, path_to_sys, (AL_CONST char *orig, uint32_t len, char *path) );
-   AL_METHOD(int32_t, path_to_uni, (AL_CONST char *orig, uint32_t len, char *path) );
-
    AL_METHOD(bool, exists, (AL_CONST char *) );
    AL_METHOD(bool, unlink, (AL_CONST char *) );
 
@@ -152,9 +149,6 @@ extern struct ALLEGRO_FS_HOOK_SYS_INTERFACE _al_stdio_sys_fshooks;
 // Yup, the vfs may provide a different view of the FS, ie: leaving out the concept of drives
 #define _al_fs_hook_drive_sep(len, sep) _al_sys_fshooks->drive_sep(len, sep)
 #define _al_fs_hook_path_sep(len, sep)  _al_sys_fshooks->path_sep(len, sep)
-
-#define _al_fs_hook_path_to_sys(orig, len, path) _al_sys_fshooks->path_to_sys(orig, len, path)
-#define _al_fs_hook_path_to_uni(orig, len, path) _al_sys_fshooks->path_to_uni(orig, len, path)
 
 #endif /* ALLEGRO_LIB_BUILD */
 
