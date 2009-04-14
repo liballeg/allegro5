@@ -39,13 +39,13 @@ Other Filters:
 * ALLEGRO_FS_FILTER_NODOTDOT - Exclude '..'
 * ALLEGRO_FS_FILTER_NOFILTER - No filtering
 
-## API: ALLEGRO_FS_MKTEMP_UNLINK
+## API: ALLEGRO_FS_MKTEMP_REMOVE
 
-al_fs_mktemp unlink modes
+al_fs_mktemp remove modes:
 
-* ALLEGRO_FS_MKTEMP_UNLINK_NEVER - Don't auto unlink
-* ALLEGRO_FS_MKTEMP_UNLINK_NOW - Unlink on open, makes file "hidden"
-* ALLEGRO_FS_MKTEMP_UNLINK_ON_CLOSE - Unlink on close
+* ALLEGRO_FS_MKTEMP_REMOVE_NEVER - Don't automatically remove
+* ALLEGRO_FS_MKTEMP_REMOVE_NOW - Remove on open, makes file "hidden"
+* ALLEGRO_FS_MKTEMP_REMOVE_ON_CLOSE - Remove on close
 
 ## API: ALLEGRO_FS_MODE
 
@@ -162,9 +162,9 @@ alphanumeric chars.
 
 'ulink' is one of:
 
-* ALLEGRO_FS_MKTEMP_UNLINK_NOW - unlink now to create an anonymous temporary file
-* ALLEGRO_FS_MKTEMP_UNLINK_ON_CLOSE - unlink when entry is closed
-* ALLEGRO_FS_MKTEMP_UNLINK_NEVER - don't unlink
+* ALLEGRO_FS_MKTEMP_REMOVE_NOW - remove now to create an anonymous temporary file
+* ALLEGRO_FS_MKTEMP_REMOVE_ON_CLOSE - remove when entry is closed
+* ALLEGRO_FS_MKTEMP_REMOVE_NEVER - don't remove
 
 ## API: al_open_entry
 
@@ -187,13 +187,13 @@ Reads the next dir item and returns a filesystem entry for it.
 
 Returns NULL on error.
 
-## API: al_unlink_entry
+## API: al_remove_entry
 
 "Unlink" or delete this file on disk.
 
 Returns true on success, and false on failure, error is indicated in errno.
 
-## API: al_unlink_str
+## API: al_remove_str
 
 Unlink 'path' entry from disk.
 
@@ -202,7 +202,7 @@ Returns true on success, and false on failure.
 errno is filled in to indicate the error.
 
 See Also:
-[al_unlink_entry]
+[al_remove_entry]
 
 ## API: al_fstat
 

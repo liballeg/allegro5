@@ -54,16 +54,16 @@ AL_FUNC(void, _al_rotate_scale_flip_coordinates, (fixed w, fixed h,
 #if (defined allegro_windows)
 
    al_func(int, _al_win_open, (const char *filename, int mode, int perm));
-   al_func(int, _al_win_unlink, (const char *filename));
+   al_func(int, _al_win_remove, (const char *filename));
 
 
    #define _al_open(filename, mode, perm)   _al_win_open(filename, mode, perm)
-   #define _al_unlink(filename)             _al_win_unlink(filename)
+   #define _al_remove(filename)             _al_win_remove(filename)
 
 #else
 
    #define _al_open(filename, mode, perm)   open(filename, mode, perm)
-   #define _al_unlink(filename)             unlink(filename)
+   #define _al_remove(filename)             unlink(filename)
 
 #endif
 

@@ -45,7 +45,7 @@ struct ALLEGRO_FS_HOOK_SYS_INTERFACE {
    AL_METHOD(int32_t, path_sep, (char *sep, size_t len));
 
    AL_METHOD(bool, exists, (const char *path));
-   AL_METHOD(bool, unlink, (const char *path));
+   AL_METHOD(bool, remove, (const char *path));
 
    AL_METHOD(bool, mkdir, (const char *path));
 
@@ -81,7 +81,7 @@ struct ALLEGRO_FS_HOOK_ENTRY_INTERFACE {
    AL_METHOD(time_t,   entry_ctime, (ALLEGRO_FS_ENTRY *fh));
 
    AL_METHOD(bool,  exists, (ALLEGRO_FS_ENTRY *fh));
-   AL_METHOD(bool,  unlink, (ALLEGRO_FS_ENTRY *fh));
+   AL_METHOD(bool,  remove, (ALLEGRO_FS_ENTRY *fh));
 
    AL_METHOD(ALLEGRO_FS_ENTRY *, readdir, (ALLEGRO_FS_ENTRY *dir));
    AL_METHOD(bool, closedir, (ALLEGRO_FS_ENTRY *dir));
@@ -117,7 +117,7 @@ extern struct ALLEGRO_FS_HOOK_SYS_INTERFACE _al_stdio_sys_fshooks;
 #define _al_fs_hook_entry_ctime(fp)         (fp)->vtable->entry_ctime(fp)
 #define _al_fs_hook_entry_size(fp)          (fp)->vtable->entry_size(fp)
 
-#define _al_fs_hook_entry_unlink(fp) (fp)->vtable->unlink(fp)
+#define _al_fs_hook_entry_remove(fp) (fp)->vtable->remove(fp)
 
 #define _al_fs_hook_entry_exists(fp) (fp)->vtable->exists(fp)
 
@@ -142,7 +142,7 @@ extern struct ALLEGRO_FS_HOOK_SYS_INTERFACE _al_stdio_sys_fshooks;
 #define _al_fs_hook_mkdir(path) _al_sys_fshooks->mkdir(path)
 
 #define _al_fs_hook_exists(path) _al_sys_fshooks->exists(path)
-#define _al_fs_hook_unlink(path) _al_sys_fshooks->unlink(path)
+#define _al_fs_hook_remove(path) _al_sys_fshooks->remove(path)
 
 
 // Still doing these 4?

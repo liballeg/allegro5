@@ -197,7 +197,7 @@ static bool memfile_exists(ALLEGRO_FS_ENTRY *fp)
    return true;
 }
 
-static bool memfile_unlink(ALLEGRO_FS_ENTRY *fp)
+static bool memfile_remove(ALLEGRO_FS_ENTRY *fp)
 {
    (void)fp;
    return true;   /* XXX should this fail? */
@@ -228,7 +228,7 @@ static struct ALLEGRO_FS_HOOK_ENTRY_INTERFACE memfile_entry_hooks = {
    memfile_entry_ctime,
 
    memfile_exists,
-   memfile_unlink,
+   memfile_remove,
 
    NULL,    /* readdir */
    NULL     /* closedir */

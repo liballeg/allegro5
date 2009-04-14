@@ -272,13 +272,13 @@ off_t al_get_entry_size(ALLEGRO_FS_ENTRY *e)
 }
 
 
-/* Function: al_unlink_entry
+/* Function: al_remove_entry
  */
-bool al_unlink_entry(ALLEGRO_FS_ENTRY *e)
+bool al_remove_entry(ALLEGRO_FS_ENTRY *e)
 {
    ASSERT(e != NULL);
 
-   return _al_fs_hook_entry_unlink(e);
+   return _al_fs_hook_entry_remove(e);
 }
 
 
@@ -316,9 +316,9 @@ ALLEGRO_FS_ENTRY *al_mktemp(const char *template, uint32_t ulink)
 {
    ASSERT(template != NULL);
    ASSERT(
-      ulink == ALLEGRO_FS_MKTEMP_UNLINK_NOW ||
-      ulink == ALLEGRO_FS_MKTEMP_UNLINK_ON_CLOSE ||
-      ulink == ALLEGRO_FS_MKTEMP_UNLINK_NEVER
+      ulink == ALLEGRO_FS_MKTEMP_REMOVE_NOW ||
+      ulink == ALLEGRO_FS_MKTEMP_REMOVE_ON_CLOSE ||
+      ulink == ALLEGRO_FS_MKTEMP_REMOVE_NEVER
    );
 
    return _al_fs_hook_mktemp(template, ulink);
@@ -449,12 +449,12 @@ off_t al_get_entry_size_str(const char *path)
 }
 
 
-/* Function: al_unlink_str
+/* Function: al_remove_str
  */
-bool al_unlink_str(const char *path)
+bool al_remove_str(const char *path)
 {
    ASSERT(path != NULL);
-   return _al_fs_hook_unlink(path);
+   return _al_fs_hook_remove(path);
 }
 
 

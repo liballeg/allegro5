@@ -486,7 +486,7 @@ static void al_fs_stdio_close_handle(ALLEGRO_FS_ENTRY *fh_)
    int32_t ret = 0;
 
    if (fh->isdir) {
-      /* think about handling the unlink on close.. may only be usefull if mktemp can do dirs as well, or a mkdtemp is provided */
+      /* think about handling the unlink on close.. may only be useful if mktemp can do dirs as well, or a mkdtemp is provided */
       closedir(fh->hd.dir);
       if (fh->found) {
          _AL_FREE(fh->found);
@@ -850,7 +850,7 @@ static void _al_fs_mktemp_replace_XX(const char *template, char *dst)
 
 /* FIXME: provide the filename created. */
 /* might have to make ALLEGRO_FS_ENTRY a strust to provide the filename, and unlink hint. */
-/* by default, temp file is NOT unlink'ed automatically */
+/* by default, temp file is NOT unlinked automatically */
 
 static ALLEGRO_FS_ENTRY *al_fs_stdio_mktemp(const char *template,
    uint32_t ulink)
@@ -924,9 +924,9 @@ static ALLEGRO_FS_ENTRY *al_fs_stdio_mktemp(const char *template,
          return NULL;
       }
 
-      if (ulink == ALLEGRO_FS_MKTEMP_UNLINK_NOW)
+      if (ulink == ALLEGRO_FS_MKTEMP_REMOVE_NOW)
          unlink(dest);
-      else if (ulink == ALLEGRO_FS_MKTEMP_UNLINK_ON_CLOSE)
+      else if (ulink == ALLEGRO_FS_MKTEMP_REMOVE_ON_CLOSE)
          fh_stdio->ulink = 1;
 
       fh_stdio->free_on_fclose = 1;
@@ -1097,7 +1097,7 @@ static bool al_fs_stdio_file_exists(const char *path)
    return true;
 }
 
-static bool al_fs_stdio_entry_unlink(ALLEGRO_FS_ENTRY *fp)
+static bool al_fs_stdio_entry_remove(ALLEGRO_FS_ENTRY *fp)
 {
    ALLEGRO_FS_ENTRY_STDIO *fp_stdio = (ALLEGRO_FS_ENTRY_STDIO *) fp;
    int32_t err = 0;
@@ -1124,7 +1124,7 @@ static bool al_fs_stdio_entry_unlink(ALLEGRO_FS_ENTRY *fp)
 }
 
 
-static bool al_fs_stdio_file_unlink(const char *path)
+static bool al_fs_stdio_file_remove(const char *path)
 {
    ALLEGRO_FS_ENTRY *fp;
    int err = 0;
@@ -1133,7 +1133,7 @@ static bool al_fs_stdio_file_unlink(const char *path)
    if (!fp)
       return false;
 
-   err = al_fs_stdio_entry_unlink(fp);
+   err = al_fs_stdio_entry_remove(fp);
    if(err != 0) {
       al_set_errno(errno);
       al_fs_stdio_destroy_handle(fp);
@@ -1247,7 +1247,7 @@ struct ALLEGRO_FS_HOOK_SYS_INTERFACE _al_stdio_sys_fshooks = {
    al_fs_stdio_drive_sep,
 
    al_fs_stdio_file_exists,
-   al_fs_stdio_file_unlink,
+   al_fs_stdio_file_remove,
 
    al_fs_stdio_mkdir,
 
@@ -1282,7 +1282,7 @@ struct ALLEGRO_FS_HOOK_ENTRY_INTERFACE _al_stdio_entry_fshooks = {
    al_fs_stdio_entry_ctime,
 
    al_fs_stdio_entry_exists,
-   al_fs_stdio_entry_unlink,
+   al_fs_stdio_entry_remove,
 
    al_fs_stdio_readdir,
    al_fs_stdio_closedir

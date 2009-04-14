@@ -87,12 +87,12 @@ typedef enum ALLEGRO_FS_SORT {
    ALLEGRO_FS_SORT_TYPE          = 0x80,
 } ALLEGRO_FS_SORT;
 
-/* Enum: ALLEGRO_FS_MKTEMP_UNLINK
+/* Enum: ALLEGRO_FS_MKTEMP_REMOVE
  */
 enum {
-   ALLEGRO_FS_MKTEMP_UNLINK_NEVER = 0,
-   ALLEGRO_FS_MKTEMP_UNLINK_NOW = 1,
-   ALLEGRO_FS_MKTEMP_UNLINK_ON_CLOSE = 2,
+   ALLEGRO_FS_MKTEMP_REMOVE_NEVER = 0,
+   ALLEGRO_FS_MKTEMP_REMOVE_NOW = 1,
+   ALLEGRO_FS_MKTEMP_REMOVE_ON_CLOSE = 2,
 };
 
 // TODO: rename to ALLEGRO_FS_MODE_*/ALLEGRO_FS_TYPE_*
@@ -177,7 +177,7 @@ AL_FUNC(time_t , al_get_entry_mtime, (ALLEGRO_FS_ENTRY *st));
 AL_FUNC(time_t , al_get_entry_ctime, (ALLEGRO_FS_ENTRY *st));
 AL_FUNC(off_t  , al_get_entry_size, (ALLEGRO_FS_ENTRY *st));
 
-AL_FUNC(bool, al_unlink_entry, (ALLEGRO_FS_ENTRY *fp));
+AL_FUNC(bool, al_remove_entry, (ALLEGRO_FS_ENTRY *fp));
 AL_FUNC(bool, al_is_present, (ALLEGRO_FS_ENTRY *));
 
 AL_FUNC(bool, al_is_directory, (ALLEGRO_FS_ENTRY *));
@@ -197,7 +197,7 @@ AL_FUNC(off_t,    al_get_entry_size_str,  (const char *));
 AL_FUNC(bool, al_is_directory_str, (const char *));
 AL_FUNC(bool, al_is_file_str, (const char *));
 
-AL_FUNC(bool, al_unlink_str, (const char *path));
+AL_FUNC(bool, al_remove_str, (const char *path));
 AL_FUNC(bool, al_is_present_str, (const char *));
 
 AL_FUNC(bool, al_mkdir, (const char *));
