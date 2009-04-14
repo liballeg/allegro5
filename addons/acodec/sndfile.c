@@ -48,14 +48,14 @@ static sf_count_t _sf_vio_read(void *ptr, sf_count_t count, void *dptr)
 
    /* is this a bug waiting to happen? what does libsndfile expect to happen? */
    /* undocumented api's ftw */
-   return (sf_count_t)al_fread(fh, count, ptr);
+   return (sf_count_t)al_fread(fh, ptr, count);
 }
 
 static sf_count_t _sf_vio_write(const void *ptr, sf_count_t count, void *dptr)
 {
    ALLEGRO_FS_ENTRY *fh = (ALLEGRO_FS_ENTRY *)dptr;
 
-   return (sf_count_t)al_fwrite(fh, count, ptr);
+   return (sf_count_t)al_fwrite(fh, ptr, count);
 }
 
 static sf_count_t _sf_vio_tell(void *dptr)

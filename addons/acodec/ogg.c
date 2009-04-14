@@ -32,7 +32,7 @@ static size_t read_callback(void *ptr, size_t size, size_t nmemb, void *dptr)
    AL_OV_DATA *ov = (AL_OV_DATA *)dptr;
    size_t ret = 0;
 
-   ret = al_fread(ov->file, size*nmemb, ptr);
+   ret = al_fread(ov->file, ptr, size*nmemb);
 
    return ret;
 }

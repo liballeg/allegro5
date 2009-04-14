@@ -124,9 +124,13 @@ Creates an [ALLEGRO_FS_ENTRY] object pointing to path.
 Destroys a fs entry handle.
 Closes file if it was open.
 
+Does nothing if passed NULL.
+
 ## API: al_close_entry
 
 Closes fs entry.
+
+Does nothing if passed NULL.
 
 ## API: al_closedir
 

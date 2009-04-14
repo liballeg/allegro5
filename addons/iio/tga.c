@@ -34,7 +34,7 @@
  */
 static INLINE unsigned char *raw_tga_read8(unsigned char *b, int w, ALLEGRO_FS_ENTRY *f)
 {
-   return b + al_fread(f, w, (void *)b);
+   return b + al_fread(f, b, w);
 }
 
 
@@ -301,7 +301,7 @@ ALLEGRO_BITMAP *al_load_tga_entry(ALLEGRO_FS_ENTRY *f)
    left_to_right = !(descriptor_bits & (1 << 4));
    top_to_bottom = (descriptor_bits & (1 << 5));
 
-   al_fread(f, id_length, (void *)image_id);
+   al_fread(f, image_id, id_length);
 
    if (palette_type == 1) {
 

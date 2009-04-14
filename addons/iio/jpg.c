@@ -45,14 +45,14 @@ static boolean fill_input_buffer(j_decompress_ptr cinfo)
 {
    struct my_src_mgr *src = (void *)cinfo->src;
    src->pub.next_input_byte = src->buffer;
-   src->pub.bytes_in_buffer = al_fread(src->pf, BUFFER_SIZE, src->buffer);
+   src->pub.bytes_in_buffer = al_fread(src->pf, src->buffer, BUFFER_SIZE);
    return 1;
 }
 
 static boolean empty_output_buffer(j_compress_ptr cinfo)
 {
    struct my_dest_mgr *dest = (void *)cinfo->dest;
-   al_fwrite(dest->pf, BUFFER_SIZE, dest->buffer);
+   al_fwrite(dest->pf, dest->buffer, BUFFER_SIZE);
    dest->pub.next_output_byte = dest->buffer;
    dest->pub.free_in_buffer = BUFFER_SIZE;
    return 1;
@@ -80,7 +80,7 @@ static void term_source(j_decompress_ptr cinfo)
 static void term_destination(j_compress_ptr cinfo)
 {
    struct my_dest_mgr *dest = (void *)cinfo->dest;
-   al_fwrite(dest->pf, BUFFER_SIZE - dest->pub.free_in_buffer, dest->buffer);
+   al_fwrite(dest->pf, dest->buffer, BUFFER_SIZE - dest->pub.free_in_buffer);
 }
 
 

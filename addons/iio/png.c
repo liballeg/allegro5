@@ -48,7 +48,7 @@ static double get_gamma(void)
 static void read_data(png_structp png_ptr, png_bytep data, png_uint_32 length)
 {
    ALLEGRO_FS_ENTRY *f = (ALLEGRO_FS_ENTRY *)png_get_io_ptr(png_ptr);
-   if ((png_uint_32) al_fread(f, length, data) != length)
+   if ((png_uint_32) al_fread(f, data, length) != length)
       png_error(png_ptr, "read error (loadpng calling al_fs_entry_read)");
 }
 
@@ -65,7 +65,7 @@ static int check_if_png(ALLEGRO_FS_ENTRY *fp)
 
    ASSERT(fp);
 
-   if (al_fread(fp, PNG_BYTES_TO_CHECK, buf) != PNG_BYTES_TO_CHECK)
+   if (al_fread(fp, buf, PNG_BYTES_TO_CHECK) != PNG_BYTES_TO_CHECK)
       return 0;
 
    return (png_sig_cmp(buf, (png_size_t) 0, PNG_BYTES_TO_CHECK) == 0);
@@ -353,7 +353,7 @@ ALLEGRO_BITMAP *al_load_png(const char *filename)
 static void write_data(png_structp png_ptr, png_bytep data, png_uint_32 length)
 {
    ALLEGRO_FS_ENTRY *f = (ALLEGRO_FS_ENTRY *)png_get_io_ptr(png_ptr);
-   if ((png_uint_32) al_fwrite(f, length, data) != length)
+   if ((png_uint_32) al_fwrite(f, data, length) != length)
       png_error(png_ptr, "write error (loadpng calling al_fs_entry_write)");
 }
 

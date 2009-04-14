@@ -79,7 +79,7 @@ static WAVFILE *wav_open(const char *filename)
    wavfile->channels = 1;
 
    /* check the header */
-   if (al_fread(f, 12, buffer) != 12) 
+   if (al_fread(f, buffer, 12) != 12)
       goto wav_open_error;
 
    if (memcmp(buffer, "RIFF", 4) || memcmp(buffer+8, "WAVE", 4))
@@ -90,7 +90,7 @@ static WAVFILE *wav_open(const char *filename)
       int length = 0;
       short pcm = 0;
 
-      if (al_fread(f, 4, buffer) != 4)
+      if (al_fread(f, buffer, 4) != 4)
          goto wav_open_error;
 
       /* check to see if it's a fmt chunk */
@@ -167,7 +167,7 @@ static size_t wav_read(WAVFILE *wavfile, void *data, size_t samples)
    n = wavfile->channels * samples;
 
    if (wavfile->bits == 8) {
-      return al_fread(wavfile->f, n, data) / wavfile->channels;
+      return al_fread(wavfile->f, data, n) / wavfile->channels;
    }
    else {
       size_t i;
@@ -418,10 +418,10 @@ bool al_save_sample_wav_pf(ALLEGRO_SAMPLE *spl, ALLEGRO_FS_ENTRY *pf)
 
 
    if (spl->depth == ALLEGRO_AUDIO_DEPTH_UINT8) {
-      al_fwrite(pf, samples * channels, spl->buffer.u8);
+      al_fwrite(pf, spl->buffer.u8, samples * channels);
    }
    else if (spl->depth == ALLEGRO_AUDIO_DEPTH_INT16) {
-      al_fwrite(pf, samples * channels * 2, spl->buffer.s16);
+      al_fwrite(pf, spl->buffer.s16, samples * channels * 2);
    }
    else if (spl->depth == ALLEGRO_AUDIO_DEPTH_INT8) {
       int8_t *data = spl->buffer.s8;

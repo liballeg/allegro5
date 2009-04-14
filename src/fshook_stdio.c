@@ -545,7 +545,7 @@ static void al_fs_stdio_fclose(ALLEGRO_FS_ENTRY *fh)
    }
 }
 
-static size_t al_fs_stdio_fread(ALLEGRO_FS_ENTRY *fp, size_t size, void *ptr)
+static size_t al_fs_stdio_fread(ALLEGRO_FS_ENTRY *fp, void *ptr, size_t size)
 {
    ALLEGRO_FS_ENTRY_STDIO *fp_stdio = (ALLEGRO_FS_ENTRY_STDIO *) fp;
    size_t ret;
@@ -559,8 +559,8 @@ static size_t al_fs_stdio_fread(ALLEGRO_FS_ENTRY *fp, size_t size, void *ptr)
    return ret;
 }
 
-static size_t al_fs_stdio_fwrite(ALLEGRO_FS_ENTRY *fp, size_t size,
-                                 const void *ptr)
+static size_t al_fs_stdio_fwrite(ALLEGRO_FS_ENTRY *fp,
+   const void *ptr, size_t size)
 {
    ALLEGRO_FS_ENTRY_STDIO *fp_stdio = (ALLEGRO_FS_ENTRY_STDIO *) fp;
    size_t ret;
@@ -1016,8 +1016,8 @@ static uint32_t al_fs_stdio_search_path_count(void)
 }
 
 /* FIXME: is this the best way to handle the "search path" ? */
-static bool al_fs_stdio_get_search_path(uint32_t idx, uint32_t len,
-   char *dest)
+static bool al_fs_stdio_get_search_path(uint32_t idx,
+   char *dest, uint32_t len)
 {
    if (idx < search_path_count) {
       uint32_t slen = strlen(search_path[idx]);
@@ -1031,7 +1031,7 @@ static bool al_fs_stdio_get_search_path(uint32_t idx, uint32_t len,
    return false;
 }
 
-static int32_t al_fs_stdio_drive_sep(size_t len, char *sep)
+static int32_t al_fs_stdio_drive_sep(char *sep, size_t len)
 {
 #ifdef ALLEGRO_WINDOWS
    char *s = ":";
@@ -1046,7 +1046,7 @@ static int32_t al_fs_stdio_drive_sep(size_t len, char *sep)
 }
 
 /* XXX what is this and what does it return? */
-static int32_t al_fs_stdio_path_sep(size_t len, char *sep)
+static int32_t al_fs_stdio_path_sep(char *sep, size_t len)
 {
    char c = '/';
 

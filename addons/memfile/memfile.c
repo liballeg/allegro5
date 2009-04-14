@@ -23,7 +23,7 @@ static void memfile_fclose(ALLEGRO_FS_ENTRY *fp)
    _AL_FREE(fp);
 }
 
-static size_t memfile_fread(ALLEGRO_FS_ENTRY *fp, size_t size, void *ptr)
+static size_t memfile_fread(ALLEGRO_FS_ENTRY *fp, void *ptr, size_t size)
 {
    ALLEGRO_FS_ENTRY_MEMFILE *mf = (ALLEGRO_FS_ENTRY_MEMFILE*)fp;
    size_t ret = 0;
@@ -54,7 +54,7 @@ static size_t memfile_fread(ALLEGRO_FS_ENTRY *fp, size_t size, void *ptr)
    return ret;
 }
 
-static size_t memfile_fwrite(ALLEGRO_FS_ENTRY *fp, size_t size, const void *ptr)
+static size_t memfile_fwrite(ALLEGRO_FS_ENTRY *fp, const void *ptr, size_t size)
 {
    ALLEGRO_FS_ENTRY_MEMFILE *mf = (ALLEGRO_FS_ENTRY_MEMFILE*)fp;
    size_t ret = 0;
@@ -257,3 +257,5 @@ ALLEGRO_FS_ENTRY *al_open_memfile(int64_t size, void *mem)
 
    return (ALLEGRO_FS_ENTRY *)memfile;
 }
+
+/* vim: set sts=3 sw=3 et: */

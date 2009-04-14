@@ -33,7 +33,7 @@ static FLAC__StreamDecoderReadStatus read_callback(const FLAC__StreamDecoder *de
    (void)decoder;
    
    if(*bytes > 0) {
-      int ret = al_fread(fh, *bytes, buffer);
+      int ret = al_fread(fh, buffer, *bytes);
       if(al_ferror(fh))
          return FLAC__STREAM_DECODER_READ_STATUS_ABORT;
       else if(ret == 0)

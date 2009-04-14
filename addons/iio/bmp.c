@@ -353,7 +353,7 @@ static void read_bitfields_image(ALLEGRO_FS_ENTRY *f, const BMPINFOHEADER *infoh
    for (i = 0; i < height; i++, line += dir) {
       for (k = 0; k < (int)infoheader->biWidth; k++) {
 
-         al_fread(f, bytes_per_pixel, &buffer);
+         al_fread(f, &buffer, bytes_per_pixel);
 
          if (bpp == 15) {
             pix = ALLEGRO_CONVERT_RGB_555_TO_ARGB_8888(buffer);
