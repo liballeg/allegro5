@@ -76,7 +76,7 @@ static void draw(void)
 
    al_set_target_bitmap(al_get_backbuffer());
    al_set_blender(ALLEGRO_ONE, ALLEGRO_ZERO, al_map_rgba_f(1, 1, 1, 1));
-   al_clear(al_map_rgba_f(0, 0, 1, 1));
+   al_clear_to_color(al_map_rgba_f(0, 0, 1, 1));
    xs = 1 + 0.2 * sin(t * ALLEGRO_PI * 2);
    ys = 1 + 0.2 * sin(t * ALLEGRO_PI * 2);
    a = t * ALLEGRO_PI * 2 / 3;
@@ -92,7 +92,7 @@ void run(void)
 
    target = al_create_bitmap(W, H);
    al_set_target_bitmap(target);
-   al_clear(al_map_rgba_f(1, 1, 0, 1));
+   al_clear_to_color(al_map_rgba_f(1, 1, 0, 1));
 
    al_set_target_bitmap(al_get_backbuffer());
 

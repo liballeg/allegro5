@@ -114,7 +114,7 @@ static void draw(void)
    
    al_set_blender(ALLEGRO_ONE, ALLEGRO_ZERO, ex.white);
 
-   al_clear(ex.background);
+   al_clear_to_color(ex.background);
 
    /* Test 1. */
    set_xy(8, 8);

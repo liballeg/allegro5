@@ -257,7 +257,7 @@ restart:
          float x = al_get_display_width() / 2;
          float y = 0;
          redraw = false;
-         al_clear(background);
+         al_clear_to_color(background);
          al_set_blender(ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA,
                         cur_dialog ? inactive : active);
          al_draw_textf(font, x, y, ALLEGRO_ALIGN_CENTRE, "Open");

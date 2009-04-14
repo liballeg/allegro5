@@ -58,7 +58,7 @@ void draw_all(void)
 {
    int i;
 
-   al_clear(al_map_rgb(0xff, 0xff, 0xc0));
+   al_clear_to_color(al_map_rgb(0xff, 0xff, 0xc0));
 
    for (i = 0; i < num_sticks; i++) {
       int cx = (i + 0.5) * al_get_display_width() / num_sticks;

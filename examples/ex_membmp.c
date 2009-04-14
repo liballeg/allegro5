@@ -49,7 +49,7 @@ static bool test(ALLEGRO_BITMAP *bitmap, ALLEGRO_FONT *font, char *message)
       /* Clear the backbuffer with red so we can tell if the bitmap does not
        * cover the entire backbuffer.
        */
-      al_clear(al_map_rgb(255, 0, 0));
+      al_clear_to_color(al_map_rgb(255, 0, 0));
 
       al_draw_scaled_bitmap(bitmap, 0, 0,
          al_get_bitmap_width(bitmap),

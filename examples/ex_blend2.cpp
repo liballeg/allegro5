@@ -99,7 +99,7 @@ void Prog::run()
 
    while (!d.is_quit_requested()) {
       if (d.is_draw_requested()) {
-         al_clear(al_map_rgb(128, 128, 128));
+         al_clear_to_color(al_map_rgb(128, 128, 128));
          draw_samples();
          d.draw();
          al_flip_display();
@@ -171,7 +171,7 @@ void Prog::blending_test(bool memory)
    int av = a[2].get_cur_value();
 
    /* Initialize with destination. */
-   al_clear(opaque_white); // Just in case.
+   al_clear_to_color(opaque_white); // Just in case.
    al_set_blender(ALLEGRO_ONE, ALLEGRO_ZERO, opaque_white);
    draw_bitmap(destination_image.get_selected_item_text(), memory, true);
 

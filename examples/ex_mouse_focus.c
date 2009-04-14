@@ -14,11 +14,11 @@ static ALLEGRO_DISPLAY *display2;
 static void redraw(ALLEGRO_COLOR color1, ALLEGRO_COLOR color2)
 {
    al_set_current_display(display1);
-   al_clear(color1);
+   al_clear_to_color(color1);
    al_flip_display();
 
    al_set_current_display(display2);
-   al_clear(color2);
+   al_clear_to_color(color2);
    al_flip_display();
 }
 

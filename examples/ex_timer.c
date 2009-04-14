@@ -74,7 +74,7 @@ static void draw(void)
    total_error = event_overhead + ex.timer_error;
 
    h = al_get_font_line_height(ex.myfont);
-   al_clear(al_map_rgb_f(1, 1, 1));
+   al_clear_to_color(al_map_rgb_f(1, 1, 1));
 
    print(0, 0, "%.9f target for %.0f Hz Timer", 1.0 / ex.FPS, ex.FPS);
    print(0, h, "%.9f now", ex.this_time - ex.prev_time);

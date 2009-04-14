@@ -241,7 +241,7 @@ bool Player::load(void)
 
    highscoreBitmap = al_create_bitmap(300, 200);
    al_set_target_bitmap(highscoreBitmap);
-   al_clear(al_map_rgba(0, 0, 0, 0));
+   al_clear_to_color(al_map_rgba(0, 0, 0, 0));
    al_set_target_bitmap(old_target);
 
    draw_radius = al_get_bitmap_width(bitmap)/2;

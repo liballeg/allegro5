@@ -47,7 +47,7 @@ int main(void)
    redraw = true;
    while (true) {
       if (redraw && al_event_queue_is_empty(queue)) {
-         al_clear(al_map_rgb(255, 0, 0));
+         al_clear_to_color(al_map_rgb(255, 0, 0));
          al_draw_scaled_bitmap(bmp,
             0, 0, al_get_bitmap_width(bmp), al_get_bitmap_height(bmp),
             0, 0, al_get_display_width(), al_get_display_height(),

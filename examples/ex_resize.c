@@ -9,7 +9,7 @@ static void redraw(void)
     white = al_map_rgba_f(1, 1, 1, 1);
     black = al_map_rgba_f(0, 0, 0, 1);
 
-    al_clear(white);
+    al_clear_to_color(white);
     w = al_get_display_width();
     h = al_get_display_height();
     al_draw_line(0, h, w / 2, 0, black, 0);

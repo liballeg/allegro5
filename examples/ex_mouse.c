@@ -60,7 +60,7 @@ int main(void)
       al_get_mouse_state(&msestate);
       al_get_keyboard_state(&kbdstate);
 
-      al_clear(al_map_rgb(0xff, 0xff, 0xc0));
+      al_clear_to_color(al_map_rgb(0xff, 0xff, 0xc0));
       for (i = 1; i <= NUM_BUTTONS; i++) {
          draw_mouse_button(i, al_mouse_button_down(&msestate, i));
       }

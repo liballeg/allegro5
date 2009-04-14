@@ -84,7 +84,7 @@ int main(int argc, const char *argv[])
             
         if (redraw && al_event_queue_is_empty(queue)) {
             redraw = false;
-            al_clear(al_map_rgb_f(0, 0, 0));
+            al_clear_to_color(al_map_rgb_f(0, 0, 0));
             if (zoom == 1)
                 al_draw_bitmap(bitmap, 0, 0, 0);
             else

@@ -67,7 +67,7 @@ static void test_relative_timeout(ALLEGRO_EVENT_QUEUE *queue)
             shade = 1.0;
       }
 
-      al_clear(al_map_rgba_f(0.5 * shade, 0.25 * shade, shade, 0));
+      al_clear_to_color(al_map_rgba_f(0.5 * shade, 0.25 * shade, shade, 0));
       al_flip_display();
    }
 }
@@ -100,7 +100,7 @@ static void test_absolute_timeout(ALLEGRO_EVENT_QUEUE *queue)
             shade = 1.0;
       }
 
-      al_clear(al_map_rgba_f(shade, 0.5 * shade, 0.25 * shade, 0));
+      al_clear_to_color(al_map_rgba_f(shade, 0.5 * shade, 0.25 * shade, 0));
       al_flip_display();
    }
 }

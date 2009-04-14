@@ -88,7 +88,7 @@ void render(void)
    double loop_start_pos = 300.0 * (loop_start / al_get_stream_length(music_stream));
    double loop_end_pos = 300.0 * (loop_end / al_get_stream_length(music_stream));
 
-   al_clear(al_map_rgb(64, 64, 128));
+   al_clear_to_color(al_map_rgb(64, 64, 128));
    
    /* render "music player" */
    al_set_blender(ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA, al_map_rgb(255, 255, 255));

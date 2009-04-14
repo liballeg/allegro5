@@ -82,9 +82,9 @@ int main(void)
        * Without vsync, there will be black/white shearing all over.
        */
       if (flip)
-         al_clear(al_map_rgb_f(1, 1, 1));
+         al_clear_to_color(al_map_rgb_f(1, 1, 1));
       else
-         al_clear(al_map_rgb_f(0, 0, 0));
+         al_clear_to_color(al_map_rgb_f(0, 0, 0));
       
       al_flip_display();
 

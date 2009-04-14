@@ -27,13 +27,13 @@ ALLEGRO_COLOR test(ALLEGRO_COLOR src_col, ALLEGRO_COLOR dst_col,
    al_set_blender(ALLEGRO_ONE, ALLEGRO_ZERO, al_map_rgb_f(1, 1, 1));
    dst_bmp = al_create_bitmap(1, 1);
    al_set_target_bitmap(dst_bmp);
-   al_clear(dst_col);
+   al_clear_to_color(dst_col);
    if (operation == 0) {
       ALLEGRO_BITMAP *src_bmp;
       al_set_new_bitmap_format(src_format);
       src_bmp = al_create_bitmap(1, 1);
       al_set_target_bitmap(src_bmp);
-      al_clear(src_col);
+      al_clear_to_color(src_col);
       al_set_target_bitmap(dst_bmp);
       al_set_separate_blender(src, dst, src_a, dst_a, blend);
       al_draw_bitmap(src_bmp, 0, 0, 0);

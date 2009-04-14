@@ -57,7 +57,7 @@ void Prog::run()
    while (!d.is_quit_requested()) {
       if (d.is_draw_requested()) {
          update_properties();
-         al_clear(al_map_rgb(128, 128, 128));
+         al_clear_to_color(al_map_rgb(128, 128, 128));
          d.draw();
          al_flip_display();
       }

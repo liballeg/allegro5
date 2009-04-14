@@ -58,7 +58,7 @@ void Prog::run()
 
    while (!d.is_quit_requested()) {
       if (d.is_draw_requested()) {
-         al_clear(al_map_rgb(128, 128, 128));
+         al_clear_to_color(al_map_rgb(128, 128, 128));
          float v[SLIDERS_COUNT];
          int keep = -1;
          for (int i = 0; i < SLIDERS_COUNT; i++) {

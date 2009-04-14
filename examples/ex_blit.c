@@ -106,7 +106,7 @@ static void draw(void)
    
    al_set_blender(ALLEGRO_ONE, ALLEGRO_ZERO, ex.white);
 
-   al_clear(ex.background);
+   al_clear_to_color(ex.background);
 
    screen = al_get_target_bitmap();
 
@@ -128,7 +128,7 @@ static void draw(void)
 
    temp = al_create_bitmap(iw, ih);
    al_set_target_bitmap(temp);
-   al_clear(al_map_rgba_f(1, 0, 0, 1));
+   al_clear_to_color(al_map_rgba_f(1, 0, 0, 1));
    start_timer(1);
    al_draw_bitmap_region(screen, x, y, iw, ih, 0, 0, 0);
 
@@ -147,7 +147,7 @@ static void draw(void)
    al_set_new_bitmap_flags(ALLEGRO_MEMORY_BITMAP);
    temp = al_create_bitmap(iw, ih);
    al_set_target_bitmap(temp);
-   al_clear(al_map_rgba_f(1, 0, 0, 1));
+   al_clear_to_color(al_map_rgba_f(1, 0, 0, 1));
    start_timer(2);
    al_draw_bitmap_region(screen, x, y, iw, ih, 0, 0, 0);
 

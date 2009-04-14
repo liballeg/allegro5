@@ -59,7 +59,7 @@ void *thread_func(ALLEGRO_THREAD *thr, void *arg)
             background->gmax * r,
             background->bmax * r
          );
-         al_clear(c);
+         al_clear_to_color(c);
          al_flip_display();
          theta += 0.1;
       }

@@ -111,7 +111,7 @@ void Prog::run()
 
    while (!d.is_quit_requested()) {
       if (d.is_draw_requested()) {
-         al_clear(al_map_rgb(128, 128, 128));
+         al_clear_to_color(al_map_rgb(128, 128, 128));
          draw_sample();
          d.draw();
          al_flip_display();

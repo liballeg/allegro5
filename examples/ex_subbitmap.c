@@ -133,7 +133,7 @@ int main(void)
 
       if (redraw && al_event_queue_is_empty(queue)) {
          al_set_current_display(dst_display);
-         al_clear(al_map_rgb(0, 0, 0));
+         al_clear_to_color(al_map_rgb(0, 0, 0));
 
          al_set_target_bitmap(dst_subbmp);
          switch (mode) {
@@ -156,7 +156,7 @@ int main(void)
          al_flip_display();
 
          al_set_current_display(src_display);
-         al_clear(al_map_rgb(0, 0, 0));
+         al_clear_to_color(al_map_rgb(0, 0, 0));
          al_draw_bitmap(mem_bmp, 0, 0, 0);
          al_draw_rectangle(src_x1, src_y1, src_x2, src_y2,
             al_map_rgb(0, 255, 255), 0);

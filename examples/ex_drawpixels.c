@@ -64,7 +64,7 @@ int main(void)
          int X, Y;
 
          frame_count -= (1000/TARGET_FPS);
-         al_clear(al_map_rgb(0, 0, 0));
+         al_clear_to_color(al_map_rgb(0, 0, 0));
          for (star = 0; star < NUM_STARS/3; star++) {
             Point *p = &stars[0][star];
             al_draw_pixel(p->x, p->y, colors[0]);

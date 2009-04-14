@@ -366,7 +366,7 @@ All drawing operations draw to the current "target bitmap" of the
 current thread. Initially, the target bitmap will be the backbuffer of
 the last display created in a thread.
 
-## API: al_clear
+## API: al_clear_to_color
 
 Clear the complete target bitmap, but confined by the clipping rectangle.
 

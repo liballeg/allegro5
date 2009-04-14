@@ -4,7 +4,7 @@
 
 static void draw(void)
 {
-   al_clear(al_map_rgb_f(1, 1, 1));
+   al_clear_to_color(al_map_rgb_f(1, 1, 1));
    al_draw_line(10, 10, 190, 190, al_map_rgb_f(0, 0, 0), 0);
    al_draw_line(100, 10, 100, 190, al_map_rgb_f(0, 0, 0), 0);
    al_draw_line(10, 100, 190, 100, al_map_rgb_f(0, 0, 0), 0);

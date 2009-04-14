@@ -19,7 +19,7 @@ static void render(void)
     ALLEGRO_USTR_INFO info, sub_info;
     ALLEGRO_USTR *u;
 
-    al_clear(white);
+    al_clear_to_color(white);
 
     al_set_blender(ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA, black);
 

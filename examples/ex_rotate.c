@@ -119,9 +119,9 @@ int main(void)
 
       al_set_blender(ALLEGRO_ONE, ALLEGRO_ZERO, al_map_rgba_f(1, 1, 1, 1));
       if (mode == 0)
-         al_clear(al_map_rgba_f(1, 0, 0, 1));
+         al_clear_to_color(al_map_rgba_f(1, 0, 0, 1));
       else
-         al_clear(al_map_rgba_f(0, 0, 1, 1));
+         al_clear_to_color(al_map_rgba_f(0, 0, 1, 1));
 
       if (trans_mode) {
          al_set_blender(ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA,

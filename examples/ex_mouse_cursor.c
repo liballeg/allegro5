@@ -14,7 +14,7 @@
 static void draw_display(ALLEGRO_FONT *font)
 {
    al_set_target_bitmap(al_get_backbuffer());
-   al_clear(al_map_rgb(128, 128, 128));
+   al_clear_to_color(al_map_rgb(128, 128, 128));
    al_set_blender(ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA, al_map_rgba_f(0, 0, 0, 1));
    al_draw_textf(font, 50, 20, 0, "Instructions:");
    al_draw_textf(font, 50, 50, 0, "<s> - show cursor");

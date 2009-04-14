@@ -9,7 +9,7 @@ void redraw(ALLEGRO_BITMAP *picture)
    int h = al_get_display_height();
 
    color = al_map_rgb(rand() % 255, rand() % 255, rand() % 255);
-   al_clear(color);
+   al_clear_to_color(color);
 
    color = al_map_rgb(255, 0, 0);
    al_draw_line(0, 0, w, h, color, 0);

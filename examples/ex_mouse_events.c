@@ -65,7 +65,7 @@ int main(void)
    al_register_event_source(queue, (ALLEGRO_EVENT_SOURCE *)display);
 
    while (1) {
-      al_clear(al_map_rgb(0xff, 0xff, 0xc0));
+      al_clear_to_color(al_map_rgb(0xff, 0xff, 0xc0));
       for (i = 0; i < NUM_BUTTONS; i++) {
          draw_mouse_button(i, buttons[i]);
       }

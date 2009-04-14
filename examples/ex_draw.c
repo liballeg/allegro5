@@ -124,7 +124,7 @@ static void draw(void)
    }
 
    al_get_clipping_rectangle(&cx, &cy, &cw, &ch);
-   al_clear(ex.background);
+   al_clear_to_color(ex.background);
 
    set_xy(8, 0);
    print("Drawing %s (press SPACE to change)", names[ex.what]);

@@ -89,7 +89,7 @@ static ALLEGRO_BITMAP *generate_logo(char const *text,
    /* Cheap blur effect to create a bump map. */
    blur = al_create_bitmap(dw, dh);
    al_set_target_bitmap(blur);
-   al_clear(transparent);
+   al_clear_to_color(transparent);
    br = blur_radius;
    bw = br * 2 + 1;
    c = al_map_rgba_f(1, 1, 1, 1.0 / (bw * bw * blur_factor));
@@ -111,7 +111,7 @@ static ALLEGRO_BITMAP *generate_logo(char const *text,
    /* Cheap light effect. */
    light = al_create_bitmap(dw, dh);
    al_set_target_bitmap(light);
-   al_clear(transparent);
+   al_clear_to_color(transparent);
    lock1 = al_lock_bitmap(blur, ALLEGRO_PIXEL_FORMAT_ANY, ALLEGRO_LOCK_READONLY);
    // FIXME: ALLEGRO_LOCK_WRITEONLY is broken right now with OpenGL
    lock2 = al_lock_bitmap_region(light, left, top, 1 + right - left,
@@ -149,7 +149,7 @@ static ALLEGRO_BITMAP *generate_logo(char const *text,
    /* Create final logo */
    logo = al_create_bitmap(dw, dh);
    al_set_target_bitmap(logo);
-   al_clear(transparent);
+   al_clear_to_color(transparent);
 
    /* Draw a shadow. */
    c = al_map_rgba_f(0, 0, 0, 0.5 / 9);

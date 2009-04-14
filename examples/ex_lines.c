@@ -159,11 +159,11 @@ int main(void)
       return 1;
    }
    al_set_target_bitmap(memory_bitmap);
-   al_clear(background);
+   al_clear_to_color(background);
 #endif
 
    al_set_target_bitmap(al_get_backbuffer());
-   al_clear(background);
+   al_clear_to_color(background);
    draw_clip_rect();
    al_flip_display();
 

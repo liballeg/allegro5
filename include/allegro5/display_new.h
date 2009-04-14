@@ -123,7 +123,7 @@ AL_FUNC(ALLEGRO_DISPLAY_MODE*, al_get_display_mode, (int index,
 AL_FUNC(bool, al_wait_for_vsync, (void));
 
 /* Primitives */
-AL_FUNC(void, al_clear, (ALLEGRO_COLOR color));
+AL_FUNC(void, al_clear_to_color, (ALLEGRO_COLOR color));
 AL_FUNC(void, al_draw_pixel, (float x, float y, ALLEGRO_COLOR color));
 
 AL_FUNC(void, al_set_display_icon, (ALLEGRO_BITMAP *icon));

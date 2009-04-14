@@ -144,7 +144,7 @@ void main_loop(void)
 
    while (true) {
       if (al_event_queue_is_empty(event_queue)) {
-         al_clear(white);
+         al_clear_to_color(white);
          draw_message_log();
          al_flip_display();
       }

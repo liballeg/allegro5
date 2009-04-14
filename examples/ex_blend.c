@@ -120,7 +120,7 @@ static void draw(void)
    float x = 40, y = 40;
    int i, j;
 
-   al_clear(al_map_rgb_f(0.5, 0.5, 0.5));
+   al_clear_to_color(al_map_rgb_f(0.5, 0.5, 0.5));
 
    blendcolor = al_map_rgba_f(1, 1, 1, 1);
    white = al_map_rgba_f(1, 1, 1, 1);
@@ -141,11 +141,11 @@ static void draw(void)
    al_set_blender(ALLEGRO_ONE, ALLEGRO_ZERO, white);
    if (ex.mode >= 1 && ex.mode <= 5) {
       al_set_target_bitmap(ex.offscreen);
-      al_clear(test[ex.mode - 1]);
+      al_clear_to_color(test[ex.mode - 1]);
    }
    if (ex.mode >= 6 && ex.mode <= 10) {
       al_set_target_bitmap(ex.memory);
-      al_clear(test[ex.mode - 6]);
+      al_clear_to_color(test[ex.mode - 6]);
    }
 
    for (j = 0; j < 4; j++) {

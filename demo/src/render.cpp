@@ -48,7 +48,7 @@ void showWave(int num)
    waveBitmap = al_create_bitmap(w, h);
    ALLEGRO_BITMAP *old_target = al_get_target_bitmap();
    al_set_target_bitmap(waveBitmap);
-   al_clear(al_map_rgba(0, 0, 0, 0));
+   al_clear_to_color(al_map_rgba(0, 0, 0, 0));
    al_draw_textf(myfont, 0, 0, 0, "%s", text);
    al_set_target_bitmap(old_target);
 

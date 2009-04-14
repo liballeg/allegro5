@@ -37,7 +37,7 @@ int main(void)
       if (redraw && al_event_queue_is_empty(event_queue)) {
          int th = al_get_font_line_height(font);
          
-         al_clear(al_map_rgb_f(0, 0, 0));
+         al_clear_to_color(al_map_rgb_f(0, 0, 0));
          
          if (right_button_down) {
             al_draw_line(width / 2, height / 2, fake_x, fake_y,

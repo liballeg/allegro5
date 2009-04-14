@@ -88,7 +88,7 @@ void FilledPrimitives(int mode)
          
       if (Soft == 1) {
          al_set_target_bitmap(Buffer);
-         al_clear(al_map_rgba_f(0, 0, 0, 0));
+         al_clear_to_color(al_map_rgba_f(0, 0, 0, 0));
       }
       
       al_use_transform(&MainTrans);
@@ -158,7 +158,7 @@ void IndexedFilledPrimitives(int mode)
          
       if (Soft == 1) {
          al_set_target_bitmap(Buffer);
-         al_clear(al_map_rgba_f(0, 0, 0, 0));
+         al_clear_to_color(al_map_rgba_f(0, 0, 0, 0));
       }
       
       al_use_transform(&MainTrans);
@@ -202,7 +202,7 @@ void HighPrimitives(int mode)
          
       if (Soft == 1) {
          al_set_target_bitmap(Buffer);
-         al_clear(al_map_rgba_f(0, 0, 0, 0));
+         al_clear_to_color(al_map_rgba_f(0, 0, 0, 0));
       }
       
       al_use_transform(&MainTrans);
@@ -243,7 +243,7 @@ void HighFilledPrimitives(int mode)
          
       if (Soft == 1) {
          al_set_target_bitmap(Buffer);
-         al_clear(al_map_rgba_f(0, 0, 0, 0));
+         al_clear_to_color(al_map_rgba_f(0, 0, 0, 0));
       }
       
       al_use_transform(&MainTrans);
@@ -289,7 +289,7 @@ void ShadePrimitives(int mode)
          
       if (Soft == 1) {
          al_set_target_bitmap(Buffer);
-         al_clear(al_map_rgba_f(0, 0, 0, 0));
+         al_clear_to_color(al_map_rgba_f(0, 0, 0, 0));
       }
       
       al_use_transform(&MainTrans);
@@ -337,7 +337,7 @@ void TransformationsPrimitives(int mode)
          
       if (Soft == 1) {
          al_set_target_bitmap(Buffer);
-         al_clear(al_map_rgba_f(0, 0, 0, 0));
+         al_clear_to_color(al_map_rgba_f(0, 0, 0, 0));
       }
       
       al_use_transform(&MainTrans);
@@ -392,7 +392,7 @@ void LowPrimitives(int mode)
          
       if (Soft == 1) {
          al_set_target_bitmap(Buffer);
-         al_clear(al_map_rgba_f(0, 0, 0, 0));
+         al_clear_to_color(al_map_rgba_f(0, 0, 0, 0));
       }
       
       al_use_transform(&MainTrans);
@@ -454,7 +454,7 @@ void IndexedPrimitives(int mode)
          
       if (Soft == 1) {
          al_set_target_bitmap(Buffer);
-         al_clear(al_map_rgba_f(0, 0, 0, 0));
+         al_clear_to_color(al_map_rgba_f(0, 0, 0, 0));
       }
       
       al_use_transform(&MainTrans);
@@ -648,7 +648,7 @@ int main(void)
             break;
          }
       }
-      al_clear(black);
+      al_clear_to_color(black);
       
       if (Background && bkg) {
          al_set_blender(ALLEGRO_ONE, ALLEGRO_ZERO, white);

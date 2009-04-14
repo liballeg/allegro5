@@ -48,7 +48,7 @@ static void push_new_cache_bitmap(ALLEGRO_TTF_FONT_DATA *data)
     /* Sometimes OpenGL will partly sample texels from the border of
      * glyphs. So we better clear the texture to transparency.
      */
-    al_clear(al_map_rgba_f(0, 0, 0, 0));
+    al_clear_to_color(al_map_rgba_f(0, 0, 0, 0));
     
 }
 

@@ -41,11 +41,11 @@ int main(void)
       }
 
       al_set_current_display(full);
-      al_clear(al_map_rgb(rand()%255, rand()%255, rand()%255));
+      al_clear_to_color(al_map_rgb(rand()%255, rand()%255, rand()%255));
       al_flip_display();
 
       al_set_current_display(win);
-      al_clear(al_map_rgb(rand()%255, rand()%255, rand()%255));
+      al_clear_to_color(al_map_rgb(rand()%255, rand()%255, rand()%255));
       al_flip_display();
 
       al_rest(0.5);

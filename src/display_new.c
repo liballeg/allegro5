@@ -64,7 +64,7 @@ ALLEGRO_DISPLAY *al_create_display(int w, int h)
 
    al_set_current_display(display);
    if (display->extra_settings.settings[ALLEGRO_COMPATIBLE_DISPLAY])
-      al_clear(al_map_rgb(0, 0, 0));
+      al_clear_to_color(al_map_rgb(0, 0, 0));
    al_flip_display();
 
    return display;
@@ -162,9 +162,9 @@ bool al_resize_display(int width, int height)
 
 
 
-/* Function: al_clear
+/* Function: al_clear_to_color
  */
-void al_clear(ALLEGRO_COLOR color)
+void al_clear_to_color(ALLEGRO_COLOR color)
 {
    ALLEGRO_DISPLAY *display = al_get_current_display();
    ALLEGRO_BITMAP *target = al_get_target_bitmap();
