@@ -30,7 +30,7 @@ int main(void)
       return 1;
    }
 
-   bitmap = al_load_image("data/mysha.pcx");
+   bitmap = al_load_bitmap("data/mysha.pcx");
    if (!bitmap) {
       TRACE("mysha.pcx not found or failed to load\n");
       return 1;

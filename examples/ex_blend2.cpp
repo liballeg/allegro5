@@ -235,12 +235,12 @@ int main()
       TRACE("Failed to load data/fixed_font.tga\n");
       return 1;
    }
-   allegro = al_load_image("data/allegro.pcx");
+   allegro = al_load_bitmap("data/allegro.pcx");
    if (!allegro) {
       TRACE("Failed to load data/allegro.pcx\n");
       return 1;
    }
-   mysha = al_load_image("data/mysha.pcx");
+   mysha = al_load_bitmap("data/mysha.pcx");
    if (!mysha) {
       TRACE("Failed to load data/mysha.pcx\n");
       return 1;

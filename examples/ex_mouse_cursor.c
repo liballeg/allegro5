@@ -85,7 +85,7 @@ int main(void)
       return 1;
    }
 
-   bmp = al_load_image("data/allegro.pcx");
+   bmp = al_load_bitmap("data/allegro.pcx");
    if (!bmp) {
       TRACE("Error loading data/allegro.pcx\n");
       return 1;

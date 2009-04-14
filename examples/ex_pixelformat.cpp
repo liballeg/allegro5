@@ -137,7 +137,7 @@ void Prog::draw_sample()
 
    al_set_new_bitmap_format(formats[i].format);
 
-   bitmap1 = al_load_image("data/allegro.pcx");
+   bitmap1 = al_load_bitmap("data/allegro.pcx");
    if (!bitmap1) {
       TRACE("Could not load image, bitmap format = %d\n", formats[i].format);
       printf("Could not load image, bitmap format = %d\n", formats[i].format);

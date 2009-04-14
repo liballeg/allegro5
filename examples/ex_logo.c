@@ -262,7 +262,7 @@ static void randomize(void)
 
 static void save(void)
 {
-   al_save_image("logo.png", logo);
+   al_save_bitmap("logo.png", logo);
 }
 
 static void mouse_click(int x, int y)

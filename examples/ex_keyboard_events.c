@@ -249,7 +249,7 @@ int main(void)
 
    /* Unlike data/fixed_font.tga this contains some non-ASCII characters. */
    printf("Loading a4_font.tga, might be a bit slow...\n");
-   a4font = al_load_image("data/a4_font.tga");
+   a4font = al_load_bitmap("data/a4_font.tga");
    if (!a4font) {
       TRACE("Failed to load a4_font.tga\n");
       return 1;

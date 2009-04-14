@@ -86,13 +86,13 @@ int main(int argc, const char *argv[])
 
    al_set_new_bitmap_flags(ALLEGRO_MEMORY_BITMAP);
 
-   b1 = al_load_image("data/mysha.pcx");
+   b1 = al_load_bitmap("data/mysha.pcx");
    if (!b1) {
       TRACE("Error loading data/mysha.pcx\n");
       return 1;
    }
 
-   b2 = al_load_image("data/allegro.pcx");
+   b2 = al_load_bitmap("data/allegro.pcx");
    if (!b2) {
       TRACE("Error loading data/mysha.pcx\n");
       return 1;

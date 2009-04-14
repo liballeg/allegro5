@@ -36,10 +36,10 @@ typedef int (*ALLEGRO_IIO_FS_SAVER_FUNCTION)(ALLEGRO_FS_ENTRY *pf, ALLEGRO_BITMA
 
 A5_IIO_FUNC(bool, al_init_iio_addon, (void));
 A5_IIO_FUNC(bool, al_add_image_handler, (const char *ext, ALLEGRO_IIO_LOADER_FUNCTION loader, ALLEGRO_IIO_SAVER_FUNCTION saver, ALLEGRO_IIO_FS_LOADER_FUNCTION fs_loader, ALLEGRO_IIO_FS_SAVER_FUNCTION fs_saver));
-A5_IIO_FUNC(ALLEGRO_BITMAP *, al_load_image, (const char *filename));
-A5_IIO_FUNC(ALLEGRO_BITMAP *, al_load_image_entry, (ALLEGRO_FS_ENTRY *pf, const char *ident));
-A5_IIO_FUNC(int, al_save_image, (const char *filename, ALLEGRO_BITMAP *bitmap));
-A5_IIO_FUNC(int, al_save_image_entry, (ALLEGRO_FS_ENTRY *pf, const char *ident, ALLEGRO_BITMAP *bitmap));
+A5_IIO_FUNC(ALLEGRO_BITMAP *, al_load_bitmap, (const char *filename));
+A5_IIO_FUNC(ALLEGRO_BITMAP *, al_load_bitmap_entry, (ALLEGRO_FS_ENTRY *pf, const char *ident));
+A5_IIO_FUNC(int, al_save_bitmap, (const char *filename, ALLEGRO_BITMAP *bitmap));
+A5_IIO_FUNC(int, al_save_bitmap_entry, (ALLEGRO_FS_ENTRY *pf, const char *ident, ALLEGRO_BITMAP *bitmap));
 
 /* Format specific functions */
 A5_IIO_FUNC(ALLEGRO_BITMAP *, al_load_pcx, (const char *filename));

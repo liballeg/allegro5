@@ -26,7 +26,7 @@ int main(void)
    al_set_new_display_flags(ALLEGRO_NOFRAME);
    display = al_create_display(300, 200);
    
-   bitmap = al_load_image("data/fakeamp.bmp");
+   bitmap = al_load_bitmap("data/fakeamp.bmp");
    if (!bitmap) {
       TRACE("Error loading fakeamp.bmp\n\n");
       return 1;

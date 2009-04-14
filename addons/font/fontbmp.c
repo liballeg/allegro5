@@ -147,7 +147,7 @@ ALLEGRO_FONT *_al_load_bitmap_font(const char *fname, int size, int flags)
    al_store_state(&backup, ALLEGRO_STATE_NEW_BITMAP_PARAMETERS);
    al_set_new_bitmap_flags(ALLEGRO_MEMORY_BITMAP);
    al_set_new_bitmap_format(ALLEGRO_PIXEL_FORMAT_ANY_WITH_ALPHA);
-   import_bmp = al_load_image(fname);
+   import_bmp = al_load_bitmap(fname);
    al_restore_state(&backup);
 
    if (!import_bmp) 

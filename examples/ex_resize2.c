@@ -34,7 +34,7 @@ int main(void)
    }
 
    al_set_new_bitmap_flags(ALLEGRO_MEMORY_BITMAP);
-   bmp = al_load_image("data/mysha.pcx");
+   bmp = al_load_bitmap("data/mysha.pcx");
    if (!bmp) {
       TRACE("Unable to load image\n");
       return 1;

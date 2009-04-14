@@ -23,7 +23,7 @@ int main(void)
    }
 
    /* First icon: Read from file. */
-   icon1 = al_load_image("data/icon.tga");
+   icon1 = al_load_bitmap("data/icon.tga");
    if (!icon1) {
       TRACE("icon.tga not found\n");
       return 1;

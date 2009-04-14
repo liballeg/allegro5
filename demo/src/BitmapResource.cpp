@@ -11,7 +11,7 @@ void BitmapResource::destroy(void)
 bool BitmapResource::load(void)
 {
    al_set_new_bitmap_format(ALLEGRO_PIXEL_FORMAT_ANY_WITH_ALPHA);
-   bitmap = al_load_image(filename.c_str());
+   bitmap = al_load_bitmap(filename.c_str());
    if (!bitmap)
       debug_message("Error loading bitmap %s\n", filename.c_str());
    return bitmap != 0;

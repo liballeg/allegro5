@@ -25,13 +25,13 @@ int main(int argc, char **argv)
    al_set_new_bitmap_format(ALLEGRO_PIXEL_FORMAT_ARGB_8888);
    al_set_new_bitmap_flags(ALLEGRO_MEMORY_BITMAP);
 
-   bitmap = al_load_image(argv[1]);
+   bitmap = al_load_bitmap(argv[1]);
    if (!bitmap) {
       fprintf(stderr, "Error loading input file\n");
       return 1;
    }
 
-   if (al_save_image(argv[2], bitmap) != 0) {
+   if (al_save_bitmap(argv[2], bitmap) != 0) {
       fprintf(stderr, "Error saving bitmap\n");
       return 1;
    }

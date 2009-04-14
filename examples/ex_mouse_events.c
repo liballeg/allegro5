@@ -53,7 +53,7 @@ int main(void)
 
    al_hide_mouse_cursor();
 
-   cursor = al_load_image("data/cursor.tga");
+   cursor = al_load_bitmap("data/cursor.tga");
    if (!cursor) {
       TRACE("Error loading cursor.tga\n");
       return 1;

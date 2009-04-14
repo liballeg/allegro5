@@ -93,7 +93,7 @@ int main(void)
       return 1;
    }
 
-   bmp = disp_bmp = al_load_image("data/mysha.pcx");
+   bmp = disp_bmp = al_load_bitmap("data/mysha.pcx");
    if (!bmp) {
       TRACE("Error loading data/mysha.pcx\n");
       return 1;
@@ -101,7 +101,7 @@ int main(void)
    text = "Display bitmap";
 
    al_set_new_bitmap_flags(ALLEGRO_MEMORY_BITMAP);
-   mem_bmp = al_load_image("data/mysha.pcx");
+   mem_bmp = al_load_bitmap("data/mysha.pcx");
    if (!bmp) {
       TRACE("Error loading data/mysha.pcx\n");
       return 1;

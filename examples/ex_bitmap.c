@@ -42,7 +42,7 @@ int main(int argc, const char *argv[])
      * FIXME: Or should A5 automatically created multiple display bitmaps?
      */
     al_set_new_bitmap_flags(ALLEGRO_MEMORY_BITMAP);
-    membitmap = al_load_image(filename);
+    membitmap = al_load_bitmap(filename);
     if (!membitmap) {
        TRACE("%s not found or failed to load\n", filename);
        return 1;

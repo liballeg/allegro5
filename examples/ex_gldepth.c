@@ -145,7 +145,7 @@ void setup_textures(void)
       exit(1);
    }
 
-   tmp_bmp = al_load_image("data/mysha.pcx");
+   tmp_bmp = al_load_bitmap("data/mysha.pcx");
    if(!tmp_bmp) {
       TRACE("Error loading `data/mysha.pcx'\n");
       exit(1);
