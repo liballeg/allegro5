@@ -8,7 +8,7 @@
 @html_spaced_list_bullet
 
 @heading
-Changes from 4.3.10 to 4.3.11 (April 2009)
+Changes from 4.3.10 to 4.4.0 RC1 (April 2009)
 <ul><li>
    Christer Sandberg fixed a crash when omitting the end of the glyph interval
    in the text file for load_txt_font().
