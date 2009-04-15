@@ -314,7 +314,9 @@
     get_font_range_begin
     get_font_range_end
     get_font_ranges
+    get_gfx_mode
     get_gfx_mode_list
+    get_gfx_mode_type
     get_hardware_volume
     get_midi_length
     get_mixer_bits
@@ -533,6 +535,7 @@
     mouse_callback DATA
     mouse_driver DATA
     mouse_needs_poll
+    mouse_on_screen
     mouse_pos DATA
     mouse_sprite DATA
     mouse_w DATA
@@ -896,6 +899,7 @@
     win_gfx_driver DATA
     win_grab_input
     win_release_dc
+    win_set_msg_pre_proc
     win_set_window
     win_set_wnd_create_proc
     _add_edge
@@ -918,7 +922,9 @@
     _al_sane_realloc
     _al_sane_strncpy
     _al_srand
+    _al_strdup
     _al_trace_handler DATA
+    _al_ustrdup
     _allegro_count DATA
     _allegro_in_exit DATA
     _bitmap_has_alpha
