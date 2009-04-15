@@ -15347,12 +15347,12 @@ and avoid missing any important bit of information.
 
 @@Example @exconfig
 @xref BITMAP, END_OF_MAIN, RGB, SCREEN_H, SCREEN_W, allegro_init
-@xref allegro_message, blit, clear_bitmap, font, get_config_argv
-@xref get_config_int, get_config_string, install_keyboard, line
-@xref load_bitmap, makecol, pop_config_state, push_config_state, readkey
-@xref screen, set_color_depth, set_config_file, set_gfx_mode, set_palette
-@xref stretch_blit, textout_centre_ex, textprintf_centre_ex, ustrdup
-@xref ustricmp
+@xref allegro_message, blit, clear_bitmap, destroy_bitmap, font
+@xref get_config_argv, get_config_int, get_config_string
+@xref install_keyboard, line, load_bitmap, makecol, pop_config_state
+@xref push_config_state, readkey, screen, set_color_depth
+@xref set_config_file, set_gfx_mode, set_palette, stretch_blit
+@xref textout_centre_ex, textprintf_centre_ex, ustrdup, ustricmp
 @shortdesc Using the configuration routines.
    This is a very simple program showing how to use the Allegro
    configuration (ini file) routines. A first look at the example
