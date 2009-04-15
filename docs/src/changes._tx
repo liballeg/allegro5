@@ -8,6 +8,51 @@
 @html_spaced_list_bullet
 
 @heading
+Changes from 4.3.10 to 4.3.11 (April 2009)
+<ul><li>
+   Christer Sandberg fixed a crash when omitting the end of the glyph interval
+   in the text file for load_txt_font().
+<li>
+   Peter De Wachter made the ALSA driver work for hardware which does not
+   support unsigned samples.
+<li>
+   Milan Mimica fixed display switching on linux console driver.
+<li>
+   Milan Mimica fixed various glitches related to the build system in the core
+   library and addons.
+<li>
+   Milan Mimica added support for MSVC6/7/8/9 to logg and loadpng.
+<li>
+   David Capello fixed the BMP loader to handle (valid) .bmp files with negative
+   heights and other uncommon features.
+<li>
+   Peter Hull added Mac OS X (non-universal) build support for loadpng and logg.
+<li>
+   Peter Wang made configure and fix.sh scripts more robust.
+<li>
+   Paul Suntsov made a replacement function for do_ellipse() which produces
+   accurate ellipses and much more rapidly.
+<li>
+   Milan Mimica added supprot for macosx-universal binary to addons.
+<li>
+   Elias Zacarias added a function that allows users to intercept window events
+   on Windows.
+<li>
+   Scott McCreary and Grzegorz Dabrowski made the BeOS port compile on Haiku.
+<li>
+   diedel started a Playstation Portable port. (Alpha status)
+<li>
+   Edgar Reynaldo provided mouse_on_screen() function.
+<li>
+   Edgar Reynaldo added functions that can be used to determine the graphics
+   mode type of arbitrary graphics drivers at runtime.
+<li>
+   Edgar Reynaldo improved the behavior of the file_select_ex* functions.
+<li>
+   Various minor improvements and fixes.
+</ul>
+
+@heading
 Changes from 4.2.2 to 4.3.10 (January 2008)
 <ul><li>
    Milan Mimica integrated the following addons into the Allegro build
