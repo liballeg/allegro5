@@ -1,10 +1,10 @@
 
 # DLL filename number for Windows
-LIBRARY_VERSION = 43
+LIBRARY_VERSION = 44
 
 # Shared library versions for Unix
-shared_version = 4.3.11
-shared_major_minor = 4.3
+shared_version = 4.4.0
+shared_major_minor = 4.4
 
 # Compatibility version for Mac OS X
-compatibility_version = 4.3.0
+compatibility_version = 4.4.0

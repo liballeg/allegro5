@@ -45,11 +45,11 @@
 #endif
 
 #define ALLEGRO_VERSION          4
-#define ALLEGRO_SUB_VERSION      3
-#define ALLEGRO_WIP_VERSION      11
-#define ALLEGRO_VERSION_STR      "4.3.11 (SVN)"
-#define ALLEGRO_DATE_STR         "2008"
-#define ALLEGRO_DATE             20080120    /* yyyymmdd */
+#define ALLEGRO_SUB_VERSION      4
+#define ALLEGRO_WIP_VERSION      0
+#define ALLEGRO_VERSION_STR      "4.4.0 (SVN)"
+#define ALLEGRO_DATE_STR         "2009"
+#define ALLEGRO_DATE             20090415    /* yyyymmdd */
 
 /*******************************************/
 /************ Some global stuff ************/
