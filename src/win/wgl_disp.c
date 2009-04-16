@@ -71,7 +71,7 @@ static char* get_error_desc(DWORD err)
    }
    else {
       /* Remove two trailing characters */
-      if (err_msg && strlen(err_msg) > 1)
+      if (strlen(err_msg) > 1)
          *(err_msg + strlen(err_msg) - 2) = '\0';
    }
 
