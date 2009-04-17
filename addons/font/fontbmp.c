@@ -189,7 +189,7 @@ ALLEGRO_FONT *al_grab_font_from_bitmap(
    ALLEGRO_STATE backup;
    int i;
    ALLEGRO_COLOR white = al_map_rgb(255, 255, 255);
-   ALLEGRO_COLOR mask = al_map_rgb(255, 255, 0);
+   ALLEGRO_COLOR mask = al_get_pixel(bmp, 0, 0);
    ALLEGRO_BITMAP *glyphs = NULL;
    int import_x = 0, import_y = 0;
    ALLEGRO_LOCKED_REGION *lock = NULL;
