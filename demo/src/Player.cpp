@@ -22,19 +22,19 @@ bool Player::logic(int step)
    Input *input = (Input *)rm.getData(RES_INPUT);
 
    if (input->lr() < 0.0f) {
-      angle += 0.005f * step;
+      angle -= 0.005f * step;
    }
    else if (input->lr() > 0.0f) {
-      angle -= 0.005f * step;
+      angle += 0.005f * step;
    }
 
    if (input->ud() < 0.0f) {
-      dx += ACCEL * step * cos(-angle);
+      dx += ACCEL * step * cos(angle);
       if (dx > MAX_SPEED)
          dx = MAX_SPEED;
       else if (dx < MIN_SPEED)
          dx = MIN_SPEED;
-      dy += ACCEL * step * sin(-angle);
+      dy += ACCEL * step * sin(angle);
       if (dy > MAX_SPEED)
          dy = MAX_SPEED;
       else if (dy < MIN_SPEED)
@@ -72,7 +72,7 @@ bool Player::logic(int step)
 
    if ((lastShot+shotRate) < (al_current_time() * 1000) && input->b1()) {
       lastShot = (int) (al_current_time() * 1000);
-      float realAngle = -angle;
+      float realAngle = angle;
       float bx = x + radius * cos(realAngle);
       float by = y + radius * sin(realAngle);
       Bullet *b = 0;
@@ -138,26 +138,26 @@ void Player::render(int offx, int offy)
 
    if (!isDestructable) {
       al_draw_rotated_bitmap(trans_bitmap, draw_radius, draw_radius, rx, ry,
-         angle-(ALLEGRO_PI/2.0f), 0);
+         angle+(ALLEGRO_PI/2.0f), 0);
    }
    else {
       al_draw_rotated_bitmap(bitmap, draw_radius, draw_radius, rx, ry,
-         angle-(ALLEGRO_PI/2.0f), 0);
+         angle+(ALLEGRO_PI/2.0f), 0);
    }
    if (draw_trail) {
       int tw = al_get_bitmap_width(trail_bitmap);
       int th = al_get_bitmap_height(trail_bitmap);
-      float ca = (ALLEGRO_PI*2)-angle;
-      float a = ca - ((210.0f / 180.0f) * ALLEGRO_PI);
+      float ca = (ALLEGRO_PI*2)+angle;
+      float a = ca + ((210.0f / 180.0f) * ALLEGRO_PI);
       float tx = rx + 42.0f * cos(a);
       float ty = ry + 42.0f * sin(a);
       al_draw_rotated_bitmap(trail_bitmap, tw, th/2,
-         tx, ty, (ALLEGRO_PI*2)-a, 0);
-      a = ca - ((150.0f / 180.0f) * ALLEGRO_PI);
+         tx, ty, a, 0);
+      a = ca + ((150.0f / 180.0f) * ALLEGRO_PI);
       tx = rx + 42.0f * cos(a);
       ty = ry + 42.0f * sin(a);
       al_draw_rotated_bitmap(trail_bitmap, tw, th/2,
-         tx, ty, (ALLEGRO_PI*2)-a, 0);
+         tx, ty, a, 0);
    }
 }
 
@@ -273,7 +273,7 @@ void Player::reset(void)
    y = BB_H/2;
    dx = 0;
    dy = 0;
-   angle = ALLEGRO_PI/2;
+   angle = -ALLEGRO_PI/2;
    draw_trail = false;
    weapon = WEAPON_SMALL;
 }

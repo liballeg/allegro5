@@ -23,7 +23,7 @@ void Asteroid::init(float x, float y, float speed_x, float speed_y, float da)
 
 bool Asteroid::logic(int step)
 {
-   angle += da * step;
+   angle -= da * step;
 
    Player *p = (Player *)getPlayerCollision();
    if (p) {

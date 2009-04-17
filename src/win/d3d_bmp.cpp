@@ -745,8 +745,6 @@ static void d3d_blit_real(ALLEGRO_BITMAP *src,
       d3d_dest = (ALLEGRO_BITMAP_D3D *)dest;
    }
 
-   angle = -angle;
-
    if (d3d_src->is_backbuffer) {
       ALLEGRO_BITMAP_D3D *tmp_bmp = NULL;
       int ox, oy;

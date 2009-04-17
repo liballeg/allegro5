@@ -41,8 +41,8 @@ Bullet::Bullet(float x, float y, float radius, float speed, float angle,
    this->shooter = shooter;
    this->damage = damage;
 
-   cosa = cos(-angle);
-   sina = sin(-angle);
+   cosa = cos(angle);
+   sina = sin(angle);
 
    ResourceManager& rm = ResourceManager::getInstance();
    bitmap = (ALLEGRO_BITMAP *)rm.getData(bitmapID);

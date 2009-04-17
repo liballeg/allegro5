@@ -340,6 +340,9 @@ void al_draw_scaled_bitmap(ALLEGRO_BITMAP *bitmap, float sx, float sy,
 
 
 /* Function: al_draw_rotated_bitmap
+ * 
+ * angle is specified in radians and moves clockwise
+ * on the screen.
  */
 void al_draw_rotated_bitmap(ALLEGRO_BITMAP *bitmap, float cx, float cy,
 	float dx, float dy, float angle, int flags)
