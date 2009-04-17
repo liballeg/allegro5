@@ -33,7 +33,8 @@ static void font_find_character(uint32_t *data, int pitch,
    int bmp_w, int bmp_h,
    int *x, int *y, int *w, int *h)
 {
-   uint32_t c = 0xffff00ff;
+   /* The pixel at position 0/0 is used as background color. */
+   uint32_t c = data[0];
    pitch >>= 2;
 
    /* look for top left corner of character */
