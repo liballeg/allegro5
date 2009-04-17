@@ -13,8 +13,7 @@
 
 #define WIDTH        640
 #define HEIGHT       480
-#define MAX_MSG_LEN  80
-#define SIZE_LOG     40
+#define SIZE_LOG     50
 
 
 /* globals */
@@ -25,16 +24,17 @@ ALLEGRO_COLOR        black;
 ALLEGRO_COLOR        white;
 
 /* circular array of log messages */
-static char msg_log[SIZE_LOG][MAX_MSG_LEN];
+static ALLEGRO_USTR *msg_log[SIZE_LOG];
 static int msg_head = 0;
 static int msg_tail = 0;
 
 
 
 /* Add a message to the log. */
-static void log_message(char const *message)
+static void log_message(ALLEGRO_USTR *message)
 {
-   strncpy(msg_log[msg_head], message, MAX_MSG_LEN);
+   if (msg_log[msg_head]) al_ustr_free(msg_log[msg_head]);
+   msg_log[msg_head] = message;
    msg_head = (msg_head + 1) % SIZE_LOG;
    if (msg_head == msg_tail) {
       msg_tail = (msg_tail + 1) % SIZE_LOG;
@@ -62,15 +62,17 @@ static void draw_message_log(void)
 
    al_set_blender(ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA, black);
 
+   al_draw_text(myfont, 5, th * 0.5, 0, "EVENT KEY CHR UNICODE  [MODIFIERS]");
+
    /* Scroll down the log if necessary. */
    while (num_messages() >= (HEIGHT/th)) {
       msg_tail = (msg_tail + 1) % SIZE_LOG;
    }
 
-   y = 0;
+   y = th * 2;
    i = msg_tail;
    while (1) {
-      al_draw_text(myfont, 5, y, 0, msg_log[i]);
+      if (msg_log[i]) al_draw_text(myfont, 5, y, 0, al_cstr(msg_log[i]));
       y += th;
 
       i = (i + 1) % SIZE_LOG;
@@ -84,49 +86,36 @@ static void draw_message_log(void)
 
 
 
+void log_key(char const *how, int keycode, int unichar, int modifiers)
+{
+   ALLEGRO_USTR *us;
+   char multibyte[5] = {0, 0, 0, 0, 0};
+   if (unichar == 0 || unichar == -1) unichar = ' ';
+   al_utf8_encode(multibyte, unichar);
+   us = al_ustr_newf("%s: %3d <%s> %08x [%08x]", how, keycode, multibyte,
+      unichar, modifiers);
+   log_message(us);
+}
+
+
+
 void log_key_down(int keycode, int unichar, int modifiers)
 {
-   char buf[MAX_MSG_LEN];
-
-   snprintf(buf, sizeof(buf),
-      "Down: %3d <%c> %08x [%08x]", keycode, unichar, unichar, modifiers);
-   log_message(buf);
+   log_key("Down", keycode, unichar, modifiers);
 }
 
 
 
 void log_key_repeat(int keycode, int unichar, int modifiers)
 {
-   char buf[MAX_MSG_LEN];
-
-   snprintf(buf, sizeof(buf),
-      "Rept: %3d <%c> %08x [%08x]", keycode, unichar, unichar, modifiers);
-   log_message(buf);
+   log_key("Rept", keycode, unichar, modifiers);
 }
 
 
 
 void log_key_up(int keycode, int unichar, int modifiers)
 {
-   char buf[MAX_MSG_LEN];
-
-   snprintf(buf, sizeof(buf),
-      "Up:   %3d <%c> %08x [%08x]", keycode, unichar, unichar, modifiers);
-   log_message(buf);
-}
-
-
-
-void log_general(char const *format, ...)
-{
-   char buf[MAX_MSG_LEN];
-   va_list args;
-   va_start(args, format);
-
-   vsnprintf(buf, sizeof(buf), format, args);
-   va_end(args);
-
-   log_message(buf);
+   log_key("Up  ", keycode, unichar, modifiers);
 }
 
 
@@ -248,7 +237,6 @@ int main(void)
    }
 
    /* Unlike data/fixed_font.tga this contains some non-ASCII characters. */
-   printf("Loading a4_font.tga, might be a bit slow...\n");
    a4font = al_load_bitmap("data/a4_font.tga");
    if (!a4font) {
       TRACE("Failed to load a4_font.tga\n");
