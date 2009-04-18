@@ -346,7 +346,19 @@ If you do not wish the entry object destroyed, use [al_close_entry] instead.
 
 ## API: al_feof
 
-Returns true if we have an end of file condition.
+Returns true if the end-of-file indicator has been set on the file,
+i.e. we have attempted to read *past* the end of the file.
+
+This does *not* return true if we simply are at the end of the file.
+The following code correctly reads two bytes, even when the file
+contains exactly two bytes:
+
+    int b1 = al_fgetc(f);
+    int b2 = al_fgetc(f);
+    if (al_feof(f)) {
+       /* At least one byte was unsuccessfully read. */
+       report_error();
+    }
 
 ## API: al_ferror
 

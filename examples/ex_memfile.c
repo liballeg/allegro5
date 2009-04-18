@@ -51,6 +51,11 @@ int main(void)
       }
    }
 
+   if (al_feof(memfile)) {
+      printf("EOF indicator prematurely set!\n");
+      goto Error;
+   }
+
    printf("Done.\n");
 
    al_fclose(memfile);
