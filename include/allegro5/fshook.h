@@ -216,13 +216,13 @@ AL_FUNC(int, al_fgetc, (ALLEGRO_FS_ENTRY *f));
 AL_FUNC(int, al_fputc, (ALLEGRO_FS_ENTRY *f, int c));
 
 AL_FUNC(int16_t, al_fread16le,  (ALLEGRO_FS_ENTRY *f));
-AL_FUNC(int32_t, al_fread32le,  (ALLEGRO_FS_ENTRY *f));
-AL_FUNC(int16_t, al_fwrite16le, (ALLEGRO_FS_ENTRY *f, int16_t w));
-AL_FUNC(int32_t, al_fwrite32le, (ALLEGRO_FS_ENTRY *f, int32_t l));
+AL_FUNC(int32_t, al_fread32le,  (ALLEGRO_FS_ENTRY *f, bool *ret_success));
+AL_FUNC(size_t, al_fwrite16le, (ALLEGRO_FS_ENTRY *f, int16_t w));
+AL_FUNC(size_t, al_fwrite32le, (ALLEGRO_FS_ENTRY *f, int32_t l));
 AL_FUNC(int16_t, al_fread16be,  (ALLEGRO_FS_ENTRY *f));
-AL_FUNC(int32_t, al_fread32be,  (ALLEGRO_FS_ENTRY *f));
-AL_FUNC(int16_t, al_fwrite16be, (ALLEGRO_FS_ENTRY *f, int16_t w));
-AL_FUNC(int32_t, al_fwrite32be, (ALLEGRO_FS_ENTRY *f, int32_t l));
+AL_FUNC(int32_t, al_fread32be,  (ALLEGRO_FS_ENTRY *f, bool *ret_success));
+AL_FUNC(size_t, al_fwrite16be, (ALLEGRO_FS_ENTRY *f, int16_t w));
+AL_FUNC(size_t, al_fwrite32be, (ALLEGRO_FS_ENTRY *f, int32_t l));
 
 AL_FUNC(char*, al_fgets, (ALLEGRO_FS_ENTRY *f, char *p, size_t max));
 AL_FUNC(int,   al_fputs, (ALLEGRO_FS_ENTRY *f, const char *p));

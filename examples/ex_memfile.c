@@ -34,7 +34,7 @@ int main(void)
 
    printf("Writing data to memfile\n");
    for (i = 0; i < data_size/4; i++) {
-      if (al_fwrite32le(memfile, i) != i) {
+      if (al_fwrite32le(memfile, i) < 4) {
          printf("Failed to write %i to memfile\n", i);
          goto Error;
       }
@@ -44,7 +44,7 @@ int main(void)
 
    printf("Reading and testing data from memfile\n");
    for (i = 0; i < data_size/4; i++) {
-      int32_t ret = al_fread32le(memfile);
+      int32_t ret = al_fread32le(memfile, NULL);
       if (ret != i || al_feof(memfile)) {
          printf("Item %i failed to verify, got %i\n", i, ret);
          goto Error;

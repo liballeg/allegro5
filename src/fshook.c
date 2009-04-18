@@ -508,8 +508,7 @@ int al_fputc(ALLEGRO_FS_ENTRY *f, int c)
    ASSERT(f);
 
    if (al_fwrite(f, &c, 1) != 1) {
-      if (al_ferror(f))
-         return EOF;
+      return EOF;
    }
 
    return c;
@@ -520,7 +519,7 @@ int al_fputc(ALLEGRO_FS_ENTRY *f, int c)
  */
 int16_t al_fread16le(ALLEGRO_FS_ENTRY *f)
 {
-   int16_t b1 = 0, b2 = 0;
+   int b1, b2;
    ASSERT(f);
 
    if ((b1 = al_fgetc(f)) != EOF)
@@ -533,59 +532,75 @@ int16_t al_fread16le(ALLEGRO_FS_ENTRY *f)
 
 /* Function: al_fread32le
  */
-int32_t al_fread32le(ALLEGRO_FS_ENTRY *f)
+int32_t al_fread32le(ALLEGRO_FS_ENTRY *f, bool *ret_success)
 {
-   int32_t b1 = 0, b2 = 0, b3 = 0, b4 = 0;
+   int b1, b2, b3, b4;
    ASSERT(f);
 
-   if ((b1 = al_fgetc(f)) != EOF)
-      if ((b2 = al_fgetc(f)) != EOF)
-         if ((b3 = al_fgetc(f)) != EOF)
-            if ((b4 = al_fgetc(f)) != EOF)
+   if ((b1 = al_fgetc(f)) != EOF) {
+      if ((b2 = al_fgetc(f)) != EOF) {
+         if ((b3 = al_fgetc(f)) != EOF) {
+            if ((b4 = al_fgetc(f)) != EOF) {
+               if (ret_success)
+                  *ret_success = true;
                return (((int32_t)b4 << 24) | ((int32_t)b3 << 16) |
                        ((int32_t)b2 << 8) | (int32_t)b1);
+            }
+         }
+      }
+   }
 
+   if (ret_success)
+      *ret_success = false;
    return EOF;
 }
 
 
 /* Function: al_fwrite16le
  */
-int16_t al_fwrite16le(ALLEGRO_FS_ENTRY *f, int16_t w)
+size_t al_fwrite16le(ALLEGRO_FS_ENTRY *f, int16_t w)
 {
-   int16_t b1 = 0, b2 = 0;
+   int8_t b1, b2;
    ASSERT(f);
 
    b1 = (w & 0xFF00) >> 8;
    b2 = w & 0x00FF;
 
-   if (al_fputc(f, b2)==b2)
-      if (al_fputc(f, b1)==b1)
-         return w;
-
-   return EOF;
+   if (al_fputc(f, b2) == b2) {
+      if (al_fputc(f, b1) == b1) {
+         return 2;
+      }
+      return 1;
+   }
+   return 0;
 }
 
 
 /* Function: al_fwrite32le
  */
-int32_t al_fwrite32le(ALLEGRO_FS_ENTRY *f, int32_t l)
+size_t al_fwrite32le(ALLEGRO_FS_ENTRY *f, int32_t l)
 {
-   int32_t b1 = 0, b2 = 0, b3 = 0, b4 = 0;
+   int8_t b1, b2, b3, b4;
    ASSERT(f);
 
-   b1 = (int32_t)((l & 0xFF000000L) >> 24);
-   b2 = (int32_t)((l & 0x00FF0000L) >> 16);
-   b3 = (int32_t)((l & 0x0000FF00L) >> 8);
-   b4 = (int32_t)l & 0x00FF;
+   b1 = ((l & 0xFF000000L) >> 24);
+   b2 = ((l & 0x00FF0000L) >> 16);
+   b3 = ((l & 0x0000FF00L) >> 8);
+   b4 = l & 0x00FF;
 
-   if (al_fputc(f, b4)==b4)
-      if (al_fputc(f, b3)==b3)
-         if (al_fputc(f, b2)==b2)
-            if (al_fputc(f, b1)==b1)
-               return l;
-
-   return EOF;
+   if (al_fputc(f, b4) == b4) {
+      if (al_fputc(f, b3) == b3) {
+         if (al_fputc(f, b2) == b2) {
+            if (al_fputc(f, b1) == b1) {
+               return 4;
+            }
+            return 3;
+         }
+         return 2;
+      }
+      return 1;
+   }
+   return 0;
 }
 
 
@@ -593,7 +608,7 @@ int32_t al_fwrite32le(ALLEGRO_FS_ENTRY *f, int32_t l)
  */
 int16_t al_fread16be(ALLEGRO_FS_ENTRY *f)
 {
-   int16_t b1 = 0, b2 = 0;
+   int b1, b2;
    ASSERT(f);
 
    if ((b1 = al_fgetc(f)) != EOF)
@@ -606,59 +621,74 @@ int16_t al_fread16be(ALLEGRO_FS_ENTRY *f)
 
 /* Function: al_fread32be
  */
-int32_t al_fread32be(ALLEGRO_FS_ENTRY *f)
+int32_t al_fread32be(ALLEGRO_FS_ENTRY *f, bool *ret_success)
 {
-   int32_t b1 = 0, b2 = 0, b3 = 0, b4 = 0;
+   int b1, b2, b3, b4;
    ASSERT(f);
 
-   if ((b1 = al_fgetc(f)) != EOF)
-      if ((b2 = al_fgetc(f)) != EOF)
-         if ((b3 = al_fgetc(f)) != EOF)
-            if ((b4 = al_fgetc(f)) != EOF)
+   if ((b1 = al_fgetc(f)) != EOF) {
+      if ((b2 = al_fgetc(f)) != EOF) {
+         if ((b3 = al_fgetc(f)) != EOF) {
+            if ((b4 = al_fgetc(f)) != EOF) {
+               if (ret_success)
+                  *ret_success = true;
                return (((int32_t)b1 << 24) | ((int32_t)b2 << 16) |
                        ((int32_t)b3 << 8) | (int32_t)b4);
+            }
+         }
+      }
+   }
 
+   if (ret_success)
+      *ret_success = false;
    return EOF;
 }
 
 
 /* Function: al_fwrite16be
  */
-int16_t al_fwrite16be(ALLEGRO_FS_ENTRY *f, int16_t w)
+size_t al_fwrite16be(ALLEGRO_FS_ENTRY *f, int16_t w)
 {
-   int16_t b1 = 0, b2 = 0;
+   int b1, b2;
    ASSERT(f);
 
    b1 = (w & 0xFF00) >> 8;
    b2 = w & 0x00FF;
 
-   if (al_fputc(f, b1)==b1)
-      if (al_fputc(f, b2)==b2)
-         return w;
-
-   return EOF;
+   if (al_fputc(f, b1) == b1) {
+      if (al_fputc(f, b2) == b2) {
+         return 2;
+      }
+      return 1;
+   }
+   return 0;
 }
 
 
 /* Function: al_fwrite32be
  */
-int32_t al_fwrite32be(ALLEGRO_FS_ENTRY *f, int32_t l)
+size_t al_fwrite32be(ALLEGRO_FS_ENTRY *f, int32_t l)
 {
-   int32_t b1 = 0, b2 = 0, b3 = 0, b4 = 0;
+   int b1, b2, b3, b4;
    ASSERT(f);
 
-   b1 = (int32_t)((l & 0xFF000000L) >> 24);
-   b2 = (int32_t)((l & 0x00FF0000L) >> 16);
-   b3 = (int32_t)((l & 0x0000FF00L) >> 8);
-   b4 = (int32_t)l & 0x00FF;
+   b1 = ((l & 0xFF000000L) >> 24);
+   b2 = ((l & 0x00FF0000L) >> 16);
+   b3 = ((l & 0x0000FF00L) >> 8);
+   b4 = l & 0x00FF;
 
-   if (al_fputc(f, b1)==b1)
-      if (al_fputc(f, b2)==b2)
-         if (al_fputc(f, b3)==b3)
+   if (al_fputc(f, b1)==b1) {
+      if (al_fputc(f, b2)==b2) {
+         if (al_fputc(f, b3)==b3) {
             if (al_fputc(f, b4)==b4)
-               return l;
-
-   return EOF;
+               return 4;
+            return 3;
+         }
+         return 2;
+      }
+      return 1;
+   }
+   return 0;
 }
 
 

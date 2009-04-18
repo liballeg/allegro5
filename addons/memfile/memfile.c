@@ -26,63 +26,43 @@ static void memfile_fclose(ALLEGRO_FS_ENTRY *fp)
 static size_t memfile_fread(ALLEGRO_FS_ENTRY *fp, void *ptr, size_t size)
 {
    ALLEGRO_FS_ENTRY_MEMFILE *mf = (ALLEGRO_FS_ENTRY_MEMFILE*)fp;
-   size_t ret = 0;
+   size_t n;
 
    mf->atime = time(NULL);
-   
-   /* EOF? return 0 */
-   if(mf->pos >= mf->size) {
+
+   if (mf->size - mf->pos < size) { 
+      /* partial read */
+      n = mf->size - mf->pos;
       mf->eof = true;
-      return 0;
+   }
+   else {
+      n = size;
    }
 
-   ret = mf->pos + size;
-   if(ret > mf->size) {
-      /* partial read, return remainder */
-      ret = mf->size - ret;
-      memcpy(ptr, mf->mem + mf->pos, ret);
-      ret = mf->size;
-      mf->eof = true;
-   } else {
-      /* full read */
-      memcpy(ptr, mf->mem + mf->pos, size);
-   }
-
-   /* move file pos */
-   mf->pos = ret;
-
-   return ret;
+   memcpy(ptr, mf->mem + mf->pos, n);
+   mf->pos += n;
+   return n;
 }
 
 static size_t memfile_fwrite(ALLEGRO_FS_ENTRY *fp, const void *ptr, size_t size)
 {
    ALLEGRO_FS_ENTRY_MEMFILE *mf = (ALLEGRO_FS_ENTRY_MEMFILE*)fp;
-   size_t ret = 0;
+   size_t n;
 
    mf->mtime = time(NULL);
-   
-   /* EOF? return 0 */
-   if(mf->pos >= mf->size) {
+
+   if (mf->size - mf->pos < size) {
+      /* partial write */
+      n = mf->size - mf->pos;
       mf->eof = true;
-      return 0;
+   }
+   else {
+      n = size;
    }
 
-   ret = mf->pos + size;
-   if(ret > mf->size) {
-      /* partial write, return remainder */
-      ret = mf->size - ret;
-      memcpy(mf->mem + mf->pos, ptr, ret);
-      ret = mf->size;
-      mf->eof = true;
-   } else {
-      /* full write */
-      memcpy(mf->mem + mf->pos, ptr, size);
-   }
-
-   /* move file pos */
-   mf->pos = ret;
-
-   return ret;
+   memcpy(mf->mem + mf->pos, ptr, n);
+   mf->pos += n;
+   return n;
 }
 
 static bool memfile_fflush(ALLEGRO_FS_ENTRY *fp)

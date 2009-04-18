@@ -415,16 +415,17 @@ See also [al_get_errno]
 ## API: al_fread32le
 
 Reads a 32-bit word in little-endian format (LSB first).
+If 'ret_success' is not NULL, it will be set to true on success
+or false on failure.
 
-Returns:
-The read 32-bit word or EOF on error.
+Returns the read 32-bit word.  'ret_success' indicates if a full 32-bit word
+was read before reaching the EOF or an error.
 
 ## API: al_fwrite32le
 
 Writes a 32-bit word in little-endian format (LSB first).
 
-Returns:
-The written 32-bit word or EOF on error.
+Returns the number of bytes written: 4 on success, less than 4 on an error.
 
 ## API: al_fread16le
 
@@ -437,22 +438,23 @@ The read 16-bit word or EOF on error
 
 Writes a 16-bit word in little-endian format (LSB first).
 
-Returns:
-The written 16-bit word or EOF on error.
+Returns the number of bytes written: 2 on success, less than 2 on an error.
 
 ## API: al_fread32be
 
 Read a 32-bit word in big-endian format (MSB first).
+If 'ret_success' is not NULL, it will be set to true on success
+or false on failure.
 
 Returns:
-The read 32-bit word or EOF on error
+The read 32-bit word.  'ret_success' indicates if a full 32-bit word
+was read before reaching the EOF or an error.
 
 ## API: al_fwrite32be
 
 Writes a 32-bit word in big-endian format (MSB first).
 
-Returns:
-The written 32-bit word or EOF on error.
+Returns the number of bytes written: 4 on success, less than 4 on an error.
 
 ## API: al_fread16be
 
@@ -465,8 +467,7 @@ The read 16-bit word or EOF on error.
 
 Writes a 16-bit word in big-endian format (MSB first).
 
-Returns:
-The written 16-bit word or EOF on error
+Returns the number of bytes written: 2 on success, less than 2 on an error.
 
 ## API: al_fread
 

@@ -31,7 +31,7 @@ ALLEGRO_BITMAP *al_load_pcx_entry(ALLEGRO_FS_ENTRY *f)
    width += al_fread16le(f) + 1;      /* xmax */
    height += al_fread16le(f) + 1;     /* ymax */
 
-   al_fread32le(f);                   /* skip DPI values */
+   al_fread32le(f, NULL);             /* skip DPI values */
 
    for (c = 0; c < 16 * 3; c++) {          /* skip the 16 color palette */
       al_fgetc(f);
