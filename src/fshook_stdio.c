@@ -1154,21 +1154,6 @@ static ALLEGRO_PATH *al_fs_stdio_fname(ALLEGRO_FS_ENTRY *fp)
       return al_path_create(fp_stdio->path);
 }
 
-static off_t al_fs_stdio_file_size(const char *path)
-{
-   ALLEGRO_FS_ENTRY *fp;
-   off_t size;
-
-   fp = al_fs_stdio_create_handle(path);
-   if (!fp)
-      return 0;
-
-   size = al_fs_stdio_entry_size(fp);
-   al_fs_stdio_destroy_handle(fp);
-
-   return size;
-}
-
 static uint32_t al_fs_stdio_file_mode(const char *path)
 {
    ALLEGRO_FS_ENTRY *fp;
@@ -1183,52 +1168,6 @@ static uint32_t al_fs_stdio_file_mode(const char *path)
 
    return mode;
 }
-
-static time_t al_fs_stdio_file_atime(const char *path)
-{
-   ALLEGRO_FS_ENTRY *fp;
-   time_t atime;
-
-   fp = al_fs_stdio_create_handle(path);
-   if (!fp)
-      return 0;
-
-   atime = al_fs_stdio_entry_atime(fp);
-   al_fs_stdio_destroy_handle(fp);
-
-   return atime;
-}
-
-static time_t al_fs_stdio_file_mtime(const char *path)
-{
-   ALLEGRO_FS_ENTRY *fp;
-   time_t mtime;
-
-   fp = al_fs_stdio_create_handle(path);
-   if (!fp)
-      return 0;
-
-   mtime = al_fs_stdio_entry_mtime(fp);
-   al_fs_stdio_destroy_handle(fp);
-
-   return mtime;
-}
-
-static time_t al_fs_stdio_file_ctime(const char *path)
-{
-   ALLEGRO_FS_ENTRY *fp;
-   time_t ctime;
-
-   fp = al_fs_stdio_create_handle(path);
-   if (!fp)
-      return 0;
-
-   ctime = al_fs_stdio_entry_ctime(fp);
-   al_fs_stdio_destroy_handle(fp);
-
-   return ctime;
-}
-
 
 struct ALLEGRO_FS_HOOK_SYS_INTERFACE _al_stdio_sys_fshooks = {
    al_fs_stdio_create_handle,
@@ -1251,11 +1190,7 @@ struct ALLEGRO_FS_HOOK_SYS_INTERFACE _al_stdio_sys_fshooks = {
 
    al_fs_stdio_mkdir,
 
-   al_fs_stdio_file_size,
-   al_fs_stdio_file_mode,
-   al_fs_stdio_file_atime,
-   al_fs_stdio_file_mtime,
-   al_fs_stdio_file_ctime
+   al_fs_stdio_file_mode
 };
 
 struct ALLEGRO_FS_HOOK_ENTRY_INTERFACE _al_stdio_entry_fshooks = {

@@ -186,23 +186,9 @@ See Also:
 
 Return true iff this entry is a regular file.
 
-## API: al_is_file_str
-
-Return true if 'path' is a file.
-
-See Also:
-[al_is_file]
-
 ## API: al_is_directory
 
 Return true iff this entry is a directory.
-
-## API: al_is_directory_str
-
-Return true if 'path' is a directory.
-
-See Also:
-[al_is_directory]
 
 ## API: al_get_entry_mode
 
@@ -228,36 +214,15 @@ Warning: some filesystem either don't support this flag, or people turn it
 off to increase performance.
 It may not be valid in all circumstances.
 
-## API: al_get_entry_atime_str
-
-Returns last access time for fs entry 'path'.
-
-See Also:
-[al_get_entry_atime]
-
 ## API: al_get_entry_ctime
 
 Returns the time in seconds since the epoch this entry was created on the
 filsystem.
 
-## API: al_get_entry_ctime_str
-
-Returns creation time for fs entry 'path'.
-
-See Also:
-[al_get_entry_ctime]
-
 ## API: al_get_entry_mtime
 
 Returns the time in seconds since the epoch since the entry was last
 modified.
-
-## API: al_get_entry_mtime_str
-
-Returns last modification time for fs entry 'path'.
-
-See Also:
-[al_get_entry_mtime]
 
 ## API: al_get_entry_name
 
@@ -271,13 +236,6 @@ errno is set to indicate the error.
 ## API: al_get_entry_size
 
 Returns the size, in bytes, of the given entry.
-
-## API: al_get_entry_size_str
-
-Returns file size for fs entry 'path'.
-
-See Also:
-[al_get_entry_size]
 
 # File I/O
 

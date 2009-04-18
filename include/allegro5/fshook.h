@@ -115,16 +115,7 @@ AL_FUNC(ALLEGRO_FS_ENTRY *, al_opendir, (const char *path));
 AL_FUNC(bool, al_closedir, (ALLEGRO_FS_ENTRY *dir));
 AL_FUNC(ALLEGRO_FS_ENTRY *, al_readdir, (ALLEGRO_FS_ENTRY *dir));
 
-
 AL_FUNC(uint32_t, al_get_entry_mode_str,  (const char *));
-AL_FUNC(time_t,   al_get_entry_atime_str, (const char *));
-AL_FUNC(time_t,   al_get_entry_mtime_str, (const char *));
-AL_FUNC(time_t,   al_get_entry_ctime_str, (const char *));
-AL_FUNC(off_t,    al_get_entry_size_str,  (const char *));
-
-AL_FUNC(bool, al_is_directory_str, (const char *));
-AL_FUNC(bool, al_is_file_str, (const char *));
-
 AL_FUNC(bool, al_remove_str, (const char *path));
 AL_FUNC(bool, al_is_present_str, (const char *));
 

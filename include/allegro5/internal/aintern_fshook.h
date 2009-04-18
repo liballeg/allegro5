@@ -48,12 +48,7 @@ struct ALLEGRO_FS_HOOK_SYS_INTERFACE {
    AL_METHOD(bool, remove, (const char *path));
 
    AL_METHOD(bool, mkdir, (const char *path));
-
-   AL_METHOD(off_t,    stat_size,  (const char *path));
    AL_METHOD(uint32_t, stat_mode,  (const char *path));
-   AL_METHOD(time_t,   stat_atime, (const char *path));
-   AL_METHOD(time_t,   stat_mtime, (const char *path));
-   AL_METHOD(time_t,   stat_ctime, (const char *path));
 };
 
 struct ALLEGRO_FS_HOOK_ENTRY_INTERFACE {

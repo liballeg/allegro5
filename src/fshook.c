@@ -413,42 +413,6 @@ uint32_t al_get_entry_mode_str(const char *path)
 }
 
 
-/* Function: al_get_entry_atime_str
- */
-time_t al_get_entry_atime_str(const char *path)
-{
-   ASSERT(path != NULL);
-   return _al_fs_hook_stat_atime(path);
-}
-
-
-/* Function: al_get_entry_mtime_str
- */
-time_t al_get_entry_mtime_str(const char *path)
-{
-   ASSERT(path != NULL);
-   return _al_fs_hook_stat_mtime(path);
-}
-
-
-/* Function: al_get_entry_ctime_str
- */
-time_t al_get_entry_ctime_str(const char *path)
-{
-   ASSERT(path != NULL);
-   return _al_fs_hook_stat_ctime(path);
-}
-
-
-/* Function: al_get_entry_size_str
- */
-off_t al_get_entry_size_str(const char *path)
-{
-   ASSERT(path != NULL);
-   return _al_fs_hook_stat_size(path);
-}
-
-
 /* Function: al_remove_str
  */
 bool al_remove_str(const char *path)
@@ -465,24 +429,6 @@ bool al_is_present_str(const char *path)
    ASSERT(path != NULL);
 
    return _al_fs_hook_exists(path);
-}
-
-
-/* Function: al_is_directory_str
- */
-bool al_is_directory_str(const char *path)
-{
-   ASSERT(path != NULL);
-   return _al_fs_hook_stat_mode(path) & ALLEGRO_FILEMODE_ISDIR;
-}
-
-
-/* Function: al_is_file_str
- */
-bool al_is_file_str(const char *path)
-{
-   ASSERT(path != NULL);
-   return _al_fs_hook_stat_mode(path) & ALLEGRO_FILEMODE_ISFILE;
 }
 
 
