@@ -94,9 +94,10 @@ searching/opening files with a relative pathname.
 Fills in 'dest' up to 'len' bytes with the 'idx'th search path item.
 
 Parameters:
-idx - index of search path element requested
-dest - memory buffer to copy path to
-len - length of memory buffer
+
+* idx - index of search path element requested
+* dest - memory buffer to copy path to
+* len - length of memory buffer
 
 Returns true on success, and false on failure.
 
@@ -390,16 +391,16 @@ See also: [al_get_errno]
 ## API: al_fgetc
 
 Read and return next byte in entry 'f'.
-Returns EOF on end of file, and 0 on other errors
-(XXX this is probably a bug)
+Returns EOF on end of file or if an error occurred.
 
 ## API: al_fputc
 
 Write a single byte to entry.
 
 Parameters:
-c - byte value to write
-f - entry to write to
+
+* c - byte value to write
+* f - entry to write to
 
 Returns:
 EOF on error

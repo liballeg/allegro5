@@ -490,12 +490,11 @@ bool al_is_file_str(const char *path)
  */
 int al_fgetc(ALLEGRO_FS_ENTRY *f)
 {
-   uint8_t c = 0;
+   uint8_t c;
    ASSERT(f);
 
    if (al_fread(f, &c, 1) != 1) {
-      if (al_feof(f))
-         return EOF;
+      return EOF;
    }
 
    return c;
