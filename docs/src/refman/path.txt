@@ -16,7 +16,7 @@ Parameters:
 
 * base - sub directory name resource may be found in
 * resource - name of resource
-* fm - file mode/type of resource to match. See [ALLEGRO_FS_MODE]
+* fm - file mode/type of resource to match. See [ALLEGRO_FILE_MODE]
 * buffer - buffer to write full path to
 * len - length of buffer
 

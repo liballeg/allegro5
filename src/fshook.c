@@ -297,7 +297,7 @@ bool al_is_present(ALLEGRO_FS_ENTRY *e)
 bool al_is_directory(ALLEGRO_FS_ENTRY *e)
 {
    ASSERT(e != NULL);
-   return al_get_entry_mode(e) & ALLEGRO_FM_ISDIR;
+   return al_get_entry_mode(e) & ALLEGRO_FILEMODE_ISDIR;
 }
 
 
@@ -306,7 +306,7 @@ bool al_is_directory(ALLEGRO_FS_ENTRY *e)
 bool al_is_file(ALLEGRO_FS_ENTRY *e)
 {
    ASSERT(e != NULL);
-   return al_get_entry_mode(e) & ALLEGRO_FM_ISFILE;
+   return al_get_entry_mode(e) & ALLEGRO_FILEMODE_ISFILE;
 }
 
 
@@ -473,7 +473,7 @@ bool al_is_present_str(const char *path)
 bool al_is_directory_str(const char *path)
 {
    ASSERT(path != NULL);
-   return _al_fs_hook_stat_mode(path) & ALLEGRO_FM_ISDIR;
+   return _al_fs_hook_stat_mode(path) & ALLEGRO_FILEMODE_ISDIR;
 }
 
 
@@ -482,7 +482,7 @@ bool al_is_directory_str(const char *path)
 bool al_is_file_str(const char *path)
 {
    ASSERT(path != NULL);
-   return _al_fs_hook_stat_mode(path) & ALLEGRO_FM_ISFILE;
+   return _al_fs_hook_stat_mode(path) & ALLEGRO_FILEMODE_ISFILE;
 }
 
 
@@ -798,7 +798,7 @@ static bool _al_find_resource_exists(const char *path, const char *base,
    if (al_is_present_str(buffer) && (al_get_entry_mode_str(buffer) & fm) == fm) {
       ret = true;
    }
-   else if (fm & ALLEGRO_FM_WRITE) {
+   else if (fm & ALLEGRO_FILEMODE_WRITE) {
       /* XXX update this */
       /* XXX is this supposed to be chr or rchr? */
       /* FIXME: Or rather, what was this even supposed to accomplish??? */
@@ -806,7 +806,7 @@ static bool _al_find_resource_exists(const char *path, const char *base,
       if (rchr) {
          usetc(rchr, '\0');
 
-         if (al_is_present_str(buffer) && al_get_entry_mode_str(buffer) & ALLEGRO_FM_WRITE) {
+         if (al_is_present_str(buffer) && al_get_entry_mode_str(buffer) & ALLEGRO_FILEMODE_WRITE) {
             ret = true;
          }
 
@@ -846,7 +846,7 @@ char *al_find_resource(const char *base, const char *resource, uint32_t fm,
    ASSERT(resource != NULL);
    ASSERT(buffer != NULL);
 
-   fm |= ALLEGRO_FM_READ;
+   fm |= ALLEGRO_FILEMODE_READ;
 
    memset(buffer, 0, len);
 

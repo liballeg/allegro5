@@ -150,7 +150,7 @@ static off_t memfile_entry_size(ALLEGRO_FS_ENTRY *fp)
 static uint32_t memfile_entry_mode(ALLEGRO_FS_ENTRY *fp)
 {
    (void)fp;
-   return ALLEGRO_FM_READ | ALLEGRO_FM_WRITE | ALLEGRO_FM_ISFILE;
+   return ALLEGRO_FILEMODE_READ | ALLEGRO_FILEMODE_WRITE | ALLEGRO_FILEMODE_ISFILE;
 }
 
 static time_t memfile_entry_atime(ALLEGRO_FS_ENTRY *fp)

@@ -47,16 +47,16 @@ al_fs_mktemp remove modes:
 * ALLEGRO_FS_MKTEMP_REMOVE_NOW - Remove on open, makes file "hidden"
 * ALLEGRO_FS_MKTEMP_REMOVE_ON_CLOSE - Remove on close
 
-## API: ALLEGRO_FS_MODE
+## API: ALLEGRO_FILE_MODE
 
 Filesystem modes/types
 
-* ALLEGRO_FM_READ - Readable
-* ALLEGRO_FM_WRITE - Writable
-* ALLEGRO_FM_EXECUTE - Executable
-* ALLEGRO_FM_HIDDEN - Hidden
-* ALLEGRO_FM_ISFILE - Regular file
-* ALLEGRO_FM_ISDIR - Directory
+* ALLEGRO_FILEMODE_READ - Readable
+* ALLEGRO_FILEMODE_WRITE - Writable
+* ALLEGRO_FILEMODE_EXECUTE - Executable
+* ALLEGRO_FILEMODE_HIDDEN - Hidden
+* ALLEGRO_FILEMODE_ISFILE - Regular file
+* ALLEGRO_FILEMODE_ISDIR - Directory
 
 ## API: ALLEGRO_FS_SORT
 
@@ -258,14 +258,14 @@ Returns the entry's mode flags.
 
 See also: [al_get_errno]
 
-See the [ALLEGRO_FS_MODE] enum for valid flags.
+See the [ALLEGRO_FILE_MODE] enum for valid flags.
 
 ## API: al_get_entry_mode_str
 
 Returns stat 'mode' for fs entry 'path'.
 
 See Also:
-[ALLEGRO_FS_MODE]
+[ALLEGRO_FILE_MODE]
 
 ## API: al_get_entry_atime
 
