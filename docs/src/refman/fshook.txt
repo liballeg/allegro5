@@ -9,36 +9,6 @@ There are no user accessible member variables.
 
 # Enumerations
 
-## API: ALLEGRO_FS_FILTER
-
-File system search filters.
-
-Type Filters:
-
-* ALLEGRO_FS_FILTER_DRIVES - Include Drive letters
-* ALLEGRO_FS_FILTER_DIRS - Include Directories
-* ALLEGRO_FS_FILTER_FILES - Include Files
-* ALLEGRO_FS_FILTER_NOSYMLINKS - Exclude symlinks
-* ALLEGRO_FS_FILTER_ALLENTRIES - Include all entries (including symlinks)
-
-Permission Filters:
-
-* ALLEGRO_FS_FILTER_READABLE - Entry is Readable
-* ALLEGRO_FS_FILTER_WRITABLE - Entry is Writeable
-* ALLEGRO_FS_FILTER_EXECUTABLE - Entry is Executable
-
-Access Filters:
-
-* ALLEGRO_FS_FILTER_HIDDEN - Entry is hidden
-* ALLEGRO_FS_FILTER_SYSTEM - Entry is marked as a system file
-
-Other Filters:
-
-* ALLEGRO_FS_FILTER_ALLDIRS - Include all directories, including '.' and '..'
-* ALLEGRO_FS_FILTER_CASESENSITIVE - Search case sentitively
-* ALLEGRO_FS_FILTER_NODOTDOT - Exclude '..'
-* ALLEGRO_FS_FILTER_NOFILTER - No filtering
-
 ## API: ALLEGRO_FS_MKTEMP_REMOVE
 
 al_fs_mktemp remove modes:
@@ -57,24 +27,6 @@ Filesystem modes/types
 * ALLEGRO_FILEMODE_HIDDEN - Hidden
 * ALLEGRO_FILEMODE_ISFILE - Regular file
 * ALLEGRO_FILEMODE_ISDIR - Directory
-
-## API: ALLEGRO_FS_SORT
-
-Filesystem search sort flags
-
-* ALLEGRO_FS_SORT_NAME - By name
-* ALLEGRO_FS_SORT_TIME - By time
-* ALLEGRO_FS_SORT_SIZE - By size
-* ALLEGRO_FS_SORT_UNSORTED - Don't sort
-
-* ALLEGRO_FS_SORT_DIRSFIRST - Directories first
-* ALLEGRO_FS_SORT_REVERSED - Reverse sort
-* ALLEGRO_FS_SORT_CASESENSITIVE - Case Sensitive
-* ALLEGRO_FS_SORT_DIRSLAST - Directories Last
-* ALLEGRO_FS_SORT_TYPE - By Type (extension?)
-
-XXX do we need ALLEGRO_FS_SORT_TYPE?  It sounds like we don't even
-know what it should do.
 
 ## API: ALLEGRO_SEEK
 
