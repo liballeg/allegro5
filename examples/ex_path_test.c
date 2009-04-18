@@ -458,19 +458,9 @@ void t14(void)
    al_path_free(path);
 }
 
-/* Test al_path_emode. */
 void t15(void)
 {
-   ALLEGRO_PATH *path;
-
-   path = al_path_create("data");
-   CHECK(al_path_emode(path, ALLEGRO_FILEMODE_READ | ALLEGRO_FILEMODE_EXECUTE | ALLEGRO_FILEMODE_ISDIR));
-   al_path_free(path);
-
-   path = al_path_create("data/allegro.pcx");
-   CHECK(al_path_emode(path, ALLEGRO_FILEMODE_READ | ALLEGRO_FILEMODE_ISFILE));
-   CHECK(! al_path_emode(path, ALLEGRO_FILEMODE_EXECUTE));
-   al_path_free(path);
+   /* nothing */
 }
 
 /* Test al_path_make_absolute. */

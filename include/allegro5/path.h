@@ -45,7 +45,6 @@ AL_FUNC(bool, al_path_make_absolute, (ALLEGRO_PATH *path));
 AL_FUNC(bool, al_path_make_canonical, (ALLEGRO_PATH *path));
 
 AL_FUNC(bool, al_path_exists, (const ALLEGRO_PATH *path));
-AL_FUNC(bool, al_path_emode, (const ALLEGRO_PATH *path, uint32_t mode));
 
 AL_END_EXTERN_C
 

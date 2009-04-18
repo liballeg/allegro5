@@ -73,11 +73,6 @@ always be empty.
 
 Drop the last directory component.
 
-## API: al_path_emode
-
-Return true iff the path represents a file on the system that exists with
-the given mode bits (at least).
-
 ## API: al_path_exists
 
 Return true if path represents an existing file on the system,

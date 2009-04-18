@@ -557,22 +557,6 @@ bool al_path_exists(const ALLEGRO_PATH *path)
 }
 
 
-/* Function: al_path_emode
- */
-bool al_path_emode(const ALLEGRO_PATH *path, uint32_t mode)
-{
-   ALLEGRO_USTR *ustr;
-   bool rc;
-   ASSERT(path);
-
-   ustr = al_ustr_new("");
-   path_to_ustr(path, ALLEGRO_NATIVE_PATH_SEP, ustr);
-   rc = (al_get_entry_mode_str(al_cstr(ustr)) & mode) == mode;
-   al_ustr_free(ustr);
-   return rc;
-}
-
-
 /* Function: al_path_make_absolute
  */
 bool al_path_make_absolute(ALLEGRO_PATH *path)
