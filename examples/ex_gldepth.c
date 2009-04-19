@@ -188,6 +188,7 @@ int main(void)
    }
 
    al_init_iio_addon();
+   al_init_font_addon();
    al_install_keyboard();
 
    al_set_new_display_flags(ALLEGRO_OPENGL);
