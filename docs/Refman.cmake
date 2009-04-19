@@ -7,6 +7,7 @@ set(PAGES
     config
     display
     events
+    file
     font
     fshook
     graphics

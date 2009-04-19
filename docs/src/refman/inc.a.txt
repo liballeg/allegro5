@@ -8,6 +8,7 @@
 * [Configuration files](config.html)
 * [Display](display.html)
 * [Events](events.html)
+* [File I/O](file.html)
 * [Filesystem hooks](fshook.html)
 * [Graphics](graphics.html)
 * [Joystick](joystick.html)
