@@ -19,22 +19,25 @@ endfunction(append_lib_linkage_suffix)
 function(sanitize_cmake_link_flags ...)
    SET(return)
    foreach(lib ${ARGV})
-
-      # Remove absolute path.
-      string(REGEX REPLACE "/.*/(.*)" "\\1" lib ${lib})
-
-      # Remove .a/.so.
-      string(REGEX REPLACE "lib(.*)\\.a" "\\1" lib ${lib})
-      string(REGEX REPLACE "lib(.*)\\.so" "\\1" lib ${lib})
-
-      # Remove -l prefix if it's there already.
-      string(REGEX REPLACE "-l(.*)" "\\1" lib ${lib})
-      
-      # Make sure we don't include our own libraries.
-      # FIXME: Use a global list instead of a very unstable regexp.
-      IF(NOT lib MATCHES "a5_.*" AND NOT lib STREQUAL "allegro")
-         set(return "${return} -l${lib}")
-      ENDIF()
+      # Watch out for -framework options (OS X)
+      IF (NOT lib MATCHES "-framework.*" AND NOT lib MATCHES ".*framework")
+         # Remove absolute path.
+         string(REGEX REPLACE "/.*/(.*)" "\\1" lib ${lib})
+   
+         # Remove .a/.so/.dylib.
+         string(REGEX REPLACE "lib(.*)\\.a" "\\1" lib ${lib})
+         string(REGEX REPLACE "lib(.*)\\.so" "\\1" lib ${lib})
+         string(REGEX REPLACE "lib(.*)\\.dylib" "\\1" lib ${lib})
+   
+         # Remove -l prefix if it's there already.
+         string(REGEX REPLACE "-l(.*)" "\\1" lib ${lib})
+         
+         # Make sure we don't include our own libraries.
+         # FIXME: Use a global list instead of a very unstable regexp.
+         IF(NOT lib MATCHES "a5_.*" AND NOT lib STREQUAL "allegro")
+            set(return "${return} -l${lib}")
+         ENDIF()
+      ENDIF(NOT lib MATCHES "-framework.*" AND NOT lib MATCHES ".*framework")  
    endforeach(lib)
    set(return ${return} PARENT_SCOPE)
 endfunction(sanitize_cmake_link_flags)
