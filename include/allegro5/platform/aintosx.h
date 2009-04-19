@@ -46,6 +46,18 @@
 #endif
 
 
+/* We include code to detect a "dead bootstrap context" and fail
+ * gracefully if that situation is detected, but some of the code uses
+ * deprecated functions and it isn't generally clear what "dead bootstrap
+ * context" means (google's first result points back to Allegro). It is
+ * also not clear if the problem this aims to solve still occurs on recent
+ * versions of OS X.
+ * Define OSX_BOOTSTRAP_DETECTION to compile this check in. It can
+ * be brought back/reactivated when someone finds out how.
+ */
+//#define OSX_BOOTSTRAP_DETECTION
+
+
 #define OSX_GFX_NONE                    0
 #define OSX_GFX_WINDOW                  1
 #define OSX_GFX_FULL                    2
