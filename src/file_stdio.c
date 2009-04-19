@@ -232,14 +232,14 @@ static off_t file_stdio_fsize(ALLEGRO_FILE *f)
    if (old_pos == -1)
       return -1;
 
-   if (!file_stdio_fseek(f, ALLEGRO_SEEK_END, 0))
+   if (!file_stdio_fseek(f, 0, ALLEGRO_SEEK_END))
       return -1;
 
    new_pos = file_stdio_ftell(f);
    if (new_pos == -1)
       return -1;
 
-   if (!file_stdio_fseek(f, ALLEGRO_SEEK_SET, old_pos))
+   if (!file_stdio_fseek(f, old_pos, ALLEGRO_SEEK_SET))
       return -1;
 
    return new_pos;
