@@ -36,6 +36,7 @@
    #include <stdlib.h>
    #include <time.h>
    #include <string.h>
+   #include <sys/types.h>
 #endif
 
 #if (defined DEBUGMODE) && (defined FORTIFY)
