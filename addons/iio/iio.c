@@ -187,7 +187,7 @@ int al_save_bitmap(const char *filename, ALLEGRO_BITMAP *bitmap)
 
 /* Function: al_load_bitmap_entry
  */
-ALLEGRO_BITMAP *al_load_bitmap_entry(ALLEGRO_FS_ENTRY *pf, const char *ident)
+ALLEGRO_BITMAP *al_load_bitmap_entry(ALLEGRO_FILE *pf, const char *ident)
 {
    Handler *h = find_handler(ident);
    if (h)
@@ -198,7 +198,7 @@ ALLEGRO_BITMAP *al_load_bitmap_entry(ALLEGRO_FS_ENTRY *pf, const char *ident)
 
 /* Function: al_save_bitmap_entry
  */
-int al_save_bitmap_entry(ALLEGRO_FS_ENTRY *pf, const char *ident,
+int al_save_bitmap_entry(ALLEGRO_FILE *pf, const char *ident,
    ALLEGRO_BITMAP *bitmap)
 {
    Handler *h = find_handler(ident);

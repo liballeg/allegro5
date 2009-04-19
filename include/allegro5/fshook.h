@@ -64,14 +64,6 @@ enum {
    ALLEGRO_FILEMODE_ISDIR   = 1 << 5,
 };
 
-/* Enum: ALLEGRO_SEEK
- */
-enum {
-   ALLEGRO_SEEK_SET = 0,
-   ALLEGRO_SEEK_CUR,
-   ALLEGRO_SEEK_END
-};
-
 #ifndef EOF
    #define EOF    (-1)
 #endif
@@ -83,19 +75,7 @@ AL_FUNC(void, al_close_entry, (ALLEGRO_FS_ENTRY *handle));
 
 AL_FUNC(ALLEGRO_FS_ENTRY*, al_mktemp, (const char *tmpl, uint32_t ulink));
 
-AL_FUNC(ALLEGRO_FS_ENTRY*, al_fopen, (const char *path, const char *mode));
-AL_FUNC(void, al_fclose, (ALLEGRO_FS_ENTRY *fp));
 AL_FUNC(ALLEGRO_PATH *, al_get_entry_name, (ALLEGRO_FS_ENTRY *fp));
-
-AL_FUNC(size_t, al_fread, (ALLEGRO_FS_ENTRY *fp, void *ptr, size_t size));
-AL_FUNC(size_t, al_fwrite, (ALLEGRO_FS_ENTRY *fp, const void *ptr, size_t size));
-AL_FUNC(bool, al_fflush, (ALLEGRO_FS_ENTRY *fp));
-AL_FUNC(bool, al_fseek, (ALLEGRO_FS_ENTRY *fp, int64_t offset, uint32_t whence));
-AL_FUNC(int64_t, al_ftell, (ALLEGRO_FS_ENTRY *fp));
-AL_FUNC(bool, al_ferror, (ALLEGRO_FS_ENTRY *fp));
-AL_FUNC(bool, al_feof, (ALLEGRO_FS_ENTRY *fp));
-
-AL_FUNC(int, al_fungetc, (ALLEGRO_FS_ENTRY *fp, int c));
 
 AL_FUNC(bool, al_fstat, (ALLEGRO_FS_ENTRY *fp));
 
@@ -130,21 +110,6 @@ AL_FUNC(bool, al_get_search_path, (uint32_t idx, char *dest, size_t len));
 
 AL_FUNC(int32_t, al_drive_sep, (char *sep, size_t len));
 AL_FUNC(int32_t, al_path_sep, (char *sep, size_t len));
-
-AL_FUNC(int, al_fgetc, (ALLEGRO_FS_ENTRY *f));
-AL_FUNC(int, al_fputc, (ALLEGRO_FS_ENTRY *f, int c));
-
-AL_FUNC(int16_t, al_fread16le,  (ALLEGRO_FS_ENTRY *f));
-AL_FUNC(int32_t, al_fread32le,  (ALLEGRO_FS_ENTRY *f, bool *ret_success));
-AL_FUNC(size_t, al_fwrite16le, (ALLEGRO_FS_ENTRY *f, int16_t w));
-AL_FUNC(size_t, al_fwrite32le, (ALLEGRO_FS_ENTRY *f, int32_t l));
-AL_FUNC(int16_t, al_fread16be,  (ALLEGRO_FS_ENTRY *f));
-AL_FUNC(int32_t, al_fread32be,  (ALLEGRO_FS_ENTRY *f, bool *ret_success));
-AL_FUNC(size_t, al_fwrite16be, (ALLEGRO_FS_ENTRY *f, int16_t w));
-AL_FUNC(size_t, al_fwrite32be, (ALLEGRO_FS_ENTRY *f, int32_t l));
-
-AL_FUNC(char*, al_fgets, (ALLEGRO_FS_ENTRY *f, char *p, size_t max));
-AL_FUNC(int,   al_fputs, (ALLEGRO_FS_ENTRY *f, const char *p));
 
 AL_FUNC(char *, al_find_resource, (const char *base, const char *resource, uint32_t fm, char *buffer, size_t len));
 

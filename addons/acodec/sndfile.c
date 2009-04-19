@@ -17,21 +17,22 @@ typedef struct _sf_private _sf_private;
 struct _sf_private {
    SF_INFO sfinfo;
    SNDFILE *sndfile;
-   ALLEGRO_FS_ENTRY *fh;
+   ALLEGRO_FILE *fh;
    double loop_start;
    double loop_end;
 };
 
 static sf_count_t _sf_vio_get_filelen(void *dptr)
 {
-   ALLEGRO_FS_ENTRY *fh = (ALLEGRO_FS_ENTRY *)dptr;
+   ALLEGRO_FILE *fh = (ALLEGRO_FILE *)dptr;
 
-   return (sf_count_t)al_get_entry_size(fh);
+   /* XXX check error */
+   return (sf_count_t)al_fsize(fh);
 }
 
 static sf_count_t _sf_vio_seek(sf_count_t offset, int whence, void *dptr)
 {
-   ALLEGRO_FS_ENTRY *fh = (ALLEGRO_FS_ENTRY *)dptr;
+   ALLEGRO_FILE *fh = (ALLEGRO_FILE *)dptr;
 
    switch(whence) {
       case SEEK_SET: whence = ALLEGRO_SEEK_SET; break;
@@ -44,7 +45,7 @@ static sf_count_t _sf_vio_seek(sf_count_t offset, int whence, void *dptr)
 
 static sf_count_t _sf_vio_read(void *ptr, sf_count_t count, void *dptr)
 {
-   ALLEGRO_FS_ENTRY *fh = (ALLEGRO_FS_ENTRY *)dptr;
+   ALLEGRO_FILE *fh = (ALLEGRO_FILE *)dptr;
 
    /* is this a bug waiting to happen? what does libsndfile expect to happen? */
    /* undocumented api's ftw */
@@ -53,14 +54,14 @@ static sf_count_t _sf_vio_read(void *ptr, sf_count_t count, void *dptr)
 
 static sf_count_t _sf_vio_write(const void *ptr, sf_count_t count, void *dptr)
 {
-   ALLEGRO_FS_ENTRY *fh = (ALLEGRO_FS_ENTRY *)dptr;
+   ALLEGRO_FILE *fh = (ALLEGRO_FILE *)dptr;
 
    return (sf_count_t)al_fwrite(fh, ptr, count);
 }
 
 static sf_count_t _sf_vio_tell(void *dptr)
 {
-   ALLEGRO_FS_ENTRY *fh = (ALLEGRO_FS_ENTRY *)dptr;
+   ALLEGRO_FILE *fh = (ALLEGRO_FILE *)dptr;
 
    return (sf_count_t)al_ftell(fh);
 }

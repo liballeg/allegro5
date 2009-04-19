@@ -22,14 +22,14 @@ typedef struct FLACFILE {
    int channels;
    long pos;
    long total_size; /* number of bytes */
-   ALLEGRO_FS_ENTRY *fh;
+   ALLEGRO_FILE *fh;
 } FLACFILE;
 
 static FLAC__StreamDecoderReadStatus read_callback(const FLAC__StreamDecoder *decoder,
    FLAC__byte buffer[], size_t *bytes, void *dptr)
 {
    FLACFILE *ff = (FLACFILE *)dptr;
-   ALLEGRO_FS_ENTRY *fh = ff->fh;
+   ALLEGRO_FILE *fh = ff->fh;
    (void)decoder;
    
    if(*bytes > 0) {
@@ -50,7 +50,7 @@ static FLAC__StreamDecoderSeekStatus seek_callback(
    FLAC__uint64 absolute_byte_offset, void *dptr)
 {
    FLACFILE *ff = (FLACFILE *)dptr;
-   ALLEGRO_FS_ENTRY *fh = ff->fh;
+   ALLEGRO_FILE *fh = ff->fh;
    (void)decoder;
    
    if(!al_fseek(fh, ALLEGRO_SEEK_SET, absolute_byte_offset))
@@ -64,7 +64,7 @@ static FLAC__StreamDecoderTellStatus tell_callback(
    FLAC__uint64 *absolute_byte_offset, void *dptr)
 {
    FLACFILE *ff = (FLACFILE *)dptr;
-   ALLEGRO_FS_ENTRY *fh = ff->fh;
+   ALLEGRO_FILE *fh = ff->fh;
    int64_t pos = 0;
    (void)decoder;
    
@@ -81,17 +81,18 @@ static FLAC__StreamDecoderLengthStatus length_callback(
    FLAC__uint64 *stream_length, void *dptr)
 {
    FLACFILE *ff = (FLACFILE *)dptr;
-   ALLEGRO_FS_ENTRY *fh = ff->fh;
+   ALLEGRO_FILE *fh = ff->fh;
    (void)decoder;
    
-   *stream_length = (FLAC__uint64)al_get_entry_size(fh);
+   /* XXX check error */
+   *stream_length = (FLAC__uint64)al_fsize(fh);
    return FLAC__STREAM_DECODER_LENGTH_STATUS_OK;
 }
 
 static FLAC__bool eof_callback(const FLAC__StreamDecoder *decoder, void *dptr)
 {
    FLACFILE *ff = (FLACFILE *)dptr;
-   ALLEGRO_FS_ENTRY *fh = ff->fh;
+   ALLEGRO_FILE *fh = ff->fh;
    (void)decoder;
    
    if(al_feof(fh))

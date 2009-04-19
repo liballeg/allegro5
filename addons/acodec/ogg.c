@@ -20,7 +20,7 @@ typedef struct AL_OV_DATA AL_OV_DATA;
 struct AL_OV_DATA {
    OggVorbis_File *vf;
    vorbis_info *vi;
-   ALLEGRO_FS_ENTRY *file;
+   ALLEGRO_FILE *file;
    int bitstream;
    double loop_start;
    double loop_end;
@@ -90,7 +90,7 @@ ALLEGRO_SAMPLE *al_load_sample_oggvorbis(const char *filename)
    const int packet_size = 4096; /* suggestion for size to read at a time */
    OggVorbis_File vf;
    vorbis_info* vi;
-   ALLEGRO_FS_ENTRY *file;
+   ALLEGRO_FILE *file;
    char *buffer;
    long pos;
    ALLEGRO_SAMPLE *sample;
@@ -268,7 +268,7 @@ ALLEGRO_STREAM *al_load_stream_oggvorbis(size_t buffer_count,
                                          const char *filename)
 {
    const int word_size = 2; /* 1 = 8bit, 2 = 16-bit. nothing else */
-   ALLEGRO_FS_ENTRY* file = NULL;
+   ALLEGRO_FILE* file = NULL;
    OggVorbis_File* vf;
    vorbis_info* vi;
    int channels;

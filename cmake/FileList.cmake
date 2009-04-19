@@ -9,6 +9,8 @@ set(ALLEGRO_SRC_FILES
     src/dtor.c
     src/events.c
     src/evtsrc.c
+    src/file.c
+    src/file_stdio.c
     src/fshook.c
     src/fshook_stdio.c
     src/graphics.c

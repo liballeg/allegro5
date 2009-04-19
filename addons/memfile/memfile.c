@@ -1,34 +1,32 @@
 #define ALLEGRO_LIB_BUILD 1
 #include <allegro5/allegro5.h>
 #include "allegro5/memfile.h"
+#include "allegro5/internal/aintern_file.h"
 #include "allegro5/internal/aintern_memory.h"
-#include "allegro5/internal/aintern_fshook.h"
-#include "allegro5/internal/aintern_memfile.h"
-#include <time.h>
-#include <stdio.h>
 
-static void memfile_destroy_handle(ALLEGRO_FS_ENTRY *handle)
-{
-   _AL_FREE(handle);
-}
 
-static ALLEGRO_PATH *memfile_fname(ALLEGRO_FS_ENTRY *fh)
-{
-   (void)fh;
-   return al_path_create("");
-}
+typedef struct ALLEGRO_FILE_MEMFILE ALLEGRO_FILE_MEMFILE;
+struct ALLEGRO_FILE_MEMFILE {
+   ALLEGRO_FILE file;   /* must be first */
 
-static void memfile_fclose(ALLEGRO_FS_ENTRY *fp)
+   bool eof;
+   int64_t size;
+   int64_t pos;
+   char *mem;
+
+   unsigned char ungetc;
+};
+
+
+static void memfile_fclose(ALLEGRO_FILE *fp)
 {
    _AL_FREE(fp);
 }
 
-static size_t memfile_fread(ALLEGRO_FS_ENTRY *fp, void *ptr, size_t size)
+static size_t memfile_fread(ALLEGRO_FILE *fp, void *ptr, size_t size)
 {
-   ALLEGRO_FS_ENTRY_MEMFILE *mf = (ALLEGRO_FS_ENTRY_MEMFILE*)fp;
+   ALLEGRO_FILE_MEMFILE *mf = (ALLEGRO_FILE_MEMFILE*)fp;
    size_t n;
-
-   mf->atime = time(NULL);
 
    if (mf->size - mf->pos < size) { 
       /* partial read */
@@ -44,12 +42,10 @@ static size_t memfile_fread(ALLEGRO_FS_ENTRY *fp, void *ptr, size_t size)
    return n;
 }
 
-static size_t memfile_fwrite(ALLEGRO_FS_ENTRY *fp, const void *ptr, size_t size)
+static size_t memfile_fwrite(ALLEGRO_FILE *fp, const void *ptr, size_t size)
 {
-   ALLEGRO_FS_ENTRY_MEMFILE *mf = (ALLEGRO_FS_ENTRY_MEMFILE*)fp;
+   ALLEGRO_FILE_MEMFILE *mf = (ALLEGRO_FILE_MEMFILE*)fp;
    size_t n;
-
-   mf->mtime = time(NULL);
 
    if (mf->size - mf->pos < size) {
       /* partial write */
@@ -65,19 +61,26 @@ static size_t memfile_fwrite(ALLEGRO_FS_ENTRY *fp, const void *ptr, size_t size)
    return n;
 }
 
-static bool memfile_fflush(ALLEGRO_FS_ENTRY *fp)
+static bool memfile_fflush(ALLEGRO_FILE *fp)
 {
    (void)fp;
    return true;
 }
 
-static bool memfile_fseek(ALLEGRO_FS_ENTRY *fp, int64_t offset,
-   uint32_t whence)
+static int64_t memfile_ftell(ALLEGRO_FILE *fp)
 {
-   ALLEGRO_FS_ENTRY_MEMFILE *mf = (ALLEGRO_FS_ENTRY_MEMFILE*)fp;
+   ALLEGRO_FILE_MEMFILE *mf = (ALLEGRO_FILE_MEMFILE*)fp;
+
+   return mf->pos;
+}
+
+static bool memfile_fseek(ALLEGRO_FILE *fp, int64_t offset,
+   int whence)
+{
+   ALLEGRO_FILE_MEMFILE *mf = (ALLEGRO_FILE_MEMFILE*)fp;
    int64_t pos = mf->pos;
 
-   switch(whence) {
+   switch (whence) {
       case ALLEGRO_SEEK_SET:
          pos = offset;
          break;
@@ -91,7 +94,7 @@ static bool memfile_fseek(ALLEGRO_FS_ENTRY *fp, int64_t offset,
          break;
    }
 
-   if(pos >= mf->size)
+   if (pos >= mf->size)
       pos = mf->size;
    else if(pos < 0)
       pos = 0;
@@ -103,125 +106,60 @@ static bool memfile_fseek(ALLEGRO_FS_ENTRY *fp, int64_t offset,
    return true;
 }
 
-static int64_t memfile_ftell(ALLEGRO_FS_ENTRY *fp)
+/* doesn't quite match up to stdio here,
+   an feof after a seek will return false,
+   even if it seeks past the end of the file */
+static bool memfile_feof(ALLEGRO_FILE *fp)
 {
-   ALLEGRO_FS_ENTRY_MEMFILE *mf = (ALLEGRO_FS_ENTRY_MEMFILE*)fp;
-
-   return mf->pos;
+   ALLEGRO_FILE_MEMFILE *mf = (ALLEGRO_FILE_MEMFILE*)fp;
+   return mf->eof;
 }
 
-static bool memfile_ferror(ALLEGRO_FS_ENTRY *fp)
+static bool memfile_ferror(ALLEGRO_FILE *fp)
 {
    (void)fp;
    return false;
 }
 
-/* doesn't quite match up to stdio here,
-   an feof after a seek will return false,
-   even if it seeks past the end of the file */
-static bool memfile_feof(ALLEGRO_FS_ENTRY *fp)
+static int memfile_fungetc(ALLEGRO_FILE *fp, int c)
 {
-   ALLEGRO_FS_ENTRY_MEMFILE *mf = (ALLEGRO_FS_ENTRY_MEMFILE*)fp;
-   return mf->eof;
-}
+   ALLEGRO_FILE_MEMFILE *mf = (ALLEGRO_FILE_MEMFILE*)fp;
 
-static bool memfile_fstat(ALLEGRO_FS_ENTRY *fp)
-{
-   (void)fp;
-   return true;
-}
-
-static int memfile_ungetc(ALLEGRO_FS_ENTRY *fp, int c)
-{
-   ALLEGRO_FS_ENTRY_MEMFILE *mf = (ALLEGRO_FS_ENTRY_MEMFILE*)fp;
-
+   /* XXX this isn't used at all */
    mf->ungetc = (unsigned char)c;
 
    return c;
 }
 
-static off_t memfile_entry_size(ALLEGRO_FS_ENTRY *fp)
+static off_t memfile_fsize(ALLEGRO_FILE *fp)
 {
-   ALLEGRO_FS_ENTRY_MEMFILE *mf = (ALLEGRO_FS_ENTRY_MEMFILE*)fp;
+   ALLEGRO_FILE_MEMFILE *mf = (ALLEGRO_FILE_MEMFILE*)fp;
 
    return mf->size;
 }
 
-static uint32_t memfile_entry_mode(ALLEGRO_FS_ENTRY *fp)
-{
-   (void)fp;
-   return ALLEGRO_FILEMODE_READ | ALLEGRO_FILEMODE_WRITE | ALLEGRO_FILEMODE_ISFILE;
-}
-
-static time_t memfile_entry_atime(ALLEGRO_FS_ENTRY *fp)
-{
-   ALLEGRO_FS_ENTRY_MEMFILE *mf = (ALLEGRO_FS_ENTRY_MEMFILE*)fp;
-   return mf->atime;
-}
-
-static time_t memfile_entry_mtime(ALLEGRO_FS_ENTRY *fp)
-{
-   ALLEGRO_FS_ENTRY_MEMFILE *mf = (ALLEGRO_FS_ENTRY_MEMFILE*)fp;
-   return mf->mtime;
-}
-
-static time_t memfile_entry_ctime(ALLEGRO_FS_ENTRY *fp)
-{
-   (void)fp;
-   return 0;      /* XXX can't we implement this? */
-}
-
-static bool memfile_exists(ALLEGRO_FS_ENTRY *fp)
-{
-   (void)fp;
-   return true;
-}
-
-static bool memfile_remove(ALLEGRO_FS_ENTRY *fp)
-{
-   (void)fp;
-   return true;   /* XXX should this fail? */
-}
-
-static struct ALLEGRO_FS_HOOK_ENTRY_INTERFACE memfile_entry_hooks = {
-   memfile_destroy_handle,
+static struct ALLEGRO_FILE_INTERFACE memfile_vtable = {
    NULL,    /* open */
-   NULL,    /* close */
-
-   memfile_fname,
-
    memfile_fclose,
    memfile_fread,
    memfile_fwrite,
    memfile_fflush,
-   memfile_fseek,
    memfile_ftell,
-   memfile_ferror,
+   memfile_fseek,
    memfile_feof,
-   memfile_fstat,
-   memfile_ungetc,
-
-   memfile_entry_size,
-   memfile_entry_mode,
-   memfile_entry_atime,
-   memfile_entry_mtime,
-   memfile_entry_ctime,
-
-   memfile_exists,
-   memfile_remove,
-
-   NULL,    /* readdir */
-   NULL     /* closedir */
+   memfile_ferror,
+   memfile_fungetc,
+   memfile_fsize
 };
 
-ALLEGRO_FS_ENTRY *al_open_memfile(int64_t size, void *mem)
+ALLEGRO_FILE *al_open_memfile(int64_t size, void *mem)
 {
-   ALLEGRO_FS_ENTRY_MEMFILE *memfile = NULL;
+   ALLEGRO_FILE_MEMFILE *memfile = NULL;
 
    ASSERT(mem);
    ASSERT(size > 0);
 
-   memfile = _AL_MALLOC(sizeof(ALLEGRO_FS_ENTRY_MEMFILE));
+   memfile = _AL_MALLOC(sizeof(ALLEGRO_FILE_MEMFILE));
    if(!memfile) {
       al_set_errno(ENOMEM);
       return NULL;
@@ -229,13 +167,13 @@ ALLEGRO_FS_ENTRY *al_open_memfile(int64_t size, void *mem)
 
    memset(memfile, 0, sizeof(*memfile));
 
-   memfile->fs_entry.vtable = &memfile_entry_hooks;
+   memfile->file.vtable = &memfile_vtable;
 
    memfile->size = size;
    memfile->pos = 0;
    memfile->mem = mem;
 
-   return (ALLEGRO_FS_ENTRY *)memfile;
+   return (ALLEGRO_FILE *)memfile;
 }
 
 /* vim: set sts=3 sw=3 et: */

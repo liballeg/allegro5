@@ -87,7 +87,7 @@ typedef struct OS2BMPINFOHEADER
 /* read_bmfileheader:
  *  Reads a BMP file header and check that it has the BMP magic number.
  */
-static int read_bmfileheader(ALLEGRO_FS_ENTRY *f, BMPFILEHEADER *fileheader)
+static int read_bmfileheader(ALLEGRO_FILE *f, BMPFILEHEADER *fileheader)
 {
    fileheader->bfType = al_fread16le(f);
    fileheader->bfSize = al_fread32le(f, NULL);
@@ -110,7 +110,7 @@ static int read_bmfileheader(ALLEGRO_FS_ENTRY *f, BMPFILEHEADER *fileheader)
 /* read_win_bminfoheader:
  *  Reads information from a BMP file header.
  */
-static int read_win_bminfoheader(ALLEGRO_FS_ENTRY *f, BMPINFOHEADER *infoheader)
+static int read_win_bminfoheader(ALLEGRO_FILE *f, BMPINFOHEADER *infoheader)
 {
    WINBMPINFOHEADER win_infoheader;
 
@@ -142,7 +142,7 @@ static int read_win_bminfoheader(ALLEGRO_FS_ENTRY *f, BMPINFOHEADER *infoheader)
 /* read_os2_bminfoheader:
  *  Reads information from an OS/2 format BMP file header.
  */
-static int read_os2_bminfoheader(ALLEGRO_FS_ENTRY *f, BMPINFOHEADER *infoheader)
+static int read_os2_bminfoheader(ALLEGRO_FILE *f, BMPINFOHEADER *infoheader)
 {
    OS2BMPINFOHEADER os2_infoheader;
 
@@ -168,7 +168,7 @@ static int read_os2_bminfoheader(ALLEGRO_FS_ENTRY *f, BMPINFOHEADER *infoheader)
 /* read_bmicolors:
  *  Loads the color palette for 1,4,8 bit formats.
  */
-static void read_bmicolors(int bytes, PalEntry *pal, ALLEGRO_FS_ENTRY *f,
+static void read_bmicolors(int bytes, PalEntry *pal, ALLEGRO_FILE *f,
    int win_flag)
 {
    int i, j;
@@ -195,7 +195,7 @@ static void read_bmicolors(int bytes, PalEntry *pal, ALLEGRO_FS_ENTRY *f,
 /* read_1bit_line:
  *  Support function for reading the 1 bit bitmap file format.
  */
-static void read_1bit_line(int length, ALLEGRO_FS_ENTRY *f, unsigned char *buf)
+static void read_1bit_line(int length, ALLEGRO_FILE *f, unsigned char *buf)
 {
    unsigned char b[32];
    unsigned long n;
@@ -219,7 +219,7 @@ static void read_1bit_line(int length, ALLEGRO_FS_ENTRY *f, unsigned char *buf)
 /* read_4bit_line:
  *  Support function for reading the 4 bit bitmap file format.
  */
-static void read_4bit_line(int length, ALLEGRO_FS_ENTRY *f, unsigned char *buf)
+static void read_4bit_line(int length, ALLEGRO_FILE *f, unsigned char *buf)
 {
    unsigned char b[8];
    unsigned long n;
@@ -247,7 +247,7 @@ static void read_4bit_line(int length, ALLEGRO_FS_ENTRY *f, unsigned char *buf)
 /* read_8bit_line:
  *  Support function for reading the 8 bit bitmap file format.
  */
-static void read_8bit_line(int length, ALLEGRO_FS_ENTRY *f, unsigned char *buf)
+static void read_8bit_line(int length, ALLEGRO_FILE *f, unsigned char *buf)
 {
    unsigned char b[4];
    unsigned long n;
@@ -272,7 +272,7 @@ static void read_8bit_line(int length, ALLEGRO_FS_ENTRY *f, unsigned char *buf)
  *  Support function for reading the 16 bit bitmap file format, doing
  *  our best to convert it down to a 256 color palette.
  */
-static void read_16bit_line(int length, ALLEGRO_FS_ENTRY *f, int line)
+static void read_16bit_line(int length, ALLEGRO_FILE *f, int line)
 {
    int i, w;
    PalEntry c;
@@ -302,7 +302,7 @@ static void read_16bit_line(int length, ALLEGRO_FS_ENTRY *f, int line)
  *  Support function for reading the 24 bit bitmap file format, doing
  *  our best to convert it down to a 256 color palette.
  */
-static void read_24bit_line(int length, ALLEGRO_FS_ENTRY *f, int line)
+static void read_24bit_line(int length, ALLEGRO_FILE *f, int line)
 {
    int i;
    PalEntry c;
@@ -328,7 +328,7 @@ static void read_24bit_line(int length, ALLEGRO_FS_ENTRY *f, int line)
  *  Support function for reading the 32 bit bitmap file format, doing
  *  our best to convert it down to a 256 color palette.
  */
-static void read_32bit_line(int length, ALLEGRO_FS_ENTRY *f, int line)
+static void read_32bit_line(int length, ALLEGRO_FILE *f, int line)
 {
    int i;
    PalEntry c;
@@ -347,7 +347,7 @@ static void read_32bit_line(int length, ALLEGRO_FS_ENTRY *f, int line)
 /* read_bitfields_image:
  *  For reading the bitfield compressed BMP image format.
  */
-static void read_bitfields_image(ALLEGRO_FS_ENTRY *f, const BMPINFOHEADER *infoheader, int bpp)
+static void read_bitfields_image(ALLEGRO_FILE *f, const BMPINFOHEADER *infoheader, int bpp)
 {
    int k, i, line, height, dir;
    int bytes_per_pixel;
@@ -397,7 +397,7 @@ static void read_bitfields_image(ALLEGRO_FS_ENTRY *f, const BMPINFOHEADER *infoh
 /* read_image:
  *  For reading the noncompressed BMP image format.
  */
-static void read_image(ALLEGRO_FS_ENTRY *f,
+static void read_image(ALLEGRO_FILE *f,
                        const BMPINFOHEADER *infoheader, PalEntry *pal)
 {
    int i, j, line, height, dir;
@@ -455,7 +455,7 @@ static void read_image(ALLEGRO_FS_ENTRY *f,
 /* read_RLE8_compressed_image:
  *  For reading the 8 bit RLE compressed BMP image format.
  */
-static void read_RLE8_compressed_image(ALLEGRO_FS_ENTRY *f, unsigned char *buf,
+static void read_RLE8_compressed_image(ALLEGRO_FILE *f, unsigned char *buf,
                                        const BMPINFOHEADER *infoheader)
 {
    int count;
@@ -532,7 +532,7 @@ static void read_RLE8_compressed_image(ALLEGRO_FS_ENTRY *f, unsigned char *buf,
 /* read_RLE4_compressed_image:
  *  For reading the 4 bit RLE compressed BMP image format.
  */
-static void read_RLE4_compressed_image(ALLEGRO_FS_ENTRY *f, unsigned char *buf,
+static void read_RLE4_compressed_image(ALLEGRO_FILE *f, unsigned char *buf,
                                        const BMPINFOHEADER *infoheader)
 {
    unsigned char b[8];
@@ -613,13 +613,13 @@ static void read_RLE4_compressed_image(ALLEGRO_FS_ENTRY *f, unsigned char *buf,
 
 
 /* al_load_bmp_entry:
- *  Like load_bmp, but starts loading from the current place in the ALLEGRO_FS_ENTRY
+ *  Like load_bmp, but starts loading from the current place in the ALLEGRO_FILE
  *  specified. If successful the offset into the file will be left just after
  *  the image data. If unsuccessful the offset into the file is unspecified,
  *  i.e. you must either reset the offset to some known place or close the
  *  packfile. The packfile is not closed by this function.
  */
-ALLEGRO_BITMAP *al_load_bmp_entry(ALLEGRO_FS_ENTRY *f)
+ALLEGRO_BITMAP *al_load_bmp_entry(ALLEGRO_FILE *f)
 {
    BMPFILEHEADER fileheader;
    BMPINFOHEADER infoheader;
@@ -749,12 +749,12 @@ ALLEGRO_BITMAP *al_load_bmp_entry(ALLEGRO_FS_ENTRY *f)
 
 
 /* al_save_bmp_entry:
- *  Like save_bmp but writes into the ALLEGRO_FS_ENTRY given instead of a new file.
+ *  Like save_bmp but writes into the ALLEGRO_FILE given instead of a new file.
  *  The packfile is not closed after writing is completed. On success the
  *  offset into the file is left after the TGA file just written. On failure
  *  the offset is left at the end of whatever incomplete data was written.
  */
-int al_save_bmp_entry(ALLEGRO_FS_ENTRY *f, ALLEGRO_BITMAP *bmp)
+int al_save_bmp_entry(ALLEGRO_FILE *f, ALLEGRO_BITMAP *bmp)
 {
    int bfSize;
    int biSizeImage;
@@ -843,7 +843,7 @@ int al_save_bmp_entry(ALLEGRO_FS_ENTRY *f, ALLEGRO_BITMAP *bmp)
  */
 ALLEGRO_BITMAP *al_load_bmp(const char *filename)
 {
-   ALLEGRO_FS_ENTRY *f;
+   ALLEGRO_FILE *f;
    ALLEGRO_BITMAP *bmp;
    ASSERT(filename);
 
@@ -863,7 +863,7 @@ ALLEGRO_BITMAP *al_load_bmp(const char *filename)
  */
 int al_save_bmp(const char *filename, ALLEGRO_BITMAP *bmp)
 {
-   ALLEGRO_FS_ENTRY *f;
+   ALLEGRO_FILE *f;
    int ret;
    ASSERT(filename);
 

@@ -311,7 +311,7 @@ const char *al_get_config_value(const ALLEGRO_CONFIG *config,
 }
 
 
-static int readline(ALLEGRO_FS_ENTRY *file, ALLEGRO_USTR *line)
+static int readline(ALLEGRO_FILE *file, ALLEGRO_USTR *line)
 {
    int n = 0;
    while (1) {
@@ -338,7 +338,7 @@ ALLEGRO_CONFIG *al_load_config_file(const char *filename)
    ALLEGRO_USTR *section;
    ALLEGRO_USTR *key;
    ALLEGRO_USTR *value;
-   ALLEGRO_FS_ENTRY *file;
+   ALLEGRO_FILE *file;
 
    file = al_fopen(filename, "r");
    if (!file) {
@@ -397,7 +397,7 @@ ALLEGRO_CONFIG *al_load_config_file(const char *filename)
 }
 
 
-static bool config_write_section(ALLEGRO_FS_ENTRY *file,
+static bool config_write_section(ALLEGRO_FILE *file,
    const ALLEGRO_CONFIG_SECTION *s)
 {
    ALLEGRO_CONFIG_ENTRY *e;
@@ -457,7 +457,7 @@ static bool config_write_section(ALLEGRO_FS_ENTRY *file,
 int al_save_config_file(const ALLEGRO_CONFIG *config, const char *filename)
 {
    ALLEGRO_CONFIG_SECTION *s;
-   ALLEGRO_FS_ENTRY *file = al_fopen(filename, "w");
+   ALLEGRO_FILE *file = al_fopen(filename, "w");
 
    if (!file) {
       return 1;

@@ -30,7 +30,7 @@ extern "C" {
 #endif
 
 
-A5_MEMFILE_FUNC(ALLEGRO_FS_ENTRY *, al_open_memfile, (int64_t size, void *mem));
+A5_MEMFILE_FUNC(ALLEGRO_FILE *, al_open_memfile, (int64_t size, void *mem));
 
 #ifdef __cplusplus
 }

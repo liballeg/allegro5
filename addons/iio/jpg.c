@@ -19,14 +19,14 @@ struct my_src_mgr
 {
    struct jpeg_source_mgr pub;
    unsigned char *buffer;
-   ALLEGRO_FS_ENTRY *pf;
+   ALLEGRO_FILE *pf;
 };
 
 struct my_dest_mgr
 {
    struct jpeg_destination_mgr pub;
    unsigned char *buffer;
-   ALLEGRO_FS_ENTRY *pf;
+   ALLEGRO_FILE *pf;
 };
 
 static void init_source(j_decompress_ptr cinfo)
@@ -84,7 +84,7 @@ static void term_destination(j_compress_ptr cinfo)
 }
 
 
-static void jpeg_packfile_src(j_decompress_ptr cinfo, ALLEGRO_FS_ENTRY *pf,
+static void jpeg_packfile_src(j_decompress_ptr cinfo, ALLEGRO_FILE *pf,
                               unsigned char *buffer)
 {
    struct my_src_mgr *src;
@@ -105,7 +105,7 @@ static void jpeg_packfile_src(j_decompress_ptr cinfo, ALLEGRO_FS_ENTRY *pf,
    src->pf = pf;
 }
 
-static void jpeg_packfile_dest(j_compress_ptr cinfo, ALLEGRO_FS_ENTRY *pf,
+static void jpeg_packfile_dest(j_compress_ptr cinfo, ALLEGRO_FILE *pf,
                                unsigned char *buffer)
 {
    struct my_dest_mgr *dest;
@@ -124,7 +124,7 @@ static void jpeg_packfile_dest(j_compress_ptr cinfo, ALLEGRO_FS_ENTRY *pf,
    dest->pf = pf;
 }
 
-ALLEGRO_BITMAP *al_load_jpg_entry(ALLEGRO_FS_ENTRY *pf)
+ALLEGRO_BITMAP *al_load_jpg_entry(ALLEGRO_FILE *pf)
 {
    struct jpeg_decompress_struct cinfo;
    struct jpeg_error_mgr jerr;
@@ -189,7 +189,7 @@ ALLEGRO_BITMAP *al_load_jpg_entry(ALLEGRO_FS_ENTRY *pf)
    return bmp;
 }
 
-int al_save_jpg_entry(ALLEGRO_FS_ENTRY *pf, ALLEGRO_BITMAP *bmp)
+int al_save_jpg_entry(ALLEGRO_FILE *pf, ALLEGRO_BITMAP *bmp)
 {
    struct jpeg_compress_struct cinfo;
    struct jpeg_error_mgr jerr;
@@ -246,7 +246,7 @@ int al_save_jpg_entry(ALLEGRO_FS_ENTRY *pf, ALLEGRO_BITMAP *bmp)
  */
 ALLEGRO_BITMAP *al_load_jpg(char const *filename)
 {
-   ALLEGRO_FS_ENTRY *pf;
+   ALLEGRO_FILE *pf;
    ALLEGRO_BITMAP *bmp;
 
    ASSERT(filename);
@@ -266,7 +266,7 @@ ALLEGRO_BITMAP *al_load_jpg(char const *filename)
  */
 int al_save_jpg(char const *filename, ALLEGRO_BITMAP *bmp)
 {
-   ALLEGRO_FS_ENTRY *pf;
+   ALLEGRO_FILE *pf;
    int result;
 
    ASSERT(filename);

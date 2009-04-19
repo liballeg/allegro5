@@ -14,10 +14,10 @@
 
 int main(void)
 {
-   ALLEGRO_FS_ENTRY *memfile = NULL;
-   char *data = NULL;
-   int i = 0;
-   int data_size = 1024;
+   ALLEGRO_FILE *memfile;
+   char *data;
+   int i;
+   const int data_size = 1024;
 
    al_init();
 
