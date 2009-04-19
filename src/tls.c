@@ -717,14 +717,26 @@ ALLEGRO_MEMORY_BLENDER _al_get_memory_blender()
 
 
 /* Function: al_get_new_file_interface
+ * FIXME: added a work-around for the situation where TLS has not yet been
+ * initialised when this function is called. This may happen if Allegro
+ * tries to load a configuration file before the system has been
+ * initialised. Should probably rethink the logic here...
  */
 const ALLEGRO_FILE_INTERFACE *al_get_new_file_interface(void)
 {
    thread_local_state *tls;
 
    if ((tls = tls_get()) == NULL)
-      return NULL;
-   return tls->new_file_interface;
+      return &_al_file_interface_stdio;
+
+   /* FIXME: this situation should never arise because tls_ has the stdio
+    * interface set as a default, but it arises on OS X if
+    * pthread_getspecific() is called before osx_thread_init()...
+    */
+   if (tls->new_file_interface)
+      return tls->new_file_interface;
+   else
+      return &_al_file_interface_stdio;
 }
 
 
