@@ -34,7 +34,7 @@ function(sanitize_cmake_link_flags ...)
          
          # Make sure we don't include our own libraries.
          # FIXME: Use a global list instead of a very unstable regexp.
-         IF(NOT lib MATCHES "a5_.*" AND NOT lib STREQUAL "allegro")
+         IF(NOT lib MATCHES "a5_.*" AND NOT lib STREQUAL "allegro" AND NOT lib STREQUAL "kcm_audio")
             set(return "${return} -l${lib}")
          ENDIF()
       ENDIF(NOT lib MATCHES "-framework.*" AND NOT lib MATCHES ".*framework")  
