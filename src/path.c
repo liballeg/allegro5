@@ -567,7 +567,7 @@ bool al_path_make_absolute(ALLEGRO_PATH *path)
    ASSERT(path);
 
    if (path_is_absolute(path)) {
-      return false;
+      return true;
    }
 
    cwd_path = al_getcwd();

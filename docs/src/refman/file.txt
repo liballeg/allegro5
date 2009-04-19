@@ -228,6 +228,40 @@ not be closed.
 The file descriptor will be closed by [al_fclose] so you should not
 call close() on it.
 
+## API: al_make_temp_file
+
+Make a temporary randomly named file given a filename 'template'.
+
+'template' is a string giving the format of the generated filename and
+should include one or more capital Xs.  The Xs are replaced with random
+alphanumeric characters.  There should be no path separators.
+
+'remove_when' is one of:
+
+* ALLEGRO_MAKE_TEMP_REMOVE_NEVER - don't remove the temporary file
+    automatically.
+
+* ALLEGRO_MAKE_TEMP_REMOVE_ON_OPEN - remove just after opening
+    to create an anonymous temporary file. This may not be supported
+    on all file systems.
+
+* ALLEGRO_MAKE_TEMP_REMOVE_ON_CLOSE - remove the file when al_fclose()
+    is called on the file.
+
+If 'ret_path' is not NULL, the address it points to will be set
+to point to a new path structure with the name of the temporary file.
+If ALLEGRO_MAKE_TEMP_REMOVE_ON_OPEN is used it will be set to NULL.
+
+Returns the opened ALLEGRO_FILE on success, NULL on failure.
+
+## API: ALLEGRO_MAKE_TEMP_REMOVE
+
+File removal options for [al_make_temp_file].
+
+* ALLEGRO_MAKE_TEMP_REMOVE_NEVER
+* ALLEGRO_MAKE_TEMP_REMOVE_ON_OPEN
+* ALLEGRO_MAKE_TEMP_REMOVE_ON_CLOSE
+
 # Alternative file streams
 
 By default, the Allegro file I/O routines use the C library I/O routines,

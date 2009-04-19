@@ -46,6 +46,15 @@ enum {
 };
 
 
+/* Enum: ALLEGRO_MAKE_TEMP_REMOVE
+ */
+enum {
+   ALLEGRO_MAKE_TEMP_REMOVE_NEVER = 0,
+   ALLEGRO_MAKE_TEMP_REMOVE_ON_OPEN = 1,
+   ALLEGRO_MAKE_TEMP_REMOVE_ON_CLOSE = 2
+};
+
+
 /* The basic operations. */
 AL_FUNC(ALLEGRO_FILE*, al_fopen, (const char *path, const char *mode));
 AL_FUNC(void, al_fclose, (ALLEGRO_FILE *f));
@@ -75,6 +84,8 @@ AL_FUNC(int, al_fputs, (ALLEGRO_FILE *f, const char *p));
 
 /* Specific to stdio backend. */
 AL_FUNC(ALLEGRO_FILE*, al_fopen_fd, (int fd, const char *mode));
+AL_FUNC(ALLEGRO_FILE*, al_make_temp_file, (const char *tmpl, int remove_when,
+      ALLEGRO_PATH **ret_path));
 
 /* Thread-local state. */
 AL_FUNC(const ALLEGRO_FILE_INTERFACE *, al_get_new_file_interface, (void));

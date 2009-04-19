@@ -9,14 +9,6 @@ There are no user accessible member variables.
 
 # Enumerations
 
-## API: ALLEGRO_FS_MKTEMP_REMOVE
-
-al_fs_mktemp remove modes:
-
-* ALLEGRO_FS_MKTEMP_REMOVE_NEVER - Don't automatically remove
-* ALLEGRO_FS_MKTEMP_REMOVE_NOW - Remove on open, makes file "hidden"
-* ALLEGRO_FS_MKTEMP_REMOVE_ON_CLOSE - Remove on close
-
 ## API: ALLEGRO_FILE_MODE
 
 Filesystem modes/types
@@ -97,21 +89,6 @@ Creates a new directory on disk given the path 'path'.
 Returns false on error and fills in errno to indicate the error.
 
 See also: [al_get_errno]
-
-## API: al_mktemp
-
-Make a temporary randomly named file given a filename 'template' and 'ulink'
-flags.
-
-'template' is a string giving the format of the generated filename and
-should include one or more capital Xs.  The Xs are replaced with random
-alphanumeric chars.
-
-'ulink' is one of:
-
-* ALLEGRO_FS_MKTEMP_REMOVE_NOW - remove now to create an anonymous temporary file
-* ALLEGRO_FS_MKTEMP_REMOVE_ON_CLOSE - remove when entry is closed
-* ALLEGRO_FS_MKTEMP_REMOVE_NEVER - don't remove
 
 ## API: al_open_entry
 
