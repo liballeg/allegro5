@@ -219,28 +219,6 @@ void _al_osx_mouse_was_installed(BOOL install) {
 	return YES;
 }
 
-/* drawRect:
-* Called when OS X wants the view to be redrawn
-*/
--(void) drawRect: (NSRect) rc
-{
-	// To do: pass on notifications to the display queue
-   ALLEGRO_DISPLAY_OSX_WIN* dpy =  (ALLEGRO_DISPLAY_OSX_WIN*) dpy_ptr;
-   ALLEGRO_EVENT_SOURCE *es = &dpy->parent.es;
-   _al_event_source_lock(es);
-   if (_al_event_source_needs_to_generate_event(es)) {
-      ALLEGRO_EVENT event;
-      event.display.type = ALLEGRO_EVENT_DISPLAY_EXPOSE;
-      event.display.timestamp = al_current_time();
-      event.display.x = rc.origin.x;
-      event.display.y = rc.origin.y;
-      event.display.width = rc.size.width;
-      event.display.height = rc.size.height;
-      _al_event_source_emit_event(es, &event);
-   }
-   _al_event_source_unlock(es);
-}
-
 /* Keyboard event handler */
 -(void) keyDown:(NSEvent*) event
 {
