@@ -73,7 +73,7 @@ int64_t al_ftell(ALLEGRO_FILE *f)
 bool al_fseek(ALLEGRO_FILE *f, int64_t offset, int whence)
 {
    ASSERT(f);
-   ASSERT(offset >= 0);
+   /* offset can be negative */
    ASSERT(
       whence == ALLEGRO_SEEK_SET ||
       whence == ALLEGRO_SEEK_CUR ||
