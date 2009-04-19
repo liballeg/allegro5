@@ -292,6 +292,7 @@ set(ALLEGRO_INCLUDE_ALLEGRO_FILES
     include/allegro5/display_new.h
     include/allegro5/error.h
     include/allegro5/events.h
+    include/allegro5/file.h
     include/allegro5/fixed.h
     include/allegro5/fmaths.h
     include/allegro5/fshook.h
