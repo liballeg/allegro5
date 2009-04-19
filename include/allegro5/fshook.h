@@ -44,15 +44,6 @@ struct ALLEGRO_FS_ENTRY {
 };
 #endif /* ALLEGRO_LIB_BUILD */
 
-/* Enum: ALLEGRO_FS_MKTEMP_REMOVE
- */
-enum {
-   ALLEGRO_FS_MKTEMP_REMOVE_NEVER = 0,
-   ALLEGRO_FS_MKTEMP_REMOVE_NOW = 1,
-   ALLEGRO_FS_MKTEMP_REMOVE_ON_CLOSE = 2,
-};
-
-// TODO: rename to ALLEGRO_FILE_MODE_*/ALLEGRO_FS_TYPE_*
 /* Enum: ALLEGRO_FILE_MODE
  */
 enum {
@@ -70,10 +61,8 @@ enum {
 
 AL_FUNC(ALLEGRO_FS_ENTRY*, al_create_entry, (const char *path));
 AL_FUNC(void, al_destroy_entry, (ALLEGRO_FS_ENTRY *handle));
-AL_FUNC(bool, al_open_entry, (ALLEGRO_FS_ENTRY *handle, const char *mode));
+AL_FUNC(bool, al_open_entry, (ALLEGRO_FS_ENTRY *handle));
 AL_FUNC(void, al_close_entry, (ALLEGRO_FS_ENTRY *handle));
-
-AL_FUNC(ALLEGRO_FS_ENTRY*, al_mktemp, (const char *tmpl, uint32_t ulink));
 
 AL_FUNC(ALLEGRO_PATH *, al_get_entry_name, (ALLEGRO_FS_ENTRY *fp));
 

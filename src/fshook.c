@@ -52,12 +52,11 @@ void al_destroy_entry(ALLEGRO_FS_ENTRY *handle)
 
 /* Function: al_open_entry
  */
-bool al_open_entry(ALLEGRO_FS_ENTRY *handle, const char *mode)
+bool al_open_entry(ALLEGRO_FS_ENTRY *handle)
 {
    ASSERT(handle != NULL);
-   ASSERT(mode != NULL);
 
-   return _al_fs_hook_open(handle, mode);
+   return _al_fs_hook_open(handle);
 }
 
 
@@ -208,21 +207,6 @@ bool al_is_file(ALLEGRO_FS_ENTRY *e)
 {
    ASSERT(e != NULL);
    return al_get_entry_mode(e) & ALLEGRO_FILEMODE_ISFILE;
-}
-
-
-/* Function: al_mktemp
- */
-ALLEGRO_FS_ENTRY *al_mktemp(const char *template, uint32_t ulink)
-{
-   ASSERT(template != NULL);
-   ASSERT(
-      ulink == ALLEGRO_FS_MKTEMP_REMOVE_NOW ||
-      ulink == ALLEGRO_FS_MKTEMP_REMOVE_ON_CLOSE ||
-      ulink == ALLEGRO_FS_MKTEMP_REMOVE_NEVER
-   );
-
-   return _al_fs_hook_mktemp(template, ulink);
 }
 
 
