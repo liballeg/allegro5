@@ -1,14 +1,29 @@
+/*         ______   ___    ___
+ *        /\  _  \ /\_ \  /\_ \
+ *        \ \ \L\ \\//\ \ \//\ \      __     __   _ __   ___
+ *         \ \  __ \ \ \ \  \ \ \   /'__`\ /'_ `\/\`'__\/ __`\
+ *          \ \ \/\ \ \_\ \_ \_\ \_/\  __//\ \L\ \ \ \//\ \L\ \
+ *           \ \_\ \_\/\____\/\____\ \____\ \____ \ \_\\ \____/
+ *            \/_/\/_/\/____/\/____/\/____/\/___L\ \/_/ \/___/
+ *                                           /\____/
+ *                                           \_/__/
+ *
+ *      File I/O.
+ *
+ *      See LICENSE.txt for copyright information.
+ */
+
 #include <stdio.h>
 #include "allegro5/allegro5.h"
 #include "allegro5/internal/aintern_file.h"
 #include "allegro5/internal/aintern_memory.h"
 
 
-typedef struct ALLEGRO_FILE_STDIO ALLEGRO_FILE_STDIO;
-struct ALLEGRO_FILE_STDIO {
+typedef struct ALLEGRO_FILE_STDIO
+{
    ALLEGRO_FILE file;   /* must be first */
    FILE *fp;
-};
+} ALLEGRO_FILE_STDIO;
 
 
 /* forward declaration */
@@ -21,6 +36,31 @@ static FILE *get_fp(ALLEGRO_FILE *f)
       return ((ALLEGRO_FILE_STDIO *)f)->fp;
    else
       return NULL;
+}
+
+
+/* Function: al_fopen_fd
+ */
+ALLEGRO_FILE *al_fopen_fd(int fd, const char *mode)
+{
+   ALLEGRO_FILE_STDIO *f;
+   FILE *fp;
+
+   /* The fd should remain open if this function fails in either way. */
+
+   f = _AL_MALLOC(sizeof(*f));
+   if (!f)
+      return NULL;
+
+   fp = fdopen(fd, mode);
+   if (!fp) {
+      _AL_FREE(f);
+      return NULL;
+   }
+
+   f->file.vtable = &_al_file_interface_stdio;
+   f->fp = fp;
+   return (ALLEGRO_FILE *)f;
 }
 
 
