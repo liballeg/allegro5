@@ -33,7 +33,8 @@ enum ALLEGRO_STATE_FLAGS {
     ALLEGRO_STATE_DISPLAY                = 0x0004,
     ALLEGRO_STATE_TARGET_BITMAP          = 0x0008,
     ALLEGRO_STATE_BLENDER                = 0x0010,
-    
+    ALLEGRO_STATE_NEW_FILE_INTERFACE     = 0x0020,
+
     ALLEGRO_STATE_BITMAP                 = ALLEGRO_STATE_TARGET_BITMAP +\
                                            ALLEGRO_STATE_NEW_BITMAP_PARAMETERS,
 

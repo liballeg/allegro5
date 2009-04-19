@@ -3,17 +3,16 @@
 #include "allegro5/internal/aintern_file.h"
 
 
-static const ALLEGRO_FILE_INTERFACE *fi_drv = &_al_file_interface_stdio;
-
-
 /* Function: al_fopen
  */
 ALLEGRO_FILE *al_fopen(const char *path, const char *mode)
 {
-   ASSERT(path != NULL);
-   ASSERT(mode != NULL);
+   const ALLEGRO_FILE_INTERFACE *drv = al_get_new_file_interface();
+   ASSERT(path);
+   ASSERT(mode);
+   ASSERT(drv);
 
-   return fi_drv->fi_fopen(path, mode);
+   return drv->fi_fopen(path, mode);
 }
 
 

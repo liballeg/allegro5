@@ -29,6 +29,7 @@
 #include "allegro5/internal/aintern.h"
 #include "allegro5/internal/aintern_bitmap.h"
 #include "allegro5/internal/aintern_display.h"
+#include "allegro5/internal/aintern_file.h"
 #include "allegro5/internal/aintern_memory.h"
 
 
@@ -53,6 +54,8 @@ typedef struct thread_local_state {
    ALLEGRO_COLOR blend_color;
    //FIXME: Might need this again for optimization purposes.
    //ALLEGRO_MEMORY_BLENDER memory_blender;
+   /* Files */
+   const ALLEGRO_FILE_INTERFACE *new_file_interface;
    /* Error code */
    int allegro_errno;
 } thread_local_state;
@@ -217,6 +220,7 @@ static THREAD_LOCAL thread_local_state _tls = {
    ALLEGRO_ONE,                           /* blend_alpha_dest */
    { 1.0f, 1.0f, 1.0f, 1.0f },            /* blend_color  */
    //_al_blender_alpha_inverse_alpha,       /* memory_blender */
+   &_al_file_interface_stdio,             /* file_interface */
    0                                      /* errno */
 };
 
@@ -468,7 +472,7 @@ void al_store_state(ALLEGRO_STATE *state, int flags)
    if (flags & ALLEGRO_STATE_TARGET_BITMAP) {
       _STORE(target_bitmap);
    }
-   
+
    if (flags & ALLEGRO_STATE_BLENDER) {
       _STORE(blend_source);
       _STORE(blend_dest);
@@ -477,7 +481,11 @@ void al_store_state(ALLEGRO_STATE *state, int flags)
       _STORE(blend_color);
       //_STORE(memory_blender);
    }
-};
+
+   if (flags & ALLEGRO_STATE_NEW_FILE_INTERFACE) {
+      _STORE(new_file_interface);
+   }
+}
 #undef _STORE
 
 
@@ -525,7 +533,11 @@ void al_restore_state(ALLEGRO_STATE const *state)
       _STORE(blend_color);
       //_STORE(memory_blender);
    }
-};
+
+   if (flags & ALLEGRO_STATE_NEW_FILE_INTERFACE) {
+      _STORE(new_file_interface);
+   }
+}
 #undef _STORE
 
 
@@ -703,6 +715,33 @@ ALLEGRO_MEMORY_BLENDER _al_get_memory_blender()
 #endif
 
 
+
+/* Function: al_get_new_file_interface
+ */
+const ALLEGRO_FILE_INTERFACE *al_get_new_file_interface(void)
+{
+   thread_local_state *tls;
+
+   if ((tls = tls_get()) == NULL)
+      return NULL;
+   return tls->new_file_interface;
+}
+
+
+
+/* Function: al_set_new_file_interface
+ */
+void al_set_new_file_interface(const ALLEGRO_FILE_INTERFACE *file_interface)
+{
+   thread_local_state *tls;
+
+   if ((tls = tls_get()) == NULL)
+      return;
+   tls->new_file_interface = file_interface;
+}
+
+
+
 /* Function: al_get_errno
  */
 int al_get_errno(void)
@@ -726,3 +765,6 @@ void al_set_errno(int errnum)
       return;
    tls->allegro_errno = errnum;
 }
+
+
+/* vim: set sts=3 sw=3 et: */

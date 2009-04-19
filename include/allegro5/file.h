@@ -13,6 +13,30 @@
 typedef struct ALLEGRO_FILE ALLEGRO_FILE;
 
 
+/* Type: ALLEGRO_FILE_INTERFACE
+ */
+typedef struct ALLEGRO_FILE_INTERFACE
+{
+   AL_METHOD(ALLEGRO_FILE*, fi_fopen, (const char *path, const char *mode));
+   AL_METHOD(void,    fi_fclose, (ALLEGRO_FILE *handle));
+   AL_METHOD(size_t,  fi_fread, (ALLEGRO_FILE *f, void *ptr, size_t size));
+   AL_METHOD(size_t,  fi_fwrite, (ALLEGRO_FILE *f, const void *ptr, size_t size));
+   AL_METHOD(bool,    fi_fflush, (ALLEGRO_FILE *f));
+   AL_METHOD(int64_t, fi_ftell, (ALLEGRO_FILE *f));
+   AL_METHOD(bool,    fi_fseek, (ALLEGRO_FILE *f, int64_t offset, int whence));
+   AL_METHOD(bool,    fi_feof, (ALLEGRO_FILE *f));
+   AL_METHOD(bool,    fi_ferror, (ALLEGRO_FILE *f));
+   AL_METHOD(int,     fi_fungetc, (ALLEGRO_FILE *f, int c));
+   AL_METHOD(off_t,   fi_fsize, (ALLEGRO_FILE *f));
+} ALLEGRO_FILE_INTERFACE;
+
+
+struct ALLEGRO_FILE
+{
+   const ALLEGRO_FILE_INTERFACE *vtable;
+};
+
+
 /* Enum: ALLEGRO_SEEK
  */
 enum {
@@ -53,6 +77,11 @@ AL_FUNC(char*, al_fgets, (ALLEGRO_FILE *f, char *p, size_t max));
 AL_FUNC(int, al_fputs, (ALLEGRO_FILE *f, const char *p));
 
 AL_FUNC(int64_t, al_fsize, (ALLEGRO_FILE *f));
+
+/* Thread-local state. */
+AL_FUNC(const ALLEGRO_FILE_INTERFACE *, al_get_new_file_interface, (void));
+AL_FUNC(void, al_set_new_file_interface, (const ALLEGRO_FILE_INTERFACE *
+      file_interface));
 
 
 #ifdef __cplusplus
