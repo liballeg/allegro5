@@ -58,6 +58,7 @@ endif(SUPPORT_KCM_AUDIO)
 if(SUPPORT_ACODEC)
     example(ex_acodec ${ACODEC_LINK_WITH})
     example(ex_acodec_multi ${ACODEC_LINK_WITH})
+    example(ex_kcm_direct ${ACODEC_LINK_WITH})
     example(ex_audio_props ex_audio_props.cpp nihgui.cpp ${ACODEC_LINK_WITH}
         ${FONT_LINK_WITH} ${PRIMITIVES_LINK_WITH})
     example(ex_audio_simple ${ACODEC_LINK_WITH})

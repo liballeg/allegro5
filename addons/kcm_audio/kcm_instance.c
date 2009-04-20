@@ -511,11 +511,6 @@ int al_set_sample_instance_enum(ALLEGRO_SAMPLE_INSTANCE *spl,
                "Invalid loop mode");
             return 1;
          }
-         if (spl->parent.u.ptr && spl->parent.is_voice) {
-            _al_set_error(ALLEGRO_GENERIC_ERROR,
-               "Unable to set voice loop mode");
-            return 1;
-         }
 
          if (spl->parent.u.ptr)
             al_lock_mutex(spl->mutex);

@@ -510,7 +510,7 @@ int al_set_voice_bool(ALLEGRO_VOICE *voice,
                   TRACE("Voice is already playing\n");
                else
                   TRACE("Voice is already stopped\n");
-               return 1;
+               return 0;
             }
             
             if (val)
