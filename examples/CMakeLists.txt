@@ -135,6 +135,11 @@ if(SUPPORT_NATIVE_DIALOG AND SUPPORT_FONT AND SUPPORT_COLOR)
         ${FONT_LINK_WITH} ${COLOR_LINK_WITH})
 endif()
 
+find_package(CURL)
+if(CURL_FOUND AND SUPPORT_IIO)
+    example(ex_curl ${CURL_LIBRARIES} ${IIO_LINK_WITH})
+endif(CURL_FOUND AND SUPPORT_IIO)
+
 copy_data_dir_to_build(copy_example_data data)
 
 #-----------------------------------------------------------------------------#
