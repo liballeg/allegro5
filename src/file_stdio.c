@@ -64,11 +64,14 @@ ALLEGRO_FILE *al_fopen_fd(int fd, const char *mode)
    /* The fd should remain open if this function fails in either way. */
 
    f = _AL_MALLOC(sizeof(*f));
-   if (!f)
+   if (!f) {
+      al_set_errno(ENOMEM);
       return NULL;
+   }
 
    fp = fdopen(fd, mode);
    if (!fp) {
+      al_set_errno(errno);
       _AL_FREE(f);
       return NULL;
    }
@@ -86,11 +89,14 @@ static ALLEGRO_FILE *file_stdio_fopen(const char *path, const char *mode)
    ALLEGRO_FILE_STDIO *f;
 
    fp = fopen(path, mode);
-   if (!fp)
+   if (!fp) {
+      al_set_errno(ENOMEM);
       return NULL;
+   }
 
    f = _AL_MALLOC(sizeof(*f));
    if (!f) {
+      al_set_errno(ENOMEM);
       fclose(fp);
       return NULL;
    }
@@ -106,18 +112,16 @@ static void file_stdio_fclose(ALLEGRO_FILE *f)
 {
    ALLEGRO_FILE_STDIO *fstd = (ALLEGRO_FILE_STDIO *)f;
 
-   if (f) {
-      fclose(get_fp(f));
+   fclose(get_fp(f));
 
-      /* A temporary file may need to be automatically removed. */
-      if (fstd->remove_on_close) {
-         unlink(al_path_to_string(fstd->remove_on_close,
-            ALLEGRO_NATIVE_PATH_SEP));
-         al_path_free(fstd->remove_on_close);
-      }
-
-      _AL_FREE(f);
+   /* A temporary file may need to be automatically removed. */
+   if (fstd->remove_on_close) {
+      unlink(al_path_to_string(fstd->remove_on_close,
+         ALLEGRO_NATIVE_PATH_SEP));
+      al_path_free(fstd->remove_on_close);
    }
+
+   _AL_FREE(f);
 }
 
 
@@ -219,7 +223,13 @@ static bool file_stdio_ferror(ALLEGRO_FILE *f)
 
 static int file_stdio_fungetc(ALLEGRO_FILE *f, int c)
 {
-   return ungetc(c, get_fp(f));
+   int rc = ungetc(c, get_fp(f));
+
+   if (rc == EOF) {
+      al_set_errno(errno);
+   }
+
+   return rc;
 }
 
 
@@ -230,19 +240,24 @@ static off_t file_stdio_fsize(ALLEGRO_FILE *f)
 
    old_pos = file_stdio_ftell(f);
    if (old_pos == -1)
-      return -1;
+      goto Error;
 
    if (!file_stdio_fseek(f, 0, ALLEGRO_SEEK_END))
-      return -1;
+      goto Error;
 
    new_pos = file_stdio_ftell(f);
    if (new_pos == -1)
-      return -1;
+      goto Error;
 
    if (!file_stdio_fseek(f, old_pos, ALLEGRO_SEEK_SET))
-      return -1;
+      goto Error;
 
    return new_pos;
+
+Error:
+
+   al_set_errno(errno);
+   return -1;
 }
 
 
@@ -330,12 +345,14 @@ ALLEGRO_FILE *al_make_temp_file(const char *template, int remove_when,
    }
 
    if (fd == -1) {
+      al_set_errno(errno);
       al_path_free(path);
       return NULL;
    }
 
    f = al_fopen_fd(fd, "rb+");
    if (!f) {
+      al_set_errno(errno);
       close(fd);
       unlink(al_path_to_string(path, ALLEGRO_NATIVE_PATH_SEP));
       al_path_free(path);

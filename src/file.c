@@ -12,7 +12,10 @@ ALLEGRO_FILE *al_fopen(const char *path, const char *mode)
    ASSERT(mode);
    ASSERT(drv);
 
-   return drv->fi_fopen(path, mode);
+   if (drv->fi_fopen)
+      return drv->fi_fopen(path, mode);
+   else
+      return NULL;
 }
 
 

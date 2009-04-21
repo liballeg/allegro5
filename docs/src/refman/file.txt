@@ -111,6 +111,8 @@ See also [al_get_errno]
 
 ## API: al_fsize
 
+Return the size of the file, if it can be determined, or -1 otherwise.
+
 ## API: al_fgetc
 
 Read and return next byte in entry 'f'.
