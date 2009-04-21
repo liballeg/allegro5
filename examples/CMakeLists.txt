@@ -6,6 +6,7 @@ include_directories(
     ../addons/acodec
     ../addons/color
     ../addons/memfile
+    ../addons/physfs
     ../addons/primitives
     ../addons/native_dialog
     )
@@ -120,6 +121,10 @@ endif(SUPPORT_OPENGL AND SUPPORT_FONT)
 if(SUPPORT_MEMFILE)
    example(ex_memfile ${MEMFILE_LINK_WITH})
 endif(SUPPORT_MEMFILE)
+
+if(SUPPORT_PHYSFS AND SUPPORT_IIO)
+   example(ex_physfs ${PHYSFS_LINK_WITH} ${PHYSFS_LIBRARIES} ${IIO_LINK_WITH})
+endif(SUPPORT_PHYSFS AND SUPPORT_IIO)
 
 if(SUPPORT_PRIMITIVES AND SUPPORT_TTF AND SUPPORT_ACODEC)
     example(ex_stream_seek ${PRIMITIVES_LINK_WITH} ${ACODEC_LINK_WITH} ${TTF_LINK_WITH})

@@ -21,6 +21,7 @@ set(PAGES
     native_dialog
     opengl
     path
+    physfs
     primitives
     state
     system

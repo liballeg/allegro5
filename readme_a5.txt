@@ -188,9 +188,13 @@ The libraries are:
 - Ogg Vorbis
 - FLAC
 - libsndfile, for loading .wav and other sample formats
-- OpenAL (only really needed on Mac OS X due to missing native driver)
+  (PCM .wav files are supported without requiring libsndfile)
+- OpenAL (required for sound on Mac OS X but usable elsewhere as well)
+- PhysicsFS
 
 On Windows, OpenGL is also optional.
+
+One unimportant example program uses libcurl.
 
 
 

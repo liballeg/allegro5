@@ -85,6 +85,7 @@ option(WANT_PNG "Enable PNG support in IIO" on)
 option(WANT_TTF "Enable TTF addon" on)
 option(WANT_COLOR "Enable color addon" on)
 option(WANT_MEMFILE "Enable memfile addon" on)
+option(WANT_PHYSFS "Enable PhysicsFS addon" on)
 option(WANT_PRIMITIVES "Enable primitives addon" on)
 option(WANT_NATIVE_DIALOG "Enable native dialog addon" on)
 
@@ -821,6 +822,7 @@ set(PKG_CONFIG_FILES
     a5_font
     a5_iio
     a5_memfile
+    a5_physfs
     a5_primitives
     a5_ttf
     kcm_audio

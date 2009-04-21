@@ -32,5 +32,6 @@
 * [Font addons](font.html)
 * [Image I/O addon](iio.html)
 * [Native dialogs addon](native_dialog.html)
+* [PhysicsFS addon](physfs.html)
 * [Primitives addon](primitives.html)
 
