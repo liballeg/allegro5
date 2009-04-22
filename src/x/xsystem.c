@@ -425,6 +425,8 @@ static int xglx_get_num_display_formats(void)
 static int xglx_get_display_format_option(int i, int option)
 {
    ALLEGRO_SYSTEM_XGLX *system = (void *)al_system_driver();
+   ASSERT(i < system->visuals_count);
+   if (!system->visuals[i]) return 0;
    return system->visuals[i]->settings[option];
 }
 
