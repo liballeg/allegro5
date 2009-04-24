@@ -12,6 +12,7 @@ include_directories(
     )
 
 if(SUPPORT_FONT)
+    example(ex_display_options ${FONT_LINK_WITH})
     example(ex_bitmap_flip ${FONT_LINK_WITH})
     example(ex_bitmap_target ${FONT_LINK_WITH} ${PRIMITIVES_LINK_WITH})
     example(ex_blend ${FONT_LINK_WITH} ${PRIMITIVES_LINK_WITH})
