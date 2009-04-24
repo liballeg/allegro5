@@ -88,8 +88,8 @@ static ALLEGRO_BITMAP *really_load_png(png_structp png_ptr, png_infop info_ptr)
    int number_passes, pass;
    PalEntry pal[256];
    ALLEGRO_LOCKED_REGION *lock;
-   ALLEGRO_STATE backup;
    unsigned char *buf;
+   unsigned char *rgba;
 
    ASSERT(png_ptr && info_ptr);
 
@@ -187,62 +187,62 @@ static ALLEGRO_BITMAP *really_load_png(png_structp png_ptr, png_infop info_ptr)
 
    buf = malloc(((bpp + 7) / 8) * width);
 
-   lock = al_lock_bitmap(bmp, ALLEGRO_PIXEL_FORMAT_ANY, ALLEGRO_LOCK_WRITEONLY);
-   al_store_state(&backup, ALLEGRO_STATE_TARGET_BITMAP);
-   al_set_target_bitmap(bmp);
+   lock = al_lock_bitmap(bmp,
+      bpp == 32 ? ALLEGRO_PIXEL_FORMAT_ABGR_8888
+      : ALLEGRO_PIXEL_FORMAT_BGR_888, ALLEGRO_LOCK_WRITEONLY);
 
    /* Read the image, one line at a line (easier to debug!) */
    for (pass = 0; pass < number_passes; pass++) {
       png_uint_32 y;
       unsigned int i;
       unsigned char *ptr;
+      rgba = lock->data;
       for (y = 0; y < height; y++) {
+         unsigned char *rgba_row_start = rgba;
          png_read_row(png_ptr, buf, NULL);
          ptr = buf;
          if (bpp == 8 && (color_type & PNG_COLOR_MASK_PALETTE)) {
             for (i = 0; i < width; i++) {
                int pix = ptr[0];
-               ALLEGRO_COLOR c;
                ptr++;
-               c = al_map_rgb(pal[pix].r, pal[pix].g, pal[pix].b);
-               al_put_pixel(i, y, c);
+               *(rgba++) = pal[pix].r;
+               *(rgba++) = pal[pix].g;
+               *(rgba++) = pal[pix].b;
             }
          }
          else if (bpp == 8) {
             for (i = 0; i < width; i++) {
                int pix = ptr[0];
-               ALLEGRO_COLOR c;
                ptr++;
-               c = al_map_rgb(pix, pix, pix);
-               al_put_pixel(i, y, c);
+               *(rgba++) = pix;
+               *(rgba++) = pix;
+               *(rgba++) = pix;
             }
          }
          else if (bpp == 24) {
             for (i = 0; i < width; i++) {
                uint32_t pix = READ3BYTES(ptr);
-               ALLEGRO_COLOR c;
                ptr += 3;
-               c = al_map_rgb(pix & 0xff,
-                              (pix >> 8) & 0xff, (pix >> 16) & 0xff);
-               al_put_pixel(i, y, c);
+               *(rgba++) = pix & 0xff;
+               *(rgba++) = (pix >> 8) & 0xff;
+               *(rgba++) = (pix >> 16) & 0xff;
             }
          }
          else {
             for (i = 0; i < width; i++) {
                uint32_t pix = bmp_read32(ptr);
-               ALLEGRO_COLOR c;
                ptr += 4;
-               c = al_map_rgba(pix & 0xff,
-                               (pix >> 8) & 0xff,
-                               (pix >> 16) & 0xff, (pix >> 24) & 0xff);
-               al_put_pixel(i, y, c);
+               *(rgba++) = pix & 0xff;
+               *(rgba++) = (pix >> 8) & 0xff;
+               *(rgba++) = (pix >> 16) & 0xff;
+               *(rgba++) = (pix >> 24) & 0xff;
             }
          }
+         rgba = rgba_row_start + lock->pitch;
       }
    }
 
    al_unlock_bitmap(bmp);
-   al_restore_state(&backup);
 
    free(buf);
 
