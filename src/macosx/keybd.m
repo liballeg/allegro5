@@ -28,11 +28,37 @@
 #error Something is wrong with the makefile
 #endif
 
+/* Dictionary to translate OS X modifier codes to Allegro modifier codes
+ * and key codes.
+ */
+static unsigned const int mod_info[5][3] =
+ { { NSAlphaShiftKeyMask, ALLEGRO_KEYMOD_CAPSLOCK, ALLEGRO_KEY_CAPSLOCK },
+	{ NSShiftKeyMask,      ALLEGRO_KEYMOD_SHIFT,    ALLEGRO_KEY_LSHIFT   },
+	{ NSControlKeyMask,    ALLEGRO_KEYMOD_CTRL,     ALLEGRO_KEY_LCTRL },
+	{ NSAlternateKeyMask,  ALLEGRO_KEYMOD_ALT,      ALLEGRO_KEY_ALT      },
+	{ NSCommandKeyMask,    ALLEGRO_KEYMOD_COMMAND,  ALLEGRO_KEY_COMMAND  } };
+
 static bool osx_keyboard_init(void);
 static void osx_keyboard_exit(void);
 static ALLEGRO_KEYBOARD* osx_get_keyboard(void);
 static ALLEGRO_KEYBOARD keyboard;
 static ALLEGRO_KEYBOARD_STATE kbdstate;
+
+/* translate_modifier_flags:
+ *  Translate a bitmask of OS X modifier flags to Allegro's modifier flags
+ */
+static int translate_modifier_flags(int osx_mods)
+{
+   int allegro_mods = 0;
+   int i;
+	
+	for (i = 0; i < 5; i++) {
+		if (osx_mods & mod_info[i][0])
+         allegro_mods |= mod_info[i][1];
+   }
+
+   return allegro_mods;
+}
 
 /* _al_osx_switch_keyboard_focus:
  *  Handle a focus switch event.
@@ -140,8 +166,6 @@ static void get_state(ALLEGRO_KEYBOARD_STATE *ret_state)
    _al_event_source_unlock(&keyboard.es);
 }
 
-static unsigned int old_mods = 0;
-
 ALLEGRO_KEYBOARD_DRIVER keyboard_macosx =
 {
 	KEYBOARD_MACOSX, //int  id;
@@ -178,15 +202,19 @@ void _al_osx_keyboard_handler(int pressed, NSEvent *event, ALLEGRO_DISPLAY* dpy)
 	const char upper_character = [[event characters] characterAtIndex: 0];
 	int scancode = mac_to_scancode[[event keyCode]];
 	int modifiers = [event modifierFlags];
+   int key_shifts;
+
+   /* Translate OS X modifier flags to Allegro modifier flags */
+   key_shifts = translate_modifier_flags(modifiers);
 	
 	if (pressed) {
-		if (modifiers & NSAlternateKeyMask)
-			_handle_key_press(dpy, 0, scancode, ALLEGRO_KEYMOD_ALT);
+		if (key_shifts & ALLEGRO_KEYMOD_ALT)
+			_handle_key_press(dpy, 0, scancode, key_shifts);
 		else {
-			if ((modifiers & NSControlKeyMask) && (isalpha(raw_character)))
-				_handle_key_press(dpy, tolower(raw_character) - 'a' + 1, scancode, ALLEGRO_KEYMOD_CTRL);
+			if ((key_shifts & ALLEGRO_KEYMOD_CTRL) && (isalpha(raw_character)))
+				_handle_key_press(dpy, tolower(raw_character) - 'a' + 1, scancode, key_shifts);
 			else
-				_handle_key_press(dpy, upper_character, scancode, 0);
+				_handle_key_press(dpy, upper_character, scancode, key_shifts);
 		}
 //		if ((three_finger_flag) &&
 //			(scancode == KEY_END) && (_key_shifts & (KB_CTRL_FLAG | KB_ALT_FLAG))) {
@@ -202,34 +230,32 @@ void _al_osx_keyboard_handler(int pressed, NSEvent *event, ALLEGRO_DISPLAY* dpy)
 /* osx_keyboard_modifier:
 *  Handles keyboard modifiers changes.
 */
-void _al_osx_keyboard_modifiers(unsigned int mods, ALLEGRO_DISPLAY* dpy)
+void _al_osx_keyboard_modifiers(unsigned int modifiers, ALLEGRO_DISPLAY* dpy)
 {
-	unsigned const int mod_info[5][3] = { { NSAlphaShiftKeyMask, ALLEGRO_KEYMOD_CAPSLOCK, ALLEGRO_KEY_CAPSLOCK },
-	{ NSShiftKeyMask,      ALLEGRO_KEYMOD_SHIFT,    ALLEGRO_KEY_LSHIFT   },
-	{ NSControlKeyMask,    ALLEGRO_KEYMOD_CTRL,     ALLEGRO_KEY_LCTRL },
-	{ NSAlternateKeyMask,  ALLEGRO_KEYMOD_ALT,      ALLEGRO_KEY_ALT      },
-	{ NSCommandKeyMask,    ALLEGRO_KEYMOD_COMMAND,  ALLEGRO_KEY_COMMAND  } };
+   static unsigned int old_modifiers = 0;
 	int i, changed;
+   int key_shifts;
 	
+   /* Translate OS X modifier flags to Allegro modifier flags */
+   key_shifts = translate_modifier_flags(modifiers);
+
 	for (i = 0; i < 5; i++) {
-		changed = (mods ^ old_mods) & mod_info[i][0];
+		changed = (modifiers ^ old_modifiers) & mod_info[i][0];
 		if (changed) {
-			if (mods & mod_info[i][0]) {
-//				_key_shifts |= mod_info[i][1];
-				_handle_key_press(dpy, -1, mod_info[i][2], 0);
+			if (modifiers & mod_info[i][0]) {
+				_handle_key_press(dpy, -1, mod_info[i][2], key_shifts);
 				if (i == 0)
 					/* Caps lock requires special handling */
 					_handle_key_release(dpy, mod_info[0][2]);
 			}
 			else {
-//				_key_shifts &= ~mod_info[i][1];
 				if (i == 0)
-					_handle_key_press(dpy, -1, mod_info[0][2], 0);
+					_handle_key_press(dpy, -1, mod_info[0][2], key_shifts);
 				_handle_key_release(dpy, mod_info[i][2]);
 			}
 		}
 	}
-	old_mods = mods;
+	old_modifiers = modifiers;
 }
 
 
