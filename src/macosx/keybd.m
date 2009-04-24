@@ -169,7 +169,13 @@ ALLEGRO_KEYBOARD_DRIVER* _al_osx_get_keyboard_driver(void) {
 */
 void _al_osx_keyboard_handler(int pressed, NSEvent *event, ALLEGRO_DISPLAY* dpy)
 {
-	const char character = [[event charactersIgnoringModifiers] characterAtIndex: 0];
+   /* We need to distinguish between the raw character code (needed for
+    * ctrl and alt) and the "shifted" caharacter code when neither of these
+    * is held down. This is needed to get the correct behavior when caps
+    * lock is on (ie, letters are upper case)
+    */
+	const char raw_character = [[event charactersIgnoringModifiers] characterAtIndex: 0];
+	const char upper_character = [[event characters] characterAtIndex: 0];
 	int scancode = mac_to_scancode[[event keyCode]];
 	int modifiers = [event modifierFlags];
 	
@@ -177,10 +183,10 @@ void _al_osx_keyboard_handler(int pressed, NSEvent *event, ALLEGRO_DISPLAY* dpy)
 		if (modifiers & NSAlternateKeyMask)
 			_handle_key_press(dpy, 0, scancode, ALLEGRO_KEYMOD_ALT);
 		else {
-			if ((modifiers & NSControlKeyMask) && (isalpha(character)))
-				_handle_key_press(dpy, tolower(character) - 'a' + 1, scancode, ALLEGRO_KEYMOD_CTRL);
+			if ((modifiers & NSControlKeyMask) && (isalpha(raw_character)))
+				_handle_key_press(dpy, tolower(raw_character) - 'a' + 1, scancode, ALLEGRO_KEYMOD_CTRL);
 			else
-				_handle_key_press(dpy, character, scancode, 0);
+				_handle_key_press(dpy, upper_character, scancode, 0);
 		}
 //		if ((three_finger_flag) &&
 //			(scancode == KEY_END) && (_key_shifts & (KB_CTRL_FLAG | KB_ALT_FLAG))) {
