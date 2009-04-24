@@ -31,6 +31,15 @@ void _al_ogl_set_target_bitmap(ALLEGRO_DISPLAY *display, ALLEGRO_BITMAP *bitmap)
    ALLEGRO_BITMAP_OGL *ogl_bitmap = (void *)bitmap;
 
    if (!ogl_bitmap->is_backbuffer) {
+
+      /* When a bitmap is set as target bitmap, we try to create an FBO for it.
+       */
+      if (ogl_bitmap->fbo == 0 && !(bitmap->flags & ALLEGRO_FORCE_LOCKING)) {
+         if (al_get_opengl_extension_list()->ALLEGRO_GL_EXT_framebuffer_object) {
+            glGenFramebuffersEXT(1, &ogl_bitmap->fbo);
+         }
+      }
+
       if (ogl_bitmap->fbo) {
          /* Bind to the FBO. */
          ASSERT(ogl_disp->ogl_extras->extension_list->ALLEGRO_GL_EXT_framebuffer_object);

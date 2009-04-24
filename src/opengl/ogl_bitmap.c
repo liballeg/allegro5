@@ -441,17 +441,6 @@ static bool ogl_upload_bitmap(ALLEGRO_BITMAP *bitmap)
    ogl_bitmap->top = (float) h / ogl_bitmap->true_h;
    ogl_bitmap->bottom = 0;
 
-   /* We try to create a frame buffer object for each bitmap we upload to
-    * OpenGL.
-    * TODO: Probably it's better to just create it on demand, i.e. the first
-    * time drawing to it.
-    */
-   if (ogl_bitmap->fbo == 0 && !(bitmap->flags & ALLEGRO_FORCE_LOCKING)) {
-      if (al_get_opengl_extension_list()->ALLEGRO_GL_EXT_framebuffer_object) {
-         glGenFramebuffersEXT(1, &ogl_bitmap->fbo);
-      }
-   }
-
    return true;
 }
 
@@ -656,14 +645,14 @@ static void ogl_destroy_bitmap(ALLEGRO_BITMAP *bitmap)
       al_set_current_display(bitmap->display);
    }
 
-   if (ogl_bitmap->texture) {
-      glDeleteTextures(1, &ogl_bitmap->texture);
-      ogl_bitmap->texture = 0;
-   }
-
    if (ogl_bitmap->fbo) {
       glDeleteFramebuffersEXT(1, &ogl_bitmap->fbo);
       ogl_bitmap->fbo = 0;
+   }
+
+   if (ogl_bitmap->texture) {
+      glDeleteTextures(1, &ogl_bitmap->texture);
+      ogl_bitmap->texture = 0;
    }
 
    if (old_disp) {
