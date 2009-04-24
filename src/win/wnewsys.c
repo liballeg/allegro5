@@ -475,7 +475,7 @@ static int win_get_num_display_formats(void)
 
 #if defined ALLEGRO_CFG_OPENGL
    if (flags & ALLEGRO_OPENGL) {
-      _al_wgl_get_num_display_formats();
+      return _al_wgl_get_num_display_formats();
    }
 #endif
 #if defined ALLEGRO_CFG_D3D

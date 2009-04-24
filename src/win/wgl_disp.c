@@ -1570,15 +1570,10 @@ int _al_wgl_get_num_display_formats()
 {
    ALLEGRO_SYSTEM *system = (void *)al_system_driver();
    int eds_count = 0;
-   int i;
    bool force_old = false;
 
    if (cached_eds) {
-      for (i = 0; i < cached_eds_size; i++)
-         free(cached_eds[i]);
-      free(cached_eds);
-      cached_eds = NULL;
-      cached_eds_size = 0;
+      return cached_eds_size;
    }
 
    if (system->config) {

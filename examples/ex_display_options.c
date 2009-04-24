@@ -29,7 +29,7 @@ void display_formats(int n) {
       al_draw_text(font, 10, SCREEN_H * 0.2 - font_h*1, 0,
                       "   depth     sizes         shifts      size   size  samples  rated  buff    swap   tible");
       al_draw_text(font, 10, SCREEN_H * 0.2, 0, "----------------------------------------------------------------------------------------------");
-      sprintf(buffer, "%3i: %02i | R%i G%i B%i A%i | R%02i G%02i B%02i A%02i |  %2i  |  %i  |   %i  |  %3s  |  %3s  |   %i   |  %3s |",
+      sprintf(buffer, "%3i: %02i | R%i G%i B%i A%i | R%02i G%02i B%02i A%02i |  %2i  |  %i  |  %2i  |  %3s  |  %3s  |   %i   |  %3s |",
                       n + c,
                       al_get_display_format_option(n + c, ALLEGRO_COLOR_SIZE),
                       al_get_display_format_option(n + c, ALLEGRO_RED_SIZE),
