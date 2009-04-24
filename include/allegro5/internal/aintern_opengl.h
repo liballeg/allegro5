@@ -50,7 +50,7 @@ typedef struct ALLEGRO_OGL_EXTRAS
 
    ALLEGRO_BITMAP_OGL *backbuffer;
 
-   /* True if display resources are shred among displays. */
+   /* True if display resources are shared among displays. */
    bool is_shared;
 
 } ALLEGRO_OGL_EXTRAS;

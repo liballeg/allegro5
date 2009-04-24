@@ -20,6 +20,8 @@
 #include "allegro5/internal/aintern_memory.h"
 #include "allegro5/internal/aintern_opengl.h"
 
+ALLEGRO_DEBUG_CHANNEL("opengl")
+
 /* OpenGL does not support "locking", i.e. direct access to a memory
  * buffer with pixel data. Instead, the data can be copied from/to
  * client memory. Because OpenGL stores pixel data starting with the
@@ -93,6 +95,22 @@ static ALLEGRO_BITMAP_INTERFACE *glbmp_vt;
 
 
 #define SWAP(type, x, y) {type temp = x; x = y; y = temp;}
+
+#define ERR(e) case e: return #e;
+static char const *error_string(GLenum e)
+{
+   switch (e) {
+      ERR(GL_NO_ERROR)
+      ERR(GL_INVALID_ENUM)
+      ERR(GL_INVALID_VALUE)
+      ERR(GL_INVALID_OPERATION)
+      ERR(GL_STACK_OVERFLOW)
+      ERR(GL_STACK_UNDERFLOW)
+      ERR(GL_OUT_OF_MEMORY)
+   }
+   return "UNKNOWN";
+}
+#undef ERR
 
 static INLINE bool setup_blending(ALLEGRO_DISPLAY *ogl_disp)
 {
@@ -386,22 +404,26 @@ static bool ogl_upload_bitmap(ALLEGRO_BITMAP *bitmap)
    ALLEGRO_BITMAP_OGL *ogl_bitmap = (void *)bitmap;
    int w = bitmap->w;
    int h = bitmap->h;
+   GLenum e;
 
    if (ogl_bitmap->texture == 0) {
       glGenTextures(1, &ogl_bitmap->texture);
    }
    glBindTexture(GL_TEXTURE_2D, ogl_bitmap->texture);
-   if (glGetError()) {
-      TRACE("ogl_bitmap: glBindTexture for texture %d failed.\n",
-         ogl_bitmap->texture);
+   e = glGetError();
+   if (e) {
+      ALLEGRO_ERROR("glBindTexture for texture %d failed (%s).\n",
+         ogl_bitmap->texture, error_string(e));
    }
 
    glTexImage2D(GL_TEXTURE_2D, 0, glformats[bitmap->format][0],
       ogl_bitmap->true_w, ogl_bitmap->true_h, 0, glformats[bitmap->format][2],
       glformats[bitmap->format][1], bitmap->memory);
-   if (glGetError()) {
-      TRACE("ogl_bitmap: glTexImage2D for format %d, size %dx%d failed\n",
-         bitmap->format, ogl_bitmap->true_w, ogl_bitmap->true_h);
+   e = glGetError();
+   if (e) {
+      ALLEGRO_ERROR("glTexImage2D for format %d, size %dx%d failed (%s)\n",
+         bitmap->format, ogl_bitmap->true_w, ogl_bitmap->true_h,
+         error_string(e));
       glDeleteTextures(1, &ogl_bitmap->texture);
       ogl_bitmap->texture = 0;
       // FIXME: Should we convert it into a memory bitmap? Or if the size is
@@ -459,6 +481,7 @@ static ALLEGRO_LOCKED_REGION *ogl_lock_region(ALLEGRO_BITMAP *bitmap,
    int pitch = 0;
    ALLEGRO_DISPLAY *old_disp = NULL;
    GLint gl_y = bitmap->h - y - h;
+   GLenum e;
 
    if (format == ALLEGRO_PIXEL_FORMAT_ANY)
       format = bitmap->format;
@@ -482,9 +505,10 @@ static ALLEGRO_LOCKED_REGION *ogl_lock_region(ALLEGRO_BITMAP *bitmap,
             glformats[format][2],
             glformats[format][1],
             ogl_bitmap->lock_buffer);
-         if (glGetError()) {
-            TRACE("ogl_bitmap: glReadPixels for format %d failed.\n",
-               format);
+         e = glGetError();
+         if (e) {
+            ALLEGRO_ERROR("glReadPixels for format %d failed (%s).\n",
+               format, error_string(e));
          }
       }
       bitmap->locked_region.data = ogl_bitmap->lock_buffer +
@@ -511,9 +535,10 @@ static ALLEGRO_LOCKED_REGION *ogl_lock_region(ALLEGRO_BITMAP *bitmap,
          glBindTexture(GL_TEXTURE_2D, ogl_bitmap->texture);
          glGetTexImage(GL_TEXTURE_2D, 0, glformats[format][2],
             glformats[format][1], ogl_bitmap->lock_buffer);
-         if (glGetError()) {
-            TRACE("ogl_bitmap: glGetTexImage for format %d failed.\n",
-               format);
+         e = glGetError();
+         if (e) {
+            ALLEGRO_ERROR("glGetTexImage for format %d failed (%s).\n",
+               format, error_string(e));
          }
 
          bitmap->locked_region.data = ogl_bitmap->lock_buffer +
@@ -539,6 +564,7 @@ static void ogl_unlock_region(ALLEGRO_BITMAP *bitmap)
    ALLEGRO_BITMAP_OGL *ogl_bitmap = (void *)bitmap;
    const int format = bitmap->locked_region.format;
    ALLEGRO_DISPLAY *old_disp = NULL;
+   GLenum e;
 
    if (bitmap->lock_flags & ALLEGRO_LOCK_READONLY) {
       _AL_FREE(ogl_bitmap->lock_buffer);
@@ -569,9 +595,10 @@ static void ogl_unlock_region(ALLEGRO_BITMAP *bitmap)
          glformats[format][2],
          glformats[format][1],
          ogl_bitmap->lock_buffer);
-      if (glGetError()) {
-         TRACE("ogl_bitmap: glDrawPixels for format %d failed.\n",
-            format);
+      e = glGetError();
+      if (e) {
+         ALLEGRO_ERROR("glDrawPixels for format %d failed (%s).\n",
+            format, error_string(e));
       }
    }
    else {
@@ -584,9 +611,10 @@ static void ogl_unlock_region(ALLEGRO_BITMAP *bitmap)
             glformats[format][2],
             glformats[format][1],
             ogl_bitmap->lock_buffer);
-         if (glGetError()) {
-            TRACE("ogl_bitmap: glTexSubImage2D for format %d failed.\n",
-               format);
+         e = glGetError();
+         if (e) {
+            ALLEGRO_ERROR("glTexSubImage2D for format %d failed (%s).\n",
+               format, error_string(e));
          }
       }
       else {
@@ -600,9 +628,10 @@ static void ogl_unlock_region(ALLEGRO_BITMAP *bitmap)
             glformats[format][2],
             glformats[format][1],
             ogl_bitmap->lock_buffer);
-         if (glGetError()) {
-            TRACE("ogl_bitmap: glTexSubImage2D for format %d failed.\n",
-               format);
+         e = glGetError();
+         if (e) {
+            ALLEGRO_ERROR("glTexSubImage2D for format %d failed (%s).\n",
+               format, error_string(e));
          }
       }
    }
@@ -679,6 +708,8 @@ ALLEGRO_BITMAP *_al_ogl_create_bitmap(ALLEGRO_DISPLAY *d, int w, int h)
    int true_h;
    int pitch;
    size_t bytes;
+   int wanted_format;
+   int best_format;
 
    if (ogl_dpy->ogl_extras->extension_list->ALLEGRO_GL_ARB_texture_non_power_of_two) {
       true_w = w;
@@ -688,8 +719,20 @@ ALLEGRO_BITMAP *_al_ogl_create_bitmap(ALLEGRO_DISPLAY *d, int w, int h)
       true_w = pot(w);
       true_h = pot(h);
    }
-   
+
+   /* _al_get_real_pixel_format uses an arbitrary format - but we usually want
+    * the same format as the backbuffer (but if the user requests 16/24/32
+    * bits we should honor that).
+    */
+   wanted_format = format;
    format = _al_get_real_pixel_format(format);
+   if (ogl_dpy->ogl_extras->backbuffer &&
+      !_al_pixel_format_is_real(wanted_format)) {
+      best_format = ogl_dpy->ogl_extras->backbuffer->bitmap.format;
+      if (al_get_pixel_size(format) == al_get_pixel_size(best_format)) {
+         format = best_format;
+      }
+   }
 
    pitch = true_w * al_get_pixel_size(format);
 
