@@ -1955,80 +1955,6 @@ void _al_d3d_set_blender(ALLEGRO_DISPLAY_D3D *d3d_display)
 
 
 
-static DWORD d3d_blend_colors(
-   ALLEGRO_COLOR *color,
-   ALLEGRO_COLOR *bc)
-{
-   ALLEGRO_COLOR result;
-   float r, g, b, a;
-
-   al_unmap_rgba_f(*color, &r, &g, &b, &a);
-
-   result = al_map_rgba_f(
-      r*bc->r,
-      g*bc->g,
-      b*bc->b,
-      a*bc->a);
-
-   return d3d_al_color_to_d3d(result);
-}
-
-
-
-static void d3d_draw_filled_rectangle(ALLEGRO_DISPLAY *al_display, float tlx, float tly,
-   float brx, float bry, ALLEGRO_COLOR *color)
-{
-   D3DRECT rect;
-   float w = brx - tlx;
-   float h = bry - tly;
-   ALLEGRO_BITMAP *target;
-   ALLEGRO_COLOR *bc = _al_get_blend_color();
-   DWORD d3d_color;
-   ALLEGRO_DISPLAY_D3D *d3d_display = (ALLEGRO_DISPLAY_D3D *)al_display;
-
-   tlx -= 0.5f;
-   tly -= 0.5f;
-   brx -= 0.5f;
-   bry -= 0.5f;
-
-   if (d3d_display->device_lost) return;
-
-   if (!_al_d3d_render_to_texture_supported() || !_al_d3d_supports_separate_alpha_blend(al_display)) {
-      _al_draw_filled_rectangle_memory((int)tlx, (int)tly, (int)brx, (int)bry, color);
-      return;
-   }
-
-   target = al_get_target_bitmap();
-
-   _al_d3d_set_bitmap_clip(target);
-
-   d3d_color = d3d_blend_colors(color, bc);
-
-   if (w < 1 || h < 1) {
-      return;
-   }
-
-   if (target->parent) {
-      tlx += target->xofs;
-      brx += target->xofs;
-      tly += target->yofs;
-      bry += target->yofs;
-   }
-
-   rect.x1 = (LONG)tlx;
-   rect.y1 = (LONG)tly;
-   rect.x2 = (LONG)brx;
-   rect.y2 = (LONG)bry;
-
-   _al_d3d_set_blender(d3d_display);
-
-   _al_d3d_draw_textured_quad(d3d_display, NULL,
-      0.0f, 0.0f, w, h,
-      tlx, tly, w, h,
-      w/2, h/2, 0.0f,
-      d3d_color, 0, false);
-}
-
 static void d3d_clear(ALLEGRO_DISPLAY *al_display, ALLEGRO_COLOR *color)
 {
    ALLEGRO_DISPLAY_D3D* d3d_display = (ALLEGRO_DISPLAY_D3D*)al_display;
@@ -2043,7 +1969,26 @@ static void d3d_clear(ALLEGRO_DISPLAY *al_display, ALLEGRO_COLOR *color)
 
 static void d3d_draw_pixel(ALLEGRO_DISPLAY *al_display, float x, float y, ALLEGRO_COLOR *color)
 {
-   d3d_draw_filled_rectangle(al_display, x, y, x+1, y+1, color);
+   ALLEGRO_DISPLAY_D3D *disp = (ALLEGRO_DISPLAY_D3D *)al_display;
+
+   D3D_TL_VERTEX vertices[1];
+
+   vertices[0].x = x;
+   vertices[0].y = y;
+   vertices[0].z = 0;
+   vertices[0].diffuse = d3d_al_color_to_d3d(*color);
+
+   _al_d3d_set_blender(disp);
+
+   disp->device->SetTexture(0, NULL);
+
+   disp->device->SetFVF(D3DFVF_TL_VERTEX);
+
+   if (disp->device->DrawPrimitiveUP(D3DPT_POINTLIST, 1,
+	   vertices, sizeof(D3D_TL_VERTEX)) != D3D_OK) {
+      TRACE("d3d_draw_pixel: DrawPrimitive failed.\n");
+      return;
+   }
 }
 
 
