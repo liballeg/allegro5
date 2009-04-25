@@ -315,8 +315,10 @@ forces the resulting ALLEGRO_BITMAP to use the same format as the file.
 
 * ALLEGRO_FORCE_LOCKING - When drawing to a bitmap with this flag set, always
 use pixel locking and draw to it using Allegro's software drawing primitives.
-This should never be used as it may cause severe performance penalties, but
-can be useful for debugging.
+This should never be used if you plan to draw to the bitmap using Allegro's
+graphics primitives as it would cause severe performance penalties. However if
+you know that the bitmap will only ever be accessed by locking it, no unneeded
+FBOs will be created for it in the OpenGL drivers.
 
 * ALLEGRO_NO_PRESERVE_TEXTURE - Normally, every effort is taken to preserve
 the contents of bitmaps since some drivers may forget them. This can take
