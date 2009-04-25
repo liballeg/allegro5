@@ -39,7 +39,6 @@ AL_FUNC(LPDIRECT3DTEXTURE9, al_d3d_get_system_texture, (ALLEGRO_BITMAP *));
 AL_FUNC(LPDIRECT3DTEXTURE9, al_d3d_get_video_texture,  (ALLEGRO_BITMAP *));
 AL_FUNC(bool,               al_d3d_supports_non_pow2_textures,   (void));
 AL_FUNC(bool,               al_d3d_supports_non_square_textures, (void));
-AL_FUNC(void,               al_d3d_set_preserve_bitmap, (ALLEGRO_BITMAP *, bool));
 
 
 #ifdef __cplusplus

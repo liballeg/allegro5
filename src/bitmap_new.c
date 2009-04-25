@@ -59,6 +59,7 @@ static ALLEGRO_BITMAP *_al_create_memory_bitmap(int w, int h)
    bitmap->parent = NULL;
    bitmap->xofs = bitmap->yofs = 0;
    bitmap->memory = _AL_MALLOC(pitch * h);
+   bitmap->preserve_texture = !(al_get_new_bitmap_flags() & ALLEGRO_NO_PRESERVE_TEXTURE);
    return bitmap;
 }
 
@@ -110,6 +111,7 @@ ALLEGRO_BITMAP *al_create_bitmap(int w, int h)
    bitmap->parent = NULL;
    bitmap->xofs = 0;
    bitmap->yofs = 0;
+   bitmap->preserve_texture = !(al_get_new_bitmap_flags() & ALLEGRO_NO_PRESERVE_TEXTURE);
 
    ASSERT(bitmap->pitch >= w * al_get_pixel_size(bitmap->format));
 

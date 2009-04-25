@@ -69,6 +69,8 @@ struct ALLEGRO_BITMAP
 
    /* TODO: Is it needed? */
    /*unsigned char *palette;*/
+
+   bool preserve_texture;
 };
 
 struct ALLEGRO_BITMAP_INTERFACE
