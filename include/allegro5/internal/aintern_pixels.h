@@ -207,6 +207,14 @@
             break;                                                            \
          }                                                                    \
                                                                               \
+         case ALLEGRO_PIXEL_FORMAT_ABGR_8888_LE: {                            \
+            uint8_t *p = (uint8_t *)data;                                     \
+            _AL_MAP_RGBA(color, *p, *(p + 1), *(p + 2), *(p + 3));            \
+            if (advance)                                                      \
+               data += 4;                                                     \
+            break;                                                            \
+         }                                                                    \
+                                                                              \
          case ALLEGRO_PIXEL_FORMAT_ANY:                                       \
          case ALLEGRO_PIXEL_FORMAT_ANY_NO_ALPHA:                              \
          case ALLEGRO_PIXEL_FORMAT_ANY_WITH_ALPHA:                            \
@@ -386,6 +394,15 @@
                data += 4 * sizeof(float);                                     \
             break;                                                            \
          }                                                                    \
+                                                                              \
+         case ALLEGRO_PIXEL_FORMAT_ABGR_8888_LE:                              \
+            *((uint8_t *)data + 0) = _al_fast_float_to_int(color.r * 0xff);   \
+            *((uint8_t *)data + 1) = _al_fast_float_to_int(color.g * 0xff);   \
+            *((uint8_t *)data + 2) = _al_fast_float_to_int(color.b * 0xff);   \
+            *((uint8_t *)data + 3) = _al_fast_float_to_int(color.a * 0xff);   \
+            if (advance)                                                      \
+               data += 4;                                                     \
+            break;                                                            \
                                                                               \
          case ALLEGRO_PIXEL_FORMAT_ANY:                                       \
          case ALLEGRO_PIXEL_FORMAT_ANY_NO_ALPHA:                              \

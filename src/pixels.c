@@ -52,7 +52,8 @@ static int pixel_sizes[] = {
    2,
    4,
    4,
-   16 /* ALLEGRO_PIXEL_FORMAT_ABGR_F32 */
+   16, /* ALLEGRO_PIXEL_FORMAT_ABGR_F32 */
+   4 /* ALLEGRO_PIXEL_FORMAT_ABGR_LE */
 };
 
 static int pixel_bits[] = {
@@ -80,7 +81,8 @@ static int pixel_bits[] = {
    15,
    32,
    32,
-   128 /* ALLEGRO_PIXEL_FORMAT_ABGR_F32 */
+   128, /* ALLEGRO_PIXEL_FORMAT_ABGR_F32 */
+   32 /* ALLEGRO_PIXEL_FORMAT_ABGR_LE */
 };
 
 
@@ -123,7 +125,8 @@ static bool format_alpha_table[ALLEGRO_NUM_PIXEL_FORMATS] = {
    false,
    false,
    false,
-   true /* ALLEGRO_PIXEL_FORMAT_ABGR_F32 */
+   true, /* ALLEGRO_PIXEL_FORMAT_ABGR_F32 */
+   true /* ALLEGRO_PIXEL_FORMAT_ABGR_LE */
 };
 
 bool _al_format_has_alpha(int format)
@@ -157,7 +160,8 @@ static bool format_is_real[ALLEGRO_NUM_PIXEL_FORMATS] =
    true,
    true,
    true,
-   true /* ALLEGRO_PIXEL_FORMAT_ABGR_F32 */
+   true, /* ALLEGRO_PIXEL_FORMAT_ABGR_F32 */
+   true /* ALLEGRO_PIXEL_FORMAT_ABGR_LE */
 };
 
 bool _al_pixel_format_is_real(int format)

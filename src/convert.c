@@ -351,6 +351,13 @@ typedef void (*p_convert_func)(void *, int, int,
       NULL \
    }
 
+/* ALLEGRO_PIXEL_FORMAT_ABGR_LE */
+#ifdef ALLEGRO_BIG_ENDIAN
+#define DECLARE_ABGR_LE(prefix) prefix ## _to_rgba_8888 
+#else
+#define DECLARE_ABGR_LE(prefix) prefix ## _to_abgr_8888
+#endif
+
 #define DECLARE_FUNCS(prefix)                                                \
    {                                                                         \
       /* Fake formats */                                                     \
@@ -379,7 +386,8 @@ typedef void (*p_convert_func)(void *, int, int,
       prefix ## _to_bgr_555,                                                 \
       prefix ## _to_rgbx_8888,                                               \
       prefix ## _to_xrgb_8888,                                               \
-      prefix ## _to_abgr_f32                                                 \
+      prefix ## _to_abgr_f32,                                                \
+      DECLARE_ABGR_LE(prefix) \
    }
 
 static p_convert_func
@@ -409,7 +417,13 @@ convert_funcs[ALLEGRO_NUM_PIXEL_FORMATS][ALLEGRO_NUM_PIXEL_FORMATS] =
    DECLARE_FUNCS(_bgr_555),
    DECLARE_FUNCS(_rgbx_8888),
    DECLARE_FUNCS(_xrgb_8888),
-   DECLARE_FUNCS(_abgr_f32)
+   DECLARE_FUNCS(_abgr_f32),
+   /* ALLEGRO_PIXEL_FORMAT_ABGR_8888_LE */
+#ifdef ALLEGRO_BIG_ENDIAN
+   DECLARE_FUNCS(_rgba_8888)
+#else
+   DECLARE_FUNCS(_abgr_8888)
+#endif
 };
 
 
