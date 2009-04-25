@@ -318,6 +318,11 @@ bool al_d3d_supports_non_square_textures(void)
 }
 
 
+void al_d3d_set_preserve_bitmap(ALLEGRO_BITMAP *bitmap, bool preserve)
+{
+   ALLEGRO_BITMAP_D3D *d3d_bmp = (ALLEGRO_BITMAP_D3D *)bitmap;
+   d3d_bmp->preserve = preserve;
+}
 
 
 int _al_format_to_d3d(int format)
@@ -2258,6 +2263,7 @@ ALLEGRO_BITMAP *_al_d3d_create_bitmap(ALLEGRO_DISPLAY *d,
    bitmap->is_backbuffer = false;
    bitmap->render_target = NULL;
    bitmap->modified = true;
+   bitmap->preserve = true;
 
    bitmap->display = (ALLEGRO_DISPLAY_D3D *)d;
 
@@ -2283,6 +2289,7 @@ static ALLEGRO_BITMAP *d3d_create_sub_bitmap(ALLEGRO_DISPLAY *display,
    bitmap->display = (ALLEGRO_DISPLAY_D3D *)display;
    bitmap->render_target = NULL;
    bitmap->modified = true;
+   bitmap->preserve = false;
 
    bitmap->bitmap.vt = parent->vt;
    return (ALLEGRO_BITMAP *)bitmap;

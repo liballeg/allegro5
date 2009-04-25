@@ -542,7 +542,10 @@ void _al_d3d_prepare_bitmaps_for_reset(ALLEGRO_DISPLAY_D3D *disp)
       ALLEGRO_BITMAP *al_bmp = (ALLEGRO_BITMAP *)bmp;
       if (bmp->display == disp)
 	      //d3d_sync_bitmap_memory(al_bmp);
-	      if (!bmp->is_backbuffer && bmp->modified && !(al_bmp->flags & ALLEGRO_MEMORY_BITMAP)) {
+	      if (!bmp->preserve) {
+	      	bmp->modified = false;
+	      }
+	      else if (!bmp->is_backbuffer && bmp->modified && !(al_bmp->flags & ALLEGRO_MEMORY_BITMAP)) {
 	         _al_d3d_sync_bitmap(al_bmp);
 		 bmp->modified = false;
 	      }
