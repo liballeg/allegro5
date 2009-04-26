@@ -37,7 +37,7 @@ AL_ARRAY(_DRIVER_INFO, _al_joystick_driver_list);
 /* information about a single joystick axis */
 typedef struct _AL_JOYSTICK_AXIS_INFO
 {
-   const char *name;
+   char *name;
 } _AL_JOYSTICK_AXIS_INFO;
 
 
@@ -47,7 +47,7 @@ typedef struct _AL_JOYSTICK_STICK_INFO
    ALLEGRO_JOYFLAGS flags;
    int num_axes;
    _AL_JOYSTICK_AXIS_INFO axis[_AL_MAX_JOYSTICK_AXES];
-   const char *name;
+   char *name;
 } _AL_JOYSTICK_STICK_INFO;
 
 
