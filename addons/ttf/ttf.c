@@ -208,7 +208,7 @@ static void get_text_dimensions(ALLEGRO_FONT const *f, ALLEGRO_USTR const *text,
 {
     ALLEGRO_TTF_FONT_DATA *data = f->data;
     FT_Face face = data->face;
-    char prev = '\0';
+    int32_t prev = '\0';
     int pos = 0;
     int i;
     int x = 0;
@@ -234,11 +234,29 @@ static void get_text_dimensions(ALLEGRO_FONT const *f, ALLEGRO_USTR const *text,
     *descent = (-face->size->metrics.descender) >> 6;
 }
 
+#if 0
+static void debug_cache(ALLEGRO_FONT *f)
+{
+   ALLEGRO_TTF_FONT_DATA *data = f->data;
+   _AL_VECTOR *v = &data->cache_bitmaps;
+   int i;
+   for (i = 0; i < _al_vector_size(v); i++) {
+      ALLEGRO_BITMAP **bmp = _al_vector_ref(v, i);
+      ALLEGRO_USTR *u = al_ustr_newf("font%d.png", i);
+      al_save_bitmap(al_cstr(u), *bmp);
+      al_ustr_free(u);
+   }
+}
+#endif
+
 static void destroy(ALLEGRO_FONT *f)
 {
     int i;
     ALLEGRO_TTF_FONT_DATA *data = f->data;
     _AL_VECTOR *vec = &data->cache_bitmaps;
+#if 0
+    debug_cache(f);
+#endif
     FT_Done_Face(data->face);
     for (i = 0; i < data->glyphs_count; i++) {
         if (data->cache[i].bitmap) {
