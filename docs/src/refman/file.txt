@@ -27,6 +27,18 @@ The current file interface is used to open the file.
 
 'mode' - mode to open the entry in ("r", "w", etc.)
 
+Depending on the stream type and the mode string, files may be opened in
+"text" mode.  The handling of newlines is particularly important.  For example,
+using the default stdio-based streams on DOS and Windows platforms, where the
+native end-of-line terminators are CR+LF sequences, a call to [al_fgetc] may
+return just one character ('\n') where there were two bytes (CR+LF) in the
+file.  When writing out '\n', two bytes would be written instead.
+(As an aside, '\n' is not defined to be equal to LF either.)
+
+Newline translations can be useful for text files but is disastrous for binary
+files.  To avoid this behaviour you need to open file streams in binary mode
+by using a mode argument containing a "b", e.g. "rb", "wb".
+
 See also: [al_set_new_file_interface].
 
 ## API: al_fclose
@@ -189,31 +201,51 @@ Returns the number of bytes written: 4 on success, less than 4 on an error.
 
 ## API: al_fgets
 
-Reads a string of bytes terminated with a newline (\\r,\\n,\\r\\n).
+Read a string of bytes terminated with a newline or end-of-file
+into the buffer given.  The line terminator(s), if any, are included in the
+returned string.  A maximum of max-1 bytes are read, with one byte being
+reserved for a NUL terminator.
 
 Parameters:
 
-* p - buffer to fill
+* f - file to read from
+* buf - buffer to fill
 * max - maximum size of buffer
-* f - entry to read from
 
-Returns:
-p
+Returns the pointer to buf on success.  Returns NULL if an error occurred or
+if the end of file was reached without reading any bytes.
+
+See [al_fopen] about translations of end-of-line characters.
+
+## API: al_fget_ustr
+
+Read a string of bytes terminated with a newline or end-of-file.
+The line terminator(s), if any, are included in the returned string.
+
+On success returns a pointer to a new ALLEGRO_USTR structure.
+This must be freed eventually with [al_ustr_free].
+Returns NULL if an error occurred or if the end of file was reached without
+reading any bytes.
+
+See [al_fopen] about translations of end-of-line characters.
 
 ## API: al_fputs
 
-Writes a string to file.
+Writes a string to file.  Apart from the return value,
+this is equivalent to:
+
+    al_fwrite(f, p, strlen(p));
 
 Parameters:
 
-* p - string to write
 * f - file handle to write to
+* p - string to write
 
-Returns:
-0 on success or -1 on error
+Returns a non-negative integer on success, EOF on error.
 
-Note:
-Function converts string to UTF8 before writing.
+Note: depending on the stream type and the mode passed to [al_fopen], newline
+characters in the string may or may not be automatically translated to
+native end-of-line sequences, e.g. CR/LF instead of LF.
 
 # Standard I/O specific routines
 

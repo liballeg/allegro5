@@ -315,44 +315,68 @@ size_t al_fwrite32be(ALLEGRO_FILE *f, int32_t l)
 
 /* Function: al_fgets
  */
-char *al_fgets(ALLEGRO_FILE *f, char *p, size_t max)
+char *al_fgets(ALLEGRO_FILE *f, char *buf, size_t max)
 {
-   int c = 0;
-   ALLEGRO_USTR *u;
+   int c;
    ASSERT(f);
+   ASSERT(buf);
 
-   al_set_errno(0);
+   /* Handle silly cases. */
+   if (max == 0) {
+      return NULL;
+   }
+   if (max == 1) {
+      *buf = '\0';
+      return buf;
+   }
 
+   /* Return NULL if already at end of file. */
    if ((c = al_fgetc(f)) == EOF) {
       return NULL;
    }
 
-   u = al_ustr_new("");
+   /* Fill buffer until empty, or we reach a newline or EOF or error. */
+   do {
+      *buf++ = c;
+      max--;
+      if (max == 1 || c == '\n')
+         break;
+      c = al_fgetc(f);
+   } while (c != EOF);
+
+   /* Return NULL on error. */
+   if (c == EOF && al_ferror(f)) {
+      return NULL;
+   }
+
+   /* Add null terminator. */
+   ASSERT(max >= 1);
+   *buf = '\0';
+
+   return buf;
+}
+
+
+/* Function: al_fget_ustr
+ */
+ALLEGRO_USTR *al_fget_ustr(ALLEGRO_FILE *f)
+{
+   ALLEGRO_USTR *us;
+   char buf[128];
+
+   if (!al_fgets(f, buf, sizeof(buf))) {
+      return NULL;
+   }
+
+   us = al_ustr_new("");
 
    do {
-      char c2[] = " ";
-      if (c == '\r' || c == '\n') {
-         if (c == '\r') {
-            /* eat the following \n, if any */
-            c = al_fgetc(f);
-            if ((c != '\n') && (c != EOF))
-               al_fungetc(f, c);
-         }
+      al_ustr_append_cstr(us, buf);
+      if (al_ustr_has_suffix_cstr(us, "\n"))
          break;
-      }
+   } while (al_fgets(f, buf, sizeof(buf)));
 
-      /* write the character */
-      c2[0] = c;
-      al_ustr_append_cstr(u, c2);
-   } while ((c = al_fgetc(f)) != EOF);
-
-   _al_sane_strncpy(p, al_cstr(u), max);
-   al_ustr_free(u);
-
-   if (c == '\0' || al_get_errno())
-      return NULL;
-
-   return p;
+   return us;
 }
 
 
@@ -360,26 +384,16 @@ char *al_fgets(ALLEGRO_FILE *f, char *p, size_t max)
  */
 int al_fputs(ALLEGRO_FILE *f, char const *p)
 {
-   char const *s = p;
+   size_t n;
    ASSERT(f);
    ASSERT(p);
 
-   al_set_errno(0);
-
-   while (*s) {
-      #if (defined ALLEGRO_DOS) || (defined ALLEGRO_WINDOWS)
-         if (*s == '\n')
-            al_fputc(f, '\r');
-      #endif
-
-      al_fputc(f, *s);
-      s++;
+   n = strlen(p);
+   if (al_fwrite(f, p, n) != n) {
+      return EOF;
    }
 
-   if (al_get_errno())
-      return -1;
-   else
-      return 0;
+   return n;
 }
 
 

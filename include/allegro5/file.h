@@ -80,6 +80,7 @@ AL_FUNC(int32_t, al_fread32be, (ALLEGRO_FILE *f, bool *ret_success));
 AL_FUNC(size_t, al_fwrite32le, (ALLEGRO_FILE *f, int32_t l));
 AL_FUNC(size_t, al_fwrite32be, (ALLEGRO_FILE *f, int32_t l));
 AL_FUNC(char*, al_fgets, (ALLEGRO_FILE *f, char *p, size_t max));
+AL_FUNC(ALLEGRO_USTR *, al_fget_ustr, (ALLEGRO_FILE *f));
 AL_FUNC(int, al_fputs, (ALLEGRO_FILE *f, const char *p));
 
 /* Specific to stdio backend. */

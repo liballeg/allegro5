@@ -82,7 +82,7 @@ int main(void)
    al_set_config_value(cfg, "", "new_var", "new value");
    al_set_config_value(cfg, "section", "old_var", "new value");
 
-   al_save_config_file(cfg, "test.cfg");
+   TEST("save_config", al_save_config_file(cfg, "test.cfg"));
 
    al_destroy_config(cfg);
 

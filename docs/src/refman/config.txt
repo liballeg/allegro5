@@ -68,7 +68,7 @@ and remove them when reading the values back in.
 ## API: al_save_config_file
 
 Write out a configuration file to disk.
-Returns zero on success, non-zero on error.
+Returns true on success, false on error.
 
 ## API: al_get_first_config_section
 

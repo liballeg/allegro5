@@ -311,22 +311,23 @@ const char *al_get_config_value(const ALLEGRO_CONFIG *config,
 }
 
 
-static int readline(ALLEGRO_FILE *file, ALLEGRO_USTR *line)
+static bool readline(ALLEGRO_FILE *file, ALLEGRO_USTR *line)
 {
-   int n = 0;
-   while (1) {
-      char str[2];
-      int c = al_fgetc(file);
-      if (c == EOF) return n;
-      if (c == '\r') continue;
-      str[0] = c;
-      str[1] = 0;
-      al_ustr_append_cstr(line, str);
-      n++;
-      if (c == '\n') break;
+   char buf[128];
+
+   if (!al_fgets(file, buf, sizeof(buf))) {
+      return false;
    }
-   return n;
+
+   do {
+      al_ustr_append_cstr(line, buf);
+      if (al_ustr_has_suffix_cstr(line, "\n"))
+         break;
+   } while (al_fgets(file, buf, sizeof(buf)));
+
+   return true;
 }
+
 
 /* Function: al_load_config_file
  */
@@ -358,7 +359,8 @@ ALLEGRO_CONFIG *al_load_config_file(const char *filename)
 
    while (1) {
       al_ustr_assign_cstr(line, "");
-      if (!readline(file, line)) break;
+      if (!readline(file, line))
+         break;
       al_ustr_trim_ws(line);
 
       if (al_ustr_has_prefix_cstr(line, "#") || al_ustr_size(line) == 0) {
@@ -403,13 +405,10 @@ static bool config_write_section(ALLEGRO_FILE *file,
    ALLEGRO_CONFIG_ENTRY *e;
 
    if (al_ustr_size(s->name) > 0) {
-      if (al_fputc(file, '[') == EOF) {
-         return false;
-      }
-      if (al_fputs(file, al_cstr(s->name)) != 0) {
-         return false;
-      }
-      if (al_fputs(file, "]\n") != 0) {
+      al_fputc(file, '[');
+      al_fputs(file, al_cstr(s->name));
+      al_fputs(file, "]\n");
+      if (al_ferror(file)) {
          return false;
       }
    }
@@ -419,32 +418,22 @@ static bool config_write_section(ALLEGRO_FILE *file,
       if (e->is_comment) {
          if (al_ustr_size(e->key) > 0) {
             if (!al_ustr_has_prefix_cstr(e->key, "#")) {
-               if (al_fputs(file, "# ")) {
-                  return false;
-               }
+               al_fputs(file, "# ");
             }
-            if (al_fputs(file, al_cstr(e->key))) {
-               return false;
-            }
+            al_fputs(file, al_cstr(e->key));
          }
-         if (al_fputs(file, "\n") != 0) {
-            return false;
-         }
+         al_fputc(file, '\n');
       }
       else {
-         if (al_fputs(file, al_cstr(e->key)) != 0) {
-            return false;
-         }
-         if (al_fputs(file, "=") != 0) {
-            return false;
-         }
-         if (al_fputs(file, al_cstr(e->value)) != 0) {
-            return false;
-         }
-         if (al_fputs(file, "\n") != 0) {
-            return false;
-         }
+         al_fputs(file, al_cstr(e->key));
+         al_fputc(file, '=');
+         al_fputs(file, al_cstr(e->value));
+         al_fputc(file, '\n');
       }
+      if (al_ferror(file)) {
+         return false;
+      }
+
       e = e->next;
    }
 
@@ -454,13 +443,13 @@ static bool config_write_section(ALLEGRO_FILE *file,
 
 /* Function: al_save_config_file
  */
-int al_save_config_file(const ALLEGRO_CONFIG *config, const char *filename)
+bool al_save_config_file(const ALLEGRO_CONFIG *config, const char *filename)
 {
    ALLEGRO_CONFIG_SECTION *s;
    ALLEGRO_FILE *file = al_fopen(filename, "w");
 
    if (!file) {
-      return 1;
+      return false;
    }
 
    /* Save global section */
@@ -495,13 +484,13 @@ int al_save_config_file(const ALLEGRO_CONFIG *config, const char *filename)
 
    al_fclose(file);
 
-   return 0;
+   return true;
 
 Error:
 
    /* XXX do we delete the incomplete file? */
    al_fclose(file);
-   return 1;
+   return false;
 }
 
 
