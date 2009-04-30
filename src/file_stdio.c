@@ -37,7 +37,6 @@ typedef struct ALLEGRO_FILE_STDIO
 {
    ALLEGRO_FILE file;               /* must be first */
    FILE *fp;
-   ALLEGRO_PATH *remove_on_close;   /* may be NULL */
 } ALLEGRO_FILE_STDIO;
 
 
@@ -78,7 +77,6 @@ ALLEGRO_FILE *al_fopen_fd(int fd, const char *mode)
 
    f->file.vtable = &_al_file_interface_stdio;
    f->fp = fp;
-   f->remove_on_close = NULL;
    return (ALLEGRO_FILE *)f;
 }
 
@@ -103,24 +101,13 @@ static ALLEGRO_FILE *file_stdio_fopen(const char *path, const char *mode)
 
    f->file.vtable = &_al_file_interface_stdio;
    f->fp = fp;
-   f->remove_on_close = NULL;
    return (ALLEGRO_FILE *)f;
 }
 
 
 static void file_stdio_fclose(ALLEGRO_FILE *f)
 {
-   ALLEGRO_FILE_STDIO *fstd = (ALLEGRO_FILE_STDIO *)f;
-
    fclose(get_fp(f));
-
-   /* A temporary file may need to be automatically removed. */
-   if (fstd->remove_on_close) {
-      unlink(al_path_to_string(fstd->remove_on_close,
-         ALLEGRO_NATIVE_PATH_SEP));
-      al_path_free(fstd->remove_on_close);
-   }
-
    _AL_FREE(f);
 }
 
@@ -303,8 +290,7 @@ static void mktemp_replace_XX(const char *template, char *dst)
 
 /* Function: al_make_temp_file
  */
-ALLEGRO_FILE *al_make_temp_file(const char *template, int remove_when,
-   ALLEGRO_PATH **ret_path)
+ALLEGRO_FILE *al_make_temp_file(const char *template, ALLEGRO_PATH **ret_path)
 {
    ALLEGRO_PATH *path;
    ALLEGRO_FILE *f;
@@ -318,15 +304,13 @@ ALLEGRO_FILE *al_make_temp_file(const char *template, int remove_when,
       return NULL;
    }
 
-   /* Ensure that the path is absolute, otherwise if
-    * ALLEGRO_MAKE_TEMP_REMOVE_ON_CLOSE is set, and the working directory is
-    * changed, we could end up removing the wrong file when al_fclose() is
-    * called.
+   /* Try to make the path absolute.  The user is likely to want to remove the
+    * file later.  If we return a relative path, the user might change the
+    * working directory in the mean time and then try to remove the wrong file.
+    * Mostly likely there won't be any such file, but the temporary file
+    * wouldn't be removed.
     */
-   if (!al_path_make_absolute(path)) {
-      al_path_free(path);
-      return NULL;
-   }
+   al_path_make_absolute(path);
 
    for (i=0; i<MAX_MKTEMP_TRIES; ++i) {
       mktemp_replace_XX(template, filename);
@@ -359,28 +343,10 @@ ALLEGRO_FILE *al_make_temp_file(const char *template, int remove_when,
       return NULL;
    }
 
-   switch (remove_when) {
-      case ALLEGRO_MAKE_TEMP_REMOVE_NEVER:
-         if (ret_path)
-            *ret_path = path;
-         else
-            al_path_free(path);
-         break;
-
-      case ALLEGRO_MAKE_TEMP_REMOVE_ON_OPEN:
-         unlink(al_path_to_string(path, ALLEGRO_NATIVE_PATH_SEP));
-         al_path_free(path);
-         if (ret_path)
-            *ret_path = NULL;
-         break;
-
-      case ALLEGRO_MAKE_TEMP_REMOVE_ON_CLOSE:
-         /* f takes ownership of path so don't free it. */
-         ((ALLEGRO_FILE_STDIO *)f)->remove_on_close = path;
-         if (ret_path)
-            *ret_path = al_path_clone(path);
-         break;
-   }
+   if (ret_path)
+      *ret_path = path;
+   else
+      al_path_free(path);
 
    return f;
 }
