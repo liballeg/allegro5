@@ -4,6 +4,182 @@ See `changes._tx` for changes in earlier versions of Allegro.  These lists
 serve as summaries; the full histories are in the Subversion repository.
 
 
+Changes from 4.9.9.1 to 4.9.10 (May 2009)
+=========================================
+
+The main developers this time were: Trent Gamblin, Evert Glebbeek, Milan
+Mimica, Elias Pschernig, Peter Wang.  Other contributions from: Peter Hull,
+Paul Suntsov.
+
+Graphics:
+
+-  Renamed al_clear() to al_clear_to_color().
+
+-  Renamed al_opengl_version() to al_get_opengl_version().
+
+-  Changed the direction of rotation for al_draw_rotated* from
+   counter-clockwise to clockwise.
+
+-  Added new pixel format ALLEGRO_PIXEL_FORMAT_ABGR_8888_LE which guanrantees
+   component ordering.
+
+-  Added ALLEGRO_NO_PRESERVE_TEXTURE flag.
+
+-  Fixed horizontal flipping in plain software blitting routines.
+
+-  Fixed some blending bugs in the OpenGL driver.
+
+-  Made OpenGL driver fall back to software rendering if separate alpha
+   blending is requested but not supported.
+
+-  Added a config option which allows pretending a lower OpenGL version.
+
+-  Implemented al_get_num_display_formats(), al_get_display_format_option()
+   and al_set_new_display_format() for WGL.
+
+-  Fixed bug in al_get_display_format_option() with the GLX driver.
+
+-  Fixed a bug in the D3D driver that made display creation crash if the first
+   scored mode failed.
+
+-  Made the OpenGL driver prefer the backbuffer format for new bitmaps.
+
+-  Defer FBO creation to when first setting a bitmap as target bitmap.
+
+Input:
+
+-  Renamed some joystick functions.
+
+-  Account for caps lock state in OS X keyboard driver.
+
+-  Made UTF-8 input work on X11.
+
+File I/O:
+
+-  Separated part of fshook API into a distinct file I/O API (actually
+   generic streams).
+
+-  Make the file I/O API match stdio more closely and account for corner
+   cases.  (incomplete)
+
+-  Made it possible to set a stream vtable on a per-thread basis, which
+   affects al_fopen() for that thread.
+
+-  Added al_fget_ustr() to read a line conveniently.
+
+-  Change al_fputs() not to do its own CR insertion.
+
+-  Add al_fopen_fd() to create an ALLEGRO_FILE from an existing file
+   descriptor.
+
+Filesystem:
+
+-  Changed al_getcwd, al_get_entry_name to return ALLEGRO_PATHs.
+
+-  Renamed al_get_path to al_get_standard_path, and to return an ALLEGRO_PATH.
+
+-  Changed al_readdir to return an ALLEGRO_FS_ENTRY.
+
+-  Added al_path_create_dir.
+
+-  Removed some filesystem querying functions which take string paths
+   (ALLEGRO_FS_ENTRY versions will do).
+
+Config routines:
+
+-  Added functions to traverse configurations structures.
+
+-  Change al_save_config_file() return type to bool.
+
+-  Removed an arbitrary limit on the length of config values.
+
+-  Renamed configuration files to allegro5.cfg and allegro5rc.
+
+String routines:
+
+-  Allegro 4-era string routines removed.
+
+-  Added al_ustr_to_buffer().
+
+Other core:
+
+-  Renamed al_thread_should_stop to al_get_thread_should_stop.
+
+-  Added a new internal logging mechanism with configurable debug "channels",
+   verbosity levels and output formatting.
+
+-  Cleaned up ASSERT namespace pollution.
+
+Font addons:
+
+-  Renamed font and TTF addon functions to conform to conventions.
+
+-  Added al_init_ttf_addon.
+
+-  Implemented slightly nicer text drawing API:
+
+   - functions are called "draw_text" instead of "textout"
+   - centre/right alignment handled by a flag instead of functions
+   - functions accepting ALLEGRO_USTR arguments provided
+   - substring support is removed so 'count' arguments not needed in usual
+     case, however ALLEGRO_USTR functions provide similar thing.
+
+-  Removed al_font_is_compatible_font.
+
+-  Sped up al_grab_font_from_bitmap() by five times.
+
+-  ttf: Fixed a possible bug with kerning of unicode code points > 127.
+
+Image I/O addon:
+
+-  Renamed everything in the IIO addon.
+
+-  Exposed al_load_bmp/al_save_bmp etc.
+
+Audio addon:
+
+-  Renamed al_mixer_set_postprocess_callback.
+
+-  Added two config options to OSS driver.
+
+-  Made ALSA read config settings from [alsa] section.
+
+Native dialogs:
+
+-  Added al_show_native_message_box() which works like allegro_message() in A4.
+   Implemented for GTK and OS X.
+
+PhysicsFS addon:
+
+-  Added PhysicsFS addon.
+
+Primitives addon:
+
+-  Removed global state flags.
+
+-  Removed normals from ALLEGRO_VERTEX.
+
+-  Removed read/write flags from vertex buffers.
+
+Examples:
+
+-  Added an example that tests al_get_display_format_option().
+
+-  Added an example which shows playing a sample directly to a voice.
+
+-  Added an example for PhysicsFS addon.
+
+-  Added a (silly) example that loads an image off the network using libcurl.
+
+-  Added ex_dir which demonstrates the use of al_readdir and
+   al_get_entry_name.
+
+Other:
+
+-  Many bug and documentation fixes.
+
+
+
 Changes from 4.9.9 to 4.9.9.1 (March 2009)
 ==========================================
 
