@@ -16,6 +16,10 @@
 #include <allegro5/a5_iio.h>
 #include <allegro5/a5_primitives.h>
 
+#ifdef ALLEGRO_MSVC
+   #define snprintf _snprintf
+#endif
+
 static ALLEGRO_BITMAP *logo, *logo_flash;
 static int logo_x, logo_y;
 static ALLEGRO_FONT *font;

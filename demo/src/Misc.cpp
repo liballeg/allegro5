@@ -17,6 +17,10 @@ bool joy_installed = false;
 #endif
 #endif
 
+#ifdef ALLEGRO_MSVC
+   #define snprintf _snprintf
+#endif
+
 const char* getUserResource(const char* fmt, ...) throw (Error)
 {
    va_list ap;
