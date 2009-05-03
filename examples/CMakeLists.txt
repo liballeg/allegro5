@@ -143,9 +143,10 @@ if(SUPPORT_NATIVE_DIALOG AND SUPPORT_FONT AND SUPPORT_COLOR)
 endif()
 
 find_package(CURL)
-if(CURL_FOUND AND SUPPORT_IIO AND ALLEGRO_UNIX)
+# Windows has select() as well but I don't care to fix it.
+if(CURL_FOUND AND SUPPORT_IIO AND UNIX)
     example(ex_curl ${CURL_LIBRARIES} ${IIO_LINK_WITH})
-endif(CURL_FOUND AND SUPPORT_IIO)
+endif(CURL_FOUND AND SUPPORT_IIO AND UNIX)
 
 copy_data_dir_to_build(copy_example_data data)
 
