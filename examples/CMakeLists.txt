@@ -115,6 +115,10 @@ if(SUPPORT_OPENGL)
     example(ex_opengl)
 endif(SUPPORT_OPENGL)
 
+if(SUPPORT_OPENGL AND SUPPORT_IIO)
+    example(ex_opengl_pixel_shader ${IIO_LINK_WITH})
+endif(SUPPORT_OPENGL AND SUPPORT_IIO)
+
 if(SUPPORT_OPENGL AND SUPPORT_FONT)
     example(ex_gldepth ${FONT_LINK_WITH})
 endif(SUPPORT_OPENGL AND SUPPORT_FONT)
