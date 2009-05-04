@@ -21,73 +21,51 @@
 /* OpenAL vars */
 static ALCdevice*  openal_dev;
 static ALCcontext* openal_context;
-static ALenum      openal_err;
-static char  openal_err_str[64];
-static ALCenum     alc_err;
-static char  alc_err_str[64];
 
 /* TODO: make these configurable */
 static const size_t preferred_frag_size = 1024;
 static const ALuint preferred_buf_count = 4;
 
-static char* openal_get_err_str(ALenum err, int len_str, char* str)
+static const char *openal_get_err_str(ALenum err)
 {
    switch (err)
    {
       case AL_NO_ERROR:
-         snprintf(str, len_str, "There is no OpenAL error"); 
-         break;
+         return "There is no OpenAL error";
       case AL_INVALID_NAME: 
-         snprintf(str, len_str, "A bad name (ID) was passed to OpenAL");
-         break;
+         return "A bad name (ID) was passed to OpenAL";
       case AL_INVALID_ENUM:
-         snprintf(str, len_str, "An invalid enum was passed to OpenAL");
-         break;
+         return "An invalid enum was passed to OpenAL";
       case AL_INVALID_VALUE:
-         snprintf(str, len_str, "An Invalid enum was passed to OpenAL");
-         break;
+         return "An Invalid enum was passed to OpenAL";
       case AL_INVALID_OPERATION:
-         snprintf(str, len_str, "The requestion operation is invalid");
-         break;
+         return "The requestion operation is invalid";
       case AL_OUT_OF_MEMORY:
-         snprintf(str, len_str, "OpenAL ran out of memory");
-         break;
+         return "OpenAL ran out of memory";
       default:
-         snprintf(str, len_str, "Unknown error");
-         break;
+         return "Unknown error";
    }
-
-   return str;
 }
 
-static char* alc_get_err_str(ALCenum err, int len_str, char* str)
+static const char *alc_get_err_str(ALCenum err)
 {
    switch (err)
    {
       case ALC_NO_ERROR:
-         snprintf(str, len_str, "There is no OpenAL error"); 
-         break;
+         return "There is no OpenAL error";
       case ALC_INVALID_DEVICE: 
-         snprintf(str, len_str, "A bad device was passed to OpenAL");
-         break;
+         return "A bad device was passed to OpenAL";
       case ALC_INVALID_CONTEXT:
-         snprintf(str, len_str, "An bad context was passed to OpenAL");
-         break;
+         return "An bad context was passed to OpenAL";
       case ALC_INVALID_ENUM:
-         snprintf(str, len_str, "An Invalid enum was passed to OpenAL");
-         break;
+         return "An Invalid enum was passed to OpenAL";
       case ALC_INVALID_VALUE:
-         snprintf(str, len_str, "The requestion operation is invalid");
-         break;
+         return "The requestion operation is invalid";
       case ALC_OUT_OF_MEMORY:
-         snprintf(str, len_str, "OpenAL ran out of memory");
-         break;
+         return "OpenAL ran out of memory";
       default:
-         snprintf(str, len_str, "Unknown error");
-         break;
+         return "Unknown error";
    }
-
-   return str;
 }
 
 /* The open method starts up the driver and should lock the device, using the
@@ -95,6 +73,9 @@ static char* alc_get_err_str(ALCenum err, int len_str, char* str)
    audio data to the device yet, however. */
 static int _openal_open(void)
 { 
+   ALenum openal_err;
+   ALCenum alc_err;
+
    fprintf(stderr, "Starting OpenAL...\n");
 
    /* clear the error state */
@@ -118,8 +99,7 @@ static int _openal_open(void)
    if(!openal_dev || (alc_err = alcGetError(openal_dev)) != ALC_NO_ERROR)
    {
       fprintf(stderr, "Could not open audio device\n");
-      fprintf(stderr, alc_get_err_str(alc_err, sizeof(alc_err_str),alc_err_str));
-      fprintf(stderr, "\n");
+      fprintf(stderr, "%s\n", alc_get_err_str(alc_err));
       return 1;
    }
 
@@ -127,8 +107,7 @@ static int _openal_open(void)
    if (!openal_context || (alc_err = alcGetError(openal_dev)) != ALC_NO_ERROR)
    {
       fprintf(stderr, "Could not create current device context\n");
-      fprintf(stderr, alc_get_err_str(alc_err, sizeof(alc_err_str),alc_err_str));
-      fprintf(stderr, "\n");
+      fprintf(stderr, "%s\n", alc_get_err_str(alc_err));
       return 1;
    }
 
@@ -136,8 +115,7 @@ static int _openal_open(void)
    if ((alc_err = alcGetError(openal_dev)) != ALC_NO_ERROR)
    {
       fprintf(stderr, "Could not make context current\n");
-      fprintf(stderr, alc_get_err_str(alc_err, sizeof(alc_err_str),alc_err_str));
-      fprintf(stderr, "\n");
+      fprintf(stderr, "%s\n", alc_get_err_str(alc_err));
       return 1;
    }
 
@@ -145,8 +123,7 @@ static int _openal_open(void)
    if ((openal_err = alGetError()) != AL_NO_ERROR)
    {
       fprintf(stderr, "Could not set distance model\n");
-      fprintf(stderr, openal_get_err_str(openal_err, sizeof(openal_err_str),openal_err_str));
-      fprintf(stderr, "\n");
+      fprintf(stderr, "%s\n", openal_get_err_str(openal_err));
       return 1;
    }
 
@@ -275,6 +252,7 @@ static void *_openal_update(ALLEGRO_THREAD* self, void* arg)
 static int _openal_load_voice(ALLEGRO_VOICE *voice, const void *data)
 {
    ALLEGRO_AL_DATA *ex_data = voice->extra;
+   ALenum openal_err;
 
    if(voice->attached_stream->loop != ALLEGRO_PLAYMODE_ONCE &&
            voice->attached_stream->loop != ALLEGRO_PLAYMODE_LOOP)
@@ -292,8 +270,7 @@ static int _openal_load_voice(ALLEGRO_VOICE *voice, const void *data)
    if ((openal_err = alGetError()) != AL_NO_ERROR)
    {
       fprintf(stderr, "Could not Generate (voice) source\n");
-      fprintf(stderr, openal_get_err_str(openal_err, sizeof(openal_err_str),openal_err_str));
-      fprintf(stderr, "\n");
+      fprintf(stderr, "%s\n", openal_get_err_str(openal_err));
       return 1;
    }
 
@@ -312,8 +289,7 @@ static int _openal_load_voice(ALLEGRO_VOICE *voice, const void *data)
       free(ex_data->buffers);
       ex_data->buffers = NULL;
       fprintf(stderr, "Could not Generate (voice) buffer\n");
-      fprintf(stderr, openal_get_err_str(openal_err, sizeof(openal_err_str),openal_err_str));
-      fprintf(stderr, "\n");
+      fprintf(stderr, "%s\n", openal_get_err_str(openal_err));
       return 1;
    }
 
@@ -338,8 +314,7 @@ static int _openal_load_voice(ALLEGRO_VOICE *voice, const void *data)
       free(ex_data->buffers);
       ex_data->buffers = NULL;
       fprintf(stderr, "Could not attach voice source\n");
-      fprintf(stderr, openal_get_err_str(openal_err, sizeof(openal_err_str),openal_err_str));
-      fprintf(stderr, "\n");
+      fprintf(stderr, "%s\n", openal_get_err_str(openal_err));
       return 1;
    }
 
@@ -367,6 +342,7 @@ static void _openal_unload_voice(ALLEGRO_VOICE *voice)
 static int _openal_start_voice(ALLEGRO_VOICE *voice)
 {
    ALLEGRO_AL_DATA *ex_data = voice->extra;
+   ALenum openal_err;
 
    /* playing a sample instead of a stream */
    if(!voice->is_streaming)
@@ -375,8 +351,7 @@ static int _openal_start_voice(ALLEGRO_VOICE *voice)
       if((openal_err = alGetError()) != AL_NO_ERROR)
       {
          fprintf(stderr, "Could not start voice\n");
-         fprintf(stderr, openal_get_err_str(openal_err, sizeof(openal_err_str),openal_err_str));
-         fprintf(stderr, "\n");
+         fprintf(stderr, "%s\n", openal_get_err_str(openal_err));
          return 1;
       }
       fprintf(stderr, "Starting voice\n");
@@ -438,6 +413,7 @@ static int _openal_start_voice(ALLEGRO_VOICE *voice)
 static int _openal_stop_voice(ALLEGRO_VOICE* voice)
 {
    ALLEGRO_AL_DATA *ex_data = voice->extra;
+   ALenum openal_err;
 
    if(!ex_data->buffers)
    {
@@ -452,8 +428,7 @@ static int _openal_stop_voice(ALLEGRO_VOICE* voice)
       if((openal_err = alGetError()) != AL_NO_ERROR)
       {
          fprintf(stderr, "Could not stop voice\n");
-         fprintf(stderr, openal_get_err_str(openal_err, sizeof(openal_err_str),openal_err_str));
-         fprintf(stderr, "\n");
+         fprintf(stderr, "%s\n", openal_get_err_str(openal_err));
          return 1;
       } 
       return 0;
