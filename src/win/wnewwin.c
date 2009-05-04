@@ -255,9 +255,6 @@ HWND _al_win_create_faux_fullscreen_window(LPCTSTR devname, ALLEGRO_DISPLAY *dis
 void _al_win_grab_input(ALLEGRO_DISPLAY_WIN *win_disp)
 {
    _al_win_wnd_schedule_proc(win_disp->window,
-                             _al_win_key_dinput_grab,
-                             win_disp);
-   _al_win_wnd_schedule_proc(win_disp->window,
                              _al_win_mouse_dinput_grab,
                              win_disp);
    _al_win_wnd_schedule_proc(win_disp->window,
@@ -271,7 +268,6 @@ void _al_win_grab_input(ALLEGRO_DISPLAY_WIN *win_disp)
  */
 static void unacquire_input(ALLEGRO_DISPLAY_WIN *win_disp)
 {
-   _al_win_key_dinput_unacquire(win_disp);
    _al_win_mouse_dinput_unacquire(win_disp);
    _al_win_joystick_dinput_unacquire(win_disp);
 }
@@ -394,6 +390,40 @@ static LRESULT CALLBACK window_callback(HWND hWnd, UINT message,
             }
          }
          break;
+      }
+      case WM_SYSKEYDOWN: {
+         int scode = (lParam >> 16) & 0xff;
+         bool repeated  = (lParam >> 30) & 0x1;
+         wkbd_handle_key_press(0, scode, repeated, win_display);
+
+         return 0;
+      }
+      case WM_KEYDOWN: {
+         int vcode = wParam; 
+         int scode = (lParam >> 16) & 0xff;
+         bool repeated  = (lParam >> 30) & 0x1;
+         BYTE ks[256];
+         WCHAR buf[8];
+
+         if (!GetKeyboardState(&ks[0])) {
+            /* shound't really happen */
+            wkbd_handle_key_press(0, scode, repeated, win_display);
+         }
+         /* We can't use TranslateMessage() because we don't know if it will
+            produce a WM_CHAR or not. */
+         else if (ToUnicode(vcode, scode, ks, buf, 8, 0) == 1) {
+            wkbd_handle_key_press(buf[0], scode, repeated, win_display);
+         }
+         else {
+            wkbd_handle_key_press(0, scode, repeated, win_display);
+         }
+         return 0;
+      }
+      case WM_SYSKEYUP:
+      case WM_KEYUP: {
+         int scode = (lParam >> 16) & 0xff;
+         wkbd_handle_key_release(scode, win_display);
+         return 0;
       }
       case WM_SYSCOMMAND: {
          if (_al_win_disable_screensaver &&

@@ -62,7 +62,7 @@ static void draw_message_log(void)
 
    al_set_blender(ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA, black);
 
-   al_draw_text(myfont, 5, th * 0.5, 0, "EVENT KEY CHR UNICODE  [MODIFIERS]");
+   al_draw_text(myfont, 5, th * 0.5, 0, "EVENT KEY CHR UNICODE  [MODIFIERS]  KEY NAME");
 
    /* Scroll down the log if necessary. */
    while (num_messages() >= (HEIGHT/th)) {
@@ -90,10 +90,12 @@ void log_key(char const *how, int keycode, int unichar, int modifiers)
 {
    ALLEGRO_USTR *us;
    char multibyte[5] = {0, 0, 0, 0, 0};
+   const char* key_name;
    if (unichar == 0 || unichar == -1) unichar = ' ';
    al_utf8_encode(multibyte, unichar);
-   us = al_ustr_newf("%s: %3d <%s> %08x [%08x]", how, keycode, multibyte,
-      unichar, modifiers);
+   key_name = al_keycode_to_name(keycode);
+   us = al_ustr_newf("%s: %3d <%s> %08x [%08x]   %s", how, keycode, multibyte,
+      unichar, modifiers, key_name);
    log_message(us);
 }
 

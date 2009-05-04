@@ -80,8 +80,10 @@ bool _al_win_input_unregister_event(HANDLE event_id);
 void _al_win_grab_input(ALLEGRO_DISPLAY_WIN *win_disp);
 
 /* keyboard routines */
-void _al_win_key_dinput_unacquire(void *unused);
-void _al_win_key_dinput_grab(void *ALLEGRO_DISPLAY_WIN);
+void wkbd_handle_key_press(int ccode, int scode, bool repeated,
+                           ALLEGRO_DISPLAY_WIN *win_disp);
+void wkbd_handle_key_release(int scode, ALLEGRO_DISPLAY_WIN *win_disp);
+unsigned int wkbd_get_modifiers(BYTE *keystate);
 
 /* mouse routines */
 void _al_win_mouse_dinput_grab(void *ALLEGRO_DISPLAY_WIN);

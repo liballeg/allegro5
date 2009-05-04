@@ -95,7 +95,7 @@ set(ALLEGRO_SRC_WIN_FILES
     src/win/winput.c
     src/win/wjoydrv.c
     src/win/wjoydxnu.c
-    src/win/wkeybdnu.c
+    src/win/wkeyboard.c
     src/win/wmcursor.c
     src/win/wmouse.c
     src/win/wnewsys.c
