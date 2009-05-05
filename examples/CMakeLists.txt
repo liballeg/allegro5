@@ -148,7 +148,12 @@ endif()
 
 find_package(CURL)
 if(CURL_FOUND AND SUPPORT_IIO)
-    example(ex_curl ${CURL_LIBRARIES} ${IIO_LINK_WITH} ws2_32)
+    if(WIN32)
+        # select() is in the Winsock library.
+        example(ex_curl ${CURL_LIBRARIES} ${IIO_LINK_WITH} ws2_32)
+    else(WIN32)
+        example(ex_curl ${CURL_LIBRARIES} ${IIO_LINK_WITH})
+    endif(WIN32)
 endif(CURL_FOUND AND SUPPORT_IIO)
 
 copy_data_dir_to_build(copy_example_data data)
