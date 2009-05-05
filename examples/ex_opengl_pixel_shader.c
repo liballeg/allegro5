@@ -9,14 +9,18 @@ int main(void)
 {
 	float r = 0.5, g = 0.5, b = 1, ratio = 0;
 	int dir = 1;
+    ALLEGRO_DISPLAY *display;
+    ALLEGRO_BITMAP *mysha;
+    ALLEGRO_BITMAP *buffer;
 
 	al_init();
 	al_install_keyboard();
 	al_init_iio_addon();
 
-	ALLEGRO_DISPLAY *display = al_create_display(320, 200);
-	ALLEGRO_BITMAP *mysha = al_load_bitmap("data/mysha.pcx");
-	ALLEGRO_BITMAP *buffer = al_create_bitmap(320, 200);
+    al_set_new_display_flags(ALLEGRO_OPENGL);
+	display = al_create_display(320, 200);
+	mysha = al_load_bitmap("data/mysha.pcx");
+	buffer = al_create_bitmap(320, 200);
 
 	(void)display;
 	
