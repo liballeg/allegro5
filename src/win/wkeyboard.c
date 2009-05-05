@@ -260,23 +260,7 @@ void wkbd_handle_key_press(int ccode, int scode, bool repeated,
       return;
 
    update_modifiers(my_code, true);
-   /* For some reason, arow keys are reported as numpad keys. */
-   if (!(modifiers & ALLEGRO_KEYMOD_NUMLOCK)) {
-   /* Hardcoded OEM depended values! Scancode is OEM dependent,   *
-    * according to MSDN, and therefore must not be used this way. *
-    * We should use virtual key codes (VK_* constants) instead.   */
-      switch (scode) {
-         case 80:
-            scode = 0xD0; break;
-         case 75:
-            scode = 0xCB; break;
-         case 77:
-            scode = 0xCD; break;
-         case 72:
-            scode = 0xC8; break;
-      }
-      my_code = hw_to_mycode[scode];
-   }
+
    _AL_KEYBOARD_STATE_SET_KEY_DOWN(the_state, my_code);
 
    if (!_al_event_source_needs_to_generate_event(&the_keyboard.es))
@@ -308,19 +292,7 @@ void wkbd_handle_key_release(int scode, ALLEGRO_DISPLAY_WIN *win_disp)
      return;
 
    update_modifiers(my_code, false);
-   if (!(modifiers & ALLEGRO_KEYMOD_NUMLOCK)) {
-      switch (scode) {
-         case 80:
-            scode = 0xD0; break;
-         case 75:
-            scode = 0xCB; break;
-         case 77:
-            scode = 0xCD; break;
-         case 72:
-            scode = 0xC8; break;
-      }
-      my_code = hw_to_mycode[scode];
-   }
+
    _AL_KEYBOARD_STATE_CLEAR_KEY_DOWN(the_state, my_code);
    
    if (!_al_event_source_needs_to_generate_event(&the_keyboard.es))
