@@ -9,6 +9,7 @@
 #include "allegro5/acodec.h"
 #include "allegro5/kcm_audio.h"
 #include "nihgui.hpp"
+#include <cstdio>
 
 ALLEGRO_FONT *font_gui;
 ALLEGRO_SAMPLE *sample;
