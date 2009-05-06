@@ -60,6 +60,7 @@ void al_destroy_native_dialog(ALLEGRO_NATIVE_DIALOG *fd)
    if (fd->initial_path)
       al_path_free(fd->initial_path);
    al_ustr_free(fd->title);
+   al_ustr_free(fd->heading);
    al_ustr_free(fd->patterns);
    al_ustr_free(fd->text);
    al_ustr_free(fd->buttons);
@@ -70,8 +71,8 @@ void al_destroy_native_dialog(ALLEGRO_NATIVE_DIALOG *fd)
 /* Function: al_show_native_message_box
  */
 int al_show_native_message_box(
-    char const *title, char const *text, char const *buttons,
-    int flags)
+    char const *title, char const *heading, char const *text,
+    char const *buttons, int flags)
 {
    ALLEGRO_NATIVE_DIALOG *fc;
    int r;
@@ -79,6 +80,7 @@ int al_show_native_message_box(
    memset(fc, 0, sizeof *fc);
 
    fc->title = al_ustr_new(title);
+   fc->heading = al_ustr_new(heading);
    fc->text = al_ustr_new(text);
    fc->buttons = al_ustr_new(buttons);
    fc->mode = flags;

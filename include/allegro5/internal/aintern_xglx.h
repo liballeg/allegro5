@@ -1,3 +1,6 @@
+#ifndef ALLEGRO_INTERNAL_XGLX_NEW_H
+#define ALLEGRO_INTERNAL_XGLX_NEW_H
+
 #include <X11/Xlib.h>
 #include <X11/Xatom.h>
 #include <stdlib.h>
@@ -154,3 +157,5 @@ void _al_xglx_fullscreen_to_display(ALLEGRO_SYSTEM_XGLX *s,
 void _al_xglx_config_select_visual(ALLEGRO_DISPLAY_XGLX *glx);
 bool _al_xglx_config_create_context(ALLEGRO_DISPLAY_XGLX *glx);
 void _al_xglx_free_visuals_info(void);
+
+#endif

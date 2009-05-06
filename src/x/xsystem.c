@@ -12,7 +12,7 @@ extern int _Xdebug; /* part of Xlib */
 #include "allegro5/allegro5.h"
 #include "allegro5/internal/aintern_memory.h"
 #include "allegro5/platform/aintunix.h"
-#include "xglx.h"
+#include "allegro5/internal/aintern_xglx.h"
 
 ALLEGRO_DEBUG_CHANNEL("system")
 

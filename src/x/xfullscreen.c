@@ -1,4 +1,4 @@
-#include "xglx.h"
+#include "allegro5/internal/aintern_xglx.h"
 
 ALLEGRO_DEBUG_CHANNEL("display")
 

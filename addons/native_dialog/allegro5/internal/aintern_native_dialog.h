@@ -5,6 +5,7 @@ struct ALLEGRO_NATIVE_DIALOG
 {
    ALLEGRO_PATH *initial_path;
    ALLEGRO_USTR *title;
+   ALLEGRO_USTR *heading;
    ALLEGRO_USTR *text;
    ALLEGRO_USTR *patterns;
    ALLEGRO_USTR *buttons;

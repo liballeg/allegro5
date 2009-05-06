@@ -35,7 +35,7 @@
 #include "allegro5/internal/aintern.h"
 #include "allegro5/internal/aintern_events.h"
 #include "allegro5/internal/aintern_keyboard.h"
-#include "xglx.h"
+#include "allegro5/internal/aintern_xglx.h"
 
 ALLEGRO_DEBUG_CHANNEL("keyboard")
 

@@ -30,7 +30,7 @@
 #if defined ALLEGRO_WINDOWS
    #include "../win/wgl.h"
 #elif defined ALLEGRO_UNIX
-   #include "../x/xglx.h"
+   #include "allegro5/internal/aintern_xglx.h"
 #endif
 
 #include <string.h>

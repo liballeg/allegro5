@@ -14,6 +14,10 @@
 #include "allegro5/internal/aintern_native_dialog.h"
 #include "allegro5/internal/aintern_memory.h"
 
+#ifdef ALLEGRO_WITH_XWINDOWS
+#include "allegro5/internal/aintern_xglx.h"
+#endif
+
 static int global_counter;
 static bool gtk_is_running;
 static ALLEGRO_MUTEX *gtk_lock;
@@ -166,6 +170,34 @@ static void response(GtkDialog *dialog, gint response_id, gpointer user_data)
    gtk_end(nd);
 }
 
+static void really_make_transient(GtkWidget *window, ALLEGRO_DISPLAY_XGLX *glx)
+{
+   GdkDisplay *gdk = gdk_drawable_get_display(GDK_DRAWABLE(window->window));
+   GdkWindow *parent = gdk_window_lookup_for_display(gdk, glx->window);
+   if (!parent)
+      parent = gdk_window_foreign_new_for_display(gdk, glx->window);
+   gdk_window_set_transient_for(window->window, parent);
+}
+
+static void realized(GtkWidget *window, gpointer data)
+{
+   really_make_transient(window, (void *)data);
+}
+
+static void make_transient(GtkWidget *window)
+{
+   /* Set the current display window (if any) as the parent of the dialog. */
+   #ifdef ALLEGRO_WITH_XWINDOWS
+   ALLEGRO_DISPLAY_XGLX *glx = (void *)al_get_current_display();
+   if (glx) {
+      if (!GTK_WIDGET_REALIZED(window))
+         g_signal_connect(window, "realize", G_CALLBACK(realized), (void *)glx);
+      else
+         really_make_transient(window, glx);
+   }
+   #endif
+}
+
 void al_show_native_file_dialog(ALLEGRO_NATIVE_DIALOG *fd)
 {
    GtkWidget *window;
@@ -174,6 +206,8 @@ void al_show_native_file_dialog(ALLEGRO_NATIVE_DIALOG *fd)
 
    /* Create a new file selection widget */
    window = gtk_file_selection_new(al_cstr(fd->title));
+
+   make_transient(window);
 
    /* Connect the destroy signal */
    g_signal_connect(G_OBJECT(window), "destroy", G_CALLBACK(destroy), fd);
@@ -207,7 +241,6 @@ void al_show_native_file_dialog(ALLEGRO_NATIVE_DIALOG *fd)
 int _al_show_native_message_box(ALLEGRO_NATIVE_DIALOG *fd)
 {
    GtkWidget *window;
-
    gtk_start_and_lock();
 
    /* Create a new file selection widget */
@@ -222,9 +255,11 @@ int _al_show_native_message_box(ALLEGRO_NATIVE_DIALOG *fd)
    if (fd->buttons) buttons = GTK_BUTTONS_NONE;
 
    window = gtk_message_dialog_new(NULL, 0, type, buttons, "%s",
-      al_cstr(fd->title));
+      al_cstr(fd->heading));
     gtk_message_dialog_format_secondary_text(GTK_MESSAGE_DIALOG(window), "%s",
       al_cstr(fd->text));
+
+   make_transient(window);
 
    if (fd->buttons) {
       int i = 1;
@@ -243,6 +278,8 @@ int _al_show_native_message_box(ALLEGRO_NATIVE_DIALOG *fd)
          if (next == -1) break;
       }
    }
+
+   gtk_window_set_title(GTK_WINDOW(window), al_cstr(fd->title));
 
    g_signal_connect(G_OBJECT(window), "response", G_CALLBACK(response), fd);
    g_signal_connect_swapped(G_OBJECT(window), "response", G_CALLBACK(gtk_widget_destroy), window);
