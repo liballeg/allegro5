@@ -394,7 +394,7 @@ static LRESULT CALLBACK window_callback(HWND hWnd, UINT message,
       case WM_SYSKEYDOWN: {
          int scode = (lParam >> 16) & 0xff;
          bool repeated  = (lParam >> 30) & 0x1;
-         wkbd_handle_key_press(0, scode, repeated, win_display);
+         _al_win_kbd_handle_key_press(0, scode, repeated, win_display);
 
          return 0;
       }
@@ -407,22 +407,22 @@ static LRESULT CALLBACK window_callback(HWND hWnd, UINT message,
 
          if (!GetKeyboardState(&ks[0])) {
             /* shound't really happen */
-            wkbd_handle_key_press(0, scode, repeated, win_display);
+            _al_win_kbd_handle_key_press(0, scode, repeated, win_display);
          }
          /* We can't use TranslateMessage() because we don't know if it will
             produce a WM_CHAR or not. */
          else if (ToUnicode(vcode, scode, ks, buf, 8, 0) == 1) {
-            wkbd_handle_key_press(buf[0], scode, repeated, win_display);
+            _al_win_kbd_handle_key_press(buf[0], scode, repeated, win_display);
          }
          else {
-            wkbd_handle_key_press(0, scode, repeated, win_display);
+            _al_win_kbd_handle_key_press(0, scode, repeated, win_display);
          }
          return 0;
       }
       case WM_SYSKEYUP:
       case WM_KEYUP: {
          int scode = (lParam >> 16) & 0xff;
-         wkbd_handle_key_release(scode, win_display);
+         _al_win_kbd_handle_key_release(scode, win_display);
          return 0;
       }
       case WM_SYSCOMMAND: {

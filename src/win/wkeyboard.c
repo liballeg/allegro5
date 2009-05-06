@@ -247,10 +247,10 @@ static void update_modifiers(int code, bool pressed)
 }
 
 
-/* wkbd_handle_key_press:
+/* _al_win_kbd_handle_key_press:
  *  Does stuff when a key is pressed.
  */
-void wkbd_handle_key_press(int ccode, int scode, bool repeated,
+void _al_win_kbd_handle_key_press(int ccode, int scode, bool repeated,
                            ALLEGRO_DISPLAY_WIN *win_disp)
 {
    ALLEGRO_EVENT event;
@@ -280,10 +280,10 @@ void wkbd_handle_key_press(int ccode, int scode, bool repeated,
 
 
 
-/* wkbd_handle_key_release:
+/* _al_win_kbd_handle_key_release:
  *  Does stuff when a key is released.
  */
-void wkbd_handle_key_release(int scode, ALLEGRO_DISPLAY_WIN *win_disp)
+void _al_win_kbd_handle_key_release(int scode, ALLEGRO_DISPLAY_WIN *win_disp)
 {
    ALLEGRO_EVENT event;
    int my_code = hw_to_mycode[scode];
