@@ -434,6 +434,12 @@ static LRESULT CALLBACK window_callback(HWND hWnd, UINT message,
       case WM_KEYUP: {
          int vcode = wParam;
          /* FIXME: distinguish left and right shift, control and alt */
+         if (vcode == VK_SHIFT)
+            vcode = VK_LSHIFT;
+         if (vcode == VK_CONTROL)
+            vcode = VK_LCONTROL;
+         if (vcode == VK_MENU)
+            vcode = VK_LMENU;
          _al_win_kbd_handle_key_release(vcode, win_display);
          return 0;
       }
