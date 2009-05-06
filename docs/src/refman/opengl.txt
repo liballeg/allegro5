@@ -70,6 +70,17 @@ Example:
     if (texture != 0)
         glBindTexture(GL_TEXTURE_2D, texture);
 
+## API: al_get_opengl_fbo
+
+Returns the OpenGL FBO id internally used by the given bitmap if it uses one,
+else 0. An FBO is created for a bitmap when you call [al_set_target_bitmap]
+for it.
+
+## API: al_remove_opengl_fbo
+
+If the bitmap has an OpenGL FBO created for it (see [al_set_target_bitmap]),
+it is freed. It also is freed automatically when the bitmap is destroyed.
+
 ## API: al_is_opengl_extension_supported
 
 This function is a helper to determine whether an OpenGL extension is

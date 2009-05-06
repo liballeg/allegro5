@@ -22,14 +22,10 @@
 
 ALLEGRO_DEBUG_CHANNEL("opengl")
 
-void _al_ogl_set_target_bitmap(ALLEGRO_DISPLAY *display, ALLEGRO_BITMAP *bitmap)
+static void setup_fbo(ALLEGRO_DISPLAY *display, ALLEGRO_BITMAP *bitmap)
 {
    ALLEGRO_DISPLAY *ogl_disp = (void *)display;
-   /* If it is a memory bitmap, this display vtable entry would not even get
-    * called, so the cast below is always safe.
-    */
    ALLEGRO_BITMAP_OGL *ogl_bitmap = (void *)bitmap;
-
    if (!ogl_bitmap->is_backbuffer) {
 
       /* When a bitmap is set as target bitmap, we try to create an FBO for it.
@@ -93,9 +89,19 @@ void _al_ogl_set_target_bitmap(ALLEGRO_DISPLAY *display, ALLEGRO_BITMAP *bitmap)
       glMatrixMode(GL_MODELVIEW);
       glLoadIdentity();
    }
+}
 
-   if (ogl_disp->ogl_extras->opengl_target == ogl_bitmap) {
-      _al_ogl_setup_bitmap_clipping(bitmap);
+void _al_ogl_set_target_bitmap(ALLEGRO_DISPLAY *display, ALLEGRO_BITMAP *bitmap)
+{
+   ALLEGRO_DISPLAY *ogl_disp = (void *)display;
+   ALLEGRO_BITMAP_OGL *ogl_bitmap = (void *)bitmap;
+
+   if (!bitmap->locked) {
+      setup_fbo(display, bitmap);
+
+      if (ogl_disp->ogl_extras->opengl_target == ogl_bitmap) {
+         _al_ogl_setup_bitmap_clipping(bitmap);
+      }
    }
 }
 
