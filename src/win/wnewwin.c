@@ -427,7 +427,7 @@ static LRESULT CALLBACK window_callback(HWND hWnd, UINT message,
       }
       case WM_SYSCOMMAND: {
          if (_al_win_disable_screensaver &&
-               (wParam == SC_MONITORPOWER || wParam == SC_SCREENSAVE)) {
+               ((wParam & 0xfff0) == SC_MONITORPOWER || (wParam & 0xfff0) == SC_SCREENSAVE)) {
             return 0;
          }
          break;
