@@ -487,7 +487,7 @@ OpenGL note:
 Framebuffer objects (FBOs) allow OpenGL to directly draw to a bitmap, which is
 very fast. However, each created FBO needs additional resources, therefore an
 FBO is not automatically assigned to each non-memory bitmap when it is created
-(like is done with textures).
+(as is done with textures).
 
 When using an OpenGL display, only if all of the following conditions are met an
 FBO will be created for the bitmap:
@@ -497,21 +497,21 @@ FBO will be created for the bitmap:
 * The bitmap is not currently locked.
 
 Once created, the FBO is kept around until the bitmap is destroyed or you
-explicitely all [al_remove_opengl_fbo] on the bitmap.
+explicitely call [al_remove_opengl_fbo] on the bitmap.
 
 In the following example, no FBO will be created:
 
- lock = al_lock_bitmap(bitmap);
- al_set_target_bitmap(bitmap);
- al_put_pixel(x, y, color);
- al_unlock_bitmap(bitmap);
+    lock = al_lock_bitmap(bitmap);
+    al_set_target_bitmap(bitmap);
+    al_put_pixel(x, y, color);
+    al_unlock_bitmap(bitmap);
 
 The above allows using al_put_pixel on a locked bitmap without creating an FBO.
 
 In this example an FBO is created however:
 
- al_set_target_bitmap(bitmap);
- al_draw_line(x1, y1, x2, y2, color);
+    al_set_target_bitmap(bitmap);
+    al_draw_line(x1, y1, x2, y2, color);
 
 And an OpenGL command will be used to directly draw the line into the bitmap's
 associated texture.
