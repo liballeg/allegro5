@@ -813,7 +813,7 @@ GLuint al_get_opengl_fbo(ALLEGRO_BITMAP *bitmap)
 {
    // FIXME: Check if this is an OpenGL bitmap, if not, return 0
    ALLEGRO_BITMAP_OGL *ogl_bitmap = (void *)bitmap;
-   ogl_bitmap->fbo;
+   return ogl_bitmap->fbo;
 }
 
 /* vim: set sts=3 sw=3 et: */
