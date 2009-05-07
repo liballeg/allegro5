@@ -963,6 +963,8 @@ void _al_draw_rotated_scaled_bitmap_memory(ALLEGRO_BITMAP *src,
       return;
    }
 
+   angle = -angle;
+
    ASSERT(_al_pixel_format_is_real(src->format));
    ASSERT(_al_pixel_format_is_real(dst->format));
 
@@ -1264,15 +1266,15 @@ void _al_draw_rotated_scaled_bitmap_memory_fast(ALLEGRO_BITMAP *src,
    ALLEGRO_BITMAP *dst = al_get_target_bitmap();
 
    bool sub_pixel_accuracy = false;
-   
+
    fixed xs[4], ys[4];
-   fixed fix_dx = ftofix(dx);
-   fixed fix_dy = ftofix(dy);
-   fixed fix_cx = ftofix(cx);
-   fixed fix_cy = ftofix(cy);
-   fixed fix_angle = ftofix(-angle*256/(ALLEGRO_PI*2));
-   fixed fix_xscale = ftofix(xscale);
-   fixed fix_yscale = ftofix(yscale);
+   fixed fix_dx;
+   fixed fix_dy;
+   fixed fix_cx;
+   fixed fix_cy;
+   fixed fix_angle;
+   fixed fix_xscale;
+   fixed fix_yscale;
 
    /*
     * Variables used in the loop
@@ -1298,6 +1300,16 @@ void _al_draw_rotated_scaled_bitmap_memory_fast(ALLEGRO_BITMAP *src,
    int bmp_y_i;
    /* Right edge of scanline. */
    int right_edge_test;
+
+   angle = -angle;
+   
+   fix_dx = ftofix(dx);
+   fix_dy = ftofix(dy);
+   fix_cx = ftofix(cx);
+   fix_cy = ftofix(cy);
+   fix_angle = ftofix(-angle*256/(ALLEGRO_PI*2));
+   fix_xscale = ftofix(xscale);
+   fix_yscale = ftofix(yscale);
 
    _al_rotate_scale_flip_coordinates(src->w << 16, src->h << 16,
       fix_dx, fix_dy, fix_cx, fix_cy, fix_angle, fix_xscale, fix_yscale,
