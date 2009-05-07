@@ -95,8 +95,6 @@ AL_FUNC(bool, al_chdir, (const char *path));
 AL_FUNC(int32_t, al_drive_sep, (char *sep, size_t len));
 AL_FUNC(int32_t, al_path_sep, (char *sep, size_t len));
 
-AL_FUNC(char *, al_find_resource, (const char *base, const char *resource, uint32_t fm, char *buffer, size_t len));
-
 #ifdef __cplusplus
    }
 #endif

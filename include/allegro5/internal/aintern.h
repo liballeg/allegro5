@@ -93,9 +93,6 @@ typedef struct UTYPE_INFO
    int u_width_max;
 } UTYPE_INFO;
 
-AL_FUNC(UTYPE_INFO *, _find_utype, (int type));
-
-
 /* message stuff */
 #define ALLEGRO_MESSAGE_SIZE  4096
 
