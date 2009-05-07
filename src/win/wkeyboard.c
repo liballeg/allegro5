@@ -78,7 +78,7 @@ static const unsigned char hw_to_mycode[256] =
    /* 0xB0 */    0,                       0,                         0,                          0,
    /* 0xB4 */    0,                       0,                         0,                          0,
    /* 0xB8 */    0,                       0,                         ALLEGRO_KEY_SEMICOLON,      ALLEGRO_KEY_EQUALS,
-   /* 0xBC */    ALLEGRO_KEY_COMMA,       ALLEGRO_KEY_MINUS,         0,/*VK_OEM_PERIOD*/         ALLEGRO_KEY_QUOTE,
+   /* 0xBC */    ALLEGRO_KEY_COMMA,       ALLEGRO_KEY_MINUS,         ALLEGRO_KEY_FULLSTOP,       ALLEGRO_KEY_QUOTE,
    /* 0xC0 */    ALLEGRO_KEY_TILDE,       0,                         0,                          0,
    /* 0xC4 */    0,                       0,                         0,                          0,
    /* 0xC8 */    0,                       0,                         0,                          0,
