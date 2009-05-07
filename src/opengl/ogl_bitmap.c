@@ -721,6 +721,16 @@ ALLEGRO_BITMAP *_al_ogl_create_bitmap(ALLEGRO_DISPLAY *d, int w, int h)
       best_format = ogl_dpy->ogl_extras->backbuffer->bitmap.format;
       if (al_get_pixel_size(format) == al_get_pixel_size(best_format)) {
          format = best_format;
+         // FIXME: hackish, move this all into _al_get_real_pixel_format
+         if (_al_format_has_alpha(wanted_format) &&
+            !_al_format_has_alpha(format)) {
+            if (format == ALLEGRO_PIXEL_FORMAT_RGBX_8888)
+               format = ALLEGRO_PIXEL_FORMAT_RGBA_8888;
+            if (format == ALLEGRO_PIXEL_FORMAT_XRGB_8888)
+               format = ALLEGRO_PIXEL_FORMAT_ARGB_8888;
+            if (format == ALLEGRO_PIXEL_FORMAT_XBGR_8888)
+               format = ALLEGRO_PIXEL_FORMAT_ABGR_8888;
+         }
       }
    }
 
