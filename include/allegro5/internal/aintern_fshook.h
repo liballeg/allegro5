@@ -35,10 +35,6 @@ struct ALLEGRO_FS_HOOK_SYS_INTERFACE {
    AL_METHOD(ALLEGRO_PATH *, getcwd, (void));
    AL_METHOD(bool, chdir, (const char *path));
 
-   AL_METHOD(bool, add_search_path, (const char *path));
-   AL_METHOD(uint32_t, search_path_count, (void));
-   AL_METHOD(bool, get_search_path, (uint32_t idx, char *dest, uint32_t len));
-
    AL_METHOD(int32_t, drive_sep, (char *sep, size_t len));
    AL_METHOD(int32_t, path_sep, (char *sep, size_t len));
 
@@ -46,7 +42,6 @@ struct ALLEGRO_FS_HOOK_SYS_INTERFACE {
    AL_METHOD(bool, remove, (const char *path));
 
    AL_METHOD(bool, mkdir, (const char *path));
-   AL_METHOD(uint32_t, stat_mode,  (const char *path));
 };
 
 struct ALLEGRO_FS_HOOK_ENTRY_INTERFACE {
@@ -111,16 +106,6 @@ extern struct ALLEGRO_FS_HOOK_SYS_INTERFACE _al_stdio_sys_fshooks;
 
 #define _al_fs_hook_getcwd()             _al_sys_fshooks->getcwd()
 #define _al_fs_hook_chdir(path)          _al_sys_fshooks->chdir(path)
-
-#define _al_fs_hook_add_search_path(path)           _al_sys_fshooks->add_search_path(path)
-#define _al_fs_hook_search_path_count()             _al_sys_fshooks->search_path_count()
-#define _al_fs_hook_get_search_path(idx, dest, len) _al_sys_fshooks->get_search_path(idx, dest, len)
-
-#define _al_fs_hook_stat_mode(st)  _al_sys_fshooks->stat_mode(st)
-#define _al_fs_hook_stat_atime(st) _al_sys_fshooks->stat_atime(st)
-#define _al_fs_hook_stat_mtime(st) _al_sys_fshooks->stat_mtime(st)
-#define _al_fs_hook_stat_ctime(st) _al_sys_fshooks->stat_ctime(st)
-#define _al_fs_hook_stat_size(st)  _al_sys_fshooks->stat_size(st)
 
 #define _al_fs_hook_mkdir(path) _al_sys_fshooks->mkdir(path)
 

@@ -20,37 +20,6 @@ Filesystem modes/types
 * ALLEGRO_FILEMODE_ISFILE - Regular file
 * ALLEGRO_FILEMODE_ISDIR - Directory
 
-# Search Path Routines
-
-## API: al_add_search_path
-
-Adds a path to the list of directories to search for files when
-searching/opening files with a relative pathname.
-
-## API: al_get_search_path
-
-Fills in 'dest' up to 'len' bytes with the 'idx'th search path item.
-
-Parameters:
-
-* idx - index of search path element requested
-* dest - memory buffer to copy path to
-* len - length of memory buffer
-
-Returns true on success, and false on failure.
-
-errno is set to indicate the error.
-
-Possible Errors:
-* EINVAL - invalid item selected
-* ERANGE - buffer not large enough
-
-See also: [al_get_errno]
-
-## API: al_search_path_count
-
-Returns the number of items in the search path list.
-
 # File Manipulation
 
 ## API: al_create_entry

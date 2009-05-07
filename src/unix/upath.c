@@ -270,7 +270,10 @@ ALLEGRO_PATH *_al_unix_get_path(int id)
          /* next try: /tmp /var/tmp /usr/tmp */
          char *paths[] = { "/tmp/", "/var/tmp/", "/usr/tmp/", NULL };
          for (i=0; paths[i] != NULL; ++i) {
-            if (al_get_entry_mode_str(paths[i]) & ALLEGRO_FILEMODE_ISDIR) {
+            ALLEGRO_FS_ENTRY *fse = al_create_entry(paths[i]);
+            bool found = al_is_directory(fse);
+            al_destroy_entry(fse);
+            if (found) {
                return al_path_create(paths[i]);
             }
          }
@@ -281,7 +284,9 @@ ALLEGRO_PATH *_al_unix_get_path(int id)
 
       case ALLEGRO_PROGRAM_PATH: {
 
-         return get_executable_name();
+         ALLEGRO_PATH *exe = get_executable_name();
+         al_path_set_filename(exe, NULL);
+         return exe;
 
       } break;
 

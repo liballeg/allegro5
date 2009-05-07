@@ -8,7 +8,6 @@
 #pragma warning( disable : 4290 )
 #endif
 
-const char* getUserResource(const char* fmt, ...) throw (Error);
 const char* getResource(const char* fmt, ...);
 bool loadResources(void);
 bool init(void);

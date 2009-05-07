@@ -347,9 +347,6 @@ struct ALLEGRO_FS_ENTRY_STDIO {
 };
 
 
-static char **search_path = NULL;
-static uint32_t search_path_count = 0;
-
 static void _al_fs_update_stat_mode(ALLEGRO_FS_ENTRY_STDIO *fp_stdio);
 static bool al_fs_stdio_fstat(ALLEGRO_FS_ENTRY *fp);
 
@@ -357,8 +354,6 @@ static ALLEGRO_FS_ENTRY *al_fs_stdio_create_handle(const char *path)
 {
    ALLEGRO_FS_ENTRY_STDIO *fh = NULL;
    uint32_t len = 0;
-   uint32_t fnd = 0;
-   char *tmp = NULL;
 
    fh = _AL_MALLOC(sizeof(*fh));
    if (!fh) {
@@ -379,38 +374,6 @@ static ALLEGRO_FS_ENTRY *al_fs_stdio_create_handle(const char *path)
    }
 
    memcpy(fh->path, path, len+1);
-
-   /* lookup real file path if given non abs path */
-   if (fh->path[0] != '/') {
-      uint32_t spi = 0;
-      for (spi = 0; spi < search_path_count; ++spi) {
-         uint32_t splen = strlen(search_path[spi]);
-         struct stat st;
-
-         tmp = _AL_REALLOC(tmp, splen + len + 1);
-         memcpy(tmp, search_path[spi], _ALLEGRO_MIN(splen, PATH_MAX));
-         if (tmp[splen-1] == '/') {
-            tmp[splen] = '/';
-            splen++;
-         }
-
-         memcpy(tmp+splen, fh->path, _ALLEGRO_MIN(len + splen, PATH_MAX));
-         tmp[splen+len] = '\0';
-
-         if (stat(tmp, &st) != 0) {
-            _AL_FREE(tmp);
-            break;
-         }
-
-         fnd = 1;
-         fh->st = st;
-         fh->found = tmp;
-
-         _al_fs_update_stat_mode(fh);
-
-         break;
-      }
-   }
 
    if(!fh->found) {
       if(!al_fs_stdio_fstat((ALLEGRO_FS_ENTRY*)fh)) {
@@ -700,55 +663,6 @@ static bool al_fs_stdio_mkdir(const char *path)
    return true;
 }
 
-static bool al_fs_stdio_add_search_path(const char *path)
-{
-   char **new_search_path = NULL;
-   char *new_path = NULL;
-
-   /* dup path first to elimiate need to re-resize search_path if dup fails */
-   new_path = _AL_MALLOC(strlen(path) + 1);
-   if (!new_path) {
-      al_set_errno(ENOMEM);
-      return false;
-   }
-   strcpy(new_path, path);
-
-   /* extend search_path, store temporarily so original var isn't overwritten with NULL on failure */
-   new_search_path = (char **)_AL_REALLOC(search_path, sizeof(char *) * (search_path_count + 1));
-   if (!new_search_path) {
-      free(new_path);
-      al_set_errno(errno);
-      return false;
-   }
-
-   search_path = new_search_path;
-   search_path[search_path_count] = new_path;
-   search_path_count++;
-
-   return true;
-}
-
-static uint32_t al_fs_stdio_search_path_count(void)
-{
-   return search_path_count;
-}
-
-/* FIXME: is this the best way to handle the "search path" ? */
-static bool al_fs_stdio_get_search_path(uint32_t idx,
-   char *dest, uint32_t len)
-{
-   if (idx < search_path_count) {
-      uint32_t slen = strlen(search_path[idx]);
-
-      memcpy(dest, search_path[idx], _ALLEGRO_MIN(slen, len-1));
-      dest[len] = '\0';
-      return true;
-   }
-
-   al_set_errno(EINVAL);
-   return false;
-}
-
 static int32_t al_fs_stdio_drive_sep(char *sep, size_t len)
 {
 #ifdef ALLEGRO_WINDOWS
@@ -872,21 +786,6 @@ static ALLEGRO_PATH *al_fs_stdio_fname(ALLEGRO_FS_ENTRY *fp)
       return al_path_create(fp_stdio->path);
 }
 
-static uint32_t al_fs_stdio_file_mode(const char *path)
-{
-   ALLEGRO_FS_ENTRY *fp;
-   uint32_t mode;
-
-   fp = al_fs_stdio_create_handle(path);
-   if (!fp)
-      return 0;
-
-   mode = al_fs_stdio_entry_mode(fp);
-   al_fs_stdio_destroy_handle(fp);
-
-   return mode;
-}
-
 struct ALLEGRO_FS_HOOK_SYS_INTERFACE _al_stdio_sys_fshooks = {
    al_fs_stdio_create_handle,
    al_fs_stdio_opendir,
@@ -894,19 +793,13 @@ struct ALLEGRO_FS_HOOK_SYS_INTERFACE _al_stdio_sys_fshooks = {
    al_fs_stdio_getcwd,
    al_fs_stdio_chdir,
 
-   al_fs_stdio_add_search_path,
-   al_fs_stdio_search_path_count,
-   al_fs_stdio_get_search_path,
-
    al_fs_stdio_path_sep,
    al_fs_stdio_drive_sep,
 
    al_fs_stdio_file_exists,
    al_fs_stdio_file_remove,
 
-   al_fs_stdio_mkdir,
-
-   al_fs_stdio_file_mode
+   al_fs_stdio_mkdir
 };
 
 struct ALLEGRO_FS_HOOK_ENTRY_INTERFACE _al_stdio_entry_fshooks = {

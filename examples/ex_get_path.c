@@ -31,7 +31,7 @@ int main(void)
    al_path_free(path);
 
    path = al_get_standard_path(ALLEGRO_USER_DATA_PATH);
-   printf("ASER_DATA_PATH: %s\n", al_path_to_string(path, '/'));
+   printf("USER_DATA_PATH: %s\n", al_path_to_string(path, '/'));
    al_path_free(path);
 
    path = al_get_standard_path(ALLEGRO_USER_SETTINGS_PATH);

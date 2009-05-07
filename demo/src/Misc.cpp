@@ -21,37 +21,25 @@ bool joy_installed = false;
    #define snprintf _snprintf
 #endif
 
-const char* getUserResource(const char* fmt, ...) throw (Error)
-{
-   va_list ap;
-   static char res[512];
-   static char name[MAX_PATH];
-   
-   va_start(ap, fmt);
-   memset(res, 0, 512);
-   snprintf(res, 511, fmt, ap);
-
-   al_find_resource("a5teroids", res, ALLEGRO_FILEMODE_WRITE, name, MAX_PATH);
-   
-   //printf("getUserResource: '%s'\n", name);
-
-   return name;
-}
-
 const char* getResource(const char* fmt, ...)
 {
    va_list ap;
    static char res[512];
-   static char name[MAX_PATH];
-   
+   static ALLEGRO_PATH *dir;
+   ALLEGRO_PATH *path;
+
    va_start(ap, fmt);
    memset(res, 0, 512);
    snprintf(res, 511, fmt, ap);
 
-   al_find_resource("a5teroids", res, 0, name, MAX_PATH);
-   //printf("getResource: '%s'\n", name);
-   
-   return name;
+   if (dir) al_path_free(dir);
+   dir = al_get_standard_path(ALLEGRO_PROGRAM_PATH);
+   al_path_append(dir, "data");
+   path = al_path_create(res);
+   al_path_concat(dir, path);
+   al_path_free(path);
+
+   return al_path_to_string(dir, '/');
 }
 
 

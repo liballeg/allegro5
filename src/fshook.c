@@ -238,35 +238,6 @@ bool al_mkdir(const char *path)
 }
 
 
-/* Function: al_add_search_path
- */
-bool al_add_search_path(const char *path)
-{
-   ASSERT(path);
-
-   return _al_fs_hook_add_search_path(path);
-}
-
-
-/* Function: al_search_path_count
- */
-int32_t al_search_path_count()
-{
-   return _al_fs_hook_search_path_count();
-}
-
-
-/* Function: al_get_search_path
- */
-bool al_get_search_path(uint32_t idx, char *dest, size_t len)
-{
-   ASSERT(dest);
-   ASSERT(len);
-
-   return _al_fs_hook_get_search_path(idx, dest, len);
-}
-
-
 /* Function: al_drive_sep
  */
 int32_t al_drive_sep(char *sep, size_t len)
@@ -289,15 +260,6 @@ int32_t al_path_sep(char *sep, size_t len)
 }
 
 
-/* Function: al_get_entry_mode_str
- */
-uint32_t al_get_entry_mode_str(const char *path)
-{
-   ASSERT(path != NULL);
-   return _al_fs_hook_stat_mode(path);
-}
-
-
 /* Function: al_remove_str
  */
 bool al_remove_str(const char *path)
@@ -317,141 +279,6 @@ bool al_is_present_str(const char *path)
 }
 
 
-/* maybe find a better place for this later */
-static bool _al_find_resource_exists(const char *path, const char *base,
-   const char *resource, uint32_t fm, char *buffer, size_t len)
-{
-   ALLEGRO_PATH *fp;
-   bool ret = false;
-   const char *s;
-
-   memset(buffer, 0, len);
-
-   fp = al_path_create(path);
-   /* XXX this isn't strictly correct, is it? */
-   al_path_append(fp, base);
-
-   if (resource) {
-      ALLEGRO_PATH *resp = al_path_create(resource);
-      al_path_concat(fp, resp);
-      al_path_free(resp);
-   }
-
-   s = al_path_to_string(fp, ALLEGRO_NATIVE_PATH_SEP);
-   _al_sane_strncpy(buffer, s, len);
-
-   if (al_is_present_str(buffer) && (al_get_entry_mode_str(buffer) & fm) == fm) {
-      ret = true;
-   }
-   else if (fm & ALLEGRO_FILEMODE_WRITE) {
-      /* XXX update this */
-      /* XXX is this supposed to be chr or rchr? */
-      /* FIXME: Or rather, what was this even supposed to accomplish??? */
-      /*char *rchr = strchr(buffer, ALLEGRO_NATIVE_PATH_SEP);
-      if (rchr) {
-         usetc(rchr, '\0');
-
-         if (al_is_present_str(buffer) && al_get_entry_mode_str(buffer) & ALLEGRO_FILEMODE_WRITE) {
-            ret = true;
-         }
-
-         *rchr = ALLEGRO_NATIVE_PATH_SEP;
-      }
-      * */
-   }
-
-   al_path_free(fp);
-
-   return ret;
-}
-
-
-// FIXME: Not needed after some code cleanup.
-static char const *path_to_buffer(ALLEGRO_PATH *path, char *buffer, size_t size)
-{
-   char const *str = al_path_to_string(path, '/');
-   _al_sane_strncpy(buffer, str, size);
-   al_path_free(path);
-   return buffer;
-}
-
-
-/* Function: al_find_resource
- */
-char *al_find_resource(const char *base, const char *resource, uint32_t fm,
-   char *buffer, size_t len)
-{
-   ALLEGRO_PATH *path;
-   char tmp[PATH_MAX];
-   char base_new[256];
-   const char *s;
-   bool r;
-
-   ASSERT(base != NULL);
-   ASSERT(resource != NULL);
-   ASSERT(buffer != NULL);
-
-   fm |= ALLEGRO_FILEMODE_READ;
-
-   memset(buffer, 0, len);
-
-#ifdef ALLEGRO_WINDOWS
-   memset(base_new, 0, 256);
-#else
-   strcpy(base_new, ".");
-#endif
-
-   strcat(base_new, base);
-
-   path = al_get_standard_path(ALLEGRO_USER_DATA_PATH);
-   //printf("find_resource: AL_USER_DATA_PATH\n");
-   if (_al_find_resource_exists(path_to_buffer(path, tmp, PATH_MAX),
-      base_new, resource, fm, buffer, len)) {
-      return buffer;
-   }
-
-   path = al_get_standard_path(ALLEGRO_PROGRAM_PATH);
-   //printf("find_resource: AL_PROGRAM_PATH\n");
-   if (_al_find_resource_exists(path_to_buffer(path, tmp, PATH_MAX),
-      "data", resource, fm, buffer, len)) {
-      return buffer;
-   }
-
-   path = al_getcwd();
-   r = _al_find_resource_exists(al_path_to_string(path, '/'), "data",
-      resource, fm, buffer, len);
-   al_path_free(path);
-   //printf("find_resource: getcwd\n");
-   if (r) {
-      return buffer;
-   }
-
-   path = al_get_standard_path(ALLEGRO_SYSTEM_DATA_PATH);
-   //printf("find_resource: AL_SYSTEM_DATA_PATH\n");
-   if (_al_find_resource_exists(path_to_buffer(path, tmp, PATH_MAX),
-      base_new, resource, fm, buffer, len)) {
-      return buffer;
-   }
-
-   /* file didn't exist anywhere, lets return whatever we can */
-
-   path = al_get_standard_path(ALLEGRO_USER_DATA_PATH);
-   //printf("find_resource: def AL_USER_DATA_PATH\n");
-   al_path_append(path, base_new);
-
-   if (resource) {
-      ALLEGRO_PATH *resp = al_path_create(resource);
-      al_path_concat(path, resp);
-      al_path_free(resp);
-   }
-
-   s = al_path_to_string(path, ALLEGRO_NATIVE_PATH_SEP);
-   _al_sane_strncpy(buffer, s, len);
-
-   al_path_free(path);
-
-   return buffer;
-}
 
 
 /*
