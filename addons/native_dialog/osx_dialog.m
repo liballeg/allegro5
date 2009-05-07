@@ -95,28 +95,37 @@ void al_show_native_file_dialog(ALLEGRO_NATIVE_DIALOG *fd)
 
 int _al_show_native_message_box(ALLEGRO_NATIVE_DIALOG *fd)
 {
-	unsigned i;
-	NSString* button_text;
-	NSArray* buttons;
-	NSAlert* box = [[NSAlert alloc] init];
-	NSAlertStyle style;
-	if (fd->buttons == NULL) {
-		button_text = @"OK";
-		if (fd->mode & ALLEGRO_MESSAGEBOX_YES_NO) button_text = @"Yes|No";
-		if (fd->mode & ALLEGRO_MESSAGEBOX_OK_CANCEL) button_text = @"OK|Cancel";
-	}
-	else {
-		button_text = [NSString stringWithUTF8String: al_cstr(fd->buttons)];
-	}
-    style = NSWarningAlertStyle;
-	buttons = [button_text componentsSeparatedByString: @"|"];
-	[box setMessageText:[NSString stringWithUTF8String: al_cstr(fd->title)]];
-	[box setInformativeText:[NSString stringWithUTF8String: al_cstr(fd->text)]];
-	[box setAlertStyle: style];
-	for (i = 0; i < [buttons count]; ++i)
-		[box addButtonWithTitle: [buttons objectAtIndex: i]];
-	[buttons release];
-	fd->pressed_button = [box runModal] + 1 - NSAlertFirstButtonReturn;
-	[box release];
-	return fd->pressed_button;
+   unsigned i;
+
+   /* Since this might be run from a separate thread, we setup
+    * release pool, or we get memory leaks
+    */
+   NSAutoreleasePool* pool = [[NSAutoreleasePool alloc] init];
+
+   NSString* button_text;
+   NSArray* buttons;
+   NSAlert* box = [[NSAlert alloc] init];
+   NSAlertStyle style;
+
+   if (fd->buttons == NULL) {
+      button_text = @"OK";
+      if (fd->mode & ALLEGRO_MESSAGEBOX_YES_NO) button_text = @"Yes|No";
+      if (fd->mode & ALLEGRO_MESSAGEBOX_OK_CANCEL) button_text = @"OK|Cancel";
+   }
+   else {
+      button_text = [NSString stringWithUTF8String: al_cstr(fd->buttons)];
+   }
+
+   style = NSWarningAlertStyle;
+   buttons = [button_text componentsSeparatedByString: @"|"];
+   [box setMessageText:[NSString stringWithUTF8String: al_cstr(fd->title)]];
+   [box setInformativeText:[NSString stringWithUTF8String: al_cstr(fd->text)]];
+   [box setAlertStyle: style];
+   for (i = 0; i < [buttons count]; ++i)
+      [box addButtonWithTitle: [buttons objectAtIndex: i]];
+
+   fd->pressed_button = [box runModal] + 1 - NSAlertFirstButtonReturn;
+
+   [pool drain];
+   return fd->pressed_button;
 }
