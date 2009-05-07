@@ -77,17 +77,17 @@ static const unsigned char hw_to_mycode[256] =
    /* 0xAC */    0,                       0,                         0,                          0,
    /* 0xB0 */    0,                       0,                         0,                          0,
    /* 0xB4 */    0,                       0,                         0,                          0,
-   /* 0xB8 */    0,                       0,                         0,/*VK_OEM_1*/              0,/*VK_OEM_3*/
-   /* 0xBC */    ALLEGRO_KEY_COMMA,       ALLEGRO_KEY_MINUS,         0,/*VK_OEM_PERIOD*/         0,/*VK_OEM_2*/
+   /* 0xB8 */    0,                       0,                         ALLEGRO_KEY_SEMICOLON,      ALLEGRO_KEY_EQUALS,
+   /* 0xBC */    ALLEGRO_KEY_COMMA,       ALLEGRO_KEY_MINUS,         0,/*VK_OEM_PERIOD*/         ALLEGRO_KEY_QUOTE,
    /* 0xC0 */    ALLEGRO_KEY_TILDE,       0,                         0,                          0,
    /* 0xC4 */    0,                       0,                         0,                          0,
    /* 0xC8 */    0,                       0,                         0,                          0,
    /* 0xCC */    0,                       0,                         0,                          0,
    /* 0xD0 */    0,                       0,                         0,                          0,
    /* 0xD4 */    0,                       0,                         0,                          0,
-   /* 0xD8 */    0,                       0,                         0,                          0,/*VK_OEM_4*/
-   /* 0xDC */    ALLEGRO_KEY_BACKSLASH2,  0,/*VK_OEM_6*/             0,/*VK_OEM_7*/              0,
-   /* 0xE0 */    0,                       0,                         0,/*VK_OEM_102*/            0,
+   /* 0xD8 */    0,                       0,                         0,                          ALLEGRO_KEY_OPENBRACE,
+   /* 0xDC */    ALLEGRO_KEY_SLASH,       ALLEGRO_KEY_CLOSEBRACE,    ALLEGRO_KEY_BACKSLASH,      0,
+   /* 0xE0 */    0,                       0,                         ALLEGRO_KEY_BACKSLASH2,     0,
    /* 0xE4 */    0,                       ALLEGRO_KEY_UNKNOWN,       0,                          0,
    /* 0xE8 */    0,                       0,                         0,                          0,
    /* 0xEC */    0,                       0,                         0,                          0,
@@ -120,7 +120,7 @@ static ALLEGRO_KEYBOARD_DRIVER keyboard_winapi =
    exit_keyboard,
    get_keyboard,
    NULL, /* bool set_leds(int leds) */
-   keycode_to_name,
+   NULL, /* const char* keycode_to_name(int keycode)*/
    get_keyboard_state
 };
 
@@ -308,26 +308,6 @@ void _al_win_kbd_handle_key_release(int vcode, ALLEGRO_DISPLAY_WIN *win_disp)
    _al_event_source_lock(&the_keyboard.es);
    _al_event_source_emit_event(&the_keyboard.es, &event);
    _al_event_source_unlock(&the_keyboard.es);
-}
-
-
-static const char *keycode_to_name(int keycode)
-{
-   static char key_name[255];
-   int vcode;
-
-   for (vcode = 0; vcode < 256; vcode++) {
-      if (hw_to_mycode[vcode] == keycode) {
-         int scode = MapVirtualKey(vcode, MAPVK_VSC_TO_VK);
-         int param = scode << 16;
-         if (scode && GetKeyNameText(param, key_name, 255))
-            return key_name;
-         else
-            return NULL;
-      }
-   }
-
-   return NULL;
 }
 
 
