@@ -88,13 +88,13 @@ static const unsigned char hw_to_mycode[256] =
    /* 0xD8 */    0,                       0,                         0,                          ALLEGRO_KEY_OPENBRACE,
    /* 0xDC */    ALLEGRO_KEY_SLASH,       ALLEGRO_KEY_CLOSEBRACE,    ALLEGRO_KEY_BACKSLASH,      0,
    /* 0xE0 */    0,                       0,                         ALLEGRO_KEY_BACKSLASH2,     0,
-   /* 0xE4 */    0,                       ALLEGRO_KEY_UNKNOWN,       0,                          0,
+   /* 0xE4 */    0,                       ALLEGRO_KEY_UNKNOWN+29,    0,                          0,
    /* 0xE8 */    0,                       0,                         0,                          0,
    /* 0xEC */    0,                       0,                         0,                          0,
    /* 0xF0 */    0,                       0,                         0,                          0,
-   /* 0xF4 */    0,                       0,                         ALLEGRO_KEY_UNKNOWN+29,     ALLEGRO_KEY_UNKNOWN+30,
-   /* 0xF8 */    ALLEGRO_KEY_UNKNOWN+40,  ALLEGRO_KEY_UNKNOWN+41,    ALLEGRO_KEY_UNKNOWN+42,     ALLEGRO_KEY_UNKNOWN+43,
-   /* 0xFC */    ALLEGRO_KEY_UNKNOWN+44,  ALLEGRO_KEY_UNKNOWN+45,    ALLEGRO_KEY_UNKNOWN+46,     0
+   /* 0xF4 */    0,                       0,                         ALLEGRO_KEY_UNKNOWN+30,     ALLEGRO_KEY_UNKNOWN+31,
+   /* 0xF8 */    ALLEGRO_KEY_UNKNOWN+32,  ALLEGRO_KEY_UNKNOWN+33,    ALLEGRO_KEY_UNKNOWN+34,     ALLEGRO_KEY_UNKNOWN+35,
+   /* 0xFC */    ALLEGRO_KEY_UNKNOWN+36,  ALLEGRO_KEY_UNKNOWN+37,    ALLEGRO_KEY_UNKNOWN+38,     0
    };
 
 
