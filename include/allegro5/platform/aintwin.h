@@ -80,7 +80,7 @@ bool _al_win_input_unregister_event(HANDLE event_id);
 void _al_win_grab_input(ALLEGRO_DISPLAY_WIN *win_disp);
 
 /* keyboard routines */
-void _al_win_kbd_handle_key_press(int ccode, int vcode, bool repeated,
+void _al_win_kbd_handle_key_press(int scode, int vcode, bool repeated,
                            ALLEGRO_DISPLAY_WIN *win_disp);
 void _al_win_kbd_handle_key_release(int vcode, ALLEGRO_DISPLAY_WIN *win_disp);
 

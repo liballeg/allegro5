@@ -400,46 +400,16 @@ static LRESULT CALLBACK window_callback(HWND hWnd, UINT message,
       }
       case WM_KEYDOWN: {
          int vcode = wParam; 
-         int orig_vcode = wParam;
          int scode = (lParam >> 16) & 0xff;
          bool repeated  = (lParam >> 30) & 0x1;
-         BYTE ks[256];
-         WCHAR buf[8];
-
          /* We can't use TranslateMessage() because we don't know if it will
             produce a WM_CHAR or not. */
-
-         if (!GetKeyboardState(&ks[0])) {
-            /* shound't really happen */
-            _al_win_kbd_handle_key_press(0, scode, repeated, win_display);
-            return 0;
-         }
-
-         if (ks[VK_LCONTROL] & 0x80) vcode = VK_LCONTROL;
-         if (ks[VK_RCONTROL] & 0x80) vcode = VK_RCONTROL;
-         if (ks[VK_LSHIFT] & 0x80) vcode = VK_LSHIFT;
-         if (ks[VK_RSHIFT] & 0x80) vcode = VK_RSHIFT;
-         if (ks[VK_LMENU] & 0x80) vcode = VK_LMENU;
-         if (ks[VK_RMENU] & 0x80) vcode = VK_RMENU;
-
-         if (ToUnicode(orig_vcode, scode, ks, buf, 8, 0) == 1) {
-            _al_win_kbd_handle_key_press(buf[0], vcode, repeated, win_display);
-         }
-         else {
-            _al_win_kbd_handle_key_press(0, vcode, repeated, win_display);
-         }
+         _al_win_kbd_handle_key_press(scode, vcode, repeated, win_display);
          return 0;
       }
       case WM_SYSKEYUP:
       case WM_KEYUP: {
          int vcode = wParam;
-         /* FIXME: distinguish left and right shift, control and alt */
-         if (vcode == VK_SHIFT)
-            vcode = VK_LSHIFT;
-         if (vcode == VK_CONTROL)
-            vcode = VK_LCONTROL;
-         if (vcode == VK_MENU)
-            vcode = VK_LMENU;
          _al_win_kbd_handle_key_release(vcode, win_display);
          return 0;
       }

@@ -31,18 +31,18 @@ static int modifiers = 0;
 /* lookup table for converting virtualkey VK_* codes into Allegro ALLEGRO_KEY_* codes */
 static const unsigned char hw_to_mycode[256] =
 {
-   /* 0x00 */    0,                       ALLEGRO_KEY_UNKNOWN,       ALLEGRO_KEY_UNKNOWN,        ALLEGRO_KEY_UNKNOWN,
-   /* 0x04 */    ALLEGRO_KEY_UNKNOWN,     0,                         0,                          0,
+   /* 0x00 */    0,                       ALLEGRO_KEY_UNKNOWN+0,     ALLEGRO_KEY_UNKNOWN+1,      ALLEGRO_KEY_UNKNOWN+2,
+   /* 0x04 */    ALLEGRO_KEY_UNKNOWN+3,   ALLEGRO_KEY_UNKNOWN+4,     ALLEGRO_KEY_UNKNOWN+5,      0,
    /* 0x08 */    ALLEGRO_KEY_BACKSPACE,   ALLEGRO_KEY_TAB,           0,                          0,
    /* 0x0C */    ALLEGRO_KEY_UNKNOWN,     ALLEGRO_KEY_ENTER,         0,                          0,
-   /* 0x10 */    ALLEGRO_KEY_UNKNOWN,     ALLEGRO_KEY_UNKNOWN,       ALLEGRO_KEY_UNKNOWN,        ALLEGRO_KEY_PAUSE,
-   /* 0x14 */    ALLEGRO_KEY_CAPSLOCK,    ALLEGRO_KEY_KANA,          0,                          ALLEGRO_KEY_UNKNOWN,
-   /* 0x18 */    ALLEGRO_KEY_UNKNOWN,     ALLEGRO_KEY_KANJI,         0,                          ALLEGRO_KEY_ESCAPE,
-   /* 0x1C */    ALLEGRO_KEY_CONVERT,     ALLEGRO_KEY_NOCONVERT,     ALLEGRO_KEY_UNKNOWN,        ALLEGRO_KEY_UNKNOWN,
+   /* 0x10 */    0/*L or R shift*/,       0/*L or R ctrl*/,          0/*L or R alt*/,            ALLEGRO_KEY_PAUSE,
+   /* 0x14 */    ALLEGRO_KEY_CAPSLOCK,    ALLEGRO_KEY_KANA,          0,                          ALLEGRO_KEY_UNKNOWN+6,
+   /* 0x18 */    ALLEGRO_KEY_UNKNOWN+7,   ALLEGRO_KEY_KANJI,         0,                          ALLEGRO_KEY_ESCAPE,
+   /* 0x1C */    ALLEGRO_KEY_CONVERT,     ALLEGRO_KEY_NOCONVERT,     ALLEGRO_KEY_UNKNOWN+8,      ALLEGRO_KEY_UNKNOWN+9,
    /* 0x20 */    ALLEGRO_KEY_SPACE,       ALLEGRO_KEY_PGUP,          ALLEGRO_KEY_PGDN,           ALLEGRO_KEY_END,
    /* 0x24 */    ALLEGRO_KEY_HOME,        ALLEGRO_KEY_LEFT,          ALLEGRO_KEY_UP,             ALLEGRO_KEY_RIGHT,
-   /* 0x28 */    ALLEGRO_KEY_DOWN,        ALLEGRO_KEY_UNKNOWN,       ALLEGRO_KEY_UNKNOWN,        ALLEGRO_KEY_UNKNOWN,
-   /* 0x2C */    ALLEGRO_KEY_PRINTSCREEN, ALLEGRO_KEY_INSERT,        ALLEGRO_KEY_DELETE,         ALLEGRO_KEY_UNKNOWN,
+   /* 0x28 */    ALLEGRO_KEY_DOWN,        ALLEGRO_KEY_UNKNOWN+10,    ALLEGRO_KEY_UNKNOWN+11,     ALLEGRO_KEY_UNKNOWN+12,
+   /* 0x2C */    ALLEGRO_KEY_PRINTSCREEN, ALLEGRO_KEY_INSERT,        ALLEGRO_KEY_DELETE,         ALLEGRO_KEY_UNKNOWN+13,
    /* 0x30 */    ALLEGRO_KEY_0,           ALLEGRO_KEY_1,             ALLEGRO_KEY_2,              ALLEGRO_KEY_3,
    /* 0x34 */    ALLEGRO_KEY_4,           ALLEGRO_KEY_5,             ALLEGRO_KEY_6,              ALLEGRO_KEY_7,
    /* 0x38 */    ALLEGRO_KEY_8,           ALLEGRO_KEY_9,             0,                          0,
@@ -54,17 +54,17 @@ static const unsigned char hw_to_mycode[256] =
    /* 0x50 */    ALLEGRO_KEY_P,           ALLEGRO_KEY_Q,             ALLEGRO_KEY_R,              ALLEGRO_KEY_S,
    /* 0x54 */    ALLEGRO_KEY_T,           ALLEGRO_KEY_U,             ALLEGRO_KEY_V,              ALLEGRO_KEY_W,
    /* 0x58 */    ALLEGRO_KEY_X,           ALLEGRO_KEY_Y,             ALLEGRO_KEY_Z,              ALLEGRO_KEY_LWIN,
-   /* 0x5C */    ALLEGRO_KEY_RWIN,        ALLEGRO_KEY_UNKNOWN,       0,                          0,
+   /* 0x5C */    ALLEGRO_KEY_RWIN,        ALLEGRO_KEY_UNKNOWN+14,    0,                          0,
    /* 0x60 */    ALLEGRO_KEY_PAD_0,       ALLEGRO_KEY_PAD_1,         ALLEGRO_KEY_PAD_2,          ALLEGRO_KEY_PAD_3,
    /* 0x64 */    ALLEGRO_KEY_PAD_4,       ALLEGRO_KEY_PAD_5,         ALLEGRO_KEY_PAD_6,          ALLEGRO_KEY_PAD_7,
    /* 0x68 */    ALLEGRO_KEY_PAD_8,       ALLEGRO_KEY_PAD_9,         ALLEGRO_KEY_PAD_ASTERISK,   ALLEGRO_KEY_PAD_PLUS,
-   /* 0x6C */    ALLEGRO_KEY_UNKNOWN,     ALLEGRO_KEY_PAD_MINUS,     ALLEGRO_KEY_UNKNOWN,        ALLEGRO_KEY_PAD_SLASH,
+   /* 0x6C */    ALLEGRO_KEY_UNKNOWN+15,  ALLEGRO_KEY_PAD_MINUS,     ALLEGRO_KEY_UNKNOWN+16,     ALLEGRO_KEY_PAD_SLASH,
    /* 0x70 */    ALLEGRO_KEY_F1,          ALLEGRO_KEY_F2,            ALLEGRO_KEY_F3,             ALLEGRO_KEY_F4,
    /* 0x74 */    ALLEGRO_KEY_F5,          ALLEGRO_KEY_F6,            ALLEGRO_KEY_F7,             ALLEGRO_KEY_F8,
    /* 0x78 */    ALLEGRO_KEY_F9,          ALLEGRO_KEY_F10,           ALLEGRO_KEY_F11,            ALLEGRO_KEY_F12,
-   /* 0x7C */    ALLEGRO_KEY_UNKNOWN,     ALLEGRO_KEY_UNKNOWN,       ALLEGRO_KEY_UNKNOWN,        ALLEGRO_KEY_UNKNOWN,
-   /* 0x80 */    ALLEGRO_KEY_UNKNOWN,     ALLEGRO_KEY_UNKNOWN,       ALLEGRO_KEY_UNKNOWN,        ALLEGRO_KEY_UNKNOWN,
-   /* 0x84 */    ALLEGRO_KEY_UNKNOWN,     ALLEGRO_KEY_UNKNOWN,       ALLEGRO_KEY_UNKNOWN,        ALLEGRO_KEY_UNKNOWN,
+   /* 0x7C */    ALLEGRO_KEY_UNKNOWN+17,  ALLEGRO_KEY_UNKNOWN+18,    ALLEGRO_KEY_UNKNOWN+19,     ALLEGRO_KEY_UNKNOWN+20,
+   /* 0x80 */    ALLEGRO_KEY_UNKNOWN+21,  ALLEGRO_KEY_UNKNOWN+22,    ALLEGRO_KEY_UNKNOWN+23,     ALLEGRO_KEY_UNKNOWN+24,
+   /* 0x84 */    ALLEGRO_KEY_UNKNOWN+25,  ALLEGRO_KEY_UNKNOWN+26,    ALLEGRO_KEY_UNKNOWN+27,     ALLEGRO_KEY_UNKNOWN+28,
    /* 0x88 */    0,                       0,                         0,                          0,
    /* 0x8C */    0,                       0,                         0,                          0,
    /* 0x90 */    ALLEGRO_KEY_NUMLOCK,     ALLEGRO_KEY_SCROLLLOCK,    0,                          0,
@@ -92,9 +92,9 @@ static const unsigned char hw_to_mycode[256] =
    /* 0xE8 */    0,                       0,                         0,                          0,
    /* 0xEC */    0,                       0,                         0,                          0,
    /* 0xF0 */    0,                       0,                         0,                          0,
-   /* 0xF4 */    0,                       0,                         ALLEGRO_KEY_UNKNOWN,        ALLEGRO_KEY_UNKNOWN,
-   /* 0xF8 */    ALLEGRO_KEY_UNKNOWN,     ALLEGRO_KEY_UNKNOWN,       ALLEGRO_KEY_UNKNOWN,        ALLEGRO_KEY_UNKNOWN,
-   /* 0xFC */    ALLEGRO_KEY_UNKNOWN,     ALLEGRO_KEY_UNKNOWN,       ALLEGRO_KEY_UNKNOWN,        0
+   /* 0xF4 */    0,                       0,                         ALLEGRO_KEY_UNKNOWN+29,     ALLEGRO_KEY_UNKNOWN+30,
+   /* 0xF8 */    ALLEGRO_KEY_UNKNOWN+40,  ALLEGRO_KEY_UNKNOWN+41,    ALLEGRO_KEY_UNKNOWN+42,     ALLEGRO_KEY_UNKNOWN+43,
+   /* 0xFC */    ALLEGRO_KEY_UNKNOWN+44,  ALLEGRO_KEY_UNKNOWN+45,    ALLEGRO_KEY_UNKNOWN+46,     0
    };
 
 
@@ -250,17 +250,40 @@ static void update_modifiers(int code, bool pressed)
 /* _al_win_kbd_handle_key_press:
  *  Does stuff when a key is pressed.
  */
-void _al_win_kbd_handle_key_press(int ccode, int vcode, bool repeated,
+void _al_win_kbd_handle_key_press(int scode, int vcode, bool repeated,
                            ALLEGRO_DISPLAY_WIN *win_disp)
 {
    ALLEGRO_EVENT event;
-   int my_code = hw_to_mycode[vcode];
+   int my_code;
+   int ccode;
+   BYTE ks[256];
+   WCHAR buf[8];
 
    if (!installed)
       return;
 
-   update_modifiers(my_code, true);
+   if (!GetKeyboardState(&ks[0]))
+      ccode = 0; /* shound't really happen */
+   else if (ToUnicode(vcode, scode, ks, buf, 8, 0) == 1)
+      ccode = buf[0];
+   else
+      ccode = 0;
 
+   if (ks[VK_LCONTROL] & 0x80)
+      vcode = VK_LCONTROL;
+   if (ks[VK_RCONTROL] & 0x80)
+      vcode = VK_RCONTROL;
+   if (ks[VK_LSHIFT] & 0x80)
+      vcode = VK_LSHIFT;
+   if (ks[VK_RSHIFT] & 0x80)
+      vcode = VK_RSHIFT;
+   if (ks[VK_LMENU] & 0x80)
+      vcode = VK_LMENU;
+   if (ks[VK_RMENU] & 0x80)
+      vcode = VK_RMENU;
+
+   my_code = hw_to_mycode[vcode];
+   update_modifiers(my_code, true);
    _AL_KEYBOARD_STATE_SET_KEY_DOWN(the_state, my_code);
 
    if (!_al_event_source_needs_to_generate_event(&the_keyboard.es))
@@ -286,11 +309,34 @@ void _al_win_kbd_handle_key_press(int ccode, int vcode, bool repeated,
 void _al_win_kbd_handle_key_release(int vcode, ALLEGRO_DISPLAY_WIN *win_disp)
 {
    ALLEGRO_EVENT event;
-   int my_code = hw_to_mycode[vcode];
+   int my_code;
 
    if (!installed)
      return;
 
+   /* Can't make any sense out of either one of GetAsyncKeyState(),
+      GetKeyState(), GetKeyboardState()... So we do our own logic to
+      distinguish between left and right shift, ctrl & alt:
+      The key which isn't depressed can't be released.
+
+      The only problem is we can't know which key is being released
+      if both left and right were depressed. I practice, keyboards
+      won't let you do that anyway.
+   */
+   if (vcode == VK_SHIFT && _AL_KEYBOARD_STATE_KEY_DOWN(the_state, ALLEGRO_KEY_LSHIFT))
+      vcode = VK_LSHIFT;
+   else if (vcode == VK_SHIFT &&_AL_KEYBOARD_STATE_KEY_DOWN(the_state, ALLEGRO_KEY_RSHIFT))
+      vcode = VK_RSHIFT;
+   else if (vcode == VK_CONTROL &&_AL_KEYBOARD_STATE_KEY_DOWN(the_state, ALLEGRO_KEY_LCTRL))
+      vcode = VK_LCONTROL;
+   else if (vcode == VK_CONTROL && _AL_KEYBOARD_STATE_KEY_DOWN(the_state, ALLEGRO_KEY_RCTRL))
+      vcode = VK_RCONTROL;
+   else if (vcode == VK_MENU && _AL_KEYBOARD_STATE_KEY_DOWN(the_state, ALLEGRO_KEY_ALT))
+      vcode = VK_LMENU;
+   else if (vcode == VK_MENU && _AL_KEYBOARD_STATE_KEY_DOWN(the_state, ALLEGRO_KEY_ALTGR))
+      vcode = VK_RMENU;
+
+   my_code = hw_to_mycode[vcode];
    update_modifiers(my_code, false);
 
    _AL_KEYBOARD_STATE_CLEAR_KEY_DOWN(the_state, my_code);
