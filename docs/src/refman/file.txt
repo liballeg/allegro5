@@ -31,9 +31,9 @@ Depending on the stream type and the mode string, files may be opened in
 "text" mode.  The handling of newlines is particularly important.  For example,
 using the default stdio-based streams on DOS and Windows platforms, where the
 native end-of-line terminators are CR+LF sequences, a call to [al_fgetc] may
-return just one character ('\n') where there were two bytes (CR+LF) in the
-file.  When writing out '\n', two bytes would be written instead.
-(As an aside, '\n' is not defined to be equal to LF either.)
+return just one character ('\\n') where there were two bytes (CR+LF) in the
+file.  When writing out '\\n', two bytes would be written instead.
+(As an aside, '\\n' is not defined to be equal to LF either.)
 
 Newline translations can be useful for text files but is disastrous for binary
 files.  To avoid this behaviour you need to open file streams in binary mode
