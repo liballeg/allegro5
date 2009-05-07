@@ -4,12 +4,16 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#define boolean A5_BOOLEAN_HACK
 #include <jpeglib.h>
+#undef boolean
 #include <jerror.h>
 
 #include "allegro5/allegro5.h"
 #include "allegro5/fshook.h"
 #include "allegro5/internal/aintern_memory.h"
+
+typedef int jpg_bool;
 
 #include "iio.h"
 
@@ -41,7 +45,7 @@ static void init_destination(j_compress_ptr cinfo)
    dest->pub.free_in_buffer = BUFFER_SIZE;
 }
 
-static boolean fill_input_buffer(j_decompress_ptr cinfo)
+static jpg_bool fill_input_buffer(j_decompress_ptr cinfo)
 {
    struct my_src_mgr *src = (void *)cinfo->src;
    src->pub.next_input_byte = src->buffer;
@@ -49,7 +53,7 @@ static boolean fill_input_buffer(j_decompress_ptr cinfo)
    return 1;
 }
 
-static boolean empty_output_buffer(j_compress_ptr cinfo)
+static jpg_bool empty_output_buffer(j_compress_ptr cinfo)
 {
    struct my_dest_mgr *dest = (void *)cinfo->dest;
    al_fwrite(dest->pf, dest->buffer, BUFFER_SIZE);
