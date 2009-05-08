@@ -104,7 +104,6 @@ static bool init_keyboard(void);
 static void exit_keyboard(void);
 static void get_keyboard_state(ALLEGRO_KEYBOARD_STATE *ret_state);
 static ALLEGRO_KEYBOARD *get_keyboard(void);
-static const char *keycode_to_name(int keycode);
 
 
 /* the driver vtable */
