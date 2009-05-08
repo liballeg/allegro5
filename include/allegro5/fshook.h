@@ -13,9 +13,6 @@
  *      See readme.txt for copyright information.
  */
 
-/* Title: Filesystem routines
-*/
-
 #ifndef ALLEGRO_FSHOOK_H
 #define ALLEGRO_FSHOOK_H
 
@@ -37,12 +34,10 @@ typedef unsigned int off_t;
  */
 typedef struct ALLEGRO_FS_ENTRY ALLEGRO_FS_ENTRY;
 
-#ifdef ALLEGRO_LIB_BUILD
 struct ALLEGRO_FS_HOOK_ENTRY_INTERFACE;
 struct ALLEGRO_FS_ENTRY {
    struct ALLEGRO_FS_HOOK_ENTRY_INTERFACE *vtable;
 };
-#endif /* ALLEGRO_LIB_BUILD */
 
 /* Enum: ALLEGRO_FILE_MODE
  */
@@ -58,6 +53,21 @@ enum {
 #ifndef EOF
    #define EOF    (-1)
 #endif
+
+/* Type: ALLEGRO_FS_INTERFACE
+ */
+typedef struct ALLEGRO_FS_INTERFACE {
+   AL_METHOD(ALLEGRO_FS_ENTRY *, create,  (const char *path) );
+   AL_METHOD(ALLEGRO_FS_ENTRY *, opendir, (const char *path) );
+
+   AL_METHOD(ALLEGRO_PATH *, getcwd, (void));
+   AL_METHOD(bool, chdir, (const char *path));
+
+   AL_METHOD(bool, exists, (const char *path));
+   AL_METHOD(bool, remove, (const char *path));
+
+   AL_METHOD(bool, mkdir, (const char *path));
+} ALLEGRO_FS_INTERFACE;
 
 AL_FUNC(ALLEGRO_FS_ENTRY*, al_create_entry, (const char *path));
 AL_FUNC(void, al_destroy_entry, (ALLEGRO_FS_ENTRY *handle));
@@ -92,8 +102,10 @@ AL_FUNC(bool, al_mkdir, (const char *));
 AL_FUNC(ALLEGRO_PATH *, al_getcwd, (void));
 AL_FUNC(bool, al_chdir, (const char *path));
 
-AL_FUNC(int32_t, al_drive_sep, (char *sep, size_t len));
-AL_FUNC(int32_t, al_path_sep, (char *sep, size_t len));
+
+/* Thread-local state. */
+AL_FUNC(const ALLEGRO_FS_INTERFACE *, al_get_fs_interface, (void));
+AL_FUNC(void, al_set_fs_interface, (const ALLEGRO_FS_INTERFACE *vtable));
 
 #ifdef __cplusplus
    }

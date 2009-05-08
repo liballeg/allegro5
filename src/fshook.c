@@ -28,7 +28,6 @@
 #include "allegro5/internal/aintern_memory.h"
 
 
-struct ALLEGRO_FS_HOOK_SYS_INTERFACE *_al_sys_fshooks = &_al_stdio_sys_fshooks;
 struct ALLEGRO_FS_HOOK_ENTRY_INTERFACE *_al_entry_fshooks = &_al_stdio_entry_fshooks;
 
 
@@ -36,7 +35,9 @@ struct ALLEGRO_FS_HOOK_ENTRY_INTERFACE *_al_entry_fshooks = &_al_stdio_entry_fsh
  */
 ALLEGRO_FS_ENTRY *al_create_entry(const char *path)
 {
-   return _al_fs_hook_create(path);
+   const ALLEGRO_FS_INTERFACE *vt = al_get_fs_interface();
+   ASSERT(vt->create);
+   return vt->create(path);
 }
 
 
@@ -95,10 +96,12 @@ bool al_fstat(ALLEGRO_FS_ENTRY *fp)
 ALLEGRO_FS_ENTRY *al_opendir(const char *path)
 {
    ALLEGRO_FS_ENTRY *dir = NULL;
+   const ALLEGRO_FS_INTERFACE *vt = al_get_fs_interface();
 
    ASSERT(path != NULL);
+   ASSERT(vt->opendir);
 
-   dir = _al_fs_hook_opendir(path);
+   dir = vt->opendir(path);
    if (!dir)
       return NULL;
 
@@ -214,7 +217,9 @@ bool al_is_file(ALLEGRO_FS_ENTRY *e)
  */
 ALLEGRO_PATH *al_getcwd(void)
 {
-   return _al_fs_hook_getcwd();
+   const ALLEGRO_FS_INTERFACE *vt = al_get_fs_interface();
+   ASSERT(vt->getcwd);
+   return vt->getcwd();
 }
 
 
@@ -222,9 +227,11 @@ ALLEGRO_PATH *al_getcwd(void)
  */
 bool al_chdir(const char *path)
 {
+   const ALLEGRO_FS_INTERFACE *vt = al_get_fs_interface();
+   ASSERT(vt->chdir);
    ASSERT(path);
 
-   return _al_fs_hook_chdir(path);
+   return vt->chdir(path);
 }
 
 
@@ -232,31 +239,11 @@ bool al_chdir(const char *path)
  */
 bool al_mkdir(const char *path)
 {
+   const ALLEGRO_FS_INTERFACE *vt = al_get_fs_interface();
    ASSERT(path);
+   ASSERT(vt->mkdir);
 
-   return _al_fs_hook_mkdir(path);
-}
-
-
-/* Function: al_drive_sep
- */
-int32_t al_drive_sep(char *sep, size_t len)
-{
-   ASSERT(len > 0);
-   ASSERT(sep);
-
-   return _al_fs_hook_drive_sep(sep, len);
-}
-
-
-/* Function: al_path_sep
- */
-int32_t al_path_sep(char *sep, size_t len)
-{
-   ASSERT(len > 0);
-   ASSERT(sep);
-
-   return _al_fs_hook_path_sep(sep, len);
+   return vt->mkdir(path);
 }
 
 
@@ -264,8 +251,11 @@ int32_t al_path_sep(char *sep, size_t len)
  */
 bool al_remove_str(const char *path)
 {
+   const ALLEGRO_FS_INTERFACE *vt = al_get_fs_interface();
+   ASSERT(vt->remove);
    ASSERT(path != NULL);
-   return _al_fs_hook_remove(path);
+   
+   return vt->remove(path);
 }
 
 
@@ -273,9 +263,11 @@ bool al_remove_str(const char *path)
  */
 bool al_is_present_str(const char *path)
 {
+   const ALLEGRO_FS_INTERFACE *vt = al_get_fs_interface();
    ASSERT(path != NULL);
+   ASSERT(vt->exists);
 
-   return _al_fs_hook_exists(path);
+   return vt->exists(path);
 }
 
 

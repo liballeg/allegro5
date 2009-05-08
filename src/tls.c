@@ -31,6 +31,7 @@
 #include "allegro5/internal/aintern_display.h"
 #include "allegro5/internal/aintern_file.h"
 #include "allegro5/internal/aintern_memory.h"
+#include "allegro5/internal/aintern_fshook.h"
 
 
 /* Thread local storage for graphics API state */
@@ -56,6 +57,7 @@ typedef struct thread_local_state {
    //ALLEGRO_MEMORY_BLENDER memory_blender;
    /* Files */
    const ALLEGRO_FILE_INTERFACE *new_file_interface;
+   const ALLEGRO_FS_INTERFACE *fs_interface;
    /* Error code */
    int allegro_errno;
 } thread_local_state;
@@ -221,6 +223,7 @@ static THREAD_LOCAL thread_local_state _tls = {
    { 1.0f, 1.0f, 1.0f, 1.0f },            /* blend_color  */
    //_al_blender_alpha_inverse_alpha,       /* memory_blender */
    &_al_file_interface_stdio,             /* file_interface */
+   &_al_fs_interface_stdio,               /* fs_interface */
    0                                      /* errno */
 };
 
@@ -484,6 +487,7 @@ void al_store_state(ALLEGRO_STATE *state, int flags)
 
    if (flags & ALLEGRO_STATE_NEW_FILE_INTERFACE) {
       _STORE(new_file_interface);
+      _STORE(fs_interface);
    }
 }
 #undef _STORE
@@ -536,6 +540,7 @@ void al_restore_state(ALLEGRO_STATE const *state)
 
    if (flags & ALLEGRO_STATE_NEW_FILE_INTERFACE) {
       _STORE(new_file_interface);
+      _STORE(fs_interface);
    }
 }
 #undef _STORE
@@ -750,6 +755,36 @@ void al_set_new_file_interface(const ALLEGRO_FILE_INTERFACE *file_interface)
    if ((tls = tls_get()) == NULL)
       return;
    tls->new_file_interface = file_interface;
+}
+
+
+
+/* Function: al_get_fs_interface
+ */
+const ALLEGRO_FS_INTERFACE *al_get_fs_interface(void)
+{
+   thread_local_state *tls;
+
+   if ((tls = tls_get()) == NULL)
+      return &_al_fs_interface_stdio;
+
+   if (tls->fs_interface)
+      return tls->fs_interface;
+   else
+      return &_al_fs_interface_stdio;
+}
+
+
+
+/* Function: al_set_fs_interface
+ */
+void al_set_fs_interface(const ALLEGRO_FS_INTERFACE *fs_interface)
+{
+   thread_local_state *tls;
+
+   if ((tls = tls_get()) == NULL)
+      return;
+   tls->fs_interface = fs_interface;
 }
 
 

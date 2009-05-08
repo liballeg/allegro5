@@ -7,6 +7,12 @@ Represents a file or a directory (check with [al_is_directory]
 or [al_is_file]).
 There are no user accessible member variables.
 
+## API: ALLEGRO_FS_INTERFACE
+
+A structure containing some basic "filesystem" functions. You can use
+[al_set_new_fs_interface] to make Allegro use a different set of functions
+instead of stdio.
+
 # Enumerations
 
 ## API: ALLEGRO_FILE_MODE
@@ -198,14 +204,24 @@ Changes the current working directory to 'path'.
 
 Returns -1 on error.
 
-## API: al_path_sep
+# Alternative filesystem functions
 
-Fills in 'sep' up to 'len' characters with the path separator string.
-XXX return code?
+By default, Allegro uses platform specific filesystem functions for things like
+directory access. However if for example the files of your game are not in
+the local filesystem but inside some file archive, you can provide your own
+set of functions (or use an addon which does this for you, for example our
+physfs addon allows access to the most common archive formats).
 
-## API: al_drive_sep
+## API: al_set_fs_interface
 
-Fills in 'sep' up to 'len' characters with the drive separator string.
-XXX return code?
+Set the ALLEGRO_FS_INTERFACE table for the calling thread.
 
+See also: [al_store_state], [al_restore_state].
+
+## API: al_get_fs_interface
+
+Return a pointer to the ALLEGRO_FS_INTERFACE table in effect
+for the calling thread.
+
+See also: [al_store_state], [al_restore_state].
 

@@ -663,33 +663,6 @@ static bool al_fs_stdio_mkdir(const char *path)
    return true;
 }
 
-static int32_t al_fs_stdio_drive_sep(char *sep, size_t len)
-{
-#ifdef ALLEGRO_WINDOWS
-   char *s = ":";
-   _al_sane_strncpy(sep, s, len);
-   return 0;
-#else
-   if (len >= 1)
-      sep[0] = '\0';
-
-   return 0;
-#endif
-}
-
-/* XXX what is this and what does it return? */
-static int32_t al_fs_stdio_path_sep(char *sep, size_t len)
-{
-   char c = '/';
-
-   if (len >= 2) {
-      sep[0] = c;
-      sep[1] = '\0';
-   }
-
-   return 0;
-}
-
 
 static bool al_fs_stdio_entry_exists(ALLEGRO_FS_ENTRY *fp)
 {
@@ -786,15 +759,12 @@ static ALLEGRO_PATH *al_fs_stdio_fname(ALLEGRO_FS_ENTRY *fp)
       return al_path_create(fp_stdio->path);
 }
 
-struct ALLEGRO_FS_HOOK_SYS_INTERFACE _al_stdio_sys_fshooks = {
+struct ALLEGRO_FS_INTERFACE _al_fs_interface_stdio = {
    al_fs_stdio_create_handle,
    al_fs_stdio_opendir,
 
    al_fs_stdio_getcwd,
    al_fs_stdio_chdir,
-
-   al_fs_stdio_path_sep,
-   al_fs_stdio_drive_sep,
 
    al_fs_stdio_file_exists,
    al_fs_stdio_file_remove,
