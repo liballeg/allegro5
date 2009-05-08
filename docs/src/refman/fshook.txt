@@ -40,22 +40,12 @@ Closes file if it was open.
 
 Does nothing if passed NULL.
 
-## API: al_close_entry
-
-Closes fs entry.
-
-Does nothing if passed NULL.
-
 ## API: al_closedir
 
 Closes a previously opened directory entry object.
 
-[al_close_entry] is also a valid way to close any entry object.
-
-Does not free the entry object if it was opened with [al_opendir].
-XXX This is probably a bug.
-
-Returns true on succes, false on failure and fills in errno to indicate the error.
+Returns true on success, false on failure and fills in errno to indicate the
+error.
 
 ## API: al_mkdir
 
@@ -65,26 +55,19 @@ Returns false on error and fills in errno to indicate the error.
 
 See also: [al_get_errno]
 
-## API: al_open_entry
-
-Opens handle with mode 'mode'.
-mode is a stdio type mode, ie: "r", "w", etc
-
-Returns true on success, false on failure and fills in errno to indicate the error.
-
-See also: [al_get_errno]
-
 ## API: al_opendir
 
-Creates and opens a filesystem entry object for a directory.
+Opens a directory entry object. You must call this before using [al_readdir]
+on an entry and you must call [al_closedir] when you no longer need it.
 
-Returns NULL on error.
+Returns true on success.
 
 ## API: al_readdir
 
 Reads the next dir item and returns a filesystem entry for it.
 
-Returns NULL on error.
+Returns NULL if there are no more entries or if an error occurs. Call
+[al_closedir] on the directory handle when you are done.
 
 ## API: al_remove_entry
 
@@ -143,13 +126,6 @@ Returns the entry's mode flags.
 See also: [al_get_errno]
 
 See the [ALLEGRO_FILE_MODE] enum for valid flags.
-
-## API: al_get_entry_mode_str
-
-Returns stat 'mode' for fs entry 'path'.
-
-See Also:
-[ALLEGRO_FILE_MODE]
 
 ## API: al_get_entry_atime
 
