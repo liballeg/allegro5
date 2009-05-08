@@ -1171,7 +1171,7 @@ static void display_thread_proc(void *arg)
     * for details.
     */
    {
-      WORD lock_time;
+      DWORD lock_time;
       HWND wnd = win_disp->window;
 
 #define SPI_GETFOREGROUNDLOCKTIMEOUT 0x2000
