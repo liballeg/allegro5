@@ -19,6 +19,7 @@ struct ALLEGRO_FILE_PHYSFS
    bool error_indicator;
 };
 
+void _al_set_physfs_fs_interface(void);
 
 /* forward declaration */
 static const ALLEGRO_FILE_INTERFACE file_phys_vtable;
@@ -282,6 +283,7 @@ static const ALLEGRO_FILE_INTERFACE file_phys_vtable =
 void al_set_physfs_file_interface(void)
 {
    al_set_new_file_interface(&file_phys_vtable);
+   _al_set_physfs_fs_interface();
 }
 
 

@@ -34,9 +34,8 @@ typedef unsigned int off_t;
  */
 typedef struct ALLEGRO_FS_ENTRY ALLEGRO_FS_ENTRY;
 
-struct ALLEGRO_FS_HOOK_ENTRY_INTERFACE;
 struct ALLEGRO_FS_ENTRY {
-   struct ALLEGRO_FS_HOOK_ENTRY_INTERFACE *vtable;
+   struct ALLEGRO_FS_INTERFACE const *vtable;
 };
 
 /* Enum: ALLEGRO_FILE_MODE
@@ -58,21 +57,37 @@ enum {
  */
 typedef struct ALLEGRO_FS_INTERFACE {
    AL_METHOD(ALLEGRO_FS_ENTRY *, create,  (const char *path) );
-   AL_METHOD(ALLEGRO_FS_ENTRY *, opendir, (const char *path) );
 
    AL_METHOD(ALLEGRO_PATH *, getcwd, (void));
    AL_METHOD(bool, chdir, (const char *path));
 
-   AL_METHOD(bool, exists, (const char *path));
-   AL_METHOD(bool, remove, (const char *path));
+   AL_METHOD(bool, exists_str, (const char *path));
+   AL_METHOD(bool, remove_str, (const char *path));
 
    AL_METHOD(bool, mkdir, (const char *path));
+
+   AL_METHOD(void, destroy, (ALLEGRO_FS_ENTRY *handle));
+
+   AL_METHOD(ALLEGRO_PATH *, fname, (ALLEGRO_FS_ENTRY *handle));
+
+   AL_METHOD(bool,    fstat,  (ALLEGRO_FS_ENTRY *handle));
+
+   AL_METHOD(off_t,    entry_size,  (ALLEGRO_FS_ENTRY *fh));
+   AL_METHOD(uint32_t, entry_mode,  (ALLEGRO_FS_ENTRY *fh));
+   AL_METHOD(time_t,   entry_atime, (ALLEGRO_FS_ENTRY *fh));
+   AL_METHOD(time_t,   entry_mtime, (ALLEGRO_FS_ENTRY *fh));
+   AL_METHOD(time_t,   entry_ctime, (ALLEGRO_FS_ENTRY *fh));
+
+   AL_METHOD(bool,  exists, (ALLEGRO_FS_ENTRY *fh));
+   AL_METHOD(bool,  remove, (ALLEGRO_FS_ENTRY *fh));
+
+   AL_METHOD(bool, opendir, (ALLEGRO_FS_ENTRY *dir));
+   AL_METHOD(ALLEGRO_FS_ENTRY *, readdir, (ALLEGRO_FS_ENTRY *dir));
+   AL_METHOD(bool, closedir, (ALLEGRO_FS_ENTRY *dir));
 } ALLEGRO_FS_INTERFACE;
 
 AL_FUNC(ALLEGRO_FS_ENTRY*, al_create_entry, (const char *path));
 AL_FUNC(void, al_destroy_entry, (ALLEGRO_FS_ENTRY *handle));
-AL_FUNC(bool, al_open_entry, (ALLEGRO_FS_ENTRY *handle));
-AL_FUNC(void, al_close_entry, (ALLEGRO_FS_ENTRY *handle));
 
 AL_FUNC(ALLEGRO_PATH *, al_get_entry_name, (ALLEGRO_FS_ENTRY *fp));
 
@@ -90,7 +105,7 @@ AL_FUNC(bool, al_is_present, (ALLEGRO_FS_ENTRY *));
 AL_FUNC(bool, al_is_directory, (ALLEGRO_FS_ENTRY *));
 AL_FUNC(bool, al_is_file, (ALLEGRO_FS_ENTRY *));
 
-AL_FUNC(ALLEGRO_FS_ENTRY *, al_opendir, (const char *path));
+AL_FUNC(bool, al_opendir, (ALLEGRO_FS_ENTRY *dir));
 AL_FUNC(bool, al_closedir, (ALLEGRO_FS_ENTRY *dir));
 AL_FUNC(ALLEGRO_FS_ENTRY *, al_readdir, (ALLEGRO_FS_ENTRY *dir));
 

@@ -5,6 +5,7 @@
  */
 
 
+#include <stdio.h>
 #include <allegro5/allegro5.h>
 #include <allegro5/a5_iio.h>
 #include <allegro5/a5_physfs.h>
@@ -37,6 +38,7 @@ int main(int argc, const char *argv[])
 {
    ALLEGRO_DISPLAY *display;
    ALLEGRO_BITMAP *bmp;
+   ALLEGRO_FS_ENTRY *entry;
    (void)argc;
 
    if (!al_init())
@@ -47,8 +49,10 @@ int main(int argc, const char *argv[])
    /* Set up PhysicsFS. */
    if (!PHYSFS_init(argv[0]))
       return 1;
-   if (!PHYSFS_setSaneConfig("allegro", "ex_physfs", NULL, 0, 0))
-      return 1;
+   // This creates a ~/.allegro directory, which is very annoying to say the
+   // least - and no need for it in this example.
+   //  if (!PHYSFS_setSaneConfig("allegro", "ex_physfs", NULL, 0, 0))
+   //     return 1;
    if (!PHYSFS_addToSearchPath("data/ex_physfs.zip", 1))
       return 1;
 
@@ -60,6 +64,20 @@ int main(int argc, const char *argv[])
     * backend.
     */
    al_set_physfs_file_interface();
+
+   /* List the contents of our example zip. */
+   entry = al_create_entry("");
+   al_opendir(entry);
+   while (1) {
+      ALLEGRO_FS_ENTRY *next = al_readdir(entry);
+      ALLEGRO_PATH *path;
+      if (!next)
+         break;
+      path = al_get_entry_name(next);
+      printf("%s\n", al_path_to_string(path, '/'));
+      al_destroy_entry(next);
+   }
+   al_closedir(entry);
 
    bmp = al_load_bitmap("02.bmp");
    if (bmp) {

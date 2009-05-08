@@ -332,14 +332,13 @@ typedef struct ALLEGRO_FS_ENTRY_STDIO ALLEGRO_FS_ENTRY_STDIO;
 struct ALLEGRO_FS_ENTRY_STDIO {
    ALLEGRO_FS_ENTRY fs_entry;   /* must be first */
 
-   uint32_t isdir;
+   bool isdir;
    union {
       DIR *dir;
    } hd;
 
    struct stat st;
    char *path;  // stores the path given by the user.
-   char *found; // used to store the proper path to a file opened and found via the search path.
    char mode[6];
    uint32_t free_on_fclose;
    uint32_t ulink;
@@ -363,7 +362,7 @@ static ALLEGRO_FS_ENTRY *al_fs_stdio_create_handle(const char *path)
 
    memset(fh, 0, sizeof(*fh));
 
-   fh->fs_entry.vtable = &_al_stdio_entry_fshooks;
+   fh->fs_entry.vtable = &_al_fs_interface_stdio;
 
    len = strlen(path);
    fh->path = _AL_MALLOC(len+1);
@@ -375,77 +374,9 @@ static ALLEGRO_FS_ENTRY *al_fs_stdio_create_handle(const char *path)
 
    memcpy(fh->path, path, len+1);
 
-   if(!fh->found) {
-      if(!al_fs_stdio_fstat((ALLEGRO_FS_ENTRY*)fh)) {
-      /* XXX what to do here?
-         errno:ENOENT isn't a fatal error, but are others?
-      */
-      }
-   }
+   al_fs_stdio_fstat((ALLEGRO_FS_ENTRY *) fh);
 
    return (ALLEGRO_FS_ENTRY *) fh;
-}
-
-static void al_fs_stdio_destroy_handle(ALLEGRO_FS_ENTRY *fh_)
-{
-   ALLEGRO_FS_ENTRY_STDIO *fh = (ALLEGRO_FS_ENTRY_STDIO *) fh_;
-
-   if (fh->found) {
-      if (fh->ulink)
-         unlink(fh->found);
-
-      _AL_FREE(fh->found);
-   }
-   else {
-      if (fh->ulink)
-         unlink(fh->path);
-   }
-
-   if (fh->path)
-      _AL_FREE(fh->path);
-
-   if (fh->isdir)
-      closedir(fh->hd.dir);
-
-   memset(fh, 0, sizeof(*fh));
-   _AL_FREE(fh);
-}
-
-static bool al_fs_stdio_open_handle(ALLEGRO_FS_ENTRY *fh_)
-{
-   ALLEGRO_FS_ENTRY_STDIO *fh = (ALLEGRO_FS_ENTRY_STDIO *) fh_;
-   char *tmp = NULL;
-
-   tmp = fh->found ? fh->found : fh->path;
-   if (fh->stat_mode & ALLEGRO_FILEMODE_ISDIR) {
-      fh->hd.dir = opendir(tmp);
-      if (!fh->hd.dir) {
-         al_set_errno(errno);
-         return false;
-      }
-      fh->isdir = 1;
-   }
-   else {
-      fh->isdir = 0;
-   }
-
-   return true;
-}
-
-static void al_fs_stdio_close_handle(ALLEGRO_FS_ENTRY *fh_)
-{
-   ALLEGRO_FS_ENTRY_STDIO *fh = (ALLEGRO_FS_ENTRY_STDIO *) fh_;
-
-   if (fh->isdir) {
-      /* think about handling the unlink on close.. may only be useful if mktemp can do dirs as well, or a mkdtemp is provided */
-      closedir(fh->hd.dir);
-      if (fh->found) {
-         _AL_FREE(fh->found);
-         fh->found = NULL;
-      }
-      fh->hd.dir = NULL;
-      fh->isdir = 0;
-   }
 }
 
 static void _al_fs_update_stat_mode(ALLEGRO_FS_ENTRY_STDIO *fp_stdio)
@@ -483,15 +414,12 @@ static void _al_fs_update_stat_mode(ALLEGRO_FS_ENTRY_STDIO *fp_stdio)
 /* TODO: do we need a special OSX section here? or are . (dot) files "proper" under osx? */
 #ifdef ALLEGRO_WINDOWS
    {
-      DWORD attrib = GetFileAttributes(fp_stdio->found ? fp_stdio->found : fp_stdio->path);
+      DWORD attrib = GetFileAttributes(fp_stdio->path);
       if (attrib & FILE_ATTRIBUTE_HIDDEN)
          fp_stdio->stat_mode |= ALLEGRO_FILEMODE_HIDDEN;
    }
 #else
-   if (fp_stdio->found)
-      fp_stdio->stat_mode |= (fp_stdio->found[0] == '.' ? ALLEGRO_FILEMODE_HIDDEN : 0);
-   else
-      fp_stdio->stat_mode |= (fp_stdio->path[0] == '.' ? ALLEGRO_FILEMODE_HIDDEN : 0);
+   fp_stdio->stat_mode |= (fp_stdio->path[0] == '.' ? ALLEGRO_FILEMODE_HIDDEN : 0);
 #endif
 
    return;
@@ -502,13 +430,8 @@ static bool al_fs_stdio_fstat(ALLEGRO_FS_ENTRY *fp)
    ALLEGRO_FS_ENTRY_STDIO *fp_stdio = (ALLEGRO_FS_ENTRY_STDIO *) fp;
    int32_t ret = 0;
 
-   /* FIXME: I'm not sure this check is needed, it might even be broken, if fh->found is set here, it could be stale info */
-   if (fp_stdio->found) {
-      ret = stat(fp_stdio->found, &(fp_stdio->st));
-   }
-   else {
-      ret = stat(fp_stdio->path, &(fp_stdio->st));
-   }
+   ret = stat(fp_stdio->path, &(fp_stdio->st));
+
    if (ret == -1) {
       al_set_errno(errno);
       return false;
@@ -519,34 +442,27 @@ static bool al_fs_stdio_fstat(ALLEGRO_FS_ENTRY *fp)
    return true;
 }
 
-static ALLEGRO_FS_ENTRY *al_fs_stdio_opendir(const char *path)
+static bool al_fs_stdio_opendir(ALLEGRO_FS_ENTRY *fp)
 {
-   ALLEGRO_FS_ENTRY *fp;
-   ALLEGRO_FS_ENTRY_STDIO *fp_stdio;
+   ALLEGRO_FS_ENTRY_STDIO *fp_stdio = (ALLEGRO_FS_ENTRY_STDIO *) fp;
+   if (!(fp_stdio->stat_mode & ALLEGRO_FILEMODE_ISDIR)) return false;
 
-   fp = al_fs_stdio_create_handle(path);
-   if (!fp)
-      return NULL;
-
-   fp_stdio = (ALLEGRO_FS_ENTRY_STDIO *) fp;
-   if (fp_stdio->stat_mode & ALLEGRO_FILEMODE_ISDIR) {
-      if (!al_fs_stdio_open_handle(fp)) {
-         al_fs_stdio_destroy_handle(fp);
-         return NULL;
-      }
-   }
-   else {
-      al_fs_stdio_destroy_handle(fp);
-      return NULL;
+   fp_stdio->hd.dir = opendir(fp_stdio->path);
+   if (!fp_stdio->hd.dir) {
+      al_set_errno(errno);
+      return false;
    }
 
-   return fp;
+   fp_stdio->isdir = true;
+   return true;
 }
 
 static bool al_fs_stdio_closedir(ALLEGRO_FS_ENTRY *fp)
 {
    ALLEGRO_FS_ENTRY_STDIO *fp_stdio = (ALLEGRO_FS_ENTRY_STDIO *) fp;
    bool ret;
+
+   fp_stdio->isdir = false;
 
    if (closedir(fp_stdio->hd.dir) == -1) {
       al_set_errno(errno);
@@ -557,8 +473,6 @@ static bool al_fs_stdio_closedir(ALLEGRO_FS_ENTRY *fp)
    }
 
    fp_stdio->hd.dir = NULL;
-   fp_stdio->isdir = 0;
-   _AL_FREE(fp_stdio);
 
    return ret;
 }
@@ -580,12 +494,28 @@ static ALLEGRO_FS_ENTRY *al_fs_stdio_readdir(ALLEGRO_FS_ENTRY *fp)
    /* TODO: Maybe we should keep an ALLEGRO_PATH for each entry in
     * the first place?
     */
-   path = al_path_create_dir(fp_stdio->found ? fp_stdio->found :
-      fp_stdio->path);
+   path = al_path_create_dir(fp_stdio->path);
    al_path_set_filename(path, ent->d_name);
    ret = al_fs_stdio_create_handle(al_path_to_string(path, '/'));
    al_path_free(path);
    return ret;
+}
+
+static void al_fs_stdio_destroy_handle(ALLEGRO_FS_ENTRY *fh_)
+{
+   ALLEGRO_FS_ENTRY_STDIO *fh = (ALLEGRO_FS_ENTRY_STDIO *) fh_;
+
+   if (fh->ulink)
+      unlink(fh->path);
+
+   if (fh->path)
+      _AL_FREE(fh->path);
+
+   if (fh->isdir)
+      al_fs_stdio_closedir(fh_);
+
+   memset(fh, 0, sizeof(*fh));
+   _AL_FREE(fh);
 }
 
 static off_t al_fs_stdio_entry_size(ALLEGRO_FS_ENTRY *fp)
@@ -668,7 +598,7 @@ static bool al_fs_stdio_entry_exists(ALLEGRO_FS_ENTRY *fp)
 {
    ALLEGRO_FS_ENTRY_STDIO *fp_stdio = (ALLEGRO_FS_ENTRY_STDIO *) fp;
    struct stat st;
-   if (stat(fp_stdio->found ? fp_stdio->found : fp_stdio->path, &st) != 0) {
+   if (stat(fp_stdio->path, &st) != 0) {
       if (errno == ENOENT) {
          return false;
       }
@@ -710,10 +640,10 @@ static bool al_fs_stdio_entry_remove(ALLEGRO_FS_ENTRY *fp)
    ASSERT(fp);
 
    if (al_fs_stdio_entry_mode(fp) & ALLEGRO_FILEMODE_ISDIR) {
-      err = rmdir(fp_stdio->found ? fp_stdio->found : fp_stdio->path);
+      err = rmdir(fp_stdio->path);
    }
    else if (al_fs_stdio_entry_mode(fp) & ALLEGRO_FILEMODE_ISFILE) {
-      err = unlink(fp_stdio->found ? fp_stdio->found : fp_stdio->path);
+      err = unlink(fp_stdio->path);
    }
    else {
       al_set_errno(ENOENT);
@@ -761,7 +691,6 @@ static ALLEGRO_PATH *al_fs_stdio_fname(ALLEGRO_FS_ENTRY *fp)
 
 struct ALLEGRO_FS_INTERFACE _al_fs_interface_stdio = {
    al_fs_stdio_create_handle,
-   al_fs_stdio_opendir,
 
    al_fs_stdio_getcwd,
    al_fs_stdio_chdir,
@@ -769,13 +698,9 @@ struct ALLEGRO_FS_INTERFACE _al_fs_interface_stdio = {
    al_fs_stdio_file_exists,
    al_fs_stdio_file_remove,
 
-   al_fs_stdio_mkdir
-};
+   al_fs_stdio_mkdir,
 
-struct ALLEGRO_FS_HOOK_ENTRY_INTERFACE _al_stdio_entry_fshooks = {
    al_fs_stdio_destroy_handle,
-   al_fs_stdio_open_handle,
-   al_fs_stdio_close_handle,
 
    al_fs_stdio_fname,
    al_fs_stdio_fstat,
@@ -789,6 +714,7 @@ struct ALLEGRO_FS_HOOK_ENTRY_INTERFACE _al_stdio_entry_fshooks = {
    al_fs_stdio_entry_exists,
    al_fs_stdio_entry_remove,
 
+   al_fs_stdio_opendir,
    al_fs_stdio_readdir,
    al_fs_stdio_closedir
 };

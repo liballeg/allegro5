@@ -35,7 +35,7 @@ void print_entry(ALLEGRO_FS_ENTRY *entry)
    if (al_is_directory(entry)) {
       ALLEGRO_FS_ENTRY *next;
 
-      al_open_entry(entry);
+      al_opendir(entry);
       while (1) {
          next = al_readdir(entry);
          if (!next)
@@ -43,6 +43,7 @@ void print_entry(ALLEGRO_FS_ENTRY *entry)
          print_file(next);
          al_destroy_entry(next);
       }
+      al_closedir(entry);
    }
    else {
       print_file(entry);

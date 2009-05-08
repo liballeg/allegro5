@@ -1,5 +1,5 @@
 
-set(PHYSFS_SOURCES a5_physfs.c)
+set(PHYSFS_SOURCES a5_physfs.c a5_physfs_dir.c)
 
 set(PHYSFS_INCLUDE_FILES allegro5/a5_physfs.h)
 

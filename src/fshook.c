@@ -28,8 +28,6 @@
 #include "allegro5/internal/aintern_memory.h"
 
 
-struct ALLEGRO_FS_HOOK_ENTRY_INTERFACE *_al_entry_fshooks = &_al_stdio_entry_fshooks;
-
 
 /* Function: al_create_entry
  */
@@ -47,26 +45,6 @@ void al_destroy_entry(ALLEGRO_FS_ENTRY *handle)
 {
    if (handle) {
       _al_fs_hook_destroy(handle);
-   }
-}
-
-
-/* Function: al_open_entry
- */
-bool al_open_entry(ALLEGRO_FS_ENTRY *handle)
-{
-   ASSERT(handle != NULL);
-
-   return _al_fs_hook_open(handle);
-}
-
-
-/* Function: al_close_entry
- */
-void al_close_entry(ALLEGRO_FS_ENTRY *handle)
-{
-   if (handle) {
-      _al_fs_hook_close(handle);
    }
 }
 
@@ -93,19 +71,11 @@ bool al_fstat(ALLEGRO_FS_ENTRY *fp)
 
 /* Function: al_opendir
  */
-ALLEGRO_FS_ENTRY *al_opendir(const char *path)
+bool al_opendir(ALLEGRO_FS_ENTRY *dir)
 {
-   ALLEGRO_FS_ENTRY *dir = NULL;
-   const ALLEGRO_FS_INTERFACE *vt = al_get_fs_interface();
+   ASSERT(dir != NULL);
 
-   ASSERT(path != NULL);
-   ASSERT(vt->opendir);
-
-   dir = vt->opendir(path);
-   if (!dir)
-      return NULL;
-
-   return dir;
+   return _al_fs_hook_opendir(dir);
 }
 
 
@@ -255,7 +225,7 @@ bool al_remove_str(const char *path)
    ASSERT(vt->remove);
    ASSERT(path != NULL);
    
-   return vt->remove(path);
+   return vt->remove_str(path);
 }
 
 
@@ -267,7 +237,7 @@ bool al_is_present_str(const char *path)
    ASSERT(path != NULL);
    ASSERT(vt->exists);
 
-   return vt->exists(path);
+   return vt->exists_str(path);
 }
 
 
