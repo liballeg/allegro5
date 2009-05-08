@@ -315,8 +315,9 @@ size_t al_fwrite32be(ALLEGRO_FILE *f, int32_t l)
 
 /* Function: al_fgets
  */
-char *al_fgets(ALLEGRO_FILE *f, char *buf, size_t max)
+char *al_fgets(ALLEGRO_FILE *f, char * const buf, size_t max)
 {
+   char *p = buf;
    int c;
    ASSERT(f);
    ASSERT(buf);
@@ -337,7 +338,7 @@ char *al_fgets(ALLEGRO_FILE *f, char *buf, size_t max)
 
    /* Fill buffer until empty, or we reach a newline or EOF or error. */
    do {
-      *buf++ = c;
+      *p++ = c;
       max--;
       if (max == 1 || c == '\n')
          break;
@@ -351,7 +352,7 @@ char *al_fgets(ALLEGRO_FILE *f, char *buf, size_t max)
 
    /* Add null terminator. */
    ASSERT(max >= 1);
-   *buf = '\0';
+   *p = '\0';
 
    return buf;
 }
