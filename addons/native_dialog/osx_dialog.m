@@ -106,7 +106,7 @@ int _al_show_native_message_box(ALLEGRO_NATIVE_DIALOG *fd)
    NSArray* buttons;
    NSAlert* box = [[NSAlert alloc] init];
    NSAlertStyle style;
-
+   [box autorelease];
    if (fd->buttons == NULL) {
       button_text = @"OK";
       if (fd->mode & ALLEGRO_MESSAGEBOX_YES_NO) button_text = @"Yes|No";
