@@ -1,6 +1,7 @@
-#include <allegro5/allegro5.h>
+#include "allegro5/allegro5.h"
 #include "allegro5/a5_iio.h"
-#include <allegro5/a5_primitives.h>
+#include "allegro5/a5_font.h"
+#include "allegro5/a5_primitives.h"
 
 #define NUM_BUTTONS  3
 
@@ -31,8 +32,14 @@ int main(void)
    ALLEGRO_BITMAP *cursor;
    ALLEGRO_EVENT_QUEUE *queue;
    ALLEGRO_EVENT event;
+   ALLEGRO_FONT *font;
    int mx = 0;
    int my = 0;
+   int mz = 0;
+   int mmx = 0;
+   int mmy = 0;
+   int mmz = 0;
+   bool in = true;
    bool buttons[NUM_BUTTONS] = {false};
    int i;
 
@@ -44,6 +51,7 @@ int main(void)
    al_install_mouse();
    al_install_keyboard();
    al_init_iio_addon();
+   al_init_font_addon();
 
    display = al_create_display(640, 480);
    if (!display) {
@@ -59,6 +67,12 @@ int main(void)
       return 1;
    }
 
+   font = al_load_font("data/fixed_font.tga", 1, 0);
+   if (!font) {
+      TRACE("data/fixed_font.tga not found\n");
+      return 1;
+   }
+
    queue = al_create_event_queue();
    al_register_event_source(queue, (ALLEGRO_EVENT_SOURCE *)al_get_mouse());
    al_register_event_source(queue, (ALLEGRO_EVENT_SOURCE *)al_get_keyboard());
@@ -70,6 +84,14 @@ int main(void)
          draw_mouse_button(i, buttons[i]);
       }
       al_draw_bitmap(cursor, mx, my, 0);
+      al_set_blender(ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA,
+         al_map_rgb_f(0, 0, 0));
+      al_draw_textf(font, 5, 5, 0, "dx %i, dy %i, dz %i", mmx, mmy, mmz);
+      al_draw_textf(font, 5, 15, 0, "x %i, y %i, z %i", mx, my, mz);
+      al_draw_textf(font, 5, 25, 0, "%s", in ? "in" : "out");
+      al_set_blender(ALLEGRO_ONE, ALLEGRO_INVERSE_ALPHA,
+         al_map_rgb_f(1, 1, 1));
+      mmx = mmy = mmz = 0;
       al_flip_display();
 
       al_wait_for_event(queue, &event);
@@ -77,6 +99,10 @@ int main(void)
          case ALLEGRO_EVENT_MOUSE_AXES:
             mx = event.mouse.x;
             my = event.mouse.y;
+            mz = event.mouse.z;
+            mmx = event.mouse.dx;
+            mmy = event.mouse.dy;
+            mmz = event.mouse.dz;
             break;
 
          case ALLEGRO_EVENT_MOUSE_BUTTON_DOWN:
@@ -89,6 +115,14 @@ int main(void)
             if (event.mouse.button-1 < NUM_BUTTONS) {
                buttons[event.mouse.button-1] = false;
             }
+            break;
+
+         case ALLEGRO_EVENT_MOUSE_ENTER_DISPLAY:
+            in = true;
+            break;
+
+         case ALLEGRO_EVENT_MOUSE_LEAVE_DISPLAY:
+            in = false;
             break;
 
          case ALLEGRO_EVENT_KEY_DOWN:

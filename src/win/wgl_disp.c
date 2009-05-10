@@ -1203,6 +1203,18 @@ static void display_thread_proc(void *arg)
 #undef SPI_SETFOREGROUNDLOCKTIMEOUT
    }
 
+   if (disp->flags & ALLEGRO_FULLSCREEN && al_is_mouse_installed()) {
+      RAWINPUTDEVICE rid[1];
+      rid[0].usUsagePage = 0x01; 
+      rid[0].usUsage = 0x02; 
+      rid[0].dwFlags = RIDEV_NOLEGACY;
+      rid[0].hwndTarget = 0;
+      if (RegisterRawInputDevices(rid, 1, sizeof(rid[0])) == FALSE) {
+          ALLEGRO_ERROR(
+             "Failed to init mouse. %s\n", get_error_desc(GetLastError()));
+      }
+   }
+
    /* get the device context of our window */
    wgl_disp->dc = GetDC(win_disp->window);
 

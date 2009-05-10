@@ -52,10 +52,6 @@ struct ALLEGRO_DISPLAY_WIN
    int mouse_range_y2;
    HCURSOR mouse_selected_hcursor;
    bool mouse_cursor_shown;
-   /* used internally to disable the mouse when outside the window area */
-   bool is_mouse_on;
-   /* set to true if the user is browsing the system menu */
-   bool is_in_sysmenu;
 
    UINT adapter;
 
@@ -85,9 +81,11 @@ void _al_win_kbd_handle_key_press(int scode, int vcode, bool repeated,
 void _al_win_kbd_handle_key_release(int vcode, ALLEGRO_DISPLAY_WIN *win_disp);
 
 /* mouse routines */
-void _al_win_mouse_dinput_grab(void *ALLEGRO_DISPLAY_WIN);
-void _al_win_mouse_dinput_unacquire(void *win_disp);
-void _al_win_mouse_set_sysmenu(bool state);
+void _al_win_mouse_handle_move(int x, int y, bool abs, ALLEGRO_DISPLAY_WIN *win_disp);
+void _al_win_mouse_handle_wheel(int d, bool abs, ALLEGRO_DISPLAY_WIN *win_disp);
+void _al_win_mouse_handle_button(int button, bool down, int x, int y, bool abs, ALLEGRO_DISPLAY_WIN *win_disp);
+void _al_win_mouse_handle_leave(ALLEGRO_DISPLAY_WIN *win_display);
+void _al_win_mouse_handle_enter(ALLEGRO_DISPLAY_WIN *win_display);
 
 /* joystick routines */
 void _al_win_joystick_dinput_unacquire(void *unused);

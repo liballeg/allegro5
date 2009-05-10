@@ -33,8 +33,7 @@
 static WNDCLASS window_class;
 
 static bool resize_postponed = false;
-
-static HWND capture_window = 0;
+static bool we_hid_the_mouse = false;
 
 
 UINT _al_win_msg_call_proc = 0;
@@ -255,9 +254,6 @@ HWND _al_win_create_faux_fullscreen_window(LPCTSTR devname, ALLEGRO_DISPLAY *dis
 void _al_win_grab_input(ALLEGRO_DISPLAY_WIN *win_disp)
 {
    _al_win_wnd_schedule_proc(win_disp->window,
-                             _al_win_mouse_dinput_grab,
-                             win_disp);
-   _al_win_wnd_schedule_proc(win_disp->window,
                              _al_win_joystick_dinput_grab,
                              win_disp);
 }
@@ -268,7 +264,6 @@ void _al_win_grab_input(ALLEGRO_DISPLAY_WIN *win_disp)
  */
 static void unacquire_input(ALLEGRO_DISPLAY_WIN *win_disp)
 {
-   _al_win_mouse_dinput_unacquire(win_disp);
    _al_win_joystick_dinput_unacquire(win_disp);
 }
 
@@ -341,53 +336,141 @@ static LRESULT CALLBACK window_callback(HWND hWnd, UINT message,
    }
 
    switch (message) {
+      case WM_INPUT: 
+      {
+          UINT dwSize;
+          LPBYTE lpb;
+          RAWINPUT* raw;
+
+          /* We can't uninstall WM_INPUT mesages. */
+          if (!al_is_mouse_installed())
+             break;
+
+          GetRawInputData((HRAWINPUT)lParam, RID_INPUT, NULL, &dwSize, 
+                          sizeof(RAWINPUTHEADER));
+          lpb = malloc(sizeof(BYTE)*dwSize);
+          if (lpb == NULL) 
+              break;
+
+          GetRawInputData((HRAWINPUT)lParam, RID_INPUT, lpb, &dwSize, sizeof(RAWINPUTHEADER));
+          raw = (RAWINPUT*)lpb;
+
+          if (raw->header.dwType != RIM_TYPEMOUSE) {
+             free(lpb); 
+             break;
+          }
+
+       {
+          RAWMOUSE *rm = &raw->data.mouse;
+          int x = raw->data.mouse.lLastX;
+          int y = raw->data.mouse.lLastY;
+          bool abs = rm->usFlags & (MOUSE_MOVE_ABSOLUTE
+                                 || MOUSE_VIRTUAL_DESKTOP);
+          if (abs || x || y)
+             _al_win_mouse_handle_move(x, y, abs, win_display);
+
+          if (rm->usButtonFlags & RI_MOUSE_BUTTON_1_DOWN)
+             _al_win_mouse_handle_button(1, true, x, y, abs, win_display);
+          if (rm->usButtonFlags & RI_MOUSE_BUTTON_1_UP)
+             _al_win_mouse_handle_button(1, false, x, y, abs, win_display);
+          if (rm->usButtonFlags & RI_MOUSE_BUTTON_2_DOWN)
+             _al_win_mouse_handle_button(2, true, x, y, abs, win_display);
+          if (rm->usButtonFlags & RI_MOUSE_BUTTON_2_UP)
+             _al_win_mouse_handle_button(2, false, x, y, abs, win_display);
+          if (rm->usButtonFlags & RI_MOUSE_BUTTON_3_DOWN)
+             _al_win_mouse_handle_button(3, true, x, y, abs, win_display);
+          if (rm->usButtonFlags & RI_MOUSE_BUTTON_3_UP)
+             _al_win_mouse_handle_button(3, false, x, y, abs, win_display);
+          if (rm->usButtonFlags & RI_MOUSE_BUTTON_4_DOWN)
+             _al_win_mouse_handle_button(4, true, x, y, abs, win_display);
+          if (rm->usButtonFlags & RI_MOUSE_BUTTON_4_UP)
+             _al_win_mouse_handle_button(4, false, x, y, abs, win_display);
+          if (rm->usButtonFlags & RI_MOUSE_BUTTON_5_DOWN)
+             _al_win_mouse_handle_button(5, true, x, y, abs, win_display);
+          if (rm->usButtonFlags & RI_MOUSE_BUTTON_5_UP)
+             _al_win_mouse_handle_button(5, false, x, y, abs, win_display);
+
+          if (rm->usButtonFlags & RI_MOUSE_WHEEL) {
+             SHORT z = (SHORT)rm->usButtonData;
+             _al_win_mouse_handle_wheel(z / WHEEL_DELTA, false, win_display);
+          }
+       }
+
+          free(lpb); 
+          break;
+      }
+      case WM_LBUTTONDOWN:
+      case WM_LBUTTONUP: {
+         int mx = LOWORD(lParam);
+         int my = HIWORD(lParam);
+         bool down = (message == WM_LBUTTONDOWN);
+         _al_win_mouse_handle_button(1, down, mx, my, true, win_display);
+         break;
+      }
+      case WM_MBUTTONDOWN:
+      case WM_MBUTTONUP: {
+         int mx = LOWORD(lParam);
+         int my = HIWORD(lParam);
+         bool down = (message == WM_MBUTTONDOWN);
+         _al_win_mouse_handle_button(3, down, mx, my, true, win_display);
+         break;
+      }
+      case WM_RBUTTONDOWN:
+      case WM_RBUTTONUP: {
+         int mx = LOWORD(lParam);
+         int my = HIWORD(lParam);
+         bool down = (message == WM_RBUTTONDOWN);
+         _al_win_mouse_handle_button(2, down, mx, my, true, win_display);
+         break;
+      }
+      case WM_XBUTTONDOWN:
+      case WM_XBUTTONUP: {
+         int mx = LOWORD(lParam);
+         int my = HIWORD(lParam);
+         int button = HIWORD(wParam);
+         bool down = (message == WM_XBUTTONDOWN);
+         if (button == XBUTTON1)
+            _al_win_mouse_handle_button(4, down, mx, my, true, win_display);
+         else if (button == XBUTTON1)
+            _al_win_mouse_handle_button(5, down, mx, my, true, win_display);
+         return TRUE;
+      }
+      case WM_MOUSEWHEEL: {
+         int d = GET_WHEEL_DELTA_WPARAM(wParam);
+         _al_win_mouse_handle_wheel(d / WHEEL_DELTA, false, win_display);
+         return TRUE;
+      }
       case WM_MOUSEMOVE: {
-         /* Track the mouse as it enters/exits windows */
-         int mx = lParam & 0xFFFF;
-         int my = (lParam >> 16) & 0xFFFF;
-         if (!capture_window || capture_window != hWnd) {
-            //SetCapture(hWnd);
-            // emit event
-            if (al_is_mouse_installed()) {
-               ALLEGRO_MOUSE *mouse = al_get_mouse();
-               if (mouse) {
-                  capture_window = hWnd;
-                  es = (ALLEGRO_EVENT_SOURCE *)mouse;
-                  if (_al_event_source_needs_to_generate_event(es)) {
-                     ALLEGRO_EVENT event;
-                     _al_event_source_lock(es);
-                        event.type = ALLEGRO_EVENT_MOUSE_ENTER_DISPLAY;
-                        event.mouse.x = mx;
-                        event.mouse.y = my;
-                        event.mouse.z = 0;
-                        event.mouse.timestamp = al_current_time();
-                        _al_event_source_emit_event(es, &event);
-                     _al_event_source_unlock(es);
-                  }
-               }
-            }
+         TRACKMOUSEEVENT tme;
+         int mx = LOWORD(lParam);
+         int my = HIWORD(lParam);
+         _al_win_mouse_handle_move(mx, my, true, win_display);
+
+         tme.cbSize = sizeof(tme);
+         tme.dwFlags = TME_QUERY;
+         if (TrackMouseEvent(&tme) && !tme.hwndTrack) {
+            tme.dwFlags = TME_LEAVE;
+            tme.hwndTrack = hWnd;
+            tme.dwHoverTime = 0;
+            TrackMouseEvent(&tme);
+            _al_win_mouse_handle_enter(win_display);
          }
-         else if (mx < 0 || my < 0 || mx >= d->w || my >= d->h) {
-            //ReleaseCapture();
-            // emit event
-            if (al_is_mouse_installed()) {
-               ALLEGRO_MOUSE *mouse = al_get_mouse();
-               if (mouse) {
-                  capture_window = 0;
-                  es = (ALLEGRO_EVENT_SOURCE *)mouse;
-                  if (_al_event_source_needs_to_generate_event(es)) {
-                     ALLEGRO_EVENT event;
-                     _al_event_source_lock(es);
-                        event.type = ALLEGRO_EVENT_MOUSE_LEAVE_DISPLAY;
-                        event.mouse.x = mx;
-                        event.mouse.y = my;
-                        event.mouse.z = 0;
-                        event.mouse.timestamp = al_current_time();
-                        _al_event_source_emit_event(es, &event);
-                     _al_event_source_unlock(es);
-                  }
-               }
-            }
+
+         if (win_display->mouse_cursor_shown && we_hid_the_mouse) {
+            we_hid_the_mouse = false;
+            win_display->display.vt->hide_mouse_cursor((void*)win_display);
+         }
+
+         break;
+      }
+      case WM_MOUSELEAVE: {
+         _al_win_mouse_handle_leave(win_display);
+         break;
+      }
+      case WM_NCMOUSEMOVE: {
+         if (!win_display->mouse_cursor_shown) {
+            we_hid_the_mouse = true;
+            win_display->display.vt->show_mouse_cursor((void*)win_display);
          }
          break;
       }
@@ -395,8 +478,7 @@ static LRESULT CALLBACK window_callback(HWND hWnd, UINT message,
          int vcode = wParam; 
          bool repeated  = (lParam >> 30) & 0x1;
          _al_win_kbd_handle_key_press(0, vcode, repeated, win_display);
-
-         return 0;
+         break;
       }
       case WM_KEYDOWN: {
          int vcode = wParam; 
@@ -405,13 +487,13 @@ static LRESULT CALLBACK window_callback(HWND hWnd, UINT message,
          /* We can't use TranslateMessage() because we don't know if it will
             produce a WM_CHAR or not. */
          _al_win_kbd_handle_key_press(scode, vcode, repeated, win_display);
-         return 0;
+         break;
       }
       case WM_SYSKEYUP:
       case WM_KEYUP: {
          int vcode = wParam;
          _al_win_kbd_handle_key_release(vcode, win_display);
-         return 0;
+         break;
       }
       case WM_SYSCOMMAND: {
          if (_al_win_disable_screensaver &&
@@ -497,10 +579,8 @@ static LRESULT CALLBACK window_callback(HWND hWnd, UINT message,
              */
             SetWindowPos(win_display->window, HWND_TOP, 0, 0, 0, 0,
                SWP_NOMOVE | SWP_NOSIZE);
-            _al_win_grab_input(win_display);
             if (d->vt->switch_in)
             	  d->vt->switch_in(d);
-            //SetCapture(hWnd);
             _al_event_source_lock(es);
             if (_al_event_source_needs_to_generate_event(es)) {
                ALLEGRO_EVENT event;
@@ -512,11 +592,9 @@ static LRESULT CALLBACK window_callback(HWND hWnd, UINT message,
             return 0;
          }
          else {
-            unacquire_input(win_display);
             if (d->flags & ALLEGRO_FULLSCREEN) {
                d->vt->switch_out(d);
             }
-            //ReleaseCapture();
             _al_event_source_lock(es);
             if (_al_event_source_needs_to_generate_event(es)) {
                ALLEGRO_EVENT event;
@@ -528,16 +606,6 @@ static LRESULT CALLBACK window_callback(HWND hWnd, UINT message,
             return 0;
          }
          break;
-      case WM_INITMENUPOPUP:
-         win_display->is_in_sysmenu = true;
-         _al_win_mouse_set_sysmenu(true);
-         return 0;
-      case WM_MENUSELECT:
-         if ((HIWORD(wParam) == 0xFFFF) && (!lParam)) {
-            win_display->is_in_sysmenu = false;
-            _al_win_mouse_set_sysmenu(false);
-         }
-         return 0;
       case WM_MENUCHAR :
          return (MNC_CLOSE << 16) | (wParam & 0xffff);
       case WM_CLOSE:

@@ -11,6 +11,7 @@ int main(void)
    ALLEGRO_FONT *font;
    ALLEGRO_DISPLAY *display;
    ALLEGRO_EVENT_QUEUE *event_queue;
+   ALLEGRO_EVENT event;
    bool right_button_down = false;
    bool redraw = true;
    int fake_x = 0, fake_y = 0;
@@ -24,6 +25,8 @@ int main(void)
    display = al_create_display(width, height);
    al_show_mouse_cursor();
 
+   memset(&event, 0, sizeof(event));
+
    event_queue = al_create_event_queue();
    al_register_event_source(event_queue, (void *)display);
    al_register_event_source(event_queue, (void *)al_get_mouse());
@@ -31,9 +34,7 @@ int main(void)
 
    font = al_load_font("data/fixed_font.tga", 0, 0);
 
-   while (1) {
-      ALLEGRO_EVENT event;
-      
+   while (1) {      
       if (redraw && al_event_queue_is_empty(event_queue)) {
          int th = al_get_font_line_height(font);
          
