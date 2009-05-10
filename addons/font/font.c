@@ -279,8 +279,8 @@ bool al_register_font_extension(char const *extension,
 ALLEGRO_FONT *al_load_font(char const *filename, int size, int flags)
 {
    int i;
-   ALLEGRO_PATH *path = al_path_create(filename);
-   HANDLER *handler = find_extension(al_path_get_extension(path));
+   ALLEGRO_PATH *path = al_create_path(filename);
+   HANDLER *handler = find_extension(al_get_path_extension(path));
    if (handler)
       return handler->load_font(filename, size, flags);
 

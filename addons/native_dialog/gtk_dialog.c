@@ -144,7 +144,7 @@ static void ok(GtkWidget *w, GtkFileSelection *fs)
    fc->count = n;
    fc->paths = _AL_MALLOC(n * sizeof(void *));
    for (i = 0; i < n; i++)
-      fc->paths[i] = al_path_create(paths[i]);
+      fc->paths[i] = al_create_path(paths[i]);
    g_strfreev(paths);
 }
 
@@ -227,7 +227,7 @@ void al_show_native_file_dialog(ALLEGRO_NATIVE_DIALOG *fd)
 
    if (fd->initial_path) {
       gtk_file_selection_set_filename(GTK_FILE_SELECTION(window),
-         al_path_to_string(fd->initial_path, '/'));
+         al_path_cstr(fd->initial_path, '/'));
    }
 
    if (fd->mode & ALLEGRO_FILECHOOSER_MULTIPLE)

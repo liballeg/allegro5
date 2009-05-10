@@ -54,7 +54,7 @@ static ALLEGRO_PATH *_find_executable_file(const char *filename)
    if (strchr(filename, '/')) {
       if (filename[0] == '/') {
          /* Full path; done */
-         return al_path_create(filename);
+         return al_create_path(filename);
       }
       else {
          struct stat finfo;
@@ -62,7 +62,7 @@ static ALLEGRO_PATH *_find_executable_file(const char *filename)
     
          /* Prepend current directory */
          ALLEGRO_PATH *path = al_getcwd();
-         al_path_append(path, filename);
+         al_append_path_component(path, filename);
 
          if ((stat(pathname, &finfo)==0) &&
             (!S_ISDIR (finfo.st_mode))) {
@@ -85,10 +85,10 @@ static ALLEGRO_PATH *_find_executable_file(const char *filename)
          ALLEGRO_USTR_INFO info;
          ALLEGRO_USTR *sub = al_ref_ustr(&info, us, start_pos, end_pos);
 
-         ALLEGRO_PATH *path = al_path_create_dir(al_cstr(sub));
-         al_path_append(path, filename);
+         ALLEGRO_PATH *path = al_create_path_for_dir(al_cstr(sub));
+         al_append_path_component(path, filename);
 
-         if (stat(al_path_to_string(path, '/'), &finfo) == 0 &&
+         if (stat(al_path_cstr(path, '/'), &finfo) == 0 &&
             !S_ISDIR (finfo.st_mode)) {
             return path;
          }
@@ -133,7 +133,7 @@ static ALLEGRO_PATH *get_executable_name(void)
       int len = readlink(linkname, filename, sizeof(filename) - 1);
       if (len > -1) {
          filename[len] = '\0';
-         return al_path_create(filename);
+         return al_create_path(filename);
       }
    }
 
@@ -208,7 +208,7 @@ static ALLEGRO_PATH *get_executable_name(void)
       if (path) return path;
 
       /* Just return the output from ps... */         
-      return al_path_create(filename);
+      return al_create_path(filename);
    }
 
 #ifdef ALLEGRO_WITH_MAGIC_MAIN
@@ -218,7 +218,7 @@ static ALLEGRO_PATH *get_executable_name(void)
 #endif
 
    /* Give up; return empty string */
-   return al_path_create("");
+   return al_create_path("");
 }
 
 #endif
@@ -243,13 +243,13 @@ static ALLEGRO_PATH *_unix_find_home(void)
 
       if (pass->pw_dir) {
          /* hey, we got our home directory */
-         return al_path_create_dir(pass->pw_dir);
+         return al_create_path_for_dir(pass->pw_dir);
       }
       al_set_errno(ENOENT);
       return NULL;
    }
    else {
-      return al_path_create_dir(home_env);
+      return al_create_path_for_dir(home_env);
    }
 }
 
@@ -263,7 +263,7 @@ ALLEGRO_PATH *_al_unix_get_path(int id)
          for (; envs[i] != NULL; ++i) {
             char *tmp = getenv(envs[i]);
             if (tmp) {
-               return al_path_create(tmp);
+               return al_create_path(tmp);
             }
          }
 
@@ -274,7 +274,7 @@ ALLEGRO_PATH *_al_unix_get_path(int id)
             bool found = al_is_directory(fse);
             al_destroy_entry(fse);
             if (found) {
-               return al_path_create(paths[i]);
+               return al_create_path(paths[i]);
             }
          }
 
@@ -285,7 +285,7 @@ ALLEGRO_PATH *_al_unix_get_path(int id)
       case ALLEGRO_PROGRAM_PATH: {
 
          ALLEGRO_PATH *exe = get_executable_name();
-         al_path_set_filename(exe, NULL);
+         al_set_path_filename(exe, NULL);
          return exe;
 
       } break;
@@ -294,9 +294,9 @@ ALLEGRO_PATH *_al_unix_get_path(int id)
          ALLEGRO_PATH *sys_data_path = NULL;
 
          /* FIXME: make this a compile time define, or a allegro cfg option? or both */
-         sys_data_path = al_path_create("/usr/share/");
-         al_path_append(sys_data_path, al_get_orgname());
-         al_path_append(sys_data_path, al_get_appname());
+         sys_data_path = al_create_path("/usr/share/");
+         al_append_path_component(sys_data_path, al_get_orgname());
+         al_append_path_component(sys_data_path, al_get_appname());
 
          return sys_data_path;
       } break;
@@ -348,9 +348,9 @@ ALLEGRO_PATH *_al_unix_get_path(int id)
          local_path = _unix_find_home();
          if (!local_path) return NULL;
 
-         al_path_append(local_path, ".config");
-         al_path_append(local_path, al_get_orgname());
-         al_path_append(local_path, al_get_appname());
+         al_append_path_component(local_path, ".config");
+         al_append_path_component(local_path, al_get_orgname());
+         al_append_path_component(local_path, al_get_appname());
 
         return local_path;
       } break;
@@ -362,9 +362,9 @@ ALLEGRO_PATH *_al_unix_get_path(int id)
          ALLEGRO_PATH *sys_path;
 
          /* FIXME: make this a compile time define, or something */
-         sys_path = al_path_create("/etc/");
-         al_path_append(sys_path, al_get_orgname());
-         al_path_append(sys_path, al_get_appname());
+         sys_path = al_create_path("/etc/");
+         al_append_path_component(sys_path, al_get_orgname());
+         al_append_path_component(sys_path, al_get_appname());
 
          return sys_path;
       } break;

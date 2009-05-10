@@ -125,7 +125,7 @@ static bool parse_path_string(const ALLEGRO_USTR *str, ALLEGRO_PATH *path)
          /* Last component. */
          al_ustr_assign_substr(piece, str, pos, al_ustr_size(str));
          if (al_ustr_equal(piece, dot) || al_ustr_equal(piece, dotdot)) {
-            al_path_append(path, al_cstr(piece));
+            al_append_path_component(path, al_cstr(piece));
          }
          else {
             /* This might be an empty string, but that's okay. */
@@ -136,7 +136,7 @@ static bool parse_path_string(const ALLEGRO_USTR *str, ALLEGRO_PATH *path)
 
       /* Non-last component. */
       al_ustr_assign_substr(piece, str, pos, slash);
-      al_path_append(path, al_cstr(piece));
+      al_append_path_component(path, al_cstr(piece));
       pos = slash + 1;
    }
 
@@ -150,9 +150,9 @@ Error:
 }
 
 
-/* Function: al_path_create
+/* Function: al_create_path
  */
-ALLEGRO_PATH *al_path_create(const char *str)
+ALLEGRO_PATH *al_create_path(const char *str)
 {
    ALLEGRO_PATH *path;
 
@@ -171,7 +171,7 @@ ALLEGRO_PATH *al_path_create(const char *str)
       replace_backslashes(copy);
 
       if (!parse_path_string(copy, path)) {
-         al_path_free(path);
+         al_free_path(path);
          path = NULL;
       }
 
@@ -181,31 +181,31 @@ ALLEGRO_PATH *al_path_create(const char *str)
    return path;
 }
 
-/* Function: al_path_create_dir
+/* Function: al_create_path_for_dir
  */
-ALLEGRO_PATH *al_path_create_dir(const char *str)
+ALLEGRO_PATH *al_create_path_for_dir(const char *str)
 {
-   ALLEGRO_PATH *path = al_path_create(str);
+   ALLEGRO_PATH *path = al_create_path(str);
    if (al_ustr_length(path->filename)) {
       ALLEGRO_USTR *last = path->filename;
       path->filename = al_ustr_new("");
-      al_path_append(path, al_cstr(last));
+      al_append_path_component(path, al_cstr(last));
       al_ustr_free(last);
    }
    return path;
 }
 
 
-/* Function: al_path_clone
+/* Function: al_clone_path
  */
-ALLEGRO_PATH *al_path_clone(const ALLEGRO_PATH *path)
+ALLEGRO_PATH *al_clone_path(const ALLEGRO_PATH *path)
 {
    ALLEGRO_PATH *clone;
    unsigned int i;
 
    ASSERT(path);
 
-   clone = al_path_create(NULL);
+   clone = al_create_path(NULL);
    if (!clone) {
       return NULL;
    }
@@ -222,9 +222,9 @@ ALLEGRO_PATH *al_path_clone(const ALLEGRO_PATH *path)
 }
 
 
-/* Function: al_path_num_components
+/* Function: al_get_path_num_components
  */
-int al_path_num_components(const ALLEGRO_PATH *path)
+int al_get_path_num_components(const ALLEGRO_PATH *path)
 {
    ASSERT(path);
 
@@ -232,9 +232,9 @@ int al_path_num_components(const ALLEGRO_PATH *path)
 }
 
 
-/* Function: al_path_index
+/* Function: al_get_path_component
  */
-const char *al_path_index(const ALLEGRO_PATH *path, int i)
+const char *al_get_path_component(const ALLEGRO_PATH *path, int i)
 {
    ASSERT(path);
    ASSERT(i < (int)_al_vector_size(&path->segments));
@@ -248,9 +248,9 @@ const char *al_path_index(const ALLEGRO_PATH *path, int i)
 }
 
 
-/* Function: al_path_replace
+/* Function: al_replace_path_component
  */
-void al_path_replace(ALLEGRO_PATH *path, int i, const char *s)
+void al_replace_path_component(ALLEGRO_PATH *path, int i, const char *s)
 {
    ASSERT(path);
    ASSERT(s);
@@ -265,9 +265,9 @@ void al_path_replace(ALLEGRO_PATH *path, int i, const char *s)
 }
 
 
-/* Function: al_path_remove
+/* Function: al_remove_path_component
  */
-void al_path_remove(ALLEGRO_PATH *path, int i)
+void al_remove_path_component(ALLEGRO_PATH *path, int i)
 {
    ASSERT(path);
    ASSERT(i < (int)_al_vector_size(&path->segments));
@@ -282,9 +282,9 @@ void al_path_remove(ALLEGRO_PATH *path, int i)
 }
 
 
-/* Function: al_path_insert
+/* Function: al_insert_path_component
  */
-void al_path_insert(ALLEGRO_PATH *path, int i, const char *s)
+void al_insert_path_component(ALLEGRO_PATH *path, int i, const char *s)
 {
    ALLEGRO_USTR **slot;
    ASSERT(path);
@@ -300,32 +300,32 @@ void al_path_insert(ALLEGRO_PATH *path, int i, const char *s)
 }
 
 
-/* Function: al_path_tail
+/* Function: al_get_path_tail
  */
-const char *al_path_tail(const ALLEGRO_PATH *path)
+const char *al_get_path_tail(const ALLEGRO_PATH *path)
 {
    ASSERT(path);
 
-   if (al_path_num_components(path) == 0)
+   if (al_get_path_num_components(path) == 0)
       return NULL;
 
-   return al_path_index(path, -1);
+   return al_get_path_component(path, -1);
 }
 
 
-/* Function: al_path_drop_tail
+/* Function: al_drop_path_tail
  */
-void al_path_drop_tail(ALLEGRO_PATH *path)
+void al_drop_path_tail(ALLEGRO_PATH *path)
 {
-   if (al_path_num_components(path) > 0) {
-      al_path_remove(path, -1);
+   if (al_get_path_num_components(path) > 0) {
+      al_remove_path_component(path, -1);
    }
 }
 
 
-/* Function: al_path_append
+/* Function: al_append_path_component
  */
-void al_path_append(ALLEGRO_PATH *path, const char *s)
+void al_append_path_component(ALLEGRO_PATH *path, const char *s)
 {
    ALLEGRO_USTR **slot = _al_vector_alloc_back(&path->segments);
    (*slot) = al_ustr_new(s);
@@ -340,9 +340,9 @@ static bool path_is_absolute(const ALLEGRO_PATH *path)
 }
 
 
-/* Function: al_path_concat
+/* Function: al_join_paths
  */
-bool al_path_concat(ALLEGRO_PATH *path, const ALLEGRO_PATH *tail)
+bool al_join_paths(ALLEGRO_PATH *path, const ALLEGRO_PATH *tail)
 {
    unsigned i;
    ASSERT(path);
@@ -360,7 +360,7 @@ bool al_path_concat(ALLEGRO_PATH *path, const ALLEGRO_PATH *tail)
    al_ustr_assign(path->filename, tail->filename);
 
    for (i = 0; i < _al_vector_size(&tail->segments); i++) {
-      al_path_append(path, get_segment_cstr(tail, i));
+      al_append_path_component(path, get_segment_cstr(tail, i));
    }
 
    return true;
@@ -383,18 +383,18 @@ static void path_to_ustr(const ALLEGRO_PATH *path, int32_t delim,
 }
 
 
-/* Function: al_path_to_string
+/* Function: al_path_cstr
  */
-const char *al_path_to_string(const ALLEGRO_PATH *path, char delim)
+const char *al_path_cstr(const ALLEGRO_PATH *path, char delim)
 {
    path_to_ustr(path, delim, path->full_string);
    return al_cstr(path->full_string);
 }
 
 
-/* Function: al_path_free
+/* Function: al_free_path
  */
-void al_path_free(ALLEGRO_PATH *path)
+void al_free_path(ALLEGRO_PATH *path)
 {
    unsigned i;
 
@@ -431,9 +431,9 @@ void al_path_free(ALLEGRO_PATH *path)
 }
 
 
-/* Function: al_path_set_drive
+/* Function: al_set_path_drive
  */
-void al_path_set_drive(ALLEGRO_PATH *path, const char *drive)
+void al_set_path_drive(ALLEGRO_PATH *path, const char *drive)
 {
    ASSERT(path);
 
@@ -444,9 +444,9 @@ void al_path_set_drive(ALLEGRO_PATH *path, const char *drive)
 }
 
 
-/* Function: al_path_get_drive
+/* Function: al_get_path_drive
  */
-const char *al_path_get_drive(const ALLEGRO_PATH *path)
+const char *al_get_path_drive(const ALLEGRO_PATH *path)
 {
    ASSERT(path);
 
@@ -454,9 +454,9 @@ const char *al_path_get_drive(const ALLEGRO_PATH *path)
 }
 
 
-/* Function: al_path_set_filename
+/* Function: al_set_path_filename
  */
-void al_path_set_filename(ALLEGRO_PATH *path, const char *filename)
+void al_set_path_filename(ALLEGRO_PATH *path, const char *filename)
 {
    ASSERT(path);
 
@@ -467,9 +467,9 @@ void al_path_set_filename(ALLEGRO_PATH *path, const char *filename)
 }
 
 
-/* Function: al_path_get_filename
+/* Function: al_get_path_filename
  */
-const char *al_path_get_filename(const ALLEGRO_PATH *path)
+const char *al_get_path_filename(const ALLEGRO_PATH *path)
 {
    ASSERT(path);
 
@@ -477,9 +477,9 @@ const char *al_path_get_filename(const ALLEGRO_PATH *path)
 }
 
 
-/* Function: al_path_get_extension
+/* Function: al_get_path_extension
  */
-const char *al_path_get_extension(const ALLEGRO_PATH *path)
+const char *al_get_path_extension(const ALLEGRO_PATH *path)
 {
    int pos;
    ASSERT(path);
@@ -492,9 +492,9 @@ const char *al_path_get_extension(const ALLEGRO_PATH *path)
 }
 
 
-/* Function: al_path_set_extension
+/* Function: al_set_path_extension
  */
-bool al_path_set_extension(ALLEGRO_PATH *path, char const *extension)
+bool al_set_path_extension(ALLEGRO_PATH *path, char const *extension)
 {
    int dot;
    ASSERT(path);
@@ -512,9 +512,9 @@ bool al_path_set_extension(ALLEGRO_PATH *path, char const *extension)
 }
 
 
-/* Function: al_path_get_basename
+/* Function: al_get_path_basename
  */
-const char *al_path_get_basename(const ALLEGRO_PATH *path)
+const char *al_get_path_basename(const ALLEGRO_PATH *path)
 {
    int dot;
    ASSERT(path);
@@ -529,9 +529,9 @@ const char *al_path_get_basename(const ALLEGRO_PATH *path)
 }
 
 
-/* Function: al_path_exists
+/* Function: al_is_path_present
  */
-bool al_path_exists(const ALLEGRO_PATH *path)
+bool al_is_path_present(const ALLEGRO_PATH *path)
 {
    ALLEGRO_USTR *ustr;
    bool rc;
@@ -557,9 +557,9 @@ bool al_path_exists(const ALLEGRO_PATH *path)
 }
 
 
-/* Function: al_path_make_absolute
+/* Function: al_make_path_absolute
  */
-bool al_path_make_absolute(ALLEGRO_PATH *path)
+bool al_make_path_absolute(ALLEGRO_PATH *path)
 {
    ALLEGRO_PATH *cwd_path;
    int i;
@@ -573,28 +573,28 @@ bool al_path_make_absolute(ALLEGRO_PATH *path)
    cwd_path = al_getcwd();
    if (!cwd_path) return false;
 
-   al_path_set_drive(path, al_path_get_drive(cwd_path));
+   al_set_path_drive(path, al_get_path_drive(cwd_path));
 
-   for (i = al_path_num_components(cwd_path) - 1; i >= 0; i--) {
-      al_path_insert(path, 0, al_path_index(cwd_path, i));
+   for (i = al_get_path_num_components(cwd_path) - 1; i >= 0; i--) {
+      al_insert_path_component(path, 0, al_get_path_component(cwd_path, i));
    }
 
-   al_path_free(cwd_path);
+   al_free_path(cwd_path);
 
    return true;
 }
 
 
-/* Function: al_path_make_canonical
+/* Function: al_make_path_canonical
  */
-bool al_path_make_canonical(ALLEGRO_PATH *path)
+bool al_make_path_canonical(ALLEGRO_PATH *path)
 {
    unsigned i;
    ASSERT(path);
 
    for (i = 0; i < _al_vector_size(&path->segments); ) {
       if (strcmp(get_segment_cstr(path, i), ".") == 0)
-         al_path_remove(path, i);
+         al_remove_path_component(path, i);
       else
          i++;
    }
@@ -606,7 +606,7 @@ bool al_path_make_canonical(ALLEGRO_PATH *path)
       while (_al_vector_size(&path->segments) >= 2 &&
          strcmp(get_segment_cstr(path, 1), "..") == 0)
       {
-         al_path_remove(path, 1);
+         al_remove_path_component(path, 1);
       }
    }
 

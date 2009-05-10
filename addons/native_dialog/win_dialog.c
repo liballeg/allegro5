@@ -43,7 +43,7 @@ void al_show_native_file_dialog(ALLEGRO_NATIVE_DIALOG *fd)
    display = (ALLEGRO_DISPLAY_WIN*)al_get_current_display();
    ofn.hwndOwner = display->window;
    if (fd->initial_path) {
-      strncpy(buf, al_path_to_string(fd->initial_path, '/'), 4096);
+      strncpy(buf, al_path_cstr(fd->initial_path, '/'), 4096);
    }
 
    ofn.lpstrFile = buf;
@@ -101,15 +101,15 @@ void al_show_native_file_dialog(ALLEGRO_NATIVE_DIALOG *fd)
       fd->paths = _AL_MALLOC(fd->count * sizeof(void *));
       i = next(buf);
       for (p = 0; p < (int)fd->count; p++) {
-         fd->paths[p] = al_path_create(path);
-         al_path_concat(fd->paths[p], al_path_create(buf+i));
+         fd->paths[p] = al_create_path(path);
+         al_join_paths(fd->paths[p], al_create_path(buf+i));
          i += next(buf+i);
       }
    }
    else {
       fd->count = 1;
       fd->paths = _AL_MALLOC(sizeof(void *));
-      fd->paths[0] = al_path_create(buf);
+      fd->paths[0] = al_create_path(buf);
    }
 }
 

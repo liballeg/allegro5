@@ -304,22 +304,22 @@ ALLEGRO_FONT *al_load_ttf_font(char const *filename, int size, int flags)
     /* Small hack for Type1 fonts which store kerning information in
      * a separate file - and we try to guess the name of that file.
      */
-    path = al_path_create(filename);
-    if (!strcmp(al_path_get_extension(path), ".pfa")) {
+    path = al_create_path(filename);
+    if (!strcmp(al_get_path_extension(path), ".pfa")) {
         const char *helper;
         ALLEGRO_DEBUG("Type1 font assumed for %s.\n", filename);
 
-        al_path_set_extension(path, ".afm");
-        helper = al_path_to_string(path, '/');
+        al_set_path_extension(path, ".afm");
+        helper = al_path_cstr(path, '/');
         FT_Attach_File(face, helper); 
         ALLEGRO_DEBUG("Guessed afm file %s.\n", helper);
 
-        al_path_set_extension(path, ".tfm");
-        helper = al_path_to_string(path, '/');
+        al_set_path_extension(path, ".tfm");
+        helper = al_path_cstr(path, '/');
         FT_Attach_File(face, helper); 
         ALLEGRO_DEBUG("Guessed tfm file %s.\n", helper);
     }
-    al_path_free(path);
+    al_free_path(path);
 
     if (size > 0) {
        FT_Set_Pixel_Sizes(face, 0, size);

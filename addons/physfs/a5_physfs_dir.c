@@ -63,7 +63,7 @@ static bool fs_phys_mkdir(const char *path)
 static ALLEGRO_PATH *fs_phys_fname(ALLEGRO_FS_ENTRY *fse)
 {
    ALLEGRO_FS_ENTRY_PHYSFS *e = (ALLEGRO_FS_ENTRY_PHYSFS *)fse;
-   return al_path_create(al_cstr(e->path));
+   return al_create_path(al_cstr(e->path));
 }
 
 static bool fs_phys_fstat(ALLEGRO_FS_ENTRY *fse)

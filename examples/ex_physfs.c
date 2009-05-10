@@ -74,7 +74,7 @@ int main(int argc, const char *argv[])
       if (!next)
          break;
       path = al_get_entry_name(next);
-      printf("%s\n", al_path_to_string(path, '/'));
+      printf("%s\n", al_path_cstr(path, '/'));
       al_destroy_entry(next);
    }
    al_closedir(entry);

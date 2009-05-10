@@ -300,7 +300,7 @@ ALLEGRO_FILE *al_make_temp_file(const char *template, ALLEGRO_PATH **ret_path)
 
    path = al_get_standard_path(ALLEGRO_TEMP_PATH);
    if (!path) {
-      al_path_free(path);
+      al_free_path(path);
       return NULL;
    }
 
@@ -310,17 +310,17 @@ ALLEGRO_FILE *al_make_temp_file(const char *template, ALLEGRO_PATH **ret_path)
     * Mostly likely there won't be any such file, but the temporary file
     * wouldn't be removed.
     */
-   al_path_make_absolute(path);
+   al_make_path_absolute(path);
 
    for (i=0; i<MAX_MKTEMP_TRIES; ++i) {
       mktemp_replace_XX(template, filename);
-      al_path_set_filename(path, filename);
+      al_set_path_filename(path, filename);
 
 #ifndef ALLEGRO_MSVC
-      fd = open(al_path_to_string(path, ALLEGRO_NATIVE_PATH_SEP),
+      fd = open(al_path_cstr(path, ALLEGRO_NATIVE_PATH_SEP),
          O_EXCL | O_CREAT | O_RDWR, S_IRWXU);
 #else
-      fd = open(al_path_to_string(path, ALLEGRO_NATIVE_PATH_SEP),
+      fd = open(al_path_cstr(path, ALLEGRO_NATIVE_PATH_SEP),
          O_EXCL | O_CREAT | O_RDWR, _S_IWRITE | _S_IREAD);
 #endif
 
@@ -330,7 +330,7 @@ ALLEGRO_FILE *al_make_temp_file(const char *template, ALLEGRO_PATH **ret_path)
 
    if (fd == -1) {
       al_set_errno(errno);
-      al_path_free(path);
+      al_free_path(path);
       return NULL;
    }
 
@@ -338,15 +338,15 @@ ALLEGRO_FILE *al_make_temp_file(const char *template, ALLEGRO_PATH **ret_path)
    if (!f) {
       al_set_errno(errno);
       close(fd);
-      unlink(al_path_to_string(path, ALLEGRO_NATIVE_PATH_SEP));
-      al_path_free(path);
+      unlink(al_path_cstr(path, ALLEGRO_NATIVE_PATH_SEP));
+      al_free_path(path);
       return NULL;
    }
 
    if (ret_path)
       *ret_path = path;
    else
-      al_path_free(path);
+      al_free_path(path);
 
    return f;
 }

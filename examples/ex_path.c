@@ -11,10 +11,10 @@ int main(int argc, char **argv)
    al_init();
 
    if (argc < 2) {
-      ALLEGRO_PATH *exe = al_path_create(argv[0]);
+      ALLEGRO_PATH *exe = al_create_path(argv[0]);
       if (exe) {
-         printf("usage1: %s <path>\n", al_path_get_filename(exe));
-         al_path_free(exe);
+         printf("usage1: %s <path>\n", al_get_path_filename(exe));
+         al_free_path(exe);
       }
       else {
          printf("usage2: %s <path>\n", argv[0]);
@@ -23,58 +23,58 @@ int main(int argc, char **argv)
       return 0;
    }
 
-   dyn = al_path_create(argv[1]);
+   dyn = al_create_path(argv[1]);
    if (!dyn) {
       printf("Failed to create path structure for '%s'.\n", argv[1]);
    }
    else {
       printf("dyn: drive=\"%s\", file=\"%s\"\n",
-	  al_path_get_drive(dyn),
-	  al_path_get_filename(dyn));
-      al_path_free(dyn);
+	  al_get_path_drive(dyn),
+	  al_get_path_filename(dyn));
+      al_free_path(dyn);
    }
 
-   tostring = al_path_create(argv[1]);
+   tostring = al_create_path(argv[1]);
    if (!tostring) {
       printf("Failed to create path structure for tostring test\n");
    }
    else {
       int i;
 
-      printf("tostring: '%s'\n", al_path_to_string(tostring, '/'));
-      printf("tostring: drive:'%s'", al_path_get_drive(tostring));
+      printf("tostring: '%s'\n", al_path_cstr(tostring, '/'));
+      printf("tostring: drive:'%s'", al_get_path_drive(tostring));
       printf(" dirs:");
-      for (i = 0; i < al_path_num_components(tostring); i++) {
+      for (i = 0; i < al_get_path_num_components(tostring); i++) {
          if (i > 0)
             printf(",");
-         printf(" '%s'", al_path_index(tostring, i));
+         printf(" '%s'", al_get_path_component(tostring, i));
       }
-      printf(" filename:'%s'\n", al_path_get_filename(tostring));
-      al_path_free(tostring);
+      printf(" filename:'%s'\n", al_get_path_filename(tostring));
+      al_free_path(tostring);
    }
 
    /* FIXME: test out more of the al_path_ functions, ie: insert, remove,
     * concat, canonicalize, absolute, relative
     */
 
-   dyn = al_path_create(argv[1]);
+   dyn = al_create_path(argv[1]);
    if(dyn) {
-      cloned = al_path_clone(dyn);
+      cloned = al_clone_path(dyn);
       if(cloned) {
-         printf("dyn: '%s'\n", al_path_to_string(dyn, '/'));
+         printf("dyn: '%s'\n", al_path_cstr(dyn, '/'));
 
-         al_path_make_canonical(cloned);
-         printf("can: '%s'\n", al_path_to_string(cloned, '/'));
+         al_make_path_canonical(cloned);
+         printf("can: '%s'\n", al_path_cstr(cloned, '/'));
 
-         al_path_make_absolute(cloned);
-         printf("abs: '%s'\n", al_path_to_string(cloned, '/'));
+         al_make_path_absolute(cloned);
+         printf("abs: '%s'\n", al_path_cstr(cloned, '/'));
 
-         al_path_free(dyn);
-         al_path_free(cloned);
+         al_free_path(dyn);
+         al_free_path(cloned);
       }
       else {
          printf("failed to clone ALLEGRO_PATH :(\n");
-         al_path_free(dyn);
+         al_free_path(dyn);
       }
    }
    else {

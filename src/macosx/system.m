@@ -568,7 +568,7 @@ static ALLEGRO_PATH *osx_get_path(int id)
    // FIXME: get rid of arbitrary length
    char temp[PATH_MAX];
    _fixme_osx_get_path(id, temp, sizeof temp);
-   return al_path_create(temp);
+   return al_create_path(temp);
 }
 
 /* _al_osx_post_quit

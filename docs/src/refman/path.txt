@@ -8,43 +8,16 @@ If no dot character exists the basename is the whole filename.
 The extension is everything from the last dot character to the end of the
 filename.
 
-## API: al_find_resource
-
-Returns the full path of a 'resource' given mode 'fm'.
-
-Parameters:
-
-* base - sub directory name resource may be found in
-* resource - name of resource
-* fm - file mode/type of resource to match. See [ALLEGRO_FILE_MODE]
-* buffer - buffer to write full path to
-* len - length of buffer
-
-Notes:
-If asking for a read-only resource function scans the user data path, the
-program path, the current working directory followed by the system data
-path, if it doesn't find anything, it will return a bogus path in the users
-data path.
-XXX This is probably a bug.
-
-If asking for a writable resource, it will scan the same places as the read
-only scan, and will pick the first wirteable existing resource it finds.
-If it doesn't find any pre-existing resource, it finds the first writable
-directory path made up of the path components of the path returned from
-[al_get_standard_path], the 'base', and 'resource' arguments. If none are writable,
-it will return a path made up of the USER_DATA_PATH, and the 'base' and
-'resource' arguments.
-
-## API: al_path_append
+## API: al_append_path_component
 
 Append a directory component.
 
-## API: al_path_clone
+## API: al_clone_path
 
 Clones an ALLEGRO_PATH structure.
 Returns NULL on failure.
 
-## API: al_path_concat
+## API: al_join_paths
 
 Concatenate two path structures. The first path structure is
 modified.  If 'tail' is an absolute path, this function does nothing.
@@ -58,32 +31,32 @@ Tail's drive is ignored.
 Returns true if 'tail' was a relative path and so concatenated to 'path',
 otherwise returns false.
 
-## API: al_path_create
+## API: al_create_path
 
 Create a path structure from a string.
 The string may be NULL for an empty path.
 
-## API: al_path_create_dir
+## API: al_create_path_for_dir
 
-This is the same as [al_path_create], but interprets the passed string
+This is the same as [al_create_path], but interprets the passed string
 as a directory path. The filename component of the returned path will
 always be empty.
 
-## API: al_path_drop_tail
+## API: al_drop_path_tail
 
 Drop the last directory component.
 
-## API: al_path_exists
+## API: al_is_path_present
 
 Return true if path represents an existing file on the system,
 or false if it doesn't exist.
 
-## API: al_path_free
+## API: al_free_path
 
 Free a path structure.
 Does nothing if passed NULL.
 
-## API: al_path_get_basename
+## API: al_get_path_basename
 
 Return the basename, i.e. filename with the extension removed.
 If the filename doesn't have an extension, the whole filename is the basename.
@@ -92,7 +65,7 @@ If there is no filename part then the empty string is returned.
 The returned pointer is valid only until the filename part of the path
 is modified in any way, or until the path is destroyed.
 
-## API: al_path_get_drive
+## API: al_get_path_drive
 
 Return the drive letter on a path, or the empty string if there is none.
 
@@ -100,7 +73,7 @@ The "drive letter" is only used on Windows, and is usually a string like
 "c:", but may be something like "\\\\Computer Name" in the case of UNC
 (Uniform Naming Convention) syntax.
 
-## API: al_path_get_extension
+## API: al_get_path_extension
 
 Return a pointer to the start of the extension of the filename,
 i.e. everything from the final dot ('.') character onwards.
@@ -109,36 +82,36 @@ If no dot exists, returns an empty string.
 The returned pointer is valid only until the filename part of the path
 is modified in any way, or until the path is destroyed.
 
-## API: al_path_get_filename
+## API: al_get_path_filename
 
 Return the filename part of the path, or the empty string if there is none.
 
 The returned pointer is valid only until the filename part of the path
 is modified in any way, or until the path is destroyed.
 
-## API: al_path_index
+## API: al_get_path_component
 
 Return the i'th directory component of a path, counting from zero.
 If the index is negative then count from the right, i.e. -1 refers to
 the last path component.
 It is an error to pass an index which is out of bounds.
 
-## API: al_path_insert
+## API: al_insert_path_component
 
 Insert a directory component at index i.
 If the index is negative then count from the right, i.e. -1 refers to
 the last path component.
 
 It is an error to pass an index i which is not within these bounds:
-0 <= i <= al_path_num_components(path).
+0 <= i <= al_get_path_num_components(path).
 
-## API: al_path_make_absolute
+## API: al_make_path_absolute
 
 Prepends the current working directory to 'path' if it is a relative path.
 The drive is also set to the driver of the current working directory.
 Does nothing if 'path' is an absolute path.
 
-## API: al_path_make_canonical
+## API: al_make_path_canonical
 
 Removes any leading '..' directory components in absolute paths.
 Removes all '.' directory components.
@@ -148,40 +121,40 @@ This is by design. If "/foo" on your system is a symlink to "/bar/baz",
 then "/foo/../quux" is actually "/bar/quux",
 not "/quux" as a naive removal of ".." components would give you.
 
-## API: al_path_num_components
+## API: al_get_path_num_components
 
 Return the number of directory components in a path.
 
 The directory components do not include the final part of a path
 (the filename).
 
-## API: al_path_remove
+## API: al_remove_path_component
 
 Delete the i'th directory component.
 If the index is negative then count from the right, i.e. -1 refers to
 the last path component.
 It is an error to pass an index which is out of bounds.
 
-## API: al_path_replace
+## API: al_replace_path_component
 
 Replace the i'th directory component by another string.
 If the index is negative then count from the right, i.e. -1 refers to
 the last path component.
 It is an error to pass an index which is out of bounds.
 
-## API: al_path_set_drive
+## API: al_set_path_drive
 
 Set the drive string on a path.
 The drive may be NULL, which is equivalent to setting the drive
 string to the empty string.
 
-## API: al_path_set_filename
+## API: al_set_path_filename
 
 Set the optional filename part of the path.
 The filename may be NULL, which is equivalent to setting the
 filename to the empty string.
 
-## API: al_path_set_extension
+## API: al_set_path_extension
 
 Replaces the extension of the path with the given one, i.e. replaces
 everything from the final dot ('.') character onwards, including the dot.
@@ -191,12 +164,12 @@ Usually the new extension you supply should include a leading dot.
 Returns false if the path contains no filename part,
 i.e. the filename part is the empty string.
 
-## API: al_path_tail
+## API: al_get_path_tail
 
 Returns the last directory component, or NULL if there are no directory
 components.
 
-## API: al_path_to_string
+## API: al_path_cstr
 
 Convert a path to its string representation, i.e. optional drive,
 followed by directory components separated by 'delim',

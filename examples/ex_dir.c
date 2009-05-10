@@ -12,9 +12,9 @@ void print_file(ALLEGRO_FS_ENTRY *entry)
    off_t size = al_get_entry_size(entry);
    char const *name;
    if (al_is_directory(entry))
-      name = al_path_index(path, -1);
+      name = al_get_path_component(path, -1);
    else
-      name = al_path_get_filename(path);
+      name = al_get_path_filename(path);
    printf("%-32s %s%s%s%s%s%s %10lu %10lu %10lu %13lu\n", 
       name,
       mode & ALLEGRO_FILEMODE_READ ? "r" : ".",
@@ -27,7 +27,7 @@ void print_file(ALLEGRO_FS_ENTRY *entry)
       now - mtime,
       now - atime,
       size);
-   al_path_free(path);
+   al_free_path(path);
 }
 
 void print_entry(ALLEGRO_FS_ENTRY *entry)

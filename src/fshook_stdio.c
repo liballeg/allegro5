@@ -494,10 +494,10 @@ static ALLEGRO_FS_ENTRY *al_fs_stdio_readdir(ALLEGRO_FS_ENTRY *fp)
    /* TODO: Maybe we should keep an ALLEGRO_PATH for each entry in
     * the first place?
     */
-   path = al_path_create_dir(fp_stdio->path);
-   al_path_set_filename(path, ent->d_name);
-   ret = al_fs_stdio_create_handle(al_path_to_string(path, '/'));
-   al_path_free(path);
+   path = al_create_path_for_dir(fp_stdio->path);
+   al_set_path_filename(path, ent->d_name);
+   ret = al_fs_stdio_create_handle(al_path_cstr(path, '/'));
+   al_free_path(path);
    return ret;
 }
 
@@ -564,7 +564,7 @@ static ALLEGRO_PATH *al_fs_stdio_getcwd(void)
    }
    len = strlen(cwd);
 
-   return al_path_create_dir(tmpdir);
+   return al_create_path_for_dir(tmpdir);
 }
 
 static bool al_fs_stdio_chdir(const char *path)
@@ -684,9 +684,9 @@ static ALLEGRO_PATH *al_fs_stdio_fname(ALLEGRO_FS_ENTRY *fp)
 {
    ALLEGRO_FS_ENTRY_STDIO *fp_stdio = (ALLEGRO_FS_ENTRY_STDIO *) fp;
    if (al_is_directory(fp))
-      return al_path_create_dir(fp_stdio->path);
+      return al_create_path_for_dir(fp_stdio->path);
    else
-      return al_path_create(fp_stdio->path);
+      return al_create_path(fp_stdio->path);
 }
 
 struct ALLEGRO_FS_INTERFACE _al_fs_interface_stdio = {

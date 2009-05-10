@@ -388,7 +388,7 @@ static ALLEGRO_PATH *win_get_path(int id)
             return NULL;
          }
 
-         return al_path_create_dir(path);
+         return al_create_path_for_dir(path);
 
       } break;
 
@@ -405,7 +405,7 @@ static ALLEGRO_PATH *win_get_path(int id)
          /* should this not chop the slash? */
          *ptr = '\0';
 
-         return al_path_create_dir(path);
+         return al_create_path_for_dir(path);
       } break;
 
       case ALLEGRO_SYSTEM_DATA_PATH: /* CSIDL_COMMON_APPDATA */
@@ -438,7 +438,7 @@ static ALLEGRO_PATH *win_get_path(int id)
          HANDLE process = GetCurrentProcess();
          GetModuleFileNameEx(process, NULL, path, MAX_PATH);
 
-         return al_path_create(path);
+         return al_create_path(path);
       } break;
       
       default:
@@ -450,13 +450,13 @@ static ALLEGRO_PATH *win_get_path(int id)
       return NULL;
    }
 
-   cisdl_path = al_path_create_dir(path);
+   cisdl_path = al_create_path_for_dir(path);
    if (!cisdl_path)
       return NULL;
 
    if (id != ALLEGRO_USER_HOME_PATH) {
-      al_path_append(cisdl_path, al_get_orgname());
-      al_path_append(cisdl_path, al_get_appname());
+      al_append_path_component(cisdl_path, al_get_orgname());
+      al_append_path_component(cisdl_path, al_get_appname());
    }
 
    return cisdl_path;

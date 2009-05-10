@@ -17,7 +17,7 @@ void al_show_native_file_dialog(ALLEGRO_NATIVE_DIALOG *fd)
 
    /* Set initial directory to pass to the file selector */
    if (fd->initial_path) {
-      ALLEGRO_PATH *initial_directory = al_path_clone(fd->initial_path);
+      ALLEGRO_PATH *initial_directory = al_clone_path(fd->initial_path);
       /* Strip filename from path  */
       al_path_set_filename(initial_directory, NULL);
 
@@ -53,7 +53,7 @@ void al_show_native_file_dialog(ALLEGRO_NATIVE_DIALOG *fd)
          const char *s = [[panel filename] UTF8String];
          fd->count = 1;
          fd->paths = _AL_MALLOC(fd->count * sizeof *fd->paths);
-         fd->paths[0] = al_path_create(s);
+         fd->paths[0] = al_create_path(s);
       }
    } else {                                  // Open dialog
       NSOpenPanel *panel = [NSOpenPanel openPanel];
@@ -85,7 +85,7 @@ void al_show_native_file_dialog(ALLEGRO_NATIVE_DIALOG *fd)
              * (according to the UTF8String docs anyway).
              */
             const char *s = [[[panel filenames] objectAtIndex: i] UTF8String];
-            fd->paths[i] = al_path_create(s);
+            fd->paths[i] = al_create_path(s);
          }
       }
    }

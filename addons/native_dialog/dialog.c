@@ -18,7 +18,7 @@ ALLEGRO_NATIVE_DIALOG *al_create_native_file_dialog(
    memset(fc, 0, sizeof *fc);
 
    if (initial_path)
-      fc->initial_path = al_path_clone(initial_path);
+      fc->initial_path = al_clone_path(initial_path);
    fc->title = al_ustr_new(title);
    fc->patterns = al_ustr_new(patterns);
    fc->mode = mode;
@@ -53,12 +53,12 @@ void al_destroy_native_dialog(ALLEGRO_NATIVE_DIALOG *fd)
    if (fd->paths) {
       size_t i;
       for (i = 0; i < fd->count; i++) {
-         al_path_free(fd->paths[i]);
+         al_free_path(fd->paths[i]);
       }
    }
    _AL_FREE(fd->paths);
    if (fd->initial_path)
-      al_path_free(fd->initial_path);
+      al_free_path(fd->initial_path);
    al_ustr_free(fd->title);
    al_ustr_free(fd->heading);
    al_ustr_free(fd->patterns);
