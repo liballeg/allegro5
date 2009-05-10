@@ -764,4 +764,11 @@ void _al_win_wnd_schedule_proc(HWND wnd, void (*proc) (void*), void* param)
    }
 }
 
+HWND al_win_get_window(ALLEGRO_DISPLAY *display)
+{
+   return ((ALLEGRO_DISPLAY_WIN *)display)->window;
+}
+
+
+
 /* vi: set ts=8 sts=3 sw=3 et: */

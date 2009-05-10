@@ -2398,12 +2398,6 @@ LPDIRECT3DDEVICE9 al_d3d_get_device(ALLEGRO_DISPLAY *display)
 }
 
 
-HWND al_d3d_get_hwnd(ALLEGRO_DISPLAY *display)
-{
-   return ((ALLEGRO_DISPLAY_WIN *)display)->window;
-}
-
-
 LPDIRECT3DTEXTURE9 al_d3d_get_system_texture(ALLEGRO_BITMAP *bitmap)
 {
    return ((ALLEGRO_BITMAP_D3D *)bitmap)->system_texture;

@@ -34,7 +34,6 @@
 
 
 AL_FUNC(LPDIRECT3DDEVICE9,  al_d3d_get_device,         (ALLEGRO_DISPLAY *));
-AL_FUNC(HWND,               al_d3d_get_hwnd,           (ALLEGRO_DISPLAY *));
 AL_FUNC(LPDIRECT3DTEXTURE9, al_d3d_get_system_texture, (ALLEGRO_BITMAP *));
 AL_FUNC(LPDIRECT3DTEXTURE9, al_d3d_get_video_texture,  (ALLEGRO_BITMAP *));
 AL_FUNC(bool,               al_d3d_supports_non_pow2_textures,   (void));

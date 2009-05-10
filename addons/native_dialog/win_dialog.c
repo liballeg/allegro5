@@ -15,6 +15,8 @@
 
 #include "allegro5/platform/aintwin.h"
 
+#include "allegro5/a5_windows.h"
+
 
 static int next(char *s)
 {
@@ -113,7 +115,20 @@ void al_show_native_file_dialog(ALLEGRO_NATIVE_DIALOG *fd)
 
 int _al_show_native_message_box(ALLEGRO_NATIVE_DIALOG *fd)
 {
-   /* XXX to be implemented */
-   (void)fd;
-   return 0;
+	UINT type = 0;
+	int result;
+
+	if (fd->mode & ALLEGRO_MESSAGEBOX_QUESTION) type |= MB_ICONQUESTION;
+	if (fd->mode & ALLEGRO_MESSAGEBOX_WARN) type |= MB_ICONWARNING;
+	if (fd->mode & ALLEGRO_MESSAGEBOX_ERROR) type |= MB_ICONERROR;
+	if (fd->mode & ALLEGRO_MESSAGEBOX_YES_NO) type |= MB_YESNO;
+	if (fd->mode & ALLEGRO_MESSAGEBOX_OK_CANCEL) type |= MB_OKCANCEL;
+
+	result = MessageBox(al_win_get_window(al_get_current_display()),
+		al_cstr(fd->text), al_cstr(fd->title), type);
+	
+	if (result == IDYES || result == IDOK)
+		return 1;
+	else
+		return 0;
 }
