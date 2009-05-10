@@ -28,7 +28,7 @@ static size_t memfile_fread(ALLEGRO_FILE *fp, void *ptr, size_t size)
    ALLEGRO_FILE_MEMFILE *mf = (ALLEGRO_FILE_MEMFILE*)fp;
    size_t n;
 
-   if (mf->size - mf->pos < size) { 
+   if (mf->size - mf->pos < (int64_t)size) { 
       /* partial read */
       n = mf->size - mf->pos;
       mf->eof = true;
@@ -47,7 +47,7 @@ static size_t memfile_fwrite(ALLEGRO_FILE *fp, const void *ptr, size_t size)
    ALLEGRO_FILE_MEMFILE *mf = (ALLEGRO_FILE_MEMFILE*)fp;
    size_t n;
 
-   if (mf->size - mf->pos < size) {
+   if (mf->size - mf->pos < (int64_t)size) {
       /* partial write */
       n = mf->size - mf->pos;
       mf->eof = true;
