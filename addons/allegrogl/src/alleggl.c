@@ -1153,7 +1153,7 @@ void allegro_gl_set_blender_mode(int mode, int r, int g, int b, int a) {
 	
 	if (allegro_gl_opengl_version() >= 1.4 ||
 	   (allegro_gl_opengl_version() >= 1.2 &&
-		allegro_gl_is_extension_supported("ARB_imaging"))) {
+		allegro_gl_is_extension_supported("GL_ARB_imaging"))) {
 		/* We're running a recent version of OpenGL and everything needed is here. */
 		
 		glBlendColor(r / 255.f, g / 255.f, b / 255.f, a / 255.f);
