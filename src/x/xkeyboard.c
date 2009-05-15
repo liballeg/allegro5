@@ -696,17 +696,18 @@ static int x_keyboard_init(void)
    XLOCK ();
 
 #ifdef ALLEGRO_XWINDOWS_WITH_XIM
-/* TODO: is this needed?
-   if (setlocale(LC_ALL,"") == NULL) {
+   /* Otherwise we are restricted to ISO-8859-1 characters. */
+   if (setlocale(LC_ALL, "") == NULL) {
       TRACE(PREFIX_W "Could not set default locale.\n");
    }
 
+/* TODO: is this needed?
    modifiers = XSetLocaleModifiers("@im=none");
    if (modifiers == NULL) {
       TRACE(PREFIX_W "XSetLocaleModifiers failed.\n");
    }
 */
-   xim = XOpenIM (_xwin.display, NULL, NULL, NULL);
+   xim = XOpenIM(_xwin.display, NULL, NULL, NULL);
    if (xim == NULL) {
       TRACE(PREFIX_W "XOpenIM failed.\n");
    }
