@@ -190,7 +190,7 @@ if(MINGW)
         HAVE_DM_POSITION)
     if(NOT HAVE_DM_POSITION)
         message(FATAL_ERROR
-            "Missing DM_POSITION. Please update your MinGW"
+            "Missing DM_POSITION. Please update your MinGW "
             "w32api package, delete CMakeCache.txt and try again.")
     endif(NOT HAVE_DM_POSITION)
 endif(MINGW)
@@ -612,12 +612,22 @@ configure_file(
 if(WIN32 AND SHARED)
     if(NOT SUPPORT_D3D OR NOT SUPPORT_OPENGL)
         message(
-            "Both D3D and OpenGL must be present for the SHARED build.
-            Disabling SHARED build.")
+            "Both D3D and OpenGL must be present for the SHARED build. "
+            "Disabling SHARED build.")
         set(SHARED off)
         set(BUILD_SHARED_LIBS off)
     endif(NOT SUPPORT_D3D OR NOT SUPPORT_OPENGL)
 endif(WIN32 AND SHARED)
+
+if(WIN32)
+    if(NOT EXISTS ${CMAKE_SOURCE_DIR}/lib/msvc/allegro.def OR
+            NOT EXISTS ${CMAKE_SOURCE_DIR}/lib/mingw32/allegro.def)
+        message(FATAL_ERROR
+            "lib/*/allegro.def files are missing. "
+            "If you are trying to build from an SVN checkout you must first "
+            "run misc/fixdll.sh or misc/fixdll.bat before running CMake.")
+    endif()
+endif(WIN32)
 
 # List of source files need to compile Allegro in this configuration on
 # this platform.
