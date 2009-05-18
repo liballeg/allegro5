@@ -343,10 +343,10 @@ void _al_line_2d(ALLEGRO_BITMAP* texture, ALLEGRO_VERTEX* v1, ALLEGRO_VERTEX* v2
    */
    
    /*
-   Lock the region we are drawing too
+   Lock the region we are drawing to. We are choosing the minimum and maximum
+   possible pixels touched from the formula (easily verified by following the
+   above algorithm.
    */
-
-   // FIXME: What for is the +/- 1 here? Please explain in a comment.
 
    if (vtx1.x >= vtx2.x) {
       max_x = (int)ceilf(vtx1.x) + 1;

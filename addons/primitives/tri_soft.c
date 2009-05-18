@@ -545,7 +545,9 @@ void _al_triangle_2d(ALLEGRO_BITMAP* texture, ALLEGRO_VERTEX* v1, ALLEGRO_VERTEX
    */
    
    /*
-   Lock the region we are drawing too
+   Lock the region we are drawing to. We are choosing the minimum and maximum
+   possible pixels touched from the formula (easily verified by following the
+   above algorithm.
    */
    
    min_x = (int)floorf(MIN(vtx1->x, MIN(vtx2->x, vtx3->x))) - 1;
