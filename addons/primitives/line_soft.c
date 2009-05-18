@@ -384,9 +384,6 @@ void _al_line_2d(ALLEGRO_BITMAP* texture, ALLEGRO_VERTEX* v1, ALLEGRO_VERTEX* v2
    if (min_y < 0)
       min_y = 0;
 
-   // FIXME: Something is wrong here. Above, the integer pixels are
-   // clipped to the range 0...w-1. So e.g. in a 1x1 bitmap, min_x and
-   // max_x are both 0, no matter how long the line is...
    if (al_is_bitmap_locked(target)) {
       if (!_al_bitmap_region_is_locked(target, min_x, min_y, 1 + max_x - min_x, 1 + max_y - min_y))
          return;
