@@ -363,7 +363,14 @@ static void triangle_stepper(ALLEGRO_BITMAP* dest, uintptr_t state,
       Calculate the first step of the edge steppers, it is potentially different from all other steps
       */
       left_first = ceilf((left_error) / left_y_delta);
-      right_first = floorf((right_error) / right_y_delta);
+      /*
+      Introduce a tiny bias into the calculation, a problem with the floorf implementation
+      because it does not have a properly defined 0 point. I think this is a hack,
+      however, so if anyone has a better idea of how to fix this, by all means implement it.
+
+      N.B. the same offset in the bottom segment as well
+      */
+      right_first = floorf((right_error) / right_y_delta - 0.00001f);
       
       /*
       Calculate the normal steps
@@ -459,7 +466,7 @@ static void triangle_stepper(ALLEGRO_BITMAP* dest, uintptr_t state,
       }
       
       left_first = ceilf((left_error) / left_y_delta);
-      right_first = floorf((right_error) / right_y_delta);
+      right_first = floorf((right_error) / right_y_delta - 0.00001f);
       
       left_step = ceilf(left_x_delta / left_y_delta);
       left_d_er = -(float)left_step * left_y_delta;
