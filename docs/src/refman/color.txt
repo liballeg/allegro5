@@ -32,7 +32,13 @@ Parameters:
 
 ## API: al_color_html
 
+Interprets an HTML styled hex number (e.g. #00faff) as a color. Components that
+are malformed are set to 0.
+
 ## API: al_color_html_to_rgb
+
+Interprets an HTML styled hex number (e.g. #00faff) as a color. Components that
+are malformed are set to 0.
 
 ## API: al_color_rgb_to_html
 
