@@ -458,16 +458,12 @@ void al_color_html_to_rgb(char const *string,
    float *red, float *green, float *blue)
 {
    char const *ptr = string;
-   int r, g, b;
+   long rgb;
    if (*ptr == '#') ptr++;
-
-   if (!sscanf(ptr + 0, "%2x", &r)) r = 0;
-   if (!sscanf(ptr + 2, "%2x", &g)) g = 0;
-   if (!sscanf(ptr + 4, "%2x", &b)) b = 0;
-
-   *red = r / 255.0;
-   *green = g / 255.0;
-   *blue = b / 255.0;
+   rgb = strtol(ptr, NULL, 16);
+   *red = (rgb >> 16) / 255.0;
+   *green = ((rgb >> 8) & 255) / 255.0;
+   *blue = (rgb & 255) / 255.0;
 }
 
 /* Function: al_color_html
