@@ -313,38 +313,6 @@ static void update_shifts(XKeyEvent *event)
 
 
 
-/* dga2_update_shifts
- *  DGA2 doesn't seem to have a reliable state field. Therefore Allegro must
- *  take care of modifier keys itself.
- */
-static void dga2_update_shifts(XKeyEvent *event)
-{
-   int i, j;
-
-   for (i = 0; i < 8; i++) {
-      for (j = 0; j < xmodmap->max_keypermod; j++) {
-         if (event->keycode && event->keycode ==
-            xmodmap->modifiermap[i * xmodmap->max_keypermod + j]) {
-            if (event->type == KeyPress) {
-               if (modifier_flags[i][2])
-                  _key_shifts ^= modifier_flags[i][0];
-               else
-                  _key_shifts |= modifier_flags[i][0];
-            }
-            else if (event->type == KeyRelease) {
-               if (!modifier_flags[i][2])
-                  _key_shifts &= ~modifier_flags[i][0];
-            }
-         }
-      }
-      /* Hack: DGA keys seem to get reported wrong otherwise. */
-      if (_key_shifts & modifier_flags[i][0])
-         event->state |= modifier_flags[i][1];
-   }
-}
-
-
-
 /* find_unknown_key_assignment
  *  In some cases, X11 doesn't report any KeySym for a key - so the earliest
  *  time we can map it to an Allegro key is when it is first pressed.
@@ -390,8 +358,7 @@ static int find_unknown_key_assignment(int i)
 /* _al_xwin_keyboard_handler:
  *  Keyboard "interrupt" handler.
  */
-void _al_xwin_keyboard_handler(XKeyEvent *event, bool dga2_hack,
-    ALLEGRO_DISPLAY *display)
+void _al_xwin_keyboard_handler(XKeyEvent *event, ALLEGRO_DISPLAY *display)
 {
    int keycode;
 
@@ -402,10 +369,7 @@ void _al_xwin_keyboard_handler(XKeyEvent *event, bool dga2_hack,
    if (keycode == -1)
       keycode = find_unknown_key_assignment(event->keycode);
 
-   if (dga2_hack)
-      dga2_update_shifts(event);
-   else
-      update_shifts(event);
+   update_shifts(event);
 
    /* Special case the pause key. */
    if (keycode == ALLEGRO_KEY_PAUSE) {

@@ -41,12 +41,10 @@ static void process_x11_event(ALLEGRO_SYSTEM_XGLX *s, XEvent event)
 
    switch (event.type) {
       case KeyPress:
-         _al_xwin_keyboard_handler(&event.xkey, false,
-            &d->display);
+         _al_xwin_keyboard_handler(&event.xkey, &d->display);
          break;
       case KeyRelease:
-         _al_xwin_keyboard_handler(&event.xkey, false,
-            &d->display);
+         _al_xwin_keyboard_handler(&event.xkey, &d->display);
          break;
       case LeaveNotify:
          _al_xwin_mouse_switch_handler(&d->display, &event.xcrossing);
