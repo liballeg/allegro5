@@ -16,7 +16,7 @@
  */
 
 #ifndef WINVER
-#define WINVER 0x0501
+#define WINVER 0x0600
 #endif
 #include <windows.h>
 
