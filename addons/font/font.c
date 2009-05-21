@@ -281,6 +281,7 @@ ALLEGRO_FONT *al_load_font(char const *filename, int size, int flags)
    int i;
    ALLEGRO_PATH *path = al_create_path(filename);
    HANDLER *handler = find_extension(al_get_path_extension(path));
+   al_free_path(path);
    if (handler)
       return handler->load_font(filename, size, flags);
 
