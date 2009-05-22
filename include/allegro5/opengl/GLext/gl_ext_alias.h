@@ -341,6 +341,15 @@
 #define glGetStringi __aglGetStringi
 #endif
 
+#if defined AGL_VERSION_3_1
+/*OpenGL3.1alsoreusesentrypointsfromtheseextensions:*/
+/*ARB_copy_buffer*/
+/*ARB_uniform_buffer_object*/
+#define glDrawArraysInstanced __aglDrawArraysInstanced
+#define glDrawElementsInstanced __aglDrawElementsInstanced
+#define glTexBuffer __aglTexBuffer
+#define glPrimitiveRestartIndex __aglPrimitiveRestartIndex
+#endif
 
 /*</Core>*/
 /*<ARB>*/
@@ -694,6 +703,20 @@
 #define glDeleteVertexArrays __aglDeleteVertexArrays
 #define glGenVertexArrays __aglGenVertexArrays
 #define glIsVertexArray __aglIsVertexArray
+#endif
+
+#if defined AGL_ARB_uniform_buffer_object
+#define glGetUniformIndices __aglGetUniformIndices
+#define glGetActiveUniformsiv __aglGetActiveUniformsiv
+#define glGetActiveUniformName __aglGetActiveUniformName
+#define glGetUniformBlockIndex __aglGetUniformBlockIndex
+#define glGetActiveUniformBlockiv __aglGetActiveUniformBlockiv
+#define glGetActiveUniformBlockName __aglGetActiveUniformBlockName
+#define glUniformBlockBinding __aglUniformBlockBinding
+#endif
+
+#if defined AGL_ARB_copy_buffer
+#define glCopyBufferSubData __aglCopyBufferSubData
 #endif
 
 
@@ -2194,4 +2217,42 @@
 #define glMultiTexRenderbufferEXT __aglMultiTexRenderbufferEXT
 #endif
 
+#if defined AGL_NV_explicit_multisample
+#define glGetMultisamplefvNV __aglGetMultisamplefvNV
+#define glSampleMaskIndexedNV __aglSampleMaskIndexedNV
+#define glTexRenderbufferNV __aglTexRenderbufferNV
+#endif
+
+#if defined AGL_NV_transform_feedback2
+#define glBindTransformFeedbackNV __aglBindTransformFeedbackNV
+#define glDeleteTransformFeedbacksNV __aglDeleteTransformFeedbacksNV
+#define glGenTransformFeedbacksNV __aglGenTransformFeedbacksNV
+#define glIsTransformFeedbackNV __aglIsTransformFeedbackNV
+#define glPauseTransformFeedbackNV __aglPauseTransformFeedbackNV
+#define glResumeTransformFeedbackNV __aglResumeTransformFeedbackNV
+#define glDrawTransformFeedbackNV __aglDrawTransformFeedbackNV
+#endif
+
+#if defined AGL_AMD_performance_monitor
+#define glGetPerfMonitorGroupsAMD __aglGetPerfMonitorGroupsAMD
+#define glGetPerfMonitorCountersAMD __aglGetPerfMonitorCountersAMD
+#define glGetPerfMonitorGroupStringAMD __aglGetPerfMonitorGroupStringAMD
+#define glGetPerfMonitorCounterStringAMD __aglGetPerfMonitorCounterStringAMD
+#define glGetPerfMonitorCounterInfoAMD __aglGetPerfMonitorCounterInfoAMD
+#define glGenPerfMonitorsAMD __aglGenPerfMonitorsAMD
+#define glDeletePerfMonitorsAMD __aglDeletePerfMonitorsAMD
+#define glSelectPerfMonitorCountersAMD __aglSelectPerfMonitorCountersAMD
+#define glBeginPerfMonitorAMD __aglBeginPerfMonitorAMD
+#define glEndPerfMonitorAMD __aglEndPerfMonitorAMD
+#define glGetPerfMonitorCounterDataAMD __aglGetPerfMonitorCounterDataAMD
+#endif
+
+#if defined AGL_AMD_vertex_shader_tesselator
+#define glTessellationFactorAMD __aglTessellationFactorAMD
+#define glTessellationModeAMD __aglTessellationModeAMD
+#endif
+
+#if defined AGL_EXT_provoking_vertex
+#define glProvokingVertexEXT __aglProvokingVertexEXT
+#endif
 

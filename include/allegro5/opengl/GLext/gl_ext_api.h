@@ -340,6 +340,15 @@ AGL_API(void, ClearBufferfi, (GLenum, GLint, GLfloat, GLint))
 AGL_API(const GLubyte *, GetStringi, (GLenum, GLuint))
 #endif
 
+#if defined AGL_VERSION_3_1
+/* OpenGL 3.1 also reuses entry points from these extensions: */
+/* ARB_copy_buffer */
+/* ARB_uniform_buffer_object */
+AGL_API(void, DrawArraysInstanced, (GLenum, GLint, GLsizei, GLsizei));
+AGL_API(void, DrawElementsInstanced, (GLenum, GLsizei, GLenum, const GLvoid *, GLsizei));
+AGL_API(void, TexBuffer, (GLenum, GLenum, GLuint));
+AGL_API(void, PrimitiveRestartIndex, (GLuint));
+#endif
 
 /* </Core> */
 /* <ARB> */
@@ -693,6 +702,20 @@ AGL_API(void, BindVertexArray, (GLuint))
 AGL_API(void, DeleteVertexArrays, (GLsizei, const GLuint *))
 AGL_API(void, GenVertexArrays, (GLsizei, GLuint *))
 AGL_API(GLboolean, IsVertexArray, (GLuint))
+#endif
+
+#if defined AGL_ARB_uniform_buffer_object
+AGL_API(void, GetUniformIndices, (GLuint, GLsizei, const GLchar* *, GLuint *));
+AGL_API(void, GetActiveUniformsiv, (GLuint, GLsizei, const GLuint *, GLenum, GLint *));
+AGL_API(void, GetActiveUniformName, (GLuint, GLuint, GLsizei, GLsizei *, GLchar *));
+AGL_API(GLuint, GetUniformBlockIndex, (GLuint, const GLchar *));
+AGL_API(void, GetActiveUniformBlockiv, (GLuint, GLuint, GLenum, GLint *));
+AGL_API(void, GetActiveUniformBlockName, (GLuint, GLuint, GLsizei, GLsizei *, GLchar *));
+AGL_API(void, UniformBlockBinding, (GLuint, GLuint, GLuint));
+#endif
+
+#if defined AGL_ARB_copy_buffer
+AGL_API(void, CopyBufferSubData, (GLenum, GLenum, GLintptr, GLintptr, GLsizeiptr));
 #endif
 
 
@@ -2193,4 +2216,42 @@ AGL_API(void, TextureRenderbufferEXT, (GLuint, GLenum, GLuint))
 AGL_API(void, MultiTexRenderbufferEXT, (GLenum, GLenum, GLuint))
 #endif
 
+#if defined AGL_NV_explicit_multisample
+AGL_API(void, GetMultisamplefvNV, (GLenum, GLuint, GLfloat *));
+AGL_API(void, SampleMaskIndexedNV, (GLuint, GLbitfield));
+AGL_API(void, TexRenderbufferNV, (GLenum, GLuint));
+#endif
+
+#if defined AGL_NV_transform_feedback2
+AGL_API(void, BindTransformFeedbackNV, (GLenum, GLuint));
+AGL_API(void, DeleteTransformFeedbacksNV, (GLsizei, const GLuint *));
+AGL_API(void, GenTransformFeedbacksNV, (GLsizei, GLuint *));
+AGL_API(GLboolean, IsTransformFeedbackNV, (GLuint));
+AGL_API(void, PauseTransformFeedbackNV, (void));
+AGL_API(void, ResumeTransformFeedbackNV, (void));
+AGL_API(void, DrawTransformFeedbackNV, (GLenum, GLuint));
+#endif
+
+#if defined AGL_AMD_performance_monitor
+AGL_API(void, GetPerfMonitorGroupsAMD, (GLint *, GLsizei, GLuint *));
+AGL_API(void, GetPerfMonitorCountersAMD, (GLuint, GLint *, GLint *, GLsizei, GLuint *));
+AGL_API(void, GetPerfMonitorGroupStringAMD, (GLuint, GLsizei, GLsizei *, GLchar *));
+AGL_API(void, GetPerfMonitorCounterStringAMD, (GLuint, GLuint, GLsizei, GLsizei *, GLchar *));
+AGL_API(void, GetPerfMonitorCounterInfoAMD, (GLuint, GLuint, GLenum, void *));
+AGL_API(void, GenPerfMonitorsAMD, (GLsizei, GLuint *));
+AGL_API(void, DeletePerfMonitorsAMD, (GLsizei, GLuint *));
+AGL_API(void, SelectPerfMonitorCountersAMD, (GLuint, GLboolean, GLuint, GLint, GLuint *));
+AGL_API(void, BeginPerfMonitorAMD, (GLuint));
+AGL_API(void, EndPerfMonitorAMD, (GLuint));
+AGL_API(void, GetPerfMonitorCounterDataAMD, (GLuint, GLenum, GLsizei, GLuint *, GLint *));
+#endif
+
+#if defined AGL_AMD_vertex_shader_tesselator
+AGL_API(void, TessellationFactorAMD, (GLfloat));
+AGL_API(void, TessellationModeAMD, (GLenum));
+#endif
+
+#if defined AGL_EXT_provoking_vertex
+AGL_API(void, ProvokingVertexEXT, (GLenum));
+#endif
 

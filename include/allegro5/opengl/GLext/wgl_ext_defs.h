@@ -353,3 +353,17 @@ typedef struct _GPU_DEVICE {
 #define ERROR_INVALID_VERSION_ARB      0x2095
 #endif
 
+#ifndef WGL_AMD_gpu_association
+#define WGL_AMD_gpu_association
+#define WGL_GPU_VENDOR_AMD             0x1F00
+#define WGL_GPU_RENDERER_STRING_AMD    0x1F01
+#define WGL_GPU_OPENGL_VERSION_STRING_AMD 0x1F02
+#define WGL_GPU_FASTEST_TARGET_GPUS_AMD 0x21A2
+#define WGL_GPU_RAM_AMD                0x21A3
+#define WGL_GPU_CLOCK_AMD              0x21A4
+#define WGL_GPU_NUM_PIPES_AMD          0x21A5
+#define WGL_GPU_NUM_SIMD_AMD           0x21A6
+#define WGL_GPU_NUM_RB_AMD             0x21A7
+#define WGL_GPU_NUM_SPI_AMD            0x21A8
+#endif
+

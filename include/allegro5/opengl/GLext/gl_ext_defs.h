@@ -567,6 +567,41 @@ typedef char GLchar;
 #define GL_QUERY_BY_REGION_NO_WAIT        0x8E16
 #endif
 
+#ifndef GL_VERSION_3_1
+#define GL_VERSION_3_1
+#define AGL_VERSION_3_1
+#define GL_SAMPLER_2D_RECT                0x8B63
+#define GL_SAMPLER_2D_RECT_SHADOW         0x8B64
+#define GL_SAMPLER_BUFFER                 0x8DC2
+#define GL_INT_SAMPLER_2D_RECT            0x8DCD
+#define GL_INT_SAMPLER_BUFFER             0x8DD0
+#define GL_UNSIGNED_INT_SAMPLER_2D_RECT   0x8DD5
+#define GL_UNSIGNED_INT_SAMPLER_BUFFER    0x8DD8
+#define GL_TEXTURE_BUFFER                 0x8C2A
+#define GL_MAX_TEXTURE_BUFFER_SIZE        0x8C2B
+#define GL_TEXTURE_BINDING_BUFFER         0x8C2C
+#define GL_TEXTURE_BUFFER_DATA_STORE_BINDING 0x8C2D
+#define GL_TEXTURE_BUFFER_FORMAT          0x8C2E
+#define GL_TEXTURE_RECTANGLE              0x84F5
+#define GL_TEXTURE_BINDING_RECTANGLE      0x84F6
+#define GL_PROXY_TEXTURE_RECTANGLE        0x84F7
+#define GL_MAX_RECTANGLE_TEXTURE_SIZE     0x84F8
+#define GL_RED_SNORM                      0x8F90
+#define GL_RG_SNORM                       0x8F91
+#define GL_RGB_SNORM                      0x8F92
+#define GL_RGBA_SNORM                     0x8F93
+#define GL_R8_SNORM                       0x8F94
+#define GL_RG8_SNORM                      0x8F95
+#define GL_RGB8_SNORM                     0x8F96
+#define GL_RGBA8_SNORM                    0x8F97
+#define GL_R16_SNORM                      0x8F98
+#define GL_RG16_SNORM                     0x8F99
+#define GL_RGB16_SNORM                    0x8F9A
+#define GL_RGBA16_SNORM                   0x8F9B
+#define GL_SIGNED_NORMALIZED              0x8F9C
+#define GL_PRIMITIVE_RESTART              0x8F9D
+#define GL_PRIMITIVE_RESTART_INDEX        0x8F9E
+#endif
 
 /* </Core> */
 /* <ARB> */
@@ -1373,6 +1408,56 @@ typedef unsigned long GLhandleARB;
 #define GL_VERTEX_ARRAY_BINDING           0x85B5
 #endif
 
+#ifndef GL_ARB_uniform_buffer_object
+#define GL_ARB_uniform_buffer_object
+#define AGL_ARB_uniform_buffer_object
+#define GL_UNIFORM_BUFFER                 0x8A11
+#define GL_UNIFORM_BUFFER_BINDING         0x8A28
+#define GL_UNIFORM_BUFFER_START           0x8A29
+#define GL_UNIFORM_BUFFER_SIZE            0x8A2A
+#define GL_MAX_VERTEX_UNIFORM_BLOCKS      0x8A2B
+#define GL_MAX_GEOMETRY_UNIFORM_BLOCKS    0x8A2C
+#define GL_MAX_FRAGMENT_UNIFORM_BLOCKS    0x8A2D
+#define GL_MAX_COMBINED_UNIFORM_BLOCKS    0x8A2E
+#define GL_MAX_UNIFORM_BUFFER_BINDINGS    0x8A2F
+#define GL_MAX_UNIFORM_BLOCK_SIZE         0x8A30
+#define GL_MAX_COMBINED_VERTEX_UNIFORM_COMPONENTS 0x8A31
+#define GL_MAX_COMBINED_GEOMETRY_UNIFORM_COMPONENTS 0x8A32
+#define GL_MAX_COMBINED_FRAGMENT_UNIFORM_COMPONENTS 0x8A33
+#define GL_UNIFORM_BUFFER_OFFSET_ALIGNMENT 0x8A34
+#define GL_ACTIVE_UNIFORM_BLOCK_MAX_NAME_LENGTH 0x8A35
+#define GL_ACTIVE_UNIFORM_BLOCKS          0x8A36
+#define GL_UNIFORM_TYPE                   0x8A37
+#define GL_UNIFORM_SIZE                   0x8A38
+#define GL_UNIFORM_NAME_LENGTH            0x8A39
+#define GL_UNIFORM_BLOCK_INDEX            0x8A3A
+#define GL_UNIFORM_OFFSET                 0x8A3B
+#define GL_UNIFORM_ARRAY_STRIDE           0x8A3C
+#define GL_UNIFORM_MATRIX_STRIDE          0x8A3D
+#define GL_UNIFORM_IS_ROW_MAJOR           0x8A3E
+#define GL_UNIFORM_BLOCK_BINDING          0x8A3F
+#define GL_UNIFORM_BLOCK_DATA_SIZE        0x8A40
+#define GL_UNIFORM_BLOCK_NAME_LENGTH      0x8A41
+#define GL_UNIFORM_BLOCK_ACTIVE_UNIFORMS  0x8A42
+#define GL_UNIFORM_BLOCK_ACTIVE_UNIFORM_INDICES 0x8A43
+#define GL_UNIFORM_BLOCK_REFERENCED_BY_VERTEX_SHADER 0x8A44
+#define GL_UNIFORM_BLOCK_REFERENCED_BY_GEOMETRY_SHADER 0x8A45
+#define GL_UNIFORM_BLOCK_REFERENCED_BY_FRAGMENT_SHADER 0x8A46
+#define GL_INVALID_INDEX                  0xFFFFFFFFu
+#endif
+
+#ifndef GL_ARB_compatibility
+#define GL_ARB_compatibility
+#define AGL_ARB_compatibility
+/* ARB_compatibility just defines tokens from core 3.0 */
+#endif
+
+#ifndef GL_ARB_copy_buffer
+#define GL_ARB_copy_buffer
+#define AGL_ARB_copy_buffer
+#define GL_COPY_READ_BUFFER               0x8F36
+#define GL_COPY_WRITE_BUFFER              0x8F37
+#endif
 
 /* </ARB> */
 
@@ -4352,5 +4437,85 @@ typedef uint64_t GLuint64EXT;
 #define GL_PROGRAM_MATRIX_EXT             0x8E2D
 #define GL_TRANSPOSE_PROGRAM_MATRIX_EXT   0x8E2E
 #define GL_PROGRAM_MATRIX_STACK_DEPTH_EXT 0x8E2F
+#endif
+
+#ifndef GL_EXT_texture_swizzle
+#define GL_EXT_texture_swizzle
+#define AGL_EXT_texture_swizzle
+#define GL_TEXTURE_SWIZZLE_R_EXT          0x8E42
+#define GL_TEXTURE_SWIZZLE_G_EXT          0x8E43
+#define GL_TEXTURE_SWIZZLE_B_EXT          0x8E44
+#define GL_TEXTURE_SWIZZLE_A_EXT          0x8E45
+#define GL_TEXTURE_SWIZZLE_RGBA_EXT       0x8E46
+#endif
+
+#ifndef GL_NV_explicit_multisample
+#define GL_NV_explicit_multisample
+#define AGL_NV_explicit_multisample
+#define GL_SAMPLE_POSITION_NV             0x8E50
+#define GL_SAMPLE_MASK_NV                 0x8E51
+#define GL_SAMPLE_MASK_VALUE_NV           0x8E52
+#define GL_TEXTURE_BINDING_RENDERBUFFER_NV 0x8E53
+#define GL_TEXTURE_RENDERBUFFER_DATA_STORE_BINDING_NV 0x8E54
+#define GL_MAX_SAMPLE_MASK_WORDS_NV       0x8E59
+#define GL_TEXTURE_RENDERBUFFER_NV        0x8E55
+#define GL_SAMPLER_RENDERBUFFER_NV        0x8E56
+#define GL_INT_SAMPLER_RENDERBUFFER_NV    0x8E57
+#define GL_UNSIGNED_INT_SAMPLER_RENDERBUFFER_NV 0x8E58
+#endif
+
+#ifndef GL_NV_transform_feedback2
+#define GL_NV_transform_feedback2
+#define AGL_NV_transform_feedback2
+#define GL_TRANSFORM_FEEDBACK_NV          0x8E22
+#define GL_TRANSFORM_FEEDBACK_BUFFER_PAUSED_NV 0x8E23
+#define GL_TRANSFORM_FEEDBACK_BUFFER_ACTIVE_NV 0x8E24
+#define GL_TRANSFORM_FEEDBACK_BINDING_NV  0x8E25
+#endif
+
+#ifndef GL_ATI_meminfo
+#define GL_ATI_meminfo
+#define AGL_ATI_meminfo
+#define GL_VBO_FREE_MEMORY_ATI            0x87FB
+#define GL_TEXTURE_FREE_MEMORY_ATI        0x87FC
+#define GL_RENDERBUFFER_FREE_MEMORY_ATI   0x87FD
+#endif
+
+#ifndef GL_AMD_performance_monitor
+#define GL_AMD_performance_monitor
+#define AGL_AMD_performance_monitor
+#define GL_COUNTER_TYPE_AMD               0x8BC0
+#define GL_COUNTER_RANGE_AMD              0x8BC1
+#define GL_UNSIGNED_INT64_AMD             0x8BC2
+#define GL_PERCENTAGE_AMD                 0x8BC3
+#define GL_PERFMON_RESULT_AVAILABLE_AMD   0x8BC4
+#define GL_PERFMON_RESULT_SIZE_AMD        0x8BC5
+#define GL_PERFMON_RESULT_AMD             0x8BC6
+#endif
+
+#ifndef GL_AMD_texture_texture4
+#define GL_AMD_texture_texture4
+#define AGL_AMD_texture_texture4
+#endif
+
+#ifndef GL_AMD_vertex_shader_tesselator
+#define GL_AMD_vertex_shader_tesselator
+#define AGL_AMD_vertex_shader_tesselator
+#define GL_SAMPLER_BUFFER_AMD             0x9001
+#define GL_INT_SAMPLER_BUFFER_AMD         0x9002
+#define GL_UNSIGNED_INT_SAMPLER_BUFFER_AMD 0x9003
+#define GL_TESSELLATION_MODE_AMD          0x9004
+#define GL_TESSELLATION_FACTOR_AMD        0x9005
+#define GL_DISCRETE_AMD                   0x9006
+#define GL_CONTINUOUS_AMD                 0x9007
+#endif
+
+#ifndef GL_EXT_provoking_vertex
+#define GL_EXT_provoking_vertex
+#define AGL_EXT_provoking_vertex
+#define GL_QUADS_FOLLOW_PROVOKING_VERTEX_CONVENTION_EXT 0x8E4C
+#define GL_FIRST_VERTEX_CONVENTION_EXT    0x8E4D
+#define GL_LAST_VERTEX_CONVENTION_EXT     0x8E4E
+#define GL_PROVOKING_VERTEX_EXT           0x8E4F
 #endif
 

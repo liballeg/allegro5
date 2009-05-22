@@ -106,6 +106,7 @@ static float _al_ogl_version(void)
 
    str = (const char *)glGetString(GL_VERSION);
 
+   /* TODO: can we make this less stupid?*/
    if ((strncmp(str, "1.0 ", 4) == 0) || (strncmp(str, "1.0.0 ", 6) == 0))
       return 1.0;
    if ((strncmp(str, "1.1 ", 4) == 0) || (strncmp(str, "1.1.0 ", 6) == 0))
@@ -128,6 +129,8 @@ static float _al_ogl_version(void)
       return 2.1;
    if ((strncmp(str, "3.0 ", 4) == 0) || (strncmp(str, "3.0.0 ", 6) == 0))
       return 3.0;
+   if ((strncmp(str, "3.1 ", 4) == 0) || (strncmp(str, "3.1.0 ", 6) == 0))
+      return 3.1;
 
    /* The OpenGL driver does not return a version
     * number. However it probably supports at least OpenGL 1.0
