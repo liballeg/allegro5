@@ -125,7 +125,7 @@ static void shader_grad_any_2d_init(uintptr_t state, ALLEGRO_VERTEX* v1, ALLEGRO
    const float x13 = x1 - x3;
    const float x12 = x1 - x2;
    
-   float det_u = minor3 - minor1 + minor2;//can be used for all colours
+   const float det_u = minor3 - minor1 + minor2;//can be used for all colours
    
    PLANE_DETS(r, v1->r, v2->r, v3->r)
    PLANE_DETS(g, v1->g, v2->g, v3->g)
@@ -158,8 +158,8 @@ static void shader_grad_any_2d_first(uintptr_t state, int x1, int y, int left_mi
 {
    state_grad_any_2d* s = (state_grad_any_2d*)state;
    
-   float cur_x = (float)x1 - s->off_x;
-   float cur_y = (float)y - s->off_y;
+   const float cur_x = (float)x1 - s->off_x;
+   const float cur_y = (float)y - s->off_y;
    
    s->cur_color.r = cur_x * s->color_dx.r + cur_y * s->color_dy.r + s->color_const.r;
    s->cur_color.g = cur_x * s->color_dx.g + cur_y * s->color_dy.g + s->color_const.g;
