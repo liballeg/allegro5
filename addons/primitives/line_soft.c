@@ -63,36 +63,39 @@ static void shader_grad_any_2d_draw_opaque(ALLEGRO_BITMAP* dest, uintptr_t state
    al_put_pixel(x, y, s->cur_color);
 }
 
-static void shader_grad_any_2d_first(uintptr_t state, int start_x, int start_y, ALLEGRO_VERTEX* v1, ALLEGRO_VERTEX* v2)
+static void get_interpolation_parameters(int start_x, int start_y, ALLEGRO_VERTEX* v1, ALLEGRO_VERTEX* v2, float* param, float* minor_delta_param, float* major_delta_param)
 {
    float dx = v2->x - v1->x;
    float dy = v2->y - v1->y;
    float lensq = dx * dx + dy * dy;
-   float param;
-   float minor_delta_param;
-   float major_delta_param;
-   ALLEGRO_COLOR diff;
-   state_grad_any_2d* st;
    
    if (lensq == 0) {
       lensq = 0.0001f;
-      param = 0;
+      *param = 0;
    } else {
-      param = ((float)start_x - v1->x) * dx + ((float)start_y - v1->y) * dy;
-      param /= lensq;
+      *param = ((float)start_x - v1->x) * dx + ((float)start_y - v1->y) * dy;
+      *param /= lensq;
    }
-   
    
    dx = fabs(dx);
    dy = fabs(dy);
    if (dx > dy)
-      minor_delta_param = dx / lensq;
+      *minor_delta_param = dx / lensq;
    else
-      minor_delta_param = dy / lensq;
-   major_delta_param = (dx + dy) / lensq;
-   
-   st = (state_grad_any_2d*)state;
-   
+      *minor_delta_param = dy / lensq;
+   *major_delta_param = (dx + dy) / lensq;
+}
+
+static void shader_grad_any_2d_first(uintptr_t state, int start_x, int start_y, ALLEGRO_VERTEX* v1, ALLEGRO_VERTEX* v2)
+{
+   float param;
+   float minor_delta_param;
+   float major_delta_param;
+   state_grad_any_2d* st = (state_grad_any_2d*)state;
+   ALLEGRO_COLOR diff;
+
+   get_interpolation_parameters(start_x, start_y, v1, v2, &param, &minor_delta_param, &major_delta_param);
+  
    diff.a = v2->a - v1->a;
    diff.r = v2->r - v1->r;
    diff.g = v2->g - v1->g;
