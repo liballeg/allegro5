@@ -20,6 +20,14 @@
 #endif
 #include <windows.h>
 
+/*
+ * Even the most recent MinGW at the moment of writing this is missing
+ * this symbol.
+ */
+#ifndef SM_MOUSEHORIZONTALWHEELPRESENT
+#define SM_MOUSEHORIZONTALWHEELPRESENT    91
+#endif
+
 #include "allegro5/allegro5.h"
 #include "allegro5/internal/aintern.h"
 #include "allegro5/internal/aintern_mouse.h"
