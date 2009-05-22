@@ -14,13 +14,13 @@
  *
  */
 
-#include <allegro5/allegro5.h>
-#include <process.h>
-
 #ifndef WINVER
 #define WINVER 0x0501
 #endif
 #include <windows.h>
+
+#include <allegro5/allegro5.h>
+#include <process.h>
 
 #include "allegro5/internal/aintern.h"
 #include "allegro5/internal/aintern_bitmap.h"
