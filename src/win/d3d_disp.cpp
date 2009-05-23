@@ -14,6 +14,11 @@
  *
  */
 
+#ifndef WINVER
+#define WINVER 0x0501
+#endif
+#include <windows.h>
+
 #include <string.h>
 #include <stdio.h>
 #include <process.h>
