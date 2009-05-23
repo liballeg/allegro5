@@ -50,10 +50,6 @@ static void setup_blending(void)
          glBlendFunc(blend_modes[src_color], blend_modes[dst_color]);
       }
    }
-   /*
-   TODO: Should do something about colour shading... I think disabling it is simplest
-   since reintroducing it would require shaders, I believe
-   */
 }
 
 static void setup_state(ALLEGRO_VERTEX* vtx, ALLEGRO_BITMAP* texture)
@@ -68,8 +64,19 @@ static void setup_state(ALLEGRO_VERTEX* vtx, ALLEGRO_BITMAP* texture)
    glVertexPointer(2, GL_FLOAT, sizeof(ALLEGRO_VERTEX), &vtx[0].x);
    glColorPointer(4, GL_FLOAT, sizeof(ALLEGRO_VERTEX), &vtx[0].r);
    
-   if (texture)
+   if (texture) {
+      ALLEGRO_BITMAP_OGL *ogl_bitmap = (void *)texture;      
+      GLuint current_texture;
+
       glTexCoordPointer(2, GL_FLOAT, sizeof(ALLEGRO_VERTEX), &vtx[0].u);
+
+      glGetIntegerv(GL_TEXTURE_2D_BINDING_EXT, (GLint*)&current_texture);
+      if (current_texture != ogl_bitmap->texture) {
+         glBindTexture(GL_TEXTURE_2D, ogl_bitmap->texture);
+      }
+   } else {
+      glBindTexture(GL_TEXTURE_2D, 0);
+   }
 }
 
 static int draw_soft_vbuff(ALLEGRO_BITMAP* texture, ALLEGRO_VBUFFER* vbuff, int start, int end, int type)
@@ -80,6 +87,8 @@ static int draw_soft_vbuff(ALLEGRO_BITMAP* texture, ALLEGRO_VBUFFER* vbuff, int 
    ALLEGRO_BITMAP_OGL *ogl_target = (void *)target;
    ALLEGRO_VERTEX* vtx;
    int num_vtx;
+   GLboolean on;
+   GLint sstate, tstate;
 
    ASSERT(!al_vbuff_is_locked(vbuff));
   
@@ -95,9 +104,23 @@ static int draw_soft_vbuff(ALLEGRO_BITMAP* texture, ALLEGRO_VBUFFER* vbuff, int 
    vtx = ((ALLEGRO_VERTEX*)vbuff->data) + start;
    num_vtx = end - start;
    
+   glGetBooleanv(GL_TEXTURE_2D, &on);
+   glGetTexParameteriv(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, &sstate);
+   glGetTexParameteriv(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, &tstate);
+
+   if (!on) {
+      glEnable(GL_TEXTURE_2D);
+   }
+   if(sstate != GL_REPEAT) {
+      glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+   }
+   if(tstate != GL_REPEAT) {
+      glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+   }
+
    setup_blending();
    setup_state(vtx, texture);
-   
+
    switch (type) {
       case ALLEGRO_PRIM_LINE_LIST: {
          glDrawArrays(GL_LINES, 0, num_vtx);
@@ -130,7 +153,17 @@ static int draw_soft_vbuff(ALLEGRO_BITMAP* texture, ALLEGRO_VBUFFER* vbuff, int 
          break;
       };
    }
-   
+
+   if (!on) {
+      glDisable(GL_TEXTURE_2D);
+   }
+   if(sstate != GL_REPEAT) {
+      glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, sstate);
+   }
+   if(tstate != GL_REPEAT) {
+      glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, tstate);
+   }
+
    /*al_unlock_vbuff(vbuff);*/
    glFlush();
    return num_primitives;
@@ -143,6 +176,8 @@ static int draw_indexed_soft_vbuff(ALLEGRO_BITMAP* texture, ALLEGRO_VBUFFER* vbu
    ALLEGRO_BITMAP *target = al_get_target_bitmap();
    ALLEGRO_BITMAP_OGL *ogl_target = (void *)target;
    ALLEGRO_VERTEX* vtx;
+   GLboolean on;
+   GLint sstate, tstate;
  
    ASSERT(!al_vbuff_is_locked(vbuff));
 
@@ -157,6 +192,20 @@ static int draw_indexed_soft_vbuff(ALLEGRO_BITMAP* texture, ALLEGRO_VBUFFER* vbu
    */
    
    vtx = ((ALLEGRO_VERTEX*)vbuff->data);
+
+   glGetBooleanv(GL_TEXTURE_2D, &on);
+   glGetTexParameteriv(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, &sstate);
+   glGetTexParameteriv(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, &tstate);
+
+   if (!on) {
+      glEnable(GL_TEXTURE_2D);
+   }
+   if(sstate != GL_REPEAT) {
+      glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+   }
+   if(tstate != GL_REPEAT) {
+      glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+   }
    
    setup_blending();
    setup_state(vtx, texture);
@@ -197,6 +246,17 @@ static int draw_indexed_soft_vbuff(ALLEGRO_BITMAP* texture, ALLEGRO_VBUFFER* vbu
    /*
    al_unlock_vbuff(vbuff);
    */
+
+   if (!on) {
+      glDisable(GL_TEXTURE_2D);
+   }
+   if(sstate != GL_REPEAT) {
+      glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, sstate);
+   }
+   if(tstate != GL_REPEAT) {
+      glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, tstate);
+   }
+
    glFlush();
    return num_primitives;
 }

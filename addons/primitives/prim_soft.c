@@ -61,6 +61,9 @@ int _al_draw_prim_soft(ALLEGRO_BITMAP* texture, ALLEGRO_VBUFFER* vbuff, int star
    
    if (!al_lock_vbuff_range(vbuff, start, end))
       return 0;
+
+   if (texture)
+      al_lock_bitmap(texture, ALLEGRO_PIXEL_FORMAT_ANY, ALLEGRO_LOCK_READONLY);
       
    if (use_cache) {
       int ii;
@@ -207,6 +210,8 @@ int _al_draw_prim_soft(ALLEGRO_BITMAP* texture, ALLEGRO_VBUFFER* vbuff, int star
    }
    
    al_unlock_vbuff(vbuff);
+   if(texture)
+       al_unlock_bitmap(texture);
    
    return num_primitives;
 }
@@ -242,6 +247,9 @@ int _al_draw_prim_indexed_soft(ALLEGRO_BITMAP* texture, ALLEGRO_VBUFFER* vbuff,
    
    if (!al_lock_vbuff_range(vbuff, min_idx, max_idx))
       return 0;
+
+   if (texture)
+      al_lock_bitmap(texture, ALLEGRO_PIXEL_FORMAT_ANY, ALLEGRO_LOCK_READONLY);
       
    if (use_cache) {
       int ii;
@@ -416,6 +424,8 @@ int _al_draw_prim_indexed_soft(ALLEGRO_BITMAP* texture, ALLEGRO_VBUFFER* vbuff,
    }
    
    al_unlock_vbuff(vbuff);
+   if(texture)
+       al_unlock_bitmap(texture);
    
    return num_primitives;
 }

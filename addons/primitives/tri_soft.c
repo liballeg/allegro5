@@ -26,21 +26,67 @@
 #define MIN _ALLEGRO_MIN
 #define MAX _ALLEGRO_MAX
 
-typedef void (*shader_draw)(ALLEGRO_BITMAP*, uintptr_t, int, int, int);
+typedef void (*shader_draw)(uintptr_t, int, int, int);
 typedef void (*shader_init)(uintptr_t, ALLEGRO_VERTEX*, ALLEGRO_VERTEX*, ALLEGRO_VERTEX*);
 typedef void (*shader_first)(uintptr_t, int, int, int, int);
 typedef void (*shader_step)(uintptr_t, int);
 
 typedef struct {
-   /*
-   These 4 are for figuring out arbitrary parameters on the triangle
-   dx's are used for scanline stepping
-   */
-   float dr_dx, dr_dy, r_const;
-   float dg_dx, dg_dy, g_const;
-   float db_dx, db_dy, b_const;
-   float da_dx, da_dy, a_const;
-   
+   ALLEGRO_COLOR cur_color;
+} state_solid_any_2d;
+
+static void shader_solid_any_draw_shade(uintptr_t state, int x1, int y, int x2)
+{
+   state_solid_any_2d* s = (state_solid_any_2d*)state;
+   int x;
+
+   for (x = x1; x <= x2; x++) {
+      al_draw_pixel(x, y - 1, s->cur_color);
+   }
+}
+
+static void shader_solid_any_draw_opaque(uintptr_t state, int x1, int y, int x2)
+{
+   state_solid_any_2d* s = (state_solid_any_2d*)state;
+   int x;
+
+   for (x = x1; x <= x2; x++) {
+      al_put_pixel(x, y - 1, s->cur_color);
+   }
+}
+
+static void shader_solid_any_init(uintptr_t state, ALLEGRO_VERTEX* v1, ALLEGRO_VERTEX* v2, ALLEGRO_VERTEX* v3)
+{
+   state_solid_any_2d* s = (state_solid_any_2d*)state;
+   s->cur_color.r = v1->r;
+   s->cur_color.g = v1->g;
+   s->cur_color.b = v1->b;
+   s->cur_color.a = v1->a;
+
+   (void)v2;
+   (void)v3;
+}
+
+static void shader_solid_any_first(uintptr_t state, int x1, int y, int left_minor, int left_major)
+{
+   (void)state;
+   (void)x1;
+   (void)y;
+   (void)left_minor;
+   (void)left_major;
+}
+
+static void shader_solid_any_step(uintptr_t state, int minor)
+{
+   (void)state;
+   (void)minor;
+}
+
+/*----------------------------------------------------------------------------*/
+
+typedef struct {
+   state_solid_any_2d solid;
+
    ALLEGRO_COLOR color_dx;
    ALLEGRO_COLOR color_dy;
    ALLEGRO_COLOR color_const;
@@ -50,7 +96,6 @@ typedef struct {
    */
    ALLEGRO_COLOR minor_color;
    ALLEGRO_COLOR major_color;
-   ALLEGRO_COLOR cur_color;
    
    /*
    We use these to increase the precision of interpolation
@@ -64,12 +109,35 @@ typedef struct {
    float var##_det_x = u1 * y32 - u2 * y31 + u3 * y21;          \
    float var##_det_y = u1 * x23 - u2 * x13 + u3 * x12;
 
-static void shader_grad_any_2d_draw_shade(ALLEGRO_BITMAP* dest, uintptr_t state, int x1, int y, int x2)
+#define INIT_PREAMBLE \
+   const float x1 = 0;                      \
+   const float y1 = 0;                      \
+                                            \
+   const float x2 = v2->x - v1->x;          \
+   const float y2 = v2->y - v1->y;          \
+                                            \
+   const float x3 = v3->x - v1->x;          \
+   const float y3 = v3->y - v1->y;          \
+                                            \
+   const float minor1 = x1 * y2 - x2 * y1;  \
+   const float minor2 = x1 * y3 - x3 * y1;  \
+   const float minor3 = x2 * y3 - x3 * y2;  \
+                                            \
+   const float y32 = y3 - y2;               \
+   const float y31 = y3 - y1;               \
+   const float y21 = y2 - y1;               \
+                                            \
+   const float x23 = x2 - x3;               \
+   const float x13 = x1 - x3;               \
+   const float x12 = x1 - x2;               \
+                                            \
+   const float det_u = minor3 - minor1 + minor2;
+
+static void shader_grad_any_draw_shade(uintptr_t state, int x1, int y, int x2)
 {
    state_grad_any_2d* s = (state_grad_any_2d*)state;
-   ALLEGRO_COLOR color = s->cur_color;
+   ALLEGRO_COLOR color = s->solid.cur_color;
    int x;
-   (void)dest;
    
    for (x = x1; x <= x2; x++) {
       /*
@@ -85,12 +153,11 @@ static void shader_grad_any_2d_draw_shade(ALLEGRO_BITMAP* dest, uintptr_t state,
    }
 }
 
-static void shader_grad_any_2d_draw_opaque(ALLEGRO_BITMAP* dest, uintptr_t state, int x1, int y, int x2)
+static void shader_grad_any_draw_opaque(uintptr_t state, int x1, int y, int x2)
 {
    state_grad_any_2d* s = (state_grad_any_2d*)state;
-   ALLEGRO_COLOR color = s->cur_color;
+   ALLEGRO_COLOR color = s->solid.cur_color;
    int x;
-   (void)dest;
 
    for (x = x1; x <= x2; x++) {
       al_put_pixel(x, y - 1, color);
@@ -102,31 +169,10 @@ static void shader_grad_any_2d_draw_opaque(ALLEGRO_BITMAP* dest, uintptr_t state
    }
 }
 
-static void shader_grad_any_2d_init(uintptr_t state, ALLEGRO_VERTEX* v1, ALLEGRO_VERTEX* v2, ALLEGRO_VERTEX* v3)
+static void shader_grad_any_init(uintptr_t state, ALLEGRO_VERTEX* v1, ALLEGRO_VERTEX* v2, ALLEGRO_VERTEX* v3)
 {
-   const float x1 = 0;
-   const float y1 = 0;
-   
-   const float x2 = v2->x - v1->x;
-   const float y2 = v2->y - v1->y;
-   
-   const float x3 = v3->x - v1->x;
-   const float y3 = v3->y - v1->y;
-   
-   const float minor1 = x1 * y2 - x2 * y1;
-   const float minor2 = x1 * y3 - x3 * y1;
-   const float minor3 = x2 * y3 - x3 * y2;
-   
-   const float y32 = y3 - y2;
-   const float y31 = y3 - y1;
-   const float y21 = y2 - y1;
-   
-   const float x23 = x2 - x3;
-   const float x13 = x1 - x3;
-   const float x12 = x1 - x2;
-   
-   const float det_u = minor3 - minor1 + minor2;//can be used for all colours
-   
+   INIT_PREAMBLE
+  
    PLANE_DETS(r, v1->r, v2->r, v3->r)
    PLANE_DETS(g, v1->g, v2->g, v3->g)
    PLANE_DETS(b, v1->b, v2->b, v3->b)
@@ -154,17 +200,17 @@ static void shader_grad_any_2d_init(uintptr_t state, ALLEGRO_VERTEX* v1, ALLEGRO
    s->color_const.a = a_det / det_u;
 }
 
-static void shader_grad_any_2d_first(uintptr_t state, int x1, int y, int left_minor, int left_major)
+static void shader_grad_any_first(uintptr_t state, int x1, int y, int left_minor, int left_major)
 {
    state_grad_any_2d* s = (state_grad_any_2d*)state;
    
    const float cur_x = (float)x1 - s->off_x;
    const float cur_y = (float)y - s->off_y;
    
-   s->cur_color.r = cur_x * s->color_dx.r + cur_y * s->color_dy.r + s->color_const.r;
-   s->cur_color.g = cur_x * s->color_dx.g + cur_y * s->color_dy.g + s->color_const.g;
-   s->cur_color.b = cur_x * s->color_dx.b + cur_y * s->color_dy.b + s->color_const.b;
-   s->cur_color.a = cur_x * s->color_dx.a + cur_y * s->color_dy.a + s->color_const.a;
+   s->solid.cur_color.r = cur_x * s->color_dx.r + cur_y * s->color_dy.r + s->color_const.r;
+   s->solid.cur_color.g = cur_x * s->color_dx.g + cur_y * s->color_dy.g + s->color_const.g;
+   s->solid.cur_color.b = cur_x * s->color_dx.b + cur_y * s->color_dy.b + s->color_const.b;
+   s->solid.cur_color.a = cur_x * s->color_dx.a + cur_y * s->color_dy.a + s->color_const.a;
    
    s->minor_color.r = (float)left_minor * s->color_dx.r + s->color_dy.r;
    s->minor_color.g = (float)left_minor * s->color_dx.g + s->color_dy.g;
@@ -177,77 +223,335 @@ static void shader_grad_any_2d_first(uintptr_t state, int x1, int y, int left_mi
    s->major_color.a = (float)left_major * s->color_dx.a + s->color_dy.a;
 }
 
-static void shader_grad_any_2d_step(uintptr_t state, int minor)
+static void shader_grad_any_step(uintptr_t state, int minor)
 {
    state_grad_any_2d* s = (state_grad_any_2d*)state;
    if (minor) {
-      s->cur_color.r += s->minor_color.r;
-      s->cur_color.g += s->minor_color.g;
-      s->cur_color.b += s->minor_color.b;
-      s->cur_color.a += s->minor_color.a;
+      s->solid.cur_color.r += s->minor_color.r;
+      s->solid.cur_color.g += s->minor_color.g;
+      s->solid.cur_color.b += s->minor_color.b;
+      s->solid.cur_color.a += s->minor_color.a;
    } else {
-      s->cur_color.r += s->major_color.r;
-      s->cur_color.g += s->major_color.g;
-      s->cur_color.b += s->major_color.b;
-      s->cur_color.a += s->major_color.a;
+      s->solid.cur_color.r += s->major_color.r;
+      s->solid.cur_color.g += s->major_color.g;
+      s->solid.cur_color.b += s->major_color.b;
+      s->solid.cur_color.a += s->major_color.a;
    }
 }
 
+/*========================== Textured Shaders ================================*/
+
+static int fix_var(float var, int max_var)
+{
+   const int ivar = (int)floorf(var);
+   const int ret = ivar % max_var;
+   if(ret >= 0)
+      return ret;
+   else
+      return ret + max_var;
+}
+
+#define SHADE_COLORS(A, B) \
+   A.r = B.r * A.r;        \
+   A.g = B.g * A.g;        \
+   A.b = B.b * A.b;        \
+   A.a = B.a * A.a;
 
 typedef struct {
    ALLEGRO_COLOR cur_color;
-} state_solid_any_2d;
 
-static void shader_solid_any_2d_draw_shade(ALLEGRO_BITMAP* dest, uintptr_t state, int x1, int y, int x2)
+   float du_dx, du_dy, u_const;
+   float dv_dx, dv_dy, v_const;
+   
+   float u, v;
+   float minor_du;
+   float minor_dv;
+   float major_du;
+   float major_dv;
+   
+   float off_x;
+   float off_y;
+
+   ALLEGRO_BITMAP* texture;
+   int w, h;
+} state_texture_solid_any_2d;
+
+static void shader_texture_solid_any_draw_shade(uintptr_t state, int x1, int y, int x2)
 {
-   state_solid_any_2d* s = (state_solid_any_2d*)state;
+   state_texture_solid_any_2d* s = (state_texture_solid_any_2d*)state;
+   float u = s->u;
+   float v = s->v;
    int x;
-   (void)dest;
-
+   ALLEGRO_COLOR color;
+   
    for (x = x1; x <= x2; x++) {
-      al_draw_pixel(x, y - 1, s->cur_color);
+      color = al_get_pixel(s->texture, fix_var(u, s->w), fix_var(-v, s->h));
+      SHADE_COLORS(color, s->cur_color)
+      al_draw_pixel(x, y - 1, color);
+      
+      u += s->du_dx;
+      v += s->dv_dx;
    }
 }
 
-static void shader_solid_any_2d_draw_opaque(ALLEGRO_BITMAP* dest, uintptr_t state, int x1, int y, int x2)
+static void shader_texture_solid_any_draw_shade_white(uintptr_t state, int x1, int y, int x2)
 {
-   state_solid_any_2d* s = (state_solid_any_2d*)state;
+   state_texture_solid_any_2d* s = (state_texture_solid_any_2d*)state;
+   float u = s->u;
+   float v = s->v;
    int x;
-   (void)dest;
-
+   ALLEGRO_COLOR color;
+   
    for (x = x1; x <= x2; x++) {
-      al_put_pixel(x, y - 1, s->cur_color);
+      color = al_get_pixel(s->texture, fix_var(u, s->w), fix_var(-v, s->h));
+      al_draw_pixel(x, y - 1, color);
+      
+      u += s->du_dx;
+      v += s->dv_dx;
    }
 }
 
-static void shader_solid_any_2d_init(uintptr_t state, ALLEGRO_VERTEX* v1, ALLEGRO_VERTEX* v2, ALLEGRO_VERTEX* v3)
+static void shader_texture_solid_any_draw_opaque(uintptr_t state, int x1, int y, int x2)
 {
-   state_solid_any_2d* s = (state_solid_any_2d*)state;
-   s->cur_color.r = v1->r;
-   s->cur_color.g = v1->g;
-   s->cur_color.b = v1->b;
-   s->cur_color.a = v1->a;
-
-   (void)v2;
-   (void)v3;
+   state_texture_solid_any_2d* s = (state_texture_solid_any_2d*)state;
+   float u = s->u;
+   float v = s->v;
+   int x;
+   ALLEGRO_COLOR color;
+   
+   for (x = x1; x <= x2; x++) {
+      color = al_get_pixel(s->texture, fix_var(u, s->w), fix_var(-v, s->h));
+      SHADE_COLORS(color, s->cur_color)
+      al_put_pixel(x, y - 1, color);
+      
+      u += s->du_dx;
+      v += s->dv_dx;
+   }
 }
 
-static void shader_solid_any_2d_first(uintptr_t state, int x1, int y, int left_minor, int left_major)
+static void shader_texture_solid_any_draw_opaque_white(uintptr_t state, int x1, int y, int x2)
 {
-   (void)state;
-   (void)x1;
-   (void)y;
-   (void)left_minor;
-   (void)left_major;
+   state_texture_solid_any_2d* s = (state_texture_solid_any_2d*)state;
+   float u = s->u;
+   float v = s->v;
+   int x;
+   ALLEGRO_COLOR color;
+   
+   for (x = x1; x <= x2; x++) {
+      color = al_get_pixel(s->texture, fix_var(u, s->w), fix_var(-v, s->h));
+      al_put_pixel(x, y - 1, color);
+      
+      u += s->du_dx;
+      v += s->dv_dx;
+   }
 }
 
-static void shader_solid_any_2d_step(uintptr_t state, int minor)
+static void shader_texture_solid_any_init(uintptr_t state, ALLEGRO_VERTEX* v1, ALLEGRO_VERTEX* v2, ALLEGRO_VERTEX* v3)
 {
-   (void)state;
-   (void)minor;
+   INIT_PREAMBLE
+  
+   PLANE_DETS(u, v1->u, v2->u, v3->u)
+   PLANE_DETS(v, v1->v, v2->v, v3->v)
+   
+   state_texture_solid_any_2d* s = (state_texture_solid_any_2d*)state;
+   
+   s->off_x = v1->x - 0.5f;
+   s->off_y = v1->y + 0.5f;
+
+   s->w = al_get_bitmap_width(s->texture);
+   s->h = al_get_bitmap_height(s->texture);
+   
+   s->du_dx    = (float)s->h * -u_det_x / det_u;
+   s->du_dy    = (float)s->h * -u_det_y / det_u;
+   s->u_const  = (float)s->h * u_det / det_u;
+                
+   s->dv_dx    = (float)s->w * -v_det_x / det_u;
+   s->dv_dy    = (float)s->w * -v_det_y / det_u;
+   s->v_const  = (float)s->w * v_det / det_u;
 }
 
-static void triangle_stepper(ALLEGRO_BITMAP* dest, uintptr_t state,
+static void shader_texture_solid_any_first(uintptr_t state, int x1, int y, int left_minor, int left_major)
+{
+   state_texture_solid_any_2d* s = (state_texture_solid_any_2d*)state;
+   
+   const float cur_x = (float)x1 - s->off_x;
+   const float cur_y = (float)y - s->off_y;
+   
+   s->u = cur_x * s->du_dx + cur_y * s->du_dy + s->u_const;
+   s->v = cur_x * s->dv_dx + cur_y * s->dv_dy + s->v_const;
+   
+   s->minor_du = (float)left_minor * s->du_dx + s->du_dy;
+   s->minor_dv = (float)left_minor * s->dv_dx + s->dv_dy;
+   
+   s->major_du = (float)left_major * s->du_dx + s->du_dy;
+   s->major_dv = (float)left_major * s->dv_dx + s->dv_dy;
+}
+
+static void shader_texture_solid_any_step(uintptr_t state, int minor)
+{
+   state_texture_solid_any_2d* s = (state_texture_solid_any_2d*)state;
+   if (minor) {
+      s->u += s->minor_du;
+      s->v += s->minor_dv;
+   } else {
+      s->u += s->major_du;
+      s->v += s->major_dv;
+   }
+}
+
+/*----------------------------------------------------------------------------*/
+
+typedef struct {
+   state_texture_solid_any_2d solid;
+
+   ALLEGRO_COLOR color_dx;
+   ALLEGRO_COLOR color_dy;
+   ALLEGRO_COLOR color_const;
+   
+   /*
+   These are catched for the left edge walking
+   */
+   ALLEGRO_COLOR minor_color;
+   ALLEGRO_COLOR major_color;
+} state_texture_grad_any_2d;
+
+static void shader_texture_grad_any_draw_shade(uintptr_t state, int x1, int y, int x2)
+{
+   state_texture_grad_any_2d* s = (state_texture_grad_any_2d*)state;
+   float u = s->solid.u;
+   float v = s->solid.v;
+   int x;
+   ALLEGRO_COLOR color;
+   ALLEGRO_COLOR cur_color = s->solid.cur_color;
+   
+   for (x = x1; x <= x2; x++) {
+      color = al_get_pixel(s->solid.texture, fix_var(u, s->solid.w), fix_var(-v, s->solid.h));
+      SHADE_COLORS(color, cur_color)
+      al_draw_pixel(x, y - 1, color);
+      
+      u += s->solid.du_dx;
+      v += s->solid.dv_dx;
+
+      cur_color.r += s->color_dx.r;
+      cur_color.g += s->color_dx.g;
+      cur_color.b += s->color_dx.b;
+      cur_color.a += s->color_dx.a; 
+   }
+}
+
+static void shader_texture_grad_any_draw_opaque(uintptr_t state, int x1, int y, int x2)
+{
+   state_texture_grad_any_2d* s = (state_texture_grad_any_2d*)state;
+   float u = s->solid.u;
+   float v = s->solid.v;
+   int x;
+   ALLEGRO_COLOR color;
+   ALLEGRO_COLOR cur_color = s->solid.cur_color;
+   
+   for (x = x1; x <= x2; x++) {
+      color = al_get_pixel(s->solid.texture, fix_var(u, s->solid.w), fix_var(-v, s->solid.h));
+      SHADE_COLORS(color, cur_color)
+      al_put_pixel(x, y - 1, color);
+      
+      u += s->solid.du_dx;
+      v += s->solid.dv_dx;
+
+      cur_color.r += s->color_dx.r;
+      cur_color.g += s->color_dx.g;
+      cur_color.b += s->color_dx.b;
+      cur_color.a += s->color_dx.a; 
+   }
+}
+
+static void shader_texture_grad_any_init(uintptr_t state, ALLEGRO_VERTEX* v1, ALLEGRO_VERTEX* v2, ALLEGRO_VERTEX* v3)
+{
+   INIT_PREAMBLE
+  
+   PLANE_DETS(r, v1->r, v2->r, v3->r)
+   PLANE_DETS(g, v1->g, v2->g, v3->g)
+   PLANE_DETS(b, v1->b, v2->b, v3->b)
+   PLANE_DETS(a, v1->a, v2->a, v3->a)
+   PLANE_DETS(u, v1->u, v2->u, v3->u)
+   PLANE_DETS(v, v1->v, v2->v, v3->v)
+   
+   state_texture_grad_any_2d* s = (state_texture_grad_any_2d*)state;
+   
+   s->solid.w = al_get_bitmap_width(s->solid.texture);
+   s->solid.h = al_get_bitmap_height(s->solid.texture);
+
+   s->solid.off_x = v1->x - 0.5f;
+   s->solid.off_y = v1->y + 0.5f;
+
+   s->solid.du_dx    = (float)s->solid.h * -u_det_x / det_u;
+   s->solid.du_dy    = (float)s->solid.h * -u_det_y / det_u;
+   s->solid.u_const  = (float)s->solid.h * u_det / det_u;
+                     
+   s->solid.dv_dx    = (float)s->solid.w * -v_det_x / det_u;
+   s->solid.dv_dy    = (float)s->solid.w * -v_det_y / det_u;
+   s->solid.v_const  = (float)s->solid.w * v_det / det_u;
+   
+   s->color_dx.r    = -r_det_x / det_u;
+   s->color_dy.r    = -r_det_y / det_u;
+   s->color_const.r = r_det / det_u;
+   
+   s->color_dx.g    = -g_det_x / det_u;
+   s->color_dy.g    = -g_det_y / det_u;
+   s->color_const.g = g_det / det_u;
+   
+   s->color_dx.b    = -b_det_x / det_u;
+   s->color_dy.b    = -b_det_y / det_u;
+   s->color_const.b = b_det / det_u;
+   
+   s->color_dx.a    = -a_det_x / det_u;
+   s->color_dy.a    = -a_det_y / det_u;
+   s->color_const.a = a_det / det_u;
+}
+
+static void shader_texture_grad_any_first(uintptr_t state, int x1, int y, int left_minor, int left_major)
+{
+   state_texture_grad_any_2d* s = (state_texture_grad_any_2d*)state;
+
+   shader_texture_solid_any_first(state, x1, y, left_minor, left_major);
+   
+   const float cur_x = (float)x1 - s->solid.off_x;
+   const float cur_y = (float)y - s->solid.off_y;
+   
+   s->solid.cur_color.r = cur_x * s->color_dx.r + cur_y * s->color_dy.r + s->color_const.r;
+   s->solid.cur_color.g = cur_x * s->color_dx.g + cur_y * s->color_dy.g + s->color_const.g;
+   s->solid.cur_color.b = cur_x * s->color_dx.b + cur_y * s->color_dy.b + s->color_const.b;
+   s->solid.cur_color.a = cur_x * s->color_dx.a + cur_y * s->color_dy.a + s->color_const.a;
+   
+   s->minor_color.r = (float)left_minor * s->color_dx.r + s->color_dy.r;
+   s->minor_color.g = (float)left_minor * s->color_dx.g + s->color_dy.g;
+   s->minor_color.b = (float)left_minor * s->color_dx.b + s->color_dy.b;
+   s->minor_color.a = (float)left_minor * s->color_dx.a + s->color_dy.a;
+   
+   s->major_color.r = (float)left_major * s->color_dx.r + s->color_dy.r;
+   s->major_color.g = (float)left_major * s->color_dx.g + s->color_dy.g;
+   s->major_color.b = (float)left_major * s->color_dx.b + s->color_dy.b;
+   s->major_color.a = (float)left_major * s->color_dx.a + s->color_dy.a;
+}
+
+static void shader_texture_grad_any_step(uintptr_t state, int minor)
+{
+   state_texture_grad_any_2d* s = (state_texture_grad_any_2d*)state;
+   shader_texture_solid_any_step(state, minor);
+   if (minor) {
+      s->solid.cur_color.r += s->minor_color.r;
+      s->solid.cur_color.g += s->minor_color.g;
+      s->solid.cur_color.b += s->minor_color.b;
+      s->solid.cur_color.a += s->minor_color.a;
+   } else {
+      s->solid.cur_color.r += s->major_color.r;
+      s->solid.cur_color.g += s->major_color.g;
+      s->solid.cur_color.b += s->major_color.b;
+      s->solid.cur_color.a += s->major_color.a;
+   }
+}
+
+
+
+static void triangle_stepper(uintptr_t state,
    shader_init init, shader_first first, shader_step step, shader_draw draw,
    ALLEGRO_VERTEX* vtx1, ALLEGRO_VERTEX* vtx2, ALLEGRO_VERTEX* vtx3)
 {
@@ -394,7 +698,7 @@ static void triangle_stepper(ALLEGRO_BITMAP* dest, uintptr_t state,
          first(state, left_x, cur_y, left_step, left_step - 1);
          
          if (right_x >= left_x) {
-            draw(dest, state, left_x, cur_y, right_x);
+            draw(state, left_x, cur_y, right_x);
          }
          
          cur_y++;
@@ -430,7 +734,7 @@ static void triangle_stepper(ALLEGRO_BITMAP* dest, uintptr_t state,
          }
          
          if (right_x >= left_x) {
-            draw(dest, state, left_x, cur_y, right_x);
+            draw(state, left_x, cur_y, right_x);
          }
          
          cur_y++;
@@ -484,7 +788,7 @@ static void triangle_stepper(ALLEGRO_BITMAP* dest, uintptr_t state,
          first(state, left_x, cur_y, left_step, left_step - 1);
          
          if (right_x >= left_x) {
-            draw(dest, state, left_x, cur_y, right_x);
+            draw(state, left_x, cur_y, right_x);
          }
          
          cur_y++;
@@ -512,7 +816,7 @@ static void triangle_stepper(ALLEGRO_BITMAP* dest, uintptr_t state,
          }
          
          if (right_x >= left_x) {
-            draw(dest, state, left_x, cur_y, right_x);
+            draw(state, left_x, cur_y, right_x);
          }
          
          cur_y++;
@@ -592,10 +896,6 @@ void _al_triangle_2d(ALLEGRO_BITMAP* texture, ALLEGRO_VERTEX* v1, ALLEGRO_VERTEX
          return;
       need_unlock = 1;
    }
-   
-   /*
-   TODO: Make more specialized functions (constant colour, no blending etc and etc)
-   */
 
    al_get_blender(&src_mode, &dst_mode, &ic);
    if (src_mode == ALLEGRO_ONE && dst_mode == ALLEGRO_ZERO &&
@@ -611,21 +911,51 @@ void _al_triangle_2d(ALLEGRO_BITMAP* texture, ALLEGRO_VERTEX* v1, ALLEGRO_VERTEX
    }
    
    if (texture) {
-   
+      if (grad) {
+         state_texture_grad_any_2d state;
+         state.solid.texture = texture;
+
+         if (shade) {
+            triangle_stepper((uintptr_t)&state, shader_texture_grad_any_init, shader_texture_grad_any_first, shader_texture_grad_any_step, shader_texture_grad_any_draw_shade, vtx1, vtx2, vtx3);
+         } else {
+            triangle_stepper((uintptr_t)&state, shader_texture_grad_any_init, shader_texture_grad_any_first, shader_texture_grad_any_step, shader_texture_grad_any_draw_opaque, vtx1, vtx2, vtx3);
+         }
+      } else {
+         int white = 0;
+         state_texture_solid_any_2d state;
+
+         if (vtx1->r == 1 && vtx1->g == 1 && vtx1->b == 1 && vtx1->a == 1) {
+            white = 1;
+         }
+         state.texture = texture;
+         if (shade) {
+            if (white) {
+               triangle_stepper((uintptr_t)&state, shader_texture_solid_any_init, shader_texture_solid_any_first, shader_texture_solid_any_step, shader_texture_solid_any_draw_shade_white, vtx1, vtx2, vtx3);
+            } else {
+               triangle_stepper((uintptr_t)&state, shader_texture_solid_any_init, shader_texture_solid_any_first, shader_texture_solid_any_step, shader_texture_solid_any_draw_shade, vtx1, vtx2, vtx3);
+            }
+         } else {
+            if (white) {
+               triangle_stepper((uintptr_t)&state, shader_texture_solid_any_init, shader_texture_solid_any_first, shader_texture_solid_any_step, shader_texture_solid_any_draw_opaque_white, vtx1, vtx2, vtx3);
+            } else {
+               triangle_stepper((uintptr_t)&state, shader_texture_solid_any_init, shader_texture_solid_any_first, shader_texture_solid_any_step, shader_texture_solid_any_draw_opaque, vtx1, vtx2, vtx3);
+            }
+         }
+      }
    } else {
       if (grad) {
          state_grad_any_2d state;
          if (shade) {
-            triangle_stepper(target, (uintptr_t)&state, shader_grad_any_2d_init, shader_grad_any_2d_first, shader_grad_any_2d_step, shader_grad_any_2d_draw_shade, vtx1, vtx2, vtx3);
+            triangle_stepper((uintptr_t)&state, shader_grad_any_init, shader_grad_any_first, shader_grad_any_step, shader_grad_any_draw_shade, vtx1, vtx2, vtx3);
          } else {
-            triangle_stepper(target, (uintptr_t)&state, shader_grad_any_2d_init, shader_grad_any_2d_first, shader_grad_any_2d_step, shader_grad_any_2d_draw_opaque, vtx1, vtx2, vtx3);
+            triangle_stepper((uintptr_t)&state, shader_grad_any_init, shader_grad_any_first, shader_grad_any_step, shader_grad_any_draw_opaque, vtx1, vtx2, vtx3);
          }
       } else {
          state_solid_any_2d state;
          if (shade) {
-            triangle_stepper(target, (uintptr_t)&state, shader_solid_any_2d_init, shader_solid_any_2d_first, shader_solid_any_2d_step, shader_solid_any_2d_draw_shade, vtx1, vtx2, vtx3);
+            triangle_stepper((uintptr_t)&state, shader_solid_any_init, shader_solid_any_first, shader_solid_any_step, shader_solid_any_draw_shade, vtx1, vtx2, vtx3);
          } else {
-            triangle_stepper(target, (uintptr_t)&state, shader_solid_any_2d_init, shader_solid_any_2d_first, shader_solid_any_2d_step, shader_solid_any_2d_draw_opaque, vtx1, vtx2, vtx3);
+            triangle_stepper((uintptr_t)&state, shader_solid_any_init, shader_solid_any_first, shader_solid_any_step, shader_solid_any_draw_opaque, vtx1, vtx2, vtx3);
          }
       }
    }

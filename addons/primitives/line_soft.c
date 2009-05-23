@@ -24,7 +24,7 @@
 
 /*
 Nomenclature
-shader_{grad,solid}_{any,rgb888,rgba8888,etc}_{2d,3d}_{draw_{shade,opaque},step,first}
+shader_{texture}_{grad,solid}_{any,rgb888,rgba8888,etc}_{draw_{shade,opaque},step,first}
 */
 
 typedef void (*shader_draw)(uintptr_t, int, int);
@@ -35,19 +35,19 @@ typedef struct {
    ALLEGRO_COLOR color;
 } state_solid_any_2d;
 
-static void shader_solid_any_2d_draw_shade(uintptr_t state, int x, int y)
+static void shader_solid_any_draw_shade(uintptr_t state, int x, int y)
 {
    state_solid_any_2d* s = (state_solid_any_2d*)state;
    al_draw_pixel(x, y, s->color);
 }
 
-static void shader_solid_any_2d_draw_opaque(uintptr_t state, int x, int y)
+static void shader_solid_any_draw_opaque(uintptr_t state, int x, int y)
 {
    state_solid_any_2d* s = (state_solid_any_2d*)state;
    al_put_pixel(x, y, s->color);
 }
 
-static void shader_solid_any_2d_first(uintptr_t state, int start_x, int start_y, ALLEGRO_VERTEX* v1, ALLEGRO_VERTEX* v2)
+static void shader_solid_any_first(uintptr_t state, int start_x, int start_y, ALLEGRO_VERTEX* v1, ALLEGRO_VERTEX* v2)
 {
    state_solid_any_2d* s = (state_solid_any_2d*)state;
    s->color.r = v1->r;
@@ -60,7 +60,7 @@ static void shader_solid_any_2d_first(uintptr_t state, int start_x, int start_y,
    (void)v2;
 }
 
-static void shader_solid_any_2d_step(uintptr_t state, int minor_step)
+static void shader_solid_any_step(uintptr_t state, int minor_step)
 {
    (void)state;
    (void)minor_step;
@@ -97,7 +97,7 @@ static void get_interpolation_parameters(int start_x, int start_y, ALLEGRO_VERTE
    *major_delta_param = (dx + dy) / lensq;
 }
 
-static void shader_grad_any_2d_first(uintptr_t state, int start_x, int start_y, ALLEGRO_VERTEX* v1, ALLEGRO_VERTEX* v2)
+static void shader_grad_any_first(uintptr_t state, int start_x, int start_y, ALLEGRO_VERTEX* v1, ALLEGRO_VERTEX* v2)
 {
    float param;
    float minor_delta_param;
@@ -128,7 +128,7 @@ static void shader_grad_any_2d_first(uintptr_t state, int start_x, int start_y, 
    st->major_color.b = diff.b * major_delta_param;
 }
 
-static void shader_grad_any_2d_step(uintptr_t state, int minor_step)
+static void shader_grad_any_step(uintptr_t state, int minor_step)
 {
    state_grad_any_2d* s = (state_grad_any_2d*)state;
    if (minor_step) {
@@ -146,12 +146,14 @@ static void shader_grad_any_2d_step(uintptr_t state, int minor_step)
 
 /*===================== Texture Shaders =======================*/
 
-static int pos_mod(int num, int div)
+static int fix_var(float var, int max_var)
 {
-   if(num > 0)
-      return num % div;
+   const int ivar = (int)floorf(var);
+   const int ret = ivar % max_var;
+   if(ret >= 0)
+      return ret;
    else
-      return num % div + div;
+      return ret + max_var;
 }
 
 #define SHADE_COLORS(A, B) \
@@ -160,7 +162,7 @@ static int pos_mod(int num, int div)
    A.b = B.b * A.b;        \
    A.a = B.a * A.a;
 
-#define FIX_UV const int u = pos_mod((int)s->u, s->w); const int v = pos_mod((int)s->v, s->h);
+#define FIX_UV const int u = fix_var(s->u, s->w); const int v = fix_var(-s->v, s->h);
 
 typedef struct {
    ALLEGRO_COLOR color;
@@ -173,7 +175,7 @@ typedef struct {
    float major_dv;
 } state_texture_solid_any_2d;
 
-static void shader_texture_solid_any_2d_draw_shade(uintptr_t state, int x, int y)
+static void shader_texture_solid_any_draw_shade(uintptr_t state, int x, int y)
 {
    state_texture_solid_any_2d* s = (state_texture_solid_any_2d*)state;
    FIX_UV
@@ -183,7 +185,7 @@ static void shader_texture_solid_any_2d_draw_shade(uintptr_t state, int x, int y
    al_draw_pixel(x, y, color);
 }
 
-static void shader_texture_solid_any_2d_draw_shade_white(uintptr_t state, int x, int y)
+static void shader_texture_solid_any_draw_shade_white(uintptr_t state, int x, int y)
 {
    state_texture_solid_any_2d* s = (state_texture_solid_any_2d*)state;
    FIX_UV
@@ -191,7 +193,7 @@ static void shader_texture_solid_any_2d_draw_shade_white(uintptr_t state, int x,
    al_draw_pixel(x, y, al_get_pixel(s->texture, u, v));
 }
 
-static void shader_texture_solid_any_2d_draw_opaque(uintptr_t state, int x, int y)
+static void shader_texture_solid_any_draw_opaque(uintptr_t state, int x, int y)
 {
    state_texture_solid_any_2d* s = (state_texture_solid_any_2d*)state;
    FIX_UV
@@ -201,7 +203,7 @@ static void shader_texture_solid_any_2d_draw_opaque(uintptr_t state, int x, int 
    al_put_pixel(x, y, s->color);
 }
 
-static void shader_texture_solid_any_2d_draw_opaque_white(uintptr_t state, int x, int y)
+static void shader_texture_solid_any_draw_opaque_white(uintptr_t state, int x, int y)
 {
    state_texture_solid_any_2d* s = (state_texture_solid_any_2d*)state;
    FIX_UV
@@ -209,7 +211,7 @@ static void shader_texture_solid_any_2d_draw_opaque_white(uintptr_t state, int x
    al_put_pixel(x, y, al_get_pixel(s->texture, u, v));
 }
 
-static void shader_texture_solid_any_2d_first(uintptr_t state, int start_x, int start_y, ALLEGRO_VERTEX* v1, ALLEGRO_VERTEX* v2)
+static void shader_texture_solid_any_first(uintptr_t state, int start_x, int start_y, ALLEGRO_VERTEX* v1, ALLEGRO_VERTEX* v2)
 {
    float param;
    float minor_delta_param;
@@ -219,28 +221,28 @@ static void shader_texture_solid_any_2d_first(uintptr_t state, int start_x, int 
 
    get_interpolation_parameters(start_x, start_y, v1, v2, &param, &minor_delta_param, &major_delta_param);
   
-   du = v2->u - v1->u;
-   dv = v2->v - v1->v;
+   st->w = al_get_bitmap_width(st->texture);
+   st->h = al_get_bitmap_height(st->texture);
+
+   du = (float)st->w * (v2->u - v1->u);
+   dv = (float)st->h * (v2->v - v1->v);
    
    st->color.r = v1->r;
    st->color.g = v1->g;
    st->color.b = v1->b;
    st->color.a = v1->a;
 
-   st->u = v1->u + du * param;
-   st->v = v1->v + dv * param;
+   st->u = (float)st->w * v1->u + du * param;
+   st->v = (float)st->h * v1->v + dv * param;
    
    st->minor_du = du * minor_delta_param;
    st->minor_dv = dv * minor_delta_param;
 
-   st->major_du = du * minor_delta_param;
-   st->major_dv = dv * minor_delta_param;
-
-   st->w = al_get_bitmap_width(st->texture);
-   st->h = al_get_bitmap_height(st->texture);
+   st->major_du = du * major_delta_param;
+   st->major_dv = dv * major_delta_param;
 }
 
-static void shader_texture_solid_any_2d_step(uintptr_t state, int minor_step)
+static void shader_texture_solid_any_step(uintptr_t state, int minor_step)
 {
    state_texture_solid_any_2d* s = (state_texture_solid_any_2d*)state;
    if (minor_step) {
@@ -260,7 +262,7 @@ typedef struct {
    ALLEGRO_COLOR major_color;
 } state_texture_grad_any_2d;
 
-static void shader_texture_grad_any_2d_first(uintptr_t state, int start_x, int start_y, ALLEGRO_VERTEX* v1, ALLEGRO_VERTEX* v2)
+static void shader_texture_grad_any_first(uintptr_t state, int start_x, int start_y, ALLEGRO_VERTEX* v1, ALLEGRO_VERTEX* v2)
 {
    float param;
    float minor_delta_param;
@@ -271,25 +273,25 @@ static void shader_texture_grad_any_2d_first(uintptr_t state, int start_x, int s
 
    get_interpolation_parameters(start_x, start_y, v1, v2, &param, &minor_delta_param, &major_delta_param);
   
-   du = v2->u - v1->u;
-   dv = v2->v - v1->v;
+   st->solid.w = al_get_bitmap_width(st->solid.texture);
+   st->solid.h = al_get_bitmap_height(st->solid.texture);
+
+   du = (float)st->solid.w * (v2->u - v1->u);
+   dv = (float)st->solid.h * (v2->v - v1->v);
    
    st->solid.color.r = v1->r;
    st->solid.color.g = v1->g;
    st->solid.color.b = v1->b;
    st->solid.color.a = v1->a;
 
-   st->solid.u = v1->u + du * param;
-   st->solid.v = v1->v + dv * param;
+   st->solid.u = (float)st->solid.w * v1->u + du * param;
+   st->solid.v = (float)st->solid.h * v1->v + dv * param;
    
    st->solid.minor_du = du * minor_delta_param;
    st->solid.minor_dv = dv * minor_delta_param;
 
-   st->solid.major_du = du * minor_delta_param;
-   st->solid.major_dv = dv * minor_delta_param;
-
-   st->solid.w = al_get_bitmap_width(st->solid.texture);
-   st->solid.h = al_get_bitmap_height(st->solid.texture);
+   st->solid.major_du = du * major_delta_param;
+   st->solid.major_dv = dv * major_delta_param;
   
    diff.a = v2->a - v1->a;
    diff.r = v2->r - v1->r;
@@ -312,10 +314,10 @@ static void shader_texture_grad_any_2d_first(uintptr_t state, int start_x, int s
    st->major_color.b = diff.b * major_delta_param;
 }
 
-static void shader_texture_grad_any_2d_step(uintptr_t state, int minor_step)
+static void shader_texture_grad_any_step(uintptr_t state, int minor_step)
 {
    state_texture_grad_any_2d* s = (state_texture_grad_any_2d*)state;
-   shader_texture_solid_any_2d_step(state, minor_step);
+   shader_texture_solid_any_step(state, minor_step);
    if (minor_step) {
       s->solid.color.a += s->minor_color.a;
       s->solid.color.r += s->minor_color.r;
@@ -555,10 +557,6 @@ void _al_line_2d(ALLEGRO_BITMAP* texture, ALLEGRO_VERTEX* v1, ALLEGRO_VERTEX* v2
       need_unlock = 1;
    }
    
-   /*
-   TODO: Make more specialized functions (constant colour, no blending etc and etc)
-   */
-   
    al_get_separate_blender(&src_mode, &dst_mode, &src_alpha, &dst_alpha, &ic);
    if (src_mode == ALLEGRO_ONE && src_alpha == ALLEGRO_ONE &&
       dst_mode == ALLEGRO_ZERO && dst_alpha == ALLEGRO_ZERO &&
@@ -576,9 +574,9 @@ void _al_line_2d(ALLEGRO_BITMAP* texture, ALLEGRO_VERTEX* v1, ALLEGRO_VERTEX* v2
          state.solid.texture = texture;
 
          if (shade) {
-            line_stepper((uintptr_t)&state, shader_texture_grad_any_2d_first, shader_texture_grad_any_2d_step, shader_texture_solid_any_2d_draw_shade, &vtx1, &vtx2);
+            line_stepper((uintptr_t)&state, shader_texture_grad_any_first, shader_texture_grad_any_step, shader_texture_solid_any_draw_shade, &vtx1, &vtx2);
          } else {
-            line_stepper((uintptr_t)&state, shader_texture_grad_any_2d_first, shader_texture_grad_any_2d_step, shader_texture_solid_any_2d_draw_opaque, &vtx1, &vtx2);
+            line_stepper((uintptr_t)&state, shader_texture_grad_any_first, shader_texture_grad_any_step, shader_texture_solid_any_draw_opaque, &vtx1, &vtx2);
          }
       } else {
          int white = 0;
@@ -591,15 +589,15 @@ void _al_line_2d(ALLEGRO_BITMAP* texture, ALLEGRO_VERTEX* v1, ALLEGRO_VERTEX* v2
 
          if (shade) {
             if(white) {
-               line_stepper((uintptr_t)&state, shader_texture_solid_any_2d_first, shader_texture_solid_any_2d_step, shader_texture_solid_any_2d_draw_shade_white, &vtx1, &vtx2);
+               line_stepper((uintptr_t)&state, shader_texture_solid_any_first, shader_texture_solid_any_step, shader_texture_solid_any_draw_shade_white, &vtx1, &vtx2);
             } else {
-               line_stepper((uintptr_t)&state, shader_texture_solid_any_2d_first, shader_texture_solid_any_2d_step, shader_texture_solid_any_2d_draw_shade, &vtx1, &vtx2);
+               line_stepper((uintptr_t)&state, shader_texture_solid_any_first, shader_texture_solid_any_step, shader_texture_solid_any_draw_shade, &vtx1, &vtx2);
             }
          } else {
             if(white) {
-               line_stepper((uintptr_t)&state, shader_texture_solid_any_2d_first, shader_texture_solid_any_2d_step, shader_texture_solid_any_2d_draw_opaque_white, &vtx1, &vtx2);
+               line_stepper((uintptr_t)&state, shader_texture_solid_any_first, shader_texture_solid_any_step, shader_texture_solid_any_draw_opaque_white, &vtx1, &vtx2);
             } else {
-               line_stepper((uintptr_t)&state, shader_texture_solid_any_2d_first, shader_texture_solid_any_2d_step, shader_texture_solid_any_2d_draw_opaque, &vtx1, &vtx2);
+               line_stepper((uintptr_t)&state, shader_texture_solid_any_first, shader_texture_solid_any_step, shader_texture_solid_any_draw_opaque, &vtx1, &vtx2);
             }
          }
       }
@@ -607,16 +605,16 @@ void _al_line_2d(ALLEGRO_BITMAP* texture, ALLEGRO_VERTEX* v1, ALLEGRO_VERTEX* v2
       if (grad) {
          state_grad_any_2d state;
          if (shade) {
-            line_stepper((uintptr_t)&state, shader_grad_any_2d_first, shader_grad_any_2d_step, shader_solid_any_2d_draw_shade, &vtx1, &vtx2);
+            line_stepper((uintptr_t)&state, shader_grad_any_first, shader_grad_any_step, shader_solid_any_draw_shade, &vtx1, &vtx2);
          } else {
-            line_stepper((uintptr_t)&state, shader_grad_any_2d_first, shader_grad_any_2d_step, shader_solid_any_2d_draw_shade, &vtx1, &vtx2);
+            line_stepper((uintptr_t)&state, shader_grad_any_first, shader_grad_any_step, shader_solid_any_draw_shade, &vtx1, &vtx2);
          }
       } else {
          state_solid_any_2d state;
          if (shade) {
-            line_stepper((uintptr_t)&state, shader_solid_any_2d_first, shader_solid_any_2d_step, shader_solid_any_2d_draw_shade, &vtx1, &vtx2);
+            line_stepper((uintptr_t)&state, shader_solid_any_first, shader_solid_any_step, shader_solid_any_draw_shade, &vtx1, &vtx2);
          } else {
-            line_stepper((uintptr_t)&state, shader_solid_any_2d_first, shader_solid_any_2d_step, shader_solid_any_2d_draw_opaque, &vtx1, &vtx2);
+            line_stepper((uintptr_t)&state, shader_solid_any_first, shader_solid_any_step, shader_solid_any_draw_opaque, &vtx1, &vtx2);
          }
       }
    }

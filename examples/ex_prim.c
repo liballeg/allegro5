@@ -26,12 +26,13 @@
 
 typedef void (*Screen)(int);
 int ScreenW = 800, ScreenH = 600;
-#define NUM_SCREENS 8
+#define NUM_SCREENS 10
 #define ROTATE_SPEED 0.0001f
 Screen Screens[NUM_SCREENS];
 ALLEGRO_FONT* Font;
 ALLEGRO_TRANSFORM Identity;
 ALLEGRO_BITMAP* Buffer;
+ALLEGRO_BITMAP* Texture;
 
 int Soft = 0;
 int Blend = 1;
@@ -46,6 +47,126 @@ enum MODE {
    LOGIC,
    DRAW
 };
+
+void TexturePrimitives(int mode)
+{
+   static ALLEGRO_VBUFFER* vbuff;
+   if (mode == INIT) {
+      int ii = 0;
+      ALLEGRO_COLOR color;
+      vbuff = al_create_vbuff(13, 0);
+      for (ii = 0; ii < 13; ii++) {
+         float x, y;
+         x = 200 * cosf((float)ii / 13.0f * 2 * ALLEGRO_PI);
+         y = 200 * sinf((float)ii / 13.0f * 2 * ALLEGRO_PI);
+         
+         color = al_map_rgb((ii + 1) % 3 * 64, (ii + 2) % 3 * 64, (ii) % 3 * 64);
+         
+         al_set_vbuff_pos(vbuff, ii, x, y, 0);
+         al_set_vbuff_uv(vbuff, ii, x / 100, y / 100);
+         if(ii < 10)
+            al_set_vbuff_color(vbuff, ii, al_map_rgba_f(1, 1, 1, 1));
+         else
+            al_set_vbuff_color(vbuff, ii, color);
+      }
+   } else if (mode == LOGIC) {
+      Theta += Speed;
+      al_build_transform(&MainTrans, ScreenW / 2, ScreenH / 2, 1, 1, Theta);
+   } else if (mode == DRAW) {
+      al_set_blender(ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA, al_map_rgba_f(1, 1, 1, 1));
+      
+      al_draw_textf(Font, ScreenW / 2, ScreenH - 20, ALLEGRO_ALIGN_CENTRE, "Textured Primitives");
+      
+      if (Blend)
+         al_set_blender(ALLEGRO_ONE, ALLEGRO_ONE, al_map_rgba_f(1, 1, 1, 1));
+      else
+         al_set_blender(ALLEGRO_ONE, ALLEGRO_ZERO, al_map_rgba_f(1, 1, 1, 1));
+         
+      if (Soft == 1) {
+         al_set_target_bitmap(Buffer);
+         al_clear_to_color(al_map_rgba_f(0, 0, 0, 0));
+      }
+      
+      al_use_transform(&MainTrans);
+      
+      al_draw_prim(vbuff, Texture, 0, 4, ALLEGRO_PRIM_LINE_LIST);
+      
+      al_draw_prim(vbuff, Texture, 4, 9, ALLEGRO_PRIM_LINE_STRIP);
+      
+      al_draw_prim(vbuff, Texture, 9, 13, ALLEGRO_PRIM_LINE_LOOP);
+      
+      al_use_transform(&Identity);
+      
+      if (Soft == 1) {
+         al_set_target_bitmap(al_get_backbuffer());
+         al_draw_bitmap(Buffer, 0, 0, 0);
+      }
+   }
+}
+
+
+void FilledTexturePrimitives(int mode)
+{
+   static ALLEGRO_VBUFFER* vbuff;
+   if (mode == INIT) {
+      int ii = 0;
+      vbuff = al_create_vbuff(21, 0);
+      for (ii = 0; ii < 21; ii++) {
+         float x, y;
+         ALLEGRO_COLOR color;
+         if (ii % 2 == 0) {
+            x = 150 * cosf((float)ii / 20 * 2 * ALLEGRO_PI);
+            y = 150 * sinf((float)ii / 20 * 2 * ALLEGRO_PI);
+         } else {
+            x = 200 * cosf((float)ii / 20 * 2 * ALLEGRO_PI);
+            y = 200 * sinf((float)ii / 20 * 2 * ALLEGRO_PI);
+         }
+         
+         if (ii == 0) {
+            x = y = 0;
+         }
+         
+         color = al_map_rgb((7 * ii + 1) % 3 * 64, (2 * ii + 2) % 3 * 64, (ii) % 3 * 64);
+         
+         al_set_vbuff_pos(vbuff, ii, x, y, 0);
+         al_set_vbuff_uv(vbuff, ii, x / 100, y / 100);
+         if(ii < 10)
+            al_set_vbuff_color(vbuff, ii, al_map_rgba_f(1, 1, 1, 1));
+         else
+            al_set_vbuff_color(vbuff, ii, color);
+      }
+   } else if (mode == LOGIC) {
+      Theta += Speed;
+      al_build_transform(&MainTrans, ScreenW / 2, ScreenH / 2, 1, 1, Theta);
+   } else if (mode == DRAW) {
+      al_set_blender(ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA, al_map_rgba_f(1, 1, 1, 1));
+      
+      al_draw_textf(Font, ScreenW / 2, ScreenH - 20, ALLEGRO_ALIGN_CENTRE, "Filled Textured Primitives");
+      
+      if (Blend)
+         al_set_blender(ALLEGRO_ONE, ALLEGRO_ONE, al_map_rgba_f(1, 1, 1, 1));
+      else
+         al_set_blender(ALLEGRO_ONE, ALLEGRO_ZERO, al_map_rgba_f(1, 1, 1, 1));
+         
+      if (Soft == 1) {
+         al_set_target_bitmap(Buffer);
+         al_clear_to_color(al_map_rgba_f(0, 0, 0, 0));
+      }
+      
+      al_use_transform(&MainTrans);
+      
+      al_draw_prim(vbuff, Texture, 0, 6, ALLEGRO_PRIM_TRIANGLE_FAN);
+      al_draw_prim(vbuff, Texture, 7, 13, ALLEGRO_PRIM_TRIANGLE_LIST);
+      al_draw_prim(vbuff, Texture, 14, 20, ALLEGRO_PRIM_TRIANGLE_STRIP);
+      
+      al_use_transform(&Identity);
+      
+      if (Soft == 1) {
+         al_set_target_bitmap(al_get_backbuffer());
+         al_draw_bitmap(Buffer, 0, 0, 0);
+      }
+   }
+}
 
 void FilledPrimitives(int mode)
 {
@@ -505,6 +626,8 @@ int main(void)
    }
    
    bkg = al_load_bitmap("data/bkg.png");
+
+   Texture = al_load_bitmap("data/texture.tga");
    
    // Make and set some color to draw with
    white = al_map_rgba_f(1.0, 1.0, 1.0, 1.0);
@@ -551,6 +674,8 @@ int main(void)
    Screens[5] = FilledPrimitives;
    Screens[6] = IndexedFilledPrimitives;
    Screens[7] = HighFilledPrimitives;
+   Screens[8] = TexturePrimitives;
+   Screens[9] = FilledTexturePrimitives;
    
    for (ii = 0; ii < NUM_SCREENS; ii++)
       Screens[ii](INIT);
