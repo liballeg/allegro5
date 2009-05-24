@@ -171,7 +171,8 @@ Draws a ribbon given given an array of points. The ribbon will go through all of
 
 ## API: al_draw_prim
 
-Draws a subset of the passed vertex buffer.
+Draws a subset of the passed vertex buffer. It is recommended for the texture to have
+its dimensions be a power of 2 for maximum portability with older video cards.
 
 *Parameters:*
 
@@ -189,6 +190,7 @@ Number of primitives drawn
 ## API: al_draw_indexed_prim
 
 Draws a subset of the passed vertex buffer. This function uses an index array to specify which vertices to use.
+It is recommended for the texture to have its dimensions be a power of 2 for maximum portability with older video cards.
 
 *Parameters:*
 
