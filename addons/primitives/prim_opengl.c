@@ -111,15 +111,16 @@ static int draw_soft_vbuff(ALLEGRO_BITMAP* texture, ALLEGRO_VBUFFER* vbuff, int 
    if (!on) {
       glEnable(GL_TEXTURE_2D);
    }
+
+   setup_blending();
+   setup_state(vtx, texture);
+
    if(sstate != GL_REPEAT) {
       glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
    }
    if(tstate != GL_REPEAT) {
       glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
    }
-
-   setup_blending();
-   setup_state(vtx, texture);
 
    switch (type) {
       case ALLEGRO_PRIM_LINE_LIST: {
@@ -200,15 +201,16 @@ static int draw_indexed_soft_vbuff(ALLEGRO_BITMAP* texture, ALLEGRO_VBUFFER* vbu
    if (!on) {
       glEnable(GL_TEXTURE_2D);
    }
+   
+   setup_blending();
+   setup_state(vtx, texture);
+
    if(sstate != GL_REPEAT) {
       glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
    }
    if(tstate != GL_REPEAT) {
       glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
    }
-   
-   setup_blending();
-   setup_state(vtx, texture);
    
    switch (type) {
       case ALLEGRO_PRIM_LINE_LIST: {
