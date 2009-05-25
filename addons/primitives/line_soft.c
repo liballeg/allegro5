@@ -628,7 +628,7 @@ void al_draw_soft_line(ALLEGRO_VERTEX* v1, ALLEGRO_VERTEX* v2, uintptr_t state,
       need_unlock = 1;
    }
 
-   line_stepper((uintptr_t)&state, first, step, draw, &vtx1, &vtx2);
+   line_stepper(state, first, step, draw, &vtx1, &vtx2);
 
    if (need_unlock)
       al_unlock_bitmap(target);
