@@ -486,6 +486,81 @@ I.e. this will call all of the actual renderers and set the appropriate callback
 */
 void _al_line_2d(ALLEGRO_BITMAP* texture, ALLEGRO_VERTEX* v1, ALLEGRO_VERTEX* v2)
 {
+   int shade = 1;
+   int grad = 1;
+   int src_mode, dst_mode, src_alpha, dst_alpha;
+   ALLEGRO_COLOR ic;
+   
+   al_get_separate_blender(&src_mode, &dst_mode, &src_alpha, &dst_alpha, &ic);
+   if (src_mode == ALLEGRO_ONE && src_alpha == ALLEGRO_ONE &&
+      dst_mode == ALLEGRO_ZERO && dst_alpha == ALLEGRO_ZERO &&
+         ic.r == 1.0f && ic.g == 1.0f && ic.b == 1.0f && ic.a == 1.0f) {
+      shade = 0;
+   }
+   
+   if (v1->color.r == v2->color.r && v1->color.g == v2->color.g && v1->color.b == v2->color.b && v1->color.a == v2->color.a) {
+      grad = 0;
+   }
+   
+   if (texture) {
+      if (grad) {
+         state_texture_grad_any_2d state;
+         state.solid.texture = texture;
+
+         if (shade) {
+            al_draw_soft_line(v1, v2, (uintptr_t)&state, shader_texture_grad_any_first, shader_texture_grad_any_step, shader_texture_solid_any_draw_shade);
+         } else {
+            al_draw_soft_line(v1, v2, (uintptr_t)&state, shader_texture_grad_any_first, shader_texture_grad_any_step, shader_texture_solid_any_draw_opaque);
+         }
+      } else {
+         int white = 0;
+         state_texture_solid_any_2d state;
+
+         if (v1->color.r == 1 && v1->color.g == 1 && v1->color.b == 1 && v1->color.a == 1) {
+            white = 1;
+         }
+         state.texture = texture;
+
+         if (shade) {
+            if(white) {
+               al_draw_soft_line(v1, v2, (uintptr_t)&state, shader_texture_solid_any_first, shader_texture_solid_any_step, shader_texture_solid_any_draw_shade_white);
+            } else {
+               al_draw_soft_line(v1, v2, (uintptr_t)&state, shader_texture_solid_any_first, shader_texture_solid_any_step, shader_texture_solid_any_draw_shade);
+            }
+         } else {
+            if(white) {
+               al_draw_soft_line(v1, v2, (uintptr_t)&state, shader_texture_solid_any_first, shader_texture_solid_any_step, shader_texture_solid_any_draw_opaque_white);
+            } else {
+               al_draw_soft_line(v1, v2, (uintptr_t)&state, shader_texture_solid_any_first, shader_texture_solid_any_step, shader_texture_solid_any_draw_opaque);
+            }
+         }
+      }
+   } else {
+      if (grad) {
+         state_grad_any_2d state;
+         if (shade) {
+            al_draw_soft_line(v1, v2, (uintptr_t)&state, shader_grad_any_first, shader_grad_any_step, shader_solid_any_draw_shade);
+         } else {
+            al_draw_soft_line(v1, v2, (uintptr_t)&state, shader_grad_any_first, shader_grad_any_step, shader_solid_any_draw_shade);
+         }
+      } else {
+         state_solid_any_2d state;
+         if (shade) {
+            al_draw_soft_line(v1, v2, (uintptr_t)&state, shader_solid_any_first, shader_solid_any_step, shader_solid_any_draw_shade);
+         } else {
+            al_draw_soft_line(v1, v2, (uintptr_t)&state, shader_solid_any_first, shader_solid_any_step, shader_solid_any_draw_opaque);
+         }
+      }
+   }
+}
+
+/* Function: al_draw_soft_line
+ */
+void al_draw_soft_line(ALLEGRO_VERTEX* v1, ALLEGRO_VERTEX* v2, uintptr_t state,
+                       void (*first)(uintptr_t, int, int, ALLEGRO_VERTEX*, ALLEGRO_VERTEX*),
+                       void (*step)(uintptr_t, int), 
+                       void (*draw)(uintptr_t, int, int))
+{
    /*
    Copy the vertices, because we need to alter them a bit before drawing.
    */
@@ -495,12 +570,8 @@ void _al_line_2d(ALLEGRO_BITMAP* texture, ALLEGRO_VERTEX* v1, ALLEGRO_VERTEX* v2
    int need_unlock = 0;
    ALLEGRO_LOCKED_REGION *lr;
    int min_x, max_x, min_y, max_y;
-   int shade = 1;
-   int grad = 1;
-   int src_mode, dst_mode, src_alpha, dst_alpha;
    int width = al_get_bitmap_width(target);
    int height = al_get_bitmap_height(target);
-   ALLEGRO_COLOR ic;
    
    /*
    TODO: Need to clip them first, make a copy of the vertices first then
@@ -556,69 +627,9 @@ void _al_line_2d(ALLEGRO_BITMAP* texture, ALLEGRO_VERTEX* v1, ALLEGRO_VERTEX* v2
          return;
       need_unlock = 1;
    }
-   
-   al_get_separate_blender(&src_mode, &dst_mode, &src_alpha, &dst_alpha, &ic);
-   if (src_mode == ALLEGRO_ONE && src_alpha == ALLEGRO_ONE &&
-      dst_mode == ALLEGRO_ZERO && dst_alpha == ALLEGRO_ZERO &&
-         ic.r == 1.0f && ic.g == 1.0f && ic.b == 1.0f && ic.a == 1.0f) {
-      shade = 0;
-   }
-   
-   if (vtx1.color.r == vtx2.color.r && vtx1.color.g == vtx2.color.g && vtx1.color.b == vtx2.color.b && vtx1.color.a == vtx2.color.a) {
-      grad = 0;
-   }
-   
-   if (texture) {
-      if (grad) {
-         state_texture_grad_any_2d state;
-         state.solid.texture = texture;
 
-         if (shade) {
-            line_stepper((uintptr_t)&state, shader_texture_grad_any_first, shader_texture_grad_any_step, shader_texture_solid_any_draw_shade, &vtx1, &vtx2);
-         } else {
-            line_stepper((uintptr_t)&state, shader_texture_grad_any_first, shader_texture_grad_any_step, shader_texture_solid_any_draw_opaque, &vtx1, &vtx2);
-         }
-      } else {
-         int white = 0;
-         state_texture_solid_any_2d state;
+   line_stepper((uintptr_t)&state, first, step, draw, &vtx1, &vtx2);
 
-         if (vtx1.color.r == 1 && vtx1.color.g == 1 && vtx1.color.b == 1 && vtx1.color.a == 1) {
-            white = 1;
-         }
-         state.texture = texture;
-
-         if (shade) {
-            if(white) {
-               line_stepper((uintptr_t)&state, shader_texture_solid_any_first, shader_texture_solid_any_step, shader_texture_solid_any_draw_shade_white, &vtx1, &vtx2);
-            } else {
-               line_stepper((uintptr_t)&state, shader_texture_solid_any_first, shader_texture_solid_any_step, shader_texture_solid_any_draw_shade, &vtx1, &vtx2);
-            }
-         } else {
-            if(white) {
-               line_stepper((uintptr_t)&state, shader_texture_solid_any_first, shader_texture_solid_any_step, shader_texture_solid_any_draw_opaque_white, &vtx1, &vtx2);
-            } else {
-               line_stepper((uintptr_t)&state, shader_texture_solid_any_first, shader_texture_solid_any_step, shader_texture_solid_any_draw_opaque, &vtx1, &vtx2);
-            }
-         }
-      }
-   } else {
-      if (grad) {
-         state_grad_any_2d state;
-         if (shade) {
-            line_stepper((uintptr_t)&state, shader_grad_any_first, shader_grad_any_step, shader_solid_any_draw_shade, &vtx1, &vtx2);
-         } else {
-            line_stepper((uintptr_t)&state, shader_grad_any_first, shader_grad_any_step, shader_solid_any_draw_shade, &vtx1, &vtx2);
-         }
-      } else {
-         state_solid_any_2d state;
-         if (shade) {
-            line_stepper((uintptr_t)&state, shader_solid_any_first, shader_solid_any_step, shader_solid_any_draw_shade, &vtx1, &vtx2);
-         } else {
-            line_stepper((uintptr_t)&state, shader_solid_any_first, shader_solid_any_step, shader_solid_any_draw_opaque, &vtx1, &vtx2);
-         }
-      }
-   }
-   
    if (need_unlock)
       al_unlock_bitmap(target);
 }

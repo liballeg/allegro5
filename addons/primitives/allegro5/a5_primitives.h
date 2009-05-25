@@ -82,6 +82,19 @@ A5_PRIM_FUNC(int, al_draw_indexed_prim, (ALLEGRO_VERTEX* vtxs, ALLEGRO_BITMAP* t
 A5_PRIM_FUNC(ALLEGRO_COLOR, al_get_allegro_color, (ALLEGRO_PRIM_COLOR col));
 A5_PRIM_FUNC(ALLEGRO_PRIM_COLOR, al_get_prim_color, (ALLEGRO_COLOR col));
 
+/*
+* Custom primitives
+*/
+A5_PRIM_FUNC(void, al_draw_soft_triangle, (ALLEGRO_VERTEX* v1, ALLEGRO_VERTEX* v2, ALLEGRO_VERTEX* v3, uintptr_t state,
+                                           void (*init)(uintptr_t, ALLEGRO_VERTEX*, ALLEGRO_VERTEX*, ALLEGRO_VERTEX*),
+                                           void (*first)(uintptr_t, int, int, int, int),
+                                           void (*step)(uintptr_t, int), 
+                                           void (*draw)(uintptr_t, int, int, int)));
+A5_PRIM_FUNC(void, al_draw_soft_line, (ALLEGRO_VERTEX* v1, ALLEGRO_VERTEX* v2, uintptr_t state,
+                                       void (*first)(uintptr_t, int, int, ALLEGRO_VERTEX*, ALLEGRO_VERTEX*),
+                                       void (*step)(uintptr_t, int), 
+                                       void (*draw)(uintptr_t, int, int)));
+
 
 /*
 * Transformations
