@@ -35,32 +35,15 @@ The vertex cache allows for bulk transformation of vertices, for faster run spee
 */
 static ALLEGRO_VERTEX vertex_cache[ALLEGRO_VERTEX_CACHE_SIZE];
 
-void _al_create_vbuff_soft(ALLEGRO_VBUFFER* vbuff)
-{
-   vbuff->data = (ALLEGRO_VERTEX*)malloc(sizeof(ALLEGRO_VERTEX) * vbuff->len);
-   ASSERT(vbuff->data);
-   memset(vbuff->data, sizeof(ALLEGRO_VERTEX) * vbuff->len, 0);
-}
-
-void _al_destroy_vbuff_soft(ALLEGRO_VBUFFER* vbuff)
-{
-   free(vbuff->data);
-}
-
-int _al_draw_prim_soft(ALLEGRO_BITMAP* texture, ALLEGRO_VBUFFER* vbuff, int start, int end, int type)
+int _al_draw_prim_soft(ALLEGRO_BITMAP* texture, ALLEGRO_VERTEX* vtxs, int start, int end, int type)
 {
    int num_primitives;
    int num_vtx;
    int use_cache;
-
-   ASSERT(!al_vbuff_is_locked(vbuff));
    
    num_primitives = 0;
    num_vtx = end - start;
    use_cache = num_vtx < ALLEGRO_VERTEX_CACHE_SIZE;
-   
-   if (!al_lock_vbuff_range(vbuff, start, end))
-      return 0;
 
    if (texture)
       al_lock_bitmap(texture, ALLEGRO_PIXEL_FORMAT_ANY, ALLEGRO_LOCK_READONLY);
@@ -69,15 +52,14 @@ int _al_draw_prim_soft(ALLEGRO_BITMAP* texture, ALLEGRO_VBUFFER* vbuff, int star
       int ii;
       int n = 0;
       for (ii = start; ii < end; ii++) {
-         al_get_vbuff_vertex(vbuff, ii, &vertex_cache[n]);
-         
+         vertex_cache[n] = vtxs[ii];
          al_transform_vertex(&_al_global_trans, &vertex_cache[n]);
          n++;
       }
    }
    
 #define SET_VERTEX(v, idx)                             \
-   al_get_vbuff_vertex(vbuff, idx, &v);                \
+   v = vtxs[idx];                                      \
    al_transform_vertex(&_al_global_trans, &v);         \
     
    switch (type) {
@@ -209,22 +191,19 @@ int _al_draw_prim_soft(ALLEGRO_BITMAP* texture, ALLEGRO_VBUFFER* vbuff, int star
       };
    }
    
-   al_unlock_vbuff(vbuff);
    if(texture)
        al_unlock_bitmap(texture);
    
    return num_primitives;
 }
 
-int _al_draw_prim_indexed_soft(ALLEGRO_BITMAP* texture, ALLEGRO_VBUFFER* vbuff,
+int _al_draw_prim_indexed_soft(ALLEGRO_BITMAP* texture, ALLEGRO_VERTEX* vtxs,
    const int* indices, int num_vtx, int type)
 {
    int num_primitives;
    int use_cache;
    int min_idx, max_idx;
    int ii;
-
-   ASSERT(!al_vbuff_is_locked(vbuff));
 
    num_primitives = 0;   
    use_cache = 1;
@@ -244,9 +223,6 @@ int _al_draw_prim_indexed_soft(ALLEGRO_BITMAP* texture, ALLEGRO_VBUFFER* vbuff,
    if (max_idx - min_idx >= ALLEGRO_VERTEX_CACHE_SIZE) {
       use_cache = 0;
    }
-   
-   if (!al_lock_vbuff_range(vbuff, min_idx, max_idx))
-      return 0;
 
    if (texture)
       al_lock_bitmap(texture, ALLEGRO_PIXEL_FORMAT_ANY, ALLEGRO_LOCK_READONLY);
@@ -255,13 +231,13 @@ int _al_draw_prim_indexed_soft(ALLEGRO_BITMAP* texture, ALLEGRO_VBUFFER* vbuff,
       int ii;
       for (ii = 0; ii < num_vtx; ii++) {
          int idx = indices[ii];
-         al_get_vbuff_vertex(vbuff, idx, &vertex_cache[idx - min_idx]);
+         vertex_cache[idx - min_idx] = vtxs[idx];
          al_transform_vertex(&_al_global_trans, &vertex_cache[idx - min_idx]);
       }
    }
    
 #define SET_VERTEX(v, idx)                             \
-   al_get_vbuff_vertex(vbuff, idx, &v);                \
+   v = vtxs[idx];                                      \
    al_transform_vertex(&_al_global_trans, &v);         \
     
    switch (type) {
@@ -422,53 +398,9 @@ int _al_draw_prim_indexed_soft(ALLEGRO_BITMAP* texture, ALLEGRO_VBUFFER* vbuff,
          break;
       };
    }
-   
-   al_unlock_vbuff(vbuff);
+
    if(texture)
        al_unlock_bitmap(texture);
    
    return num_primitives;
-}
-
-void _al_prim_unlock_vbuff_soft(ALLEGRO_VBUFFER* vbuff)
-{
-   vbuff->flags &= ~ALLEGRO_VBUFFER_LOCKED;
-}
-
-int _al_prim_lock_vbuff_range_soft(ALLEGRO_VBUFFER* vbuff, int start, int end)
-{
-   vbuff->flags |= ALLEGRO_VBUFFER_LOCKED;
-   vbuff->lock_start = start;
-   vbuff->lock_end = end;
-   return 1;
-}
-
-void _al_set_vbuff_pos_soft(ALLEGRO_VBUFFER* vbuff, int idx, float x, float y, float z)
-{
-   ALLEGRO_VERTEX* vtx = &((ALLEGRO_VERTEX*)vbuff->data)[idx];
-   vtx->x = x;
-   vtx->y = y;
-}
-
-void _al_set_vbuff_uv_soft(ALLEGRO_VBUFFER* vbuff, int idx, float u, float v)
-{
-   ALLEGRO_VERTEX* vtx = &((ALLEGRO_VERTEX*)vbuff->data)[idx];
-   vtx->u = u;
-   vtx->v = v;
-}
-
-void _al_set_vbuff_color_soft(ALLEGRO_VBUFFER* vbuff, int idx, const ALLEGRO_COLOR col)
-{
-   ALLEGRO_VERTEX* vtx = &((ALLEGRO_VERTEX*)vbuff->data)[idx];
-   vtx->color = al_get_prim_color(col);
-}
-
-void _al_get_vbuff_vertex_soft(ALLEGRO_VBUFFER* vbuff, int idx, ALLEGRO_VERTEX *vtx)
-{
-   *vtx = ((ALLEGRO_VERTEX*)vbuff->data)[idx];
-}
-
-void _al_set_vbuff_vertex_soft(ALLEGRO_VBUFFER* vbuff, int idx, const ALLEGRO_VERTEX *vtx)
-{
-   ((ALLEGRO_VERTEX*)vbuff->data)[idx] = *vtx;
 }

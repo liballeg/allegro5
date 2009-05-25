@@ -43,29 +43,13 @@ enum ALLEGRO_PRIM_TYPE {
   ALLEGRO_PRIM_NUM_TYPES
 };
 
-/* Enum: ALLEGRO_VBUFFER_FLAGS
- */
-enum ALLEGRO_VBUFFER_FLAGS {
-  ALLEGRO_VBUFFER_VIDEO =  1 << 0,
-  ALLEGRO_VBUFFER_LOCKED = 1 << 1,
-  ALLEGRO_VBUFFER_3D     = 1 << 2
-};
-
 /* Enum: ALLEGRO_VERTEX_CACHE_SIZE
  */
 #define ALLEGRO_VERTEX_CACHE_SIZE 256
 
-/* Enum: ALLEGRO_VBUFF_CACHE_SIZE
- */
-#define ALLEGRO_VBUFF_CACHE_SIZE 256
-
 /* Enum: ALLEGRO_PRIM_QUALITY
  */
 #define ALLEGRO_PRIM_QUALITY 10
-
-/* Type: ALLEGRO_VBUFFER
- */
-typedef struct ALLEGRO_VBUFFER ALLEGRO_VBUFFER;
 
 /* Type: ALLEGRO_PRIM_COLOR
  */
@@ -91,33 +75,13 @@ typedef float ALLEGRO_TRANSFORM[4][4];
 /*
 * Primary Functions
 */
-A5_PRIM_FUNC(int, al_draw_prim, (ALLEGRO_VBUFFER* vbuff, ALLEGRO_BITMAP* texture, int start, int end, int type));
-A5_PRIM_FUNC(int, al_draw_indexed_prim, (ALLEGRO_VBUFFER* vbuff, ALLEGRO_BITMAP* texture, const int* indices, int num_vtx, int type));
+A5_PRIM_FUNC(int, al_draw_prim, (ALLEGRO_VERTEX* vtxs, ALLEGRO_BITMAP* texture, int start, int end, int type));
+A5_PRIM_FUNC(int, al_draw_indexed_prim, (ALLEGRO_VERTEX* vtxs, ALLEGRO_BITMAP* texture, const int* indices, int num_vtx, int type));
 
-/*
-* VBuff stuff
-*/
-A5_PRIM_FUNC(ALLEGRO_VBUFFER*, al_create_vbuff, (int len, int type));
-A5_PRIM_FUNC(void, al_destroy_vbuff, (ALLEGRO_VBUFFER* vbuff));
-
-A5_PRIM_FUNC(void, al_unlock_vbuff, (ALLEGRO_VBUFFER* vbuff));
-A5_PRIM_FUNC(int, al_lock_vbuff, (ALLEGRO_VBUFFER* vbuff));
-A5_PRIM_FUNC(int, al_lock_vbuff_range, (ALLEGRO_VBUFFER* vbuff, int start, int end));
-A5_PRIM_FUNC(int, al_vbuff_is_locked, (ALLEGRO_VBUFFER* vbuff));
-A5_PRIM_FUNC(int, al_vbuff_range_is_locked, (ALLEGRO_VBUFFER* vbuff, int start, int end));
-A5_PRIM_FUNC(void, al_set_vbuff_pos, (ALLEGRO_VBUFFER* vbuff, int idx, float x, float y, float z));
-A5_PRIM_FUNC(void, al_set_vbuff_uv, (ALLEGRO_VBUFFER* vbuff, int idx, float u, float v));
-A5_PRIM_FUNC(void, al_set_vbuff_color, (ALLEGRO_VBUFFER* vbuff, int idx, const ALLEGRO_COLOR col));
 
 A5_PRIM_FUNC(ALLEGRO_COLOR, al_get_allegro_color, (ALLEGRO_PRIM_COLOR col));
 A5_PRIM_FUNC(ALLEGRO_PRIM_COLOR, al_get_prim_color, (ALLEGRO_COLOR col));
 
-A5_PRIM_FUNC(void, al_set_vbuff_vertex, (ALLEGRO_VBUFFER* vbuff, int idx, const ALLEGRO_VERTEX *vtx));
-A5_PRIM_FUNC(void, al_get_vbuff_vertex, (ALLEGRO_VBUFFER* vbuff, int idx, ALLEGRO_VERTEX *vtx));
-
-A5_PRIM_FUNC(int, al_get_vbuff_flags, (ALLEGRO_VBUFFER* vbuff));
-A5_PRIM_FUNC(int, al_get_vbuff_len, (ALLEGRO_VBUFFER* vbuff));
-A5_PRIM_FUNC(void, al_get_vbuff_lock_range, (ALLEGRO_VBUFFER* vbuff, int* start, int* end));
 
 /*
 * Transformations
@@ -140,16 +104,16 @@ A5_PRIM_FUNC(void, al_draw_line, (float x1, float y1, float x2, float y2, ALLEGR
 A5_PRIM_FUNC(void, al_draw_triangle, (float x1, float y1, float x2, float y2, float x3, float y3, ALLEGRO_COLOR color, float thickness));
 A5_PRIM_FUNC(void, al_draw_rectangle, (float x1, float y1, float x2, float y2, ALLEGRO_COLOR color, float thickness));
 
-A5_PRIM_FUNC(void, al_calculate_arc, (ALLEGRO_VBUFFER* vbuff, float cx, float cy, float rx, float ry, float theta, float delta_theta, float thickness, int start, int num_segments));
+A5_PRIM_FUNC(void, al_calculate_arc, (float* dest, int stride, float cx, float cy, float rx, float ry, float start_theta, float delta_theta, float thickness, int num_segments));
 A5_PRIM_FUNC(void, al_draw_circle, (float cx, float cy, float r, ALLEGRO_COLOR color, float thickness));
 A5_PRIM_FUNC(void, al_draw_ellipse, (float cx, float cy, float rx, float ry, ALLEGRO_COLOR color, float thickness));
 A5_PRIM_FUNC(void, al_draw_arc, (float cx, float cy, float r, float start_theta, float delta_theta, ALLEGRO_COLOR color, float thickness));
 
-A5_PRIM_FUNC(void, al_calculate_spline, (ALLEGRO_VBUFFER* vbuff, float points[8], float thickness, int start, int num_points));
+A5_PRIM_FUNC(void, al_calculate_spline, (float* dest, int stride, float points[8], float thickness, int num_segments));
 A5_PRIM_FUNC(void, al_draw_spline, (float points[8], ALLEGRO_COLOR color, float thickness));
 
-A5_PRIM_FUNC(void, al_calculate_ribbon, (ALLEGRO_VBUFFER* vbuff, const float *points, float thickness, int start, int num_segments));
-A5_PRIM_FUNC(void, al_draw_ribbon, (const float *points, ALLEGRO_COLOR color, float thickness, int num_segments));
+A5_PRIM_FUNC(void, al_calculate_ribbon, (float* dest, int dest_stride, const float *points, int points_stride, float thickness, int num_segments));
+A5_PRIM_FUNC(void, al_draw_ribbon, (const float *points, int points_stride, ALLEGRO_COLOR color, float thickness, int num_segments));
 
 A5_PRIM_FUNC(void, al_draw_filled_triangle, (float x1, float y1, float x2, float y2, float x3, float y3, ALLEGRO_COLOR color));
 A5_PRIM_FUNC(void, al_draw_filled_rectangle, (float x1, float y1, float x2, float y2, ALLEGRO_COLOR color));

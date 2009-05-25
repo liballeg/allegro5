@@ -82,7 +82,7 @@ static void set_blender(ALLEGRO_DISPLAY *display)
 }
 #endif
 
-int _al_draw_prim_directx(ALLEGRO_BITMAP* texture, ALLEGRO_VBUFFER* vbuff, int start, int end, int type)
+int _al_draw_prim_directx(ALLEGRO_BITMAP* texture, ALLEGRO_VERTEX* vtxs, int start, int end, int type)
 {
 #ifdef ALLEGRO_CFG_D3D
    int num_primitives = 0;
@@ -95,7 +95,7 @@ int _al_draw_prim_directx(ALLEGRO_BITMAP* texture, ALLEGRO_VBUFFER* vbuff, int s
    display = al_get_current_display();
    device = al_d3d_get_device(display);
    num_vtx = end - start;
-   vtx = ((ALLEGRO_VERTEX*)vbuff->data) + start;
+   vtx = vtxs + start;
 
    set_blender(display);
 
@@ -149,7 +149,7 @@ int _al_draw_prim_directx(ALLEGRO_BITMAP* texture, ALLEGRO_VBUFFER* vbuff, int s
    return num_primitives;
 #else
    (void)texture;
-   (void)vbuff;
+   (void)vtxs;
    (void)start;
    (void)end;
    (void)type;
@@ -158,7 +158,7 @@ int _al_draw_prim_directx(ALLEGRO_BITMAP* texture, ALLEGRO_VBUFFER* vbuff, int s
 #endif
 }
 
-int _al_draw_prim_indexed_directx(ALLEGRO_BITMAP* texture, ALLEGRO_VBUFFER* vbuff, const int* indices, int num_vtx, int type)
+int _al_draw_prim_indexed_directx(ALLEGRO_BITMAP* texture, ALLEGRO_VERTEX* vtxs, const int* indices, int num_vtx, int type)
 {
 #ifdef ALLEGRO_CFG_D3D
    int num_primitives = 0;
@@ -169,7 +169,7 @@ int _al_draw_prim_indexed_directx(ALLEGRO_BITMAP* texture, ALLEGRO_VBUFFER* vbuf
 
    display = al_get_current_display();
    device = al_d3d_get_device(display);
-   vtx = ((ALLEGRO_VERTEX*)vbuff->data);
+   vtx = vtxs;
 
    set_blender(display);
 
@@ -223,7 +223,7 @@ int _al_draw_prim_indexed_directx(ALLEGRO_BITMAP* texture, ALLEGRO_VBUFFER* vbuf
    return num_primitives;
 #else
    (void)texture;
-   (void)vbuff;
+   (void)vtxs;
    (void)indices;
    (void)num_vtx;
    (void)type;

@@ -64,13 +64,13 @@ static void temp_trans(float x, float y)
 
 /* Function: al_draw_prim
  */
-int al_draw_prim(ALLEGRO_VBUFFER* vbuff, ALLEGRO_BITMAP* texture,
+int al_draw_prim(ALLEGRO_VERTEX* vtxs, ALLEGRO_BITMAP* texture,
    int start, int end, int type)
 {  
    ALLEGRO_BITMAP *target;
    int ret = 0;
  
-   ASSERT(vbuff);
+   ASSERT(vtxs);
    ASSERT(end >= start);
    ASSERT(type >= 0 && type < ALLEGRO_PRIM_NUM_TYPES);
 
@@ -88,13 +88,13 @@ int al_draw_prim(ALLEGRO_VBUFFER* vbuff, ALLEGRO_BITMAP* texture,
    }
    
    if (target->flags & ALLEGRO_MEMORY_BITMAP) {
-      ret =  _al_draw_prim_soft(texture, vbuff, start, end, type);
+      ret =  _al_draw_prim_soft(texture, vtxs, start, end, type);
    } else {
       int flags = al_get_display_flags();
       if (flags & ALLEGRO_OPENGL) {
-         ret =  _al_draw_prim_opengl(texture, vbuff, start, end, type);
+         ret =  _al_draw_prim_opengl(texture, vtxs, start, end, type);
       } else if (flags & ALLEGRO_DIRECT3D) {
-         ret =  _al_draw_prim_directx(texture, vbuff, start, end, type);
+         ret =  _al_draw_prim_directx(texture, vtxs, start, end, type);
       }
    }
    
@@ -110,13 +110,13 @@ int al_draw_prim(ALLEGRO_VBUFFER* vbuff, ALLEGRO_BITMAP* texture,
 
 /* Function: al_draw_indexed_prim
  */
-int al_draw_indexed_prim(ALLEGRO_VBUFFER* vbuff, ALLEGRO_BITMAP* texture,
+int al_draw_indexed_prim(ALLEGRO_VERTEX* vtxs, ALLEGRO_BITMAP* texture,
    const int* indices, int num_vtx, int type)
 {
    ALLEGRO_BITMAP *target;
    int ret = 0;
  
-   ASSERT(vbuff);
+   ASSERT(vtxs);
    ASSERT(indices);
    ASSERT(num_vtx > 0);
    ASSERT(type >= 0 && type < ALLEGRO_PRIM_NUM_TYPES);
@@ -135,13 +135,13 @@ int al_draw_indexed_prim(ALLEGRO_VBUFFER* vbuff, ALLEGRO_BITMAP* texture,
    }
    
    if (target->flags & ALLEGRO_MEMORY_BITMAP) {
-      ret =  _al_draw_prim_indexed_soft(texture, vbuff, indices, num_vtx, type);
+      ret =  _al_draw_prim_indexed_soft(texture, vtxs, indices, num_vtx, type);
    } else {
       int flags = al_get_display_flags();
       if (flags & ALLEGRO_OPENGL) {
-         ret =  _al_draw_prim_indexed_opengl(texture, vbuff, indices, num_vtx, type);
+         ret =  _al_draw_prim_indexed_opengl(texture, vtxs, indices, num_vtx, type);
       } else if (flags & ALLEGRO_DIRECT3D) {
-         ret =  _al_draw_prim_indexed_directx(texture, vbuff, indices, num_vtx, type);
+         ret =  _al_draw_prim_indexed_directx(texture, vtxs, indices, num_vtx, type);
       }
    }
    
@@ -153,243 +153,6 @@ int al_draw_indexed_prim(ALLEGRO_VBUFFER* vbuff, ALLEGRO_BITMAP* texture,
    }
    
    return ret;
-}
-
-/* Function: al_lock_vbuff_range
- */
-int al_lock_vbuff_range(ALLEGRO_VBUFFER* vbuff, int start, int end)
-{
-   ASSERT(vbuff);
-   ASSERT(end >= start);
-   
-   if (vbuff->flags & ALLEGRO_VBUFFER_LOCKED)
-      return 0;
-      
-   if (vbuff->flags & ALLEGRO_VBUFFER_VIDEO) {
-      return 0;
-   } else {
-      return _al_prim_lock_vbuff_range_soft(vbuff, start, end);
-   }
-}
-
-/* Function: al_lock_vbuff
- */
-int al_lock_vbuff(ALLEGRO_VBUFFER* vbuff)
-{
-   ASSERT(vbuff);
-   
-   return al_lock_vbuff_range(vbuff, 0, vbuff->len);
-}
-
-/* Function: al_unlock_vbuff
- */
-void al_unlock_vbuff(ALLEGRO_VBUFFER* vbuff)
-{
-   ASSERT(vbuff);
-   
-   if (!(vbuff->flags & ALLEGRO_VBUFFER_LOCKED)) {
-      return;
-   }
-   if (vbuff->flags & ALLEGRO_VBUFFER_VIDEO) {
-      return;
-   } else {
-      _al_prim_unlock_vbuff_soft(vbuff);
-   }
-}
-
-/* Function: al_vbuff_is_locked
- */
-int al_vbuff_is_locked(ALLEGRO_VBUFFER* vbuff)
-{
-   ASSERT(vbuff);
-   
-   return vbuff->flags & ALLEGRO_VBUFFER_LOCKED;
-}
-
-/* Function: al_vbuff_range_is_locked
- */
-int al_vbuff_range_is_locked(ALLEGRO_VBUFFER* vbuff, int start, int end)
-{
-   ASSERT(vbuff);
-   
-   if (!vbuff->flags & ALLEGRO_VBUFFER_LOCKED)
-      return 0;
-   if (start >= vbuff->lock_start && end <= vbuff->lock_end) {
-      return 1;
-   }
-   return 0;
-}
-
-int _al_prim_check_lock_pos(ALLEGRO_VBUFFER* vbuff, int idx)
-{
-   ASSERT(vbuff);
-   ASSERT(idx >= 0 && idx < vbuff->len);
-   
-   if (vbuff->flags & ALLEGRO_VBUFFER_LOCKED) {
-      return 0;
-   } else {
-      al_lock_vbuff_range(vbuff, idx, idx);
-      return 1;
-   }
-}
-
-/* Function: al_set_vbuff_pos
- */
-void al_set_vbuff_pos(ALLEGRO_VBUFFER* vbuff, int idx,
-   float x, float y, float z)
-{
-   int unlock;
-   ASSERT(vbuff);
-   
-   unlock = _al_prim_check_lock_pos(vbuff, idx);
-   if (vbuff->flags & ALLEGRO_VBUFFER_VIDEO) {
-      ASSERT(0);
-   } else {
-      _al_set_vbuff_pos_soft(vbuff, idx, x, y, z);
-   }
-   if (unlock) {
-      al_unlock_vbuff(vbuff);
-   }
-}
-
-/* Function: al_set_vbuff_uv
- */
-void al_set_vbuff_uv(ALLEGRO_VBUFFER* vbuff, int idx, float u, float v)
-{
-   int unlock;
-   ASSERT(vbuff);
-   
-   unlock = _al_prim_check_lock_pos(vbuff, idx);
-   if (vbuff->flags & ALLEGRO_VBUFFER_VIDEO) {
-      ASSERT(0);
-   } else {
-      _al_set_vbuff_uv_soft(vbuff, idx, u, v);
-   }
-   if (unlock) {
-      al_unlock_vbuff(vbuff);
-   }
-}
-
-/* Function: al_set_vbuff_vertex
- */
-void al_set_vbuff_vertex(ALLEGRO_VBUFFER* vbuff, int idx,
-   const ALLEGRO_VERTEX *vtx)
-{
-   int unlock;
-   ASSERT(vbuff);
-   ASSERT(vtx);
-   
-   unlock = _al_prim_check_lock_pos(vbuff, idx);
-   if (vbuff->flags & ALLEGRO_VBUFFER_VIDEO) {
-      ASSERT(0);
-   } else {
-      _al_set_vbuff_vertex_soft(vbuff, idx, vtx);
-   }
-   if (unlock) {
-      al_unlock_vbuff(vbuff);
-   }
-}
-
-/* Function: al_set_vbuff_color
- */
-void al_set_vbuff_color(ALLEGRO_VBUFFER* vbuff, int idx,
-   const ALLEGRO_COLOR col)
-{
-   int unlock;
-   ASSERT(vbuff);
-   
-   unlock = _al_prim_check_lock_pos(vbuff, idx);
-   if (vbuff->flags & ALLEGRO_VBUFFER_VIDEO) {
-      ASSERT(0);
-   } else {
-      _al_set_vbuff_color_soft(vbuff, idx, col);
-   }
-   if (unlock) {
-      al_unlock_vbuff(vbuff);
-   }
-}
-
-/* Function: al_get_vbuff_vertex
- */
-void al_get_vbuff_vertex(ALLEGRO_VBUFFER* vbuff, int idx, ALLEGRO_VERTEX *vtx)
-{
-   int unlock;
-   ASSERT(vbuff);
-   ASSERT(vtx);
-   
-   unlock = _al_prim_check_lock_pos(vbuff, idx);
-   if (vbuff->flags & ALLEGRO_VBUFFER_VIDEO) {
-      ASSERT(0);
-   } else {
-      _al_get_vbuff_vertex_soft(vbuff, idx, vtx);
-   }
-   if (unlock) {
-      al_unlock_vbuff(vbuff);
-   }
-}
-
-/* Function: al_get_vbuff_flags
- */
-int al_get_vbuff_flags(ALLEGRO_VBUFFER* vbuff)
-{
-   ASSERT(vbuff);
-   return vbuff->flags;
-}
-
-/* Function: al_get_vbuff_len
- */
-int al_get_vbuff_len(ALLEGRO_VBUFFER* vbuff)
-{
-   ASSERT(vbuff);
-   return vbuff->len;
-}
-
-/* Function: al_get_vbuff_lock_range
- */
-void al_get_vbuff_lock_range(ALLEGRO_VBUFFER* vbuff, int* start, int* end)
-{
-   ASSERT(vbuff);
-   ASSERT(start);
-   ASSERT(end);
-   ASSERT(al_vbuff_is_locked(vbuff));
-   
-   *start = vbuff->lock_start;
-   *end = vbuff->lock_end;
-}
-
-/* Function: al_create_vbuff
- */
-ALLEGRO_VBUFFER* al_create_vbuff(int len, int type)
-{
-   ALLEGRO_VBUFFER* ret = (ALLEGRO_VBUFFER*)malloc(sizeof(ALLEGRO_VBUFFER));
-   ret->len = len;
-   ret->flags = 0;
-   if (type & ALLEGRO_VBUFFER_VIDEO) {
-      ret->flags |= ALLEGRO_VBUFFER_VIDEO;
-   }
-   
-   if (ret->flags & ALLEGRO_VBUFFER_VIDEO) {
-      free(ret);
-      ret = 0;
-   } else {
-      _al_create_vbuff_soft(ret);
-   }
-   return ret;
-}
-
-/* Function: al_destroy_vbuff
- */
-void al_destroy_vbuff(ALLEGRO_VBUFFER* vbuff)
-{
-   if (!vbuff)
-      return;
-   al_unlock_vbuff(vbuff);
-   if (vbuff->flags & ALLEGRO_VBUFFER_VIDEO) {
-      ASSERT(0);
-   } else {
-      _al_destroy_vbuff_soft(vbuff);
-   }
-   free(vbuff);
 }
 
 ALLEGRO_COLOR al_get_allegro_color(ALLEGRO_PRIM_COLOR col)

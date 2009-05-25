@@ -79,7 +79,7 @@ static void setup_state(ALLEGRO_VERTEX* vtx, ALLEGRO_BITMAP* texture)
    }
 }
 
-static int draw_soft_vbuff(ALLEGRO_BITMAP* texture, ALLEGRO_VBUFFER* vbuff, int start, int end, int type)
+static int draw_soft_vbuff(ALLEGRO_BITMAP* texture, ALLEGRO_VERTEX* vtxs, int start, int end, int type)
 {   
    int num_primitives = 0;
    ALLEGRO_DISPLAY *ogl_disp = al_get_current_display();
@@ -89,19 +89,12 @@ static int draw_soft_vbuff(ALLEGRO_BITMAP* texture, ALLEGRO_VBUFFER* vbuff, int 
    int num_vtx;
    GLboolean on;
    GLint sstate, tstate;
-
-   ASSERT(!al_vbuff_is_locked(vbuff));
   
    if ((!ogl_target->is_backbuffer && ogl_disp->ogl_extras->opengl_target != ogl_target) || al_is_bitmap_locked(target)) {
-      return _al_draw_prim_soft(texture, vbuff, start, end, type);
+      return _al_draw_prim_soft(texture, vtxs, start, end, type);
    }
    
-   /* We'll dispense with the formality here
-   if(!al_lock_vbuff_range(vbuff, start, end, ALLEGRO_VBUFFER_READ))
-       return 0;
-   */
-   
-   vtx = ((ALLEGRO_VERTEX*)vbuff->data) + start;
+   vtx = vtxs + start;
    num_vtx = end - start;
    
    glGetBooleanv(GL_TEXTURE_2D, &on);
@@ -165,12 +158,11 @@ static int draw_soft_vbuff(ALLEGRO_BITMAP* texture, ALLEGRO_VBUFFER* vbuff, int 
       glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, tstate);
    }
 
-   /*al_unlock_vbuff(vbuff);*/
    glFlush();
    return num_primitives;
 }
 
-static int draw_indexed_soft_vbuff(ALLEGRO_BITMAP* texture, ALLEGRO_VBUFFER* vbuff, const int* indices, int num_vtx, int type)
+static int draw_indexed_soft_vbuff(ALLEGRO_BITMAP* texture, ALLEGRO_VERTEX* vtxs, const int* indices, int num_vtx, int type)
 {   
    int num_primitives = 0;
    ALLEGRO_DISPLAY *ogl_disp = al_get_current_display();
@@ -179,20 +171,12 @@ static int draw_indexed_soft_vbuff(ALLEGRO_BITMAP* texture, ALLEGRO_VBUFFER* vbu
    ALLEGRO_VERTEX* vtx;
    GLboolean on;
    GLint sstate, tstate;
- 
-   ASSERT(!al_vbuff_is_locked(vbuff));
 
    if ((!ogl_target->is_backbuffer && ogl_disp->ogl_extras->opengl_target != ogl_target) || al_is_bitmap_locked(target)) {
-      return _al_draw_prim_indexed_soft(texture, vbuff, indices, num_vtx, type);
+      return _al_draw_prim_indexed_soft(texture, vtxs, indices, num_vtx, type);
    }
    
-   /* We'll dispense with the formality here
-   In this case we'd have to find the min/max indices, which would be annoying
-   if(!al_lock_vbuff_range(vbuff, start, end, ALLEGRO_VBUFFER_READ))
-      return 0;
-   */
-   
-   vtx = ((ALLEGRO_VERTEX*)vbuff->data);
+   vtx = vtxs;
 
    glGetBooleanv(GL_TEXTURE_2D, &on);
    glGetTexParameteriv(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, &sstate);
@@ -244,10 +228,6 @@ static int draw_indexed_soft_vbuff(ALLEGRO_BITMAP* texture, ALLEGRO_VBUFFER* vbu
          break;
       };
    }
-   
-   /*
-   al_unlock_vbuff(vbuff);
-   */
 
    if (!on) {
       glDisable(GL_TEXTURE_2D);
@@ -265,28 +245,20 @@ static int draw_indexed_soft_vbuff(ALLEGRO_BITMAP* texture, ALLEGRO_VBUFFER* vbu
 
 #endif
 
-int _al_draw_prim_opengl(ALLEGRO_BITMAP* texture, ALLEGRO_VBUFFER* vbuff, int start, int end, int type)
+int _al_draw_prim_opengl(ALLEGRO_BITMAP* texture, ALLEGRO_VERTEX* vtxs, int start, int end, int type)
 {
 #ifdef ALLEGRO_CFG_OPENGL
-   if (vbuff->flags & ALLEGRO_VBUFFER_VIDEO) {
-      ASSERT(0);
-   } else {
-      return draw_soft_vbuff(texture, vbuff, start, end, type);
-   }
+   return draw_soft_vbuff(texture, vtxs, start, end, type);
 #endif
    return 0;
 }
 
-int _al_draw_prim_indexed_opengl(ALLEGRO_BITMAP* texture, ALLEGRO_VBUFFER* vbuff, const int* indices, int num_vtx, int type)
+int _al_draw_prim_indexed_opengl(ALLEGRO_BITMAP* texture, ALLEGRO_VERTEX* vtxs, const int* indices, int num_vtx, int type)
 {
 #ifdef ALLEGRO_CFG_OPENGL
-   if (vbuff->flags & ALLEGRO_VBUFFER_VIDEO) {
-      ASSERT(0);
-   } else {
-      return draw_indexed_soft_vbuff(texture, vbuff, indices, num_vtx, type);
-   }
-   return 0;
+   return draw_indexed_soft_vbuff(texture, vtxs, indices, num_vtx, type);
 #endif
+   return 0;
 }
 
 void _al_use_transform_opengl(ALLEGRO_TRANSFORM* trans)
