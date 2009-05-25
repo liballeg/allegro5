@@ -392,6 +392,25 @@ void al_destroy_vbuff(ALLEGRO_VBUFFER* vbuff)
    free(vbuff);
 }
 
+ALLEGRO_COLOR al_get_allegro_color(ALLEGRO_PRIM_COLOR col)
+{
+   return al_map_rgba_f(col.r, col.g, col.b, col.a);
+}
+
+ALLEGRO_PRIM_COLOR al_get_prim_color(ALLEGRO_COLOR col)
+{
+   ALLEGRO_PRIM_COLOR ret;
+   ret.r = col.r;
+   ret.g = col.g;
+   ret.b = col.b;
+   ret.a = col.a;
+#ifdef ALLEGRO_CFG_D3D
+   ret.z = 0;
+   ret.d3d_color = D3DCOLOR_COLORVALUE(col.r, col.g, col.b, col.a);
+#endif
+   return ret;
+}
+
 /* Function: al_copy_transform
  */
 void al_copy_transform(ALLEGRO_TRANSFORM* src, ALLEGRO_TRANSFORM* dest)

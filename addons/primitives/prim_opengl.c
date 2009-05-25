@@ -62,7 +62,7 @@ static void setup_state(ALLEGRO_VERTEX* vtx, ALLEGRO_BITMAP* texture)
       glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 
    glVertexPointer(2, GL_FLOAT, sizeof(ALLEGRO_VERTEX), &vtx[0].x);
-   glColorPointer(4, GL_FLOAT, sizeof(ALLEGRO_VERTEX), &vtx[0].r);
+   glColorPointer(4, GL_FLOAT, sizeof(ALLEGRO_VERTEX), &vtx[0].color.r);
    
    if (texture) {
       ALLEGRO_BITMAP_OGL *ogl_bitmap = (void *)texture;      

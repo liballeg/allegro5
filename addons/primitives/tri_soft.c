@@ -58,10 +58,10 @@ static void shader_solid_any_draw_opaque(uintptr_t state, int x1, int y, int x2)
 static void shader_solid_any_init(uintptr_t state, ALLEGRO_VERTEX* v1, ALLEGRO_VERTEX* v2, ALLEGRO_VERTEX* v3)
 {
    state_solid_any_2d* s = (state_solid_any_2d*)state;
-   s->cur_color.r = v1->r;
-   s->cur_color.g = v1->g;
-   s->cur_color.b = v1->b;
-   s->cur_color.a = v1->a;
+   s->cur_color.r = v1->color.r;
+   s->cur_color.g = v1->color.g;
+   s->cur_color.b = v1->color.b;
+   s->cur_color.a = v1->color.a;
 
    (void)v2;
    (void)v3;
@@ -173,10 +173,10 @@ static void shader_grad_any_init(uintptr_t state, ALLEGRO_VERTEX* v1, ALLEGRO_VE
 {
    INIT_PREAMBLE
   
-   PLANE_DETS(r, v1->r, v2->r, v3->r)
-   PLANE_DETS(g, v1->g, v2->g, v3->g)
-   PLANE_DETS(b, v1->b, v2->b, v3->b)
-   PLANE_DETS(a, v1->a, v2->a, v3->a)
+   PLANE_DETS(r, v1->color.r, v2->color.r, v3->color.r)
+   PLANE_DETS(g, v1->color.g, v2->color.g, v3->color.g)
+   PLANE_DETS(b, v1->color.b, v2->color.b, v3->color.b)
+   PLANE_DETS(a, v1->color.a, v2->color.a, v3->color.a)
    
    state_grad_any_2d* s = (state_grad_any_2d*)state;
    
@@ -467,10 +467,10 @@ static void shader_texture_grad_any_init(uintptr_t state, ALLEGRO_VERTEX* v1, AL
 {
    INIT_PREAMBLE
   
-   PLANE_DETS(r, v1->r, v2->r, v3->r)
-   PLANE_DETS(g, v1->g, v2->g, v3->g)
-   PLANE_DETS(b, v1->b, v2->b, v3->b)
-   PLANE_DETS(a, v1->a, v2->a, v3->a)
+   PLANE_DETS(r, v1->color.r, v2->color.r, v3->color.r)
+   PLANE_DETS(g, v1->color.g, v2->color.g, v3->color.g)
+   PLANE_DETS(b, v1->color.b, v2->color.b, v3->color.b)
+   PLANE_DETS(a, v1->color.a, v2->color.a, v3->color.a)
    PLANE_DETS(u, v1->u, v2->u, v3->u)
    PLANE_DETS(v, v1->v, v2->v, v3->v)
    
@@ -903,10 +903,10 @@ void _al_triangle_2d(ALLEGRO_BITMAP* texture, ALLEGRO_VERTEX* v1, ALLEGRO_VERTEX
       shade = 0;
    }
    
-   if ((vtx1->r == vtx2->r && vtx2->r == vtx3->r) &&
-         (vtx1->g == vtx2->g && vtx2->g == vtx3->g) &&
-         (vtx1->b == vtx2->b && vtx2->b == vtx3->b) &&
-         (vtx1->a == vtx2->a && vtx2->a == vtx3->a)) {
+   if ((vtx1->color.r == vtx2->color.r && vtx2->color.r == vtx3->color.r) &&
+         (vtx1->color.g == vtx2->color.g && vtx2->color.g == vtx3->color.g) &&
+         (vtx1->color.b == vtx2->color.b && vtx2->color.b == vtx3->color.b) &&
+         (vtx1->color.a == vtx2->color.a && vtx2->color.a == vtx3->color.a)) {
       grad = 0;
    }
    
@@ -924,7 +924,7 @@ void _al_triangle_2d(ALLEGRO_BITMAP* texture, ALLEGRO_VERTEX* v1, ALLEGRO_VERTEX
          int white = 0;
          state_texture_solid_any_2d state;
 
-         if (vtx1->r == 1 && vtx1->g == 1 && vtx1->b == 1 && vtx1->a == 1) {
+         if (vtx1->color.r == 1 && vtx1->color.g == 1 && vtx1->color.b == 1 && vtx1->color.a == 1) {
             white = 1;
          }
          state.texture = texture;

@@ -448,7 +448,6 @@ void _al_set_vbuff_pos_soft(ALLEGRO_VBUFFER* vbuff, int idx, float x, float y, f
    ALLEGRO_VERTEX* vtx = &((ALLEGRO_VERTEX*)vbuff->data)[idx];
    vtx->x = x;
    vtx->y = y;
-   vtx->z = z;
 }
 
 void _al_set_vbuff_uv_soft(ALLEGRO_VBUFFER* vbuff, int idx, float u, float v)
@@ -461,14 +460,7 @@ void _al_set_vbuff_uv_soft(ALLEGRO_VBUFFER* vbuff, int idx, float u, float v)
 void _al_set_vbuff_color_soft(ALLEGRO_VBUFFER* vbuff, int idx, const ALLEGRO_COLOR col)
 {
    ALLEGRO_VERTEX* vtx = &((ALLEGRO_VERTEX*)vbuff->data)[idx];
-
-   vtx->r = col.r;
-   vtx->g = col.g;
-   vtx->b = col.b;
-   vtx->a = col.a;
-#ifdef ALLEGRO_CFG_D3D
-   vtx->d3d_color = D3DCOLOR_COLORVALUE(col.r, col.g, col.b, col.a);
-#endif
+   vtx->color = al_get_prim_color(col);
 }
 
 void _al_get_vbuff_vertex_soft(ALLEGRO_VBUFFER* vbuff, int idx, ALLEGRO_VERTEX *vtx)
@@ -479,9 +471,4 @@ void _al_get_vbuff_vertex_soft(ALLEGRO_VBUFFER* vbuff, int idx, ALLEGRO_VERTEX *
 void _al_set_vbuff_vertex_soft(ALLEGRO_VBUFFER* vbuff, int idx, const ALLEGRO_VERTEX *vtx)
 {
    ((ALLEGRO_VERTEX*)vbuff->data)[idx] = *vtx;
-#ifdef ALLEGRO_CFG_D3D
-   #define vert ((ALLEGRO_VERTEX *)vbuff->data)[idx]
-   vert.d3d_color = D3DCOLOR_COLORVALUE(vert.r, vert.g, vert.b, vert.a);
-   #undef vert
-#endif
 }

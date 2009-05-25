@@ -50,10 +50,10 @@ static void shader_solid_any_draw_opaque(uintptr_t state, int x, int y)
 static void shader_solid_any_first(uintptr_t state, int start_x, int start_y, ALLEGRO_VERTEX* v1, ALLEGRO_VERTEX* v2)
 {
    state_solid_any_2d* s = (state_solid_any_2d*)state;
-   s->color.r = v1->r;
-   s->color.g = v1->g;
-   s->color.b = v1->b;
-   s->color.a = v1->a;
+   s->color.r = v1->color.r;
+   s->color.g = v1->color.g;
+   s->color.b = v1->color.b;
+   s->color.a = v1->color.a;
 
    (void)start_x;
    (void)start_y;
@@ -107,15 +107,15 @@ static void shader_grad_any_first(uintptr_t state, int start_x, int start_y, ALL
 
    get_interpolation_parameters(start_x, start_y, v1, v2, &param, &minor_delta_param, &major_delta_param);
   
-   diff.a = v2->a - v1->a;
-   diff.r = v2->r - v1->r;
-   diff.g = v2->g - v1->g;
-   diff.b = v2->b - v1->b;
+   diff.a = v2->color.a - v1->color.a;
+   diff.r = v2->color.r - v1->color.r;
+   diff.g = v2->color.g - v1->color.g;
+   diff.b = v2->color.b - v1->color.b;
    
-   st->solid.color.a = v1->a + diff.a * param;
-   st->solid.color.r = v1->r + diff.r * param;
-   st->solid.color.g = v1->g + diff.g * param;
-   st->solid.color.b = v1->b + diff.b * param;
+   st->solid.color.a = v1->color.a + diff.a * param;
+   st->solid.color.r = v1->color.r + diff.r * param;
+   st->solid.color.g = v1->color.g + diff.g * param;
+   st->solid.color.b = v1->color.b + diff.b * param;
    
    st->minor_color.a = diff.a * minor_delta_param;
    st->minor_color.r = diff.r * minor_delta_param;
@@ -227,10 +227,10 @@ static void shader_texture_solid_any_first(uintptr_t state, int start_x, int sta
    du = (float)st->w * (v2->u - v1->u);
    dv = (float)st->h * (v2->v - v1->v);
    
-   st->color.r = v1->r;
-   st->color.g = v1->g;
-   st->color.b = v1->b;
-   st->color.a = v1->a;
+   st->color.r = v1->color.r;
+   st->color.g = v1->color.g;
+   st->color.b = v1->color.b;
+   st->color.a = v1->color.a;
 
    st->u = (float)st->w * v1->u + du * param;
    st->v = (float)st->h * v1->v + dv * param;
@@ -279,10 +279,10 @@ static void shader_texture_grad_any_first(uintptr_t state, int start_x, int star
    du = (float)st->solid.w * (v2->u - v1->u);
    dv = (float)st->solid.h * (v2->v - v1->v);
    
-   st->solid.color.r = v1->r;
-   st->solid.color.g = v1->g;
-   st->solid.color.b = v1->b;
-   st->solid.color.a = v1->a;
+   st->solid.color.r = v1->color.r;
+   st->solid.color.g = v1->color.g;
+   st->solid.color.b = v1->color.b;
+   st->solid.color.a = v1->color.a;
 
    st->solid.u = (float)st->solid.w * v1->u + du * param;
    st->solid.v = (float)st->solid.h * v1->v + dv * param;
@@ -293,15 +293,15 @@ static void shader_texture_grad_any_first(uintptr_t state, int start_x, int star
    st->solid.major_du = du * major_delta_param;
    st->solid.major_dv = dv * major_delta_param;
   
-   diff.a = v2->a - v1->a;
-   diff.r = v2->r - v1->r;
-   diff.g = v2->g - v1->g;
-   diff.b = v2->b - v1->b;
+   diff.a = v2->color.a - v1->color.a;
+   diff.r = v2->color.r - v1->color.r;
+   diff.g = v2->color.g - v1->color.g;
+   diff.b = v2->color.b - v1->color.b;
    
-   st->solid.color.a = v1->a + diff.a * param;
-   st->solid.color.r = v1->r + diff.r * param;
-   st->solid.color.g = v1->g + diff.g * param;
-   st->solid.color.b = v1->b + diff.b * param;
+   st->solid.color.a = v1->color.a + diff.a * param;
+   st->solid.color.r = v1->color.r + diff.r * param;
+   st->solid.color.g = v1->color.g + diff.g * param;
+   st->solid.color.b = v1->color.b + diff.b * param;
    
    st->minor_color.a = diff.a * minor_delta_param;
    st->minor_color.r = diff.r * minor_delta_param;
@@ -564,7 +564,7 @@ void _al_line_2d(ALLEGRO_BITMAP* texture, ALLEGRO_VERTEX* v1, ALLEGRO_VERTEX* v2
       shade = 0;
    }
    
-   if (vtx1.r == vtx2.r && vtx1.g == vtx2.g && vtx1.b == vtx2.b && vtx1.a == vtx2.a) {
+   if (vtx1.color.r == vtx2.color.r && vtx1.color.g == vtx2.color.g && vtx1.color.b == vtx2.color.b && vtx1.color.a == vtx2.color.a) {
       grad = 0;
    }
    
@@ -582,7 +582,7 @@ void _al_line_2d(ALLEGRO_BITMAP* texture, ALLEGRO_VERTEX* v1, ALLEGRO_VERTEX* v2
          int white = 0;
          state_texture_solid_any_2d state;
 
-         if (vtx1.r == 1 && vtx1.g == 1 && vtx1.b == 1 && vtx1.a == 1) {
+         if (vtx1.color.r == 1 && vtx1.color.g == 1 && vtx1.color.b == 1 && vtx1.color.a == 1) {
             white = 1;
          }
          state.texture = texture;

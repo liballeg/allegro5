@@ -67,13 +67,20 @@ enum ALLEGRO_VBUFFER_FLAGS {
  */
 typedef struct ALLEGRO_VBUFFER ALLEGRO_VBUFFER;
 
+/* Type: ALLEGRO_PRIM_COLOR
+ */
+typedef struct {
+   float z;
+   uint32_t d3d_color;
+   float r, g, b, a;
+} ALLEGRO_PRIM_COLOR;
+
 /* Type: ALLEGRO_VERTEX
  */
 typedef struct {
-  float x, y, z;
-  uint32_t d3d_color;
+  float x, y;
+  ALLEGRO_PRIM_COLOR color;
   float u, v;
-  float r, g, b, a;
 } ALLEGRO_VERTEX;
 
 
@@ -101,6 +108,9 @@ A5_PRIM_FUNC(int, al_vbuff_range_is_locked, (ALLEGRO_VBUFFER* vbuff, int start, 
 A5_PRIM_FUNC(void, al_set_vbuff_pos, (ALLEGRO_VBUFFER* vbuff, int idx, float x, float y, float z));
 A5_PRIM_FUNC(void, al_set_vbuff_uv, (ALLEGRO_VBUFFER* vbuff, int idx, float u, float v));
 A5_PRIM_FUNC(void, al_set_vbuff_color, (ALLEGRO_VBUFFER* vbuff, int idx, const ALLEGRO_COLOR col));
+
+A5_PRIM_FUNC(ALLEGRO_COLOR, al_get_allegro_color, (ALLEGRO_PRIM_COLOR col));
+A5_PRIM_FUNC(ALLEGRO_PRIM_COLOR, al_get_prim_color, (ALLEGRO_COLOR col));
 
 A5_PRIM_FUNC(void, al_set_vbuff_vertex, (ALLEGRO_VBUFFER* vbuff, int idx, const ALLEGRO_VERTEX *vtx));
 A5_PRIM_FUNC(void, al_get_vbuff_vertex, (ALLEGRO_VBUFFER* vbuff, int idx, ALLEGRO_VERTEX *vtx));
