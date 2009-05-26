@@ -37,7 +37,7 @@ Draws an outlined rectangle.
 
 *Parameters:*
 
-* x1, y1, x2, y2 - Upper left and lower right points of a triangle
+* x1, y1, x2, y2 - Upper left and lower right points of a rectangle
 * color - Color of the rectangle
 * thickness - Thickness of the lines, pass <= 0 to draw hairline lines
 
@@ -47,8 +47,29 @@ Draws a filled rectangle.
 
 *Parameters:*
 
-* x1, y1, x2, y2 - Upper left and lower right points of a triangle
+* x1, y1, x2, y2 - Upper left and lower right points of a rectangle
 * color - Color of the rectangle
+
+## API: al_draw_rounded_rectangle
+
+Draws an outlined rounded rectangle.
+
+*Parameters:*
+
+* x1, y1, x2, y2 - Upper left and lower right points of a rectangle
+* color - Color of the rectangle
+* rx, ry - The radii of the round
+* thickness - Thickness of the lines, pass <= 0 to draw hairline lines
+
+## API: al_draw_filled_rounded_rectangle
+
+Draws an filled rounded rectangle.
+
+*Parameters:*
+
+* x1, y1, x2, y2 - Upper left and lower right points of a rectangle
+* color - Color of the rectangle
+* rx, ry - The radii of the round
 
 ## API: al_calculate_arc
 

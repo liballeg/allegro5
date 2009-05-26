@@ -477,7 +477,7 @@ void al_draw_arc(float cx, float cy, float r, float start_theta,
       
       al_calculate_arc(&(vertex_cache[0].x), sizeof(ALLEGRO_VERTEX), cx, cy, r, r, start_theta, delta_theta, thickness, num_segments);
       
-      for (ii = 0; ii < 2 *   num_segments; ii++) {
+      for (ii = 0; ii < 2 * num_segments; ii++) {
          vertex_cache[ii].color = prim_color;
       }
       
@@ -498,6 +498,144 @@ void al_draw_arc(float cx, float cy, float r, float start_theta,
       
       al_draw_prim(vertex_cache, 0, 0, num_segments, ALLEGRO_PRIM_LINE_STRIP);
    }
+}
+
+/* Function: al_draw_rounded_rectangle
+ */
+void al_draw_rounded_rectangle(float x1, float y1, float x2, float y2, float rx, float ry,
+   ALLEGRO_COLOR color, float thickness)
+{
+   ALLEGRO_PRIM_COLOR prim_color;
+   check_color_blending(&color);
+   prim_color = al_get_prim_color(color);
+   ASSERT(rx >= 0);
+   ASSERT(ry >= 0);
+
+   if (thickness > 0) {
+      int num_segments = ALLEGRO_PRIM_QUALITY * sqrtf((rx + ry) / 2.0f) / 4;
+      int ii;
+
+      /* In case rx and ry are both 0. */
+      if (!num_segments)
+         al_draw_rectangle(x1, y1, x2, y2, color, thickness);
+
+      if (8 * num_segments + 2 >= ALLEGRO_VERTEX_CACHE_SIZE) {
+         num_segments = (ALLEGRO_VERTEX_CACHE_SIZE - 3) / 8;
+      }
+      
+      al_calculate_arc(&(vertex_cache[0].x), sizeof(ALLEGRO_VERTEX), 0, 0, rx, ry, 0, ALLEGRO_PI / 2, thickness, num_segments);
+      
+      for (ii = 0; ii < 2 * num_segments; ii += 2) {
+         vertex_cache[ii + 2 * num_segments + 1].x = x1 + rx - vertex_cache[2 * num_segments - 1 - ii].x;
+         vertex_cache[ii + 2 * num_segments + 1].y = y1 + ry - vertex_cache[2 * num_segments - 1 - ii].y;
+         vertex_cache[ii + 2 * num_segments].x = x1 + rx - vertex_cache[2 * num_segments - 1 - ii - 1].x;
+         vertex_cache[ii + 2 * num_segments].y = y1 + ry - vertex_cache[2 * num_segments - 1 - ii - 1].y;
+
+         vertex_cache[ii + 4 * num_segments].x = x1 + rx - vertex_cache[ii].x;
+         vertex_cache[ii + 4 * num_segments].y = y2 - ry + vertex_cache[ii].y;
+         vertex_cache[ii + 4 * num_segments + 1].x = x1 + rx - vertex_cache[ii + 1].x;
+         vertex_cache[ii + 4 * num_segments + 1].y = y2 - ry + vertex_cache[ii + 1].y;
+
+         vertex_cache[ii + 6 * num_segments + 1].x = x2 - rx + vertex_cache[2 * num_segments - 1 - ii].x;
+         vertex_cache[ii + 6 * num_segments + 1].y = y2 - ry + vertex_cache[2 * num_segments - 1 - ii].y;
+         vertex_cache[ii + 6 * num_segments].x = x2 - rx + vertex_cache[2 * num_segments - 1 - ii - 1].x;
+         vertex_cache[ii + 6 * num_segments].y = y2 - ry + vertex_cache[2 * num_segments - 1 - ii - 1].y;
+      }
+      for (ii = 0; ii < 2 * num_segments; ii += 2) {
+         vertex_cache[ii].x = x2 - rx + vertex_cache[ii].x;
+         vertex_cache[ii].y = y1 + ry - vertex_cache[ii].y;
+         vertex_cache[ii + 1].x = x2 - rx + vertex_cache[ii + 1].x;
+         vertex_cache[ii + 1].y = y1 + ry - vertex_cache[ii + 1].y;
+      }
+      vertex_cache[8 * num_segments] = vertex_cache[0];
+      vertex_cache[8 * num_segments + 1] = vertex_cache[1];
+
+      for (ii = 0; ii < 8 * num_segments + 2; ii++)
+         vertex_cache[ii].color = prim_color;
+         
+      al_draw_prim(vertex_cache, 0, 0, 8 * num_segments + 2, ALLEGRO_PRIM_TRIANGLE_STRIP);
+   } else {
+      int num_segments = ALLEGRO_PRIM_QUALITY * sqrtf((rx + ry) / 2.0f) / 4;
+      int ii;
+      
+      /* In case rx and ry are both 0. */
+      if (!num_segments)
+         al_draw_rectangle(x1, y1, x2, y2, color, thickness);
+
+      if (num_segments * 4 >= ALLEGRO_VERTEX_CACHE_SIZE) {
+         num_segments = (ALLEGRO_VERTEX_CACHE_SIZE - 1) / 4;
+      }
+      
+      al_calculate_arc(&(vertex_cache[0].x), sizeof(ALLEGRO_VERTEX), 0, 0, rx, ry, 0, ALLEGRO_PI / 2, 0, num_segments + 1);
+
+      for (ii = 0; ii < num_segments; ii++) {
+         vertex_cache[ii + 1 * num_segments].x = x1 + rx - vertex_cache[num_segments - 1 - ii].x;
+         vertex_cache[ii + 1 * num_segments].y = y1 + ry - vertex_cache[num_segments - 1 - ii].y;
+
+         vertex_cache[ii + 2 * num_segments].x = x1 + rx - vertex_cache[ii].x;
+         vertex_cache[ii + 2 * num_segments].y = y2 - ry + vertex_cache[ii].y;
+
+         vertex_cache[ii + 3 * num_segments].x = x2 - rx + vertex_cache[num_segments - 1 - ii].x;
+         vertex_cache[ii + 3 * num_segments].y = y2 - ry + vertex_cache[num_segments - 1 - ii].y;
+      }
+      for (ii = 0; ii < num_segments; ii++) {
+         vertex_cache[ii].x = x2 - rx + vertex_cache[ii].x;
+         vertex_cache[ii].y = y1 + ry - vertex_cache[ii].y;
+      }
+
+      for (ii = 0; ii < 4 * num_segments; ii++)
+         vertex_cache[ii].color = prim_color;
+         
+      al_draw_prim(vertex_cache, 0, 0, 4 * num_segments, ALLEGRO_PRIM_LINE_LOOP);
+   }
+}
+
+/* Function: al_draw_filled_rounded_rectangle
+ */
+void al_draw_filled_rounded_rectangle(float x1, float y1, float x2, float y2, float rx, float ry,
+   ALLEGRO_COLOR color)
+{
+   ALLEGRO_PRIM_COLOR prim_color;
+   int num_segments = ALLEGRO_PRIM_QUALITY * sqrtf((rx + ry) / 2.0f) / 4;
+   int ii;
+
+   check_color_blending(&color);
+   prim_color = al_get_prim_color(color);
+   ASSERT(rx >= 0);
+   ASSERT(ry >= 0);
+   
+   /* In case rx and ry are both 0. */
+   if (!num_segments)
+      al_draw_filled_rectangle(x1, y1, x2, y2, color);
+
+   if (num_segments * 4 >= ALLEGRO_VERTEX_CACHE_SIZE) {
+      num_segments = (ALLEGRO_VERTEX_CACHE_SIZE - 1) / 4;
+   }
+   
+   al_calculate_arc(&(vertex_cache[0].x), sizeof(ALLEGRO_VERTEX), 0, 0, rx, ry, 0, ALLEGRO_PI / 2, 0, num_segments + 1);
+
+   for (ii = 0; ii < num_segments; ii++) {
+      vertex_cache[ii + 1 * num_segments].x = x1 + rx - vertex_cache[num_segments - 1 - ii].x;
+      vertex_cache[ii + 1 * num_segments].y = y1 + ry - vertex_cache[num_segments - 1 - ii].y;
+
+      vertex_cache[ii + 2 * num_segments].x = x1 + rx - vertex_cache[ii].x;
+      vertex_cache[ii + 2 * num_segments].y = y2 - ry + vertex_cache[ii].y;
+
+      vertex_cache[ii + 3 * num_segments].x = x2 - rx + vertex_cache[num_segments - 1 - ii].x;
+      vertex_cache[ii + 3 * num_segments].y = y2 - ry + vertex_cache[num_segments - 1 - ii].y;
+   }
+   for (ii = 0; ii < num_segments; ii++) {
+      vertex_cache[ii].x = x2 - rx + vertex_cache[ii].x;
+      vertex_cache[ii].y = y1 + ry - vertex_cache[ii].y;
+   }
+
+   for (ii = 0; ii < 4 * num_segments; ii++)
+      vertex_cache[ii].color = prim_color;
+
+   /*
+   TODO: Doing this as a triangle fan just doesn't sound all that great, perhaps shuffle the vertices somehow to at least make it a strip
+   */
+   al_draw_prim(vertex_cache, 0, 0, 4 * num_segments, ALLEGRO_PRIM_TRIANGLE_FAN);
 }
 
 /* Function: al_calculate_spline
