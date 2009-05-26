@@ -241,6 +241,38 @@ Converted ALLEGRO_COLOR
 *See Also:*
 [ALLEGRO_PRIM_COLOR], [al_get_allegro_color]
 
+## API: al_draw_soft_triangle
+
+Draws a triangle using the software rasterizer and user supplied pixel functions. For help in understanding what these functions do, see the implementation of the various shading routines in addons/primitives/tri_soft.c.
+The triangle is drawn in two segments, from top to bottom. The segments are deliniated by the vertically middle vertex of the triangle. One of each segment may be present if two vertices are horizontally collinear.
+
+*Parameters:*
+
+* v1, v2, v3 - The three vertices of the triangle
+* state - A pointer to a user supplied struct, this struct will be passed to all the pixel functions
+* init - This function is called once, before any drawing is done. The three points passed to it may be altered by clipping.
+* first - The function is called twice, once per triangle segment. It is passed 4 parameters, the first two are the coordinates of the initial pixel drawn in the segment. 
+          The second two are the left minor and the left major steps, respectively. They represent the sizes of two steps taken by the rasterizer as it walks
+          on the left side of the triangle. From then on, the each step will either be classified as a minor or a major step, corresponding to the above values.
+* step - Called once per scanline. The last parameter is set to 1 if the step is a minor step, and 0 if it is a major step.
+* draw - Called once per scanline. The function is expected to draw the scanline starting with a point specified by the first two parameters (corresponding to x and y values)
+         going to the right until it reaches the value of the third parameter (the x value of the end point). All coordinates are inclusive.
+
+## API: al_draw_soft_line
+
+Draws a line using the software rasterizer and user supplied pixel functions. For help in understanding what these functions do, see the implementation of the various shading routines in addons/primitives/line_soft.c.
+The line is drawn top to bottom.
+
+*Parameters:*
+
+* v1, v2 - The two vertices of the line
+* state - A pointer to a user supplied struct, this struct will be passed to all the pixel functions
+* first - The function is called before drawing the first pixel of the line. It is passed the coordinates of this pixel, as well as the two vertices above.
+          The passed vertices may have been altered by clipping.
+* step - Called once per pixel. The second parameter is set to 1 if the step is a minor step, and 0 if this step is a major step. Minor steps are taken only either in x or y directions.
+         Major steps are taken in both directions diagonally. In all cases, the the absolute value of the change in coordinate is at most 1 in either direction.
+* draw - Called once per pixel. The function is expected to draw the pixel at the two coordinates passed to it.
+
 # Transformations
 
 ## API: al_copy_transform
