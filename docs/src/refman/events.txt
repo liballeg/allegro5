@@ -71,6 +71,8 @@ Fields: mouse.x, mouse.y, mouse.z, mouse.button.
 
 * ALLEGRO_EVENT_DISPLAY_EXPOSE - The display (or a portion thereof) has
   become visible.
+  Note: The display needs to be created with ALLEGRO_GENERATE_EXPOSE_EVENTS
+  flag.
   Fields: display.x, display.y, display.width, display.height
 
 * ALLEGRO_EVENT_DISPLAY_RESIZE - The window has been resized.

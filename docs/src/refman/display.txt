@@ -167,6 +167,8 @@ titlebar). This usualy does nothing for fullscreen modes, and even in
 windowed moded it depends on the underlying platform whether it is supported
 or not.
 
+* ALLEGRO_GENERATE_EXPOSE_EVENTS - Let the display generate expose events.
+
 0 can be used for default values. 
 
 ## API: al_set_new_display_refresh_rate
