@@ -130,394 +130,353 @@ void al_drain_stream(ALLEGRO_STREAM *stream)
    stream->is_draining = true;
    do {
       al_rest(0.01);
-      al_get_stream_bool(stream, ALLEGRO_AUDIOPROP_PLAYING, &playing);
+      playing = al_get_stream_playing(stream);
    } while (playing);
    stream->is_draining = false;
 }
 
 
-/* Function: al_get_stream_long
+/* Function: al_get_stream_frequency
  */
-int al_get_stream_long(const ALLEGRO_STREAM *stream,
-   ALLEGRO_AUDIO_PROPERTY setting, unsigned long *val)
+unsigned int al_get_stream_frequency(const ALLEGRO_STREAM *stream)
 {
    ASSERT(stream);
 
-   switch (setting) {
-      case ALLEGRO_AUDIOPROP_FREQUENCY:
-         *val = stream->spl.spl_data.frequency;
-         return 0;
+   // XXX long not needed
+   return stream->spl.spl_data.frequency;
+}
 
-      case ALLEGRO_AUDIOPROP_LENGTH:
-         *val = stream->spl.spl_data.len >> MIXER_FRAC_SHIFT;
-         return 0;
 
-      case ALLEGRO_AUDIOPROP_FRAGMENTS:
-         *val = stream->buf_count;
-         return 0;
+/* Function: al_get_stream_length
+ */
+unsigned long al_get_stream_length(const ALLEGRO_STREAM *stream)
+{
+   ASSERT(stream);
 
-      case ALLEGRO_AUDIOPROP_USED_FRAGMENTS: {
-         size_t i;
-         for (i = 0; stream->used_bufs[i] && i < stream->buf_count; i++)
-            ;
-         *val = i;
-         return 0;
+   // XXX long not needed?
+   return stream->spl.spl_data.len >> MIXER_FRAC_SHIFT;
+}
+
+
+/* Function: al_get_stream_fragments
+ */
+unsigned int al_get_stream_fragments(const ALLEGRO_STREAM *stream)
+{
+   ASSERT(stream);
+
+   return stream->buf_count;
+}
+
+
+/* Function: al_get_stream_used_fragments
+ */
+unsigned int al_get_stream_used_fragments(const ALLEGRO_STREAM *stream)
+{
+   unsigned int i;
+   ASSERT(stream);
+
+   for (i = 0; stream->used_bufs[i] && i < stream->buf_count; i++)
+      ;
+   return i;
+}
+
+
+/* Function: al_get_stream_speed
+ */
+float al_get_stream_speed(const ALLEGRO_STREAM *stream)
+{
+   ASSERT(stream);
+
+   return stream->spl.speed;
+}
+
+
+/* Function: al_get_stream_gain
+ */
+float al_get_stream_gain(const ALLEGRO_STREAM *stream)
+{
+   ASSERT(stream);
+
+   return stream->spl.gain;
+}
+
+
+/* Function: al_get_stream_pan
+ */
+float al_get_stream_pan(const ALLEGRO_STREAM *stream)
+{
+   ASSERT(stream);
+
+   return stream->spl.pan;
+}
+
+
+/* Function: al_get_stream_channels
+ */
+ALLEGRO_CHANNEL_CONF al_get_stream_channels(const ALLEGRO_STREAM *stream)
+{
+   ASSERT(stream);
+
+   return stream->spl.spl_data.chan_conf;
+}
+
+
+/* Function: al_get_stream_depth
+ */
+ALLEGRO_AUDIO_DEPTH al_get_stream_depth(const ALLEGRO_STREAM *stream)
+{
+   ASSERT(stream);
+
+   return stream->spl.spl_data.depth;
+}
+
+
+/* Function: al_get_stream_playmode
+ */
+ALLEGRO_PLAYMODE al_get_stream_playmode(const ALLEGRO_STREAM *stream)
+{
+   ASSERT(stream);
+
+   return stream->spl.loop;
+}
+
+
+/* Function: al_get_stream_playing
+*/
+bool al_get_stream_playing(const ALLEGRO_STREAM *stream)
+{
+   ASSERT(stream);
+
+   return stream->spl.is_playing;
+}
+
+
+/* Function: al_get_stream_attached
+*/
+bool al_get_stream_attached(const ALLEGRO_STREAM *stream)
+{
+   ASSERT(stream);
+
+   return (stream->spl.parent.u.ptr != NULL);
+}
+
+
+/* Function: al_get_stream_buffer
+*/
+bool al_get_stream_buffer(const ALLEGRO_STREAM *stream, void **val)
+{
+   size_t i;
+   ASSERT(stream);
+
+   if (!stream->used_bufs[0]) {
+      _al_set_error(ALLEGRO_INVALID_OBJECT,
+         "Attempted to get the buffer of a non-waiting stream");
+      return false;
+   }
+
+   *val = stream->used_bufs[0];
+   for (i = 0; stream->used_bufs[i] && i < stream->buf_count-1; i++) {
+      stream->used_bufs[i] = stream->used_bufs[i+1];
+   }
+   stream->used_bufs[i] = NULL;
+   return true;
+}
+
+
+/* Function: al_set_stream_speed
+ */
+bool al_set_stream_speed(ALLEGRO_STREAM *stream, float val)
+{
+   ASSERT(stream);
+
+   if (val <= 0.0f) {
+      _al_set_error(ALLEGRO_INVALID_PARAM,
+         "Attempted to set stream speed to a zero or negative value");
+      return false;
+   }
+
+   if (stream->spl.parent.u.ptr && stream->spl.parent.is_voice) {
+      _al_set_error(ALLEGRO_GENERIC_ERROR,
+         "Could not set voice playback speed");
+      return false;
+   }
+
+   stream->spl.speed = val;
+   if (stream->spl.parent.u.mixer) {
+      ALLEGRO_MIXER *mixer = stream->spl.parent.u.mixer;
+      long i;
+
+      al_lock_mutex(stream->spl.mutex);
+
+      /* Make step 1 before applying the freq difference
+       * (so we play forward).
+       */
+      stream->spl.step = 1;
+
+      i = (stream->spl.spl_data.frequency << MIXER_FRAC_SHIFT) *
+         stream->spl.speed / mixer->ss.spl_data.frequency;
+
+      /* Don't wanna be trapped with a step value of 0. */
+      if (i != 0) {
+         stream->spl.step *= i;
       }
 
-      default:
-         _al_set_error(ALLEGRO_INVALID_PARAM,
-            "Attempted to get invalid stream long setting");
-         return 1;
+      al_unlock_mutex(stream->spl.mutex);
    }
+
+   return true;
 }
 
 
-/* Function: al_get_stream_float
+/* Function: al_set_stream_gain
  */
-int al_get_stream_float(const ALLEGRO_STREAM *stream,
-   ALLEGRO_AUDIO_PROPERTY setting, float *val)
+bool al_set_stream_gain(ALLEGRO_STREAM *stream, float val)
 {
    ASSERT(stream);
 
-   switch (setting) {
-      case ALLEGRO_AUDIOPROP_SPEED:
-         *val = stream->spl.speed;
-         return 0;
-
-      case ALLEGRO_AUDIOPROP_GAIN:
-         *val = stream->spl.gain;
-         return 0;
-
-      case ALLEGRO_AUDIOPROP_PAN:
-         *val = stream->spl.pan;
-         return 0;
-
-      default:
-         _al_set_error(ALLEGRO_INVALID_PARAM,
-            "Attempted to get invalid stream float setting");
-         return 1;
+   if (stream->spl.parent.u.ptr && stream->spl.parent.is_voice) {
+      _al_set_error(ALLEGRO_GENERIC_ERROR,
+         "Could not set gain of stream attached to voice");
+      return false;
    }
-}
 
+   if (stream->spl.gain != val) {
+      stream->spl.gain = val;
 
-/* Function: al_get_stream_enum
- */
-int al_get_stream_enum(const ALLEGRO_STREAM *stream,
-   ALLEGRO_AUDIO_PROPERTY setting, int *val)
-{
-   ASSERT(stream);
-
-   switch (setting) {
-      case ALLEGRO_AUDIOPROP_DEPTH:
-         *val = stream->spl.spl_data.depth;
-         return 0;
-
-      case ALLEGRO_AUDIOPROP_CHANNELS:
-         *val = stream->spl.spl_data.chan_conf;
-         return 0;
-
-      case ALLEGRO_AUDIOPROP_LOOPMODE:
-         *val = stream->spl.loop;
-         return 0;
-
-      default:
-         _al_set_error(ALLEGRO_INVALID_PARAM,
-            "Attempted to get invalid stream enum setting");
-         return 1;
-   }
-}
-
-
-/* Function: al_get_stream_bool
- */
-int al_get_stream_bool(const ALLEGRO_STREAM *stream,
-   ALLEGRO_AUDIO_PROPERTY setting, bool *val)
-{
-   ASSERT(stream);
-
-   switch (setting) {
-      case ALLEGRO_AUDIOPROP_PLAYING:
-         *val = stream->spl.is_playing;
-         return 0;
-
-      case ALLEGRO_AUDIOPROP_ATTACHED:
-         *val = (stream->spl.parent.u.ptr != NULL);
-         return 0;
-
-      default:
-         _al_set_error(ALLEGRO_INVALID_PARAM,
-            "Attempted to get invalid stream bool setting");
-         return 1;
-   }
-}
-
-
-/* Function: al_get_stream_ptr
- */
-int al_get_stream_ptr(const ALLEGRO_STREAM *stream,
-   ALLEGRO_AUDIO_PROPERTY setting, void **val)
-{
-   ASSERT(stream);
-
-   switch (setting) {
-      case ALLEGRO_AUDIOPROP_BUFFER: {
-         size_t i;
-
-         if (!stream->used_bufs[0]) {
-            _al_set_error(ALLEGRO_INVALID_OBJECT,
-               "Attempted to get the buffer of a non-waiting stream");
-            return 1;
-         }
-         *val = stream->used_bufs[0];
-         for (i = 0; stream->used_bufs[i] && i < stream->buf_count-1; i++) {
-            stream->used_bufs[i] = stream->used_bufs[i+1];
-         }
-         stream->used_bufs[i] = NULL;
-         return 0;
-      }
-
-      default:
-         _al_set_error(ALLEGRO_INVALID_PARAM,
-            "Attempted to get invalid stream pointer setting");
-         return 1;
-   }
-}
-
-
-/* Function: al_set_stream_long
- */
-int al_set_stream_long(ALLEGRO_STREAM *stream,
-   ALLEGRO_AUDIO_PROPERTY setting, unsigned long val)
-{
-   ASSERT(stream);
-
-   (void)stream;
-   (void)val;
-
-   switch (setting) {
-      default:
-         _al_set_error(ALLEGRO_INVALID_PARAM,
-            "Attempted to set invalid stream long setting");
-         return 1;
-   }
-}
-
-
-/* Function: al_set_stream_float
- */
-int al_set_stream_float(ALLEGRO_STREAM *stream,
-   ALLEGRO_AUDIO_PROPERTY setting, float val)
-{
-   ASSERT(stream);
-
-   switch (setting) {
-      case ALLEGRO_AUDIOPROP_SPEED:
-         if (val <= 0.0f) {
-            _al_set_error(ALLEGRO_INVALID_PARAM,
-               "Attempted to set stream speed to a zero or negative value");
-            return 1;
-         }
-
-         if (stream->spl.parent.u.ptr && stream->spl.parent.is_voice) {
-            _al_set_error(ALLEGRO_GENERIC_ERROR,
-               "Could not set voice playback speed");
-            return 1;
-         }
-
-         stream->spl.speed = val;
-         if (stream->spl.parent.u.mixer) {
-            ALLEGRO_MIXER *mixer = stream->spl.parent.u.mixer;
-            long i;
-
-            al_lock_mutex(stream->spl.mutex);
-
-            /* Make step 1 before applying the freq difference
-             * (so we play forward).
-             */
-            stream->spl.step = 1;
-
-            i = (stream->spl.spl_data.frequency << MIXER_FRAC_SHIFT) *
-               stream->spl.speed / mixer->ss.spl_data.frequency;
-
-            /* Don't wanna be trapped with a step value of 0. */
-            if (i != 0) {
-               stream->spl.step *= i;
-            }
-
-            al_unlock_mutex(stream->spl.mutex);
-         }
-
-         return 0;
-
-      case ALLEGRO_AUDIOPROP_GAIN:
-         if (stream->spl.parent.u.ptr && stream->spl.parent.is_voice) {
-            _al_set_error(ALLEGRO_GENERIC_ERROR,
-               "Could not set gain of stream attached to voice");
-            return 1;
-         }
-
-         if (stream->spl.gain == val) {
-            return 0;
-         }
-         stream->spl.gain = val;
-
-         /* If attached to a mixer already, need to recompute the sample
-          * matrix to take into account the gain.
-          */
-         if (stream->spl.parent.u.mixer) {
-            ALLEGRO_MIXER *mixer = stream->spl.parent.u.mixer;
-
-            al_lock_mutex(stream->spl.mutex);
-            _al_kcm_mixer_rejig_sample_matrix(mixer, &stream->spl);
-            al_unlock_mutex(stream->spl.mutex);
-         }
-
-         return 0;
-
-      case ALLEGRO_AUDIOPROP_PAN:
-         if (stream->spl.parent.u.ptr && stream->spl.parent.is_voice) {
-            _al_set_error(ALLEGRO_GENERIC_ERROR,
-               "Could not set gain of stream attached to voice");
-            return 1;
-         }
-         if (val != ALLEGRO_AUDIO_PAN_NONE && (val < -1.0 || val > 1.0)) {
-            _al_set_error(ALLEGRO_GENERIC_ERROR, "Invalid pan value");
-            return 1;
-         }
-
-         if (stream->spl.pan == val) {
-            return 0;
-         }
-         stream->spl.pan = val;
-
-         /* If attached to a mixer already, need to recompute the sample
-          * matrix to take into account the panning.
-          */
-         if (stream->spl.parent.u.mixer) {
-            ALLEGRO_MIXER *mixer = stream->spl.parent.u.mixer;
-
-            al_lock_mutex(stream->spl.mutex);
-            _al_kcm_mixer_rejig_sample_matrix(mixer, &stream->spl);
-            al_unlock_mutex(stream->spl.mutex);
-         }
-
-         return 0;
-
-      default:
-         _al_set_error(ALLEGRO_INVALID_PARAM,
-            "Attempted to set invalid stream float setting");
-         return 1;
-   }
-}
-
-
-/* Function: al_set_stream_enum
- */
-int al_set_stream_enum(ALLEGRO_STREAM *stream,
-   ALLEGRO_AUDIO_PROPERTY setting, int val)
-{
-   ASSERT(stream);
-
-   switch (setting) {
-      case ALLEGRO_AUDIOPROP_LOOPMODE:
-         if (val == ALLEGRO_PLAYMODE_ONCE) {
-            stream->spl.loop = _ALLEGRO_PLAYMODE_STREAM_ONCE;
-            return 0;
-         }
-         else if (val == ALLEGRO_PLAYMODE_LOOP) {
-            /* Only streams creating by al_stream_from_file() support
-             * looping. */
-            if (!stream->feeder)
-               return 1;
-
-            stream->spl.loop = _ALLEGRO_PLAYMODE_STREAM_ONEDIR;
-            return 0;
-         }
-
-      default:
-         _al_set_error(ALLEGRO_INVALID_PARAM,
-            "Attempted to set invalid stream enum setting");
-         return 1;
-   }
-}
-
-
-/* Function: al_set_stream_bool
- */
-int al_set_stream_bool(ALLEGRO_STREAM *stream,
-   ALLEGRO_AUDIO_PROPERTY setting, bool val)
-{
-   ASSERT(stream);
-
-   switch (setting) {
-      case ALLEGRO_AUDIOPROP_PLAYING:
-         if (stream->spl.parent.u.ptr && stream->spl.parent.is_voice) {
-            ALLEGRO_VOICE *voice = stream->spl.parent.u.voice;
-            if (al_set_voice_bool(voice, ALLEGRO_AUDIOPROP_PLAYING, val) != 0) {
-               return 1;
-            }
-         }
-         stream->spl.is_playing = val;
-
-         if (!val) {
-            al_lock_mutex(stream->spl.mutex);
-            stream->spl.pos = stream->spl.spl_data.len;
-            al_unlock_mutex(stream->spl.mutex);
-         }
-         return 0;
-
-      case ALLEGRO_AUDIOPROP_ATTACHED:
-         if (val) {
-            _al_set_error(ALLEGRO_INVALID_PARAM,
-               "Attempted to set stream attachment status true");
-            return 1;
-         }
-         _al_kcm_detach_from_parent(&stream->spl);
-         return 0;
-
-      default:
-         _al_set_error(ALLEGRO_INVALID_PARAM,
-            "Attempted to set invalid stream bool setting");
-         return 1;
-   }
-}
-
-
-/* Function: al_set_stream_ptr
- */
-int al_set_stream_ptr(ALLEGRO_STREAM *stream,
-   ALLEGRO_AUDIO_PROPERTY setting, void *val)
-{
-   ASSERT(stream);
-
-   switch (setting) {
-      case ALLEGRO_AUDIOPROP_BUFFER: {
-         size_t i;
-         int ret;
+      /* If attached to a mixer already, need to recompute the sample
+       * matrix to take into account the gain.
+       */
+      if (stream->spl.parent.u.mixer) {
+         ALLEGRO_MIXER *mixer = stream->spl.parent.u.mixer;
 
          al_lock_mutex(stream->spl.mutex);
-
-         for (i = 0; stream->pending_bufs[i] && i < stream->buf_count; i++)
-            ;
-         if (i < stream->buf_count) {
-            stream->pending_bufs[i] = val;
-            ret = 0;
-         }
-         else {
-            _al_set_error(ALLEGRO_INVALID_OBJECT,
-               "Attempted to set a stream buffer with a full pending list");
-            ret = 1;
-         }
-
+         _al_kcm_mixer_rejig_sample_matrix(mixer, &stream->spl);
          al_unlock_mutex(stream->spl.mutex);
-         return ret;
       }
-
-      default:
-         _al_set_error(ALLEGRO_INVALID_PARAM,
-            "Attempted to set invalid stream pointer setting");
-         return 1;
    }
+
+   return true;
+}
+
+
+/* Function: al_set_stream_pan
+ */
+bool al_set_stream_pan(ALLEGRO_STREAM *stream, float val)
+{
+   ASSERT(stream);
+
+   if (stream->spl.parent.u.ptr && stream->spl.parent.is_voice) {
+      _al_set_error(ALLEGRO_GENERIC_ERROR,
+         "Could not set gain of stream attached to voice");
+      return false;
+   }
+   if (val != ALLEGRO_AUDIO_PAN_NONE && (val < -1.0 || val > 1.0)) {
+      _al_set_error(ALLEGRO_GENERIC_ERROR, "Invalid pan value");
+      return false;
+   }
+
+   if (stream->spl.pan != val) {
+      stream->spl.pan = val;
+
+      /* If attached to a mixer already, need to recompute the sample
+       * matrix to take into account the panning.
+       */
+      if (stream->spl.parent.u.mixer) {
+         ALLEGRO_MIXER *mixer = stream->spl.parent.u.mixer;
+
+         al_lock_mutex(stream->spl.mutex);
+         _al_kcm_mixer_rejig_sample_matrix(mixer, &stream->spl);
+         al_unlock_mutex(stream->spl.mutex);
+      }
+   }
+
+   return true;
+}
+
+
+/* Function: al_set_stream_playmode
+ */
+bool al_set_stream_playmode(ALLEGRO_STREAM *stream, ALLEGRO_PLAYMODE val)
+{
+   ASSERT(stream);
+
+   if (val == ALLEGRO_PLAYMODE_ONCE) {
+      stream->spl.loop = _ALLEGRO_PLAYMODE_STREAM_ONCE;
+      return true;
+   }
+   else if (val == ALLEGRO_PLAYMODE_LOOP) {
+      /* Only streams creating by al_stream_from_file() support
+       * looping. */
+      if (!stream->feeder)
+         return false;
+
+      stream->spl.loop = _ALLEGRO_PLAYMODE_STREAM_ONEDIR;
+      return true;
+   }
+
+   // XXX _al_set_error
+   return false;
+}
+
+
+/* Function: al_set_stream_playing
+ */
+bool al_set_stream_playing(ALLEGRO_STREAM *stream, bool val)
+{
+   ASSERT(stream);
+
+   if (stream->spl.parent.u.ptr && stream->spl.parent.is_voice) {
+      ALLEGRO_VOICE *voice = stream->spl.parent.u.voice;
+      if (!al_set_voice_playing(voice, val)) {
+         return false;
+      }
+   }
+   stream->spl.is_playing = val;
+
+   if (!val) {
+      al_lock_mutex(stream->spl.mutex);
+      stream->spl.pos = stream->spl.spl_data.len;
+      al_unlock_mutex(stream->spl.mutex);
+   }
+   return true;
+}
+
+
+/* Function: al_detach_stream
+ */
+bool al_detach_stream(ALLEGRO_STREAM *stream)
+{
+   ASSERT(stream);
+
+   _al_kcm_detach_from_parent(&stream->spl);
+   return true;
+}
+
+
+/* Function: al_set_stream_buffer
+ */
+bool al_set_stream_buffer(ALLEGRO_STREAM *stream, void *val)
+{
+   size_t i;
+   bool ret;
+   ASSERT(stream);
+
+   al_lock_mutex(stream->spl.mutex);
+
+   for (i = 0; stream->pending_bufs[i] && i < stream->buf_count; i++)
+      ;
+   if (i < stream->buf_count) {
+      stream->pending_bufs[i] = val;
+      ret = true;
+   }
+   else {
+      _al_set_error(ALLEGRO_INVALID_OBJECT,
+         "Attempted to set a stream buffer with a full pending list");
+      ret = false;
+   }
+
+   al_unlock_mutex(stream->spl.mutex);
+   return ret;
 }
 
 
@@ -587,8 +546,7 @@ void *_al_kcm_feed_stream(ALLEGRO_THREAD *self, void *vstream)
          unsigned long bytes;
          unsigned long bytes_written;
 
-         if (al_get_stream_ptr(stream, ALLEGRO_AUDIOPROP_BUFFER,
-            &fragment_void) != 0) {
+         if (!al_get_stream_buffer(stream, &fragment_void)) {
             TRACE(PREFIX_E "Error getting stream buffer.\n");
             continue;
          }
@@ -616,8 +574,7 @@ void *_al_kcm_feed_stream(ALLEGRO_THREAD *self, void *vstream)
             ASSERT(bw == bytes - bytes_written);
          }
 
-         if (al_set_stream_ptr(stream, ALLEGRO_AUDIOPROP_BUFFER,
-            fragment) != 0) {
+         if (!al_set_stream_buffer(stream, fragment)) {
             TRACE(PREFIX_E "Error setting stream buffer.\n");
             continue;
          }
@@ -670,9 +627,10 @@ bool al_rewind_stream(ALLEGRO_STREAM *stream)
    return false;
 }
 
-/* Function: al_seek_stream
+
+/* Function: al_seek_stream_secs
  */
-bool al_seek_stream(ALLEGRO_STREAM *stream, double time)
+bool al_seek_stream_secs(ALLEGRO_STREAM *stream, double time)
 {
    bool ret;
    if (stream->seek_feeder) {
@@ -685,9 +643,10 @@ bool al_seek_stream(ALLEGRO_STREAM *stream, double time)
    return false;
 }
 
-/* Function: al_get_stream_position
+
+/* Function: al_get_stream_position_secs
  */
-double al_get_stream_position(ALLEGRO_STREAM *stream)
+double al_get_stream_position_secs(ALLEGRO_STREAM *stream)
 {
    double ret;
    if (stream->get_feeder_position) {
@@ -700,9 +659,10 @@ double al_get_stream_position(ALLEGRO_STREAM *stream)
    return 0.0;
 }
 
-/* Function: al_get_stream_length
+
+/* Function: al_get_stream_length_secs
  */
-double al_get_stream_length(ALLEGRO_STREAM *stream)
+double al_get_stream_length_secs(ALLEGRO_STREAM *stream)
 {
    double ret;
    if (stream->get_feeder_length) {
@@ -714,9 +674,10 @@ double al_get_stream_length(ALLEGRO_STREAM *stream)
    return 0.0;
 }
 
-/* Function: al_set_stream_loop
+
+/* Function: al_set_stream_loop_secs
  */
-bool al_set_stream_loop(ALLEGRO_STREAM *stream, double start, double end)
+bool al_set_stream_loop_secs(ALLEGRO_STREAM *stream, double start, double end)
 {
    bool ret;
 
@@ -733,5 +694,5 @@ bool al_set_stream_loop(ALLEGRO_STREAM *stream, double start, double end)
    return false;
 }
 
-/* vim: set sts=3 sw=3 et: */
 
+/* vim: set sts=3 sw=3 et: */

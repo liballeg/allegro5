@@ -25,7 +25,7 @@ int main(int argc, char **argv)
       return 1;
    }
 
-   if (al_install_audio(ALLEGRO_AUDIO_DRIVER_AUTODETECT)) {
+   if (!al_install_audio(ALLEGRO_AUDIO_DRIVER_AUTODETECT)) {
       fprintf(stderr, "Could not init sound!\n");
       return 1;
    }
@@ -44,7 +44,7 @@ int main(int argc, char **argv)
       return 1;
    }
 
-   if (al_attach_mixer_to_voice(voice, mixer) != 0) {
+   if (!al_attach_mixer_to_voice(voice, mixer)) {
       fprintf(stderr, "al_attach_mixer_to_voice failed.\n");
       return 1;
    }
@@ -68,33 +68,32 @@ int main(int argc, char **argv)
          continue;
       }
 
-      if (al_set_sample(sample, sample_data) != 0) {
+      if (!al_set_sample(sample, sample_data)) {
          fprintf(stderr, "al_set_sample_instance_ptr failed.\n");
          continue;
       }
 
-      if (al_attach_sample_to_mixer(mixer, sample) != 0) {
+      if (!al_attach_sample_to_mixer(mixer, sample)) {
          fprintf(stderr, "al_attach_sample_to_mixer failed.\n");
          return 1;
       }
 
       /* Play sample in looping mode. */
-      al_set_sample_instance_enum(sample, ALLEGRO_AUDIOPROP_LOOPMODE,
-         ALLEGRO_PLAYMODE_LOOP);
+      al_set_sample_instance_playmode(sample, ALLEGRO_PLAYMODE_LOOP);
       al_play_sample_instance(sample);
 
-      al_get_sample_instance_float(sample, ALLEGRO_AUDIOPROP_TIME, &sample_time);
+      sample_time = al_get_sample_instance_time(sample);
       fprintf(stderr, "Playing '%s' (%.3f seconds) 3 times", filename,
          sample_time);
 
       al_rest(sample_time);
 
-      if (al_set_sample_instance_float(sample, ALLEGRO_AUDIOPROP_GAIN, 0.5) != 0) {
+      if (!al_set_sample_instance_gain(sample, 0.5)) {
          fprintf(stderr, "Failed to set gain.\n");
       }
       al_rest(sample_time);
 
-      if (al_set_sample_instance_float(sample, ALLEGRO_AUDIOPROP_GAIN, 0.25) != 0) {
+      if (!al_set_sample_instance_gain(sample, 0.25)) {
          fprintf(stderr, "Failed to set gain.\n");
       }
       al_rest(sample_time);

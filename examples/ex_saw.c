@@ -31,7 +31,7 @@ void saw(ALLEGRO_STREAM *stream)
       al_wait_for_event(queue, &event);
 
       if (event.type == ALLEGRO_EVENT_STREAM_EMPTY_FRAGMENT) {
-         al_get_stream_ptr(stream, ALLEGRO_AUDIOPROP_BUFFER, &buf_void);
+         al_get_stream_buffer(stream, &buf_void);
          buf = buf_void;
 
          for (i = 0; i < SAMPLES_PER_BUFFER; i++) {
@@ -42,7 +42,7 @@ void saw(ALLEGRO_STREAM *stream)
                pitch = 0x10000;
          }
 
-         if (al_set_stream_ptr(stream, ALLEGRO_AUDIOPROP_BUFFER, buf) != 0) {
+         if (!al_set_stream_buffer(stream, buf)) {
             fprintf(stderr, "Error setting stream buffer.\n");
          }
 
@@ -51,13 +51,8 @@ void saw(ALLEGRO_STREAM *stream)
             putchar('.');
             fflush(stdout);
 
-            if (al_get_stream_float(stream, ALLEGRO_AUDIOPROP_GAIN, &gain)
-                  == 0) {
-               al_set_stream_float(stream, ALLEGRO_AUDIOPROP_GAIN, gain * 0.9);
-            }
-            else {
-               fprintf(stderr, "Error getting gain.\n");
-            }
+            gain = al_get_stream_gain(stream);
+            al_set_stream_gain(stream, gain * 0.9);
          }
       }
    }
@@ -81,7 +76,7 @@ int main(void)
       return 1;
    }
 
-   if (al_install_audio(ALLEGRO_AUDIO_DRIVER_AUTODETECT) != 0) {
+   if (!al_install_audio(ALLEGRO_AUDIO_DRIVER_AUTODETECT)) {
       fprintf(stderr, "Could not init sound.\n");
       return 1;
    }
@@ -100,7 +95,7 @@ int main(void)
       return 1;
    }
 
-   if (al_attach_mixer_to_voice(voice, mixer) != 0) {
+   if (!al_attach_mixer_to_voice(voice, mixer)) {
       fprintf(stderr, "Could not attach mixer to voice.\n");
       return 1;
    }
@@ -112,7 +107,7 @@ int main(void)
       return 1;
    }
 
-   if (al_attach_stream_to_mixer(mixer, stream) != 0) {
+   if (!al_attach_stream_to_mixer(mixer, stream)) {
       fprintf(stderr, "Could not attach stream to mixer.\n");
       return 1;
    }

@@ -115,14 +115,14 @@ static ALLEGRO_AUDIO_DRIVER_ENUM get_config_audio_driver(void)
  * can create a voice with them.. if not
  * try another driver.
  */
-static int do_install_audio(ALLEGRO_AUDIO_DRIVER_ENUM mode)
+static bool do_install_audio(ALLEGRO_AUDIO_DRIVER_ENUM mode)
 {
-   int retVal = 0;
+   bool retVal;
 
    /* check to see if a driver is already installed and running */
    if (_al_kcm_driver) {
       _al_set_error(ALLEGRO_GENERIC_ERROR, "A driver already running");
-      return 1;
+      return false;
    }
 
    if (mode == ALLEGRO_AUDIO_DRIVER_AUTODETECT) {
@@ -132,31 +132,31 @@ static int do_install_audio(ALLEGRO_AUDIO_DRIVER_ENUM mode)
    switch (mode) {
       case ALLEGRO_AUDIO_DRIVER_AUTODETECT:
          retVal = al_install_audio(ALLEGRO_AUDIO_DRIVER_ALSA);
-         if (retVal == 0)
-            return 0;
+         if (retVal)
+            return retVal;
          retVal = al_install_audio(ALLEGRO_AUDIO_DRIVER_DSOUND);
-         if (retVal == 0)
-            return 0;
+         if (retVal)
+            return retVal;
          retVal = al_install_audio(ALLEGRO_AUDIO_DRIVER_OSS);
-         if (retVal == 0)
-            return 0;
+         if (retVal)
+            return retVal;
          retVal = al_install_audio(ALLEGRO_AUDIO_DRIVER_OPENAL);
-         if (retVal == 0)
-            return 0;
+         if (retVal)
+            return retVal;
          _al_kcm_driver = NULL;
-         return 1;
+         return true;
 
       case ALLEGRO_AUDIO_DRIVER_OPENAL:
          #if defined(ALLEGRO_CFG_KCM_OPENAL)
             if (_al_kcm_openal_driver.open() == 0) {
                ALLEGRO_INFO("Using OpenAL driver\n"); 
                _al_kcm_driver = &_al_kcm_openal_driver;
-               return 0;
+               return true;
             }
-            return 1;
+            return false;
          #else
             _al_set_error(ALLEGRO_INVALID_PARAM, "OpenAL not available on this platform");
-            return 1;
+            return false;
          #endif
 
       case ALLEGRO_AUDIO_DRIVER_ALSA:
@@ -164,12 +164,12 @@ static int do_install_audio(ALLEGRO_AUDIO_DRIVER_ENUM mode)
             if (_al_kcm_alsa_driver.open() == 0) {
                ALLEGRO_INFO("Using ALSA driver\n"); 
                _al_kcm_driver = &_al_kcm_alsa_driver;
-               return 0;
+               return true;
             }
-            return 1;
+            return false;
          #else
             _al_set_error(ALLEGRO_INVALID_PARAM, "ALSA not available on this platform");
-            return 1;
+            return false;
          #endif
 
       case ALLEGRO_AUDIO_DRIVER_OSS:
@@ -177,12 +177,12 @@ static int do_install_audio(ALLEGRO_AUDIO_DRIVER_ENUM mode)
             if (_al_kcm_oss_driver.open() == 0) {
                ALLEGRO_INFO("Using OSS driver\n");
                _al_kcm_driver = &_al_kcm_oss_driver;
-               return 0;
+               return true;
             }
-            return 1;
+            return false;
          #else
             _al_set_error(ALLEGRO_INVALID_PARAM, "OSS not available on this platform");
-            return 1;
+            return false;
          #endif
 
       case ALLEGRO_AUDIO_DRIVER_DSOUND:
@@ -190,26 +190,26 @@ static int do_install_audio(ALLEGRO_AUDIO_DRIVER_ENUM mode)
             if (_al_kcm_dsound_driver.open() == 0) {
                ALLEGRO_INFO("Using DirectSound driver\n"); 
                _al_kcm_driver = &_al_kcm_dsound_driver;
-               return 0;
+               return true;
             }
-            return 1;
+            return false;
          #else
             _al_set_error(ALLEGRO_INVALID_PARAM, "DirectSound not available on this platform");
-            return 1;
+            return false;
          #endif
 
       default:
          _al_set_error(ALLEGRO_INVALID_PARAM, "Invalid audio driver");
-         return 1;
+         return false;
    }
 }
 
 /* Function: al_install_audio
  */
-int al_install_audio(ALLEGRO_AUDIO_DRIVER_ENUM mode)
+bool al_install_audio(ALLEGRO_AUDIO_DRIVER_ENUM mode)
 {
-   int ret = do_install_audio(mode);
-   if (ret == 0) {
+   bool ret = do_install_audio(mode);
+   if (ret) {
       _al_kcm_init_destructors();
    }
    return ret;

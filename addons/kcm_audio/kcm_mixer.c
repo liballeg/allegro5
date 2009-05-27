@@ -215,7 +215,7 @@ static bool fix_looped_position(ALLEGRO_SAMPLE_INSTANCE *spl)
             stream->spl.is_playing = false;
          }
 
-         al_get_stream_long(stream, ALLEGRO_AUDIOPROP_USED_FRAGMENTS, &count);
+         count = al_get_stream_used_fragments(stream);
          if (count)
             _al_kcm_emit_stream_event(stream, count);
 
@@ -672,7 +672,7 @@ void al_destroy_mixer(ALLEGRO_MIXER *mixer)
 /* This function is ALLEGRO_MIXER aware */
 /* Function: al_attach_sample_to_mixer
  */
-int al_attach_sample_to_mixer(ALLEGRO_MIXER *mixer, ALLEGRO_SAMPLE_INSTANCE *spl)
+bool al_attach_sample_to_mixer(ALLEGRO_MIXER *mixer, ALLEGRO_SAMPLE_INSTANCE *spl)
 {
    ALLEGRO_SAMPLE_INSTANCE **slot;
 
@@ -683,7 +683,7 @@ int al_attach_sample_to_mixer(ALLEGRO_MIXER *mixer, ALLEGRO_SAMPLE_INSTANCE *spl
    if (spl->parent.u.ptr) {
       _al_set_error(ALLEGRO_INVALID_OBJECT,
          "Attempted to attach a sample that's already attached");
-      return 1;
+      return false;
    }
 
    if (mixer->ss.mutex) {
@@ -697,7 +697,7 @@ int al_attach_sample_to_mixer(ALLEGRO_MIXER *mixer, ALLEGRO_SAMPLE_INSTANCE *spl
       }
       _al_set_error(ALLEGRO_GENERIC_ERROR,
          "Out of memory allocating attachment pointers");
-      return 1;
+      return false;
    }
    (*slot) = spl;
 
@@ -740,13 +740,13 @@ int al_attach_sample_to_mixer(ALLEGRO_MIXER *mixer, ALLEGRO_SAMPLE_INSTANCE *spl
       al_unlock_mutex(mixer->ss.mutex);
    }
 
-   return 0;
+   return true;
 }
 
 
 /* Function: al_attach_stream_to_mixer
  */
-int al_attach_stream_to_mixer(ALLEGRO_MIXER *mixer, ALLEGRO_STREAM *stream)
+bool al_attach_stream_to_mixer(ALLEGRO_MIXER *mixer, ALLEGRO_STREAM *stream)
 {
    ASSERT(mixer);
    ASSERT(stream);
@@ -757,7 +757,7 @@ int al_attach_stream_to_mixer(ALLEGRO_MIXER *mixer, ALLEGRO_STREAM *stream)
 
 /* Function: al_attach_mixer_to_mixer
  */
-int al_attach_mixer_to_mixer(ALLEGRO_MIXER *mixer, ALLEGRO_MIXER *stream)
+bool al_attach_mixer_to_mixer(ALLEGRO_MIXER *mixer, ALLEGRO_MIXER *stream)
 {
    ASSERT(mixer);
    ASSERT(stream);
@@ -765,7 +765,7 @@ int al_attach_mixer_to_mixer(ALLEGRO_MIXER *mixer, ALLEGRO_MIXER *stream)
    if (mixer->ss.spl_data.frequency != stream->ss.spl_data.frequency) {
       _al_set_error(ALLEGRO_INVALID_OBJECT,
          "Attempted to attach a mixer with different frequencies");
-      return 1;
+      return false;
    }
 
    return al_attach_sample_to_mixer(mixer, &stream->ss);
@@ -774,7 +774,7 @@ int al_attach_mixer_to_mixer(ALLEGRO_MIXER *mixer, ALLEGRO_MIXER *stream)
 
 /* Function: al_set_mixer_postprocess_callback
  */
-int al_set_mixer_postprocess_callback(ALLEGRO_MIXER *mixer,
+bool al_set_mixer_postprocess_callback(ALLEGRO_MIXER *mixer,
    postprocess_callback_t postprocess_callback, void *pp_callback_userdata)
 {
    ASSERT(mixer);
@@ -784,134 +784,100 @@ int al_set_mixer_postprocess_callback(ALLEGRO_MIXER *mixer,
    mixer->pp_callback_userdata = pp_callback_userdata;
    al_unlock_mutex(mixer->ss.mutex);
 
-   return 0;
+   return true;
 }
 
 
-/* Function: al_get_mixer_long
+/* Function: al_get_mixer_frequency
  */
-int al_get_mixer_long(const ALLEGRO_MIXER *mixer,
-   ALLEGRO_AUDIO_PROPERTY setting, unsigned long *val)
+unsigned int al_get_mixer_frequency(const ALLEGRO_MIXER *mixer)
 {
    ASSERT(mixer);
 
-   switch (setting) {
-      case ALLEGRO_AUDIOPROP_FREQUENCY:
-         *val = mixer->ss.spl_data.frequency;
-         return 0;
-
-      default:
-         _al_set_error(ALLEGRO_INVALID_PARAM,
-            "Attempted to get invalid mixer long setting");
-         return 1;
-   }
+   return mixer->ss.spl_data.frequency;
 }
 
 
-/* Function: al_get_mixer_enum
+/* Function: al_get_mixer_channels
  */
-int al_get_mixer_enum(const ALLEGRO_MIXER *mixer,
-   ALLEGRO_AUDIO_PROPERTY setting, int *val)
+ALLEGRO_CHANNEL_CONF al_get_mixer_channels(const ALLEGRO_MIXER *mixer)
 {
    ASSERT(mixer);
 
-   switch (setting) {
-      case ALLEGRO_AUDIOPROP_CHANNELS:
-         *val = mixer->ss.spl_data.chan_conf;
-         return 0;
-
-      case ALLEGRO_AUDIOPROP_DEPTH:
-         *val = mixer->ss.spl_data.depth;
-         return 0;
-
-      case ALLEGRO_AUDIOPROP_QUALITY:
-         *val = mixer->quality;
-         return 0;
-
-      default:
-         _al_set_error(ALLEGRO_INVALID_PARAM,
-            "Attempted to get invalid mixer enum setting");
-         return 1;
-   }
+   return mixer->ss.spl_data.chan_conf;
 }
 
 
-/* Function: al_get_mixer_bool
+/* Function: al_get_mixer_depth
  */
-int al_get_mixer_bool(const ALLEGRO_MIXER *mixer,
-   ALLEGRO_AUDIO_PROPERTY setting, bool *val)
+ALLEGRO_AUDIO_DEPTH al_get_mixer_depth(const ALLEGRO_MIXER *mixer)
 {
    ASSERT(mixer);
 
-   switch (setting) {
-      case ALLEGRO_AUDIOPROP_PLAYING:
-         *val = mixer->ss.is_playing;
-         return 0;
-
-      case ALLEGRO_AUDIOPROP_ATTACHED:
-         *val = _al_vector_is_nonempty(&mixer->streams);
-         return 0;
-
-      default:
-         _al_set_error(ALLEGRO_INVALID_PARAM,
-            "Attempted to get invalid mixer bool setting");
-         return 1;
-   }
+   return mixer->ss.spl_data.depth;
 }
 
 
-/* Function: al_set_mixer_long
+/* Function: al_get_mixer_quality
  */
-int al_set_mixer_long(ALLEGRO_MIXER *mixer,
-   ALLEGRO_AUDIO_PROPERTY setting, unsigned long val)
+ALLEGRO_MIXER_QUALITY al_get_mixer_quality(const ALLEGRO_MIXER *mixer)
 {
    ASSERT(mixer);
 
-   switch (setting) {
-      /* You can change the frequency of a mixer as long as it's not attached
-       * to anything.
-       */
-      case ALLEGRO_AUDIOPROP_FREQUENCY:
-         if (mixer->ss.parent.u.ptr) {
-            _al_set_error(ALLEGRO_INVALID_OBJECT,
-               "Attempted to change the frequency of an attached mixer");
-            return 1;
-         }
-         mixer->ss.spl_data.frequency = val;
-         return 0;
-
-      default:
-         _al_set_error(ALLEGRO_INVALID_PARAM,
-            "Attempted to set invalid mixer long setting");
-         return 1;
-   }
+   return mixer->quality;
 }
 
 
-/* Function: al_set_mixer_enum
+/* Function: al_get_mixer_playing
  */
-int al_set_mixer_enum(ALLEGRO_MIXER *mixer,
-   ALLEGRO_AUDIO_PROPERTY setting, int val)
+bool al_get_mixer_playing(const ALLEGRO_MIXER *mixer)
 {
    ASSERT(mixer);
 
-   switch (setting) {
-      case ALLEGRO_AUDIOPROP_QUALITY:
-         if (val != ALLEGRO_MIXER_QUALITY_POINT &&
-               val != ALLEGRO_MIXER_QUALITY_LINEAR)
-         {
-            _al_set_error(ALLEGRO_INVALID_PARAM,
-               "Attempted to set unknown mixer quality");
-            return 1;
-         }
-         mixer_change_quality(mixer, val);
-         return 0;
+   return mixer->ss.is_playing;
+}
 
-      default:
-         _al_set_error(ALLEGRO_INVALID_PARAM,
-            "Attempted to set invalid mixer enum setting");
-         return 1;
+
+/* Function: al_get_mixer_attached
+ */
+bool al_get_mixer_attached(const ALLEGRO_MIXER *mixer)
+{
+   ASSERT(mixer);
+
+   return _al_vector_is_nonempty(&mixer->streams);
+}
+
+
+/* Function: al_set_mixer_frequency
+ */
+bool al_set_mixer_frequency(ALLEGRO_MIXER *mixer, unsigned long val)
+{
+   ASSERT(mixer);
+
+   // XXX long not needed
+
+   /* You can change the frequency of a mixer as long as it's not attached
+    * to anything.
+    */
+   if (mixer->ss.parent.u.ptr) {
+      _al_set_error(ALLEGRO_INVALID_OBJECT,
+            "Attempted to change the frequency of an attached mixer");
+      return false;
    }
+
+   mixer->ss.spl_data.frequency = val;
+   return true;
+}
+
+
+/* Function: al_set_mixer_quality
+ */
+bool al_set_mixer_quality(ALLEGRO_MIXER *mixer, ALLEGRO_MIXER_QUALITY val)
+{
+   ASSERT(mixer);
+
+   mixer_change_quality(mixer, val);
+   return true;
 }
 
 
@@ -957,32 +923,25 @@ static void mixer_change_quality(ALLEGRO_MIXER *mixer,
 }
 
 
-/* Function: al_set_mixer_bool
+/* Function: al_set_mixer_playing
  */
-int al_set_mixer_bool(ALLEGRO_MIXER *mixer,
-   ALLEGRO_AUDIO_PROPERTY setting, bool val)
+bool al_set_mixer_playing(ALLEGRO_MIXER *mixer, bool val)
 {
    ASSERT(mixer);
 
-   switch (setting) {
-      case ALLEGRO_AUDIOPROP_PLAYING:
-         mixer->ss.is_playing = val;
-         return 0;
+   mixer->ss.is_playing = val;
+   return true;
+}
 
-      case ALLEGRO_AUDIOPROP_ATTACHED:
-         if (val) {
-            _al_set_error(ALLEGRO_INVALID_PARAM,
-               "Attempted to set mixer attachment status true");
-            return 1;
-         }
-         _al_kcm_detach_from_parent(&mixer->ss);
-         return 0;
 
-      default:
-         _al_set_error(ALLEGRO_INVALID_PARAM,
-            "Attempted to set invalid mixer bool setting");
-         return 1;
-   }
+/* Function: al_detach_mixer
+ */
+bool al_detach_mixer(ALLEGRO_MIXER *mixer)
+{
+   ASSERT(mixer);
+
+   _al_kcm_detach_from_parent(&mixer->ss);
+   return true;
 }
 
 

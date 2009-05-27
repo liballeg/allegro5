@@ -107,9 +107,9 @@ void al_destroy_voice(ALLEGRO_VOICE *voice)
 
 /* Function: al_attach_sample_to_voice
  */
-int al_attach_sample_to_voice(ALLEGRO_VOICE *voice, ALLEGRO_SAMPLE_INSTANCE *spl)
+bool al_attach_sample_to_voice(ALLEGRO_VOICE *voice, ALLEGRO_SAMPLE_INSTANCE *spl)
 {
-   int ret;
+   bool ret;
 
    ASSERT(voice);
    ASSERT(spl);
@@ -119,14 +119,14 @@ int al_attach_sample_to_voice(ALLEGRO_VOICE *voice, ALLEGRO_SAMPLE_INSTANCE *spl
          "Attempted to attach to a voice that already has an attachment\n");
       _al_set_error(ALLEGRO_INVALID_OBJECT,
          "Attempted to attach to a voice that already has an attachment");
-      return 1;
+      return false;
    }
 
    if (spl->parent.u.ptr) {
       TRACE("Attempted to attach a sample that is already attached\n");
       _al_set_error(ALLEGRO_INVALID_OBJECT,
          "Attempted to attach a sample that is already attached");
-      return 1;
+      return false;
    }
 
    if (voice->chan_conf != spl->spl_data.chan_conf ||
@@ -136,7 +136,7 @@ int al_attach_sample_to_voice(ALLEGRO_VOICE *voice, ALLEGRO_SAMPLE_INSTANCE *spl
       TRACE("Sample settings do not match voice settings\n");
       _al_set_error(ALLEGRO_INVALID_OBJECT,
          "Sample settings do not match voice settings");
-      return 1;
+      return false;
    }
 
    al_lock_mutex(voice->mutex);
@@ -164,10 +164,10 @@ int al_attach_sample_to_voice(ALLEGRO_VOICE *voice, ALLEGRO_SAMPLE_INSTANCE *spl
       spl->parent.u.voice = NULL;
 
       TRACE("Unable to load sample into voice\n");
-      ret = 1;
+      ret = false;
    }
    else {
-      ret = 0;
+      ret = true;
    }
 
    al_unlock_mutex(voice->mutex);
@@ -208,7 +208,7 @@ static void stream_read(void *source, void **vbuf, unsigned long *samples,
       *vbuf = stream->pending_bufs[0];
       pos = *samples;
 
-      al_get_stream_long(stream, ALLEGRO_AUDIOPROP_USED_FRAGMENTS, &count);
+      count = al_get_stream_used_fragments(stream);
       if (count)
          _al_kcm_emit_stream_event(stream, count);
    }
@@ -231,9 +231,9 @@ static void stream_read(void *source, void **vbuf, unsigned long *samples,
 
 /* Function: al_attach_stream_to_voice
  */
-int al_attach_stream_to_voice(ALLEGRO_VOICE *voice, ALLEGRO_STREAM *stream)
+bool al_attach_stream_to_voice(ALLEGRO_VOICE *voice, ALLEGRO_STREAM *stream)
 {
-   int ret;
+   bool ret;
 
    ASSERT(voice);
    ASSERT(stream);
@@ -241,13 +241,13 @@ int al_attach_stream_to_voice(ALLEGRO_VOICE *voice, ALLEGRO_STREAM *stream)
    if (voice->attached_stream) {
       _al_set_error(ALLEGRO_INVALID_OBJECT,
          "Attempted to attach to a voice that already has an attachment");
-      return 1;
+      return false;
    }
 
    if (stream->spl.parent.u.ptr) {
       _al_set_error(ALLEGRO_INVALID_OBJECT,
          "Attempted to attach a stream that is already attached");
-      return 1;
+      return false;
    }
 
    if (voice->chan_conf != stream->spl.spl_data.chan_conf ||
@@ -256,7 +256,7 @@ int al_attach_stream_to_voice(ALLEGRO_VOICE *voice, ALLEGRO_STREAM *stream)
    {
       _al_set_error(ALLEGRO_INVALID_OBJECT,
          "Stream settings do not match voice settings");
-      return 1;
+      return false;
    }
 
    al_lock_mutex(voice->mutex);
@@ -283,10 +283,10 @@ int al_attach_stream_to_voice(ALLEGRO_VOICE *voice, ALLEGRO_STREAM *stream)
       stream->spl.spl_read = NULL;
 
       _al_set_error(ALLEGRO_GENERIC_ERROR, "Unable to start stream");
-      ret = 1;
+      ret = false;
    }
    else {
-      ret = 0;
+      ret = true;
    }
 
    al_unlock_mutex(voice->mutex);
@@ -297,21 +297,21 @@ int al_attach_stream_to_voice(ALLEGRO_VOICE *voice, ALLEGRO_STREAM *stream)
 
 /* Function: al_attach_mixer_to_voice
  */
-int al_attach_mixer_to_voice(ALLEGRO_VOICE *voice, ALLEGRO_MIXER *mixer)
+bool al_attach_mixer_to_voice(ALLEGRO_VOICE *voice, ALLEGRO_MIXER *mixer)
 {
-   int ret;
+   bool ret;
 
    ASSERT(voice);
    ASSERT(mixer);
 
    if (voice->attached_stream)
-      return 1;
+      return false;
    if (mixer->ss.parent.u.ptr)
-      return 2;
+      return false;
 
    if (voice->chan_conf != mixer->ss.spl_data.chan_conf ||
          voice->frequency != mixer->ss.spl_data.frequency) {
-      return 3;
+      return false;
    }
 
    al_lock_mutex(voice->mutex);
@@ -331,10 +331,10 @@ int al_attach_mixer_to_voice(ALLEGRO_VOICE *voice, ALLEGRO_MIXER *mixer)
       voice->attached_stream = NULL;
       _al_kcm_stream_set_mutex(&mixer->ss, NULL);
       mixer->ss.parent.u.voice = NULL;
-      ret = 1;
+      ret = false;
    }
    else {
-      ret = 0;
+      ret = true;
    }
 
    al_unlock_mutex(voice->mutex);
@@ -357,12 +357,10 @@ void al_detach_voice(ALLEGRO_VOICE *voice)
 
    if (!voice->is_streaming) {
       ALLEGRO_SAMPLE_INSTANCE *spl = voice->attached_stream;
-      bool playing = false;
 
-      al_get_voice_long(voice, ALLEGRO_AUDIOPROP_POSITION, &spl->pos);
+      spl->pos = al_get_voice_position(voice);
       spl->pos <<= MIXER_FRAC_SHIFT;
-      al_get_voice_bool(voice, ALLEGRO_AUDIOPROP_PLAYING, &playing);
-      spl->is_playing = playing;
+      spl->is_playing = al_get_voice_playing(voice);
 
       voice->driver->stop_voice(voice);
       voice->driver->unload_voice(voice);
@@ -379,152 +377,104 @@ void al_detach_voice(ALLEGRO_VOICE *voice)
 }
 
 
-/* Function: al_get_voice_long
+/* Function: al_get_voice_frequency
  */
-int al_get_voice_long(const ALLEGRO_VOICE *voice,
-   ALLEGRO_AUDIO_PROPERTY setting, unsigned long *val)
+unsigned int al_get_voice_frequency(const ALLEGRO_VOICE *voice)
 {
    ASSERT(voice);
 
-   switch (setting) {
-      case ALLEGRO_AUDIOPROP_FREQUENCY:
-         *val = voice->frequency;
-         return 0;
+   // XXX long not needed
+   return voice->frequency;
+}
 
-      case ALLEGRO_AUDIOPROP_POSITION:
-         if (voice->attached_stream && !voice->is_streaming)
-            *val = voice->driver->get_voice_position(voice);
+
+/* Function: al_get_voice_position
+ */
+unsigned long al_get_voice_position(const ALLEGRO_VOICE *voice)
+{
+   ASSERT(voice);
+
+   if (voice->attached_stream && !voice->is_streaming)
+      return voice->driver->get_voice_position(voice);
+   else
+      return 0;
+}
+
+
+/* Function: al_get_voice_channels
+ */
+ALLEGRO_CHANNEL_CONF al_get_voice_channels(const ALLEGRO_VOICE *voice)
+{
+   ASSERT(voice);
+
+   return voice->chan_conf;
+}
+
+
+/* Function: al_get_voice_depth
+ */
+ALLEGRO_AUDIO_DEPTH al_get_voice_depth(const ALLEGRO_VOICE *voice)
+{
+   ASSERT(voice);
+
+   return voice->depth;
+}
+
+
+/* Function: al_get_voice_playing
+ */
+bool al_get_voice_playing(const ALLEGRO_VOICE *voice)
+{
+   ASSERT(voice);
+
+   if (voice->attached_stream && !voice->is_streaming) {
+      return voice->driver->voice_is_playing(voice);
+   }
+   else {
+      return voice->attached_stream ? true : false;
+   }
+}
+
+
+/* Function: al_set_voice_position
+ */
+bool al_set_voice_position(ALLEGRO_VOICE *voice, unsigned long val)
+{
+   ASSERT(voice);
+
+   if (voice->attached_stream && !voice->is_streaming) {
+      // XXX change method
+      return voice->driver->set_voice_position(voice, val) == 0;
+   }
+
+   return false;
+}
+
+
+/* Function: al_set_voice_playing
+ */
+bool al_set_voice_playing(ALLEGRO_VOICE *voice, bool val)
+{
+   if (voice->attached_stream && !voice->is_streaming) {
+      bool playing = al_get_voice_playing(voice);
+
+      if (playing == val) {
+         if (playing)
+            TRACE("Voice is already playing\n");
          else
-            *val = 0;
-         return 0;
+            TRACE("Voice is already stopped\n");
+         return true;
+      }
 
-      default:
-         return 1;
+      // XXX change methods
+      if (val)
+         return voice->driver->start_voice(voice) == 0;
+      else
+         return voice->driver->stop_voice(voice) == 0;
    }
-}
-
-
-/* Function: al_get_voice_enum
- */
-int al_get_voice_enum(const ALLEGRO_VOICE *voice,
-   ALLEGRO_AUDIO_PROPERTY setting, int *val)
-{
-   ASSERT(voice);
-
-   switch (setting) {
-      case ALLEGRO_AUDIOPROP_CHANNELS:
-         *val = voice->chan_conf;
-         return 0;
-
-      case ALLEGRO_AUDIOPROP_DEPTH:
-         *val = voice->depth;
-         return 0;
-
-      default:
-         return 1;
-   }
-}
-
-
-/* Function: al_get_voice_bool
- */
-int al_get_voice_bool(const ALLEGRO_VOICE *voice,
-   ALLEGRO_AUDIO_PROPERTY setting, bool *val)
-{
-   ASSERT(voice);
-
-   switch (setting) {
-      case ALLEGRO_AUDIOPROP_PLAYING:
-         if (voice->attached_stream && !voice->is_streaming) {
-            *val = voice->driver->voice_is_playing(voice);
-         }
-         else if (voice->attached_stream) {
-            *val = true;
-         }
-         else {
-            *val = false;
-         }
-         return 0;
-
-      default:
-         return 1;
-   }
-}
-
-
-/* Function: al_set_voice_long
- */
-int al_set_voice_long(ALLEGRO_VOICE *voice,
-   ALLEGRO_AUDIO_PROPERTY setting, unsigned long val)
-{
-   ASSERT(voice);
-
-   switch (setting) {
-      case ALLEGRO_AUDIOPROP_POSITION:
-         if (voice->attached_stream && !voice->is_streaming) {
-            return voice->driver->set_voice_position(voice, val);
-         }
-         return 1;
-
-      default:
-         return 1;
-   }
-}
-
-
-/* Function: al_set_voice_enum
- */
-int al_set_voice_enum(ALLEGRO_VOICE *voice,
-   ALLEGRO_AUDIO_PROPERTY setting, int val)
-{
-   ASSERT(voice);
-
-   (void)voice;
-   (void)val;
-
-   switch (setting) {
-      default:
-         return 1;
-   }
-}
-
-
-/* Function: al_set_voice_bool
- */
-int al_set_voice_bool(ALLEGRO_VOICE *voice,
-   ALLEGRO_AUDIO_PROPERTY setting, bool val)
-{
-   ASSERT(voice);
-
-   switch (setting) {
-      case ALLEGRO_AUDIOPROP_PLAYING:
-         if (voice->attached_stream && !voice->is_streaming) {
-            bool playing = false;
-            if (al_get_voice_bool(voice, ALLEGRO_AUDIOPROP_PLAYING, &playing)) {
-               TRACE("Unable to get voice playing status\n");
-               return 1;
-            }
-
-            if (playing == val) {
-               if (playing)
-                  TRACE("Voice is already playing\n");
-               else
-                  TRACE("Voice is already stopped\n");
-               return 0;
-            }
-            
-            if (val)
-               return voice->driver->start_voice(voice);
-            else
-               return voice->driver->stop_voice(voice);
-         }
-         else {
-            TRACE("Voice has no sample or mixer attached\n");
-            return 1;
-         }
-
-      default:
-         return 1;
+   else {
+      TRACE("Voice has no sample or mixer attached\n");
+      return false;
    }
 }
 

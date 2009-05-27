@@ -37,7 +37,7 @@ int initialize(void)
       printf("Could not init mouse!\n");
       return 0;
    }
-   if (al_install_audio(ALLEGRO_AUDIO_DRIVER_AUTODETECT)) {
+   if (!al_install_audio(ALLEGRO_AUDIO_DRIVER_AUTODETECT)) {
       printf("Could not init sound!\n");
       return 0;
    }
@@ -78,15 +78,17 @@ int initialize(void)
 void logic(void)
 {
    /* calculate the position of the slider */
-   slider_pos = 300.0 * (al_get_stream_position(music_stream) / al_get_stream_length(music_stream));
+   double pos = al_get_stream_position_secs(music_stream);
+   double len = al_get_stream_length_secs(music_stream);
+   slider_pos = 300.0 * (pos / len);
 }
 
 void render(void)
 {
-   double pos = al_get_stream_position(music_stream);
-   double length = al_get_stream_length(music_stream);
-   double loop_start_pos = 300.0 * (loop_start / al_get_stream_length(music_stream));
-   double loop_end_pos = 300.0 * (loop_end / al_get_stream_length(music_stream));
+   double pos = al_get_stream_position_secs(music_stream);
+   double length = al_get_stream_length_secs(music_stream);
+   double loop_start_pos = 300.0 * (loop_start / length);
+   double loop_end_pos = 300.0 * (loop_end / length);
 
    al_clear_to_color(al_map_rgb(64, 64, 128));
    
@@ -110,8 +112,7 @@ void render(void)
 void myexit(void)
 {
    bool playing;
-   al_get_mixer_bool(al_get_default_mixer(), ALLEGRO_AUDIOPROP_PLAYING,
-      &playing);
+   playing = al_get_mixer_playing(al_get_default_mixer());
    if (playing)
       al_drain_stream(music_stream);
    al_destroy_stream(music_stream);
@@ -119,23 +120,23 @@ void myexit(void)
 
 void maybe_fiddle_sliders(int mx, int my)
 {
-   float seek_pos;
+   double seek_pos;
 
    if (!(mx >= 10 && mx < 310 && my >= 48 && my < 64)) {
       return;
    }
 
+   seek_pos = al_get_stream_length_secs(music_stream) * ((mx - 10) / 300.0);
    if (mouse_button[1]) {
-      seek_pos = al_get_stream_length(music_stream) * ((mx - 10) / 300.0);
-      al_seek_stream(music_stream, seek_pos);
+      al_seek_stream_secs(music_stream, seek_pos);
    }
    else if (mouse_button[2]) {
-      loop_end = al_get_stream_length(music_stream) * ((mx - 10) / 300.0);
-      al_set_stream_loop(music_stream, loop_start, loop_end);
+      loop_end = seek_pos;
+      al_set_stream_loop_secs(music_stream, loop_start, loop_end);
    }
    else if (mouse_button[3]) {
-      loop_start = al_get_stream_length(music_stream) * ((mx - 10) / 300.0);
-      al_set_stream_loop(music_stream, loop_start, loop_end);
+      loop_start = seek_pos;
+      al_set_stream_loop_secs(music_stream, loop_start, loop_end);
    }
 }
 
@@ -153,25 +154,23 @@ void event_handler(const ALLEGRO_EVENT * event)
       case ALLEGRO_EVENT_KEY_DOWN:
       case ALLEGRO_EVENT_KEY_REPEAT:
          if (event->keyboard.keycode == ALLEGRO_KEY_LEFT) {
-            double pos = al_get_stream_position(music_stream);
+            double pos = al_get_stream_position_secs(music_stream);
             pos -= 5.0;
             if (pos < 0.0)
                pos = 0.0;
-            al_seek_stream(music_stream, pos);
+            al_seek_stream_secs(music_stream, pos);
          }
          else if (event->keyboard.keycode == ALLEGRO_KEY_RIGHT) {
-            double pos = al_get_stream_position(music_stream);
+            double pos = al_get_stream_position_secs(music_stream);
             pos += 5.0;
-            if (!al_seek_stream(music_stream, pos))
+            if (!al_seek_stream_secs(music_stream, pos))
                printf("seek error!\n");
          }
          else if (event->keyboard.keycode == ALLEGRO_KEY_SPACE) {
             bool playing;
-            al_get_mixer_bool(al_get_default_mixer(),
-               ALLEGRO_AUDIOPROP_PLAYING, &playing);
+            playing = al_get_mixer_playing(al_get_default_mixer());
             playing = !playing;
-            al_set_mixer_bool(al_get_default_mixer(),
-               ALLEGRO_AUDIOPROP_PLAYING, playing);
+            al_set_mixer_playing(al_get_default_mixer(), playing);
          }
          else if (event->keyboard.keycode == ALLEGRO_KEY_ESCAPE) {
             exiting = true;
@@ -221,8 +220,8 @@ int main(int argc, char * argv[])
    }
 
    loop_start = 0.0;
-   loop_end = al_get_stream_length(music_stream);
-   al_set_stream_enum(music_stream, ALLEGRO_AUDIOPROP_LOOPMODE, ALLEGRO_PLAYMODE_LOOP);
+   loop_end = al_get_stream_length_secs(music_stream);
+   al_set_stream_playmode(music_stream, ALLEGRO_PLAYMODE_LOOP);
    al_attach_stream_to_mixer(al_get_default_mixer(), music_stream);
    al_start_timer(timer);
 

@@ -37,28 +37,6 @@ Special value for the ALLEGRO_AUDIOPROP_PAN property.
 Use this value to play samples at their original volume with panning
 disabled.
 
-## API: ALLEGRO_AUDIO_PROPERTY
-
-Flags to pass to the various al\_\*\_get\_\* and al\_\*\_set\_\* functions.
-Not all types will apply to all functions.
-
-* ALLEGRO_AUDIOPROP_DEPTH
-* ALLEGRO_AUDIOPROP_CHANNELS
-* ALLEGRO_AUDIOPROP_FREQUENCY
-* ALLEGRO_AUDIOPROP_PLAYING
-* ALLEGRO_AUDIOPROP_ATTACHED
-* ALLEGRO_AUDIOPROP_LENGTH
-* ALLEGRO_AUDIOPROP_BUFFER
-* ALLEGRO_AUDIOPROP_LOOPMODE
-* ALLEGRO_AUDIOPROP_SPEED
-* ALLEGRO_AUDIOPROP_POSITION
-* ALLEGRO_AUDIOPROP_GAIN
-* ALLEGRO_AUDIOPROP_PAN
-* ALLEGRO_AUDIOPROP_FRAGMENTS
-* ALLEGRO_AUDIOPROP_USED_FRAGMENTS
-* ALLEGRO_AUDIOPROP_QUALITY
-* ALLEGRO_AUDIOPROP_TIME
-
 ## API: ALLEGRO_CHANNEL_CONF
 
 Speaker configuration (mono, stereo, 2.1, 3, etc).
@@ -118,74 +96,6 @@ or to an [ALLEGRO_MIXER] object which is itself attached to an
 ALLEGRO_VOICE object (or to another ALLEGRO_MIXER object which is attached
 to an ALLEGRO_VOICE object, etc).
 
-An ALLEGRO_SAMPLE_INSTANCE object uses the following fields:
-
-XXX much of this will probably change soon
-
-* ALLEGRO_AUDIOPROP_DEPTH (enum) -
-  Gets the bit depth format the object was created with. This may not be
-  changed after the object is created.
-
-* ALLEGRO_AUDIOPROP_CHANNELS (enum) -
-  Gets the channel configuration the object was created with. This may not
-  be changed after the object is created.
-
-* ALLEGRO_AUDIOPROP_FREQUENCY (long) -
-  Gets the frequency (in hz) the object was created with. This may not be
-  changed after the object is created. To change playback speed, see
-  ALLEGRO_AUDIOPROP_SPEED.
-
-* ALLEGRO_AUDIOPROP_PLAYING (bool) -
-  Gets or sets the object's playing status. By default, it is stopped.
-  Note that simply setting it true does not cause the object to play. It
-  must also be attached to a voice, directly or indirectly (eg.
-  sample->voice, sample->mixer->voice, sample->mixer->...->voice).
-
-* ALLEGRO_AUDIOPROP_ATTACHED (bool) -
-  Gets the object's attachment status (true if it is attached to a
-  something, false if not). Setting this to false detaches the object from
-  whatever it is attached to. You may not directly set this to true.
-
-* ALLEGRO_AUDIOPROP_LENGTH (long) -
-  Gets or sets the length of the object's data buffer, in
-  samples-per-channel. When changing the length, you must make sure the
-  current buffer is large enough. You may not change the length while the
-  object is set to play.
-
-* ALLEGRO_AUDIOPROP_BUFFER (ptr) -
-  Gets or sets the object's data buffer. You may not get or set this if the
-  object is set to play.
-
-* ALLEGRO_AUDIOPROP_LOOPMODE (enum) -
-  Gets or sets the object's looping mode. Setting this may fail if the
-  object is attached to a voice and the audio driver does not support the
-  requested looping mode.
-
-* ALLEGRO_AUDIOPROP_SPEED (float) -
-  Gets or sets the object's playing speed. Negative values will cause the
-  object to play backwards. If the value is set too close to 0, this will
-  fail to set.
-
-* ALLEGRO_AUDIOPROP_POSITION (long) -
-  Gets or sets the object's playing position. The value is in
-  samples-per-channel.
-
-* ALLEGRO_AUDIOPROP_GAIN (float) -
-  Gets or sets the object's gain. The gain is only applied when mixing the
-  sample into a parent mixer. Has no effect if the object is attached
-  directly to a voice.
-
-* ALLEGRO_AUDIOPROP_PAN (float) -
-  Gets or sets the object's panning (-1.0 to 1.0, from left to right).
-  The panning is only applied when mixing the sample into a parent mixer.
-  Has no effect if the object is attached directly to a voice.
-
-    To maintain a constant sound power level, when a sound is played in the
-  middle, it will be output equally from both front speakers but reduced in
-  level by 3 dB (about 0.707 of the original).  To play a sound centred
-  and at its original level, set its ALLEGRO_AUDIOPROP_PAN property to
-  [ALLEGRO_AUDIO_PAN_NONE].
-
 ## API: ALLEGRO_STREAM
 
 An ALLEGRO_STREAM object is used to stream generated audio to the sound
@@ -202,55 +112,6 @@ ALLEGRO_AUDIOPROP_BUFFER. If you're late with supplying new data, the object
 will be silenced until new data is provided. You must call [al_drain_stream]
 when you're finished supplying the stream.
 
-ALLEGRO_STREAM objects use the following fields:
-
-* ALLEGRO_AUDIOPROP_DEPTH (enum) -
-  Same as ALLEGRO_SAMPLE
-
-* ALLEGRO_AUDIOPROP_CHANNELS (enum) -
-  Same as ALLEGRO_SAMPLE
-
-* ALLEGRO_AUDIOPROP_FREQUENCY (enum) -
-  Same as ALLEGRO_SAMPLE
-
-* ALLEGRO_AUDIOPROP_ATTACHED (bool) -
-  Same as ALLEGRO_SAMPLE
-
-* ALLEGRO_AUDIOPROP_PLAYING (bool) -
-  Same as ALLEGRO_SAMPLE, with the exception that ALLEGRO_STREAM objects
-  are set to play by default.
-
-* ALLEGRO_AUDIOPROP_LOOPMODE (enum) -
-  Same as ALLEGRO_SAMPLE
-
-* ALLEGRO_AUDIOPROP_SPEED (float) -
-  Same as ALLEGRO_SAMPLE, with the added caveat that negative values aren't
-  allowed.
-
-* ALLEGRO_AUDIOPROP_GAIN (float) -
-  Same as ALLEGRO_SAMPLE.
-
-* ALLEGRO_AUDIOPROP_PAN (float) -
-  Same as ALLEGRO_SAMPLE.
-
-* ALLEGRO_AUDIOPROP_LENGTH (long) -
-  This gets the length, in samples-per-channel, of the individual buffer
-  fragments. You may not set this after the object is created.
-
-* ALLEGRO_AUDIOPROP_BUFFER (ptr) -
-  This gets the next buffer fragment that needs to be filled. After the
-  buffer is filled, this field must be set to the same pointer value to let
-  the object know the new data is ready.
-
-* ALLEGRO_AUDIOPROP_FRAGMENTS (long) -
-  This gets the total number of buffer fragments the object was created
-  with. You may not set this after the object is created.
-
-* ALLEGRO_AUDIOPROP_USED_FRAGMENTS (long) -
-  This gets the number of buffer fragments that are waiting to be refilled.
-  This value is decreased when ALLEGRO_AUDIOPROP_BUFFER is used to retrieve a
-  waiting buffer fragment. You may not set this value.
-
 ## API: ALLEGRO_VOICE
 
 A voice structure that you'd attach a mixer or sample to. Ideally there
@@ -266,9 +127,7 @@ Parameters:
 
 * mode - see [ALLEGRO_AUDIO_DRIVER_ENUM]
 
-Returns zero on success, non-zero on failure.
-
-XXX the return value seems a bit out of place
+Returns true on success, false on failure.
 
 *See also:*
 [al_reserve_samples].
@@ -309,18 +168,6 @@ Attaches an audio stream to a voice. The same rules as
 [al_attach_sample_to_voice] apply. This may fail if the driver can't create
 a voice with the buffer count and buffer size the stream uses.
 
-## API: al_get_voice_bool
-
-## API: al_get_voice_enum
-
-## API: al_get_voice_long
-
-## API: al_set_voice_bool
-
-## API: al_set_voice_enum
-
-## API: al_set_voice_long
-
 ## API: al_attach_mixer_to_voice
 
 Attaches a mixer to a voice. The same rules as [al_attach_sample_to_voice]
@@ -333,6 +180,45 @@ and loop mode will be ignored, and it must have the same frequency and
 depth (including signed-ness) as the voice. This function may fail if the
 selected driver doesn't support preloading sample data.
 
+## API: al_get_voice_frequency
+
+Return the frequency of the voice, e.g. 44100.
+
+## API: al_get_voice_channels
+
+Return the channel configuration of the voice.
+
+See also: [ALLEGRO_CHANNEL_CONF].
+
+## API: al_get_voice_depth
+
+Return the audio depth of the voice.
+
+See also: [ALLEGRO_AUDIO_DEPTH].
+
+## API: al_get_voice_playing
+
+Return true if the voice is currently playing.
+
+## API: al_set_voice_playing
+
+Change whether a voice is playing or not.
+The voice must have a sample or mixer attached to it.
+
+Returns true on success, false on failure.
+
+## API: al_get_voice_position
+
+When the voice has a non-streaming object attached to it, e.g. a sample,
+returns the voice's current sample position.
+Otherwise, returns zero.
+
+## API: al_set_voice_position
+
+Set the voice position.  This can only work if the voice has a non-streaming
+object attached to it, e.g. a sample.
+
+Returns true on success, false on failure.
 
 
 # Sample functions
@@ -384,32 +270,131 @@ Returns true on success, false on failure.
 
 ## API: al_stop_sample_instance
 
-## API: al_get_sample_instance_bool
+Stop an sample instance playing.
 
-## API: al_get_sample_instance_enum
+## API: al_get_sample_instance_channels
 
-## API: al_get_sample_instance_float
+Return the channel configuration.
 
-## API: al_get_sample_instance_long
+See also: [ALLEGRO_CHANNEL_CONF].
 
-## API: al_get_sample_instance_ptr
+## API: al_get_sample_instance_depth
+
+Return the audio depth.
+
+See also: [ALLEGRO_AUDIO_DEPTH].
+
+## API: al_get_sample_instance_frequency
+
+Return the frequency of the sample instance.
+
+## API: al_get_sample_instance_length
+
+Return the length of the sample instance in sample values.
+
+## API: al_set_sample_instance_length
+
+Set the length of the sample instance in sample values.
+
+Return true on success, false on failure.  Will fail if the sample instance is
+currently playing.
+
+## API: al_get_sample_instance_position
+
+Get the playback position of a sample instance.
+
+## API: al_set_sample_instance_position
+
+Set the playback position of a sample instance.
+
+Returns true on success, false on failure.
+
+## API: al_get_sample_instance_speed
+
+Return the playback speed.
+
+## API: al_set_sample_instance_speed
+
+Set the playback speed.
+
+Return true on success, false on failure.  Will fail if the sample instance is
+attached directly to a voice.
+
+## API: al_get_sample_instance_gain
+
+Return the playback gain.
+
+## API: al_set_sample_instance_gain
+
+Set the playback gain.
+
+Returns true on success, false on failure.  Will fail if the sample instance
+is attached directly to a voice.
+
+## API: al_get_sample_instance_pan
+
+Get the pan value.
+
+## API: al_set_sample_instance_pan
+
+Set the pan value on a sample instance.  A value of -1.0 means to play the
+sample only through the left speaker; +1.0 means only through the right
+speaker; 0.0 means the sample is centre balanced.
+
+A constant sound power level is maintained as the sample is panned from left
+to right.  As a consequence, a pan value of 0.0 will play the sample 3 dB
+softer than the original level.  To disable panning and play a sample at its
+original level, set the pan value to [ALLEGRO_AUDIO_PAN_NONE].
+
+Returns true on success, false on failure.
+Will fail if the sample instance is attached directly to a voice.
+
+(A sound guy should explain that better; I only implemented it.
+Also this might be more properly called a balance control than pan.
+Also we don't attempt anything with more than two channels yet.)
+
+## API: al_get_sample_instance_time
+
+Return the length of the sample instance in seconds,
+assuming a playback speed of 1.0.
+
+## API: al_get_sample_instance_playmode
+
+Return the playback mode.
+
+## API: al_set_sample_instance_playmode
+
+Set the playback mode.
+
+Returns true on success, false on failure.
+
+## API: al_get_sample_instance_playing
+
+Return true if the sample instance is playing.
+
+## API: al_set_sample_instance_playing
+
+Change whether the sample instance is playing.
+
+Returns true on success, false on failure.
+
+## API: al_get_sample_instance_attached
+
+Return whether the sample instance is attached to something.
+
+## API: al_detach_sample_instance
+
+Detach the sample instance from whatever it's attached to,
+if anything.
 
 ## API: al_get_sample
 
-## API: al_set_sample_instance_bool
-
-## API: al_set_sample_instance_enum
-
-## API: al_set_sample_instance_float
-
-## API: al_set_sample_instance_long
-
-## API: al_set_sample_instance_ptr
+Return the sample data that the sample instance plays.
 
 ## API: al_set_sample
 
-Change the sample data that a sample plays.  This can be quite an involved
-process.
+Change the sample data that a sample instance plays.  This can be quite an
+involved process.
 
 First, the sample is stopped if it is not already.
 
@@ -424,7 +409,7 @@ On success, the sample remains stopped.  The playback position and loop
 end points are reset to their default values.  The loop mode remains
 unchanged.
 
-Returns zero on success, non-zero on failure.  On failure, the sample will
+Returns true on success, false on failure.  On failure, the sample will
 be stopped and detached from its parent.
 
 
@@ -466,19 +451,59 @@ mixers must be the same frequency.
 
 ## API: al_attach_sample_to_mixer
 
+Attach a sample instance to a mixer.
+
+Returns true on success, false on failure.
+
 ## API: al_attach_stream_to_mixer
 
-## API: al_get_mixer_bool
+Attach a stream to a mixer.
 
-## API: al_get_mixer_enum
+Returns true on success, false on failure.
 
-## API: al_get_mixer_long
+## API: al_get_mixer_frequency
 
-## API: al_set_mixer_bool
+Return the mixer frequency.
 
-## API: al_set_mixer_enum
+## API: al_set_mixer_frequency
 
-## API: al_set_mixer_long
+## API: al_get_mixer_channels
+
+Return the mixer channel configuration.
+
+## API: al_get_mixer_depth
+
+Return the mixer audio depth.
+
+## API: al_get_mixer_quality
+
+Return the mixer quality.
+
+See also: [ALLEGRO_MIXER_QUALITY].
+
+## API: al_set_mixer_quality
+
+Set the mixer quality.
+
+Returns true on success, false on failure.
+
+## API: al_get_mixer_playing
+
+Return true if the mixer is playing.
+
+## API: al_set_mixer_playing
+
+Change whether the mixer is playing.
+
+Returns true on success, false on failure.
+
+## API: al_get_mixer_attached
+
+Return true if the mixer is attached to something.
+
+## API: al_detach_mixer
+
+Detach the mixer from whatever it is attached to, if anything.
 
 ## API: al_set_mixer_postprocess_callback
 
@@ -509,45 +534,111 @@ Set the streaming file playing position to the beginning. Returns true on
 success. Currently this can only be called on streams created with acodec's
 [al_stream_from_file].
 
-## API: al_get_stream_bool
+## API: al_get_stream_frequency
 
-## API: al_get_stream_enum
+Return the stream frequency.
 
-## API: al_get_stream_float
+## API: al_get_stream_channels
 
-## API: al_get_stream_long
+Return the stream channel configuration.
 
-## API: al_get_stream_ptr
+## API: al_get_stream_depth
 
-## API: al_set_stream_bool
+Return the stream audio depth.
 
-## API: al_set_stream_enum
+## API: al_get_stream_length
 
-## API: al_set_stream_float
+## API: al_get_stream_speed
 
-## API: al_set_stream_long
+Return the playback speed.
 
-## API: al_set_stream_ptr
+## API: al_set_stream_speed
 
-## API: al_seek_stream
+Set the playback speed.
+
+Return true on success, false on failure.  Will fail if the sample instance is
+attached directly to a voice.
+
+## API: al_get_stream_gain
+
+Return the playback gain.
+
+## API: al_set_stream_gain
+
+Set the playback gain.
+
+Returns true on success, false on failure.  Will fail if the sample instance
+is attached directly to a voice.
+
+## API: al_get_stream_pan
+
+Get the pan value.
+
+## API: al_set_stream_pan
+
+Set the pan value on a sample instance.  A value of -1.0 means to play the
+sample only through the left speaker; +1.0 means only through the right
+speaker; 0.0 means the sample is centre balanced.
+
+Returns true on success, false on failure.
+Will fail if the sample instance is attached directly to a voice.
+
+## API: al_get_stream_playing
+
+Return true if the stream is playing.
+
+## API: al_set_stream_playing
+
+Change whether the stream is playing.
+
+Returns true on success, false on failure.
+
+## API: al_get_stream_playmode
+
+Return the playback mode.
+
+## API: al_set_stream_playmode
+
+Set the playback mode.
+
+Returns true on success, false on failure.
+
+## API: al_get_stream_attached
+
+Return whether the stream is attached to something.
+
+## API: al_detach_stream
+
+Detach the stream from whatever it's attached to,
+if anything.
+
+## API: al_get_stream_buffer
+
+## API: al_set_stream_buffer
+
+## API: al_get_stream_fragments
+
+## API: al_get_stream_used_fragments
+
+## API: al_seek_stream_secs
 
 Set the streaming file playing position to time. Returns true on success.
 Currently this can only be called on streams created with acodec's
 [al_stream_from_file].
 
-## API: al_get_stream_position
+## API: al_get_stream_position_secs
 
 Return the position of the stream in seconds.
 Currently this can only be called on streams created with acodec's
 [al_stream_from_file].
 
-## API: al_get_stream_length
+## API: al_get_stream_length_secs
 
 Return the position of the stream in seconds.
 Currently this can only be called on streams created with acodec's
 [al_stream_from_file].
 
-## API: al_set_stream_loop
+## API: al_set_stream_loop_secs
 
 Return the position of the stream in seconds.
 Currently this can only be called on streams created with acodec's

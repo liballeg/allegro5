@@ -27,7 +27,7 @@ int main(int argc, char **argv)
        return 1;
    }
 
-   if (al_install_audio(ALLEGRO_AUDIO_DRIVER_AUTODETECT)) {
+   if (!al_install_audio(ALLEGRO_AUDIO_DRIVER_AUTODETECT)) {
        fprintf(stderr, "Could not init sound!\n");
        return 1;
    }
@@ -55,7 +55,7 @@ int main(int argc, char **argv)
       return 1;
    }
 
-   if (al_attach_mixer_to_voice(voice, mixer) != 0) {
+   if (!al_attach_mixer_to_voice(voice, mixer)) {
       TRACE("al_attach_mixer_to_voice failed.\n");
       return 1;
    }
@@ -80,7 +80,7 @@ int main(int argc, char **argv)
 	 continue;
       }
 
-      if (al_attach_sample_to_mixer(mixer, sample[i]) != 0) {
+      if (!al_attach_sample_to_mixer(mixer, sample[i])) {
          fprintf(stderr, "al_attach_sample_to_mixer failed.\n");
          continue;
       }
@@ -98,7 +98,7 @@ int main(int argc, char **argv)
       /* play each sample once */
       al_play_sample_instance(sample[i]);
 
-      al_get_sample_instance_float(sample[i], ALLEGRO_AUDIOPROP_TIME, &sample_time);
+      sample_time = al_get_sample_instance_time(sample[i]);
       fprintf(stderr, "Playing '%s' (%.3f seconds)\n", filename, sample_time);
 
       if (sample_time > longest_sample)

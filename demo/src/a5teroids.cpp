@@ -35,13 +35,13 @@ int main(int argc, char **argv)
    ALLEGRO_STREAM *title_music = (ALLEGRO_STREAM *)rm.getData(RES_TITLE_MUSIC);
    ALLEGRO_STREAM *game_music = (ALLEGRO_STREAM *)rm.getData(RES_GAME_MUSIC);
 
-   al_set_stream_enum(title_music, ALLEGRO_AUDIOPROP_LOOPMODE, ALLEGRO_PLAYMODE_LOOP);
-   al_set_stream_enum(game_music, ALLEGRO_AUDIOPROP_LOOPMODE, ALLEGRO_PLAYMODE_LOOP);
+   al_set_stream_playmode(title_music, ALLEGRO_PLAYMODE_LOOP);
+   al_set_stream_playmode(game_music, ALLEGRO_PLAYMODE_LOOP);
 
    for (;;) {
       player->load();
 
-      al_set_stream_bool(title_music, ALLEGRO_AUDIOPROP_PLAYING, true);
+      al_set_stream_playing(title_music, true);
 
       int choice = do_menu();
       if (choice != 0) {
@@ -57,8 +57,8 @@ int main(int argc, char **argv)
       canUFO = true;
 
       w.init();
-      al_set_stream_bool(game_music, ALLEGRO_AUDIOPROP_PLAYING, true);
-	  al_rest(0.200);
+      al_set_stream_playing(game_music, true);
+      al_rest(0.200);
 
       int step = 0;
       long start = (long) (al_current_time() * 1000);

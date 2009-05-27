@@ -20,7 +20,7 @@ int main(int argc, char **argv)
       return 1;
    }
 
-   if (al_install_audio(ALLEGRO_AUDIO_DRIVER_AUTODETECT)) {
+   if (!al_install_audio(ALLEGRO_AUDIO_DRIVER_AUTODETECT)) {
       fprintf(stderr, "Could not init sound!\n");
       return 1;
    }
@@ -28,7 +28,8 @@ int main(int argc, char **argv)
    for (i = 1; i < argc; ++i) {
       ALLEGRO_SAMPLE *sample_data = NULL;
       const char *filename = argv[i];
-      int chan, depth;
+      ALLEGRO_CHANNEL_CONF chan;
+      ALLEGRO_AUDIO_DEPTH depth;
       unsigned long freq;
       float sample_time = 0;
 
@@ -46,14 +47,14 @@ int main(int argc, char **argv)
         return 1;
       }
 
-      if (al_set_sample(sample, sample_data) != 0) {
+      if (!al_set_sample(sample, sample_data)) {
          fprintf(stderr, "al_set_sample failed.\n");
          continue;
       }
 
-      al_get_sample_instance_enum(sample, ALLEGRO_AUDIOPROP_DEPTH, &depth);
-      al_get_sample_instance_enum(sample, ALLEGRO_AUDIOPROP_CHANNELS, &chan);
-      al_get_sample_instance_long(sample, ALLEGRO_AUDIOPROP_FREQUENCY, &freq);
+      depth = al_get_sample_instance_depth(sample);
+      chan = al_get_sample_instance_channels(sample);
+      freq = al_get_sample_instance_frequency(sample);
       fprintf(stderr, "Loaded sample: %i-bit depth, %i channels, %li Hz\n",
          (depth < 8) ? (8+depth*8) : 0, (chan>>4)+(chan%0xF), freq);
       fprintf(stderr, "Trying to create a voice with the same specs... ");
@@ -64,17 +65,16 @@ int main(int argc, char **argv)
       }
       fprintf(stderr, "done.\n");
 
-      if (al_attach_sample_to_voice(voice, sample) != 0) {
+      if (!al_attach_sample_to_voice(voice, sample)) {
          fprintf(stderr, "al_attach_sample_to_voice failed.\n");
          return 1;
       }
 
       /* Play sample in looping mode. */
-      al_set_sample_instance_enum(sample, ALLEGRO_AUDIOPROP_LOOPMODE,
-         ALLEGRO_PLAYMODE_LOOP);
+      al_set_sample_instance_playmode(sample, ALLEGRO_PLAYMODE_LOOP);
       al_play_sample_instance(sample);
 
-      al_get_sample_instance_float(sample, ALLEGRO_AUDIOPROP_TIME, &sample_time);
+      sample_time = al_get_sample_instance_time(sample);
       fprintf(stderr, "Playing '%s' (%.3f seconds) 3 times", filename,
          sample_time);
 

@@ -77,13 +77,13 @@ void Prog::update_properties()
       pan = pan_slider.get_cur_value() / 1000.0f - 1.0f;
    else
       pan = ALLEGRO_AUDIO_PAN_NONE;
-   al_set_sample_instance_float(sample_inst, ALLEGRO_AUDIOPROP_PAN, pan);
+   al_set_sample_instance_pan(sample_inst, pan);
 
    speed = speed_slider.get_cur_value() / 1000.0f;
-   al_set_sample_instance_float(sample_inst, ALLEGRO_AUDIOPROP_SPEED, speed);
+   al_set_sample_instance_speed(sample_inst, speed);
 
    gain = gain_slider.get_cur_value() / 1000.0f;
-   al_set_sample_instance_float(sample_inst, ALLEGRO_AUDIOPROP_GAIN, gain);
+   al_set_sample_instance_gain(sample_inst, gain);
 }
 
 int main(int argc, const char *argv[])
@@ -104,7 +104,7 @@ int main(int argc, const char *argv[])
 
    al_init_font_addon();
 
-   if (al_install_audio(ALLEGRO_AUDIO_DRIVER_AUTODETECT)) {
+   if (!al_install_audio(ALLEGRO_AUDIO_DRIVER_AUTODETECT)) {
       TRACE("Could not init sound!\n");
       return 1;
    }
@@ -135,8 +135,7 @@ int main(int argc, const char *argv[])
 
    /* Loop the sample. */
    sample_inst = al_create_sample_instance(sample);
-   al_set_sample_instance_enum(sample_inst, ALLEGRO_AUDIOPROP_LOOPMODE,
-      ALLEGRO_PLAYMODE_LOOP);
+   al_set_sample_instance_playmode(sample_inst, ALLEGRO_PLAYMODE_LOOP);
    al_attach_sample_to_mixer(al_get_default_mixer(), sample_inst);
    al_play_sample_instance(sample_inst);
 

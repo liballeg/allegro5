@@ -168,7 +168,7 @@ struct ALLEGRO_STREAM {
    ALLEGRO_SAMPLE_INSTANCE       spl;
                         /* ALLEGRO_STREAM is derived from ALLEGRO_SAMPLE_INSTANCE. */
 
-   size_t               buf_count;
+   unsigned int         buf_count;
                         /* The stream buffer is divided into a number of
                          * fragments; this is the number of fragments.
                          */

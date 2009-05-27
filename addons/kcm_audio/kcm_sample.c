@@ -58,7 +58,7 @@ static bool create_default_mixer(void)
       }
    }
 
-   if (al_attach_mixer_to_voice(allegro_voice, allegro_mixer) != 0) {
+   if (!al_attach_mixer_to_voice(allegro_voice, allegro_mixer)) {
       TRACE("al_attach_mixer_to_voice failed\n");
       goto Error;
    }
@@ -162,7 +162,7 @@ bool al_reserve_samples(int reserve_samples)
             TRACE("al_create_sample failed\n");
             goto Error;
          }
-         if (al_attach_sample_to_mixer(default_mixer, *slot) != 0) {
+         if (!al_attach_sample_to_mixer(default_mixer, *slot)) {
             TRACE("al_attach_mixer_to_sample failed\n");
             goto Error;
          }
@@ -218,7 +218,7 @@ bool al_set_default_mixer(ALLEGRO_MIXER *mixer)
             TRACE("al_create_sample failed\n");
             goto Error;
          }
-         if (al_attach_sample_to_mixer(default_mixer, *slot) != 0) {
+         if (!al_attach_sample_to_mixer(default_mixer, *slot)) {
             TRACE("al_attach_mixer_to_sample failed\n");
             goto Error;
          }
@@ -266,23 +266,19 @@ bool al_play_sample(ALLEGRO_SAMPLE *spl, float gain, float pan, float speed,
    for (i = 0; i < _al_vector_size(&auto_samples); i++) {
       ALLEGRO_SAMPLE_INSTANCE **slot = _al_vector_ref(&auto_samples, i);
       ALLEGRO_SAMPLE_INSTANCE *splinst = (*slot);
-      bool playing;
 
-      if (al_get_sample_instance_bool(splinst, ALLEGRO_AUDIOPROP_PLAYING,
-            &playing) == 0) {
-         if (playing == false) {
-            int *id = _al_vector_ref(&auto_sample_ids, i);
+      if (!al_get_sample_instance_playing(splinst)) {
+         int *id = _al_vector_ref(&auto_sample_ids, i);
 
-            if (!do_play_sample(splinst, spl, gain, pan, speed, loop))
-               break;
+         if (!do_play_sample(splinst, spl, gain, pan, speed, loop))
+            break;
 
-            if (ret_id != NULL) {
-               ret_id->_index = (int) i;
-               ret_id->_id = *id = ++next_id;
-            }
-
-            return true;
+         if (ret_id != NULL) {
+            ret_id->_index = (int) i;
+            ret_id->_id = *id = ++next_id;
          }
+
+         return true;
       }
    }
 
@@ -293,19 +289,19 @@ bool al_play_sample(ALLEGRO_SAMPLE *spl, float gain, float pan, float speed,
 static bool do_play_sample(ALLEGRO_SAMPLE_INSTANCE *splinst,
    ALLEGRO_SAMPLE *spl, float gain, float pan, float speed, int loop)
 {
-   if (al_set_sample(splinst, spl) != 0) {
+   if (!al_set_sample(splinst, spl)) {
       TRACE("al_set_sample failed\n");
       return false;
    }
 
-   if (al_set_sample_instance_float(splinst, ALLEGRO_AUDIOPROP_GAIN, gain) ||
-      al_set_sample_instance_float(splinst, ALLEGRO_AUDIOPROP_PAN, pan) ||
-      al_set_sample_instance_float(splinst, ALLEGRO_AUDIOPROP_SPEED, speed) ||
-      al_set_sample_instance_enum(splinst, ALLEGRO_AUDIOPROP_LOOPMODE, loop)) {
+   if (!al_set_sample_instance_gain(splinst, gain) ||
+         !al_set_sample_instance_pan(splinst, pan) ||
+         !al_set_sample_instance_speed(splinst, speed) ||
+         !al_set_sample_instance_playmode(splinst, loop)) {
       return false;
    }
 
-   if (al_play_sample_instance(splinst) != 0) {
+   if (!al_play_sample_instance(splinst)) {
       TRACE("al_play_sample_instance failed\n");
       return false;
    }
