@@ -46,6 +46,11 @@ NULL is returned.
 
 Return the name of the given joystick.
 
+## API: al_get_joystick_number
+
+Return the joystick number, i.e. 'i' such that `al_get_joystick(i)`
+returns the same joystick object.
+
 ## API: al_get_joystick_state
 
 Get the current joystick state.

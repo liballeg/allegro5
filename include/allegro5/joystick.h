@@ -70,6 +70,7 @@ AL_FUNC(int,            al_get_num_joysticks,   (void));
 AL_FUNC(ALLEGRO_JOYSTICK*, al_get_joystick,     (int joyn));
 AL_FUNC(void,           al_release_joystick,    (ALLEGRO_JOYSTICK*));
 AL_FUNC(const char*,    al_get_joystick_name,   (ALLEGRO_JOYSTICK*));
+AL_FUNC(int,            al_get_joystick_number, (ALLEGRO_JOYSTICK*));
 
 AL_FUNC(int,            al_get_joystick_num_sticks, (const ALLEGRO_JOYSTICK*));
 AL_FUNC(ALLEGRO_JOYFLAGS, al_get_joystick_stick_flags, (const ALLEGRO_JOYSTICK*, int stick)); /* junk? */

@@ -174,6 +174,17 @@ const char *al_get_joystick_name(ALLEGRO_JOYSTICK *joy)
 
 
 
+/* Function: al_get_joystick_number
+ */
+int al_get_joystick_number(ALLEGRO_JOYSTICK *joy)
+{
+   ASSERT(joy);
+
+   return joy->num;
+}
+
+
+
 /* Function: al_get_joystick_num_sticks
  */
 int al_get_joystick_num_sticks(const ALLEGRO_JOYSTICK *joy)
