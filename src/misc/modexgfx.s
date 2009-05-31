@@ -1686,5 +1686,5 @@ x_draw_sprite_not:
 FUNC(_x_draw_sprite_end)
    ret
 
-
+.section .note.GNU-stack,"",@progbits
 #endif        /* (!defined ALLEGRO_LINUX) || ((defined ALLEGRO_LINUX_VGA) && ... */
