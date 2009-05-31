@@ -37,7 +37,7 @@ AC_ARG_ENABLE(
 )
 
 if test -n "$agl_build_shared"; then
-	LIB_BUILDER="\$(CC) -shared -Wl,-soname,lib\$(LIB_NAME).so.\$(shared_version) -o"
+	LIB_BUILDER="\$(CC) -L\$(ALLEG_LIB_DIR) `../../allegro-config --libs --addon` -lGLU -lGL -shared -Wl,-soname,lib\$(LIB_NAME).so.\$(shared_version) -o"
 	LIB_PATH_U="\$(LIB_DIR)/lib\$(LIB_NAME).so.\$(shared_version)"
 	LIB_LINKS_U="\$(LIB_DIR)/lib\$(LIB_NAME).so.\$(shared_major_minor) \$(LIB_DIR)/lib\$(LIB_NAME).so.\$(shared_major) \$(LIB_DIR)/lib\$(LIB_NAME).so"
 	SHARED="-fPIC"
