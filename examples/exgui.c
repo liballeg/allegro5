@@ -31,7 +31,7 @@ char the_text[] =
    "word wrap the text.";
 
 /* for the multiple selection list */
-char sel[10];
+char sel[11];
 
 /* for the example bitmap */
 DATAFILE *datafile;
