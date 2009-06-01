@@ -905,11 +905,12 @@ void _al_triangle_2d(ALLEGRO_BITMAP* texture, ALLEGRO_VERTEX* v1, ALLEGRO_VERTEX
 
 /* Function: al_draw_soft_triangle
  */
-void al_draw_soft_triangle(ALLEGRO_VERTEX* v1, ALLEGRO_VERTEX* v2, ALLEGRO_VERTEX* v3, uintptr_t state,
-                           void (*init)(uintptr_t, ALLEGRO_VERTEX*, ALLEGRO_VERTEX*, ALLEGRO_VERTEX*),
-                           void (*first)(uintptr_t, int, int, int, int),
-                           void (*step)(uintptr_t, int), 
-                           void (*draw)(uintptr_t, int, int, int))
+void al_draw_soft_triangle(
+   ALLEGRO_VERTEX* v1, ALLEGRO_VERTEX* v2, ALLEGRO_VERTEX* v3, uintptr_t state,
+   void (*init)(uintptr_t, ALLEGRO_VERTEX*, ALLEGRO_VERTEX*, ALLEGRO_VERTEX*),
+   void (*first)(uintptr_t, int, int, int, int),
+   void (*step)(uintptr_t, int), 
+   void (*draw)(uintptr_t, int, int, int))
 {
    /*
    ALLEGRO_VERTEX copy_v1, copy_v2; <- may be needed for clipping later on

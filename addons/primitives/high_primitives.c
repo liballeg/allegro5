@@ -502,8 +502,8 @@ void al_draw_arc(float cx, float cy, float r, float start_theta,
 
 /* Function: al_draw_rounded_rectangle
  */
-void al_draw_rounded_rectangle(float x1, float y1, float x2, float y2, float rx, float ry,
-   ALLEGRO_COLOR color, float thickness)
+void al_draw_rounded_rectangle(float x1, float y1, float x2, float y2,
+   float rx, float ry, ALLEGRO_COLOR color, float thickness)
 {
    ALLEGRO_PRIM_COLOR prim_color;
    check_color_blending(&color);
@@ -592,8 +592,8 @@ void al_draw_rounded_rectangle(float x1, float y1, float x2, float y2, float rx,
 
 /* Function: al_draw_filled_rounded_rectangle
  */
-void al_draw_filled_rounded_rectangle(float x1, float y1, float x2, float y2, float rx, float ry,
-   ALLEGRO_COLOR color)
+void al_draw_filled_rounded_rectangle(float x1, float y1, float x2, float y2,
+   float rx, float ry, ALLEGRO_COLOR color)
 {
    ALLEGRO_PRIM_COLOR prim_color;
    int num_segments = ALLEGRO_PRIM_QUALITY * sqrtf((rx + ry) / 2.0f) / 4;

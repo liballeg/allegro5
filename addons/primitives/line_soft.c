@@ -557,9 +557,9 @@ void _al_line_2d(ALLEGRO_BITMAP* texture, ALLEGRO_VERTEX* v1, ALLEGRO_VERTEX* v2
 /* Function: al_draw_soft_line
  */
 void al_draw_soft_line(ALLEGRO_VERTEX* v1, ALLEGRO_VERTEX* v2, uintptr_t state,
-                       void (*first)(uintptr_t, int, int, ALLEGRO_VERTEX*, ALLEGRO_VERTEX*),
-                       void (*step)(uintptr_t, int), 
-                       void (*draw)(uintptr_t, int, int))
+   void (*first)(uintptr_t, int, int, ALLEGRO_VERTEX*, ALLEGRO_VERTEX*),
+   void (*step)(uintptr_t, int),
+   void (*draw)(uintptr_t, int, int))
 {
    /*
    Copy the vertices, because we need to alter them a bit before drawing.
