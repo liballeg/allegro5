@@ -510,11 +510,13 @@ static void shader_texture_grad_any_init(uintptr_t state, ALLEGRO_VERTEX* v1, AL
 static void shader_texture_grad_any_first(uintptr_t state, int x1, int y, int left_minor, int left_major)
 {
    state_texture_grad_any_2d* s = (state_texture_grad_any_2d*)state;
+   float cur_x;
+   float cur_y;
 
    shader_texture_solid_any_first(state, x1, y, left_minor, left_major);
    
-   const float cur_x = (float)x1 - s->solid.off_x;
-   const float cur_y = (float)y - s->solid.off_y;
+   cur_x = (float)x1 - s->solid.off_x;
+   cur_y = (float)y - s->solid.off_y;
    
    s->solid.cur_color.r = cur_x * s->color_dx.r + cur_y * s->color_dy.r + s->color_const.r;
    s->solid.cur_color.g = cur_x * s->color_dx.g + cur_y * s->color_dy.g + s->color_const.g;
