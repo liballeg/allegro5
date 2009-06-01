@@ -263,15 +263,6 @@ void _al_win_grab_input(ALLEGRO_DISPLAY_WIN *win_disp)
 }
 
 
-/* _al_win_unacquire_input: [window thread]
- * Called when the window looses focus to release the input.
- */
-static void unacquire_input(ALLEGRO_DISPLAY_WIN *win_disp)
-{
-   _al_win_joystick_dinput_unacquire(win_disp);
-}
-
-
 static void postpone_thread_proc(void *arg)
 {
    HWND window = (HWND)arg;
