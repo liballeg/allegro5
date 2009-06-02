@@ -58,8 +58,6 @@ static void setup_state(ALLEGRO_VERTEX* vtx, ALLEGRO_BITMAP* texture)
       glEnableClientState(GL_COLOR_ARRAY);
    if (!glIsEnabled(GL_VERTEX_ARRAY))
       glEnableClientState(GL_VERTEX_ARRAY);
-   if (texture && !glIsEnabled(GL_TEXTURE_COORD_ARRAY))
-      glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 
    glVertexPointer(2, GL_FLOAT, sizeof(ALLEGRO_VERTEX), &vtx[0].x);
    glColorPointer(4, GL_FLOAT, sizeof(ALLEGRO_VERTEX), &vtx[0].color.r);
@@ -67,6 +65,9 @@ static void setup_state(ALLEGRO_VERTEX* vtx, ALLEGRO_BITMAP* texture)
    if (texture) {
       ALLEGRO_BITMAP_OGL *ogl_bitmap = (void *)texture;      
       GLuint current_texture;
+
+      if (!glIsEnabled(GL_TEXTURE_COORD_ARRAY))
+         glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 
       glTexCoordPointer(2, GL_FLOAT, sizeof(ALLEGRO_VERTEX), &vtx[0].u);
 
@@ -76,6 +77,7 @@ static void setup_state(ALLEGRO_VERTEX* vtx, ALLEGRO_BITMAP* texture)
       }
    } else {
       glBindTexture(GL_TEXTURE_2D, 0);
+      glDisableClientState(GL_TEXTURE_COORD_ARRAY);
    }
 }
 
