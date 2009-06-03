@@ -145,13 +145,13 @@ AGL_API(BOOL, DeleteDCNV, (HDC))
 /* WGL_ARB_create_context */
 AGL_API(HGLRC, CreateContextAttribsARB, (HDC, HGLRC, const int *))
 
-AGL_API(UINT, GetGPUIDsAMD, (UINT, UINT *));
-AGL_API(INT, GetGPUInfoAMD, (UINT, int, GLenum, UINT, void *));
-AGL_API(UINT, GetContextGPUIDAMD, (HGLRC));
-AGL_API(HGLRC, CreateAssociatedContextAMD, (UINT));
-AGL_API(HGLRC, CreateAssociatedContextAttribsAMD, (UINT, HGLRC, const int *));
-AGL_API(BOOL, DeleteAssociatedContextAMD, (HGLRC));
-AGL_API(BOOL, MakeAssociatedContextCurrentAMD, (HGLRC));
-AGL_API(HGLRC, GetCurrentAssociatedContextAMD, (void));
-AGL_API(VOID, BlitContextFramebufferAMD, (HGLRC, GLint, GLint, GLint, GLint, GLint, GLint, GLint, GLint, GLbitfield, GLenum));
+AGL_API(UINT, GetGPUIDsAMD, (UINT, UINT *))
+AGL_API(INT, GetGPUInfoAMD, (UINT, int, GLenum, UINT, void *))
+AGL_API(UINT, GetContextGPUIDAMD, (HGLRC))
+AGL_API(HGLRC, CreateAssociatedContextAMD, (UINT))
+AGL_API(HGLRC, CreateAssociatedContextAttribsAMD, (UINT, HGLRC, const int *))
+AGL_API(BOOL, DeleteAssociatedContextAMD, (HGLRC))
+AGL_API(BOOL, MakeAssociatedContextCurrentAMD, (HGLRC))
+AGL_API(HGLRC, GetCurrentAssociatedContextAMD, (void))
+AGL_API(VOID, BlitContextFramebufferAMD, (HGLRC, GLint, GLint, GLint, GLint, GLint, GLint, GLint, GLint, GLbitfield, GLenum))
 
