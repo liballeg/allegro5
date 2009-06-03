@@ -73,10 +73,12 @@ Draws an filled rounded rectangle.
 
 ## API: al_calculate_arc
 
-Calculates an elliptical arc, and sets the vertices in the destination to the calculated positions. If thickness <= 0, then
-`num_points` of points are required in the destination, otherwise twice as many are needed.
-The destination buffer should consist of regularly spaced (by distance of stride bytes) doublets of floats, corresponding to
-x and y coordinates of the vertices.
+Calculates an elliptical arc, and sets the vertices in the destination to the
+calculated positions. If thickness <= 0, then `num_points` of points are
+required in the destination, otherwise twice as many are needed.  The
+destination buffer should consist of regularly spaced (by distance of stride
+bytes) doublets of floats, corresponding to x and y coordinates of the
+vertices.
 
 *Parameters:*
 
@@ -141,15 +143,17 @@ Draws an arc.
 * r - Radius of the arc
 * color - Color of the arc
 * start_theta - The initial angle from which the arc is calculated
-* delta_theta - Angular span of the arc (pass a negative number to switch direction)
+* delta_theta - Angular span of the arc (pass a negative number to switch
+    direction)
 * thickness - Thickness of the circle, pass <= 0 to draw hairline circle
 
 ## API: al_calculate_spline
 
 Calculates a spline given 4 control points. If thickness <= 0, then
-`num_segments` of points are required in the destination, otherwise twice as many are needed.
-The destination buffer should consist of regularly spaced (by distance of stride bytes) doublets of floats, corresponding to
-x and y coordinates of the vertices.
+`num_segments` of points are required in the destination, otherwise twice as
+many are needed.  The destination buffer should consist of regularly spaced (by
+distance of stride bytes) doublets of floats, corresponding to x and y
+coordinates of the vertices.
 
 *Parameters:*
 
@@ -171,23 +175,27 @@ Draws a spline given 4 control points.
 
 ## API: al_calculate_ribbon
 
-Calculates a ribbon given an array of points. The ribbon will go through all of the passed points. If thickness <= 0, then
-`num_segments` of points are required in the destination buffer, otherwise twice as many are needed. 
-The destination and the points buffer should consist of regularly spaced doublets of floats, corresponding to
-x and y coordinates of the vertices.
+Calculates a ribbon given an array of points. The ribbon will go through all of
+the passed points. If thickness <= 0, then `num_segments` of points are
+required in the destination buffer, otherwise twice as many are needed. 
+The destination and the points buffer should consist of regularly spaced
+doublets of floats, corresponding to x and y coordinates of the vertices.
 
 *Parameters:*
 
 * dest - Pointer to the destination buffer
-* dest_stride - Distance (in bytes) between successive pairs of coordinates in the destination buffer
+* dest_stride - Distance (in bytes) between successive pairs of coordinates in
+    the destination buffer
 * points - An array of pairs of coordinates for each point
-* points_stride - Distance (in bytes) between successive pairs of coordinates in the points buffer
+* points_stride - Distance (in bytes) between successive pairs of coordinates
+    in the points buffer
 * thickness - Thickness of the spline ribbon
 * num_segments - The number of points to calculate
 
 ## API: al_draw_ribbon
 
-Draws a ribbon given given an array of points. The ribbon will go through all of the passed points.
+Draws a ribbon given given an array of points. The ribbon will go through all
+of the passed points.
 
 *Parameters:*
 
@@ -199,8 +207,9 @@ Draws a ribbon given given an array of points. The ribbon will go through all of
 
 ## API: al_draw_prim
 
-Draws a subset of the passed vertex buffer. It is recommended for the texture to have
-its dimensions be a power of 2 for maximum portability with older video cards.
+Draws a subset of the passed vertex buffer. It is recommended for the texture
+to have its dimensions be a power of 2 for maximum portability with older video
+cards.
 
 *Parameters:*
 
@@ -217,8 +226,10 @@ Number of primitives drawn
 
 ## API: al_draw_indexed_prim
 
-Draws a subset of the passed vertex buffer. This function uses an index array to specify which vertices to use.
-It is recommended for the texture to have its dimensions be a power of 2 for maximum portability with older video cards.
+Draws a subset of the passed vertex buffer. This function uses an index array
+to specify which vertices to use.
+It is recommended for the texture to have its dimensions be a power of 2 for
+maximum portability with older video cards.
 
 *Parameters:*
 
@@ -264,35 +275,58 @@ Converted ALLEGRO_COLOR
 
 ## API: al_draw_soft_triangle
 
-Draws a triangle using the software rasterizer and user supplied pixel functions. For help in understanding what these functions do, see the implementation of the various shading routines in addons/primitives/tri_soft.c.
-The triangle is drawn in two segments, from top to bottom. The segments are deliniated by the vertically middle vertex of the triangle. One of each segment may be present if two vertices are horizontally collinear.
+Draws a triangle using the software rasterizer and user supplied pixel
+functions. For help in understanding what these functions do, see the
+implementation of the various shading routines in addons/primitives/tri_soft.c.
+The triangle is drawn in two segments, from top to bottom. The segments are
+deliniated by the vertically middle vertex of the triangle. One of each segment
+may be present if two vertices are horizontally collinear.
 
 *Parameters:*
 
 * v1, v2, v3 - The three vertices of the triangle
-* state - A pointer to a user supplied struct, this struct will be passed to all the pixel functions
-* init - This function is called once, before any drawing is done. The three points passed to it may be altered by clipping.
-* first - The function is called twice, once per triangle segment. It is passed 4 parameters, the first two are the coordinates of the initial pixel drawn in the segment. 
-          The second two are the left minor and the left major steps, respectively. They represent the sizes of two steps taken by the rasterizer as it walks
-          on the left side of the triangle. From then on, the each step will either be classified as a minor or a major step, corresponding to the above values.
-* step - Called once per scanline. The last parameter is set to 1 if the step is a minor step, and 0 if it is a major step.
-* draw - Called once per scanline. The function is expected to draw the scanline starting with a point specified by the first two parameters (corresponding to x and y values)
-         going to the right until it reaches the value of the third parameter (the x value of the end point). All coordinates are inclusive.
+* state - A pointer to a user supplied struct, this struct will be passed to
+  all the pixel functions
+* init - This function is called once, before any drawing is done. The three
+  points passed to it may be altered by clipping.
+* first - The function is called twice, once per triangle segment. It is
+  passed 4 parameters, the first two are the coordinates of the initial pixel
+  drawn in the segment. 
+  The second two are the left minor and the left major steps, respectively.
+  They represent the sizes of two steps taken by the rasterizer as it walks
+  on the left side of the triangle. From then on, the each step will either
+  be classified as a minor or a major step, corresponding to the above
+  values.
+* step - Called once per scanline. The last parameter is set to 1 if the step
+  is a minor step, and 0 if it is a major step.
+* draw - Called once per scanline. The function is expected to draw the
+  scanline starting with a point specified by the first two parameters
+  (corresponding to x and y values) going to the right until it reaches the
+  value of the third parameter (the x value of the end point). All coordinates
+  are inclusive.
 
 ## API: al_draw_soft_line
 
-Draws a line using the software rasterizer and user supplied pixel functions. For help in understanding what these functions do, see the implementation of the various shading routines in addons/primitives/line_soft.c.
+Draws a line using the software rasterizer and user supplied pixel functions.
+For help in understanding what these functions do, see the implementation of
+the various shading routines in addons/primitives/line_soft.c.
 The line is drawn top to bottom.
 
 *Parameters:*
 
 * v1, v2 - The two vertices of the line
-* state - A pointer to a user supplied struct, this struct will be passed to all the pixel functions
-* first - The function is called before drawing the first pixel of the line. It is passed the coordinates of this pixel, as well as the two vertices above.
-          The passed vertices may have been altered by clipping.
-* step - Called once per pixel. The second parameter is set to 1 if the step is a minor step, and 0 if this step is a major step. Minor steps are taken only either in x or y directions.
-         Major steps are taken in both directions diagonally. In all cases, the the absolute value of the change in coordinate is at most 1 in either direction.
-* draw - Called once per pixel. The function is expected to draw the pixel at the two coordinates passed to it.
+* state - A pointer to a user supplied struct, this struct will be passed to
+  all the pixel functions
+* first - The function is called before drawing the first pixel of the line. It
+  is passed the coordinates of this pixel, as well as the two vertices above.
+  The passed vertices may have been altered by clipping.
+* step - Called once per pixel. The second parameter is set to 1 if the step is
+  a minor step, and 0 if this step is a major step. Minor steps are taken only
+  either in x or y directions.
+  Major steps are taken in both directions diagonally. In all cases, the the
+  absolute value of the change in coordinate is at most 1 in either direction.
+* draw - Called once per pixel. The function is expected to draw the pixel at
+  the two coordinates passed to it.
 
 # Transformations
 
@@ -307,8 +341,9 @@ Makes a copy of a transformation.
 
 ## API: al_use_transform
 
-Sets the transformation to be used for the primitive drawing operations. Every drawing operation after this call will
-be transformed using this transformation.
+Sets the transformation to be used for the primitive drawing operations. Every
+drawing operation after this call will be transformed using this
+transformation.
 
 *Parameters:*
 
@@ -324,8 +359,9 @@ Sets the transformation to be the identity transformation.
 
 ## API: al_build_transform
 
-Builds a transformation given some parameters. This call is equivalent to calling
-the transformations in this order: make identity, scale, rotate, translate. This method is faster, however.
+Builds a transformation given some parameters. This call is equivalent to
+calling the transformations in this order: make identity, scale, rotate,
+translate. This method is faster, however.
 
 *Parameters:*
 
@@ -383,19 +419,21 @@ Transform a transformation.
 
 ## API: ALLEGRO_PRIM_COLOR
 
-A special structure that defines a color in a way that understandable to both OpenGL and Direct3D backends.
-You should never access internal fields, instead using the two conversion functions to convert between it and
-[ALLEGRO_COLOR] structure.
+A special structure that defines a color in a way that understandable to both
+OpenGL and Direct3D backends.
+You should never access internal fields, instead using the two conversion
+functions to convert between it and [ALLEGRO_COLOR] structure.
 
 *See Also:*
 [al_get_allegro_color], [al_get_prim_color]
 
 ## API: ALLEGRO_VERTEX
 
-Defines the generic vertex type, with a 2D position, color and texture coordinates
-for a single texture.
+Defines the generic vertex type, with a 2D position, color and texture
+coordinates for a single texture.
 
-* x, y, z - Position of the vertex. Use z = 0 if you are only dealing with 2D primitives
+* x, y, z - Position of the vertex. Use z = 0 if you are only dealing with 2D
+  primitives
 * color - `ALLEGRO_PRIM_COLOR` structure
 * u, v - Texture coordinates
 
@@ -404,28 +442,44 @@ for a single texture.
 
 ## API: ALLEGRO_TRANSFORM
 
-Defines the generic transformation type, a 4x4 matrix. 2D transforms use only a small subsection of this matrix,
-namely the top left 2x2 matrix, and the right most 2x1 matrix, for a total of 6 values.
+Defines the generic transformation type, a 4x4 matrix. 2D transforms use only
+a small subsection of this matrix, namely the top left 2x2 matrix, and the
+right most 2x1 matrix, for a total of 6 values.
 
 # Constants
 
 ## API: ALLEGRO_PRIM_TYPE
 
-Enumerates the types of primitves this addon can draw.
+Enumerates the types of primitives this addon can draw.
 
-* ALLEGRO_PRIM_LINE_LIST - A list of lines, sequential pairs of vertices define disjointed lines
-* ALLEGRO_PRIM_LINE_STRIP - A strip of lines, sequential vertices define a strip of lines
-* ALLEGRO_PRIM_LINE_LOOP - Like a line strip, except at the end the first and the last vertices are also connected by a line
-* ALLEGRO_PRIM_TRIANGLE_LIST - A list of triangles, sequential triplets of vertices define disjointed triangles
-* ALLEGRO_PRIM_TRIANGLE_STRIP - A strip of triangles, sequential vertices define a strip of triangles
-* ALLEGRO_PRIM_TRIANGLE_FAN - A fan of triangles, all triangles share the first vertex
+* ALLEGRO_PRIM_LINE_LIST - A list of lines, sequential pairs of vertices define
+  disjointed lines
+
+* ALLEGRO_PRIM_LINE_STRIP - A strip of lines, sequential vertices define a
+  strip of lines
+
+* ALLEGRO_PRIM_LINE_LOOP - Like a line strip, except at the end the first and
+  the last vertices are also connected by a line
+
+* ALLEGRO_PRIM_TRIANGLE_LIST - A list of triangles, sequential triplets of
+  vertices define disjointed triangles
+
+* ALLEGRO_PRIM_TRIANGLE_STRIP - A strip of triangles, sequential vertices
+  define a strip of triangles
+
+* ALLEGRO_PRIM_TRIANGLE_FAN - A fan of triangles, all triangles share the first
+  vertex
 
 ## API: ALLEGRO_VERTEX_CACHE_SIZE
 
-Defines the size of the transformation vertex cache for the software renderer. If you pass less than this many
-vertices to the primitive rendering functions you will get a speed boost. This also defines the size of the cache vertex buffer,
-used for the high-level primitives. This corresponds to the maximum number of line segments that will be used to form them.
+Defines the size of the transformation vertex cache for the software renderer.
+If you pass less than this many vertices to the primitive rendering functions
+you will get a speed boost. This also defines the size of the cache vertex
+buffer, used for the high-level primitives. This corresponds to the maximum
+number of line segments that will be used to form them.
 
 ## API: ALLEGRO_PRIM_QUALITY
 
-Defines the quality of the quadratic primitives. At 10, this roughly corresponds to error < 0.5 pixel.
+Defines the quality of the quadratic primitives. At 10, this roughly
+corresponds to error < 0.5 pixel.
+
