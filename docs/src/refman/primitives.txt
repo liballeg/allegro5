@@ -10,7 +10,7 @@ Draws a line segment between two points.
 
 * x1, y1, x2, y2 - Start and end points of the line
 * color - Color of the line
-* thickness - Thickness of the line, pass <= 0 to draw hairline lines
+* thickness - Thickness of the line, pass `<= 0` to draw hairline lines
 
 ## API: al_draw_triangle
 
@@ -20,7 +20,7 @@ Draws an outlined triangle.
 
 * x1, y1, x2, y2, x3, y3 - Three points of the triangle
 * color - Color of the triangle
-* thickness - Thickness of the lines, pass <= 0 to draw hairline lines
+* thickness - Thickness of the lines, pass `<= 0` to draw hairline lines
 
 ## API: al_draw_filled_triangle
 
@@ -39,7 +39,7 @@ Draws an outlined rectangle.
 
 * x1, y1, x2, y2 - Upper left and lower right points of a rectangle
 * color - Color of the rectangle
-* thickness - Thickness of the lines, pass <= 0 to draw hairline lines
+* thickness - Thickness of the lines, pass `<= 0` to draw hairline lines
 
 ## API: al_draw_filled_rectangle
 
@@ -59,7 +59,7 @@ Draws an outlined rounded rectangle.
 * x1, y1, x2, y2 - Upper left and lower right points of a rectangle
 * color - Color of the rectangle
 * rx, ry - The radii of the round
-* thickness - Thickness of the lines, pass <= 0 to draw hairline lines
+* thickness - Thickness of the lines, pass `<= 0` to draw hairline lines
 
 ## API: al_draw_filled_rounded_rectangle
 
@@ -74,7 +74,7 @@ Draws an filled rounded rectangle.
 ## API: al_calculate_arc
 
 Calculates an elliptical arc, and sets the vertices in the destination to the
-calculated positions. If thickness <= 0, then `num_points` of points are
+calculated positions. If `thickness <= 0`, then `num_points` of points are
 required in the destination, otherwise twice as many are needed.  The
 destination buffer should consist of regularly spaced (by distance of stride
 bytes) doublets of floats, corresponding to x and y coordinates of the
@@ -87,7 +87,8 @@ vertices.
 * cx, cy - Center of the arc
 * rx, ry - Radii of the arc
 * start_theta - The initial angle from which the arc is calculated
-* delta_theta - Angular span of the arc (pass a negative number to switch direction)
+* delta_theta - Angular span of the arc (pass a negative number to switch
+ direction)
 * thickness - Thickness of the arc
 * num_points - The number of points to calculate
 
@@ -100,7 +101,7 @@ Draws an outlined ellipse.
 * cx, cy - Center of the ellipse
 * rx, ry - Radii of the ellipse
 * color - Color of the ellipse
-* thickness - Thickness of the ellipse, pass <= 0 to draw hairline ellipse
+* thickness - Thickness of the ellipse, pass `<= 0` to draw hairline ellipse
 
 ## API: al_draw_filled_ellipse
 
@@ -121,7 +122,7 @@ Draws an outlined circle.
 * cx, cy - Center of the circle
 * r - Radius of the circle
 * color - Color of the circle
-* thickness - Thickness of the circle, pass <= 0 to draw hairline circle
+* thickness - Thickness of the circle, pass `<= 0` to draw hairline circle
 
 ## API: al_draw_filled_circle
 
@@ -145,11 +146,11 @@ Draws an arc.
 * start_theta - The initial angle from which the arc is calculated
 * delta_theta - Angular span of the arc (pass a negative number to switch
     direction)
-* thickness - Thickness of the circle, pass <= 0 to draw hairline circle
+* thickness - Thickness of the circle, pass `<= 0` to draw hairline circle
 
 ## API: al_calculate_spline
 
-Calculates a spline given 4 control points. If thickness <= 0, then
+Calculates a spline given 4 control points. If `thickness <= 0`, then
 `num_segments` of points are required in the destination, otherwise twice as
 many are needed.  The destination buffer should consist of regularly spaced (by
 distance of stride bytes) doublets of floats, corresponding to x and y
@@ -171,12 +172,12 @@ Draws a spline given 4 control points.
 
 * points - An array of 4 pairs of coordinates of the 4 control points
 * color - Color of the spline
-* thickness - Thickness of the spline, pass <= 0 to draw hairline spline
+* thickness - Thickness of the spline, pass `<= 0` to draw hairline spline
 
 ## API: al_calculate_ribbon
 
 Calculates a ribbon given an array of points. The ribbon will go through all of
-the passed points. If thickness <= 0, then `num_segments` of points are
+the passed points. If `thickness <= 0`, then `num_segments` of points are
 required in the destination buffer, otherwise twice as many are needed. 
 The destination and the points buffer should consist of regularly spaced
 doublets of floats, corresponding to x and y coordinates of the vertices.
@@ -201,7 +202,7 @@ of the passed points.
 
 * points - An array of pairs of coordinates for each point
 * color - Color of the spline
-* thickness - Thickness of the spline, pass <= 0 to draw hairline spline
+* thickness - Thickness of the spline, pass `<= 0` to draw hairline spline
 
 # Low Level Drawing Routines
 
@@ -280,7 +281,7 @@ functions. For help in understanding what these functions do, see the
 implementation of the various shading routines in addons/primitives/tri_soft.c.
 The triangle is drawn in two segments, from top to bottom. The segments are
 deliniated by the vertically middle vertex of the triangle. One of each segment
-may be present if two vertices are horizontally collinear.
+may be absent if two vertices are horizontally collinear.
 
 *Parameters:*
 
@@ -343,7 +344,9 @@ Makes a copy of a transformation.
 
 Sets the transformation to be used for the primitive drawing operations. Every
 drawing operation after this call will be transformed using this
-transformation.
+transformation. Call this function with the identity before using non-primitive
+drawing functions (e.g. drawing bitmaps), otherwise the behaviour of those
+functions will not be defined.
 
 *Parameters:*
 
@@ -432,8 +435,7 @@ functions to convert between it and [ALLEGRO_COLOR] structure.
 Defines the generic vertex type, with a 2D position, color and texture
 coordinates for a single texture.
 
-* x, y, z - Position of the vertex. Use z = 0 if you are only dealing with 2D
-  primitives
+* x, y - Position of the vertex.
 * color - `ALLEGRO_PRIM_COLOR` structure
 * u, v - Texture coordinates
 
