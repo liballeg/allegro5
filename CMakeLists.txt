@@ -645,6 +645,7 @@ if(COMPILER_MSVC)
         ${ALLEGRO_INCLUDE_ALLEGRO_OPENGL_FILES}
         ${ALLEGRO_INCLUDE_ALLEGRO_OPENGL_GLEXT_FILES}
         ${ALLEGRO_INCLUDE_ALLEGRO_PLATFORM_FILES}
+        ${ALLEGRO_INCLUDE_ALLEGRO_WINDOWS_FILES}
         ${ALLEGRO_INCLUDE_ALLEGRO_PLATFORM_FILES_GENERATED}
         )
 endif(COMPILER_MSVC)
@@ -730,14 +731,18 @@ install(FILES ${ALLEGRO_INCLUDE_ALLEGRO_INTERNAL_FILES}
 install(FILES ${ALLEGRO_INCLUDE_ALLEGRO_PLATFORM_FILES}
         DESTINATION include/allegro5/platform
         )
-
+if(WIN32)
+    install(FILES ${ALLEGRO_INCLUDE_ALLEGRO_WINDOWS_FILES}
+            DESTINATION include/allegro5/
+            )
+endif(WIN32)
 if(SUPPORT_OPENGL)
-        install(FILES ${ALLEGRO_INCLUDE_ALLEGRO_OPENGL_FILES}
-                DESTINATION include/allegro5/opengl
-                )
-        install(FILES ${ALLEGRO_INCLUDE_ALLEGRO_OPENGL_GLEXT_FILES}
-                DESTINATION include/allegro5/opengl/GLext
-                )
+    install(FILES ${ALLEGRO_INCLUDE_ALLEGRO_OPENGL_FILES}
+            DESTINATION include/allegro5/opengl
+            )
+    install(FILES ${ALLEGRO_INCLUDE_ALLEGRO_OPENGL_GLEXT_FILES}
+            DESTINATION include/allegro5/opengl/GLext
+            )
 endif(SUPPORT_OPENGL)
 
 foreach(genfile ${ALLEGRO_INCLUDE_ALLEGRO_PLATFORM_FILES_GENERATED})

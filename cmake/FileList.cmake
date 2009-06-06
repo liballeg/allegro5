@@ -387,6 +387,10 @@ set(ALLEGRO_INCLUDE_ALLEGRO_PLATFORM_FILES
     include/allegro5/platform/astdint.h
     )
 
+set(ALLEGRO_INCLUDE_ALLEGRO_WINDOWS_FILES
+    include/allegro5/a5_windows.h
+    )
+
 set(ALLEGRO_INCLUDE_ALLEGRO_PLATFORM_FILES_GENERATED
     include/allegro5/platform/alplatf.h
     )

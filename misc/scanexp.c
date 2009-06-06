@@ -40,6 +40,7 @@
 
    #define ALLEGRO_H
    #include "allegro5/platform/alwin.h"
+   #include "allegro5/a5_windows.h"
 
 #elif defined ALLEGRO_INTERNALS
 
