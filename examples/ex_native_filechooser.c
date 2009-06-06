@@ -63,6 +63,9 @@ static void *message_box_thread(ALLEGRO_THREAD *thread, void *arg)
 
    (void)thread;
 
+   /* Keep in mind that current display is thread-local. */
+   al_set_current_display(data->display);
+
    button = al_show_native_message_box("Warning",
       "Warning! Click Detected!",
       "This is the last warning. There is nothing to click here.",
