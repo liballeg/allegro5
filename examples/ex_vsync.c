@@ -22,6 +22,7 @@ int main(void)
    ALLEGRO_CONFIG *config;
    ALLEGRO_EVENT_QUEUE *queue;
    int vsync, fullscreen, frequency;
+   bool write = false;
    bool flip = false;
    bool quit = false;
 
@@ -35,8 +36,10 @@ int main(void)
 
    /* Read parameters from ex_vsync.ini. */
    config = al_load_config_file("ex_vsync.ini");
-   if (!config)
+   if (!config) {
       config = al_create_config();
+      write = true;
+   }
 
    /* 0 -> Driver chooses.
     * 1 -> Force vsync on.
@@ -48,7 +51,9 @@ int main(void)
    frequency = option(config, "frequency", 0);
 
    /* Write the file back (so a template is generated on first run). */
-   al_save_config_file(config, "ex_vsync.ini");
+   if (write) {
+      al_save_config_file(config, "ex_vsync.ini");
+   }
    al_destroy_config(config);
 
    /* Vsync 1 means force on, 2 means forced off. */
