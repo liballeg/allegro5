@@ -255,23 +255,24 @@ find . -type f "(" -path "*/.*" -prune -o -iname "*.rej" \
 cd .dist
 
 
-# if 7za is available, use that to produce both .zip and .7z files
+# If 7za is available, use that to produce .7z files.
+# I used to produce .zip files with it as well but I noticed upon extraction
+# files with timestamps 10 hours into the future (I'm at UTC+10).  .7z files
+# seem to be unaffected.  This was with p7zip 4.65.
 if 7za > /dev/null ; then
-   rm -f $name.zip
    rm -f $name.7z
    if [ -n "$FAST_ZIPUP" ]; then
-      7za a -mx0 $name.zip allegro
       7za a -mx0 $name.7z allegro
    else
-      7za a -mx9 $name.zip allegro
       7za a -mx9 -ms=on $name.7z allegro
    fi
+fi
+
+rm -f $name.zip
+if [ -n "$FAST_ZIPUP" ]; then
+   zip -0 -r $name.zip allegro
 else
-   if [ -n "$FAST_ZIPUP" ]; then
-      zip -0 -r $name.zip allegro
-   else
-      zip -9 -r $name.zip allegro
-   fi
+   zip -9 -r $name.zip allegro
 fi
 
 
