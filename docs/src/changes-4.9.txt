@@ -4,6 +4,107 @@ See `changes._tx` for changes in earlier versions of Allegro.  These lists
 serve as summaries; the full histories are in the Subversion repository.
 
 
+Changes from 4.9.10.1 to 4.9.11 (June 2009)
+===========================================
+
+The main developers this time were: Trent Gamblin, Milan Mimica, Elias
+Pschernig, Paul Suntsov, Peter Wang.  Other contributions from: Christopher
+Bludau, David Capello, Todd Cope, Evert Glebbeek, Peter Hull.
+
+Graphics:
+
+-  Changed rotation direction in memory blitting routines to match D3D/OpenGL
+   routines.
+
+-  Made al_set_target_bitmap not create an FBO if the bitmap is locked.
+
+-  Added explicit FBO handling functions al_get_opengl_fbo and
+   al_remove_opengl_fbo in case we weren't quite clever enough above and the
+   user has to intervene manually.
+
+-  Added OpenGL 3.1 support and a bunch of new OpenGL extensions.
+
+-  Fixed al_inhibit_screensaver on Windows
+
+-  Fixed selection of X pixel formats with WGL if a new bitmap has alpha.
+
+-  Made X11 icon work regardless of the backbuffer format.
+
+Input:
+
+-  Ditched DirectInput keyboard driver and replaced it with WinAPI.
+   Fixes several issues the old driver had.
+
+-  Rewrote Windows mouse driver to use WinAPI instad of DirectInput.
+
+-  Added al_get_joystick_number.
+
+Filesystem:
+
+-  Merged ALLEGRO_FS_HOOK_ENTRY_INTERFACE into ALLEGRO_FS_INTERFACE
+   and made ALLEGRO_FS_INTERFACE public.
+
+-  Added al_set_fs_interface and al_get_fs_interface.
+
+-  Made al_opendir take an ALLEGRO_FS_ENTRY.
+
+-  Removed functions which are obsolete or probably have no use.
+
+-  Made al_get_standard_path(ALLEGRO_PROGRAM_PATH) return a path
+   with an empty filename.
+
+Path routines:
+
+-  Renamed functions to follow conventions.
+
+File I/O:
+
+-  Fix al_fgets() returning wrong pointer value on success.
+
+Primitives addon:
+
+-  Added support for textured primitives in software.  OpenGL half works.
+   DirectX not implemented yet.
+
+-  Introduced ALLEGRO_PRIM_COLOR, removed ALLEGRO_VBUFFER.
+
+-  Exposed the software line and triangle drawers to the user.
+
+-  Added rounded rectangles.
+
+-  Fix an extraneous pixel bug in the triangle drawer.
+
+Audio addon:
+
+-  Change from using generic get/set audio property functions to specific
+   getter/setter functions.
+
+-  Change return types on many functions to return true on success instead
+   of zero.  (Watch out when porting your code, the C compiler won't help.)
+
+Native dialogs:
+
+-  Added a Windows implementation.
+
+-  Added a title to al_show_native_message_box().
+
+Other addons:
+
+-  Implemented the filesystem interface for PhysicsFS and demonstrate its use
+   in ex_physfs.
+
+-  Fixed al_color_html_to_rgb.
+
+Examples:
+
+-  Added an OpenGL pixel shader example.
+
+Build system:
+
+-  Output separate pkg-config .pc files for static linking.
+
+
+
 Changes from 4.9.10 to 4.9.10.1 (May 2009)
 ==========================================
 
