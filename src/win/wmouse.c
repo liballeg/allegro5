@@ -15,6 +15,8 @@
  *      See readme.txt for copyright information.
  */
 
+/* Raw input */
+#define _WIN32_WINNT 0x0501
 #ifndef WINVER
 #define WINVER 0x0600
 #endif

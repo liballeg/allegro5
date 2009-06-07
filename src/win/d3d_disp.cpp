@@ -14,6 +14,8 @@
  *
  */
 
+/* Raw input */
+#define _WIN32_WINNT 0x0501
 #ifndef WINVER
 #define WINVER 0x0501
 #endif
