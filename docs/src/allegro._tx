@@ -10916,7 +10916,7 @@ any character, but only one).
       PACKFILE *output = pack_fopen("out.raw", "w!");
       ...
       /* Create a sub-chunk with compression. */
-      output = pack_fopen(chunk(output, 1);
+      output = pack_fopen_chunk(output, 1);
       if (!output)
 	 abort_on_error("Error saving data!");
       /* Write some data to the sub-chunk. */
