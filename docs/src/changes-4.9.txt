@@ -63,8 +63,7 @@ File I/O:
 
 Primitives addon:
 
--  Added support for textured primitives in software.  OpenGL half works.
-   DirectX not implemented yet.
+-  Added support for textured primitives in software.
 
 -  Introduced ALLEGRO_PRIM_COLOR, removed ALLEGRO_VBUFFER.
 
