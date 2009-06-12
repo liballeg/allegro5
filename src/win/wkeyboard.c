@@ -261,6 +261,15 @@ void _al_win_kbd_handle_key_press(int scode, int vcode, bool repeated,
    if (!installed)
       return;
 
+   /* Ignore repeats for modifiers. */
+   if ((vcode == VK_CONTROL ||
+        vcode == VK_SHIFT ||
+        vcode == VK_MENU ||
+        vcode == VK_CAPITAL)
+        && repeated) {
+      return;
+   }
+
    if (!GetKeyboardState(&ks[0]))
       ccode = 0; /* shound't really happen */
    else if (ToUnicode(vcode, scode, ks, buf, 8, 0) == 1)
@@ -268,17 +277,22 @@ void _al_win_kbd_handle_key_press(int scode, int vcode, bool repeated,
    else
       ccode = 0;
 
-   if (ks[VK_LCONTROL] & 0x80)
+   /* Windows doesn't differentiate between the left and right versions
+      of the modifiers. To compensate we read the current keyboard state
+      and use that information to determine which key was actually
+      pressed. We check the last known state of the modifier in question
+      and if it is not down we know that is the key that was pressed. */
+   if ((ks[VK_LCONTROL] & 0x80) && (vcode == VK_CONTROL))
       vcode = VK_LCONTROL;
-   if (ks[VK_RCONTROL] & 0x80)
+   if ((ks[VK_RCONTROL] & 0x80) && (vcode == VK_CONTROL))
       vcode = VK_RCONTROL;
-   if (ks[VK_LSHIFT] & 0x80)
+   if ((ks[VK_LSHIFT] & 0x80) && (vcode == VK_SHIFT))
       vcode = VK_LSHIFT;
-   if (ks[VK_RSHIFT] & 0x80)
+   if ((ks[VK_RSHIFT] & 0x80) && (vcode == VK_SHIFT))
       vcode = VK_RSHIFT;
-   if (ks[VK_LMENU] & 0x80)
+   if ((ks[VK_LMENU] & 0x80) && (vcode == VK_MENU))
       vcode = VK_LMENU;
-   if (ks[VK_RMENU] & 0x80)
+   if ((ks[VK_RMENU] & 0x80) && (vcode == VK_MENU))
       vcode = VK_RMENU;
 
    my_code = hw_to_mycode[vcode];
@@ -319,8 +333,7 @@ void _al_win_kbd_handle_key_release(int vcode, ALLEGRO_DISPLAY_WIN *win_disp)
       The key which isn't depressed can't be released.
 
       The only problem is we can't know which key is being released
-      if both left and right were depressed. I practice, keyboards
-      won't let you do that anyway.
+      if both left and right were depressed. So FIXME.
    */
    if (vcode == VK_SHIFT && _AL_KEYBOARD_STATE_KEY_DOWN(the_state, ALLEGRO_KEY_LSHIFT))
       vcode = VK_LSHIFT;
@@ -339,6 +352,14 @@ void _al_win_kbd_handle_key_release(int vcode, ALLEGRO_DISPLAY_WIN *win_disp)
    update_modifiers(my_code, false);
 
    _AL_KEYBOARD_STATE_CLEAR_KEY_DOWN(the_state, my_code);
+      
+   /* Windows only sends a WM_KEYUP message for the Shift keys when
+      both have been released. If one of the Shift keys is still reported
+      as down, we need to release it as well. */
+   if(my_code == ALLEGRO_KEY_LSHIFT && _AL_KEYBOARD_STATE_KEY_DOWN(the_state, ALLEGRO_KEY_RSHIFT))
+      _al_win_kbd_handle_key_release(VK_RSHIFT, win_disp);
+   else if(my_code == ALLEGRO_KEY_RSHIFT && _AL_KEYBOARD_STATE_KEY_DOWN(the_state, ALLEGRO_KEY_LSHIFT))
+      _al_win_kbd_handle_key_release(VK_LSHIFT, win_disp);
    
    if (!_al_event_source_needs_to_generate_event(&the_keyboard.es))
       return;
