@@ -29,12 +29,13 @@ static ALLEGRO_KEYBOARD_STATE the_state;
 static int modifiers = 0;
 
 /* lookup table for converting virtualkey VK_* codes into Allegro ALLEGRO_KEY_* codes */
+/* Last unknown key sequence: 39*/
 static const unsigned char hw_to_mycode[256] =
 {
    /* 0x00 */    0,                       ALLEGRO_KEY_UNKNOWN+0,     ALLEGRO_KEY_UNKNOWN+1,      ALLEGRO_KEY_UNKNOWN+2,
    /* 0x04 */    ALLEGRO_KEY_UNKNOWN+3,   ALLEGRO_KEY_UNKNOWN+4,     ALLEGRO_KEY_UNKNOWN+5,      0,
    /* 0x08 */    ALLEGRO_KEY_BACKSPACE,   ALLEGRO_KEY_TAB,           0,                          0,
-   /* 0x0C */    ALLEGRO_KEY_UNKNOWN,     ALLEGRO_KEY_ENTER,         0,                          0,
+   /* 0x0C */    ALLEGRO_KEY_UNKNOWN+39,  ALLEGRO_KEY_ENTER,         0,                          0,
    /* 0x10 */    0/*L or R shift*/,       0/*L or R ctrl*/,          0/*L or R alt*/,            ALLEGRO_KEY_PAUSE,
    /* 0x14 */    ALLEGRO_KEY_CAPSLOCK,    ALLEGRO_KEY_KANA,          0,                          ALLEGRO_KEY_UNKNOWN+6,
    /* 0x18 */    ALLEGRO_KEY_UNKNOWN+7,   ALLEGRO_KEY_KANJI,         0,                          ALLEGRO_KEY_ESCAPE,
