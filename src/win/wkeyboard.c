@@ -98,7 +98,6 @@ static const unsigned char hw_to_mycode[256] =
    };
 
 
-
 /* forward declarations */
 static bool init_keyboard(void);
 static void exit_keyboard(void);
@@ -261,15 +260,6 @@ void _al_win_kbd_handle_key_press(int scode, int vcode, bool repeated,
    if (!installed)
       return;
 
-   /* Ignore repeats for modifiers. */
-   if ((vcode == VK_CONTROL ||
-        vcode == VK_SHIFT ||
-        vcode == VK_MENU ||
-        vcode == VK_CAPITAL)
-        && repeated) {
-      return;
-   }
-
    if (!GetKeyboardState(&ks[0]))
       ccode = 0; /* shound't really happen */
    else if (ToUnicode(vcode, scode, ks, buf, 8, 0) == 1)
@@ -282,19 +272,27 @@ void _al_win_kbd_handle_key_press(int scode, int vcode, bool repeated,
       and use that information to determine which key was actually
       pressed. We check the last known state of the modifier in question
       and if it is not down we know that is the key that was pressed. */
-   if ((ks[VK_LCONTROL] & 0x80) && (vcode == VK_CONTROL))
-      vcode = VK_LCONTROL;
-   if ((ks[VK_RCONTROL] & 0x80) && (vcode == VK_CONTROL))
-      vcode = VK_RCONTROL;
-   if ((ks[VK_LSHIFT] & 0x80) && (vcode == VK_SHIFT))
-      vcode = VK_LSHIFT;
-   if ((ks[VK_RSHIFT] & 0x80) && (vcode == VK_SHIFT))
-      vcode = VK_RSHIFT;
-   if ((ks[VK_LMENU] & 0x80) && (vcode == VK_MENU))
-      vcode = VK_LMENU;
-   if ((ks[VK_RMENU] & 0x80) && (vcode == VK_MENU))
-      vcode = VK_RMENU;
-
+   if (vcode == VK_SHIFT || vcode == VK_CONTROL || vcode == VK_MENU) {
+      if ((ks[VK_LCONTROL] & 0x80) && !_AL_KEYBOARD_STATE_KEY_DOWN(the_state, ALLEGRO_KEY_LCTRL))
+         vcode = VK_LCONTROL;
+      else if ((ks[VK_RCONTROL] & 0x80) && !_AL_KEYBOARD_STATE_KEY_DOWN(the_state, ALLEGRO_KEY_RCTRL))
+         vcode = VK_RCONTROL;
+      else if ((ks[VK_LSHIFT] & 0x80) && !_AL_KEYBOARD_STATE_KEY_DOWN(the_state, ALLEGRO_KEY_LSHIFT))
+         vcode = VK_LSHIFT;
+      else if ((ks[VK_RSHIFT] & 0x80) && !_AL_KEYBOARD_STATE_KEY_DOWN(the_state, ALLEGRO_KEY_RSHIFT))
+         vcode = VK_RSHIFT;
+      else if ((ks[VK_LMENU] & 0x80) && !_AL_KEYBOARD_STATE_KEY_DOWN(the_state, ALLEGRO_KEY_ALT))
+         vcode = VK_LMENU;
+      else if ((ks[VK_RMENU] & 0x80) && !_AL_KEYBOARD_STATE_KEY_DOWN(the_state, ALLEGRO_KEY_ALTGR))
+         vcode = VK_RMENU;
+      else
+         return;
+   }
+   
+   /* Ignore repeats for Caps Lock */
+   if (vcode == VK_CAPITAL && repeated && _AL_KEYBOARD_STATE_KEY_DOWN(the_state, ALLEGRO_KEY_CAPSLOCK))
+      return;
+   
    my_code = hw_to_mycode[vcode];
    update_modifiers(my_code, true);
    _AL_KEYBOARD_STATE_SET_KEY_DOWN(the_state, my_code);
@@ -323,30 +321,28 @@ void _al_win_kbd_handle_key_release(int vcode, ALLEGRO_DISPLAY_WIN *win_disp)
 {
    ALLEGRO_EVENT event;
    int my_code;
+   BYTE ks[256];
 
    if (!installed)
      return;
 
-   /* Can't make any sense out of either one of GetAsyncKeyState(),
-      GetKeyState(), GetKeyboardState()... So we do our own logic to
-      distinguish between left and right shift, ctrl & alt:
-      The key which isn't depressed can't be released.
-
-      The only problem is we can't know which key is being released
-      if both left and right were depressed. So FIXME.
-   */
-   if (vcode == VK_SHIFT && _AL_KEYBOARD_STATE_KEY_DOWN(the_state, ALLEGRO_KEY_LSHIFT))
+   /* We need to read the latest key states so we can tell which
+      modifier was released. */
+   GetKeyboardState(&ks[0]);
+   if (vcode == VK_SHIFT && _AL_KEYBOARD_STATE_KEY_DOWN(the_state, ALLEGRO_KEY_LSHIFT) && !(ks[VK_LSHIFT] & 0x80))
       vcode = VK_LSHIFT;
-   else if (vcode == VK_SHIFT &&_AL_KEYBOARD_STATE_KEY_DOWN(the_state, ALLEGRO_KEY_RSHIFT))
+   else if (vcode == VK_SHIFT && _AL_KEYBOARD_STATE_KEY_DOWN(the_state, ALLEGRO_KEY_RSHIFT) && !(ks[VK_RSHIFT] & 0x80))
       vcode = VK_RSHIFT;
-   else if (vcode == VK_CONTROL &&_AL_KEYBOARD_STATE_KEY_DOWN(the_state, ALLEGRO_KEY_LCTRL))
+   else if (vcode == VK_CONTROL && _AL_KEYBOARD_STATE_KEY_DOWN(the_state, ALLEGRO_KEY_LCTRL) && !(ks[VK_LCONTROL] & 0x80))
       vcode = VK_LCONTROL;
-   else if (vcode == VK_CONTROL && _AL_KEYBOARD_STATE_KEY_DOWN(the_state, ALLEGRO_KEY_RCTRL))
+   else if (vcode == VK_CONTROL && _AL_KEYBOARD_STATE_KEY_DOWN(the_state, ALLEGRO_KEY_RCTRL) && !(ks[VK_RCONTROL] & 0x80))
       vcode = VK_RCONTROL;
-   else if (vcode == VK_MENU && _AL_KEYBOARD_STATE_KEY_DOWN(the_state, ALLEGRO_KEY_ALT))
+   else if (vcode == VK_MENU && _AL_KEYBOARD_STATE_KEY_DOWN(the_state, ALLEGRO_KEY_ALT) && !(ks[VK_LMENU] & 0x80))
       vcode = VK_LMENU;
-   else if (vcode == VK_MENU && _AL_KEYBOARD_STATE_KEY_DOWN(the_state, ALLEGRO_KEY_ALTGR))
+   else if (vcode == VK_MENU && _AL_KEYBOARD_STATE_KEY_DOWN(the_state, ALLEGRO_KEY_ALTGR) && !(ks[VK_RMENU] & 0x80))
       vcode = VK_RMENU;
+   else if(vcode == VK_MENU)
+	   return;
 
    my_code = hw_to_mycode[vcode];
    update_modifiers(my_code, false);
