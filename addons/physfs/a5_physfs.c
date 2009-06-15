@@ -9,6 +9,8 @@
 #include "allegro5/a5_physfs.h"
 #include "allegro5/internal/aintern_memory.h"
 
+#include "a5_physfs_intern.h"
+
 
 typedef struct ALLEGRO_FILE_PHYSFS ALLEGRO_FILE_PHYSFS;
 
@@ -19,8 +21,6 @@ struct ALLEGRO_FILE_PHYSFS
    int pushback;           /* -1 if none */
    bool error_indicator;
 };
-
-void _al_set_physfs_fs_interface(void);
 
 /* forward declaration */
 static const ALLEGRO_FILE_INTERFACE file_phys_vtable;

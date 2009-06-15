@@ -12,6 +12,7 @@ typedef struct ALLEGRO_CONFIG ALLEGRO_CONFIG;
 AL_FUNC(ALLEGRO_CONFIG *, al_create_config, (void));
 AL_FUNC(void, al_add_config_section, (ALLEGRO_CONFIG *config, const char *name));
 AL_FUNC(void, al_set_config_value, (ALLEGRO_CONFIG *config, const char *section, const char *key, const char *value));
+AL_FUNC(void, al_add_config_comment, (ALLEGRO_CONFIG *config, const char *section, const char *comment));
 AL_FUNC(const char*, al_get_config_value, (const ALLEGRO_CONFIG *config, const char *section, const char *key));
 AL_FUNC(ALLEGRO_CONFIG*, al_load_config_file, (const char *filename));
 AL_FUNC(bool, al_save_config_file, (const ALLEGRO_CONFIG *config, const char *filename));

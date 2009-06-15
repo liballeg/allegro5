@@ -92,7 +92,7 @@ static void color_get_text_dimensions(ALLEGRO_FONT const *f,
 /* _color_find_glyph:
  *  Helper for color vtable entries, below.
  */
-ALLEGRO_BITMAP* _al_font_color_find_glyph(const ALLEGRO_FONT* f, int ch)
+static ALLEGRO_BITMAP* _al_font_color_find_glyph(const ALLEGRO_FONT* f, int ch)
 {
     ALLEGRO_FONT_COLOR_DATA* cf = (ALLEGRO_FONT_COLOR_DATA*)(f->data);
 

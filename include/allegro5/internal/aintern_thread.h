@@ -40,4 +40,4 @@ AL_END_EXTERN_C
 
 #endif
 
-/* vi ts=8 sts=3 sw=3 et */
+/* vim: set ts=8 sts=3 sw=3 et: */

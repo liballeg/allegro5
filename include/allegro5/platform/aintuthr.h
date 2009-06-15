@@ -5,6 +5,7 @@
 #define _AINTUTHR_H
 
 #include <pthread.h>
+#include "allegro5/internal/aintern_thread.h"
 
 AL_BEGIN_EXTERN_C
 

@@ -9,6 +9,9 @@
 #include "allegro5/a5_physfs.h"
 #include "allegro5/internal/aintern_memory.h"
 
+#include "a5_physfs_intern.h"
+
+
 typedef struct ALLEGRO_FS_ENTRY_PHYSFS ALLEGRO_FS_ENTRY_PHYSFS;
 
 struct ALLEGRO_FS_ENTRY_PHYSFS
