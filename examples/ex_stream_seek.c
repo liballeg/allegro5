@@ -24,7 +24,7 @@ int mouse_button[16] = {0};
 
 bool exiting = false;
 
-int initialize(void)
+static int initialize(void)
 {
    al_init();
 
@@ -75,7 +75,7 @@ int initialize(void)
    return 1;
 }
 
-void logic(void)
+static void logic(void)
 {
    /* calculate the position of the slider */
    double pos = al_get_stream_position_secs(music_stream);
@@ -83,7 +83,7 @@ void logic(void)
    slider_pos = 300.0 * (pos / len);
 }
 
-void render(void)
+static void render(void)
 {
    double pos = al_get_stream_position_secs(music_stream);
    double length = al_get_stream_length_secs(music_stream);
@@ -109,7 +109,7 @@ void render(void)
    al_flip_display();
 }
 
-void myexit(void)
+static void myexit(void)
 {
    bool playing;
    playing = al_get_mixer_playing(al_get_default_mixer());
@@ -118,7 +118,7 @@ void myexit(void)
    al_destroy_stream(music_stream);
 }
 
-void maybe_fiddle_sliders(int mx, int my)
+static void maybe_fiddle_sliders(int mx, int my)
 {
    double seek_pos;
 
@@ -140,7 +140,7 @@ void maybe_fiddle_sliders(int mx, int my)
    }
 }
 
-void event_handler(const ALLEGRO_EVENT * event)
+static void event_handler(const ALLEGRO_EVENT * event)
 {
    int i;
 

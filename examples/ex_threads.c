@@ -18,7 +18,7 @@ typedef struct Background {
 } Background;
 
 
-void *thread_func(ALLEGRO_THREAD *thr, void *arg)
+static void *thread_func(ALLEGRO_THREAD *thr, void *arg)
 {
    const Background *background = (Background *) arg;
    ALLEGRO_DISPLAY *display;

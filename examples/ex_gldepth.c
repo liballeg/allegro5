@@ -23,7 +23,7 @@ double dist_speed = 1.0;
 GLuint tex;
 ALLEGRO_BITMAP *bmp;
 
-void set_camera_position(void)
+static void set_camera_position(void)
 {
    glMatrixMode(GL_PROJECTION);
    glLoadIdentity();
@@ -37,7 +37,7 @@ void set_camera_position(void)
 
 
 
-void keyboard(int key)
+static void keyboard(int key)
 {
    if(key == ALLEGRO_KEY_LEFT)  camera.yangle += angle_speed;
    if(key == ALLEGRO_KEY_RIGHT) camera.yangle -= angle_speed;
@@ -51,7 +51,7 @@ void keyboard(int key)
 
 
 
-void draw(void)
+static void draw(void)
 {
    // Clear the RGB buffer and the depth buffer
    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -133,7 +133,7 @@ void draw(void)
 
 
 
-void setup_textures(void)
+static void setup_textures(void)
 {
    ALLEGRO_BITMAP *tmp_bmp;
    ALLEGRO_FONT *font;

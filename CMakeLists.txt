@@ -261,8 +261,13 @@ endif()
 
 if(STRICT_WARN)
     if(COMPILER_GCC)
-        set(WFLAGS "-W -Wall -Werror")
-        set(WFLAGS_C_ONLY "-Wstrict-prototypes")
+        set(WFLAGS "-W -Wall -Werror -Wpointer-arith")
+        set(WFLAGS_C_ONLY "-Wmissing-declarations -Wstrict-prototypes")
+        if(ALLEGRO_UNIX)
+            # Unfortunately we can't use this flag when magic main is used,
+            # the mangled_main won't have a forward declaration.
+            set(WFLAGS_C_ONLY "${WFLAGS_C_ONLY} -Wmissing-prototypes")
+        endif(ALLEGRO_UNIX)
     endif(COMPILER_GCC)
     if(COMPILER_MSVC)
         set(WFLAGS "/W4 -D_CRT_SECURE_NO_DEPRECATE -D_CRT_NONSTDC_NO_DEPRECATE")

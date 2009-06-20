@@ -2,7 +2,7 @@
 #include "allegro5/a5_iio.h"
 #include <stdio.h>
 
-void go(void)
+static void go(void)
 {
    ALLEGRO_DISPLAY *d1, *d2;
    ALLEGRO_BITMAP *b1, *b2;

@@ -12,7 +12,8 @@ int font_h;
 int count;
 int fpp;
 
-void display_formats(int n) {
+static void display_formats(int n)
+{
    int c = 0;
    int fppc =  fpp;
 

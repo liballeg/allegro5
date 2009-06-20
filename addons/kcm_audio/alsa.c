@@ -147,7 +147,7 @@ static int alsa_update_nonstream_voice(ALLEGRO_VOICE *voice, void **buf, int *by
    int bpos = voice->attached_stream->pos * alsa_voice->frame_size;
    int blen = alsa_voice->len * alsa_voice->frame_size;
 
-   *buf = voice->attached_stream->spl_data.buffer.ptr + bpos;
+   *buf = (char *)voice->attached_stream->spl_data.buffer.ptr + bpos;
 
    if (!alsa_voice->reversed) {
       if (bpos + *bytes > blen) {
@@ -233,7 +233,7 @@ static void* alsa_update(ALLEGRO_THREAD *self, void *arg)
    snd_pcm_uframes_t frames;
    const snd_pcm_channel_area_t *areas;
    snd_pcm_uframes_t offset;
-   void *mmap;
+   char *mmap;
    int ret;
 
    (void)self;
@@ -273,7 +273,9 @@ static void* alsa_update(ALLEGRO_THREAD *self, void *arg)
       ASSERT(frames);
 
       /* mmaped driver's memory. Interleaved channels format. */
-      mmap = areas[0].addr + areas[0].first / 8 + offset * areas[0].step / 8;
+      mmap = (char *) areas[0].addr
+            + areas[0].first / 8
+            + offset * areas[0].step / 8;
 
       /* Read sample data into the buffer. */
       if (!voice->is_streaming && !alsa_voice->stopped) {
@@ -291,7 +293,7 @@ static void* alsa_update(ALLEGRO_THREAD *self, void *arg)
             unsigned int i;
             int fs = alsa_voice->frame_size;
             for (i = 1; i <= frames; i++)
-               memcpy(mmap + i * fs, buf - i * fs, fs);
+               memcpy(mmap + i * fs, (char *) buf - i * fs, fs);
          }
       }
       else if (voice->is_streaming && !alsa_voice->stopped) {

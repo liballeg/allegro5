@@ -10,7 +10,7 @@
 GLuint tex, fbo;
 bool no_fbo = false;
 
-void draw_opengl(void)
+static void draw_opengl(void)
 {
    double ms = al_current_time();
 

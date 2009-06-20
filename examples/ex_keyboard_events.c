@@ -86,7 +86,7 @@ static void draw_message_log(void)
 
 
 
-void log_key(char const *how, int keycode, int unichar, int modifiers)
+static void log_key(char const *how, int keycode, int unichar, int modifiers)
 {
    ALLEGRO_USTR *us;
    char multibyte[5] = {0, 0, 0, 0, 0};
@@ -101,21 +101,21 @@ void log_key(char const *how, int keycode, int unichar, int modifiers)
 
 
 
-void log_key_down(int keycode, int unichar, int modifiers)
+static void log_key_down(int keycode, int unichar, int modifiers)
 {
    log_key("Down", keycode, unichar, modifiers);
 }
 
 
 
-void log_key_repeat(int keycode, int unichar, int modifiers)
+static void log_key_repeat(int keycode, int unichar, int modifiers)
 {
    log_key("Rept", keycode, unichar, modifiers);
 }
 
 
 
-void log_key_up(int keycode, int unichar, int modifiers)
+static void log_key_up(int keycode, int unichar, int modifiers)
 {
    log_key("Up  ", keycode, unichar, modifiers);
 }
@@ -129,7 +129,7 @@ void log_key_up(int keycode, int unichar, int modifiers)
  *  little CPU time.  See main() to see how the event sources and event queue
  *  are set up.
  */
-void main_loop(void)
+static void main_loop(void)
 {
    ALLEGRO_EVENT event;
 

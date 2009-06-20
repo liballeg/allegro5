@@ -140,7 +140,7 @@ const char *program_nv =
    "END";
 
 
-void create_mesh(void)
+static void create_mesh(void)
 {
 	int x, z;
 
@@ -156,7 +156,7 @@ void create_mesh(void)
 
 
 
-void draw_mesh(void)
+static void draw_mesh(void)
 {
    int x, z;
 

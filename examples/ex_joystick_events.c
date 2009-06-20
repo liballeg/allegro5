@@ -26,7 +26,7 @@ bool joys_buttons[MAX_BUTTONS];
 
 
 
-void draw_joystick_axes(int cx, int cy, int stick)
+static void draw_joystick_axes(int cx, int cy, int stick)
 {
    const int size = 30;
    const int osize = 35;
@@ -40,7 +40,7 @@ void draw_joystick_axes(int cx, int cy, int stick)
 
 
 
-void draw_joystick_button(int button, bool down)
+static void draw_joystick_button(int button, bool down)
 {
    int x = 250 + (button % 5) * 30;
    int y = 380 + (button / 5) * 30;
@@ -54,7 +54,7 @@ void draw_joystick_button(int button, bool down)
 
 
 
-void draw_all(void)
+static void draw_all(void)
 {
    int i;
 
@@ -75,7 +75,7 @@ void draw_all(void)
 
 
 
-void main_loop(void)
+static void main_loop(void)
 {
    ALLEGRO_EVENT event;
 

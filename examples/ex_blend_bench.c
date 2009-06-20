@@ -24,7 +24,7 @@ enum Mode {
    ROTATE_BLIT
 };
 
-void step(enum Mode mode, ALLEGRO_BITMAP *b2)
+static void step(enum Mode mode, ALLEGRO_BITMAP *b2)
 {
    switch (mode) {
       case PLAIN_BLIT:
@@ -43,7 +43,7 @@ void step(enum Mode mode, ALLEGRO_BITMAP *b2)
 /* al_get_current_time() measures wallclock time - but for the benchmark
  * result we prefer CPU time so clock() is better.
  */
-double current_clock(void)
+static double current_clock(void)
 {
    clock_t c = clock();
    return (double)c / CLOCKS_PER_SEC;

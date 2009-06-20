@@ -20,4 +20,6 @@ struct ALLEGRO_NATIVE_DIALOG
    ALLEGRO_COND *cond;
 };
 
+extern int _al_show_native_message_box(ALLEGRO_NATIVE_DIALOG *fd);
+
 #endif

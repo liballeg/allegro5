@@ -3,7 +3,6 @@
 #include "allegro5/internal/aintern_native_dialog.h"
 #include "allegro5/internal/aintern_memory.h"
 
-int _al_show_native_message_box(ALLEGRO_NATIVE_DIALOG *fd);
 
 /* Function: al_create_native_file_dialog
  */

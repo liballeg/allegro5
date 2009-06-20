@@ -34,7 +34,7 @@ int error = 0;
    } while (0)
 
 /* Test that we can create and destroy strings and get their data and size. */
-void t1(void)
+static void t1(void)
 {
    ALLEGRO_USTR *us1 = al_ustr_new("");
    ALLEGRO_USTR *us2 = al_ustr_new("áƵ");
@@ -47,7 +47,7 @@ void t1(void)
    al_ustr_free(us2);
 }
 
-void t2(void)
+static void t2(void)
 {
    CHECK(0 == al_ustr_size(al_ustr_empty_string()));
    CHECK(0 == strcmp(al_cstr(al_ustr_empty_string()), ""));
@@ -55,7 +55,7 @@ void t2(void)
 
 /* Test that we make strings which reference other C strings. */
 /* No memory needs to be freed. */
-void t3(void)
+static void t3(void)
 {
    ALLEGRO_USTR_INFO info;
    ALLEGRO_USTR *us = al_ref_cstr(&info, "A static string.");
@@ -65,7 +65,7 @@ void t3(void)
 
 /* Test that we can make strings which reference arbitrary memory blocks. */
 /* No memory needs to be freed. */
-void t4(void)
+static void t4(void)
 {
    const char *s = "This contains an embedded NUL: \0 <-- here";
    ALLEGRO_USTR_INFO info;
@@ -76,7 +76,7 @@ void t4(void)
 }
 
 /* Test that we can make strings which reference (parts of) other strings. */
-void t5(void)
+static void t5(void)
 {
    ALLEGRO_USTR *us1;
    ALLEGRO_USTR *us2;
@@ -103,7 +103,7 @@ void t5(void)
 }
 
 /* Test al_ustr_dup. */
-void t6(void)
+static void t6(void)
 {
    ALLEGRO_USTR *us1 = al_ustr_new("aábdðeéfghiíjklmnoóprstuúvxyýþæö");
    ALLEGRO_USTR *us2 = al_ustr_dup(us1);
@@ -116,7 +116,7 @@ void t6(void)
 }
 
 /* Test al_ustr_dup_substr. */
-void t7(void)
+static void t7(void)
 {
    ALLEGRO_USTR *us1;
    ALLEGRO_USTR *us2;
@@ -144,7 +144,7 @@ void t7(void)
 }
 
 /* Test al_ustr_append, al_ustr_append_cstr. */
-void t8(void)
+static void t8(void)
 {
    ALLEGRO_USTR *us1 = al_ustr_new("aábdðeéfghiíjklm");
    ALLEGRO_USTR *us2 = al_ustr_new("noóprstuú");
@@ -160,7 +160,7 @@ void t8(void)
 }
 
 /* Test al_ustr_append with aliased strings. */
-void t9(void)
+static void t9(void)
 {
    ALLEGRO_USTR *us1;
    ALLEGRO_USTR_INFO us2_info;
@@ -181,7 +181,7 @@ void t9(void)
 }
 
 /* Test al_ustr_equal. */
-void t10(void)
+static void t10(void)
 {
    ALLEGRO_USTR *us1;
    ALLEGRO_USTR *us2;
@@ -204,7 +204,7 @@ void t10(void)
 }
 
 /* Test al_ustr_insert. */
-void t11(void)
+static void t11(void)
 {
    ALLEGRO_USTR *us1;
    ALLEGRO_USTR *us2;
@@ -236,7 +236,7 @@ void t11(void)
 }
 
 /* Test al_ustr_insert_cstr. */
-void t12(void)
+static void t12(void)
 {
    ALLEGRO_USTR *us1 = al_ustr_new("aábeéf");
    CHECK(al_ustr_insert_cstr(us1, 4, "dð"));
@@ -245,7 +245,7 @@ void t12(void)
 }
 
 /* Test al_ustr_remove_range. */
-void t13(void)
+static void t13(void)
 {
    ALLEGRO_USTR *us1 = al_ustr_new("aábdðeéfghiíjkprstuúvxyýþæö");
 
@@ -265,7 +265,7 @@ void t13(void)
 }
 
 /* Test al_ustr_truncate. */
-void t14(void)
+static void t14(void)
 {
    ALLEGRO_USTR *us1 = al_ustr_new("aábdðeéfghiíjkprstuúvxyýþæö");
 
@@ -285,7 +285,7 @@ void t14(void)
 }
 
 /* Test whitespace trim functions. */
-void t15(void)
+static void t15(void)
 {
    ALLEGRO_USTR *us1 = al_ustr_new(" \f\n\r\t\vhello \f\n\r\t\v");
    ALLEGRO_USTR *us2 = al_ustr_new(" \f\n\r\t\vhello \f\n\r\t\v");
@@ -304,7 +304,7 @@ void t15(void)
 }
 
 /* Test whitespace trim functions (edge cases). */
-void t16(void)
+static void t16(void)
 {
    ALLEGRO_USTR *us1;
 
@@ -331,7 +331,7 @@ void t16(void)
 }
 
 /* Test al_utf8_width. */
-void t17(void)
+static void t17(void)
 {
    CHECK(al_utf8_width(0x000000) == 1);
    CHECK(al_utf8_width(0x00007f) == 1);
@@ -348,7 +348,7 @@ void t17(void)
 }
 
 /* Test al_utf8_encode. */
-void t18(void)
+static void t18(void)
 {
    char buf[4];
 
@@ -382,7 +382,7 @@ void t18(void)
 }
 
 /* Test al_ustr_insert_chr. */
-void t19(void)
+static void t19(void)
 {
    ALLEGRO_USTR *us = al_ustr_new("");
 
@@ -403,7 +403,7 @@ void t19(void)
 }
 
 /* Test al_ustr_append_chr. */
-void t20(void)
+static void t20(void)
 {
    ALLEGRO_USTR *us = al_ustr_new("");
 
@@ -420,7 +420,7 @@ void t20(void)
 }
 
 /* Test al_ustr_get. */
-void t21(void)
+static void t21(void)
 {
    ALLEGRO_USTR_INFO info;
    ALLEGRO_USTR *us;
@@ -451,7 +451,7 @@ void t21(void)
 }
 
 /* Test al_ustr_get on invalid sequences. */
-void t22(void)
+static void t22(void)
 {
    ALLEGRO_USTR_INFO info;
    ALLEGRO_USTR *us;
@@ -484,7 +484,7 @@ void t22(void)
 /* Get more ideas for tests from
  * http://www.cl.cam.ac.uk/~mgk25/ucs/examples/UTF-8-test.txt
  */
-void t23(void)
+static void t23(void)
 {
    ALLEGRO_USTR_INFO info;
    ALLEGRO_USTR *us;
@@ -535,7 +535,7 @@ void t23(void)
 }
 
 /* Test al_ustr_next. */
-void t24(void)
+static void t24(void)
 {
    const char str[] = "a\0þ€\xf4\x8f\xbf\xbf";
    ALLEGRO_USTR_INFO info;
@@ -562,7 +562,7 @@ void t24(void)
 }
 
 /* Test al_ustr_next with invalid input. */
-void t25(void)
+static void t25(void)
 {
    const char str[] = "þ\xf4\x8f\xbf.";
    ALLEGRO_USTR_INFO info;
@@ -580,7 +580,7 @@ void t25(void)
 }
 
 /* Test al_ustr_prev. */
-void t26(void)
+static void t26(void)
 {
    ALLEGRO_USTR *us = al_ustr_new("aþ€\xf4\x8f\xbf\xbf");
    int pos = al_ustr_size(us);
@@ -604,7 +604,7 @@ void t26(void)
 }
 
 /* Test al_ustr_length. */
-void t27(void)
+static void t27(void)
 {
    ALLEGRO_USTR *us = al_ustr_new("aþ€\xf4\x8f\xbf\xbf");
 
@@ -615,7 +615,7 @@ void t27(void)
 }
 
 /* Test al_ustr_offset. */
-void t28(void)
+static void t28(void)
 {
    ALLEGRO_USTR *us = al_ustr_new("aþ€\xf4\x8f\xbf\xbf");
 
@@ -636,7 +636,7 @@ void t28(void)
 }
 
 /* Test al_ustr_get_next. */
-void t29(void)
+static void t29(void)
 {
    ALLEGRO_USTR *us = al_ustr_new("aþ€");
    int pos;
@@ -657,7 +657,7 @@ void t29(void)
 }
 
 /* Test al_ustr_prev_get. */
-void t30(void)
+static void t30(void)
 {
    ALLEGRO_USTR *us = al_ustr_new("aþ€");
    int pos;
@@ -676,7 +676,7 @@ void t30(void)
 }
 
 /* Test al_ustr_find_chr. */
-void t31(void)
+static void t31(void)
 {
    ALLEGRO_USTR *us = al_ustr_new("aábdðeéfghiíaábdðeéfghií");
 
@@ -696,7 +696,7 @@ void t31(void)
 }
 
 /* Test al_ustr_rfind_chr. */
-void t32(void)
+static void t32(void)
 {
    ALLEGRO_USTR *us = al_ustr_new("aábdðeéfghiíaábdðeéfghií");
    int end = al_ustr_size(us);
@@ -715,7 +715,7 @@ void t32(void)
 }
 
 /* Test al_ustr_find_set, al_ustr_find_set_cstr. */
-void t33(void)
+static void t33(void)
 {
    ALLEGRO_USTR *us = al_ustr_new("aábdðeéfghiíaábdðeéfghií");
 
@@ -738,7 +738,7 @@ void t33(void)
 }
 
 /* Test al_ustr_find_set, al_ustr_find_set_cstr (invalid values).  */
-void t34(void)
+static void t34(void)
 {
    ALLEGRO_USTR *us = al_ustr_new("a\x80ábdðeéfghií");
 
@@ -752,7 +752,7 @@ void t34(void)
 }
 
 /* Test al_ustr_find_cset, al_ustr_find_cset_cstr. */
-void t35(void)
+static void t35(void)
 {
    ALLEGRO_USTR *us;
 
@@ -777,7 +777,7 @@ void t35(void)
 }
 
 /* Test al_ustr_find_cset, al_ustr_find_set_cstr (invalid values).  */
-void t36(void)
+static void t36(void)
 {
    ALLEGRO_USTR *us = al_ustr_new("a\x80ábdðeéfghií");
 
@@ -791,7 +791,7 @@ void t36(void)
 }
 
 /* Test al_ustr_find_str, al_ustr_find_cstr. */
-void t37(void)
+static void t37(void)
 {
    ALLEGRO_USTR *us = al_ustr_new("aábdðeéfghiíaábdðeéfghií");
 
@@ -809,7 +809,7 @@ void t37(void)
 }
 
 /* Test al_ustr_rfind_str, al_ustr_rfind_cstr. */
-void t38(void)
+static void t38(void)
 {
    ALLEGRO_USTR *us = al_ustr_new("aábdðeéfghiíaábdðeéfghií");
    int end = al_ustr_size(us);
@@ -828,7 +828,7 @@ void t38(void)
 }
 
 /* Test al_ustr_new_from_buffer, al_cstr_dup. */
-void t39(void)
+static void t39(void)
 {
    const char s1[] = "Корабът ми на въздушна възглавница\0е пълен със змиорки";
    ALLEGRO_USTR *us;
@@ -845,7 +845,7 @@ void t39(void)
 }
 
 /* Test al_ustr_assign, al_ustr_assign_cstr. */
-void t40(void)
+static void t40(void)
 {
    ALLEGRO_USTR *us1 = al_ustr_new("我隻氣墊船裝滿晒鱔");
    ALLEGRO_USTR *us2 = al_ustr_new("Τὸ χόβερκράφτ μου εἶναι γεμᾶτο χέλια");
@@ -861,7 +861,7 @@ void t40(void)
 }
 
 /* Test al_ustr_assign_cstr. */
-void t41(void)
+static void t41(void)
 {
    ALLEGRO_USTR *us1 = al_ustr_new("Моја лебдилица је пуна јегуља");
    ALLEGRO_USTR *us2 = al_ustr_new("");
@@ -882,7 +882,7 @@ void t41(void)
 }
 
 /* Test al_ustr_set_chr. */
-void t42(void)
+static void t42(void)
 {
    ALLEGRO_USTR *us = al_ustr_new("abcdef");
 
@@ -924,7 +924,7 @@ void t42(void)
 }
 
 /* Test al_ustr_remove_chr. */
-void t43(void)
+static void t43(void)
 {
    ALLEGRO_USTR *us = al_ustr_new("«aβῷ»");
 
@@ -948,7 +948,7 @@ void t43(void)
 }
 
 /* Test al_ustr_replace_range. */
-void t44(void)
+static void t44(void)
 {
    ALLEGRO_USTR *us1 = al_ustr_new("Šis kungs par visu samaksās");
    ALLEGRO_USTR *us2 = al_ustr_new("ī kundze");
@@ -966,7 +966,7 @@ void t44(void)
 }
 
 /* Test al_ustr_replace_range (part 2). */
-void t45(void)
+static void t45(void)
 {
    ALLEGRO_USTR *us1 = al_ustr_new("abcdef");
    ALLEGRO_USTR *us2 = al_ustr_new("ABCDEF");
@@ -989,7 +989,7 @@ void t45(void)
 extern bool call_vappendf(ALLEGRO_USTR *us, const char *fmt, ...);
 
 /* Test al_ustr_newf, al_ustr_appendf, al_ustr_vappendf. */
-void t46(void)
+static void t46(void)
 {
    ALLEGRO_USTR *us;
 
@@ -1022,7 +1022,7 @@ bool call_vappendf(ALLEGRO_USTR *us, const char *fmt, ...)
 }
 
 /* Test al_ustr_compare, al_ustr_ncompare. */
-void t47(void)
+static void t47(void)
 {
    ALLEGRO_USTR_INFO i1;
    ALLEGRO_USTR_INFO i2;
@@ -1053,7 +1053,7 @@ void t47(void)
 }
 
 /* Test al_ustr_has_prefix, al_ustr_has_suffix. */
-void t48(void)
+static void t48(void)
 {
    ALLEGRO_USTR_INFO i1;
    ALLEGRO_USTR *us1 = al_ref_cstr(&i1, "Thú mỏ vịt");
@@ -1072,7 +1072,7 @@ void t48(void)
 }
 
 /* Test al_ustr_find_replace, al_ustr_find_replace_cstr. */
-void t49(void)
+static void t49(void)
 {
    ALLEGRO_USTR *us;
    ALLEGRO_USTR_INFO findi;
@@ -1105,7 +1105,7 @@ void t49(void)
 }
 
 /* Test UTF-16 conversion. */
-void t50(void)
+static void t50(void)
 {
    ALLEGRO_USTR *us;
    char utf8[] = "⅛-note: 𝅘𝅥𝅮, domino: 🁡";
@@ -1145,7 +1145,7 @@ void t50(void)
 }
 
 /* Test al_ustr_to_buffer */
-void t51(void)
+static void t51(void)
 {
    char str[256];
    ALLEGRO_USTR *us;

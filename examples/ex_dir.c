@@ -1,7 +1,7 @@
 #include <allegro5/allegro5.h>
 #include <stdio.h>
 
-void print_file(ALLEGRO_FS_ENTRY *entry)
+static void print_file(ALLEGRO_FS_ENTRY *entry)
 {
    int mode = al_get_entry_mode(entry);
    time_t now = time(NULL);
@@ -30,7 +30,7 @@ void print_file(ALLEGRO_FS_ENTRY *entry)
    al_free_path(path);
 }
 
-void print_entry(ALLEGRO_FS_ENTRY *entry)
+static void print_entry(ALLEGRO_FS_ENTRY *entry)
 {
    if (al_is_directory(entry)) {
       ALLEGRO_FS_ENTRY *next;

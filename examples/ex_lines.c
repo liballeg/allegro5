@@ -31,33 +31,33 @@ int last_x = -1;
 int last_y = -1;
 
 
-void fade(void)
+static void fade(void)
 {
    al_set_blender(ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA, background);
    al_draw_filled_rectangle(0, 0, W, H, al_map_rgba_f(0.5, 0.5, 0.6, 0.2));
 }
 
-void red_dot(int x, int y)
+static void red_dot(int x, int y)
 {
    al_draw_filled_rectangle(x - 2, y - 2, x + 2, y + 2, al_map_rgb_f(1, 0, 0));
 }
 
-void draw_clip_rect(void)
+static void draw_clip_rect(void)
 {
    al_draw_rectangle(100.5, 100.5, W - 100.5, H - 100.5, black, 0);
 }
 
-void my_set_clip_rect(void)
+static void my_set_clip_rect(void)
 {
    al_set_clipping_rectangle(100, 100, W - 200, H - 200);
 }
 
-void reset_clip_rect(void)
+static void reset_clip_rect(void)
 {
    al_set_clipping_rectangle(0, 0, W, H);
 }
 
-void plonk(const int x, const int y, bool blend)
+static void plonk(const int x, const int y, bool blend)
 {
 #ifdef TEST_MEMBMP
    al_set_target_bitmap(memory_bitmap);
@@ -93,7 +93,7 @@ void plonk(const int x, const int y, bool blend)
    al_flip_display();
 }
 
-void splat(const int x, const int y, bool blend)
+static void splat(const int x, const int y, bool blend)
 {
    double theta;
 

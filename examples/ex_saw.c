@@ -10,7 +10,7 @@
 #define SAMPLES_PER_BUFFER    1024
 
 
-void saw(ALLEGRO_STREAM *stream)
+static void saw(ALLEGRO_STREAM *stream)
 {
    ALLEGRO_EVENT_QUEUE *queue;
    void *buf_void;

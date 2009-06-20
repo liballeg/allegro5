@@ -2,7 +2,7 @@
 #include "allegro5/a5_iio.h"
 #include <allegro5/a5_primitives.h>
 
-void redraw(ALLEGRO_BITMAP *picture)
+static void redraw(ALLEGRO_BITMAP *picture)
 {
    ALLEGRO_COLOR color;
    int w = al_get_display_width();

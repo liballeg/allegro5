@@ -43,13 +43,13 @@ ThreadInfo thread_info[NUM_THREADS];
 unsigned char sin_lut[256];
 
 
-double cabs2(double re, double im)
+static double cabs2(double re, double im)
 {
    return re*re + im*im;
 }
 
 
-int mandel(double cre, double cim, int MAX_ITER)
+static int mandel(double cre, double cim, int MAX_ITER)
 {
    const float Z_MAX2 = 4.0;
    double zre = cre, zim = cim;
@@ -76,7 +76,7 @@ int mandel(double cre, double cim, int MAX_ITER)
  *  Simple rand() replacement with guaranteed randomness in the lower 16 bits.
  *  We just need a RNG with a thread-safe interface.
  */
-int local_rand(int *seed)
+static int local_rand(int *seed)
 {
    const int LOCAL_RAND_MAX = 0xFFFF;
 
@@ -85,7 +85,7 @@ int local_rand(int *seed)
 }
 
 
-void random_palette(unsigned char palette[256][3], int *seed)
+static void random_palette(unsigned char palette[256][3], int *seed)
 {
    unsigned char rmax = 128 + local_rand(seed) % 128;
    unsigned char gmax = 128 + local_rand(seed) % 128;
@@ -100,7 +100,7 @@ void random_palette(unsigned char palette[256][3], int *seed)
 }
 
 
-void draw_mandel_line(ALLEGRO_BITMAP *bitmap, const Viewport *viewport,
+static void draw_mandel_line(ALLEGRO_BITMAP *bitmap, const Viewport *viewport,
    unsigned char palette[256][3], const int y)
 {
    ALLEGRO_LOCKED_REGION *lr;
@@ -147,7 +147,7 @@ void draw_mandel_line(ALLEGRO_BITMAP *bitmap, const Viewport *viewport,
 }
 
 
-void *thread_func(ALLEGRO_THREAD *thr, void *arg)
+static void *thread_func(ALLEGRO_THREAD *thr, void *arg)
 {
    ThreadInfo *info = (ThreadInfo *) arg;
    Viewport viewport;
@@ -205,7 +205,7 @@ void *thread_func(ALLEGRO_THREAD *thr, void *arg)
 }
 
 
-void show_images(void)
+static void show_images(void)
 {
    int x = 0;
    int y = 0;
@@ -235,7 +235,7 @@ static void set_target(int n, double x, double y)
 }
 
 
-void toggle_pausedness(int n)
+static void toggle_pausedness(int n)
 {
    ThreadInfo *info = &thread_info[n];
 

@@ -48,7 +48,7 @@ enum MODE {
    DRAW
 };
 
-void TexturePrimitives(int mode)
+static void TexturePrimitives(int mode)
 {
    static ALLEGRO_VERTEX vtx[13];
    if (mode == INIT) {
@@ -104,7 +104,7 @@ void TexturePrimitives(int mode)
 }
 
 
-void FilledTexturePrimitives(int mode)
+static void FilledTexturePrimitives(int mode)
 {
    static ALLEGRO_VERTEX vtx[21];
    if (mode == INIT) {
@@ -166,7 +166,7 @@ void FilledTexturePrimitives(int mode)
    }
 }
 
-void FilledPrimitives(int mode)
+static void FilledPrimitives(int mode)
 {
    static ALLEGRO_VERTEX vtx[21];
    if (mode == INIT) {
@@ -224,7 +224,7 @@ void FilledPrimitives(int mode)
    }
 }
 
-void IndexedFilledPrimitives(int mode)
+static void IndexedFilledPrimitives(int mode)
 {
    static ALLEGRO_VERTEX vtx[21];
    static int indices1[] = {12, 13, 14, 16, 17, 18};
@@ -293,7 +293,7 @@ void IndexedFilledPrimitives(int mode)
    }
 }
 
-void HighPrimitives(int mode)
+static void HighPrimitives(int mode)
 {
    if (mode == INIT) {
    
@@ -342,7 +342,7 @@ void HighPrimitives(int mode)
    }
 }
 
-void HighFilledPrimitives(int mode)
+static void HighFilledPrimitives(int mode)
 {
    if (mode == INIT) {
    
@@ -380,7 +380,7 @@ void HighFilledPrimitives(int mode)
    }
 }
 
-void ShadePrimitives(int mode)
+static void ShadePrimitives(int mode)
 {
    static ALLEGRO_COLOR shade_color;
    float t = al_current_time();
@@ -431,7 +431,7 @@ void ShadePrimitives(int mode)
    }
 }
 
-void TransformationsPrimitives(int mode)
+static void TransformationsPrimitives(int mode)
 {
    float t = al_current_time();
    if (mode == INIT) {
@@ -481,7 +481,7 @@ void TransformationsPrimitives(int mode)
 }
 
 
-void LowPrimitives(int mode)
+static void LowPrimitives(int mode)
 {
    static ALLEGRO_VERTEX vtx[13];
    if (mode == INIT) {
@@ -532,7 +532,7 @@ void LowPrimitives(int mode)
    }
 }
 
-void IndexedPrimitives(int mode)
+static void IndexedPrimitives(int mode)
 {
    static ALLEGRO_VERTEX vtx[13];
    static int indices1[] = {0, 1, 3, 4};

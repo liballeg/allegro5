@@ -42,7 +42,7 @@ ALLEGRO_MOUSE_STATE mouse_state;
 static bool installed = false;
 
 
-bool init_mouse(void)
+static bool init_mouse(void)
 {
    if (installed)
       return false;
@@ -76,6 +76,7 @@ static void exit_mouse(void)
    _al_event_source_free(&the_mouse.es);
    installed = false;
 }
+
 
 static void generate_mouse_event(unsigned int type,
                                  int x, int y, int z,

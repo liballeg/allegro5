@@ -84,7 +84,7 @@ static void draw(void)
 }
 
 /* Run the FPS test. */
-void run(void)
+static void run(void)
 {
    ALLEGRO_EVENT event;
    int frames = 0;

@@ -24,6 +24,7 @@
 #include <allegro5/allegro5.h>
 #include <process.h>
 
+#include "allegro5/a5_windows.h"
 #include "allegro5/internal/aintern.h"
 #include "allegro5/internal/aintern_bitmap.h"
 #include "allegro5/internal/aintern_memory.h"
@@ -829,6 +830,9 @@ void _al_win_wnd_schedule_proc(HWND wnd, void (*proc) (void*), void* param)
    }
 }
 
+
+/* Function: al_win_get_window
+ */
 HWND al_win_get_window(ALLEGRO_DISPLAY *display)
 {
    return ((ALLEGRO_DISPLAY_WIN *)display)->window;

@@ -25,7 +25,7 @@ typedef struct MY_EVENT
 } MY_EVENT;
 
 
-MY_EVENT *new_event(int id)
+static MY_EVENT *new_event(int id)
 {
     MY_EVENT *event = calloc(1, sizeof *event);
     event->id = id;
@@ -33,7 +33,7 @@ MY_EVENT *new_event(int id)
 }
 
 
-void my_event_dtor(ALLEGRO_USER_EVENT *event)
+static void my_event_dtor(ALLEGRO_USER_EVENT *event)
 {
    printf("my_event_dtor: %p\n", (void *) event->data1);
    free((void *) event->data1);

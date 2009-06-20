@@ -14,7 +14,7 @@ float bmp_dy = 96;
 int bmp_flag = 0;
 
 
-void update(ALLEGRO_BITMAP *bmp)
+static void update(ALLEGRO_BITMAP *bmp)
 {
    int display_w = al_get_display_width();
    int display_h = al_get_display_height();

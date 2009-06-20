@@ -17,7 +17,9 @@
  */
 
 
-#define AL_INLINE(type, name, args, code)    type name args code
+#define AL_INLINE(type, name, args, code)    \
+   extern type name args; \
+   type name args code
 
 #include "allegro5/allegro5.h"
 #include "allegro5/internal/aintern.h"

@@ -7,14 +7,14 @@ int test_only_index = 0;
 int test_index = 0;
 bool test_display = false;
 
-void print_color(ALLEGRO_COLOR c)
+static void print_color(ALLEGRO_COLOR c)
 {
    float r, g, b, a;
    al_unmap_rgba_f(c, &r, &g, &b, &a);
    printf("%.2f, %.2f, %.2f, %.2f", r, g, b, a);
 }
 
-ALLEGRO_COLOR test(ALLEGRO_COLOR src_col, ALLEGRO_COLOR dst_col,
+static ALLEGRO_COLOR test(ALLEGRO_COLOR src_col, ALLEGRO_COLOR dst_col,
    ALLEGRO_COLOR blend, int src_format, int dst_format,
    int src, int dst, int src_a, int dst_a,
    int operation, bool verbose)
@@ -85,7 +85,7 @@ ALLEGRO_COLOR test(ALLEGRO_COLOR src_col, ALLEGRO_COLOR dst_col,
    return result;
 }
 
-bool same_color(ALLEGRO_COLOR c1, ALLEGRO_COLOR c2)
+static bool same_color(ALLEGRO_COLOR c1, ALLEGRO_COLOR c2)
 {
    float r1, g1, b1, a1;
    float r2, g2, b2, a2;
@@ -102,7 +102,7 @@ bool same_color(ALLEGRO_COLOR c1, ALLEGRO_COLOR c2)
    return false;
 }
 
-float get_factor(int operation, float alpha)
+static float get_factor(int operation, float alpha)
 {
    switch(operation) {
        case ALLEGRO_ZERO: return 0;
@@ -113,7 +113,7 @@ float get_factor(int operation, float alpha)
    return 0;
 }
 
-bool has_alpha(int format)
+static bool has_alpha(int format)
 {
    if (format == ALLEGRO_PIXEL_FORMAT_RGB_888) return false;
    if (format == ALLEGRO_PIXEL_FORMAT_BGR_888) return false;
@@ -122,7 +122,7 @@ bool has_alpha(int format)
 
 #define CLAMP(x) (x > 1 ? 1 : x)
 
-ALLEGRO_COLOR reference_implementation(
+static ALLEGRO_COLOR reference_implementation(
    ALLEGRO_COLOR src_col, ALLEGRO_COLOR dst_col,
    ALLEGRO_COLOR blend_col, int src_format, int dst_format,
    int src_mode, int dst_mode, int src_alpha, int dst_alpha,
@@ -173,7 +173,7 @@ ALLEGRO_COLOR reference_implementation(
    return al_map_rgba_f(r, g, b, a);
 }
 
-void do_test2(ALLEGRO_COLOR src_col, ALLEGRO_COLOR dst_col,
+static void do_test2(ALLEGRO_COLOR src_col, ALLEGRO_COLOR dst_col,
    ALLEGRO_COLOR blend_col, int src_format, int dst_format,
    int src_mode, int dst_mode, int src_alpha, int dst_alpha,
    int operation)
@@ -227,7 +227,7 @@ void do_test2(ALLEGRO_COLOR src_col, ALLEGRO_COLOR dst_col,
    }
 }
 
-void do_test1(ALLEGRO_COLOR src_col, ALLEGRO_COLOR dst_col,
+static void do_test1(ALLEGRO_COLOR src_col, ALLEGRO_COLOR dst_col,
    ALLEGRO_COLOR blend_col, int src_format, int dst_format)
 {
    int i, j, k, l, m;

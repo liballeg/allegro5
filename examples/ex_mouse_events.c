@@ -5,7 +5,7 @@
 
 #define NUM_BUTTONS  3
 
-void draw_mouse_button(int but, bool down)
+static void draw_mouse_button(int but, bool down)
 {
    const int offset[NUM_BUTTONS] = {0, 70, 35};
    ALLEGRO_COLOR grey;

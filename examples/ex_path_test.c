@@ -34,7 +34,7 @@ int error = 0;
 /* Test al_create_path, al_get_path_num_components, al_get_path_component,
  * al_get_path_drive, al_get_path_filename, al_free_path.
  */
-void t1(void)
+static void t1(void)
 {
    ALLEGRO_PATH *path;
 
@@ -96,7 +96,7 @@ void t1(void)
 }
 
 /* Test parsing UNC paths. */
-void t2(void)
+static void t2(void)
 {
 #ifdef ALLEGRO_WINDOWS
    ALLEGRO_PATH *path;
@@ -119,7 +119,7 @@ void t2(void)
 }
 
 /* Test parsing drive letter paths. */
-void t3(void)
+static void t3(void)
 {
 #ifdef ALLEGRO_WINDOWS
    ALLEGRO_PATH *path;
@@ -148,7 +148,7 @@ void t3(void)
 }
 
 /* Test al_append_path_component. */
-void t4(void)
+static void t4(void)
 {
    ALLEGRO_PATH *path = al_create_path(NULL);
 
@@ -172,7 +172,7 @@ void t4(void)
 }
 
 /* Test al_replace_path_component. */
-void t5(void)
+static void t5(void)
 {
    ALLEGRO_PATH *path = al_create_path(NULL);
 
@@ -199,7 +199,7 @@ void t5(void)
 }
 
 /* Test al_remove_path_component. */
-void t6(void)
+static void t6(void)
 {
    ALLEGRO_PATH *path = al_create_path(NULL);
 
@@ -225,7 +225,7 @@ void t6(void)
 }
 
 /* Test al_insert_path_component. */
-void t7(void)
+static void t7(void)
 {
    ALLEGRO_PATH *path = al_create_path("INKY/BLINKY/");
 
@@ -244,7 +244,7 @@ void t7(void)
 }
 
 /* Test al_get_path_tail, al_drop_path_tail. */
-void t8(void)
+static void t8(void)
 {
    ALLEGRO_PATH *path = al_create_path(NULL);
 
@@ -271,7 +271,7 @@ void t8(void)
 
 /* Test al_set_path_drive, al_set_path_filename, al_path_cstr.
  */
-void t9(void)
+static void t9(void)
 {
    ALLEGRO_PATH *path = al_create_path(NULL);
 
@@ -311,7 +311,7 @@ void t9(void)
 }
 
 /* Test al_join_paths. */
-void t10(void)
+static void t10(void)
 {
    ALLEGRO_PATH *path1;
    ALLEGRO_PATH *path2;
@@ -369,7 +369,7 @@ void t10(void)
 }
 
 /* Test al_set_path_extension, al_get_path_extension. */
-void t11(void)
+static void t11(void)
 {
    ALLEGRO_PATH *path = al_create_path(NULL);
 
@@ -401,7 +401,7 @@ void t11(void)
 }
 
 /* Test al_get_path_basename. */
-void t12(void)
+static void t12(void)
 {
    ALLEGRO_PATH *path = al_create_path(NULL);
 
@@ -425,7 +425,7 @@ void t12(void)
 }
 
 /* Test al_clone_path. */
-void t13(void)
+static void t13(void)
 {
    ALLEGRO_PATH *path1;
    ALLEGRO_PATH *path2;
@@ -445,7 +445,7 @@ void t13(void)
 }
 
 /* Test al_is_path_present. */
-void t14(void)
+static void t14(void)
 {
    ALLEGRO_PATH *path;
 
@@ -458,13 +458,13 @@ void t14(void)
    al_free_path(path);
 }
 
-void t15(void)
+static void t15(void)
 {
    /* nothing */
 }
 
 /* Test al_make_path_absolute. */
-void t16(void)
+static void t16(void)
 {
    ALLEGRO_PATH *path, *cwd;
    const char *buf, *buf2;
@@ -483,7 +483,7 @@ void t16(void)
 }
 
 /* Test al_make_path_canonical. */
-void t17(void)
+static void t17(void)
 {
    ALLEGRO_PATH *path;
 

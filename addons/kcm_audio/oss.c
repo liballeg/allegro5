@@ -382,7 +382,7 @@ static int oss_update_nonstream_voice(ALLEGRO_VOICE *voice, void **buf, int *byt
    int bpos = voice->attached_stream->pos * oss_voice->frame_size;
    int blen = oss_voice->len * oss_voice->frame_size;
 
-   *buf = voice->attached_stream->spl_data.buffer.ptr + bpos;
+   *buf = (char *)voice->attached_stream->spl_data.buffer.ptr + bpos;
 
    if (bpos + *bytes > blen) {
       *bytes = blen - bpos;

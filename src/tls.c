@@ -79,6 +79,10 @@ ALLEGRO_STATIC_ASSERT(
 #include <windows.h>
 
 
+/* Forward declaration to bypass strict warning. */
+BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved);
+
+
 static DWORD tls_index;
 
 
