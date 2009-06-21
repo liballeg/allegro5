@@ -35,6 +35,7 @@
 #include "allegro5/internal/aintern_mouse.h"
 #include "allegro5/platform/aintwin.h"
 #include "allegro5/internal/aintern_display.h"
+#include <math.h>
 
 ALLEGRO_MOUSE the_mouse;
 ALLEGRO_MOUSE_STATE mouse_state;
@@ -280,7 +281,7 @@ void _al_win_mouse_handle_leave(ALLEGRO_DISPLAY_WIN *win_disp)
    generate_mouse_event(ALLEGRO_EVENT_MOUSE_LEAVE_DISPLAY,
       mouse_state.x, mouse_state.y, mouse_state.z,
       0, 0, 0,
-      mouse_state.buttons, (void*)win_disp);
+      0, (void*)win_disp);
 }
 
 
@@ -291,7 +292,7 @@ void _al_win_mouse_handle_enter(ALLEGRO_DISPLAY_WIN *win_disp)
    generate_mouse_event(ALLEGRO_EVENT_MOUSE_ENTER_DISPLAY,
       mouse_state.x, mouse_state.y, mouse_state.z,
       0, 0, 0,
-      mouse_state.buttons, (void*)win_disp);
+      0, (void*)win_disp);
 }
 
 
@@ -326,7 +327,7 @@ void _al_win_mouse_handle_move(int x, int y, bool abs, ALLEGRO_DISPLAY_WIN *win_
       generate_mouse_event(ALLEGRO_EVENT_MOUSE_AXES,
          mouse_state.x, mouse_state.y, mouse_state.z,
          dx, dy, 0,
-         mouse_state.buttons, (void*)win_disp);
+         0, (void*)win_disp);
    }
 }
 
@@ -350,7 +351,7 @@ void _al_win_mouse_handle_wheel(int z, bool abs, ALLEGRO_DISPLAY_WIN *win_disp)
    generate_mouse_event(ALLEGRO_EVENT_MOUSE_AXES,
       mouse_state.x, mouse_state.y, mouse_state.z,
       0, 0, d,
-      mouse_state.buttons, (void*)win_disp);
+      0, (void*)win_disp);
 }
 
 
@@ -372,10 +373,13 @@ void _al_win_mouse_handle_button(int button, bool down, int x, int y, bool abs,
       mouse_state.y = y;
    }
 
-   mouse_state.buttons = button;
+   if (down)
+      mouse_state.buttons |= (1 << (button-1));
+   else
+      mouse_state.buttons &= ~(1 << (button-1));
 
    generate_mouse_event(type,
    mouse_state.x, mouse_state.y, mouse_state.z,
    0, 0, 0,
-   mouse_state.buttons, (void*)win_disp);
+   button, (void*)win_disp);
 }
