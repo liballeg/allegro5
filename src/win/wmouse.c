@@ -35,7 +35,6 @@
 #include "allegro5/internal/aintern_mouse.h"
 #include "allegro5/platform/aintwin.h"
 #include "allegro5/internal/aintern_display.h"
-#include <math.h>
 
 ALLEGRO_MOUSE the_mouse;
 ALLEGRO_MOUSE_STATE mouse_state;
