@@ -94,6 +94,7 @@ ALLEGRO_FONT_FUNC(void, al_get_text_dimensions, (const ALLEGRO_FONT *f,
    char const *text,
    int *bbx, int *bby, int *bbw, int *bbh, int *ascent, int *descent));
 ALLEGRO_FONT_FUNC(void, al_init_font_addon, (void));
+ALLEGRO_FONT_FUNC(void, al_shutdown_font_addon, (void));
 
 
 #ifdef __cplusplus

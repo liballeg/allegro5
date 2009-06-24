@@ -40,6 +40,11 @@ next 128 glyphs to Extended-A, and the last glyph to the Euro character.
 
 ## API: al_init_font_addon
 
+## API: al_shutdown_font_addon
+
+Shut down the font addon. This is done automatically at program exit,
+but can be called any time the user wishes as well.
+
 ## API: al_load_bitmap_font
 
 ## API: al_load_font

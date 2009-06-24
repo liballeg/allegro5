@@ -149,6 +149,7 @@ void al_join_thread(ALLEGRO_THREAD *outer, void **ret_value)
          outer->thread_state = THREAD_STATE_JOINING;
          _al_cond_broadcast(&outer->cond);
          _al_mutex_unlock(&outer->mutex);
+         _al_mutex_destroy(&outer->mutex);
          _al_thread_join(&outer->thread);
          outer->thread_state = THREAD_STATE_JOINED;
          break;

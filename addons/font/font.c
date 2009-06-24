@@ -14,6 +14,7 @@
 
 #include <string.h>
 #include "allegro5/allegro5.h"
+#include "allegro5/internal/aintern.h"
 #include "allegro5/internal/aintern_memory.h"
 #include "allegro5/internal/aintern_vector.h"
 #include "allegro5/a5_font.h"
@@ -190,7 +191,13 @@ static void color_destroy(ALLEGRO_FONT* f)
 
         for(i = cf->begin; i < cf->end; i++) al_destroy_bitmap(cf->bitmaps[i - cf->begin]);
         /* Each range might point to the same bitmap. */
-        if (cf->glyphs != glyphs) al_destroy_bitmap(cf->glyphs);
+        if (cf->glyphs != glyphs) {
+            al_destroy_bitmap(cf->glyphs);
+            cf->glyphs = NULL;
+        }
+
+        if (!next && cf->glyphs)
+            al_destroy_bitmap(cf->glyphs);
 
         _AL_FREE(cf->bitmaps);
         _AL_FREE(cf);
@@ -219,6 +226,16 @@ ALLEGRO_FONT_VTABLE _al_font_vtable_color = {
 ALLEGRO_FONT_VTABLE* al_font_vtable_color = &_al_font_vtable_color;
 
 
+static void font_shutdown(void)
+{
+    while (!_al_vector_is_empty(&handlers)) {
+       HANDLER *h = _al_vector_ref(&handlers, _al_vector_size(&handlers)-1);
+       al_ustr_free(h->extension);
+       _al_vector_delete_at(&handlers, _al_vector_size(&handlers)-1);
+    }
+    _al_vector_free(&handlers);
+}
+
 
 /* Function: al_init_font_addon
  */
@@ -232,8 +249,17 @@ void al_init_font_addon(void)
    al_register_font_extension(".pcx", _al_load_bitmap_font);
    al_register_font_extension(".png", _al_load_bitmap_font);
    al_register_font_extension(".tga", _al_load_bitmap_font);
+
+   _al_add_exit_func(font_shutdown, "font_shutdown");
 }
 
+
+/* Function: al_shutdown_font_addon
+ */
+void al_shutdown_font_addon(void)
+{
+   font_shutdown();
+}
 
 
 static HANDLER *find_extension(char const *extension)

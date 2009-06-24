@@ -187,6 +187,8 @@ static void win_shutdown(void)
       al_destroy_display(d);
    }
 
+   _al_vector_free(&s->displays);
+
    if (vt->get_display_driver && vt->get_display_driver()->shutdown) {
       vt->get_display_driver()->shutdown();
    }
@@ -198,6 +200,13 @@ static void win_shutdown(void)
    if (using_higher_res_timer) {
       timeEndPeriod(1);
    }
+
+   ASSERT(vt);
+   _AL_FREE(vt);
+   vt = NULL;
+
+   ASSERT(_al_win_system);
+   _AL_FREE(_al_win_system);
 }
 
 

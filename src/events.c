@@ -182,6 +182,8 @@ void al_unregister_event_source(ALLEGRO_EVENT_QUEUE *queue,
       _al_mutex_lock(&queue->mutex);
       discard_events_of_source(queue, source);
       _al_mutex_unlock(&queue->mutex);
+
+      _al_mutex_destroy(&source->mutex);
    }
 }
 

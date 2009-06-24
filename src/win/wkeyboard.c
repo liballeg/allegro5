@@ -155,6 +155,8 @@ static bool init_keyboard(void)
  */
 static void exit_keyboard(void)
 {
+   _al_event_source_free(&the_keyboard.es);
+
    /* This may help catch bugs in the user program, since the pointer
     * we return to the user is always the same.
     */

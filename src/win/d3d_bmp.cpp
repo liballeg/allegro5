@@ -33,7 +33,25 @@ extern "C" {
 
 
 static ALLEGRO_BITMAP_INTERFACE *vt;
-static _AL_VECTOR created_bitmaps = _AL_VECTOR_INITIALIZER(ALLEGRO_BITMAP_D3D *);
+static _AL_VECTOR created_bitmaps;
+
+
+void _al_d3d_bmp_init(void)
+{
+   _al_vector_init(&created_bitmaps, sizeof(ALLEGRO_BITMAP_D3D *));
+}
+
+
+void _al_d3d_bmp_destroy(void)
+{
+   while (!_al_vector_is_empty(&created_bitmaps))
+      _al_vector_delete_at(&created_bitmaps, _al_vector_size(&created_bitmaps)-1);
+   _al_vector_free(&created_bitmaps);
+   _al_vector_init(&created_bitmaps, sizeof(ALLEGRO_SYSTEM_INTERFACE *));
+
+   _AL_FREE(vt);
+   vt = NULL;
+}
 
 
 static void d3d_set_matrix(float *src, D3DMATRIX *dest)

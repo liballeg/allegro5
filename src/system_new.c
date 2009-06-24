@@ -27,7 +27,7 @@
 
 static ALLEGRO_SYSTEM *active_sysdrv = NULL;
 
-_AL_VECTOR _al_system_interfaces = _AL_VECTOR_INITIALIZER(ALLEGRO_SYSTEM_INTERFACE *);
+_AL_VECTOR _al_system_interfaces;
 static _AL_VECTOR _user_system_interfaces = _AL_VECTOR_INITIALIZER(ALLEGRO_SYSTEM_INTERFACE *);
 
 _AL_DTOR_LIST *_al_dtor_list = NULL;
@@ -88,6 +88,11 @@ static void shutdown_system_driver(void)
       active_sysdrv = NULL;
       /* active_sysdrv is not accessible here so we copied it */
       al_destroy_config(temp);
+ 
+      while (!_al_vector_is_empty(&_al_system_interfaces))
+         _al_vector_delete_at(&_al_system_interfaces, _al_vector_size(&_al_system_interfaces)-1);
+      _al_vector_free(&_al_system_interfaces);
+      _al_vector_init(&_al_system_interfaces, sizeof(ALLEGRO_SYSTEM_INTERFACE *));
    }
 }
 
@@ -147,6 +152,8 @@ bool al_install_system(int (*atexit_ptr)(void (*)(void)))
    if (active_sysdrv) {
       return true;
    }
+   
+   _al_vector_init(&_al_system_interfaces, sizeof(ALLEGRO_SYSTEM_INTERFACE *));
 
    /* We want active_sysdrv->config to be available as soon as
     * possible - for example what if a system driver need to read

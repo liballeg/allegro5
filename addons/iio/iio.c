@@ -3,6 +3,7 @@
 
 #include "allegro5/allegro5.h"
 #include "allegro5/a5_iio.h"
+#include "allegro5/internal/aintern.h"
 
 
 #include "iio.h"
@@ -25,6 +26,19 @@ static Handler **handlers = NULL;
 static bool inited = false;
 static unsigned int num_handlers = 0;
 
+
+static void iio_shutdown(void)
+{
+   if (inited) {
+      unsigned int i;
+      for (i = 0; i < num_handlers; i++) {
+         free(handlers[i]->extension);
+         free(handlers[i]);
+      }
+      free(handlers);
+      inited = false;
+   }
+}
 
 
 /* Function: al_init_iio_addon
@@ -52,7 +66,18 @@ bool al_init_iio_addon(void)
    if (success)
       inited = true;
 
+
+   _al_add_exit_func(iio_shutdown, "iio_shutdown");
+
    return success;
+}
+
+
+/* Function: al_shutdown_iio_addon
+ */
+void al_shutdown_iio_addon(void)
+{
+   iio_shutdown();
 }
 
 

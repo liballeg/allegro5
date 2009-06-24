@@ -7,6 +7,11 @@
 
 Initializes the IIO addon.
 
+## API: al_shutdown_iio_addon
+
+Shut down the IIO addon. This is done automatically at program exit,
+but can be called any time the user wishes as well.
+
 ## API: al_load_bitmap
 
 Loads an image file into an ALLEGRO_BITMAP.

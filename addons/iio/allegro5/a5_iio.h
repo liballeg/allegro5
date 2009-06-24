@@ -35,6 +35,7 @@ typedef int (*ALLEGRO_IIO_FS_SAVER_FUNCTION)(ALLEGRO_FILE *pf, ALLEGRO_BITMAP *b
 
 
 A5_IIO_FUNC(bool, al_init_iio_addon, (void));
+A5_IIO_FUNC(void, al_shutdown_iio_addon, (void));
 A5_IIO_FUNC(bool, al_add_image_handler, (const char *ext, ALLEGRO_IIO_LOADER_FUNCTION loader, ALLEGRO_IIO_SAVER_FUNCTION saver, ALLEGRO_IIO_FS_LOADER_FUNCTION fs_loader, ALLEGRO_IIO_FS_SAVER_FUNCTION fs_saver));
 A5_IIO_FUNC(ALLEGRO_BITMAP *, al_load_bitmap, (const char *filename));
 A5_IIO_FUNC(ALLEGRO_BITMAP *, al_load_bitmap_entry, (ALLEGRO_FILE *pf, const char *ident));

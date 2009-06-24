@@ -877,6 +877,8 @@ bool _al_d3d_init_display()
    present_mutex = al_create_mutex();
    _al_d3d_lost_device_mutex = al_create_mutex();
 
+   _al_d3d_bmp_init();
+
    return true;
 }
 
@@ -2463,6 +2465,11 @@ static void d3d_shutdown(void)
    _al_d3d->Release();
    al_destroy_mutex(present_mutex);
    al_destroy_mutex(_al_d3d_lost_device_mutex);
+
+   _al_d3d_bmp_destroy();
+
+   _AL_FREE(vt);
+   vt = NULL;
 }
 
 
