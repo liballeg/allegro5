@@ -38,7 +38,7 @@ typedef struct Viewport {
    double zoom;
 } Viewport;
 
-ThreadInfo thread_info[NUM_THREADS];
+static ThreadInfo thread_info[NUM_THREADS];
 
 unsigned char sin_lut[256];
 
