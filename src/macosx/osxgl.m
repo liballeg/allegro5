@@ -118,7 +118,6 @@ void _al_osx_keyboard_was_installed(BOOL install) {
 -(ALLEGRO_DISPLAY*) allegroDisplay;
 -(void) reshape;
 -(BOOL) acceptsFirstResponder;
--(void) drawRect: (NSRect) rc;
 -(void) keyDown:(NSEvent*) event;
 -(void) keyUp:(NSEvent*) event; 
 -(void) flagsChanged:(NSEvent*) event;
