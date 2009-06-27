@@ -415,6 +415,12 @@ static void d3d_reset_state(ALLEGRO_DISPLAY_D3D *disp)
    disp->device->SetRenderState(D3DRS_CULLMODE, D3DCULL_NONE);
    disp->device->SetRenderState(D3DRS_ALPHABLENDENABLE, true);
 
+   /* Set texture address mode to clamp */
+   if (disp->device->SetSamplerState(0, D3DSAMP_ADDRESSU, D3DTADDRESS_CLAMP) != D3D_OK)
+      TRACE("SetSamplerState failed\n");
+   if (disp->device->SetSamplerState(0, D3DSAMP_ADDRESSV, D3DTADDRESS_CLAMP) != D3D_OK)
+      TRACE("SetSamplerState failed\n");
+      
    /* Set up filtering */
    if (disp->device->SetSamplerState(0, D3DSAMP_MINFILTER, d3d_min_filter) != D3D_OK)
       TRACE("SetSamplerState failed\n");
