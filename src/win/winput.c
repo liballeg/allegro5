@@ -211,6 +211,7 @@ bool _al_win_input_unregister_event(HANDLE event_id)
  */
 void _al_win_input_init(void)
 {
+   input_thread_is_over = false;
    input_thread = (HANDLE)_beginthread((THREAD_PROC)input_proc, 0, NULL);
    if (!input_thread) {
       TRACE(PREFIX_E "Failed to spawn the input thread.\n");

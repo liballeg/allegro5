@@ -12,6 +12,7 @@
 #cmakedefine ALLEGRO_CFG_ALLOW_SSE
 #cmakedefine ALLEGRO_NO_ASM
 #cmakedefine ALLEGRO_CFG_NO_FPU
+#cmakedefine ALLEGRO_CFG_DLL_TLS
 
 /*---------------------------------------------------------------------------*/
 

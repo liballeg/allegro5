@@ -67,9 +67,10 @@ ALLEGRO_STATIC_ASSERT(
    sizeof(ALLEGRO_STATE) > sizeof(thread_local_state) + sizeof(int));
 
 
-#if defined ALLEGRO_MINGW32 && ( \
+#if (defined ALLEGRO_MINGW32 && ( \
    __GNUC__ < 4 || (__GNUC__ == 4 && __GNUC_MINOR__ < 2) || \
-   (__GNUC__ == 4 && __GNUC_MINOR == 2 && __GNUC_PATCHLEVEL__ < 1))
+   (__GNUC__ == 4 && __GNUC_MINOR == 2 && __GNUC_PATCHLEVEL__ < 1))) || \
+   defined ALLEGRO_CFG_DLL_TLS
 
 /*
  * MinGW 3.x doesn't have builtin thread local storage, so we

@@ -118,6 +118,7 @@ option(WANT_MUDFLAP "Enable gcc mudflap (requires gcc 4.0+)" off)
 option(WANT_ALLOW_SSE "Allow compiler to use SSE instructions (x86)" on)
 option(WANT_MAGIC_MAIN "Enable magic main" off)
 option(NO_FPU "No floating point unit" off)
+option(WANT_DLL_TLS "Force use of DllMain for TLS (Windows)" off)
 
 #-----------------------------------------------------------------------------#
 #
@@ -132,6 +133,12 @@ set(INSTALL_PREFIX "")
 if(CMAKE_COMPILER_IS_GNUCC)
     set(COMPILER_GCC 1)
 endif(CMAKE_COMPILER_IS_GNUCC)
+
+if(WIN32)
+    if(WANT_DLL_TLS)
+        set(ALLEGRO_CFG_DLL_TLS 1)
+    endif(WANT_DLL_TLS)
+endif(WIN32)
 
 if(MSVC)
     set(COMPILER_MSVC 1)
