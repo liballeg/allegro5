@@ -427,8 +427,10 @@ void al_draw_filled_ellipse(float cx, float cy, float rx, float ry,
    
    num_segments = ALLEGRO_PRIM_QUALITY * sqrtf((rx + ry) / 2.0f);
 
-   /* In case rx and ry are both 0. */
-   if (!num_segments) return;
+   /* In case rx and ry are both close to 0. If al_calculate_arc is passed
+    * 0 or 1 it will assert.
+    */
+   if (num_segments < 2) return;
    
    if (num_segments >= ALLEGRO_VERTEX_CACHE_SIZE) {
       num_segments = ALLEGRO_VERTEX_CACHE_SIZE - 1;
