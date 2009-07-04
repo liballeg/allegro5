@@ -232,9 +232,6 @@ static ALLEGRO_BITMAP *_al_load_memory_bitmap(char const *filename)
 }
 
 
-
-/* Function: al_load_bitmap
- */
 ALLEGRO_BITMAP *al_load_bitmap(char const *filename)
 {
    ALLEGRO_BITMAP *bitmap;
