@@ -846,6 +846,7 @@ set(PKG_CONFIG_FILES
     allegro
     a5_acodec
     a5_color
+    a5_dialog
     a5_font
     a5_iio
     a5_memfile
