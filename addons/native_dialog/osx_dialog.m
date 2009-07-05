@@ -19,12 +19,12 @@ void al_show_native_file_dialog(ALLEGRO_NATIVE_DIALOG *fd)
    if (fd->initial_path) {
       ALLEGRO_PATH *initial_directory = al_clone_path(fd->initial_path);
       /* Strip filename from path  */
-      al_path_set_filename(initial_directory, NULL);
+      al_set_path_filename(initial_directory, NULL);
 
       /* Convert path and filename to NSString objects */
-      directory = [NSString stringWithUTF8String: al_path_to_string(initial_directory, '/')];
-      filename = [NSString stringWithUTF8String: al_path_get_filename(fd->initial_path)];
-      al_path_free(initial_directory);
+      directory = [NSString stringWithUTF8String: al_path_cstr(initial_directory, '/')];
+      filename = [NSString stringWithUTF8String: al_get_path_filename(fd->initial_path)];
+      al_free_path(initial_directory);
    } else {
       directory = nil;
       filename = nil;
@@ -71,7 +71,7 @@ void al_show_native_file_dialog(ALLEGRO_NATIVE_DIALOG *fd)
       if (mode & ALLEGRO_FILECHOOSER_MULTIPLE)
          [panel setAllowsMultipleSelection: YES];
       else
-         [panel setAllowsMultipleSelection:NO];
+         [panel setAllowsMultipleSelection: NO];
 
       /* Open dialog box */
       if ([panel runModalForDirectory:directory file:filename] == NSOKButton) {
