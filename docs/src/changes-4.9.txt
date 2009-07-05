@@ -4,6 +4,34 @@ See `changes._tx` for changes in earlier versions of Allegro.  These lists
 serve as summaries; the full histories are in the Subversion repository.
 
 
+Changes from 4.9.11 to 4.9.12 (July 2009)
+=========================================
+
+-  Fixed bugs in Windows keyboard driver (Todd Cope).
+
+-  Fixed problems with ALLEGRO_MOUSE_STATE buttons on Windows (Milan Mimica).
+
+-  Fixed problems with PhysicsFS addon DLL on MSVC (Peter Wang).
+
+-  Set the D3D texture address mode to CLAMP (Todd Cope).
+
+-  Fixed hang if Allegro was initialized more than once on Windows
+   (Michael Harrington).
+
+-  Added a CMake option to force the use of DllMain style TLS on Windows,
+   for use with C# bindings (Michael Harrington).
+
+-  Fixed a bug where drawing circles with a small radius would crash
+   (Elias Pschernig).
+
+-  Fixed several memory leaks throughout the libraries (Trent Gamblin).
+
+-  Fixed some compilation warnings on Mac OS X (Evert Glebbeek).
+
+-  Small documentation updates.
+
+
+
 Changes from 4.9.10.1 to 4.9.11 (June 2009)
 ===========================================
 
