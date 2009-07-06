@@ -24,6 +24,7 @@
 #include "allegro5/internal/aintern_dtor.h"
 #include "allegro5/internal/aintern_system.h"
 #include "allegro5/internal/aintern_vector.h"
+#include "allegro5/internal/aintern_pixels.h"
 
 static ALLEGRO_SYSTEM *active_sysdrv = NULL;
 
@@ -200,6 +201,8 @@ bool al_install_system(int (*atexit_ptr)(void (*)(void)))
    _al_dtor_list = _al_init_destructors();
 
    _al_init_events();
+
+   _al_init_pixels();
 
    al_set_blender(ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA, al_map_rgb(255, 255, 255));
 

@@ -43,7 +43,6 @@ AL_ARRAY(const int, _rgb_scale_1);
 AL_ARRAY(const int, _rgb_scale_4);
 AL_ARRAY(const int, _rgb_scale_5);
 AL_ARRAY(const int, _rgb_scale_6);
-AL_ARRAY(const float, _al_u8_to_float);
 
 /*
 #define MASK_COLOR_8       0

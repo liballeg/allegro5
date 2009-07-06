@@ -25,6 +25,8 @@
 #include "allegro5/internal/aintern_bitmap.h"
 #include "allegro5/internal/aintern_pixels.h"
 
+/* lookup table for scaling 8 bit integers up to floats [0.0, 1.0] */
+float _al_u8_to_float[256];
 
 
 static int pixel_sizes[] = {
@@ -432,6 +434,14 @@ void al_unmap_rgb_f(ALLEGRO_COLOR color, float *r, float *g, float *b)
    float tmp;
 
    al_unmap_rgba_f(color, r, g, b, &tmp);
+}
+
+
+void _al_init_pixels(void)
+{
+   int i;
+   for (i = 0; i < 256; i++)
+      _al_u8_to_float[i] = i / 255.0;
 }
 
 /* vim: set sts=3 sw=3 et: */

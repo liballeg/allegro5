@@ -424,6 +424,8 @@
       }                                                                       \
    } while (0)
 
+AL_ARRAY(float, _al_u8_to_float);
+AL_FUNC(void, _al_init_pixels, (void));
 
 #endif /* __al_included_aintern_pixels_h */
 
