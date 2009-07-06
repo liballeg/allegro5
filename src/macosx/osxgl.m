@@ -301,6 +301,7 @@ void _al_osx_mouse_was_installed(BOOL install) {
 
 - (void) viewWillMoveToWindow: (NSWindow*) newWindow {
    ALLEGRO_DISPLAY_OSX_WIN* dpy = (ALLEGRO_DISPLAY_OSX_WIN*) dpy_ptr;
+   (void)newWindow;
    if (([self window] != nil) && (dpy->tracking != 0)) {
       [self removeTrackingRect:dpy->tracking];
    }
@@ -339,6 +340,7 @@ void _al_osx_mouse_was_installed(BOOL install) {
 */
 - (BOOL)windowShouldClose:(id)sender
 {
+   (void)sender;
 	ALLEGRO_EVENT_SOURCE* src = &([self allegroDisplay]->es);
 	_al_event_source_lock(src);
 	ALLEGRO_EVENT evt;
@@ -370,6 +372,7 @@ void _al_osx_mouse_was_installed(BOOL install) {
 /* Window switch in/out */
 -(void) windowDidBecomeMain:(NSNotification*) notification
 {
+   (void)notification;
 	ALLEGRO_DISPLAY_OSX_WIN* dpy =  (ALLEGRO_DISPLAY_OSX_WIN*) dpy_ptr;
 	ALLEGRO_EVENT_SOURCE* src = &([self allegroDisplay]->es);
 	_al_event_source_lock(src);
@@ -382,6 +385,7 @@ void _al_osx_mouse_was_installed(BOOL install) {
 }
 -(void) windowDidResignMain:(NSNotification*) notification
 {
+   (void)notification;
 	ALLEGRO_EVENT_SOURCE* src = &([self allegroDisplay]->es);
 	_al_event_source_lock(src);
 	ALLEGRO_EVENT evt;
@@ -392,6 +396,7 @@ void _al_osx_mouse_was_installed(BOOL install) {
 }
 -(void) windowDidResize:(NSNotification*) notification
 {
+   (void)notification;
 	ALLEGRO_DISPLAY_OSX_WIN* dpy =  (ALLEGRO_DISPLAY_OSX_WIN*) dpy_ptr;
    NSWindow *window = dpy->win;
    NSRect rc = [window frame];
@@ -647,38 +652,51 @@ static void osx_get_opengl_pixelformat_attributes(ALLEGRO_DISPLAY_OSX_WIN *dpy)
 	 * grab the handle any more to make it bigger
 	 */
 	[win setMinSize: NSMakeSize(MINIMUM_WIDTH, MINIMUM_HEIGHT)];
+
    /* Place the window, respecting the location set by the user with
-    * al_set_new_window_position()
-    */
-   int new_x, new_y;
-   al_get_new_window_position(&new_x, &new_y);
-   /* CAUTION: the window manager under OS X requires that x and y be in
+    * al_set_new_window_position().
+    * If the user never called al_set_new_window_position, we simply let
+    * the window manager pick a suitable location.
+    *
+    * CAUTION: the window manager under OS X requires that x and y be in
     * the range -16000 ... 16000 (approximately, probably the range of a
     * signed 16 bit integer). Should we check for this?
     */
+   int new_x, new_y;
+   al_get_new_window_position(&new_x, &new_y);
    if ((new_x != INT_MAX) && (new_y != INT_MAX)) {
-      last_window_pos.x = new_x;
-      last_window_pos.y = new_y;
+      /* The user gave us window coordinates */
+      NSRect rc = [win frame];
+      NSRect sc = [[win screen] frame];
+      NSPoint origin;
+
+      /* We need to modify the y coordinate, cf. set_window_position */
+      origin.x = sc.origin.x + new_x;
+      origin.y = sc.origin.y + sc.size.height - rc.size.height - new_y;
+      [win setFrameOrigin: origin];
+   } 
+   else {
+      /* The window manager decides where to place the window */
+      NSRect screen_rect = [screen frame];
+      if (NSEqualPoints(last_window_pos, NSZeroPoint)) {
+         /* We haven't positioned a window before, centre it */
+         [win center];
+      }
+
+      /* We measure window positions relative to the origin of whatever the
+       * screen we're placing the window on is, but OS X measures these
+       * relative to a coordinate system spanning all of the screens, so we
+       * need to translate to the new origin.
+       * DON'T store the translated coordinates though, or the next window
+       * may not end up where the user expects (so translate them back at
+       * the end).
+       */
+      last_window_pos.x += screen_rect.origin.x;
+      last_window_pos.y += screen_rect.origin.y;
+      last_window_pos = [win cascadeTopLeftFromPoint:last_window_pos];
+      last_window_pos.x -= screen_rect.origin.x;
+      last_window_pos.y -= screen_rect.origin.y;
    }
-   if (NSEqualPoints(last_window_pos, NSZeroPoint)) {
-      /* We haven't positioned a window before */
-      [win center];
-   }
-   /* FIXME: Even if the window is placed on the secondary display (by setting
-    * the screen parameter above), this causes the window to move to the
-    * primary display again, effectively creating the window on the primary
-    * display.
-    * We work around this by translating to the origin of the target
-    * "screen", not sure if this is the "best" way to do this though...
-    * NB: we currently don't check that we didn't move the window off the
-    * visible area...
-    */
-   NSRect screen_rect = [screen frame];
-   last_window_pos.x += screen_rect.origin.x;
-   last_window_pos.y += screen_rect.origin.y;
-   last_window_pos = [win cascadeTopLeftFromPoint:last_window_pos];
-   last_window_pos.x -= screen_rect.origin.x;
-   last_window_pos.y -= screen_rect.origin.y;
    [win makeKeyAndOrderFront:self];
 	if (!(mask & NSBorderlessWindowMask)) [win makeMainWindow];
 	[view release];
@@ -1018,6 +1036,10 @@ static void flip_display(ALLEGRO_DISPLAY *disp)
 static void update_display_region(ALLEGRO_DISPLAY *disp,
    int x, int y, int width, int height)
 {
+   (void)x;
+   (void)y;
+   (void)width;
+   (void)height;
    flip_display(disp);
 }
 
@@ -1219,6 +1241,7 @@ static void set_window_title(ALLEGRO_DISPLAY *display, AL_CONST char *title)
  */
 static void set_icon(ALLEGRO_DISPLAY *display, ALLEGRO_BITMAP* bitmap)
 {
+   (void)display;
    [NSApp setApplicationIconImage: NSImageFromAllegroBitmap(bitmap)];
 }
 
