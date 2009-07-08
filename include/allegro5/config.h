@@ -1,5 +1,5 @@
-#ifndef CONFIG_H
-#define CONFIG_H
+#ifndef ALLEGRO5_CONFIG_H
+#define ALLEGRO5_CONFIG_H
 
 #ifdef __cplusplus
 extern "C" {
