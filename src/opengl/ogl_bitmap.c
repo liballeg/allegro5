@@ -250,7 +250,8 @@ static void ogl_draw_scaled_bitmap(ALLEGRO_BITMAP *bitmap, float sx, float sy,
    ALLEGRO_BITMAP *target = al_get_target_bitmap();
    ALLEGRO_BITMAP_OGL *ogl_target = (ALLEGRO_BITMAP_OGL *)target;
    ALLEGRO_DISPLAY *disp = (void *)al_get_current_display();
-   if (disp->ogl_extras->opengl_target != ogl_target || target->locked) {
+   if (disp->ogl_extras->opengl_target != ogl_target ||
+      !setup_blending(disp) || target->locked) {
       _al_draw_scaled_bitmap_memory(bitmap, sx, sy, sw, sh, dx, dy, dw, dh,
                                     flags);
       return;
