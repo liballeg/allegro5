@@ -9,6 +9,8 @@
 #include "allegro5/internal/aintern_acodec.h"
 #include "allegro5/internal/aintern_memory.h"
 
+ALLEGRO_DEBUG_CHANNEL("acodec")
+
 typedef struct WAVFILE
 {
    ALLEGRO_FILE *f; 
@@ -85,7 +87,9 @@ static WAVFILE *wav_open(const char *filename)
    if (memcmp(buffer, "RIFF", 4) || memcmp(buffer+8, "WAVE", 4))
       goto wav_open_error;
    
-   /* read as many leading fmt chunks as exist */
+   /* Read as many leading fmt chunks as exist, then read until a data chunk
+    * is found.
+    */
    while (true) {
       int length = 0;
       short pcm = 0;
@@ -94,42 +98,45 @@ static WAVFILE *wav_open(const char *filename)
          goto wav_open_error;
 
       /* check to see if it's a fmt chunk */
-      if (memcmp(buffer, "fmt ", 4))
-         break;
+      if (!memcmp(buffer, "fmt ", 4)) {
 
-      read32(f, &length);
-      if (length < 16) goto wav_open_error;
+         read32(f, &length);
+         if (length < 16) goto wav_open_error;
 
-      /* should be 1 for PCM data */
-      read16(f, &pcm);
-      if (pcm != 1) goto wav_open_error;
+         /* should be 1 for PCM data */
+         read16(f, &pcm);
+         if (pcm != 1) goto wav_open_error;
 
-      /* mono or stereo data */
-      read16(f, &wavfile->channels);
+         /* mono or stereo data */
+         read16(f, &wavfile->channels);
 
-      if ((wavfile->channels != 1) && (wavfile->channels != 2))
-         goto wav_open_error;
+         if ((wavfile->channels != 1) && (wavfile->channels != 2))
+            goto wav_open_error;
 
-      /* sample frequency */
-      read32(f, &wavfile->freq);
+         /* sample frequency */
+         read32(f, &wavfile->freq);
 
-      /* skip six bytes */
-      al_fseek(f, 6, ALLEGRO_SEEK_CUR);   
+         /* skip six bytes */
+         al_fseek(f, 6, ALLEGRO_SEEK_CUR);   
 
-      /* 8 or 16 bit data? */
-      read16(f, &wavfile->bits);
-      if ((wavfile->bits != 8) && (wavfile->bits != 16))
-         goto wav_open_error;
+         /* 8 or 16 bit data? */
+         read16(f, &wavfile->bits);
+         if ((wavfile->bits != 8) && (wavfile->bits != 16))
+            goto wav_open_error;
 
-      /* Skip remainder of chunk */
-      length -= 16;
-      if (length > 0)
+         /* Skip remainder of chunk */
+         length -= 16;
+         if (length > 0)
+            al_fseek(f, length, ALLEGRO_SEEK_CUR);
+      }
+      else {
+         if (!memcmp(buffer, "data", 4)) break;
+         ALLEGRO_INFO("Ignoring chunk: %c%c%c%c\n", buffer[0], buffer[1],
+            buffer[2], buffer[3]);
+         read32(f, &length);
          al_fseek(f, length, ALLEGRO_SEEK_CUR);
+      }
    }
-
-   /* now there should be a data chunk */
-   if (memcmp(buffer, "data", 4))
-      goto wav_open_error;
 
    /* find out how many samples exist */
    read32(f, &wavfile->samples);
