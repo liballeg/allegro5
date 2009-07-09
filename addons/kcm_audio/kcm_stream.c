@@ -14,9 +14,7 @@
 #include "allegro5/internal/aintern_kcm_audio.h"
 #include "allegro5/internal/aintern_kcm_cfg.h"
 
-#define PREFIX_E "kcm_stream ERROR: "
-#define PREFIX_I "kcm_stream INFO: "
-
+ALLEGRO_DEBUG_CHANNEL("sound")
 
 /* Function: al_create_stream
  */
@@ -527,7 +525,7 @@ void *_al_kcm_feed_stream(ALLEGRO_THREAD *self, void *vstream)
    ALLEGRO_EVENT_QUEUE *queue;
    (void)self;
 
-   TRACE(PREFIX_I "Stream feeder thread started.\n");
+   ALLEGRO_DEBUG("Stream feeder thread started.\n");
 
    queue = al_create_event_queue();
    al_register_event_source(queue, stream->spl.es);
@@ -547,7 +545,7 @@ void *_al_kcm_feed_stream(ALLEGRO_THREAD *self, void *vstream)
          unsigned long bytes_written;
 
          if (!al_get_stream_buffer(stream, &fragment_void)) {
-            TRACE(PREFIX_E "Error getting stream buffer.\n");
+            ALLEGRO_ERROR("Error getting stream buffer.\n");
             continue;
          }
          fragment = fragment_void;
@@ -575,7 +573,7 @@ void *_al_kcm_feed_stream(ALLEGRO_THREAD *self, void *vstream)
          }
 
          if (!al_set_stream_buffer(stream, fragment)) {
-            TRACE(PREFIX_E "Error setting stream buffer.\n");
+            ALLEGRO_ERROR("Error setting stream buffer.\n");
             continue;
          }
 
@@ -593,7 +591,7 @@ void *_al_kcm_feed_stream(ALLEGRO_THREAD *self, void *vstream)
 
    al_destroy_event_queue(queue);
 
-   TRACE(PREFIX_I "Stream feeder thread finished.\n");
+   ALLEGRO_DEBUG("Stream feeder thread finished.\n");
 
    return NULL;
 }
