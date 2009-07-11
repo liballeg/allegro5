@@ -155,11 +155,15 @@ int al_draw_indexed_prim(ALLEGRO_VERTEX* vtxs, ALLEGRO_BITMAP* texture,
    return ret;
 }
 
+/* Function: al_get_allegro_color
+ */
 ALLEGRO_COLOR al_get_allegro_color(ALLEGRO_PRIM_COLOR col)
 {
    return al_map_rgba_f(col.r, col.g, col.b, col.a);
 }
 
+/* Function: al_get_prim_color
+ */
 ALLEGRO_PRIM_COLOR al_get_prim_color(ALLEGRO_COLOR col)
 {
    ALLEGRO_PRIM_COLOR ret;
