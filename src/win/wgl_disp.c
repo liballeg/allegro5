@@ -108,6 +108,9 @@ static bool is_wgl_extension_supported(AL_CONST char *extension, HDC dc)
 
    __wglGetExtensionsStringARB = (ALLEGRO_GetExtensionsStringARB_t)
                                   wglGetProcAddress("wglGetExtensionsStringARB");
+   if (!__wglGetExtensionsStringARB)
+      return false;
+
    ret = _al_ogl_look_for_an_extension(extension,
          (const GLubyte*)__wglGetExtensionsStringARB(dc));
 
