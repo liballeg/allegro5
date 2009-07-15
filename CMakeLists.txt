@@ -119,6 +119,8 @@ option(WANT_ALLOW_SSE "Allow compiler to use SSE instructions (x86)" on)
 option(WANT_MAGIC_MAIN "Enable magic main" off)
 option(NO_FPU "No floating point unit" off)
 option(WANT_DLL_TLS "Force use of DllMain for TLS (Windows)" off)
+option(WANT_DEMO "Build a demo program" on)
+option(WANT_EXAMPLES "Build example programs" on)
 
 #-----------------------------------------------------------------------------#
 #
@@ -777,9 +779,9 @@ add_subdirectory(addons)
 #
 #-----------------------------------------------------------------------------#
 
-if(NOT MSVC80) # XXX disabled because it breaks MSVC's intellisense for some reason
+if(NOT MSVC80 AND WANT_DEMO) # XXX disabled because it breaks MSVC's intellisense for some reason
     add_subdirectory(demo)
-endif(NOT MSVC80)
+endif(NOT MSVC80 AND WANT_DEMO)
 
 #-----------------------------------------------------------------------------#
 #
@@ -791,7 +793,9 @@ macro(example nm)
     add_our_executable(${nm} ${ARGN} ${ALLEGRO_LINK_WITH})
 endmacro(example nm)
 
-add_subdirectory(examples)
+if(WANT_EXAMPLES)
+    add_subdirectory(examples)
+endif(WANT_EXAMPLES)
 
 #-----------------------------------------------------------------------------#
 #
