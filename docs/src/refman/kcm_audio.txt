@@ -243,6 +243,22 @@ Plays a sample over the default mixer. [al_reserve_samples] must have
 previously been called. Returns true on success, false on failure.
 Playback may fail because all the reserved samples are currently used.
 
+Parameters:
+
+* gain - relative volume at which the sample is played; 1.0 is normal.
+
+* pan - 0.0 is centred, -1.0 is left, 1.0 is right, or ALLEGRO_AUDIO_PAN_NONE.
+
+* speed - relative speed at which the sample is played; 1.0 is normal.
+
+* loop - the play mode.
+
+* ret_id - if non-NULL the variable which this points to will be assigned
+  an id representing the sample being played.
+
+See also: [ALLEGRO_PLAYMODE], [ALLEGRO_AUDIO_PAN_NONE], [ALLEGRO_SAMPLE_ID],
+[al_stop_sample].
+
 ## API: al_stop_sample
 
 Stop the sample started by [al_play_sample].
