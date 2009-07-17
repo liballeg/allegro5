@@ -10,5 +10,5 @@ Description: Allegro game programming library, primitives addon
 Version: ${version}
 Libs: -L${libdir} -la5_primitives${suffix}-${version}
 Libs.private: @link_with@
-Requires: allegro@lib_type@-4.9 >= ${version}
+Requires: allegro${suffix}-4.9 >= ${version}
 Cflags: -I${includedir}

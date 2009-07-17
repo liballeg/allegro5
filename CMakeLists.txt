@@ -873,7 +873,7 @@ if(UNIX)
         else (SHARED)
             # For static linking: get extra libraries to link with.
             get_target_property(link_with ${name} static_link_with)
-            set(outname ${name}-static${lib_type}-4.9.pc)
+            set(outname ${name}${lib_type}-static-4.9.pc)
         endif (SHARED)
         configure_file(
             misc/${name}-4.9.pc.in
