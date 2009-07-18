@@ -9,5 +9,6 @@ Name: kcm_audio
 Description: Allegro game programming library, audio addon
 Version: ${version}
 Libs: -L${libdir} -lkcm_audio${suffix}-${version}
+Libs.private: @link_with@
 Requires: allegro${suffix}-4.9 >= ${version}
 Cflags: -I${includedir}
