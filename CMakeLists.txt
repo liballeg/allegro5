@@ -564,7 +564,12 @@ if(WIN32)
         message(FATAL_ERROR
             "Windows port requires DirectInput (not found).")
     endif(DINPUT_FOUND)
-
+    
+    find_package(DXGuid)
+    if(NOT DXGUID_FOUND)
+        message(FATAL_ERROR
+            "Windows port requires DXGuid (not found).")
+    endif(NOT DXGUID_FOUND)
 
     if(WANT_D3D)
         find_package(D3D9)
@@ -687,8 +692,9 @@ if(WIN32)
         list(APPEND LIBRARY_SOURCES lib/msvc/allegro.def)
     endif(COMPILER_MSVC AND SHARED)
     list(APPEND PLATFORM_LIBS
-        kernel32 user32 gdi32 comdlg32 ole32 dxguid winmm psapi
+        kernel32 user32 gdi32 comdlg32 ole32 winmm psapi
         )
+    list(APPEND PLATFORM_LIBS ${DXGUID_LIBRARIES})
     if(SUPPORT_D3D)
         list(APPEND LIBRARY_SOURCES ${ALLEGRO_SRC_D3D_FILES})
         list(APPEND PLATFORM_LIBS ${D3D9_LIBRARIES})
