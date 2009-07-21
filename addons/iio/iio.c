@@ -36,7 +36,9 @@ static void iio_shutdown(void)
          free(handlers[i]);
       }
       free(handlers);
+      handlers = NULL;
       inited = false;
+      num_handlers = 0;
    }
 }
 
