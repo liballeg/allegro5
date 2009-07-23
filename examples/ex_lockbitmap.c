@@ -1,3 +1,9 @@
+/*
+ *       Example program for the Allegro library.
+ *
+ *       From left to right you should see Red, Green, Blue gradients.
+ */
+
 #include "allegro5/allegro5.h"
 #include "allegro5/a5_iio.h"
 
@@ -18,8 +24,9 @@ int main(void)
 
    al_install_keyboard();
 
-   /* Create a 100 x 100 window. */
-   display = al_create_display(100, 100);
+   /* Create a window. */
+   al_set_new_display_flags(ALLEGRO_GENERATE_EXPOSE_EVENTS);
+   display = al_create_display(3*256, 256);
    if (!display) {
       TRACE("Error creating display\n");
       return 1;
@@ -33,31 +40,34 @@ int main(void)
    al_set_new_bitmap_format(ALLEGRO_PIXEL_FORMAT_ARGB_8888);
 
    /* Create the bitmap. */
-   bitmap = al_create_bitmap(100, 100);
+   bitmap = al_create_bitmap(3*256, 256);
 
    /* Locking the bitmap means, we get direct access to its pixel data, in
     * whatever format it uses.
     */
    locked = al_lock_bitmap(bitmap, ALLEGRO_PIXEL_FORMAT_ANY_32_NO_ALPHA, 0);
-   ptr = locked->data;
-   for (j = 0; j < 100; j++) {
-      for (i = 0; i < 100; i++) {
-         uint8_t red = 0;
-         uint8_t green = 0;
-         uint8_t blue = 0;
+   for (j = 0; j < 256; j++) {
+      ptr = locked->data + j * locked->pitch;
+
+      for (i = 0; i < 3*256; i++) {
+         uint8_t red;
+         uint8_t green;
+         uint8_t blue;
          uint8_t alpha = 255;
          uint32_t col;
          uint32_t *cptr = (uint32_t *)ptr;
 
-         if (j < 50) {
-            if (i < 50)
-               red = 223;
-            else
-               green = 127;
+         if (i < 256) {
+            red = 255;
+            green = blue = j;
          }
-         else {
-            if (i < 50)
-               blue = 255;
+         else if (i < 2*256) {
+            green = 255;
+            red = blue = j;
+         }
+         else if (i < 3*256) {
+            blue = 255;
+            red = green = j;
          }
 
          /* The ARGB format means, the 32 bits per pixel are layed out like
@@ -69,10 +79,8 @@ int main(void)
           */
          col = (alpha << 24) | (red << 16) | (green << 8) | blue;
          *cptr = col;
-         ptr+=4;
+         ptr += 4;
       }
-
-      ptr += locked->pitch - (4 * 100);
    }
    al_unlock_bitmap(bitmap);
 
@@ -81,14 +89,22 @@ int main(void)
 
    events = al_create_event_queue();
    al_register_event_source(events, (ALLEGRO_EVENT_SOURCE *)al_get_keyboard());
+   al_register_event_source(events, (ALLEGRO_EVENT_SOURCE *)display);
 
    while (1) {
       al_wait_for_event(events, &event);
-      if (event.type == ALLEGRO_EVENT_KEY_DOWN &&  
-            event.keyboard.keycode == ALLEGRO_KEY_ESCAPE)
+      if (event.type == ALLEGRO_EVENT_KEY_DOWN &&
+            event.keyboard.keycode == ALLEGRO_KEY_ESCAPE) {
          break;
+      }
+      if (event.type == ALLEGRO_EVENT_DISPLAY_EXPOSE) {
+          al_draw_bitmap(bitmap, 0, 0, 0);
+          al_flip_display();
+      }
    }
 
    return 0;
 }
 END_OF_MAIN()
+
+/* vim: set sts=3 sw=3 et: */
