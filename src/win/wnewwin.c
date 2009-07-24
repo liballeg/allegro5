@@ -587,6 +587,7 @@ static LRESULT CALLBACK window_callback(HWND hWnd, UINT message,
                _al_event_source_emit_event(es, &event);
             }
             _al_event_source_unlock(es);
+            _al_win_grab_input(win_display);
             return 0;
          }
          else {

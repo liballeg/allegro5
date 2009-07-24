@@ -307,8 +307,9 @@ void _al_win_joystick_dinput_grab(void *param)
 
    /* Release the input from the previous window just in case,
       otherwise set cooperative level will fail. */
-   if (win_disp)
+   if (win_disp) {
       _al_win_wnd_call_proc(win_disp->window, _al_win_joystick_dinput_unacquire, NULL);
+   }
 
    win_disp = param;
 
@@ -973,6 +974,8 @@ static void update_joystick(ALLEGRO_JOYSTICK_DIRECTX *joy)
    DWORD num_items = DEVICE_BUFFER_SIZE;
    HRESULT hr;
 
+
+
    /* some devices require polling */
    IDirectInputDevice8_Poll(joy->device);
 
@@ -981,9 +984,7 @@ static void update_joystick(ALLEGRO_JOYSTICK_DIRECTX *joy)
 
    if (hr != DI_OK && hr != DI_BUFFEROVERFLOW) {
       if ((hr == DIERR_NOTACQUIRED) || (hr == DIERR_INPUTLOST)) {
-         /* reacquire device */
          TRACE(PREFIX_W "joystick device not acquired or lost\n");
-         //wnd_schedule_proc(_al_win_joystick_dinput_acquire);
       }
       else {
          TRACE(PREFIX_E "unexpected error while polling the joystick\n");
