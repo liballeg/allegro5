@@ -185,6 +185,9 @@ static ALLEGRO_BITMAP *really_load_png(png_structp png_ptr, png_infop info_ptr)
    }
 
    bmp = al_create_bitmap(width, height);
+   if (!bmp) {
+      return NULL;
+   }
 
    buf = malloc(((bpp + 7) / 8) * width);
 

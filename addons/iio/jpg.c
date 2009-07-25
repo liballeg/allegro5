@@ -157,6 +157,10 @@ ALLEGRO_BITMAP *al_load_jpg_entry(ALLEGRO_FILE *pf)
    }
 
    bmp = al_create_bitmap(w, h);
+   if (!bmp) {
+      goto error;
+   }
+
    lock = al_lock_bitmap(bmp, ALLEGRO_PIXEL_FORMAT_ANY, ALLEGRO_LOCK_WRITEONLY);
    al_store_state(&backup, ALLEGRO_STATE_TARGET_BITMAP);
    al_set_target_bitmap(bmp);
