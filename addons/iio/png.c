@@ -417,7 +417,7 @@ static int save_rgba(png_structp png_ptr, ALLEGRO_BITMAP *bmp)
  *  Writes a non-interlaced, no-frills PNG, taking the usual save_xyz
  *  parameters.  Returns non-zero on error.
  */
-int al_save_png_entry(ALLEGRO_FILE *fp, ALLEGRO_BITMAP *bmp)
+bool al_save_png_entry(ALLEGRO_FILE *fp, ALLEGRO_BITMAP *bmp)
 {
    png_structp png_ptr = NULL;
    png_infop info_ptr = NULL;
@@ -484,7 +484,7 @@ int al_save_png_entry(ALLEGRO_FILE *fp, ALLEGRO_BITMAP *bmp)
 
    png_destroy_write_struct(&png_ptr, &info_ptr);
 
-   return 0;
+   return true;
 
  Error:
 
@@ -495,16 +495,16 @@ int al_save_png_entry(ALLEGRO_FILE *fp, ALLEGRO_BITMAP *bmp)
          png_destroy_write_struct(&png_ptr, NULL);
    }
 
-   return -1;
+   return false;
 }
 
 
 /* Function: al_save_png
  */
-int al_save_png(const char *filename, ALLEGRO_BITMAP *bmp)
+bool al_save_png(const char *filename, ALLEGRO_BITMAP *bmp)
 {
    ALLEGRO_FILE *fp;
-   int result;
+   bool result;
 
    ASSERT(filename);
    ASSERT(bmp);
@@ -512,7 +512,7 @@ int al_save_png(const char *filename, ALLEGRO_BITMAP *bmp)
    fp = al_fopen(filename, "wb");
    if (!fp) {
       TRACE("Unable to open file %s for writing\n", filename);
-      return -1;
+      return false;
    }
 
    result = al_save_png_entry(fp, bmp);

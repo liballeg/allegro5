@@ -754,7 +754,7 @@ ALLEGRO_BITMAP *al_load_bmp_entry(ALLEGRO_FILE *f)
  *  offset into the file is left after the TGA file just written. On failure
  *  the offset is left at the end of whatever incomplete data was written.
  */
-int al_save_bmp_entry(ALLEGRO_FILE *f, ALLEGRO_BITMAP *bmp)
+bool al_save_bmp_entry(ALLEGRO_FILE *f, ALLEGRO_BITMAP *bmp)
 {
    int bfSize;
    int biSizeImage;
@@ -831,10 +831,7 @@ int al_save_bmp_entry(ALLEGRO_FILE *f, ALLEGRO_BITMAP *bmp)
 
    al_unlock_bitmap(bmp);
 
-   if (al_get_errno())
-      return -1;
-   else
-      return 0;
+   return al_get_errno() ? false : true;
 }
 
 
@@ -861,21 +858,21 @@ ALLEGRO_BITMAP *al_load_bmp(const char *filename)
 
 /* Function: al_save_bmp
  */
-int al_save_bmp(const char *filename, ALLEGRO_BITMAP *bmp)
+bool al_save_bmp(const char *filename, ALLEGRO_BITMAP *bmp)
 {
    ALLEGRO_FILE *f;
-   int ret;
+   bool ret;
    ASSERT(filename);
 
    f = al_fopen(filename, "wb");
    if (!f)
-      return -1;
+      return false;
 
    ret = al_save_bmp_entry(f, bmp);
 
    al_fclose(f);
 
-   return ret;
+   return true;
 }
 
 /* vim: set sts=3 sw=3 et: */

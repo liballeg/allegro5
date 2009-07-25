@@ -152,7 +152,7 @@ ALLEGRO_BITMAP *al_load_pcx_entry(ALLEGRO_FILE *f)
 }
 
 
-int al_save_pcx_entry(ALLEGRO_FILE *f, ALLEGRO_BITMAP *bmp)
+bool al_save_pcx_entry(ALLEGRO_FILE *f, ALLEGRO_BITMAP *bmp)
 {
    int c;
    int x, y;
@@ -230,9 +230,9 @@ int al_save_pcx_entry(ALLEGRO_FILE *f, ALLEGRO_BITMAP *bmp)
    al_unlock_bitmap(bmp);
 
    if (al_get_errno())
-      return -1;
+      return false;
    else
-      return 0;
+      return true;
 }
 
 
@@ -258,19 +258,19 @@ ALLEGRO_BITMAP *al_load_pcx(const char *filename)
 
 /* Function: al_save_pcx
  */
-int al_save_pcx(const char *filename, ALLEGRO_BITMAP *bmp)
+bool al_save_pcx(const char *filename, ALLEGRO_BITMAP *bmp)
 {
    ALLEGRO_FILE *f;
-   int ret;
+   bool ret;
    ASSERT(filename);
 
    f = al_fopen(filename, "wb");
    if (!f)
-      return -1;
+      return false;
 
    ret = al_save_pcx_entry(f, bmp);
 
    al_fclose(f);
 
-   return ret;
+   return true;
 }

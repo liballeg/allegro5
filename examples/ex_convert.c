@@ -31,7 +31,7 @@ int main(int argc, char **argv)
       return 1;
    }
 
-   if (al_save_bitmap(argv[2], bitmap) != 0) {
+   if (!al_save_bitmap(argv[2], bitmap)) {
       fprintf(stderr, "Error saving bitmap\n");
       return 1;
    }

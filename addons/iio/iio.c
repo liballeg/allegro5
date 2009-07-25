@@ -201,14 +201,14 @@ ALLEGRO_BITMAP *al_load_bitmap(const char *filename)
 
 /* Function: al_save_bitmap
  */
-int al_save_bitmap(const char *filename, ALLEGRO_BITMAP *bitmap)
+bool al_save_bitmap(const char *filename, ALLEGRO_BITMAP *bitmap)
 {
    Handler *h = find_handler(filename);
    if (h)
       return h->saver(filename, bitmap);
    else {
       TRACE("No handler for image %s found\n", filename);
-      return 1;
+      return false;
    }
 }
 
@@ -225,7 +225,7 @@ ALLEGRO_BITMAP *al_load_bitmap_entry(ALLEGRO_FILE *pf, const char *ident)
 
 /* Function: al_save_bitmap_entry
  */
-int al_save_bitmap_entry(ALLEGRO_FILE *pf, const char *ident,
+bool al_save_bitmap_entry(ALLEGRO_FILE *pf, const char *ident,
    ALLEGRO_BITMAP *bitmap)
 {
    Handler *h = find_handler(ident);
@@ -233,6 +233,6 @@ int al_save_bitmap_entry(ALLEGRO_FILE *pf, const char *ident,
       return h->fs_saver(pf, bitmap);
    else {
       TRACE("No handler for image %s found\n", ident);
-      return 1;
+      return false;
    }
 }

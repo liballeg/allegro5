@@ -289,12 +289,12 @@ static bool save_jpg_entry_helper(ALLEGRO_FILE *pf, ALLEGRO_BITMAP *bmp,
    return rc;
 }
 
-int al_save_jpg_entry(ALLEGRO_FILE *pf, ALLEGRO_BITMAP *bmp)
+bool al_save_jpg_entry(ALLEGRO_FILE *pf, ALLEGRO_BITMAP *bmp)
 {
    ALLEGRO_STATE state;
    unsigned char *buffer = NULL;
    unsigned char *row = NULL;
-   int rc;
+   bool rc;
 
    al_store_state(&state, ALLEGRO_STATE_TARGET_BITMAP);
 
@@ -308,7 +308,7 @@ int al_save_jpg_entry(ALLEGRO_FILE *pf, ALLEGRO_BITMAP *bmp)
    _AL_FREE(buffer);
    _AL_FREE(row);
 
-   return rc ? 0 : -1;
+   return rc;
 }
 
 /* Function: al_load_jpg
@@ -333,10 +333,10 @@ ALLEGRO_BITMAP *al_load_jpg(char const *filename)
 
 /* Function: al_save_jpg
  */
-int al_save_jpg(char const *filename, ALLEGRO_BITMAP *bmp)
+bool al_save_jpg(char const *filename, ALLEGRO_BITMAP *bmp)
 {
    ALLEGRO_FILE *pf;
-   int result;
+   bool result;
 
    ASSERT(filename);
    ASSERT(bmp);
@@ -344,7 +344,7 @@ int al_save_jpg(char const *filename, ALLEGRO_BITMAP *bmp)
    pf = al_fopen(filename, "wb");
    if (!pf) {
       TRACE("Unable to open file %s for writing\n", filename);
-      return -1;
+      return false;
    }
 
    result = al_save_jpg_entry(pf, bmp);

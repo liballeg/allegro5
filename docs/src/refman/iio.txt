@@ -28,11 +28,19 @@ name extension including the leading dot.
 Saves an ALLEGRO_BITMAP to an image file.
 The file type is determined by the extension.
 
+Returns true on success, false on error.
+
+See also: [al_save_bitmap_entry]
+
 ## API: al_save_bitmap_entry
 
 Saves an ALLEGRO_BITMAP to an ALLEGRO_FS_ENTRY.
 The file type is determined by the passed 'ident' parameter, which is a file
 name extension including the leading dot.
+
+Returns true on success, false on error.
+
+See also: [al_save_bitmap]
 
 ## API: al_load_bmp
 
@@ -78,7 +86,6 @@ See Also: [al_save_bitmap].
 ## API: al_save_jpg
 
 Save an ALLEGRO_BITMAP as a JPEG file. 
-FIXME: This function is 100% untested right now and not expected to work yet.
 
 See Also: [al_save_bitmap].
 
