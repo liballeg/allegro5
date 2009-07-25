@@ -56,6 +56,8 @@ endif(WANT_MEMFILE)
 
 if(WANT_PHYSFS)
     find_package(PhysFS)
+    mark_as_advanced(PHYSFS_INCLUDE_DIR)
+    mark_as_advanced(PHYSFS_LIBRARY)
     if(PHYSFS_FOUND)
         add_subdirectory(physfs)
         set(SUPPORT_PHYSFS 1 PARENT_SCOPE)
