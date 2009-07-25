@@ -4,6 +4,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <setjmp.h>
 #define boolean A5_BOOLEAN_HACK
 #include <jpeglib.h>
 #undef boolean
@@ -30,6 +31,12 @@ struct my_dest_mgr
    struct jpeg_destination_mgr pub;
    unsigned char *buffer;
    ALLEGRO_FILE *pf;
+};
+
+struct my_err_mgr
+{
+   struct jpeg_error_mgr pub;
+   jmp_buf jmpenv;
 };
 
 static void init_source(j_decompress_ptr cinfo)
@@ -127,23 +134,33 @@ static void jpeg_packfile_dest(j_compress_ptr cinfo, ALLEGRO_FILE *pf,
    dest->pf = pf;
 }
 
-ALLEGRO_BITMAP *al_load_jpg_entry(ALLEGRO_FILE *pf)
+static void my_error_exit(j_common_ptr cinfo)
+{
+   struct my_err_mgr *jerr = (void *)cinfo->err;
+
+   longjmp(jerr->jmpenv, 1);
+}
+
+static ALLEGRO_BITMAP *load_jpg_entry_helper(ALLEGRO_FILE *pf,
+   unsigned char **pbuffer, unsigned char **prow)
 {
    struct jpeg_decompress_struct cinfo;
-   struct jpeg_error_mgr jerr;
+   struct my_err_mgr jerr;
    ALLEGRO_BITMAP *bmp = NULL;
    ALLEGRO_LOCKED_REGION *lock;
-   ALLEGRO_STATE backup;
-   unsigned char *buffer = NULL;
-   unsigned char *rows[1] = { NULL };
    int w, h, s;
 
-   cinfo.err = jpeg_std_error(&jerr);
+   cinfo.err = jpeg_std_error(&jerr.pub);
+   jerr.pub.error_exit = my_error_exit;
+   if (setjmp(jerr.jmpenv) != 0) {
+      /* Longjmp'd. */
+      goto longjmp_error;
+   }
 
-   buffer = _AL_MALLOC(BUFFER_SIZE);
+   *pbuffer = _AL_MALLOC(BUFFER_SIZE);
 
    jpeg_create_decompress(&cinfo);
-   jpeg_packfile_src(&cinfo, pf, buffer);
+   jpeg_packfile_src(&cinfo, pf, *pbuffer);
    jpeg_read_header(&cinfo, true);
    jpeg_start_decompress(&cinfo);
 
@@ -162,55 +179,80 @@ ALLEGRO_BITMAP *al_load_jpg_entry(ALLEGRO_FILE *pf)
    }
 
    lock = al_lock_bitmap(bmp, ALLEGRO_PIXEL_FORMAT_ANY, ALLEGRO_LOCK_WRITEONLY);
-   al_store_state(&backup, ALLEGRO_STATE_TARGET_BITMAP);
    al_set_target_bitmap(bmp);
 
-   rows[0] = _AL_MALLOC(w * s);
+   *prow = _AL_MALLOC(w * s);
 
    while ((int)cinfo.output_scanline < h) {
       int x, y = cinfo.output_scanline;
-      jpeg_read_scanlines(&cinfo, (void *)rows, 1);
+      jpeg_read_scanlines(&cinfo, (void *)prow, 1);
       for (x = 0; x < w; x++) {
          if (s == 1) {
-            unsigned char c = rows[0][x];
+            unsigned char c = (*prow)[x];
             al_put_pixel(x, y, al_map_rgb(c, c, c));
          }
          else if (s == 3) {
-            unsigned char r = rows[0][x * s + 0];
-            unsigned char g = rows[0][x * s + 1];
-            unsigned char b = rows[0][x * s + 2];
+            unsigned char r = (*prow)[x * s + 0];
+            unsigned char g = (*prow)[x * s + 1];
+            unsigned char b = (*prow)[x * s + 2];
             al_put_pixel(x, y, al_map_rgb(r, g, b));
          }
       }
    }
 
    al_unlock_bitmap(bmp);
-   al_restore_state(&backup);
 
  error:
-   _AL_FREE(buffer);
-   _AL_FREE(rows[0]);
    jpeg_finish_decompress(&cinfo);
+
+ longjmp_error:
    jpeg_destroy_decompress(&cinfo);
 
    return bmp;
 }
 
-int al_save_jpg_entry(ALLEGRO_FILE *pf, ALLEGRO_BITMAP *bmp)
+ALLEGRO_BITMAP *al_load_jpg_entry(ALLEGRO_FILE *pf)
+{
+   unsigned char *buffer = NULL;
+   unsigned char *row = NULL;
+   ALLEGRO_STATE state;
+   ALLEGRO_BITMAP *bmp;
+
+   al_store_state(&state, ALLEGRO_STATE_TARGET_BITMAP);
+
+   bmp = load_jpg_entry_helper(pf, &buffer, &row);
+
+   /* Automatic variables in load_jpg_entry_helper might lose their values
+    * after a longjmp so we do the cleanup here.
+    */
+   _AL_FREE((unsigned char *)buffer);
+   _AL_FREE(row);
+
+   al_restore_state(&state);
+
+   return bmp;
+}
+
+static bool save_jpg_entry_helper(ALLEGRO_FILE *pf, ALLEGRO_BITMAP *bmp,
+   unsigned char **pbuffer, unsigned char **prow)
 {
    struct jpeg_compress_struct cinfo;
-   struct jpeg_error_mgr jerr;
+   struct my_err_mgr jerr;
    ALLEGRO_LOCKED_REGION *lock;
-   ALLEGRO_STATE backup;
-   unsigned char *buffer = NULL;
-   unsigned char *rows[1] = { NULL };
+   bool rc = true;
 
-   cinfo.err = jpeg_std_error(&jerr);
+   cinfo.err = jpeg_std_error(&jerr.pub);
+   jerr.pub.error_exit = my_error_exit;
+   if (setjmp(jerr.jmpenv)) {
+      /* Longjmp'd. */
+      rc = false;
+      goto longjmp_error;
+   }
 
-   buffer = _AL_MALLOC(BUFFER_SIZE);
+   *pbuffer = _AL_MALLOC(BUFFER_SIZE);
 
    jpeg_create_compress(&cinfo);
-   jpeg_packfile_dest(&cinfo, pf, buffer);
+   jpeg_packfile_dest(&cinfo, pf, *pbuffer);
 
    cinfo.image_width = al_get_bitmap_width(bmp);
    cinfo.image_height = al_get_bitmap_height(bmp);
@@ -221,32 +263,52 @@ int al_save_jpg_entry(ALLEGRO_FILE *pf, ALLEGRO_BITMAP *bmp)
    jpeg_start_compress(&cinfo, 1);
 
    lock = al_lock_bitmap(bmp, ALLEGRO_PIXEL_FORMAT_ANY, ALLEGRO_LOCK_READONLY);
-   al_store_state(&backup, ALLEGRO_STATE_TARGET_BITMAP);
    al_set_target_bitmap(bmp);
 
-   rows[0] = _AL_MALLOC(cinfo.image_width * 3);
+   *prow = _AL_MALLOC(cinfo.image_width * 3);
 
    while (cinfo.next_scanline < cinfo.image_height) {
       int x, y = cinfo.next_scanline;
       for (x = 0; x < (int)cinfo.image_width; x++) {
          unsigned char r, g, b;
          al_unmap_rgb(al_get_pixel(bmp, x, y), &r, &g, &b);
-         rows[0][x * 3 + 0] = r;
-         rows[0][x * 3 + 1] = g;
-         rows[0][x * 3 + 2] = b;
+         (*prow)[x * 3 + 0] = r;
+         (*prow)[x * 3 + 1] = g;
+         (*prow)[x * 3 + 2] = b;
       }
-      jpeg_write_scanlines(&cinfo, (void *)rows, 1);
+      jpeg_write_scanlines(&cinfo, (void *)prow, 1);
    }
 
    al_unlock_bitmap(bmp);
-   al_restore_state(&backup);
 
-   _AL_FREE(buffer);
-   _AL_FREE(rows[0]);
    jpeg_finish_compress(&cinfo);
+
+ longjmp_error:
    jpeg_destroy_compress(&cinfo);
 
-   return 1;
+   return rc;
+}
+
+int al_save_jpg_entry(ALLEGRO_FILE *pf, ALLEGRO_BITMAP *bmp)
+{
+   ALLEGRO_STATE state;
+   unsigned char *buffer = NULL;
+   unsigned char *row = NULL;
+   int rc;
+
+   al_store_state(&state, ALLEGRO_STATE_TARGET_BITMAP);
+
+   rc = save_jpg_entry_helper(pf, bmp, &buffer, &row);
+
+   al_restore_state(&state);
+
+   /* Automatic variables in save_jpg_entry_helper might lose their values
+    * after a longjmp so we do the cleanup here.
+    */
+   _AL_FREE(buffer);
+   _AL_FREE(row);
+
+   return rc ? 0 : -1;
 }
 
 /* Function: al_load_jpg
