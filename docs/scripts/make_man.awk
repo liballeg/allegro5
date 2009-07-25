@@ -47,7 +47,8 @@ FNR == 1 {
 
 /\*?See [Aa]lso:\*?/ {
     print "# SEE ALSO\n" | CMD
-    next
+    sub(/^\*?See [Aa]lso:\*?/, "")
+    # Continue.
 }
 
 {
