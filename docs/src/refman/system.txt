@@ -36,10 +36,14 @@ Returns true if Allegro was successfully initialized by this function
 call (or already was initialized previously), false if Allegro cannot
 be used.
 
+See also: [al_init]
+
 ## API: al_init
 
 Like [al_install_system], but automatically uses the atexit function
 visible in the current compilation unit.
+
+See also: [al_install_system]
 
 ## API: al_set_appname
 
@@ -63,12 +67,12 @@ and never touched again.
 
 ## API: al_system_driver
 
-Returns the currently active_sysdrv system driver.
+Returns the currently active system driver, or NULL.
 
 ## API: al_uninstall_system
 
 Closes down the Allegro system.
 
 Note: al_uninstall_system() can be called without a corresponding
-al_install_system() call, e.g. from atexit().
+[al_install_system] call, e.g. from atexit().
 
