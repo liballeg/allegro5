@@ -37,73 +37,6 @@
  */
 typedef unsigned int ALLEGRO_EVENT_TYPE;
 
-
-/* Enum: ALLEGRO_EVENT_TYPE
- *
- * Each event is of one of the following types
- *
- *  ALLEGRO_EVENT_JOYSTICK_AXIS - a joystick axis value changed.
- *    Fields are: joystick.stick, joystick.axis, joystick.pos (-1.0 to 1.0).
- *
- *  ALLEGRO_EVENT_JOYSTICK_BUTTON_DOWN - a joystick button was pressed.
- *    Fields are: joystick.button.
- *    
- *  ALLEGRO_EVENT_JOYSTICK_BUTTON_UP - a joystick button was released.
- *    Fields are: joystick.button.
- *
- *  ALLEGRO_EVENT_KEY_DOWN - a keyboard key was pressed.
- *    Fields: keyboard.keycode, keyboard.unichar, keyboard.modifiers.
- *
- *  ALLEGRO_EVENT_KEY_REPEAT - a typed character auto-repeated.
- *    Fields: keyboard.keycode (ALLEGRO_KEY_*), keyboard.unichar (unicode
- *    character), keyboard.modifiers (ALLEGRO_KEYMOD_*).
- *
- *  ALLEGRO_EVENT_KEY_UP - a keyboard key was released.
- *    Fields: keyboard.keycode.
- *
- *  ALLEGRO_EVENT_MOUSE_AXES - one or more mouse axis values changed.
- *    Fields: mouse.x, mouse.y, mouse.z, mouse.dx, mouse.dy, mouse.dz.
- *
- *  ALLEGRO_EVENT_MOUSE_BUTTON_DOWN - a mouse button was pressed.
- *    Fields: mouse.x, mouse.y, mouse.z, mouse.button.
- *
- *  ALLEGRO_EVENT_MOUSE_BUTTON_UP - a mouse button was released.
- *    Fields: mouse.x, mouse.y, mouse.z, mouse.button.
- *
- *  ALLEGRO_EVENT_MOUSE_ENTER_DISPLAY - the mouse cursor entered a window
- *    opened by the program.
- *    Fields: mouse.x, mouse.y, mouse.z.
- *
- *  ALLEGRO_EVENT_MOUSE_LEAVE_DISPLAY - the mouse cursor leave the boundaries
- *    of a window opened by the program.
- *    Fields: mouse.x, mouse.y, mouse.z.
- *
- *  ALLEGRO_EVENT_TIMER - a timer counter incremented.
- *    Fields: timer.count.
- *
- *  ALLEGRO_EVENT_DISPLAY_EXPOSE - The display (or a portion thereof) has
- *    become visible.
- *    Fields: display.x, display.y, display.width, display.height
- *
- *  ALLEGRO_EVENT_DISPLAY_RESIZE - The window has been resized.
- *    Fields: display.x, display.y, display.width, display.height
- *
- *  ALLEGRO_EVENT_DISPLAY_CLOSE - The close button of the window has been
- *    pressed.
- *
- *  ALLEGRO_EVENT_DISPLAY_LOST - Displays can be lost with some drivers (just
- *    Direct3D?). This means that rendering is impossible. The device will be
- *    restored as soon as it is possible. The program should be able to ignore
- *    this event and continue rendering however it will have no effect.
- *
- *  ALLEGRO_EVENT_DISPLAY_FOUND - Generated when a lost device is regained.
- *    Drawing will no longer be a no-op.
- * 
- *  ALLEGRO_EVENT_DISPLAY_SWITCH_OUT - The window is no longer active, that
- *    is the user might have clicked into another window or "tabbed" away.
- * 
- *  ALLEGRO_EVENT_DISPLAY_SWITCH_IN - The window is the active one again.
- */
 enum
 {
    ALLEGRO_EVENT_JOYSTICK_AXIS               =  1,
@@ -284,6 +217,8 @@ AL_FUNC(void, al_unref_user_event, (ALLEGRO_USER_EVENT *));
 
 /* Event queues */
 
+/* Type: ALLEGRO_EVENT_QUEUE
+ */
 typedef struct ALLEGRO_EVENT_QUEUE ALLEGRO_EVENT_QUEUE;
 
 AL_FUNC(ALLEGRO_EVENT_QUEUE*, al_create_event_queue, (void));

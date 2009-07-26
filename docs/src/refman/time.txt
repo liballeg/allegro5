@@ -5,6 +5,8 @@
 Represent a timeout value.  The size of the structure is known so can be
 statically allocated.  The contents are private.
 
+See also: [al_init_timeout]
+
 ## API: al_current_time
 
 Return the number of seconds since the Allegro library was
@@ -15,6 +17,8 @@ order of microseconds.
 ## API: al_init_timeout
 
 Set timeout value of some number of seconds after the function call.
+
+See also: [ALLEGRO_TIMEOUT]
 
 ## API: al_rest
 
