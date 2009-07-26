@@ -22,6 +22,7 @@ set(PAGES
     opengl
     path
     physfs
+    platform
     primitives
     state
     system

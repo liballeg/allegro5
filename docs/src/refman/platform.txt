@@ -1,0 +1,9 @@
+% Platform specific functions
+
+# Windows
+
+You must include <a5_windows.h> to use these functions.
+
+## API: al_win_get_window
+
+XXX to be documented
