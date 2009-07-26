@@ -1,3 +1,4 @@
+#include <stdio.h>
 #include "allegro5/allegro5.h"
 #include "allegro5/a5_iio.h"
 
@@ -10,6 +11,8 @@ int main(int argc, const char *argv[])
     ALLEGRO_EVENT_QUEUE *queue;
     bool redraw = true;
     double zoom = 1;
+    double t0;
+    double t1;
 
     if (argc > 1) {
        filename = argv[1];
@@ -28,7 +31,7 @@ int main(int argc, const char *argv[])
 
     al_init_iio_addon();
 
-    display = al_create_display(320, 200);
+    display = al_create_display(640, 480);
     if (!display) {
        TRACE("Error creating display\n");
        return 1;
@@ -42,12 +45,16 @@ int main(int argc, const char *argv[])
      * FIXME: Or should A5 automatically created multiple display bitmaps?
      */
     al_set_new_bitmap_flags(ALLEGRO_MEMORY_BITMAP);
+    t0 = al_current_time();
     membitmap = al_load_bitmap(filename);
+    t1 = al_current_time();
     if (!membitmap) {
        TRACE("%s not found or failed to load\n", filename);
        return 1;
     }
     al_set_new_bitmap_flags(0);
+
+    printf("Loading took %.4f seconds\n", t1 - t0);
     
     // FIXME: 
     // Now try to split the memory bitmap into display bitmaps?

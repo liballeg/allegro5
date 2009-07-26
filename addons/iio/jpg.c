@@ -178,35 +178,63 @@ static ALLEGRO_BITMAP *load_jpg_entry_helper(ALLEGRO_FILE *pf,
       goto error;
    }
 
-   lock = al_lock_bitmap(bmp, ALLEGRO_PIXEL_FORMAT_ANY, ALLEGRO_LOCK_WRITEONLY);
+   /* Allegro's pixel format is endian independent, so that in
+    * ALLEGRO_PIXEL_FORMAT_RGB_888 the lower 8 bits always hold the Blue
+    * component.  On a little endian system this is in byte 0.  On a big
+    * endian system this is in byte 2.
+    *
+    * libjpeg expects byte 0 to hold the Red component, byte 1 to hold the
+    * Green component, byte 2 to hold the Blue component.  Hence on little
+    * endian systems we need the opposite format, ALLEGRO_PIXEL_FORMAT_BGR_888.
+    */
+#ifdef ALLEGRO_BIG_ENDIAN
+   lock = al_lock_bitmap(bmp, ALLEGRO_PIXEL_FORMAT_RGB_888,
+       ALLEGRO_LOCK_WRITEONLY);
+#else
+   lock = al_lock_bitmap(bmp, ALLEGRO_PIXEL_FORMAT_BGR_888,
+       ALLEGRO_LOCK_WRITEONLY);
+#endif
    al_set_target_bitmap(bmp);
 
-   *prow = _AL_MALLOC(w * s);
+   if (s == 3) {
+      /* Colour. */
+      while ((int)cinfo.output_scanline < h) {
+         unsigned char *out[1];
+         out[0] = ((unsigned char *)lock->data)
+            + cinfo.output_scanline * lock->pitch;
+         jpeg_read_scanlines(&cinfo, (void *)out, 1);
+      }
+   }
+   else if (s == 1) {
+      /* Greyscale. */
+      unsigned char *in;
+      unsigned char *out;
+      int x;
 
-   while ((int)cinfo.output_scanline < h) {
-      int x, y = cinfo.output_scanline;
-      jpeg_read_scanlines(&cinfo, (void *)prow, 1);
-      for (x = 0; x < w; x++) {
-         if (s == 1) {
-            unsigned char c = (*prow)[x];
-            al_put_pixel(x, y, al_map_rgb(c, c, c));
-         }
-         else if (s == 3) {
-            unsigned char r = (*prow)[x * s + 0];
-            unsigned char g = (*prow)[x * s + 1];
-            unsigned char b = (*prow)[x * s + 2];
-            al_put_pixel(x, y, al_map_rgb(r, g, b));
+      *prow = _AL_MALLOC(w);
+      while ((int)cinfo.output_scanline < h) {
+         jpeg_read_scanlines(&cinfo, (void *)prow, 1);
+         in = *prow;
+         out = ((unsigned char *)lock->data)
+            + cinfo.output_scanline * lock->pitch;
+         for (x = 0; x < w; x++) {
+            *out++ = *in;
+            *out++ = *in;
+            *out++ = *in;
+            in++;
          }
       }
    }
-
-   al_unlock_bitmap(bmp);
 
  error:
    jpeg_finish_decompress(&cinfo);
 
  longjmp_error:
    jpeg_destroy_decompress(&cinfo);
+
+   if (al_is_bitmap_locked(bmp)) {
+      al_unlock_bitmap(bmp);
+   }
 
    return bmp;
 }
@@ -234,7 +262,7 @@ ALLEGRO_BITMAP *al_load_jpg_entry(ALLEGRO_FILE *pf)
 }
 
 static bool save_jpg_entry_helper(ALLEGRO_FILE *pf, ALLEGRO_BITMAP *bmp,
-   unsigned char **pbuffer, unsigned char **prow)
+   unsigned char **pbuffer)
 {
    struct jpeg_compress_struct cinfo;
    struct my_err_mgr jerr;
@@ -262,29 +290,31 @@ static bool save_jpg_entry_helper(ALLEGRO_FILE *pf, ALLEGRO_BITMAP *bmp,
 
    jpeg_start_compress(&cinfo, 1);
 
-   lock = al_lock_bitmap(bmp, ALLEGRO_PIXEL_FORMAT_ANY, ALLEGRO_LOCK_READONLY);
+   /* See comment in load_jpg_entry_helper. */
+#ifdef ALLEGRO_BIG_ENDIAN
+   lock = al_lock_bitmap(bmp, ALLEGRO_PIXEL_FORMAT_RGB_888,
+      ALLEGRO_LOCK_READONLY);
+#else
+   lock = al_lock_bitmap(bmp, ALLEGRO_PIXEL_FORMAT_BGR_888,
+      ALLEGRO_LOCK_READONLY);
+#endif
    al_set_target_bitmap(bmp);
 
-   *prow = _AL_MALLOC(cinfo.image_width * 3);
-
    while (cinfo.next_scanline < cinfo.image_height) {
-      int x, y = cinfo.next_scanline;
-      for (x = 0; x < (int)cinfo.image_width; x++) {
-         unsigned char r, g, b;
-         al_unmap_rgb(al_get_pixel(bmp, x, y), &r, &g, &b);
-         (*prow)[x * 3 + 0] = r;
-         (*prow)[x * 3 + 1] = g;
-         (*prow)[x * 3 + 2] = b;
-      }
-      jpeg_write_scanlines(&cinfo, (void *)prow, 1);
+      unsigned char *row[1];
+      row[0] = ((unsigned char *)lock->data)
+         + cinfo.next_scanline * lock->pitch;
+      jpeg_write_scanlines(&cinfo, (void *)row, 1);
    }
-
-   al_unlock_bitmap(bmp);
 
    jpeg_finish_compress(&cinfo);
 
  longjmp_error:
    jpeg_destroy_compress(&cinfo);
+
+   if (al_is_bitmap_locked(bmp)) {
+      al_unlock_bitmap(bmp);
+   }
 
    return rc;
 }
@@ -293,12 +323,11 @@ bool al_save_jpg_entry(ALLEGRO_FILE *pf, ALLEGRO_BITMAP *bmp)
 {
    ALLEGRO_STATE state;
    unsigned char *buffer = NULL;
-   unsigned char *row = NULL;
    bool rc;
 
    al_store_state(&state, ALLEGRO_STATE_TARGET_BITMAP);
 
-   rc = save_jpg_entry_helper(pf, bmp, &buffer, &row);
+   rc = save_jpg_entry_helper(pf, bmp, &buffer);
 
    al_restore_state(&state);
 
@@ -306,7 +335,6 @@ bool al_save_jpg_entry(ALLEGRO_FILE *pf, ALLEGRO_BITMAP *bmp)
     * after a longjmp so we do the cleanup here.
     */
    _AL_FREE(buffer);
-   _AL_FREE(row);
 
    return rc;
 }
@@ -353,3 +381,5 @@ bool al_save_jpg(char const *filename, ALLEGRO_BITMAP *bmp)
 
    return result;
 }
+
+/* vim: set sts=3 sw=3 et: */

@@ -8,6 +8,8 @@
 int main(int argc, char **argv)
 {
    ALLEGRO_BITMAP *bitmap;
+   double t0;
+   double t1;
 
    if (argc < 3) {
       fprintf(stderr, "Usage: exnew_convert <infile> <outfile>\n");
@@ -31,10 +33,13 @@ int main(int argc, char **argv)
       return 1;
    }
 
+   t0 = al_current_time();
    if (!al_save_bitmap(argv[2], bitmap)) {
       fprintf(stderr, "Error saving bitmap\n");
       return 1;
    }
+   t1 = al_current_time();
+   printf("Saving took %.4f seconds\n", t1 - t0);
 
    al_destroy_bitmap(bitmap);
 
