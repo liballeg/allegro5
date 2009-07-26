@@ -3,7 +3,7 @@
 body {
     margin: auto;
     padding-right: 1em;
-    padding-left: 1em;
+    padding-left: 0.5em;
     border-left: 1px solid #e0e0e0;
     border-right: 1px solid #e0e0e0;
     color: black;
@@ -30,7 +30,7 @@ h1 a, h2 a, h3 a, h4 a, h5 a {
 
 h1, h2, h3, h4, h5 {
     font-weight: bold;
-    margin-top: 1.5em;
+    margin-top: 1.2em;
     border-bottom: 1px solid #e0e0e0;
     padding-bottom: 1px;
     color: #4a5aaa;
@@ -80,6 +80,10 @@ dd p {
     margin-top: 0;
 }
 
+ul {
+    padding-left: 1.5em;
+}
+
 table {
     background-color: #f8f8fa;
     border-top: 1px solid #e0e0e0;
@@ -95,10 +99,13 @@ table th {
 table.white {
     background-color: #ffffff;
     line-height: 140%;
+    border-top: none;
+    border-bottom: none;
 }
 
 table.white td {
     padding: 0.4em;
+    vertical-align: top;
 }
 
 #footer {
@@ -133,7 +140,14 @@ div.sidebar ul a:hover {
 table td.sidebar {
     background-color:       #f0f0fa;
     padding:                0;
-    border-right:           1px solid;
+    line-height:	    110%;
+    -moz-border-radius:	    10px;
+}
+
+div.searchbox {
+    margin-left:	    5px;
+    margin-right:	    5px;
+    margin-bottom:	    0.8em;
 }
 
 /* Body of page */
