@@ -27,6 +27,22 @@ static float _samp_buf[ALLEGRO_MAX_CHANNELS]; /* max: 7.1 */
 
 
 
+static void maybe_lock_mutex(ALLEGRO_MUTEX *mutex)
+{
+   if (mutex) {
+      al_lock_mutex(mutex);
+   }
+}
+
+
+static void maybe_unlock_mutex(ALLEGRO_MUTEX *mutex)
+{
+   if (mutex) {
+      al_unlock_mutex(mutex);
+   }
+}
+
+
 /* _al_rechannel_matrix:
  *  This function provides a (temporary!) matrix that can be used to convert
  *  one channel configuration into another.
@@ -686,9 +702,7 @@ bool al_attach_sample_to_mixer(ALLEGRO_MIXER *mixer, ALLEGRO_SAMPLE_INSTANCE *sp
       return false;
    }
 
-   if (mixer->ss.mutex) {
-      al_lock_mutex(mixer->ss.mutex);
-   }
+   maybe_lock_mutex(mixer->ss.mutex);
 
    slot = _al_vector_alloc_back(&mixer->streams);
    if (!slot) {
@@ -736,9 +750,7 @@ bool al_attach_sample_to_mixer(ALLEGRO_MIXER *mixer, ALLEGRO_SAMPLE_INSTANCE *sp
    spl->parent.u.mixer = mixer;
    spl->parent.is_voice = false;
 
-   if (mixer->ss.mutex) {
-      al_unlock_mutex(mixer->ss.mutex);
-   }
+   maybe_unlock_mutex(mixer->ss.mutex);
 
    return true;
 }
@@ -779,10 +791,12 @@ bool al_set_mixer_postprocess_callback(ALLEGRO_MIXER *mixer,
 {
    ASSERT(mixer);
 
-   al_lock_mutex(mixer->ss.mutex);
+   maybe_lock_mutex(mixer->ss.mutex);
+
    mixer->postprocess_callback = postprocess_callback;
    mixer->pp_callback_userdata = pp_callback_userdata;
-   al_unlock_mutex(mixer->ss.mutex);
+
+   maybe_unlock_mutex(mixer->ss.mutex);
 
    return true;
 }
@@ -890,7 +904,7 @@ static void mixer_change_quality(ALLEGRO_MIXER *mixer,
 {
    int i;
 
-   al_lock_mutex(mixer->ss.mutex);
+   maybe_lock_mutex(mixer->ss.mutex);
 
    for (i = _al_vector_size(&mixer->streams) - 1; i >= 0; i--) {
       ALLEGRO_SAMPLE_INSTANCE **slot = _al_vector_ref(&mixer->streams, i);
@@ -919,7 +933,7 @@ static void mixer_change_quality(ALLEGRO_MIXER *mixer,
 
    mixer->quality = new_quality;
 
-   al_unlock_mutex(mixer->ss.mutex);
+   maybe_unlock_mutex(mixer->ss.mutex);
 }
 
 

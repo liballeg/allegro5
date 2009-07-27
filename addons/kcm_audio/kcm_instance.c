@@ -16,6 +16,22 @@
 #include "allegro5/internal/aintern_kcm_cfg.h"
 
 
+static void maybe_lock_mutex(ALLEGRO_MUTEX *mutex)
+{
+   if (mutex) {
+      al_lock_mutex(mutex);
+   }
+}
+
+
+static void maybe_unlock_mutex(ALLEGRO_MUTEX *mutex)
+{
+   if (mutex) {
+      al_unlock_mutex(mutex);
+   }
+}
+
+
 /* _al_kcm_stream_set_mutex:
  *  This function sets a sample's mutex pointer to the specified value. It is
  *  ALLEGRO_MIXER aware, and will recursively set any attached streams' mutex
@@ -111,7 +127,7 @@ void _al_kcm_detach_from_parent(ALLEGRO_SAMPLE_INSTANCE *spl)
       ALLEGRO_SAMPLE_INSTANCE **slot = _al_vector_ref(&mixer->streams, i);
 
       if (*slot == spl) {
-         al_lock_mutex(mixer->ss.mutex);
+         maybe_lock_mutex(mixer->ss.mutex);
 
          _al_vector_delete_at(&mixer->streams, i);
          spl->parent.u.mixer = NULL;
@@ -120,7 +136,7 @@ void _al_kcm_detach_from_parent(ALLEGRO_SAMPLE_INSTANCE *spl)
          if (spl->spl_read != _al_kcm_mixer_read)
             spl->spl_read = NULL;
 
-         al_unlock_mutex(mixer->ss.mutex);
+         maybe_unlock_mutex(mixer->ss.mutex);
 
          break;
       }
@@ -357,9 +373,9 @@ bool al_set_sample_instance_position(ALLEGRO_SAMPLE_INSTANCE *spl,
          return false;
    }
    else {
-      al_lock_mutex(spl->mutex);
+      maybe_lock_mutex(spl->mutex);
       spl->pos = val << MIXER_FRAC_SHIFT;
-      al_unlock_mutex(spl->mutex);
+      maybe_unlock_mutex(spl->mutex);
    }
 
    return true;
@@ -406,7 +422,7 @@ bool al_set_sample_instance_speed(ALLEGRO_SAMPLE_INSTANCE *spl, float val)
    if (spl->parent.u.mixer) {
       ALLEGRO_MIXER *mixer = spl->parent.u.mixer;
 
-      al_lock_mutex(spl->mutex);
+      maybe_lock_mutex(spl->mutex);
 
       spl->step = (spl->spl_data.frequency << MIXER_FRAC_SHIFT) *
          spl->speed / mixer->ss.spl_data.frequency;
@@ -418,7 +434,7 @@ bool al_set_sample_instance_speed(ALLEGRO_SAMPLE_INSTANCE *spl, float val)
             spl->step = -1;
       }
 
-      al_unlock_mutex(spl->mutex);
+      maybe_unlock_mutex(spl->mutex);
    }
 
    return true;
@@ -446,9 +462,9 @@ bool al_set_sample_instance_gain(ALLEGRO_SAMPLE_INSTANCE *spl, float val)
       if (spl->parent.u.mixer) {
          ALLEGRO_MIXER *mixer = spl->parent.u.mixer;
 
-         al_lock_mutex(spl->mutex);
+         maybe_lock_mutex(spl->mutex);
          _al_kcm_mixer_rejig_sample_matrix(mixer, spl);
-         al_unlock_mutex(spl->mutex);
+         maybe_unlock_mutex(spl->mutex);
       }
    }
 
@@ -481,9 +497,9 @@ bool al_set_sample_instance_pan(ALLEGRO_SAMPLE_INSTANCE *spl, float val)
       if (spl->parent.u.mixer) {
          ALLEGRO_MIXER *mixer = spl->parent.u.mixer;
 
-         al_lock_mutex(spl->mutex);
+         maybe_lock_mutex(spl->mutex);
          _al_kcm_mixer_rejig_sample_matrix(mixer, spl);
-         al_unlock_mutex(spl->mutex);
+         maybe_unlock_mutex(spl->mutex);
       }
    }
 
@@ -504,8 +520,7 @@ bool al_set_sample_instance_playmode(ALLEGRO_SAMPLE_INSTANCE *spl,
       return false;
    }
 
-   if (spl->parent.u.ptr)
-      al_lock_mutex(spl->mutex);
+   maybe_lock_mutex(spl->mutex);
 
    spl->loop = val;
    if (spl->loop != ALLEGRO_PLAYMODE_ONCE) {
@@ -515,8 +530,7 @@ bool al_set_sample_instance_playmode(ALLEGRO_SAMPLE_INSTANCE *spl,
          spl->pos = spl->loop_end-MIXER_FRAC_ONE;
    }
 
-   if (spl->parent.u.ptr)
-      al_unlock_mutex(spl->mutex);
+   maybe_unlock_mutex(spl->mutex);
 
    return true;
 }
@@ -545,11 +559,11 @@ bool al_set_sample_instance_playing(ALLEGRO_SAMPLE_INSTANCE *spl, bool val)
    }
 
    /* parent is mixer */
-   al_lock_mutex(spl->mutex);
+   maybe_lock_mutex(spl->mutex);
    spl->is_playing = val;
    if (!val)
       spl->pos = 0;
-   al_unlock_mutex(spl->mutex);
+   maybe_unlock_mutex(spl->mutex);
    return true;
 }
 

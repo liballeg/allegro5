@@ -16,6 +16,23 @@
 
 ALLEGRO_DEBUG_CHANNEL("sound")
 
+
+static void maybe_lock_mutex(ALLEGRO_MUTEX *mutex)
+{
+   if (mutex) {
+      al_lock_mutex(mutex);
+   }
+}
+
+
+static void maybe_unlock_mutex(ALLEGRO_MUTEX *mutex)
+{
+   if (mutex) {
+      al_unlock_mutex(mutex);
+   }
+}
+
+
 /* Function: al_create_stream
  */
 ALLEGRO_STREAM *al_create_stream(size_t buffer_count, unsigned long samples,
@@ -304,7 +321,7 @@ bool al_set_stream_speed(ALLEGRO_STREAM *stream, float val)
       ALLEGRO_MIXER *mixer = stream->spl.parent.u.mixer;
       long i;
 
-      al_lock_mutex(stream->spl.mutex);
+      maybe_lock_mutex(stream->spl.mutex);
 
       /* Make step 1 before applying the freq difference
        * (so we play forward).
@@ -319,7 +336,7 @@ bool al_set_stream_speed(ALLEGRO_STREAM *stream, float val)
          stream->spl.step *= i;
       }
 
-      al_unlock_mutex(stream->spl.mutex);
+      maybe_unlock_mutex(stream->spl.mutex);
    }
 
    return true;
@@ -347,9 +364,9 @@ bool al_set_stream_gain(ALLEGRO_STREAM *stream, float val)
       if (stream->spl.parent.u.mixer) {
          ALLEGRO_MIXER *mixer = stream->spl.parent.u.mixer;
 
-         al_lock_mutex(stream->spl.mutex);
+         maybe_lock_mutex(stream->spl.mutex);
          _al_kcm_mixer_rejig_sample_matrix(mixer, &stream->spl);
-         al_unlock_mutex(stream->spl.mutex);
+         maybe_unlock_mutex(stream->spl.mutex);
       }
    }
 
@@ -382,9 +399,9 @@ bool al_set_stream_pan(ALLEGRO_STREAM *stream, float val)
       if (stream->spl.parent.u.mixer) {
          ALLEGRO_MIXER *mixer = stream->spl.parent.u.mixer;
 
-         al_lock_mutex(stream->spl.mutex);
+         maybe_lock_mutex(stream->spl.mutex);
          _al_kcm_mixer_rejig_sample_matrix(mixer, &stream->spl);
-         al_unlock_mutex(stream->spl.mutex);
+         maybe_unlock_mutex(stream->spl.mutex);
       }
    }
 
@@ -432,9 +449,9 @@ bool al_set_stream_playing(ALLEGRO_STREAM *stream, bool val)
    stream->spl.is_playing = val;
 
    if (!val) {
-      al_lock_mutex(stream->spl.mutex);
+      maybe_lock_mutex(stream->spl.mutex);
       stream->spl.pos = stream->spl.spl_data.len;
-      al_unlock_mutex(stream->spl.mutex);
+      maybe_unlock_mutex(stream->spl.mutex);
    }
    return true;
 }
@@ -459,7 +476,7 @@ bool al_set_stream_buffer(ALLEGRO_STREAM *stream, void *val)
    bool ret;
    ASSERT(stream);
 
-   al_lock_mutex(stream->spl.mutex);
+   maybe_lock_mutex(stream->spl.mutex);
 
    for (i = 0; stream->pending_bufs[i] && i < stream->buf_count; i++)
       ;
@@ -473,7 +490,8 @@ bool al_set_stream_buffer(ALLEGRO_STREAM *stream, void *val)
       ret = false;
    }
 
-   al_unlock_mutex(stream->spl.mutex);
+   maybe_unlock_mutex(stream->spl.mutex);
+
    return ret;
 }
 
@@ -554,9 +572,9 @@ void *_al_kcm_feed_stream(ALLEGRO_THREAD *self, void *vstream)
                al_get_channel_count(stream->spl.spl_data.chan_conf) *
                al_get_depth_size(stream->spl.spl_data.depth);
 
-         al_lock_mutex(stream->spl.mutex);
+         maybe_lock_mutex(stream->spl.mutex);
          bytes_written = stream->feeder(stream, fragment, bytes);
-         al_unlock_mutex(stream->spl.mutex);
+         maybe_unlock_mutex(stream->spl.mutex);
 
         /* In case it reaches the end of the stream source, stream feeder will
          * fill the remaining space with silence. If we should loop, rewind the
@@ -565,10 +583,10 @@ void *_al_kcm_feed_stream(ALLEGRO_THREAD *self, void *vstream)
             stream->spl.loop == _ALLEGRO_PLAYMODE_STREAM_ONEDIR) {
             size_t bw;
             al_rewind_stream(stream);
-            al_lock_mutex(stream->spl.mutex);
+            maybe_lock_mutex(stream->spl.mutex);
             bw = stream->feeder(stream, fragment + bytes_written,
                bytes - bytes_written);
-            al_unlock_mutex(stream->spl.mutex);
+            maybe_unlock_mutex(stream->spl.mutex);
             ASSERT(bw == bytes - bytes_written);
          }
 
@@ -615,10 +633,11 @@ bool _al_kcm_emit_stream_event(ALLEGRO_STREAM *stream, unsigned long count)
 bool al_rewind_stream(ALLEGRO_STREAM *stream)
 {
    bool ret;
+
    if (stream->rewind_feeder) {
-      al_lock_mutex(stream->spl.mutex);
+      maybe_lock_mutex(stream->spl.mutex);
       ret = stream->rewind_feeder(stream);
-      al_unlock_mutex(stream->spl.mutex);
+      maybe_unlock_mutex(stream->spl.mutex);
       return ret;
    }
 
@@ -631,10 +650,11 @@ bool al_rewind_stream(ALLEGRO_STREAM *stream)
 bool al_seek_stream_secs(ALLEGRO_STREAM *stream, double time)
 {
    bool ret;
+
    if (stream->seek_feeder) {
-      al_lock_mutex(stream->spl.mutex);
+      maybe_lock_mutex(stream->spl.mutex);
       ret = stream->seek_feeder(stream, time);
-      al_unlock_mutex(stream->spl.mutex);
+      maybe_unlock_mutex(stream->spl.mutex);
       return ret;
    }
 
@@ -647,10 +667,11 @@ bool al_seek_stream_secs(ALLEGRO_STREAM *stream, double time)
 double al_get_stream_position_secs(ALLEGRO_STREAM *stream)
 {
    double ret;
+
    if (stream->get_feeder_position) {
-      al_lock_mutex(stream->spl.mutex);
+      maybe_lock_mutex(stream->spl.mutex);
       ret = stream->get_feeder_position(stream);
-      al_unlock_mutex(stream->spl.mutex);
+      maybe_unlock_mutex(stream->spl.mutex);
       return ret;
    }
 
@@ -663,12 +684,14 @@ double al_get_stream_position_secs(ALLEGRO_STREAM *stream)
 double al_get_stream_length_secs(ALLEGRO_STREAM *stream)
 {
    double ret;
+
    if (stream->get_feeder_length) {
-      al_lock_mutex(stream->spl.mutex);
+      maybe_lock_mutex(stream->spl.mutex);
       ret = stream->get_feeder_length(stream);
-      al_unlock_mutex(stream->spl.mutex);
+      maybe_unlock_mutex(stream->spl.mutex);
       return ret;
    }
+
    return 0.0;
 }
 
@@ -683,9 +706,9 @@ bool al_set_stream_loop_secs(ALLEGRO_STREAM *stream, double start, double end)
       return false;
 
    if (stream->set_feeder_loop) {
-      al_lock_mutex(stream->spl.mutex);
+      maybe_lock_mutex(stream->spl.mutex);
       ret = stream->set_feeder_loop(stream, start, end);
-      al_unlock_mutex(stream->spl.mutex);
+      maybe_unlock_mutex(stream->spl.mutex);
       return ret;
    }
 
