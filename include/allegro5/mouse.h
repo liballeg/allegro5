@@ -33,9 +33,12 @@
 /* Abstract data type */
 typedef struct ALLEGRO_MOUSE ALLEGRO_MOUSE;
 
+
 /* Type: ALLEGRO_MOUSE_STATE
  */
-typedef struct ALLEGRO_MOUSE_STATE
+typedef struct ALLEGRO_MOUSE_STATE ALLEGRO_MOUSE_STATE;
+
+struct ALLEGRO_MOUSE_STATE
 {
    /* (x, y) Primary mouse position
     * (z) Mouse wheel position (1D 'wheel'), or,
@@ -49,7 +52,8 @@ typedef struct ALLEGRO_MOUSE_STATE
    int more_axes[ALLEGRO_MOUSE_MAX_EXTRA_AXES];
    int buttons;
    struct ALLEGRO_DISPLAY *display;
-} ALLEGRO_MOUSE_STATE;
+};
+
 
 /* Mouse cursors */
 typedef struct ALLEGRO_MOUSE_CURSOR ALLEGRO_MOUSE_CURSOR;

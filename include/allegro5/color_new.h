@@ -8,12 +8,10 @@
    extern "C" {
 #endif
 
-typedef struct ALLEGRO_COLOR ALLEGRO_COLOR;
-
-typedef struct ALLEGRO_DISPLAY ALLEGRO_DISPLAY;
-
 /* Type: ALLEGRO_COLOR
  */
+typedef struct ALLEGRO_COLOR ALLEGRO_COLOR;
+
 struct ALLEGRO_COLOR
 {
    float r, g, b, a;

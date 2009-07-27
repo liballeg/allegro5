@@ -55,7 +55,9 @@ enum {
 
 /* Type: ALLEGRO_FS_INTERFACE
  */
-typedef struct ALLEGRO_FS_INTERFACE {
+typedef struct ALLEGRO_FS_INTERFACE ALLEGRO_FS_INTERFACE;
+
+struct ALLEGRO_FS_INTERFACE {
    AL_METHOD(ALLEGRO_FS_ENTRY *, create,  (const char *path) );
 
    AL_METHOD(ALLEGRO_PATH *, getcwd, (void));
@@ -84,7 +86,7 @@ typedef struct ALLEGRO_FS_INTERFACE {
    AL_METHOD(bool, opendir, (ALLEGRO_FS_ENTRY *dir));
    AL_METHOD(ALLEGRO_FS_ENTRY *, readdir, (ALLEGRO_FS_ENTRY *dir));
    AL_METHOD(bool, closedir, (ALLEGRO_FS_ENTRY *dir));
-} ALLEGRO_FS_INTERFACE;
+};
 
 AL_FUNC(ALLEGRO_FS_ENTRY*, al_create_entry, (const char *path));
 AL_FUNC(void, al_destroy_entry, (ALLEGRO_FS_ENTRY *handle));

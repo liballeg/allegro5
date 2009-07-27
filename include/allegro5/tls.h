@@ -25,6 +25,7 @@
    extern "C" {
 #endif
 
+
 /* Enum: ALLEGRO_STATE_FLAGS
  */
 enum ALLEGRO_STATE_FLAGS {
@@ -42,17 +43,22 @@ enum ALLEGRO_STATE_FLAGS {
     
 };
 
+
 /* Type: ALLEGRO_STATE
  */
-typedef struct ALLEGRO_STATE
+typedef struct ALLEGRO_STATE ALLEGRO_STATE;
+
+struct ALLEGRO_STATE
 {
    /* Internally, a thread_local_state structure is placed here. */
    char _tls[256];
    int flags;
-} ALLEGRO_STATE;
+};
+
 
 AL_FUNC(void, al_store_state, (ALLEGRO_STATE *state, int flags));
 AL_FUNC(void, al_restore_state, (ALLEGRO_STATE const *state));
+
 
 #ifdef __cplusplus
    }

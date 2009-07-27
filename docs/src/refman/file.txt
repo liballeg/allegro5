@@ -12,6 +12,20 @@ real file on disk or a virtual file.
 A structure containing function pointers to handle a type of "file",
 real or virtual.  See the full discussion in [al_set_new_file_interface].
 
+The fields are:
+
+    ALLEGRO_FILE* (*fi_fopen)(const char *path, const char *mode);
+    void          (*fi_fclose)(ALLEGRO_FILE *handle);
+    size_t        (*fi_fread)(ALLEGRO_FILE *f, void *ptr, size_t size);
+    size_t        (*fi_fwrite)(ALLEGRO_FILE *f, const void *ptr, size_t size);
+    bool          (*fi_fflush)(ALLEGRO_FILE *f);
+    int64_t       (*fi_ftell)(ALLEGRO_FILE *f);
+    bool          (*fi_fseek)(ALLEGRO_FILE *f, int64_t offset, int whence);
+    bool          (*fi_feof)(ALLEGRO_FILE *f);
+    bool          (*fi_ferror)(ALLEGRO_FILE *f);
+    int           (*fi_fungetc)(ALLEGRO_FILE *f, int c);
+    off_t         (*fi_fsize)(ALLEGRO_FILE *f);
+
 ## API: ALLEGRO_SEEK
 
 * ALLEGRO_SEEK_SET - Seek to pos from beginning of file
@@ -251,7 +265,7 @@ native end-of-line sequences, e.g. CR/LF instead of LF.
 
 ## API: al_fopen_fd
 
-Create an ALLEGRO_FILE object that operates on an open file descriptor using
+Create an [ALLEGRO_FILE] object that operates on an open file descriptor using
 stdio routines.  See the documentation of fdopen() for a description of the
 'mode' argument.
 
@@ -273,7 +287,7 @@ alphanumeric characters.  There should be no path separators.
 If 'ret_path' is not NULL, the address it points to will be set
 to point to a new path structure with the name of the temporary file.
 
-Returns the opened ALLEGRO_FILE on success, NULL on failure.
+Returns the opened [ALLEGRO_FILE] on success, NULL on failure.
 
 # Alternative file streams
 
@@ -282,7 +296,7 @@ hence work with files on the local filesystem, but can be overridden so that
 you can read and write to other streams.  For example, you can work with block
 of memory or sub-files inside .zip files.
 
-There are two ways to get an ALLEGRO_FILE that doesn't use stdio.
+There are two ways to get an [ALLEGRO_FILE] that doesn't use stdio.
 An addon library may provide a function that returns a new ALLEGRO_FILE
 directly, after which, all al_f* calls on that object will use
 overridden functions for that type of stream.
@@ -291,14 +305,14 @@ the following [al_fopen] calls for the current thread.
 
 ## API: al_set_new_file_interface
 
-Set the ALLEGRO_FILE_INTERFACE table for the calling thread.
+Set the [ALLEGRO_FILE_INTERFACE] table for the calling thread.
 This will change the handler for later calls to [al_fopen].
 
 See also: [al_store_state], [al_restore_state].
 
 ## API: al_get_new_file_interface
 
-Return a pointer to the ALLEGRO_FILE_INTERFACE table in effect
+Return a pointer to the [ALLEGRO_FILE_INTERFACE] table in effect
 for the calling thread.
 
 See also: [al_store_state], [al_restore_state].

@@ -92,11 +92,12 @@ enum ALLEGRO_BLEND_MODE {
 
 /* Type: ALLEGRO_LOCKED_REGION
  */
-typedef struct ALLEGRO_LOCKED_REGION {
+typedef struct ALLEGRO_LOCKED_REGION ALLEGRO_LOCKED_REGION;
+struct ALLEGRO_LOCKED_REGION {
    void *data;
    int format;
    int pitch;
-} ALLEGRO_LOCKED_REGION;
+};
 
 
 AL_FUNC(void, al_set_new_bitmap_format, (int format));

@@ -4,7 +4,7 @@
 
 <div class="sidebar">
 
-* [Front](index.html)
+* [Contents](index.html)
 * [Configuration files](config.html)
 * [Display](display.html)
 * [Events](events.html)

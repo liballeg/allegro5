@@ -21,6 +21,21 @@ to the following al_set\_/al_get\_ calls:
                          ALLEGRO_STATE_TARGET_BITMAP
 * ALLEGRO_STATE_ALL - all of the above 
 
+## API: al_restore_state
+
+Restores part of the state of the current thread from the given
+[ALLEGRO_STATE] object.
+
+See also: [al_store_state], [ALLEGRO_STATE_FLAGS]
+
+## API: al_store_state
+
+Stores part of the state of the current thread in the given [ALLEGRO_STATE]
+objects. The flags parameter can take any bit-combination of the flags
+described under [ALLEGRO_STATE_FLAGS].
+
+See also: [al_restore_state]
+
 ## API: al_get_errno
 
 Some Allegro functions will set an error number as well as returning an
@@ -30,15 +45,4 @@ for the calling thread.
 ## API: al_set_errno
 
 Set the error number for for the calling thread.
-
-## API: al_restore_state
-
-Restores part of the state of the current thread from the given
-`ALLEGRO_STATE` object.
-
-## API: al_store_state
-
-Stores part of the state of the current thread in the given [ALLEGRO_STATE]
-objects. The flags parameter can take any bit-combination of the flags
-described under [ALLEGRO_STATE_FLAGS].
 

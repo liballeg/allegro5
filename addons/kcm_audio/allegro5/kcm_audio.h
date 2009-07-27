@@ -148,10 +148,12 @@ typedef struct ALLEGRO_SAMPLE ALLEGRO_SAMPLE;
 
 /* Type: ALLEGRO_SAMPLE_ID
  */
-typedef struct {
+typedef struct ALLEGRO_SAMPLE_ID ALLEGRO_SAMPLE_ID;
+
+struct ALLEGRO_SAMPLE_ID {
    int _index;
    int _id;
-} ALLEGRO_SAMPLE_ID;
+};
 
 
 /* Type: ALLEGRO_SAMPLE_INSTANCE

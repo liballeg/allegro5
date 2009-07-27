@@ -68,6 +68,10 @@ enum
 };
 
 
+/* Type: ALLEGRO_DISPLAY
+ */
+typedef struct ALLEGRO_DISPLAY ALLEGRO_DISPLAY;
+
 
 /* Type: ALLEGRO_DISPLAY_MODE
  */
@@ -89,6 +93,7 @@ typedef struct ALLEGRO_MONITOR_INFO
    int x2;
    int y2;
 } ALLEGRO_MONITOR_INFO;
+
 
 AL_FUNC(void, al_set_new_display_refresh_rate, (int refresh_rate));
 AL_FUNC(void, al_set_new_display_flags, (int flags));

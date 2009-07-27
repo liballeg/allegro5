@@ -53,19 +53,23 @@ enum ALLEGRO_PRIM_TYPE {
 
 /* Type: ALLEGRO_PRIM_COLOR
  */
-typedef struct {
+typedef struct ALLEGRO_PRIM_COLOR ALLEGRO_PRIM_COLOR;
+
+struct ALLEGRO_PRIM_COLOR {
    float z;
    uint32_t d3d_color;
    float r, g, b, a;
-} ALLEGRO_PRIM_COLOR;
+};
 
 /* Type: ALLEGRO_VERTEX
  */
-typedef struct {
+typedef struct ALLEGRO_VERTEX ALLEGRO_VERTEX;
+
+struct ALLEGRO_VERTEX {
   float x, y;
   ALLEGRO_PRIM_COLOR color;
   float u, v;
-} ALLEGRO_VERTEX;
+};
 
 
 /* Type: ALLEGRO_TRANSFORM

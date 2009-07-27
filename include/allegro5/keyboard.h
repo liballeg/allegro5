@@ -36,12 +36,14 @@ typedef struct ALLEGRO_KEYBOARD ALLEGRO_KEYBOARD;
  *		the state was saved.  If no display was focused, this points
  *		to NULL.
  */
-typedef struct ALLEGRO_KEYBOARD_STATE
+typedef struct ALLEGRO_KEYBOARD_STATE ALLEGRO_KEYBOARD_STATE;
+
+struct ALLEGRO_KEYBOARD_STATE
 {
    struct ALLEGRO_DISPLAY *display;  /* public */
    /* internal */
    unsigned int __key_down__internal__[(ALLEGRO_KEY_MAX + 31) / 32]; 
-} ALLEGRO_KEYBOARD_STATE;
+};
 
 
 AL_FUNC(bool,         al_is_keyboard_installed,   (void));

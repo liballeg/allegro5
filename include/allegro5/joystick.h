@@ -40,13 +40,15 @@ typedef struct ALLEGRO_JOYSTICK ALLEGRO_JOYSTICK;
 
 /* Type: ALLEGRO_JOYSTICK_STATE
  */
-typedef struct ALLEGRO_JOYSTICK_STATE
+typedef struct ALLEGRO_JOYSTICK_STATE ALLEGRO_JOYSTICK_STATE;
+
+struct ALLEGRO_JOYSTICK_STATE
 {
    struct {
       float axis[_AL_MAX_JOYSTICK_AXES];        /* -1.0 to 1.0 */
    } stick[_AL_MAX_JOYSTICK_STICKS];
    int button[_AL_MAX_JOYSTICK_BUTTONS];        /* 0 to 32767 */
-} ALLEGRO_JOYSTICK_STATE;
+};
 
 
 
