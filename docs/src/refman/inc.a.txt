@@ -40,7 +40,7 @@
 <div class="searchbox">
 <script type="text/javascript">
 function onSubmit(form) {
-    for (i = 0; i &lt; search_index.length; i++) {
+    for (i = 0; i < search_index.length; i++) {
         if (search_index[i] == form.q.value) {
             form.action = search_urls[i];
             form.method = "POST";
