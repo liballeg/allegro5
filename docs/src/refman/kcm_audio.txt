@@ -536,6 +536,32 @@ was created with. The sample count and user-data pointer is also passed.
 Creates an audio stream, using the supplied values. The stream will be
 set to play by default.
 
+--------------------------------------------------------------------------------
+Parameter     Meaning
+------------- ------------------------------------------------------------------
+buffer_count  How many fragments to use for the audio stream.
+
+              FIXME: Should this be called fragment_count?
+
+              FIXME: Need to explain what value should be passed here.
+
+samples       The size of a fragment in samples. See note below.
+
+depth         Must be one of the values listed for [ALLEGRO_AUDIO_DEPTH].
+
+chan_conf     Must be one of the values listed for [ALLEGRO_CHANNEL_CONF].
+--------------------------------------------------------------------------------
+
+Note: If you know the fragment size in bytes, you can get the size in samples
+like this:
+
+    sample_size = al_get_channel_count(chan_conf) * al_get_depth_size(depth);
+    samples = bytes_per_fragment / sample_size;
+
+The size of the complete buffer is:
+
+    buffer_size = bytes_per_fragment * buffer_count(FIXME: fragment_count?)
+
 ## API: al_destroy_stream
 
 ## API: al_drain_stream
@@ -630,11 +656,42 @@ if anything.
 
 ## API: al_get_stream_buffer
 
+When using Allegro's audio streaming, you will use this function to continuously
+provide new sample data to a stream.
+
+If the stream is ready for new data, the function will return *true*, and *val*
+will contain the address of an internal buffer to be filled with audio data.
+The length and format of the buffer are specified with [al_create_stream] or
+can be queried with the various functions described here.
+
+Once the buffer is filled, you must signal this to Allegro by passing *val* to
+[al_set_stream_buffer].
+
+Note: If you listen to events from the stream, an
+ALLEGRO_EVENT_STREAM_EMPTY_FRAGMENT event will be generated whenever a new
+fragment is ready.
+
 ## API: al_set_stream_buffer
+
+This function needs to be called for every successfull call of
+[al_get_stream_buffer] to indicate that the buffer is filled with new data.
 
 ## API: al_get_stream_fragments
 
+Returns the number of fragments this stream used. This is the same value as
+passed to [al_create_stream] when a new stream is created.
+
+FIXME: Is it called "fragment" or "buffer"?
+
 ## API: al_get_stream_used_fragments
+
+Returns the number of available fragments in the stream. You can use
+[al_get_stream_buffer]
+
+FIXME: Is it called "fragment" or "buffer"?
+
+FIXME: "used" is misleading, shouldn't it be "available" or "free" or something
+like that?
 
 ## API: al_seek_stream_secs
 
@@ -650,13 +707,13 @@ Currently this can only be called on streams created with acodec's
 
 ## API: al_get_stream_length_secs
 
-Return the position of the stream in seconds.
+Return the length of the stream in seconds.
 Currently this can only be called on streams created with acodec's
 [al_stream_from_file].
 
 ## API: al_set_stream_loop_secs
 
-Return the position of the stream in seconds.
+Sets the loop points for the stream in seconds.
 Currently this can only be called on streams created with acodec's
 [al_stream_from_file].
 
