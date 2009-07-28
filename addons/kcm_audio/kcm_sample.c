@@ -168,7 +168,7 @@ bool al_reserve_samples(int reserve_samples)
          }
       }
    }
-   else if (current_samples_count == reserve_samples) {
+   else if (current_samples_count > reserve_samples) {
       /* We need to reserve fewer samples than currently are reserved. */
       while (current_samples_count-- > reserve_samples) {
          _al_vector_delete_at(&auto_samples, current_samples_count);
