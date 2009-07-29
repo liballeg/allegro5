@@ -213,7 +213,7 @@ int main(int argc, char * argv[])
       return 1;
 
    stream_filename = argv[1];
-   music_stream = al_stream_from_file(4, 4096, stream_filename);
+   music_stream = al_stream_from_file(stream_filename, 4, 4096);
    if (!music_stream) {
       printf("Stream error!\n");
       return 1;

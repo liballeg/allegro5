@@ -12,9 +12,6 @@
 #include "allegro5/kcm_audio.h"
 #include "allegro5/internal/aintern_acodec_cfg.h"
 
-ALLEGRO_SAMPLE *al_load_sample_wav(const char *filename);
-ALLEGRO_STREAM *al_load_stream_wav(size_t buffer_count, unsigned long samples, const char *filename);
-
 #if defined(ALLEGRO_CFG_ACODEC_FLAC)
    ALLEGRO_SAMPLE *al_load_sample_flac(const char *filename);
    ALLEGRO_STREAM *al_load_stream_flac(const char *filename);
@@ -22,12 +19,14 @@ ALLEGRO_STREAM *al_load_stream_wav(size_t buffer_count, unsigned long samples, c
 
 #if defined(ALLEGRO_CFG_ACODEC_SNDFILE)
    ALLEGRO_SAMPLE *al_load_sample_sndfile(const char *filename);
-   ALLEGRO_STREAM *al_load_stream_sndfile(size_t buffer_count, unsigned long samples, const char *filename);
+   ALLEGRO_STREAM *al_load_stream_sndfile(const char *filename,
+       size_t buffer_count, unsigned int samples);
 #endif
 
 #if defined(ALLEGRO_CFG_ACODEC_VORBIS)
    ALLEGRO_SAMPLE *al_load_sample_oggvorbis(const char *filename);
-   ALLEGRO_STREAM *al_load_stream_oggvorbis(size_t buffer_count, unsigned long samples, const char *filename);
+   ALLEGRO_STREAM *al_load_stream_oggvorbis(const char *filename,
+	size_t buffer_count, unsigned int samples);
 #endif
 
 /* TODO: move this into audio */

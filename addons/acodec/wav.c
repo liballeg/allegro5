@@ -11,6 +11,7 @@
 
 ALLEGRO_DEBUG_CHANNEL("acodec")
 
+
 typedef struct WAVFILE
 {
    ALLEGRO_FILE *f; 
@@ -22,6 +23,7 @@ typedef struct WAVFILE
    double loop_start;
    double loop_end;
 } WAVFILE;
+
 
 /* read16:
  *  Reads a signed, 16-bit little endian integer and places the value in 'v'.
@@ -40,6 +42,7 @@ static bool read16(ALLEGRO_FILE *f, signed short *v)
    return false;
 }
 
+
 /* read32:
  *  Reads a signed, 32-bit little endian integer and places the value in 'v'.
  *
@@ -56,6 +59,7 @@ static bool read32(ALLEGRO_FILE *f, int *v)
 
    return false;
 }
+
 
 /* wav_open:
  *  Opens 'filename' and prepares a WAVFILE struct with the WAV format info.
@@ -161,6 +165,7 @@ wav_open_error:
    return NULL;
 }
 
+
 /* wav_read:
  *  Reads up to 'samples' number of samples from the wav ALLEGRO_FILE into 'data'.
  *  Returns the actual number of samples written to 'data'.
@@ -191,6 +196,7 @@ static size_t wav_read(WAVFILE *wavfile, void *data, size_t samples)
    }
 }
 
+
 /* wav_close:
  *  Closes the ALLEGRO_FILE and frees the WAVFILE struct.
  */
@@ -201,6 +207,7 @@ static void wav_close(WAVFILE *wavfile)
    al_fclose(wavfile->f);
    free(wavfile);
 }
+
 
 static bool wav_stream_seek(ALLEGRO_STREAM * stream, double time)
 {
@@ -213,6 +220,7 @@ static bool wav_stream_seek(ALLEGRO_STREAM * stream, double time)
    return (al_fseek(wavfile->f, wavfile->dpos + cpos, ALLEGRO_SEEK_SET) != -1);
 }
 
+
 /* wav_stream_rewind:
  *  Rewinds 'stream' to the beginning of the data chunk.
  *  Returns true on success, false on failure.
@@ -223,12 +231,14 @@ static bool wav_stream_rewind(ALLEGRO_STREAM *stream)
    return wav_stream_seek(stream, wavfile->loop_start);
 }
 
+
 static double wav_stream_get_position(ALLEGRO_STREAM * stream)
 {
    WAVFILE *wavfile = (WAVFILE *) stream->extra;
    double samples_per = (double)((wavfile->bits / 8) * wavfile->channels) * (double)(wavfile->freq);
    return ((double)(al_ftell(wavfile->f) - wavfile->dpos) / samples_per);
 }
+
 
 static double wav_stream_get_length(ALLEGRO_STREAM * stream)
 {
@@ -237,6 +247,7 @@ static double wav_stream_get_length(ALLEGRO_STREAM * stream)
    return total_time;
 }
 
+
 static bool wav_stream_set_loop(ALLEGRO_STREAM * stream, double start, double end)
 {
    WAVFILE *wavfile = (WAVFILE *) stream->extra;
@@ -244,6 +255,7 @@ static bool wav_stream_set_loop(ALLEGRO_STREAM * stream, double start, double en
    wavfile->loop_end = end;
    return true;
 }
+
 
 /* wav_stream_update:
  *  Updates 'stream' with the next chunk of data.
@@ -274,6 +286,7 @@ static size_t wav_stream_update(ALLEGRO_STREAM *stream, void *data,
 
    return samples_read * bytes_per_sample;
 }
+
 
 /* wav_stream_close:
  *  Closes the 'stream'.
@@ -328,10 +341,9 @@ ALLEGRO_SAMPLE *al_load_sample_wav(const char *filename)
 
 
 /* Function: al_load_stream_wav
- */
-ALLEGRO_STREAM *al_load_stream_wav(size_t buffer_count,
-                                       unsigned long samples,
-                                       const char *filename)
+*/
+ALLEGRO_STREAM *al_load_stream_wav(const char *filename, size_t buffer_count,
+   unsigned int samples)
 {
    WAVFILE* wavfile;
    ALLEGRO_STREAM* stream;
@@ -364,16 +376,17 @@ ALLEGRO_STREAM *al_load_stream_wav(size_t buffer_count,
    return stream;
 }
 
+
 /* Function: al_save_sample_wav
  * Writes a sample into a wav ALLEGRO_FILE.
  * Returns true on success, false on error.
  */ 
-bool al_save_sample_wav(ALLEGRO_SAMPLE *spl, const char *filename)
+bool al_save_sample_wav(const char *filename, ALLEGRO_SAMPLE *spl)
 {
    ALLEGRO_FILE *pf = al_fopen(filename, "wb");
 
    if (pf) {
-      bool rv = al_save_sample_wav_pf(spl, pf);
+      bool rv = al_save_sample_wav_pf(pf, spl);
       al_fclose(pf);
       return rv;
    }
@@ -381,11 +394,12 @@ bool al_save_sample_wav(ALLEGRO_SAMPLE *spl, const char *filename)
    return false;   
 }
 
+
 /* Function: al_save_sample_wav_pf
  * Writes a sample into a wav packfile.
  * Returns true on success, false on error.
  */
-bool al_save_sample_wav_pf(ALLEGRO_SAMPLE *spl, ALLEGRO_FILE *pf)
+bool al_save_sample_wav_pf(ALLEGRO_FILE *pf, ALLEGRO_SAMPLE *spl)
 {
    size_t channels, bits;
    size_t data_size;

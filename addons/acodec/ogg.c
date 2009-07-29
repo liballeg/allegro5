@@ -263,9 +263,8 @@ static size_t ogg_stream_update(ALLEGRO_STREAM *stream, void *data,
 
 /* Function: al_load_stream_oggvorbis
  */
-ALLEGRO_STREAM *al_load_stream_oggvorbis(size_t buffer_count,
-                                         unsigned long samples,
-                                         const char *filename)
+ALLEGRO_STREAM *al_load_stream_oggvorbis(const char *filename,
+   size_t buffer_count, unsigned int samples)
 {
    const int word_size = 2; /* 1 = 8bit, 2 = 16-bit. nothing else */
    ALLEGRO_FILE* file = NULL;

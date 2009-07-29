@@ -10,7 +10,7 @@ void StreamResource::destroy(void)
 
 bool StreamResource::load(void)
 {
-   stream = al_stream_from_file(4, 2048, filename.c_str());
+   stream = al_stream_from_file(filename.c_str(), 4, 2048);
    if (!stream) {
        debug_message("Error creating stream\n");
        return false;

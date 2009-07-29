@@ -1,10 +1,181 @@
 /*
  * Allegro audio codec loader.
- * author: Ryan Dickie (c) 2008
  */
 
+#include "allegro5/allegro5.h"
+#include "allegro5/kcm_audio.h"
 #include "allegro5/acodec.h"
+#include "allegro5/internal/aintern.h"
+#include "allegro5/internal/aintern_vector.h"
 #include "allegro5/internal/aintern_acodec.h"
+
+
+#define MAX_EXTENSION_LENGTH  (32)
+
+typedef struct ACODEC_TABLE ACODEC_TABLE;
+struct ACODEC_TABLE
+{
+   char              ext[MAX_EXTENSION_LENGTH];
+   ALLEGRO_SAMPLE *  (*loader)(const char *filename);
+   bool              (*saver)(const char *filename, ALLEGRO_SAMPLE *spl);
+   ALLEGRO_STREAM *  (*stream_loader)(const char *filename,
+                        size_t buffer_count, unsigned int samples);
+};
+
+
+/* forward declarations */
+static void acodec_ensure_init(void);
+static void acodec_shutdown(void);
+static ACODEC_TABLE *find_acodec_table_entry(const char *ext);
+
+
+/* globals */
+static bool acodec_inited = false;
+static _AL_VECTOR acodec_table = _AL_VECTOR_INITIALIZER(ACODEC_TABLE);
+
+
+static void acodec_ensure_init(void)
+{
+   if (acodec_inited) {
+      return;
+   }
+
+   /* Must be before register calls to avoid recursion. */
+   acodec_inited = true;
+
+   /* Some extensions have overlapping handlers; put the most preferred last. */
+
+   al_register_sample_loader(".wav", al_load_sample_wav);
+   al_register_sample_saver(".wav", al_save_sample_wav);
+   al_register_stream_loader(".wav", al_load_stream_wav);
+
+#if defined(ALLEGRO_CFG_ACODEC_SNDFILE)
+   al_register_sample_loader(".wav", al_load_sample_sndfile);
+   al_register_sample_loader(".aiff", al_load_sample_sndfile);
+   al_register_sample_loader(".flac", al_load_sample_sndfile);
+
+   al_register_stream_loader(".wav", al_load_stream_sndfile);
+   al_register_stream_loader(".aiff", al_load_stream_sndfile);
+#endif
+
+#if defined(ALLEGRO_CFG_ACODEC_VORBIS)
+   al_register_sample_loader(".ogg", al_load_sample_oggvorbis);
+   al_register_stream_loader(".ogg", al_load_stream_oggvorbis);
+#endif
+
+#if defined(ALLEGRO_CFG_ACODEC_FLAC)
+   al_register_sample_loader(".flac", al_load_sample_flac);
+   /* al_load_stream_flac not yet implemented */
+#endif
+
+   _al_add_exit_func(acodec_shutdown, "acodec_shutdown");
+}
+
+
+static void acodec_shutdown(void)
+{
+   _al_vector_free(&acodec_table);
+   acodec_inited = false;
+}
+
+
+static ACODEC_TABLE *find_acodec_table_entry(const char *ext)
+{
+   ACODEC_TABLE *ent;
+   unsigned i;
+
+   acodec_ensure_init();
+
+   for (i = 0; i < _al_vector_size(&acodec_table); i++) {
+      ent = _al_vector_ref(&acodec_table, i);
+      if (0 == stricmp(ent->ext, ext)) {
+         return ent;
+      }
+   }
+
+   return NULL;
+}
+
+
+static ACODEC_TABLE *add_acodec_table_entry(const char *ext)
+{
+   ACODEC_TABLE *ent;
+
+   ent = _al_vector_alloc_back(&acodec_table);
+   strcpy(ent->ext, ext);
+   ent->loader = NULL;
+   ent->saver = NULL;
+   ent->stream_loader = NULL;
+
+   return ent;
+}
+
+
+/* Function: al_register_sample_loader
+ */
+bool al_register_sample_loader(const char *ext,
+   ALLEGRO_SAMPLE *(*loader)(const char *filename))
+{
+   ACODEC_TABLE *ent;
+
+   if (strlen(ext) >= MAX_EXTENSION_LENGTH) {
+      return false;
+   }
+
+   ent = find_acodec_table_entry(ext);
+   if (!ent) {
+      ent = add_acodec_table_entry(ext);
+   }
+
+   ent->loader = loader;
+
+   return true;
+}
+
+
+/* Function: al_register_sample_saver
+ */
+bool al_register_sample_saver(const char *ext,
+   bool (*saver)(const char *filename, ALLEGRO_SAMPLE *spl))
+{
+   ACODEC_TABLE *ent;
+
+   if (strlen(ext) >= MAX_EXTENSION_LENGTH) {
+      return false;
+   }
+
+   ent = find_acodec_table_entry(ext);
+   if (!ent) {
+      ent = add_acodec_table_entry(ext);
+   }
+
+   ent->saver = saver;
+
+   return true;
+}
+
+
+/* Function: al_register_stream_loader
+ */
+bool al_register_stream_loader(const char *ext,
+   ALLEGRO_STREAM *(*stream_loader)(const char *filename,
+      size_t buffer_count, unsigned int samples))
+{
+   ACODEC_TABLE *ent;
+
+   if (strlen(ext) >= MAX_EXTENSION_LENGTH) {
+      return false;
+   }
+
+   ent = find_acodec_table_entry(ext);
+   if (!ent) {
+      ent = add_acodec_table_entry(ext);
+   }
+
+   ent->stream_loader = stream_loader;
+
+   return true;
+}
 
 
 /* Function: al_load_sample
@@ -12,84 +183,38 @@
 ALLEGRO_SAMPLE *al_load_sample(const char *filename)
 {
    const char *ext;
+   ACODEC_TABLE *ent;
 
    ASSERT(filename);
-
    ext = strrchr(filename, '.');
    if (ext == NULL)
       return NULL;
 
-   ext++;   /* skip '.' */
-   #if defined(ALLEGRO_CFG_ACODEC_VORBIS)
-      if (stricmp("ogg", ext) == 0) {
-         return al_load_sample_oggvorbis(filename);
-      }
-   #endif
-   
-   #if defined(ALLEGRO_CFG_ACODEC_FLAC)
-      if (stricmp("flac", ext) == 0) {
-         return al_load_sample_flac(filename);
-      }
-   #endif
-
-   #if defined(ALLEGRO_CFG_ACODEC_SNDFILE)
-      if (stricmp("wav", ext) == 0 ||
-         stricmp("aiff", ext) == 0 ||
-         stricmp("flac", ext) == 0)
-      {
-         return al_load_sample_sndfile(filename);
-      }
-   #endif
-
-   if (stricmp("wav", ext) == 0) {
-      return al_load_sample_wav(filename);
+   ent = find_acodec_table_entry(ext);
+   if (ent && ent->loader) {
+      return (ent->loader)(filename);
    }
- 
+
    return NULL;
 }
 
 
 /* Function: al_stream_from_file
  */
-ALLEGRO_STREAM *al_stream_from_file(size_t buffer_count, unsigned long samples,
-                                    const char *filename)
+ALLEGRO_STREAM *al_stream_from_file(const char *filename, size_t buffer_count,
+   unsigned int samples)
 {
    const char *ext;
+   ACODEC_TABLE *ent;
 
    ASSERT(filename);
-
-   /* Can be unused if no support libraries found. */
-   (void)buffer_count;
-   (void)samples;
-
    ext = strrchr(filename, '.');
    if (ext == NULL)
       return NULL;
 
-   ext++;   /* skip '.' */
-   #if defined(ALLEGRO_CFG_ACODEC_VORBIS)
-      if (stricmp("ogg", ext) == 0) {
-         return  al_load_stream_oggvorbis(buffer_count, samples, filename);
-      }
-   #endif
-
-   #if defined(ALLEGRO_CFG_ACODEC_FLAC)
-      if (stricmp("flac", ext) == 0) {
-         return NULL; // unimplemented
-      }
-   #endif
-
-   #if defined(ALLEGRO_CFG_ACODEC_SNDFILE)
-      if (stricmp("wav", ext) == 0 ||
-         stricmp("aiff", ext) == 0 ||
-         stricmp("flac", ext) == 0)
-      {
-         return al_load_stream_sndfile(buffer_count, samples, filename);
-      }
-   #endif
-
-   if (stricmp("wav", ext) == 0) {
-      return al_load_stream_wav(buffer_count, samples, filename);
+   ent = find_acodec_table_entry(ext);
+   if (ent && ent->stream_loader) {
+      return (ent->stream_loader)(filename, buffer_count, samples);
    }
 
    TRACE("Error creating ALLEGRO_STREAM from '%s'.\n", filename);
@@ -97,27 +222,28 @@ ALLEGRO_STREAM *al_stream_from_file(size_t buffer_count, unsigned long samples,
    return NULL;
 }
 
+
 /* Function: al_save_sample
  */
-bool al_save_sample(ALLEGRO_SAMPLE *spl, const char *filename)
+bool al_save_sample(const char *filename, ALLEGRO_SAMPLE *spl)
 {
    const char *ext;
+   ACODEC_TABLE *ent;
 
    ASSERT(filename);
-
    ext = strrchr(filename, '.');
    if (ext == NULL)
-      return false;
-
+      return NULL;
    ext++;   /* skip '.' */
 
-   if (stricmp("wav", ext) == 0)
-   {
-      return al_save_sample_wav(spl, filename);
+   ent = find_acodec_table_entry(ext);
+   if (ent && ent->saver) {
+      return (ent->saver)(filename, spl);
    }
 
-   return false;
+   return NULL;
 }
+
 
 /* FIXME: use the allegro provided helpers */
 ALLEGRO_CHANNEL_CONF _al_count_to_channel_conf(int num_channels)
@@ -161,4 +287,3 @@ ALLEGRO_AUDIO_DEPTH _al_word_size_to_depth_conf(int word_size)
 }
 
 /* vim: set sts=3 sw=3 et: */
-

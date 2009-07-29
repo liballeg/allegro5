@@ -1,13 +1,13 @@
 /**
- * allegro audio codec loader
+ * Allegro audio codec loader
  * author: Ryan Dickie (c) 2008
- * todo: add streaming support
  */
 
 #ifndef ACODEC_H
 #define ACODEC_H
 
 #include "allegro5/allegro5.h"
+#include "allegro5/kcm_audio.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -33,16 +33,28 @@ extern "C" {
    #define A5_ACODEC_FUNC      AL_FUNC
 #endif
 
-#include "allegro5/kcm_audio.h"
+
+A5_ACODEC_FUNC(bool, al_register_sample_loader, (const char *ext,
+	ALLEGRO_SAMPLE *(*loader)(const char *filename)));
+A5_ACODEC_FUNC(bool, al_register_sample_saver, (const char *ext,
+	bool (*saver)(const char *filename, ALLEGRO_SAMPLE *spl)));
+A5_ACODEC_FUNC(bool, al_register_stream_loader, (const char *ext,
+	ALLEGRO_STREAM *(*stream_loader)(const char *filename,
+	    size_t buffer_count, unsigned int samples)));
 
 A5_ACODEC_FUNC(ALLEGRO_SAMPLE *, al_load_sample, (const char *filename));
+A5_ACODEC_FUNC(bool, al_save_sample, (const char *filename,
+	ALLEGRO_SAMPLE *spl));
+A5_ACODEC_FUNC(ALLEGRO_STREAM *, al_stream_from_file, (const char *filename,
+	size_t buffer_count, unsigned int samples));
+
+/* WAV handlers */
 A5_ACODEC_FUNC(ALLEGRO_SAMPLE *, al_load_sample_wav, (const char *filename));
+A5_ACODEC_FUNC(bool, al_save_sample_wav, (const char *filename, ALLEGRO_SAMPLE *spl));
+A5_ACODEC_FUNC(bool, al_save_sample_wav_pf, (ALLEGRO_FILE *pf, ALLEGRO_SAMPLE *spl));
+A5_ACODEC_FUNC(ALLEGRO_STREAM *, al_load_stream_wav, (const char *filename,
+	size_t buffer_count, unsigned int samples));
 
-A5_ACODEC_FUNC(bool, al_save_sample, (ALLEGRO_SAMPLE *spl, const char *filename));
-A5_ACODEC_FUNC(bool, al_save_sample_wav, (ALLEGRO_SAMPLE *spl, const char *filename));
-A5_ACODEC_FUNC(bool, al_save_sample_wav_pf, (ALLEGRO_SAMPLE *spl, ALLEGRO_FILE *pf));
-
-A5_ACODEC_FUNC(ALLEGRO_STREAM *, al_stream_from_file, (size_t buffer_count, unsigned long samples, const char *filename));
 
 #ifdef __cplusplus
 }

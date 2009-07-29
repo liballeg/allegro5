@@ -68,7 +68,7 @@ int main(int argc, char **argv)
       const char*     filename = argv[i];
       bool playing;
 
-      stream = al_stream_from_file(4, 2048, filename);
+      stream = al_stream_from_file(filename, 4, 2048);
       if (!stream) {
          fprintf(stderr, "Could not create an ALLEGRO_STREAM from '%s'!\n",
                  filename);

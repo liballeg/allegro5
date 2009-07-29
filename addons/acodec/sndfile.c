@@ -316,9 +316,8 @@ static void _sndfile_stream_close(ALLEGRO_STREAM *stream)
 }
 
 
-ALLEGRO_STREAM *al_load_stream_sndfile(size_t buffer_count,
-                                       unsigned long samples,
-                                       const char *filename)
+ALLEGRO_STREAM *al_load_stream_sndfile(const char *filename,
+   size_t buffer_count, unsigned int samples)
 {
    ALLEGRO_AUDIO_DEPTH depth;
    _sf_private *priv = NULL;
