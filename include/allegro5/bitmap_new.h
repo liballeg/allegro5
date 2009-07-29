@@ -54,6 +54,7 @@ enum ALLEGRO_PIXEL_FORMAT {
    ALLEGRO_PIXEL_FORMAT_XRGB_8888,
    ALLEGRO_PIXEL_FORMAT_ABGR_F32,
    ALLEGRO_PIXEL_FORMAT_ABGR_8888_LE,
+   ALLEGRO_PIXEL_FORMAT_RGBA_4444,
    ALLEGRO_NUM_PIXEL_FORMATS
 };
 
@@ -165,7 +166,9 @@ AL_FUNC(void, al_get_blender, (int *source, int *dest, ALLEGRO_COLOR *color));
 AL_FUNC(void, al_set_separate_blender, (int source, int dest, int alpha_source, int alpha_dest, ALLEGRO_COLOR color));
 AL_FUNC(void, al_get_separate_blender, (int *source, int *dest, int *alpha_src, int *alpha_dest, ALLEGRO_COLOR *color));
 AL_FUNC(ALLEGRO_COLOR *, _al_get_blend_color, (void));
+AL_FUNC(void, al_set_alpha_test, (ALLEGRO_BITMAP *b, bool alpha_test));
 
+AL_FUNC(void, _al_put_pixel, (ALLEGRO_BITMAP *bitmap, int x, int y, ALLEGRO_COLOR color));
 
 #ifdef __cplusplus
    }

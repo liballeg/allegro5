@@ -225,6 +225,9 @@ ALLEGRO_FONT *al_grab_font_from_bitmap(
          glyphs = al_create_bitmap(w, h);
          if (!glyphs)
             goto cleanup_and_fail_on_error;
+#ifdef WIZ
+         al_set_alpha_test(glyphs, true);
+#endif
          al_set_target_bitmap(glyphs);
          al_set_blender(ALLEGRO_ONE, ALLEGRO_ZERO, white);
          al_draw_bitmap(bmp, 0, 0, 0);

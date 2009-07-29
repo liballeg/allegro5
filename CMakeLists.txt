@@ -70,7 +70,7 @@ set(LIB_SUFFIX "" CACHE STRING "Suffix for 'lib' directories, e.g. '64'")
 option(WANT_X11 "X11 support" on)
 option(WANT_D3D "Enable Direct3D graphics driver (Windows)" on)
 option(WANT_D3D9EX "Enable Direct3D 9Ex extensions (Vista)" off)
-option(WANT_OPENGL "Enable OpenGL graphics driver (Windows, X11))" on)
+option(WANT_OPENGL "Enable OpenGL graphics driver (Windows, X11, OS X))" on)
 
 #
 # Addons.
@@ -121,6 +121,8 @@ option(NO_FPU "No floating point unit" off)
 option(WANT_DLL_TLS "Force use of DllMain for TLS (Windows)" off)
 option(WANT_DEMO "Build a demo program" on)
 option(WANT_EXAMPLES "Build example programs" on)
+
+option(GP2XWIZ "Compile for GP2X Wiz" off)
 
 #-----------------------------------------------------------------------------#
 #
@@ -260,6 +262,23 @@ if(ARCH_X86 AND WANT_ALLOW_SSE)
     endif(COMPILER_MSVC)
 endif()
 
+if(GP2XWIZ)
+    set(ALLEGRO_GP2XWIZ 1)
+    set(CMAKE_C_COMPILER "arm-openwiz-linux-gnu-gcc")
+    set(CMAKE_CXX_COMPILER "arm-openwiz-linux-gnu-g++")
+    set(CMAKE_SIZEOF_UNSIGNED_SHORT "2")
+    set(WANT_X11 off)
+    set(ALLEGRO_HAVE_LIBPTHREAD 1)
+    set(ALLEGRO_CFG_PTHREADS_TLS 1)
+    set(SUPPORT_OPENGL 1)
+    set(ALLEGRO_CFG_OPENGL 1)
+    include_directories(${CMAKE_FIND_ROOT_PATH}/include)
+    link_directories(${CMAKE_FIND_ROOT_PATH}/lib)
+    set(CMAKE_C_FLAGS_RELEASE "-mcpu=arm926ej-s -mtune=arm926ej-s -O2")
+    set(CMAKE_CXX_FLAGS_RELEASE "-mcpu=arm926ej-s -mtune=arm926ej-s -O2")
+    set(WANT_DEMO off)
+endif(GP2XWIZ)
+
 #-----------------------------------------------------------------------------#
 #
 #   Build types
@@ -371,8 +390,11 @@ check_function_exists(stricmp ALLEGRO_HAVE_STRICMP)
 check_function_exists(strlwr ALLEGRO_HAVE_STRLWR)
 check_function_exists(strupr ALLEGRO_HAVE_STRUPR)
 check_function_exists(sysconf ALLEGRO_HAVE_SYSCONF)
-check_function_exists(fseeko ALLEGRO_HAVE_FSEEKO)
-check_function_exists(ftello ALLEGRO_HAVE_FTELLO)
+# These functions exist on Wiz but don't work
+if(NOT GP2XWIZ)
+    check_function_exists(fseeko ALLEGRO_HAVE_FSEEKO)
+    check_function_exists(ftello ALLEGRO_HAVE_FTELLO)
+endif(NOT GP2XWIZ)
 
 check_type_size("_Bool" ALLEGRO_HAVE__BOOL)
 
@@ -458,13 +480,15 @@ endif(WANT_OPENAL)
 
 if(UNIX) # includes MACOSX
 
-    find_package(Threads)
-    if(CMAKE_USE_PTHREADS_INIT)
-        set(ALLEGRO_HAVE_LIBPTHREAD 1)
-    else(CMAKE_USE_PTHREADS_INIT)
-        message(FATAL_ERROR
-            "Unix port requires pthreads support, not detected.")
-    endif(CMAKE_USE_PTHREADS_INIT)
+    if(NOT GP2XWIZ)
+        find_package(Threads)
+        if(CMAKE_USE_PTHREADS_INIT)
+            set(ALLEGRO_HAVE_LIBPTHREAD 1)
+        else(CMAKE_USE_PTHREADS_INIT)
+            message(FATAL_ERROR
+                "Unix port requires pthreads support, not detected.")
+        endif(CMAKE_USE_PTHREADS_INIT)
+    endif(NOT GP2XWIZ)
 
     if(WANT_ALSA)
         pkg_check_modules(ALSA alsa)
@@ -718,8 +742,15 @@ if(SUPPORT_OPENGL)
     if(WIN32)
         list(APPEND LIBRARY_SOURCES ${ALLEGRO_SRC_WGL_FILES})
     endif(WIN32)
-    list(APPEND PLATFORM_LIBS ${OPENGL_gl_LIBRARY} ${OPENGL_glu_LIBRARY})
+    if(NOT GP2XWIZ)
+        list(APPEND PLATFORM_LIBS ${OPENGL_gl_LIBRARY} ${OPENGL_glu_LIBRARY})
+    endif(NOT GP2XWIZ)
 endif(SUPPORT_OPENGL)
+
+if(GP2XWIZ)
+    list(APPEND PLATFORM_LIBS wiz pthread-0.10 dl)
+    list(APPEND LIBRARY_SOURCES ${ALLEGRO_SRC_GP2XWIZ_FILES})
+endif(GP2XWIZ)
 
 # ALLEGRO_LIB_BUILD is defined for all Allegro sources (core and addon)
 # ALLEGRO_SRC is defined only while compiling the core sources (its use is

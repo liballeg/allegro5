@@ -8,26 +8,25 @@
  *                                           /\____/
  *                                           \_/__/
  *
- *      List of Unix joystick drivers.
+ *      Wiz-specific header defines.
  *
- *      By Shawn Hargreaves.
+ *      By Trent Gamblin
  *
  *      See readme.txt for copyright information.
  */
 
 
-#include "allegro5/allegro5.h"
-#include "allegro5/platform/aintunix.h"
-#include "allegro5/internal/aintern.h"
-#include "allegro5/internal/aintern_joystick.h"
-
-
-
-_AL_BEGIN_JOYSTICK_DRIVER_LIST
-#ifdef ALLEGRO_GP2XWIZ
-   _AL_JOYSTICK_DRIVER_GP2XWIZ
+#ifndef ALLEGRO_GP2XWIZ
+   #error bad include
 #endif
-#ifdef ALLEGRO_HAVE_LINUX_JOYSTICK_H
-   { _ALLEGRO_JOYDRV_LINUX,   &_al_joydrv_linux,   true  },
-#endif
-_AL_END_JOYSTICK_DRIVER_LIST
+
+#define AL_JOY_TYPE_GP2XWIZ      AL_ID('W','I','Z',' ')
+
+AL_VAR(struct ALLEGRO_JOYSTICK_DRIVER, _al_joydrv_gp2xwiz);
+
+#define _AL_JOYSTICK_DRIVER_GP2XWIZ                                     \
+   { AL_JOY_TYPE_GP2XWIZ,  &_al_joydrv_gp2xwiz,    true  },
+
+
+#include "allegro5/platform/alunix.h"
+

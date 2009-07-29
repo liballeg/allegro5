@@ -17,7 +17,6 @@
 /* Title: Pixel manipulation
  */
 
-
 #include <string.h> /* for memset */
 #include "allegro5/allegro5.h"
 #include "allegro5/bitmap_new.h"
@@ -55,7 +54,8 @@ static int pixel_sizes[] = {
    4,
    4,
    16, /* ALLEGRO_PIXEL_FORMAT_ABGR_F32 */
-   4 /* ALLEGRO_PIXEL_FORMAT_ABGR_LE */
+   4, /* ALLEGRO_PIXEL_FORMAT_ABGR_LE */
+   2 /* ALLEGRO_PIXEL_FORMAT_RGBA_4444 */
 };
 
 static int pixel_bits[] = {
@@ -84,7 +84,8 @@ static int pixel_bits[] = {
    32,
    32,
    128, /* ALLEGRO_PIXEL_FORMAT_ABGR_F32 */
-   32 /* ALLEGRO_PIXEL_FORMAT_ABGR_LE */
+   32, /* ALLEGRO_PIXEL_FORMAT_ABGR_LE */
+   16 /* ALLEGRO_PIXEL_FORMAT_RGBA_4444 */
 };
 
 
@@ -128,7 +129,8 @@ static bool format_alpha_table[ALLEGRO_NUM_PIXEL_FORMATS] = {
    false,
    false,
    true, /* ALLEGRO_PIXEL_FORMAT_ABGR_F32 */
-   true /* ALLEGRO_PIXEL_FORMAT_ABGR_LE */
+   true, /* ALLEGRO_PIXEL_FORMAT_ABGR_LE */
+   true /* ALLEGRO_PIXEL_FORMAT_RGBA_4444 */
 };
 
 bool _al_format_has_alpha(int format)
@@ -163,7 +165,8 @@ static bool format_is_real[ALLEGRO_NUM_PIXEL_FORMATS] =
    true,
    true,
    true, /* ALLEGRO_PIXEL_FORMAT_ABGR_F32 */
-   true /* ALLEGRO_PIXEL_FORMAT_ABGR_LE */
+   true, /* ALLEGRO_PIXEL_FORMAT_ABGR_LE */
+   true /* ALLEGRO_PIXEL_FORMAT_RGBA_4444 */
 };
 
 bool _al_pixel_format_is_real(int format)
@@ -224,7 +227,7 @@ int _al_get_real_pixel_format(int format)
          format = ALLEGRO_PIXEL_FORMAT_RGB_565;
          break;
       case ALLEGRO_PIXEL_FORMAT_ANY_16_WITH_ALPHA:
-         format = ALLEGRO_PIXEL_FORMAT_ARGB_4444;
+         format = ALLEGRO_PIXEL_FORMAT_RGBA_4444;
          break;
       case ALLEGRO_PIXEL_FORMAT_ANY_24_NO_ALPHA:
          format = ALLEGRO_PIXEL_FORMAT_RGB_888;
@@ -357,7 +360,7 @@ void _al_put_pixel(ALLEGRO_BITMAP *bitmap, int x, int y, ALLEGRO_COLOR color)
       data = bitmap->locked_region.data;
       data += y * bitmap->locked_region.pitch;
       data += x * al_get_pixel_size(bitmap->format);
-
+      
       _AL_INLINE_PUT_PIXEL(bitmap->format, data, color, false);
    }
    else {

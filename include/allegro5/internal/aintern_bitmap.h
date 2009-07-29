@@ -57,9 +57,6 @@ struct ALLEGRO_BITMAP
    int xofs;
    int yofs;
 
-   /* Masking color */
-   ALLEGRO_COLOR mask_color;
-
    /* A memory copy of the bitmap data. May be NULL for an empty bitmap. */
    unsigned char *memory;
 
@@ -67,10 +64,8 @@ struct ALLEGRO_BITMAP
       storage type. Can be missleading. */
    size_t size;
 
-   /* TODO: Is it needed? */
-   /*unsigned char *palette;*/
-
    bool preserve_texture;
+   bool alpha_test;
 };
 
 struct ALLEGRO_BITMAP_INTERFACE
@@ -115,7 +110,6 @@ void _al_convert_bitmap_data(
 	int width, int height);
 void _al_convert_to_memory_bitmap(ALLEGRO_BITMAP *bitmap);
 void _al_convert_to_display_bitmap(ALLEGRO_BITMAP *bitmap);
-void _al_put_pixel(ALLEGRO_BITMAP *bitmap, int x, int y, ALLEGRO_COLOR color);
 bool _al_format_has_alpha(int format);
 bool _al_pixel_format_is_real(int format);
 bool _al_pixel_format_fits(int format1, int format2);
@@ -160,6 +154,19 @@ typedef void (*ALLEGRO_MEMORY_BLENDER)(
    ALLEGRO_COLOR *result);
 
 void _al_blend(ALLEGRO_COLOR *src_color, ALLEGRO_BITMAP *dest, int dx, int dy, ALLEGRO_COLOR *result);
+
+#ifdef ALLEGRO_GP2XWIZ
+/* Optimized blitters */
+void _al_draw_bitmap_region_optimized_rgba_4444_to_rgb_565(
+   ALLEGRO_BITMAP *src, int sx, int sy, int sw, int sh,
+   ALLEGRO_BITMAP *dest, int dx, int dy, int flags);
+void _al_draw_bitmap_region_optimized_rgb_565_to_rgb_565(
+   ALLEGRO_BITMAP *src, int sx, int sy, int sw, int sh,
+   ALLEGRO_BITMAP *dest, int dx, int dy, int flags);
+void _al_draw_bitmap_region_optimized_rgba_4444_to_rgba_4444(
+   ALLEGRO_BITMAP *src, int sx, int sy, int sw, int sh,
+   ALLEGRO_BITMAP *dest, int dx, int dy, int flags);
+#endif
 
 #ifdef __cplusplus
 }

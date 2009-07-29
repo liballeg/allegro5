@@ -46,6 +46,7 @@ if(WANT_VORBIS)
     if(VORBIS_FOUND)
         set(CMAKE_REQUIRED_INCLUDES ${VORBIS_INCLUDE_DIR})
         set(CMAKE_REQUIRED_LIBRARIES ${VORBIS_LIBRARIES})
+if(NOT GP2XWIZ)
         check_c_source_compiles("
             #include <vorbis/vorbisfile.h>
             int main(void)
@@ -58,6 +59,20 @@ if(WANT_VORBIS)
                 return 0;
             }"
             VORBIS_COMPILES)
+else(NOT GP2XWIZ)
+        check_c_source_compiles("
+            #include <tremor/ivorbisfile.h>
+            int main(void)
+            {
+                OggVorbis_File f;
+                ov_callbacks callback;
+                vorbis_info *v = 0;
+                ov_info(&f, -1);
+                //callback = OV_CALLBACKS_NOCLOSE;
+                return 0;
+            }"
+            VORBIS_COMPILES)
+endif(NOT GP2XWIZ)
         set(CMAKE_REQUIRED_INCLUDES)
         set(CMAKE_REQUIRED_LIBRARIES)
         if(VORBIS_COMPILES)

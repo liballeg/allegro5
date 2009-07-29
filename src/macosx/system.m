@@ -153,7 +153,7 @@ static ALLEGRO_SYSTEM* osx_sys_init(int flags)
 //   os_multitasking = true;
    
    
-   _al_osx_threads_init();
+   _al_pthreads_tls_init();
    /* Mark the beginning of time. */
    _al_unix_init_time();
 

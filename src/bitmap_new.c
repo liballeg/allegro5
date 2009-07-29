@@ -28,6 +28,7 @@
 #include "allegro5/internal/aintern_memory.h"
 #include "allegro5/internal/aintern_system.h"
 
+ALLEGRO_DEBUG_CHANNEL("bitmap")
 
 /* Creates a memory bitmap.
  */
@@ -795,6 +796,11 @@ void _al_convert_to_memory_bitmap(ALLEGRO_BITMAP *bitmap)
    memcpy(bitmap, tmp, tmp->size);
 
    _AL_FREE(tmp);
+}
+
+void al_set_alpha_test(ALLEGRO_BITMAP *bitmap, bool alpha_test)
+{
+	bitmap->alpha_test = alpha_test;
 }
 
 /* vim: set ts=8 sts=3 sw=3 et: */

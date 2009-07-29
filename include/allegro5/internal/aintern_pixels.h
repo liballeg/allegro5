@@ -215,6 +215,18 @@
             break;                                                            \
          }                                                                    \
                                                                               \
+         case ALLEGRO_PIXEL_FORMAT_RGBA_4444: {                               \
+            uint16_t _gp_pixel = *(uint16_t *)(data);                         \
+            _AL_MAP_RGBA(color,                                               \
+               _rgb_scale_4[(_gp_pixel & 0xF000) >> 12],                      \
+               _rgb_scale_4[(_gp_pixel & 0x0F00) >> 8],                       \
+               _rgb_scale_4[(_gp_pixel & 0x00F0) >> 4],                       \
+               _rgb_scale_4[(_gp_pixel & 0x000F)]);                           \
+            if (advance)                                                      \
+               data += 2;                                                     \
+            break;                                                            \
+         }                                                                    \
+                                                                              \
          case ALLEGRO_PIXEL_FORMAT_ANY:                                       \
          case ALLEGRO_PIXEL_FORMAT_ANY_NO_ALPHA:                              \
          case ALLEGRO_PIXEL_FORMAT_ANY_WITH_ALPHA:                            \
@@ -402,6 +414,16 @@
             *((uint8_t *)data + 3) = _al_fast_float_to_int(color.a * 0xff);   \
             if (advance)                                                      \
                data += 4;                                                     \
+            break;                                                            \
+                                                                              \
+         case ALLEGRO_PIXEL_FORMAT_RGBA_4444:                                 \
+            _pp_pixel = _al_fast_float_to_int(color.a * 15);                  \
+            _pp_pixel |= _al_fast_float_to_int(color.r * 15) << 12;           \
+            _pp_pixel |= _al_fast_float_to_int(color.g * 15) <<  8;           \
+            _pp_pixel |= _al_fast_float_to_int(color.b * 15) <<  4;           \
+            *(uint16_t *)(data) = _pp_pixel;                                  \
+            if (advance)                                                      \
+               data += 2;                                                     \
             break;                                                            \
                                                                               \
          case ALLEGRO_PIXEL_FORMAT_ANY:                                       \

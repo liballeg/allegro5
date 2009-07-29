@@ -20,12 +20,17 @@
 #include "allegro5/internal/aintern_memory.h"
 #include "allegro5/internal/aintern_opengl.h"
 
+#ifdef ALLEGRO_GP2XWIZ
+#include "allegro5/internal/aintern_gp2xwiz.h"
+#endif
+
 ALLEGRO_DEBUG_CHANNEL("opengl")
 
 static void setup_fbo(ALLEGRO_DISPLAY *display, ALLEGRO_BITMAP *bitmap)
 {
-   ALLEGRO_DISPLAY *ogl_disp = (void *)display;
    ALLEGRO_BITMAP_OGL *ogl_bitmap = (void *)bitmap;
+
+#ifndef ALLEGRO_GP2XWIZ
    if (!ogl_bitmap->is_backbuffer) {
 
       /* When a bitmap is set as target bitmap, we try to create an FBO for it.
@@ -38,7 +43,7 @@ static void setup_fbo(ALLEGRO_DISPLAY *display, ALLEGRO_BITMAP *bitmap)
 
       if (ogl_bitmap->fbo) {
          /* Bind to the FBO. */
-         ASSERT(ogl_disp->ogl_extras->extension_list->ALLEGRO_GL_EXT_framebuffer_object);
+         ASSERT(display->ogl_extras->extension_list->ALLEGRO_GL_EXT_framebuffer_object);
          glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, ogl_bitmap->fbo);
 
          /* Attach the texture. */
@@ -58,7 +63,7 @@ static void setup_fbo(ALLEGRO_DISPLAY *display, ALLEGRO_BITMAP *bitmap)
             ogl_bitmap->fbo = 0;
          }
          else {
-            ogl_disp->ogl_extras->opengl_target = ogl_bitmap;
+            display->ogl_extras->opengl_target = ogl_bitmap;
             glViewport(0, 0, bitmap->w, bitmap->h);
 
             glMatrixMode(GL_PROJECTION);
@@ -72,10 +77,10 @@ static void setup_fbo(ALLEGRO_DISPLAY *display, ALLEGRO_BITMAP *bitmap)
       }
    }
    else {
-      if (ogl_disp->ogl_extras->extension_list->ALLEGRO_GL_EXT_framebuffer_object) {
+      if (display->ogl_extras->extension_list->ALLEGRO_GL_EXT_framebuffer_object) {
          glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
       }
-      ogl_disp->ogl_extras->opengl_target = ogl_bitmap;
+      display->ogl_extras->opengl_target = ogl_bitmap;
 
       glViewport(0, 0, display->w, display->h);
 
@@ -89,17 +94,40 @@ static void setup_fbo(ALLEGRO_DISPLAY *display, ALLEGRO_BITMAP *bitmap)
       glMatrixMode(GL_MODELVIEW);
       glLoadIdentity();
    }
+#else
+
+   ALLEGRO_DISPLAY_GP2XWIZ_OGL *wiz_disp = (ALLEGRO_DISPLAY_GP2XWIZ_OGL *)display;
+   display->ogl_extras->opengl_target = ogl_bitmap;
+
+   if (!ogl_bitmap->is_backbuffer) {
+      /* FIXME: implement */
+   }
+   else {
+      eglMakeCurrent(wiz_disp->egl_display, wiz_disp->egl_surface, wiz_disp->egl_surface, wiz_disp->egl_context); 
+
+      glViewport(0, 0, display->w, display->h);
+
+      glMatrixMode(GL_PROJECTION);
+      glLoadIdentity();
+      /* We use upside down coordinates compared to OpenGL, so the bottommost
+       * coordinate is display->h not 0.
+       */
+      glOrtho(0, display->w, display->h, 0, -1, 1);
+
+      glMatrixMode(GL_MODELVIEW);
+      glLoadIdentity();
+   }
+#endif
 }
 
 void _al_ogl_set_target_bitmap(ALLEGRO_DISPLAY *display, ALLEGRO_BITMAP *bitmap)
 {
-   ALLEGRO_DISPLAY *ogl_disp = (void *)display;
    ALLEGRO_BITMAP_OGL *ogl_bitmap = (void *)bitmap;
-
+   
    if (!bitmap->locked) {
       setup_fbo(display, bitmap);
 
-      if (ogl_disp->ogl_extras->opengl_target == ogl_bitmap) {
+      if (display->ogl_extras->opengl_target == ogl_bitmap) {
          _al_ogl_setup_bitmap_clipping(bitmap);
       }
    }
@@ -138,8 +166,7 @@ void _al_ogl_setup_bitmap_clipping(const ALLEGRO_BITMAP *bitmap)
 
 ALLEGRO_BITMAP *_al_ogl_get_backbuffer(ALLEGRO_DISPLAY *d)
 {
-   ALLEGRO_DISPLAY *dpy = (void *)d;
-   return (ALLEGRO_BITMAP *)dpy->ogl_extras->backbuffer;
+   return (ALLEGRO_BITMAP *)d->ogl_extras->backbuffer;
 }
 
 
@@ -181,7 +208,8 @@ ALLEGRO_BITMAP_OGL* _al_ogl_create_backbuffer(ALLEGRO_DISPLAY *disp)
    int format;
 
    al_store_state(&backup, ALLEGRO_STATE_NEW_BITMAP_PARAMETERS);
-   
+
+#ifndef ALLEGRO_GP2XWIZ
    format = _al_deduce_color_format(&disp->extra_settings);
    /* Eww. No OpenGL hardware in the world does that - let's just
     * switch to some default.
@@ -190,14 +218,21 @@ ALLEGRO_BITMAP_OGL* _al_ogl_create_backbuffer(ALLEGRO_DISPLAY *disp)
       /* Or should we use RGBA? Maybe only if not Nvidia cards? */
       format = ALLEGRO_PIXEL_FORMAT_ABGR_8888;
    }
+#else
+   format = ALLEGRO_PIXEL_FORMAT_RGB_565; /* Only support display format */
+#endif
    ALLEGRO_TRACE_CHANNEL_LEVEL("display", 1)("Format %d used for backbuffer.\n", format);
    al_set_new_bitmap_format(format);
    al_set_new_bitmap_flags(0);
    backbuffer = _al_ogl_create_bitmap(disp, disp->w, disp->h);
    al_restore_state(&backup);
 
-   if (!backbuffer)
+   if (!backbuffer) {
+      ALLEGRO_DEBUG("Backbuffer bitmap creation failed.\n");
       return NULL;
+   }
+   
+   ALLEGRO_TRACE_CHANNEL_LEVEL("display", 1)("Created backbuffer bitmap (actual format: %d)\n", backbuffer->format);
 
    ogl_backbuffer = (ALLEGRO_BITMAP_OGL*)backbuffer;
    ogl_backbuffer->is_backbuffer = 1;

@@ -35,6 +35,10 @@ AL_FUNC(int, _al_cond_timedwait, (_AL_COND*, _AL_MUTEX*, const ALLEGRO_TIMEOUT *
 AL_FUNC(void, _al_cond_broadcast, (_AL_COND*));
 AL_FUNC(void, _al_cond_signal, (_AL_COND*));
 
+#if defined ALLEGRO_MACOSX || defined ALLEGRO_GP2XWIZ
+// Do some one-time initialisation for the thread support
+void _al_pthreads_tls_init(void);
+#endif
 
 AL_END_EXTERN_C
 

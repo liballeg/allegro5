@@ -69,8 +69,8 @@ static void _al_draw_filled_rectangle_memory_fast(int x1, int y1, int x2, int y2
    if (x2 > bitmap->cr_excl - 1) x2 = bitmap->cr_excl - 1;
    if (y2 > bitmap->cb_excl - 1) y2 = bitmap->cb_excl - 1;
 
-   w = x2 - x1 + 1;
-   h = y2 - y1 + 1;
+   w = (x2 - x1) + 1;
+   h = (y2 - y1) + 1;
 
    if (w <= 0 || h <= 0)
       return;
@@ -89,11 +89,11 @@ static void _al_draw_filled_rectangle_memory_fast(int x1, int y1, int x2, int y2
       case 2: {
          int pixel_value = bmp_read16(line_ptr);
          for (y = y1; y < y1 + h; y++) {
-            uint16_t *data = (uint16_t *)line_ptr;
             if (pixel_value == 0) {    /* fast path */
-               memset(data, 0, 2 * w);
+               memset(line_ptr, 0, 2 * w);
             }
             else {
+               uint16_t *data = (uint16_t *)line_ptr;
                for (x = 0; x < w; x++) {
                   bmp_write16(data, pixel_value);
                   data++;

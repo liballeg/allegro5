@@ -157,6 +157,36 @@ void _al_draw_bitmap_region_memory(ALLEGRO_BITMAP *bitmap,
       bitmap = bitmap->parent;
    }
 
+#ifdef ALLEGRO_GP2XWIZ
+   if (src_mode == ALLEGRO_ALPHA &&
+	 dst_mode == ALLEGRO_INVERSE_ALPHA &&
+	 src_alpha == ALLEGRO_ALPHA &&
+	 dst_alpha == ALLEGRO_INVERSE_ALPHA) {
+      switch (bitmap->format) {
+	 case ALLEGRO_PIXEL_FORMAT_RGBA_4444: {
+	    switch (dest->format) {
+	       case ALLEGRO_PIXEL_FORMAT_RGB_565: {
+		  _al_draw_bitmap_region_optimized_rgba_4444_to_rgb_565(bitmap, sx, sy, sw, sh, dest, dx, dy, flags);
+		  return;
+               }
+	       case ALLEGRO_PIXEL_FORMAT_RGBA_4444: {
+		  _al_draw_bitmap_region_optimized_rgba_4444_to_rgba_4444(bitmap, sx, sy, sw, sh, dest, dx, dy, flags);
+		  return;
+	       }
+	    }
+	 }
+         case ALLEGRO_PIXEL_FORMAT_RGB_565: {
+            switch (dest->format) {
+               case ALLEGRO_PIXEL_FORMAT_RGB_565: {
+		  _al_draw_bitmap_region_optimized_rgb_565_to_rgb_565(bitmap, sx, sy, sw, sh, dest, dx, dy, flags);
+                  return;
+               }
+            }
+         }
+      }
+   }
+#endif
+
    /* Lock the bitmaps */
    if (!(src_region = al_lock_bitmap_region(bitmap, sx, sy, sw, sh, ALLEGRO_PIXEL_FORMAT_ANY,
       ALLEGRO_LOCK_READONLY)))
@@ -508,7 +538,7 @@ do {                                                                         \
    int bmp_y_i;                                                              \
    /* Right edge of scanline. */                                             \
    int right_edge_test;                                                      \
-   ALLEGRO_COLOR src_color, result;                                          \
+   ALLEGRO_COLOR src_color = { 0, 0, 0, 0 }, result;                         \
                                                                              \
    /* Get index of topmost point. */                                         \
    top_index = 0;                                                            \
@@ -988,10 +1018,12 @@ void _al_draw_bitmap_region_memory_fast(ALLEGRO_BITMAP *bitmap,
    ALLEGRO_LOCKED_REGION *src_region;
    ALLEGRO_LOCKED_REGION *dst_region;
    ALLEGRO_BITMAP *dest = al_get_target_bitmap();
+   int x;
+   int y;
 
    ASSERT(_al_pixel_format_is_real(bitmap->format));
    ASSERT(_al_pixel_format_is_real(dest->format));
-
+            
    /* Do clipping */
    if (dx < dest->cl) {
       int inc = dest->cl - dx;
@@ -1028,25 +1060,60 @@ void _al_draw_bitmap_region_memory_fast(ALLEGRO_BITMAP *bitmap,
       bitmap = bitmap->parent;
    }
 
-   /* Lock the bitmaps */
-   /* XXX should use bitmap native format */
+   /* Fast paths for no flipping */
+   if (!(flags & ALLEGRO_FLIP_HORIZONTAL) &&
+         !(flags & ALLEGRO_FLIP_VERTICAL)) {
+      if (!(src_region = al_lock_bitmap_region(bitmap, sx, sy, sw, sh,
+            ALLEGRO_PIXEL_FORMAT_ANY, ALLEGRO_LOCK_READONLY))) {
+         return;
+      }
+
+      if (!(dst_region = al_lock_bitmap_region(dest, dx, dy, sw, sh,
+         ALLEGRO_PIXEL_FORMAT_ANY, ALLEGRO_LOCK_WRITEONLY))) {
+            al_unlock_bitmap(bitmap);
+         return;
+      }
+
+      /* Formats the same */
+      if (bitmap->format == dest->format) {
+         int size = al_get_pixel_size(bitmap->format);
+         int bytes = size*sw;
+         unsigned char *src_data = src_region->data;
+         unsigned char *dst_data = dst_region->data;
+         for (y = 0; y < sh; y++) {
+            memcpy(dst_data, src_data, bytes);
+            src_data += src_region->pitch;
+            dst_data += dst_region->pitch;
+         }
+      }
+      /* differing formats */
+      else {
+         _al_convert_bitmap_data(
+            src_region->data, bitmap->format, src_region->pitch,
+            dst_region->data, dest->format, dst_region->pitch,
+            0, 0, 0, 0, sw, sh);
+      }
+
+      al_unlock_bitmap(bitmap);
+      al_unlock_bitmap(dest);
+
+      return;
+   }
+
    if (!(src_region = al_lock_bitmap_region(bitmap, sx, sy, sw, sh,
-      ALLEGRO_PIXEL_FORMAT_ANY_32_WITH_ALPHA, ALLEGRO_LOCK_READONLY))) {
+         ALLEGRO_PIXEL_FORMAT_ANY_32_WITH_ALPHA, ALLEGRO_LOCK_READONLY))) {
       return;
    }
 
    if (!(dst_region = al_lock_bitmap_region(dest, dx, dy, sw, sh,
-      src_region->format, ALLEGRO_LOCK_WRITEONLY))) {
-      al_unlock_bitmap(bitmap);
+      ALLEGRO_PIXEL_FORMAT_ANY_32_WITH_ALPHA, ALLEGRO_LOCK_WRITEONLY))) {
+         al_unlock_bitmap(bitmap);
       return;
    }
 
    do {
-      int x;
-      int y;
       int cdx_start, cdy;   /* current dest */
       int dxi, dyi;         /* dest increments */
-      int pixel;
 
       (void)sx;
       (void)sy;
@@ -1073,9 +1140,10 @@ void _al_draw_bitmap_region_memory_fast(ALLEGRO_BITMAP *bitmap,
          dyi = 1;
       }
 
+      uint32_t pixel;
       for (y = 0; y < sh; y++) {
          int cdx = cdx_start;
-         for (x = 0; x < sw; x++) {
+         for (x = 0; x < sw; x++) { 
             pixel = *(uint32_t *)(((char *)src_region->data) + y * src_region->pitch + x * 4);
             *(uint32_t *)(((char *)dst_region->data) + cdy * dst_region->pitch + cdx * 4) = pixel;
             cdx += dxi;

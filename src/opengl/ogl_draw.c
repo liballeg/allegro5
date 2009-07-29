@@ -30,10 +30,13 @@ static bool set_opengl_blending(ALLEGRO_DISPLAY *d,
    int src_color, dst_color, src_alpha, dst_alpha;
    float r, g, b, a;
 
+   (void)d;
+
    al_unmap_rgba_f(*color, &r, &g, &b, &a);
 
    al_get_separate_blender(&src_color, &dst_color, &src_alpha,
       &dst_alpha, NULL);
+#ifndef ALLEGRO_GP2XWIZ
    if (d->ogl_extras->ogl_info.version >= 1.4) {
       glEnable(GL_BLEND);
       glBlendFuncSeparate(blend_modes[src_color],
@@ -52,6 +55,13 @@ static bool set_opengl_blending(ALLEGRO_DISPLAY *d,
          return true;
       }
    }
+#else
+   glEnable(GL_BLEND);
+   glBlendFunc(blend_modes[src_color], blend_modes[dst_color]);
+   bc = _al_get_blend_color();
+   glColor4f(r * bc->r, g * bc->g, b * bc->b, a * bc->a);
+   return true;
+#endif
    return false;
 }
 
@@ -99,9 +109,14 @@ static void ogl_draw_pixel(ALLEGRO_DISPLAY *d, float x, float y,
       y += target->yofs;
    }
 
-   glBegin(GL_POINTS);
-   glVertex2d(x, y);
-   glEnd();
+   GLfloat vert[2] = { x, y };
+
+   glEnableClientState(GL_VERTEX_ARRAY);
+   glVertexPointer(2, GL_FLOAT, 0, vert);
+
+   glDrawArrays(GL_POINTS, 0, 1);
+
+   glDisableClientState(GL_VERTEX_ARRAY);
 }
 
 

@@ -31,6 +31,7 @@
 #include "allegro5/internal/aintern_bitmap.h"
 
 
+ALLEGRO_DEBUG_CHANNEL("display")
 
 static int current_video_adapter = -1;
 static int new_window_x = INT_MAX;
@@ -57,14 +58,33 @@ ALLEGRO_DISPLAY *al_create_display(int w, int h)
    system = al_system_driver();
    driver = system->vt->get_display_driver();
    display = driver->create_display(w, h);
-   if (!display)
+   if (!display) {
+      ALLEGRO_DEBUG("Failed to create display (NULL)\n");
       return NULL;
+   }
 
    _al_vector_init(&display->bitmaps, sizeof(ALLEGRO_BITMAP*));
 
    al_set_current_display(display);
+
+   /* Clear the screen */
+#ifndef ALLEGRO_GP2XWIZ
    if (display->extra_settings.settings[ALLEGRO_COMPATIBLE_DISPLAY])
       al_clear_to_color(al_map_rgb(0, 0, 0));
+#else
+   al_clear_to_color(al_map_rgb(0, 0, 0));
+#endif
+
+   al_flip_display();
+
+   /* Clear the backbuffer */
+#ifndef ALLEGRO_GP2XWIZ
+   if (display->extra_settings.settings[ALLEGRO_COMPATIBLE_DISPLAY])
+      al_clear_to_color(al_map_rgb(0, 0, 0));
+#else
+   al_clear_to_color(al_map_rgb(0, 0, 0));
+#endif
+   
    al_flip_display();
 
    return display;

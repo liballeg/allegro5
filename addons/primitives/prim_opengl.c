@@ -35,9 +35,11 @@ static void setup_blending(void)
    };
    int src_color, dst_color, src_alpha, dst_alpha;
    ALLEGRO_DISPLAY *d = al_get_current_display();
+   (void)d;
 
    al_get_separate_blender(&src_color, &dst_color, &src_alpha,
       &dst_alpha, NULL);
+#ifndef ALLEGRO_GP2XWIZ
    if (d->ogl_extras->ogl_info.version >= 1.4) {
       glEnable(GL_BLEND);
       glBlendFuncSeparate(blend_modes[src_color],
@@ -46,10 +48,13 @@ static void setup_blending(void)
    }
    else {
       if (src_color == src_alpha && dst_color == dst_alpha) {
+#endif
          glEnable(GL_BLEND);
          glBlendFunc(blend_modes[src_color], blend_modes[dst_color]);
+#ifndef ALLEGRO_GP2XWIZ
       }
    }
+#endif
 }
 
 static void setup_state(ALLEGRO_VERTEX* vtx, ALLEGRO_BITMAP* texture)
@@ -65,16 +70,24 @@ static void setup_state(ALLEGRO_VERTEX* vtx, ALLEGRO_BITMAP* texture)
    if (texture) {
       ALLEGRO_BITMAP_OGL *ogl_bitmap = (void *)texture;      
       GLuint current_texture;
+      (void)current_texture;
 
       if (!glIsEnabled(GL_TEXTURE_COORD_ARRAY))
          glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 
       glTexCoordPointer(2, GL_FLOAT, sizeof(ALLEGRO_VERTEX), &vtx[0].u);
 
+#ifndef ALLEGRO_GP2XWIZ
       glGetIntegerv(GL_TEXTURE_2D_BINDING_EXT, (GLint*)&current_texture);
       if (current_texture != ogl_bitmap->texture) {
          glBindTexture(GL_TEXTURE_2D, ogl_bitmap->texture);
       }
+#else
+      glGetIntegerv(GL_TEXTURE_BINDING_2D, (GLint*)&current_texture);
+      if (current_texture != ogl_bitmap->texture) {
+         glBindTexture(GL_TEXTURE_2D, ogl_bitmap->texture);
+      }
+#endif
    } else {
       glBindTexture(GL_TEXTURE_2D, 0);
       glDisableClientState(GL_TEXTURE_COORD_ARRAY);
@@ -197,7 +210,8 @@ static int draw_indexed_soft_vbuff(ALLEGRO_BITMAP* texture, ALLEGRO_VERTEX* vtxs
    if(tstate != GL_REPEAT) {
       glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
    }
-   
+  
+#ifndef ALLEGRO_GP2XWIZ
    switch (type) {
       case ALLEGRO_PRIM_LINE_LIST: {
          glDrawElements(GL_LINES, num_vtx, GL_UNSIGNED_INT, indices);
@@ -230,6 +244,70 @@ static int draw_indexed_soft_vbuff(ALLEGRO_BITMAP* texture, ALLEGRO_VERTEX* vtxs
          break;
       };
    }
+#else
+   switch (type) {
+      case ALLEGRO_PRIM_LINE_LIST: {
+         num_primitives = num_vtx / 2;
+	 GLushort ind[num_primitives];
+	 int i;
+	 for (i = 0; i < num_primitives; i++) {
+	 	ind[i] = (GLushort)indices[i];
+	 }
+         glDrawElements(GL_LINES, num_vtx, GL_UNSIGNED_SHORT, ind);
+         break;
+      };
+      case ALLEGRO_PRIM_LINE_STRIP: {
+         num_primitives = num_vtx - 1;
+	 GLushort ind[num_primitives];
+	 int i;
+	 for (i = 0; i < num_primitives; i++) {
+	 	ind[i] = (GLushort)indices[i];
+	 }
+         glDrawElements(GL_LINE_STRIP, num_vtx, GL_UNSIGNED_SHORT, ind);
+         break;
+      };
+      case ALLEGRO_PRIM_LINE_LOOP: {
+         num_primitives = num_vtx;
+	 GLushort ind[num_primitives];
+	 int i;
+	 for (i = 0; i < num_primitives; i++) {
+	 	ind[i] = (GLushort)indices[i];
+	 }
+         glDrawElements(GL_LINE_LOOP, num_vtx, GL_UNSIGNED_SHORT, ind);
+         break;
+      };
+      case ALLEGRO_PRIM_TRIANGLE_LIST: {
+         num_primitives = num_vtx / 3;
+	 GLushort ind[num_primitives];
+	 int i;
+	 for (i = 0; i < num_primitives; i++) {
+	 	ind[i] = (GLushort)indices[i];
+	 }
+         glDrawElements(GL_TRIANGLES, num_vtx, GL_UNSIGNED_SHORT, ind);
+         break;
+      };
+      case ALLEGRO_PRIM_TRIANGLE_STRIP: {
+         num_primitives = num_vtx - 2;
+	 GLushort ind[num_primitives];
+	 int i;
+	 for (i = 0; i < num_primitives; i++) {
+	 	ind[i] = (GLushort)indices[i];
+	 }
+         glDrawElements(GL_TRIANGLE_STRIP, num_vtx, GL_UNSIGNED_SHORT, ind);
+         break;
+      };
+      case ALLEGRO_PRIM_TRIANGLE_FAN: {
+         num_primitives = num_vtx - 2;
+	 GLushort ind[num_primitives];
+	 int i;
+	 for (i = 0; i < num_primitives; i++) {
+	 	ind[i] = (GLushort)indices[i];
+	 }
+         glDrawElements(GL_TRIANGLE_FAN, num_vtx, GL_UNSIGNED_SHORT, ind);
+         break;
+      };
+   }
+#endif
 
    if (!on) {
       glDisable(GL_TEXTURE_2D);

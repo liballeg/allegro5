@@ -26,7 +26,7 @@
 #include <windows.h>
 #endif
 
-#ifdef ALLEGRO_MACOSX
+#if defined ALLEGRO_MACOSX
 
 #include <OpenGL/OpenGL.h>
 #include <OpenGL/gl.h>
@@ -35,6 +35,13 @@
 #ifndef GL_GLEXT_PROTOTYPES
 #define GL_GLEXT_PROTOTYPES
 #endif
+
+#elif defined ALLEGRO_GP2XWIZ
+
+#include <wiz/GL/gl.h>
+#include <wiz/GL/nanogl.h>
+#include <wiz/GL/wizGLES.h>
+#include <wiz/GL/egl.h>
 
 #else /* ALLEGRO_MACOSX */
 

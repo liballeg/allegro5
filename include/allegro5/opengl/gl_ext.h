@@ -23,7 +23,9 @@
  *
  */
 
+#ifndef ALLEGRO_GP2XWIZ
 #include "allegro5/opengl/GLext/gl_ext_defs.h"
+#endif
 #if defined ALLEGRO_WINDOWS && !defined ALLEGRO_EXCLUDE_WGL
 #include "allegro5/opengl/GLext/wgl_ext_defs.h"
 #elif defined ALLEGRO_UNIX && !defined ALLEGRO_EXCLUDE_GLX

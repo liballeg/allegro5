@@ -42,8 +42,8 @@ static void draw_joystick_axes(int cx, int cy, int stick)
 
 static void draw_joystick_button(int button, bool down)
 {
-   int x = 250 + (button % 5) * 30;
-   int y = 380 + (button / 5) * 30;
+   int x = al_get_display_width()/2 + (button % 5) * 30;
+   int y = al_get_display_height()-60 + (button / 5) * 30;
 
    al_draw_filled_rectangle(x, y, x + 25.5, y + 25.5, grey);
    al_draw_rectangle(x, y, x + 25.5, y + 25.5, black, 0);
@@ -151,10 +151,12 @@ int main(void)
       return 1;
    }
 
+#ifndef ALLEGRO_GP2XWIZ
    if (!al_install_keyboard()) {
       TRACE("al_install_keyboard failed\n");
       return 1;
    }
+#endif
 
    black = al_map_rgb(0, 0, 0);
    grey = al_map_rgb(0xe0, 0xe0, 0xe0);
@@ -173,7 +175,9 @@ int main(void)
       return 1;
    }
 
+#ifndef ALLEGRO_GP2XWIZ
    al_register_event_source(event_queue, (ALLEGRO_EVENT_SOURCE *)al_get_keyboard());
+#endif
    al_register_event_source(event_queue, (ALLEGRO_EVENT_SOURCE *)display);
    al_register_event_source(event_queue, (ALLEGRO_EVENT_SOURCE *)zero_joy);
 

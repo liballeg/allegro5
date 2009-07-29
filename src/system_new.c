@@ -25,6 +25,9 @@
 #include "allegro5/internal/aintern_system.h"
 #include "allegro5/internal/aintern_vector.h"
 #include "allegro5/internal/aintern_pixels.h"
+#include "allegro5/internal/aintern_thread.h"
+
+ALLEGRO_DEBUG_CHANNEL("system")
 
 static ALLEGRO_SYSTEM *active_sysdrv = NULL;
 
@@ -106,7 +109,7 @@ static void read_allegro_cfg(void)
     * have been read in.
     */
 
-#ifdef ALLEGRO_UNIX
+#if defined ALLEGRO_UNIX && !defined ALLEGRO_GP2XWIZ
    ALLEGRO_CONFIG *temp;
    ALLEGRO_PATH *path;
 
@@ -153,6 +156,10 @@ bool al_install_system(int (*atexit_ptr)(void (*)(void)))
    if (active_sysdrv) {
       return true;
    }
+
+#ifdef ALLEGRO_CFG_PTHREADS_TLS
+   _al_pthreads_tls_init();
+#endif
    
    _al_vector_init(&_al_system_interfaces, sizeof(ALLEGRO_SYSTEM_INTERFACE *));
 
@@ -224,6 +231,7 @@ void al_uninstall_system(void)
    _al_run_exit_funcs();
    _al_shutdown_destructors(_al_dtor_list);
    _al_dtor_list = NULL;
+
 
    /* shutdown_system_driver is registered as an exit func so we don't need
     * to do any more here.

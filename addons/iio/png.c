@@ -177,9 +177,9 @@ static ALLEGRO_BITMAP *really_load_png(png_structp png_ptr, png_infop info_ptr)
       bpp = 8;
 
 
-   /* Maybe flip RGB to BGR. (FIXME: removed) */
    if ((bpp == 24) || (bpp == 32)) {
 #ifdef ALLEGRO_BIG_ENDIAN
+      png_set_bgr(png_ptr);
       png_set_swap_alpha(png_ptr);
 #endif
    }

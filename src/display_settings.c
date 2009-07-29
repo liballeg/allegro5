@@ -621,6 +621,12 @@ int _al_deduce_color_format(ALLEGRO_EXTRA_DISPLAY_SETTINGS *eds)
              eds->settings[ALLEGRO_RED_SHIFT]   == 8) {
             format = ALLEGRO_PIXEL_FORMAT_ARGB_4444;
          }
+         else if (eds->settings[ALLEGRO_ALPHA_SHIFT] == 12 &&
+             eds->settings[ALLEGRO_BLUE_SHIFT]  == 8 &&
+             eds->settings[ALLEGRO_GREEN_SHIFT] == 4 &&
+             eds->settings[ALLEGRO_RED_SHIFT]   == 0) {
+            format = ALLEGRO_PIXEL_FORMAT_RGBA_4444;
+         }
       }
    }
 
@@ -711,6 +717,7 @@ void _al_set_color_components(int format, ALLEGRO_EXTRA_DISPLAY_SETTINGS *eds,
          al_set_new_display_option(ALLEGRO_BLUE_SIZE,  5, importance);
       break;
       case ALLEGRO_PIXEL_FORMAT_ARGB_4444:
+      case ALLEGRO_PIXEL_FORMAT_RGBA_4444:
          al_set_new_display_option(ALLEGRO_RED_SIZE,   4, importance);
          al_set_new_display_option(ALLEGRO_GREEN_SIZE, 4, importance);
          al_set_new_display_option(ALLEGRO_BLUE_SIZE,  4, importance);
@@ -746,6 +753,7 @@ void _al_set_color_components(int format, ALLEGRO_EXTRA_DISPLAY_SETTINGS *eds,
          al_set_new_display_option(ALLEGRO_COLOR_SIZE, 16, importance);
       break;
       case ALLEGRO_PIXEL_FORMAT_ARGB_4444:
+      case ALLEGRO_PIXEL_FORMAT_RGBA_4444:
          al_set_new_display_option(ALLEGRO_ALPHA_SIZE, 4, importance);
          al_set_new_display_option(ALLEGRO_COLOR_SIZE, 16, importance);
       break;
@@ -825,6 +833,11 @@ void _al_set_color_components(int format, ALLEGRO_EXTRA_DISPLAY_SETTINGS *eds,
          al_set_new_display_option(ALLEGRO_RED_SHIFT,   10, importance);      
       break;
       case ALLEGRO_PIXEL_FORMAT_ARGB_4444:
+         al_set_new_display_option(ALLEGRO_ALPHA_SHIFT, 12, importance);
+         al_set_new_display_option(ALLEGRO_BLUE_SHIFT,  8, importance);
+         al_set_new_display_option(ALLEGRO_GREEN_SHIFT, 4, importance);
+         al_set_new_display_option(ALLEGRO_RED_SHIFT,   0, importance);      
+      case ALLEGRO_PIXEL_FORMAT_RGBA_4444:
          al_set_new_display_option(ALLEGRO_ALPHA_SHIFT, 12, importance);
          al_set_new_display_option(ALLEGRO_BLUE_SHIFT,  8, importance);
          al_set_new_display_option(ALLEGRO_GREEN_SHIFT, 4, importance);

@@ -144,8 +144,6 @@ void _al_osx_post_quit(void);
 NSView* _al_osx_view_from_display(ALLEGRO_DISPLAY*);
 // Create an image from an allegro bitmap
 NSImage* NSImageFromAllegroBitmap(ALLEGRO_BITMAP* bmp);
-// Do some one-time initialisation for the thread support
-void _al_osx_threads_init(void);
 // Drivers
 AL_FUNC(ALLEGRO_KEYBOARD_DRIVER*, _al_osx_get_keyboard_driver, (void));
 AL_FUNC(ALLEGRO_DISPLAY_INTERFACE*, _al_osx_get_display_driver, (void));

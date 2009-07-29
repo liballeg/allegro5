@@ -29,17 +29,16 @@
 /* We need some driver specific details not worth of a vtable entry. */
 #if defined ALLEGRO_WINDOWS
    #include "../win/wgl.h"
-#elif defined ALLEGRO_UNIX
+#elif defined ALLEGRO_UNIX && !defined ALLEGRO_EXCLUDE_GLX
    #include "allegro5/internal/aintern_xglx.h"
 #endif
 
 #include <string.h>
-#ifdef ALLEGRO_MACOSX
+#if defined ALLEGRO_MACOSX
 #include <OpenGL/glu.h>
-#else
+#elif !defined ALLEGRO_GP2XWIZ
 #include <GL/glu.h>
 #endif
-
 
 ALLEGRO_DEBUG_CHANNEL("opengl")
 
@@ -56,8 +55,10 @@ ALLEGRO_DEBUG_CHANNEL("opengl")
    /* FIXME: set ALLEGRO_GLXGETPROCADDRESSARB on configure time, if
     * glXGetProcAddressARB must be used!
     */
-   #ifdef ALLEGRO_GLXGETPROCADDRESSARB
+   #if defined ALLEGRO_GLXGETPROCADDRESSARB
       #define alXGetProcAddress glXGetProcAddressARB
+   #elif defined ALLEGRO_GP2XWIZ
+      #define alXGetProcAddress eglGetProcAddress
    #else
       #define alXGetProcAddress glXGetProcAddress
    #endif
@@ -367,6 +368,11 @@ static int _ogl_is_extension_supported(AL_CONST char *extension,
 {
    int ret;
 
+#ifdef ALLEGRO_GP2XWIZ
+   (void)disp;
+   return false;
+#endif
+
    if (!glGetString(GL_EXTENSIONS))
       return false;
 
@@ -388,7 +394,7 @@ static int _ogl_is_extension_supported(AL_CONST char *extension,
       }
    }
 
-#elif defined ALLEGRO_UNIX
+#elif defined ALLEGRO_UNIX && !defined ALLEGRO_GP2XWIZ
    if (!ret && strncmp(extension, "GLX", 3) == 0) {
       ALLEGRO_SYSTEM_XGLX *sys = (void*)al_system_driver();
       ALLEGRO_DISPLAY_XGLX *glx_disp = (void*)disp;
@@ -498,7 +504,11 @@ void *al_get_opengl_proc_address(AL_CONST char *name)
        * address. Unfortunately glXGetProcAddress is an extension
        * and may not be available on all platforms
        */
+#ifdef ALLEGRO_GP2XWIZ
+      symbol = alXGetProcAddress(name);
+#else
       symbol = alXGetProcAddress((const GLubyte *)name);
+#endif
    }
 #elif defined ALLEGRO_HAVE_DYNAMIC_LINK
    else {
@@ -606,6 +616,10 @@ void _al_ogl_manage_extensions(ALLEGRO_DISPLAY *gl_disp)
       if (!alXGetProcAddress) {
          alXGetProcAddress = (GLXGETPROCADDRESSARBPROC) dlsym(__libgl_handle,
                                                              "glXGetProcAddress");
+	      if (!alXGetProcAddress) {
+		 alXGetProcAddress = (GLXGETPROCADDRESSARBPROC) dlsym(__libgl_handle,
+								     "eglGetProcAddress");
+	      }
       }
    }
    else {
@@ -630,7 +644,7 @@ void _al_ogl_manage_extensions(ALLEGRO_DISPLAY *gl_disp)
    CFRelease(bundle_url);
 #endif
 
-#ifdef ALLEGRO_UNIX
+#if defined ALLEGRO_UNIX && !defined ALLEGRO_GP2XWIZ
    ALLEGRO_DEBUG("GLX Extensions:\n");
    ALLEGRO_SYSTEM_XGLX *glx_sys = (void*)al_system_driver();
    ALLEGRO_DISPLAY_XGLX *glx_disp = (void *)gl_disp;

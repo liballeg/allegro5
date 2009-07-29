@@ -163,26 +163,26 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved)
 #define THREAD_LOCAL __declspec(thread)
 #define HAVE_NATIVE_TLS
 
-#elif defined ALLEGRO_MACOSX
+#elif defined ALLEGRO_MACOSX || defined ALLEGRO_GP2XWIZ
 
 #define THREAD_LOCAL
 
 static pthread_key_t tls_key = 0;
 
-static void osx_thread_destroy(void* ptr)
+static void pthreads_thread_destroy(void* ptr)
 {
    _AL_FREE(ptr);
 }
 
 
-void _al_osx_threads_init(void)
+void _al_pthreads_tls_init(void)
 {
-   pthread_key_create(&tls_key, osx_thread_destroy);
+   pthread_key_create(&tls_key, pthreads_thread_destroy);
 }
 
 static thread_local_state _tls;
 
-static thread_local_state* osx_thread_init(void)
+static thread_local_state* pthreads_thread_init(void)
 {
    /* Allocate and copy the 'template' object */
    thread_local_state* ptr = (thread_local_state*)_AL_MALLOC(sizeof(thread_local_state));
@@ -198,7 +198,7 @@ static thread_local_state* tls_get(void)
    if (ptr == NULL)
    {
       /* Must create object */
-      ptr = osx_thread_init();
+      ptr = pthreads_thread_init();
       _al_fill_display_settings(&ptr->new_display_settings);
    }
    return ptr;
@@ -741,7 +741,7 @@ const ALLEGRO_FILE_INTERFACE *al_get_new_file_interface(void)
 
    /* FIXME: this situation should never arise because tls_ has the stdio
     * interface set as a default, but it arises on OS X if
-    * pthread_getspecific() is called before osx_thread_init()...
+    * pthread_getspecific() is called before pthreads_thread_init()...
     */
    if (tls->new_file_interface)
       return tls->new_file_interface;
@@ -817,6 +817,5 @@ void al_set_errno(int errnum)
       return;
    tls->allegro_errno = errnum;
 }
-
 
 /* vim: set sts=3 sw=3 et: */

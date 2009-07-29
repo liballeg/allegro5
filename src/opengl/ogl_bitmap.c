@@ -11,14 +11,21 @@
  *      OpenGL bitmap vtable
  *
  *      By Elias Pschernig.
+ *      OpenGL ES 1.1 support by Trent Gamblin.
  *
  */
+
+/* FIXME: Add the other format for gp2xwiz 1555 or 5551 */
 
 #include "allegro5/allegro5.h"
 #include "allegro5/a5_opengl.h"
 #include "allegro5/internal/aintern.h"
 #include "allegro5/internal/aintern_memory.h"
 #include "allegro5/internal/aintern_opengl.h"
+
+#if defined ALLEGRO_GP2XWIZ
+#include "allegro5/internal/aintern_gp2xwiz.h"
+#endif
 
 ALLEGRO_DEBUG_CHANNEL("opengl")
 
@@ -60,6 +67,7 @@ ALLEGRO_DEBUG_CHANNEL("opengl")
 /* Conversion table from Allegro's pixel formats to corresponding OpenGL
  * formats. The three entries are GL internal format, GL type, GL format.
  */
+#ifndef ALLEGRO_GP2XWIZ
 static const int glformats[ALLEGRO_NUM_PIXEL_FORMATS][3] = {
    /* Skip pseudo formats */
    {0, 0, 0},
@@ -88,9 +96,42 @@ static const int glformats[ALLEGRO_NUM_PIXEL_FORMATS][3] = {
    {GL_RGBA8, GL_UNSIGNED_INT_8_8_8_8, GL_RGBA}, /* RGBX_8888 */
    {GL_RGBA8, GL_UNSIGNED_INT_8_8_8_8_REV, GL_BGRA}, /* XRGB_8888 */
    {GL_RGBA32F_ARB, GL_FLOAT, GL_RGBA}, /* ABGR_F32 */
-   {4, GL_UNSIGNED_BYTE, GL_RGBA} /* ABGR_8888_LE */
+   {4, GL_UNSIGNED_BYTE, GL_RGBA}, /* ABGR_8888_LE */
+   {GL_RGBA4, GL_UNSIGNED_SHORT_4_4_4_4, GL_RGBA} /* RGBA_4444 */
 };
-
+#else
+static const int glformats[ALLEGRO_NUM_PIXEL_FORMATS][3] = {
+   /* Skip pseudo formats */
+   {0, 0, 0},
+   {0, 0, 0},
+   {0, 0, 0},
+   {0, 0, 0},
+   {0, 0, 0},
+   {0, 0, 0},
+   {0, 0, 0},
+   {0, 0, 0},
+   {0, 0, 0},
+   /* Actual formats */
+   {0, 0, 0},
+   {0, 0, 0},
+   {0, 0, 0},
+   {0, 0, 0},
+   {GL_RGB, GL_UNSIGNED_SHORT_5_6_5, GL_RGB}, /* RGB_565 */
+   {0, 0, 0},
+   {0, 0, 0},
+   {0, 0, 0},
+   {0, 0, 0},
+   {0, 0, 0},
+   {0, 0, 0},
+   {0, 0, 0},
+   {0, 0, 0},
+   {0, 0, 0},
+   {0, 0, 0},
+   {0, 0, 0},
+   {0, 0, 0},
+   {GL_RGB, GL_UNSIGNED_SHORT_4_4_4_4, GL_RGBA} /* RGBA_4444 */
+};
+#endif
 
 static ALLEGRO_BITMAP_INTERFACE *glbmp_vt;
 
@@ -120,9 +161,13 @@ static INLINE bool setup_blending(ALLEGRO_DISPLAY *ogl_disp)
       GL_ZERO, GL_ONE, GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA
    };
 
+   (void)ogl_disp;
+
    al_get_separate_blender(&src_color, &dst_color, &src_alpha,
       &dst_alpha, NULL);
    /* glBlendFuncSeparate was only included with OpenGL 1.4 */
+   /* (And not in OpenGL ES) */
+#if !defined ALLEGRO_GP2XWIZ
    if (ogl_disp->ogl_extras->ogl_info.version >= 1.4) {
       glEnable(GL_BLEND);
       glBlendFuncSeparate(blend_modes[src_color], blend_modes[dst_color],
@@ -137,6 +182,9 @@ static INLINE bool setup_blending(ALLEGRO_DISPLAY *ogl_disp)
          return false;
       }
    }
+#else
+   glBlendFunc(blend_modes[src_color], blend_modes[dst_color]);
+#endif
    return true;
 }
 
@@ -154,15 +202,25 @@ static void draw_quad(ALLEGRO_BITMAP *bitmap,
    GLuint current_texture;
    ALLEGRO_COLOR *bc;
 
+   GLfloat verts[2*4];
+   GLfloat texcoords[2*4];
+
    glGetBooleanv(GL_TEXTURE_2D, &on);
    if (!on) {
       glEnable(GL_TEXTURE_2D);
    }
 
+#if !defined ALLEGRO_GP2XWIZ
    glGetIntegerv(GL_TEXTURE_2D_BINDING_EXT, (GLint*)&current_texture);
    if (current_texture != ogl_bitmap->texture) {
       glBindTexture(GL_TEXTURE_2D, ogl_bitmap->texture);
    }
+#else
+   glGetIntegerv(GL_TEXTURE_BINDING_2D, (GLint*)&current_texture);
+   if (current_texture != ogl_bitmap->texture) {
+      glBindTexture(GL_TEXTURE_2D, ogl_bitmap->texture);
+   }
+#endif
    
    tex_l = ogl_bitmap->left;
    tex_r = ogl_bitmap->right;
@@ -194,16 +252,26 @@ static void draw_quad(ALLEGRO_BITMAP *bitmap,
    glScalef(xscale, yscale, 1);
    glTranslatef(-dx - cx, -dy - cy, 0);
 
-   glBegin(GL_QUADS);
-   glTexCoord2f(tex_l, tex_b);
-   glVertex2f(dx, dy + dh);
-   glTexCoord2f(tex_r, tex_b);
-   glVertex2f(dx + dw, dy + dh);
-   glTexCoord2f(tex_r, tex_t);
-   glVertex2f(dx + dw, dy);
-   glTexCoord2f(tex_l, tex_t);
-   glVertex2f(dx, dy);
-   glEnd();
+   verts[0] = dx; verts[1] = dy+dh;
+   verts[2] = dx; verts[3] = dy;
+   verts[4] = dx+dw; verts[5] = dy+dh;
+   verts[6] = dx+dw; verts[7] = dy;
+   texcoords[0] = tex_l; texcoords[1] = tex_b;
+   texcoords[2] = tex_l; texcoords[3] = tex_t;
+   texcoords[4] = tex_r; texcoords[5] = tex_b;
+   texcoords[6] = tex_r; texcoords[7] = tex_t;
+
+   glEnableClientState(GL_VERTEX_ARRAY);
+   glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+   glDisableClientState(GL_COLOR_ARRAY);
+
+   glVertexPointer(2, GL_FLOAT, 0, verts);
+   glTexCoordPointer(2, GL_FLOAT, 0, texcoords);
+
+   glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+
+   glDisableClientState(GL_VERTEX_ARRAY);
+   glDisableClientState(GL_TEXTURE_COORD_ARRAY);
 
    glPopMatrix();
 
@@ -284,6 +352,7 @@ static void ogl_draw_bitmap_region(ALLEGRO_BITMAP *bitmap, float sx, float sy,
    }
    
    if (!(bitmap->flags & ALLEGRO_MEMORY_BITMAP)) {
+#if !defined ALLEGRO_GP2XWIZ
       ALLEGRO_BITMAP_OGL *ogl_source = (void *)bitmap;
       if (ogl_source->is_backbuffer) {
          if (ogl_target->is_backbuffer) {
@@ -319,6 +388,10 @@ static void ogl_draw_bitmap_region(ALLEGRO_BITMAP *bitmap, float sx, float sy,
             return;
          }
       }
+#else
+      /* FIXME: make this work somehow on Wiz */
+      return;
+#endif
    }
    if (disp->ogl_extras->opengl_target == ogl_target) {
       if (setup_blending(disp)) {
@@ -474,10 +547,19 @@ static ALLEGRO_LOCKED_REGION *ogl_lock_region(ALLEGRO_BITMAP *bitmap,
    GLint gl_y = bitmap->h - y - h;
    GLenum e;
 
+
+#ifndef ALLEGRO_GP2XWIZ
    if (format == ALLEGRO_PIXEL_FORMAT_ANY)
       format = bitmap->format;
 
    format = _al_get_real_pixel_format(format);
+#else
+   format = bitmap->format;
+   (void)x;
+   (void)w;
+   (void)gl_y;
+   (void)e;
+#endif
 
    pixel_size = al_get_pixel_size(format);
 
@@ -487,6 +569,7 @@ static ALLEGRO_LOCKED_REGION *ogl_lock_region(ALLEGRO_BITMAP *bitmap,
       al_set_current_display(bitmap->display);
    }
 
+#ifndef ALLEGRO_GP2XWIZ
    if (ogl_bitmap->is_backbuffer) {
       pitch = w * pixel_size;
       ogl_bitmap->lock_buffer = _AL_MALLOC(pitch * h);
@@ -536,6 +619,36 @@ static ALLEGRO_LOCKED_REGION *ogl_lock_region(ALLEGRO_BITMAP *bitmap,
             pitch * (gl_y + h - 1) + pixel_size * x;
       }
    }
+#else
+   if (ogl_bitmap->is_backbuffer) {
+      /* FIXME */
+      pitch = ogl_bitmap->true_w * pixel_size;
+      ogl_bitmap->lock_buffer = _AL_MALLOC(pitch * ogl_bitmap->true_h);
+
+      if (!(flags & ALLEGRO_LOCK_WRITEONLY)) {
+      	/* FIXME */
+      }
+   }
+   else {
+      ogl_bitmap->changed = true;
+
+      if (flags & ALLEGRO_LOCK_WRITEONLY) {
+         /* For write-only locking, we allocate a buffer just big enough
+          * to later be passed to glTexSubImage2D.
+          */
+         pitch = w * pixel_size;
+         bitmap->locked_region.data = bitmap->memory + pitch * (h-1);
+          /*
+         int bytes = pitch * ogl_bitmap->true_h;
+         ogl_bitmap->lock_buffer = _AL_MALLOC(bytes);
+         */
+      }
+      else {
+         /* FIXME: implement */
+         return NULL;
+      }
+   }
+#endif
 
    bitmap->locked_region.format = format;
    bitmap->locked_region.pitch = -pitch;
@@ -543,10 +656,9 @@ static ALLEGRO_LOCKED_REGION *ogl_lock_region(ALLEGRO_BITMAP *bitmap,
    if (old_disp) {
       al_set_current_display(old_disp);
    }
+
    return &bitmap->locked_region;
 }
-
-
 
 /* Synchronizes the texture back to the (possibly modified) bitmap data.
  */
@@ -556,11 +668,15 @@ static void ogl_unlock_region(ALLEGRO_BITMAP *bitmap)
    const int format = bitmap->locked_region.format;
    ALLEGRO_DISPLAY *old_disp = NULL;
    GLenum e;
+   GLint gl_y = bitmap->h - bitmap->lock_y - bitmap->lock_h;
+   (void)e;
 
+#ifndef ALLEGRO_GP2XWIZ
    if (bitmap->lock_flags & ALLEGRO_LOCK_READONLY) {
       _AL_FREE(ogl_bitmap->lock_buffer);
       return;
    }
+#endif
 
    if (bitmap->display->ogl_extras->is_shared == false &&
        bitmap->display != al_get_current_display()) {
@@ -568,8 +684,8 @@ static void ogl_unlock_region(ALLEGRO_BITMAP *bitmap)
       al_set_current_display(bitmap->display);
    }
 
+#ifndef ALLEGRO_GP2XWIZ
    if (ogl_bitmap->is_backbuffer) {
-      GLint gl_y = bitmap->h - bitmap->lock_y - bitmap->lock_h;
       /* glWindowPos2i may not be available. */
       if (al_get_opengl_version() >= 1.4) {
          glWindowPos2i(bitmap->lock_x, gl_y);
@@ -595,7 +711,6 @@ static void ogl_unlock_region(ALLEGRO_BITMAP *bitmap)
    else {
       glBindTexture(GL_TEXTURE_2D, ogl_bitmap->texture);
       if (bitmap->lock_flags & ALLEGRO_LOCK_WRITEONLY) {
-         GLint gl_y = bitmap->h - bitmap->lock_y - bitmap->lock_h;
          glTexSubImage2D(GL_TEXTURE_2D, 0,
             bitmap->lock_x, gl_y,
             bitmap->lock_w, bitmap->lock_h,
@@ -626,12 +741,46 @@ static void ogl_unlock_region(ALLEGRO_BITMAP *bitmap)
          }
       }
    }
+#else
+   if (ogl_bitmap->is_backbuffer) {
+      /* The only way to do this in ES 1.1 is to create a texture */
+      /* FIXME: implement */
+   }
+   else {
+      /* FIXME: test */
+      if (bitmap->lock_flags & ALLEGRO_LOCK_WRITEONLY) {
+         glBindTexture(GL_TEXTURE_2D, ogl_bitmap->texture);
+         glTexSubImage2D(GL_TEXTURE_2D, 0,
+            bitmap->lock_x, gl_y,
+            bitmap->lock_w, bitmap->lock_h,
+            glformats[format][2],
+            glformats[format][1],
+            bitmap->memory);
+         e = glGetError();
+         if (e) {
+            ALLEGRO_ERROR("glTexImage2D for format %d failed (%s).\n",
+               format, error_string(e));
+         }
+      }
+      else {
+         glBindTexture(GL_TEXTURE_2D, ogl_bitmap->texture);
+         glTexSubImage2D(GL_TEXTURE_2D, 0,
+            bitmap->lock_x, gl_y,
+            bitmap->lock_w, bitmap->lock_h,
+            glformats[format][2],
+            glformats[format][1],
+            bitmap->memory);
+      }
+   }
+#endif
 
    if (old_disp) {
       al_set_current_display(old_disp);
    }
 
+#ifndef ALLEGRO_GP2XWIZ
    _AL_FREE(ogl_bitmap->lock_buffer);
+#endif
 }
 
 
@@ -647,12 +796,15 @@ static void ogl_destroy_bitmap(ALLEGRO_BITMAP *bitmap)
       al_set_current_display(bitmap->display);
    }
 
+#ifndef ALLEGRO_GP2XWIZ
    if (ogl_bitmap->fbo) {
       glDeleteFramebuffersEXT(1, &ogl_bitmap->fbo);
       ogl_bitmap->fbo = 0;
    }
+#endif
 
    if (ogl_bitmap->texture) {
+      //glBindTexture(GL_TEXTURE_2D, 0);
       glDeleteTextures(1, &ogl_bitmap->texture);
       ogl_bitmap->texture = 0;
    }
@@ -691,7 +843,6 @@ static ALLEGRO_BITMAP_INTERFACE *ogl_bitmap_driver(void)
 
 ALLEGRO_BITMAP *_al_ogl_create_bitmap(ALLEGRO_DISPLAY *d, int w, int h)
 {
-   const ALLEGRO_DISPLAY *ogl_dpy = (void *)d;
    ALLEGRO_BITMAP_OGL *bitmap;
    int format = al_get_new_bitmap_format();
    const int flags = al_get_new_bitmap_flags();
@@ -701,8 +852,12 @@ ALLEGRO_BITMAP *_al_ogl_create_bitmap(ALLEGRO_DISPLAY *d, int w, int h)
    size_t bytes;
    int wanted_format;
    int best_format;
+   (void)d;
 
-   if (ogl_dpy->ogl_extras->extension_list->ALLEGRO_GL_ARB_texture_non_power_of_two) {
+   ALLEGRO_DEBUG("Creating OpenGL bitmap\n");
+
+#ifndef ALLEGRO_GP2XWIZ
+   if (d->ogl_extras->extension_list->ALLEGRO_GL_ARB_texture_non_power_of_two) {
       true_w = w;
       true_h = h;
    }
@@ -710,16 +865,23 @@ ALLEGRO_BITMAP *_al_ogl_create_bitmap(ALLEGRO_DISPLAY *d, int w, int h)
       true_w = pot(w);
       true_h = pot(h);
    }
+#else
+   true_w = pot(w);
+   true_h = pot(h);
+#endif
 
+   ALLEGRO_DEBUG("Using dimensions: %d %d\n", true_w, true_h);
+
+#ifndef ALLEGRO_GP2XWIZ
    /* _al_get_real_pixel_format uses an arbitrary format - but we usually want
     * the same format as the backbuffer (but if the user requests 16/24/32
     * bits we should honor that).
     */
    wanted_format = format;
    format = _al_get_real_pixel_format(format);
-   if (ogl_dpy->ogl_extras->backbuffer &&
+   if (d->ogl_extras->backbuffer &&
       !_al_pixel_format_is_real(wanted_format)) {
-      best_format = ogl_dpy->ogl_extras->backbuffer->bitmap.format;
+      best_format = d->ogl_extras->backbuffer->bitmap.format;
       if (al_get_pixel_size(format) == al_get_pixel_size(best_format)) {
          format = best_format;
          // FIXME: hackish, move this all into _al_get_real_pixel_format
@@ -734,6 +896,14 @@ ALLEGRO_BITMAP *_al_ogl_create_bitmap(ALLEGRO_DISPLAY *d, int w, int h)
          }
       }
    }
+#else
+   (void)wanted_format;
+   (void)best_format;
+   if (format != ALLEGRO_PIXEL_FORMAT_RGB_565 && format != ALLEGRO_PIXEL_FORMAT_RGBA_4444)
+      format = ALLEGRO_PIXEL_FORMAT_RGBA_4444;
+#endif
+
+   ALLEGRO_DEBUG("Chose format %d for OpenGL bitmap\n", format);
 
    pitch = true_w * al_get_pixel_size(format);
 
@@ -756,12 +926,13 @@ ALLEGRO_BITMAP *_al_ogl_create_bitmap(ALLEGRO_DISPLAY *d, int w, int h)
    bitmap->true_h = true_h;
 
    bytes = pitch * true_h;
-   bitmap->bitmap.memory = _AL_MALLOC_ATOMIC(bytes);
+   bitmap->bitmap.memory = _AL_MALLOC(bytes);
    
    /* We never allow un-initialized memory for OpenGL bitmaps, if it
     * is uploaded to a floating point texture it can lead to Inf and
     * NaN values which break all subsequent blending.
     */
+    // FIXME!~
    memset(bitmap->bitmap.memory, 0, bytes);
 
    return &bitmap->bitmap;
@@ -783,7 +954,9 @@ ALLEGRO_BITMAP *_al_ogl_create_sub_bitmap(ALLEGRO_DISPLAY *d,
    ogl_bmp->true_w = ogl_parent->true_w;
    ogl_bmp->true_h = ogl_parent->true_h;
    ogl_bmp->texture = ogl_parent->texture;
+#ifndef ALLEGRO_GP2XWIZ
    ogl_bmp->fbo = ogl_parent->fbo;
+#endif
 
    ogl_bmp->left = x / (float)ogl_parent->true_w;
    ogl_bmp->right = (x + w) / (float)ogl_parent->true_w;
@@ -810,21 +983,30 @@ GLuint al_get_opengl_texture(ALLEGRO_BITMAP *bitmap)
  */
 void al_remove_opengl_fbo(ALLEGRO_BITMAP *bitmap)
 {
+#ifndef ALLEGRO_GP2XWIZ
    // FIXME: Check if this is an OpenGL bitmap
    ALLEGRO_BITMAP_OGL *ogl_bitmap = (void *)bitmap;
    if (ogl_bitmap->fbo) {
       glDeleteFramebuffersEXT(1, &ogl_bitmap->fbo);
       ogl_bitmap->fbo = 0;
    }
+#else
+   (void)bitmap;
+#endif
 }
 
 /* Function: al_remove_opengl_fbo
  */
 GLuint al_get_opengl_fbo(ALLEGRO_BITMAP *bitmap)
 {
+#ifndef ALLEGRO_GP2XWIZ
    // FIXME: Check if this is an OpenGL bitmap, if not, return 0
    ALLEGRO_BITMAP_OGL *ogl_bitmap = (void *)bitmap;
    return ogl_bitmap->fbo;
+#else
+   (void)bitmap;
+   return 0;
+#endif
 }
 
 /* vim: set sts=3 sw=3 et: */

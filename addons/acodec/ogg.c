@@ -12,7 +12,13 @@
 
 #ifdef ALLEGRO_CFG_ACODEC_VORBIS
 
+#ifndef ALLEGRO_GP2XWIZ
 #include <vorbis/vorbisfile.h>
+#else
+#include <tremor/ivorbisfile.h>
+#endif
+
+ALLEGRO_DEBUG_CHANNEL("acodec")
 
 
 typedef struct AL_OV_DATA AL_OV_DATA;
@@ -66,10 +72,17 @@ static long tell_callback(void *dptr)
    return (long)ret;
 }
 
+static int close_callback(void *dptr)
+{
+   AL_OV_DATA *d = (void *)dptr;
+   al_fclose(d->file);
+   return 0;
+}
+
 static ov_callbacks callbacks = {
    read_callback,
    seek_callback,
-   NULL,
+   close_callback,
    tell_callback
 };
 
@@ -106,7 +119,6 @@ ALLEGRO_SAMPLE *al_load_sample_oggvorbis(const char *filename)
       TRACE("%s failed to open.\n", filename);
       return NULL;
    }
-
    ov.file = file;
    if (ov_open_callbacks(&ov, &vf, NULL, 0, callbacks) < 0) {
       TRACE("%s does not appear to be an Ogg bitstream.\n", filename);
@@ -138,15 +150,20 @@ ALLEGRO_SAMPLE *al_load_sample_oggvorbis(const char *filename)
    pos = 0;
    while (pos < total_size) {
       /* XXX error handling */
+#ifndef ALLEGRO_GP2XWIZ
       long read = ov_read(&vf, buffer + pos, packet_size, endian, word_size,
          signedness, &bitstream);
+#else
+      (void)endian;
+      (void)signedness;
+      long read = ov_read(&vf, buffer + pos, packet_size, &bitstream);
+#endif
       pos += read;
       if (read == 0)
          break;
    }
 
    ov_clear(&vf);
-   al_fclose(file);
 
    sample = al_create_sample(buffer, total_samples, rate,
       _al_word_size_to_depth_conf(word_size),
@@ -165,7 +182,11 @@ static bool ogg_stream_seek(ALLEGRO_STREAM *stream, double time)
    AL_OV_DATA *extra = (AL_OV_DATA *) stream->extra;
    if (time >= extra->loop_end)
       return false;
+#ifndef ALLEGRO_GP2XWIZ
    return (ov_time_seek_lap(extra->vf, time) != -1);
+#else
+   return (ov_time_seek(extra->vf, time) != -1);
+#endif
 }
 
 static bool ogg_stream_rewind(ALLEGRO_STREAM *stream)
@@ -201,13 +222,13 @@ static void ogg_stream_close(ALLEGRO_STREAM *stream)
    AL_OV_DATA *extra = (AL_OV_DATA *) stream->extra;
    ALLEGRO_EVENT quit_event;
 
+
    quit_event.type = _KCM_STREAM_FEEDER_QUIT_EVENT_TYPE;
    al_emit_user_event(*((ALLEGRO_EVENT_SOURCE**)stream), &quit_event, NULL);
    al_join_thread(stream->feed_thread, NULL);
    al_destroy_thread(stream->feed_thread);
 
    ov_clear(extra->vf);
-   al_fclose(extra->file);
    _AL_FREE(extra->vf);
    _AL_FREE(extra);
    stream->extra = NULL;
@@ -243,9 +264,16 @@ static size_t ogg_stream_update(ALLEGRO_STREAM *stream, void *data,
          }
       }
    while (pos < (unsigned long)read_length) {
+#ifndef ALLEGRO_GP2XWIZ
       unsigned long read = ov_read(extra->vf, (char *)data + pos,
                                    read_length - pos, endian, word_size,
                                    signedness, &extra->bitstream);
+#else
+      (void)endian;
+      (void)signedness;
+      unsigned long read = ov_read(extra->vf, (char *)data + pos,
+                                   read_length - pos, &extra->bitstream);
+#endif
       pos += read;
 
       /* If nothing read then now to silence from here to the end. */
@@ -264,7 +292,7 @@ static size_t ogg_stream_update(ALLEGRO_STREAM *stream, void *data,
 /* Function: al_load_stream_oggvorbis
  */
 ALLEGRO_STREAM *al_load_stream_oggvorbis(const char *filename,
-   size_t buffer_count, unsigned int samples)
+	size_t buffer_count, unsigned int samples)
 {
    const int word_size = 2; /* 1 = 8bit, 2 = 16-bit. nothing else */
    ALLEGRO_FILE* file = NULL;
