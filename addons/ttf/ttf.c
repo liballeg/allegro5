@@ -14,6 +14,7 @@ typedef struct ALLEGRO_TTF_GLYPH_DATA
 {
     ALLEGRO_BITMAP *bitmap;
     int x, y;
+    int advance;
 } ALLEGRO_TTF_GLYPH_DATA;
 
 typedef struct ALLEGRO_TTF_FONT_DATA
@@ -98,10 +99,7 @@ static int render_glyph(ALLEGRO_FONT const *f, int prev, int ch,
     int startpos = xpos;
 
     ALLEGRO_TTF_GLYPH_DATA *glyph = data->cache + ft_index;
-    if (glyph->bitmap) {
-        FT_Load_Glyph(face, ft_index, FT_LOAD_DEFAULT);
-    }
-    else {
+    if (!glyph->bitmap) {
         // FIXME: make this a config setting? FT_LOAD_FORCE_AUTOHINT
         int x, y, w, h;
         ALLEGRO_LOCKED_REGION *lr;
@@ -140,6 +138,7 @@ static int render_glyph(ALLEGRO_FONT const *f, int prev, int ch,
         al_unlock_bitmap(glyph->bitmap);
         glyph->x = face->glyph->bitmap_left;
         glyph->y = (face->size->metrics.ascender >> 6) - face->glyph->bitmap_top;
+        glyph->advance = face->glyph->advance.x >> 6;
 
         al_restore_state(&backup);
     }
@@ -157,7 +156,7 @@ static int render_glyph(ALLEGRO_FONT const *f, int prev, int ch,
     else
         al_draw_bitmap(glyph->bitmap, xpos + glyph->x, ypos + glyph->y , 0);
 
-    xpos += face->glyph->advance.x >> 6;
+    xpos += glyph->advance;
     return xpos - startpos;
 }
 
