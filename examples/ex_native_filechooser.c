@@ -84,7 +84,7 @@ static void *message_box_thread(ALLEGRO_THREAD *thread, void *arg)
 
 
 /* Function to start the new thread. */
-AsyncDialog *spawn_async_file_dialog(const ALLEGRO_PATH *initial_path)
+static AsyncDialog *spawn_async_file_dialog(const ALLEGRO_PATH *initial_path)
 {
    AsyncDialog *data = malloc(sizeof *data);
 
@@ -100,7 +100,7 @@ AsyncDialog *spawn_async_file_dialog(const ALLEGRO_PATH *initial_path)
    return data;
 }
 
-AsyncDialog *spawn_async_message_dialog(void)
+static AsyncDialog *spawn_async_message_dialog(void)
 {
    AsyncDialog *data = calloc(1, sizeof *data);
 
@@ -114,7 +114,7 @@ AsyncDialog *spawn_async_message_dialog(void)
 }
 
 
-void stop_async_dialog(AsyncDialog *data)
+static void stop_async_dialog(AsyncDialog *data)
 {
    if (data) {
       al_destroy_thread(data->thread);

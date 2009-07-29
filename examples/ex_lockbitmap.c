@@ -47,7 +47,7 @@ int main(void)
     */
    locked = al_lock_bitmap(bitmap, ALLEGRO_PIXEL_FORMAT_ANY_32_NO_ALPHA, 0);
    for (j = 0; j < 256; j++) {
-      ptr = locked->data + j * locked->pitch;
+      ptr = (uint8_t *)locked->data + j * locked->pitch;
 
       for (i = 0; i < 3*256; i++) {
          uint8_t red;
