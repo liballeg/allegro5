@@ -31,7 +31,7 @@ static void saw(ALLEGRO_STREAM *stream)
       al_wait_for_event(queue, &event);
 
       if (event.type == ALLEGRO_EVENT_STREAM_EMPTY_FRAGMENT) {
-         al_get_stream_buffer(stream, &buf_void);
+         al_get_stream_fragment(stream, &buf_void);
          buf = buf_void;
 
          for (i = 0; i < SAMPLES_PER_BUFFER; i++) {
@@ -42,8 +42,8 @@ static void saw(ALLEGRO_STREAM *stream)
                pitch = 0x10000;
          }
 
-         if (!al_set_stream_buffer(stream, buf)) {
-            fprintf(stderr, "Error setting stream buffer.\n");
+         if (!al_set_stream_fragment(stream, buf)) {
+            fprintf(stderr, "Error setting stream fragment.\n");
          }
 
          n--;

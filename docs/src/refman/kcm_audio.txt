@@ -99,18 +99,26 @@ to an ALLEGRO_VOICE object, etc).
 ## API: ALLEGRO_STREAM
 
 An ALLEGRO_STREAM object is used to stream generated audio to the sound
-device, in real-time. As with [ALLEGRO_SAMPLE_INSTANCE] objects,
-they store information necessary for playback,
-so you may not play one multiple times simultaneously.
-They also need to be attached to an [ALLEGRO_VOICE] object, or
-to an [ALLEGRO_MIXER] object which, eventually, reaches an ALLEGRO_VOICE
-object.
+device, in real-time. This is done by reading from a buffer, which is split
+into a number of fragments. Whenever a fragment has finished playing, the
+user can refill it with new data.
 
-While playing, you must periodically supply new buffer data by first
-checking ALLEGRO_AUDIOPROP_USED_FRAGMENTS, then refilling the buffers via
-ALLEGRO_AUDIOPROP_BUFFER. If you're late with supplying new data, the object
-will be silenced until new data is provided. You must call [al_drain_stream]
-when you're finished supplying the stream.
+As with [ALLEGRO_SAMPLE_INSTANCE] objects, streams store information necessary
+for playback, so you may not play the same stream multiple times simultaneously.
+Streams also need to be attached to an [ALLEGRO_VOICE] object, or to an
+[ALLEGRO_MIXER] object which, eventually, reaches an ALLEGRO_VOICE object.
+
+While playing, you must periodically fill fragments with new audio data. To
+know when a new fragment is ready to be filled, you can either directly check
+with [al_get_available_stream_fragments], or listen to events from the stream.
+An ALLEGRO_EVENT_STREAM_EMPTY_FRAGMENT event is generated whenever a new
+fragment is ready. Use [al_get_stream_fragment] to obtain a pointer to the
+fragment to be filled. The size and format are determined by the parameters
+passed to [al_create_stream].
+
+If you're late with supplying new data, the stream will be silent until new data
+is provided. You must call [al_drain_stream] when you're finished with supplying
+data to the stream.
 
 ## API: ALLEGRO_VOICE
 
@@ -533,24 +541,38 @@ was created with. The sample count and user-data pointer is also passed.
 
 ## API: al_create_stream
 
-Creates an audio stream, using the supplied values. The stream will be
-set to play by default.
+Creates an [ALLEGRO_AUDIO_STREAM]. The stream will be set to play by default.
+It will feed audio data from a buffer, which is split into a number of
+fragments.
 
 --------------------------------------------------------------------------------
-Parameter     Meaning
-------------- ------------------------------------------------------------------
-buffer_count  How many fragments to use for the audio stream.
+Parameter      Meaning
+-------------  ------------------------------------------------------------------
+fragment_count How many fragments to use for the audio stream. Usually only
+               two fragments are required - splitting the audio buffer in two
+               halves. But it means that the only time when new data can be
+               supplied is whenever one half has finished playing.
 
-              FIXME: Should this be called fragment_count?
+               When using many fragments, you usually will use fewer samples
+               for one, so there always will be (small) fragments available to
+               be filled with new data.
 
-              FIXME: Need to explain what value should be passed here.
+samples        The size of a fragment in samples. See note below.
 
-samples       The size of a fragment in samples. See note below.
+freq           The frequency, in Hertz.
 
-depth         Must be one of the values listed for [ALLEGRO_AUDIO_DEPTH].
+depth          Must be one of the values listed for [ALLEGRO_AUDIO_DEPTH].
 
-chan_conf     Must be one of the values listed for [ALLEGRO_CHANNEL_CONF].
+chan_conf      Must be one of the values listed for [ALLEGRO_CHANNEL_CONF].
 --------------------------------------------------------------------------------
+
+The choice of *fragment_count*, *samples* and *freq* directly influences the
+audio delay. The delay in seconds can be expressed as:
+
+    delay = fragment_count * samples / freq
+
+This is only the delay due to Allegro's streaming, there may be additional
+delay caused by sound drivers and/or hardware.
 
 Note: If you know the fragment size in bytes, you can get the size in samples
 like this:
@@ -560,7 +582,7 @@ like this:
 
 The size of the complete buffer is:
 
-    buffer_size = bytes_per_fragment * buffer_count(FIXME: fragment_count?)
+    buffer_size = bytes_per_fragment * fragment_count
 
 ## API: al_destroy_stream
 
@@ -654,7 +676,7 @@ Return whether the stream is attached to something.
 Detach the stream from whatever it's attached to,
 if anything.
 
-## API: al_get_stream_buffer
+## API: al_get_stream_fragment
 
 When using Allegro's audio streaming, you will use this function to continuously
 provide new sample data to a stream.
@@ -665,13 +687,13 @@ The length and format of the buffer are specified with [al_create_stream] or
 can be queried with the various functions described here.
 
 Once the buffer is filled, you must signal this to Allegro by passing *val* to
-[al_set_stream_buffer].
+[al_set_stream_fragment].
 
 Note: If you listen to events from the stream, an
 ALLEGRO_EVENT_STREAM_EMPTY_FRAGMENT event will be generated whenever a new
 fragment is ready.
 
-## API: al_set_stream_buffer
+## API: al_set_stream_fragment
 
 This function needs to be called for every successfull call of
 [al_get_stream_buffer] to indicate that the buffer is filled with new data.
@@ -681,17 +703,10 @@ This function needs to be called for every successfull call of
 Returns the number of fragments this stream used. This is the same value as
 passed to [al_create_stream] when a new stream is created.
 
-FIXME: Is it called "fragment" or "buffer"?
-
-## API: al_get_stream_used_fragments
+## API: al_get_available_stream_fragments
 
 Returns the number of available fragments in the stream. You can use
 [al_get_stream_buffer]
-
-FIXME: Is it called "fragment" or "buffer"?
-
-FIXME: "used" is misleading, shouldn't it be "available" or "free" or something
-like that?
 
 ## API: al_seek_stream_secs
 

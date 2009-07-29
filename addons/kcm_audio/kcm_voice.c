@@ -208,7 +208,7 @@ static void stream_read(void *source, void **vbuf, unsigned long *samples,
       *vbuf = stream->pending_bufs[0];
       pos = *samples;
 
-      count = al_get_stream_used_fragments(stream);
+      count = al_get_available_stream_fragments(stream);
       if (count)
          _al_kcm_emit_stream_event(stream, count);
    }

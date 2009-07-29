@@ -35,7 +35,7 @@ static void maybe_unlock_mutex(ALLEGRO_MUTEX *mutex)
 
 /* Function: al_create_stream
  */
-ALLEGRO_STREAM *al_create_stream(size_t buffer_count, unsigned long samples,
+ALLEGRO_STREAM *al_create_stream(size_t fragment_count, unsigned long samples,
    unsigned long freq, ALLEGRO_AUDIO_DEPTH depth,
    ALLEGRO_CHANNEL_CONF chan_conf)
 {
@@ -43,7 +43,7 @@ ALLEGRO_STREAM *al_create_stream(size_t buffer_count, unsigned long samples,
    unsigned long bytes_per_buffer;
    size_t i;
 
-   if (!buffer_count) {
+   if (!fragment_count) {
       _al_set_error(ALLEGRO_INVALID_PARAM,
          "Attempted to create stream with no buffers");
       return NULL;
@@ -84,9 +84,9 @@ ALLEGRO_STREAM *al_create_stream(size_t buffer_count, unsigned long samples,
    stream->spl.pos  = samples << MIXER_FRAC_SHIFT;
    stream->spl.spl_data.len  = stream->spl.pos;
 
-   stream->buf_count = buffer_count;
+   stream->buf_count = fragment_count;
 
-   stream->used_bufs = calloc(1, buffer_count * sizeof(void *) * 2);
+   stream->used_bufs = calloc(1, fragment_count * sizeof(void *) * 2);
    if (!stream->used_bufs) {
       free(stream->used_bufs);
       free(stream);
@@ -94,9 +94,9 @@ ALLEGRO_STREAM *al_create_stream(size_t buffer_count, unsigned long samples,
          "Out of memory allocating stream buffer pointers");
       return NULL;
    }
-   stream->pending_bufs = stream->used_bufs + buffer_count;
+   stream->pending_bufs = stream->used_bufs + fragment_count;
 
-   stream->main_buffer = calloc(1, bytes_per_buffer * buffer_count);
+   stream->main_buffer = calloc(1, bytes_per_buffer * fragment_count);
    if (!stream->main_buffer) {
       free(stream->used_bufs);
       free(stream);
@@ -105,7 +105,7 @@ ALLEGRO_STREAM *al_create_stream(size_t buffer_count, unsigned long samples,
       return NULL;
    }
 
-   for (i = 0; i < buffer_count; i++) {
+   for (i = 0; i < fragment_count; i++) {
       stream->pending_bufs[i] =
          (char *) stream->main_buffer + i * bytes_per_buffer;
    }
@@ -183,9 +183,9 @@ unsigned int al_get_stream_fragments(const ALLEGRO_STREAM *stream)
 }
 
 
-/* Function: al_get_stream_used_fragments
+/* Function: al_get_available_stream_fragments
  */
-unsigned int al_get_stream_used_fragments(const ALLEGRO_STREAM *stream)
+unsigned int al_get_available_stream_fragments(const ALLEGRO_STREAM *stream)
 {
    unsigned int i;
    ASSERT(stream);
@@ -276,16 +276,15 @@ bool al_get_stream_attached(const ALLEGRO_STREAM *stream)
 }
 
 
-/* Function: al_get_stream_buffer
+/* Function: al_get_stream_fragment
 */
-bool al_get_stream_buffer(const ALLEGRO_STREAM *stream, void **val)
+bool al_get_stream_fragment(const ALLEGRO_STREAM *stream, void **val)
 {
    size_t i;
    ASSERT(stream);
 
    if (!stream->used_bufs[0]) {
-      _al_set_error(ALLEGRO_INVALID_OBJECT,
-         "Attempted to get the buffer of a non-waiting stream");
+      /* No free fragments are available. */
       return false;
    }
 
@@ -468,9 +467,9 @@ bool al_detach_stream(ALLEGRO_STREAM *stream)
 }
 
 
-/* Function: al_set_stream_buffer
+/* Function: al_set_stream_fragment_count
  */
-bool al_set_stream_buffer(ALLEGRO_STREAM *stream, void *val)
+bool al_set_stream_fragment(ALLEGRO_STREAM *stream, void *val)
 {
    size_t i;
    bool ret;
@@ -562,7 +561,7 @@ void *_al_kcm_feed_stream(ALLEGRO_THREAD *self, void *vstream)
          unsigned long bytes;
          unsigned long bytes_written;
 
-         if (!al_get_stream_buffer(stream, &fragment_void)) {
+         if (!al_get_stream_fragment(stream, &fragment_void)) {
             ALLEGRO_ERROR("Error getting stream buffer.\n");
             continue;
          }
@@ -590,7 +589,7 @@ void *_al_kcm_feed_stream(ALLEGRO_THREAD *self, void *vstream)
             ASSERT(bw == bytes - bytes_written);
          }
 
-         if (!al_set_stream_buffer(stream, fragment)) {
+         if (!al_set_stream_fragment(stream, fragment)) {
             ALLEGRO_ERROR("Error setting stream buffer.\n");
             continue;
          }

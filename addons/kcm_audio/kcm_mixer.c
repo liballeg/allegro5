@@ -231,7 +231,7 @@ static bool fix_looped_position(ALLEGRO_SAMPLE_INSTANCE *spl)
             stream->spl.is_playing = false;
          }
 
-         count = al_get_stream_used_fragments(stream);
+         count = al_get_available_stream_fragments(stream);
          if (count)
             _al_kcm_emit_stream_event(stream, count);
 
