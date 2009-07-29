@@ -134,18 +134,18 @@ bool init(void)
 
    voice = al_create_voice(44100, ALLEGRO_AUDIO_DEPTH_INT16, ALLEGRO_CHANNEL_CONF_2);
    mixer = al_create_mixer(44100, ALLEGRO_AUDIO_DEPTH_FLOAT32, ALLEGRO_CHANNEL_CONF_2);
-   al_attach_mixer_to_voice(voice, mixer);
+   al_attach_mixer_to_voice(mixer, voice);
    
    ResourceManager& rm = ResourceManager::getInstance();
 
    for (int i = RES_SAMPLE_START; i < RES_SAMPLE_END; i++) {
       ALLEGRO_SAMPLE_INSTANCE *s = (ALLEGRO_SAMPLE_INSTANCE *)rm.getData(i);
-      al_attach_sample_to_mixer(mixer, s);
+      al_attach_sample_to_mixer(s, mixer);
    }
 
    for (int i = RES_STREAM_START; i < RES_STREAM_END; i++) {
       ALLEGRO_STREAM *s = (ALLEGRO_STREAM *)rm.getData(i);
-      al_attach_stream_to_mixer(mixer, s); 
+      al_attach_stream_to_mixer(s, mixer); 
       al_set_stream_playing(s, false);
    }
 

@@ -222,7 +222,7 @@ int main(int argc, char * argv[])
    loop_start = 0.0;
    loop_end = al_get_stream_length_secs(music_stream);
    al_set_stream_playmode(music_stream, ALLEGRO_PLAYMODE_LOOP);
-   al_attach_stream_to_mixer(al_get_default_mixer(), music_stream);
+   al_attach_stream_to_mixer(music_stream, al_get_default_mixer());
    al_start_timer(timer);
 
    while (!exiting) {

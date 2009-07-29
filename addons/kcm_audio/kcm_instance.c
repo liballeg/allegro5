@@ -627,13 +627,13 @@ bool al_set_sample(ALLEGRO_SAMPLE_INSTANCE *spl, ALLEGRO_SAMPLE *data)
 
    if (need_reattach) {
       if (old_parent.is_voice) {
-         if (!al_attach_sample_to_voice(old_parent.u.voice, spl)) {
+         if (!al_attach_sample_to_voice(spl, old_parent.u.voice)) {
             spl->spl_data.buffer.ptr = NULL;
             return false;
          }
       }
       else {
-         if (!al_attach_sample_to_mixer(old_parent.u.mixer, spl)) {
+         if (!al_attach_sample_to_mixer(spl, old_parent.u.mixer)) {
             spl->spl_data.buffer.ptr = NULL;
             return false;
          }

@@ -65,7 +65,7 @@ int main(int argc, char **argv)
       }
       fprintf(stderr, "done.\n");
 
-      if (!al_attach_sample_to_voice(voice, sample)) {
+      if (!al_attach_sample_to_voice(sample, voice)) {
          fprintf(stderr, "al_attach_sample_to_voice failed.\n");
          return 1;
       }

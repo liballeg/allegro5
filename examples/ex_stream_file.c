@@ -56,7 +56,7 @@ int main(int argc, char **argv)
    }
    fprintf(stderr, "Mixer created.\n");
 
-   if (!al_attach_mixer_to_voice(voice, mixer)) {
+   if (!al_attach_mixer_to_voice(mixer, voice)) {
       fprintf(stderr, "al_attach_mixer_to_voice failed.\n");
       return 1;
    }
@@ -77,12 +77,12 @@ int main(int argc, char **argv)
       fprintf(stderr, "Stream created from '%s'.\n", filename);
 
 #ifndef BYPASS_MIXER
-      if (!al_attach_stream_to_mixer(mixer, stream)) {
+      if (!al_attach_stream_to_mixer(stream, mixer)) {
          fprintf(stderr, "al_attach_stream_to_mixer failed.\n");
          continue;
       }
 #else
-      if (!al_attach_stream_to_voice(voice, stream)) {
+      if (!al_attach_stream_to_voice(stream, voice)) {
          fprintf(stderr, "al_attach_stream_to_voice failed.\n");
          return 1;
       }

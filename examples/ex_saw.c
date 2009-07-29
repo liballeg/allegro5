@@ -95,7 +95,7 @@ int main(void)
       return 1;
    }
 
-   if (!al_attach_mixer_to_voice(voice, mixer)) {
+   if (!al_attach_mixer_to_voice(mixer, voice)) {
       fprintf(stderr, "Could not attach mixer to voice.\n");
       return 1;
    }
@@ -107,7 +107,7 @@ int main(void)
       return 1;
    }
 
-   if (!al_attach_stream_to_mixer(mixer, stream)) {
+   if (!al_attach_stream_to_mixer(stream, mixer)) {
       fprintf(stderr, "Could not attach stream to mixer.\n");
       return 1;
    }

@@ -44,7 +44,7 @@ int main(int argc, char **argv)
       return 1;
    }
 
-   if (!al_attach_mixer_to_voice(voice, mixer)) {
+   if (!al_attach_mixer_to_voice(mixer, voice)) {
       fprintf(stderr, "al_attach_mixer_to_voice failed.\n");
       return 1;
    }
@@ -73,7 +73,7 @@ int main(int argc, char **argv)
          continue;
       }
 
-      if (!al_attach_sample_to_mixer(mixer, sample)) {
+      if (!al_attach_sample_to_mixer(sample, mixer)) {
          fprintf(stderr, "al_attach_sample_to_mixer failed.\n");
          return 1;
       }

@@ -269,12 +269,12 @@ A5_KCM_AUDIO_FUNC(bool, al_set_stream_loop_secs, (ALLEGRO_STREAM *stream, double
 A5_KCM_AUDIO_FUNC(ALLEGRO_MIXER*, al_create_mixer, (unsigned long freq,
       ALLEGRO_AUDIO_DEPTH depth, ALLEGRO_CHANNEL_CONF chan_conf));
 A5_KCM_AUDIO_FUNC(void, al_destroy_mixer, (ALLEGRO_MIXER *mixer));
-A5_KCM_AUDIO_FUNC(bool, al_attach_sample_to_mixer, (ALLEGRO_MIXER *mixer,
-      ALLEGRO_SAMPLE_INSTANCE *stream));
-A5_KCM_AUDIO_FUNC(bool, al_attach_stream_to_mixer, (ALLEGRO_MIXER *mixer,
-      ALLEGRO_STREAM *stream));
-A5_KCM_AUDIO_FUNC(bool, al_attach_mixer_to_mixer, (ALLEGRO_MIXER *mixer,
-      ALLEGRO_MIXER *stream));
+A5_KCM_AUDIO_FUNC(bool, al_attach_sample_to_mixer, (
+   ALLEGRO_SAMPLE_INSTANCE *stream, ALLEGRO_MIXER *mixer));
+A5_KCM_AUDIO_FUNC(bool, al_attach_stream_to_mixer, (ALLEGRO_STREAM *stream,
+   ALLEGRO_MIXER *mixer));
+A5_KCM_AUDIO_FUNC(bool, al_attach_mixer_to_mixer, (ALLEGRO_MIXER *stream,
+   ALLEGRO_MIXER *mixer));
 A5_KCM_AUDIO_FUNC(bool, al_set_mixer_postprocess_callback, (
       ALLEGRO_MIXER *mixer,
       void (*cb)(void *buf, unsigned long samples, void *data),
@@ -296,12 +296,12 @@ A5_KCM_AUDIO_FUNC(ALLEGRO_VOICE*, al_create_voice, (unsigned long freq,
       ALLEGRO_AUDIO_DEPTH depth,
       ALLEGRO_CHANNEL_CONF chan_conf));
 A5_KCM_AUDIO_FUNC(void, al_destroy_voice, (ALLEGRO_VOICE *voice));
-A5_KCM_AUDIO_FUNC(bool, al_attach_sample_to_voice, (ALLEGRO_VOICE *voice,
-      ALLEGRO_SAMPLE_INSTANCE *stream));
-A5_KCM_AUDIO_FUNC(bool, al_attach_stream_to_voice, (ALLEGRO_VOICE *voice,
-      ALLEGRO_STREAM *stream));
-A5_KCM_AUDIO_FUNC(bool, al_attach_mixer_to_voice, (ALLEGRO_VOICE *voice,
-      ALLEGRO_MIXER *mixer));
+A5_KCM_AUDIO_FUNC(bool, al_attach_sample_to_voice, (
+   ALLEGRO_SAMPLE_INSTANCE *stream, ALLEGRO_VOICE *voice));
+A5_KCM_AUDIO_FUNC(bool, al_attach_stream_to_voice, (
+   ALLEGRO_STREAM *stream, ALLEGRO_VOICE *voice ));
+A5_KCM_AUDIO_FUNC(bool, al_attach_mixer_to_voice, (ALLEGRO_MIXER *mixer,
+   ALLEGRO_VOICE *voice));
 A5_KCM_AUDIO_FUNC(void, al_detach_voice, (ALLEGRO_VOICE *voice));
 
 A5_KCM_AUDIO_FUNC(unsigned int, al_get_voice_frequency, (const ALLEGRO_VOICE *voice));

@@ -107,7 +107,8 @@ void al_destroy_voice(ALLEGRO_VOICE *voice)
 
 /* Function: al_attach_sample_to_voice
  */
-bool al_attach_sample_to_voice(ALLEGRO_VOICE *voice, ALLEGRO_SAMPLE_INSTANCE *spl)
+bool al_attach_sample_to_voice(ALLEGRO_SAMPLE_INSTANCE *spl,
+   ALLEGRO_VOICE *voice)
 {
    bool ret;
 
@@ -231,7 +232,8 @@ static void stream_read(void *source, void **vbuf, unsigned long *samples,
 
 /* Function: al_attach_stream_to_voice
  */
-bool al_attach_stream_to_voice(ALLEGRO_VOICE *voice, ALLEGRO_STREAM *stream)
+bool al_attach_stream_to_voice(ALLEGRO_STREAM *stream,
+   ALLEGRO_VOICE *voice)
 {
    bool ret;
 
@@ -297,7 +299,7 @@ bool al_attach_stream_to_voice(ALLEGRO_VOICE *voice, ALLEGRO_STREAM *stream)
 
 /* Function: al_attach_mixer_to_voice
  */
-bool al_attach_mixer_to_voice(ALLEGRO_VOICE *voice, ALLEGRO_MIXER *mixer)
+bool al_attach_mixer_to_voice(ALLEGRO_MIXER *mixer, ALLEGRO_VOICE *voice)
 {
    bool ret;
 

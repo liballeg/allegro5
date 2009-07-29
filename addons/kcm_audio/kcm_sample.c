@@ -58,7 +58,7 @@ static bool create_default_mixer(void)
       }
    }
 
-   if (!al_attach_mixer_to_voice(allegro_voice, allegro_mixer)) {
+   if (!al_attach_mixer_to_voice(allegro_mixer, allegro_voice)) {
       TRACE("al_attach_mixer_to_voice failed\n");
       goto Error;
    }
@@ -162,7 +162,7 @@ bool al_reserve_samples(int reserve_samples)
             TRACE("al_create_sample failed\n");
             goto Error;
          }
-         if (!al_attach_sample_to_mixer(default_mixer, *slot)) {
+         if (!al_attach_sample_to_mixer(*slot, default_mixer)) {
             TRACE("al_attach_mixer_to_sample failed\n");
             goto Error;
          }
@@ -218,7 +218,7 @@ bool al_set_default_mixer(ALLEGRO_MIXER *mixer)
             TRACE("al_create_sample failed\n");
             goto Error;
          }
-         if (!al_attach_sample_to_mixer(default_mixer, *slot)) {
+         if (!al_attach_sample_to_mixer(*slot, default_mixer)) {
             TRACE("al_attach_mixer_to_sample failed\n");
             goto Error;
          }
