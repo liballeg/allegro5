@@ -219,7 +219,7 @@ static void get_text_dimensions(ALLEGRO_FONT const *f, ALLEGRO_USTR const *text,
         int32_t ch = al_ustr_get_next(text, &pos);
         x += render_glyph(f, prev, ch, 0, 0, &glyph);
         if (i == count - 1) {
-            x -= face->glyph->advance.x >> 6;
+            x -= glyph->advance;
             x += glyph->x + al_get_bitmap_width(glyph->bitmap);
         }
         if (i == 0)
