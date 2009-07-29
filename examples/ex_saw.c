@@ -19,7 +19,6 @@ static void saw(ALLEGRO_STREAM *stream)
    int val = 0;
    int i;
    int n = 200;
-   float gain;
 
    queue = al_create_event_queue();
    /* FIXME: this cast is pretty scarry */
@@ -35,11 +34,15 @@ static void saw(ALLEGRO_STREAM *stream)
          buf = buf_void;
 
          for (i = 0; i < SAMPLES_PER_BUFFER; i++) {
-            buf[i] = ((val >> 16) & 0xff) >> 4;    /* not so loud please */
+            /* Crude saw wave at maximum aplitude. Please keep this compatible
+             * to the A4 example so we know when something has broken for now.
+             * 
+             * It would be nice to have a better example with user interface
+             * and some simple synth effects.
+             */
+            buf[i] = ((val >> 16) & 0xff);
             val += pitch;
             pitch++;
-            if (pitch > 0x40000)
-               pitch = 0x10000;
          }
 
          if (!al_set_stream_fragment(stream, buf)) {
@@ -50,9 +53,6 @@ static void saw(ALLEGRO_STREAM *stream)
          if ((n % 10) == 0) {
             putchar('.');
             fflush(stdout);
-
-            gain = al_get_stream_gain(stream);
-            al_set_stream_gain(stream, gain * 0.9);
          }
       }
    }
