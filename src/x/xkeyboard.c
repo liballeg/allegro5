@@ -429,6 +429,26 @@ void _al_xwin_keyboard_handler(XKeyEvent *event, ALLEGRO_DISPLAY *display)
       }
    }
    else { /* Key release. */
+     /* HACK:
+      * Detect key repeat by looking forward to see if this release
+      * is followed directly by a press event, in which case we assume
+      * that this release event was generated in response to that key
+      * press event. Events are simultaneous if they are separated by
+      * less than 4 ms (a value that worked well on one machine where
+      * this hack was needed).
+      * 
+      * This is unnecessary on systems where XkbSetDetectableAutorepeat
+      * works.
+      */
+      if (XPending(event->display) > 0) {
+         XEvent next_event;
+         XPeekEvent(event->display, &next_event);
+         if ((next_event.type == KeyPress) &&
+             (next_event.xkey.keycode == event->keycode) &&
+             (next_event.xkey.time - event->time) < 4) {
+            return;
+         }
+      }
       handle_key_release(keycode, display);
    }
 }
@@ -681,12 +701,13 @@ static int x_keyboard_init(void)
 
    _al_mutex_lock(&s->lock);
    
+/* HACK: XkbSetDetectableAutoRepeat is broken in some versions of X.Org
    Bool supported;
    XkbSetDetectableAutoRepeat(s->x11display, True, &supported);
    if (!supported) {
       ALLEGRO_WARN("XkbSetDetectableAutoRepeat failed.\n");
    }
-
+*/
 #ifdef ALLEGRO_XWINDOWS_WITH_XIM
    ALLEGRO_INFO("Using X Input Method.\n");
 
