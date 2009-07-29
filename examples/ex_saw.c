@@ -67,8 +67,6 @@ static void saw(ALLEGRO_STREAM *stream)
 
 int main(void)
 {
-   ALLEGRO_VOICE *voice;
-   ALLEGRO_MIXER *mixer;
    ALLEGRO_STREAM *stream;
 
    if (!al_init()) {
@@ -80,25 +78,7 @@ int main(void)
       fprintf(stderr, "Could not init sound.\n");
       return 1;
    }
-
-   voice = al_create_voice(44100, ALLEGRO_AUDIO_DEPTH_INT16,
-      ALLEGRO_CHANNEL_CONF_2);
-   if (!voice) {
-      fprintf(stderr, "Could not create voice.\n");
-      return 1;
-   }
-
-   mixer = al_create_mixer(44100, ALLEGRO_AUDIO_DEPTH_FLOAT32,
-      ALLEGRO_CHANNEL_CONF_2);
-   if (!mixer) {
-      fprintf(stderr, "Could not create mixer.\n");
-      return 1;
-   }
-
-   if (!al_attach_mixer_to_voice(mixer, voice)) {
-      fprintf(stderr, "Could not attach mixer to voice.\n");
-      return 1;
-   }
+   al_reserve_samples(0);
 
    stream = al_create_stream(8, SAMPLES_PER_BUFFER, 22050,
       ALLEGRO_AUDIO_DEPTH_UINT8, ALLEGRO_CHANNEL_CONF_1);
@@ -107,7 +87,7 @@ int main(void)
       return 1;
    }
 
-   if (!al_attach_stream_to_mixer(stream, mixer)) {
+   if (!al_attach_stream_to_mixer(stream, al_get_default_mixer())) {
       fprintf(stderr, "Could not attach stream to mixer.\n");
       return 1;
    }
@@ -115,8 +95,6 @@ int main(void)
    saw(stream);
 
    al_destroy_stream(stream);
-   al_destroy_mixer(mixer);
-   al_destroy_voice(voice);
    al_uninstall_audio();
 
    return 0;
