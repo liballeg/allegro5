@@ -4,11 +4,11 @@
  */
 
 
-#include "allegro5/acodec.h"
-#include "allegro5/internal/aintern_acodec.h"
+#include "allegro5/allegro5.h"
+#include "allegro5/a5_flac.h"
+#include "allegro5/kcm_audio.h"
+#include "allegro5/internal/aintern_kcm_audio.h"
 #include "allegro5/internal/aintern_memory.h"
-
-#ifdef ALLEGRO_CFG_ACODEC_FLAC
 
 #include <FLAC/stream_decoder.h>
 #include <stdio.h>
@@ -24,6 +24,7 @@ typedef struct FLACFILE {
    long total_size; /* number of bytes */
    ALLEGRO_FILE *fh;
 } FLACFILE;
+
 
 static FLAC__StreamDecoderReadStatus read_callback(const FLAC__StreamDecoder *decoder,
    FLAC__byte buffer[], size_t *bytes, void *dptr)
@@ -45,6 +46,7 @@ static FLAC__StreamDecoderReadStatus read_callback(const FLAC__StreamDecoder *de
       return FLAC__STREAM_DECODER_READ_STATUS_ABORT;
 }
 
+
 static FLAC__StreamDecoderSeekStatus seek_callback(
    const FLAC__StreamDecoder *decoder,
    FLAC__uint64 absolute_byte_offset, void *dptr)
@@ -58,6 +60,7 @@ static FLAC__StreamDecoderSeekStatus seek_callback(
    else
       return FLAC__STREAM_DECODER_SEEK_STATUS_OK;
 }
+
 
 static FLAC__StreamDecoderTellStatus tell_callback(
    const FLAC__StreamDecoder *decoder,
@@ -76,6 +79,7 @@ static FLAC__StreamDecoderTellStatus tell_callback(
    return FLAC__STREAM_DECODER_TELL_STATUS_OK;
 }
 
+
 static FLAC__StreamDecoderLengthStatus length_callback(
    const FLAC__StreamDecoder *decoder,
    FLAC__uint64 *stream_length, void *dptr)
@@ -89,6 +93,7 @@ static FLAC__StreamDecoderLengthStatus length_callback(
    return FLAC__STREAM_DECODER_LENGTH_STATUS_OK;
 }
 
+
 static FLAC__bool eof_callback(const FLAC__StreamDecoder *decoder, void *dptr)
 {
    FLACFILE *ff = (FLACFILE *)dptr;
@@ -100,6 +105,7 @@ static FLAC__bool eof_callback(const FLAC__StreamDecoder *decoder, void *dptr)
 
    return false;
 }
+
 
 static void metadata_callback(const FLAC__StreamDecoder *decoder,
     const FLAC__StreamMetadata *metadata, void *client_data)
@@ -211,6 +217,14 @@ static FLAC__StreamDecoderWriteStatus write_callback(
 }
 
 
+/* Function: al_init_flac_addon
+ */
+bool al_init_flac_addon(void)
+{
+   return al_register_sample_loader(".flac", al_load_sample_flac);
+}
+
+
 /* Function: al_load_sample_flac
  */
 ALLEGRO_SAMPLE *al_load_sample_flac(const char *filename)
@@ -271,21 +285,5 @@ ALLEGRO_SAMPLE *al_load_sample_flac(const char *filename)
    return sample;
 }
 
-
-/* TODO implement */
-ALLEGRO_STREAM *al_load_stream_flac(const char *filename)
-{
-   (void)filename;
-   return NULL;
-/*
-   stream = al_create_stream(ff.sample_rate,
-                     _al_word_size_to_depth_conf(ff.word_size),
-                     _al_count_to_channel_conf(ff.channels),
-                     _flac_stream_update);
-*/
-}
-
-
-#endif /* ALLEGRO_CFG_ACODEC_FLAC */
 
 /* vim: set sts=3 sw=3 et: */

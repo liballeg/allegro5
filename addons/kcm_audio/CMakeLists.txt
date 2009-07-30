@@ -1,4 +1,5 @@
 set(AUDIO_SOURCES
+    acodec.c
     audio.c
     kcm_dtor.c
     kcm_instance.c
@@ -6,6 +7,7 @@ set(AUDIO_SOURCES
     kcm_sample.c
     kcm_stream.c
     kcm_voice.c
+    wav.c
     )
 
 set(AUDIO_INCLUDE_FILES allegro5/kcm_audio.h)

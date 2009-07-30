@@ -4,8 +4,8 @@
 #include "allegro5/allegro5.h"
 #include "allegro5/a5_iio.h"
 #include "allegro5/a5_font.h"
+#include "allegro5/a5_vorbis.h"
 #include "allegro5/kcm_audio.h"
-#include "allegro5/acodec.h"
 
 #ifdef ALLEGRO_UNIX
 #define MAX_PATH 5000

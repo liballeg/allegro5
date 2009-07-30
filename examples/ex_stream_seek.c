@@ -4,12 +4,12 @@
  *    Stream seeking.
  */
 
-#include <allegro5/allegro5.h>
-#include <allegro5/a5_font.h>
-#include <allegro5/kcm_audio.h>
-#include <allegro5/acodec.h>
-#include <allegro5/a5_primitives.h>
 #include <stdio.h>
+#include "allegro5/allegro5.h"
+#include "allegro5/a5_font.h"
+#include "allegro5/a5_flac.h"
+#include "allegro5/a5_vorbis.h"
+#include "allegro5/kcm_audio.h"
 
 ALLEGRO_DISPLAY *display;
 ALLEGRO_TIMER *timer;
@@ -37,6 +37,7 @@ static int initialize(void)
       printf("Could not init mouse!\n");
       return 0;
    }
+   al_init_ogg_vorbis_addon();
    if (!al_install_audio(ALLEGRO_AUDIO_DRIVER_AUTODETECT)) {
       printf("Could not init sound!\n");
       return 0;

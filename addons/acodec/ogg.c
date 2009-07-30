@@ -4,13 +4,12 @@
  * author: Ryan Dickie (c) 2008
  */
 
-#include "allegro5/acodec.h"
-#include "allegro5/internal/aintern_acodec.h"
+#include "allegro5/allegro5.h"
+#include "allegro5/a5_vorbis.h"
+#include "allegro5/kcm_audio.h"
+#include "allegro5/internal/aintern_kcm_audio.h"
 #include "allegro5/internal/aintern_memory.h"
-#include "allegro5/threads.h"
 
-
-#ifdef ALLEGRO_CFG_ACODEC_VORBIS
 
 #ifndef ALLEGRO_GP2XWIZ
 #include <vorbis/vorbisfile.h>
@@ -43,6 +42,7 @@ static size_t read_callback(void *ptr, size_t size, size_t nmemb, void *dptr)
    return ret;
 }
 
+
 static int seek_callback(void *dptr, ogg_int64_t offset, int whence)
 {
    AL_OV_DATA *ov = (AL_OV_DATA *)dptr;
@@ -60,6 +60,7 @@ static int seek_callback(void *dptr, ogg_int64_t offset, int whence)
    return 0;
 }
 
+
 static long tell_callback(void *dptr)
 {
    AL_OV_DATA *ov = (AL_OV_DATA *)dptr;
@@ -72,12 +73,14 @@ static long tell_callback(void *dptr)
    return (long)ret;
 }
 
+
 static int close_callback(void *dptr)
 {
    AL_OV_DATA *d = (void *)dptr;
    al_fclose(d->file);
    return 0;
 }
+
 
 static ov_callbacks callbacks = {
    read_callback,
@@ -86,9 +89,20 @@ static ov_callbacks callbacks = {
    tell_callback
 };
 
-/* Function: al_load_sample_oggvorbis
+
+/* Function: al_init_ogg_vorbis_addon
  */
-ALLEGRO_SAMPLE *al_load_sample_oggvorbis(const char *filename)
+bool al_init_ogg_vorbis_addon(void)
+{
+   bool rc1 = al_register_sample_loader(".ogg", al_load_sample_ogg_vorbis);
+   bool rc2 = al_register_stream_loader(".ogg", al_load_stream_ogg_vorbis);
+   return rc1 && rc2;
+}
+
+
+/* Function: al_load_sample_ogg_vorbis
+ */
+ALLEGRO_SAMPLE *al_load_sample_ogg_vorbis(const char *filename)
 {
    /* Note: decoding library returns floats.  I always return 16-bit (most
     * commonly supported).
@@ -189,17 +203,20 @@ static bool ogg_stream_seek(ALLEGRO_STREAM *stream, double time)
 #endif
 }
 
+
 static bool ogg_stream_rewind(ALLEGRO_STREAM *stream)
 {
    AL_OV_DATA *extra = (AL_OV_DATA *) stream->extra;
    return ogg_stream_seek(stream, extra->loop_start);
 }
 
+
 static double ogg_stream_get_position(ALLEGRO_STREAM *stream)
 {
    AL_OV_DATA *extra = (AL_OV_DATA *) stream->extra;
    return ov_time_tell(extra->vf);
 }
+
 
 static double ogg_stream_get_length(ALLEGRO_STREAM *stream)
 {
@@ -208,6 +225,7 @@ static double ogg_stream_get_length(ALLEGRO_STREAM *stream)
    return ret;
 }
 
+
 static bool ogg_stream_set_loop(ALLEGRO_STREAM *stream, double start, double end)
 {
    AL_OV_DATA *extra = (AL_OV_DATA *) stream->extra;
@@ -215,6 +233,7 @@ static bool ogg_stream_set_loop(ALLEGRO_STREAM *stream, double start, double end
    extra->loop_end = end;
    return true;
 }
+
 
 /* To be called when stream is destroyed */
 static void ogg_stream_close(ALLEGRO_STREAM *stream)
@@ -289,9 +308,9 @@ static size_t ogg_stream_update(ALLEGRO_STREAM *stream, void *data,
 }
 
 
-/* Function: al_load_stream_oggvorbis
+/* Function: al_load_stream_ogg_vorbis
  */
-ALLEGRO_STREAM *al_load_stream_oggvorbis(const char *filename,
+ALLEGRO_STREAM *al_load_stream_ogg_vorbis(const char *filename,
 	size_t buffer_count, unsigned int samples)
 {
    const int word_size = 2; /* 1 = 8bit, 2 = 16-bit. nothing else */
@@ -348,10 +367,9 @@ ALLEGRO_STREAM *al_load_stream_oggvorbis(const char *filename,
    stream = al_create_stream(buffer_count, samples, rate,
             _al_word_size_to_depth_conf(word_size),
             _al_count_to_channel_conf(channels));
-   if(!stream)
-   {
-	   free(vf);
-	   return NULL;
+   if (!stream) {
+      free(vf);
+      return NULL;
    }
    stream->spl.mutex = al_create_mutex();
 
@@ -373,7 +391,5 @@ ALLEGRO_STREAM *al_load_stream_oggvorbis(const char *filename,
    return stream;
 }
 
-
-#endif /* ALLEGRO_CFG_ACODEC_VORBIS */
 
 /* vim: set sts=3 sw=3 et: */

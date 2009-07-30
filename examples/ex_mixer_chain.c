@@ -6,7 +6,9 @@
 
 #include <stdio.h>
 #include "allegro5/allegro5.h"
-#include "allegro5/acodec.h"
+#include "allegro5/a5_flac.h"
+#include "allegro5/a5_vorbis.h"
+#include "allegro5/kcm_audio.h"
 
 int main(int argc, char **argv)
 {
@@ -28,6 +30,9 @@ int main(int argc, char **argv)
       fprintf(stderr, "Could not init Allegro.\n");
       return 1;
    }
+
+   al_init_flac_addon();
+   al_init_ogg_vorbis_addon();
 
    if (!al_install_audio(ALLEGRO_AUDIO_DRIVER_AUTODETECT)) {
       fprintf(stderr, "Could not init sound!\n");

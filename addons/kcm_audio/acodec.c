@@ -4,10 +4,8 @@
 
 #include "allegro5/allegro5.h"
 #include "allegro5/kcm_audio.h"
-#include "allegro5/acodec.h"
 #include "allegro5/internal/aintern.h"
 #include "allegro5/internal/aintern_vector.h"
-#include "allegro5/internal/aintern_acodec.h"
 
 
 #define MAX_EXTENSION_LENGTH  (32)
@@ -43,30 +41,9 @@ static void acodec_ensure_init(void)
    /* Must be before register calls to avoid recursion. */
    acodec_inited = true;
 
-   /* Some extensions have overlapping handlers; put the most preferred last. */
-
    al_register_sample_loader(".wav", al_load_sample_wav);
    al_register_sample_saver(".wav", al_save_sample_wav);
    al_register_stream_loader(".wav", al_load_stream_wav);
-
-#if defined(ALLEGRO_CFG_ACODEC_SNDFILE)
-   al_register_sample_loader(".wav", al_load_sample_sndfile);
-   al_register_sample_loader(".aiff", al_load_sample_sndfile);
-   al_register_sample_loader(".flac", al_load_sample_sndfile);
-
-   al_register_stream_loader(".wav", al_load_stream_sndfile);
-   al_register_stream_loader(".aiff", al_load_stream_sndfile);
-#endif
-
-#if defined(ALLEGRO_CFG_ACODEC_VORBIS)
-   al_register_sample_loader(".ogg", al_load_sample_oggvorbis);
-   al_register_stream_loader(".ogg", al_load_stream_oggvorbis);
-#endif
-
-#if defined(ALLEGRO_CFG_ACODEC_FLAC)
-   al_register_sample_loader(".flac", al_load_sample_flac);
-   /* al_load_stream_flac not yet implemented */
-#endif
 
    _al_add_exit_func(acodec_shutdown, "acodec_shutdown");
 }

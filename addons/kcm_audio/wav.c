@@ -5,8 +5,8 @@
 
 #include <stdio.h>
 
-#include "allegro5/acodec.h"
-#include "allegro5/internal/aintern_acodec.h"
+#include "allegro5/kcm_audio.h"
+#include "allegro5/internal/aintern_kcm_audio.h"
 #include "allegro5/internal/aintern_memory.h"
 
 ALLEGRO_DEBUG_CHANNEL("acodec")

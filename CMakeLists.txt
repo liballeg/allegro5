@@ -77,7 +77,6 @@ option(WANT_OPENGL "Enable OpenGL graphics driver (Windows, X11, OS X))" on)
 #
 
 option(WANT_FONT "Enable bitmap font add-on" on)
-option(WANT_ACODEC "Enable audio codecs (requires kcm_audio)" on)
 option(WANT_KCM_AUDIO "Enable kcm_audio engine" on)
 option(WANT_IIO "Enable IIO image load/save addon" on)
 option(WANT_JPG "Enable JPEG support in IIO" on)
@@ -885,15 +884,16 @@ endif(UNIX)
 
 set(PKG_CONFIG_FILES
     allegro
-    a5_acodec
     a5_color
     a5_dialog
+    a5_flac
     a5_font
     a5_iio
     a5_memfile
     a5_physfs
     a5_primitives
     a5_ttf
+    a5_vorbis
     kcm_audio
     )
 

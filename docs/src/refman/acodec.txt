@@ -1,106 +1,37 @@
-# Audio Codec Loader
+# Audio codecs
 
-## API: al_register_sample_loader
+## API: al_init_flac_addon
 
-Register a handler for [al_load_sample].  The given function will be used to
-handle the loading of sample files with the given extension.
+This function to registers [al_load_sample_flac] with [al_load_sample] to
+handle files with the extension ".flac".  You will need to include the
+`a5_flac.h` header file and link with the `a5_flac` library.
 
-The extension should include the leading dot ('.') character.
-It will be matched case-insensitively.
+Return true on success.
 
-The `loader` argument may be NULL to unregister an entry.
+## API: al_load_sample_flac
 
-Returns true on success, false on error.
+Loads a sample in FLAC format.
 
-## API: al_register_sample_saver
+See also: [al_load_sample]
 
-Register a handler for [al_save_sample].  The given function will be used to
-handle the saving of sample files with the given extension.
+## API: al_init_ogg_vorbis_addon
 
-The extension should include the leading dot ('.') character.
-It will be matched case-insensitively.
+This function to registers [al_load_sample_ogg_vorbis] with [al_load_sample]
+and [al_load_stream_ogg_vorbis] with [al_stream_from_file] to handle files
+with the extension ".ogg" (assumed to contain Vorbis data).  You will need to
+include the `a5_vorbis.h` header file and link with the `a5_vorbis` library.
 
-The `saver` argument may be NULL to unregister an entry.
+Return true on success.
 
-Returns true on success, false on error.
+## API: al_load_sample_ogg_vorbis
 
-## API: al_register_stream_loader
+Loads a sample in Ogg Vorbis format.
 
-Register a handler for [al_stream_from_file].  The given function will be
-used to open streams from files with the given extension.
+See also: [al_load_sample]
 
-The extension should include the leading dot ('.') character.
-It will be matched case-insensitively.
+## API: al_load_stream_ogg_vorbis
 
-The `stream_loader` argument may be NULL to unregister an entry.
+Loads a stream in Ogg Vorbis format.
 
-Returns true on success, false on error.
-
-## API: al_load_sample
-
-Loads a few different audio file formats based on their extension.
-Some formats require external libraries to be installed prior to compiling
-the library.
-
-Note that this stores the entire file in memory at once, which
-may be time consuming.  To read the file as it is needed, 
-use [al_stream_from_file].
-
-Returns the sample on success, NULL on failure.
-
-See also: [al_register_sample_loader], [al_load_sample_wav]
-
-## API: al_stream_from_file
-
-Loads an audio file from disk as it is needed.
-
-Unlike regular streams, the one returned by this function
-need not be fed by the user; the library will automatically
-read more of the file as it is needed.  The stream will 
-contain *buffer_count* buffers with *samples* samples.
-
-A stream must be attached to a voice to be used.  See
-[ALLEGRO_STREAM] for more details.
-
-Returns the stream on success, NULL on failure.
-
-See also: [al_register_stream_loader], [al_load_stream_wav]
-
-## API: al_save_sample
-
-Writes a sample into a file.  Currently, wav is
-the only supported format, and the extension
-must be 'wav'.
-
-Returns true on success, false on error.
-
-See also: [al_register_stream_loader], [al_save_sample_wav]
-
-## API: al_load_sample_wav
-
-Load a sample from a PCM .wav file.
-
-Returns the sample on success, NULL on failure.
-
-See also: [al_load_sample_wav]
-
-## API: al_save_sample_wav
-
-Save a sample to a PCM .wav file.
-
-Returns true on success, false on error.
-
-See also: [al_save_sample], [al_save_sample_wav_pf]
-
-## API: al_save_sample_wav_pf
-
-Write a PCM .wav file into the [ALLEGRO_FILE] stream given.
-
-Returns true on success, false on error.
-
-See also: [al_save_sample], [al_save_sample_wav_pf]
-
-## API: al_load_stream_wav
-
-Like [al_stream_from_file] but assumes the file is PCM .wav file.
+See also: [al_stream_from_file]
 

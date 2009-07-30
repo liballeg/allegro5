@@ -6,7 +6,8 @@
 
 #include <stdio.h>
 #include "allegro5/allegro5.h"
-#include "allegro5/acodec.h"
+#include "allegro5/a5_flac.h"
+#include "allegro5/a5_vorbis.h"
 #include "allegro5/kcm_audio.h"
 
 #define RESERVED_SAMPLES   16
@@ -43,6 +44,9 @@ int main(int argc, const char *argv[])
    event_queue = al_create_event_queue();
    al_register_event_source(event_queue,
       (ALLEGRO_EVENT_SOURCE *) al_get_keyboard());
+
+   al_init_flac_addon();
+   al_init_ogg_vorbis_addon();
 
 Restart:
 

@@ -187,8 +187,6 @@ The libraries are:
 - FreeType, for TrueType font support
 - Ogg Vorbis
 - FLAC
-- libsndfile, for loading .wav and other sample formats
-  (PCM .wav files are supported without requiring libsndfile)
 - OpenAL (required for sound on Mac OS X but usable elsewhere as well)
 - PhysicsFS
 

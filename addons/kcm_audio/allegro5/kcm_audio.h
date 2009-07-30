@@ -330,6 +330,32 @@ A5_KCM_AUDIO_FUNC(bool, al_play_sample, (ALLEGRO_SAMPLE *data,
 A5_KCM_AUDIO_FUNC(void, al_stop_sample, (ALLEGRO_SAMPLE_ID *spl_id));
 A5_KCM_AUDIO_FUNC(void, al_stop_samples, (void));
 
+/* File type handlers */
+A5_KCM_AUDIO_FUNC(bool, al_register_sample_loader, (const char *ext,
+	ALLEGRO_SAMPLE *(*loader)(const char *filename)));
+A5_KCM_AUDIO_FUNC(bool, al_register_sample_saver, (const char *ext,
+	bool (*saver)(const char *filename, ALLEGRO_SAMPLE *spl)));
+A5_KCM_AUDIO_FUNC(bool, al_register_stream_loader, (const char *ext,
+	ALLEGRO_STREAM *(*stream_loader)(const char *filename,
+	    size_t buffer_count, unsigned int samples)));
+
+A5_KCM_AUDIO_FUNC(ALLEGRO_SAMPLE *, al_load_sample, (const char *filename));
+A5_KCM_AUDIO_FUNC(bool, al_save_sample, (const char *filename,
+	ALLEGRO_SAMPLE *spl));
+A5_KCM_AUDIO_FUNC(ALLEGRO_STREAM *, al_stream_from_file, (const char *filename,
+	size_t buffer_count, unsigned int samples));
+
+/* WAV handlers */
+A5_KCM_AUDIO_FUNC(ALLEGRO_SAMPLE *, al_load_sample_wav, (
+      const char *filename));
+A5_KCM_AUDIO_FUNC(bool, al_save_sample_wav, (const char *filename,
+      ALLEGRO_SAMPLE *spl));
+A5_KCM_AUDIO_FUNC(bool, al_save_sample_wav_pf, (ALLEGRO_FILE *pf,
+      ALLEGRO_SAMPLE *spl));
+A5_KCM_AUDIO_FUNC(ALLEGRO_STREAM *, al_load_stream_wav, (const char *filename,
+      size_t buffer_count, unsigned int samples));
+
+
 #ifdef __cplusplus
 } /* End extern "C" */
 #endif
