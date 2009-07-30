@@ -60,6 +60,13 @@ Import routine for the Allegro bitmap font format.
 Informs Allegro of a new font file type, telling it how to load files of
 this format.
 
+The extension should include the leading dot ('.') character.
+It will be matched case-insensitively.
+
+The `load_font` argument may be NULL to unregister an entry.
+
+Returns true on success, false on error.
+
 ## API: al_get_font_line_height
 
 Returns the height of a character in the specified font.
@@ -68,9 +75,13 @@ Returns the height of a character in the specified font.
 
 Calculates the length of a string in a particular font.
 
+See also: [al_get_ustr_width]
+
 ## API: al_get_ustr_width
 
-See [al_get_text_width].
+Calculates the length of a string in a particular font.
+
+See also: [al_get_text_width]
 
 ## API: al_draw_text
 
