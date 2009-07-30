@@ -21,6 +21,13 @@ if(NOT SUPPORT_NATIVE_DIALOG AND NOT GP2XWIZ)
         foreach(arg ${GTK_CFLAGS})
             set(GTK_CFLAGS_STRING "${GTK_CFLAGS_STRING} ${arg}")
         endforeach(arg)
+
+        # STRICT_WARN will cause gcc to warn about a function prototype in
+        # gtkitemfactory.h so disable that warning explicitly.
+        if(COMPILER_GCC)
+            set(GTK_CFLAGS_STRING "${GTK_CFLAGS_STRING} -Wno-strict-prototypes")
+        endif(COMPILER_GCC)
+
         set_source_files_properties(
             gtk_dialog.c
             PROPERTIES
@@ -52,3 +59,5 @@ if(SUPPORT_NATIVE_DIALOG)
            DESTINATION include/allegro5
            )
 endif(SUPPORT_NATIVE_DIALOG)
+
+# vim: set sts=4 sw=4 et:
