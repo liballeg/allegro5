@@ -41,7 +41,7 @@ if(SUPPORT_FLAC)
 
     set(FLAC_LINK_WITH a5_flac PARENT_SCOPE)
 
-    install(FILES a5_flac.h
+    install(FILES allegro5/a5_flac.h
             DESTINATION include/allegro5
             )
 endif(SUPPORT_FLAC)
@@ -103,7 +103,7 @@ if(SUPPORT_VORBIS)
 
     set(VORBIS_LINK_WITH a5_vorbis PARENT_SCOPE)
 
-    install(FILES a5_vorbis.h
+    install(FILES allegro5/a5_vorbis.h
             DESTINATION include/allegro5
             )
 endif(SUPPORT_VORBIS)
