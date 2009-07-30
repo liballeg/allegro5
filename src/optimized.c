@@ -196,7 +196,7 @@ void _al_draw_bitmap_region_optimized_rgba_4444_to_rgb_565(
    dest_data_inc = (dest->pitch*yinc) - (sw*dest_inc);
    src_data_inc = src->pitch - (sw*2);
 
-   if (src->alpha_test) {
+   if (src->flags & ALLEGRO_ALPHA_TEST) {
       if (bc->r == 1 && bc->g == 1 && bc->b == 1 && bc->a == 1) {
          for (y = 0; y < sh; y++) {
             for (x = 0; x < sw; x++) {
@@ -328,7 +328,7 @@ void _al_draw_bitmap_region_optimized_rgba_4444_to_rgba_4444(
    dest_data_inc = (dest->pitch*yinc) - (sw*dest_inc);
    src_data_inc = src->pitch - (sw*2);
 
-   if (src->alpha_test) {
+   if (src->flags & ALLEGRO_ALPHA_TEST) {
       if (bc->r == 1 && bc->g == 1 && bc->b == 1 && bc->a == 1) {
          for (y = 0; y < sh; y++) {
             for (x = 0; x < sw; x++) {

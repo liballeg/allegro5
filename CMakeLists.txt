@@ -121,8 +121,6 @@ option(WANT_DLL_TLS "Force use of DllMain for TLS (Windows)" off)
 option(WANT_DEMO "Build a demo program" on)
 option(WANT_EXAMPLES "Build example programs" on)
 
-option(GP2XWIZ "Compile for GP2X Wiz" off)
-
 #-----------------------------------------------------------------------------#
 #
 #   Set up compilers

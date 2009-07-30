@@ -66,6 +66,7 @@ enum ALLEGRO_PIXEL_FORMAT {
 #define ALLEGRO_KEEP_BITMAP_FORMAT    0x0002
 #define ALLEGRO_FORCE_LOCKING         0x0004
 #define ALLEGRO_NO_PRESERVE_TEXTURE   0x0008
+#define ALLEGRO_ALPHA_TEST            0x0010
 
 
 /* Flags for the blitting functions */
@@ -166,7 +167,6 @@ AL_FUNC(void, al_get_blender, (int *source, int *dest, ALLEGRO_COLOR *color));
 AL_FUNC(void, al_set_separate_blender, (int source, int dest, int alpha_source, int alpha_dest, ALLEGRO_COLOR color));
 AL_FUNC(void, al_get_separate_blender, (int *source, int *dest, int *alpha_src, int *alpha_dest, ALLEGRO_COLOR *color));
 AL_FUNC(ALLEGRO_COLOR *, _al_get_blend_color, (void));
-AL_FUNC(void, al_set_alpha_test, (ALLEGRO_BITMAP *b, bool alpha_test));
 
 AL_FUNC(void, _al_put_pixel, (ALLEGRO_BITMAP *bitmap, int x, int y, ALLEGRO_COLOR color));
 

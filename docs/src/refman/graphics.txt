@@ -327,6 +327,12 @@ for example a temporary buffer, use this flag to tell Allegro no to attempt
 to preserve the contents of bitmaps created after this flag is set. This
 can lead to speed improvements in your program.
 
+* ALLEGRO_ALPHA_TEST - This is a driver hint only. It tells the graphics
+driver to do alpha testing instead of alpha blending on bitmaps created
+with this flag. Alpha testing is usually faster and preferred if your
+bitmaps have only one level of alpha (0). This flag is currently not
+widely implemented (i.e., only for memory bitmaps).
+
 ## API: al_set_new_bitmap_format
 
 Sets the pixel format for newly created bitmaps.

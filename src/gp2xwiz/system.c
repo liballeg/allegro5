@@ -22,8 +22,6 @@
 #include "allegro5/internal/aintern_gp2xwiz.h"
 #include "allegro5/platform/aintwiz.h"
 
-ALLEGRO_DEBUG_CHANNEL("system")
-
 static ALLEGRO_SYSTEM_INTERFACE *gp2xwiz_vt;
 
 static ALLEGRO_SYSTEM *gp2xwiz_initialize(int flags)

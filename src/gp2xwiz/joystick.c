@@ -39,8 +39,7 @@ static ALLEGRO_JOYSTICK_STATE joystate;
 static bool gotten = false;
 static ALLEGRO_THREAD *wiz_joystick_thread;
 
-const int POLLS_PER_SECOND = 120;
-static bool kill_joystick_thread = false;
+const int POLLS_PER_SECOND = 60;
 
 #define BUTTON(x) (buttons & x)
 
@@ -118,21 +117,14 @@ static void generate_button_event(ALLEGRO_JOYSTICK *joy, int button, ALLEGRO_EVE
    _al_event_source_emit_event(&joy->es, &event);
 }
 
-static ALLEGRO_EVENT_QUEUE *queue;
-static ALLEGRO_TIMER *timer;
-
 static void *joywiz_thread_proc(ALLEGRO_THREAD *thread, void *unused)
 {
 	ALLEGRO_JOYSTICK_STATE oldstate;
 	memset(&oldstate, 0, sizeof(ALLEGRO_JOYSTICK_STATE));
 
-	(void)thread;
 	(void)unused;
 	
-	while (!kill_joystick_thread) {
-		ALLEGRO_EVENT event;
-		/* Wait for the timer event */
-		al_wait_for_event_timed(queue, &event, 1);
+	while (!al_get_thread_should_stop(thread)) {
 		joywiz_fill_joystate(&joystate);
 		if (joystate.stick[0].axis[0] != oldstate.stick[0].axis[0]) {
 			generate_axis_event(&joy, 0, 0,
@@ -154,9 +146,8 @@ static void *joywiz_thread_proc(ALLEGRO_THREAD *thread, void *unused)
 			}
 		}
 		oldstate = joystate;
+		al_rest(1.0/POLLS_PER_SECOND);
 	}
-
-	kill_joystick_thread = false;
 
 	return NULL;
 }
@@ -201,11 +192,6 @@ static bool joywiz_init_joystick(void)
 		return false;
 	}
 
-	queue = al_create_event_queue();
-	timer = al_install_timer(1.0/POLLS_PER_SECOND);
-	al_register_event_source(queue, (ALLEGRO_EVENT_SOURCE *)timer);
-	al_start_timer(timer);
-
 	al_start_thread(wiz_joystick_thread);
 	
 	return true;
@@ -213,7 +199,6 @@ static bool joywiz_init_joystick(void)
 
 static void joywiz_exit_joystick(void)
 {
-	kill_joystick_thread = true;
 	al_join_thread(wiz_joystick_thread, NULL);
 	al_destroy_thread(wiz_joystick_thread);
 	_al_event_source_free(&joy.es);

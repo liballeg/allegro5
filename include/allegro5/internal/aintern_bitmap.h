@@ -65,7 +65,6 @@ struct ALLEGRO_BITMAP
    size_t size;
 
    bool preserve_texture;
-   bool alpha_test;
 };
 
 struct ALLEGRO_BITMAP_INTERFACE

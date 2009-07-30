@@ -17,8 +17,6 @@
 #include <tremor/ivorbisfile.h>
 #endif
 
-ALLEGRO_DEBUG_CHANNEL("acodec")
-
 
 typedef struct AL_OV_DATA AL_OV_DATA;
 

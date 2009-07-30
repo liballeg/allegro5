@@ -27,8 +27,6 @@
 #include "allegro5/internal/aintern_pixels.h"
 #include "allegro5/internal/aintern_thread.h"
 
-ALLEGRO_DEBUG_CHANNEL("system")
-
 static ALLEGRO_SYSTEM *active_sysdrv = NULL;
 
 _AL_VECTOR _al_system_interfaces;
