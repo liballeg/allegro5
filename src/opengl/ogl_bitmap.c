@@ -958,9 +958,6 @@ ALLEGRO_BITMAP *_al_ogl_create_sub_bitmap(ALLEGRO_DISPLAY *d,
    ogl_bmp->fbo = ogl_parent->fbo;
 #endif
 
-   x += parent->xofs;
-   y += parent->yofs;
-
    ogl_bmp->left = x / (float)ogl_parent->true_w;
    ogl_bmp->right = (x + w) / (float)ogl_parent->true_w;
    ogl_bmp->top = (parent->h - y) / (float)ogl_parent->true_h;

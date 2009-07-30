@@ -574,6 +574,12 @@ ALLEGRO_BITMAP *al_create_sub_bitmap(ALLEGRO_BITMAP *parent,
 {
    ALLEGRO_BITMAP *bitmap;
 
+   if (parent->parent) {
+      x += parent->xofs;
+      y += parent->yofs;
+      parent = parent->parent;
+   }
+
    if (parent->display && parent->display->vt &&
          parent->display->vt->create_sub_bitmap)
    {

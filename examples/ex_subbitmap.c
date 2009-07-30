@@ -50,8 +50,8 @@ Mode mode = PLAIN_BLIT;
 
 int main(void)
 {
-   ALLEGRO_BITMAP *src_subbmp = NULL;
-   ALLEGRO_BITMAP *dst_subbmp = NULL;
+   ALLEGRO_BITMAP *src_subbmp[2] = {NULL, NULL};
+   ALLEGRO_BITMAP *dst_subbmp[2] = {NULL, NULL};
    ALLEGRO_EVENT event;
    bool mouse_down;
    bool recreate_subbitmaps;
@@ -99,8 +99,10 @@ int main(void)
       if (recreate_subbitmaps) {
          int l, r, t, b;
 
-         al_destroy_bitmap(src_subbmp);
-         al_destroy_bitmap(dst_subbmp);
+         al_destroy_bitmap(src_subbmp[0]);
+         al_destroy_bitmap(dst_subbmp[0]);
+         al_destroy_bitmap(src_subbmp[1]);
+         al_destroy_bitmap(dst_subbmp[1]);
 
          l = MIN(src_x1, src_x2);
          r = MAX(src_x1, src_x2);
@@ -112,7 +114,10 @@ int main(void)
          t = CLAMP(0, t, SRC_HEIGHT-1);
          b = CLAMP(0, b, SRC_HEIGHT-1);
 
-         src_subbmp = al_create_sub_bitmap(mem_bmp, l, t, r-l+1, b-t+1);
+         src_subbmp[0] = al_create_sub_bitmap(mem_bmp, l, t, r - l + 1,
+            b - t + 1);
+         src_subbmp[1] = al_create_sub_bitmap(src_subbmp[0], 2, 2,
+            r - l - 3, b - t - 3);
 
          l = MIN(dst_x1, dst_x2);
          r = MAX(dst_x1, dst_x2);
@@ -125,8 +130,10 @@ int main(void)
          b = CLAMP(0, b, DST_HEIGHT-1);
 
          al_set_current_display(dst_display);
-         dst_subbmp = al_create_sub_bitmap(al_get_backbuffer(),
-            l, t, r-l+1, b-t+1);
+         dst_subbmp[0] = al_create_sub_bitmap(al_get_backbuffer(),
+            l, t, r - l + 1, b - t + 1);
+         dst_subbmp[1] = al_create_sub_bitmap(dst_subbmp[0],
+            2, 2, r - l - 3, b - t - 3);
 
          recreate_subbitmaps = false;
       }
@@ -135,32 +142,50 @@ int main(void)
          al_set_current_display(dst_display);
          al_clear_to_color(al_map_rgb(0, 0, 0));
 
-         al_set_target_bitmap(dst_subbmp);
+         al_set_target_bitmap(dst_subbmp[1]);
          switch (mode) {
             case PLAIN_BLIT:
-               al_draw_bitmap(src_subbmp, 0, 0, 0);
+               al_draw_bitmap(src_subbmp[1], 0, 0, 0);
                break;
             case SCALED_BLIT:
-               al_draw_scaled_bitmap(src_subbmp,
-                  0, 0, al_get_bitmap_width(src_subbmp),
-                  al_get_bitmap_height(src_subbmp),
-                  0, 0, al_get_bitmap_width(dst_subbmp),
-                  al_get_bitmap_height(dst_subbmp),
+               al_draw_scaled_bitmap(src_subbmp[1],
+                  0, 0, al_get_bitmap_width(src_subbmp[1]),
+                  al_get_bitmap_height(src_subbmp[1]),
+                  0, 0, al_get_bitmap_width(dst_subbmp[1]),
+                  al_get_bitmap_height(dst_subbmp[1]),
                   0);
                break;
          }
 
-         al_set_target_bitmap(al_get_backbuffer());
-         al_draw_rectangle(dst_x1, dst_y1, dst_x2, dst_y2,
-            al_map_rgb(0, 255, 255), 0);
-         al_flip_display();
+         {
+            /* pixel center is at 0.5/0.5 */
+            float x = dst_x1 + 0.5;
+            float y = dst_y1 + 0.5;
+            float x_ = dst_x2 + 0.5;
+            float y_ = dst_y2 + 0.5;
+            al_set_target_bitmap(al_get_backbuffer());
+            al_draw_rectangle(x, y, x_, y_,
+               al_map_rgb(0, 255, 255), 0);
+            al_draw_rectangle(x + 2, y + 2, x_ - 2, y_ - 2,
+               al_map_rgb(255, 255, 0), 0);
+            al_flip_display();
+         }
 
-         al_set_current_display(src_display);
-         al_clear_to_color(al_map_rgb(0, 0, 0));
-         al_draw_bitmap(mem_bmp, 0, 0, 0);
-         al_draw_rectangle(src_x1, src_y1, src_x2, src_y2,
-            al_map_rgb(0, 255, 255), 0);
-         al_flip_display();
+         {
+            /* pixel center is at 0.5/0.5 */
+            float x = src_x1 + 0.5;
+            float y = src_y1 + 0.5;
+            float x_ = src_x2 + 0.5;
+            float y_ = src_y2 + 0.5;
+            al_set_current_display(src_display);
+            al_clear_to_color(al_map_rgb(0, 0, 0));
+            al_draw_bitmap(mem_bmp, 0, 0, 0);
+            al_draw_rectangle(x, y, x_, y_,
+               al_map_rgb(0, 255, 255), 0);
+            al_draw_rectangle(x + 2, y + 2, x_ - 2, y_ - 2,
+               al_map_rgb(255, 255, 0), 0);
+            al_flip_display();
+         }
 
          redraw = false;
       }
