@@ -659,16 +659,6 @@ if(WIN32 AND SHARED)
     endif(NOT SUPPORT_D3D OR NOT SUPPORT_OPENGL)
 endif(WIN32 AND SHARED)
 
-if(WIN32)
-    if(NOT EXISTS ${CMAKE_SOURCE_DIR}/lib/msvc/allegro.def OR
-            NOT EXISTS ${CMAKE_SOURCE_DIR}/lib/mingw32/allegro.def)
-        message(FATAL_ERROR
-            "lib/*/allegro.def files are missing. "
-            "If you are trying to build from an SVN checkout you must first "
-            "run misc/fixdll.sh or misc/fixdll.bat before running CMake.")
-    endif()
-endif(WIN32)
-
 # List of source files need to compile Allegro in this configuration on
 # this platform.
 set(LIBRARY_SOURCES
@@ -705,13 +695,6 @@ endif(SUPPORT_X11)
 
 if(WIN32)
     list(APPEND LIBRARY_SOURCES ${ALLEGRO_SRC_WIN_FILES})
-    # TODO this still needs to be produced with misc/fixdll.sh
-    if(MINGW AND SHARED)
-        list(APPEND LIBRARY_SOURCES lib/mingw32/allegro.def)
-    endif(MINGW AND SHARED)
-    if(COMPILER_MSVC AND SHARED)
-        list(APPEND LIBRARY_SOURCES lib/msvc/allegro.def)
-    endif(COMPILER_MSVC AND SHARED)
     list(APPEND PLATFORM_LIBS
         kernel32 user32 gdi32 comdlg32 ole32 winmm psapi
         )

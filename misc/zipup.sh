@@ -143,7 +143,7 @@ utod()
 
 
 # generate the DLL export definition files for Windows compilers
-misc/fixdll.sh
+# misc/fixdll.sh
 
 # running autoconf
 # echo "Running autoconf to generate configure script..."
