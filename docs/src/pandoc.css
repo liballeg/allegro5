@@ -12,10 +12,18 @@ body {
     color: #333; 
 }
 
+/* example code */
 pre {
+    border: none;
+    background-color: #fafafa;
+    color: #1111111;
+    padding: 0.5em;
+}
+
+/* function prototype */
+h2 + pre {
     border: 1px solid #e0e0e0;
     background-color: #f8f8fa;
-    color: #1111111;
     padding: 0.5em;
 }
 
