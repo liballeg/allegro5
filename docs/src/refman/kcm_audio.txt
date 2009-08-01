@@ -237,6 +237,12 @@ Create a sample data structure from the supplied buffer.
 If `free_buf` is true then the buffer will be freed as well when the
 sample data structure is destroyed.
 
+To allocate a buffer of the correct size, you can use something like this:
+
+    sample_size = al_get_channel_count(chan_conf) * al_get_depth_size(depth);
+    bytes = samples * sample_size;
+    buffer = al_malloc(bytes)
+
 ## API: al_destroy_sample
 
 Free the sample data structure. If it was created with the `free_buf`
