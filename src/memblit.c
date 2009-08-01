@@ -1114,6 +1114,7 @@ void _al_draw_bitmap_region_memory_fast(ALLEGRO_BITMAP *bitmap,
    do {
       int cdx_start, cdy;   /* current dest */
       int dxi, dyi;         /* dest increments */
+      uint32_t pixel;
 
       (void)sx;
       (void)sy;
@@ -1140,7 +1141,6 @@ void _al_draw_bitmap_region_memory_fast(ALLEGRO_BITMAP *bitmap,
          dyi = 1;
       }
 
-      uint32_t pixel;
       for (y = 0; y < sh; y++) {
          int cdx = cdx_start;
          for (x = 0; x < sw; x++) { 

@@ -95,6 +95,7 @@ static void ogl_draw_pixel(ALLEGRO_DISPLAY *d, float x, float y,
 {
    ALLEGRO_BITMAP *target = al_get_target_bitmap();
    ALLEGRO_BITMAP_OGL *ogl_target = (void *)target;
+   GLfloat vert[2];
 
    if ((!ogl_target->is_backbuffer &&
       d->ogl_extras->opengl_target != ogl_target) ||
@@ -109,7 +110,8 @@ static void ogl_draw_pixel(ALLEGRO_DISPLAY *d, float x, float y,
       y += target->yofs;
    }
 
-   GLfloat vert[2] = { x, y };
+   vert[0] = x;
+   vert[1] = y;
 
    glEnableClientState(GL_VERTEX_ARRAY);
    glVertexPointer(2, GL_FLOAT, 0, vert);

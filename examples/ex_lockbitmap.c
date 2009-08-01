@@ -65,7 +65,7 @@ int main(void)
             green = 255;
             red = blue = j;
          }
-         else if (i < 3*256) {
+         else {
             blue = 255;
             red = green = j;
          }
