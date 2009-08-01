@@ -344,6 +344,56 @@ void al_stop_samples(void)
 }
 
 
+/* Function: al_get_sample_frequency
+ */
+unsigned int al_get_sample_frequency(const ALLEGRO_SAMPLE *spl)
+{
+   ASSERT(spl);
+
+   return spl->frequency;
+}
+
+
+/* Function: al_get_sample_length
+ */
+unsigned long al_get_sample_length(const ALLEGRO_SAMPLE *spl)
+{
+   ASSERT(spl);
+
+   return spl->len >> MIXER_FRAC_SHIFT;
+}
+
+
+/* Function: al_get_sample_depth
+ */
+ALLEGRO_AUDIO_DEPTH al_get_sample_depth(const ALLEGRO_SAMPLE *spl)
+{
+   ASSERT(spl);
+
+   return spl->depth;
+}
+
+
+/* Function: al_get_sample_channels
+ */
+ALLEGRO_CHANNEL_CONF al_get_sample_channels(const ALLEGRO_SAMPLE *spl)
+{
+   ASSERT(spl);
+
+   return spl->chan_conf;
+}
+
+
+/* Function: al_get_sample_data
+ */
+void *al_get_sample_data(const ALLEGRO_SAMPLE *spl)
+{
+   ASSERT(spl);
+
+   return spl->buffer.ptr;
+}
+
+
 /* Destroy all sample instances, and frees the associated vectors. */
 static void free_sample_vector(void)
 {

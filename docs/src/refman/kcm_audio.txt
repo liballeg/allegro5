@@ -275,6 +275,30 @@ Stop the sample started by [al_play_sample].
 
 Stop all samples started by [al_play_sample].
 
+## API: al_get_sample_channels
+
+Return the channel configuration.
+
+See also: [ALLEGRO_CHANNEL_CONF].
+
+## API: al_get_sample_depth
+
+Return the audio depth.
+
+See also: [ALLEGRO_AUDIO_DEPTH].
+
+## API: al_get_sample_frequency
+
+Return the frequency of the sample.
+
+## API: al_get_sample_length
+
+Return the length of the sample in sample values.
+
+## API: al_get_sample_data
+
+Return a pointer to the raw sample data.
+
 ## API: al_create_sample_instance
 
 Creates a sample stream, using the supplied data.  This must be attached

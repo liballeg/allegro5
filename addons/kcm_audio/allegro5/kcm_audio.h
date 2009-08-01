@@ -190,6 +190,12 @@ A5_KCM_AUDIO_FUNC(ALLEGRO_SAMPLE_INSTANCE*, al_create_sample_instance, (
 A5_KCM_AUDIO_FUNC(void, al_destroy_sample_instance, (
       ALLEGRO_SAMPLE_INSTANCE *spl));
 
+A5_KCM_AUDIO_FUNC(unsigned int, al_get_sample_frequency, (const ALLEGRO_SAMPLE *spl));
+A5_KCM_AUDIO_FUNC(unsigned long, al_get_sample_length, (const ALLEGRO_SAMPLE *spl));
+A5_KCM_AUDIO_FUNC(ALLEGRO_AUDIO_DEPTH, al_get_sample_depth, (const ALLEGRO_SAMPLE *spl));
+A5_KCM_AUDIO_FUNC(ALLEGRO_CHANNEL_CONF, al_get_sample_channels, (const ALLEGRO_SAMPLE *spl));
+A5_KCM_AUDIO_FUNC(void *, al_get_sample_data, (const ALLEGRO_SAMPLE *spl));
+
 A5_KCM_AUDIO_FUNC(unsigned int, al_get_sample_instance_frequency, (const ALLEGRO_SAMPLE_INSTANCE *spl));
 A5_KCM_AUDIO_FUNC(unsigned long, al_get_sample_instance_length, (const ALLEGRO_SAMPLE_INSTANCE *spl));
 A5_KCM_AUDIO_FUNC(unsigned long, al_get_sample_instance_position, (const ALLEGRO_SAMPLE_INSTANCE *spl));
