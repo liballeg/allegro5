@@ -498,14 +498,23 @@ void _al_xwin_mouse_switch_handler(ALLEGRO_DISPLAY *display,
 
    _al_event_source_lock(&the_mouse.parent.es);
 
+   int event_type;
    switch (event->type) {
       case EnterNotify:
          the_mouse.state.display = display;
+         event_type = ALLEGRO_EVENT_MOUSE_ENTER_DISPLAY;
          break;
       case LeaveNotify:
          the_mouse.state.display = NULL;
+         event_type = ALLEGRO_EVENT_MOUSE_LEAVE_DISPLAY;
          break;
    }
+
+   generate_mouse_event(
+      event_type,
+      the_mouse.state.x, the_mouse.state.y, the_mouse.state.z,
+      0, 0, 0,
+      0, display);
 
    _al_event_source_unlock(&the_mouse.parent.es);
 }
