@@ -36,7 +36,9 @@
 #define WINDOWS_RGB(r,g,b)  ((COLORREF)(((BYTE)(r)|((WORD)((BYTE)(g))<<8))|(((DWORD)(BYTE)(b))<<16)))
 
 
-AL_BEGIN_EXTERN_C
+#ifdef __cplusplus
+   extern "C" {
+#endif
 
 
 typedef struct ALLEGRO_DISPLAY_WIN ALLEGRO_DISPLAY_WIN;
@@ -117,7 +119,7 @@ typedef struct ALLEGRO_SYSTEM_WIN ALLEGRO_SYSTEM_WIN;
 /* This is our version of ALLEGRO_SYSTEM with driver specific extra data. */
 struct ALLEGRO_SYSTEM_WIN
 {
-	ALLEGRO_SYSTEM system; /* This must be the first member, we "derive" from it. */
+   ALLEGRO_SYSTEM system; /* This must be the first member, we "derive" from it. */
 };
 
 /* helpers to create windows */
@@ -184,7 +186,9 @@ bool _al_win_hide_mouse_cursor(ALLEGRO_DISPLAY *display);
 #endif /*  defined ALLEGRO_CFG_OPENGL */
 
 
-AL_END_EXTERN_C
+#ifdef __cplusplus
+   }
+#endif
 
 
 #endif          /* !defined AINTWIN_H */

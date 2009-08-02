@@ -3,7 +3,9 @@
 
 #include "allegro5/internal/aintern_events.h"
 
-AL_BEGIN_EXTERN_C
+#ifdef __cplusplus
+   extern "C" {
+#endif
 
 
 typedef struct ALLEGRO_JOYSTICK_DRIVER
@@ -76,7 +78,9 @@ struct ALLEGRO_JOYSTICK
 };
 
 
-AL_END_EXTERN_C
+#ifdef __cplusplus
+   }
+#endif
 
 #endif
 

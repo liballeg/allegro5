@@ -1,7 +1,9 @@
 #ifndef _al_included_aintern_vector_h
 #define _al_included_aintern_vector_h
 
-AL_BEGIN_EXTERN_C
+#ifdef __cplusplus
+   extern "C" {
+#endif
 
 
 typedef struct _AL_VECTOR
@@ -43,7 +45,9 @@ AL_FUNC(bool, _al_vector_find_and_delete, (_AL_VECTOR*, const void *ptr_item));
 AL_FUNC(void, _al_vector_free, (_AL_VECTOR*));
 
 
-AL_END_EXTERN_C
+#ifdef __cplusplus
+   }
+#endif
 
 #endif
 

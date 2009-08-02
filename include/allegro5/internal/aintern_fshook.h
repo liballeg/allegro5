@@ -18,7 +18,9 @@
 
 #include "allegro5/base.h"
 
-AL_BEGIN_EXTERN_C
+#ifdef __cplusplus
+   extern "C" {
+#endif
 
 
 extern struct ALLEGRO_FS_INTERFACE _al_fs_interface_stdio;
@@ -44,6 +46,8 @@ extern struct ALLEGRO_FS_INTERFACE _al_fs_interface_stdio;
 #define _al_fs_hook_readdir(dir)  (dir)->vtable->readdir(dir)
 
 
-AL_END_EXTERN_C
+#ifdef __cplusplus
+   }
+#endif
 
 #endif          /* ifndef __al_included_aintern_fshook_h */

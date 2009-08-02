@@ -3,7 +3,9 @@
 
 #include "allegro5/internal/aintern_events.h"
 
-AL_BEGIN_EXTERN_C
+#ifdef __cplusplus
+   extern "C" {
+#endif
 
 
 typedef struct ALLEGRO_MOUSE_DRIVER
@@ -33,7 +35,9 @@ struct ALLEGRO_MOUSE
 };
 
 
-AL_END_EXTERN_C
+#ifdef __cplusplus
+   }
+#endif
 
 #endif
 

@@ -1,7 +1,9 @@
 #ifndef _al_included_aintern_keyboard_h
 #define _al_included_aintern_keyboard_h
 
-AL_BEGIN_EXTERN_C
+#ifdef __cplusplus
+   extern "C" {
+#endif
 
 
 typedef struct ALLEGRO_KEYBOARD_DRIVER
@@ -49,7 +51,9 @@ struct ALLEGRO_KEYBOARD
    } while (0)
 
 
-AL_END_EXTERN_C
+#ifdef __cplusplus
+   }
+#endif
 
 #endif
 

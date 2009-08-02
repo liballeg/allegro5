@@ -5,7 +5,9 @@
 #include ALLEGRO_INTERNAL_THREAD_HEADER
 #endif
 
-AL_BEGIN_EXTERN_C
+#ifdef __cplusplus
+   extern "C" {
+#endif
 
 
 typedef struct _AL_THREAD _AL_THREAD;
@@ -40,7 +42,10 @@ AL_FUNC(void, _al_cond_signal, (_AL_COND*));
 void _al_pthreads_tls_init(void);
 #endif
 
-AL_END_EXTERN_C
+
+#ifdef __cplusplus
+   }
+#endif
 
 #endif
 

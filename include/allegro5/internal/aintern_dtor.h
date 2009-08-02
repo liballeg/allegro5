@@ -1,7 +1,9 @@
 #ifndef _al_included_aintern_dtor_h
 #define _al_included_aintern_dtor_h
 
-AL_BEGIN_EXTERN_C
+#ifdef __cplusplus
+   extern "C" {
+#endif
 
 
 typedef struct _AL_DTOR_LIST _AL_DTOR_LIST;
@@ -15,7 +17,9 @@ AL_FUNC(void, _al_register_destructor, (_AL_DTOR_LIST *dtors, void *object,
 AL_FUNC(void, _al_unregister_destructor, (_AL_DTOR_LIST *dtors, void *object));
 
 
-AL_END_EXTERN_C
+#ifdef __cplusplus
+   }
+#endif
 
 #endif
 

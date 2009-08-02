@@ -50,14 +50,6 @@
 #include "allegro5/internal/alconfig.h"
 
 #ifdef __cplusplus
-   #define AL_BEGIN_EXTERN_C	extern "C" {
-   #define AL_END_EXTERN_C	}
-#else  /* C */
-   #define AL_BEGIN_EXTERN_C
-   #define AL_END_EXTERN_C
-#endif
-
-#ifdef __cplusplus
    extern "C" {
 #endif
 

@@ -4,7 +4,9 @@
 #include "allegro5/internal/aintern_thread.h"
 #include "allegro5/internal/aintern_vector.h"
 
-AL_BEGIN_EXTERN_C
+#ifdef __cplusplus
+   extern "C" {
+#endif
 
 
 union ALLEGRO_EVENT;
@@ -36,7 +38,9 @@ AL_FUNC(void, _al_event_source_emit_event, (ALLEGRO_EVENT_SOURCE *, ALLEGRO_EVEN
 AL_FUNC(void, _al_event_queue_push_event, (ALLEGRO_EVENT_QUEUE*, const ALLEGRO_EVENT*));
 
 
-AL_END_EXTERN_C
+#ifdef __cplusplus
+   }
+#endif
 
 #endif
 

@@ -2,7 +2,11 @@
 #define ALLEGRO_PATH_H
 
 #include "allegro5/base.h"
-AL_BEGIN_EXTERN_C
+
+#ifdef __cplusplus
+   extern "C" {
+#endif
+
 
 #ifdef ALLEGRO_WINDOWS
 #  define ALLEGRO_NATIVE_PATH_SEP '\\'
@@ -46,6 +50,9 @@ AL_FUNC(bool, al_make_path_canonical, (ALLEGRO_PATH *path));
 
 AL_FUNC(bool, al_is_path_present, (const ALLEGRO_PATH *path));
 
-AL_END_EXTERN_C
+
+#ifdef __cplusplus
+   }
+#endif
 
 #endif /* ALLEGRO_PATH_H */

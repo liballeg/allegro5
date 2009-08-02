@@ -7,23 +7,26 @@
 #include <pthread.h>
 #include "allegro5/internal/aintern_thread.h"
 
-AL_BEGIN_EXTERN_C
+#ifdef __cplusplus
+   extern "C" {
+#endif
+
 
 /* threads */
 struct _AL_THREAD
 {
-    /* private: */
-    pthread_t thread;
-    pthread_mutex_t mutex;
-    bool should_stop;
-    void (*proc)(struct _AL_THREAD *self, void *arg);
-    void *arg;
+   /* private: */
+   pthread_t thread;
+   pthread_mutex_t mutex;
+   bool should_stop;
+   void (*proc)(struct _AL_THREAD *self, void *arg);
+   void *arg;
 };
 
 struct _AL_MUTEX
 {
-    bool inited;
-    pthread_mutex_t mutex;
+   bool inited;
+   pthread_mutex_t mutex;
 };
 
 #define _AL_MUTEX_UNINITED	       { false, PTHREAD_MUTEX_INITIALIZER }
@@ -90,6 +93,9 @@ AL_INLINE(void, _al_cond_signal, (struct _AL_COND *cond),
    pthread_cond_signal(&cond->cond);
 })
 
-AL_END_EXTERN_C
+
+#ifdef __cplusplus
+   }
+#endif
 
 #endif

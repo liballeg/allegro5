@@ -6,7 +6,10 @@
 
 #include <windows.h>
 
-AL_BEGIN_EXTERN_C
+#ifdef __cplusplus
+   extern "C" {
+#endif
+
 
 /* threads */
 struct _AL_THREAD
@@ -64,6 +67,9 @@ AL_INLINE(void, _al_mutex_unlock, (struct _AL_MUTEX *m),
       LeaveCriticalSection(m->cs);
 })
 
-AL_END_EXTERN_C
+
+#ifdef __cplusplus
+   }
+#endif
 
 #endif
