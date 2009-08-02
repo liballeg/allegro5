@@ -203,6 +203,9 @@ void Dialog::run_step(bool block)
             break;
 
          default:
+            if (event_handler) {
+               event_handler->handle_event(event);
+            }
             break;
       }
    }
@@ -346,6 +349,16 @@ const Theme & Dialog::get_theme() const
    return this->theme;
 }
 
+void Dialog::register_event_source(ALLEGRO_EVENT_SOURCE *source)
+{
+   al_register_event_source(this->event_queue, source);
+}
+
+void Dialog::set_event_handler(EventHandler *event_handler)
+{
+   this->event_handler = event_handler;
+}
+
 /*---------------------------------------------------------------------------*/
 
 Label::Label(std::string text, bool centred) :
@@ -439,8 +452,7 @@ void ToggleButton::on_mouse_button_down(int mx, int my)
 {
    (void)mx;
    (void)my;
-   this->pushed = !this->pushed;
-   dialog->request_draw();
+   set_pushed(!this->pushed);
 }
 
 void ToggleButton::on_mouse_button_up(int mx, int my)
@@ -451,9 +463,11 @@ void ToggleButton::on_mouse_button_up(int mx, int my)
 
 void ToggleButton::set_pushed(bool pushed)
 {
-   this->pushed = pushed;
-   if (dialog)
-      dialog->request_draw();
+   if (this->pushed != pushed) {
+      this->pushed = pushed;
+      if (dialog)
+         dialog->request_draw();
+   }
 }
 
 /*---------------------------------------------------------------------------*/

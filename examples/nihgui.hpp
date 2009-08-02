@@ -66,6 +66,11 @@ public:
    friend class Dialog;
 };
 
+class EventHandler {
+public:
+   virtual void   handle_event(const ALLEGRO_EVENT & event) = 0;
+};
+
 class Dialog {
 private:
    const Theme &        theme;
@@ -83,6 +88,8 @@ private:
    Widget *             mouse_down_widget;
    Widget *             key_widget;
 
+   EventHandler *       event_handler;
+
 public:
    Dialog(const Theme & theme, ALLEGRO_DISPLAY *display,
       int grid_m, int grid_n);
@@ -99,6 +106,9 @@ public:
    bool           is_draw_requested() const;
    void           draw();
    const Theme &  get_theme() const;
+
+   void           register_event_source(ALLEGRO_EVENT_SOURCE *source);
+   void           set_event_handler(EventHandler *handler);
 
 private:
    void           configure_all();
