@@ -158,7 +158,7 @@ Group::Group() :
    freq_label(Label("f")),
    freq_slider(220, 1000),
    phase_label(Label("φ")),
-   phase_slider(100 * PI, 2 * 100 * PI)   /* -π .. π */
+   phase_slider((int)(100 * PI), (int)(2 * 100 * PI)) /* -π .. π */
 {
    /* Order must correspond with Waveform. */
    list.append_item("Off");
@@ -230,6 +230,7 @@ private:
 
 public:
    Prog(const Theme & theme);
+   virtual ~Prog() {}
    void run();
    void handle_event(const ALLEGRO_EVENT & event);
 };
