@@ -29,13 +29,19 @@ AL_FUNC(void, _al_mutex_destroy, (_AL_MUTEX*));
 /* static inline void _al_mutex_lock(_AL_MUTEX*); */
 /* static inline void _al_mutex_unlock(_AL_MUTEX*); */
 
-
+/* All 5 functions below are declared inline in aintuthr.h.
+ * FIXME: Why are they all inline? And if they have to be, why not treat them
+ * the same as the two functions above?
+ */
+#ifdef ALLEGRO_WINDOWS
 AL_FUNC(void, _al_cond_init, (_AL_COND*));
 AL_FUNC(void, _al_cond_destroy, (_AL_COND*));
 AL_FUNC(void, _al_cond_wait, (_AL_COND*, _AL_MUTEX*));
-AL_FUNC(int, _al_cond_timedwait, (_AL_COND*, _AL_MUTEX*, const ALLEGRO_TIMEOUT *timeout));
 AL_FUNC(void, _al_cond_broadcast, (_AL_COND*));
 AL_FUNC(void, _al_cond_signal, (_AL_COND*));
+#endif
+
+AL_FUNC(int, _al_cond_timedwait, (_AL_COND*, _AL_MUTEX*, const ALLEGRO_TIMEOUT *timeout));
 
 #if defined ALLEGRO_MACOSX || defined ALLEGRO_GP2XWIZ
 // Do some one-time initialisation for the thread support
