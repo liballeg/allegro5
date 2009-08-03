@@ -789,8 +789,7 @@ int main(void)
 
       
       Screens[cur_screen](DRAW);
-      
-      al_wait_for_vsync();
+
       al_flip_display();
       frames_done++;
    }
