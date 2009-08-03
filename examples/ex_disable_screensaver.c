@@ -26,9 +26,9 @@ int main(void)
    }
 
    events = al_create_event_queue();
-   al_register_event_source(events, (ALLEGRO_EVENT_SOURCE *)al_get_keyboard());
+   al_register_event_source(events, al_get_keyboard_event_source(al_get_keyboard()));
    /* For expose events */
-   al_register_event_source(events, (ALLEGRO_EVENT_SOURCE *)display);
+   al_register_event_source(events, al_get_display_event_source(display));
 
    do {
       al_clear_to_color(al_map_rgb(0, 0, 0));

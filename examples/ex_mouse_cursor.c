@@ -131,9 +131,9 @@ int main(void)
       return 1;
    }
 
-   al_register_event_source(queue, (ALLEGRO_EVENT_SOURCE *)al_get_keyboard());
-   al_register_event_source(queue, (ALLEGRO_EVENT_SOURCE *)display1);
-   al_register_event_source(queue, (ALLEGRO_EVENT_SOURCE *)display2);
+   al_register_event_source(queue, al_get_keyboard_event_source(al_get_keyboard()));
+   al_register_event_source(queue, al_get_display_event_source(display1));
+   al_register_event_source(queue, al_get_display_event_source(display2));
 
    al_set_current_display(display1);
    al_set_target_bitmap(al_get_backbuffer());

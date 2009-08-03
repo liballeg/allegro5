@@ -271,6 +271,8 @@ A5_KCM_AUDIO_FUNC(double, al_get_stream_position_secs, (ALLEGRO_STREAM *stream))
 A5_KCM_AUDIO_FUNC(double, al_get_stream_length_secs, (ALLEGRO_STREAM *stream));
 A5_KCM_AUDIO_FUNC(bool, al_set_stream_loop_secs, (ALLEGRO_STREAM *stream, double start, double end));
 
+A5_KCM_AUDIO_FUNC(ALLEGRO_EVENT_SOURCE *, al_get_stream_event_source, (ALLEGRO_STREAM *stream));
+
 /* Mixer functions */
 A5_KCM_AUDIO_FUNC(ALLEGRO_MIXER*, al_create_mixer, (unsigned long freq,
       ALLEGRO_AUDIO_DEPTH depth, ALLEGRO_CHANNEL_CONF chan_conf));

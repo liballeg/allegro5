@@ -356,6 +356,14 @@ static void timer_handle_tick(ALLEGRO_TIMER *timer)
 
 
 
+/* Function: al_get_timer_event_source
+ */
+ALLEGRO_EVENT_SOURCE *al_get_timer_event_source(ALLEGRO_TIMER *timer)
+{
+   return &timer->es;
+}
+
+
 /*
  * Local Variables:
  * c-basic-offset: 3

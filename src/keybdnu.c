@@ -259,6 +259,14 @@ bool al_key_down(const ALLEGRO_KEYBOARD_STATE *state, int keycode)
 
 
 
+/* Function: al_get_keyboard_event_source
+ */
+ALLEGRO_EVENT_SOURCE * al_get_keyboard_event_source(ALLEGRO_KEYBOARD *keyboard)
+{
+   return &keyboard->es;
+}
+
+
 /*
  * Local Variables:
  * c-basic-offset: 3

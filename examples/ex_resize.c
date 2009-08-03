@@ -38,7 +38,7 @@ int main(void)
     /* Setup a display driver and register events from it. */
     al_set_new_display_flags(ALLEGRO_RESIZABLE);
     display = al_create_display(rs, rs);
-    al_register_event_source(events, (ALLEGRO_EVENT_SOURCE *)display);
+    al_register_event_source(events, al_get_display_event_source(display));
 
     /* Setup a keyboard driver and regsiter events from it. */
     al_install_keyboard();

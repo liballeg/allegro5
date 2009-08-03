@@ -33,7 +33,7 @@ int main(void)
    }
 
    queue = al_create_event_queue();
-   al_register_event_source(queue, (ALLEGRO_EVENT_SOURCE *)al_get_keyboard());
+   al_register_event_source(queue, al_get_keyboard_event_source(al_get_keyboard()));
 
    test_relative_timeout(queue);
    test_absolute_timeout(queue);

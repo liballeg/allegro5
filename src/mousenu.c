@@ -398,6 +398,14 @@ bool al_get_cursor_position(int *ret_x, int *ret_y)
 
 
 
+/* Function: al_get_mouse_event_source
+ */
+ALLEGRO_EVENT_SOURCE *al_get_mouse_event_source(ALLEGRO_MOUSE *mouse)
+{
+   return &mouse->es;
+}
+
+
 /*
  * Local Variables:
  * c-basic-offset: 3

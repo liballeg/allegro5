@@ -43,9 +43,9 @@ int main(void)
    al_show_mouse_cursor();
 
    /* This is only needed since we want to receive resize events. */
-   al_register_event_source(events, (ALLEGRO_EVENT_SOURCE *)display[0]);
-   al_register_event_source(events, (ALLEGRO_EVENT_SOURCE *)display[1]);
-   al_register_event_source(events, (ALLEGRO_EVENT_SOURCE *)al_get_keyboard());
+   al_register_event_source(events, al_get_display_event_source(display[0]));
+   al_register_event_source(events, al_get_display_event_source(display[1]));
+   al_register_event_source(events, al_get_keyboard_event_source(al_get_keyboard()));
 
    while (1) {
       /* read input */

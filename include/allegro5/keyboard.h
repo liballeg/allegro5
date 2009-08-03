@@ -58,6 +58,9 @@ AL_FUNC(AL_CONST char *, al_keycode_to_name, (int keycode));
 AL_FUNC(void,         al_get_keyboard_state, (ALLEGRO_KEYBOARD_STATE *ret_state));
 AL_FUNC(bool,         al_key_down,           (const ALLEGRO_KEYBOARD_STATE *, int keycode));
 
+AL_FUNC(ALLEGRO_EVENT_SOURCE *, al_get_keyboard_event_source, (ALLEGRO_KEYBOARD *keyboard));
+
+
 /* TODO: use the config system */
 AL_VAR(bool, _al_three_finger_flag);
 AL_VAR(bool, _al_key_led_flag);

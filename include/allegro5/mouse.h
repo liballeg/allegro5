@@ -87,6 +87,7 @@ AL_FUNC(void,           al_get_mouse_state,     (ALLEGRO_MOUSE_STATE *ret_state)
 AL_FUNC(bool,           al_mouse_button_down,   (ALLEGRO_MOUSE_STATE *state, int button));
 AL_FUNC(int,            al_get_mouse_state_axis, (ALLEGRO_MOUSE_STATE *state, int axis));
 
+AL_FUNC(ALLEGRO_EVENT_SOURCE *, al_get_mouse_event_source, (ALLEGRO_MOUSE *mouse));
 
 struct ALLEGRO_BITMAP;
 

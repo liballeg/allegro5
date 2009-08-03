@@ -176,9 +176,9 @@ int main(void)
    }
 
 #ifndef ALLEGRO_GP2XWIZ
-   al_register_event_source(event_queue, (ALLEGRO_EVENT_SOURCE *)al_get_keyboard());
+   al_register_event_source(event_queue, al_get_keyboard_event_source(al_get_keyboard()));
 #endif
-   al_register_event_source(event_queue, (ALLEGRO_EVENT_SOURCE *)display);
+   al_register_event_source(event_queue, al_get_display_event_source(display));
    al_register_event_source(event_queue, (ALLEGRO_EVENT_SOURCE *)zero_joy);
 
    /* Initialise values. */

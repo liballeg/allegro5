@@ -283,10 +283,10 @@ int main(void)
       TRACE("Error creating event queue\n");
       return 1;
    }
-   al_register_event_source(queue, (ALLEGRO_EVENT_SOURCE *)display);
-   al_register_event_source(queue, (ALLEGRO_EVENT_SOURCE *)al_get_keyboard());
-   al_register_event_source(queue, (ALLEGRO_EVENT_SOURCE *)al_get_mouse());
-   al_register_event_source(queue, (ALLEGRO_EVENT_SOURCE *)timer);
+   al_register_event_source(queue, al_get_display_event_source(display));
+   al_register_event_source(queue, al_get_keyboard_event_source(al_get_keyboard()));
+   al_register_event_source(queue, al_get_mouse_event_source(al_get_mouse()));
+   al_register_event_source(queue, al_get_timer_event_source(timer));
 
    /* Note:
     * Right now, A5 video displays can only be accessed from the thread which

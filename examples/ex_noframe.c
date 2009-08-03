@@ -35,10 +35,10 @@ int main(void)
    timer = al_install_timer(1.0f/30.0f);
 
    events = al_create_event_queue();
-   al_register_event_source(events, (ALLEGRO_EVENT_SOURCE *)al_get_mouse());
-   al_register_event_source(events, (ALLEGRO_EVENT_SOURCE *)al_get_keyboard());
-   al_register_event_source(events, (ALLEGRO_EVENT_SOURCE *)display);
-   al_register_event_source(events, (ALLEGRO_EVENT_SOURCE *)timer);
+   al_register_event_source(events, al_get_mouse_event_source(al_get_mouse()));
+   al_register_event_source(events, al_get_keyboard_event_source(al_get_keyboard()));
+   al_register_event_source(events, al_get_display_event_source(display));
+   al_register_event_source(events, al_get_timer_event_source(timer));
 
    al_start_timer(timer);
 

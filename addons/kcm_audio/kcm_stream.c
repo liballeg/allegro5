@@ -715,4 +715,12 @@ bool al_set_stream_loop_secs(ALLEGRO_STREAM *stream, double start, double end)
 }
 
 
+/* Function: al_get_stream_event_source
+ */
+ALLEGRO_EVENT_SOURCE *al_get_stream_event_source(ALLEGRO_STREAM *stream)
+{
+   return stream->spl.es;
+}
+
+
 /* vim: set sts=3 sw=3 et: */

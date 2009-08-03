@@ -551,3 +551,9 @@ void al_set_window_title(AL_CONST char *title)
       current_display->vt->set_window_title(current_display, title);
 }
 
+/* Function: al_get_display_event_source
+ */
+ALLEGRO_EVENT_SOURCE *al_get_display_event_source(ALLEGRO_DISPLAY *display)
+{
+   return &display->es;
+}

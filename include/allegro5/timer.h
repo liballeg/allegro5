@@ -57,6 +57,7 @@ AL_FUNC(double, al_get_timer_speed, (const ALLEGRO_TIMER *timer));
 AL_FUNC(void, al_set_timer_speed, (ALLEGRO_TIMER *timer, double speed_secs));
 AL_FUNC(long, al_get_timer_count, (const ALLEGRO_TIMER *timer));
 AL_FUNC(void, al_set_timer_count, (ALLEGRO_TIMER *timer, long count));
+AL_FUNC(ALLEGRO_EVENT_SOURCE *, al_get_timer_event_source, (ALLEGRO_TIMER *timer));
 
 
 #ifdef __cplusplus

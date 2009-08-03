@@ -44,7 +44,7 @@ int main(void)
    al_register_event_source(queue, (ALLEGRO_EVENT_SOURCE *) al_get_keyboard());
    al_register_event_source(queue, (ALLEGRO_EVENT_SOURCE *) al_get_mouse());
    al_register_event_source(queue, (ALLEGRO_EVENT_SOURCE *) display);
-   al_register_event_source(queue, (ALLEGRO_EVENT_SOURCE *)timer);
+   al_register_event_source(queue, al_get_timer_event_source(timer));
    al_start_timer(timer);
 
    while (true) {

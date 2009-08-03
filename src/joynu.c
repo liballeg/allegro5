@@ -296,6 +296,14 @@ void al_get_joystick_state(ALLEGRO_JOYSTICK *joy, ALLEGRO_JOYSTICK_STATE *ret_st
 
 
 
+/* Function: al_get_joystick_event_source
+ */
+ALLEGRO_EVENT_SOURCE *al_get_joystick_event_source(ALLEGRO_JOYSTICK *joystick)
+{
+   return &joystick->es;
+}
+
+
 /*
  * Local Variables:
  * c-basic-offset: 3

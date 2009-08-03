@@ -54,9 +54,9 @@ int main(void)
    myfont = al_load_font("data/fixed_font.tga", 0, 0);
 
    events = al_create_event_queue();
-   al_register_event_source(events, (ALLEGRO_EVENT_SOURCE *)al_get_mouse());
-   al_register_event_source(events, (ALLEGRO_EVENT_SOURCE *)displays[0]);
-   al_register_event_source(events, (ALLEGRO_EVENT_SOURCE *)displays[1]);
+   al_register_event_source(events, al_get_mouse_event_source(al_get_mouse()));
+   al_register_event_source(events, al_get_display_event_source(displays[0]));
+   al_register_event_source(events, al_get_display_event_source(displays[1]));
 
    for (;;) {
       for (i = 0; i < 2; i++) {

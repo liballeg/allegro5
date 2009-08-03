@@ -86,6 +86,8 @@ AL_FUNC(const char*,    al_get_joystick_button_name,  (const ALLEGRO_JOYSTICK*, 
 
 AL_FUNC(void,           al_get_joystick_state,  (ALLEGRO_JOYSTICK*, ALLEGRO_JOYSTICK_STATE *ret_state));
 
+AL_FUNC(ALLEGRO_EVENT_SOURCE *, al_get_joystick_event_source, (ALLEGRO_JOYSTICK *joystick));
+
 #ifdef __cplusplus
    }
 #endif
