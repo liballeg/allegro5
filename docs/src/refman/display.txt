@@ -469,3 +469,8 @@ An adapter is thus really a video port that can have a monitor connected
 to it.
 
 See also: [al_get_monitor_info]
+
+
+## API: al_get_display_event_source
+
+Retrieve the associated event source.

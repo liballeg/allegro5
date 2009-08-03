@@ -3,8 +3,6 @@
 ## API: ALLEGRO_TIMER
 
 This is an abstract data type representing a timer object.
-A timer object can act as an event source so can be casted to
-ALLEGRO_EVENT_SOURCE*.
 
 ## API: ALLEGRO_USECS_TO_SECS
 
@@ -80,3 +78,6 @@ automatically unregister the timer with any event queues.
 
 Does nothing if passed the NULL pointer.
 
+## API: al_get_timer_event_source
+
+Retrieve the associated event source.

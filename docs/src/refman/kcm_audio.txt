@@ -571,7 +571,7 @@ was created with. The sample count and user-data pointer is also passed.
 
 ## API: al_create_stream
 
-Creates an [ALLEGRO_AUDIO_STREAM]. The stream will be set to play by default.
+Creates an [ALLEGRO_STREAM]. The stream will be set to play by default.
 It will feed audio data from a buffer, which is split into a number of
 fragments.
 
@@ -615,6 +615,10 @@ The size of the complete buffer is:
     buffer_size = bytes_per_fragment * fragment_count
 
 ## API: al_destroy_stream
+
+## API: al_get_stream_event_source
+
+Retrieve the associated event source.
 
 ## API: al_drain_stream
 

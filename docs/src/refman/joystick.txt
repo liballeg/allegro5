@@ -2,8 +2,7 @@
 
 ## API: ALLEGRO_JOYSTICK
 
-This is an abstract data type representing a physical joystick.  Joystick
-objects are also event sources so can be casted to ALLEGRO_EVENT_SOURCE*.
+This is an abstract data type representing a physical joystick.
 
 ## API: ALLEGRO_JOYSTICK_STATE
 
@@ -101,3 +100,6 @@ was active, this function does nothing.
 
 This function is automatically called when Allegro is shut down.
 
+## API: al_get_joystick_event_source
+
+Retrieve the associated event source.

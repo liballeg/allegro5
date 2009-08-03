@@ -30,7 +30,8 @@
 #define ALLEGRO_MOUSE_MAX_EXTRA_AXES	 4
 
 
-/* Abstract data type */
+/* Type: ALLEGRO_MOUSE
+ */
 typedef struct ALLEGRO_MOUSE ALLEGRO_MOUSE;
 
 
