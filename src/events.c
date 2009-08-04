@@ -165,6 +165,7 @@ void al_register_event_source(ALLEGRO_EVENT_QUEUE *queue,
 void al_unregister_event_source(ALLEGRO_EVENT_QUEUE *queue,
    ALLEGRO_EVENT_SOURCE *source)
 {
+   ALLEGRO_EVENT_SOURCE_REAL *rsource = (ALLEGRO_EVENT_SOURCE_REAL *)source;
    bool found;
    ASSERT(queue);
    ASSERT(source);
@@ -183,7 +184,7 @@ void al_unregister_event_source(ALLEGRO_EVENT_QUEUE *queue,
       discard_events_of_source(queue, source);
       _al_mutex_unlock(&queue->mutex);
 
-      _al_mutex_destroy(&source->mutex);
+      _al_mutex_destroy(&rsource->mutex);
    }
 }
 

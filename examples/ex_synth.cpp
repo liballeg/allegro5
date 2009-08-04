@@ -252,8 +252,7 @@ void Prog::run()
 {
    d.prepare();
 
-   /* FIXME: this cast is pretty scarry */
-   d.register_event_source(*((ALLEGRO_EVENT_SOURCE **) stream));
+   d.register_event_source(al_get_stream_event_source(stream));
    d.set_event_handler(this);
 
    while (!d.is_quit_requested()) {

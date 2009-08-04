@@ -86,7 +86,7 @@ typedef struct
 struct ALLEGRO_DISPLAY
 {
    /* Must be first, so the display can be used as event source. */
-   struct ALLEGRO_EVENT_SOURCE es; 
+   ALLEGRO_EVENT_SOURCE es;
    ALLEGRO_DISPLAY_INTERFACE *vt;
    int refresh_rate;
    int flags;

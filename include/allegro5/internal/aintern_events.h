@@ -9,9 +9,9 @@
 #endif
 
 
-union ALLEGRO_EVENT;
+typedef struct ALLEGRO_EVENT_SOURCE_REAL ALLEGRO_EVENT_SOURCE_REAL;
 
-struct ALLEGRO_EVENT_SOURCE
+struct ALLEGRO_EVENT_SOURCE_REAL
 {
    _AL_MUTEX mutex;
    _AL_VECTOR queues;

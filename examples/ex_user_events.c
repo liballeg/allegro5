@@ -43,7 +43,7 @@ static void my_event_dtor(ALLEGRO_USER_EVENT *event)
 int main(void)
 {
    ALLEGRO_TIMER *timer;
-   ALLEGRO_EVENT_SOURCE *user_src;
+   ALLEGRO_EVENT_SOURCE user_src;
    ALLEGRO_EVENT_QUEUE *queue;
    ALLEGRO_EVENT user_event;
    ALLEGRO_EVENT event;
@@ -59,14 +59,10 @@ int main(void)
       return 1;
    }
 
-   user_src = al_create_user_event_source();
-   if (!user_src) {
-      TRACE("Could not create user event source.\n");
-      return 1;
-   }
+   al_init_user_event_source(&user_src);
 
    queue = al_create_event_queue();
-   al_register_event_source(queue, user_src);
+   al_register_event_source(queue, &user_src);
    al_register_event_source(queue, (ALLEGRO_EVENT_SOURCE *) timer);
 
    al_start_timer(timer);
@@ -81,15 +77,15 @@ int main(void)
 
          user_event.user.type = MY_SIMPLE_EVENT_TYPE;
          user_event.user.data1 = n;
-         al_emit_user_event(user_src, &user_event, NULL);
+         al_emit_user_event(&user_src, &user_event, NULL);
 
          user_event.user.type = MY_COMPLEX_EVENT_TYPE;
          user_event.user.data1 = (intptr_t)new_event(n);
-         al_emit_user_event(user_src, &user_event, my_event_dtor);
+         al_emit_user_event(&user_src, &user_event, my_event_dtor);
       }
       else if (event.type == MY_SIMPLE_EVENT_TYPE) {
          int n = (int) event.user.data1;
-         ALLEGRO_ASSERT(event.user.source == user_src);
+         ALLEGRO_ASSERT(event.user.source == &user_src);
 
          al_unref_user_event(&event.user);
 
@@ -100,7 +96,7 @@ int main(void)
       }
       else if (event.type == MY_COMPLEX_EVENT_TYPE) {
          MY_EVENT *my_event = (void *)event.user.data1;
-         ALLEGRO_ASSERT(event.user.source == user_src);
+         ALLEGRO_ASSERT(event.user.source == &user_src);
 
          printf("Got complex user event %d\n", my_event->id);
          al_unref_user_event(&event.user);
@@ -108,7 +104,7 @@ int main(void)
    }
 
    al_destroy_event_queue(queue);
-   al_destroy_user_event_source(user_src);
+   al_destroy_user_event_source(&user_src);
    al_uninstall_timer(timer);
 
    return 0;

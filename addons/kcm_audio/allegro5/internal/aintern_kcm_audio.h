@@ -112,9 +112,9 @@ typedef struct {
 struct ALLEGRO_SAMPLE_INSTANCE {
    /* ALLEGRO_SAMPLE_INSTANCE does not generate any events yet but ALLEGRO_STREAM
     * does, which can inherit only ALLEGRO_SAMPLE_INSTANCE. */
-   struct ALLEGRO_EVENT_SOURCE *es;
+   ALLEGRO_EVENT_SOURCE es;
 
-   ALLEGRO_SAMPLE  spl_data;
+   ALLEGRO_SAMPLE       spl_data;
 
    volatile bool        is_playing;
                         /* Is this sample is playing? */

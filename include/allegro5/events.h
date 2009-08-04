@@ -81,6 +81,17 @@ enum
 #define ALLEGRO_GET_EVENT_TYPE(a, b, c, d)   AL_ID(a, b, c, d)
 
 
+/* Type: ALLEGRO_EVENT_SOURCE
+ */
+typedef struct ALLEGRO_EVENT_SOURCE ALLEGRO_EVENT_SOURCE;
+
+struct ALLEGRO_EVENT_SOURCE
+{
+   int __pad[32];
+};
+
+
+
 /*
  * Event structures
  *
@@ -103,7 +114,7 @@ enum
 
 typedef struct ALLEGRO_ANY_EVENT
 {
-   _AL_EVENT_HEADER(struct ALLEGRO_EVENT_SOURCE)
+   _AL_EVENT_HEADER(ALLEGRO_EVENT_SOURCE)
 } ALLEGRO_ANY_EVENT;
 
 
@@ -200,11 +211,7 @@ union ALLEGRO_EVENT
 
 /* Event sources */
 
-/* Type: ALLEGRO_EVENT_SOURCE
- */
-typedef struct ALLEGRO_EVENT_SOURCE ALLEGRO_EVENT_SOURCE;
-
-AL_FUNC(ALLEGRO_EVENT_SOURCE *, al_create_user_event_source, (void));
+AL_FUNC(void, al_init_user_event_source, (ALLEGRO_EVENT_SOURCE *));
 AL_FUNC(void, al_destroy_user_event_source, (ALLEGRO_EVENT_SOURCE *));
 /* The second argument is ALLEGRO_EVENT instead of ALLEGRO_USER_EVENT
  * to prevent users passing a pointer to a too-short structure.

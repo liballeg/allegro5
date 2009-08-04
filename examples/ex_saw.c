@@ -21,8 +21,7 @@ static void saw(ALLEGRO_STREAM *stream)
    int n = 200;
 
    queue = al_create_event_queue();
-   /* FIXME: this cast is pretty scarry */
-   al_register_event_source(queue, *((ALLEGRO_EVENT_SOURCE **) stream));
+   al_register_event_source(queue, al_get_stream_event_source(stream));
 
    while (n > 0) {
       ALLEGRO_EVENT event;
