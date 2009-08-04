@@ -273,8 +273,8 @@ void _al_kcm_unregister_destructor(void *object);
 
 A5_KCM_AUDIO_FUNC(void, _al_kcm_shutdown_default_mixer, (void));
 
-ALLEGRO_CHANNEL_CONF _al_count_to_channel_conf(int num_channels);
-ALLEGRO_AUDIO_DEPTH _al_word_size_to_depth_conf(int word_size);
+A5_KCM_AUDIO_FUNC(ALLEGRO_CHANNEL_CONF, _al_count_to_channel_conf, (int num_channels));
+A5_KCM_AUDIO_FUNC(ALLEGRO_AUDIO_DEPTH, _al_word_size_to_depth_conf, (int word_size));
 
 #endif
 

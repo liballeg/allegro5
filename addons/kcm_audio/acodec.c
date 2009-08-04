@@ -211,7 +211,7 @@ bool al_save_sample(const char *filename, ALLEGRO_SAMPLE *spl)
    ASSERT(filename);
    ext = strrchr(filename, '.');
    if (ext == NULL)
-      return NULL;
+      return false;
    ext++;   /* skip '.' */
 
    ent = find_acodec_table_entry(ext);
@@ -219,7 +219,7 @@ bool al_save_sample(const char *filename, ALLEGRO_SAMPLE *spl)
       return (ent->saver)(filename, spl);
    }
 
-   return NULL;
+   return false;
 }
 
 

@@ -52,10 +52,14 @@
 
 
 /* describe how function prototypes look to MSVC */
-#if (defined ALLEGRO_STATICLINK) || (defined ALLEGRO_SRC)
-   #define _AL_DLL
+#ifndef ALLEGRO_STATICLINK
+   #ifdef ALLEGRO_SRC
+      #define _AL_DLL   __declspec(dllexport)
+   #else
+      #define _AL_DLL   __declspec(dllimport)
+   #endif
 #else
-   #define _AL_DLL   __declspec(dllimport)
+   #define _AL_DLL
 #endif
 
 #define AL_VAR(type, name)             extern _AL_DLL type name
