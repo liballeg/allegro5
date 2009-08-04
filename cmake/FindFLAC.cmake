@@ -17,14 +17,16 @@ if(NOT ${FLAC_LIBRARY})
    find_library(FLAC_LIBRARY NAMES libFLAC)
 endif(NOT ${FLAC_LIBRARY})
 
+find_library(OGG_LIBRARY NAMES ogg)
+
 # Handle the QUIETLY and REQUIRED arguments and set FLAC_FOUND to TRUE if
 # all listed variables are TRUE.
 include(FindPackageHandleStandardArgs)
 find_package_handle_standard_args(FLAC DEFAULT_MSG
-    FLAC_INCLUDE_DIR FLAC_LIBRARY)
+    FLAC_INCLUDE_DIR OGG_LIBRARY FLAC_LIBRARY)
 
 if(FLAC_FOUND)
-  set(FLAC_LIBRARIES ${FLAC_LIBRARY})
+  set(FLAC_LIBRARIES ${FLAC_LIBRARY} ${OGG_LIBRARY})
   if(WIN32)
     set(FLAC_LIBRARIES ${FLAC_LIBRARIES} wsock32)
   endif(WIN32)

@@ -18,7 +18,7 @@ if(NOT GP2XWIZ)
     # to TRUE if all listed variables are TRUE.
     include(FindPackageHandleStandardArgs)
     find_package_handle_standard_args(VORBIS DEFAULT_MSG
-        VORBIS_INCLUDE_DIR OGG_LIBRARY VORBIS_LIBRARY VORBIS_LIBRARY)
+        VORBIS_INCLUDE_DIR OGG_LIBRARY VORBIS_LIBRARY VORBISFILE_LIBRARY)
 else(NOT GP2XWIZ)
     find_path(VORBIS_INCLUDE_DIR tremor/ivorbisfile.h)
     find_library(VORBIS_LIBRARY NAMES vorbis_dec)
