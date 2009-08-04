@@ -241,10 +241,10 @@ set(ALLEGRO_SRC_MACOSX_FILES
     )
 
 set(ALLEGRO_SRC_GP2XWIZ_FILES
-    src/gp2xwiz/display_opengl.c
-    src/gp2xwiz/display_fb.c
-    src/gp2xwiz/system.c
-    src/gp2xwiz/joystick.c
+    src/gp2xwiz/wiz_display_opengl.c
+    src/gp2xwiz/wiz_display_fb.c
+    src/gp2xwiz/wiz_system.c
+    src/gp2xwiz/wiz_joystick.c
     src/optimized.c
     src/linux/ljoynu.c
     )
