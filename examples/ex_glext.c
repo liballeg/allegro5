@@ -221,7 +221,7 @@ int main(void)
 
    queue = al_create_event_queue();
    al_register_event_source(queue, al_get_keyboard_event_source(al_get_keyboard()));
-   al_register_event_source(queue, (ALLEGRO_EVENT_SOURCE *)d);
+   al_register_event_source(queue, al_get_display_event_source(d));
 
 
    if (al_get_opengl_extension_list()->ALLEGRO_GL_ARB_multisample) {

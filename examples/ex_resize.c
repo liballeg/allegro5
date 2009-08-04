@@ -43,7 +43,7 @@ int main(void)
     /* Setup a keyboard driver and regsiter events from it. */
     al_install_keyboard();
     keyboard = al_get_keyboard();
-    al_register_event_source(events, (ALLEGRO_EVENT_SOURCE *)keyboard);
+    al_register_event_source(events, al_get_keyboard_event_source(keyboard));
 
     /* Display a pulsating window until a key or the closebutton is pressed. */
     redraw();

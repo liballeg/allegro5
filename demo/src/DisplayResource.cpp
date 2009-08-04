@@ -24,7 +24,7 @@ bool DisplayResource::load(void)
    al_set_new_display_flags(flags);
    display = al_create_display(BB_W, BB_H);
    events = al_create_event_queue();
-   al_register_event_source(events, (ALLEGRO_EVENT_SOURCE *)display);
+   al_register_event_source(events, al_get_display_event_source(display));
    return display != 0;
 }
 

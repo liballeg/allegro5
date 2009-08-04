@@ -179,7 +179,7 @@ int main(void)
    al_register_event_source(event_queue, al_get_keyboard_event_source(al_get_keyboard()));
 #endif
    al_register_event_source(event_queue, al_get_display_event_source(display));
-   al_register_event_source(event_queue, (ALLEGRO_EVENT_SOURCE *)zero_joy);
+   al_register_event_source(event_queue, al_get_joystick_event_source(zero_joy));
 
    /* Initialise values. */
    al_get_joystick_state(zero_joy, &jst);

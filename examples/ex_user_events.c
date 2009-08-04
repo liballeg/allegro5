@@ -63,7 +63,7 @@ int main(void)
 
    queue = al_create_event_queue();
    al_register_event_source(queue, &user_src);
-   al_register_event_source(queue, (ALLEGRO_EVENT_SOURCE *) timer);
+   al_register_event_source(queue, al_get_timer_event_source(timer));
 
    al_start_timer(timer);
 

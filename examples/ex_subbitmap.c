@@ -86,10 +86,10 @@ int main(void)
    al_install_mouse();
 
    queue = al_create_event_queue();
-   al_register_event_source(queue, (ALLEGRO_EVENT_SOURCE *) al_get_keyboard());
-   al_register_event_source(queue, (ALLEGRO_EVENT_SOURCE *) al_get_mouse());
-   al_register_event_source(queue, (ALLEGRO_EVENT_SOURCE *) src_display);
-   al_register_event_source(queue, (ALLEGRO_EVENT_SOURCE *) dst_display);
+   al_register_event_source(queue, al_get_keyboard_event_source(al_get_keyboard()));
+   al_register_event_source(queue, al_get_mouse_event_source(al_get_mouse()));
+   al_register_event_source(queue, al_get_display_event_source(src_display));
+   al_register_event_source(queue, al_get_display_event_source(dst_display));
 
    mouse_down = false;
    recreate_subbitmaps = true;
