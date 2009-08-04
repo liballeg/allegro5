@@ -47,7 +47,7 @@ static bool init_mouse(void)
    if (installed)
       return false;
 
-   memset(&mouse_state, 0, sizeof the_mouse);
+   memset(&mouse_state, 0, sizeof(mouse_state));
    _al_event_source_init(&the_mouse.es);
 
    if (al_get_new_display_flags() & ALLEGRO_FULLSCREEN) {
@@ -72,7 +72,7 @@ static void exit_mouse(void)
    if (!installed)
       return;
 
-   memset(&mouse_state, 0, sizeof the_mouse);
+   memset(&mouse_state, 0, sizeof(mouse_state));
    _al_event_source_free(&the_mouse.es);
    installed = false;
 }
