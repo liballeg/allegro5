@@ -467,7 +467,7 @@ bool al_detach_stream(ALLEGRO_STREAM *stream)
 }
 
 
-/* Function: al_set_stream_fragment_count
+/* Function: al_set_stream_fragment
  */
 bool al_set_stream_fragment(ALLEGRO_STREAM *stream, void *val)
 {

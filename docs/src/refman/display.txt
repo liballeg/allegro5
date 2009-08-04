@@ -2,6 +2,10 @@
 
 # Display creation
 
+## API: ALLEGRO_DISPLAY
+
+An opaque type representing an open display or window.
+
 ## API: al_create_display
 
 Create a display, or window, with the specified dimensions.

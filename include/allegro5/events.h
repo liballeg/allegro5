@@ -174,7 +174,11 @@ typedef struct ALLEGRO_TIMER_EVENT
 
 
 
-typedef struct ALLEGRO_USER_EVENT
+/* Type: ALLEGRO_USER_EVENT
+ */
+typedef struct ALLEGRO_USER_EVENT ALLEGRO_USER_EVENT;
+
+struct ALLEGRO_USER_EVENT
 {
    _AL_EVENT_HEADER(struct ALLEGRO_EVENT_SOURCE)
    struct ALLEGRO_USER_EVENT_DESCRIPTOR *__internal__descr;
@@ -182,7 +186,7 @@ typedef struct ALLEGRO_USER_EVENT
    intptr_t data2;
    intptr_t data3;
    intptr_t data4;
-} ALLEGRO_USER_EVENT;
+};
 
 
 

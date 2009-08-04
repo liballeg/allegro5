@@ -7,7 +7,7 @@
     next
 }
 
-/^ ?\*\/$/ && found_tag {
+/^ ?\*\/ *$/ && found_tag {
     found_tag = 0
     do_print = 1
     next

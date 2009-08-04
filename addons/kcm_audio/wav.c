@@ -380,7 +380,7 @@ ALLEGRO_STREAM *al_load_stream_wav(const char *filename, size_t buffer_count,
 /* Function: al_save_sample_wav
  * Writes a sample into a wav ALLEGRO_FILE.
  * Returns true on success, false on error.
- */ 
+ */
 bool al_save_sample_wav(const char *filename, ALLEGRO_SAMPLE *spl)
 {
    ALLEGRO_FILE *pf = al_fopen(filename, "wb");
