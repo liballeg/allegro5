@@ -55,7 +55,7 @@ Loads a font from disk.
 
 Import routine for the Allegro bitmap font format.
 
-## API: al_register_font_extension
+## API: al_register_font_loader
 
 Informs Allegro of a new font file type, telling it how to load files of
 this format.
@@ -66,6 +66,7 @@ It will be matched case-insensitively.
 The `load_font` argument may be NULL to unregister an entry.
 
 Returns true on success, false on error.
+Returns false if unregistering an entry that doesn't exist.
 
 ## API: al_get_font_line_height
 

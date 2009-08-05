@@ -244,11 +244,11 @@ void al_init_font_addon(void)
    _al_vector_init(&handlers, sizeof(HANDLER));
    al_init_iio_addon(); /* we depend on the iio addon */
    
-   al_register_font_extension(".bmp", _al_load_bitmap_font);
-   al_register_font_extension(".jpg", _al_load_bitmap_font);
-   al_register_font_extension(".pcx", _al_load_bitmap_font);
-   al_register_font_extension(".png", _al_load_bitmap_font);
-   al_register_font_extension(".tga", _al_load_bitmap_font);
+   al_register_font_loader(".bmp", _al_load_bitmap_font);
+   al_register_font_loader(".jpg", _al_load_bitmap_font);
+   al_register_font_loader(".pcx", _al_load_bitmap_font);
+   al_register_font_loader(".png", _al_load_bitmap_font);
+   al_register_font_loader(".tga", _al_load_bitmap_font);
 
    _al_add_exit_func(font_shutdown, "font_shutdown");
 }
@@ -270,7 +270,7 @@ static HANDLER *find_extension(char const *extension)
     */
    for (i = _al_vector_size(&handlers) - 1; i >= 0 ; i--) {
       HANDLER *handler = _al_vector_ref(&handlers, i);
-      if (0 == strcmp(al_cstr(handler->extension), extension))
+      if (0 == stricmp(al_cstr(handler->extension), extension))
          return handler;
    }
    return NULL;
@@ -278,9 +278,9 @@ static HANDLER *find_extension(char const *extension)
 
 
 
-/* Function: al_register_font_extension
+/* Function: al_register_font_loader
  */
-bool al_register_font_extension(char const *extension,
+bool al_register_font_loader(char const *extension,
    ALLEGRO_FONT *(*load_font)(char const *filename, int size, int flags))
 {
    HANDLER *handler = find_extension(extension);
@@ -305,9 +305,15 @@ bool al_register_font_extension(char const *extension,
 ALLEGRO_FONT *al_load_font(char const *filename, int size, int flags)
 {
    int i;
-   ALLEGRO_PATH *path = al_create_path(filename);
-   HANDLER *handler = find_extension(al_get_path_extension(path));
-   al_free_path(path);
+   const char *ext;
+   HANDLER *handler;
+
+   ASSERT(filename);
+
+   ext = strrchr(filename, '.');
+   if (!ext)
+      return NULL;
+   handler = find_extension(ext);
    if (handler)
       return handler->load_font(filename, size, flags);
 

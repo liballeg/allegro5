@@ -374,7 +374,7 @@ ALLEGRO_FONT *al_load_ttf_font(char const *filename, int size, int flags)
  */
 bool al_init_ttf_addon(void)
 {
-   al_register_font_extension(".ttf", al_load_ttf_font);
+   al_register_font_loader(".ttf", al_load_ttf_font);
    /* Can't fail right now - in the future we might dynamically load
     * the FreeType DLL here and/or initialize FreeType (which both
     * could fail and would cause a false return).
