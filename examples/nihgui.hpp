@@ -68,6 +68,7 @@ public:
 
 class EventHandler {
 public:
+   virtual ~EventHandler() {}
    virtual void   handle_event(const ALLEGRO_EVENT & event) = 0;
 };
 
