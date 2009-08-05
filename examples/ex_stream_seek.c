@@ -39,6 +39,7 @@ static int initialize(void)
       return 0;
    }
    al_init_ogg_vorbis_addon();
+   al_init_flac_addon();
    if (!al_install_audio(ALLEGRO_AUDIO_DRIVER_AUTODETECT)) {
       printf("Could not init sound!\n");
       return 0;
@@ -48,7 +49,7 @@ static int initialize(void)
       return 0;
    }
 
-   display = al_create_display(320, 180);
+   display = al_create_display(640, 180);
    if (!display) {
       printf("Could not create display!\n");
       return 0;
@@ -80,28 +81,43 @@ static int initialize(void)
 static void logic(void)
 {
    /* calculate the position of the slider */
+   double w = al_get_display_width() - 20;
    double pos = al_get_stream_position_secs(music_stream);
    double len = al_get_stream_length_secs(music_stream);
-   slider_pos = 300.0 * (pos / len);
+   slider_pos = w * (pos / len);
+}
+
+static void print_time(int x, int y, float t)
+{
+   int hours, minutes;
+   hours = (int)t / 3600;
+   t -= hours * 3600;
+   minutes = (int)t / 60;
+   t -= minutes * 60;
+   al_draw_textf(basic_font, x, y, 0, "%02d:%02d:%05.2f", hours, minutes, t);
 }
 
 static void render(void)
 {
    double pos = al_get_stream_position_secs(music_stream);
    double length = al_get_stream_length_secs(music_stream);
-   double loop_start_pos = 300.0 * (loop_start / length);
-   double loop_end_pos = 300.0 * (loop_end / length);
+   double w = al_get_display_width() - 20;
+   double loop_start_pos = w * (loop_start / length);
+   double loop_end_pos = w * (loop_end / length);
 
    al_clear_to_color(al_map_rgb(64, 64, 128));
    
    /* render "music player" */
    al_set_blender(ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA, al_map_rgb(255, 255, 255));
    al_draw_textf(basic_font, 0, 0, 0, "Playing %s", stream_filename);
-   al_draw_textf(basic_font, 0, 24, 0, "Pos = %f / %f", pos, length);
-   al_draw_filled_rectangle(10.0, 48.0 + 7.0, 310.0, 48.0 + 9.0, al_map_rgb(0, 0, 0));
+   print_time(8, 24, pos);
+   al_draw_textf(basic_font, 100, 24, 0, "/");
+   print_time(110, 24, length);
+   al_draw_filled_rectangle(10.0, 48.0 + 7.0, 10.0 + w, 48.0 + 9.0, al_map_rgb(0, 0, 0));
    al_draw_line(10.0 + loop_start_pos, 46.0, 10.0 + loop_start_pos, 66.0, al_map_rgb(255, 0, 0), 0);
    al_draw_line(10.0 + loop_end_pos, 46.0, 10.0 + loop_end_pos, 66.0, al_map_rgb(255, 0, 0), 0);
-   al_draw_filled_rectangle(10.0 + slider_pos - 2.0, 48.0, 10.0 + slider_pos + 2.0, 64.0, al_map_rgb(224, 224, 224));
+   al_draw_filled_rectangle(10.0 + slider_pos - 2.0, 48.0, 10.0 + slider_pos + 2.0, 64.0,
+      al_map_rgb(224, 224, 224));
    
    /* show help */
    al_draw_textf(basic_font, 0, 96, 0, "Drag the slider to seek.");
@@ -123,12 +139,13 @@ static void myexit(void)
 static void maybe_fiddle_sliders(int mx, int my)
 {
    double seek_pos;
+   double w = al_get_display_width() - 20;
 
-   if (!(mx >= 10 && mx < 310 && my >= 48 && my < 64)) {
+   if (!(mx >= 10 && mx < 10 + w && my >= 48 && my < 64)) {
       return;
    }
 
-   seek_pos = al_get_stream_length_secs(music_stream) * ((mx - 10) / 300.0);
+   seek_pos = al_get_stream_length_secs(music_stream) * ((mx - 10) / w);
    if (mouse_button[1]) {
       al_seek_stream_secs(music_stream, seek_pos);
    }
