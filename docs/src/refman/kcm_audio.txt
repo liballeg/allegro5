@@ -777,6 +777,7 @@ It will be matched case-insensitively.
 The `loader` argument may be NULL to unregister an entry.
 
 Returns true on success, false on error.
+Returns false if unregistering an entry that doesn't exist.
 
 ## API: al_register_sample_saver
 
@@ -789,6 +790,7 @@ It will be matched case-insensitively.
 The `saver` argument may be NULL to unregister an entry.
 
 Returns true on success, false on error.
+Returns false if unregistering an entry that doesn't exist.
 
 ## API: al_register_stream_loader
 
@@ -801,6 +803,7 @@ It will be matched case-insensitively.
 The `stream_loader` argument may be NULL to unregister an entry.
 
 Returns true on success, false on error.
+Returns false if unregistering an entry that doesn't exist.
 
 ## API: al_load_sample
 

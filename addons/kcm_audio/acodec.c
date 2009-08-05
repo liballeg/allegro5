@@ -96,12 +96,17 @@ bool al_register_sample_loader(const char *ext,
 {
    ACODEC_TABLE *ent;
 
-   if (strlen(ext) >= MAX_EXTENSION_LENGTH) {
+   if (strlen(ext) + 1 >= MAX_EXTENSION_LENGTH) {
       return false;
    }
 
    ent = find_acodec_table_entry(ext);
-   if (!ent) {
+   if (!loader) {
+      if (!ent || !ent->loader) {
+         return false; /* Nothing to remove. */
+      }
+   }
+   else if (!ent) {
       ent = add_acodec_table_entry(ext);
    }
 
@@ -118,12 +123,17 @@ bool al_register_sample_saver(const char *ext,
 {
    ACODEC_TABLE *ent;
 
-   if (strlen(ext) >= MAX_EXTENSION_LENGTH) {
+   if (strlen(ext) + 1 >= MAX_EXTENSION_LENGTH) {
       return false;
    }
 
    ent = find_acodec_table_entry(ext);
-   if (!ent) {
+   if (!saver) {
+      if (!ent || !ent->saver) {
+         return false; /* Nothing to remove. */
+      }
+   }
+   else if (!ent) {
       ent = add_acodec_table_entry(ext);
    }
 
@@ -141,12 +151,17 @@ bool al_register_stream_loader(const char *ext,
 {
    ACODEC_TABLE *ent;
 
-   if (strlen(ext) >= MAX_EXTENSION_LENGTH) {
+   if (strlen(ext) + 1 >= MAX_EXTENSION_LENGTH) {
       return false;
    }
 
    ent = find_acodec_table_entry(ext);
-   if (!ent) {
+   if (!stream_loader) {
+      if (!ent || !ent->stream_loader) {
+         return false; /* Nothing to remove. */
+      }
+   }
+   else if (!ent) {
       ent = add_acodec_table_entry(ext);
    }
 
