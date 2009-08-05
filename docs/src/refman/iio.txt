@@ -1,8 +1,5 @@
 # Image I/O addon
 
-## API: al_add_image_handler
-
-
 ## API: al_init_iio_addon
 
 Initializes the IIO addon.
@@ -12,16 +9,76 @@ Initializes the IIO addon.
 Shut down the IIO addon. This is done automatically at program exit,
 but can be called any time the user wishes as well.
 
+## API: al_register_bitmap_loader
+
+Register a handler for [al_load_bitmap].  The given function will be used to
+handle the loading of bitmaps files with the given extension.
+
+The extension should include the leading dot ('.') character.
+It will be matched case-insensitively.
+
+The `loader` argument may be NULL to unregister an entry.
+
+Returns true on success, false on error.
+Returns false if unregistering an entry that doesn't exist.
+
+## API: al_register_bitmap_saver
+
+Register a handler for [al_save_bitmap].  The given function will be used to
+handle the loading of bitmaps files with the given extension.
+
+The extension should include the leading dot ('.') character.
+It will be matched case-insensitively.
+
+The `saver` argument may be NULL to unregister an entry.
+
+Returns true on success, false on error.
+Returns false if unregistering an entry that doesn't exist.
+
+## API: al_register_bitmap_loader_entry
+
+Register a handler for [al_load_bitmap_entry].  The given function will be
+used to handle the loading of bitmaps files with the given extension.
+
+The extension should include the leading dot ('.') character.
+It will be matched case-insensitively.
+
+The `fs_loader` argument may be NULL to unregister an entry.
+
+Returns true on success, false on error.
+Returns false if unregistering an entry that doesn't exist.
+
+## API: al_register_bitmap_saver_entry
+
+Register a handler for [al_save_bitmap_entry].  The given function will be
+used to handle the loading of bitmaps files with the given extension.
+
+The extension should include the leading dot ('.') character.
+It will be matched case-insensitively.
+
+The `saver_entry` argument may be NULL to unregister an entry.
+
+Returns true on success, false on error.
+Returns false if unregistering an entry that doesn't exist.
+
 ## API: al_load_bitmap
 
 Loads an image file into an ALLEGRO_BITMAP.
 The file type is determined by the extension.
+
+Returns NULL on error.
+
+See also: [al_load_bitmap_entry], [al_register_bitmap_loader]
 
 ## API: al_load_bitmap_entry
 
 Loads an image from an ALLEGRO_FS_ENTRY into an ALLEGRO_BITMAP.
 The file type is determined by the passed 'ident' parameter, which is a file
 name extension including the leading dot.
+
+Returns NULL on error.
+
+See also: [al_load_bitmap], [al_register_bitmap_loader_entry]
 
 ## API: al_save_bitmap
 
@@ -30,7 +87,7 @@ The file type is determined by the extension.
 
 Returns true on success, false on error.
 
-See also: [al_save_bitmap_entry]
+See also: [al_save_bitmap_entry], [al_register_bitmap_saver]
 
 ## API: al_save_bitmap_entry
 
@@ -40,12 +97,14 @@ name extension including the leading dot.
 
 Returns true on success, false on error.
 
-See also: [al_save_bitmap]
+See also: [al_save_bitmap], [al_register_bitmap_saver_entry]
 
 ## API: al_load_bmp
 
 Create a new ALLEGRO_BITMAP from a BMP file. The bitmap is created with
 [al_create_bitmap].
+
+Returns NULL on error.
 
 See Also: [al_load_bitmap].
 
@@ -54,12 +113,16 @@ See Also: [al_load_bitmap].
 Create a new ALLEGRO_BITMAP from a JPEG file. The bitmap is created with
 [al_create_bitmap].
 
+Returns NULL on error.
+
 See Also: [al_load_bitmap].
 
 ## API: al_load_pcx
 
 Create a new ALLEGRO_BITMAP from a PCX file. The bitmap is created with
 [al_create_bitmap].
+
+Returns NULL on error.
 
 See Also: [al_load_bitmap].
 
@@ -68,6 +131,8 @@ See Also: [al_load_bitmap].
 Create a new ALLEGRO_BITMAP from a PNG file. The bitmap is created with
 [al_create_bitmap].
 
+Returns NULL on error.
+
 See Also: [al_load_bitmap].
 
 ## API: al_load_tga
@@ -75,11 +140,15 @@ See Also: [al_load_bitmap].
 Create a new ALLEGRO_BITMAP from a TGA file. The bitmap is created with
 [al_create_bitmap].
 
+Returns NULL on error.
+
 See Also: [al_load_bitmap].
 
 ## API: al_save_bmp
 
 Save an ALLEGRO_BITMAP as a BMP file.
+
+Returns true on success, false on error.
 
 See Also: [al_save_bitmap].
 
@@ -87,11 +156,15 @@ See Also: [al_save_bitmap].
 
 Save an ALLEGRO_BITMAP as a JPEG file. 
 
+Returns true on success, false on error.
+
 See Also: [al_save_bitmap].
 
 ## API: al_save_pcx
 
 Save an ALLEGRO_BITMAP as a PCX file.
+
+Returns true on success, false on error.
 
 See Also: [al_save_bitmap].
 
@@ -99,11 +172,15 @@ See Also: [al_save_bitmap].
 
 Save an ALLEGRO_BITMAP as a PNG file. 
 
+Returns true on success, false on error.
+
 See Also: [al_save_bitmap].
 
 ## API: al_save_tga
 
 Save an ALLEGRO_BITMAP as a TGA file. 
+
+Returns true on success, false on error.
 
 See Also: [al_save_bitmap].
 

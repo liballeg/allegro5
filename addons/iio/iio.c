@@ -4,17 +4,17 @@
 #include "allegro5/allegro5.h"
 #include "allegro5/a5_iio.h"
 #include "allegro5/internal/aintern.h"
-
+#include "allegro5/internal/aintern_vector.h"
 
 #include "iio.h"
 
 
-#define MAX_EXTENSION 100
+#define MAX_EXTENSION   (32)
 
 
 typedef struct Handler
 {
-   char *extension;
+   char extension[MAX_EXTENSION];
    ALLEGRO_IIO_LOADER_FUNCTION loader;
    ALLEGRO_IIO_SAVER_FUNCTION saver;
    ALLEGRO_IIO_FS_LOADER_FUNCTION fs_loader;
@@ -22,25 +22,9 @@ typedef struct Handler
 } Handler;
 
 
-static Handler **handlers = NULL;
-static bool inited = false;
-static unsigned int num_handlers = 0;
-
-
-static void iio_shutdown(void)
-{
-   if (inited) {
-      unsigned int i;
-      for (i = 0; i < num_handlers; i++) {
-         free(handlers[i]->extension);
-         free(handlers[i]);
-      }
-      free(handlers);
-      handlers = NULL;
-      inited = false;
-      num_handlers = 0;
-   }
-}
+/* globals */
+static bool iio_inited = false;
+static _AL_VECTOR iio_table = _AL_VECTOR_INITIALIZER(Handler);
 
 
 /* Function: al_init_iio_addon
@@ -49,27 +33,49 @@ bool al_init_iio_addon(void)
 {
    int success;
 
-   if (inited)
+   if (iio_inited)
       return true;
 
    success = 0;
 
-   success |= al_add_image_handler("pcx", al_load_pcx, al_save_pcx, al_load_pcx_entry, al_save_pcx_entry);
-   success |= al_add_image_handler("bmp", al_load_bmp, al_save_bmp, al_load_bmp_entry, al_save_bmp_entry);
-   success |= al_add_image_handler("tga", al_load_tga, al_save_tga, al_load_tga_entry, al_save_tga_entry);
+   success |= al_register_bitmap_loader(".pcx", al_load_pcx);
+   success |= al_register_bitmap_saver(".pcx", al_save_pcx);
+   success |= al_register_bitmap_loader_entry(".pcx", al_load_pcx_entry);
+   success |= al_register_bitmap_saver_entry(".pcx", al_save_pcx_entry);
+
+   success |= al_register_bitmap_loader(".bmp", al_load_bmp);
+   success |= al_register_bitmap_saver(".bmp", al_save_bmp);
+   success |= al_register_bitmap_loader_entry(".bmp", al_load_bmp_entry);
+   success |= al_register_bitmap_saver_entry(".bmp", al_save_bmp_entry);
+
+   success |= al_register_bitmap_loader(".tga", al_load_tga);
+   success |= al_register_bitmap_saver(".tga", al_save_tga);
+   success |= al_register_bitmap_loader_entry(".tga", al_load_tga_entry);
+   success |= al_register_bitmap_saver_entry(".tga", al_save_tga_entry);
+
 #ifdef ALLEGRO_CFG_IIO_HAVE_PNG
-   success |= al_add_image_handler("png", al_load_png, al_save_png, al_load_png_entry, al_save_png_entry);
+   success |= al_register_bitmap_loader(".png", al_load_png);
+   success |= al_register_bitmap_saver(".png", al_save_png);
+   success |= al_register_bitmap_loader_entry(".png", al_load_png_entry);
+   success |= al_register_bitmap_saver_entry(".png", al_save_png_entry);
 #endif
+
 #ifdef ALLEGRO_CFG_IIO_HAVE_JPG
-   success |= al_add_image_handler("jpg", al_load_jpg, al_save_jpg, al_load_jpg_entry, al_save_jpg_entry);
-   success |= al_add_image_handler("jpeg", al_load_jpg, al_save_jpg, al_load_jpg_entry, al_save_jpg_entry);
+   success |= al_register_bitmap_loader(".jpg", al_load_jpg);
+   success |= al_register_bitmap_saver(".jpg", al_save_jpg);
+   success |= al_register_bitmap_loader_entry(".jpg", al_load_jpg_entry);
+   success |= al_register_bitmap_saver_entry(".jpg", al_save_jpg_entry);
+
+   success |= al_register_bitmap_loader(".jpeg", al_load_jpg);
+   success |= al_register_bitmap_saver(".jpeg", al_save_jpg);
+   success |= al_register_bitmap_loader_entry(".jpeg", al_load_jpg_entry);
+   success |= al_register_bitmap_saver_entry(".jpeg", al_save_jpg_entry);
 #endif
 
    if (success)
-      inited = true;
+      iio_inited = true;
 
-
-   _al_add_exit_func(iio_shutdown, "iio_shutdown");
+   _al_add_exit_func(al_shutdown_iio_addon, "al_shutdown_iio_addon");
 
    return success;
 }
@@ -79,107 +85,20 @@ bool al_init_iio_addon(void)
  */
 void al_shutdown_iio_addon(void)
 {
-   iio_shutdown();
+   if (iio_inited) {
+      _al_vector_free(&iio_table);
+      iio_inited = false;
+   }
 }
 
 
-/* Function: al_add_image_handler
- */
-bool al_add_image_handler(const char *extension,
-   ALLEGRO_IIO_LOADER_FUNCTION loader, ALLEGRO_IIO_SAVER_FUNCTION saver,
-   ALLEGRO_IIO_FS_LOADER_FUNCTION fs_loader, ALLEGRO_IIO_FS_SAVER_FUNCTION fs_saver)
+static Handler *find_handler(const char *extension)
 {
-   Handler *l;
+   unsigned i;
 
-   ASSERT(extension);
-   ASSERT(loader);
-
-   l = (Handler *) malloc(sizeof(Handler));
-   if (!l)
-      return false;
-
-   l->extension = strdup(extension);
-   l->loader = loader;
-   l->saver = saver;
-   l->fs_loader = fs_loader;
-   l->fs_saver = fs_saver;
-
-   num_handlers++;
-
-   if (num_handlers == 1) {
-      handlers = malloc(sizeof(Handler *));
-   }
-   else {
-      handlers = realloc(handlers, num_handlers * sizeof(Handler *));
-   }
-
-   if (!handlers) {
-      free(l);
-      handlers = NULL;
-      return false;
-   }
-
-   handlers[num_handlers - 1] = l;
-
-   return true;
-}
-
-
-static char *iio_get_extension(const char *filename)
-{
-   int count = 0;
-   int pos = strlen(filename) - 1;
-   char *result;
-
-   while (pos >= 0 && filename[pos] != '.') {
-      count++;
-      pos--;
-   }
-
-   if (filename[pos] == '.') {
-      result = strdup(filename + pos + 1);
-   }
-   else {
-      result = strdup("");
-   }
-
-   return result;
-}
-
-
-static int iio_stricmp(const char *s1, const char *s2)
-{
-   int i;
-
-   for (i = 0; s1[i] && s2[i] && (tolower(s1[i]) == tolower(s2[i])); i++) {
-      /* hm, this is empty */
-   }
-
-   if (s1[i] == 0 && s2[i] == 0)
-      return 0;
-
-   if (s1[i] == 0)
-      return -1;
-   if (s2[i] == 0)
-      return 1;
-
-   return s1[i] - s2[i];
-}
-
-
-static Handler *find_handler(const char *filename)
-{
-   char *p = iio_get_extension(filename);
-   char extension[MAX_EXTENSION];
-   unsigned int i;
-
-   strncpy(extension, p, MAX_EXTENSION);
-
-   free(p);
-
-   for (i = 0; i < num_handlers; i++) {
-      Handler *l = handlers[i];
-      if (!iio_stricmp(extension, l->extension)) {
+   for (i = 0; i < _al_vector_size(&iio_table); i++) {
+      Handler *l = _al_vector_ref(&iio_table, i);
+      if (0 == stricmp(extension, l->extension)) {
          return l;
       }
    }
@@ -188,22 +107,172 @@ static Handler *find_handler(const char *filename)
 }
 
 
+static Handler *add_iio_table_entry(const char *ext)
+{
+   Handler *ent;
+
+   ent = _al_vector_alloc_back(&iio_table);
+   strcpy(ent->extension, ext);
+   ent->loader = NULL;
+   ent->saver = NULL;
+   ent->fs_loader = NULL;
+   ent->fs_saver = NULL;
+
+   return ent;
+}
+
+
+/* Function: al_register_bitmap_loader
+ */
+bool al_register_bitmap_loader(const char *extension,
+   ALLEGRO_BITMAP *(*loader)(const char *filename))
+{
+   Handler *ent;
+
+   ASSERT(extension);
+   ASSERT(loader);
+
+   if (strlen(extension) + 1 >= MAX_EXTENSION) {
+      return false;
+   }
+
+   ent = find_handler(extension);
+   if (!loader) {
+       if (!ent || !ent->loader) {
+         return false; /* Nothing to remove. */
+       }
+   }
+   else if (!ent) {
+       ent = add_iio_table_entry(extension);
+   }
+
+   ent->loader = loader;
+
+   return true;
+}
+
+
+/* Function: al_register_bitmap_saver
+ */
+bool al_register_bitmap_saver(const char *extension,
+   bool (*saver)(const char *filename, ALLEGRO_BITMAP *bmp))
+{
+   Handler *ent;
+
+   ASSERT(extension);
+   ASSERT(saver);
+
+   if (strlen(extension) + 1 >= MAX_EXTENSION) {
+      return false;
+   }
+
+   ent = find_handler(extension);
+   if (!saver) {
+       if (!ent || !ent->saver) {
+         return false; /* Nothing to remove. */
+       }
+   }
+   else if (!ent) {
+       ent = add_iio_table_entry(extension);
+   }
+
+   ent->saver = saver;
+
+   return true;
+}
+
+
+/* Function: al_register_bitmap_loader_entry
+ */
+bool al_register_bitmap_loader_entry(const char *extension,
+   ALLEGRO_BITMAP *(*loader_entry)(ALLEGRO_FILE *pf))
+{
+   Handler *ent;
+
+   ASSERT(extension);
+   ASSERT(loader_entry);
+
+   if (strlen(extension) + 1 >= MAX_EXTENSION) {
+      return false;
+   }
+
+   ent = find_handler(extension);
+   if (!loader_entry) {
+       if (!ent || !ent->fs_loader) {
+         return false; /* Nothing to remove. */
+       }
+   }
+   else if (!ent) {
+       ent = add_iio_table_entry(extension);
+   }
+
+   ent->fs_loader = loader_entry;
+
+   return true;
+}
+
+
+/* Function: al_register_bitmap_saver_entry
+ */
+bool al_register_bitmap_saver_entry(const char *extension,
+   bool (*saver_entry)(ALLEGRO_FILE *pf, ALLEGRO_BITMAP *bmp))
+{
+   Handler *ent;
+
+   ASSERT(extension);
+   ASSERT(saver_entry);
+
+   if (strlen(extension) + 1 >= MAX_EXTENSION) {
+      return false;
+   }
+
+   ent = find_handler(extension);
+   if (!saver_entry) {
+       if (!ent || !ent->fs_saver) {
+         return false; /* Nothing to remove. */
+       }
+   }
+   else if (!ent) {
+       ent = add_iio_table_entry(extension);
+   }
+
+   ent->fs_saver = saver_entry;
+
+   return true;
+}
+
+
 /* Function: al_load_bitmap
  */
 ALLEGRO_BITMAP *al_load_bitmap(const char *filename)
 {
-   Handler *h = find_handler(filename);
+   const char *ext;
+   Handler *h;
+
+   ext = strrchr(filename, '.');
+   if (!ext)
+      return NULL;
+
+   h = find_handler(ext);
    if (h)
       return h->loader(filename);
    else
       return NULL;
 }
 
+
 /* Function: al_save_bitmap
  */
 bool al_save_bitmap(const char *filename, ALLEGRO_BITMAP *bitmap)
 {
-   Handler *h = find_handler(filename);
+   const char *ext;
+   Handler *h;
+
+   ext = strrchr(filename, '.');
+   if (!ext)
+      return NULL;
+
+   h = find_handler(filename);
    if (h)
       return h->saver(filename, bitmap);
    else {
@@ -211,6 +280,7 @@ bool al_save_bitmap(const char *filename, ALLEGRO_BITMAP *bitmap)
       return false;
    }
 }
+
 
 /* Function: al_load_bitmap_entry
  */
@@ -222,6 +292,7 @@ ALLEGRO_BITMAP *al_load_bitmap_entry(ALLEGRO_FILE *pf, const char *ident)
    else
       return NULL;
 }
+
 
 /* Function: al_save_bitmap_entry
  */
@@ -236,3 +307,6 @@ bool al_save_bitmap_entry(ALLEGRO_FILE *pf, const char *ident,
       return false;
    }
 }
+
+
+/* vim: set sts=3 sw=3 et: */

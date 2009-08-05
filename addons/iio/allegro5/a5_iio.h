@@ -34,9 +34,13 @@ typedef bool (*ALLEGRO_IIO_SAVER_FUNCTION)(const char *filename, ALLEGRO_BITMAP 
 typedef bool (*ALLEGRO_IIO_FS_SAVER_FUNCTION)(ALLEGRO_FILE *pf, ALLEGRO_BITMAP *bitmap);
 
 
+/* XXX the *_entry names are terrible */
 A5_IIO_FUNC(bool, al_init_iio_addon, (void));
 A5_IIO_FUNC(void, al_shutdown_iio_addon, (void));
-A5_IIO_FUNC(bool, al_add_image_handler, (const char *ext, ALLEGRO_IIO_LOADER_FUNCTION loader, ALLEGRO_IIO_SAVER_FUNCTION saver, ALLEGRO_IIO_FS_LOADER_FUNCTION fs_loader, ALLEGRO_IIO_FS_SAVER_FUNCTION fs_saver));
+A5_IIO_FUNC(bool, al_register_bitmap_loader, (const char *ext, ALLEGRO_IIO_LOADER_FUNCTION loader));
+A5_IIO_FUNC(bool, al_register_bitmap_saver, (const char *ext, ALLEGRO_IIO_SAVER_FUNCTION saver));
+A5_IIO_FUNC(bool, al_register_bitmap_loader_entry, (const char *ext, ALLEGRO_IIO_FS_LOADER_FUNCTION fs_loader));
+A5_IIO_FUNC(bool, al_register_bitmap_saver_entry, (const char *ext, ALLEGRO_IIO_FS_SAVER_FUNCTION fs_saver));
 A5_IIO_FUNC(ALLEGRO_BITMAP *, al_load_bitmap, (const char *filename));
 A5_IIO_FUNC(ALLEGRO_BITMAP *, al_load_bitmap_entry, (ALLEGRO_FILE *pf, const char *ident));
 A5_IIO_FUNC(bool, al_save_bitmap, (const char *filename, ALLEGRO_BITMAP *bitmap));
