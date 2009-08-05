@@ -20,16 +20,18 @@
 #include "allegro5/a5_font.h"
 #include "allegro5/a5_iio.h"
 
-
 #include "font.h"
+
 
 typedef struct
 {
    ALLEGRO_USTR *extension;
    ALLEGRO_FONT *(*load_font)(char const *filename, int size, int flags);
-} HANDLER;
+} FONT_HANDLER;
 
-static _AL_VECTOR handlers;
+
+static _AL_VECTOR font_handlers;
+
 
 /* al_font_404_character:
  *  This is what we render missing glyphs as.
@@ -228,12 +230,12 @@ ALLEGRO_FONT_VTABLE* al_font_vtable_color = &_al_font_vtable_color;
 
 static void font_shutdown(void)
 {
-    while (!_al_vector_is_empty(&handlers)) {
-       HANDLER *h = _al_vector_ref(&handlers, _al_vector_size(&handlers)-1);
+    while (!_al_vector_is_empty(&font_handlers)) {
+       FONT_HANDLER *h = _al_vector_ref_back(&font_handlers);
        al_ustr_free(h->extension);
-       _al_vector_delete_at(&handlers, _al_vector_size(&handlers)-1);
+       _al_vector_delete_at(&font_handlers, _al_vector_size(&font_handlers)-1);
     }
-    _al_vector_free(&handlers);
+    _al_vector_free(&font_handlers);
 }
 
 
@@ -241,7 +243,7 @@ static void font_shutdown(void)
  */
 void al_init_font_addon(void)
 {
-   _al_vector_init(&handlers, sizeof(HANDLER));
+   _al_vector_init(&font_handlers, sizeof(FONT_HANDLER));
    al_init_iio_addon(); /* we depend on the iio addon */
    
    al_register_font_loader(".bmp", _al_load_bitmap_font);
@@ -262,14 +264,14 @@ void al_shutdown_font_addon(void)
 }
 
 
-static HANDLER *find_extension(char const *extension)
+static FONT_HANDLER *find_extension(char const *extension)
 {
    int i;
    /* Go backwards so a handler registered later for the same extension
     * has precedence.
     */
-   for (i = _al_vector_size(&handlers) - 1; i >= 0 ; i--) {
-      HANDLER *handler = _al_vector_ref(&handlers, i);
+   for (i = _al_vector_size(&font_handlers) - 1; i >= 0 ; i--) {
+      FONT_HANDLER *handler = _al_vector_ref(&font_handlers, i);
       if (0 == stricmp(al_cstr(handler->extension), extension))
          return handler;
    }
@@ -283,17 +285,17 @@ static HANDLER *find_extension(char const *extension)
 bool al_register_font_loader(char const *extension,
    ALLEGRO_FONT *(*load_font)(char const *filename, int size, int flags))
 {
-   HANDLER *handler = find_extension(extension);
+   FONT_HANDLER *handler = find_extension(extension);
    if (!handler) {
-      if (!load_font) return false; /* Nothing to remove. */
-      handler = _al_vector_alloc_back(&handlers);
+      if (!load_font)
+         return false; /* Nothing to remove. */
+      handler = _al_vector_alloc_back(&font_handlers);
+      handler->extension = al_ustr_new(extension);
    }
    else {
       if (!load_font)
-         return _al_vector_find_and_delete(&handlers, handler);
-      al_ustr_free(handler->extension);
+         return _al_vector_find_and_delete(&font_handlers, handler);
    }
-   handler->extension = al_ustr_new(extension);
    handler->load_font = load_font;
    return true;
 }
@@ -306,7 +308,7 @@ ALLEGRO_FONT *al_load_font(char const *filename, int size, int flags)
 {
    int i;
    const char *ext;
-   HANDLER *handler;
+   FONT_HANDLER *handler;
 
    ASSERT(filename);
 
@@ -318,7 +320,7 @@ ALLEGRO_FONT *al_load_font(char const *filename, int size, int flags)
       return handler->load_font(filename, size, flags);
 
    /* No handler for the extension was registered - try to load with
-    * all registered handlers and see if one works. So if the user
+    * all registered font_handlers and see if one works. So if the user
     * does:
     * 
     * al_init_font_addon()
@@ -328,12 +330,13 @@ ALLEGRO_FONT *al_load_font(char const *filename, int size, int flags)
     * with Freetype (and load it successfully in this case), then try
     * to load it as a bitmap font.
     */
-   for (i = _al_vector_size(&handlers) - 1; i >= 0 ; i--) {
-      HANDLER *handler = _al_vector_ref(&handlers, i);
+   for (i = _al_vector_size(&font_handlers) - 1; i >= 0 ; i--) {
+      FONT_HANDLER *handler = _al_vector_ref(&font_handlers, i);
       ALLEGRO_FONT *try = handler->load_font(filename, size, flags);
       if (try)
          return try;
    }
+
    return NULL;
 }
 
