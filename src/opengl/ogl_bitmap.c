@@ -979,7 +979,7 @@ GLuint al_get_opengl_texture(ALLEGRO_BITMAP *bitmap)
    return ogl_bitmap->texture;
 }
 
-/* Function: al_get_opengl_fbo
+/* Function: al_remove_opengl_fbo
  */
 void al_remove_opengl_fbo(ALLEGRO_BITMAP *bitmap)
 {
@@ -995,7 +995,7 @@ void al_remove_opengl_fbo(ALLEGRO_BITMAP *bitmap)
 #endif
 }
 
-/* Function: al_remove_opengl_fbo
+/* Function: al_get_opengl_fbo
  */
 GLuint al_get_opengl_fbo(ALLEGRO_BITMAP *bitmap)
 {
