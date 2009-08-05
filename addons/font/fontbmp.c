@@ -226,7 +226,7 @@ ALLEGRO_FONT *al_grab_font_from_bitmap(
          if (!glyphs)
             goto cleanup_and_fail_on_error;
          
-	 al_set_target_bitmap(glyphs);
+         al_set_target_bitmap(glyphs);
          al_set_blender(ALLEGRO_ONE, ALLEGRO_ZERO, white);
          al_draw_bitmap(bmp, 0, 0, 0);
          /* At least with OpenGL, texture pixels at the very border of

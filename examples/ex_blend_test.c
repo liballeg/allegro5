@@ -310,7 +310,7 @@ int main(int argc, char **argv)
       al_flip_display();
       al_install_keyboard();
       queue = al_create_event_queue();
-      al_register_event_source(queue, (void *)al_get_keyboard());
+      al_register_event_source(queue, al_get_keyboard_event_source(al_get_keyboard()));
       al_wait_for_event(queue, &event);
    }
 
