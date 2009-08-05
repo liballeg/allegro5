@@ -10,6 +10,7 @@
 #include "allegro5/a5_flac.h"
 #include "allegro5/a5_vorbis.h"
 #include "allegro5/kcm_audio.h"
+#include "allegro5/a5_primitives.h"
 
 ALLEGRO_DISPLAY *display;
 ALLEGRO_TIMER *timer;
