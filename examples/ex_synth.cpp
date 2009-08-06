@@ -32,102 +32,109 @@ enum Waveform {
 
 
 /* forward declarations */
-static void generate_wave(Waveform type, float *buf, size_t samples, float t,
-   float frequency, float phase, float amplitude);
-static void sine(float *buf, size_t samples, float t,
-   float frequency, float phase, float amplitude);
-static void square(float *buf, size_t samples, float t,
-   float frequency, float phase, float amplitude);
-static void triangle(float *buf, size_t samples, float t,
-   float frequency, float phase, float amplitude);
-static void sawtooth(float *buf, size_t samples, float t,
-   float frequency, float phase, float amplitude);
+static void generate_wave(Waveform type, float *buf, size_t samples, double t,
+   float frequency, float phase);
+static void sine(float *buf, size_t samples, double t,
+   float frequency, float phase);
+static void square(float *buf, size_t samples, double t,
+   float frequency, float phase);
+static void triangle(float *buf, size_t samples, double t,
+   float frequency, float phase);
+static void sawtooth(float *buf, size_t samples, double t,
+   float frequency, float phase);
 
 
 /* globals */
 ALLEGRO_FONT *font_gui;
-ALLEGRO_STREAM *stream;
+ALLEGRO_STREAM *stream1;
+ALLEGRO_STREAM *stream2;
+ALLEGRO_STREAM *stream3;
+ALLEGRO_STREAM *stream4;
+ALLEGRO_STREAM *stream5;
 
 
-static void generate_wave(Waveform type, float *buf, size_t samples, float t,
-   float frequency, float phase, float amplitude)
+static void generate_wave(Waveform type, float *buf, size_t samples, double t,
+   float frequency, float phase)
 {
    switch (type) {
       case WAVEFORM_NONE:
+         for (unsigned i = 0; i < samples; i++) {
+            buf[i] = 0.0;
+         }
          break;
       case WAVEFORM_SINE:
-         sine(buf, samples, t, frequency, phase, amplitude);
+         sine(buf, samples, t, frequency, phase);
          break;
       case WAVEFORM_SQUARE:
-         square(buf, samples, t, frequency, phase, amplitude);
+         square(buf, samples, t, frequency, phase);
          break;
       case WAVEFORM_TRIANGLE:
-         triangle(buf, samples, t, frequency, phase, amplitude);
+         triangle(buf, samples, t, frequency, phase);
          break;
       case WAVEFORM_SAWTOOTH:
-         sawtooth(buf, samples, t, frequency, phase, amplitude);
+         sawtooth(buf, samples, t, frequency, phase);
          break;
    }
 }
 
 
-static void sine(float *buf, size_t samples, float t,
-   float frequency, float phase, float amplitude)
+static void sine(float *buf, size_t samples, double t,
+   float frequency, float phase)
 {
-   const float w = TWOPI * frequency;
+   const double w = TWOPI * frequency;
    unsigned i;
 
    for (i = 0; i < samples; i++) {
-      float ti = t + i * dt;
-      buf[i] += amplitude * sin(w * ti + phase);
+      double ti = t + i * dt;
+      buf[i] = sin(w * ti + phase);
    }
 }
 
 
-static void square(float *buf, size_t samples, float t,
-   float frequency, float phase, float amplitude)
+static void square(float *buf, size_t samples, double t,
+   float frequency, float phase)
 {
-   const float w = TWOPI * frequency;
+   const double w = TWOPI * frequency;
    unsigned i;
 
    for (i = 0; i < samples; i++) {
-      float ti = t + i * dt;
-      float x = sin(w * ti + phase);
+      double ti = t + i * dt;
+      double x = sin(w * ti + phase);
 
-      buf[i] += (x >= 0.0) ? amplitude : -amplitude;
+      buf[i] = (x >= 0.0) ? 1.0 : -1.0;
    }
 }
 
 
-static void triangle(float *buf, size_t samples, float t,
-   float frequency, float phase, float amplitude)
+static void triangle(float *buf, size_t samples, double t,
+   float frequency, float phase)
 {
-   const float w = TWOPI * frequency;
+   const double w = TWOPI * frequency;
    unsigned i;
 
    for (i = 0; i < samples; i++) {
-      float tx = w * (t + i * dt) + PI/2.0 + phase;
-      float tu = fmodf(tx/PI, 2.0);
+      double tx = w * (t + i * dt) + PI/2.0 + phase;
+      double tu = fmod(tx/PI, 2.0);
 
       if (tu <= 1.0)
-         buf[i] += amplitude * (1.0 - 2.0 * tu);
+         buf[i] = (1.0 - 2.0 * tu);
       else
-         buf[i] += amplitude * (-1.0 + 2.0 * (tu - 1.0));
+         buf[i] = (-1.0 + 2.0 * (tu - 1.0));
    }
 }
 
 
-void sawtooth(float *buf, size_t samples, float t,
-   float frequency, float phase, float amplitude)
+void sawtooth(float *buf, size_t samples, double t,
+   float frequency, float phase)
 {
-   const float w = TWOPI * frequency;
+   const double w = TWOPI * frequency;
    unsigned i;
 
    for (i = 0; i < samples; i++) {
-      float tx = w * (t + i * dt) + PI + phase;
-      float tu = fmodf(tx/PI, 2.0);
+      double tx = w * (t + i * dt) + PI + phase;
+      double tu = fmod(tx/PI, 2.0);
 
-      buf[i] += amplitude * (-1.0 + tu);
+      buf[i] = (-1.0 + tu);
    }
 }
 
@@ -141,12 +148,21 @@ private:
    Label       phase_label;
    HSlider     phase_slider;
    Label       phase_val_label;
+   Label       gain_label;
+   HSlider     gain_slider;
+   Label       pan_label;
+   HSlider     pan_slider;
+   double      t;
+   float       last_gain;
+   float       last_pan;
 
 public:
    Group();
    void add_to_dialog(Dialog & d, int x, int y);
    void update_labels();
-   void generate(float *buf, size_t samples, float t);
+   void generate(float *buf, size_t samples);
+   bool get_gain_if_changed(float *gain);
+   bool get_pan_if_changed(float *pan);
 
 private:
    float get_frequency() const;
@@ -158,7 +174,14 @@ Group::Group() :
    freq_label(Label("f")),
    freq_slider(220, 1000),
    phase_label(Label("φ")),
-   phase_slider((int)(100 * PI), (int)(2 * 100 * PI)) /* -π .. π */
+   phase_slider((int)(100 * PI), (int)(2 * 100 * PI)),   /* -π .. π */
+   gain_label(Label("Gain")),
+   gain_slider(33, 100),                                 /* 0.0 .. 1.0 */
+   pan_label(Label("Pan")),
+   pan_slider(100, 200),                                 /* -1.0 .. 1.0 */
+   t(0.0),
+   last_gain(-10000),
+   last_pan(-10000)
 {
    /* Order must correspond with Waveform. */
    list.append_item("Off");
@@ -172,12 +195,20 @@ Group::Group() :
 void Group::add_to_dialog(Dialog & d, int x, int y)
 {
    d.add(list,             x,    y,    4,  4);
-   d.add(freq_label,       x+5,  y,    1,  1);
+
+   d.add(freq_label,       x+4,  y,    2,  1);
    d.add(freq_slider,      x+6,  y,    20, 1);
    d.add(freq_val_label,   x+26, y,    4,  1);
-   d.add(phase_label,      x+5,  y+2,  1,  1);
-   d.add(phase_slider,     x+6,  y+2,  20, 1);
-   d.add(phase_val_label,  x+26, y+2,  4,  1);
+
+   d.add(phase_label,      x+4,  y+1,  2,  1);
+   d.add(phase_slider,     x+6,  y+1,  20, 1);
+   d.add(phase_val_label,  x+26, y+1,  4,  1);
+
+   d.add(gain_label,       x+4,  y+2,  2,  1);
+   d.add(gain_slider,      x+6,  y+2,  20, 1);
+
+   d.add(pan_label,        x+4,  y+3,  2,  1);
+   d.add(pan_slider,       x+6,  y+3,  20, 1);
 }
 
 
@@ -195,14 +226,15 @@ void Group::update_labels()
 }
 
 
-void Group::generate(float *buf, size_t samples, float t)
+void Group::generate(float *buf, size_t samples)
 {
    Waveform type = (Waveform) list.get_cur_value();
    float frequency = get_frequency();
    float phase = get_phase();
 
-   /* The amplitude could be varied too. */
-   generate_wave(type, buf, samples, t, frequency, phase, 0.2);
+   generate_wave(type, buf, samples, t, frequency, phase);
+
+   t += dt * samples;
 }
 
 
@@ -215,6 +247,24 @@ float Group::get_frequency() const
 float Group::get_phase() const
 {
    return phase_slider.get_cur_value() / 100.0 - PI;
+}
+
+
+bool Group::get_gain_if_changed(float *gain)
+{
+   *gain = gain_slider.get_cur_value() / 100.0;
+   bool changed = (last_gain != *gain);
+   last_gain = *gain;
+   return changed;
+}
+
+
+bool Group::get_pan_if_changed(float *pan)
+{
+   *pan = pan_slider.get_cur_value() / 100.0 - 1.0;
+   bool changed = (last_pan != *pan);
+   last_pan = *pan;
+   return changed;
 }
 
 
@@ -252,7 +302,11 @@ void Prog::run()
 {
    d.prepare();
 
-   d.register_event_source(al_get_stream_event_source(stream));
+   d.register_event_source(al_get_stream_event_source(stream1));
+   d.register_event_source(al_get_stream_event_source(stream2));
+   d.register_event_source(al_get_stream_event_source(stream3));
+   d.register_event_source(al_get_stream_event_source(stream4));
+   d.register_event_source(al_get_stream_event_source(stream5));
    d.set_event_handler(this);
 
    while (!d.is_quit_requested()) {
@@ -276,26 +330,42 @@ void Prog::run()
 void Prog::handle_event(const ALLEGRO_EVENT & event)
 {
    if (event.type == ALLEGRO_EVENT_STREAM_EMPTY_FRAGMENT) {
-      void *buf_void;
-      float *buf;
-      unsigned i;
+      ALLEGRO_STREAM *stream;
+      Group *group;
+      void *buf;
+      float gain;
+      float pan;
 
-      if (!al_get_stream_fragment(stream, &buf_void)) {
+      stream = (ALLEGRO_STREAM *) event.any.source;
+      if (!al_get_stream_fragment(stream, &buf)) {
+         TRACE("al_get_stream_fragment failed\n");
          return;
       }
-      buf = (float *) buf_void;
 
-      for (i = 0; i < SAMPLES_PER_BUFFER; i++) {
-         buf[i] = 0.0;
+      if (stream == stream1)
+         group = &group1;
+      else if (stream == stream2)
+         group = &group2;
+      else if (stream == stream3)
+         group = &group3;
+      else if (stream == stream4)
+         group = &group4;
+      else if (stream == stream5)
+         group = &group5;
+      else
+         group = NULL;
+
+      ALLEGRO_ASSERT(group);
+
+      if (group) {
+         group->generate((float *) buf, SAMPLES_PER_BUFFER);
+         if (group->get_gain_if_changed(&gain)) {
+            al_set_stream_gain(stream, gain);
+         }
+         if (group->get_pan_if_changed(&pan)) {
+            al_set_stream_pan(stream, pan);
+         }
       }
-
-      t += dt * SAMPLES_PER_BUFFER;
-
-      group1.generate(buf, SAMPLES_PER_BUFFER, t);
-      group2.generate(buf, SAMPLES_PER_BUFFER, t);
-      group3.generate(buf, SAMPLES_PER_BUFFER, t);
-      group4.generate(buf, SAMPLES_PER_BUFFER, t);
-      group5.generate(buf, SAMPLES_PER_BUFFER, t);
 
       if (!al_set_stream_fragment(stream, buf)) {
          fprintf(stderr, "Error setting stream fragment.\n");
@@ -339,14 +409,30 @@ int main(void)
       return 1;
    }
 
-   stream = al_create_stream(8, SAMPLES_PER_BUFFER, STREAM_FREQUENCY,
-      ALLEGRO_AUDIO_DEPTH_FLOAT32, ALLEGRO_CHANNEL_CONF_1);
-   if (!stream) {
+   size_t buffers = 8;
+   unsigned samples = SAMPLES_PER_BUFFER;
+   unsigned freq = STREAM_FREQUENCY;
+   ALLEGRO_AUDIO_DEPTH depth = ALLEGRO_AUDIO_DEPTH_FLOAT32;
+   ALLEGRO_CHANNEL_CONF ch = ALLEGRO_CHANNEL_CONF_1;
+
+   stream1 = al_create_stream(buffers, samples, freq, depth, ch);
+   stream2 = al_create_stream(buffers, samples, freq, depth, ch);
+   stream3 = al_create_stream(buffers, samples, freq, depth, ch);
+   stream4 = al_create_stream(buffers, samples, freq, depth, ch);
+   stream5 = al_create_stream(buffers, samples, freq, depth, ch);
+   if (!stream1 || !stream2 || !stream3 || !stream4 || !stream5) {
       TRACE("Could not create stream.\n");
       return 1;
    }
 
-   if (!al_attach_stream_to_mixer(stream, al_get_default_mixer())) {
+   ALLEGRO_MIXER *mixer = al_get_default_mixer();
+   if (
+      !al_attach_stream_to_mixer(stream1, mixer) ||
+      !al_attach_stream_to_mixer(stream2, mixer) ||
+      !al_attach_stream_to_mixer(stream3, mixer) ||
+      !al_attach_stream_to_mixer(stream4, mixer) ||
+      !al_attach_stream_to_mixer(stream5, mixer)
+   ) {
       TRACE("Could not attach stream to mixer.\n");
       return 1;
    }
@@ -360,7 +446,11 @@ int main(void)
       prog.run();
    }
 
-   al_destroy_stream(stream);
+   al_destroy_stream(stream1);
+   al_destroy_stream(stream2);
+   al_destroy_stream(stream3);
+   al_destroy_stream(stream4);
+   al_destroy_stream(stream5);
    al_uninstall_audio();
 
    al_destroy_font(font_gui);
