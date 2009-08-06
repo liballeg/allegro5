@@ -358,7 +358,6 @@ ALLEGRO_STREAM *al_load_stream_wav(const char *filename, size_t buffer_count,
       _al_count_to_channel_conf(wavfile->channels));
 
    if (stream) {
-      stream->spl.mutex = al_create_mutex();
       stream->extra = wavfile;
       wavfile->loop_start = 0.0;
       wavfile->loop_end = wav_stream_get_length(stream);

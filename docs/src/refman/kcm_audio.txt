@@ -763,7 +763,7 @@ Currently this can only be called on streams created with acodec's
 ## API: al_set_stream_loop_secs
 
 Sets the loop points for the stream in seconds.
-Currently this can only be called on streams created with acodec's
+Currently this can only be called on WAV and OGG streams created with
 [al_stream_from_file].
 
 ## API: al_register_sample_loader

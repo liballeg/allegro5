@@ -27,6 +27,9 @@ struct AL_OV_DATA {
    int bitstream;
    double loop_start;
    double loop_end;
+#ifdef ALLEGRO_GP2XWIZ
+   ogg_int64_t loop_start_raw;
+#endif
 };
 
 
@@ -197,7 +200,14 @@ static bool ogg_stream_seek(ALLEGRO_STREAM *stream, double time)
 #ifndef ALLEGRO_GP2XWIZ
    return (ov_time_seek_lap(extra->vf, time) != -1);
 #else
-   return (ov_time_seek(extra->vf, time) != -1);
+   /* We saved the loop start point for fast seeking */
+   if (time == extra->loop_start) {
+   	return (ov_raw_seek(extra->vf, extra->loop_start_raw) != -1);
+   }
+   else {
+   	/* This isn't very accurate, but the alternative is very slow */
+   	return (ov_time_seek_page(extra->vf, time*1000) != -1);
+   }
 #endif
 }
 
@@ -212,14 +222,22 @@ static bool ogg_stream_rewind(ALLEGRO_STREAM *stream)
 static double ogg_stream_get_position(ALLEGRO_STREAM *stream)
 {
    AL_OV_DATA *extra = (AL_OV_DATA *) stream->extra;
+#ifndef ALLEGRO_GP2XWIZ
    return ov_time_tell(extra->vf);
+#else
+   return ov_time_tell(extra->vf)/1000.0;
+#endif
 }
 
 
 static double ogg_stream_get_length(ALLEGRO_STREAM *stream)
 {
    AL_OV_DATA *extra = (AL_OV_DATA *) stream->extra;
+#ifndef ALLEGRO_GP2XWIZ
    double ret = ov_time_total(extra->vf, -1);
+#else
+   double ret = ov_time_total(extra->vf, -1)/1000.0;
+#endif
    return ret;
 }
 
@@ -227,8 +245,20 @@ static double ogg_stream_get_length(ALLEGRO_STREAM *stream)
 static bool ogg_stream_set_loop(ALLEGRO_STREAM *stream, double start, double end)
 {
    AL_OV_DATA *extra = (AL_OV_DATA *) stream->extra;
+
    extra->loop_start = start;
    extra->loop_end = end;
+   
+#ifdef ALLEGRO_GP2XWIZ
+   /* This is the only way to get fast/accurate loop points with
+    * Tremor on slow devices.
+    */
+   ogg_int64_t save = ov_raw_tell(extra->vf);
+   ov_time_seek(extra->vf, start*1000);
+   extra->loop_start_raw = ov_raw_tell(extra->vf);
+   ov_raw_seek(extra->vf, save);
+#endif
+
    return true;
 }
 
@@ -268,7 +298,11 @@ static size_t ogg_stream_update(ALLEGRO_STREAM *stream, void *data,
 
    unsigned long pos = 0;
    int read_length = buf_size;
+#ifndef ALLEGRO_GP2XWIZ
    double ctime = ov_time_tell(extra->vf);
+#else
+   double ctime = ov_time_tell(extra->vf)/1000.0;
+#endif
    double rate = extra->vi->rate;
    double btime = ((double)buf_size / (double)word_size) / rate;
    
@@ -369,7 +403,6 @@ ALLEGRO_STREAM *al_load_stream_ogg_vorbis(const char *filename,
       free(vf);
       return NULL;
    }
-   stream->spl.mutex = al_create_mutex();
 
    stream->extra = extra;
 

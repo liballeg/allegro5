@@ -115,6 +115,7 @@ static float *_al_rechannel_matrix(ALLEGRO_CHANNEL_CONF orig,
       }
    }
 
+#ifdef DEBUGMODE
    {
       char debug[1024];
       ALLEGRO_DEBUG("sample matrix:\n");
@@ -126,6 +127,7 @@ static float *_al_rechannel_matrix(ALLEGRO_CHANNEL_CONF orig,
          ALLEGRO_DEBUG("%s\n", debug);
       }
    }
+#endif
 
    return &mat[0][0];
 }
@@ -704,6 +706,8 @@ bool al_attach_sample_to_mixer(ALLEGRO_SAMPLE_INSTANCE *spl,
    }
 
    maybe_lock_mutex(mixer->ss.mutex);
+   
+   _al_kcm_stream_set_mutex(spl, mixer->ss.mutex);
 
    slot = _al_vector_alloc_back(&mixer->streams);
    if (!slot) {
@@ -746,8 +750,6 @@ bool al_attach_sample_to_mixer(ALLEGRO_SAMPLE_INSTANCE *spl,
       _al_kcm_mixer_rejig_sample_matrix(mixer, spl);
    }
 
-   _al_kcm_stream_set_mutex(spl, mixer->ss.mutex);
-   
    spl->parent.u.mixer = mixer;
    spl->parent.is_voice = false;
 
