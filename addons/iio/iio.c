@@ -272,7 +272,7 @@ bool al_save_bitmap(const char *filename, ALLEGRO_BITMAP *bitmap)
    if (!ext)
       return NULL;
 
-   h = find_handler(filename);
+   h = find_handler(ext);
    if (h)
       return h->saver(filename, bitmap);
    else {

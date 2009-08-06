@@ -1767,11 +1767,7 @@
 		0x00F0, 4, 4)
 
 #define ALLEGRO_CONVERT_RGBA_4444_TO_RGB_565(p) \
-	ALLEGRO_SHIFT_CONVERT(p, \
-		0x0000, 0, 0, \
-		0xF000, 0, 0, \
-		0x0F00, 0, 1, \
-		0x00F0, 0, 3)
+	((p & 0xF000) | ((p & 0x0F00) >> 1) | ((p & 0x00F0) >> 3))
 
 #define ALLEGRO_CONVERT_RGBA_4444_TO_RGB_555(p) \
 	ALLEGRO_SHIFT_CONVERT(p, \

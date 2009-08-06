@@ -26,12 +26,8 @@
 static unsigned char four_bit_lookup[16][16];
 static unsigned char five_bit_lookup[32][16];
 static unsigned char six_bit_lookup[64][16];
-static unsigned char r_565_lookup[65536];
-static unsigned char g_565_lookup[65536];
-static unsigned char b_565_lookup[65536];
-static unsigned char r_4444_lookup[65536];
-static unsigned char g_4444_lookup[65536];
-static unsigned char b_4444_lookup[65536];
+static unsigned char _565_lookup[65536*3];
+static unsigned char _4444_lookup[65536*3];
 
 static void init_lookups(void)
 {
@@ -56,12 +52,12 @@ static void init_lookups(void)
    }
 
    for (i = 0; i < 65536; i++) {
-      r_565_lookup[i] = (i & 0xF800) >> 11;
-      g_565_lookup[i] = (i & 0x07E0) >> 5;
-      b_565_lookup[i] = (i & 0x001F);
-      r_4444_lookup[i] = (i & 0xF000) >> 12;
-      g_4444_lookup[i] = (i & 0x0F00) >> 8;
-      b_4444_lookup[i] = (i & 0x00F0) >> 4;
+      _565_lookup[i*3] = (i & 0xF800) >> 11;
+      _565_lookup[i*3+1] = (i & 0x07E0) >> 5;
+      _565_lookup[i*3+2] = (i & 0x001F);
+      _4444_lookup[i*3] = (i & 0xF000) >> 12;
+      _4444_lookup[i*3+1] = (i & 0x0F00) >> 8;
+      _4444_lookup[i*3+2] = (i & 0x00F0) >> 4;
    }
 }
   
@@ -129,9 +125,10 @@ void _al_draw_bitmap_region_optimized_rgb_565_to_rgb_565(
    for (y = 0; y < sh; y++) {
       for (x = 0; x < sw; x++) {
          pixel = *((uint16_t *)src_data);
-         r = five_bit_lookup[r_565_lookup[pixel]][rindex];
-         g = six_bit_lookup[g_565_lookup[pixel]][gindex];
-         b = five_bit_lookup[b_565_lookup[pixel]][bindex];
+         unsigned char *ptr = &(_565_lookup[pixel*3]);
+         r = five_bit_lookup[*ptr++][rindex];
+         g = six_bit_lookup[*ptr++][gindex];
+         b = five_bit_lookup[*ptr][bindex];
          pixel = (r << 11) | (g << 5) | b;
          *((uint16_t *)dest_data) = pixel;
          src_data += 2;
@@ -150,6 +147,7 @@ void _al_draw_bitmap_region_optimized_rgba_4444_to_rgb_565(
    int xd, yd;
    int x, y;
    ALLEGRO_COLOR *bc;
+   static ALLEGRO_COLOR white = { 1, 1, 1, 1 };
 
    if (!inited) {
       init_lookups();
@@ -182,10 +180,6 @@ void _al_draw_bitmap_region_optimized_rgba_4444_to_rgb_565(
    }
 
    bc = _al_get_blend_color();
-   int rindex = bc->r*15;
-   int gindex = bc->g*15;
-   int bindex = bc->b*15;
-   int r, g, b;
    uint16_t pixel;
       
    char *dest_data = ((char *)dest->memory+yd*dest->pitch+xd*2);
@@ -197,13 +191,13 @@ void _al_draw_bitmap_region_optimized_rgba_4444_to_rgb_565(
    src_data_inc = src->pitch - (sw*2);
 
    if (src->flags & ALLEGRO_ALPHA_TEST) {
-      if (bc->r == 1 && bc->g == 1 && bc->b == 1 && bc->a == 1) {
+      if (!memcmp(bc, &white, sizeof(ALLEGRO_COLOR))) {
          for (y = 0; y < sh; y++) {
             for (x = 0; x < sw; x++) {
                pixel = *((uint16_t *)src_data);
-               if (pixel & 0xF) {
-                  pixel = ALLEGRO_CONVERT_RGBA_4444_TO_RGB_565(pixel);
-                  *((uint16_t *)dest_data) = pixel;
+               //if (pixel & 0xF) {
+               if (pixel != 0) {
+                  *((uint16_t *)dest_data) = ALLEGRO_CONVERT_RGBA_4444_TO_RGB_565(pixel);
                }
                src_data += 2;
                dest_data += dest_inc;
@@ -213,16 +207,21 @@ void _al_draw_bitmap_region_optimized_rgba_4444_to_rgb_565(
          }
       }
       else {
+         int rindex = bc->r*15;
+         int gindex = bc->g*15;
+         int bindex = bc->b*15;
+         int r, g, b;
          for (y = 0; y < sh; y++) {
             for (x = 0; x < sw; x++) {
                pixel = *((uint16_t *)src_data);
-               if (pixel & 0xF) {
+               //if (pixel & 0xF) {
+               if (pixel != 0) {
                   pixel = ALLEGRO_CONVERT_RGBA_4444_TO_RGB_565(pixel);
-                  r = five_bit_lookup[r_565_lookup[pixel]][rindex];
-                  g = six_bit_lookup[g_565_lookup[pixel]][gindex];
-                  b = five_bit_lookup[b_565_lookup[pixel]][bindex];
-                  pixel = (r << 11) | (g << 5) | b;
-                  *((uint16_t *)dest_data) = pixel;
+                  unsigned char *ptr = &(_565_lookup[pixel*3]);
+                  r = five_bit_lookup[*ptr++][rindex];
+                  g = six_bit_lookup[*ptr++][gindex];
+                  b = five_bit_lookup[*ptr][bindex];
+                  *((uint16_t *)dest_data) = (r << 11) | (g << 5) | b;
                }
                src_data += 2;
                dest_data += dest_inc;
@@ -233,10 +232,15 @@ void _al_draw_bitmap_region_optimized_rgba_4444_to_rgb_565(
       }
    }
    else {
+      int rindex = bc->r*15;
+      int gindex = bc->g*15;
+      int bindex = bc->b*15;
+      int r, g, b;
       for (y = 0; y < sh; y++) {
          for (x = 0; x < sw; x++) {
             pixel = *((uint16_t *)src_data);
-            if (pixel & 0xF) {
+            //if (pixel & 0xF) {
+            if (pixel != 0) {
                float alpha = ((pixel & 0xF) / 15.0f) * bc->a;
                float inv_alpha = 1 - alpha;
                int alpha_index = alpha*15;
@@ -248,16 +252,18 @@ void _al_draw_bitmap_region_optimized_rgba_4444_to_rgb_565(
                    ((pixel & 0x0F00) >> 1) |
                    ((pixel & 0x00F0) >> 3) | 0x861;
 		   */
-               r = five_bit_lookup[r_565_lookup[pixel]][rindex];
-               g = six_bit_lookup[g_565_lookup[pixel]][gindex];
-               b = five_bit_lookup[b_565_lookup[pixel]][bindex];
+               unsigned char *ptr = &(_565_lookup[pixel*3]);
+               r = five_bit_lookup[*ptr++][rindex];
+               g = six_bit_lookup[*ptr++][gindex];
+               b = five_bit_lookup[*ptr][bindex];
                r = five_bit_lookup[r][alpha_index];
                g = six_bit_lookup[g][alpha_index];
                b = five_bit_lookup[b][alpha_index];
                uint16_t dpix = *((uint16_t *)dest_data);
-               int r2 = five_bit_lookup[r_565_lookup[dpix]][inv_alpha_index];
-               int g2 = six_bit_lookup[g_565_lookup[dpix]][inv_alpha_index];
-               int b2 = five_bit_lookup[b_565_lookup[dpix]][inv_alpha_index];
+               ptr = &(_565_lookup[dpix*3]);
+               int r2 = five_bit_lookup[*ptr++][inv_alpha_index];
+               int g2 = six_bit_lookup[*ptr++][inv_alpha_index];
+               int b2 = five_bit_lookup[*ptr][inv_alpha_index];
 	       r = _ALLEGRO_MIN(0x1F, r+r2);
 	       g = _ALLEGRO_MIN(0x3F, g+g2);
 	       b = _ALLEGRO_MIN(0x1F, b+b2);
@@ -333,7 +339,8 @@ void _al_draw_bitmap_region_optimized_rgba_4444_to_rgba_4444(
          for (y = 0; y < sh; y++) {
             for (x = 0; x < sw; x++) {
                pixel = *((uint16_t *)src_data);
-               if (pixel & 0xF) {
+               //if (pixel & 0xF) {
+               if (pixel != 0) {
                   *((uint16_t *)dest_data) = pixel;
                }
                src_data += 2;
@@ -347,10 +354,12 @@ void _al_draw_bitmap_region_optimized_rgba_4444_to_rgba_4444(
          for (y = 0; y < sh; y++) {
             for (x = 0; x < sw; x++) {
                pixel = *((uint16_t *)src_data);
-               if (pixel & 0xF) {
-                  r = four_bit_lookup[r_4444_lookup[pixel]][rindex];
-                  g = four_bit_lookup[g_4444_lookup[pixel]][gindex];
-                  b = four_bit_lookup[b_4444_lookup[pixel]][bindex];
+               //if (pixel & 0xF) {
+               if (pixel != 0) {
+                  unsigned char *ptr = &(_4444_lookup[pixel*3]);
+                  r = four_bit_lookup[*ptr++][rindex];
+                  g = four_bit_lookup[*ptr++][gindex];
+                  b = four_bit_lookup[*ptr][bindex];
                   pixel = (r << 12) | (g << 8) | (b << 4) | 0xF;
                   *((uint16_t *)dest_data) = pixel;
                }
@@ -366,18 +375,21 @@ void _al_draw_bitmap_region_optimized_rgba_4444_to_rgba_4444(
       for (y = 0; y < sh; y++) {
          for (x = 0; x < sw; x++) {
             pixel = *((uint16_t *)src_data);
-            if (pixel & 0xF) {
+            //if (pixel & 0xF) {
+            if (pixel != 0) {
                float alpha = ((pixel & 0xF) / 15.0f) * bc->a;
                float inv_alpha = 1 - alpha;
                int alpha_index = alpha*15;
                int inv_alpha_index = inv_alpha*15;
-               r = four_bit_lookup[r_4444_lookup[pixel]][alpha_index];
-               g = four_bit_lookup[g_4444_lookup[pixel]][alpha_index];
-               b = four_bit_lookup[b_4444_lookup[pixel]][alpha_index];
+               unsigned char *ptr = &(_4444_lookup[pixel*3]);
+               r = four_bit_lookup[*ptr++][alpha_index];
+               g = four_bit_lookup[*ptr++][alpha_index];
+               b = four_bit_lookup[*ptr][alpha_index];
                uint16_t dpix = *((uint16_t *)dest_data);
-               int r2 = four_bit_lookup[r_4444_lookup[dpix]][inv_alpha_index];
-               int g2 = four_bit_lookup[g_4444_lookup[dpix]][inv_alpha_index];
-               int b2 = four_bit_lookup[b_4444_lookup[dpix]][inv_alpha_index];
+               ptr = &(_4444_lookup[dpix*3]);
+               int r2 = four_bit_lookup[*ptr++][inv_alpha_index];
+               int g2 = four_bit_lookup[*ptr++][inv_alpha_index];
+               int b2 = four_bit_lookup[*ptr][inv_alpha_index];
                r = four_bit_lookup[(r + r2) & 0xF][rindex];
                g = four_bit_lookup[(g + g2) & 0xF][gindex];
                b = four_bit_lookup[(b + b2) & 0xF][bindex];
