@@ -62,8 +62,11 @@ if(SUPPORT_KCM_AUDIO AND SUPPORT_PRIMITIVES AND SUPPORT_TTF)
         ${AUDIO_LINK_WITH} ${PRIMITIVES_LINK_WITH} ${TTF_LINK_WITH})
 endif(SUPPORT_KCM_AUDIO AND SUPPORT_PRIMITIVES AND SUPPORT_TTF)
 
-if(SUPPORT_FLAC OR SUPPORT_VORBIS)
+if(SUPPORT_FLAC AND SUPPORT_VORBIS)
+    # Currently both FLAC and Vorbis are required because the examples
+    # unconditionally initialise the addons.
     set(ACODEC_LINK_WITH ${FLAC_LINK_WITH} ${VORBIS_LINK_WITH})
+
     example(ex_acodec ${ACODEC_LINK_WITH})
     example(ex_acodec_multi ${ACODEC_LINK_WITH})
     example(ex_kcm_direct ${ACODEC_LINK_WITH})
@@ -76,7 +79,7 @@ if(SUPPORT_FLAC OR SUPPORT_VORBIS)
     if(SUPPORT_PRIMITIVES AND SUPPORT_TTF)
         example(ex_stream_seek ${PRIMITIVES_LINK_WITH} ${ACODEC_LINK_WITH} ${TTF_LINK_WITH})
     endif(SUPPORT_PRIMITIVES AND SUPPORT_TTF)
-endif(SUPPORT_FLAC OR SUPPORT_VORBIS)
+endif(SUPPORT_FLAC AND SUPPORT_VORBIS)
 
 if(SUPPORT_TTF)
     example(ex_font_justify ex_font_justify.cpp nihgui.cpp ${TTF_LINK_WITH} ${PRIMITIVES_LINK_WITH})
