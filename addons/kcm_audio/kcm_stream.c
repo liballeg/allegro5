@@ -577,16 +577,18 @@ void *_al_kcm_feed_stream(ALLEGRO_THREAD *self, void *vstream)
 
         /* In case it reaches the end of the stream source, stream feeder will
          * fill the remaining space with silence. If we should loop, rewind the
-         * stream and override the silence with the beginning. */
-         if (bytes_written != bytes &&
-            stream->spl.loop == _ALLEGRO_PLAYMODE_STREAM_ONEDIR) {
+         * stream and override the silence with the beginning.
+         * In extreme cases we need to repeat it multiple times.
+         */
+         while (bytes_written < bytes &&
+                  stream->spl.loop == _ALLEGRO_PLAYMODE_STREAM_ONEDIR) {
             size_t bw;
             al_rewind_stream(stream);
             maybe_lock_mutex(stream->spl.mutex);
             bw = stream->feeder(stream, fragment + bytes_written,
                bytes - bytes_written);
+            bytes_written += bw;
             maybe_unlock_mutex(stream->spl.mutex);
-            ASSERT(bw == bytes - bytes_written);
          }
 
          if (!al_set_stream_fragment(stream, fragment)) {
