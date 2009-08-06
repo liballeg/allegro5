@@ -214,7 +214,7 @@ static bool ogg_stream_seek(ALLEGRO_STREAM *stream, double time)
    return (ov_time_seek_lap(extra->vf, time) != -1);
 #else
    /* We saved the loop start point for fast seeking */
-   if (time == extra->loop_start) {
+   if (time != 0 && time == extra->loop_start) {
    	return (ov_raw_seek(extra->vf, extra->loop_start_raw) != -1);
    }
    else {
