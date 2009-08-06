@@ -49,7 +49,7 @@ static int initialize(void)
       return 0;
    }
 
-   display = al_create_display(640, 180);
+   display = al_create_display(640, 228);
    if (!display) {
       printf("Could not create display!\n");
       return 0;
@@ -114,7 +114,7 @@ static void render(void)
    al_draw_textf(basic_font, 100, 24, 0, "/");
    print_time(110, 24, length);
    al_draw_filled_rectangle(10.0, 48.0 + 7.0, 10.0 + w, 48.0 + 9.0, al_map_rgb(0, 0, 0));
-   al_draw_line(10.0 + loop_start_pos, 46.0, 10.0 + loop_start_pos, 66.0, al_map_rgb(255, 0, 0), 0);
+   al_draw_line(10.0 + loop_start_pos, 46.0, 10.0 + loop_start_pos, 66.0, al_map_rgb(0, 168, 128), 0);
    al_draw_line(10.0 + loop_end_pos, 46.0, 10.0 + loop_end_pos, 66.0, al_map_rgb(255, 0, 0), 0);
    al_draw_filled_rectangle(10.0 + slider_pos - 2.0, 48.0, 10.0 + slider_pos + 2.0, 64.0,
       al_map_rgb(224, 224, 224));
@@ -123,6 +123,8 @@ static void render(void)
    al_draw_textf(basic_font, 0, 96, 0, "Drag the slider to seek.");
    al_draw_textf(basic_font, 0, 120, 0, "Middle-click to set loop start.");
    al_draw_textf(basic_font, 0, 144, 0, "Right-click to set loop end.");
+   al_draw_textf(basic_font, 0, 168, 0, "Left/right arrows to seek.");
+   al_draw_textf(basic_font, 0, 192, 0, "Space to pause.");
    
    al_flip_display();
 }
@@ -221,7 +223,11 @@ static void event_handler(const ALLEGRO_EVENT * event)
 
 int main(int argc, char * argv[])
 {
+   ALLEGRO_CONFIG *config;
    ALLEGRO_EVENT event;
+   unsigned buffer_count;
+   unsigned samples;
+   const char *s;
 
    if (argc < 2) {
       printf("Usage: ex_stream_seek <filename>\n");
@@ -231,8 +237,27 @@ int main(int argc, char * argv[])
    if (!initialize())
       return 1;
 
+   buffer_count = 0;
+   samples = 0;
+   config = al_load_config_file("ex_stream_seek.cfg");
+   if (config) {
+      if ((s = al_get_config_value(config, "", "buffer_count"))) {
+         buffer_count = atoi(s);
+      }
+      if ((s = al_get_config_value(config, "", "samples"))) {
+         samples = atoi(s);
+      }
+      al_destroy_config(config);
+   }
+   if (buffer_count == 0) {
+      buffer_count = 4;
+   }
+   if (samples == 0) {
+      samples = 512;
+   }
+
    stream_filename = argv[1];
-   music_stream = al_stream_from_file(stream_filename, 4, 4096);
+   music_stream = al_stream_from_file(stream_filename, buffer_count, samples);
    if (!music_stream) {
       printf("Stream error!\n");
       return 1;
