@@ -170,6 +170,7 @@ static void response(GtkDialog *dialog, gint response_id, gpointer user_data)
    gtk_end(nd);
 }
 
+#ifdef ALLEGRO_WITH_XWINDOWS
 static void really_make_transient(GtkWidget *window, ALLEGRO_DISPLAY_XGLX *glx)
 {
    GdkDisplay *gdk = gdk_drawable_get_display(GDK_DRAWABLE(window->window));
@@ -183,6 +184,7 @@ static void realized(GtkWidget *window, gpointer data)
 {
    really_make_transient(window, (void *)data);
 }
+#endif /* ALLEGRO_WITH_XWINDOWS */
 
 static void make_transient(GtkWidget *window)
 {
