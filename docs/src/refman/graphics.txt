@@ -213,7 +213,7 @@ unlocking the bitmap again, so be careful when using this flag.
 'format' indicates the pixel format that the returned buffer will be in.
 To lock in the same format as the bitmap stores it's data internally,
 call with `al_get_bitmap_format(bitmap)` as the format or use
-ALLEGRO_FORMAT_ANY. Locking in the native format will usually be faster.
+ALLEGRO_PIXEL_FORMAT_ANY. Locking in the native format will usually be faster.
 
 Note:
 
