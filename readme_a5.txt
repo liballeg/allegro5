@@ -57,6 +57,52 @@ You will need CMake 2.6 or later.
 
 
 
+Dependencies
+------------
+
+Many of the addons make use of additional libraries.  They are not required to
+build Allegro, but a lot of functionality may be disabled if they are not
+present.  We strongly suggest you install: libpng, zlib, FreeType, libogg,
+libvorbis, libvorbisfile, libFLAC.
+
+Windows users may find some precompiled binaries from
+<http://gnuwin32.sourceforge.net/>.  You need to get the `bin` and `lib`
+packages.  The `bin` packages contain DLLs, and the `lib` packages contain the
+headers and import libraries.
+
+- libpng and zlib, for PNG image support.
+  Home page: <http://www.libpng.org/pub/png/>
+  Windows binaries: <http://gnuwin32.sourceforge.net/packages/libpng.htm>
+
+- FreeType, for TrueType font support.
+  Home page: <http://freetype.sourceforge.net/>
+  Window binaries: <http://gnuwin32.sourceforge.net/packages/freetype.htm>
+
+- Ogg Vorbis, a free lossy audio format. (libogg, libvorbis, libvorbisfile)
+  Home page: <http://www.vorbis.com/>
+
+- FLAC, a free lossless audio codec. (libFLAC, libogg)
+  Home page: <http://flac.sourceforge.net/>
+
+- OpenAL, a 3D audio API.  The audio addon of Allegro can use OpenAL, although
+  the 3D capabilities aren't used.
+  <http://kcat.strangesoft.net/openal.html>
+
+  On Mac OS X, OpenAL is *required* but should come with the OS anyway.
+
+  On Linux and Windows, OpenAL will only be used if you request it, hence there
+  is no reason to install it specifically.
+
+- PhysicsFS, provides access to archives, e.g. .zip files.
+  Home page: <http://icculus.org/physfs/>
+
+- OpenGL.  This is optional on Windows, but mandatory everywhere else.
+
+- One unimportant example program uses libcurl.  Don't bother to install
+  libcurl just for this.
+
+
+
 CMake & Unix or MinGW or Mac OS X
 ---------------------------------
 
@@ -171,28 +217,6 @@ and run CMake as before.
 
 For debugging, use the DirectX control panel applet to switch to the debugging
 runtime.  It's really useful.
-
-
-
-Optional dependencies
-=====================
-
-Many of the addons make use of additional libraries.  They are not required to
-build Allegro, but some functionality may be disabled if they are not present.
-In particular the demo game currently *requires* Ogg Vorbis support.
-
-The libraries are:
-
-- libpng/zlib for PNG support
-- FreeType, for TrueType font support
-- Ogg Vorbis
-- FLAC
-- OpenAL (required for sound on Mac OS X but usable elsewhere as well)
-- PhysicsFS
-
-On Windows, OpenGL is also optional.
-
-One unimportant example program uses libcurl.
 
 
 
