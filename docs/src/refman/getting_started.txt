@@ -135,8 +135,36 @@ with [al_set_blender].
 
 As with [al_set_target_bitmap], this changes Allegro's internal state (for
 the current thread).  Often you'll want to save some part of the state and
-restore it later.  The functions [al_save_state] and [al_restore_state]
+restore it later.  The functions [al_store_state] and [al_restore_state]
 provide a convenient way to do that.
+
+## Sound
+
+Use [al_install_audio] to initialize sound. This will allow loading uncompressed
+.wav files, for other formats you need to initialize them first, for example
+with [al_init_ogg_vorbis_addon] for the .ogg format.
+
+After that, you can simply use [al_reserve_samples] and pass the number of
+sound effects typically playing at the same time. Then load your sound effects
+with [al_load_sample] and play them with [al_play_sample]. To stream large
+pieces of music from disk, you can use [al_stream_from_file] so the whole piece
+will not have to be pre-loaded into memory.
+
+If the above sounds too simple and you can't help but think about clipping and
+latency issues, don't worry. Allegro gives you full control over how much or
+little you want its sound system to do. The al_reserve_samples function
+mentioned above only sets up a default mixer and a number of sample instances
+but you don't need to use it.
+
+Instead, to get a "direct connection" to the sound system you would use an
+[ALLEGRO_VOICE] (but depending on the platform only one such voice is guaranteed
+to be available and it might require a specific format of audio data). Therefore
+all sound can be first routed through an [ALLEGRO_MIXER] which is connected to
+such a voice (or another mixer) and will mix together all sample data fed to it.
+
+You can then directly stream real-time sample data to a mixer or a voice using
+an [ALLEGRO_STREAM] or play complete sounds using an [ALLEGRO_SAMPLE_INSTANCE].
+The latter simply points to an [ALLEGRO_SAMPLE] and will stream it for you.
 
 ## Not the end
 
