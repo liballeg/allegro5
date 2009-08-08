@@ -65,6 +65,13 @@ mkdir $TEMPDIR
 trap 'rm -rf $TEMPDIR' 0 1 2 3 13 15
 
 awk -f "$SPLIT_API_DOCS" $TEMPDIR "$@"
-awk -f "$0.awk" $TEMPDIR/*
+case $TEMPDIR* in
+    *'*')
+        # Wildcard unexpanded, i.e. $TEMPDIR empty.
+        ;;
+    *)
+        awk -f "$0.awk" $TEMPDIR/*
+        ;;
+esac
 
 # vim: set et:

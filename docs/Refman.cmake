@@ -10,6 +10,7 @@ set(PAGES
     file
     font
     fshook
+    getting_started
     graphics
     iio
     joystick
@@ -200,21 +201,23 @@ if(WANT_DOCS_MAN)
     foreach(page ${PAGES_TXT})
         # Figure out the man pages that would be generated from this file.
         file(STRINGS ${page} lines REGEX "# API: ")
-        string(REGEX REPLACE "[#]* API: " ";" entries ${lines})
+        if(lines)
+            string(REGEX REPLACE "[#]* API: " ";" entries ${lines})
 
-        set(outputs)
-        foreach(entry ${entries})
-            list(APPEND outputs ${MAN_DIR}/${entry}.3)
-        endforeach(entry)
+            set(outputs)
+            foreach(entry ${entries})
+                list(APPEND outputs ${MAN_DIR}/${entry}.3)
+            endforeach(entry)
 
-        add_custom_command(
-            OUTPUT ${outputs}
-            DEPENDS ${PROTOS_TIMESTAMP} ${page}
-            COMMAND ${MAKE_MAN} ${page}
-            WORKING_DIRECTORY ${MAN_DIR}
-            )
+            add_custom_command(
+                OUTPUT ${outputs}
+                DEPENDS ${PROTOS_TIMESTAMP} ${page}
+                COMMAND ${MAKE_MAN} ${page}
+                WORKING_DIRECTORY ${MAN_DIR}
+                )
 
-        list(APPEND MAN_PAGES ${outputs})
+            list(APPEND MAN_PAGES ${outputs})
+        endif(lines)
     endforeach(page)
 
     add_custom_target(man ALL DEPENDS ${MAN_PAGES})

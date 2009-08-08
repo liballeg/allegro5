@@ -239,6 +239,10 @@ memory copy (unless it was locked read only).
 
 # Bitmap creation
 
+## API: ALLEGRO_BITMAP
+
+Abstract type representing a bitmap (2D image).
+
 ## API: al_clone_bitmap
 
 Clone a bitmap "exactly", formats can be different.

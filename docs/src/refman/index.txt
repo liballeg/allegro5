@@ -2,6 +2,8 @@
 <!-- This file is only used for the HTML output. -->
 <!-- If you change this you should change inc.a as well. -->
 
+* [Getting started guide](getting_started.html)
+
 # API
 
 * [Configuration files](config.html)

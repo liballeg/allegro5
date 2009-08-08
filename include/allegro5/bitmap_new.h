@@ -10,6 +10,8 @@
    extern "C" {
 #endif
 
+/* Type: ALLEGRO_BITMAP
+ */
 typedef struct ALLEGRO_BITMAP ALLEGRO_BITMAP;
 
 /* This is just a proof-of-concept implementation. The basic idea is to leave 

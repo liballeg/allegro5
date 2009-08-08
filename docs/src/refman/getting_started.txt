@@ -1,0 +1,147 @@
+% Getting started guide
+
+# Introduction
+
+Welcome to Allegro 4.9!
+
+Yes, the documentation is still very patchy.  But if you're interested
+anyway, this short guide should point you at the parts of the API that you'll
+want to know about first.  It's not a tutorial, as there isn't much
+discussion, only links into the manual.  The rest you'll have to discover for
+yourself.  Read the examples, and ask questions at [Allegro.cc].
+
+There is an unofficial tutorial at <http://software.skoobalon.com/a5.php>.
+Be aware that it is a little out of date, but the changes should be minor.
+Hopefully more will sprout when things stabilise, as they did for earlier
+versions of Allegro.
+
+# Structure of the library and its addons
+
+Allegro 4.9 is divided into a core library and multiple addons.  The addons
+are bundled together and built at the same time as the core, but they are
+distinct and kept in separate libraries.  The core doesn't depend on anything
+in the addons, but addons may depend on the core and other addons and
+additional third party libraries.
+
+Here are the addons and their dependencies:
+
+    a5_iio -> allegro
+    a5_primitives -> allegro
+    a5_color -> allegro
+
+    a5_font -> a5_iio -> allegro
+    a5_ttf -> a5_font -> a5_iio -> allegro
+
+    kcm_audio -> allegro
+    a5_flac -> kcm_audio -> allegro
+    a5_vorbis -> kcm_audio -> allegro
+
+    a5_memfile -> allegro
+    a5_physfs -> allegro
+
+    a5_native_dialog -> allegro
+
+The header file for the core library is `allegro5/allegro.h`.  The header
+files for the addons are named `allegro5/a5_iio.h`, `allegro5/a5_font.h`,
+etc.
+
+## Initialisation
+
+Before using Allegro you must call [al_init].  Some addons have their own
+initialisation, e.g. [al_init_iio_addon], [al_init_font_addon],
+[al_init_ttf_addon].
+
+To receive input, you need to initialise some subsystems like
+[al_install_keyboard], [al_install_mouse], [al_install_joystick].
+
+## Opening a window
+
+[al_create_display] will open a window and return an [ALLEGRO_DISPLAY].
+
+To clear the display, call [al_clear_to_color].  Use [al_map_rgba] or
+[al_map_rgba_f] to obtain an [ALLEGRO_COLOR] parameter.
+
+Drawing operations are performed on a backbuffer.  To make the operations
+visible, call [al_flip_display].
+
+## Display an image
+
+To load an image from disk, you need to have initialised the image I/O
+addon with [al_init_iio_addon].  Then use [al_load_bitmap], which returns an
+[ALLEGRO_BITMAP].
+
+Use [al_draw_bitmap], [al_draw_scaled_bitmap] or
+[al_draw_rotated_scaled_bitmap] to draw the image to the backbuffer.
+Remember to call [al_flip_display].
+
+## Changing the drawing target
+
+Notice that [al_clear_to_color] and [al_draw_bitmap] didn't take destination
+parameters: the destination is implicit.  Allegro remembers the current
+"target bitmap" for the current thread.  To change the target bitmap, call
+[al_set_target_bitmap].
+
+The backbuffer of the display is also a bitmap.  You can get with
+[al_get_backbuffer] and then restore it as the target bitmap.
+
+Other bitmaps can be created with [al_create_bitmap], with options which can
+be adjusted with [al_set_new_bitmap_flags] and [al_set_new_bitmap_format].
+
+## Event queues and input
+
+Input comes from multiple sources: keyboard, mouse, joystick, timers, etc.
+Event queues aggregate events from all these sources, then you can query
+the queue for events.
+
+Create an event queue with [al_create_event_queue], then tell input sources
+to place new events into that queue using [al_register_event_source].  The
+usual input event sources can be retrieved with [al_get_keyboard_event_source],
+[al_get_mouse_event_source] and [al_get_joystick].
+
+Events can be retrieved with [al_wait_for_event] or [al_get_next_event].
+Check the event type and other fields of [ALLEGRO_EVENT] to react to the
+input.
+
+Displays are also event sources, which emit events when they are resized.
+You'll need to set the ALLEGRO_RESIZABLE flag with [al_set_new_display_flags]
+before creating the display, then register the display with an event queue.
+When you get a resize event, call [al_acknowledge_resize].
+
+Timers are event sources which "tick" periodically, causing an event to be
+inserted into the queues that the timer is registered with.  Create some with
+[al_install_timer].
+
+[al_current_time] and [al_rest] are more direct ways to deal with time.
+
+## Displaying some text
+
+To display some text, initialise the font addon with [al_init_font_addon]
+then load a bitmap font with [al_load_font].  Use [al_draw_text] or
+[al_draw_textf].
+
+For TrueType fonts, you'll need to initialise the TTF font addon with
+[al_init_ttf_addon] and load a TTF font with [al_load_ttf_font].
+
+## Drawing primitives
+
+The primitives addon provides some handy routines to draw lines
+([al_draw_line]), rectangles ([al_draw_rectangle]), circles
+([al_draw_circle]), etc.
+
+## Blending
+
+To draw translucent or tinted images or primitives, change the blender state
+with [al_set_blender].
+
+As with [al_set_target_bitmap], this changes Allegro's internal state (for
+the current thread).  Often you'll want to save some part of the state and
+restore it later.  The functions [al_save_state] and [al_restore_state]
+provide a convenient way to do that.
+
+## Not the end
+
+There's a heap of stuff we haven't even mentioned yet.
+
+Enjoy!
+
+[Allegro.cc]: http://www.allegro.cc/forums/
