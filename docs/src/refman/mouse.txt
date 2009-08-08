@@ -40,11 +40,6 @@ for special scenarios as moving a window.
 
 Returns true on success, false on failure.
 
-## API: al_get_mouse
-
-Return a pointer to an object representing the mouse, that can
-be used as an event source.
-
 ## API: al_get_mouse_num_axes
 
 Return the number of buttons on the mouse.
