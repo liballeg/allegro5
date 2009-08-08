@@ -74,6 +74,10 @@ headers and import libraries.
   Home page: <http://www.libpng.org/pub/png/>
   Windows binaries: <http://gnuwin32.sourceforge.net/packages/libpng.htm>
 
+- libjpeg, for JPEG image support.
+  Home page: <http://www.ijg.org/>
+  Windows binaries: <http://gnuwin32.sourceforge.net/packages/jpeg.htm>
+
 - FreeType, for TrueType font support.
   Home page: <http://freetype.sourceforge.net/>
   Window binaries: <http://gnuwin32.sourceforge.net/packages/freetype.htm>
