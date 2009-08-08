@@ -89,6 +89,8 @@ static void gp2xwiz_destroy_display_fb(ALLEGRO_DISPLAY *d)
    al_destroy_bitmap(wiz_disp->backbuffer);
 
    _AL_FREE(d);
+
+   set_gfx_mode = false;
 }
 
 

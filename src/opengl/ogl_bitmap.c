@@ -183,6 +183,7 @@ static INLINE bool setup_blending(ALLEGRO_DISPLAY *ogl_disp)
       }
    }
 #else
+   glEnable(GL_BLEND);
    glBlendFunc(blend_modes[src_color], blend_modes[dst_color]);
 #endif
    return true;
@@ -548,18 +549,19 @@ static ALLEGRO_LOCKED_REGION *ogl_lock_region(ALLEGRO_BITMAP *bitmap,
    GLenum e;
 
 
-#ifndef ALLEGRO_GP2XWIZ
+//#ifndef ALLEGRO_GP2XWIZ
    if (format == ALLEGRO_PIXEL_FORMAT_ANY)
       format = bitmap->format;
 
    format = _al_get_real_pixel_format(format);
-#else
+/*#else
    format = bitmap->format;
    (void)x;
    (void)w;
    (void)gl_y;
    (void)e;
 #endif
+*/
 
    pixel_size = al_get_pixel_size(format);
 
@@ -630,18 +632,13 @@ static ALLEGRO_LOCKED_REGION *ogl_lock_region(ALLEGRO_BITMAP *bitmap,
       }
    }
    else {
-      ogl_bitmap->changed = true;
-
       if (flags & ALLEGRO_LOCK_WRITEONLY) {
-         /* For write-only locking, we allocate a buffer just big enough
-          * to later be passed to glTexSubImage2D.
-          */
          pitch = w * pixel_size;
-         bitmap->locked_region.data = bitmap->memory + pitch * (h-1);
-          /*
-         int bytes = pitch * ogl_bitmap->true_h;
-         ogl_bitmap->lock_buffer = _AL_MALLOC(bytes);
-         */
+         ogl_bitmap->lock_buffer = _AL_MALLOC(pitch * h);
+	 bitmap->locked_region.data = ogl_bitmap->lock_buffer;
+	 pitch = -pitch;
+         //bitmap->locked_region.data = ogl_bitmap->lock_buffer +
+           // pitch * (h - 1);
       }
       else {
          /* FIXME: implement */
@@ -671,12 +668,12 @@ static void ogl_unlock_region(ALLEGRO_BITMAP *bitmap)
    GLint gl_y = bitmap->h - bitmap->lock_y - bitmap->lock_h;
    (void)e;
 
-#ifndef ALLEGRO_GP2XWIZ
+//#ifndef ALLEGRO_GP2XWIZ
    if (bitmap->lock_flags & ALLEGRO_LOCK_READONLY) {
       _AL_FREE(ogl_bitmap->lock_buffer);
       return;
    }
-#endif
+//#endif
 
    if (bitmap->display->ogl_extras->is_shared == false &&
        bitmap->display != al_get_current_display()) {
@@ -749,12 +746,20 @@ static void ogl_unlock_region(ALLEGRO_BITMAP *bitmap)
    else {
       /* FIXME: test */
       if (bitmap->lock_flags & ALLEGRO_LOCK_WRITEONLY) {
+         int fake_pitch = bitmap->w * al_get_pixel_size(bitmap->format);
+         _al_convert_bitmap_data(
+            bitmap->locked_region.data, bitmap->locked_region.format,
+            bitmap->locked_region.pitch,
+	    bitmap->memory+fake_pitch*(bitmap->h-1), bitmap->format,
+	    -fake_pitch,
+            0, 0, bitmap->lock_x, bitmap->lock_y,
+            bitmap->lock_w, bitmap->lock_h);
          glBindTexture(GL_TEXTURE_2D, ogl_bitmap->texture);
          glTexSubImage2D(GL_TEXTURE_2D, 0,
             bitmap->lock_x, gl_y,
             bitmap->lock_w, bitmap->lock_h,
-            glformats[format][2],
-            glformats[format][1],
+            glformats[bitmap->format][2],
+            glformats[bitmap->format][1],
             bitmap->memory);
          e = glGetError();
          if (e) {
@@ -763,13 +768,7 @@ static void ogl_unlock_region(ALLEGRO_BITMAP *bitmap)
          }
       }
       else {
-         glBindTexture(GL_TEXTURE_2D, ogl_bitmap->texture);
-         glTexSubImage2D(GL_TEXTURE_2D, 0,
-            bitmap->lock_x, gl_y,
-            bitmap->lock_w, bitmap->lock_h,
-            glformats[format][2],
-            glformats[format][1],
-            bitmap->memory);
+      	// FIXME
       }
    }
 #endif
@@ -778,9 +777,7 @@ static void ogl_unlock_region(ALLEGRO_BITMAP *bitmap)
       al_set_current_display(old_disp);
    }
 
-#ifndef ALLEGRO_GP2XWIZ
    _AL_FREE(ogl_bitmap->lock_buffer);
-#endif
 }
 
 

@@ -166,6 +166,7 @@ static void gp2xwiz_destroy_display_ogl(ALLEGRO_DISPLAY *d)
    _AL_FREE(d->ogl_extras);
    _AL_FREE(d);
 
+   set_gfx_mode = false;
 }
 
 

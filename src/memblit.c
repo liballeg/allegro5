@@ -295,7 +295,7 @@ void _al_draw_scaled_bitmap_memory(ALLEGRO_BITMAP *src,
    ALLEGRO_LOCKED_REGION *src_region;
    ALLEGRO_LOCKED_REGION *dst_region;
    int src_mode, dst_mode;
-   ALLEGRO_COLOR *bc;
+   ALLEGRO_COLOR bc;
 
    float sxinc;
    float syinc;
@@ -308,12 +308,10 @@ void _al_draw_scaled_bitmap_memory(ALLEGRO_BITMAP *src,
    int xend;
    int yend;
 
-   al_get_blender(&src_mode, &dst_mode, NULL);
-   bc = _al_get_blend_color();
+   al_get_blender(&src_mode, &dst_mode, &bc);
 
    if (src_mode == ALLEGRO_ONE && dst_mode == ALLEGRO_ZERO &&
-      bc->r == 1.0f && bc->g == 1.0f && bc->b == 1.0f && bc->a == 1.0f &&
-      (src->format == dest->format)) {
+      bc.r == 1.0f && bc.g == 1.0f && bc.b == 1.0f && bc.a == 1.0f) {
       _al_draw_scaled_bitmap_memory_fast(src,
             sx, sy, sw, sh, dx, dy, dw, dh, flags);
       return;
@@ -1176,6 +1174,7 @@ void _al_draw_scaled_bitmap_memory_fast(ALLEGRO_BITMAP *src,
    int x, y;
    int xend;
    int yend;
+   int size;
 
    if ((sw <= 0) || (sh <= 0))
       return;
@@ -1209,16 +1208,33 @@ void _al_draw_scaled_bitmap_memory_fast(ALLEGRO_BITMAP *src,
       src = src->parent;
    }
 
-   if (!(src_region = al_lock_bitmap(src, ALLEGRO_PIXEL_FORMAT_ARGB_8888,
-         ALLEGRO_LOCK_READONLY))) {
-      return;
+   if (src->format == dest->format) {
+      if (!(src_region = al_lock_bitmap(src, ALLEGRO_PIXEL_FORMAT_ANY,
+            ALLEGRO_LOCK_READONLY))) {
+         return;
+      }
+      /* XXX we should be able to lock less of the destination and use
+       * ALLEGRO_LOCK_WRITEONLY
+       */
+      if (!(dst_region = al_lock_bitmap(dest, ALLEGRO_PIXEL_FORMAT_ANY, 0))) {
+         al_unlock_bitmap(src);
+         return;
+      }
+      size = al_get_pixel_size(src->format);
    }
-   /* XXX we should be able to lock less of the destination and use
-    * ALLEGRO_LOCK_WRITEONLY
-    */
-   if (!(dst_region = al_lock_bitmap(dest, ALLEGRO_PIXEL_FORMAT_ARGB_8888, 0))) {
-      al_unlock_bitmap(src);
-      return;
+   else {
+      if (!(src_region = al_lock_bitmap(src, ALLEGRO_PIXEL_FORMAT_ARGB_8888,
+            ALLEGRO_LOCK_READONLY))) {
+         return;
+      }
+      /* XXX we should be able to lock less of the destination and use
+       * ALLEGRO_LOCK_WRITEONLY
+       */
+      if (!(dst_region = al_lock_bitmap(dest, ALLEGRO_PIXEL_FORMAT_ARGB_8888, 0))) {
+         al_unlock_bitmap(src);
+         return;
+      }
+      size = 4;
    }
 
    dxinc = dw < 0 ? -1 : 1;
@@ -1238,16 +1254,29 @@ void _al_draw_scaled_bitmap_memory_fast(ALLEGRO_BITMAP *src,
    else {
       _sy = sy;
    }
+      
+   #define INNER(t, s, r, w) \
+      for (x = 0; x < xend; x++) { \
+         t pix = r((char *)src_region->data+(int)_sy*src_region->pitch+(int)_sx*s); \
+         w((char *)dst_region->data+(int)_dy*dst_region->pitch+(int)_dx*s, pix); \
+	_sx += sxinc; \
+	_dx += dxinc; \
+      } \
 
    _dy = dy;
    for (y = 0; y < yend; y++) {
       _sx = sx;
       _dx = dx;
-      for (x = 0; x < xend; x++) {
-         uint32_t pix = bmp_read32((char *)src_region->data+(int)_sy*src_region->pitch+(int)_sx*4);
-         bmp_write32((char *)dst_region->data+(int)_dy*dst_region->pitch+(int)_dx*4, pix);
-	_sx += sxinc;
-	_dx += dxinc;
+      switch (size) {
+         case 2:
+            INNER(uint16_t, size, bmp_read16, bmp_write16)
+            break;
+         case 3:
+            INNER(uint32_t, size, READ3BYTES, WRITE3BYTES)
+            break;
+         default:
+            INNER(uint32_t, size, bmp_read32, bmp_write32)
+            break;
       }
       _sy += syinc;
       _dy += dyinc;
