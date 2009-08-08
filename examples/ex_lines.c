@@ -168,8 +168,8 @@ int main(void)
    al_flip_display();
 
    queue = al_create_event_queue();
-   al_register_event_source(queue, al_get_keyboard_event_source(al_get_keyboard()));
-   al_register_event_source(queue, al_get_mouse_event_source(al_get_mouse()));
+   al_register_event_source(queue, al_get_keyboard_event_source());
+   al_register_event_source(queue, al_get_mouse_event_source());
 
    while (true) {
       al_wait_for_event(queue, &event);

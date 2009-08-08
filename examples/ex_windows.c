@@ -54,7 +54,7 @@ int main(void)
    myfont = al_load_font("data/fixed_font.tga", 0, 0);
 
    events = al_create_event_queue();
-   al_register_event_source(events, al_get_mouse_event_source(al_get_mouse()));
+   al_register_event_source(events, al_get_mouse_event_source());
    al_register_event_source(events, al_get_display_event_source(displays[0]));
    al_register_event_source(events, al_get_display_event_source(displays[1]));
 

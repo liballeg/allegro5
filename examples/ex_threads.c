@@ -45,7 +45,7 @@ static void *thread_func(ALLEGRO_THREAD *thr, void *arg)
    }
 
    al_register_event_source(queue, al_get_display_event_source(display));
-   al_register_event_source(queue, al_get_keyboard_event_source(al_get_keyboard()));
+   al_register_event_source(queue, al_get_keyboard_event_source());
    al_register_event_source(queue, al_get_timer_event_source(timer));
 
    al_start_timer(timer);

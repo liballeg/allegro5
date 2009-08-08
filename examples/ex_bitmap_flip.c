@@ -111,7 +111,7 @@ int main(void)
    timer = al_install_timer(INTERVAL);
 
    queue = al_create_event_queue();
-   al_register_event_source(queue, al_get_keyboard_event_source(al_get_keyboard()));
+   al_register_event_source(queue, al_get_keyboard_event_source());
    al_register_event_source(queue, al_get_timer_event_source(timer));
    al_register_event_source(queue, al_get_display_event_source(display));
 

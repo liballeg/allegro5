@@ -29,8 +29,8 @@ int main(void)
 
    event_queue = al_create_event_queue();
    al_register_event_source(event_queue, al_get_display_event_source(display));
-   al_register_event_source(event_queue, al_get_mouse_event_source(al_get_mouse()));
-   al_register_event_source(event_queue, al_get_keyboard_event_source(al_get_keyboard()));
+   al_register_event_source(event_queue, al_get_mouse_event_source());
+   al_register_event_source(event_queue, al_get_keyboard_event_source());
 
    font = al_load_font("data/fixed_font.tga", 0, 0);
 

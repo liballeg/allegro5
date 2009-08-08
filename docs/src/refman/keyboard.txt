@@ -1,9 +1,5 @@
 # Keyboard
 
-## API: ALLEGRO_KEYBOARD
-
-This is an abstract data type representing the physical keyboard.
-
 ## API: ALLEGRO_KEYBOARD_STATE
 
 This is a structure that is used to hold a "snapshot" of a keyboard's
@@ -61,11 +57,6 @@ You cannot read the state of keys directly.  Use the function
 > ALLEGRO_KEYMOD_ACCENT3   
 > ALLEGRO_KEYMOD_ACCENT4   
 
-## API: al_get_keyboard
-
-Return a pointer to an object representing the keyboard, that can
-be used as an event source.
-
 ## API: al_get_keyboard_state
 
 Save the state of the keyboard specified at the time the function
@@ -105,4 +96,7 @@ This function is automatically called when Allegro is shut down.
 
 ## API: al_get_keyboard_event_source
 
-Retrieve the associated event source.
+Retrieve the keyboard event source.
+
+Returns NULL if the keyboard subsystem was not installed.
+

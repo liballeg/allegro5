@@ -130,7 +130,7 @@ int main(void)
    display = al_create_display(640, 480);
 
    queue = al_create_event_queue();
-   al_register_event_source(queue, al_get_keyboard_event_source(al_get_keyboard()));
+   al_register_event_source(queue, al_get_keyboard_event_source());
    al_register_event_source(queue, al_get_display_event_source(display));
 
    start = al_current_time();

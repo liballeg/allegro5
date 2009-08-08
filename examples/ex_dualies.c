@@ -36,7 +36,7 @@ static void go(void)
    }
 
    queue = al_create_event_queue();
-   al_register_event_source(queue, al_get_keyboard_event_source(al_get_keyboard()));
+   al_register_event_source(queue, al_get_keyboard_event_source());
 
    while (1) {
       if (!al_event_queue_is_empty(queue)) {

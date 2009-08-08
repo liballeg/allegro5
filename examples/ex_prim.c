@@ -533,7 +533,7 @@ int main(void)
    
    // Start the event queue to handle keyboard input and our timer
    queue = al_create_event_queue();
-   al_register_event_source(queue, al_get_keyboard_event_source(al_get_keyboard()));
+   al_register_event_source(queue, al_get_keyboard_event_source());
    al_register_event_source(queue, al_get_display_event_source(al_get_current_display()));
    
    al_set_window_title("Primitives Example");

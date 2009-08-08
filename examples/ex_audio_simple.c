@@ -42,8 +42,7 @@ int main(int argc, const char *argv[])
    }
 
    event_queue = al_create_event_queue();
-   al_register_event_source(event_queue, al_get_keyboard_event_source(
-      al_get_keyboard()));
+   al_register_event_source(event_queue, al_get_keyboard_event_source());
 
    al_init_flac_addon();
    al_init_ogg_vorbis_addon();

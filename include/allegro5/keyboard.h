@@ -26,15 +26,11 @@
    extern "C" {
 #endif
 
-/* Type: ALLEGRO_KEYBOARD
- */
 typedef struct ALLEGRO_KEYBOARD ALLEGRO_KEYBOARD;
 
 
 
 /* Type: ALLEGRO_KEYBOARD_STATE
- *		the state was saved.  If no display was focused, this points
- *		to NULL.
  */
 typedef struct ALLEGRO_KEYBOARD_STATE ALLEGRO_KEYBOARD_STATE;
 
@@ -58,7 +54,7 @@ AL_FUNC(AL_CONST char *, al_keycode_to_name, (int keycode));
 AL_FUNC(void,         al_get_keyboard_state, (ALLEGRO_KEYBOARD_STATE *ret_state));
 AL_FUNC(bool,         al_key_down,           (const ALLEGRO_KEYBOARD_STATE *, int keycode));
 
-AL_FUNC(ALLEGRO_EVENT_SOURCE *, al_get_keyboard_event_source, (ALLEGRO_KEYBOARD *keyboard));
+AL_FUNC(ALLEGRO_EVENT_SOURCE *, al_get_keyboard_event_source, (void));
 
 
 /* TODO: use the config system */

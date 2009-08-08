@@ -255,7 +255,7 @@ int main(void)
       return 1;
    }
 
-   al_register_event_source(event_queue, al_get_keyboard_event_source(al_get_keyboard()));
+   al_register_event_source(event_queue, al_get_keyboard_event_source());
    al_register_event_source(event_queue, al_get_display_event_source(display));
 
    main_loop();

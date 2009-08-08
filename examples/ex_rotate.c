@@ -77,7 +77,7 @@ int main(void)
    bmp_h = al_get_bitmap_height(bmp);
 
    queue = al_create_event_queue();
-   al_register_event_source(queue, al_get_keyboard_event_source(al_get_keyboard()));
+   al_register_event_source(queue, al_get_keyboard_event_source());
 
    while (true) {
       if (al_get_next_event(queue, &event)) {

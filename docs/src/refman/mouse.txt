@@ -1,9 +1,5 @@
 # Mouse
 
-## API: ALLEGRO_MOUSE
-
-This is an abstract data type representing the physical mouse.
-
 ## API: ALLEGRO_MOUSE_STATE
 
 Public fields (read only):
@@ -187,4 +183,7 @@ This function is automatically called when Allegro is shut down.
 
 ## API: al_get_mouse_event_source
 
-Retrieve the associated event source.
+Retrieve the mouse event source.
+
+Returns NULL if the mouse subsystem was not installed.
+

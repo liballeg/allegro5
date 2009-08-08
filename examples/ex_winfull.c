@@ -30,7 +30,7 @@ int main(void)
    }
 
    events = al_create_event_queue();
-   al_register_event_source(events, al_get_keyboard_event_source(al_get_keyboard()));
+   al_register_event_source(events, al_get_keyboard_event_source());
 
    while (1) {
       while (!al_event_queue_is_empty(events)) {

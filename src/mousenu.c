@@ -111,7 +111,8 @@ void al_uninstall_mouse(void)
 
 
 
-/* Function: al_get_mouse
+/* This was in the public API but its only purpose is now served by
+ * al_get_mouse_event_source().
  */
 ALLEGRO_MOUSE *al_get_mouse(void)
 {
@@ -400,16 +401,12 @@ bool al_get_cursor_position(int *ret_x, int *ret_y)
 
 /* Function: al_get_mouse_event_source
  */
-ALLEGRO_EVENT_SOURCE *al_get_mouse_event_source(ALLEGRO_MOUSE *mouse)
+ALLEGRO_EVENT_SOURCE *al_get_mouse_event_source(void)
 {
-   return &mouse->es;
+   ALLEGRO_MOUSE *mouse = al_get_mouse();
+
+   return (mouse) ? &mouse->es : NULL;
 }
 
 
-/*
- * Local Variables:
- * c-basic-offset: 3
- * indent-tabs-mode: nil
- * End:
- */
-/* vim: set sts=3 sw=3 et */
+/* vim: set sts=3 sw=3 et: */

@@ -187,7 +187,8 @@ void al_uninstall_keyboard(void)
 
 
 
-/* Function: al_get_keyboard
+/* This was in the public API but its only purpose is now served by
+ * al_get_keyboard_event_source().
  */
 ALLEGRO_KEYBOARD *al_get_keyboard(void)
 {
@@ -261,9 +262,11 @@ bool al_key_down(const ALLEGRO_KEYBOARD_STATE *state, int keycode)
 
 /* Function: al_get_keyboard_event_source
  */
-ALLEGRO_EVENT_SOURCE * al_get_keyboard_event_source(ALLEGRO_KEYBOARD *keyboard)
+ALLEGRO_EVENT_SOURCE *al_get_keyboard_event_source(void)
 {
-   return &keyboard->es;
+   ALLEGRO_KEYBOARD *keyboard = al_get_keyboard();
+
+   return (keyboard) ? &keyboard->es : NULL;
 }
 
 

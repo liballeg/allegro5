@@ -176,7 +176,7 @@ int main(void)
    }
 
 #ifndef ALLEGRO_GP2XWIZ
-   al_register_event_source(event_queue, al_get_keyboard_event_source(al_get_keyboard()));
+   al_register_event_source(event_queue, al_get_keyboard_event_source());
 #endif
    al_register_event_source(event_queue, al_get_display_event_source(display));
    al_register_event_source(event_queue, al_get_joystick_event_source(zero_joy));
