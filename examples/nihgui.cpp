@@ -109,7 +109,9 @@ Dialog::Dialog(const Theme & theme, ALLEGRO_DISPLAY *display,
    quit_requested(false),
    mouse_over_widget(NULL),
    mouse_down_widget(NULL),
-   key_widget(NULL)
+   key_widget(NULL),
+
+   event_handler(NULL)
 {
    this->event_queue = al_create_event_queue();
    al_register_event_source(this->event_queue,
