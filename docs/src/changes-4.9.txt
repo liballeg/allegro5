@@ -84,7 +84,7 @@ Audio addons:
 
 -  Changed argument order in al_save_sample and al_stream_from_file.
 
--  Reordered parameters in al_attach_* functions to follow the word order.
+-  Reordered parameters in al\_attach\_* functions to follow the word order.
 
 -  Renamed a few streaming functions to refer to fragments/buffers
    as fragments consistently.
