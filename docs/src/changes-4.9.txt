@@ -4,6 +4,122 @@ See `changes._tx` for changes in earlier versions of Allegro.  These lists
 serve as summaries; the full histories are in the Subversion repository.
 
 
+Changes from 4.9.12 to 4.9.13 (August 2009)
+===========================================
+
+The main developers this time were: Trent Gamblin, Elias Pschernig, Paul
+Suntsov, Peter Wang.  Other contributions from: Todd Cope, Evert Glebbeek,
+Michael Harrington, Matthew Leverton.
+
+Ports:
+
+-  Trent Gamblin started a port to the GP2X Wiz handheld console.
+
+Graphics:
+
+-  Some OpenGL bitmap routines were not checking whether the target bitmap was
+   locked.
+
+-  Scaled bitmap drawer was not setting the blend mode.
+
+-  Fixed a bug where al_map_rgb followed by al_unmap_rgb would return
+   different values.
+
+-  Fixed problems with sub-sub-bitmaps.
+
+-  Fixed window placement on OS X, which did not properly translate the
+   coordinates specified by the user with al_set_new_window_position().
+
+-  Made is_wgl_extension_supported() fail gracefuly.
+
+-  Added ALLEGRO_ALPHA_TEST bitmap flag.
+
+-  Minor optimizations in some memory blitting routines.
+
+Input:
+
+-  Replaced (ALLEGRO_EVENT_SOURCE *) casting with type-safe functions, namely
+   al_get_keyboard_event_source, al_get_mouse_event_source,
+   al_get_joystick_event_source, al_get_display_event_source,
+   al_get_timer_event_source, etc.
+
+-  Made it so that users can derive their own structures from
+   ALLEGRO_EVENT_SOURCE.  al_create_user_event_source() is replaced by
+   al_init_user_event_source().
+
+-  Fixed a problem on Windows where the joystick never regains focus when
+   tabbing away from a window.
+
+-  Fixed a problem with missing key repeat with broken X.Org drivers.
+
+-  Implemented ALLEGRO_EVENT_MOUSE_ENTER_DISPLAY,
+   ALLEGRO_EVENT_MOUSE_LEAVE_DISPLAY for X11.
+
+Image I/O addon:
+
+-  Changed return type of al_save_bitmap() to bool.
+
+-  Separated al_add_image_handler into al_register_bitmap_loader,
+   al_register_bitmap_saver, etc.
+
+-  Made JPEG and PNG loaders handle al_create_bitmap() failing.
+
+-  Speed up JPEG loading and saving.
+
+-  Fixed a reinitialisation issue in iio.
+
+Audio addons:
+
+-  Moved basic sample loading/saving routines to kcm_audio from acodec
+   and added file type registration functions.
+
+-  Moved WAV support into kcm_audio.
+
+-  Made WAV loader not choke on extra chunks in the wave.
+
+-  Separated acodec into a5_flac, a5_vorbis addons.  You need to initialise
+   them explicitly.  Removed sndfile support.
+
+-  Renamed al_*_oggvorbis to al_*_ogg_vorbis.
+
+-  Changed argument order in al_save_sample and al_stream_from_file.
+
+-  Reordered parameters in al_attach_* functions to follow the word order.
+
+-  Renamed a few streaming functions to refer to fragments/buffers
+   as fragments consistently.
+
+-  Added missing getters for ALLEGRO_SAMPLE fields.
+
+-  Fixed mutex locking problems with kcm_audio objects.
+
+-  Avoid underfilling a stream when it is fed with a short looping stream.
+
+Other addons:
+
+-  Added glyph advance caching for the TTF addon.
+
+-  Renamed al_register_font_extension to al_register_font_loader.
+   Match the file name extension case insensitively.
+
+Documentation:
+
+-  Lots of documentation updates.
+
+-  Added a short "Getting started guide" to the reference manual.
+
+Examples:
+
+-  Added another example for kcm_audio streaming: ex_synth.
+
+Build system:
+
+-  Fix pkg-config .pc files generated for static linking.
+
+-  DLL symbols are now exported by name, not ordinals.
+
+
+
 Changes from 4.9.11 to 4.9.12 (July 2009)
 =========================================
 
