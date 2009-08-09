@@ -422,6 +422,10 @@ give a list of all modes for the default driver.
 See also: [al_get_display_mode]
 
 
+## API: al_get_display_event_source
+
+Retrieve the associated event source.
+
 
 # Monitors
 
@@ -475,6 +479,3 @@ to it.
 See also: [al_get_monitor_info]
 
 
-## API: al_get_display_event_source
-
-Retrieve the associated event source.

@@ -801,7 +801,6 @@ static void ogl_destroy_bitmap(ALLEGRO_BITMAP *bitmap)
 #endif
 
    if (ogl_bitmap->texture) {
-      //glBindTexture(GL_TEXTURE_2D, 0);
       glDeleteTextures(1, &ogl_bitmap->texture);
       ogl_bitmap->texture = 0;
    }

@@ -36,7 +36,6 @@
 static ALLEGRO_JOYSTICK joy;
 
 static ALLEGRO_JOYSTICK_STATE joystate;
-static bool gotten = false;
 static ALLEGRO_THREAD *wiz_joystick_thread;
 
 const int POLLS_PER_SECOND = 60;
@@ -212,21 +211,12 @@ static int joywiz_get_num_joysticks(void)
 static ALLEGRO_JOYSTICK *joywiz_get_joystick(int num)
 {
 	(void)num; /* Only 1 supported now */
-
-	ASSERT(!gotten);
-
-	gotten = true;
-
 	return &joy;
 }
 
 static void joywiz_release_joystick(ALLEGRO_JOYSTICK *joy)
 {
 	(void)joy;
-
-	ASSERT(gotten);
-
-	gotten = false;
 }
 
 static void joywiz_get_joystick_state(ALLEGRO_JOYSTICK *joy, ALLEGRO_JOYSTICK_STATE *ret_state)
