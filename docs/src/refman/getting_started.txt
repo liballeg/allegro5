@@ -96,7 +96,7 @@ the queue for events.
 Create an event queue with [al_create_event_queue], then tell input sources
 to place new events into that queue using [al_register_event_source].  The
 usual input event sources can be retrieved with [al_get_keyboard_event_source],
-[al_get_mouse_event_source] and [al_get_joystick].
+[al_get_mouse_event_source] and [al_get_joystick_event_source].
 
 Events can be retrieved with [al_wait_for_event] or [al_get_next_event].
 Check the event type and other fields of [ALLEGRO_EVENT] to react to the
