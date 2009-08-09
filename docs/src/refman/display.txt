@@ -381,6 +381,10 @@ Returns false if not possible, true if successful.
 See also: [al_flip_display]
 
 
+## API: al_get_display_event_source
+
+Retrieve the associated event source.
+
 
 # Fullscreen display modes
 
@@ -420,11 +424,6 @@ that match. Settings the new display parameters to zero will
 give a list of all modes for the default driver.
 
 See also: [al_get_display_mode]
-
-
-## API: al_get_display_event_source
-
-Retrieve the associated event source.
 
 
 # Monitors
