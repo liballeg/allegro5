@@ -1,23 +1,56 @@
 # Font addons
 
+## API: ALLEGRO_FONT
+
+A handle identifying any kind of font. Usually you will create it with
+[al_load_font] which supports loading all kinds of truetype fonts supported by
+the Freetype library. If you instead pass the filename of a bitmap file, it will
+be loaded with [al_load_bitmap] and a font in Allegro's bitmap font format will
+be created from it with [al_grab_font_from_bitmap].
+
 ## API: al_destroy_font
 
 Frees the memory being used by a font structure.
-This is now wholly handled in the vtable.
 
 ## API: al_grab_font_from_bitmap
 
-Work horse for grabbing a font from an Allegro bitmap.
+Creates a new font from an Allegro bitmap. You can delete the bitmap after the
+function returns as the font will contain a copy for itself.
 
 Parameters:
 
 - bmp: The bitmap with the glyphs drawn onto it
-  (TODO: describe expected format - opaque yellow background,
-  fully transparent boxes all of same height but possibly variable
-  width, white, possibly anti-aliased glyphs)
 - n: Number of unicode ranges in the bitmap.
 - ranges: 'n' pairs of first and last unicode point to map glyphs to for
   each range.
+
+The bitmap format is as in the followsing example, which contains three glyphs
+for 1, 2 and 3.
+
+    .............
+    . 1 .222.333.
+    . 1 .  2.  3.
+    . 1 .222.333.
+    . 1 .2  .  3.
+    . 1 .222.333.
+    .............
+
+In the above illustration, the dot is for pixels having the background color. It
+is determined by the color of the top left pixel in the bitmap. There should be
+a border of at least 1 pixel with this color to the bitmap edge and between all
+glyphs.
+
+Each glyph is inside a rectangle of pixels not containing the background
+color. The height of all glyph rectangles should be the same, but the width
+can vary.
+
+The placement of the rectangles does not matter, except that glyphs are scanned
+from left to right and top to bottom to match them to the specified unicode
+codepoints.
+
+The glyphs will simply be drawn using [al_draw_image], so usually you will want
+the rectangles filled with full transparency and the glyphs drawn in opaque
+white.
 
 Examples:
 
@@ -45,15 +78,17 @@ next 128 glyphs to Extended-A, and the last glyph to the Euro character.
 Shut down the font addon. This is done automatically at program exit,
 but can be called any time the user wishes as well.
 
-## API: al_load_bitmap_font
-
 ## API: al_load_font
 
-Loads a font from disk.
+Loads a font from disk. This will use [al_load_bitmap_font] if you pass the
+name of a known bitmap format, or else [al_load_ttf_font].
 
 ## API: al_load_bitmap_font
 
-Import routine for the Allegro bitmap font format.
+Load a bitmap font from. It does this by first calling [al_load_bitmap] and then
+[al_grab_font_from_bitmap]. If you want to for example load an old A4 font,
+you could load the bitmap yourself, then call [al_convert_mask_to_alpha] on it
+and only then pass it to [al_grab_font_from_bitmap].
 
 ## API: al_register_font_loader
 
@@ -70,17 +105,20 @@ Returns false if unregistering an entry that doesn't exist.
 
 ## API: al_get_font_line_height
 
-Returns the height of a character in the specified font.
+Returns the usual height of a line of text in the specified font. For bitmap
+fonts this is simply the height of all glyph bitmaps. For truetype fonts it
+is whatever the font file specifies. In particular, some special glyphs may be
+higher than the height returned here.
 
 ## API: al_get_text_width
 
-Calculates the length of a string in a particular font.
+Calculates the length of a string in a particular font, in pixels.
 
 See also: [al_get_ustr_width]
 
 ## API: al_get_ustr_width
 
-Calculates the length of a string in a particular font.
+Like [al_get_text_width] but expects an ALLEGRO_USTR.
 
 See also: [al_get_text_width]
 
