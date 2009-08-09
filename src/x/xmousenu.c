@@ -490,6 +490,8 @@ static void generate_mouse_event(unsigned int type,
 void _al_xwin_mouse_switch_handler(ALLEGRO_DISPLAY *display,
    const XCrossingEvent *event)
 {
+   int event_type;
+
    /* Ignore events where any of the buttons are held down. */
    if (event->state & (Button1Mask | Button2Mask | Button3Mask |
          Button4Mask | Button5Mask)) {
@@ -498,7 +500,6 @@ void _al_xwin_mouse_switch_handler(ALLEGRO_DISPLAY *display,
 
    _al_event_source_lock(&the_mouse.parent.es);
 
-   int event_type;
    switch (event->type) {
       case EnterNotify:
          the_mouse.state.display = display;
@@ -507,6 +508,10 @@ void _al_xwin_mouse_switch_handler(ALLEGRO_DISPLAY *display,
       case LeaveNotify:
          the_mouse.state.display = NULL;
          event_type = ALLEGRO_EVENT_MOUSE_LEAVE_DISPLAY;
+         break;
+      default:
+         ASSERT(false);
+         event_type = 0;
          break;
    }
 

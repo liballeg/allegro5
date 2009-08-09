@@ -64,7 +64,9 @@ bool _al_xglx_fullscreen_set_mode(ALLEGRO_SYSTEM_XGLX *s,
    int possible_modes[n];
    int possible_count = 0;
    for (i = 0; i < n; i++) {
-      get_display_mode(s, i, &mode);
+      if (!get_display_mode(s, i, &mode)) {
+         continue;
+      }
       if (mode.width == w && mode.height == h &&
          (format == 0 || mode.format == format) &&
          (refresh_rate == 0 || mode.refresh_rate == refresh_rate))
@@ -79,7 +81,9 @@ bool _al_xglx_fullscreen_set_mode(ALLEGRO_SYSTEM_XGLX *s,
    int best_mode = possible_modes[0];
    get_display_mode(s, best_mode, &mode);
    for (i = 1; i < possible_count; i++) {
-      get_display_mode(s, possible_modes[i], &mode2);
+      if (!get_display_mode(s, possible_modes[i], &mode2))  {
+         continue;
+      }
       if (mode2.refresh_rate > mode.refresh_rate) {
          mode = mode2;
          best_mode = possible_modes[i];

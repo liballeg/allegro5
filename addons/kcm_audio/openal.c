@@ -96,18 +96,22 @@ static int _openal_open(void)
       openal_dev = alcOpenDevice(NULL);
    #endif
 
+   alc_err = ALC_NO_ERROR;
    if(!openal_dev || (alc_err = alcGetError(openal_dev)) != ALC_NO_ERROR)
    {
       fprintf(stderr, "Could not open audio device\n");
-      fprintf(stderr, "%s\n", alc_get_err_str(alc_err));
+      if (alc_err != ALC_NO_ERROR)
+         fprintf(stderr, "%s\n", alc_get_err_str(alc_err));
       return 1;
    }
 
    openal_context = alcCreateContext(openal_dev, NULL);
+   alc_err = ALC_NO_ERROR;
    if (!openal_context || (alc_err = alcGetError(openal_dev)) != ALC_NO_ERROR)
    {
       fprintf(stderr, "Could not create current device context\n");
-      fprintf(stderr, "%s\n", alc_get_err_str(alc_err));
+      if (alc_err != ALC_NO_ERROR)
+         fprintf(stderr, "%s\n", alc_get_err_str(alc_err));
       return 1;
    }
 
