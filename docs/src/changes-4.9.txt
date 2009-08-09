@@ -80,7 +80,7 @@ Audio addons:
 -  Separated acodec into a5_flac, a5_vorbis addons.  You need to initialise
    them explicitly.  Removed sndfile support.
 
--  Renamed al_*_oggvorbis to al_*_ogg_vorbis.
+-  Renamed al\_\*\_oggvorbis to al\_\*\_ogg\_vorbis.
 
 -  Changed argument order in al_save_sample and al_stream_from_file.
 
