@@ -70,6 +70,13 @@ Windows users may find some precompiled binaries from
 packages.  The `bin` packages contain DLLs, and the `lib` packages contain the
 headers and import libraries.
 
+Mac users may find some dependencies in Fink or MacPorts.
+<http://www.finkproject.org/> and <http://www.macports.org/>
+
+Linux users likely have all the dependencies already, except PhysicsFS.
+If your distribution uses separate development packages, they will need to be
+installed.  The packages are probably named *-dev or *-devel.
+
 - libpng and zlib, for PNG image support.
   Home page: <http://www.libpng.org/pub/png/>
   Windows binaries: <http://gnuwin32.sourceforge.net/packages/libpng.htm>
