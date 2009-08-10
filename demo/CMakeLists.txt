@@ -42,7 +42,7 @@ set(DEMO_ICON data/gfx/Icon.icns)
 
 include_directories(
     include
-    ../addons/iio
+    ../addons/image
     ../addons/font
     ../addons/audio
     ../addons/acodec

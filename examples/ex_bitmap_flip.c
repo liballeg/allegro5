@@ -1,7 +1,7 @@
 /* An example showing bitmap flipping flags, by Steven Wallace. */
 
 #include <allegro5/allegro5.h>
-#include <allegro5/allegro_iio.h>
+#include <allegro5/allegro_image.h>
 #include <allegro5/allegro_font.h>
 
 #define INTERVAL 0.01
@@ -69,7 +69,7 @@ int main(void)
       return 1;
    }
 
-   if (!al_init_iio_addon()) {
+   if (!al_init_image_addon()) {
       TRACE("Failed to init IIO addon.\n");
       return 1;
    }

@@ -5,10 +5,10 @@ includedir=@includedir@
 version=@ALLEGRO_VERSION@
 suffix=@lib_type@@lib_linkage@
 
-Name: allegro_iio
+Name: allegro_image
 Description: Allegro game programming library, image I/O addon
 Version: ${version}
-Libs: -L${libdir} -lallegro_iio${suffix}-${version}
+Libs: -L${libdir} -lallegro_image${suffix}-${version}
 Libs.private: @link_with@
 Requires: allegro${suffix}-4.9 >= ${version}
 Cflags: -I${includedir}

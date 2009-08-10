@@ -2,7 +2,7 @@ set(FONT_SOURCES font.c fontbmp.c text.c)
 
 set(FONT_INCLUDE_FILES allegro5/allegro_font.h)
 
-include_directories(../iio)
+include_directories(../image)
 
 add_our_library(allegro_font -${ALLEGRO_VERSION}
     "${FONT_SOURCES}"

@@ -1,5 +1,5 @@
 #include <allegro5/allegro5.h>
-#include <allegro5/allegro_iio.h>
+#include <allegro5/allegro_image.h>
 #include <allegro5/allegro_primitives.h>
 
 const int W = 320;
@@ -17,7 +17,7 @@ int main(void)
       return 1;
    }
 
-   al_init_iio_addon();
+   al_init_image_addon();
    al_install_keyboard();
    al_install_mouse();
 

@@ -35,8 +35,8 @@ typedef bool (*ALLEGRO_IIO_FS_SAVER_FUNCTION)(ALLEGRO_FILE *pf, ALLEGRO_BITMAP *
 
 
 /* XXX the *_entry names are terrible */
-A5_IIO_FUNC(bool, al_init_iio_addon, (void));
-A5_IIO_FUNC(void, al_shutdown_iio_addon, (void));
+A5_IIO_FUNC(bool, al_init_image_addon, (void));
+A5_IIO_FUNC(void, al_shutdown_image_addon, (void));
 A5_IIO_FUNC(bool, al_register_bitmap_loader, (const char *ext, ALLEGRO_IIO_LOADER_FUNCTION loader));
 A5_IIO_FUNC(bool, al_register_bitmap_saver, (const char *ext, ALLEGRO_IIO_SAVER_FUNCTION saver));
 A5_IIO_FUNC(bool, al_register_bitmap_loader_entry, (const char *ext, ALLEGRO_IIO_FS_LOADER_FUNCTION fs_loader));

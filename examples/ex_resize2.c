@@ -6,7 +6,7 @@
 
 
 #include "allegro5/allegro5.h"
-#include "allegro5/allegro_iio.h"
+#include "allegro5/allegro_image.h"
 #include <stdio.h>
 
 
@@ -23,7 +23,7 @@ int main(void)
       return 1;
    }
    al_install_keyboard();
-   al_init_iio_addon();
+   al_init_image_addon();
 
    al_set_new_display_flags(ALLEGRO_RESIZABLE |
       ALLEGRO_GENERATE_EXPOSE_EVENTS);

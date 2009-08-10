@@ -1,5 +1,5 @@
 #include <allegro5/allegro5.h>
-#include "allegro5/allegro_iio.h"
+#include "allegro5/allegro_image.h"
 
 int main(void)
 {
@@ -14,7 +14,7 @@ int main(void)
    }
 
    al_install_mouse();
-   al_init_iio_addon();
+   al_init_image_addon();
 
    display = al_create_display(320, 200);
    if (!display) {

@@ -25,12 +25,12 @@ additional third party libraries.
 
 Here are the addons and their dependencies:
 
-    allegro_iio -> allegro
+    allegro_image -> allegro
     allegro_primitives -> allegro
     allegro_color -> allegro
 
-    allegro_font -> allegro_iio -> allegro
-    allegro_ttf -> allegro_font -> allegro_iio -> allegro
+    allegro_font -> allegro_image -> allegro
+    allegro_ttf -> allegro_font -> allegro_image -> allegro
 
     allegro_audio -> allegro
     allegro_flac -> allegro_audio -> allegro
@@ -42,13 +42,13 @@ Here are the addons and their dependencies:
     allegro_native_dialog -> allegro
 
 The header file for the core library is `allegro5/allegro.h`.  The header
-files for the addons are named `allegro5/allegro_iio.h`, `allegro5/allegro_font.h`,
+files for the addons are named `allegro5/allegro_image.h`, `allegro5/allegro_font.h`,
 etc.
 
 ## Initialisation
 
 Before using Allegro you must call [al_init].  Some addons have their own
-initialisation, e.g. [al_init_iio_addon], [al_init_font_addon],
+initialisation, e.g. [al_init_image_addon], [al_init_font_addon],
 [al_init_ttf_addon].
 
 To receive input, you need to initialise some subsystems like
@@ -67,7 +67,7 @@ visible, call [al_flip_display].
 ## Display an image
 
 To load an image from disk, you need to have initialised the image I/O
-addon with [al_init_iio_addon].  Then use [al_load_bitmap], which returns an
+addon with [al_init_image_addon].  Then use [al_load_bitmap], which returns an
 [ALLEGRO_BITMAP].
 
 Use [al_draw_bitmap], [al_draw_scaled_bitmap] or

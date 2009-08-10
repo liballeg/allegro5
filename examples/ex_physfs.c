@@ -7,7 +7,7 @@
 
 #include <stdio.h>
 #include <allegro5/allegro5.h>
-#include <allegro5/allegro_iio.h>
+#include <allegro5/allegro_image.h>
 #include <allegro5/allegro_physfs.h>
 #include <physfs.h>
 
@@ -43,7 +43,7 @@ int main(int argc, const char *argv[])
 
    if (!al_init())
       return 1;
-   al_init_iio_addon();
+   al_init_image_addon();
    al_install_keyboard();
 
    /* Set up PhysicsFS. */

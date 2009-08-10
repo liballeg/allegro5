@@ -4,7 +4,7 @@
 
 #include <stdio.h>
 #include <allegro5/allegro5.h>
-#include <allegro5/allegro_iio.h>
+#include <allegro5/allegro_image.h>
 #include <time.h>
 
 /* Do a few un-timed runs to switch CPU to performance mode and cache
@@ -77,7 +77,7 @@ int main(int argc, const char *argv[])
    if (!al_init())
       return 1;
 
-   al_init_iio_addon();
+   al_init_image_addon();
 
    if (!al_create_display(640, 480)) {
       TRACE("Error creating display\n");

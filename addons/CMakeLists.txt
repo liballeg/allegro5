@@ -4,7 +4,7 @@
 # automatically pull in dependencies so they don't need to be listed.
 
 if(WANT_IIO)
-    add_subdirectory(iio)
+    add_subdirectory(image)
     set(IIO_LINK_WITH ${IIO_LINK_WITH} PARENT_SCOPE)
     set(SUPPORT_IIO 1 PARENT_SCOPE)
 

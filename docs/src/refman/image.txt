@@ -1,10 +1,10 @@
 # Image I/O addon
 
-## API: al_init_iio_addon
+## API: al_init_image_addon
 
 Initializes the IIO addon.
 
-## API: al_shutdown_iio_addon
+## API: al_shutdown_image_addon
 
 Shut down the IIO addon. This is done automatically at program exit,
 but can be called any time the user wishes as well.

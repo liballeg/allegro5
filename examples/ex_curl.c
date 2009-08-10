@@ -46,7 +46,7 @@
 
 #include <curl/curl.h>
 #include <allegro5/allegro5.h>
-#include <allegro5/allegro_iio.h>
+#include <allegro5/allegro_image.h>
 
 
 typedef struct CURL_FILE CURL_FILE;
@@ -370,7 +370,7 @@ int main(int argc, const char *argv[])
 
    if (!al_init())
       return 1;
-   al_init_iio_addon();
+   al_init_image_addon();
    al_install_keyboard();
 
    display = al_create_display(640, 480);

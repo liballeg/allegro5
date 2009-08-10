@@ -2,7 +2,7 @@
 
 
 #include "allegro5/allegro5.h"
-#include "allegro5/allegro_iio.h"
+#include "allegro5/allegro_image.h"
 #include "allegro5/internal/aintern.h"
 #include "allegro5/internal/aintern_vector.h"
 
@@ -27,9 +27,9 @@ static bool iio_inited = false;
 static _AL_VECTOR iio_table = _AL_VECTOR_INITIALIZER(Handler);
 
 
-/* Function: al_init_iio_addon
+/* Function: al_init_image_addon
  */
-bool al_init_iio_addon(void)
+bool al_init_image_addon(void)
 {
    int success;
 
@@ -75,15 +75,15 @@ bool al_init_iio_addon(void)
    if (success)
       iio_inited = true;
 
-   _al_add_exit_func(al_shutdown_iio_addon, "al_shutdown_iio_addon");
+   _al_add_exit_func(al_shutdown_image_addon, "al_shutdown_image_addon");
 
    return success;
 }
 
 
-/* Function: al_shutdown_iio_addon
+/* Function: al_shutdown_image_addon
  */
-void al_shutdown_iio_addon(void)
+void al_shutdown_image_addon(void)
 {
    if (iio_inited) {
       _al_vector_free(&iio_table);

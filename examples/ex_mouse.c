@@ -1,5 +1,5 @@
 #include <allegro5/allegro5.h>
-#include "allegro5/allegro_iio.h"
+#include "allegro5/allegro_image.h"
 #include <allegro5/allegro_primitives.h>
 
 #define NUM_BUTTONS  3
@@ -40,7 +40,7 @@ int main(void)
 
    al_install_mouse();
    al_install_keyboard();
-   al_init_iio_addon();
+   al_init_image_addon();
 
    display = al_create_display(640, 480);
    if (!display) {

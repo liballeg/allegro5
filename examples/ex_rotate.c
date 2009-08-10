@@ -12,7 +12,7 @@
 
 
 #include <allegro5/allegro5.h>
-#include "allegro5/allegro_iio.h"
+#include "allegro5/allegro_image.h"
 #include <math.h>
 
 
@@ -46,7 +46,7 @@ int main(void)
    }
 
    al_install_keyboard();
-   al_init_iio_addon();
+   al_init_image_addon();
 
    dpy = al_create_display(display_w, display_h);
    if (!dpy) {

@@ -12,7 +12,7 @@ set(PAGES
     fshook
     getting_started
     graphics
-    iio
+    image
     joystick
     audio
     keyboard

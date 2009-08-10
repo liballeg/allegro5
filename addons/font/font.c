@@ -18,7 +18,7 @@
 #include "allegro5/internal/aintern_memory.h"
 #include "allegro5/internal/aintern_vector.h"
 #include "allegro5/allegro_font.h"
-#include "allegro5/allegro_iio.h"
+#include "allegro5/allegro_image.h"
 
 #include "font.h"
 
@@ -244,7 +244,7 @@ static void font_shutdown(void)
 void al_init_font_addon(void)
 {
    _al_vector_init(&font_handlers, sizeof(FONT_HANDLER));
-   al_init_iio_addon(); /* we depend on the iio addon */
+   al_init_image_addon(); /* we depend on the iio addon */
    
    al_register_font_loader(".bmp", _al_load_bitmap_font);
    al_register_font_loader(".jpg", _al_load_bitmap_font);

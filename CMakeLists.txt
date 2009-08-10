@@ -869,7 +869,7 @@ set(PKG_CONFIG_FILES
     allegro_dialog
     allegro_flac
     allegro_font
-    allegro_iio
+    allegro_image
     allegro_memfile
     allegro_physfs
     allegro_primitives

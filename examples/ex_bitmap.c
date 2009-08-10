@@ -1,6 +1,6 @@
 #include <stdio.h>
 #include "allegro5/allegro5.h"
-#include "allegro5/allegro_iio.h"
+#include "allegro5/allegro_image.h"
 
 int main(int argc, const char *argv[])
 {
@@ -29,7 +29,7 @@ int main(int argc, const char *argv[])
     al_install_mouse();
     al_install_keyboard();
 
-    al_init_iio_addon();
+    al_init_image_addon();
 
     display = al_create_display(640, 480);
     if (!display) {

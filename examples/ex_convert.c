@@ -2,7 +2,7 @@
 
 #include <stdio.h>
 #include "allegro5/allegro5.h"
-#include "allegro5/allegro_iio.h"
+#include "allegro5/allegro_image.h"
 
 
 int main(int argc, char **argv)
@@ -22,7 +22,7 @@ int main(int argc, char **argv)
       return 1;
    }
 
-   al_init_iio_addon();
+   al_init_image_addon();
 
    al_set_new_bitmap_format(ALLEGRO_PIXEL_FORMAT_ARGB_8888);
    al_set_new_bitmap_flags(ALLEGRO_MEMORY_BITMAP);

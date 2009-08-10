@@ -1,6 +1,6 @@
 #include <stdio.h>
 #include "allegro5/allegro5.h"
-#include "allegro5/allegro_iio.h"
+#include "allegro5/allegro_image.h"
 
 const int W = 640;
 const int H = 400;
@@ -20,7 +20,7 @@ int main(void)
 
    al_install_keyboard();
    al_install_mouse();
-   al_init_iio_addon();
+   al_init_image_addon();
 
    events = al_create_event_queue();
 

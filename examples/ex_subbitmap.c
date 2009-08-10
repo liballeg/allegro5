@@ -11,7 +11,7 @@
 /* TODO: test non-memory bitmaps */
 
 #include "allegro5/allegro5.h"
-#include "allegro5/allegro_iio.h"
+#include "allegro5/allegro_image.h"
 #include <allegro5/allegro_primitives.h>
 
 #define MIN(x,y)     (((x) < (y)) ? (x) : (y))
@@ -60,7 +60,7 @@ int main(void)
    if (!al_init()) {
       return 1;
    }
-   al_init_iio_addon();
+   al_init_image_addon();
 
    al_set_new_display_flags(ALLEGRO_GENERATE_EXPOSE_EVENTS);
    src_display = al_create_display(SRC_WIDTH, SRC_HEIGHT);

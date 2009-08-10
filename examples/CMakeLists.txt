@@ -1,5 +1,5 @@
 include_directories(
-    ../addons/iio
+    ../addons/image
     ../addons/font
     ../addons/ttf
     ../addons/audio

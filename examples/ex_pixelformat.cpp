@@ -7,7 +7,7 @@
 #include <stdio.h>
 #include "allegro5/allegro5.h"
 #include "allegro5/allegro_font.h"
-#include "allegro5/allegro_iio.h"
+#include "allegro5/allegro_image.h"
 #include "allegro5/allegro_primitives.h"
 #include "nihgui.hpp"
 
@@ -186,7 +186,7 @@ int main(void)
       return 1;
    }
 
-   al_init_iio_addon();
+   al_init_image_addon();
    al_init_font_addon();
 
    al_install_keyboard();

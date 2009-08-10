@@ -1,5 +1,5 @@
 #include "allegro5/allegro5.h"
-#include "allegro5/allegro_iio.h"
+#include "allegro5/allegro_image.h"
 #include <stdio.h>
 
 static void go(void)
@@ -74,7 +74,7 @@ int main(void)
 
    al_install_keyboard();
 
-   al_init_iio_addon();
+   al_init_image_addon();
 
    if (al_get_num_video_adapters() < 2) {
       TRACE("You need 2 or more adapters/monitors for this example.\n");

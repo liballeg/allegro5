@@ -7,7 +7,7 @@
 #include <string>
 #include "allegro5/allegro5.h"
 #include "allegro5/allegro_font.h"
-#include "allegro5/allegro_iio.h"
+#include "allegro5/allegro_image.h"
 #include <allegro5/allegro_primitives.h>
 
 #include "nihgui.hpp"
@@ -222,7 +222,7 @@ int main()
    al_install_mouse();
 
    al_init_font_addon();
-   al_init_iio_addon();
+   al_init_image_addon();
 
    al_set_new_display_flags(ALLEGRO_GENERATE_EXPOSE_EVENTS);
    display = al_create_display(640, 480);

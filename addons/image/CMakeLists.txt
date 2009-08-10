@@ -1,5 +1,5 @@
 set(IIO_SOURCES bmp.c iio.c pcx.c tga.c)
-set(IIO_INCLUDE_FILES allegro5/allegro_iio.h)
+set(IIO_INCLUDE_FILES allegro5/allegro_image.h)
 
 # Accumulate these.
 set(IIO_LIBRARIES)
@@ -32,17 +32,17 @@ if(WANT_JPG)
 endif(WANT_JPG)
 
 configure_file(
-    allegro5/internal/aintern_iio_cfg.h.cmake
-    ${CMAKE_BINARY_DIR}/include/allegro5/internal/aintern_iio_cfg.h
+    allegro5/internal/aintern_image_cfg.h.cmake
+    ${CMAKE_BINARY_DIR}/include/allegro5/internal/aintern_image_cfg.h
     )
 
-add_our_library(allegro_iio -${ALLEGRO_VERSION}
+add_our_library(allegro_image -${ALLEGRO_VERSION}
     "${IIO_SOURCES}"
     "-DA5_IIO_SRC"
     "${ALLEGRO_LINK_WITH};${IIO_LIBRARIES}"
     )
 
-set(IIO_LINK_WITH allegro_iio PARENT_SCOPE)
+set(IIO_LINK_WITH allegro_image PARENT_SCOPE)
 
 install(FILES ${IIO_INCLUDE_FILES}
         DESTINATION include/allegro5
