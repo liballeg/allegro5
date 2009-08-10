@@ -3,7 +3,7 @@
 
 
 
-#include "allegro5/internal/aintern_iio_cfg.h"
+#include "allegro5/internal/aintern_image_cfg.h"
 
 
 
