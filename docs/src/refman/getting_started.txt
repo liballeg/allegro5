@@ -25,24 +25,24 @@ additional third party libraries.
 
 Here are the addons and their dependencies:
 
-    a5_iio -> allegro
-    a5_primitives -> allegro
-    a5_color -> allegro
+    allegro_iio -> allegro
+    allegro_primitives -> allegro
+    allegro_color -> allegro
 
-    a5_font -> a5_iio -> allegro
-    a5_ttf -> a5_font -> a5_iio -> allegro
+    allegro_font -> allegro_iio -> allegro
+    allegro_ttf -> allegro_font -> allegro_iio -> allegro
 
-    kcm_audio -> allegro
-    a5_flac -> kcm_audio -> allegro
-    a5_vorbis -> kcm_audio -> allegro
+    allegro_audio -> allegro
+    allegro_flac -> allegro_audio -> allegro
+    allegro_vorbis -> allegro_audio -> allegro
 
-    a5_memfile -> allegro
-    a5_physfs -> allegro
+    allegro_memfile -> allegro
+    allegro_physfs -> allegro
 
-    a5_native_dialog -> allegro
+    allegro_native_dialog -> allegro
 
 The header file for the core library is `allegro5/allegro.h`.  The header
-files for the addons are named `allegro5/a5_iio.h`, `allegro5/a5_font.h`,
+files for the addons are named `allegro5/allegro_iio.h`, `allegro5/allegro_font.h`,
 etc.
 
 ## Initialisation

@@ -37,9 +37,9 @@
  */
 
 
-#include "allegro5/a5_primitives.h"
+#include "allegro5/allegro_primitives.h"
 #ifdef ALLEGRO_CFG_OPENGL
-#include "allegro5/a5_opengl.h"
+#include "allegro5/allegro_opengl.h"
 #endif
 #include "allegro5/internal/aintern_bitmap.h"
 #include <math.h>

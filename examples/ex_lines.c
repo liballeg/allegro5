@@ -4,7 +4,7 @@
 
 #include <math.h>
 #include "allegro5/allegro5.h"
-#include <allegro5/a5_primitives.h>
+#include <allegro5/allegro_primitives.h>
 
 /* Define this to test drawing to memory bitmaps.
  * XXX the software line drawer currently doesn't perform clipping properly

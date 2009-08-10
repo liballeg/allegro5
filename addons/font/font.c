@@ -17,8 +17,8 @@
 #include "allegro5/internal/aintern.h"
 #include "allegro5/internal/aintern_memory.h"
 #include "allegro5/internal/aintern_vector.h"
-#include "allegro5/a5_font.h"
-#include "allegro5/a5_iio.h"
+#include "allegro5/allegro_font.h"
+#include "allegro5/allegro_iio.h"
 
 #include "font.h"
 

@@ -6,9 +6,9 @@
 
 #include <stdio.h>
 #include "allegro5/allegro5.h"
-#include "allegro5/a5_flac.h"
-#include "allegro5/a5_vorbis.h"
-#include "allegro5/kcm_audio.h"
+#include "allegro5/allegro_flac.h"
+#include "allegro5/allegro_vorbis.h"
+#include "allegro5/allegro_audio.h"
 
 #define RESERVED_SAMPLES   16
 #define MAX_SAMPLE_DATA    10

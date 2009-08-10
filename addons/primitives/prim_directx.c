@@ -18,14 +18,14 @@
  */
 
 #include "allegro5/allegro5.h"
-#include "allegro5/a5_primitives.h"
+#include "allegro5/allegro_primitives.h"
 #include "allegro5/internal/aintern_prim_directx.h"
 #include "allegro5/internal/aintern_prim.h"
 
 #include "allegro5/platform/alplatf.h"
 
 #ifdef ALLEGRO_CFG_D3D
-#include "allegro5/a5_direct3d.h"
+#include "allegro5/allegro_direct3d.h"
 
 #define A5V_FVF (D3DFVF_XYZ | D3DFVF_DIFFUSE | D3DFVF_TEX1)
 

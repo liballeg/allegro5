@@ -2,9 +2,9 @@
  */
 
 #include <allegro5/allegro5.h>
-#include <allegro5/a5_font.h>
-#include <allegro5/a5_color.h>
-#include <allegro5/a5_primitives.h>
+#include <allegro5/allegro_font.h>
+#include <allegro5/allegro_color.h>
+#include <allegro5/allegro_primitives.h>
 #include <stdio.h>
 #include <stdarg.h>
 

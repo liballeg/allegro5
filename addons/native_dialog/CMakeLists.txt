@@ -1,4 +1,4 @@
-set(INCLUDE_FILES allegro5/a5_native_dialog.h)
+set(INCLUDE_FILES allegro5/allegro_native_dialog.h)
 
 if(APPLE)
    set(SOURCES dialog.c osx_dialog.m)
@@ -46,14 +46,14 @@ if(SUPPORT_NATIVE_DIALOG)
        ${CMAKE_BINARY_DIR}/include/allegro5/internal/aintern_native_dialog_cfg.h
        )
 
-   add_our_library(a5_dialog -${ALLEGRO_VERSION}
+   add_our_library(allegro_dialog -${ALLEGRO_VERSION}
        "${SOURCES}"
        "-DA5_NATIVE_DIALOG_SRC"
        "${NATIVE_DIALOG_LIBRARIES};${ALLEGRO_LINK_WITH}"
        )
 
    set(SUPPORT_NATIVE_DIALOG 1 PARENT_SCOPE)
-   set(NATIVE_DIALOG_LINK_WITH a5_dialog PARENT_SCOPE)
+   set(NATIVE_DIALOG_LINK_WITH allegro_dialog PARENT_SCOPE)
 
    install(FILES ${INCLUDE_FILES}
            DESTINATION include/allegro5

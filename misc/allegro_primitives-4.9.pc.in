@@ -1,0 +1,14 @@
+prefix=@prefix@
+exec_prefix=${prefix}
+libdir=@libdir@
+includedir=@includedir@
+version=@ALLEGRO_VERSION@
+suffix=@lib_type@@lib_linkage@
+
+Name: allegro_primitives
+Description: Allegro game programming library, primitives addon
+Version: ${version}
+Libs: -L${libdir} -lallegro_primitives${suffix}-${version}
+Libs.private: @link_with@
+Requires: allegro${suffix}-4.9 >= ${version}
+Cflags: -I${includedir}

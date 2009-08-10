@@ -6,8 +6,8 @@
 
 #include <stdio.h>
 #include "allegro5/allegro5.h"
-#include "allegro5/a5_flac.h"
-#include "allegro5/a5_vorbis.h"
+#include "allegro5/allegro_flac.h"
+#include "allegro5/allegro_vorbis.h"
 
 int main(int argc, char **argv)
 {

@@ -2,7 +2,7 @@
 
 # Windows
 
-You must include <a5_windows.h> to use these functions.
+You must include <allegro_windows.h> to use these functions.
 
 ## API: al_win_get_window
 

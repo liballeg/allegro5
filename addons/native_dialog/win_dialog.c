@@ -9,13 +9,13 @@
  */
 
 #include "allegro5/allegro5.h"
-#include "allegro5/a5_native_dialog.h"
+#include "allegro5/allegro_native_dialog.h"
 #include "allegro5/internal/aintern_native_dialog.h"
 #include "allegro5/internal/aintern_memory.h"
 
 #include "allegro5/platform/aintwin.h"
 
-#include "allegro5/a5_windows.h"
+#include "allegro5/allegro_windows.h"
 
 
 static int next(char *s)

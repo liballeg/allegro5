@@ -10,9 +10,9 @@
 
 #include <stdio.h>
 #include "allegro5/allegro5.h"
-#include "allegro5/a5_flac.h"
-#include "allegro5/a5_vorbis.h"
-#include "allegro5/kcm_audio.h"
+#include "allegro5/allegro_flac.h"
+#include "allegro5/allegro_vorbis.h"
+#include "allegro5/allegro_audio.h"
 
 /* Attaches the stream directly to a voice. Streamed file's and voice's sample
  * rate, channels and depth must match.

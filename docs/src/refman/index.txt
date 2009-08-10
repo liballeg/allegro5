@@ -28,7 +28,7 @@
 
 # Addons
 
-* [Audio addon](kcm_audio.html)
+* [Audio addon](allegro_audio.html)
 * [Audio codecs](acodec.html)
 * [Color addon](color.html)
 * [Font addons](font.html)

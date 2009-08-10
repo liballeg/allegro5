@@ -23,7 +23,7 @@
 #include <windows.h>
 
 #include "allegro5/allegro5.h"
-#include "allegro5/a5_opengl.h"
+#include "allegro5/allegro_opengl.h"
 #include "allegro5/system_new.h"
 #include "allegro5/internal/aintern.h"
 #include "allegro5/internal/aintern_bitmap.h"

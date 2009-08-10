@@ -17,7 +17,7 @@
  */
 
 #include "allegro5/allegro5.h"
-#include "allegro5/a5_primitives.h"
+#include "allegro5/allegro_primitives.h"
 #include "allegro5/internal/aintern_prim_opengl.h"
 #include "allegro5/internal/aintern_prim_directx.h"
 #include "allegro5/platform/alplatf.h"
@@ -27,10 +27,10 @@
 #include <math.h>
 
 #ifdef ALLEGRO_CFG_OPENGL
-#include "allegro5/a5_opengl.h"
+#include "allegro5/allegro_opengl.h"
 #endif
 #ifdef ALLEGRO_CFG_D3D
-#include "allegro5/a5_direct3d.h"
+#include "allegro5/allegro_direct3d.h"
 #endif
 
 /*

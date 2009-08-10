@@ -32,15 +32,15 @@
 #if defined ALLEGRO_API
 
    #include "allegro5/allegro5.h"
-   #include "allegro5/a5_opengl.h"
-   #include "allegro5/a5_direct3d.h"
+   #include "allegro5/allegro_opengl.h"
+   #include "allegro5/allegro_direct3d.h"
    #include "allegro5/utf8.h"
 
 #elif defined ALLEGRO_WINAPI
 
    #define ALLEGRO_H
    #include "allegro5/platform/alwin.h"
-   #include "allegro5/a5_windows.h"
+   #include "allegro5/allegro_windows.h"
 
 #elif defined ALLEGRO_INTERNALS
 

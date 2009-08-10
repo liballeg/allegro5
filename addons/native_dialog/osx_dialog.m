@@ -1,5 +1,5 @@
 #include "allegro5/allegro5.h"
-#include "allegro5/a5_native_dialog.h"
+#include "allegro5/allegro_native_dialog.h"
 #include "allegro5/internal/aintern_native_dialog.h"
 #include "allegro5/internal/aintern_memory.h"
 

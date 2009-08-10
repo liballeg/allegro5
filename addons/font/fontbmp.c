@@ -21,9 +21,9 @@
 #include "allegro5/allegro5.h"
 #include "allegro5/internal/aintern_memory.h"
 
-#include "allegro5/a5_iio.h"
+#include "allegro5/allegro_iio.h"
 
-#include "allegro5/a5_font.h"
+#include "allegro5/allegro_font.h"
 
 #include "font.h"
 

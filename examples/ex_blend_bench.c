@@ -4,7 +4,7 @@
 
 #include <stdio.h>
 #include <allegro5/allegro5.h>
-#include <allegro5/a5_iio.h>
+#include <allegro5/allegro_iio.h>
 #include <time.h>
 
 /* Do a few un-timed runs to switch CPU to performance mode and cache

@@ -11,10 +11,10 @@
 #include <stdio.h>
 #include <math.h>
 #include <allegro5/allegro5.h>
-#include <allegro5/a5_font.h>
-#include <allegro5/a5_ttf.h>
-#include <allegro5/a5_iio.h>
-#include <allegro5/a5_primitives.h>
+#include <allegro5/allegro_font.h>
+#include <allegro5/allegro_ttf.h>
+#include <allegro5/allegro_iio.h>
+#include <allegro5/allegro_primitives.h>
 
 #ifdef ALLEGRO_MSVC
    #define snprintf _snprintf

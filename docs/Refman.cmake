@@ -14,7 +14,7 @@ set(PAGES
     graphics
     iio
     joystick
-    kcm_audio
+    audio
     keyboard
     memory
     misc

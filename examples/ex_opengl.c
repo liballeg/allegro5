@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <math.h>
 #include <allegro5/allegro5.h>
-#include <allegro5/a5_opengl.h>
+#include <allegro5/allegro_opengl.h>
 
 /* Simple example showing how to use an extension. It draws a yellow triangle
  * on red background onto a texture, then draws a quad with that texture.

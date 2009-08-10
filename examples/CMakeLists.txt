@@ -2,7 +2,7 @@ include_directories(
     ../addons/iio
     ../addons/font
     ../addons/ttf
-    ../addons/kcm_audio
+    ../addons/audio
     ../addons/acodec
     ../addons/color
     ../addons/memfile

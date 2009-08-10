@@ -17,7 +17,7 @@
  */
 
 
-#include "allegro5/a5_primitives.h"
+#include "allegro5/allegro_primitives.h"
 #include "allegro5/internal/aintern_prim.h"
 #include "allegro5/internal/aintern_prim_soft.h"
 #include <math.h>

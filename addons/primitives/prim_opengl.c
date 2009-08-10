@@ -17,7 +17,7 @@
  */
 
 #include "allegro5/allegro5.h"
-#include "allegro5/a5_primitives.h"
+#include "allegro5/allegro_primitives.h"
 #include "allegro5/internal/aintern_prim_opengl.h"
 #include "allegro5/internal/aintern_prim_soft.h"
 #include "allegro5/platform/alplatf.h"
@@ -25,7 +25,7 @@
 
 #ifdef ALLEGRO_CFG_OPENGL
 
-#include "allegro5/a5_opengl.h"
+#include "allegro5/allegro_opengl.h"
 #include "allegro5/internal/aintern_opengl.h"
 
 static void setup_blending(void)

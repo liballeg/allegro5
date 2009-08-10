@@ -4,7 +4,7 @@
 #include <math.h>
 
 #include "allegro5/allegro5.h"
-#include "allegro5/kcm_audio.h"
+#include "allegro5/allegro_audio.h"
 
 
 #define SAMPLES_PER_BUFFER    1024

@@ -4,7 +4,7 @@
 
 This function to registers [al_load_sample_flac] with [al_load_sample] to
 handle files with the extension ".flac".  You will need to include the
-`a5_flac.h` header file and link with the `a5_flac` library.
+`allegro_flac.h` header file and link with the `allegro_flac` library.
 
 Return true on success.
 
@@ -19,7 +19,7 @@ See also: [al_load_sample]
 This function to registers [al_load_sample_ogg_vorbis] with [al_load_sample]
 and [al_load_stream_ogg_vorbis] with [al_stream_from_file] to handle files
 with the extension ".ogg" (assumed to contain Vorbis data).  You will need to
-include the `a5_vorbis.h` header file and link with the `a5_vorbis` library.
+include the `allegro_vorbis.h` header file and link with the `allegro_vorbis` library.
 
 Return true on success.
 

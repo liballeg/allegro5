@@ -1,6 +1,6 @@
 set(TTF_SOURCES ttf.c)
 
-set(TTF_INCLUDE_FILES allegro5/a5_ttf.h)
+set(TTF_INCLUDE_FILES allegro5/allegro_ttf.h)
 
 configure_file(
     allegro5/internal/aintern_ttf_cfg.h.cmake
@@ -10,13 +10,13 @@ configure_file(
 include_directories(../font)
 include_directories(${FREETYPE_INCLUDE_DIRS})
 
-add_our_library(a5_ttf -${ALLEGRO_VERSION}
+add_our_library(allegro_ttf -${ALLEGRO_VERSION}
     "${TTF_SOURCES}"
     "-DA5_TTF_SRC"
     "${FONT_LINK_WITH};${FREETYPE_LIBRARIES}"
     )
 
-set(TTF_LINK_WITH a5_ttf PARENT_SCOPE)
+set(TTF_LINK_WITH allegro_ttf PARENT_SCOPE)
 
 install(FILES ${TTF_INCLUDE_FILES}
         DESTINATION include/allegro5

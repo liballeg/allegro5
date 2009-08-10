@@ -7,8 +7,8 @@
 
 #include <stdio.h>
 #include <allegro5/allegro5.h>
-#include <allegro5/a5_iio.h>
-#include <allegro5/a5_physfs.h>
+#include <allegro5/allegro_iio.h>
+#include <allegro5/allegro_physfs.h>
 #include <physfs.h>
 
 

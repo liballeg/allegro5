@@ -311,8 +311,8 @@ set(ALLEGRO_INCLUDE_ALLEGRO_FILES
     include/allegro5/memory.h
     include/allegro5/mouse.h
     include/allegro5/path.h
-    include/allegro5/a5_opengl.h
-    include/allegro5/a5_direct3d.h
+    include/allegro5/allegro_opengl.h
+    include/allegro5/allegro_direct3d.h
     include/allegro5/system_new.h
     include/allegro5/threads.h
     include/allegro5/tls.h
@@ -397,7 +397,7 @@ set(ALLEGRO_INCLUDE_ALLEGRO_PLATFORM_FILES
     )
 
 set(ALLEGRO_INCLUDE_ALLEGRO_WINDOWS_FILES
-    include/allegro5/a5_windows.h
+    include/allegro5/allegro_windows.h
     )
 
 set(ALLEGRO_INCLUDE_ALLEGRO_PLATFORM_FILES_GENERATED

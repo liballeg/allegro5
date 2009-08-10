@@ -1,6 +1,6 @@
 #include <allegro5/allegro5.h>
-#include <allegro5/a5_iio.h>
-#include <allegro5/a5_primitives.h>
+#include <allegro5/allegro_iio.h>
+#include <allegro5/allegro_primitives.h>
 
 const int W = 320;
 const int H = 200;

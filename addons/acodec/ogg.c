@@ -5,9 +5,9 @@
  */
 
 #include "allegro5/allegro5.h"
-#include "allegro5/a5_vorbis.h"
-#include "allegro5/kcm_audio.h"
-#include "allegro5/internal/aintern_kcm_audio.h"
+#include "allegro5/allegro_vorbis.h"
+#include "allegro5/allegro_audio.h"
+#include "allegro5/internal/aintern_audio.h"
 #include "allegro5/internal/aintern_memory.h"
 
 

@@ -20,12 +20,12 @@
 #include "allegro5/allegro5.h"
 #include "allegro5/internal/aintern_bitmap.h"
 
-#include "allegro5/a5_primitives.h"
+#include "allegro5/allegro_primitives.h"
 #include "allegro5/internal/aintern_prim_soft.h"
 #include "allegro5/internal/aintern_prim.h"
 
 #ifdef ALLEGRO_CFG_D3D
-#include "allegro5/a5_direct3d.h"
+#include "allegro5/allegro_direct3d.h"
 #endif
 
 extern ALLEGRO_TRANSFORM _al_global_trans;

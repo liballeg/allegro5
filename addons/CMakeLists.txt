@@ -16,7 +16,7 @@ if(WANT_IIO)
 endif(WANT_IIO)
 
 if(WANT_KCM_AUDIO)
-    add_subdirectory(kcm_audio)
+    add_subdirectory(audio)
     if(SUPPORT_KCM_AUDIO)
         set(SUPPORT_KCM_AUDIO 1 PARENT_SCOPE)
         set(AUDIO_LINK_WITH ${AUDIO_LINK_WITH} PARENT_SCOPE)

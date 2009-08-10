@@ -26,7 +26,7 @@
 * [Timer](timer.html)
 * [UTF-8](utf8.html)
 * **[Addons](index.html#addons)**
-* [Audio addon](kcm_audio.html)
+* [Audio addon](allegro_audio.html)
 * [Audio codecs](acodec.html)
 * [Color addon](color.html)
 * [Font addons](font.html)

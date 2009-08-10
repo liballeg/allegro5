@@ -44,7 +44,7 @@ include_directories(
     include
     ../addons/iio
     ../addons/font
-    ../addons/kcm_audio
+    ../addons/audio
     ../addons/acodec
     )
 

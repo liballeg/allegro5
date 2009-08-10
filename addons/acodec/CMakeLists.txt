@@ -1,4 +1,4 @@
-include_directories(../kcm_audio)
+include_directories(../audio)
 
 option(WANT_FLAC "Enable FLAC support (acodec)" on)
 option(WANT_VORBIS "Enable Ogg Vorbis support (acodec)" on)
@@ -33,15 +33,15 @@ if(WANT_FLAC)
 endif(WANT_FLAC)
 
 if(SUPPORT_FLAC)
-    add_our_library(a5_flac -${ALLEGRO_VERSION}
+    add_our_library(allegro_flac -${ALLEGRO_VERSION}
         "${A5_FLAC_SOURCES}"
         "-DA5_FLAC_SRC"
         "${AUDIO_LINK_WITH};${FLAC_LIBRARIES}"
         )
 
-    set(FLAC_LINK_WITH a5_flac PARENT_SCOPE)
+    set(FLAC_LINK_WITH allegro_flac PARENT_SCOPE)
 
-    install(FILES allegro5/a5_flac.h
+    install(FILES allegro5/allegro_flac.h
             DESTINATION include/allegro5
             )
 endif(SUPPORT_FLAC)
@@ -95,15 +95,15 @@ if(WANT_VORBIS)
 endif(WANT_VORBIS)
 
 if(SUPPORT_VORBIS)
-    add_our_library(a5_vorbis -${ALLEGRO_VERSION}
+    add_our_library(allegro_vorbis -${ALLEGRO_VERSION}
         "${A5_VORBIS_SOURCES}"
         "-DA5_VORBIS_SRC"
         "${AUDIO_LINK_WITH};${VORBIS_LIBRARIES}"
         )
 
-    set(VORBIS_LINK_WITH a5_vorbis PARENT_SCOPE)
+    set(VORBIS_LINK_WITH allegro_vorbis PARENT_SCOPE)
 
-    install(FILES allegro5/a5_vorbis.h
+    install(FILES allegro5/allegro_vorbis.h
             DESTINATION include/allegro5
             )
 endif(SUPPORT_VORBIS)

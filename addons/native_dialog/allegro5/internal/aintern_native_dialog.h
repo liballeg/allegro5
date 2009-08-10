@@ -1,5 +1,5 @@
-#ifndef __al_included_a5_aintern_native_dialog_h
-#define __al_included_a5_aintern_native_dialog_h
+#ifndef __al_included_allegro_aintern_native_dialog_h
+#define __al_included_allegro_aintern_native_dialog_h
 
 struct ALLEGRO_NATIVE_DIALOG
 {

@@ -70,14 +70,14 @@ Image I/O addon:
 
 Audio addons:
 
--  Moved basic sample loading/saving routines to kcm_audio from acodec
+-  Moved basic sample loading/saving routines to allegro_audio from acodec
    and added file type registration functions.
 
--  Moved WAV support into kcm_audio.
+-  Moved WAV support into allegro_audio.
 
 -  Made WAV loader not choke on extra chunks in the wave.
 
--  Separated acodec into a5_flac, a5_vorbis addons.  You need to initialise
+-  Separated acodec into allegro_flac, allegro_vorbis addons.  You need to initialise
    them explicitly.  Removed sndfile support.
 
 -  Renamed al\_\*\_oggvorbis to al\_\*\_ogg\_vorbis.
@@ -91,7 +91,7 @@ Audio addons:
 
 -  Added missing getters for ALLEGRO_SAMPLE fields.
 
--  Fixed mutex locking problems with kcm_audio objects.
+-  Fixed mutex locking problems with allegro_audio objects.
 
 -  Avoid underfilling a stream when it is fed with a short looping stream.
 
@@ -110,7 +110,7 @@ Documentation:
 
 Examples:
 
--  Added another example for kcm_audio streaming: ex_synth.
+-  Added another example for allegro_audio streaming: ex_synth.
 
 Build system:
 
@@ -532,7 +532,7 @@ Audio addons:
 
 -  Added stream seeking and stream start/end loop points.
 
--  Add panning support for kcm_audio (stereo only).
+-  Add panning support for allegro_audio (stereo only).
 
 Font addons:
 
@@ -660,7 +660,7 @@ Addons:
 
 -  Added a primitives addon.
 
--  Revamp interface for kcm_audio addon to make simple cases easier.
+-  Revamp interface for allegro_audio addon to make simple cases easier.
 
 -  Added native .wav support and save sample routines to acodec addon.
 
@@ -770,11 +770,11 @@ Config routines:
 
 Addons:
 
--  Add a simple interface layer for kcm_audio.
+-  Add a simple interface layer for allegro_audio.
 
--  Made kcm_audio objects automatically be destroyed when it is shut down.
+-  Made allegro_audio objects automatically be destroyed when it is shut down.
 
--  Renamed functions in kcm_audio to conform better with the rest of the
+-  Renamed functions in allegro_audio to conform better with the rest of the
    library.
 
 -  Made the TTF addon aggregate glyph cache bitmaps into larger bitmaps for
@@ -789,7 +789,7 @@ Examples:
 -  Add an example for checking software blending routines against hardware
    blending.
 
--  Add an example for the simple interface for kcm_audio.
+-  Add an example for the simple interface for allegro_audio.
 
 
 
@@ -811,11 +811,11 @@ General:
 
 Graphics:
 
--  Added allegro5/a5_opengl.h, which has to be included by programs
+-  Added allegro5/allegro_opengl.h, which has to be included by programs
    to use OpenGL specifics.  ALLEGRO_EXCLUDE_GLX and ALLEGRO_EXCLUDE_WGL can
    be #defined to exclude GLX and WGL OpenGL extensions respectively.
 
--  Added allegro/a5_direct3d.h, which has to be included by programs
+-  Added allegro/allegro_direct3d.h, which has to be included by programs
    to use D3D specifics.
 
 -  Fixed some drawing from and onto sub-bitmaps.
@@ -1045,7 +1045,7 @@ Addons:
 
       -  Supports PNG support with libpng.
 
--  Added new audio addon, kcm_audio.  (The 'audio' addon was taken in a new
+-  Added new audio addon, allegro_audio.  (The 'audio' addon was taken in a new
    direction between the 4.9.3 and 4.9.4 releases, but we decided against
    that, so actually it's actually a continuation of the old audio addon.)
 

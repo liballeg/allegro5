@@ -28,10 +28,10 @@
 #include "allegro5/platform/aintwin.h"
 
 #if defined ALLEGRO_CFG_OPENGL
-   #include "allegro5/a5_opengl.h"
+   #include "allegro5/allegro_opengl.h"
 #endif
 #if defined ALLEGRO_CFG_D3D
-   #include "allegro5/a5_direct3d.h"
+   #include "allegro5/allegro_direct3d.h"
 #endif
 
 #include <windows.h>

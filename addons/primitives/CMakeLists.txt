@@ -7,15 +7,15 @@ set(PRIMITIVES_SOURCES
     prim_soft.c
     primitives.c
     )
-set(PRIMITIVES_INCLUDE_FILES allegro5/a5_primitives.h)
+set(PRIMITIVES_INCLUDE_FILES allegro5/allegro_primitives.h)
 
-add_our_library(a5_primitives -${ALLEGRO_VERSION}
+add_our_library(allegro_primitives -${ALLEGRO_VERSION}
     "${PRIMITIVES_SOURCES}"
     "-DA5_PRIMITIVES_SRC"
     "${ALLEGRO_LINK_WITH}"
     )
 
-set(PRIMITIVES_LINK_WITH a5_primitives PARENT_SCOPE)
+set(PRIMITIVES_LINK_WITH allegro_primitives PARENT_SCOPE)
 
 #-----------------------------------------------------------------------------#
 #

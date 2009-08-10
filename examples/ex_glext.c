@@ -6,7 +6,7 @@
 #include <string.h>
 #include <stdio.h>
 #include <allegro5/allegro5.h>
-#include <allegro5/a5_opengl.h>
+#include <allegro5/allegro_opengl.h>
 
 #ifdef ALLEGRO_MACOSX
 #include <OpenGL/glu.h>
