@@ -45,7 +45,7 @@ configure_file(
 
 if(SUPPORT_OSS OR SUPPORT_OPENAL OR SUPPORT_ALSA OR SUPPORT_DSOUND)
     # Let examples know that audio is supported.
-    set(SUPPORT_KCM_AUDIO 1 PARENT_SCOPE)
+    set(SUPPORT_AUDIO 1 PARENT_SCOPE)
 
     add_our_library(allegro_audio -${ALLEGRO_VERSION}
         "${AUDIO_SOURCES}"

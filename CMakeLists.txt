@@ -77,7 +77,7 @@ option(WANT_OPENGL "Enable OpenGL graphics driver (Windows, X11, OS X))" on)
 #
 
 option(WANT_FONT "Enable bitmap font add-on" on)
-option(WANT_KCM_AUDIO "Enable allegro_audio engine" on)
+option(WANT_AUDIO "Enable allegro_audio engine" on)
 option(WANT_IIO "Enable IIO image load/save addon" on)
 option(WANT_JPG "Enable JPEG support in IIO" on)
 option(WANT_PNG "Enable PNG support in IIO" on)

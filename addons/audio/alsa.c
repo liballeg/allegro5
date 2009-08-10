@@ -306,7 +306,7 @@ static void* alsa_update(ALLEGRO_THREAD *self, void *arg)
          int silence;
 silence:
          /* If stopped just fill with silence. */
-         silence = _al_audio_get_silence(voice->depth);
+         silence = _al_kcm_get_silence(voice->depth);
          memset(mmap, silence, frames * alsa_voice->frame_size);
       }
 

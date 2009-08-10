@@ -69,7 +69,7 @@ size_t al_get_depth_size(ALLEGRO_AUDIO_DEPTH depth)
 }
 
 /* Returns a silent sample frame. */
-int _al_audio_get_silence(ALLEGRO_AUDIO_DEPTH depth)
+int _al_kcm_get_silence(ALLEGRO_AUDIO_DEPTH depth)
 {
    switch (depth) {
       case ALLEGRO_AUDIO_DEPTH_UINT8:

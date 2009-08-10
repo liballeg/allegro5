@@ -339,7 +339,7 @@ static size_t ogg_stream_update(ALLEGRO_STREAM *stream, void *data,
 
       /* If nothing read then now to silence from here to the end. */
       if (read == 0) {
-         int silence = _al_audio_get_silence(stream->spl.spl_data.depth);
+         int silence = _al_kcm_get_silence(stream->spl.spl_data.depth);
          memset((char *)data + pos, silence, buf_size - pos);
          /* return the number of usefull byes written */
          return pos;
