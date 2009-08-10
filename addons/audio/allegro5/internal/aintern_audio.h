@@ -208,13 +208,13 @@ struct ALLEGRO_STREAM {
    set_feeder_loop_t     set_feeder_loop;
    stream_callback_t     feeder;
                          /* If ALLEGRO_STREAM has been created by
-                          * al_stream_from_file(), acodec will be feeding the stream
-                          * from a feeding thread using the 'feeder' callback. Such
+                          * al_stream_from_file(), the stream will be fed
+                          * by a thread using the 'feeder' callback. Such
                           * streams don't need to be fed by the user.
                           */
 
    void                  *extra;
-                         /* Extra data for use by acodec. */
+                         /* Extra data for use by the flac/vorbis addons. */
 };
 
 bool _al_kcm_refill_stream(ALLEGRO_STREAM *stream);

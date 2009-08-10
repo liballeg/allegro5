@@ -9,7 +9,7 @@
 #include "allegro5/internal/aintern_audio.h"
 #include "allegro5/internal/aintern_memory.h"
 
-ALLEGRO_DEBUG_CHANNEL("acodec")
+ALLEGRO_DEBUG_CHANNEL("wav")
 
 
 typedef struct WAVFILE

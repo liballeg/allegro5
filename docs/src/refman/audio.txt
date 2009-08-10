@@ -629,7 +629,7 @@ Stream's playing state will change to false.
 ## API: al_rewind_stream
 
 Set the streaming file playing position to the beginning. Returns true on
-success. Currently this can only be called on streams created with acodec's
+success. Currently this can only be called on streams created with
 [al_stream_from_file].
 
 ## API: al_get_stream_frequency
@@ -745,19 +745,19 @@ Returns the number of available fragments in the stream. You can use
 ## API: al_seek_stream_secs
 
 Set the streaming file playing position to time. Returns true on success.
-Currently this can only be called on streams created with acodec's
+Currently this can only be called on streams created with
 [al_stream_from_file].
 
 ## API: al_get_stream_position_secs
 
 Return the position of the stream in seconds.
-Currently this can only be called on streams created with acodec's
+Currently this can only be called on streams created with
 [al_stream_from_file].
 
 ## API: al_get_stream_length_secs
 
 Return the length of the stream in seconds.
-Currently this can only be called on streams created with acodec's
+Currently this can only be called on streams created with
 [al_stream_from_file].
 
 ## API: al_set_stream_loop_secs

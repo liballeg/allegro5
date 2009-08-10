@@ -534,7 +534,7 @@ bool _al_kcm_refill_stream(ALLEGRO_STREAM *stream)
 
 /* _al_kcm_feed_stream:
  * A routine running in another thread that feeds the stream buffers as
- * neccesary, usually getting data from some acodec file reader backend.
+ * neccesary, usually getting data from some file reader backend.
  */
 void *_al_kcm_feed_stream(ALLEGRO_THREAD *self, void *vstream)
 {

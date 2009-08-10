@@ -1,7 +1,7 @@
 include_directories(../audio)
 
-option(WANT_FLAC "Enable FLAC support (acodec)" on)
-option(WANT_VORBIS "Enable Ogg Vorbis support (acodec)" on)
+option(WANT_FLAC "Enable FLAC support" on)
+option(WANT_VORBIS "Enable Ogg Vorbis support" on)
 
 #-----------------------------------------------------------------------------#
 
