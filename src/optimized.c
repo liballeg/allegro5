@@ -195,8 +195,7 @@ void _al_draw_bitmap_region_optimized_rgba_4444_to_rgb_565(
          for (y = 0; y < sh; y++) {
             for (x = 0; x < sw; x++) {
                pixel = *((uint16_t *)src_data);
-               //if (pixel & 0xF) {
-               if (pixel != 0) {
+               if (pixel & 0xF) {
                   *((uint16_t *)dest_data) = ALLEGRO_CONVERT_RGBA_4444_TO_RGB_565(pixel);
                }
                src_data += 2;
@@ -214,8 +213,7 @@ void _al_draw_bitmap_region_optimized_rgba_4444_to_rgb_565(
          for (y = 0; y < sh; y++) {
             for (x = 0; x < sw; x++) {
                pixel = *((uint16_t *)src_data);
-               //if (pixel & 0xF) {
-               if (pixel != 0) {
+               if (pixel & 0xF) {
                   pixel = ALLEGRO_CONVERT_RGBA_4444_TO_RGB_565(pixel);
                   unsigned char *ptr = &(_565_lookup[pixel*3]);
                   r = five_bit_lookup[*ptr++][rindex];
@@ -239,8 +237,7 @@ void _al_draw_bitmap_region_optimized_rgba_4444_to_rgb_565(
       for (y = 0; y < sh; y++) {
          for (x = 0; x < sw; x++) {
             pixel = *((uint16_t *)src_data);
-            //if (pixel & 0xF) {
-            if (pixel != 0) {
+            if (pixel & 0xF) {
                float alpha = ((pixel & 0xF) / 15.0f) * bc->a;
                float inv_alpha = 1 - alpha;
                int alpha_index = alpha*15;
@@ -339,8 +336,7 @@ void _al_draw_bitmap_region_optimized_rgba_4444_to_rgba_4444(
          for (y = 0; y < sh; y++) {
             for (x = 0; x < sw; x++) {
                pixel = *((uint16_t *)src_data);
-               //if (pixel & 0xF) {
-               if (pixel != 0) {
+               if (pixel & 0xF) {
                   *((uint16_t *)dest_data) = pixel;
                }
                src_data += 2;
@@ -354,8 +350,7 @@ void _al_draw_bitmap_region_optimized_rgba_4444_to_rgba_4444(
          for (y = 0; y < sh; y++) {
             for (x = 0; x < sw; x++) {
                pixel = *((uint16_t *)src_data);
-               //if (pixel & 0xF) {
-               if (pixel != 0) {
+               if (pixel & 0xF) {
                   unsigned char *ptr = &(_4444_lookup[pixel*3]);
                   r = four_bit_lookup[*ptr++][rindex];
                   g = four_bit_lookup[*ptr++][gindex];
@@ -375,8 +370,7 @@ void _al_draw_bitmap_region_optimized_rgba_4444_to_rgba_4444(
       for (y = 0; y < sh; y++) {
          for (x = 0; x < sw; x++) {
             pixel = *((uint16_t *)src_data);
-            //if (pixel & 0xF) {
-            if (pixel != 0) {
+            if (pixel & 0xF) {
                float alpha = ((pixel & 0xF) / 15.0f) * bc->a;
                float inv_alpha = 1 - alpha;
                int alpha_index = alpha*15;
