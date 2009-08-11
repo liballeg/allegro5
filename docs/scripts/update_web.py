@@ -20,7 +20,7 @@ def main(argv):
         p.print_help()
         sys.exit(-1)
 
-    htdocs = "/home/groups/a/al/alleg/htdocs"
+    destdir = "/home/groups/a/al/alleg/htdocs_parts/a5docs/a5docs/"
 
     def run(cmd):
         print ">", cmd
@@ -32,7 +32,7 @@ def main(argv):
     print "Copying files.."
     rsync = "rsync --delete -r -z"
     path = os.path.join(options.path, "docs/html/refman")
-    run("%s %s %s:%s/a5docs/" % (rsync, path, sf, htdocs))
+    run("%s %s %s:%s" % (rsync, path, sf, destdir))
 
     print("Updated A5 docs at: http://docs.liballeg.org")
 
