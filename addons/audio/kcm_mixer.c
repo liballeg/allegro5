@@ -11,9 +11,10 @@
 #include <math.h>
 #include <stdio.h>
 
-#include "allegro5/allegro_audio.h"
-#include "allegro5/internal/aintern_audio.h"
-#include "allegro5/internal/aintern_audio_cfg.h"
+#include "allegro5/kcm_audio.h"
+#include "allegro5/internal/aintern_kcm_audio.h"
+#include "allegro5/internal/aintern_kcm_cfg.h"
+#include "allegro5/internal/aintern_system.h"
 
 ALLEGRO_DEBUG_CHANNEL("sound")
 
@@ -23,7 +24,11 @@ static void mixer_change_quality(ALLEGRO_MIXER *mixer,
 
 
 /* globals */
-static float _samp_buf[ALLEGRO_MAX_CHANNELS]; /* max: 7.1 */
+static union {
+	float f32[ALLEGRO_MAX_CHANNELS]; /* max: 7.1 */
+	int16_t s16[ALLEGRO_MAX_CHANNELS];
+	void *ptr;
+} _samp_buf;
 
 
 
@@ -180,12 +185,12 @@ static bool fix_looped_position(ALLEGRO_SAMPLE_INSTANCE *spl)
    switch (spl->loop) {
       case ALLEGRO_PLAYMODE_LOOP:
          if (spl->step > 0) {
-            while (spl->pos < spl->loop_start || spl->pos >= spl->loop_end) {
+            while (spl->pos >= spl->loop_end) {
                spl->pos -= (spl->loop_end - spl->loop_start);
             }
          }
          else if (spl->step < 0) {
-            while (spl->pos < spl->loop_start || spl->pos >= spl->loop_end) {
+            while (spl->pos < spl->loop_start) {
                spl->pos += (spl->loop_end - spl->loop_start);
             }
          }
@@ -245,11 +250,47 @@ static bool fix_looped_position(ALLEGRO_SAMPLE_INSTANCE *spl)
 }
 
 
-static INLINE const float *point_spl32(const ALLEGRO_SAMPLE_INSTANCE *spl,
+static INLINE const void *point_spl16(const ALLEGRO_SAMPLE_INSTANCE *spl,
    unsigned int maxc)
 {
    any_buffer_t *buf = (any_buffer_t *) &spl->spl_data.buffer;
-   float *s = _samp_buf;
+   int16_t *s = _samp_buf.s16;
+   unsigned int i;
+
+   for (i = 0; i < maxc; i++) {
+      switch (spl->spl_data.depth) {
+         case ALLEGRO_AUDIO_DEPTH_INT24:
+            s[i] = buf->s24[(spl->pos>>MIXER_FRAC_SHIFT)*maxc + i]
+	    	>> 9;
+            break;
+         case ALLEGRO_AUDIO_DEPTH_INT16:
+            s[i] = buf->s16[(spl->pos>>MIXER_FRAC_SHIFT)*maxc + i];
+            break;
+         case ALLEGRO_AUDIO_DEPTH_INT8:
+            s[i] = buf->s8[(spl->pos>>MIXER_FRAC_SHIFT)*maxc + i]
+	    	<< 7;
+            break;
+         case ALLEGRO_AUDIO_DEPTH_FLOAT32:
+            s[i] = buf->f32[(spl->pos>>MIXER_FRAC_SHIFT)*maxc + i]
+	    	* 0x7FFF;
+            break;
+
+         case ALLEGRO_AUDIO_DEPTH_UINT8:
+         case ALLEGRO_AUDIO_DEPTH_UINT16:
+         case ALLEGRO_AUDIO_DEPTH_UINT24:
+            ASSERT(false);
+            break;
+      }
+   }
+   return s;
+}
+
+
+static INLINE const void *point_spl32(const ALLEGRO_SAMPLE_INSTANCE *spl,
+   unsigned int maxc)
+{
+   any_buffer_t *buf = (any_buffer_t *) &spl->spl_data.buffer;
+   float *s = _samp_buf.f32;
    unsigned int i;
 
    for (i = 0; i < maxc; i++) {
@@ -281,11 +322,11 @@ static INLINE const float *point_spl32(const ALLEGRO_SAMPLE_INSTANCE *spl,
 }
 
 
-static INLINE const float *point_spl32u(const ALLEGRO_SAMPLE_INSTANCE *spl,
+static INLINE const void *point_spl32u(const ALLEGRO_SAMPLE_INSTANCE *spl,
    unsigned int maxc)
 {
    any_buffer_t *buf = (any_buffer_t *) &spl->spl_data.buffer;
-   float *s = _samp_buf;
+   float *s = _samp_buf.f32;
    unsigned int i;
 
    for (i = 0; i < maxc; i++) {
@@ -317,12 +358,12 @@ static INLINE const float *point_spl32u(const ALLEGRO_SAMPLE_INSTANCE *spl,
 }
 
 
-static INLINE const float *linear_spl32(const ALLEGRO_SAMPLE_INSTANCE *spl,
+static INLINE const void *linear_spl32(const ALLEGRO_SAMPLE_INSTANCE *spl,
    unsigned int maxc)
 {
    unsigned long p1, p2;
    unsigned int i;
-   float frac, *s = _samp_buf;
+   float frac, *s = _samp_buf.f32;
 
    p1 = (spl->pos>>MIXER_FRAC_SHIFT)*maxc;
    p2 = p1 + maxc;
@@ -380,12 +421,12 @@ static INLINE const float *linear_spl32(const ALLEGRO_SAMPLE_INSTANCE *spl,
 }
 
 
-static INLINE const float *linear_spl32u(const ALLEGRO_SAMPLE_INSTANCE *spl,
+static INLINE const void *linear_spl32u(const ALLEGRO_SAMPLE_INSTANCE *spl,
    unsigned int maxc)
 {
    unsigned long p1, p2;
    unsigned int i;
-   float frac, *s = _samp_buf;
+   float frac, *s = _samp_buf.f32;
 
    p1 = (spl->pos>>MIXER_FRAC_SHIFT)*maxc;
    p2 = p1 + maxc;
@@ -443,15 +484,31 @@ static INLINE const float *linear_spl32u(const ALLEGRO_SAMPLE_INSTANCE *spl,
 }
 
 
+static INLINE int32_t clamp(int32_t val, int32_t min, int32_t max)
+{
+   /* Clamp to min */
+   val -= min;
+   val &= (~val) >> 31;
+   val += min;
+
+   /* Clamp to max */
+   val -= max;
+   val &= val >> 31;
+   val += max;
+
+   return val;
+}
+
+
 /* Reads some samples into a mixer buffer. */
-#define MAKE_MIXER(bits, interp)                                              \
-static void read_to_mixer_##interp##bits(void *source, void **vbuf,           \
+#define MAKE_MIXER(bits, interp, type)                                              \
+static void read_to_mixer_##interp ##_ ##type ##_ ##bits(void *source, void **vbuf,           \
    unsigned long *samples, ALLEGRO_AUDIO_DEPTH buffer_depth,                  \
    size_t dest_maxc)                                                          \
 {                                                                             \
-   ALLEGRO_SAMPLE_INSTANCE *spl = (ALLEGRO_SAMPLE_INSTANCE *)source;                            \
-   float *buf = *vbuf;                                                        \
-   size_t maxc = al_get_channel_count(spl->spl_data.chan_conf);                   \
+   ALLEGRO_SAMPLE_INSTANCE *spl = (ALLEGRO_SAMPLE_INSTANCE *)source;          \
+   type *buf = *vbuf;                                                         \
+   size_t maxc = al_get_channel_count(spl->spl_data.chan_conf);               \
    size_t samples_l = *samples;                                               \
    size_t c;                                                                  \
                                                                               \
@@ -459,12 +516,12 @@ static void read_to_mixer_##interp##bits(void *source, void **vbuf,           \
       return;                                                                 \
                                                                               \
    while (samples_l > 0) {                                                    \
-      const float *s;                                                         \
+      const type *s;                                                          \
                                                                               \
       if (!fix_looped_position(spl))                                          \
          return;                                                              \
                                                                               \
-      s = interp##_spl##bits(spl, maxc);                                      \
+      s = (type *)interp##_spl##bits(spl, maxc);                              \
       for (c = 0; c < dest_maxc; c++) {                                       \
          size_t i;                                                            \
          for (i = 0; i < maxc; i++) {                                         \
@@ -480,28 +537,13 @@ static void read_to_mixer_##interp##bits(void *source, void **vbuf,           \
    (void)buffer_depth;                                                        \
 }
 
-MAKE_MIXER(32,  point)
-MAKE_MIXER(32u, point)
-MAKE_MIXER(32,  linear)
-MAKE_MIXER(32u, linear)
+MAKE_MIXER(32,  point, float)
+MAKE_MIXER(32u, point, float)
+MAKE_MIXER(32,  linear, float)
+MAKE_MIXER(32u, linear, float)
+MAKE_MIXER(16, point, int16_t)
 
 #undef MAKE_MIXER
-
-
-static INLINE int32_t clamp(int32_t val, int32_t min, int32_t max)
-{
-   /* Clamp to min */
-   val -= min;
-   val &= (~val) >> 31;
-   val += min;
-
-   /* Clamp to max */
-   val -= max;
-   val &= val >> 31;
-   val += max;
-
-   return val;
-}
 
 
 /* _al_kcm_mixer_read:
@@ -524,7 +566,7 @@ void _al_kcm_mixer_read(void *source, void **buf, unsigned long *samples,
    /* Make sure the mixer buffer is big enough. */
    if (m->ss.spl_data.len*maxc < samples_l*maxc) {
       free(m->ss.spl_data.buffer.ptr);
-      m->ss.spl_data.buffer.ptr = malloc(samples_l*maxc*sizeof(float));
+      m->ss.spl_data.buffer.ptr = malloc(samples_l*maxc*al_get_depth_size(m->ss.spl_data.depth));
       if (!m->ss.spl_data.buffer.ptr) {
          _al_set_error(ALLEGRO_GENERIC_ERROR,
             "Out of memory allocating mixer buffer");
@@ -537,14 +579,14 @@ void _al_kcm_mixer_read(void *source, void **buf, unsigned long *samples,
    mixer = m;
 
    /* Clear the buffer to silence. */
-   memset(mixer->ss.spl_data.buffer.ptr, 0, samples_l * maxc * sizeof(float));
+   memset(mixer->ss.spl_data.buffer.ptr, 0, samples_l * maxc * al_get_depth_size(mixer->ss.spl_data.depth));
 
    /* Mix the streams into the mixer buffer. */
    for (i = _al_vector_size(&mixer->streams) - 1; i >= 0; i--) {
       ALLEGRO_SAMPLE_INSTANCE **slot = _al_vector_ref(&mixer->streams, i);
       ALLEGRO_SAMPLE_INSTANCE *spl = *slot;
       spl->spl_read(spl, (void **) &mixer->ss.spl_data.buffer.ptr, samples,
-         ALLEGRO_AUDIO_DEPTH_FLOAT32, maxc);
+         m->ss.spl_data.depth, maxc);
    }
 
    /* Call the post-processing callback. */
@@ -556,16 +598,13 @@ void _al_kcm_mixer_read(void *source, void **buf, unsigned long *samples,
    samples_l *= maxc;
 
    if (*buf) {
-      /* We don't need to clamp in the mixer yet. */
-      float *lbuf = *buf;
-      float *src = mixer->ss.spl_data.buffer.f32;
-
-      while (samples_l > 0) {
-         *(lbuf++) += *(src++);
-         samples_l--;
-      }
+      memcpy(buf, mixer->ss.spl_data.buffer.ptr, 4*samples_l);
+      samples_l = 0;
       return;
    }
+
+   //if (buffer_depth == mixer->ss.spl_data.depth)
+     // return;
 
    /* We're feeding to a voice, so we pass it back the mixed data (make sure
     * to clamp and convert it).
@@ -589,16 +628,22 @@ void _al_kcm_mixer_read(void *source, void **buf, unsigned long *samples,
       }
 
       case ALLEGRO_AUDIO_DEPTH_INT16: {
-         int16_t off = ((buffer_depth & ALLEGRO_AUDIO_DEPTH_UNSIGNED)
-                        ? 0x8000 : 0);
-         int16_t *lbuf = mixer->ss.spl_data.buffer.s16;
-         float *src = mixer->ss.spl_data.buffer.f32;
+         if ((mixer->ss.spl_data.depth & ~ALLEGRO_AUDIO_DEPTH_UNSIGNED) 
+               == ALLEGRO_AUDIO_DEPTH_FLOAT32) {
+            int16_t off = ((buffer_depth & ALLEGRO_AUDIO_DEPTH_UNSIGNED)
+                           ? 0x8000 : 0);
+            int16_t *lbuf = mixer->ss.spl_data.buffer.s16;
+            float *src = mixer->ss.spl_data.buffer.f32;
 
-         while (samples_l > 0) {
-            *lbuf = clamp(*(src++) * ((float)0x7FFF + 0.5f), ~0x7FFF, 0x7FFF);
-            *lbuf += off;
-            lbuf++;
-            samples_l--;
+            while (samples_l > 0) {
+               *lbuf = clamp(*(src++) * ((float)0x7FFF + 0.5f), ~0x7FFF, 0x7FFF);
+               *lbuf += off;
+               lbuf++;
+               samples_l--;
+            }
+         }
+         else {
+	 	/* don't have to do anything */
          }
          break;
       }
@@ -635,15 +680,21 @@ ALLEGRO_MIXER *al_create_mixer(unsigned long freq,
    ALLEGRO_AUDIO_DEPTH depth, ALLEGRO_CHANNEL_CONF chan_conf)
 {
    ALLEGRO_MIXER *mixer;
+   ALLEGRO_SYSTEM *sys = al_system_driver();
+   int default_mixer_quality = ALLEGRO_MIXER_QUALITY_LINEAR;
+
+   if (sys->config) {
+      const char *p;
+      p = al_get_config_value(sys->config, "audio", "default_mixer_quality");
+      if (p && p[0] != '\0') {
+         if (!strcmp(p, "point"))
+	 	default_mixer_quality = ALLEGRO_MIXER_QUALITY_POINT;
+      }
+   }
 
    if (!freq) {
       _al_set_error(ALLEGRO_INVALID_PARAM,
          "Attempted to create mixer with no frequency");
-      return NULL;
-   }
-   if (depth != ALLEGRO_AUDIO_DEPTH_FLOAT32) {
-      _al_set_error(ALLEGRO_INVALID_PARAM,
-         "Attempted to create mixer with an invalid sample depth");
       return NULL;
    }
 
@@ -666,7 +717,7 @@ ALLEGRO_MIXER *al_create_mixer(unsigned long freq,
 
    mixer->ss.spl_read = _al_kcm_mixer_read;
 
-   mixer->quality = ALLEGRO_MIXER_QUALITY_LINEAR;
+   mixer->quality = default_mixer_quality;
 
    _al_vector_init(&mixer->streams, sizeof(ALLEGRO_SAMPLE_INSTANCE *));
 
@@ -735,15 +786,21 @@ bool al_attach_sample_to_mixer(ALLEGRO_SAMPLE_INSTANCE *spl,
       switch (mixer->quality) {
          case ALLEGRO_MIXER_QUALITY_LINEAR:
             if ((spl->spl_data.depth & ALLEGRO_AUDIO_DEPTH_UNSIGNED))
-               spl->spl_read = read_to_mixer_linear32u;
+               spl->spl_read = read_to_mixer_linear_float_32u;
             else
-               spl->spl_read = read_to_mixer_linear32;
+               spl->spl_read = read_to_mixer_linear_float_32;
             break;
          case ALLEGRO_MIXER_QUALITY_POINT:
-            if ((spl->spl_data.depth & ALLEGRO_AUDIO_DEPTH_UNSIGNED))
-               spl->spl_read = read_to_mixer_point32u;
-            else
-               spl->spl_read = read_to_mixer_point32;
+	    if (mixer->ss.spl_data.depth ==
+	          ALLEGRO_AUDIO_DEPTH_FLOAT32) {
+               if ((spl->spl_data.depth & ALLEGRO_AUDIO_DEPTH_UNSIGNED))
+                  spl->spl_read = read_to_mixer_point_float_32u;
+               else
+                  spl->spl_read = read_to_mixer_point_float_32;
+            }
+            else {
+               spl->spl_read = read_to_mixer_point_int16_t_16;
+            }
             break;
       }
 
@@ -906,7 +963,7 @@ static void mixer_change_quality(ALLEGRO_MIXER *mixer,
    ALLEGRO_MIXER_QUALITY new_quality)
 {
    int i;
-
+	 	
    maybe_lock_mutex(mixer->ss.mutex);
 
    for (i = _al_vector_size(&mixer->streams) - 1; i >= 0; i--) {
@@ -915,22 +972,29 @@ static void mixer_change_quality(ALLEGRO_MIXER *mixer,
 
       switch (new_quality) {
          case ALLEGRO_MIXER_QUALITY_LINEAR:
-            if (spl->spl_read == read_to_mixer_point32) {
-               spl->spl_read = read_to_mixer_linear32;
+            if (spl->spl_read == read_to_mixer_point_float_32) {
+               spl->spl_read = read_to_mixer_linear_float_32;
             }
-            else if (spl->spl_read == read_to_mixer_point32u) {
-               spl->spl_read = read_to_mixer_linear32u;
+            else if (spl->spl_read == read_to_mixer_point_float_32u) {
+               spl->spl_read = read_to_mixer_linear_float_32u;
             }
             break;
 
-         case ALLEGRO_MIXER_QUALITY_POINT:
-            if (spl->spl_read == read_to_mixer_linear32) {
-               spl->spl_read = read_to_mixer_point32;
+         case ALLEGRO_MIXER_QUALITY_POINT: {
+            if (mixer->ss.spl_data.depth ==
+                  ALLEGRO_AUDIO_DEPTH_FLOAT32) {
+               if (spl->spl_read == read_to_mixer_linear_float_32) {
+                  spl->spl_read = read_to_mixer_point_float_32;
+               }
+               else {
+                  spl->spl_read = read_to_mixer_point_float_32u;
+               }
             }
-            else if (spl->spl_read == read_to_mixer_linear32u) {
-               spl->spl_read = read_to_mixer_point32u;
+            else {
+               spl->spl_read = read_to_mixer_point_int16_t_16;
             }
             break;
+	 }
       }
    }
 

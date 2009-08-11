@@ -19,9 +19,10 @@
  */
 
 #include "allegro5/allegro5.h"
-#include "allegro5/allegro_audio.h"
-#include "allegro5/internal/aintern_audio.h"
+#include "allegro5/kcm_audio.h"
+#include "allegro5/internal/aintern_kcm_audio.h"
 #include "allegro5/internal/aintern_vector.h"
+#include "allegro5/internal/aintern_system.h"
 
 
 static ALLEGRO_VOICE *allegro_voice = NULL;
@@ -37,11 +38,49 @@ static bool do_play_sample(ALLEGRO_SAMPLE_INSTANCE *spl, ALLEGRO_SAMPLE *data, f
 static void free_sample_vector(void);
 
 
+static int string_to_depth(const char *s)
+{
+   // FIXME: fill in the rest
+   if (!strcmp(s, "int16")) {
+      return ALLEGRO_AUDIO_DEPTH_INT16;
+   }
+   else {
+      return ALLEGRO_AUDIO_DEPTH_FLOAT32;
+   }
+}
+
+
 /* Creates the default voice and mixer if they haven't been created yet. */
 static bool create_default_mixer(void)
 {
+   int voice_frequency = 44100;
+   int voice_depth = ALLEGRO_AUDIO_DEPTH_INT16;
+   int mixer_frequency = 44100;
+   int mixer_depth = ALLEGRO_AUDIO_DEPTH_FLOAT32;
+
+   ALLEGRO_SYSTEM *sys = al_system_driver();
+   if (sys->config) {
+      const char *p;
+      p = al_get_config_value(sys->config, "audio", "primary_voice_frequency");
+      if (p && p[0] != '\0') {
+         voice_frequency = atoi(p);
+      }
+      p = al_get_config_value(sys->config, "audio", "primary_mixer_frequency");
+      if (p && p[0] != '\0') {
+         mixer_frequency = atoi(p);
+      }
+      p = al_get_config_value(sys->config, "audio", "primary_voice_depth");
+      if (p && p[0] != '\0') {
+         voice_depth = string_to_depth(p);
+      }
+      p = al_get_config_value(sys->config, "audio", "primary_mixer_depth");
+      if (p && p[0] != '\0') {
+         mixer_depth = string_to_depth(p);
+      }
+   }
+
    if (!allegro_voice) {
-      allegro_voice = al_create_voice(44100, ALLEGRO_AUDIO_DEPTH_INT16,
+      allegro_voice = al_create_voice(voice_frequency, voice_depth,
          ALLEGRO_CHANNEL_CONF_2);
       if (!allegro_voice) {
          TRACE("al_create_voice failed\n");
@@ -50,7 +89,7 @@ static bool create_default_mixer(void)
    }
 
    if (!allegro_mixer) {
-      allegro_mixer = al_create_mixer(44100, ALLEGRO_AUDIO_DEPTH_FLOAT32,
+      allegro_mixer = al_create_mixer(mixer_frequency, mixer_depth,
          ALLEGRO_CHANNEL_CONF_2);
       if (!allegro_mixer) {
          TRACE("al_create_voice failed\n");
