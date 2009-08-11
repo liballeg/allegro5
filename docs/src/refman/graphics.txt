@@ -295,13 +295,6 @@ Returns the flags used for newly created bitmaps.
 
 Returns the format used for newly created bitmaps.
 
-## API: al_load_bitmap
-
-Load a bitmap from a file using the bitmap format and flags of
-the current thread.
-
-See Also: [al_set_new_bitmap_format], [al_set_new_bitmap_flags]
-
 ## API: al_set_new_bitmap_flags
 
 Sets the flags to use for newly created bitmaps.
@@ -532,6 +525,8 @@ In this example an FBO is created however:
 And an OpenGL command will be used to directly draw the line into the bitmap's
 associated texture.
 
+
+
 # Blending modes
 
 ## API: al_get_blender
@@ -617,8 +612,7 @@ to the entire bitmap.
 
 
 
-
-# Miscellaneous
+# Graphics utility functions
 
 ## API: al_convert_mask_to_alpha
 

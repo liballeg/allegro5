@@ -68,7 +68,8 @@ The file type is determined by the extension.
 
 Returns NULL on error.
 
-See also: [al_load_bitmap_entry], [al_register_bitmap_loader]
+See also: [al_load_bitmap_entry], [al_register_bitmap_loader],
+[al_set_new_bitmap_format], [al_set_new_bitmap_flags]
 
 ## API: al_load_bitmap_entry
 

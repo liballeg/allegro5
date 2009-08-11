@@ -1,6 +1,6 @@
 % UTF-8 string routines
 
-# Introduction
+# About Unicode
 
 Here we should give a short overview of Unicode/UCS and in particular UTF-8
 encoding.
