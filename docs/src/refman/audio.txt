@@ -156,10 +156,14 @@ Returns true on success, false on error.
 ## API: al_create_voice
 
 Creates a voice struct and allocates a voice from the digital sound driver.
-The sound driver's allocate_voice function should change the voice's
-frequency, depth, chan_conf, and settings fields to match what is actually
-allocated. If it cannot create a voice with exact settings it will fail.
-Use a mixer in such a case.
+The passed frequency, sample format and channel configuration are used as a
+hint to what kind of data will be sent to the voice. However, the underlying
+sound driver is free to use non-matching values. For example it may be the
+native format of the sound hardware. If you attach a mixer to the voice, the
+mixer will convert from the mixer's format to the voice format and you do not
+have to care about this. If you access the voice directly, make sure to not
+rely on the parameters passed to this function, but query the returned voice
+for the actual settings.
 
 ## API: al_destroy_voice
 
