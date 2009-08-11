@@ -11,9 +11,9 @@
 #include <math.h>
 #include <stdio.h>
 
-#include "allegro5/kcm_audio.h"
-#include "allegro5/internal/aintern_kcm_audio.h"
-#include "allegro5/internal/aintern_kcm_cfg.h"
+#include "allegro5/allegro_audio.h"
+#include "allegro5/internal/aintern_audio.h"
+#include "allegro5/internal/aintern_audio_cfg.h"
 #include "allegro5/internal/aintern_system.h"
 
 ALLEGRO_DEBUG_CHANNEL("sound")

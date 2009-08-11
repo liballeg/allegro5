@@ -19,8 +19,8 @@
  */
 
 #include "allegro5/allegro5.h"
-#include "allegro5/kcm_audio.h"
-#include "allegro5/internal/aintern_kcm_audio.h"
+#include "allegro5/allegro_audio.h"
+#include "allegro5/internal/aintern_audio.h"
 #include "allegro5/internal/aintern_vector.h"
 #include "allegro5/internal/aintern_system.h"
 
