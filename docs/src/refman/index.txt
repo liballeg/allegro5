@@ -1,10 +1,12 @@
 % Allegro 4.9 reference manual
 <!-- This file is only used for the HTML output. -->
 <!-- If you change this you should change inc.a as well. -->
+<!-- Don't use #-sectioning in this file. -->
 
 * [Getting started guide](getting_started.html)
 
-# API
+API
+===
 
 * [Configuration files](config.html)
 * [Display](display.html)
@@ -27,7 +29,8 @@
 * [Timer](timer.html)
 * [UTF-8](utf8.html)
 
-# Addons
+Addons
+======
 
 * [Audio addon](audio.html)
 * [Audio codecs](acodec.html)
