@@ -188,9 +188,8 @@ ALLEGRO_FONT *al_grab_font_from_bitmap(
    ALLEGRO_FONT_COLOR_DATA *cf, *prev = NULL;
    ALLEGRO_STATE backup;
    int i;
-   ALLEGRO_COLOR white = al_map_rgb(255, 255, 255);
    ALLEGRO_COLOR mask = al_get_pixel(bmp, 0, 0);
-   ALLEGRO_BITMAP *glyphs = NULL;
+   ALLEGRO_BITMAP *glyphs = NULL, *unmasked = NULL;
    int import_x = 0, import_y = 0;
    ALLEGRO_LOCKED_REGION *lock = NULL;
    int w, h;
@@ -203,6 +202,19 @@ ALLEGRO_FONT *al_grab_font_from_bitmap(
    f = _AL_MALLOC(sizeof *f);
    memset(f, 0, sizeof *f);
    f->vtable = al_font_vtable_color;
+   
+   al_store_state(&backup, ALLEGRO_STATE_NEW_BITMAP_PARAMETERS);
+   al_set_new_bitmap_flags(ALLEGRO_MEMORY_BITMAP);
+   al_set_new_bitmap_format(ALLEGRO_PIXEL_FORMAT_ANY_WITH_ALPHA);
+   unmasked = al_clone_bitmap(bmp);
+   /* At least with OpenGL, texture pixels at the very border of
+    * the glyph are sometimes partly sampled from the yellow mask
+    * pixels. To work around this, we replace the mask with full
+    * transparency.
+    * And we best do it on a memory copy to avoid loading back a texture.
+    */
+   al_convert_mask_to_alpha(unmasked, mask);
+   al_restore_state(&backup);   
 
    al_store_state(&backup, ALLEGRO_STATE_BITMAP | ALLEGRO_STATE_BLENDER);
    al_set_new_bitmap_format(ALLEGRO_PIXEL_FORMAT_ANY_WITH_ALPHA);
@@ -222,20 +234,10 @@ ALLEGRO_FONT *al_grab_font_from_bitmap(
       cf->bitmaps = _AL_MALLOC(sizeof(ALLEGRO_BITMAP*) * n);
 
       if (!glyphs) {
-         glyphs = al_create_bitmap(w, h);
+         glyphs = al_clone_bitmap(unmasked);
          if (!glyphs)
             goto cleanup_and_fail_on_error;
-         
-         al_set_target_bitmap(glyphs);
-         al_set_blender(ALLEGRO_ONE, ALLEGRO_ZERO, white);
-         al_draw_bitmap(bmp, 0, 0, 0);
-         /* At least with OpenGL, texture pixels at the very border of
-          * the glyph are sometimes partly sampled from the yellow mask
-          * pixels. To work around this, we replace the mask with full
-          * transparency.
-          */
-         al_convert_mask_to_alpha(glyphs, mask);
-         
+
          lock = al_lock_bitmap(bmp,
             ALLEGRO_PIXEL_FORMAT_RGBA_8888, ALLEGRO_LOCK_READONLY);
       }
@@ -261,12 +263,15 @@ ALLEGRO_FONT *al_grab_font_from_bitmap(
    if (lock)
       al_unlock_bitmap(bmp);
 
+   if (unmasked) al_destroy_bitmap(unmasked);
+
    return f;
 cleanup_and_fail_on_error:
    if (lock)
       al_unlock_bitmap(bmp);
    al_restore_state(&backup);
    al_destroy_font(f);
+   if (unmasked) al_destroy_bitmap(unmasked);
    return NULL;
 }
 
