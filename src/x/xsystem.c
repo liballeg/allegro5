@@ -252,7 +252,7 @@ static ALLEGRO_SYSTEM *xglx_initialize(int flags)
    _al_cond_init(&s->resized);
    s->inhibit_screensaver = false;
 
-   _al_vector_init(&s->system.displays, sizeof (ALLEGRO_SYSTEM_XGLX *));
+   _al_vector_init(&s->system.displays, sizeof (ALLEGRO_DISPLAY_XGLX *));
 
    s->gfxdisplay = gfxdisplay;
    s->x11display = x11display;
