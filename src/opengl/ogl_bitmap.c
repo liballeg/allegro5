@@ -67,7 +67,7 @@ ALLEGRO_DEBUG_CHANNEL("opengl")
 /* Conversion table from Allegro's pixel formats to corresponding OpenGL
  * formats. The three entries are GL internal format, GL type, GL format.
  */
-#ifndef ALLEGRO_GP2XWIZ
+#if !defined(ALLEGRO_GP2XWIZ) && !defined(ALLEGRO_IPHONE)
 static const int glformats[ALLEGRO_NUM_PIXEL_FORMATS][3] = {
    /* Skip pseudo formats */
    {0, 0, 0},
@@ -96,7 +96,7 @@ static const int glformats[ALLEGRO_NUM_PIXEL_FORMATS][3] = {
    {GL_RGBA8, GL_UNSIGNED_INT_8_8_8_8, GL_RGBA}, /* RGBX_8888 */
    {GL_RGBA8, GL_UNSIGNED_INT_8_8_8_8_REV, GL_BGRA}, /* XRGB_8888 */
    {GL_RGBA32F_ARB, GL_FLOAT, GL_RGBA}, /* ABGR_F32 */
-   {4, GL_UNSIGNED_BYTE, GL_RGBA}, /* ABGR_8888_LE */
+   {GL_RGBA, GL_UNSIGNED_BYTE, GL_RGBA}, /* ABGR_8888_LE */
    {GL_RGBA4, GL_UNSIGNED_SHORT_4_4_4_4, GL_RGBA} /* RGBA_4444 */
 };
 #else
@@ -128,7 +128,7 @@ static const int glformats[ALLEGRO_NUM_PIXEL_FORMATS][3] = {
    {0, 0, 0},
    {0, 0, 0},
    {0, 0, 0},
-   {0, 0, 0},
+   {GL_RGBA, GL_UNSIGNED_BYTE, GL_RGBA}, /* ABGR_8888_LE */
    {GL_RGB, GL_UNSIGNED_SHORT_4_4_4_4, GL_RGBA} /* RGBA_4444 */
 };
 #endif
@@ -167,7 +167,7 @@ static INLINE bool setup_blending(ALLEGRO_DISPLAY *ogl_disp)
       &dst_alpha, NULL);
    /* glBlendFuncSeparate was only included with OpenGL 1.4 */
    /* (And not in OpenGL ES) */
-#if !defined ALLEGRO_GP2XWIZ
+#if !defined ALLEGRO_GP2XWIZ && !defined ALLEGRO_IPHONE
    if (ogl_disp->ogl_extras->ogl_info.version >= 1.4) {
       glEnable(GL_BLEND);
       glBlendFuncSeparate(blend_modes[src_color], blend_modes[dst_color],
@@ -211,7 +211,7 @@ static void draw_quad(ALLEGRO_BITMAP *bitmap,
       glEnable(GL_TEXTURE_2D);
    }
 
-#if !defined ALLEGRO_GP2XWIZ
+#if !defined ALLEGRO_GP2XWIZ && !defined ALLEGRO_IPHONE
    glGetIntegerv(GL_TEXTURE_2D_BINDING_EXT, (GLint*)&current_texture);
    if (current_texture != ogl_bitmap->texture) {
       glBindTexture(GL_TEXTURE_2D, ogl_bitmap->texture);
@@ -357,6 +357,7 @@ static void ogl_draw_bitmap_region(ALLEGRO_BITMAP *bitmap, float sx, float sy,
       ALLEGRO_BITMAP_OGL *ogl_source = (void *)bitmap;
       if (ogl_source->is_backbuffer) {
          if (ogl_target->is_backbuffer) {
+            #if !defined ALLEGRO_IPHONE
             /* Oh fun. Someone draws the screen to itself. */
             // FIXME: What if the target is locked?
             // FIXME: OpenGL refuses to do clipping with CopyPixels,
@@ -366,6 +367,7 @@ static void ogl_draw_bitmap_region(ALLEGRO_BITMAP *bitmap, float sx, float sy,
                glCopyPixels(sx, bitmap->h - sy - sh, sw, sh, GL_COLOR);
                return;
             }
+            #endif
          }
          else {
             /* Our source bitmap is the OpenGL backbuffer, the target
@@ -389,7 +391,7 @@ static void ogl_draw_bitmap_region(ALLEGRO_BITMAP *bitmap, float sx, float sy,
             return;
          }
       }
-#else
+#elif defined ALLEGRO_GP2XWIZ
       /* FIXME: make this work somehow on Wiz */
       return;
 #endif
@@ -492,13 +494,15 @@ static bool ogl_upload_bitmap(ALLEGRO_BITMAP *bitmap)
          ogl_bitmap->texture, error_string(e));
    }
 
+    
    glTexImage2D(GL_TEXTURE_2D, 0, glformats[bitmap->format][0],
       ogl_bitmap->true_w, ogl_bitmap->true_h, 0, glformats[bitmap->format][2],
       glformats[bitmap->format][1], bitmap->memory);
    e = glGetError();
    if (e) {
       ALLEGRO_ERROR("glTexImage2D for format %d, size %dx%d failed (%s)\n",
-         bitmap->format, ogl_bitmap->true_w, ogl_bitmap->true_h,
+         bitmap->format,
+         ogl_bitmap->true_w, ogl_bitmap->true_h,
          error_string(e));
       glDeleteTextures(1, &ogl_bitmap->texture);
       ogl_bitmap->texture = 0;
@@ -549,7 +553,6 @@ static ALLEGRO_LOCKED_REGION *ogl_lock_region(ALLEGRO_BITMAP *bitmap,
    GLenum e;
 
 
-//#ifndef ALLEGRO_GP2XWIZ
    if (format == ALLEGRO_PIXEL_FORMAT_ANY)
       format = bitmap->format;
 
@@ -571,7 +574,7 @@ static ALLEGRO_LOCKED_REGION *ogl_lock_region(ALLEGRO_BITMAP *bitmap,
       al_set_current_display(bitmap->display);
    }
 
-#ifndef ALLEGRO_GP2XWIZ
+#if !defined ALLEGRO_GP2XWIZ
    if (ogl_bitmap->is_backbuffer) {
       pitch = w * pixel_size;
       ogl_bitmap->lock_buffer = _AL_MALLOC(pitch * h);
@@ -601,6 +604,9 @@ static ALLEGRO_LOCKED_REGION *ogl_lock_region(ALLEGRO_BITMAP *bitmap,
             pitch * (h - 1);
       }
       else {
+         #ifdef ALLEGRO_IPHONE
+         // FIXME: We can use FBO and glReadPixels on the iphone.
+         #else
          // FIXME: Using glGetTexImage means we always read the complete
          // texture - even when only a single pixel is locked. Likely
          // using FBO and glReadPixels to just read the locked part
@@ -619,6 +625,7 @@ static ALLEGRO_LOCKED_REGION *ogl_lock_region(ALLEGRO_BITMAP *bitmap,
 
          bitmap->locked_region.data = ogl_bitmap->lock_buffer +
             pitch * (gl_y + h - 1) + pixel_size * x;
+         #endif
       }
    }
 #else
@@ -668,7 +675,6 @@ static void ogl_unlock_region(ALLEGRO_BITMAP *bitmap)
    GLint gl_y = bitmap->h - bitmap->lock_y - bitmap->lock_h;
    (void)e;
 
-//#ifndef ALLEGRO_GP2XWIZ
    if (bitmap->lock_flags & ALLEGRO_LOCK_READONLY) {
       _AL_FREE(ogl_bitmap->lock_buffer);
       return;
@@ -681,7 +687,7 @@ static void ogl_unlock_region(ALLEGRO_BITMAP *bitmap)
       al_set_current_display(bitmap->display);
    }
 
-#ifndef ALLEGRO_GP2XWIZ
+#if !defined ALLEGRO_GP2XWIZ && !defined ALLEGRO_IPHONE
    if (ogl_bitmap->is_backbuffer) {
       /* glWindowPos2i may not be available. */
       if (al_get_opengl_version() >= 1.4) {
@@ -793,7 +799,7 @@ static void ogl_destroy_bitmap(ALLEGRO_BITMAP *bitmap)
       al_set_current_display(bitmap->display);
    }
 
-#ifndef ALLEGRO_GP2XWIZ
+#if !defined ALLEGRO_GP2XWIZ && !defined ALLEGRO_IPHONE
    if (ogl_bitmap->fbo) {
       glDeleteFramebuffersEXT(1, &ogl_bitmap->fbo);
       ogl_bitmap->fbo = 0;
@@ -846,13 +852,11 @@ ALLEGRO_BITMAP *_al_ogl_create_bitmap(ALLEGRO_DISPLAY *d, int w, int h)
    int true_h;
    int pitch;
    size_t bytes;
-   int wanted_format;
-   int best_format;
    (void)d;
 
    ALLEGRO_DEBUG("Creating OpenGL bitmap\n");
 
-#ifndef ALLEGRO_GP2XWIZ
+#if !defined ALLEGRO_GP2XWIZ
    if (d->ogl_extras->extension_list->ALLEGRO_GL_ARB_texture_non_power_of_two) {
       true_w = w;
       true_h = h;
@@ -868,33 +872,9 @@ ALLEGRO_BITMAP *_al_ogl_create_bitmap(ALLEGRO_DISPLAY *d, int w, int h)
 
    ALLEGRO_DEBUG("Using dimensions: %d %d\n", true_w, true_h);
 
-#ifndef ALLEGRO_GP2XWIZ
-   /* _al_get_real_pixel_format uses an arbitrary format - but we usually want
-    * the same format as the backbuffer (but if the user requests 16/24/32
-    * bits we should honor that).
-    */
-   wanted_format = format;
+#if !defined ALLEGRO_GP2XWIZ
    format = _al_get_real_pixel_format(format);
-   if (d->ogl_extras->backbuffer &&
-      !_al_pixel_format_is_real(wanted_format)) {
-      best_format = d->ogl_extras->backbuffer->bitmap.format;
-      if (al_get_pixel_size(format) == al_get_pixel_size(best_format)) {
-         format = best_format;
-         // FIXME: hackish, move this all into _al_get_real_pixel_format
-         if (_al_format_has_alpha(wanted_format) &&
-            !_al_format_has_alpha(format)) {
-            if (format == ALLEGRO_PIXEL_FORMAT_RGBX_8888)
-               format = ALLEGRO_PIXEL_FORMAT_RGBA_8888;
-            if (format == ALLEGRO_PIXEL_FORMAT_XRGB_8888)
-               format = ALLEGRO_PIXEL_FORMAT_ARGB_8888;
-            if (format == ALLEGRO_PIXEL_FORMAT_XBGR_8888)
-               format = ALLEGRO_PIXEL_FORMAT_ABGR_8888;
-         }
-      }
-   }
 #else
-   (void)wanted_format;
-   (void)best_format;
    if (format != ALLEGRO_PIXEL_FORMAT_RGB_565 && format != ALLEGRO_PIXEL_FORMAT_RGBA_4444)
       format = ALLEGRO_PIXEL_FORMAT_RGBA_4444;
 #endif
@@ -950,7 +930,7 @@ ALLEGRO_BITMAP *_al_ogl_create_sub_bitmap(ALLEGRO_DISPLAY *d,
    ogl_bmp->true_w = ogl_parent->true_w;
    ogl_bmp->true_h = ogl_parent->true_h;
    ogl_bmp->texture = ogl_parent->texture;
-#ifndef ALLEGRO_GP2XWIZ
+#if !defined ALLEGRO_GP2XWIZ && !defined ALLEGRO_IPHONE
    ogl_bmp->fbo = ogl_parent->fbo;
 #endif
 
@@ -979,7 +959,7 @@ GLuint al_get_opengl_texture(ALLEGRO_BITMAP *bitmap)
  */
 void al_remove_opengl_fbo(ALLEGRO_BITMAP *bitmap)
 {
-#ifndef ALLEGRO_GP2XWIZ
+#if !defined ALLEGRO_GP2XWIZ && !defined ALLEGRO_IPHONE
    // FIXME: Check if this is an OpenGL bitmap
    ALLEGRO_BITMAP_OGL *ogl_bitmap = (void *)bitmap;
    if (ogl_bitmap->fbo) {
@@ -995,7 +975,7 @@ void al_remove_opengl_fbo(ALLEGRO_BITMAP *bitmap)
  */
 GLuint al_get_opengl_fbo(ALLEGRO_BITMAP *bitmap)
 {
-#ifndef ALLEGRO_GP2XWIZ
+#if !defined ALLEGRO_GP2XWIZ && !defined ALLEGRO_IPHONE
    // FIXME: Check if this is an OpenGL bitmap, if not, return 0
    ALLEGRO_BITMAP_OGL *ogl_bitmap = (void *)bitmap;
    return ogl_bitmap->fbo;

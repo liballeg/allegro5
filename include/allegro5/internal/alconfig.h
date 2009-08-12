@@ -43,6 +43,8 @@
       #include "allegro5/platform/almsvc.h"
    #elif defined ALLEGRO_BEOS
       #include "allegro5/platform/albecfg.h"
+   #elif defined ALLEGRO_IPHONE
+      #include "allegro5/platform/aliphonecfg.h"
    #elif defined ALLEGRO_MACOSX
       #include "allegro5/platform/alosxcfg.h"
    #elif defined ALLEGRO_QNX

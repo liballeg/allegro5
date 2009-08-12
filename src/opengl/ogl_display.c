@@ -24,26 +24,44 @@
 #include "allegro5/internal/aintern_gp2xwiz.h"
 #endif
 
+#ifdef ALLEGRO_IPHONE
+#include "allegro5/internal/aintern_iphone.h"
+#endif
+
 ALLEGRO_DEBUG_CHANNEL("opengl")
 
 static void setup_fbo(ALLEGRO_DISPLAY *display, ALLEGRO_BITMAP *bitmap)
 {
    ALLEGRO_BITMAP_OGL *ogl_bitmap = (void *)bitmap;
 
-#ifndef ALLEGRO_GP2XWIZ
+#if !defined ALLEGRO_GP2XWIZ
    if (!ogl_bitmap->is_backbuffer) {
+       
+      // FIXME: ...
+      #ifdef ALLEGRO_IPHONE
+      #define glGenFramebuffersEXT glGenFramebuffersOES
+      #define glBindFramebufferEXT glBindFramebufferOES
+      #define GL_FRAMEBUFFER_EXT GL_FRAMEBUFFER_OES
+      #define GL_COLOR_ATTACHMENT0_EXT GL_COLOR_ATTACHMENT0_OES
+      #define glCheckFramebufferStatusEXT glCheckFramebufferStatusOES
+      #define glFramebufferTexture2DEXT glFramebufferTexture2DOES
+      #define GL_FRAMEBUFFER_COMPLETE_EXT GL_FRAMEBUFFER_COMPLETE_OES
+      #define glDeleteFramebuffersEXT glDeleteFramebuffersOES
+      #endif
 
       /* When a bitmap is set as target bitmap, we try to create an FBO for it.
        */
       if (ogl_bitmap->fbo == 0 && !(bitmap->flags & ALLEGRO_FORCE_LOCKING)) {
-         if (al_get_opengl_extension_list()->ALLEGRO_GL_EXT_framebuffer_object) {
+         if (al_get_opengl_extension_list()->ALLEGRO_GL_EXT_framebuffer_object ||
+            al_get_opengl_extension_list()->ALLEGRO_GL_OES_framebuffer_object) {
             glGenFramebuffersEXT(1, &ogl_bitmap->fbo);
          }
       }
 
       if (ogl_bitmap->fbo) {
          /* Bind to the FBO. */
-         ASSERT(display->ogl_extras->extension_list->ALLEGRO_GL_EXT_framebuffer_object);
+         ASSERT(display->ogl_extras->extension_list->ALLEGRO_GL_EXT_framebuffer_object ||
+         display->ogl_extras->extension_list->ALLEGRO_GL_OES_framebuffer_object);
          glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, ogl_bitmap->fbo);
 
          /* Attach the texture. */
@@ -64,12 +82,13 @@ static void setup_fbo(ALLEGRO_DISPLAY *display, ALLEGRO_BITMAP *bitmap)
          }
          else {
             display->ogl_extras->opengl_target = ogl_bitmap;
+
             glViewport(0, 0, bitmap->w, bitmap->h);
 
             glMatrixMode(GL_PROJECTION);
             glLoadIdentity();
 
-            glOrtho(0, bitmap->w, bitmap->h, 0, -1, 1);
+            glOrthof(0, bitmap->w, bitmap->h, 0, -1, 1);
 
             glMatrixMode(GL_MODELVIEW);
             glLoadIdentity();
@@ -77,10 +96,17 @@ static void setup_fbo(ALLEGRO_DISPLAY *display, ALLEGRO_BITMAP *bitmap)
       }
    }
    else {
-      if (display->ogl_extras->extension_list->ALLEGRO_GL_EXT_framebuffer_object) {
-         glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
-      }
       display->ogl_extras->opengl_target = ogl_bitmap;
+       
+      // TODO: Might as well have a vtable entry here
+      #ifdef ALLEGRO_IPHONE
+      _al_iphone_setup_opengl_view(display);
+      #else
+
+      if (display->ogl_extras->extension_list->ALLEGRO_GL_EXT_framebuffer_object ||
+          display->ogl_extras->extension_list->ALLEGRO_GL_OES_framebuffer_object) {
+         glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
+      }      
 
       glViewport(0, 0, display->w, display->h);
 
@@ -89,10 +115,11 @@ static void setup_fbo(ALLEGRO_DISPLAY *display, ALLEGRO_BITMAP *bitmap)
       /* We use upside down coordinates compared to OpenGL, so the bottommost
        * coordinate is display->h not 0.
        */
-      glOrtho(0, display->w, display->h, 0, -1, 1);
+      glOrthof(0, display->w, display->h, 0, -1, 1);
 
       glMatrixMode(GL_MODELVIEW);
       glLoadIdentity();
+      #endif
    }
 #else
 
@@ -209,7 +236,15 @@ ALLEGRO_BITMAP_OGL* _al_ogl_create_backbuffer(ALLEGRO_DISPLAY *disp)
 
    al_store_state(&backup, ALLEGRO_STATE_NEW_BITMAP_PARAMETERS);
 
-#ifndef ALLEGRO_GP2XWIZ
+   // FIXME: _al_deduce_color_format would work fine if the display paramerers
+   // are filled in, for WIZ and IPOD
+#ifdef ALLEGRO_GP2XWIZ
+   format = ALLEGRO_PIXEL_FORMAT_RGB_565; /* Only support display format */
+#elif defined ALLEGRO_IPHONE
+   format = ALLEGRO_PIXEL_FORMAT_ABGR_8888_LE;
+   // TODO: This one is also supported
+   //format = ALLEGRO_PIXEL_FORMAT_RGB_565;
+#else
    format = _al_deduce_color_format(&disp->extra_settings);
    /* Eww. No OpenGL hardware in the world does that - let's just
     * switch to some default.
@@ -218,10 +253,15 @@ ALLEGRO_BITMAP_OGL* _al_ogl_create_backbuffer(ALLEGRO_DISPLAY *disp)
       /* Or should we use RGBA? Maybe only if not Nvidia cards? */
       format = ALLEGRO_PIXEL_FORMAT_ABGR_8888;
    }
-#else
-   format = ALLEGRO_PIXEL_FORMAT_RGB_565; /* Only support display format */
 #endif
    ALLEGRO_TRACE_CHANNEL_LEVEL("display", 1)("Format %d used for backbuffer.\n", format);
+   
+   /* Now that the display backbuffer has a format, update extra_settings so
+    * the user can query it back.
+    */
+   _al_set_color_components(format, &disp->extra_settings, ALLEGRO_REQUIRE);
+   disp->backbuffer_format = format;
+
    al_set_new_bitmap_format(format);
    al_set_new_bitmap_flags(0);
    backbuffer = _al_ogl_create_bitmap(disp, disp->w, disp->h);

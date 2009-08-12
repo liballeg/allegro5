@@ -107,7 +107,7 @@ static void read_allegro_cfg(void)
     * have been read in.
     */
 
-#if defined ALLEGRO_UNIX && !defined ALLEGRO_GP2XWIZ
+#if defined ALLEGRO_UNIX && !defined ALLEGRO_GP2XWIZ && !defined ALLEGRO_IPHONE
    ALLEGRO_CONFIG *temp;
    ALLEGRO_PATH *path;
 

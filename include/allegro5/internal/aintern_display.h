@@ -91,6 +91,8 @@ struct ALLEGRO_DISPLAY
    int refresh_rate;
    int flags;
    int w, h;
+   
+   int backbuffer_format; /* ALLEGRO_PIXELFORMAT */
 
    ALLEGRO_EXTRA_DISPLAY_SETTINGS extra_settings;
    struct ALLEGRO_OGL_EXTRAS *ogl_extras;

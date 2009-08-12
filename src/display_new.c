@@ -264,7 +264,7 @@ int al_get_display_height(void)
 int al_get_display_format(void)
 {
    ALLEGRO_DISPLAY *display = al_get_current_display();
-   return _al_deduce_color_format(&display->extra_settings);
+   return display->backbuffer_format;
 }
 
 

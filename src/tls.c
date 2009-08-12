@@ -163,7 +163,7 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved)
 #define THREAD_LOCAL __declspec(thread)
 #define HAVE_NATIVE_TLS
 
-#elif defined ALLEGRO_MACOSX || defined ALLEGRO_GP2XWIZ
+#elif defined ALLEGRO_MACOSX || defined ALLEGRO_GP2XWIZ || defined ALLEGRO_IPHONE
 
 #define THREAD_LOCAL
 

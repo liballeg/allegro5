@@ -39,7 +39,7 @@ static void setup_blending(void)
 
    al_get_separate_blender(&src_color, &dst_color, &src_alpha,
       &dst_alpha, NULL);
-#ifndef ALLEGRO_GP2XWIZ
+#if !defined ALLEGRO_GP2XWIZ && !defined ALLEGRO_IPHONE
    if (d->ogl_extras->ogl_info.version >= 1.4) {
       glEnable(GL_BLEND);
       glBlendFuncSeparate(blend_modes[src_color],
@@ -51,7 +51,7 @@ static void setup_blending(void)
 #endif
          glEnable(GL_BLEND);
          glBlendFunc(blend_modes[src_color], blend_modes[dst_color]);
-#ifndef ALLEGRO_GP2XWIZ
+#if !defined ALLEGRO_GP2XWIZ && !defined ALLEGRO_IPHONE
       }
    }
 #endif
@@ -76,18 +76,10 @@ static void setup_state(ALLEGRO_VERTEX* vtx, ALLEGRO_BITMAP* texture)
          glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 
       glTexCoordPointer(2, GL_FLOAT, sizeof(ALLEGRO_VERTEX), &vtx[0].u);
-
-#ifndef ALLEGRO_GP2XWIZ
-      glGetIntegerv(GL_TEXTURE_2D_BINDING_EXT, (GLint*)&current_texture);
-      if (current_texture != ogl_bitmap->texture) {
-         glBindTexture(GL_TEXTURE_2D, ogl_bitmap->texture);
-      }
-#else
       glGetIntegerv(GL_TEXTURE_BINDING_2D, (GLint*)&current_texture);
       if (current_texture != ogl_bitmap->texture) {
          glBindTexture(GL_TEXTURE_2D, ogl_bitmap->texture);
       }
-#endif
    } else {
       glBindTexture(GL_TEXTURE_2D, 0);
       glDisableClientState(GL_TEXTURE_COORD_ARRAY);
@@ -211,7 +203,7 @@ static int draw_indexed_soft_vbuff(ALLEGRO_BITMAP* texture, ALLEGRO_VERTEX* vtxs
       glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
    }
   
-#ifndef ALLEGRO_GP2XWIZ
+#if !defined ALLEGRO_GP2XWIZ && !defined ALLEGRO_IPHONE
    switch (type) {
       case ALLEGRO_PRIM_LINE_LIST: {
          glDrawElements(GL_LINES, num_vtx, GL_UNSIGNED_INT, indices);

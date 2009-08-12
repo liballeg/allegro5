@@ -383,7 +383,15 @@ void al_trace(AL_CONST char *msg, ...)
       if (s)
          trace_file = fopen(s, "w");
       else
+#ifdef ALLEGRO_IPHONE
+         // Remember, we have no (accessible) filesystem on (not jailbroken)
+         // iphone.
+         // stderr will be redirected to xcode's debug console though, so
+         // it's as good to use as the NSLog stuff.
+         trace_file = stderr;
+#else
          trace_file = fopen("allegro.log", "w");
+#endif
 
       if (debug_assert_virgin)
          _al_add_exit_func(debug_exit, "debug_exit");

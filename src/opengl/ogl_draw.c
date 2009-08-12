@@ -36,7 +36,7 @@ static bool set_opengl_blending(ALLEGRO_DISPLAY *d,
 
    al_get_separate_blender(&src_color, &dst_color, &src_alpha,
       &dst_alpha, NULL);
-#ifndef ALLEGRO_GP2XWIZ
+#if !defined ALLEGRO_GP2XWIZ && !defined ALLEGRO_IPHONE
    if (d->ogl_extras->ogl_info.version >= 1.4) {
       glEnable(GL_BLEND);
       glBlendFuncSeparate(blend_modes[src_color],

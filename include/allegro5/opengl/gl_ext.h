@@ -23,7 +23,7 @@
  *
  */
 
-#ifndef ALLEGRO_GP2XWIZ
+#if !defined(ALLEGRO_GP2XWIZ) && !defined(ALLEGRO_IPHONE)
 #include "allegro5/opengl/GLext/gl_ext_defs.h"
 #endif
 #if defined ALLEGRO_WINDOWS && !defined ALLEGRO_EXCLUDE_WGL

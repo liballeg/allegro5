@@ -36,7 +36,7 @@
 #include <string.h>
 #if defined ALLEGRO_MACOSX
 #include <OpenGL/glu.h>
-#elif !defined ALLEGRO_GP2XWIZ
+#elif !defined ALLEGRO_GP2XWIZ && !defined ALLEGRO_IPHONE
 #include <GL/glu.h>
 #endif
 
@@ -367,16 +367,18 @@ static int _ogl_is_extension_supported(AL_CONST char *extension,
                                        ALLEGRO_DISPLAY *disp)
 {
    int ret;
+   GLubyte const *ext_str;
 
-#ifdef ALLEGRO_GP2XWIZ
+#if defined ALLEGRO_GP2XWIZ
    (void)disp;
    return false;
 #endif
 
-   if (!glGetString(GL_EXTENSIONS))
+   ext_str = glGetString(GL_EXTENSIONS);
+   if (!ext_str)
       return false;
 
-   ret = _al_ogl_look_for_an_extension(extension, glGetString(GL_EXTENSIONS));
+   ret = _al_ogl_look_for_an_extension(extension, ext_str);
 
 #ifdef ALLEGRO_WINDOWS
    if (!ret && strncmp(extension, "WGL", 3) == 0) {
@@ -394,7 +396,7 @@ static int _ogl_is_extension_supported(AL_CONST char *extension,
       }
    }
 
-#elif defined ALLEGRO_UNIX && !defined ALLEGRO_GP2XWIZ
+#elif defined ALLEGRO_UNIX && !defined ALLEGRO_EXCLUDE_GLX
    if (!ret && strncmp(extension, "GLX", 3) == 0) {
       ALLEGRO_SYSTEM_XGLX *sys = (void*)al_system_driver();
       ALLEGRO_DISPLAY_XGLX *glx_disp = (void*)disp;
@@ -644,7 +646,7 @@ void _al_ogl_manage_extensions(ALLEGRO_DISPLAY *gl_disp)
    CFRelease(bundle_url);
 #endif
 
-#if defined ALLEGRO_UNIX && !defined ALLEGRO_GP2XWIZ
+#if defined ALLEGRO_UNIX && !defined ALLEGRO_EXCLUDE_GLX
    ALLEGRO_DEBUG("GLX Extensions:\n");
    ALLEGRO_SYSTEM_XGLX *glx_sys = (void*)al_system_driver();
    ALLEGRO_DISPLAY_XGLX *glx_disp = (void *)gl_disp;

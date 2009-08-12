@@ -50,6 +50,14 @@ problem since OpenAL should be installed by default.
 
 
 
+IPhone
+======
+
+This uses OpenGL ES for graphics. The touch screen is implemented as a mouse,
+with multi-touch triggering different mouse buttons.
+
+
+
 Compilation
 ===========
 

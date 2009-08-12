@@ -14,13 +14,14 @@ typedef struct ALLEGRO_BITMAP_OGL
    int true_h;
 
    GLuint texture; /* 0 means, not uploaded yet. */
-#ifndef ALLEGRO_GP2XWIZ
-   GLuint fbo; /* 0 means, no fbo yet. */
-#else
+
+#if defined ALLEGRO_GP2XWIZ
    EGLSurface pbuffer;
    EGLContext context;
    NativeWindowType pbuf_native_wnd;
    bool changed;
+#else
+   GLuint fbo; /* 0 means, no fbo yet. */
 #endif
 
    unsigned char *lock_buffer;

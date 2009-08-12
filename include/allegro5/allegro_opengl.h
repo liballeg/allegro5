@@ -26,7 +26,12 @@
 #include <windows.h>
 #endif
 
-#if defined ALLEGRO_MACOSX
+#if defined ALLEGRO_IPHONE
+
+#include <OpenGLES/ES1/gl.h>
+#include <OpenGLES/ES1/glext.h>
+       
+#elif defined ALLEGRO_MACOSX
 
 #include <OpenGL/OpenGL.h>
 #include <OpenGL/gl.h>
