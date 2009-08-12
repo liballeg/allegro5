@@ -1005,4 +1005,25 @@ GLuint al_get_opengl_fbo(ALLEGRO_BITMAP *bitmap)
 #endif
 }
 
+/* Function: al_get_opengl_texture_size
+ */
+void al_get_opengl_texture_size(ALLEGRO_BITMAP *bitmap, int *w, int *h)
+{
+   /* The designers of OpenGL ES 1.0 forgot to add a function to query
+    * texture sizes, so this will be the only way there to get the texture
+    * size. On normal OpenGL also glGetTexLevelParameter could be used.
+    */
+   ALLEGRO_BITMAP_OGL *ogl_bitmap = (void *)bitmap;
+   *w = ogl_bitmap->true_w;
+   *h = ogl_bitmap->true_h;
+}
+
+/* Function: al_get_opengl_texture_position
+ */
+void al_get_opengl_texture_position(ALLEGRO_BITMAP *bitmap, int *u, int *v)
+{
+   *u = bitmap->xofs;
+   *v = bitmap->yofs;
+}
+
 /* vim: set sts=3 sw=3 et: */

@@ -70,6 +70,17 @@ Example:
     if (texture != 0)
         glBindTexture(GL_TEXTURE_2D, texture);
 
+## API: al_get_opengl_texture_size
+
+Retrieves the size of the texture used for the bitmap. This can be different
+from the bitmap size if OpenGL only supports power-of-two sizes or if it is
+a sub-bitmap.
+
+## API: al_get_opengl_texture_position
+
+Returns the u/v coordinates for the top/left corner of the bitmap within the
+used texture, in pixels.
+
 ## API: al_get_opengl_fbo
 
 Returns the OpenGL FBO id internally used by the given bitmap if it uses one,
