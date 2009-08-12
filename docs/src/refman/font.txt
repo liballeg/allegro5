@@ -48,7 +48,7 @@ The placement of the rectangles does not matter, except that glyphs are scanned
 from left to right and top to bottom to match them to the specified unicode
 codepoints.
 
-The glyphs will simply be drawn using [al_draw_image], so usually you will want
+The glyphs will simply be drawn using [al_draw_bitmap], so usually you will want
 the rectangles filled with full transparency and the glyphs drawn in opaque
 white.
 

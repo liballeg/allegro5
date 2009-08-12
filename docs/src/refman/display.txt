@@ -276,7 +276,7 @@ See also: [al_get_display_width]
 
 Gets the refresh rate of the current display.
 
-See also: [al_set_display_refresh_rate]
+See also: [al_set_new_display_refresh_rate]
 
 ### API: al_get_display_width
 
