@@ -13,6 +13,18 @@ BEGIN {
     FS = " "
 }
 
+/^#+/ {
+    # Raise sections by one level. Top-most becomes the document title.
+    if (raise_sections) {
+        if ($1 == "#") {
+            $1 = "%"
+        }
+        else {
+            sub(/^#/, "", $1)
+        }
+    }
+}
+
 /^#+ API: / {
     hashes = $1
     name = $3

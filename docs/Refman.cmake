@@ -167,6 +167,7 @@ if(WANT_DOCS_HTML)
                 ${INSERT_TIMESTAMP} inc.timestamp.html
             COMMAND
                 ${MAKE_PAGE}
+                --raise-sections
                 ${SRC_REFMAN_DIR}/${page}.txt
                 ${HTML_REFS}
                 -o ${HTML_DIR}/${page}.html

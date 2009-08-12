@@ -10,7 +10,7 @@
 * [Display](display.html)
 * [Events](events.html)
 * [File I/O](file.html)
-* [Filesystem hooks](fshook.html)
+* [Filesystem](fshook.html)
 * [Graphics](graphics.html)
 * [Joystick](joystick.html)
 * [Keyboard](keyboard.html)
@@ -29,11 +29,11 @@
 
 # Addons
 
-* [Audio addon](allegro_audio.html)
+* [Audio addon](audio.html)
 * [Audio codecs](acodec.html)
 * [Color addon](color.html)
 * [Font addons](font.html)
-* [Image I/O addon](iio.html)
+* [Image I/O addon](image.html)
 * [Native dialogs addon](native_dialog.html)
 * [PhysicsFS addon](physfs.html)
 * [Primitives addon](primitives.html)

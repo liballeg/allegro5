@@ -3,7 +3,7 @@
 PhysicsFS is a library to provide abstract access to various archives.
 See <http://icculus.org/physfs/> for more information.
 
-This addon makes it possible to read and write files (or disk or inside
+This addon makes it possible to read and write files (on disk or inside
 archives) using PhysicsFS, through Allegro's file I/O API.
 For example, that means you can use the Image I/O addon to load
 images from .zip files.

@@ -7,6 +7,7 @@
 # OPTIONS
 #
 # --protos FILE
+# --raise-sections
 # --postprocess latex
 # --postprocess texinfo
 #
@@ -56,6 +57,10 @@ while true; do
             PROTOS=$2
             shift 2
             ;;
+        --raise-sections)
+            raise_sections="-v raise_sections=1"
+            shift
+            ;;
         --postprocess)
             case $2 in
                 latex)
@@ -104,7 +109,7 @@ while true; do
     esac
 done
 
-awk -f "$PREPROCESS_PAGE" "$TEMPFILE" | "$PANDOC" "$@"
+awk -f "$PREPROCESS_PAGE" $raise_sections "$TEMPFILE" | "$PANDOC" "$@"
 
 # Stop now if post-processing is not required.
 test -n "$POSTPROCESS" || exit 0
