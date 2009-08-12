@@ -19,6 +19,7 @@
 * [Mouse](mouse.html)
 * [OpenGL](opengl.html)
 * [Path](path.html)
+* [Platform](platform.html)
 * [State](state.html)
 * [System](system.html)
 * [Threads](threads.html)

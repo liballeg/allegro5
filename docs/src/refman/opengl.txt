@@ -123,7 +123,7 @@ A valid OpenGL context must exist for this function to work, which
 means you may *not* call it before al_create_display().
 
 
-## Configuration
+## OpenGL configuration
 
 You can disable the detection of any OpenGL extension by Allegro with
 a section like this in allegro5.cfg:

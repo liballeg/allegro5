@@ -4,7 +4,7 @@
 
 <div class="sidebar">
 
-* **[Contents](index.html)**
+* [**Contents**](index.html)
 * [Configuration files](config.html)
 * [Display](display.html)
 * [Events](events.html)
@@ -25,7 +25,7 @@
 * [Time](time.html)
 * [Timer](timer.html)
 * [UTF-8](utf8.html)
-* **[Addons](index.html#addons)**
+* [**Addons**](index.html#addons)
 * [Audio addon](allegro_audio.html)
 * [Audio codecs](acodec.html)
 * [Color addon](color.html)

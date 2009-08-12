@@ -1,6 +1,6 @@
-% UTF-8 string routines
+# UTF-8 string routines
 
-# About Unicode
+## About Unicode
 
 Here we should give a short overview of Unicode/UCS and in particular UTF-8
 encoding.
@@ -19,29 +19,29 @@ For actual text processing, where you want to specify positions with code point
 indices, you should use [al_ustr_offset] to find the byte position of
 a code point.
 
-# UTF-8 string types
+## UTF-8 string types
 
-## API: ALLEGRO_USTR
-
-
-## API: ALLEGRO_USTR_INFO
+### API: ALLEGRO_USTR
 
 
-# Creating and destroying strings
+### API: ALLEGRO_USTR_INFO
 
-## API: al_ustr_new
+
+## Creating and destroying strings
+
+### API: al_ustr_new
 
 Create a new string containing a copy of the C-style string `s`.
 The string must eventually be freed with [al_ustr_free].
 
 
-## API: al_ustr_new_from_buffer
+### API: al_ustr_new_from_buffer
 
 Create a new string containing a copy of the buffer pointed to by `s` of the
 given size.  The string must eventually be freed with [al_ustr_free].
 
 
-## API: al_ustr_newf
+### API: al_ustr_newf
 
 Create a new string using a printf-style format string.
 
@@ -60,12 +60,12 @@ encoding of a code point, encode it into a memory buffer using
 buffer.
 
 
-## API: al_ustr_free
+### API: al_ustr_free
 
 Free a previously allocated string.
 
 
-## API: al_cstr
+### API: al_cstr
 
 Get a `char *` pointer to the data in a string.  This pointer will only be
 valid while the underlying string is not modified and not destroyed.
@@ -83,12 +83,12 @@ with the following caveats:
 * If the ALLEGRO_USTR references another string, the returned c-string will
   point into the referenced string, the length of the string will be ignored.
 
-## API: al_ustr_to_buffer
+### API: al_ustr_to_buffer
 
 Write the contents of the string into a pre-allocated buffer of the given size
 in bytes. The result will always be 0-terminated.
 
-## API: al_cstr_dup
+### API: al_cstr_dup
 
 Create a NUL  ('\0') terminated copy of the string.  Any embedded NUL
 bytes will still be presented in the returned string.
@@ -98,13 +98,13 @@ If an error occurs NULL is returned.
 [after we introduce al_free it should be freed with al_free]
 
 
-## API: al_ustr_dup
+### API: al_ustr_dup
 
 Return a duplicate copy of a string.
 The new string will need to be freed with [al_ustr_free].
 
 
-## API: al_ustr_dup_substr
+### API: al_ustr_dup_substr
 
 Return a new copy of a string, containing its contents in the byte interval
 \[start_pos, end_pos).  The new string will be NUL terminated and will
@@ -114,16 +114,16 @@ If you need a range of code-points instead of bytes, use [al_ustr_offset]
 to find the byte offsets.
 
 
-# Predefined strings
+## Predefined strings
 
-## API: al_ustr_empty_string
+### API: al_ustr_empty_string
 
 Return a pointer to a static empty string.  The string is read only.
 
 
-# Creating strings by referencing other data
+## Creating strings by referencing other data
 
-## API: al_ref_cstr
+### API: al_ref_cstr
 
 Create a string that references the storage of a C-style string.  The
 information about the string (e.g. its size) is stored in the structure
@@ -139,7 +139,7 @@ Example:
     ALLEGRO_USTR us = al_ref_cstr(&info, "my string");
 
 
-## API: al_ref_buffer
+### API: al_ref_buffer
 
 Like [al_ref_cstr] but the size of the string data is passed in as a
 parameter.  Hence you can use it to reference only part of a string or an
@@ -148,7 +148,7 @@ arbitrary region of memory.
 The string is valid while the underlying C string is valid.
 
 
-## API: al_ref_ustr
+### API: al_ref_ustr
 
 Create a read-only string that references the storage of another string.
 The information about the string (e.g. its size) is stored in the structure
@@ -164,19 +164,19 @@ If you need a range of code-points instead of bytes, use [al_ustr_offset]
 to find the byte offsets.
 
 
-# Sizes and offsets
+## Sizes and offsets
 
-## API: al_ustr_size
+### API: al_ustr_size
 
 Return the size of the string in bytes.  This is equal to the number of code
 points in the string if the string is empty or contains only 7-bit ASCII
 characters.
 
-## API: al_ustr_length
+### API: al_ustr_length
 
 Return the number of code points in the string.
 
-## API: al_ustr_offset
+### API: al_ustr_offset
 
 Return the offset (in bytes from the start of the string) of the code point at
 the specified index in the string. A zero index parameter will return the first
@@ -186,7 +186,7 @@ of the string, so an index of -1 will return an offset to the last code point.
 If the index is past the end of the string, returns the offset of the end of
 the string.
 
-## API: al_ustr_next
+### API: al_ustr_next
 
 Find the byte offset of the next code point in string, beginning at `*pos`.
 `*pos` does not have to be at the beginning of a code point.
@@ -198,7 +198,7 @@ This function just looks for an appropriate byte; it doesn't check if found
 offset is the beginning of a valid code point.  If you are working with
 possibly invalid UTF-8 strings then it could skip over some invalid bytes.
 
-## API: al_ustr_prev
+### API: al_ustr_prev
 
 Find the byte offset of the previous code point in string, before `*pos`.
 `*pos` does not have to be at the beginning of a code point.
@@ -211,9 +211,9 @@ offset is the beginning of a valid code point.  If you are working with
 possibly invalid UTF-8 strings then it could skip over some invalid bytes.
 
 
-# Getting code points
+## Getting code points
 
-## API: al_ustr_get
+### API: al_ustr_get
 
 Return the code point in `us` beginning at `pos`.
 
@@ -221,7 +221,7 @@ On success returns the code point value.
 If `pos` was out of bounds (e.g. past the end of the string), return -1.
 On an error, such as an invalid byte sequence, return -2.
 
-## API: al_ustr_get_next
+### API: al_ustr_get_next
 
 Find the code point in `us` beginning at `*pos`, then advance to the next
 code point.
@@ -231,7 +231,7 @@ If `pos` was out of bounds (e.g. past the end of the string), return -1.
 On an error, such as an invalid byte sequence, return -2.
 As with [al_ustr_next], invalid byte sequences may be skipped while advancing.
 
-## API: al_ustr_prev_get
+### API: al_ustr_prev_get
 
 Find the beginning of a code point before `*pos`, then return it.
 Note this performs a *pre-increment*.
@@ -242,9 +242,9 @@ On an error, such as an invalid byte sequence, return -2.
 As with [al_ustr_prev], invalid byte sequences may be skipped while advancing.
 
 
-# Inserting into strings
+## Inserting into strings
 
-## API: al_ustr_insert
+### API: al_ustr_insert
 
 Insert `us2` into `us1` beginning at `pos`.  `pos` cannot be less than 0.  If
 `pos` is past the end of `us1` then the space between the end of the string
@@ -254,11 +254,11 @@ Use [al_ustr_offset] to find the byte offset for a code-points offset
 
 Returns true on success, false on error.
 
-## API: al_ustr_insert_cstr
+### API: al_ustr_insert_cstr
 
 Like [al_ustr_insert] but inserts a C-style string.
 
-## API: al_ustr_insert_chr
+### API: al_ustr_insert_chr
 
 Insert a code point into `us` beginning at byte offset `pos`.  `pos` cannot be
 less than 0. If `pos` is past the end of `us` then the space between the end of
@@ -267,27 +267,27 @@ the string and `pos` will be padded with NUL ('\0') bytes.
 Returns the number of bytes inserted, or 0 on error.
 
 
-# Appending to strings
+## Appending to strings
 
-## API: al_ustr_append
+### API: al_ustr_append
 
 Append `us2` to the end of `us1`.
 
 Returns true on success, false on error.
 
-## API: al_ustr_append_cstr
+### API: al_ustr_append_cstr
 
 Append C-style string `s` to the end of `us`.
 
 Returns true on success, false on error.
 
-## API: al_ustr_append_chr
+### API: al_ustr_append_chr
 
 Append a code point to the end of `us`.
 
 Returns the number of bytes added, or 0 on error.
 
-## API: al_ustr_appendf
+### API: al_ustr_appendf
 
 This function appends formatted output to the string `us`.  `fmt` is a
 printf-style format string.
@@ -295,7 +295,7 @@ See [al_ustr_newf] about the "%s" and "%c" specifiers.
 
 Returns true on success, false on error.
 
-## API: al_ustr_vappendf
+### API: al_ustr_vappendf
 
 Like [al_ustr_appendf] but you pass the variable argument list directly,
 instead of the arguments themselves.
@@ -304,9 +304,9 @@ See [al_ustr_newf] about the "%s" and "%c" specifiers.
 Returns true on success, false on error.
 
 
-# Removing parts of strings
+## Removing parts of strings
 
-## API: al_ustr_remove_chr
+### API: al_ustr_remove_chr
 
 Remove the code point beginning at byte offset `pos`.  Returns true on success.
 If `pos` is out of range or `pos` is not the beginning of a valid code point,
@@ -314,7 +314,7 @@ returns false leaving the string unmodified.
 
 Use [al_ustr_offset] to find the byte offset for a code-points offset.
 
-## API: al_ustr_remove_range
+### API: al_ustr_remove_range
 
 Remove the interval \[start_pos, end_pos) (in bytes) from a string.
 `start_pos` and `end_pos` may both be past the end of the string
@@ -322,7 +322,7 @@ but cannot be less than 0 (the start of the string).
 
 Returns true on success, false on error.
 
-## API: al_ustr_truncate
+### API: al_ustr_truncate
 
 Truncate a portion of a string at byte offset `start_pos` onwards.
 `start_pos` can be past the end of the string (has no effect)
@@ -330,35 +330,35 @@ but cannot be less than 0.
 
 Returns true on success, false on error.
 
-## API: al_ustr_ltrim_ws
+### API: al_ustr_ltrim_ws
 
 Remove leading whitespace characters from a string, as defined by the C
 function `isspace()`.
 
 Returns true on success, or false if the function was passed an empty string.
 
-## API: al_ustr_rtrim_ws
+### API: al_ustr_rtrim_ws
 
 Remove trailing ("right") whitespace characters from a string, as defined by
 the C function `isspace()`.
 
 Returns true on success, or false if the function was passed an empty string.
 
-## API: al_ustr_trim_ws
+### API: al_ustr_trim_ws
 
 Remove both leading and trailing whitespace characters from a string.
 
 Returns true on success, or false if the function was passed an empty string.
 
 
-# Assigning one string to another
+## Assigning one string to another
 
-## API: al_ustr_assign
+### API: al_ustr_assign
 
 Overwrite the string `us1` with another string `us2`.
 Returns true on success, false on error.
 
-## API: al_ustr_assign_substr
+### API: al_ustr_assign_substr
 
 Overwrite the string `us1` with the contents of `us2` in the byte interval
 \[start_pos, end_pos).  The end points will be clamed to the bounds of `us2`.
@@ -367,15 +367,15 @@ Usually you will first have to use [al_ustr_offset] to find the byte offsets.
 
 Returns true on success, false on error.
 
-## API: al_ustr_assign_cstr
+### API: al_ustr_assign_cstr
 
 Overwrite the string `us` with the contents of the C-style string `s`.
 Returns true on success, false on error.
 
 
-# Replacing parts of string
+## Replacing parts of string
 
-## API: al_ustr_set_chr
+### API: al_ustr_set_chr
 
 Replace the code point beginning at byte offset `pos` with `c`.
 `pos` cannot be less than 0.  If `pos` is past the end of `us1` then the space
@@ -386,7 +386,7 @@ the string will be unmodified.
 On success, returns the number of bytes written, i.e. the offset to the
 following code point.  On error, returns 0.
 
-## API: al_ustr_replace_range
+### API: al_ustr_replace_range
 
 Replace the part of `us1` in the byte interval \[start_pos, end_pos) with the
 contents of `us2`.  `start_pos` cannot be less than 0.  If `start_pos` is past
@@ -398,81 +398,81 @@ Use [al_ustr_offset] to find the byte offsets.
 Returns true on success, false on error.
 
 
-# Searching
+## Searching
 
-## API: al_ustr_find_chr
+### API: al_ustr_find_chr
 
 Search for the encoding of code point `c` in `us` from byte offset `start_pos`
 (inclusive).
 
 Returns the position where it is found or -1 if it is not found.
 
-## API: al_ustr_rfind_chr
+### API: al_ustr_rfind_chr
 
 Search for the encoding of code point `c` in `us` backwards from byte offset
 `end_pos` (exclusive).
 Returns the position where it is found or -1 if it is not found.
 
-## API: al_ustr_find_set
+### API: al_ustr_find_set
 
 This function finds the first code point in `us`, beginning from byte offset
 `start_pos`, that matches any code point in `accept`.  Returns the position if
 a code point was found.  Otherwise returns -1.
 
-## API: al_ustr_find_set_cstr
+### API: al_ustr_find_set_cstr
 
 Like [al_ustr_find_set] but takes a C-style string for `accept`.
 
-## API: al_ustr_find_cset
+### API: al_ustr_find_cset
 
 This function finds the first code point in `us`, beginning from byte offset
 `start_pos`, that does *not* match any code point in `reject`.  In other words
 it finds a code point in the complementary set of `reject`.
 Returns the byte position of that code point, if any.  Otherwise returns -1.
 
-## API: al_ustr_find_cset_cstr
+### API: al_ustr_find_cset_cstr
 
 Like [al_ustr_find_cset] but takes a C-style string for `reject`.
 
-## API: al_ustr_find_str
+### API: al_ustr_find_str
 
 Find the first occurrence of string `needle` in `haystack`, beginning from byte
 offset `pos` (inclusive).  Return the byte offset of the occurrence if it is
 found, otherwise return -1.
 
-## API: al_ustr_find_cstr
+### API: al_ustr_find_cstr
 
 Like [al_ustr_find_str] but takes a C-style string for `needle`.
 
-## API: al_ustr_rfind_str
+### API: al_ustr_rfind_str
 
 Find the last occurrence of string `needle` in `haystack` before byte offset
 `end_pos` (exclusive).  Return the byte offset of the occurrence if it is found,
 otherwise return -1.
 
-## API: al_ustr_rfind_cstr
+### API: al_ustr_rfind_cstr
 
 Like [al_ustr_rfind_str] but takes a C-style string for `needle`.
 
-## API: al_ustr_find_replace
+### API: al_ustr_find_replace
 
 Replace all occurrences of `find` in `us` with `replace`, beginning at byte
 offset `start_pos`.  The `find` string must be non-empty.
 Returns true on success, false on error.
 
-## API: al_ustr_find_replace_cstr
+### API: al_ustr_find_replace_cstr
 
 Like [al_ustr_find_replace] but takes C-style strings for `find` and `replace`.
 
 
-# Comparing
+## Comparing
 
-## API: al_ustr_equal
+### API: al_ustr_equal
 
 Return true iff the two strings are equal.  This function is more efficient
 than [al_ustr_compare] so is preferable if ordering is not important.
 
-## API: al_ustr_compare
+### API: al_ustr_compare
 
 This function compares `us1` and `us2` by code point values.
 Returns zero if the strings are equal, a positive number if `us1` comes after
@@ -481,7 +481,7 @@ Returns zero if the strings are equal, a positive number if `us1` comes after
 This does *not* take into account locale-specific sorting rules.
 For that you will need to use another library.
 
-## API: al_ustr_ncompare
+### API: al_ustr_ncompare
 
 Like [al_ustr_compare] but only compares up to the first `n` code points
 of both strings.
@@ -489,38 +489,38 @@ of both strings.
 Returns zero if the strings are equal, a positive number if `us1` comes after
 `us2`, else a negative number.
 
-## API: al_ustr_has_prefix
+### API: al_ustr_has_prefix
 
 Returns true iff `us1` begins with `us2`.
 
-## API: al_ustr_has_prefix_cstr
+### API: al_ustr_has_prefix_cstr
 
 Returns true iff `us1` begins with `s2`.
 
-## API: al_ustr_has_suffix
+### API: al_ustr_has_suffix
 
 Returns true iff `us1` ends with `us2`.
 
-## API: al_ustr_has_suffix_cstr
+### API: al_ustr_has_suffix_cstr
 
 Returns true iff `us1` ends with `s2`.
 
 
-# UTF-16 conversion
+## UTF-16 conversion
 
-## API: al_ustr_new_from_utf16
+### API: al_ustr_new_from_utf16
 
 Create a new string containing a copy of the 0-terminated string `s`
 which must be encoded as UTF-16.
 The string must eventually be freed with [al_ustr_free].
 
-## API: al_ustr_size_utf16
+### API: al_ustr_size_utf16
 
 Returns the number of bytes required to encode the string in UTF-16
 (including the terminating 0). Usually called before
 [al_ustr_encode_utf16] to determine the size of the buffer to allocate.
 
-## API: al_ustr_encode_utf16
+### API: al_ustr_encode_utf16
 
 Encode the string into the given buffer, in UTF-16. Returns the number
 of bytes written. There are never more than `n` bytes written. The
@@ -529,15 +529,15 @@ minimum size to encode the complete string can be queried with
 string will be truncated but still always 0 terminated.
 
 
-# Low-level UTF-8 routines
+## Low-level UTF-8 routines
 
-## API: al_utf8_width
+### API: al_utf8_width
 
 Returns the number of bytes that would be occupied by the specified code point
 when encoded in UTF-8.  This is between 1 and 4 bytes for legal code point
 values.  Otherwise returns 0.
 
-## API: al_utf8_encode
+### API: al_utf8_encode
 
 Encode the specified code point to UTF-8 into the buffer `s`.  The buffer
 must have enough space to hold the encoding, which takes between 1 and 4
@@ -547,15 +547,15 @@ Returns the number of bytes written, which is the same as that returned
 by [al_utf8_width].
 
 
-# Low-level UTF-16 routines
+## Low-level UTF-16 routines
 
-## API: al_utf16_width
+### API: al_utf16_width
 
 Returns the number of bytes that would be occupied by the specified code
 point when encoded in UTF-16. This is either 2 or 4 bytes for legal code
 point values. Otherwise returns 0.
 
-## API: al_utf16_encode
+### API: al_utf16_encode
 
 Encode the specified code point to UTF-8 into the buffer `s`. The buffer
 must have enough space to hold the encoding, which takes either 2 or 4

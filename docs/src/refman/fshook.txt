@@ -1,4 +1,4 @@
-% File system
+# File system
 
 These functions allow access to the filesystem. This can either be the real
 filesystem like your harddrive, or a virtual filesystem like a .zip archive (or
@@ -11,8 +11,6 @@ Represents a file or a directory (check with [al_is_directory]
 or [al_is_file]).
 There are no user accessible member variables.
 
-# Enumerations
-
 ## API: ALLEGRO_FILE_MODE
 
 Filesystem modes/types
@@ -23,8 +21,6 @@ Filesystem modes/types
 * ALLEGRO_FILEMODE_HIDDEN - Hidden
 * ALLEGRO_FILEMODE_ISFILE - Regular file
 * ALLEGRO_FILEMODE_ISDIR - Directory
-
-# File Manipulation
 
 ## API: al_create_entry
 
@@ -55,8 +51,6 @@ errno is filled in to indicate the error.
 
 See Also:
 [al_remove_entry]
-
-# File Properties
 
 ## API: al_fstat
 
@@ -132,9 +126,9 @@ errno is set to indicate the error.
 
 Returns the size, in bytes, of the given entry.
 
-# Directory functions
+## Directory functions
 
-## API: al_getcwd
+### API: al_getcwd
 
 Returns the path to the current working directory.
 
@@ -147,20 +141,20 @@ Possible Errors:
 
 See also: [al_get_errno]
 
-## API: al_chdir
+### API: al_chdir
 
 Changes the current working directory to 'path'.
 
 Returns -1 on error.
 
-## API: al_closedir
+### API: al_closedir
 
 Closes a previously opened directory entry object.
 
 Returns true on success, false on failure and fills in errno to indicate the
 error.
 
-## API: al_mkdir
+### API: al_mkdir
 
 Creates a new directory on disk given the path 'path'.
 
@@ -168,14 +162,14 @@ Returns false on error and fills in errno to indicate the error.
 
 See also: [al_get_errno]
 
-## API: al_opendir
+### API: al_opendir
 
 Opens a directory entry object. You must call this before using [al_readdir]
 on an entry and you must call [al_closedir] when you no longer need it.
 
 Returns true on success.
 
-## API: al_readdir
+### API: al_readdir
 
 Reads the next dir item and returns a filesystem entry for it.
 
@@ -183,7 +177,7 @@ Returns NULL if there are no more entries or if an error occurs. Call
 [al_closedir] on the directory handle when you are done.
 
 
-# Alternative filesystem functions
+## Alternative filesystem functions
 
 By default, Allegro uses platform specific filesystem functions for things like
 directory access. However if for example the files of your game are not in
@@ -191,7 +185,7 @@ the local filesystem but inside some file archive, you can provide your own
 set of functions (or use an addon which does this for you, for example our
 physfs addon allows access to the most common archive formats).
 
-## API: ALLEGRO_FS_INTERFACE
+### API: ALLEGRO_FS_INTERFACE
 
 The available functions you can provide for a filesystem. They are:
 
@@ -226,13 +220,13 @@ The available functions you can provide for a filesystem. They are:
    bool closedir(ALLEGRO_FS_ENTRY *dir)
 ~~~
 
-## API: al_set_fs_interface
+### API: al_set_fs_interface
 
 Set the ALLEGRO_FS_INTERFACE table for the calling thread.
 
 See also: [al_store_state], [al_restore_state].
 
-## API: al_get_fs_interface
+### API: al_get_fs_interface
 
 Return a pointer to the ALLEGRO_FS_INTERFACE table in effect
 for the calling thread.

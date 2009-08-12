@@ -1,36 +1,39 @@
 set(SRC_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src)
 set(SRC_REFMAN_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src/refman)
 
+# Put these in the order that they should appear in the Info or PDF manual.
 set(PAGES
-    acodec
-    color
+    getting_started
+
     config
     display
     events
     file
-    font
     fshook
-    getting_started
     graphics
-    image
     joystick
-    audio
     keyboard
     memory
     misc
     mouse
-    native_dialog
     opengl
     path
-    physfs
     platform
-    primitives
     state
     system
     threads
     time
     timer
     utf8
+
+    audio
+    acodec
+    color
+    font
+    image
+    native_dialog
+    physfs
+    primitives
     )
 
 set(PAGES_TXT)

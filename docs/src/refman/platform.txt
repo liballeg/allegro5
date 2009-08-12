@@ -1,9 +1,9 @@
-% Platform specific functions
+# Platform specific functions
 
-# Windows
+## Windows
 
 You must include <allegro_windows.h> to use these functions.
 
-## API: al_win_get_window
+### API: al_win_get_window
 
 XXX to be documented

@@ -1,12 +1,12 @@
-% Display
+# Display
 
-# Display creation
+## Display creation
 
-## API: ALLEGRO_DISPLAY
+### API: ALLEGRO_DISPLAY
 
 An opaque type representing an open display or window.
 
-## API: al_create_display
+### API: al_create_display
 
 Create a display, or window, with the specified dimensions.
 The parameters of the display are determined by the last calls to
@@ -20,11 +20,11 @@ Returns NULL on error.
 See also: [al_set_new_display_flags], [al_set_new_display_option],
 [al_set_new_display_format], [al_set_new_display_refresh_rate]
 
-## API: al_destroy_display
+### API: al_destroy_display
 
 Destroy a display.
 
-## API: al_get_num_display_formats
+### API: al_get_num_display_formats
 
 Returns the number of available display formats.
 
@@ -50,39 +50,39 @@ In pseudo-code:
 
 See also: [al_get_display_format_option]
 
-## API: al_get_display_format_option
+### API: al_get_display_format_option
 
 Queries information about one of the available display formats. The
 parameter must be between 0 and [al_get_num_display_formats] - 1. The
 same options as with [al_set_new_display_option] are supported.
 
-## API: al_set_new_display_format
+### API: al_set_new_display_format
 
 Sets one of the available display formats. The index must be between
 0 and [al_get_num_display_formats] - 1. Calling this functions is
 equivalent to calling [al_set_new_display_option] with all of the
 available display format options.
 
-## API: al_get_new_display_flags
+### API: al_get_new_display_flags
 
 Gets the current flags used for newly created displays.
 
 See also: [al_set_new_display_flags]
 
-## API: al_get_new_display_refresh_rate
+### API: al_get_new_display_refresh_rate
 
 Gets the current refresh rate used for newly created displays.
 
 See also: [al_set_new_display_refresh_rate]
 
-## API: al_get_new_window_position
+### API: al_get_new_window_position
 
 Gets the position where newly created non-fullscreen
 displays will be placed.
 
 See also: [al_set_new_window_position]
 
-## API: al_set_new_display_option
+### API: al_set_new_display_option
 
 Sets an extra display option. Allegro itself will not care about those
 options itself, but you may want to specify them, for example if you
@@ -148,16 +148,16 @@ FIXME: document them all in detail
 
 See also: [al_set_new_display_flags], [al_set_new_display_format]
 
-## API: al_get_new_display_option
+### API: al_get_new_display_option
 
 Retrieve an extra display setting which was previously set with
 [al_set_new_display_option].
 
-## API: al_reset_new_display_options
+### API: al_reset_new_display_options
 
 This undoes any previous calls to [al_set_new_display_option].
 
-## API: al_set_new_display_flags
+### API: al_set_new_display_flags
 
 Sets various flags for display creation. flags is a bitfield containing any
 reasonable combination of the following:
@@ -186,13 +186,13 @@ or not.
 
 See also: [al_set_new_display_option]
 
-## API: al_set_new_display_refresh_rate
+### API: al_set_new_display_refresh_rate
 
 Sets the refresh rate to use for newly created displays. If the refresh rate
 is not available, al_create_display will fail. A list of modes with refresh
 rates can be found with [al_get_num_display_modes] and [al_get_display_mode].
 
-## API: al_set_new_window_position
+### API: al_set_new_window_position
 
 Sets where the top left pixel of the client area of newly
 created windows (non-fullscreen) will be on screen.
@@ -202,9 +202,9 @@ See also: [al_get_new_window_position]
 
 
 
-# Display operations
+## Display operations
 
-## API: al_acknowledge_resize
+### API: al_acknowledge_resize
 
 When the user receives a resize event from a resizable display,
 if they wish the display to be resized they must call this
@@ -215,7 +215,7 @@ Adjusts the clipping rectangle to the full size of the backbuffer.
 
 See also: [al_resize_display]
 
-## API: al_flip_display
+### API: al_flip_display
 
 Copies or updates the front and back buffers so that what has
 been drawn previously on the currently selected display becomes
@@ -241,50 +241,50 @@ in the system's graphics preferences.
 
 See also: [al_set_new_display_flags], [al_set_new_display_option]
 
-## API: al_get_backbuffer
+### API: al_get_backbuffer
 
 Return a special bitmap representing the back-buffer of the
 current display.
 
 See also: [al_get_frontbuffer]
 
-## API: al_get_current_display
+### API: al_get_current_display
 
 Query for the current display in the calling thread.
 
 See also: [al_set_current_display]
 
-## API: al_get_display_flags
+### API: al_get_display_flags
 
 Gets the flags of the current display.
 
 See also: [al_set_new_display_flags]
 
-## API: al_get_display_format
+### API: al_get_display_format
 
 Gets the pixel format of the current display.
 
 See also: [ALLEGRO_PIXEL_FORMAT]
 
-## API: al_get_display_height
+### API: al_get_display_height
 
 Gets the height of the current display. This is like SCREEN_H in Allegro 4.x.
 
 See also: [al_get_display_width]
 
-## API: al_get_display_refresh_rate
+### API: al_get_display_refresh_rate
 
 Gets the refresh rate of the current display.
 
 See also: [al_set_display_refresh_rate]
 
-## API: al_get_display_width
+### API: al_get_display_width
 
 Gets the width of the current display. This is like SCREEN_W in Allegro 4.x.
 
 See also: [al_get_display_height]
 
-## API: al_get_frontbuffer
+### API: al_get_frontbuffer
 
 Return a special bitmap representing the front-buffer of
 the current display. This may not be supported by the driver;
@@ -292,13 +292,13 @@ returns NULL in that case.
 
 See also: [al_get_backbuffer]
 
-## API: al_get_window_position
+### API: al_get_window_position
 
 Gets the position of a non-fullscreen display.
 
 See also: [al_set_window_position]
 
-## API: al_inhibit_screensaver
+### API: al_inhibit_screensaver
 
 This function allows the user to stop the system
 screensaver from starting up if true is passed,
@@ -307,7 +307,7 @@ or resets the system back to the default state
 It returns true if the state was set successfully,
 otherwise false.
 
-## API: al_resize_display
+### API: al_resize_display
 
 Resize the current display. Returns true on success, or false on error.
 This works on both fullscreen and windowed displays, regardless of the
@@ -317,7 +317,7 @@ Adjusts the clipping rectangle to the full size of the backbuffer.
 
 See also: [al_acknowledge_resize]
 
-## API: al_set_current_display
+### API: al_set_current_display
 
 Change the current display for the calling thread.
 Also sets the target bitmap to the display's
@@ -325,7 +325,7 @@ backbuffer. Returns true on success.
 
 See also: [al_get_current_display]
 
-## API: al_set_display_icon
+### API: al_set_display_icon
 
 Changes the icon associated with the current display (window).
 
@@ -335,27 +335,27 @@ bitmap, it will be scaled.
 TODO: Describe best practice for the size?
 TODO: Allow providing multiple icons in differet sizes?
 
-## API: al_get_display_option
+### API: al_get_display_option
 
 Return an extra display setting of the current display.
 
 See also: [al_set_new_display_option]
 
-## API: al_set_window_position
+### API: al_set_window_position
 
 Sets the position on screen of a non-fullscreen display.
 
 See also: [al_get_window_position]
 
-## API: al_set_window_title
+### API: al_set_window_title
 
 Set the title on a display.
 
-## API: al_toggle_window_frame
+### API: al_toggle_window_frame
 
 Enable or disable the decorations around a windowed display.
 
-## API: al_update_display_region
+### API: al_update_display_region
 
 Does the same as [al_flip_display], but tries to update only the
 specified region. With many drivers this is not possible, but for
@@ -366,7 +366,7 @@ will specify the behavior of this function in the current display.
 
 See also: [al_flip_display], [al_get_display_option]
 
-## API: al_wait_for_vsync
+### API: al_wait_for_vsync
 
 Wait for the beginning of a vertical retrace. Some
 driver/card/monitor combinations may not be capable
@@ -381,14 +381,14 @@ Returns false if not possible, true if successful.
 See also: [al_flip_display]
 
 
-## API: al_get_display_event_source
+### API: al_get_display_event_source
 
 Retrieve the associated event source.
 
 
-# Fullscreen display modes
+## Fullscreen display modes
 
-## API: ALLEGRO_DISPLAY_MODE
+### API: ALLEGRO_DISPLAY_MODE
 
 Used for display mode queries. Contains information
 about a supported fullscreen display mode.
@@ -402,7 +402,7 @@ about a supported fullscreen display mode.
 
 See also: [al_get_display_mode]
 
-## API: al_get_display_mode
+### API: al_get_display_mode
 
 Retrieves a display mode. Display parameters should not be
 changed between a call of [al_get_num_display_modes] and
@@ -414,7 +414,7 @@ in on success.
 
 See also: [ALLEGRO_DISPLAY_MODE], [al_get_num_display_modes]
 
-## API: al_get_num_display_modes
+### API: al_get_num_display_modes
 
 Get the number of available fullscreen display modes
 for the current set of display parameters. This will
@@ -426,9 +426,9 @@ give a list of all modes for the default driver.
 See also: [al_get_display_mode]
 
 
-# Monitors
+## Monitors
 
-## API: ALLEGRO_MONITOR_INFO
+### API: ALLEGRO_MONITOR_INFO
 
 Describes a monitors size and position relative to other
 monitors. x1, y1 will be 0, 0 on the primary display.
@@ -445,14 +445,14 @@ left or above the primary display.
 
 See also: [al_get_monitor_info]
 
-## API: al_get_current_video_adapter
+### API: al_get_current_video_adapter
 
 Gets the video adapter index where new displays
 will be created.
 
 See also: [al_set_current_video_adapter]
 
-## API: al_set_current_video_adapter
+### API: al_set_current_video_adapter
 
 Sets the adapter to use for newly created displays.
 The adapter has a monitor attached to it. Information
@@ -461,14 +461,14 @@ and al_get_monitor_info.
 
 See also: [al_get_num_video_adapters], [al_get_monitor_info]
 
-## API: al_get_monitor_info
+### API: al_get_monitor_info
 
 Get information about a monitor's position on the desktop.
 adapter is a number from 0 to al_get_num_video_adapters()-1.
 
 See also: [ALLEGRO_MONITOR_INFO], [al_get_num_video_adapters]
 
-## API: al_get_num_video_adapters
+### API: al_get_num_video_adapters
 
 Get the number of video "adapters" attached to the computer. Each
 video card attached to the computer counts as one or more adapters.

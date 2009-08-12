@@ -1,6 +1,6 @@
-% Getting started guide
+# Getting started guide
 
-# Introduction
+## Introduction
 
 Welcome to Allegro 4.9!
 
@@ -15,7 +15,7 @@ Be aware that it is a little out of date, but the changes should be minor.
 Hopefully more will sprout when things stabilise, as they did for earlier
 versions of Allegro.
 
-# Structure of the library and its addons
+## Structure of the library and its addons
 
 Allegro 4.9 is divided into a core library and multiple addons.  The addons
 are bundled together and built at the same time as the core, but they are

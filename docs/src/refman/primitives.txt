@@ -1,8 +1,8 @@
-%Primitives Addon
+# Primitives addon
 
-# High Level Drawing Routines
+## High-level drawing routines
 
-## API: al_draw_line
+### API: al_draw_line
 
 Draws a line segment between two points.
 
@@ -12,7 +12,7 @@ Draws a line segment between two points.
 * color - Color of the line
 * thickness - Thickness of the line, pass `<= 0` to draw hairline lines
 
-## API: al_draw_triangle
+### API: al_draw_triangle
 
 Draws an outlined triangle.
 
@@ -22,7 +22,7 @@ Draws an outlined triangle.
 * color - Color of the triangle
 * thickness - Thickness of the lines, pass `<= 0` to draw hairline lines
 
-## API: al_draw_filled_triangle
+### API: al_draw_filled_triangle
 
 Draws a filled triangle.
 
@@ -31,7 +31,7 @@ Draws a filled triangle.
 * x1, y1, x2, y2, x3, y3 - Three points of the triangle
 * color - Color of the triangle
 
-## API: al_draw_rectangle
+### API: al_draw_rectangle
 
 Draws an outlined rectangle.
 
@@ -41,7 +41,7 @@ Draws an outlined rectangle.
 * color - Color of the rectangle
 * thickness - Thickness of the lines, pass `<= 0` to draw hairline lines
 
-## API: al_draw_filled_rectangle
+### API: al_draw_filled_rectangle
 
 Draws a filled rectangle.
 
@@ -50,7 +50,7 @@ Draws a filled rectangle.
 * x1, y1, x2, y2 - Upper left and lower right points of a rectangle
 * color - Color of the rectangle
 
-## API: al_draw_rounded_rectangle
+### API: al_draw_rounded_rectangle
 
 Draws an outlined rounded rectangle.
 
@@ -61,7 +61,7 @@ Draws an outlined rounded rectangle.
 * rx, ry - The radii of the round
 * thickness - Thickness of the lines, pass `<= 0` to draw hairline lines
 
-## API: al_draw_filled_rounded_rectangle
+### API: al_draw_filled_rounded_rectangle
 
 Draws an filled rounded rectangle.
 
@@ -71,7 +71,7 @@ Draws an filled rounded rectangle.
 * color - Color of the rectangle
 * rx, ry - The radii of the round
 
-## API: al_calculate_arc
+### API: al_calculate_arc
 
 Calculates an elliptical arc, and sets the vertices in the destination to the
 calculated positions. If `thickness <= 0`, then `num_points` of points are
@@ -92,7 +92,7 @@ vertices.
 * thickness - Thickness of the arc
 * num_points - The number of points to calculate
 
-## API: al_draw_ellipse
+### API: al_draw_ellipse
 
 Draws an outlined ellipse.
 
@@ -103,7 +103,7 @@ Draws an outlined ellipse.
 * color - Color of the ellipse
 * thickness - Thickness of the ellipse, pass `<= 0` to draw hairline ellipse
 
-## API: al_draw_filled_ellipse
+### API: al_draw_filled_ellipse
 
 Draws a filled ellipse.
 
@@ -113,7 +113,7 @@ Draws a filled ellipse.
 * rx, ry - Radii of the ellipse
 * color - Color of the ellipse
 
-## API: al_draw_circle
+### API: al_draw_circle
 
 Draws an outlined circle.
 
@@ -124,7 +124,7 @@ Draws an outlined circle.
 * color - Color of the circle
 * thickness - Thickness of the circle, pass `<= 0` to draw hairline circle
 
-## API: al_draw_filled_circle
+### API: al_draw_filled_circle
 
 Draws a filled circle.
 
@@ -134,7 +134,7 @@ Draws a filled circle.
 * r - Radius of the circle
 * color - Color of the circle
 
-## API: al_draw_arc
+### API: al_draw_arc
 
 Draws an arc.
 
@@ -148,7 +148,7 @@ Draws an arc.
     direction)
 * thickness - Thickness of the circle, pass `<= 0` to draw hairline circle
 
-## API: al_calculate_spline
+### API: al_calculate_spline
 
 Calculates a spline given 4 control points. If `thickness <= 0`, then
 `num_segments` of points are required in the destination, otherwise twice as
@@ -164,7 +164,7 @@ coordinates of the vertices.
 * thickness - Thickness of the spline ribbon
 * num_segments - The number of points to calculate
 
-## API: al_draw_spline
+### API: al_draw_spline
 
 Draws a spline given 4 control points.
 
@@ -174,7 +174,7 @@ Draws a spline given 4 control points.
 * color - Color of the spline
 * thickness - Thickness of the spline, pass `<= 0` to draw hairline spline
 
-## API: al_calculate_ribbon
+### API: al_calculate_ribbon
 
 Calculates a ribbon given an array of points. The ribbon will go through all of
 the passed points. If `thickness <= 0`, then `num_segments` of points are
@@ -193,7 +193,7 @@ doublets of floats, corresponding to x and y coordinates of the vertices.
 * thickness - Thickness of the spline ribbon
 * num_segments - The number of points to calculate
 
-## API: al_draw_ribbon
+### API: al_draw_ribbon
 
 Draws a ribbon given given an array of points. The ribbon will go through all
 of the passed points.
@@ -204,9 +204,9 @@ of the passed points.
 * color - Color of the spline
 * thickness - Thickness of the spline, pass `<= 0` to draw hairline spline
 
-# Low Level Drawing Routines
+## Low-level drawing routines
 
-## API: al_draw_prim
+### API: al_draw_prim
 
 Draws a subset of the passed vertex buffer. It is recommended for the texture
 to have its dimensions be a power of 2 for maximum portability with older video
@@ -225,7 +225,7 @@ Number of primitives drawn
 *See Also:*
 [ALLEGRO_VERTEX], [ALLEGRO_PRIM_TYPE], [al_draw_indexed_prim]
 
-## API: al_draw_indexed_prim
+### API: al_draw_indexed_prim
 
 Draws a subset of the passed vertex buffer. This function uses an index array
 to specify which vertices to use.
@@ -246,7 +246,7 @@ Number of primitives drawn
 *See Also:*
 [ALLEGRO_VERTEX], [ALLEGRO_PRIM_TYPE], [al_draw_prim]
 
-## API: al_get_allegro_color
+### API: al_get_allegro_color
 
 Converts an `ALLEGRO_PRIM_COLOR` into a `ALLEGRO_COLOR`.
 
@@ -260,7 +260,7 @@ Converted ALLEGRO_COLOR
 *See Also:*
 [ALLEGRO_PRIM_COLOR], [al_get_prim_color]
 
-## API: al_get_prim_color
+### API: al_get_prim_color
 
 Converts an `ALLEGRO_COLOR` into a `ALLEGRO_PRIM_COLOR`.
 
@@ -274,7 +274,7 @@ Converted ALLEGRO_PRIM_COLOR
 *See Also:*
 [ALLEGRO_PRIM_COLOR], [al_get_allegro_color]
 
-## API: al_draw_soft_triangle
+### API: al_draw_soft_triangle
 
 Draws a triangle using the software rasterizer and user supplied pixel
 functions. For help in understanding what these functions do, see the
@@ -306,7 +306,7 @@ may be absent if two vertices are horizontally collinear.
   value of the third parameter (the x value of the end point). All coordinates
   are inclusive.
 
-## API: al_draw_soft_line
+### API: al_draw_soft_line
 
 Draws a line using the software rasterizer and user supplied pixel functions.
 For help in understanding what these functions do, see the implementation of
@@ -329,9 +329,9 @@ The line is drawn top to bottom.
 * draw - Called once per pixel. The function is expected to draw the pixel at
   the two coordinates passed to it.
 
-# Transformations
+## Transformations
 
-## API: al_copy_transform
+### API: al_copy_transform
 
 Makes a copy of a transformation.
 
@@ -340,7 +340,7 @@ Makes a copy of a transformation.
 * src - Source transformation
 * dest - Destination transformation
 
-## API: al_use_transform
+### API: al_use_transform
 
 Sets the transformation to be used for the primitive drawing operations. Every
 drawing operation after this call will be transformed using this
@@ -352,7 +352,7 @@ functions will not be defined.
 
 * trans - Transformation to use
 
-## API: al_identity_transform
+### API: al_identity_transform
 
 Sets the transformation to be the identity transformation.
 
@@ -360,7 +360,7 @@ Sets the transformation to be the identity transformation.
 
 * trans - Transformation to alter
 
-## API: al_build_transform
+### API: al_build_transform
 
 Builds a transformation given some parameters. This call is equivalent to
 calling the transformations in this order: make identity, scale, rotate,
@@ -373,7 +373,7 @@ translate. This method is faster, however.
 * sx, sy - Scale
 * theta - Rotation angle
 
-## API: al_translate_transform
+### API: al_translate_transform
 
 Apply a translation to a transformation.
 
@@ -382,7 +382,7 @@ Apply a translation to a transformation.
 * trans - Transformation to alter
 * x, y - Translation
 
-## API: al_rotate_transform
+### API: al_rotate_transform
 
 Apply a rotation to a transformation.
 
@@ -391,7 +391,7 @@ Apply a rotation to a transformation.
 * trans - Transformation to alter
 * theta - Rotation angle
 
-## API: al_scale_transform
+### API: al_scale_transform
 
 Apply a scale to a transformation.
 
@@ -400,7 +400,7 @@ Apply a scale to a transformation.
 * trans - Transformation to alter
 * sx, sy - Scale
 
-## API: al_transform_vertex
+### API: al_transform_vertex
 
 Transform a vertex.
 
@@ -409,7 +409,7 @@ Transform a vertex.
 * trans - Transformation to use
 * vtx - Vertex to transform
 
-## API: al_transform_transform
+### API: al_transform_transform
 
 Transform a transformation.
 
@@ -418,9 +418,9 @@ Transform a transformation.
 * trans - Transformation to use
 * trans2 - Transformation to transform
 
-# Structures and Types
+## Structures and types
 
-## API: ALLEGRO_PRIM_COLOR
+### API: ALLEGRO_PRIM_COLOR
 
 A special structure that defines a color in a way that understandable to both
 OpenGL and Direct3D backends.
@@ -430,7 +430,7 @@ functions to convert between it and [ALLEGRO_COLOR] structure.
 *See Also:*
 [al_get_allegro_color], [al_get_prim_color]
 
-## API: ALLEGRO_VERTEX
+### API: ALLEGRO_VERTEX
 
 Defines the generic vertex type, with a 2D position, color and texture
 coordinates for a single texture.
@@ -442,15 +442,13 @@ coordinates for a single texture.
 *See Also:*
 [ALLEGRO_PRIM_COLOR]
 
-## API: ALLEGRO_TRANSFORM
+### API: ALLEGRO_TRANSFORM
 
 Defines the generic transformation type, a 4x4 matrix. 2D transforms use only
 a small subsection of this matrix, namely the top left 2x2 matrix, and the
 right most 2x1 matrix, for a total of 6 values.
 
-# Constants
-
-## API: ALLEGRO_PRIM_TYPE
+### API: ALLEGRO_PRIM_TYPE
 
 Enumerates the types of primitives this addon can draw.
 
@@ -472,7 +470,7 @@ Enumerates the types of primitives this addon can draw.
 * ALLEGRO_PRIM_TRIANGLE_FAN - A fan of triangles, all triangles share the first
   vertex
 
-## API: ALLEGRO_VERTEX_CACHE_SIZE
+### API: ALLEGRO_VERTEX_CACHE_SIZE
 
 Defines the size of the transformation vertex cache for the software renderer.
 If you pass less than this many vertices to the primitive rendering functions
@@ -480,7 +478,7 @@ you will get a speed boost. This also defines the size of the cache vertex
 buffer, used for the high-level primitives. This corresponds to the maximum
 number of line segments that will be used to form them.
 
-## API: ALLEGRO_PRIM_QUALITY
+### API: ALLEGRO_PRIM_QUALITY
 
 Defines the quality of the quadratic primitives. At 10, this roughly
 corresponds to error < 0.5 pixel.
