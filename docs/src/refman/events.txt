@@ -125,7 +125,8 @@ See also: [ALLEGRO_EVENT], [al_init_user_event_source], [al_emit_user_event]
 
 An integer used to distinguish between different types of events.
 
-See also: [ALLEGRO_EVENT], [ALLEGRO_GET_EVENT_TYPE].
+See also: [ALLEGRO_EVENT], [ALLEGRO_GET_EVENT_TYPE],
+[ALLEGRO_EVENT_TYPE_IS_USER]
 
 ## API: ALLEGRO_GET_EVENT_TYPE
 
@@ -139,7 +140,12 @@ code you may be using.
 
 IDs less than 1024 are reserved for Allegro or its addons.
 
-See also: [ALLEGRO_EVENT]
+See also: [ALLEGRO_EVENT], [ALLEGRO_EVENT_TYPE_IS_USER]
+
+## API: ALLEGRO_EVENT_TYPE_IS_USER
+
+A macro which evaluates to true if the event type is not a builtin event
+type, i.e. one of those described in [ALLEGRO_EVENT_TYPE].
 
 ## API: al_create_event_queue
 
