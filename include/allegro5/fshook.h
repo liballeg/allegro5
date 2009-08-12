@@ -40,7 +40,8 @@ struct ALLEGRO_FS_ENTRY {
 
 /* Enum: ALLEGRO_FILE_MODE
  */
-enum {
+enum ALLEGRO_FILE_MODE
+{ // prototype above appears in docs
    ALLEGRO_FILEMODE_READ    = 1,
    ALLEGRO_FILEMODE_WRITE   = 1 << 1,
    ALLEGRO_FILEMODE_EXECUTE = 1 << 2,

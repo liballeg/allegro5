@@ -1,4 +1,8 @@
-% File system hooks
+% File system
+
+These functions allow access to the filesystem. This can either be the real
+filesystem like your harddrive, or a virtual filesystem like a .zip archive (or
+whatever else you or an addon makes it do).
 
 ## API: ALLEGRO_FS_ENTRY
 
@@ -6,12 +10,6 @@ Opaque filesystem entry object.
 Represents a file or a directory (check with [al_is_directory]
 or [al_is_file]).
 There are no user accessible member variables.
-
-## API: ALLEGRO_FS_INTERFACE
-
-A structure containing some basic "filesystem" functions. You can use
-[al_set_new_fs_interface] to make Allegro use a different set of functions
-instead of stdio.
 
 # Enumerations
 
@@ -35,39 +33,10 @@ Creates an [ALLEGRO_FS_ENTRY] object pointing to path.
 
 ## API: al_destroy_entry
 
-Destroys a fs entry handle.
-Closes file if it was open.
+Destroys a fs entry handle. The file or directory represented by it is not
+destoyed.
 
 Does nothing if passed NULL.
-
-## API: al_closedir
-
-Closes a previously opened directory entry object.
-
-Returns true on success, false on failure and fills in errno to indicate the
-error.
-
-## API: al_mkdir
-
-Creates a new directory on disk given the path 'path'.
-
-Returns false on error and fills in errno to indicate the error.
-
-See also: [al_get_errno]
-
-## API: al_opendir
-
-Opens a directory entry object. You must call this before using [al_readdir]
-on an entry and you must call [al_closedir] when you no longer need it.
-
-Returns true on success.
-
-## API: al_readdir
-
-Reads the next dir item and returns a filesystem entry for it.
-
-Returns NULL if there are no more entries or if an error occurs. Call
-[al_closedir] on the directory handle when you are done.
 
 ## API: al_remove_entry
 
@@ -77,7 +46,8 @@ Returns true on success, and false on failure, error is indicated in errno.
 
 ## API: al_remove_str
 
-Unlink 'path' entry from disk.
+Unlink 'path' entry from disk. This is the same as [al_remove_entry], except
+it expects the path as a string.
 
 Returns true on success, and false on failure.
 
@@ -85,6 +55,8 @@ errno is filled in to indicate the error.
 
 See Also:
 [al_remove_entry]
+
+# File Properties
 
 ## API: al_fstat
 
@@ -95,8 +67,6 @@ Fills in errno to indicate the error.
 
 See also [al_get_errno] [al_get_entry_atime] [al_get_entry_ctime] [al_is_directory]
 [al_is_file] [al_get_entry_mode]
-
-# File Properties
 
 ## API: al_is_present
 
@@ -149,7 +119,10 @@ modified.
 ## API: al_get_entry_name
 
 Returns the entry's filename path. Note that the path will not be an
-absolute path if the entry wasn't created from an absolute path.
+absolute path if the entry wasn't created from an absolute path. Also not
+that the filesystem encoding may not be known and the conversion to UTF8
+could in very rare cases cause this to return an invalid path. Therefore it's
+always safest to access the file over its [ALLEGRO_FS_HANDLE] and not the path.
 
 Returns NULL on error.
 
@@ -159,7 +132,7 @@ errno is set to indicate the error.
 
 Returns the size, in bytes, of the given entry.
 
-# Other
+# Directory functions
 
 ## API: al_getcwd
 
@@ -180,6 +153,36 @@ Changes the current working directory to 'path'.
 
 Returns -1 on error.
 
+## API: al_closedir
+
+Closes a previously opened directory entry object.
+
+Returns true on success, false on failure and fills in errno to indicate the
+error.
+
+## API: al_mkdir
+
+Creates a new directory on disk given the path 'path'.
+
+Returns false on error and fills in errno to indicate the error.
+
+See also: [al_get_errno]
+
+## API: al_opendir
+
+Opens a directory entry object. You must call this before using [al_readdir]
+on an entry and you must call [al_closedir] when you no longer need it.
+
+Returns true on success.
+
+## API: al_readdir
+
+Reads the next dir item and returns a filesystem entry for it.
+
+Returns NULL if there are no more entries or if an error occurs. Call
+[al_closedir] on the directory handle when you are done.
+
+
 # Alternative filesystem functions
 
 By default, Allegro uses platform specific filesystem functions for things like
@@ -187,6 +190,41 @@ directory access. However if for example the files of your game are not in
 the local filesystem but inside some file archive, you can provide your own
 set of functions (or use an addon which does this for you, for example our
 physfs addon allows access to the most common archive formats).
+
+## API: ALLEGRO_FS_INTERFACE
+
+The available functions you can provide for a filesystem. They are:
+
+~~~
+   ALLEGRO_FS_ENTRY *create(const char *path)
+
+   ALLEGRO_PATH *getcwd, (void)
+   bool chdir(const char *path)
+
+   bool exists_str(const char *path)
+   bool remove_str(const char *path)
+
+   bool mkdir(const char *path)
+
+   void destroy(ALLEGRO_FS_ENTRY *handle)
+
+   ALLEGRO_PATH *fname(ALLEGRO_FS_ENTRY *handle)
+
+   bool fstat(ALLEGRO_FS_ENTRY *handle)
+
+   off_t  entry_size(ALLEGRO_FS_ENTRY *fh)
+   uint32_t entry_mode(ALLEGRO_FS_ENTRY *fh)
+   time_t entry_atime(ALLEGRO_FS_ENTRY *fh)
+   time_t entry_mtime(ALLEGRO_FS_ENTRY *fh)
+   time_t entry_ctime(ALLEGRO_FS_ENTRY *fh)
+
+   bool exists(ALLEGRO_FS_ENTRY *fh)
+   bool remove(ALLEGRO_FS_ENTRY *fh)
+
+   bool opendir(ALLEGRO_FS_ENTRY *dir));
+   ALLEGRO_FS_ENTRY *readdir(ALLEGRO_FS_ENTRY *dir)
+   bool closedir(ALLEGRO_FS_ENTRY *dir)
+~~~
 
 ## API: al_set_fs_interface
 

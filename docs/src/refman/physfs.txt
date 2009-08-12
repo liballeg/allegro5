@@ -15,8 +15,13 @@ then [al_fopen] or another function that calls [al_fopen].
 ## API: al_set_physfs_file_interface
 
 After calling this, subsequent calls to [al_fopen] will be handled
-by PHYSFS_open().  Operations on the files returned by [al_fopen]
+by PHYSFS_open(). Operations on the files returned by [al_fopen]
 will then be performed through PhysicsFS.
+
+At the same time, all filesystem functions like [al_readdir] or
+[al_create_entry] will use PhysicsFS.
+
+This functions only affects the thread it was called from.
 
 To remember and restore another file I/O backend, you can use
 [al_store_state]/[al_restore_state].
