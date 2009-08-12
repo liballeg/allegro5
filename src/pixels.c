@@ -206,6 +206,31 @@ bool _al_pixel_format_fits(int format1, int format2)
    return false;
 }
 
+/* We use al_get_display_format() as a hint for the preferred RGB ordering when
+ * nothing else is specified.
+ */
+static bool _al_try_display_format(int *format)
+{
+   int best_format = al_get_display_format();
+   int bytes = al_get_pixel_size(*format);
+   if (bytes && bytes != al_get_pixel_size(best_format))
+      return false;
+   if (_al_format_has_alpha(*format) && !_al_format_has_alpha(best_format)) {
+      switch(best_format) {
+         case ALLEGRO_PIXEL_FORMAT_RGBX_8888:
+            *format = ALLEGRO_PIXEL_FORMAT_RGBA_8888;
+            return true;
+         case ALLEGRO_PIXEL_FORMAT_XRGB_8888:
+             *format = ALLEGRO_PIXEL_FORMAT_ARGB_8888;
+            return true;
+         case ALLEGRO_PIXEL_FORMAT_XBGR_8888:
+            *format = ALLEGRO_PIXEL_FORMAT_ABGR_8888;
+            return true;
+      }
+   }   
+   *format = best_format;
+   return true;
+}
 
 int _al_get_real_pixel_format(int format)
 {
@@ -213,18 +238,21 @@ int _al_get_real_pixel_format(int format)
    switch (format) {
       case ALLEGRO_PIXEL_FORMAT_ANY_NO_ALPHA:
       case ALLEGRO_PIXEL_FORMAT_ANY_32_NO_ALPHA:
-         format = ALLEGRO_PIXEL_FORMAT_XRGB_8888;
+         if (!_al_try_display_format(&format))
+            format = ALLEGRO_PIXEL_FORMAT_XRGB_8888;
          break;
       case ALLEGRO_PIXEL_FORMAT_ANY:
       case ALLEGRO_PIXEL_FORMAT_ANY_WITH_ALPHA:
       case ALLEGRO_PIXEL_FORMAT_ANY_32_WITH_ALPHA:
-         format = ALLEGRO_PIXEL_FORMAT_ARGB_8888;
+         if (!_al_try_display_format(&format))
+            format = ALLEGRO_PIXEL_FORMAT_ARGB_8888;
          break;
       case ALLEGRO_PIXEL_FORMAT_ANY_15_NO_ALPHA:
          format = ALLEGRO_PIXEL_FORMAT_RGB_555;
          break;
       case ALLEGRO_PIXEL_FORMAT_ANY_16_NO_ALPHA:
-         format = ALLEGRO_PIXEL_FORMAT_RGB_565;
+         if (!_al_try_display_format(&format))
+            format = ALLEGRO_PIXEL_FORMAT_RGB_565;
          break;
       case ALLEGRO_PIXEL_FORMAT_ANY_16_WITH_ALPHA:
          format = ALLEGRO_PIXEL_FORMAT_RGBA_4444;
