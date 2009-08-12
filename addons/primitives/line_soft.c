@@ -344,11 +344,10 @@ static void line_stepper(uintptr_t state, shader_first first, shader_step step, 
       vtx2 = t;
    }
    
-   /*TODO: These offsets give me the best result... maybe they are not universal though?*/
-   vtx1->x -= 0.49f;
-   vtx1->y -= 0.51f;
-   vtx2->x -= 0.49f;
-   vtx2->y -= 0.51f;
+   vtx1->x -= 0.5001f;
+   vtx1->y -= 0.5001f;
+   vtx2->x -= 0.5001f;
+   vtx2->y -= 0.5001f;
 
    x1 = vtx1->x;
    y1 = vtx1->y;
