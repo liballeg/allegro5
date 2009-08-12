@@ -47,6 +47,7 @@ static void setup_fbo(ALLEGRO_DISPLAY *display, ALLEGRO_BITMAP *bitmap)
       #define glFramebufferTexture2DEXT glFramebufferTexture2DOES
       #define GL_FRAMEBUFFER_COMPLETE_EXT GL_FRAMEBUFFER_COMPLETE_OES
       #define glDeleteFramebuffersEXT glDeleteFramebuffersOES
+      #define glOrtho glOrthof
       #endif
 
       /* When a bitmap is set as target bitmap, we try to create an FBO for it.
@@ -88,7 +89,7 @@ static void setup_fbo(ALLEGRO_DISPLAY *display, ALLEGRO_BITMAP *bitmap)
             glMatrixMode(GL_PROJECTION);
             glLoadIdentity();
 
-            glOrthof(0, bitmap->w, bitmap->h, 0, -1, 1);
+            glOrtho(0, bitmap->w, bitmap->h, 0, -1, 1);
 
             glMatrixMode(GL_MODELVIEW);
             glLoadIdentity();
@@ -115,7 +116,7 @@ static void setup_fbo(ALLEGRO_DISPLAY *display, ALLEGRO_BITMAP *bitmap)
       /* We use upside down coordinates compared to OpenGL, so the bottommost
        * coordinate is display->h not 0.
        */
-      glOrthof(0, display->w, display->h, 0, -1, 1);
+      glOrtho(0, display->w, display->h, 0, -1, 1);
 
       glMatrixMode(GL_MODELVIEW);
       glLoadIdentity();
