@@ -1090,7 +1090,6 @@
 		648390F2102AF35000D508EE /* internal */ = {
 			isa = PBXGroup;
 			children = (
-				642F7E23102CACCF001249EE /* aintern_iphone.h */,
 				648390F3102AF35000D508EE /* aintern.h */,
 				648390F4102AF35000D508EE /* aintern_atomicops.h */,
 				648390F5102AF35000D508EE /* aintern_bitmap.h */,
@@ -1102,6 +1101,7 @@
 				648390FB102AF35000D508EE /* aintern_float.h */,
 				648390FC102AF35000D508EE /* aintern_fshook.h */,
 				648390FD102AF35000D508EE /* aintern_gp2xwiz.h */,
+				642F7E23102CACCF001249EE /* aintern_iphone.h */,
 				648390FE102AF35000D508EE /* aintern_joystick.h */,
 				648390FF102AF35000D508EE /* aintern_keyboard.h */,
 				64839100102AF35000D508EE /* aintern_memory.h */,

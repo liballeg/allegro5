@@ -6,8 +6,6 @@
 
 ALLEGRO_DEBUG_CHANNEL("iphone")
 
-#define USE_DEPTH_BUFFER 0
-
 @interface EAGLView ()
 
 @property (nonatomic, retain) EAGLContext *context;
@@ -29,32 +27,36 @@ ALLEGRO_DEBUG_CHANNEL("iphone")
 }
 
 - (void)set_allegro_display:(ALLEGRO_DISPLAY *)display {
-    allegro_display = display;
+   allegro_display = display;
+
+   // Get the layer
+   CAEAGLLayer *eaglLayer = (CAEAGLLayer *)self.layer;
+   
+   NSString *color_format = kEAGLColorFormatRGBA8;
+   if (display->extra_settings.settings[ALLEGRO_COLOR_SIZE] == 16)
+      color_format = kEAGLColorFormatRGB565;
+
+   eaglLayer.opaque = YES;
+   eaglLayer.drawableProperties = [NSDictionary dictionaryWithObjectsAndKeys:
+      [NSNumber numberWithBool:NO], kEAGLDrawablePropertyRetainedBacking,
+      color_format, kEAGLDrawablePropertyColorFormat, nil];
+   
+   context = [[EAGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES1];
+   
+   if (!context || ![EAGLContext setCurrentContext:context]) {
+      [self release];
+      return;
+   }
+   
+   /* FIXME: Make this depend on a display setting. */
+   [self setMultipleTouchEnabled:YES];
+   
+   ALLEGRO_INFO("Created EAGLView.\n");
 }
 
 - (id)initWithFrame:(CGRect)frame {
     
     self = [super initWithFrame:frame];
-       
-    // Get the layer
-    CAEAGLLayer *eaglLayer = (CAEAGLLayer *)self.layer;
-
-    eaglLayer.opaque = YES;
-    eaglLayer.drawableProperties = [NSDictionary dictionaryWithObjectsAndKeys:
-        [NSNumber numberWithBool:NO], kEAGLDrawablePropertyRetainedBacking,
-        kEAGLColorFormatRGBA8, kEAGLDrawablePropertyColorFormat, nil];
-    
-    context = [[EAGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES1];
-    
-    if (!context || ![EAGLContext setCurrentContext:context]) {
-        [self release];
-        return nil;
-    }
-   
-   /* FIXME: Make this depend on a display setting. */
-   [self setMultipleTouchEnabled:YES];
-
-    ALLEGRO_INFO("Created EAGLView.\n");
 
     return self;
 }
@@ -94,7 +96,7 @@ ALLEGRO_DEBUG_CHANNEL("iphone")
     glGetRenderbufferParameterivOES(GL_RENDERBUFFER_OES, GL_RENDERBUFFER_WIDTH_OES, &backingWidth);
     glGetRenderbufferParameterivOES(GL_RENDERBUFFER_OES, GL_RENDERBUFFER_HEIGHT_OES, &backingHeight);
     
-    if (USE_DEPTH_BUFFER) {
+    if (allegro_display->extra_settings.settings[ALLEGRO_DEPTH_SIZE]) {
         glGenRenderbuffersOES(1, &depthRenderbuffer);
         glBindRenderbufferOES(GL_RENDERBUFFER_OES, depthRenderbuffer);
         glRenderbufferStorageOES(GL_RENDERBUFFER_OES, GL_DEPTH_COMPONENT16_OES, backingWidth, backingHeight);

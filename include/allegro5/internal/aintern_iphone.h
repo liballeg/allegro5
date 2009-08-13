@@ -7,7 +7,9 @@ typedef struct ALLEGRO_SYSTEM_IPHONE {
     
     ALLEGRO_MUTEX *mutex;
     ALLEGRO_COND *cond;
-    
+   
+   int visuals_count;
+   ALLEGRO_EXTRA_DISPLAY_SETTINGS **visuals;    
 } ALLEGRO_SYSTEM_IPHONE;
 
 typedef struct ALLEGRO_DISPLAY_IPHONE {
@@ -27,3 +29,5 @@ ALLEGRO_MOUSE_DRIVER *_al_get_iphone_mouse_driver(void);
 void _al_iphone_setup_opengl_view(ALLEGRO_DISPLAY *d);
 void _al_iphone_generate_mouse_event(unsigned int type,
    int x, int y, unsigned int button, ALLEGRO_DISPLAY *d);
+void _al_iphone_update_visuals(void);
+

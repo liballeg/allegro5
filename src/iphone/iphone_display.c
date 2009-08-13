@@ -4,6 +4,8 @@
 #include <allegro5/internal/aintern_memory.h>
 #include <allegro5/internal/aintern_opengl.h>
 
+ALLEGRO_DEBUG_CHANNEL("iphone")
+
 static ALLEGRO_DISPLAY_INTERFACE *vt;
 
 void _al_iphone_setup_opengl_view(ALLEGRO_DISPLAY *d)
@@ -59,6 +61,84 @@ static void setup_gl(ALLEGRO_DISPLAY *d)
     _al_iphone_setup_opengl_view(d);
 }
 
+
+static void set_rgba8888(ALLEGRO_EXTRA_DISPLAY_SETTINGS *eds)
+{
+   eds->settings[ALLEGRO_RED_SIZE] = 8;
+   eds->settings[ALLEGRO_GREEN_SIZE] = 8;
+   eds->settings[ALLEGRO_BLUE_SIZE] = 8;
+   eds->settings[ALLEGRO_ALPHA_SIZE] = 8;
+   eds->settings[ALLEGRO_RED_SHIFT] = 0;
+   eds->settings[ALLEGRO_GREEN_SHIFT] = 8;
+   eds->settings[ALLEGRO_BLUE_SHIFT] = 16;
+   eds->settings[ALLEGRO_ALPHA_SHIFT] = 24;
+   eds->settings[ALLEGRO_COLOR_SIZE] = 32;
+}
+
+static void set_rgb565(ALLEGRO_EXTRA_DISPLAY_SETTINGS *eds)
+{
+   eds->settings[ALLEGRO_RED_SIZE] = 5;
+   eds->settings[ALLEGRO_GREEN_SIZE] = 6;
+   eds->settings[ALLEGRO_BLUE_SIZE] = 5;
+   eds->settings[ALLEGRO_ALPHA_SIZE] = 0;
+   eds->settings[ALLEGRO_RED_SHIFT] = 0;
+   eds->settings[ALLEGRO_GREEN_SHIFT] = 5;
+   eds->settings[ALLEGRO_BLUE_SHIFT] = 11;
+   eds->settings[ALLEGRO_ALPHA_SHIFT] = 0;
+   eds->settings[ALLEGRO_COLOR_SIZE] = 16;
+}
+
+#define VISUALS_COUNT 4
+void _al_iphone_update_visuals(void)
+{
+   ALLEGRO_EXTRA_DISPLAY_SETTINGS *ref;
+   ALLEGRO_SYSTEM_IPHONE *system = (void *)al_system_driver();
+   
+   ref = _al_get_new_display_settings();
+   
+   /* If we aren't called the first time, only updated scores. */
+   if (system->visuals) {
+      for (int i = 0; i < system->visuals_count; i++) {
+         ALLEGRO_EXTRA_DISPLAY_SETTINGS *eds = system->visuals[0];
+         eds->score = _al_score_display_settings(eds, ref);
+      }
+      return;
+   }
+   
+   system->visuals = _AL_MALLOC(VISUALS_COUNT * sizeof(*system->visuals));
+   system->visuals_count = VISUALS_COUNT;
+   memset(system->visuals, 0, VISUALS_COUNT * sizeof(*system->visuals));
+   
+   for (int i = 0; i < VISUALS_COUNT; i++) {
+      ALLEGRO_EXTRA_DISPLAY_SETTINGS *eds = _AL_MALLOC(sizeof *eds);
+      memset(eds, 0, sizeof *eds);
+      eds->settings[ALLEGRO_RENDER_METHOD] = 1;
+      eds->settings[ALLEGRO_COMPATIBLE_DISPLAY] = 1;
+      eds->settings[ALLEGRO_SWAP_METHOD] = 2;
+      eds->settings[ALLEGRO_VSYNC] = 1;
+      switch (i) {
+         case 0:
+            set_rgba8888(eds);
+            break;
+         case 1:
+            set_rgb565(eds);
+            break;
+         case 2:
+            set_rgba8888(eds);
+            eds->settings[ALLEGRO_DEPTH_SIZE] = 16;
+            break;
+         case 3:
+            set_rgb565(eds);
+            eds->settings[ALLEGRO_DEPTH_SIZE] = 16;
+            break;
+            
+      }
+      eds->score = _al_score_display_settings(eds, ref);
+      eds->index = i;
+      system->visuals[i] = eds;
+   }   
+}
+
 static ALLEGRO_DISPLAY *iphone_create_display(int w, int h)
 {
     ALLEGRO_DISPLAY_IPHONE *d = _AL_MALLOC(sizeof *d);
@@ -80,19 +160,28 @@ static ALLEGRO_DISPLAY *iphone_create_display(int w, int h)
     
     /* Each display is an event source. */
     _al_event_source_init(&display->es);
+
+   _al_iphone_update_visuals();
+
+   ALLEGRO_EXTRA_DISPLAY_SETTINGS *eds[system->visuals_count];
+   memcpy(eds, system->visuals, sizeof(*eds) * system->visuals_count);
+   qsort(eds, system->visuals_count, sizeof(*eds), _al_display_settings_sorter);
+   
+   ALLEGRO_INFO("Chose visual no. %i\n", eds[0]->index); 
+
+   memcpy(&display->extra_settings, eds[0], sizeof(*eds));
+
+   /* This will add an OpenGL view with an OpenGL context, then return. */
+   _al_iphone_add_view(display);
+   _al_iphone_make_view_current();
+
+   _al_ogl_manage_extensions(display);
+   _al_ogl_set_extensions(ogl->extension_api);
+   setup_gl(display);
     
-    /* This will add an OpenGL view with an OpenGL context, then return. */
-    _al_iphone_add_view(display);
-    _al_iphone_make_view_current();
+   display->flags |= ALLEGRO_OPENGL;
 
-    _al_ogl_manage_extensions(display);
-    _al_ogl_set_extensions(ogl->extension_api);
-    setup_gl(display);
-    
-    display->flags |= ALLEGRO_OPENGL;
-
-
-    return display;
+   return display;
 }
 
 static void iphone_destroy_display(ALLEGRO_DISPLAY *d)

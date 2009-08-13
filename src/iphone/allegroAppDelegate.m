@@ -11,9 +11,14 @@ static allegroAppDelegate *global_delegate;
 
 void _al_iphone_add_view(ALLEGRO_DISPLAY *display)
 {
-    // FIXME?
-    [global_delegate.view set_allegro_display:display];
-    [global_delegate.view make_current];
+   [global_delegate set_allegro_display:display];
+   /* This is the same as
+    * [global_delegate.view add_view];
+    * except it will run in the main thread.
+    */
+   [global_delegate performSelectorOnMainThread: @selector(add_view) 
+      withObject:nil
+      waitUntilDone: YES];
 }
 
 void _al_iphone_make_view_current(void)
@@ -44,25 +49,27 @@ void _al_iphone_reset_framebuffer(void)
 
 void _al_iphone_run_user_main(void);
 - (void)applicationDidFinishLaunching:(UIApplication *)application {
-    ALLEGRO_INFO("App launched.\n");
+   ALLEGRO_INFO("App launched.\n");
     
-    application.statusBarHidden = true;
-    global_delegate = self;
-    
-    // FIXME: The view should be added when a display is created, since only
-    // then we can know things like color depth or depth buffer format. But it
-    // has to be done from this thread, not the user thread. Will have to figure
-    // something out.
-    [global_delegate add_view];
-    
-    _al_iphone_run_user_main();    
+   application.statusBarHidden = true;
+   global_delegate = self;
+
+   _al_iphone_run_user_main();   
 }
 
+- (void)set_allegro_display:(ALLEGRO_DISPLAY *)d {
+   allegro_display = d;
+}
+
+/* Note: This must be called from the main thread. Ask Apple why - but I tried
+ * it and otherwise things simply don't work (the screen just stays black).
+ */
 - (void)add_view {
-    window = [[UIWindow alloc] initWithFrame:[[UIScreen mainScreen] bounds]];
-    view = [[EAGLView alloc] initWithFrame:[[UIScreen mainScreen] bounds]];
-    [window addSubview:view];
-    [window makeKeyAndVisible];
+   window = [[UIWindow alloc] initWithFrame:[[UIScreen mainScreen] bounds]];
+   view = [[EAGLView alloc] initWithFrame:[[UIScreen mainScreen] bounds]];
+   [view set_allegro_display:allegro_display];
+   [window addSubview:view];
+   [window makeKeyAndVisible];
 }
 
 - (void)dealloc {

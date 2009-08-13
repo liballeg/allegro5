@@ -1,10 +1,12 @@
 #import <UIKit/UIKit.h>
+#include <allegro5/allegro5.h>
 
 @class EAGLView;
 
 @interface allegroAppDelegate : NSObject <UIApplicationDelegate> {
-    UIWindow *window;
-    EAGLView *view;    
+   UIWindow *window;
+   EAGLView *view;
+   ALLEGRO_DISPLAY *allegro_display;
 }
 
 @property (nonatomic, retain) UIWindow *window;
@@ -12,6 +14,7 @@
 
 + (void)run:(int)argc:(char **)argv;
 - (void)add_view;
+- (void)set_allegro_display:(ALLEGRO_DISPLAY *)d;
 
 @end
 
