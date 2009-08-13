@@ -1581,6 +1581,8 @@ static void d3d_display_thread_proc(void *arg)
       TRACE("Real fullscreen device created\n");
    }
 
+   al_display->backbuffer_format = _al_deduce_color_format(&al_display->extra_settings);
+
 
    d3d_display->device->GetDeviceCaps(&caps);
    d3d_can_wait_for_vsync = ((caps.Caps & D3DCAPS_READ_SCANLINE) != 0);
