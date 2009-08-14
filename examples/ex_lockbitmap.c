@@ -32,20 +32,16 @@ int main(void)
       return 1;
    }
 
-   /* Note: Usually it is a bad idea to create bitmaps not using the display
-    * format, as additional conversion may be necessary. In this example,
-    * we want direct access to the pixel memory though, so we better use
-    * a format we know how to modify.
-    */
-   al_set_new_bitmap_format(ALLEGRO_PIXEL_FORMAT_ARGB_8888);
-
    /* Create the bitmap. */
    bitmap = al_create_bitmap(3*256, 256);
 
-   /* Locking the bitmap means, we get direct access to its pixel data, in
-    * whatever format it uses.
+   /* Locking the bitmap means, we work directly with pixel data.  We can
+    * choose the format we want to work with, which may imply conversions, or
+    * use the bitmap's actual format so we can work directly with the bitmap's
+    * pixel data.
     */
-   locked = al_lock_bitmap(bitmap, ALLEGRO_PIXEL_FORMAT_ANY_32_NO_ALPHA, 0);
+   locked = al_lock_bitmap(bitmap, ALLEGRO_PIXEL_FORMAT_ARGB_8888,
+      ALLEGRO_LOCK_WRITEONLY);
    for (j = 0; j < 256; j++) {
       ptr = (uint8_t *)locked->data + j * locked->pitch;
 
