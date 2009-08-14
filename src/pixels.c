@@ -211,12 +211,20 @@ bool _al_pixel_format_fits(int format1, int format2)
  */
 static bool _al_try_display_format(int *format)
 {
-   int best_format = al_get_display_format();
-   int bytes = al_get_pixel_size(*format);
+   int best_format;
+   int bytes;
+
+   if (!al_get_current_display()) {
+      return false;
+   }
+
+   best_format = al_get_display_format();
+   bytes = al_get_pixel_size(*format);
    if (bytes && bytes != al_get_pixel_size(best_format))
       return false;
+
    if (_al_format_has_alpha(*format) && !_al_format_has_alpha(best_format)) {
-      switch(best_format) {
+      switch (best_format) {
          case ALLEGRO_PIXEL_FORMAT_RGBX_8888:
             *format = ALLEGRO_PIXEL_FORMAT_RGBA_8888;
             return true;
