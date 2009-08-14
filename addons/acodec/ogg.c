@@ -27,9 +27,6 @@ struct AL_OV_DATA {
    int bitstream;
    double loop_start;
    double loop_end;
-#ifdef ALLEGRO_GP2XWIZ
-   ogg_int64_t loop_start_raw;
-#endif
 };
 
 
@@ -89,19 +86,6 @@ static ov_callbacks callbacks = {
    close_callback,
    tell_callback
 };
-
-
-#ifdef ALLEGRO_GP2XWIZ
-ogg_int64_t ogg_get_raw_loop_start(AL_OV_DATA *extra, double start)
-{
-   ogg_int64_t save = ov_raw_tell(extra->vf);
-   ogg_int64_t loop_start_raw;
-   ov_time_seek(extra->vf, start*1000);
-   loop_start_raw = ov_raw_tell(extra->vf);
-   ov_raw_seek(extra->vf, save);
-   return loop_start_raw;
-}
-#endif
 
 
 /* Function: al_init_ogg_vorbis_addon
@@ -213,14 +197,7 @@ static bool ogg_stream_seek(ALLEGRO_STREAM *stream, double time)
 #ifndef ALLEGRO_GP2XWIZ
    return (ov_time_seek_lap(extra->vf, time) != -1);
 #else
-   /* We saved the loop start point for fast seeking */
-   if (time != 0 && time == extra->loop_start) {
-   	return (ov_raw_seek(extra->vf, extra->loop_start_raw) != -1);
-   }
-   else {
-   	/* This isn't very accurate, but the alternative is very slow */
-   	return (ov_time_seek_page(extra->vf, time*1000) != -1);
-   }
+   return ov_time_seek(extra->vf, time*1000) != -1;
 #endif
 }
 
@@ -262,13 +239,6 @@ static bool ogg_stream_set_loop(ALLEGRO_STREAM *stream, double start, double end
    extra->loop_start = start;
    extra->loop_end = end;
    
-#ifdef ALLEGRO_GP2XWIZ
-   /* This is the only way to get fast/accurate loop points with
-    * Tremor on slow devices.
-    */
-   extra->loop_start_raw = ogg_get_raw_loop_start(extra, start);
-#endif
-
    return true;
 }
 
@@ -417,9 +387,6 @@ ALLEGRO_STREAM *al_load_stream_ogg_vorbis(const char *filename,
    stream->extra = extra;
 
    extra->loop_start = 0.0;
-#ifdef ALLEGRO_GP2XWIZ
-   extra->loop_start_raw = ogg_get_raw_loop_start(extra, extra->loop_start);
-#endif
    extra->loop_end = ogg_stream_get_length(stream);
    stream->feed_thread = al_create_thread(_al_kcm_feed_stream, stream);
    stream->quit_feed_thread = false;
