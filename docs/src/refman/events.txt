@@ -20,52 +20,52 @@ Each event is of one of the following types:
 *   ALLEGRO_EVENT_JOYSTICK_AXIS - a joystick axis value changed.
 
     Fields are:
-    -	joystick.stick,
-    -	joystick.axis,
-    -	joystick.pos (-1.0 to 1.0).
+    -   joystick.stick,
+    -   joystick.axis,
+    -   joystick.pos (-1.0 to 1.0).
 
 *   ALLEGRO_EVENT_JOYSTICK_BUTTON_DOWN - a joystick button was pressed.
 
     Fields are:
-    -	joystick.button.
+    -   joystick.button.
   
 *   ALLEGRO_EVENT_JOYSTICK_BUTTON_UP - a joystick button was released.
 
     Fields are:
-    -	joystick.button.
+    -   joystick.button.
 
 *   ALLEGRO_EVENT_KEY_DOWN - a keyboard key was pressed.
 
     Fields:
-    -	keyboard.keycode,
-    -	keyboard.unichar,
-    -	keyboard.modifiers,
-    -	keyboard.display.
+    -   keyboard.keycode,
+    -   keyboard.unichar,
+    -   keyboard.modifiers,
+    -   keyboard.display.
 
 *   ALLEGRO_EVENT_KEY\_REPEAT - a typed character auto-repeated.
 
     Fields:
-    -	keyboard.keycode (ALLEGRO\_KEY\_\*),
-    -	keyboard.unichar (unicode character),
-    -	keyboard.modifiers (ALLEGRO\_KEYMOD\_\*),
-    -	keyboard.display.
+    -   keyboard.keycode (ALLEGRO\_KEY\_\*),
+    -   keyboard.unichar (unicode character),
+    -   keyboard.modifiers (ALLEGRO\_KEYMOD\_\*),
+    -   keyboard.display.
 
 *   ALLEGRO_EVENT_KEY_UP - a keyboard key was released.
 
     Fields:
-    -	keyboard.keycode,
-    -	keyboard.display.
+    -   keyboard.keycode,
+    -   keyboard.display.
 
 *   ALLEGRO_EVENT_MOUSE_AXES - one or more mouse axis values changed.
 
     Fields:
-    -	mouse.x,
-    -	mouse.y,
-    -	mouse.z,
-    -	mouse.dx,
-    -	mouse.dy,
-    -	mouse.dz,
-    -	mouse.display.
+    -   mouse.x,
+    -   mouse.y,
+    -   mouse.z,
+    -   mouse.dx,
+    -   mouse.dy,
+    -   mouse.dz,
+    -   mouse.display.
 
     Note: Calling [al_set_mouse_xy] also will result in a change of axis
     values, but such a change is reported with ALLEGRO_EVENT_MOUSE_WARPED
@@ -77,20 +77,20 @@ Each event is of one of the following types:
 *   ALLEGRO_EVENT_MOUSE_BUTTON_DOWN - a mouse button was pressed.
 
     Fields:
-    -	mouse.x,
-    -	mouse.y,
-    -	mouse.z,
-    -	mouse.button,
-    -	mouse.display.
+    -   mouse.x,
+    -   mouse.y,
+    -   mouse.z,
+    -   mouse.button,
+    -   mouse.display.
 
 *   ALLEGRO_EVENT_MOUSE_BUTTON_UP - a mouse button was released.
 
     Fields:
-    -	mouse.x,
-    -	mouse.y,
-    -	mouse.z,
-    -	mouse.button,
-    -	mouse.display.
+    -   mouse.x,
+    -   mouse.y,
+    -   mouse.z,
+    -   mouse.button,
+    -   mouse.display.
 
 *   ALLEGRO_EVENT_MOUSE_WARPED - [al_set_mouse_xy] was called to move the
     mouse. This event is identical to ALLEGRO_EVENT_MOUSE_AXES otherwise.
@@ -99,24 +99,24 @@ Each event is of one of the following types:
     opened by the program.
 
     Fields:
-    -	mouse.x,
-    -	mouse.y,
-    -	mouse.z,
-    -	mouse.display.
+    -   mouse.x,
+    -   mouse.y,
+    -   mouse.z,
+    -   mouse.display.
 
 *   ALLEGRO_EVENT_MOUSE_LEAVE_DISPLAY - the mouse cursor leave the boundaries
     of a window opened by the program.
 
     Fields:
-    -	mouse.x,
-    -	mouse.y,
-    -	mouse.z,
-    -	mouse.display.
+    -   mouse.x,
+    -   mouse.y,
+    -   mouse.z,
+    -   mouse.display.
 
 *   ALLEGRO_EVENT_TIMER - a timer counter incremented.
 
     Fields:
-    -	timer.count.
+    -   timer.count.
 
 *   ALLEGRO_EVENT_DISPLAY_EXPOSE - The display (or a portion thereof) has
     become visible.
@@ -124,18 +124,18 @@ Each event is of one of the following types:
     flag.
 
     Fields:
-    -	display.x,
-    -	display.y,
-    -	display.width,
-    -	display.height
+    -   display.x,
+    -   display.y,
+    -   display.width,
+    -   display.height
 
 *   ALLEGRO_EVENT_DISPLAY_RESIZE - The window has been resized.
 
     Fields:
-    -	display.x,
-    -	display.y,
-    -	display.width,
-    -	display.height
+    -   display.x,
+    -   display.y,
+    -   display.width,
+    -   display.height
 
 *   ALLEGRO_EVENT_DISPLAY_CLOSE - The close button of the window has been
     pressed.
@@ -231,23 +231,23 @@ structures with ALLEGRO_EVENT_SOURCE at the head, e.g.
     typedef struct THING THING;
 
     struct THING {
-	ALLEGRO_EVENT_SOURCE event_source;
-	int field1;
-	int field2;
-	/* etc. */
+        ALLEGRO_EVENT_SOURCE event_source;
+        int field1;
+        int field2;
+        /* etc. */
     };
 
     THING *create_thing(void)
     {
-	THING *thing = malloc(sizeof(THING));
+        THING *thing = malloc(sizeof(THING));
 
-	if (thing) {
-	    al_init_user_event_source(&thing->event_source);
-	    thing->field1 = 0;
-	    thing->field2 = 0;
-	}
+        if (thing) {
+            al_init_user_event_source(&thing->event_source);
+            thing->field1 = 0;
+            thing->field2 = 0;
+        }
 
-	return thing;
+        return thing;
     }
 
 The advantage here is that the THING pointer will be the same as the
