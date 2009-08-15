@@ -56,7 +56,6 @@ enum ALLEGRO_PRIM_TYPE {
 typedef struct ALLEGRO_PRIM_COLOR ALLEGRO_PRIM_COLOR;
 
 struct ALLEGRO_PRIM_COLOR {
-   float z;
    uint32_t d3d_color;
    float r, g, b, a;
 };

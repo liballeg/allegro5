@@ -27,7 +27,15 @@
 #ifdef ALLEGRO_CFG_D3D
 #include "allegro5/allegro_direct3d.h"
 
-#define A5V_FVF (D3DFVF_XYZ | D3DFVF_DIFFUSE | D3DFVF_TEX1)
+D3DVERTEXELEMENT9 allegro_vertex_decl[] =
+{
+  {0, 0, D3DDECLTYPE_FLOAT2, D3DDECLMETHOD_DEFAULT, D3DDECLUSAGE_POSITION, 0},
+  {0, 8, D3DDECLTYPE_D3DCOLOR, D3DDECLMETHOD_DEFAULT, D3DDECLUSAGE_COLOR, 0},
+  {0, 28, D3DDECLTYPE_FLOAT2, D3DDECLMETHOD_DEFAULT, D3DDECLUSAGE_TEXCOORD, 0},
+  D3DDECL_END()
+};
+
+IDirect3DVertexDeclaration9* allegro_vertex_def;
 
 static int al_blender_to_d3d(int al_mode)
 {
@@ -91,6 +99,7 @@ int _al_draw_prim_directx(ALLEGRO_BITMAP* texture, ALLEGRO_VERTEX* vtxs, int sta
    ALLEGRO_DISPLAY *display;
    LPDIRECT3DDEVICE9 device;
    LPDIRECT3DBASETEXTURE9 d3d_texture;
+   int old_wrap_state[2];
 
    display = al_get_current_display();
    device = al_d3d_get_device(display);
@@ -107,7 +116,16 @@ int _al_draw_prim_directx(ALLEGRO_BITMAP* texture, ALLEGRO_VERTEX* vtxs, int sta
       IDirect3DDevice9_SetTexture(device, 0, NULL);
    }
    
-   IDirect3DDevice9_SetFVF(device, A5V_FVF);
+   if(!allegro_vertex_def) {
+	   IDirect3DDevice9_CreateVertexDeclaration(device, allegro_vertex_decl, &allegro_vertex_def);
+   }
+   IDirect3DDevice9_SetVertexDeclaration(device, allegro_vertex_def);
+   
+   IDirect3DDevice9_GetSamplerState(device, 0, D3DSAMP_ADDRESSU, &old_wrap_state[0]);
+   IDirect3DDevice9_GetSamplerState(device, 0, D3DSAMP_ADDRESSV, &old_wrap_state[1]);
+   
+   IDirect3DDevice9_SetSamplerState(device, 0, D3DSAMP_ADDRESSU, D3DTADDRESS_WRAP);
+   IDirect3DDevice9_SetSamplerState(device, 0, D3DSAMP_ADDRESSV, D3DTADDRESS_WRAP);
 
    switch (type) {
       case ALLEGRO_PRIM_LINE_LIST: {
@@ -146,6 +164,9 @@ int _al_draw_prim_directx(ALLEGRO_BITMAP* texture, ALLEGRO_VERTEX* vtxs, int sta
       };
    }
 
+   IDirect3DDevice9_SetSamplerState(device, 0, D3DSAMP_ADDRESSU, &old_wrap_state[0]);
+   IDirect3DDevice9_SetSamplerState(device, 0, D3DSAMP_ADDRESSV, &old_wrap_state[1]);
+
    return num_primitives;
 #else
    (void)texture;
@@ -161,6 +182,21 @@ int _al_draw_prim_directx(ALLEGRO_BITMAP* texture, ALLEGRO_VERTEX* vtxs, int sta
 int _al_draw_prim_indexed_directx(ALLEGRO_BITMAP* texture, ALLEGRO_VERTEX* vtxs, const int* indices, int num_vtx, int type)
 {
 #ifdef ALLEGRO_CFG_D3D
+   /* FIXME: IDirect3DDevice9_DrawIndexedPrimitiveUP is incompatible with the freedom we allow for the contents of the indices array
+    * The function requires that the first index is the smallest index in the indices array. No such requirement is made at the
+	* primitives addon API level, so this function cannot be implemented directly.
+    */
+   ALLEGRO_VERTEX* buff = malloc(sizeof(ALLEGRO_VERTEX) * num_vtx);
+   int ii;
+   int ret;
+   for(ii = 0; ii < num_vtx; ii++) {
+      buff[ii] = vtxs[indices[ii]];
+   }
+   ret = _al_draw_prim_directx(texture, buff, 0, num_vtx, type);
+   free(buff);
+   return ret;
+   
+   /*
    int num_primitives = 0;
    ALLEGRO_VERTEX *vtx;
    ALLEGRO_DISPLAY *display;
@@ -221,6 +257,7 @@ int _al_draw_prim_indexed_directx(ALLEGRO_BITMAP* texture, ALLEGRO_VERTEX* vtxs,
    }
 
    return num_primitives;
+   */
 #else
    (void)texture;
    (void)vtxs;
