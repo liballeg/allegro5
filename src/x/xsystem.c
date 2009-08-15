@@ -325,14 +325,12 @@ static ALLEGRO_DISPLAY_INTERFACE *xglx_get_display_driver(void)
 
 static ALLEGRO_KEYBOARD_DRIVER *xglx_get_keyboard_driver(void)
 {
-   // FIXME: Select the best driver somehow
-   return _al_xwin_keyboard_driver_list[0].driver;
+   return _al_xwin_keyboard_driver();
 }
 
 static ALLEGRO_MOUSE_DRIVER *xglx_get_mouse_driver(void)
 {
-   // FIXME: Select the best driver somehow
-   return _al_xwin_mouse_driver_list[0].driver;
+   return _al_xwin_mouse_driver();
 }
 
 static ALLEGRO_JOYSTICK_DRIVER *xglx_get_joystick_driver(void)

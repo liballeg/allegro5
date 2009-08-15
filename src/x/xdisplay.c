@@ -6,7 +6,7 @@
 
 ALLEGRO_DEBUG_CHANNEL("display")
 
-static ALLEGRO_DISPLAY_INTERFACE *xdpy_vt;
+static ALLEGRO_DISPLAY_INTERFACE xdpy_vt;
 
 
 
@@ -199,7 +199,7 @@ static ALLEGRO_DISPLAY *xdpy_create_display(int w, int h)
 
    display->w = w;
    display->h = h;
-   display->vt = xdpy_vt;
+   display->vt = &xdpy_vt;
    display->refresh_rate = al_get_new_display_refresh_rate();
    display->flags = al_get_new_display_flags();
 
@@ -765,36 +765,33 @@ static bool xdpy_wait_for_vsync(ALLEGRO_DISPLAY *display)
 /* Obtain a reference to this driver. */
 ALLEGRO_DISPLAY_INTERFACE *_al_display_xglx_driver(void)
 {
-   if (xdpy_vt)
-      return xdpy_vt;
+   if (xdpy_vt.create_display)
+      return &xdpy_vt;
 
-   xdpy_vt = _AL_MALLOC(sizeof *xdpy_vt);
-   memset(xdpy_vt, 0, sizeof *xdpy_vt);
+   xdpy_vt.create_display = xdpy_create_display;
+   xdpy_vt.destroy_display = xdpy_destroy_display;
+   xdpy_vt.set_current_display = xdpy_set_current_display;
+   xdpy_vt.flip_display = xdpy_flip_display;
+   xdpy_vt.update_display_region = xdpy_update_display_region;
+   xdpy_vt.acknowledge_resize = xdpy_acknowledge_resize;
+   xdpy_vt.create_bitmap = _al_ogl_create_bitmap;
+   xdpy_vt.create_sub_bitmap = _al_ogl_create_sub_bitmap;
+   xdpy_vt.get_backbuffer = _al_ogl_get_backbuffer;
+   xdpy_vt.get_frontbuffer = _al_ogl_get_backbuffer;
+   xdpy_vt.set_target_bitmap = _al_ogl_set_target_bitmap;
+   xdpy_vt.is_compatible_bitmap = xdpy_is_compatible_bitmap;
+   xdpy_vt.resize_display = xdpy_resize_display;
+   xdpy_vt.set_icon = xdpy_set_icon;
+   xdpy_vt.set_window_title = xdpy_set_window_title;
+   xdpy_vt.set_window_position = xdpy_set_window_position;
+   xdpy_vt.get_window_position = xdpy_get_window_position;
+   xdpy_vt.toggle_frame = xdpy_toggle_frame;
+   xdpy_vt.wait_for_vsync = xdpy_wait_for_vsync;
 
-   xdpy_vt->create_display = xdpy_create_display;
-   xdpy_vt->destroy_display = xdpy_destroy_display;
-   xdpy_vt->set_current_display = xdpy_set_current_display;
-   xdpy_vt->flip_display = xdpy_flip_display;
-   xdpy_vt->update_display_region = xdpy_update_display_region;
-   xdpy_vt->acknowledge_resize = xdpy_acknowledge_resize;
-   xdpy_vt->create_bitmap = _al_ogl_create_bitmap;
-   xdpy_vt->create_sub_bitmap = _al_ogl_create_sub_bitmap;
-   xdpy_vt->get_backbuffer = _al_ogl_get_backbuffer;
-   xdpy_vt->get_frontbuffer = _al_ogl_get_backbuffer;
-   xdpy_vt->set_target_bitmap = _al_ogl_set_target_bitmap;
-   xdpy_vt->is_compatible_bitmap = xdpy_is_compatible_bitmap;
-   xdpy_vt->resize_display = xdpy_resize_display;
-   xdpy_vt->set_icon = xdpy_set_icon;
-   xdpy_vt->set_window_title = xdpy_set_window_title;
-   xdpy_vt->set_window_position = xdpy_set_window_position;
-   xdpy_vt->get_window_position = xdpy_get_window_position;
-   xdpy_vt->toggle_frame = xdpy_toggle_frame;
-   xdpy_vt->wait_for_vsync = xdpy_wait_for_vsync;
+   _al_xglx_add_cursor_functions(&xdpy_vt);
+   _al_ogl_add_drawing_functions(&xdpy_vt);
 
-   _al_xglx_add_cursor_functions(xdpy_vt);
-   _al_ogl_add_drawing_functions(xdpy_vt);
-
-   return xdpy_vt;
+   return &xdpy_vt;
 }
 
 /* vi: set sts=3 sw=3 et: */

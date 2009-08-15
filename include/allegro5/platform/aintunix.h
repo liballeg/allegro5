@@ -31,20 +31,6 @@ extern "C" {
 
    AL_FUNC(ALLEGRO_PATH *, _al_unix_get_path, (int id));
 
-   /* Helper for locating config files */
-   AL_FUNC(int, _unix_find_resource, (char *dest, AL_CONST char *resource, int size));
-
-   /* Helper for setting os_type */
-   AL_FUNC(void, _unix_read_os_type, (void));
-
-
-   /* Helper for yield CPU */
-   AL_FUNC(void, _unix_yield_timeslice, (void));
-
-
-   /* Unix rest function */
-   AL_FUNC(void, _unix_rest, (unsigned int, AL_METHOD(void, callback, (void))));
-
 
    /* Module support */
    AL_FUNC(void, _unix_load_modules, (int system_driver_id));
@@ -57,12 +43,6 @@ extern "C" {
    AL_VAR(_DRIVER_INFO *, _unix_midi_driver_list);
    AL_FUNC(void, _unix_driver_lists_init, (void));
    AL_FUNC(void, _unix_driver_lists_shutdown, (void));
-
-
-#ifdef ALLEGRO_WITH_XWINDOWS
-   AL_ARRAY(_DRIVER_INFO, _al_xwin_keyboard_driver_list);
-   AL_ARRAY(_DRIVER_INFO, _al_xwin_mouse_driver_list);
-#endif
 
 
 #ifdef __cplusplus

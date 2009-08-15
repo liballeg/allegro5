@@ -865,12 +865,10 @@ static ALLEGRO_KEYBOARD_DRIVER keydrv_xwin =
 
 
 
-/* list the available drivers */
-_DRIVER_INFO _al_xwin_keyboard_driver_list[] =
+ALLEGRO_KEYBOARD_DRIVER *_al_xwin_keyboard_driver(void)
 {
-   {  KEYDRV_XWIN, &keydrv_xwin, true  },
-   {  0,           NULL,         0     }
-};
+   return &keydrv_xwin;
+}
 
 
 

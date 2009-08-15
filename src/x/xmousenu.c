@@ -88,12 +88,10 @@ static ALLEGRO_MOUSE_DRIVER mousedrv_xwin =
 
 
 
-/* list the available drivers */
-_DRIVER_INFO _al_xwin_mouse_driver_list[] =
+ALLEGRO_MOUSE_DRIVER *_al_xwin_mouse_driver(void)
 {
-   {  MOUSEDRV_XWIN, &mousedrv_xwin, true  },
-   {  0,             NULL,           false }
-};
+   return &mousedrv_xwin;
+}
 
 
 
