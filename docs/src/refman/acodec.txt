@@ -1,6 +1,8 @@
 # Audio codecs
 
-## API: al_init_flac_addon
+## FLAC addon
+
+### API: al_init_flac_addon
 
 This function to registers [al_load_sample_flac] with [al_load_sample] to
 handle files with the extension ".flac".  You will need to include the
@@ -8,13 +10,15 @@ handle files with the extension ".flac".  You will need to include the
 
 Return true on success.
 
-## API: al_load_sample_flac
+### API: al_load_sample_flac
 
 Loads a sample in FLAC format.
 
 See also: [al_load_sample]
 
-## API: al_init_ogg_vorbis_addon
+## Ogg Vorbis addon
+
+### API: al_init_ogg_vorbis_addon
 
 This function to registers [al_load_sample_ogg_vorbis] with [al_load_sample]
 and [al_load_stream_ogg_vorbis] with [al_stream_from_file] to handle files
@@ -23,13 +27,13 @@ include the `allegro_vorbis.h` header file and link with the `allegro_vorbis` li
 
 Return true on success.
 
-## API: al_load_sample_ogg_vorbis
+### API: al_load_sample_ogg_vorbis
 
 Loads a sample in Ogg Vorbis format.
 
 See also: [al_load_sample]
 
-## API: al_load_stream_ogg_vorbis
+### API: al_load_stream_ogg_vorbis
 
 Loads a stream in Ogg Vorbis format.
 

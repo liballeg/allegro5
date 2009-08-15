@@ -770,6 +770,8 @@ Sets the loop points for the stream in seconds.
 Currently this can only be called on WAV and OGG streams created with
 [al_stream_from_file].
 
+## Audio file I/O
+
 ### API: al_register_sample_loader
 
 Register a handler for [al_load_sample].  The given function will be used to
