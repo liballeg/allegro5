@@ -35,10 +35,11 @@ static int debug_trace_virgin = true;
 static FILE *assert_file = NULL;
 static FILE *trace_file = NULL;
 
-static int (*assert_handler)(AL_CONST char *msg) = NULL;
-int (*_al_trace_handler)(AL_CONST char *msg) = NULL;
+static int (*assert_handler)(const char *msg) = NULL;
+int (*_al_trace_handler)(const char *msg) = NULL;
 
-struct
+
+typedef struct DEBUG_INFO
 {
    /* 0: debug, 1: info, 2: warn, 3: error */
    int level;
@@ -49,17 +50,22 @@ struct
    _AL_VECTOR excluded;
    /* Whether settings have been read from allegro5.cfg or not. */
    bool configured;
-} _al_debug_info = {
+} DEBUG_INFO;
+
+DEBUG_INFO _al_debug_info =
+{
    0,
    7,
    _AL_VECTOR_INITIALIZER(ALLEGRO_USTR *),
    _AL_VECTOR_INITIALIZER(ALLEGRO_USTR *),
-   false};
+   false
+};
+
 
 /* dynamic registration system for cleanup code */
 struct al_exit_func {
    void (*funcptr)(void);
-   AL_CONST char *desc;
+   const char *desc;
    struct al_exit_func *next;
 };
 
@@ -72,7 +78,7 @@ static struct al_exit_func *exit_func_list = NULL;
  *  `desc' should point to a statically allocated string to help with
  *  debugging.
  */
-void _al_add_exit_func(void (*func)(void), AL_CONST char *desc)
+void _al_add_exit_func(void (*func)(void), const char *desc)
 {
    struct al_exit_func *n;
 
@@ -155,7 +161,7 @@ static void debug_exit(void)
 /* al_assert:
  *  Raises an assert (uses ASCII strings).
  */
-void al_assert(AL_CONST char *file, int line)
+void al_assert(const char *file, int line)
 {
    static int asserted = false;
    int olderr = errno;
@@ -194,22 +200,15 @@ void al_assert(AL_CONST char *file, int line)
    else {
       asserted = true;
 
-/*
-      if ((system_driver) && (system_driver->assert)) {
-	 system_driver->assert(buf);
-      }
-      else {
-      */
-//	 al_uninstall_system();
 #ifndef ALLEGRO_MSVC
-	 fprintf(stderr, "%s\n", buf);
+      fprintf(stderr, "%s\n", buf);
 #endif
-	 abort();
-     // }
+      abort();
    }
 
    errno = olderr;
 }
+
 
 
 static void delete_string_list(_AL_VECTOR *v)
@@ -222,6 +221,7 @@ static void delete_string_list(_AL_VECTOR *v)
    }
    _al_vector_free(v);
 }
+
 
 
 static void configure_logging(void)
@@ -316,16 +316,23 @@ bool _al_trace_prefix(char const *channel, int level,
       configure_logging();
    }
 
-   if (level < _al_debug_info.level) return false;
+   if (level < _al_debug_info.level)
+      return false;
+
    v = &_al_debug_info.channels;
-   if (_al_vector_is_empty(v)) goto yes;
+   if (_al_vector_is_empty(v))
+      goto channel_included;
+
    for (i = 0; i < _al_vector_size(v); i++) {
       ALLEGRO_USTR **iter = _al_vector_ref(v, i);
       if (!strcmp(al_cstr(*iter), channel))
-         goto yes;
+         goto channel_included;
    }
+
    return false;
-yes:
+
+channel_included:
+
    v = &_al_debug_info.excluded;
    if (_al_vector_is_nonempty(v)) {
       for (i = 0; i < _al_vector_size(v); i++) {
@@ -334,6 +341,7 @@ yes:
             return false;
       }
    }
+
    al_trace("%-8s ", channel);
    if (level == 0) al_trace("D ");
    if (level == 1) al_trace("I ");
@@ -341,9 +349,12 @@ yes:
    if (level == 3) al_trace("E ");
 
    name = strrchr(file, '/');
-   if (_al_debug_info.flags & 1) al_trace("%20s:%-4d ",
-      name ? name + 1 : file, line);
-   if (_al_debug_info.flags & 2) al_trace("%-32s ", function);
+   if (_al_debug_info.flags & 1) {
+      al_trace("%20s:%-4d ", name ? name + 1 : file, line);
+   }
+   if (_al_debug_info.flags & 2) {
+      al_trace("%-32s ", function);
+   }
    if (_al_debug_info.flags & 4) {
       double t = al_current_time();
       /* Kludge:
@@ -357,10 +368,12 @@ yes:
    return true;
 }
 
+
+
 /* al_trace:
  *  Outputs a trace message (uses ASCII strings).
  */
-void al_trace(AL_CONST char *msg, ...)
+void al_trace(const char *msg, ...)
 {
    int olderr = errno;
    char buf[512];
@@ -409,20 +422,20 @@ void al_trace(AL_CONST char *msg, ...)
 
 
 
-/* register_assert_handler:
+/* al_register_assert_handler:
  *  Installs a user handler for assert failures.
  */
-void register_assert_handler(int (*handler)(AL_CONST char *msg))
+void al_register_assert_handler(int (*handler)(const char *msg))
 {
    assert_handler = handler;
 }
 
 
 
-/* register_trace_handler:
+/* al_register_trace_handler:
  *  Installs a user handler for trace output.
  */
-void register_trace_handler(int (*handler)(AL_CONST char *msg))
+void al_register_trace_handler(int (*handler)(const char *msg))
 {
    _al_trace_handler = handler;
 }

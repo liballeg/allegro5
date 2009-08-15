@@ -28,11 +28,11 @@
 AL_FUNC(bool, _al_trace_prefix, (char const *channel, int level,
    char const *file, int line, char const *function));
 
-AL_FUNC(void, al_assert, (AL_CONST char *file, int linenr));
-AL_PRINTFUNC(void, al_trace, (AL_CONST char *msg, ...), 1, 2);
+AL_FUNC(void, al_assert, (const char *file, int linenr));
+AL_PRINTFUNC(void, al_trace, (const char *msg, ...), 1, 2);
 
-AL_FUNC(void, register_assert_handler, (AL_METHOD(int, handler, (AL_CONST char *msg))));
-AL_FUNC(void, register_trace_handler, (AL_METHOD(int, handler, (AL_CONST char *msg))));
+AL_FUNC(void, al_register_assert_handler, (AL_METHOD(int, handler, (const char *msg))));
+AL_FUNC(void, al_register_trace_handler, (AL_METHOD(int, handler, (const char *msg))));
 
 
 #ifdef DEBUGMODE
