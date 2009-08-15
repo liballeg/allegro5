@@ -3,7 +3,7 @@
 
 #include "allegro5/allegro5.h"
 
-/* Conversionf for most pixels */
+/* Conversion for most pixels */
 #define ALLEGRO_SHIFT_CONVERT(p, \
 		a_mask, a_lshift, a_rshift, \
 		r_mask, r_lshift, r_rshift, \
@@ -253,11 +253,11 @@
 	((p >> 8) | 0xFF000000)
 
 #define ALLEGRO_CONVERT_RGBA_8888_TO_RGBA_4444(p) \
-	ALLEGRO_SHIFT_CONVERT(p, \
-		0x000000F0, 8, 0, \
-		0xF0000000, 0, 28, \
-		0x00F00000, 0, 16, \
-		0x0000F000, 0, 4)
+   ALLEGRO_SHIFT_CONVERT(p, \
+      0xF0000000, 0, 16, \
+      0x00F00000, 0, 12, \
+      0x0000F000, 0, 8, \
+      0x000000F0, 0, 4)
 
 /* ARGB_4444 */
 
@@ -1196,12 +1196,12 @@
 		0x00FF0000, 0, 16)
 
 #define ALLEGRO_CONVERT_BGR_888_TO_RGBA_4444(p) \
-	(0xF | \
-	ALLEGRO_SHIFT_CONVERT(p, \
-		0, 0, 0, \
-		0x0000F0, 0, 16, \
-		0x00F000, 4, 0, \
-		0xF00000, 0, 16))
+   (0xF | \
+   ALLEGRO_SHIFT_CONVERT(p, \
+      0x0000F0, 8, 0, \
+      0x00F000, 0, 4, \
+      0xF00000, 0, 16, \
+      0, 0, 0))
 
 /* BGR_565 */
 
@@ -1424,13 +1424,12 @@
 		0x7C00, 0, 10) | 0xFF000000)
 
 #define ALLEGRO_CONVERT_BGR_555_TO_RGBA_4444(p) \
-	(0xF | \
-	ALLEGRO_SHIFT_CONVERT(p, \
-		0, 0, 0, \
-		0x001E, 4, 0, \
-		0x03C0, 2, 0, \
-		0x7800, 0, 7))
-
+   (0xF | \
+   ALLEGRO_SHIFT_CONVERT(p, \
+      0x001E, 12, 1, \
+      0x03C0, 8, 6, \
+      0x7800, 4, 11, \
+      0, 0, 0))
 
 /* RGBX_8888 */
 
@@ -1524,12 +1523,12 @@
 	((p >> 8) | 0xFF000000)
 
 #define ALLEGRO_CONVERT_RGBX_8888_TO_RGBA_4444(p) \
-	(0xF | \
-	ALLEGRO_SHIFT_CONVERT(p, \
-		0, 0, 0, \
-		0xF0000000, 0, 8, \
-		0x00F00000, 0, 12, \
-		0x0000F000, 0, 8))
+   (0xF | \
+   ALLEGRO_SHIFT_CONVERT(p, \
+      0xF0000000, 12, 28, \
+      0x00F00000, 8, 20, \
+      0x0000F000, 4, 12, \
+      0, 0, 0))
 
 /* XRGB_8888 */
 
