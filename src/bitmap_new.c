@@ -743,8 +743,8 @@ void _al_convert_bitmap_data(
    if (src_format == dst_format) {
       int y;
       int size = al_get_pixel_size(src_format);
-      char *src_ptr = src + sy * src_pitch + sx * size;
-      char *dst_ptr = dst + dy * dst_pitch + dx * size;
+      char *src_ptr = ((char *)src) + sy * src_pitch + sx * size;
+      char *dst_ptr = ((char *)dst) + dy * dst_pitch + dx * size;
       width *= size;
       for (y = 0; y < height; y++) {
          memcpy(dst_ptr, src_ptr, width);

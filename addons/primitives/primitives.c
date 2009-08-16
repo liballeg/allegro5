@@ -173,6 +173,8 @@ ALLEGRO_PRIM_COLOR al_get_prim_color(ALLEGRO_COLOR col)
    ret.a = col.a;
 #ifdef ALLEGRO_CFG_D3D
    ret.d3d_color = D3DCOLOR_COLORVALUE(col.r, col.g, col.b, col.a);
+#else
+   ret.d3d_color = 0;
 #endif
    return ret;
 }
