@@ -65,7 +65,7 @@ if(SUPPORT_FONT AND SUPPORT_AUDIO AND SUPPORT_VORBIS)
 
     target_link_libraries(demo
         ${FONT_LINK_WITH}
-        ${IIO_LINK_WITH}
+        ${IMAGE_LINK_WITH}
         ${VORBIS_LINK_WITH}
         ${AUDIO_LINK_WITH}
         )

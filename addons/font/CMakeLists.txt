@@ -7,7 +7,7 @@ include_directories(../image)
 add_our_library(allegro_font -${ALLEGRO_VERSION}
     "${FONT_SOURCES}"
     "-DALLEGRO_FONT_SRC"
-    "${IIO_LINK_WITH}"
+    "${IMAGE_LINK_WITH}"
     )
 
 set(FONT_LINK_WITH allegro_font PARENT_SCOPE)

@@ -1,35 +1,35 @@
-set(IIO_SOURCES bmp.c iio.c pcx.c tga.c)
-set(IIO_INCLUDE_FILES allegro5/allegro_image.h)
+set(IMAGE_SOURCES bmp.c iio.c pcx.c tga.c)
+set(IMAGE_INCLUDE_FILES allegro5/allegro_image.h)
 
 # Accumulate these.
-set(IIO_LIBRARIES)
-set(IIO_DEFINES)
+set(IMAGE_LIBRARIES)
+set(IMAGE_DEFINES)
 
-if(WANT_PNG)
+if(WANT_IMAGE_PNG)
     find_package(PNG)
     if(PNG_FOUND)
         set(ALLEGRO_CFG_IIO_HAVE_PNG 1)
-        list(APPEND IIO_SOURCES png.c)
-        list(APPEND IIO_LIBRARIES ${PNG_LIBRARIES})
-        list(APPEND IIO_DEFINES ${PNG_DEFINITIONS})
+        list(APPEND IMAGE_SOURCES png.c)
+        list(APPEND IMAGE_LIBRARIES ${PNG_LIBRARIES})
+        list(APPEND IMAGE_DEFINES ${PNG_DEFINITIONS})
         include_directories(${PNG_INCLUDE_DIR})
     else(PNG_FOUND)
         message("WARNING: libpng not found, disabling support")
     endif(PNG_FOUND)
-endif(WANT_PNG)
+endif(WANT_IMAGE_PNG)
 
-if(WANT_JPG)
+if(WANT_IMAGE_JPG)
     find_package(JPEG)
     if(JPEG_FOUND)
         set(ALLEGRO_CFG_IIO_HAVE_JPG 1)
-        list(APPEND IIO_SOURCES jpg.c)
-        list(APPEND IIO_LIBRARIES ${JPEG_LIBRARIES})
-        list(APPEND IIO_DEFINES ${JPEG_DEFINITIONS})
+        list(APPEND IMAGE_SOURCES jpg.c)
+        list(APPEND IMAGE_LIBRARIES ${JPEG_LIBRARIES})
+        list(APPEND IMAGE_DEFINES ${JPEG_DEFINITIONS})
         include_directories(${JPEG_INCLUDE_DIR})
     else(JPEG_FOUND)
         message("WARNING: libjpeg not found, disabling support")
     endif(JPEG_FOUND)
-endif(WANT_JPG)
+endif(WANT_IMAGE_JPG)
 
 configure_file(
     allegro5/internal/aintern_image_cfg.h.cmake
@@ -37,14 +37,14 @@ configure_file(
     )
 
 add_our_library(allegro_image -${ALLEGRO_VERSION}
-    "${IIO_SOURCES}"
+    "${IMAGE_SOURCES}"
     "-DA5_IIO_SRC"
-    "${ALLEGRO_LINK_WITH};${IIO_LIBRARIES}"
+    "${ALLEGRO_LINK_WITH};${IMAGE_LIBRARIES}"
     )
 
-set(IIO_LINK_WITH allegro_image PARENT_SCOPE)
+set(IMAGE_LINK_WITH allegro_image PARENT_SCOPE)
 
-install(FILES ${IIO_INCLUDE_FILES}
+install(FILES ${IMAGE_INCLUDE_FILES}
         DESTINATION include/allegro5
         )
 

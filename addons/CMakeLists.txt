@@ -3,17 +3,17 @@
 # FOO_LINK_WITH should be the name of a single target.  The target should
 # automatically pull in dependencies so they don't need to be listed.
 
-if(WANT_IIO)
+if(WANT_IMAGE)
     add_subdirectory(image)
-    set(IIO_LINK_WITH ${IIO_LINK_WITH} PARENT_SCOPE)
-    set(SUPPORT_IIO 1 PARENT_SCOPE)
+    set(IMAGE_LINK_WITH ${IMAGE_LINK_WITH} PARENT_SCOPE)
+    set(SUPPORT_IMAGE 1 PARENT_SCOPE)
 
     if(WANT_FONT)
         add_subdirectory(font)
         set(FONT_LINK_WITH ${FONT_LINK_WITH} PARENT_SCOPE)
         set(SUPPORT_FONT 1 PARENT_SCOPE)
     endif(WANT_FONT)
-endif(WANT_IIO)
+endif(WANT_IMAGE)
 
 if(WANT_AUDIO)
     add_subdirectory(audio)

@@ -1,5 +1,5 @@
-#ifndef A5_IIO_H
-#define A5_IIO_H
+#ifndef __al_included_allegro_image_h
+#define __al_included_allegro_image_h
 
 #if (defined ALLEGRO_MINGW32) || (defined ALLEGRO_MSVC) || (defined ALLEGRO_BCC32)
    #ifndef ALLEGRO_STATICLINK
@@ -79,5 +79,5 @@ A5_IIO_FUNC(bool, al_save_jpg_entry, (ALLEGRO_FILE *pf, ALLEGRO_BITMAP *bmp));
 }
 #endif
 
-#endif // A5_IIO_H
+#endif
 
