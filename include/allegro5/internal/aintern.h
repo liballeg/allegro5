@@ -36,21 +36,6 @@ AL_FUNC(void, _al_rotate_scale_flip_coordinates, (fixed w, fixed h,
    fixed scale_x, fixed scale_y, int h_flip, int v_flip,
    fixed xs[4], fixed ys[4]));
 
-/* default truecolor pixel format */
-#define DEFAULT_RGB_R_SHIFT_15  0
-#define DEFAULT_RGB_G_SHIFT_15  5
-#define DEFAULT_RGB_B_SHIFT_15  10
-#define DEFAULT_RGB_R_SHIFT_16  0
-#define DEFAULT_RGB_G_SHIFT_16  5
-#define DEFAULT_RGB_B_SHIFT_16  11
-#define DEFAULT_RGB_R_SHIFT_24  0
-#define DEFAULT_RGB_G_SHIFT_24  8
-#define DEFAULT_RGB_B_SHIFT_24  16
-#define DEFAULT_RGB_R_SHIFT_32  0
-#define DEFAULT_RGB_G_SHIFT_32  8
-#define DEFAULT_RGB_B_SHIFT_32  16
-#define DEFAULT_RGB_A_SHIFT_32  24
-
 #if (defined allegro_windows)
 
    al_func(int, _al_win_open, (const char *filename, int mode, int perm));

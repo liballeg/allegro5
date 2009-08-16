@@ -212,11 +212,6 @@ static INLINE int single_tga_read16(ALLEGRO_FILE *f)
    value = al_fread16le(f);
 
    return value;
-   /*
-      (((value >> 10) & 0x1F) << _rgb_r_shift_15) |
-      (((value >> 5) & 0x1F) << _rgb_g_shift_15)  |
-      ((value & 0x1F) << _rgb_b_shift_15);
-    */
 }
 
 

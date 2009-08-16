@@ -30,22 +30,6 @@ extern void blit_end(void);   /* for LOCK_FUNCTION; defined in blit.c */
 #define PREFIX_W                "al-gfx WARNING: "
 #define PREFIX_E                "al-gfx ERROR: "
 
-
-int _rgb_r_shift_15 = DEFAULT_RGB_R_SHIFT_15;     /* truecolor pixel format */
-int _rgb_g_shift_15 = DEFAULT_RGB_G_SHIFT_15;
-int _rgb_b_shift_15 = DEFAULT_RGB_B_SHIFT_15;
-int _rgb_r_shift_16 = DEFAULT_RGB_R_SHIFT_16;
-int _rgb_g_shift_16 = DEFAULT_RGB_G_SHIFT_16;
-int _rgb_b_shift_16 = DEFAULT_RGB_B_SHIFT_16;
-int _rgb_r_shift_24 = DEFAULT_RGB_R_SHIFT_24;
-int _rgb_g_shift_24 = DEFAULT_RGB_G_SHIFT_24;
-int _rgb_b_shift_24 = DEFAULT_RGB_B_SHIFT_24;
-int _rgb_r_shift_32 = DEFAULT_RGB_R_SHIFT_32;
-int _rgb_g_shift_32 = DEFAULT_RGB_G_SHIFT_32;
-int _rgb_b_shift_32 = DEFAULT_RGB_B_SHIFT_32;
-int _rgb_a_shift_32 = DEFAULT_RGB_A_SHIFT_32;
-
-
 /* lookup table for scaling 1 bit colors up to 8 bits */
 const int _rgb_scale_1[2] =
 {
