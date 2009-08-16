@@ -43,10 +43,10 @@
          case ALLEGRO_PIXEL_FORMAT_ARGB_4444: {                               \
             uint16_t _gp_pixel = *(uint16_t *)(data);                         \
             _AL_MAP_RGBA(color,                                               \
-               _rgb_scale_4[(_gp_pixel & 0x0F00) >> 8],                       \
-               _rgb_scale_4[(_gp_pixel & 0x00F0) >> 4],                       \
-               _rgb_scale_4[(_gp_pixel & 0x000F)],                            \
-               _rgb_scale_4[(_gp_pixel & 0xF000) >>  12]);                    \
+               _al_rgb_scale_4[(_gp_pixel & 0x0F00) >> 8],                       \
+               _al_rgb_scale_4[(_gp_pixel & 0x00F0) >> 4],                       \
+               _al_rgb_scale_4[(_gp_pixel & 0x000F)],                            \
+               _al_rgb_scale_4[(_gp_pixel & 0xF000) >>  12]);                    \
             if (advance)                                                      \
                data += 2;                                                     \
             break;                                                            \
@@ -67,9 +67,9 @@
          case ALLEGRO_PIXEL_FORMAT_RGB_565: {                                 \
             uint16_t _gp_pixel = *(uint16_t *)(data);                         \
             _AL_MAP_RGBA(color,                                               \
-               _rgb_scale_5[(_gp_pixel & 0xF800) >> 11],                      \
-               _rgb_scale_6[(_gp_pixel & 0x07E0) >> 5],                       \
-               _rgb_scale_5[(_gp_pixel & 0x001F)],                            \
+               _al_rgb_scale_5[(_gp_pixel & 0xF800) >> 11],                      \
+               _al_rgb_scale_6[(_gp_pixel & 0x07E0) >> 5],                       \
+               _al_rgb_scale_5[(_gp_pixel & 0x001F)],                            \
                255);                                                          \
             if (advance)                                                      \
                data += 2;                                                     \
@@ -79,9 +79,9 @@
          case ALLEGRO_PIXEL_FORMAT_RGB_555: {                                 \
             uint16_t _gp_pixel = *(uint16_t *)(data);                         \
             _AL_MAP_RGBA(color,                                               \
-               _rgb_scale_5[(_gp_pixel & 0x7C00) >> 10],                      \
-               _rgb_scale_5[(_gp_pixel & 0x03E0) >> 5],                       \
-               _rgb_scale_5[(_gp_pixel & 0x001F)],                            \
+               _al_rgb_scale_5[(_gp_pixel & 0x7C00) >> 10],                      \
+               _al_rgb_scale_5[(_gp_pixel & 0x03E0) >> 5],                       \
+               _al_rgb_scale_5[(_gp_pixel & 0x001F)],                            \
                255);                                                          \
             if (advance)                                                      \
                data += 2;                                                     \
@@ -91,9 +91,9 @@
          case ALLEGRO_PIXEL_FORMAT_RGBA_5551: {                               \
             uint16_t _gp_pixel = *(uint16_t *)(data);                         \
             _AL_MAP_RGBA(color,                                               \
-               _rgb_scale_5[(_gp_pixel & 0xF800) >> 11],                      \
-               _rgb_scale_5[(_gp_pixel & 0x07C0) >> 6],                       \
-               _rgb_scale_5[(_gp_pixel & 0x003E) >> 1],                       \
+               _al_rgb_scale_5[(_gp_pixel & 0xF800) >> 11],                      \
+               _al_rgb_scale_5[(_gp_pixel & 0x07C0) >> 6],                       \
+               _al_rgb_scale_5[(_gp_pixel & 0x003E) >> 1],                       \
                255);                                                          \
             if (advance)                                                      \
                data += 2;                                                     \
@@ -103,9 +103,9 @@
          case ALLEGRO_PIXEL_FORMAT_ARGB_1555: {                               \
             uint16_t _gp_pixel = *(uint16_t *)(data);                         \
             _AL_MAP_RGBA(color,                                               \
-               _rgb_scale_5[(_gp_pixel & 0x7C00) >> 10],                      \
-               _rgb_scale_5[(_gp_pixel & 0x03E0) >> 5],                       \
-               _rgb_scale_5[(_gp_pixel & 0x001F)],                            \
+               _al_rgb_scale_5[(_gp_pixel & 0x7C00) >> 10],                      \
+               _al_rgb_scale_5[(_gp_pixel & 0x03E0) >> 5],                       \
+               _al_rgb_scale_5[(_gp_pixel & 0x001F)],                            \
                255);                                                          \
             if (advance)                                                      \
                data += 2;                                                     \
@@ -151,9 +151,9 @@
          case ALLEGRO_PIXEL_FORMAT_BGR_565: {                                 \
             uint16_t _gp_pixel = *(uint16_t *)(data);                         \
             _AL_MAP_RGBA(color,                                               \
-               _rgb_scale_5[(_gp_pixel & 0x001F)],                            \
-               _rgb_scale_6[(_gp_pixel & 0x07E0) >> 5],                       \
-               _rgb_scale_5[(_gp_pixel & 0xF800) >> 11],                      \
+               _al_rgb_scale_5[(_gp_pixel & 0x001F)],                            \
+               _al_rgb_scale_6[(_gp_pixel & 0x07E0) >> 5],                       \
+               _al_rgb_scale_5[(_gp_pixel & 0xF800) >> 11],                      \
                255);                                                          \
             if (advance)                                                      \
                data += 2;                                                     \
@@ -163,9 +163,9 @@
          case ALLEGRO_PIXEL_FORMAT_BGR_555: {                                 \
             uint16_t _gp_pixel = *(uint16_t *)(data);                         \
             _AL_MAP_RGBA(color,                                               \
-               _rgb_scale_5[(_gp_pixel & 0x001F)],                            \
-               _rgb_scale_5[(_gp_pixel & 0x03E0) >> 5],                       \
-               _rgb_scale_5[(_gp_pixel & 0x7C00) >> 10],                      \
+               _al_rgb_scale_5[(_gp_pixel & 0x001F)],                            \
+               _al_rgb_scale_5[(_gp_pixel & 0x03E0) >> 5],                       \
+               _al_rgb_scale_5[(_gp_pixel & 0x7C00) >> 10],                      \
                255);                                                          \
             if (advance)                                                      \
                data += 2;                                                     \
@@ -218,10 +218,10 @@
          case ALLEGRO_PIXEL_FORMAT_RGBA_4444: {                               \
             uint16_t _gp_pixel = *(uint16_t *)(data);                         \
             _AL_MAP_RGBA(color,                                               \
-               _rgb_scale_4[(_gp_pixel & 0xF000) >> 12],                      \
-               _rgb_scale_4[(_gp_pixel & 0x0F00) >> 8],                       \
-               _rgb_scale_4[(_gp_pixel & 0x00F0) >> 4],                       \
-               _rgb_scale_4[(_gp_pixel & 0x000F)]);                           \
+               _al_rgb_scale_4[(_gp_pixel & 0xF000) >> 12],                      \
+               _al_rgb_scale_4[(_gp_pixel & 0x0F00) >> 8],                       \
+               _al_rgb_scale_4[(_gp_pixel & 0x00F0) >> 4],                       \
+               _al_rgb_scale_4[(_gp_pixel & 0x000F)]);                           \
             if (advance)                                                      \
                data += 2;                                                     \
             break;                                                            \
@@ -446,6 +446,10 @@
       }                                                                       \
    } while (0)
 
+AL_ARRAY(int, _al_rgb_scale_1);
+AL_ARRAY(int, _al_rgb_scale_4);
+AL_ARRAY(int, _al_rgb_scale_5);
+AL_ARRAY(int, _al_rgb_scale_6);
 AL_ARRAY(float, _al_u8_to_float);
 AL_FUNC(void, _al_init_pixels, (void));
 

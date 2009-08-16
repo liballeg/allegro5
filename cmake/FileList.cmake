@@ -13,7 +13,6 @@ set(ALLEGRO_SRC_FILES
     src/file_stdio.c
     src/fshook.c
     src/fshook_stdio.c
-    src/graphics.c
     src/inline.c
     src/joynu.c
     src/keybdnu.c
@@ -294,7 +293,6 @@ set(ALLEGRO_INCLUDE_ALLEGRO_FILES
     include/allegro5/altime.h
     include/allegro5/base.h
     include/allegro5/bitmap_new.h
-    include/allegro5/color.h
     include/allegro5/color_new.h
     include/allegro5/config.h
     include/allegro5/debug.h

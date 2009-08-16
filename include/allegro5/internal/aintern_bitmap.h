@@ -101,6 +101,10 @@ struct ALLEGRO_BITMAP_INTERFACE
    void (*unlock_region)(ALLEGRO_BITMAP *bitmap);
 };
 
+extern void (*_al_convert_funcs[ALLEGRO_NUM_PIXEL_FORMATS]
+   [ALLEGRO_NUM_PIXEL_FORMATS])(void *, int, void *, int,
+   int, int, int, int, int, int);
+
 /* Bitmap conversion */
 void _al_convert_bitmap_data(
 	void *src, int src_format, int src_pitch,

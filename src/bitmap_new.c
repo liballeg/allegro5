@@ -732,4 +732,30 @@ void _al_convert_to_memory_bitmap(ALLEGRO_BITMAP *bitmap)
    _AL_FREE(tmp);
 }
 
+void _al_convert_bitmap_data(
+   void *src, int src_format, int src_pitch,
+   void *dst, int dst_format, int dst_pitch,
+   int sx, int sy, int dx, int dy, int width, int height)
+{
+   ASSERT(_al_pixel_format_is_real(dst_format));
+
+   /* Use memcpy if no conversion is needed. */
+   if (src_format == dst_format) {
+      int y;
+      int size = al_get_pixel_size(src_format);
+      char *src_ptr = src + sy * src_pitch + sx * size;
+      char *dst_ptr = dst + dy * dst_pitch + dx * size;
+      width *= size;
+      for (y = 0; y < height; y++) {
+         memcpy(dst_ptr, src_ptr, width);
+         src_ptr += src_pitch;
+         dst_ptr += dst_pitch;
+      }
+      return;
+   }
+
+   (_al_convert_funcs[src_format][dst_format])(src, src_pitch,
+      dst, dst_pitch, sx, sy, dx, dy, width, height);
+}
+
 /* vim: set ts=8 sts=3 sw=3 et: */

@@ -45,7 +45,6 @@
 
 #include "allegro5/display_new.h"
 #include "allegro5/bitmap_new.h"
-#include "allegro5/color.h"
 
 #include "allegro5/tls.h"
 

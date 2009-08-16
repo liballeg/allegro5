@@ -26,7 +26,10 @@
 
 /* lookup table for scaling 8 bit integers up to floats [0.0, 1.0] */
 float _al_u8_to_float[256];
-
+int _al_rgb_scale_1[2];
+int _al_rgb_scale_4[16];
+int _al_rgb_scale_5[32];
+int _al_rgb_scale_6[64];
 
 static int pixel_sizes[] = {
    0, /* ALLEGRO_PIXEL_FORMAT_ANY */
@@ -168,6 +171,19 @@ static bool format_is_real[ALLEGRO_NUM_PIXEL_FORMATS] =
    true, /* ALLEGRO_PIXEL_FORMAT_ABGR_LE */
    true /* ALLEGRO_PIXEL_FORMAT_RGBA_4444 */
 };
+
+/* lookup table for scaling 1 bit colors up to 8 bits */
+const int _rgb_scale_1[2];
+
+/* lookup table for scaling 4 bit colors up to 8 bits */
+const int _rgb_scale_4[16];
+
+/* lookup table for scaling 5 bit colors up to 8 bits */
+const int _rgb_scale_5[32];
+
+/* lookup table for scaling 6 bit colors up to 8 bits */
+const int _rgb_scale_6[64];
+
 
 bool _al_pixel_format_is_real(int format)
 {
@@ -481,6 +497,18 @@ void _al_init_pixels(void)
    int i;
    for (i = 0; i < 256; i++)
       _al_u8_to_float[i] = i / 255.0;
+
+   for (i = 0; i < 2; i++)
+      _al_rgb_scale_1[i] = i * 255 / 1;
+
+   for (i = 0; i < 16; i++)
+      _al_rgb_scale_4[i] = i * 255 / 15;
+
+   for (i = 0; i < 32; i++)
+      _al_rgb_scale_5[i] = i * 255 / 31;
+
+   for (i = 0; i < 64; i++)
+      _al_rgb_scale_6[i] = i * 255 / 63;
 }
 
 /* vim: set sts=3 sw=3 et: */

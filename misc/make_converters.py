@@ -1,0 +1,400 @@
+#!/usr/bin/env python
+import optparse, re, sys
+
+formats_by_name = {}
+formats_list = []
+
+def read_bitmap_h(filename):
+    """
+    Read in the list of formats.
+    """
+    formats = []
+    inside_enum = False
+    for line in open(filename):
+        line = line.strip()
+        if line == "enum ALLEGRO_PIXEL_FORMAT {": inside_enum = True
+        elif inside_enum:
+            match = re.match(r"\s*ALLEGRO_PIXEL_FORMAT_(\w+)", line)
+            if match:
+                formats.append(match.group(1))
+            else:
+                break
+    return formats
+
+def parse_format(format):
+    """
+    Parse the format name into an info structure.
+    """
+    if format.startswith("ANY"): return None
+
+    separator = format.find("_")
+    class Info: pass
+    class Component: pass
+    pos = 0
+    info = Info()
+    info.components = {}
+    info.name = format
+    info.little_endian = "LE" in format
+
+    if "F32" in format:
+        info.float = True
+        info.size = 128
+        info.name = format
+        return info
+    
+    for i in range(separator):
+        c = Component()
+        c.color = format[i]
+        c.size = int(format[separator + 1 + i])
+        c.position_from_left = pos
+        info.components[c.color] = c
+        pos += c.size
+    size = pos
+    for c in info.components.values():
+        c.position = size - c.position_from_left - c.size
+    info.size = size
+
+    info.float = False
+    return info
+
+def macro_lines(info_a, info_b):
+    """
+    Write out the lines of a conversion macro.
+    """
+    r = ""
+
+    names = info_b.components.keys()
+    names.sort()
+
+    if info_a.float:
+        lines = []
+        for name in names:
+            if name == "X": continue
+            c = info_b.components[name]
+            mask = (1 << c.size) - 1
+            lines.append(
+                "((uint32_t)((x)." + name.lower() + " * " + str(mask) +
+                ") << " + str(c.position) + ")")
+        r += "   ("
+        r += " | \\\n    ".join(lines)
+        r += ")\n"
+        return r
+
+    if info_b.float:
+        lines = []
+        for name in "RGBA":
+            if name not in info_a.components: break
+            c = info_a.components[name]
+            mask = (1 << c.size) - 1
+            line = "((x) >> " + str(c.position) + ") & " + str(mask)
+            if c.size < 8:
+                line = "_al_rgb_scale_" + str(c.size) + "[" + line + "]"
+            lines.append(line)
+
+        r += "   al_map_rgba(" if len(lines) == 4 else "   al_map_rgb("
+        r += ",\\\n   ".join(lines)
+        r += ")\n"
+        return r
+
+    # Generate a list of (mask, shift, add) tuples for all components.
+    ops = {}
+    for name in names:
+        if name == "X": continue # We simply ignore X components.
+        c_b = info_b.components[name]
+        if name not in info_a.components:
+            # Set A component to all 1 bits if the source doesn't have it.
+            if name == "A":
+                add = (1 << c_b.size) - 1
+                add <<= c_b.position
+                ops[name] = (0, 0, add)
+            continue
+        c_a = info_a.components[name]
+        mask = (1 << c_b.size) - 1
+        shift_right = c_a.position
+        mask_pos = c_a.position
+        shift_left = c_b.position
+        bitdiff = c_a.size - c_b.size
+        if bitdiff > 0:
+            shift_right += bitdiff
+            mask_pos += bitdiff
+        else:
+            shift_left -= bitdiff
+            mask = (1 << c_a.size) - 1
+
+        mask <<= mask_pos
+        shift = shift_left - shift_right
+        ops[name] = (mask, shift, 0)
+
+    # Collapse multiple components if possible.
+    common_shifts = {}
+    for name, (mask, shift, add) in ops.items():
+        if not add:
+            if shift in common_shifts: common_shifts[shift].append(name)
+            else: common_shifts[shift] = [name]
+    for shift, colors in common_shifts.items():
+        if len(colors) == 1: continue
+        newname = ""
+        newmask = 0
+        colors.sort()
+        for name in colors:
+            names.remove(name)
+            newname += name
+            newmask |= ops[name][0]
+        names.append(newname)
+        ops[newname] = (newmask, shift, 0)
+
+    # Write out a line for each remaining operation.
+    lines = []
+    add_format = "0x%0" + str(info_b.size >> 2) + "x"
+    mask_format = "0x%0" + str(info_a.size >> 2) + "x"
+    for name in names:
+        if not name in ops: continue
+        mask, shift, add = ops[name]
+        if add:
+            line = "(" + (add_format % add) + ")"
+            lines.append((line, name))
+            continue
+        mask_string = "((x) & " + (mask_format % mask) + ")"
+        if shift > 0:
+            line = mask_string + " << %2d" % shift
+        elif shift < 0:
+            line = mask_string + " >> %2d" % -shift
+        else:
+            line = mask_string + "      "
+        lines.append((line, name))
+
+    # Concoct the macro.
+    for i in range(len(lines)):
+        line, name = lines[i]
+        if i == 0: start = "   ("
+        else: start = "    "
+        if i == len(lines) - 1: cont = ")   "
+        else: cont = " | \\"
+        r += start + "(" + line + ")" + " /* " + name + " */" + cont + "\n"
+    return r
+
+
+def converter_macro(info_a, info_b):
+    """
+    Create a conversion macro.
+    """
+    if not info_a or not info_b: return None
+
+    name = "ALLEGRO_CONVERT_" + info_a.name + "_TO_" + info_b.name
+
+    r = ""
+
+    if info_a.little_endian or info_b.little_endian:
+        r += "#ifdef ALLEGRO_BIG_ENDIAN\n"
+        r += "#define " + name + "(x) \\\n"
+        if info_a.name == "ABGR_8888_LE":
+            r += macro_lines(formats_by_name["RGBA_8888"], info_b)
+        elif info_b.name == "ABGR_8888_LE":
+            r += macro_lines(info_a, formats_by_name["RGBA_8888"])
+        else:
+            r += "#error Conversion %s -> %s not understood by make_converts.py" % (
+                info_a.name, info_b.name)
+        r += "#else\n"
+        r += "#define " + name + "(x) \\\n"
+        r += macro_lines(info_a, info_b)
+        r += "#endif\n"
+    else:
+        r += "#define " + name + "(x) \\\n"
+        r += macro_lines(info_a, info_b)
+
+    return r
+
+def write_convert_h(filename):
+    """
+    Create the file with all the conversion macros.
+    """
+    f = open(filename, "w")
+    f.write("""\
+// Warning: This file was created by make_converters.py - do not edit.
+#ifndef _ALLEGRO_CONVERT_H
+#define _ALLEGRO_CONVERT_H
+
+#include "allegro5/allegro5.h"
+#include "allegro5/internal/aintern_pixels.h"
+""")
+
+    for a in formats_list:
+        for b in formats_list:
+            if b == a: continue
+            macro = converter_macro(a, b)
+            if macro:
+                f.write(macro)
+
+    f.write("""\
+#endif
+// Warning: This file was created by make_converters.py - do not edit.
+""")
+
+def converter_function(info_a, info_b):
+    """
+    Create a string with one conversion function.
+    """
+    name = info_a.name.lower() + "_to_" + info_b.name.lower()
+    params = "void *src, int src_pitch,\n"
+    params += "   void *dst, int dst_pitch,\n"
+    params += "   int sx, int sy, int dx, int dy, int width, int height"
+    declaration = "static void " + name + "(" + params + ")"
+
+    macro_name = "ALLEGRO_CONVERT_" + info_a.name + "_TO_" + info_b.name
+
+    types_and_sizes = {
+        8 : ("uint8_t", "", 1),
+        15 : ("uint16_t", "", 2),
+        16 : ("uint16_t", "", 2),
+        24: ("uint8_t", " * 3", 1),
+        32 : ("uint32_t", "", 4),
+        128 : ("ALLEGRO_COLOR", "", 16)}
+    a_type, a_count, a_size = types_and_sizes[info_a.size]
+    b_type, b_count, b_size = types_and_sizes[info_b.size]
+
+    if a_count == "" and b_count == "":
+        conversion = """\
+         *dst_ptr = %(macro_name)s(*src_ptr);
+         dst_ptr++;
+         src_ptr++;""" % locals()
+    else:
+
+        if a_count != "":
+            s_conversion = """\
+         #ifdef ALLEGRO_BIG_ENDIAN
+         int src_pixel = src_ptr[2] | (src_ptr[1] << 8) | (src_ptr[0] << 16);
+         #else
+         int src_pixel = src_ptr[0] | (src_ptr[1] << 8) | (src_ptr[2] << 16);
+         #endif
+""" % locals()
+
+        if b_count != "":
+            d_conversion = """\
+         #ifdef ALLEGRO_BIG_ENDIAN
+         dst_ptr[0] = dst_pixel >> 16;
+         dst_ptr[1] = dst_pixel >> 8;
+         dst_ptr[2] = dst_pixel;
+         #else
+         dst_ptr[0] = dst_pixel;
+         dst_ptr[1] = dst_pixel >> 8;
+         dst_ptr[2] = dst_pixel >> 16;
+         #endif
+""" % locals()
+
+        if a_count != "" and b_count != "":
+            conversion = s_conversion + ("""\
+         int dst_pixel = %(macro_name)s(src_pixel);
+""" % locals()) + d_conversion
+
+        elif a_count != "":
+            conversion = s_conversion + ("""\
+         *dst_ptr = %(macro_name)s(src_pixel);
+""" % locals())
+
+        else:
+            conversion = ("""\
+         int dst_pixel = %(macro_name)s(*src_ptr);
+""" % locals()) + d_conversion
+
+        conversion += """\
+         src_ptr += 1%(a_count)s;
+         dst_ptr += 1%(b_count)s;""" % locals()
+
+    r = declaration + "\n"
+    r += "{\n"
+    r += """\
+   int y;
+   %(a_type)s *src_ptr = (void *)((char *)src + sy * src_pitch);
+   %(b_type)s *dst_ptr = (void *)((char *)dst + dy * dst_pitch);
+   int src_gap = src_pitch / %(a_size)d - width%(a_count)s;
+   int dst_gap = dst_pitch / %(b_size)d - width%(b_count)s;
+   src_ptr += sx%(a_count)s;
+   dst_ptr += dx%(b_count)s;
+   for (y = 0; y < height; y++) {
+      %(b_type)s *dst_end = dst_ptr + width%(b_count)s;
+      while (dst_ptr < dst_end) {
+%(conversion)s
+      }
+      src_ptr += src_gap;
+      dst_ptr += dst_gap;
+   }
+""" % locals()
+
+    r += "}\n"
+
+    return r
+
+def write_convert_c(filename):
+    """
+    Write out the file with the conversion functions.
+    """
+    f = open(filename, "w")
+    f.write("""\
+// Warning: This file was created by make_converters.py - do not edit.
+#include "allegro5/allegro5.h"
+#include "allegro5/internal/aintern_bitmap.h"
+#include "allegro5/convert.h"
+""")
+
+    for a in formats_list:
+        for b in formats_list:
+            if b == a: continue
+            if not a or not b: continue
+            function = converter_function(a, b)
+            f.write(function)
+
+    f.write("""\
+void (*_al_convert_funcs[ALLEGRO_NUM_PIXEL_FORMATS]
+   [ALLEGRO_NUM_PIXEL_FORMATS])(void *, int, void *, int,
+   int, int, int, int, int, int) = {
+""")
+    for a in formats_list:
+        if not a:
+            f.write("   {NULL},\n")
+        else:
+            f.write("   {")
+            was_null = False
+            for b in formats_list:
+                if b and a != b:
+                    name = a.name.lower() + "_to_" + b.name.lower()
+                    f.write("\n      " + name + ",")
+                    was_null = False
+                else:
+                    if not was_null: f.write("\n     ")
+                    f.write(" NULL,")
+                    was_null = True
+            f.write("\n   },\n")
+
+    f.write("""\
+};
+
+// Warning: This file was created by make_converters.py - do not edit.
+""")
+
+def main(argv):
+    global options
+    p = optparse.OptionParser()
+    p.description = """\
+When run from the toplevel A5 folder, this will re-create the convert.h and
+convert.c files containing all the low-level color conversion macros and
+functions."""
+    options, args = p.parse_args()
+
+    # Read in bitmap.h to get the available formats.
+    formats = read_bitmap_h("include/allegro5/bitmap_new.h")
+
+    # Parse the component info for each format.
+    for f in formats:
+        info = parse_format(f)
+        formats_by_name[f] = info
+        formats_list.append(info)
+
+    # Output a macro for each possible conversion.
+    write_convert_h("include/allegro5/internal/aintern_convert.h")
+
+    # Output a function for each possible conversion.
+    write_convert_c("src/convert.c")
+
+if __name__ == "__main__":
+    main(sys.argv)
+

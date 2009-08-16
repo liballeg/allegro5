@@ -25,6 +25,7 @@
 #include "allegro5/allegro5.h"
 #include "allegro5/fshook.h"
 #include "allegro5/allegro_image.h"
+#include "allegro5/internal/aintern_pixels.h"
 
 #include "iio.h"
 
@@ -452,9 +453,9 @@ ALLEGRO_BITMAP *al_load_tga_entry(ALLEGRO_FILE *f)
                for (i = 0; i < image_width; i++) {
                   int true_x = (left_to_right) ? i : (image_width - 1 - i);
                   int pix = *((unsigned short *)(buf + i * 2));
-                  int r = _rgb_scale_5[(pix >> 10)];
-                  int g = _rgb_scale_5[(pix >> 5) & 0x1F];
-                  int b = _rgb_scale_5[(pix & 0x1F)];
+                  int r = _al_rgb_scale_5[(pix >> 10)];
+                  int g = _al_rgb_scale_5[(pix >> 5) & 0x1F];
+                  int b = _al_rgb_scale_5[(pix & 0x1F)];
                   ALLEGRO_COLOR color = al_map_rgb(r, g, b);
                   al_put_pixel(true_x, true_y, color);
                }
