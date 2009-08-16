@@ -104,11 +104,7 @@ void _al_draw_bitmap_region_memory(ALLEGRO_BITMAP *bitmap,
 
    if (src_mode == ALLEGRO_ONE && src_alpha == ALLEGRO_ONE &&
       dst_mode == ALLEGRO_ZERO && dst_alpha == ALLEGRO_ZERO &&
-      ic->r == 1.0f && ic->g == 1.0f && ic->b == 1.0f && ic->a == 1.0f &&
-      // FIXME: Those should not have to be special cased - but see
-      // comments in memblit1.c.
-      bitmap->format != ALLEGRO_PIXEL_FORMAT_ABGR_F32 &&
-      dest->format != ALLEGRO_PIXEL_FORMAT_ABGR_F32)
+      ic->r == 1.0f && ic->g == 1.0f && ic->b == 1.0f && ic->a == 1.0f)
    {
       _al_draw_bitmap_region_memory_fast(bitmap, sx, sy, sw, sh, dx, dy, flags);
       return;
@@ -1062,35 +1058,21 @@ void _al_draw_bitmap_region_memory_fast(ALLEGRO_BITMAP *bitmap,
    if (!(flags & ALLEGRO_FLIP_HORIZONTAL) &&
          !(flags & ALLEGRO_FLIP_VERTICAL)) {
       if (!(src_region = al_lock_bitmap_region(bitmap, sx, sy, sw, sh,
-            ALLEGRO_PIXEL_FORMAT_ANY, ALLEGRO_LOCK_READONLY))) {
+            bitmap->format, ALLEGRO_LOCK_READONLY))) {
          return;
       }
 
       if (!(dst_region = al_lock_bitmap_region(dest, dx, dy, sw, sh,
-         ALLEGRO_PIXEL_FORMAT_ANY, ALLEGRO_LOCK_WRITEONLY))) {
+         dest->format, ALLEGRO_LOCK_WRITEONLY))) {
             al_unlock_bitmap(bitmap);
          return;
       }
 
-      /* Formats the same */
-      if (bitmap->format == dest->format) {
-         int size = al_get_pixel_size(bitmap->format);
-         int bytes = size*sw;
-         unsigned char *src_data = src_region->data;
-         unsigned char *dst_data = dst_region->data;
-         for (y = 0; y < sh; y++) {
-            memcpy(dst_data, src_data, bytes);
-            src_data += src_region->pitch;
-            dst_data += dst_region->pitch;
-         }
-      }
-      /* differing formats */
-      else {
-         _al_convert_bitmap_data(
-            src_region->data, bitmap->format, src_region->pitch,
-            dst_region->data, dest->format, dst_region->pitch,
-            0, 0, 0, 0, sw, sh);
-      }
+      /* will detect if no conversion is needed */
+      _al_convert_bitmap_data(
+         src_region->data, bitmap->format, src_region->pitch,
+         dst_region->data, dest->format, dst_region->pitch,
+         0, 0, 0, 0, sw, sh);
 
       al_unlock_bitmap(bitmap);
       al_unlock_bitmap(dest);
@@ -1141,7 +1123,7 @@ void _al_draw_bitmap_region_memory_fast(ALLEGRO_BITMAP *bitmap,
 
       for (y = 0; y < sh; y++) {
          int cdx = cdx_start;
-         for (x = 0; x < sw; x++) { 
+         for (x = 0; x < sw; x++) {
             pixel = *(uint32_t *)(((char *)src_region->data) + y * src_region->pitch + x * 4);
             *(uint32_t *)(((char *)dst_region->data) + cdy * dst_region->pitch + cdx * 4) = pixel;
             cdx += dxi;
