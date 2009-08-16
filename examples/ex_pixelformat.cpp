@@ -74,6 +74,8 @@ private:
    List dest_list;
    Label true_formats;
    ToggleButton use_memory_button;
+   ToggleButton enable_timing_button;
+   Label time_label;
 
 public:
    Prog(const Theme & theme, ALLEGRO_DISPLAY *display);
@@ -91,7 +93,9 @@ Prog::Prog(const Theme & theme, ALLEGRO_DISPLAY *display) :
    source_list(List()),
    dest_list(List()),
    true_formats(Label("")),
-   use_memory_button(ToggleButton("Use memory bitmaps"))
+   use_memory_button(ToggleButton("Use memory bitmaps")),
+   enable_timing_button(ToggleButton("Enable timing")),
+   time_label(Label(""))
 {
    d.add(source_label, 11, 0, 4,  1);
    d.add(source_list,  11, 1, 4, 27);
@@ -99,6 +103,8 @@ Prog::Prog(const Theme & theme, ALLEGRO_DISPLAY *display) :
    d.add(dest_list,    15, 1, 4, 27);
    d.add(true_formats, 0, 15, 10, 1);
    d.add(use_memory_button,  0, 17, 10, 2);
+   d.add(enable_timing_button,  0, 19, 10, 2);
+   d.add(time_label,  0, 21, 10, 1);
 
    for (unsigned i = 0; i < NUM_FORMATS; i++) {
       source_list.append_item(formats[i].name);
@@ -131,6 +137,7 @@ void Prog::draw_sample()
    ALLEGRO_BITMAP *bitmap1;
    ALLEGRO_BITMAP *bitmap2;
    bool use_memory = use_memory_button.get_pushed();
+   bool enable_timing = enable_timing_button.get_pushed();
    
    if (use_memory)
       al_set_new_bitmap_flags(ALLEGRO_MEMORY_BITMAP);
@@ -156,10 +163,24 @@ void Prog::draw_sample()
    al_set_blender(ALLEGRO_ONE, ALLEGRO_ZERO, al_map_rgb(255, 255, 255));
 
    if (bitmap1 && bitmap2) {
+      double t0, t1;
+      char str[256];
+      int i = 0;
       al_set_target_bitmap(bitmap2);
-      al_draw_bitmap(bitmap1, 0, 0, 0);
+      t0 = al_current_time();
+      printf("Timing...\n");
+      while (1) {
+        al_draw_bitmap(bitmap1, 0, 0, 0);
+        i++;
+        t1 = al_current_time();
+        if (t1 - t0 > 0.25  || !enable_timing) break;
+      }
+      printf("    ...done.\n");
       al_set_target_bitmap(al_get_backbuffer());
       al_draw_bitmap(bitmap2, 0, 0, 0);
+
+      sprintf(str, "%.1f k FPS", (double)i / (t1 - t0) / 1000.0);
+      time_label.set_text(str);
    }
    else {
       al_draw_line(0, 0, 320, 200, al_map_rgb_f(1, 0, 0), 0);
