@@ -3,7 +3,8 @@
 
 @class EAGLView;
 
-@interface allegroAppDelegate : NSObject <UIApplicationDelegate> {
+@interface allegroAppDelegate : NSObject <UIApplicationDelegate,
+   UIAccelerometerDelegate> {
    UIWindow *window;
    EAGLView *view;
    ALLEGRO_DISPLAY *allegro_display;

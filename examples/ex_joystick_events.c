@@ -80,7 +80,7 @@ static void main_loop(void)
    ALLEGRO_EVENT event;
 
    while (true) {
-      draw_all();
+      if (al_event_queue_is_empty(event_queue)) draw_all();
 
       al_wait_for_event(event_queue, &event);
 

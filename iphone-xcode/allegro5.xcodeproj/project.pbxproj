@@ -51,10 +51,8 @@
 		64839155102AF35000D508EE /* base.h in Headers */ = {isa = PBXBuildFile; fileRef = 648390E1102AF35000D508EE /* base.h */; };
 		64839156102AF35000D508EE /* bealleg.h in Headers */ = {isa = PBXBuildFile; fileRef = 648390E2102AF35000D508EE /* bealleg.h */; };
 		64839157102AF35000D508EE /* bitmap_new.h in Headers */ = {isa = PBXBuildFile; fileRef = 648390E3102AF35000D508EE /* bitmap_new.h */; };
-		64839158102AF35000D508EE /* color.h in Headers */ = {isa = PBXBuildFile; fileRef = 648390E4102AF35000D508EE /* color.h */; };
 		64839159102AF35000D508EE /* color_new.h in Headers */ = {isa = PBXBuildFile; fileRef = 648390E5102AF35000D508EE /* color_new.h */; };
 		6483915A102AF35000D508EE /* config.h in Headers */ = {isa = PBXBuildFile; fileRef = 648390E6102AF35000D508EE /* config.h */; };
-		6483915B102AF35000D508EE /* convert.h in Headers */ = {isa = PBXBuildFile; fileRef = 648390E7102AF35000D508EE /* convert.h */; };
 		6483915C102AF35000D508EE /* debug.h in Headers */ = {isa = PBXBuildFile; fileRef = 648390E8102AF35000D508EE /* debug.h */; };
 		6483915D102AF35000D508EE /* display_new.h in Headers */ = {isa = PBXBuildFile; fileRef = 648390E9102AF35000D508EE /* display_new.h */; };
 		6483915E102AF35000D508EE /* error.h in Headers */ = {isa = PBXBuildFile; fileRef = 648390EA102AF35000D508EE /* error.h */; };
@@ -164,7 +162,6 @@
 		648391C6102AF3D400D508EE /* file_stdio.c in Sources */ = {isa = PBXBuildFile; fileRef = 64839003102AF2CF00D508EE /* file_stdio.c */; };
 		648391C7102AF3D400D508EE /* fshook.c in Sources */ = {isa = PBXBuildFile; fileRef = 64839004102AF2CF00D508EE /* fshook.c */; };
 		648391C8102AF3D400D508EE /* fshook_stdio.c in Sources */ = {isa = PBXBuildFile; fileRef = 64839005102AF2CF00D508EE /* fshook_stdio.c */; };
-		648391C9102AF3EE00D508EE /* graphics.c in Sources */ = {isa = PBXBuildFile; fileRef = 6483900B102AF2CF00D508EE /* graphics.c */; };
 		648391CA102AF3EE00D508EE /* inline.c in Sources */ = {isa = PBXBuildFile; fileRef = 6483900C102AF2CF00D508EE /* inline.c */; };
 		648391CB102AF3EE00D508EE /* joynu.c in Sources */ = {isa = PBXBuildFile; fileRef = 6483900F102AF2CF00D508EE /* joynu.c */; };
 		648391CC102AF3EE00D508EE /* keybdnu.c in Sources */ = {isa = PBXBuildFile; fileRef = 64839010102AF2CF00D508EE /* keybdnu.c */; };
@@ -183,6 +180,15 @@
 		648391D9102AF3EE00D508EE /* timernu.c in Sources */ = {isa = PBXBuildFile; fileRef = 6483903F102AF2CF00D508EE /* timernu.c */; };
 		648391DA102AF3EE00D508EE /* tls.c in Sources */ = {isa = PBXBuildFile; fileRef = 64839040102AF2CF00D508EE /* tls.c */; };
 		648391DB102AF3EE00D508EE /* utf8.c in Sources */ = {isa = PBXBuildFile; fileRef = 6483904F102AF2CF00D508EE /* utf8.c */; };
+		6485CBA01038B9720094FDE9 /* iphone_joystick.m in Sources */ = {isa = PBXBuildFile; fileRef = 6485CB9F1038B9720094FDE9 /* iphone_joystick.m */; };
+		6485CBD61038BEB00094FDE9 /* data in Resources */ = {isa = PBXBuildFile; fileRef = 642F7F97102DD0B6001249EE /* data */; };
+		6485CBDA1038BEB00094FDE9 /* liballegro.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 648390D4102AF31500D508EE /* liballegro.a */; };
+		6485CBDB1038BEB00094FDE9 /* liba5_image.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 642F7B04102B2A45001249EE /* liba5_image.a */; };
+		6485CBDC1038BEB00094FDE9 /* liba5_font.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 64FAD2EA1031E26D004E35A1 /* liba5_font.a */; };
+		6485CBDD1038BEB00094FDE9 /* OpenGLES.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 28FD14FF0DC6FC520079059D /* OpenGLES.framework */; };
+		6485CBDE1038BEB00094FDE9 /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 28FD15070DC6FC5B0079059D /* QuartzCore.framework */; };
+		6485CBDF1038BEB00094FDE9 /* liba5_primitives.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 64FACF941031B4C8004E35A1 /* liba5_primitives.a */; };
+		6485CBE71038BF180094FDE9 /* ex_joystick_events.c in Sources */ = {isa = PBXBuildFile; fileRef = 642F79F0102B27C5001249EE /* ex_joystick_events.c */; };
 		64FACF9B1031B55C004E35A1 /* high_primitives.c in Sources */ = {isa = PBXBuildFile; fileRef = 64FACD6F10305B1E004E35A1 /* high_primitives.c */; };
 		64FACF9C1031B55C004E35A1 /* line_soft.c in Sources */ = {isa = PBXBuildFile; fileRef = 64FACD7010305B1E004E35A1 /* line_soft.c */; };
 		64FACF9D1031B55C004E35A1 /* prim_opengl.c in Sources */ = {isa = PBXBuildFile; fileRef = 64FACD7210305B1E004E35A1 /* prim_opengl.c */; };
@@ -251,6 +257,34 @@
 			remoteGlobalIDString = 642F7A69102B2A45001249EE;
 			remoteInfo = a5_iio;
 		};
+		6485CBCE1038BEB00094FDE9 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 29B97313FDCFA39411CA2CEA /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 648390D3102AF31500D508EE;
+			remoteInfo = allegro;
+		};
+		6485CBD01038BEB00094FDE9 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 29B97313FDCFA39411CA2CEA /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 642F7A69102B2A45001249EE;
+			remoteInfo = a5_iio;
+		};
+		6485CBD21038BEB00094FDE9 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 29B97313FDCFA39411CA2CEA /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 64FAD2DC1031E26D004E35A1;
+			remoteInfo = a5_font;
+		};
+		6485CBD41038BEB00094FDE9 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 29B97313FDCFA39411CA2CEA /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 64FACF891031B4C8004E35A1;
+			remoteInfo = a5_primitives;
+		};
 		64FACFA21031B591004E35A1 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 29B97313FDCFA39411CA2CEA /* Project object */;
@@ -293,7 +327,7 @@
 		1DF5F4DF0D08C38300B7A737 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
 		28FD14FF0DC6FC520079059D /* OpenGLES.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGLES.framework; path = System/Library/Frameworks/OpenGLES.framework; sourceTree = SDKROOT; };
 		28FD15070DC6FC5B0079059D /* QuartzCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QuartzCore.framework; path = System/Library/Frameworks/QuartzCore.framework; sourceTree = SDKROOT; };
-		6419697B1032EF7800531AA4 /* ex_bitmap.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ex_bitmap.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		6419697B1032EF7800531AA4 /* ex_mouse_events.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ex_mouse_events.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		6419697D1032EF7900531AA4 /* ex_mouse_events.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = ex_mouse_events.plist; sourceTree = "<group>"; };
 		642F7928102B1F7F001249EE /* alplatf.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = alplatf.h; path = include/allegro5/platform/alplatf.h; sourceTree = "<group>"; };
 		642F79BB102B27C5001249EE /* CMakeLists.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = CMakeLists.txt; path = ../examples/CMakeLists.txt; sourceTree = SOURCE_ROOT; };
@@ -426,7 +460,6 @@
 		64839003102AF2CF00D508EE /* file_stdio.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = file_stdio.c; path = ../src/file_stdio.c; sourceTree = SOURCE_ROOT; };
 		64839004102AF2CF00D508EE /* fshook.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = fshook.c; path = ../src/fshook.c; sourceTree = SOURCE_ROOT; };
 		64839005102AF2CF00D508EE /* fshook_stdio.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = fshook_stdio.c; path = ../src/fshook_stdio.c; sourceTree = SOURCE_ROOT; };
-		6483900B102AF2CF00D508EE /* graphics.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = graphics.c; path = ../src/graphics.c; sourceTree = SOURCE_ROOT; };
 		6483900C102AF2CF00D508EE /* inline.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = inline.c; path = ../src/inline.c; sourceTree = SOURCE_ROOT; };
 		6483900E102AF2CF00D508EE /* iphone_main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = iphone_main.m; sourceTree = "<group>"; };
 		6483900F102AF2CF00D508EE /* joynu.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = joynu.c; path = ../src/joynu.c; sourceTree = SOURCE_ROOT; };
@@ -476,10 +509,8 @@
 		648390E1102AF35000D508EE /* base.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = base.h; path = ../include/allegro5/base.h; sourceTree = SOURCE_ROOT; };
 		648390E2102AF35000D508EE /* bealleg.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = bealleg.h; path = ../include/allegro5/bealleg.h; sourceTree = SOURCE_ROOT; };
 		648390E3102AF35000D508EE /* bitmap_new.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = bitmap_new.h; path = ../include/allegro5/bitmap_new.h; sourceTree = SOURCE_ROOT; };
-		648390E4102AF35000D508EE /* color.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = color.h; path = ../include/allegro5/color.h; sourceTree = SOURCE_ROOT; };
 		648390E5102AF35000D508EE /* color_new.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = color_new.h; path = ../include/allegro5/color_new.h; sourceTree = SOURCE_ROOT; };
 		648390E6102AF35000D508EE /* config.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = config.h; path = ../include/allegro5/config.h; sourceTree = SOURCE_ROOT; };
-		648390E7102AF35000D508EE /* convert.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = convert.h; path = ../include/allegro5/convert.h; sourceTree = SOURCE_ROOT; };
 		648390E8102AF35000D508EE /* debug.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = debug.h; path = ../include/allegro5/debug.h; sourceTree = SOURCE_ROOT; };
 		648390E9102AF35000D508EE /* display_new.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = display_new.h; path = ../include/allegro5/display_new.h; sourceTree = SOURCE_ROOT; };
 		648390EA102AF35000D508EE /* error.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = error.h; path = ../include/allegro5/error.h; sourceTree = SOURCE_ROOT; };
@@ -577,6 +608,9 @@
 		6483914B102AF35000D508EE /* timer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = timer.h; path = ../include/allegro5/timer.h; sourceTree = SOURCE_ROOT; };
 		6483914C102AF35000D508EE /* tls.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = tls.h; path = ../include/allegro5/tls.h; sourceTree = SOURCE_ROOT; };
 		6483914D102AF35000D508EE /* utf8.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = utf8.h; path = ../include/allegro5/utf8.h; sourceTree = SOURCE_ROOT; };
+		6485CB9F1038B9720094FDE9 /* iphone_joystick.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = iphone_joystick.m; sourceTree = "<group>"; };
+		6485CBE31038BEB00094FDE9 /* ex_joystick.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ex_joystick.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		6485CBE51038BEB00094FDE9 /* ex_joystick_events.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = ex_joystick_events.plist; sourceTree = "<group>"; };
 		64FACD1910305B1E004E35A1 /* allegro_flac.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = allegro_flac.h; path = ../addons/acodec/allegro5/allegro_flac.h; sourceTree = SOURCE_ROOT; };
 		64FACD1A10305B1E004E35A1 /* allegro_vorbis.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = allegro_vorbis.h; path = ../addons/acodec/allegro5/allegro_vorbis.h; sourceTree = SOURCE_ROOT; };
 		64FACD1C10305B1E004E35A1 /* aintern_acodec_cfg.h.cmake */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = aintern_acodec_cfg.h.cmake; path = ../addons/acodec/allegro5/internal/aintern_acodec_cfg.h.cmake; sourceTree = SOURCE_ROOT; };
@@ -700,6 +734,19 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		6485CBD91038BEB00094FDE9 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				6485CBDA1038BEB00094FDE9 /* liballegro.a in Frameworks */,
+				6485CBDB1038BEB00094FDE9 /* liba5_image.a in Frameworks */,
+				6485CBDC1038BEB00094FDE9 /* liba5_font.a in Frameworks */,
+				6485CBDD1038BEB00094FDE9 /* OpenGLES.framework in Frameworks */,
+				6485CBDE1038BEB00094FDE9 /* QuartzCore.framework in Frameworks */,
+				6485CBDF1038BEB00094FDE9 /* liba5_primitives.a in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		64FACF901031B4C8004E35A1 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -747,7 +794,8 @@
 				64FAD2A41031E0A6004E35A1 /* ex_blit.app */,
 				64FAD2D91031E21B004E35A1 /* liba5_color.a */,
 				64FAD2EA1031E26D004E35A1 /* liba5_font.a */,
-				6419697B1032EF7800531AA4 /* ex_bitmap.app */,
+				6419697B1032EF7800531AA4 /* ex_mouse_events.app */,
+				6485CBE31038BEB00094FDE9 /* ex_joystick.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -765,6 +813,7 @@
 				642F7A64102B29BD001249EE /* ex_bitmap.plist */,
 				64FAD2A61031E0A6004E35A1 /* ex_blit.plist */,
 				6419697D1032EF7900531AA4 /* ex_mouse_events.plist */,
+				6485CBE51038BEB00094FDE9 /* ex_joystick_events.plist */,
 			);
 			name = CustomTemplate;
 			sourceTree = "<group>";
@@ -934,7 +983,6 @@
 				64839003102AF2CF00D508EE /* file_stdio.c */,
 				64839004102AF2CF00D508EE /* fshook.c */,
 				64839005102AF2CF00D508EE /* fshook_stdio.c */,
-				6483900B102AF2CF00D508EE /* graphics.c */,
 				6483900C102AF2CF00D508EE /* inline.c */,
 				6483900D102AF2CF00D508EE /* iphone */,
 				6483900F102AF2CF00D508EE /* joynu.c */,
@@ -965,6 +1013,7 @@
 		6483900D102AF2CF00D508EE /* iphone */ = {
 			isa = PBXGroup;
 			children = (
+				6485CB9F1038B9720094FDE9 /* iphone_joystick.m */,
 				642F8065102DE676001249EE /* iphone_mouse.m */,
 				642F7DFC102CABCD001249EE /* iphone_path.m */,
 				642F7C44102B3BBE001249EE /* iphone_display.c */,
@@ -1045,10 +1094,8 @@
 				648390E1102AF35000D508EE /* base.h */,
 				648390E2102AF35000D508EE /* bealleg.h */,
 				648390E3102AF35000D508EE /* bitmap_new.h */,
-				648390E4102AF35000D508EE /* color.h */,
 				648390E5102AF35000D508EE /* color_new.h */,
 				648390E6102AF35000D508EE /* config.h */,
-				648390E7102AF35000D508EE /* convert.h */,
 				648390E8102AF35000D508EE /* debug.h */,
 				648390E9102AF35000D508EE /* display_new.h */,
 				648390EA102AF35000D508EE /* error.h */,
@@ -1539,10 +1586,8 @@
 				64839155102AF35000D508EE /* base.h in Headers */,
 				64839156102AF35000D508EE /* bealleg.h in Headers */,
 				64839157102AF35000D508EE /* bitmap_new.h in Headers */,
-				64839158102AF35000D508EE /* color.h in Headers */,
 				64839159102AF35000D508EE /* color_new.h in Headers */,
 				6483915A102AF35000D508EE /* config.h in Headers */,
-				6483915B102AF35000D508EE /* convert.h in Headers */,
 				6483915C102AF35000D508EE /* debug.h in Headers */,
 				6483915D102AF35000D508EE /* display_new.h in Headers */,
 				6483915E102AF35000D508EE /* error.h in Headers */,
@@ -1687,7 +1732,7 @@
 			);
 			name = ex_mouse_events;
 			productName = ex_config;
-			productReference = 6419697B1032EF7800531AA4 /* ex_bitmap.app */;
+			productReference = 6419697B1032EF7800531AA4 /* ex_mouse_events.app */;
 			productType = "com.apple.product-type.application";
 		};
 		642F7A57102B29BD001249EE /* ex_bitmap */ = {
@@ -1743,6 +1788,27 @@
 			productName = allegro;
 			productReference = 648390D4102AF31500D508EE /* liballegro.a */;
 			productType = "com.apple.product-type.library.static";
+		};
+		6485CBCC1038BEB00094FDE9 /* ex_joystick_events */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 6485CBE01038BEB00094FDE9 /* Build configuration list for PBXNativeTarget "ex_joystick_events" */;
+			buildPhases = (
+				6485CBD51038BEB00094FDE9 /* Resources */,
+				6485CBD71038BEB00094FDE9 /* Sources */,
+				6485CBD91038BEB00094FDE9 /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				6485CBCD1038BEB00094FDE9 /* PBXTargetDependency */,
+				6485CBCF1038BEB00094FDE9 /* PBXTargetDependency */,
+				6485CBD11038BEB00094FDE9 /* PBXTargetDependency */,
+				6485CBD31038BEB00094FDE9 /* PBXTargetDependency */,
+			);
+			name = ex_joystick_events;
+			productName = ex_config;
+			productReference = 6485CBE31038BEB00094FDE9 /* ex_joystick.app */;
+			productType = "com.apple.product-type.application";
 		};
 		64FACF891031B4C8004E35A1 /* a5_primitives */ = {
 			isa = PBXNativeTarget;
@@ -1836,6 +1902,7 @@
 				642F7A57102B29BD001249EE /* ex_bitmap */,
 				64FAD2A31031E0A6004E35A1 /* ex_blit */,
 				641969681032EF7800531AA4 /* ex_mouse_events */,
+				6485CBCC1038BEB00094FDE9 /* ex_joystick_events */,
 			);
 		};
 /* End PBXProject section */
@@ -1854,6 +1921,14 @@
 			buildActionMask = 2147483647;
 			files = (
 				642F7FAB102DD0B6001249EE /* data in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		6485CBD51038BEB00094FDE9 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				6485CBD61038BEB00094FDE9 /* data in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1910,7 +1985,6 @@
 				642F7A2C102B2879001249EE /* vector.c in Sources */,
 				648391BB102AF3D400D508EE /* allegro.c in Sources */,
 				648391BC102AF3D400D508EE /* bitmap_new.c in Sources */,
-				648391C9102AF3EE00D508EE /* graphics.c in Sources */,
 				648391CA102AF3EE00D508EE /* inline.c in Sources */,
 				648391CB102AF3EE00D508EE /* joynu.c in Sources */,
 				648391CC102AF3EE00D508EE /* keybdnu.c in Sources */,
@@ -1948,6 +2022,15 @@
 				642F7DFE102CABCD001249EE /* iphone_path.m in Sources */,
 				642F8062102DE652001249EE /* iphone_keyboard.c in Sources */,
 				642F8066102DE676001249EE /* iphone_mouse.m in Sources */,
+				6485CBA01038B9720094FDE9 /* iphone_joystick.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		6485CBD71038BEB00094FDE9 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				6485CBE71038BF180094FDE9 /* ex_joystick_events.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2024,6 +2107,26 @@
 			target = 642F7A69102B2A45001249EE /* a5_image */;
 			targetProxy = 642F7BBC102B2C55001249EE /* PBXContainerItemProxy */;
 		};
+		6485CBCD1038BEB00094FDE9 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 648390D3102AF31500D508EE /* allegro */;
+			targetProxy = 6485CBCE1038BEB00094FDE9 /* PBXContainerItemProxy */;
+		};
+		6485CBCF1038BEB00094FDE9 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 642F7A69102B2A45001249EE /* a5_image */;
+			targetProxy = 6485CBD01038BEB00094FDE9 /* PBXContainerItemProxy */;
+		};
+		6485CBD11038BEB00094FDE9 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 64FAD2DC1031E26D004E35A1 /* a5_font */;
+			targetProxy = 6485CBD21038BEB00094FDE9 /* PBXContainerItemProxy */;
+		};
+		6485CBD31038BEB00094FDE9 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 64FACF891031B4C8004E35A1 /* a5_primitives */;
+			targetProxy = 6485CBD41038BEB00094FDE9 /* PBXContainerItemProxy */;
+		};
 		64FACFA31031B591004E35A1 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = 64FACF891031B4C8004E35A1 /* a5_primitives */;
@@ -2077,7 +2180,7 @@
 					UIKit,
 				);
 				PREBINDING = NO;
-				PRODUCT_NAME = ex_bitmap;
+				PRODUCT_NAME = ex_mouse_events;
 				SDKROOT = iphoneos2.2.1;
 			};
 			name = Debug;
@@ -2222,6 +2325,61 @@
 				GCC_ENABLE_FIX_AND_CONTINUE = NO;
 				PREBINDING = NO;
 				PRODUCT_NAME = allegro;
+				ZERO_LINK = NO;
+			};
+			name = Release;
+		};
+		6485CBE11038BEB00094FDE9 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				COPY_PHASE_STRIP = NO;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				HEADER_SEARCH_PATHS = (
+					include,
+					../include,
+					../addons/primitives,
+					../addons/image,
+					../addons/font,
+				);
+				INFOPLIST_FILE = ex_joystick_events.plist;
+				INSTALL_PATH = "$(HOME)/Applications";
+				OTHER_LDFLAGS = (
+					"-framework",
+					Foundation,
+					"-framework",
+					UIKit,
+				);
+				PREBINDING = NO;
+				PRODUCT_NAME = ex_joystick;
+				SDKROOT = iphoneos2.2.1;
+			};
+			name = Debug;
+		};
+		6485CBE21038BEB00094FDE9 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				COPY_PHASE_STRIP = YES;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				GCC_ENABLE_FIX_AND_CONTINUE = NO;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "$(SYSTEM_LIBRARY_DIR)/Frameworks/UIKit.framework/Headers/UIKit.h";
+				INFOPLIST_FILE = ex_joystick_events.plist;
+				INSTALL_PATH = "$(HOME)/Applications";
+				OTHER_LDFLAGS = (
+					"-framework",
+					Foundation,
+					"-framework",
+					UIKit,
+				);
+				PREBINDING = NO;
+				PRODUCT_NAME = ex_config;
+				SDKROOT = iphoneos2.2.1;
 				ZERO_LINK = NO;
 			};
 			name = Release;
@@ -2438,6 +2596,15 @@
 			buildConfigurations = (
 				648390D5102AF31600D508EE /* Debug */,
 				648390D6102AF31600D508EE /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		6485CBE01038BEB00094FDE9 /* Build configuration list for PBXNativeTarget "ex_joystick_events" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				6485CBE11038BEB00094FDE9 /* Debug */,
+				6485CBE21038BEB00094FDE9 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

@@ -36,6 +36,20 @@ void _al_iphone_reset_framebuffer(void)
    [global_delegate.view reset_framebuffer];
 }
 
+/* Use a frequency to start receiving events at the freuqency, 0 to shut off
+ * the accelerometer (according to Apple, it drains a bit of battery while on).
+ */
+void _al_iphone_accelerometer_control(int frequency)
+{
+    if (frequency) {
+        [[UIAccelerometer sharedAccelerometer] setUpdateInterval:(1.0 / frequency)];
+        [[UIAccelerometer sharedAccelerometer] setDelegate:global_delegate];
+    }
+    else {
+        [[UIAccelerometer sharedAccelerometer] setDelegate:nil];
+    }
+}
+
 @implementation allegroAppDelegate
 
 @synthesize window;
@@ -70,6 +84,11 @@ void _al_iphone_run_user_main(void);
    [view set_allegro_display:allegro_display];
    [window addSubview:view];
    [window makeKeyAndVisible];
+}
+
+- (void)accelerometer:(UIAccelerometer*)accelerometer didAccelerate:(UIAcceleration*)acceleration
+{
+    _al_iphone_generate_joystick_event(acceleration.x, acceleration.y, acceleration.z);
 }
 
 - (void)dealloc {
