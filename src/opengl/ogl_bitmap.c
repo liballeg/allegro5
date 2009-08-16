@@ -539,6 +539,26 @@ static void ogl_update_clipping_rectangle(ALLEGRO_BITMAP *bitmap)
 
 
 
+static int round_to_pack_alignment(int pitch)
+{
+   GLint alignment;
+
+   glGetIntegerv(GL_PACK_ALIGNMENT, &alignment);
+   return (pitch + alignment - 1) / alignment * alignment;
+}
+
+
+
+static int round_to_unpack_alignment(int pitch)
+{
+   GLint alignment;
+
+   glGetIntegerv(GL_UNPACK_ALIGNMENT, &alignment);
+   return (pitch + alignment - 1) / alignment * alignment;
+}
+
+
+
 /* OpenGL cannot "lock" pixels, so instead we update our memory copy and
  * return a pointer into that.
  */
@@ -576,7 +596,7 @@ static ALLEGRO_LOCKED_REGION *ogl_lock_region(ALLEGRO_BITMAP *bitmap,
 
 #if !defined ALLEGRO_GP2XWIZ
    if (ogl_bitmap->is_backbuffer) {
-      pitch = w * pixel_size;
+      pitch = round_to_unpack_alignment(w * pixel_size);
       ogl_bitmap->lock_buffer = _AL_MALLOC(pitch * h);
 
       if (!(flags & ALLEGRO_LOCK_WRITEONLY)) {
@@ -596,9 +616,10 @@ static ALLEGRO_LOCKED_REGION *ogl_lock_region(ALLEGRO_BITMAP *bitmap,
    else {
       if (flags & ALLEGRO_LOCK_WRITEONLY) {
          /* For write-only locking, we allocate a buffer just big enough
-          * to later be passed to glTexSubImage2D.
+          * to later be passed to glTexSubImage2D.  The start of each row must
+          * be aligned according to GL_UNPACK_ALIGNMENT.
           */
-         pitch = w * pixel_size;
+         pitch = round_to_unpack_alignment(w * pixel_size);
          ogl_bitmap->lock_buffer = _AL_MALLOC(pitch * h);
          bitmap->locked_region.data = ogl_bitmap->lock_buffer +
             pitch * (h - 1);
@@ -611,7 +632,7 @@ static ALLEGRO_LOCKED_REGION *ogl_lock_region(ALLEGRO_BITMAP *bitmap,
          // texture - even when only a single pixel is locked. Likely
          // using FBO and glReadPixels to just read the locked part
          // would be faster.
-         pitch = ogl_bitmap->true_w * pixel_size;
+         pitch = round_to_pack_alignment(ogl_bitmap->true_w * pixel_size);
          ogl_bitmap->lock_buffer = _AL_MALLOC(pitch * ogl_bitmap->true_h);
 
          glBindTexture(GL_TEXTURE_2D, ogl_bitmap->texture);
@@ -631,7 +652,7 @@ static ALLEGRO_LOCKED_REGION *ogl_lock_region(ALLEGRO_BITMAP *bitmap,
 #else
    if (ogl_bitmap->is_backbuffer) {
       /* FIXME */
-      pitch = ogl_bitmap->true_w * pixel_size;
+      pitch = round_to_pack_alignment(ogl_bitmap->true_w * pixel_size);
       ogl_bitmap->lock_buffer = _AL_MALLOC(pitch * ogl_bitmap->true_h);
 
       if (!(flags & ALLEGRO_LOCK_WRITEONLY)) {
@@ -640,7 +661,7 @@ static ALLEGRO_LOCKED_REGION *ogl_lock_region(ALLEGRO_BITMAP *bitmap,
    }
    else {
       if (flags & ALLEGRO_LOCK_WRITEONLY) {
-         pitch = w * pixel_size;
+         pitch = round_to_unpack_alignment(w * pixel_size);
          ogl_bitmap->lock_buffer = _AL_MALLOC(pitch * h);
 	 bitmap->locked_region.data = ogl_bitmap->lock_buffer;
 	 pitch = -pitch;
@@ -881,6 +902,9 @@ ALLEGRO_BITMAP *_al_ogl_create_bitmap(ALLEGRO_DISPLAY *d, int w, int h)
 
    ALLEGRO_DEBUG("Chose format %d for OpenGL bitmap\n", format);
 
+   /* XXX do we need to take into account GL_PACK_ALIGNMENT or
+    * GL_UNPACK_ALIGNMENT here?
+    */
    pitch = true_w * al_get_pixel_size(format);
 
    bitmap = _AL_MALLOC(sizeof *bitmap);
