@@ -20,7 +20,7 @@
 #include "allegro5/internal/aintern_bitmap.h"
 #include "allegro5/internal/aintern_float.h"
 #include "allegro5/internal/aintern_pixels.h"
-#include "allegro5/convert.h"
+#include "allegro5/internal/aintern_convert.h"
 #include <math.h>
 
 static unsigned char four_bit_lookup[16][16];

@@ -333,7 +333,7 @@ def write_convert_c(filename):
 // Warning: This file was created by make_converters.py - do not edit.
 #include "allegro5/allegro5.h"
 #include "allegro5/internal/aintern_bitmap.h"
-#include "allegro5/convert.h"
+#include "allegro5/internal/aintern_convert.h"
 """)
 
     for a in formats_list:
