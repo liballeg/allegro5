@@ -598,6 +598,22 @@ static void osx_get_opengl_pixelformat_attributes(ALLEGRO_DISPLAY_OSX_WIN *dpy)
       }
    }
    dpy->parent.extra_settings.settings[ALLEGRO_COMPATIBLE_DISPLAY] = 1;
+    
+   // FIXME - the color format has to filled in to know how to create the
+   // backbuffer
+   ALLEGRO_EXTRA_DISPLAY_SETTINGS *eds = &dpy->parent.extra_settings;
+   if (eds->settings[ALLEGRO_COLOR_SIZE] == 0) {
+      eds->settings[ALLEGRO_COLOR_SIZE] = 32;
+      eds->settings[ALLEGRO_RED_SIZE] = 8;
+      eds->settings[ALLEGRO_GREEN_SIZE] = 8;
+      eds->settings[ALLEGRO_BLUE_SIZE] = 8;
+      eds->settings[ALLEGRO_ALPHA_SIZE] = 8;
+      eds->settings[ALLEGRO_RED_SHIFT] = 0;
+      eds->settings[ALLEGRO_GREEN_SHIFT] = 8;
+      eds->settings[ALLEGRO_BLUE_SHIFT] = 16;
+      eds->settings[ALLEGRO_ALPHA_SHIFT] = 24;
+   }
+   
 }
 
 
@@ -863,7 +879,6 @@ static ALLEGRO_DISPLAY* create_display_fs(int w, int h) {
    memset(dpy->parent.ogl_extras, 0, sizeof(ALLEGRO_OGL_EXTRAS));
    _al_ogl_manage_extensions(&dpy->parent);
    _al_ogl_set_extensions(dpy->parent.ogl_extras->extension_api);
-	dpy->parent.ogl_extras->backbuffer = _al_ogl_create_backbuffer(&dpy->parent);
    dpy->parent.ogl_extras->is_shared = true;
 	/* Set up GL as we want */
 	setup_gl(&dpy->parent);
@@ -884,6 +899,7 @@ static ALLEGRO_DISPLAY* create_display_fs(int w, int h) {
                                   waitUntilDone: NO];
    /* Retrieve the options that were set */
    osx_get_opengl_pixelformat_attributes(dpy);
+   dpy->parent.ogl_extras->backbuffer = _al_ogl_create_backbuffer(&dpy->parent);
    return &dpy->parent;
 }
 
@@ -922,11 +938,12 @@ static ALLEGRO_DISPLAY* create_display_win(int w, int h) {
    memset(dpy->parent.ogl_extras, 0, sizeof(ALLEGRO_OGL_EXTRAS));
    _al_ogl_manage_extensions(&dpy->parent);
    _al_ogl_set_extensions(dpy->parent.ogl_extras->extension_api);
-	dpy->parent.ogl_extras->backbuffer = _al_ogl_create_backbuffer(&dpy->parent);
    dpy->parent.ogl_extras->is_shared = true;
 
    /* Retrieve the options that were set */
    osx_get_opengl_pixelformat_attributes(dpy);
+    
+   dpy->parent.ogl_extras->backbuffer = _al_ogl_create_backbuffer(&dpy->parent);
    
    if (_al_get_new_display_settings()->settings[ALLEGRO_VSYNC] == 1) {
       GLint swapInterval = 1;
