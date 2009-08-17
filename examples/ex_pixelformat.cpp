@@ -163,24 +163,30 @@ void Prog::draw_sample()
    al_set_blender(ALLEGRO_ONE, ALLEGRO_ZERO, al_map_rgb(255, 255, 255));
 
    if (bitmap1 && bitmap2) {
-      double t0, t1;
-      char str[256];
-      int i = 0;
       al_set_target_bitmap(bitmap2);
-      t0 = al_current_time();
-      printf("Timing...\n");
-      while (1) {
-        al_draw_bitmap(bitmap1, 0, 0, 0);
-        i++;
-        t1 = al_current_time();
-        if (t1 - t0 > 0.25  || !enable_timing) break;
+      if (enable_timing) {
+         double t0, t1;
+         char str[256];
+         int frames = 0;
+
+         t0 = al_current_time();
+         printf("Timing...\n");
+         do {
+           al_draw_bitmap(bitmap1, 0, 0, 0);
+           frames++;
+           t1 = al_current_time();
+         } while (t1 - t0 < 0.25);
+         printf("    ...done.\n");
+         sprintf(str, "%.0f FPS", (double)frames / (t1 - t0));
+         time_label.set_text(str);
       }
-      printf("    ...done.\n");
+      else {
+         al_draw_bitmap(bitmap1, 0, 0, 0);
+         time_label.set_text("");
+      }
+
       al_set_target_bitmap(al_get_backbuffer());
       al_draw_bitmap(bitmap2, 0, 0, 0);
-
-      sprintf(str, "%.1f k FPS", (double)i / (t1 - t0) / 1000.0);
-      time_label.set_text(str);
    }
    else {
       al_draw_line(0, 0, 320, 200, al_map_rgb_f(1, 0, 0), 0);
