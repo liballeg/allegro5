@@ -20,6 +20,8 @@
 #ifndef _al_included_threads_h
 #define _al_included_threads_h
 
+#include "allegro5/altime.h"
+
 #ifdef __cplusplus
    extern "C" {
 #endif
