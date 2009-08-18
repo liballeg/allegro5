@@ -1087,21 +1087,23 @@ static void d3d_release_current_target(bool release_backbuffer)
    ALLEGRO_BITMAP_D3D *curr_d3d;
 
    curr = al_get_target_bitmap();
-   if (curr && !(curr->flags & ALLEGRO_MEMORY_BITMAP)) {
-      curr_d3d = (ALLEGRO_BITMAP_D3D *)curr;
-      if (curr_d3d->render_target) {
-         if (curr_d3d->is_backbuffer && release_backbuffer) {
-            ALLEGRO_DISPLAY_D3D *dd = (ALLEGRO_DISPLAY_D3D *)curr->display;
-            if (dd->render_target->Release() != 0) {
-               TRACE("d3d_release_current_target: (bb) ref count not 0\n");
+   if (curr) {
+      if (!(curr->flags & ALLEGRO_MEMORY_BITMAP)) {
+         curr_d3d = (ALLEGRO_BITMAP_D3D *)curr;
+         if (curr_d3d->render_target) {
+            if (curr_d3d->is_backbuffer && release_backbuffer) {
+               ALLEGRO_DISPLAY_D3D *dd = (ALLEGRO_DISPLAY_D3D *)curr->display;
+               if (dd->render_target->Release() != 0) {
+                  TRACE("d3d_release_current_target: (bb) ref count not 0\n");
+               }
+               dd->render_target = NULL;
             }
-            dd->render_target = NULL;
-         }
-         else if (!curr_d3d->is_backbuffer) {
-            if (curr_d3d->render_target->Release() != 0) {
-               TRACE("d3d_release_current_target: (bmp) ref count not 0\n");
+            else if (!curr_d3d->is_backbuffer) {
+               if (curr_d3d->render_target->Release() != 0) {
+                  TRACE("d3d_release_current_target: (bmp) ref count not 0\n");
+               }
+               curr_d3d->render_target = NULL;
             }
-            curr_d3d->render_target = NULL;
          }
       }
    }
