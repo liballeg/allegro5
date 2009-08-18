@@ -190,43 +190,19 @@ void _al_draw_bitmap_region_optimized_rgba_4444_to_rgb_565(
    dest_data_inc = (dest->pitch*yinc) - (sw*dest_inc);
    src_data_inc = src->pitch - (sw*2);
 
-   if (src->flags & ALLEGRO_ALPHA_TEST) {
-      if (!memcmp(bc, &white, sizeof(ALLEGRO_COLOR))) {
-         for (y = 0; y < sh; y++) {
-            for (x = 0; x < sw; x++) {
-               pixel = *((uint16_t *)src_data);
-               if (pixel & 0xF) {
-                  *((uint16_t *)dest_data) = ALLEGRO_CONVERT_RGBA_4444_TO_RGB_565(pixel);
-               }
-               src_data += 2;
-               dest_data += dest_inc;
+   if ((src->flags & ALLEGRO_ALPHA_TEST) && 
+         !memcmp(bc, &white, sizeof(ALLEGRO_COLOR))) {
+      for (y = 0; y < sh; y++) {
+         for (x = 0; x < sw; x++) {
+            pixel = *((uint16_t *)src_data);
+            if (pixel & 0xF) {
+               *((uint16_t *)dest_data) = ALLEGRO_CONVERT_RGBA_4444_TO_RGB_565(pixel);
             }
-            src_data += src_data_inc;
-            dest_data += dest_data_inc;
+            src_data += 2;
+            dest_data += dest_inc;
          }
-      }
-      else {
-         int rindex = bc->r*15;
-         int gindex = bc->g*15;
-         int bindex = bc->b*15;
-         int r, g, b;
-         for (y = 0; y < sh; y++) {
-            for (x = 0; x < sw; x++) {
-               pixel = *((uint16_t *)src_data);
-               if (pixel & 0xF) {
-                  pixel = ALLEGRO_CONVERT_RGBA_4444_TO_RGB_565(pixel);
-                  unsigned char *ptr = &(_565_lookup[pixel*3]);
-                  r = five_bit_lookup[*ptr++][rindex];
-                  g = six_bit_lookup[*ptr++][gindex];
-                  b = five_bit_lookup[*ptr][bindex];
-                  *((uint16_t *)dest_data) = (r << 11) | (g << 5) | b;
-               }
-               src_data += 2;
-               dest_data += dest_inc;
-            }
-            src_data += src_data_inc;
-            dest_data += dest_data_inc;
-         }
+         src_data += src_data_inc;
+         dest_data += dest_data_inc;
       }
    }
    else {
