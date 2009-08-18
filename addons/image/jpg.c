@@ -217,10 +217,11 @@ static void load_jpg_entry_helper(ALLEGRO_FILE *pf,
 
    if (s == 3) {
       /* Colour. */
-      while ((int)cinfo.output_scanline < h) {
+      int y;
+
+      for (y = cinfo.output_scanline; y < h; y = cinfo.output_scanline) {
          unsigned char *out[1];
-         out[0] = ((unsigned char *)lock->data)
-            + cinfo.output_scanline * lock->pitch;
+         out[0] = ((unsigned char *)lock->data) + y * lock->pitch;
          jpeg_read_scanlines(&cinfo, (void *)out, 1);
       }
    }
@@ -228,14 +229,13 @@ static void load_jpg_entry_helper(ALLEGRO_FILE *pf,
       /* Greyscale. */
       unsigned char *in;
       unsigned char *out;
-      int x;
+      int x, y;
 
       data->row = _AL_MALLOC(w);
-      while ((int)cinfo.output_scanline < h) {
+      for (y = cinfo.output_scanline; y < h; y = cinfo.output_scanline) {
          jpeg_read_scanlines(&cinfo, (void *)&data->row, 1);
          in = data->row;
-         out = ((unsigned char *)lock->data)
-            + cinfo.output_scanline * lock->pitch;
+         out = ((unsigned char *)lock->data) + y * lock->pitch;
          for (x = 0; x < w; x++) {
             *out++ = *in;
             *out++ = *in;
