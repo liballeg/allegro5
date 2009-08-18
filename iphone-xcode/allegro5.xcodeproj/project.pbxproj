@@ -279,7 +279,6 @@
 		1DF5F4DF0D08C38300B7A737 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
 		28FD14FF0DC6FC520079059D /* OpenGLES.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGLES.framework; path = System/Library/Frameworks/OpenGLES.framework; sourceTree = SDKROOT; };
 		28FD15070DC6FC5B0079059D /* QuartzCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QuartzCore.framework; path = System/Library/Frameworks/QuartzCore.framework; sourceTree = SDKROOT; };
-		6419697D1032EF7900531AA4 /* ex_mouse_events.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = ex_mouse_events.plist; sourceTree = "<group>"; };
 		642F7928102B1F7F001249EE /* alplatf.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = alplatf.h; path = include/allegro5/platform/alplatf.h; sourceTree = "<group>"; };
 		642F79BB102B27C5001249EE /* CMakeLists.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = CMakeLists.txt; path = ../examples/CMakeLists.txt; sourceTree = SOURCE_ROOT; };
 		642F79BD102B27C5001249EE /* a4_font.tga */ = {isa = PBXFileReference; lastKnownFileType = file; name = a4_font.tga; path = ../examples/data/a4_font.tga; sourceTree = SOURCE_ROOT; };
@@ -382,7 +381,6 @@
 		642F7A1E102B27C5001249EE /* ex_winfull.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = ex_winfull.c; path = ../examples/ex_winfull.c; sourceTree = SOURCE_ROOT; };
 		642F7A1F102B27C5001249EE /* nihgui.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = nihgui.cpp; path = ../examples/nihgui.cpp; sourceTree = SOURCE_ROOT; };
 		642F7A20102B27C5001249EE /* nihgui.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = nihgui.hpp; path = ../examples/nihgui.hpp; sourceTree = SOURCE_ROOT; };
-		642F7A64102B29BD001249EE /* ex_bitmap.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = ex_bitmap.plist; sourceTree = "<group>"; };
 		642F7B04102B2A45001249EE /* liba5_image.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = liba5_image.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		642F7B9E102B2B3C001249EE /* aintern_image_cfg.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = aintern_image_cfg.h; path = include/allegro5/internal/aintern_image_cfg.h; sourceTree = "<group>"; };
 		642F7C07102B352F001249EE /* EAGLView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = EAGLView.h; path = ../src/iphone/EAGLView.h; sourceTree = SOURCE_ROOT; };
@@ -559,7 +557,6 @@
 		6483914C102AF35000D508EE /* tls.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = tls.h; path = ../include/allegro5/tls.h; sourceTree = SOURCE_ROOT; };
 		6483914D102AF35000D508EE /* utf8.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = utf8.h; path = ../include/allegro5/utf8.h; sourceTree = SOURCE_ROOT; };
 		6485CB9F1038B9720094FDE9 /* iphone_joystick.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = iphone_joystick.m; sourceTree = "<group>"; };
-		6485CBE51038BEB00094FDE9 /* ex_joystick_events.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = ex_joystick_events.plist; sourceTree = "<group>"; };
 		64F82040103B22EC00D0F30A /* ex_bitmap.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ex_bitmap.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		64F82042103B22EC00D0F30A /* ex_bitmap-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "ex_bitmap-Info.plist"; sourceTree = "<group>"; };
 		64F8204A103B230400D0F30A /* ex_blit.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ex_blit.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -651,7 +648,6 @@
 		64FACFD51031B83A004E35A1 /* pcx.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = pcx.c; path = ../addons/image/pcx.c; sourceTree = SOURCE_ROOT; };
 		64FACFD61031B83A004E35A1 /* png.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = png.c; path = ../addons/image/png.c; sourceTree = SOURCE_ROOT; };
 		64FACFD71031B83A004E35A1 /* tga.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = tga.c; path = ../addons/image/tga.c; sourceTree = SOURCE_ROOT; };
-		64FAD2A61031E0A6004E35A1 /* ex_blit.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = ex_blit.plist; sourceTree = "<group>"; };
 		64FAD2D91031E21B004E35A1 /* liba5_color.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = liba5_color.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		64FAD2EA1031E26D004E35A1 /* liba5_font.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = liba5_font.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		8D1107310486CEB800E47090 /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -794,10 +790,6 @@
 				19C28FACFE9D520D11CA2CBB /* Products */,
 				642F7928102B1F7F001249EE /* alplatf.h */,
 				642F7B9E102B2B3C001249EE /* aintern_image_cfg.h */,
-				642F7A64102B29BD001249EE /* ex_bitmap.plist */,
-				64FAD2A61031E0A6004E35A1 /* ex_blit.plist */,
-				6419697D1032EF7900531AA4 /* ex_mouse_events.plist */,
-				6485CBE51038BEB00094FDE9 /* ex_joystick_events.plist */,
 				64F82042103B22EC00D0F30A /* ex_bitmap-Info.plist */,
 				64F8204C103B230400D0F30A /* ex_blit-Info.plist */,
 				64F82056103B231C00D0F30A /* ex_joystick_events-Info.plist */,
