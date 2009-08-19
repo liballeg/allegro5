@@ -23,7 +23,13 @@ typedef struct
    ALLEGRO_NATIVE_DIALOG *file_dialog;
    ALLEGRO_EVENT_SOURCE event_source;
    ALLEGRO_THREAD *thread;
+#ifdef ALLEGRO_WINDOWS
+   /* XXX This is only used for a workaround for Windows. In general it
+    * is NOT supported to have a single display be current for multiple
+    * threads simultaneously.
+    */
    ALLEGRO_DISPLAY *display;
+#endif
 } AsyncDialog;
 
 
@@ -34,10 +40,9 @@ static void *async_file_dialog_thread_func(ALLEGRO_THREAD *thread, void *arg)
    ALLEGRO_EVENT event;
    (void)thread;
 
-   /* We need to set the current display for this thread becuse
-    * al_show_native_file_dialog() shows the dialog on the current window.
-    */
+#ifdef ALLEGRO_WINDOWS
    al_set_current_display(data->display);
+#endif
 
    /* The next line is the heart of this example - we display the
     * native file dialog.
@@ -63,8 +68,12 @@ static void *message_box_thread(ALLEGRO_THREAD *thread, void *arg)
 
    (void)thread;
 
-   /* Keep in mind that current display is thread-local. */
+#ifdef ALLEGRO_WINDOWS
+   /* We need to set the current display for this thread becuse
+    * al_show_native_file_dialog() shows the dialog on the current window.
+    */
    al_set_current_display(data->display);
+#endif
 
    button = al_show_native_message_box("Warning",
       "Warning! Click Detected!",
@@ -92,7 +101,10 @@ static AsyncDialog *spawn_async_file_dialog(const ALLEGRO_PATH *initial_path)
       initial_path, "Choose files", NULL,
       ALLEGRO_FILECHOOSER_MULTIPLE);
    al_init_user_event_source(&data->event_source);
+#ifdef ALLEGRO_WINDOWS
+   /* Keep in mind that current display is thread-local. */
    data->display = al_get_current_display();
+#endif
    data->thread = al_create_thread(async_file_dialog_thread_func, data);
 
    al_start_thread(data->thread);
@@ -105,7 +117,9 @@ static AsyncDialog *spawn_async_message_dialog(void)
    AsyncDialog *data = calloc(1, sizeof *data);
 
    al_init_user_event_source(&data->event_source);
+#ifdef ALLEGRO_WINDOWS
    data->display = al_get_current_display();
+#endif
    data->thread = al_create_thread(message_box_thread, data);
 
    al_start_thread(data->thread);
