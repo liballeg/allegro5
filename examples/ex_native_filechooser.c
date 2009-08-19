@@ -49,7 +49,7 @@ static void *async_file_dialog_thread_func(ALLEGRO_THREAD *thread, void *arg)
     */
    al_show_native_file_dialog(data->file_dialog);
 
-   /* We emit an event to let the main program now that the thread has
+   /* We emit an event to let the main program know that the thread has
     * finished.
     */
    event.user.type = ASYNC_DIALOG_EVENT1;
@@ -69,7 +69,7 @@ static void *message_box_thread(ALLEGRO_THREAD *thread, void *arg)
    (void)thread;
 
 #ifdef ALLEGRO_WINDOWS
-   /* We need to set the current display for this thread becuse
+   /* We need to set the current display for this thread because
     * al_show_native_file_dialog() shows the dialog on the current window.
     */
    al_set_current_display(data->display);
@@ -102,7 +102,7 @@ static AsyncDialog *spawn_async_file_dialog(const ALLEGRO_PATH *initial_path)
       ALLEGRO_FILECHOOSER_MULTIPLE);
    al_init_user_event_source(&data->event_source);
 #ifdef ALLEGRO_WINDOWS
-   /* Keep in mind that current display is thread-local. */
+   /* Keep in mind that the current display is thread-local. */
    data->display = al_get_current_display();
 #endif
    data->thread = al_create_thread(async_file_dialog_thread_func, data);

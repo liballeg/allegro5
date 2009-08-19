@@ -14,7 +14,7 @@ Parameters:
 - initial_path: The initial search path and filename. Can be NULL.
 - title: Title of the dialog.
 - patterns: A list of semi-colon separated patterns to match. You
-  should always include the pattern "*.*" as usually the MIME type
+  should always include the pattern "\*.*" as usually the MIME type
   and not the file pattern is relevant. If no file patterns are
   supported by the native dialog, this parameter is ignored.
 - mode: 0, or a combination of the flags below.
