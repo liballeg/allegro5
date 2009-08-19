@@ -10,6 +10,8 @@
 #include "allegro5/allegro_image.h"
 #include <allegro5/allegro_primitives.h>
 
+#include "common.c"
+
 #include "nihgui.hpp"
 
 ALLEGRO_BITMAP *allegro;
@@ -215,7 +217,7 @@ int main()
    ALLEGRO_FONT *font;
 
    if (!al_init()) {
-      TRACE("Could not init Allegro\n");
+      abort_example("Could not init Allegro\n");
       return 1;
    }
    al_install_keyboard();
@@ -227,22 +229,22 @@ int main()
    al_set_new_display_flags(ALLEGRO_GENERATE_EXPOSE_EVENTS);
    display = al_create_display(640, 480);
    if (!display) {
-      TRACE("Unable to create display\n");
+      abort_example("Unable to create display\n");
       return 1;
    }
    font = al_load_font("data/fixed_font.tga", 0, 0);
    if (!font) {
-      TRACE("Failed to load data/fixed_font.tga\n");
+      abort_example("Failed to load data/fixed_font.tga\n");
       return 1;
    }
    allegro = al_load_bitmap("data/allegro.pcx");
    if (!allegro) {
-      TRACE("Failed to load data/allegro.pcx\n");
+      abort_example("Failed to load data/allegro.pcx\n");
       return 1;
    }
    mysha = al_load_bitmap("data/mysha.pcx");
    if (!mysha) {
-      TRACE("Failed to load data/mysha.pcx\n");
+      abort_example("Failed to load data/mysha.pcx\n");
       return 1;
    }
    

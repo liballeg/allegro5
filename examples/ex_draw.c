@@ -8,6 +8,8 @@
 #include <stdio.h>
 #include <stdarg.h>
 
+#include "common.c"
+
 struct Example
 {
    ALLEGRO_FONT *font;

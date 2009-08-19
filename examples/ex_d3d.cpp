@@ -9,6 +9,8 @@
 #include <windows.h>
 #include <cstdio>
 
+#include "common.c"
+
 #define D3DFVF_CUSTOMVERTEX   (D3DFVF_XYZ | D3DFVF_DIFFUSE)
 
 struct D3DVERTEX

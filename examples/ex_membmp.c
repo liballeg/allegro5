@@ -4,6 +4,7 @@
 #include "allegro5/allegro_font.h"
 #include "allegro5/allegro_image.h"
 
+#include "common.c"
 
 static void print(ALLEGRO_FONT *myfont, char *message, int x, int y)
 {
@@ -83,7 +84,7 @@ int main(void)
    ALLEGRO_BITMAP *membmp;
 
    if (!al_init()) {
-      TRACE("Could not init Allegro.\n");
+      abort_example("Could not init Allegro.\n");
       return 1;
    }
 
@@ -92,18 +93,18 @@ int main(void)
 
    display = al_create_display(640, 400);
    if (!display) {
-      TRACE("Error creating display\n");
+      abort_example("Error creating display\n");
       return 1;
    }
 
    accelfont = al_load_font("data/font.tga", 0, 0);
    if (!accelfont) {
-      TRACE("font.tga not found\n");
+      abort_example("font.tga not found\n");
       return 1;
    }
    accelbmp = al_load_bitmap("data/mysha.pcx");
    if (!accelbmp) {
-      TRACE("mysha.pcx not found\n");
+      abort_example("mysha.pcx not found\n");
       return 1;
    }
 

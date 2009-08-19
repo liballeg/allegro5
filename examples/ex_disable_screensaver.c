@@ -2,6 +2,8 @@
 #include "allegro5/allegro_font.h"
 #include <stdio.h>
 
+#include "common.c"
+
 int main(void)
 {
    ALLEGRO_DISPLAY *display;

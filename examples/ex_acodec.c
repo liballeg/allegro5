@@ -9,6 +9,8 @@
 #include "allegro5/allegro_flac.h"
 #include "allegro5/allegro_vorbis.h"
 
+#include "common.c"
+
 int main(int argc, char **argv)
 {
    ALLEGRO_VOICE *voice;

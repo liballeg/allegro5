@@ -13,6 +13,8 @@
 
 #include "nihgui.hpp"
 
+#include "common.c"
+
 #define SLIDERS_COUNT 16
 char const *names[] = {"R", "G", "B", "H", "S", "V", "H", "S", "L",
     "Y", "U", "V", "C", "M", "Y", "K"};
@@ -154,7 +156,7 @@ int main()
    ALLEGRO_FONT *font;
 
    if (!al_init()) {
-      TRACE("Could not init Allegro\n");
+      abort_example("Could not init Allegro\n");
       return 1;
    }
    al_install_keyboard();
@@ -166,12 +168,12 @@ int main()
    al_set_new_display_flags(ALLEGRO_GENERATE_EXPOSE_EVENTS);
    display = al_create_display(640, 480);
    if (!display) {
-      TRACE("Unable to create display\n");
+      abort_example("Unable to create display\n");
       return 1;
    }
    font = al_load_font("data/DejaVuSans.ttf", 12, 0);
    if (!font) {
-      TRACE("Failed to load data/DejaVuSans.ttf\n");
+      abort_example("Failed to load data/DejaVuSans.ttf\n");
       return 1;
    }
 

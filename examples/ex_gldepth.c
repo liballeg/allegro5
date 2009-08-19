@@ -7,6 +7,8 @@
 #include "allegro5/allegro_opengl.h"
 #include "allegro5/allegro_font.h"
 
+#include "common.c"
+
 struct camera {
    double xangle, yangle, zangle;
    double dist;
@@ -141,13 +143,13 @@ static void setup_textures(void)
 
    font = al_load_font("data/fixed_font.tga", 0, 0);
    if(!font) {
-      TRACE("Error loading `data/fixed_font.tga'\n");
+      abort_example("Error loading `data/fixed_font.tga'\n");
       exit(1);
    }
 
    tmp_bmp = al_load_bitmap("data/mysha.pcx");
    if(!tmp_bmp) {
-      TRACE("Error loading `data/mysha.pcx'\n");
+      abort_example("Error loading `data/mysha.pcx'\n");
       exit(1);
    }
    w = 128;
@@ -183,7 +185,7 @@ int main(void)
    ALLEGRO_EVENT event;
 
    if(!al_init()) {
-      TRACE("Could not init Allegro.\n");
+      abort_example("Could not init Allegro.\n");
       return 1;
    }
 
@@ -195,7 +197,7 @@ int main(void)
    al_set_new_display_option(ALLEGRO_DEPTH_SIZE, 16, ALLEGRO_SUGGEST);
    display = al_create_display(640, 480);
    if(!display) {
-      TRACE("Could not create display.\n");
+      abort_example("Could not create display.\n");
    }
 
    timer = al_install_timer(1. / 60.);

@@ -3,6 +3,8 @@
 #include "allegro5/allegro_font.h"
 #include "allegro5/allegro_primitives.h"
 
+#include "common.c"
+
 #define NUM_BUTTONS  3
 
 static void draw_mouse_button(int but, bool down)
@@ -44,7 +46,7 @@ int main(void)
    int i;
 
    if (!al_init()) {
-      TRACE("Could not init Allegro.\n");
+      abort_example("Could not init Allegro.\n");
       return 1;
    }
 
@@ -55,7 +57,7 @@ int main(void)
 
    display = al_create_display(640, 480);
    if (!display) {
-      TRACE("Error creating display\n");
+      abort_example("Error creating display\n");
       return 1;
    }
 
@@ -63,13 +65,13 @@ int main(void)
 
    cursor = al_load_bitmap("data/cursor.tga");
    if (!cursor) {
-      TRACE("Error loading cursor.tga\n");
+      abort_example("Error loading cursor.tga\n");
       return 1;
    }
 
    font = al_load_font("data/fixed_font.tga", 1, 0);
    if (!font) {
-      TRACE("data/fixed_font.tga not found\n");
+      abort_example("data/fixed_font.tga not found\n");
       return 1;
    }
 

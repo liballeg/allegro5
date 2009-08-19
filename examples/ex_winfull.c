@@ -1,5 +1,7 @@
 #include "allegro5/allegro5.h"
 
+#include "common.c"
+
 int main(void)
 {
    ALLEGRO_DISPLAY *win, *full;
@@ -7,7 +9,7 @@ int main(void)
    ALLEGRO_EVENT event;
 
    if (!al_init()) {
-      TRACE("Could not init Allegro.\n");
+      abort_example("Could not init Allegro.\n");
       return 1;
    }
 
@@ -17,7 +19,7 @@ int main(void)
    al_set_new_display_flags(ALLEGRO_WINDOWED);
    win = al_create_display(640, 480);
    if (!win) {
-      TRACE("Error creating windowed display\n");
+      abort_example("Error creating windowed display\n");
       return 1;
    }
 
@@ -25,7 +27,7 @@ int main(void)
    al_set_new_display_flags(ALLEGRO_FULLSCREEN);
    full = al_create_display(640, 480);
    if (!full) {
-      TRACE("Error creating fullscreen display\n");
+      abort_example("Error creating fullscreen display\n");
       return 1;
    }
 

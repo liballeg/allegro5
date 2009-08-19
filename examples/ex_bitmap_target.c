@@ -10,6 +10,8 @@
 #include <stdarg.h>
 #include <math.h>
 
+#include "common.c"
+
 const int W = 300, H = 300; /* Size of target bitmap. */
 const int RW = 50, RH = 50; /* Size of rectangle we draw to it. */
 ALLEGRO_BITMAP *target; /* The target bitmap. */
@@ -143,7 +145,7 @@ int main(void)
    ALLEGRO_DISPLAY *display;
 
    if (!al_init()) {
-      TRACE("Could not init Allegro.\n");
+      abort_example("Could not init Allegro.\n");
       return 1;
    }
 
@@ -152,7 +154,7 @@ int main(void)
 
    display = al_create_display(640, 480);
    if (!display) {
-      TRACE("Error creating display\n");
+      abort_example("Error creating display\n");
       return 1;
    }
 
@@ -162,7 +164,7 @@ int main(void)
 
    myfont = al_load_font("data/font.tga", 0, 0);
    if (!myfont) {
-      TRACE("font.tga not found\n");
+      abort_example("font.tga not found\n");
       return 1;
    }
 

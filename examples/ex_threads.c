@@ -7,6 +7,7 @@
 #include <math.h>
 #include <allegro5/allegro5.h>
 
+#include "common.c"
 
 #define MAX_THREADS     100
 #define MAX_BACKGROUNDS 10
@@ -121,7 +122,7 @@ int main(int argc, const char *argv[])
    }
 
    if (!al_init()) {
-      TRACE("Could not init Allegro.\n");
+      abort_example("Could not init Allegro.\n");
       return 1;
    }
 

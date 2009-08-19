@@ -2,6 +2,8 @@
 #include "allegro5/allegro_font.h"
 #include "allegro5/allegro_image.h"
 
+#include "common.c"
+
 static void wait_for_esc(void)
 {
    ALLEGRO_EVENT_QUEUE *queue;
@@ -48,7 +50,7 @@ int main(void)
        0x20AC, 0x20AC}; /* Euro */
 
     if (!al_init()) {
-        TRACE("Could not init Allegro.\n");
+        abort_example("Could not init Allegro.\n");
         return 1;
     }
 
@@ -59,24 +61,24 @@ int main(void)
     al_set_new_display_flags(ALLEGRO_GENERATE_EXPOSE_EVENTS);
     display = al_create_display(320, 200);
     if (!display) {
-        TRACE("Failed to create display\n");
+        abort_example("Failed to create display\n");
         return 1;
     }
     bitmap = al_load_bitmap("data/mysha.pcx");
     if (!bitmap) {
-        TRACE("Failed to load mysha.pcx\n");
+        abort_example("Failed to load mysha.pcx\n");
         return 1;
     }
 
     f = al_load_font("data/bmpfont.tga", 0, 0);
     if (!f) {
-        TRACE("Failed to load bmpfont.tga\n");
+        abort_example("Failed to load bmpfont.tga\n");
         return 1;
     }
     
     font_bitmap = al_load_bitmap("data/a4_font.tga");
     if (!font_bitmap) {
-        TRACE("Failed to load a4_font.tga\n");
+        abort_example("Failed to load a4_font.tga\n");
         return 1;
     }
     a4f = al_grab_font_from_bitmap(font_bitmap, 4, ranges);

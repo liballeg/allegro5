@@ -2,6 +2,8 @@
 #include <allegro5/allegro_primitives.h>
 #include <math.h>
 
+#include "common.c"
+
 const int W = 320, H = 240;
 const int R = 240;
 const int POINTS = 200;

@@ -12,6 +12,7 @@
 #include <allegro5/allegro_font.h>
 #include <allegro5/allegro_color.h>
 
+#include "common.c"
 
 /* To communicate from a separate thread, we need a user event. */
 #define ASYNC_DIALOG_EVENT1   ALLEGRO_GET_EVENT_TYPE('e', 'N', 'F', '1')
@@ -187,13 +188,13 @@ int main(void)
 
    display = al_create_display(640, 480);
    if (!display) {
-      TRACE("Error creating display\n");
+      abort_example("Error creating display\n");
       return 1;
    }
 
    font = al_load_font("data/fixed_font.tga", 0, 0);
    if (!font) {
-      TRACE("Error loading data/fixed_font.tga\n");
+      abort_example("Error loading data/fixed_font.tga\n");
       return 1;
    }
 

@@ -24,6 +24,8 @@
 #include <math.h>
 #include <stdio.h>
 
+#include "common.c"
+
 typedef void (*Screen)(int);
 int ScreenW = 800, ScreenH = 600;
 #define NUM_SCREENS 10

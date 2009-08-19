@@ -120,6 +120,7 @@ option(NO_FPU "No floating point unit" off)
 option(WANT_DLL_TLS "Force use of DllMain for TLS (Windows)" off)
 option(WANT_DEMO "Build a demo program" on)
 option(WANT_EXAMPLES "Build example programs" on)
+option(WANT_POPUP_EXAMPLES "Use popups instead of printf for fatal errors" on)
 
 #-----------------------------------------------------------------------------#
 #
@@ -807,7 +808,11 @@ endif(NOT MSVC80 AND WANT_DEMO)
 #-----------------------------------------------------------------------------#
 
 macro(example nm)
-    add_our_executable(${nm} ${ARGN} ${ALLEGRO_LINK_WITH})
+    if(WANT_POPUP_EXAMPLES AND SUPPORT_NATIVE_DIALOG)
+        add_our_executable(${nm} ${ARGN} ${ALLEGRO_LINK_WITH} ${NATIVE_DIALOG_LINK_WITH})
+    else()
+        add_our_executable(${nm} ${ARGN} ${ALLEGRO_LINK_WITH})
+    endif()
 endmacro(example nm)
 
 if(WANT_EXAMPLES)

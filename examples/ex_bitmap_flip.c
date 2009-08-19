@@ -4,6 +4,8 @@
 #include <allegro5/allegro_image.h>
 #include <allegro5/allegro_font.h>
 
+#include "common.c"
+
 #define INTERVAL 0.01
 
 
@@ -65,12 +67,12 @@ int main(void)
    bool redraw = true;
 
    if (!al_init()) {
-      TRACE("Failed to init Allegro.\n");
+      abort_example("Failed to init Allegro.\n");
       return 1;
    }
 
    if (!al_init_image_addon()) {
-      TRACE("Failed to init IIO addon.\n");
+      abort_example("Failed to init IIO addon.\n");
       return 1;
    }
 
@@ -78,24 +80,24 @@ int main(void)
 
    display = al_create_display(640, 480);
    if (!display) {
-      TRACE("Error creating display.\n");
+      abort_example("Error creating display.\n");
       return 1;
    }
 
    if (!al_install_keyboard()) {
-      TRACE("Error installing keyboard.\n");
+      abort_example("Error installing keyboard.\n");
       return 1;
    }
 
    font = al_load_font("data/fixed_font.tga", 0, 0);
    if (!font) {
-      TRACE("Error loading data/fixed_font.tga\n");
+      abort_example("Error loading data/fixed_font.tga\n");
       return 1;
    }
 
    bmp = disp_bmp = al_load_bitmap("data/mysha.pcx");
    if (!bmp) {
-      TRACE("Error loading data/mysha.pcx\n");
+      abort_example("Error loading data/mysha.pcx\n");
       return 1;
    }
    text = "Display bitmap";
@@ -103,7 +105,7 @@ int main(void)
    al_set_new_bitmap_flags(ALLEGRO_MEMORY_BITMAP);
    mem_bmp = al_load_bitmap("data/mysha.pcx");
    if (!bmp) {
-      TRACE("Error loading data/mysha.pcx\n");
+      abort_example("Error loading data/mysha.pcx\n");
       return 1;
    }
 

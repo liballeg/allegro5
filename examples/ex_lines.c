@@ -6,6 +6,8 @@
 #include "allegro5/allegro5.h"
 #include <allegro5/allegro_primitives.h>
 
+#include "common.c"
+
 /* Define this to test drawing to memory bitmaps.
  * XXX the software line drawer currently doesn't perform clipping properly
  *
@@ -133,7 +135,7 @@ int main(void)
    bool blend;
 
    if (!al_init()) {
-      TRACE("Could not init Allegro.\n");
+      abort_example("Could not init Allegro.\n");
       return 1;
    }
 
@@ -143,7 +145,7 @@ int main(void)
    al_set_new_display_option(ALLEGRO_SINGLE_BUFFER, true, ALLEGRO_SUGGEST);
    display = al_create_display(W, H);
    if (!display) {
-      TRACE("Error creating display\n");
+      abort_example("Error creating display\n");
       return 1;
    }
 
@@ -155,7 +157,7 @@ int main(void)
    al_set_new_bitmap_flags(ALLEGRO_MEMORY_BITMAP);
    memory_bitmap = al_create_bitmap(W, H);
    if (!memory_bitmap) {
-      TRACE("Error creating memory bitmap\n");
+      abort_example("Error creating memory bitmap\n");
       return 1;
    }
    al_set_target_bitmap(memory_bitmap);

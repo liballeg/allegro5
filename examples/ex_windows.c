@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <time.h>
 
+#include "common.c"
 
 const int W = 100;
 const int H = 100;
@@ -22,7 +23,7 @@ int main(void)
    srand(time(NULL));
 
    if (!al_init()) {
-      TRACE("Could not init Allegro.\n");
+      abort_example("Could not init Allegro.\n");
       return 1;
    }
 

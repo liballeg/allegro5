@@ -11,6 +11,7 @@
 #include <math.h>
 #include <allegro5/allegro5.h>
 
+#include "common.c"
 
 /* feel free to bump these up */
 #define NUM_THREADS     9
@@ -118,7 +119,7 @@ static void draw_mandel_line(ALLEGRO_BITMAP *bitmap, const Viewport *viewport,
 
    if (!(lr = al_lock_bitmap_region(bitmap, 0, y, w, 1, ALLEGRO_PIXEL_FORMAT_ANY_24_NO_ALPHA,
          ALLEGRO_LOCK_WRITEONLY))) {
-      TRACE("draw_mandel_line: al_lock_bitmap_region failed\n");
+      abort_example("draw_mandel_line: al_lock_bitmap_region failed\n");
       return;
    }
 
@@ -261,7 +262,7 @@ int main(void)
    }
 
    if (!al_init()) {
-      TRACE("Could not init Allegro.\n");
+      abort_example("Could not init Allegro.\n");
       return 1;
    }
 
@@ -270,17 +271,17 @@ int main(void)
    display = al_create_display(W * IMAGES_PER_ROW,
       H * NUM_THREADS / IMAGES_PER_ROW);
    if (!display) {
-      TRACE("Error creating display\n");
+      abort_example("Error creating display\n");
       return 1;
    }
    timer = al_install_timer(1.0/3);
    if (!timer) {
-      TRACE("Error creating timer\n");
+      abort_example("Error creating timer\n");
       return 1;
    }
    queue = al_create_event_queue();
    if (!queue) {
-      TRACE("Error creating event queue\n");
+      abort_example("Error creating event queue\n");
       return 1;
    }
    al_register_event_source(queue, al_get_display_event_source(display));

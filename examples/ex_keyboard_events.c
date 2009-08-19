@@ -10,6 +10,7 @@
 #include <allegro5/allegro_image.h>
 #include <allegro5/allegro_font.h>
 
+#include "common.c"
 
 #define WIDTH        640
 #define HEIGHT       480
@@ -221,7 +222,7 @@ int main(void)
        0x20AC, 0x20AC}; /* Euro */
 
    if (!al_init()) {
-      TRACE("Could not init Allegro.\n");
+      abort_example("Could not init Allegro.\n");
       return 1;
    }
 
@@ -229,19 +230,19 @@ int main(void)
 
    display = al_create_display(WIDTH, HEIGHT);
    if (!display) {
-      TRACE("al_create_display failed\n");
+      abort_example("al_create_display failed\n");
       return 1;
    }
 
    if (!al_install_keyboard()) {
-      TRACE("al_install_keyboard failed\n");
+      abort_example("al_install_keyboard failed\n");
       return 1;
    }
 
    /* Unlike data/fixed_font.tga this contains some non-ASCII characters. */
    a4font = al_load_bitmap("data/a4_font.tga");
    if (!a4font) {
-      TRACE("Failed to load a4_font.tga\n");
+      abort_example("Failed to load a4_font.tga\n");
       return 1;
    }
 
@@ -251,7 +252,7 @@ int main(void)
 
    event_queue = al_create_event_queue();
    if (!event_queue) {
-      TRACE("al_create_event_queue failed\n");
+      abort_example("al_create_event_queue failed\n");
       return 1;
    }
 

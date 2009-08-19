@@ -8,6 +8,8 @@
 #include <allegro5/allegro5.h>
 #include <stdio.h>
 
+#include "common.c"
+
 #ifdef ALLEGRO_MSVC
    #pragma warning (disable: 4066)
 #endif

@@ -3,6 +3,8 @@
 #include <stdio.h>
 #include <math.h>
 
+#include "common.c"
+
 int test_only_index = 0;
 int test_index = 0;
 bool test_display = false;

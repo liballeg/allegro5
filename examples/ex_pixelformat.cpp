@@ -11,6 +11,7 @@
 #include "allegro5/allegro_primitives.h"
 #include "nihgui.hpp"
 
+#include "common.c"
 
 typedef struct FORMAT
 {
@@ -148,7 +149,7 @@ void Prog::draw_sample()
 
    bitmap1 = al_load_bitmap("data/allegro.pcx");
    if (!bitmap1) {
-      TRACE("Could not load image, bitmap format = %d\n", formats[i].format);
+      abort_example("Could not load image, bitmap format = %d\n", formats[i].format);
       printf("Could not load image, bitmap format = %d\n", formats[i].format);
    }
 
@@ -156,7 +157,7 @@ void Prog::draw_sample()
 
    bitmap2 = al_create_bitmap(320, 200);
    if (!bitmap2) {
-      TRACE("Could not create bitmap, format = %d\n", formats[j].format);
+      abort_example("Could not create bitmap, format = %d\n", formats[j].format);
       printf("Could not create bitmap, format = %d\n", formats[j].format);
    }
 
@@ -209,7 +210,7 @@ int main(void)
    ALLEGRO_FONT *font;
 
    if (!al_init()) {
-      TRACE("Could not init Allegro.\n");
+      abort_example("Could not init Allegro.\n");
       return 1;
    }
 
@@ -222,7 +223,7 @@ int main(void)
    al_set_new_display_flags(ALLEGRO_GENERATE_EXPOSE_EVENTS);
    display = al_create_display(640, 480);
    if (!display) {
-      TRACE("Error creating display\n");
+      abort_example("Error creating display\n");
       return 1;
    }
 
@@ -230,7 +231,7 @@ int main(void)
 
    font = al_load_font("data/fixed_font.tga", 0, 0);
    if (!font) {
-      TRACE("Failed to load data/fixed_font.tga\n");
+      abort_example("Failed to load data/fixed_font.tga\n");
       return 1;
    }
 

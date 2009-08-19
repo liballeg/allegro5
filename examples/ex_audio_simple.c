@@ -10,6 +10,8 @@
 #include "allegro5/allegro_vorbis.h"
 #include "allegro5/allegro_audio.h"
 
+#include "common.c"
+
 #define RESERVED_SAMPLES   16
 #define MAX_SAMPLE_DATA    10
 

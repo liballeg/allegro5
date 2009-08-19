@@ -1,6 +1,8 @@
 #include <allegro5/allegro5.h>
 #include <stdio.h>
 
+#include "common.c"
+
 static void print_file(ALLEGRO_FS_ENTRY *entry)
 {
    int mode = al_get_entry_mode(entry);

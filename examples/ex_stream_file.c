@@ -14,6 +14,8 @@
 #include "allegro5/allegro_vorbis.h"
 #include "allegro5/allegro_audio.h"
 
+#include "common.c"
+
 /* Attaches the stream directly to a voice. Streamed file's and voice's sample
  * rate, channels and depth must match.
  */

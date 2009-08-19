@@ -8,6 +8,8 @@
 #include <allegro5/allegro5.h>
 #include <allegro5/allegro_opengl.h>
 
+#include "common.c"
+
 #ifdef ALLEGRO_MACOSX
 #include <OpenGL/glu.h>
 #else
@@ -197,7 +199,7 @@ int main(void)
    double start;
 
    if (!al_init()) {
-      TRACE("Could not init Allegro.\n");
+      abort_example("Could not init Allegro.\n");
       return 1;
    }
 
@@ -206,15 +208,15 @@ int main(void)
    al_set_new_display_option(ALLEGRO_SAMPLES, 4, ALLEGRO_SUGGEST);
    d = al_create_display(WINDOW_W, WINDOW_H);
    if (!d) {
-      TRACE("Unable to open a OpenGL display.\n");
+      abort_example("Unable to open a OpenGL display.\n");
       return -1;
    }
 
    if (al_get_display_option(ALLEGRO_SAMPLE_BUFFERS)) {
-      TRACE("With multisampling, level %i\n", al_get_display_option(ALLEGRO_SAMPLES));
+      abort_example("With multisampling, level %i\n", al_get_display_option(ALLEGRO_SAMPLES));
    }
    else {
-      TRACE("Without multisampling.\n");
+      abort_example("Without multisampling.\n");
    }
 
    al_install_keyboard();
@@ -229,7 +231,7 @@ int main(void)
    }
 
    if (!al_get_opengl_extension_list()->ALLEGRO_GL_ARB_vertex_program) {
-      TRACE("This example requires a video card that supports "
+      abort_example("This example requires a video card that supports "
                      " the ARB_vertex_program extension.\n");
       return -1;
    }
@@ -276,7 +278,7 @@ int main(void)
       const GLubyte *error_str = glGetString(GL_PROGRAM_ERROR_STRING_ARB);
       glGetIntegerv(GL_PROGRAM_ERROR_POSITION_ARB, &error_pos);
 
-      TRACE("Error compiling the vertex program:\n%s\n\nat "
+      abort_example("Error compiling the vertex program:\n%s\n\nat "
             "character: %i\n%s\n", error_str, (int)error_pos,
             pgm + error_pos);
       return -1;

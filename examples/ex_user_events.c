@@ -5,6 +5,7 @@
 #include <stdio.h>
 #include "allegro5/allegro5.h"
 
+#include "common.c"
 
 #define MY_SIMPLE_EVENT_TYPE     ALLEGRO_GET_EVENT_TYPE('m', 's', 'e', 't')
 #define MY_COMPLEX_EVENT_TYPE    ALLEGRO_GET_EVENT_TYPE('m', 'c', 'e', 't')
@@ -49,13 +50,13 @@ int main(void)
    ALLEGRO_EVENT event;
 
    if (!al_init()) {
-      TRACE("Could not init Allegro.\n");
+      abort_example("Could not init Allegro.\n");
       return 1;
    }
 
    timer = al_install_timer(0.5);
    if (!timer) {
-      TRACE("Could not install timer.\n");
+      abort_example("Could not install timer.\n");
       return 1;
    }
 

@@ -1,6 +1,8 @@
 #include "allegro5/allegro5.h"
 #include <stdio.h>
 
+#include "common.c"
+
 int main(void)
 {
    ALLEGRO_MONITOR_INFO info;
@@ -8,7 +10,7 @@ int main(void)
    int i, j;
 
    if (!al_init()) {
-      TRACE("Could not init Allegro.\n");
+      abort_example("Could not init Allegro.\n");
       return 1;
    }
 

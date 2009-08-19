@@ -15,7 +15,7 @@
 #include "allegro5/allegro_image.h"
 #include <math.h>
 
-
+#include "common.c"
 
 int main(void)
 {
@@ -41,7 +41,7 @@ int main(void)
    bool clip_mode = false;
 
    if (!al_init()) {
-      TRACE("Could not init Allegro.\n");
+      abort_example("Could not init Allegro.\n");
       return 1;
    }
 
@@ -50,26 +50,26 @@ int main(void)
 
    dpy = al_create_display(display_w, display_h);
    if (!dpy) {
-      TRACE("Unable to set any graphic mode\n");
+      abort_example("Unable to set any graphic mode\n");
       return 1;
    }
 
    buf = al_create_bitmap(display_w, display_h);
    if (!buf) {
-      TRACE("Unable to create buffer\n\n");
+      abort_example("Unable to create buffer\n\n");
       return 1;
    }
 
    bmp = al_load_bitmap("data/mysha.pcx");
    if (!bmp) {
-      TRACE("Unable to load image\n");
+      abort_example("Unable to load image\n");
       return 1;
    }
 
    al_set_new_bitmap_flags(ALLEGRO_MEMORY_BITMAP);
    mem_bmp = al_load_bitmap("data/mysha.pcx");
    if (!mem_bmp) {
-      TRACE("Unable to load image\n");
+      abort_example("Unable to load image\n");
       return 1;
    }
 

@@ -8,6 +8,8 @@
 #include <stdio.h>
 #include "allegro5/allegro5.h"
 
+#include "common.c"
+
 static ALLEGRO_DISPLAY *display1;
 static ALLEGRO_DISPLAY *display2;
 

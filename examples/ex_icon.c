@@ -1,6 +1,8 @@
 #include <allegro5/allegro5.h>
 #include "allegro5/allegro_image.h"
 
+#include "common.c"
+
 int main(void)
 {
    ALLEGRO_DISPLAY *display;
@@ -9,7 +11,7 @@ int main(void)
    int i;
 
    if (!al_init()) {
-      TRACE("Could not init Allegro.\n");
+      abort_example("Could not init Allegro.\n");
       return 1;
    }
 
@@ -18,14 +20,14 @@ int main(void)
 
    display = al_create_display(320, 200);
    if (!display) {
-      TRACE("Error creating display\n");
+      abort_example("Error creating display\n");
       return 1;
    }
 
    /* First icon: Read from file. */
    icon1 = al_load_bitmap("data/icon.tga");
    if (!icon1) {
-      TRACE("icon.tga not found\n");
+      abort_example("icon.tga not found\n");
       return 1;
    }
 

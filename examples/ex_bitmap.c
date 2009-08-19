@@ -2,6 +2,8 @@
 #include "allegro5/allegro5.h"
 #include "allegro5/allegro_image.h"
 
+#include "common.c"
+
 int main(int argc, const char *argv[])
 {
     const char *filename;
@@ -22,7 +24,7 @@ int main(int argc, const char *argv[])
     }
 
     if (!al_init()) {
-        TRACE("Could not init Allegro.\n");
+        abort_example("Could not init Allegro.\n");
         return 1;
     }
 
@@ -33,8 +35,7 @@ int main(int argc, const char *argv[])
 
     display = al_create_display(640, 480);
     if (!display) {
-       TRACE("Error creating display\n");
-       return 1;
+       abort_example("Error creating display\n");
     }
     
     al_set_window_title(filename);
@@ -49,8 +50,7 @@ int main(int argc, const char *argv[])
     membitmap = al_load_bitmap(filename);
     t1 = al_current_time();
     if (!membitmap) {
-       TRACE("%s not found or failed to load\n", filename);
-       return 1;
+       abort_example("%s not found or failed to load\n", filename);
     }
     al_set_new_bitmap_flags(0);
 

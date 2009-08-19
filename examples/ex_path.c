@@ -2,6 +2,8 @@
 #define ALLEGRO_USE_CONSOLE
 #include <allegro5/allegro5.h>
 
+#include "common.c"
+
 int main(int argc, char **argv)
 {
    ALLEGRO_PATH *dyn = NULL;

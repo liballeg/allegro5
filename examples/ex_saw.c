@@ -6,6 +6,7 @@
 #include "allegro5/allegro5.h"
 #include "allegro5/allegro_audio.h"
 
+#include "common.c"
 
 #define SAMPLES_PER_BUFFER    1024
 

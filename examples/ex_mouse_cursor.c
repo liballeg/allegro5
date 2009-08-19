@@ -10,6 +10,7 @@
 #include <allegro5/allegro_font.h>
 #include "allegro5/allegro_image.h"
 
+#include "common.c"
 
 static void draw_display(ALLEGRO_FONT *font)
 {
@@ -31,21 +32,21 @@ static void draw_display(ALLEGRO_FONT *font)
 static void hide_cursor(void)
 {
    if (!al_hide_mouse_cursor()) {
-      TRACE("Error hiding mouse cursor\n");
+      abort_example("Error hiding mouse cursor\n");
    }
 }
 
 static void show_cursor(void)
 {
    if (!al_show_mouse_cursor()) {
-      TRACE("Error showing mouse cursor\n");
+      abort_example("Error showing mouse cursor\n");
    }
 }
 
 static void test_set_cursor(ALLEGRO_SYSTEM_MOUSE_CURSOR cursor_id)
 {
    if (!al_set_system_mouse_cursor(cursor_id)) {
-      TRACE("Error setting system mouse cursor\n");
+      abort_example("Error setting system mouse cursor\n");
    }
 }
 
@@ -61,45 +62,45 @@ int main(void)
    ALLEGRO_EVENT event;
 
    if (!al_init()) {
-      TRACE("Could not init Allegro.\n");
+      abort_example("Could not init Allegro.\n");
       return 1;
    }
 
    al_init_image_addon();
 
    if (!al_install_mouse()) {
-      TRACE("Error installing mouse\n");
+      abort_example("Error installing mouse\n");
       return 1;
    }
 
    al_set_new_display_flags(ALLEGRO_GENERATE_EXPOSE_EVENTS);
    display1 = al_create_display(400, 300);
    if (!display1) {
-      TRACE("Error creating display1\n");
+      abort_example("Error creating display1\n");
       return 1;
    }
 
    display2 = al_create_display(400, 300);
    if (!display2) {
-      TRACE("Error creating display2\n");
+      abort_example("Error creating display2\n");
       return 1;
    }
 
    bmp = al_load_bitmap("data/allegro.pcx");
    if (!bmp) {
-      TRACE("Error loading data/allegro.pcx\n");
+      abort_example("Error loading data/allegro.pcx\n");
       return 1;
    }
 
    font = al_load_bitmap_font("data/font.tga");
    if (!font) {
-      TRACE("Error loading data/font.tga\n");
+      abort_example("Error loading data/font.tga\n");
       return 1;
    }
 
    shrunk_bmp = al_create_bitmap(32, 32);
    if (!shrunk_bmp) {
-      TRACE("Error creating shrunk_bmp\n");
+      abort_example("Error creating shrunk_bmp\n");
       return 1;
    }
 
@@ -111,7 +112,7 @@ int main(void)
 
    cursor = al_create_mouse_cursor(shrunk_bmp, 0, 0);
    if (!cursor) {
-      TRACE("Error creating mouse cursor\n");
+      abort_example("Error creating mouse cursor\n");
       return 1;
    }
 
@@ -121,13 +122,13 @@ int main(void)
    bmp = NULL;
 
    if (!al_install_keyboard()) {
-      TRACE("Error installing keyboard\n");
+      abort_example("Error installing keyboard\n");
       return 1;
    }
 
    queue = al_create_event_queue();
    if (!queue) {
-      TRACE("Error creating event queue\n");
+      abort_example("Error creating event queue\n");
       return 1;
    }
 
@@ -184,7 +185,7 @@ int main(void)
                break;
             case 'c':
                if (!al_set_mouse_cursor(cursor)) {
-                  TRACE("Error setting custom mouse cursor\n");
+                  abort_example("Error setting custom mouse cursor\n");
                }
                break;
             default:

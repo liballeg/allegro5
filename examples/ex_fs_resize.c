@@ -2,6 +2,8 @@
 #include "allegro5/allegro_image.h"
 #include <allegro5/allegro_primitives.h>
 
+#include "common.c"
+
 static void redraw(ALLEGRO_BITMAP *picture)
 {
    ALLEGRO_COLOR color;
@@ -25,7 +27,7 @@ int main(void)
    ALLEGRO_BITMAP *picture;
 
    if (!al_init()) {
-      TRACE("Could not init Allegro.\n");
+      abort_example("Could not init Allegro.\n");
       return 1;
    }
 
@@ -34,13 +36,13 @@ int main(void)
    al_set_new_display_flags(ALLEGRO_FULLSCREEN);
    display = al_create_display(640, 480);
    if (!display) {
-      TRACE("Error creating display\n");
+      abort_example("Error creating display\n");
       return 1;
    }
 
    picture = al_load_bitmap("data/mysha.pcx");
    if (!picture) {
-      TRACE("mysha.pcx not found\n");
+      abort_example("mysha.pcx not found\n");
       return 1;
    }
 

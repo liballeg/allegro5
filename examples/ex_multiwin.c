@@ -2,6 +2,8 @@
 #include "allegro5/allegro5.h"
 #include "allegro5/allegro_image.h"
 
+#include "common.c"
+
 const int W = 640;
 const int H = 400;
 
@@ -14,7 +16,7 @@ int main(void)
    int i;
 
    if (!al_init()) {
-      TRACE("Could not init Allegro.\n");
+      abort_example("Could not init Allegro.\n");
       return 1;
    }
 
@@ -30,14 +32,14 @@ int main(void)
    display[0] = al_create_display(W, H);
    pictures[0] = al_load_bitmap("data/mysha.pcx");
    if (!pictures[0]) {
-      TRACE("failed to load mysha.pcx\n");
+      abort_example("failed to load mysha.pcx\n");
       return 1;
    }
 
    display[1] = al_create_display(W, H);
    pictures[1] = al_load_bitmap("data/allegro.pcx");
    if (!pictures[1]) {
-      TRACE("failed to load allegro.pcx\n");
+      abort_example("failed to load allegro.pcx\n");
       return 1;
    }
    al_show_mouse_cursor();

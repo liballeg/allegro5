@@ -7,6 +7,7 @@
 #include <allegro5/allegro5.h>
 #include <allegro5/allegro_primitives.h>
 
+#include "common.c"
 
 #define MAX_STICKS   8
 #define MAX_BUTTONS  32
@@ -141,19 +142,19 @@ int main(void)
    int i;
 
    if (!al_init()) {
-      TRACE("Could not init Allegro.\n");
+      abort_example("Could not init Allegro.\n");
       return 1;
    }
 
    display = al_create_display(640, 480);
    if (!display) {
-      TRACE("al_create_display failed\n");
+      abort_example("al_create_display failed\n");
       return 1;
    }
 
 #ifndef ALLEGRO_GP2XWIZ
    if (!al_install_keyboard()) {
-      TRACE("al_install_keyboard failed\n");
+      abort_example("al_install_keyboard failed\n");
       return 1;
    }
 #endif
@@ -164,14 +165,14 @@ int main(void)
 
    al_install_joystick();
    if (al_get_num_joysticks() == 0) {
-      TRACE("No joysticks found.\n");
+      abort_example("No joysticks found.\n");
       return 1;
    }
    zero_joy = al_get_joystick(0);
 
    event_queue = al_create_event_queue();
    if (!event_queue) {
-      TRACE("al_create_event_queue failed\n");
+      abort_example("al_create_event_queue failed\n");
       return 1;
    }
 

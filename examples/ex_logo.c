@@ -16,6 +16,8 @@
 #include <allegro5/allegro_image.h>
 #include <allegro5/allegro_primitives.h>
 
+#include "common.c"
+
 #ifdef ALLEGRO_MSVC
    #define snprintf _snprintf
 #endif

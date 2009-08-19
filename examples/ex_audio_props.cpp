@@ -12,6 +12,8 @@
 #include "nihgui.hpp"
 #include <cstdio>
 
+#include "common.c"
+
 ALLEGRO_FONT *font_gui;
 ALLEGRO_SAMPLE *sample;
 ALLEGRO_SAMPLE_INSTANCE *sample_inst;
@@ -97,7 +99,7 @@ int main(int argc, const char *argv[])
    }
 
    if (!al_init()) {
-      TRACE("Could not init Allegro\n");
+      abort_example("Could not init Allegro\n");
       return 1;
    }
    al_install_keyboard();
@@ -109,12 +111,12 @@ int main(int argc, const char *argv[])
    al_init_ogg_vorbis_addon();
 
    if (!al_install_audio(ALLEGRO_AUDIO_DRIVER_AUTODETECT)) {
-      TRACE("Could not init sound!\n");
+      abort_example("Could not init sound!\n");
       return 1;
    }
 
    if (!al_reserve_samples(1)) {
-      TRACE("Could not set up voice and mixer.\n");
+      abort_example("Could not set up voice and mixer.\n");
       return 1;
    }
 
@@ -127,13 +129,13 @@ int main(int argc, const char *argv[])
    al_set_new_display_flags(ALLEGRO_GENERATE_EXPOSE_EVENTS);
    display = al_create_display(640, 480);
    if (!display) {
-      TRACE("Unable to create display\n");
+      abort_example("Unable to create display\n");
       return 1;
    }
 
    font_gui = al_load_font("data/fixed_font.tga", 0, 0);
    if (!font_gui) {
-      TRACE("Failed to load data/fixed_font.tga\n");
+      abort_example("Failed to load data/fixed_font.tga\n");
       return 1;
    }
 

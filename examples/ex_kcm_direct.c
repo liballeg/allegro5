@@ -6,6 +6,8 @@
 #include "allegro5/allegro_vorbis.h"
 #include "allegro5/allegro_audio.h"
 
+#include "common.c"
+
 int main(int argc, char **argv)
 {
    ALLEGRO_VOICE *voice;

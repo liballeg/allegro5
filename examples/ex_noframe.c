@@ -3,6 +3,8 @@
 
 #include <stdio.h>
 
+#include "common.c"
+
 int main(void)
 {
    ALLEGRO_DISPLAY *display;
@@ -15,7 +17,7 @@ int main(void)
    bool frame = false;
 
    if (!al_init()) {
-      TRACE("Could not init Allegro.\n");
+      abort_example("Could not init Allegro.\n");
       return 1;
    }
 
@@ -28,7 +30,7 @@ int main(void)
    
    bitmap = al_load_bitmap("data/fakeamp.bmp");
    if (!bitmap) {
-      TRACE("Error loading fakeamp.bmp\n\n");
+      abort_example("Error loading fakeamp.bmp\n\n");
       return 1;
    }
 

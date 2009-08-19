@@ -8,6 +8,8 @@
 #include <stdarg.h>
 #include <math.h>
 
+#include "common.c"
+
 /* A structure holding all variables of our example program. */
 struct Example
 {
@@ -35,7 +37,7 @@ static void init(void)
 
    ex.myfont = al_load_font("data/fixed_font.tga", 0, 0);
    if (!ex.myfont) {
-      TRACE("data/fixed_font.tga not found\n");
+      abort_example("data/fixed_font.tga not found\n");
       exit(1);
    }
 }
@@ -165,7 +167,7 @@ int main(void)
    ALLEGRO_TIMER *timer;
 
    if (!al_init()) {
-      TRACE("Could not init Allegro.\n");
+      abort_example("Could not init Allegro.\n");
       return 1;
    }
 

@@ -1,6 +1,8 @@
 #include "allegro5/allegro5.h"
 #include <allegro5/allegro_primitives.h>
 
+#include "common.c"
+
 static void redraw(void)
 {
     ALLEGRO_COLOR black, white;
@@ -29,7 +31,7 @@ int main(void)
 
     /* Initialize Allegro and create an event queue. */
     if (!al_init()) {
-        TRACE("Could not init Allegro.\n");
+        abort_example("Could not init Allegro.\n");
         return 1;
     }
     events = al_create_event_queue();

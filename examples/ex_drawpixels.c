@@ -1,6 +1,7 @@
 #include <allegro5/allegro5.h>
 #include <stdio.h>
 
+#include "common.c"
 
 #define NUM_STARS 300
 #define TARGET_FPS 9999
@@ -27,7 +28,7 @@ int main(void)
    ALLEGRO_LOCKED_REGION *lr;
 
    if (!al_init()) {
-      TRACE("Could not init Allegro.\n");
+      abort_example("Could not init Allegro.\n");
       return 1;
    }
 

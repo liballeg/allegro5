@@ -7,7 +7,7 @@
 
 #include <allegro5/allegro5.h>
 
-
+#include "common.c"
 
 static void test_relative_timeout(ALLEGRO_EVENT_QUEUE *queue);
 static void test_absolute_timeout(ALLEGRO_EVENT_QUEUE *queue);
@@ -20,7 +20,7 @@ int main(void)
    ALLEGRO_EVENT_QUEUE *queue;
 
    if (!al_init()) {
-      TRACE("Could not init Allegro.\n");
+      abort_example("Could not init Allegro.\n");
       return 1;
    }
 
@@ -28,7 +28,7 @@ int main(void)
 
    dpy = al_create_display(640, 480);
    if (!dpy) {
-      TRACE("Unable to set any graphic mode\n");
+      abort_example("Unable to set any graphic mode\n");
       return 1;
    }
 

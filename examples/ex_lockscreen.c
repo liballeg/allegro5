@@ -1,5 +1,7 @@
 #include "allegro5/allegro5.h"
 
+#include "common.c"
+
 int main(void)
 {
    ALLEGRO_DISPLAY *display;
@@ -10,7 +12,7 @@ int main(void)
    ALLEGRO_EVENT event;
 
    if (!al_init()) {
-      TRACE("Could not init Allegro.\n");
+      abort_example("Could not init Allegro.\n");
       return 1;
    }
 
@@ -18,7 +20,7 @@ int main(void)
 
    display = al_create_display(100, 100);
    if (!display) {
-      TRACE("Error creating display\n");
+      abort_example("Error creating display\n");
       return 1;
    }
 

@@ -11,6 +11,7 @@
 #include <allegro5/allegro_physfs.h>
 #include <physfs.h>
 
+#include "common.c"
 
 static void show_image(ALLEGRO_BITMAP *bmp)
 {

@@ -2,6 +2,8 @@
 #include "allegro5/allegro_ttf.h"
 #include <allegro5/allegro_primitives.h>
 
+#include "common.c"
+
 struct Example
 {
     double fps;
@@ -78,7 +80,7 @@ int main(int argc, const char *argv[])
     double t = 0;
 
     if (!al_init()) {
-        TRACE("Could not init Allegro.\n");
+        abort_example("Could not init Allegro.\n");
         return 1;
     }
 

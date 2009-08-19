@@ -12,6 +12,8 @@
 #include <allegro5/allegro5.h>
 #include <allegro5/memfile.h>
 
+#include "common.c"
+
 int main(void)
 {
    ALLEGRO_FILE *memfile;

@@ -9,6 +9,7 @@
 #include "allegro5/allegro_image.h"
 #include <stdio.h>
 
+#include "common.c"
 
 int main(void)
 {
@@ -19,7 +20,7 @@ int main(void)
    bool redraw;
 
    if (!al_init()) {
-      TRACE("Could not init Allegro.\n");
+      abort_example("Could not init Allegro.\n");
       return 1;
    }
    al_install_keyboard();
@@ -29,14 +30,14 @@ int main(void)
       ALLEGRO_GENERATE_EXPOSE_EVENTS);
    display = al_create_display(640, 480);
    if (!display) {
-      TRACE("Unable to set any graphic mode\n");
+      abort_example("Unable to set any graphic mode\n");
       return 1;
    }
 
    al_set_new_bitmap_flags(ALLEGRO_MEMORY_BITMAP);
    bmp = al_load_bitmap("data/mysha.pcx");
    if (!bmp) {
-      TRACE("Unable to load image\n");
+      abort_example("Unable to load image\n");
       return 1;
    }
 

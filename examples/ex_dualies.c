@@ -2,6 +2,8 @@
 #include "allegro5/allegro_image.h"
 #include <stdio.h>
 
+#include "common.c"
+
 static void go(void)
 {
    ALLEGRO_DISPLAY *d1, *d2;
@@ -68,7 +70,7 @@ static void go(void)
 int main(void)
 {
    if (!al_init()) {
-      TRACE("Could not init Allegro.\n");
+      abort_example("Could not init Allegro.\n");
       return 1;
    }
 
@@ -77,7 +79,7 @@ int main(void)
    al_init_image_addon();
 
    if (al_get_num_video_adapters() < 2) {
-      TRACE("You need 2 or more adapters/monitors for this example.\n");
+      abort_example("You need 2 or more adapters/monitors for this example.\n");
       return 1;
    }
 

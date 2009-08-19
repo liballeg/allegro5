@@ -13,6 +13,7 @@
 #include "allegro5/allegro_ttf.h"
 #include "nihgui.hpp"
 
+#include "common.c"
 
 #define PI                    (ALLEGRO_PI)
 #define TWOPI                 (2.0 * PI)
@@ -338,7 +339,7 @@ void Prog::handle_event(const ALLEGRO_EVENT & event)
 
       stream = (ALLEGRO_STREAM *) event.any.source;
       if (!al_get_stream_fragment(stream, &buf)) {
-         TRACE("al_get_stream_fragment failed\n");
+         abort_example("al_get_stream_fragment failed\n");
          return;
       }
 
@@ -388,24 +389,24 @@ int main(void)
 
    al_set_new_display_flags(ALLEGRO_GENERATE_EXPOSE_EVENTS);
    if (!al_create_display(800, 600)) {
-      TRACE("Unable to create display\n");
+      abort_example("Unable to create display\n");
       return 1;
    }
    al_set_window_title("Synthesiser of sorts");
 
    font_gui = al_load_ttf_font("data/DejaVuSans.ttf", 12, 0);
    if (!font_gui) {
-      TRACE("Failed to load data/fixed_font.tga\n");
+      abort_example("Failed to load data/fixed_font.tga\n");
       return 1;
    }
 
    if (!al_install_audio(ALLEGRO_AUDIO_DRIVER_AUTODETECT)) {
-      TRACE("Could not init sound!\n");
+      abort_example("Could not init sound!\n");
       return 1;
    }
 
    if (!al_reserve_samples(0)) {
-      TRACE("Could not set up voice and mixer.\n");
+      abort_example("Could not set up voice and mixer.\n");
       return 1;
    }
 
@@ -421,7 +422,7 @@ int main(void)
    stream4 = al_create_stream(buffers, samples, freq, depth, ch);
    stream5 = al_create_stream(buffers, samples, freq, depth, ch);
    if (!stream1 || !stream2 || !stream3 || !stream4 || !stream5) {
-      TRACE("Could not create stream.\n");
+      abort_example("Could not create stream.\n");
       return 1;
    }
 
@@ -433,7 +434,7 @@ int main(void)
       !al_attach_stream_to_mixer(stream4, mixer) ||
       !al_attach_stream_to_mixer(stream5, mixer)
    ) {
-      TRACE("Could not attach stream to mixer.\n");
+      abort_example("Could not attach stream to mixer.\n");
       return 1;
    }
 

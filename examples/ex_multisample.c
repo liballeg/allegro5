@@ -2,6 +2,8 @@
 #include <allegro5/allegro5.h>
 #include <allegro5/allegro_primitives.h>
 
+#include "common.c"
+
 static void draw(void)
 {
    al_clear_to_color(al_map_rgb_f(1, 1, 1));

@@ -11,6 +11,8 @@
 #include <allegro5/allegro_primitives.h>
 #include "nihgui.hpp"
 
+#include "common.c"
+
 ALLEGRO_FONT *font;
 ALLEGRO_FONT *font_gui;
 
@@ -87,7 +89,7 @@ int main()
    ALLEGRO_DISPLAY *display;
 
    if (!al_init()) {
-      TRACE("Could not init Allegro\n");
+      abort_example("Could not init Allegro\n");
       return 1;
    }
    al_install_keyboard();
@@ -99,7 +101,7 @@ int main()
    al_set_new_display_flags(ALLEGRO_GENERATE_EXPOSE_EVENTS);
    display = al_create_display(640, 480);
    if (!display) {
-      TRACE("Unable to create display\n");
+      abort_example("Unable to create display\n");
       return 1;
    }
 
@@ -107,20 +109,20 @@ int main()
 #if 1
    font = al_load_font("data/DejaVuSans.ttf", 24, 0);
    if (!font) {
-      TRACE("Failed to load data/DejaVuSans.ttf\n");
+      abort_example("Failed to load data/DejaVuSans.ttf\n");
       return 1;
    }
 #else
    font = al_load_font("data/font.tga", 0, 0);
    if (!font) {
-      TRACE("Failed to load data/font.tga\n");
+      abort_example("Failed to load data/font.tga\n");
       return 1;
    }
 #endif
 
    font_gui = al_load_font("data/fixed_font.tga", 0, 0);
    if (!font_gui) {
-      TRACE("Failed to load data/DejaVuSans.ttf\n");
+      abort_example("Failed to load data/DejaVuSans.ttf\n");
       return 1;
    }
 

@@ -3,6 +3,8 @@
 #include <allegro5/allegro_image.h>
 #include <stdio.h>
 
+#include "common.c"
+
 GLhandleARB tinter;
 GLhandleARB tinter_shader;
 

@@ -10,6 +10,8 @@
 #include "allegro5/allegro_vorbis.h"
 #include "allegro5/allegro_audio.h"
 
+#include "common.c"
+
 int main(int argc, char **argv)
 {
    int i;
@@ -61,7 +63,7 @@ int main(int argc, char **argv)
    }
 
    if (!al_attach_mixer_to_voice(mixer, voice)) {
-      TRACE("al_attach_mixer_to_voice failed.\n");
+      abort_example("al_attach_mixer_to_voice failed.\n");
       return 1;
    }
 

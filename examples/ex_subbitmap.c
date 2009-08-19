@@ -14,6 +14,8 @@
 #include "allegro5/allegro_image.h"
 #include <allegro5/allegro_primitives.h>
 
+#include "common.c"
+
 #define MIN(x,y)     (((x) < (y)) ? (x) : (y))
 #define MAX(x,y)     (((x) > (y)) ? (x) : (y))
 #define CLAMP(x,y,z) MAX((x), MIN((y), (z)))
@@ -78,7 +80,7 @@ int main(void)
    al_set_new_bitmap_flags(ALLEGRO_MEMORY_BITMAP);
    mem_bmp = al_load_bitmap("data/mysha.pcx");
    if (!mem_bmp) {
-      TRACE("Could not load data/mysha.pcx\n");
+      abort_example("Could not load data/mysha.pcx\n");
       return 1;
    }
 

@@ -3,6 +3,8 @@
 #include <allegro5/allegro5.h>
 #include <allegro5/allegro_opengl.h>
 
+#include "common.c"
+
 /* Simple example showing how to use an extension. It draws a yellow triangle
  * on red background onto a texture, then draws a quad with that texture.
  */
@@ -121,7 +123,7 @@ int main(void)
    double start;
 
    if (!al_init()) {
-      TRACE("Could not init Allegro.\n");
+      abort_example("Could not init Allegro.\n");
       return 1;
    }
 

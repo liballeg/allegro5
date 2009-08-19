@@ -3,6 +3,8 @@
 #include <allegro5/allegro_primitives.h>
 #include <stdio.h>
 
+#include "common.c"
+
 int width = 640;
 int height = 480;
 

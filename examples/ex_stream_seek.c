@@ -12,6 +12,8 @@
 #include "allegro5/allegro_audio.h"
 #include "allegro5/allegro_primitives.h"
 
+#include "common.c"
+
 ALLEGRO_DISPLAY *display;
 ALLEGRO_TIMER *timer;
 ALLEGRO_EVENT_QUEUE *queue;

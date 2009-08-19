@@ -4,6 +4,8 @@
 #include <allegro5/allegro_font.h>
 #include <stdio.h>
 
+#include "common.c"
+
 #define SCREEN_W 800
 #define SCREEN_H 600
 
@@ -61,7 +63,7 @@ int main(void)
    bool redraw = false;
 
    if (!al_init()) {
-      TRACE("Could not init Allegro.\n");
+      abort_example("Could not init Allegro.\n");
       return 1;
    }
 
@@ -72,7 +74,7 @@ int main(void)
 
    font = al_load_font("data/fixed_font.tga", 0, 0);
    if (!font) {
-      TRACE("data/fixed_font.tga not found\n");
+      abort_example("data/fixed_font.tga not found\n");
       return 1;
    }
 

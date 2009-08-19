@@ -7,6 +7,8 @@
 #include <allegro5/allegro_image.h>
 #include <time.h>
 
+#include "common.c"
+
 /* Do a few un-timed runs to switch CPU to performance mode and cache
  * data and so on - seems to make the results more stable here.
  * Also used to guess the number of timed iterations.
@@ -80,7 +82,7 @@ int main(int argc, const char *argv[])
    al_init_image_addon();
 
    if (!al_create_display(640, 480)) {
-      TRACE("Error creating display\n");
+      abort_example("Error creating display\n");
       return 1;
    }
 
@@ -88,13 +90,13 @@ int main(int argc, const char *argv[])
 
    b1 = al_load_bitmap("data/mysha.pcx");
    if (!b1) {
-      TRACE("Error loading data/mysha.pcx\n");
+      abort_example("Error loading data/mysha.pcx\n");
       return 1;
    }
 
    b2 = al_load_bitmap("data/allegro.pcx");
    if (!b2) {
-      TRACE("Error loading data/mysha.pcx\n");
+      abort_example("Error loading data/mysha.pcx\n");
       return 1;
    }
 

@@ -4,6 +4,8 @@
 #include <allegro5/allegro5.h>
 #include <stdio.h>
 
+#include "common.c"
+
 static int option(ALLEGRO_CONFIG *config, char *name, int v)
 {
    char const *value;

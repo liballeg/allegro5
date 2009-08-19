@@ -9,6 +9,8 @@
 #include <stdarg.h>
 #include <math.h>
 
+#include "common.c"
+
 struct Example
 {
    ALLEGRO_BITMAP *pattern;

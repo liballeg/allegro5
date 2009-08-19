@@ -48,6 +48,8 @@
 #include <allegro5/allegro5.h>
 #include <allegro5/allegro_image.h>
 
+#include "common.c"
+
 
 typedef struct CURL_FILE CURL_FILE;
 struct CURL_FILE {

@@ -2,6 +2,8 @@
 #include <allegro5/allegro_image.h>
 #include <allegro5/allegro_primitives.h>
 
+#include "common.c"
+
 const int W = 320;
 const int H = 200;
 
@@ -13,7 +15,7 @@ int main(void)
    ALLEGRO_EVENT_QUEUE *queue;
 
    if (!al_init()) {
-      TRACE("Could not init Allegro.\n");
+      abort_example("Could not init Allegro.\n");
       return 1;
    }
 
@@ -26,13 +28,13 @@ int main(void)
    al_set_new_display_option(ALLEGRO_SINGLE_BUFFER, true, ALLEGRO_REQUIRE);
    display = al_create_display(W, H);
    if (!display) {
-      TRACE("Error creating display\n");
+      abort_example("Error creating display\n");
       return 1;
    }
 
    bitmap = al_load_bitmap("data/mysha.pcx");
    if (!bitmap) {
-      TRACE("mysha.pcx not found or failed to load\n");
+      abort_example("mysha.pcx not found or failed to load\n");
       return 1;
    }
    al_draw_bitmap(bitmap, 0, 0, 0);
