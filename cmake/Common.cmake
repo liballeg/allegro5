@@ -112,7 +112,7 @@ function(add_our_executable nm)
 
     add_executable(${nm} ${EXECUTABLE_TYPE} ${srcs})
     target_link_libraries(${nm} ${libs})
-    if(WANT_POPUP_EXAMPLES AND SUPPORT_NATIVE_DIALOG))
+    if(WANT_POPUP_EXAMPLES AND SUPPORT_NATIVE_DIALOG)
         set_target_properties(${nm} PROPERTIES COMPILE_FLAGS "-DALLEGRO_POPUP_EXAMPLES")
     endif()
     if(NOT BUILD_SHARED_LIBS)
