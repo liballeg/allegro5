@@ -46,22 +46,27 @@ static void add_time(void)
    if (example.ftpos >= FPS) example.ftpos = 0;
 }
 
-static void get_fps(int *min_fps, int *max_fps)
+static void get_fps(int *average, int *minmax)
 {
    int i;
    int prev = FPS - 1;
    double min_dt = 1;
    double max_dt = 1 / 1000000.0;
+   double av = 0;
+   double d;
    for (i = 0; i < FPS; i++) {
       if (i != example.ftpos) {
          double dt = example.frame_times[i] - example.frame_times[prev];
          if (dt < min_dt) min_dt = dt;
          if (dt > max_dt) max_dt = dt;
+         av += dt;
       }
       prev = i;
    }
-   *min_fps = ceil(1 / max_dt);
-   *max_fps = floor(1 / min_dt);
+   av /= (FPS - 1);
+   *average = ceil(1 / av);
+   d = 1 / min_dt - 1 / max_dt;
+   *minmax = floor(d / 2);
 }
 
 static void add_sprite(void)
@@ -92,6 +97,7 @@ static void change_size(int size)
    example.bitmap_size = size;
    al_set_target_bitmap(example.bitmap);
    al_set_blender(ALLEGRO_ONE, ALLEGRO_ZERO, example.white);
+   al_clear_to_color(al_map_rgba_f(0, 0, 0, 0));
    al_draw_bitmap(example.mysha, size / 2 - 160, size / 2 - 100, 0);
    al_set_target_bitmap(al_get_backbuffer());
 }
@@ -168,7 +174,7 @@ static void redraw(void)
       binfo[example.blending]);
 
    get_fps(&f1, &f2);
-   al_draw_textf(example.font, w, 0, ALLEGRO_ALIGN_RIGHT, "FPS: %4d - %4d",
+   al_draw_textf(example.font, w, 0, ALLEGRO_ALIGN_RIGHT, "FPS: %4d +- %-4d",
       f1, f2);
    
 }
