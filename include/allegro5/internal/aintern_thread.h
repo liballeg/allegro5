@@ -21,6 +21,7 @@ AL_FUNC(void, _al_thread_create, (_AL_THREAD*,
 AL_FUNC(void, _al_thread_set_should_stop, (_AL_THREAD *));
 /* static inline bool _al_get_thread_should_stop(_AL_THREAD *); */
 AL_FUNC(void, _al_thread_join, (_AL_THREAD*));
+AL_FUNC(void, _al_thread_detach, (_AL_THREAD*));
 
 
 AL_FUNC(void, _al_mutex_init, (_AL_MUTEX*));

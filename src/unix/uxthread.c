@@ -83,6 +83,14 @@ void _al_thread_join(_AL_THREAD *thread)
 }
 
 
+void _al_thread_detach(_AL_THREAD *thread)
+{
+   ASSERT(thread);
+   pthread_mutex_destroy(&thread->mutex);
+   pthread_detach(thread->thread);
+}
+
+
 /* mutexes */
 
 void _al_mutex_init(_AL_MUTEX *mutex)

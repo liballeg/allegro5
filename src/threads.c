@@ -35,6 +35,7 @@ typedef enum THREAD_STATE {
    THREAD_STATE_JOINING,   /* -> joined */
    THREAD_STATE_JOINED,    /* -> destroyed */
    THREAD_STATE_DESTROYED,
+   THREAD_STATE_DETACHED
 } THREAD_STATE;
 
 
@@ -43,7 +44,7 @@ struct ALLEGRO_THREAD {
    _AL_MUTEX mutex;
    _AL_COND cond;
    THREAD_STATE thread_state;
-   void *(*proc)(struct ALLEGRO_THREAD *thread, void *arg);
+   void *proc;
    void *arg;
    void *retval;
 };
@@ -74,36 +75,62 @@ static void thread_func_trampoline(_AL_THREAD *inner, void *_outer)
    _al_mutex_unlock(&outer->mutex);
 
    if (outer->thread_state == THREAD_STATE_STARTED) {
-      outer->retval = outer->proc(outer, outer->arg);
+      outer->retval =
+         ((void *(*)(ALLEGRO_THREAD *, void *))outer->proc)(outer, outer->arg);
    }
 }
 
-
-/* Function: al_create_thread
- */
-ALLEGRO_THREAD *al_create_thread(
-   void *(*proc)(ALLEGRO_THREAD *thread, void *arg),
-   void *arg)
+static void detached_thread_func_trampoline(_AL_THREAD *inner, void *_outer)
 {
+   ALLEGRO_THREAD *outer = (ALLEGRO_THREAD *) _outer;
+   (void)inner;
+
+   ((void *(*)(void *))outer->proc)(outer->arg);
+   _AL_FREE(outer);
+}
+
+
+static ALLEGRO_THREAD *create_thread(void) {
    ALLEGRO_THREAD *outer;
 
    outer = _AL_MALLOC(sizeof(*outer));
    if (!outer) {
       return NULL;
    }
-
    _AL_MARK_MUTEX_UNINITED(outer->mutex); /* required */
+   outer->retval = NULL;
+   return outer;
+}
+
+
+/* Function: al_create_thread
+ */
+ALLEGRO_THREAD *al_create_thread(
+   void *(*proc)(ALLEGRO_THREAD *thread, void *arg), void *arg)
+{
+   ALLEGRO_THREAD *outer = create_thread();
+   outer->thread_state = THREAD_STATE_CREATED;
    _al_mutex_init(&outer->mutex);
    _al_cond_init(&outer->cond);
-   outer->thread_state = THREAD_STATE_CREATED;
-   outer->proc = proc;
    outer->arg = arg;
-   outer->retval = NULL;
-
+   outer->proc = proc;
    _al_thread_create(&outer->thread, thread_func_trampoline, outer);
    /* XXX _al_thread_create should return an error code */
-
    return outer;
+}
+
+
+
+/* Function: al_run_detached_thread
+ */
+void al_run_detached_thread(void *(*proc)(void *arg), void *arg)
+{
+   ALLEGRO_THREAD *outer = create_thread();
+   outer->thread_state = THREAD_STATE_DETACHED;
+   outer->arg = arg;
+   outer->proc = proc;
+   _al_thread_create(&outer->thread, detached_thread_func_trampoline, outer);
+   _al_thread_detach(&outer->thread);
 }
 
 
@@ -131,6 +158,9 @@ void al_start_thread(ALLEGRO_THREAD *outer)
          break;
       case THREAD_STATE_DESTROYED:
          ASSERT(outer->thread_state != THREAD_STATE_DESTROYED);
+         break;
+      case THREAD_STATE_DETACHED:
+         ASSERT(outer->thread_state != THREAD_STATE_DETACHED);
          break;
    }
 }
@@ -161,6 +191,9 @@ void al_join_thread(ALLEGRO_THREAD *outer, void **ret_value)
          break;
       case THREAD_STATE_DESTROYED:
          ASSERT(outer->thread_state != THREAD_STATE_DESTROYED);
+         break;
+      case THREAD_STATE_DETACHED:
+         ASSERT(outer->thread_state != THREAD_STATE_DETACHED);
          break;
    }
 
@@ -209,6 +242,9 @@ void al_destroy_thread(ALLEGRO_THREAD *outer)
          break;
       case THREAD_STATE_DESTROYED:
          ASSERT(outer->thread_state != THREAD_STATE_DESTROYED);
+         break;
+      case THREAD_STATE_DETACHED:
+         ASSERT(outer->thread_state != THREAD_STATE_DETACHED);
          break;
    }
 

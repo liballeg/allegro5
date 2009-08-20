@@ -77,6 +77,17 @@ void _al_thread_join(_AL_THREAD *thread)
 }
 
 
+void _al_thread_detach(_AL_THREAD *thread)
+{
+   // FIXME: Do something like pthread_detach, so the thread frees itself
+   // automatically when it ends.
+
+   DeleteCriticalSection(&thread->cs);
+   ASSERT(thread);
+}
+
+
+
 /* mutexes */
 
 void _al_mutex_init(_AL_MUTEX *mutex)

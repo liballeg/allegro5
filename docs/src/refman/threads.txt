@@ -110,6 +110,13 @@ Does nothing if `thread` is NULL.
 [al_join_thread].
 
 
+## API: al_run_detached_thread
+
+Runs the passed function in its own thread, with `arg` passed to it as only
+parameter. This is similar to calling [al_create_thread], [al_start_thread]
+and (after the thread has finished) [al_destroy_thread] - but you don't have
+the possibility of ever calling [al_join_thread] on the thread any longer.
+
 
 ## API: al_create_mutex
 
