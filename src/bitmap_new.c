@@ -432,14 +432,14 @@ void al_convert_mask_to_alpha(ALLEGRO_BITMAP *bitmap, ALLEGRO_COLOR mask_color)
    ALLEGRO_COLOR alpha_pixel;
    ALLEGRO_STATE backup;
 
+   al_store_state(&backup, ALLEGRO_STATE_TARGET_BITMAP);
+   
+   al_set_target_bitmap(bitmap);
+
    if (!(lr = al_lock_bitmap(bitmap, ALLEGRO_PIXEL_FORMAT_ANY, 0))) {
       TRACE("al_convert_mask_to_alpha: Couldn't lock bitmap.\n");
       return;
    }
-
-   al_store_state(&backup, ALLEGRO_STATE_TARGET_BITMAP);
-   
-   al_set_target_bitmap(bitmap);
 
    alpha_pixel = al_map_rgba(0, 0, 0, 0);
 
