@@ -211,6 +211,15 @@ The only flag supported right now is:
 * ALLEGRO_TTF_NO_KERNING - Do not use any kerning even if the font file
   supports it.
 
+## API: al_load_ttf_font_entry
+
+Like [al_load_ttf_font], but the font is read from the file handle. The filename
+is only used to find possible additional files next to a font file.
+
+Note: The file handle is owned by the returned ALLEGRO_FONT object and must not
+be freed by the caller, as Freetype expects to be able to read from it at a
+later time.
+
 ## API: al_init_ttf_addon
 
 Call this after [al_init_font_addon] to make [al_load_font] recognize

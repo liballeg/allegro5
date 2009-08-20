@@ -30,6 +30,7 @@
 #endif
 
 A5_TTF_FUNC(ALLEGRO_FONT *, al_load_ttf_font, (char const *filename, int size, int flags));
+A5_TTF_FUNC(ALLEGRO_FONT *, al_load_ttf_font_entry, (ALLEGRO_FILE *file, char const *filename, int size, int flags));
 A5_TTF_FUNC(bool, al_init_ttf_addon, (void));
 
 #ifdef __cplusplus

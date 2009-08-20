@@ -142,7 +142,12 @@ int main(int argc, const char *argv[])
             al_flip_display();
         }
     }
-    
+
+    al_destroy_font(ex.f1);
+    al_destroy_font(ex.f2);
+    al_destroy_font(ex.f3);
+    al_destroy_font(ex.f4);
+
     return 0;
 }
 END_OF_MAIN()

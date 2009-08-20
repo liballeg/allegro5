@@ -27,6 +27,10 @@ typedef struct ALLEGRO_TTF_FONT_DATA
     int cache_line_height;
     ALLEGRO_TTF_GLYPH_DATA *cache;
     int flags;
+
+    FT_StreamRec stream;
+    ALLEGRO_FILE *file;
+    unsigned long base_offset, offset;
 } ALLEGRO_TTF_FONT_DATA;
 
 static bool once = true;
@@ -273,9 +277,29 @@ static void destroy(ALLEGRO_FONT *f)
     _AL_FREE(f);
 }
 
-/* Function: al_load_ttf_font
+static unsigned long ftread(FT_Stream stream, unsigned long offset,
+   unsigned char *buffer, unsigned long count)
+{
+    ALLEGRO_TTF_FONT_DATA *data = stream->pathname.pointer;
+    unsigned long bytes;
+    if (count == 0) return 0;
+    if (offset != data->offset) al_fseek(data->file,
+        data->base_offset + offset, ALLEGRO_SEEK_SET);
+    bytes = al_fread(data->file, buffer, count);
+    data->offset = offset + bytes;
+    return bytes;
+}
+
+static void ftclose(FT_Stream  stream)
+{
+    ALLEGRO_TTF_FONT_DATA *data = stream->pathname.pointer;
+    al_fclose(data->file);
+}
+
+/* Function: al_load_ttf_font_entry
  */
-ALLEGRO_FONT *al_load_ttf_font(char const *filename, int size, int flags)
+ALLEGRO_FONT *al_load_ttf_font_entry(ALLEGRO_FILE *file,
+    char const *filename, int size, int flags)
 {
     FT_Face face;
     FT_ULong unicode;
@@ -284,6 +308,7 @@ ALLEGRO_FONT *al_load_ttf_font(char const *filename, int size, int flags)
     ALLEGRO_FONT *f;
     int bytes;
     ALLEGRO_PATH *path;
+    FT_Open_Args args;
 
     if (once) {
         FT_Init_FreeType(&ft);
@@ -297,9 +322,27 @@ ALLEGRO_FONT *al_load_ttf_font(char const *filename, int size, int flags)
         once = false;
     }
 
-    if (FT_New_Face(ft, filename, 0, &face) != 0) {
+    data = _AL_MALLOC(sizeof *data);
+    memset(data, 0, sizeof *data);
+    data->stream.read = ftread;
+    data->stream.close = ftclose;
+    data->stream.pathname.pointer = data;
+    data->base_offset = al_ftell(file);
+    data->stream.size = al_fsize(file);
+    data->file = file;
+
+    memset(&args, 0, sizeof args);
+    args.flags = FT_OPEN_STREAM;
+    args.stream = &data->stream;
+
+    if (FT_Open_Face(ft, &args, 0, &face) != 0) {
+        ALLEGRO_DEBUG("Reading %s failed.\n", filename);
+        al_fclose(file);
+        _AL_FREE(data);
         return NULL;
     }
+
+    // FIXME: The below doesn't use Allegro's streaming.
     /* Small hack for Type1 fonts which store kerning information in
      * a separate file - and we try to guess the name of that file.
      */
@@ -349,7 +392,6 @@ ALLEGRO_FONT *al_load_ttf_font(char const *filename, int size, int flags)
         if (g > m) m = g;
     }
 
-    data = _AL_MALLOC(sizeof *data);
     data->face = face;
     data->flags = flags;
     data->glyphs_count = m;
@@ -368,6 +410,27 @@ ALLEGRO_FONT *al_load_ttf_font(char const *filename, int size, int flags)
     return f;
 }
 
+
+/* Function: al_load_ttf_font
+ */
+ALLEGRO_FONT *al_load_ttf_font(char const *filename, int size, int flags)
+{
+   ALLEGRO_FILE *f;
+   ALLEGRO_FONT *font;
+   ASSERT(filename);
+
+   f = al_fopen(filename, "rb");
+   if (!f)
+      return NULL;
+
+   /* The file handle is owned by the function and the file is usually only
+    * closed when the font is destroyed, in case Freetype has to load data
+    * at a later time.
+    */
+   font = al_load_ttf_font_entry(f, filename, size, flags);
+
+   return font;
+}
 
 
 /* Function: al_init_ttf_addon
