@@ -11,12 +11,12 @@
 #include "allegro5/internal/aintern_memory.h"
 
 
-#ifndef ALLEGRO_GP2XWIZ
+/* FIXME: We need a ALLEGRO_CFG_TREMOR */
+#if !defined(ALLEGRO_GP2XWIZ) && !defined(ALLEGRO_IPHONE)
 #include <vorbis/vorbisfile.h>
 #else
-#include <tremor/ivorbisfile.h>
+#include <ivorbisfile.h>
 #endif
-
 
 typedef struct AL_OV_DATA AL_OV_DATA;
 
@@ -162,7 +162,7 @@ ALLEGRO_SAMPLE *al_load_sample_ogg_vorbis(const char *filename)
    pos = 0;
    while (pos < total_size) {
       /* XXX error handling */
-#ifndef ALLEGRO_GP2XWIZ
+#if !defined(ALLEGRO_GP2XWIZ) && !defined(ALLEGRO_IPHONE)
       long read = ov_read(&vf, buffer + pos, packet_size, endian, word_size,
          signedness, &bitstream);
 #else
@@ -194,7 +194,7 @@ static bool ogg_stream_seek(ALLEGRO_STREAM *stream, double time)
    AL_OV_DATA *extra = (AL_OV_DATA *) stream->extra;
    if (time >= extra->loop_end)
       return false;
-#ifndef ALLEGRO_GP2XWIZ
+#if !defined(ALLEGRO_GP2XWIZ) && !defined(ALLEGRO_IPHONE) 
    return (ov_time_seek_lap(extra->vf, time) != -1);
 #else
    return ov_time_seek(extra->vf, time*1000) != -1;
@@ -212,7 +212,7 @@ static bool ogg_stream_rewind(ALLEGRO_STREAM *stream)
 static double ogg_stream_get_position(ALLEGRO_STREAM *stream)
 {
    AL_OV_DATA *extra = (AL_OV_DATA *) stream->extra;
-#ifndef ALLEGRO_GP2XWIZ
+#if !defined(ALLEGRO_GP2XWIZ) && !defined(ALLEGRO_IPHONE)
    return ov_time_tell(extra->vf);
 #else
    return ov_time_tell(extra->vf)/1000.0;
@@ -223,7 +223,7 @@ static double ogg_stream_get_position(ALLEGRO_STREAM *stream)
 static double ogg_stream_get_length(ALLEGRO_STREAM *stream)
 {
    AL_OV_DATA *extra = (AL_OV_DATA *) stream->extra;
-#ifndef ALLEGRO_GP2XWIZ
+#if !defined(ALLEGRO_GP2XWIZ) && !defined(ALLEGRO_IPHONE)
    double ret = ov_time_total(extra->vf, -1);
 #else
    double ret = ov_time_total(extra->vf, -1)/1000.0;
@@ -267,7 +267,7 @@ static size_t ogg_stream_update(ALLEGRO_STREAM *stream, void *data,
                                 size_t buf_size)
 {
    AL_OV_DATA *extra = (AL_OV_DATA *) stream->extra;
-
+	
 #ifdef ALLEGRO_LITTLE_ENDIAN
    const int endian = 0;      /* 0 for Little-Endian, 1 for Big-Endian */
 #else
@@ -278,7 +278,7 @@ static size_t ogg_stream_update(ALLEGRO_STREAM *stream, void *data,
 
    unsigned long pos = 0;
    int read_length = buf_size;
-#ifndef ALLEGRO_GP2XWIZ
+#if !defined(ALLEGRO_GP2XWIZ) && !defined(ALLEGRO_IPHONE)
    double ctime = ov_time_tell(extra->vf);
 #else
    double ctime = ov_time_tell(extra->vf)/1000.0;
@@ -295,7 +295,7 @@ static size_t ogg_stream_update(ALLEGRO_STREAM *stream, void *data,
          }
       }
    while (pos < (unsigned long)read_length) {
-#ifndef ALLEGRO_GP2XWIZ
+#if !defined(ALLEGRO_GP2XWIZ) && !defined(ALLEGRO_IPHONE)
       unsigned long read = ov_read(extra->vf, (char *)data + pos,
                                    read_length - pos, endian, word_size,
                                    signedness, &extra->bitstream);
@@ -306,7 +306,7 @@ static size_t ogg_stream_update(ALLEGRO_STREAM *stream, void *data,
                                    read_length - pos, &extra->bitstream);
 #endif
       pos += read;
-
+	   
       /* If nothing read then now to silence from here to the end. */
       if (read == 0) {
          int silence = _al_kcm_get_silence(stream->spl.spl_data.depth);
@@ -345,6 +345,7 @@ ALLEGRO_STREAM *al_load_stream_ogg_vorbis(const char *filename,
    file = al_fopen(filename, "rb");
    if (file == NULL) {
       TRACE("%s failed to open\n", filename);
+	   fprintf(stderr, "%s failed to open\n", filename);
       return NULL;
    }
    
@@ -375,7 +376,7 @@ ALLEGRO_STREAM *al_load_stream_ogg_vorbis(const char *filename,
    TRACE("ogg:     rate %ld\n", rate);
    TRACE("ogg:     total_samples %ld\n", total_samples);
    TRACE("ogg:     total_size %ld\n", total_size);
-
+	
    stream = al_create_stream(buffer_count, samples, rate,
             _al_word_size_to_depth_conf(word_size),
             _al_count_to_channel_conf(channels));
@@ -398,7 +399,7 @@ ALLEGRO_STREAM *al_load_stream_ogg_vorbis(const char *filename,
    stream->set_feeder_loop = ogg_stream_set_loop;
    stream->unload_feeder = ogg_stream_close;
    al_start_thread(stream->feed_thread);
-
+	
    return stream;
 }
 

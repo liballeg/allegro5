@@ -8,7 +8,7 @@
 
 #include "allegro5/allegro.h"
 
-#ifdef ALLEGRO_MACOSX
+#if defined(ALLEGRO_MACOSX) || defined(ALLEGRO_IPHONE)
 #include <OpenAL/al.h>
 #include <OpenAL/alc.h>
 #else /* ALLEGRO_MACOSX */
@@ -116,6 +116,7 @@ static int _openal_open(void)
    }
 
    alcMakeContextCurrent(openal_context);
+#if !defined ALLEGRO_IPHONE
    if ((alc_err = alcGetError(openal_dev)) != ALC_NO_ERROR)
    {
       fprintf(stderr, "Could not make context current\n");
@@ -130,6 +131,7 @@ static int _openal_open(void)
       fprintf(stderr, "%s\n", openal_get_err_str(openal_err));
       return 1;
    }
+#endif
 
    fprintf(stderr, "\n");
    fprintf(stderr, "      Vendor: %s\n", alGetString(AL_VENDOR));
@@ -189,6 +191,8 @@ static void *_openal_update(ALLEGRO_THREAD* self, void* arg)
    ALLEGRO_VOICE* voice = (ALLEGRO_VOICE*) arg;
    ALLEGRO_AL_DATA *ex_data = (ALLEGRO_AL_DATA*)voice->extra;
 
+   /* Streams should not be set to looping */
+   alSourcei(ex_data->source, AL_LOOPING, AL_FALSE);
 
    silence = calloc(1, ex_data->buffer_size);
    if(ex_data->format == AL_FORMAT_STEREO8 ||
@@ -214,7 +218,7 @@ static void *_openal_update(ALLEGRO_THREAD* self, void* arg)
    while(!ex_data->stop_voice)
    {
       ALint status = 0;
-
+	   
       alGetSourcei(ex_data->source, AL_BUFFERS_PROCESSED, &status);
       if(status <= 0)
       {
