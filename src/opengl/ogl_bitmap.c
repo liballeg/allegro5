@@ -129,7 +129,7 @@ static const int glformats[ALLEGRO_NUM_PIXEL_FORMATS][3] = {
    {0, 0, 0},
    {0, 0, 0},
    {GL_RGBA, GL_UNSIGNED_BYTE, GL_RGBA}, /* ABGR_8888_LE */
-   {GL_RGB, GL_UNSIGNED_SHORT_4_4_4_4, GL_RGBA} /* RGBA_4444 */
+   {GL_RGBA, GL_UNSIGNED_SHORT_4_4_4_4, GL_RGBA} /* RGBA_4444 */
 };
 #endif
 
@@ -594,7 +594,6 @@ static ALLEGRO_LOCKED_REGION *ogl_lock_region(ALLEGRO_BITMAP *bitmap,
       al_set_current_display(bitmap->display);
    }
 
-#if !defined ALLEGRO_GP2XWIZ
    if (ogl_bitmap->is_backbuffer) {
       pitch = round_to_unpack_alignment(w * pixel_size);
       ogl_bitmap->lock_buffer = _AL_MALLOC(pitch * h);
@@ -613,6 +612,7 @@ static ALLEGRO_LOCKED_REGION *ogl_lock_region(ALLEGRO_BITMAP *bitmap,
       bitmap->locked_region.data = ogl_bitmap->lock_buffer +
          pitch * (h - 1);
    }
+#if !defined ALLEGRO_GP2XWIZ
    else {
       if (flags & ALLEGRO_LOCK_WRITEONLY) {
          /* For write-only locking, we allocate a buffer just big enough
@@ -626,7 +626,19 @@ static ALLEGRO_LOCKED_REGION *ogl_lock_region(ALLEGRO_BITMAP *bitmap,
       }
       else {
          #ifdef ALLEGRO_IPHONE
-         // FIXME: We can use FBO and glReadPixels on the iphone.
+            pitch = round_to_unpack_alignment(w * pixel_size);
+            ogl_bitmap->lock_buffer = _AL_MALLOC(pitch * h);
+
+            glBindFramebufferOES(GL_FRAMEBUFFER_OES, ogl_bitmap->fbo);
+            glReadPixels(x, gl_y, w, h,
+               glformats[format][2],
+               glformats[format][1],
+               ogl_bitmap->lock_buffer);
+
+            glBindFramebufferOES(GL_FRAMEBUFFER_OES, 0);
+
+            bitmap->locked_region.data = ogl_bitmap->lock_buffer +
+               pitch * (h - 1);
          #else
          // FIXME: Using glGetTexImage means we always read the complete
          // texture - even when only a single pixel is locked. Likely
@@ -650,15 +662,6 @@ static ALLEGRO_LOCKED_REGION *ogl_lock_region(ALLEGRO_BITMAP *bitmap,
       }
    }
 #else
-   if (ogl_bitmap->is_backbuffer) {
-      /* FIXME */
-      pitch = round_to_pack_alignment(ogl_bitmap->true_w * pixel_size);
-      ogl_bitmap->lock_buffer = _AL_MALLOC(pitch * ogl_bitmap->true_h);
-
-      if (!(flags & ALLEGRO_LOCK_WRITEONLY)) {
-      	/* FIXME */
-      }
-   }
    else {
       if (flags & ALLEGRO_LOCK_WRITEONLY) {
          pitch = round_to_unpack_alignment(w * pixel_size);
@@ -767,11 +770,26 @@ static void ogl_unlock_region(ALLEGRO_BITMAP *bitmap)
    }
 #else
    if (ogl_bitmap->is_backbuffer) {
-      /* The only way to do this in ES 1.1 is to create a texture */
-      /* FIXME: implement */
+      GLuint tmp_tex;
+      glGenTextures(1, &tmp_tex);
+      glTexImage2D(GL_TEXTURE_2D, 0, glformats[bitmap->format][0], bitmap->lock_w, bitmap->lock_h,
+                   0, glformats[bitmap->format][2], glformats[bitmap->format][1],
+                   ogl_bitmap->lock_buffer);
+      e = glGetError();
+      if (e) {
+         int printf(const char *, ...);
+         printf("glTexImage2D failed: %d\n", e);
+      }
+      glDrawTexiOES(bitmap->lock_x, bitmap->lock_y, 0, bitmap->lock_w, bitmap->lock_h);
+      e = glGetError();
+      if (e) {
+         int printf(const char *, ...);
+         printf("glDrawTexiOES failed: %d\n", e);
+      }
+      glDeleteTextures(1, &tmp_tex);
    }
    else {
-      /* FIXME: test */
+      glBindTexture(GL_TEXTURE_2D, ogl_bitmap->texture);
       if (bitmap->lock_flags & ALLEGRO_LOCK_WRITEONLY) {
          int fake_pitch = bitmap->w * al_get_pixel_size(bitmap->format);
          _al_convert_bitmap_data(
@@ -781,7 +799,6 @@ static void ogl_unlock_region(ALLEGRO_BITMAP *bitmap)
 	    -fake_pitch,
             0, 0, bitmap->lock_x, bitmap->lock_y,
             bitmap->lock_w, bitmap->lock_h);
-         glBindTexture(GL_TEXTURE_2D, ogl_bitmap->texture);
          glTexSubImage2D(GL_TEXTURE_2D, 0,
             bitmap->lock_x, gl_y,
             bitmap->lock_w, bitmap->lock_h,
@@ -795,7 +812,19 @@ static void ogl_unlock_region(ALLEGRO_BITMAP *bitmap)
          }
       }
       else {
-      	// FIXME
+         #ifdef ALLEGRO_IPHONE
+         /* We don't copy anything past bitmap->h on purpose. */
+         glTexSubImage2D(GL_TEXTURE_2D, 0, bitmap->lock_x, gl_y,
+            bitmap->lock_w, bitmap->lock_h,
+            glformats[format][2],
+            glformats[format][1],
+            ogl_bitmap->lock_buffer);
+         e = glGetError();
+         if (e) {
+            ALLEGRO_ERROR("glTexSubImage2D for format %d failed (%s).\n",
+               format, error_string(e));
+         }
+         #endif
       }
    }
 #endif
@@ -889,6 +918,12 @@ ALLEGRO_BITMAP *_al_ogl_create_bitmap(ALLEGRO_DISPLAY *d, int w, int h)
 #else
    true_w = pot(w);
    true_h = pot(h);
+#endif
+
+/* FBOs are 16x16 minimum on iPhone, this is a workaround */
+#ifdef ALLEGRO_IPHONE
+   if (true_w < 16) true_w = 16;
+   if (true_h < 16) true_h = 16;
 #endif
 
    ALLEGRO_DEBUG("Using dimensions: %d %d\n", true_w, true_h);
