@@ -30,6 +30,9 @@ struct Example {
    int sprite_count;
    bool show_help;
    ALLEGRO_FONT *font;
+    
+   bool mouse_down;
+   int last_x, last_y;
 
    ALLEGRO_COLOR white;
    ALLEGRO_COLOR half_white;
@@ -71,11 +74,10 @@ static void get_fps(int *average, int *minmax)
 
 static void add_sprite(void)
 {
+   if (example.sprite_count >= MAX_SPRITES) return;
    int w = al_get_display_width();
    int h = al_get_display_height();
    int i = example.sprite_count++;
-   if (example.sprite_count >= MAX_SPRITES)
-      example.sprite_count = MAX_SPRITES - 1;
    Sprite *s = example.sprites + i;
    float a = rand() % 360;
    s->x = rand() % (w - example.bitmap_size);
@@ -84,13 +86,23 @@ static void add_sprite(void)
    s->dy = sin(a) * FPS * 2;
 }
 
-static void remove_sprite(void)
+static void add_sprites(int n)
 {
-   if (example.sprite_count > 0) example.sprite_count--;
+    int i;
+    for (i = 0; i < n; i++) add_sprite();
+}
+
+static void remove_sprites(int n)
+{
+   example.sprite_count -= n;
+   if (example.sprite_count < 0) example.sprite_count = 0;
 }
 
 static void change_size(int size)
 {
+   if (size < 1) size = 1;
+   if (size > 1024) size = 1024;
+
    if (example.bitmap) al_destroy_bitmap(example.bitmap);
    al_set_new_bitmap_flags(example.use_memory_bitmaps ? ALLEGRO_MEMORY_BITMAP : 0);
    example.bitmap = al_create_bitmap(size, size);
@@ -138,6 +150,7 @@ static void update(void)
 static void redraw(void)
 {
    int w = al_get_display_width();
+   int h = al_get_display_height();
    int i;
    int f1, f2;
    int fh = al_get_font_line_height(example.font);
@@ -161,16 +174,16 @@ static void redraw(void)
    al_set_blender(ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA, example.white);
    if (example.show_help) {
       for (i = 0; i < 5; i++)
-         al_draw_text(example.font, 0, i * fh, 0, text[i]);
+         al_draw_text(example.font, 0, h - 5 * fh + i * fh, 0, text[i]);
    }
 
-   al_draw_textf(example.font, w / 2, 0, ALLEGRO_ALIGN_CENTRE, "count: %d",
+   al_draw_textf(example.font, 0, 0, 0, "count: %d",
       example.sprite_count);
-   al_draw_textf(example.font, w / 2, fh, ALLEGRO_ALIGN_CENTRE, "size: %d",
+   al_draw_textf(example.font, 0, fh, 0, "size: %d",
       example.bitmap_size);
-   al_draw_textf(example.font, w / 2, fh * 2, ALLEGRO_ALIGN_CENTRE, "%s",
+   al_draw_textf(example.font, 0, fh * 2, 0, "%s",
       info[example.use_memory_bitmaps]);
-   al_draw_textf(example.font, w / 2, fh * 3, ALLEGRO_ALIGN_CENTRE, "%s",
+   al_draw_textf(example.font, 0, fh * 3, 0, "%s",
       binfo[example.blending]);
 
    get_fps(&f1, &f2);
@@ -184,6 +197,7 @@ int main(void)
    ALLEGRO_DISPLAY *display;
    ALLEGRO_TIMER *timer;
    ALLEGRO_EVENT_QUEUE *queue;
+   int w = 640, h = 480;
    bool done = false;
    bool need_redraw = true;
    example.show_help = true;
@@ -200,7 +214,14 @@ int main(void)
 
    al_init_font_addon();
 
-   display = al_create_display(640, 480);
+   al_get_num_video_adapters();
+   
+   ALLEGRO_MONITOR_INFO info;
+   al_get_monitor_info(0, &info);
+   if (info.x2 - info.x1 < w) w = info.x2 - info.x1;
+   if (info.y2 - info.y1 < h) h = info.y2 - info.y1;
+   display = al_create_display(w, h);
+
    if (!display) {
       abort_example("Error creating display.\n");
       return 1;
@@ -210,6 +231,11 @@ int main(void)
       abort_example("Error installing keyboard.\n");
       return 1;
    }
+    
+   if (!al_install_mouse()) {
+        abort_example("Error installing mouse.\n");
+        return 1;
+    }
 
    example.font = al_load_font("data/fixed_font.tga", 0, 0);
    if (!example.font) {
@@ -234,6 +260,7 @@ int main(void)
 
    queue = al_create_event_queue();
    al_register_event_source(queue, al_get_keyboard_event_source());
+   al_register_event_source(queue, al_get_mouse_event_source());
    al_register_event_source(queue, al_get_timer_event_source(timer));
    al_register_event_source(queue, al_get_display_event_source(display));
 
@@ -257,16 +284,16 @@ int main(void)
             if (event.keyboard.keycode == ALLEGRO_KEY_ESCAPE)
                done = true;
             else if (event.keyboard.keycode == ALLEGRO_KEY_UP) {
-               add_sprite();
+               add_sprites(1);
             }
             else if (event.keyboard.keycode == ALLEGRO_KEY_DOWN) {
-               remove_sprite();
+               remove_sprites(1);
             }
             else if (event.keyboard.keycode == ALLEGRO_KEY_LEFT) {
-               if (example.bitmap_size > 1) change_size(example.bitmap_size - 1);
+               change_size(example.bitmap_size - 1);
             }
             else if (event.keyboard.keycode == ALLEGRO_KEY_RIGHT) {
-               if (example.bitmap_size < 1024) change_size(example.bitmap_size + 1);
+               change_size(example.bitmap_size + 1);
             }
             else if (event.keyboard.keycode == ALLEGRO_KEY_F1) {
                example.show_help ^= 1;
@@ -289,6 +316,54 @@ int main(void)
          case ALLEGRO_EVENT_TIMER:
             update();
             need_redraw = true;
+            break;
+        
+         case ALLEGRO_EVENT_MOUSE_BUTTON_DOWN:
+            example.mouse_down = true;
+            example.last_x = event.mouse.x;
+            example.last_y = event.mouse.y;
+            break;
+         case ALLEGRO_EVENT_MOUSE_BUTTON_UP: {
+            int fh = al_get_font_line_height(example.font);
+            example.mouse_down = false;
+            if (event.mouse.x < 40 && event.mouse.y >= h - fh * 5) {
+                int button = (event.mouse.y - (h - fh * 5)) / fh;
+                if (button == 0) {
+                    example.use_memory_bitmaps ^= 1;
+                    change_size(example.bitmap_size);
+                }
+                if (button == 1) {
+                    example.blending++;
+                    if (example.blending == 4)
+                        example.blending = 0;
+                }
+                if (button == 4) {
+                    example.show_help ^= 1;
+                }
+                
+            }
+            break;
+         }
+         case ALLEGRO_EVENT_MOUSE_AXES:
+            if (example.mouse_down) {
+                double dx = event.mouse.x - example.last_x;
+                double dy = event.mouse.y - example.last_y;
+                if (dy > 4) {
+                    add_sprites(dy / 4);
+                }
+                if (dy < -4) {
+                    remove_sprites(-dy / 4);
+                }
+                if (dx > 4) {
+                    change_size(example.bitmap_size + dx - 4);
+                }
+                if (dx < -4) {
+                    change_size(example.bitmap_size + dx + 4);
+                }
+                
+                example.last_x = event.mouse.x;
+                example.last_y = event.mouse.y;
+            }
             break;
       }
    }
