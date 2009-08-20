@@ -75,7 +75,7 @@ static void add_sprite(void)
    int h = al_get_display_height();
    int i = example.sprite_count++;
    if (example.sprite_count >= MAX_SPRITES)
-      example.sprite_count = MAX_SPRITES;
+      example.sprite_count = MAX_SPRITES - 1;
    Sprite *s = example.sprites + i;
    float a = rand() % 360;
    s->x = rand() % (w - example.bitmap_size);
