@@ -1117,9 +1117,6 @@ static bool osx_set_mouse_cursor(ALLEGRO_DISPLAY *display,
  * change the mouse cursor to one of the system default cursors.
  * NOTE: Allegro defines four of these, but OS X has no dedicated "busy" or
  * "question" cursors, so we just set an arrow in those cases.
- *
- * TODO: maybe Allegro could expose more of the system default cursors?
- * Check with other platforms!
  */
 static bool osx_set_system_mouse_cursor(ALLEGRO_DISPLAY *display,
    ALLEGRO_SYSTEM_MOUSE_CURSOR cursor_id) {
@@ -1127,13 +1124,35 @@ static bool osx_set_system_mouse_cursor(ALLEGRO_DISPLAY *display,
    NSCursor *requested_cursor = NULL;
 
    switch (cursor_id) {
+      case ALLEGRO_SYSTEM_MOUSE_CURSOR_DEFAULT:
       case ALLEGRO_SYSTEM_MOUSE_CURSOR_ARROW:
       case ALLEGRO_SYSTEM_MOUSE_CURSOR_BUSY:
       case ALLEGRO_SYSTEM_MOUSE_CURSOR_QUESTION:
+      case ALLEGRO_SYSTEM_MOUSE_CURSOR_RESIZE_NE:
+      case ALLEGRO_SYSTEM_MOUSE_CURSOR_RESIZE_SW:
+      case ALLEGRO_SYSTEM_MOUSE_CURSOR_RESIZE_NW:
+      case ALLEGRO_SYSTEM_MOUSE_CURSOR_RESIZE_SE:
+      case ALLEGRO_SYSTEM_MOUSE_CURSOR_PROGRESS:
+      case ALLEGRO_SYSTEM_MOUSE_CURSOR_ALT_SELECT:
+      case ALLEGRO_SYSTEM_MOUSE_CURSOR_UNAVAILABLE:
          requested_cursor = [NSCursor arrowCursor];
          break;
       case ALLEGRO_SYSTEM_MOUSE_CURSOR_EDIT:
          requested_cursor = [NSCursor IBeamCursor];
+         break;
+      case ALLEGRO_SYSTEM_MOUSE_CURSOR_RESIZE_N:
+      case ALLEGRO_SYSTEM_MOUSE_CURSOR_RESIZE_S:
+         requested_cursor = [NSCursor resizeUpDownCursor];
+         break;
+      case ALLEGRO_SYSTEM_MOUSE_CURSOR_RESIZE_E:
+      case ALLEGRO_SYSTEM_MOUSE_CURSOR_RESIZE_W:
+         requested_cursor = [NSCursor resizeLeftRightCursor];
+         break;
+      case ALLEGRO_SYSTEM_MOUSE_CURSOR_PRECISION:
+         requested_cursor = [NSCursor crosshairCursor];
+         break;
+      case ALLEGRO_SYSTEM_MOUSE_CURSOR_LINK:
+         requested_cursor = [NSCursor openHandCursor];
          break;
       default:
          return false;

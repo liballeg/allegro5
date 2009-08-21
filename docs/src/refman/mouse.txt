@@ -19,6 +19,8 @@ display in effect.
 
 Returns a pointer to the cursor on success, or NULL on failure.
 
+*See also:* [al_set_mouse_cursor], [al_destroy_mouse_cursor]
+
 ## API: al_destroy_mouse_cursor
 
 Free the memory used by the given cursor.
@@ -28,6 +30,8 @@ still be in effect.
 XXX that's terrible and should be changed
 
 Has no effect if `cursor` is NULL.
+
+*See also:* [al_create_mouse_cursor]
 
 ## API: al_get_cursor_position
 
@@ -67,6 +71,8 @@ it disappear.
 
 Returns true on success (or if the cursor already was hidden), false
 otherwise.
+
+*See also:* [al_show_mouse_cursor]
 
 ## API: al_install_mouse
 
@@ -112,11 +118,13 @@ immediately visible.
 
 Returns true on success, false on failure.
 
+*See also:* [al_set_system_mouse_cursor], [al_show_mouse_cursor],
+[al_hide_mouse_cursor]
+
 ## API: al_set_mouse_range
 
 Sets the area of the screen within which the mouse can move.
 The coordinates are inclusive. (XXX: change this?)
-XXX: This should be relative to an ALLEGRO_DISPLAY.
 
 *Return value:*
 
@@ -132,14 +140,13 @@ Returns true on success, false on failure.
 
 ## API: al_set_mouse_xy
 
-Try to position the mouse at the given coordinates. The mouse movement
-resulting from a successful move will generate an
+Try to position the mouse at the given coordinates on the current display.
+The mouse movement resulting from a successful move will generate an
 ALLEGRO_EVENT_MOUSE_WARPED event.
 
 *Return value:*
 
 Returns true on success, false on failure.
-XXX: This should be relative to an ALLEGRO_DISPLAY.
 
 ## API: al_set_mouse_z
 
@@ -155,9 +162,36 @@ Set the given system mouse cursor to be the current mouse cursor
 for the current display.  If the cursor is currently 'shown' (as opposed
 to 'hidden') the change is immediately visible.
 
+If the cursor doesn't exist on the current platform another cursor will be
+silently be substituted.
+
+The cursors are:
+
+* ALLEGRO_SYSTEM_MOUSE_CURSOR_DEFAULT
+* ALLEGRO_SYSTEM_MOUSE_CURSOR_ARROW
+* ALLEGRO_SYSTEM_MOUSE_CURSOR_BUSY
+* ALLEGRO_SYSTEM_MOUSE_CURSOR_QUESTION
+* ALLEGRO_SYSTEM_MOUSE_CURSOR_EDIT
+* ALLEGRO_SYSTEM_MOUSE_CURSOR_MOVE
+* ALLEGRO_SYSTEM_MOUSE_CURSOR_RESIZE_N
+* ALLEGRO_SYSTEM_MOUSE_CURSOR_RESIZE_W
+* ALLEGRO_SYSTEM_MOUSE_CURSOR_RESIZE_S
+* ALLEGRO_SYSTEM_MOUSE_CURSOR_RESIZE_E
+* ALLEGRO_SYSTEM_MOUSE_CURSOR_RESIZE_NW
+* ALLEGRO_SYSTEM_MOUSE_CURSOR_RESIZE_SW
+* ALLEGRO_SYSTEM_MOUSE_CURSOR_RESIZE_SE
+* ALLEGRO_SYSTEM_MOUSE_CURSOR_RESIZE_NE
+* ALLEGRO_SYSTEM_MOUSE_CURSOR_PROGRESS
+* ALLEGRO_SYSTEM_MOUSE_CURSOR_PRECISION
+* ALLEGRO_SYSTEM_MOUSE_CURSOR_LINK
+* ALLEGRO_SYSTEM_MOUSE_CURSOR_ALT_SELECT
+* ALLEGRO_SYSTEM_MOUSE_CURSOR_UNAVAILABLE
+
 *Return value:*
 
 Returns true on success, false on failure.
+
+*See also:* [al_set_mouse_cursor], [al_show_mouse_cursor], [al_hide_mouse_cursor]
 
 ## API: al_show_mouse_cursor
 
@@ -167,6 +201,8 @@ Make a mouse cursor visible in the current display of the calling thread.
 
 Returns true if a mouse cursor is shown as a result of the call (or one
 already was visible), false otherwise.
+
+*See also:* [al_hide_mouse_cursor]
 
 ## API: al_uninstall_mouse
 

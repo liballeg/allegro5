@@ -131,7 +131,9 @@ static bool xdpy_set_system_mouse_cursor(ALLEGRO_DISPLAY *display,
    unsigned int cursor_shape;
 
    switch (cursor_id) {
+      case ALLEGRO_SYSTEM_MOUSE_CURSOR_DEFAULT:
       case ALLEGRO_SYSTEM_MOUSE_CURSOR_ARROW:
+      case ALLEGRO_SYSTEM_MOUSE_CURSOR_PROGRESS:
          cursor_shape = XC_left_ptr;
          break;
       case ALLEGRO_SYSTEM_MOUSE_CURSOR_BUSY:
@@ -142,6 +144,45 @@ static bool xdpy_set_system_mouse_cursor(ALLEGRO_DISPLAY *display,
          break;
       case ALLEGRO_SYSTEM_MOUSE_CURSOR_EDIT:
          cursor_shape = XC_xterm;
+         break;
+      case ALLEGRO_SYSTEM_MOUSE_CURSOR_MOVE:
+         cursor_shape = XC_fleur;
+         break;
+      case ALLEGRO_SYSTEM_MOUSE_CURSOR_RESIZE_N:
+         cursor_shape = XC_top_side;
+         break;
+      case ALLEGRO_SYSTEM_MOUSE_CURSOR_RESIZE_S:
+         cursor_shape = XC_bottom_side;
+         break;
+      case ALLEGRO_SYSTEM_MOUSE_CURSOR_RESIZE_E:
+         cursor_shape = XC_right_side;
+         break;
+      case ALLEGRO_SYSTEM_MOUSE_CURSOR_RESIZE_W:
+         cursor_shape = XC_left_side;
+         break;
+      case ALLEGRO_SYSTEM_MOUSE_CURSOR_RESIZE_NE:
+         cursor_shape = XC_top_right_corner;
+         break;
+      case ALLEGRO_SYSTEM_MOUSE_CURSOR_RESIZE_SW:
+         cursor_shape = XC_bottom_left_corner;
+         break;
+      case ALLEGRO_SYSTEM_MOUSE_CURSOR_RESIZE_NW:
+         cursor_shape = XC_top_left_corner;
+         break;
+      case ALLEGRO_SYSTEM_MOUSE_CURSOR_RESIZE_SE:
+         cursor_shape = XC_bottom_right_corner;
+         break;
+      case ALLEGRO_SYSTEM_MOUSE_CURSOR_PRECISION:
+         cursor_shape = XC_crosshair;
+         break;
+      case ALLEGRO_SYSTEM_MOUSE_CURSOR_LINK:
+         cursor_shape = XC_hand2;
+         break;
+      case ALLEGRO_SYSTEM_MOUSE_CURSOR_ALT_SELECT:
+         cursor_shape = XC_hand1;
+         break;
+      case ALLEGRO_SYSTEM_MOUSE_CURSOR_UNAVAILABLE:
+         cursor_shape = XC_X_cursor;
          break;
       default:
          return false;

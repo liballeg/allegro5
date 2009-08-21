@@ -224,6 +224,7 @@ bool _al_win_hide_mouse_cursor(ALLEGRO_DISPLAY *display)
 static HCURSOR system_cursor_to_hcursor(ALLEGRO_SYSTEM_MOUSE_CURSOR cursor_id)
 {
    switch (cursor_id) {
+      case ALLEGRO_SYSTEM_MOUSE_CURSOR_DEFAULT:
       case ALLEGRO_SYSTEM_MOUSE_CURSOR_ARROW:
          return LoadCursor(NULL, IDC_ARROW);
       case ALLEGRO_SYSTEM_MOUSE_CURSOR_BUSY:
@@ -232,6 +233,30 @@ static HCURSOR system_cursor_to_hcursor(ALLEGRO_SYSTEM_MOUSE_CURSOR cursor_id)
          return LoadCursor(NULL, IDC_HELP);
       case ALLEGRO_SYSTEM_MOUSE_CURSOR_EDIT:
          return LoadCursor(NULL, IDC_IBEAM);
+      case ALLEGRO_SYSTEM_MOUSE_CURSOR_MOVE:
+         return LoadCursor(NULL, IDC_SIZEALL);
+      case ALLEGRO_SYSTEM_MOUSE_CURSOR_RESIZE_N:
+      case ALLEGRO_SYSTEM_MOUSE_CURSOR_RESIZE_S:
+         return LoadCursor(NULL, IDC_SIZENS);
+      case ALLEGRO_SYSTEM_MOUSE_CURSOR_RESIZE_E:
+      case ALLEGRO_SYSTEM_MOUSE_CURSOR_RESIZE_W:
+         return LoadCursor(NULL, IDC_SIZEWE);
+      case ALLEGRO_SYSTEM_MOUSE_CURSOR_RESIZE_NE:
+      case ALLEGRO_SYSTEM_MOUSE_CURSOR_RESIZE_SW:
+         return LoadCursor(NULL, IDC_SIZENESW);
+      case ALLEGRO_SYSTEM_MOUSE_CURSOR_RESIZE_NW:
+      case ALLEGRO_SYSTEM_MOUSE_CURSOR_RESIZE_SE:
+         return LoadCursor(NULL, IDC_SIZENWSE);
+      case ALLEGRO_SYSTEM_MOUSE_CURSOR_PROGRESS:
+         return LoadCursor(NULL, IDC_APPSTARTING);
+      case ALLEGRO_SYSTEM_MOUSE_CURSOR_PRECISION:
+         return LoadCursor(NULL, IDC_CROSS);
+      case ALLEGRO_SYSTEM_MOUSE_CURSOR_LINK:
+         return LoadCursor(NULL, IDC_HAND);
+      case ALLEGRO_SYSTEM_MOUSE_CURSOR_ALT_SELECT:
+         return LoadCursor(NULL, IDC_UPARROW);
+      case ALLEGRO_SYSTEM_MOUSE_CURSOR_UNAVAILABLE:
+         return LoadCursor(NULL, IDC_NO);
       default:
          return NULL;
    }

@@ -1,8 +1,5 @@
 /*
  *    Example program for the Allegro library, by Peter Wang.
- *
- *    Press '1', '2', '3', '4' or 'c' to select a mouse cursor.
- *    Press 's' or 'h' to show or hide the cursor.
  */
 
 
@@ -12,42 +9,79 @@
 
 #include "common.c"
 
+
+typedef struct {
+   int system_cursor;
+   const char *label;
+} CursorList;
+
+
+#define MARGIN_LEFT  20
+#define MARGIN_TOP   20
+#define NUM_CURSORS  21
+
+CursorList cursor_list[NUM_CURSORS] =
+{
+   { ALLEGRO_SYSTEM_MOUSE_CURSOR_DEFAULT, "DEFAULT" },
+   { ALLEGRO_SYSTEM_MOUSE_CURSOR_ARROW, "ARROW" },
+   { ALLEGRO_SYSTEM_MOUSE_CURSOR_BUSY, "BUSY" },
+   { ALLEGRO_SYSTEM_MOUSE_CURSOR_QUESTION, "QUESTION" },
+   { ALLEGRO_SYSTEM_MOUSE_CURSOR_EDIT, "EDIT" },
+   { ALLEGRO_SYSTEM_MOUSE_CURSOR_MOVE, "MOVE" },
+   { ALLEGRO_SYSTEM_MOUSE_CURSOR_RESIZE_N, "RESIZE_N" },
+   { ALLEGRO_SYSTEM_MOUSE_CURSOR_RESIZE_W, "RESIZE_W" },
+   { ALLEGRO_SYSTEM_MOUSE_CURSOR_RESIZE_S, "RESIZE_S" },
+   { ALLEGRO_SYSTEM_MOUSE_CURSOR_RESIZE_E, "RESIZE_E" },
+   { ALLEGRO_SYSTEM_MOUSE_CURSOR_RESIZE_NW, "RESIZE_NW" },
+   { ALLEGRO_SYSTEM_MOUSE_CURSOR_RESIZE_SW, "RESIZE_SW" },
+   { ALLEGRO_SYSTEM_MOUSE_CURSOR_RESIZE_SE, "RESIZE_SE" },
+   { ALLEGRO_SYSTEM_MOUSE_CURSOR_RESIZE_NE, "RESIZE_NE" },
+   { ALLEGRO_SYSTEM_MOUSE_CURSOR_PROGRESS, "PROGRESS" },
+   { ALLEGRO_SYSTEM_MOUSE_CURSOR_PRECISION, "PRECISION" },
+   { ALLEGRO_SYSTEM_MOUSE_CURSOR_LINK, "LINK" },
+   { ALLEGRO_SYSTEM_MOUSE_CURSOR_ALT_SELECT, "ALT_SELECT" },
+   { ALLEGRO_SYSTEM_MOUSE_CURSOR_UNAVAILABLE, "UNAVAILABLE" },
+   { -1, "CUSTOM" }
+};
+
+int current_cursor[2] = { 0, 0 };
+
+
 static void draw_display(ALLEGRO_FONT *font)
 {
+   int th;
+   int i;
+
    al_set_target_bitmap(al_get_backbuffer());
    al_clear_to_color(al_map_rgb(128, 128, 128));
+
    al_set_blender(ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA, al_map_rgba_f(0, 0, 0, 1));
-   al_draw_textf(font, 50, 20, 0, "Instructions:");
-   al_draw_textf(font, 50, 50, 0, "<s> - show cursor");
-   al_draw_textf(font, 50, 70, 0, "<h> - hide cursor");
-   al_draw_textf(font, 50, 90, 0, "<1> - show cursor 1");
-   al_draw_textf(font, 50, 110, 0, "<2> - show cursor 2");
-   al_draw_textf(font, 50, 130, 0, "<3> - show cursor 3");
-   al_draw_textf(font, 50, 150, 0, "<4> - show cursor 4");
-   al_draw_textf(font, 50, 170, 0, "<c> - show custom cursor");
-   al_draw_textf(font, 50, 190, 0, "<esc> - exit program");
+   th = al_get_font_line_height(font);
+   for (i = 0; i < NUM_CURSORS; i++) {
+      al_draw_text(font, MARGIN_LEFT, MARGIN_TOP + i * th, 0, cursor_list[i].label);
+   }
+
+   i++;
+   al_draw_text(font, MARGIN_LEFT, MARGIN_TOP + i * th, 0,
+      "Press S/H to show/hide cursor");
+
    al_flip_display();
 }
 
-static void hide_cursor(void)
+static int hover(ALLEGRO_FONT *font, int y)
 {
-   if (!al_hide_mouse_cursor()) {
-      abort_example("Error hiding mouse cursor\n");
-   }
-}
+   int th;
+   int i;
 
-static void show_cursor(void)
-{
-   if (!al_show_mouse_cursor()) {
-      abort_example("Error showing mouse cursor\n");
-   }
-}
+   if (y < MARGIN_TOP)
+      return -1;
 
-static void test_set_cursor(ALLEGRO_SYSTEM_MOUSE_CURSOR cursor_id)
-{
-   if (!al_set_system_mouse_cursor(cursor_id)) {
-      abort_example("Error setting system mouse cursor\n");
-   }
+   th = al_get_font_line_height(font);
+   i = (y - MARGIN_TOP) / th;
+   if (i < NUM_CURSORS)
+      return i;
+
+   return -1;
 }
 
 int main(void)
@@ -56,7 +90,7 @@ int main(void)
    ALLEGRO_DISPLAY *display2;
    ALLEGRO_BITMAP *bmp;
    ALLEGRO_BITMAP *shrunk_bmp;
-   ALLEGRO_MOUSE_CURSOR *cursor;
+   ALLEGRO_MOUSE_CURSOR *custom_cursor;
    ALLEGRO_EVENT_QUEUE *queue;
    ALLEGRO_FONT *font;
    ALLEGRO_EVENT event;
@@ -73,14 +107,19 @@ int main(void)
       return 1;
    }
 
+   if (!al_install_keyboard()) {
+      abort_example("Error installing keyboard\n");
+      return 1;
+   }
+
    al_set_new_display_flags(ALLEGRO_GENERATE_EXPOSE_EVENTS);
-   display1 = al_create_display(400, 300);
+   display1 = al_create_display(400, 400);
    if (!display1) {
       abort_example("Error creating display1\n");
       return 1;
    }
 
-   display2 = al_create_display(400, 300);
+   display2 = al_create_display(400, 400);
    if (!display2) {
       abort_example("Error creating display2\n");
       return 1;
@@ -92,9 +131,9 @@ int main(void)
       return 1;
    }
 
-   font = al_load_bitmap_font("data/font.tga");
+   font = al_load_bitmap_font("data/fixed_font.tga");
    if (!font) {
-      abort_example("Error loading data/font.tga\n");
+      abort_example("Error loading data/fixed_font.tga\n");
       return 1;
    }
 
@@ -110,8 +149,8 @@ int main(void)
       0, 0, 32, 32,
       0);
 
-   cursor = al_create_mouse_cursor(shrunk_bmp, 0, 0);
-   if (!cursor) {
+   custom_cursor = al_create_mouse_cursor(shrunk_bmp, 0, 0);
+   if (!custom_cursor) {
       abort_example("Error creating mouse cursor\n");
       return 1;
    }
@@ -121,11 +160,6 @@ int main(void)
    shrunk_bmp = NULL;
    bmp = NULL;
 
-   if (!al_install_keyboard()) {
-      abort_example("Error installing keyboard\n");
-      return 1;
-   }
-
    queue = al_create_event_queue();
    if (!queue) {
       abort_example("Error creating event queue\n");
@@ -133,12 +167,14 @@ int main(void)
    }
 
    al_register_event_source(queue, al_get_keyboard_event_source());
+   al_register_event_source(queue, al_get_mouse_event_source());
    al_register_event_source(queue, al_get_display_event_source(display1));
    al_register_event_source(queue, al_get_display_event_source(display2));
 
    al_set_current_display(display1);
    al_set_target_bitmap(al_get_backbuffer());
    draw_display(font);
+
    al_set_current_display(display2);
    al_set_target_bitmap(al_get_backbuffer());
    draw_display(font);
@@ -161,42 +197,35 @@ int main(void)
             case 27: /* escape */
                goto Quit;
             case 'h':
-               hide_cursor();
+               al_hide_mouse_cursor();
                break;
             case 's':
-               show_cursor();
-               break;
-            /* Is this part of the API?
-            case '0':
-               test_set_cursor(ALLEGRO_SYSTEM_MOUSE_CURSOR_NONE);
-               break;
-            */
-            case '1':
-               test_set_cursor(ALLEGRO_SYSTEM_MOUSE_CURSOR_ARROW);
-               break;
-            case '2':
-               test_set_cursor(ALLEGRO_SYSTEM_MOUSE_CURSOR_BUSY);
-               break;
-            case '3':
-               test_set_cursor(ALLEGRO_SYSTEM_MOUSE_CURSOR_QUESTION);
-               break;
-            case '4':
-               test_set_cursor(ALLEGRO_SYSTEM_MOUSE_CURSOR_EDIT);
-               break;
-            case 'c':
-               if (!al_set_mouse_cursor(cursor)) {
-                  abort_example("Error setting custom mouse cursor\n");
-               }
+               al_show_mouse_cursor();
                break;
             default:
                break;
+         }
+      }
+      if (event.type == ALLEGRO_EVENT_MOUSE_AXES) {
+         int dpy = (event.mouse.display == display1) ? 0 : 1;
+         int i = hover(font, event.mouse.y);
+
+         if (i >= 0 && current_cursor[dpy] != i) {
+            al_set_current_display(event.mouse.display);
+            if (cursor_list[i].system_cursor != -1) {
+               al_set_system_mouse_cursor(cursor_list[i].system_cursor);
+            }
+            else {
+               al_set_mouse_cursor(custom_cursor);
+            }
+            current_cursor[dpy] = i;
          }
       }
    }
 
 Quit:
 
-   al_destroy_mouse_cursor(cursor);
+   al_destroy_mouse_cursor(custom_cursor);
 
    return 0;
 }
