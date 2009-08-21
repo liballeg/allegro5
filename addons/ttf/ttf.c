@@ -444,3 +444,10 @@ bool al_init_ttf_addon(void)
     */
    return true;
 }
+
+
+/* Function: al_get_allegro_ttf_version */
+uint32_t al_get_allegro_ttf_version(void)
+{
+    return ALLEGRO_VERSION_INT;
+}

@@ -474,3 +474,10 @@ ALLEGRO_COLOR al_color_html(char const *string)
    al_color_html_to_rgb(string, &r, &g, &b);
    return al_map_rgb_f(r, g, b);
 }
+
+
+/* Function: al_get_allegro_color_version */
+uint32_t al_get_allegro_color_version(void)
+{
+    return ALLEGRO_VERSION_INT;
+}

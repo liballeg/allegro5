@@ -176,4 +176,10 @@ ALLEGRO_FILE *al_open_memfile(int64_t size, void *mem)
    return (ALLEGRO_FILE *)memfile;
 }
 
+/* Function: al_get_allegro_memfile_version */
+uint32_t al_get_allegro_memfile_version(void)
+{
+    return ALLEGRO_VERSION_INT;
+}
+
 /* vim: set sts=3 sw=3 et: */

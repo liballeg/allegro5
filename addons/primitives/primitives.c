@@ -371,3 +371,10 @@ void al_transform_transform(ALLEGRO_TRANSFORM* trans, ALLEGRO_TRANSFORM* trans2)
    (*trans2)[3][0] = (*trans)[0][0] * t + (*trans)[1][0] * (*trans2)[3][1] + (*trans)[3][0];
    (*trans2)[3][1] = (*trans)[0][1] * t + (*trans)[1][1] * (*trans2)[3][1] + (*trans)[3][1];
 }
+
+
+/* Function: al_get_allegro_primitives_version */
+uint32_t al_get_allegro_primitives_version(void)
+{
+    return ALLEGRO_VERSION_INT;
+}

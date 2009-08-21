@@ -56,9 +56,20 @@
 #define ALLEGRO_VERSION          4
 #define ALLEGRO_SUB_VERSION      9
 #define ALLEGRO_WIP_VERSION      14
+
+/* Not sure we need it, but since ALLEGRO_VERSION_STR contains it:
+ * 0 = SVN
+ * 1 = first release
+ * 2... = hotfixes?
+ */
+#define ALLEGRO_VERSION_RELEASE  0
+
 #define ALLEGRO_VERSION_STR      "4.9.14 (SVN)"
 #define ALLEGRO_DATE_STR         "2009"
 #define ALLEGRO_DATE             20090809    /* yyyymmdd */
+#define ALLEGRO_VERSION_INT \
+    ((ALLEGRO_VERSION << 24) | (ALLEGRO_SUB_VERSION << 16) | \
+    (ALLEGRO_WIP_VERSION << 8) | ALLEGRO_VERSION_RELEASE)
 
 /*******************************************/
 /************ Some global stuff ************/

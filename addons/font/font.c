@@ -342,4 +342,11 @@ ALLEGRO_FONT *al_load_font(char const *filename, int size, int flags)
 
 
 
+/* Function: al_get_allegro_font_version */
+uint32_t al_get_allegro_font_version(void)
+{
+    return ALLEGRO_VERSION_INT;
+}
+
+
 /* vim: set sts=4 sw=4 et: */

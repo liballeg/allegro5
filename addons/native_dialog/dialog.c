@@ -89,6 +89,14 @@ int al_show_native_message_box(
    return r;
 }
 
+
+/* Function: al_get_allegro_dialog_version */
+uint32_t al_get_allegro_dialog_version(void)
+{
+    return ALLEGRO_VERSION_INT;
+}
+
+
 /* Hack for documentation, since al_show_native_file_dialog() is defined
  * in multiple files.
  */

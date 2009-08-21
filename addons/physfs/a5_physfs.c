@@ -288,4 +288,11 @@ void al_set_physfs_file_interface(void)
 }
 
 
+/* Function: al_get_allegro_physfs_version */
+uint32_t al_get_allegro_physfs_version(void)
+{
+    return ALLEGRO_VERSION_INT;
+}
+
+
 /* vim: set sts=3 sw=3 et: */
