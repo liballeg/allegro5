@@ -791,7 +791,8 @@ static void ogl_unlock_region(ALLEGRO_BITMAP *bitmap)
    else {
       glBindTexture(GL_TEXTURE_2D, ogl_bitmap->texture);
       if (bitmap->lock_flags & ALLEGRO_LOCK_WRITEONLY) {
-         int fake_pitch = bitmap->w * al_get_pixel_size(bitmap->format);
+         int fake_pitch = round_to_unpack_alignment(bitmap->w *
+            al_get_pixel_size(bitmap->format));
          _al_convert_bitmap_data(
             bitmap->locked_region.data, bitmap->locked_region.format,
             bitmap->locked_region.pitch,
