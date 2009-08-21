@@ -27,6 +27,8 @@
 #include "allegro5/internal/aintern_pixels.h"
 #include "allegro5/internal/aintern_thread.h"
 
+ALLEGRO_DEBUG_CHANNEL("system")
+
 static ALLEGRO_SYSTEM *active_sysdrv = NULL;
 
 _AL_VECTOR _al_system_interfaces;
@@ -192,6 +194,8 @@ bool al_install_system(int (*atexit_ptr)(void (*)(void)))
    
    active_sysdrv = real_system;
    active_sysdrv->config = bootstrap.config;
+
+   ALLEGRO_INFO("Allegro version: %s\n", ALLEGRO_VERSION_STR);
 
    if(strcmp(al_get_orgname(), "") == 0) {
       al_set_orgname(NULL);
