@@ -73,17 +73,17 @@ ALLEGRO_DEBUG_CHANNEL("opengl")
 
 /* Define the GL API pointers.
  * Example:
- * ALLEGRO_BlendEquation_t __aglBlendEquation = NULL;
+ * __ALLEGRO_glBlendEquation_t __al_glBlendEquation = NULL;
  */
-#define AGL_API(type, name, args) ALLEGRO_##name##_t __agl##name = NULL;
+#define AGL_API(type, name, args) __ALLEGRO_gl##name##_t __al_gl##name = NULL;
 #	include "allegro5/opengl/GLext/gl_ext_api.h"
 #undef AGL_API
 #ifdef ALLEGRO_WINDOWS
-#define AGL_API(type, name, args) ALLEGRO_##name##_t __awgl##name = NULL;
+#define AGL_API(type, name, args) __ALLEGRO_wgl##name##_t __al_wgl##name = NULL;
 #	include "allegro5/opengl/GLext/wgl_ext_api.h"
 #undef AGL_API
 #elif defined ALLEGRO_UNIX
-#define AGL_API(type, name, args) ALLEGRO_##name##_t __aglX##name = NULL;
+#define AGL_API(type, name, args) __ALLEGRO_glX##name##_t __al_glX##name = NULL;
 #	include "allegro5/opengl/GLext/glx_ext_api.h"
 #undef AGL_API
 #endif
@@ -236,7 +236,7 @@ static void load_extensions(ALLEGRO_OGL_EXT_API *ext)
 #ifdef ALLEGRO_WINDOWS
 
    #define AGL_API(type, name, args)                                 \
-      ext->name = (ALLEGRO_##name##_t)wglGetProcAddress("gl" #name); \
+      ext->name = (__ALLEGRO_gl##name##_t)wglGetProcAddress("gl" #name); \
       if (ext->name) { ALLEGRO_DEBUG("gl" #name " successfully loaded\n"); }
 
       #include "allegro5/opengl/GLext/gl_ext_api.h"
@@ -244,7 +244,7 @@ static void load_extensions(ALLEGRO_OGL_EXT_API *ext)
    #undef AGL_API
 
    #define AGL_API(type, name, args)                                  \
-      ext->name = (ALLEGRO_##name##_t)wglGetProcAddress("wgl" #name); \
+      ext->name = (__ALLEGRO_wgl##name##_t)wglGetProcAddress("wgl" #name); \
       if (ext->name) { ALLEGRO_DEBUG("wgl" #name " successfully loaded\n"); }
 
       #include "allegro5/opengl/GLext/wgl_ext_api.h"
@@ -254,7 +254,7 @@ static void load_extensions(ALLEGRO_OGL_EXT_API *ext)
 #elif defined ALLEGRO_UNIX
 
    #define AGL_API(type, name, args)                                               \
-      ext->name = (ALLEGRO_##name##_t)alXGetProcAddress((const GLubyte*)"gl" #name);  \
+      ext->name = (__ALLEGRO_gl##name##_t)alXGetProcAddress((const GLubyte*)"gl" #name);  \
       if (ext->name) { ALLEGRO_DEBUG("gl" #name " successfully loaded\n"); }
 
       #include "allegro5/opengl/GLext/gl_ext_api.h"
@@ -262,7 +262,7 @@ static void load_extensions(ALLEGRO_OGL_EXT_API *ext)
    #undef AGL_API
 
    #define AGL_API(type, name, args)                                               \
-      ext->name = (ALLEGRO_##name##_t)alXGetProcAddress((const GLubyte*)"glX" #name); \
+      ext->name = (__ALLEGRO_glX##name##_t)alXGetProcAddress((const GLubyte*)"glX" #name); \
       if (ext->name) { ALLEGRO_DEBUG("glX" #name " successfully loaded\n"); }
 
       #include "allegro5/opengl/GLext/glx_ext_api.h"
@@ -272,7 +272,7 @@ static void load_extensions(ALLEGRO_OGL_EXT_API *ext)
 #elif defined ALLEGRO_MACOSX
 
 #define AGL_API(type, name, args)                                                                 \
-      ext->name = (ALLEGRO_##name##_t)CFBundleGetFunctionPointerForName(opengl_bundle_ref, CFSTR("gl" # name)); \
+      ext->name = (__ALLEGRO_gl##name##_t)CFBundleGetFunctionPointerForName(opengl_bundle_ref, CFSTR("gl" # name)); \
       if (ext->name) { ALLEGRO_DEBUG("gl" #name " successfully loaded\n"); }
 
       #include "allegro5/opengl/GLext/gl_ext_api.h"
@@ -293,17 +293,17 @@ void _al_ogl_set_extensions(ALLEGRO_OGL_EXT_API *ext)
       return;
    }
 
-#define AGL_API(type, name, args) __agl##name = ext->name;
+#define AGL_API(type, name, args) __al_gl##name = ext->name;
 #	include "allegro5/opengl/GLext/gl_ext_api.h"
 #undef AGL_API
 
 #ifdef ALLEGRO_WINDOWS
-#define AGL_API(type, name, args) __awgl##name = ext->name;
+#define AGL_API(type, name, args) __al_wgl##name = ext->name;
 #	include "allegro5/opengl/GLext/wgl_ext_api.h"
 #undef AGL_API
 
 #elif defined ALLEGRO_UNIX
-#define AGL_API(type, name, args) __aglX##name = ext->name;
+#define AGL_API(type, name, args) __al_glX##name = ext->name;
 #	include "allegro5/opengl/GLext/glx_ext_api.h"
 #undef AGL_API
 #endif

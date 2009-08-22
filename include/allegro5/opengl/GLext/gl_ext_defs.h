@@ -2,7 +2,7 @@
 
 #ifndef GL_VERSION_1_2
 #define GL_VERSION_1_2 1
-#define AGL_VERSION_1_2
+#define _ALLEGRO_GL_VERSION_1_2
 #define GL_UNSIGNED_BYTE_3_3_2            0x8032
 #define GL_UNSIGNED_SHORT_4_4_4_4         0x8033
 #define GL_UNSIGNED_SHORT_5_5_5_1         0x8034
@@ -48,7 +48,7 @@
 
 #ifndef GL_ARB_imaging
 #define GL_ARB_imaging
-#define AGL_ARB_imaging
+#define _ALLEGRO_GL_ARB_imaging
 #define GL_CONSTANT_COLOR                 0x8001
 #define GL_ONE_MINUS_CONSTANT_COLOR       0x8002
 #define GL_CONSTANT_ALPHA                 0x8003
@@ -128,7 +128,7 @@
 
 #ifndef GL_VERSION_1_3
 #define GL_VERSION_1_3 1
-#define AGL_VERSION_1_3
+#define _ALLEGRO_GL_VERSION_1_3
 #define GL_TEXTURE0                       0x84C0
 #define GL_TEXTURE1                       0x84C1
 #define GL_TEXTURE2                       0x84C2
@@ -230,7 +230,7 @@
 
 #ifndef GL_VERSION_1_4
 #define GL_VERSION_1_4 1
-#define AGL_VERSION_1_4
+#define _ALLEGRO_GL_VERSION_1_4
 #define GL_BLEND_DST_RGB                  0x80C8
 #define GL_BLEND_SRC_RGB                  0x80C9
 #define GL_BLEND_DST_ALPHA                0x80CA
@@ -274,7 +274,7 @@
 
 #ifndef GL_VERSION_1_5
 #define GL_VERSION_1_5 1
-#define AGL_VERSION_1_5
+#define _ALLEGRO_GL_VERSION_1_5
 /* New types */
 #include <stddef.h>
 typedef ptrdiff_t GLintptr;
@@ -335,7 +335,7 @@ typedef ptrdiff_t GLsizeiptr;
 
 #ifndef GL_VERSION_2_0
 #define GL_VERSION_2_0 1
-#define AGL_VERSION_2_0
+#define _ALLEGRO_GL_VERSION_2_0
 /* New types */
 typedef char GLchar;
 
@@ -428,7 +428,7 @@ typedef char GLchar;
 
 #ifndef GL_VERSION_2_1
 #define GL_VERSION_2_1 1
-#define AGL_VERSION_2_1
+#define _ALLEGRO_GL_VERSION_2_1
 #define GL_CURRENT_RASTER_SECONDARY_COLOR 0x845F
 #define GL_PIXEL_PACK_BUFFER              0x88EB
 #define GL_PIXEL_UNPACK_BUFFER            0x88EC
@@ -456,7 +456,7 @@ typedef char GLchar;
 
 #ifndef GL_VERSION_3_0
 #define GL_VERSION_3_0
-#define AGL_VERSION_3_0
+#define _ALLEGRO_GL_VERSION_3_0
 #define GL_COMPARE_REF_TO_TEXTURE         GL_COMPARE_R_TO_TEXTURE_ARB
 #define GL_CLIP_DISTANCE0                 GL_CLIP_PLANE0
 #define GL_CLIP_DISTANCE1                 GL_CLIP_PLANE1
@@ -569,7 +569,7 @@ typedef char GLchar;
 
 #ifndef GL_VERSION_3_1
 #define GL_VERSION_3_1
-#define AGL_VERSION_3_1
+#define _ALLEGRO_GL_VERSION_3_1
 #define GL_SAMPLER_2D_RECT                0x8B63
 #define GL_SAMPLER_2D_RECT_SHADOW         0x8B64
 #define GL_SAMPLER_BUFFER                 0x8DC2
@@ -608,7 +608,7 @@ typedef char GLchar;
 
 #ifndef GL_ARB_multitexture
 #define GL_ARB_multitexture
-#define AGL_ARB_multitexture
+#define _ALLEGRO_GL_ARB_multitexture
 #define GL_TEXTURE0_ARB                   0x84C0
 #define GL_TEXTURE1_ARB                   0x84C1
 #define GL_TEXTURE2_ARB                   0x84C2
@@ -648,7 +648,7 @@ typedef char GLchar;
 
 #ifndef GL_ARB_transpose_matrix
 #define GL_ARB_transpose_matrix
-#define AGL_ARB_transpose_matrix
+#define _ALLEGRO_GL_ARB_transpose_matrix
 #define GL_TRANSPOSE_MODELVIEW_MATRIX_ARB 0x84E3
 #define GL_TRANSPOSE_PROJECTION_MATRIX_ARB 0x84E4
 #define GL_TRANSPOSE_TEXTURE_MATRIX_ARB   0x84E5
@@ -657,7 +657,7 @@ typedef char GLchar;
 
 #ifndef GL_ARB_multisample
 #define GL_ARB_multisample
-#define AGL_ARB_multisample
+#define _ALLEGRO_GL_ARB_multisample
 #define GL_MULTISAMPLE_ARB                0x809D
 #define GL_SAMPLE_ALPHA_TO_COVERAGE_ARB   0x809E
 #define GL_SAMPLE_ALPHA_TO_ONE_ARB        0x809F
@@ -671,7 +671,7 @@ typedef char GLchar;
 
 #ifndef GL_ARB_texture_cube_map
 #define GL_ARB_texture_cube_map
-#define AGL_ARB_texture_cube_map
+#define _ALLEGRO_GL_ARB_texture_cube_map
 #define GL_NORMAL_MAP_ARB                 0x8511
 #define GL_REFLECTION_MAP_ARB             0x8512
 #define GL_TEXTURE_CUBE_MAP_ARB           0x8513
@@ -688,7 +688,7 @@ typedef char GLchar;
 
 #ifndef GL_ARB_texture_compression
 #define GL_ARB_texture_compression
-#define AGL_ARB_texture_compression
+#define _ALLEGRO_GL_ARB_texture_compression
 #define GL_COMPRESSED_ALPHA_ARB           0x84E9
 #define GL_COMPRESSED_LUMINANCE_ARB       0x84EA
 #define GL_COMPRESSED_LUMINANCE_ALPHA_ARB 0x84EB
@@ -704,13 +704,13 @@ typedef char GLchar;
 
 #ifndef GL_ARB_texture_border_clamp
 #define GL_ARB_texture_border_clamp
-#define AGL_ARB_texture_border_clamp
+#define _ALLEGRO_GL_ARB_texture_border_clamp
 #define GL_CLAMP_TO_BORDER_ARB            0x812D
 #endif
 
 #ifndef GL_ARB_point_parameters
 #define GL_ARB_point_parameters
-#define AGL_ARB_point_parameters
+#define _ALLEGRO_GL_ARB_point_parameters
 #define GL_POINT_SIZE_MIN_ARB             0x8126
 #define GL_POINT_SIZE_MAX_ARB             0x8127
 #define GL_POINT_FADE_THRESHOLD_SIZE_ARB  0x8128
@@ -719,7 +719,7 @@ typedef char GLchar;
 
 #ifndef GL_ARB_vertex_blend
 #define GL_ARB_vertex_blend
-#define AGL_ARB_vertex_blend
+#define _ALLEGRO_GL_ARB_vertex_blend
 #define GL_MAX_VERTEX_UNITS_ARB           0x86A4
 #define GL_ACTIVE_VERTEX_UNITS_ARB        0x86A5
 #define GL_WEIGHT_SUM_UNITY_ARB           0x86A6
@@ -766,7 +766,7 @@ typedef char GLchar;
 
 #ifndef GL_ARB_matrix_palette
 #define GL_ARB_matrix_palette
-#define AGL_ARB_matrix_palette
+#define _ALLEGRO_GL_ARB_matrix_palette
 #define GL_MATRIX_PALETTE_ARB             0x8840
 #define GL_MAX_MATRIX_PALETTE_STACK_DEPTH_ARB 0x8841
 #define GL_MAX_PALETTE_MATRICES_ARB       0x8842
@@ -781,7 +781,7 @@ typedef char GLchar;
 
 #ifndef GL_ARB_texture_env_combine
 #define GL_ARB_texture_env_combine
-#define AGL_ARB_texture_env_combine
+#define _ALLEGRO_GL_ARB_texture_env_combine
 #define GL_COMBINE_ARB                    0x8570
 #define GL_COMBINE_RGB_ARB                0x8571
 #define GL_COMBINE_ALPHA_ARB              0x8572
@@ -808,20 +808,20 @@ typedef char GLchar;
 
 #ifndef GL_ARB_texture_env_dot3
 #define GL_ARB_texture_env_dot3
-#define AGL_ARB_texture_env_dot3
+#define _ALLEGRO_GL_ARB_texture_env_dot3
 #define GL_DOT3_RGB_ARB                   0x86AE
 #define GL_DOT3_RGBA_ARB                  0x86AF
 #endif
 
 #ifndef GL_ARB_texture_mirrored_repeat
 #define GL_ARB_texture_mirrored_repeat
-#define AGL_ARB_texture_mirrored_repeat
+#define _ALLEGRO_GL_ARB_texture_mirrored_repeat
 #define GL_MIRRORED_REPEAT_ARB            0x8370
 #endif
 
 #ifndef GL_ARB_depth_texture
 #define GL_ARB_depth_texture
-#define AGL_ARB_depth_texture
+#define _ALLEGRO_GL_ARB_depth_texture
 #define GL_DEPTH_COMPONENT16_ARB          0x81A5
 #define GL_DEPTH_COMPONENT24_ARB          0x81A6
 #define GL_DEPTH_COMPONENT32_ARB          0x81A7
@@ -831,12 +831,12 @@ typedef char GLchar;
 
 #ifndef GL_ARB_window_pos
 #define GL_ARB_window_pos
-#define AGL_ARB_window_pos
+#define _ALLEGRO_GL_ARB_window_pos
 #endif
 
 #ifndef GL_ARB_shadow
 #define GL_ARB_shadow
-#define AGL_ARB_shadow
+#define _ALLEGRO_GL_ARB_shadow
 #define GL_TEXTURE_COMPARE_MODE_ARB       0x884C
 #define GL_TEXTURE_COMPARE_FUNC_ARB       0x884D
 #define GL_COMPARE_R_TO_TEXTURE_ARB       0x884E
@@ -844,13 +844,13 @@ typedef char GLchar;
 
 #ifndef GL_ARB_shadow_ambient
 #define GL_ARB_shadow_ambient
-#define AGL_ARB_shadow_ambient
+#define _ALLEGRO_GL_ARB_shadow_ambient
 #define GL_TEXTURE_COMPARE_FAIL_VALUE_ARB 0x80BF
 #endif
 
 #ifndef GL_ARB_vertex_program
 #define GL_ARB_vertex_program
-#define AGL_ARB_vertex_program
+#define _ALLEGRO_GL_ARB_vertex_program
 #define GL_COLOR_SUM_ARB                  0x8458
 #define GL_VERTEX_PROGRAM_ARB             0x8620
 #define GL_VERTEX_ATTRIB_ARRAY_ENABLED_ARB 0x8622
@@ -934,7 +934,7 @@ typedef char GLchar;
 
 #ifndef GL_ARB_fragment_program
 #define GL_ARB_fragment_program
-#define AGL_ARB_fragment_program
+#define _ALLEGRO_GL_ARB_fragment_program
 #define GL_FRAGMENT_PROGRAM_ARB           0x8804
 #define GL_PROGRAM_ALU_INSTRUCTIONS_ARB   0x8805
 #define GL_PROGRAM_TEX_INSTRUCTIONS_ARB   0x8806
@@ -954,7 +954,7 @@ typedef char GLchar;
 
 #ifndef GL_ARB_vertex_buffer_object
 #define GL_ARB_vertex_buffer_object
-#define AGL_ARB_vertex_buffer_object
+#define _ALLEGRO_GL_ARB_vertex_buffer_object
 #include <stddef.h>
 typedef ptrdiff_t GLintptrARB;
 typedef ptrdiff_t GLsizeiptrARB;
@@ -993,7 +993,7 @@ typedef ptrdiff_t GLsizeiptrARB;
 
 #ifndef GL_ARB_occlusion_query
 #define GL_ARB_occlusion_query
-#define AGL_ARB_occlusion_query
+#define _ALLEGRO_GL_ARB_occlusion_query
 #define GL_SAMPLES_PASSED_ARB             0x8914
 #define GL_QUERY_COUNTER_BITS_ARB         0x8864
 #define GL_CURRENT_QUERY_ARB              0x8865
@@ -1003,7 +1003,7 @@ typedef ptrdiff_t GLsizeiptrARB;
 
 #ifndef GL_ARB_shader_objects
 #define GL_ARB_shader_objects
-#define AGL_ARB_shader_objects
+#define _ALLEGRO_GL_ARB_shader_objects
 typedef char          GLcharARB;
 typedef unsigned long GLhandleARB;
 #define GL_PROGRAM_OBJECT_ARB             0x8B40
@@ -1047,7 +1047,7 @@ typedef unsigned long GLhandleARB;
 
 #ifndef GL_ARB_vertex_shader
 #define GL_ARB_vertex_shader
-#define AGL_ARB_vertex_shader
+#define _ALLEGRO_GL_ARB_vertex_shader
 #define GL_VERTEX_SHADER_ARB              0x8B31
 #define GL_MAX_VERTEX_UNIFORM_COMPONENTS_ARB 0x8B4A
 #define GL_MAX_VARYING_FLOATS_ARB         0x8B4B
@@ -1087,7 +1087,7 @@ typedef unsigned long GLhandleARB;
 
 #ifndef GL_ARB_fragment_shader
 #define GL_ARB_fragment_shader
-#define AGL_ARB_fragment_shader
+#define _ALLEGRO_GL_ARB_fragment_shader
 #define GL_FRAGMENT_SHADER_ARB            0x8B30
 #define GL_MAX_FRAGMENT_UNIFORM_COMPONENTS_ARB 0x8B49
 #define GL_MAX_TEXTURE_COORDS_ARB         0x8871
@@ -1101,17 +1101,17 @@ typedef unsigned long GLhandleARB;
 
 #ifndef GL_ARB_shading_language_100
 #define GL_ARB_shading_language_100
-#define AGL_ARB_shading_language_100
+#define _ALLEGRO_GL_ARB_shading_language_100
 #endif
 
 #ifndef GL_ARB_texture_non_power_of_two
 #define GL_ARB_texture_non_power_of_two
-#define AGL_ARB_texture_non_power_of_two
+#define _ALLEGRO_GL_ARB_texture_non_power_of_two
 #endif
 
 #ifndef GL_ARB_point_sprite
 #define GL_ARB_point_sprite
-#define AGL_ARB_point_sprite
+#define _ALLEGRO_GL_ARB_point_sprite
 #define GL_POINT_SPRITE_ARB               0x8861
 #define GL_COORD_REPLACE_ARB              0x8862
 /* GL_FALSE */
@@ -1121,7 +1121,7 @@ typedef unsigned long GLhandleARB;
 
 #ifndef GL_ARB_draw_buffers
 #define GL_ARB_draw_buffers
-#define AGL_ARB_draw_buffers
+#define _ALLEGRO_GL_ARB_draw_buffers
 #define GL_MAX_DRAW_BUFFERS_ARB           0x8824
 #define GL_DRAW_BUFFER0_ARB               0x8825
 #define GL_DRAW_BUFFER1_ARB               0x8826
@@ -1144,7 +1144,7 @@ typedef unsigned long GLhandleARB;
 
 #ifndef GL_ARB_texture_rectangle
 #define GL_ARB_texture_rectangle
-#define AGL_ARB_texture_rectangle
+#define _ALLEGRO_GL_ARB_texture_rectangle
 #define GL_TEXTURE_RECTANGLE_ARB          0x84F5
 #define GL_TEXTURE_BINDING_RECTANGLE_ARB  0x84F6
 #define GL_PROXY_TEXTURE_RECTANGLE_ARB    0x84F7
@@ -1153,7 +1153,7 @@ typedef unsigned long GLhandleARB;
 #ifdef ALLEGRO_MACOSX
 #ifndef GL_EXT_texture_rectangle
 #define GL_EXT_texture_rectangle
-#define AGL_EXT_texture_rectangle
+#define _ALLEGRO_GL_EXT_texture_rectangle
 #define GL_TEXTURE_RECTANGLE_EXT          0x84F5
 #define GL_TEXTURE_BINDING_RECTANGLE_EXT  0x84F6
 #define GL_PROXY_TEXTURE_RECTANGLE_EXT    0x84F7
@@ -1163,7 +1163,7 @@ typedef unsigned long GLhandleARB;
 
 #ifndef GL_ARB_color_buffer_float
 #define GL_ARB_color_buffer_float
-#define AGL_ARB_color_buffer_float
+#define _ALLEGRO_GL_ARB_color_buffer_float
 #define GL_RGBA_FLOAT_MODE_ARB            0x8820
 #define GL_CLAMP_VERTEX_COLOR_ARB         0x891A
 #define GL_CLAMP_FRAGMENT_COLOR_ARB       0x891B
@@ -1174,14 +1174,14 @@ typedef unsigned long GLhandleARB;
 
 #ifndef GL_ARB_half_float_pixel
 #define GL_ARB_half_float_pixel
-#define AGL_ARB_half_float_pixel
+#define _ALLEGRO_GL_ARB_half_float_pixel
 #define GL_HALF_FLOAT_ARB                 0x140B
 #endif
 
 
 #ifndef GL_ARB_texture_float
 #define GL_ARB_texture_float
-#define AGL_ARB_texture_float
+#define _ALLEGRO_GL_ARB_texture_float
 #define GL_TEXTURE_RED_TYPE_ARB           0x8C10
 #define GL_TEXTURE_GREEN_TYPE_ARB         0x8C11
 #define GL_TEXTURE_BLUE_TYPE_ARB          0x8C12
@@ -1206,7 +1206,7 @@ typedef unsigned long GLhandleARB;
 
 #ifndef GL_ARB_pixel_buffer_object
 #define GL_ARB_pixel_buffer_object
-#define AGL_ARB_pixel_buffer_object
+#define _ALLEGRO_GL_ARB_pixel_buffer_object
 #define GL_PIXEL_PACK_BUFFER_ARB          0x88EB
 #define GL_PIXEL_UNPACK_BUFFER_ARB        0x88EC
 #define GL_PIXEL_PACK_BUFFER_BINDING_ARB  0x88ED
@@ -1215,7 +1215,7 @@ typedef unsigned long GLhandleARB;
 
 #ifndef GL_ARB_depth_buffer_float
 #define GL_ARB_depth_buffer_float
-#define AGL_ARB_depth_buffer_float
+#define _ALLEGRO_GL_ARB_depth_buffer_float
 #define GL_DEPTH_COMPONENT32F             0x8CAC
 #define GL_DEPTH32F_STENCIL8              0x8CAD
 #define GL_FLOAT_32_UNSIGNED_INT_24_8_REV 0x8DAD
@@ -1223,12 +1223,12 @@ typedef unsigned long GLhandleARB;
 
 #ifndef GL_ARB_draw_instanced
 #define GL_ARB_draw_instanced
-#define AGL_ARB_draw_instanced
+#define _ALLEGRO_GL_ARB_draw_instanced
 #endif
 
 #ifndef GL_ARB_framebuffer_object
 #define GL_ARB_framebuffer_object
-#define AGL_ARB_framebuffer_object
+#define _ALLEGRO_GL_ARB_framebuffer_object
 #define GL_INVALID_FRAMEBUFFER_OPERATION  0x0506
 #define GL_FRAMEBUFFER_ATTACHMENT_COLOR_ENCODING 0x8210
 #define GL_FRAMEBUFFER_ATTACHMENT_COMPONENT_TYPE 0x8211
@@ -1305,13 +1305,13 @@ typedef unsigned long GLhandleARB;
 
 #ifndef GL_ARB_framebuffer_sRGB
 #define GL_ARB_framebuffer_sRGB
-#define AGL_ARB_framebuffer_sRGB
+#define _ALLEGRO_GL_ARB_framebuffer_sRGB
 #define GL_FRAMEBUFFER_SRGB               0x8DB9
 #endif
 
 #ifndef GL_ARB_geometry_shader4
 #define GL_ARB_geometry_shader4
-#define AGL_ARB_geometry_shader4
+#define _ALLEGRO_GL_ARB_geometry_shader4
 #define GL_LINES_ADJACENCY_ARB            0x000A
 #define GL_LINE_STRIP_ADJACENCY_ARB       0x000B
 #define GL_TRIANGLES_ADJACENCY_ARB        0x000C
@@ -1336,18 +1336,18 @@ typedef unsigned long GLhandleARB;
 
 #ifndef GL_ARB_half_float_vertex
 #define GL_ARB_half_float_vertex
-#define AGL_ARB_half_float_vertex
+#define _ALLEGRO_GL_ARB_half_float_vertex
 #define GL_HALF_FLOAT                     0x140B
 #endif
 
 #ifndef GL_ARB_instanced_arrays
 #define GL_ARB_instanced_arrays
-#define AGL_ARB_instanced_arrays
+#define _ALLEGRO_GL_ARB_instanced_arrays
 #endif
 
 #ifndef GL_ARB_map_buffer_range
 #define GL_ARB_map_buffer_range
-#define AGL_ARB_map_buffer_range
+#define _ALLEGRO_GL_ARB_map_buffer_range
 #define GL_MAP_READ_BIT                   0x0001
 #define GL_MAP_WRITE_BIT                  0x0002
 #define GL_MAP_INVALIDATE_RANGE_BIT       0x0004
@@ -1358,7 +1358,7 @@ typedef unsigned long GLhandleARB;
 
 #ifndef GL_ARB_texture_buffer_object
 #define GL_ARB_texture_buffer_object
-#define AGL_ARB_texture_buffer_object
+#define _ALLEGRO_GL_ARB_texture_buffer_object
 #define GL_TEXTURE_BUFFER_ARB             0x8C2A
 #define GL_MAX_TEXTURE_BUFFER_SIZE_ARB    0x8C2B
 #define GL_TEXTURE_BINDING_BUFFER_ARB     0x8C2C
@@ -1368,7 +1368,7 @@ typedef unsigned long GLhandleARB;
 
 #ifndef GL_ARB_texture_compression_rgtc
 #define GL_ARB_texture_compression_rgtc
-#define AGL_ARB_texture_compression_rgtc
+#define _ALLEGRO_GL_ARB_texture_compression_rgtc
 #define GL_COMPRESSED_RED_RGTC1           0x8DBB
 #define GL_COMPRESSED_SIGNED_RED_RGTC1    0x8DBC
 #define GL_COMPRESSED_RG_RGTC2            0x8DBD
@@ -1377,7 +1377,7 @@ typedef unsigned long GLhandleARB;
 
 #ifndef GL_ARB_texture_rg
 #define GL_ARB_texture_rg
-#define AGL_ARB_texture_rg
+#define _ALLEGRO_GL_ARB_texture_rg
 #define GL_RG                             0x8227
 #define GL_RG_INTEGER                     0x8228
 #define GL_R8                             0x8229
@@ -1404,13 +1404,13 @@ typedef unsigned long GLhandleARB;
 
 #ifndef GL_ARB_vertex_array_object
 #define GL_ARB_vertex_array_object
-#define AGL_ARB_vertex_array_object
+#define _ALLEGRO_GL_ARB_vertex_array_object
 #define GL_VERTEX_ARRAY_BINDING           0x85B5
 #endif
 
 #ifndef GL_ARB_uniform_buffer_object
 #define GL_ARB_uniform_buffer_object
-#define AGL_ARB_uniform_buffer_object
+#define _ALLEGRO_GL_ARB_uniform_buffer_object
 #define GL_UNIFORM_BUFFER                 0x8A11
 #define GL_UNIFORM_BUFFER_BINDING         0x8A28
 #define GL_UNIFORM_BUFFER_START           0x8A29
@@ -1448,13 +1448,13 @@ typedef unsigned long GLhandleARB;
 
 #ifndef GL_ARB_compatibility
 #define GL_ARB_compatibility
-#define AGL_ARB_compatibility
+#define _ALLEGRO_GL_ARB_compatibility
 /* ARB_compatibility just defines tokens from core 3.0 */
 #endif
 
 #ifndef GL_ARB_copy_buffer
 #define GL_ARB_copy_buffer
-#define AGL_ARB_copy_buffer
+#define _ALLEGRO_GL_ARB_copy_buffer
 #define GL_COPY_READ_BUFFER               0x8F36
 #define GL_COPY_WRITE_BUFFER              0x8F37
 #endif
@@ -1464,13 +1464,13 @@ typedef unsigned long GLhandleARB;
 
 #ifndef GL_EXT_abgr
 #define GL_EXT_abgr
-#define AGL_EXT_abgr
+#define _ALLEGRO_GL_EXT_abgr
 #define GL_ABGR_EXT                       0x8000
 #endif
 
 #ifndef GL_EXT_blend_color
 #define GL_EXT_blend_color
-#define AGL_EXT_blend_color
+#define _ALLEGRO_GL_EXT_blend_color
 #define GL_CONSTANT_COLOR_EXT             0x8001
 #define GL_ONE_MINUS_CONSTANT_COLOR_EXT   0x8002
 #define GL_CONSTANT_ALPHA_EXT             0x8003
@@ -1480,7 +1480,7 @@ typedef unsigned long GLhandleARB;
 
 #ifndef GL_EXT_polygon_offset
 #define GL_EXT_polygon_offset
-#define AGL_EXT_polygon_offset
+#define _ALLEGRO_GL_EXT_polygon_offset
 #define GL_POLYGON_OFFSET_EXT             0x8037
 #define GL_POLYGON_OFFSET_FACTOR_EXT      0x8038
 #define GL_POLYGON_OFFSET_BIAS_EXT        0x8039
@@ -1488,7 +1488,7 @@ typedef unsigned long GLhandleARB;
 
 #ifndef GL_EXT_texture
 #define GL_EXT_texture
-#define AGL_EXT_texture
+#define _ALLEGRO_GL_EXT_texture
 #define GL_ALPHA4_EXT                     0x803B
 #define GL_ALPHA8_EXT                     0x803C
 #define GL_ALPHA12_EXT                    0x803D
@@ -1536,7 +1536,7 @@ typedef unsigned long GLhandleARB;
 
 #ifndef GL_EXT_texture3D
 #define GL_EXT_texture3D
-#define AGL_EXT_texture3D
+#define _ALLEGRO_GL_EXT_texture3D
 #define GL_PACK_SKIP_IMAGES_EXT           0x806B
 #define GL_PACK_IMAGE_HEIGHT_EXT          0x806C
 #define GL_UNPACK_SKIP_IMAGES_EXT         0x806D
@@ -1550,14 +1550,14 @@ typedef unsigned long GLhandleARB;
 
 #ifndef GL_SGIS_texture_filter4
 #define GL_SGIS_texture_filter4
-#define AGL_SGIS_texture_filter4
+#define _ALLEGRO_GL_SGIS_texture_filter4
 #define GL_FILTER4_SGIS                   0x8146
 #define GL_TEXTURE_FILTER4_SIZE_SGIS      0x8147
 #endif
 
 #ifndef GL_EXT_histogram
 #define GL_EXT_histogram
-#define AGL_EXT_histogram
+#define _ALLEGRO_GL_EXT_histogram
 #define GL_HISTOGRAM_EXT                  0x8024
 #define GL_PROXY_HISTOGRAM_EXT            0x8025
 #define GL_HISTOGRAM_WIDTH_EXT            0x8026
@@ -1576,25 +1576,25 @@ typedef unsigned long GLhandleARB;
 
 #ifndef GL_EXT_subtexture
 #define GL_EXT_subtexture
-#define AGL_EXT_subtexture
+#define _ALLEGRO_GL_EXT_subtexture
 #endif
 
 #ifndef GL_EXT_copy_texture
 #define GL_EXT_copy_texture
 /* NV's headers don't define EXT_copy_texture yet provide the API */
-#ifndef AGL_HEADER_NV
-#define AGL_EXT_copy_texture
+#ifndef ALLEGRO_GL_HEADER_NV
+#define _ALLEGRO_GL_EXT_copy_texture
 #endif
 #endif
 
 #ifndef GL_EXT_histogram
 #define GL_EXT_histogram
-#define AGL_EXT_histogram
+#define _ALLEGRO_GL_EXT_histogram
 #endif
 
 #ifndef GL_EXT_convolution
 #define GL_EXT_convolution
-#define AGL_EXT_convolution
+#define _ALLEGRO_GL_EXT_convolution
 #define GL_CONVOLUTION_1D_EXT             0x8010
 #define GL_CONVOLUTION_2D_EXT             0x8011
 #define GL_SEPARABLE_2D_EXT               0x8012
@@ -1619,7 +1619,7 @@ typedef unsigned long GLhandleARB;
 
 #ifndef GL_SGI_color_matrix
 #define GL_SGI_color_matrix
-#define AGL_SGI_color_matrix
+#define _ALLEGRO_GL_SGI_color_matrix
 #define GL_COLOR_MATRIX_SGI               0x80B1
 #define GL_COLOR_MATRIX_STACK_DEPTH_SGI   0x80B2
 #define GL_MAX_COLOR_MATRIX_STACK_DEPTH_SGI 0x80B3
@@ -1635,7 +1635,7 @@ typedef unsigned long GLhandleARB;
 
 #ifndef GL_SGI_color_table
 #define GL_SGI_color_table
-#define AGL_SGI_color_table
+#define _ALLEGRO_GL_SGI_color_table
 #define GL_COLOR_TABLE_SGI                0x80D0
 #define GL_POST_CONVOLUTION_COLOR_TABLE_SGI 0x80D1
 #define GL_POST_COLOR_MATRIX_COLOR_TABLE_SGI 0x80D2
@@ -1656,7 +1656,7 @@ typedef unsigned long GLhandleARB;
 
 #ifndef GL_SGIS_pixel_texture
 #define GL_SGIS_pixel_texture
-#define AGL_SGIS_pixel_texture
+#define _ALLEGRO_GL_SGIS_pixel_texture
 #define GL_PIXEL_TEXTURE_SGIS             0x8353
 #define GL_PIXEL_FRAGMENT_RGB_SOURCE_SGIS 0x8354
 #define GL_PIXEL_FRAGMENT_ALPHA_SOURCE_SGIS 0x8355
@@ -1665,14 +1665,14 @@ typedef unsigned long GLhandleARB;
 
 #ifndef GL_SGIX_pixel_texture
 #define GL_SGIX_pixel_texture
-#define AGL_SGIX_pixel_texture
+#define _ALLEGRO_GL_SGIX_pixel_texture
 #define GL_PIXEL_TEX_GEN_SGIX             0x8139
 #define GL_PIXEL_TEX_GEN_MODE_SGIX        0x832B
 #endif
 
 #ifndef GL_SGIS_texture4D
 #define GL_SGIS_texture4D
-#define AGL_SGIS_texture4D
+#define _ALLEGRO_GL_SGIS_texture4D
 #define GL_PACK_SKIP_VOLUMES_SGIS         0x8130
 #define GL_PACK_IMAGE_DEPTH_SGIS          0x8131
 #define GL_UNPACK_SKIP_VOLUMES_SGIS       0x8132
@@ -1687,14 +1687,14 @@ typedef unsigned long GLhandleARB;
 
 #ifndef GL_SGI_texture_color_table
 #define GL_SGI_texture_color_table
-#define AGL_SGI_texture_color_table
+#define _ALLEGRO_GL_SGI_texture_color_table
 #define GL_TEXTURE_COLOR_TABLE_SGI        0x80BC
 #define GL_PROXY_TEXTURE_COLOR_TABLE_SGI  0x80BD
 #endif
 
 #ifndef GL_EXT_cmyka
 #define GL_EXT_cmyka
-#define AGL_EXT_cmyka
+#define _ALLEGRO_GL_EXT_cmyka
 #define GL_CMYK_EXT                       0x800C
 #define GL_CMYKA_EXT                      0x800D
 #define GL_PACK_CMYK_HINT_EXT             0x800E
@@ -1703,7 +1703,7 @@ typedef unsigned long GLhandleARB;
 
 #ifndef GL_EXT_texture_object
 #define GL_EXT_texture_object
-#define AGL_EXT_texture_object
+#define _ALLEGRO_GL_EXT_texture_object
 #define GL_TEXTURE_PRIORITY_EXT           0x8066
 #define GL_TEXTURE_RESIDENT_EXT           0x8067
 #define GL_TEXTURE_1D_BINDING_EXT         0x8068
@@ -1713,7 +1713,7 @@ typedef unsigned long GLhandleARB;
 
 #ifndef GL_SGIS_detail_texture
 #define GL_SGIS_detail_texture
-#define AGL_SGIS_detail_texture
+#define _ALLEGRO_GL_SGIS_detail_texture
 #define GL_DETAIL_TEXTURE_2D_SGIS         0x8095
 #define GL_DETAIL_TEXTURE_2D_BINDING_SGIS 0x8096
 #define GL_LINEAR_DETAIL_SGIS             0x8097
@@ -1726,7 +1726,7 @@ typedef unsigned long GLhandleARB;
 
 #ifndef GL_SGIS_sharpen_texture
 #define GL_SGIS_sharpen_texture
-#define AGL_SGIS_sharpen_texture
+#define _ALLEGRO_GL_SGIS_sharpen_texture
 #define GL_LINEAR_SHARPEN_SGIS            0x80AD
 #define GL_LINEAR_SHARPEN_ALPHA_SGIS      0x80AE
 #define GL_LINEAR_SHARPEN_COLOR_SGIS      0x80AF
@@ -1735,7 +1735,7 @@ typedef unsigned long GLhandleARB;
 
 #ifndef GL_EXT_packed_pixels
 #define GL_EXT_packed_pixels
-#define AGL_EXT_packed_pixels
+#define _ALLEGRO_GL_EXT_packed_pixels
 #define GL_UNSIGNED_BYTE_3_3_2_EXT        0x8032
 #define GL_UNSIGNED_SHORT_4_4_4_4_EXT     0x8033
 #define GL_UNSIGNED_SHORT_5_5_5_1_EXT     0x8034
@@ -1745,7 +1745,7 @@ typedef unsigned long GLhandleARB;
 
 #ifndef GL_SGIS_texture_lod
 #define GL_SGIS_texture_lod
-#define AGL_SGIS_texture_lod
+#define _ALLEGRO_GL_SGIS_texture_lod
 #define GL_TEXTURE_MIN_LOD_SGIS           0x813A
 #define GL_TEXTURE_MAX_LOD_SGIS           0x813B
 #define GL_TEXTURE_BASE_LEVEL_SGIS        0x813C
@@ -1754,7 +1754,7 @@ typedef unsigned long GLhandleARB;
 
 #ifndef GL_SGIS_multisample
 #define GL_SGIS_multisample
-#define AGL_SGIS_multisample
+#define _ALLEGRO_GL_SGIS_multisample
 #define GL_MULTISAMPLE_SGIS               0x809D
 #define GL_SAMPLE_ALPHA_TO_MASK_SGIS      0x809E
 #define GL_SAMPLE_ALPHA_TO_ONE_SGIS       0x809F
@@ -1775,13 +1775,13 @@ typedef unsigned long GLhandleARB;
 
 #ifndef GL_EXT_rescale_normal
 #define GL_EXT_rescale_normal
-#define AGL_EXT_rescale_normal
+#define _ALLEGRO_GL_EXT_rescale_normal
 #define GL_RESCALE_NORMAL_EXT             0x803A
 #endif
 
 #ifndef GL_EXT_vertex_array
 #define GL_EXT_vertex_array
-#define AGL_EXT_vertex_array
+#define _ALLEGRO_GL_EXT_vertex_array
 #define GL_VERTEX_ARRAY_EXT               0x8074
 #define GL_NORMAL_ARRAY_EXT               0x8075
 #define GL_COLOR_ARRAY_EXT                0x8076
@@ -1818,14 +1818,14 @@ typedef unsigned long GLhandleARB;
 
 #ifndef GL_SGIS_generate_mipmap
 #define GL_SGIS_generate_mipmap
-#define AGL_SGIS_generate_mipmap
+#define _ALLEGRO_GL_SGIS_generate_mipmap
 #define GL_GENERATE_MIPMAP_SGIS           0x8191
 #define GL_GENERATE_MIPMAP_HINT_SGIS      0x8192
 #endif
 
 #ifndef GL_SGIX_clipmap
 #define GL_SGIX_clipmap
-#define AGL_SGIX_clipmap
+#define _ALLEGRO_GL_SGIX_clipmap
 #define GL_LINEAR_CLIPMAP_LINEAR_SGIX     0x8170
 #define GL_TEXTURE_CLIPMAP_CENTER_SGIX    0x8171
 #define GL_TEXTURE_CLIPMAP_FRAME_SGIX     0x8172
@@ -1842,7 +1842,7 @@ typedef unsigned long GLhandleARB;
 
 #ifndef GL_SGIX_shadow
 #define GL_SGIX_shadow
-#define AGL_SGIX_shadow
+#define _ALLEGRO_GL_SGIX_shadow
 #define GL_TEXTURE_COMPARE_SGIX           0x819A
 #define GL_TEXTURE_COMPARE_OPERATOR_SGIX  0x819B
 #define GL_TEXTURE_LEQUAL_R_SGIX          0x819C
@@ -1851,13 +1851,13 @@ typedef unsigned long GLhandleARB;
 
 #ifndef GL_SGIS_texture_edge_clamp
 #define GL_SGIS_texture_edge_clamp
-#define AGL_SGIS_texture_edge_clamp
+#define _ALLEGRO_GL_SGIS_texture_edge_clamp
 #define GL_CLAMP_TO_EDGE_SGIS             0x812F
 #endif
 
 #ifndef GL_EXT_blend_minmax
 #define GL_EXT_blend_minmax
-#define AGL_EXT_blend_minmax
+#define _ALLEGRO_GL_EXT_blend_minmax
 #define GL_FUNC_ADD_EXT                   0x8006
 #define GL_MIN_EXT                        0x8007
 #define GL_MAX_EXT                        0x8008
@@ -1866,20 +1866,20 @@ typedef unsigned long GLhandleARB;
 
 #ifndef GL_EXT_blend_subtract
 #define GL_EXT_blend_subtract
-#define AGL_EXT_blend_subtract
+#define _ALLEGRO_GL_EXT_blend_subtract
 #define GL_FUNC_SUBTRACT_EXT              0x800A
 #define GL_FUNC_REVERSE_SUBTRACT_EXT      0x800B
 #endif
 
 #ifndef GL_SGIX_interlace
 #define GL_SGIX_interlace
-#define AGL_SGIX_interlace
+#define _ALLEGRO_GL_SGIX_interlace
 #define GL_INTERLACE_SGIX                 0x8094
 #endif
 
 #ifndef GL_SGIX_pixel_tiles
 #define GL_SGIX_pixel_tiles
-#define AGL_SGIX_pixel_tiles
+#define _ALLEGRO_GL_SGIX_pixel_tiles
 #define GL_PIXEL_TILE_BEST_ALIGNMENT_SGIX 0x813E
 #define GL_PIXEL_TILE_CACHE_INCREMENT_SGIX 0x813F
 #define GL_PIXEL_TILE_WIDTH_SGIX          0x8140
@@ -1892,7 +1892,7 @@ typedef unsigned long GLhandleARB;
 
 #ifndef GL_SGIS_texture_select
 #define GL_SGIS_texture_select
-#define AGL_SGIS_texture_select
+#define _ALLEGRO_GL_SGIS_texture_select
 #define GL_DUAL_ALPHA4_SGIS               0x8110
 #define GL_DUAL_ALPHA8_SGIS               0x8111
 #define GL_DUAL_ALPHA12_SGIS              0x8112
@@ -1919,7 +1919,7 @@ typedef unsigned long GLhandleARB;
 
 #ifndef GL_SGIX_sprite
 #define GL_SGIX_sprite
-#define AGL_SGIX_sprite
+#define _ALLEGRO_GL_SGIX_sprite
 #define GL_SPRITE_SGIX                    0x8148
 #define GL_SPRITE_MODE_SGIX               0x8149
 #define GL_SPRITE_AXIS_SGIX               0x814A
@@ -1931,13 +1931,13 @@ typedef unsigned long GLhandleARB;
 
 #ifndef GL_SGIX_texture_multi_buffer
 #define GL_SGIX_texture_multi_buffer
-#define AGL_SGIX_texture_multi_buffer
+#define _ALLEGRO_GL_SGIX_texture_multi_buffer
 #define GL_TEXTURE_MULTI_BUFFER_HINT_SGIX 0x812E
 #endif
 
 #ifndef GL_EXT_point_parameters
 #define GL_EXT_point_parameters
-#define AGL_EXT_point_parameters
+#define _ALLEGRO_GL_EXT_point_parameters
 #define GL_POINT_SIZE_MIN_EXT             0x8126
 #define GL_POINT_SIZE_MAX_EXT             0x8127
 #define GL_POINT_FADE_THRESHOLD_SIZE_EXT  0x8128
@@ -1946,7 +1946,7 @@ typedef unsigned long GLhandleARB;
 
 #ifndef GL_SGIS_point_parameters
 #define GL_SGIS_point_parameters
-#define AGL_SGIS_point_parameters
+#define _ALLEGRO_GL_SGIS_point_parameters
 #define GL_POINT_SIZE_MIN_SGIS            0x8126
 #define GL_POINT_SIZE_MAX_SGIS            0x8127
 #define GL_POINT_FADE_THRESHOLD_SIZE_SGIS 0x8128
@@ -1955,14 +1955,14 @@ typedef unsigned long GLhandleARB;
 
 #ifndef GL_SGIX_instruments
 #define GL_SGIX_instruments
-#define AGL_SGIX_instruments
+#define _ALLEGRO_GL_SGIX_instruments
 #define GL_INSTRUMENT_BUFFER_POINTER_SGIX 0x8180
 #define GL_INSTRUMENT_MEASUREMENTS_SGIX   0x8181
 #endif
 
 #ifndef GL_SGIX_texture_scale_bias
 #define GL_SGIX_texture_scale_bias
-#define AGL_SGIX_texture_scale_bias
+#define _ALLEGRO_GL_SGIX_texture_scale_bias
 #define GL_POST_TEXTURE_FILTER_BIAS_SGIX  0x8179
 #define GL_POST_TEXTURE_FILTER_SCALE_SGIX 0x817A
 #define GL_POST_TEXTURE_FILTER_BIAS_RANGE_SGIX 0x817B
@@ -1971,7 +1971,7 @@ typedef unsigned long GLhandleARB;
 
 #ifndef GL_SGIX_framezoom
 #define GL_SGIX_framezoom
-#define AGL_SGIX_framezoom
+#define _ALLEGRO_GL_SGIX_framezoom
 #define GL_FRAMEZOOM_SGIX                 0x818B
 #define GL_FRAMEZOOM_FACTOR_SGIX          0x818C
 #define GL_MAX_FRAMEZOOM_FACTOR_SGIX      0x818D
@@ -1979,19 +1979,19 @@ typedef unsigned long GLhandleARB;
 
 #ifndef GL_FfdMaskSGIX
 #define GL_FfdMaskSGIX
-#define AGL_FfdMaskSGIX
+#define _ALLEGRO_GL_FfdMaskSGIX
 #define GL_TEXTURE_DEFORMATION_BIT_SGIX   0x00000001
 #define GL_GEOMETRY_DEFORMATION_BIT_SGIX  0x00000002
 #endif
 
 #ifndef GL_SGIX_tag_sample_buffer
 #define GL_SGIX_tag_sample_buffer
-#define AGL_SGIX_tag_sample_buffer
+#define _ALLEGRO_GL_SGIX_tag_sample_buffer
 #endif
 
 #ifndef GL_SGIX_polynomial_ffd
 #define GL_SGIX_polynomial_ffd
-#define AGL_SGIX_polynomial_ffd
+#define _ALLEGRO_GL_SGIX_polynomial_ffd
 #define GL_GEOMETRY_DEFORMATION_SGIX      0x8194
 #define GL_TEXTURE_DEFORMATION_SGIX       0x8195
 #define GL_DEFORMATIONS_MASK_SGIX         0x8196
@@ -2000,14 +2000,14 @@ typedef unsigned long GLhandleARB;
 
 #ifndef GL_SGIX_reference_plane
 #define GL_SGIX_reference_plane
-#define AGL_SGIX_reference_plane
+#define _ALLEGRO_GL_SGIX_reference_plane
 #define GL_REFERENCE_PLANE_SGIX           0x817D
 #define GL_REFERENCE_PLANE_EQUATION_SGIX  0x817E
 #endif
 
 #ifndef GL_SGIX_depth_texture
 #define GL_SGIX_depth_texture
-#define AGL_SGIX_depth_texture
+#define _ALLEGRO_GL_SGIX_depth_texture
 #define GL_DEPTH_COMPONENT16_SGIX         0x81A5
 #define GL_DEPTH_COMPONENT24_SGIX         0x81A6
 #define GL_DEPTH_COMPONENT32_SGIX         0x81A7
@@ -2015,12 +2015,12 @@ typedef unsigned long GLhandleARB;
 
 #ifndef GL_SGIX_flush_raster
 #define GL_SGIX_flush_raster
-#define AGL_SGIX_flush_raster
+#define _ALLEGRO_GL_SGIX_flush_raster
 #endif
 
 #ifndef GL_SGIS_fog_function
 #define GL_SGIS_fog_function
-#define AGL_SGIS_fog_function
+#define _ALLEGRO_GL_SGIS_fog_function
 #define GL_FOG_FUNC_SGIS                  0x812A
 #define GL_FOG_FUNC_POINTS_SGIS           0x812B
 #define GL_MAX_FOG_FUNC_POINTS_SGIS       0x812C
@@ -2028,14 +2028,14 @@ typedef unsigned long GLhandleARB;
 
 #ifndef GL_SGIX_fog_offset
 #define GL_SGIX_fog_offset
-#define AGL_SGIX_fog_offset
+#define _ALLEGRO_GL_SGIX_fog_offset
 #define GL_FOG_OFFSET_SGIX                0x8198
 #define GL_FOG_OFFSET_VALUE_SGIX          0x8199
 #endif
 
 #ifndef GL_HP_image_transform
 #define GL_HP_image_transform
-#define AGL_HP_image_transform
+#define _ALLEGRO_GL_HP_image_transform
 #define GL_IMAGE_SCALE_X_HP               0x8155
 #define GL_IMAGE_SCALE_Y_HP               0x8156
 #define GL_IMAGE_TRANSLATE_X_HP           0x8157
@@ -2055,7 +2055,7 @@ typedef unsigned long GLhandleARB;
 
 #ifndef GL_HP_convolution_border_modes
 #define GL_HP_convolution_border_modes
-#define AGL_HP_convolution_border_modes
+#define _ALLEGRO_GL_HP_convolution_border_modes
 #define GL_IGNORE_BORDER_HP               0x8150
 #define GL_CONSTANT_BORDER_HP             0x8151
 #define GL_REPLICATE_BORDER_HP            0x8153
@@ -2064,18 +2064,18 @@ typedef unsigned long GLhandleARB;
 
 #ifndef GL_SGIX_texture_add_env
 #define GL_SGIX_texture_add_env
-#define AGL_SGIX_texture_add_env
+#define _ALLEGRO_GL_SGIX_texture_add_env
 #define GL_TEXTURE_ENV_BIAS_SGIX          0x80BE
 #endif
 
 #ifndef GL_EXT_color_subtable
 #define GL_EXT_color_subtable
-#define AGL_EXT_color_subtable
+#define _ALLEGRO_GL_EXT_color_subtable
 #endif
 
 #ifndef GL_PGI_vertex_hints
 #define GL_PGI_vertex_hints
-#define AGL_PGI_vertex_hints
+#define _ALLEGRO_GL_PGI_vertex_hints
 #define GL_VERTEX_DATA_HINT_PGI           0x1A22A
 #define GL_VERTEX_CONSISTENT_HINT_PGI     0x1A22B
 #define GL_MATERIAL_SIDE_HINT_PGI         0x1A22C
@@ -2102,7 +2102,7 @@ typedef unsigned long GLhandleARB;
 
 #ifndef GL_PGI_misc_hints
 #define GL_PGI_misc_hints
-#define AGL_PGI_misc_hints
+#define _ALLEGRO_GL_PGI_misc_hints
 #define GL_PREFER_DOUBLEBUFFER_HINT_PGI   0x1A1F8
 #define GL_CONSERVE_MEMORY_HINT_PGI       0x1A1FD
 #define GL_RECLAIM_MEMORY_HINT_PGI        0x1A1FE
@@ -2127,7 +2127,7 @@ typedef unsigned long GLhandleARB;
 
 #ifndef GL_EXT_paletted_texture
 #define GL_EXT_paletted_texture
-#define AGL_EXT_paletted_texture
+#define _ALLEGRO_GL_EXT_paletted_texture
 #define GL_COLOR_INDEX1_EXT               0x80E2
 #define GL_COLOR_INDEX2_EXT               0x80E3
 #define GL_COLOR_INDEX4_EXT               0x80E4
@@ -2139,31 +2139,31 @@ typedef unsigned long GLhandleARB;
 
 #ifndef GL_EXT_clip_volume_hint
 #define GL_EXT_clip_volume_hint
-#define AGL_EXT_clip_volume_hint
+#define _ALLEGRO_GL_EXT_clip_volume_hint
 #define GL_CLIP_VOLUME_CLIPPING_HINT_EXT  0x80F0
 #endif
 
 #ifndef GL_SGIX_list_priority
 #define GL_SGIX_list_priority
-#define AGL_SGIX_list_priority
+#define _ALLEGRO_GL_SGIX_list_priority
 #define GL_LIST_PRIORITY_SGIX             0x8182
 #endif
 
 #ifndef GL_SGIX_ir_instrument1
 #define GL_SGIX_ir_instrument1
-#define AGL_SGIX_ir_instrument1
+#define _ALLEGRO_GL_SGIX_ir_instrument1
 #define GL_IR_INSTRUMENT1_SGIX            0x817F
 #endif
 
 #ifndef GL_SGIX_calligraphic_fragment
 #define GL_SGIX_calligraphic_fragment
-#define AGL_SGIX_calligraphic_fragment
+#define _ALLEGRO_GL_SGIX_calligraphic_fragment
 #define GL_CALLIGRAPHIC_FRAGMENT_SGIX     0x8183
 #endif
 
 #ifndef GL_SGIX_texture_lod_bias
 #define GL_SGIX_texture_lod_bias
-#define AGL_SGIX_texture_lod_bias
+#define _ALLEGRO_GL_SGIX_texture_lod_bias
 #define GL_TEXTURE_LOD_BIAS_S_SGIX        0x818E
 #define GL_TEXTURE_LOD_BIAS_T_SGIX        0x818F
 #define GL_TEXTURE_LOD_BIAS_R_SGIX        0x8190
@@ -2171,13 +2171,13 @@ typedef unsigned long GLhandleARB;
 
 #ifndef GL_SGIX_shadow_ambient
 #define GL_SGIX_shadow_ambient
-#define AGL_SGIX_shadow_ambient
+#define _ALLEGRO_GL_SGIX_shadow_ambient
 #define GL_SHADOW_AMBIENT_SGIX            0x80BF
 #endif
 
 #ifndef GL_EXT_index_material
 #define GL_EXT_index_material
-#define AGL_EXT_index_material
+#define _ALLEGRO_GL_EXT_index_material
 #define GL_INDEX_MATERIAL_EXT             0x81B8
 #define GL_INDEX_MATERIAL_PARAMETER_EXT   0x81B9
 #define GL_INDEX_MATERIAL_FACE_EXT        0x81BA
@@ -2185,7 +2185,7 @@ typedef unsigned long GLhandleARB;
 
 #ifndef GL_EXT_index_func
 #define GL_EXT_index_func
-#define AGL_EXT_index_func
+#define _ALLEGRO_GL_EXT_index_func
 #define GL_INDEX_TEST_EXT                 0x81B5
 #define GL_INDEX_TEST_FUNC_EXT            0x81B6
 #define GL_INDEX_TEST_REF_EXT             0x81B7
@@ -2193,7 +2193,7 @@ typedef unsigned long GLhandleARB;
 
 #ifndef GL_EXT_index_array_formats
 #define GL_EXT_index_array_formats
-#define AGL_EXT_index_array_formats
+#define _ALLEGRO_GL_EXT_index_array_formats
 #define GL_IUI_V2F_EXT                    0x81AD
 #define GL_IUI_V3F_EXT                    0x81AE
 #define GL_IUI_N3F_V2F_EXT                0x81AF
@@ -2206,14 +2206,14 @@ typedef unsigned long GLhandleARB;
 
 #ifndef GL_EXT_compiled_vertex_array
 #define GL_EXT_compiled_vertex_array
-#define AGL_EXT_compiled_vertex_array
+#define _ALLEGRO_GL_EXT_compiled_vertex_array
 #define GL_ARRAY_ELEMENT_LOCK_FIRST_EXT   0x81A8
 #define GL_ARRAY_ELEMENT_LOCK_COUNT_EXT   0x81A9
 #endif
 
 #ifndef GL_EXT_cull_vertex
 #define GL_EXT_cull_vertex
-#define AGL_EXT_cull_vertex
+#define _ALLEGRO_GL_EXT_cull_vertex
 #define GL_CULL_VERTEX_EXT                0x81AA
 #define GL_CULL_VERTEX_EYE_POSITION_EXT   0x81AB
 #define GL_CULL_VERTEX_OBJECT_POSITION_EXT 0x81AC
@@ -2221,14 +2221,14 @@ typedef unsigned long GLhandleARB;
 
 #ifndef GL_SGIX_ycrcb
 #define GL_SGIX_ycrcb
-#define AGL_SGIX_ycrcb
+#define _ALLEGRO_GL_SGIX_ycrcb
 #define GL_YCRCB_422_SGIX                 0x81BB
 #define GL_YCRCB_444_SGIX                 0x81BC
 #endif
 
 #ifndef GL_SGIX_fragment_lighting
 #define GL_SGIX_fragment_lighting
-#define AGL_SGIX_fragment_lighting
+#define _ALLEGRO_GL_SGIX_fragment_lighting
 #define GL_FRAGMENT_LIGHTING_SGIX         0x8400
 #define GL_FRAGMENT_COLOR_MATERIAL_SGIX   0x8401
 #define GL_FRAGMENT_COLOR_MATERIAL_FACE_SGIX 0x8402
@@ -2253,13 +2253,13 @@ typedef unsigned long GLhandleARB;
 
 #ifndef GL_IBM_rasterpos_clip
 #define GL_IBM_rasterpos_clip
-#define AGL_IBM_rasterpos_clip
+#define _ALLEGRO_GL_IBM_rasterpos_clip
 #define GL_RASTER_POSITION_UNCLIPPED_IBM  0x19262
 #endif
 
 #ifndef GL_HP_texture_lighting
 #define GL_HP_texture_lighting
-#define AGL_HP_texture_lighting
+#define _ALLEGRO_GL_HP_texture_lighting
 #define GL_TEXTURE_LIGHTING_MODE_HP       0x8167
 #define GL_TEXTURE_POST_SPECULAR_HP       0x8168
 #define GL_TEXTURE_PRE_SPECULAR_HP        0x8169
@@ -2267,27 +2267,27 @@ typedef unsigned long GLhandleARB;
 
 #ifndef GL_EXT_draw_range_elements
 #define GL_EXT_draw_range_elements
-#define AGL_EXT_draw_range_elements
+#define _ALLEGRO_GL_EXT_draw_range_elements
 #define GL_MAX_ELEMENTS_VERTICES_EXT      0x80E8
 #define GL_MAX_ELEMENTS_INDICES_EXT       0x80E9
 #endif
 
 #ifndef GL_WIN_phong_shading
 #define GL_WIN_phong_shading
-#define AGL_WIN_phong_shading
+#define _ALLEGRO_GL_WIN_phong_shading
 #define GL_PHONG_WIN                      0x80EA
 #define GL_PHONG_HINT_WIN                 0x80EB
 #endif
 
 #ifndef GL_WIN_specular_fog
 #define GL_WIN_specular_fog
-#define AGL_WIN_specular_fog
+#define _ALLEGRO_GL_WIN_specular_fog
 #define GL_FOG_SPECULAR_TEXTURE_WIN       0x80EC
 #endif
 
 #ifndef GL_EXT_light_texture
 #define GL_EXT_light_texture
-#define AGL_EXT_light_texture
+#define _ALLEGRO_GL_EXT_light_texture
 #define GL_FRAGMENT_MATERIAL_EXT          0x8349
 #define GL_FRAGMENT_NORMAL_EXT            0x834A
 #define GL_FRAGMENT_COLOR_EXT             0x834C
@@ -2304,14 +2304,14 @@ typedef unsigned long GLhandleARB;
 
 #ifndef GL_SGIX_blend_alpha_minmax
 #define GL_SGIX_blend_alpha_minmax
-#define AGL_SGIX_blend_alpha_minmax
+#define _ALLEGRO_GL_SGIX_blend_alpha_minmax
 #define GL_ALPHA_MIN_SGIX                 0x8320
 #define GL_ALPHA_MAX_SGIX                 0x8321
 #endif
 
 #ifndef GL_SGIX_impact_pixel_texture
 #define GL_SGIX_impact_pixel_texture
-#define AGL_SGIX_impact_pixel_texture
+#define _ALLEGRO_GL_SGIX_impact_pixel_texture
 #define GL_PIXEL_TEX_GEN_Q_CEILING_SGIX   0x8184
 #define GL_PIXEL_TEX_GEN_Q_ROUND_SGIX     0x8185
 #define GL_PIXEL_TEX_GEN_Q_FLOOR_SGIX     0x8186
@@ -2323,20 +2323,20 @@ typedef unsigned long GLhandleARB;
 
 #ifndef GL_EXT_bgra
 #define GL_EXT_bgra
-#define AGL_EXT_bgra
+#define _ALLEGRO_GL_EXT_bgra
 #define GL_BGR_EXT                        0x80E0
 #define GL_BGRA_EXT                       0x80E1
 #endif
 
 #ifndef GL_SGIX_async
 #define GL_SGIX_async
-#define AGL_SGIX_async
+#define _ALLEGRO_GL_SGIX_async
 #define GL_ASYNC_MARKER_SGIX              0x8329
 #endif
 
 #ifndef GL_SGIX_async_pixel
 #define GL_SGIX_async_pixel
-#define AGL_SGIX_async_pixel
+#define _ALLEGRO_GL_SGIX_async_pixel
 #define GL_ASYNC_TEX_IMAGE_SGIX           0x835C
 #define GL_ASYNC_DRAW_PIXELS_SGIX         0x835D
 #define GL_ASYNC_READ_PIXELS_SGIX         0x835E
@@ -2347,14 +2347,14 @@ typedef unsigned long GLhandleARB;
 
 #ifndef GL_SGIX_async_histogram
 #define GL_SGIX_async_histogram
-#define AGL_SGIX_async_histogram
+#define _ALLEGRO_GL_SGIX_async_histogram
 #define GL_ASYNC_HISTOGRAM_SGIX           0x832C
 #define GL_MAX_ASYNC_HISTOGRAM_SGIX       0x832D
 #endif
 
 #ifndef GL_INTEL_parallel_arrays
 #define GL_INTEL_parallel_arrays
-#define AGL_INTEL_parallel_arrays
+#define _ALLEGRO_GL_INTEL_parallel_arrays
 #define GL_PARALLEL_ARRAYS_INTEL          0x83F4
 #define GL_VERTEX_ARRAY_PARALLEL_POINTERS_INTEL 0x83F5
 #define GL_NORMAL_ARRAY_PARALLEL_POINTERS_INTEL 0x83F6
@@ -2364,14 +2364,14 @@ typedef unsigned long GLhandleARB;
 
 #ifndef GL_HP_occlusion_test
 #define GL_HP_occlusion_test
-#define AGL_HP_occlusion_test
+#define _ALLEGRO_GL_HP_occlusion_test
 #define GL_OCCLUSION_TEST_HP              0x8165
 #define GL_OCCLUSION_TEST_RESULT_HP       0x8166
 #endif
 
 #ifndef GL_EXT_pixel_transform
 #define GL_EXT_pixel_transform
-#define AGL_EXT_pixel_transform
+#define _ALLEGRO_GL_EXT_pixel_transform
 #define GL_PIXEL_TRANSFORM_2D_EXT         0x8330
 #define GL_PIXEL_MAG_FILTER_EXT           0x8331
 #define GL_PIXEL_MIN_FILTER_EXT           0x8332
@@ -2385,13 +2385,13 @@ typedef unsigned long GLhandleARB;
 
 #ifndef GL_EXT_shared_texture_palette
 #define GL_EXT_shared_texture_palette
-#define AGL_EXT_shared_texture_palette
+#define _ALLEGRO_GL_EXT_shared_texture_palette
 #define GL_SHARED_TEXTURE_PALETTE_EXT     0x81FB
 #endif
 
 #ifndef GL_EXT_separate_specular_color
 #define GL_EXT_separate_specular_color
-#define AGL_EXT_separate_specular_color
+#define _ALLEGRO_GL_EXT_separate_specular_color
 #define GL_LIGHT_MODEL_COLOR_CONTROL_EXT  0x81F8
 #define GL_SINGLE_COLOR_EXT               0x81F9
 #define GL_SEPARATE_SPECULAR_COLOR_EXT    0x81FA
@@ -2399,7 +2399,7 @@ typedef unsigned long GLhandleARB;
 
 #ifndef GL_EXT_secondary_color
 #define GL_EXT_secondary_color
-#define AGL_EXT_secondary_color
+#define _ALLEGRO_GL_EXT_secondary_color
 #define GL_COLOR_SUM_EXT                  0x8458
 #define GL_CURRENT_SECONDARY_COLOR_EXT    0x8459
 #define GL_SECONDARY_COLOR_ARRAY_SIZE_EXT 0x845A
@@ -2411,19 +2411,19 @@ typedef unsigned long GLhandleARB;
 
 #ifndef GL_EXT_texture_perturb_normal
 #define GL_EXT_texture_perturb_normal
-#define AGL_EXT_texture_perturb_normal
+#define _ALLEGRO_GL_EXT_texture_perturb_normal
 #define GL_PERTURB_EXT                    0x85AE
 #define GL_TEXTURE_NORMAL_EXT             0x85AF
 #endif
 
 #ifndef GL_EXT_multi_draw_arrays
 #define GL_EXT_multi_draw_arrays
-#define AGL_EXT_multi_draw_arrays
+#define _ALLEGRO_GL_EXT_multi_draw_arrays
 #endif
 
 #ifndef GL_EXT_fog_coord
 #define GL_EXT_fog_coord
-#define AGL_EXT_fog_coord
+#define _ALLEGRO_GL_EXT_fog_coord
 #define GL_FOG_COORDINATE_SOURCE_EXT      0x8450
 #define GL_FOG_COORDINATE_EXT             0x8451
 #define GL_FRAGMENT_DEPTH_EXT             0x8452
@@ -2436,14 +2436,14 @@ typedef unsigned long GLhandleARB;
 
 #ifndef GL_REND_screen_coordinates
 #define GL_REND_screen_coordinates
-#define AGL_REND_screen_coordinates
+#define _ALLEGRO_GL_REND_screen_coordinates
 #define GL_SCREEN_COORDINATES_REND        0x8490
 #define GL_INVERTED_SCREEN_W_REND         0x8491
 #endif
 
 #ifndef GL_EXT_coordinate_frame
 #define GL_EXT_coordinate_frame
-#define AGL_EXT_coordinate_frame
+#define _ALLEGRO_GL_EXT_coordinate_frame
 #define GL_TANGENT_ARRAY_EXT              0x8439
 #define GL_BINORMAL_ARRAY_EXT             0x843A
 #define GL_CURRENT_TANGENT_EXT            0x843B
@@ -2462,7 +2462,7 @@ typedef unsigned long GLhandleARB;
 
 #ifndef GL_EXT_texture_env_combine
 #define GL_EXT_texture_env_combine
-#define AGL_EXT_texture_env_combine
+#define _ALLEGRO_GL_EXT_texture_env_combine
 #define GL_COMBINE_EXT                    0x8570
 #define GL_COMBINE_RGB_EXT                0x8571
 #define GL_COMBINE_ALPHA_EXT              0x8572
@@ -2488,40 +2488,40 @@ typedef unsigned long GLhandleARB;
 
 #ifndef GL_APPLE_specular_vector
 #define GL_APPLE_specular_vector
-#define AGL_APPLE_specular_vector
+#define _ALLEGRO_GL_APPLE_specular_vector
 #define GL_LIGHT_MODEL_SPECULAR_VECTOR_APPLE 0x85B0
 #endif
 
 #ifndef GL_APPLE_transform_hint
 #define GL_APPLE_transform_hint
-#define AGL_APPLE_transform_hint
+#define _ALLEGRO_GL_APPLE_transform_hint
 #define GL_TRANSFORM_HINT_APPLE           0x85B1
 #endif
 
 #ifndef GL_SGIX_fog_scale
 #define GL_SGIX_fog_scale
-#define AGL_SGIX_fog_scale
+#define _ALLEGRO_GL_SGIX_fog_scale
 #define GL_FOG_SCALE_SGIX                 0x81FC
 #define GL_FOG_SCALE_VALUE_SGIX           0x81FD
 #endif
 
 #ifndef GL_SUNX_constant_data
 #define GL_SUNX_constant_data
-#define AGL_SUNX_constant_data
+#define _ALLEGRO_GL_SUNX_constant_data
 #define GL_UNPACK_CONSTANT_DATA_SUNX      0x81D5
 #define GL_TEXTURE_CONSTANT_DATA_SUNX     0x81D6
 #endif
 
 #ifndef GL_SUN_global_alpha
 #define GL_SUN_global_alpha
-#define AGL_SUN_global_alpha
+#define _ALLEGRO_GL_SUN_global_alpha
 #define GL_GLOBAL_ALPHA_SUN               0x81D9
 #define GL_GLOBAL_ALPHA_FACTOR_SUN        0x81DA
 #endif
 
 #ifndef GL_SUN_triangle_list
 #define GL_SUN_triangle_list
-#define AGL_SUN_triangle_list
+#define _ALLEGRO_GL_SUN_triangle_list
 #define GL_RESTART_SUN                    0x0001
 #define GL_REPLACE_MIDDLE_SUN             0x0002
 #define GL_REPLACE_OLDEST_SUN             0x0003
@@ -2543,12 +2543,12 @@ typedef unsigned long GLhandleARB;
 
 #ifndef GL_SUN_vertex
 #define GL_SUN_vertex
-#define AGL_SUN_vertex
+#define _ALLEGRO_GL_SUN_vertex
 #endif
 
 #ifndef GL_EXT_blend_func_separate
 #define GL_EXT_blend_func_separate
-#define AGL_EXT_blend_func_separate
+#define _ALLEGRO_GL_EXT_blend_func_separate
 #define GL_BLEND_DST_RGB_EXT              0x80C8
 #define GL_BLEND_SRC_RGB_EXT              0x80C9
 #define GL_BLEND_DST_ALPHA_EXT            0x80CA
@@ -2557,7 +2557,7 @@ typedef unsigned long GLhandleARB;
 
 #ifndef GL_INGR_color_clamp
 #define GL_INGR_color_clamp
-#define AGL_INGR_color_clamp
+#define _ALLEGRO_GL_INGR_color_clamp
 #define GL_RED_MIN_CLAMP_INGR             0x8560
 #define GL_GREEN_MIN_CLAMP_INGR           0x8561
 #define GL_BLUE_MIN_CLAMP_INGR            0x8562
@@ -2570,25 +2570,25 @@ typedef unsigned long GLhandleARB;
 
 #ifndef GL_INGR_blend_func_separate
 #define GL_INGR_blend_func_separate
-#define AGL_INGR_blend_func_separate
+#define _ALLEGRO_GL_INGR_blend_func_separate
 #endif
 
 #ifndef GL_INGR_interlace_read
 #define GL_INGR_interlace_read
-#define AGL_INGR_interlace_read
+#define _ALLEGRO_GL_INGR_interlace_read
 #define GL_INTERLACE_READ_INGR            0x8568
 #endif
 
 #ifndef GL_EXT_stencil_wrap
 #define GL_EXT_stencil_wrap
-#define AGL_EXT_stencil_wrap
+#define _ALLEGRO_GL_EXT_stencil_wrap
 #define GL_INCR_WRAP_EXT                  0x8507
 #define GL_DECR_WRAP_EXT                  0x8508
 #endif
 
 #ifndef GL_EXT_422_pixels
 #define GL_EXT_422_pixels
-#define AGL_EXT_422_pixels
+#define _ALLEGRO_GL_EXT_422_pixels
 #define GL_422_EXT                        0x80CC
 #define GL_422_REV_EXT                    0x80CD
 #define GL_422_AVERAGE_EXT                0x80CE
@@ -2597,14 +2597,14 @@ typedef unsigned long GLhandleARB;
 
 #ifndef GL_NV_texgen_reflection
 #define GL_NV_texgen_reflection
-#define AGL_NV_texgen_reflection
+#define _ALLEGRO_GL_NV_texgen_reflection
 #define GL_NORMAL_MAP_NV                  0x8511
 #define GL_REFLECTION_MAP_NV              0x8512
 #endif
 
 #ifndef GL_EXT_texture_cube_map
 #define GL_EXT_texture_cube_map
-#define AGL_EXT_texture_cube_map
+#define _ALLEGRO_GL_EXT_texture_cube_map
 #define GL_NORMAL_MAP_EXT                 0x8511
 #define GL_REFLECTION_MAP_EXT             0x8512
 #define GL_TEXTURE_CUBE_MAP_EXT           0x8513
@@ -2621,13 +2621,13 @@ typedef unsigned long GLhandleARB;
 
 #ifndef GL_SUN_convolution_border_modes
 #define GL_SUN_convolution_border_modes
-#define AGL_SUN_convolution_border_modes
+#define _ALLEGRO_GL_SUN_convolution_border_modes
 #define GL_WRAP_BORDER_SUN                0x81D4
 #endif
 
 #ifndef GL_EXT_texture_lod_bias
 #define GL_EXT_texture_lod_bias
-#define AGL_EXT_texture_lod_bias
+#define _ALLEGRO_GL_EXT_texture_lod_bias
 #define GL_MAX_TEXTURE_LOD_BIAS_EXT       0x84FD
 #define GL_TEXTURE_FILTER_CONTROL_EXT     0x8500
 #define GL_TEXTURE_LOD_BIAS_EXT           0x8501
@@ -2635,14 +2635,14 @@ typedef unsigned long GLhandleARB;
 
 #ifndef GL_EXT_texture_filter_anisotropic
 #define GL_EXT_texture_filter_anisotropic
-#define AGL_EXT_texture_filter_anisotropic
+#define _ALLEGRO_GL_EXT_texture_filter_anisotropic
 #define GL_TEXTURE_MAX_ANISOTROPY_EXT     0x84FE
 #define GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT 0x84FF
 #endif
 
 #ifndef GL_EXT_vertex_weighting
 #define GL_EXT_vertex_weighting
-#define AGL_EXT_vertex_weighting
+#define _ALLEGRO_GL_EXT_vertex_weighting
 #define GL_MODELVIEW0_STACK_DEPTH_EXT     GL_MODELVIEW_STACK_DEPTH
 #define GL_MODELVIEW1_STACK_DEPTH_EXT     0x8502
 #define GL_MODELVIEW0_MATRIX_EXT          GL_MODELVIEW_MATRIX
@@ -2660,14 +2660,14 @@ typedef unsigned long GLhandleARB;
 
 #ifndef GL_NV_light_max_exponent
 #define GL_NV_light_max_exponent
-#define AGL_NV_light_max_exponent
+#define _ALLEGRO_GL_NV_light_max_exponent
 #define GL_MAX_SHININESS_NV               0x8504
 #define GL_MAX_SPOT_EXPONENT_NV           0x8505
 #endif
 
 #ifndef GL_NV_vertex_array_range
 #define GL_NV_vertex_array_range
-#define AGL_NV_vertex_array_range
+#define _ALLEGRO_GL_NV_vertex_array_range
 #define GL_VERTEX_ARRAY_RANGE_NV          0x851D
 #define GL_VERTEX_ARRAY_RANGE_LENGTH_NV   0x851E
 #define GL_VERTEX_ARRAY_RANGE_VALID_NV    0x851F
@@ -2677,7 +2677,7 @@ typedef unsigned long GLhandleARB;
 
 #ifndef GL_NV_register_combiners
 #define GL_NV_register_combiners
-#define AGL_NV_register_combiners
+#define _ALLEGRO_GL_NV_register_combiners
 #define GL_REGISTER_COMBINERS_NV          0x8522
 #define GL_VARIABLE_A_NV                  0x8523
 #define GL_VARIABLE_B_NV                  0x8524
@@ -2738,7 +2738,7 @@ typedef unsigned long GLhandleARB;
 
 #ifndef GL_NV_fog_distance
 #define GL_NV_fog_distance
-#define AGL_NV_fog_distance
+#define _ALLEGRO_GL_NV_fog_distance
 #define GL_FOG_DISTANCE_MODE_NV           0x855A
 #define GL_EYE_RADIAL_NV                  0x855B
 #define GL_EYE_PLANE_ABSOLUTE_NV          0x855C
@@ -2747,7 +2747,7 @@ typedef unsigned long GLhandleARB;
 
 #ifndef GL_NV_texgen_emboss
 #define GL_NV_texgen_emboss
-#define AGL_NV_texgen_emboss
+#define _ALLEGRO_GL_NV_texgen_emboss
 #define GL_EMBOSS_LIGHT_NV                0x855D
 #define GL_EMBOSS_CONSTANT_NV             0x855E
 #define GL_EMBOSS_MAP_NV                  0x855F
@@ -2755,7 +2755,7 @@ typedef unsigned long GLhandleARB;
 
 #ifndef GL_NV_texture_env_combine4
 #define GL_NV_texture_env_combine4
-#define AGL_NV_texture_env_combine4
+#define _ALLEGRO_GL_NV_texture_env_combine4
 #define GL_COMBINE4_NV                    0x8503
 #define GL_SOURCE3_RGB_NV                 0x8583
 #define GL_SOURCE3_ALPHA_NV               0x858B
@@ -2765,7 +2765,7 @@ typedef unsigned long GLhandleARB;
 
 #ifndef GL_EXT_texture_compression_s3tc
 #define GL_EXT_texture_compression_s3tc
-#define AGL_EXT_texture_compression_s3tc
+#define _ALLEGRO_GL_EXT_texture_compression_s3tc
 #define GL_COMPRESSED_RGB_S3TC_DXT1_EXT   0x83F0
 #define GL_COMPRESSED_RGBA_S3TC_DXT1_EXT  0x83F1
 #define GL_COMPRESSED_RGBA_S3TC_DXT3_EXT  0x83F2
@@ -2774,28 +2774,28 @@ typedef unsigned long GLhandleARB;
 
 #ifndef GL_MESA_resize_buffers
 #define GL_MESA_resize_buffers
-#define AGL_MESA_resize_buffers
+#define _ALLEGRO_GL_MESA_resize_buffers
 #endif
 
 #ifndef GL_MESA_window_pos
 #define GL_MESA_window_pos
-#define AGL_MESA_window_pos
+#define _ALLEGRO_GL_MESA_window_pos
 #endif
 
 #ifndef GL_IBM_cull_vertex
 #define GL_IBM_cull_vertex
-#define AGL_IBM_cull_vertex
+#define _ALLEGRO_GL_IBM_cull_vertex
 #define GL_CULL_VERTEX_IBM                103050
 #endif
 
 #ifndef GL_IBM_multimode_draw_arrays
 #define GL_IBM_multimode_draw_arrays
-#define AGL_IBM_multimode_draw_arrays
+#define _ALLEGRO_GL_IBM_multimode_draw_arrays
 #endif
 
 #ifndef GL_IBM_vertex_array_lists
 #define GL_IBM_vertex_array_lists
-#define AGL_IBM_vertex_array_lists
+#define _ALLEGRO_GL_IBM_vertex_array_lists
 #define GL_VERTEX_ARRAY_LIST_IBM          103070
 #define GL_NORMAL_ARRAY_LIST_IBM          103071
 #define GL_COLOR_ARRAY_LIST_IBM           103072
@@ -2816,7 +2816,7 @@ typedef unsigned long GLhandleARB;
 
 #ifndef GL_SGIX_subsample
 #define GL_SGIX_subsample
-#define AGL_SGIX_subsample
+#define _ALLEGRO_GL_SGIX_subsample
 #define GL_PACK_SUBSAMPLE_RATE_SGIX       0x85A0
 #define GL_UNPACK_SUBSAMPLE_RATE_SGIX     0x85A1
 #define GL_PIXEL_SUBSAMPLE_4444_SGIX      0x85A2
@@ -2826,14 +2826,14 @@ typedef unsigned long GLhandleARB;
 
 #ifndef GL_SGIX_ycrcba
 #define GL_SGIX_ycrcba
-#define AGL_SGIX_ycrcba
+#define _ALLEGRO_GL_SGIX_ycrcba
 #define GL_YCRCB_SGIX                     0x8318
 #define GL_YCRCBA_SGIX                    0x8319
 #endif
 
 #ifndef GL_SGI_depth_pass_instrument
 #define GL_SGI_depth_pass_instrument
-#define AGL_SGI_depth_pass_instrument
+#define _ALLEGRO_GL_SGI_depth_pass_instrument
 #define GL_DEPTH_PASS_INSTRUMENT_SGIX     0x8310
 #define GL_DEPTH_PASS_INSTRUMENT_COUNTERS_SGIX 0x8311
 #define GL_DEPTH_PASS_INSTRUMENT_MAX_SGIX 0x8312
@@ -2841,14 +2841,14 @@ typedef unsigned long GLhandleARB;
 
 #ifndef GL_3DFX_texture_compression_FXT1
 #define GL_3DFX_texture_compression_FXT1
-#define AGL_3DFX_texture_compression_FXT1
+#define _ALLEGRO_GL_3DFX_texture_compression_FXT1
 #define GL_COMPRESSED_RGB_FXT1_3DFX       0x86B0
 #define GL_COMPRESSED_RGBA_FXT1_3DFX      0x86B1
 #endif
 
 #ifndef GL_3DFX_multisample
 #define GL_3DFX_multisample
-#define AGL_3DFX_multisample
+#define _ALLEGRO_GL_3DFX_multisample
 #define GL_MULTISAMPLE_3DFX               0x86B2
 #define GL_SAMPLE_BUFFERS_3DFX            0x86B3
 #define GL_SAMPLES_3DFX                   0x86B4
@@ -2857,14 +2857,14 @@ typedef unsigned long GLhandleARB;
 
 #ifndef GL_3DFX_tbuffer
 #define GL_3DFX_tbuffer
-#ifndef AGL_HEADER_NV
-#define AGL_3DFX_tbuffer
+#ifndef ALLEGRO_GL_HEADER_NV
+#define _ALLEGRO_GL_3DFX_tbuffer
 #endif
 #endif
 
 #ifndef GL_EXT_multisample
 #define GL_EXT_multisample
-#define AGL_EXT_multisample
+#define _ALLEGRO_GL_EXT_multisample
 #define GL_MULTISAMPLE_EXT                0x809D
 #define GL_SAMPLE_ALPHA_TO_MASK_EXT       0x809E
 #define GL_SAMPLE_ALPHA_TO_ONE_EXT        0x809F
@@ -2886,20 +2886,20 @@ typedef unsigned long GLhandleARB;
 
 #ifndef GL_SGIX_vertex_preclip
 #define GL_SGIX_vertex_preclip
-#define AGL_SGIX_vertex_preclip
+#define _ALLEGRO_GL_SGIX_vertex_preclip
 #define GL_VERTEX_PRECLIP_SGIX            0x83EE
 #define GL_VERTEX_PRECLIP_HINT_SGIX       0x83EF
 #endif
 
 #ifndef GL_SGIX_convolution_accuracy
 #define GL_SGIX_convolution_accuracy
-#define AGL_SGIX_convolution_accuracy
+#define _ALLEGRO_GL_SGIX_convolution_accuracy
 #define GL_CONVOLUTION_HINT_SGIX          0x8316
 #endif
 
 #ifndef GL_SGIX_resample
 #define GL_SGIX_resample
-#define AGL_SGIX_resample
+#define _ALLEGRO_GL_SGIX_resample
 #define GL_PACK_RESAMPLE_SGIX             0x842C
 #define GL_UNPACK_RESAMPLE_SGIX           0x842D
 #define GL_RESAMPLE_REPLICATE_SGIX        0x842E
@@ -2909,7 +2909,7 @@ typedef unsigned long GLhandleARB;
 
 #ifndef GL_SGIS_point_line_texgen
 #define GL_SGIS_point_line_texgen
-#define AGL_SGIS_point_line_texgen
+#define _ALLEGRO_GL_SGIS_point_line_texgen
 #define GL_EYE_DISTANCE_TO_POINT_SGIS     0x81F0
 #define GL_OBJECT_DISTANCE_TO_POINT_SGIS  0x81F1
 #define GL_EYE_DISTANCE_TO_LINE_SGIS      0x81F2
@@ -2922,34 +2922,34 @@ typedef unsigned long GLhandleARB;
 
 #ifndef GL_SGIS_texture_color_mask
 #define GL_SGIS_texture_color_mask
-#ifndef AGL_HEADER_NV
-#define AGL_SGIS_texture_color_mask
+#ifndef ALLEGRO_GL_HEADER_NV
+#define _ALLEGRO_GL_SGIS_texture_color_mask
 #define GL_TEXTURE_COLOR_WRITEMASK_SGIS   0x81EF
 #endif
 #endif
 
 #ifndef GL_SGIX_igloo_interface
 #define GL_SGIX_igloo_interface
-#define AGL_SGIX_igloo_interface
+#define _ALLEGRO_GL_SGIX_igloo_interface
 #endif
 
 #ifndef GL_EXT_texture_env_dot3
 #define GL_EXT_texture_env_dot3
-#define AGL_EXT_texture_env_dot3
+#define _ALLEGRO_GL_EXT_texture_env_dot3
 /* GL_DOT3_RGB_EXT */
 /* GL_DOT3_RGBA_EXT */
 #endif
 
 #ifndef GL_ATI_texture_mirror_once
 #define GL_ATI_texture_mirror_once
-#define AGL_ATI_texture_mirror_once
+#define _ALLEGRO_GL_ATI_texture_mirror_once
 #define GL_MIRROR_CLAMP_ATI               0x8742
 #define GL_MIRROR_CLAMP_TO_EDGE_ATI       0x8743
 #endif
 
 #ifndef GL_NV_fence
 #define GL_NV_fence
-#define AGL_NV_fence
+#define _ALLEGRO_GL_NV_fence
 #define GL_ALL_COMPLETED_NV               0x84F2
 #define GL_FENCE_STATUS_NV                0x84F3
 #define GL_FENCE_CONDITION_NV             0x84F4
@@ -2957,13 +2957,13 @@ typedef unsigned long GLhandleARB;
 
 #ifndef GL_IBM_texture_mirrored_repeat
 #define GL_IBM_texture_mirrored_repeat
-#define AGL_IBM_texture_mirrored_repeat
+#define _ALLEGRO_GL_IBM_texture_mirrored_repeat
 #define GL_MIRRORED_REPEAT_IBM            0x8370
 #endif
 
 #ifndef GL_NV_evaluators
 #define GL_NV_evaluators
-#define AGL_NV_evaluators
+#define _ALLEGRO_GL_NV_evaluators
 #define GL_EVAL_2D_NV                     0x86C0
 #define GL_EVAL_TRIANGULAR_2D_NV          0x86C1
 #define GL_MAP_TESSELLATION_NV            0x86C2
@@ -2992,20 +2992,20 @@ typedef unsigned long GLhandleARB;
 
 #ifndef GL_NV_packed_depth_stencil
 #define GL_NV_packed_depth_stencil
-#define AGL_NV_packed_depth_stencil
+#define _ALLEGRO_GL_NV_packed_depth_stencil
 #define GL_DEPTH_STENCIL_NV               0x84F9
 #define GL_UNSIGNED_INT_24_8_NV           0x84FA
 #endif
 
 #ifndef GL_NV_register_combiners2
 #define GL_NV_register_combiners2
-#define AGL_NV_register_combiners2
+#define _ALLEGRO_GL_NV_register_combiners2
 #define GL_PER_STAGE_CONSTANTS_NV         0x8535
 #endif
 
 #ifndef GL_NV_texture_rectangle
 #define GL_NV_texture_rectangle
-#define AGL_NV_texture_rectangle
+#define _ALLEGRO_GL_NV_texture_rectangle
 #define GL_TEXTURE_RECTANGLE_NV           0x84F5
 #define GL_TEXTURE_BINDING_RECTANGLE_NV   0x84F6
 #define GL_PROXY_TEXTURE_RECTANGLE_NV     0x84F7
@@ -3014,7 +3014,7 @@ typedef unsigned long GLhandleARB;
 
 #ifndef GL_NV_texture_shader
 #define GL_NV_texture_shader
-#define AGL_NV_texture_shader
+#define _ALLEGRO_GL_NV_texture_shader
 #define GL_OFFSET_TEXTURE_RECTANGLE_NV    0x864C
 #define GL_OFFSET_TEXTURE_RECTANGLE_SCALE_NV 0x864D
 #define GL_DOT_PRODUCT_TEXTURE_RECTANGLE_NV 0x864E
@@ -3092,19 +3092,19 @@ typedef unsigned long GLhandleARB;
 
 #ifndef GL_NV_texture_shader2
 #define GL_NV_texture_shader2
-#define AGL_NV_texture_shader2
+#define _ALLEGRO_GL_NV_texture_shader2
 #define GL_DOT_PRODUCT_TEXTURE_3D_NV      0x86EF
 #endif
 
 #ifndef GL_NV_vertex_array_range2
 #define GL_NV_vertex_array_range2
-#define AGL_NV_vertex_array_range2
+#define _ALLEGRO_GL_NV_vertex_array_range2
 #define GL_VERTEX_ARRAY_RANGE_WITHOUT_FLUSH_NV 0x8533
 #endif
 
 #ifndef GL_NV_vertex_program
 #define GL_NV_vertex_program
-#define AGL_NV_vertex_program
+#define _ALLEGRO_GL_NV_vertex_program
 #define GL_VERTEX_PROGRAM_NV              0x8620
 #define GL_VERTEX_STATE_PROGRAM_NV        0x8621
 #define GL_ATTRIB_ARRAY_SIZE_NV           0x8623
@@ -3192,7 +3192,7 @@ typedef unsigned long GLhandleARB;
 
 #ifndef GL_SGIX_texture_coordinate_clamp
 #define GL_SGIX_texture_coordinate_clamp
-#define AGL_SGIX_texture_coordinate_clamp
+#define _ALLEGRO_GL_SGIX_texture_coordinate_clamp
 #define GL_TEXTURE_MAX_CLAMP_S_SGIX       0x8369
 #define GL_TEXTURE_MAX_CLAMP_T_SGIX       0x836A
 #define GL_TEXTURE_MAX_CLAMP_R_SGIX       0x836B
@@ -3200,27 +3200,27 @@ typedef unsigned long GLhandleARB;
 
 #ifndef GL_SGIX_scalebias_hint
 #define GL_SGIX_scalebias_hint
-#define AGL_SGIX_scalebias_hint
+#define _ALLEGRO_GL_SGIX_scalebias_hint
 #define GL_SCALEBIAS_HINT_SGIX            0x8322
 #endif
 
 #ifndef GL_OML_interlace
 #define GL_OML_interlace
-#define AGL_OML_interlace
+#define _ALLEGRO_GL_OML_interlace
 #define GL_INTERLACE_OML                  0x8980
 #define GL_INTERLACE_READ_OML             0x8981
 #endif
 
 #ifndef GL_OML_subsample
 #define GL_OML_subsample
-#define AGL_OML_subsample
+#define _ALLEGRO_GL_OML_subsample
 #define GL_FORMAT_SUBSAMPLE_24_24_OML     0x8982
 #define GL_FORMAT_SUBSAMPLE_244_244_OML   0x8983
 #endif
 
 #ifndef GL_OML_resample
 #define GL_OML_resample
-#define AGL_OML_resample
+#define _ALLEGRO_GL_OML_resample
 #define GL_PACK_RESAMPLE_OML              0x8984
 #define GL_UNPACK_RESAMPLE_OML            0x8985
 #define GL_RESAMPLE_REPLICATE_OML         0x8986
@@ -3231,14 +3231,14 @@ typedef unsigned long GLhandleARB;
 
 #ifndef GL_NV_copy_depth_to_color
 #define GL_NV_copy_depth_to_color
-#define AGL_NV_copy_depth_to_color
+#define _ALLEGRO_GL_NV_copy_depth_to_color
 #define GL_DEPTH_STENCIL_TO_RGBA_NV       0x886E
 #define GL_DEPTH_STENCIL_TO_BGRA_NV       0x886F
 #endif
 
 #ifndef GL_ATI_envmap_bumpmap
 #define GL_ATI_envmap_bumpmap
-#define AGL_ATI_envmap_bumpmap
+#define _ALLEGRO_GL_ATI_envmap_bumpmap
 #define GL_BUMP_ROT_MATRIX_ATI            0x8775
 #define GL_BUMP_ROT_MATRIX_SIZE_ATI       0x8776
 #define GL_BUMP_NUM_TEX_UNITS_ATI         0x8777
@@ -3251,7 +3251,7 @@ typedef unsigned long GLhandleARB;
 
 #ifndef GL_ATI_fragment_shader
 #define GL_ATI_fragment_shader
-#define AGL_ATI_fragment_shader
+#define _ALLEGRO_GL_ATI_fragment_shader
 #define GL_FRAGMENT_SHADER_ATI            0x8920
 #define GL_REG_0_ATI                      0x8921
 #define GL_REG_1_ATI                      0x8922
@@ -3360,7 +3360,7 @@ typedef unsigned long GLhandleARB;
 
 #ifndef GL_ATI_pn_triangles
 #define GL_ATI_pn_triangles
-#define AGL_ATI_pn_triangles
+#define _ALLEGRO_GL_ATI_pn_triangles
 #define GL_PN_TRIANGLES_ATI               0x87F0
 #define GL_MAX_PN_TRIANGLES_TESSELATION_LEVEL_ATI 0x87F1
 #define GL_PN_TRIANGLES_POINT_MODE_ATI    0x87F2
@@ -3374,7 +3374,7 @@ typedef unsigned long GLhandleARB;
 
 #ifndef GL_ATI_vertex_array_object
 #define GL_ATI_vertex_array_object
-#define AGL_ATI_vertex_array_object
+#define _ALLEGRO_GL_ATI_vertex_array_object
 #define GL_STATIC_ATI                     0x8760
 #define GL_DYNAMIC_ATI                    0x8761
 #define GL_PRESERVE_ATI                   0x8762
@@ -3387,7 +3387,7 @@ typedef unsigned long GLhandleARB;
 
 #ifndef GL_EXT_vertex_shader
 #define GL_EXT_vertex_shader
-#define AGL_EXT_vertex_shader
+#define _ALLEGRO_GL_EXT_vertex_shader
 #define GL_VERTEX_SHADER_EXT              0x8780
 #define GL_VERTEX_SHADER_BINDING_EXT      0x8781
 #define GL_OP_INDEX_EXT                   0x8782
@@ -3502,7 +3502,7 @@ typedef unsigned long GLhandleARB;
 
 #ifndef GL_ATI_vertex_streams
 #define GL_ATI_vertex_streams
-#define AGL_ATI_vertex_streams
+#define _ALLEGRO_GL_ATI_vertex_streams
 #define GL_MAX_VERTEX_STREAMS_ATI         0x876B
 #define GL_VERTEX_STREAM0_ATI             0x876C
 #define GL_VERTEX_STREAM1_ATI             0x876D
@@ -3517,7 +3517,7 @@ typedef unsigned long GLhandleARB;
 
 #ifndef GL_ATI_element_array
 #define GL_ATI_element_array
-#define AGL_ATI_element_array
+#define _ALLEGRO_GL_ATI_element_array
 #define GL_ELEMENT_ARRAY_ATI              0x8768
 #define GL_ELEMENT_ARRAY_TYPE_ATI         0x8769
 #define GL_ELEMENT_ARRAY_POINTER_ATI      0x876A
@@ -3525,32 +3525,32 @@ typedef unsigned long GLhandleARB;
 
 #ifndef GL_SUN_mesh_array
 #define GL_SUN_mesh_array
-#define AGL_SUN_mesh_array
+#define _ALLEGRO_GL_SUN_mesh_array
 #define GL_QUAD_MESH_SUN                  0x8614
 #define GL_TRIANGLE_MESH_SUN              0x8615
 #endif
 
 #ifndef GL_SUN_slice_accum
 #define GL_SUN_slice_accum
-#define AGL_SUN_slice_accum
+#define _ALLEGRO_GL_SUN_slice_accum
 #define GL_SLICE_ACCUM_SUN                0x85CC
 #endif
 
 #ifndef GL_NV_multisample_filter_hint
 #define GL_NV_multisample_filter_hint
-#define AGL_NV_multisample_filter_hint
+#define _ALLEGRO_GL_NV_multisample_filter_hint
 #define GL_MULTISAMPLE_FILTER_HINT_NV     0x8534
 #endif
 
 #ifndef GL_NV_depth_clamp
 #define GL_NV_depth_clamp
-#define AGL_NV_depth_clamp
+#define _ALLEGRO_GL_NV_depth_clamp
 #define GL_DEPTH_CLAMP_NV                 0x864F
 #endif
 
 #ifndef GL_NV_occlusion_query
 #define GL_NV_occlusion_query
-#define AGL_NV_occlusion_query
+#define _ALLEGRO_GL_NV_occlusion_query
 #define GL_PIXEL_COUNTER_BITS_NV          0x8864
 #define GL_CURRENT_OCCLUSION_QUERY_ID_NV  0x8865
 #define GL_PIXEL_COUNT_NV                 0x8866
@@ -3559,7 +3559,7 @@ typedef unsigned long GLhandleARB;
 
 #ifndef GL_NV_point_sprite
 #define GL_NV_point_sprite
-#define AGL_NV_point_sprite
+#define _ALLEGRO_GL_NV_point_sprite
 #define GL_POINT_SPRITE_NV                0x8861
 #define GL_COORD_REPLACE_NV               0x8862
 #define GL_POINT_SPRITE_R_MODE_NV         0x8863
@@ -3567,7 +3567,7 @@ typedef unsigned long GLhandleARB;
 
 #ifndef GL_NV_texture_shader3
 #define GL_NV_texture_shader3
-#define AGL_NV_texture_shader3
+#define _ALLEGRO_GL_NV_texture_shader3
 #define GL_OFFSET_PROJECTIVE_TEXTURE_2D_NV 0x8850
 #define GL_OFFSET_PROJECTIVE_TEXTURE_2D_SCALE_NV 0x8851
 #define GL_OFFSET_PROJECTIVE_TEXTURE_RECTANGLE_NV 0x8852
@@ -3589,26 +3589,26 @@ typedef unsigned long GLhandleARB;
 
 #ifndef GL_EXT_stencil_two_side
 #define GL_EXT_stencil_two_side
-#define AGL_EXT_stencil_two_side
+#define _ALLEGRO_GL_EXT_stencil_two_side
 #define GL_STENCIL_TEST_TWO_SIDE_EXT      0x8910
 #define GL_ACTIVE_STENCIL_FACE_EXT        0x8911
 #endif
 
 #ifndef GL_ATI_text_fragment_shader
 #define GL_ATI_text_fragment_shader
-#define AGL_ATI_text_fragment_shader
+#define _ALLEGRO_GL_ATI_text_fragment_shader
 #define GL_TEXT_FRAGMENT_SHADER_ATI       0x8200
 #endif
 
 #ifndef GL_APPLE_client_storage
 #define GL_APPLE_client_storage
-#define AGL_APPLE_client_storage
+#define _ALLEGRO_GL_APPLE_client_storage
 #define GL_UNPACK_CLIENT_STORAGE_APPLE    0x85B2
 #endif
 
 #ifndef GL_APPLE_element_array
 #define GL_APPLE_element_array
-#define AGL_APPLE_element_array
+#define _ALLEGRO_GL_APPLE_element_array
 #define GL_ELEMENT_ARRAY_APPLE            0x8768
 #define GL_ELEMENT_ARRAY_TYPE_APPLE       0x8769
 #define GL_ELEMENT_ARRAY_POINTER_APPLE    0x876A
@@ -3616,20 +3616,20 @@ typedef unsigned long GLhandleARB;
 
 #ifndef GL_APPLE_fence
 #define GL_APPLE_fence
-#define AGL_APPLE_fence
+#define _ALLEGRO_GL_APPLE_fence
 #define GL_DRAW_PIXELS_APPLE              0x8A0A
 #define GL_FENCE_APPLE                    0x8A0B
 #endif
 
 #ifndef GL_APPLE_vertex_array_object
 #define GL_APPLE_vertex_array_object
-#define AGL_APPLE_vertex_array_object
+#define _ALLEGRO_GL_APPLE_vertex_array_object
 #define GL_VERTEX_ARRAY_BINDING_APPLE     0x85B5
 #endif
 
 #ifndef GL_APPLE_vertex_array_range
 #define GL_APPLE_vertex_array_range
-#define AGL_APPLE_vertex_array_range
+#define _ALLEGRO_GL_APPLE_vertex_array_range
 #define GL_VERTEX_ARRAY_RANGE_APPLE       0x851D
 #define GL_VERTEX_ARRAY_RANGE_LENGTH_APPLE 0x851E
 #define GL_VERTEX_ARRAY_STORAGE_HINT_APPLE 0x851F
@@ -3640,7 +3640,7 @@ typedef unsigned long GLhandleARB;
 
 #ifndef GL_APPLE_ycbcr_422
 #define GL_APPLE_ycbcr_422
-#define AGL_APPLE_ycbcr_422
+#define _ALLEGRO_GL_APPLE_ycbcr_422
 #define GL_YCBCR_422_APPLE                0x85B9
 #define GL_UNSIGNED_SHORT_8_8_APPLE       0x85BA
 #define GL_UNSIGNED_SHORT_8_8_REV_APPLE   0x85BB
@@ -3648,7 +3648,7 @@ typedef unsigned long GLhandleARB;
 
 #ifndef GL_S3_s3tc
 #define GL_S3_s3tc
-#define AGL_S3_s3tc
+#define _ALLEGRO_GL_S3_s3tc
 #define GL_RGB_S3TC                       0x83A0
 #define GL_RGB4_S3TC                      0x83A1
 #define GL_RGBA_S3TC                      0x83A2
@@ -3657,7 +3657,7 @@ typedef unsigned long GLhandleARB;
 
 #ifndef GL_ATI_draw_buffers
 #define GL_ATI_draw_buffers
-#define AGL_ATI_draw_buffers
+#define _ALLEGRO_GL_ATI_draw_buffers
 #define GL_MAX_DRAW_BUFFERS_ATI           0x8824
 #define GL_DRAW_BUFFER0_ATI               0x8825
 #define GL_DRAW_BUFFER1_ATI               0x8826
@@ -3679,7 +3679,7 @@ typedef unsigned long GLhandleARB;
 
 #ifndef GL_ATI_texture_env_combine3
 #define GL_ATI_texture_env_combine3
-#define AGL_ATI_texture_env_combine3
+#define _ALLEGRO_GL_ATI_texture_env_combine3
 #define GL_MODULATE_ADD_ATI               0x8744
 #define GL_MODULATE_SIGNED_ADD_ATI        0x8745
 #define GL_MODULATE_SUBTRACT_ATI          0x8746
@@ -3687,7 +3687,7 @@ typedef unsigned long GLhandleARB;
 
 #ifndef GL_ATI_texture_float
 #define GL_ATI_texture_float
-#define AGL_ATI_texture_float
+#define _ALLEGRO_GL_ATI_texture_float
 #define GL_RGBA_FLOAT32_ATI               0x8814
 #define GL_RGB_FLOAT32_ATI                0x8815
 #define GL_ALPHA_FLOAT32_ATI              0x8816
@@ -3704,7 +3704,7 @@ typedef unsigned long GLhandleARB;
 
 #ifndef GL_NV_float_buffer
 #define GL_NV_float_buffer
-#define AGL_NV_float_buffer
+#define _ALLEGRO_GL_NV_float_buffer
 #define GL_FLOAT_R_NV                     0x8880
 #define GL_FLOAT_RG_NV                    0x8881
 #define GL_FLOAT_RGB_NV                   0x8882
@@ -3724,7 +3724,7 @@ typedef unsigned long GLhandleARB;
 
 #ifndef GL_NV_fragment_program
 #define GL_NV_fragment_program
-#define AGL_NV_fragment_program
+#define _ALLEGRO_GL_NV_fragment_program
 #define GL_MAX_FRAGMENT_PROGRAM_LOCAL_PARAMETERS_NV 0x8868
 #define GL_FRAGMENT_PROGRAM_NV            0x8870
 #define GL_MAX_TEXTURE_COORDS_NV          0x8871
@@ -3735,14 +3735,14 @@ typedef unsigned long GLhandleARB;
 
 #ifndef GL_NV_half_float
 #define GL_NV_half_float
-#define AGL_NV_half_float
+#define _ALLEGRO_GL_NV_half_float
 typedef short GLhalfNV;
 #define GL_HALF_FLOAT_NV                  0x140B
 #endif
 
 #ifndef GL_NV_pixel_data_range
 #define GL_NV_pixel_data_range
-#define AGL_NV_pixel_data_range
+#define _ALLEGRO_GL_NV_pixel_data_range
 #define GL_WRITE_PIXEL_DATA_RANGE_NV      0x8878
 #define GL_READ_PIXEL_DATA_RANGE_NV       0x8879
 #define GL_WRITE_PIXEL_DATA_RANGE_LENGTH_NV 0x887A
@@ -3753,20 +3753,20 @@ typedef short GLhalfNV;
 
 #ifndef GL_NV_primitive_restart
 #define GL_NV_primitive_restart
-#define AGL_NV_primitive_restart
+#define _ALLEGRO_GL_NV_primitive_restart
 #define GL_PRIMITIVE_RESTART_NV           0x8558
 #define GL_PRIMITIVE_RESTART_INDEX_NV     0x8559
 #endif
 
 #ifndef GL_NV_texture_expand_normal
 #define GL_NV_texture_expand_normal
-#define AGL_NV_texture_expand_normal
+#define _ALLEGRO_GL_NV_texture_expand_normal
 #define GL_TEXTURE_UNSIGNED_REMAP_MODE_NV 0x888F
 #endif
 
 #ifndef GL_ATI_map_object_buffer
 #define GL_ATI_map_object_buffer
-#define AGL_ATI_map_object_buffer
+#define _ALLEGRO_GL_ATI_map_object_buffer
 #endif
 
 #ifndef GL_ATI_separate_stencil
@@ -3779,18 +3779,18 @@ typedef short GLhalfNV;
 
 #ifndef GL_ATI_vertex_attrib_array_object
 #define GL_ATI_vertex_attrib_array_object
-#define AGL_ATI_vertex_attrib_array_object
+#define _ALLEGRO_GL_ATI_vertex_attrib_array_object
 #endif
 
 #ifndef GL_OES_byte_coordinates
 #define GL_OES_byte_coordinates
-#define AGL_OES_byte_coordinates
+#define _ALLEGRO_GL_OES_byte_coordinates
 /* GL_BYTE */
 #endif
 
 #ifndef GL_OES_fixed_point
 #define GL_OES_fixed_point
-#define AGL_OES_fixed_point
+#define _ALLEGRO_GL_OES_fixed_point
 typedef int GLfixed;
 typedef int GLclampx;
 #define GL_FIXED_OES                      0x140C
@@ -3798,12 +3798,12 @@ typedef int GLclampx;
 
 #ifndef GL_OES_single_precision
 #define GL_OES_single_precision
-#define AGL_OES_single_precision
+#define _ALLEGRO_GL_OES_single_precision
 #endif
 
 #ifndef GL_OES_compressed_paletted_texture
 #define GL_OES_compressed_paletted_texture
-#define AGL_OES_compressed_paletted_texture
+#define _ALLEGRO_GL_OES_compressed_paletted_texture
 #define GL_PALETTE4_RGB8_OES              0x8B90
 #define GL_PALETTE4_RGBA8_OES             0x8B91
 #define GL_PALETTE4_R5_G6_B5_OES          0x8B92
@@ -3818,26 +3818,26 @@ typedef int GLclampx;
 
 #ifndef GL_OES_read_format
 #define GL_OES_read_format
-#define AGL_OES_read_format
+#define _ALLEGRO_GL_OES_read_format
 #define GL_IMPLEMENTATION_COLOR_READ_TYPE_OES   0x8B9A
 #define GL_IMPLEMENTATION_COLOR_READ_FORMAT_OES 0x8B9B
 #endif
 
 #ifndef GL_OES_query_matrix
 #define GL_OES_query_matrix
-#define AGL_OES_query_matrix
+#define _ALLEGRO_GL_OES_query_matrix
 #endif
 
 #ifndef GL_EXT_depth_bounds_test
 #define GL_EXT_depth_bounds_test
-#define AGL_EXT_depth_bounds_test
+#define _ALLEGRO_GL_EXT_depth_bounds_test
 #define GL_DEPTH_BOUNDS_TEST_EXT          0x8890
 #define GL_DEPTH_BOUNDS_EXT               0x8891
 #endif
 
 #ifndef GL_EXT_texture_mirror_clamp
 #define GL_EXT_texture_mirror_clamp
-#define AGL_EXT_texture_mirror_clamp
+#define _ALLEGRO_GL_EXT_texture_mirror_clamp
 #define GL_MIRROR_CLAMP_EXT               0x8742
 #define GL_MIRROR_CLAMP_TO_EDGE_EXT       0x8743
 #define GL_MIRROR_CLAMP_TO_BORDER_EXT     0x8912
@@ -3845,20 +3845,20 @@ typedef int GLclampx;
 
 #ifndef GL_EXT_blend_equation_separate
 #define GL_EXT_blend_equation_separate
-#define AGL_EXT_blend_equation_separate
+#define _ALLEGRO_GL_EXT_blend_equation_separate
 #define GL_BLEND_EQUATION_RGB_EXT         0x8009 /* Same as GL_BLEND_EQUATION */
 #define GL_BLEND_EQUATION_ALPHA_EXT       0x883D
 #endif
 
 #ifndef GL_MESA_pack_invert
 #define GL_MESA_pack_invert
-#define AGL_MESA_pack_invert
+#define _ALLEGRO_GL_MESA_pack_invert
 #define GL_PACK_INVERT_MESA               0x8758
 #endif
 
 #ifndef GL_MESA_ycbcr_texture
 #define GL_MESA_ycbcr_texture
-#define AGL_MESA_ycbcr_texture
+#define _ALLEGRO_GL_MESA_ycbcr_texture
 #define GL_YCBCR_MESA                     0x8757
 /* Same as GL_UNSIGNED_SHORT_8_8_APPLE and GL_UNSIGNED_SHORT_8_8_REV_APPLE */
 #define GL_UNSIGNED_SHORT_8_8_MESA        0x85BA
@@ -3868,7 +3868,7 @@ typedef int GLclampx;
 
 #ifndef GL_EXT_pixel_buffer_object
 #define GL_EXT_pixel_buffer_object
-#define AGL_EXT_pixel_buffer_object
+#define _ALLEGRO_GL_EXT_pixel_buffer_object
 #define GL_PIXEL_PACK_BUFFER_EXT          0x88EB
 #define GL_PIXEL_UNPACK_BUFFER_EXT        0x88EC
 #define GL_PIXEL_PACK_BUFFER_BINDING_EXT  0x88ED
@@ -3879,14 +3879,14 @@ typedef int GLclampx;
 
 #ifndef GL_NV_fragment_program_option
 #define GL_NV_fragment_program_option
-#define AGL_NV_fragment_program_option
+#define _ALLEGRO_GL_NV_fragment_program_option
 #endif
 
 
 
 #ifndef GL_NV_fragment_program2
 #define GL_NV_fragment_program2
-#define AGL_NV_fragment_program2
+#define _ALLEGRO_GL_NV_fragment_program2
 #define GL_MAX_PROGRAM_EXEC_INSTRUCTIONS_NV 0x88F4
 #define GL_MAX_PROGRAM_CALL_DEPTH_NV      0x88F5
 #define GL_MAX_PROGRAM_IF_DEPTH_NV        0x88F6
@@ -3898,7 +3898,7 @@ typedef int GLclampx;
 
 #ifndef GL_NV_vertex_program2_option
 #define GL_NV_vertex_program2_option
-#define AGL_NV_vertex_program2_option
+#define _ALLEGRO_GL_NV_vertex_program2_option
 #define GL_MAX_PROGRAM_EXEC_INSTRUCTIONS_NV 0x88F4
 #define GL_MAX_PROGRAM_CALL_DEPTH_NV      0x88F5
 #endif
@@ -3907,15 +3907,15 @@ typedef int GLclampx;
 
 #ifndef GL_NV_vertex_program3
 #define GL_NV_vertex_program3
-#define AGL_NV_vertex_program3
+#define _ALLEGRO_GL_NV_vertex_program3
 #define GL_MAX_VERTEX_TEXTURE_IMAGE_UNITS_ARB  0x8B4C
 #endif
 
 
 #ifndef GL_EXT_texture_compression_dxt1
 #define GL_EXT_texture_compression_dxt1
-#define AGL_EXT_texture_compression_dxt1
-#ifndef AGL_EXT_texture_compression_s3tc
+#define _ALLEGRO_GL_EXT_texture_compression_dxt1
+#ifndef ALLEGRO_GL_EXT_texture_compression_s3tc
 #define GL_COMPRESSED_RGB_S3TC_DXT1_EXT          0x83F0
 #define GL_COMPRESSED_RGBA_S3TC_DXT1_EXT         0x83F1
 #endif
@@ -3924,7 +3924,7 @@ typedef int GLclampx;
 
 #ifndef GL_EXT_framebuffer_object
 #define GL_EXT_framebuffer_object
-#define AGL_EXT_framebuffer_object
+#define _ALLEGRO_GL_EXT_framebuffer_object
 #define GL_FRAMEBUFFER_EXT                     0x8D40
 #define GL_RENDERBUFFER_EXT                    0x8D41
 #define GL_STENCIL_INDEX_EXT                   0x8D45
@@ -3978,13 +3978,13 @@ typedef int GLclampx;
 
 #ifndef GL_GREMEDY_string_marker
 #define GL_GREMEDY_string_marker
-#define AGL_GREMEDY_string_marker
+#define _ALLEGRO_GL_GREMEDY_string_marker
 #endif
 
 
 #ifndef GL_EXT_packed_depth_stencil
 #define GL_EXT_packed_depth_stencil
-#define AGL_EXT_packed_depth_stencil
+#define _ALLEGRO_GL_EXT_packed_depth_stencil
 #define GL_DEPTH_STENCIL_EXT              0x84F9
 #define GL_UNSIGNED_INT_24_8_EXT          0x84FA
 #define GL_DEPTH24_STENCIL8_EXT           0x88F0
@@ -3993,14 +3993,14 @@ typedef int GLclampx;
 
 #ifndef GL_EXT_stencil_clear_tag
 #define GL_EXT_stencil_clear_tag
-#define AGL_EXT_stencil_clear_tag
+#define _ALLEGRO_GL_EXT_stencil_clear_tag
 #define GL_STENCIL_TAG_BITS_EXT           0x88F2
 #define GL_STENCIL_CLEAR_TAG_VALUE_EXT    0x88F3
 #endif
 
 #ifndef GL_EXT_texture_sRGB
 #define GL_EXT_texture_sRGB
-#define AGL_EXT_texture_sRGB
+#define _ALLEGRO_GL_EXT_texture_sRGB
 #define GL_SRGB_EXT                       0x8C40
 #define GL_SRGB8_EXT                      0x8C41
 #define GL_SRGB_ALPHA_EXT                 0x8C42
@@ -4021,7 +4021,7 @@ typedef int GLclampx;
 
 #ifndef GL_EXT_framebuffer_blit
 #define GL_EXT_framebuffer_blit
-#define AGL_EXT_framebuffer_blit
+#define _ALLEGRO_GL_EXT_framebuffer_blit
 #define GL_READ_FRAMEBUFFER_EXT           0x8CA8
 #define GL_DRAW_FRAMEBUFFER_EXT           0x8CA9
 #define GL_READ_FRAMEBUFFER_BINDING_EXT   GL_FRAMEBUFFER_BINDING_EXT
@@ -4030,7 +4030,7 @@ typedef int GLclampx;
 
 #ifndef GL_EXT_framebuffer_multisample
 #define GL_EXT_framebuffer_multisample
-#define AGL_EXT_framebuffer_multisample
+#define _ALLEGRO_GL_EXT_framebuffer_multisample
 #define GL_RENDERBUFFER_SAMPLES_EXT       0x8CAB
 #define GL_FRAMEBUFFER_INCOMPLETE_MULTISAMPLE_EXT 0x8D56
 #define GL_MAX_SAMPLES_EXT                0x8D57
@@ -4038,7 +4038,7 @@ typedef int GLclampx;
 
 #ifndef GL_MESAX_texture_stack
 #define GL_MESAX_texture_stack
-#define AGL_MESAX_texture_stack
+#define _ALLEGRO_GL_MESAX_texture_stack
 #define GL_TEXTURE_1D_STACK_MESAX         0x8759
 #define GL_TEXTURE_2D_STACK_MESAX         0x875A
 #define GL_PROXY_TEXTURE_1D_STACK_MESAX   0x875B
@@ -4049,7 +4049,7 @@ typedef int GLclampx;
 
 #ifndef GL_EXT_timer_query
 #define GL_EXT_timer_query
-#define AGL_EXT_timer_query
+#define _ALLEGRO_GL_EXT_timer_query
 #if (defined _MSC_VER) && (_MSC_VER < 1400)
 typedef __int64          GLint64EXT;
 typedef unsigned __int64 GLuint64EXT;
@@ -4062,19 +4062,19 @@ typedef uint64_t GLuint64EXT;
 
 #ifndef GL_EXT_gpu_program_parameters
 #define GL_EXT_gpu_program_parameters
-#define AGL_EXT_gpu_program_parameters
+#define _ALLEGRO_GL_EXT_gpu_program_parameters
 #endif
 
 #ifndef GL_APPLE_flush_buffer_range
 #define GL_APPLE_flush_buffer_range
-#define AGL_APPLE_flush_buffer_range
+#define _ALLEGRO_GL_APPLE_flush_buffer_range
 #define GL_BUFFER_SERIALIZED_MODIFY_APPLE 0x8A12
 #define GL_BUFFER_FLUSHING_UNMAP_APPLE    0x8A13
 #endif
 
 #ifndef GL_EXT_bindable_uniform
 #define GL_EXT_bindable_uniform
-#define AGL_EXT_bindable_uniform
+#define _ALLEGRO_GL_EXT_bindable_uniform
 #define GL_MAX_VERTEX_BINDABLE_UNIFORMS_EXT   0x8DE2
 #define GL_MAX_FRAGMENT_BINDABLE_UNIFORMS_EXT 0x8DE3
 #define GL_MAX_GEOMETRY_BINDABLE_UNIFORMS_EXT 0x8DE4
@@ -4085,24 +4085,24 @@ typedef uint64_t GLuint64EXT;
 
 #ifndef GL_EXT_draw_buffers2
 #define GL_EXT_draw_buffers2
-#define AGL_EXT_draw_buffers2
+#define _ALLEGRO_GL_EXT_draw_buffers2
 #endif
 
 #ifndef GL_EXT_draw_instanced
 #define GL_EXT_draw_instanced
-#define AGL_EXT_draw_instanced
+#define _ALLEGRO_GL_EXT_draw_instanced
 #endif
 
 #ifndef GL_EXT_framebuffer_sRGB
 #define GL_EXT_framebuffer_sRGB
-#define AGL_EXT_framebuffer_sRGB
+#define _ALLEGRO_GL_EXT_framebuffer_sRGB
 #define GL_FRAMEBUFFER_SRGB_EXT         0x8DB9
 #define GL_FRAMEBUFFER_SRGB_CAPABLE_EXT 0x8DBA
 #endif
 
 #ifndef GL_EXT_geometry_shader4
 #define GL_EXT_geometry_shader4
-#define AGL_EXT_geometry_shader4
+#define _ALLEGRO_GL_EXT_geometry_shader4
 #define GL_GEOMETRY_SHADER_EXT                      0x8DD9
 #define GL_GEOMETRY_VERTICES_OUT_EXT                0x8DDA
 #define GL_GEOMETRY_INPUT_TYPE_EXT                  0x8DDB
@@ -4127,7 +4127,7 @@ typedef uint64_t GLuint64EXT;
 
 #ifndef GL_EXT_gpu_shader4
 #define GL_EXT_gpu_shader4
-#define AGL_EXT_gpu_shader4
+#define _ALLEGRO_GL_EXT_gpu_shader4
 #define GL_VERTEX_ATTRIB_ARRAY_INTEGER_EXT   0x88FD
 #define GL_SAMPLER_1D_ARRAY_EXT              0x8DC0
 #define GL_SAMPLER_2D_ARRAY_EXT              0x8DC1
@@ -4161,7 +4161,7 @@ typedef uint64_t GLuint64EXT;
 
 #ifndef GL_EXT_packed_float
 #define GL_EXT_packed_float
-#define AGL_EXT_packed_float
+#define _ALLEGRO_GL_EXT_packed_float
 #define GL_R11F_G11F_B10F_EXT               0x8C3A
 #define GL_UNSIGNED_INT_10F_11F_11F_REV_EXT 0x8C3B
 #define GL_RGBA_SIGNED_COMPONENTS_EXT       0x8C3C
@@ -4169,7 +4169,7 @@ typedef uint64_t GLuint64EXT;
 
 #ifndef GL_EXT_texture_array
 #define GL_EXT_texture_array
-#define AGL_EXT_texture_array
+#define _ALLEGRO_GL_EXT_texture_array
 #define GL_TEXTURE_1D_ARRAY_EXT                     0x8C18
 #define GL_TEXTURE_2D_ARRAY_EXT                     0x8C1A
 #define GL_PROXY_TEXTURE_2D_ARRAY_EXT               0x8C1B
@@ -4187,7 +4187,7 @@ typedef uint64_t GLuint64EXT;
 
 #ifndef GL_EXT_texture_buffer_object
 #define GL_EXT_texture_buffer_object
-#define AGL_EXT_texture_buffer_object
+#define _ALLEGRO_GL_EXT_texture_buffer_object
 #define GL_TEXTURE_BUFFER_EXT                    0x8C2A
 #define GL_MAX_TEXTURE_BUFFER_SIZE_EXT           0x8C2B
 #define GL_TEXTURE_BINDING_BUFFER_EXT            0x8C2C
@@ -4197,7 +4197,7 @@ typedef uint64_t GLuint64EXT;
 
 #ifndef GL_EXT_texture_compression_latc
 #define GL_EXT_texture_compression_latc
-#define AGL_EXT_texture_compression_latc
+#define _ALLEGRO_GL_EXT_texture_compression_latc
 #define GL_COMPRESSED_LUMINANCE_LATC1_EXT              0x8C70
 #define GL_COMPRESSED_SIGNED_LUMINANCE_LATC1_EXT       0x8C71
 #define GL_COMPRESSED_LUMINANCE_ALPHA_LATC2_EXT        0x8C72
@@ -4206,7 +4206,7 @@ typedef uint64_t GLuint64EXT;
 
 #ifndef GL_EXT_texture_compression_rgtc
 #define GL_EXT_texture_compression_rgtc
-#define AGL_EXT_texture_compression_rgtc
+#define _ALLEGRO_GL_EXT_texture_compression_rgtc
 #define GL_COMPRESSED_RED_RGTC1_EXT              0x8DBB
 #define GL_COMPRESSED_SIGNED_RED_RGTC1_EXT       0x8DBC
 #define GL_COMPRESSED_RED_GREEN_RGTC2_EXT        0x8DBD
@@ -4215,7 +4215,7 @@ typedef uint64_t GLuint64EXT;
 
 #ifndef GL_EXT_texture_integer
 #define GL_EXT_texture_integer
-#define AGL_EXT_texture_integer
+#define _ALLEGRO_GL_EXT_texture_integer
 #define GL_RGBA_INTEGER_MODE_EXT       0x8D9E
 #define GL_RGBA32UI_EXT                0x8D70
 #define GL_RGB32UI_EXT                 0x8D71
@@ -4267,7 +4267,7 @@ typedef uint64_t GLuint64EXT;
 
 #ifndef GL_EXT_texture_shared_exponent
 #define GL_EXT_texture_shared_exponent
-#define AGL_EXT_texture_shared_exponent
+#define _ALLEGRO_GL_EXT_texture_shared_exponent
 #define GL_RGB9_E5_EXT                  0x8C3D
 #define GL_UNSIGNED_INT_5_9_9_9_REV_EXT 0x8C3E
 #define GL_TEXTURE_SHARED_SIZE_EXT      0x8C3F
@@ -4275,7 +4275,7 @@ typedef uint64_t GLuint64EXT;
 
 #ifndef GL_NV_depth_buffer_float
 #define GL_NV_depth_buffer_float
-#define AGL_NV_depth_buffer_float
+#define _ALLEGRO_GL_NV_depth_buffer_float
 #define GL_DEPTH_COMPONENT32F_NV             0x8DAB
 #define GL_DEPTH32F_STENCIL8_NV              0x8DAC
 #define GL_FLOAT_32_UNSIGNED_INT_24_8_REV_NV 0x8DAD
@@ -4284,19 +4284,19 @@ typedef uint64_t GLuint64EXT;
 
 #ifndef GL_NV_fragment_program4
 #define GL_NV_fragment_program4
-#define AGL_NV_fragment_program4
+#define _ALLEGRO_GL_NV_fragment_program4
 #endif
 
 #ifndef GL_NV_framebuffer_multisample_coverage
 #define GL_NV_framebuffer_multisample_coverage
-#define AGL_NV_framebuffer_multisample_coverage
+#define _ALLEGRO_GL_NV_framebuffer_multisample_coverage
 #define GL_RENDERBUFFER_COVERAGE_SAMPLES_NV 0x8CAB
 #define GL_RENDERBUFFER_COLOR_SAMPLES_NV    0x8E10
 #endif
 
 #ifndef GL_NV_geometry_program4
 #define GL_NV_geometry_program4
-#define AGL_NV_geometry_program4
+#define _ALLEGRO_GL_NV_geometry_program4
 #define GL_GEOMETRY_PROGRAM_NV                      0x8C26
 #define GL_MAX_PROGRAM_OUTPUT_VERTICES_NV           0x8C27
 #define GL_MAX_PROGRAM_TOTAL_OUTPUT_COMPONENTS_NV   0x8C28
@@ -4319,7 +4319,7 @@ typedef uint64_t GLuint64EXT;
 
 #ifndef GL_NV_gpu_program4
 #define GL_NV_gpu_program4
-#define AGL_NV_gpu_program4
+#define _ALLEGRO_GL_NV_gpu_program4
 #define GL_MIN_PROGRAM_TEXEL_OFFSET_EXT     0x8904
 #define GL_MAX_PROGRAM_TEXEL_OFFSET_EXT     0x8905
 #define GL_PROGRAM_ATTRIB_COMPONENTS_NV     0x8906
@@ -4332,7 +4332,7 @@ typedef uint64_t GLuint64EXT;
 
 #ifndef GL_NV_parameter_buffer_object
 #define GL_NV_parameter_buffer_object
-#define AGL_NV_parameter_buffer_object
+#define _ALLEGRO_GL_NV_parameter_buffer_object
 #define GL_MAX_PROGRAM_PARAMETER_BUFFER_BINDINGS_NV 0x8DA0
 #define GL_MAX_PROGRAM_PARAMETER_BUFFER_SIZE_NV     0x8DA1
 #define GL_VERTEX_PROGRAM_PARAMETER_BUFFER_NV       0x8DA2
@@ -4342,7 +4342,7 @@ typedef uint64_t GLuint64EXT;
 
 #ifndef GL_NV_transform_feedback
 #define GL_NV_transform_feedback
-#define AGL_NV_transform_feedback
+#define _ALLEGRO_GL_NV_transform_feedback
 #define GL_TRANSFORM_FEEDBACK_BUFFER_NV             0x8C8E
 #define GL_TRANSFORM_FEEDBACK_BUFFER_START_NV       0x8C84
 #define GL_TRANSFORM_FEEDBACK_BUFFER_SIZE_NV        0x8C85
@@ -4380,7 +4380,7 @@ typedef uint64_t GLuint64EXT;
 
 #ifndef GL_NV_vertex_program4
 #define GL_NV_vertex_program4
-#define AGL_NV_vertex_program4
+#define _ALLEGRO_GL_NV_vertex_program4
 #if !defined GL_EXT_vertex_shader4
 #define GL_VERTEX_ATTRIB_ARRAY_INTEGER_EXT          0x88FD
 #endif
@@ -4388,12 +4388,12 @@ typedef uint64_t GLuint64EXT;
 
 #ifndef GL_GREMEDY_frame_terminator
 #define GL_GREMEDY_frame_terminator
-#define AGL_GREMEDY_frame_terminator
+#define _ALLEGRO_GL_GREMEDY_frame_terminator
 #endif
 
 #ifndef GL_NV_conditional_render
 #define GL_NV_conditional_render
-#define AGL_NV_conditional_render
+#define _ALLEGRO_GL_NV_conditional_render
 #define GL_QUERY_WAIT_NV                  0x8E13
 #define GL_QUERY_NO_WAIT_NV               0x8E14
 #define GL_QUERY_BY_REGION_WAIT_NV        0x8E15
@@ -4402,7 +4402,7 @@ typedef uint64_t GLuint64EXT;
 
 #ifndef GL_NV_present_video
 #define GL_NV_present_video
-#define AGL_NV_present_video
+#define _ALLEGRO_GL_NV_present_video
 #define GL_FRAME_NV                       0x8E26
 #define GL_FIELDS_NV                      0x8E27
 #define GL_CURRENT_TIME_NV                0x8E28
@@ -4413,7 +4413,7 @@ typedef uint64_t GLuint64EXT;
 
 #ifndef GL_EXT_transform_feedback
 #define GL_EXT_transform_feedback
-#define AGL_EXT_transform_feedback
+#define _ALLEGRO_GL_EXT_transform_feedback
 #define GL_TRANSFORM_FEEDBACK_BUFFER_EXT  0x8C8E
 #define GL_TRANSFORM_FEEDBACK_BUFFER_START_EXT 0x8C84
 #define GL_TRANSFORM_FEEDBACK_BUFFER_SIZE_EXT 0x8C85
@@ -4433,7 +4433,7 @@ typedef uint64_t GLuint64EXT;
 
 #ifndef GL_EXT_direct_state_access
 #define GL_EXT_direct_state_access
-#define AGL_EXT_direct_state_access
+#define _ALLEGRO_GL_EXT_direct_state_access
 #define GL_PROGRAM_MATRIX_EXT             0x8E2D
 #define GL_TRANSPOSE_PROGRAM_MATRIX_EXT   0x8E2E
 #define GL_PROGRAM_MATRIX_STACK_DEPTH_EXT 0x8E2F
@@ -4441,7 +4441,7 @@ typedef uint64_t GLuint64EXT;
 
 #ifndef GL_EXT_texture_swizzle
 #define GL_EXT_texture_swizzle
-#define AGL_EXT_texture_swizzle
+#define _ALLEGRO_GL_EXT_texture_swizzle
 #define GL_TEXTURE_SWIZZLE_R_EXT          0x8E42
 #define GL_TEXTURE_SWIZZLE_G_EXT          0x8E43
 #define GL_TEXTURE_SWIZZLE_B_EXT          0x8E44
@@ -4451,7 +4451,7 @@ typedef uint64_t GLuint64EXT;
 
 #ifndef GL_NV_explicit_multisample
 #define GL_NV_explicit_multisample
-#define AGL_NV_explicit_multisample
+#define _ALLEGRO_GL_NV_explicit_multisample
 #define GL_SAMPLE_POSITION_NV             0x8E50
 #define GL_SAMPLE_MASK_NV                 0x8E51
 #define GL_SAMPLE_MASK_VALUE_NV           0x8E52
@@ -4466,7 +4466,7 @@ typedef uint64_t GLuint64EXT;
 
 #ifndef GL_NV_transform_feedback2
 #define GL_NV_transform_feedback2
-#define AGL_NV_transform_feedback2
+#define _ALLEGRO_GL_NV_transform_feedback2
 #define GL_TRANSFORM_FEEDBACK_NV          0x8E22
 #define GL_TRANSFORM_FEEDBACK_BUFFER_PAUSED_NV 0x8E23
 #define GL_TRANSFORM_FEEDBACK_BUFFER_ACTIVE_NV 0x8E24
@@ -4475,7 +4475,7 @@ typedef uint64_t GLuint64EXT;
 
 #ifndef GL_ATI_meminfo
 #define GL_ATI_meminfo
-#define AGL_ATI_meminfo
+#define _ALLEGRO_GL_ATI_meminfo
 #define GL_VBO_FREE_MEMORY_ATI            0x87FB
 #define GL_TEXTURE_FREE_MEMORY_ATI        0x87FC
 #define GL_RENDERBUFFER_FREE_MEMORY_ATI   0x87FD
@@ -4483,7 +4483,7 @@ typedef uint64_t GLuint64EXT;
 
 #ifndef GL_AMD_performance_monitor
 #define GL_AMD_performance_monitor
-#define AGL_AMD_performance_monitor
+#define _ALLEGRO_GL_AMD_performance_monitor
 #define GL_COUNTER_TYPE_AMD               0x8BC0
 #define GL_COUNTER_RANGE_AMD              0x8BC1
 #define GL_UNSIGNED_INT64_AMD             0x8BC2
@@ -4495,12 +4495,12 @@ typedef uint64_t GLuint64EXT;
 
 #ifndef GL_AMD_texture_texture4
 #define GL_AMD_texture_texture4
-#define AGL_AMD_texture_texture4
+#define _ALLEGRO_GL_AMD_texture_texture4
 #endif
 
 #ifndef GL_AMD_vertex_shader_tesselator
 #define GL_AMD_vertex_shader_tesselator
-#define AGL_AMD_vertex_shader_tesselator
+#define _ALLEGRO_GL_AMD_vertex_shader_tesselator
 #define GL_SAMPLER_BUFFER_AMD             0x9001
 #define GL_INT_SAMPLER_BUFFER_AMD         0x9002
 #define GL_UNSIGNED_INT_SAMPLER_BUFFER_AMD 0x9003
@@ -4512,7 +4512,7 @@ typedef uint64_t GLuint64EXT;
 
 #ifndef GL_EXT_provoking_vertex
 #define GL_EXT_provoking_vertex
-#define AGL_EXT_provoking_vertex
+#define _ALLEGRO_GL_EXT_provoking_vertex
 #define GL_QUADS_FOLLOW_PROVOKING_VERTEX_CONVENTION_EXT 0x8E4C
 #define GL_FIRST_VERTEX_CONVENTION_EXT    0x8E4D
 #define GL_LAST_VERTEX_CONVENTION_EXT     0x8E4E

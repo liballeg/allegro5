@@ -1,4 +1,4 @@
-#ifdef AGLX_VERSION_1_3
+#ifdef _ALLEGRO_GLX_VERSION_1_3
 /* GLX 1.3 */
 AGL_API(GLXFBConfig *, GetFBConfigs, (Display *, int, int *))
 AGL_API(GLXFBConfig *, ChooseFBConfig, (Display *, int, const int *, int *))
@@ -19,34 +19,34 @@ AGL_API(int, QueryContext, (Display *, GLXContext, int, int *))
 AGL_API(void, SelectEvent, (Display *, GLXDrawable, unsigned long))
 AGL_API(void, GetSelectedEvent, (Display *, GLXDrawable, unsigned long *))
 #endif
-#ifdef AGLX_VERSION_1_4
+#ifdef _ALLEGRO_GLX_VERSION_1_4
 /* GLX 1.4 */
 AGL_API(__GLXextFuncPtr, GetProcAddress, (const GLubyte *))
 #endif
 
-#ifdef AGLX_ARB_get_proc_address
+#ifdef _ALLEGRO_GLX_ARB_get_proc_address
 /* GLX_ARB_get_proc_address */
 AGL_API(__GLXextFuncPtr, GetProcAddressARB, (const GLubyte *))
 #endif
 
-#ifdef AGLX_SGI_swap_control
+#ifdef _ALLEGRO_GLX_SGI_swap_control
 /* GLX_SGI_swap_control */
 AGL_API(int, SwapIntervalSGI, (int))
 #endif
 
-#ifdef AGLX_SGI_video_sync
+#ifdef _ALLEGRO_GLX_SGI_video_sync
 /* GLX_SGI_video_sync */
 AGL_API(int, GetVideoSyncSGI, (unsigned int *))
 AGL_API(int, WaitVideoSyncSGI, (int, int, unsigned int *))
 #endif
 
-#ifdef AGLX_SGI_make_current_read
+#ifdef _ALLEGRO_GLX_SGI_make_current_read
 /* GLX_SGI_make_current_read */
 AGL_API(Bool, MakeCurrentReadSGI, (Display *, GLXDrawable, GLXDrawable, GLXContext))
 AGL_API(GLXDrawable, GetCurrentReadDrawableSGI, (void))
 #endif
 
-#ifdef AGLX_SGIX_video_source
+#ifdef _ALLEGRO_GLX_SGIX_video_source
 /* GLX_SGIX_video_source */
 /* This one needs SGI's header file <dmedia/vl.h> to be included first */
 #ifdef _VL_H_
@@ -55,7 +55,7 @@ AGL_API(void, DestroyGLXVideoSourceSGIX, (Display *, GLXVideoSourceSGIX))
 #endif
 #endif
 
-#ifdef AGLX_EXT_import_context
+#ifdef _ALLEGRO_GLX_EXT_import_context
 /* GLX_EXT_import_context */
 AGL_API(Display *, GetCurrentDisplayEXT, (void))
 AGL_API(int, QueryContextInfoEXT, (Display *, GLXContext, int, int *))
@@ -64,7 +64,7 @@ AGL_API(GLXContext, ImportContextEXT, (Display *, GLXContextID))
 AGL_API(void, FreeContextEXT, (Display *, GLXContext))
 #endif
 
-#ifdef AGLX_SGIX_fbconfig
+#ifdef _ALLEGRO_GLX_SGIX_fbconfig
 /* GLX_SGIX_fbconfig */
 AGL_API(int, GetFBConfigAttribSGIX, (Display *, GLXFBConfigSGIX, int, int *))
 AGL_API(GLXFBConfigSGIX *, ChooseFBConfigSGIX, (Display *, int, int *, int *))
@@ -74,7 +74,7 @@ AGL_API(XVisualInfo *, GetVisualFromFBConfigSGIX, (Display *, GLXFBConfigSGIX))
 AGL_API(GLXFBConfigSGIX, GetFBConfigFromVisualSGIX, (Display *, XVisualInfo *))
 #endif
 
-#ifdef AGLX_SGIX_pbuffer
+#ifdef _ALLEGRO_GLX_SGIX_pbuffer
 /* GLX_SGIX_pbuffer */
 AGL_API(GLXPbufferSGIX, CreateGLXPbufferSGIX, (Display *, GLXFBConfigSGIX, unsigned int, unsigned int, int *))
 AGL_API(void, DestroyGLXPbufferSGIX, (Display *, GLXPbufferSGIX))
@@ -83,12 +83,12 @@ AGL_API(void, SelectEventSGIX, (Display *, GLXDrawable, unsigned long))
 AGL_API(void, GetSelectedEventSGIX, (Display *, GLXDrawable, unsigned long *))
 #endif
 
-#ifdef AGLX_SGI_cushion
+#ifdef _ALLEGRO_GLX_SGI_cushion
 /* GLX_SGI_cushion */
 AGL_API(void, CushionSGI, (Display *, Window, float))
 #endif
 
-#ifdef AGLX_SGIX_video_resize
+#ifdef _ALLEGRO_GLX_SGIX_video_resize
 /* GLX_SGIX_video_resize */
 AGL_API(int, BindChannelToWindowSGIX, (Display *, int, int, Window))
 AGL_API(int, ChannelRectSGIX, (Display *, int, int, int, int, int, int))
@@ -97,7 +97,7 @@ AGL_API(int, QueryChannelDeltasSGIX, (Display *, int, int, int *, int *, int *, 
 AGL_API(int, ChannelRectSyncSGIX, (Display *, int, int, GLenum))
 #endif
 
-#ifdef AGLX_SGIX_dmbuffer
+#ifdef _ALLEGRO_GLX_SGIX_dmbuffer
 /* GLX_SGIX_dmbuffer */
 /* This one needs SGI's header file <dmedia/dm_buffer.h> to be included first */
 #ifdef _DM_BUFFER_H_
@@ -105,43 +105,43 @@ AGL_API(Bool, AssociateDMPbufferSGIX, (Display *, GLXPbufferSGIX, DMparams *, DM
 #endif
 #endif
 
-#ifdef AGLX_SGIX_swap_group
+#ifdef _ALLEGRO_GLX_SGIX_swap_group
 /* GLX_SGIX_swap_group */
 AGL_API(void, JoinSwapGroupSGIX, (Display *, GLXDrawable, GLXDrawable))
 #endif
 
-#ifdef AGLX_SGIX_swap_barrier
+#ifdef _ALLEGRO_GLX_SGIX_swap_barrier
 /* GLX_SGIX_swap_barrier */
 AGL_API(void, BindSwapBarrierSGIX, (Display *, GLXDrawable, int))
 AGL_API(Bool, QueryMaxSwapBarriersSGIX, (Display *, int, int *))
 #endif
 
-#ifdef AGLX_SUN_get_transparent_index
+#ifdef _ALLEGRO_GLX_SUN_get_transparent_index
 /* GLX_SUN_get_transparent_index */
 AGL_API(Status, GetTransparentIndexSUN, (Display *, Window, Window, long *))
 #endif
 
-#ifdef AGLX_MESA_copy_sub_buffer
+#ifdef _ALLEGRO_GLX_MESA_copy_sub_buffer
 /* GLX_MESA_copy_sub_buffer */
 AGL_API(void, CopySubBufferMESA, (Display *, GLXDrawable, int, int, int, int))
 #endif
 
-#ifdef AGLX_MESA_pixmap_colormap
+#ifdef _ALLEGRO_GLX_MESA_pixmap_colormap
 /* GLX_MESA_pixmap_colormap */
 AGL_API(GLXPixmap, CreateGLXPixmapMESA, (Display *, XVisualInfo *, Pixmap, Colormap))
 #endif
 
-#ifdef AGLX_MESA_release_buffers
+#ifdef _ALLEGRO_GLX_MESA_release_buffers
 /* GLX_MESA_release_buffers */
 AGL_API(Bool, ReleaseBuffersMESA, (Display *, GLXDrawable))
 #endif
 
-#ifdef AGLX_MESA_set_3dfx_mode
+#ifdef _ALLEGRO_GLX_MESA_set_3dfx_mode
 /* GLX_MESA_set_3dfx_mode */
 AGL_API(Bool, Set3DfxModeMESA, (int))
 #endif
 
-#ifdef AGLX_OML_sync_control
+#ifdef _ALLEGRO_GLX_OML_sync_control
 /* GLX_OML_sync_control */
 AGL_API(Bool, GetSyncValuesOML, (Display *, GLXDrawable, int64_t *, int64_t *, int64_t *))
 AGL_API(Bool, GetMscRateOML, (Display *, GLXDrawable, int32_t *, int32_t *))
@@ -151,7 +151,7 @@ AGL_API(Bool, WaitForSbcOML, (Display *, GLXDrawable, int64_t, int64_t *, int64_
 #endif
 
 
-#ifdef AGLX_SGIX_hyperpipe
+#ifdef _ALLEGRO_GLX_SGIX_hyperpipe
 AGL_API(GLXHyperpipeNetworkSGIX *, QueryHyperpipeNetworkSGIX, (Display *dpy, int *npipes))
 AGL_API(int, HyperpipeConfigSGIX, (Display *dpy, int networkId, int npipes, GLXHyperpipeConfigSGIX *cfg, int *hpId))
 AGL_API(GLXHyperpipeConfigSGIX *, QueryHyperpipeConfigSGIX, (Display *dpy, int hpId, int *npipes))
@@ -163,17 +163,17 @@ AGL_API(int, QueryHyperpipeAttribSGIX, (Display *dpy, int timeSlice, int attrib,
 #endif
 
 
-#ifdef AGLX_MESA_agp_offset
+#ifdef _ALLEGRO_GLX_MESA_agp_offset
 AGL_API(unsigned int, GetAGPOffsetMESA, (const void *pointer))
 #endif
 
 
-#ifdef AGLX_EXT_texture_from_pixmap
+#ifdef _ALLEGRO_GLX_EXT_texture_from_pixmap
 AGL_API(void, BindTexImageEXT, (Display *dpy, GLXDrawable drawable, int buffer, const int *attrib_list))
 AGL_API(void, ReleaseTextImageEXT, (Display *dpy, GLXDrawable drawable, int buffer))
 #endif
 
-#ifdef AGLX_NV_video_out
+#ifdef _ALLEGRO_GLX_NV_video_out
 AGL_API(int, GetVideoDeviceNV, (Display *dpy, int screen, int numVideoDevices, GLXVideoDeviceNV *pVideoDevice))
 AGL_API(int, ReleaseVideoDeviceNV, (Display *dpy, int screen, GLXVideoDeviceNV VideoDevice))
 AGL_API(int, BindVideoImageNV, (Display *dpy, GLXVideoDeviceNV VideoDevice, GLXPbuffer pbuf, int iVideoBuffer))
@@ -182,7 +182,7 @@ AGL_API(int, SendPbufferToVideoNV, (Display *dpy, GLXPbuffer pbuf, int iBufferTy
 AGL_API(int, GetVideoInfoNV, (Display *dpy, int screen, GLXVideoDeviceNV VideoDevice, unsigned long *pulCounterOutputVideo, unsigned long *pulCounterOutputPbuffer))
 #endif
 
-#ifdef AGLX_NV_swap_group
+#ifdef _ALLEGRO_GLX_NV_swap_group
 AGL_API(Bool, JoinSwapGroupNV, (Display *dpy, GLXDrawable drawable, GLuint group))
 AGL_API(Bool, BindSwapBarrierNV, (Display *dpy, GLuint group, GLuint barrier))
 AGL_API(Bool, QuerySwapGroupNV, (Display *dpy, GLXDrawable drawable, GLuint *group, GLuint *barrier))
@@ -191,6 +191,6 @@ AGL_API(Bool, QueryFrameCountNV, (Display *dpy, int screen, GLuint *count))
 AGL_API(Bool, ResetFrameCountNV, (Display *dpy, int screen))
 #endif
 
-#ifdef AGLX_ARB_create_context
+#ifdef _ALLEGRO_GLX_ARB_create_context
 AGL_API(GLXContext, CreateContextAttribsARB, (Display *, GLXFBConfig, GLXContext, Bool, const int *))
 #endif

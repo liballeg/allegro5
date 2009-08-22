@@ -36,7 +36,7 @@
 
 /* For example:
  *
- * typedef void (APIENTRY * ALLEGRO_BlendEquation_t (GLenum);
+ * typedef void (APIENTRY * __ALLEGRO_glBlendEquation_t (GLenum);
  *
  */
  
@@ -45,14 +45,18 @@
 #define APIENTRY_defined
 #endif
 
-#define AGL_API(type, name, args) typedef type (APIENTRY * ALLEGRO_##name##_t) args;
+#define AGL_API(type, name, args) typedef type (APIENTRY * __ALLEGRO_gl##name##_t) args;
 #	include "allegro5/opengl/GLext/gl_ext_api.h"
-#ifdef ALLEGRO_WINDOWS
-#	include "allegro5/opengl/GLext/wgl_ext_api.h"
-#elif defined ALLEGRO_UNIX
-#	include "allegro5/opengl/GLext/glx_ext_api.h"
-#endif
 #undef AGL_API
+#ifdef ALLEGRO_WINDOWS
+#define AGL_API(type, name, args) typedef type (APIENTRY * __ALLEGRO_wgl##name##_t) args;
+#	include "allegro5/opengl/GLext/wgl_ext_api.h"
+#undef AGL_API
+#elif defined ALLEGRO_UNIX
+#define AGL_API(type, name, args) typedef type (APIENTRY * __ALLEGRO_glX##name##_t) args;
+#	include "allegro5/opengl/GLext/glx_ext_api.h"
+#undef AGL_API
+#endif
 
 #ifdef APIENTRY_defined
 #undef APIENTRY
@@ -63,22 +67,22 @@
 
 /* For example:
  *
- * #define glBlendEquation __aglBlendEquation
- * extern ALLEGRO_BlendEquation_t __aglBlendEquation;
+ * #define glBlendEquation __al_glBlendEquation
+ * extern __ALLEGRO_glBlendEquation_t __al_glBlendEquation;
  *
  */
 
-#define AGL_API(type, name, args) AL_VAR(ALLEGRO_##name##_t, __agl##name);
+#define AGL_API(type, name, args) AL_VAR(__ALLEGRO_gl##name##_t, __al_gl##name);
 # 	include "allegro5/opengl/GLext/gl_ext_alias.h"
 #	include "allegro5/opengl/GLext/gl_ext_api.h"
 #undef AGL_API
 #ifdef ALLEGRO_WINDOWS
-#define AGL_API(type, name, args) AL_VAR(ALLEGRO_##name##_t, __awgl##name);
+#define AGL_API(type, name, args) AL_VAR(__ALLEGRO_wgl##name##_t, __al_wgl##name);
 # 	include "allegro5/opengl/GLext/wgl_ext_alias.h"
 #	include "allegro5/opengl/GLext/wgl_ext_api.h"
 #undef AGL_API
 #elif defined ALLEGRO_UNIX
-#define AGL_API(type, name, args) extern ALLEGRO_##name##_t __aglX##name;
+#define AGL_API(type, name, args) extern __ALLEGRO_glX##name##_t __al_glX##name;
 # 	include "allegro5/opengl/GLext/glx_ext_alias.h"
 #	include "allegro5/opengl/GLext/glx_ext_api.h"
 #undef AGL_API
@@ -116,14 +120,18 @@ typedef struct ALLEGRO_OGL_EXT_LIST {
  * ALLEGRO_BlendEquation_t BlendEquation;
  */
 typedef struct ALLEGRO_OGL_EXT_API {
-#define AGL_API(type, name, args) ALLEGRO_##name##_t name;
+#define AGL_API(type, name, args) __ALLEGRO_gl##name##_t name;
 #	include "allegro5/opengl/GLext/gl_ext_api.h"
-#ifdef ALLEGRO_WINDOWS
-#	include "allegro5/opengl/GLext/wgl_ext_api.h"
-#elif defined ALLEGRO_UNIX
-#	include "allegro5/opengl/GLext/glx_ext_api.h"
-#endif
 #undef AGL_API
+#ifdef ALLEGRO_WINDOWS
+#define AGL_API(type, name, args) __ALLEGRO_wgl##name##_t name;
+#	include "allegro5/opengl/GLext/wgl_ext_api.h"
+#undef AGL_API
+#elif defined ALLEGRO_UNIX
+#define AGL_API(type, name, args) __ALLEGRO_glX##name##_t name;
+#	include "allegro5/opengl/GLext/glx_ext_api.h"
+#undef AGL_API
+#endif
 } ALLEGRO_OGL_EXT_API;
 
 
