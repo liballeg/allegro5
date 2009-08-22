@@ -285,10 +285,11 @@ ALLEGRO_SAMPLE *al_load_sample_flac(const char *filename)
    return sample;
 }
 
-/* Function: al_get_allegro_flac_version */
+/* Function: al_get_allegro_flac_version
+ */
 uint32_t al_get_allegro_flac_version(void)
 {
-    return ALLEGRO_VERSION_INT;
+   return ALLEGRO_VERSION_INT;
 }
 
 /* vim: set sts=3 sw=3 et: */

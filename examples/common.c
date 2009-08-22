@@ -1,6 +1,8 @@
 #include <stdio.h>
 #include <stdarg.h>
 
+void abort_example(char const *format, ...);
+
 #ifdef ALLEGRO_POPUP_EXAMPLES
 #include "allegro5/allegro_native_dialog.h"
 void abort_example(char const *format, ...)

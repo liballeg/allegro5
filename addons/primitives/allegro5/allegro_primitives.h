@@ -75,6 +75,10 @@ struct ALLEGRO_VERTEX {
 /* Type: ALLEGRO_TRANSFORM
  */
 typedef float ALLEGRO_TRANSFORM[4][4];
+
+
+A5_PRIM_FUNC(uint32_t, al_get_allegro_primitives_version, (void));
+
    
 /*
 * Primary Functions

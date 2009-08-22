@@ -31,6 +31,7 @@ extern "C" {
 
 A5_FLAC_FUNC(bool, al_init_flac_addon, (void));
 A5_FLAC_FUNC(ALLEGRO_SAMPLE *, al_load_sample_flac, (const char *filename));
+A5_FLAC_FUNC(uint32_t, al_get_allegro_flac_version, (void));
 
 
 #ifdef __cplusplus

@@ -476,8 +476,9 @@ ALLEGRO_COLOR al_color_html(char const *string)
 }
 
 
-/* Function: al_get_allegro_color_version */
+/* Function: al_get_allegro_color_version
+ */
 uint32_t al_get_allegro_color_version(void)
 {
-    return ALLEGRO_VERSION_INT;
+   return ALLEGRO_VERSION_INT;
 }

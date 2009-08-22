@@ -45,6 +45,7 @@ A5_IIO_FUNC(ALLEGRO_BITMAP *, al_load_bitmap, (const char *filename));
 A5_IIO_FUNC(ALLEGRO_BITMAP *, al_load_bitmap_entry, (ALLEGRO_FILE *pf, const char *ident));
 A5_IIO_FUNC(bool, al_save_bitmap, (const char *filename, ALLEGRO_BITMAP *bitmap));
 A5_IIO_FUNC(bool, al_save_bitmap_entry, (ALLEGRO_FILE *pf, const char *ident, ALLEGRO_BITMAP *bitmap));
+A5_IIO_FUNC(uint32_t, al_get_allegro_image_version, (void));
 
 /* Format specific functions */
 A5_IIO_FUNC(ALLEGRO_BITMAP *, al_load_pcx, (const char *filename));

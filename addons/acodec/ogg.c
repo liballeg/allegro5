@@ -403,10 +403,11 @@ ALLEGRO_STREAM *al_load_stream_ogg_vorbis(const char *filename,
    return stream;
 }
 
-/* Function: al_get_allegro_ogg_version */
-uint32_t al_get_allegro_ogg_version(void)
+/* Function: al_get_allegro_ogg_vorbis_version
+ */
+uint32_t al_get_allegro_ogg_vorbis_version(void)
 {
-    return ALLEGRO_VERSION_INT;
+   return ALLEGRO_VERSION_INT;
 }
 
 

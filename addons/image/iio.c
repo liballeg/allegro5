@@ -309,10 +309,11 @@ bool al_save_bitmap_entry(ALLEGRO_FILE *pf, const char *ident,
 }
 
 
-/* Function: al_get_allegro_image_version */
+/* Function: al_get_allegro_image_version
+ */
 uint32_t al_get_allegro_image_version(void)
 {
-    return ALLEGRO_VERSION_INT;
+   return ALLEGRO_VERSION_INT;
 }
 
 

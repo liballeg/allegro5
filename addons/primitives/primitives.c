@@ -373,8 +373,9 @@ void al_transform_transform(ALLEGRO_TRANSFORM* trans, ALLEGRO_TRANSFORM* trans2)
 }
 
 
-/* Function: al_get_allegro_primitives_version */
+/* Function: al_get_allegro_primitives_version
+ */
 uint32_t al_get_allegro_primitives_version(void)
 {
-    return ALLEGRO_VERSION_INT;
+   return ALLEGRO_VERSION_INT;
 }

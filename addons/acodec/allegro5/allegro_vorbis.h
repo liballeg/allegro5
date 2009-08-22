@@ -34,6 +34,7 @@ A5_VORBIS_FUNC(ALLEGRO_SAMPLE *, al_load_sample_ogg_vorbis, (
 	const char *filename));
 A5_VORBIS_FUNC(ALLEGRO_STREAM *, al_load_stream_ogg_vorbis, (
 	const char *filename, size_t buffer_count, unsigned int samples));
+A5_VORBIS_FUNC(uint32_t, al_get_allegro_ogg_vorbis_version, (void));
 
 
 #ifdef __cplusplus

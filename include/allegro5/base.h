@@ -71,6 +71,9 @@
     ((ALLEGRO_VERSION << 24) | (ALLEGRO_SUB_VERSION << 16) | \
     (ALLEGRO_WIP_VERSION << 8) | ALLEGRO_VERSION_RELEASE)
 
+AL_FUNC(uint32_t, al_get_allegro_version, (void));
+
+
 /*******************************************/
 /************ Some global stuff ************/
 /*******************************************/

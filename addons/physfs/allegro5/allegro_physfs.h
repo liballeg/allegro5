@@ -31,6 +31,7 @@ extern "C" {
 
 
 A5_PHYSFS_FUNC(void, al_set_physfs_file_interface, (void));
+A5_PHYSFS_FUNC(uint32_t, al_get_allegro_physfs_version, (void));
 
 
 #ifdef __cplusplus

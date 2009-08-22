@@ -49,6 +49,7 @@ A5_DIALOG_FUNC(
    const ALLEGRO_PATH *, al_get_native_file_dialog_path, (
       const ALLEGRO_NATIVE_DIALOG *fc, size_t index));
 A5_DIALOG_FUNC(void, al_destroy_native_dialog, (ALLEGRO_NATIVE_DIALOG *fc));
+A5_DIALOG_FUNC(uint32_t, al_get_allegro_dialog_version, (void));
 
 #define ALLEGRO_FILECHOOSER_FILE_MUST_EXIST 1
 #define ALLEGRO_FILECHOOSER_SAVE 2

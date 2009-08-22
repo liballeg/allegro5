@@ -26,6 +26,8 @@
    extern "C" {
 #endif
 
+A5_COLOR_FUNC(uint32_t, al_get_allegro_color_version, (void));
+
 A5_COLOR_FUNC(void, al_color_hsv_to_rgb, (float hue, float saturation,
    float value, float *red, float *green, float *blue));
 A5_COLOR_FUNC(void, al_color_rgb_to_hsl, (float red, float green, float blue,
