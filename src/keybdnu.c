@@ -190,7 +190,7 @@ void al_uninstall_keyboard(void)
 /* This was in the public API but its only purpose is now served by
  * al_get_keyboard_event_source().
  */
-ALLEGRO_KEYBOARD *al_get_keyboard(void)
+static ALLEGRO_KEYBOARD *al_get_keyboard(void)
 {
    ASSERT(new_keyboard_driver);
    {

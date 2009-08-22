@@ -114,7 +114,7 @@ void al_uninstall_mouse(void)
 /* This was in the public API but its only purpose is now served by
  * al_get_mouse_event_source().
  */
-ALLEGRO_MOUSE *al_get_mouse(void)
+static ALLEGRO_MOUSE *al_get_mouse(void)
 {
    ALLEGRO_MOUSE *mse;
 

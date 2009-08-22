@@ -90,7 +90,7 @@ int al_show_native_message_box(
 }
 
 
-/* Function: al_get_allegro_dialog_version
+/* Function: al_get_allegro_native_dialog_version
  */
 uint32_t al_get_allegro_native_dialog_version(void)
 {

@@ -1,6 +1,6 @@
 # Font addons
 
-## General
+## General font routines
 
 ### API: ALLEGRO_FONT
 
