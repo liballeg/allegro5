@@ -8,7 +8,7 @@
 #include <stdio.h>
 
 // Make configurable
-#define BUFFER_SIZE 1024 // in samples
+#define BUFFER_SIZE 1024*2 // in samples
 #define NUM_BUFFERS 4
 
 typedef struct ALLEGRO_AQ_DATA {
@@ -213,17 +213,11 @@ static void *stream_proc(void *in_data)
    do {
       CFRunLoopRunInMode(
          kCFRunLoopDefaultMode,
-         0.25,
+         0.01,
          false
       );
    } while (playing);
     
-   CFRunLoopRunInMode(
-      kCFRunLoopDefaultMode,
-      1,
-      false
-   );
-	
    return NULL;
 }
 
@@ -248,19 +242,26 @@ static int _aqueue_start_voice(ALLEGRO_VOICE *voice)
 static int _aqueue_stop_voice(ALLEGRO_VOICE* voice)
 {
    ALLEGRO_AQ_DATA *ex_data = voice->extra;
+   int i;
+
+   ex_data->playing = false;
+   playing = false;
+
+   al_rest(0.05);
 
    AudioQueueStop (
       queue,
       false
    );
 
+   for (i = 0; i < NUM_BUFFERS; i++) {
+   	AudioQueueFreeBuffer(queue, ex_data->buffers[i]);
+   }
+
    AudioQueueDispose(
       queue,
       true
    );
-
-   ex_data->playing = false;
-   playing = false;
 
    return 0;
 }
