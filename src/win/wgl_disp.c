@@ -597,9 +597,10 @@ static bool change_display_mode(ALLEGRO_DISPLAY *d)
          break;
 
       if ((dm.dmPelsWidth  == (unsigned) d->w)
-       && (dm.dmPelsHeight == (unsigned) d->h)
-       && (dm.dmBitsPerPel == (unsigned) bpp)
-       && (dm.dmDisplayFrequency != (unsigned) d->refresh_rate)) {
+         && (dm.dmPelsHeight == (unsigned) d->h)
+         && (dm.dmBitsPerPel == (unsigned) bpp)
+         && (dm.dmDisplayFrequency != (unsigned) d->refresh_rate))
+      {
          /* Keep it as fallback if refresh rate request could not
           * be satisfied. Try to get as close to 60Hz as possible though,
           * it's a bit better for a fallback than just blindly picking
@@ -1453,7 +1454,8 @@ static void wgl_toggle_frame(ALLEGRO_DISPLAY *display, bool onoff)
 /* Obtain a reference to this driver. */
 ALLEGRO_DISPLAY_INTERFACE *_al_display_wgl_driver(void)
 {
-   if (vt) return vt;
+   if (vt)
+      return vt;
 
    vt = _AL_MALLOC(sizeof *vt);
    memset(vt, 0, sizeof *vt);

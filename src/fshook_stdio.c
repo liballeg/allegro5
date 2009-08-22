@@ -445,7 +445,9 @@ static bool al_fs_stdio_fstat(ALLEGRO_FS_ENTRY *fp)
 static bool al_fs_stdio_opendir(ALLEGRO_FS_ENTRY *fp)
 {
    ALLEGRO_FS_ENTRY_STDIO *fp_stdio = (ALLEGRO_FS_ENTRY_STDIO *) fp;
-   if (!(fp_stdio->stat_mode & ALLEGRO_FILEMODE_ISDIR)) return false;
+
+   if (!(fp_stdio->stat_mode & ALLEGRO_FILEMODE_ISDIR))
+      return false;
 
    fp_stdio->hd.dir = opendir(fp_stdio->path);
    if (!fp_stdio->hd.dir) {

@@ -25,7 +25,8 @@ static void display_pixel_format(ALLEGRO_EXTRA_DISPLAY_SETTINGS *eds)
 static int get_shift(int mask)
 {
    int i = 0, j = 1;
-   if (!mask) return -1;
+   if (!mask)
+      return -1;
    while (!(j & mask)) {
       i++;
       j <<= 1;

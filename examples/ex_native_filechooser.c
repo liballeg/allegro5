@@ -134,7 +134,8 @@ static void stop_async_dialog(AsyncDialog *data)
    if (data) {
       al_destroy_thread(data->thread);
       al_destroy_user_event_source(&data->event_source);
-      if (data->file_dialog) al_destroy_native_dialog(data->file_dialog);
+      if (data->file_dialog)
+         al_destroy_native_dialog(data->file_dialog);
       free(data);
    }
 }
@@ -295,7 +296,8 @@ restart:
       " Do you really want to quit?",
       NULL,
       ALLEGRO_MESSAGEBOX_YES_NO);
-   if (button != 1) goto restart;
+   if (button != 1)
+      goto restart;
 
    stop_async_dialog(old_dialog);
    stop_async_dialog(cur_dialog);

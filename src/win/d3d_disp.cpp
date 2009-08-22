@@ -405,7 +405,8 @@ static DWORD d3d_get_filter(AL_CONST char *s)
 
 static void d3d_reset_state(ALLEGRO_DISPLAY_D3D *disp)
 {
-   if (disp->device_lost) return;
+   if (disp->device_lost)
+      return;
 
    //disp->device->SetRenderState(D3DRS_ZENABLE, D3DZB_FALSE);
    disp->device->SetRenderState(D3DRS_ZENABLE, D3DZB_TRUE);
@@ -484,7 +485,8 @@ static void _al_d3d_set_ortho_projection(ALLEGRO_DISPLAY_D3D *disp, float w, flo
    D3DMATRIX matOrtho;
    D3DMATRIX matIdentity;
 
-   if (disp->device_lost) return;
+   if (disp->device_lost)
+      return;
 
    d3d_ortho_w = w;
    d3d_ortho_h = h;
@@ -994,7 +996,8 @@ static bool d3d_create_device(ALLEGRO_DISPLAY_D3D *d,
    }
    d3d_pp.hDeviceWindow = win_display->window;
 
-   if (adapter == -1) adapter = 0;
+   if (adapter == -1)
+      adapter = 0;
 
    if ((hr = _al_d3d->CreateDevice(adapter,
          D3DDEVTYPE_HAL, win_display->window,
@@ -1678,8 +1681,11 @@ static int d3d_display_list_resorter(const void *p0, const void *p1)
 {
    const ALLEGRO_EXTRA_DISPLAY_SETTINGS *f0 = *((ALLEGRO_EXTRA_DISPLAY_SETTINGS **)p0);
    const ALLEGRO_EXTRA_DISPLAY_SETTINGS *f1 = *((ALLEGRO_EXTRA_DISPLAY_SETTINGS **)p1);
-   if (!f0) return 1;
-   if (!f1) return -1;
+
+   if (!f0)
+      return 1;
+   if (!f1)
+      return -1;
    if (f0->index == f1->index) {
       return 0;
    }
@@ -2026,7 +2032,8 @@ static void d3d_flip_display(ALLEGRO_DISPLAY *al_display)
    ALLEGRO_DISPLAY_WIN *win_display = &d3d_display->win_display;
    HRESULT hr;
 
-   if (d3d_display->device_lost) return;
+   if (d3d_display->device_lost)
+      return;
 
    al_lock_mutex(present_mutex);
 
@@ -2056,7 +2063,8 @@ static void d3d_update_display_region(ALLEGRO_DISPLAY *al_display,
    HRESULT hr;
    RGNDATA *rgndata;
 
-   if (d3d_display->device_lost) return;
+   if (d3d_display->device_lost)
+      return;
 
    if (d3d_display->single_buffer) {
       RECT rect;
@@ -2321,7 +2329,8 @@ static void d3d_set_target_bitmap(ALLEGRO_DISPLAY *display, ALLEGRO_BITMAP *bitm
    ALLEGRO_BITMAP_D3D *d3d_target;
    ALLEGRO_DISPLAY_D3D *d3d_display = (ALLEGRO_DISPLAY_D3D *)display;
 
-   if (d3d_display->device_lost) return;
+   if (d3d_display->device_lost)
+      return;
 
    if (bitmap->parent) {
       target = bitmap->parent;
@@ -2487,7 +2496,8 @@ static void d3d_shutdown(void)
 /* Obtain a reference to this driver. */
 ALLEGRO_DISPLAY_INTERFACE *_al_display_d3d_driver(void)
 {
-   if (vt) return vt;
+   if (vt)
+      return vt;
 
    vt = (ALLEGRO_DISPLAY_INTERFACE *)_AL_MALLOC(sizeof *vt);
    memset(vt, 0, sizeof *vt);

@@ -117,8 +117,10 @@ static void tick(ALLEGRO_TIMER_EVENT* timer_event)
          ex.min_diff = 1;
       }
       duration = ex.this_time - ex.prev_time;
-      if (duration < ex.min_diff) ex.min_diff = duration;
-      if (duration > ex.max_diff) ex.max_diff = duration;
+      if (duration < ex.min_diff)
+         ex.min_diff = duration;
+      if (duration > ex.max_diff)
+         ex.max_diff = duration;
       ex.accum_time += duration;
       ex.timer_events++;
       ex.timer_error = timer_event->error;

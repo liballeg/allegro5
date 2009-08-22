@@ -34,7 +34,8 @@ static int msg_tail = 0;
 /* Add a message to the log. */
 static void log_message(ALLEGRO_USTR *message)
 {
-   if (msg_log[msg_head]) al_ustr_free(msg_log[msg_head]);
+   if (msg_log[msg_head])
+      al_ustr_free(msg_log[msg_head]);
    msg_log[msg_head] = message;
    msg_head = (msg_head + 1) % SIZE_LOG;
    if (msg_head == msg_tail) {
@@ -73,7 +74,8 @@ static void draw_message_log(void)
    y = th * 2;
    i = msg_tail;
    while (1) {
-      if (msg_log[i]) al_draw_text(myfont, 5, y, 0, al_cstr(msg_log[i]));
+      if (msg_log[i])
+         al_draw_text(myfont, 5, y, 0, al_cstr(msg_log[i]));
       y += th;
 
       i = (i + 1) % SIZE_LOG;
@@ -92,7 +94,9 @@ static void log_key(char const *how, int keycode, int unichar, int modifiers)
    ALLEGRO_USTR *us;
    char multibyte[5] = {0, 0, 0, 0, 0};
    const char* key_name;
-   if (unichar == 0 || unichar == -1) unichar = ' ';
+
+   if (unichar == 0 || unichar == -1)
+      unichar = ' ';
    al_utf8_encode(multibyte, unichar);
    key_name = al_keycode_to_name(keycode);
    us = al_ustr_newf("%s: %3d <%s> %08x [%08x]   %s", how, keycode, multibyte,

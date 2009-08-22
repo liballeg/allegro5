@@ -100,13 +100,15 @@ static ALLEGRO_BITMAP* _al_font_color_find_glyph(const ALLEGRO_FONT* f, int ch)
     ALLEGRO_FONT_COLOR_DATA* cf = (ALLEGRO_FONT_COLOR_DATA*)(f->data);
 
     while(cf) {
-        if(ch >= cf->begin && ch < cf->end) return cf->bitmaps[ch - cf->begin];
+        if(ch >= cf->begin && ch < cf->end)
+            return cf->bitmaps[ch - cf->begin];
         cf = cf->next;
     }
 
     /* if we don't find the character, then search for the missing
        glyph, but don't get stuck in a loop. */
-    if(ch != al_font_404_character) return _al_font_color_find_glyph(f, al_font_404_character);
+    if(ch != al_font_404_character)
+        return _al_font_color_find_glyph(f, al_font_404_character);
     return 0;
 }
 
@@ -180,7 +182,8 @@ static void color_destroy(ALLEGRO_FONT* f)
     ALLEGRO_FONT_COLOR_DATA* cf;
     ALLEGRO_BITMAP *glyphs = NULL;
 
-    if(!f) return;
+    if(!f)
+        return;
 
     cf = (ALLEGRO_FONT_COLOR_DATA*)(f->data);
     

@@ -47,7 +47,8 @@ static void *gtk_thread_func(ALLEGRO_THREAD *thread, void *data)
    (void)thread;
    (void)data;
 
-   if (!g_thread_supported()) g_thread_init(NULL);
+   if (!g_thread_supported())
+       g_thread_init(NULL);
    gdk_threads_init();
 
    gtk_init_check(&argc, &argv);
@@ -269,7 +270,8 @@ int _al_show_native_message_box(ALLEGRO_NATIVE_DIALOG *fd)
       while (1) {
          int next = al_ustr_find_chr(fd->buttons, pos, '|');
          int pos2 = next;
-         if (next == -1) pos2 = al_ustr_length(fd->buttons);
+         if (next == -1)
+	     pos2 = al_ustr_length(fd->buttons);
          ALLEGRO_USTR_INFO info;
          ALLEGRO_USTR *button_text;
          button_text = al_ref_ustr(&info, fd->buttons, pos, pos2);
@@ -277,7 +279,8 @@ int _al_show_native_message_box(ALLEGRO_NATIVE_DIALOG *fd)
          char buffer[256];
          al_ustr_to_buffer(button_text, buffer, sizeof buffer);
          gtk_dialog_add_button(GTK_DIALOG(window), buffer, i++);
-         if (next == -1) break;
+         if (next == -1)
+	     break;
       }
    }
 

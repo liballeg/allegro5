@@ -31,7 +31,8 @@ static int ijoy_num_joysticks(void)
 
 static ALLEGRO_JOYSTICK *ijoy_get_joystick(int num)
 {
-    if (num != 0) return NULL;
+    if (num != 0)
+       return NULL;
     
     ALLEGRO_DEBUG("Joystick %d acquired.\n", num);
 
@@ -84,7 +85,9 @@ static void ijoy_get_joystick_state(ALLEGRO_JOYSTICK *joy, ALLEGRO_JOYSTICK_STAT
 
 void _al_iphone_generate_joystick_event(float x, float y, float z)
 {
-    if (!initialized) return;
+    if (!initialized)
+       return;
+
     ALLEGRO_JOYSTICK_IPHONE *ijoy = &the_joystick;
     ALLEGRO_JOYSTICK *joy = (void *)ijoy;
     ALLEGRO_EVENT event;

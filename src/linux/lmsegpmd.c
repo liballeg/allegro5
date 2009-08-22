@@ -50,9 +50,11 @@ static int processor (unsigned char *buf, int buf_size)
 {
    int r, m, l, x, y, z;
 
-   if (buf_size < 5) return 0;  /* not enough data, spit it out for now */
+   if (buf_size < 5)
+      return 0;  /* not enough data, spit it out for now */
 
-   if ((buf[0] & 0xf8) != 0x80) return 1; /* invalid byte, eat it */
+   if ((buf[0] & 0xf8) != 0x80)
+      return 1; /* invalid byte, eat it */
 
    /* packet is valid, process the data */
    r = !(buf[0] & 1);

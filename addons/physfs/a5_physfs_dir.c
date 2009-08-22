@@ -133,7 +133,8 @@ static ALLEGRO_FS_ENTRY *fs_phys_readdir(ALLEGRO_FS_ENTRY *fse)
    ALLEGRO_FS_ENTRY_PHYSFS *e = (ALLEGRO_FS_ENTRY_PHYSFS *)fse;
    ALLEGRO_FS_ENTRY *next;
 
-   if (!*e->file_list_pos) return NULL;
+   if (!*e->file_list_pos)
+      return NULL;
 
    next = fs_phys_create(*e->file_list_pos);
  

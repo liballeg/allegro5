@@ -46,7 +46,8 @@ struct Example {
 static void add_time(void)
 {
    example.frame_times[example.ftpos++] = al_current_time();
-   if (example.ftpos >= FPS) example.ftpos = 0;
+   if (example.ftpos >= FPS)
+      example.ftpos = 0;
 }
 
 static void get_fps(int *average, int *minmax)
@@ -60,8 +61,10 @@ static void get_fps(int *average, int *minmax)
    for (i = 0; i < FPS; i++) {
       if (i != example.ftpos) {
          double dt = example.frame_times[i] - example.frame_times[prev];
-         if (dt < min_dt) min_dt = dt;
-         if (dt > max_dt) max_dt = dt;
+         if (dt < min_dt)
+            min_dt = dt;
+         if (dt > max_dt)
+            max_dt = dt;
          av += dt;
       }
       prev = i;
@@ -74,37 +77,44 @@ static void get_fps(int *average, int *minmax)
 
 static void add_sprite(void)
 {
-   if (example.sprite_count >= MAX_SPRITES) return;
-   int w = al_get_display_width();
-   int h = al_get_display_height();
-   int i = example.sprite_count++;
-   Sprite *s = example.sprites + i;
-   float a = rand() % 360;
-   s->x = rand() % (w - example.bitmap_size);
-   s->y = rand() % (h - example.bitmap_size);
-   s->dx = cos(a) * FPS * 2;
-   s->dy = sin(a) * FPS * 2;
+   if (example.sprite_count < MAX_SPRITES) {
+      int w = al_get_display_width();
+      int h = al_get_display_height();
+      int i = example.sprite_count++;
+      Sprite *s = example.sprites + i;
+      float a = rand() % 360;
+      s->x = rand() % (w - example.bitmap_size);
+      s->y = rand() % (h - example.bitmap_size);
+      s->dx = cos(a) * FPS * 2;
+      s->dy = sin(a) * FPS * 2;
+   }
 }
 
 static void add_sprites(int n)
 {
     int i;
-    for (i = 0; i < n; i++) add_sprite();
+    for (i = 0; i < n; i++)
+       add_sprite();
 }
 
 static void remove_sprites(int n)
 {
    example.sprite_count -= n;
-   if (example.sprite_count < 0) example.sprite_count = 0;
+   if (example.sprite_count < 0)
+      example.sprite_count = 0;
 }
 
 static void change_size(int size)
 {
-   if (size < 1) size = 1;
-   if (size > 1024) size = 1024;
+   if (size < 1)
+      size = 1;
+   if (size > 1024)
+      size = 1024;
 
-   if (example.bitmap) al_destroy_bitmap(example.bitmap);
-   al_set_new_bitmap_flags(example.use_memory_bitmaps ? ALLEGRO_MEMORY_BITMAP : 0);
+   if (example.bitmap)
+      al_destroy_bitmap(example.bitmap);
+   al_set_new_bitmap_flags(
+      example.use_memory_bitmaps ? ALLEGRO_MEMORY_BITMAP : 0);
    example.bitmap = al_create_bitmap(size, size);
    example.bitmap_size = size;
    al_set_target_bitmap(example.bitmap);
@@ -218,8 +228,10 @@ int main(void)
    
    ALLEGRO_MONITOR_INFO info;
    al_get_monitor_info(0, &info);
-   if (info.x2 - info.x1 < w) w = info.x2 - info.x1;
-   if (info.y2 - info.y1 < h) h = info.y2 - info.y1;
+   if (info.x2 - info.x1 < w)
+      w = info.x2 - info.x1;
+   if (info.y2 - info.y1 < h)
+      h = info.y2 - info.y1;
    display = al_create_display(w, h);
 
    if (!display) {
@@ -323,6 +335,7 @@ int main(void)
             example.last_x = event.mouse.x;
             example.last_y = event.mouse.y;
             break;
+
          case ALLEGRO_EVENT_MOUSE_BUTTON_UP: {
             int fh = al_get_font_line_height(example.font);
             example.mouse_down = false;
@@ -344,6 +357,7 @@ int main(void)
             }
             break;
          }
+
          case ALLEGRO_EVENT_MOUSE_AXES:
             if (example.mouse_down) {
                 double dx = event.mouse.x - example.last_x;

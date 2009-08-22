@@ -671,7 +671,8 @@ void _al_xwin_display_switch_handler(ALLEGRO_DISPLAY *display,
    /* Anything but NotifyNormal seem to indicate the switch is not "real".
     * TODO: Find out details?
     */
-   if (xevent->mode != NotifyNormal) return;
+   if (xevent->mode != NotifyNormal)
+      return;
 
    ALLEGRO_EVENT_SOURCE *es = &display->es;
    _al_event_source_lock(es);

@@ -499,8 +499,11 @@ int _al_display_settings_sorter(const void *p0, const void *p1)
 {
    const ALLEGRO_EXTRA_DISPLAY_SETTINGS *f0 = *((ALLEGRO_EXTRA_DISPLAY_SETTINGS **)p0);
    const ALLEGRO_EXTRA_DISPLAY_SETTINGS *f1 = *((ALLEGRO_EXTRA_DISPLAY_SETTINGS **)p1);
-   if (!f0) return 1;
-   if (!f1) return -1;
+
+   if (!f0)
+      return 1;
+   if (!f1)
+      return -1;
    if (f0->score == f1->score) {
       if (f0->index < f1->index)
          return -1;

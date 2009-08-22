@@ -59,7 +59,8 @@ int main(int argc, const char *argv[])
     // FIXME: 
     // Now try to split the memory bitmap into display bitmaps?
     bitmap = al_clone_bitmap(membitmap);
-    if (!bitmap) bitmap = membitmap;
+    if (!bitmap)
+        bitmap = membitmap;
 
     timer = al_install_timer(1.0 / 30);
     queue = al_create_event_queue();

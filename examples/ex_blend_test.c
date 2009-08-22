@@ -60,7 +60,8 @@ static ALLEGRO_COLOR test(ALLEGRO_COLOR src_col, ALLEGRO_COLOR dst_col,
 
    al_destroy_bitmap(dst_bmp);
    
-   if (!verbose) return result;
+   if (!verbose)
+      return result;
    
    printf("---\n");
    printf("test id: %d\n", test_index);
@@ -100,8 +101,10 @@ static bool same_color(ALLEGRO_COLOR c1, ALLEGRO_COLOR c2)
    db = b1 - b2;
    da = a1 - a2;
    d = sqrt(dr * dr + dg * dg + db * db + da * da);
-   if (d < 0.01) return true;
-   return false;
+   if (d < 0.01)
+      return true;
+   else
+      return false;
 }
 
 static float get_factor(int operation, float alpha)
@@ -117,8 +120,10 @@ static float get_factor(int operation, float alpha)
 
 static bool has_alpha(int format)
 {
-   if (format == ALLEGRO_PIXEL_FORMAT_RGB_888) return false;
-   if (format == ALLEGRO_PIXEL_FORMAT_BGR_888) return false;
+   if (format == ALLEGRO_PIXEL_FORMAT_RGB_888)
+      return false;
+   if (format == ALLEGRO_PIXEL_FORMAT_BGR_888)
+      return false;
    return true;
 }
 
@@ -183,7 +188,8 @@ static void do_test2(ALLEGRO_COLOR src_col, ALLEGRO_COLOR dst_col,
    ALLEGRO_COLOR reference, result, from_display;
    test_index++;
 
-   if (test_only_index && test_index != test_only_index) return;
+   if (test_only_index && test_index != test_only_index)
+      return;
 
    reference = reference_implementation(
       src_col, dst_col, blend_col, src_format, dst_format,

@@ -126,9 +126,11 @@ static int init_console(void)
 	 for (n = 1; n <= 24; n++) {
 	     snprintf (tty_name, sizeof(tty_name), "/dev/tty%d", n);
 	     tty_name[sizeof(tty_name)-1] = 0;
-	     if ((console_fd = open (tty_name, O_WRONLY)) >= 0) break;
+	     if ((console_fd = open (tty_name, O_WRONLY)) >= 0)
+                break;
 	 }
-	 if (n > 24) return 1; /* leave the error message about /dev/console */
+	 if (n > 24)
+            return 1; /* leave the error message about /dev/console */
       }
 
       /* Get the state of the console -- in particular, the free VT field */
@@ -274,7 +276,8 @@ static int console_users = 0;
 int __al_linux_use_console(void)
 {
    console_users++;
-   if (console_users > 1) return 0;
+   if (console_users > 1)
+      return 0;
 
    if (init_console()) {
       console_users--;
@@ -294,11 +297,14 @@ int __al_linux_leave_console(void)
 {
    ASSERT (console_users > 0);
    console_users--;
-   if (console_users > 0) return 0;
+   if (console_users > 0)
+      return 0;
 
    /* shut down the console switching system */
-   if (__al_linux_done_vtswitch()) return 1;
-   if (done_console()) return 1;
+   if (__al_linux_done_vtswitch())
+      return 1;
+   if (done_console())
+      return 1;
    
    return 0;
 }
@@ -311,9 +317,11 @@ static int graphics_mode = 0;
  */
 int __al_linux_console_graphics (void)
 {
-   if (__al_linux_use_console()) return 1;
+   if (__al_linux_use_console())
+      return 1;
 
-   if (graphics_mode) return 0;  /* shouldn't happen */
+   if (graphics_mode)
+      return 0;  /* shouldn't happen */
    ioctl(__al_linux_console_fd, KDSETMODE, KD_GRAPHICS);
    __al_linux_wait_for_display();
    graphics_mode = 1;

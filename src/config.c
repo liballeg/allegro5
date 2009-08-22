@@ -586,7 +586,9 @@ char const *al_get_first_config_section(ALLEGRO_CONFIG const *config,
    void **iterator)
 {
    ALLEGRO_CONFIG_SECTION *s;
-   if (!config) return NULL;
+
+   if (!config)
+      return NULL;
    s = config->head;
    if (iterator) *iterator = s;
    return s ? al_cstr(s->name) : NULL;
@@ -598,9 +600,12 @@ char const *al_get_first_config_section(ALLEGRO_CONFIG const *config,
 char const *al_get_next_config_section(void **iterator)
 {
    ALLEGRO_CONFIG_SECTION *s;
-   if (!iterator) return NULL;
+
+   if (!iterator)
+      return NULL;
    s = *iterator;
-   if (s) s = s->next;
+   if (s)
+      s = s->next;
    *iterator = s;
    return s ? al_cstr(s->name) : NULL;
 }
@@ -616,14 +621,16 @@ char const *al_get_first_config_entry(ALLEGRO_CONFIG const *config,
    ALLEGRO_CONFIG_SECTION *s;
    ALLEGRO_CONFIG_ENTRY *e;
 
-   if (!config) return NULL;
+   if (!config)
+      return NULL;
 
    if (section == NULL)
       section = "";
 
    usection = al_ref_cstr(&section_info, section);
    s = find_section(config, usection);
-   if (!s) return NULL;
+   if (!s)
+      return NULL;
    e = s->head;
    while (e && e->is_comment)
       e = e->next;
@@ -637,9 +644,12 @@ char const *al_get_first_config_entry(ALLEGRO_CONFIG const *config,
 char const *al_get_next_config_entry(void **iterator)
 {
    ALLEGRO_CONFIG_ENTRY *e;
-   if (!iterator) return NULL;
+
+   if (!iterator)
+      return NULL;
    e = *iterator;
-   if (e) e = e->next;
+   if (e)
+      e = e->next;
    while (e && e->is_comment)
       e = e->next;
    *iterator = e;

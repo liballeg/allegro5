@@ -49,8 +49,10 @@ Prog::Prog(const Theme & theme, ALLEGRO_DISPLAY *display) :
 namespace {
 float clamp(float x)
 {
-    if (x < 0) return 0;
-    if (x > 1) return 1;
+    if (x < 0)
+       return 0;
+    if (x > 1)
+       return 1;
     return x;
 }
 };

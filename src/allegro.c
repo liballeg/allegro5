@@ -260,7 +260,8 @@ static void configure_logging(void)
             *iter = u2;
          }
          else {
-            if (first == '+') al_ustr_remove_chr(u2, 0);
+            if (first == '+')
+               al_ustr_remove_chr(u2, 0);
             iter = _al_vector_alloc_back(&_al_debug_info.channels);
             *iter = u2;
             if (!strcmp(al_cstr(u2), "all"))
@@ -361,7 +362,8 @@ channel_included:
        * Very high timers (more than a year?) likely mean the timer
        * subsystem isn't initialized yet, so print 0.
        */
-      if (t > 3600 * 24 * 365) t = 0;
+      if (t > 3600 * 24 * 365)
+         t = 0;
       al_trace("[%10.5f] ", t);
    }
 

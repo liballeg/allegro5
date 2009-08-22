@@ -114,7 +114,8 @@ static ALLEGRO_PATH *get_executable_name(void)
          }
          else {               /* Not an absolute path */
             path = _find_executable_file(s);
-            if (path) return path;
+            if (path)
+               return path;
          }
       }
    }
@@ -151,7 +152,8 @@ static ALLEGRO_PATH *get_executable_name(void)
 #ifdef ALLEGRO_HAVE_PROCFS_ARGCV
    if (psinfo.pr_argv && psinfo.pr_argc) {
        path = _find_executable_file(psinfo.pr_argv[0]);
-       if (path) return path;
+       if (path)
+          return path;
    }
    else
 #endif
@@ -164,14 +166,17 @@ static ALLEGRO_PATH *get_executable_name(void)
  
       /* Skip other args */
       char *s = strchr(psinfo.pr_psargs, ' ');
-      if (s) s[0] = '\0';
+      if (s)
+         s[0] = '\0';
       path = _find_executable_file(psinfo.pr_psargs);
-      if (path) return path;
+      if (path)
+         return path;
    }
 
    /* Try the pr_fname just for completeness' sake if argv[0] fails */
    path = _find_executable_file(psinfo.pr_fname);
-   if (path) return path;
+   if (path)
+      return path;
 #endif
 
    /* Last resort: try using the output of the ps command to at least find */
@@ -205,7 +210,8 @@ static ALLEGRO_PATH *get_executable_name(void)
       _al_sane_strncpy(filename, linkname+len+1, strlen(linkname)-len+1);
 
       path = _find_executable_file(filename);
-      if (path) return path;
+      if (path)
+         return path;
 
       /* Just return the output from ps... */         
       return al_create_path(filename);
@@ -214,7 +220,8 @@ static ALLEGRO_PATH *get_executable_name(void)
 #ifdef ALLEGRO_WITH_MAGIC_MAIN
    /* Try the captured argv[0] */   
    path = _find_executable_file(__crt0_argv[0]);
-   if (path) return path;
+   if (path)
+      return path;
 #endif
 
    /* Give up; return empty string */
@@ -346,7 +353,8 @@ ALLEGRO_PATH *_al_unix_get_path(int id)
          ALLEGRO_PATH *local_path = NULL;
 
          local_path = _unix_find_home();
-         if (!local_path) return NULL;
+         if (!local_path)
+            return NULL;
 
          al_append_path_component(local_path, ".config");
          al_append_path_component(local_path, al_get_orgname());

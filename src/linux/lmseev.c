@@ -277,13 +277,16 @@ static void init_axis(int fd, AXIS *axis, AL_CONST char *name, AL_CONST char *se
 
    uszprintf(tmp1, sizeof(tmp1), uconvert_ascii("ev_abs_to_rel_%s", tmp2), uconvert_ascii(name, tmp3));
    config_speed = get_config_int(section, tmp1, 1);
-   if (config_speed<=0) config_speed = 1;
+   if (config_speed<=0)
+      config_speed = 1;
    axis->scale = 1;
 
    /* Ask the input */
    if (ioctl(fd, EVIOCGABS(type), abs)>=0) {
-      if (axis->in_min==0) axis->in_min=abs[1];
-      if (axis->in_max==0) axis->in_max=abs[2];
+      if (axis->in_min==0)
+         axis->in_min=abs[1];
+      if (axis->in_max==0)
+         axis->in_max=abs[2];
       axis->in_abs = abs[0];
       axis->scale = 320.0*config_speed/IN_RANGE(*axis);
    }

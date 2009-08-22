@@ -110,10 +110,13 @@ const char *al_cstr(const ALLEGRO_USTR *us)
 void al_ustr_to_buffer(const ALLEGRO_USTR *us, char *buffer, int size)
 {
    int need;
-   if (size <= 0) return;
+
+   if (size <= 0)
+      return;
    /* add 1 for terminating 0 byte */
    need = _al_blength(us) + 1;
-   if (size > need) size = need;
+   if (size > need)
+      size = need;
    _al_sane_strncpy(buffer, _al_bdata(us), size);
 }
 
@@ -1071,7 +1074,8 @@ static size_t _al_utf16_get(uint16_t const *s, int n, int *c)
       *c = s[0];
       return 1;
    }
-   if (n < 2) return 0;
+   if (n < 2)
+      return 0;
    *c = 0x10000 | ((s[0] & 0x3ff) << 10) | (s[1] & 0x3ff);
    return 2;
 }
@@ -1090,7 +1094,8 @@ ALLEGRO_USTR *al_ustr_new_from_utf16(uint16_t const *s)
        */
       size_t n = _al_utf16_get(s + i, 2, &c);
       /* Note: The string already is 0 terminated. */
-      if (c == 0) break;
+      if (c == 0)
+         break;
       al_ustr_append_chr(ustr, c);
       i += n;
    }
@@ -1106,7 +1111,8 @@ size_t al_ustr_size_utf16(const ALLEGRO_USTR *us)
    size_t sz = 0;
    while (1) {
       int32_t c = al_ustr_get_next(us, &pos);
-      if (c < 0) break;
+      if (c < 0)
+         break;
       sz += al_utf16_width(c);
    }
    /* Size of terminating 0 character - al_ustr_get_next will not
@@ -1129,12 +1135,15 @@ size_t al_ustr_encode_utf16(const ALLEGRO_USTR *us, uint16_t *s,
       uint16_t encoded[2];
       size_t sz;
       int32_t c = al_ustr_get_next(us, &pos);
-      if (c < 0) break;
+      if (c < 0)
+         break;
       sz = al_utf16_encode(encoded, c);
       /* Need two bytes for terminating 0. */
-      if (i * 2 + sz > n - 2) break;
+      if (i * 2 + sz > n - 2)
+         break;
       s[i++] = encoded[0];
-      if (sz == 4) s[i++] = encoded[1];
+      if (sz == 4)
+         s[i++] = encoded[1];
    }
    /* Append terminating 0 - al_ustr_get_next withheld it. */
    if (i * 2 + 1 < n)

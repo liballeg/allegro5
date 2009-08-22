@@ -302,7 +302,8 @@ static bool lkeybd_init_keyboard(void)
 
    memset(&the_keyboard, 0, sizeof the_keyboard);
 
-   if (__al_linux_use_console()) return false;
+   if (__al_linux_use_console())
+      return false;
 
    the_keyboard.fd = dup(__al_linux_console_fd);
 

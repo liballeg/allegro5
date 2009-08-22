@@ -10,7 +10,8 @@ const int MAX_UFO_TIME = 50000;
 
 bool logic(int step)
 {
-   if (lastUFO < 0) lastUFO = (long)(al_current_time() * 1000);
+   if (lastUFO < 0)
+      lastUFO = (long)(al_current_time() * 1000);
 
    if (canUFO && (al_current_time() * 1000 > (lastUFO+MIN_UFO_TIME))) {
       int r = rand() % (MAX_UFO_TIME-MIN_UFO_TIME);

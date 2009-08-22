@@ -263,15 +263,19 @@ ALLEGRO_FONT *al_grab_font_from_bitmap(
    if (lock)
       al_unlock_bitmap(bmp);
 
-   if (unmasked) al_destroy_bitmap(unmasked);
+   if (unmasked)
+       al_destroy_bitmap(unmasked);
 
    return f;
+
 cleanup_and_fail_on_error:
+
    if (lock)
       al_unlock_bitmap(bmp);
    al_restore_state(&backup);
    al_destroy_font(f);
-   if (unmasked) al_destroy_bitmap(unmasked);
+   if (unmasked)
+       al_destroy_bitmap(unmasked);
    return NULL;
 }
 

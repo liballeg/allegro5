@@ -547,7 +547,8 @@ void _al_d3d_prepare_bitmaps_for_reset(ALLEGRO_DISPLAY_D3D *disp)
 {
    unsigned int i;
 
-   if (disp->device_lost) return;
+   if (disp->device_lost)
+      return;
 
    if (!_al_d3d_render_to_texture_supported())
       return;
@@ -628,7 +629,8 @@ static bool d3d_upload_bitmap(ALLEGRO_BITMAP *bitmap)
    int w = bitmap->w;
    int h = bitmap->h;
 
-   if (d3d_bmp->display->device_lost) return false;
+   if (d3d_bmp->display->device_lost)
+      return false;
 
    if (d3d_bmp->initialized != true) {
       bool non_pow2 = al_d3d_supports_non_pow2_textures();
@@ -744,7 +746,8 @@ static void d3d_blit_real(ALLEGRO_BITMAP *src,
    ALLEGRO_COLOR bc;
    unsigned char r, g, b, a;
 
-   if (d3d_dest->display->device_lost) return;
+   if (d3d_dest->display->device_lost)
+      return;
 
    _al_d3d_set_bitmap_clip(dest);
 
@@ -947,7 +950,8 @@ static ALLEGRO_LOCKED_REGION *d3d_lock_region(ALLEGRO_BITMAP *bitmap,
 {
    ALLEGRO_BITMAP_D3D *d3d_bmp = (ALLEGRO_BITMAP_D3D *)bitmap;
 
-   if (d3d_bmp->display->device_lost) return NULL;
+   if (d3d_bmp->display->device_lost)
+      return NULL;
 
    RECT rect;
    DWORD Flags = flags & ALLEGRO_LOCK_READONLY ? D3DLOCK_READONLY : 0;
@@ -1057,7 +1061,8 @@ static void d3d_update_clipping_rectangle(ALLEGRO_BITMAP *bitmap)
 /* Obtain a reference to this driver. */
 ALLEGRO_BITMAP_INTERFACE *_al_bitmap_d3d_driver(void)
 {
-   if (vt) return vt;
+   if (vt)
+      return vt;
 
    vt = (ALLEGRO_BITMAP_INTERFACE *)_AL_MALLOC(sizeof *vt);
    memset(vt, 0, sizeof *vt);

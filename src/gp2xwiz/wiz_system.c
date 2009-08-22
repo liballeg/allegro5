@@ -156,7 +156,8 @@ static ALLEGRO_DISPLAY_MODE *gp2xwiz_get_display_mode(int index,
 /* Internal function to get a reference to this driver. */
 ALLEGRO_SYSTEM_INTERFACE *_al_system_gp2xwiz_driver(void)
 {
-   if (gp2xwiz_vt) return gp2xwiz_vt;
+   if (gp2xwiz_vt)
+      return gp2xwiz_vt;
 
    gp2xwiz_vt = _AL_MALLOC(sizeof *gp2xwiz_vt);
    memset(gp2xwiz_vt, 0, sizeof *gp2xwiz_vt);

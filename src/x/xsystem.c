@@ -422,7 +422,9 @@ static int xglx_get_display_format_option(int i, int option)
 {
    ALLEGRO_SYSTEM_XGLX *system = (void *)al_system_driver();
    ASSERT(i < system->visuals_count);
-   if (!system->visuals[i]) return 0;
+
+   if (!system->visuals[i])
+      return 0;
    return system->visuals[i]->settings[option];
 }
 
@@ -467,7 +469,8 @@ static bool xglx_inhibit_screensaver(bool inhibit)
 /* Internal function to get a reference to this driver. */
 ALLEGRO_SYSTEM_INTERFACE *_al_system_xglx_driver(void)
 {
-   if (xglx_vt) return xglx_vt;
+   if (xglx_vt)
+      return xglx_vt;
 
    xglx_vt = _AL_MALLOC(sizeof *xglx_vt);
    memset(xglx_vt, 0, sizeof *xglx_vt);

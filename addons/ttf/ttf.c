@@ -113,8 +113,10 @@ static int render_glyph(ALLEGRO_FONT const *f, int prev, int ch,
         w = face->glyph->bitmap.width;
         h = face->glyph->bitmap.rows;
 
-        if (w == 0) w = 1;
-        if (h == 0) h = 1;
+        if (w == 0)
+           w = 1;
+        if (h == 0)
+           h = 1;
 
         al_store_state(&backup, ALLEGRO_STATE_BITMAP);
 
@@ -282,9 +284,12 @@ static unsigned long ftread(FT_Stream stream, unsigned long offset,
 {
     ALLEGRO_TTF_FONT_DATA *data = stream->pathname.pointer;
     unsigned long bytes;
-    if (count == 0) return 0;
-    if (offset != data->offset) al_fseek(data->file,
-        data->base_offset + offset, ALLEGRO_SEEK_SET);
+
+    if (count == 0)
+       return 0;
+
+    if (offset != data->offset)
+       al_fseek(data->file, data->base_offset + offset, ALLEGRO_SEEK_SET);
     bytes = al_fread(data->file, buffer, count);
     data->offset = offset + bytes;
     return bytes;
@@ -389,7 +394,8 @@ ALLEGRO_FONT *al_load_ttf_font_entry(ALLEGRO_FILE *file,
     unicode = FT_Get_First_Char(face, &g);
     while (g) {
         unicode = FT_Get_Next_Char(face, unicode, &g);
-        if (g > m) m = g;
+        if (g > m)
+           m = g;
     }
 
     data->face = face;

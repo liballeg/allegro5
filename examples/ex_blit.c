@@ -92,7 +92,8 @@ static void stop_timer(int i)
 
 static double get_fps(int i)
 {
-   if (ex.timer[i] == 0) return 0;
+   if (ex.timer[i] == 0)
+      return 0;
    return ex.counter[i] / ex.timer[i];
 }
 

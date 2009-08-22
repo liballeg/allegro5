@@ -571,7 +571,8 @@ bool al_make_path_absolute(ALLEGRO_PATH *path)
    }
 
    cwd_path = al_getcwd();
-   if (!cwd_path) return false;
+   if (!cwd_path)
+      return false;
 
    al_set_path_drive(path, al_get_path_drive(cwd_path));
 

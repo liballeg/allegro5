@@ -72,7 +72,8 @@ static WAVFILE *wav_open(const char *filename)
    WAVFILE *wavfile = NULL;
    char buffer[12];
 
-   if (!f) goto wav_open_error;
+   if (!f)
+      goto wav_open_error;
 
    /* prepare default values */
    wavfile = malloc(sizeof(WAVFILE));
@@ -105,11 +106,13 @@ static WAVFILE *wav_open(const char *filename)
       if (!memcmp(buffer, "fmt ", 4)) {
 
          read32(f, &length);
-         if (length < 16) goto wav_open_error;
+         if (length < 16)
+            goto wav_open_error;
 
          /* should be 1 for PCM data */
          read16(f, &pcm);
-         if (pcm != 1) goto wav_open_error;
+         if (pcm != 1)
+            goto wav_open_error;
 
          /* mono or stereo data */
          read16(f, &wavfile->channels);
@@ -134,7 +137,8 @@ static WAVFILE *wav_open(const char *filename)
             al_fseek(f, length, ALLEGRO_SEEK_CUR);
       }
       else {
-         if (!memcmp(buffer, "data", 4)) break;
+         if (!memcmp(buffer, "data", 4))
+            break;
          ALLEGRO_INFO("Ignoring chunk: %c%c%c%c\n", buffer[0], buffer[1],
             buffer[2], buffer[3]);
          read32(f, &length);
@@ -159,8 +163,10 @@ static WAVFILE *wav_open(const char *filename)
 
 wav_open_error:
 
-   if (f) al_fclose(f);
-   if (wavfile) free(wavfile);
+   if (f)
+      al_fclose(f);
+   if (wavfile)
+      free(wavfile);
 
    return NULL;
 }
@@ -187,7 +193,8 @@ static size_t wav_read(WAVFILE *wavfile, void *data, size_t samples)
 
       for (i = 0; i < n; i++) {
          signed short s;
-         if (!read16(wavfile->f, &s)) break;
+         if (!read16(wavfile->f, &s))
+            break;
 
          *d++ = s;
       }
@@ -414,7 +421,8 @@ bool al_save_sample_wav_pf(ALLEGRO_FILE *pf, ALLEGRO_SAMPLE *spl)
    bits = (spl->depth == ALLEGRO_AUDIO_DEPTH_INT8 ||
            spl->depth == ALLEGRO_AUDIO_DEPTH_UINT8) ? 8 : 16;
 
-   if (channels < 1 || channels > 2) return false;
+   if (channels < 1 || channels > 2)
+      return false;
 
    samples = spl->len >> MIXER_FRAC_SHIFT;
    data_size = samples * channels * bits / 8;

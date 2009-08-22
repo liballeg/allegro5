@@ -39,8 +39,11 @@ static int iphone_get_display_format_option(int i, int option)
 {
    ALLEGRO_SYSTEM_IPHONE *system = (void *)al_system_driver();
    ASSERT(i < system->visuals_count);
-   if (!system->visuals[i]) return 0;
-   return system->visuals[i]->settings[option];
+
+   if (!system->visuals[i])
+      return 0;
+   else
+      return system->visuals[i]->settings[option];
 }
 
 static void iphone_set_new_display_format(int i)
@@ -77,7 +80,8 @@ static bool iphone_get_cursor_position(int *ret_x, int *ret_y)
 
 ALLEGRO_SYSTEM_INTERFACE *_al_get_iphone_system_interface(void)
 {
-    if (vt) return vt;
+    if (vt)
+       return vt;
     
     vt = _AL_MALLOC(sizeof *vt);
     memset(vt, 0, sizeof *vt);

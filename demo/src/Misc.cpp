@@ -32,7 +32,8 @@ const char* getResource(const char* fmt, ...)
    memset(res, 0, 512);
    snprintf(res, 511, fmt, ap);
 
-   if (dir) al_free_path(dir);
+   if (dir)
+      al_free_path(dir);
    dir = al_get_standard_path(ALLEGRO_PROGRAM_PATH);
    al_append_path_component(dir, "data");
    path = al_create_path(res);
@@ -77,14 +78,16 @@ bool loadResources(void)
       return false;
    }
    GenericResource *res = new GenericResource(myfont, my_destroy_font);
-   if (!rm.add(res, false)) return false;
+   if (!rm.add(res, false))
+      return false;
    myfont = al_load_font(getResource("gfx/small_font.tga"), 0, 0);
    if (!myfont) {
       printf("Failed to load %s\n", getResource("gfx/small_font.tga"));
       return false;
    }
    res = new GenericResource(myfont, my_destroy_font);
-   if (!rm.add(res, false)) return false;
+   if (!rm.add(res, false))
+      return false;
 
    for (int i = 0; BMP_NAMES[i]; i++) {
       if (!rm.add(new BitmapResource(getResource(BMP_NAMES[i])))) {

@@ -192,7 +192,8 @@ static int update_mouse (void)
    fd_set set;
    struct timeval tv = { 0, 0 };
 
-   if (resume_count <= 0) return 0;
+   if (resume_count <= 0)
+      return 0;
 
    FD_ZERO(&set);
    FD_SET(std_mouse.fd, &set);

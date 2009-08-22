@@ -446,7 +446,8 @@ static int _find_executable_file(const char *filename, char *output, int size)
 
       while (*end) {
          end = strchr(start, ':');
-         if (!end) end = strchr(start, '\0');
+         if (!end)
+            end = strchr(start, '\0');
 
          /* Resize `buffer' for path component, slash, filename and a '\0' */
          temp = _AL_REALLOC (buffer, end - start + 1 + strlen (filename) + 1);
@@ -500,7 +501,8 @@ static AL_CONST char *_fixme_osx_get_path(uint32_t id, char* path, size_t length
          paths = NSSearchPathForDirectoriesInDomains(NSLibraryDirectory,
             NSUserDomainMask,
             YES);
-         if ([paths count] > 0) ans = [paths objectAtIndex: 0];
+         if ([paths count] > 0)
+            ans = [paths objectAtIndex: 0];
          if (ans != nil) {
             /* Append program name */
             ans = [[ans stringByAppendingPathComponent: orgname]
@@ -533,7 +535,8 @@ static AL_CONST char *_fixme_osx_get_path(uint32_t id, char* path, size_t length
          NSSearchPathForDirectoriesInDomains(NSApplicationSupportDirectory,
             NSUserDomainMask,
             YES);
-         if ([paths count] > 0) ans = [paths objectAtIndex: 0];
+         if ([paths count] > 0)
+            ans = [paths objectAtIndex: 0];
          if (ans != nil) {
             /* Append program name */
             ans = [[ans stringByAppendingPathComponent: orgname]
@@ -545,7 +548,8 @@ static AL_CONST char *_fixme_osx_get_path(uint32_t id, char* path, size_t length
          NSSearchPathForDirectoriesInDomains(NSApplicationSupportDirectory,
             NSLocalDomainMask,
             YES);
-         if ([paths count] > 0) ans = [paths objectAtIndex: 0];
+         if ([paths count] > 0)
+            ans = [paths objectAtIndex: 0];
          if (ans != nil) {
             /* Append program name */
             ans = [[ans stringByAppendingPathComponent: orgname]

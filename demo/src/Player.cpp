@@ -16,7 +16,8 @@ bool Player::logic(int step)
       }
    }
 
-   if (lives <= 0) return true;
+   if (lives <= 0)
+      return true;
 
    ResourceManager& rm = ResourceManager::getInstance();
    Input *input = (Input *)rm.getData(RES_INPUT);

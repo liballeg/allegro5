@@ -62,10 +62,14 @@ static char *module_path[] =
 static void strip(char *s)
 {
     char *x;
-    if (!s[0]) return;
-    for (x = s + strlen(s) - 1; isspace(*x); x--);
+
+    if (!s[0])
+       return;
+    for (x = s + strlen(s) - 1; isspace(*x); x--)
+       ;
     x[1] = '\0';
-    for (x = s; isspace(*x); x++);
+    for (x = s; isspace(*x); x++)
+       ;
     memmove(s, x, strlen(x) + 1);
 }
 
@@ -96,7 +100,8 @@ void _unix_load_modules(int system_driver)
 	 snprintf(fullpath, sizeof fullpath, "%s/%s", env, "modules.lst");
 	 fullpath[(sizeof fullpath) - 1] = 0;
 	 f = pack_fopen(uconvert_ascii(fullpath, buf), F_READ);
-	 if (f) goto found;
+	 if (f)
+            goto found;
       }
    }
 
@@ -105,7 +110,8 @@ void _unix_load_modules(int system_driver)
 	       *pathptr, ALLEGRO_VERSION, ALLEGRO_SUB_VERSION, ALLEGRO_WIP_VERSION);
       fullpath[(sizeof fullpath) - 1] = 0;
       f = pack_fopen(uconvert_ascii(fullpath, buf), F_READ);
-      if (f) goto found;
+      if (f)
+         goto found;
    }
    
    return;

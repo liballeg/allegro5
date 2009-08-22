@@ -35,8 +35,7 @@ Explosion::Explosion(float x, float y, bool big)
    this->y = y;
    dx = 0.0f;
    dy = 0.0f;
-   if (big) radius = 32;
-   else radius = 12;
+   radius = (big) ? 32 : 12;
    isDestructable = false;
    hp = 1;
 

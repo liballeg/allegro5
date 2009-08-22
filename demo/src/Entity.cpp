@@ -56,10 +56,14 @@ void Entity::wrap(void)
 {
    x += dx;
    y += dy;
-   if (x < 0) x += BB_W;
-   if (x >= BB_W) x -= BB_W;
-   if (y < 0) y += BB_H;
-   if (y >= BB_H) y -= BB_H;
+   if (x < 0)
+      x += BB_W;
+   if (x >= BB_W)
+      x -= BB_W;
+   if (y < 0)
+      y += BB_H;
+   if (y >= BB_H)
+      y -= BB_H;
 }
 
 void Entity::render_four(void)
@@ -137,7 +141,8 @@ Entity *Entity::getEntityCollision(void)
 Entity *Entity::getAllCollision(void)
 {
    Entity *e = getEntityCollision();
-   if (e) return e;
+   if (e)
+      return e;
    return getPlayerCollision();
 }
 
@@ -163,12 +168,16 @@ bool Entity::hit(int damage)
 void Entity::explode(void)
 {
    bool big;
-   if (radius >= 32) big = true;
-   else big = false;
+   if (radius >= 32)
+      big = true;
+   else
+      big = false;
    Explosion *e = new Explosion(x, y, big);
    new_entities.push_back(e);
-   if (big) my_play_sample(RES_BIGEXPLOSION);
-   else my_play_sample(RES_SMALLEXPLOSION);
+   if (big)
+      my_play_sample(RES_BIGEXPLOSION);
+   else
+      my_play_sample(RES_SMALLEXPLOSION);
 }
 
 void Entity::spawn(void)

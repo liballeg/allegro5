@@ -87,7 +87,8 @@ static ALLEGRO_BITMAP *create_example_bitmap(void)
          int x = i - 50, y = j - 50;
          int r = sqrt(x * x + y * y);
          float rc = 1 - r / 50.0;
-         if (rc < 0) rc = 0;
+         if (rc < 0)
+            rc = 0;
          data[i * 4 + 0] = i * 255 / 100;
          data[i * 4 + 1] = j * 255 / 100;
          data[i * 4 + 2] = rc * 255;

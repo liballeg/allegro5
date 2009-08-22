@@ -394,7 +394,7 @@ void _al_osx_mouse_was_installed(BOOL install) {
    _al_osx_switch_keyboard_focus(dpy_ptr, false);
 	_al_event_source_unlock(src);
 }
--(void) windowDidResize:(NSNotification*) notification
+-(void) windowDidResize:(NSNotIfication*) notification
 {
    (void)notification;
 	ALLEGRO_DISPLAY_OSX_WIN* dpy =  (ALLEGRO_DISPLAY_OSX_WIN*) dpy_ptr;
@@ -563,7 +563,8 @@ static void osx_get_opengl_pixelformat_attributes(ALLEGRO_DISPLAY_OSX_WIN *dpy)
    NSOpenGLPixelFormatAttribute *a;
    NSOpenGLPixelFormatAttribute *attributes;
 
-   if (!dpy) return;
+   if (!dpy)
+      return;
 
    /* Get pixelformat attributes selected for the display
     * FIXME: right now, we just return the settings that were chosen by the
@@ -638,7 +639,8 @@ static void osx_get_opengl_pixelformat_attributes(ALLEGRO_DISPLAY_OSX_WIN *dpy)
    NSScreen *screen;
    unsigned int mask = (dpy->parent.flags & ALLEGRO_NOFRAME) ? NSBorderlessWindowMask : 
       (NSTitledWindowMask|NSClosableWindowMask|NSMiniaturizableWindowMask);
-   if (dpy->parent.flags & ALLEGRO_RESIZABLE) mask |= NSResizableWindowMask;
+   if (dpy->parent.flags & ALLEGRO_RESIZABLE)
+      mask |= NSResizableWindowMask;
   
    if ((adapter >= 0) && (adapter < al_get_num_video_adapters())) {
       screen = [[NSScreen screens] objectAtIndex: adapter];
@@ -850,11 +852,13 @@ static ALLEGRO_DISPLAY* create_display_fs(int w, int h) {
    osx_set_opengl_pixelformat_attributes(dpy);
    NSOpenGLPixelFormat* fmt =
       [[NSOpenGLPixelFormat alloc] initWithAttributes: dpy->attributes];
-   if (fmt == nil) return NULL;
+   if (fmt == nil)
+      return NULL;
    // Create a context which shares with any other contexts with the same format
    NSOpenGLContext* context = osx_create_shareable_context(fmt, &dpy->display_group);
    [fmt release];
-   if (context == nil) return NULL;
+   if (context == nil)
+      return NULL;
    [context makeCurrentContext];
    /* Turn on vsyncing possibly */
    if (_al_get_new_display_settings()->settings[ALLEGRO_VSYNC] == 1) {
