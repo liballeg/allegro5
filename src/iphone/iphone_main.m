@@ -29,7 +29,7 @@ static void *user_main(ALLEGRO_THREAD *thread, void *arg)
      * http://developer.apple.com/iphone/library/qa/qa2008/qa1561.html
      *
      * Therefore we only call exit here if the user actually returned from
-     * there mine - in that case crashing the app is better then freezing it.
+     * there main - in that case crashing the app is better then freezing it.
      */
     if (!iphone->wants_shutdown)
         exit(0); /* "crash grazefully" */
