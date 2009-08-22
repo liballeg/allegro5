@@ -24,6 +24,8 @@ static void *user_main(ALLEGRO_THREAD *thread, void *arg)
     iphone->has_shutdown = true;
     al_signal_cond(iphone->cond);
     al_unlock_mutex(iphone->mutex);
+    /* We just exit here, as the real main can never exit in iphone apps. */
+    exit(0);
     return arg;
 }
 
