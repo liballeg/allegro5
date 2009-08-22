@@ -40,7 +40,7 @@ struct ALLEGRO_FS_ENTRY {
 
 /* Enum: ALLEGRO_FILE_MODE
  */
-enum ALLEGRO_FILE_MODE
+typedef enum ALLEGRO_FILE_MODE
 { // prototype above appears in docs
    ALLEGRO_FILEMODE_READ    = 1,
    ALLEGRO_FILEMODE_WRITE   = 1 << 1,
@@ -48,7 +48,7 @@ enum ALLEGRO_FILE_MODE
    ALLEGRO_FILEMODE_HIDDEN  = 1 << 3,
    ALLEGRO_FILEMODE_ISFILE  = 1 << 4,
    ALLEGRO_FILEMODE_ISDIR   = 1 << 5,
-};
+} ALLEGRO_FILE_MODE;
 
 #ifndef EOF
    #define EOF    (-1)

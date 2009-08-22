@@ -62,7 +62,8 @@ typedef enum ALLEGRO_AUDIO_DRIVER_ENUM ALLEGRO_AUDIO_DRIVER_ENUM;
 
 /* Enum: ALLEGRO_AUDIO_DEPTH
  */
-enum ALLEGRO_AUDIO_DEPTH {
+enum ALLEGRO_AUDIO_DEPTH
+{
    /* Sample depth and type, and signedness. Mixers only use 32-bit signed
     * float (-1..+1). The unsigned value is a bit-flag applied to the depth
     * value.
@@ -86,7 +87,8 @@ enum ALLEGRO_AUDIO_DEPTH {
 
 /* Enum: ALLEGRO_CHANNEL_CONF
  */
-enum ALLEGRO_CHANNEL_CONF {
+enum ALLEGRO_CHANNEL_CONF
+{
    /* Speaker configuration (mono, stereo, 2.1, 3, etc). With regards to
     * behavior, most of this code makes no distinction between, say, 4.1 and
     * 5 speaker setups.. they both have 5 "channels". However, users would
@@ -107,7 +109,8 @@ enum ALLEGRO_CHANNEL_CONF {
 
 /* Enum: ALLEGRO_PLAYMODE
  */
-enum ALLEGRO_PLAYMODE {
+enum ALLEGRO_PLAYMODE
+{
    ALLEGRO_PLAYMODE_ONCE   = 0x100,
    ALLEGRO_PLAYMODE_LOOP   = 0x101,
    ALLEGRO_PLAYMODE_BIDIR  = 0x102,
@@ -118,7 +121,8 @@ enum ALLEGRO_PLAYMODE {
 
 /* Enum: ALLEGRO_MIXER_QUALITY
  */
-enum ALLEGRO_MIXER_QUALITY {
+enum ALLEGRO_MIXER_QUALITY
+{
    ALLEGRO_MIXER_QUALITY_POINT   = 0x110,
    ALLEGRO_MIXER_QUALITY_LINEAR  = 0x111,
 };
@@ -126,7 +130,8 @@ enum ALLEGRO_MIXER_QUALITY {
 
 /* Enum: ALLEGRO_AUDIO_DRIVER_ENUM
  */
-enum ALLEGRO_AUDIO_DRIVER_ENUM {
+enum ALLEGRO_AUDIO_DRIVER_ENUM
+{
    /* Various driver modes. */
    ALLEGRO_AUDIO_DRIVER_AUTODETECT = 0x20000,
    ALLEGRO_AUDIO_DRIVER_OPENAL     = 0x20001,

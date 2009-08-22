@@ -39,11 +39,12 @@ struct ALLEGRO_FILE
 
 /* Enum: ALLEGRO_SEEK
  */
-enum {
+typedef enum ALLEGRO_SEEK
+{
    ALLEGRO_SEEK_SET = 0,
    ALLEGRO_SEEK_CUR,
    ALLEGRO_SEEK_END
-};
+} ALLEGRO_SEEK;
 
 
 /* The basic operations. */
