@@ -1,6 +1,7 @@
 #import <UIKit/UIKit.h>
 #import "allegroAppDelegate.h"
 #include <allegro5/allegro5.h>
+#include <allegro5/internal/aintern_iphone.h>
 #include <pthread.h>
 
 ALLEGRO_DEBUG_CHANNEL("iphone")
@@ -17,7 +18,12 @@ static void *user_main(ALLEGRO_THREAD *thread, void *arg)
     ALLEGRO_INFO("Starting user main.\n");
     (*_mangled_main_address)(global_argc, global_argv);
     [pool release];
-    // FIXME: Terminate the application somehow?
+    ALLEGRO_INFO("User main has returned.\n");
+    ALLEGRO_SYSTEM_IPHONE *iphone = (void *)al_system_driver();
+    al_lock_mutex(iphone->mutex);
+    iphone->has_shutdown = true;
+    al_signal_cond(iphone->cond);
+    al_unlock_mutex(iphone->mutex);
     return arg;
 }
 

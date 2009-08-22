@@ -71,6 +71,26 @@ void _al_iphone_run_user_main(void);
    _al_iphone_run_user_main();   
 }
 
+- (void)applicationWillTerminate:(UIApplication *)application {
+    ALLEGRO_EVENT event;
+    ALLEGRO_DISPLAY *d = allegro_display;
+    
+    _al_event_source_lock(&d->es);
+    
+    if (_al_event_source_needs_to_generate_event(&d->es)) {
+        event.display.type = ALLEGRO_EVENT_DISPLAY_CLOSE;
+        event.display.timestamp = al_current_time();
+        _al_event_source_emit_event(&d->es, &event);
+    }
+    _al_event_source_unlock(&d->es);
+    
+    /* When this method returns, the application terminates - so lets wait a bit
+     * so the user app can shutdown properly, e.g. to save state as is usually
+     * required by iphone apps.
+     */
+    _al_iphone_await_termination();
+}
+
 - (void)set_allegro_display:(ALLEGRO_DISPLAY *)d {
    allegro_display = d;
 }

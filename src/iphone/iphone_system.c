@@ -2,6 +2,8 @@
 #include <allegro5/internal/aintern_memory.h>
 #include <allegro5/platform/aintunix.h>
 
+ALLEGRO_DEBUG_CHANNEL("iphone")
+
 ALLEGRO_SYSTEM_IPHONE *iphone;
 static ALLEGRO_SYSTEM_INTERFACE *vt;
 
@@ -21,6 +23,19 @@ ALLEGRO_SYSTEM *iphone_initialize(int flags)
     _al_unix_init_time();
     _al_iphone_init_path();
     return sys;
+}
+
+/* This is called from the termination message - it has to return soon as the
+ * user expects the app to close when it is closed.
+ */
+void _al_iphone_await_termination(void)
+{
+    ALLEGRO_INFO("Application awaiting termination.\n");
+    al_lock_mutex(iphone->mutex);
+    while (!iphone->has_shutdown) {
+        al_wait_cond(iphone->cond, iphone->mutex);
+    }
+    al_unlock_mutex(iphone->mutex);
 }
 
 static ALLEGRO_DISPLAY_INTERFACE *iphone_get_display_driver(void)

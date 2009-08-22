@@ -8,6 +8,7 @@ typedef struct ALLEGRO_SYSTEM_IPHONE {
     ALLEGRO_MUTEX *mutex;
     ALLEGRO_COND *cond;
    
+   bool has_shutdown;
    int visuals_count;
    ALLEGRO_EXTRA_DISPLAY_SETTINGS **visuals;    
 } ALLEGRO_SYSTEM_IPHONE;
@@ -33,3 +34,4 @@ void _al_iphone_generate_mouse_event(unsigned int type,
 void _al_iphone_update_visuals(void);
 void _al_iphone_accelerometer_control(int frequency);
 void _al_iphone_generate_joystick_event(float x, float y, float z);
+void _al_iphone_await_termination(void);
