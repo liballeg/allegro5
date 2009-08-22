@@ -74,7 +74,9 @@ void _al_iphone_run_user_main(void);
 - (void)applicationWillTerminate:(UIApplication *)application {
     ALLEGRO_EVENT event;
     ALLEGRO_DISPLAY *d = allegro_display;
-    
+    ALLEGRO_SYSTEM_IPHONE *iphone = (void *)al_system_driver();
+    iphone->wants_shutdown = true;
+
     _al_event_source_lock(&d->es);
     
     if (_al_event_source_needs_to_generate_event(&d->es)) {

@@ -24,8 +24,15 @@ static void *user_main(ALLEGRO_THREAD *thread, void *arg)
     iphone->has_shutdown = true;
     al_signal_cond(iphone->cond);
     al_unlock_mutex(iphone->mutex);
-    /* We just exit here, as the real main can never exit in iphone apps. */
-    exit(0);
+    /* Apple does not allow iphone applications to shutdown and provides
+     * no API for it:
+     * http://developer.apple.com/iphone/library/qa/qa2008/qa1561.html
+     *
+     * Therefore we only call exit here if the user actually returned from
+     * there mine - in that case crashing the app is better then freezing it.
+     */
+    if (!iphone->wants_shutdown)
+        exit(0); /* "crash grazefully" */
     return arg;
 }
 

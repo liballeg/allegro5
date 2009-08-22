@@ -8,7 +8,7 @@ typedef struct ALLEGRO_SYSTEM_IPHONE {
     ALLEGRO_MUTEX *mutex;
     ALLEGRO_COND *cond;
    
-   bool has_shutdown;
+   bool has_shutdown, wants_shutdown;
    int visuals_count;
    ALLEGRO_EXTRA_DISPLAY_SETTINGS **visuals;    
 } ALLEGRO_SYSTEM_IPHONE;
