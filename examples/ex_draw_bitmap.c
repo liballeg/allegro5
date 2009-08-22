@@ -106,6 +106,7 @@ static void remove_sprites(int n)
 
 static void change_size(int size)
 {
+   int x, y, bw, bh;
    if (size < 1)
       size = 1;
    if (size > 1024)
@@ -120,7 +121,13 @@ static void change_size(int size)
    al_set_target_bitmap(example.bitmap);
    al_set_blender(ALLEGRO_ONE, ALLEGRO_ZERO, example.white);
    al_clear_to_color(al_map_rgba_f(0, 0, 0, 0));
-   al_draw_bitmap(example.mysha, size / 2 - 160, size / 2 - 100, 0);
+   bw = al_get_bitmap_width(example.mysha);
+   bh = al_get_bitmap_height(example.mysha);
+   for (y = 0; y < size; y += bh) {
+      for (x = 0; x < size; x+= bw) {
+         al_draw_bitmap(example.mysha, x, y, 0);
+      }
+   }
    al_set_target_bitmap(al_get_backbuffer());
 }
 
@@ -148,6 +155,9 @@ static void sprite_update(Sprite *s)
       s->y = -s->y + 2 * (h - example.bitmap_size);
       s->dy = -s->dy;
    }
+
+   if (example.bitmap_size > w) s->x = w / 2 - example.bitmap_size / 2;
+   if (example.bitmap_size > h) s->y = h / 2 - example.bitmap_size / 2;
 }
 
 static void update(void)
