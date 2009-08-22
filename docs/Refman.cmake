@@ -10,6 +10,7 @@ set(PAGES
     events
     file
     fshook
+    fixed
     graphics
     joystick
     keyboard

@@ -28,23 +28,23 @@
  *  Calculates the coordinates for the rotated, scaled and flipped sprite,
  *  and passes them on to the given function.
  */
-void _al_rotate_scale_flip_coordinates(fixed w, fixed h,
-				    fixed x, fixed y, fixed cx, fixed cy,
-				    fixed angle,
-				    fixed scale_x, fixed scale_y,
+void _al_rotate_scale_flip_coordinates(al_fixed w, al_fixed h,
+				    al_fixed x, al_fixed y, al_fixed cx, al_fixed cy,
+				    al_fixed angle,
+				    al_fixed scale_x, al_fixed scale_y,
 				    int h_flip, int v_flip,
-				    fixed xs[4], fixed ys[4])
+				    al_fixed xs[4], al_fixed ys[4])
 {
-   fixed fix_cos, fix_sin;
+   al_fixed fix_cos, fix_sin;
    int tl = 0, tr = 1, bl = 3, br = 2;
    int tmp;
    double cos_angle, sin_angle;
-   fixed xofs, yofs;
+   al_fixed xofs, yofs;
 
    /* Setting angle to the range -180...180 degrees makes sin & cos
       more numerically stable. (Yes, this does have an effect for big
       angles!) Note that using "real" sin() and cos() gives much better
-      precision than fixsin() and fixcos(). */
+      precision than al_fixsin() and al_fixcos(). */
    angle = angle & 0xffffff;
    if (angle >= 0x800000)
       angle -= 0x1000000;
@@ -83,21 +83,21 @@ void _al_rotate_scale_flip_coordinates(fixed w, fixed h,
    }
 
    /* Calculate new coordinates of all corners. */
-   w = fixmul(w, scale_x);
-   h = fixmul(h, scale_y);
-   cx = fixmul(cx, scale_x);
-   cy = fixmul(cy, scale_y);
+   w = al_fixmul(w, scale_x);
+   h = al_fixmul(h, scale_y);
+   cx = al_fixmul(cx, scale_x);
+   cy = al_fixmul(cy, scale_y);
 
-   xofs = x - fixmul(cx, fix_cos) + fixmul(cy, fix_sin);
+   xofs = x - al_fixmul(cx, fix_cos) + al_fixmul(cy, fix_sin);
 
-   yofs = y - fixmul(cx, fix_sin) - fixmul(cy, fix_cos);
+   yofs = y - al_fixmul(cx, fix_sin) - al_fixmul(cy, fix_cos);
 
    xs[tl] = xofs;
    ys[tl] = yofs;
-   xs[tr] = xofs + fixmul(w, fix_cos);
-   ys[tr] = yofs + fixmul(w, fix_sin);
-   xs[bl] = xofs - fixmul(h, fix_sin);
-   ys[bl] = yofs + fixmul(h, fix_cos);
+   xs[tr] = xofs + al_fixmul(w, fix_cos);
+   ys[tr] = yofs + al_fixmul(w, fix_sin);
+   xs[bl] = xofs - al_fixmul(h, fix_sin);
+   ys[bl] = yofs + al_fixmul(h, fix_cos);
 
    xs[br] = xs[tr] + xs[bl] - xs[tl];
    ys[br] = ys[tr] + ys[bl] - ys[tl];

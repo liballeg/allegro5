@@ -92,12 +92,12 @@ AL_INLINE(void, _set_errno_erange, (void),
 
 
 
-/* fixadd:
+/* al_fixadd:
  *  Fixed point (16.16) addition.
  */
-fixed fixadd(fixed x, fixed y);
+al_fixed al_fixadd(al_fixed x, al_fixed y);
 
-#pragma aux fixadd =             \
+#pragma aux al_fixadd =          \
    "  add eax, edx "             \
    "  jno Out1 "                 \
    "  call _set_errno_erange "   \
@@ -112,12 +112,12 @@ fixed fixadd(fixed x, fixed y);
 
 
 
-/* fixsub:
+/* al_fixsub:
  *  Fixed point (16.16) subtraction.
  */
-fixed fixsub(fixed x, fixed y);
+al_fixed al_fixsub(al_fixed x, al_fixed y);
 
-#pragma aux fixsub =             \
+#pragma aux al_fixsub =          \
    "  sub eax, edx "             \
    "  jno Out1 "                 \
    "  call _set_errno_erange "   \
@@ -132,12 +132,12 @@ fixed fixsub(fixed x, fixed y);
 
 
 
-/* fixmul:
+/* al_fixmul:
  *  Fixed point (16.16) multiplication.
  */
-fixed fixmul(fixed x, fixed y);
+al_fixed al_fixmul(al_fixed x, al_fixed y);
 
-#pragma aux fixmul =             \
+#pragma aux al_fixmul =          \
    "  mov eax, ebx "             \
    "  imul ecx "                 \
    "  shrd eax, edx, 16 "        \
@@ -162,12 +162,12 @@ fixed fixmul(fixed x, fixed y);
 
 
 
-/* fixdiv:
+/* al_fixdiv:
  *  Fixed point (16.16) division.
  */
-fixed fixdiv(fixed x, fixed y);
+al_fixed al_fixdiv(al_fixed x, al_fixed y);
 
-#pragma aux fixdiv =             \
+#pragma aux al_fixdiv =          \
    "  xor ebx, ebx "             \
    "  or eax, eax "              \
    "  jns Out1 "                 \
@@ -202,13 +202,13 @@ fixed fixdiv(fixed x, fixed y);
 
 
 
-/* fixfloor :
+/* al_fixfloor :
  * Fixed point version of floor().
  * Note that it returns an integer result (not a fixed one)
  */
-int fixfloor(fixed x);
+int al_fixfloor(al_fixed x);
 
-#pragma aux fixfloor =           \
+#pragma aux al_fixfloor =        \
    "  sar eax, 0x10 "		 \
 				 \
    parm [eax]			 \
@@ -216,13 +216,13 @@ int fixfloor(fixed x);
 
 
 
-/* fixceil :
+/* al_fixceil :
  * Fixed point version of ceil().
  * Note that it returns an integer result (not a fixed one)
  */
-int fixceil(fixed x);
+int al_fixceil(al_fixed x);
 
-#pragma aux fixceil =            \
+#pragma aux al_fixceil =         \
    "  add eax, 0xFFFF "		 \
    "  jns Out1 "		 \
    "  jo  Out2 "		 \

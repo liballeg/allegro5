@@ -107,10 +107,10 @@ END_OF_INLINE(_set_errno_erange);
 
 
 
-/* fixadd:
+/* al_fixadd:
  *  Fixed point (16.16) addition.
  */
-INLINE _AL_DLL fixed fixadd(fixed x, fixed y)
+INLINE _AL_DLL al_fixed al_fixadd(al_fixed x, al_fixed y)
 {
    _asm {
       mov eax, x
@@ -125,14 +125,14 @@ INLINE _AL_DLL fixed fixadd(fixed x, fixed y)
    }
 }
 
-END_OF_INLINE(fixadd);
+END_OF_INLINE(al_fixadd);
 
 
 
-/* fixsub:
+/* al_fixsub:
  *  Fixed point (16.16) subtraction.
  */
-INLINE _AL_DLL fixed fixsub(fixed x, fixed y)
+INLINE _AL_DLL al_fixed al_fixsub(al_fixed x, al_fixed y)
 {
    _asm {
       mov eax, x
@@ -147,14 +147,14 @@ INLINE _AL_DLL fixed fixsub(fixed x, fixed y)
    }
 }
 
-END_OF_INLINE(fixsub);
+END_OF_INLINE(al_fixsub);
 
 
 
-/* fixmul:
+/* al_fixmul:
  *  Fixed point (16.16) multiplication.
  */
-INLINE _AL_DLL fixed fixmul(fixed x, fixed y)
+INLINE _AL_DLL al_fixed al_fixmul(al_fixed x, al_fixed y)
 {
    _asm {
       mov eax, x
@@ -177,14 +177,14 @@ INLINE _AL_DLL fixed fixmul(fixed x, fixed y)
    }
 }
 
-END_OF_INLINE(fixmul);
+END_OF_INLINE(al_fixmul);
 
 
 
-/* fixdiv:
+/* al_fixdiv:
  *  Fixed point (16.16) division.
  */
-INLINE _AL_DLL fixed fixdiv(fixed x, fixed y)
+INLINE _AL_DLL al_fixed al_fixdiv(al_fixed x, al_fixed y)
 {
    _asm {
       mov ecx, y
@@ -219,15 +219,15 @@ INLINE _AL_DLL fixed fixdiv(fixed x, fixed y)
    }
 }
 
-END_OF_INLINE(fixdiv);
+END_OF_INLINE(al_fixdiv);
 
 
 
-/* fixfloor :
+/* al_fixfloor :
  * Fixed point version of floor().
  * Note that it returns an integer result (not a fixed one)
  */
-INLINE _AL_DLL int fixfloor(fixed x)
+INLINE _AL_DLL int al_fixfloor(al_fixed x)
 {
    _asm {
       mov eax, x
@@ -235,15 +235,15 @@ INLINE _AL_DLL int fixfloor(fixed x)
    }
 }
 
-END_OF_INLINE(fixfloor);
+END_OF_INLINE(al_fixfloor);
 
 
 
-/* fixceil:
+/* al_fixceil:
  *  Fixed point version of ceil().
  *  Note that it returns an integer result (not a fixed one)
  */
-INLINE _AL_DLL int fixceil(fixed x)
+INLINE _AL_DLL int al_fixceil(al_fixed x)
 {
    _asm {
       mov eax, x
@@ -260,7 +260,7 @@ INLINE _AL_DLL int fixceil(fixed x)
    }
 }
 
-END_OF_INLINE(fixceil);
+END_OF_INLINE(al_fixceil);
 
 #endif /* ALLEGRO_IMPORT_MATH_ASM */
 

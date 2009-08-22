@@ -31,10 +31,10 @@
 #define _ALLEGRO_MAX(x,y)     (((x) > (y)) ? (x) : (y))
 #define _ALLEGRO_CLAMP(x,y,z) _ALLEGRO_MAX((x), _ALLEGRO_MIN((y), (z)))
 
-AL_FUNC(void, _al_rotate_scale_flip_coordinates, (fixed w, fixed h,
-   fixed x, fixed y, fixed cx, fixed cy, fixed angle,
-   fixed scale_x, fixed scale_y, int h_flip, int v_flip,
-   fixed xs[4], fixed ys[4]));
+AL_FUNC(void, _al_rotate_scale_flip_coordinates, (al_fixed w, al_fixed h,
+   al_fixed x, al_fixed y, al_fixed cx, al_fixed cy, al_fixed angle,
+   al_fixed scale_x, al_fixed scale_y, int h_flip, int v_flip,
+   al_fixed xs[4], al_fixed ys[4]));
 
 #if (defined allegro_windows)
 

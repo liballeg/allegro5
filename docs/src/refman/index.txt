@@ -13,6 +13,7 @@ API
 * [Events](events.html)
 * [File I/O](file.html)
 * [Filesystem](fshook.html)
+* [Fixed](fixed.html)
 * [Graphics](graphics.html)
 * [Joystick](joystick.html)
 * [Keyboard](keyboard.html)

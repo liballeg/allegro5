@@ -102,8 +102,8 @@ AL_INLINE(void, bmp_unwrite_line, (BITMAP *bmp),
 
 #ifdef ALLEGRO_IMPORT_MATH_ASM
 
-/* Helper macro that makes the compiler reduce fixadd(), fixsub(), fixmul() and
-   fixdiv() calls to a single constant if both operands are constant. Since
+/* Helper macro that makes the compiler reduce al_fixadd(), al_fixsub(), al_fixmul() and
+   al_fixdiv() calls to a single constant if both operands are constant. Since
    this doesn't work unless we compile with optimization, it's better to skip
    the test then. */
 #if (defined __OPTIMIZE__) && ((__GNUC__ > 2) || ((__GNUC__ == 2) && (__GNUC_MINOR__ >= 95)))
@@ -118,7 +118,7 @@ AL_INLINE(void, bmp_unwrite_line, (BITMAP *bmp),
 	    return -0x7FFFFFFF;                                            \
 	 }                                                                 \
 	 else                                                              \
-	    return (fixed)(calc);                                          \
+	    return (al_fixed)(calc);                                       \
       }                                                                    \
       else
 #else
@@ -127,12 +127,12 @@ AL_INLINE(void, bmp_unwrite_line, (BITMAP *bmp),
 
 
 
-/* fixadd:
+/* al_fixadd:
  *  Fixed point (16.16) addition.
  */
-AL_INLINE(fixed, fixadd, (fixed x, fixed y),
+AL_INLINE(al_fixed, al_fixadd, (al_fixed x, al_fixed y),
 {
-   fixed result;
+   al_fixed result;
    int errnum = 0;
 
    __PRECALCULATE_CONSTANTS(x + (double)y)
@@ -169,12 +169,12 @@ AL_INLINE(fixed, fixadd, (fixed x, fixed y),
 
 
 
-/* fixsub:
+/* al_fixsub:
  *  Fixed point (16.16) subtraction.
  */
-AL_INLINE(fixed, fixsub, (fixed x, fixed y),
+AL_INLINE(al_fixed, al_fixsub, (al_fixed x, al_fixed y),
 {
-   fixed result;
+   al_fixed result;
    int errnum = 0;
 
    __PRECALCULATE_CONSTANTS(x - (double)y)
@@ -211,13 +211,13 @@ AL_INLINE(fixed, fixsub, (fixed x, fixed y),
 
 
 
-/* fixmul:
+/* al_fixmul:
  *  Fixed point (16.16) multiplication.
  */
-AL_INLINE(fixed, fixmul, (fixed x, fixed y),
+AL_INLINE(al_fixed, al_fixmul, (al_fixed x, al_fixed y),
 {
-   fixed edx __attribute__ ((__unused__));
-   fixed result;
+   al_fixed edx __attribute__ ((__unused__));
+   al_fixed result;
    int errnum = 0;
 
    __PRECALCULATE_CONSTANTS(x / 65536.0 * y)
@@ -267,14 +267,14 @@ AL_INLINE(fixed, fixmul, (fixed x, fixed y),
 
 
 
-/* fixdiv:
+/* al_fixdiv:
  *  Fixed point (16.16) division.
  */
-AL_INLINE(fixed, fixdiv, (fixed x, fixed y),
+AL_INLINE(al_fixed, al_fixdiv, (al_fixed x, al_fixed y),
 {
-   fixed edx __attribute__ ((__unused__));
-   fixed reg __attribute__ ((__unused__));
-   fixed result;
+   al_fixed edx __attribute__ ((__unused__));
+   al_fixed reg __attribute__ ((__unused__));
+   al_fixed result;
    int errnum = 0;
 
    __PRECALCULATE_CONSTANTS(x * 65536.0 / y)
@@ -354,11 +354,11 @@ AL_INLINE(fixed, fixdiv, (fixed x, fixed y),
 
 
 
-/* fixfloor:
+/* al_fixfloor:
  * Fixed point version of floor().
  * Note that it returns an integer result (not a fixed one)
  */
-AL_INLINE(int, fixfloor, (fixed x),
+AL_INLINE(int, al_fixfloor, (al_fixed x),
 {
    int result;
 
@@ -375,11 +375,11 @@ AL_INLINE(int, fixfloor, (fixed x),
 
 
 
-/* fixceil:
+/* al_fixceil:
  * Fixed point version of ceil().
  * Note that it returns an integer result (not a fixed one)
  */
-AL_INLINE(int, fixceil, (fixed x),
+AL_INLINE(int, al_fixceil, (al_fixed x),
 {
    int result;
    int errnum = 0;

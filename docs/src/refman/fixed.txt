@@ -1,0 +1,496 @@
+# Fixed point math routines
+
+## API: al_fixed
+
+A fixed point number.
+
+Allegro provides some routines for working with fixed point numbers, and
+defines the type `al_fixed` to be a signed 32-bit integer. The high word is
+used for the integer part and the low word for the fraction, giving a range
+of -32768 to 32767 and an accuracy of about four or five decimal places.
+Fixed point numbers can be assigned, compared, added, subtracted, negated and
+shifted (for multiplying or dividing by powers of two) using the normal
+integer operators, but you should take care to use the appropriate conversion
+routines when mixing fixed point with integer or floating point values.
+Writing `fixed_point_1 + fixed_point_2` is OK, but `fixed_point + integer` is
+not.
+
+The only advantage of fixed point math routines is that you don't require a
+floating point coprocessor to use them. This was great in the time period of
+i386 and i486 machines, but stopped being so useful with the coming of the
+Pentium class of processors. From Pentium onwards, CPUs have increased their
+strength in floating point operations, equaling or even surpassing integer
+math performance.
+
+Depending on the type of operations your program may need, using floating
+point types may be faster than fixed types if you are targeting a specific
+machine class. Many embedded processors have no FPUs so fixed point maths can
+be useful there.
+
+## API: al_itofix
+
+Converts an integer to fixed point. This is the same thing as x<<16. Remember
+that overflows (trying to convert an integer greater than 32767) and
+underflows (trying to convert an integer lesser than -32768) are not detected
+even in debug builds! The values simply "wrap around".
+
+Example:
+
+~~~~
+    al_fixed number;
+
+    /* This conversion is OK. */
+    number = al_itofix(100);
+    assert(al_fixtoi(number) == 100);
+
+    number = al_itofix(64000);
+
+    /* This check will fail in debug builds. */
+    assert(al_fixtoi(number) == 64000);
+~~~~
+
+Return value:
+Returns the value of the integer converted to fixed point ignoring overflows.
+
+See also: [al_fixtoi], [al_ftofix], [al_fixtof].
+
+## API: al_fixtoi
+
+Converts fixed point to integer, rounding as required to the nearest integer.
+
+Example:
+
+~~~~
+    int result;
+
+    /* This will put 33 into `result'. */
+    result = al_fixtoi(al_itofix(100) / 3);
+
+    /* But this will round up to 17. */
+    result = al_fixtoi(al_itofix(100) / 6);
+~~~~
+
+See also: [al_itofix], [al_ftofix], [al_fixtof], [al_fixfloor], [al_fixceil].
+
+## API: al_fixfloor
+
+Returns the greatest integer not greater than x. That is, it rounds towards
+negative infinity.
+
+Example:
+
+~~~~
+    int result;
+
+    /* This will put 33 into `result'. */
+    result = al_fixfloor(al_itofix(100) / 3);
+
+    /* And this will round down to 16. */
+    result = al_fixfloor(al_itofix(100) / 6);
+~~~~
+
+See also: [al_fixtoi], [al_fixceil].
+
+## API: al_fixceil
+
+Returns the smallest integer not less than x. That is, it rounds towards
+positive infinity.
+
+Example:
+
+~~~~
+    int result;
+
+    /* This will put 34 into `result'. */
+    result = al_fixceil(al_itofix(100) / 3);
+
+    /* This will round up to 17. */
+    result = al_fixceil(al_itofix(100) / 6);
+~~~~
+
+See also: [al_fixtoi], [al_fixfloor].
+
+## API: al_ftofix
+
+Converts a floating point value to fixed point. Unlike [al_itofix], this
+function clamps values which could overflow the type conversion, setting
+Allegro's errno to ERANGE in the process if this happens.
+
+Example:
+
+~~~~
+    al_fixed number;
+
+    number = al_itofix(-40000);
+    assert(al_fixfloor(number) == -32768);
+
+    number = al_itofix(64000);
+    assert(al_fixfloor(number) == 32767);
+    assert(!al_get_errno()); /* This will fail. */
+~~~~
+
+Return value:
+Returns the value of the floating point value converted to fixed point
+clamping overflows (and setting Allegro's errno).
+
+See also: [al_fixtof], [al_itofix], [al_fixtoi], [al_get_errno]
+
+## API: al_fixtof
+
+Converts fixed point to floating point.
+
+Example:
+
+~~~~
+    float result;
+
+    /* This will put 33.33333 into `result'. */
+    result = al_fixtof(al_itofix(100) / 3);
+
+    /* This will put 16.66666 into `result'. */
+    result = al_fixtof(al_itofix(100) / 6);
+~~~~
+
+See also: al_ftofix, al_itofix, al_fixtoi.
+
+## API: al_fixmul
+
+A fixed point value can be multiplied or divided by an integer with the
+normal `*` and `/` operators. To multiply two fixed point values, though, you
+must use this function.
+
+If an overflow occurs, Allegro's errno will be set and the maximum possible
+value will be returned, but errno is not cleared if the operation is
+successful.  This means that if you are going to test for overflow you should
+call `al_set_errno(0)` before calling [al_fixmul].
+
+Example:
+
+~~~~
+    al_fixed result;
+
+    /* This will put 30000 into `result'. */
+    result = al_fixmul(al_itofix(10), al_itofix(3000));
+
+    /* But this overflows, and sets errno. */
+    result = al_fixmul(al_itofix(100), al_itofix(3000));
+    assert(!al_get_errno());
+~~~~
+
+Return value:
+Returns the clamped result of multiplying `x` by `y`, setting Allegro's errno
+to ERANGE if there was an overflow.
+
+See also: [al_fixadd], [al_fixsub], [al_fixdiv], [al_get_errno].
+
+## API: al_fixdiv
+
+A fixed point value can be divided by an integer with the normal `/`
+operator.  To divide two fixed point values, though, you must use this
+function. If a division by zero occurs, Allegro's errno will be set and the
+maximum possible value will be returned, but errno is not cleared if the
+operation is successful.  This means that if you are going to test for
+division by zero you should call `al_set_errno(0)` before calling
+[al_fixdiv].
+
+Example:
+
+~~~~
+    al_fixed result;
+
+    /* This will put 0.06060 `result'. */
+    result = al_fixdiv(al_itofix(2), al_itofix(33));
+
+    /* This will put 0 into `result'. */
+    result = al_fixdiv(0, al_itofix(-30));
+
+    /* Sets errno and puts -32768 into `result'. */
+    result = al_fixdiv(al_itofix(-100), al_itofix(0));
+    assert(!al_get_errno()); /* This will fail. */
+~~~~
+
+Return value:
+Returns the result of dividing `x` by `y`. If `y` is zero, returns the maximum
+possible fixed point value and sets Allegro's errno to ERANGE.
+
+See also: [al_fixadd], [al_fixsub], [al_fixmul], [al_get_errno].
+
+## API: al_fixadd
+
+Although fixed point numbers can be added with the normal `+` integer
+operator, that doesn't provide any protection against overflow. If overflow
+is a problem, you should use this function instead. It is slower than using
+integer operators, but if an overflow occurs it will set Allegro's errno and
+clamp the result, rather than just letting it wrap.
+
+Example:
+
+~~~~
+    al_fixed result;
+
+    /* This will put 5035 into `result'. */
+    result = al_fixadd(al_itofix(5000), al_itofix(35));
+
+    /* Sets errno and puts -32768 into `result'. */
+    result = al_fixadd(al_itofix(-31000), al_itofix(-3000));
+    assert(!al_get_errno()); /* This will fail. */
+~~~~
+
+Return value:
+Returns the clamped result of adding `x` to `y`, setting Allegro's errno to
+ERANGE if there was an overflow.
+
+See also: [al_fixsub], [al_fixmul], [al_fixdiv].
+
+## API: al_fixsub
+
+Although fixed point numbers can be subtracted with the normal `-` integer
+operator, that doesn't provide any protection against overflow. If overflow
+is a problem, you should use this function instead. It is slower than using
+integer operators, but if an overflow occurs it will set Allegro's errno
+and clamp the result, rather than just letting it wrap.
+
+Example:
+
+~~~~
+    al_fixed result;
+
+    /* This will put 4965 into `result'. */
+    result = al_fixsub(al_itofix(5000), al_itofix(35));
+
+    /* Sets errno and puts -32768 into `result'. */
+    result = al_fixsub(al_itofix(-31000), al_itofix(3000));
+    assert(!al_get_errno()); /* This will fail. */
+~~~~
+
+Return value:
+Returns the clamped result of subtracting `y` from `x`, setting Allegro's
+errno to ERANGE if there was an overflow.
+
+See also: [al_fixadd], [al_fixmul], [al_fixdiv], [al_get_errno].
+
+
+## Fixed point trig
+
+The fixed point square root, sin, cos, tan, inverse sin, and inverse cos
+functions are implemented using lookup tables, which are very fast but not
+particularly accurate. At the moment the inverse tan uses an iterative search
+on the tan table, so it is a lot slower than the others. On machines with
+good floating point processors using these functions could be slower  Always
+profile your code.
+
+Angles are represented in a binary format with 256 equal to a full circle, 64
+being a right angle and so on. This has the advantage that a simple bitwise
+'and' can be used to keep the angle within the range zero to a full circle.
+
+### API: al_fixtorad_r
+
+This constant gives a ratio which can be used to convert a fixed point number
+in binary angle format to a fixed point number in radians.
+
+Example:
+
+~~~~
+    al_fixed rad_angle, binary_angle;
+
+    /* Set the binary angle to 90 degrees. */
+    binary_angle = 64;
+
+    /* Now convert to radians (about 1.57). */
+    rad_angle = al_fixmul(binary_angle, al_fixtorad_r);
+~~~~
+
+See also: [al_fixmul], [al_radtofix_r].
+
+### API: al_radtofix_r
+
+This constant gives a ratio which can be used to convert a fixed point number
+in radians to a fixed point number in binary angle format.
+
+Example:
+
+~~~~
+    al_fixed rad_angle, binary_angle;
+    ...
+    binary_angle = al_fixmul(rad_angle, radtofix_r);
+~~~~
+
+See also: [al_fixmul], [al_fixtorad_r].
+
+### API: al_fixsin
+
+This function finds the sine of a value using a lookup table. The input value
+must be a fixed point binary angle.
+
+Example:
+
+~~~~
+    al_fixed angle;
+    int result;
+
+    /* Set the binary angle to 90 degrees. */
+    angle = al_itofix(64);
+
+    /* The sine of 90 degrees is one. */
+    result = al_fixtoi(al_fixsin(angle));
+    assert(result == 1);
+~~~~
+
+Return value:
+Returns the sine of a fixed point binary format angle. The return value will be
+in radians.
+
+### API: al_fixcos
+
+This function finds the cosine of a value using a lookup table. The input
+value must be a fixed point binary angle.
+
+Example:
+
+~~~~
+    al_fixed angle;
+    float result;
+
+    /* Set the binary angle to 45 degrees. */
+    angle = al_itofix(32);
+
+    /* The cosine of 45 degrees is about 0.7071. */
+    result = al_fixtof(al_fixcos(angle));
+    assert(result > 0.7 && result < 0.71);
+~~~~
+
+Return value:
+Returns the cosine of a fixed point binary format angle. The return value will
+be in radians.
+
+### API: al_fixtan
+
+This function finds the tangent of a value using a lookup table. The input
+value must be a fixed point binary angle.
+
+Example:
+
+~~~~
+    al_fixed angle, res_a, res_b;
+    float dif;
+
+    angle = al_itofix(37);
+    /* Prove that tan(angle) == sin(angle) / cos(angle). */
+    res_a = al_fixdiv(al_fixsin(angle), al_fixcos(angle));
+    res_b = al_fixtan(angle);
+    dif = al_fixtof(al_fixsub(res_a, res_b));
+    printf("Precision error: %f\n", dif);
+~~~~
+
+Return value:
+Returns the tangent of a fixed point binary format angle. The return value will
+be in radians.
+
+### API: al_fixasin
+
+This function finds the inverse sine of a value using a lookup table. The
+input value must be a fixed point value. The inverse sine is defined only in
+the domain from -1 to 1. Outside of this input range, the function will
+set Allegro's errno to EDOM and return zero.
+
+Example:
+
+~~~~
+    float angle;
+    al_fixed val;
+
+    /* Sets `val' to a right binary angle (64). */
+    val = al_fixasin(al_itofix(1));
+
+    /* Sets `angle' to 0.2405. */
+    angle = al_fixtof(al_fixmul(al_fixasin(al_ftofix(0.238)), al_fixtorad_r));
+
+    /* This will trigger the assert. */
+    val = al_fixasin(al_ftofix(-1.09));
+    assert(!al_get_errno());
+~~~~
+
+Return value:
+Returns the inverse sine of a fixed point value, measured as fixed point
+binary format angle, or zero if the input was out of the range.
+All return values of this function will be in the range -64 to 64.
+
+### API: al_fixacos
+
+This function finds the inverse cosine of a value using a lookup table. The
+input value must be a fixed point radian. The inverse cosine is defined only
+in the domain from -1 to 1. Outside of this input range, the function will
+set Allegro's errno to EDOM and return zero.
+
+Example:
+
+~~~~
+    al_fixed result;
+
+    /* Sets result to binary angle 128. */
+    result = al_fixacos(al_itofix(-1));
+~~~~
+
+Return value:
+Returns the inverse sine of a fixed point value, measured as fixed point
+binary format angle, or zero if the input was out of range. All
+return values of this function will be in the range 0 to 128.
+
+### API: al_fixatan
+
+This function finds the inverse tangent of a value using a lookup table. The
+input value must be a fixed point radian. The inverse tangent is the value
+whose tangent is `x`.
+
+Example:
+
+~~~~
+    al_fixed result;
+
+    /* Sets result to binary angle 13. */
+    result = al_fixatan(al_ftofix(0.326));
+~~~~
+
+Return value:
+Returns the inverse tangent of a fixed point value, measured as a fixed point
+binary format angle.
+
+### API: al_fixatan2
+
+This is a fixed point version of the libc atan2() routine. It computes the
+arc tangent of `y / x`, but the signs of both arguments are used to determine
+the quadrant of the result, and `x` is permitted to be zero. This function is
+useful to convert Cartesian coordinates to polar coordinates.
+
+Example:
+
+~~~~
+    al_fixed result;
+
+    /* Sets `result' to binary angle 64. */
+    result = al_fixatan2(al_itofix(1), 0);
+
+    /* Sets `result' to binary angle -109. */
+    result = al_fixatan2(al_itofix(-1), al_itofix(-2));
+
+    /* Fails the assert. */
+    result = al_fixatan2(0, 0);
+    assert(!al_get_errno());
+~~~~
+
+Return value:
+Returns the arc tangent of `y / x` in fixed point binary format angle, from
+-128 to 128. If both `x` and `y` are zero, returns zero and sets Allegro's
+errno to EDOM.
+
+### API: al_fixsqrt
+
+This finds out the non negative square root of `x`. If `x` is negative,
+Allegro's errno is set to EDOM and the function returns zero.
+
+### API: al_fixhypot
+
+Fixed point hypotenuse (returns the square root of `x*x + y*y`).  This should
+be better than calculating the formula yourself manually, since the error is
+much smaller.
+

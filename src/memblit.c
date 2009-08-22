@@ -493,41 +493,41 @@ do {                                                                         \
    /* Loop variables. */                                                     \
    int index, i;                                                             \
    /* Coordinates in bmp ordered as top-right-bottom-left. */                \
-   fixed corner_bmp_x[4], corner_bmp_y[4];                                   \
+   al_fixed corner_bmp_x[4], corner_bmp_y[4];                                \
    /* Coordinates in spr ordered as top-right-bottom-left. */                \
-   fixed corner_spr_x[4], corner_spr_y[4];                                   \
+   al_fixed corner_spr_x[4], corner_spr_y[4];                                \
    /* y coordinate of bottom point, left point and right point. */           \
    int clip_bottom_i, l_bmp_y_bottom_i, r_bmp_y_bottom_i;                    \
    /* Left and right clipping. */                                            \
-   fixed clip_left, clip_right;                                              \
+   al_fixed clip_left, clip_right;                                           \
    /* Temporary variable. */                                                 \
-   fixed extra_scanline_fraction;                                            \
+   al_fixed extra_scanline_fraction;                                         \
    /* Top scanline of destination */                                         \
    int clip_top_i;                                                           \
                                                                              \
-   ALLEGRO_LOCKED_REGION *src_region;                                         \
-   ALLEGRO_LOCKED_REGION *dst_region;                                         \
+   ALLEGRO_LOCKED_REGION *src_region;                                        \
+   ALLEGRO_LOCKED_REGION *dst_region;                                        \
                                                                              \
    /*                                                                        \
     * Variables used in the loop                                             \
     */                                                                       \
    /* Coordinates of sprite and bmp points in beginning of scanline. */      \
-   fixed l_spr_x, l_spr_y, l_bmp_x, l_bmp_dx;                                \
+   al_fixed l_spr_x, l_spr_y, l_bmp_x, l_bmp_dx;                             \
    /* Increment of left sprite point as we move a scanline down. */          \
-   fixed l_spr_dx, l_spr_dy;                                                 \
+   al_fixed l_spr_dx, l_spr_dy;                                              \
    /* Coordinates of sprite and bmp points in end of scanline. */            \
-   fixed r_bmp_x, r_bmp_dx;                                                  \
+   al_fixed r_bmp_x, r_bmp_dx;                                               \
    /*#ifdef KEEP_TRACK_OF_RIGHT_SPRITE_SCANLINE*/                            \
-   fixed r_spr_x, r_spr_y;                                                   \
+   al_fixed r_spr_x, r_spr_y;                                                \
    /* Increment of right sprite point as we move a scanline down. */         \
-   fixed r_spr_dx, r_spr_dy;                                                 \
+   al_fixed r_spr_dx, r_spr_dy;                                              \
    /*#endif*/                                                                \
    /* Increment of sprite point as we move right inside a scanline. */       \
-   fixed spr_dx, spr_dy;                                                     \
+   al_fixed spr_dx, spr_dy;                                                  \
    /* Positions of beginning of scanline after rounding to integer coordinate\
       in bmp. */                                                             \
-   fixed l_spr_x_rounded, l_spr_y_rounded, l_bmp_x_rounded;                  \
-   fixed r_bmp_x_rounded;                                                    \
+   al_fixed l_spr_x_rounded, l_spr_y_rounded, l_bmp_x_rounded;               \
+   al_fixed r_bmp_x_rounded;                                                 \
    /* Current scanline. */                                                   \
    int bmp_y_i;                                                              \
    /* Right edge of scanline. */                                             \
@@ -548,10 +548,10 @@ do {                                                                         \
       (double)(ys[(top_index-1) & 3] - ys[top_index]) >                      \
       (double)(xs[(top_index-1) & 3] - xs[top_index]) *                      \
       (double)(ys[(top_index+1) & 3] - ys[top_index]) ? 1 : -1;              \
-   /*FIXME: why does fixmul overflow below?*/                                \
-   /*if (fixmul(xs[(top_index+1) & 3] - xs[top_index],                       \
+   /*FIXME: why does al_fixmul overflow below?*/                             \
+   /*if (al_fixmul(xs[(top_index+1) & 3] - xs[top_index],                    \
       ys[(top_index-1) & 3] - ys[top_index]) >                               \
-         fixmul(xs[(top_index-1) & 3] - xs[top_index],                       \
+         al_fixmul(xs[(top_index-1) & 3] - xs[top_index],                    \
             ys[(top_index+1) & 3] - ys[top_index]))                          \
       right_index = 1;                                                       \
    else                                                                      \
@@ -622,18 +622,18 @@ do {                                                                         \
    /* Vertical gap between top corner and centre of topmost scanline. */     \
    extra_scanline_fraction = (bmp_y_i << 16) + 0x8000 - top_bmp_y;           \
    /* Calculate x coordinate of beginning of scanline in bmp. */             \
-   l_bmp_dx = fixdiv(left_bmp_x - top_bmp_x,                                 \
+   l_bmp_dx = al_fixdiv(left_bmp_x - top_bmp_x,                              \
                    left_bmp_y - top_bmp_y);                                  \
-   l_bmp_x = top_bmp_x + fixmul(extra_scanline_fraction, l_bmp_dx);          \
+   l_bmp_x = top_bmp_x + al_fixmul(extra_scanline_fraction, l_bmp_dx);       \
    /* Calculate x coordinate of beginning of scanline in spr. */             \
    /* note: all these are rounded down which is probably a Good Thing (tm) */\
-   l_spr_dx = fixdiv(left_spr_x - top_spr_x,                                 \
+   l_spr_dx = al_fixdiv(left_spr_x - top_spr_x,                              \
                    left_bmp_y - top_bmp_y);                                  \
-   l_spr_x = top_spr_x + fixmul(extra_scanline_fraction, l_spr_dx);          \
+   l_spr_x = top_spr_x + al_fixmul(extra_scanline_fraction, l_spr_dx);       \
    /* Calculate y coordinate of beginning of scanline in spr. */             \
-   l_spr_dy = fixdiv(left_spr_y - top_spr_y,                                 \
+   l_spr_dy = al_fixdiv(left_spr_y - top_spr_y,                              \
                    left_bmp_y - top_bmp_y);                                  \
-   l_spr_y = top_spr_y + fixmul(extra_scanline_fraction, l_spr_dy);          \
+   l_spr_y = top_spr_y + al_fixmul(extra_scanline_fraction, l_spr_dy);       \
                                                                              \
    /* Calculate left loop bound. */                                          \
    l_bmp_y_bottom_i = (left_bmp_y + 0x8000) >> 16;                           \
@@ -641,18 +641,18 @@ do {                                                                         \
       l_bmp_y_bottom_i = clip_bottom_i;                                      \
                                                                              \
    /* Calculate x coordinate of end of scanline in bmp. */                   \
-   r_bmp_dx = fixdiv(right_bmp_x - top_bmp_x,                                \
+   r_bmp_dx = al_fixdiv(right_bmp_x - top_bmp_x,                             \
                    right_bmp_y - top_bmp_y);                                 \
-   r_bmp_x = top_bmp_x + fixmul(extra_scanline_fraction, r_bmp_dx);          \
+   r_bmp_x = top_bmp_x + al_fixmul(extra_scanline_fraction, r_bmp_dx);       \
    /*#ifdef KEEP_TRACK_OF_RIGHT_SPRITE_SCANLINE*/                            \
    /* Calculate x coordinate of end of scanline in spr. */                   \
-   r_spr_dx = fixdiv(right_spr_x - top_spr_x,                                \
+   r_spr_dx = al_fixdiv(right_spr_x - top_spr_x,                             \
                    right_bmp_y - top_bmp_y);                                 \
-   r_spr_x = top_spr_x + fixmul(extra_scanline_fraction, r_spr_dx);          \
+   r_spr_x = top_spr_x + al_fixmul(extra_scanline_fraction, r_spr_dx);       \
    /* Calculate y coordinate of end of scanline in spr. */                   \
-   r_spr_dy = fixdiv(right_spr_y - top_spr_y,                                \
+   r_spr_dy = al_fixdiv(right_spr_y - top_spr_y,                             \
                    right_bmp_y - top_bmp_y);                                 \
-   r_spr_y = top_spr_y + fixmul(extra_scanline_fraction, r_spr_dy);          \
+   r_spr_y = top_spr_y + al_fixmul(extra_scanline_fraction, r_spr_dy);       \
    /*#endif*/                                                                \
                                                                              \
    /* Calculate right loop bound. */                                         \
@@ -665,15 +665,15 @@ do {                                                                         \
       We'd better use double to get this as exact as possible, since any     \
       errors will be accumulated along the scanline.                         \
    */                                                                        \
-   spr_dx = (fixed)((ys[3] - ys[0]) * 65536.0 * (65536.0 * src->w) /         \
+   spr_dx = (al_fixed)((ys[3] - ys[0]) * 65536.0 * (65536.0 * src->w) /      \
                     ((xs[1] - xs[0]) * (double)(ys[3] - ys[0]) -             \
                      (xs[3] - xs[0]) * (double)(ys[1] - ys[0])));            \
-   spr_dy = (fixed)((ys[1] - ys[0]) * 65536.0 * (65536.0 * src->h) /         \
+   spr_dy = (al_fixed)((ys[1] - ys[0]) * 65536.0 * (65536.0 * src->h) /      \
                     ((xs[3] - xs[0]) * (double)(ys[1] - ys[0]) -             \
                      (xs[1] - xs[0]) * (double)(ys[3] - ys[0])));            \
                                                                              \
    /* Lock the bitmaps */                                                    \
-   src_region = al_lock_bitmap(src, ALLEGRO_PIXEL_FORMAT_ANY, ALLEGRO_LOCK_READONLY);                  \
+   src_region = al_lock_bitmap(src, ALLEGRO_PIXEL_FORMAT_ANY, ALLEGRO_LOCK_READONLY);\
                                                                              \
    clip_top_i = bmp_y_i;                                                     \
                                                                              \
@@ -700,17 +700,17 @@ do {                                                                         \
          /* Vertical gap between left corner and centre of scanline. */      \
          extra_scanline_fraction = (bmp_y_i << 16) + 0x8000 - left_bmp_y;    \
          /* Update x coordinate of beginning of scanline in bmp. */          \
-         l_bmp_dx = fixdiv(bottom_bmp_x - left_bmp_x,                        \
+         l_bmp_dx = al_fixdiv(bottom_bmp_x - left_bmp_x,                     \
                          bottom_bmp_y - left_bmp_y);                         \
-         l_bmp_x = left_bmp_x + fixmul(extra_scanline_fraction, l_bmp_dx);   \
+         l_bmp_x = left_bmp_x + al_fixmul(extra_scanline_fraction, l_bmp_dx);\
          /* Update x coordinate of beginning of scanline in spr. */          \
-         l_spr_dx = fixdiv(bottom_spr_x - left_spr_x,                        \
+         l_spr_dx = al_fixdiv(bottom_spr_x - left_spr_x,                     \
                          bottom_bmp_y - left_bmp_y);                         \
-         l_spr_x = left_spr_x + fixmul(extra_scanline_fraction, l_spr_dx);   \
+         l_spr_x = left_spr_x + al_fixmul(extra_scanline_fraction, l_spr_dx);\
          /* Update y coordinate of beginning of scanline in spr. */          \
-         l_spr_dy = fixdiv(bottom_spr_y - left_spr_y,                        \
+         l_spr_dy = al_fixdiv(bottom_spr_y - left_spr_y,                     \
                          bottom_bmp_y - left_bmp_y);                         \
-         l_spr_y = left_spr_y + fixmul(extra_scanline_fraction, l_spr_dy);   \
+         l_spr_y = left_spr_y + al_fixmul(extra_scanline_fraction, l_spr_dy);\
                                                                              \
          /* Update loop bound. */                                            \
          if (sub_pixel_accuracy)                                             \
@@ -726,18 +726,18 @@ do {                                                                         \
          /* Vertical gap between right corner and centre of scanline. */     \
          extra_scanline_fraction = (bmp_y_i << 16) + 0x8000 - right_bmp_y;   \
          /* Update x coordinate of end of scanline in bmp. */                \
-         r_bmp_dx = fixdiv(bottom_bmp_x - right_bmp_x,                       \
+         r_bmp_dx = al_fixdiv(bottom_bmp_x - right_bmp_x,                    \
                          bottom_bmp_y - right_bmp_y);                        \
-         r_bmp_x = right_bmp_x + fixmul(extra_scanline_fraction, r_bmp_dx);  \
+         r_bmp_x = right_bmp_x + al_fixmul(extra_scanline_fraction, r_bmp_dx);\
          /*#ifdef KEEP_TRACK_OF_RIGHT_SPRITE_SCANLINE*/                      \
          /* Update x coordinate of beginning of scanline in spr. */          \
-         r_spr_dx = fixdiv(bottom_spr_x - right_spr_x,                       \
+         r_spr_dx = al_fixdiv(bottom_spr_x - right_spr_x,                    \
                          bottom_bmp_y - right_bmp_y);                        \
-         r_spr_x = right_spr_x + fixmul(extra_scanline_fraction, r_spr_dx);  \
+         r_spr_x = right_spr_x + al_fixmul(extra_scanline_fraction, r_spr_dx);\
          /* Update y coordinate of beginning of scanline in spr. */          \
-         r_spr_dy = fixdiv(bottom_spr_y - right_spr_y,                       \
+         r_spr_dy = al_fixdiv(bottom_spr_y - right_spr_y,                    \
                          bottom_bmp_y - right_bmp_y);                        \
-         r_spr_y = right_spr_y + fixmul(extra_scanline_fraction, r_spr_dy);  \
+         r_spr_y = right_spr_y + al_fixmul(extra_scanline_fraction, r_spr_dy);\
          /*#endif*/                                                          \
                                                                              \
          /* Update loop bound: We aren't supposed to use this any more, so   \
@@ -756,15 +756,15 @@ do {                                                                         \
       /* ... and move starting point in sprite accordingly. */               \
       if (sub_pixel_accuracy) {                                              \
          l_spr_x_rounded = l_spr_x +                                         \
-                           fixmul((l_bmp_x_rounded - l_bmp_x), spr_dx);      \
+                           al_fixmul((l_bmp_x_rounded - l_bmp_x), spr_dx);   \
          l_spr_y_rounded = l_spr_y +                                         \
-                           fixmul((l_bmp_x_rounded - l_bmp_x), spr_dy);      \
+                           al_fixmul((l_bmp_x_rounded - l_bmp_x), spr_dy);   \
       }                                                                      \
       else {                                                                 \
          l_spr_x_rounded = l_spr_x +                                         \
-                           fixmul(l_bmp_x_rounded + 0x7fff - l_bmp_x, spr_dx);\
+                           al_fixmul(l_bmp_x_rounded + 0x7fff - l_bmp_x, spr_dx);\
          l_spr_y_rounded = l_spr_y +                                         \
-                           fixmul(l_bmp_x_rounded + 0x7fff - l_bmp_x, spr_dy);\
+                           al_fixmul(l_bmp_x_rounded + 0x7fff - l_bmp_x, spr_dy);\
       }                                                                      \
                                                                              \
       /* Make right bmp coordinate be an integer and clip it. */             \
@@ -869,8 +869,8 @@ do {                                                                         \
    {                                                                         \
       const int my_r_bmp_x_i = r_bmp_x_rounded >> 16;                        \
       const int my_l_bmp_x_i = l_bmp_x_rounded >> 16;                        \
-      fixed my_l_spr_x = l_spr_x_rounded;                                    \
-      fixed my_l_spr_y = l_spr_y_rounded;                                    \
+      al_fixed my_l_spr_x = l_spr_x_rounded;                                 \
+      al_fixed my_l_spr_y = l_spr_y_rounded;                                 \
       int src_, dst_, asrc_, adst_;                                          \
       ALLEGRO_COLOR bc;                                                      \
       const int src_size = al_get_pixel_size(src->format);                   \
@@ -950,14 +950,14 @@ do {                                                                         \
        fl_angle,                                                             \
        flags)                                                                \
 do {                                                                         \
-   fixed xs[4], ys[4];                                                       \
-   fixed fix_dx = ftofix(fl_dx);                                             \
-   fixed fix_dy = ftofix(fl_dy);                                             \
-   fixed fix_cx = ftofix(fl_cx);                                             \
-   fixed fix_cy = ftofix(fl_cy);                                             \
-   fixed fix_angle = ftofix(fl_angle*256/(ALLEGRO_PI*2));                    \
-   fixed fix_xscale = ftofix(fl_xscale);                                     \
-   fixed fix_yscale = ftofix(fl_yscale);                                     \
+   al_fixed xs[4], ys[4];                                                    \
+   al_fixed fix_dx = al_ftofix(fl_dx);                                       \
+   al_fixed fix_dy = al_ftofix(fl_dy);                                       \
+   al_fixed fix_cx = al_ftofix(fl_cx);                                       \
+   al_fixed fix_cy = al_ftofix(fl_cy);                                       \
+   al_fixed fix_angle = al_ftofix(fl_angle*256/(ALLEGRO_PI*2));              \
+   al_fixed fix_xscale = al_ftofix(fl_xscale);                               \
+   al_fixed fix_yscale = al_ftofix(fl_yscale);                               \
                                                                              \
    _al_rotate_scale_flip_coordinates(src->w << 16, src->h << 16,             \
       fix_dx, fix_dy, fix_cx, fix_cy, fix_angle, fix_xscale, fix_yscale,     \
@@ -1325,15 +1325,15 @@ void _al_draw_rotated_scaled_bitmap_memory_fast(ALLEGRO_BITMAP *src,
    /* Loop variables. */
    int index, i;
    /* Coordinates in bmp ordered as top-right-bottom-left. */
-   fixed corner_bmp_x[4], corner_bmp_y[4];
+   al_fixed corner_bmp_x[4], corner_bmp_y[4];
    /* Coordinates in spr ordered as top-right-bottom-left. */
-   fixed corner_spr_x[4], corner_spr_y[4];
+   al_fixed corner_spr_x[4], corner_spr_y[4];
    /* y coordinate of bottom point, left point and right point. */
    int clip_bottom_i, l_bmp_y_bottom_i, r_bmp_y_bottom_i;
    /* Left and right clipping. */
-   fixed clip_left, clip_right;
+   al_fixed clip_left, clip_right;
    /* Temporary variable. */
-   fixed extra_scanline_fraction;
+   al_fixed extra_scanline_fraction;
    /* Top scanline of destination */
    int clip_top_i;
 
@@ -1346,35 +1346,35 @@ void _al_draw_rotated_scaled_bitmap_memory_fast(ALLEGRO_BITMAP *src,
 
    bool sub_pixel_accuracy = false;
 
-   fixed xs[4], ys[4];
-   fixed fix_dx;
-   fixed fix_dy;
-   fixed fix_cx;
-   fixed fix_cy;
-   fixed fix_angle;
-   fixed fix_xscale;
-   fixed fix_yscale;
+   al_fixed xs[4], ys[4];
+   al_fixed fix_dx;
+   al_fixed fix_dy;
+   al_fixed fix_cx;
+   al_fixed fix_cy;
+   al_fixed fix_angle;
+   al_fixed fix_xscale;
+   al_fixed fix_yscale;
 
    /*
     * Variables used in the loop
     */
    /* Coordinates of sprite and bmp points in beginning of scanline. */
-   fixed l_spr_x, l_spr_y, l_bmp_x, l_bmp_dx;
+   al_fixed l_spr_x, l_spr_y, l_bmp_x, l_bmp_dx;
    /* Increment of left sprite point as we move a scanline down. */
-   fixed l_spr_dx, l_spr_dy;
+   al_fixed l_spr_dx, l_spr_dy;
    /* Coordinates of sprite and bmp points in end of scanline. */
-   fixed r_bmp_x, r_bmp_dx;
+   al_fixed r_bmp_x, r_bmp_dx;
    /*#ifdef KEEP_TRACK_OF_RIGHT_SPRITE_SCANLINE*/
-   fixed r_spr_x, r_spr_y;
+   al_fixed r_spr_x, r_spr_y;
    /* Increment of right sprite point as we move a scanline down. */
-   fixed r_spr_dx, r_spr_dy;
+   al_fixed r_spr_dx, r_spr_dy;
    /*#endif*/
    /* Increment of sprite point as we move right inside a scanline. */
-   fixed spr_dx, spr_dy;
+   al_fixed spr_dx, spr_dy;
    /* Positions of beginning of scanline after rounding to integer coordinate
       in bmp. */
-   fixed l_spr_x_rounded, l_spr_y_rounded, l_bmp_x_rounded;
-   fixed r_bmp_x_rounded;
+   al_fixed l_spr_x_rounded, l_spr_y_rounded, l_bmp_x_rounded;
+   al_fixed r_bmp_x_rounded;
    /* Current scanline. */
    int bmp_y_i;
    /* Right edge of scanline. */
@@ -1382,13 +1382,13 @@ void _al_draw_rotated_scaled_bitmap_memory_fast(ALLEGRO_BITMAP *src,
 
    angle = -angle;
    
-   fix_dx = ftofix(dx);
-   fix_dy = ftofix(dy);
-   fix_cx = ftofix(cx);
-   fix_cy = ftofix(cy);
-   fix_angle = ftofix(-angle*256/(ALLEGRO_PI*2));
-   fix_xscale = ftofix(xscale);
-   fix_yscale = ftofix(yscale);
+   fix_dx = al_ftofix(dx);
+   fix_dy = al_ftofix(dy);
+   fix_cx = al_ftofix(cx);
+   fix_cy = al_ftofix(cy);
+   fix_angle = al_ftofix(-angle*256/(ALLEGRO_PI*2));
+   fix_xscale = al_ftofix(xscale);
+   fix_yscale = al_ftofix(yscale);
 
    _al_rotate_scale_flip_coordinates(src->w << 16, src->h << 16,
       fix_dx, fix_dy, fix_cx, fix_cy, fix_angle, fix_xscale, fix_yscale,
@@ -1408,10 +1408,10 @@ void _al_draw_rotated_scaled_bitmap_memory_fast(ALLEGRO_BITMAP *src,
       (double)(ys[(top_index-1) & 3] - ys[top_index]) >
       (double)(xs[(top_index-1) & 3] - xs[top_index]) *
       (double)(ys[(top_index+1) & 3] - ys[top_index]) ? 1 : -1;
-   /*FIXME: why does fixmul overflow below?*/
-   /*if (fixmul(xs[(top_index+1) & 3] - xs[top_index],
+   /*FIXME: why does al_fixmul overflow below?*/
+   /*if (al_fixmul(xs[(top_index+1) & 3] - xs[top_index],
       ys[(top_index-1) & 3] - ys[top_index]) >
-         fixmul(xs[(top_index-1) & 3] - xs[top_index],
+         al_fixmul(xs[(top_index-1) & 3] - xs[top_index],
             ys[(top_index+1) & 3] - ys[top_index]))
       right_index = 1;
    else
@@ -1482,18 +1482,18 @@ void _al_draw_rotated_scaled_bitmap_memory_fast(ALLEGRO_BITMAP *src,
    /* Vertical gap between top corner and centre of topmost scanline. */
    extra_scanline_fraction = (bmp_y_i << 16) + 0x8000 - top_bmp_y;
    /* Calculate x coordinate of beginning of scanline in bmp. */
-   l_bmp_dx = fixdiv(left_bmp_x - top_bmp_x,
+   l_bmp_dx = al_fixdiv(left_bmp_x - top_bmp_x,
                    left_bmp_y - top_bmp_y);
-   l_bmp_x = top_bmp_x + fixmul(extra_scanline_fraction, l_bmp_dx);
+   l_bmp_x = top_bmp_x + al_fixmul(extra_scanline_fraction, l_bmp_dx);
    /* Calculate x coordinate of beginning of scanline in spr. */
    /* note: all these are rounded down which is probably a Good Thing (tm) */
-   l_spr_dx = fixdiv(left_spr_x - top_spr_x,
+   l_spr_dx = al_fixdiv(left_spr_x - top_spr_x,
                    left_bmp_y - top_bmp_y);
-   l_spr_x = top_spr_x + fixmul(extra_scanline_fraction, l_spr_dx);
+   l_spr_x = top_spr_x + al_fixmul(extra_scanline_fraction, l_spr_dx);
    /* Calculate y coordinate of beginning of scanline in spr. */
-   l_spr_dy = fixdiv(left_spr_y - top_spr_y,
+   l_spr_dy = al_fixdiv(left_spr_y - top_spr_y,
                    left_bmp_y - top_bmp_y);
-   l_spr_y = top_spr_y + fixmul(extra_scanline_fraction, l_spr_dy);
+   l_spr_y = top_spr_y + al_fixmul(extra_scanline_fraction, l_spr_dy);
 
    /* Calculate left loop bound. */
    l_bmp_y_bottom_i = (left_bmp_y + 0x8000) >> 16;
@@ -1501,18 +1501,18 @@ void _al_draw_rotated_scaled_bitmap_memory_fast(ALLEGRO_BITMAP *src,
       l_bmp_y_bottom_i = clip_bottom_i;
 
    /* Calculate x coordinate of end of scanline in bmp. */
-   r_bmp_dx = fixdiv(right_bmp_x - top_bmp_x,
+   r_bmp_dx = al_fixdiv(right_bmp_x - top_bmp_x,
                    right_bmp_y - top_bmp_y);
-   r_bmp_x = top_bmp_x + fixmul(extra_scanline_fraction, r_bmp_dx);
+   r_bmp_x = top_bmp_x + al_fixmul(extra_scanline_fraction, r_bmp_dx);
    /*#ifdef KEEP_TRACK_OF_RIGHT_SPRITE_SCANLINE*/
    /* Calculate x coordinate of end of scanline in spr. */
-   r_spr_dx = fixdiv(right_spr_x - top_spr_x,
+   r_spr_dx = al_fixdiv(right_spr_x - top_spr_x,
                    right_bmp_y - top_bmp_y);
-   r_spr_x = top_spr_x + fixmul(extra_scanline_fraction, r_spr_dx);
+   r_spr_x = top_spr_x + al_fixmul(extra_scanline_fraction, r_spr_dx);
    /* Calculate y coordinate of end of scanline in spr. */
-   r_spr_dy = fixdiv(right_spr_y - top_spr_y,
+   r_spr_dy = al_fixdiv(right_spr_y - top_spr_y,
                    right_bmp_y - top_bmp_y);
-   r_spr_y = top_spr_y + fixmul(extra_scanline_fraction, r_spr_dy);
+   r_spr_y = top_spr_y + al_fixmul(extra_scanline_fraction, r_spr_dy);
    /*#endif*/
 
    /* Calculate right loop bound. */
@@ -1525,10 +1525,10 @@ void _al_draw_rotated_scaled_bitmap_memory_fast(ALLEGRO_BITMAP *src,
       We'd better use double to get this as exact as possible, since any
       errors will be accumulated along the scanline.
    */
-   spr_dx = (fixed)((ys[3] - ys[0]) * 65536.0 * (65536.0 * src->w) /
+   spr_dx = (al_fixed)((ys[3] - ys[0]) * 65536.0 * (65536.0 * src->w) /
                     ((xs[1] - xs[0]) * (double)(ys[3] - ys[0]) -
                      (xs[3] - xs[0]) * (double)(ys[1] - ys[0])));
-   spr_dy = (fixed)((ys[1] - ys[0]) * 65536.0 * (65536.0 * src->h) /
+   spr_dy = (al_fixed)((ys[1] - ys[0]) * 65536.0 * (65536.0 * src->h) /
                     ((xs[3] - xs[0]) * (double)(ys[1] - ys[0]) -
                      (xs[1] - xs[0]) * (double)(ys[3] - ys[0])));
 
@@ -1562,17 +1562,17 @@ void _al_draw_rotated_scaled_bitmap_memory_fast(ALLEGRO_BITMAP *src,
          /* Vertical gap between left corner and centre of scanline. */
          extra_scanline_fraction = (bmp_y_i << 16) + 0x8000 - left_bmp_y;
          /* Update x coordinate of beginning of scanline in bmp. */
-         l_bmp_dx = fixdiv(bottom_bmp_x - left_bmp_x,
+         l_bmp_dx = al_fixdiv(bottom_bmp_x - left_bmp_x,
                          bottom_bmp_y - left_bmp_y);
-         l_bmp_x = left_bmp_x + fixmul(extra_scanline_fraction, l_bmp_dx);
+         l_bmp_x = left_bmp_x + al_fixmul(extra_scanline_fraction, l_bmp_dx);
          /* Update x coordinate of beginning of scanline in spr. */
-         l_spr_dx = fixdiv(bottom_spr_x - left_spr_x,
+         l_spr_dx = al_fixdiv(bottom_spr_x - left_spr_x,
                          bottom_bmp_y - left_bmp_y);
-         l_spr_x = left_spr_x + fixmul(extra_scanline_fraction, l_spr_dx);
+         l_spr_x = left_spr_x + al_fixmul(extra_scanline_fraction, l_spr_dx);
          /* Update y coordinate of beginning of scanline in spr. */
-         l_spr_dy = fixdiv(bottom_spr_y - left_spr_y,
+         l_spr_dy = al_fixdiv(bottom_spr_y - left_spr_y,
                          bottom_bmp_y - left_bmp_y);
-         l_spr_y = left_spr_y + fixmul(extra_scanline_fraction, l_spr_dy);
+         l_spr_y = left_spr_y + al_fixmul(extra_scanline_fraction, l_spr_dy);
 
          /* Update loop bound. */
          if (sub_pixel_accuracy)
@@ -1588,18 +1588,18 @@ void _al_draw_rotated_scaled_bitmap_memory_fast(ALLEGRO_BITMAP *src,
          /* Vertical gap between right corner and centre of scanline. */
          extra_scanline_fraction = (bmp_y_i << 16) + 0x8000 - right_bmp_y;
          /* Update x coordinate of end of scanline in bmp. */
-         r_bmp_dx = fixdiv(bottom_bmp_x - right_bmp_x,
+         r_bmp_dx = al_fixdiv(bottom_bmp_x - right_bmp_x,
                          bottom_bmp_y - right_bmp_y);
-         r_bmp_x = right_bmp_x + fixmul(extra_scanline_fraction, r_bmp_dx);
+         r_bmp_x = right_bmp_x + al_fixmul(extra_scanline_fraction, r_bmp_dx);
          /*#ifdef KEEP_TRACK_OF_RIGHT_SPRITE_SCANLINE*/
          /* Update x coordinate of beginning of scanline in spr. */
-         r_spr_dx = fixdiv(bottom_spr_x - right_spr_x,
+         r_spr_dx = al_fixdiv(bottom_spr_x - right_spr_x,
                          bottom_bmp_y - right_bmp_y);
-         r_spr_x = right_spr_x + fixmul(extra_scanline_fraction, r_spr_dx);
+         r_spr_x = right_spr_x + al_fixmul(extra_scanline_fraction, r_spr_dx);
          /* Update y coordinate of beginning of scanline in spr. */
-         r_spr_dy = fixdiv(bottom_spr_y - right_spr_y,
+         r_spr_dy = al_fixdiv(bottom_spr_y - right_spr_y,
                          bottom_bmp_y - right_bmp_y);
-         r_spr_y = right_spr_y + fixmul(extra_scanline_fraction, r_spr_dy);
+         r_spr_y = right_spr_y + al_fixmul(extra_scanline_fraction, r_spr_dy);
          /*#endif*/
 
          /* Update loop bound: We aren't supposed to use this any more, so
@@ -1618,15 +1618,15 @@ void _al_draw_rotated_scaled_bitmap_memory_fast(ALLEGRO_BITMAP *src,
       /* ... and move starting point in sprite accordingly. */
       if (sub_pixel_accuracy) {
          l_spr_x_rounded = l_spr_x +
-                           fixmul((l_bmp_x_rounded - l_bmp_x), spr_dx);
+                           al_fixmul((l_bmp_x_rounded - l_bmp_x), spr_dx);
          l_spr_y_rounded = l_spr_y +
-                           fixmul((l_bmp_x_rounded - l_bmp_x), spr_dy);
+                           al_fixmul((l_bmp_x_rounded - l_bmp_x), spr_dy);
       }
       else {
          l_spr_x_rounded = l_spr_x +
-            fixmul(l_bmp_x_rounded + 0x7fff - l_bmp_x, spr_dx);
+            al_fixmul(l_bmp_x_rounded + 0x7fff - l_bmp_x, spr_dx);
          l_spr_y_rounded = l_spr_y +
-            fixmul(l_bmp_x_rounded + 0x7fff - l_bmp_x, spr_dy);
+            al_fixmul(l_bmp_x_rounded + 0x7fff - l_bmp_x, spr_dy);
       }
 
       /* Make right bmp coordinate be an integer and clip it. */
@@ -1734,8 +1734,8 @@ void _al_draw_rotated_scaled_bitmap_memory_fast(ALLEGRO_BITMAP *src,
       unsigned char *end_addr;
       int my_r_bmp_x_i = r_bmp_x_rounded >> 16;
       int my_l_bmp_x_i = l_bmp_x_rounded >> 16;
-      fixed my_l_spr_x = l_spr_x_rounded;
-      fixed my_l_spr_y = l_spr_y_rounded;
+      al_fixed my_l_spr_x = l_spr_x_rounded;
+      al_fixed my_l_spr_y = l_spr_y_rounded;
       addr = (void *)(((char *)dst_region->data) +
          (bmp_y_i - clip_top_i) * dst_region->pitch);
       /* adjust for locking offset */

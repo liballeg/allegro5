@@ -22,7 +22,7 @@
 
 
 
-fixed _cos_tbl[512] =
+al_fixed _al_fix_cos_tbl[512] =
 {
    /* precalculated fixed point (16.16) cosines for a full circle (0-255) */
 
@@ -94,7 +94,7 @@ fixed _cos_tbl[512] =
 
 
 
-fixed _tan_tbl[256] =
+al_fixed _al_fix_tan_tbl[256] =
 {
    /* precalculated fixed point (16.16) tangents for a half circle (0-127) */
 
@@ -134,7 +134,7 @@ fixed _tan_tbl[256] =
 
 
 
-fixed _acos_tbl[513] =
+al_fixed _al_fix_acos_tbl[513] =
 {
    /* precalculated fixed point (16.16) inverse cosines (-1 to 1) */
 
@@ -207,13 +207,13 @@ fixed _acos_tbl[513] =
 
 
 
-/* fixatan:
+/* Function: al_fixatan
  *  Fixed point inverse tangent. Does a binary search on the tan table.
  */
-fixed fixatan(fixed x)
+al_fixed al_fixatan(al_fixed x)
 {
    int a, b, c;            /* for binary search */
-   fixed d;                /* difference value for search */
+   al_fixed d;                /* difference value for search */
 
    if (x >= 0) {           /* search the first part of tan table */
       a = 0;
@@ -226,7 +226,7 @@ fixed fixatan(fixed x)
 
    do {
       c = (a + b) >> 1;
-      d = x - _tan_tbl[c];
+      d = x - _al_fix_tan_tbl[c];
 
       if (d > 0)
 	 a = c + 1;
@@ -244,12 +244,12 @@ fixed fixatan(fixed x)
 
 
 
-/* fixatan2:
+/* Function: al_fixatan2
  *  Like the libc atan2, but for fixed point numbers.
  */
-fixed fixatan2(fixed y, fixed x)
+al_fixed al_fixatan2(al_fixed y, al_fixed x)
 {
-   fixed r;
+   al_fixed r;
 
    if (x==0) {
       if (y==0) {
@@ -261,14 +261,14 @@ fixed fixatan2(fixed y, fixed x)
    } 
 
    al_set_errno(0);
-   r = fixdiv(y, x);
+   r = al_fixdiv(y, x);
 
    if (al_get_errno()) {
       al_set_errno(0);
       return ((y < 0) ? -0x00400000L : 0x00400000L);
    }
 
-   r = fixatan(r);
+   r = al_fixatan(r);
 
    if (x >= 0)
       return r;
@@ -281,69 +281,29 @@ fixed fixatan2(fixed y, fixed x)
 
 
 
-/* fixtorad_r, radtofix_r:
+/* Enum: al_fixtorad_r
  *  Ratios for converting between radians and fixed point angles.
+ *  2pi/256
  */
-AL_CONST fixed fixtorad_r = (fixed)1608;     /* 2pi/256 */
-AL_CONST fixed radtofix_r = (fixed)2670177;  /* 256/2pi */
+const al_fixed al_fixtorad_r = (al_fixed)1608;
 
 
 
-#if (defined ALLEGRO_I386) && (!defined ALLEGRO_NO_ASM)
+/* Enum: al_radtofix_r
+ *  Ratios for converting between radians and fixed point angles.
+ *  256/2pi
+ */
+const al_fixed al_radtofix_r = (al_fixed)2670177;
 
 
 
-unsigned short _sqrt_table[256] =
-{
-   /* this table is used by the fixsqrt() and fixhypot() routines in imisc.s */
-
-   0x2D4,   0x103F,  0x16CD,  0x1BDB,  0x201F,  0x23E3,  0x274B,  0x2A6D, 
-   0x2D57,  0x3015,  0x32AC,  0x3524,  0x377F,  0x39C2,  0x3BEE,  0x3E08, 
-   0x400F,  0x4207,  0x43F0,  0x45CC,  0x479C,  0x4960,  0x4B19,  0x4CC9, 
-   0x4E6F,  0x500C,  0x51A2,  0x532F,  0x54B6,  0x5635,  0x57AE,  0x5921, 
-   0x5A8D,  0x5BF4,  0x5D56,  0x5EB3,  0x600A,  0x615D,  0x62AB,  0x63F5, 
-   0x653B,  0x667D,  0x67BA,  0x68F5,  0x6A2B,  0x6B5E,  0x6C8D,  0x6DBA, 
-   0x6EE3,  0x7009,  0x712C,  0x724C,  0x7369,  0x7484,  0x759C,  0x76B1, 
-   0x77C4,  0x78D4,  0x79E2,  0x7AEE,  0x7BF7,  0x7CFE,  0x7E04,  0x7F07, 
-   0x8007,  0x8106,  0x8203,  0x82FF,  0x83F8,  0x84EF,  0x85E5,  0x86D9, 
-   0x87CB,  0x88BB,  0x89AA,  0x8A97,  0x8B83,  0x8C6D,  0x8D56,  0x8E3D, 
-   0x8F22,  0x9007,  0x90E9,  0x91CB,  0x92AB,  0x938A,  0x9467,  0x9543, 
-   0x961E,  0x96F8,  0x97D0,  0x98A8,  0x997E,  0x9A53,  0x9B26,  0x9BF9, 
-   0x9CCA,  0x9D9B,  0x9E6A,  0x9F39,  0xA006,  0xA0D2,  0xA19D,  0xA268, 
-   0xA331,  0xA3F9,  0xA4C1,  0xA587,  0xA64D,  0xA711,  0xA7D5,  0xA898, 
-   0xA95A,  0xAA1B,  0xAADB,  0xAB9A,  0xAC59,  0xAD16,  0xADD3,  0xAE8F, 
-   0xAF4B,  0xB005,  0xB0BF,  0xB178,  0xB230,  0xB2E8,  0xB39F,  0xB455, 
-   0xB50A,  0xB5BF,  0xB673,  0xB726,  0xB7D9,  0xB88A,  0xB93C,  0xB9EC, 
-   0xBA9C,  0xBB4B,  0xBBFA,  0xBCA8,  0xBD55,  0xBE02,  0xBEAE,  0xBF5A, 
-   0xC005,  0xC0AF,  0xC159,  0xC202,  0xC2AB,  0xC353,  0xC3FA,  0xC4A1, 
-   0xC548,  0xC5ED,  0xC693,  0xC737,  0xC7DC,  0xC87F,  0xC923,  0xC9C5, 
-   0xCA67,  0xCB09,  0xCBAA,  0xCC4B,  0xCCEB,  0xCD8B,  0xCE2A,  0xCEC8, 
-   0xCF67,  0xD004,  0xD0A2,  0xD13F,  0xD1DB,  0xD277,  0xD312,  0xD3AD, 
-   0xD448,  0xD4E2,  0xD57C,  0xD615,  0xD6AE,  0xD746,  0xD7DE,  0xD876, 
-   0xD90D,  0xD9A4,  0xDA3A,  0xDAD0,  0xDB66,  0xDBFB,  0xDC90,  0xDD24, 
-   0xDDB8,  0xDE4C,  0xDEDF,  0xDF72,  0xE004,  0xE096,  0xE128,  0xE1B9, 
-   0xE24A,  0xE2DB,  0xE36B,  0xE3FB,  0xE48B,  0xE51A,  0xE5A9,  0xE637, 
-   0xE6C5,  0xE753,  0xE7E1,  0xE86E,  0xE8FB,  0xE987,  0xEA13,  0xEA9F, 
-   0xEB2B,  0xEBB6,  0xEC41,  0xECCB,  0xED55,  0xEDDF,  0xEE69,  0xEEF2, 
-   0xEF7B,  0xF004,  0xF08C,  0xF114,  0xF19C,  0xF223,  0xF2AB,  0xF332, 
-   0xF3B8,  0xF43E,  0xF4C4,  0xF54A,  0xF5D0,  0xF655,  0xF6DA,  0xF75E, 
-   0xF7E3,  0xF867,  0xF8EA,  0xF96E,  0xF9F1,  0xFA74,  0xFAF7,  0xFB79, 
-   0xFBFB,  0xFC7D,  0xFCFF,  0xFD80,  0xFE02,  0xFE82,  0xFF03,  0xFF83
-};
-
-
-
-#else       /* not i386, so use straight C versions */
-
-
-
-/* fixsqrt:
+/* Function: al_fixsqrt
  *  Fixed point square root routine for non-i386.
  */
-fixed fixsqrt(fixed x)
+al_fixed al_fixsqrt(al_fixed x)
 {
    if (x > 0)
-      return ftofix(sqrt(fixtof(x)));
+      return al_ftofix(sqrt(al_fixtof(x)));
 
    if (x < 0)
       al_set_errno(EDOM);
@@ -353,15 +313,75 @@ fixed fixsqrt(fixed x)
 
 
 
-/* fixhypot:
+/* Function: al_fixhypot
  *  Fixed point sqrt (x*x+y*y) for non-i386.
  */
-fixed fixhypot(fixed x, fixed y)
+al_fixed al_fixhypot(al_fixed x, al_fixed y)
 {
-   return ftofix(hypot(fixtof(x), fixtof(y)));
+   return al_ftofix(hypot(al_fixtof(x), al_fixtof(y)));
 }
 
 
 
-#endif      /* i386 vs. portable C implementations */
+/* These prototypes exist for documentation only. */
+
+/* Function: al_itofix
+ */
+al_fixed al_itofix(int x);
+
+/* Function: al_fixtoi
+ */
+int al_fixtoi(al_fixed x);
+
+/* Function: al_fixfloor
+ */
+int al_fixfloor(al_fixed x);
+
+/* Function: al_fixceil
+ */
+int al_fixceil(al_fixed x);
+
+/* Function: al_ftofix
+ */
+al_fixed al_ftofix(double x);
+
+/* Function: al_fixtof
+ */
+double al_fixtof(al_fixed x);
+
+/* Function: al_fixadd
+ */
+al_fixed al_fixadd(al_fixed x, al_fixed y);
+
+/* Function: al_fixsub
+ */
+al_fixed al_fixsub(al_fixed x, al_fixed y);
+
+/* Function: al_fixmul
+ */
+al_fixed al_fixmul(al_fixed x, al_fixed y);
+
+/* Function: al_fixdiv
+ */
+al_fixed al_fixdiv(al_fixed x, al_fixed y);
+
+/* Function: al_fixcos
+ */
+al_fixed al_fixcos(al_fixed x);
+
+/* Function: al_fixsin
+ */
+al_fixed al_fixsin(al_fixed x);
+
+/* Function: al_fixtan
+ */
+al_fixed al_fixtan(al_fixed x);
+
+/* Function: al_fixacos
+ */
+al_fixed al_fixacos(al_fixed x);
+
+/* Function: al_fixasin
+ */
+al_fixed al_fixasin(al_fixed x);
 

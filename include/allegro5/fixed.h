@@ -25,10 +25,12 @@
    extern "C" {
 #endif
 
-typedef int32_t fixed;
+/* Type: al_fixed
+ */
+typedef int32_t al_fixed;
 
-AL_VAR(AL_CONST fixed, fixtorad_r);
-AL_VAR(AL_CONST fixed, radtofix_r);
+AL_VAR(const al_fixed, al_fixtorad_r);
+AL_VAR(const al_fixed, al_radtofix_r);
 
 #ifdef __cplusplus
    }
