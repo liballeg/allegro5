@@ -118,7 +118,7 @@ static const int glformats[ALLEGRO_NUM_PIXEL_FORMATS][3] = {
    {0, 0, 0},
    {GL_RGB, GL_UNSIGNED_SHORT_5_6_5, GL_RGB}, /* RGB_565 */
    {0, 0, 0},
-   {0, 0, 0},
+   {GL_RGBA, GL_UNSIGNED_SHORT_5_5_5_1, GL_RGBA}, /* RGBA_5551 */
    {0, 0, 0},
    {0, 0, 0},
    {0, 0, 0},
