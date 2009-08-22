@@ -35,6 +35,9 @@ ALLEGRO_AUDIO_DRIVER *_al_kcm_driver = NULL;
 #if defined(ALLEGRO_CFG_KCM_DSOUND)
    extern struct ALLEGRO_AUDIO_DRIVER _al_kcm_dsound_driver;
 #endif
+#if defined(ALLEGRO_CFG_KCM_AQUEUE)
+   extern struct ALLEGRO_AUDIO_DRIVER _al_kcm_aqueue_driver;
+#endif
 
 /* Channel configuration helpers */
 bool al_is_channel_conf(ALLEGRO_CHANNEL_CONF conf)
@@ -131,6 +134,9 @@ static bool do_install_audio(ALLEGRO_AUDIO_DRIVER_ENUM mode)
 
    switch (mode) {
       case ALLEGRO_AUDIO_DRIVER_AUTODETECT:
+         retVal = al_install_audio(ALLEGRO_AUDIO_DRIVER_AQUEUE);
+         if (retVal)
+            return retVal;
          retVal = al_install_audio(ALLEGRO_AUDIO_DRIVER_ALSA);
          if (retVal)
             return retVal;
@@ -145,6 +151,19 @@ static bool do_install_audio(ALLEGRO_AUDIO_DRIVER_ENUM mode)
             return retVal;
          _al_kcm_driver = NULL;
          return true;
+
+      case ALLEGRO_AUDIO_DRIVER_AQUEUE:
+         #if defined(ALLEGRO_CFG_KCM_AQUEUE)
+            if (_al_kcm_aqueue_driver.open() == 0) {
+               ALLEGRO_INFO("Using Apple Audio Queue driver\n"); 
+               _al_kcm_driver = &_al_kcm_aqueue_driver;
+               return true;
+            }
+            return false;
+         #else
+            _al_set_error(ALLEGRO_INVALID_PARAM, "Audio Queue driver not available on this platform");
+            return false;
+         #endif
 
       case ALLEGRO_AUDIO_DRIVER_OPENAL:
          #if defined(ALLEGRO_CFG_KCM_OPENAL)
