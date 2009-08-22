@@ -74,7 +74,11 @@ struct ALLEGRO_VERTEX {
 
 /* Type: ALLEGRO_TRANSFORM
  */
-typedef float ALLEGRO_TRANSFORM[4][4];
+typedef struct ALLEGRO_TRANSFORM ALLEGRO_TRANSFORM;
+
+struct ALLEGRO_TRANSFORM {
+   float m[4][4];
+};
 
 
 A5_PRIM_FUNC(uint32_t, al_get_allegro_primitives_version, (void));
@@ -107,16 +111,18 @@ A5_PRIM_FUNC(void, al_draw_soft_line, (ALLEGRO_VERTEX* v1, ALLEGRO_VERTEX* v2, u
 /*
 * Transformations
 */
-A5_PRIM_FUNC(void, al_use_transform, (ALLEGRO_TRANSFORM* trans));
-A5_PRIM_FUNC(void, al_copy_transform, (ALLEGRO_TRANSFORM* src, ALLEGRO_TRANSFORM* dest));
+A5_PRIM_FUNC(void, al_use_transform, (const ALLEGRO_TRANSFORM* trans));
+A5_PRIM_FUNC(void, al_copy_transform, (const ALLEGRO_TRANSFORM* src, ALLEGRO_TRANSFORM* dest));
 A5_PRIM_FUNC(void, al_identity_transform, (ALLEGRO_TRANSFORM* trans));
 A5_PRIM_FUNC(void, al_build_transform, (ALLEGRO_TRANSFORM* trans, float x, float y, float sx, float sy, float theta));
 A5_PRIM_FUNC(void, al_translate_transform, (ALLEGRO_TRANSFORM* trans, float x, float y));
 A5_PRIM_FUNC(void, al_rotate_transform, (ALLEGRO_TRANSFORM* trans, float theta));
 A5_PRIM_FUNC(void, al_scale_transform, (ALLEGRO_TRANSFORM* trans, float sx, float sy));
-A5_PRIM_FUNC(void, al_transform_vertex, (ALLEGRO_TRANSFORM* trans, ALLEGRO_VERTEX* vtx));
-A5_PRIM_FUNC(void, al_transform_transform, (ALLEGRO_TRANSFORM* trans, ALLEGRO_TRANSFORM* trans2));
-
+A5_PRIM_FUNC(void, al_transform_vertex, (const ALLEGRO_TRANSFORM* trans, ALLEGRO_VERTEX* vtx));
+A5_PRIM_FUNC(void, al_transform_transform, (const ALLEGRO_TRANSFORM* trans, ALLEGRO_TRANSFORM* trans2));
+A5_PRIM_FUNC(const ALLEGRO_TRANSFORM*, al_get_current_transform, ());
+A5_PRIM_FUNC(void, al_invert_transform, (ALLEGRO_TRANSFORM *trans));
+A5_PRIM_FUNC(int, al_check_inverse, (const ALLEGRO_TRANSFORM *trans, float tol));
 
 /*
 *High level primitives

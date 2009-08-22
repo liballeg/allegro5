@@ -184,7 +184,7 @@ int _al_draw_prim_indexed_directx(ALLEGRO_BITMAP* texture, ALLEGRO_VERTEX* vtxs,
 #ifdef ALLEGRO_CFG_D3D
    /* FIXME: IDirect3DDevice9_DrawIndexedPrimitiveUP is incompatible with the freedom we allow for the contents of the indices array
     * The function requires that the first index is the smallest index in the indices array. No such requirement is made at the
-	* primitives addon API level, so this function cannot be implemented directly.
+    * primitives addon API level, so this function cannot be implemented directly.
     */
    ALLEGRO_VERTEX* buff = malloc(sizeof(ALLEGRO_VERTEX) * num_vtx);
    int ii;
@@ -269,7 +269,7 @@ int _al_draw_prim_indexed_directx(ALLEGRO_BITMAP* texture, ALLEGRO_VERTEX* vtxs,
 #endif
 }
 
-void _al_use_transform_directx(ALLEGRO_TRANSFORM* trans)
+void _al_use_transform_directx(const ALLEGRO_TRANSFORM* trans)
 {
 #ifdef ALLEGRO_CFG_D3D
    ALLEGRO_DISPLAY *display;

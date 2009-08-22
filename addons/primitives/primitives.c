@@ -24,6 +24,7 @@
 #include "allegro5/internal/aintern_prim_soft.h"
 #include "allegro5/internal/aintern_bitmap.h"
 #include "allegro5/internal/aintern_prim.h"
+#include "allegro5/internal/aintern.h"
 #include <math.h>
 
 #ifdef ALLEGRO_CFG_OPENGL
@@ -44,12 +45,12 @@ TODO: This is a hack... I need to know the values of these without actually incl
 #endif
 
 ALLEGRO_TRANSFORM _al_global_trans = 
-{
+{{
    {1, 0, 0, 0},
    {0, 1, 0, 0},
    {0, 0, 1, 0},
    {0, 0, 0, 1}
-};
+}};
 
 static void temp_trans(float x, float y)
 {
@@ -181,7 +182,7 @@ ALLEGRO_PRIM_COLOR al_get_prim_color(ALLEGRO_COLOR col)
 
 /* Function: al_copy_transform
  */
-void al_copy_transform(ALLEGRO_TRANSFORM* src, ALLEGRO_TRANSFORM* dest)
+void al_copy_transform(const ALLEGRO_TRANSFORM* src, ALLEGRO_TRANSFORM* dest)
 {
    ASSERT(src);
    ASSERT(dest);
@@ -191,7 +192,7 @@ void al_copy_transform(ALLEGRO_TRANSFORM* src, ALLEGRO_TRANSFORM* dest)
 
 /* Function: al_use_transform
  */
-void al_use_transform(ALLEGRO_TRANSFORM* trans)
+void al_use_transform(const ALLEGRO_TRANSFORM* trans)
 {
    int flags;
    ASSERT(trans);
@@ -203,6 +204,13 @@ void al_use_transform(ALLEGRO_TRANSFORM* trans)
    } else if (flags & ALLEGRO_DIRECT3D) {
       _al_use_transform_directx(&_al_global_trans);
    }
+}
+
+/* Function: al_get_current_transform
+ */
+const ALLEGRO_TRANSFORM* al_get_current_transform()
+{
+   return &_al_global_trans;
 }
 
 int _al_bitmap_region_is_locked(ALLEGRO_BITMAP* bmp, int x1, int y1, int w, int h)
@@ -222,25 +230,25 @@ void al_identity_transform(ALLEGRO_TRANSFORM* trans)
 {
    ASSERT(trans);
    
-   (*trans)[0][0] = 1;
-   (*trans)[0][1] = 0;
-   (*trans)[0][2] = 0;
-   (*trans)[0][3] = 0;
+   trans->m[0][0] = 1;
+   trans->m[0][1] = 0;
+   trans->m[0][2] = 0;
+   trans->m[0][3] = 0;
    
-   (*trans)[1][0] = 0;
-   (*trans)[1][1] = 1;
-   (*trans)[1][2] = 0;
-   (*trans)[1][3] = 0;
+   trans->m[1][0] = 0;
+   trans->m[1][1] = 1;
+   trans->m[1][2] = 0;
+   trans->m[1][3] = 0;
    
-   (*trans)[2][0] = 0;
-   (*trans)[2][1] = 0;
-   (*trans)[2][2] = 1;
-   (*trans)[2][3] = 0;
+   trans->m[2][0] = 0;
+   trans->m[2][1] = 0;
+   trans->m[2][2] = 1;
+   trans->m[2][3] = 0;
    
-   (*trans)[3][0] = 0;
-   (*trans)[3][1] = 0;
-   (*trans)[3][2] = 0;
-   (*trans)[3][3] = 1;
+   trans->m[3][0] = 0;
+   trans->m[3][1] = 0;
+   trans->m[3][2] = 0;
+   trans->m[3][3] = 1;
 }
 
 /* Function: al_build_transform
@@ -254,25 +262,65 @@ void al_build_transform(ALLEGRO_TRANSFORM* trans, float x, float y,
    c = cosf(theta);
    s = sinf(theta);
    
-   (*trans)[0][0] = sx * c;
-   (*trans)[0][1] = sy * s;
-   (*trans)[0][2] = 0;
-   (*trans)[0][3] = 0;
+   trans->m[0][0] = sx * c;
+   trans->m[0][1] = sy * s;
+   trans->m[0][2] = 0;
+   trans->m[0][3] = 0;
    
-   (*trans)[1][0] = -sx * s;
-   (*trans)[1][1] = sy * c;
-   (*trans)[1][2] = 0;
-   (*trans)[1][3] = 0;
+   trans->m[1][0] = -sx * s;
+   trans->m[1][1] = sy * c;
+   trans->m[1][2] = 0;
+   trans->m[1][3] = 0;
    
-   (*trans)[2][0] = 0;
-   (*trans)[2][1] = 0;
-   (*trans)[2][2] = 1;
-   (*trans)[2][3] = 0;
+   trans->m[2][0] = 0;
+   trans->m[2][1] = 0;
+   trans->m[2][2] = 1;
+   trans->m[2][3] = 0;
    
-   (*trans)[3][0] = x;
-   (*trans)[3][1] = y;
-   (*trans)[3][2] = 0;
-   (*trans)[3][3] = 1;
+   trans->m[3][0] = x;
+   trans->m[3][1] = y;
+   trans->m[3][2] = 0;
+   trans->m[3][3] = 1;
+}
+
+/* Function: al_invert_transform
+ */
+void al_invert_transform(ALLEGRO_TRANSFORM *trans)
+{
+   float det, t;
+   ASSERT(trans);
+   
+   det =  trans->m[0][0] *  trans->m[1][1] -  trans->m[1][0] *  trans->m[0][1];
+
+   t =  trans->m[3][0];
+   trans->m[3][0] = ( trans->m[1][0] *  trans->m[3][1] - t *  trans->m[1][1]) / det;
+   trans->m[3][1] = (t *  trans->m[0][1] -  trans->m[0][0] *  trans->m[3][1]) / det;
+
+   t =  trans->m[0][0];
+   trans->m[0][0] =  trans->m[1][1] / det;
+   trans->m[1][1] = t / det;
+   
+   trans->m[0][1] = - trans->m[0][1] / det;
+   trans->m[1][0] = - trans->m[1][0] / det;
+}
+
+/* Function: al_check_inverse
+ */
+int al_check_inverse(const ALLEGRO_TRANSFORM *trans, float tol)
+{
+   float det, norm, c0, c1, c3;
+   ASSERT(trans);
+   
+   det = fabs( trans->m[0][0] *  trans->m[1][1] -  trans->m[1][0] *  trans->m[0][1]);
+   /*
+   We'll use the 1-norm, as it is the easiest to compute
+   */
+   c0 = fabs( trans->m[0][0]) + fabs( trans->m[0][1]);
+   c1 = fabs( trans->m[1][0]) + fabs( trans->m[1][1]);
+   c3 = fabs( trans->m[3][0]) + fabs( trans->m[3][1]) + 1;
+   norm = _ALLEGRO_MAX(_ALLEGRO_MAX(1, c0), _ALLEGRO_MAX(c1, c3));
+
+   return det > tol * norm;
 }
 
 /* Function: al_translate_transform
@@ -281,8 +329,8 @@ void al_translate_transform(ALLEGRO_TRANSFORM* trans, float x, float y)
 {
    ASSERT(trans);
    
-   (*trans)[3][0] += x;
-   (*trans)[3][1] += y;
+   trans->m[3][0] += x;
+   trans->m[3][1] += y;
 }
 
 /* Function: al_rotate_transform
@@ -299,20 +347,20 @@ void al_rotate_transform(ALLEGRO_TRANSFORM* trans, float theta)
    /*
    Copy the first column
    */
-   t[0] = (*trans)[0][0];
-   t[1] = (*trans)[0][1];
+   t[0] =  trans->m[0][0];
+   t[1] =  trans->m[0][1];
    
    /*
    Set first column
    */
-   (*trans)[0][0] = t[0] * c + (*trans)[1][0] * s;
-   (*trans)[0][1] = t[1] * c + (*trans)[1][1] * s;
+   trans->m[0][0] = t[0] * c +  trans->m[1][0] * s;
+   trans->m[0][1] = t[1] * c +  trans->m[1][1] * s;
    
    /*
    Set second column
    */
-   (*trans)[1][0] = (*trans)[1][0] * c - t[0] * s;
-   (*trans)[1][1] = (*trans)[1][1] * c - t[1] * s;
+   trans->m[1][0] =  trans->m[1][0] * c - t[0] * s;
+   trans->m[1][1] =  trans->m[1][1] * c - t[1] * s;
 }
 
 /* Function: al_scale_transform
@@ -321,16 +369,16 @@ void al_scale_transform(ALLEGRO_TRANSFORM* trans, float sx, float sy)
 {
    ASSERT(trans);
    
-   (*trans)[0][0] *= sx;
-   (*trans)[0][1] *= sx;
+   trans->m[0][0] *= sx;
+   trans->m[0][1] *= sx;
    
-   (*trans)[1][0] *= sy;
-   (*trans)[1][1] *= sy;
+   trans->m[1][0] *= sy;
+   trans->m[1][1] *= sy;
 }
 
 /* Function: al_transform_vertex
  */
-void al_transform_vertex(ALLEGRO_TRANSFORM* trans, ALLEGRO_VERTEX* vtx)
+void al_transform_vertex(const ALLEGRO_TRANSFORM* trans, ALLEGRO_VERTEX* vtx)
 {
    float t;
    ASSERT(trans);
@@ -338,13 +386,13 @@ void al_transform_vertex(ALLEGRO_TRANSFORM* trans, ALLEGRO_VERTEX* vtx)
 
    t = vtx->x;
    
-   vtx->x = t * (*trans)[0][0] + vtx->y * (*trans)[1][0] + (*trans)[3][0];
-   vtx->y = t * (*trans)[0][1] + vtx->y * (*trans)[1][1] + (*trans)[3][1];
+   vtx->x = t *  trans->m[0][0] + vtx->y *  trans->m[1][0] +  trans->m[3][0];
+   vtx->y = t *  trans->m[0][1] + vtx->y *  trans->m[1][1] +  trans->m[3][1];
 }
 
 /* Function: al_transform_transform
  */
-void al_transform_transform(ALLEGRO_TRANSFORM* trans, ALLEGRO_TRANSFORM* trans2)
+void al_transform_transform(const ALLEGRO_TRANSFORM* trans, ALLEGRO_TRANSFORM* trans2)
 {
    float t;
    ASSERT(trans);
@@ -353,23 +401,23 @@ void al_transform_transform(ALLEGRO_TRANSFORM* trans, ALLEGRO_TRANSFORM* trans2)
    /*
    First column
    */
-   t = (*trans2)[0][0];
-   (*trans2)[0][0] = (*trans)[0][0] * t + (*trans)[1][0] * (*trans2)[0][1];
-   (*trans2)[0][1] = (*trans)[0][1] * t + (*trans)[1][1] * (*trans2)[0][1];
+   t = trans2->m[0][0];
+   trans2->m[0][0] =  trans->m[0][0] * t +  trans->m[1][0] * trans2->m[0][1];
+   trans2->m[0][1] =  trans->m[0][1] * t +  trans->m[1][1] * trans2->m[0][1];
    
    /*
    Second column
    */
-   t = (*trans2)[1][0];
-   (*trans2)[1][0] = (*trans)[0][0] * t + (*trans)[1][0] * (*trans2)[1][1];
-   (*trans2)[1][1] = (*trans)[0][1] * t + (*trans)[1][1] * (*trans2)[1][1];
+   t = trans2->m[1][0];
+   trans2->m[1][0] =  trans->m[0][0] * t +  trans->m[1][0] * trans2->m[1][1];
+   trans2->m[1][1] =  trans->m[0][1] * t +  trans->m[1][1] * trans2->m[1][1];
    
    /*
    Fourth column
    */
-   t = (*trans2)[3][0];
-   (*trans2)[3][0] = (*trans)[0][0] * t + (*trans)[1][0] * (*trans2)[3][1] + (*trans)[3][0];
-   (*trans2)[3][1] = (*trans)[0][1] * t + (*trans)[1][1] * (*trans2)[3][1] + (*trans)[3][1];
+   t = trans2->m[3][0];
+   trans2->m[3][0] =  trans->m[0][0] * t +  trans->m[1][0] * trans2->m[3][1] +  trans->m[3][0];
+   trans2->m[3][1] =  trans->m[0][1] * t +  trans->m[1][1] * trans2->m[3][1] +  trans->m[3][1];
 }
 
 

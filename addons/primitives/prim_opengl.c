@@ -333,7 +333,7 @@ int _al_draw_prim_indexed_opengl(ALLEGRO_BITMAP* texture, ALLEGRO_VERTEX* vtxs, 
    return 0;
 }
 
-void _al_use_transform_opengl(ALLEGRO_TRANSFORM* trans)
+void _al_use_transform_opengl(const ALLEGRO_TRANSFORM* trans)
 {
 #ifdef ALLEGRO_CFG_OPENGL
    glLoadMatrixf((float*)trans);
