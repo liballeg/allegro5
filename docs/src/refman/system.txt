@@ -76,10 +76,10 @@ Closes down the Allegro system.
 Note: al_uninstall_system() can be called without a corresponding
 [al_install_system] call, e.g. from atexit().
 
-### API: al_get_allegro_version
+## API: al_get_allegro_version
 
 Returns the (compiled) version of the Allegro library, packed into a single
-integer as groups of 8 bites in the form
+integer as groups of 8 bits in the form
 `(major << 24) | (minor << 16) | (revision << 8) | release`.
 
 You can use code like this to extrac them:
