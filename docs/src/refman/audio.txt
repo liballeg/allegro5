@@ -149,7 +149,10 @@ Reserves 'reserve_samples' number of samples attached to the default mixer.
 then this function will create a voice with an attached mixer.
 Returns true on success, false on error.
 
+### API: al_get_allegro_audio_version
 
+Returns the (compiled) version of the addon, in the same format as
+[al_get_allegro_version].
 
 ## Voice functions
 

@@ -1,5 +1,12 @@
 # Primitives addon
 
+## General
+
+### API: al_get_allegro_primitives_version
+
+Returns the (compiled) version of the addon, in the same format as
+[al_get_allegro_version].
+
 ## High-level drawing routines
 
 ### API: al_draw_line

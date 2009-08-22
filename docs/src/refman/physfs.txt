@@ -27,3 +27,8 @@ To remember and restore another file I/O backend, you can use
 [al_store_state]/[al_restore_state].
 
 See also: [al_set_new_file_interface].
+
+### API: al_get_allegro_physfs_version
+
+Returns the (compiled) version of the addon, in the same format as
+[al_get_allegro_version].

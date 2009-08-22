@@ -185,3 +185,7 @@ Returns true on success, false on error.
 
 See Also: [al_save_bitmap].
 
+### API: al_get_allegro_image_version
+
+Returns the (compiled) version of the addon, in the same format as
+[al_get_allegro_version].

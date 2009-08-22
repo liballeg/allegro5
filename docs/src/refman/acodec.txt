@@ -16,6 +16,11 @@ Loads a sample in FLAC format.
 
 See also: [al_load_sample]
 
+### API: al_get_allegro_flac_version
+
+Returns the (compiled) version of the addon, in the same format as
+[al_get_allegro_version].
+
 ## Ogg Vorbis addon
 
 ### API: al_init_ogg_vorbis_addon
@@ -38,4 +43,9 @@ See also: [al_load_sample]
 Loads a stream in Ogg Vorbis format.
 
 See also: [al_stream_from_file]
+
+### API: al_get_allegro_ogg_vorbis_version
+
+Returns the (compiled) version of the addon, in the same format as
+[al_get_allegro_version].
 

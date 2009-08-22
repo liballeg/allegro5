@@ -110,3 +110,8 @@ Example:
       /* button is 1/2/3/4 if one of the buttons is pressed, 0 if the window
        * is closed.
        */
+
+### API: al_get_allegro_native_dialog_version
+
+Returns the (compiled) version of the addon, in the same format as
+[al_get_allegro_version].

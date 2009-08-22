@@ -76,3 +76,21 @@ Closes down the Allegro system.
 Note: al_uninstall_system() can be called without a corresponding
 [al_install_system] call, e.g. from atexit().
 
+### API: al_get_allegro_version
+
+Returns the (compiled) version of the Allegro library, packed into a single
+integer as groups of 8 bites in the form
+`(major << 24) | (minor << 16) | (revision << 8) | release`.
+
+You can use code like this to extrac them:
+
+    uint32_t version = al_get_allegro_version();
+    int major = version >> 24;
+    int minor = (version >> 16) & 255;
+    int revision = (version >> 8) & 255;
+    int release = version & 255;
+
+The `release` number is 0 for an inofficial version and 1 or greater for
+an official release. For example "5.0.2[1]" would be the (first) official 5.0.2
+release while "5.0.2[0]" would be a compile of a version from the "5.0.2" branch
+before the official release.
