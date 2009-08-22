@@ -41,6 +41,8 @@
 #endif
 
 
+/* Type: ALLEGRO_FONT
+*/
 typedef struct ALLEGRO_FONT ALLEGRO_FONT;
 typedef struct ALLEGRO_FONT_VTABLE ALLEGRO_FONT_VTABLE;
 
