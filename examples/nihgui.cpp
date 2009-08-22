@@ -114,12 +114,9 @@ Dialog::Dialog(const Theme & theme, ALLEGRO_DISPLAY *display,
    event_handler(NULL)
 {
    this->event_queue = al_create_event_queue();
-   al_register_event_source(this->event_queue,
-      (ALLEGRO_EVENT_SOURCE *) al_get_keyboard());
-   al_register_event_source(this->event_queue,
-      (ALLEGRO_EVENT_SOURCE *) al_get_mouse());
-   al_register_event_source(this->event_queue,
-      (ALLEGRO_EVENT_SOURCE *) display);
+   al_register_event_source(this->event_queue, al_get_keyboard_event_source());
+   al_register_event_source(this->event_queue, al_get_mouse_event_source());
+   al_register_event_source(this->event_queue, al_get_display_event_source(display));
 }
 
 Dialog::~Dialog()

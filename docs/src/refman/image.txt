@@ -109,6 +109,10 @@ Returns NULL on error.
 
 See Also: [al_load_bitmap].
 
+## API: al_load_bmp_entry
+
+See [al_load_bmp] and [al_load_bitmap_entry].
+
 ## API: al_load_jpg
 
 Create a new ALLEGRO_BITMAP from a JPEG file. The bitmap is created with
@@ -117,6 +121,10 @@ Create a new ALLEGRO_BITMAP from a JPEG file. The bitmap is created with
 Returns NULL on error.
 
 See Also: [al_load_bitmap].
+
+## API: al_load_jpg_entry
+
+See [al_load_jpg] and [al_load_bitmap_entry].
 
 ## API: al_load_pcx
 
@@ -127,6 +135,10 @@ Returns NULL on error.
 
 See Also: [al_load_bitmap].
 
+## API: al_load_pcx_entry
+
+See [al_load_pcx] and [al_load_bitmap_entry].
+
 ## API: al_load_png
 
 Create a new ALLEGRO_BITMAP from a PNG file. The bitmap is created with
@@ -135,6 +147,10 @@ Create a new ALLEGRO_BITMAP from a PNG file. The bitmap is created with
 Returns NULL on error.
 
 See Also: [al_load_bitmap].
+
+## API: al_load_png_entry
+
+See [al_load_png] and [al_load_bitmap_entry].
 
 ## API: al_load_tga
 
@@ -145,6 +161,10 @@ Returns NULL on error.
 
 See Also: [al_load_bitmap].
 
+## API: al_load_tga_entry
+
+See [al_load_tga] and [al_load_bitmap_entry].
+
 ## API: al_save_bmp
 
 Save an ALLEGRO_BITMAP as a BMP file.
@@ -152,6 +172,10 @@ Save an ALLEGRO_BITMAP as a BMP file.
 Returns true on success, false on error.
 
 See Also: [al_save_bitmap].
+
+## API: al_save_bmp_entry
+
+See [al_save_bmp] and [al_save_bitmap_entry].
 
 ## API: al_save_jpg
 
@@ -161,6 +185,10 @@ Returns true on success, false on error.
 
 See Also: [al_save_bitmap].
 
+## API: al_save_jpg_entry
+
+See [al_save_jpg] and [al_save_bitmap_entry].
+
 ## API: al_save_pcx
 
 Save an ALLEGRO_BITMAP as a PCX file.
@@ -168,6 +196,10 @@ Save an ALLEGRO_BITMAP as a PCX file.
 Returns true on success, false on error.
 
 See Also: [al_save_bitmap].
+
+## API: al_save_pcx_entry
+
+See [al_save_pcx] and [al_save_bitmap_entry].
 
 ## API: al_save_png
 
@@ -177,6 +209,10 @@ Returns true on success, false on error.
 
 See Also: [al_save_bitmap].
 
+## API: al_save_png_entry
+
+See [al_save_png] and [al_save_bitmap_entry].
+
 ## API: al_save_tga
 
 Save an ALLEGRO_BITMAP as a TGA file. 
@@ -184,6 +220,10 @@ Save an ALLEGRO_BITMAP as a TGA file.
 Returns true on success, false on error.
 
 See Also: [al_save_bitmap].
+
+## API: al_save_tga_entry
+
+See [al_save_tga] and [al_save_bitmap_entry].
 
 ### API: al_get_allegro_image_version
 

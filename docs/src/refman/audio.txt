@@ -154,6 +154,16 @@ Returns true on success, false on error.
 Returns the (compiled) version of the addon, in the same format as
 [al_get_allegro_version].
 
+### API: al_get_depth_size
+
+Return the size of a sample, in bytes, for the given format. The format is one
+of the values listed under [ALLEGRO_AUDIO_DEPTH].
+
+### API: al_get_channel_count
+
+Return the number of channels for the given channel configuration, which is one
+of the values listed under [ALLEGRO_CHANNEL_CONF].
+
 ## Voice functions
 
 ### API: al_create_voice

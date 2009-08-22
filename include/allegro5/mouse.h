@@ -86,7 +86,6 @@ typedef enum ALLEGRO_SYSTEM_MOUSE_CURSOR
 AL_FUNC(bool,           al_is_mouse_installed,  (void));
 AL_FUNC(bool,           al_install_mouse,       (void));
 AL_FUNC(void,           al_uninstall_mouse,     (void));
-AL_FUNC(ALLEGRO_MOUSE*, al_get_mouse,           (void));
 AL_FUNC(unsigned int,   al_get_mouse_num_buttons, (void));
 AL_FUNC(unsigned int,   al_get_mouse_num_axes,  (void));
 AL_FUNC(bool,           al_set_mouse_xy,        (int x, int y));

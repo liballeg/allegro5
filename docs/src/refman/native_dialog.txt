@@ -59,7 +59,7 @@ Returns the number of files selected, or 0 if the dialog was cancelled.
 
 Returns one of the selected paths.
 
-## API: al_destroy_native_file_dialog
+## API: al_destroy_native_dialog
 
 Frees up all resources used by the dialog.
 
