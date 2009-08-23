@@ -130,23 +130,34 @@ static bool do_install_audio(ALLEGRO_AUDIO_DRIVER_ENUM mode)
 
    switch (mode) {
       case ALLEGRO_AUDIO_DRIVER_AUTODETECT:
+#if defined(ALLEGRO_CFG_KCM_AQUEUE)
          retVal = al_install_audio(ALLEGRO_AUDIO_DRIVER_AQUEUE);
          if (retVal)
             return retVal;
+#endif
+#if defined(ALLEGRO_CFG_KCM_ALSA)
          retVal = al_install_audio(ALLEGRO_AUDIO_DRIVER_ALSA);
          if (retVal)
             return retVal;
+#endif
+#if defined(ALLEGRO_CFG_KCM_DSOUND)
          retVal = al_install_audio(ALLEGRO_AUDIO_DRIVER_DSOUND);
          if (retVal)
             return retVal;
+#endif
+#if defined(ALLEGRO_CFG_KCM_OSS)
          retVal = al_install_audio(ALLEGRO_AUDIO_DRIVER_OSS);
          if (retVal)
             return retVal;
+#endif
+#if defined(ALLEGRO_CFG_KCM_OPENAL)
          retVal = al_install_audio(ALLEGRO_AUDIO_DRIVER_OPENAL);
          if (retVal)
             return retVal;
+#endif
+         _al_set_error(ALLEGRO_INVALID_PARAM, "No audio driver can be used.");
          _al_kcm_driver = NULL;
-         return true;
+         return false;
 
       case ALLEGRO_AUDIO_DRIVER_AQUEUE:
          #if defined(ALLEGRO_CFG_KCM_AQUEUE)
