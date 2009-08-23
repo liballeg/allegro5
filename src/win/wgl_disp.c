@@ -100,19 +100,19 @@ static void setup_gl(ALLEGRO_DISPLAY *d)
 
 static bool is_wgl_extension_supported(AL_CONST char *extension, HDC dc)
 {
-   ALLEGRO_GetExtensionsStringARB_t __wglGetExtensionsStringARB;
+   _ALLEGRO_wglGetExtensionsStringARB_t _wglGetExtensionsStringARB;
    int ret;
 
    if (!glGetString(GL_EXTENSIONS))
       return false;
 
-   __wglGetExtensionsStringARB = (ALLEGRO_GetExtensionsStringARB_t)
-                                  wglGetProcAddress("wglGetExtensionsStringARB");
-   if (!__wglGetExtensionsStringARB)
+   _wglGetExtensionsStringARB = (_ALLEGRO_wglGetExtensionsStringARB_t)
+      wglGetProcAddress("wglGetExtensionsStringARB");
+   if (!_wglGetExtensionsStringARB)
       return false;
 
    ret = _al_ogl_look_for_an_extension(extension,
-         (const GLubyte*)__wglGetExtensionsStringARB(dc));
+         (const GLubyte*)_wglGetExtensionsStringARB(dc));
 
    return ret;
 }
@@ -167,20 +167,20 @@ static HGLRC init_temp_context(HWND wnd)
 }
 
 
-static ALLEGRO_GetPixelFormatAttribivARB_t __wglGetPixelFormatAttribivARB = NULL;
-static ALLEGRO_GetPixelFormatAttribivEXT_t __wglGetPixelFormatAttribivEXT = NULL;
+static _ALLEGRO_wglGetPixelFormatAttribivARB_t _wglGetPixelFormatAttribivARB = NULL;
+static _ALLEGRO_wglGetPixelFormatAttribivEXT_t _wglGetPixelFormatAttribivEXT = NULL;
 
 static bool init_pixel_format_extensions(void)
 {
    /* Load the ARB_p_f symbol - Note, we shouldn't use the extension
     * mechanism here, because it hasn't been initialized yet!
     */
-   __wglGetPixelFormatAttribivARB =
-      (ALLEGRO_GetPixelFormatAttribivARB_t)wglGetProcAddress("wglGetPixelFormatAttribivARB");
-   __wglGetPixelFormatAttribivEXT = 
-      (ALLEGRO_GetPixelFormatAttribivEXT_t)wglGetProcAddress("wglGetPixelFormatAttribivEXT");
+   _wglGetPixelFormatAttribivARB =
+      (_ALLEGRO_wglGetPixelFormatAttribivARB_t)wglGetProcAddress("wglGetPixelFormatAttribivARB");
+   _wglGetPixelFormatAttribivEXT = 
+      (_ALLEGRO_wglGetPixelFormatAttribivEXT_t)wglGetProcAddress("wglGetPixelFormatAttribivEXT");
 
-   if (!__wglGetPixelFormatAttribivARB && !__wglGetPixelFormatAttribivEXT) {
+   if (!_wglGetPixelFormatAttribivARB && !_wglGetPixelFormatAttribivEXT) {
       ALLEGRO_ERROR("WGL_ARB/EXT_pf not supported.\n");
       return false;
    }
@@ -189,14 +189,14 @@ static bool init_pixel_format_extensions(void)
 }
 
 
-static ALLEGRO_CreateContextAttribsARB_t __wglCreateContextAttribsARB = NULL;
+static _ALLEGRO_wglCreateContextAttribsARB_t _wglCreateContextAttribsARB = NULL;
 
 static bool init_context_creation_extensions(void)
 {
-   __wglCreateContextAttribsARB =
-      (ALLEGRO_CreateContextAttribsARB_t)wglGetProcAddress("wglCreateContextAttribsARB");
+   _wglCreateContextAttribsARB =
+      (_ALLEGRO_wglCreateContextAttribsARB_t)wglGetProcAddress("wglCreateContextAttribsARB");
 
-   if (!__wglCreateContextAttribsARB) {
+   if (!_wglCreateContextAttribsARB) {
       ALLEGRO_ERROR("wglCreateContextAttribs not supported!\n");
       return false;
    }
@@ -226,8 +226,8 @@ static int get_pixel_formats_count_ext(HDC dc)
    int value[1];
 
    attrib[0] = WGL_NUMBER_PIXEL_FORMATS_ARB;
-   if ((__wglGetPixelFormatAttribivARB(dc, 0, 0, 1, attrib, value) == GL_FALSE)
-    && (__wglGetPixelFormatAttribivEXT(dc, 0, 0, 1, attrib, value) == GL_FALSE)) {
+   if ((_wglGetPixelFormatAttribivARB(dc, 0, 0, 1, attrib, value) == GL_FALSE)
+    && (_wglGetPixelFormatAttribivEXT(dc, 0, 0, 1, attrib, value) == GL_FALSE)) {
         ALLEGRO_ERROR("WGL_ARB/EXT_pixel_format use failed! %s\n",
                        get_error_desc(GetLastError()));
    }
@@ -533,11 +533,11 @@ static ALLEGRO_EXTRA_DISPLAY_SETTINGS* read_pixel_format_ext(int fmt, HDC dc)
    }
 
    /* Get the pf attributes */
-   if (__wglGetPixelFormatAttribivARB) {
-      ret = __wglGetPixelFormatAttribivARB(dc, fmt+1, 0, num_attribs, attrib, value);
+   if (_wglGetPixelFormatAttribivARB) {
+      ret = _wglGetPixelFormatAttribivARB(dc, fmt+1, 0, num_attribs, attrib, value);
    }
-   else if (__wglGetPixelFormatAttribivEXT) {
-      ret = __wglGetPixelFormatAttribivEXT(dc, fmt+1, 0, num_attribs, attrib, value);
+   else if (_wglGetPixelFormatAttribivEXT) {
+      ret = _wglGetPixelFormatAttribivEXT(dc, fmt+1, 0, num_attribs, attrib, value);
    }
    else {
       ret = 0;
@@ -674,7 +674,7 @@ static HGLRC init_ogl_context_ex(HDC dc, int fc, int major, int minor)
       if (!init_context_creation_extensions())
          goto bail;
       /* TODO: we could use the context sharing feature */
-      glrc = __wglCreateContextAttribsARB(dc, 0, attrib);
+      glrc = _wglCreateContextAttribsARB(dc, 0, attrib);
    }
    else
       goto bail;
@@ -687,7 +687,7 @@ bail:
 
    wglMakeCurrent(old_dc, old_rc);
 
-   __wglCreateContextAttribsARB = NULL;
+   _wglCreateContextAttribsARB = NULL;
 
    if (testwnd) {
       ReleaseDC(testwnd, testdc);
@@ -777,8 +777,8 @@ bail:
 
    wglMakeCurrent(old_dc, old_rc);
 
-   __wglGetPixelFormatAttribivARB = NULL;
-   __wglGetPixelFormatAttribivEXT = NULL;
+   _wglGetPixelFormatAttribivARB = NULL;
+   _wglGetPixelFormatAttribivEXT = NULL;
 
    if (testwnd) {
       ReleaseDC(testwnd, testdc);

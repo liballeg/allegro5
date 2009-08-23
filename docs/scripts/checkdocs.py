@@ -163,8 +163,8 @@ def check_undocumented_functions():
             else:
                 if link and not link.startswith("GL") and \
                     not link.startswith("gl") and \
-                    not link.startswith("__al_gl") and \
-                    not link.startswith("__ALLEGRO_gl") and \
+                    not link.startswith("_al_gl") and \
+                    not link.startswith("_ALLEGRO_gl") and \
                     not link.startswith("_ALLEGRO_GL") and \
                     not link.startswith("ALLEGRO_"):
                     others.append(link)
