@@ -260,8 +260,8 @@ typedef enum {
 extern void _al_set_error(int error, char* string);
 
 /* Supposedly internal */
-A5_KCM_AUDIO_FUNC(int, _al_kcm_get_silence, (ALLEGRO_AUDIO_DEPTH depth));
-A5_KCM_AUDIO_FUNC(void*, _al_kcm_feed_stream, (ALLEGRO_THREAD *self, void *vstream));
+ALLEGRO_KCM_AUDIO_FUNC(int, _al_kcm_get_silence, (ALLEGRO_AUDIO_DEPTH depth));
+ALLEGRO_KCM_AUDIO_FUNC(void*, _al_kcm_feed_stream, (ALLEGRO_THREAD *self, void *vstream));
 
 /* Helper to emit an event that the stream has got a buffer ready to be refilled. */
 bool _al_kcm_emit_stream_event(ALLEGRO_STREAM *stream, unsigned long count);
@@ -271,10 +271,10 @@ void _al_kcm_shutdown_destructors(void);
 void _al_kcm_register_destructor(void *object, void (*func)(void*));
 void _al_kcm_unregister_destructor(void *object);
 
-A5_KCM_AUDIO_FUNC(void, _al_kcm_shutdown_default_mixer, (void));
+ALLEGRO_KCM_AUDIO_FUNC(void, _al_kcm_shutdown_default_mixer, (void));
 
-A5_KCM_AUDIO_FUNC(ALLEGRO_CHANNEL_CONF, _al_count_to_channel_conf, (int num_channels));
-A5_KCM_AUDIO_FUNC(ALLEGRO_AUDIO_DEPTH, _al_word_size_to_depth_conf, (int word_size));
+ALLEGRO_KCM_AUDIO_FUNC(ALLEGRO_CHANNEL_CONF, _al_count_to_channel_conf, (int num_channels));
+ALLEGRO_KCM_AUDIO_FUNC(ALLEGRO_AUDIO_DEPTH, _al_word_size_to_depth_conf, (int word_size));
 
 #endif
 

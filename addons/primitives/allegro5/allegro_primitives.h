@@ -5,24 +5,24 @@
 
 #if (defined ALLEGRO_MINGW32) || (defined ALLEGRO_MSVC) || (defined ALLEGRO_BCC32)
 #ifndef ALLEGRO_STATICLINK
-#ifdef A5_PRIMITIVES_SRC
-#define _A5_PRIM_DLL __declspec(dllexport)
+#ifdef ALLEGRO_PRIMITIVES_SRC
+#define _ALLEGRO_PRIM_DLL __declspec(dllexport)
 #else
-#define _A5_PRIM_DLL __declspec(dllimport)
+#define _ALLEGRO_PRIM_DLL __declspec(dllimport)
 #endif
 #else
-#define _A5_PRIM_DLL
+#define _ALLEGRO_PRIM_DLL
 #endif
 #endif
 
 #if defined ALLEGRO_MSVC
-#define A5_PRIM_FUNC(type, name, args)      _A5_PRIM_DLL type __cdecl name args
+#define ALLEGRO_PRIM_FUNC(type, name, args)      _ALLEGRO_PRIM_DLL type __cdecl name args
 #elif defined ALLEGRO_MINGW32
-#define A5_PRIM_FUNC(type, name, args)      extern type name args
+#define ALLEGRO_PRIM_FUNC(type, name, args)      extern type name args
 #elif defined ALLEGRO_BCC32
-#define A5_PRIM_FUNC(type, name, args)      extern _A5_PRIM_DLL type name args
+#define ALLEGRO_PRIM_FUNC(type, name, args)      extern _ALLEGRO_PRIM_DLL type name args
 #else
-#define A5_PRIM_FUNC      AL_FUNC
+#define ALLEGRO_PRIM_FUNC      AL_FUNC
 #endif
 
 #ifdef __cplusplus
@@ -81,28 +81,28 @@ struct ALLEGRO_TRANSFORM {
 };
 
 
-A5_PRIM_FUNC(uint32_t, al_get_allegro_primitives_version, (void));
+ALLEGRO_PRIM_FUNC(uint32_t, al_get_allegro_primitives_version, (void));
 
    
 /*
 * Primary Functions
 */
-A5_PRIM_FUNC(int, al_draw_prim, (ALLEGRO_VERTEX* vtxs, ALLEGRO_BITMAP* texture, int start, int end, int type));
-A5_PRIM_FUNC(int, al_draw_indexed_prim, (ALLEGRO_VERTEX* vtxs, ALLEGRO_BITMAP* texture, const int* indices, int num_vtx, int type));
+ALLEGRO_PRIM_FUNC(int, al_draw_prim, (ALLEGRO_VERTEX* vtxs, ALLEGRO_BITMAP* texture, int start, int end, int type));
+ALLEGRO_PRIM_FUNC(int, al_draw_indexed_prim, (ALLEGRO_VERTEX* vtxs, ALLEGRO_BITMAP* texture, const int* indices, int num_vtx, int type));
 
 
-A5_PRIM_FUNC(ALLEGRO_COLOR, al_get_allegro_color, (ALLEGRO_PRIM_COLOR col));
-A5_PRIM_FUNC(ALLEGRO_PRIM_COLOR, al_get_prim_color, (ALLEGRO_COLOR col));
+ALLEGRO_PRIM_FUNC(ALLEGRO_COLOR, al_get_allegro_color, (ALLEGRO_PRIM_COLOR col));
+ALLEGRO_PRIM_FUNC(ALLEGRO_PRIM_COLOR, al_get_prim_color, (ALLEGRO_COLOR col));
 
 /*
 * Custom primitives
 */
-A5_PRIM_FUNC(void, al_draw_soft_triangle, (ALLEGRO_VERTEX* v1, ALLEGRO_VERTEX* v2, ALLEGRO_VERTEX* v3, uintptr_t state,
+ALLEGRO_PRIM_FUNC(void, al_draw_soft_triangle, (ALLEGRO_VERTEX* v1, ALLEGRO_VERTEX* v2, ALLEGRO_VERTEX* v3, uintptr_t state,
                                            void (*init)(uintptr_t, ALLEGRO_VERTEX*, ALLEGRO_VERTEX*, ALLEGRO_VERTEX*),
                                            void (*first)(uintptr_t, int, int, int, int),
                                            void (*step)(uintptr_t, int), 
                                            void (*draw)(uintptr_t, int, int, int)));
-A5_PRIM_FUNC(void, al_draw_soft_line, (ALLEGRO_VERTEX* v1, ALLEGRO_VERTEX* v2, uintptr_t state,
+ALLEGRO_PRIM_FUNC(void, al_draw_soft_line, (ALLEGRO_VERTEX* v1, ALLEGRO_VERTEX* v2, uintptr_t state,
                                        void (*first)(uintptr_t, int, int, ALLEGRO_VERTEX*, ALLEGRO_VERTEX*),
                                        void (*step)(uintptr_t, int), 
                                        void (*draw)(uintptr_t, int, int)));
@@ -111,43 +111,43 @@ A5_PRIM_FUNC(void, al_draw_soft_line, (ALLEGRO_VERTEX* v1, ALLEGRO_VERTEX* v2, u
 /*
 * Transformations
 */
-A5_PRIM_FUNC(void, al_use_transform, (const ALLEGRO_TRANSFORM* trans));
-A5_PRIM_FUNC(void, al_copy_transform, (const ALLEGRO_TRANSFORM* src, ALLEGRO_TRANSFORM* dest));
-A5_PRIM_FUNC(void, al_identity_transform, (ALLEGRO_TRANSFORM* trans));
-A5_PRIM_FUNC(void, al_build_transform, (ALLEGRO_TRANSFORM* trans, float x, float y, float sx, float sy, float theta));
-A5_PRIM_FUNC(void, al_translate_transform, (ALLEGRO_TRANSFORM* trans, float x, float y));
-A5_PRIM_FUNC(void, al_rotate_transform, (ALLEGRO_TRANSFORM* trans, float theta));
-A5_PRIM_FUNC(void, al_scale_transform, (ALLEGRO_TRANSFORM* trans, float sx, float sy));
-A5_PRIM_FUNC(void, al_transform_vertex, (const ALLEGRO_TRANSFORM* trans, ALLEGRO_VERTEX* vtx));
-A5_PRIM_FUNC(void, al_transform_transform, (const ALLEGRO_TRANSFORM* trans, ALLEGRO_TRANSFORM* trans2));
-A5_PRIM_FUNC(const ALLEGRO_TRANSFORM*, al_get_current_transform, (void));
-A5_PRIM_FUNC(void, al_invert_transform, (ALLEGRO_TRANSFORM *trans));
-A5_PRIM_FUNC(int, al_check_inverse, (const ALLEGRO_TRANSFORM *trans, float tol));
+ALLEGRO_PRIM_FUNC(void, al_use_transform, (const ALLEGRO_TRANSFORM* trans));
+ALLEGRO_PRIM_FUNC(void, al_copy_transform, (const ALLEGRO_TRANSFORM* src, ALLEGRO_TRANSFORM* dest));
+ALLEGRO_PRIM_FUNC(void, al_identity_transform, (ALLEGRO_TRANSFORM* trans));
+ALLEGRO_PRIM_FUNC(void, al_build_transform, (ALLEGRO_TRANSFORM* trans, float x, float y, float sx, float sy, float theta));
+ALLEGRO_PRIM_FUNC(void, al_translate_transform, (ALLEGRO_TRANSFORM* trans, float x, float y));
+ALLEGRO_PRIM_FUNC(void, al_rotate_transform, (ALLEGRO_TRANSFORM* trans, float theta));
+ALLEGRO_PRIM_FUNC(void, al_scale_transform, (ALLEGRO_TRANSFORM* trans, float sx, float sy));
+ALLEGRO_PRIM_FUNC(void, al_transform_vertex, (const ALLEGRO_TRANSFORM* trans, ALLEGRO_VERTEX* vtx));
+ALLEGRO_PRIM_FUNC(void, al_transform_transform, (const ALLEGRO_TRANSFORM* trans, ALLEGRO_TRANSFORM* trans2));
+ALLEGRO_PRIM_FUNC(const ALLEGRO_TRANSFORM*, al_get_current_transform, (void));
+ALLEGRO_PRIM_FUNC(void, al_invert_transform, (ALLEGRO_TRANSFORM *trans));
+ALLEGRO_PRIM_FUNC(int, al_check_inverse, (const ALLEGRO_TRANSFORM *trans, float tol));
 
 /*
 *High level primitives
 */
-A5_PRIM_FUNC(void, al_draw_line, (float x1, float y1, float x2, float y2, ALLEGRO_COLOR color, float thickness));
-A5_PRIM_FUNC(void, al_draw_triangle, (float x1, float y1, float x2, float y2, float x3, float y3, ALLEGRO_COLOR color, float thickness));
-A5_PRIM_FUNC(void, al_draw_rectangle, (float x1, float y1, float x2, float y2, ALLEGRO_COLOR color, float thickness));
-A5_PRIM_FUNC(void, al_draw_rounded_rectangle, (float x1, float y1, float x2, float y2, float rx, float ry, ALLEGRO_COLOR color, float thickness));
+ALLEGRO_PRIM_FUNC(void, al_draw_line, (float x1, float y1, float x2, float y2, ALLEGRO_COLOR color, float thickness));
+ALLEGRO_PRIM_FUNC(void, al_draw_triangle, (float x1, float y1, float x2, float y2, float x3, float y3, ALLEGRO_COLOR color, float thickness));
+ALLEGRO_PRIM_FUNC(void, al_draw_rectangle, (float x1, float y1, float x2, float y2, ALLEGRO_COLOR color, float thickness));
+ALLEGRO_PRIM_FUNC(void, al_draw_rounded_rectangle, (float x1, float y1, float x2, float y2, float rx, float ry, ALLEGRO_COLOR color, float thickness));
 
-A5_PRIM_FUNC(void, al_calculate_arc, (float* dest, int stride, float cx, float cy, float rx, float ry, float start_theta, float delta_theta, float thickness, int num_segments));
-A5_PRIM_FUNC(void, al_draw_circle, (float cx, float cy, float r, ALLEGRO_COLOR color, float thickness));
-A5_PRIM_FUNC(void, al_draw_ellipse, (float cx, float cy, float rx, float ry, ALLEGRO_COLOR color, float thickness));
-A5_PRIM_FUNC(void, al_draw_arc, (float cx, float cy, float r, float start_theta, float delta_theta, ALLEGRO_COLOR color, float thickness));
+ALLEGRO_PRIM_FUNC(void, al_calculate_arc, (float* dest, int stride, float cx, float cy, float rx, float ry, float start_theta, float delta_theta, float thickness, int num_segments));
+ALLEGRO_PRIM_FUNC(void, al_draw_circle, (float cx, float cy, float r, ALLEGRO_COLOR color, float thickness));
+ALLEGRO_PRIM_FUNC(void, al_draw_ellipse, (float cx, float cy, float rx, float ry, ALLEGRO_COLOR color, float thickness));
+ALLEGRO_PRIM_FUNC(void, al_draw_arc, (float cx, float cy, float r, float start_theta, float delta_theta, ALLEGRO_COLOR color, float thickness));
 
-A5_PRIM_FUNC(void, al_calculate_spline, (float* dest, int stride, float points[8], float thickness, int num_segments));
-A5_PRIM_FUNC(void, al_draw_spline, (float points[8], ALLEGRO_COLOR color, float thickness));
+ALLEGRO_PRIM_FUNC(void, al_calculate_spline, (float* dest, int stride, float points[8], float thickness, int num_segments));
+ALLEGRO_PRIM_FUNC(void, al_draw_spline, (float points[8], ALLEGRO_COLOR color, float thickness));
 
-A5_PRIM_FUNC(void, al_calculate_ribbon, (float* dest, int dest_stride, const float *points, int points_stride, float thickness, int num_segments));
-A5_PRIM_FUNC(void, al_draw_ribbon, (const float *points, int points_stride, ALLEGRO_COLOR color, float thickness, int num_segments));
+ALLEGRO_PRIM_FUNC(void, al_calculate_ribbon, (float* dest, int dest_stride, const float *points, int points_stride, float thickness, int num_segments));
+ALLEGRO_PRIM_FUNC(void, al_draw_ribbon, (const float *points, int points_stride, ALLEGRO_COLOR color, float thickness, int num_segments));
 
-A5_PRIM_FUNC(void, al_draw_filled_triangle, (float x1, float y1, float x2, float y2, float x3, float y3, ALLEGRO_COLOR color));
-A5_PRIM_FUNC(void, al_draw_filled_rectangle, (float x1, float y1, float x2, float y2, ALLEGRO_COLOR color));
-A5_PRIM_FUNC(void, al_draw_filled_ellipse, (float cx, float cy, float rx, float ry, ALLEGRO_COLOR color));
-A5_PRIM_FUNC(void, al_draw_filled_circle, (float cx, float cy, float r, ALLEGRO_COLOR color));
-A5_PRIM_FUNC(void, al_draw_filled_rounded_rectangle, (float x1, float y1, float x2, float y2, float rx, float ry, ALLEGRO_COLOR color));
+ALLEGRO_PRIM_FUNC(void, al_draw_filled_triangle, (float x1, float y1, float x2, float y2, float x3, float y3, ALLEGRO_COLOR color));
+ALLEGRO_PRIM_FUNC(void, al_draw_filled_rectangle, (float x1, float y1, float x2, float y2, ALLEGRO_COLOR color));
+ALLEGRO_PRIM_FUNC(void, al_draw_filled_ellipse, (float cx, float cy, float rx, float ry, ALLEGRO_COLOR color));
+ALLEGRO_PRIM_FUNC(void, al_draw_filled_circle, (float cx, float cy, float r, ALLEGRO_COLOR color));
+ALLEGRO_PRIM_FUNC(void, al_draw_filled_rounded_rectangle, (float x1, float y1, float x2, float y2, float rx, float ry, ALLEGRO_COLOR color));
    
    
 #ifdef __cplusplus
