@@ -330,6 +330,12 @@ bool al_set_current_display(ALLEGRO_DISPLAY *display)
    if ((tls = tls_get()) == NULL)
       return false;
 
+   if (tls->current_display &&
+         tls->current_display->vt->unset_current_display) {
+      tls->current_display->vt->unset_current_display(tls->current_display);
+      tls->current_display = NULL;
+   }
+
    if (display) {
       if (display->vt->set_current_display(display)) {
          tls->current_display = display;
@@ -341,7 +347,7 @@ bool al_set_current_display(ALLEGRO_DISPLAY *display)
       }
    }
    else {
-      tls->current_display = display;
+      tls->current_display = NULL;
    }
 
    return true;

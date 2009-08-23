@@ -382,6 +382,9 @@ The only time this function is useful is if you
 are using multiple windows and need accelerated blitting of the same
 bitmaps to both. 
 
+Returns true if the bitmap is compatible with the current display,
+false otherwise. If there is no current display, false is returned.
+
 ### API: al_is_sub_bitmap
 
 Returns true if the specified bitmap is a sub-bitmap, false otherwise.

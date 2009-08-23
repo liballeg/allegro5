@@ -517,6 +517,16 @@ static bool xdpy_set_current_display(ALLEGRO_DISPLAY *d)
 
 
 
+static void xdpy_unset_current_display(ALLEGRO_DISPLAY *d)
+{
+   ALLEGRO_SYSTEM_XGLX *system = (ALLEGRO_SYSTEM_XGLX *)al_system_driver();
+   (void)d;
+
+   glXMakeContextCurrent(system->gfxdisplay, None, None, NULL);
+}
+
+
+
 /* Dummy implementation of flip. */
 static void xdpy_flip_display(ALLEGRO_DISPLAY *d)
 {
@@ -778,6 +788,7 @@ ALLEGRO_DISPLAY_INTERFACE *_al_display_xglx_driver(void)
    xdpy_vt.create_display = xdpy_create_display;
    xdpy_vt.destroy_display = xdpy_destroy_display;
    xdpy_vt.set_current_display = xdpy_set_current_display;
+   xdpy_vt.unset_current_display = xdpy_unset_current_display;
    xdpy_vt.flip_display = xdpy_flip_display;
    xdpy_vt.update_display_region = xdpy_update_display_region;
    xdpy_vt.acknowledge_resize = xdpy_acknowledge_resize;

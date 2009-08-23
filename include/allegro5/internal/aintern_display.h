@@ -19,6 +19,7 @@ struct ALLEGRO_DISPLAY_INTERFACE
    ALLEGRO_DISPLAY *(*create_display)(int w, int h);
    void (*destroy_display)(ALLEGRO_DISPLAY *display);
    bool (*set_current_display)(ALLEGRO_DISPLAY *d);
+   void (*unset_current_display)(ALLEGRO_DISPLAY *d);
    void (*clear)(ALLEGRO_DISPLAY *d, ALLEGRO_COLOR *color);
    void (*draw_pixel)(ALLEGRO_DISPLAY *d, float x, float y, ALLEGRO_COLOR *color);
    void (*flip_display)(ALLEGRO_DISPLAY *d);

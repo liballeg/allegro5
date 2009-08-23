@@ -251,6 +251,7 @@ See also: [al_get_frontbuffer]
 ### API: al_get_current_display
 
 Query for the current display in the calling thread.
+Returns NULL if there is none.
 
 See also: [al_set_current_display]
 
@@ -320,8 +321,14 @@ See also: [al_acknowledge_resize]
 ### API: al_set_current_display
 
 Change the current display for the calling thread.
-Also sets the target bitmap to the display's
-backbuffer. Returns true on success.
+Also sets the target bitmap to the display's backbuffer.
+
+A display may not be "current" for multiple threads simultaneously.
+To stop a display being current for the calling thread, call
+`al_set_current_display(NULL)`.  Then the display may be made current
+by another thread.
+
+Returns true on success.
 
 See also: [al_get_current_display]
 

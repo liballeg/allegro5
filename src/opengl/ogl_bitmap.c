@@ -292,7 +292,7 @@ static void ogl_draw_bitmap(ALLEGRO_BITMAP *bitmap, float x, float y,
    // FIXME: need format conversion if they don't match
    ALLEGRO_BITMAP *target = al_get_target_bitmap();
    ALLEGRO_BITMAP_OGL *ogl_target = (ALLEGRO_BITMAP_OGL *)target;
-   ALLEGRO_DISPLAY *disp = (void *)al_get_current_display();
+   ALLEGRO_DISPLAY *disp = al_get_current_display();
    if (disp->ogl_extras->opengl_target != ogl_target ||
       !setup_blending(disp) || target->locked) {
       _al_draw_bitmap_memory(bitmap, x, y, flags);
@@ -318,7 +318,7 @@ static void ogl_draw_scaled_bitmap(ALLEGRO_BITMAP *bitmap, float sx, float sy,
    // FIXME: need format conversion if they don't match
    ALLEGRO_BITMAP *target = al_get_target_bitmap();
    ALLEGRO_BITMAP_OGL *ogl_target = (ALLEGRO_BITMAP_OGL *)target;
-   ALLEGRO_DISPLAY *disp = (void *)al_get_current_display();
+   ALLEGRO_DISPLAY *disp = al_get_current_display();
    if (disp->ogl_extras->opengl_target != ogl_target ||
       !setup_blending(disp) || target->locked) {
       _al_draw_scaled_bitmap_memory(bitmap, sx, sy, sw, sh, dx, dy, dw, dh,
@@ -344,7 +344,7 @@ static void ogl_draw_bitmap_region(ALLEGRO_BITMAP *bitmap, float sx, float sy,
    // FIXME: need format conversion if they don't match
    ALLEGRO_BITMAP *target = al_get_target_bitmap();
    ALLEGRO_BITMAP_OGL *ogl_target = (ALLEGRO_BITMAP_OGL *)target;
-   ALLEGRO_DISPLAY *disp = (void *)al_get_current_display();
+   ALLEGRO_DISPLAY *disp = al_get_current_display();
    
    /* For sub-bitmaps */
    if (target->parent) {
@@ -418,7 +418,7 @@ static void ogl_draw_rotated_bitmap(ALLEGRO_BITMAP *bitmap, float cx, float cy,
    // FIXME: need format conversion if they don't match
    ALLEGRO_BITMAP *target = al_get_target_bitmap();
    ALLEGRO_BITMAP_OGL *ogl_target = (ALLEGRO_BITMAP_OGL *)target;
-   ALLEGRO_DISPLAY *disp = (void *)al_get_current_display();
+   ALLEGRO_DISPLAY *disp = al_get_current_display();
    if (disp->ogl_extras->opengl_target != ogl_target ||
       !setup_blending(disp) || target->locked) {
       _al_draw_rotated_bitmap_memory(bitmap, cx, cy, dx, dy, angle, flags);
@@ -445,7 +445,7 @@ static void ogl_draw_rotated_scaled_bitmap(ALLEGRO_BITMAP *bitmap,
    // FIXME: need format conversion if they don't match
    ALLEGRO_BITMAP *target = al_get_target_bitmap();
    ALLEGRO_BITMAP_OGL *ogl_target = (ALLEGRO_BITMAP_OGL *)target;
-   ALLEGRO_DISPLAY *disp = (void *)al_get_current_display();
+   ALLEGRO_DISPLAY *disp = al_get_current_display();
    if (disp->ogl_extras->opengl_target != ogl_target ||
       !setup_blending(disp) || target->locked) {
       _al_draw_rotated_scaled_bitmap_memory(bitmap, cx, cy, dx, dy,
@@ -529,7 +529,7 @@ static bool ogl_upload_bitmap(ALLEGRO_BITMAP *bitmap)
 static void ogl_update_clipping_rectangle(ALLEGRO_BITMAP *bitmap)
 {
    ALLEGRO_DISPLAY *display = al_get_current_display();
-   ALLEGRO_DISPLAY *ogl_disp = (void *)display;
+   ALLEGRO_DISPLAY *ogl_disp = display;
    ALLEGRO_BITMAP_OGL *ogl_bitmap = (void *)bitmap;
 
    if (ogl_disp->ogl_extras->opengl_target == ogl_bitmap) {

@@ -229,9 +229,11 @@ bool al_is_compatible_bitmap(ALLEGRO_BITMAP *bitmap)
 {
    ALLEGRO_DISPLAY *display = al_get_current_display();
    ASSERT(bitmap);
-   ASSERT(display);
 
-   return display->vt->is_compatible_bitmap(display, bitmap);
+   if (display)
+      return display->vt->is_compatible_bitmap(display, bitmap);
+   else
+      return false;
 }
 
 
@@ -449,6 +451,7 @@ int al_get_num_video_adapters(void)
    return 0;
 }
 
+
 /* Function: al_get_monitor_info
  */
 void al_get_monitor_info(int adapter, ALLEGRO_MONITOR_INFO *info)
@@ -473,12 +476,14 @@ int al_get_current_video_adapter(void)
    return current_video_adapter;
 }
 
+
 /* Function: al_set_current_video_adapter
  */
 void al_set_current_video_adapter(int adapter)
 {
    current_video_adapter = adapter;
 }
+
 
 /* Function: al_set_new_window_position
  */
@@ -487,6 +492,7 @@ void al_set_new_window_position(int x, int y)
    new_window_x = x;
    new_window_y = y;
 }
+
 
 /* Function: al_get_new_window_position
  */
@@ -497,6 +503,7 @@ void al_get_new_window_position(int *x, int *y)
    if (y)
       *y = new_window_y;
 }
+
 
 /* Function: al_set_window_position
  */
@@ -513,6 +520,7 @@ void al_set_window_position(ALLEGRO_DISPLAY *display, int x, int y)
    }
 }
 
+
 /* Function: al_get_window_position
  */
 void al_get_window_position(ALLEGRO_DISPLAY *display, int *x, int *y)
@@ -527,6 +535,7 @@ void al_get_window_position(ALLEGRO_DISPLAY *display, int *x, int *y)
       *x = *y = -1;
    }
 }
+
 
 /* Function: al_toggle_window_frame
  */
@@ -543,6 +552,7 @@ void al_toggle_window_frame(ALLEGRO_DISPLAY *display, bool onoff)
    }
 }
 
+
 /* Function: al_set_window_title
  */
 void al_set_window_title(AL_CONST char *title)
@@ -553,9 +563,13 @@ void al_set_window_title(AL_CONST char *title)
       current_display->vt->set_window_title(current_display, title);
 }
 
+
 /* Function: al_get_display_event_source
  */
 ALLEGRO_EVENT_SOURCE *al_get_display_event_source(ALLEGRO_DISPLAY *display)
 {
    return &display->es;
 }
+
+
+/* vim: set sts=3 sw=3 et: */
