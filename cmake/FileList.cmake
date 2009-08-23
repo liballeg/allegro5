@@ -340,7 +340,6 @@ set(ALLEGRO_INCLUDE_ALLEGRO_INTERNAL_FILES
     include/allegro5/internal/aintern_system.h
     include/allegro5/internal/aintern_thread.h
     include/allegro5/internal/aintern_vector.h
-    include/allegro5/internal/aintvga.h
     include/allegro5/internal/alconfig.h
     )
 
@@ -364,11 +363,8 @@ set(ALLEGRO_INCLUDE_ALLEGRO_OPENGL_GLEXT_FILES
    )
 
 set(ALLEGRO_INCLUDE_ALLEGRO_PLATFORM_FILES
-    include/allegro5/platform/aintbeos.h
-    include/allegro5/platform/aintdos.h
     include/allegro5/platform/aintlnx.h
     include/allegro5/platform/aintosx.h
-    include/allegro5/platform/aintqnx.h
     include/allegro5/platform/aintunix.h
     include/allegro5/platform/aintuthr.h
     include/allegro5/platform/aintwin.h
@@ -377,16 +373,10 @@ set(ALLEGRO_INCLUDE_ALLEGRO_PLATFORM_FILES
     include/allegro5/platform/al386vc.h
     include/allegro5/platform/al386wat.h
     include/allegro5/platform/albcc32.h
-    include/allegro5/platform/albecfg.h
-    include/allegro5/platform/albeos.h
-    include/allegro5/platform/aldjgpp.h
-    include/allegro5/platform/aldos.h
     include/allegro5/platform/almngw32.h
     include/allegro5/platform/almsvc.h
     include/allegro5/platform/alosx.h
     include/allegro5/platform/alosxcfg.h
-    include/allegro5/platform/alqnx.h
-    include/allegro5/platform/alqnxcfg.h
     include/allegro5/platform/alucfg.h
     include/allegro5/platform/alunix.h
     include/allegro5/platform/alwatcom.h

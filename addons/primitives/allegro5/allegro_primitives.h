@@ -120,7 +120,7 @@ A5_PRIM_FUNC(void, al_rotate_transform, (ALLEGRO_TRANSFORM* trans, float theta))
 A5_PRIM_FUNC(void, al_scale_transform, (ALLEGRO_TRANSFORM* trans, float sx, float sy));
 A5_PRIM_FUNC(void, al_transform_vertex, (const ALLEGRO_TRANSFORM* trans, ALLEGRO_VERTEX* vtx));
 A5_PRIM_FUNC(void, al_transform_transform, (const ALLEGRO_TRANSFORM* trans, ALLEGRO_TRANSFORM* trans2));
-A5_PRIM_FUNC(const ALLEGRO_TRANSFORM*, al_get_current_transform, ());
+A5_PRIM_FUNC(const ALLEGRO_TRANSFORM*, al_get_current_transform, (void));
 A5_PRIM_FUNC(void, al_invert_transform, (ALLEGRO_TRANSFORM *trans));
 A5_PRIM_FUNC(int, al_check_inverse, (const ALLEGRO_TRANSFORM *trans, float tol));
 
