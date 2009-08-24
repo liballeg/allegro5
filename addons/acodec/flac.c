@@ -257,8 +257,10 @@ static size_t flac_stream_update(ALLEGRO_STREAM *stream, void *data,
    size_t buf_size)
 {
    int bytes_per_sample;
-   uint64_t wanted_samples, read_samples;
-   size_t written_bytes = 0, read_bytes;
+   uint64_t wanted_samples;
+   uint64_t read_samples;
+   size_t written_bytes = 0;
+   size_t read_bytes;
    FLACFILE *ff = (FLACFILE *)stream->extra;
 
    bytes_per_sample = ff->sample_size * ff->channels;
@@ -278,20 +280,21 @@ static size_t flac_stream_update(ALLEGRO_STREAM *stream, void *data,
        * buffer keeps growing - so only refill when needed.
        */
       if (!read_samples) {
-         if (!FLAC__stream_decoder_process_single(ff->decoder)) break;
+         if (!FLAC__stream_decoder_process_single(ff->decoder))
+            break;
          read_samples = ff->decoded_samples - ff->streamed_samples;
          if (!read_samples) {
             break;
          }
       }
 
-      if (read_samples > wanted_samples) read_samples = wanted_samples;
+      if (read_samples > wanted_samples)
+         read_samples = wanted_samples;
       ff->streamed_samples += read_samples;
       wanted_samples -= read_samples;
       read_bytes = read_samples * bytes_per_sample;
       /* Copy data from the FLAC file buffer to the stream buffer. */
-      memcpy(data, ff->buffer, read_bytes);
-      data += read_bytes;
+      memcpy((uint8_t *)data + written_bytes, ff->buffer, read_bytes);
       /* Make room in the FLACFILE buffer. */
       memmove(ff->buffer, ff->buffer + read_bytes,
          ff->buffer_pos - read_bytes);
@@ -404,7 +407,7 @@ static FLACFILE *flac_open(char const *filename)
    ALLEGRO_INFO("    channels %d\n", ff->channels);
    ALLEGRO_INFO("    sample_size %d\n", ff->sample_size);
    ALLEGRO_INFO("    rate %.f\n", ff->sample_rate);
-   ALLEGRO_INFO("    total_samples %ld\n", ff->total_samples);
+   ALLEGRO_INFO("    total_samples %ld\n", (long) ff->total_samples);
 
    return ff;
 error:
