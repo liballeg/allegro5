@@ -18,7 +18,7 @@ typedef struct {
 
 #define MARGIN_LEFT  20
 #define MARGIN_TOP   20
-#define NUM_CURSORS  21
+#define NUM_CURSORS  20
 
 CursorList cursor_list[NUM_CURSORS] =
 {
