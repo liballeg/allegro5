@@ -1,4 +1,5 @@
 #include "allegro5/internal/aintern_xglx.h"
+#include "allegro5/internal/aintern_pixels.h"
 
 ALLEGRO_DEBUG_CHANNEL("display")
 
@@ -401,6 +402,7 @@ static void select_best_visual(ALLEGRO_DISPLAY_XGLX *glx)
    }
    else
       glx->xvinfo = eds[0]->info;
+   ALLEGRO_INFO("Corresponding X11 visual id: %lu\n", glx->xvinfo->visualid);
    memcpy(&glx->display.extra_settings, eds[0], sizeof(ALLEGRO_EXTRA_DISPLAY_SETTINGS));
 }
 

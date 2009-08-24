@@ -451,6 +451,7 @@ AL_ARRAY(int, _al_rgb_scale_4);
 AL_ARRAY(int, _al_rgb_scale_5);
 AL_ARRAY(int, _al_rgb_scale_6);
 AL_ARRAY(float, _al_u8_to_float);
+AL_FUNC(char const *, _al_format_name, (ALLEGRO_PIXEL_FORMAT format));
 AL_FUNC(void, _al_init_pixels, (void));
 
 #endif /* __al_included_aintern_pixels_h */

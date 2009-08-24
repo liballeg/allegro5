@@ -136,6 +136,37 @@ static bool format_alpha_table[ALLEGRO_NUM_PIXEL_FORMATS] = {
    true /* ALLEGRO_PIXEL_FORMAT_RGBA_4444 */
 };
 
+char const *pixel_format_names[ALLEGRO_NUM_PIXEL_FORMATS + 1] = {
+   "ANY",
+   "ANY_NO_ALPHA",
+   "ANY_WITH_ALPHA",
+   "ANY_15_NO_ALPHA",
+   "ANY_16_NO_ALPHA",
+   "ANY_16_WITH_ALPHA",
+   "ANY_24_NO_ALPHA",
+   "ANY_32_NO_ALPHA",
+   "ANY_32_WITH_ALPHA",
+   "ARGB_8888",
+   "RGBA_8888",
+   "ARGB_4444",
+   "RGB_888",
+   "RGB_565",
+   "RGB_555",
+   "RGBA_5551",
+   "ARGB_1555",
+   "ABGR_8888",
+   "XBGR_8888",
+   "BGR_888",
+   "BGR_565",
+   "BGR_555",
+   "RGBX_8888",
+   "XRGB_8888",
+   "ABGR_F32",
+   "ABGR_8888_LE",
+   "RGBA_4444",
+   "INVALID"
+};
+
 bool _al_format_has_alpha(int format)
 {
    return format_alpha_table[format];
@@ -509,6 +540,12 @@ void _al_init_pixels(void)
 
    for (i = 0; i < 64; i++)
       _al_rgb_scale_6[i] = i * 255 / 63;
+}
+
+char const *_al_format_name(ALLEGRO_PIXEL_FORMAT format)
+{
+   if (format >= ALLEGRO_NUM_PIXEL_FORMATS) format = ALLEGRO_NUM_PIXEL_FORMATS;
+   return pixel_format_names[format];
 }
 
 /* vim: set sts=3 sw=3 et: */

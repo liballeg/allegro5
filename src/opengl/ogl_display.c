@@ -19,6 +19,7 @@
 #include "allegro5/internal/aintern.h"
 #include "allegro5/internal/aintern_memory.h"
 #include "allegro5/internal/aintern_opengl.h"
+#include "allegro5/internal/aintern_pixels.h"
 
 #ifdef ALLEGRO_GP2XWIZ
 #include "allegro5/internal/aintern_gp2xwiz.h"
@@ -74,8 +75,8 @@ static void setup_fbo(ALLEGRO_DISPLAY *display, ALLEGRO_BITMAP *bitmap)
              * texture. So no reason to keep re-trying, output a log
              * message and switch to (extremely slow) software mode.
              */
-            ALLEGRO_ERROR("Could not use FBO for bitmap with format %d.\n",
-               bitmap->format);
+            ALLEGRO_ERROR("Could not use FBO for bitmap with format %s.\n",
+               _al_format_name(bitmap->format));
             ALLEGRO_ERROR("*** SWITCHING TO SOFTWARE MODE ***\n");
             glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
             glDeleteFramebuffersEXT(1, &ogl_bitmap->fbo);
@@ -255,7 +256,8 @@ ALLEGRO_BITMAP_OGL* _al_ogl_create_backbuffer(ALLEGRO_DISPLAY *disp)
       format = ALLEGRO_PIXEL_FORMAT_ABGR_8888;
    }
 #endif
-   ALLEGRO_TRACE_CHANNEL_LEVEL("display", 1)("Format %d used for backbuffer.\n", format);
+   ALLEGRO_TRACE_CHANNEL_LEVEL("display", 1)("Format %s used for backbuffer.\n",
+      _al_format_name(format));
    
    /* Now that the display backbuffer has a format, update extra_settings so
     * the user can query it back.
@@ -273,7 +275,9 @@ ALLEGRO_BITMAP_OGL* _al_ogl_create_backbuffer(ALLEGRO_DISPLAY *disp)
       return NULL;
    }
    
-   ALLEGRO_TRACE_CHANNEL_LEVEL("display", 1)("Created backbuffer bitmap (actual format: %d)\n", backbuffer->format);
+   ALLEGRO_TRACE_CHANNEL_LEVEL("display", 1)(
+      "Created backbuffer bitmap (actual format: %s)\n",
+      _al_format_name(backbuffer->format));
 
    ogl_backbuffer = (ALLEGRO_BITMAP_OGL*)backbuffer;
    ogl_backbuffer->is_backbuffer = 1;

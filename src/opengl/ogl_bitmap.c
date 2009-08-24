@@ -22,6 +22,7 @@
 #include "allegro5/internal/aintern.h"
 #include "allegro5/internal/aintern_memory.h"
 #include "allegro5/internal/aintern_opengl.h"
+#include "allegro5/internal/aintern_pixels.h"
 
 #if defined ALLEGRO_GP2XWIZ
 #include "allegro5/internal/aintern_gp2xwiz.h"
@@ -500,8 +501,8 @@ static bool ogl_upload_bitmap(ALLEGRO_BITMAP *bitmap)
       glformats[bitmap->format][1], bitmap->memory);
    e = glGetError();
    if (e) {
-      ALLEGRO_ERROR("glTexImage2D for format %d, size %dx%d failed (%s)\n",
-         bitmap->format,
+      ALLEGRO_ERROR("glTexImage2D for format %s, size %dx%d failed (%s)\n",
+         _al_format_name(bitmap->format),
          ogl_bitmap->true_w, ogl_bitmap->true_h,
          error_string(e));
       glDeleteTextures(1, &ogl_bitmap->texture);
@@ -605,8 +606,8 @@ static ALLEGRO_LOCKED_REGION *ogl_lock_region(ALLEGRO_BITMAP *bitmap,
             ogl_bitmap->lock_buffer);
          e = glGetError();
          if (e) {
-            ALLEGRO_ERROR("glReadPixels for format %d failed (%s).\n",
-               format, error_string(e));
+            ALLEGRO_ERROR("glReadPixels for format %s failed (%s).\n",
+               _al_format_name(format), error_string(e));
          }
       }
       bitmap->locked_region.data = ogl_bitmap->lock_buffer +
@@ -652,8 +653,8 @@ static ALLEGRO_LOCKED_REGION *ogl_lock_region(ALLEGRO_BITMAP *bitmap,
             glformats[format][1], ogl_bitmap->lock_buffer);
          e = glGetError();
          if (e) {
-            ALLEGRO_ERROR("glGetTexImage for format %d failed (%s).\n",
-               format, error_string(e));
+            ALLEGRO_ERROR("glGetTexImage for format %s failed (%s).\n",
+               _al_format_name(format), error_string(e));
          }
 
          bitmap->locked_region.data = ogl_bitmap->lock_buffer +
@@ -731,8 +732,8 @@ static void ogl_unlock_region(ALLEGRO_BITMAP *bitmap)
          ogl_bitmap->lock_buffer);
       e = glGetError();
       if (e) {
-         ALLEGRO_ERROR("glDrawPixels for format %d failed (%s).\n",
-            format, error_string(e));
+         ALLEGRO_ERROR("glDrawPixels for format %s failed (%s).\n",
+            _al_format_name(format), error_string(e));
       }
    }
    else {
@@ -763,8 +764,8 @@ static void ogl_unlock_region(ALLEGRO_BITMAP *bitmap)
             ogl_bitmap->lock_buffer);
          e = glGetError();
          if (e) {
-            ALLEGRO_ERROR("glTexSubImage2D for format %d failed (%s).\n",
-               format, error_string(e));
+            ALLEGRO_ERROR("glTexSubImage2D for format %s failed (%s).\n",
+               _al_format_name(format), error_string(e));
          }
       }
    }
@@ -822,8 +823,8 @@ static void ogl_unlock_region(ALLEGRO_BITMAP *bitmap)
             ogl_bitmap->lock_buffer);
          e = glGetError();
          if (e) {
-            ALLEGRO_ERROR("glTexSubImage2D for format %d failed (%s).\n",
-               format, error_string(e));
+            ALLEGRO_ERROR("glTexSubImage2D for format %s failed (%s).\n",
+               _al_format_name(format), error_string(e));
          }
          #endif
       }
@@ -936,7 +937,7 @@ ALLEGRO_BITMAP *_al_ogl_create_bitmap(ALLEGRO_DISPLAY *d, int w, int h)
       format = ALLEGRO_PIXEL_FORMAT_RGBA_4444;
 #endif
 
-   ALLEGRO_DEBUG("Chose format %d for OpenGL bitmap\n", format);
+   ALLEGRO_DEBUG("Chose format %s for OpenGL bitmap\n", _al_format_name(format));
 
    /* XXX do we need to take into account GL_PACK_ALIGNMENT or
     * GL_UNPACK_ALIGNMENT here?

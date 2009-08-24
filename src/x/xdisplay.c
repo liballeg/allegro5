@@ -233,7 +233,7 @@ static ALLEGRO_DISPLAY *xdpy_create_display(int w, int h)
       return NULL;
    }
 
-   ALLEGRO_INFO("Selected visual %lx.\n", d->xvinfo->visualid);
+   ALLEGRO_INFO("Selected X11 visual %lu.\n", d->xvinfo->visualid);
 
    /* Add ourself to the list of displays. */
    ALLEGRO_DISPLAY_XGLX **add;
