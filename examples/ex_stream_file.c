@@ -39,6 +39,7 @@ int main(int argc, char **argv)
    }
 
    al_init_ogg_vorbis_addon();
+   al_init_flac_addon();
 
    if (!al_install_audio(ALLEGRO_AUDIO_DRIVER_AUTODETECT)) {
        fprintf(stderr, "Could not init sound!\n");
