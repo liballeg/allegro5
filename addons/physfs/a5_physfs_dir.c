@@ -132,12 +132,20 @@ static ALLEGRO_FS_ENTRY *fs_phys_readdir(ALLEGRO_FS_ENTRY *fse)
 {
    ALLEGRO_FS_ENTRY_PHYSFS *e = (ALLEGRO_FS_ENTRY_PHYSFS *)fse;
    ALLEGRO_FS_ENTRY *next;
+   ALLEGRO_USTR *tmp;
 
+   if (!e->file_list_pos)
+      return NULL;
    if (!*e->file_list_pos)
       return NULL;
 
-   next = fs_phys_create(*e->file_list_pos);
- 
+   tmp = al_ustr_dup(e->path);
+   if (al_ustr_length(tmp) > 0)
+      al_ustr_append_chr(tmp, '/');
+   al_ustr_append_cstr(tmp, *e->file_list_pos);
+   next = fs_phys_create(al_cstr(tmp));
+   al_ustr_free(tmp);
+
    e->file_list_pos++;
 
    return next;
@@ -192,3 +200,5 @@ void _al_set_physfs_fs_interface(void)
 {
    al_set_fs_interface(&fs_phys_vtable);
 }
+
+/* vim: set sts=3 sw=3 et: */

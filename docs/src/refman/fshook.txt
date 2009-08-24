@@ -114,11 +114,12 @@ modified.
 
 Returns the entry's filename path. Note that the path will not be an
 absolute path if the entry wasn't created from an absolute path. Also not
-that the filesystem encoding may not be known and the conversion to UTF8
+that the filesystem encoding may not be known and the conversion to UTF-8
 could in very rare cases cause this to return an invalid path. Therefore it's
 always safest to access the file over its [ALLEGRO_FS_ENTRY] and not the path.
 
-Returns NULL on error.
+Returns NULL on error.  Otherwise the returned path is dynamically allocated
+and must be freed with [al_free_path].
 
 errno is set to indicate the error.
 

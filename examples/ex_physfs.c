@@ -34,6 +34,26 @@ static void show_image(ALLEGRO_BITMAP *bmp)
    al_destroy_event_queue(queue);
 }
 
+static void listdir(ALLEGRO_FS_ENTRY *entry)
+{
+   ALLEGRO_FS_ENTRY *next;
+   ALLEGRO_PATH *path;
+
+   al_opendir(entry);
+   while (1) {
+      next = al_readdir(entry);
+      if (!next)
+         break;
+
+      path = al_get_entry_name(next);
+      printf("%s\n", al_path_cstr(path, '/'));
+      al_free_path(path);
+
+      listdir(next);
+      al_destroy_entry(next);
+   }
+   al_closedir(entry);
+}
 
 int main(int argc, const char *argv[])
 {
@@ -66,19 +86,10 @@ int main(int argc, const char *argv[])
     */
    al_set_physfs_file_interface();
 
-   /* List the contents of our example zip. */
+   /* List the contents of our example zip recursively. */
    entry = al_create_entry("");
-   al_opendir(entry);
-   while (1) {
-      ALLEGRO_FS_ENTRY *next = al_readdir(entry);
-      ALLEGRO_PATH *path;
-      if (!next)
-         break;
-      path = al_get_entry_name(next);
-      printf("%s\n", al_path_cstr(path, '/'));
-      al_destroy_entry(next);
-   }
-   al_closedir(entry);
+   listdir(entry);
+   al_destroy_entry(entry);
 
    bmp = al_load_bitmap("02.bmp");
    if (bmp) {
