@@ -338,8 +338,9 @@ void Prog::handle_event(const ALLEGRO_EVENT & event)
       float pan;
 
       stream = (ALLEGRO_STREAM *) event.any.source;
-      if (!al_get_stream_fragment(stream, &buf)) {
-         abort_example("al_get_stream_fragment failed\n");
+      buf = al_get_stream_fragment(stream);
+      if (!buf) {
+         /* This is a normal condition that you must deal with. */
          return;
       }
 

@@ -259,7 +259,7 @@ ALLEGRO_KCM_AUDIO_FUNC(ALLEGRO_PLAYMODE, al_get_stream_playmode, (const ALLEGRO_
 ALLEGRO_KCM_AUDIO_FUNC(bool, al_get_stream_playing, (const ALLEGRO_STREAM *spl));
 ALLEGRO_KCM_AUDIO_FUNC(bool, al_get_stream_attached, (const ALLEGRO_STREAM *spl));
 
-ALLEGRO_KCM_AUDIO_FUNC(bool, al_get_stream_fragment, (const ALLEGRO_STREAM *stream, void **val));
+ALLEGRO_KCM_AUDIO_FUNC(void *, al_get_stream_fragment, (const ALLEGRO_STREAM *stream));
 
 ALLEGRO_KCM_AUDIO_FUNC(bool, al_set_stream_speed, (ALLEGRO_STREAM *stream, float val));
 ALLEGRO_KCM_AUDIO_FUNC(bool, al_set_stream_gain, (ALLEGRO_STREAM *stream, float val));

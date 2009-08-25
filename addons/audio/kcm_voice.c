@@ -196,8 +196,6 @@ static void stream_read(void *source, void **vbuf, unsigned long *samples,
       *samples = len;
 
    if (pos >= len) {
-      unsigned long count = 0;
-
       _al_kcm_refill_stream(stream);
       if (!stream->pending_bufs[0]) {
          if (stream->is_draining) {
@@ -209,9 +207,7 @@ static void stream_read(void *source, void **vbuf, unsigned long *samples,
       *vbuf = stream->pending_bufs[0];
       pos = *samples;
 
-      count = al_get_available_stream_fragments(stream);
-      if (count)
-         _al_kcm_emit_stream_event(stream, count);
+      _al_kcm_emit_stream_events(stream);
    }
    else {
       int bytes = pos * al_get_channel_count(stream->spl.spl_data.chan_conf)

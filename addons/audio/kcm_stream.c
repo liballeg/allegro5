@@ -278,22 +278,29 @@ bool al_get_stream_attached(const ALLEGRO_STREAM *stream)
 
 /* Function: al_get_stream_fragment
 */
-bool al_get_stream_fragment(const ALLEGRO_STREAM *stream, void **val)
+void *al_get_stream_fragment(const ALLEGRO_STREAM *stream)
 {
    size_t i;
+   void *fragment;
    ASSERT(stream);
+
+   maybe_lock_mutex(stream->spl.mutex);
 
    if (!stream->used_bufs[0]) {
       /* No free fragments are available. */
-      return false;
+      fragment = NULL;
+   }
+   else {
+      fragment = stream->used_bufs[0];
+      for (i = 0; stream->used_bufs[i] && i < stream->buf_count-1; i++) {
+         stream->used_bufs[i] = stream->used_bufs[i+1];
+      }
+      stream->used_bufs[i] = NULL;
    }
 
-   *val = stream->used_bufs[0];
-   for (i = 0; stream->used_bufs[i] && i < stream->buf_count-1; i++) {
-      stream->used_bufs[i] = stream->used_bufs[i+1];
-   }
-   stream->used_bufs[i] = NULL;
-   return true;
+   maybe_unlock_mutex(stream->spl.mutex);
+
+   return fragment;
 }
 
 
@@ -550,7 +557,6 @@ void *_al_kcm_feed_stream(ALLEGRO_THREAD *self, void *vstream)
    stream->quit_feed_thread = false;
 
    while (!stream->quit_feed_thread) {
-      void *fragment_void;
       char *fragment;
       ALLEGRO_EVENT event;
 
@@ -561,11 +567,11 @@ void *_al_kcm_feed_stream(ALLEGRO_THREAD *self, void *vstream)
          unsigned long bytes;
          unsigned long bytes_written;
 
-         if (!al_get_stream_fragment(stream, &fragment_void)) {
-            ALLEGRO_ERROR("Error getting stream buffer.\n");
+         fragment = al_get_stream_fragment(stream);
+         if (!fragment) {
+            /* This is not an error. */
             continue;
          }
-         fragment = fragment_void;
 
          bytes = (stream->spl.spl_data.len >> MIXER_FRAC_SHIFT) *
                al_get_channel_count(stream->spl.spl_data.chan_conf) *
@@ -616,16 +622,27 @@ void *_al_kcm_feed_stream(ALLEGRO_THREAD *self, void *vstream)
 }
 
 
-bool _al_kcm_emit_stream_event(ALLEGRO_STREAM *stream, unsigned long count)
+void _al_kcm_emit_stream_events(ALLEGRO_STREAM *stream)
 {
+   /* Emit one event for each stream fragment available right now.
+    *
+    * There may already be an event corresponding to an available fragment in
+    * some event queue, but there's nothing we can do about that.  Streams may
+    * be added and removed from queues, events may be lost by the user, etc.
+    * so it would be dangerous to assume that each fragment event would be
+    * responded to, once and exactly once.
+    *
+    * Having said that, event queues are empty in the steady state so it is
+    * relatively rare that this situation occurs.
+    */
+   int count = al_get_available_stream_fragments(stream);
+
    while (count--) {
       ALLEGRO_EVENT event;
       event.user.type = ALLEGRO_EVENT_STREAM_EMPTY_FRAGMENT;
       event.user.timestamp = al_current_time();
       al_emit_user_event(&stream->spl.es, &event, NULL);
    }
-
-   return true;
 }
 
 

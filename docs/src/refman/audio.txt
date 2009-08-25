@@ -732,17 +732,19 @@ if anything.
 When using Allegro's audio streaming, you will use this function to continuously
 provide new sample data to a stream.
 
-If the stream is ready for new data, the function will return *true*, and *val*
-will contain the address of an internal buffer to be filled with audio data.
+If the stream is ready for new data, the function will return the address
+of an internal buffer to be filled with audio data.
 The length and format of the buffer are specified with [al_create_stream] or
 can be queried with the various functions described here.
+Once the buffer is filled, you must signal this to Allegro by passing the
+buffer to [al_set_stream_fragment].
 
-Once the buffer is filled, you must signal this to Allegro by passing *val* to
-[al_set_stream_fragment].
+If the stream is not ready for new data, the function will return NULL.
 
 Note: If you listen to events from the stream, an
 ALLEGRO_EVENT_STREAM_EMPTY_FRAGMENT event will be generated whenever a new
-fragment is ready.
+fragment is ready. However, getting an event is *not* a guarantee that
+[al_get_stream_fragment] will not return NULL, so you still must check for it.
 
 ### API: al_set_stream_fragment
 

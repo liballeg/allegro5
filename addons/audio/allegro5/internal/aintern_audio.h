@@ -165,8 +165,10 @@ typedef double (*get_feeder_length_t)(ALLEGRO_STREAM *);
 typedef bool (*set_feeder_loop_t)(ALLEGRO_STREAM *, double, double);
 
 struct ALLEGRO_STREAM {
-   ALLEGRO_SAMPLE_INSTANCE       spl;
-                        /* ALLEGRO_STREAM is derived from ALLEGRO_SAMPLE_INSTANCE. */
+   ALLEGRO_SAMPLE_INSTANCE spl;
+                        /* ALLEGRO_STREAM is derived from
+                         * ALLEGRO_SAMPLE_INSTANCE.
+                         */
 
    unsigned int         buf_count;
                         /* The stream buffer is divided into a number of
@@ -264,7 +266,7 @@ ALLEGRO_KCM_AUDIO_FUNC(int, _al_kcm_get_silence, (ALLEGRO_AUDIO_DEPTH depth));
 ALLEGRO_KCM_AUDIO_FUNC(void*, _al_kcm_feed_stream, (ALLEGRO_THREAD *self, void *vstream));
 
 /* Helper to emit an event that the stream has got a buffer ready to be refilled. */
-bool _al_kcm_emit_stream_event(ALLEGRO_STREAM *stream, unsigned long count);
+void _al_kcm_emit_stream_events(ALLEGRO_STREAM *stream);
 
 void _al_kcm_init_destructors(void);
 void _al_kcm_shutdown_destructors(void);

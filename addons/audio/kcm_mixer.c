@@ -178,7 +178,6 @@ void _al_kcm_mixer_rejig_sample_matrix(ALLEGRO_MIXER *mixer,
 static bool fix_looped_position(ALLEGRO_SAMPLE_INSTANCE *spl)
 {
    bool is_empty;
-   unsigned long count = 0;
    ALLEGRO_STREAM *stream;
 
    /* Looping! Should be mostly self-explanitory */
@@ -238,9 +237,7 @@ static bool fix_looped_position(ALLEGRO_SAMPLE_INSTANCE *spl)
             stream->spl.is_playing = false;
          }
 
-         count = al_get_available_stream_fragments(stream);
-         if (count)
-            _al_kcm_emit_stream_event(stream, count);
+         _al_kcm_emit_stream_events(stream);
 
          return !(is_empty);
    }

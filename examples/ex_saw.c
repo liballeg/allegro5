@@ -14,7 +14,6 @@
 static void saw(ALLEGRO_STREAM *stream)
 {
    ALLEGRO_EVENT_QUEUE *queue;
-   void *buf_void;
    int8_t *buf;
    int pitch = 0x10000;
    int val = 0;
@@ -30,8 +29,11 @@ static void saw(ALLEGRO_STREAM *stream)
       al_wait_for_event(queue, &event);
 
       if (event.type == ALLEGRO_EVENT_STREAM_EMPTY_FRAGMENT) {
-         al_get_stream_fragment(stream, &buf_void);
-         buf = buf_void;
+         buf = al_get_stream_fragment(stream);
+         if (!buf) {
+            /* This is a normal condition you must deal with. */
+            continue;
+         }
 
          for (i = 0; i < SAMPLES_PER_BUFFER; i++) {
             /* Crude saw wave at maximum aplitude. Please keep this compatible
