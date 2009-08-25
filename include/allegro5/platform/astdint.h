@@ -38,8 +38,33 @@
    #define uint16_t     unsigned short
    #define int32_t      signed int
    #define uint32_t     unsigned int
-   #define intptr_t     int32_t
-   #define uintptr_t    uint32_t
+
+   #ifdef ALLEGRO_WINDOWS
+
+      #ifndef _INTPTR_T_DEFINED
+         #ifdef  _WIN64
+            #define intptr_t __int64
+         #else
+            #define intptr_t int
+         #endif
+         #define _INTPTR_T_DEFINED
+      #endif
+
+      #ifndef _UINTPTR_T_DEFINED
+         #ifdef  _WIN64
+            #define uintptr_t unsigned __int64
+         #else
+            #define uintptr_t unsigned int   
+         #endif
+         #define _UINTPTR_T_DEFINED
+      #endif
+
+   #else
+   
+      #define intptr_t     int32_t
+      #define uintptr_t    uint32_t
+
+   #endif
 
 #else
    #error I dunno how to get the definitions of fixed-width integer types on your platform.  Please report this to your friendly Allegro developer.
