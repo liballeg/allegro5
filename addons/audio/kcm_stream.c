@@ -123,12 +123,16 @@ ALLEGRO_STREAM *al_create_stream(size_t fragment_count, unsigned long samples,
 void al_destroy_stream(ALLEGRO_STREAM *stream)
 {
    if (stream) {
-      _al_kcm_unregister_destructor(stream);
-
-      _al_kcm_detach_from_parent(&stream->spl);
       if (stream->feed_thread) {
          stream->unload_feeder(stream);
+         /* Make sure it's unloaded before proceeding */
+         while (!stream->quit_feed_thread) {
+            al_rest(0.001);
+         }
       }
+      _al_kcm_unregister_destructor(stream);
+      _al_kcm_detach_from_parent(&stream->spl);
+
       al_destroy_user_event_source(&stream->spl.es);
       free(stream->main_buffer);
       free(stream->used_bufs);
@@ -570,7 +574,7 @@ void *_al_kcm_feed_stream(ALLEGRO_THREAD *self, void *vstream)
          fragment = al_get_stream_fragment(stream);
          if (!fragment) {
             /* This is not an error. */
-            continue;
+                    continue;
          }
 
          bytes = (stream->spl.spl_data.len >> MIXER_FRAC_SHIFT) *
@@ -599,7 +603,7 @@ void *_al_kcm_feed_stream(ALLEGRO_THREAD *self, void *vstream)
 
          if (!al_set_stream_fragment(stream, fragment)) {
             ALLEGRO_ERROR("Error setting stream buffer.\n");
-            continue;
+				continue;
          }
 
          /* The streaming source doesn't feed any more, drain buffers and quit. */
