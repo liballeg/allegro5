@@ -24,7 +24,7 @@ ALLEGRO_PATH *_al_iphone_get_path(int id)
             return al_create_path_for_dir(str);
         case ALLEGRO_USER_SETTINGS_PATH:
         case ALLEGRO_SYSTEM_SETTINGS_PATH:
-            sprintf(str, "%s/Documents", getenv("HOME"));
+            sprintf(str, "%s/Library/Preferences", getenv("HOME"));
             return al_create_path_for_dir(str);
     }
     return NULL;
