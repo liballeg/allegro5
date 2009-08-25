@@ -217,6 +217,7 @@ int main(void)
    ALLEGRO_DISPLAY *display;
    ALLEGRO_TIMER *timer;
    ALLEGRO_EVENT_QUEUE *queue;
+   ALLEGRO_MONITOR_INFO info;
    int w = 640, h = 480;
    bool done = false;
    bool need_redraw = true;
@@ -236,7 +237,6 @@ int main(void)
 
    al_get_num_video_adapters();
    
-   ALLEGRO_MONITOR_INFO info;
    al_get_monitor_info(0, &info);
    if (info.x2 - info.x1 < w)
       w = info.x2 - info.x1;
