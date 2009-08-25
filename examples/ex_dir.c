@@ -34,10 +34,10 @@ static void print_file(ALLEGRO_FS_ENTRY *entry)
 
 static void print_entry(ALLEGRO_FS_ENTRY *entry)
 {
+   print_file(entry);
+
    if (al_is_directory(entry)) {
       ALLEGRO_FS_ENTRY *next;
-      ALLEGRO_PATH *path;
-      const char *name;
 
       al_opendir(entry);
       while (1) {
@@ -45,25 +45,10 @@ static void print_entry(ALLEGRO_FS_ENTRY *entry)
          if (!next)
             break;
 
-         path = al_get_entry_name(next);
-         name = al_get_path_component(path, -1);
-         /* XXX this is annoying */
-         if (al_is_directory(next) &&
-               0 != strcmp(name, ".") &&
-               0 != strcmp(name, "..")) {
-            print_entry(next);
-         }
-         else {
-            print_file(next);
-         }
-         al_free_path(path);
-
+         print_entry(next);
          al_destroy_entry(next);
       }
       al_closedir(entry);
-   }
-   else {
-      print_file(entry);
    }
 }
 

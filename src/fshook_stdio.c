@@ -484,14 +484,18 @@ static ALLEGRO_FS_ENTRY *al_fs_stdio_readdir(ALLEGRO_FS_ENTRY *fp)
    ALLEGRO_FS_ENTRY_STDIO *fp_stdio = (ALLEGRO_FS_ENTRY_STDIO *) fp;
    // FIXME: Must use readdir_r as Allegro allows file functions being
    // called from different threads.
-   struct dirent *ent = readdir(fp_stdio->hd.dir);
+   struct dirent *ent;
    ALLEGRO_PATH *path;
    ALLEGRO_FS_ENTRY *ret;
 
-   if (!ent) {
-      al_set_errno(errno);
-      return NULL;
-   }
+   do {
+      ent = readdir(fp_stdio->hd.dir);
+      if (!ent) {
+         al_set_errno(errno);
+         return NULL;
+      }
+      /* Don't bother the user with these entries. */
+   } while (0 == strcmp(ent->d_name, ".") || 0 == strcmp(ent->d_name, ".."));
 
    /* TODO: Maybe we should keep an ALLEGRO_PATH for each entry in
     * the first place?
