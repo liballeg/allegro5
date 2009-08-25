@@ -498,6 +498,11 @@ static LRESULT CALLBACK window_callback(HWND hWnd, UINT message,
                ((wParam & 0xfff0) == SC_MONITORPOWER || (wParam & 0xfff0) == SC_SCREENSAVE)) {
             return 0;
          }
+         else if ((wParam & 0xfff0) == SC_KEYMENU) {
+            /* Prevent Windows from intercepting the ALT key.
+               (Disables opening menus via the ALT key.) */
+            return 0;
+         }
          break;
       }
       case WM_PAINT: {
