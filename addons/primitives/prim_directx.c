@@ -99,7 +99,8 @@ int _al_draw_prim_directx(ALLEGRO_BITMAP* texture, ALLEGRO_VERTEX* vtxs, int sta
    ALLEGRO_DISPLAY *display;
    LPDIRECT3DDEVICE9 device;
    LPDIRECT3DBASETEXTURE9 d3d_texture;
-   int old_wrap_state[2];
+   DWORD old_wrap_state[2];
+   DWORD old_ttf_state;
 
    display = al_get_current_display();
    device = al_d3d_get_device(display);
@@ -109,15 +110,25 @@ int _al_draw_prim_directx(ALLEGRO_BITMAP* texture, ALLEGRO_VERTEX* vtxs, int sta
    set_blender(display);
 
    if (texture) {
+     float mat[4][4] = {
+         {1,  0, 0, 0},
+         {0, -1, 0, 0},
+         {0,  1, 1, 0},
+         {0,  0, 0, 1}
+      };
       d3d_texture = (LPDIRECT3DBASETEXTURE9)al_d3d_get_video_texture(texture);
       IDirect3DDevice9_SetTexture(device, 0, d3d_texture);
+     
+     IDirect3DDevice9_GetTextureStageState(device, 0, D3DTSS_TEXTURETRANSFORMFLAGS, &old_ttf_state);
+      IDirect3DDevice9_SetTextureStageState(device, 0, D3DTSS_TEXTURETRANSFORMFLAGS, D3DTTFF_COUNT2);
+      IDirect3DDevice9_SetTransform(device, D3DTS_TEXTURE0, (D3DMATRIX *)&mat);
    }
    else {
       IDirect3DDevice9_SetTexture(device, 0, NULL);
    }
    
    if(!allegro_vertex_def) {
-	   IDirect3DDevice9_CreateVertexDeclaration(device, allegro_vertex_decl, &allegro_vertex_def);
+      IDirect3DDevice9_CreateVertexDeclaration(device, allegro_vertex_decl, &allegro_vertex_def);
    }
    IDirect3DDevice9_SetVertexDeclaration(device, allegro_vertex_def);
    
@@ -163,9 +174,13 @@ int _al_draw_prim_directx(ALLEGRO_BITMAP* texture, ALLEGRO_VERTEX* vtxs, int sta
          break;
       };
    }
+   
+   if (texture) {
+      IDirect3DDevice9_SetTextureStageState(device, 0, D3DTSS_TEXTURETRANSFORMFLAGS, old_ttf_state);
+   }
 
-   IDirect3DDevice9_SetSamplerState(device, 0, D3DSAMP_ADDRESSU, &old_wrap_state[0]);
-   IDirect3DDevice9_SetSamplerState(device, 0, D3DSAMP_ADDRESSV, &old_wrap_state[1]);
+   IDirect3DDevice9_SetSamplerState(device, 0, D3DSAMP_ADDRESSU, old_wrap_state[0]);
+   IDirect3DDevice9_SetSamplerState(device, 0, D3DSAMP_ADDRESSV, old_wrap_state[1]);
 
    return num_primitives;
 #else
@@ -278,7 +293,7 @@ void _al_use_transform_directx(const ALLEGRO_TRANSFORM* trans)
    display = al_get_current_display();
    device = al_d3d_get_device(display);
 
-   IDirect3DDevice9_SetTransform(device, D3DTS_VIEW, (D3DMATRIX *)trans);
+   IDirect3DDevice9_SetTransform(device, D3DTS_VIEW, (D3DMATRIX *)(trans->m));
 #else
    (void)trans;
 #endif
