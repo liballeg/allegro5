@@ -1,3 +1,20 @@
+/*         ______   ___    ___
+ *        /\  _  \ /\_ \  /\_ \
+ *        \ \ \L\ \\//\ \ \//\ \      __     __   _ __   ___
+ *         \ \  __ \ \ \ \  \ \ \   /'__`\ /'_ `\/\`'__\/ __`\
+ *          \ \ \/\ \ \_\ \_ \_\ \_/\  __//\ \L\ \ \ \//\ \L\ \
+ *           \ \_\ \_\/\____\/\____\ \____\ \____ \ \_\\ \____/
+ *            \/_/\/_/\/____/\/____/\/____/\/___L\ \/_/ \/___/
+ *                                           /\____/
+ *                                           \_/__/
+ *
+ *	Apple Audio Queue driver
+ *
+ *	By Trent Gamblin.
+ *
+ *      See readme.txt for copyright information.
+ */
+
 #include "allegro5/allegro.h"
 #include "allegro5/internal/aintern_audio.h"
 
@@ -38,7 +55,7 @@ static void handle_buffer(
    if (data == NULL)
       data = silence;
 
-   memcpy(inBuffer->mAudioData, data, ex_data->buffer_size);
+   memcpy(inBuffer->mAudioData, data, inBuffer->mAudioDataBytesCapacity);
    inBuffer->mAudioDataByteSize = ex_data->buffer_size;
 
    AudioQueueEnqueueBuffer(
@@ -171,7 +188,7 @@ static void *stream_proc(void *in_data)
       handle_buffer,
       ex_data,
       CFRunLoopGetCurrent(),
-      kCFRunLoopDefaultMode,
+      kCFRunLoopCommonModes,
       0,
       &queue);
 
@@ -213,10 +230,30 @@ static void *stream_proc(void *in_data)
    do {
       CFRunLoopRunInMode(
          kCFRunLoopDefaultMode,
-         0.01,
+         0.05,
          false
       );
    } while (playing);
+
+   AudioQueueStop (
+      queue,
+      false
+   );
+	
+	int i;
+
+   for (i = 0; i < NUM_BUFFERS; i++) {
+      AudioQueueFreeBuffer(queue, ex_data->buffers[i]);
+   }
+
+   AudioQueueDispose(
+      queue,
+      true
+   );
+
+   ex_data->playing = false;
+
+   fprintf(stderr, "stream_proc exit\n");
     
    return NULL;
 }
@@ -228,7 +265,7 @@ static void *stream_proc(void *in_data)
    position */
 static int _aqueue_start_voice(ALLEGRO_VOICE *voice)
 {
-   if (voice->is_streaming) {
+   if (voice->is_streaming && playing == false) {
       al_run_detached_thread(stream_proc, voice);
       return 0;
    }
@@ -242,26 +279,14 @@ static int _aqueue_start_voice(ALLEGRO_VOICE *voice)
 static int _aqueue_stop_voice(ALLEGRO_VOICE* voice)
 {
    ALLEGRO_AQ_DATA *ex_data = voice->extra;
-   int i;
 
-   ex_data->playing = false;
-   playing = false;
+   if (playing == true) {
+      playing = false;
 
-   al_rest(0.05);
-
-   AudioQueueStop (
-      queue,
-      false
-   );
-
-   for (i = 0; i < NUM_BUFFERS; i++) {
-   	AudioQueueFreeBuffer(queue, ex_data->buffers[i]);
+      while (ex_data->playing == true) {
+         al_rest(0.001);
+      }
    }
-
-   AudioQueueDispose(
-      queue,
-      true
-   );
 
    return 0;
 }
