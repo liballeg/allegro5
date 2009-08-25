@@ -93,7 +93,7 @@ static uint32_t fs_phys_mode(ALLEGRO_FS_ENTRY *fse)
    ALLEGRO_FS_ENTRY_PHYSFS *e = (ALLEGRO_FS_ENTRY_PHYSFS *)fse;
    uint32_t mode = ALLEGRO_FILEMODE_READ;
    if (PHYSFS_isDirectory(al_cstr(e->path)))
-      mode |= ALLEGRO_FILEMODE_ISDIR;
+      mode |= ALLEGRO_FILEMODE_ISDIR | ALLEGRO_FILEMODE_EXECUTE;
    else
       mode |= ALLEGRO_FILEMODE_ISFILE;
    return mode;

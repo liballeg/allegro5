@@ -21,7 +21,7 @@ static void print_file(ALLEGRO_FS_ENTRY *entry)
       al_path_cstr(path, '/'),
       mode & ALLEGRO_FILEMODE_READ ? "r" : ".",
       mode & ALLEGRO_FILEMODE_WRITE ? "w" : ".",
-      mode & ALLEGRO_FILEMODE_EXECUTE ? "e" : ".",
+      mode & ALLEGRO_FILEMODE_EXECUTE ? "x" : ".",
       mode & ALLEGRO_FILEMODE_HIDDEN ? "h" : ".",
       mode & ALLEGRO_FILEMODE_ISFILE ? "f" : ".",
       mode & ALLEGRO_FILEMODE_ISDIR ? "d" : ".",
