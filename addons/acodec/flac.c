@@ -155,10 +155,12 @@ static FLAC__StreamDecoderWriteStatus write_callback(
    FLACFILE *ff = (FLACFILE *) client_data;
    long len = frame->header.blocksize;
    long bytes = len * ff->channels * ff->sample_size;
+   FLAC__uint8 *buf8;
+   FLAC__int16 *buf16;
+   float *buf32;
    int sample_index;
    int channel_index;
-   int out_index = 0;
-   int word_size = ff->sample_size;
+   int out_index;
 
    if (ff->buffer_pos + bytes > ff->buffer_size) {
       ff->buffer = _AL_REALLOC(ff->buffer, ff->buffer_pos + bytes);
@@ -166,16 +168,17 @@ static FLAC__StreamDecoderWriteStatus write_callback(
    }
 
    /* FLAC returns FLAC__int32 and I need to convert it to my own format. */
-   FLAC__uint8 *buf8 = (FLAC__uint8 *) (ff->buffer + ff->buffer_pos);
-   FLAC__int16 *buf16 = (FLAC__int16 *) buf8;
-   float       *buf32 = (float *) buf8;
+   buf8 = (FLAC__uint8 *) (ff->buffer + ff->buffer_pos);
+   buf16 = (FLAC__int16 *) buf8;
+   buf32 = (float *) buf8;
 
    (void)decoder;
    (void)client_data;
 
    /* Flatten the array */
    /* TODO: test this array flattening process on 5.1 and higher flac files */
-   switch (word_size) {
+   out_index = 0;
+   switch (ff->sample_size) {
       case 1:
          for (sample_index = 0; sample_index < len; sample_index++) {
              for (channel_index = 0;
