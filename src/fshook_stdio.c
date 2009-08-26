@@ -15,7 +15,9 @@
  *      See readme.txt for copyright information.
  */
 
-/* enable large file support in gcc/glibc */
+#include "allegro5/allegro5.h"
+
+/* Enable large file support in gcc/glibc. */
 #if defined ALLEGRO_HAVE_FTELLO && defined ALLEGRO_HAVE_FSEEKO
    #define _LARGEFILE_SOURCE
    #define _LARGEFILE_SOURCE64
@@ -23,6 +25,7 @@
 #endif
 
 #include <stdio.h>
+#include <stdlib.h>
 
 #ifdef _MSC_VER
    #define _POSIX_
@@ -30,23 +33,17 @@
    #undef _POSIX_
 
    #include <tchar.h>
-   #include <stdlib.h>
    #include <io.h>
    #define  SUFFIX _T("*")
-   #define	SLASH	 _T("\\")
+   #define  SLASH _T("\\")
 #endif
 
-#include "allegro5/allegro5.h"
-#include "allegro5/debug.h"
-#include "allegro5/fshook.h"
-#include "allegro5/path.h"
 #include "allegro5/internal/aintern.h"
 #include "allegro5/internal/aintern_fshook.h"
 #include "allegro5/internal/aintern_memory.h"
-#include ALLEGRO_INTERNAL_HEADER
 
 #ifdef ALLEGRO_HAVE_SYS_STAT_H
-#include <sys/stat.h>
+   #include <sys/stat.h>
 #endif
 
 #ifdef ALLEGRO_HAVE_DIRENT_H
@@ -330,27 +327,24 @@ static int closedir(DIR* dirp)
 
 typedef struct ALLEGRO_FS_ENTRY_STDIO ALLEGRO_FS_ENTRY_STDIO;
 struct ALLEGRO_FS_ENTRY_STDIO {
-   ALLEGRO_FS_ENTRY fs_entry;   /* must be first */
+   ALLEGRO_FS_ENTRY fs_entry; /* must be first */
 
    bool isdir;
-   union {
-      DIR *dir;
-   } hd;
+   DIR *dir;
 
    struct stat st;
    char *path;                /* stores the path given by the user */
-   ALLEGRO_PATH *apath;       /* for al_get_entry_name */
-   char mode[6];
-   uint32_t free_on_fclose;
+   ALLEGRO_PATH *apath;       /* for al_get_fs_entry_name */
    uint32_t ulink;
    uint32_t stat_mode;
 };
 
 
-static void _al_fs_update_stat_mode(ALLEGRO_FS_ENTRY_STDIO *fp_stdio);
-static bool al_fs_stdio_fstat(ALLEGRO_FS_ENTRY *fp);
+static void fs_update_stat_mode(ALLEGRO_FS_ENTRY_STDIO *fp_stdio);
+static bool fs_stdio_update_entry(ALLEGRO_FS_ENTRY *fp);
 
-static ALLEGRO_FS_ENTRY *al_fs_stdio_create_handle(const char *path)
+
+static ALLEGRO_FS_ENTRY *fs_stdio_create_entry(const char *path)
 {
    ALLEGRO_FS_ENTRY_STDIO *fh = NULL;
    uint32_t len = 0;
@@ -375,12 +369,12 @@ static ALLEGRO_FS_ENTRY *al_fs_stdio_create_handle(const char *path)
 
    memcpy(fh->path, path, len+1);
 
-   al_fs_stdio_fstat((ALLEGRO_FS_ENTRY *) fh);
+   fs_stdio_update_entry((ALLEGRO_FS_ENTRY *) fh);
 
    return (ALLEGRO_FS_ENTRY *) fh;
 }
 
-static void _al_fs_update_stat_mode(ALLEGRO_FS_ENTRY_STDIO *fp_stdio)
+static void fs_update_stat_mode(ALLEGRO_FS_ENTRY_STDIO *fp_stdio)
 {
    if (S_ISDIR(fp_stdio->st.st_mode))
       fp_stdio->stat_mode |= ALLEGRO_FILEMODE_ISDIR;
@@ -426,7 +420,7 @@ static void _al_fs_update_stat_mode(ALLEGRO_FS_ENTRY_STDIO *fp_stdio)
    return;
 }
 
-static bool al_fs_stdio_fstat(ALLEGRO_FS_ENTRY *fp)
+static bool fs_stdio_update_entry(ALLEGRO_FS_ENTRY *fp)
 {
    ALLEGRO_FS_ENTRY_STDIO *fp_stdio = (ALLEGRO_FS_ENTRY_STDIO *) fp;
    int32_t ret = 0;
@@ -438,20 +432,20 @@ static bool al_fs_stdio_fstat(ALLEGRO_FS_ENTRY *fp)
       return false;
    }
 
-   _al_fs_update_stat_mode(fp_stdio);
+   fs_update_stat_mode(fp_stdio);
    
    return true;
 }
 
-static bool al_fs_stdio_opendir(ALLEGRO_FS_ENTRY *fp)
+static bool fs_stdio_opendir(ALLEGRO_FS_ENTRY *fp)
 {
    ALLEGRO_FS_ENTRY_STDIO *fp_stdio = (ALLEGRO_FS_ENTRY_STDIO *) fp;
 
    if (!(fp_stdio->stat_mode & ALLEGRO_FILEMODE_ISDIR))
       return false;
 
-   fp_stdio->hd.dir = opendir(fp_stdio->path);
-   if (!fp_stdio->hd.dir) {
+   fp_stdio->dir = opendir(fp_stdio->path);
+   if (!fp_stdio->dir) {
       al_set_errno(errno);
       return false;
    }
@@ -460,14 +454,14 @@ static bool al_fs_stdio_opendir(ALLEGRO_FS_ENTRY *fp)
    return true;
 }
 
-static bool al_fs_stdio_closedir(ALLEGRO_FS_ENTRY *fp)
+static bool fs_stdio_closedir(ALLEGRO_FS_ENTRY *fp)
 {
    ALLEGRO_FS_ENTRY_STDIO *fp_stdio = (ALLEGRO_FS_ENTRY_STDIO *) fp;
    bool ret;
 
    fp_stdio->isdir = false;
 
-   if (closedir(fp_stdio->hd.dir) == -1) {
+   if (closedir(fp_stdio->dir) == -1) {
       al_set_errno(errno);
       ret = false;
    }
@@ -475,12 +469,12 @@ static bool al_fs_stdio_closedir(ALLEGRO_FS_ENTRY *fp)
       ret = true;
    }
 
-   fp_stdio->hd.dir = NULL;
+   fp_stdio->dir = NULL;
 
    return ret;
 }
 
-static ALLEGRO_FS_ENTRY *al_fs_stdio_readdir(ALLEGRO_FS_ENTRY *fp)
+static ALLEGRO_FS_ENTRY *fs_stdio_readdir(ALLEGRO_FS_ENTRY *fp)
 {
    ALLEGRO_FS_ENTRY_STDIO *fp_stdio = (ALLEGRO_FS_ENTRY_STDIO *) fp;
    // FIXME: Must use readdir_r as Allegro allows file functions being
@@ -490,7 +484,7 @@ static ALLEGRO_FS_ENTRY *al_fs_stdio_readdir(ALLEGRO_FS_ENTRY *fp)
    ALLEGRO_FS_ENTRY *ret;
 
    do {
-      ent = readdir(fp_stdio->hd.dir);
+      ent = readdir(fp_stdio->dir);
       if (!ent) {
          al_set_errno(errno);
          return NULL;
@@ -503,12 +497,12 @@ static ALLEGRO_FS_ENTRY *al_fs_stdio_readdir(ALLEGRO_FS_ENTRY *fp)
     */
    path = al_create_path_for_dir(fp_stdio->path);
    al_set_path_filename(path, ent->d_name);
-   ret = al_fs_stdio_create_handle(al_path_cstr(path, '/'));
+   ret = fs_stdio_create_entry(al_path_cstr(path, '/'));
    al_free_path(path);
    return ret;
 }
 
-static void al_fs_stdio_destroy_handle(ALLEGRO_FS_ENTRY *fh_)
+static void fs_stdio_destroy_entry(ALLEGRO_FS_ENTRY *fh_)
 {
    ALLEGRO_FS_ENTRY_STDIO *fh = (ALLEGRO_FS_ENTRY_STDIO *) fh_;
 
@@ -522,48 +516,48 @@ static void al_fs_stdio_destroy_handle(ALLEGRO_FS_ENTRY *fh_)
       al_free_path(fh->apath);
 
    if (fh->isdir)
-      al_fs_stdio_closedir(fh_);
+      fs_stdio_closedir(fh_);
 
    memset(fh, 0, sizeof(*fh));
    _AL_FREE(fh);
 }
 
-static off_t al_fs_stdio_entry_size(ALLEGRO_FS_ENTRY *fp)
+static off_t fs_stdio_entry_size(ALLEGRO_FS_ENTRY *fp)
 {
    ALLEGRO_FS_ENTRY_STDIO *ent = (ALLEGRO_FS_ENTRY_STDIO *) fp;
    ASSERT(ent);
    return ent->st.st_size;
 }
 
-static uint32_t al_fs_stdio_entry_mode(ALLEGRO_FS_ENTRY *fp)
+static uint32_t fs_stdio_entry_mode(ALLEGRO_FS_ENTRY *fp)
 {
    ALLEGRO_FS_ENTRY_STDIO *ent = (ALLEGRO_FS_ENTRY_STDIO *) fp;
    ASSERT(ent);
    return ent->stat_mode;
 }
 
-static time_t al_fs_stdio_entry_atime(ALLEGRO_FS_ENTRY *fp)
+static time_t fs_stdio_entry_atime(ALLEGRO_FS_ENTRY *fp)
 {
    ALLEGRO_FS_ENTRY_STDIO *ent = (ALLEGRO_FS_ENTRY_STDIO *) fp;
    ASSERT(ent);
    return ent->st.st_atime;
 }
 
-static time_t al_fs_stdio_entry_mtime(ALLEGRO_FS_ENTRY *fp)
+static time_t fs_stdio_entry_mtime(ALLEGRO_FS_ENTRY *fp)
 {
    ALLEGRO_FS_ENTRY_STDIO *ent = (ALLEGRO_FS_ENTRY_STDIO *) fp;
    ASSERT(ent);
    return ent->st.st_mtime;
 }
 
-static time_t al_fs_stdio_entry_ctime(ALLEGRO_FS_ENTRY *fp)
+static time_t fs_stdio_entry_ctime(ALLEGRO_FS_ENTRY *fp)
 {
    ALLEGRO_FS_ENTRY_STDIO *ent = (ALLEGRO_FS_ENTRY_STDIO *) fp;
    ASSERT(ent);
    return ent->st.st_ctime;
 }
 
-static ALLEGRO_PATH *al_fs_stdio_getcwd(void)
+static ALLEGRO_PATH *fs_stdio_getcwd(void)
 {
    char tmpdir[PATH_MAX];
    char *cwd = getcwd(tmpdir, PATH_MAX);
@@ -577,7 +571,7 @@ static ALLEGRO_PATH *al_fs_stdio_getcwd(void)
    return al_create_path_for_dir(tmpdir);
 }
 
-static bool al_fs_stdio_chdir(const char *path)
+static bool fs_stdio_chdir(const char *path)
 {
    int32_t ret = chdir(path);
    if (ret == -1) {
@@ -588,7 +582,7 @@ static bool al_fs_stdio_chdir(const char *path)
    return true;
 }
 
-static bool al_fs_stdio_mkdir(const char *path)
+static bool fs_stdio_mkdir(const char *path)
 {
 #ifdef ALLEGRO_WINDOWS
    int32_t ret = mkdir(path);
@@ -604,7 +598,7 @@ static bool al_fs_stdio_mkdir(const char *path)
 }
 
 
-static bool al_fs_stdio_entry_exists(ALLEGRO_FS_ENTRY *fp)
+static bool fs_stdio_entry_exists(ALLEGRO_FS_ENTRY *fp)
 {
    ALLEGRO_FS_ENTRY_STDIO *fp_stdio = (ALLEGRO_FS_ENTRY_STDIO *) fp;
    struct stat st;
@@ -626,7 +620,7 @@ static bool al_fs_stdio_entry_exists(ALLEGRO_FS_ENTRY *fp)
    return true;
 }
 
-static bool al_fs_stdio_file_exists(const char *path)
+static bool fs_stdio_filename_exists(const char *path)
 {
    struct stat st;
    if (stat(path, &st) != 0) {
@@ -642,17 +636,17 @@ static bool al_fs_stdio_file_exists(const char *path)
    return true;
 }
 
-static bool al_fs_stdio_entry_remove(ALLEGRO_FS_ENTRY *fp)
+static bool fs_stdio_remove_entry(ALLEGRO_FS_ENTRY *fp)
 {
    ALLEGRO_FS_ENTRY_STDIO *fp_stdio = (ALLEGRO_FS_ENTRY_STDIO *) fp;
    int32_t err = 0;
 
    ASSERT(fp);
 
-   if (al_fs_stdio_entry_mode(fp) & ALLEGRO_FILEMODE_ISDIR) {
+   if (fs_stdio_entry_mode(fp) & ALLEGRO_FILEMODE_ISDIR) {
       err = rmdir(fp_stdio->path);
    }
-   else if (al_fs_stdio_entry_mode(fp) & ALLEGRO_FILEMODE_ISFILE) {
+   else if (fs_stdio_entry_mode(fp) & ALLEGRO_FILEMODE_ISFILE) {
       err = unlink(fp_stdio->path);
    }
    else {
@@ -669,33 +663,33 @@ static bool al_fs_stdio_entry_remove(ALLEGRO_FS_ENTRY *fp)
 }
 
 
-static bool al_fs_stdio_file_remove(const char *path)
+static bool fs_stdio_remove_filename(const char *path)
 {
    ALLEGRO_FS_ENTRY *fp;
    int err = 0;
 
-   fp = al_fs_stdio_create_handle(path);
+   fp = fs_stdio_create_entry(path);
    if (!fp)
       return false;
 
-   err = al_fs_stdio_entry_remove(fp);
+   err = fs_stdio_remove_entry(fp);
    if(err != 0) {
       al_set_errno(errno);
-      al_fs_stdio_destroy_handle(fp);
+      fs_stdio_destroy_entry(fp);
       return false;
    }
    
-   al_fs_stdio_destroy_handle(fp);
+   fs_stdio_destroy_entry(fp);
 
    return true;
 }
 
-static const ALLEGRO_PATH *al_fs_stdio_fname(ALLEGRO_FS_ENTRY *fp)
+static const ALLEGRO_PATH *fs_stdio_name(ALLEGRO_FS_ENTRY *fp)
 {
    ALLEGRO_FS_ENTRY_STDIO *fp_stdio = (ALLEGRO_FS_ENTRY_STDIO *) fp;
 
    if (!fp_stdio->apath) {
-      if (al_is_directory(fp)) {
+      if (al_fs_entry_is_dir(fp)) {
          fp_stdio->apath = al_create_path_for_dir(fp_stdio->path);
       }
       else {
@@ -707,33 +701,27 @@ static const ALLEGRO_PATH *al_fs_stdio_fname(ALLEGRO_FS_ENTRY *fp)
 }
 
 struct ALLEGRO_FS_INTERFACE _al_fs_interface_stdio = {
-   al_fs_stdio_create_handle,
+   fs_stdio_create_entry,
+   fs_stdio_destroy_entry,
+   fs_stdio_name,
+   fs_stdio_update_entry,
+   fs_stdio_entry_mode,
+   fs_stdio_entry_atime,
+   fs_stdio_entry_mtime,
+   fs_stdio_entry_ctime,
+   fs_stdio_entry_size,
+   fs_stdio_entry_exists,
+   fs_stdio_remove_entry,
 
-   al_fs_stdio_getcwd,
-   al_fs_stdio_chdir,
+   fs_stdio_opendir,
+   fs_stdio_readdir,
+   fs_stdio_closedir,
 
-   al_fs_stdio_file_exists,
-   al_fs_stdio_file_remove,
-
-   al_fs_stdio_mkdir,
-
-   al_fs_stdio_destroy_handle,
-
-   al_fs_stdio_fname,
-   al_fs_stdio_fstat,
-
-   al_fs_stdio_entry_size,
-   al_fs_stdio_entry_mode,
-   al_fs_stdio_entry_atime,
-   al_fs_stdio_entry_mtime,
-   al_fs_stdio_entry_ctime,
-
-   al_fs_stdio_entry_exists,
-   al_fs_stdio_entry_remove,
-
-   al_fs_stdio_opendir,
-   al_fs_stdio_readdir,
-   al_fs_stdio_closedir
+   fs_stdio_filename_exists,
+   fs_stdio_remove_filename,
+   fs_stdio_getcwd,
+   fs_stdio_chdir,
+   fs_stdio_mkdir
 };
 
 /* vim: set sts=3 sw=3 et: */

@@ -19,7 +19,7 @@ by PHYSFS_open(). Operations on the files returned by [al_fopen]
 will then be performed through PhysicsFS.
 
 At the same time, all filesystem functions like [al_readdir] or
-[al_create_entry] will use PhysicsFS.
+[al_create_fs_entry] will use PhysicsFS.
 
 This functions only affects the thread it was called from.
 

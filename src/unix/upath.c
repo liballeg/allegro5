@@ -277,9 +277,9 @@ ALLEGRO_PATH *_al_unix_get_path(int id)
          /* next try: /tmp /var/tmp /usr/tmp */
          char *paths[] = { "/tmp/", "/var/tmp/", "/usr/tmp/", NULL };
          for (i=0; paths[i] != NULL; ++i) {
-            ALLEGRO_FS_ENTRY *fse = al_create_entry(paths[i]);
-            bool found = al_is_directory(fse);
-            al_destroy_entry(fse);
+            ALLEGRO_FS_ENTRY *fse = al_create_fs_entry(paths[i]);
+            bool found = al_fs_entry_is_dir(fse);
+            al_destroy_fs_entry(fse);
             if (found) {
                return al_create_path(paths[i]);
             }

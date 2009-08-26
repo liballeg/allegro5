@@ -7,8 +7,8 @@ whatever else you or an addon makes it do).
 ## API: ALLEGRO_FS_ENTRY
 
 Opaque filesystem entry object.
-Represents a file or a directory (check with [al_is_directory]
-or [al_is_file]).
+Represents a file or a directory (check with [al_fs_entry_is_dir]
+or [al_fs_entry_is_file]).
 There are no user accessible member variables.
 
 ## API: ALLEGRO_FILE_MODE
@@ -22,95 +22,19 @@ Filesystem modes/types
 * ALLEGRO_FILEMODE_ISFILE - Regular file
 * ALLEGRO_FILEMODE_ISDIR - Directory
 
-## API: al_create_entry
+## API: al_create_fs_entry
 
-Creates an [ALLEGRO_FS_ENTRY] object pointing to path.
+Creates an [ALLEGRO_FS_ENTRY] object pointing to path on the filesystem.
 'path' can be a file or a directory and must not be NULL.
 
-## API: al_destroy_entry
+## API: al_destroy_fs_entry
 
 Destroys a fs entry handle. The file or directory represented by it is not
-destoyed.
+destroyed.
 
 Does nothing if passed NULL.
 
-## API: al_remove_entry
-
-"Unlink" or delete this file on disk.
-
-Returns true on success, and false on failure, error is indicated in errno.
-
-## API: al_remove_str
-
-Unlink 'path' entry from disk. This is the same as [al_remove_entry], except
-it expects the path as a string.
-
-Returns true on success, and false on failure.
-
-errno is filled in to indicate the error.
-
-See Also:
-[al_remove_entry]
-
-## API: al_fstat
-
-Updates stat info for entry 'fp'.
-
-Returns true on success, false on failure.
-Fills in errno to indicate the error.
-
-See also [al_get_errno] [al_get_entry_atime] [al_get_entry_ctime] [al_is_directory]
-[al_is_file] [al_get_entry_mode]
-
-## API: al_is_present
-
-Check if the given entry exists on disk.
-Returns true if it does exist or false if it doesn't exist, or an error occured.
-Error is indicated in errno.
-
-## API: al_is_present_str
-
-Check if entry 'path' exists on disk.
-
-See Also:
-[al_is_present]
-
-## API: al_is_file
-
-Return true iff this entry is a regular file.
-
-## API: al_is_directory
-
-Return true iff this entry is a directory.
-
-## API: al_get_entry_mode
-
-Returns the entry's mode flags.
-
-See also: [al_get_errno]
-
-See the [ALLEGRO_FILE_MODE] enum for valid flags.
-
-## API: al_get_entry_atime
-
-Returns the time in seonds since the epoch since the entry was last
-accessed.
-
-Warning: some filesystem either don't support this flag, or people turn it
-off to increase performance.
-It may not be valid in all circumstances.
-
-## API: al_get_entry_ctime
-
-Returns the time in seconds since the epoch this entry was created on the
-filsystem.
-
-## API: al_get_entry_mtime
-
-Returns the time in seconds since the epoch since the entry was last
-modified.
-
-## API: al_get_entry_name
+## API: al_get_fs_entry_name
 
 Returns the entry's filename path. Note that the path will not be an
 absolute path if the entry wasn't created from an absolute path. Also not
@@ -121,45 +45,107 @@ always safest to access the file over its [ALLEGRO_FS_ENTRY] and not the path.
 On success returns a read only path structure, which you must not modify or
 destroy.  Returns NULL on failure; errno is set to indicate the error.
 
-## API: al_get_entry_size
+## API: al_update_fs_entry
+
+Updates file status information for a filesystem entry.
+File status information is automatically updated when the entry is created,
+however you may update it again with this function, e.g. in case it changed.
+
+Returns true on success, false on failure.
+Fills in errno to indicate the error.
+
+See also: [al_get_errno], [al_get_fs_entry_atime], [al_get_fs_entry_ctime],
+[al_fs_entry_is_dir], [al_fs_entry_is_file], [al_get_fs_entry_mode]
+
+## API: al_get_fs_entry_mode
+
+Returns the entry's mode flags, i.e. permissions and whether the entry
+refers to a file or directory.
+
+See also: [al_get_errno], [ALLEGRO_FILE_MODE]
+
+## API: al_get_fs_entry_atime
+
+Returns the time in seonds since the epoch since the entry was last
+accessed.
+
+Warning: some filesystem either don't support this flag, or people turn it
+off to increase performance.
+It may not be valid in all circumstances.
+
+See also: [al_get_fs_entry_ctime], [al_get_fs_entry_mtime],
+[al_update_fs_entry]
+
+## API: al_get_fs_entry_ctime
+
+Returns the time in seconds since the epoch this entry was created on the
+filsystem.
+
+See also: [al_get_fs_entry_atime], [al_get_fs_entry_mtime],
+[al_update_fs_entry]
+
+## API: al_get_fs_entry_mtime
+
+Returns the time in seconds since the epoch since the entry was last
+modified.
+
+See also: [al_get_fs_entry_atime], [al_get_fs_entry_ctime],
+[al_update_fs_entry]
+
+## API: al_get_fs_entry_size
 
 Returns the size, in bytes, of the given entry.
+May not return anything sensible for a directory entry.
+
+See also: [al_update_fs_entry]
+
+## API: al_fs_entry_exists
+
+Check if the given entry exists on in the filesystem.
+Returns true if it does exist or false if it doesn't exist, or an error occured.
+Error is indicated in Allegro' errno.
+
+## API: al_fs_entry_is_file
+
+Return true iff this entry is a regular file.
+
+See also: [al_get_fs_entry_mode]
+
+## API: al_fs_entry_is_dir
+
+Return true iff this entry is a directory.
+
+See also: [al_get_fs_entry_mode]
+
+## API: al_remove_fs_entry
+
+Delete this filesystem entry from the filesystem.  Only files and empty
+directories may be deleted.
+
+Returns true on success, and false on failure, error is indicated in Allegro'
+errno.
+
+See also: [al_filename_exists]
+
+## API: al_filename_exists
+
+Check if the path exists on the filesystem, without creating an
+[ALLEGRO_FS_ENTRY] object explicitly.
+
+See also: [al_fs_entry_exists]
+
+## API: al_remove_filename
+
+Delete the given path from the filesystem, which may be a file or an empty
+directory.  This is the same as [al_remove_fs_entry], except it expects the
+path as a string.
+
+Returns true on success, and false on failure.
+Allegro's errno is filled in to indicate the error.
+
+See also: [al_remove_fs_entry]
 
 ## Directory functions
-
-### API: al_getcwd
-
-Returns the path to the current working directory.
-
-Returns NULL on failure.
-
-errno is filled in to indicate the error.
-
-Possible Errors:
-* ERANGE - buffer is not large enough
-
-See also: [al_get_errno]
-
-### API: al_chdir
-
-Changes the current working directory to 'path'.
-
-Returns -1 on error.
-
-### API: al_closedir
-
-Closes a previously opened directory entry object.
-
-Returns true on success, false on failure and fills in errno to indicate the
-error.
-
-### API: al_mkdir
-
-Creates a new directory on disk given the path 'path'.
-
-Returns false on error and fills in errno to indicate the error.
-
-See also: [al_get_errno]
 
 ### API: al_opendir
 
@@ -168,12 +154,47 @@ on an entry and you must call [al_closedir] when you no longer need it.
 
 Returns true on success.
 
+See also: [al_readdir], [al_closedir]
+
 ### API: al_readdir
 
-Reads the next dir item and returns a filesystem entry for it.
+Reads the next directory item and returns a filesystem entry for it.
 
 Returns NULL if there are no more entries or if an error occurs. Call
 [al_closedir] on the directory handle when you are done.
+
+See also: [al_opendir], [al_closedir]
+
+### API: al_closedir
+
+Closes a previously opened directory entry object.
+
+Returns true on success, false on failure and fills in Allegro's errno to
+indicate the error.
+
+See also: [al_opendir], [al_readdir]
+
+### API: al_getcwd
+
+Returns the path to the current working directory, or NULL on failure.
+Allegro's errno is filled in to indicate the error.
+
+See also: [al_get_errno]
+
+### API: al_chdir
+
+Changes the current working directory to 'path'.
+
+Returns true on success, false on error.
+
+### API: al_mkdir
+
+Creates a new directory on the filesystem.
+
+Returns true on success, false on error.  Fills in Allegro's errno to indicate
+the error.
+
+See also: [al_get_errno]
 
 
 ## Alternative filesystem functions
@@ -189,34 +210,27 @@ physfs addon allows access to the most common archive formats).
 The available functions you can provide for a filesystem. They are:
 
 ~~~
-   ALLEGRO_FS_ENTRY *create(const char *path)
+   ALLEGRO_FS_ENTRY *  fs_create_entry   (const char *path);
+   void                fs_destroy_entry  (ALLEGRO_FS_ENTRY *e);
+   const ALLEGRO_PATH *fs_entry_name     (ALLEGRO_FS_ENTRY *e);
+   bool                fs_update_entry   (ALLEGRO_FS_ENTRY *e);
+   uint32_t            fs_entry_mode     (ALLEGRO_FS_ENTRY *e);
+   time_t              fs_entry_atime    (ALLEGRO_FS_ENTRY *e);
+   time_t              fs_entry_mtime    (ALLEGRO_FS_ENTRY *e);
+   time_t              fs_entry_ctime    (ALLEGRO_FS_ENTRY *e);
+   off_t               fs_entry_size     (ALLEGRO_FS_ENTRY *e);
+   bool                fs_entry_exists   (ALLEGRO_FS_ENTRY *e);
+   bool                fs_remove_entry   (ALLEGRO_FS_ENTRY *e);
 
-   ALLEGRO_PATH *getcwd, (void)
-   bool chdir(const char *path)
+   bool                fs_opendir        (ALLEGRO_FS_ENTRY *e);
+   ALLEGRO_FS_ENTRY *  fs_readdir        (ALLEGRO_FS_ENTRY *e);
+   bool                fs_closedir       (ALLEGRO_FS_ENTRY *e);
 
-   bool exists_str(const char *path)
-   bool remove_str(const char *path)
-
-   bool mkdir(const char *path)
-
-   void destroy(ALLEGRO_FS_ENTRY *handle)
-
-   ALLEGRO_PATH *fname(ALLEGRO_FS_ENTRY *handle)
-
-   bool fstat(ALLEGRO_FS_ENTRY *handle)
-
-   off_t  entry_size(ALLEGRO_FS_ENTRY *fh)
-   uint32_t entry_mode(ALLEGRO_FS_ENTRY *fh)
-   time_t entry_atime(ALLEGRO_FS_ENTRY *fh)
-   time_t entry_mtime(ALLEGRO_FS_ENTRY *fh)
-   time_t entry_ctime(ALLEGRO_FS_ENTRY *fh)
-
-   bool exists(ALLEGRO_FS_ENTRY *fh)
-   bool remove(ALLEGRO_FS_ENTRY *fh)
-
-   bool opendir(ALLEGRO_FS_ENTRY *dir));
-   ALLEGRO_FS_ENTRY *readdir(ALLEGRO_FS_ENTRY *dir)
-   bool closedir(ALLEGRO_FS_ENTRY *dir)
+   bool                fs_filename_exists(const char *path);
+   bool                fs_remove_filename(const char *path);
+   ALLEGRO_PATH *      fs_getcwd         (void);
+   bool                fs_chdir          (const char *path);
+   bool                fs_mkdir          (const char *path);
 ~~~
 
 ### API: al_set_fs_interface

@@ -5,15 +5,15 @@
 
 static void print_file(ALLEGRO_FS_ENTRY *entry)
 {
-   int mode = al_get_entry_mode(entry);
+   int mode = al_get_fs_entry_mode(entry);
    time_t now = time(NULL);
-   time_t atime = al_get_entry_atime(entry);
-   time_t ctime = al_get_entry_ctime(entry);
-   time_t mtime = al_get_entry_mtime(entry);
-   const ALLEGRO_PATH *path = al_get_entry_name(entry);
-   off_t size = al_get_entry_size(entry);
+   time_t atime = al_get_fs_entry_atime(entry);
+   time_t ctime = al_get_fs_entry_ctime(entry);
+   time_t mtime = al_get_fs_entry_mtime(entry);
+   const ALLEGRO_PATH *path = al_get_fs_entry_name(entry);
+   off_t size = al_get_fs_entry_size(entry);
    char const *name;
-   if (al_is_directory(entry))
+   if (al_fs_entry_is_dir(entry))
       name = al_get_path_component(path, -1);
    else
       name = al_get_path_filename(path);
@@ -35,7 +35,7 @@ static void print_entry(ALLEGRO_FS_ENTRY *entry)
 {
    print_file(entry);
 
-   if (al_is_directory(entry)) {
+   if (al_fs_entry_is_dir(entry)) {
       ALLEGRO_FS_ENTRY *next;
 
       al_opendir(entry);
@@ -45,7 +45,7 @@ static void print_entry(ALLEGRO_FS_ENTRY *entry)
             break;
 
          print_entry(next);
-         al_destroy_entry(next);
+         al_destroy_fs_entry(next);
       }
       al_closedir(entry);
    }
@@ -67,16 +67,16 @@ int main(int argc, char **argv)
           "-------------\n");
 
    if (argc == 1) {
-      ALLEGRO_FS_ENTRY *entry = al_create_entry("data");
+      ALLEGRO_FS_ENTRY *entry = al_create_fs_entry("data");
       print_entry(entry);
-      al_destroy_entry(entry);
+      al_destroy_fs_entry(entry);
       return 0;
    }
 
    for (i = 1; i < argc; i++) {
-      ALLEGRO_FS_ENTRY *entry = al_create_entry(argv[i]);
+      ALLEGRO_FS_ENTRY *entry = al_create_fs_entry(argv[i]);
       print_entry(entry);
-      al_destroy_entry(entry);
+      al_destroy_fs_entry(entry);
    }
    return 0;
 }

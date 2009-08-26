@@ -29,7 +29,7 @@ struct ALLEGRO_FS_ENTRY_PHYSFS
 /* forward declaration */
 static const ALLEGRO_FS_INTERFACE fs_phys_vtable;
 
-static ALLEGRO_FS_ENTRY *fs_phys_create(const char *path)
+static ALLEGRO_FS_ENTRY *fs_phys_create_entry(const char *path)
 {
    ALLEGRO_FS_ENTRY_PHYSFS *e;
    e = _AL_MALLOC(sizeof *e);
@@ -51,12 +51,12 @@ static bool fs_phys_chdir(const char *path)
    return false;
 }
 
-static bool fs_phys_exists_str(const char *path)
+static bool fs_phys_filename_exists(const char *path)
 {
    return PHYSFS_exists(path) != 0;
 }
 
-static bool fs_phys_remove_str(const char *path)
+static bool fs_phys_remove_filename(const char *path)
 {
    return PHYSFS_delete(path) != 0;
 }
@@ -66,19 +66,19 @@ static bool fs_phys_mkdir(const char *path)
    return PHYSFS_mkdir(path) != 0;
 }
 
-static const ALLEGRO_PATH *fs_phys_fname(ALLEGRO_FS_ENTRY *fse)
+static const ALLEGRO_PATH *fs_phys_entry_name(ALLEGRO_FS_ENTRY *fse)
 {
    ALLEGRO_FS_ENTRY_PHYSFS *e = (ALLEGRO_FS_ENTRY_PHYSFS *)fse;
    return e->path;
 }
 
-static bool fs_phys_fstat(ALLEGRO_FS_ENTRY *fse)
+static bool fs_phys_update_entry(ALLEGRO_FS_ENTRY *fse)
 {
    (void)fse;
    return true;
 }
 
-static off_t fs_phys_size(ALLEGRO_FS_ENTRY *fse)
+static off_t fs_phys_entry_size(ALLEGRO_FS_ENTRY *fse)
 {
    ALLEGRO_FS_ENTRY_PHYSFS *e = (ALLEGRO_FS_ENTRY_PHYSFS *)fse;
    PHYSFS_file *f = PHYSFS_openRead(e->path_cstr);
@@ -90,7 +90,7 @@ static off_t fs_phys_size(ALLEGRO_FS_ENTRY *fse)
    return 0;
 }
 
-static uint32_t fs_phys_mode(ALLEGRO_FS_ENTRY *fse)
+static uint32_t fs_phys_entry_mode(ALLEGRO_FS_ENTRY *fse)
 {
    ALLEGRO_FS_ENTRY_PHYSFS *e = (ALLEGRO_FS_ENTRY_PHYSFS *)fse;
    uint32_t mode = ALLEGRO_FILEMODE_READ;
@@ -101,19 +101,19 @@ static uint32_t fs_phys_mode(ALLEGRO_FS_ENTRY *fse)
    return mode;
 }
 
-static time_t fs_phys_mtime(ALLEGRO_FS_ENTRY *fse)
+static time_t fs_phys_entry_mtime(ALLEGRO_FS_ENTRY *fse)
 {
    ALLEGRO_FS_ENTRY_PHYSFS *e = (ALLEGRO_FS_ENTRY_PHYSFS *)fse;
    return PHYSFS_getLastModTime(e->path_cstr);
 }
 
-static bool fs_phys_exists(ALLEGRO_FS_ENTRY *fse)
+static bool fs_phys_entry_exists(ALLEGRO_FS_ENTRY *fse)
 {
    ALLEGRO_FS_ENTRY_PHYSFS *e = (ALLEGRO_FS_ENTRY_PHYSFS *)fse;
    return PHYSFS_exists(e->path_cstr) != 0;
 }
 
-static bool fs_phys_remove(ALLEGRO_FS_ENTRY *fse)
+static bool fs_phys_remove_entry(ALLEGRO_FS_ENTRY *fse)
 {
    ALLEGRO_FS_ENTRY_PHYSFS *e = (ALLEGRO_FS_ENTRY_PHYSFS *)fse;
    return PHYSFS_delete(e->path_cstr) != 0;
@@ -145,7 +145,7 @@ static ALLEGRO_FS_ENTRY *fs_phys_readdir(ALLEGRO_FS_ENTRY *fse)
    if (al_ustr_length(tmp) > 0)
       al_ustr_append_chr(tmp, '/');
    al_ustr_append_cstr(tmp, *e->file_list_pos);
-   next = fs_phys_create(al_cstr(tmp));
+   next = fs_phys_create_entry(al_cstr(tmp));
    al_ustr_free(tmp);
 
    e->file_list_pos++;
@@ -162,7 +162,7 @@ static bool fs_phys_closedir(ALLEGRO_FS_ENTRY *fse)
    return true;
 }
 
-static void fs_phys_destroy(ALLEGRO_FS_ENTRY *fse)
+static void fs_phys_destroy_entry(ALLEGRO_FS_ENTRY *fse)
 {
    ALLEGRO_FS_ENTRY_PHYSFS *e = (ALLEGRO_FS_ENTRY_PHYSFS *)fse;
    if (e->is_dir_open)
@@ -173,29 +173,27 @@ static void fs_phys_destroy(ALLEGRO_FS_ENTRY *fse)
 
 static const ALLEGRO_FS_INTERFACE fs_phys_vtable =
 {
-   fs_phys_create,
-   fs_phys_getcwd,
-   fs_phys_chdir,
-   fs_phys_exists_str,
-   fs_phys_remove_str,
-   fs_phys_mkdir,
-
-   fs_phys_destroy,
-   fs_phys_fname,
-   fs_phys_fstat,
-
-   fs_phys_size,
-   fs_phys_mode,
-   fs_phys_mtime,
-   fs_phys_mtime,
-   fs_phys_mtime,
-
-   fs_phys_exists,
-   fs_phys_remove,
+   fs_phys_create_entry,
+   fs_phys_destroy_entry,
+   fs_phys_entry_name,
+   fs_phys_update_entry,
+   fs_phys_entry_mode,
+   fs_phys_entry_mtime,
+   fs_phys_entry_mtime,
+   fs_phys_entry_mtime,
+   fs_phys_entry_size,
+   fs_phys_entry_exists,
+   fs_phys_remove_entry,
 
    fs_phys_opendir,
    fs_phys_readdir,
-   fs_phys_closedir
+   fs_phys_closedir,
+
+   fs_phys_filename_exists,
+   fs_phys_remove_filename,
+   fs_phys_getcwd,
+   fs_phys_chdir,
+   fs_phys_mkdir
 };
 
 void _al_set_physfs_fs_interface(void)

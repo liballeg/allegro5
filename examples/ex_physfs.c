@@ -36,13 +36,13 @@ static void show_image(ALLEGRO_BITMAP *bmp)
 
 static void print_file(ALLEGRO_FS_ENTRY *entry)
 {
-   int mode = al_get_entry_mode(entry);
+   int mode = al_get_fs_entry_mode(entry);
    time_t now = time(NULL);
-   time_t atime = al_get_entry_atime(entry);
-   time_t ctime = al_get_entry_ctime(entry);
-   time_t mtime = al_get_entry_mtime(entry);
-   const ALLEGRO_PATH *path = al_get_entry_name(entry);
-   off_t size = al_get_entry_size(entry);
+   time_t atime = al_get_fs_entry_atime(entry);
+   time_t ctime = al_get_fs_entry_ctime(entry);
+   time_t mtime = al_get_fs_entry_mtime(entry);
+   const ALLEGRO_PATH *path = al_get_fs_entry_name(entry);
+   off_t size = al_get_fs_entry_size(entry);
 
    printf("%-32s %s%s%s%s%s%s %10lu %10lu %10lu %13lu\n",
       al_path_cstr(path, '/'),
@@ -69,9 +69,9 @@ static void listdir(ALLEGRO_FS_ENTRY *entry)
          break;
 
       print_file(next);
-      if (al_is_directory(next))
+      if (al_fs_entry_is_dir(next))
          listdir(next);
-      al_destroy_entry(next);
+      al_destroy_fs_entry(next);
    }
    al_closedir(entry);
 }
@@ -123,9 +123,9 @@ int main(int argc, const char *argv[])
           "---------- "
           "---------- "
           "-------------\n");
-   entry = al_create_entry("");
+   entry = al_create_fs_entry("");
    listdir(entry);
-   al_destroy_entry(entry);
+   al_destroy_fs_entry(entry);
 
    bmp = al_load_bitmap("02.bmp");
    if (bmp) {

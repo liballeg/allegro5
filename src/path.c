@@ -550,7 +550,7 @@ bool al_is_path_present(const ALLEGRO_PATH *path)
    }
 #endif
 
-   rc = al_is_present_str(al_cstr(ustr));
+   rc = al_filename_exists(al_cstr(ustr));
    al_ustr_free(ustr);
 
    return rc;
