@@ -7,7 +7,7 @@ typedef struct ALLEGRO_MOUSE_IPHONE {
     ALLEGRO_MOUSE_STATE state;
 } ALLEGRO_MOUSE_IPHONE;
 
-static ALLEGRO_MOUSE_IPHONE the_mouse;
+static ALLEGRO_MOUSE_IPHONE the_mouse = {0};
 
 static bool imouse_installed;
 
@@ -61,6 +61,17 @@ void _al_iphone_generate_mouse_event(unsigned int type, int x, int y,
    }
 
    _al_event_source_unlock(&the_mouse.parent.es);
+
+   if (type == ALLEGRO_EVENT_MOUSE_BUTTON_DOWN) {
+   	the_mouse.state.x = x;
+	the_mouse.state.y = y;
+	the_mouse.state.buttons |= (1 << button);
+   }
+   else if (type == ALLEGRO_EVENT_MOUSE_BUTTON_UP) {
+   	the_mouse.state.x = x;
+	the_mouse.state.y = y;
+	the_mouse.state.buttons &= ~(1 << button);
+   }
 }
 
 static void imouse_exit(void);
