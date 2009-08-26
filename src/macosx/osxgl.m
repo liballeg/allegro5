@@ -394,7 +394,7 @@ void _al_osx_mouse_was_installed(BOOL install) {
    _al_osx_switch_keyboard_focus(dpy_ptr, false);
 	_al_event_source_unlock(src);
 }
--(void) windowDidResize:(NSNotIfication*) notification
+-(void) windowDidResize:(NSNotification*) notification
 {
    (void)notification;
 	ALLEGRO_DISPLAY_OSX_WIN* dpy =  (ALLEGRO_DISPLAY_OSX_WIN*) dpy_ptr;
