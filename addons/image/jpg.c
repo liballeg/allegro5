@@ -23,14 +23,14 @@ struct my_src_mgr
 {
    struct jpeg_source_mgr pub;
    unsigned char *buffer;
-   ALLEGRO_FILE *pf;
+   ALLEGRO_FILE *fp;
 };
 
 struct my_dest_mgr
 {
    struct jpeg_destination_mgr pub;
    unsigned char *buffer;
-   ALLEGRO_FILE *pf;
+   ALLEGRO_FILE *fp;
 };
 
 struct my_err_mgr
@@ -55,14 +55,14 @@ static A5_BOOLEAN_HACK fill_input_buffer(j_decompress_ptr cinfo)
 {
    struct my_src_mgr *src = (void *)cinfo->src;
    src->pub.next_input_byte = src->buffer;
-   src->pub.bytes_in_buffer = al_fread(src->pf, src->buffer, BUFFER_SIZE);
+   src->pub.bytes_in_buffer = al_fread(src->fp, src->buffer, BUFFER_SIZE);
    return 1;
 }
 
 static A5_BOOLEAN_HACK empty_output_buffer(j_compress_ptr cinfo)
 {
    struct my_dest_mgr *dest = (void *)cinfo->dest;
-   al_fwrite(dest->pf, dest->buffer, BUFFER_SIZE);
+   al_fwrite(dest->fp, dest->buffer, BUFFER_SIZE);
    dest->pub.next_output_byte = dest->buffer;
    dest->pub.free_in_buffer = BUFFER_SIZE;
    return 1;
@@ -77,7 +77,7 @@ static void skip_input_data(j_decompress_ptr cinfo, long num_bytes)
    }
    else {
       long skip = num_bytes - src->pub.bytes_in_buffer;
-      al_fseek(src->pf, skip, ALLEGRO_SEEK_CUR);
+      al_fseek(src->fp, skip, ALLEGRO_SEEK_CUR);
       src->pub.bytes_in_buffer = 0;
    }
 }
@@ -90,11 +90,11 @@ static void term_source(j_decompress_ptr cinfo)
 static void term_destination(j_compress_ptr cinfo)
 {
    struct my_dest_mgr *dest = (void *)cinfo->dest;
-   al_fwrite(dest->pf, dest->buffer, BUFFER_SIZE - dest->pub.free_in_buffer);
+   al_fwrite(dest->fp, dest->buffer, BUFFER_SIZE - dest->pub.free_in_buffer);
 }
 
 
-static void jpeg_packfile_src(j_decompress_ptr cinfo, ALLEGRO_FILE *pf,
+static void jpeg_packfile_src(j_decompress_ptr cinfo, ALLEGRO_FILE *fp,
                               unsigned char *buffer)
 {
    struct my_src_mgr *src;
@@ -112,10 +112,10 @@ static void jpeg_packfile_src(j_decompress_ptr cinfo, ALLEGRO_FILE *pf,
    src->pub.term_source = term_source;
    src->pub.bytes_in_buffer = 0;
    src->buffer = buffer;
-   src->pf = pf;
+   src->fp = fp;
 }
 
-static void jpeg_packfile_dest(j_compress_ptr cinfo, ALLEGRO_FILE *pf,
+static void jpeg_packfile_dest(j_compress_ptr cinfo, ALLEGRO_FILE *fp,
                                unsigned char *buffer)
 {
    struct my_dest_mgr *dest;
@@ -131,7 +131,7 @@ static void jpeg_packfile_dest(j_compress_ptr cinfo, ALLEGRO_FILE *pf,
    dest->pub.term_destination = term_destination;
    dest->pub.free_in_buffer = 0;
    dest->buffer = buffer;
-   dest->pf = pf;
+   dest->fp = fp;
 }
 
 static void my_error_exit(j_common_ptr cinfo)
@@ -152,7 +152,7 @@ struct load_jpg_entry_helper_data {
    unsigned char *row;
 };
 
-static void load_jpg_entry_helper(ALLEGRO_FILE *pf,
+static void load_jpg_entry_helper(ALLEGRO_FILE *fp,
    struct load_jpg_entry_helper_data *data)
 {
    struct jpeg_decompress_struct cinfo;
@@ -177,7 +177,7 @@ static void load_jpg_entry_helper(ALLEGRO_FILE *pf,
    }
 
    jpeg_create_decompress(&cinfo);
-   jpeg_packfile_src(&cinfo, pf, data->buffer);
+   jpeg_packfile_src(&cinfo, fp, data->buffer);
    jpeg_read_header(&cinfo, true);
    jpeg_start_decompress(&cinfo);
 
@@ -265,7 +265,7 @@ static void load_jpg_entry_helper(ALLEGRO_FILE *pf,
    _AL_FREE(data->row);
 }
 
-ALLEGRO_BITMAP *al_load_jpg_entry(ALLEGRO_FILE *pf)
+ALLEGRO_BITMAP *al_load_jpg_fp(ALLEGRO_FILE *fp)
 {
    ALLEGRO_STATE state;
    struct load_jpg_entry_helper_data data;
@@ -273,7 +273,7 @@ ALLEGRO_BITMAP *al_load_jpg_entry(ALLEGRO_FILE *pf)
    al_store_state(&state, ALLEGRO_STATE_TARGET_BITMAP);
 
    memset(&data, 0, sizeof(data));
-   load_jpg_entry_helper(pf, &data);
+   load_jpg_entry_helper(fp, &data);
 
    al_restore_state(&state);
 
@@ -286,7 +286,7 @@ struct save_jpg_entry_helper_data {
    unsigned char *buffer;
 };
 
-static void save_jpg_entry_helper(ALLEGRO_FILE *pf, ALLEGRO_BITMAP *bmp,
+static void save_jpg_entry_helper(ALLEGRO_FILE *fp, ALLEGRO_BITMAP *bmp,
    struct save_jpg_entry_helper_data *data)
 {
    struct jpeg_compress_struct cinfo;
@@ -310,7 +310,7 @@ static void save_jpg_entry_helper(ALLEGRO_FILE *pf, ALLEGRO_BITMAP *bmp,
    }
 
    jpeg_create_compress(&cinfo);
-   jpeg_packfile_dest(&cinfo, pf, data->buffer);
+   jpeg_packfile_dest(&cinfo, fp, data->buffer);
 
    cinfo.image_width = al_get_bitmap_width(bmp);
    cinfo.image_height = al_get_bitmap_height(bmp);
@@ -350,7 +350,7 @@ static void save_jpg_entry_helper(ALLEGRO_FILE *pf, ALLEGRO_BITMAP *bmp,
    _AL_FREE(data->buffer);
 }
 
-bool al_save_jpg_entry(ALLEGRO_FILE *pf, ALLEGRO_BITMAP *bmp)
+bool al_save_jpg_fp(ALLEGRO_FILE *fp, ALLEGRO_BITMAP *bmp)
 {
    ALLEGRO_STATE state;
    struct save_jpg_entry_helper_data data;
@@ -358,7 +358,7 @@ bool al_save_jpg_entry(ALLEGRO_FILE *pf, ALLEGRO_BITMAP *bmp)
    al_store_state(&state, ALLEGRO_STATE_TARGET_BITMAP);
 
    memset(&data, 0, sizeof(data));
-   save_jpg_entry_helper(pf, bmp, &data);
+   save_jpg_entry_helper(fp, bmp, &data);
 
    al_restore_state(&state);
 
@@ -369,18 +369,18 @@ bool al_save_jpg_entry(ALLEGRO_FILE *pf, ALLEGRO_BITMAP *bmp)
  */
 ALLEGRO_BITMAP *al_load_jpg(char const *filename)
 {
-   ALLEGRO_FILE *pf;
+   ALLEGRO_FILE *fp;
    ALLEGRO_BITMAP *bmp;
 
    ASSERT(filename);
 
-   pf = al_fopen(filename, "rb");
-   if (!pf)
+   fp = al_fopen(filename, "rb");
+   if (!fp)
       return NULL;
 
-   bmp = al_load_jpg_entry(pf);
+   bmp = al_load_jpg_fp(fp);
 
-   al_fclose(pf);
+   al_fclose(fp);
 
    return bmp;
 }
@@ -389,21 +389,21 @@ ALLEGRO_BITMAP *al_load_jpg(char const *filename)
  */
 bool al_save_jpg(char const *filename, ALLEGRO_BITMAP *bmp)
 {
-   ALLEGRO_FILE *pf;
+   ALLEGRO_FILE *fp;
    bool result;
 
    ASSERT(filename);
    ASSERT(bmp);
 
-   pf = al_fopen(filename, "wb");
-   if (!pf) {
+   fp = al_fopen(filename, "wb");
+   if (!fp) {
       TRACE("Unable to open file %s for writing\n", filename);
       return false;
    }
 
-   result = al_save_jpg_entry(pf, bmp);
+   result = al_save_jpg_fp(fp, bmp);
 
-   al_fclose(pf);
+   al_fclose(fp);
 
    return result;
 }

@@ -40,36 +40,36 @@ bool al_init_image_addon(void)
 
    success |= al_register_bitmap_loader(".pcx", al_load_pcx);
    success |= al_register_bitmap_saver(".pcx", al_save_pcx);
-   success |= al_register_bitmap_loader_entry(".pcx", al_load_pcx_entry);
-   success |= al_register_bitmap_saver_entry(".pcx", al_save_pcx_entry);
+   success |= al_register_bitmap_loader_fp(".pcx", al_load_pcx_fp);
+   success |= al_register_bitmap_saver_fp(".pcx", al_save_pcx_fp);
 
    success |= al_register_bitmap_loader(".bmp", al_load_bmp);
    success |= al_register_bitmap_saver(".bmp", al_save_bmp);
-   success |= al_register_bitmap_loader_entry(".bmp", al_load_bmp_entry);
-   success |= al_register_bitmap_saver_entry(".bmp", al_save_bmp_entry);
+   success |= al_register_bitmap_loader_fp(".bmp", al_load_bmp_fp);
+   success |= al_register_bitmap_saver_fp(".bmp", al_save_bmp_fp);
 
    success |= al_register_bitmap_loader(".tga", al_load_tga);
    success |= al_register_bitmap_saver(".tga", al_save_tga);
-   success |= al_register_bitmap_loader_entry(".tga", al_load_tga_entry);
-   success |= al_register_bitmap_saver_entry(".tga", al_save_tga_entry);
+   success |= al_register_bitmap_loader_fp(".tga", al_load_tga_fp);
+   success |= al_register_bitmap_saver_fp(".tga", al_save_tga_fp);
 
 #ifdef ALLEGRO_CFG_IIO_HAVE_PNG
    success |= al_register_bitmap_loader(".png", al_load_png);
    success |= al_register_bitmap_saver(".png", al_save_png);
-   success |= al_register_bitmap_loader_entry(".png", al_load_png_entry);
-   success |= al_register_bitmap_saver_entry(".png", al_save_png_entry);
+   success |= al_register_bitmap_loader_fp(".png", al_load_png_fp);
+   success |= al_register_bitmap_saver_fp(".png", al_save_png_fp);
 #endif
 
 #ifdef ALLEGRO_CFG_IIO_HAVE_JPG
    success |= al_register_bitmap_loader(".jpg", al_load_jpg);
    success |= al_register_bitmap_saver(".jpg", al_save_jpg);
-   success |= al_register_bitmap_loader_entry(".jpg", al_load_jpg_entry);
-   success |= al_register_bitmap_saver_entry(".jpg", al_save_jpg_entry);
+   success |= al_register_bitmap_loader_fp(".jpg", al_load_jpg_fp);
+   success |= al_register_bitmap_saver_fp(".jpg", al_save_jpg_fp);
 
    success |= al_register_bitmap_loader(".jpeg", al_load_jpg);
    success |= al_register_bitmap_saver(".jpeg", al_save_jpg);
-   success |= al_register_bitmap_loader_entry(".jpeg", al_load_jpg_entry);
-   success |= al_register_bitmap_saver_entry(".jpeg", al_save_jpg_entry);
+   success |= al_register_bitmap_loader_fp(".jpeg", al_load_jpg_fp);
+   success |= al_register_bitmap_saver_fp(".jpeg", al_save_jpg_fp);
 #endif
 
    if (success)
@@ -107,7 +107,7 @@ static Handler *find_handler(const char *extension)
 }
 
 
-static Handler *add_iio_table_entry(const char *ext)
+static Handler *add_iio_table_fp(const char *ext)
 {
    Handler *ent;
 
@@ -143,7 +143,7 @@ bool al_register_bitmap_loader(const char *extension,
        }
    }
    else if (!ent) {
-       ent = add_iio_table_entry(extension);
+       ent = add_iio_table_fp(extension);
    }
 
    ent->loader = loader;
@@ -173,7 +173,7 @@ bool al_register_bitmap_saver(const char *extension,
        }
    }
    else if (!ent) {
-       ent = add_iio_table_entry(extension);
+       ent = add_iio_table_fp(extension);
    }
 
    ent->saver = saver;
@@ -182,61 +182,61 @@ bool al_register_bitmap_saver(const char *extension,
 }
 
 
-/* Function: al_register_bitmap_loader_entry
+/* Function: al_register_bitmap_loader_fp
  */
-bool al_register_bitmap_loader_entry(const char *extension,
-   ALLEGRO_BITMAP *(*loader_entry)(ALLEGRO_FILE *pf))
+bool al_register_bitmap_loader_fp(const char *extension,
+   ALLEGRO_BITMAP *(*loader_fp)(ALLEGRO_FILE *fp))
 {
    Handler *ent;
 
    ASSERT(extension);
-   ASSERT(loader_entry);
+   ASSERT(loader_fp);
 
    if (strlen(extension) + 1 >= MAX_EXTENSION) {
       return false;
    }
 
    ent = find_handler(extension);
-   if (!loader_entry) {
+   if (!loader_fp) {
        if (!ent || !ent->fs_loader) {
          return false; /* Nothing to remove. */
        }
    }
    else if (!ent) {
-       ent = add_iio_table_entry(extension);
+       ent = add_iio_table_fp(extension);
    }
 
-   ent->fs_loader = loader_entry;
+   ent->fs_loader = loader_fp;
 
    return true;
 }
 
 
-/* Function: al_register_bitmap_saver_entry
+/* Function: al_register_bitmap_saver_fp
  */
-bool al_register_bitmap_saver_entry(const char *extension,
-   bool (*saver_entry)(ALLEGRO_FILE *pf, ALLEGRO_BITMAP *bmp))
+bool al_register_bitmap_saver_fp(const char *extension,
+   bool (*saver_fp)(ALLEGRO_FILE *fp, ALLEGRO_BITMAP *bmp))
 {
    Handler *ent;
 
    ASSERT(extension);
-   ASSERT(saver_entry);
+   ASSERT(saver_fp);
 
    if (strlen(extension) + 1 >= MAX_EXTENSION) {
       return false;
    }
 
    ent = find_handler(extension);
-   if (!saver_entry) {
+   if (!saver_fp) {
        if (!ent || !ent->fs_saver) {
          return false; /* Nothing to remove. */
        }
    }
    else if (!ent) {
-       ent = add_iio_table_entry(extension);
+       ent = add_iio_table_fp(extension);
    }
 
-   ent->fs_saver = saver_entry;
+   ent->fs_saver = saver_fp;
 
    return true;
 }
@@ -282,26 +282,26 @@ bool al_save_bitmap(const char *filename, ALLEGRO_BITMAP *bitmap)
 }
 
 
-/* Function: al_load_bitmap_entry
+/* Function: al_load_bitmap_fp
  */
-ALLEGRO_BITMAP *al_load_bitmap_entry(ALLEGRO_FILE *pf, const char *ident)
+ALLEGRO_BITMAP *al_load_bitmap_fp(ALLEGRO_FILE *fp, const char *ident)
 {
    Handler *h = find_handler(ident);
    if (h)
-      return h->fs_loader(pf);
+      return h->fs_loader(fp);
    else
       return NULL;
 }
 
 
-/* Function: al_save_bitmap_entry
+/* Function: al_save_bitmap_fp
  */
-bool al_save_bitmap_entry(ALLEGRO_FILE *pf, const char *ident,
+bool al_save_bitmap_fp(ALLEGRO_FILE *fp, const char *ident,
    ALLEGRO_BITMAP *bitmap)
 {
    Handler *h = find_handler(ident);
    if (h)
-      return h->fs_saver(pf, bitmap);
+      return h->fs_saver(fp, bitmap);
    else {
       TRACE("No handler for image %s found\n", ident);
       return false;

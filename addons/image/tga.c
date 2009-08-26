@@ -257,14 +257,14 @@ static void rle_tga_read16(unsigned short *b, int w, ALLEGRO_FILE *f)
 }
 
 
-/* al_load_tga_entry:
+/* al_load_tga_fp:
  *  Like load_tga, but starts loading from the current place in the ALLEGRO_FILE
  *  specified. If successful the offset into the file will be left just after
  *  the image data. If unsuccessful the offset into the file is unspecified,
  *  i.e. you must either reset the offset to some known place or close the
  *  packfile. The packfile is not closed by this function.
  */
-ALLEGRO_BITMAP *al_load_tga_entry(ALLEGRO_FILE *f)
+ALLEGRO_BITMAP *al_load_tga_fp(ALLEGRO_FILE *f)
 {
    unsigned char image_id[256], image_palette[256][3];
    unsigned char id_length, palette_type, image_type, palette_entry_size;
@@ -478,13 +478,13 @@ ALLEGRO_BITMAP *al_load_tga_entry(ALLEGRO_FILE *f)
 
 
 
-/* al_save_tga_entry:
+/* al_save_tga_fp:
  *  Like save_tga but writes into the ALLEGRO_FILE given instead of a new file.
  *  The packfile is not closed after writing is completed. On success the
  *  offset into the file is left after the TGA file just written. On failure
  *  the offset is left at the end of whatever incomplete data was written.
  */
-bool al_save_tga_entry(ALLEGRO_FILE *f, ALLEGRO_BITMAP *bmp)
+bool al_save_tga_fp(ALLEGRO_FILE *f, ALLEGRO_BITMAP *bmp)
 {
    int x, y;
    int w, h;
@@ -542,7 +542,7 @@ ALLEGRO_BITMAP *al_load_tga(const char *filename)
    if (!f)
       return NULL;
 
-   bmp = al_load_tga_entry(f);
+   bmp = al_load_tga_fp(f);
 
    al_fclose(f);
 
@@ -563,7 +563,7 @@ bool al_save_tga(const char *filename, ALLEGRO_BITMAP *bmp)
    if (!f)
       return false;
 
-   ret = al_save_tga_entry(f, bmp);
+   ret = al_save_tga_fp(f, bmp);
 
    al_fclose(f);
 
