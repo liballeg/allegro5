@@ -436,7 +436,7 @@ multiple times on the same bitmap.
 ### API: al_draw_rotated_bitmap
 
 Draws a rotated version of the given bitmap to the target bitmap.
-The bitmap is rotated by 'angle' radians counter clockwise.
+The bitmap is rotated by 'angle' radians clockwise.
 
 The point at cx/cy inside the bitmap will be drawn at dx/dy and the
 bitmap is rotated around this point.
