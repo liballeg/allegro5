@@ -10,7 +10,7 @@ static void print_file(ALLEGRO_FS_ENTRY *entry)
    time_t atime = al_get_entry_atime(entry);
    time_t ctime = al_get_entry_ctime(entry);
    time_t mtime = al_get_entry_mtime(entry);
-   ALLEGRO_PATH *path = al_get_entry_name(entry);
+   const ALLEGRO_PATH *path = al_get_entry_name(entry);
    off_t size = al_get_entry_size(entry);
    char const *name;
    if (al_is_directory(entry))
@@ -29,7 +29,6 @@ static void print_file(ALLEGRO_FS_ENTRY *entry)
       now - mtime,
       now - atime,
       size);
-   al_free_path(path);
 }
 
 static void print_entry(ALLEGRO_FS_ENTRY *entry)

@@ -338,7 +338,8 @@ struct ALLEGRO_FS_ENTRY_STDIO {
    } hd;
 
    struct stat st;
-   char *path;  // stores the path given by the user.
+   char *path;                /* stores the path given by the user */
+   ALLEGRO_PATH *apath;       /* for al_get_entry_name */
    char mode[6];
    uint32_t free_on_fclose;
    uint32_t ulink;
@@ -517,6 +518,9 @@ static void al_fs_stdio_destroy_handle(ALLEGRO_FS_ENTRY *fh_)
    if (fh->path)
       _AL_FREE(fh->path);
 
+   if (fh->apath)
+      al_free_path(fh->apath);
+
    if (fh->isdir)
       al_fs_stdio_closedir(fh_);
 
@@ -686,13 +690,20 @@ static bool al_fs_stdio_file_remove(const char *path)
    return true;
 }
 
-static ALLEGRO_PATH *al_fs_stdio_fname(ALLEGRO_FS_ENTRY *fp)
+static const ALLEGRO_PATH *al_fs_stdio_fname(ALLEGRO_FS_ENTRY *fp)
 {
    ALLEGRO_FS_ENTRY_STDIO *fp_stdio = (ALLEGRO_FS_ENTRY_STDIO *) fp;
-   if (al_is_directory(fp))
-      return al_create_path_for_dir(fp_stdio->path);
-   else
-      return al_create_path(fp_stdio->path);
+
+   if (!fp_stdio->apath) {
+      if (al_is_directory(fp)) {
+         fp_stdio->apath = al_create_path_for_dir(fp_stdio->path);
+      }
+      else {
+         fp_stdio->apath = al_create_path(fp_stdio->path);
+      }
+   }
+
+   return fp_stdio->apath;
 }
 
 struct ALLEGRO_FS_INTERFACE _al_fs_interface_stdio = {

@@ -51,7 +51,7 @@ void al_destroy_entry(ALLEGRO_FS_ENTRY *handle)
 
 /* Function: al_get_entry_name
  */
-ALLEGRO_PATH *al_get_entry_name(ALLEGRO_FS_ENTRY *fp)
+const ALLEGRO_PATH *al_get_entry_name(ALLEGRO_FS_ENTRY *fp)
 {
    ASSERT(fp != NULL);
 

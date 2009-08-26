@@ -71,7 +71,7 @@ struct ALLEGRO_FS_INTERFACE {
 
    AL_METHOD(void, destroy, (ALLEGRO_FS_ENTRY *handle));
 
-   AL_METHOD(ALLEGRO_PATH *, fname, (ALLEGRO_FS_ENTRY *handle));
+   AL_METHOD(const ALLEGRO_PATH *, fname, (ALLEGRO_FS_ENTRY *handle));
 
    AL_METHOD(bool,    fstat,  (ALLEGRO_FS_ENTRY *handle));
 
@@ -92,7 +92,7 @@ struct ALLEGRO_FS_INTERFACE {
 AL_FUNC(ALLEGRO_FS_ENTRY*, al_create_entry, (const char *path));
 AL_FUNC(void, al_destroy_entry, (ALLEGRO_FS_ENTRY *handle));
 
-AL_FUNC(ALLEGRO_PATH *, al_get_entry_name, (ALLEGRO_FS_ENTRY *fp));
+AL_FUNC(const ALLEGRO_PATH *, al_get_entry_name, (ALLEGRO_FS_ENTRY *fp));
 
 AL_FUNC(bool, al_fstat, (ALLEGRO_FS_ENTRY *fp));
 
