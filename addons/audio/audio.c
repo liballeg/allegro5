@@ -10,7 +10,6 @@
 #include <stdio.h>
 
 #include "allegro5/allegro_audio.h"
-#include "allegro5/internal/aintern_system.h"
 #include "allegro5/internal/aintern_audio.h"
 #include "allegro5/internal/aintern_audio_cfg.h"
 
@@ -84,13 +83,13 @@ int _al_kcm_get_silence(ALLEGRO_AUDIO_DEPTH depth)
 
 static ALLEGRO_AUDIO_DRIVER_ENUM get_config_audio_driver(void)
 {
-   ALLEGRO_SYSTEM *sys = al_system_driver();
+   ALLEGRO_CONFIG *config = al_get_system_config();
    const char *value;
 
-   if (!sys || !sys->config)
+   if (!config)
       return ALLEGRO_AUDIO_DRIVER_AUTODETECT;
 
-   value = al_get_config_value(sys->config, "sound", "driver");
+   value = al_get_config_value(config, "sound", "driver");
    if (!value || value[0] == '\0')
       return ALLEGRO_AUDIO_DRIVER_AUTODETECT;
 

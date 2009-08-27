@@ -93,11 +93,13 @@ ALLEGRO_DEBUG_CHANNEL("opengl")
 /* Reads version info out of glGetString(GL_VERSION) */
 static float _al_ogl_version(void)
 {
+   ALLEGRO_CONFIG *cfg;
    const char *str;
-   
-   if (al_system_driver()->config) {
-      char const *value = al_get_config_value(
-         al_system_driver()->config, "opengl", "force_opengl_version");
+
+   cfg = al_get_system_config();
+   if (cfg) {
+      char const *value = al_get_config_value(cfg,
+	 "opengl", "force_opengl_version");
       if (value) {
          float v = strtod(value, NULL);
          ALLEGRO_WARN("OpenGL version forced to %.1f.\n", v);
@@ -417,6 +419,7 @@ static int _ogl_is_extension_supported(AL_CONST char *extension,
 static bool _ogl_is_extension_with_version_supported(
    AL_CONST char *extension, ALLEGRO_DISPLAY *disp, float ver)
 {
+   ALLEGRO_CONFIG *cfg;
    char const *value;
 
   /* For testing purposes, any OpenGL extension can be disable in
@@ -427,8 +430,9 @@ static bool _ogl_is_extension_with_version_supported(
     * GL_EXT_framebuffer_object=0
     * 
     */
-   if (al_system_driver()->config) {
-      value = al_get_config_value(al_system_driver()->config,
+   cfg = al_get_system_config();
+   if (cfg) {
+      value = al_get_config_value(cfg,
          "opengl_disabled_extensions", extension);
       if (value) {
          ALLEGRO_WARN("%s found in [opengl_disabled_extensions].\n",

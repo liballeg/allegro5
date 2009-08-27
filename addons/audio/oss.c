@@ -16,7 +16,6 @@
  */
 
 #include "allegro5/allegro.h"
-#include "allegro5/internal/aintern_system.h"
 #include "allegro5/internal/aintern_audio.h"
 
 #include <stdlib.h>
@@ -196,10 +195,10 @@ static int oss_open_ver4()
 
 static int oss_open_ver3(void)
 {
-   ALLEGRO_SYSTEM *sys = al_system_driver();
-   if (sys->config) {
+   ALLEGRO_CONFIG *config = al_get_system_config();
+   if (config) {
       const char *config_device;
-      config_device = al_get_config_value(sys->config, "oss", "device");
+      config_device = al_get_config_value(config, "oss", "device");
       if (config_device && config_device[0] != '\0')
          oss_audio_device_ver3 = config_device;
    }
@@ -240,10 +239,10 @@ static int oss_open_ver3(void)
 static int oss_open(void)
 {
    bool force_oss3 = false;
-   ALLEGRO_SYSTEM *sys = al_system_driver();
-   if (sys->config) {
+   ALLEGRO_CONFIG *config = al_get_system_config();
+   if (config) {
       const char *force_oss3_cfg;
-      force_oss3_cfg = al_get_config_value(sys->config, "oss", "force_ver3");
+      force_oss3_cfg = al_get_config_value(config, "oss", "force_ver3");
       if (force_oss3_cfg && force_oss3_cfg[0] != '\0')
          force_oss3 = strcmp(force_oss3_cfg, "yes") ? false : true;
    }

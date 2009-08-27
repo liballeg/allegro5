@@ -69,6 +69,11 @@ and never touched again.
 
 Returns the currently active system driver, or NULL.
 
+## API: al_get_system_config
+
+Returns the configuration for the installed system, if any, or NULL otherwise.
+This is mainly used for configuring Allegro and its addons.
+
 ## API: al_uninstall_system
 
 Closes down the Allegro system.

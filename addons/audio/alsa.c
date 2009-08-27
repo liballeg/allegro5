@@ -21,7 +21,6 @@
  */
 
 #include "allegro5/allegro.h"
-#include "allegro5/internal/aintern_system.h"
 #include "allegro5/internal/aintern_audio.h"
 
 #include <alsa/asoundlib.h>
@@ -68,10 +67,10 @@ static int alsa_open(void)
 {
    alsa_device = default_device;
 
-   ALLEGRO_SYSTEM *sys = al_system_driver();
-   if (sys->config) {
+   ALLEGRO_CONFIG *config = al_get_system_config();
+   if (config) {
       const char *config_device;
-      config_device = al_get_config_value(sys->config, "alsa", "device");
+      config_device = al_get_config_value(config, "alsa", "device");
       if (config_device && config_device[0] != '\0')
          alsa_device = strdup(config_device);
    }

@@ -14,7 +14,6 @@
 #include "allegro5/allegro_audio.h"
 #include "allegro5/internal/aintern_audio.h"
 #include "allegro5/internal/aintern_audio_cfg.h"
-#include "allegro5/internal/aintern_system.h"
 
 ALLEGRO_DEBUG_CHANNEL("sound")
 
@@ -677,12 +676,13 @@ ALLEGRO_MIXER *al_create_mixer(unsigned long freq,
    ALLEGRO_AUDIO_DEPTH depth, ALLEGRO_CHANNEL_CONF chan_conf)
 {
    ALLEGRO_MIXER *mixer;
-   ALLEGRO_SYSTEM *sys = al_system_driver();
+   ALLEGRO_CONFIG *config;
    int default_mixer_quality = ALLEGRO_MIXER_QUALITY_LINEAR;
 
-   if (sys->config) {
+   config = al_get_system_config();
+   if (config) {
       const char *p;
-      p = al_get_config_value(sys->config, "audio", "default_mixer_quality");
+      p = al_get_config_value(config, "audio", "default_mixer_quality");
       if (p && p[0] != '\0') {
          if (!strcmp(p, "point"))
 	 	default_mixer_quality = ALLEGRO_MIXER_QUALITY_POINT;

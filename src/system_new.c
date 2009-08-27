@@ -252,6 +252,14 @@ ALLEGRO_SYSTEM *al_system_driver(void)
 }
 
 
+/* Function: al_get_system_config
+ */
+ALLEGRO_CONFIG *al_get_system_config(void)
+{
+   return (active_sysdrv) ? active_sysdrv->config : NULL;
+}
+
+
 /* Function: al_get_standard_path
  */
 ALLEGRO_PATH *al_get_standard_path(int id)
