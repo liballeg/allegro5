@@ -280,7 +280,7 @@ static ALLEGRO_SYSTEM *xglx_initialize(int flags)
 static void xglx_shutdown_system(void)
 {
    /* Close all open displays. */
-   ALLEGRO_SYSTEM *s = al_system_driver();
+   ALLEGRO_SYSTEM *s = al_get_system_driver();
    ALLEGRO_SYSTEM_XGLX *sx = (void *)s;
 
    ALLEGRO_INFO("shutting down.\n");
@@ -341,7 +341,7 @@ static ALLEGRO_JOYSTICK_DRIVER *xglx_get_joystick_driver(void)
 static int xglx_get_num_video_adapters(void)
 {
 #ifdef ALLEGRO_XWINDOWS_WITH_XINERAMA
-   ALLEGRO_SYSTEM_XGLX *system = (void *)al_system_driver();
+   ALLEGRO_SYSTEM_XGLX *system = (void *)al_get_system_driver();
    if (!system->xinerama_available) {
       return 1;
    }
@@ -386,7 +386,7 @@ static void xglx_get_smonitor_info(ALLEGRO_SYSTEM_XGLX *system, ALLEGRO_MONITOR_
 // to use xrandr once nvidia gets arround to supporting at least XRandR 1.2
 static void xglx_get_monitor_info(int adapter, ALLEGRO_MONITOR_INFO *info)
 {
-   ALLEGRO_SYSTEM_XGLX *system = (void *)al_system_driver();
+   ALLEGRO_SYSTEM_XGLX *system = (void *)al_get_system_driver();
 
 #ifdef ALLEGRO_XWINDOWS_WITH_XINERAMA
    if (system->xinerama_available) {
@@ -412,7 +412,7 @@ static void xglx_get_monitor_info(int adapter, ALLEGRO_MONITOR_INFO *info)
 
 static int xglx_get_num_display_formats(void)
 {
-   ALLEGRO_SYSTEM_XGLX *system = (void *)al_system_driver();
+   ALLEGRO_SYSTEM_XGLX *system = (void *)al_get_system_driver();
    return system->visuals_count;
 }
 
@@ -420,7 +420,7 @@ static int xglx_get_num_display_formats(void)
 
 static int xglx_get_display_format_option(int i, int option)
 {
-   ALLEGRO_SYSTEM_XGLX *system = (void *)al_system_driver();
+   ALLEGRO_SYSTEM_XGLX *system = (void *)al_get_system_driver();
    ASSERT(i < system->visuals_count);
 
    if (!system->visuals[i])
@@ -432,7 +432,7 @@ static int xglx_get_display_format_option(int i, int option)
 
 static void xglx_set_new_display_format(int i)
 {
-   ALLEGRO_SYSTEM_XGLX *system = (void *)al_system_driver();
+   ALLEGRO_SYSTEM_XGLX *system = (void *)al_get_system_driver();
    int j;
    for (j = 0; j < ALLEGRO_DISPLAY_OPTIONS_COUNT; j++) {
       /* It does not matter whether we use SUGGEST or REQUIRE -
@@ -445,7 +445,7 @@ static void xglx_set_new_display_format(int i)
 
 static bool xglx_get_cursor_position(int *ret_x, int *ret_y)
 {
-   ALLEGRO_SYSTEM_XGLX *system = (void *)al_system_driver();
+   ALLEGRO_SYSTEM_XGLX *system = (void *)al_get_system_driver();
    Window root = RootWindow(system->x11display, 0);
    Window child;
    int wx, wy;
@@ -460,7 +460,7 @@ static bool xglx_get_cursor_position(int *ret_x, int *ret_y)
 
 static bool xglx_inhibit_screensaver(bool inhibit)
 {
-   ALLEGRO_SYSTEM_XGLX *system = (void *)al_system_driver();
+   ALLEGRO_SYSTEM_XGLX *system = (void *)al_get_system_driver();
 
    system->inhibit_screensaver = inhibit;
    return true;

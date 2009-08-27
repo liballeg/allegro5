@@ -186,7 +186,7 @@ static void get_keyboard_state(ALLEGRO_KEYBOARD_STATE *ret_state)
    ALLEGRO_DISPLAY *disp = NULL;
    ALLEGRO_SYSTEM *sys;
 
-   sys = al_system_driver();
+   sys = al_get_system_driver();
    for (i = 0; i < sys->displays._size; i++) {
       ALLEGRO_DISPLAY_WIN **d = (void*)_al_vector_ref(&sys->displays, i);
       if ((*d)->window == GetForegroundWindow()) {

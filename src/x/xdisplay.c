@@ -35,7 +35,7 @@ static void setup_gl(ALLEGRO_DISPLAY *d)
 static void set_size_hints(ALLEGRO_DISPLAY *d, int w, int h)
 {
    if (!(d->flags & ALLEGRO_RESIZABLE)) {
-      ALLEGRO_SYSTEM_XGLX *system = (void *)al_system_driver();
+      ALLEGRO_SYSTEM_XGLX *system = (void *)al_get_system_driver();
       ALLEGRO_DISPLAY_XGLX *glx = (void *)d;
       XSizeHints *hints = XAllocSizeHints();;
 
@@ -53,7 +53,7 @@ static void set_size_hints(ALLEGRO_DISPLAY *d, int w, int h)
 /* Helper to set a window icon. */
 static void xdpy_set_icon(ALLEGRO_DISPLAY *d, ALLEGRO_BITMAP *bitmap)
 {
-   ALLEGRO_SYSTEM_XGLX *system = (void *)al_system_driver();
+   ALLEGRO_SYSTEM_XGLX *system = (void *)al_get_system_driver();
    ALLEGRO_DISPLAY_XGLX *display = (void *)d;
    XWMHints wm_hints;
 
@@ -120,7 +120,7 @@ static void xdpy_set_icon(ALLEGRO_DISPLAY *d, ALLEGRO_BITMAP *bitmap)
 
 static void xdpy_set_window_position(ALLEGRO_DISPLAY *display, int x, int y)
 {
-   ALLEGRO_SYSTEM_XGLX *system = (void *)al_system_driver();
+   ALLEGRO_SYSTEM_XGLX *system = (void *)al_get_system_driver();
    ALLEGRO_DISPLAY_XGLX *glx = (ALLEGRO_DISPLAY_XGLX *)display;
    Window root, parent, child, *children;
    unsigned int n;
@@ -146,7 +146,7 @@ static void xdpy_set_window_position(ALLEGRO_DISPLAY *display, int x, int y)
 
 static void xdpy_toggle_frame(ALLEGRO_DISPLAY *display, bool onoff)
 {
-   ALLEGRO_SYSTEM_XGLX *system = (void *)al_system_driver();
+   ALLEGRO_SYSTEM_XGLX *system = (void *)al_get_system_driver();
    ALLEGRO_DISPLAY_XGLX *glx = (ALLEGRO_DISPLAY_XGLX *)display;
    Display *x11 = system->x11display;
    Atom hints;
@@ -188,7 +188,7 @@ static ALLEGRO_DISPLAY *xdpy_create_display(int w, int h)
    memset(ogl, 0, sizeof *ogl);
    display->ogl_extras = ogl;
 
-   ALLEGRO_SYSTEM_XGLX *system = (void *)al_system_driver();
+   ALLEGRO_SYSTEM_XGLX *system = (void *)al_get_system_driver();
 
    _al_mutex_lock(&system->lock);
 
@@ -408,7 +408,7 @@ static ALLEGRO_DISPLAY *xdpy_create_display(int w, int h)
 
 static void xdpy_destroy_display(ALLEGRO_DISPLAY *d)
 {
-   ALLEGRO_SYSTEM_XGLX *s = (void *)al_system_driver();
+   ALLEGRO_SYSTEM_XGLX *s = (void *)al_get_system_driver();
    ALLEGRO_DISPLAY_XGLX *glx = (void *)d;
    ALLEGRO_OGL_EXTRAS *ogl = d->ogl_extras;
 
@@ -493,7 +493,7 @@ static void xdpy_destroy_display(ALLEGRO_DISPLAY *d)
 
 static bool xdpy_set_current_display(ALLEGRO_DISPLAY *d)
 {
-   ALLEGRO_SYSTEM_XGLX *system = (ALLEGRO_SYSTEM_XGLX *)al_system_driver();
+   ALLEGRO_SYSTEM_XGLX *system = (ALLEGRO_SYSTEM_XGLX *)al_get_system_driver();
    ALLEGRO_DISPLAY_XGLX *glx = (ALLEGRO_DISPLAY_XGLX *)d;
    ALLEGRO_OGL_EXTRAS *ogl = d->ogl_extras;
 
@@ -519,7 +519,7 @@ static bool xdpy_set_current_display(ALLEGRO_DISPLAY *d)
 
 static void xdpy_unset_current_display(ALLEGRO_DISPLAY *d)
 {
-   ALLEGRO_SYSTEM_XGLX *system = (ALLEGRO_SYSTEM_XGLX *)al_system_driver();
+   ALLEGRO_SYSTEM_XGLX *system = (ALLEGRO_SYSTEM_XGLX *)al_get_system_driver();
    (void)d;
 
    glXMakeContextCurrent(system->gfxdisplay, None, None, NULL);
@@ -530,7 +530,7 @@ static void xdpy_unset_current_display(ALLEGRO_DISPLAY *d)
 /* Dummy implementation of flip. */
 static void xdpy_flip_display(ALLEGRO_DISPLAY *d)
 {
-   ALLEGRO_SYSTEM_XGLX *system = (ALLEGRO_SYSTEM_XGLX *)al_system_driver();
+   ALLEGRO_SYSTEM_XGLX *system = (ALLEGRO_SYSTEM_XGLX *)al_get_system_driver();
    ALLEGRO_DISPLAY_XGLX *glx = (ALLEGRO_DISPLAY_XGLX *)d;
    if (d->extra_settings.settings[ALLEGRO_SINGLE_BUFFER])
       glFlush();
@@ -550,7 +550,7 @@ static void xdpy_update_display_region(ALLEGRO_DISPLAY *d, int x, int y,
 
 static bool xdpy_acknowledge_resize(ALLEGRO_DISPLAY *d)
 {
-   ALLEGRO_SYSTEM_XGLX *system = (ALLEGRO_SYSTEM_XGLX *)al_system_driver();
+   ALLEGRO_SYSTEM_XGLX *system = (ALLEGRO_SYSTEM_XGLX *)al_get_system_driver();
    ALLEGRO_DISPLAY_XGLX *glx = (ALLEGRO_DISPLAY_XGLX *)d;
    XWindowAttributes xwa;
    unsigned int w, h;
@@ -581,7 +581,7 @@ static bool xdpy_acknowledge_resize(ALLEGRO_DISPLAY *d)
 
 static bool xdpy_resize_display(ALLEGRO_DISPLAY *d, int w, int h)
 {
-   ALLEGRO_SYSTEM_XGLX *system = (ALLEGRO_SYSTEM_XGLX *)al_system_driver();
+   ALLEGRO_SYSTEM_XGLX *system = (ALLEGRO_SYSTEM_XGLX *)al_get_system_driver();
    ALLEGRO_DISPLAY_XGLX *glx = (ALLEGRO_DISPLAY_XGLX *)d;
 
    _al_mutex_lock(&system->lock);
@@ -747,7 +747,7 @@ static void xdpy_get_window_position(ALLEGRO_DISPLAY *display, int *x, int *y)
 static void xdpy_set_window_title(
    ALLEGRO_DISPLAY *display, AL_CONST char *title)
 {
-   ALLEGRO_SYSTEM_XGLX *system = (ALLEGRO_SYSTEM_XGLX *)al_system_driver();
+   ALLEGRO_SYSTEM_XGLX *system = (ALLEGRO_SYSTEM_XGLX *)al_get_system_driver();
    ALLEGRO_DISPLAY_XGLX *glx = (ALLEGRO_DISPLAY_XGLX *)display;
 
    _al_mutex_lock(&system->lock);

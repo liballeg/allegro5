@@ -16,7 +16,7 @@ typedef struct ALLEGRO_SYSTEM ALLEGRO_SYSTEM;
 
 AL_FUNC(bool, al_install_system, (int (*atexit_ptr)(void (*)(void))));
 AL_FUNC(void, al_uninstall_system, (void));
-AL_FUNC(ALLEGRO_SYSTEM *, al_system_driver, (void));
+AL_FUNC(ALLEGRO_SYSTEM *, al_get_system_driver, (void));
 AL_FUNC(ALLEGRO_CONFIG *, al_get_system_config, (void));
 
 enum {

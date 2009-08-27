@@ -78,7 +78,7 @@ ALLEGRO_BITMAP *al_create_bitmap(int w, int h)
 {
    ALLEGRO_BITMAP *bitmap;
    ALLEGRO_BITMAP **back;
-   ALLEGRO_SYSTEM *system = al_system_driver();
+   ALLEGRO_SYSTEM *system = al_get_system_driver();
    ALLEGRO_DISPLAY *current_display = al_get_current_display();
 
    if ((al_get_new_bitmap_flags() & ALLEGRO_MEMORY_BITMAP) ||

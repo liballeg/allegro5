@@ -840,7 +840,7 @@ static ALLEGRO_EXTRA_DISPLAY_SETTINGS** get_available_pixel_formats_old(int *cou
 static bool select_pixel_format(ALLEGRO_DISPLAY_WGL *d, HDC dc)
 {
    ALLEGRO_EXTRA_DISPLAY_SETTINGS **eds = NULL;
-   ALLEGRO_SYSTEM *system = (void *)al_system_driver();
+   ALLEGRO_SYSTEM *system = (void *)al_get_system_driver();
    int eds_count = 0;
    int i;
    bool force_old = false;
@@ -1013,7 +1013,7 @@ static bool create_display_internals(ALLEGRO_DISPLAY_WGL *wgl_disp)
 
 static ALLEGRO_DISPLAY* wgl_create_display(int w, int h)
 {
-   ALLEGRO_SYSTEM_WIN *system = (ALLEGRO_SYSTEM_WIN *)al_system_driver();
+   ALLEGRO_SYSTEM_WIN *system = (ALLEGRO_SYSTEM_WIN *)al_get_system_driver();
    ALLEGRO_DISPLAY_WGL **add;
    ALLEGRO_DISPLAY_WGL *wgl_display = _AL_MALLOC(sizeof *wgl_display);
    ALLEGRO_DISPLAY *ogl_display = (void*)wgl_display;
@@ -1081,7 +1081,7 @@ static void destroy_display_internals(ALLEGRO_DISPLAY_WGL *wgl_disp)
 
 static void wgl_destroy_display(ALLEGRO_DISPLAY *disp)
 {
-   ALLEGRO_SYSTEM_WIN *system = (ALLEGRO_SYSTEM_WIN *)al_system_driver();
+   ALLEGRO_SYSTEM_WIN *system = (ALLEGRO_SYSTEM_WIN *)al_get_system_driver();
    ALLEGRO_DISPLAY_WGL *wgl_disp = (ALLEGRO_DISPLAY_WGL *)disp;
    ALLEGRO_DISPLAY *old_disp = al_get_current_display();
 
@@ -1592,7 +1592,7 @@ static int cached_eds_size = 0;
 
 int _al_wgl_get_num_display_formats()
 {
-   ALLEGRO_SYSTEM *system = (void *)al_system_driver();
+   ALLEGRO_SYSTEM *system = (void *)al_get_system_driver();
    int eds_count = 0;
    bool force_old = false;
 

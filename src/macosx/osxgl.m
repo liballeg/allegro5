@@ -169,7 +169,7 @@ void _al_osx_mouse_was_installed(BOOL install) {
       return;
    }
    _osx_mouse_installed = install;
-   _AL_VECTOR* dpys = &al_system_driver()->displays;
+   _AL_VECTOR* dpys = &al_get_system_driver()->displays;
    for (i = 0; i < _al_vector_size(dpys); ++i) {
          ALLEGRO_DISPLAY* dpy = *(ALLEGRO_DISPLAY**) _al_vector_ref(dpys, i);
          NSView* view = osx_view_from_display(dpy);
@@ -721,7 +721,7 @@ static void osx_get_opengl_pixelformat_attributes(ALLEGRO_DISPLAY_OSX_WIN *dpy)
 }
 +(void) destroyDisplay: (NSValue*) display_object {
    ALLEGRO_DISPLAY_OSX_WIN* dpy = [display_object pointerValue];
-   _al_vector_find_and_delete(&al_system_driver()->displays, &dpy);
+   _al_vector_find_and_delete(&al_get_system_driver()->displays, &dpy);
    // Disconnect from its view or exit fullscreen mode
    [dpy->ctx clearDrawable];
    // Unlock the screen 
@@ -802,7 +802,7 @@ static void osx_get_opengl_pixelformat_attributes(ALLEGRO_DISPLAY_OSX_WIN *dpy)
 static NSOpenGLContext* osx_create_shareable_context(NSOpenGLPixelFormat* fmt, unsigned int* group)
 {
    // Iterate through all existing displays and try and find one that's compatible
-   _AL_VECTOR* dpys = &al_system_driver()->displays;
+   _AL_VECTOR* dpys = &al_get_system_driver()->displays;
    unsigned int i;
    NSOpenGLContext* compat = nil;
    
@@ -892,7 +892,7 @@ static ALLEGRO_DISPLAY* create_display_fs(int w, int h) {
    glClear(GL_COLOR_BUFFER_BIT);
 
    /* Add to the display list */
-	ALLEGRO_DISPLAY **add = _al_vector_alloc_back(&al_system_driver()->displays);
+	ALLEGRO_DISPLAY **add = _al_vector_alloc_back(&al_get_system_driver()->displays);
 	*add = &dpy->parent;
    in_fullscreen = YES;
    // Begin the 'private' event loop 
@@ -929,7 +929,7 @@ static ALLEGRO_DISPLAY* create_display_win(int w, int h) {
 	osx_change_cursor(dpy, [NSCursor arrowCursor]);
    dpy->show_cursor = YES;
    
-   if (_al_vector_is_empty(&al_system_driver()->displays)) {
+   if (_al_vector_is_empty(&al_get_system_driver()->displays)) {
       last_window_pos = NSZeroPoint;
    }
    osx_set_opengl_pixelformat_attributes(dpy);
@@ -960,7 +960,7 @@ static ALLEGRO_DISPLAY* create_display_win(int w, int h) {
 
 	/* Set up GL as we want */
 	setup_gl(&dpy->parent);
-	ALLEGRO_DISPLAY **add = _al_vector_alloc_back(&al_system_driver()->displays);
+	ALLEGRO_DISPLAY **add = _al_vector_alloc_back(&al_get_system_driver()->displays);
 	return *add = &dpy->parent;
 }
 /* destroy_display:
@@ -979,7 +979,7 @@ static void destroy_display(ALLEGRO_DISPLAY* d) {
 
    /* First of all, save video bitmaps attached to this display. */
    // Check for other displays in this display group
-   _AL_VECTOR* dpys = &al_system_driver()->displays;
+   _AL_VECTOR* dpys = &al_get_system_driver()->displays;
    for (i = 0; i < _al_vector_size(dpys); ++i) {
       ALLEGRO_DISPLAY_OSX_WIN* d = *(ALLEGRO_DISPLAY_OSX_WIN**) _al_vector_ref(dpys, i);
       if (d->display_group == dpy->display_group && (d!=dpy)) {

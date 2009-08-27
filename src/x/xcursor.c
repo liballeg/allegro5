@@ -16,7 +16,7 @@
 static ALLEGRO_MOUSE_CURSOR *xdpy_create_mouse_cursor(ALLEGRO_DISPLAY *display,
    ALLEGRO_BITMAP *bmp, int x_focus, int y_focus)
 {
-   ALLEGRO_SYSTEM_XGLX *system = (ALLEGRO_SYSTEM_XGLX *)al_system_driver();
+   ALLEGRO_SYSTEM_XGLX *system = (ALLEGRO_SYSTEM_XGLX *)al_get_system_driver();
    Display *xdisplay = system->x11display;
 
    int bmp_w;
@@ -80,7 +80,7 @@ static void xdpy_destroy_mouse_cursor(ALLEGRO_DISPLAY *display,
 {
    ALLEGRO_DISPLAY_XGLX *glx = (ALLEGRO_DISPLAY_XGLX *)display;
    ALLEGRO_MOUSE_CURSOR_XGLX *xcursor = (ALLEGRO_MOUSE_CURSOR_XGLX *)cursor;
-   ALLEGRO_SYSTEM_XGLX *system = (ALLEGRO_SYSTEM_XGLX *)al_system_driver();
+   ALLEGRO_SYSTEM_XGLX *system = (ALLEGRO_SYSTEM_XGLX *)al_get_system_driver();
    Display *xdisplay = system->x11display;
    Window xwindow = glx->window;
 
@@ -104,7 +104,7 @@ static bool xdpy_set_mouse_cursor(ALLEGRO_DISPLAY *display,
 {
    ALLEGRO_DISPLAY_XGLX *glx = (ALLEGRO_DISPLAY_XGLX *)display;
    ALLEGRO_MOUSE_CURSOR_XGLX *xcursor = (ALLEGRO_MOUSE_CURSOR_XGLX *)cursor;
-   ALLEGRO_SYSTEM_XGLX *system = (ALLEGRO_SYSTEM_XGLX *)al_system_driver();
+   ALLEGRO_SYSTEM_XGLX *system = (ALLEGRO_SYSTEM_XGLX *)al_get_system_driver();
    Display *xdisplay = system->x11display;
    Window xwindow = glx->window;
 
@@ -125,7 +125,7 @@ static bool xdpy_set_system_mouse_cursor(ALLEGRO_DISPLAY *display,
    ALLEGRO_SYSTEM_MOUSE_CURSOR cursor_id)
 {
    ALLEGRO_DISPLAY_XGLX *glx = (ALLEGRO_DISPLAY_XGLX *)display;
-   ALLEGRO_SYSTEM_XGLX *system = (ALLEGRO_SYSTEM_XGLX *)al_system_driver();
+   ALLEGRO_SYSTEM_XGLX *system = (ALLEGRO_SYSTEM_XGLX *)al_get_system_driver();
    Display *xdisplay = system->x11display;
    Window xwindow = glx->window;
    unsigned int cursor_shape;
@@ -208,7 +208,7 @@ static bool xdpy_set_system_mouse_cursor(ALLEGRO_DISPLAY *display,
 static bool xdpy_show_mouse_cursor(ALLEGRO_DISPLAY *display)
 {
    ALLEGRO_DISPLAY_XGLX *glx = (void *)display;
-   ALLEGRO_SYSTEM_XGLX *system = (void *)al_system_driver();
+   ALLEGRO_SYSTEM_XGLX *system = (void *)al_get_system_driver();
    Display *xdisplay = system->x11display;
    Window xwindow = glx->window;
 
@@ -228,7 +228,7 @@ static bool xdpy_show_mouse_cursor(ALLEGRO_DISPLAY *display)
 static bool xdpy_hide_mouse_cursor(ALLEGRO_DISPLAY *display)
 {
    ALLEGRO_DISPLAY_XGLX *glx = (void *)display;
-   ALLEGRO_SYSTEM_XGLX *system = (void *)al_system_driver();
+   ALLEGRO_SYSTEM_XGLX *system = (void *)al_get_system_driver();
    Display *xdisplay = system->x11display;
    Window xwindow = glx->window;
 

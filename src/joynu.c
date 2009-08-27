@@ -49,7 +49,7 @@ bool al_install_joystick(void)
 
    ASSERT(_al_vector_is_empty(&opened_joysticks));
 
-   sysdrv = al_system_driver();
+   sysdrv = al_get_system_driver();
    ASSERT(sysdrv);
 
    /* Currently every platform only has at most one joystick driver. */

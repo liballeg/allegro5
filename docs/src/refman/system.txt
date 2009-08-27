@@ -65,7 +65,7 @@ an application's files.
 Should be called once at the start of a program, before [al_init] or [al_install_system]
 and never touched again.
 
-## API: al_system_driver
+## API: al_get_system_driver
 
 Returns the currently active system driver, or NULL.
 

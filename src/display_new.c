@@ -55,7 +55,7 @@ ALLEGRO_DISPLAY *al_create_display(int w, int h)
    else
       _al_fill_display_settings(eds);
 
-   system = al_system_driver();
+   system = al_get_system_driver();
    driver = system->vt->get_display_driver();
    display = driver->create_display(w, h);
    if (!display) {
@@ -300,7 +300,7 @@ int al_get_display_flags(void)
  */
 int al_get_num_display_modes(void)
 {
-   ALLEGRO_SYSTEM *system = al_system_driver();
+   ALLEGRO_SYSTEM *system = al_get_system_driver();
    return system->vt->get_num_display_modes();
 }
 
@@ -310,7 +310,7 @@ int al_get_num_display_modes(void)
  */
 ALLEGRO_DISPLAY_MODE *al_get_display_mode(int index, ALLEGRO_DISPLAY_MODE *mode)
 {
-   ALLEGRO_SYSTEM *system = al_system_driver();
+   ALLEGRO_SYSTEM *system = al_get_system_driver();
    return system->vt->get_display_mode(index, mode);
 }
 
@@ -320,7 +320,7 @@ ALLEGRO_DISPLAY_MODE *al_get_display_mode(int index, ALLEGRO_DISPLAY_MODE *mode)
  */
 int al_get_num_display_formats(void)
 {
-   ALLEGRO_SYSTEM *system = al_system_driver();
+   ALLEGRO_SYSTEM *system = al_get_system_driver();
    return system->vt->get_num_display_formats();
 }
 
@@ -330,7 +330,7 @@ int al_get_num_display_formats(void)
  */
 int al_get_display_format_option(int i, int option)
 {
-   ALLEGRO_SYSTEM *system = al_system_driver();
+   ALLEGRO_SYSTEM *system = al_get_system_driver();
    return system->vt->get_display_format_option(i, option);
 }
 
@@ -340,7 +340,7 @@ int al_get_display_format_option(int i, int option)
  */
 void al_set_new_display_format(int i)
 {
-   ALLEGRO_SYSTEM *system = al_system_driver();
+   ALLEGRO_SYSTEM *system = al_get_system_driver();
    system->vt->set_new_display_format(i);
 }
 
@@ -442,7 +442,7 @@ void _al_destroy_display_bitmaps(ALLEGRO_DISPLAY *d)
  */
 int al_get_num_video_adapters(void)
 {
-   ALLEGRO_SYSTEM *system = al_system_driver();
+   ALLEGRO_SYSTEM *system = al_get_system_driver();
 
    if (system && system->vt && system->vt->get_num_video_adapters) {
       return system->vt->get_num_video_adapters();
@@ -456,7 +456,7 @@ int al_get_num_video_adapters(void)
  */
 void al_get_monitor_info(int adapter, ALLEGRO_MONITOR_INFO *info)
 {
-   ALLEGRO_SYSTEM *system = al_system_driver();
+   ALLEGRO_SYSTEM *system = al_get_system_driver();
 
    ASSERT(adapter < al_get_num_video_adapters());
 

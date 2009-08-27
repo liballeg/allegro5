@@ -19,7 +19,7 @@ static void *user_main(ALLEGRO_THREAD *thread, void *arg)
     (*_mangled_main_address)(global_argc, global_argv);
     [pool release];
     ALLEGRO_INFO("User main has returned.\n");
-    ALLEGRO_SYSTEM_IPHONE *iphone = (void *)al_system_driver();
+    ALLEGRO_SYSTEM_IPHONE *iphone = (void *)al_get_system_driver();
     al_lock_mutex(iphone->mutex);
     iphone->has_shutdown = true;
     al_signal_cond(iphone->cond);

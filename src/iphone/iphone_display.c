@@ -92,7 +92,7 @@ static void set_rgb565(ALLEGRO_EXTRA_DISPLAY_SETTINGS *eds)
 void _al_iphone_update_visuals(void)
 {
    ALLEGRO_EXTRA_DISPLAY_SETTINGS *ref;
-   ALLEGRO_SYSTEM_IPHONE *system = (void *)al_system_driver();
+   ALLEGRO_SYSTEM_IPHONE *system = (void *)al_get_system_driver();
    
    ref = _al_get_new_display_settings();
    
@@ -151,7 +151,7 @@ static ALLEGRO_DISPLAY *iphone_create_display(int w, int h)
     display->w = w;
     display->h = h;
 
-    ALLEGRO_SYSTEM_IPHONE *system = (void *)al_system_driver();
+    ALLEGRO_SYSTEM_IPHONE *system = (void *)al_get_system_driver();
 
     /* Add ourself to the list of displays. */
     ALLEGRO_DISPLAY_IPHONE **add;

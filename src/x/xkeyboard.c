@@ -532,7 +532,7 @@ static void _al_xwin_get_keyboard_mapping(void)
    int i;
    int count;
    int missing = 0;
-   ALLEGRO_SYSTEM_XGLX *system = (void *)al_system_driver();
+   ALLEGRO_SYSTEM_XGLX *system = (void *)al_get_system_driver();
 
    memset(used, 0, sizeof used);
    memset(keycode_to_scancode, 0, sizeof keycode_to_scancode);
@@ -656,7 +656,7 @@ static void _al_xwin_get_keyboard_mapping(void)
 static void x_set_leds(int leds)
 {
    XKeyboardControl values;
-   ALLEGRO_SYSTEM_XGLX *system = (void *)al_system_driver();
+   ALLEGRO_SYSTEM_XGLX *system = (void *)al_get_system_driver();
 
    ASSERT(xkeyboard_installed);
 
@@ -690,7 +690,7 @@ static int x_keyboard_init(void)
    char *imvalret;
    int i;
 #endif
-   ALLEGRO_SYSTEM_XGLX *s = (void *)al_system_driver();
+   ALLEGRO_SYSTEM_XGLX *s = (void *)al_get_system_driver();
 
    if (xkeyboard_installed)
       return 0;
@@ -795,7 +795,7 @@ static void x_keyboard_exit(void)
       return;
    xkeyboard_installed = 0;
    
-   ALLEGRO_SYSTEM_XGLX *s = (void *)al_system_driver();
+   ALLEGRO_SYSTEM_XGLX *s = (void *)al_get_system_driver();
 
    _al_mutex_lock(&s->lock);
 

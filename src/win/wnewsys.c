@@ -179,7 +179,7 @@ static ALLEGRO_SYSTEM *win_initialize(int flags)
 static void win_shutdown(void)
 {
    /* Close all open displays. */
-   ALLEGRO_SYSTEM *s = al_system_driver();
+   ALLEGRO_SYSTEM *s = al_get_system_driver();
    while (_al_vector_size(&s->displays) > 0) {
       ALLEGRO_DISPLAY **dptr = _al_vector_ref(&s->displays, 0);
       ALLEGRO_DISPLAY *d = *dptr;
@@ -213,7 +213,7 @@ static void win_shutdown(void)
 static ALLEGRO_DISPLAY_INTERFACE *win_get_display_driver(void)
 {
    int flags = al_get_new_display_flags();
-   ALLEGRO_SYSTEM *sys = al_system_driver();
+   ALLEGRO_SYSTEM *sys = al_get_system_driver();
    AL_CONST char *s;
 
 #if defined ALLEGRO_CFG_D3D

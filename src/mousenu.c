@@ -51,8 +51,8 @@ bool al_install_mouse(void)
       return true;
    
    //FIXME: seems A4/A5 driver list stuff doesn't quite agree right now
-   if (al_system_driver()->vt->get_mouse_driver) {
-       new_mouse_driver = al_system_driver()->vt->get_mouse_driver();
+   if (al_get_system_driver()->vt->get_mouse_driver) {
+       new_mouse_driver = al_get_system_driver()->vt->get_mouse_driver();
        if (!new_mouse_driver->init_mouse()) {
           new_mouse_driver = NULL;
           return false;
@@ -383,7 +383,7 @@ bool al_hide_mouse_cursor(void)
  */
 bool al_get_cursor_position(int *ret_x, int *ret_y)
 {
-   ALLEGRO_SYSTEM *alsys = al_system_driver();
+   ALLEGRO_SYSTEM *alsys = al_get_system_driver();
    ASSERT(ret_x);
    ASSERT(ret_y);
 

@@ -230,7 +230,7 @@ static void get_mouse_state(ALLEGRO_MOUSE_STATE *ret_state)
 
    _al_event_source_lock(&the_mouse.es);
    {
-      sys = al_system_driver();
+      sys = al_get_system_driver();
       for (i = 0; i < sys->displays._size; i++) {
          ALLEGRO_DISPLAY_WIN **d = (void*)_al_vector_ref(&sys->displays, i);
          if ((*d)->window == GetForegroundWindow()) {

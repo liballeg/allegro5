@@ -201,7 +201,7 @@ static ALLEGRO_EXTRA_DISPLAY_SETTINGS* read_fbconfig(Display *dpy,
 
 void _al_xglx_free_visuals_info(void)
 {
-   ALLEGRO_SYSTEM_XGLX *system = (void *)al_system_driver();
+   ALLEGRO_SYSTEM_XGLX *system = (void *)al_get_system_driver();
    if (system->visuals) {
       int i;
       for (i = 0; i < system->visuals_count; i++) {
@@ -221,7 +221,7 @@ static void get_visuals_new(ALLEGRO_DISPLAY_XGLX *glx)
    int num_fbconfigs, i;
    GLXFBConfig *fbconfig;
    ALLEGRO_EXTRA_DISPLAY_SETTINGS *ref;
-   ALLEGRO_SYSTEM_XGLX *system = (void *)al_system_driver();
+   ALLEGRO_SYSTEM_XGLX *system = (void *)al_get_system_driver();
 
    ref = _al_get_new_display_settings();
 
@@ -345,7 +345,7 @@ static void get_visuals_old(void)
    int i, num_visuals;
    XVisualInfo *xv;
    ALLEGRO_EXTRA_DISPLAY_SETTINGS *ref;
-   ALLEGRO_SYSTEM_XGLX *system = (void *)al_system_driver();
+   ALLEGRO_SYSTEM_XGLX *system = (void *)al_get_system_driver();
 
    ref = _al_get_new_display_settings();
 
@@ -386,7 +386,7 @@ static void get_visuals_old(void)
 
 static void select_best_visual(ALLEGRO_DISPLAY_XGLX *glx)
 {
-   ALLEGRO_SYSTEM_XGLX *system = (void *)al_system_driver();
+   ALLEGRO_SYSTEM_XGLX *system = (void *)al_get_system_driver();
 
    ALLEGRO_EXTRA_DISPLAY_SETTINGS *eds[system->visuals_count];
    memcpy(eds, system->visuals, sizeof(*eds) * system->visuals_count);
@@ -410,7 +410,7 @@ static void select_best_visual(ALLEGRO_DISPLAY_XGLX *glx)
 
 void _al_xglx_config_select_visual(ALLEGRO_DISPLAY_XGLX *glx)
 {
-   ALLEGRO_SYSTEM_XGLX *system = (void *)al_system_driver();
+   ALLEGRO_SYSTEM_XGLX *system = (void *)al_get_system_driver();
    bool force_old = false;
    
    if (system->visuals) {
@@ -476,7 +476,7 @@ static GLXContext create_context_new(int ver, Display *dpy, GLXFBConfig fb,
 
 bool _al_xglx_config_create_context(ALLEGRO_DISPLAY_XGLX *glx)
 {
-   ALLEGRO_SYSTEM_XGLX *system = (void *)al_system_driver();
+   ALLEGRO_SYSTEM_XGLX *system = (void *)al_get_system_driver();
    ALLEGRO_DISPLAY *disp = (void*)glx;
    GLXContext existing_ctx = NULL;
 

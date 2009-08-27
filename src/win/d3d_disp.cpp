@@ -791,7 +791,7 @@ static bool d3d_create_fullscreen_device(ALLEGRO_DISPLAY_D3D *d,
 
    d->device->BeginScene();
 
-   ALLEGRO_SYSTEM *system = (ALLEGRO_SYSTEM *)al_system_driver();
+   ALLEGRO_SYSTEM *system = (ALLEGRO_SYSTEM *)al_get_system_driver();
 
    if (reset_all) {
       int i;
@@ -897,7 +897,7 @@ static void d3d_destroy_display_internals(ALLEGRO_DISPLAY_D3D *display);
 
 static void d3d_make_faux_fullscreen_stage_one(ALLEGRO_DISPLAY_D3D *d3d_display)
 {
-   ALLEGRO_SYSTEM *system = al_system_driver();
+   ALLEGRO_SYSTEM *system = al_get_system_driver();
    if (already_fullscreen || num_faux_fullscreen_windows) {
       int i;
       for (i = 0; i < (int)system->displays._size; i++) {
@@ -915,7 +915,7 @@ static void d3d_make_faux_fullscreen_stage_one(ALLEGRO_DISPLAY_D3D *d3d_display)
 
 static void d3d_make_faux_fullscreen_stage_two(ALLEGRO_DISPLAY_D3D *d3d_display)
 {
-   ALLEGRO_SYSTEM *system = al_system_driver();
+   ALLEGRO_SYSTEM *system = al_get_system_driver();
 
    if (already_fullscreen || num_faux_fullscreen_windows) {
       int i;
@@ -1139,7 +1139,7 @@ static void d3d_destroy_display_internals(ALLEGRO_DISPLAY_D3D *d3d_display)
 
 static void d3d_destroy_display(ALLEGRO_DISPLAY *display)
 {
-   ALLEGRO_SYSTEM_WIN *system = (ALLEGRO_SYSTEM_WIN *)al_system_driver();
+   ALLEGRO_SYSTEM_WIN *system = (ALLEGRO_SYSTEM_WIN *)al_get_system_driver();
    ALLEGRO_DISPLAY_D3D *d3d_display = (ALLEGRO_DISPLAY_D3D *)display;
 
    d3d_destroy_display_internals(d3d_display);
@@ -1700,7 +1700,7 @@ static int d3d_display_list_resorter(const void *p0, const void *p1)
 
 static ALLEGRO_DISPLAY_D3D *d3d_create_display_helper(int w, int h)
 {
-   ALLEGRO_SYSTEM_WIN *system = (ALLEGRO_SYSTEM_WIN *)al_system_driver();
+   ALLEGRO_SYSTEM_WIN *system = (ALLEGRO_SYSTEM_WIN *)al_get_system_driver();
    ALLEGRO_DISPLAY_D3D *d3d_display = (ALLEGRO_DISPLAY_D3D *)_AL_MALLOC(sizeof(ALLEGRO_DISPLAY_D3D));
    ALLEGRO_DISPLAY_WIN *win_display = &d3d_display->win_display;
    ALLEGRO_DISPLAY *al_display = &win_display->display;
@@ -1813,7 +1813,7 @@ static bool d3d_create_display_internals(ALLEGRO_DISPLAY_D3D *d3d_display)
    if (!cfg_read) {
       cfg_read = true;
 
-      sys = al_system_driver();
+      sys = al_get_system_driver();
 
       if (sys->config) {
          s = al_get_config_value(sys->config, "graphics", "min_filter");
@@ -1852,7 +1852,7 @@ static bool d3d_create_display_internals(ALLEGRO_DISPLAY_D3D *d3d_display)
 
 static ALLEGRO_DISPLAY *d3d_create_display(int w, int h)
 {
-   ALLEGRO_SYSTEM_WIN *system = (ALLEGRO_SYSTEM_WIN *)al_system_driver();
+   ALLEGRO_SYSTEM_WIN *system = (ALLEGRO_SYSTEM_WIN *)al_get_system_driver();
    ALLEGRO_DISPLAY_D3D *d3d_display = d3d_create_display_helper(w, h);
    ALLEGRO_DISPLAY_WIN *win_display = &d3d_display->win_display;
    ALLEGRO_DISPLAY *al_display = &win_display->display;
@@ -2149,7 +2149,7 @@ static bool d3d_resize_display(ALLEGRO_DISPLAY *d, int width, int height)
       win_display->end_thread = false;
       win_display->thread_ended = false;
       /* What's this? */
-      ALLEGRO_SYSTEM *system = al_system_driver();
+      ALLEGRO_SYSTEM *system = al_get_system_driver();
       if (system->displays._size <= 1) {
          ffw_set = false;
       }

@@ -45,7 +45,7 @@ static ALLEGRO_SYSTEM *gp2xwiz_initialize(int flags)
 static void gp2xwiz_shutdown_system(void)
 {
    /* Close all open displays. */
-   ALLEGRO_SYSTEM *s = al_system_driver();
+   ALLEGRO_SYSTEM *s = al_get_system_driver();
    ALLEGRO_SYSTEM_GP2XWIZ *sx = (void *)s;
 
    while (_al_vector_size(&s->displays) > 0) {
@@ -110,7 +110,7 @@ static int gp2xwiz_get_display_format_option(int i, int option)
 {
    (void)i;
    ASSERT(i == 0);
-   ALLEGRO_SYSTEM_GP2XWIZ *system = (void *)al_system_driver();
+   ALLEGRO_SYSTEM_GP2XWIZ *system = (void *)al_get_system_driver();
    return system->extras.settings[option];
 }
 

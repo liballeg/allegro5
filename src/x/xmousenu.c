@@ -149,7 +149,7 @@ static unsigned int xmouse_get_mouse_num_buttons(void)
 {
    int num_buttons;
    unsigned char map[8];
-   ALLEGRO_SYSTEM_XGLX *system = (void *)al_system_driver();
+   ALLEGRO_SYSTEM_XGLX *system = (void *)al_get_system_driver();
 
    ASSERT(xmouse_installed);
 
@@ -190,7 +190,7 @@ static bool xmouse_set_mouse_xy(int x, int y)
 
    // TODO: Multi display warps.
 
-   ALLEGRO_SYSTEM_XGLX *system = (void *)al_system_driver();
+   ALLEGRO_SYSTEM_XGLX *system = (void *)al_get_system_driver();
    Display *display = system->x11display;
    ALLEGRO_DISPLAY_XGLX *d = (void *)al_get_current_display();
 

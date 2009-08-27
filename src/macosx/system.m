@@ -583,7 +583,7 @@ static ALLEGRO_PATH *osx_get_path(int id)
 void _al_osx_post_quit(void) 
 {
    unsigned int i;
-   _AL_VECTOR* dpys = &al_system_driver()->displays;
+   _AL_VECTOR* dpys = &al_get_system_driver()->displays;
    // Iterate through all existing displays 
    for (i = 0; i < _al_vector_size(dpys); ++i) {
       ALLEGRO_DISPLAY* dpy = *(ALLEGRO_DISPLAY**) _al_vector_ref(dpys, i);

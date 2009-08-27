@@ -127,7 +127,7 @@ HWND _al_win_create_window(ALLEGRO_DISPLAY *display, int width, int height, int 
       int a = win_display->adapter;
 
       if (a == -1) {
-         ALLEGRO_SYSTEM *sys = al_system_driver();
+         ALLEGRO_SYSTEM *sys = al_get_system_driver();
          unsigned int num;
          bool *is_fullscreen;
          unsigned int i;
@@ -294,7 +294,7 @@ static LRESULT CALLBACK window_callback(HWND hWnd, UINT message,
    int y;
    unsigned int i;
    ALLEGRO_EVENT_SOURCE *es = NULL;
-   ALLEGRO_SYSTEM *system = al_system_driver();
+   ALLEGRO_SYSTEM *system = al_get_system_driver();
 
    wi.cbSize = sizeof(WINDOWINFO);
 

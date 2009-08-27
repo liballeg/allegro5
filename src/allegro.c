@@ -226,7 +226,7 @@ static void delete_string_list(_AL_VECTOR *v)
 
 static void configure_logging(void)
 {
-   ALLEGRO_SYSTEM *sys = al_system_driver();
+   ALLEGRO_CONFIG *config;
    char const *v;
    bool got_all = false;
 
@@ -234,10 +234,11 @@ static void configure_logging(void)
     * up will always use defaults - but usually nothing is logged
     * before al_init.
     */
-   if (!sys || !sys->config)
+   config = al_get_system_config();
+   if (!config)
       return;
 
-   v = al_get_config_value(sys->config, "trace", "channels");
+   v = al_get_config_value(config, "trace", "channels");
    if (v) {
       ALLEGRO_USTR_INFO uinfo;
       ALLEGRO_USTR *u = al_ref_cstr(&uinfo, v);
@@ -275,26 +276,26 @@ static void configure_logging(void)
          delete_string_list(&_al_debug_info.channels);
    }
 
-   v = al_get_config_value(sys->config, "trace", "level");
+   v = al_get_config_value(config, "trace", "level");
    if (v) {
       if (!strcmp(v, "error")) _al_debug_info.level = 3;
       else if (!strcmp(v, "warn")) _al_debug_info.level = 2;
       else if (!strcmp(v, "info")) _al_debug_info.level = 1;
    }
 
-   v = al_get_config_value(sys->config, "trace", "timestamps");
+   v = al_get_config_value(config, "trace", "timestamps");
    if (!v || strcmp(v, "0"))
       _al_debug_info.flags |= 4;
    else
       _al_debug_info.flags &= ~4;
 
-   v = al_get_config_value(sys->config, "trace", "functions");
+   v = al_get_config_value(config, "trace", "functions");
    if (!v || strcmp(v, "0"))
       _al_debug_info.flags |= 2;
    else
       _al_debug_info.flags &= ~2;
 
-   v = al_get_config_value(sys->config, "trace", "lines");
+   v = al_get_config_value(config, "trace", "lines");
    if (!v || strcmp(v, "0"))
       _al_debug_info.flags |= 1;
    else

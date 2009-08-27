@@ -400,7 +400,7 @@ static int _ogl_is_extension_supported(AL_CONST char *extension,
 
 #elif defined ALLEGRO_UNIX && !defined ALLEGRO_EXCLUDE_GLX
    if (!ret && strncmp(extension, "GLX", 3) == 0) {
-      ALLEGRO_SYSTEM_XGLX *sys = (void*)al_system_driver();
+      ALLEGRO_SYSTEM_XGLX *sys = (void*)al_get_system_driver();
       ALLEGRO_DISPLAY_XGLX *glx_disp = (void*)disp;
 
       if (!sys->gfxdisplay)
@@ -652,7 +652,7 @@ void _al_ogl_manage_extensions(ALLEGRO_DISPLAY *gl_disp)
 
 #if defined ALLEGRO_UNIX && !defined ALLEGRO_EXCLUDE_GLX
    ALLEGRO_DEBUG("GLX Extensions:\n");
-   ALLEGRO_SYSTEM_XGLX *glx_sys = (void*)al_system_driver();
+   ALLEGRO_SYSTEM_XGLX *glx_sys = (void*)al_get_system_driver();
    ALLEGRO_DISPLAY_XGLX *glx_disp = (void *)gl_disp;
    print_extensions((char const *)glXQueryExtensionsString(
       glx_sys->gfxdisplay, glx_disp->xscreen));

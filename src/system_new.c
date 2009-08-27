@@ -244,9 +244,9 @@ void al_uninstall_system(void)
 
 
 
-/* Function: al_system_driver
+/* Function: al_get_system_driver
  */
-ALLEGRO_SYSTEM *al_system_driver(void)
+ALLEGRO_SYSTEM *al_get_system_driver(void)
 {
    return active_sysdrv;
 }

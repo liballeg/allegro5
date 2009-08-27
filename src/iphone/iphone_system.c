@@ -46,13 +46,13 @@ static ALLEGRO_DISPLAY_INTERFACE *iphone_get_display_driver(void)
 static int iphone_get_num_display_formats(void)
 {
    _al_iphone_update_visuals();
-   ALLEGRO_SYSTEM_IPHONE *system = (void *)al_system_driver();
+   ALLEGRO_SYSTEM_IPHONE *system = (void *)al_get_system_driver();
    return system->visuals_count;
 }
 
 static int iphone_get_display_format_option(int i, int option)
 {
-   ALLEGRO_SYSTEM_IPHONE *system = (void *)al_system_driver();
+   ALLEGRO_SYSTEM_IPHONE *system = (void *)al_get_system_driver();
    ASSERT(i < system->visuals_count);
 
    if (!system->visuals[i])
@@ -63,7 +63,7 @@ static int iphone_get_display_format_option(int i, int option)
 
 static void iphone_set_new_display_format(int i)
 {
-   ALLEGRO_SYSTEM_IPHONE *system = (void *)al_system_driver();
+   ALLEGRO_SYSTEM_IPHONE *system = (void *)al_get_system_driver();
    int j;
    for (j = 0; j < ALLEGRO_DISPLAY_OPTIONS_COUNT; j++) {
       /* It does not matter whether we use SUGGEST or REQUIRE -

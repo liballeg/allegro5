@@ -63,7 +63,7 @@ static ALLEGRO_DISPLAY *gp2xwiz_create_display_ogl(int w, int h)
    memset(ogl, 0, sizeof *ogl);
    display->ogl_extras = ogl;
 
-   ALLEGRO_SYSTEM_GP2XWIZ *system = (void *)al_system_driver();
+   ALLEGRO_SYSTEM_GP2XWIZ *system = (void *)al_get_system_driver();
 
    display->w = 320;
    display->h = 240;
@@ -139,7 +139,7 @@ static ALLEGRO_DISPLAY *gp2xwiz_create_display_ogl(int w, int h)
 
 static void gp2xwiz_destroy_display_ogl(ALLEGRO_DISPLAY *d)
 {
-   ALLEGRO_SYSTEM_GP2XWIZ *s = (void *)al_system_driver();
+   ALLEGRO_SYSTEM_GP2XWIZ *s = (void *)al_get_system_driver();
    ALLEGRO_DISPLAY_GP2XWIZ_OGL *wiz_disp = (void *)d;
 
    while (d->bitmaps._size > 0) {

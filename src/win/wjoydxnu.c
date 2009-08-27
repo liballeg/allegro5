@@ -732,7 +732,7 @@ static bool joydx_init_joystick(void)
    }
 
    /* If one of our windows is the foreground window make it grab the input. */
-   system = al_system_driver();
+   system = al_get_system_driver();
    for (i = 0; i < _al_vector_size(&system->displays); i++) {
       ALLEGRO_DISPLAY_WIN **pwin_disp = _al_vector_ref(&system->displays, i);
       ALLEGRO_DISPLAY_WIN *win_disp = *pwin_disp;
@@ -819,7 +819,7 @@ static void joydx_exit_joystick(void)
    DeleteCriticalSection(&joydx_thread_cs);
 
    /* The toplevel display is assumed to have the input acquired. Release it. */
-   system = al_system_driver();
+   system = al_get_system_driver();
    for (j = 0; j < _al_vector_size(&system->displays); j++) {
       ALLEGRO_DISPLAY_WIN **pwin_disp = _al_vector_ref(&system->displays, j);
       ALLEGRO_DISPLAY_WIN *win_disp = *pwin_disp;

@@ -25,7 +25,7 @@ static int get_num_display_modes(ALLEGRO_SYSTEM_XGLX *s)
 
 int _al_xglx_get_num_display_modes(void)
 {
-   return get_num_display_modes((void *)al_system_driver());
+   return get_num_display_modes((void *)al_get_system_driver());
 }
 
 static ALLEGRO_DISPLAY_MODE *get_display_mode(ALLEGRO_SYSTEM_XGLX *s,
@@ -45,7 +45,7 @@ static ALLEGRO_DISPLAY_MODE *get_display_mode(ALLEGRO_SYSTEM_XGLX *s,
 ALLEGRO_DISPLAY_MODE *_al_xglx_get_display_mode(
    int i, ALLEGRO_DISPLAY_MODE *mode)
 {
-   return get_display_mode((void *)al_system_driver(), i, mode);
+   return get_display_mode((void *)al_get_system_driver(), i, mode);
 }
 
 bool _al_xglx_fullscreen_set_mode(ALLEGRO_SYSTEM_XGLX *s,

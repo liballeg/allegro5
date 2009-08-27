@@ -129,8 +129,8 @@ bool al_install_keyboard(void)
       return true;
 
    //FIXME: seems A4/A5 driver list stuff doesn't quite agree right now
-   if (al_system_driver()->vt->get_keyboard_driver) {
-       new_keyboard_driver = al_system_driver()->vt->get_keyboard_driver();
+   if (al_get_system_driver()->vt->get_keyboard_driver) {
+       new_keyboard_driver = al_get_system_driver()->vt->get_keyboard_driver();
        if (!new_keyboard_driver->init_keyboard()) {
           new_keyboard_driver = NULL;
           return false;
