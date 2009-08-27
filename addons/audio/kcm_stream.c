@@ -125,10 +125,6 @@ void al_destroy_stream(ALLEGRO_STREAM *stream)
    if (stream) {
       if (stream->feed_thread) {
          stream->unload_feeder(stream);
-         /* Make sure it's unloaded before proceeding */
-         while (!stream->quit_feed_thread) {
-            al_rest(0.001);
-         }
       }
       _al_kcm_unregister_destructor(stream);
       _al_kcm_detach_from_parent(&stream->spl);
