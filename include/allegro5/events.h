@@ -62,7 +62,8 @@ enum
    ALLEGRO_EVENT_DISPLAY_LOST                = 43,
    ALLEGRO_EVENT_DISPLAY_FOUND               = 44,
    ALLEGRO_EVENT_DISPLAY_SWITCH_IN           = 45,
-   ALLEGRO_EVENT_DISPLAY_SWITCH_OUT          = 46
+   ALLEGRO_EVENT_DISPLAY_SWITCH_OUT          = 46,
+   ALLEGRO_EVENT_DISPLAY_SHAKE               = 47, // iphone only?
 };
 
 

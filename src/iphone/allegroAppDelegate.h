@@ -8,10 +8,13 @@
    UIWindow *window;
    EAGLView *view;
    ALLEGRO_DISPLAY *allegro_display;
+   BOOL histeresisExcited;
+   UIAcceleration *lastAcceleration;
 }
 
 @property (nonatomic, retain) UIWindow *window;
 @property (nonatomic, retain) EAGLView *view;
+@property (retain) UIAcceleration *lastAcceleration;
 
 + (void)run:(int)argc:(char **)argv;
 - (void)add_view;
