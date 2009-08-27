@@ -474,7 +474,7 @@ static void t16(void)
    path = al_create_path("abc/def");
    CHECK(al_make_path_absolute(path));
 
-   cwd = al_getcwd();
+   cwd = al_get_current_directory();
    buf = al_path_cstr(path, ALLEGRO_NATIVE_PATH_SEP);
    buf2 = al_path_cstr(cwd, ALLEGRO_NATIVE_PATH_SEP);
    CHECK(0 == strncmp(buf, buf2, strlen(buf2)));

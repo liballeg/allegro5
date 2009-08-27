@@ -181,9 +181,9 @@ ALLEGRO_PATH *al_create_path(const char *str)
    return path;
 }
 
-/* Function: al_create_path_for_dir
+/* Function: al_create_path_for_directory
  */
-ALLEGRO_PATH *al_create_path_for_dir(const char *str)
+ALLEGRO_PATH *al_create_path_for_directory(const char *str)
 {
    ALLEGRO_PATH *path = al_create_path(str);
    if (al_ustr_length(path->filename)) {
@@ -570,7 +570,7 @@ bool al_make_path_absolute(ALLEGRO_PATH *path)
       return true;
    }
 
-   cwd_path = al_getcwd();
+   cwd_path = al_get_current_directory();
    if (!cwd_path)
       return false;
 

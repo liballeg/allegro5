@@ -397,7 +397,7 @@ static ALLEGRO_PATH *win_get_path(int id)
             return NULL;
          }
 
-         return al_create_path_for_dir(path);
+         return al_create_path_for_directory(path);
 
       } break;
 
@@ -414,7 +414,7 @@ static ALLEGRO_PATH *win_get_path(int id)
          /* should this not chop the slash? */
          *ptr = '\0';
 
-         return al_create_path_for_dir(path);
+         return al_create_path_for_directory(path);
       } break;
 
       case ALLEGRO_SYSTEM_DATA_PATH: /* CSIDL_COMMON_APPDATA */
@@ -459,7 +459,7 @@ static ALLEGRO_PATH *win_get_path(int id)
       return NULL;
    }
 
-   cisdl_path = al_create_path_for_dir(path);
+   cisdl_path = al_create_path_for_directory(path);
    if (!cisdl_path)
       return NULL;
 

@@ -133,9 +133,9 @@ bool al_fs_entry_exists(ALLEGRO_FS_ENTRY *e)
 }
 
 
-/* Function: al_fs_entry_is_dir
+/* Function: al_fs_entry_is_directory
  */
-bool al_fs_entry_is_dir(ALLEGRO_FS_ENTRY *e)
+bool al_fs_entry_is_directory(ALLEGRO_FS_ENTRY *e)
 {
    ASSERT(e != NULL);
 
@@ -153,67 +153,67 @@ bool al_fs_entry_is_file(ALLEGRO_FS_ENTRY *e)
 }
 
 
-/* Function: al_opendir
+/* Function: al_open_directory
  */
-bool al_opendir(ALLEGRO_FS_ENTRY *e)
+bool al_open_directory(ALLEGRO_FS_ENTRY *e)
 {
    ASSERT(e != NULL);
 
-   return e->vtable->fs_opendir(e);
+   return e->vtable->fs_open_directory(e);
 }
 
 
-/* Function: al_closedir
+/* Function: al_close_directory
  */
-bool al_closedir(ALLEGRO_FS_ENTRY *e)
+bool al_close_directory(ALLEGRO_FS_ENTRY *e)
 {
    ASSERT(e != NULL);
 
-   return e->vtable->fs_closedir(e);
+   return e->vtable->fs_close_directory(e);
 }
 
 
-/* Function: al_readdir
+/* Function: al_read_directory
  */
-ALLEGRO_FS_ENTRY *al_readdir(ALLEGRO_FS_ENTRY *e)
+ALLEGRO_FS_ENTRY *al_read_directory(ALLEGRO_FS_ENTRY *e)
 {
    ASSERT(e != NULL);
 
-   return e->vtable->fs_readdir(e);
+   return e->vtable->fs_read_directory(e);
 }
 
 
-/* Function: al_getcwd
+/* Function: al_get_current_directory
  */
-ALLEGRO_PATH *al_getcwd(void)
+ALLEGRO_PATH *al_get_current_directory(void)
 {
    const ALLEGRO_FS_INTERFACE *vt = al_get_fs_interface();
-   ASSERT(vt->fs_getcwd);
-   return vt->fs_getcwd();
+   ASSERT(vt->fs_get_current_directory);
+   return vt->fs_get_current_directory();
 }
 
 
-/* Function: al_chdir
+/* Function: al_change_directory
  */
-bool al_chdir(const char *path)
+bool al_change_directory(const char *path)
 {
    const ALLEGRO_FS_INTERFACE *vt = al_get_fs_interface();
-   ASSERT(vt->fs_chdir);
+   ASSERT(vt->fs_change_directory);
    ASSERT(path);
 
-   return vt->fs_chdir(path);
+   return vt->fs_change_directory(path);
 }
 
 
-/* Function: al_mkdir
+/* Function: al_make_directory
  */
-bool al_mkdir(const char *path)
+bool al_make_directory(const char *path)
 {
    const ALLEGRO_FS_INTERFACE *vt = al_get_fs_interface();
    ASSERT(path);
-   ASSERT(vt->fs_mkdir);
+   ASSERT(vt->fs_make_directory);
 
-   return vt->fs_mkdir(path);
+   return vt->fs_make_directory(path);
 }
 
 

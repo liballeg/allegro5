@@ -437,7 +437,7 @@ static bool fs_stdio_update_entry(ALLEGRO_FS_ENTRY *fp)
    return true;
 }
 
-static bool fs_stdio_opendir(ALLEGRO_FS_ENTRY *fp)
+static bool fs_stdio_open_directory(ALLEGRO_FS_ENTRY *fp)
 {
    ALLEGRO_FS_ENTRY_STDIO *fp_stdio = (ALLEGRO_FS_ENTRY_STDIO *) fp;
 
@@ -454,7 +454,7 @@ static bool fs_stdio_opendir(ALLEGRO_FS_ENTRY *fp)
    return true;
 }
 
-static bool fs_stdio_closedir(ALLEGRO_FS_ENTRY *fp)
+static bool fs_stdio_close_directory(ALLEGRO_FS_ENTRY *fp)
 {
    ALLEGRO_FS_ENTRY_STDIO *fp_stdio = (ALLEGRO_FS_ENTRY_STDIO *) fp;
    bool ret;
@@ -474,7 +474,7 @@ static bool fs_stdio_closedir(ALLEGRO_FS_ENTRY *fp)
    return ret;
 }
 
-static ALLEGRO_FS_ENTRY *fs_stdio_readdir(ALLEGRO_FS_ENTRY *fp)
+static ALLEGRO_FS_ENTRY *fs_stdio_read_directory(ALLEGRO_FS_ENTRY *fp)
 {
    ALLEGRO_FS_ENTRY_STDIO *fp_stdio = (ALLEGRO_FS_ENTRY_STDIO *) fp;
    // FIXME: Must use readdir_r as Allegro allows file functions being
@@ -495,7 +495,7 @@ static ALLEGRO_FS_ENTRY *fs_stdio_readdir(ALLEGRO_FS_ENTRY *fp)
    /* TODO: Maybe we should keep an ALLEGRO_PATH for each entry in
     * the first place?
     */
-   path = al_create_path_for_dir(fp_stdio->path);
+   path = al_create_path_for_directory(fp_stdio->path);
    al_set_path_filename(path, ent->d_name);
    ret = fs_stdio_create_entry(al_path_cstr(path, '/'));
    al_free_path(path);
@@ -516,7 +516,7 @@ static void fs_stdio_destroy_entry(ALLEGRO_FS_ENTRY *fh_)
       al_free_path(fh->apath);
 
    if (fh->isdir)
-      fs_stdio_closedir(fh_);
+      fs_stdio_close_directory(fh_);
 
    memset(fh, 0, sizeof(*fh));
    _AL_FREE(fh);
@@ -557,7 +557,7 @@ static time_t fs_stdio_entry_ctime(ALLEGRO_FS_ENTRY *fp)
    return ent->st.st_ctime;
 }
 
-static ALLEGRO_PATH *fs_stdio_getcwd(void)
+static ALLEGRO_PATH *fs_stdio_get_current_directory(void)
 {
    char tmpdir[PATH_MAX];
    char *cwd = getcwd(tmpdir, PATH_MAX);
@@ -568,10 +568,10 @@ static ALLEGRO_PATH *fs_stdio_getcwd(void)
    }
    len = strlen(cwd);
 
-   return al_create_path_for_dir(tmpdir);
+   return al_create_path_for_directory(tmpdir);
 }
 
-static bool fs_stdio_chdir(const char *path)
+static bool fs_stdio_change_directory(const char *path)
 {
    int32_t ret = chdir(path);
    if (ret == -1) {
@@ -582,7 +582,7 @@ static bool fs_stdio_chdir(const char *path)
    return true;
 }
 
-static bool fs_stdio_mkdir(const char *path)
+static bool fs_stdio_make_directory(const char *path)
 {
 #ifdef ALLEGRO_WINDOWS
    int32_t ret = mkdir(path);
@@ -689,8 +689,8 @@ static const ALLEGRO_PATH *fs_stdio_name(ALLEGRO_FS_ENTRY *fp)
    ALLEGRO_FS_ENTRY_STDIO *fp_stdio = (ALLEGRO_FS_ENTRY_STDIO *) fp;
 
    if (!fp_stdio->apath) {
-      if (al_fs_entry_is_dir(fp)) {
-         fp_stdio->apath = al_create_path_for_dir(fp_stdio->path);
+      if (al_fs_entry_is_directory(fp)) {
+         fp_stdio->apath = al_create_path_for_directory(fp_stdio->path);
       }
       else {
          fp_stdio->apath = al_create_path(fp_stdio->path);
@@ -713,15 +713,15 @@ struct ALLEGRO_FS_INTERFACE _al_fs_interface_stdio = {
    fs_stdio_entry_exists,
    fs_stdio_remove_entry,
 
-   fs_stdio_opendir,
-   fs_stdio_readdir,
-   fs_stdio_closedir,
+   fs_stdio_open_directory,
+   fs_stdio_read_directory,
+   fs_stdio_close_directory,
 
    fs_stdio_filename_exists,
    fs_stdio_remove_filename,
-   fs_stdio_getcwd,
-   fs_stdio_chdir,
-   fs_stdio_mkdir
+   fs_stdio_get_current_directory,
+   fs_stdio_change_directory,
+   fs_stdio_make_directory
 };
 
 /* vim: set sts=3 sw=3 et: */

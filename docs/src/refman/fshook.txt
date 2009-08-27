@@ -7,7 +7,7 @@ whatever else you or an addon makes it do).
 ## API: ALLEGRO_FS_ENTRY
 
 Opaque filesystem entry object.
-Represents a file or a directory (check with [al_fs_entry_is_dir]
+Represents a file or a directory (check with [al_fs_entry_is_directory]
 or [al_fs_entry_is_file]).
 There are no user accessible member variables.
 
@@ -55,7 +55,7 @@ Returns true on success, false on failure.
 Fills in errno to indicate the error.
 
 See also: [al_get_errno], [al_get_fs_entry_atime], [al_get_fs_entry_ctime],
-[al_fs_entry_is_dir], [al_fs_entry_is_file], [al_get_fs_entry_mode]
+[al_fs_entry_is_directory], [al_fs_entry_is_file], [al_get_fs_entry_mode]
 
 ## API: al_get_fs_entry_mode
 
@@ -111,7 +111,7 @@ Return true iff this entry is a regular file.
 
 See also: [al_get_fs_entry_mode]
 
-## API: al_fs_entry_is_dir
+## API: al_fs_entry_is_directory
 
 Return true iff this entry is a directory.
 
@@ -147,47 +147,47 @@ See also: [al_remove_fs_entry]
 
 ## Directory functions
 
-### API: al_opendir
+### API: al_open_directory
 
-Opens a directory entry object. You must call this before using [al_readdir]
-on an entry and you must call [al_closedir] when you no longer need it.
+Opens a directory entry object. You must call this before using [al_read_directory]
+on an entry and you must call [al_close_directory] when you no longer need it.
 
 Returns true on success.
 
-See also: [al_readdir], [al_closedir]
+See also: [al_read_directory], [al_close_directory]
 
-### API: al_readdir
+### API: al_read_directory
 
 Reads the next directory item and returns a filesystem entry for it.
 
 Returns NULL if there are no more entries or if an error occurs. Call
-[al_closedir] on the directory handle when you are done.
+[al_close_directory] on the directory handle when you are done.
 
-See also: [al_opendir], [al_closedir]
+See also: [al_open_directory], [al_close_directory]
 
-### API: al_closedir
+### API: al_close_directory
 
 Closes a previously opened directory entry object.
 
 Returns true on success, false on failure and fills in Allegro's errno to
 indicate the error.
 
-See also: [al_opendir], [al_readdir]
+See also: [al_open_directory], [al_read_directory]
 
-### API: al_getcwd
+### API: al_get_current_directory
 
 Returns the path to the current working directory, or NULL on failure.
 Allegro's errno is filled in to indicate the error.
 
 See also: [al_get_errno]
 
-### API: al_chdir
+### API: al_change_directory
 
 Changes the current working directory to 'path'.
 
 Returns true on success, false on error.
 
-### API: al_mkdir
+### API: al_make_directory
 
 Creates a new directory on the filesystem.
 
@@ -222,15 +222,15 @@ The available functions you can provide for a filesystem. They are:
    bool                fs_entry_exists   (ALLEGRO_FS_ENTRY *e);
    bool                fs_remove_entry   (ALLEGRO_FS_ENTRY *e);
 
-   bool                fs_opendir        (ALLEGRO_FS_ENTRY *e);
-   ALLEGRO_FS_ENTRY *  fs_readdir        (ALLEGRO_FS_ENTRY *e);
-   bool                fs_closedir       (ALLEGRO_FS_ENTRY *e);
+   bool                fs_open_directory (ALLEGRO_FS_ENTRY *e);
+   ALLEGRO_FS_ENTRY *  fs_read_directory (ALLEGRO_FS_ENTRY *e);
+   bool                fs_close_directory(ALLEGRO_FS_ENTRY *e);
 
    bool                fs_filename_exists(const char *path);
    bool                fs_remove_filename(const char *path);
-   ALLEGRO_PATH *      fs_getcwd         (void);
-   bool                fs_chdir          (const char *path);
-   bool                fs_mkdir          (const char *path);
+   ALLEGRO_PATH *      fs_get_current_directory(void);
+   bool                fs_change_directory(const char *path);
+   bool                fs_make_directory(const char *path);
 ~~~
 
 ### API: al_set_fs_interface

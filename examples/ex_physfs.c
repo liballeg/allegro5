@@ -62,18 +62,18 @@ static void listdir(ALLEGRO_FS_ENTRY *entry)
 {
    ALLEGRO_FS_ENTRY *next;
 
-   al_opendir(entry);
+   al_open_directory(entry);
    while (1) {
-      next = al_readdir(entry);
+      next = al_read_directory(entry);
       if (!next)
          break;
 
       print_file(next);
-      if (al_fs_entry_is_dir(next))
+      if (al_fs_entry_is_directory(next))
          listdir(next);
       al_destroy_fs_entry(next);
    }
-   al_closedir(entry);
+   al_close_directory(entry);
 }
 
 int main(int argc, const char *argv[])

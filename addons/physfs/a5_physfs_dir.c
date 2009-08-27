@@ -40,12 +40,12 @@ static ALLEGRO_FS_ENTRY *fs_phys_create_entry(const char *path)
    return &e->fs_entry;
 }
 
-static ALLEGRO_PATH *fs_phys_getcwd(void)
+static ALLEGRO_PATH *fs_phys_get_current_directory(void)
 {
    return NULL;
 }
 
-static bool fs_phys_chdir(const char *path)
+static bool fs_phys_change_directory(const char *path)
 {
    (void)path;
    return false;
@@ -61,7 +61,7 @@ static bool fs_phys_remove_filename(const char *path)
    return PHYSFS_delete(path) != 0;
 }
 
-static bool fs_phys_mkdir(const char *path)
+static bool fs_phys_make_directory(const char *path)
 {
    return PHYSFS_mkdir(path) != 0;
 }
@@ -119,7 +119,7 @@ static bool fs_phys_remove_entry(ALLEGRO_FS_ENTRY *fse)
    return PHYSFS_delete(e->path_cstr) != 0;
 }
 
-static bool fs_phys_opendir(ALLEGRO_FS_ENTRY *fse)
+static bool fs_phys_open_directory(ALLEGRO_FS_ENTRY *fse)
 {
    ALLEGRO_FS_ENTRY_PHYSFS *e = (ALLEGRO_FS_ENTRY_PHYSFS *)fse;
 
@@ -130,7 +130,7 @@ static bool fs_phys_opendir(ALLEGRO_FS_ENTRY *fse)
    return true;
 }
 
-static ALLEGRO_FS_ENTRY *fs_phys_readdir(ALLEGRO_FS_ENTRY *fse)
+static ALLEGRO_FS_ENTRY *fs_phys_read_directory(ALLEGRO_FS_ENTRY *fse)
 {
    ALLEGRO_FS_ENTRY_PHYSFS *e = (ALLEGRO_FS_ENTRY_PHYSFS *)fse;
    ALLEGRO_FS_ENTRY *next;
@@ -153,7 +153,7 @@ static ALLEGRO_FS_ENTRY *fs_phys_readdir(ALLEGRO_FS_ENTRY *fse)
    return next;
 }
 
-static bool fs_phys_closedir(ALLEGRO_FS_ENTRY *fse)
+static bool fs_phys_close_directory(ALLEGRO_FS_ENTRY *fse)
 {
    ALLEGRO_FS_ENTRY_PHYSFS *e = (ALLEGRO_FS_ENTRY_PHYSFS *)fse;
    PHYSFS_freeList(e->file_list);
@@ -166,7 +166,7 @@ static void fs_phys_destroy_entry(ALLEGRO_FS_ENTRY *fse)
 {
    ALLEGRO_FS_ENTRY_PHYSFS *e = (ALLEGRO_FS_ENTRY_PHYSFS *)fse;
    if (e->is_dir_open)
-      fs_phys_closedir(fse);
+      fs_phys_close_directory(fse);
    al_free_path(e->path);
    _AL_FREE(e);
 }
@@ -185,15 +185,15 @@ static const ALLEGRO_FS_INTERFACE fs_phys_vtable =
    fs_phys_entry_exists,
    fs_phys_remove_entry,
 
-   fs_phys_opendir,
-   fs_phys_readdir,
-   fs_phys_closedir,
+   fs_phys_open_directory,
+   fs_phys_read_directory,
+   fs_phys_close_directory,
 
    fs_phys_filename_exists,
    fs_phys_remove_filename,
-   fs_phys_getcwd,
-   fs_phys_chdir,
-   fs_phys_mkdir
+   fs_phys_get_current_directory,
+   fs_phys_change_directory,
+   fs_phys_make_directory
 };
 
 void _al_set_physfs_fs_interface(void)

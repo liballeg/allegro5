@@ -61,7 +61,7 @@ static ALLEGRO_PATH *_find_executable_file(const char *filename)
          char pathname[1024];
     
          /* Prepend current directory */
-         ALLEGRO_PATH *path = al_getcwd();
+         ALLEGRO_PATH *path = al_get_current_directory();
          al_append_path_component(path, filename);
 
          if ((stat(pathname, &finfo)==0) &&
@@ -85,7 +85,7 @@ static ALLEGRO_PATH *_find_executable_file(const char *filename)
          ALLEGRO_USTR_INFO info;
          ALLEGRO_USTR *sub = al_ref_ustr(&info, us, start_pos, end_pos);
 
-         ALLEGRO_PATH *path = al_create_path_for_dir(al_cstr(sub));
+         ALLEGRO_PATH *path = al_create_path_for_directory(al_cstr(sub));
          al_append_path_component(path, filename);
 
          if (stat(al_path_cstr(path, '/'), &finfo) == 0 &&
@@ -250,13 +250,13 @@ static ALLEGRO_PATH *_unix_find_home(void)
 
       if (pass->pw_dir) {
          /* hey, we got our home directory */
-         return al_create_path_for_dir(pass->pw_dir);
+         return al_create_path_for_directory(pass->pw_dir);
       }
       al_set_errno(ENOENT);
       return NULL;
    }
    else {
-      return al_create_path_for_dir(home_env);
+      return al_create_path_for_directory(home_env);
    }
 }
 
@@ -278,7 +278,7 @@ ALLEGRO_PATH *_al_unix_get_path(int id)
          char *paths[] = { "/tmp/", "/var/tmp/", "/usr/tmp/", NULL };
          for (i=0; paths[i] != NULL; ++i) {
             ALLEGRO_FS_ENTRY *fse = al_create_fs_entry(paths[i]);
-            bool found = al_fs_entry_is_dir(fse);
+            bool found = al_fs_entry_is_directory(fse);
             al_destroy_fs_entry(fse);
             if (found) {
                return al_create_path(paths[i]);

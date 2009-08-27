@@ -19,7 +19,7 @@
 typedef struct ALLEGRO_PATH ALLEGRO_PATH;
 
 AL_FUNC(ALLEGRO_PATH*, al_create_path, (const char *str));
-AL_FUNC(ALLEGRO_PATH*, al_create_path_for_dir, (const char *str));
+AL_FUNC(ALLEGRO_PATH*, al_create_path_for_directory, (const char *str));
 AL_FUNC(ALLEGRO_PATH*, al_clone_path, (const ALLEGRO_PATH *path));
 
 // FIXME: rename to, al_path_num_dir_components
