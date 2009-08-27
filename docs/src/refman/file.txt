@@ -306,7 +306,15 @@ the following [al_fopen] calls for the current thread.
 Set the [ALLEGRO_FILE_INTERFACE] table for the calling thread.
 This will change the handler for later calls to [al_fopen].
 
-See also: [al_store_state], [al_restore_state].
+See also: [al_set_standard_file_interface], [al_store_state],
+[al_restore_state].
+
+### API: al_set_standard_file_interface
+
+Set the [ALLEGRO_FILE_INTERFACE] table to the default, for the calling thread.
+This will change the handler for later calls to [al_fopen].
+
+See also: [al_set_new_file_interface]
 
 ### API: al_get_new_file_interface
 

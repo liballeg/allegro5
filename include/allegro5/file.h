@@ -84,6 +84,7 @@ AL_FUNC(ALLEGRO_FILE*, al_make_temp_file, (const char *tmpl,
 AL_FUNC(const ALLEGRO_FILE_INTERFACE *, al_get_new_file_interface, (void));
 AL_FUNC(void, al_set_new_file_interface, (const ALLEGRO_FILE_INTERFACE *
       file_interface));
+AL_FUNC(void, al_set_standard_file_interface, (void));
 
 
 #ifdef __cplusplus

@@ -114,6 +114,7 @@ AL_FUNC(bool,                 al_make_directory,   (const char *path));
 /* Thread-local state. */
 AL_FUNC(const ALLEGRO_FS_INTERFACE *, al_get_fs_interface, (void));
 AL_FUNC(void, al_set_fs_interface, (const ALLEGRO_FS_INTERFACE *vtable));
+AL_FUNC(void, al_set_standard_fs_interface, (void));
 
 
 #ifdef __cplusplus

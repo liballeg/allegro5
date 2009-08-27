@@ -235,13 +235,21 @@ The available functions you can provide for a filesystem. They are:
 
 ### API: al_set_fs_interface
 
-Set the ALLEGRO_FS_INTERFACE table for the calling thread.
+Set the [ALLEGRO_FS_INTERFACE] table for the calling thread.
 
-See also: [al_store_state], [al_restore_state].
+See also: [al_set_standard_fs_interface], [al_store_state],
+[al_restore_state].
+
+### API: al_set_standard_fs_interface
+
+Return the [ALLEGRO_FS_INTERFACE] table to the default, for the calling
+thread.
+
+See also: [al_set_fs_interface].
 
 ### API: al_get_fs_interface
 
-Return a pointer to the ALLEGRO_FS_INTERFACE table in effect
+Return a pointer to the [ALLEGRO_FS_INTERFACE] table in effect
 for the calling thread.
 
 See also: [al_store_state], [al_restore_state].

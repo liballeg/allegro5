@@ -264,6 +264,14 @@ const struct ALLEGRO_FILE_INTERFACE _al_file_interface_stdio =
 };
 
 
+/* Function: al_set_standard_file_interface
+ */
+void al_set_standard_file_interface(void)
+{
+   al_set_new_file_interface(&_al_file_interface_stdio);
+}
+
+
 #define MAX_MKTEMP_TRIES 1000
 
 static void mktemp_replace_XX(const char *template, char *dst)
