@@ -85,9 +85,9 @@ _default: default
 # -------- decide what compiler options to use --------
 
 ifdef WARNMODE
-   WFLAGS = -Wall -W -Werror -Wno-unused -Wno-long-double
+   WFLAGS = -Wall -W -Werror -Wno-unused
 else
-   WFLAGS = -Wall -Wno-unused -Wno-long-double
+   WFLAGS = -Wall -Wno-unused
 endif
 
 ifdef TARGET_ARCH_COMPAT
