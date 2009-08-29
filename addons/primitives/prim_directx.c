@@ -90,22 +90,25 @@ static void set_blender(ALLEGRO_DISPLAY *display)
 }
 #endif
 
-int _al_draw_prim_directx(ALLEGRO_BITMAP* texture, ALLEGRO_VERTEX* vtxs, int start, int end, int type)
+int _al_draw_prim_directx(ALLEGRO_BITMAP* texture, const void* vtxs, const ALLEGRO_VERTEX_DECL* decl, int start, int end, int type)
 {
 #ifdef ALLEGRO_CFG_D3D
    int num_primitives = 0;
    int num_vtx;
-   ALLEGRO_VERTEX *vtx;
+   const ALLEGRO_VERTEX *vtx;
    ALLEGRO_DISPLAY *display;
    LPDIRECT3DDEVICE9 device;
    LPDIRECT3DBASETEXTURE9 d3d_texture;
    DWORD old_wrap_state[2];
    DWORD old_ttf_state;
 
+   if(decl)
+      return 0;
+
    display = al_get_current_display();
    device = al_d3d_get_device(display);
    num_vtx = end - start;
-   vtx = vtxs + start;
+   vtx = (const ALLEGRO_VERTEX*)vtxs + start;
 
    set_blender(display);
 
@@ -189,12 +192,13 @@ int _al_draw_prim_directx(ALLEGRO_BITMAP* texture, ALLEGRO_VERTEX* vtxs, int sta
    (void)start;
    (void)end;
    (void)type;
+   (void)decl;
 
    return 0;
 #endif
 }
 
-int _al_draw_prim_indexed_directx(ALLEGRO_BITMAP* texture, ALLEGRO_VERTEX* vtxs, const int* indices, int num_vtx, int type)
+int _al_draw_prim_indexed_directx(ALLEGRO_BITMAP* texture, const void* vtxs, const ALLEGRO_VERTEX_DECL* decl, const int* indices, int num_vtx, int type)
 {
 #ifdef ALLEGRO_CFG_D3D
    /* FIXME: IDirect3DDevice9_DrawIndexedPrimitiveUP is incompatible with the freedom we allow for the contents of the indices array
@@ -204,10 +208,16 @@ int _al_draw_prim_indexed_directx(ALLEGRO_BITMAP* texture, ALLEGRO_VERTEX* vtxs,
    ALLEGRO_VERTEX* buff = malloc(sizeof(ALLEGRO_VERTEX) * num_vtx);
    int ii;
    int ret;
-   for(ii = 0; ii < num_vtx; ii++) {
-      buff[ii] = vtxs[indices[ii]];
+
+   if(decl) {
+      free(buff);
+      return 0;
    }
-   ret = _al_draw_prim_directx(texture, buff, 0, num_vtx, type);
+
+   for(ii = 0; ii < num_vtx; ii++) {
+      buff[ii] = ((const ALLEGRO_VERTEX*)vtxs)[indices[ii]];
+   }
+   ret = _al_draw_prim_directx(texture, decl, buff, 0, num_vtx, type);
    free(buff);
    return ret;
    
@@ -279,6 +289,7 @@ int _al_draw_prim_indexed_directx(ALLEGRO_BITMAP* texture, ALLEGRO_VERTEX* vtxs,
    (void)indices;
    (void)num_vtx;
    (void)type;
+   (void)decl;
 
    return 0;
 #endif

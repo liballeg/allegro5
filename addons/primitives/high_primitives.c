@@ -105,7 +105,7 @@ void al_draw_line(float x1, float y1, float x2, float y2,
       for (ii = 0; ii < 4; ii++)
          vtx[ii].color = prim_color;
       
-      al_draw_prim(vtx, 0, 0, 4, ALLEGRO_PRIM_TRIANGLE_FAN);
+      al_draw_prim(vtx, 0, 0, 0, 4, ALLEGRO_PRIM_TRIANGLE_FAN);
       
    } else {
       ALLEGRO_VERTEX vtx[2];
@@ -116,7 +116,7 @@ void al_draw_line(float x1, float y1, float x2, float y2,
       vtx[0].color = prim_color;
       vtx[1].color = prim_color;
       
-      al_draw_prim(vtx, 0, 0, 2, ALLEGRO_PRIM_LINE_LIST);
+      al_draw_prim(vtx, 0, 0, 0, 2, ALLEGRO_PRIM_LINE_LIST);
    }
 }
 
@@ -181,7 +181,7 @@ void al_draw_triangle(float x1, float y1, float x2, float y2,
       for (ii = 0; ii < 8; ii++)
          vtx[ii].color = prim_color;
       
-      al_draw_prim(vtx, 0, 0, 8, ALLEGRO_PRIM_TRIANGLE_STRIP);
+      al_draw_prim(vtx, 0, 0, 0, 8, ALLEGRO_PRIM_TRIANGLE_STRIP);
       
    } else {
       ALLEGRO_VERTEX vtx[3];
@@ -194,7 +194,7 @@ void al_draw_triangle(float x1, float y1, float x2, float y2,
       vtx[1].color = prim_color;
       vtx[2].color = prim_color;
       
-      al_draw_prim(vtx, 0, 0, 3, ALLEGRO_PRIM_LINE_LOOP);
+      al_draw_prim(vtx, 0, 0, 0, 3, ALLEGRO_PRIM_LINE_LOOP);
    }
 }
 
@@ -217,7 +217,7 @@ void al_draw_filled_triangle(float x1, float y1, float x2, float y2,
    vtx[1].color = prim_color;
    vtx[2].color = prim_color;
    
-   al_draw_prim(vtx, 0, 0, 3, ALLEGRO_PRIM_TRIANGLE_LIST);
+   al_draw_prim(vtx, 0, 0, 0, 3, ALLEGRO_PRIM_TRIANGLE_LIST);
 }
 
 /* Function: al_draw_rectangle
@@ -248,7 +248,7 @@ void al_draw_rectangle(float x1, float y1, float x2, float y2,
       for (ii = 0; ii < 10; ii++)
          vtx[ii].color = prim_color;
       
-      al_draw_prim(vtx, 0, 0, 10, ALLEGRO_PRIM_TRIANGLE_STRIP);
+      al_draw_prim(vtx, 0, 0, 0, 10, ALLEGRO_PRIM_TRIANGLE_STRIP);
    } else {
       ALLEGRO_VERTEX vtx[4];
          
@@ -260,7 +260,7 @@ void al_draw_rectangle(float x1, float y1, float x2, float y2,
       for (ii = 0; ii < 4; ii++)
          vtx[ii].color = prim_color;
       
-      al_draw_prim(vtx, 0, 0, 4, ALLEGRO_PRIM_LINE_LOOP);
+      al_draw_prim(vtx, 0, 0, 0, 4, ALLEGRO_PRIM_LINE_LOOP);
    }
 }
 
@@ -283,7 +283,7 @@ void al_draw_filled_rectangle(float x1, float y1, float x2, float y2,
    for (ii = 0; ii < 4; ii++)
       vtx[ii].color = prim_color;
    
-   al_draw_prim(vtx, 0, 0, 4, ALLEGRO_PRIM_TRIANGLE_FAN);
+   al_draw_prim(vtx, 0, 0, 0, 4, ALLEGRO_PRIM_TRIANGLE_FAN);
 }
 
 /* Function: al_calculate_arc
@@ -394,7 +394,7 @@ void al_draw_ellipse(float cx, float cy, float rx, float ry,
       for (ii = 0; ii < 2 * num_segments; ii++)
          vertex_cache[ii].color = prim_color;
          
-      al_draw_prim(vertex_cache, 0, 0, 2 * num_segments, ALLEGRO_PRIM_TRIANGLE_STRIP);
+      al_draw_prim(vertex_cache, 0, 0, 0, 2 * num_segments, ALLEGRO_PRIM_TRIANGLE_STRIP);
    } else {
       int num_segments = ALLEGRO_PRIM_QUALITY * sqrtf((rx + ry) / 2.0f);
       int ii;
@@ -411,7 +411,7 @@ void al_draw_ellipse(float cx, float cy, float rx, float ry,
       for (ii = 0; ii < num_segments; ii++)
          vertex_cache[ii].color = prim_color;
          
-      al_draw_prim(vertex_cache, 0, 0, num_segments - 1, ALLEGRO_PRIM_LINE_LOOP);
+      al_draw_prim(vertex_cache, 0, 0, 0, num_segments - 1, ALLEGRO_PRIM_LINE_LOOP);
    }
 }
 
@@ -445,7 +445,7 @@ void al_draw_filled_ellipse(float cx, float cy, float rx, float ry,
    for (ii = 0; ii < num_segments + 1; ii++)
       vertex_cache[ii].color = prim_color;
    
-   al_draw_prim(vertex_cache, 0, 0, num_segments + 1, ALLEGRO_PRIM_TRIANGLE_FAN);
+   al_draw_prim(vertex_cache, 0, 0, 0, num_segments + 1, ALLEGRO_PRIM_TRIANGLE_FAN);
 }
 
 /* Function: al_draw_circle
@@ -486,7 +486,7 @@ void al_draw_arc(float cx, float cy, float r, float start_theta,
          vertex_cache[ii].color = prim_color;
       }
       
-      al_draw_prim(vertex_cache, 0, 0, 2 * num_segments, ALLEGRO_PRIM_TRIANGLE_STRIP);
+      al_draw_prim(vertex_cache, 0, 0, 0, 2 * num_segments, ALLEGRO_PRIM_TRIANGLE_STRIP);
    } else {
       int num_segments = fabs(delta_theta / (2 * ALLEGRO_PI) * ALLEGRO_PRIM_QUALITY * sqrtf(r));
       int ii;
@@ -501,7 +501,7 @@ void al_draw_arc(float cx, float cy, float r, float start_theta,
          vertex_cache[ii].color = prim_color;
       }
       
-      al_draw_prim(vertex_cache, 0, 0, num_segments, ALLEGRO_PRIM_LINE_STRIP);
+      al_draw_prim(vertex_cache, 0, 0, 0, num_segments, ALLEGRO_PRIM_LINE_STRIP);
    }
 }
 
@@ -558,7 +558,7 @@ void al_draw_rounded_rectangle(float x1, float y1, float x2, float y2,
       for (ii = 0; ii < 8 * num_segments + 2; ii++)
          vertex_cache[ii].color = prim_color;
          
-      al_draw_prim(vertex_cache, 0, 0, 8 * num_segments + 2, ALLEGRO_PRIM_TRIANGLE_STRIP);
+      al_draw_prim(vertex_cache, 0, 0, 0, 8 * num_segments + 2, ALLEGRO_PRIM_TRIANGLE_STRIP);
    } else {
       int num_segments = ALLEGRO_PRIM_QUALITY * sqrtf((rx + ry) / 2.0f) / 4;
       int ii;
@@ -591,7 +591,7 @@ void al_draw_rounded_rectangle(float x1, float y1, float x2, float y2,
       for (ii = 0; ii < 4 * num_segments; ii++)
          vertex_cache[ii].color = prim_color;
          
-      al_draw_prim(vertex_cache, 0, 0, 4 * num_segments, ALLEGRO_PRIM_LINE_LOOP);
+      al_draw_prim(vertex_cache, 0, 0, 0, 4 * num_segments, ALLEGRO_PRIM_LINE_LOOP);
    }
 }
 
@@ -640,7 +640,7 @@ void al_draw_filled_rounded_rectangle(float x1, float y1, float x2, float y2,
    /*
    TODO: Doing this as a triangle fan just doesn't sound all that great, perhaps shuffle the vertices somehow to at least make it a strip
    */
-   al_draw_prim(vertex_cache, 0, 0, 4 * num_segments, ALLEGRO_PRIM_TRIANGLE_FAN);
+   al_draw_prim(vertex_cache, 0, 0, 0, 4 * num_segments, ALLEGRO_PRIM_TRIANGLE_FAN);
 }
 
 /* Function: al_calculate_spline
@@ -732,7 +732,7 @@ void al_draw_spline(float points[8], ALLEGRO_COLOR color, float thickness)
          vertex_cache[ii].color = prim_color;
       }
       
-      al_draw_prim(vertex_cache, 0, 0, 2 * num_segments, ALLEGRO_PRIM_TRIANGLE_STRIP);
+      al_draw_prim(vertex_cache, 0, 0, 0, 2 * num_segments, ALLEGRO_PRIM_TRIANGLE_STRIP);
    } else {
       if (num_segments >= ALLEGRO_VERTEX_CACHE_SIZE) {
          num_segments = ALLEGRO_VERTEX_CACHE_SIZE - 1;
@@ -744,7 +744,7 @@ void al_draw_spline(float points[8], ALLEGRO_COLOR color, float thickness)
          vertex_cache[ii].color = prim_color;
       }
       
-      al_draw_prim(vertex_cache, 0, 0, num_segments, ALLEGRO_PRIM_LINE_STRIP);
+      al_draw_prim(vertex_cache, 0, 0, 0, num_segments, ALLEGRO_PRIM_LINE_STRIP);
    }
 }
 
@@ -851,12 +851,12 @@ void al_draw_ribbon(const float *points, int points_stride, ALLEGRO_COLOR color,
          vertex_cache[ii].color = prim_color;
       }
       
-      al_draw_prim(vertex_cache, 0, 0, 2 * num_segments, ALLEGRO_PRIM_TRIANGLE_STRIP);
+      al_draw_prim(vertex_cache, 0, 0, 0, 2 * num_segments, ALLEGRO_PRIM_TRIANGLE_STRIP);
    } else {
       for (ii = 0; ii < num_segments; ii++) {
          vertex_cache[ii].color = prim_color;
       }
       
-      al_draw_prim(vertex_cache, 0, 0, num_segments, ALLEGRO_PRIM_LINE_STRIP);
+      al_draw_prim(vertex_cache, 0, 0, 0, num_segments, ALLEGRO_PRIM_LINE_STRIP);
    }
 }

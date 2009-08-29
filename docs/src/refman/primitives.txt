@@ -223,6 +223,8 @@ cards.
 
 * texture - Texture to use, pass 0 to use only shaded primitves
 * vtxs - Pointer to an array of vertices
+* decl - Pointer to the vertex declaration. If set to 0, the vtxs are assumed
+      to be of the ALLEGRO_VERTEX type
 * start, end - Start and end of the subset of the vertex buffer to draw
 * type - Primitive type to draw
 
@@ -230,7 +232,8 @@ cards.
 Number of primitives drawn
 
 *See Also:*
-[ALLEGRO_VERTEX], [ALLEGRO_PRIM_TYPE], [al_draw_indexed_prim]
+[ALLEGRO_VERTEX], [ALLEGRO_PRIM_TYPE], [ALLEGRO_VERTEX_DECL], 
+[al_draw_indexed_prim]
 
 ### API: al_draw_indexed_prim
 
@@ -243,6 +246,8 @@ maximum portability with older video cards.
 
 * texture - Texture to use, pass 0 to use only shaded primitves
 * vtxs - Pointer to an array of vertices
+* decl - Pointer to the vertex declaration. If set to 0, the vtxs are assumed
+      to be of the ALLEGRO_VERTEX type
 * indices - An array of indices into the vertex buffer
 * num_vtx - Number of indices from the indices array you want to draw
 * type - Primitive type to draw
@@ -251,7 +256,7 @@ maximum portability with older video cards.
 Number of primitives drawn
 
 *See Also:*
-[ALLEGRO_VERTEX], [ALLEGRO_PRIM_TYPE], [al_draw_prim]
+[ALLEGRO_VERTEX], [ALLEGRO_PRIM_TYPE], [ALLEGRO_VERTEX_DECL], [al_draw_prim]
 
 ### API: al_get_allegro_color
 
@@ -280,6 +285,33 @@ Converted ALLEGRO_PRIM_COLOR
 
 *See Also:*
 [ALLEGRO_PRIM_COLOR], [al_get_allegro_color]
+
+### API: al_create_vertex_decl
+
+Creates a vertex declaration, which describes a custom vertex format.
+
+*Parameters:*
+
+* elements - An array of ALLEGRO_VERTEX_ELEMENT structures.
+* stride - Size of the custom vertex structure
+
+*Returns:*
+Newly created vertex declaration.
+
+*See Also:*
+[ALLEGRO_VERTEX_ELEMENT], [ALLEGRO_VERTEX_DECL], [al_destroy_vertex_decl]
+
+### API: al_destroy_vertex_decl
+
+Destroys a vertex declaration.
+
+*Parameters:*
+
+* decl - Vertex declaration to destroy
+* stride - Size of the custom vertex structure
+
+*See Also:*
+[ALLEGRO_VERTEX_ELEMENT], [ALLEGRO_VERTEX_DECL], [al_create_vertex_decl]
 
 ### API: al_draw_soft_triangle
 
@@ -504,6 +536,45 @@ right most 2x1 matrix, for a total of 6 values.
 
 * m - A 4x4 float matrix
 
+### API: ALLEGRO_VERTEX_DECL
+
+A vertex declaration. This opaque structure is responsible for describing
+the format and layout of a user defined custom vertex. It is created and 
+destroyed by specialized functions.
+
+*See Also:*
+[al_create_vertex_decl], [al_destroy_vertex_decl], [ALLEGRO_VERTEX_ELEMENT]
+
+### API: ALLEGRO_VERTEX_ELEMENT
+
+A small structure describing a certain element of a vertex. E.g. the
+position of the vertex, or its color. These structures are used by the 
+al_create_vertex_decl function to create the vertex declaration. For that they
+generally occur in an array. The last element of such an array should have the 
+attribute field be 0, to signify that it is the end of the array.
+Here's an example of code that would create a declaration describing the 
+ALLEGRO_VERTEX structure:
+
+    ALLEGRO_VERTEX_ELEMENT elems[] = {
+       {ALLEGRO_PRIM_POSITION, ALLEGRO_PRIM_FLOAT_2, offsetof(ALLEGRO_VERTEX, x)},
+       {ALLEGRO_PRIM_TEX_COORD, ALLEGRO_PRIM_FLOAT_2, offsetof(ALLEGRO_VERTEX, u)},
+       {ALLEGRO_PRIM_COLOR_ATTR, 0, offsetof(CUSTOM_VERTEX, color)},
+       {0, 0, 0}
+    };
+    ALLEGRO_VERTEX_DECL* decl = al_create_vertex_decl(elems, sizeof(ALLEGRO_VERTEX));
+
+*Fields:*
+
+* attribute - A member of the ALLEGRO_PRIM_ATTR enumeration, specifying what
+   this attribute signifies
+* storage - A member of the ALLEGRO_PRIM_STORAGE enumeration, specifying how
+   this attribute is stored
+* offset - Offset in bytes from the beginning of the custom vertex structure. C
+   function offsetof is very useful here.
+
+*See Also:*
+[al_create_vertex_decl], [ALLEGRO_VERTEX_DECL], [ALLEGRO_PRIM_STORAGE]
+
 ### API: ALLEGRO_PRIM_TYPE
 
 Enumerates the types of primitives this addon can draw.
@@ -525,6 +596,35 @@ Enumerates the types of primitives this addon can draw.
 
 * ALLEGRO_PRIM_TRIANGLE_FAN - A fan of triangles, all triangles share the first
   vertex
+
+### API: ALLEGRO_PRIM_ATTR
+
+Enumerates the types of vertex attributes that a custom vertex may have.
+
+* ALLEGRO_PRIM_POSITION - Position information, can be stored in any supported 
+   fashion
+
+* ALLEGRO_PRIM_COLOR_ATTR - Color information, stored in an ALLEGRO_PRIM_COLOR.
+   The storage field of ALLEGRO_VERTEX_ELEMENT is ignored
+
+* ALLEGRO_PRIM_TEX_COORD - Texture coordinate information, can be stored only in
+   ALLEGRO_PRIM_FLOAT_2 and ALLEGRO_PRIM_SHORT_2
+
+*See Also:*
+[ALLEGRO_VERTEX_DECL], [ALLEGRO_PRIM_STORAGE]
+
+### API: ALLEGRO_PRIM_STORAGE
+
+Enumerates the types of storage an attribute of a custom vertex may be stored
+in.
+
+* ALLEGRO_PRIM_FLOAT_2 - A doublet of floats
+* ALLEGRO_PRIM_FLOAT_3 - A triplet of floats
+* ALLEGRO_PRIM_SHORT_2 - A doublet of shorts
+* ALLEGRO_PRIM_SHORT_3 - A triplet of shorts
+
+*See Also:*
+[ALLEGRO_PRIM_ATTR]
 
 ### API: ALLEGRO_VERTEX_CACHE_SIZE
 

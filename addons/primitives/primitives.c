@@ -65,8 +65,8 @@ static void temp_trans(float x, float y)
 
 /* Function: al_draw_prim
  */
-int al_draw_prim(ALLEGRO_VERTEX* vtxs, ALLEGRO_BITMAP* texture,
-   int start, int end, int type)
+int al_draw_prim(const void* vtxs, const ALLEGRO_VERTEX_DECL* decl,
+   ALLEGRO_BITMAP* texture, int start, int end, int type)
 {  
    ALLEGRO_BITMAP *target;
    int ret = 0;
@@ -89,13 +89,13 @@ int al_draw_prim(ALLEGRO_VERTEX* vtxs, ALLEGRO_BITMAP* texture,
    }
    
    if (target->flags & ALLEGRO_MEMORY_BITMAP) {
-      ret =  _al_draw_prim_soft(texture, vtxs, start, end, type);
+      ret =  _al_draw_prim_soft(texture, vtxs, decl, start, end, type);
    } else {
       int flags = al_get_display_flags();
       if (flags & ALLEGRO_OPENGL) {
-         ret =  _al_draw_prim_opengl(texture, vtxs, start, end, type);
+         ret =  _al_draw_prim_opengl(texture, vtxs, decl, start, end, type);
       } else if (flags & ALLEGRO_DIRECT3D) {
-         ret =  _al_draw_prim_directx(texture, vtxs, start, end, type);
+         ret =  _al_draw_prim_directx(texture, vtxs, decl, start, end, type);
       }
    }
    
@@ -111,8 +111,8 @@ int al_draw_prim(ALLEGRO_VERTEX* vtxs, ALLEGRO_BITMAP* texture,
 
 /* Function: al_draw_indexed_prim
  */
-int al_draw_indexed_prim(ALLEGRO_VERTEX* vtxs, ALLEGRO_BITMAP* texture,
-   const int* indices, int num_vtx, int type)
+int al_draw_indexed_prim(const void* vtxs, const ALLEGRO_VERTEX_DECL* decl,
+   ALLEGRO_BITMAP* texture, const int* indices, int num_vtx, int type)
 {
    ALLEGRO_BITMAP *target;
    int ret = 0;
@@ -136,13 +136,13 @@ int al_draw_indexed_prim(ALLEGRO_VERTEX* vtxs, ALLEGRO_BITMAP* texture,
    }
    
    if (target->flags & ALLEGRO_MEMORY_BITMAP) {
-      ret =  _al_draw_prim_indexed_soft(texture, vtxs, indices, num_vtx, type);
+      ret =  _al_draw_prim_indexed_soft(texture, vtxs, decl, indices, num_vtx, type);
    } else {
       int flags = al_get_display_flags();
       if (flags & ALLEGRO_OPENGL) {
-         ret =  _al_draw_prim_indexed_opengl(texture, vtxs, indices, num_vtx, type);
+         ret =  _al_draw_prim_indexed_opengl(texture, vtxs, decl, indices, num_vtx, type);
       } else if (flags & ALLEGRO_DIRECT3D) {
-         ret =  _al_draw_prim_indexed_directx(texture, vtxs, indices, num_vtx, type);
+         ret =  _al_draw_prim_indexed_directx(texture, vtxs, decl, indices, num_vtx, type);
       }
    }
    
@@ -426,4 +426,28 @@ void al_transform_transform(const ALLEGRO_TRANSFORM* trans, ALLEGRO_TRANSFORM* t
 uint32_t al_get_allegro_primitives_version(void)
 {
    return ALLEGRO_VERSION_INT;
+}
+
+/* Function: al_create_vertex_decl
+ */
+ALLEGRO_VERTEX_DECL* al_create_vertex_decl(const ALLEGRO_VERTEX_ELEMENT* elements, int stride)
+{
+   ALLEGRO_VERTEX_DECL* ret = malloc(sizeof(ALLEGRO_VERTEX_DECL));
+   ret->elements = malloc(sizeof(ALLEGRO_VERTEX_ELEMENT) * ALLEGRO_PRIM_ATTR_NUM);
+   memset(ret->elements, 0, sizeof(ALLEGRO_VERTEX_ELEMENT) * ALLEGRO_PRIM_ATTR_NUM);
+   while(elements->attribute) {
+      ret->elements[elements->attribute] = *elements;
+      elements++;
+   }
+   
+   ret->stride = stride;
+   return ret;
+}
+
+/* Function: al_destroy_vertex_decl
+ */
+void al_destroy_vertex_decl(ALLEGRO_VERTEX_DECL* decl)
+{
+   free(decl->elements);
+   free(decl);
 }

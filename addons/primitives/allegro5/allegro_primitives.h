@@ -44,6 +44,26 @@ typedef enum ALLEGRO_PRIM_TYPE
   ALLEGRO_PRIM_NUM_TYPES
 } ALLEGRO_PRIM_TYPE;
 
+/* Enum: ALLEGRO_PRIM_ATTR
+ */
+typedef enum ALLEGRO_PRIM_ATTR
+{
+   ALLEGRO_PRIM_POSITION = 1,
+   ALLEGRO_PRIM_COLOR_ATTR,
+   ALLEGRO_PRIM_TEX_COORD,
+   ALLEGRO_PRIM_ATTR_NUM
+} ALLEGRO_PRIM_ATTR;
+
+/* Enum: ALLEGRO_PRIM_STORAGE
+ */
+typedef enum ALLEGRO_PRIM_STORAGE
+{
+   ALLEGRO_PRIM_FLOAT_2,
+   ALLEGRO_PRIM_FLOAT_3,
+   ALLEGRO_PRIM_SHORT_2,
+   ALLEGRO_PRIM_SHORT_3
+} ALLEGRO_PRIM_STORAGE;
+
 /* Enum: ALLEGRO_VERTEX_CACHE_SIZE
  */
 #define ALLEGRO_VERTEX_CACHE_SIZE 256
@@ -51,6 +71,20 @@ typedef enum ALLEGRO_PRIM_TYPE
 /* Enum: ALLEGRO_PRIM_QUALITY
  */
 #define ALLEGRO_PRIM_QUALITY 10
+
+/* Type: ALLEGRO_VERTEX_ELEMENT
+ */
+typedef struct ALLEGRO_VERTEX_ELEMENT ALLEGRO_VERTEX_ELEMENT;
+
+struct ALLEGRO_VERTEX_ELEMENT {
+   ALLEGRO_PRIM_ATTR attribute;
+   ALLEGRO_PRIM_STORAGE storage;
+   int offset;
+};
+
+/* Type: ALLEGRO_VERTEX_DECL
+ */
+typedef struct ALLEGRO_VERTEX_DECL ALLEGRO_VERTEX_DECL;
 
 /* Type: ALLEGRO_PRIM_COLOR
  */
@@ -87,9 +121,11 @@ ALLEGRO_PRIM_FUNC(uint32_t, al_get_allegro_primitives_version, (void));
 /*
 * Primary Functions
 */
-ALLEGRO_PRIM_FUNC(int, al_draw_prim, (ALLEGRO_VERTEX* vtxs, ALLEGRO_BITMAP* texture, int start, int end, int type));
-ALLEGRO_PRIM_FUNC(int, al_draw_indexed_prim, (ALLEGRO_VERTEX* vtxs, ALLEGRO_BITMAP* texture, const int* indices, int num_vtx, int type));
+ALLEGRO_PRIM_FUNC(int, al_draw_prim, (const void* vtxs, const ALLEGRO_VERTEX_DECL* decl, ALLEGRO_BITMAP* texture, int start, int end, int type));
+ALLEGRO_PRIM_FUNC(int, al_draw_indexed_prim, (const void* vtxs, const ALLEGRO_VERTEX_DECL* decl, ALLEGRO_BITMAP* texture, const int* indices, int num_vtx, int type));
 
+ALLEGRO_PRIM_FUNC(ALLEGRO_VERTEX_DECL*, al_create_vertex_decl, (const ALLEGRO_VERTEX_ELEMENT* elements, int stride));
+ALLEGRO_PRIM_FUNC(void, al_destroy_vertex_decl, (ALLEGRO_VERTEX_DECL* decl));
 
 ALLEGRO_PRIM_FUNC(ALLEGRO_COLOR, al_get_allegro_color, (ALLEGRO_PRIM_COLOR col));
 ALLEGRO_PRIM_FUNC(ALLEGRO_PRIM_COLOR, al_get_prim_color, (ALLEGRO_COLOR col));

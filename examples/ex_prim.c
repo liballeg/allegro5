@@ -28,7 +28,7 @@
 
 typedef void (*Screen)(int);
 int ScreenW = 800, ScreenH = 600;
-#define NUM_SCREENS 10
+#define NUM_SCREENS 11
 #define ROTATE_SPEED 0.0001f
 Screen Screens[NUM_SCREENS];
 ALLEGRO_FONT* Font;
@@ -49,6 +49,58 @@ enum MODE {
    LOGIC,
    DRAW
 };
+
+typedef struct
+{
+   ALLEGRO_PRIM_COLOR color;
+   short u, v;
+   short x, y;
+   int junk[6];
+} CUSTOM_VERTEX;
+
+static void CustomVertexFormatPrimitives(int mode)
+{
+   static CUSTOM_VERTEX vtx[4];
+   static ALLEGRO_VERTEX_DECL* decl;
+   if (mode == INIT) {
+      int ii = 0;
+      ALLEGRO_VERTEX_ELEMENT elems[] = {
+         {ALLEGRO_PRIM_POSITION, ALLEGRO_PRIM_SHORT_2, offsetof(CUSTOM_VERTEX, x)},
+         {ALLEGRO_PRIM_TEX_COORD, ALLEGRO_PRIM_SHORT_2, offsetof(CUSTOM_VERTEX, u)},
+         {ALLEGRO_PRIM_COLOR_ATTR, 0, offsetof(CUSTOM_VERTEX, color)},
+         {0, 0, 0}
+      };
+      decl = al_create_vertex_decl(elems, sizeof(CUSTOM_VERTEX));
+
+      for (ii = 0; ii < 4; ii++) {
+         float x, y;
+         x = 200 * cosf((float)ii / 4.0f * 2 * ALLEGRO_PI);
+         y = 200 * sinf((float)ii / 4.0f * 2 * ALLEGRO_PI);
+         
+         vtx[ii].x = x; vtx[ii].y = y;
+         vtx[ii].u = x / 100; vtx[ii].v = y / 100;
+         vtx[ii].color = al_get_prim_color(al_map_rgba_f(1, 1, 1, 1));
+      }
+   } else if (mode == LOGIC) {
+      Theta += Speed;
+      al_build_transform(&MainTrans, ScreenW / 2, ScreenH / 2, 1, 1, Theta);
+   } else if (mode == DRAW) {
+      al_set_blender(ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA, al_map_rgba_f(1, 1, 1, 1));
+      
+      al_draw_textf(Font, ScreenW / 2, ScreenH - 20, ALLEGRO_ALIGN_CENTRE, "Custom Vertex Format");
+      
+      if (Blend)
+         al_set_blender(ALLEGRO_ONE, ALLEGRO_ONE, al_map_rgba_f(1, 1, 1, 1));
+      else
+         al_set_blender(ALLEGRO_ONE, ALLEGRO_ZERO, al_map_rgba_f(1, 1, 1, 1));
+      
+      al_use_transform(&MainTrans);
+      
+      al_draw_prim(vtx, decl, Texture, 0, 4, ALLEGRO_PRIM_TRIANGLE_FAN);
+      
+      al_use_transform(&Identity);
+   }
+}
 
 static void TexturePrimitives(int mode)
 {
@@ -85,11 +137,11 @@ static void TexturePrimitives(int mode)
       
       al_use_transform(&MainTrans);
       
-      al_draw_prim(vtx, Texture, 0, 4, ALLEGRO_PRIM_LINE_LIST);
+      al_draw_prim(vtx, 0, Texture, 0, 4, ALLEGRO_PRIM_LINE_LIST);
       
-      al_draw_prim(vtx, Texture, 4, 9, ALLEGRO_PRIM_LINE_STRIP);
+      al_draw_prim(vtx, 0, Texture, 4, 9, ALLEGRO_PRIM_LINE_STRIP);
       
-      al_draw_prim(vtx, Texture, 9, 13, ALLEGRO_PRIM_LINE_LOOP);
+      al_draw_prim(vtx, 0, Texture, 9, 13, ALLEGRO_PRIM_LINE_LOOP);
       
       al_use_transform(&Identity);
    }
@@ -140,9 +192,9 @@ static void FilledTexturePrimitives(int mode)
   
       al_use_transform(&MainTrans);
       
-      al_draw_prim(vtx, Texture, 0, 6, ALLEGRO_PRIM_TRIANGLE_FAN);
-      al_draw_prim(vtx, Texture, 7, 13, ALLEGRO_PRIM_TRIANGLE_LIST);
-      al_draw_prim(vtx, Texture, 14, 20, ALLEGRO_PRIM_TRIANGLE_STRIP);
+      al_draw_prim(vtx, 0, Texture, 0, 6, ALLEGRO_PRIM_TRIANGLE_FAN);
+      al_draw_prim(vtx, 0, Texture, 7, 13, ALLEGRO_PRIM_TRIANGLE_LIST);
+      al_draw_prim(vtx, 0, Texture, 14, 20, ALLEGRO_PRIM_TRIANGLE_STRIP);
       
       al_use_transform(&Identity);
    }
@@ -188,9 +240,9 @@ static void FilledPrimitives(int mode)
       
       al_use_transform(&MainTrans);
       
-      al_draw_prim(vtx, 0, 0, 6, ALLEGRO_PRIM_TRIANGLE_FAN);
-      al_draw_prim(vtx, 0, 7, 13, ALLEGRO_PRIM_TRIANGLE_LIST);
-      al_draw_prim(vtx, 0, 14, 20, ALLEGRO_PRIM_TRIANGLE_STRIP);
+      al_draw_prim(vtx, 0, 0, 0, 6, ALLEGRO_PRIM_TRIANGLE_FAN);
+      al_draw_prim(vtx, 0, 0, 7, 13, ALLEGRO_PRIM_TRIANGLE_LIST);
+      al_draw_prim(vtx, 0, 0, 14, 20, ALLEGRO_PRIM_TRIANGLE_STRIP);
       
       al_use_transform(&Identity);
    }
@@ -247,9 +299,9 @@ static void IndexedFilledPrimitives(int mode)
       
       al_use_transform(&MainTrans);
       
-      al_draw_indexed_prim(vtx, 0, indices1, 6, ALLEGRO_PRIM_TRIANGLE_LIST);
-      al_draw_indexed_prim(vtx, 0, indices2, 6, ALLEGRO_PRIM_TRIANGLE_STRIP);
-      al_draw_indexed_prim(vtx, 0, indices3, 6, ALLEGRO_PRIM_TRIANGLE_FAN);
+      al_draw_indexed_prim(vtx, 0, 0, indices1, 6, ALLEGRO_PRIM_TRIANGLE_LIST);
+      al_draw_indexed_prim(vtx, 0, 0, indices2, 6, ALLEGRO_PRIM_TRIANGLE_STRIP);
+      al_draw_indexed_prim(vtx, 0, 0, indices3, 6, ALLEGRO_PRIM_TRIANGLE_FAN);
       
       al_use_transform(&Identity);
    }
@@ -434,11 +486,11 @@ static void LowPrimitives(int mode)
       
       al_use_transform(&MainTrans);
       
-      al_draw_prim(vtx, 0, 0, 4, ALLEGRO_PRIM_LINE_LIST);
+      al_draw_prim(vtx, 0, 0, 0, 4, ALLEGRO_PRIM_LINE_LIST);
       
-      al_draw_prim(vtx, 0, 4, 9, ALLEGRO_PRIM_LINE_STRIP);
+      al_draw_prim(vtx, 0, 0, 4, 9, ALLEGRO_PRIM_LINE_STRIP);
       
-      al_draw_prim(vtx, 0, 9, 13, ALLEGRO_PRIM_LINE_LOOP);
+      al_draw_prim(vtx, 0, 0, 9, 13, ALLEGRO_PRIM_LINE_LOOP);
       
       al_use_transform(&Identity);
    }
@@ -485,9 +537,9 @@ static void IndexedPrimitives(int mode)
       
       al_use_transform(&MainTrans);
       
-      al_draw_indexed_prim(vtx, 0, indices1, 4, ALLEGRO_PRIM_LINE_LIST);
-      al_draw_indexed_prim(vtx, 0, indices2, 4, ALLEGRO_PRIM_LINE_STRIP);
-      al_draw_indexed_prim(vtx, 0, indices3, 4, ALLEGRO_PRIM_LINE_LOOP);
+      al_draw_indexed_prim(vtx, 0, 0, indices1, 4, ALLEGRO_PRIM_LINE_LIST);
+      al_draw_indexed_prim(vtx, 0, 0, indices2, 4, ALLEGRO_PRIM_LINE_STRIP);
+      al_draw_indexed_prim(vtx, 0, 0, indices3, 4, ALLEGRO_PRIM_LINE_LOOP);
       
       al_use_transform(&Identity);
    }
@@ -576,6 +628,7 @@ int main(void)
    Screens[7] = HighFilledPrimitives;
    Screens[8] = TexturePrimitives;
    Screens[9] = FilledTexturePrimitives;
+   Screens[10] = CustomVertexFormatPrimitives;
    
    for (ii = 0; ii < NUM_SCREENS; ii++)
       Screens[ii](INIT);
