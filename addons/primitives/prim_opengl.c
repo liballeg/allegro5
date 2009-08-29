@@ -63,7 +63,7 @@ static void setup_state(const void* vtxs, const ALLEGRO_VERTEX_DECL* decl, ALLEG
       glEnableClientState(GL_COLOR_ARRAY);
    if (!glIsEnabled(GL_VERTEX_ARRAY))
       glEnableClientState(GL_VERTEX_ARRAY);
-   if (!glIsEnabled(GL_TEXTURE_COORD_ARRAY))
+   if (texture && !glIsEnabled(GL_TEXTURE_COORD_ARRAY))
       glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 
    if(decl) {
@@ -131,6 +131,7 @@ static void setup_state(const void* vtxs, const ALLEGRO_VERTEX_DECL* decl, ALLEG
       }
    } else {
       glBindTexture(GL_TEXTURE_2D, 0);
+      glDisableClientState(GL_TEXTURE_COORD_ARRAY);
    }
 }
 
