@@ -59,19 +59,16 @@ static void setup_blending(void)
 
 static void setup_state(const void* vtxs, const ALLEGRO_VERTEX_DECL* decl, ALLEGRO_BITMAP* texture)
 {
-   if (!glIsEnabled(GL_COLOR_ARRAY))
-      glEnableClientState(GL_COLOR_ARRAY);
-   if (!glIsEnabled(GL_VERTEX_ARRAY))
-      glEnableClientState(GL_VERTEX_ARRAY);
-   if (texture && !glIsEnabled(GL_TEXTURE_COORD_ARRAY))
-      glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-
    if(decl) {
       ALLEGRO_VERTEX_ELEMENT* e;
       e = &decl->elements[ALLEGRO_PRIM_POSITION];
       if(e->attribute) {
          int ncoord = 0;
          GLenum type = 0;
+
+         if(!glIsEnabled(GL_VERTEX_ARRAY))
+            glEnableClientState(GL_VERTEX_ARRAY);
+
          switch(e->storage) {
             case ALLEGRO_PRIM_FLOAT_2:
                ncoord = 2;
@@ -87,11 +84,17 @@ static void setup_state(const void* vtxs, const ALLEGRO_VERTEX_DECL* decl, ALLEG
             break;
          }
          glVertexPointer(ncoord, type, decl->stride, vtxs + e->offset);
+      } else {
+         glDisableClientState(GL_VERTEX_ARRAY);
       }
 
       e = &decl->elements[ALLEGRO_PRIM_TEX_COORD];
       if(texture && e->attribute) {
          GLenum type = 0;
+
+         if(!glIsEnabled(GL_TEXTURE_COORD_ARRAY))
+            glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+
          switch(e->storage) {
             case ALLEGRO_PRIM_FLOAT_2:
             case ALLEGRO_PRIM_FLOAT_3:
@@ -102,22 +105,33 @@ static void setup_state(const void* vtxs, const ALLEGRO_VERTEX_DECL* decl, ALLEG
             break;
          }
          glTexCoordPointer(2, type, decl->stride, vtxs + e->offset);
+      } else {
+         glDisableClientState(GL_TEXTURE_COORD_ARRAY);
       }
 
       e = &decl->elements[ALLEGRO_PRIM_COLOR_ATTR];
       if(e->attribute) {
+         if(!glIsEnabled(GL_COLOR_ARRAY))
+            glEnableClientState(GL_COLOR_ARRAY);
+
          glColorPointer(4, GL_FLOAT, decl->stride, vtxs + e->offset + offsetof(ALLEGRO_PRIM_COLOR, r));
       } else {
+         glDisableClientState(GL_COLOR_ARRAY);
          glColor4f(1, 1, 1, 1);
       }
    } else {
       const ALLEGRO_VERTEX* vtx = vtxs;
+   
+      if(!glIsEnabled(GL_COLOR_ARRAY))
+         glEnableClientState(GL_COLOR_ARRAY);
+      if(!glIsEnabled(GL_VERTEX_ARRAY))
+         glEnableClientState(GL_VERTEX_ARRAY);
+      if (!glIsEnabled(GL_TEXTURE_COORD_ARRAY))
+         glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+
       glVertexPointer(2, GL_FLOAT, sizeof(ALLEGRO_VERTEX), &vtx[0].x);
       glColorPointer(4, GL_FLOAT, sizeof(ALLEGRO_VERTEX), &vtx[0].color.r);
-      
-      if (texture) {
-         glTexCoordPointer(2, GL_FLOAT, sizeof(ALLEGRO_VERTEX), &vtx[0].u);
-      }
+      glTexCoordPointer(2, GL_FLOAT, sizeof(ALLEGRO_VERTEX), &vtx[0].u);
    }
 
    if (texture) {
@@ -131,7 +145,6 @@ static void setup_state(const void* vtxs, const ALLEGRO_VERTEX_DECL* decl, ALLEG
       }
    } else {
       glBindTexture(GL_TEXTURE_2D, 0);
-      glDisableClientState(GL_TEXTURE_COORD_ARRAY);
    }
 }
 
