@@ -52,7 +52,6 @@ static void convert_vtx(const void* src, ALLEGRO_VERTEX* dest, const ALLEGRO_VER
             break;
          }
          case ALLEGRO_PRIM_SHORT_2:
-         case ALLEGRO_PRIM_SHORT_3:
          {
             short *ptr = (short*)(src + decl->elements[ALLEGRO_PRIM_POSITION].offset);
             dest->x = (float)*(ptr);
@@ -76,7 +75,6 @@ static void convert_vtx(const void* src, ALLEGRO_VERTEX* dest, const ALLEGRO_VER
             break;
          }
          case ALLEGRO_PRIM_SHORT_2:
-         case ALLEGRO_PRIM_SHORT_3:
          {
             short *ptr = (short*)(src + decl->elements[ALLEGRO_PRIM_TEX_COORD].offset);
             dest->u = (float)*(ptr);

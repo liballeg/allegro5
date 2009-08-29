@@ -621,7 +621,6 @@ in.
 * ALLEGRO_PRIM_FLOAT_2 - A doublet of floats
 * ALLEGRO_PRIM_FLOAT_3 - A triplet of floats
 * ALLEGRO_PRIM_SHORT_2 - A doublet of shorts
-* ALLEGRO_PRIM_SHORT_3 - A triplet of shorts
 
 *See Also:*
 [ALLEGRO_PRIM_ATTR]

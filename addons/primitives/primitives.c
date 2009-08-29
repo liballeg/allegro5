@@ -440,6 +440,88 @@ ALLEGRO_VERTEX_DECL* al_create_vertex_decl(const ALLEGRO_VERTEX_ELEMENT* element
       elements++;
    }
    
+#ifdef ALLEGRO_CFG_D3D
+   {
+      int flags = al_get_display_flags();
+      if (flags & ALLEGRO_DIRECT3D) {
+         ALLEGRO_DISPLAY *display;
+         LPDIRECT3DDEVICE9 device;
+         D3DVERTEXELEMENT9 d3delements[ALLEGRO_PRIM_ATTR_NUM + 1];
+         int idx = 0;
+         ALLEGRO_VERTEX_ELEMENT* e;
+         
+         display = al_get_current_display();
+         device = al_d3d_get_device(display);
+         
+         e = &ret->elements[ALLEGRO_PRIM_POSITION];
+         if(e->attribute) {
+            int type = 0;
+            switch(e->storage) {
+               case ALLEGRO_PRIM_FLOAT_2:
+                  type = D3DDECLTYPE_FLOAT2;
+               break;
+               case ALLEGRO_PRIM_FLOAT_3:
+                  type = D3DDECLTYPE_FLOAT3;
+               break;
+               case ALLEGRO_PRIM_SHORT_2:
+                  type = D3DDECLTYPE_SHORT2;
+               break;
+            }
+            d3delements[idx].Stream = 0;
+            d3delements[idx].Offset = e->offset;
+            d3delements[idx].Type = type;
+            d3delements[idx].Method = D3DDECLMETHOD_DEFAULT;
+            d3delements[idx].Usage = D3DDECLUSAGE_POSITION;
+            d3delements[idx].UsageIndex = 0;
+            idx++;
+         }
+
+         e = &ret->elements[ALLEGRO_PRIM_TEX_COORD];
+         if(e->attribute) {
+            int type = 0;
+            switch(e->storage) {
+               case ALLEGRO_PRIM_FLOAT_2:
+               case ALLEGRO_PRIM_FLOAT_3:
+                  type = D3DDECLTYPE_FLOAT2;
+               break;
+               case ALLEGRO_PRIM_SHORT_2:
+                  type = D3DDECLTYPE_SHORT2;
+               break;
+            }
+            d3delements[idx].Stream = 0;
+            d3delements[idx].Offset = e->offset;
+            d3delements[idx].Type = type;
+            d3delements[idx].Method = D3DDECLMETHOD_DEFAULT;
+            d3delements[idx].Usage = D3DDECLUSAGE_TEXCOORD;
+            d3delements[idx].UsageIndex = 0;
+            idx++;
+         }
+
+         e = &ret->elements[ALLEGRO_PRIM_COLOR_ATTR];
+         if(e->attribute) {
+            d3delements[idx].Stream = 0;
+            d3delements[idx].Offset = e->offset;
+            d3delements[idx].Type = D3DDECLTYPE_D3DCOLOR;
+            d3delements[idx].Method = D3DDECLMETHOD_DEFAULT;
+            d3delements[idx].Usage = D3DDECLUSAGE_COLOR;
+            d3delements[idx].UsageIndex = 0;
+            idx++;
+         }
+         
+         d3delements[idx].Stream = 0xFF;
+         d3delements[idx].Offset = 0;
+         d3delements[idx].Type = D3DDECLTYPE_UNUSED;
+         d3delements[idx].Method = 0;
+         d3delements[idx].Usage = 0;
+         d3delements[idx].UsageIndex = 0;
+         
+         IDirect3DDevice9_CreateVertexDeclaration(device, d3delements, (IDirect3DVertexDeclaration9**)&ret->d3d_decl);
+      }
+   }
+#else
+   ret->d3d_decl = 0;
+#endif
+   
    ret->stride = stride;
    return ret;
 }
@@ -449,5 +531,8 @@ ALLEGRO_VERTEX_DECL* al_create_vertex_decl(const ALLEGRO_VERTEX_ELEMENT* element
 void al_destroy_vertex_decl(ALLEGRO_VERTEX_DECL* decl)
 {
    free(decl->elements);
+   /*
+    * TODO: Somehow free the d3d_decl
+    */
    free(decl);
 }

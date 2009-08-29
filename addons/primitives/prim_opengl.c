@@ -85,10 +85,6 @@ static void setup_state(const void* vtxs, const ALLEGRO_VERTEX_DECL* decl, ALLEG
                ncoord = 2;
                type = GL_SHORT;
             break;
-            case ALLEGRO_PRIM_SHORT_3:
-               ncoord = 2;
-               type = GL_SHORT;
-            break;
          }
          glVertexPointer(ncoord, type, decl->stride, vtxs + e->offset);
       }
@@ -102,7 +98,6 @@ static void setup_state(const void* vtxs, const ALLEGRO_VERTEX_DECL* decl, ALLEG
                type = GL_FLOAT;
             break;
             case ALLEGRO_PRIM_SHORT_2:
-            case ALLEGRO_PRIM_SHORT_3:
                type = GL_SHORT;
             break;
          }
