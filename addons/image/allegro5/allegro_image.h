@@ -38,12 +38,12 @@ ALLEGRO_IIO_FUNC(bool, al_init_image_addon, (void));
 ALLEGRO_IIO_FUNC(void, al_shutdown_image_addon, (void));
 ALLEGRO_IIO_FUNC(bool, al_register_bitmap_loader, (const char *ext, ALLEGRO_IIO_LOADER_FUNCTION loader));
 ALLEGRO_IIO_FUNC(bool, al_register_bitmap_saver, (const char *ext, ALLEGRO_IIO_SAVER_FUNCTION saver));
-ALLEGRO_IIO_FUNC(bool, al_register_bitmap_loader_fp, (const char *ext, ALLEGRO_IIO_FS_LOADER_FUNCTION fs_loader));
-ALLEGRO_IIO_FUNC(bool, al_register_bitmap_saver_fp, (const char *ext, ALLEGRO_IIO_FS_SAVER_FUNCTION fs_saver));
+ALLEGRO_IIO_FUNC(bool, al_register_bitmap_loader_stream, (const char *ext, ALLEGRO_IIO_FS_LOADER_FUNCTION fs_loader));
+ALLEGRO_IIO_FUNC(bool, al_register_bitmap_saver_stream, (const char *ext, ALLEGRO_IIO_FS_SAVER_FUNCTION fs_saver));
 ALLEGRO_IIO_FUNC(ALLEGRO_BITMAP *, al_load_bitmap, (const char *filename));
-ALLEGRO_IIO_FUNC(ALLEGRO_BITMAP *, al_load_bitmap_fp, (ALLEGRO_FILE *fp, const char *ident));
+ALLEGRO_IIO_FUNC(ALLEGRO_BITMAP *, al_load_bitmap_stream, (ALLEGRO_FILE *fp, const char *ident));
 ALLEGRO_IIO_FUNC(bool, al_save_bitmap, (const char *filename, ALLEGRO_BITMAP *bitmap));
-ALLEGRO_IIO_FUNC(bool, al_save_bitmap_fp, (ALLEGRO_FILE *fp, const char *ident, ALLEGRO_BITMAP *bitmap));
+ALLEGRO_IIO_FUNC(bool, al_save_bitmap_stream, (ALLEGRO_FILE *fp, const char *ident, ALLEGRO_BITMAP *bitmap));
 ALLEGRO_IIO_FUNC(uint32_t, al_get_allegro_image_version, (void));
 
 /* Format specific functions */
@@ -54,11 +54,11 @@ ALLEGRO_IIO_FUNC(ALLEGRO_BITMAP *, al_load_png, (const char *filename));
 ALLEGRO_IIO_FUNC(ALLEGRO_BITMAP *, al_load_jpg, (const char *filename));
 
 
-ALLEGRO_IIO_FUNC(ALLEGRO_BITMAP *, al_load_pcx_fp, (ALLEGRO_FILE *fp));
-ALLEGRO_IIO_FUNC(ALLEGRO_BITMAP *, al_load_bmp_fp, (ALLEGRO_FILE *fp));
-ALLEGRO_IIO_FUNC(ALLEGRO_BITMAP *, al_load_tga_fp, (ALLEGRO_FILE *fp));
-ALLEGRO_IIO_FUNC(ALLEGRO_BITMAP *, al_load_png_fp, (ALLEGRO_FILE *fp));
-ALLEGRO_IIO_FUNC(ALLEGRO_BITMAP *, al_load_jpg_fp, (ALLEGRO_FILE *fp));
+ALLEGRO_IIO_FUNC(ALLEGRO_BITMAP *, al_load_pcx_stream, (ALLEGRO_FILE *fp));
+ALLEGRO_IIO_FUNC(ALLEGRO_BITMAP *, al_load_bmp_stream, (ALLEGRO_FILE *fp));
+ALLEGRO_IIO_FUNC(ALLEGRO_BITMAP *, al_load_tga_stream, (ALLEGRO_FILE *fp));
+ALLEGRO_IIO_FUNC(ALLEGRO_BITMAP *, al_load_png_stream, (ALLEGRO_FILE *fp));
+ALLEGRO_IIO_FUNC(ALLEGRO_BITMAP *, al_load_jpg_stream, (ALLEGRO_FILE *fp));
 
 
 ALLEGRO_IIO_FUNC(bool, al_save_pcx, (const char *filename, ALLEGRO_BITMAP *bmp));
@@ -68,11 +68,11 @@ ALLEGRO_IIO_FUNC(bool, al_save_png, (const char *filename, ALLEGRO_BITMAP *bmp))
 ALLEGRO_IIO_FUNC(bool, al_save_jpg, (const char *filename, ALLEGRO_BITMAP *bmp));
 
 
-ALLEGRO_IIO_FUNC(bool, al_save_pcx_fp, (ALLEGRO_FILE *fp, ALLEGRO_BITMAP *bmp));
-ALLEGRO_IIO_FUNC(bool, al_save_bmp_fp, (ALLEGRO_FILE *fp, ALLEGRO_BITMAP *bmp));
-ALLEGRO_IIO_FUNC(bool, al_save_tga_fp, (ALLEGRO_FILE *fp, ALLEGRO_BITMAP *bmp));
-ALLEGRO_IIO_FUNC(bool, al_save_png_fp, (ALLEGRO_FILE *fp, ALLEGRO_BITMAP *bmp));
-ALLEGRO_IIO_FUNC(bool, al_save_jpg_fp, (ALLEGRO_FILE *fp, ALLEGRO_BITMAP *bmp));
+ALLEGRO_IIO_FUNC(bool, al_save_pcx_stream, (ALLEGRO_FILE *fp, ALLEGRO_BITMAP *bmp));
+ALLEGRO_IIO_FUNC(bool, al_save_bmp_stream, (ALLEGRO_FILE *fp, ALLEGRO_BITMAP *bmp));
+ALLEGRO_IIO_FUNC(bool, al_save_tga_stream, (ALLEGRO_FILE *fp, ALLEGRO_BITMAP *bmp));
+ALLEGRO_IIO_FUNC(bool, al_save_png_stream, (ALLEGRO_FILE *fp, ALLEGRO_BITMAP *bmp));
+ALLEGRO_IIO_FUNC(bool, al_save_jpg_stream, (ALLEGRO_FILE *fp, ALLEGRO_BITMAP *bmp));
 
 
 #ifdef __cplusplus

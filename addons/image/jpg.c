@@ -265,7 +265,7 @@ static void load_jpg_entry_helper(ALLEGRO_FILE *fp,
    _AL_FREE(data->row);
 }
 
-ALLEGRO_BITMAP *al_load_jpg_fp(ALLEGRO_FILE *fp)
+ALLEGRO_BITMAP *al_load_jpg_stream(ALLEGRO_FILE *fp)
 {
    ALLEGRO_STATE state;
    struct load_jpg_entry_helper_data data;
@@ -350,7 +350,7 @@ static void save_jpg_entry_helper(ALLEGRO_FILE *fp, ALLEGRO_BITMAP *bmp,
    _AL_FREE(data->buffer);
 }
 
-bool al_save_jpg_fp(ALLEGRO_FILE *fp, ALLEGRO_BITMAP *bmp)
+bool al_save_jpg_stream(ALLEGRO_FILE *fp, ALLEGRO_BITMAP *bmp)
 {
    ALLEGRO_STATE state;
    struct save_jpg_entry_helper_data data;
@@ -378,7 +378,7 @@ ALLEGRO_BITMAP *al_load_jpg(char const *filename)
    if (!fp)
       return NULL;
 
-   bmp = al_load_jpg_fp(fp);
+   bmp = al_load_jpg_stream(fp);
 
    al_fclose(fp);
 
@@ -401,7 +401,7 @@ bool al_save_jpg(char const *filename, ALLEGRO_BITMAP *bmp)
       return false;
    }
 
-   result = al_save_jpg_fp(fp, bmp);
+   result = al_save_jpg_stream(fp, bmp);
 
    al_fclose(fp);
 

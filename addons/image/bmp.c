@@ -612,14 +612,14 @@ static void read_RLE4_compressed_image(ALLEGRO_FILE *f, unsigned char *buf,
 
 
 
-/* al_load_bmp_fp:
+/* al_load_bmp_stream:
  *  Like load_bmp, but starts loading from the current place in the ALLEGRO_FILE
  *  specified. If successful the offset into the file will be left just after
  *  the image data. If unsuccessful the offset into the file is unspecified,
  *  i.e. you must either reset the offset to some known place or close the
  *  packfile. The packfile is not closed by this function.
  */
-ALLEGRO_BITMAP *al_load_bmp_fp(ALLEGRO_FILE *f)
+ALLEGRO_BITMAP *al_load_bmp_stream(ALLEGRO_FILE *f)
 {
    BMPFILEHEADER fileheader;
    BMPINFOHEADER infoheader;
@@ -748,13 +748,13 @@ ALLEGRO_BITMAP *al_load_bmp_fp(ALLEGRO_FILE *f)
 
 
 
-/* al_save_bmp_fp:
+/* al_save_bmp_stream:
  *  Like save_bmp but writes into the ALLEGRO_FILE given instead of a new file.
  *  The packfile is not closed after writing is completed. On success the
  *  offset into the file is left after the TGA file just written. On failure
  *  the offset is left at the end of whatever incomplete data was written.
  */
-bool al_save_bmp_fp(ALLEGRO_FILE *f, ALLEGRO_BITMAP *bmp)
+bool al_save_bmp_stream(ALLEGRO_FILE *f, ALLEGRO_BITMAP *bmp)
 {
    int bfSize;
    int biSizeImage;
@@ -848,7 +848,7 @@ ALLEGRO_BITMAP *al_load_bmp(const char *filename)
    if (!f)
       return NULL;
 
-   bmp = al_load_bmp_fp(f);
+   bmp = al_load_bmp_stream(f);
 
    al_fclose(f);
 
@@ -868,7 +868,7 @@ bool al_save_bmp(const char *filename, ALLEGRO_BITMAP *bmp)
    if (!f)
       return false;
 
-   ret = al_save_bmp_fp(f, bmp);
+   ret = al_save_bmp_stream(f, bmp);
 
    al_fclose(f);
 

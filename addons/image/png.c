@@ -259,10 +259,10 @@ static ALLEGRO_BITMAP *really_load_png(png_structp png_ptr, png_infop info_ptr)
 }
 
 
-/* al_load_png_fp:
+/* al_load_png_stream:
  *  Load a PNG file from disk, doing colour coversion if required.
  */
-ALLEGRO_BITMAP *al_load_png_fp(ALLEGRO_FILE *fp)
+ALLEGRO_BITMAP *al_load_png_stream(ALLEGRO_FILE *fp)
 {
    ALLEGRO_BITMAP *bmp;
    png_structp png_ptr;
@@ -336,7 +336,7 @@ ALLEGRO_BITMAP *al_load_png(const char *filename)
    if (!fp)
       return NULL;
 
-   bmp = al_load_png_fp(fp);
+   bmp = al_load_png_stream(fp);
 
    al_fclose(fp);
 
@@ -417,7 +417,7 @@ static int save_rgba(png_structp png_ptr, ALLEGRO_BITMAP *bmp)
  *  Writes a non-interlaced, no-frills PNG, taking the usual save_xyz
  *  parameters.  Returns non-zero on error.
  */
-bool al_save_png_fp(ALLEGRO_FILE *fp, ALLEGRO_BITMAP *bmp)
+bool al_save_png_stream(ALLEGRO_FILE *fp, ALLEGRO_BITMAP *bmp)
 {
    png_structp png_ptr = NULL;
    png_infop info_ptr = NULL;
@@ -515,7 +515,7 @@ bool al_save_png(const char *filename, ALLEGRO_BITMAP *bmp)
       return false;
    }
 
-   result = al_save_png_fp(fp, bmp);
+   result = al_save_png_stream(fp, bmp);
    al_fclose(fp);
 
    return result;

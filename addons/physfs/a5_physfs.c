@@ -29,7 +29,7 @@ static const ALLEGRO_FILE_INTERFACE file_phys_vtable;
 #define streq(a, b)  (0 == strcmp(a, b))
 
 
-static ALLEGRO_FILE_PHYSFS *cast_fp(ALLEGRO_FILE *f)
+static ALLEGRO_FILE_PHYSFS *cast_stream(ALLEGRO_FILE *f)
 {
    return (ALLEGRO_FILE_PHYSFS *)f;
 }
@@ -90,7 +90,7 @@ static ALLEGRO_FILE *file_phys_fopen(const char *filename, const char *mode)
 
 static void file_phys_fclose(ALLEGRO_FILE *f)
 {
-   ALLEGRO_FILE_PHYSFS *fp = cast_fp(f);
+   ALLEGRO_FILE_PHYSFS *fp = cast_stream(f);
 
    PHYSFS_close(fp->phys);
    _AL_FREE(fp);
@@ -99,7 +99,7 @@ static void file_phys_fclose(ALLEGRO_FILE *f)
 
 static size_t file_phys_fread(ALLEGRO_FILE *f, void *buf, size_t buf_size)
 {
-   ALLEGRO_FILE_PHYSFS *fp = cast_fp(f);
+   ALLEGRO_FILE_PHYSFS *fp = cast_stream(f);
    PHYSFS_sint64 n;
 
    if (buf_size == 0)
@@ -134,7 +134,7 @@ static size_t file_phys_fread(ALLEGRO_FILE *f, void *buf, size_t buf_size)
 static size_t file_phys_fwrite(ALLEGRO_FILE *f, const void *buf,
    size_t buf_size)
 {
-   ALLEGRO_FILE_PHYSFS *fp = cast_fp(f);
+   ALLEGRO_FILE_PHYSFS *fp = cast_stream(f);
    PHYSFS_sint64 n;
 
    n = PHYSFS_write(fp->phys, buf, 1, buf_size);
@@ -149,7 +149,7 @@ static size_t file_phys_fwrite(ALLEGRO_FILE *f, const void *buf,
 
 static bool file_phys_fflush(ALLEGRO_FILE *f)
 {
-   ALLEGRO_FILE_PHYSFS *fp = cast_fp(f);
+   ALLEGRO_FILE_PHYSFS *fp = cast_stream(f);
 
    if (!PHYSFS_flush(fp->phys)) {
       phys_set_errno(fp);
@@ -162,7 +162,7 @@ static bool file_phys_fflush(ALLEGRO_FILE *f)
 
 static int64_t file_phys_ftell(ALLEGRO_FILE *f)
 {
-   ALLEGRO_FILE_PHYSFS *fp = cast_fp(f);
+   ALLEGRO_FILE_PHYSFS *fp = cast_stream(f);
    PHYSFS_sint64 n;
 
    n = PHYSFS_tell(fp->phys);
@@ -177,7 +177,7 @@ static int64_t file_phys_ftell(ALLEGRO_FILE *f)
 
 static bool file_phys_seek(ALLEGRO_FILE *f, int64_t offset, int whence)
 {
-   ALLEGRO_FILE_PHYSFS *fp = cast_fp(f);
+   ALLEGRO_FILE_PHYSFS *fp = cast_stream(f);
    PHYSFS_sint64 base;
 
    switch (whence) {
@@ -220,7 +220,7 @@ static bool file_phys_seek(ALLEGRO_FILE *f, int64_t offset, int whence)
 
 static bool file_phys_feof(ALLEGRO_FILE *f)
 {
-   ALLEGRO_FILE_PHYSFS *fp = cast_fp(f);
+   ALLEGRO_FILE_PHYSFS *fp = cast_stream(f);
 
    return PHYSFS_eof(fp->phys);
 }
@@ -228,7 +228,7 @@ static bool file_phys_feof(ALLEGRO_FILE *f)
 
 static bool file_phys_ferror(ALLEGRO_FILE *f)
 {
-   ALLEGRO_FILE_PHYSFS *fp = cast_fp(f);
+   ALLEGRO_FILE_PHYSFS *fp = cast_stream(f);
 
    return fp->error_indicator;
 }
@@ -236,7 +236,7 @@ static bool file_phys_ferror(ALLEGRO_FILE *f)
 
 static int file_phys_fungetc(ALLEGRO_FILE *f, int c)
 {
-   ALLEGRO_FILE_PHYSFS *fp = cast_fp(f);
+   ALLEGRO_FILE_PHYSFS *fp = cast_stream(f);
 
    if (fp->pushback == -1) {
       fp->pushback = c;
@@ -250,7 +250,7 @@ static int file_phys_fungetc(ALLEGRO_FILE *f, int c)
 
 static off_t file_phys_fsize(ALLEGRO_FILE *f)
 {
-   ALLEGRO_FILE_PHYSFS *fp = cast_fp(f);
+   ALLEGRO_FILE_PHYSFS *fp = cast_stream(f);
    PHYSFS_sint64 n;
 
    n = PHYSFS_fileLength(fp->phys);
