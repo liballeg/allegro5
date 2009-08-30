@@ -162,7 +162,7 @@ static int fix_var(float var, int max_var)
    A.b = B.b * A.b;        \
    A.a = B.a * A.a;
 
-#define FIX_UV const int u = fix_var(s->u, s->w); const int v = fix_var(-s->v, s->h);
+#define FIX_UV const int u = fix_var(s->u, s->w); const int v = fix_var(s->v, s->h);
 
 typedef struct {
    ALLEGRO_COLOR color;

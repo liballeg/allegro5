@@ -285,7 +285,7 @@ static void shader_texture_solid_any_draw_shade(uintptr_t state, int x1, int y, 
    ALLEGRO_COLOR color;
    
    for (x = x1; x <= x2; x++) {
-      color = al_get_pixel(s->texture, fix_var(u, s->w), fix_var(-v, s->h));
+      color = al_get_pixel(s->texture, fix_var(u, s->w), fix_var(v, s->h));
       SHADE_COLORS(color, s->cur_color)
       al_draw_pixel(x, y - 1, color);
       
@@ -303,7 +303,7 @@ static void shader_texture_solid_any_draw_shade_white(uintptr_t state, int x1, i
    ALLEGRO_COLOR color;
    
    for (x = x1; x <= x2; x++) {
-      color = al_get_pixel(s->texture, fix_var(u, s->w), fix_var(-v, s->h));
+      color = al_get_pixel(s->texture, fix_var(u, s->w), fix_var(v, s->h));
       al_draw_pixel(x, y - 1, color);
       
       u += s->du_dx;
@@ -320,7 +320,7 @@ static void shader_texture_solid_any_draw_opaque(uintptr_t state, int x1, int y,
    ALLEGRO_COLOR color;
    
    for (x = x1; x <= x2; x++) {
-      color = al_get_pixel(s->texture, fix_var(u, s->w), fix_var(-v, s->h));
+      color = al_get_pixel(s->texture, fix_var(u, s->w), fix_var(v, s->h));
       SHADE_COLORS(color, s->cur_color)
       al_put_pixel(x, y - 1, color);
       
@@ -338,7 +338,7 @@ static void shader_texture_solid_any_draw_opaque_white(uintptr_t state, int x1, 
    ALLEGRO_COLOR color;
    
    for (x = x1; x <= x2; x++) {
-      color = al_get_pixel(s->texture, fix_var(u, s->w), fix_var(-v, s->h));
+      color = al_get_pixel(s->texture, fix_var(u, s->w), fix_var(v, s->h));
       al_put_pixel(x, y - 1, color);
       
       u += s->du_dx;
@@ -425,7 +425,7 @@ static void shader_texture_grad_any_draw_shade(uintptr_t state, int x1, int y, i
    ALLEGRO_COLOR cur_color = s->solid.cur_color;
    
    for (x = x1; x <= x2; x++) {
-      color = al_get_pixel(s->solid.texture, fix_var(u, s->solid.w), fix_var(-v, s->solid.h));
+      color = al_get_pixel(s->solid.texture, fix_var(u, s->solid.w), fix_var(v, s->solid.h));
       SHADE_COLORS(color, cur_color)
       al_draw_pixel(x, y - 1, color);
       
@@ -449,7 +449,7 @@ static void shader_texture_grad_any_draw_opaque(uintptr_t state, int x1, int y, 
    ALLEGRO_COLOR cur_color = s->solid.cur_color;
    
    for (x = x1; x <= x2; x++) {
-      color = al_get_pixel(s->solid.texture, fix_var(u, s->solid.w), fix_var(-v, s->solid.h));
+      color = al_get_pixel(s->solid.texture, fix_var(u, s->solid.w), fix_var(v, s->solid.h));
       SHADE_COLORS(color, cur_color)
       al_put_pixel(x, y - 1, color);
       

@@ -138,11 +138,21 @@ static void setup_state(const void* vtxs, const ALLEGRO_VERTEX_DECL* decl, ALLEG
       ALLEGRO_BITMAP_OGL *ogl_bitmap = (void *)texture;      
       GLuint current_texture;
       (void)current_texture;
+      float mat[4][4] = {
+         {1,  0, 0, 0},
+         {0, -1, 0, 0},
+         {0,  0, 1, 0},
+         {0,  1, 0, 1}
+      };
 
       glGetIntegerv(GL_TEXTURE_BINDING_2D, (GLint*)&current_texture);
       if (current_texture != ogl_bitmap->texture) {
          glBindTexture(GL_TEXTURE_2D, ogl_bitmap->texture);
       }
+
+      glMatrixMode(GL_TEXTURE);
+      glLoadMatrixf(mat[0]);
+      glMatrixMode(GL_MODELVIEW);
    } else {
       glBindTexture(GL_TEXTURE_2D, 0);
    }
@@ -231,8 +241,10 @@ int _al_draw_prim_opengl(ALLEGRO_BITMAP* texture, const void* vtxs, const ALLEGR
    }
 
    glFlush();
+   glMatrixMode(GL_TEXTURE);
+   glLoadIdentity();
+   glMatrixMode(GL_MODELVIEW);
    return num_primitives;
-
 #else
    (void)texture;
    (void)vtxs;
@@ -390,8 +402,10 @@ int _al_draw_prim_indexed_opengl(ALLEGRO_BITMAP* texture, const void* vtxs, cons
    }
 
    glFlush();
+   glMatrixMode(GL_TEXTURE);
+   glLoadIdentity();
+   glMatrixMode(GL_MODELVIEW);
    return num_primitives;
-
 #else
    (void)texture;
    (void)vtxs;
@@ -409,6 +423,7 @@ int _al_draw_prim_indexed_opengl(ALLEGRO_BITMAP* texture, const void* vtxs, cons
 void _al_use_transform_opengl(const ALLEGRO_TRANSFORM* trans)
 {
 #ifdef ALLEGRO_CFG_OPENGL
+   glMatrixMode(GL_MODELVIEW);
    glLoadMatrixf((float*)(trans->m));
 #endif
 }
