@@ -93,7 +93,7 @@ static ov_callbacks callbacks = {
 bool al_init_ogg_vorbis_addon(void)
 {
    bool rc1 = al_register_sample_loader(".ogg", al_load_sample_ogg_vorbis);
-   bool rc2 = al_register_stream_loader(".ogg", al_load_stream_ogg_vorbis);
+   bool rc2 = al_register_audio_stream_loader(".ogg", al_load_audio_stream_ogg_vorbis);
    return rc1 && rc2;
 }
 
@@ -189,7 +189,7 @@ ALLEGRO_SAMPLE *al_load_sample_ogg_vorbis(const char *filename)
 }
 
 
-static bool ogg_stream_seek(ALLEGRO_STREAM *stream, double time)
+static bool ogg_stream_seek(ALLEGRO_AUDIO_STREAM *stream, double time)
 {
    AL_OV_DATA *extra = (AL_OV_DATA *) stream->extra;
    if (time >= extra->loop_end)
@@ -202,14 +202,14 @@ static bool ogg_stream_seek(ALLEGRO_STREAM *stream, double time)
 }
 
 
-static bool ogg_stream_rewind(ALLEGRO_STREAM *stream)
+static bool ogg_stream_rewind(ALLEGRO_AUDIO_STREAM *stream)
 {
    AL_OV_DATA *extra = (AL_OV_DATA *) stream->extra;
    return ogg_stream_seek(stream, extra->loop_start);
 }
 
 
-static double ogg_stream_get_position(ALLEGRO_STREAM *stream)
+static double ogg_stream_get_position(ALLEGRO_AUDIO_STREAM *stream)
 {
    AL_OV_DATA *extra = (AL_OV_DATA *) stream->extra;
 #if !defined(ALLEGRO_GP2XWIZ) && !defined(ALLEGRO_IPHONE)
@@ -220,7 +220,7 @@ static double ogg_stream_get_position(ALLEGRO_STREAM *stream)
 }
 
 
-static double ogg_stream_get_length(ALLEGRO_STREAM *stream)
+static double ogg_stream_get_length(ALLEGRO_AUDIO_STREAM *stream)
 {
    AL_OV_DATA *extra = (AL_OV_DATA *) stream->extra;
 #if !defined(ALLEGRO_GP2XWIZ) && !defined(ALLEGRO_IPHONE)
@@ -232,7 +232,7 @@ static double ogg_stream_get_length(ALLEGRO_STREAM *stream)
 }
 
 
-static bool ogg_stream_set_loop(ALLEGRO_STREAM *stream, double start, double end)
+static bool ogg_stream_set_loop(ALLEGRO_AUDIO_STREAM *stream, double start, double end)
 {
    AL_OV_DATA *extra = (AL_OV_DATA *) stream->extra;
 
@@ -244,14 +244,14 @@ static bool ogg_stream_set_loop(ALLEGRO_STREAM *stream, double start, double end
 
 
 /* To be called when stream is destroyed */
-static void ogg_stream_close(ALLEGRO_STREAM *stream)
+static void ogg_stream_close(ALLEGRO_AUDIO_STREAM *stream)
 {
    AL_OV_DATA *extra = (AL_OV_DATA *) stream->extra;
    ALLEGRO_EVENT quit_event;
 
 
    quit_event.type = _KCM_STREAM_FEEDER_QUIT_EVENT_TYPE;
-   al_emit_user_event(al_get_stream_event_source(stream), &quit_event, NULL);
+   al_emit_user_event(al_get_audio_stream_event_source(stream), &quit_event, NULL);
    al_join_thread(stream->feed_thread, NULL);
    al_destroy_thread(stream->feed_thread);
 
@@ -263,7 +263,7 @@ static void ogg_stream_close(ALLEGRO_STREAM *stream)
 }
 
 
-static size_t ogg_stream_update(ALLEGRO_STREAM *stream, void *data,
+static size_t ogg_stream_update(ALLEGRO_AUDIO_STREAM *stream, void *data,
                                 size_t buf_size)
 {
    AL_OV_DATA *extra = (AL_OV_DATA *) stream->extra;
@@ -320,9 +320,9 @@ static size_t ogg_stream_update(ALLEGRO_STREAM *stream, void *data,
 }
 
 
-/* Function: al_load_stream_ogg_vorbis
+/* Function: al_load_audio_stream_ogg_vorbis
  */
-ALLEGRO_STREAM *al_load_stream_ogg_vorbis(const char *filename,
+ALLEGRO_AUDIO_STREAM *al_load_audio_stream_ogg_vorbis(const char *filename,
 	size_t buffer_count, unsigned int samples)
 {
    const int word_size = 2; /* 1 = 8bit, 2 = 16-bit. nothing else */
@@ -334,7 +334,7 @@ ALLEGRO_STREAM *al_load_stream_ogg_vorbis(const char *filename,
    long total_samples;
    long total_size;
    AL_OV_DATA* extra;
-   ALLEGRO_STREAM* stream;
+   ALLEGRO_AUDIO_STREAM* stream;
 
    extra = _AL_MALLOC(sizeof(AL_OV_DATA));
    if (extra == NULL) {
@@ -377,7 +377,7 @@ ALLEGRO_STREAM *al_load_stream_ogg_vorbis(const char *filename,
    TRACE("ogg:     total_samples %ld\n", total_samples);
    TRACE("ogg:     total_size %ld\n", total_size);
 	
-   stream = al_create_stream(buffer_count, samples, rate,
+   stream = al_create_audio_stream(buffer_count, samples, rate,
             _al_word_size_to_depth_conf(word_size),
             _al_count_to_channel_conf(channels));
    if (!stream) {

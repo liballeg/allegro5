@@ -183,7 +183,7 @@ bool al_attach_sample_to_voice(ALLEGRO_SAMPLE_INSTANCE *spl,
 static void stream_read(void *source, void **vbuf, unsigned long *samples,
    ALLEGRO_AUDIO_DEPTH buffer_depth, size_t dest_maxc)
 {
-   ALLEGRO_STREAM *stream = (ALLEGRO_STREAM*)source;
+   ALLEGRO_AUDIO_STREAM *stream = (ALLEGRO_AUDIO_STREAM*)source;
    unsigned int len = stream->spl.spl_data.len >> MIXER_FRAC_SHIFT;
    unsigned int pos = stream->spl.pos >> MIXER_FRAC_SHIFT;
 
@@ -226,9 +226,9 @@ static void stream_read(void *source, void **vbuf, unsigned long *samples,
 }
 
 
-/* Function: al_attach_stream_to_voice
+/* Function: al_attach_audio_stream_to_voice
  */
-bool al_attach_stream_to_voice(ALLEGRO_STREAM *stream,
+bool al_attach_audio_stream_to_voice(ALLEGRO_AUDIO_STREAM *stream,
    ALLEGRO_VOICE *voice)
 {
    bool ret;

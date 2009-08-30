@@ -47,11 +47,11 @@ static void sawtooth(float *buf, size_t samples, double t,
 
 /* globals */
 ALLEGRO_FONT *font_gui;
-ALLEGRO_STREAM *stream1;
-ALLEGRO_STREAM *stream2;
-ALLEGRO_STREAM *stream3;
-ALLEGRO_STREAM *stream4;
-ALLEGRO_STREAM *stream5;
+ALLEGRO_AUDIO_STREAM *stream1;
+ALLEGRO_AUDIO_STREAM *stream2;
+ALLEGRO_AUDIO_STREAM *stream3;
+ALLEGRO_AUDIO_STREAM *stream4;
+ALLEGRO_AUDIO_STREAM *stream5;
 
 
 static void generate_wave(Waveform type, float *buf, size_t samples, double t,
@@ -303,11 +303,11 @@ void Prog::run()
 {
    d.prepare();
 
-   d.register_event_source(al_get_stream_event_source(stream1));
-   d.register_event_source(al_get_stream_event_source(stream2));
-   d.register_event_source(al_get_stream_event_source(stream3));
-   d.register_event_source(al_get_stream_event_source(stream4));
-   d.register_event_source(al_get_stream_event_source(stream5));
+   d.register_event_source(al_get_audio_stream_event_source(stream1));
+   d.register_event_source(al_get_audio_stream_event_source(stream2));
+   d.register_event_source(al_get_audio_stream_event_source(stream3));
+   d.register_event_source(al_get_audio_stream_event_source(stream4));
+   d.register_event_source(al_get_audio_stream_event_source(stream5));
    d.set_event_handler(this);
 
    while (!d.is_quit_requested()) {
@@ -330,15 +330,15 @@ void Prog::run()
 
 void Prog::handle_event(const ALLEGRO_EVENT & event)
 {
-   if (event.type == ALLEGRO_EVENT_STREAM_EMPTY_FRAGMENT) {
-      ALLEGRO_STREAM *stream;
+   if (event.type == ALLEGRO_EVENT_AUDIO_STREAM_FRAGMENT) {
+      ALLEGRO_AUDIO_STREAM *stream;
       Group *group;
       void *buf;
       float gain;
       float pan;
 
-      stream = (ALLEGRO_STREAM *) event.any.source;
-      buf = al_get_stream_fragment(stream);
+      stream = (ALLEGRO_AUDIO_STREAM *) event.any.source;
+      buf = al_get_audio_stream_fragment(stream);
       if (!buf) {
          /* This is a normal condition that you must deal with. */
          return;
@@ -362,14 +362,14 @@ void Prog::handle_event(const ALLEGRO_EVENT & event)
       if (group) {
          group->generate((float *) buf, SAMPLES_PER_BUFFER);
          if (group->get_gain_if_changed(&gain)) {
-            al_set_stream_gain(stream, gain);
+            al_set_audio_stream_gain(stream, gain);
          }
          if (group->get_pan_if_changed(&pan)) {
-            al_set_stream_pan(stream, pan);
+            al_set_audio_stream_pan(stream, pan);
          }
       }
 
-      if (!al_set_stream_fragment(stream, buf)) {
+      if (!al_set_audio_stream_fragment(stream, buf)) {
          fprintf(stderr, "Error setting stream fragment.\n");
       }
    }
@@ -417,11 +417,11 @@ int main(void)
    ALLEGRO_AUDIO_DEPTH depth = ALLEGRO_AUDIO_DEPTH_FLOAT32;
    ALLEGRO_CHANNEL_CONF ch = ALLEGRO_CHANNEL_CONF_1;
 
-   stream1 = al_create_stream(buffers, samples, freq, depth, ch);
-   stream2 = al_create_stream(buffers, samples, freq, depth, ch);
-   stream3 = al_create_stream(buffers, samples, freq, depth, ch);
-   stream4 = al_create_stream(buffers, samples, freq, depth, ch);
-   stream5 = al_create_stream(buffers, samples, freq, depth, ch);
+   stream1 = al_create_audio_stream(buffers, samples, freq, depth, ch);
+   stream2 = al_create_audio_stream(buffers, samples, freq, depth, ch);
+   stream3 = al_create_audio_stream(buffers, samples, freq, depth, ch);
+   stream4 = al_create_audio_stream(buffers, samples, freq, depth, ch);
+   stream5 = al_create_audio_stream(buffers, samples, freq, depth, ch);
    if (!stream1 || !stream2 || !stream3 || !stream4 || !stream5) {
       abort_example("Could not create stream.\n");
       return 1;
@@ -429,11 +429,11 @@ int main(void)
 
    ALLEGRO_MIXER *mixer = al_get_default_mixer();
    if (
-      !al_attach_stream_to_mixer(stream1, mixer) ||
-      !al_attach_stream_to_mixer(stream2, mixer) ||
-      !al_attach_stream_to_mixer(stream3, mixer) ||
-      !al_attach_stream_to_mixer(stream4, mixer) ||
-      !al_attach_stream_to_mixer(stream5, mixer)
+      !al_attach_audio_stream_to_mixer(stream1, mixer) ||
+      !al_attach_audio_stream_to_mixer(stream2, mixer) ||
+      !al_attach_audio_stream_to_mixer(stream3, mixer) ||
+      !al_attach_audio_stream_to_mixer(stream4, mixer) ||
+      !al_attach_audio_stream_to_mixer(stream5, mixer)
    ) {
       abort_example("Could not attach stream to mixer.\n");
       return 1;
@@ -448,11 +448,11 @@ int main(void)
       prog.run();
    }
 
-   al_destroy_stream(stream1);
-   al_destroy_stream(stream2);
-   al_destroy_stream(stream3);
-   al_destroy_stream(stream4);
-   al_destroy_stream(stream5);
+   al_destroy_audio_stream(stream1);
+   al_destroy_audio_stream(stream2);
+   al_destroy_audio_stream(stream3);
+   al_destroy_audio_stream(stream4);
+   al_destroy_audio_stream(stream5);
    al_uninstall_audio();
 
    al_destroy_font(font_gui);

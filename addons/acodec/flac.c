@@ -245,7 +245,7 @@ static void flac_close(FLACFILE *ff)
 }
 
 /* In seconds. */
-static double flac_stream_get_position(ALLEGRO_STREAM *stream)
+static double flac_stream_get_position(ALLEGRO_AUDIO_STREAM *stream)
 {
    FLACFILE *ff = (FLACFILE *)stream->extra;
    return ff->streamed_samples / ff->sample_rate;
@@ -256,7 +256,7 @@ static double flac_stream_get_position(ALLEGRO_STREAM *stream)
  *  Updates 'stream' with the next chunk of data.
  *  Returns the actual number of bytes written.
  */
-static size_t flac_stream_update(ALLEGRO_STREAM *stream, void *data,
+static size_t flac_stream_update(ALLEGRO_AUDIO_STREAM *stream, void *data,
    size_t buf_size)
 {
    int bytes_per_sample;
@@ -308,14 +308,14 @@ static size_t flac_stream_update(ALLEGRO_STREAM *stream, void *data,
    return written_bytes;
 }
 
-/* Called from al_destroy_stream. */
-static void flac_stream_close(ALLEGRO_STREAM *stream)
+/* Called from al_destroy_audio_stream. */
+static void flac_stream_close(ALLEGRO_AUDIO_STREAM *stream)
 {
    FLACFILE *ff = stream->extra;
    flac_close(ff);
 }
 
-static bool real_seek(ALLEGRO_STREAM *stream, uint64_t sample)
+static bool real_seek(ALLEGRO_AUDIO_STREAM *stream, uint64_t sample)
 {
    FLACFILE *ff = stream->extra;
 
@@ -333,26 +333,27 @@ static bool real_seek(ALLEGRO_STREAM *stream, uint64_t sample)
    return true;
 }
 
-static bool flac_stream_seek(ALLEGRO_STREAM *stream, double time)
+static bool flac_stream_seek(ALLEGRO_AUDIO_STREAM *stream, double time)
 {
    FLACFILE *ff = stream->extra;
    uint64_t sample = time * ff->sample_rate;
    return real_seek(stream, sample);
 }
 
-static bool flac_stream_rewind(ALLEGRO_STREAM *stream)
+static bool flac_stream_rewind(ALLEGRO_AUDIO_STREAM *stream)
 {
    FLACFILE *ff = stream->extra;
    return real_seek(stream, ff->loop_start);
 }
 
-static double flac_stream_get_length(ALLEGRO_STREAM *stream)
+static double flac_stream_get_length(ALLEGRO_AUDIO_STREAM *stream)
 {
    FLACFILE *ff = stream->extra;
    return ff->total_samples / ff->sample_rate;
 }
 
-static bool flac_stream_set_loop(ALLEGRO_STREAM *stream, double start, double end)
+static bool flac_stream_set_loop(ALLEGRO_AUDIO_STREAM *stream, double start,
+   double end)
 {
    FLACFILE *ff = stream->extra;
    ff->loop_start = start * ff->sample_rate;
@@ -366,7 +367,7 @@ static bool flac_stream_set_loop(ALLEGRO_STREAM *stream, double start, double en
 bool al_init_flac_addon(void)
 {
    bool rc1 = al_register_sample_loader(".flac", al_load_sample_flac);
-   bool rc2 = al_register_stream_loader(".flac", al_load_stream_flac);
+   bool rc2 = al_register_audio_stream_loader(".flac", al_load_audio_stream_flac);
    return rc1 && rc2;
 }
 
@@ -452,15 +453,15 @@ uint32_t al_get_allegro_flac_version(void)
    return ALLEGRO_VERSION_INT;
 }
 
-/* Function: al_load_stream_flac
+/* Function: al_load_audio_stream_flac
 */
-ALLEGRO_STREAM *al_load_stream_flac(const char *filename, size_t buffer_count,
-   unsigned int samples)
+ALLEGRO_AUDIO_STREAM *al_load_audio_stream_flac(const char *filename,
+   size_t buffer_count, unsigned int samples)
 {
-   ALLEGRO_STREAM *stream;
+   ALLEGRO_AUDIO_STREAM *stream;
    FLACFILE *ff = flac_open(filename);
 
-   stream = al_create_stream(buffer_count, samples, ff->sample_rate,
+   stream = al_create_audio_stream(buffer_count, samples, ff->sample_rate,
       _al_word_size_to_depth_conf(ff->sample_size),
       _al_count_to_channel_conf(ff->channels));
 

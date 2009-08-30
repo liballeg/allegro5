@@ -147,7 +147,7 @@ with [al_init_ogg_vorbis_addon] for the .ogg format.
 After that, you can simply use [al_reserve_samples] and pass the number of
 sound effects typically playing at the same time. Then load your sound effects
 with [al_load_sample] and play them with [al_play_sample]. To stream large
-pieces of music from disk, you can use [al_stream_from_file] so the whole piece
+pieces of music from disk, you can use [al_load_audio_stream] so the whole piece
 will not have to be pre-loaded into memory.
 
 If the above sounds too simple and you can't help but think about clipping and
@@ -163,7 +163,7 @@ all sound can be first routed through an [ALLEGRO_MIXER] which is connected to
 such a voice (or another mixer) and will mix together all sample data fed to it.
 
 You can then directly stream real-time sample data to a mixer or a voice using
-an [ALLEGRO_STREAM] or play complete sounds using an [ALLEGRO_SAMPLE_INSTANCE].
+an [ALLEGRO_AUDIO_STREAM] or play complete sounds using an [ALLEGRO_SAMPLE_INSTANCE].
 The latter simply points to an [ALLEGRO_SAMPLE] and will stream it for you.
 
 ## Not the end

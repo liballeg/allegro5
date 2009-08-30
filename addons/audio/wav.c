@@ -216,7 +216,7 @@ static void wav_close(WAVFILE *wavfile)
 }
 
 
-static bool wav_stream_seek(ALLEGRO_STREAM * stream, double time)
+static bool wav_stream_seek(ALLEGRO_AUDIO_STREAM * stream, double time)
 {
    WAVFILE *wavfile = (WAVFILE *) stream->extra;
    int align = (wavfile->bits / 8) * wavfile->channels;
@@ -232,14 +232,14 @@ static bool wav_stream_seek(ALLEGRO_STREAM * stream, double time)
  *  Rewinds 'stream' to the beginning of the data chunk.
  *  Returns true on success, false on failure.
  */
-static bool wav_stream_rewind(ALLEGRO_STREAM *stream)
+static bool wav_stream_rewind(ALLEGRO_AUDIO_STREAM *stream)
 {
    WAVFILE *wavfile = (WAVFILE *) stream->extra;
    return wav_stream_seek(stream, wavfile->loop_start);
 }
 
 
-static double wav_stream_get_position(ALLEGRO_STREAM * stream)
+static double wav_stream_get_position(ALLEGRO_AUDIO_STREAM * stream)
 {
    WAVFILE *wavfile = (WAVFILE *) stream->extra;
    double samples_per = (double)((wavfile->bits / 8) * wavfile->channels) * (double)(wavfile->freq);
@@ -247,7 +247,7 @@ static double wav_stream_get_position(ALLEGRO_STREAM * stream)
 }
 
 
-static double wav_stream_get_length(ALLEGRO_STREAM * stream)
+static double wav_stream_get_length(ALLEGRO_AUDIO_STREAM * stream)
 {
    WAVFILE *wavfile = (WAVFILE *) stream->extra;
    double total_time = (double)(wavfile->samples) / (double)(wavfile->freq);
@@ -255,7 +255,7 @@ static double wav_stream_get_length(ALLEGRO_STREAM * stream)
 }
 
 
-static bool wav_stream_set_loop(ALLEGRO_STREAM * stream, double start, double end)
+static bool wav_stream_set_loop(ALLEGRO_AUDIO_STREAM * stream, double start, double end)
 {
    WAVFILE *wavfile = (WAVFILE *) stream->extra;
    wavfile->loop_start = start;
@@ -268,7 +268,7 @@ static bool wav_stream_set_loop(ALLEGRO_STREAM * stream, double start, double en
  *  Updates 'stream' with the next chunk of data.
  *  Returns the actual number of bytes written.
  */
-static size_t wav_stream_update(ALLEGRO_STREAM *stream, void *data,
+static size_t wav_stream_update(ALLEGRO_AUDIO_STREAM *stream, void *data,
    size_t buf_size)
 {
    int bytes_per_sample, samples, samples_read;
@@ -298,13 +298,13 @@ static size_t wav_stream_update(ALLEGRO_STREAM *stream, void *data,
 /* wav_stream_close:
  *  Closes the 'stream'.
  */
-static void wav_stream_close(ALLEGRO_STREAM *stream)
+static void wav_stream_close(ALLEGRO_AUDIO_STREAM *stream)
 {
    WAVFILE *wavfile = (WAVFILE *) stream->extra;
    ALLEGRO_EVENT quit_event;
 
    quit_event.type = _KCM_STREAM_FEEDER_QUIT_EVENT_TYPE;
-   al_emit_user_event(al_get_stream_event_source(stream), &quit_event, NULL);
+   al_emit_user_event(al_get_audio_stream_event_source(stream), &quit_event, NULL);
    al_join_thread(stream->feed_thread, NULL);
    al_destroy_thread(stream->feed_thread);
 
@@ -347,20 +347,20 @@ ALLEGRO_SAMPLE *al_load_sample_wav(const char *filename)
 }
 
 
-/* Function: al_load_stream_wav
+/* Function: al_load_audio_stream_wav
 */
-ALLEGRO_STREAM *al_load_stream_wav(const char *filename, size_t buffer_count,
-   unsigned int samples)
+ALLEGRO_AUDIO_STREAM *al_load_audio_stream_wav(const char *filename,
+   size_t buffer_count, unsigned int samples)
 {
    WAVFILE* wavfile;
-   ALLEGRO_STREAM* stream;
+   ALLEGRO_AUDIO_STREAM* stream;
 
    wavfile = wav_open(filename);
    
    if (wavfile == NULL)
       return NULL;
 
-   stream = al_create_stream(buffer_count, samples, wavfile->freq,
+   stream = al_create_audio_stream(buffer_count, samples, wavfile->freq,
       _al_word_size_to_depth_conf(wavfile->bits / 8),
       _al_count_to_channel_conf(wavfile->channels));
 

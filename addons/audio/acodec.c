@@ -17,7 +17,7 @@ struct ACODEC_TABLE
    char              ext[MAX_EXTENSION_LENGTH];
    ALLEGRO_SAMPLE *  (*loader)(const char *filename);
    bool              (*saver)(const char *filename, ALLEGRO_SAMPLE *spl);
-   ALLEGRO_STREAM *  (*stream_loader)(const char *filename,
+   ALLEGRO_AUDIO_STREAM *(*stream_loader)(const char *filename,
                         size_t buffer_count, unsigned int samples);
 };
 
@@ -44,7 +44,7 @@ static void acodec_ensure_init(void)
 
    al_register_sample_loader(".wav", al_load_sample_wav);
    al_register_sample_saver(".wav", al_save_sample_wav);
-   al_register_stream_loader(".wav", al_load_stream_wav);
+   al_register_audio_stream_loader(".wav", al_load_audio_stream_wav);
 
    _al_add_exit_func(acodec_shutdown, "acodec_shutdown");
 }
@@ -143,10 +143,10 @@ bool al_register_sample_saver(const char *ext,
 }
 
 
-/* Function: al_register_stream_loader
+/* Function: al_register_audio_stream_loader
  */
-bool al_register_stream_loader(const char *ext,
-   ALLEGRO_STREAM *(*stream_loader)(const char *filename,
+bool al_register_audio_stream_loader(const char *ext,
+   ALLEGRO_AUDIO_STREAM *(*stream_loader)(const char *filename,
       size_t buffer_count, unsigned int samples))
 {
    ACODEC_TABLE *ent;
@@ -192,10 +192,10 @@ ALLEGRO_SAMPLE *al_load_sample(const char *filename)
 }
 
 
-/* Function: al_stream_from_file
+/* Function: al_load_audio_stream
  */
-ALLEGRO_STREAM *al_stream_from_file(const char *filename, size_t buffer_count,
-   unsigned int samples)
+ALLEGRO_AUDIO_STREAM *al_load_audio_stream(const char *filename,
+   size_t buffer_count, unsigned int samples)
 {
    const char *ext;
    ACODEC_TABLE *ent;
@@ -210,7 +210,7 @@ ALLEGRO_STREAM *al_stream_from_file(const char *filename, size_t buffer_count,
       return (ent->stream_loader)(filename, buffer_count, samples);
    }
 
-   TRACE("Error creating ALLEGRO_STREAM from '%s'.\n", filename);
+   TRACE("Error creating ALLEGRO_AUDIO_STREAM from '%s'.\n", filename);
 
    return NULL;
 }

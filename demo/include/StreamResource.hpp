@@ -10,7 +10,7 @@ public:
    void* get(void);
    StreamResource(const char* filename);
 private:
-   ALLEGRO_STREAM *stream;
+   ALLEGRO_AUDIO_STREAM *stream;
    std::string filename;
 };
 

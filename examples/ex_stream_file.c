@@ -71,26 +71,26 @@ int main(int argc, char **argv)
 
    for (i = 1; i < argc; ++i)
    {
-      ALLEGRO_STREAM* stream;
+      ALLEGRO_AUDIO_STREAM* stream;
       const char*     filename = argv[i];
       bool playing;
 
-      stream = al_stream_from_file(filename, 4, 2048);
+      stream = al_load_audio_stream(filename, 4, 2048);
       if (!stream) {
-         fprintf(stderr, "Could not create an ALLEGRO_STREAM from '%s'!\n",
+         fprintf(stderr, "Could not create an ALLEGRO_AUDIO_STREAM from '%s'!\n",
                  filename);
          continue;
       }
       fprintf(stderr, "Stream created from '%s'.\n", filename);
 
 #ifndef BYPASS_MIXER
-      if (!al_attach_stream_to_mixer(stream, mixer)) {
-         fprintf(stderr, "al_attach_stream_to_mixer failed.\n");
+      if (!al_attach_audio_stream_to_mixer(stream, mixer)) {
+         fprintf(stderr, "al_attach_audio_stream_to_mixer failed.\n");
          continue;
       }
 #else
-      if (!al_attach_stream_to_voice(stream, voice)) {
-         fprintf(stderr, "al_attach_stream_to_voice failed.\n");
+      if (!al_attach_audio_stream_to_voice(stream, voice)) {
+         fprintf(stderr, "al_attach_audio_stream_to_voice failed.\n");
          return 1;
       }
 #endif
@@ -98,11 +98,11 @@ int main(int argc, char **argv)
       fprintf(stderr, "Playing %s ... Waiting for stream to finish ", filename);
       do {
          al_rest(0.1);
-         playing = al_get_stream_playing(stream);
+         playing = al_get_audio_stream_playing(stream);
       } while (playing);
       fprintf(stderr, "\n");
 
-      al_destroy_stream(stream);
+      al_destroy_audio_stream(stream);
    }
 
 #ifndef BYPASS_MIXER

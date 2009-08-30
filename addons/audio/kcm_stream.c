@@ -33,13 +33,13 @@ static void maybe_unlock_mutex(ALLEGRO_MUTEX *mutex)
 }
 
 
-/* Function: al_create_stream
+/* Function: al_create_audio_stream
  */
-ALLEGRO_STREAM *al_create_stream(size_t fragment_count, unsigned long samples,
-   unsigned long freq, ALLEGRO_AUDIO_DEPTH depth,
+ALLEGRO_AUDIO_STREAM *al_create_audio_stream(size_t fragment_count,
+   unsigned long samples, unsigned long freq, ALLEGRO_AUDIO_DEPTH depth,
    ALLEGRO_CHANNEL_CONF chan_conf)
 {
-   ALLEGRO_STREAM *stream;
+   ALLEGRO_AUDIO_STREAM *stream;
    unsigned long bytes_per_buffer;
    size_t i;
 
@@ -112,15 +112,15 @@ ALLEGRO_STREAM *al_create_stream(size_t fragment_count, unsigned long samples,
 
    al_init_user_event_source(&stream->spl.es);
 
-   _al_kcm_register_destructor(stream, (void (*)(void *)) al_destroy_stream);
+   _al_kcm_register_destructor(stream, (void (*)(void *)) al_destroy_audio_stream);
 
    return stream;
 }
 
 
-/* Function: al_destroy_stream
+/* Function: al_destroy_audio_stream
  */
-void al_destroy_stream(ALLEGRO_STREAM *stream)
+void al_destroy_audio_stream(ALLEGRO_AUDIO_STREAM *stream)
 {
    if (stream) {
       if (stream->feed_thread) {
@@ -137,23 +137,23 @@ void al_destroy_stream(ALLEGRO_STREAM *stream)
 }
 
 
-/* Function: al_drain_stream
+/* Function: al_drain_audio_stream
  */
-void al_drain_stream(ALLEGRO_STREAM *stream)
+void al_drain_audio_stream(ALLEGRO_AUDIO_STREAM *stream)
 {
    bool playing;
    stream->is_draining = true;
    do {
       al_rest(0.01);
-      playing = al_get_stream_playing(stream);
+      playing = al_get_audio_stream_playing(stream);
    } while (playing);
    stream->is_draining = false;
 }
 
 
-/* Function: al_get_stream_frequency
+/* Function: al_get_audio_stream_frequency
  */
-unsigned int al_get_stream_frequency(const ALLEGRO_STREAM *stream)
+unsigned int al_get_audio_stream_frequency(const ALLEGRO_AUDIO_STREAM *stream)
 {
    ASSERT(stream);
 
@@ -162,9 +162,9 @@ unsigned int al_get_stream_frequency(const ALLEGRO_STREAM *stream)
 }
 
 
-/* Function: al_get_stream_length
+/* Function: al_get_audio_stream_length
  */
-unsigned long al_get_stream_length(const ALLEGRO_STREAM *stream)
+unsigned long al_get_audio_stream_length(const ALLEGRO_AUDIO_STREAM *stream)
 {
    ASSERT(stream);
 
@@ -173,9 +173,9 @@ unsigned long al_get_stream_length(const ALLEGRO_STREAM *stream)
 }
 
 
-/* Function: al_get_stream_fragments
+/* Function: al_get_audio_stream_fragments
  */
-unsigned int al_get_stream_fragments(const ALLEGRO_STREAM *stream)
+unsigned int al_get_audio_stream_fragments(const ALLEGRO_AUDIO_STREAM *stream)
 {
    ASSERT(stream);
 
@@ -183,9 +183,10 @@ unsigned int al_get_stream_fragments(const ALLEGRO_STREAM *stream)
 }
 
 
-/* Function: al_get_available_stream_fragments
+/* Function: al_get_available_audio_stream_fragments
  */
-unsigned int al_get_available_stream_fragments(const ALLEGRO_STREAM *stream)
+unsigned int al_get_available_audio_stream_fragments(
+   const ALLEGRO_AUDIO_STREAM *stream)
 {
    unsigned int i;
    ASSERT(stream);
@@ -196,9 +197,9 @@ unsigned int al_get_available_stream_fragments(const ALLEGRO_STREAM *stream)
 }
 
 
-/* Function: al_get_stream_speed
+/* Function: al_get_audio_stream_speed
  */
-float al_get_stream_speed(const ALLEGRO_STREAM *stream)
+float al_get_audio_stream_speed(const ALLEGRO_AUDIO_STREAM *stream)
 {
    ASSERT(stream);
 
@@ -206,9 +207,9 @@ float al_get_stream_speed(const ALLEGRO_STREAM *stream)
 }
 
 
-/* Function: al_get_stream_gain
+/* Function: al_get_audio_stream_gain
  */
-float al_get_stream_gain(const ALLEGRO_STREAM *stream)
+float al_get_audio_stream_gain(const ALLEGRO_AUDIO_STREAM *stream)
 {
    ASSERT(stream);
 
@@ -216,9 +217,9 @@ float al_get_stream_gain(const ALLEGRO_STREAM *stream)
 }
 
 
-/* Function: al_get_stream_pan
+/* Function: al_get_audio_stream_pan
  */
-float al_get_stream_pan(const ALLEGRO_STREAM *stream)
+float al_get_audio_stream_pan(const ALLEGRO_AUDIO_STREAM *stream)
 {
    ASSERT(stream);
 
@@ -226,9 +227,10 @@ float al_get_stream_pan(const ALLEGRO_STREAM *stream)
 }
 
 
-/* Function: al_get_stream_channels
+/* Function: al_get_audio_stream_channels
  */
-ALLEGRO_CHANNEL_CONF al_get_stream_channels(const ALLEGRO_STREAM *stream)
+ALLEGRO_CHANNEL_CONF al_get_audio_stream_channels(
+   const ALLEGRO_AUDIO_STREAM *stream)
 {
    ASSERT(stream);
 
@@ -236,9 +238,10 @@ ALLEGRO_CHANNEL_CONF al_get_stream_channels(const ALLEGRO_STREAM *stream)
 }
 
 
-/* Function: al_get_stream_depth
+/* Function: al_get_audio_stream_depth
  */
-ALLEGRO_AUDIO_DEPTH al_get_stream_depth(const ALLEGRO_STREAM *stream)
+ALLEGRO_AUDIO_DEPTH al_get_audio_stream_depth(
+   const ALLEGRO_AUDIO_STREAM *stream)
 {
    ASSERT(stream);
 
@@ -246,9 +249,10 @@ ALLEGRO_AUDIO_DEPTH al_get_stream_depth(const ALLEGRO_STREAM *stream)
 }
 
 
-/* Function: al_get_stream_playmode
+/* Function: al_get_audio_stream_playmode
  */
-ALLEGRO_PLAYMODE al_get_stream_playmode(const ALLEGRO_STREAM *stream)
+ALLEGRO_PLAYMODE al_get_audio_stream_playmode(
+   const ALLEGRO_AUDIO_STREAM *stream)
 {
    ASSERT(stream);
 
@@ -256,9 +260,9 @@ ALLEGRO_PLAYMODE al_get_stream_playmode(const ALLEGRO_STREAM *stream)
 }
 
 
-/* Function: al_get_stream_playing
+/* Function: al_get_audio_stream_playing
 */
-bool al_get_stream_playing(const ALLEGRO_STREAM *stream)
+bool al_get_audio_stream_playing(const ALLEGRO_AUDIO_STREAM *stream)
 {
    ASSERT(stream);
 
@@ -266,9 +270,9 @@ bool al_get_stream_playing(const ALLEGRO_STREAM *stream)
 }
 
 
-/* Function: al_get_stream_attached
+/* Function: al_get_audio_stream_attached
 */
-bool al_get_stream_attached(const ALLEGRO_STREAM *stream)
+bool al_get_audio_stream_attached(const ALLEGRO_AUDIO_STREAM *stream)
 {
    ASSERT(stream);
 
@@ -276,9 +280,9 @@ bool al_get_stream_attached(const ALLEGRO_STREAM *stream)
 }
 
 
-/* Function: al_get_stream_fragment
+/* Function: al_get_audio_stream_fragment
 */
-void *al_get_stream_fragment(const ALLEGRO_STREAM *stream)
+void *al_get_audio_stream_fragment(const ALLEGRO_AUDIO_STREAM *stream)
 {
    size_t i;
    void *fragment;
@@ -304,9 +308,9 @@ void *al_get_stream_fragment(const ALLEGRO_STREAM *stream)
 }
 
 
-/* Function: al_set_stream_speed
+/* Function: al_set_audio_stream_speed
  */
-bool al_set_stream_speed(ALLEGRO_STREAM *stream, float val)
+bool al_set_audio_stream_speed(ALLEGRO_AUDIO_STREAM *stream, float val)
 {
    ASSERT(stream);
 
@@ -349,9 +353,9 @@ bool al_set_stream_speed(ALLEGRO_STREAM *stream, float val)
 }
 
 
-/* Function: al_set_stream_gain
+/* Function: al_set_audio_stream_gain
  */
-bool al_set_stream_gain(ALLEGRO_STREAM *stream, float val)
+bool al_set_audio_stream_gain(ALLEGRO_AUDIO_STREAM *stream, float val)
 {
    ASSERT(stream);
 
@@ -380,9 +384,9 @@ bool al_set_stream_gain(ALLEGRO_STREAM *stream, float val)
 }
 
 
-/* Function: al_set_stream_pan
+/* Function: al_set_audio_stream_pan
  */
-bool al_set_stream_pan(ALLEGRO_STREAM *stream, float val)
+bool al_set_audio_stream_pan(ALLEGRO_AUDIO_STREAM *stream, float val)
 {
    ASSERT(stream);
 
@@ -415,9 +419,10 @@ bool al_set_stream_pan(ALLEGRO_STREAM *stream, float val)
 }
 
 
-/* Function: al_set_stream_playmode
+/* Function: al_set_audio_stream_playmode
  */
-bool al_set_stream_playmode(ALLEGRO_STREAM *stream, ALLEGRO_PLAYMODE val)
+bool al_set_audio_stream_playmode(ALLEGRO_AUDIO_STREAM *stream,
+   ALLEGRO_PLAYMODE val)
 {
    ASSERT(stream);
 
@@ -426,7 +431,7 @@ bool al_set_stream_playmode(ALLEGRO_STREAM *stream, ALLEGRO_PLAYMODE val)
       return true;
    }
    else if (val == ALLEGRO_PLAYMODE_LOOP) {
-      /* Only streams creating by al_stream_from_file() support
+      /* Only streams creating by al_load_audio_stream() support
        * looping. */
       if (!stream->feeder)
          return false;
@@ -440,9 +445,9 @@ bool al_set_stream_playmode(ALLEGRO_STREAM *stream, ALLEGRO_PLAYMODE val)
 }
 
 
-/* Function: al_set_stream_playing
+/* Function: al_set_audio_stream_playing
  */
-bool al_set_stream_playing(ALLEGRO_STREAM *stream, bool val)
+bool al_set_audio_stream_playing(ALLEGRO_AUDIO_STREAM *stream, bool val)
 {
    ASSERT(stream);
 
@@ -463,9 +468,9 @@ bool al_set_stream_playing(ALLEGRO_STREAM *stream, bool val)
 }
 
 
-/* Function: al_detach_stream
+/* Function: al_detach_audio_stream
  */
-bool al_detach_stream(ALLEGRO_STREAM *stream)
+bool al_detach_audio_stream(ALLEGRO_AUDIO_STREAM *stream)
 {
    ASSERT(stream);
 
@@ -474,9 +479,9 @@ bool al_detach_stream(ALLEGRO_STREAM *stream)
 }
 
 
-/* Function: al_set_stream_fragment
+/* Function: al_set_audio_stream_fragment
  */
-bool al_set_stream_fragment(ALLEGRO_STREAM *stream, void *val)
+bool al_set_audio_stream_fragment(ALLEGRO_AUDIO_STREAM *stream, void *val)
 {
    size_t i;
    bool ret;
@@ -508,7 +513,7 @@ bool al_set_stream_fragment(ALLEGRO_STREAM *stream, void *val)
  *  Returns true if the next buffer is available and set up.
  *  Otherwise returns false.
  */
-bool _al_kcm_refill_stream(ALLEGRO_STREAM *stream)
+bool _al_kcm_refill_stream(ALLEGRO_AUDIO_STREAM *stream)
 {
    void *old_buf = stream->spl.spl_data.buffer.ptr;
    size_t i;
@@ -545,7 +550,7 @@ bool _al_kcm_refill_stream(ALLEGRO_STREAM *stream)
  */
 void *_al_kcm_feed_stream(ALLEGRO_THREAD *self, void *vstream)
 {
-   ALLEGRO_STREAM *stream = vstream;
+   ALLEGRO_AUDIO_STREAM *stream = vstream;
    ALLEGRO_EVENT_QUEUE *queue;
    (void)self;
 
@@ -562,12 +567,12 @@ void *_al_kcm_feed_stream(ALLEGRO_THREAD *self, void *vstream)
 
       al_wait_for_event(queue, &event);
 
-      if (event.type == ALLEGRO_EVENT_STREAM_EMPTY_FRAGMENT
+      if (event.type == ALLEGRO_EVENT_AUDIO_STREAM_FRAGMENT
           && !stream->is_draining) {
          unsigned long bytes;
          unsigned long bytes_written;
 
-         fragment = al_get_stream_fragment(stream);
+         fragment = al_get_audio_stream_fragment(stream);
          if (!fragment) {
             /* This is not an error. */
                     continue;
@@ -589,7 +594,7 @@ void *_al_kcm_feed_stream(ALLEGRO_THREAD *self, void *vstream)
          while (bytes_written < bytes &&
                   stream->spl.loop == _ALLEGRO_PLAYMODE_STREAM_ONEDIR) {
             size_t bw;
-            al_rewind_stream(stream);
+            al_rewind_audio_stream(stream);
             maybe_lock_mutex(stream->spl.mutex);
             bw = stream->feeder(stream, fragment + bytes_written,
                bytes - bytes_written);
@@ -597,7 +602,7 @@ void *_al_kcm_feed_stream(ALLEGRO_THREAD *self, void *vstream)
             maybe_unlock_mutex(stream->spl.mutex);
          }
 
-         if (!al_set_stream_fragment(stream, fragment)) {
+         if (!al_set_audio_stream_fragment(stream, fragment)) {
             ALLEGRO_ERROR("Error setting stream buffer.\n");
 				continue;
          }
@@ -605,7 +610,7 @@ void *_al_kcm_feed_stream(ALLEGRO_THREAD *self, void *vstream)
          /* The streaming source doesn't feed any more, drain buffers and quit. */
          if (bytes_written != bytes &&
             stream->spl.loop == _ALLEGRO_PLAYMODE_STREAM_ONCE) {
-            al_drain_stream(stream);
+            al_drain_audio_stream(stream);
             stream->quit_feed_thread = true;
          }
       }
@@ -622,7 +627,7 @@ void *_al_kcm_feed_stream(ALLEGRO_THREAD *self, void *vstream)
 }
 
 
-void _al_kcm_emit_stream_events(ALLEGRO_STREAM *stream)
+void _al_kcm_emit_stream_events(ALLEGRO_AUDIO_STREAM *stream)
 {
    /* Emit one event for each stream fragment available right now.
     *
@@ -635,20 +640,20 @@ void _al_kcm_emit_stream_events(ALLEGRO_STREAM *stream)
     * Having said that, event queues are empty in the steady state so it is
     * relatively rare that this situation occurs.
     */
-   int count = al_get_available_stream_fragments(stream);
+   int count = al_get_available_audio_stream_fragments(stream);
 
    while (count--) {
       ALLEGRO_EVENT event;
-      event.user.type = ALLEGRO_EVENT_STREAM_EMPTY_FRAGMENT;
+      event.user.type = ALLEGRO_EVENT_AUDIO_STREAM_FRAGMENT;
       event.user.timestamp = al_current_time();
       al_emit_user_event(&stream->spl.es, &event, NULL);
    }
 }
 
 
-/* Function: al_rewind_stream
+/* Function: al_rewind_audio_stream
  */
-bool al_rewind_stream(ALLEGRO_STREAM *stream)
+bool al_rewind_audio_stream(ALLEGRO_AUDIO_STREAM *stream)
 {
    bool ret;
 
@@ -663,9 +668,9 @@ bool al_rewind_stream(ALLEGRO_STREAM *stream)
 }
 
 
-/* Function: al_seek_stream_secs
+/* Function: al_seek_audio_stream_secs
  */
-bool al_seek_stream_secs(ALLEGRO_STREAM *stream, double time)
+bool al_seek_audio_stream_secs(ALLEGRO_AUDIO_STREAM *stream, double time)
 {
    bool ret;
 
@@ -680,9 +685,9 @@ bool al_seek_stream_secs(ALLEGRO_STREAM *stream, double time)
 }
 
 
-/* Function: al_get_stream_position_secs
+/* Function: al_get_audio_stream_position_secs
  */
-double al_get_stream_position_secs(ALLEGRO_STREAM *stream)
+double al_get_audio_stream_position_secs(ALLEGRO_AUDIO_STREAM *stream)
 {
    double ret;
 
@@ -697,9 +702,9 @@ double al_get_stream_position_secs(ALLEGRO_STREAM *stream)
 }
 
 
-/* Function: al_get_stream_length_secs
+/* Function: al_get_audio_stream_length_secs
  */
-double al_get_stream_length_secs(ALLEGRO_STREAM *stream)
+double al_get_audio_stream_length_secs(ALLEGRO_AUDIO_STREAM *stream)
 {
    double ret;
 
@@ -714,9 +719,10 @@ double al_get_stream_length_secs(ALLEGRO_STREAM *stream)
 }
 
 
-/* Function: al_set_stream_loop_secs
+/* Function: al_set_audio_stream_loop_secs
  */
-bool al_set_stream_loop_secs(ALLEGRO_STREAM *stream, double start, double end)
+bool al_set_audio_stream_loop_secs(ALLEGRO_AUDIO_STREAM *stream,
+   double start, double end)
 {
    bool ret;
 
@@ -734,9 +740,10 @@ bool al_set_stream_loop_secs(ALLEGRO_STREAM *stream, double start, double end)
 }
 
 
-/* Function: al_get_stream_event_source
+/* Function: al_get_audio_stream_event_source
  */
-ALLEGRO_EVENT_SOURCE *al_get_stream_event_source(ALLEGRO_STREAM *stream)
+ALLEGRO_EVENT_SOURCE *al_get_audio_stream_event_source(
+   ALLEGRO_AUDIO_STREAM *stream)
 {
    return &stream->spl.es;
 }

@@ -11,7 +11,7 @@
 #define SAMPLES_PER_BUFFER    1024
 
 
-static void saw(ALLEGRO_STREAM *stream)
+static void saw(ALLEGRO_AUDIO_STREAM *stream)
 {
    ALLEGRO_EVENT_QUEUE *queue;
    int8_t *buf;
@@ -21,15 +21,15 @@ static void saw(ALLEGRO_STREAM *stream)
    int n = 200;
 
    queue = al_create_event_queue();
-   al_register_event_source(queue, al_get_stream_event_source(stream));
+   al_register_event_source(queue, al_get_audio_stream_event_source(stream));
 
    while (n > 0) {
       ALLEGRO_EVENT event;
 
       al_wait_for_event(queue, &event);
 
-      if (event.type == ALLEGRO_EVENT_STREAM_EMPTY_FRAGMENT) {
-         buf = al_get_stream_fragment(stream);
+      if (event.type == ALLEGRO_EVENT_AUDIO_STREAM_FRAGMENT) {
+         buf = al_get_audio_stream_fragment(stream);
          if (!buf) {
             /* This is a normal condition you must deal with. */
             continue;
@@ -47,7 +47,7 @@ static void saw(ALLEGRO_STREAM *stream)
             pitch++;
          }
 
-         if (!al_set_stream_fragment(stream, buf)) {
+         if (!al_set_audio_stream_fragment(stream, buf)) {
             fprintf(stderr, "Error setting stream fragment.\n");
          }
 
@@ -59,7 +59,7 @@ static void saw(ALLEGRO_STREAM *stream)
       }
    }
 
-   al_drain_stream(stream);
+   al_drain_audio_stream(stream);
 
    putchar('\n');
 
@@ -69,7 +69,7 @@ static void saw(ALLEGRO_STREAM *stream)
 
 int main(void)
 {
-   ALLEGRO_STREAM *stream;
+   ALLEGRO_AUDIO_STREAM *stream;
 
    if (!al_init()) {
       fprintf(stderr, "Could not init Allegro.\n");
@@ -82,21 +82,21 @@ int main(void)
    }
    al_reserve_samples(0);
 
-   stream = al_create_stream(8, SAMPLES_PER_BUFFER, 22050,
+   stream = al_create_audio_stream(8, SAMPLES_PER_BUFFER, 22050,
       ALLEGRO_AUDIO_DEPTH_UINT8, ALLEGRO_CHANNEL_CONF_1);
    if (!stream) {
       fprintf(stderr, "Could not create stream.\n");
       return 1;
    }
 
-   if (!al_attach_stream_to_mixer(stream, al_get_default_mixer())) {
+   if (!al_attach_audio_stream_to_mixer(stream, al_get_default_mixer())) {
       fprintf(stderr, "Could not attach stream to mixer.\n");
       return 1;
    }
 
    saw(stream);
 
-   al_destroy_stream(stream);
+   al_destroy_audio_stream(stream);
    al_uninstall_audio();
 
    return 0;

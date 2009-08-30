@@ -177,7 +177,7 @@ void _al_kcm_mixer_rejig_sample_matrix(ALLEGRO_MIXER *mixer,
 static bool fix_looped_position(ALLEGRO_SAMPLE_INSTANCE *spl)
 {
    bool is_empty;
-   ALLEGRO_STREAM *stream;
+   ALLEGRO_AUDIO_STREAM *stream;
 
    /* Looping! Should be mostly self-explanitory */
    switch (spl->loop) {
@@ -230,7 +230,7 @@ static bool fix_looped_position(ALLEGRO_SAMPLE_INSTANCE *spl)
          if (spl->pos < spl->spl_data.len) {
             return true;
          }
-         stream = (ALLEGRO_STREAM *)spl;
+         stream = (ALLEGRO_AUDIO_STREAM *)spl;
          is_empty = !_al_kcm_refill_stream(stream);
          if (is_empty && stream->is_draining) {
             stream->spl.is_playing = false;
@@ -813,9 +813,9 @@ bool al_attach_sample_to_mixer(ALLEGRO_SAMPLE_INSTANCE *spl,
 }
 
 
-/* Function: al_attach_stream_to_mixer
+/* Function: al_attach_audio_stream_to_mixer
  */
-bool al_attach_stream_to_mixer(ALLEGRO_STREAM *stream, ALLEGRO_MIXER *mixer)
+bool al_attach_audio_stream_to_mixer(ALLEGRO_AUDIO_STREAM *stream, ALLEGRO_MIXER *mixer)
 {
    ASSERT(mixer);
    ASSERT(stream);

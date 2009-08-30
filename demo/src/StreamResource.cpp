@@ -4,13 +4,13 @@ void StreamResource::destroy(void)
 {
    if (!stream)
       return;
-   al_destroy_stream(stream);
+   al_destroy_audio_stream(stream);
    stream = 0;
 }
 
 bool StreamResource::load(void)
 {
-   stream = al_stream_from_file(filename.c_str(), 4, 2048);
+   stream = al_load_audio_stream(filename.c_str(), 4, 2048);
    if (!stream) {
        debug_message("Error creating stream\n");
        return false;

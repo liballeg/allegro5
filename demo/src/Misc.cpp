@@ -148,9 +148,9 @@ bool init(void)
    }
 
    for (int i = RES_STREAM_START; i < RES_STREAM_END; i++) {
-      ALLEGRO_STREAM *s = (ALLEGRO_STREAM *)rm.getData(i);
-      al_attach_stream_to_mixer(s, mixer); 
-      al_set_stream_playing(s, false);
+      ALLEGRO_AUDIO_STREAM *s = (ALLEGRO_AUDIO_STREAM *)rm.getData(i);
+      al_attach_audio_stream_to_mixer(s, mixer);
+      al_set_audio_stream_playing(s, false);
    }
 
    return true;

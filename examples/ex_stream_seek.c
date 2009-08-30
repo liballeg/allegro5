@@ -18,7 +18,7 @@ ALLEGRO_DISPLAY *display;
 ALLEGRO_TIMER *timer;
 ALLEGRO_EVENT_QUEUE *queue;
 ALLEGRO_FONT *basic_font = NULL;
-ALLEGRO_STREAM *music_stream = NULL;
+ALLEGRO_AUDIO_STREAM *music_stream = NULL;
 char *stream_filename = NULL;
 
 float slider_pos = 0.0;
@@ -84,8 +84,8 @@ static void logic(void)
 {
    /* calculate the position of the slider */
    double w = al_get_display_width() - 20;
-   double pos = al_get_stream_position_secs(music_stream);
-   double len = al_get_stream_length_secs(music_stream);
+   double pos = al_get_audio_stream_position_secs(music_stream);
+   double len = al_get_audio_stream_length_secs(music_stream);
    slider_pos = w * (pos / len);
 }
 
@@ -101,8 +101,8 @@ static void print_time(int x, int y, float t)
 
 static void render(void)
 {
-   double pos = al_get_stream_position_secs(music_stream);
-   double length = al_get_stream_length_secs(music_stream);
+   double pos = al_get_audio_stream_position_secs(music_stream);
+   double length = al_get_audio_stream_length_secs(music_stream);
    double w = al_get_display_width() - 20;
    double loop_start_pos = w * (loop_start / length);
    double loop_end_pos = w * (loop_end / length);
@@ -136,8 +136,8 @@ static void myexit(void)
    bool playing;
    playing = al_get_mixer_playing(al_get_default_mixer());
    if (playing)
-      al_drain_stream(music_stream);
-   al_destroy_stream(music_stream);
+      al_drain_audio_stream(music_stream);
+   al_destroy_audio_stream(music_stream);
 }
 
 static void maybe_fiddle_sliders(int mx, int my)
@@ -149,17 +149,17 @@ static void maybe_fiddle_sliders(int mx, int my)
       return;
    }
 
-   seek_pos = al_get_stream_length_secs(music_stream) * ((mx - 10) / w);
+   seek_pos = al_get_audio_stream_length_secs(music_stream) * ((mx - 10) / w);
    if (mouse_button[1]) {
-      al_seek_stream_secs(music_stream, seek_pos);
+      al_seek_audio_stream_secs(music_stream, seek_pos);
    }
    else if (mouse_button[2]) {
       loop_end = seek_pos;
-      al_set_stream_loop_secs(music_stream, loop_start, loop_end);
+      al_set_audio_stream_loop_secs(music_stream, loop_start, loop_end);
    }
    else if (mouse_button[3]) {
       loop_start = seek_pos;
-      al_set_stream_loop_secs(music_stream, loop_start, loop_end);
+      al_set_audio_stream_loop_secs(music_stream, loop_start, loop_end);
    }
 }
 
@@ -177,16 +177,16 @@ static void event_handler(const ALLEGRO_EVENT * event)
       case ALLEGRO_EVENT_KEY_DOWN:
       case ALLEGRO_EVENT_KEY_REPEAT:
          if (event->keyboard.keycode == ALLEGRO_KEY_LEFT) {
-            double pos = al_get_stream_position_secs(music_stream);
+            double pos = al_get_audio_stream_position_secs(music_stream);
             pos -= 5.0;
             if (pos < 0.0)
                pos = 0.0;
-            al_seek_stream_secs(music_stream, pos);
+            al_seek_audio_stream_secs(music_stream, pos);
          }
          else if (event->keyboard.keycode == ALLEGRO_KEY_RIGHT) {
-            double pos = al_get_stream_position_secs(music_stream);
+            double pos = al_get_audio_stream_position_secs(music_stream);
             pos += 5.0;
-            if (!al_seek_stream_secs(music_stream, pos))
+            if (!al_seek_audio_stream_secs(music_stream, pos))
                printf("seek error!\n");
          }
          else if (event->keyboard.keycode == ALLEGRO_KEY_SPACE) {
@@ -259,16 +259,16 @@ int main(int argc, char * argv[])
    }
 
    stream_filename = argv[1];
-   music_stream = al_stream_from_file(stream_filename, buffer_count, samples);
+   music_stream = al_load_audio_stream(stream_filename, buffer_count, samples);
    if (!music_stream) {
       printf("Stream error!\n");
       return 1;
    }
 
    loop_start = 0.0;
-   loop_end = al_get_stream_length_secs(music_stream);
-   al_set_stream_playmode(music_stream, ALLEGRO_PLAYMODE_LOOP);
-   al_attach_stream_to_mixer(music_stream, al_get_default_mixer());
+   loop_end = al_get_audio_stream_length_secs(music_stream);
+   al_set_audio_stream_playmode(music_stream, ALLEGRO_PLAYMODE_LOOP);
+   al_attach_audio_stream_to_mixer(music_stream, al_get_default_mixer());
    al_start_timer(timer);
 
    while (!exiting) {

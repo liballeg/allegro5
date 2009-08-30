@@ -108,9 +108,9 @@ typedef struct {
    bool                 is_voice;
 } sample_parent_t;
 
-/* The sample struct also serves the base of ALLEGRO_STREAM, ALLEGRO_MIXER. */
+/* The sample struct also serves the base of ALLEGRO_AUDIO_STREAM, ALLEGRO_MIXER. */
 struct ALLEGRO_SAMPLE_INSTANCE {
-   /* ALLEGRO_SAMPLE_INSTANCE does not generate any events yet but ALLEGRO_STREAM
+   /* ALLEGRO_SAMPLE_INSTANCE does not generate any events yet but ALLEGRO_AUDIO_STREAM
     * does, which can inherit only ALLEGRO_SAMPLE_INSTANCE. */
    ALLEGRO_EVENT_SOURCE es;
 
@@ -156,17 +156,17 @@ void _al_kcm_stream_set_mutex(ALLEGRO_SAMPLE_INSTANCE *stream, ALLEGRO_MUTEX *mu
 void _al_kcm_detach_from_parent(ALLEGRO_SAMPLE_INSTANCE *spl);
 
 
-typedef size_t (*stream_callback_t)(ALLEGRO_STREAM *, void *, size_t);
-typedef void (*unload_feeder_t)(ALLEGRO_STREAM *);
-typedef bool (*rewind_feeder_t)(ALLEGRO_STREAM *);
-typedef bool (*seek_feeder_t)(ALLEGRO_STREAM *, double);
-typedef double (*get_feeder_position_t)(ALLEGRO_STREAM *);
-typedef double (*get_feeder_length_t)(ALLEGRO_STREAM *);
-typedef bool (*set_feeder_loop_t)(ALLEGRO_STREAM *, double, double);
+typedef size_t (*stream_callback_t)(ALLEGRO_AUDIO_STREAM *, void *, size_t);
+typedef void (*unload_feeder_t)(ALLEGRO_AUDIO_STREAM *);
+typedef bool (*rewind_feeder_t)(ALLEGRO_AUDIO_STREAM *);
+typedef bool (*seek_feeder_t)(ALLEGRO_AUDIO_STREAM *, double);
+typedef double (*get_feeder_position_t)(ALLEGRO_AUDIO_STREAM *);
+typedef double (*get_feeder_length_t)(ALLEGRO_AUDIO_STREAM *);
+typedef bool (*set_feeder_loop_t)(ALLEGRO_AUDIO_STREAM *, double, double);
 
-struct ALLEGRO_STREAM {
+struct ALLEGRO_AUDIO_STREAM {
    ALLEGRO_SAMPLE_INSTANCE spl;
-                        /* ALLEGRO_STREAM is derived from
+                        /* ALLEGRO_AUDIO_STREAM is derived from
                          * ALLEGRO_SAMPLE_INSTANCE.
                          */
 
@@ -209,8 +209,8 @@ struct ALLEGRO_STREAM {
    get_feeder_length_t   get_feeder_length;
    set_feeder_loop_t     set_feeder_loop;
    stream_callback_t     feeder;
-                         /* If ALLEGRO_STREAM has been created by
-                          * al_stream_from_file(), the stream will be fed
+                         /* If ALLEGRO_AUDIO_STREAM has been created by
+                          * al_load_audio_stream(), the stream will be fed
                           * by a thread using the 'feeder' callback. Such
                           * streams don't need to be fed by the user.
                           */
@@ -219,7 +219,7 @@ struct ALLEGRO_STREAM {
                          /* Extra data for use by the flac/vorbis addons. */
 };
 
-bool _al_kcm_refill_stream(ALLEGRO_STREAM *stream);
+bool _al_kcm_refill_stream(ALLEGRO_AUDIO_STREAM *stream);
 
 
 typedef void (*postprocess_callback_t)(void *buf, unsigned long samples,
@@ -266,7 +266,7 @@ ALLEGRO_KCM_AUDIO_FUNC(int, _al_kcm_get_silence, (ALLEGRO_AUDIO_DEPTH depth));
 ALLEGRO_KCM_AUDIO_FUNC(void*, _al_kcm_feed_stream, (ALLEGRO_THREAD *self, void *vstream));
 
 /* Helper to emit an event that the stream has got a buffer ready to be refilled. */
-void _al_kcm_emit_stream_events(ALLEGRO_STREAM *stream);
+void _al_kcm_emit_stream_events(ALLEGRO_AUDIO_STREAM *stream);
 
 void _al_kcm_init_destructors(void);
 void _al_kcm_shutdown_destructors(void);
