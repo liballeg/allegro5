@@ -379,9 +379,9 @@ bool al_hide_mouse_cursor(void)
 
 
 
-/* Function: al_get_cursor_position
+/* Function: al_get_mouse_cursor_position
  */
-bool al_get_cursor_position(int *ret_x, int *ret_y)
+bool al_get_mouse_cursor_position(int *ret_x, int *ret_y)
 {
    ALLEGRO_SYSTEM *alsys = al_get_system_driver();
    ASSERT(ret_x);

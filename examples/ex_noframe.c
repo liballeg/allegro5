@@ -68,7 +68,7 @@ int main(void)
       else if (event.type == ALLEGRO_EVENT_MOUSE_AXES) {
          if (down) {
             int cx, cy;
-            if (al_get_cursor_position(&cx, &cy)) {
+            if (al_get_mouse_cursor_position(&cx, &cy)) {
 	       al_set_window_position(display, cx - down_x, cy - down_y);
 	    }
          }

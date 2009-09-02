@@ -118,7 +118,7 @@ AL_FUNC(bool, al_set_mouse_cursor, (ALLEGRO_MOUSE_CURSOR *cursor));
 AL_FUNC(bool, al_set_system_mouse_cursor, (ALLEGRO_SYSTEM_MOUSE_CURSOR cursor_id));
 AL_FUNC(bool, al_show_mouse_cursor, (void));
 AL_FUNC(bool, al_hide_mouse_cursor, (void));
-AL_FUNC(bool, al_get_cursor_position, (int *ret_x, int *ret_y));
+AL_FUNC(bool, al_get_mouse_cursor_position, (int *ret_x, int *ret_y));
 
 #ifdef __cplusplus
    }

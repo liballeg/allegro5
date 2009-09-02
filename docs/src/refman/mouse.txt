@@ -33,7 +33,7 @@ Has no effect if `cursor` is NULL.
 
 *See also:* [al_create_mouse_cursor]
 
-## API: al_get_cursor_position
+## API: al_get_mouse_cursor_position
 
 On platforms where this information is available, this function returns the
 global location of the mouse cursor, relative to the desktop. You should
