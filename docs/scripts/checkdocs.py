@@ -113,18 +113,16 @@ def parse_header(lines, filename):
 
                     symbols[match.group(1)] = "function"
                     n += 1
-            except AttributeError as e:
+            except AttributeError, e:
                 print("Cannot parse in " + filename)
                 print("Line is: " + line)
                 print(e)
     return n
 
-def check_undocumented_functions():
+def parse_all_headers():
     """
-    Cross-compare the documentation links with public symbols found in headers.
+    Call parse_header() on all of Allegro's public include files.
     """
-    print("Checking if each documented function exists...")
-
     includes = " -I include -I " + os.path.join(options.path, "include")
     includes += " -I addons/acodec"
     headers = ["include/allegro5/allegro5.h",
@@ -148,6 +146,14 @@ def check_undocumented_functions():
         text = p.stdout.read()
         n = parse_header(text.splitlines(), header)
         #print("%d definitions in %s" % (n, header))
+
+def check_undocumented_functions():
+    """
+    Cross-compare the documentation links with public symbols found in headers.
+    """
+    print("Checking if each documented function exists...")
+
+    parse_all_headers()
 
     for link in links:
         if not link in symbols:
@@ -173,6 +179,11 @@ def check_undocumented_functions():
     others.sort();
     print(", ".join(others))
 
+def list_all_symbols():
+    parse_all_headers()
+    for name in sorted(symbols.keys()):
+        print(name)
+
 def main(argv):
     global options
     p = optparse.OptionParser()
@@ -182,6 +193,7 @@ addons and cmake build directory for global definitions and check against all
 references in the documentation - then report symbols which are not documented.
 """;
     p.add_option("-p", "--path", help = "Path to the build directory.")
+    p.add_option("-l", "--list", action = "store_true", help = "List all symbols.")
     options, args = p.parse_args()
 
     if not options.path:
@@ -189,9 +201,12 @@ references in the documentation - then report symbols which are not documented.
         p.print_help()
         sys.exit(-1)
 
-    check_references()
-    print("")
-    check_undocumented_functions()
+    if options.list:
+        list_all_symbols()
+    else:
+        check_references()
+        print("")
+        check_undocumented_functions()
 
 if __name__ == "__main__":
     main(sys.argv)
