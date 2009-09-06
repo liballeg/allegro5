@@ -224,16 +224,16 @@ static void shader_texture_solid_any_first(uintptr_t state, int start_x, int sta
    st->w = al_get_bitmap_width(st->texture);
    st->h = al_get_bitmap_height(st->texture);
 
-   du = (float)st->w * (v2->u - v1->u);
-   dv = (float)st->h * (v2->v - v1->v);
+   du = v2->u - v1->u;
+   dv = v2->v - v1->v;
    
    st->color.r = v1->color.r;
    st->color.g = v1->color.g;
    st->color.b = v1->color.b;
    st->color.a = v1->color.a;
 
-   st->u = (float)st->w * v1->u + du * param;
-   st->v = (float)st->h * v1->v + dv * param;
+   st->u = v1->u + du * param;
+   st->v = v1->v + dv * param;
    
    st->minor_du = du * minor_delta_param;
    st->minor_dv = dv * minor_delta_param;
@@ -276,16 +276,16 @@ static void shader_texture_grad_any_first(uintptr_t state, int start_x, int star
    st->solid.w = al_get_bitmap_width(st->solid.texture);
    st->solid.h = al_get_bitmap_height(st->solid.texture);
 
-   du = (float)st->solid.w * (v2->u - v1->u);
-   dv = (float)st->solid.h * (v2->v - v1->v);
+   du = v2->u - v1->u;
+   dv = v2->v - v1->v;
    
    st->solid.color.r = v1->color.r;
    st->solid.color.g = v1->color.g;
    st->solid.color.b = v1->color.b;
    st->solid.color.a = v1->color.a;
 
-   st->solid.u = (float)st->solid.w * v1->u + du * param;
-   st->solid.v = (float)st->solid.h * v1->v + dv * param;
+   st->solid.u = v1->u + du * param;
+   st->solid.v = v1->v + dv * param;
    
    st->solid.minor_du = du * minor_delta_param;
    st->solid.minor_dv = dv * minor_delta_param;

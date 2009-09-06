@@ -215,9 +215,15 @@ of the passed points.
 
 ### API: al_draw_prim
 
-Draws a subset of the passed vertex buffer. It is recommended for the texture
-to have its dimensions be a power of 2 for maximum portability with older video
-cards.
+Draws a subset of the passed vertex buffer.
+
+A note about non power-of-two textures: For maximum portability, you
+should only use textures that have their dimensions be a power of two. This 
+warning is relaxed, however, if the vertex texture coordinates are stored as
+`ALLEGRO_PRIM_TEX_COORD_PIXEL` (`ALLEGRO_VERTEX` qualifies for this) and the
+texture coordinates never exit the boundaries of a single bitmap. If those two
+requirements are satisfied, then it is safe to use non power-of-two textures,
+otherwise the output is undefined.
 
 *Parameters:*
 
@@ -238,9 +244,8 @@ Number of primitives drawn
 ### API: al_draw_indexed_prim
 
 Draws a subset of the passed vertex buffer. This function uses an index array
-to specify which vertices to use.
-It is recommended for the texture to have its dimensions be a power of 2 for
-maximum portability with older video cards.
+to specify which vertices to use. See the [al_draw_prim] entry for a note about
+texture dimensions.
 
 *Parameters:*
 
@@ -519,9 +524,9 @@ coordinates for a single texture.
 
 *Fields:*
 
-* x, y - Position of the vertex.
+* x, y - Position of the vertex
 * color - `ALLEGRO_PRIM_COLOR` structure
-* u, v - Texture coordinates
+* u, v - Texture coordinates measured in pixels
 
 *See Also:*
 [ALLEGRO_PRIM_COLOR]
@@ -557,7 +562,7 @@ ALLEGRO_VERTEX structure:
 
     ALLEGRO_VERTEX_ELEMENT elems[] = {
        {ALLEGRO_PRIM_POSITION, ALLEGRO_PRIM_FLOAT_2, offsetof(ALLEGRO_VERTEX, x)},
-       {ALLEGRO_PRIM_TEX_COORD, ALLEGRO_PRIM_FLOAT_2, offsetof(ALLEGRO_VERTEX, u)},
+       {ALLEGRO_PRIM_TEX_COORD_PIXEL, ALLEGRO_PRIM_FLOAT_2, offsetof(ALLEGRO_VERTEX, u)},
        {ALLEGRO_PRIM_COLOR_ATTR, 0, offsetof(CUSTOM_VERTEX, color)},
        {0, 0, 0}
     };
@@ -608,7 +613,13 @@ Enumerates the types of vertex attributes that a custom vertex may have.
    The storage field of ALLEGRO_VERTEX_ELEMENT is ignored
 
 * ALLEGRO_PRIM_TEX_COORD - Texture coordinate information, can be stored only in
-   ALLEGRO_PRIM_FLOAT_2 and ALLEGRO_PRIM_SHORT_2
+   ALLEGRO_PRIM_FLOAT_2 and ALLEGRO_PRIM_SHORT_2. These coordinates are
+   normalized by the width and height of the texture, meaning that the
+   bottom-right corner has texture coordinates of (1, 1).
+
+* ALLEGRO_PRIM_TEX_COORD_PIXEL - Texture coordinate information, can be stored
+   only in ALLEGRO_PRIM_FLOAT_2 and ALLEGRO_PRIM_SHORT_2. These coordinates are
+   measured in pixels. 
 
 *See Also:*
 [ALLEGRO_VERTEX_DECL], [ALLEGRO_PRIM_STORAGE]

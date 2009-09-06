@@ -66,7 +66,7 @@ static void CustomVertexFormatPrimitives(int mode)
       int ii = 0;
       ALLEGRO_VERTEX_ELEMENT elems[] = {
          {ALLEGRO_PRIM_POSITION, ALLEGRO_PRIM_SHORT_2, offsetof(CUSTOM_VERTEX, x)},
-         {ALLEGRO_PRIM_TEX_COORD, ALLEGRO_PRIM_SHORT_2, offsetof(CUSTOM_VERTEX, u)},
+         {ALLEGRO_PRIM_TEX_COORD_PIXEL, ALLEGRO_PRIM_SHORT_2, offsetof(CUSTOM_VERTEX, u)},
          {ALLEGRO_PRIM_COLOR_ATTR, 0, offsetof(CUSTOM_VERTEX, color)},
          {0, 0, 0}
       };
@@ -78,7 +78,7 @@ static void CustomVertexFormatPrimitives(int mode)
          y = 200 * sinf((float)ii / 4.0f * 2 * ALLEGRO_PI);
          
          vtx[ii].x = x; vtx[ii].y = y;
-         vtx[ii].u = x / 100; vtx[ii].v = y / 100;
+         vtx[ii].u = 64 * x / 100; vtx[ii].v = 64 * y / 100;
          vtx[ii].color = al_get_prim_color(al_map_rgba_f(1, 1, 1, 1));
       }
    } else if (mode == LOGIC) {
@@ -116,7 +116,7 @@ static void TexturePrimitives(int mode)
          color = al_map_rgb((ii + 1) % 3 * 64, (ii + 2) % 3 * 64, (ii) % 3 * 64);
          
          vtx[ii].x = x; vtx[ii].y = y;
-         vtx[ii].u = x / 100; vtx[ii].v = y / 100;
+         vtx[ii].u = 64 * x / 100; vtx[ii].v = 64 * y / 100;
          if(ii < 10)
             vtx[ii].color = al_get_prim_color(al_map_rgba_f(1, 1, 1, 1));
          else
@@ -171,7 +171,7 @@ static void FilledTexturePrimitives(int mode)
          color = al_map_rgb((7 * ii + 1) % 3 * 64, (2 * ii + 2) % 3 * 64, (ii) % 3 * 64);
          
          vtx[ii].x = x; vtx[ii].y = y;
-         vtx[ii].u = x / 100; vtx[ii].v = y / 100;
+         vtx[ii].u = 64 * x / 100; vtx[ii].v = 64 * y / 100;
          if(ii < 10)
             vtx[ii].color = al_get_prim_color(al_map_rgba_f(1, 1, 1, 1));
          else

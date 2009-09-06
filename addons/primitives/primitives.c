@@ -476,7 +476,9 @@ ALLEGRO_VERTEX_DECL* al_create_vertex_decl(const ALLEGRO_VERTEX_ELEMENT* element
             idx++;
          }
 
-         e = &ret->elements[ALLEGRO_PRIM_TEX_COORD];
+         e = &decl->elements[ALLEGRO_PRIM_TEX_COORD];
+         if(!e->attribute)
+            e = &decl->elements[ALLEGRO_PRIM_TEX_COORD_PIXEL];
          if(e->attribute) {
             int type = 0;
             switch(e->storage) {

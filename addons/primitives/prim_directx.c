@@ -101,6 +101,8 @@ int _al_draw_prim_directx(ALLEGRO_BITMAP* texture, const void* vtxs, const ALLEG
    LPDIRECT3DDEVICE9 device;
    LPDIRECT3DBASETEXTURE9 d3d_texture;
    DWORD old_wrap_state[2];
+   bool texture_scale = false;
+   DWORD old_ttf_state;
 
    display = al_get_current_display();
    device = al_d3d_get_device(display);
@@ -115,6 +117,24 @@ int _al_draw_prim_directx(ALLEGRO_BITMAP* texture, const void* vtxs, const ALLEG
    }
    else {
       IDirect3DDevice9_SetTexture(device, 0, NULL);
+   }
+
+   if(decl && texture && decl->elements[ALLEGRO_PRIM_TEX_COORD_PIXEL].attribute) {
+      ALLEGRO_BITMAP_D3D *d3d_bmp = (ALLEGRO_BITMAP_D3D *)bitmap;
+      float mat[4][4] = {
+         {1.0f / d3d_bmp->texture_w, 0,                         0, 0},
+         {0,                         1.0f / d3d_bmp->texture_h, 0, 0},
+         {0,                         1,                         1, 0},
+         {0,                         0,                         0, 1}
+      };
+
+      d3d_texture = (LPDIRECT3DBASETEXTURE9)al_d3d_get_video_texture(texture);
+      IDirect3DDevice9_SetTexture(device, 0, d3d_texture);
+     
+      IDirect3DDevice9_GetTextureStageState(device, 0, D3DTSS_TEXTURETRANSFORMFLAGS, &old_ttf_state);
+      IDirect3DDevice9_SetTextureStageState(device, 0, D3DTSS_TEXTURETRANSFORMFLAGS, D3DTTFF_COUNT2);
+      IDirect3DDevice9_SetTransform(device, D3DTS_TEXTURE0, (D3DMATRIX *)&mat);
+      texture_scale = true;
    }
    
    if(decl) {
@@ -171,6 +191,10 @@ int _al_draw_prim_directx(ALLEGRO_BITMAP* texture, const void* vtxs, const ALLEG
 
    IDirect3DDevice9_SetSamplerState(device, 0, D3DSAMP_ADDRESSU, old_wrap_state[0]);
    IDirect3DDevice9_SetSamplerState(device, 0, D3DSAMP_ADDRESSV, old_wrap_state[1]);
+
+   if(texture_scale) {
+      IDirect3DDevice9_SetTextureStageState(device, 0, D3DTSS_TEXTURETRANSFORMFLAGS, old_ttf_state);
+   }
 
    return num_primitives;
 #else

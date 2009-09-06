@@ -59,6 +59,7 @@ static void setup_blending(void)
 
 static void setup_state(const void* vtxs, const ALLEGRO_VERTEX_DECL* decl, ALLEGRO_BITMAP* texture)
 {
+   bool texture_scale = false;
    if(decl) {
       ALLEGRO_VERTEX_ELEMENT* e;
       e = &decl->elements[ALLEGRO_PRIM_POSITION];
@@ -89,6 +90,8 @@ static void setup_state(const void* vtxs, const ALLEGRO_VERTEX_DECL* decl, ALLEG
       }
 
       e = &decl->elements[ALLEGRO_PRIM_TEX_COORD];
+      if(!e->attribute)
+         e = &decl->elements[ALLEGRO_PRIM_TEX_COORD_PIXEL];
       if(texture && e->attribute) {
          GLenum type = 0;
 
@@ -105,6 +108,8 @@ static void setup_state(const void* vtxs, const ALLEGRO_VERTEX_DECL* decl, ALLEG
             break;
          }
          glTexCoordPointer(2, type, decl->stride, vtxs + e->offset);
+
+         texture_scale = e->attribute == ALLEGRO_PRIM_TEX_COORD_PIXEL;
       } else {
          glDisableClientState(GL_TEXTURE_COORD_ARRAY);
       }
@@ -132,18 +137,25 @@ static void setup_state(const void* vtxs, const ALLEGRO_VERTEX_DECL* decl, ALLEG
       glVertexPointer(2, GL_FLOAT, sizeof(ALLEGRO_VERTEX), &vtx[0].x);
       glColorPointer(4, GL_FLOAT, sizeof(ALLEGRO_VERTEX), &vtx[0].color.r);
       glTexCoordPointer(2, GL_FLOAT, sizeof(ALLEGRO_VERTEX), &vtx[0].u);
+
+      texture_scale = true;
    }
 
    if (texture) {
       ALLEGRO_BITMAP_OGL *ogl_bitmap = (void *)texture;      
       GLuint current_texture;
-      (void)current_texture;
       float mat[4][4] = {
          {1,  0, 0, 0},
          {0, -1, 0, 0},
          {0,  0, 1, 0},
          {0,  1, 0, 1}
       };
+      (void)current_texture;
+
+      if(texture_scale) {
+         mat[0][0] =  1.0f / ogl_bitmap->true_w;
+         mat[1][1] = -1.0f / ogl_bitmap->true_h;
+      }
 
       glGetIntegerv(GL_TEXTURE_BINDING_2D, (GLint*)&current_texture);
       if (current_texture != ogl_bitmap->texture) {

@@ -361,13 +361,13 @@ static void shader_texture_solid_any_init(uintptr_t state, ALLEGRO_VERTEX* v1, A
    s->w = al_get_bitmap_width(s->texture);
    s->h = al_get_bitmap_height(s->texture);
    
-   s->du_dx    = (float)s->h * -u_det_x / det_u;
-   s->du_dy    = (float)s->h * -u_det_y / det_u;
-   s->u_const  = (float)s->h * u_det / det_u;
+   s->du_dx    = -u_det_x / det_u;
+   s->du_dy    = -u_det_y / det_u;
+   s->u_const  = u_det / det_u;
                 
-   s->dv_dx    = (float)s->w * -v_det_x / det_u;
-   s->dv_dy    = (float)s->w * -v_det_y / det_u;
-   s->v_const  = (float)s->w * v_det / det_u;
+   s->dv_dx    = -v_det_x / det_u;
+   s->dv_dy    = -v_det_y / det_u;
+   s->v_const  = v_det / det_u;
 }
 
 static void shader_texture_solid_any_first(uintptr_t state, int x1, int y, int left_minor, int left_major)
@@ -482,13 +482,13 @@ static void shader_texture_grad_any_init(uintptr_t state, ALLEGRO_VERTEX* v1, AL
    s->solid.off_x = v1->x - 0.5f;
    s->solid.off_y = v1->y + 0.5f;
 
-   s->solid.du_dx    = (float)s->solid.h * -u_det_x / det_u;
-   s->solid.du_dy    = (float)s->solid.h * -u_det_y / det_u;
-   s->solid.u_const  = (float)s->solid.h * u_det / det_u;
+   s->solid.du_dx    = -u_det_x / det_u;
+   s->solid.du_dy    = -u_det_y / det_u;
+   s->solid.u_const  = u_det / det_u;
                      
-   s->solid.dv_dx    = (float)s->solid.w * -v_det_x / det_u;
-   s->solid.dv_dy    = (float)s->solid.w * -v_det_y / det_u;
-   s->solid.v_const  = (float)s->solid.w * v_det / det_u;
+   s->solid.dv_dx    = -v_det_x / det_u;
+   s->solid.dv_dy    = -v_det_y / det_u;
+   s->solid.v_const  = v_det / det_u;
    
    s->color_dx.r    = -r_det_x / det_u;
    s->color_dy.r    = -r_det_y / det_u;
