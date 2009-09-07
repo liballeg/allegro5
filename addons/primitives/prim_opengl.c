@@ -185,7 +185,7 @@ int _al_draw_prim_opengl(ALLEGRO_BITMAP* texture, const void* vtxs, const ALLEGR
    GLint sstate, tstate;
   
    if ((!ogl_target->is_backbuffer && ogl_disp->ogl_extras->opengl_target != ogl_target) || al_is_bitmap_locked(target)) {
-      return _al_draw_prim_soft(texture, decl, vtxs, start, end, type);
+      return _al_draw_prim_soft(texture, vtxs, decl, start, end, type);
    }
    
    vtx = vtxs + start * stride;
