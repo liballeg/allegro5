@@ -779,28 +779,37 @@ void al_calculate_ribbon(float* dest, int dest_stride, const float *points,
          
          dir_len = (float)hypot(cur_dir_x, cur_dir_y);
          
-         cur_dir_x /= dir_len;
-         cur_dir_y /= dir_len;
+         if(dir_len > 0.000001f) {
+            cur_dir_x /= dir_len;
+            cur_dir_y /= dir_len;
+         } else if (ii == 0){
+            cur_dir_x = 1;
+            cur_dir_y = 0;
+         } else {
+            cur_dir_x = prev_dir_x;
+            cur_dir_y = prev_dir_y;
+         }
          
          if (ii == 0) {
             tx = -t * cur_dir_y;
             ty = t * cur_dir_x;
-            
-            /*al_set_vbuff_pos(vbuff, start + ii, x - tx, y - ty, 0);
-            al_set_vbuff_pos(vbuff, start + ii + 1, x + tx, y + ty, 0);*/
          } else {
             float norm_len, new_norm_len, cosine;
-            tx = cur_dir_x - prev_dir_x;
-            ty = cur_dir_y - prev_dir_y;
+            tx = cur_dir_y + prev_dir_y;
+            ty = -(cur_dir_x + prev_dir_x);
             norm_len = (float)hypot(tx, ty);
-            tx /= norm_len;
-            ty /= norm_len;
-            
-            cosine = tx * (-cur_dir_y) + ty * (cur_dir_x);
-            new_norm_len = t / cosine;
-            
-            tx *= new_norm_len;
-            ty *= new_norm_len;
+            if(norm_len > 0.000001f) {
+               tx /= norm_len;
+               ty /= norm_len;
+               cosine = tx * (-cur_dir_y) + ty * (cur_dir_x);
+               new_norm_len = t / cosine;
+               
+               tx *= new_norm_len;
+               ty *= new_norm_len;
+            } else {
+               tx = -t * cur_dir_y;
+               ty = t * cur_dir_x;
+            }
          }
          
          *dest =       x - tx;
