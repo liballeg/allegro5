@@ -219,11 +219,9 @@ Draws a subset of the passed vertex buffer.
 
 A note about non power-of-two textures: For maximum portability, you
 should only use textures that have their dimensions be a power of two. This 
-warning is relaxed, however, if the vertex texture coordinates are stored as
-`ALLEGRO_PRIM_TEX_COORD_PIXEL` (`ALLEGRO_VERTEX` qualifies for this) and the
-texture coordinates never exit the boundaries of a single bitmap. If those two
-requirements are satisfied, then it is safe to use non power-of-two textures,
-otherwise the output is undefined.
+warning is relaxed, however, if the texture coordinates never exit the
+boundaries of a single bitmap. This means that if you want to tile the texture,
+you should have it be power of two sized for maximum portability.
 
 *Parameters:*
 
@@ -313,7 +311,6 @@ Destroys a vertex declaration.
 *Parameters:*
 
 * decl - Vertex declaration to destroy
-* stride - Size of the custom vertex structure
 
 *See Also:*
 [ALLEGRO_VERTEX_ELEMENT], [ALLEGRO_VERTEX_DECL], [al_create_vertex_decl]

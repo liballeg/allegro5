@@ -101,7 +101,6 @@ int _al_draw_prim_directx(ALLEGRO_BITMAP* texture, const void* vtxs, const ALLEG
    LPDIRECT3DDEVICE9 device;
    LPDIRECT3DBASETEXTURE9 d3d_texture;
    DWORD old_wrap_state[2];
-   bool texture_scale = false;
    DWORD old_ttf_state;
 
    display = al_get_current_display();
@@ -112,6 +111,32 @@ int _al_draw_prim_directx(ALLEGRO_BITMAP* texture, const void* vtxs, const ALLEG
    set_blender(display);
 
    if (texture) {
+      D3DSURFACE_DESC desc;
+      float mat[4][4] = {
+         {1, 0, 0, 0},
+         {0, 1, 0, 0},
+         {0, 1, 1, 0},
+         {0, 0, 0, 1}
+      };      
+      IDirect3DTexture9_GetLevelDesc(al_d3d_get_video_texture(texture), 0, &desc);
+
+      if(decl) {
+         if(decl->elements[ALLEGRO_PRIM_TEX_COORD_PIXEL].attribute) {
+            mat[0][0] = 1.0f / desc.Width;
+            mat[1][1] = 1.0f / desc.Height;
+         } else {
+            mat[0][0] = (float)al_get_bitmap_width(texture) / desc.Width;
+            mat[1][1] = (float)al_get_bitmap_height(texture) / desc.Height;
+         }
+      } else {
+         mat[0][0] = 1.0f / desc.Width;
+         mat[1][1] = 1.0f / desc.Height;
+      }
+
+      IDirect3DDevice9_GetTextureStageState(device, 0, D3DTSS_TEXTURETRANSFORMFLAGS, &old_ttf_state);
+      IDirect3DDevice9_SetTextureStageState(device, 0, D3DTSS_TEXTURETRANSFORMFLAGS, D3DTTFF_COUNT2);
+      IDirect3DDevice9_SetTransform(device, D3DTS_TEXTURE0, (D3DMATRIX *)&mat);
+
       d3d_texture = (LPDIRECT3DBASETEXTURE9)al_d3d_get_video_texture(texture);
       IDirect3DDevice9_SetTexture(device, 0, d3d_texture);
    } else {
@@ -119,37 +144,12 @@ int _al_draw_prim_directx(ALLEGRO_BITMAP* texture, const void* vtxs, const ALLEG
    }
    
    if(decl) {
-      if(texture && decl->elements[ALLEGRO_PRIM_TEX_COORD_PIXEL].attribute) {
-         texture_scale = true;   
-      }
       IDirect3DDevice9_SetVertexDeclaration(device, (IDirect3DVertexDeclaration9*)decl->d3d_decl);     
    } else {
       if(!allegro_vertex_def) {
          IDirect3DDevice9_CreateVertexDeclaration(device, allegro_vertex_decl, &allegro_vertex_def);
       }
       IDirect3DDevice9_SetVertexDeclaration(device, allegro_vertex_def);
-      if(texture) {
-         texture_scale = true;
-      }
-   }
-   
-   if(texture_scale) {
-      D3DSURFACE_DESC desc;
-      float mat[4][4] = {
-         {1, 0, 0, 0},
-         {0, 1, 0, 0},
-         {0, 1, 1, 0},
-         {0, 0, 0, 1}
-      };
-      
-      IDirect3DTexture9_GetLevelDesc(al_d3d_get_video_texture(texture), 0, &desc);
-      
-      mat[0][0] = 1.0f / desc.Width;
-      mat[1][1] = 1.0f / desc.Height;
-     
-      IDirect3DDevice9_GetTextureStageState(device, 0, D3DTSS_TEXTURETRANSFORMFLAGS, &old_ttf_state);
-      IDirect3DDevice9_SetTextureStageState(device, 0, D3DTSS_TEXTURETRANSFORMFLAGS, D3DTTFF_COUNT2);
-      IDirect3DDevice9_SetTransform(device, D3DTS_TEXTURE0, (D3DMATRIX *)&mat);
    }
    
    IDirect3DDevice9_GetSamplerState(device, 0, D3DSAMP_ADDRESSU, &old_wrap_state[0]);
@@ -198,7 +198,7 @@ int _al_draw_prim_directx(ALLEGRO_BITMAP* texture, const void* vtxs, const ALLEG
    IDirect3DDevice9_SetSamplerState(device, 0, D3DSAMP_ADDRESSU, old_wrap_state[0]);
    IDirect3DDevice9_SetSamplerState(device, 0, D3DSAMP_ADDRESSV, old_wrap_state[1]);
 
-   if(texture_scale) {
+   if(texture) {
       IDirect3DDevice9_SetTextureStageState(device, 0, D3DTSS_TEXTURETRANSFORMFLAGS, old_ttf_state);
    }
 
