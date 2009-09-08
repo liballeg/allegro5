@@ -139,11 +139,12 @@ static void setup_state(const void* vtxs, const ALLEGRO_VERTEX_DECL* decl, ALLEG
    if (texture) {
       ALLEGRO_BITMAP_OGL *ogl_bitmap = (void *)texture; 
       GLuint current_texture;
+      float t = (float)al_get_bitmap_height(texture) / ogl_bitmap->true_h;
       float mat[4][4] = {
          {1,  0, 0, 0},
          {0, -1, 0, 0},
          {0,  0, 1, 0},
-         {0,  1, 0, 1}
+         {0,  t, 0, 1}
       };
       (void)current_texture;
 
