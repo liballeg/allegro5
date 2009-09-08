@@ -20,20 +20,8 @@ struct ALLEGRO_TIMEOUT {
 
 
 
-/* Function: al_current_time
- */
 AL_FUNC(double, al_current_time, (void));
-
-
-
-/* Function: al_rest
- */
 AL_FUNC(void, al_rest, (double seconds));
-
-
-
-/* Function: al_init_timeout
- */
 AL_FUNC(void, al_init_timeout, (ALLEGRO_TIMEOUT *timeout, double seconds));
 
 

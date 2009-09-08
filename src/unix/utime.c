@@ -42,9 +42,7 @@ void _al_unix_init_time(void)
 
 
 
-/* al_current_time:
- *  Return the current time since some arbitrary
- *  point in time.
+/* Function: al_current_time
  */
 double al_current_time(void)
 {
@@ -59,9 +57,7 @@ double al_current_time(void)
 
 
 
-/* al_rest:
- *  Make the caller rest for some time.
- *  Does nothing with values <= 0.
+/* Function: al_rest
  */
 void al_rest(double seconds)
 {
@@ -74,8 +70,7 @@ void al_rest(double seconds)
 
 
 
-/* al_init_timeout:
- *  Set a timeout value.
+/* Function: al_init_timeout
  */
 void al_init_timeout(ALLEGRO_TIMEOUT *timeout, double seconds)
 {

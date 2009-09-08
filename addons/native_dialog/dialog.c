@@ -42,7 +42,7 @@ const ALLEGRO_PATH *al_get_native_file_dialog_path(
    return NULL;
 }
 
-/* Function: al_destroy_native_file_dialog
+/* Function: al_destroy_native_dialog
  */
 void al_destroy_native_dialog(ALLEGRO_NATIVE_DIALOG *fd)
 {
