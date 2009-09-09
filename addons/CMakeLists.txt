@@ -3,6 +3,8 @@
 # FOO_LINK_WITH should be the name of a single target.  The target should
 # automatically pull in dependencies so they don't need to be listed.
 
+include(FindPackageHandleStandardArgs)
+
 if(WANT_IMAGE)
     add_subdirectory(image)
     set(IMAGE_LINK_WITH ${IMAGE_LINK_WITH} PARENT_SCOPE)
@@ -60,6 +62,9 @@ endif(WANT_MEMFILE)
 
 if(WANT_PHYSFS)
     find_package(PhysFS)
+    # FindPhysFS.cmake in cmake-2.6.2 doesn't call this but it should.
+    find_package_handle_standard_args(PHYSFS DEFAULT_MSG
+        PHYSFS_LIBRARY PHYSFS_INCLUDE_DIR)
     mark_as_advanced(PHYSFS_INCLUDE_DIR)
     mark_as_advanced(PHYSFS_LIBRARY)
     if(PHYSFS_FOUND)
