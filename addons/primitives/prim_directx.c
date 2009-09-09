@@ -106,7 +106,7 @@ int _al_draw_prim_directx(ALLEGRO_BITMAP* texture, const void* vtxs, const ALLEG
    display = al_get_current_display();
    device = al_d3d_get_device(display);
    num_vtx = end - start;
-   vtx = vtxs + start * stride;
+   vtx = (const char*)vtxs + start * stride;
 
    set_blender(display);
 
@@ -224,11 +224,11 @@ int _al_draw_prim_indexed_directx(ALLEGRO_BITMAP* texture, const void* vtxs, con
     */
    
    if(decl) {
-      void* buff = malloc(decl->stride * num_vtx);
+      char* buff = malloc(decl->stride * num_vtx);
       int ii;
       int ret;
       for(ii = 0; ii < num_vtx; ii++) {
-         memcpy(buff + ii * decl->stride, vtxs + decl->stride * indices[ii], decl->stride);
+         memcpy(buff + ii * decl->stride, (const char*)vtxs + decl->stride * indices[ii], decl->stride);
       }
       ret = _al_draw_prim_directx(texture, buff, decl, 0, num_vtx, type);
       free(buff);

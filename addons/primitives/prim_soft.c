@@ -35,7 +35,7 @@ The vertex cache allows for bulk transformation of vertices, for faster run spee
 */
 static ALLEGRO_VERTEX vertex_cache[ALLEGRO_VERTEX_CACHE_SIZE];
 
-static void convert_vtx(ALLEGRO_BITMAP* texture, const void* src, ALLEGRO_VERTEX* dest, const ALLEGRO_VERTEX_DECL* decl)
+static void convert_vtx(ALLEGRO_BITMAP* texture, const char* src, ALLEGRO_VERTEX* dest, const ALLEGRO_VERTEX_DECL* decl)
 {
    ALLEGRO_VERTEX_ELEMENT* e;
    if(!decl) {
@@ -124,7 +124,7 @@ int _al_draw_prim_soft(ALLEGRO_BITMAP* texture, const void* vtxs, const ALLEGRO_
    if (use_cache) {
       int ii;
       int n = 0;
-      const void* vtxptr = vtxs + start * stride;
+      const char* vtxptr = (const char*)vtxs + start * stride;
       for (ii = 0; ii < num_vtx; ii++) {
          convert_vtx(texture, vtxptr, &vertex_cache[ii], decl);
          al_transform_vertex(&_al_global_trans, &vertex_cache[ii]);
@@ -133,9 +133,9 @@ int _al_draw_prim_soft(ALLEGRO_BITMAP* texture, const void* vtxs, const ALLEGRO_
       }
    }
    
-#define SET_VERTEX(v, idx)                                \
-   convert_vtx(texture, vtxs + stride * (idx), &v, decl); \
-   al_transform_vertex(&_al_global_trans, &v);            \
+#define SET_VERTEX(v, idx)                                             \
+   convert_vtx(texture, (const char*)vtxs + stride * (idx), &v, decl); \
+   al_transform_vertex(&_al_global_trans, &v);                         \
     
    switch (type) {
       case ALLEGRO_PRIM_LINE_LIST: {
@@ -270,6 +270,7 @@ int _al_draw_prim_soft(ALLEGRO_BITMAP* texture, const void* vtxs, const ALLEGRO_
        al_unlock_bitmap(texture);
    
    return num_primitives;
+#undef SET_VERTEX
 }
 
 int _al_draw_prim_indexed_soft(ALLEGRO_BITMAP* texture, const void* vtxs, const ALLEGRO_VERTEX_DECL* decl,
@@ -307,14 +308,14 @@ int _al_draw_prim_indexed_soft(ALLEGRO_BITMAP* texture, const void* vtxs, const 
       int ii;
       for (ii = 0; ii < num_vtx; ii++) {
          int idx = indices[ii];
-         convert_vtx(texture, vtxs + idx * stride, &vertex_cache[idx - min_idx], decl);
+         convert_vtx(texture, (const char*)vtxs + idx * stride, &vertex_cache[idx - min_idx], decl);
          al_transform_vertex(&_al_global_trans, &vertex_cache[idx - min_idx]);
       }
    }
    
-#define SET_VERTEX(v, idx)                                \
-   convert_vtx(texture, vtxs + stride * (idx), &v, decl); \
-   al_transform_vertex(&_al_global_trans, &v);            \
+#define SET_VERTEX(v, idx)                                             \
+   convert_vtx(texture, (const char*)vtxs + stride * (idx), &v, decl); \
+   al_transform_vertex(&_al_global_trans, &v);                         \
     
    switch (type) {
       case ALLEGRO_PRIM_LINE_LIST: {
@@ -479,4 +480,5 @@ int _al_draw_prim_indexed_soft(ALLEGRO_BITMAP* texture, const void* vtxs, const 
        al_unlock_bitmap(texture);
    
    return num_primitives;
+#undef SET_VERTEX
 }

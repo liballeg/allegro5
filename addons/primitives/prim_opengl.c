@@ -57,7 +57,7 @@ static void setup_blending(void)
 #endif
 }
 
-static void setup_state(const void* vtxs, const ALLEGRO_VERTEX_DECL* decl, ALLEGRO_BITMAP* texture)
+static void setup_state(const char* vtxs, const ALLEGRO_VERTEX_DECL* decl, ALLEGRO_BITMAP* texture)
 {
    if(decl) {
       ALLEGRO_VERTEX_ELEMENT* e;
@@ -122,7 +122,7 @@ static void setup_state(const void* vtxs, const ALLEGRO_VERTEX_DECL* decl, ALLEG
          glColor4f(1, 1, 1, 1);
       }
    } else {
-      const ALLEGRO_VERTEX* vtx = vtxs;
+      const ALLEGRO_VERTEX* vtx = (const ALLEGRO_VERTEX*)vtxs;
    
       if(!glIsEnabled(GL_COLOR_ARRAY))
          glEnableClientState(GL_COLOR_ARRAY);
@@ -192,7 +192,7 @@ int _al_draw_prim_opengl(ALLEGRO_BITMAP* texture, const void* vtxs, const ALLEGR
       return _al_draw_prim_soft(texture, vtxs, decl, start, end, type);
    }
    
-   vtx = vtxs + start * stride;
+   vtx = (const char*)vtxs + start * stride;
    num_vtx = end - start;
    
    glGetBooleanv(GL_TEXTURE_2D, &on);
