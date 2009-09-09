@@ -3,6 +3,9 @@ import optparse, subprocess, sys, os, re, glob
 
 links = {}
 symbols = {}
+structs = {}
+types = {}
+anonymous_enums = {}
 
 def check_references():
     """
@@ -25,10 +28,29 @@ def check_references():
             if not link in links:
                 print("Missing: %s: %s" % (doc, link))
 
+def add_struct(line):
+    if options.struct:
+        kind = re.match("\s*(\w+)", line).group(1)
+        if kind in ["typedef", "struct", "enum", "union"]:
+            mob = None
+            if kind != "typedef":
+                mob = re.match(kind + "\s+(\w+)", line)
+            if not mob: mob = re.match(".*?(\w+);$", line)
+            if not mob:
+                if kind == "typedef":
+                    return
+                anonymous_enums[line] = 1
+            else:
+                sname = mob.group(1)
+                if kind == "typedef":
+                    types[sname] = line
+                else:
+                    structs[sname] = line
+
 def parse_header(lines, filename):
     """
-    Minimal C parser which extracts most symbols from a header. Fills them
-    into the global variable "symbols".
+    Minimal C parser which extracts most symbols from a header. Fills
+    them into the global variable "symbols".
     """
     n = 0
     ok = False
@@ -77,7 +99,7 @@ def parse_header(lines, filename):
 
     for line in lines2:
         if line.startswith("enum"):
-            pass
+            add_struct(line)
         elif line.startswith("typedef"):
             match = None
             if not match:
@@ -93,10 +115,13 @@ def parse_header(lines, filename):
                 n += 1
             else:
                 print(line)
+
+            add_struct(line)
+
         elif line.startswith("struct"):
-            pass
+            add_struct(line)
         elif line.startswith("union"):
-            pass
+            add_struct(line)
         else:
             try:
                 parenthesis = line.find("(")
@@ -194,6 +219,7 @@ references in the documentation - then report symbols which are not documented.
 """;
     p.add_option("-p", "--path", help = "Path to the build directory.")
     p.add_option("-l", "--list", action = "store_true", help = "List all symbols.")
+    p.add_option("-s", "--struct",  help = "Write all structs to the given file.")
     options, args = p.parse_args()
 
     if not options.path:
@@ -201,7 +227,16 @@ references in the documentation - then report symbols which are not documented.
         p.print_help()
         sys.exit(-1)
 
-    if options.list:
+    if options.struct:
+        parse_all_headers()
+        f = open(options.struct, "w")
+        for name, s in structs.items():
+            f.write(name + ": " + s + "\n")
+        for name, s in types.items():
+            f.write(name + ": " + s + "\n")
+        for e in anonymous_enums.keys():
+            f.write(": " + e + "\n")
+    elif options.list:
         list_all_symbols()
     else:
         check_references()
