@@ -9,7 +9,7 @@ Windows
 =======
 
 Allegro5 implements two graphics drivers for Windows: one using DirectX 9 and
-onther one using OpenGL. You can force using OpenGL by calling
+another one using OpenGL. You can force using OpenGL by calling
 al_set_new_display_flags(ALLEGRO_OPENGL) prior to creating a display, while
 DirectX is the default driver.
 You can also select the driver using the `allegro5.cfg` file.
