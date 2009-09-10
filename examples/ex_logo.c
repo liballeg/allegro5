@@ -398,7 +398,10 @@ int main(void)
    int redraw = 0, i;
    bool quit = false;
 
-   al_init();
+   if (!al_init()) {
+      abort_example("Could not initialise Allegro\n");
+      return 1;
+   }
    al_install_mouse();
    al_init_font_addon();
    al_init_ttf_addon();
@@ -407,6 +410,10 @@ int main(void)
    white = al_map_rgba_f(1, 1, 1, 1);
 
    display = al_create_display(640, 480);
+   if (!display) {
+      abort_example("Could not create display\n");
+      return 1;
+   }
    al_set_window_title("Allegro Logo Generator");
    al_install_keyboard();
 
@@ -415,13 +422,16 @@ int main(void)
    if (!config)
       config = al_create_config();
    for (i = 0; param_names[i]; i++) {
-      char const *value = al_get_config_value(config, "logo",
-                                              param_names[i]);
+      char const *value = al_get_config_value(config, "logo", param_names[i]);
       if (value)
          strncpy(param_values[i], value, sizeof(param_values[i]));
    }
 
    font = al_load_font("data/DejaVuSans.ttf", 12, 0);
+   if (!font) {
+      abort_example("Could not load font\n");
+      return 1;
+   }
 
    timer = al_install_timer(1.0 / 60);
 
