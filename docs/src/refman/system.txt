@@ -1,31 +1,5 @@
 # System
 
-## API: al_get_appname
-
-Returns the global application name string.
-
-## API: al_get_orgname
-
-Returns the global organization name string.
-
-## API: al_get_standard_path
-
-Gets a system path, depending on the `id` parameter:
-
-id                            description
------------------------------ ------------------------
-ALLEGRO_PROGRAM_PATH          Directory with the executed program.
-ALLEGRO_TEMP_PATH             Path to the directory for temporary files.
-ALLEGRO_SYSTEM_DATA_PATH      Data path for system-wide installation.
-ALLEGRO_USER_DATA_PATH        Data path for per-user installation.
-ALLEGRO_USER_HOME_PATH        Path to the user's home directory.
-ALLEGRO_USER_SETTINGS_PATH    Path to per-user settings directory.
-ALLEGRO_SYSTEM_SETTINGS_PATH  Path to system-wide settings directory.
-ALLEGRO_EXENAME_PATH          The full path to the executable. 
-
-
-Returns NULL on failure.
-
 ## API: al_install_system
 
 Initialize the Allegro system.  If atexit_ptr is non-NULL, and if hasn't
@@ -44,35 +18,6 @@ Like [al_install_system], but automatically uses the atexit function
 visible in the current compilation unit.
 
 See also: [al_install_system]
-
-## API: al_set_appname
-
-Sets the global application name.
-
-The Application name is used by [al_get_standard_path] to build the full path to
-an application's files.
-
-Should be called once at the start of a program, before [al_init] or [al_install_system]
-and never touched again.
-
-## API: al_set_orgname
-
-Sets the global organization name.
-
-The Organization name is used by [al_get_standard_path] to build the full path to
-an application's files.
-
-Should be called once at the start of a program, before [al_init] or [al_install_system]
-and never touched again.
-
-## API: al_get_system_driver
-
-Returns the currently active system driver, or NULL.
-
-## API: al_get_system_config
-
-Returns the configuration for the installed system, if any, or NULL otherwise.
-This is mainly used for configuring Allegro and its addons.
 
 ## API: al_uninstall_system
 
@@ -99,3 +44,69 @@ The `release` number is 0 for an unofficial version and 1 or greater for
 an official release. For example "5.0.2[1]" would be the (first) official
 5.0.2 release while "5.0.2[0]" would be a compile of a version from the
 "5.0.2" branch before the official release.
+
+## API: al_get_standard_path
+
+Gets a system path, depending on the `id` parameter:
+
+id                            description
+----------------------------- ------------------------
+ALLEGRO_PROGRAM_PATH          Directory with the executed program.
+ALLEGRO_TEMP_PATH             Path to the directory for temporary files.
+ALLEGRO_SYSTEM_DATA_PATH      Data path for system-wide installation.
+ALLEGRO_USER_DATA_PATH        Data path for per-user installation.
+ALLEGRO_USER_HOME_PATH        Path to the user's home directory.
+ALLEGRO_USER_SETTINGS_PATH    Path to per-user settings directory.
+ALLEGRO_SYSTEM_SETTINGS_PATH  Path to system-wide settings directory.
+ALLEGRO_EXENAME_PATH          The full path to the executable. 
+
+
+Returns NULL on failure.
+
+See also: [al_set_appname], [al_set_orgname]
+
+## API: al_set_appname
+
+Sets the global application name.
+
+The Application name is used by [al_get_standard_path] to build the full path to
+an application's files.
+
+Should be called once at the start of a program, before [al_init] or [al_install_system]
+and never touched again.
+
+See also: [al_get_appname], [al_set_orgname]
+
+## API: al_set_orgname
+
+Sets the global organization name.
+
+The Organization name is used by [al_get_standard_path] to build the full path to
+an application's files.
+
+Should be called once at the start of a program, before [al_init] or [al_install_system]
+and never touched again.
+
+See also: [al_get_orgname], [al_set_appname]
+
+## API: al_get_appname
+
+Returns the global application name string.
+
+See also: [al_set_appname]
+
+## API: al_get_orgname
+
+Returns the global organization name string.
+
+See also: [al_set_orgname]
+
+## API: al_get_system_driver
+
+Returns the currently active system driver, or NULL.
+
+## API: al_get_system_config
+
+Returns the configuration for the installed system, if any, or NULL otherwise.
+This is mainly used for configuring Allegro and its addons.
+
