@@ -33,10 +33,10 @@ enum {
 
 AL_FUNC(ALLEGRO_PATH *, al_get_standard_path, (int id));
 
-AL_FUNC(void, al_set_orgname, (AL_CONST char *orgname));
-AL_FUNC(void, al_set_appname, (AL_CONST char *appname));
-AL_FUNC(AL_CONST char *, al_get_orgname, (void));
-AL_FUNC(AL_CONST char *, al_get_appname, (void));
+AL_FUNC(void, al_set_orgname, (const char *orgname));
+AL_FUNC(void, al_set_appname, (const char *appname));
+AL_FUNC(const char *, al_get_orgname, (void));
+AL_FUNC(const char *, al_get_appname, (void));
 
 AL_FUNC(bool, al_inhibit_screensaver, (bool inhibit));
 
