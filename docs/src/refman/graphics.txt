@@ -81,6 +81,8 @@ call will work with any bitmap, including memory bitmaps.
                         // i.e. padded with extra bytes
     }
 
+See also: [al_lock_bitmap], [al_lock_bitmap_region], [al_unlock_bitmap]
+
 ### API: ALLEGRO_PIXEL_FORMAT
 
 Pixel formats. Each pixel format specifies the exact size and bit
@@ -188,9 +190,19 @@ ALLEGRO_PIXEL_FORMAT_ABGR_8888_LE      Like the version without _LE, but the
                                        little endian it is just an alias.
 --------------------------------------------------------------------------------
 
+See also: [al_set_new_bitmap_format], [al_get_bitmap_format]
+
 ### API: al_get_pixel_size
 
+Return the number of bytes that a pixel of the given format occupies.
+
+See also: [ALLEGRO_PIXEL_FORMAT], [al_get_pixel_format_bits]
+
 ### API: al_get_pixel_format_bits
+
+Return the number of bits that a pixel of the given format occupies.
+
+See also: [ALLEGRO_PIXEL_FORMAT], [al_get_pixel_size]
 
 ### API: al_lock_bitmap
 
@@ -220,6 +232,8 @@ Note:
 While a bitmap is locked, you can not use any drawing operations on
 it (with the sole exception of [al_put_pixel] and [al_draw_pixel]).
 
+See also: [ALLEGRO_LOCKED_REGION], [al_unlock_bitmap]
+
 ### API: al_lock_bitmap_region
 
 Like [al_lock_bitmap], but only locks a specific area of the bitmap.
@@ -227,13 +241,15 @@ If the bitmap is a display bitmap, only that area of the texture will
 be updated when it is unlocked. Locking only the region you indend to
 modify will be faster than locking the whole bitmap.
 
-See Also: [al_lock_bitmap]
+See also: [ALLEGRO_LOCKED_REGION], [al_unlock_bitmap]
 
 ### API: al_unlock_bitmap
 
 Unlock a previously locked bitmap or bitmap region. If the bitmap
 is a display bitmap, the texture will be updated to match the system
 memory copy (unless it was locked read only).
+
+See also: [al_lock_bitmap], [al_lock_bitmap_region]
 
 
 
@@ -246,6 +262,10 @@ Abstract type representing a bitmap (2D image).
 ### API: al_clone_bitmap
 
 Clone a bitmap "exactly", formats can be different.
+
+XXX document this better
+
+See also: [al_create_bitmap]
 
 ### API: al_create_bitmap
 
@@ -262,7 +282,8 @@ has a maximum allowed texture size - so if bitmap creation fails
 for very large dimensions, you may want to re-try with a smaller
 bitmap.
 
-See Also: [al_set_new_bitmap_format], [al_set_new_bitmap_flags]
+See also: [al_set_new_bitmap_format], [al_set_new_bitmap_flags],
+[al_clone_bitmap], [al_create_sub_bitmap]
 
 ### API: al_create_sub_bitmap
 
@@ -282,6 +303,8 @@ Note that destroying parents of sub-bitmaps will not destroy the
 sub-bitmaps; instead the sub-bitmaps become invalid and should no
 longer be used.
 
+See also: [al_create_bitmap]
+
 ### API: al_destroy_bitmap
 
 Destroys the given bitmap, freeing all resources used by it.
@@ -291,21 +314,24 @@ Does nothing if given the null pointer.
 
 Returns the flags used for newly created bitmaps.
 
+See also: [al_set_new_bitmap_flags]
+
 ### API: al_get_new_bitmap_format
 
 Returns the format used for newly created bitmaps.
+
+See also: [ALLEGRO_PIXEL_FORMAT], [al_set_new_bitmap_format]
 
 ### API: al_set_new_bitmap_flags
 
 Sets the flags to use for newly created bitmaps.
 Valid flags are:
 
-* ALLEGRO_MEMORY_BITMAP - The bitmap will use a format most closely resembling
-the format used in the bitmap file and al_create_memory_bitmap will be used
-to create it. If this flag is not specified, al_create_bitmap will be used
-instead and the display driver will determine the format.
-
-XXX al_create_memory_bitmap doesn't exist any more
+* ALLEGRO_MEMORY_BITMAP - Create a bitmap residing in system memory.
+Operations on, and with, memory bitmaps will not be hardware accelerated.
+However, direct pixel access can be relatively quick compared to video bitmaps,
+which depend on the display driver in use.
+*Note: Allegro's software rendering routines are currently very unoptimised.*
 
 * ALLEGRO_KEEP_BITMAP_FORMAT - Only used when loading bitmaps from disk files,
 forces the resulting ALLEGRO_BITMAP to use the same format as the file.
@@ -319,8 +345,8 @@ FBOs will be created for it in the OpenGL drivers.
 
 * ALLEGRO_NO_PRESERVE_TEXTURE - Normally, every effort is taken to preserve
 the contents of bitmaps since some drivers may forget them. This can take
-extra time. If you know it doesn't matter if a bitmap keeps it's image,
-for example a temporary buffer, use this flag to tell Allegro no to attempt
+extra time. If you know it doesn't matter if a bitmap keeps its image,
+for example a temporary buffer, use this flag to tell Allegro not to attempt
 to preserve the contents of bitmaps created after this flag is set. This
 can lead to speed improvements in your program.
 
@@ -330,12 +356,16 @@ with this flag. Alpha testing is usually faster and preferred if your
 bitmaps have only one level of alpha (0). This flag is currently not
 widely implemented (i.e., only for memory bitmaps).
 
+See also: [al_get_new_bitmap_flags], [al_get_bitmap_flags]
+
 ### API: al_set_new_bitmap_format
 
 Sets the pixel format for newly created bitmaps.
 The default format is 0 and means the display driver will choose
 the best format.
 
+See also: [ALLEGRO_PIXEL_FORMAT], [al_get_new_bitmap_format],
+[al_get_bitmap_format]
 
 
 
@@ -345,9 +375,13 @@ the best format.
 
 Return the flags user to create the bitmap.
 
+See also: [al_set_new_bitmap_flags]
+
 ### API: al_get_bitmap_format
 
 Returns the pixel format of a bitmap.
+
+See also: [ALLEGRO_PIXEL_FORMAT], [al_set_new_bitmap_flags]
 
 ### API: al_get_bitmap_height
 
@@ -363,9 +397,13 @@ Get a pixel's color value from the specified bitmap.  This operation is slow
 on non-memory bitmaps. Consider locking the bitmap if you are going to use this
 function multiple times on the same bitmap.
 
+See also: [ALLEGRO_COLOR], [al_put_pixel]
+
 ### API: al_is_bitmap_locked
 
 Returns whether or not a bitmap is already locked.
+
+See also: [al_lock_bitmap], [al_lock_bitmap_region], [al_unlock_bitmap]
 
 ### API: al_is_compatible_bitmap
 
@@ -389,6 +427,8 @@ false otherwise. If there is no current display, false is returned.
 
 Returns true if the specified bitmap is a sub-bitmap, false otherwise.
 
+See also: [al_create_sub_bitmap]
+
 
 
 ## Drawing operations
@@ -401,6 +441,8 @@ the last display created in a thread.
 
 Clear the complete target bitmap, but confined by the clipping rectangle.
 
+See also: [ALLEGRO_COLOR], [al_set_clipping_rectangle]
+
 ### API: al_draw_bitmap
 
 Draws an unscaled, unrotated bitmap at the given position
@@ -409,6 +451,9 @@ flags can be a combination of:
 
 * ALLEGRO_FLIP_HORIZONTAL - flip the bitmap about the y-axis
 * ALLEGRO_FLIP_VERTICAL - flip the bitmap about the x-axis
+
+See also: [al_draw_bitmap_region], [al_draw_scaled_bitmap],
+[al_draw_rotated_bitmap], [al_draw_rotated_scaled_bitmap]
 
 ### API: al_draw_bitmap_region
 
@@ -422,16 +467,21 @@ Draws a region of the given bitmap to the target bitmap.
 * dy - destination y
 * flags - same as for [al_draw_bitmap]
 
+See also: [al_draw_bitmap], [al_draw_scaled_bitmap],
+[al_draw_rotated_bitmap], [al_draw_rotated_scaled_bitmap]
+
 ### API: al_draw_pixel
 
 Draws a single pixel at x, y. This function, unlike
-al_put_pixel, does blending.  This operation is slow on non-memory
+[al_put_pixel], does blending.  This operation is slow on non-memory
 bitmaps. Consider locking the bitmap if you are going to use this function
 multiple times on the same bitmap.
 
 * x - destination x
 * y - destination y
 * color - color of the pixel
+
+See also: [ALLEGRO_COLOR], [al_put_pixel]
 
 ### API: al_draw_rotated_bitmap
 
@@ -447,6 +497,9 @@ bitmap is rotated around this point.
 * dy - destination y
 * angle - angle by which to rotate
 * flags - same as for [al_draw_bitmap]
+
+See also: [al_draw_bitmap], [al_draw_bitmap_region],
+[al_draw_scaled_bitmap], [al_draw_rotated_scaled_bitmap]
 
 ### API: al_draw_rotated_scaled_bitmap
 
@@ -464,6 +517,9 @@ rotated and scaled around this point.
 * angle - angle by which to rotate
 * flags - same as for [al_draw_bitmap]
 
+See also: [al_draw_bitmap], [al_draw_bitmap_region], [al_draw_scaled_bitmap],
+[al_draw_rotated_bitmap]
+
 ### API: al_draw_scaled_bitmap
 
 Draws a scaled version of the given bitmap to the target bitmap.
@@ -478,15 +534,22 @@ Draws a scaled version of the given bitmap to the target bitmap.
 * dh - destination height
 * flags - same as for [al_draw_bitmap]
 
+See also: [al_draw_bitmap], [al_draw_bitmap_region], [al_draw_scaled_bitmap],
+[al_draw_rotated_scaled_bitmap]
+
 ### API: al_get_target_bitmap
 
 Return the target bitmap of the current display.
+
+See also: [al_set_target_bitmap]
 
 ### API: al_put_pixel
 
 Draw a single pixel on the target bitmap. This operation is slow on non-memory
 bitmaps. Consider locking the bitmap if you are going to use this function
 multiple times on the same bitmap.
+
+See also: [ALLEGRO_COLOR], [al_get_pixel]
 
 ### API: al_set_target_bitmap
 
@@ -528,6 +591,8 @@ In this example an FBO is created however:
 And an OpenGL command will be used to directly draw the line into the bitmap's
 associated texture.
 
+See also: [al_get_target_bitmap]
+
 
 
 ## Blending modes
@@ -537,10 +602,14 @@ associated texture.
 Returns the active blender for the current thread. You can pass
 NULL for values you are not interested in.
 
+See also: [al_set_blender], [al_get_separate_blender]
+
 ### API: al_get_separate_blender
 
 Returns the active blender for the current thread. You can pass
 NULL for values you are not interested in.
+
+See also: [al_set_separate_blender], [al_get_blender]
 
 ### API: al_set_blender
 
@@ -594,10 +663,14 @@ Copying the source to the destination (including alpha) unmodified
 
     al_set_blender(ALLEGRO_ONE, ALLEGRO_ZERO, {1, 1, 1, 1})
 
+See also: [al_set_separate_blender], [al_get_blender]
+
 ### API: al_set_separate_blender
 
 Like [al_set_blender], but allows specifying a separate blending
 operation for the alpha channel.
+
+See also: [al_set_blender], [al_get_blender], [al_get_separate_blender]
 
 
 
@@ -607,11 +680,15 @@ operation for the alpha channel.
 
 Gets the clipping rectangle of the target bitmap.
 
+See also: [al_set_clipping_rectangle]
+
 ### API: al_set_clipping_rectangle
 
 Set the region of the target bitmap or display that
 pixels get clipped to. The default is to clip pixels
 to the entire bitmap.
+
+See also: [al_get_clipping_rectangle]
 
 
 
@@ -622,3 +699,5 @@ to the entire bitmap.
 Convert the given mask color to an alpha channel in the bitmap.
 Can be used to convert older 4.2-style bitmaps with magic pink
 to alpha-ready bitmaps.
+
+See also: [ALLEGRO_COLOR]

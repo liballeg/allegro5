@@ -81,7 +81,7 @@ parameters: the destination is implicit.  Allegro remembers the current
 "target bitmap" for the current thread.  To change the target bitmap, call
 [al_set_target_bitmap].
 
-The backbuffer of the display is also a bitmap.  You can get with
+The backbuffer of the display is also a bitmap.  You can get it with
 [al_get_backbuffer] and then restore it as the target bitmap.
 
 Other bitmaps can be created with [al_create_bitmap], with options which can
