@@ -23,6 +23,26 @@
 #include "allegro5/internal/aintern_memory.h"
 #include "allegro5/platform/aintosx.h"
 
+#ifdef __LP64__
+/* FIXME: the following prototype and enum definition appear to needed in
+ * 64 bit mode. Apple's documentation indicates that "deprecated features"
+ * are not available in 64 bit, but UpdateSystemActivity is not deprecated
+ * and the documentation likewise suggests that all that should be required
+ * is to #include CoreServices.h or Power.h. However, this does not appear
+ * to work... for now, this should work ok.
+ */
+extern OSErr UpdateSystemActivity(uint8_t activity);
+
+enum {
+  OverallAct                    = 0,    /* Delays idle sleep by small amount                 */
+  UsrActivity                   = 1,    /* Delays idle sleep and dimming by timeout time          */
+  NetActivity                   = 2,    /* Delays idle sleep and power cycling by small amount         */
+  HDActivity                    = 3,    /* Delays hard drive spindown and idle sleep by small amount  */
+  IdleActivity                  = 4     /* Delays idle sleep by timeout time                 */
+};
+
+#endif
+
 #ifndef ALLEGRO_MACOSX
 #error something is wrong with the makefile
 #endif
