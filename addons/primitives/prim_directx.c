@@ -106,7 +106,7 @@ int _al_draw_prim_directx(ALLEGRO_BITMAP* texture, const void* vtxs, const ALLEG
    display = al_get_current_display();
    device = al_d3d_get_device(display);
    num_vtx = end - start;
-   vtx = (const char*)vtxs + start * stride;
+   vtx = (const ALLEGRO_VERTEX*)((const char*)vtxs + start * stride);
 
    set_blender(display);
 
@@ -115,7 +115,7 @@ int _al_draw_prim_directx(ALLEGRO_BITMAP* texture, const void* vtxs, const ALLEG
       float mat[4][4] = {
          {1, 0, 0, 0},
          {0, 1, 0, 0},
-         {0, 1, 1, 0},
+         {0, 0, 1, 0},
          {0, 0, 0, 1}
       };      
       IDirect3DTexture9_GetLevelDesc(al_d3d_get_video_texture(texture), 0, &desc);
