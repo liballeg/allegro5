@@ -222,6 +222,9 @@ be faster if the bitmap is a video texture, as no data need to be read
 from the video card. You are required to fill in all pixels before
 unlocking the bitmap again, so be careful when using this flag.
 
+* ALLEGRO_LOCK_READWRITE - The locked region can be written to and read
+from.
+
 'format' indicates the pixel format that the returned buffer will be in.
 To lock in the same format as the bitmap stores it's data internally,
 call with `al_get_bitmap_format(bitmap)` as the format or use

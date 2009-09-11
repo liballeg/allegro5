@@ -80,6 +80,7 @@ typedef enum ALLEGRO_PIXEL_FORMAT
 /*
  * Locking flags
  */
+#define ALLEGRO_LOCK_READWRITE 0
 #define ALLEGRO_LOCK_READONLY 1
 #define ALLEGRO_LOCK_WRITEONLY 2
 
