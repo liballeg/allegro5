@@ -6,7 +6,7 @@ set(COLOR_INCLUDE_FILES
 
 add_our_library(allegro_color -${ALLEGRO_VERSION}
     "${COLOR_SOURCES}"
-    "-DA5_COLOR_SRC"
+    "-DALLEGRO_COLOR_SRC"
     "${ALLEGRO_LINK_WITH}"
     )
 

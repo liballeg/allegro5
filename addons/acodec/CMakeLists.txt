@@ -35,7 +35,7 @@ endif(WANT_FLAC)
 if(SUPPORT_FLAC)
     add_our_library(allegro_flac -${ALLEGRO_VERSION}
         "${A5_FLAC_SOURCES}"
-        "-DA5_FLAC_SRC"
+        "-DALLEGRO_FLAC_SRC"
         "${AUDIO_LINK_WITH};${FLAC_LIBRARIES}"
         )
 
@@ -97,7 +97,7 @@ endif(WANT_VORBIS)
 if(SUPPORT_VORBIS)
     add_our_library(allegro_vorbis -${ALLEGRO_VERSION}
         "${A5_VORBIS_SOURCES}"
-        "-DA5_VORBIS_SRC"
+        "-DALLEGRO_VORBIS_SRC"
         "${AUDIO_LINK_WITH};${VORBIS_LIBRARIES}"
         )
 

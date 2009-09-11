@@ -5,7 +5,7 @@ set(MEMFILE_INCLUDE_FILES allegro5/memfile.h)
 
 add_our_library(allegro_memfile -${ALLEGRO_VERSION}
    "${MEMFILE_SOURCES}"
-   "-DA5_MEMFILE_SRC"
+   "-DALLEGRO_MEMFILE_SRC"
    "${ALLEGRO_LINK_WITH}"
    )
 

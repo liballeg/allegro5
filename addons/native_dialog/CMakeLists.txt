@@ -48,7 +48,7 @@ if(SUPPORT_NATIVE_DIALOG)
 
    add_our_library(allegro_dialog -${ALLEGRO_VERSION}
        "${SOURCES}"
-       "-DA5_NATIVE_DIALOG_SRC"
+       "-DALLEGRO_NATIVE_DIALOG_SRC"
        "${NATIVE_DIALOG_LIBRARIES};${ALLEGRO_LINK_WITH}"
        )
 

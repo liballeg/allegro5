@@ -49,7 +49,7 @@ if(SUPPORT_OSS OR SUPPORT_OPENAL OR SUPPORT_ALSA OR SUPPORT_DSOUND)
 
     add_our_library(allegro_audio -${ALLEGRO_VERSION}
         "${AUDIO_SOURCES}"
-        "-DA5_KCM_AUDIO_SRC"
+        "-DALLEGRO_KCM_AUDIO_SRC"
         "${ALLEGRO_LINK_WITH};${AUDIO_LIBRARIES}"
         )
 

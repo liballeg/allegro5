@@ -11,7 +11,7 @@ set(PRIMITIVES_INCLUDE_FILES allegro5/allegro_primitives.h)
 
 add_our_library(allegro_primitives -${ALLEGRO_VERSION}
     "${PRIMITIVES_SOURCES}"
-    "-DA5_PRIMITIVES_SRC"
+    "-DALLEGRO_PRIMITIVES_SRC"
     "${ALLEGRO_LINK_WITH}"
     )
 

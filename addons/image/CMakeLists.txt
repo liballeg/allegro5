@@ -38,7 +38,7 @@ configure_file(
 
 add_our_library(allegro_image -${ALLEGRO_VERSION}
     "${IMAGE_SOURCES}"
-    "-DA5_IIO_SRC"
+    "-DALLEGRO_IIO_SRC"
     "${ALLEGRO_LINK_WITH};${IMAGE_LIBRARIES}"
     )
 

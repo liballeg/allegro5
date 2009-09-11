@@ -12,7 +12,7 @@ include_directories(${FREETYPE_INCLUDE_DIRS})
 
 add_our_library(allegro_ttf -${ALLEGRO_VERSION}
     "${TTF_SOURCES}"
-    "-DA5_TTF_SRC"
+    "-DALLEGRO_TTF_SRC"
     "${FONT_LINK_WITH};${FREETYPE_LIBRARIES}"
     )
 

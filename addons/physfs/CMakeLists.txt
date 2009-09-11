@@ -7,7 +7,7 @@ include_directories(${PHYSFS_INCLUDE_DIR})
 
 add_our_library(allegro_physfs -${ALLEGRO_VERSION}
    "${PHYSFS_SOURCES}"
-   "-DA5_PHYSFS_SRC"
+   "-DALLEGRO_PHYSFS_SRC"
    "${ALLEGRO_LINK_WITH};${PHYSFS_LIBRARY}"
    )
 
