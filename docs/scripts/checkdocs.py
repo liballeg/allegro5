@@ -6,6 +6,7 @@ symbols = {}
 structs = {}
 types = {}
 anonymous_enums = {}
+functions = {}
 
 def check_references():
     """
@@ -29,19 +30,20 @@ def check_references():
                 print("Missing: %s: %s" % (doc, link))
 
 def add_struct(line):
-    if options.struct:
+    if options.protos:
         kind = re.match("\s*(\w+)", line).group(1)
         if kind in ["typedef", "struct", "enum", "union"]:
             mob = None
             if kind != "typedef":
                 mob = re.match(kind + "\s+(\w+)", line)
             if not mob: mob = re.match(".*?(\w+);$", line)
+            if not mob and kind == "typedef":
+                mob = re.match("typedef.*?\(\s*\*\s*(\w+)\)", line)
             if not mob:
-                if kind == "typedef":
-                    return
                 anonymous_enums[line] = 1
             else:
                 sname = mob.group(1)
+                if sname.startswith("_ALLEGRO_gl"): return
                 if kind == "typedef":
                     types[sname] = line
                 else:
@@ -60,6 +62,7 @@ def parse_header(lines, filename):
     for line in lines:
         line = line.strip()
         if not line: continue
+
         if line.startswith("#"):
             if line.startswith("#define"):
                 if ok:
@@ -71,7 +74,7 @@ def parse_header(lines, filename):
             else:
                 match = re.match(r'# \d+ "(.*?)"', line)
                 name = match.group(1)
-                if name == "<stdin>" or name.startswith(options.path) or \
+                if name == "<stdin>" or name.startswith(options.build) or \
                     name.startswith("include") or name.startswith("addons"):
                     ok = True
                 else:
@@ -135,8 +138,10 @@ def parse_header(lines, filename):
                     n += 1
                 else:
                     match = re.match(r".*?(\w+)\s*\(", line)
-
-                    symbols[match.group(1)] = "function"
+                    fname = match.group(1)
+                    symbols[fname] = "function"
+                    if not fname in functions:
+                        functions[fname] = line
                     n += 1
             except AttributeError, e:
                 print("Cannot parse in " + filename)
@@ -148,7 +153,7 @@ def parse_all_headers():
     """
     Call parse_header() on all of Allegro's public include files.
     """
-    includes = " -I include -I " + os.path.join(options.path, "include")
+    includes = " -I include -I " + os.path.join(options.build, "include")
     includes += " -I addons/acodec"
     headers = ["include/allegro5/allegro5.h",
         "addons/acodec/allegro5/allegro_flac.h",
@@ -217,25 +222,28 @@ When run from the toplevel A5 directory, this script will parse the include,
 addons and cmake build directory for global definitions and check against all
 references in the documentation - then report symbols which are not documented.
 """;
-    p.add_option("-p", "--path", help = "Path to the build directory.")
+    p.add_option("-b", "--build", help = "Path to the build directory.")
     p.add_option("-l", "--list", action = "store_true", help = "List all symbols.")
-    p.add_option("-s", "--struct",  help = "Write all structs to the given file.")
+    p.add_option("-p", "--protos",  help = "Write all public " +
+        "prototypes to the given file.")
     options, args = p.parse_args()
 
-    if not options.path:
+    if not options.build:
         sys.stderr.write("Build path required (-p).\n")
         p.print_help()
         sys.exit(-1)
 
-    if options.struct:
+    if options.protos:
         parse_all_headers()
-        f = open(options.struct, "w")
+        f = open(options.protos, "w")
         for name, s in structs.items():
             f.write(name + ": " + s + "\n")
         for name, s in types.items():
             f.write(name + ": " + s + "\n")
         for e in anonymous_enums.keys():
             f.write(": " + e + "\n")
+        for fname, proto in functions.items():
+            f.write(fname + "(): " + proto + "\n")
     elif options.list:
         list_all_symbols()
     else:
