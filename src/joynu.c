@@ -55,7 +55,7 @@ bool al_install_joystick(void)
    /* Currently every platform only has at most one joystick driver. */
    if (sysdrv->vt->get_joystick_driver) {
       joydrv = sysdrv->vt->get_joystick_driver();
-      if (joydrv->init_joystick()) {
+      if (joydrv && joydrv->init_joystick()) {
          new_joystick_driver = joydrv;
          _al_add_exit_func(al_uninstall_joystick, "al_uninstall_joystick");
          return true;
