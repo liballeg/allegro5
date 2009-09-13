@@ -630,6 +630,16 @@ static ALLEGRO_LOCKED_REGION *ogl_lock_region(ALLEGRO_BITMAP *bitmap,
             pitch = round_to_unpack_alignment(w * pixel_size);
             ogl_bitmap->lock_buffer = _AL_MALLOC(pitch * h);
 
+            /* Create an FBO if there isn't one. */
+            if (!ogl_bitmap->fbo) {
+               ALLEGRO_STATE state;
+               al_store_state(&state, ALLEGRO_STATE_TARGET_BITMAP);
+               bitmap->locked = false; // hack :(
+               al_set_target_bitmap(bitmap); // This creates the fbo
+               bitmap->locked = true;
+               al_restore_state(&state);
+            }
+
             glBindFramebufferOES(GL_FRAMEBUFFER_OES, ogl_bitmap->fbo);
             glReadPixels(x, gl_y, w, h,
                glformats[format][2],
@@ -1036,7 +1046,7 @@ void al_remove_opengl_fbo(ALLEGRO_BITMAP *bitmap)
  */
 GLuint al_get_opengl_fbo(ALLEGRO_BITMAP *bitmap)
 {
-#if !defined ALLEGRO_GP2XWIZ && !defined ALLEGRO_IPHONE
+#if !defined ALLEGRO_GP2XWIZ
    // FIXME: Check if this is an OpenGL bitmap, if not, return 0
    ALLEGRO_BITMAP_OGL *ogl_bitmap = (void *)bitmap;
    return ogl_bitmap->fbo;
