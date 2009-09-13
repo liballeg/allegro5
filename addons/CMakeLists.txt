@@ -5,6 +5,12 @@
 
 include(FindPackageHandleStandardArgs)
 
+if(WANT_PRIMITIVES)
+    add_subdirectory(primitives)
+    set(SUPPORT_PRIMITIVES 1 PARENT_SCOPE)
+    set(PRIMITIVES_LINK_WITH ${PRIMITIVES_LINK_WITH} PARENT_SCOPE)
+endif(WANT_PRIMITIVES)
+
 if(WANT_IMAGE)
     add_subdirectory(image)
     set(IMAGE_LINK_WITH ${IMAGE_LINK_WITH} PARENT_SCOPE)
@@ -12,7 +18,8 @@ if(WANT_IMAGE)
 
     if(WANT_FONT)
         add_subdirectory(font)
-        set(FONT_LINK_WITH ${FONT_LINK_WITH} PARENT_SCOPE)
+        set(FONT_LINK_WITH ${FONT_LINK_WITH} ${PRIMITIVES_LINK_WITH} PARENT_SCOPE)
+
         set(SUPPORT_FONT 1 PARENT_SCOPE)
     endif(WANT_FONT)
 endif(WANT_IMAGE)
@@ -73,12 +80,6 @@ if(WANT_PHYSFS)
         set(PHYSFS_LINK_WITH ${PHYSFS_LINK_WITH} PARENT_SCOPE)
     endif(PHYSFS_FOUND)
 endif(WANT_PHYSFS)
-
-if(WANT_PRIMITIVES)
-    add_subdirectory(primitives)
-    set(SUPPORT_PRIMITIVES 1 PARENT_SCOPE)
-    set(PRIMITIVES_LINK_WITH ${PRIMITIVES_LINK_WITH} PARENT_SCOPE)
-endif(WANT_PRIMITIVES)
 
 if(WANT_NATIVE_DIALOG)
     add_subdirectory(native_dialog)
