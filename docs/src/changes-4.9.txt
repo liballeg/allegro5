@@ -4,6 +4,178 @@ See `changes._tx` for changes in earlier versions of Allegro.  These lists
 serve as summaries; the full histories are in the Subversion repository.
 
 
+Changes from 4.9.13 to 4.9.14 (September 2009)
+==============================================
+
+The main developers this time were: Trent Gamblin, Elias Pschernig, Paul
+Suntsov, Peter Wang.  Other contributions from: Evert Glebbeek, Matthew
+Leverton.
+
+Ports:
+
+-  Elias Pschernig and Trent Gamblin started a iPhone port.
+
+Graphics:
+
+-  Added al_get_opengl_texture_size and al_get_opengl_texture_position
+   functions.
+
+-  Try to take into account GL_PACK_ALIGNMENT, GL_UNPACK_ALIGNMENT when
+   locking OpenGL bitmaps.
+
+-  Fixed all (hopefully) conversion mistakes in the color conversion macros.
+
+-  Sped up memory blitting, which was using conversion even with identical
+   formats (in some cases).
+
+-  Make al_set_current_display(NULL); unset the current display.
+
+-  Added ALLEGRO_LOCK_READWRITE flag for al_lock_bitmap (in place of 0).
+
+-  Fixed window titles which contain non-ASCII characters in X11.
+
+-  Added OES_framebuffer_object extension.
+
+Input:
+
+-  Added a lot more system mouse cursors.
+
+-  Renamed al_get_cursor_position to al_get_mouse_cursor_position.
+
+-  Prevent Windows from intercepting ALT for system menus.
+
+Filesystem:
+
+-  Make the path returned by al_get_entry_name() owned by the filesystem entry
+   so the user doesn't need to free it manually.
+
+-  Renamed the filesystem entry functions, mainly to include "fs_entry" in
+   their names instead of just "entry".
+
+-  Reordered and renamed ALLEGRO_FS_INTERFACE members.
+
+-  Make al_read_directory() not return . and .. directory entries.
+
+-  Renamed al_create_path_for_dir to al_create_path_for_directory.
+
+-  Added al_set_standard_file_interface, al_set_standard_fs_interface.
+
+Events:
+
+-  Exported ALLEGRO_EVENT_TYPE_IS_USER.
+
+Threads:
+
+-  Added a new function al_run_detached_thread.
+
+Other core:
+
+-  Put prefixes on register_assert_handler, register_trace_handler.
+
+-  Added functions to return the compiled Allegro version and addon versions.
+
+-  Added al_ prefix to fixed point routines and document them.
+
+-  Added al_get_system_config().
+
+-  Renamed al_system_driver() to al_get_system_driver().
+
+-  Added 64-bit intptr_t detection for Windows.
+
+-  Added work-around to make OS X port compile in 64 bit mode.
+
+Addons:
+
+-  Renamed addons from a5\_\* to allegro_*.
+
+Image addon:
+
+-  Renamed the IIO addon to "allegro_image".
+
+-  Renamed \*\_entry functions that take ALLEGRO_FILE * arguments to *_stream.
+
+-  Fixed off-by-one error in greyscale JPEG loader.
+
+Audio addons:
+
+-  Renamed the kcm_audio addon to "allegro_audio".
+
+-  Renamed ALLEGRO_STREAM and stream functions to ALLEGRO\_AUDIO\_STREAM
+   and al\_\*audio_stream\*.
+
+-  Renamed al_stream_from_file to al_load_audio_stream
+
+-  Added int16 mixing and configurable frequency and depth for default
+   mixer/voice (see configuration file).
+
+-  Fixed FLAC decoding and added FLAC streaming support.
+
+-  Changed the function signature of al_get_stream_fragment() to be more
+   straightforward.
+
+-  Fixed bug in kcm audio that caused data to be deleted that was still used.
+
+-  Made ALSA audio driver work when the driver does not support mmap (commonly
+   because the ALSA really is PulseAudio).
+
+-  Removed al_is_channel_conf function.
+
+Font addons:
+
+-  Optimized font loading by converting the mask color on a memory copy instead
+   of have to lock a texture.
+
+-  Made the ttf addon read from file streams.
+
+Primitives addon:
+
+-  Fixed the direction of the last segment in software line loop, and fixed
+   the offsets in the line drawer.
+
+-  Fixed the thick ribbon code in the primitives addon, was broken for
+   straight segments.
+
+-  Various fixes/hacks for the D3D driver of the primitives addon: hack to
+   make the indexed primitives work and a fix for the textured primitives.
+
+-  Various enhancements to the transformations API: const correctness,
+   transformation inverses and getting the current transformation.
+
+-  Added support for custom vertex formats.
+
+-  Flipped the v axis of texture coordinates for primitives. Now (u=0, v=0)
+   correspond to (x=0, y=0) on the texture bitmap.
+
+-  Added a way to use texture coordinates measured in pixels. Changed
+   ALLEGRO_VERTEX to use them by default.
+
+PhysicsFS:
+
+-  PhysFS readdir didn't prepend the parent directory name to the returned
+   entry's path.
+
+-  Set execute bit on PhysFS directory entries.
+
+Examples:
+
+-  Made examples report errors using the native dialogs addon if
+   WANT_POPUP_EXAMPLES is enabled in CMake (default).
+
+-  Added new example ex_draw_bitmap, which simply measures FPS when drawing a
+   bunch of bitmaps (similar to exaccel in A4).
+
+Documentation:
+
+-  Many documentation updates and clarifications.
+
+-  Fixed up Info and PDF documentation.
+
+Bindings:
+
+-  Added a script to generate a 1:1 Python wrapper (see `python` directory).
+
+
+
 Changes from 4.9.12 to 4.9.13 (August 2009)
 ===========================================
 
