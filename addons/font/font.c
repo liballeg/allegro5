@@ -229,22 +229,33 @@ static int quick_color_render(const ALLEGRO_FONT *f, const ALLEGRO_USTR *text,
     int pos = 0;
     int x = 0;
     int32_t ch;
+    int i, j;
+    int total = 0;
     int length = al_ustr_length(text);
-    ALLEGRO_VERTEX verts[length*6];
-	 int i = 0;
-    
-    while ((ch = al_ustr_get_next(text, &pos)) >= 0) {
-        x += quick_process_char(f, ch, x+x0, y, &verts[i]);
-		  i+=6;
+    const int MAX_CHARS = 100;
+    ALLEGRO_VERTEX verts[6*MAX_CHARS];
+   
+    while (total < length) {
+        i = j = 0;
+        while ((ch = al_ustr_get_next(text, &pos)) >= 0 && j < MAX_CHARS) {
+            x += quick_process_char(f, ch, x+x0, y, &verts[i]);
+            i += 6;
+            j++;
+            total++;
+        }
+
+        ch = al_ustr_get(text, 0);
+         if (ch >= 0) {
+                 ALLEGRO_FONT_COLOR_DATA *cf = (ALLEGRO_FONT_COLOR_DATA *)f->data;
+                 cf = _al_font_find_page(cf, ch);
+
+                 if (cf) {
+                         al_draw_prim(verts, 0, cf->glyphs, 0, i,
+                                  ALLEGRO_PRIM_TRIANGLE_LIST);
+                 }
+
+         }
     }
-
-    pos = 0;
-    ch = al_ustr_get_next(text, &pos);
-    ALLEGRO_FONT_COLOR_DATA *cf = (ALLEGRO_FONT_COLOR_DATA *)f->data;
-    cf = _al_font_find_page(cf, ch);
-
-    al_draw_prim(verts, 0, cf->glyphs, 0, length*6,
-        ALLEGRO_PRIM_TRIANGLE_LIST);
 
     return x - x0;
 }
@@ -478,3 +489,4 @@ uint32_t al_get_allegro_font_version(void)
 
 
 /* vim: set sts=4 sw=4 et: */
+ 
