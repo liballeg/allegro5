@@ -111,7 +111,7 @@ Example:
        * is closed.
        */
 
-### API: al_get_allegro_native_dialog_version
+## API: al_get_allegro_native_dialog_version
 
 Returns the (compiled) version of the addon, in the same format as
 [al_get_allegro_version].

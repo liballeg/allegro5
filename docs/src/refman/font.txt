@@ -70,7 +70,7 @@ The `flags` parameter can be 0 or one of the following flags:
 - ALLEGRO_ALIGN_CENTRE - Draw the text centered around the given position.
 - ALLEGRO_ALIGN_RIGHT - Draw the text right-aligned to the given position.
 
-## API: al_draw_ustr
+### API: al_draw_ustr
 
 Like [al_draw_text], except the text is passed as an ALLEGRO_USTR instead of
 a 0-terminated char array.
@@ -122,7 +122,7 @@ case x and y will have negative values.
                    |        |
     -------------------------
 
-## API: al_get_ustr_dimensions
+### API: al_get_ustr_dimensions
 
 See [al_get_text_dimensions].
 

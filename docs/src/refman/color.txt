@@ -137,7 +137,7 @@ name describing it approximately.
 
 ## API: al_color_yuv_to_rgb
 
-### API: al_get_allegro_color_version
+## API: al_get_allegro_color_version
 
 Returns the (compiled) version of the addon, in the same format as
 [al_get_allegro_version].
