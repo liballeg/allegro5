@@ -15,7 +15,7 @@
 #include "allegro5/internal/aintern_audio.h"
 #include "allegro5/internal/aintern_audio_cfg.h"
 
-ALLEGRO_DEBUG_CHANNEL("sound")
+ALLEGRO_DEBUG_CHANNEL("audio")
 
 /* forward declarations */
 static void mixer_change_quality(ALLEGRO_MIXER *mixer,
@@ -24,9 +24,9 @@ static void mixer_change_quality(ALLEGRO_MIXER *mixer,
 
 /* globals */
 static union {
-	float f32[ALLEGRO_MAX_CHANNELS]; /* max: 7.1 */
-	int16_t s16[ALLEGRO_MAX_CHANNELS];
-	void *ptr;
+   float f32[ALLEGRO_MAX_CHANNELS]; /* max: 7.1 */
+   int16_t s16[ALLEGRO_MAX_CHANNELS];
+   void *ptr;
 } _samp_buf;
 
 
@@ -679,13 +679,16 @@ ALLEGRO_MIXER *al_create_mixer(unsigned long freq,
    ALLEGRO_CONFIG *config;
    int default_mixer_quality = ALLEGRO_MIXER_QUALITY_LINEAR;
 
+   /* XXX this is in the wrong place */
    config = al_get_system_config();
    if (config) {
       const char *p;
       p = al_get_config_value(config, "audio", "default_mixer_quality");
       if (p && p[0] != '\0') {
-         if (!strcmp(p, "point"))
-	 	default_mixer_quality = ALLEGRO_MIXER_QUALITY_POINT;
+         if (!stricmp(p, "point"))
+            default_mixer_quality = ALLEGRO_MIXER_QUALITY_POINT;
+         else if (!stricmp(p, "linear"))
+            default_mixer_quality = ALLEGRO_MIXER_QUALITY_LINEAR;
       }
    }
 

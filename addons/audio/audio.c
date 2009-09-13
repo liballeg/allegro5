@@ -13,7 +13,7 @@
 #include "allegro5/internal/aintern_audio.h"
 #include "allegro5/internal/aintern_audio_cfg.h"
 
-ALLEGRO_DEBUG_CHANNEL("sound")
+ALLEGRO_DEBUG_CHANNEL("audio")
 
 void _al_set_error(int error, char* string)
 {
@@ -89,7 +89,7 @@ static ALLEGRO_AUDIO_DRIVER_ENUM get_config_audio_driver(void)
    if (!config)
       return ALLEGRO_AUDIO_DRIVER_AUTODETECT;
 
-   value = al_get_config_value(config, "sound", "driver");
+   value = al_get_config_value(config, "audio", "driver");
    if (!value || value[0] == '\0')
       return ALLEGRO_AUDIO_DRIVER_AUTODETECT;
 

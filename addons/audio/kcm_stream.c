@@ -14,7 +14,7 @@
 #include "allegro5/internal/aintern_audio.h"
 #include "allegro5/internal/aintern_audio_cfg.h"
 
-ALLEGRO_DEBUG_CHANNEL("sound")
+ALLEGRO_DEBUG_CHANNEL("audio")
 
 
 static void maybe_lock_mutex(ALLEGRO_MUTEX *mutex)

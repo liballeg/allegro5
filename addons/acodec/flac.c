@@ -14,7 +14,7 @@
 #include <FLAC/stream_decoder.h>
 #include <stdio.h>
 
-ALLEGRO_DEBUG_CHANNEL("sound")
+ALLEGRO_DEBUG_CHANNEL("audio")
 
 typedef struct FLACFILE {
    FLAC__StreamDecoder *decoder;
