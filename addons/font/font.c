@@ -300,6 +300,8 @@ static int color_render(const ALLEGRO_FONT* f, const ALLEGRO_USTR *text,
         return quick_color_render(f, text, x0, y);
     }
 
+    pos = 0;
+
     while ((ch = al_ustr_get_next(text, &pos)) >= 0) {
         x += f->vtable->render_char(f, ch, x, y);
     }
