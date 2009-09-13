@@ -286,7 +286,7 @@ static int color_render(const ALLEGRO_FONT* f, const ALLEGRO_USTR *text,
 		  }
     }
     if (can_draw_quickly) {
-        quick_color_render(f, text, x0, y);
+        return quick_color_render(f, text, x0, y);
     }
 
     while ((ch = al_ustr_get_next(text, &pos)) >= 0) {
