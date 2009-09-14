@@ -390,7 +390,7 @@ static int _ogl_is_extension_supported(AL_CONST char *extension,
       if (!wgl_disp->dc)
          return false;
 
-      _wglGetExtensionsStringARB = (_ALLEGRO_wglGetExtensionsStringARB_t*)
+      _wglGetExtensionsStringARB = (void *)
          wglGetProcAddress("wglGetExtensionsStringARB");
       if (_wglGetExtensionsStringARB) {
          ret = _al_ogl_look_for_an_extension(extension, (const GLubyte *)
