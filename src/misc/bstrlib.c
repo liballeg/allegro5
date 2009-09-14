@@ -2744,7 +2744,12 @@ struct genBstrList g;
 #ifdef __GNUC__
 /* Something is making gcc complain about this prototype not being here, so 
    I've just gone ahead and put it in. */
+/* Commented out in Allegro source because vsnprintf seems to be defined as a
+ * macro that calls compiler builtins sometimes, e.g. Mac OS X 10.6.
+ */
+/*
 extern int vsnprintf (char *buf, size_t count, const char *format, va_list arg);
+*/
 #endif
 
 #define exvsnprintf(r,b,n,f,a) {r = vsnprintf (b,n,f,a);}
