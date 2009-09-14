@@ -106,7 +106,7 @@ static void remove_sprites(int n)
 
 static void change_size(int size)
 {
-   int x, y, bw, bh;
+   int bw, bh;
    if (size < 1)
       size = 1;
    if (size > 1024)
@@ -123,11 +123,8 @@ static void change_size(int size)
    al_clear_to_color(al_map_rgba_f(0, 0, 0, 0));
    bw = al_get_bitmap_width(example.mysha);
    bh = al_get_bitmap_height(example.mysha);
-   for (y = 0; y < size; y += bh) {
-      for (x = 0; x < size; x+= bw) {
-         al_draw_bitmap(example.mysha, x, y, 0);
-      }
-   }
+   al_draw_scaled_bitmap(example.mysha, 0, 0, bw, bh, 0, 0,
+      size, size, 0);
    al_set_target_bitmap(al_get_backbuffer());
 }
 
@@ -265,9 +262,9 @@ int main(void)
       return 1;
    }
 
-   example.mysha = al_load_bitmap("data/mysha.pcx");
+   example.mysha = al_load_bitmap("data/mysha256x256.png");
    if (!example.mysha) {
-      abort_example("Error loading data/mysha.pcx\n");
+      abort_example("Error loading data/mysha256x256.png\n");
       return 1;
    }
 
@@ -276,6 +273,7 @@ int main(void)
    example.dark = al_map_rgb(15, 15, 15);
    example.red = al_map_rgb_f(1, 0.2, 0.1);
    change_size(256);
+   add_sprite();
    add_sprite();
 
    timer = al_install_timer(1.0 / FPS);
