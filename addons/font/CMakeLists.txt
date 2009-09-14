@@ -8,7 +8,7 @@ include_directories(../primitives)
 add_our_library(allegro_font -${ALLEGRO_VERSION}
     "${FONT_SOURCES}"
     "-DALLEGRO_FONT_SRC"
-    "${IMAGE_LINK_WITH}"
+    "${IMAGE_LINK_WITH};${PRIMITIVES_LINK_WITH}"
     )
 
 set(FONT_LINK_WITH allegro_font PARENT_SCOPE)
