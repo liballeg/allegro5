@@ -361,7 +361,14 @@ static void *alsa_update_rw(ALLEGRO_THREAD *self, void *arg)
       snd_pcm_wait(alsa_voice->pcm_handle, 10);
       err = snd_pcm_avail_update(alsa_voice->pcm_handle);
       if (err < 0) {
-         break;
+         if (err == -EPIPE) {
+            snd_pcm_prepare(alsa_voice->pcm_handle);
+         }
+         else {
+            ALLEGRO_WARN("Alsa r/w thread exited "
+               "with error code %s.\n", snd_strerror(-err));
+            break;
+         }
       }
       if (err == 0) {
          continue;
@@ -392,7 +399,9 @@ silence:
       }
       err = snd_pcm_writei(alsa_voice->pcm_handle, buf, frames);
       if (err < 0) {
-         /* Handled above in snd_pcm_avail_update. */
+         if (err == -EPIPE) {
+            snd_pcm_prepare(alsa_voice->pcm_handle);
+         }
       }
    }
 
@@ -489,8 +498,9 @@ static int alsa_allocate_voice(ALLEGRO_VOICE *voice)
    ex_data->stop = true;
    ex_data->stopped = true;
    ex_data->reversed = false;
-   /* ALSA usually overrides this, but set it just in case. */
-   ex_data->frag_len = 256;
+   // TODO: Setting this to 256 causes (extreme, about than 10 seconds)
+   // lag if the alsa device is really pulseaudio.
+   // ex_data->frag_len = 256;
 
    if (voice->depth == ALLEGRO_AUDIO_DEPTH_INT8)
       format = SND_PCM_FORMAT_S8;
