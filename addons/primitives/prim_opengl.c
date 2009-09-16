@@ -185,8 +185,6 @@ int _al_draw_prim_opengl(ALLEGRO_BITMAP* texture, const void* vtxs, const ALLEGR
    const void* vtx;
    int stride = decl ? decl->stride : (int)sizeof(ALLEGRO_VERTEX);
    int num_vtx;
-   GLboolean on;
-   GLint sstate, tstate;
   
    if ((!ogl_target->is_backbuffer && ogl_disp->ogl_extras->opengl_target != ogl_target) || al_is_bitmap_locked(target)) {
       return _al_draw_prim_soft(texture, vtxs, decl, start, end, type);
@@ -195,23 +193,14 @@ int _al_draw_prim_opengl(ALLEGRO_BITMAP* texture, const void* vtxs, const ALLEGR
    vtx = (const char*)vtxs + start * stride;
    num_vtx = end - start;
    
-   glGetBooleanv(GL_TEXTURE_2D, &on);
-   glGetTexParameteriv(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, &sstate);
-   glGetTexParameteriv(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, &tstate);
-
-   if (!on) {
+   if(texture) {
       glEnable(GL_TEXTURE_2D);
+      glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+      glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
    }
 
    setup_blending();
    setup_state(vtx, decl, texture);
-
-   if(sstate != GL_REPEAT) {
-      glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-   }
-   if(tstate != GL_REPEAT) {
-      glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-   }
 
    switch (type) {
       case ALLEGRO_PRIM_LINE_LIST: {
@@ -246,19 +235,8 @@ int _al_draw_prim_opengl(ALLEGRO_BITMAP* texture, const void* vtxs, const ALLEGR
       };
    }
 
-   if (!on) {
-      glDisable(GL_TEXTURE_2D);
-   }
-   if(sstate != GL_REPEAT) {
-      glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, sstate);
-   }
-   if(tstate != GL_REPEAT) {
-      glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, tstate);
-   }
-
-   glFlush();
-
    if(texture) {
+      glDisable(GL_TEXTURE_2D);
       glMatrixMode(GL_TEXTURE);
       glLoadIdentity();
       glMatrixMode(GL_MODELVIEW);
@@ -286,8 +264,6 @@ int _al_draw_prim_indexed_opengl(ALLEGRO_BITMAP* texture, const void* vtxs, cons
    ALLEGRO_BITMAP *target = al_get_target_bitmap();
    ALLEGRO_BITMAP_OGL *ogl_target = (void *)target;
    const void* vtx;
-   GLboolean on;
-   GLint sstate, tstate;
 
    if ((!ogl_target->is_backbuffer && ogl_disp->ogl_extras->opengl_target != ogl_target) || al_is_bitmap_locked(target)) {
       return _al_draw_prim_indexed_soft(texture, decl, vtxs, indices, num_vtx, type);
@@ -295,23 +271,14 @@ int _al_draw_prim_indexed_opengl(ALLEGRO_BITMAP* texture, const void* vtxs, cons
    
    vtx = vtxs;
 
-   glGetBooleanv(GL_TEXTURE_2D, &on);
-   glGetTexParameteriv(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, &sstate);
-   glGetTexParameteriv(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, &tstate);
-
-   if (!on) {
+   if(texture) {
       glEnable(GL_TEXTURE_2D);
+      glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+      glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
    }
    
    setup_blending();
    setup_state(vtx, decl, texture);
-
-   if(sstate != GL_REPEAT) {
-      glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-   }
-   if(tstate != GL_REPEAT) {
-      glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-   }
   
 #if !defined ALLEGRO_GP2XWIZ && !defined ALLEGRO_IPHONE
    switch (type) {
@@ -411,19 +378,8 @@ int _al_draw_prim_indexed_opengl(ALLEGRO_BITMAP* texture, const void* vtxs, cons
    }
 #endif
 
-   if (!on) {
-      glDisable(GL_TEXTURE_2D);
-   }
-   if(sstate != GL_REPEAT) {
-      glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, sstate);
-   }
-   if(tstate != GL_REPEAT) {
-      glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, tstate);
-   }
-
-   glFlush();
-
    if(texture) {
+      glDisable(GL_TEXTURE_2D);
       glMatrixMode(GL_TEXTURE);
       glLoadIdentity();
       glMatrixMode(GL_MODELVIEW);
