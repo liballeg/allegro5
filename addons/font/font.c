@@ -280,7 +280,13 @@ static int color_render(const ALLEGRO_FONT* f, const ALLEGRO_USTR *text,
     ALLEGRO_FONT_COLOR_DATA *cf = (ALLEGRO_FONT_COLOR_DATA *)f->data;
     bool started = false;
     bool can_draw_quickly = true;
-    while ((ch = al_ustr_get_next(text, &pos)) >= 0) {
+
+    /* This slows down on short text, so set a arbitrary minimum */
+    if (al_ustr_length(text) <= 6) {
+        can_draw_quickly = false;
+    }
+
+    while (can_draw_quickly && (ch = al_ustr_get_next(text, &pos)) >= 0) {
         if (!started) {
             started = true;
             cf = _al_font_find_page(cf, ch);
