@@ -10,10 +10,10 @@ want to know about first.  It's not a tutorial, as there isn't much
 discussion, only links into the manual.  The rest you'll have to discover for
 yourself.  Read the examples, and ask questions at [Allegro.cc].
 
-There is an unofficial tutorial at <http://software.skoobalon.com/a5.php>.
-Be aware that it is a little out of date, but the changes should be minor.
-Hopefully more will sprout when things stabilise, as they did for earlier
-versions of Allegro.
+There is an unofficial tutorial at [the wiki]. Be aware that, being on
+the wiki, it may be a little out of date, but the changes should be
+minor. Hopefully more will sprout when things stabilise, as they did for
+earlier versions of Allegro.
 
 ## Structure of the library and its addons
 
@@ -173,3 +173,4 @@ There's a heap of stuff we haven't even mentioned yet.
 Enjoy!
 
 [Allegro.cc]: http://www.allegro.cc/forums/
+[the wiki]: http://wiki.allegro.cc/index.php?title=Allegro_4.9.14_tutorials
