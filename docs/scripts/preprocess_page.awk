@@ -2,7 +2,6 @@ BEGIN {
     PROTOS = ENVIRON["PROTOS"]
 
     # Load prototypes into an array `protos'.
-    FS = /: /
     while ((getline line < PROTOS) > 0) {
         split(line, arr, /: /)
         name = arr[1]
@@ -10,7 +9,6 @@ BEGIN {
         protos[name] = protos[name] "\n    " text
     }
     close(PROTOS)
-    FS = " "
 }
 
 /^#+/ {
