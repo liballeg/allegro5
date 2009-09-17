@@ -39,6 +39,8 @@ struct Example {
    ALLEGRO_COLOR dark;
    ALLEGRO_COLOR red;
 
+   double direct_speed_measure;
+
    int ftpos;
    double frame_times[FPS];
 } example;
@@ -206,6 +208,8 @@ static void redraw(void)
    get_fps(&f1, &f2);
    al_draw_textf(example.font, w, 0, ALLEGRO_ALIGN_RIGHT, "FPS: %4d +- %-4d",
       f1, f2);
+   al_draw_textf(example.font, w, fh, ALLEGRO_ALIGN_RIGHT, "%4d / sec",
+      (int)(1.0 / example.direct_speed_measure));
    
 }
 
@@ -290,9 +294,12 @@ int main(void)
       ALLEGRO_EVENT event;
 
       if (need_redraw && al_event_queue_is_empty(queue)) {
+         double t = -al_current_time();
          add_time();
          al_clear_to_color(al_map_rgb_f(0, 0, 0));
          redraw();
+         t += al_current_time();
+         example.direct_speed_measure  = t;
          al_flip_display();
          need_redraw = false;
       }
