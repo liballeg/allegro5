@@ -19,6 +19,9 @@
 #include "allegro5/internal/aintern_audio.h"
 
 #include <pulse/simple.h>
+#include <pulse/error.h>
+#include <pulse/introspect.h>
+#include <pulse/mainloop.h>
 #include <malloc.h>
 
 ALLEGRO_DEBUG_CHANNEL("PulseAudio")
@@ -38,8 +41,69 @@ typedef struct PULSEAUDIO_VOICE
    
 } PULSEAUDIO_VOICE;
 
+static void sink_info_cb(pa_context *c, const pa_sink_info *i, int eol,
+   void *userdata)
+{
+   (void)c;
+   (void)eol;
+   pa_sink_state_t *ret = userdata;
+   if (!i) return;
+   *ret = i->state;
+}
+
 static int pulseaudio_open(void)
 {
+   /* Use PA_CONTEXT_NOAUTOSPAWN to see if a PA server is running.
+    * If not, fail - we're better off using ALSA/OSS.
+    * 
+    * Also check for suspended PA - again better using ALSA/OSS in
+    * that case (pa_simple_write just blocks until PA is unsuspended
+    * otherwise).
+    * 
+    * TODO: Maybe we should have a force flag to the audio driver
+    * open method, which in the case of PA would spawn a server if
+    * none is running (and also unsuspend?).
+    */
+
+   pa_mainloop *mainloop = pa_mainloop_new();
+   pa_context *c = pa_context_new(pa_mainloop_get_api(mainloop),
+      al_get_appname());
+   if (!c) {
+      pa_mainloop_free(mainloop);
+      return 1;
+   }
+
+   pa_context_connect(c, NULL, PA_CONTEXT_NOAUTOSPAWN, NULL);
+
+   // TODO: We could set a timeout here if PA decides to try connecting
+   // forever.
+   while (1) {
+      pa_mainloop_iterate(mainloop, 1, NULL);
+      pa_context_state_t s = pa_context_get_state(c);
+      if (s == PA_CONTEXT_FAILED) {
+         pa_context_disconnect(c);
+         pa_mainloop_free(mainloop);
+         return 1;
+      }
+      if (s == PA_CONTEXT_READY ) {
+         break;
+      }
+   }
+   
+   pa_sink_state_t state = 0;
+   pa_operation *op = pa_context_get_sink_info_list(c, sink_info_cb,
+      &state);
+   while (pa_operation_get_state(op) == PA_OPERATION_RUNNING) {
+      pa_mainloop_iterate(mainloop, 1, NULL);
+   }
+   if (state == PA_SINK_SUSPENDED) {
+      pa_context_disconnect(c);
+      pa_mainloop_free(mainloop);
+      return 1;
+   }
+
+   pa_context_disconnect(c);
+   pa_mainloop_free(mainloop);
    return 0;
 }
 
