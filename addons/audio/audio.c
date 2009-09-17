@@ -37,6 +37,9 @@ ALLEGRO_AUDIO_DRIVER *_al_kcm_driver = NULL;
 #if defined(ALLEGRO_CFG_KCM_AQUEUE)
    extern struct ALLEGRO_AUDIO_DRIVER _al_kcm_aqueue_driver;
 #endif
+#if defined(ALLEGRO_CFG_KCM_PULSEAUDIO)
+   extern struct ALLEGRO_AUDIO_DRIVER _al_kcm_pulseaudio_driver;
+#endif
 
 /* Channel configuration helpers */
 
@@ -102,6 +105,9 @@ static ALLEGRO_AUDIO_DRIVER_ENUM get_config_audio_driver(void)
    if (0 == stricmp(value, "OSS"))
       return ALLEGRO_AUDIO_DRIVER_OSS;
 
+   if (0 == stricmp(value, "PULSEAUDIO"))
+      return ALLEGRO_AUDIO_DRIVER_PULSEAUDIO;
+
    if (0 == stricmp(value, "DSOUND") || 0 == stricmp(value, "DIRECTSOUND"))
       return ALLEGRO_AUDIO_DRIVER_DSOUND;
 
@@ -151,6 +157,11 @@ static bool do_install_audio(ALLEGRO_AUDIO_DRIVER_ENUM mode)
 #endif
 #if defined(ALLEGRO_CFG_KCM_OPENAL)
          retVal = al_install_audio(ALLEGRO_AUDIO_DRIVER_OPENAL);
+         if (retVal)
+            return retVal;
+#endif
+#if defined(ALLEGRO_CFG_KCM_PULSEAUDIO)
+         retVal = al_install_audio(ALLEGRO_AUDIO_DRIVER_PULSEAUDIO);
          if (retVal)
             return retVal;
 #endif
@@ -207,6 +218,19 @@ static bool do_install_audio(ALLEGRO_AUDIO_DRIVER_ENUM mode)
             return false;
          #else
             _al_set_error(ALLEGRO_INVALID_PARAM, "OSS not available on this platform");
+            return false;
+         #endif
+
+      case ALLEGRO_AUDIO_DRIVER_PULSEAUDIO:
+         #if defined(ALLEGRO_CFG_KCM_PULSEAUDIO)
+            if (_al_kcm_pulseaudio_driver.open() == 0) {
+               ALLEGRO_INFO("Using PulseAudio driver\n");
+               _al_kcm_driver = &_al_kcm_pulseaudio_driver;
+               return true;
+            }
+            return false;
+         #else
+            _al_set_error(ALLEGRO_INVALID_PARAM, "PulseAudio not available on this platform");
             return false;
          #endif
 

@@ -13,9 +13,16 @@ set(AUDIO_SOURCES
 set(AUDIO_INCLUDE_FILES allegro5/allegro_audio.h)
 
 if(SUPPORT_OSS)
-   set(ALLEGRO_CFG_KCM_OSS 1)
-   list(APPEND AUDIO_SOURCES oss.c)
+    set(ALLEGRO_CFG_KCM_OSS 1)
+    list(APPEND AUDIO_SOURCES oss.c)
 endif(SUPPORT_OSS)
+
+if(SUPPORT_PULSEAUDIO)
+    set(ALLEGRO_CFG_KCM_PULSEAUDIO 1)
+    list(APPEND AUDIO_SOURCES pulseaudio.c)
+    list(APPEND AUDIO_LIBRARIES ${PULSEAUDIO_LIBRARIES})
+    include_directories(${PULSEAUDIO_INCLUDE_DIRS})
+endif(SUPPORT_PULSEAUDIO)
 
 if(SUPPORT_OPENAL)
     set(ALLEGRO_CFG_KCM_OPENAL 1)
@@ -43,7 +50,7 @@ configure_file(
     ${CMAKE_BINARY_DIR}/include/allegro5/internal/aintern_audio_cfg.h
     )
 
-if(SUPPORT_OSS OR SUPPORT_OPENAL OR SUPPORT_ALSA OR SUPPORT_DSOUND)
+if(SUPPORT_OSS OR SUPPORT_PULSEAUDIO OR SUPPORT_OPENAL OR SUPPORT_ALSA OR SUPPORT_DSOUND)
     # Let examples know that audio is supported.
     set(SUPPORT_AUDIO 1 PARENT_SCOPE)
 
@@ -59,9 +66,9 @@ if(SUPPORT_OSS OR SUPPORT_OPENAL OR SUPPORT_ALSA OR SUPPORT_DSOUND)
             DESTINATION include/allegro5
             )
 
-else(SUPPORT_OSS OR SUPPORT_OPENAL OR SUPPORT_ALSA OR SUPPORT_DSOUND)
+else(SUPPORT_OSS OR SUPPORT_PULSEAUDIO OR SUPPORT_OPENAL OR SUPPORT_ALSA OR SUPPORT_DSOUND)
     message("WARNING: allegro_audio wanted but no supported backend found")
-endif(SUPPORT_OSS OR SUPPORT_OPENAL OR SUPPORT_ALSA OR SUPPORT_DSOUND)
+endif(SUPPORT_OSS OR SUPPORT_PULSEAUDIO OR SUPPORT_OPENAL OR SUPPORT_ALSA OR SUPPORT_DSOUND)
 
 #-----------------------------------------------------------------------------#
 # vi: set ts=8 sts=4 sw=4 et:

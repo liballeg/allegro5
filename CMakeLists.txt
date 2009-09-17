@@ -90,6 +90,7 @@ option(WANT_NATIVE_DIALOG "Enable native dialog addon" on)
 
 option(WANT_ALSA "Enable ALSA digital audio driver (Unix)" on)
 option(WANT_OSS "Enable OSS digital audio driver (Unix)" on)
+option(WANT_PULSEAUDIO "Enable PulseAudio audio driver (Unix)" on)
 option(WANT_OPENAL "Enable OpenAL digital audio driver" on)
 option(WANT_DSOUND "Enable Dsound digital audio driver (Windows)" on)
 
@@ -501,6 +502,13 @@ if(UNIX) # includes MACOSX
             set(SUPPORT_OSS 1)
         endif(OSS_FOUND)
     endif(WANT_OSS)
+
+    if(WANT_PULSEAUDIO)
+        pkg_check_modules(PULSEAUDIO libpulse-simple)
+        if(PULSEAUDIO_FOUND)
+            set(SUPPORT_PULSEAUDIO 1)        
+        endif(PULSEAUDIO_FOUND)
+    endif(WANT_PULSEAUDIO)
 
 endif(UNIX)
 
