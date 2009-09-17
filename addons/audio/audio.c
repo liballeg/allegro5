@@ -140,6 +140,17 @@ static bool do_install_audio(ALLEGRO_AUDIO_DRIVER_ENUM mode)
          if (retVal)
             return retVal;
 #endif
+/* If a PA server is running, we should use it by default as it will
+ * hijack ALSA and OSS and using those then just means extra lag.
+ * 
+ * FIXME: Detect if no PA server is running and in that case prefer
+ * ALSA and OSS first.
+ */
+#if defined(ALLEGRO_CFG_KCM_PULSEAUDIO)
+         retVal = al_install_audio(ALLEGRO_AUDIO_DRIVER_PULSEAUDIO);
+         if (retVal)
+            return retVal;
+#endif
 #if defined(ALLEGRO_CFG_KCM_ALSA)
          retVal = al_install_audio(ALLEGRO_AUDIO_DRIVER_ALSA);
          if (retVal)
@@ -157,11 +168,6 @@ static bool do_install_audio(ALLEGRO_AUDIO_DRIVER_ENUM mode)
 #endif
 #if defined(ALLEGRO_CFG_KCM_OPENAL)
          retVal = al_install_audio(ALLEGRO_AUDIO_DRIVER_OPENAL);
-         if (retVal)
-            return retVal;
-#endif
-#if defined(ALLEGRO_CFG_KCM_PULSEAUDIO)
-         retVal = al_install_audio(ALLEGRO_AUDIO_DRIVER_PULSEAUDIO);
          if (retVal)
             return retVal;
 #endif
