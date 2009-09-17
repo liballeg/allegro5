@@ -88,7 +88,7 @@ int al_draw_prim(const void* vtxs, const ALLEGRO_VERTEX_DECL* decl,
       temp_trans((float)target->xofs, (float)target->yofs);
    }
    
-   if (target->flags & ALLEGRO_MEMORY_BITMAP) {
+   if (target->flags & ALLEGRO_MEMORY_BITMAP || (texture && texture->flags & ALLEGRO_MEMORY_BITMAP)) {
       ret =  _al_draw_prim_soft(texture, vtxs, decl, start, end, type);
    } else {
       int flags = al_get_display_flags();
@@ -135,7 +135,7 @@ int al_draw_indexed_prim(const void* vtxs, const ALLEGRO_VERTEX_DECL* decl,
       temp_trans((float)target->xofs, (float)target->yofs);
    }
    
-   if (target->flags & ALLEGRO_MEMORY_BITMAP) {
+   if (target->flags & ALLEGRO_MEMORY_BITMAP || (texture && texture->flags & ALLEGRO_MEMORY_BITMAP)) {
       ret =  _al_draw_prim_indexed_soft(texture, vtxs, decl, indices, num_vtx, type);
    } else {
       int flags = al_get_display_flags();
