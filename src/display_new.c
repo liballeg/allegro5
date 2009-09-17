@@ -86,6 +86,8 @@ ALLEGRO_DISPLAY *al_create_display(int w, int h)
 #endif
    
    al_flip_display();
+   
+   al_set_window_title(al_get_appname());
 
    return display;
 }
