@@ -14,6 +14,9 @@ BEGIN {
     n = 1
 }
 
+# Strip CR terminators in case files have DOS terminators.
+{ sub(/\r$/, "") }
+
 /^\[.*\]: / {
     search_index[n] = substr($1, 2, length($1) - 2)
     search_urls[n] = $2

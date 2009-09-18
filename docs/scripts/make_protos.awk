@@ -1,5 +1,7 @@
-# mawk does not like [/] for matching slash.
+# Strip CR terminators in case files have DOS terminators.
+{ sub(/\r$/, "") }
 
+# mawk does not like [/] for matching slash.
 /\/\* (Function|Type|Enum): / {
     found_tag = 1
     do_print = 0

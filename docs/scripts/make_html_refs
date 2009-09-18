@@ -12,6 +12,9 @@
 #   [bar]: foo.html#bar
 #
 
+# Strip CR terminators in case files have DOS terminators.
+{ sub(/\r$/, "") }
+
 /^\#+ API: / {
     file = FILENAME
     sub(/^.*\//, "", file)

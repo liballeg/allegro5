@@ -6,6 +6,9 @@ BEGIN {
 
     # Load prototypes into an array `protos'.
     while ((getline line < PROTOS) > 0) {
+        # Strip CR terminators
+        sub(/\r$/, "", line)
+
         split(line, arr, /: /)
         name = arr[1]
         text = arr[2]
@@ -13,6 +16,9 @@ BEGIN {
     }
     close(PROTOS)
 }
+
+# Strip CR terminators in case files have DOS terminators.
+{ sub(/\r$/, "") }
 
 # At the start of a new file.
 FNR == 1 {
@@ -24,6 +30,7 @@ FNR == 1 {
     # Get the basename of the file, which is the name of the
     # C symbol being documented.
     name = FILENAME
+    sub(/\r$/, "", name)
     sub(/^.*\//, "", name)
 
     # Build the pandoc command line.

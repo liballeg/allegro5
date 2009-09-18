@@ -7,6 +7,9 @@
 # See also the make_dummy_refs script.
 #
 
+# Strip CR terminators in case files have DOS terminators.
+{ sub(/\r$/, "") }
+
 # Comment out unneeded packages (tetex 3.0 doesn't include them).
 /^\\usepackage.*{(amsmath|ucs|inputenc)}/ {
     print "%" $0

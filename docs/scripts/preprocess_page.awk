@@ -3,6 +3,9 @@ BEGIN {
 
     # Load prototypes into an array `protos'.
     while ((getline line < PROTOS) > 0) {
+        # Strip CR terminators
+        sub(/\r$/, "", line)
+
         split(line, arr, /: /)
         name = arr[1]
         text = arr[2]
@@ -10,6 +13,9 @@ BEGIN {
     }
     close(PROTOS)
 }
+
+# Strip CR terminators in case files have DOS terminators.
+{ sub(/\r$/, "") }
 
 /^#+/ {
     # Raise sections by one level. Top-most becomes the document title.

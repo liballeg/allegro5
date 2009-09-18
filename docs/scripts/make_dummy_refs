@@ -18,6 +18,9 @@
 # support.
 #
 
+# Strip CR terminators in case files have DOS terminators.
+{ sub(/\r$/, "") }
+
 /^\#+ API: / {
     print "["$3"]: DUMMY_REF"
 }
