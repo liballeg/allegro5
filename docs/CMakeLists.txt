@@ -132,7 +132,7 @@ configure_file(
     COPYONLY
     )
 
-if(PANDOC)
+if(PANDOC AND NOT CMAKE_CROSSCOMPILING)
     include(Refman.cmake)
 endif()
 
