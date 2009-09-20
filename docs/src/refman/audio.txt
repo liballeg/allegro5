@@ -634,6 +634,12 @@ The size of the complete buffer is:
 
 ### API: al_destroy_audio_stream
 
+Destroy an audio stream which was created with [al_create_audio_stream]
+or [al_load_audio_stream].
+
+Note: If the stream is still attached to a mixer or voice,
+[al_detach_audio_stream] is automatically called on it first.
+
 ### API: al_get_audio_stream_event_source
 
 Retrieve the associated event source.
