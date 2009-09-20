@@ -1,4 +1,7 @@
 /* see copyright notice in trex.h */
+/* This copy contains minor changes by Allegro developers to prevent some
+ * compiler warnings.  One change makes trex_compile non-reentrant.
+ */
 #include <string.h>
 #include <stdlib.h>
 #include <ctype.h>
@@ -530,7 +533,11 @@ static const TRexChar *trex_matchnode(TRex* exp,TRexNode *node,const TRexChar *s
 /* public api */
 TRex *trex_compile(const TRexChar *pattern,const TRexChar **error)
 {
-	TRex *exp = (TRex *)malloc(sizeof(TRex));
+	/* Prevent warnings about variables being lost across setjmp. Of course
+	 * this makes the code non-reentrant but make_doc doesn't mind. --pw
+	 */
+	static TRex *exp;
+	exp = (TRex *)malloc(sizeof(TRex));
 	exp->_eol = exp->_bol = NULL;
 	exp->_p = pattern;
 	exp->_nallocated = (int)scstrlen(pattern) * sizeof(TRexChar);
