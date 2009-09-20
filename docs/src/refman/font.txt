@@ -77,7 +77,7 @@ a 0-terminated char array.
 
 ### API: al_draw_justified_text
 
-Like [al_draw_text](), but justifies the string to the specified area.
+Like [al_draw_text], but justifies the string to the specified area.
 
 ### API: al_draw_justified_ustr
 
