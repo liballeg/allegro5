@@ -4,13 +4,9 @@ mark_as_advanced(MAKEINFO)
 find_program(PANDOC NAMES pandoc)
 mark_as_advanced(PANDOC)
 
-# Our scripts run faster under ash than bash, but ash is probably not
-# the default shell.
+# sh is only used for a developer-only target.
 find_program(SH NAMES ash dash sh)
-find_program(AWK NAMES awk)
-find_program(GREP NAMES grep)
-find_program(SED NAMES sed)
-mark_as_advanced(SH AWK GREP SED)
+mark_as_advanced(SH)
 
 find_package(LATEX)
 
@@ -136,12 +132,7 @@ configure_file(
     COPYONLY
     )
 
-#-----------------------------------------------------------------------------#
-
-# The reference manual uses a documentation system which currently
-# requires a small POSIXy environment.
-
-if(PANDOC AND SH AND AWK AND GREP AND SED)
+if(PANDOC)
     include(Refman.cmake)
 endif()
 
