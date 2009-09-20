@@ -99,7 +99,7 @@ void _al_iphone_update_visuals(void)
    /* If we aren't called the first time, only updated scores. */
    if (system->visuals) {
       for (int i = 0; i < system->visuals_count; i++) {
-         ALLEGRO_EXTRA_DISPLAY_SETTINGS *eds = system->visuals[0];
+         ALLEGRO_EXTRA_DISPLAY_SETTINGS *eds = system->visuals[i];
          eds->score = _al_score_display_settings(eds, ref);
       }
       return;
@@ -166,10 +166,10 @@ static ALLEGRO_DISPLAY *iphone_create_display(int w, int h)
    ALLEGRO_EXTRA_DISPLAY_SETTINGS *eds[system->visuals_count];
    memcpy(eds, system->visuals, sizeof(*eds) * system->visuals_count);
    qsort(eds, system->visuals_count, sizeof(*eds), _al_display_settings_sorter);
-   
+
    ALLEGRO_INFO("Chose visual no. %i\n", eds[0]->index); 
 
-   memcpy(&display->extra_settings, eds[0], sizeof(*eds));
+   memcpy(&display->extra_settings, eds[0], sizeof(ALLEGRO_EXTRA_DISPLAY_SETTINGS));
 
    /* This will add an OpenGL view with an OpenGL context, then return. */
    _al_iphone_add_view(display);
