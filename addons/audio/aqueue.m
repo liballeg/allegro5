@@ -235,17 +235,6 @@ static void *stream_proc(void *in_data)
       );
    } while (playing);
 
-   AudioQueueStop (
-      queue,
-      false
-   );
-	
-	int i;
-
-   for (i = 0; i < NUM_BUFFERS; i++) {
-      AudioQueueFreeBuffer(queue, ex_data->buffers[i]);
-   }
-
    AudioQueueDispose(
       queue,
       true
