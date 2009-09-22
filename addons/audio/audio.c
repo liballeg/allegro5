@@ -12,6 +12,7 @@
 #include "allegro5/allegro_audio.h"
 #include "allegro5/internal/aintern_audio.h"
 #include "allegro5/internal/aintern_audio_cfg.h"
+#include "allegro5/internal/aintern.h"
 
 ALLEGRO_DEBUG_CHANNEL("audio")
 
@@ -266,6 +267,7 @@ bool al_install_audio(ALLEGRO_AUDIO_DRIVER_ENUM mode)
    bool ret = do_install_audio(mode);
    if (ret) {
       _al_kcm_init_destructors();
+      _al_add_exit_func(al_uninstall_audio, "al_uninstall_audio");
    }
    return ret;
 }
