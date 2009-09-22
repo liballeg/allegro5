@@ -168,14 +168,15 @@ static int quick_process_char(const ALLEGRO_FONT *f, int ch, int x, int y,
     ALLEGRO_BITMAP *g;
 
     g = _al_font_color_find_glyph(f, ch);
+    int w = al_get_bitmap_width(g);
+    int h = al_get_bitmap_height(g);
+
     if(g) {
         int y1 = y + ((float)h - al_get_bitmap_height(g))/2.0f;
         ALLEGRO_PRIM_COLOR color = al_get_prim_color(*_al_get_blend_color());
 
         float tu_s = g->xofs;
         float tv_s = g->yofs;
-        int w = al_get_bitmap_width(g);
-        int h = al_get_bitmap_height(g);
         float tu_e = tu_s + w;
         float tv_e = tv_s + h;
         int x2 = x + w;
