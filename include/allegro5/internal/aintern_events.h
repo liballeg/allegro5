@@ -15,6 +15,7 @@ struct ALLEGRO_EVENT_SOURCE_REAL
 {
    _AL_MUTEX mutex;
    _AL_VECTOR queues;
+   intptr_t data;
 };
 
 typedef struct ALLEGRO_USER_EVENT_DESCRIPTOR

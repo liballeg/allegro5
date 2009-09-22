@@ -310,6 +310,13 @@ Return true if the event queue specified is currently empty.
 
 Drops all events, if any, from the queue.
 
+## API: al_get_event_source_data
+
+Returns the abstract user data associated with the event source.  If no
+data was previously set, returns NULL.
+
+See also: [al_set_event_source_data]
+
 ## API: al_get_next_event
 
 Take the next event out of the event queue specified, and
@@ -337,6 +344,14 @@ simultaneously, or none.  Trying to register an event source with
 the same event queue more than once does nothing.
 
 See also: [ALLEGRO_EVENT_QUEUE], [ALLEGRO_EVENT_SOURCE]
+
+## API: al_set_event_source_data
+
+Assign the abstract user data to the event source.  Allegro does
+not use the data internally for anything; it is simply meant as a
+convenient way to associate your own data or objects with events.
+
+See also: [al_get_event_source_data]
 
 ## API: al_unref_user_event
 

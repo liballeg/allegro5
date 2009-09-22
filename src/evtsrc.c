@@ -43,6 +43,7 @@ void _al_event_source_init(ALLEGRO_EVENT_SOURCE *es)
    _AL_MARK_MUTEX_UNINITED(this->mutex);
    _al_mutex_init(&this->mutex);
    _al_vector_init(&this->queues, sizeof(ALLEGRO_EVENT_QUEUE *));
+   this->data = 0;
 }
 
 

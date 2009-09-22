@@ -235,6 +235,8 @@ AL_FUNC(ALLEGRO_EVENT_QUEUE*, al_create_event_queue, (void));
 AL_FUNC(void, al_destroy_event_queue, (ALLEGRO_EVENT_QUEUE*));
 AL_FUNC(void, al_register_event_source, (ALLEGRO_EVENT_QUEUE*, ALLEGRO_EVENT_SOURCE*));
 AL_FUNC(void, al_unregister_event_source, (ALLEGRO_EVENT_QUEUE*, ALLEGRO_EVENT_SOURCE*));
+AL_FUNC(void, al_set_event_source_data, (ALLEGRO_EVENT_SOURCE*, intptr_t data));
+AL_FUNC(intptr_t, al_get_event_source_data, (const ALLEGRO_EVENT_SOURCE*));
 AL_FUNC(bool, al_event_queue_is_empty, (ALLEGRO_EVENT_QUEUE*));
 AL_FUNC(bool, al_get_next_event, (ALLEGRO_EVENT_QUEUE*, ALLEGRO_EVENT *ret_event));
 AL_FUNC(bool, al_peek_next_event, (ALLEGRO_EVENT_QUEUE*, ALLEGRO_EVENT *ret_event));
