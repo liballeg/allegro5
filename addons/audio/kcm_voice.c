@@ -40,12 +40,12 @@ const void *_al_voice_update(ALLEGRO_VOICE *voice, unsigned long *samples)
 
    ASSERT(voice);
 
-   if (voice->attached_stream) {
-      al_lock_mutex(voice->mutex);
+	al_lock_mutex(voice->mutex);
+	if (voice->attached_stream) {
       voice->attached_stream->spl_read(voice->attached_stream, &buf, samples,
          voice->depth, 0);
-      al_unlock_mutex(voice->mutex);
    }
+	al_unlock_mutex(voice->mutex);
 
    return buf;
 }

@@ -234,15 +234,6 @@ static void *stream_proc(void *in_data)
          false
       );
    } while (playing);
-
-   AudioQueueDispose(
-      queue,
-      true
-   );
-
-   ex_data->playing = false;
-
-   fprintf(stderr, "stream_proc exit\n");
     
    return NULL;
 }
@@ -272,9 +263,12 @@ static int _aqueue_stop_voice(ALLEGRO_VOICE* voice)
    if (playing == true) {
       playing = false;
 
-      while (ex_data->playing == true) {
-         al_rest(0.001);
-      }
+      ex_data->playing = false;
+
+      AudioQueueDispose(
+         queue,
+         true
+      );
    }
 
    return 0;

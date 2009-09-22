@@ -33,6 +33,7 @@
  */
 extern OSErr UpdateSystemActivity(uint8_t activity);
 
+#if 0
 enum {
   OverallAct                    = 0,    /* Delays idle sleep by small amount                 */
   UsrActivity                   = 1,    /* Delays idle sleep and dimming by timeout time          */
@@ -40,6 +41,7 @@ enum {
   HDActivity                    = 3,    /* Delays hard drive spindown and idle sleep by small amount  */
   IdleActivity                  = 4     /* Delays idle sleep by timeout time                 */
 };
+#endif
 
 #endif
 
