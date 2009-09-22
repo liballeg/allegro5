@@ -165,8 +165,6 @@ static int color_render_char(const ALLEGRO_FONT* f, int ch, int x, int y)
 static int quick_process_char(const ALLEGRO_FONT *f, int ch, int x, int y,
    ALLEGRO_VERTEX *verts)
 {
-    int w = 0;
-    int h = f->vtable->font_height(f);
     ALLEGRO_BITMAP *g;
 
     g = _al_font_color_find_glyph(f, ch);
@@ -176,7 +174,7 @@ static int quick_process_char(const ALLEGRO_FONT *f, int ch, int x, int y,
 
         float tu_s = g->xofs;
         float tv_s = g->yofs;
-        w = al_get_bitmap_width(g);
+        int w = al_get_bitmap_width(g);
         int h = al_get_bitmap_height(g);
         float tu_e = tu_s + w;
         float tv_e = tv_s + h;
