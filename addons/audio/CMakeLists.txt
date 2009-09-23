@@ -45,12 +45,19 @@ if(SUPPORT_DSOUND)
     include_directories(${DSOUND_INCLUDE_DIR})
 endif(SUPPORT_DSOUND)
 
+if(MACOSX)
+    set(ALLEGRO_CFG_KCM_AQUEUE 1)
+    list(APPEND AUDIO_SOURCES aqueue.m)
+    find_library(AUDIO_TOOLBOX_LIB NAMES AudioToolbox)
+    list(APPEND AUDIO_LIBRARIES ${AUDIO_TOOLBOX_LIB})
+endif(MACOSX)
+
 configure_file(
     allegro5/internal/aintern_audio_cfg.h.cmake
     ${CMAKE_BINARY_DIR}/include/allegro5/internal/aintern_audio_cfg.h
     )
 
-if(SUPPORT_OSS OR SUPPORT_PULSEAUDIO OR SUPPORT_OPENAL OR SUPPORT_ALSA OR SUPPORT_DSOUND)
+if(SUPPORT_OSS OR SUPPORT_PULSEAUDIO OR SUPPORT_OPENAL OR SUPPORT_ALSA OR SUPPORT_DSOUND OR MACOSX)
     # Let examples know that audio is supported.
     set(SUPPORT_AUDIO 1 PARENT_SCOPE)
 
@@ -66,9 +73,9 @@ if(SUPPORT_OSS OR SUPPORT_PULSEAUDIO OR SUPPORT_OPENAL OR SUPPORT_ALSA OR SUPPOR
             DESTINATION include/allegro5
             )
 
-else(SUPPORT_OSS OR SUPPORT_PULSEAUDIO OR SUPPORT_OPENAL OR SUPPORT_ALSA OR SUPPORT_DSOUND)
+else(SUPPORT_OSS OR SUPPORT_PULSEAUDIO OR SUPPORT_OPENAL OR SUPPORT_ALSA OR SUPPORT_DSOUND OR MACOSX)
     message("WARNING: allegro_audio wanted but no supported backend found")
-endif(SUPPORT_OSS OR SUPPORT_PULSEAUDIO OR SUPPORT_OPENAL OR SUPPORT_ALSA OR SUPPORT_DSOUND)
+endif(SUPPORT_OSS OR SUPPORT_PULSEAUDIO OR SUPPORT_OPENAL OR SUPPORT_ALSA OR SUPPORT_DSOUND OR MACOSX)
 
 #-----------------------------------------------------------------------------#
 # vi: set ts=8 sts=4 sw=4 et:

@@ -191,8 +191,10 @@ static void *stream_proc(void *in_data)
       kCFRunLoopCommonModes,
       0,
       &queue);
+	
+   int i;
 
-   for (int i = 0; i < NUM_BUFFERS; ++i) {
+   for (i = 0; i < NUM_BUFFERS; ++i) {
       AudioQueueAllocateBuffer(
          queue,
          ex_data->buffer_size,
