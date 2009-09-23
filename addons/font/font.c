@@ -166,10 +166,11 @@ static int quick_process_char(const ALLEGRO_FONT *f, int ch, int x, int y,
    ALLEGRO_VERTEX *verts)
 {
     ALLEGRO_BITMAP *g;
+    int w, h;
 
     g = _al_font_color_find_glyph(f, ch);
-    int w = al_get_bitmap_width(g);
-    int h = al_get_bitmap_height(g);
+    w = al_get_bitmap_width(g);
+    h = al_get_bitmap_height(g);
 
     if(g) {
         int y1 = y + ((float)h - al_get_bitmap_height(g))/2.0f;
