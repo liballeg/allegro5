@@ -51,6 +51,8 @@ static void handle_buffer(
    ALLEGRO_AQ_DATA *ex_data = in_data;
    const void *data;
 
+   (void)inAQ; // unsused
+
    data = _al_voice_update(ex_data->voice, &ex_data->samples_per_update);
    if (data == NULL)
       data = silence;
@@ -97,6 +99,8 @@ static int _aqueue_allocate_voice(ALLEGRO_VOICE *voice)
       case ALLEGRO_AUDIO_DEPTH_INT16:
          bits_per_sample = 16;
          break;
+      default:
+         return 1;
    }
 
    switch (voice->chan_conf) {
@@ -150,7 +154,8 @@ static void _aqueue_deallocate_voice(ALLEGRO_VOICE *voice)
    must fail if it cannot be. */
 static int _aqueue_load_voice(ALLEGRO_VOICE *voice, const void *data)
 {
-   /* FIXME */
+   (void)voice; // unused
+   (void)data; // unused
    return 1;
 }
 
@@ -158,7 +163,7 @@ static int _aqueue_load_voice(ALLEGRO_VOICE *voice, const void *data)
    This method should not be called on a streaming voice. */
 static void _aqueue_unload_voice(ALLEGRO_VOICE *voice)
 {
-   /* FIXME */
+   (void)voice; // unused
 }
 
 
@@ -204,7 +209,8 @@ static void *stream_proc(void *in_data)
       memcpy(ex_data->buffers[i]->mAudioData, silence, ex_data->buffer_size);
       ex_data->buffers[i]->mAudioDataByteSize = ex_data->buffer_size;
       ex_data->buffers[i]->mUserData = ex_data;
-      ex_data->buffers[i]->mPacketDescriptionCount = 0;
+      // FIXME: Safe to comment this out?
+      //ex_data->buffers[i]->mPacketDescriptionCount = 0;
 
       AudioQueueEnqueueBuffer(
          queue,
@@ -290,7 +296,7 @@ static bool _aqueue_voice_is_playing(const ALLEGRO_VOICE *voice)
    be called on a streaming voice. */
 static unsigned long _aqueue_get_voice_position(const ALLEGRO_VOICE *voice)
 {
-   /* FIXME */
+   (void)voice; // unused
    return 0;
 }
 
@@ -299,7 +305,8 @@ static unsigned long _aqueue_get_voice_position(const ALLEGRO_VOICE *voice)
    voice. */
 static int _aqueue_set_voice_position(ALLEGRO_VOICE *voice, unsigned long val)
 {
-   /* FIXME */
+   (void)voice; // unused
+   (void)val; // unused
    return 0;
 }
 
