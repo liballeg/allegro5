@@ -770,14 +770,6 @@ endif(NOT MSVC80 AND WANT_DEMO)
 #
 #-----------------------------------------------------------------------------#
 
-macro(example nm)
-    if(WANT_POPUP_EXAMPLES AND SUPPORT_NATIVE_DIALOG)
-        add_our_executable(${nm} ${ARGN} ${ALLEGRO_LINK_WITH} ${NATIVE_DIALOG_LINK_WITH})
-    else()
-        add_our_executable(${nm} ${ARGN} ${ALLEGRO_LINK_WITH})
-    endif()
-endmacro(example nm)
-
 if(WANT_EXAMPLES)
     add_subdirectory(examples)
 endif(WANT_EXAMPLES)
