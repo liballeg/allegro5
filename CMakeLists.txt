@@ -784,49 +784,6 @@ endif(WANT_EXAMPLES)
 
 #-----------------------------------------------------------------------------#
 #
-#   allegro-config script
-#
-#-----------------------------------------------------------------------------#
-
-if(UNIX)
-
-    set(prefix "${CMAKE_INSTALL_PREFIX}")
-    set(INCLUDE_PREFIX "\${prefix}")
-    # XXX these should be configurable separately
-    set(bindir "\${exec_prefix}/bin")
-    set(includedir "\${prefix}/include")
-    set(libdir "\${exec_prefix}/lib")
-
-    if(SHARED)
-        set(LINK_WITH_STATIC_LIBS no)
-    else(SHARED)
-        set(LINK_WITH_STATIC_LIBS yes)
-    endif(SHARED)
-
-    set(LDFLAGS)
-
-    set(LIBS)
-    foreach(lib ${PLATFORM_LIBS})
-        if("${lib}" MATCHES "^-l|^/")
-            set(LIBS "${LIBS}${lib} ")
-        else("${lib}" MATCHES "^-l|^/")
-            set(LIBS "${LIBS}-l${lib} ")
-        endif("${lib}" MATCHES "^-l|^/")
-    endforeach(lib)
-
-    # @ONLY prevents substitution of ${VAR} forms.
-    configure_file(
-        misc/allegro5-config.in
-        ${CMAKE_BINARY_DIR}/allegro5-config
-        @ONLY
-        )
-    install(PROGRAMS ${CMAKE_BINARY_DIR}/allegro5-config
-            DESTINATION bin
-            )
-endif(UNIX)
-
-#-----------------------------------------------------------------------------#
-#
 #   pkg-config files
 #
 #-----------------------------------------------------------------------------#

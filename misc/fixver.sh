@@ -8,10 +8,11 @@
 
 
 if [ $# -eq 1 -a $1 == "datestamp" ]; then
-   ver=`grep "version=[0-9]" misc/allegro5-config.in`
-   major_num=`echo $ver | sed -e "s/version=\([0-9]\).*/\1/"`
-   sub_num=`echo $ver | sed -e "s/version=[0-9]\.\([0-9]\).*/\1/"`
-   wip_num=`echo $ver | sed -e "s/version=[0-9]\.[0-9]\.\([0-9]\+\).*/\1/"`
+   # Uses GNU grep -o.
+   ver=$( grep -o "ALLEGRO_VERSION [0-9.]*" CMakeLists.txt | cut -d' ' -f2 )
+   major_num=$( echo $ver | cut -d. -f1 )
+   sub_num=$( echo $ver | cut -d. -f2 )
+   wip_num=$( echo $ver | cut -d. -f3 )
    $0 $major_num $sub_num $wip_num `date '+%Y%m%d'`
    exit 0
 fi
@@ -91,17 +92,6 @@ echo "s/By Shawn Hargreaves, .*\./By Shawn Hargreaves, $datestr\./" >> fixver.se
 echo "Patching misc/pkgreadme._tx..."
 cp misc/pkgreadme._tx fixver.tmp
 sed -f fixver.sed fixver.tmp > misc/pkgreadme._tx
-
-# patch allegro5-config.in, allegro-config.qnx
-echo "s/version=[0-9].*/version=$1.$2.$3/" >> fixver.sed
-
-echo "Patching misc/allegro5-config.in..."
-cp misc/allegro5-config.in fixver.tmp
-sed -f fixver.sed fixver.tmp > misc/allegro5-config.in
-
-echo "Patching misc/allegro-config-qnx.sh..."
-cp misc/allegro-config-qnx.sh fixver.tmp
-sed -f fixver.sed fixver.tmp > misc/allegro-config-qnx.sh
 
 # patch the spec file
 echo "Patching misc/allegro.spec..."
