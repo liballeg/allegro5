@@ -88,12 +88,6 @@ option(WANT_PHYSFS "Enable PhysicsFS addon" on)
 option(WANT_PRIMITIVES "Enable primitives addon" on)
 option(WANT_NATIVE_DIALOG "Enable native dialog addon" on)
 
-option(WANT_ALSA "Enable ALSA digital audio driver (Unix)" on)
-option(WANT_OSS "Enable OSS digital audio driver (Unix)" on)
-option(WANT_PULSEAUDIO "Enable PulseAudio audio driver (Unix)" on)
-option(WANT_OPENAL "Enable OpenAL digital audio driver" on)
-option(WANT_DSOUND "Enable Dsound digital audio driver (Windows)" on)
-
 #
 # Documentation.
 #
@@ -465,20 +459,11 @@ if(WANT_OPENGL)
     endif(OPENGL_FOUND)
 endif(WANT_OPENGL)
 
-if(WANT_OPENAL)
-    find_package(OpenAL)
-    mark_as_advanced(OPENAL_INCLUDE_DIR OPENAL_LIBRARY)
-    if(OPENAL_FOUND)
-        set(SUPPORT_OPENAL 1)
-    endif(OPENAL_FOUND)
-endif(WANT_OPENAL)
-
 #
 # Unix-specific
 #
 
 if(UNIX) # includes MACOSX
-
     if(NOT GP2XWIZ)
         find_package(Threads)
         if(CMAKE_USE_PTHREADS_INIT)
@@ -488,28 +473,6 @@ if(UNIX) # includes MACOSX
                 "Unix port requires pthreads support, not detected.")
         endif(CMAKE_USE_PTHREADS_INIT)
     endif(NOT GP2XWIZ)
-
-    if(WANT_ALSA)
-        pkg_check_modules(ALSA alsa)
-        if(ALSA_FOUND)
-            set(SUPPORT_ALSA 1)
-        endif(ALSA_FOUND)
-    endif(WANT_ALSA)
-
-    if(WANT_OSS)
-        include(AllegroFindOSS)
-        if(OSS_FOUND)
-            set(SUPPORT_OSS 1)
-        endif(OSS_FOUND)
-    endif(WANT_OSS)
-
-    if(WANT_PULSEAUDIO)
-        pkg_check_modules(PULSEAUDIO libpulse-simple)
-        if(PULSEAUDIO_FOUND)
-            set(SUPPORT_PULSEAUDIO 1)        
-        endif(PULSEAUDIO_FOUND)
-    endif(WANT_PULSEAUDIO)
-
 endif(UNIX)
 
 #
@@ -587,9 +550,7 @@ endif(SUPPORT_X11)
 if(WIN32)
     find_package(DInput)
     if(DINPUT_FOUND)
-        if(MSVC)
-            include_directories(${DINPUT_INCLUDE_DIR})
-        endif(MSVC)
+        include_directories(${DINPUT_INCLUDE_DIR})
     else(DINPUT_FOUND)
         message(FATAL_ERROR
             "Windows port requires DirectInput (not found).")
@@ -619,12 +580,6 @@ if(WIN32)
         endif(WANT_D3D9EX)
     endif(SUPPORT_D3D)
 
-    if(WANT_DSOUND)
-        find_package(DSound)
-        if(DSOUND_FOUND)
-            set(SUPPORT_DSOUND 1)
-        endif(DSOUND_FOUND)
-    endif(WANT_DSOUND)
 endif(WIN32)
 
 #-----------------------------------------------------------------------------#

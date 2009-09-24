@@ -1,3 +1,10 @@
+option(WANT_ALSA "Enable ALSA digital audio driver (Unix)" on)
+option(WANT_OSS "Enable OSS digital audio driver (Unix)" on)
+option(WANT_PULSEAUDIO "Enable PulseAudio audio driver (Unix)" on)
+option(WANT_OPENAL "Enable OpenAL digital audio driver" on)
+option(WANT_DSOUND "Enable DSound digital audio driver (Windows)" on)
+option(WANT_AQUEUE "Enable AudioQueue digital audio driver (Mac)" on)
+
 set(AUDIO_SOURCES
     acodec.c
     audio.c
@@ -12,52 +19,104 @@ set(AUDIO_SOURCES
 
 set(AUDIO_INCLUDE_FILES allegro5/allegro_audio.h)
 
+# The platform conditions are not really necessary but prevent confusing the
+# user, e.g. it's pretty weird to get a warning about missing DSound on Unix.
+
+if(WANT_OSS AND UNIX)
+    include(AllegroFindOSS)
+    if(OSS_FOUND)
+        set(SUPPORT_OSS 1)
+    endif(OSS_FOUND)
+endif(WANT_OSS AND UNIX)
+
 if(SUPPORT_OSS)
     set(ALLEGRO_CFG_KCM_OSS 1)
     list(APPEND AUDIO_SOURCES oss.c)
+    set(SUPPORT_AUDIO 1)
 endif(SUPPORT_OSS)
+
+if(WANT_PULSEAUDIO AND UNIX)
+    pkg_check_modules(PULSEAUDIO libpulse-simple)
+    if(PULSEAUDIO_FOUND)
+        set(SUPPORT_PULSEAUDIO 1)
+    endif(PULSEAUDIO_FOUND)
+endif(WANT_PULSEAUDIO AND UNIX)
 
 if(SUPPORT_PULSEAUDIO)
     set(ALLEGRO_CFG_KCM_PULSEAUDIO 1)
     list(APPEND AUDIO_SOURCES pulseaudio.c)
     list(APPEND AUDIO_LIBRARIES ${PULSEAUDIO_LIBRARIES})
     include_directories(${PULSEAUDIO_INCLUDE_DIRS})
+    set(SUPPORT_AUDIO 1)
 endif(SUPPORT_PULSEAUDIO)
+
+if(WANT_OPENAL)
+    find_package(OpenAL)
+    mark_as_advanced(OPENAL_INCLUDE_DIR OPENAL_LIBRARY)
+    if(OPENAL_FOUND)
+        set(SUPPORT_OPENAL 1)
+    endif(OPENAL_FOUND)
+endif(WANT_OPENAL)
 
 if(SUPPORT_OPENAL)
     set(ALLEGRO_CFG_KCM_OPENAL 1)
     list(APPEND AUDIO_SOURCES openal.c)
     list(APPEND AUDIO_LIBRARIES ${OPENAL_LIBRARY})
     include_directories(${OPENAL_INCLUDE_DIR})
+    set(SUPPORT_AUDIO 1)
 endif(SUPPORT_OPENAL)
+
+if(WANT_ALSA AND UNIX)
+    pkg_check_modules(ALSA alsa)
+    if(ALSA_FOUND)
+        set(SUPPORT_ALSA 1)
+    endif(ALSA_FOUND)
+endif(WANT_ALSA AND UNIX)
 
 if(SUPPORT_ALSA)
     set(ALLEGRO_CFG_KCM_ALSA 1)
     list(APPEND AUDIO_SOURCES alsa.c)
     list(APPEND AUDIO_LIBRARIES ${ALSA_LIBRARIES})
     include_directories(${ALSA_INCLUDE_DIRS})
+    set(SUPPORT_AUDIO 1)
 endif(SUPPORT_ALSA)
+
+if(WANT_DSOUND AND WIN32)
+    find_package(DSound)
+    if(DSOUND_FOUND)
+        set(SUPPORT_DSOUND 1)
+    endif(DSOUND_FOUND)
+endif(WANT_DSOUND AND WIN32)
 
 if(SUPPORT_DSOUND)
     set(ALLEGRO_CFG_KCM_DSOUND 1)
     list(APPEND AUDIO_SOURCES dsound.cpp)
     list(APPEND AUDIO_LIBRARIES ${DSOUND_LIBRARIES})
     include_directories(${DSOUND_INCLUDE_DIR})
+    set(SUPPORT_AUDIO 1)
 endif(SUPPORT_DSOUND)
 
-if(MACOSX)
+if(WANT_AQUEUE AND MACOSX)
+    # Should check the presence just to be sure.
+    find_library(AUDIO_TOOLBOX_LIB NAMES AudioToolbox)
+    if(AUDIO_TOOLBOX_LIB)
+        set(SUPPORT_AQUEUE 1)
+    endif(AUDIO_TOOLBOX_LIB)
+endif(WANT_AQUEUE AND MACOSX)
+
+if(SUPPORT_AQUEUE)
     set(ALLEGRO_CFG_KCM_AQUEUE 1)
     list(APPEND AUDIO_SOURCES aqueue.m)
-    find_library(AUDIO_TOOLBOX_LIB NAMES AudioToolbox)
     list(APPEND AUDIO_LIBRARIES ${AUDIO_TOOLBOX_LIB})
-endif(MACOSX)
+    set(SUPPORT_AUDIO 1)
+endif(SUPPORT_AQUEUE)
 
 configure_file(
     allegro5/internal/aintern_audio_cfg.h.cmake
     ${CMAKE_BINARY_DIR}/include/allegro5/internal/aintern_audio_cfg.h
     )
 
-if(SUPPORT_OSS OR SUPPORT_PULSEAUDIO OR SUPPORT_OPENAL OR SUPPORT_ALSA OR SUPPORT_DSOUND OR MACOSX)
+if(SUPPORT_AUDIO)
     # Let examples know that audio is supported.
     set(SUPPORT_AUDIO 1 PARENT_SCOPE)
 
@@ -72,10 +131,9 @@ if(SUPPORT_OSS OR SUPPORT_PULSEAUDIO OR SUPPORT_OPENAL OR SUPPORT_ALSA OR SUPPOR
     install(FILES ${AUDIO_INCLUDE_FILES}
             DESTINATION include/allegro5
             )
-
-else(SUPPORT_OSS OR SUPPORT_PULSEAUDIO OR SUPPORT_OPENAL OR SUPPORT_ALSA OR SUPPORT_DSOUND OR MACOSX)
+else(SUPPORT_AUDIO)
     message("WARNING: allegro_audio wanted but no supported backend found")
-endif(SUPPORT_OSS OR SUPPORT_PULSEAUDIO OR SUPPORT_OPENAL OR SUPPORT_ALSA OR SUPPORT_DSOUND OR MACOSX)
+endif(SUPPORT_AUDIO)
 
 #-----------------------------------------------------------------------------#
 # vi: set ts=8 sts=4 sw=4 et:
