@@ -571,9 +571,9 @@ if(WIN32)
 
     if(SUPPORT_D3D)
         set(ALLEGRO_CFG_D3D 1)
-        if(GRADE_DEBUG)
+        if(CMAKE_BUILD_TYPE STREQUAL Debug)
             set(D3D_DEBUG_INFO 1)
-        endif(GRADE_DEBUG)
+        endif()
 
         if(WANT_D3D9EX)
             set(ALLEGRO_CFG_D3D9EX 1)
