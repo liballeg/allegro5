@@ -860,6 +860,11 @@ static void ogl_destroy_bitmap(ALLEGRO_BITMAP *bitmap)
       glDeleteFramebuffersEXT(1, &ogl_bitmap->fbo);
       ogl_bitmap->fbo = 0;
    }
+#elif defined ALLEGRO_IPHONE
+   if (ogl_bitmap->fbo) {
+      glDeleteFramebuffersOES(1, &ogl_bitmap0->fbo);
+      ogl_bitmap->fbo = 0;
+   }
 #endif
 
    if (ogl_bitmap->texture) {
