@@ -73,7 +73,9 @@ int main(int argc, char **argv)
    {
       ALLEGRO_AUDIO_STREAM* stream;
       const char*     filename = argv[i];
-      bool playing;
+      bool playing = true;
+      ALLEGRO_EVENT event;
+      ALLEGRO_EVENT_QUEUE* queue = al_create_event_queue();
 
       stream = al_load_audio_stream(filename, 4, 2048);
       if (!stream) {
@@ -82,6 +84,8 @@ int main(int argc, char **argv)
          continue;
       }
       fprintf(stderr, "Stream created from '%s'.\n", filename);
+      
+      al_register_event_source(queue, al_get_audio_stream_event_source(stream));
 
 #ifndef BYPASS_MIXER
       if (!al_attach_audio_stream_to_mixer(stream, mixer)) {
@@ -97,11 +101,13 @@ int main(int argc, char **argv)
 
       fprintf(stderr, "Playing %s ... Waiting for stream to finish ", filename);
       do {
-         al_rest(0.1);
-         playing = al_get_audio_stream_playing(stream);
+         al_wait_for_event(queue, &event);
+         if(event.type == ALLEGRO_EVENT_AUDIO_STREAM_FINISHED)
+            playing = false;
       } while (playing);
       fprintf(stderr, "\n");
 
+      al_destroy_event_queue(queue);
       al_destroy_audio_stream(stream);
    }
 
