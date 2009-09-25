@@ -552,6 +552,7 @@ void *_al_kcm_feed_stream(ALLEGRO_THREAD *self, void *vstream)
 {
    ALLEGRO_AUDIO_STREAM *stream = vstream;
    ALLEGRO_EVENT_QUEUE *queue;
+   ALLEGRO_EVENT event;
    (void)self;
 
    ALLEGRO_DEBUG("Stream feeder thread started.\n");
@@ -618,6 +619,10 @@ void *_al_kcm_feed_stream(ALLEGRO_THREAD *self, void *vstream)
          stream->quit_feed_thread = true;
       }
    }
+   
+   event.user.type = ALLEGRO_EVENT_AUDIO_STREAM_FINISHED;
+   event.user.timestamp = al_current_time();
+   al_emit_user_event(&stream->spl.es, &event, NULL);
 
    al_destroy_event_queue(queue);
 

@@ -48,6 +48,7 @@ extern "C" {
  * Must be in 512 <= n < 1024
  */
 #define ALLEGRO_EVENT_AUDIO_STREAM_FRAGMENT  (513)
+#define ALLEGRO_EVENT_AUDIO_STREAM_FINISHED  (514)
 
 
 #ifndef __cplusplus
