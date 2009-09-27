@@ -581,6 +581,8 @@ ALLEGRO_VERTEX structure:
 
 Enumerates the types of primitives this addon can draw.
 
+* ALLEGRO_PRIM_POINT_LIST - A list of points, each vertex defines a point
+
 * ALLEGRO_PRIM_LINE_LIST - A list of lines, sequential pairs of vertices define
   disjointed lines
 

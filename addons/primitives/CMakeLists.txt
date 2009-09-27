@@ -5,6 +5,7 @@ set(PRIMITIVES_SOURCES
     prim_directx.c
     prim_opengl.c
     prim_soft.c
+    point_soft.c
     primitives.c
     )
 set(PRIMITIVES_INCLUDE_FILES allegro5/allegro_primitives.h)

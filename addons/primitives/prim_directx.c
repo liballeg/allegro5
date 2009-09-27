@@ -248,6 +248,11 @@ int _al_draw_prim_directx(ALLEGRO_BITMAP* texture, const void* vtxs, const ALLEG
          IDirect3DDevice9_DrawPrimitiveUP(device, D3DPT_TRIANGLEFAN, num_primitives, vtx, stride);
          break;
       };
+      case ALLEGRO_PRIM_POINT_LIST: {
+         num_primitives = num_vtx;
+         IDirect3DDevice9_DrawPrimitiveUP(device, D3DPT_POINTLIST, num_primitives, vtx, stride);
+         break;
+      };
    }
 
    IDirect3DDevice9_SetSamplerState(device, 0, D3DSAMP_ADDRESSU, old_wrap_state[0]);

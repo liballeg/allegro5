@@ -264,6 +264,24 @@ int _al_draw_prim_soft(ALLEGRO_BITMAP* texture, const void* vtxs, const ALLEGRO_
          num_primitives = num_vtx - 2;
          break;
       };
+      case ALLEGRO_PRIM_POINT_LIST: {
+         if (use_cache) {
+            int ii;
+            for (ii = 0; ii < num_vtx; ii++) {
+               _al_point_2d(texture, &vertex_cache[ii]);
+            }
+         } else {
+            int ii;
+            for (ii = start; ii < end; ii++) {
+               ALLEGRO_VERTEX v;
+               SET_VERTEX(v, ii);
+
+               _al_point_2d(texture, &v);
+            }
+         }
+         num_primitives = num_vtx;
+         break;
+      };
    }
    
    if(texture)
@@ -452,10 +470,10 @@ int _al_draw_prim_indexed_soft(ALLEGRO_BITMAP* texture, const void* vtxs, const 
       case ALLEGRO_PRIM_TRIANGLE_FAN: {
          if (use_cache) {
             int ii;
-            int idx0 = indices[0];
+            int idx0 = indices[0] - min_idx;
             for (ii = 1; ii < num_vtx; ii++) {
-               int idx1 = indices[ii];
-               int idx2 = indices[ii - 1];
+               int idx1 = indices[ii] - min_idx;
+               int idx2 = indices[ii - 1] - min_idx;
                _al_triangle_2d(texture, &vertex_cache[idx0], &vertex_cache[idx1], &vertex_cache[idx2]);
             }
          } else {
@@ -472,6 +490,25 @@ int _al_draw_prim_indexed_soft(ALLEGRO_BITMAP* texture, const void* vtxs, const 
             }
          }
          num_primitives = num_vtx - 2;
+         break;
+      };
+      case ALLEGRO_PRIM_POINT_LIST: {
+         if (use_cache) {
+            int ii;
+            for (ii = 0; ii < num_vtx; ii++) {
+               int idx = indices[ii] - min_idx;
+               _al_point_2d(texture, &vertex_cache[idx]);
+            }
+         } else {
+            int ii;
+            for (ii = 0; ii < num_vtx; ii++) {
+               ALLEGRO_VERTEX v;
+               SET_VERTEX(v, indices[ii]);
+
+               _al_point_2d(texture, &v);
+            }
+         }
+         num_primitives = num_vtx;
          break;
       };
    }

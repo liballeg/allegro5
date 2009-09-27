@@ -9,5 +9,6 @@ int _al_draw_prim_indexed_soft(ALLEGRO_BITMAP* texture, const void* vtxs, const 
 
 void _al_line_2d(ALLEGRO_BITMAP* texture, ALLEGRO_VERTEX* v1, ALLEGRO_VERTEX* v2);
 void _al_triangle_2d(ALLEGRO_BITMAP* texture, ALLEGRO_VERTEX* v1, ALLEGRO_VERTEX* v2, ALLEGRO_VERTEX* v3);
+void _al_point_2d(ALLEGRO_BITMAP* texture, ALLEGRO_VERTEX* v);
 
 #endif

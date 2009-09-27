@@ -233,6 +233,11 @@ int _al_draw_prim_opengl(ALLEGRO_BITMAP* texture, const void* vtxs, const ALLEGR
          num_primitives = num_vtx - 2;
          break;
       };
+      case ALLEGRO_PRIM_POINT_LIST: {
+         glDrawArrays(GL_POINTS, 0, num_vtx);
+         num_primitives = num_vtx;
+         break;
+      };
    }
 
    if(texture) {
@@ -264,6 +269,13 @@ int _al_draw_prim_indexed_opengl(ALLEGRO_BITMAP* texture, const void* vtxs, cons
    ALLEGRO_BITMAP *target = al_get_target_bitmap();
    ALLEGRO_BITMAP_OGL *ogl_target = (void *)target;
    const void* vtx;
+   const void* idx = indices;
+   GLenum idx_size = GL_UNSIGNED_INT;
+
+#if defined ALLEGRO_GP2XWIZ || defined ALLEGRO_IPHONE
+   GLushort ind[num_vtx];
+   int ii;
+#endif
 
    if ((!ogl_target->is_backbuffer && ogl_disp->ogl_extras->opengl_target != ogl_target) || al_is_bitmap_locked(target)) {
       return _al_draw_prim_indexed_soft(texture, decl, vtxs, indices, num_vtx, type);
@@ -280,103 +292,51 @@ int _al_draw_prim_indexed_opengl(ALLEGRO_BITMAP* texture, const void* vtxs, cons
    setup_blending();
    setup_state(vtx, decl, texture);
   
-#if !defined ALLEGRO_GP2XWIZ && !defined ALLEGRO_IPHONE
-   switch (type) {
-      case ALLEGRO_PRIM_LINE_LIST: {
-         glDrawElements(GL_LINES, num_vtx, GL_UNSIGNED_INT, indices);
-         num_primitives = num_vtx / 2;
-         break;
-      };
-      case ALLEGRO_PRIM_LINE_STRIP: {
-         glDrawElements(GL_LINE_STRIP, num_vtx, GL_UNSIGNED_INT, indices);
-         num_primitives = num_vtx - 1;
-         break;
-      };
-      case ALLEGRO_PRIM_LINE_LOOP: {
-         glDrawElements(GL_LINE_LOOP, num_vtx, GL_UNSIGNED_INT, indices);
-         num_primitives = num_vtx;
-         break;
-      };
-      case ALLEGRO_PRIM_TRIANGLE_LIST: {
-         glDrawElements(GL_TRIANGLES, num_vtx, GL_UNSIGNED_INT, indices);
-         num_primitives = num_vtx / 3;
-         break;
-      };
-      case ALLEGRO_PRIM_TRIANGLE_STRIP: {
-         glDrawElements(GL_TRIANGLE_STRIP, num_vtx, GL_UNSIGNED_INT, indices);
-         num_primitives = num_vtx - 2;
-         break;
-      };
-      case ALLEGRO_PRIM_TRIANGLE_FAN: {
-         glDrawElements(GL_TRIANGLE_FAN, num_vtx, GL_UNSIGNED_INT, indices);
-         num_primitives = num_vtx - 2;
-         break;
-      };
+#if defined ALLEGRO_GP2XWIZ || defined ALLEGRO_IPHONE
+   for (ii = 0; ii < num_vtx; ii++) {
+      ind[ii] = (GLushort)indices[ii];
    }
-#else
-   switch (type) {
-      case ALLEGRO_PRIM_LINE_LIST: {
-         num_primitives = num_vtx / 2;
-	 GLushort ind[num_primitives];
-	 int i;
-	 for (i = 0; i < num_primitives; i++) {
-	 	ind[i] = (GLushort)indices[i];
-	 }
-         glDrawElements(GL_LINES, num_vtx, GL_UNSIGNED_SHORT, ind);
-         break;
-      };
-      case ALLEGRO_PRIM_LINE_STRIP: {
-         num_primitives = num_vtx - 1;
-	 GLushort ind[num_primitives];
-	 int i;
-	 for (i = 0; i < num_primitives; i++) {
-	 	ind[i] = (GLushort)indices[i];
-	 }
-         glDrawElements(GL_LINE_STRIP, num_vtx, GL_UNSIGNED_SHORT, ind);
-         break;
-      };
-      case ALLEGRO_PRIM_LINE_LOOP: {
-         num_primitives = num_vtx;
-	 GLushort ind[num_primitives];
-	 int i;
-	 for (i = 0; i < num_primitives; i++) {
-	 	ind[i] = (GLushort)indices[i];
-	 }
-         glDrawElements(GL_LINE_LOOP, num_vtx, GL_UNSIGNED_SHORT, ind);
-         break;
-      };
-      case ALLEGRO_PRIM_TRIANGLE_LIST: {
-         num_primitives = num_vtx / 3;
-	 GLushort ind[num_primitives];
-	 int i;
-	 for (i = 0; i < num_primitives; i++) {
-	 	ind[i] = (GLushort)indices[i];
-	 }
-         glDrawElements(GL_TRIANGLES, num_vtx, GL_UNSIGNED_SHORT, ind);
-         break;
-      };
-      case ALLEGRO_PRIM_TRIANGLE_STRIP: {
-         num_primitives = num_vtx - 2;
-	 GLushort ind[num_primitives];
-	 int i;
-	 for (i = 0; i < num_primitives; i++) {
-	 	ind[i] = (GLushort)indices[i];
-	 }
-         glDrawElements(GL_TRIANGLE_STRIP, num_vtx, GL_UNSIGNED_SHORT, ind);
-         break;
-      };
-      case ALLEGRO_PRIM_TRIANGLE_FAN: {
-         num_primitives = num_vtx - 2;
-	 GLushort ind[num_primitives];
-	 int i;
-	 for (i = 0; i < num_primitives; i++) {
-	 	ind[i] = (GLushort)indices[i];
-	 }
-         glDrawElements(GL_TRIANGLE_FAN, num_vtx, GL_UNSIGNED_SHORT, ind);
-         break;
-      };
-   }
+   idx = ind;
+   idx_size = GL_UNSIGNED_SHORT;
 #endif
+
+   switch (type) {
+      case ALLEGRO_PRIM_LINE_LIST: {
+         glDrawElements(GL_LINES, num_vtx, idx_size, idx);
+         num_primitives = num_vtx / 2;
+         break;
+      };
+      case ALLEGRO_PRIM_LINE_STRIP: {
+         glDrawElements(GL_LINE_STRIP, num_vtx, idx_size, idx);
+         num_primitives = num_vtx - 1;
+         break;
+      };
+      case ALLEGRO_PRIM_LINE_LOOP: {
+         glDrawElements(GL_LINE_LOOP, num_vtx, idx_size, idx);
+         num_primitives = num_vtx;
+         break;
+      };
+      case ALLEGRO_PRIM_TRIANGLE_LIST: {
+         glDrawElements(GL_TRIANGLES, num_vtx, idx_size, idx);
+         num_primitives = num_vtx / 3;
+         break;
+      };
+      case ALLEGRO_PRIM_TRIANGLE_STRIP: {
+         glDrawElements(GL_TRIANGLE_STRIP, num_vtx, idx_size, idx);
+         num_primitives = num_vtx - 2;
+         break;
+      };
+      case ALLEGRO_PRIM_TRIANGLE_FAN: {
+         glDrawElements(GL_TRIANGLE_FAN, num_vtx, idx_size, idx);
+         num_primitives = num_vtx - 2;
+         break;
+      };
+      case ALLEGRO_PRIM_POINT_LIST: {
+         glDrawElements(GL_POINTS, num_vtx, idx_size, idx);
+         num_primitives = num_vtx;
+         break;
+      };
+   }
 
    if(texture) {
       glDisable(GL_TEXTURE_2D);
