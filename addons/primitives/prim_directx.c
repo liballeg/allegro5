@@ -20,6 +20,7 @@
 #include "allegro5/allegro5.h"
 #include "allegro5/allegro_primitives.h"
 #include "allegro5/internal/aintern_prim_directx.h"
+#include "allegro5/internal/aintern_prim_soft.h"
 #include "allegro5/internal/aintern_prim.h"
 
 #include "allegro5/platform/alplatf.h"
@@ -88,6 +89,50 @@ static void set_blender(ALLEGRO_DISPLAY *display)
 
    IDirect3DDevice9_SetTextureStageState(device, 0, D3DTSS_ALPHAOP, D3DTOP_MODULATE);
 }
+
+/*
+ * Workabouts for the pre-SM3 cards
+ */
+#define A5V_FVF (D3DFVF_XYZ | D3DFVF_DIFFUSE | D3DFVF_TEX1)
+
+typedef struct ALLEGRO_FVF_VERTEX ALLEGRO_FVF_VERTEX;
+
+struct ALLEGRO_FVF_VERTEX {
+  float x, y, z;
+  DWORD c;
+  float u, v;
+};
+
+ALLEGRO_FVF_VERTEX* fvf_buffer;
+int fvf_buffer_size = 0;
+bool use_vertex_twiddler = true;
+
+static void* twiddle_vertices(const void* vtxs, int num_vertices)
+{
+   const ALLEGRO_VERTEX* vtx = vtxs;
+   int ii;
+   
+   if(fvf_buffer == 0) {
+      fvf_buffer = malloc(num_vertices * sizeof(ALLEGRO_FVF_VERTEX));
+      fvf_buffer_size = num_vertices;
+   } else if (num_vertices > fvf_buffer_size) {
+      fvf_buffer = realloc(fvf_buffer, num_vertices * sizeof(ALLEGRO_FVF_VERTEX));
+      fvf_buffer_size = num_vertices;
+   }
+   
+   for(ii = 0; ii < num_vertices; ii++) {
+      fvf_buffer[ii].x = vtx[ii].x;
+      fvf_buffer[ii].y = vtx[ii].y;
+      fvf_buffer[ii].z = 0;
+      
+      fvf_buffer[ii].u = vtx[ii].u;
+      fvf_buffer[ii].v = vtx[ii].v;
+      
+      fvf_buffer[ii].c = vtx[ii].color.d3d_color;
+   }
+   return fvf_buffer;
+}
+
 #endif
 
 int _al_draw_prim_directx(ALLEGRO_BITMAP* texture, const void* vtxs, const ALLEGRO_VERTEX_DECL* decl, int start, int end, int type)
@@ -96,7 +141,7 @@ int _al_draw_prim_directx(ALLEGRO_BITMAP* texture, const void* vtxs, const ALLEG
    int num_primitives = 0;
    int num_vtx;
    int stride = decl ? decl->stride : (int)sizeof(ALLEGRO_VERTEX);
-   const ALLEGRO_VERTEX *vtx;
+   const void *vtx;
    ALLEGRO_DISPLAY *display;
    LPDIRECT3DDEVICE9 device;
    LPDIRECT3DBASETEXTURE9 d3d_texture;
@@ -106,7 +151,28 @@ int _al_draw_prim_directx(ALLEGRO_BITMAP* texture, const void* vtxs, const ALLEG
    display = al_get_current_display();
    device = al_d3d_get_device(display);
    num_vtx = end - start;
-   vtx = (const ALLEGRO_VERTEX*)((const char*)vtxs + start * stride);
+   vtx = ((const char*)vtxs + start * stride);
+   
+   if(decl) {
+      if(decl->d3d_decl) {
+         IDirect3DDevice9_SetVertexDeclaration(device, (IDirect3DVertexDeclaration9*)decl->d3d_decl);
+      } else {
+         return _al_draw_prim_soft(texture, vtxs, decl, start, end, type);
+      }
+   } else {
+      if(!allegro_vertex_def) {
+         if(IDirect3DDevice9_CreateVertexDeclaration(device, allegro_vertex_decl, &allegro_vertex_def) != D3D_OK) {
+            use_vertex_twiddler = true;
+         }
+      }
+      if(use_vertex_twiddler) {
+         stride = sizeof(ALLEGRO_FVF_VERTEX);
+         IDirect3DDevice9_SetFVF(device, A5V_FVF);
+         vtx = twiddle_vertices(vtx, num_vtx);
+      } else {
+         IDirect3DDevice9_SetVertexDeclaration(device, allegro_vertex_def);
+      }
+   }
 
    set_blender(display);
 
@@ -143,15 +209,6 @@ int _al_draw_prim_directx(ALLEGRO_BITMAP* texture, const void* vtxs, const ALLEG
       IDirect3DDevice9_SetTexture(device, 0, NULL);
    }
    
-   if(decl) {
-      IDirect3DDevice9_SetVertexDeclaration(device, (IDirect3DVertexDeclaration9*)decl->d3d_decl);     
-   } else {
-      if(!allegro_vertex_def) {
-         IDirect3DDevice9_CreateVertexDeclaration(device, allegro_vertex_decl, &allegro_vertex_def);
-      }
-      IDirect3DDevice9_SetVertexDeclaration(device, allegro_vertex_def);
-   }
-   
    IDirect3DDevice9_GetSamplerState(device, 0, D3DSAMP_ADDRESSU, &old_wrap_state[0]);
    IDirect3DDevice9_GetSamplerState(device, 0, D3DSAMP_ADDRESSV, &old_wrap_state[1]);
    
@@ -170,12 +227,10 @@ int _al_draw_prim_directx(ALLEGRO_BITMAP* texture, const void* vtxs, const ALLEG
          break;
       };
       case ALLEGRO_PRIM_LINE_LOOP: {
-         ALLEGRO_VERTEX final[2];
+         int indices[2] = {0, num_vtx - 1};
          num_primitives = num_vtx;
          IDirect3DDevice9_DrawPrimitiveUP(device, D3DPT_LINESTRIP, num_primitives-1, vtx, stride);
-         memcpy(&final[0], &vtx[num_vtx-1], sizeof(ALLEGRO_VERTEX));
-         memcpy(&final[1], &vtx[0], sizeof(ALLEGRO_VERTEX));
-         IDirect3DDevice9_DrawPrimitiveUP(device, D3DPT_LINELIST, 1, final, stride);
+         IDirect3DDevice9_DrawIndexedPrimitiveUP(device, D3DPT_LINELIST, 0, num_vtx, 1, indices, D3DFMT_INDEX32, vtx, stride);
          break;
       };
       case ALLEGRO_PRIM_TRIANGLE_LIST: {
@@ -215,6 +270,9 @@ int _al_draw_prim_directx(ALLEGRO_BITMAP* texture, const void* vtxs, const ALLEG
 #endif
 }
 
+void* cbuff;
+int cbuff_size = 0;
+
 int _al_draw_prim_indexed_directx(ALLEGRO_BITMAP* texture, const void* vtxs, const ALLEGRO_VERTEX_DECL* decl, const int* indices, int num_vtx, int type)
 {
 #ifdef ALLEGRO_CFG_D3D
@@ -224,24 +282,40 @@ int _al_draw_prim_indexed_directx(ALLEGRO_BITMAP* texture, const void* vtxs, con
     */
    
    if(decl) {
-      char* buff = malloc(decl->stride * num_vtx);
+      int size = decl->stride * num_vtx;
       int ii;
       int ret;
-      for(ii = 0; ii < num_vtx; ii++) {
-         memcpy(buff + ii * decl->stride, (const char*)vtxs + decl->stride * indices[ii], decl->stride);
+      
+      if(cbuff == 0) {
+         cbuff = malloc(size);
+         cbuff_size = size;
+      } else if (size > cbuff_size) {
+         cbuff = realloc(cbuff, size);
+         cbuff_size = size;
       }
-      ret = _al_draw_prim_directx(texture, buff, decl, 0, num_vtx, type);
-      free(buff);
+      
+      for(ii = 0; ii < num_vtx; ii++) {
+         memcpy((char*)cbuff + ii * decl->stride, (const char*)vtxs + decl->stride * indices[ii], decl->stride);
+      }
+      ret = _al_draw_prim_directx(texture, cbuff, decl, 0, num_vtx, type);
       return 0;
    } else {
-      ALLEGRO_VERTEX* buff = malloc(sizeof(ALLEGRO_VERTEX) * num_vtx);
+      int size = sizeof(ALLEGRO_VERTEX) * num_vtx;
       int ii;
       int ret;
-      for(ii = 0; ii < num_vtx; ii++) {
-         buff[ii] = ((const ALLEGRO_VERTEX*)vtxs)[indices[ii]];
+      
+      if(cbuff == 0) {
+         cbuff = malloc(size);
+         cbuff_size = size;
+      } else if (size > cbuff_size) {
+         cbuff = realloc(cbuff, size);
+         cbuff_size = size;
       }
-      ret = _al_draw_prim_directx(texture, buff, decl, 0, num_vtx, type);
-      free(buff);
+      
+      for(ii = 0; ii < num_vtx; ii++) {
+         ((ALLEGRO_VERTEX*)cbuff)[ii] = ((const ALLEGRO_VERTEX*)vtxs)[indices[ii]];
+      }
+      ret = _al_draw_prim_directx(texture, cbuff, decl, 0, num_vtx, type);
       return ret;  
    }
    

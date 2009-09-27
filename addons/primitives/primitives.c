@@ -517,7 +517,9 @@ ALLEGRO_VERTEX_DECL* al_create_vertex_decl(const ALLEGRO_VERTEX_ELEMENT* element
          d3delements[idx].Usage = 0;
          d3delements[idx].UsageIndex = 0;
          
-         IDirect3DDevice9_CreateVertexDeclaration(device, d3delements, (IDirect3DVertexDeclaration9**)&ret->d3d_decl);
+         if(IDirect3DDevice9_CreateVertexDeclaration(device, d3delements, (IDirect3DVertexDeclaration9**)&ret->d3d_decl) != D3D_OK) {
+            ret->d3d_decl = 0;
+         }
       }
    }
 #else
