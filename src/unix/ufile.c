@@ -497,6 +497,10 @@ uint64_t al_ffblk_get_size(struct al_ffblk *info)
 
 
 
+/* _al_detect_filename_encoding:
+ *  Platform specific function to detect the filename encoding. This is called
+ *  after setting a system driver, and even if this driver is SYSTEM_NONE.
+ */
 void _al_detect_filename_encoding(void)
 {
    char const *encoding = "unknown";
