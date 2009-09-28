@@ -193,7 +193,6 @@ dnl
 dnl Variables:
 dnl  allegro_sv_procfs=(yes|no)
 dnl
-AC_MSG_CHECKING(for System V sys/procfs)
 AC_DEFUN(ALLEGRO_ACTEST_SV_PROCFS, [
   AC_CHECK_HEADER(sys/procfs.h, [
     AC_TRY_COMPILE(
@@ -209,7 +208,6 @@ AC_DEFUN(ALLEGRO_ACTEST_SV_PROCFS, [
     [allegro_sv_procfs=no]
   ])
 ])
-AC_MSG_RESULT($allegro_sv_procfs)
 
 dnl
 dnl Test if sys/procfs.h tells us argc/argv.
@@ -217,7 +215,6 @@ dnl
 dnl Variables:
 dnl  allegro_procfs_argcv=(yes|no)
 dnl
-AC_MSG_CHECKING(if sys/procfs.h tells us argc/argv)
 AC_DEFUN(ALLEGRO_ACTEST_PROCFS_ARGCV, [
   AC_TRY_COMPILE(
     [#include  <sys/procfs.h>],
@@ -226,7 +223,6 @@ AC_DEFUN(ALLEGRO_ACTEST_PROCFS_ARGCV, [
     [allegro_procfs_argcv=no]
   )
 ])
-AC_MSG_RESULT($allegro_procfs_argcv)
 
 dnl
 dnl Test for getexecname() on Solaris
@@ -234,13 +230,11 @@ dnl
 dnl Variables:
 dnl  allegro_sys_getexecname=(yes|no)
 dnl
-AC_MSG_CHECKING(for getexecname)
-AC_DEFUN(ALLEGRO_ACTEST_SYS_GETEXECNAME,
-   [AC_CHECK_LIB(c, getexecname,
+AC_DEFUN(ALLEGRO_ACTEST_SYS_GETEXECNAME, [
+  AC_CHECK_LIB(c, getexecname,
       [allegro_sys_getexecname=yes],
-      [allegro_sys_getexecname=no])]
-)
-AC_MSG_RESULT($allegro_sys_getexecname)
+      [allegro_sys_getexecname=no])
+])
 
 dnl
 dnl Test for X-Windows support.
