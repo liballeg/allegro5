@@ -1402,3 +1402,6 @@
     is_trans_font
     mouse_w DATA
     position_mouse_w
+    _al_detect_filename_encoding
+    get_filename_encoding
+    set_filename_encoding
