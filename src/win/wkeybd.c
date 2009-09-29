@@ -380,7 +380,7 @@ static void key_dinput_handle_scancode(unsigned char scancode, int pressed)
 static void key_dinput_handle(void)
 {
    static DIDEVICEOBJECTDATA scancode_buffer[DINPUT_BUFFERSIZE];
-   long int waiting_scancodes;
+   unsigned long int waiting_scancodes;
    HRESULT hr;
    int i;
 
@@ -425,7 +425,7 @@ int key_dinput_acquire(void)
 {
    HRESULT hr;
    int mask, state;
-   char key_state[256];
+   unsigned char key_state[256];
 
    if (key_dinput_device) {
       mask = KB_SCROLOCK_FLAG | KB_NUMLOCK_FLAG | KB_CAPSLOCK_FLAG;

@@ -168,7 +168,7 @@ struct DIRECTSOUND_VOICE {
    int reversed;
    int bidir;
    int len;
-   char *data;
+   unsigned char *data;
    int loop_offset;
    int loop_len;
    int looping;
@@ -635,10 +635,10 @@ static LPDIRECTSOUNDBUFFER create_dsound_buffer(int len, int freq, int bits, int
 /* fill_dsound_buffer:
  *  Worker function for copying data to a DirectSound buffer.
  */
-static int fill_dsound_buffer(LPDIRECTSOUNDBUFFER snd_buf, int offset, int len, int bits, int stereo, int reversed, char *data)
+static int fill_dsound_buffer(LPDIRECTSOUNDBUFFER snd_buf, int offset, int len, int bits, int stereo, int reversed, unsigned char *data)
 {
    void *buf_a;
-   long int size, size_a;
+   unsigned long int size, size_a;
    HRESULT hr;
 
    /* transform from samples to bytes */
@@ -735,7 +735,7 @@ static void digi_directsound_init_voice(int voice, AL_CONST SAMPLE *sample)
    ds_voices[voice].reversed = FALSE;
    ds_voices[voice].bidir = FALSE;
    ds_voices[voice].len = sample->len;
-   ds_voices[voice].data = (char *)sample->data;
+   ds_voices[voice].data = (unsigned char *)sample->data;
    ds_voices[voice].loop_offset = sample->loop_start;
    ds_voices[voice].loop_len = sample->loop_end - sample->loop_start;
    ds_voices[voice].looping = FALSE;
@@ -929,7 +929,7 @@ static void digi_directsound_loop_voice(int voice, int playmode)
 static void *digi_directsound_lock_voice(int voice, int start, int end)
 {
    LPDIRECTSOUNDBUFFER ds_locked_buffer;
-   long size_a;
+   unsigned long size_a;
    void *buf_a;
    HRESULT hr;
 
@@ -1007,9 +1007,9 @@ static void digi_directsound_unlock_voice(int voice)
 static int digi_directsound_get_position(int voice)
 {
    HRESULT hr;
-   long int play_cursor;
-   long int write_cursor;
-   long int status;
+   unsigned long int play_cursor;
+   unsigned long int write_cursor;
+   unsigned long int status;
    int pos;
 
    if (ds_voices[voice].looping && ds_voices[voice].ds_loop_buffer) {
