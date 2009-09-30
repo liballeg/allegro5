@@ -2003,13 +2003,22 @@ static void d3d_clear(ALLEGRO_DISPLAY *al_display, ALLEGRO_COLOR *color)
 static void d3d_draw_pixel(ALLEGRO_DISPLAY *al_display, float x, float y, ALLEGRO_COLOR *color)
 {
    ALLEGRO_DISPLAY_D3D *disp = (ALLEGRO_DISPLAY_D3D *)al_display;
+   ALLEGRO_COLOR c, *blend_color;
 
    D3D_TL_VERTEX vertices[1];
 
    vertices[0].x = x;
    vertices[0].y = y;
    vertices[0].z = 0;
-   vertices[0].diffuse = d3d_al_color_to_d3d(*color);
+
+   blend_color = _al_get_blend_color();
+
+   c.r = blend_color->r * color->r;
+   c.g = blend_color->g * color->g;
+   c.b = blend_color->b * color->b;
+   c.a = blend_color->a * color->a;
+
+   vertices[0].diffuse = d3d_al_color_to_d3d(c);
 
    _al_d3d_set_blender(disp);
 
