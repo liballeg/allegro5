@@ -2,20 +2,23 @@
  * by Elias Pschernig
  */
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <setjmp.h>
-#define boolean A5_BOOLEAN_HACK
-#include <jpeglib.h>
-#undef boolean
-#include <jerror.h>
-
 #include "allegro5/allegro5.h"
 #include "allegro5/fshook.h"
 #include "allegro5/internal/aintern_memory.h"
 #include "allegro5/allegro_image.h"
 
 #include "iio.h"
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <setjmp.h>
+#ifdef ALLEGRO_HAVE_STDINT_H
+#include <stdint.h>
+#endif
+#define boolean A5_BOOLEAN_HACK
+#include <jpeglib.h>
+#undef boolean
+#include <jerror.h>
 
 #define BUFFER_SIZE 4096
 
