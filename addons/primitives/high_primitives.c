@@ -766,6 +766,8 @@ void al_calculate_ribbon(float* dest, int dest_stride, const float *points,
       float prev_dir_y = 0;
       float t = thickness / 2;
       float tx, ty;
+      float nx, ny;
+      float sign = 1;
       
       for (ii = 0; ii < 2 * num_segments - 2; ii += 2) {
          float dir_len;
@@ -793,12 +795,37 @@ void al_calculate_ribbon(float* dest, int dest_stride, const float *points,
          if (ii == 0) {
             tx = -t * cur_dir_y;
             ty = t * cur_dir_x;
+            nx = 0;
+            ny = 0;
          } else {
-            float norm_len, new_norm_len, cosine;
-            tx = cur_dir_y + prev_dir_y;
-            ty = -(cur_dir_x + prev_dir_x);
-            norm_len = (float)hypot(tx, ty);
-            if(norm_len > 0.000001f) {
+            float dot = cur_dir_x * prev_dir_x + cur_dir_y * prev_dir_y;
+            float norm_len, cosine;
+            if(dot < 0) {
+               /*
+                * This is by no means exact, but seems to produce acceptable results
+                */
+               float tx_;
+               tx = cur_dir_x - prev_dir_x;
+               ty = cur_dir_y - prev_dir_y;
+               norm_len = (float)hypot(tx, ty);
+               
+               tx /= norm_len;
+               ty /= norm_len;
+               
+               cosine = tx * cur_dir_x + ty * cur_dir_y;
+               
+               nx = -t * tx / cosine;
+               ny = -t * ty / cosine;
+               tx_ = tx;
+               tx =  -t * ty * cosine;
+               ty =  t * tx_ * cosine;
+               sign = -sign;
+            } else {
+               float new_norm_len;
+               tx = cur_dir_y + prev_dir_y;
+               ty = -(cur_dir_x + prev_dir_x);
+               norm_len = (float)hypot(tx, ty);
+  
                tx /= norm_len;
                ty /= norm_len;
                cosine = tx * (-cur_dir_y) + ty * (cur_dir_x);
@@ -806,17 +833,16 @@ void al_calculate_ribbon(float* dest, int dest_stride, const float *points,
                
                tx *= new_norm_len;
                ty *= new_norm_len;
-            } else {
-               tx = -t * cur_dir_y;
-               ty = t * cur_dir_x;
+               nx = 0;
+               ny = 0;
             }
          }
          
-         *dest =       x - tx;
-         *(dest + 1) = y - ty;
+         *dest =       x - sign * tx + nx;
+         *(dest + 1) = y - sign * ty + ny;
          dest = (float*)(((char*)dest) + dest_stride);
-         *dest =       x + tx;
-         *(dest + 1) = y + ty;
+         *dest =       x + sign * tx + nx;
+         *(dest + 1) = y + sign * ty + ny;
          dest = (float*)(((char*)dest) + dest_stride);
          
          prev_dir_x = cur_dir_x;
@@ -828,11 +854,11 @@ void al_calculate_ribbon(float* dest, int dest_stride, const float *points,
       x = *points;
       y = *(points + 1);
       
-      *dest =       x - tx;
-      *(dest + 1) = y - ty;
+      *dest =       x - sign * tx;
+      *(dest + 1) = y - sign * ty;
       dest = (float*)(((char*)dest) + dest_stride);
-      *dest =       x + tx;
-      *(dest + 1) = y + ty;
+      *dest =       x + sign * tx;
+      *(dest + 1) = y + sign * ty;
    } else {
       int ii;
       for (ii = 0; ii < num_segments; ii++) {
