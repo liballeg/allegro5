@@ -105,7 +105,7 @@ struct ALLEGRO_FVF_VERTEX {
 
 ALLEGRO_FVF_VERTEX* fvf_buffer;
 int fvf_buffer_size = 0;
-bool use_vertex_twiddler = true;
+bool use_vertex_twiddler = false;
 
 static void* twiddle_vertices(const void* vtxs, int num_vertices)
 {
@@ -134,6 +134,9 @@ static void* twiddle_vertices(const void* vtxs, int num_vertices)
 }
 
 #endif
+
+void* lbuff;
+int lbuff_size = 0;
 
 int _al_draw_prim_directx(ALLEGRO_BITMAP* texture, const void* vtxs, const ALLEGRO_VERTEX_DECL* decl, int start, int end, int type)
 {
@@ -227,10 +230,21 @@ int _al_draw_prim_directx(ALLEGRO_BITMAP* texture, const void* vtxs, const ALLEG
          break;
       };
       case ALLEGRO_PRIM_LINE_LOOP: {
-         int indices[2] = {0, num_vtx - 1};
+         int size = 2 * stride;
+         if(lbuff == 0) {
+            lbuff = malloc(size);
+            lbuff_size = size;
+         } else if (size > lbuff_size) {
+            lbuff = realloc(lbuff, size);
+            lbuff_size = size;
+         }
+         
+         memcpy(lbuff, vtx, stride);
+         memcpy((char*)lbuff + stride, (const char*)vtx + stride * (num_vtx - 1), stride);
+      
          num_primitives = num_vtx;
          IDirect3DDevice9_DrawPrimitiveUP(device, D3DPT_LINESTRIP, num_primitives-1, vtx, stride);
-         IDirect3DDevice9_DrawIndexedPrimitiveUP(device, D3DPT_LINELIST, 0, num_vtx, 1, indices, D3DFMT_INDEX32, vtx, stride);
+         IDirect3DDevice9_DrawPrimitiveUP(device, D3DPT_LINELIST, 1, lbuff, stride);
          break;
       };
       case ALLEGRO_PRIM_TRIANGLE_LIST: {
