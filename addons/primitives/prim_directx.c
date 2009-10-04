@@ -163,10 +163,13 @@ int _al_draw_prim_directx(ALLEGRO_BITMAP* texture, const void* vtxs, const ALLEG
          return _al_draw_prim_soft(texture, vtxs, decl, start, end, type);
       }
    } else {
-      if(!allegro_vertex_def) {
-         if(IDirect3DDevice9_CreateVertexDeclaration(device, allegro_vertex_decl, &allegro_vertex_def) != D3D_OK) {
+      if(!allegro_vertex_def && !use_vertex_twiddler) {
+         D3DCAPS9 caps;
+         IDirect3DDevice9_GetDeviceCaps(device, &caps);
+         if(caps.PixelShaderVersion < D3DPS_VERSION(3, 0))
             use_vertex_twiddler = true;
-         }
+         else
+            IDirect3DDevice9_CreateVertexDeclaration(device, allegro_vertex_decl, &allegro_vertex_def);
       }
       if(use_vertex_twiddler) {
          stride = sizeof(ALLEGRO_FVF_VERTEX);
