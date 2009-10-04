@@ -128,6 +128,9 @@ int main(void)
 	 }
       }
       release_screen();
+
+      /* Hack to make sure keyboard input is noticed. */
+      rest(0);
    }
 
    clear_keybuf();
@@ -170,6 +173,9 @@ int main(void)
 
       bmp_unwrite_line(screen);
       release_screen();
+
+      /* Hack to make sure keyboard input is noticed. */
+      rest(0);
    }
 
    clear_keybuf();
@@ -209,6 +215,9 @@ int main(void)
 
       bmp_unwrite_line(screen);
       release_screen();
+
+      /* Hack to make sure keyboard input is noticed. */
+      rest(0);
    }
 
    free(temp);
