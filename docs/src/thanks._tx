@@ -833,6 +833,10 @@ Contributors
    mapping, optimised the alpha sprite blending routines and added non-ASCII
    space recognition to uisspace().
 
+   Peter De Wachter.<br>
+   Made the ALSA driver work for hardware which does not support unsigned
+   samples.
+
    Peter Hull (<email>peterhull90@users.sourceforge.net</a>).<br>
    Made the file selector work with directories that have more than 2048 
    files, solved some compiling issues on MacOS X, fixed a bug in rest() 
