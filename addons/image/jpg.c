@@ -2,13 +2,6 @@
  * by Elias Pschernig
  */
 
-#include "allegro5/allegro5.h"
-#include "allegro5/fshook.h"
-#include "allegro5/internal/aintern_memory.h"
-#include "allegro5/allegro_image.h"
-
-#include "iio.h"
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <setjmp.h>
@@ -21,6 +14,14 @@
 #include <jerror.h>
 
 #define BUFFER_SIZE 4096
+
+#include "allegro5/allegro5.h"
+#include "allegro5/fshook.h"
+#include "allegro5/internal/aintern_memory.h"
+#include "allegro5/allegro_image.h"
+
+#include "iio.h"
+
 
 struct my_src_mgr
 {
