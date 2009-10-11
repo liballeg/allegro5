@@ -4,6 +4,71 @@ See `changes._tx` for changes in earlier versions of Allegro.  These lists
 serve as summaries; the full histories are in the Subversion repository.
 
 
+Changes from 4.9.14 to 4.9.15 (October 2009)
+============================================
+
+The main developers this time were: Trent Gamblin, Elias Pschernig, Matthew
+Leverton, Paul Suntsov, Peter Wang.
+
+Core:
+
+-  Set the initial title of new windows to the app name.
+
+-  Add al_set/get_event_source_data.
+
+-  Make locking work on bitmaps that didn't have an FBO prior to the call on
+   iPhone.
+
+-  Make al_get_opengl_fbo work on iPhone.
+
+-  Made iPhone port properly choose a visual (so depth buffer creation works).
+
+Font addon:
+
+-  Improved drawing speed for longish strings.  The font addon now depends on
+   the primitives addon.
+
+Primitives addon:
+
+-  Made the ribbon drawer handle the case of extremely sharp corners more
+   gracefully.
+
+-  Make al_draw_pixel use blend color in the D3D driver.
+
+-  Added POINT_LIST to the primitive types.
+
+-  Various fixes for the D3D driver: fixed line loop drawing; made the indexed
+   primitives a little faster; added workabouts for people with old/Intel
+   graphics cards.
+
+-  Fall back to software if given a memory bitmap as a texture.
+
+-  Removed OpenGL state saving code, it was causing massive slowdown when
+   drawing.  Also removed glFlush for the same reason.
+
+Audio addon:
+
+-  Added PulseAudio driver.
+
+-  Support AudioQueue driver on Mac OS X.
+
+-  Add al_uninstall_audio exit function.
+
+-  Added ALLEGRO_EVENT_AUDIO_STREAM_FINISHED event to signify when non-looping
+   streams made with al_load_audio_stream reach the end of the file.
+
+-  Fixed a deadlock when destroying voices.
+
+-  Handle underruns in the r/w ALSA updater.
+
+-  Minor change to the ALSA driver to improve compatibility with PulseAudio.
+
+Documentation:
+
+-  Replaced awk/sh documentation scripts with C programs.
+
+
+
 Changes from 4.9.13 to 4.9.14 (September 2009)
 ==============================================
 
