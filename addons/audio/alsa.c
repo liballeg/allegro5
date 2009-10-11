@@ -500,7 +500,11 @@ static int alsa_allocate_voice(ALLEGRO_VOICE *voice)
    ex_data->reversed = false;
    // TODO: Setting this to 256 causes (extreme, about than 10 seconds)
    // lag if the alsa device is really pulseaudio.
-   // ex_data->frag_len = 256;
+   //
+   // pw: But there are calls later which expect this variable to be set an on
+   // my machine (without PulseAudio) the driver doesn't work properly with
+   // anything lower than 32.
+   ex_data->frag_len = 32;
 
    if (voice->depth == ALLEGRO_AUDIO_DEPTH_INT8)
       format = SND_PCM_FORMAT_S8;
