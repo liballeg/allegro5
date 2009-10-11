@@ -80,11 +80,6 @@ function(add_our_library target name_suffix sources extra_flags link_with)
 
     install(TARGETS ${target}
             DESTINATION "lib${LIB_SUFFIX}"
-            LIBRARY
-            PERMISSIONS
-                OWNER_READ OWNER_WRITE OWNER_EXECUTE
-                GROUP_READ             GROUP_EXECUTE
-                WORLD_READ             WORLD_EXECUTE
             )
 endfunction(add_our_library)
 
