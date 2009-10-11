@@ -207,10 +207,16 @@ static void draw_quad(ALLEGRO_BITMAP *bitmap,
    GLfloat verts[2*4];
    GLfloat texcoords[2*4];
 
+   glGetBooleanv(GL_TEXTURE_2D, &on);
+   if (!on) {
       glEnable(GL_TEXTURE_2D);
+   }
 
 #if !defined ALLEGRO_GP2XWIZ && !defined ALLEGRO_IPHONE
+   glGetIntegerv(GL_TEXTURE_2D_BINDING_EXT, (GLint*)&current_texture);
+   if (current_texture != ogl_bitmap->texture) {
       glBindTexture(GL_TEXTURE_2D, ogl_bitmap->texture);
+   }
 #else
    glGetIntegerv(GL_TEXTURE_BINDING_2D, (GLint*)&current_texture);
    if (current_texture != ogl_bitmap->texture) {
