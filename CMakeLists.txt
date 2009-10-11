@@ -780,6 +780,13 @@ endif(WANT_EXAMPLES)
 #
 #-----------------------------------------------------------------------------#
 
+set(prefix "${CMAKE_INSTALL_PREFIX}")
+set(INCLUDE_PREFIX "\${prefix}")
+# XXX these should be configurable separately
+set(bindir "\${exec_prefix}/bin")
+set(includedir "\${prefix}/include")
+set(libdir "\${exec_prefix}/lib")
+
 set(PKG_CONFIG_FILES
     allegro
     allegro_color
