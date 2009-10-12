@@ -15,7 +15,7 @@ if(NOT SUPPORT_NATIVE_DIALOG AND NOT GP2XWIZ)
     pkg_check_modules(GT gthread-2.0)
     if(GTK_FOUND AND GT_FOUND)
         set(SOURCES dialog.c gtk_dialog.c)
-        include_directories(${GTK_INCLUDE_DIRS})
+        include_directories(SYSTEM ${GTK_INCLUDE_DIRS})
 
         # For example, on Windows, GTK+ requires gcc -mms-bitfields (MinGW).
         foreach(arg ${GTK_CFLAGS})

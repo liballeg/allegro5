@@ -265,7 +265,7 @@ if(GP2XWIZ)
     set(ALLEGRO_CFG_PTHREADS_TLS 1)
     set(SUPPORT_OPENGL 1)
     set(ALLEGRO_CFG_OPENGL 1)
-    include_directories(${CMAKE_FIND_ROOT_PATH}/include)
+    include_directories(SYSTEM ${CMAKE_FIND_ROOT_PATH}/include)
     link_directories(${CMAKE_FIND_ROOT_PATH}/lib)
     set(CMAKE_C_FLAGS_RELEASE "-mcpu=arm926ej-s -mtune=arm926ej-s -O3")
     set(CMAKE_CXX_FLAGS_RELEASE "-mcpu=arm926ej-s -mtune=arm926ej-s -O3")
@@ -550,7 +550,10 @@ endif(SUPPORT_X11)
 if(WIN32)
     find_package(DInput)
     if(DINPUT_FOUND)
-        include_directories(${DINPUT_INCLUDE_DIR})
+        # At least some copies of dinput.h redefine some types multiple times.
+        # We must add the directory as a system directory so that the compiler
+        # will suppress such errors.
+        include_directories(SYSTEM ${DINPUT_INCLUDE_DIR})
     else(DINPUT_FOUND)
         message(FATAL_ERROR
             "Windows port requires DirectInput (not found).")

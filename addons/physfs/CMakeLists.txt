@@ -3,7 +3,7 @@ set(PHYSFS_SOURCES a5_physfs.c a5_physfs_dir.c)
 
 set(PHYSFS_INCLUDE_FILES allegro5/allegro_physfs.h)
 
-include_directories(${PHYSFS_INCLUDE_DIR})
+include_directories(SYSTEM ${PHYSFS_INCLUDE_DIR})
 
 add_our_library(allegro_physfs -${ALLEGRO_VERSION}
    "${PHYSFS_SOURCES}"

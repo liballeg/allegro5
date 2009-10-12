@@ -8,7 +8,7 @@ configure_file(
     )
 
 include_directories(../font)
-include_directories(${FREETYPE_INCLUDE_DIRS})
+include_directories(SYSTEM ${FREETYPE_INCLUDE_DIRS})
 
 add_our_library(allegro_ttf -${ALLEGRO_VERSION}
     "${TTF_SOURCES}"
