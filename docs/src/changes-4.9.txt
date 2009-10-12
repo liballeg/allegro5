@@ -4,6 +4,13 @@ See `changes._tx` for changes in earlier versions of Allegro.  These lists
 serve as summaries; the full histories are in the Subversion repository.
 
 
+Changes from 4.9.15 to 4.9.15.1 (October 2009)
+==============================================
+
+-  Fixed a problem building on MinGW (dodgy dinput.h).
+
+
+
 Changes from 4.9.14 to 4.9.15 (October 2009)
 ============================================
 
