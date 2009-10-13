@@ -19,7 +19,7 @@ ALLEGRO_DEBUG_CHANNEL("iphone")
  * will be set to nil in touchesBegan then restored in
  * touchesEnded.
  */
-static id<UIAccelerometerDelegate> accelerometer_delegate_backup;
+static id<UIAccelerometerDelegate> accelerometer_delegate_backup = nil;
 
 @implementation EAGLView
 
@@ -144,9 +144,11 @@ static id<UIAccelerometerDelegate> accelerometer_delegate_backup;
 // Handles the start of a touch
 -(void)touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event
 {
-	UIAccelerometer *accelerometer = [UIAccelerometer sharedAccelerometer];
-	accelerometer_delegate_backup = accelerometer.delegate;
-	accelerometer.delegate = nil;
+   UIAccelerometer *accelerometer = [UIAccelerometer sharedAccelerometer];
+   if (accelerometer.delegate != nil) {
+      accelerometer_delegate_backup = accelerometer.delegate;
+      accelerometer.delegate = nil;
+   }
 
    // TODO: handle double-clicks (send two events?)
 	// NSUInteger numTaps = [[touches anyObject] tapCount];
@@ -177,8 +179,11 @@ static id<UIAccelerometerDelegate> accelerometer_delegate_backup;
 // Handles the end of a touch event.
 -(void)touchesEnded:(NSSet *)touches withEvent:(UIEvent *)event
 {
-	UIAccelerometer *accelerometer = [UIAccelerometer sharedAccelerometer];
-	accelerometer.delegate = accelerometer_delegate_backup;
+
+   if (accelerometer_delegate_backup != nil) {
+      UIAccelerometer *accelerometer = [UIAccelerometer sharedAccelerometer];
+      accelerometer.delegate = accelerometer_delegate_backup;
+   }
 
    NSUInteger touchCount = 0;
 	// Enumerates through all touch object
