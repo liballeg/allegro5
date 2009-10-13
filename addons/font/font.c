@@ -226,13 +226,13 @@ static int quick_process_char(const ALLEGRO_FONT *f, int ch, int x, int y,
 static int quick_color_render(const ALLEGRO_FONT *f, const ALLEGRO_USTR *text,
    int x0, int y)
 {
+#define MAX_CHARS 100 /* MSVC can't tell that 'const int' is constant */
     int pos = 0;
     int x = 0;
     int32_t ch;
     int i, j;
     int total = 0;
     int length = al_ustr_length(text);
-    const int MAX_CHARS = 100;
     ALLEGRO_VERTEX verts[6*MAX_CHARS];
    
     while (total < length) {
@@ -258,6 +258,7 @@ static int quick_color_render(const ALLEGRO_FONT *f, const ALLEGRO_USTR *text,
     }
 
     return x - x0;
+#undef MAX_CHARS
 }
 
 /* color_render:

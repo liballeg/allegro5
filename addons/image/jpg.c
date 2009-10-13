@@ -2,6 +2,18 @@
  * by Elias Pschernig
  */
 
+/*
+ * The INT32 definition in jmorecfg.h interferes with some standard
+ * includes in MinGW versions prior to 4.4. Include standard header
+ * first.
+ */
+#if (defined __MINGW32__ && ( \
+   __GNUC__ < 4 || (__GNUC__ == 4 && __GNUC_MINOR__ < 4)))
+#include "allegro5/allegro5.h"
+/* jmorecfg.h gets this wrong -- basetsd.h defines _BASETSD_H not _BASETSD_H_ */
+#define _BASETSD_H_
+#endif
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <setjmp.h>
@@ -15,7 +27,12 @@
 
 #define BUFFER_SIZE 4096
 
+/* If not MinGW < 4.4, include as normal */
+#if !(defined __MINGW32__ && ( \
+   __GNUC__ < 4 || (__GNUC__ == 4 && __GNUC_MINOR__ < 4)))
 #include "allegro5/allegro5.h"
+#endif
+
 #include "allegro5/fshook.h"
 #include "allegro5/internal/aintern_memory.h"
 #include "allegro5/allegro_image.h"

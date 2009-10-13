@@ -1,3 +1,4 @@
+#define ALLEGRO_USE_CONSOLE
 #include "allegro5/allegro5.h"
 #include <stdio.h>
 
