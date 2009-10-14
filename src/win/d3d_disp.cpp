@@ -24,7 +24,7 @@
 #include <string.h>
 #include <stdio.h>
 #include <process.h>
-#include <cmath>
+#include <math.h>
 
 #include "allegro5/allegro5.h"
 
