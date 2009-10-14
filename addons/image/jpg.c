@@ -2,37 +2,18 @@
  * by Elias Pschernig
  */
 
-/*
- * The INT32 definition in jmorecfg.h interferes with some standard
- * includes in MinGW versions prior to 4.4. Include standard header
- * first.
- */
-#if (defined __MINGW32__ && ( \
-   __GNUC__ < 4 || (__GNUC__ == 4 && __GNUC_MINOR__ < 4)))
-#include "allegro5/allegro5.h"
-/* jmorecfg.h gets this wrong -- basetsd.h defines _BASETSD_H not _BASETSD_H_ */
-#define _BASETSD_H_
-#endif
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <setjmp.h>
 #ifdef ALLEGRO_HAVE_STDINT_H
 #include <stdint.h>
 #endif
-#define boolean A5_BOOLEAN_HACK
 #include <jpeglib.h>
-#undef boolean
 #include <jerror.h>
 
 #define BUFFER_SIZE 4096
 
-/* If not MinGW < 4.4, include as normal */
-#if !(defined __MINGW32__ && ( \
-   __GNUC__ < 4 || (__GNUC__ == 4 && __GNUC_MINOR__ < 4)))
 #include "allegro5/allegro5.h"
-#endif
-
 #include "allegro5/fshook.h"
 #include "allegro5/internal/aintern_memory.h"
 #include "allegro5/allegro_image.h"
@@ -72,7 +53,7 @@ static void init_destination(j_compress_ptr cinfo)
    dest->pub.free_in_buffer = BUFFER_SIZE;
 }
 
-static A5_BOOLEAN_HACK fill_input_buffer(j_decompress_ptr cinfo)
+static boolean fill_input_buffer(j_decompress_ptr cinfo)
 {
    struct my_src_mgr *src = (void *)cinfo->src;
    src->pub.next_input_byte = src->buffer;
@@ -80,7 +61,7 @@ static A5_BOOLEAN_HACK fill_input_buffer(j_decompress_ptr cinfo)
    return 1;
 }
 
-static A5_BOOLEAN_HACK empty_output_buffer(j_compress_ptr cinfo)
+static boolean empty_output_buffer(j_compress_ptr cinfo)
 {
    struct my_dest_mgr *dest = (void *)cinfo->dest;
    al_fwrite(dest->fp, dest->buffer, BUFFER_SIZE);
