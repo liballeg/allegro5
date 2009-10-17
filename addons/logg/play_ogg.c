@@ -16,7 +16,7 @@ int main(int argc, char** argv)
 	}
 
 	if (install_sound(DIGI_AUTODETECT, MIDI_NONE, 0) != 0) {
-		printf("Error initialising sound: %s\n", allegro_message);
+		printf("Error initialising sound: %s\n", allegro_error);
 		return 1;
 	}
 	install_timer();
