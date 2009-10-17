@@ -384,8 +384,6 @@ static void _xwin_hide_x_mouse(void)
  */
 static void _xwin_wait_mapped(Window win)
 {
-   XEvent event;
-
    /* Note:
     * The busy loop below is just a hack to work around my broken X11.
     * A call to XMaskEvent will block indefinitely and no Allegro

@@ -444,7 +444,7 @@ static int create_driver_list(FILTER_FUNCTION filter)
 {
    _DRIVER_INFO *driver_info;
    GFX_DRIVER *gfx_driver;
-   int i, j;
+   int i;
    int list_pos;
 
    if (system_driver->gfx_drivers)
