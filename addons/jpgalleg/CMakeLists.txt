@@ -1,0 +1,76 @@
+#-----------------------------------------------------------------------------#
+#
+# JPGalleg
+#
+
+find_package(JPEG)
+if(NOT JPEG_FOUND)
+    return()
+endif()
+
+# JPGalleg contains some optional assembly code for x86.
+# In the end I decided not to enable it as we can't be sure we can maintain
+# it in the future, so this file never contains anything useful.
+configure_file(
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/mmx.h.cmake
+    ${CMAKE_CURRENT_BINARY_DIR}/include/mmx.h
+    )
+
+set(JPGALLEG_SOURCES
+    src/decode.c
+    src/encode.c
+    src/error.c
+    src/init.c
+    src/io.c
+    src/jpgalleg.c
+    )
+
+set(JPGALLEG_HEADERS
+    include/jpgalleg.h
+    )
+
+include_directories(SYSTEM ${JPEG_INCLUDE_DIR})
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include)
+include_directories(${CMAKE_CURRENT_BINARY_DIR}/include)
+
+add_our_library(jpgalleg STATIC ${JPGALLEG_SOURCES})
+target_link_libraries(jpgalleg alleg ${JPEG_LIBRARIES})
+
+install(FILES ${JPGALLEG_HEADERS}
+        DESTINATION include
+        )
+
+set(SUPPORT_JPGALLEG 1 PARENT_SCOPE)
+
+#-----------------------------------------------------------------------------#
+#
+# Examples
+#
+
+file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/examples)
+
+function(add_our_example nm)
+    add_executable(${nm}_jpg WIN32 examples/${nm}.c)
+    set_target_properties(${nm}_jpg
+        PROPERTIES
+        OUTPUT_NAME examples/${nm}
+        )
+    target_link_libraries(${nm}_jpg jpgalleg)
+endfunction()
+
+if(WANT_EXAMPLES)
+    add_our_example(ex1)
+    add_our_example(ex2)
+    add_our_example(ex3)
+    add_our_example(ex4)
+    add_our_example(ex5)
+
+    copy_files(copy_jpgalleg_example_data
+        examples/cat.tga
+        examples/datafile.dat
+        examples/jpgalleg.jpg
+        )
+endif(WANT_EXAMPLES)
+
+#-----------------------------------------------------------------------------#
+# vim: set sts=4 sw=4 et:

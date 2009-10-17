@@ -1,0 +1,68 @@
+function(add_our_example nm)
+    add_our_executable(${nm} WIN32 ${nm}.c ${ARGN})
+endfunction()
+
+add_our_example(ex12bit)
+add_our_example(ex3buf)
+add_our_example(ex3d)
+add_our_example(exaccel)
+add_our_example(exalpha)
+add_our_example(exbitmap)
+add_our_example(exblend)
+add_our_example(excamera)
+add_our_example(excolmap)
+add_our_example(exconfig)
+add_our_example(excustom)
+add_our_example(exdata)
+add_our_example(exdbuf)
+add_our_example(exexedat)
+add_our_example(exfixed)
+add_our_example(exflame)
+add_our_example(exflip)
+add_our_example(exfont)
+add_our_example(exgui)
+add_our_example(exhello)
+add_our_example(exjoy)
+add_our_example(exkeys)
+add_our_example(exlights)
+add_our_example(exmem)
+add_our_example(exmidi)
+add_our_example(exmouse)
+add_our_example(expackf)
+add_our_example(expal)
+add_our_example(expat)
+add_our_example(exquat)
+add_our_example(exrgbhsv)
+add_our_example(exsample)
+add_our_example(exsyscur)
+add_our_example(exscale)
+add_our_example(exscn3d)
+add_our_example(exscroll)
+add_our_example(exshade)
+add_our_example(exspline)
+add_our_example(exsprite)
+add_our_example(exstars)
+add_our_example(exstream)
+add_our_example(exswitch)
+add_our_example(extimer)
+add_our_example(extrans)
+add_our_example(extrans2)
+add_our_example(extruec)
+add_our_example(exunicod)
+add_our_example(exupdate)
+add_our_example(exxfade)
+add_our_example(exzbuf)
+
+copy_files(copy_example_data
+    allegro.pcx
+    example.dat
+    examples.txt
+    exconfig.ini
+    mysha.pcx
+    planet.pcx
+    running.dat
+    unifont.dat
+    )
+
+#-----------------------------------------------------------------------------#
+# vim: set sts=4 sw=4 et:

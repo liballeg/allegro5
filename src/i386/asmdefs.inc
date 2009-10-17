@@ -25,25 +25,7 @@
 #endif
 
 
-#if defined ALLEGRO_MINGW32
-   #include "obj/mingw32/asmdef.inc"
-#elif defined ALLEGRO_MSVC
-   #include "obj/msvc/asmdef.inc"
-#elif defined ALLEGRO_WATCOM
-   #include "obj/watcom/asmdef.inc"
-#elif defined ALLEGRO_HAIKU
-   #include "obj/beos/asmdef.inc"
-#elif defined ALLEGRO_BEOS
-   #include "obj/beos/asmdef.inc"
-#elif defined ALLEGRO_QNX
-   #include "obj/qnx/asmdef.inc"
-#elif defined ALLEGRO_DJGPP
-   #include "obj/djgpp/asmdef.inc"
-#elif defined ALLEGRO_UNIX
-   #include "obj/unix/asmdef.inc"
-#else
-   #error unknown platform
-#endif
+#include "gen_asmdefs.inc"
 
 
 /* helper macro in case we ever need to change this */

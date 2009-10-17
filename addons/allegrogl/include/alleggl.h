@@ -82,7 +82,7 @@ typedef __int64 INT64;
 #      error AllegroGL requires Allegro to have pthread support enabled!
 #   endif
 #endif
-#include <alleggl_config.h>
+#include "allegrogl/alleggl_config.h"
 #endif
 
 

@@ -9,7 +9,7 @@
 #include <string.h>
 #include <stdio.h>
 
-#include <allegro.h>
+#include "allegro.h"
 
 #include "alleggl.h"
 #include "allglint.h"

@@ -107,33 +107,7 @@ void datedit_init(void)
    int done, i;
    AL_CONST char *prop_types;
 
-   #if defined ALLEGRO_DJGPP
-      #include "obj/djgpp/plugins.h"
-   #elif defined ALLEGRO_MSVC
-      #include "obj/msvc/plugins.h"
-   #elif defined ALLEGRO_WATCOM
-      #include "obj/watcom/plugins.h"
-   #elif defined ALLEGRO_UNIX
-      #include "obj/unix/plugins.h"
-   #elif defined ALLEGRO_MINGW32
-      #include "obj/mingw32/plugins.h"
-   #elif defined ALLEGRO_DMC
-      #include "obj/dmc/plugins.h"
-   #elif defined ALLEGRO_BEOS
-      #include "obj/beos/plugins.h"
-   #elif defined ALLEGRO_HAIKU
-      /* #include "obj/beos/plugins.h" */
-   #elif defined ALLEGRO_BCC32
-      #include "obj/bcc32/plugins.h"
-   #elif defined ALLEGRO_MPW
-      #include "::obj:mpw:plugins.h"
-   #elif defined ALLEGRO_MACOSX
-      #include "obj/macosx/plugins.h"
-   #elif defined ALLEGRO_QNX
-      #include "obj/qnx/plugins.h"
-   #else
-      #error unknown platform
-   #endif
+   #include "plugins.h"
 
    do {
       done = TRUE;

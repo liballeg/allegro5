@@ -23,7 +23,7 @@
 
 #include "allegro.h"
 #include "allegro/internal/aintern.h"
-#include "../datedit.h"
+#include "datedit.h"
 
 #include <jpgalleg.h>
 
@@ -344,7 +344,7 @@ static void *grab_jpeg(AL_CONST char *filename, long *size, int x, int y, int w,
 		if (!bmp)
 			return NULL;
 		if ((x < 0) || (y < 0) || (w < 0) || (h < 0)) {
-			buffer_size = file_size(filename);
+			buffer_size = file_size_ex(filename);
 			buffer = (char *)_al_malloc(buffer_size);
 			if (!buffer) {
 				destroy_bitmap(bmp);
@@ -482,7 +482,8 @@ DATEDIT_GRABBER_INFO datjpeg_grabber =
 	"jpg;jpeg;bmp;lbm;pcx;tga",
 	"jpg;jpeg",
 	grab_jpeg,
-	export_jpeg
+	export_jpeg,
+	NULL
 };
 
 
@@ -491,5 +492,6 @@ DATEDIT_MENU_INFO datjpeg_menu =
 	&jpeg_settings_menu,
 	NULL,
 	DATEDIT_MENU_FILE,
-	0
+	0,
+	NULL
 };
