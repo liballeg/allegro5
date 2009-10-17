@@ -1125,9 +1125,10 @@ old_choose_visual:
 	/* Set WM_DELETE_WINDOW atom in WM_PROTOCOLS property
 	 * (to get window_delete requests).
 	 */
-	Atom wm_delete_window = XInternAtom(_xwin.display, "WM_DELETE_WINDOW",
-	                                    False);
-	XSetWMProtocols(_xwin.display, _xwin.window, &wm_delete_window, 1);
+	{
+		Atom wm_delete_window = XInternAtom(_xwin.display, "WM_DELETE_WINDOW", False);
+		XSetWMProtocols(_xwin.display, _xwin.window, &wm_delete_window, 1);
+	}
 
 	/* Finish off the GLX setup */
 	if (use_fbconfig)

@@ -139,10 +139,11 @@ static int jack_process (jack_nframes_t nframes, void *arg)
    /* TODO: Should be uint16_t and uint8_t? Endianess? */
    unsigned short *buffer16 = jack_buffer;
    unsigned char *buffer8 = jack_buffer;
+   jack_default_audio_sample_t *out_left;
 
    _mix_some_samples((uintptr_t) jack_buffer, 0, jack_signed);
-
-   jack_default_audio_sample_t *out_left = (jack_default_audio_sample_t *)
+   
+   out_left = (jack_default_audio_sample_t *)
       jack_port_get_buffer (output_left, nframes);
 
    if (jack_stereo) {
