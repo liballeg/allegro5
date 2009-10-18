@@ -718,6 +718,10 @@ void al_draw_spline(float points[8], ALLEGRO_COLOR color, float thickness)
                                   (float)hypot(points[6] - points[4], points[7] - points[5])) *
                             1.2 * ALLEGRO_PRIM_QUALITY / 10);
    ALLEGRO_PRIM_COLOR prim_color;
+   
+   if(num_segments < 2)
+      num_segments = 2;
+   
    check_color_blending(&color);
    prim_color = al_get_prim_color(color);
 
