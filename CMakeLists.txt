@@ -57,6 +57,9 @@ if(WIN32)
         # variable manually.
         set(CMAKE_RC_COMPILE_OBJECT
             "<CMAKE_RC_COMPILER> <FLAGS> -O coff -o <OBJECT> -i <SOURCE>")
+        if(NOT CMAKE_RC_COMPILER)
+            set(CMAKE_RC_COMPILER windres)
+        endif()
     endif(MINGW)
     enable_language(RC OPTIONAL)
 endif(WIN32)
@@ -613,22 +616,22 @@ install(DIRECTORY ${CMAKE_SOURCE_DIR}/include/allegro
 
 # Platform-specific top-level headers.
 if(ALLEGRO_LINUX)
-    install(FILES ${CMAKE_SOURCE_DIR}/include/allegro/linalleg.h
+    install(FILES ${CMAKE_SOURCE_DIR}/include/linalleg.h
             DESTINATION include
             )
 endif(ALLEGRO_LINUX)
 if(APPLE)
-    install(FILES ${CMAKE_SOURCE_DIR}/include/allegro/osxalleg.h
+    install(FILES ${CMAKE_SOURCE_DIR}/include/osxalleg.h
             DESTINATION include
             )
 endif(APPLE)
 if(WIN32)
-    install(FILES ${CMAKE_SOURCE_DIR}/include/allegro/winalleg.h
+    install(FILES ${CMAKE_SOURCE_DIR}/include/winalleg.h
             DESTINATION include
             )
 endif(WIN32)
 if(ALLEGRO_WITH_XWINDOWS)
-    install(FILES ${CMAKE_SOURCE_DIR}/include/allegro/xalleg.h
+    install(FILES ${CMAKE_SOURCE_DIR}/include/xalleg.h
             DESTINATION include
             )
 endif(ALLEGRO_WITH_XWINDOWS)
