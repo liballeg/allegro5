@@ -52,10 +52,8 @@
 
 
 /* describe how function prototypes look to MINGW32 */
-#if defined ALLEGRO_STATICLINK
+#if (defined ALLEGRO_STATICLINK) || (defined ALLEGRO_SRC)
    #define _AL_DLL
-#elif defined ALLEGRO_SRC
-   #define _AL_DLL   __declspec(dllexport)
 #else
    #define _AL_DLL   __declspec(dllimport)
 #endif
