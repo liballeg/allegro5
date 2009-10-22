@@ -1954,7 +1954,7 @@
 #define glGetTransformFeedbackVaryingNV __aglGetTransformFeedbackVaryingNV
 #if !defined AGL_EXT_draw_buffers2
 #define glGetBooleanIndexedvEXT __aglGetBooleanIndexedvEXT
-#define glGetIntegerIndexedvEXT __aglGetIntegerIndexedvEXT
+/*AGL_API(void,GetIntegerIndexedvEXT,(GLenum,GLuint,GLint*))*/
 #endif
 #endif
 
