@@ -946,13 +946,13 @@ void al_draw_soft_triangle(
    once clipping is implemented
    */
    if (max_x >= width)
-      max_x = width - 1;
+      max_x = width;
    if (max_y >= height)
-      max_y = height - 1;
+      max_y = height;
    if (min_x >= width)
-      min_x = width - 1;
+      min_x = width;
    if (min_y >= height)
-      min_y = height - 1;
+      min_y = height;
 
    if (max_x < 0)
       max_x = 0;

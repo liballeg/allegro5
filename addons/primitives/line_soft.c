@@ -601,13 +601,13 @@ void al_draw_soft_line(ALLEGRO_VERTEX* v1, ALLEGRO_VERTEX* v2, uintptr_t state,
    once clipping is implemented
    */
    if (max_x >= width)
-      max_x = width - 1;
+      max_x = width;
    if (max_y >= height)
-      max_y = height - 1;
+      max_y = height;
    if (min_x >= width)
-      min_x = width - 1;
+      min_x = width;
    if (min_y >= height)
-      min_y = height - 1;
+      min_y = height;
 
    if (max_x < 0)
       max_x = 0;
@@ -619,10 +619,10 @@ void al_draw_soft_line(ALLEGRO_VERTEX* v1, ALLEGRO_VERTEX* v2, uintptr_t state,
       min_y = 0;
 
    if (al_is_bitmap_locked(target)) {
-      if (!_al_bitmap_region_is_locked(target, min_x, min_y, 1 + max_x - min_x, 1 + max_y - min_y))
+      if (!_al_bitmap_region_is_locked(target, min_x, min_y, max_x - min_x, max_y - min_y))
          return;
    } else {
-      if (!(lr = al_lock_bitmap_region(target, min_x, min_y, 1 + max_x - min_x, 1 + max_y - min_y, ALLEGRO_PIXEL_FORMAT_ANY, 0)))
+      if (!(lr = al_lock_bitmap_region(target, min_x, min_y, max_x - min_x, max_y - min_y, ALLEGRO_PIXEL_FORMAT_ANY, 0)))
          return;
       need_unlock = 1;
    }
