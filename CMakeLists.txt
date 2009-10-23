@@ -620,6 +620,7 @@ install(FILES ${CMAKE_SOURCE_DIR}/include/allegro.h
 install(DIRECTORY ${CMAKE_SOURCE_DIR}/include/allegro
         DESTINATION include/allegro
         FILES_MATCHING PATTERN "*.h" PATTERN "*.inl"
+        PATTERN ".svn" EXCLUDE
         )
 
 # Platform-specific top-level headers.
