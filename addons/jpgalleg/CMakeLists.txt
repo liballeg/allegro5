@@ -11,6 +11,9 @@ configure_file(
     ${CMAKE_CURRENT_BINARY_DIR}/include/mmx.h
     )
 
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include)
+include_directories(${CMAKE_CURRENT_BINARY_DIR}/include)
+
 set(JPGALLEG_SOURCES
     src/decode.c
     src/encode.c
@@ -24,15 +27,27 @@ set(JPGALLEG_HEADERS
     include/jpgalleg.h
     )
 
-include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include)
-include_directories(${CMAKE_CURRENT_BINARY_DIR}/include)
+set_source_files_properties(${JPGALLEG_HEADERS}
+    PROPERTIES
+    MACOSX_PACKAGE_LOCATION Headers
+    )
 
-add_our_library(jpgalleg STATIC ${JPGALLEG_SOURCES})
+add_our_library(jpgalleg ${ADDON_LINKAGE}
+    ${JPGALLEG_SOURCES}
+    ${JPGALLEG_HEADERS}
+    )
+set_target_properties(jpgalleg
+    PROPERTIES
+    VERSION ${ALLEGRO_VERSION}
+    SOVERSION ${ALLEGRO_SOVERSION}
+    FRAMEWORK ${WANT_FRAMEWORKS}
+    )
 target_link_libraries(jpgalleg alleg)
 
-install(FILES ${JPGALLEG_HEADERS}
-        DESTINATION include
-        )
+install_our_library(jpgalleg)
+if(NOT WANT_FRAMEWORKS)
+    install_our_headers(${JPGALLEG_HEADERS})
+endif(NOT WANT_FRAMEWORKS)
 
 set(SUPPORT_JPGALLEG 1 PARENT_SCOPE)
 

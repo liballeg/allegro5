@@ -51,6 +51,8 @@ include_directories(SYSTEM ${OPENGL_INCLUDE_DIR})
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include)
 include_directories(${CMAKE_CURRENT_BINARY_DIR}/include)
 
+#-----------------------------------------------------------------------------#
+
 set(ALLEGROGL_SOURCES
     src/alleggl.c
     src/glvtable.c
@@ -77,27 +79,55 @@ if(GLX)
     list(APPEND ALLEGROGL_SOURCES src/x.c)
 endif()
 
+set(ALLEGROGL_HEADERS
+    include/alleggl.h
+    include/allegrogl/gl_ext.h
+    include/allegrogl/gl_header_detect.h
+    ${CMAKE_CURRENT_BINARY_DIR}/include/allegrogl/alleggl_config.h
+    )
+set_source_files_properties(
+    include/alleggl.h
+    PROPERTIES
+    MACOSX_PACKAGE_LOCATION Headers
+    )
+set_source_files_properties(
+    include/allegrogl/gl_ext.h
+    include/allegrogl/gl_header_detect.h
+    ${CMAKE_CURRENT_BINARY_DIR}/include/allegrogl/alleggl_config.h
+    PROPERTIES
+    MACOSX_PACKAGE_LOCATION Headers/allegrogl
+    )
+
 # XXX Maybe AllegroGL should be optionally dynamic?
-add_our_library(alleggl STATIC ${ALLEGROGL_SOURCES})
-set_target_properties(
+add_our_library(alleggl ${ADDON_LINKAGE}
+    ${ALLEGROGL_SOURCES}
+    ${ALLEGROGL_HEADERS}
+    )
+
+set_target_properties(alleggl
     PROPERTIES
     COMPILE_FLAGS -DALLEGRO_GL_SRC_BUILD
+    VERSION ${ALLEGRO_VERSION}
+    SOVERSION ${ALLEGRO_SOVERSION}
     )
+if(WANT_FRAMEWORKS)
+    set_target_properties(alleggl
+        PROPERTIES
+        FRAMEWORK on
+        OUTPUT_NAME AllegroGL
+        )
+endif(WANT_FRAMEWORKS)
+
 target_link_libraries(alleggl
     alleg
     ${OPENGL_gl_LIBRARY}
     ${OPENGL_glu_LIBRARY}
     )
 
-install(FILES include/alleggl.h
-        DESTINATION include
-        )
-install(FILES
-        include/allegrogl/gl_ext.h
-        include/allegrogl/gl_header_detect.h
-        ${CMAKE_CURRENT_BINARY_DIR}/include/allegrogl/alleggl_config.h
-        DESTINATION include/allegrogl
-        )
+install_our_library(alleggl)
+if(NOT WANT_FRAMEWORKS)
+    install_our_headers(${ALLEGROGL_HEADERS})
+endif(NOT WANT_FRAMEWORKS)
 
 set(SUPPORT_ALLEGROGL 1 PARENT_SCOPE)
 

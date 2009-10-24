@@ -1,3 +1,4 @@
+# For OS X frameworks to work you must add headers to the target's sources.
 function(add_our_library target)
     add_library(${target} ${ARGN})
     set_target_properties(${target}
@@ -5,10 +6,30 @@ function(add_our_library target)
         DEBUG_POSTFIX -debug
         PROFILE_POSTFIX -profile
         )
-    install(TARGETS ${target}
-	    DESTINATION "lib${LIB_SUFFIX}"
-	    )
 endfunction(add_our_library)
+
+function(install_our_library target)
+    install(TARGETS ${target}
+	    LIBRARY DESTINATION "lib${LIB_SUFFIX}"
+	    ARCHIVE DESTINATION "lib${LIB_SUFFIX}"
+	    FRAMEWORK DESTINATION "/Library/Frameworks"
+            # Doesn't work, see below.
+	    # PUBLIC_HEADER DESTINATION "include"
+	    )
+endfunction(install_our_library)
+
+# Unfortunately, CMake's PUBLIC_HEADER support doesn't install into nested
+# directories well, otherwise we could rely on install(TARGETS) to install
+# header files associated with the target.  Instead we use the install(FILES)
+# to install headers.  We reuse the MACOSX_PACKAGE_LOCATION property,
+# substituting the "Headers" prefix with "include".
+function(install_our_headers)
+    foreach(hdr ${ARGN})
+        get_source_file_property(LOC ${hdr} MACOSX_PACKAGE_LOCATION)
+        string(REGEX REPLACE "^Headers" "include" LOC ${LOC})
+        install(FILES ${hdr} DESTINATION ${LOC})
+    endforeach()
+endfunction(install_our_headers)
 
 function(add_our_executable nm)
     add_executable(${nm} ${ARGN})

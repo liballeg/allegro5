@@ -21,12 +21,27 @@ set(LOADPNG_HEADERS
     loadpng.h
     )
 
-add_our_library(loadpng STATIC ${LOADPNG_SOURCES})
+set_source_files_properties(${LOADPNG_HEADERS}
+    PROPERTIES
+    MACOSX_PACKAGE_LOCATION Headers
+    )
+
+add_our_library(loadpng ${ADDON_LINKAGE}
+    ${LOADPNG_SOURCES}
+    ${LOADPNG_HEADERS}
+    )
+set_target_properties(loadpng
+    PROPERTIES
+    VERSION ${ALLEGRO_VERSION}
+    SOVERSION ${ALLEGRO_SOVERSION}
+    FRAMEWORK ${WANT_FRAMEWORKS}
+    )
 target_link_libraries(loadpng alleg ${PNG_LIBRARIES})
 
-install(FILES ${LOADPNG_HEADERS}
-        DESTINATION include
-        )
+install_our_library(loadpng)
+if(NOT WANT_FRAMEWORKS)
+    install_our_headers(${LOADPNG_HEADERS})
+endif(NOT WANT_FRAMEWORKS)
 
 #-----------------------------------------------------------------------------#
 #

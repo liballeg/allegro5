@@ -18,12 +18,27 @@ set(LOGG_HEADERS
     logg.h
     )
 
-add_our_library(logg STATIC ${LOGG_SOURCES})
+set_source_files_properties(${LOGG_HEADERS}
+    PROPERTIES
+    MACOSX_PACKAGE_LOCATION Headers
+    )
+
+add_our_library(logg ${ADDON_LINKAGE}
+    ${LOGG_SOURCES}
+    ${LOGG_HEADERS}
+    )
+set_target_properties(logg
+    PROPERTIES
+    VERSION ${ALLEGRO_VERSION}
+    SOVERSION ${ALLEGRO_SOVERSION}
+    FRAMEWORK ${WANT_FRAMEWORKS}
+    )
 target_link_libraries(logg alleg ${VORBIS_LIBRARIES})
 
-install(FILES ${LOGG_HEADERS}
-        DESTINATION include
-        )
+install_our_library(logg)
+if(NOT WANT_FRAMEWORKS)
+    install_our_headers(${LOGG_HEADERS})
+endif(NOT WANT_FRAMEWORKS)
 
 #-----------------------------------------------------------------------------#
 #

@@ -330,5 +330,103 @@ set(ALLEGRO_SRC_PSP_FILES
         src/misc/colconv.c
         )
 
+set(ALLEGRO_INCLUDE_ALLEGRO_FILES
+        include/allegro/3d.h
+        include/allegro/3dmaths.h
+        include/allegro/alcompat.h
+        include/allegro/alinline.h
+        include/allegro/base.h
+        include/allegro/color.h
+        include/allegro/compiled.h
+        include/allegro/config.h
+        include/allegro/datafile.h
+        include/allegro/debug.h
+        include/allegro/digi.h
+        include/allegro/draw.h
+        include/allegro/file.h
+        include/allegro/fix.h
+        include/allegro/fixed.h
+        include/allegro/fli.h
+        include/allegro/fmaths.h
+        include/allegro/font.h
+        include/allegro/gfx.h
+        include/allegro/graphics.h
+        include/allegro/gui.h
+        include/allegro/joystick.h
+        include/allegro/keyboard.h
+        include/allegro/lzss.h
+        include/allegro/matrix.h
+        include/allegro/midi.h
+        include/allegro/mouse.h
+        include/allegro/palette.h
+        include/allegro/quat.h
+        include/allegro/rle.h
+        include/allegro/sound.h
+        include/allegro/stream.h
+        include/allegro/system.h
+        include/allegro/text.h
+        include/allegro/timer.h
+        include/allegro/unicode.h
+        )
+
+set(ALLEGRO_INCLUDE_ALLEGRO_INLINE_FILES
+        include/allegro/inline/3dmaths.inl
+        include/allegro/inline/asm.inl
+        include/allegro/inline/color.inl
+        include/allegro/inline/draw.inl
+        include/allegro/inline/fix.inl
+        include/allegro/inline/fmaths.inl
+        include/allegro/inline/gfx.inl
+        include/allegro/inline/matrix.inl
+        include/allegro/inline/rle.inl
+        include/allegro/inline/system.inl
+        )
+
+set(ALLEGRO_INCLUDE_ALLEGRO_INTERNAL_FILES
+        include/allegro/internal/aintern.h
+        include/allegro/internal/aintvga.h
+        include/allegro/internal/alconfig.h
+        )
+
+set(ALLEGRO_INCLUDE_ALLEGRO_PLATFORM_FILES
+        include/allegro/platform/aintbeos.h
+        include/allegro/platform/aintdos.h
+        include/allegro/platform/aintlnx.h
+        include/allegro/platform/aintmac.h
+        include/allegro/platform/aintosx.h
+        include/allegro/platform/aintpsp.h
+        include/allegro/platform/aintqnx.h
+        include/allegro/platform/aintunix.h
+        include/allegro/platform/aintwin.h
+        include/allegro/platform/al386gcc.h
+        include/allegro/platform/al386vc.h
+        include/allegro/platform/al386wat.h
+        include/allegro/platform/albcc32.h
+        include/allegro/platform/albecfg.h
+        include/allegro/platform/albeos.h
+        include/allegro/platform/aldjgpp.h
+        include/allegro/platform/aldmc.h
+        include/allegro/platform/aldos.h
+        include/allegro/platform/almac.h
+        include/allegro/platform/almaccfg.h
+        include/allegro/platform/almngw32.h
+        include/allegro/platform/almsvc.h
+        include/allegro/platform/alosx.h
+        include/allegro/platform/alosxcfg.h
+        # include/allegro/platform/alplatf.h.cmake
+        include/allegro/platform/alpsp.h
+        include/allegro/platform/alpspcfg.h
+        include/allegro/platform/alqnx.h
+        include/allegro/platform/alqnxcfg.h
+        include/allegro/platform/alucfg.h
+        include/allegro/platform/alunix.h
+        # include/allegro/platform/alunixac.h.cmake
+        # include/allegro/platform/alunixac.hin
+        include/allegro/platform/alwatcom.h
+        include/allegro/platform/alwin.h
+        include/allegro/platform/astdint.h
+        include/allegro/platform/macdef.h
+        )
+
 #-----------------------------------------------------------------------------#
 # vim: set sts=4 sw=4 et:

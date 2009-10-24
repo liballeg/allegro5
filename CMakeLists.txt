@@ -4,8 +4,7 @@
 # XXX build devhelp files
 # XXX resources (keyboard/language) - pretty useless except on DOS
 # XXX install grabber.txt?
-# XXX check OSX works
-# XXX how do OSX frameworks work?
+# XXX do OSX frameworks work?
 # XXX check linux vga/mode-x works
 # XXX check svgalib works
 # XXX check freebsd works (non-linux unix representative)
@@ -96,6 +95,8 @@ set(BUILD_SHARED_LIBS ${SHARED})    # actual CMake variable
 set(LIB_SUFFIX "" CACHE STRING "Suffix for 'lib' directories, e.g. '64'")
 
 option(MAGIC_MAIN "Enable magic main (Unix)" off)
+
+option(WANT_FRAMEWORKS "Want frameworks on Mac OS X" off)
 
 #-----------------------------------------------------------------------------#
 #
@@ -595,54 +596,54 @@ endif(ALLEGRO_MACOSX)
 # Generate and install headers
 #
 
+set(ALLEGRO_PUBLIC_HEADERS)
+
+macro(add_headers location)
+    list(APPEND ALLEGRO_PUBLIC_HEADERS ${ARGN})
+    # We reuse MACOSX_PACKAGE_LOCATION on non-Mac platforms as well.
+    set_source_files_properties(${ARGN}
+	PROPERTIES
+	MACOSX_PACKAGE_LOCATION Headers/${location}
+	)
+endmacro(add_headers)
+
 configure_file(
     ${CMAKE_SOURCE_DIR}/include/allegro/platform/alplatf.h.cmake
     ${CMAKE_BINARY_DIR}/include/allegro/platform/alplatf.h
     @ONLY
     )
-install(FILES ${CMAKE_BINARY_DIR}/include/allegro/platform/alplatf.h
-        DESTINATION include/allegro/platform
-        )
+add_headers(allegro/platform
+    ${CMAKE_BINARY_DIR}/include/allegro/platform/alplatf.h
+    )
 
 if(UNIX)
     configure_file(
         ${CMAKE_SOURCE_DIR}/include/allegro/platform/alunixac.h.cmake
         ${CMAKE_BINARY_DIR}/include/allegro/platform/alunixac.h
         )
-    install(FILES ${CMAKE_BINARY_DIR}/include/allegro/platform/alunixac.h
-            DESTINATION include/allegro/platform
-            )
+    add_headers(allegro/platform
+        ${CMAKE_BINARY_DIR}/include/allegro/platform/alunixac.h
+	)
 endif(UNIX)
 
-install(FILES ${CMAKE_SOURCE_DIR}/include/allegro.h
-        DESTINATION include
-        )
-install(DIRECTORY ${CMAKE_SOURCE_DIR}/include/allegro
-        DESTINATION include/allegro
-        FILES_MATCHING PATTERN "*.h" PATTERN "*.inl"
-        PATTERN ".svn" EXCLUDE
-        )
+add_headers(""               include/allegro.h)
+add_headers(allegro          ${ALLEGRO_INCLUDE_ALLEGRO_FILES})
+add_headers(allegro/inline   ${ALLEGRO_INCLUDE_ALLEGRO_INLINE_FILES})
+add_headers(allegro/internal ${ALLEGRO_INCLUDE_ALLEGRO_INTERNAL_FILES})
+add_headers(allegro/platform ${ALLEGRO_INCLUDE_ALLEGRO_PLATFORM_FILES})
 
 # Platform-specific top-level headers.
 if(ALLEGRO_LINUX)
-    install(FILES ${CMAKE_SOURCE_DIR}/include/linalleg.h
-            DESTINATION include
-            )
+    add_headers("" include/linalleg.h)
 endif(ALLEGRO_LINUX)
 if(APPLE)
-    install(FILES ${CMAKE_SOURCE_DIR}/include/osxalleg.h
-            DESTINATION include
-            )
+    add_headers("" include/osxalleg.h)
 endif(APPLE)
 if(WIN32)
-    install(FILES ${CMAKE_SOURCE_DIR}/include/winalleg.h
-            DESTINATION include
-            )
+    add_headers("" include/winalleg.h)
 endif(WIN32)
 if(ALLEGRO_WITH_XWINDOWS)
-    install(FILES ${CMAKE_SOURCE_DIR}/include/xalleg.h
-            DESTINATION include
-            )
+    add_headers("" include/xalleg.h)
 endif(ALLEGRO_WITH_XWINDOWS)
 
 #-----------------------------------------------------------------------------#
@@ -661,29 +662,44 @@ else()
     set(BUILD_TYPE_SUFFIX "")
 endif()
 
-set(ALLEGRO_COMPILE_FLAGS -DALLEGRO_SRC)
 if(ALLEGRO_MODULES_PATH)
-    set(ALLEGRO_COMPILE_FLAGS
-        "${ALLEGRO_COMPILE_FLAGS} -DALLEGRO_MODULES_PATH='\"${ALLEGRO_MODULES_PATH}\"'")
-endif()
+    set(ALLEGRO_MODULES_PATH_FLAG
+        "-DALLEGRO_MODULES_PATH='\"${ALLEGRO_MODULES_PATH}\"'")
+endif(ALLEGRO_MODULES_PATH)
 
 add_our_library(alleg
     ${ALLEGRO_SRC_FILES}
     ${ALLEGRO_SRC_C_FILES}
     ${PLATFORM_SOURCES}
+    ${ALLEGRO_PUBLIC_HEADERS}
     )
+
 set_target_properties(alleg
     PROPERTIES
-    COMPILE_FLAGS "${ALLEGRO_COMPILE_FLAGS}"
+    COMPILE_FLAGS "-DALLEGRO_SRC ${ALLEGRO_MODULES_PATH_FLAG}"
     VERSION ${ALLEGRO_VERSION}
     SOVERSION ${ALLEGRO_SOVERSION}
     )
+if(WANT_FRAMEWORKS)
+    set_target_properties(alleg
+	PROPERTIES
+	FRAMEWORK on
+	OUTPUT_NAME Allegro
+	)
+endif(WANT_FRAMEWORKS)
+
 target_link_libraries(alleg ${PLATFORM_LIBS})
 if(NOT ALLEGRO_WITH_MODULES)
     target_link_libraries(alleg ${PLATFORM_LIBS_NON_MODULES})
 endif()
 
-if(APPLE AND SHARED)
+install_our_library(alleg)
+if(NOT WANT_FRAMEWORKS)
+    install_our_headers(${ALLEGRO_PUBLIC_HEADERS})
+endif(NOT WANT_FRAMEWORKS)
+
+if(APPLE AND SHARED OR WANT_FRAMEWORKS)
+    # XXX where do put this when using frameworks?
     add_our_library(alleg-main STATIC
 	src/macosx/main.m
 	)
@@ -693,7 +709,8 @@ if(APPLE AND SHARED)
 	COMPILE_FLAGS -DALLEGRO_SRC
 	)
     target_link_libraries(alleg alleg-main)
-endif(APPLE AND SHARED)
+    install_our_library(alleg-main)
+endif(APPLE AND SHARED OR WANT_FRAMEWORKS)
 
 #-----------------------------------------------------------------------------#
 #
@@ -752,6 +769,12 @@ option(WANT_LOADPNG "Enable loadpng" on)
 option(WANT_LOGG "Enable logg" on)
 option(WANT_JPGALLEG "Enable JPGAlleg" on)
 
+if(WANT_FRAMEWORKS)
+    set(ADDON_LINKAGE SHARED)
+else()
+    set(ADDON_LINKAGE STATIC)
+endif()
+
 if(WANT_ALLEGROGL)
     add_subdirectory(addons/allegrogl)
 endif()
@@ -783,6 +806,7 @@ endif(WANT_EXAMPLES)
 # Tools - after addons because of grabber plugins
 #
 
+# XXX do we install tools into the Allegro framework?
 add_subdirectory(tools)
 add_subdirectory(setup)
 
