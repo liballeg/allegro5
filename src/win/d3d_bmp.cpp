@@ -559,15 +559,16 @@ void _al_d3d_prepare_bitmaps_for_reset(ALLEGRO_DISPLAY_D3D *disp)
       ALLEGRO_BITMAP_D3D **bptr = (ALLEGRO_BITMAP_D3D **)_al_vector_ref(&created_bitmaps, i);
       ALLEGRO_BITMAP_D3D *bmp = *bptr;
       ALLEGRO_BITMAP *al_bmp = (ALLEGRO_BITMAP *)bmp;
-      if (bmp->display == disp)
-	      //d3d_sync_bitmap_memory(al_bmp);
-	      if (!al_bmp->preserve_texture) {
-	      	bmp->modified = false;
-	      }
-	      else if (!bmp->is_backbuffer && bmp->modified && !(al_bmp->flags & ALLEGRO_MEMORY_BITMAP)) {
-	         _al_d3d_sync_bitmap(al_bmp);
-		 bmp->modified = false;
-	      }
+      if (bmp->display == disp) {
+         //d3d_sync_bitmap_memory(al_bmp);
+         if (!al_bmp->preserve_texture) {
+            bmp->modified = false;
+         }
+         else if (!bmp->is_backbuffer && bmp->modified && !(al_bmp->flags & ALLEGRO_MEMORY_BITMAP)) {
+            _al_d3d_sync_bitmap(al_bmp);
+            bmp->modified = false;
+         }
+      }
    }
 
    al_unlock_mutex(_al_d3d_lost_device_mutex);
