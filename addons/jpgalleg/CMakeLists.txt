@@ -3,11 +3,6 @@
 # JPGalleg
 #
 
-find_package(JPEG)
-if(NOT JPEG_FOUND)
-    return()
-endif()
-
 # JPGalleg contains some optional assembly code for x86.
 # In the end I decided not to enable it as we can't be sure we can maintain
 # it in the future, so this file never contains anything useful.
@@ -29,12 +24,11 @@ set(JPGALLEG_HEADERS
     include/jpgalleg.h
     )
 
-include_directories(SYSTEM ${JPEG_INCLUDE_DIR})
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include)
 include_directories(${CMAKE_CURRENT_BINARY_DIR}/include)
 
 add_our_library(jpgalleg STATIC ${JPGALLEG_SOURCES})
-target_link_libraries(jpgalleg alleg ${JPEG_LIBRARIES})
+target_link_libraries(jpgalleg alleg)
 
 install(FILES ${JPGALLEG_HEADERS}
         DESTINATION include
