@@ -964,7 +964,7 @@ do {                                                                         \
       flags & ALLEGRO_FLIP_HORIZONTAL, flags & ALLEGRO_FLIP_VERTICAL,        \
       xs, ys);                                                               \
                                                                              \
-   DO_PARALLELOGRAM_MAP(false, flags);                                       \
+   DO_PARALLELOGRAM_MAP(true, flags);                                        \
 } while (0)
 
 
@@ -1344,7 +1344,7 @@ void _al_draw_rotated_scaled_bitmap_memory_fast(ALLEGRO_BITMAP *src,
 
    ALLEGRO_BITMAP *dst = al_get_target_bitmap();
 
-   bool sub_pixel_accuracy = false;
+   bool sub_pixel_accuracy = true;
 
    al_fixed xs[4], ys[4];
    al_fixed fix_dx;
