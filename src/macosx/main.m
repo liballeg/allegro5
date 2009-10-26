@@ -36,6 +36,8 @@ extern void *_mangled_main_address;
 static char *arg0, *arg1 = NULL;
 static int refresh_rate = 70;
 
+static volatile BOOL ready_to_terminate = NO;
+
 static BOOL in_bundle(void)
 {
    /* This comes from the ADC tips & tricks section: how to detect if the app
@@ -124,7 +126,7 @@ static BOOL in_bundle(void)
       toTarget: [AllegroAppDelegate class]
       withObject: nil];
    
-   while (1) {
+   while (!ready_to_terminate) {
       if (osx_gfx_mode == OSX_GFX_WINDOW)
          osx_update_dirty_lines();
       _unix_lock_mutex(osx_event_mutex);
@@ -141,6 +143,8 @@ static BOOL in_bundle(void)
    
    [pool release];
    _unix_destroy_mutex(osx_event_mutex);
+
+   [NSApp terminate:self];
 }
 
 
@@ -171,7 +175,9 @@ static BOOL in_bundle(void)
 static void call_user_main(void)
 {
    int (*real_main)(int, char*[]) = (int (*)(int, char*[])) _mangled_main_address;
-   exit(real_main(__crt0_argc, __crt0_argv));
+   real_main(__crt0_argc, __crt0_argv);
+   allegro_exit();
+   ready_to_terminate = YES;
 }
 
 
@@ -195,9 +201,14 @@ static void call_user_main(void)
  */
 - (NSApplicationTerminateReply) applicationShouldTerminate: (id)sender
 {
-   if (osx_window_close_hook)
-      osx_window_close_hook();
-   return NSTerminateCancel;
+   if (ready_to_terminate) {
+      return NSTerminateNow;
+   }
+   else {
+      if (osx_window_close_hook)
+         osx_window_close_hook();
+      return NSTerminateCancel;
+   }
 }
 
 

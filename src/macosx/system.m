@@ -69,6 +69,7 @@ void (*osx_window_close_hook)(void) = NULL;
 int osx_gfx_mode = OSX_GFX_NONE;
 int osx_emulate_mouse_buttons = FALSE;
 int osx_window_first_expose = FALSE;
+int osx_skip_events_processing = FALSE;
 
 
 static RETSIGTYPE (*old_sig_abrt)(int num);
@@ -82,7 +83,6 @@ static RETSIGTYPE (*old_sig_quit)(int num);
 static unsigned char *cursor_data = NULL;
 static NSBitmapImageRep *cursor_rep = NULL;
 static NSImage *cursor_image = NULL;
-static int skip_events_processing = FALSE;
 
 
 SYSTEM_DRIVER system_macosx =
@@ -173,7 +173,7 @@ void osx_event_handler()
          inMode: NSDefaultRunLoopMode
          dequeue: YES]) != nil)
      {
-      if ((skip_events_processing) || (osx_gfx_mode == OSX_GFX_NONE)) {
+      if ((osx_skip_events_processing) || (osx_gfx_mode == OSX_GFX_NONE)) {
          [NSApp sendEvent: event];
 	 continue;
       }
@@ -540,16 +540,8 @@ static void osx_sys_message(AL_CONST char *msg)
    do_uconvert(msg, U_CURRENT, tmp, U_UTF8, ALLEGRO_MESSAGE_SIZE);
    ns_title = [NSString stringWithUTF8String: osx_window_title];
    ns_msg = [NSString stringWithUTF8String: tmp];
-   
-   _unix_lock_mutex(osx_event_mutex);
-   skip_events_processing = TRUE;
-   _unix_unlock_mutex(osx_event_mutex);
-   
+
    NSRunAlertPanel(ns_title, ns_msg, nil, nil, nil);
-   
-   _unix_lock_mutex(osx_event_mutex);
-   skip_events_processing = FALSE;
-   _unix_unlock_mutex(osx_event_mutex);
 }
 
 
@@ -561,7 +553,8 @@ static void osx_sys_set_window_title(AL_CONST char *title)
 {
    char tmp[ALLEGRO_MESSAGE_SIZE];
    
-   _al_sane_strncpy(osx_window_title, title, ALLEGRO_MESSAGE_SIZE);
+   if (osx_window_title != title)
+      _al_sane_strncpy(osx_window_title, title, ALLEGRO_MESSAGE_SIZE);
    do_uconvert(title, U_CURRENT, tmp, U_UTF8, ALLEGRO_MESSAGE_SIZE);
 
    NSString *ns_title = [NSString stringWithUTF8String: tmp];

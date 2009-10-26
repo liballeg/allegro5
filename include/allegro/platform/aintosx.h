@@ -171,6 +171,7 @@ AL_VAR(NSCursor *, osx_cursor);
 AL_VAR(AllegroWindow *, osx_window);
 AL_ARRAY(char, osx_window_title);
 AL_VAR(int, osx_window_first_expose);
+AL_VAR(int, osx_skip_events_processing);
 AL_VAR(CGDirectPaletteRef, osx_palette);
 AL_VAR(int, osx_palette_dirty);
 AL_VAR(int, osx_mouse_warped);

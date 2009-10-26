@@ -195,6 +195,32 @@ static void prepare_window_for_animation(int refresh_view)
    _unix_unlock_mutex(osx_window_mutex);
 }
 
+
+
+/* windowDidBecomeKey:
+ * Sent by the default notification center immediately after an NSWindow
+ * object has become key.
+ */
+- (void)windowDidBecomeKey:(NSNotification *)notification
+{
+   _unix_lock_mutex(osx_event_mutex);
+   osx_skip_events_processing = FALSE;
+   _unix_unlock_mutex(osx_event_mutex);
+}
+
+
+
+/* windowDidResignKey:
+ * Sent by the default notification center immediately after an NSWindow
+ * object has resigned its status as key window.
+ */
+- (void)windowDidResignKey:(NSNotification *)notification
+{
+   _unix_lock_mutex(osx_event_mutex);
+   osx_skip_events_processing = TRUE;
+   _unix_unlock_mutex(osx_event_mutex);
+}
+
 @end
 
 

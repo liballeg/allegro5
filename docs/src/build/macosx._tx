@@ -339,6 +339,17 @@ Notes on drivers
 
 
 @heading
+Notes on Threading and Cocoa GUIs
+
+   It is possible to include a Cocoa GUI in an Allegro application.  If you
+   do this you should be aware that Allegro will run your application's
+   <code>main()</code> function in a different thread from the thread that
+   the main OS X event loop runs in.  See
+   <link>http://developer.apple.com/mac/library/documentation/Cocoa/Conceptual/Multithreading/Introduction/Introduction.html</a>
+   for more information about threading on Mac OS X.
+
+
+@heading
 Final notes
 
    There is a known compatibility problem when using gcc 4 on MacOS X 10.4
