@@ -30,12 +30,16 @@ add_our_library(loadpng ${ADDON_LINKAGE}
     ${LOADPNG_SOURCES}
     ${LOADPNG_HEADERS}
     )
+
 set_target_properties(loadpng
     PROPERTIES
+    LINK_FLAGS "${ALLEGRO_LINK_FLAGS}"
     VERSION ${ALLEGRO_VERSION}
     SOVERSION ${ALLEGRO_SOVERSION}
-    FRAMEWORK ${WANT_FRAMEWORKS}
     )
+
+set_our_framework_properties(loadpng loadpng)
+
 target_link_libraries(loadpng alleg ${PNG_LIBRARIES})
 
 install_our_library(loadpng)

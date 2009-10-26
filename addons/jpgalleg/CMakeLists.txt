@@ -36,12 +36,16 @@ add_our_library(jpgalleg ${ADDON_LINKAGE}
     ${JPGALLEG_SOURCES}
     ${JPGALLEG_HEADERS}
     )
+
 set_target_properties(jpgalleg
     PROPERTIES
+    LINK_FLAGS "${ALLEGRO_LINK_FLAGS}"
     VERSION ${ALLEGRO_VERSION}
     SOVERSION ${ALLEGRO_SOVERSION}
-    FRAMEWORK ${WANT_FRAMEWORKS}
     )
+
+set_our_framework_properties(jpgalleg jpgalleg)
+
 target_link_libraries(jpgalleg alleg)
 
 install_our_library(jpgalleg)

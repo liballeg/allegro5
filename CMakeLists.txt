@@ -66,6 +66,10 @@ endif(WIN32)
 set(ALLEGRO_VERSION 4.4.0)
 string(REGEX MATCH "^[0-9]+[.][0-9]+" ALLEGRO_SOVERSION ${ALLEGRO_VERSION})
 
+# Mac OS X -compatibility_version.
+# XXX doesn't seem to work
+set(COMPAT_VERSION 4.4.0)
+
 # Search in the `cmake' directory for additional CMake modules.
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake)
 
@@ -97,6 +101,11 @@ set(LIB_SUFFIX "" CACHE STRING "Suffix for 'lib' directories, e.g. '64'")
 option(MAGIC_MAIN "Enable magic main (Unix)" off)
 
 option(WANT_FRAMEWORKS "Want frameworks on Mac OS X" off)
+option(WANT_EMBED
+    "Make frameworks for embedding in application bundles (Mac OS X)" off)
+
+set(FRAMEWORK_INSTALL_PREFIX "/Library/Frameworks" CACHE STRING
+    "Directory in which to install Mac OS X frameworks")
 
 #-----------------------------------------------------------------------------#
 #
@@ -667,6 +676,11 @@ if(ALLEGRO_MODULES_PATH)
         "-DALLEGRO_MODULES_PATH='\"${ALLEGRO_MODULES_PATH}\"'")
 endif(ALLEGRO_MODULES_PATH)
 
+if(APPLE)
+    set(ALLEGRO_LINK_FLAGS
+	"-compatibility_version ${COMPAT_VERSION} -current_version ${ALLEGRO_VERSION}")
+endif(APPLE)
+
 add_our_library(alleg
     ${ALLEGRO_SRC_FILES}
     ${ALLEGRO_SRC_C_FILES}
@@ -677,16 +691,12 @@ add_our_library(alleg
 set_target_properties(alleg
     PROPERTIES
     COMPILE_FLAGS "-DALLEGRO_SRC ${ALLEGRO_MODULES_PATH_FLAG}"
+    LINK_FLAGS "${ALLEGRO_LINK_FLAGS}"
     VERSION ${ALLEGRO_VERSION}
     SOVERSION ${ALLEGRO_SOVERSION}
     )
-if(WANT_FRAMEWORKS)
-    set_target_properties(alleg
-	PROPERTIES
-	FRAMEWORK on
-	OUTPUT_NAME Allegro
-	)
-endif(WANT_FRAMEWORKS)
+
+set_our_framework_properties(alleg Allegro)
 
 target_link_libraries(alleg ${PLATFORM_LIBS})
 if(NOT ALLEGRO_WITH_MODULES)
@@ -806,9 +816,13 @@ endif(WANT_EXAMPLES)
 # Tools - after addons because of grabber plugins
 #
 
+option(WANT_TOOLS "Build tool programs" on)
+
 # XXX do we install tools into the Allegro framework?
-add_subdirectory(tools)
-add_subdirectory(setup)
+if(WANT_TOOLS)
+    add_subdirectory(tools)
+    add_subdirectory(setup)
+endif(WANT_TOOLS)
 
 #-----------------------------------------------------------------------------#
 #

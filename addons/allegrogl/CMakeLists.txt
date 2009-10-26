@@ -107,16 +107,12 @@ add_our_library(alleggl ${ADDON_LINKAGE}
 set_target_properties(alleggl
     PROPERTIES
     COMPILE_FLAGS -DALLEGRO_GL_SRC_BUILD
+    LINK_FLAGS "${ALLEGRO_LINK_FLAGS}"
     VERSION ${ALLEGRO_VERSION}
     SOVERSION ${ALLEGRO_SOVERSION}
     )
-if(WANT_FRAMEWORKS)
-    set_target_properties(alleggl
-        PROPERTIES
-        FRAMEWORK on
-        OUTPUT_NAME AllegroGL
-        )
-endif(WANT_FRAMEWORKS)
+
+set_our_framework_properties(alleggl AllegroGL)
 
 target_link_libraries(alleggl
     alleg

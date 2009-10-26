@@ -27,12 +27,17 @@ add_our_library(logg ${ADDON_LINKAGE}
     ${LOGG_SOURCES}
     ${LOGG_HEADERS}
     )
+
 set_target_properties(logg
     PROPERTIES
+    LINK_FLAGS "${ALLEGRO_LINK_FLAGS}"
     VERSION ${ALLEGRO_VERSION}
     SOVERSION ${ALLEGRO_SOVERSION}
     FRAMEWORK ${WANT_FRAMEWORKS}
     )
+
+set_our_framework_properties(logg logg)
+
 target_link_libraries(logg alleg ${VORBIS_LIBRARIES})
 
 install_our_library(logg)

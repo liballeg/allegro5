@@ -8,11 +8,27 @@ function(add_our_library target)
         )
 endfunction(add_our_library)
 
+function(set_our_framework_properties target nm)
+    if(WANT_FRAMEWORKS)
+        if(WANT_EMBED)
+            set(install_name_dir "@executable_path/../Frameworks")
+        else()
+            set(install_name_dir "${FRAMEWORK_INSTALL_PREFIX}")
+        endif(WANT_EMBED)
+        set_target_properties(${target}
+            PROPERTIES
+            FRAMEWORK on
+            OUTPUT_NAME ${nm}
+            INSTALL_NAME_DIR "${install_name_dir}"
+            )
+    endif(WANT_FRAMEWORKS)
+endfunction(set_our_framework_properties)
+
 function(install_our_library target)
     install(TARGETS ${target}
 	    LIBRARY DESTINATION "lib${LIB_SUFFIX}"
 	    ARCHIVE DESTINATION "lib${LIB_SUFFIX}"
-	    FRAMEWORK DESTINATION "/Library/Frameworks"
+	    FRAMEWORK DESTINATION "${FRAMEWORK_INSTALL_PREFIX}"
             # Doesn't work, see below.
 	    # PUBLIC_HEADER DESTINATION "include"
 	    )
