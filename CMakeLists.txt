@@ -4,7 +4,6 @@
 # XXX build devhelp files
 # XXX resources (keyboard/language) - pretty useless except on DOS
 # XXX install grabber.txt?
-# XXX do OSX frameworks work?
 # XXX check linux vga/mode-x works
 # XXX check svgalib works
 # XXX check freebsd works (non-linux unix representative)
@@ -102,7 +101,7 @@ option(MAGIC_MAIN "Enable magic main (Unix)" off)
 
 option(WANT_FRAMEWORKS "Want frameworks on Mac OS X" off)
 option(WANT_EMBED
-    "Make frameworks for embedding in application bundles (Mac OS X)" off)
+    "Make frameworks embeddable in application bundles (Mac OS X)" on)
 
 set(FRAMEWORK_INSTALL_PREFIX "/Library/Frameworks" CACHE STRING
     "Directory in which to install Mac OS X frameworks")
