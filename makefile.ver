@@ -3,7 +3,7 @@
 LIBRARY_VERSION = 42
 
 # Shared library versions for Unix
-shared_version = 4.2.4
+shared_version = 4.2.3
 shared_major_minor = 4.2
 
 # Compatibility version for Mac OS X
