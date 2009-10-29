@@ -8,6 +8,12 @@
 @html_spaced_list_bullet
 
 @heading
+Changes from 4.2.3 to 4.2.3.1 (October 2009)
+<ul><li>
+   Francis Devereux made the OS X port compile on Mac OS X 10.6.
+</ul>
+
+@heading
 Changes from 4.2.2 to 4.2.3 (October 2009)
 <ul><li>
    Fix fnstsw compile bug with newer binutils.
