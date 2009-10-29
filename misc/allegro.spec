@@ -6,7 +6,7 @@ Summary(fr): Une librairie de programmation de jeux.
 Summary(it): Una libreria per la programmazione di videogiochi.
 Summary(de): Eine Bibliothek zur Programmierung von Spielen.
 Name: allegro
-Version: 4.2.3
+Version: 4.2.4
 Release: 1
 License: Gift Ware
 Packager: Allegro development team
