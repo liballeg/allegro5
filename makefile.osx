@@ -15,7 +15,12 @@ ifdef UB
 CC = misc/gcc-uni.sh
 else
 CC = gcc
+ifeq ($(shell arch), i386)
+# Build for i386 - OS X 10.6 (Snow Leopard) defaults to x86_64, which results
+# in NSQuickDrawView not being declared by NSQuickDrawView.h
+CC += -arch i386
 endif
+endif # UB
 OBJ_DIR = obj/macosx/$(VERSION)
 EXE = 
 OBJ = .o
@@ -82,9 +87,9 @@ _default: default
 # -------- decide what compiler options to use --------
 
 ifdef WARNMODE
-   WFLAGS = -Wall -W -Werror -Wno-unused -Wno-long-double
+   WFLAGS = -Wall -W -Werror -Wno-unused
 else
-   WFLAGS = -Wall -Wno-unused -Wno-long-double
+   WFLAGS = -Wall -Wno-unused
 endif
 
 ifdef TARGET_ARCH_COMPAT
