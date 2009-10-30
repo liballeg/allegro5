@@ -25,6 +25,7 @@ add_executable(makedoc
     )
 
 file(MAKE_DIRECTORY
+    ${CMAKE_CURRENT_BINARY_DIR}/build
     ${CMAKE_CURRENT_BINARY_DIR}/txt
     ${CMAKE_CURRENT_BINARY_DIR}/html
     ${CMAKE_CURRENT_BINARY_DIR}/rtf
@@ -56,6 +57,13 @@ set(DOC_SRCS
     src/packfile._tx
     src/readme._tx
     src/thanks._tx
+
+    src/build/cmake._tx
+    src/build/linux._tx
+    src/build/macosx._tx
+    src/build/mingw32._tx
+    src/build/msvc._tx
+    src/build/unix._tx
     )
 
 set(all_docs)
@@ -64,8 +72,13 @@ foreach(page ${DOC_SRCS})
     string(REPLACE "._tx" "" basename ${basename})
 
     set(page ${CMAKE_CURRENT_SOURCE_DIR}/${page})
-    set(txt_out ${CMAKE_CURRENT_BINARY_DIR}/txt/${basename}.txt)
-    set(html_out ${CMAKE_CURRENT_BINARY_DIR}/html/${basename}.html)
+    if(${page} MATCHES "/build/")
+        set(txt_out ${CMAKE_CURRENT_BINARY_DIR}/build/${basename}.txt)
+        set(html_out ${CMAKE_CURRENT_BINARY_DIR}/build/${basename}.html)
+    else()
+        set(txt_out ${CMAKE_CURRENT_BINARY_DIR}/txt/${basename}.txt)
+        set(html_out ${CMAKE_CURRENT_BINARY_DIR}/html/${basename}.html)
+    endif()
 
     add_custom_command(
         OUTPUT ${txt_out}
