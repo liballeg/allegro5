@@ -33,6 +33,12 @@ Contents
 
 @text
 
+Note that this FAQ list is rather old, and much of it won't apply to
+Allegro 4.4.  For example, the build system has completely changed.
+Still, you might find some useful hints here.
+
+
+
 @heading
 Trivial problems
 
@@ -42,9 +48,7 @@ Trivial problems
 
 
 @@   Where can I get it?
-      From any SimTel mirror (<link>http://alleg.sourceforge.net/mirrors.html</a>), in
-      the directory <tt>gnu/djgpp/v2tk/</tt>, or from the Allegro homepage,
-      <link>http://alleg.sourceforge.net/</a>.
+      From the Allegro homepage, <link>http://alleg.sourceforge.net/</a>.
 
 
 @@   How do I use it?

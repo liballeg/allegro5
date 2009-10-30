@@ -28,15 +28,9 @@ Contents
 @heading
 Building addons
 
-On Unix systems, all available addons are built automatically if all the
-required dependencies are found. To disable building of the specific addon,
-pass --disable-(addon_name) to the configure script. Run "./configure --help"
-for a list of available addons.
-
-On other systems you have to manually pass an option to "make" and
-"make install" to enable building of the specific addon. Look at
-docs/txt/targets.txt for a list of available options and systems supported by
-addons.
+All available addons are built automatically if all the required dependencies
+are found. To disable building of the specific addon, set the appropriate CMake
+variables to off.  You can use ccmake to browse the list of options.
 
 
 @heading
@@ -66,9 +60,6 @@ feel free to contact Allegro developers and we will consider your proposal.
   AllegroGL also automatically exposes most, if not all, OpenGL extensions
   available to user programs. This means you no longer have to manually load
   them; extension management is already done for you.
-
-  To build AllegroGL with custom options, like a static library, run the
-  configure script manually with any options you like.
 
   License: dual-licensed under GPL and zlib.
 

@@ -55,7 +55,6 @@ set(DOC_SRCS
     src/mistakes._tx
     src/packfile._tx
     src/readme._tx
-    src/targets._tx
     src/thanks._tx
     )
 

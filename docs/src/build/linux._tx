@@ -34,17 +34,22 @@ General notes
 
    Normally the X version is used in preference to the console version, if 
    an X server is contactable (this means that your programs will use X if 
-   you launch them from inside X, and otherwise use the console). You can 
-   change this using your config file if you like, or by configuring 
-   <tt>--without-x</tt>.
+   you launch them from inside X, and otherwise use the console).
+
+   Unless you have specific needs, we recommend using the X version. The Linux
+   console port is not enabled by default. It never worked that well and there
+   is no real interest in it any more. We may remove it in a future release.
 
 
 
 @heading
 Installing Allegro
 
-   See <tt>docs/build/unix.txt</tt>: this process is identical for the console and X
-   versions.
+   See <tt>docs/build/unix.txt</tt>: this process is identical for the console
+   and X versions.
+
+   You must set the CMake option WANT_LINUX_CONSOLE to enable the console
+   version, as it is not built by default.
 
 
 
@@ -52,7 +57,7 @@ Installing Allegro
 Using Allegro
 
    Some parts of Linux console Allegro need root privileges. Others don't. 
-   Specifically, the VGA, mode-X and VBE/AF graphics drivers do. The fbcon 
+   Specifically, the VGA and mode-X graphics drivers do. The fbcon 
    driver doesn't. Also, if you intend to run a program from something which 
    isn't a VT (e.g. an xterm (but not using the X version), a remote login, 
    a screen session) then you need to either own a (free) console numbered 
@@ -107,38 +112,18 @@ Notes on drivers
       application takes special precautions.</dd>
 
    <dt><b>Graphics:</b></dt><dd>
-      Linux Allegro supports standard VGA and mode-X by direct writes to 
-      the video card. You need root privileges for this to work.
+      Linux Allegro supports standard VGA by direct writes to the video card.
+      You need root privileges for this to work.
 
-      Note: the mode-X driver does not work as of Allegro 4.4.0.
-      It may be restored in the future (but likely not).
-      
       It also supports fbcon, for which you do not need privileges, but 
       you do need a recent kernel, correctly configured.
-      
-      The VBE/AF system does require root privileges. Note it is not built by
-      default and hasn't been tested in a long time. Basically, you should
-      not bother with it. But if you insist, you need to get a VBE/AF driver
-      that works in Linux -- the FreeBE/AF project has two at present, but
-      the project itself hasn't been ported to Linux. You can just copy out
-      the driver binaries, though. Put the appropriate driver into
-      `<tt>/usr/local/lib</tt>', `<tt>/usr/lib</tt>', `<tt>/lib</tt>' or
-      `<tt>/</tt>', filename `<tt>vbeaf.drv</tt>' -- or put it anywhere you
-      like, specifying the location in the config file as for the DOS
-      version.
-      
-      For security reasons, the VBE/AF driver binary must be owned by root
-      and only writable by root. You really don't want to load and execute 
-      user-specified binary code in a privileged program.
       
       The SVGAlib driver should be fairly stable and fast now, and can use
       most of the video modes that SVGAlib provides. It requires root
       privileges if your version of SVGAlib requires them.</dd>
 
-   <dt><b>Sound:</b></dt><dd>
-      The ALSA drivers support both the older 0.5.x version of the ALSA API
-      as well as the newer 0.9.x+ series. Support for the older API will be
-      dropped later.</dd>
+      Note: Allegro used to have a mode-X driver, but it does not work as of
+      4.4.0.  Someone may restore it in the future, but it's likely.
 
    <dt><b>Keyboard:</b></dt><dd>
       The keyboard driver uses the kernel mapping tables to map scancodes
@@ -170,6 +155,6 @@ Notes on drivers
       explicitly put the mouse into wheel mode, which requires Allegro
       to have write permissions to the device.
 
-      There is now also a input events-based driver which reads events from
+      There is an input events-based driver which reads events from
       <tt>/dev/input/eventN</tt>.</dd>
 </dl></blockquote>

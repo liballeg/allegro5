@@ -23,8 +23,7 @@
 @heading
 MacOS X notes
 
-   This is a full featured native MacOS X port. The whole codebase is young,
-   so it may hold some bugs; feedback is welcome!
+   This is a full featured native MacOS X port.
 
 
 
@@ -43,7 +42,8 @@ Required software
 </blockquote>
    On the same page you will also find instructions on how to install them.
    Note that system version 10.2.x is required to compile Allegro, but
-   the library will still work on 10.1.x.
+   the library will still work on 10.1.x. (At least that was true once; we
+   haven't gone back and checked it!)
 
 
 
@@ -52,89 +52,12 @@ Installing Allegro
 
    Allegro ships in source code form; this means you need to compile it
    before you can use it. You do this easily from a terminal window.
-   Due to the multiplatform nature of the library, the first step is to
-   fix it so it can be built under MacOS X, by running:
-<textblock>
-      chmod +x fix.sh
-      ./fix.sh macosx
-<endblock>
-   If you have checked out a development version from Allegro's SVN
-   repository, run the following command. Otherwise, skip this step:
-<textblock>
-      make depend
-<endblock>
-   Now Allegro is ready to be compiled. Start building it:
-<textblock>
-      make
-<endblock>
-   And finally you install it (you need the root password for this step):
-<textblock>
-      sudo make install
-<endblock>
-   Allegro has now been installed in your system as a standalone shared
-   library, in <tt>/usr/local/lib</tt>.
-   You may also wish to install the man pages:
-<textblock>
-      sudo make install-man
-<endblock>
-   Alternatively, you can view the documentation in the Mac Help Center:
-<textblock>
-      sudo make install-applehelp
-<endblock>
-   You may also wish to install the library as a standard MacOS X framework:
-<textblock>
-      sudo make install-framework
-<endblock>
-   The "Allegro" framework will be created into <tt>/Library/Frameworks</tt>.
-   Note that the framework is standalone: it contains its own copy of the
-   dynamic library, so it can be safely copied around.
-   If you plan to embed the Allegro framework inside your application
-   bundles, you must install a special embeddable version of it:
-<textblock>
-      sudo make install-framework EMBED=1
-<endblock>
-   Embedding the framework into your application bundles ensures they will
-   work also on machines where Allegro is not installed. Note that if you
-   embed the non-embeddable version of the framework into your app bundle,
-   your program will not be able to load it and it will not work.
-   Finally, if you plan on using Project Builder to code your apps, you
-   may find useful installing an Allegro application PB project template:
-<textblock>
-      sudo make install-template
-<endblock>
-   The dynamically linked version of the library gets built by default, but
-   if you want to build a statically linked one, write the following on the
-   command line:
-<textblock>
-      export STATICLINK=1
-<endblock>
-   In the same manner we can also enter one of the following lines to
-   build either the debug or the profiling version of the library:
-<textblock>
-      export DEBUGMODE=1
-      export PROFILEMODE=1
-<endblock>
-   Then restart the build process by issuing:
-<textblock>
-      make
-      sudo make install
-<endblock>
-   The static library will be installed in <tt>/usr/local/lib</tt> as the shared
-   one, but you will not be able to install the framework nor the Project
-   Builder template, which require a dynamically linked Allegro version.
+   See the generic documentation in docs/build/cmake.txt.
 
-   If you have OS X 10.4 and you want to build a Universal Binary version of
-   the library (i.e. one that will run on both PowerPC and Intel Macs) you
-   can type
-<textblock>
-      ./fix.sh macosx-universal
-<endblock>
-   instead of the <tt>fix.sh</tt> line given above. Note that you'll still need
-   to specify the appropriate flags when you link your program, otherwise
-   gcc will 'thin' the binary so it only includes the native code.
+   You may build either Unix-style shared library, or Mac OS X frameworks,
+   or both.
 
-   For more information see 
-   http://developer.apple.com/documentation/MacOSX/Conceptual/universal_binary/
+   XXX information about universal binaries
 
 
 @heading
@@ -157,7 +80,7 @@ Using Allegro from the command line
       gcc myfile.c -o myprogram `allegro-config --libs debug`
 <endblock>
    You can also link against the Allegro framework, providing you previously
-   installed it via <tt>make install-framework</tt>:
+   installed it:
 <textblock>
       gcc myfile.c -o myprogram `allegro-config --frameworks`
 <endblock>
@@ -186,31 +109,6 @@ Using Allegro from the command line
    Newer versions of OSX use bash, older ones use tcsh.
    You will have to close the Terminal window and open a new one once
    you have made the changes, so it will have an effect.
-
-@heading
-Using Allegro from Project Builder (or XCode)
-
-   To use Allegro from inside Apple's Project Builder, be sure you first
-   installed the library as a framework and that you also installed the PB
-   application template (see section "Installing Allegro" for details).
-
-   Once you're ready, start up Project Builder and choose "New Project"
-   from the "File" menu. On the very first dialog, you'll be prompted
-   with a list of project templates with which to create your program.
-   Select "Allegro Application" under the "Application" category and enter
-   the project name and location in the next dialog. Once the setup is
-   complete, you will find yourself with an opened Allegro application
-   project, holding an unique source file (<tt>main.c</tt>) and some linked
-   frameworks. The project can already be compiled to a working application;
-   try it!
-
-   Note that the same procedure applies to XCode, which is compatible
-   with Project Builder.
-
-   The <tt>main.c</tt> source file contains a very simple skeleton of an Allegro
-   program that will open up a white window with the text "Hello, world!"
-   in the center. This file is just a start: you can (and should) completely
-   replace its contents to suit your needs.
 
 
 

@@ -95,6 +95,9 @@ Supported platforms
    QNX               - see docs/build/qnx.txt
    MacOS X           - see docs/build/macosx.txt
 <endblock>
+   Note: many of those platforms were supported in the past, but may not be any
+   longer, without effort from interest parties. Sorry.
+
    General API information can be found in the main manual, usually referred
    to as docs/txt/allegro.txt, allegro.txt or simply "The Allegro manual"
    throughout this document. The Allegro manual source is available as a set
@@ -125,8 +128,9 @@ See docs/txt/addons.txt.
 @heading
 Features
 <ul><li>
-   Cross-platform support for DOS, Windows, Unix, BeOS, QNX and MacOS X
-   systems.
+   Cross-platform support for Windows, Unix, and MacOS X systems.
+   (Formerly also DOS, BeOS and QNX - it may be possible to resurrect those
+   platforms, with your help!)
 <li>
    Drawing functions including putpixel, getpixel, lines, rectangles, flat 
    shaded, gouraud shaded, texture mapped, and z-buffered polygons, circles,
@@ -136,27 +140,13 @@ Features
    clipping, and can draw directly to the screen or to memory bitmaps of any
    size.
 <li>
-   DOS graphics drivers for VGA mode 13h, mode-X (twenty three tweaked VGA
-   resolutions plus unchained 640x400 Xtended mode), and SVGA modes with 8, 
-   15, 16, 24, and 32 bit color depths, taking full advantage of VBE 2.0 
-   linear framebuffers and the VBE/AF hardware accelerator API if they are 
-   available. Additional video hardware support is available from the 
-   FreeBE/AF project (<link>http://www.talula.demon.co.uk/freebe/</a>).
-<li>
    Windows graphics drivers using DirectX in fullscreen and windowed modes,
    plus routines for drawing onto GDI device contexts.
 <li>
-   Unix graphics drivers for X, DGA2, fbcon, SVGAlib, VBE/AF, mode-X, and
-   standard VGA.
-<li>
-   BeOS graphics drivers using BWindowScreen in fullscreen and BDirectWindow
-   in windowed modes.
+   Unix graphics drivers for X, DGA2, fbcon, SVGAlib, and standard VGA.
 <li>
    MacOS X native graphics drivers using CGDirectDisplay API for direct 
    fullscreen gfx access and QuickDraw in a Cocoa window in windowed mode.
-<li>
-   Hardware scrolling and triple buffering (where available), mode-X split
-   screens, and palette manipulation.
 <li>
    FLI/FLC animation player.
 <li>
@@ -188,6 +178,21 @@ Features
    GUI dialog manager and file selector.
 <li>
    Built-in support for 16-bit and UTF-8 format Unicode characters.
+</ul>
+Formerly also:
+<ul><li>
+   DOS graphics drivers for VGA mode 13h, mode-X (twenty three tweaked VGA
+   resolutions plus unchained 640x400 Xtended mode), and SVGA modes with 8, 
+   15, 16, 24, and 32 bit color depths, taking full advantage of VBE 2.0 
+   linear framebuffers and the VBE/AF hardware accelerator API if they are 
+   available. Additional video hardware support is available from the 
+   FreeBE/AF project (<link>http://www.talula.demon.co.uk/freebe/</a>).
+<li>
+   BeOS graphics drivers using BWindowScreen in fullscreen and BDirectWindow
+   in windowed modes.
+<li>
+   Hardware scrolling and triple buffering (where available), mode-X split
+   screens, and palette manipulation.
 </ul>
 
 

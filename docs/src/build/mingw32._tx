@@ -23,26 +23,11 @@
 @heading
 MinGW notes
 
-   This is a complete MinGW port of Allegro. This build doesn't rely
-   on the DLL files produced by MSVC any longer but can make them itself.
-   I'm proud to say Allegro can now make Win32 programs entirely using
-   free professional tools. On that note I'd like to thank Peter Puck for
-   making this a reality and for finishing off what I started. Enjoy!
+   This is a complete MinGW port of Allegro.
 
    The screensaver example is built, but you must copy <tt>scrsave.scr</tt> to
    your <tt>windows/system</tt> directory (or <tt>winnt/system32</tt> directory
    under Windows NT/2k/XP) if you want to test it.
-
-   If you have both GNU bash and GNU fileutils installed on your system, then
-   set the environment variable <tt>UNIX_TOOLS</tt> (<tt>set UNIX_TOOLS=1</tt>). This is needed
-   because GNU make will automatically use sh.exe instead of command.com if
-   it finds it somewhere in the <tt>PATH</tt>. This step is not necessary when using
-   MSYS or Cygwin as the makefile automatically sets <tt>UNIX_TOOLS</tt> for you.
-
-   "<tt>make depend</tt>" and "<tt>fixdll.bat</tt>" require that you have GNU sed installed.
-   "<tt>fixdll.bat</tt>" requires that you have GNU sort (not DOS sort!) installed.
-   You can download some extra utilities for MinGW from:
-   '<link>http://sourceforge.net/projects/gnuwin32/</a>'
 
 
 
@@ -89,8 +74,8 @@ Setting up MinGW to build Allegro
       that this is *not* the same package as '<tt>dx70_min.zip</tt>'. Unzip it
       to the compiler directory, overwriting any existing files.
 
-   3. Set the environment variable MINGDIR to the compiler directory. If you
-      use Windows 9x, you can add the line
+   3. Optionally, set the environment variable MINGDIR to the compiler
+      directory. If you use Windows 9x, you can add the line
 <textblock>
 	 set MINGDIR=c:\MinGW
 <endblock>
@@ -137,9 +122,9 @@ Setting up Dev-C++ to build Allegro
    2. Get the DirectX SDK: go to Tools\Check for Updates/Packages... and
       install the DirectX package. Close Dev-C++.
 
-   3. Add '<tt>c:\DevCpp\bin</tt>' to the beginning of your <tt>PATH</tt> environment variable
-      and set the environment variable MINGDIR to '<tt>c:\DevCpp</tt>'. If you use
-      Windows 9x, you can add the lines
+   3. Add '<tt>c:\DevCpp\bin</tt>' to the beginning of your <tt>PATH</tt> environment variable.
+      Optionally, set the environment variable MINGDIR to '<tt>c:\DevCpp</tt>'.
+      If you use Windows 9x, you can add the lines
 <textblock>
 	 PATH=c:\DevCpp\bin;%PATH%
 	 set MINGDIR=c:\DevCpp
@@ -209,6 +194,8 @@ Setting up Cygwin to build Allegro
    Cygwin. This is expected to be fixed in a later release of the
    mingw-runtime package (I'm currently using mingw-runtime-1.2-1).
 
+   Note: Allegro 4.4 has not been tested with Cygwin.
+
 
 
 @heading
@@ -247,145 +234,22 @@ Cross compilation
       DirectX package downloaded and installed by the SDL script is not up
       to date: replace it with the package from the Allegro site.
 
-   3. Edit the file '<tt>xmake.sh</tt>' in the root of your Allegro directory,
-      replacing <tt>XC_PATH</tt>, <tt>XPREFIX</tt> and <tt>INSTALL_BASE</tt> with the right names.
-      For example, if your compiler's base dir (the one with bin, lib and
-      include sub-folders) is <tt>/usr/i586-mingw32msvc</tt>, and you have prefix-less
-      binaries in <tt>/usr/i586-mingw32msvc/bin</tt>, you would use:
-<textblock>
-	 XC_PATH=/usr/i586-mingw32msvc/bin
-	 XPREFIX=
-	 INSTALL_BASE=/usr/i586-mingw32msvc
-<endblock>
-      Note that the <tt>build-cross.sh</tt> script from SDL installs binaries both
-      with and without prefix, but some binaries (windres specifically)
-      are installed only with prefix. If you installed the crosscompiler
-      in <tt>/opt/cross-tools</tt> using this script, you would use:
-<textblock>
-	 XC_PATH=/opt/cross-tools/i386-mingw32msvc/bin:/opt/cross-tools/bin
-	 XPREFIX=i386-mingw32msvc-
-	 INSTALL_BASE=/opt/cross-tools/i386-mingw32msvc
-<endblock>
-   4. Run '<tt>./fix.sh mingw --dtou</tt>' (<tt>--dtou</tt> is only needed if your Allegro
-      directory has text files in DOS format, otherwise you can use <tt>--quick</tt>).
-      If you are using a SVN version of Allegro, run '<tt>make depend</tt>' to
-      generate the build dependencies, then run '<tt>misc/fixdll.sh</tt>' to generate
-      the <tt>allegro.def</tt> file. You are now finished with all the preparations.
-
-   5. You can now run '<tt>./xmake.sh</tt>' to build the Allegro library and then run
-      '<tt>./xmake.sh install</tt>' as root to install it. Afterwards, you can use
-      '<tt>xmake.sh</tt>' as you would use '<tt>make</tt>' to compile your Allegro programs, or
-      you can use the '<tt>cross-make.sh</tt>' and '<tt>cross-configure.sh</tt>' scripts from
-      the SDL site. You must use '<tt>xmake.sh</tt>' to compile Allegro itself though.
-
-   6. To build the documentation, use the native build process. This
-      limitation will eventually be removed.
+   3. Use the cmake/Toolchain-mingw.cmake file.
 </blockquote>
 
 
 @heading
 Installing Allegro
 
-   This assumes you have unzipped allegro to <tt>c:\allegro</tt> or, if you are using
-   MSYS, you have unzipped it to <tt>c:\msys\allegro</tt> (which is equivalent to
-   <tt>/allegro</tt> from within the MSYS environment) or, if you are using Cygwin,
-   you have unzipped it to <tt>c:\cygwin\allegro</tt> (which is equivalent to
-   <tt>/allegro</tt> from within the Cygwin environment).
-
-   First configure Allegro for MinGW. Unless you are using MSYS or Cygwin,
-   enter the following on the commandline (click on '<tt>Start -&gt Run</tt>' then type
-   "<tt>command</tt>" or "<tt>cmd</tt>" to get a command prompt):
-<textblock>
-      cd c:\allegro
-      fix.bat mingw
-<endblock>
-   If you are using MSYS or Cygwin, start your environment, which you can
-   find either on your desktop and/or on your Windows start menu. The
-   following commands should then be used instead of the ones above:
-<textblock>
-      cd /allegro
-      ./fix.sh mingw --dtou   (--dtou can be replaced by --quick for MSYS).
-<endblock>
-   Now you're ready to build the Allegro library with:
-<textblock>
-      make (or mingw32-make if you are using a recent version of MinGW)
-<endblock>
-   The dynamically linked version of Allegro gets built by default. If you
-   want to build the statically linked version of Allegro, use:
-<textblock>
-      make STATICLINK=1
-<endblock>
-   If you want to build either the debug or the profile version of the
-   library, enter one of the following commands:
-<textblock>
-      make DEBUGMODE=1 (dynamically linked)
-      make DEBUGMODE=1 STATICLINK=1 (statically linked)
-      make PROFILEMODE=1 (dynamically linked)
-      make PROFILEMODE=1 STATICLINK=1 (statically linked)
-<endblock>
-   A list of all the available options:
-<blockquote><dl>
-      <dt><tt>CROSSCOMPILE</tt></dt><dd>
-	 Set this if you are crosscompiling; it implies <tt>UNIX_TOOLS</tt>.</dd>
-
-      <dt><tt>WARNMODE</tt></dt><dd>
-	 Set this if you want Allegro to display and stop on nearly all
-	 warnings issued by the compiler. Allegro should compile fine with
-	 this set.</dd>
-
-      <dt><tt>TARGET_ARCH_COMPAT</tt>
-	 or
-      <tt>TARGET_ARCH_EXCL</tt></dt><dd>
-	 These affect the level of processor dependant optimisation that
-	 Allegro uses. You can set either of these to the processor type you
-	 want to optimize for. The difference between these two is that
-	 <tt>TARGET_ARCH_COMPAT</tt> optimise for the given processor so that the code
-	 will still run on older processors, while <tt>TARGET_ARCH_EXCL</tt> will
-	 generate code that will run exclusively on the given processor and of
-	 course newer ones. Example: set <tt>TARGET_ARCH_COMPAT=i686</tt></dd>
-
-      <dt><tt>TARGET_OPTS</tt></dt><dd>
-	 Affects the general optimisations that Allegro uses.</dd>
-
-      <dt><tt>UNIX_TOOLS</tt></dt><dd>
-	 If your system does not have the usual DOS tools available (`<tt>md</tt>',
-	 `<tt>rd</tt>', `<tt>copy</tt>', etc., and commands which understand the <tt>\</tt> character),
-	 then set this to 1 to use the Unix equivalents. This is set
-	 implicitly when you set <tt>CROSSCOMPILE</tt>, and is also set automatically
-	 when you are running under bash.</dd>
-</dl></blockquote>
-   To activate any of these, type (for example) "<tt>make WARNMODE=1</tt>".
-
-   If your copy of Allegro does not include the linker .def file (unlikely,
-   unless you have run "<tt>make veryclean</tt>" at some point, or are using the SVN
-   version of Allegro), you can regenerate it by running "<tt>misc\fixdll.bat</tt>".
-   You will need to have GNU sed and sort installed for this operation to
-   work. The version of sed that is linked from the MinGW site does not
-   work properly; it has issues with end-of-line characters. You should get
-   sed and sort from the link at the top of this document.
-
-   Once the build is finished you can recover some disk space by running
-   "<tt>make compress</tt>", which uses the UPX program to compress the executable
-   files and the optimized dll. Before running "<tt>make compress</tt>", you must set
-   the environment variable <tt>UPX_BIN</tt> to point to <tt>upx.exe</tt>. You will have to
-   do run "<tt>make compress</tt>" before "<tt>make install</tt>" if you want the compressed
-   dll to be copied to the windows directory. To recover even more disk
-   space, you can run "<tt>make clean</tt>" to get rid of all the temporary files and
-   HTML format documentation.
-
-   And then the last thing, installing the library. Run:
-<textblock>
-      make install
-<endblock>
-   with the same options you passed to '<tt>make</tt>' in order to build the library.
-
-   You have now installed Allegro! See the rest of the documentation and
-   examples to learn more about it.
+   Once your compiler is set up, follow the generic build instructions in
+   docs/build/cmake.txt.
 
 
 
 @heading
 Using Allegro
+
+   XXX some of the library names are wrong right now
 
    All the Allegro functions, variables, and data structures are defined 
    in <tt>allegro.h</tt>. You should include this in your programs, and link with
@@ -396,7 +260,7 @@ Using Allegro
    When using a statically linked library, you must define the preprocessor
    symbol <tt>ALLEGRO_STATICLINK</tt> before including any of the Allegro headers and
    link your program against Allegro and the main Win32/DirectX libraries
-   in that order (see the variable <tt>LIBRARIES</tt> in <tt>makefile.mgw</tt>). The names of
+   in that order. The names of
    the statically linked Allegro libraries are post-fixed with '<tt>_s</tt>' so that
    you will link with either <tt>liballeg_s.a</tt>, <tt>liballd_s.a</tt> or <tt>liballp_s.a</tt>.
 

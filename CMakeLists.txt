@@ -1,14 +1,14 @@
-# XXX update `build' docs
 # XXX add pkg-config files
 # XXX build chm files
 # XXX build devhelp files
 # XXX resources (keyboard/language) - pretty useless except on DOS
 # XXX install grabber.txt?
-# XXX check svgalib works
 # XXX check freebsd works (non-linux unix representative)
 # XXX png plugin for grabber
 # XXX what is fixbundle?
-# XXX build allegrogl docs with doxygen
+# XXX applehelp bundle?
+# XXX projectbuilder application template?
+# XXX allegro.m4?
 
 # Ports that used to work which aren't supported yet:
 #   Haiku/BeOS port

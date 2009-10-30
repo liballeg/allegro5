@@ -1,0 +1,144 @@
+@external-css=../allegro.css
+@document_title=Building Allegro with CMake
+
+
+
+@heading
+Building Allegro 4.4 with CMake
+
+   CMake is a cross-platform tool that can generate native makefiles and
+   workspaces that can be used in the compiler environment of your choice.
+   Allegro 4.4 uses CMake as it's build system.  The process is essentially the
+   same for all compilers.  You will need CMake 2.6 or later.
+   <ol><li>
+   Create a temporary directory to build in.  This is optional but recommended.
+   If something goes wrong you can delete the build directory and try again.
+   <code>
+      $ mkdir Build
+
+      $ cd Build
+   </code>
+   <li>Run CMake in the build directory.  This will detect your compiler
+   environment and generate makefiles or workspaces for you.  You may pass some
+   options to customise the build (see later), but the defaults should be fine.
+   You may need to tell CMake which type of files it should generate, using the
+   -G option.
+
+   Examples (you only need one):
+   <code>
+      $ cmake ..
+
+      $ cmake -G "MinGW Makefiles" ..
+   </code>
+   On Unix/Mac you can use `ccmake` which will present you with a console
+   program to adjust the options.  On Windows you can use `cmake-gui` instead
+   (it should be listed in the Start menu or on the desktop).
+
+   If you are missing any dependencies, CMake will tell you at this point.  You
+   can continue without building all of the addons, or install the dependencies
+   and retry.  You may need to delete the `CMakeCache.txt` file first.
+
+   <li>Use the generated makefiles or workspaces to build Allegro.  If using
+   makefiles, type `make`.  If using workspaces, open them in your IDE.  If
+   using Xcode, you can use `xcodebuild` from the command-line or the IDE.
+
+   <li>Optionally install the libraries and header files to your system.
+   <code>
+	$ make install
+   </code>
+   DESTDIR is supported, e.g.
+   <code>
+	$ make install DESTDIR=/tmp/package-allegro
+   </code></ol>
+
+
+@heading
+Build options
+
+   Here are some build options you may be interested in.  You can set them on
+   the command line like so, or using one of the front ends:
+   <code>
+	$ cmake -DCMAKE_BUILD_TYPE=Debug ..
+   </code>
+   <dt><b>CMAKE_BUILD_TYPE</b> (default: RelWithDebInfo)</dt><dd>
+      Selects release, debug or profiling configurations.  Valid values are:
+      Release, Debug, RelWithDebInfo, MinSizeRel, Profile.
+      <p>
+      If you are installing multiple configurations in a row, we recommend
+      installing the Release or RelWithDebInfo configuration last, so that the
+      installed allegro-config script will default to that configuration.
+   </dd>
+   <dt><b>SHARED</b> (default: on)</dt><dd>
+      Whether to build the main Allegro library as a shared library (DLL) or as
+      a static library.  Addon libraries are always built as static libraries,
+      for simplicity.
+   </dd>
+   <dt><b>CMAKE_INSTALL_PREFIX</b> (e.g. /usr/local)</dt><dd>
+      Where to install the library and header files.
+   </dd>
+   <dt><b>WANT_&ltaddon&gt</b> (default: on)</dt><dd>
+      Whether you want to build/install each particular addon.
+   </dd>
+   <dt><b>WANT_FRAMEWORKS</b> (default: off)</dt><dd>
+     On Mac OS X, whether to build and install frameworks instead of
+     Unix-style shared libraries.
+     <p>
+     If you want both kinds, you will need to run cmake twice and install
+     twice.
+   </dd>
+   <dt><b>WANT_EMBED</b> (default: on)</dt><dd>
+     If building frameworks, whether to build embedded or non-embedded
+     frameworks.  An application bundle that links against an embedded
+     framework will first search for the framework within the application
+     bundle, then fall back to system paths.
+   </dd>
+   <dt><b>FRAMEWORK_INSTALL_PREFIX</b></dt><dd>
+      Where to install frameworks.
+   </dd>
+   <dt>CMAKE_OSX_ARCHITECTURES</dt><dd>
+      You may set this to a semicolon-separated list of the architectures
+      to compile for, to produce universal binaries, e.g. "i386;ppc".
+   </dd>
+
+
+@heading
+Dependencies
+
+   Many of the addons make use of additional libraries.  They are not required
+   to build Allegro, but functionality may be disabled if they are not present.
+
+   Windows users may find some precompiled binaries from
+   <link>http://gnuwin32.sourceforge.net/</a>.  You need to get the bin and lib
+   packages.  The bin packages contain DLLs, and the lib packages contain the
+   headers and import libraries.
+
+   Mac users may find some dependencies in Fink or MacPorts.
+   <link>http://www.finkproject.org/</a> and
+   <link>http://www.macports.org/</a>
+
+   Linux users likely have all the dependencies already.  If your distribution
+   uses separate development packages, they will need to be installed.  The
+   packages are probably named *-dev or *-devel.
+<ul><li>
+   OpenGL is required for AllegroGL.
+   <li>
+   libpng and zlib, for PNG image support.<br>
+   These are used by loadpng.<br>
+   Home page: <link>http://www.libpng.org/pub/png/</a><br>
+   Windows binaries: <link>http://gnuwin32.sourceforge.net/packages/libpng.htm</a>
+   <li>
+   Ogg Vorbis, a free lossy audio format. (libogg, libvorbis, libvorbisfile)<br>
+   This is used by logg.<br>
+   Home page: <link>http://www.vorbis.com/</a>
+   <li>
+   jpgalleg does not require any additional libraries.
+   </ul>
+
+
+@heading
+Platform-specific information
+
+   Please see the other files in the docs/build directory for additional
+   information specific to each platform.
+
+
