@@ -67,7 +67,6 @@ foreach(page ${DOC_SRCS})
     set(page ${CMAKE_CURRENT_SOURCE_DIR}/${page})
     set(txt_out ${CMAKE_CURRENT_BINARY_DIR}/txt/${basename}.txt)
     set(html_out ${CMAKE_CURRENT_BINARY_DIR}/html/${basename}.html)
-    set(rtf_out ${CMAKE_CURRENT_BINARY_DIR}/rtf/${basename}.rtf)
 
     add_custom_command(
         OUTPUT ${txt_out}
@@ -81,13 +80,7 @@ foreach(page ${DOC_SRCS})
         COMMAND makedoc -html ${html_out} ${page}
         )
 
-    add_custom_command(
-        OUTPUT ${rtf_out}
-        DEPENDS makedoc ${page}
-        COMMAND makedoc -rtf ${rtf_out} ${page}
-        )
-
-    list(APPEND all_docs ${txt_out} ${html_out} ${rtf_out})
+    list(APPEND all_docs ${txt_out} ${html_out})
 endforeach()
 
 macro(ascii_file out src)
