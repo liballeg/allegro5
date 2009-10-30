@@ -249,8 +249,8 @@ set(ALLEGRO_SRC_LINUX_FILES
         src/misc/vbeafs.s
         src/misc/vgaregs.c
         src/misc/vga.c
-        src/misc/modex.c
-        src/misc/modexgfx.s
+        # src/misc/modex.c
+        # src/misc/modexgfx.s
         )
 
 set(ALLEGRO_SRC_UNIX_FILES
@@ -279,7 +279,7 @@ set(ALLEGRO_SRC_UNIX_FILES
         src/unix/usystem.c
         src/unix/uthreads.c
         src/unix/utimer.c
-        src/misc/modexsms.c
+        # src/misc/modexsms.c
         )
 
 set(ALLEGRO_SRC_X_FILES

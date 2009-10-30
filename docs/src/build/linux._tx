@@ -109,6 +109,9 @@ Notes on drivers
    <dt><b>Graphics:</b></dt><dd>
       Linux Allegro supports standard VGA and mode-X by direct writes to 
       the video card. You need root privileges for this to work.
+
+      Note: the mode-X driver does not work as of Allegro 4.4.0.
+      It may be restored in the future (but likely not).
       
       It also supports fbcon, for which you do not need privileges, but 
       you do need a recent kernel, correctly configured.

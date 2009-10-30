@@ -4,7 +4,6 @@
 # XXX build devhelp files
 # XXX resources (keyboard/language) - pretty useless except on DOS
 # XXX install grabber.txt?
-# XXX check linux vga/mode-x works
 # XXX check svgalib works
 # XXX check freebsd works (non-linux unix representative)
 # XXX png plugin for grabber
@@ -314,30 +313,6 @@ set(ALLEGRO_NO_ASM 1)
 # ALLEGRO_MMX left undefined
 # ALLEGRO_SSE left undefined
 
-# Even though most hand written assembly is not used any more, a little bit
-# may still be used for the Linux console VGA/Mode-X drivers (and djgpp
-# drivers if that is revived).
-
-add_executable(asmdef EXCLUDE_FROM_ALL
-    src/i386/asmdef.c
-    )
-
-add_custom_command(
-    OUTPUT ${CMAKE_BINARY_DIR}/gen_asmdefs.inc
-    DEPENDS asmdef
-    COMMAND asmdef ${CMAKE_BINARY_DIR}/gen_asmdefs.inc
-    )
-
-macro(declare_asm)
-    # Set the language to C to run asm files through gcc.
-    set_source_files_properties(${ARGN}
-        PROPERTIES
-        LANGUAGE C
-        COMPILE_FLAGS "-x assembler-with-cpp"
-        OBJECT_DEPENDS ${CMAKE_BINARY_DIR}/gen_asmdefs.inc
-        )
-endmacro(declare_asm)
-
 #-----------------------------------------------------------------------------#
 #
 # Unix modules
@@ -498,7 +473,6 @@ if(WANT_LINUX_CONSOLE AND CMAKE_SYSTEM_NAME STREQUAL Linux)
 
     if(WANT_LINUX_VGA)
         set(ALLEGRO_LINUX_VGA 1)
-        declare_asm(src/misc/modexgfx.s)
         add_our_module(alleg-vga src/misc/vga.c)
     endif()
 
