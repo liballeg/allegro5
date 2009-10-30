@@ -496,11 +496,19 @@ static BITMAP *svga_init(int w, int h, int v_w, int v_h, int color_depth)
       if (!svga_version2())
 	 seteuid(0);
       else {
+	 /* I don't remember why I put this code in eight years ago (!) and the
+	  * log message wasn't very good :-P  My guess is that a previous
+	  * version of SVGAlib 1.9.x would call exit() if the /dev/svga device
+	  * wasn't present.  However, as far as I know, the svgalib_helper
+	  * doesn't compile with recent kernels so the device won't exist. --pw
+	  */
+#if 0
 	 /* Avoid having SVGAlib calling exit() on us.  */
 	 int fd = open("/dev/svga", O_RDWR);
 	 if (fd < 0)
 	    return NULL;
 	 close(fd);
+#endif
       }
       vga_disabledriverreport();
       if (vga_init() != 0)
