@@ -419,7 +419,6 @@ static int alsa_init(int input, int voices)
    ALSA9_CHECK(snd_pcm_sw_params_current(pcm_handle, swparams));
    ALSA9_CHECK(snd_pcm_sw_params_set_start_threshold(pcm_handle, swparams, alsa_bufsize));
    ALSA9_CHECK(snd_pcm_sw_params_set_avail_min(pcm_handle, swparams, fragsize));
-   ALSA9_CHECK(snd_pcm_sw_params_set_xfer_align(pcm_handle, swparams, 1));
    ALSA9_CHECK(snd_pcm_sw_params(pcm_handle, swparams));
 
    /* Allocate mixing buffer. */
