@@ -337,6 +337,9 @@ Contributors
    Fabrizio Gennari (<email>faybs@iafrica.com</a>).<br>
    Contributed the DB9 and TurboGraFXoystick drivers.
 
+   Francis Devereux.<br>
+   Made the OS X port compile on Mac OS X 10.6.
+
    Francisco Pires (<email>fmlvp@hotmail.com</a>).<br>
    Added an FPS counter and an option to disable vsync to the excamera
    example.
@@ -845,6 +848,10 @@ Contributors
    hot-swapping between a custom keyboard layout and the standard US
    mapping, optimised the alpha sprite blending routines and added non-ASCII
    space recognition to uisspace().
+
+   Peter De Wachter.<br>
+   Made the ALSA driver work for hardware which does not support unsigned
+   samples.
 
    Peter Hull (<email>peterhull90@users.sourceforge.net</a>).<br>
    Made the file selector work with directories that have more than 2048 

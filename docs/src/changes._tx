@@ -95,6 +95,44 @@ Changes from 4.2.2 to 4.3.10 (January 2008)
 </ul>
 
 @heading
+Changes from 4.2.3 to 4.2.3.1 (October 2009)
+<ul><li>
+   Francis Devereux made the OS X port compile on Mac OS X 10.6.
+</ul>
+
+@heading
+Changes from 4.2.2 to 4.2.3 (October 2009)
+<ul><li>
+   Fix fnstsw compile bug with newer binutils.
+<li>
+   Trent Gamblin made a small change to the Windows mouse driver to add
+   support for touchscreens (at least 1 of them).
+<li>
+   Peter De Wachter made the ALSA driver work for hardware which does not
+   support unsigned samples.
+<li>
+   Matthew Leverton fixed a problem with filename encoding and the SYSTEM_NONE
+   driver.  Added set_filename_encoding(), get_filename_encoding().
+<li>
+   Milan Mimica made the MinGW and MSVC makefiles add the suffix "_c" onto
+   non-asm builds, and clarified that user programs linking against the
+   non-asm libraries must also defined ALLEGRO_USE_C.  Mixing calling
+   conventions causes segfaults when functions are inlined.
+<li>
+   AJ added detection for SSSE3, SSE4.1 and SSE4.2
+<li>
+   David A. Capello made key_shifts work properly on Windows for Control,
+   Alt, and Shift.
+<li>
+   Clarified that set_config_file() does not search for the given config file
+   in other locations, as Allegro does with allegro.cfg at initialization.
+<li>
+   Fixed buffer overflow in exgui.
+<li>
+   Fixed problems with newer versions of autoconf.
+</ul>
+
+@heading
 Changes from 4.2.2 RC1 to 4.2.2 (July 2007)
 <ul><li>
    Matthew Leverton added build instructions for DMC and updated the MSVC
