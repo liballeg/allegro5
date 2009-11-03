@@ -10398,6 +10398,16 @@ any character, but only one).
    or `/' on to it (depending on the platform). Note: ignore the function
    name, it's out of date.
 
+@@void @set_filename_encoding(int encoding)
+@xref get_filename_encoding
+@shortdesc Sets the encoding to use for filenames.
+   Sets the encoding to use for filenames. By default, UTF-8 is assumed.
+
+@@int @get_filename_encoding(void)
+@xref set_filename_encoding
+@shortdesc Returns the encoding currently assumed for filenames.
+   Returns the encoding currently assumed for filenames.
+
 @@int @file_exists(const char *filename, int attrib, int *aret);
 @xref exists, file_size_ex, file_time
 @shortdesc Tells if a file exists.
