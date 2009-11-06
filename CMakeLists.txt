@@ -3,7 +3,6 @@
 # XXX build devhelp files
 # XXX resources (keyboard/language) - pretty useless except on DOS
 # XXX install grabber.txt?
-# XXX check freebsd works (non-linux unix representative)
 # XXX png plugin for grabber
 # XXX what is fixbundle?
 # XXX applehelp bundle?
@@ -682,7 +681,6 @@ if(NOT WANT_FRAMEWORKS)
 endif(NOT WANT_FRAMEWORKS)
 
 if(APPLE AND SHARED OR WANT_FRAMEWORKS)
-    # XXX where do put this when using frameworks?
     add_our_library(alleg-main STATIC
 	src/macosx/main.m
 	)
@@ -791,7 +789,6 @@ endif(WANT_EXAMPLES)
 
 option(WANT_TOOLS "Build tool programs" on)
 
-# XXX do we install tools into the Allegro framework?
 if(WANT_TOOLS)
     add_subdirectory(tools)
     add_subdirectory(setup)
