@@ -670,10 +670,17 @@ set_target_properties(alleg
 
 set_our_framework_properties(alleg Allegro)
 
-target_link_libraries(alleg ${PLATFORM_LIBS})
+set(link_with ${PLATFORM_LIBS})
 if(NOT ALLEGRO_WITH_MODULES)
-    target_link_libraries(alleg ${PLATFORM_LIBS_NON_MODULES})
+    list(APPEND link_with ${PLATFORM_LIBS_NON_MODULES})
 endif()
+target_link_libraries(alleg ${link_with})
+
+sanitize_cmake_link_flags(static_link_with ${link_with})
+set_target_properties(alleg
+    PROPERTIES
+    static_link_with "${static_link_with}"
+    )
 
 install_our_library(alleg)
 if(NOT WANT_FRAMEWORKS)
@@ -735,13 +742,6 @@ endif(UNIX)
 
 #-----------------------------------------------------------------------------#
 #
-# Documentation
-#
-
-add_subdirectory(docs)
-
-#-----------------------------------------------------------------------------#
-#
 # Addons
 #
 
@@ -768,6 +768,60 @@ endif()
 if(WANT_JPGALLEG)
     add_subdirectory(addons/jpgalleg)
 endif()
+
+#-----------------------------------------------------------------------------#
+#
+# pkg-config files - after addons to get properties
+#
+
+set(PKG_CONFIG_FILES
+    allegro
+    allegrogl
+    jpgalleg
+    loadpng
+    logg
+    )
+
+if(UNIX)
+    set(prefix "${CMAKE_INSTALL_PREFIX}")
+    set(INCLUDE_PREFIX "\${prefix}")
+    set(bindir "\${exec_prefix}/bin")
+    set(includedir "\${prefix}/include")
+    set(libdir "\${exec_prefix}/lib${LIB_SUFFIX}")
+    set(lib_type "${BUILD_TYPE_SUFFIX}")
+    # XXX do we want -static suffixes?
+    set(lib_linkage "")
+
+    foreach(name ${PKG_CONFIG_FILES})
+        # It would probably be simpler to change the target names.
+        if(${name} STREQUAL allegro)
+            set(target alleg)
+        elseif(${name} STREQUAL allegrogl)
+            set(target alleggl)
+        else()
+            set(target ${name})
+        endif()
+
+        # For static linking: get extra libraries to link with.
+        get_target_property(link_with ${target} static_link_with)
+
+        configure_file(
+            misc/${name}.pc.in
+            ${LIBRARY_OUTPUT_PATH}/pkgconfig/${name}${lib_type}.pc
+            @ONLY
+            )
+        install(FILES ${LIBRARY_OUTPUT_PATH}/pkgconfig/${name}${lib_type}.pc
+                DESTINATION "lib${LIB_SUFFIX}/pkgconfig"
+                )
+    endforeach(name)
+endif(UNIX)
+
+#-----------------------------------------------------------------------------#
+#
+# Documentation
+#
+
+add_subdirectory(docs)
 
 #-----------------------------------------------------------------------------#
 #

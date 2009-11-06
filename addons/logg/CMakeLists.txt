@@ -33,12 +33,17 @@ set_target_properties(logg
     LINK_FLAGS "${ALLEGRO_LINK_FLAGS}"
     VERSION ${ALLEGRO_VERSION}
     SOVERSION ${ALLEGRO_SOVERSION}
-    FRAMEWORK ${WANT_FRAMEWORKS}
     )
 
 set_our_framework_properties(logg logg)
 
 target_link_libraries(logg alleg ${VORBIS_LIBRARIES})
+
+sanitize_cmake_link_flags(static_link_with ${VORBIS_LIBRARIES})
+set_target_properties(logg
+    PROPERTIES
+    static_link_with "${static_link_with}"
+    )
 
 install_our_library(logg)
 if(NOT WANT_FRAMEWORKS)

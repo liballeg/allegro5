@@ -120,6 +120,15 @@ target_link_libraries(alleggl
     ${OPENGL_glu_LIBRARY}
     )
 
+sanitize_cmake_link_flags(static_link_with
+    ${OPENGL_gl_LIBRARY}
+    ${OPENGL_glu_LIBRARY}
+    )
+set_target_properties(alleggl
+    PROPERTIES
+    static_link_with "${static_link_with}"
+    )
+
 install_our_library(alleggl)
 if(NOT WANT_FRAMEWORKS)
     install_our_headers(${ALLEGROGL_HEADERS})

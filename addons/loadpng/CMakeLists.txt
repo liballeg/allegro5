@@ -42,6 +42,12 @@ set_our_framework_properties(loadpng loadpng)
 
 target_link_libraries(loadpng alleg ${PNG_LIBRARIES})
 
+sanitize_cmake_link_flags(static_link_with ${PNG_LIBRARIES})
+set_target_properties(loadpng
+    PROPERTIES
+    static_link_with "${static_link_with}"
+    )
+
 install_our_library(loadpng)
 if(NOT WANT_FRAMEWORKS)
     install_our_headers(${LOADPNG_HEADERS})

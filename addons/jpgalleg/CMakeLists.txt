@@ -48,6 +48,11 @@ set_our_framework_properties(jpgalleg jpgalleg)
 
 target_link_libraries(jpgalleg alleg)
 
+set_target_properties(jpgalleg
+    PROPERTIES
+    static_link_with ""
+    )
+
 install_our_library(jpgalleg)
 if(NOT WANT_FRAMEWORKS)
     install_our_headers(${JPGALLEG_HEADERS})
