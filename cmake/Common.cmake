@@ -49,7 +49,7 @@ endfunction(install_our_headers)
 
 function(add_our_executable nm)
     add_executable(${nm} ${ARGN})
-    target_link_libraries(${nm} alleg)
+    target_link_libraries(${nm} allegro)
 endfunction()
 
 # Oh my. CMake really is bad for this - but I couldn't find a better

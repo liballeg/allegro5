@@ -37,7 +37,7 @@ set_target_properties(logg
 
 set_our_framework_properties(logg logg)
 
-target_link_libraries(logg alleg ${VORBIS_LIBRARIES})
+target_link_libraries(logg allegro ${VORBIS_LIBRARIES})
 
 sanitize_cmake_link_flags(static_link_with ${VORBIS_LIBRARIES})
 set_target_properties(logg

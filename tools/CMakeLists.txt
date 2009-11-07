@@ -38,7 +38,7 @@ set_source_files_properties(datedit.c
 
 # Don't use add_our_library as we don't want to install it.
 add_library(aldat STATIC datedit.c ${PLUGIN_SRCS})
-target_link_libraries(aldat alleg ${ALDAT_JPGALLEG})
+target_link_libraries(aldat allegro ${ALDAT_JPGALLEG})
 
 #-----------------------------------------------------------------------------#
 #

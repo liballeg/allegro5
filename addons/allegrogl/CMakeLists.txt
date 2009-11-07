@@ -99,23 +99,24 @@ set_source_files_properties(
     )
 
 # XXX Maybe AllegroGL should be optionally dynamic?
-add_our_library(alleggl ${ADDON_LINKAGE}
+add_our_library(allegrogl ${ADDON_LINKAGE}
     ${ALLEGROGL_SOURCES}
     ${ALLEGROGL_HEADERS}
     )
 
-set_target_properties(alleggl
+set_target_properties(allegrogl
     PROPERTIES
     COMPILE_FLAGS -DALLEGRO_GL_SRC_BUILD
     LINK_FLAGS "${ALLEGRO_LINK_FLAGS}"
+    OUTPUT_NAME alleggl
     VERSION ${ALLEGRO_VERSION}
     SOVERSION ${ALLEGRO_SOVERSION}
     )
 
-set_our_framework_properties(alleggl AllegroGL)
+set_our_framework_properties(allegrogl AllegroGL)
 
-target_link_libraries(alleggl
-    alleg
+target_link_libraries(allegrogl
+    allegro
     ${OPENGL_gl_LIBRARY}
     ${OPENGL_glu_LIBRARY}
     )
@@ -124,12 +125,12 @@ sanitize_cmake_link_flags(static_link_with
     ${OPENGL_gl_LIBRARY}
     ${OPENGL_glu_LIBRARY}
     )
-set_target_properties(alleggl
+set_target_properties(allegrogl
     PROPERTIES
     static_link_with "${static_link_with}"
     )
 
-install_our_library(alleggl)
+install_our_library(allegrogl)
 if(NOT WANT_FRAMEWORKS)
     install_our_headers(${ALLEGROGL_HEADERS})
 endif(NOT WANT_FRAMEWORKS)
@@ -149,7 +150,7 @@ function(add_our_example nm)
         PROPERTIES
         OUTPUT_NAME examp/${nm}
         )
-    target_link_libraries(${nm}_agl alleggl)
+    target_link_libraries(${nm}_agl allegrogl)
 endfunction()
 
 if(WANT_EXAMPLES)

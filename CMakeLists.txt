@@ -1,4 +1,3 @@
-# XXX add pkg-config files
 # XXX build chm files
 # XXX build devhelp files
 # XXX resources (keyboard/language) - pretty useless except on DOS
@@ -653,36 +652,37 @@ if(APPLE)
 	"-compatibility_version ${COMPAT_VERSION} -current_version ${ALLEGRO_VERSION}")
 endif(APPLE)
 
-add_our_library(alleg
+add_our_library(allegro
     ${ALLEGRO_SRC_FILES}
     ${ALLEGRO_SRC_C_FILES}
     ${PLATFORM_SOURCES}
     ${ALLEGRO_PUBLIC_HEADERS}
     )
 
-set_target_properties(alleg
+set_target_properties(allegro
     PROPERTIES
     COMPILE_FLAGS "-DALLEGRO_SRC ${ALLEGRO_MODULES_PATH_FLAG}"
     LINK_FLAGS "${ALLEGRO_LINK_FLAGS}"
+    OUTPUT_NAME alleg
     VERSION ${ALLEGRO_VERSION}
     SOVERSION ${ALLEGRO_SOVERSION}
     )
 
-set_our_framework_properties(alleg Allegro)
+set_our_framework_properties(allegro Allegro)
 
 set(link_with ${PLATFORM_LIBS})
 if(NOT ALLEGRO_WITH_MODULES)
     list(APPEND link_with ${PLATFORM_LIBS_NON_MODULES})
 endif()
-target_link_libraries(alleg ${link_with})
+target_link_libraries(allegro ${link_with})
 
 sanitize_cmake_link_flags(static_link_with ${link_with})
-set_target_properties(alleg
+set_target_properties(allegro
     PROPERTIES
     static_link_with "${static_link_with}"
     )
 
-install_our_library(alleg)
+install_our_library(allegro)
 if(NOT WANT_FRAMEWORKS)
     install_our_headers(${ALLEGRO_PUBLIC_HEADERS})
 endif(NOT WANT_FRAMEWORKS)
@@ -696,7 +696,7 @@ if(APPLE AND SHARED OR WANT_FRAMEWORKS)
 	OUTPUT_NAME alleg-main${BUILD_TYPE_SUFFIX}
 	COMPILE_FLAGS -DALLEGRO_SRC
 	)
-    target_link_libraries(alleg alleg-main)
+    target_link_libraries(allegro alleg-main)
     install_our_library(alleg-main)
 endif(APPLE AND SHARED OR WANT_FRAMEWORKS)
 
@@ -793,14 +793,7 @@ if(UNIX)
     set(lib_linkage "")
 
     foreach(name ${PKG_CONFIG_FILES})
-        # It would probably be simpler to change the target names.
-        if(${name} STREQUAL allegro)
-            set(target alleg)
-        elseif(${name} STREQUAL allegrogl)
-            set(target alleggl)
-        else()
-            set(target ${name})
-        endif()
+        set(target ${name})
 
         # For static linking: get extra libraries to link with.
         get_target_property(link_with ${target} static_link_with)

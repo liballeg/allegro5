@@ -46,7 +46,7 @@ set_target_properties(jpgalleg
 
 set_our_framework_properties(jpgalleg jpgalleg)
 
-target_link_libraries(jpgalleg alleg)
+target_link_libraries(jpgalleg allegro)
 
 set_target_properties(jpgalleg
     PROPERTIES

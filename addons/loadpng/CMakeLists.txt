@@ -40,7 +40,7 @@ set_target_properties(loadpng
 
 set_our_framework_properties(loadpng loadpng)
 
-target_link_libraries(loadpng alleg ${PNG_LIBRARIES})
+target_link_libraries(loadpng allegro ${PNG_LIBRARIES})
 
 sanitize_cmake_link_flags(static_link_with ${PNG_LIBRARIES})
 set_target_properties(loadpng
