@@ -59,6 +59,7 @@ copy_files(copy_example_data
     example.dat
     examples.txt
     exconfig.ini
+    inkblot.tga
     mysha.pcx
     planet.pcx
     running.dat
