@@ -59,6 +59,27 @@ AL_FUNC(void, masked_stretch_blit, (struct BITMAP *s, struct BITMAP *d, int s_x,
 AL_FUNC(void, stretch_sprite, (struct BITMAP *bmp, struct BITMAP *sprite, int x, int y, int w, int h));
 AL_FUNC(void, _soft_draw_gouraud_sprite, (struct BITMAP *bmp, struct BITMAP *sprite, int x, int y, int c1, int c2, int c3, int c4));
 
+/* rotate+trans */
+AL_FUNC(void, rotate_sprite_trans, (BITMAP *bmp, BITMAP *sprite, int x, int y, fixed angle));
+AL_FUNC(void, rotate_sprite_v_flip_trans, (BITMAP *bmp, BITMAP *sprite, int x, int y, fixed angle));
+AL_FUNC(void, rotate_scaled_sprite_trans, (BITMAP *bmp, BITMAP *sprite, int x, int y, fixed angle, fixed scale));
+AL_FUNC(void, rotate_scaled_sprite_v_flip_trans, (BITMAP *bmp, BITMAP *sprite, int x, int y, fixed angle, fixed scale));
+AL_FUNC(void, pivot_sprite_trans, (BITMAP *bmp, BITMAP *sprite, int x, int y, int cx, int cy, fixed angle));
+AL_FUNC(void, pivot_sprite_v_flip_trans, (BITMAP *bmp, BITMAP *sprite, int x, int y, int cx, int cy, fixed angle));
+AL_FUNC(void, pivot_scaled_sprite_trans, (BITMAP *bmp, BITMAP *sprite, int x, int y, int cx, int cy, fixed angle, fixed scale));
+AL_FUNC(void, pivot_scaled_sprite_v_flip_trans, (BITMAP *bmp, BITMAP *sprite, int x, int y, int cx, int cy, fixed angle, fixed scale));
+/* rotate+lit */
+AL_FUNC(void, rotate_sprite_lit, (BITMAP *bmp, BITMAP *sprite, int x, int y, fixed angle, int color));
+AL_FUNC(void, rotate_sprite_v_flip_lit, (BITMAP *bmp, BITMAP *sprite, int x, int y, fixed angle, int color));
+AL_FUNC(void, rotate_scaled_sprite_lit, (BITMAP *bmp, BITMAP *sprite, int x, int y, fixed angle, fixed scale, int color));
+AL_FUNC(void, rotate_scaled_sprite_v_flip_lit, (BITMAP *bmp, BITMAP *sprite, int x, int y, fixed angle, fixed scale, int color));
+AL_FUNC(void, pivot_sprite_lit, (BITMAP *bmp, BITMAP *sprite, int x, int y, int cx, int cy, fixed angle, int color));
+AL_FUNC(void, pivot_sprite_v_flip_lit, (BITMAP *bmp, BITMAP *sprite, int x, int y, int cx, int cy, fixed angle, int color));
+AL_FUNC(void, pivot_scaled_sprite_lit, (BITMAP *bmp, BITMAP *sprite, int x, int y, int cx, int cy, fixed angle, fixed scale, int color));
+AL_FUNC(void, pivot_scaled_sprite_v_flip_lit, (BITMAP *bmp, BITMAP *sprite, int x, int y, int cx, int cy, fixed angle, fixed scale, int color));
+
+
+
 #ifdef __cplusplus
    }
 #endif

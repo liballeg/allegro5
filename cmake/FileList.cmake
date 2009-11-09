@@ -51,6 +51,7 @@ set(ALLEGRO_SRC_FILES
         src/readsmp.c
         src/rle.c
         src/rotate.c
+        src/rsfb.c
         src/scene3d.c
         src/sound.c
         src/spline.c
