@@ -70,6 +70,7 @@ int osx_gfx_mode = OSX_GFX_NONE;
 int osx_emulate_mouse_buttons = FALSE;
 int osx_window_first_expose = FALSE;
 int osx_skip_events_processing = FALSE;
+void* osx_skip_events_processing_mutex;
 
 
 static RETSIGTYPE (*old_sig_abrt)(int num);
@@ -172,8 +173,12 @@ void osx_event_handler()
          untilDate: distant_past
          inMode: NSDefaultRunLoopMode
          dequeue: YES]) != nil)
-     {
-      if ((osx_skip_events_processing) || (osx_gfx_mode == OSX_GFX_NONE)) {
+   {
+      _unix_lock_mutex(osx_skip_events_processing_mutex);
+      int skip_events_processing = osx_skip_events_processing;
+      _unix_unlock_mutex(osx_skip_events_processing_mutex);
+
+      if ((skip_events_processing) || (osx_gfx_mode == OSX_GFX_NONE)) {
          [NSApp sendEvent: event];
 	 continue;
       }

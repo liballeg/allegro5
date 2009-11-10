@@ -77,7 +77,8 @@ static BOOL in_bundle(void)
    BOOL isDir;
 
    /* create mutex */
-   osx_event_mutex=_unix_create_mutex();
+   osx_event_mutex = _unix_create_mutex();
+   osx_skip_events_processing_mutex = _unix_create_mutex();
    
    pool = [[NSAutoreleasePool alloc] init];
    if (in_bundle() == YES)   

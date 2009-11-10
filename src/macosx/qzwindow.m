@@ -203,9 +203,9 @@ static void prepare_window_for_animation(int refresh_view)
  */
 - (void)windowDidBecomeKey:(NSNotification *)notification
 {
-   _unix_lock_mutex(osx_event_mutex);
+   _unix_lock_mutex(osx_skip_events_processing_mutex);
    osx_skip_events_processing = FALSE;
-   _unix_unlock_mutex(osx_event_mutex);
+   _unix_unlock_mutex(osx_skip_events_processing_mutex);
 }
 
 
@@ -216,9 +216,9 @@ static void prepare_window_for_animation(int refresh_view)
  */
 - (void)windowDidResignKey:(NSNotification *)notification
 {
-   _unix_lock_mutex(osx_event_mutex);
+   _unix_lock_mutex(osx_skip_events_processing_mutex);
    osx_skip_events_processing = TRUE;
-   _unix_unlock_mutex(osx_event_mutex);
+   _unix_unlock_mutex(osx_skip_events_processing_mutex);
 }
 
 @end
