@@ -771,7 +771,7 @@ static void d3d_blit_real(ALLEGRO_BITMAP *src,
    }
 
    if (d3d_src->is_backbuffer) {
-      if (d3d_src != d3d_dest || angle != 0) {
+      if (angle != 0) {
          ALLEGRO_BITMAP_D3D *tmp_bmp = NULL;
          tmp_bmp =
             (ALLEGRO_BITMAP_D3D *)d3d_create_bitmap_from_surface(
@@ -784,6 +784,7 @@ static void d3d_blit_real(ALLEGRO_BITMAP *src,
          al_destroy_bitmap((ALLEGRO_BITMAP *)tmp_bmp);
       }
       else {
+	 bool screen_screen = d3d_src == d3d_dest;
          LPDIRECT3DSURFACE9 tmp_surface_full;
          LPDIRECT3DSURFACE9 tmp_surface_small;
          LPDIRECT3DSURFACE9 screen_surface;
@@ -792,55 +793,79 @@ static void d3d_blit_real(ALLEGRO_BITMAP *src,
 	 RECT src_rect, dst_rect;
          POINT point;
          DWORD ret;
+         D3DFORMAT format;
+
+         ALLEGRO_BITMAP *old_target = al_get_target_bitmap();
+         al_set_target_bitmap(al_get_backbuffer()); // set it away from our bitmap/screen
+
          ret = d3d_dest->display->device->GetRenderTarget(
             0,
             &screen_surface
          );
+
+
+         format = (D3DFORMAT)_al_format_to_d3d(
+            _al_get_real_pixel_format(al_display->backbuffer_format)
+         );
          ret = d3d_dest->display->device->CreateOffscreenPlainSurface(
-            al_display->w, al_display->h,
-            (D3DFORMAT)_al_format_to_d3d(
-               _al_get_real_pixel_format(al_display->backbuffer_format)
-            ),
+            al_display->w, al_display->h, format,
             D3DPOOL_SYSTEMMEM, &tmp_surface_full, NULL
          );
          ret = d3d_dest->display->device->CreateOffscreenPlainSurface(
-            sw, sh,
-            (D3DFORMAT)_al_format_to_d3d(
-               _al_get_real_pixel_format(al_display->backbuffer_format)
-            ),
+            sw, sh, format,
             D3DPOOL_DEFAULT, &tmp_surface_small, NULL
          );
+
          ret = d3d_dest->display->device->GetRenderTargetData(
             screen_surface,
             tmp_surface_full
          );
+
          src_rect.left = sx;
 	 src_rect.top = sy;
 	 src_rect.right = sx+sw;
 	 src_rect.bottom = sy+sh;
          point.x = 0;
          point.y = 0;
+
          ret = d3d_dest->display->device->UpdateSurface(
             tmp_surface_full, &src_rect,
             tmp_surface_small, &point);
-         src_rect.left = 0;
-	 src_rect.top = 0;
-	 src_rect.right = sw;
-	 src_rect.bottom = sh;
+
 	 dst_rect.left = dx;
 	 dst_rect.top = dy;
 	 dst_rect.right = dx+dw;
 	 dst_rect.bottom = dy+dh;
+
          /* FIXME: do filtering if enabled in config */
-         ret = d3d_dest->display->device->StretchRect(
-            tmp_surface_small,
-            &src_rect,
-            screen_surface,
-            &dst_rect,
-            D3DTEXF_NONE);
+         if (!screen_screen) {
+            /* Huh? Why do I need to do this? */
+            dst_rect.right++;
+            dst_rect.bottom++;
+
+            LPDIRECT3DSURFACE9 bmp_surface;
+            ret = d3d_dest->video_texture->GetSurfaceLevel(0, &bmp_surface);
+            ret = d3d_dest->display->device->StretchRect(
+               tmp_surface_small,
+               NULL,
+               bmp_surface,
+               &dst_rect,
+               D3DTEXF_NONE);
+            if (ret != D3D_OK) printf("fail\n");
+            bmp_surface->Release();
+         }
+         else {
+            ret = d3d_dest->display->device->StretchRect(
+               tmp_surface_small,
+               NULL,
+               screen_surface,
+               &dst_rect,
+               D3DTEXF_NONE);
+         }
          tmp_surface_full->Release();
          tmp_surface_small->Release();
          screen_surface->Release();
+         al_set_target_bitmap(old_target); // set it back
       }
       return;
    }
