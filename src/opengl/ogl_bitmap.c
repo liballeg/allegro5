@@ -24,6 +24,7 @@
 #include "allegro5/internal/aintern_opengl.h"
 #include "allegro5/internal/aintern_pixels.h"
 #include "allegro5/internal/aintern_display.h"
+#include "allegro5/internal/aintern_system.h"
 #include <math.h>
 
 #if defined ALLEGRO_GP2XWIZ
@@ -66,6 +67,18 @@ ALLEGRO_DEBUG_CHANNEL("opengl")
  * 1 #111      #.....
  * 0 ###########.....
  */
+
+static GLint ogl_min_filter = GL_NEAREST;
+static GLint ogl_mag_filter = GL_NEAREST;
+
+static GLint ogl_get_filter(AL_CONST char *s)
+{
+   if (!stricmp(s, "LINEAR"))
+      return GL_LINEAR;
+   if (!stricmp(s, "ANISOTROPIC"))
+      return GL_LINEAR;
+   return GL_NEAREST;
+}
 
 /* Conversion table from Allegro's pixel formats to corresponding OpenGL
  * formats. The three entries are GL internal format, GL type, GL format.
@@ -488,6 +501,7 @@ static bool ogl_upload_bitmap(ALLEGRO_BITMAP *bitmap)
    ALLEGRO_BITMAP_OGL *ogl_bitmap = (void *)bitmap;
    int w = bitmap->w;
    int h = bitmap->h;
+   static bool cfg_read = false;
    GLenum e;
 
    if (ogl_bitmap->texture == 0) {
@@ -516,11 +530,29 @@ static bool ogl_upload_bitmap(ALLEGRO_BITMAP *bitmap)
       // the problem try to use multiple textures?
       return false;
    }
+   
+   if (!cfg_read) {         
+      ALLEGRO_SYSTEM *sys;
+      AL_CONST char *s;
+
+      cfg_read = true;
+
+      sys = al_get_system_driver();
+
+      if (sys->config) {
+         s = al_get_config_value(sys->config, "graphics", "min_filter");
+         if (s)
+            ogl_min_filter = ogl_get_filter(s);
+         s = al_get_config_value(sys->config, "graphics", "mag_filter");
+         if (s)
+            ogl_mag_filter = ogl_get_filter(s);
+      }
+   }
 
    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, ogl_min_filter);
+   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, ogl_mag_filter);
 
    ogl_bitmap->left = 0;
    ogl_bitmap->right = (float) w / ogl_bitmap->true_w;
