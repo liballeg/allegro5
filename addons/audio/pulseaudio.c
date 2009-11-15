@@ -295,7 +295,7 @@ static int pulseaudio_set_voice_position(ALLEGRO_VOICE *voice, unsigned long pos
    
    al_lock_mutex(pv->buffer_mutex);
    voice->attached_stream->pos = pos;
-   pv->buffer = voice->attached_stream->spl_data.buffer.ptr + pos * pv->frame_size;
+   pv->buffer = (char*)voice->attached_stream->spl_data.buffer.ptr + pos * pv->frame_size;
    al_unlock_mutex(pv->buffer_mutex);
 
    return 0;

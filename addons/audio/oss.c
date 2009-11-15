@@ -464,7 +464,9 @@ static void* oss_update(ALLEGRO_THREAD *self, void *arg)
 silence:
          /* If stopped just fill with silence. */
          memset(sil_buf, _al_kcm_get_silence(voice->depth), SIL_BUF_SIZE);
-         write(oss_voice->fd, sil_buf, SIL_BUF_SIZE);
+         if(write(oss_voice->fd, sil_buf, SIL_BUF_SIZE) == -1) {
+            ALLEGRO_ERROR("errno: %i -- %s\n", errno, strerror(errno));
+         }
       }
    }
 

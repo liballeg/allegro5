@@ -185,8 +185,11 @@ static ALLEGRO_PATH *get_executable_name(void)
    sprintf(command, "ps -p %d", (int)pid);
    FILE *pipe = popen(command, "r");
    if (pipe) {
+      char* ret;
       /* The first line of output is a header */
-      fgets(linkname, sizeof(linkname), pipe);
+      ret = fgets(linkname, sizeof(linkname), pipe);
+      if(!ret)
+         ALLEGRO_ERROR("Failed to read the name of the executable file.\n");
       
       /* The information we want is in the last column; find it */
       int len = strlen(linkname);
@@ -194,7 +197,9 @@ static ALLEGRO_PATH *get_executable_name(void)
          len--;
 
       /* The second line contains the info we want */
-      fgets(linkname, sizeof(linkname), pipe);
+      ret = fgets(linkname, sizeof(linkname), pipe);
+      if(!ret)
+         ALLEGRO_ERROR("Failed to read the name of the executable file.\n");
       pclose(pipe);
 
       /* Treat special cases: filename between [] and - for login shell */

@@ -51,7 +51,8 @@ ALLEGRO_DISPLAY_MODE *_al_xglx_get_display_mode(
 bool _al_xglx_fullscreen_set_mode(ALLEGRO_SYSTEM_XGLX *s,
    int w, int h, int format, int refresh_rate)
 {
-   ALLEGRO_DISPLAY_MODE mode;
+   /* GCC complains about mode being uninitialized without this: */
+   ALLEGRO_DISPLAY_MODE mode = mode; 
    ALLEGRO_DISPLAY_MODE mode2;
    int i;
    int n;
