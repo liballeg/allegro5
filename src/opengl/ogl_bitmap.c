@@ -23,6 +23,8 @@
 #include "allegro5/internal/aintern_memory.h"
 #include "allegro5/internal/aintern_opengl.h"
 #include "allegro5/internal/aintern_pixels.h"
+#include "allegro5/internal/aintern_display.h"
+#include <math.h>
 
 #if defined ALLEGRO_GP2XWIZ
 #include "allegro5/internal/aintern_gp2xwiz.h"
@@ -190,39 +192,39 @@ static INLINE bool setup_blending(ALLEGRO_DISPLAY *ogl_disp)
    return true;
 }
 
-/* Helper function to draw a bitmap with an internal OpenGL texture as
- * a textured OpenGL quad.
- */
+static INLINE void transform_vertex(float cx, float cy, float dx, float dy, 
+    float xscale, float yscale, float c, float s, float* x, float* y)
+{
+   if(s == 0) {
+      *x = xscale * (*x - dx - cx) + dx;
+      *y = yscale * (*y - dy - cy) + dy;
+   } else {
+      float t;
+      *x = xscale * (*x - dx - cx);
+      *y = yscale * (*y - dy - cy);
+      t = *x;
+      *x = c * *x - s * *y + dx;
+      *y = s * t + c * *y + dy;
+   }
+}
+
 static void draw_quad(ALLEGRO_BITMAP *bitmap,
     float sx, float sy, float sw, float sh,
     float cx, float cy, float dx, float dy, float dw, float dh,
     float xscale, float yscale, float angle, int flags)
 {
    float tex_l, tex_t, tex_r, tex_b, w, h, tex_w, tex_h;
+   float c, s;
    ALLEGRO_BITMAP_OGL *ogl_bitmap = (void *)bitmap;
-   GLboolean on;
-   GLuint current_texture;
-   ALLEGRO_COLOR *bc;
+   ALLEGRO_OGL_BITMAP_VERTEX* verts;
+   ALLEGRO_DISPLAY* disp = al_get_current_display();
 
-   GLfloat verts[2*4];
-   GLfloat texcoords[2*4];
-
-   glGetBooleanv(GL_TEXTURE_2D, &on);
-   if (!on) {
-      glEnable(GL_TEXTURE_2D);
+   if (disp->num_cache_vertices != 0 && ogl_bitmap->texture != disp->cache_texture) {
+      disp->vt->flush_vertex_cache(disp);
    }
-
-#if !defined ALLEGRO_GP2XWIZ && !defined ALLEGRO_IPHONE
-   glGetIntegerv(GL_TEXTURE_2D_BINDING_EXT, (GLint*)&current_texture);
-   if (current_texture != ogl_bitmap->texture) {
-      glBindTexture(GL_TEXTURE_2D, ogl_bitmap->texture);
-   }
-#else
-   glGetIntegerv(GL_TEXTURE_BINDING_2D, (GLint*)&current_texture);
-   if (current_texture != ogl_bitmap->texture) {
-      glBindTexture(GL_TEXTURE_2D, ogl_bitmap->texture);
-   }
-#endif
+   disp->cache_texture = ogl_bitmap->texture;
+   
+   verts = disp->vt->prepare_vertex_cache(disp, 6);
    
    tex_l = ogl_bitmap->left;
    tex_r = ogl_bitmap->right;
@@ -245,41 +247,44 @@ static void draw_quad(ALLEGRO_BITMAP *bitmap,
    if (flags & ALLEGRO_FLIP_VERTICAL)
       SWAP(float, tex_t, tex_b);
 
-   bc = _al_get_blend_color();
-   glColor4f(bc->r, bc->g, bc->b, bc->a);
-
-   glPushMatrix();
-   glTranslatef(dx, dy, 0);
-   glRotatef(-(angle * 180 / ALLEGRO_PI), 0, 0, -1);
-   glScalef(xscale, yscale, 1);
-   glTranslatef(-dx - cx, -dy - cy, 0);
-
-   verts[0] = dx; verts[1] = dy+dh;
-   verts[2] = dx; verts[3] = dy;
-   verts[4] = dx+dw; verts[5] = dy+dh;
-   verts[6] = dx+dw; verts[7] = dy;
-   texcoords[0] = tex_l; texcoords[1] = tex_b;
-   texcoords[2] = tex_l; texcoords[3] = tex_t;
-   texcoords[4] = tex_r; texcoords[5] = tex_b;
-   texcoords[6] = tex_r; texcoords[7] = tex_t;
-
-   glEnableClientState(GL_VERTEX_ARRAY);
-   glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-   glDisableClientState(GL_COLOR_ARRAY);
-
-   glVertexPointer(2, GL_FLOAT, 0, verts);
-   glTexCoordPointer(2, GL_FLOAT, 0, texcoords);
-
-   glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
-
-   glDisableClientState(GL_VERTEX_ARRAY);
-   glDisableClientState(GL_TEXTURE_COORD_ARRAY);
-
-   glPopMatrix();
-
-   if (!on) {
-      glDisable(GL_TEXTURE_2D);
+   verts[0].x = dx;
+   verts[0].y = dy+dh;
+   verts[0].tx = tex_l;
+   verts[0].ty = tex_b;
+   
+   verts[1].x = dx;
+   verts[1].y = dy;
+   verts[1].tx = tex_l;
+   verts[1].ty = tex_t;
+   
+   verts[2].x = dx+dw;
+   verts[2].y = dy+dh;
+   verts[2].tx = tex_r;
+   verts[2].ty = tex_b;
+   
+   verts[4].x = dx+dw;
+   verts[4].y = dy;
+   verts[4].tx = tex_r;
+   verts[4].ty = tex_t;
+   
+   if(angle == 0) {
+      c = 1;
+      s = 0;
+   } else {
+      c = cosf(angle);
+      s = sinf(angle);
    }
+   
+   transform_vertex(cx, cy, dx, dy, xscale, yscale, c, s, &verts[0].x, &verts[0].y);
+   transform_vertex(cx, cy, dx, dy, xscale, yscale, c, s, &verts[1].x, &verts[1].y);
+   transform_vertex(cx, cy, dx, dy, xscale, yscale, c, s, &verts[2].x, &verts[2].y);
+   transform_vertex(cx, cy, dx, dy, xscale, yscale, c, s, &verts[4].x, &verts[4].y);
+   
+   verts[3] = verts[1];
+   verts[5] = verts[2];
+   
+   if(!disp->cache_enabled)
+      disp->vt->flush_vertex_cache(disp);
 }
 #undef SWAP
 

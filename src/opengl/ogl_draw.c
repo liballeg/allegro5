@@ -17,7 +17,7 @@
 #include "allegro5/allegro_opengl.h"
 #include "allegro5/internal/aintern_display.h"
 #include "allegro5/internal/aintern_opengl.h"
-
+#include "allegro5/internal/aintern_memory.h"
 
 
 static bool set_opengl_blending(ALLEGRO_DISPLAY *d,
@@ -121,13 +121,74 @@ static void ogl_draw_pixel(ALLEGRO_DISPLAY *d, float x, float y,
    glDisableClientState(GL_VERTEX_ARRAY);
 }
 
+static void* ogl_prepare_vertex_cache(ALLEGRO_DISPLAY* disp, 
+                                      int num_new_vertices)
+{
+   disp->num_cache_vertices += num_new_vertices;
+   if(!disp->vertex_cache) {  
+      disp->vertex_cache = _AL_MALLOC(num_new_vertices * sizeof(ALLEGRO_OGL_BITMAP_VERTEX));
+      
+      disp->vertex_cache_size = num_new_vertices;
+   } else if (disp->num_cache_vertices > disp->vertex_cache_size) {
+      disp->vertex_cache = _AL_REALLOC(disp->vertex_cache, 
+                              2 * disp->num_cache_vertices * sizeof(ALLEGRO_OGL_BITMAP_VERTEX));
+                              
+      disp->vertex_cache_size = 2 * disp->num_cache_vertices;
+   }
+   return (ALLEGRO_OGL_BITMAP_VERTEX*)disp->vertex_cache + 
+         (disp->num_cache_vertices - num_new_vertices);
+}
 
+static void ogl_flush_vertex_cache(ALLEGRO_DISPLAY* disp)
+{
+   ALLEGRO_COLOR *bc;
+   GLboolean on;
+   GLuint current_texture;
+   if(!disp->vertex_cache)
+      return;
+   if(disp->num_cache_vertices == 0)
+      return;
+   
+   glGetBooleanv(GL_TEXTURE_2D, &on);
+   if (!on) {
+      glEnable(GL_TEXTURE_2D);
+   }
+   
+   glGetIntegerv(GL_TEXTURE_BINDING_2D, (GLint*)&current_texture);
+   if (current_texture != disp->cache_texture) {
+      glBindTexture(GL_TEXTURE_2D, disp->cache_texture);
+   }
+      
+   bc = _al_get_blend_color();
+   glColor4f(bc->r, bc->g, bc->b, bc->a);
+
+   glEnableClientState(GL_VERTEX_ARRAY);
+   glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+   glDisableClientState(GL_COLOR_ARRAY);
+   
+   glVertexPointer(2, GL_FLOAT, sizeof(ALLEGRO_OGL_BITMAP_VERTEX), disp->vertex_cache);
+   glTexCoordPointer(2, GL_FLOAT, sizeof(ALLEGRO_OGL_BITMAP_VERTEX), 
+                  (char*)(disp->vertex_cache) + offsetof(ALLEGRO_OGL_BITMAP_VERTEX, tx));
+
+   glDrawArrays(GL_TRIANGLES, 0, disp->num_cache_vertices);
+
+   glDisableClientState(GL_VERTEX_ARRAY);
+   glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+   
+   disp->num_cache_vertices = 0;
+   if (!on) {
+      glDisable(GL_TEXTURE_2D);
+   }
+}
 
 /* Add drawing commands to the vtable. */
 void _al_ogl_add_drawing_functions(ALLEGRO_DISPLAY_INTERFACE *vt)
 {
    vt->clear = ogl_clear;
    vt->draw_pixel = ogl_draw_pixel;
+   
+   vt->flush_vertex_cache = ogl_flush_vertex_cache;
+   vt->prepare_vertex_cache = ogl_prepare_vertex_cache;
 }
 
 /* vim: set sts=3 sw=3 et: */

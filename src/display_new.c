@@ -58,10 +58,17 @@ ALLEGRO_DISPLAY *al_create_display(int w, int h)
    system = al_get_system_driver();
    driver = system->vt->get_display_driver();
    display = driver->create_display(w, h);
+   
    if (!display) {
       ALLEGRO_DEBUG("Failed to create display (NULL)\n");
       return NULL;
    }
+   
+   display->vertex_cache = 0;
+   display->num_cache_vertices = 0;
+   display->cache_enabled = false;
+   display->vertex_cache_size = 0;
+   display->cache_texture = 0;
 
    _al_vector_init(&display->bitmaps, sizeof(ALLEGRO_BITMAP*));
 
@@ -573,5 +580,22 @@ ALLEGRO_EVENT_SOURCE *al_get_display_event_source(ALLEGRO_DISPLAY *display)
    return &display->es;
 }
 
+/* Function: al_hold_bitmap_drawing
+ */
+void al_hold_bitmap_drawing(bool hold)
+{
+   ALLEGRO_DISPLAY *current_display = al_get_current_display();
+   current_display->cache_enabled = hold;
+   if(!hold && current_display->vt->flush_vertex_cache)
+      current_display->vt->flush_vertex_cache(current_display);
+}
+
+/* Function: al_is_bitmap_drawing_held
+ */
+bool al_is_bitmap_drawing_held(void)
+{
+   ALLEGRO_DISPLAY *current_display = al_get_current_display();
+   return current_display->cache_enabled;
+}
 
 /* vim: set sts=3 sw=3 et: */

@@ -1162,6 +1162,7 @@ static void d3d_destroy_display(ALLEGRO_DISPLAY *display)
    }
 
    _al_vector_free(&display->bitmaps);
+   _AL_FREE(display->vertex_cache);
    _AL_FREE(display);
 }
 
@@ -2544,6 +2545,9 @@ ALLEGRO_DISPLAY_INTERFACE *_al_display_d3d_driver(void)
    vt->toggle_frame = d3d_toggle_frame;
    vt->set_window_title = _al_win_set_window_title;
    vt->shutdown = d3d_shutdown;
+   
+   vt->flush_vertex_cache = 0;
+   vt->prepare_vertex_cache = 0;
 
    return vt;
 }

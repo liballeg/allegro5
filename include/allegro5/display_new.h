@@ -158,6 +158,9 @@ AL_FUNC(int, al_get_num_display_formats, (void));
 AL_FUNC(int, al_get_display_format_option, (int i, int option));
 AL_FUNC(void, al_set_new_display_format, (int i));
 
+/*Deferred drawing*/
+AL_FUNC(void, al_hold_bitmap_drawing, (bool hold));
+AL_FUNC(bool, al_is_bitmap_drawing_held, (void));
 
 #ifdef __cplusplus
    }

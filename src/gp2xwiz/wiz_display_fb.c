@@ -87,7 +87,8 @@ static void gp2xwiz_destroy_display_fb(ALLEGRO_DISPLAY *d)
 
    wiz_disp->backbuffer->memory = wiz_disp->screen_mem;
    al_destroy_bitmap(wiz_disp->backbuffer);
-
+   
+   _AL_FREE(d->vertex_cache);
    _AL_FREE(d);
 
    set_gfx_mode = false;

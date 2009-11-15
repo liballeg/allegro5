@@ -64,6 +64,9 @@ struct ALLEGRO_DISPLAY_INTERFACE
    void (*get_window_position)(ALLEGRO_DISPLAY *display, int *x, int *y);
    void (*toggle_frame)(ALLEGRO_DISPLAY *display, bool onoff);
    void (*set_window_title)(ALLEGRO_DISPLAY *display, AL_CONST char *title);
+   
+   void (*flush_vertex_cache)(ALLEGRO_DISPLAY *d);
+   void* (*prepare_vertex_cache)(ALLEGRO_DISPLAY *d, int num_new_vertices);
 
    void (*shutdown)(void);
 };
@@ -99,6 +102,12 @@ struct ALLEGRO_DISPLAY
    struct ALLEGRO_OGL_EXTRAS *ogl_extras;
 
    _AL_VECTOR bitmaps; /* A list of bitmaps created for this display. */
+   
+   int num_cache_vertices;
+   bool cache_enabled;
+   int vertex_cache_size;
+   void* vertex_cache;
+   unsigned int cache_texture;
 };
 
 int  _al_score_display_settings(ALLEGRO_EXTRA_DISPLAY_SETTINGS *eds, ALLEGRO_EXTRA_DISPLAY_SETTINGS *ref);

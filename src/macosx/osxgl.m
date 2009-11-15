@@ -1024,6 +1024,7 @@ static void destroy_display(ALLEGRO_DISPLAY* d) {
    else
       al_set_current_display(NULL);
 
+   _AL_FREE(d->vertex_cache);
    _AL_FREE(d);
 }
 /* create_display:

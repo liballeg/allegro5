@@ -484,4 +484,33 @@ to it.
 
 See also: [al_get_monitor_info]
 
+## Deferred drawing
+
+### API: al_hold_bitmap_drawing
+
+Enables or disables deferred bitmap drawing. This allows for efficient drawing
+of many bitmaps that share a parent bitmap, such as sub-bitmaps from a 
+tilesheet or simply identical bitmaps. Drawing bitmaps that do not share a 
+parent is less efficient, so it is advisable to stagger bitmap drawing calls
+such that the parent bitmap is the same for large number of those calls.
+While deferred bitmap drawing is enabled, the only functions that can be used 
+are the bitmap drawing functions and font drawing functions. Changing the state
+(such as altering the blenders) will result in undefined behaviour. No drawing 
+is guaranteed to take place until you disable the hold. Thus, the idiom of this
+function's usage is to enable the deferred bitmap drawing, draw as many bitmaps
+as possible, taking care to stagger bitmaps that share parent bitmaps, and then
+disable deferred drawing. As mentioned above, this function also works with
+bitmap and truetype fonts, so if multiple lines of text need to be drawn, this
+function can speed things up.
+
+See also: [al_is_bitmap_drawing_held]
+
+### API: al_is_bitmap_drawing_held
+
+Returns whether the deferred bitmap drawing mode is turned on or off.
+
+See also: [al_hold_bitmap_drawing]
+
+
+
 

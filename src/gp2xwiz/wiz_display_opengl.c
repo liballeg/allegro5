@@ -164,6 +164,7 @@ static void gp2xwiz_destroy_display_ogl(ALLEGRO_DISPLAY *d)
    _al_event_source_free(&d->es);
 
    _AL_FREE(d->ogl_extras);
+   _AL_FREE(d->vertex_cache);
    _AL_FREE(d);
 
    set_gfx_mode = false;

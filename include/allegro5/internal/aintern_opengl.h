@@ -63,6 +63,12 @@ typedef struct ALLEGRO_OGL_EXTRAS
 
 } ALLEGRO_OGL_EXTRAS;
 
+typedef struct ALLEGRO_OGL_BITMAP_VERTEX
+{
+   float x, y;
+   float tx, ty;
+} ALLEGRO_OGL_BITMAP_VERTEX;
+
 
 /* extensions */
 int  _al_ogl_look_for_an_extension(AL_CONST char *name, AL_CONST GLubyte *extensions);
