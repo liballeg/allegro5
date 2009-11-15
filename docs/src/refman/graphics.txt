@@ -330,6 +330,10 @@ See also: [ALLEGRO_PIXEL_FORMAT], [al_set_new_bitmap_format]
 Sets the flags to use for newly created bitmaps.
 Valid flags are:
 
+* ALLEGRO_VIDEO_BITMAP - This is the default flag. Creates a bitmap that resides
+in the video card memory. These types of bitmaps receive the greatest benefit
+from hardware acceleration.
+
 * ALLEGRO_MEMORY_BITMAP - Create a bitmap residing in system memory.
 Operations on, and with, memory bitmaps will not be hardware accelerated.
 However, direct pixel access can be relatively quick compared to video bitmaps,
