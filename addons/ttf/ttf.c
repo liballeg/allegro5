@@ -184,11 +184,17 @@ static int render(ALLEGRO_FONT const *f, const ALLEGRO_USTR *text,
     int x = x0;
     int32_t prev = '\0';
     int32_t ch;
-
+    bool on = al_is_bitmap_drawing_held();
+    
+    al_hold_bitmap_drawing(true);
+    
     while ((ch = al_ustr_get_next(text, &pos)) >= 0) {
         x += render_glyph(f, prev, ch, x, y, NULL);
         prev = ch;
     }
+    
+    al_hold_bitmap_drawing(on);
+    
     return x - x0;
 }
 
