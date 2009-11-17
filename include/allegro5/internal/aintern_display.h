@@ -107,7 +107,7 @@ struct ALLEGRO_DISPLAY
    bool cache_enabled;
    int vertex_cache_size;
    void* vertex_cache;
-   unsigned int cache_texture;
+   uintptr_t cache_texture;
 };
 
 int  _al_score_display_settings(ALLEGRO_EXTRA_DISPLAY_SETTINGS *eds, ALLEGRO_EXTRA_DISPLAY_SETTINGS *ref);

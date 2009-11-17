@@ -53,103 +53,20 @@ void _al_d3d_bmp_destroy(void)
    vt = NULL;
 }
 
-
-static void d3d_set_matrix(float *src, D3DMATRIX *dest)
+static INLINE void transform_vertex(float cx, float cy, float dx, float dy, 
+    float c, float s, float* x, float* y)
 {
-   int x, y;
-   int i = 0;
-
-   for (y = 0; y < 4; y++) {
-      for (x = 0; x < 4; x++) {
-         dest->m[x][y] = src[i++];
-      }
+   if(s == 0) {
+      *x = (*x - cx) + dx;
+      *y = (*y - cy) + dy;
+   } else {
+      float t;
+      *x = (*x - cx);
+      *y = (*y - cy);
+      t = *x;
+      *x = c * *x - s * *y + dx;
+      *y = s * t + c * *y + dy;
    }
-}
-
-#if 0
-static void d3d_get_identity_matrix(D3DMATRIX *result)
-{
-   float identity[16] = {
-      1.0f, 0.0f, 0.0f, 0.0f,
-      0.0f, 1.0f, 0.0f, 0.0f,
-      0.0f, 0.0f, 1.0f, 0.0f,
-      0.0f, 0.0f, 0.0f, 1.0f
-   };
-
-   d3d_set_matrix(identity, result);
-}
-#endif
-
-static void d3d_get_translation_matrix(float tx, float ty, float tz,
-   D3DMATRIX *result)
-{
-   float translation[16] = {
-      1.0f, 0.0f, 0.0f, 0.0f,
-      0.0f, 1.0f, 0.0f, 0.0f,
-      0.0f, 0.0f, 1.0f, 0.0f,
-      0.0f, 0.0f, 0.0f, 1.0f
-   };
-
-   translation[3] = tx;
-   translation[7] = ty;
-   translation[11] = tz;
-
-   d3d_set_matrix(translation, result);
-}
-
-static void d3d_get_z_rotation_matrix(float a, D3DMATRIX *result)
-{
-   float rotation[16] = {
-         0.0f, 0.0f, 0.0f, 0.0f,
-         0.0f, 0.0f, 0.0f, 0.0f,
-         0.0f, 0.0f, 1.0f, 0.0f,
-         0.0f, 0.0f, 0.0f, 1.0f
-   }; 
-
-   rotation[0] = cos(a);
-   rotation[1] = -sin(a);
-   rotation[4] = sin(a);
-   rotation[5] = cos(a);
-
-   d3d_set_matrix(rotation, result);
-}
-
-static void d3d_set_identity_matrix(ALLEGRO_DISPLAY_D3D *disp)
-{
-   int i, j;
-   int one = 0;
-   D3DMATRIX matrix;
-
-   for (i = 0; i < 4; i++) {
-      for (j = 0; j < 4; j++) {
-         if (j == one)
-            matrix.m[j][i] = 1.0f;
-         else
-            matrix.m[j][i] = 0.0f;
-      }
-      one++;
-   }
-   
-   disp->device->SetTransform(D3DTS_VIEW, &matrix);
-}
-
-/*
- * Do a transformation for a quad drawing.
- */
-static void d3d_transform(ALLEGRO_DISPLAY_D3D *disp,
-   float cx, float cy, float dx, float dy, float angle)
-{
-   D3DMATRIX center_matrix;
-   D3DMATRIX rotation_matrix;
-   D3DMATRIX dest_matrix;
-   
-   d3d_get_translation_matrix(-cx, -cy, 0.0f, &center_matrix);
-   d3d_get_z_rotation_matrix(angle, &rotation_matrix);
-   d3d_get_translation_matrix(dx, dy, 0.0f, &dest_matrix);
-
-   disp->device->SetTransform(D3DTS_VIEW, &dest_matrix);
-   disp->device->MultiplyTransform(D3DTS_VIEW, &rotation_matrix);
-   disp->device->MultiplyTransform(D3DTS_VIEW, &center_matrix);
 }
 
 /*
@@ -180,28 +97,28 @@ void _al_d3d_draw_textured_quad(ALLEGRO_DISPLAY_D3D *disp, ALLEGRO_BITMAP_D3D *b
    int texture_h;
    float dest_x;
    float dest_y;
+   float c, s;
 
    const float z = 0.0f;
+   
+   ALLEGRO_DISPLAY* aldisp = (ALLEGRO_DISPLAY*)disp;
 
-   D3D_TL_VERTEX vertices[4];
+   if (aldisp->num_cache_vertices != 0 && (uintptr_t)bmp != aldisp->cache_texture) {
+      aldisp->vt->flush_vertex_cache(aldisp);
+   }
+   aldisp->cache_texture = (uintptr_t)bmp;
+
+   D3D_TL_VERTEX* vertices = (D3D_TL_VERTEX*)aldisp->vt->prepare_vertex_cache(aldisp, 6);
 
    right  = dx + dw;
    bottom = dy + dh;
 
-   if (bmp) {
-      texture_w = bmp->texture_w;
-      texture_h = bmp->texture_h;
-      tu_start = (sx+0.5f) / texture_w;
-      tv_start = (sy+0.5f) / texture_h;
-      tu_end = sw / texture_w + tu_start;
-      tv_end = sh / texture_h + tv_start;
-   }
-   else {
-      tu_start = 0.0f;
-      tv_start = 0.0f;
-      tu_end = 1.0f;
-      tv_end = 1.0f;
-   }
+   texture_w = bmp->texture_w;
+   texture_h = bmp->texture_h;
+   tu_start = (sx+0.5f) / texture_w;
+   tv_start = (sy+0.5f) / texture_h;
+   tu_end = sw / texture_w + tu_start;
+   tv_end = sh / texture_h + tv_start;
 
    if (flags & ALLEGRO_FLIP_HORIZONTAL) {
       float temp = tu_start;
@@ -235,12 +152,12 @@ void _al_d3d_draw_textured_quad(ALLEGRO_DISPLAY_D3D *disp, ALLEGRO_BITMAP_D3D *b
    vertices[2].tu = tu_end;
    vertices[2].tv = tv_end;
 
-   vertices[3].x = dx;
-   vertices[3].y = bottom;
-   vertices[3].z = z;
-   vertices[3].diffuse = color;
-   vertices[3].tu = tu_start;
-   vertices[3].tv = tv_end;
+   vertices[5].x = dx;
+   vertices[5].y = bottom;
+   vertices[5].z = z;
+   vertices[5].diffuse = color;
+   vertices[5].tu = tu_start;
+   vertices[5].tv = tv_end;
 
    if (pivot) {
       cx = dx + cx * (dw / sw);
@@ -254,32 +171,25 @@ void _al_d3d_draw_textured_quad(ALLEGRO_DISPLAY_D3D *disp, ALLEGRO_BITMAP_D3D *b
       dest_x = cx;
       dest_y = cy;
    }
-
-   d3d_transform(disp, cx, cy, dest_x, dest_y, angle);
-
-   if (bmp) {
-      if (disp->device->SetTexture(0,
-            (IDirect3DBaseTexture9 *)bmp->video_texture) != D3D_OK) {
-         TRACE("_al_d3d_draw_textured_quad: SetTexture failed.\n");
-         return;
-      }
-   }
-   else {
-      disp->device->SetTexture(0, NULL);
-   }
-
-   disp->device->SetFVF(D3DFVF_TL_VERTEX);
    
-   if (disp->device->DrawPrimitiveUP(D3DPT_TRIANGLEFAN, 2,
-
-	   vertices, sizeof(D3D_TL_VERTEX)) != D3D_OK) {
-      TRACE("_al_d3d_draw_textured_quad: DrawPrimitive failed.\n");
-      return;
+   if(angle == 0) {
+      c = 1;
+      s = 0;
+   } else {
+      c = cosf(angle);
+      s = sinf(angle);
    }
 
-   disp->device->SetTexture(0, NULL);
-
-   d3d_set_identity_matrix(disp);
+   transform_vertex(cx, cy, dest_x, dest_y, c, s, &vertices[0].x, &vertices[0].y);
+   transform_vertex(cx, cy, dest_x, dest_y, c, s, &vertices[1].x, &vertices[1].y);
+   transform_vertex(cx, cy, dest_x, dest_y, c, s, &vertices[2].x, &vertices[2].y);
+   transform_vertex(cx, cy, dest_x, dest_y, c, s, &vertices[5].x, &vertices[5].y);
+   
+   vertices[3] = vertices[0];
+   vertices[4] = vertices[2];
+   
+   if(!aldisp->cache_enabled)
+      aldisp->vt->flush_vertex_cache(aldisp);
 }
 
 /* Copy texture memory to bitmap->memory */

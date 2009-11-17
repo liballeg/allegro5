@@ -586,7 +586,7 @@ void al_hold_bitmap_drawing(bool hold)
 {
    ALLEGRO_DISPLAY *current_display = al_get_current_display();
    current_display->cache_enabled = hold;
-   if(!hold && current_display->vt->flush_vertex_cache)
+   if(!hold)
       current_display->vt->flush_vertex_cache(current_display);
 }
 

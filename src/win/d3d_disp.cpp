@@ -2501,7 +2501,50 @@ static void d3d_shutdown(void)
    vt = NULL;
 }
 
+static void* d3d_prepare_vertex_cache(ALLEGRO_DISPLAY* disp, 
+                                      int num_new_vertices)
+{
+   disp->num_cache_vertices += num_new_vertices;
+   if(!disp->vertex_cache) {  
+      disp->vertex_cache = _AL_MALLOC(num_new_vertices * sizeof(D3D_TL_VERTEX));
+      
+      disp->vertex_cache_size = num_new_vertices;
+   } else if (disp->num_cache_vertices > disp->vertex_cache_size) {
+      disp->vertex_cache = _AL_REALLOC(disp->vertex_cache, 
+                              2 * disp->num_cache_vertices * sizeof(D3D_TL_VERTEX));
+                              
+      disp->vertex_cache_size = 2 * disp->num_cache_vertices;
+   }
+   return (D3D_TL_VERTEX*)disp->vertex_cache + 
+         (disp->num_cache_vertices - num_new_vertices);
+}
 
+static void d3d_flush_vertex_cache(ALLEGRO_DISPLAY* disp)
+{
+   if(!disp->vertex_cache)
+      return;
+   if(disp->num_cache_vertices == 0)
+      return;
+      
+   ALLEGRO_DISPLAY_D3D* d3d_disp = (ALLEGRO_DISPLAY_D3D*)disp;
+
+   if (d3d_disp->device->SetTexture(0,
+         (IDirect3DBaseTexture9 *)((ALLEGRO_BITMAP_D3D*)disp->cache_texture)->video_texture) != D3D_OK) {
+      TRACE("d3d_flush_vertex_cache: SetTexture failed.\n");
+      return;
+   }
+
+   d3d_disp->device->SetFVF(D3DFVF_TL_VERTEX);
+   
+   if (d3d_disp->device->DrawPrimitiveUP(D3DPT_TRIANGLELIST, disp->num_cache_vertices / 3,
+	   (D3D_TL_VERTEX*)disp->vertex_cache, sizeof(D3D_TL_VERTEX)) != D3D_OK) {
+      TRACE("d3d_flush_vertex_cache: DrawPrimitive failed.\n");
+      return;
+   }
+   
+   disp->num_cache_vertices = 0;
+   d3d_disp->device->SetTexture(0, NULL);
+}
 
 /* Obtain a reference to this driver. */
 ALLEGRO_DISPLAY_INTERFACE *_al_display_d3d_driver(void)
@@ -2546,8 +2589,8 @@ ALLEGRO_DISPLAY_INTERFACE *_al_display_d3d_driver(void)
    vt->set_window_title = _al_win_set_window_title;
    vt->shutdown = d3d_shutdown;
    
-   vt->flush_vertex_cache = 0;
-   vt->prepare_vertex_cache = 0;
+   vt->flush_vertex_cache = d3d_flush_vertex_cache;
+   vt->prepare_vertex_cache = d3d_prepare_vertex_cache;
 
    return vt;
 }
