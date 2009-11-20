@@ -8,8 +8,6 @@
 #ifdef ALLEGRO_HAVE_STDINT_H
 #include <stdint.h>
 #endif
-#include <jpeglib.h>
-#include <jerror.h>
 
 #define BUFFER_SIZE 4096
 
@@ -20,6 +18,12 @@
 
 #include "iio.h"
 
+/* HAVE_BOOLEAN must be defined before including jpeg headers */
+#ifdef __MINGW32__
+#define HAVE_BOOLEAN
+#endif
+#include <jpeglib.h>
+#include <jerror.h>
 
 struct my_src_mgr
 {
