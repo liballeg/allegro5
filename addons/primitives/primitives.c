@@ -376,18 +376,19 @@ void al_scale_transform(ALLEGRO_TRANSFORM* trans, float sx, float sy)
    trans->m[1][1] *= sy;
 }
 
-/* Function: al_transform_vertex
+/* Function: al_transform_coordinates
  */
-void al_transform_vertex(const ALLEGRO_TRANSFORM* trans, ALLEGRO_VERTEX* vtx)
+void al_transform_coordinates(const ALLEGRO_TRANSFORM* trans, float* x, float* y)
 {
    float t;
    ASSERT(trans);
-   ASSERT(vtx);
+   ASSERT(x);
+   ASSERT(y);
 
-   t = vtx->x;
+   t = *x;
    
-   vtx->x = t *  trans->m[0][0] + vtx->y *  trans->m[1][0] +  trans->m[3][0];
-   vtx->y = t *  trans->m[0][1] + vtx->y *  trans->m[1][1] +  trans->m[3][1];
+   *x = t * trans->m[0][0] + *y * trans->m[1][0] + trans->m[3][0];
+   *y = t * trans->m[0][1] + *y * trans->m[1][1] + trans->m[3][1];
 }
 
 /* Function: al_transform_transform

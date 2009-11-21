@@ -484,14 +484,14 @@ Apply a scale to a transformation.
 * trans - Transformation to alter
 * sx, sy - Scale
 
-### API: al_transform_vertex
+### API: al_transform_coordinates
 
-Transform a vertex.
+Transform a pair of coordinates.
 
 *Parameters:*
 
 * trans - Transformation to use
-* vtx - Vertex to transform
+* x, y - Pointers to the coordinates
 
 ### API: al_transform_transform
 

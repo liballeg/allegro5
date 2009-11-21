@@ -155,7 +155,7 @@ ALLEGRO_PRIM_FUNC(void, al_build_transform, (ALLEGRO_TRANSFORM* trans, float x, 
 ALLEGRO_PRIM_FUNC(void, al_translate_transform, (ALLEGRO_TRANSFORM* trans, float x, float y));
 ALLEGRO_PRIM_FUNC(void, al_rotate_transform, (ALLEGRO_TRANSFORM* trans, float theta));
 ALLEGRO_PRIM_FUNC(void, al_scale_transform, (ALLEGRO_TRANSFORM* trans, float sx, float sy));
-ALLEGRO_PRIM_FUNC(void, al_transform_vertex, (const ALLEGRO_TRANSFORM* trans, ALLEGRO_VERTEX* vtx));
+ALLEGRO_PRIM_FUNC(void, al_transform_coordinates, (const ALLEGRO_TRANSFORM* trans, float* x, float* y));
 ALLEGRO_PRIM_FUNC(void, al_transform_transform, (const ALLEGRO_TRANSFORM* trans, ALLEGRO_TRANSFORM* trans2));
 ALLEGRO_PRIM_FUNC(const ALLEGRO_TRANSFORM*, al_get_current_transform, (void));
 ALLEGRO_PRIM_FUNC(void, al_invert_transform, (ALLEGRO_TRANSFORM *trans));
