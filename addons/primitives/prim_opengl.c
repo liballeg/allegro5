@@ -359,11 +359,3 @@ int _al_draw_prim_indexed_opengl(ALLEGRO_BITMAP* texture, const void* vtxs, cons
 }
 
 #endif
-
-void _al_use_transform_opengl(const ALLEGRO_TRANSFORM* trans)
-{
-#ifdef ALLEGRO_CFG_OPENGL
-   glMatrixMode(GL_MODELVIEW);
-   glLoadMatrixf((float*)(trans->m));
-#endif
-}

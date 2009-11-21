@@ -181,6 +181,12 @@ static void ogl_flush_vertex_cache(ALLEGRO_DISPLAY* disp)
    }
 }
 
+static void ogl_update_transformation(ALLEGRO_DISPLAY* disp)
+{
+   glMatrixMode(GL_MODELVIEW);
+   glLoadMatrixf((float*)(disp->cur_transform.m));
+}
+
 /* Add drawing commands to the vtable. */
 void _al_ogl_add_drawing_functions(ALLEGRO_DISPLAY_INTERFACE *vt)
 {
@@ -189,6 +195,7 @@ void _al_ogl_add_drawing_functions(ALLEGRO_DISPLAY_INTERFACE *vt)
    
    vt->flush_vertex_cache = ogl_flush_vertex_cache;
    vt->prepare_vertex_cache = ogl_prepare_vertex_cache;
+   vt->update_transformation = ogl_update_transformation;
 }
 
 /* vim: set sts=3 sw=3 et: */

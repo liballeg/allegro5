@@ -44,6 +44,7 @@
 #include "allegro5/threads.h"
 
 #include "allegro5/display_new.h"
+#include "allegro5/transformations.h"
 #include "allegro5/bitmap_new.h"
 
 #include "allegro5/tls.h"

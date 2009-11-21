@@ -416,22 +416,3 @@ int _al_draw_prim_indexed_directx(ALLEGRO_BITMAP* texture, const void* vtxs, con
    return 0;
 #endif
 }
-
-void _al_use_transform_directx(const ALLEGRO_TRANSFORM* trans)
-{
-#ifdef ALLEGRO_CFG_D3D
-   ALLEGRO_DISPLAY *display;
-   LPDIRECT3DDEVICE9 device;
-   D3DMATRIX matrix;
-   memcpy(matrix.m[0], trans->m[0], 16 * sizeof(float));
-   matrix.m[3][0] -= 0.5f;
-   matrix.m[3][1] -= 0.5f;
-
-   display = al_get_current_display();
-   device = al_d3d_get_device(display);
-
-   IDirect3DDevice9_SetTransform(device, D3DTS_VIEW, &matrix);
-#else
-   (void)trans;
-#endif
-}

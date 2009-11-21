@@ -106,19 +106,8 @@ struct ALLEGRO_VERTEX {
   float u, v;
 };
 
-
-/* Type: ALLEGRO_TRANSFORM
- */
-typedef struct ALLEGRO_TRANSFORM ALLEGRO_TRANSFORM;
-
-struct ALLEGRO_TRANSFORM {
-   float m[4][4];
-};
-
-
 ALLEGRO_PRIM_FUNC(uint32_t, al_get_allegro_primitives_version, (void));
 
-   
 /*
 * Primary Functions
 */
@@ -143,23 +132,6 @@ ALLEGRO_PRIM_FUNC(void, al_draw_soft_line, (ALLEGRO_VERTEX* v1, ALLEGRO_VERTEX* 
                                        void (*first)(uintptr_t, int, int, ALLEGRO_VERTEX*, ALLEGRO_VERTEX*),
                                        void (*step)(uintptr_t, int), 
                                        void (*draw)(uintptr_t, int, int)));
-
-
-/*
-* Transformations
-*/
-ALLEGRO_PRIM_FUNC(void, al_use_transform, (const ALLEGRO_TRANSFORM* trans));
-ALLEGRO_PRIM_FUNC(void, al_copy_transform, (const ALLEGRO_TRANSFORM* src, ALLEGRO_TRANSFORM* dest));
-ALLEGRO_PRIM_FUNC(void, al_identity_transform, (ALLEGRO_TRANSFORM* trans));
-ALLEGRO_PRIM_FUNC(void, al_build_transform, (ALLEGRO_TRANSFORM* trans, float x, float y, float sx, float sy, float theta));
-ALLEGRO_PRIM_FUNC(void, al_translate_transform, (ALLEGRO_TRANSFORM* trans, float x, float y));
-ALLEGRO_PRIM_FUNC(void, al_rotate_transform, (ALLEGRO_TRANSFORM* trans, float theta));
-ALLEGRO_PRIM_FUNC(void, al_scale_transform, (ALLEGRO_TRANSFORM* trans, float sx, float sy));
-ALLEGRO_PRIM_FUNC(void, al_transform_coordinates, (const ALLEGRO_TRANSFORM* trans, float* x, float* y));
-ALLEGRO_PRIM_FUNC(void, al_transform_transform, (const ALLEGRO_TRANSFORM* trans, ALLEGRO_TRANSFORM* trans2));
-ALLEGRO_PRIM_FUNC(const ALLEGRO_TRANSFORM*, al_get_current_transform, (void));
-ALLEGRO_PRIM_FUNC(void, al_invert_transform, (ALLEGRO_TRANSFORM *trans));
-ALLEGRO_PRIM_FUNC(int, al_check_inverse, (const ALLEGRO_TRANSFORM *trans, float tol));
 
 /*
 *High level primitives

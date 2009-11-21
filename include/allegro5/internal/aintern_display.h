@@ -2,6 +2,7 @@
 #define ALLEGRO_INTERNAL_DISPLAY_NEW_H
 
 #include "allegro5/allegro5.h"
+#include "allegro5/transformations.h"
 #include "allegro5/display_new.h"
 #include "allegro5/bitmap_new.h"
 #include "allegro5/internal/aintern_events.h"
@@ -67,6 +68,8 @@ struct ALLEGRO_DISPLAY_INTERFACE
    
    void (*flush_vertex_cache)(ALLEGRO_DISPLAY *d);
    void* (*prepare_vertex_cache)(ALLEGRO_DISPLAY *d, int num_new_vertices);
+   
+   void (*update_transformation)(ALLEGRO_DISPLAY* d);
 
    void (*shutdown)(void);
 };
@@ -108,6 +111,8 @@ struct ALLEGRO_DISPLAY
    int vertex_cache_size;
    void* vertex_cache;
    uintptr_t cache_texture;
+   
+   ALLEGRO_TRANSFORM cur_transform;
 };
 
 int  _al_score_display_settings(ALLEGRO_EXTRA_DISPLAY_SETTINGS *eds, ALLEGRO_EXTRA_DISPLAY_SETTINGS *ref);

@@ -25,6 +25,7 @@ set(PAGES
     threads
     time
     timer
+    transformations
     utf8
 
     audio

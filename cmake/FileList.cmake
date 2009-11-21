@@ -29,6 +29,7 @@ set(ALLEGRO_SRC_FILES
     src/threads.c
     src/timernu.c
     src/tls.c
+    src/transformations.c
     src/utf8.c
     src/misc/bstrlib.c
     src/misc/vector.c
@@ -315,6 +316,7 @@ set(ALLEGRO_INCLUDE_ALLEGRO_FILES
     include/allegro5/threads.h
     include/allegro5/tls.h
     include/allegro5/timer.h
+    include/allegro5/transformations.h
     include/allegro5/utf8.h
     )
 

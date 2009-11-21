@@ -69,6 +69,8 @@ ALLEGRO_DISPLAY *al_create_display(int w, int h)
    display->cache_enabled = false;
    display->vertex_cache_size = 0;
    display->cache_texture = 0;
+   
+   al_identity_transform(&display->cur_transform);
 
    _al_vector_init(&display->bitmaps, sizeof(ALLEGRO_BITMAP*));
 

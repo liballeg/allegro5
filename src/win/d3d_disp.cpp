@@ -2546,6 +2546,17 @@ static void d3d_flush_vertex_cache(ALLEGRO_DISPLAY* disp)
    d3d_disp->device->SetTexture(0, NULL);
 }
 
+static void d3d_update_transformation(ALLEGRO_DISPLAY* disp)
+{
+   ALLEGRO_DISPLAY_D3D* d3d_disp = (ALLEGRO_DISPLAY_D3D*)disp;
+   D3DMATRIX matrix;
+   memcpy(matrix.m[0], disp->cur_transform.m[0], 16 * sizeof(float));
+   matrix.m[3][0] -= 0.5f;
+   matrix.m[3][1] -= 0.5f;
+   
+   d3d_disp->device->SetTransform(D3DTS_VIEW, &matrix);
+}
+
 /* Obtain a reference to this driver. */
 ALLEGRO_DISPLAY_INTERFACE *_al_display_d3d_driver(void)
 {
@@ -2591,6 +2602,8 @@ ALLEGRO_DISPLAY_INTERFACE *_al_display_d3d_driver(void)
    
    vt->flush_vertex_cache = d3d_flush_vertex_cache;
    vt->prepare_vertex_cache = d3d_prepare_vertex_cache;
+   
+   vt->update_transformation = d3d_update_transformation;
 
    return vt;
 }

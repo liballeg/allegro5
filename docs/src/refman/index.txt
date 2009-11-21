@@ -28,6 +28,7 @@ API
 * [Threads](threads.html)
 * [Time](time.html)
 * [Timer](timer.html)
+* [Transformations](transformations.html)
 * [UTF-8](utf8.html)
 
 Addons
