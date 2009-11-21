@@ -19,7 +19,6 @@
 #include "allegro5/internal/aintern_vector.h"
 #include "allegro5/allegro_font.h"
 #include "allegro5/allegro_image.h"
-#include "allegro5/allegro_primitives.h"
 #include "allegro5/internal/aintern_bitmap.h"
 
 #include "font.h"
@@ -162,105 +161,6 @@ static int color_render_char(const ALLEGRO_FONT* f, int ch, int x, int y)
     return w;
 }
 
-static int quick_process_char(const ALLEGRO_FONT *f, int ch, int x, int y,
-   ALLEGRO_VERTEX *verts)
-{
-    ALLEGRO_BITMAP *g;
-    int w, h;
-
-    g = _al_font_color_find_glyph(f, ch);
-    w = al_get_bitmap_width(g);
-    h = al_get_bitmap_height(g);
-
-    if(g) {
-        int y1 = y + ((float)h - al_get_bitmap_height(g))/2.0f;
-        ALLEGRO_PRIM_COLOR color = al_get_prim_color(*_al_get_blend_color());
-
-        float tu_s = g->xofs;
-        float tv_s = g->yofs;
-        float tu_e = tu_s + w;
-        float tv_e = tv_s + h;
-        int x2 = x + w;
-        int y2 = y + h;
-
-        verts[0].x = x;
-        verts[0].y = y1;
-        verts[0].u = tu_s;
-        verts[0].v = tv_s;
-        verts[0].color = color;
-
-        verts[1].x = x2;
-        verts[1].y = y2;
-        verts[1].u = tu_e;
-        verts[1].v = tv_e;
-        verts[1].color = color;
-
-        verts[2].x = x;
-        verts[2].y = y2;
-        verts[2].u = tu_s;
-        verts[2].v = tv_e;
-        verts[2].color = color;
-
-        verts[3].x = x;
-        verts[3].y = y1;
-        verts[3].u = tu_s;
-        verts[3].v = tv_s;
-        verts[3].color = color;
-
-        verts[4].x = x2;
-        verts[4].y = y1;
-        verts[4].u = tu_e;
-        verts[4].v = tv_s;
-        verts[4].color = color;
-
-        verts[5].x = x2;
-        verts[5].y = y2;
-        verts[5].u = tu_e;
-        verts[5].v = tv_e;
-        verts[5].color = color;
-    }
-
-    return w;
-}
-
-static int quick_color_render(const ALLEGRO_FONT *f, const ALLEGRO_USTR *text,
-   int x0, int y)
-{
-#define MAX_CHARS 100 /* MSVC can't tell that 'const int' is constant */
-    int pos = 0;
-    int x = 0;
-    int32_t ch;
-    int i, j;
-    int total = 0;
-    int length = al_ustr_length(text);
-    ALLEGRO_VERTEX verts[6*MAX_CHARS];
-   
-    while (total < length) {
-        i = j = 0;
-        while ((ch = al_ustr_get_next(text, &pos)) >= 0 && j < MAX_CHARS) {
-            x += quick_process_char(f, ch, x+x0, y, &verts[i]);
-            i += 6;
-            j++;
-            total++;
-        }
-
-        ch = al_ustr_get(text, 0);
-         if (ch >= 0) {
-                 ALLEGRO_FONT_COLOR_DATA *cf = (ALLEGRO_FONT_COLOR_DATA *)f->data;
-                 cf = _al_font_find_page(cf, ch);
-
-                 if (cf) {
-                         al_draw_prim(verts, 0, cf->glyphs, 0, i,
-                                  ALLEGRO_PRIM_TRIANGLE_LIST);
-                 }
-
-         }
-    }
-
-    return x - x0;
-#undef MAX_CHARS
-}
-
 /* color_render:
  *  (color vtable entry)
  *  Renders a color font onto a bitmap, at the specified location, using
@@ -273,45 +173,13 @@ static int color_render(const ALLEGRO_FONT* f, const ALLEGRO_USTR *text,
     int pos = 0;
     int x = x0;
     int32_t ch;
-
-    /*
-     * If all of the characters are on the same glyph page,
-     * we can draw them all at once with the primitives addon
-     */
-    ALLEGRO_FONT_COLOR_DATA *cf = (ALLEGRO_FONT_COLOR_DATA *)f->data;
-    bool started = false;
-    bool can_draw_quickly = true;
-
-    /* This slows down on short text, so set a arbitrary minimum */
-    if (al_ustr_length(text) <= 6) {
-        can_draw_quickly = false;
-    }
-
-    while (can_draw_quickly && (ch = al_ustr_get_next(text, &pos)) >= 0) {
-        if (!started) {
-            started = true;
-            cf = _al_font_find_page(cf, ch);
-            if (!cf) {
-                can_draw_quickly = false;
-                break;
-            }
-        }
-        else {
-            if (cf != _al_font_find_page(cf, ch)) {
-                can_draw_quickly = false;
-                break;
-            }
-		  }
-    }
-    if (can_draw_quickly) {
-        return quick_color_render(f, text, x0, y);
-    }
-
-    pos = 0;
-
+    bool held = al_is_bitmap_drawing_held();
+    
+    al_hold_bitmap_drawing(true);
     while ((ch = al_ustr_get_next(text, &pos)) >= 0) {
         x += f->vtable->render_char(f, ch, x, y);
     }
+    al_hold_bitmap_drawing(held);
     return x - x0;
 }
 
