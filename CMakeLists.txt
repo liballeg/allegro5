@@ -636,9 +636,7 @@ endif(ALLEGRO_WITH_XWINDOWS)
 # Main library
 #
 
-# XXX This is different to Allegro 4.2.  On Unix we are okay because
-# allegro-config handles the differences but for other platforms perhaps we
-# should just stick with the old (cryptic) names?
+# On Unix/Mac we don't ever use a -static postfix.
 if(CMAKE_BUILD_TYPE STREQUAL Debug)
     set(BUILD_TYPE_SUFFIX -debug)
 elseif(CMAKE_BUILD_TYPE STREQUAL Profile)
@@ -673,13 +671,24 @@ set_target_properties(allegro
     SOVERSION ${ALLEGRO_SOVERSION}
     )
 
-if(SHARED AND WIN32)
-    # Make mingw not add lib prefix to DLL, to match MSVC.
-    set_target_properties(allegro
-        PROPERTIES
-        PREFIX ""
-        )
-endif(SHARED AND WIN32)
+if(WIN32)
+    if(SHARED)
+        # Make mingw not add lib prefix to DLL, to match MSVC.
+        set_target_properties(allegro
+            PROPERTIES
+            PREFIX ""
+            )
+    else(SHARED)
+        # Add a -static postfix on the main library for Windows.
+        # In earlier versions of Allegro this was "_s".
+        set_target_properties(allegro
+            PROPERTIES
+            POSTFIX "-static"
+            DEBUG_POSTFIX "-debug-static"
+            PROFILE_POSTFIX "-profile-static"
+            )
+    endif(SHARED)
+endif(WIN32)
 
 set_our_framework_properties(allegro Allegro)
 
@@ -806,7 +815,7 @@ if(UNIX)
     set(includedir "\${prefix}/include")
     set(libdir "\${exec_prefix}/lib${LIB_SUFFIX}")
     set(lib_type "${BUILD_TYPE_SUFFIX}")
-    # XXX do we want -static suffixes?
+    # We only use -static suffixes on Windows, for the main library.
     set(lib_linkage "")
 
     foreach(name ${PKG_CONFIG_FILES})
