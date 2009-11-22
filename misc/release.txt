@@ -1,109 +1,69 @@
-Wrapping up Allegro How-TO. Based on the 4.2.1 release.
+Wrapping up Allegro How-TO for 4.4 branch
 ----------------------------------------------------------------------
 
-The following steps must be done under Linux. Make sure you have the
-necessary software installed.
+Here are a list of steps when making a release.  It's expected you're
+running on Linux with the necessary software installed.  Some of the sample
+commands use git to access the SVN repository but svn would work as well.
 
-1. Update your local SVN copy:
+*  Look over the SVN change log and update docs/changes._txt and
+   docs/thanks._txt.  Commit the updates to the SVN repository.
 
-   svn up
+   git log tags/OLDVER.. | less
 
-   Look over file tree and remove any temporary files.
-
-2. Create ChangeLog:
-
-   First, find out the revision of the previous release, for example:
-
-   svn ls https://svn.sourceforge.net/svnroot/alleg/allegro/tags
-   svn info https://svn.sourceforge.net/svnroot/alleg/allegro/tags/v4-2-0
-
-   Then generate a log of changes since then:
-
-   svn log -r HEAD:5477 > ChangeLog
-   sed -i -re'/-+$/d;s/r[0-9]+ \| ([^ ]+).*/<li>\n\1/;/^$/d;s/([A-Z].*)/  \1/' ChangeLog
-
-   Use the generated ChangeLog file to update the docs/changes._tx
-   and docs/thanks._tx files. Remove the ChangeLog file after use or
-   move it to some other place.
-
-3. Commit docs/changes._tx and docs/thanks._tx to the SVN repository.
-
-4. Update the DLL symbol definitions:
-
-   *only* for WIP releases: rm misc/dllsyms.lst
-   chmod +x misc/fixdll.sh [problem in the CVS repository]
-   misc/fixdll.sh --update-symbol-list
-
-5. Commit misc/dllsyms.lst to the SVN repository.
-
-6. In the allegro root directory, run `python misc/genexamp.py'. If the
-   output looks good, applye the output adding ` | patch -p0' to the
+*  In the allegro root directory, run `python misc/genexamp.py'. If the
+   output looks good, apply the output adding ` | patch -p0' to the
    previous command and commit docs/src/allegro._tx.
-   
-7. Tag SVN repository:
-    svn cp https://alleg.svn.sourceforge.net/svnroot/alleg/allegro/branches/4.2 https://alleg.svn.sourceforge.net/svnroot/alleg/allegro/tags/v4-2-1
 
-* NOTE: svn doesn't retain timestamps when you use svn up or svn co.  IMHO it's
-    best for files to keep the timestamp of the last change that was made in
-    SVN -- a little bit of history.  You might want to do the next few steps
-    from an `svn export'ed directory, which does preserve timestamps.
+*  Set the version number and commit.
 
-8. Set the locale to en_US or en_UK:
+    misc/fixver.sh 4 4 1
 
-   export LC_ALL=en_US
+*  Tag SVN repository:
 
-9. Fix version number: 'misc/fixver.sh 4 2 1'
+    git svn tag 4.4.1
+    git svn dcommit
 
-10. Make sure the working directory is called 'allegro'.
+    or
 
-11. Make sure the installed version of GNU autoconf is the right one.
+    svn cp https://alleg.svn.sourceforge.net/svnroot/alleg/allegro/branches/4.4 https://alleg.svn.sourceforge.net/svnroot/alleg/allegro/tags/4.4.1
 
-12. Make .zip distro. Have the previous archive in parent directory.
+NOTE: svn doesn't retain timestamps when you use svn up or svn co.  IMHO it's
+best for files to keep the timestamp of the last change that was made in
+SVN -- a little bit of history.  You might want to do the next step
+from an `svn export'ed directory, which does preserve timestamps.
+
+So from here I have a script that does:
+
+    - svn checkout from a local copy of the SF repository
+    - svn update (to get more recent changes)
+    - svn export to a fresh directory
+    - run zipup.sh
+
+*   Make .zip distro. Have the previous archive in parent directory.
     You will need to have the dat tool in your path.
 
-    misc/zipup.sh all421.zip all420.zip
-    
-    The generated zip archive will be in the .dist subdirectory.
+    misc/zipup.sh all441.zip all440.zip
 
-13. Make Unix distros. From the top level directory:
+    The generated archives will be in the .dist subdirectory.
 
-    cd .dist
-    ../misc/mkunixdists.sh all421.zip
-   
-14. Check that the RPM file can be installed and compiled without problems.
-    Also check if the patch applies ok (all421_diff.zip). To verify that the
-    RPM .spec file is updated, you can build the package on a RedHat system,
-    which verifies if the .spec file includes all the files of the package.
-    You can use SourceForge's compile farm to do this, they have Red Hat
-    Linux 9 running Linux 2.4 kernel on x86 architecture.
+*   Upload all packages to Sourceforge.
 
-15. Use misc/zipwin.sh to make Windows binary distro. This script must
-    be run under djgpp Bash having MSVC installed.
-    If you do not have these installed, create a new windows binary
-    distro based on the old one, update all text files and scripts and
-    update the dlls with some you make with MinGW using the newly
-    created .zip distro. (all421.zip)
+    lftp sftp://${USER},alleg@frs.sourceforge.net:/home/frs/project/a/al/alleg
 
-16. Upload all packages to Sourceforge using the FRS (File Release
-    System). Use CHANGES as the basis for the release notes.
-
-17. Announce the new release to the Allegro mailinglist:
+*   Announce the new release to the Allegro mailinglist:
     <alleg-main@lists.sourceforge.net>, make sure you add URLs to both the
     Allegro homepage and the Allegro sourceforge download page.
     Also include the release notes and anything else you wish to add.
 
-18. Convert local files back to Unix format, bump version number,
-    and commit changed files.
-    
-    ./fix.sh unix --dtou
-    misc/fixver.sh 4 2 2 SVN
-    svn commit -m "Bumped version to 4.2.2 (SVN)"
+*   Announce on Allegro.cc.
 
-19. Webmasters watch the mailing lists for annoucements and then update
-    the web pages accordingly. If you are interested in this process
-    yourself, you are free to do it following the instructions at:
+*   Bump version number, and commit changed files.
 
-    http://alleg.sourceforge.net/docs/webmaster_instructions.html
+    misc/fixver.sh 4 4 2 SVN
+    git commit -a -m "Bumped version to 4.4.2 (SVN)"
+    git svn dcommit
+
+*   Update the web site.
 
 ----------------------------------------------------------------------
 By: Henrik Stokseth, October, 2001.  E-mail:hstokset@tiscali.no
