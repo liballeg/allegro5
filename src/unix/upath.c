@@ -40,6 +40,8 @@
    #include <fcntl.h>
 #endif
 
+ALLEGRO_DEBUG_CHANNEL("upath")
+
 
 #ifndef ALLEGRO_MACOSX
 /* _find_executable_file:
