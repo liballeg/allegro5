@@ -8,6 +8,27 @@
 @html_spaced_list_bullet
 
 @heading
+Changes from 4.4.0 RC1 to 4.4.0 RC2 (November 2009)
+<ul><li>
+   Peter Wang replaced the old build system with a new one using CMake.
+   Please see docs/build/cmake.txt.
+<li>
+   Peter Wang disabled the Linux console port by default. Most people use X11
+   exclusively now.
+<li>
+   Peter Wang made the build system install pkg-config .pc files on Unix-like
+   systems.
+<li>
+   Trent Gamblin added _trans and _lit versions of all rotate_* and pivot_*
+   functions.  New example: exrotscl.
+<li>
+   Francis Devereux made it possible for keyboard events to go to other
+   windows when the Allegro window does not have focus, on Mac OS X.
+<li>
+   Fixed various compilation issues.
+</ul>
+
+@heading
 Changes from 4.3.10 to 4.4.0 RC1 (April 2009)
 <ul><li>
    Christer Sandberg fixed a crash when omitting the end of the glyph interval
