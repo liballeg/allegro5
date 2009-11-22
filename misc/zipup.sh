@@ -1,4 +1,4 @@
-#! /bin/sh
+#! /bin/sh -e
 #
 #  Shell script to create a distribution zip, generating the manifest
 #  file and optionally building diffs against a previous version. This
@@ -26,6 +26,10 @@ if [ -n "$2" ] && [ ! -r ../"$2" ]; then
 fi
 
 
+# This used to be necessary so that fixdll.sh would sort consistently.
+# It probably isn't necessary any more.
+export LC_ALL=en_US
+
 
 # strip off the path and extension from our arguments
 name=$(echo "$1" | sed -e 's/.*[\\\/]//; s/\.zip//')
@@ -38,27 +42,33 @@ if test $name = datestamp; then
 fi
 
 # make sure all the makefiles are in Unix text format
-for file in makefile.*; do
-   mv $file _tmpfile
-   tr -d \\\r < _tmpfile > $file
-   touch -r _tmpfile $file
-   rm _tmpfile
-done
+# for file in makefile.*; do
+#    mv $file _tmpfile
+#    tr -d \\\r < _tmpfile > $file
+#    touch -r _tmpfile $file
+#    rm _tmpfile
+# done
 
 # make sure all shell scripts are executable
 find . -name '*.sh' -exec chmod +x {} ';'
 
 
-# delete all generated files
-echo "Cleaning the Allegro tree..."
+proc_filelist()
+{
+   # common files.
+   AL_FILELIST=`find . -type f "(" ! -path "*/.*" ")" -a "(" \
+      -name "*.c" -o -name "*.cfg" -o -name "*.cpp" -o -name "*.def" -o \
+      -name "*.h" -o -name "*.hin" -o -name "*.in" -o -name "*.inc" -o \
+      -name "*.m" -o -name "*.m4" -o -name "*.mft" -o -name "*.s" -o \
+      -name "*.rc" -o -name "*.rh" -o -name "*.spec" -o -name "*.pl" -o \
+      -name "*.txt" -o -name "*._tx" -o -name "makefile*" -o \
+      -name "*.inl" -o -name "configure" -o -name "CHANGES" -o \
+      -name "AUTHORS" -o -name "THANKS" \
+   ")"`
 
-sed -n -e "/CLEAN_FILES/,/^$/p; /^ALLEGRO_.*_EXES/,/^$/p" makefile.lst | \
-   sed -e "/CLEAN_FILES/d; /ALLEGRO_.*_EXES/d; s/\\\\//g" | \
-   xargs -n 1 echo | \
-   sed -e "s/\(.*\)/-c \"rm -f \1\"/" | \
-   xargs -l sh
-
-find . -name '*~' -exec rm -f {} \;
+   # touch DOS batch files
+  AL_FILELIST="$AL_FILELIST `find . -type f -name '*.bat'`"
+}
 
 
 # emulation of the djgpp utod utility program (Unix to DOS text format)
@@ -78,116 +88,22 @@ utod()
 }
 
 
-# generate dependencies for DJGPP
-echo "Generating DJGPP dependencies..."
-
-./fix.sh djgpp --quick
-
-make depend UNIX_TOOLS=1 CC=gcc
-
-
-# generate dependencies for Watcom
-echo "Generating Watcom dependencies..."
-
-./fix.sh watcom --quick
-
-make depend UNIX_TOOLS=1 CC=gcc
-
-
-# generate dependencies for MSVC
-echo "Generating MSVC dependencies..."
-
-./fix.sh msvc --quick
-
-make depend UNIX_TOOLS=1 CC=gcc
-
-
-# generate dependencies for MinGW
-echo "Generating MinGW dependencies..."
-
-./fix.sh mingw --quick
-
-make depend UNIX_TOOLS=1 CC=gcc
-
-
-# generate dependencies for Borland C++
-echo "Generating BCC32 dependencies..."
-
-./fix.sh bcc32 --quick
-
-make depend UNIX_TOOLS=1 CC=gcc
-
-
-# generate dependencies for BeOS
-echo "Generating BeOS dependencies..."
-
-./fix.sh beos --quick
-
-make depend UNIX_TOOLS=1 CC=gcc
-
-# generate dependencies for Haiku
-echo "Generating Haiku dependencies..."
-
-./fix.sh haiku --quick
-
-make depend UNIX_TOOLS=1 CC=gcc
-
-# generate dependencies for QNX
-echo "Generating QNX dependencies..."
-
-./fix.sh qnx --quick
-
-make depend UNIX_TOOLS=1 CC=gcc
-
-
-# generate dependencies for MacOS X
-echo "Generating MacOS X dependencies..."
-
-./fix.sh macosx --quick
-
-make depend UNIX_TOOLS=1 CC=gcc
-
-
-# generate the DLL export definition files for Windows compilers
-misc/fixdll.sh
-
-# running autoconf
-echo "Running autoconf to generate configure script..."
-autoconf || exit 1
-
-# touch stamp-h.in so the user doesn't need autoheader to compile
-touch stamp-h.in
-
 # convert documentation from the ._tx source files
 echo "Converting documentation..."
-
-gcc -o _makedoc.exe docs/src/makedoc/*.c
-
-./_makedoc.exe -ascii readme.txt docs/src/readme._tx
-./_makedoc.exe -ascii CHANGES docs/src/changes._tx
-./_makedoc.exe -part -ascii AUTHORS docs/src/thanks._tx
-./_makedoc.exe -part -ascii THANKS docs/src/thanks._tx
-for base in abi ahack allegro const faq help mistakes; do
-   ./_makedoc.exe -ascii docs/txt/$base.txt docs/src/$base._tx
-done
-for base in api packfile makedoc datafile grabber dat dat2c dat2s license addons targets; do
-   ./_makedoc.exe -ascii docs/txt/$base.txt docs/src/$base._tx
-done
-for base in bcc32 beos darwin djgpp haiku linux macosx mingw32 msvc qnx unix watcom; do
-   ./_makedoc.exe -ascii docs/build/$base.txt docs/src/build/$base._tx
-done
-
-
-rm _makedoc.exe
-
-
-# generate configure script for AllegroGL addon
-echo "Generating AllegroGL configure script..."
-(cd addons/allegrogl
-    autoheader
-    autoconf
-    misc/mkalias.sh
-)
+TOP=$PWD
+(
+    set -e
+    mkdir -p .dist/Build
+    cd .dist/Build
+    rm -rf docs
+    cmake $TOP
+    make -j2 docs
+    umask 022
+    mkdir -p $TOP/docs/{build,txt}
+    cp -v docs/{AUTHORS,CHANGES,THANKS,readme.txt} $TOP
+    cp -v docs/build/* $TOP/docs/build
+    cp -v docs/txt/*.txt $TOP/docs/txt
+) || exit 1
 
 
 # generate docs for AllegroGL addon
@@ -199,44 +115,40 @@ echo "Generating AllegroGL docs..."
 misc/mkdata.sh || exit 1
 
 
-# convert files to djgpp format for distribution
-./fix.sh djgpp --utod
-
-
-# recursive helper to fill any empty directories with a tmpfile.txt
-scan_for_empties()
-{
-   if [ -f $1/tmpfile.txt ]; then rm $1/tmpfile.txt; fi
-
-   files=`echo $1/*`
-   if [ "$files" = "$1/CVS" -o "$files" = "$1/cvs" -o "$files" = "$1/*" ]; then
-      echo "This file is needed because some unzip programs skip empty directories." > $1/tmpfile.txt
-   else
-      for file in $files; do
-	 if [ -d $file ]; then
-	    scan_for_empties $file
-	 fi
-      done
-   fi
-}
-
-
-#echo "Filling empty directories with tmpfile.txt..."
-scan_for_empties "."
-
-
 # build the main zip archive
 echo "Creating $name.zip..."
-if [ -f .dist/$name.zip ]; then rm .dist/$name.zip; fi
-rm -rf ./autom4te*
+rm -f .dist/$name.zip
 mkdir -p .dist/allegro
+# It is recommended to build releases from a clean checkout.
+# However, for testing it may be easier to use an existing workspace
+# so let's ignore some junk here.
 # Note: we use -print0 and xargs -0 to handle file names with spaces.
-find . -type f "(" -path "*/.*" -prune -o -iname "*.rej" \
-    -prune -o -iname "*.orig" -prune -o -print0 ")" | \
+find . -type f \
+	'!' -path "*/.*" -a \
+	'!' -path '*/B*' -a \
+	'!' -iname '*.rej' -a \
+	'!' -iname '*.orig' -a \
+	'!' -iname '*~' -a \
+	-print0 |
     xargs -0 cp -a --parents -t .dist/allegro
+
 
 # from now on, the scripts runs inside .dist
 cd .dist
+
+
+# generate the tar.gz first as the files are in Unix format
+# This is missing the manifest file, but who cares?
+VERSION=$(grep '^set(ALLEGRO_VERSION ' allegro/CMakeLists.txt | tr -cd '[0-9.]')
+mv allegro allegro-$VERSION
+tar zcf allegro-$VERSION.tar.gz allegro-$VERSION
+mv allegro-$VERSION allegro
+
+
+# convert files to DOS format for .zip and .7z archives
+proc_filelist
+utod "$AL_FILELIST"
+
 
 # if 7za is available, use that to produce both .zip and .7z files
 if 7za > /dev/null ; then
@@ -310,7 +222,4 @@ if [ $# -eq 2 ]; then
 fi
 
 
-echo "Done!"
-echo "Please note that your files are now in DOS format, so you might want"
-echo "to run \"fix.sh unix --dtou\" now."
-
+echo "Done! Check .dist for the output."
