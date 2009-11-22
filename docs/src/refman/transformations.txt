@@ -21,9 +21,10 @@ Makes a copy of a transformation.
 
 ### API: al_use_transform
 
-Sets the transformation to be used for the primitive drawing operations. Every
+Sets the transformation to be used for the the drawing operations. Every
 drawing operation after this call will be transformed using this
-transformation.
+transformation. Call this function with an identity transformation to return
+to the default behaviour.
 
 *Parameters:*
 
@@ -41,7 +42,7 @@ A pointer to the current transformation.
 Inverts the passed transformation. If the transformation is nearly singular 
 (close to not having an inverse) then the returned transformation may be
 invalid. Use [al_check_inverse] to assertain if the transformation has an
-inverse if you are in doubt.
+inverse before inverting it if you are in doubt.
 
 *Parameters:*
 
@@ -52,14 +53,13 @@ inverse if you are in doubt.
 
 ### API: al_check_inverse
 
-Checks if the transformation has an inverse using supplied tolerance. Tolerance
-should be a small value between 0 and 1, with 0.001 being sufficient for most
-applications. Note that this check is superfluous most of the time if you only
-used the primitives addon to construct the transformation. The only thing that
+Checks if the transformation has an inverse using the supplied tolerance. 
+Tolerance should be a small value between 0 and 1, with 0.001 being sufficient 
+for most applications. Note that this check is superfluous most of the time if 
+you never touched the transformation matrix values yourself. The only thing that
 would cause the transformation to not have an inverse is if you applied a 0 (or
 very small) scale to the transformation. As long as the scale is comfortably
-above 0, the transformation is invertible. This, of course, does not apply if
-you manually fiddle with the values of the transformation.
+above 0, the transformation will be invertible.
 
 *Parameters:*
 
@@ -84,7 +84,8 @@ Sets the transformation to be the identity transformation.
 
 Builds a transformation given some parameters. This call is equivalent to
 calling the transformations in this order: make identity, scale, rotate,
-translate. This method is faster, however.
+translate. This method is faster, however, than actually calling those
+functions.
 
 *Parameters:*
 
