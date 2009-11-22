@@ -259,6 +259,11 @@ if(APPLE)
 	set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -arch i386")
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -arch i386")
     endif()
+
+    # The Mac port simply uses too many deprecated things.
+    if(COMPILER_GCC)
+        set(WFLAGS "${WFLAGS} -Wno-deprecated-declarations")
+    endif(COMPILER_GCC)
 endif(APPLE)
 
 if(UNIX AND NOT APPLE)
