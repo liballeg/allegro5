@@ -313,7 +313,7 @@ static void mouse_dinput_handle(void)
    static DIDEVICEOBJECTDATA message_buffer[DINPUT_BUFFERSIZE];
    unsigned long int waiting_messages;
    HRESULT hr;
-   int i;
+   unsigned long int i;
 
    /* the whole buffer is free */
    waiting_messages = DINPUT_BUFFERSIZE;

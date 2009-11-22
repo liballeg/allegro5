@@ -382,7 +382,7 @@ static void key_dinput_handle(void)
    static DIDEVICEOBJECTDATA scancode_buffer[DINPUT_BUFFERSIZE];
    unsigned long int waiting_scancodes;
    HRESULT hr;
-   int i;
+   unsigned long int i;
 
    /* the whole buffer is free */
    waiting_scancodes = DINPUT_BUFFERSIZE;
