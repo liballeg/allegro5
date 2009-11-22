@@ -727,7 +727,11 @@ if(UNIX) # including MACOSX
         set(LINK_WITH_STATIC_LIBS yes)
     endif()
     set(LIB_TO_LINK alleg${BUILD_TYPE_SUFFIX})
-    set(LDFLAGS "")
+    if(APPLE)
+	set(LDFLAGS "-framework Cocoa -lalleg-main")
+    else(APPLE)
+	set(LDFLAGS "")
+    endif(APPLE)
     sanitize_cmake_link_flags(LIBS
         ${PLATFORM_LIBS}
         ${PLATFORM_LIBS_NON_MODULES}
