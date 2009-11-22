@@ -117,7 +117,6 @@ static int scale_icon(ICON_DATA *icon)
    int i_x, i_y;
    float k, f_x, f_y, a, b, r1, r2;
    float red, green, blue, alpha;
-   unsigned char *p;
    unsigned int color;
    
    if (icon->original->w > icon->original->h) {

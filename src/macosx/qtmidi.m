@@ -105,8 +105,8 @@ static int osx_midi_init(int input, int voices)
 {
    NoteRequest note_request;
    ComponentResult result;
-   char tmp[256], tmp2[256];
-   int i, j;
+   char tmp[256];
+   int i;
    
    if (input) {
       ustrzcpy(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("Input is not supported"));
@@ -197,7 +197,6 @@ static void osx_midi_key_on(int inst, int note, int bend, int vol, int pan)
 {
    int voice_id;
    NoteChannel channel;
-   ToneDescription td;
    
    if (inst > 127) {
       /* Percussion */

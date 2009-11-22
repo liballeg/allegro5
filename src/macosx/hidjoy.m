@@ -55,13 +55,12 @@ static int hid_joy_init(void)
 {
    static char *name_stick = "stick";
    static char *name_hat = "hat";
-   static char *name_slider = "slider";
    static char *name_x = "x";
    static char *name_y = "y";
    static char *name_b[] =
       { "B1", "B2", "B3", "B4", "B5", "B6", "B7", "B8", "B9", "B10", "B11", "B12", "B13", "B14", "B15", "B16" };
    HID_ELEMENT *element;
-   int i, j, stick;
+   int i, j;
    hid_devices.count=hid_devices.capacity=0;
    hid_devices.devices=NULL;
    osx_hid_scan(HID_JOYSTICK, &hid_devices);

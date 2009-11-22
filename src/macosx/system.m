@@ -160,12 +160,10 @@ void osx_event_handler()
    NSDate *distant_past = [NSDate distantPast];
    NSPoint point;
    NSRect frame, view;
-   CGMouseDelta fdx, fdy;
    int dx = 0, dy = 0, dz = 0;
    int mx=_mouse_x;
    int my=_mouse_y;
    static int buttons = 0;
-   int old_buttons = buttons;
    int event_type;
    BOOL gotmouseevent = NO;
    
@@ -408,8 +406,6 @@ int osx_bootstrap_ok(void)
 static int osx_sys_init(void)
 {
    long result;
-   AL_CONST char *exe_name;
-   char resource_dir[1024];
    
    /* If we're in the 'dead bootstrap' environment, the Mac driver won't work. */
    if (!osx_bootstrap_ok()) {

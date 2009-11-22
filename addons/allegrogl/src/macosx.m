@@ -196,7 +196,7 @@ static NSOpenGLPixelFormat *build_pixelformat(int format) {
                 *attrib++ = NSOpenGLPFASamples;
                 *attrib++ = allegro_gl_display_info.samples;
         }
-	*attrib = nil;
+	*attrib = 0;
 	
 	return [[NSOpenGLPixelFormat alloc] initWithAttributes: attribs];
 }
@@ -224,7 +224,7 @@ static NSOpenGLPixelFormat *init_pixel_format(int windowed)
 
 static void decode_pixel_format(NSOpenGLPixelFormat *pf, struct allegro_gl_display_info *dinfo)
 {
-	long value;
+	GLint value;
 	
 	TRACE(PREFIX_I "Decoding:\n");
 	[pf getValues: &value forAttribute: NSOpenGLPFAAccelerated forVirtualScreen: 0];

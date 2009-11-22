@@ -30,6 +30,8 @@
 #include <limits.h>
 
 
+#ifndef ALLEGRO_MACOSX
+
 static void bg_man_pthreads_enable_interrupts(void);
 static void bg_man_pthreads_disable_interrupts(void);
 
@@ -51,16 +53,12 @@ static int cli_count;
  */
 static void block_all_signals(void)
 {
-#ifndef ALLEGRO_MACOSX
    sigset_t mask;
    sigfillset(&mask);
    pthread_sigmask(SIG_BLOCK, &mask, NULL);
-#endif
 }
 
 
-
-#ifndef ALLEGRO_MACOSX
 
 /* bg_man_pthreads_threadfunc:
  *  Thread function for the background thread.
@@ -301,7 +299,7 @@ struct bg_manager _bg_man_pthreads = {
    bg_man_pthreads_interrupts_disabled
 };
 
-#endif
+#endif /* !ALLEGRO_MACOSX */
 
 
 
@@ -383,5 +381,5 @@ void _unix_unlock_mutex(void *handle)
    }
 }
 
-#endif
+#endif	/* ALLEGRO_HAVE_LIBPTHREAD */
 

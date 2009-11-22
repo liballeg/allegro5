@@ -434,8 +434,7 @@ int osx_setup_colorconv_blitter()
 static BITMAP *private_osx_qz_window_init(int w, int h, int v_w, int v_h, int color_depth)
 {
 	CFDictionaryRef mode;
-	NSRect frame, rect = NSMakeRect(0, 0, w, h);
-	CGPoint point;
+	NSRect rect = NSMakeRect(0, 0, w, h);
 	int refresh_rate;
 	char tmp1[128], tmp2[128];
 	

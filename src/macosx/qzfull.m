@@ -40,7 +40,6 @@ CGDirectPaletteRef osx_palette = NULL;
 int osx_palette_dirty = FALSE;
 int osx_screen_used;
 
-static int lock_nesting = 0;
 static char driver_desc[256];
 static CFDictionaryRef old_mode = NULL;
 static CGrafPtr screen_port = NULL;

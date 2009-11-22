@@ -27,7 +27,6 @@
 #define USAGE(p, u) (((p)<<16)+(u))
 
 static void hid_store_element_data(CFTypeRef element, int type, HID_DEVICE *device, int app, int collection, int index);
-static void hid_scan_element(CFTypeRef element, HID_DEVICE *device);
 static void hid_scan_physical_collection(CFTypeRef properties, HID_DEVICE *device, int app, int collection);
 static void hid_scan_application_collection(CFMutableDictionaryRef properties, HID_DEVICE *device);
 
@@ -241,7 +240,7 @@ static void hid_scan_application_collection(CFMutableDictionaryRef properties, H
 {
    CFTypeRef array_ref, element;
 
-   int type, usage, usage_page;
+   int usage, usage_page;
    int i;
 
    array_ref = CFDictionaryGetValue(properties, CFSTR(kIOHIDElementKey));
@@ -336,13 +335,12 @@ HID_DEVICE_COLLECTION *osx_hid_scan(int type, HID_DEVICE_COLLECTION* col)
 HID_DEVICE_COLLECTION *osx_hid_scan(int type, HID_DEVICE_COLLECTION* col)
 {
    ASSERT(col);
-   HID_DEVICE *device, *this_device;
+   HID_DEVICE *this_device;
    mach_port_t master_port = 0;
    io_iterator_t hid_object_iterator = 0;
    io_object_t hid_device = 0;
    CFMutableDictionaryRef class_dictionary = NULL;
    int usage, usage_page;
-   int app_count;
    CFTypeRef type_ref;
    CFNumberRef usage_ref = NULL, usage_page_ref = NULL;
    CFMutableDictionaryRef properties = NULL, usb_properties = NULL;
