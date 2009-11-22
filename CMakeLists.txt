@@ -668,6 +668,14 @@ set_target_properties(allegro
     SOVERSION ${ALLEGRO_SOVERSION}
     )
 
+if(SHARED AND WIN32)
+    # Make mingw not add lib prefix to DLL, to match MSVC.
+    set_target_properties(allegro
+        PROPERTIES
+        PREFIX ""
+        )
+endif(SHARED AND WIN32)
+
 set_our_framework_properties(allegro Allegro)
 
 set(link_with ${PLATFORM_LIBS})
