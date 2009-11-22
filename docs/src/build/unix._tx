@@ -57,8 +57,6 @@ Installing Allegro
 @heading
 Shared files
 
-   XXX allegro.m4 not installed yet
-
    Installing Allegro will copy the library and header files plus other
    support files. These are:
 <ul><li>
@@ -66,8 +64,7 @@ Shared files
    for your system in order to compile Allegro. This is copied into a
    `.../bin' path.
 <li>
-   allegro.m4: Autoconf support file to include in your `./configure'
-   scripts. Copied into a `.../share/aclocal' path.
+   pkg-config files. These are alternatives to the allegro-config script.
 </ul>
    On the other hand, there are files which you, as system administrator, are
    required to installed manually. These are:
@@ -100,7 +97,7 @@ Using Allegro
 
    To avoid you having to work out the right linker commands for 
    yourself, the installation creates a script, <tt>allegro-config</tt>, that will
-   print out a suitable commandline. You can use this inside a backtick 
+   print out a suitable command line. You can use this inside a backtick 
    command substitution, for example:
 <textblock>
       gcc myfile.c -o myprogram `allegro-config --libs`
@@ -116,6 +113,12 @@ Using Allegro
    overriding the install paths, and selecting between shared and static 
    libraries, in case you installed both. Run allegro-config without any 
    arguments for a full list of options.
+
+   You can also use pkg-config instead, for example:
+<textblock>
+      gcc myfile.c -o myprogram `pkg-config --libs allegro loadpng`
+<endblock>
+   As shown, there are pkg-config files for the bundled addons as well.
 
    Don't forget that you need to use the <code>END_OF_MAIN()</code> macro right after
    your <code>main()</code> function!
@@ -143,11 +146,8 @@ What if you're not root?
    can change the target directories for installation -- for example,
    you can write:
 <textblock>
-      ./configure --prefix=$HOME
+      cmake -DCMAKE_INSTALL_PREFIX=$HOME ..
 <endblock>
-   Be a bit careful, <tt>--prefix=~</tt> works in bash but not tcsh -- it's safer
-   to use <tt>$HOME</tt> if you're not sure.
-
    Then binaries will be installed to the `<tt>bin</tt>' subdirectory of your home
    directory, libraries to `<tt>lib</tt>', etc.  Now you need to set up your system
    so that it knows where to find a few things, if this has not been done

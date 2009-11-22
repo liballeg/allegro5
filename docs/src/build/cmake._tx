@@ -8,8 +8,9 @@ Building Allegro 4.4 with CMake
 
    CMake is a cross-platform tool that can generate native makefiles and
    workspaces that can be used in the compiler environment of your choice.
-   Allegro 4.4 uses CMake as it's build system.  The process is essentially the
+   Allegro 4.4 uses CMake as its build system.  The process is essentially the
    same for all compilers.  You will need CMake 2.6 or later.
+   The CMake web site is <link>http://www.cmake.org/</a>.
    <ol><li>
    Create a temporary directory to build in.  This is optional but recommended.
    If something goes wrong you can delete the build directory and try again.

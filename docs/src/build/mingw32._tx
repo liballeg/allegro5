@@ -155,6 +155,8 @@ Setting up Dev-C++ to build Allegro
 @heading
 Setting up Cygwin to build Allegro
 
+   Note: Allegro 4.4 has not been tested with Cygwin yet!
+
    The procedure is as follows:
 <blockquote>
    1. Make sure you have a working Cygwin installation. You can download the
@@ -193,8 +195,6 @@ Setting up Cygwin to build Allegro
    MinGW distribution to your <tt>/lib/mingw</tt> directory (<tt>c:\cygwin\lib\mingw</tt>) in
    Cygwin. This is expected to be fixed in a later release of the
    mingw-runtime package (I'm currently using mingw-runtime-1.2-1).
-
-   Note: Allegro 4.4 has not been tested with Cygwin.
 
 
 
@@ -249,20 +249,20 @@ Installing Allegro
 @heading
 Using Allegro
 
-   XXX some of the library names are wrong right now
-
    All the Allegro functions, variables, and data structures are defined 
    in <tt>allegro.h</tt>. You should include this in your programs, and link with
    either the optimised library <tt>liballeg.a</tt>, the debugging library
-   <tt>liballd.a</tt>, or the profiling library <tt>liballp.a</tt>. You should include the
-   Allegro DLLs in any software you release to the public.
+   <tt>liballeg-debug.a</tt>, or the profiling library <tt>liballeg-profile.a</tt>.
+   You should include the Allegro DLLs in any software you release to the
+   public.
 
    When using a statically linked library, you must define the preprocessor
    symbol <tt>ALLEGRO_STATICLINK</tt> before including any of the Allegro headers and
    link your program against Allegro and the main Win32/DirectX libraries
-   in that order. The names of
-   the statically linked Allegro libraries are post-fixed with '<tt>_s</tt>' so that
-   you will link with either <tt>liballeg_s.a</tt>, <tt>liballd_s.a</tt> or <tt>liballp_s.a</tt>.
+   in that order.  The names of the statically linked Allegro libraries are
+   post-fixed with '<tt>-static</tt>' so that you will link with either
+   <tt>liballeg-static.a</tt>, <tt>liballeg-debug-static.a</tt> or
+   <tt>liballeg-profile-static.a</tt>.
 
    Don't forget that you need to use the <code>END_OF_MAIN()</code> macro right after
    your <code>main()</code> function.

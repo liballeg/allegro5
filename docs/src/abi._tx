@@ -103,7 +103,7 @@ MacOS X notes
 
    For example, otool -L &ltmybinary&gt should give
 
-      liballeg-4.4.dylib (compatibility version 4.4.0, current version 4.4.0)
+      liballeg.4.4.dylib (compatibility version 4.4.0, current version 4.4.0)
 
    For the Mac style, use `allegro-config --frameworks` on the link
    line, or add `Allegro.framework' to your project if you are using 

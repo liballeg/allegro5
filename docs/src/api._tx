@@ -37,6 +37,7 @@ Introduction
    fixed; in other words, two stable versions that differ from each other
    only by the revision (3rd) number will be strictly backward compatible.
 
+
 @heading
 Changes between 4.2.x and 4.4.x series
 <ul><li>

@@ -76,27 +76,22 @@ Introduction
 
 
 @heading
-Supported platforms
+Installation and supported platforms
 
-   For instructions on how to install Allegro, how to link your programs 
-   with it, and any additional information specific to each of the supported 
-   platforms, see one of the files included in the distribution package:
+   For generic instructions on how to build and install Allegro, see
+   docs/build/cmake.txt.
+
+   For more information on specific platforms, see one of these files:
 <textblock>
-   DOS/djgpp         - see docs/build/djgpp.txt
-   DOS/Watcom        - see docs/build/watcom.txt
    Windows/MSVC      - see docs/build/msvc.txt
    Windows/MinGW     - see docs/build/mingw32.txt
    Windows/Cygwin    - see docs/build/mingw32.txt
-   Windows/Borland   - see docs/build/bcc32.txt
-   Linux (console)   - see docs/build/linux.txt
    Unix (X11)        - see docs/build/unix.txt
-   Darwin (X11)      - see docs/build/darwin.txt
-   BeOS              - see docs/build/beos.txt
-   QNX               - see docs/build/qnx.txt
    MacOS X           - see docs/build/macosx.txt
+   Linux (console)   - see docs/build/linux.txt
 <endblock>
-   Note: many of those platforms were supported in the past, but may not be any
-   longer, without effort from interest parties. Sorry.
+   Other platforms were supported in the past, but may no longer work without
+   effort from interest parties. Sorry.
 
    General API information can be found in the main manual, usually referred
    to as docs/txt/allegro.txt, allegro.txt or simply "The Allegro manual"
@@ -122,7 +117,8 @@ Included Addons
   <li>jpgalleg
 </ul>
 
-See docs/txt/addons.txt.
+   See docs/txt/addons.txt.
+
 
 
 @heading
@@ -220,6 +216,8 @@ Copyright
    FOR ANY DAMAGES OR OTHER LIABILITY, WHETHER IN CONTRACT, TORT OR OTHERWISE,
    ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
    DEALINGS IN THE SOFTWARE.
+
+
 
 @heading
 Configuration

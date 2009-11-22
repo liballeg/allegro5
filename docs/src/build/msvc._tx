@@ -101,20 +101,16 @@ Installing Allegro
 @heading
 Using Allegro
 
-   XXX some of the library names are wrong right now
-
    All the Allegro functions, variables, and data structures are defined in 
    <tt>allegro.h</tt>. You should include this in your programs, and link with one of
    the libraries:
 <textblock>
-      alleg.lib       - optimised DLL import library
-      alld.lib        - debugging DLL import library
-      allp.lib        - profiling DLL import library
-      alleg_s.lib     - statically linked optimised library
-      alld_s.lib      - statically linked debugging library
-      allp_s.lib      - statically linked profiling library
-      alleg_s_crt.lib - statically linked optimised library 
-                           with the static C runtime
+      alleg.lib                  - optimised DLL import library
+      alleg-debug.lib            - debugging DLL import library
+      alleg-profile.lib          - profiling DLL import library
+      alleg-static.lib           - statically linked optimised library
+      alleg-debug-static.lib     - statically linked debugging library
+      alleg-profile-static.lib   - statically linked profiling library
 <endblock>
    When using a statically linked library, you must define the preprocessor
    symbol <tt>ALLEGRO_STATICLINK</tt> before including any of the Allegro headers and
@@ -131,8 +127,3 @@ Using Allegro
 
    If you use one of the DLL versions, you will obviously need to distribute 
    the appropriate DLL along with your program.
-
-   The alleg_s_crt.lib is most useful with Visual C++ 8.0. The new C runtime that it
-   uses can be difficult to distribute. By using alleg_s_crt.lib along with the 
-   multi-threaded runtime (/MT) you can avoid the problem. For more information on
-   deploying with VC++ 8.0, see <link>http://wiki.allegro.cc/VisualCExpress2005#Deployment</a>.
