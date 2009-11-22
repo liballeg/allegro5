@@ -261,6 +261,11 @@ int main(int argc, char *argv[])
    NSMenu *menu;
    NSMenuItem *menu_item, *temp_item;
 
+   /* I don't know what that NSAutoreleasePool line does but the variable was
+    * otherwise unused --pw
+    */
+   (void)pool;
+
    __crt0_argc = argc;
    __crt0_argv = argv;
    
