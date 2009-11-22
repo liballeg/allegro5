@@ -192,15 +192,15 @@ int _al_draw_prim_opengl(ALLEGRO_BITMAP* texture, const void* vtxs, const ALLEGR
    
    vtx = (const char*)vtxs + start * stride;
    num_vtx = end - start;
+
+   setup_blending();
+   setup_state(vtx, decl, texture);
    
    if(texture) {
       glEnable(GL_TEXTURE_2D);
       glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
       glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
    }
-
-   setup_blending();
-   setup_state(vtx, decl, texture);
 
    switch (type) {
       case ALLEGRO_PRIM_LINE_LIST: {
@@ -283,14 +283,14 @@ int _al_draw_prim_indexed_opengl(ALLEGRO_BITMAP* texture, const void* vtxs, cons
    
    vtx = vtxs;
 
+   setup_blending();
+   setup_state(vtx, decl, texture);
+   
    if(texture) {
       glEnable(GL_TEXTURE_2D);
       glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
       glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
    }
-   
-   setup_blending();
-   setup_state(vtx, decl, texture);
   
 #if defined ALLEGRO_GP2XWIZ || defined ALLEGRO_IPHONE
    for (ii = 0; ii < num_vtx; ii++) {
