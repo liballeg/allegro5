@@ -548,8 +548,8 @@ available in past/future versions of Allegro.
 
 @@typedef long @fixed
 @xref Fixed point math routines
-@eref ex12bit, ex3buf, ex3d, excustom, exfixed, exspline, exsprite
-@eref exstars, exupdate
+@eref ex12bit, ex3buf, ex3d, excustom, exfixed, exrotscl, exspline
+@eref exsprite, exstars, exupdate
 @shortdesc Fixed point integer to replace floats.
    This is a fixed point integer which can replace float with similar results
    and is faster than float on low end machines. Read chapter "Fixed point
@@ -3241,8 +3241,7 @@ Allegro does not provide such devices.)
 @@void @rest(unsigned int time);
 @xref install_timer, rest_callback
 @xref vsync, d_yield_proc
-@eref exkeys, exmidi, exquat, exsample, exsprite, extimer, extrans
-@eref extrans2, exunicod
+@eref Available Allegro examples
 @shortdesc Waits a specified number of milliseconds or yields CPU.
    This function waits for the specified number of milliseconds.
 
@@ -5231,8 +5230,7 @@ will not be known, so the file may be converted wrongly.
 @xref load_bmp, load_lbm, load_pcx, load_tga, destroy_bitmap, save_bitmap
 @xref register_bitmap_file_type, set_color_depth, set_color_conversion
 @xref generate_optimized_palette, generate_332_palette
-@eref exaccel, exalpha, exbitmap, exblend, exconfig, exlights, exshade
-@eref extrans, extrans2, exxfade
+@eref Available Allegro examples
 @shortdesc Loads any supported bitmap from a file.
    Loads a bitmap from a file. The palette data will be stored in the second
    parameter, which should be an array of 256 RGB structures. At present this
@@ -5455,7 +5453,7 @@ will not be known, so the file may be converted wrongly.
 @@void @set_color_conversion(int mode);
 @xref set_color_depth, load_bitmap, load_datafile, fixup_datafile
 @xref makecol15_dither, get_color_conversion
-@eref exalpha, exblend, exdata, exexedat, exlights, exxfade
+@eref exalpha, exblend, exdata, exexedat, exlights, exrotscl, exxfade
 @shortdesc Tells Allegro how to convert images during loading time.
    Specifies how to convert images between the various color depths when 
    reading graphics from external bitmap files or datafiles. The mode is a 
@@ -5906,6 +5904,7 @@ routines!
 @@int @makeacol(int r, int g, int b, int a);
 @@int @makeacol_depth(int color_depth, int r, int g, int b, int a);
 @xref makecol, makecol_depth, set_alpha_blender, set_write_alpha_blender
+@eref exrotscl
 @shortdesc Converts RGBA colors into display dependent pixel formats.
    Convert RGBA colors into display dependent pixel formats. In anything 
    less than a 32-bit mode, these are the same as calling makecol() or 
@@ -6630,7 +6629,7 @@ clipping rectangle of the destination bitmap.
 @xref draw_sprite, draw_lit_sprite, draw_trans_rle_sprite, color_map
 @xref set_trans_blender, set_alpha_blender, set_write_alpha_blender
 @xref bitmap_mask_color
-@eref exalpha, exblend, exlights, extrans, exxfade
+@eref exalpha, exblend, exlights, exrotscl, extrans, exxfade
 @shortdesc Draws a sprite blending it with the destination.
    Uses the global color_map table or truecolor blender functions to overlay
    the sprite on top of the existing image. This must only be used after you 
@@ -6770,6 +6769,7 @@ clipping rectangle of the destination bitmap.
 @@                          fixed angle, fixed scale);
 @xref rotate_sprite, rotate_scaled_sprite_v_flip
 @xref pivot_scaled_sprite, pivot_scaled_sprite_v_flip
+@eref exrotscl
 @shortdesc Rotates and stretches a sprite.
    Like rotate_sprite(), but stretches or shrinks the image at the same time 
    as rotating it.
@@ -6848,6 +6848,7 @@ clipping rectangle of the destination bitmap.
 @@                          fixed angle, fixed scale);
 @xref rotate_sprite_trans, rotate_scaled_sprite_v_flip_trans
 @xref pivot_scaled_sprite_trans, pivot_scaled_sprite_v_flip_trans
+@eref exrotscl
 @shortdesc Rotates and stretches a sprite.
    Like rotate_sprite_trans(), but stretches or shrinks the image at the same
    time as rotating it.
@@ -6929,6 +6930,7 @@ clipping rectangle of the destination bitmap.
 @@                          fixed angle, fixed scale);
 @xref rotate_sprite_lit, rotate_scaled_sprite_v_flip_lit
 @xref pivot_scaled_sprite_lit, pivot_scaled_sprite_v_flip_lit
+@eref exrotscl
 @shortdesc Rotates and stretches a sprite.
    Like rotate_sprite_lit(), but stretches or shrinks the image at the same
    time as rotating it.
@@ -8583,7 +8585,7 @@ between the 24 and 32-bit code since the bit packing is the same).
 @xref set_difference_blender, set_dissolve_blender, set_dodge_blender
 @xref set_hue_blender, set_invert_blender, set_luminance_blender
 @xref set_multiply_blender, set_saturation_blender, set_screen_blender
-@eref ex3d, exblend, exshade, extrans, extrans2, exxfade
+@eref ex3d, exblend, exrotscl, exshade, extrans, extrans2, exxfade
 @shortdesc Enables a truecolor blender.
    Enables a linear interpolator blender mode for combining translucent 
    or lit truecolor pixels.
@@ -8591,7 +8593,7 @@ between the 24 and 32-bit code since the bit packing is the same).
 @@void @set_alpha_blender();
 @xref set_trans_blender, draw_trans_sprite, draw_trans_rle_sprite,
 @xref set_write_alpha_blender
-@eref exalpha, extrans
+@eref exalpha, exrotscl, extrans
 @shortdesc Enables a special alpha-channel blending mode.
    Enables the special alpha-channel blending mode, which is used for 
    drawing 32-bit RGBA sprites. After calling this function, you can use 
@@ -11839,7 +11841,7 @@ Allegro functions using fixed point math will use other types.
 
 @@fixed @ftofix(double x);
 @xref fixtof, itofix, fixtoi
-@eref exfixed, exspline, exupdate
+@eref exfixed, exrotscl, exspline, exupdate
 @shortdesc Converts a floating point value to fixed point.
    Converts a floating point value to fixed point. Unlike itofix(), this
    function clamps values which could overflow the type conversion, setting
@@ -15291,7 +15293,7 @@ and avoid missing any important bit of information.
 @xref allegro_error, allegro_init, allegro_message, bmp_read_line
 @xref bmp_unwrite_line, bmp_write_line, clear_keybuf, font, getpixel
 @xref install_keyboard, keypressed, line, makecol, putpixel
-@xref release_screen, screen, set_gfx_mode, set_palette, textout_ex
+@xref release_screen, rest, screen, set_gfx_mode, set_palette, textout_ex
 @shortdesc How to write directly to video memory improving performance.
    This program demonstrates how to write directly to video memory.
    It implements a simple fire effect, first by calling getpixel() and
@@ -15591,6 +15593,18 @@ and avoid missing any important bit of information.
    such transfers can run in parallel on the graphics card's
    processor as well, costing virtually no main cpu time at all.
    See the exaccel example for an example of this.
+
+@@Example @exrotscl
+@xref BITMAP, END_OF_MAIN, SCREEN_H, SCREEN_W, acquire_screen
+@xref allegro_init, allegro_message, clear_to_color, create_bitmap
+@xref destroy_bitmap, draw_trans_sprite, fixed, font, ftofix
+@xref install_keyboard, key, keypressed, load_bitmap, makeacol, makecol
+@xref readkey, release_screen, rest, rotate_scaled_sprite
+@xref rotate_scaled_sprite_lit, rotate_scaled_sprite_trans, screen
+@xref set_alpha_blender, set_color_conversion, set_color_depth
+@xref set_gfx_mode, set_trans_blender, textout_centre_ex
+@shortdesc Demonstrates rotate_scaled_sprite functions.
+   This example demonstrates rotate_scaled_sprite functions.
 
 @@Example @exexedat
 @xref DATAFILE, END_OF_MAIN, allegro_error, allegro_init, allegro_message

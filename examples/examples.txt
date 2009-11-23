@@ -29,6 +29,7 @@ expal.c    - Palette effects and color cycling.
 expat.c    - Using patterned drawing modes and sub-bitmaps.
 exquat.c   - A comparison between Euler angles and quaternions.
 exrgbhsv.c - RGB <-> HSV color space conversions.
+exrotscl.c - Demonstrates rotate_scaled_sprite functions.
 exsample.c - Playing digital samples.
 exscale.c  - Loading PCX files and bitmap stretching.
 exscn3d.c  - Using the 3d scene functions.
