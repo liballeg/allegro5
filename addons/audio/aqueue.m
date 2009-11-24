@@ -15,14 +15,22 @@
  *      See readme.txt for copyright information.
  */
 
-#include "allegro5/allegro.h"
+#include <stdio.h>
+
+#include "allegro5/allegro5.h"
+#include "allegro5/internal/aintern.h"
+#include "allegro5/allegro_audio.h"
 #include "allegro5/internal/aintern_audio.h"
+#include "allegro5/internal/aintern_audio_cfg.h"
 
 #import <CoreAudio/CoreAudioTypes.h>
 #import <AudioToolbox/AudioQueue.h>
+#import <Foundation/NSAutoreleasePool.h>
 
-// FIXME
-#include <stdio.h>
+
+#define THREAD_BEGIN NSAutoreleasePool *___p = [[NSAutoreleasePool alloc] init];
+#define THREAD_END [___p release];
+
 
 // Make configurable
 #define BUFFER_SIZE 1024*2 // in samples
@@ -32,7 +40,6 @@ typedef struct ALLEGRO_AQ_DATA {
    int bits_per_sample;
    int channels;
    bool playing;
-   unsigned long samples_per_update;
    unsigned int buffer_size;
    ALLEGRO_VOICE *voice;
    AudioQueueBufferRef buffers[NUM_BUFFERS];
@@ -53,12 +60,18 @@ static void handle_buffer(
 
    (void)inAQ; // unsused
 
-   data = _al_voice_update(ex_data->voice, &ex_data->samples_per_update);
+   unsigned long samples = (ex_data->buffer_size/ex_data->channels)/(ex_data->bits_per_sample/8);
+
+   data = _al_voice_update(ex_data->voice, &samples);
    if (data == NULL)
       data = silence;
 
-   memcpy(inBuffer->mAudioData, data, inBuffer->mAudioDataBytesCapacity);
-   inBuffer->mAudioDataByteSize = ex_data->buffer_size;
+   unsigned long copy_bytes = samples * ex_data->channels *
+   	(ex_data->bits_per_sample/8);
+   copy_bytes = _ALLEGRO_MIN(copy_bytes, inBuffer->mAudioDataBytesCapacity);
+
+   memcpy(inBuffer->mAudioData, data, copy_bytes);
+   inBuffer->mAudioDataByteSize = copy_bytes;
 
    AudioQueueEnqueueBuffer(
       queue,
@@ -66,6 +79,30 @@ static void handle_buffer(
       0,
       NULL
    );
+   /*
+   ALLEGRO_AQ_DATA *ex_data = in_data;
+   const void *data;
+  
+   unsigned long capacity = inBuffer->mAudioDataBytesCapacity;
+   unsigned long samples = 
+   	capacity / (ex_data->channels * (ex_data->bits_per_sample/8));
+
+   data = _al_voice_update(ex_data->voice, &samples);
+   if (data == NULL)
+      data = silence;
+
+   capacity = samples * ex_data->channels * (ex_data->bits_per_sample/8);
+
+   memcpy(inBuffer->mAudioData, data, capacity);
+   inBuffer->mAudioDataByteSize = capacity;
+
+   AudioQueueEnqueueBuffer(
+      queue,
+      inBuffer,
+      0,
+      NULL
+   );
+   */
 }
 
 
@@ -99,8 +136,6 @@ static int _aqueue_allocate_voice(ALLEGRO_VOICE *voice)
       case ALLEGRO_AUDIO_DEPTH_INT16:
          bits_per_sample = 16;
          break;
-      default:
-         return 1;
    }
 
    switch (voice->chan_conf) {
@@ -125,7 +160,6 @@ static int _aqueue_allocate_voice(ALLEGRO_VOICE *voice)
    ex_data->channels = channels;
    ex_data->buffer_size = BUFFER_SIZE*channels*(bits_per_sample/8);
    ex_data->playing = false;
-   ex_data->samples_per_update = BUFFER_SIZE;
 
    playing = false;
 
@@ -154,8 +188,7 @@ static void _aqueue_deallocate_voice(ALLEGRO_VOICE *voice)
    must fail if it cannot be. */
 static int _aqueue_load_voice(ALLEGRO_VOICE *voice, const void *data)
 {
-   (void)voice; // unused
-   (void)data; // unused
+   /* FIXME */
    return 1;
 }
 
@@ -163,12 +196,16 @@ static int _aqueue_load_voice(ALLEGRO_VOICE *voice, const void *data)
    This method should not be called on a streaming voice. */
 static void _aqueue_unload_voice(ALLEGRO_VOICE *voice)
 {
-   (void)voice; // unused
+   /* FIXME */
 }
 
 
 static void *stream_proc(void *in_data)
 {
+   #ifdef ALLEGRO_IPHONE
+   THREAD_BEGIN
+   #endif
+
    ALLEGRO_VOICE *voice = in_data;
    ALLEGRO_AQ_DATA *ex_data = voice->extra;
 
@@ -196,9 +233,8 @@ static void *stream_proc(void *in_data)
       kCFRunLoopCommonModes,
       0,
       &queue);
-	
-   int i;
 
+   int i;
    for (i = 0; i < NUM_BUFFERS; ++i) {
       AudioQueueAllocateBuffer(
          queue,
@@ -218,7 +254,6 @@ static void *stream_proc(void *in_data)
          0,
          NULL
       );
-
    }
 
    AudioQueueSetParameter(
@@ -242,7 +277,11 @@ static void *stream_proc(void *in_data)
          false
       );
    } while (playing);
-    
+	
+   #ifdef ALLEGRO_IPHONE
+   THREAD_END
+   #endif
+
    return NULL;
 }
 
@@ -261,6 +300,7 @@ static int _aqueue_start_voice(ALLEGRO_VOICE *voice)
    /* FIXME */
    return 1;
 }
+
 
 /* The stop_voice method should stop playback. For non-streaming voices, it
    should leave the data loaded, and reset the voice position to 0. */
@@ -296,7 +336,7 @@ static bool _aqueue_voice_is_playing(const ALLEGRO_VOICE *voice)
    be called on a streaming voice. */
 static unsigned long _aqueue_get_voice_position(const ALLEGRO_VOICE *voice)
 {
-   (void)voice; // unused
+   /* FIXME */
    return 0;
 }
 
@@ -305,8 +345,7 @@ static unsigned long _aqueue_get_voice_position(const ALLEGRO_VOICE *voice)
    voice. */
 static int _aqueue_set_voice_position(ALLEGRO_VOICE *voice, unsigned long val)
 {
-   (void)voice; // unused
-   (void)val; // unused
+   /* FIXME */
    return 0;
 }
 
