@@ -125,6 +125,9 @@ installed.  The packages are probably named *-dev or *-devel.
 CMake & Unix or MinGW or Mac OS X
 ---------------------------------
 
+Unpack Allegro into a directory *without spaces or other "weird" characters in
+the path*.  This is a known problem.
+
 CMake works by first creating a makefile, which then can be used to compile.
 
 To use it:
@@ -180,6 +183,9 @@ directory before you do `mingw32-make install`):
 
 CMake & MSVC
 ------------
+
+Unpack Allegro into a directory *without spaces or other "weird" characters in
+the path*.  This is a known problem.
 
 First open up a console and make sure that cmake.exe is in your %PATH%. You
 ensure than by typing "SET PATH=C:\cmake\bin\;%PATH%" or similar. Typing
