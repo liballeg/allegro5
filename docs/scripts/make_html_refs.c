@@ -23,7 +23,8 @@ int main(int argc, char *argv[])
          d_basename(d_filename, ".html", file);
          name = d_after_match;
          d_tolower(name, sec_id);
-         d_printf("[%s]: %s#%s\n", name, file, sec_id);
+         /* The extra blank lines are to work around Pandoc issue #182. */
+         d_printf("[%s]: %s#%s\n\n", name, file, sec_id);
       }
    }
 
