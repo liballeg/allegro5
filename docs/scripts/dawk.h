@@ -44,6 +44,7 @@ extern const char *d_submatch(int i);
 
 extern void d_basename(const char *filename, const char *newext, dstr output);
 extern void d_tolower(const dstr src, dstr dest);
+extern void d_delchr(dstr str, char c);
 
 #endif
 

@@ -139,10 +139,16 @@ add_custom_target(gen_protos DEPENDS ${PROTOS})
 # It's used to resolve references across HTML pages.
 # The search_index.js file contains definitions for the autosuggest widget.
 
+if(PANDOC_STRIP_UNDERSCORES)
+    set(STRIP_UNDERSCORES "--strip-underscores")
+else()
+    set(STRIP_UNDERSCORES "")
+endif()
+
 add_custom_command(
     OUTPUT ${HTML_REFS}
     DEPENDS ${PAGES_TXT} make_html_refs
-    COMMAND ${MAKE_HTML_REFS} ${PAGES_TXT} > ${HTML_REFS}
+    COMMAND ${MAKE_HTML_REFS} ${STRIP_UNDERSCORES} ${PAGES_TXT} > ${HTML_REFS}
     )
 
 add_custom_command(

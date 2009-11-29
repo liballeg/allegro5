@@ -306,4 +306,18 @@ void d_tolower(const dstr src, dstr dest)
    *d = '\0';
 }
 
+
+void d_delchr(dstr str, char c)
+{
+   const char *r = str;
+   char *w = str;
+   for (; *r; r++) {
+      if (*r != c) {
+         *w = *r;
+         w++;
+      }
+   }
+   *w = '\0';
+}
+
 /* vim: set sts=3 sw=3 et: */

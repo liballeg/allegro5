@@ -30,6 +30,18 @@ if(PANDOC AND NOT DEFINED PANDOC_WITH_TEXINFO)
     mark_as_advanced(PANDOC_WITH_TEXINFO)
 endif()
 
+# Pandoc 1.2 changed the way it generates HTML identifiers.
+if(PANDOC AND NOT DEFINED PANDOC_STRIP_UNDERSCORES)
+    if(PANDOC_VERSION_TEXT MATCHES "pandoc (0|1.[01])")
+        set(PANDOC_STRIP_UNDERSCORES 0 CACHE BOOL
+            "Pandoc strips underscores for HTML identifiers")
+    else()
+        set(PANDOC_STRIP_UNDERSCORES 1 CACHE BOOL
+            "Pandoc strips underscores for HTML identifiers")
+    endif()
+    mark_as_advanced(PANDOC_STRIP_UNDERSCORES)
+endif()
+
 #-----------------------------------------------------------------------------#
 
 set(all_docs)
