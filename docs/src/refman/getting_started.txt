@@ -29,7 +29,7 @@ Here are the addons and their dependencies:
     allegro_primitives -> allegro
     allegro_color -> allegro
 
-    allegro_font -> allegro_image -> allegro_primitives -> allegro
+    allegro_font -> allegro_image -> allegro
     allegro_ttf -> allegro_font -> allegro_image -> allegro
 
     allegro_audio -> allegro

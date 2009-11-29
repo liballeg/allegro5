@@ -4,6 +4,58 @@ See `changes._tx` for changes in earlier versions of Allegro.  These lists
 serve as summaries; the full histories are in the Subversion repository.
 
 
+Changes from 4.9.15.1 to 4.9.16 (November 2009)
+===============================================
+
+The main developers this time were: Trent Gamblin and Paul Suntsov.
+
+Graphics:
+
+-  Fixed clipping of the right/bottom edges for the software primitives.
+
+-  Enable sub-pixel accuracy for rotated blitting in software.
+
+-  Made the D3D output look closer to the OGL/Software output.
+
+-  OpenGL driver now respects the 'linear' texture filtering configuration
+   option.  Anisotropic is interpreted as linear at this time.
+
+-  Added deferred bitmap drawing (al_hold_bitmap_drawing).
+
+-  Made the font addons use deferred bitmap drawing instead of the primitives
+   addon, removing the link between the two addons.
+
+-  Changed al_transform_vertex to al_transform_coordinates to make the
+   function more versatile.
+
+-  Transfered transformations from the primitives addon into the core.
+   Added documentation for that, as well as a new example, ex_transform.
+   Transformations work for hardware accelerated bitmap drawing (including
+   fonts) but the software component is not implemented as of yet.
+   Also fixed some bugs inside the code of the transformations.
+
+-  Increase performance of screen->bitmap blitting in the D3D driver.
+
+-  Fixed a strange bug with textured primitives (u/v repeat flags were being
+   ignored on occasion).
+
+-  Added ALLEGRO_VIDEO_BITMAP for consistency.
+
+Input:
+
+-  Work around a memory leak in iPhone OS that occurs when the accelerometer
+   is on during touch input.
+
+Other core:
+
+-  Don't #define true/false/bool macros in C++.
+
+Audio addon:
+
+-  Some minor cleanups to the Audio Queue driver.
+
+
+
 Changes from 4.9.15 to 4.9.15.1 (October 2009)
 ==============================================
 
