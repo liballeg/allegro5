@@ -22,7 +22,7 @@
 #include "allegro5/internal/aintern_display.h"
 #include <math.h>
 
-ALLEGRO_DEBUG_CHANNEL("transformations")
+/* ALLEGRO_DEBUG_CHANNEL("transformations") */
 
 /* Function: al_copy_transform
  */
@@ -47,7 +47,7 @@ void al_use_transform(AL_CONST ALLEGRO_TRANSFORM* trans)
  */
 AL_CONST ALLEGRO_TRANSFORM* al_get_current_transform()
 {
-	ALLEGRO_DISPLAY *current_display = al_get_current_display();
+   ALLEGRO_DISPLAY *current_display = al_get_current_display();
    return &current_display->cur_transform;
 }
 
@@ -244,3 +244,5 @@ void al_transform_transform(AL_CONST ALLEGRO_TRANSFORM* trans, ALLEGRO_TRANSFORM
    trans2->m[3][0] =  trans->m[0][0] * t + trans->m[1][0] * trans2->m[3][1] +  trans->m[3][0];
    trans2->m[3][1] =  trans->m[0][1] * t + trans->m[1][1] * trans2->m[3][1] +  trans->m[3][1];
 }
+
+/* vim: set sts=3 sw=3 et: */
