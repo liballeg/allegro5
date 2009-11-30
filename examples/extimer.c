@@ -109,9 +109,11 @@ int main(void)
    install_int_ex(inc_z, SECS_TO_TIMER(10));
 
    /* the interrupts are now active... */
-   while (!keypressed())
+   while (!keypressed()) {
       textprintf_centre_ex(screen, font, SCREEN_W/2, 176, makecol(0, 0, 0),
 			   makecol(255, 255, 255), "x=%d, y=%d, z=%d", x, y, z);
+      rest(0);
+   }
 
    return 0;
 }
