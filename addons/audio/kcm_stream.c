@@ -142,6 +142,12 @@ void al_destroy_audio_stream(ALLEGRO_AUDIO_STREAM *stream)
 void al_drain_audio_stream(ALLEGRO_AUDIO_STREAM *stream)
 {
    bool playing;
+
+   if (!al_get_audio_stream_attached(stream)) {
+      al_set_audio_stream_playing(stream, false);
+      return;
+   }
+
    stream->is_draining = true;
    do {
       al_rest(0.01);
