@@ -11,6 +11,13 @@
 #include "allegro5/internal/aintern_audio.h"
 #include "allegro5/internal/aintern_memory.h"
 
+/* This must be defined if doing a static build
+ * for libFLAC to use the proper exports for MSVC
+ */
+#ifdef ALLEGRO_STATICLINK
+#define FLAC__NO_DLL
+#endif
+
 #include <FLAC/stream_decoder.h>
 #include <stdio.h>
 
