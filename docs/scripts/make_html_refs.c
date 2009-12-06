@@ -9,8 +9,8 @@
  * OPTIONS
  *
  * --strip-underscores
- *    Pandoc 1.2 strips underscores when generating HTML identifiers so we
- *    must do the same.
+ *    Pandoc 1.2 and 1.2.1 strip underscores when generating HTML identifiers
+ *    so we must do the same.
  */
 
 #include <string.h>

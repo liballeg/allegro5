@@ -20,6 +20,7 @@ if(PANDOC AND NOT DEFINED PANDOC_WITH_TEXINFO)
     message(STATUS "Checking Pandoc version")
     execute_process(
         COMMAND ${PANDOC} --version
+        OUTPUT_VARIABLE PANDOC_VERSION_TEXT
         ERROR_VARIABLE PANDOC_VERSION_TEXT
         )
     if(PANDOC_VERSION_TEXT MATCHES "pandoc [1-9]")
@@ -30,13 +31,21 @@ if(PANDOC AND NOT DEFINED PANDOC_WITH_TEXINFO)
     mark_as_advanced(PANDOC_WITH_TEXINFO)
 endif()
 
-# Pandoc 1.2 changed the way it generates HTML identifiers.
+# Pandoc 1.2 and 1.2.1 accidentally changed the way it generates HTML
+# identifiers.
 if(PANDOC AND NOT DEFINED PANDOC_STRIP_UNDERSCORES)
-    if(PANDOC_VERSION_TEXT MATCHES "pandoc (0|1.[01])")
-        set(PANDOC_STRIP_UNDERSCORES 0 CACHE BOOL
+    if(NOT PANDOC_VERSION_TEXT)
+        execute_process(
+            COMMAND ${PANDOC} --version
+            OUTPUT_VARIABLE PANDOC_VERSION_TEXT
+            ERROR_VARIABLE PANDOC_VERSION_TEXT
+            )
+    endif()
+    if(PANDOC_VERSION_TEXT MATCHES "pandoc 1[.]2(\n|[.]1)")
+        set(PANDOC_STRIP_UNDERSCORES 1 CACHE BOOL
             "Pandoc strips underscores for HTML identifiers")
     else()
-        set(PANDOC_STRIP_UNDERSCORES 1 CACHE BOOL
+        set(PANDOC_STRIP_UNDERSCORES 0 CACHE BOOL
             "Pandoc strips underscores for HTML identifiers")
     endif()
     mark_as_advanced(PANDOC_STRIP_UNDERSCORES)
