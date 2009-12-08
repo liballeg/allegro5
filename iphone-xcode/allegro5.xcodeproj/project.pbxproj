@@ -282,6 +282,7 @@
 		96A1EDFD103B3E740021FA43 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 96A1EDFC103B3E740021FA43 /* UIKit.framework */; };
 		96A1EE0B103B3F750021FA43 /* OpenAL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 96A1EE0A103B3F750021FA43 /* OpenAL.framework */; };
 		96A1EFC2103B52820021FA43 /* data in Resources */ = {isa = PBXBuildFile; fileRef = 642F7F97102DD0B6001249EE /* data */; };
+		96C30A1E10CE75DD00477B20 /* transformations.c in Sources */ = {isa = PBXBuildFile; fileRef = 96C30A1D10CE75DD00477B20 /* transformations.c */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -886,6 +887,7 @@
 		96A1EDE7103B3CF70021FA43 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
 		96A1EDFC103B3E740021FA43 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
 		96A1EE0A103B3F750021FA43 /* OpenAL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenAL.framework; path = System/Library/Frameworks/OpenAL.framework; sourceTree = SDKROOT; };
+		96C30A1D10CE75DD00477B20 /* transformations.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = transformations.c; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -1317,6 +1319,7 @@
 				6483903E102AF2CF00D508EE /* threads.c */,
 				6483903F102AF2CF00D508EE /* timernu.c */,
 				64839040102AF2CF00D508EE /* tls.c */,
+				96C30A1D10CE75DD00477B20 /* transformations.c */,
 				64839041102AF2CF00D508EE /* unix */,
 				6483904F102AF2CF00D508EE /* utf8.c */,
 			);
@@ -2469,6 +2472,7 @@
 				642F8062102DE652001249EE /* iphone_keyboard.c in Sources */,
 				642F8066102DE676001249EE /* iphone_mouse.m in Sources */,
 				6485CBA01038B9720094FDE9 /* iphone_joystick.m in Sources */,
+				96C30A1E10CE75DD00477B20 /* transformations.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
