@@ -353,6 +353,12 @@ static void stdio_seek_test(void)
    char str[8];
 
    fp = fopen("expackf.c", "rb");
+   if (!fp) {
+      /* Handle the case where the user is running from a build directory
+       * directly under the Allegro root directory.
+       */
+      fp = fopen("../../examples/expackf.c", "rb");
+   }
    CHECK(fp, "opening expackf.c");
    f = pack_fopen_vtable(&stdio_vtable, fp);
    CHECK(f, "reading with stdio");
