@@ -16,7 +16,7 @@
 int main(void)
 {
    /* declare three 32 bit (16.16) fixed point variables */
-   fixed x, y, z;
+   fixed x, y, z1, z2, z3, z4;
 
    if (allegro_init() != 0)
       return 1;
@@ -30,8 +30,7 @@ int main(void)
    /* fixed point variables can be assigned, added, subtracted, negated,
     * and compared just like integers, eg: 
     */
-   z = x + y;
-   allegro_message("%f + %f = %f\n", fixtof(x), fixtof(y), fixtof(z));
+   z1 = x + y;
 
    /* you can't add integers or floating point to fixed point, though:
     *    z = x + 3;
@@ -41,19 +40,26 @@ int main(void)
    /* fixed point variables can be multiplied or divided by integers or
     * floating point numbers, eg:
     */
-   z = y * 2;
-   allegro_message("%f * 2 = %f\n", fixtof(y), fixtof(z));
+   z2 = y * 2;
 
    /* you can't multiply or divide two fixed point numbers, though:
     *    z = x * y;
     * would give the wrong result. Use fixmul() and fixdiv() instead, eg:
     */
-   z = fixmul(x, y);
-   allegro_message("%f * %f = %f\n", fixtof(x), fixtof(y), fixtof(z));
+   z3 = fixmul(x, y);
 
    /* fixed point trig and square root are also available, eg: */
-   z = fixsqrt(x);
-   allegro_message("fixsqrt(%f) = %f\n", fixtof(x), fixtof(z));
+   z4 = fixsqrt(x);
+
+   allegro_message(
+       "%f + %f = %f\n"
+       "%f * 2 = %f\n"
+       "%f * %f = %f\n"
+       "fixsqrt(%f) = %f\n",
+       fixtof(x), fixtof(y), fixtof(z1),
+       fixtof(y), fixtof(z2),
+       fixtof(x), fixtof(y), fixtof(z3),
+       fixtof(x), fixtof(z4));
 
    return 0;
 }
