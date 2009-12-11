@@ -84,6 +84,9 @@ int main(void)
       textprintf_centre_ex(screen, font, SCREEN_W/2, 62+c*10,
 			   makecol(0, 0, 0), makecol(255, 255, 255), "%d", c);
       rest(1000);
+      if (keypressed()) {
+	 return 0;
+      }
    }
 
    textprintf_centre_ex(screen, font, SCREEN_W/2, 142, makecol(0, 0, 0),
