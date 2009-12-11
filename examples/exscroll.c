@@ -76,6 +76,7 @@ int main(void)
 
       x = next_x;
 
+      rest(0);
    } while (!keypressed());
 
    destroy_bitmap(scroller);
