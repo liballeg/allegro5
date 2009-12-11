@@ -17,6 +17,7 @@ enum MODES {
 
 int main(void)
 {
+   BITMAP *dbuf;
    BITMAP *b;
    BITMAP *b2;
    int mode = NORMAL;
@@ -31,6 +32,14 @@ int main(void)
    set_color_depth(32);
    install_keyboard();
    if (set_gfx_mode(GFX_AUTODETECT_WINDOWED, 640, 480, 0, 0) != 0) {
+      allegro_message("Could not set graphics mode\n");
+      return 1;
+   }
+
+   dbuf = create_bitmap(SCREEN_W, SCREEN_H);
+   if (!dbuf) {
+      set_gfx_mode(GFX_TEXT, 0, 0, 0, 0);
+      allegro_message("Could not create double buffer\n");
       return 1;
    }
 
@@ -45,6 +54,11 @@ int main(void)
 
    /* Make a non-alpha copy for drawing lit */
    b2 = create_bitmap(b->w, b->h);
+   if (!b2) {
+      set_gfx_mode(GFX_TEXT, 0, 0, 0, 0);
+      allegro_message("Error creating bitmap\n");
+      return 1;
+   }
    clear_to_color(b2, makeacol(255, 255, 255, 255));
    set_alpha_blender();
    draw_trans_sprite(b2, b, 0, 0);
@@ -56,27 +70,26 @@ int main(void)
       float y = (SCREEN_H-(b->h*fscale))/2;
 
       /* XXX flickers badly due to no buffering */
-      acquire_screen();
-      clear_to_color(screen, makecol(255, 255, 255));
-      textout_centre_ex(screen, font, "Press 'n' for next mode", SCREEN_W/2, SCREEN_H-30, makecol(0, 0, 0), -1);
+      clear_to_color(dbuf, makecol(255, 255, 255));
+      textout_centre_ex(dbuf, font, "Press 'n' for next mode", SCREEN_W/2, SCREEN_H-30, makecol(0, 0, 0), -1);
       switch (mode) {
          case NORMAL:
-            rotate_scaled_sprite(screen, b, x, y, angle, scale);
-            textout_centre_ex(screen, font, "Normal", SCREEN_W/2, SCREEN_H-20, makecol(0, 0, 0), -1);
+            rotate_scaled_sprite(dbuf, b, x, y, angle, scale);
+            textout_centre_ex(dbuf, font, "Normal", SCREEN_W/2, SCREEN_H-20, makecol(0, 0, 0), -1);
             break;
          case ALPHA:
             set_alpha_blender();
-            rotate_scaled_sprite_trans(screen, b, x, y, angle, scale);
-            textout_centre_ex(screen, font, "Alpha", SCREEN_W/2, SCREEN_H-20, makecol(0, 0, 0), -1);
+            rotate_scaled_sprite_trans(dbuf, b, x, y, angle, scale);
+            textout_centre_ex(dbuf, font, "Alpha", SCREEN_W/2, SCREEN_H-20, makecol(0, 0, 0), -1);
             break;
          case LIT:
             set_trans_blender(255, 0, 0, 0);
-            rotate_scaled_sprite_lit(screen, b2, x, y, angle, scale,
-               128);//makecol(255, 0, 0));
-            textout_centre_ex(screen, font, "Lit", SCREEN_W/2, SCREEN_H-20, makecol(0, 0, 0), -1);
+            rotate_scaled_sprite_lit(dbuf, b2, x, y, angle, scale, 128);
+            textout_centre_ex(dbuf, font, "Lit", SCREEN_W/2, SCREEN_H-20, makecol(0, 0, 0), -1);
             break;
       }
-      release_screen();
+      blit(dbuf, screen, 0, 0, 0, 0, SCREEN_W, SCREEN_H);
+
       fangle += 1;
       fscale += dir*inc;
       if (fscale < 0.5) {
@@ -103,6 +116,7 @@ int main(void)
 
    destroy_bitmap(b);
    destroy_bitmap(b2);
+   destroy_bitmap(dbuf);
    return 0;
 }
 END_OF_MAIN()
