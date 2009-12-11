@@ -250,7 +250,7 @@ void FUNC_POLY_SCANLINE_PTEX(uintptr_t addr, int w, POLYGON_SEGMENT *info)
    double fu, fv, fz, dfu, dfv, dfz, z1;
    PIXEL_PTR texture;
    PIXEL_PTR d;
-   long u, v;
+   int64_t u, v;
 
    ASSERT(addr);
    ASSERT(info);
@@ -275,7 +275,7 @@ void FUNC_POLY_SCANLINE_PTEX(uintptr_t addr, int w, POLYGON_SEGMENT *info)
    z1 = 1. / fz;
 
    for (x = w - 1; x >= 0; x -= 4) {
-      long nextu, nextv, du, dv;
+      int64_t nextu, nextv, du, dv;
       PIXEL_PTR s;
       unsigned long color;
 
@@ -314,7 +314,7 @@ void FUNC_POLY_SCANLINE_PTEX_MASK(uintptr_t addr, int w, POLYGON_SEGMENT *info)
    double fu, fv, fz, dfu, dfv, dfz, z1;
    PIXEL_PTR texture;
    PIXEL_PTR d;
-   long u, v;
+   int64_t u, v;
 
    ASSERT(addr);
    ASSERT(info);
@@ -339,7 +339,7 @@ void FUNC_POLY_SCANLINE_PTEX_MASK(uintptr_t addr, int w, POLYGON_SEGMENT *info)
    z1 = 1. / fz;
 
    for (x = w - 1; x >= 0; x-= 4) {
-      long nextu, nextv, du, dv;
+      int64_t nextu, nextv, du, dv;
       PIXEL_PTR s;
       unsigned long color;
 
@@ -382,7 +382,7 @@ void FUNC_POLY_SCANLINE_PTEX_LIT(uintptr_t addr, int w, POLYGON_SEGMENT *info)
    PS_BLENDER blender;
    PIXEL_PTR texture;
    PIXEL_PTR d;
-   long u, v;
+   int64_t u, v;
 
    ASSERT(addr);
    ASSERT(info);
@@ -410,7 +410,7 @@ void FUNC_POLY_SCANLINE_PTEX_LIT(uintptr_t addr, int w, POLYGON_SEGMENT *info)
    z1 = 1. / fz;
 
    for (x = w - 1; x >= 0; x-= 4) {
-      long nextu, nextv, du, dv;
+      int64_t nextu, nextv, du, dv;
 
       fu += dfu;
       fv += dfv;
@@ -451,7 +451,7 @@ void FUNC_POLY_SCANLINE_PTEX_MASK_LIT(uintptr_t addr, int w, POLYGON_SEGMENT *in
    PS_BLENDER blender;
    PIXEL_PTR texture;
    PIXEL_PTR d;
-   long u, v;
+   int64_t u, v;
 
    ASSERT(addr);
    ASSERT(info);
@@ -479,7 +479,7 @@ void FUNC_POLY_SCANLINE_PTEX_MASK_LIT(uintptr_t addr, int w, POLYGON_SEGMENT *in
    z1 = 1. / fz;
 
    for (x = w - 1; x >= 0; x-= 4) {
-      long nextu, nextv, du, dv;
+      int64_t nextu, nextv, du, dv;
 
       fu += dfu;
       fv += dfv;
@@ -606,7 +606,7 @@ void FUNC_POLY_SCANLINE_PTEX_TRANS(uintptr_t addr, int w, POLYGON_SEGMENT *info)
    PIXEL_PTR texture;
    PIXEL_PTR d;
    PIXEL_PTR r;
-   long u, v;
+   int64_t u, v;
 
    ASSERT(addr);
    ASSERT(info);
@@ -633,7 +633,7 @@ void FUNC_POLY_SCANLINE_PTEX_TRANS(uintptr_t addr, int w, POLYGON_SEGMENT *info)
    z1 = 1. / fz;
 
    for (x = w - 1; x >= 0; x-= 4) {
-      long nextu, nextv, du, dv;
+      int64_t nextu, nextv, du, dv;
 
       fu += dfu;
       fv += dfv;
@@ -673,7 +673,7 @@ void FUNC_POLY_SCANLINE_PTEX_MASK_TRANS(uintptr_t addr, int w, POLYGON_SEGMENT *
    PIXEL_PTR texture;
    PIXEL_PTR d;
    PIXEL_PTR r;
-   long u, v;
+   int64_t u, v;
 
    ASSERT(addr);
    ASSERT(info);
@@ -700,7 +700,7 @@ void FUNC_POLY_SCANLINE_PTEX_MASK_TRANS(uintptr_t addr, int w, POLYGON_SEGMENT *
    z1 = 1. / fz;
 
    for (x = w - 1; x >= 0; x-= 4) {
-      long nextu, nextv, du, dv;
+      int64_t nextu, nextv, du, dv;
 
       fu += dfu;
       fv += dfv;
