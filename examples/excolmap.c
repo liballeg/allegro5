@@ -163,6 +163,9 @@ int main(void)
       rectfill(temp, x, y, x+50, y+50, 0);
       vsync();
       blit(temp, screen, 0, 0, 0, 0, 320, 200);
+
+      /* slow down the animation for modern machines */
+      rest(1);
    }
 
    clear_keybuf();
@@ -204,6 +207,9 @@ int main(void)
       rectfill(temp, x, y, x+50, y+50, 0);
       vsync();
       blit(temp, screen, 0, 0, 0, 0, 320, 200);
+
+      /* slow down the animation for modern machines */
+      rest(1);
    }
 
    destroy_bitmap(background);

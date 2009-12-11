@@ -427,6 +427,9 @@ int main(void)
       xangle += itofix(1);
       yangle += itofix(1);
       zangle += itofix(1);
+
+      /* slow down the animation for modern machines */
+      rest(1);
    }
 
    clear_keybuf();
