@@ -14,8 +14,12 @@
 #include <allegro.h>
 
 
+const char *default_argv[] = {
+   "exxfade", "allegro.pcx", "mysha.pcx", "planet.pcx"};
 
-int show(char *name)
+
+
+int show(const char *name)
 {
    BITMAP *bmp, *buffer;
    PALETTE pal;
@@ -46,6 +50,9 @@ int show(char *name)
 	 else
 	    return 0;
       }
+
+      /* slow down animation for modern machines */
+      rest(2);
    }
 
    blit(bmp, screen, 0, 0, (SCREEN_W-bmp->w)/2, (SCREEN_H-bmp->h)/2,
@@ -62,7 +69,7 @@ int show(char *name)
 
 
 
-int main(int argc, char *argv[])
+int main(int argc, const char *argv[])
 {
    int i;
 
@@ -70,8 +77,9 @@ int main(int argc, char *argv[])
       return 1;
 
    if (argc < 2) {
-      allegro_message("Usage: 'exxfade files.[bmp|lbm|pcx|tga]'\n");
-      return 1;
+      /* use a default set of images if the user doesn't specify any */
+      argc = sizeof(default_argv) / sizeof(default_argv[0]);
+      argv = default_argv;
    }
 
    install_keyboard(); 
