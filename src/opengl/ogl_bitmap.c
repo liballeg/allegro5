@@ -231,6 +231,7 @@ static void draw_quad(ALLEGRO_BITMAP *bitmap,
    ALLEGRO_BITMAP_OGL *ogl_bitmap = (void *)bitmap;
    ALLEGRO_OGL_BITMAP_VERTEX* verts;
    ALLEGRO_DISPLAY* disp = al_get_current_display();
+   ALLEGRO_COLOR* bc = _al_get_blend_color();
 
    if (disp->num_cache_vertices != 0 && ogl_bitmap->texture != disp->cache_texture) {
       disp->vt->flush_vertex_cache(disp);
@@ -264,21 +265,37 @@ static void draw_quad(ALLEGRO_BITMAP *bitmap,
    verts[0].y = dy+dh;
    verts[0].tx = tex_l;
    verts[0].ty = tex_b;
+   verts[0].r = bc->r;
+   verts[0].g = bc->g;
+   verts[0].b = bc->b;
+   verts[0].a = bc->a;
    
    verts[1].x = dx;
    verts[1].y = dy;
    verts[1].tx = tex_l;
    verts[1].ty = tex_t;
+   verts[1].r = bc->r;
+   verts[1].g = bc->g;
+   verts[1].b = bc->b;
+   verts[1].a = bc->a;
    
    verts[2].x = dx+dw;
    verts[2].y = dy+dh;
    verts[2].tx = tex_r;
    verts[2].ty = tex_b;
+   verts[2].r = bc->r;
+   verts[2].g = bc->g;
+   verts[2].b = bc->b;
+   verts[2].a = bc->a;
    
    verts[4].x = dx+dw;
    verts[4].y = dy;
    verts[4].tx = tex_r;
    verts[4].ty = tex_t;
+   verts[4].r = bc->r;
+   verts[4].g = bc->g;
+   verts[4].b = bc->b;
+   verts[4].a = bc->a;
    
    if(angle == 0) {
       c = 1;

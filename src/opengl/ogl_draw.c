@@ -164,16 +164,18 @@ static void ogl_flush_vertex_cache(ALLEGRO_DISPLAY* disp)
 
    glEnableClientState(GL_VERTEX_ARRAY);
    glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-   glDisableClientState(GL_COLOR_ARRAY);
+   glEnableClientState(GL_COLOR_ARRAY);
    
    glVertexPointer(2, GL_FLOAT, sizeof(ALLEGRO_OGL_BITMAP_VERTEX), disp->vertex_cache);
    glTexCoordPointer(2, GL_FLOAT, sizeof(ALLEGRO_OGL_BITMAP_VERTEX), 
                   (char*)(disp->vertex_cache) + offsetof(ALLEGRO_OGL_BITMAP_VERTEX, tx));
+   glColorPointer(4, GL_FLOAT, sizeof(ALLEGRO_OGL_BITMAP_VERTEX), (char*)(disp->vertex_cache) + offsetof(ALLEGRO_OGL_BITMAP_VERTEX, r));
 
    glDrawArrays(GL_TRIANGLES, 0, disp->num_cache_vertices);
 
    glDisableClientState(GL_VERTEX_ARRAY);
    glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+   glDisableClientState(GL_COLOR_ARRAY);
    
    disp->num_cache_vertices = 0;
    if (!on) {
