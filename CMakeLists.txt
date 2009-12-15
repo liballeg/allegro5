@@ -66,6 +66,8 @@ string(REGEX MATCH "^[0-9]+[.][0-9]+" ALLEGRO_SOVERSION ${ALLEGRO_VERSION})
 # XXX doesn't seem to work
 set(COMPAT_VERSION 4.4.0)
 
+set(ALLEGRO_DLL_SHORTVER 44)
+
 # Search in the `cmake' directory for additional CMake modules.
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake)
 
@@ -662,11 +664,17 @@ add_our_library(allegro
     ${ALLEGRO_PUBLIC_HEADERS}
     )
 
+if(WIN32 AND SHARED)
+    set(allegro_OUTPUT_NAME alleg${ALLEGRO_DLL_SHORTVER})
+else()
+    set(allegro_OUTPUT_NAME alleg)
+endif()
+
 set_target_properties(allegro
     PROPERTIES
     COMPILE_FLAGS "-DALLEGRO_SRC ${ALLEGRO_MODULES_PATH_FLAG}"
     LINK_FLAGS "${ALLEGRO_LINK_FLAGS}"
-    OUTPUT_NAME alleg
+    OUTPUT_NAME ${allegro_OUTPUT_NAME}
     VERSION ${ALLEGRO_VERSION}
     SOVERSION ${ALLEGRO_SOVERSION}
     )
