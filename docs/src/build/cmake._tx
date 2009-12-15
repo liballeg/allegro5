@@ -40,8 +40,9 @@ Building Allegro 4.4 with CMake
    and retry.  You may need to delete the `CMakeCache.txt` file first.
 
    <li>Use the generated makefiles or workspaces to build Allegro.  If using
-   makefiles, type `make`.  If using workspaces, open them in your IDE.  If
-   using Xcode, you can use `xcodebuild` from the command-line or the IDE.
+   makefiles, type `make` or `mingw32-make`.  If using workspaces, open them in
+   your IDE.  If using Xcode, you can use `xcodebuild` from the command-line or
+   the IDE.
 
    <li>Optionally install the libraries and header files to your system.
    <code>
