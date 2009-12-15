@@ -52,7 +52,7 @@ if(WIN32)
         # variable manually.
         set(CMAKE_RC_COMPILE_OBJECT
             "<CMAKE_RC_COMPILER> <FLAGS> -O coff -o <OBJECT> -i <SOURCE>")
-        if(NOT CMAKE_RC_COMPILER)
+        if(NOT CMAKE_RC_COMPILER OR "${CMAKE_RC_COMPILER}" STREQUAL "")
             set(CMAKE_RC_COMPILER windres)
         endif()
     endif(MINGW)
