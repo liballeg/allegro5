@@ -10,9 +10,19 @@ if(DSOUND_INCLUDE_DIR)
     set(DSOUND_FIND_QUIETLY TRUE)
 endif(DSOUND_INCLUDE_DIR)
 
-find_path(DSOUND_INCLUDE_DIR dsound.h)
+# Makes my life easier.
+if(MSVC)
+    set(HINT_INCLUDE "C:/Program Files/Microsoft DirectX SDK (August 2008)/Include")
+    set(HINT_LIB "C:/Program Files/Microsoft DirectX SDK (August 2008)/Lib")
+endif(MSVC)
 
-find_library(DSOUND_LIBRARY NAMES dsound)
+find_path(DSOUND_INCLUDE_DIR dsound.h
+    PATHS ${HINT_INCLUDE})
+
+find_library(DSOUND_LIBRARY NAMES dsound
+    PATHS ${HINT_LIB}
+    PATH_SUFFIXES x86 x64
+    )
 
 # Handle the QUIETLY and REQUIRED arguments and set DSOUND_FOUND to TRUE if
 # all listed variables are TRUE.

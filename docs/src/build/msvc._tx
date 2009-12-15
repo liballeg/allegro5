@@ -76,6 +76,12 @@ Required software
    and lib directories, or alter your <tt>INCLUDE</tt> and <tt>LIB</tt> environment variables
    to put the DirectX SDK files in front of the standard MSVC locations.
 
+   Microsoft Visual Studio Express Editions (free):
+   You will need to separately download and install the "Platform SDK" or
+   "Windows SDK". In the IDE, go to Tools > Options > Projects and Solutions >
+   VC++ Directories and add the Platform SDK and DirectX Include and Lib/x86
+   (or whatever) directories to the relevant lists.
+
 
 
 @heading

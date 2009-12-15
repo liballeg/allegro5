@@ -4,7 +4,14 @@
 #  DXGUID_LIBRARIES   - List of libraries
 #  DXGUID_FOUND       - True if dxguid found.
 
-find_library(DXGUID_LIBRARY NAMES dxguid)
+if(MSVC)
+    find_library(DXGUID_LIBRARY NAMES dxguid
+        PATHS "C:/Program Files/Microsoft DirectX SDK (August 2008)/Lib"
+        PATH_SUFFIXES x86 x64
+        )
+else()
+    find_library(DXGUID_LIBRARY NAMES dxguid)
+endif()
 
 # Handle the QUIETLY and REQUIRED arguments and set DXGUID_FOUND to TRUE if
 # all listed variables are TRUE.

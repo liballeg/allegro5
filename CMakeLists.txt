@@ -524,8 +524,18 @@ if(WIN32)
     find_package(DInput)
     find_package(DSound)
     find_package(DXGuid)
+
     if(NOT DINPUT_FOUND OR NOT DSOUND_FOUND OR NOT DXGUID_FOUND)
-        message(FATAL_ERROR "DirectX required for Windows port.")
+        if(MSVC)
+            message(FATAL_ERROR
+                "DirectX required for Windows port. You might need to add DirectX include and lib directories to your INCLUDE and LIB environment variables. Also you need dinput.lib, which doesn't come with newer versions of the DirectX SDK. Get it from the Allegro web site (dx70_min.zip).
+    ")
+        elseif(MINGW)
+            message(FATAL_ERROR
+                "DirectX required for Windows port. Get it from the Allegro web site (dx80_mgw.zip).")
+        else()
+            message(FATAL_ERROR "DirectX required for Windows port.")
+        endif()
     endif()
 
     include_directories(SYSTEM
