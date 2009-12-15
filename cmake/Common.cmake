@@ -79,12 +79,13 @@ function(copy_files target)
         return()
     endif()
     foreach(file ${ARGN})
+        # The "./" is NOT redundant as CMAKE_CFG_INTDIR may be "/".
         add_custom_command(
-            OUTPUT  "${file}"
+            OUTPUT  "./${CMAKE_CFG_INTDIR}/${file}"
             DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/${file}"
             COMMAND "${CMAKE_COMMAND}" -E copy
                     "${CMAKE_CURRENT_SOURCE_DIR}/${file}"
-                    "${file}"
+                    "./${CMAKE_CFG_INTDIR}/${file}"
             )
     endforeach()
     add_custom_target(${target} ALL DEPENDS ${ARGN})
