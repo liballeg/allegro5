@@ -1474,8 +1474,8 @@ ALLEGRO_DISPLAY_INTERFACE *_al_display_wgl_driver(void)
    vt->get_frontbuffer = _al_ogl_get_backbuffer;
    vt->set_target_bitmap = _al_ogl_set_target_bitmap;
    vt->is_compatible_bitmap = wgl_is_compatible_bitmap;
-   vt->switch_out = wgl_switch_in;
-   vt->switch_in = wgl_switch_out;
+   vt->switch_in = wgl_switch_in;
+   vt->switch_out = wgl_switch_out;
 
    vt->create_mouse_cursor = _al_win_create_mouse_cursor;
    vt->destroy_mouse_cursor = _al_win_destroy_mouse_cursor;
