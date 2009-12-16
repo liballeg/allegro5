@@ -105,7 +105,7 @@ HWND _al_win_create_window(ALLEGRO_DISPLAY *display, int width, int height, int 
          ex_style = WS_EX_APPWINDOW|WS_EX_OVERLAPPEDWINDOW;
       }
       else {
-         style = WS_SYSMENU;
+         style = WS_SYSMENU | WS_MINIMIZEBOX;
          ex_style = WS_EX_APPWINDOW;
       }
    }
