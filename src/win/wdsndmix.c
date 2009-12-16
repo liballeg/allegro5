@@ -516,8 +516,12 @@ static int digi_dsoundmix_init(int input, int voices)
       goto Error; 
    }
 
-   if ((dscaps.dwFlags & DSCAPS_PRIMARY16BIT) &&
-       ((_sound_bits >= 16) || (_sound_bits <= 0)))
+   /* For some reason the audio driver on my machine doesn't seem to set either
+    * PRIMARY16BIT or PRIMARY8BIT; of course it actually does support 16-bit
+    * sound.
+    */
+   if (((dscaps.dwFlags & DSCAPS_PRIMARY16BIT) || !(dscaps.dwFlags & DSCAPS_PRIMARY8BIT))
+   &&  ((_sound_bits >= 16) || (_sound_bits <= 0)))
       _bits = 16;
    else
       _bits = 8;
