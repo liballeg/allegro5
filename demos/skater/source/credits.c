@@ -261,24 +261,31 @@ void sort_credit_list(void)
 }
 
 
+/* helper to open thanks._tx */
+static PACKFILE *open_thanks(const char *s)
+{
+   char buf[256], buf2[256];
+
+   get_executable_name(buf, sizeof(buf));
+   replace_filename(buf2, buf, s, sizeof(buf2));
+   return pack_fopen(buf2, F_READ);
+}
+
+
 /* reads credit info from various places */
 void load_credits(void)
 {
-   char buf[256], buf2[256], *p, *p2;
+   char buf[256], *p, *p2;
    CREDIT_NAME *c = NULL;
    PACKFILE *f;
 
-   /* parse thanks._tx */
-   get_executable_name(buf, sizeof(buf));
-   replace_filename(buf2, buf, "../../docs/src/thanks._tx", sizeof(buf2));
-
-   f = pack_fopen(buf2, F_READ);
-   if (!f) {
-      get_executable_name(buf, sizeof(buf));
-      replace_filename(buf2, buf, "thanks._tx", sizeof(buf2));
-      f = pack_fopen(buf2, F_READ);
-      if (!f)
-         return;
+   /* parse thanks._tx, guessing at the relative location */
+   if ((f = open_thanks("../../../docs/src/thanks._tx")) == NULL) {
+      if ((f = open_thanks("../../docs/src/thanks._tx")) == NULL) {
+         if ((f = open_thanks("thanks._tx")) == NULL) {
+            return;
+         }
+      }
    }
 
    while (pack_fgets(buf, sizeof(buf) - 1, f) != 0) {
