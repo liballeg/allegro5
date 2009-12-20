@@ -205,6 +205,8 @@ endif(UNIX)
 
 option(STRICT_WARN "Halt at warnings" off)
 
+set(INSTALL_PREFIX "")
+
 if(CMAKE_COMPILER_IS_GNUCC)
     set(COMPILER_GCC 1)
     set(ALLEGRO_GCC 1)
