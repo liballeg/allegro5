@@ -290,9 +290,13 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
    set_color_conversion(COLORCONV_NONE);
    bmp = load_bitmap("..\\..\\examples\\allegro.pcx", pal);
    if (!bmp) {
-      MessageBox(hwnd, "Can't load ..\\..\\examples\\allegro.pcx", "Error!",
-                 MB_ICONERROR | MB_OK);
-      return 0;
+      /* the CMake MSVC workspace puts the executable one directory deeper */
+      bmp = load_bitmap("..\\..\\..\\examples\\allegro.pcx", pal);
+      if (!bmp) {
+         MessageBox(hwnd, "Can't load ..\\..\\examples\\allegro.pcx", "Error!",
+                    MB_ICONERROR | MB_OK);
+         return 0;
+      }
    }
 
    /* display the window */

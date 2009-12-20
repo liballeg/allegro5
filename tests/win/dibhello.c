@@ -157,8 +157,13 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmd
    /* we could load some 8 bit bitmap */
    b = load_bitmap("..\\..\\examples\\allegro.pcx", pal);
    if (!b) {
-      MessageBox(NULL, "Can't load ..\\..\\examples\\allegro.pcx!", "Error", MB_OK);
-      exit(0);
+      /* the CMake MSVC workspace puts the executable one directory deeper */
+      b = load_bitmap("..\\..\\..\\examples\\allegro.pcx", pal);
+      if (!b) {
+         MessageBox(NULL, "Can't load ..\\..\\examples\\allegro.pcx!", "Error",
+            MB_OK);
+         exit(0);
+      }
    }
 
    /* draw something into a */

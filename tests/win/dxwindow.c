@@ -402,9 +402,13 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
    /* load the data */
    dat = load_datafile("../../examples/running.dat");
    if (!dat) {
-      MessageBox(hwnd, "Unable to load ../../examples/running.dat!", "Error!",
-                MB_ICONERROR | MB_OK);
-      return 0;
+      /* the CMake MSVC workspace puts the executable one directory deeper */
+      dat = load_datafile("../../../examples/running.dat");
+      if (!dat) {
+         MessageBox(hwnd, "Unable to load ../../examples/running.dat!",
+            "Error!", MB_ICONERROR | MB_OK);
+         return 0;
+      }
    }
 
    sprite_w = ((BITMAP *)dat[FRAME_01].dat)->w;
