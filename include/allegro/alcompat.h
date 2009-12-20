@@ -24,7 +24,7 @@
 #endif
 
 
-#ifndef ALLEGRO_LIB_BUILD
+#ifndef ALLEGRO_SRC
 
    #ifndef ALLEGRO_NO_CLEAR_BITMAP_ALIAS
       #if (defined ALLEGRO_GCC)
@@ -58,7 +58,7 @@
       AL_ALIAS(fixed fhypot(fixed x, fixed y), fixhypot(x, y))
    #endif
 
-#endif  /* !defined ALLEGRO_LIB_BUILD */
+#endif  /* !defined ALLEGRO_SRC */
 
 
 #define KB_NORMAL       1
@@ -234,7 +234,7 @@ AL_INLINE_DEPRECATED(int, get_file_encoding, (void),
 })
 
 
-#ifdef ALLEGRO_LIB_BUILD
+#ifdef ALLEGRO_SRC
    AL_FUNC(int,  timer_can_simulate_retrace, (void));
    AL_FUNC(void, timer_simulate_retrace, (int enable));
 #else
