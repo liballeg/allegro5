@@ -61,12 +61,16 @@ add_our_tool(textconv)
 
 add_our_tool(dat)
 add_our_tool(dat2s)
-add_our_tool(grabber)
 add_our_tool(pat2dat)
 target_link_libraries(dat aldat)
 target_link_libraries(dat2s aldat)
-target_link_libraries(grabber aldat)
 target_link_libraries(pat2dat aldat)
+
+add_our_executable(grabber WIN32 grabber.c)
+target_link_libraries(grabber aldat)
+install(TARGETS grabber
+        DESTINATION bin
+        )
 
 #-----------------------------------------------------------------------------#
 #
