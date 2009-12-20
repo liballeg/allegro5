@@ -470,7 +470,7 @@ static int get_hardware_voice (int voice)
    int hwvoice = voice;
    
    /* FIXME: is this OK/useful for other things than AWE32? */
-   if (seq_synth_type != SYNTH_TYPE_FM) {
+   if (seq_synth_type != SYNTH_TYPE_FM && seq_drum_start > 0) {
 
       /* map drums >= 15, everything else < 15 */
       hwvoice = hwvoice * 15 / seq_drum_start;
