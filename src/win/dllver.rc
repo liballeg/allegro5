@@ -17,12 +17,12 @@ BEGIN
          VALUE "Comments", "Please see AUTHORS for a list of contributors\000"
          VALUE "CompanyName", "Allegro Developers\000\000"
          VALUE "FileDescription", "Allegro\000"
-         VALUE "FileVersion", "4.4.0 (SVN)\000"
+         VALUE "FileVersion", "4.4.0\000"
          VALUE "InternalName", "ALLEG44\000"
          VALUE "LegalCopyright", "Copyright © 1994-2009 Allegro Developers\000\000"
          VALUE "OriginalFilename", "ALLEG44.DLL\000"
          VALUE "ProductName", "Allegro\000"
-         VALUE "ProductVersion", "4.4.0 (SVN)\000"
+         VALUE "ProductVersion", "4.4.0\000"
       END
    END
 
