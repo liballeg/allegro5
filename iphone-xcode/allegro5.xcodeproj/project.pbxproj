@@ -2754,7 +2754,7 @@
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				GCC_ENABLE_FIX_AND_CONTINUE = NO;
 				PREBINDING = NO;
-				PRODUCT_NAME = allegro;
+				PRODUCT_NAME = a5_image;
 				ZERO_LINK = NO;
 			};
 			name = Release;
@@ -3159,7 +3159,7 @@
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				GCC_ENABLE_FIX_AND_CONTINUE = NO;
 				PREBINDING = NO;
-				PRODUCT_NAME = allegro;
+				PRODUCT_NAME = a5_primitives;
 				ZERO_LINK = NO;
 			};
 			name = Release;
@@ -3190,7 +3190,7 @@
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				GCC_ENABLE_FIX_AND_CONTINUE = NO;
 				PREBINDING = NO;
-				PRODUCT_NAME = allegro;
+				PRODUCT_NAME = a5_color;
 				ZERO_LINK = NO;
 			};
 			name = Release;
@@ -3222,7 +3222,7 @@
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				GCC_ENABLE_FIX_AND_CONTINUE = NO;
 				PREBINDING = NO;
-				PRODUCT_NAME = allegro;
+				PRODUCT_NAME = a5_font;
 				ZERO_LINK = NO;
 			};
 			name = Release;
@@ -3427,6 +3427,7 @@
 				ARCHS = "$(ARCHS_STANDARD_32_BIT)";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developers";
 				GCC_C_LANGUAGE_STANDARD = c99;
+				GCC_PREPROCESSOR_DEFINITIONS = ALLEGRO_LIB_BUILD;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				ONLY_ACTIVE_ARCH = YES;
@@ -3442,6 +3443,7 @@
 				ARCHS = "$(ARCHS_STANDARD_32_BIT)";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				GCC_C_LANGUAGE_STANDARD = c99;
+				GCC_PREPROCESSOR_DEFINITIONS = ALLEGRO_LIB_BUILD;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				PREBINDING = NO;
