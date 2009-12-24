@@ -270,7 +270,17 @@ if(APPLE)
     endif(COMPILER_GCC)
 endif(APPLE)
 
-if(UNIX AND NOT APPLE)
+if(BEOS)
+    if(CMAKE_SYSTEM_NAME STREQUAL Haiku)
+        set(ALLEGRO_HAIKU 1)
+    else(CMAKE_SYSTEM_NAME STREQUAL Haiku)
+        set(ALLEGRO_BEOS 1)
+    endif(CMAKE_SYSTEM_NAME STREQUAL Haiku)
+    set(WFLAGS "-W -Wall -Wno-unused -Wno-multichar -Wno-ctor-dtor-privacy")
+    set(WFLAGS_C_ONLY "")
+endif(BEOS)
+
+if(UNIX AND NOT APPLE AND NOT BEOS)
     set(ALLEGRO_UNIX 1)
 endif()
 
@@ -560,6 +570,13 @@ if(WIN32)
         )
 endif(WIN32)
 
+# -- Haiku/BeOS --
+
+if(BEOS)
+    list(APPEND PLATFORM_SOURCES ${ALLEGRO_SRC_BEOS_FILES})
+    list(APPEND PLATFORM_LIBS game midi device)
+endif(BEOS)
+
 # -- Mac OS X --
 
 if(ALLEGRO_MACOSX)
@@ -644,6 +661,9 @@ endif(WIN32)
 if(ALLEGRO_WITH_XWINDOWS)
     add_headers("" include/xalleg.h)
 endif(ALLEGRO_WITH_XWINDOWS)
+if(BEOS)
+    add_headers("" include/bealleg.h)
+endif(BEOS)
 
 #-----------------------------------------------------------------------------#
 #

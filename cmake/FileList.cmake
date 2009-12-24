@@ -207,7 +207,7 @@ set(ALLEGRO_SRC_BEOS_FILES
         src/beos/bmousapi.cpp
         src/beos/bmousdrv.c
         src/beos/bmouse.c
-        src/beos/boverlay.c
+        src/beos/boverlay.cpp
         src/beos/bsnd.c
         src/beos/bsndapi.cpp
         src/beos/bsnddrv.c
@@ -218,7 +218,7 @@ set(ALLEGRO_SRC_BEOS_FILES
         src/beos/btimeapi.cpp
         src/beos/btimedrv.c
         src/beos/btimer.c
-        src/beos/bwindow.c
+        src/beos/bwindow.cpp
         src/beos/bwscreen.cpp
         src/unix/ufile.c
         src/misc/colconv.c
