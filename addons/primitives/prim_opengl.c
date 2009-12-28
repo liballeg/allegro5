@@ -270,7 +270,7 @@ int _al_draw_prim_indexed_opengl(ALLEGRO_BITMAP* texture, const void* vtxs, cons
    ALLEGRO_BITMAP_OGL *ogl_target = (void *)target;
    const void* vtx;
    const void* idx = indices;
-   GLenum idx_size = GL_UNSIGNED_INT;
+   GLenum idx_size;
 
 #if defined ALLEGRO_GP2XWIZ || defined ALLEGRO_IPHONE
    GLushort ind[num_vtx];
@@ -298,6 +298,8 @@ int _al_draw_prim_indexed_opengl(ALLEGRO_BITMAP* texture, const void* vtxs, cons
    }
    idx = ind;
    idx_size = GL_UNSIGNED_SHORT;
+#else
+   idx_size = GL_UNSIGNED_INT;
 #endif
 
    switch (type) {
