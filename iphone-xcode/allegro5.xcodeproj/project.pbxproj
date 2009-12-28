@@ -259,6 +259,7 @@
 		9606AA92103B7B7500E0963B /* liballegro.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 648390D4102AF31500D508EE /* liballegro.a */; };
 		9606AAB8103B7D7A00E0963B /* liba5_primitives.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 64FACF941031B4C8004E35A1 /* liba5_primitives.a */; };
 		9606AC0A103B915300E0963B /* AudioToolbox.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9606AC09103B915300E0963B /* AudioToolbox.framework */; };
+		9665C55910E97752001C8024 /* point_soft.c in Sources */ = {isa = PBXBuildFile; fileRef = 9665C55810E97752001C8024 /* point_soft.c */; };
 		96A1EC55103B31620021FA43 /* ogg.c in Sources */ = {isa = PBXBuildFile; fileRef = 64FACD1F10305B1E004E35A1 /* ogg.c */; };
 		96A1ED08103B36900021FA43 /* acodec.c in Sources */ = {isa = PBXBuildFile; fileRef = 64FACD2110305B1E004E35A1 /* acodec.c */; };
 		96A1ED09103B36900021FA43 /* audio.c in Sources */ = {isa = PBXBuildFile; fileRef = 64FACD2810305B1E004E35A1 /* audio.c */; };
@@ -875,6 +876,7 @@
 		9606AA7E103B79A900E0963B /* QuartzCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QuartzCore.framework; path = System/Library/Frameworks/QuartzCore.framework; sourceTree = SDKROOT; };
 		9606AA80103B79A900E0963B /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
 		9606AC09103B915300E0963B /* AudioToolbox.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AudioToolbox.framework; path = System/Library/Frameworks/AudioToolbox.framework; sourceTree = SDKROOT; };
+		9665C55810E97752001C8024 /* point_soft.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = point_soft.c; path = ../addons/primitives/point_soft.c; sourceTree = SOURCE_ROOT; };
 		96A1EC10103B30150021FA43 /* liba5_vorbis.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = liba5_vorbis.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		96A1ED04103B36300021FA43 /* liba5_audio.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = liba5_audio.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		96A1EDCE103B3C980021FA43 /* ex_stream_file.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ex_stream_file.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -1092,6 +1094,7 @@
 		29B97314FDCFA39411CA2CEA /* CustomTemplate */ = {
 			isa = PBXGroup;
 			children = (
+				9665C55810E97752001C8024 /* point_soft.c */,
 				647027A8103DE5DD00E40FD4 /* ex_draw_bitmap.c */,
 				642F7F97102DD0B6001249EE /* data */,
 				29B97315FDCFA39411CA2CEA /* Sources */,
@@ -2473,6 +2476,7 @@
 				642F8066102DE676001249EE /* iphone_mouse.m in Sources */,
 				6485CBA01038B9720094FDE9 /* iphone_joystick.m in Sources */,
 				96C30A1E10CE75DD00477B20 /* transformations.c in Sources */,
+				9665C55910E97752001C8024 /* point_soft.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
