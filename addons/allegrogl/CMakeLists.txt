@@ -84,6 +84,18 @@ set(ALLEGROGL_HEADERS
     include/allegrogl/gl_ext.h
     include/allegrogl/gl_header_detect.h
     ${CMAKE_CURRENT_BINARY_DIR}/include/allegrogl/alleggl_config.h
+    include/allegrogl/GLext/glx_ext_alias.h
+    include/allegrogl/GLext/glx_ext_api.h
+    include/allegrogl/GLext/glx_ext_defs.h
+    include/allegrogl/GLext/glx_ext_list.h
+    include/allegrogl/GLext/gl_ext_alias.h
+    include/allegrogl/GLext/gl_ext_api.h
+    include/allegrogl/GLext/gl_ext_defs.h
+    include/allegrogl/GLext/gl_ext_list.h
+    include/allegrogl/GLext/wgl_ext_alias.h
+    include/allegrogl/GLext/wgl_ext_api.h
+    include/allegrogl/GLext/wgl_ext_defs.h
+    include/allegrogl/GLext/wgl_ext_list.h
     )
 set_source_files_properties(
     include/alleggl.h
@@ -96,6 +108,22 @@ set_source_files_properties(
     ${CMAKE_CURRENT_BINARY_DIR}/include/allegrogl/alleggl_config.h
     PROPERTIES
     MACOSX_PACKAGE_LOCATION Headers/allegrogl
+    )
+set_source_files_properties(
+    include/allegrogl/GLext/glx_ext_alias.h
+    include/allegrogl/GLext/glx_ext_api.h
+    include/allegrogl/GLext/glx_ext_defs.h
+    include/allegrogl/GLext/glx_ext_list.h
+    include/allegrogl/GLext/gl_ext_alias.h
+    include/allegrogl/GLext/gl_ext_api.h
+    include/allegrogl/GLext/gl_ext_defs.h
+    include/allegrogl/GLext/gl_ext_list.h
+    include/allegrogl/GLext/wgl_ext_alias.h
+    include/allegrogl/GLext/wgl_ext_api.h
+    include/allegrogl/GLext/wgl_ext_defs.h
+    include/allegrogl/GLext/wgl_ext_list.h
+    PROPERTIES
+    MACOSX_PACKAGE_LOCATION Headers/allegrogl/GLext
     )
 
 # XXX Maybe AllegroGL should be optionally dynamic?
