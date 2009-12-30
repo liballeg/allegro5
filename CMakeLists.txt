@@ -685,8 +685,12 @@ if(ALLEGRO_MODULES_PATH)
 endif(ALLEGRO_MODULES_PATH)
 
 if(APPLE)
-    set(ALLEGRO_LINK_FLAGS
-	"-compatibility_version ${COMPAT_VERSION} -current_version ${ALLEGRO_VERSION}")
+    # CMake 2.6.2 onwards passes these flags automatically.
+    if(${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION} STREQUAL 2.6 AND
+	    ${CMAKE_PATCH_VERSION} LESS 2)
+	set(ALLEGRO_LINK_FLAGS
+	    "-compatibility_version ${COMPAT_VERSION} -current_version ${ALLEGRO_VERSION}")
+    endif()
 endif(APPLE)
 
 add_our_library(allegro
