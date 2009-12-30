@@ -8,6 +8,16 @@
 @html_spaced_list_bullet
 
 @heading
+Changes from 4.4.0 to 4.4.0.1 (December 2009)
+<ul><li>
+   Chris Roberts updated CMake build for BeOS/Haiku.
+<li>
+   Some AllegroGL header files were not being installed.
+<li>
+   Fix a build problem with CMake 2.6.2+ on Mac OS X.
+</ul>
+
+@heading
 Changes from 4.4.0 RC2 to 4.4.0 (December 2009)
 <ul><li>
    Fix an integer overflow problem with polygon3d().
