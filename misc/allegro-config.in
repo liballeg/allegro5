@@ -12,7 +12,7 @@
 #
 #  This is heavily based on a similar script from GTK.
 
-version=4.4.1
+version=4.4.0
 
 prefix=@prefix@
 exec_prefix=$prefix
