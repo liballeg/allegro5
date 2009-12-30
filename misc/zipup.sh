@@ -179,7 +179,9 @@ if [ $# -eq 2 ]; then
    unzip -q ../../"$2" -d previous || exit 1
 
    echo "Generating diffs..."
+   set +e
    diff -U 3 -N --recursive previous/ current/ > $name.diff
+   set -e
 
    echo "Deleting temp files..."
    rm -r previous
