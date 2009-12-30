@@ -195,6 +195,9 @@ Contributors
    objects, added the D_DISABLED flag, improved the GUI handling of
    different font heights, and added the right aligned text functions.
 
+   Chris Roberts.<br>
+   Updated CMake build for BeOS/Haiku.
+
    Chris Robinson (<email>crobin_99@yahoo.com</a>).<br>
    Wrote the fixed point clip3d() function, improved the performance of the
    DIGMID driver, implemented the digmid_set_pan function, rewrote part of
