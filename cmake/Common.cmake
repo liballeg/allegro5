@@ -26,12 +26,13 @@ endfunction(set_our_framework_properties)
 
 function(install_our_library target)
     install(TARGETS ${target}
-	    LIBRARY DESTINATION "lib${LIB_SUFFIX}"
-	    ARCHIVE DESTINATION "lib${LIB_SUFFIX}"
-	    FRAMEWORK DESTINATION "${FRAMEWORK_INSTALL_PREFIX}"
+            LIBRARY DESTINATION "lib${LIB_SUFFIX}"
+            ARCHIVE DESTINATION "lib${LIB_SUFFIX}"
+            FRAMEWORK DESTINATION "${FRAMEWORK_INSTALL_PREFIX}"
+            RUNTIME DESTINATION "bin"
             # Doesn't work, see below.
-	    # PUBLIC_HEADER DESTINATION "include"
-	    )
+            # PUBLIC_HEADER DESTINATION "include"
+            )
 endfunction(install_our_library)
 
 # Unfortunately, CMake's PUBLIC_HEADER support doesn't install into nested
