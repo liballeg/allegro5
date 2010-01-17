@@ -30,7 +30,7 @@ extern "C" {
 
 
 ALLEGRO_VORBIS_FUNC(bool, al_init_ogg_vorbis_addon, (void));
-ALLEGRO_VORBIS_FUNC(ALLEGRO_SAMPLE *, al_load_sample_ogg_vorbis, (
+ALLEGRO_VORBIS_FUNC(ALLEGRO_SAMPLE *, al_load_ogg_vorbis, (
 	const char *filename));
 ALLEGRO_VORBIS_FUNC(ALLEGRO_AUDIO_STREAM *, al_load_audio_stream_ogg_vorbis, (
 	const char *filename, size_t buffer_count, unsigned int samples));

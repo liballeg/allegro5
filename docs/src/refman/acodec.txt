@@ -4,13 +4,13 @@
 
 ### API: al_init_flac_addon
 
-This function to registers [al_load_sample_flac] with [al_load_sample] to
+This function to registers [al_load_flac] with [al_load_sample] to
 handle files with the extension ".flac".  You will need to include the
 `allegro_flac.h` header file and link with the `allegro_flac` library.
 
 Return true on success.
 
-### API: al_load_sample_flac
+### API: al_load_flac
 
 Loads a sample in FLAC format.
 
@@ -25,14 +25,14 @@ Returns the (compiled) version of the addon, in the same format as
 
 ### API: al_init_ogg_vorbis_addon
 
-This function to registers [al_load_sample_ogg_vorbis] with [al_load_sample]
+This function to registers [al_load_ogg_vorbis] with [al_load_sample]
 and [al_load_audio_stream_ogg_vorbis] with [al_load_audio_stream] to handle files
 with the extension ".ogg" (assumed to contain Vorbis data).  You will need to
 include the `allegro_vorbis.h` header file and link with the `allegro_vorbis` library.
 
 Return true on success.
 
-### API: al_load_sample_ogg_vorbis
+### API: al_load_ogg_vorbis
 
 Loads a sample in Ogg Vorbis format.
 

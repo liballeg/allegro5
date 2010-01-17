@@ -362,11 +362,11 @@ ALLEGRO_KCM_AUDIO_FUNC(ALLEGRO_AUDIO_STREAM *, al_load_audio_stream, (const char
 	size_t buffer_count, unsigned int samples));
 
 /* WAV handlers */
-ALLEGRO_KCM_AUDIO_FUNC(ALLEGRO_SAMPLE *, al_load_sample_wav, (
+ALLEGRO_KCM_AUDIO_FUNC(ALLEGRO_SAMPLE *, al_load_wav, (
       const char *filename));
-ALLEGRO_KCM_AUDIO_FUNC(bool, al_save_sample_wav, (const char *filename,
+ALLEGRO_KCM_AUDIO_FUNC(bool, al_save_wav, (const char *filename,
       ALLEGRO_SAMPLE *spl));
-ALLEGRO_KCM_AUDIO_FUNC(bool, al_save_sample_wav_pf, (ALLEGRO_FILE *pf,
+ALLEGRO_KCM_AUDIO_FUNC(bool, al_save_wav_stream, (ALLEGRO_FILE *pf,
       ALLEGRO_SAMPLE *spl));
 ALLEGRO_KCM_AUDIO_FUNC(ALLEGRO_AUDIO_STREAM *, al_load_audio_stream_wav, (const char *filename,
       size_t buffer_count, unsigned int samples));

@@ -92,15 +92,15 @@ static ov_callbacks callbacks = {
  */
 bool al_init_ogg_vorbis_addon(void)
 {
-   bool rc1 = al_register_sample_loader(".ogg", al_load_sample_ogg_vorbis);
+   bool rc1 = al_register_sample_loader(".ogg", al_load_ogg_vorbis);
    bool rc2 = al_register_audio_stream_loader(".ogg", al_load_audio_stream_ogg_vorbis);
    return rc1 && rc2;
 }
 
 
-/* Function: al_load_sample_ogg_vorbis
+/* Function: al_load_ogg_vorbis
  */
-ALLEGRO_SAMPLE *al_load_sample_ogg_vorbis(const char *filename)
+ALLEGRO_SAMPLE *al_load_ogg_vorbis(const char *filename)
 {
    /* Note: decoding library returns floats.  I always return 16-bit (most
     * commonly supported).

@@ -42,8 +42,8 @@ static void acodec_ensure_init(void)
    /* Must be before register calls to avoid recursion. */
    acodec_inited = true;
 
-   al_register_sample_loader(".wav", al_load_sample_wav);
-   al_register_sample_saver(".wav", al_save_sample_wav);
+   al_register_sample_loader(".wav", al_load_wav);
+   al_register_sample_saver(".wav", al_save_wav);
    al_register_audio_stream_loader(".wav", al_load_audio_stream_wav);
 
    _al_add_exit_func(acodec_shutdown, "acodec_shutdown");

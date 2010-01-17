@@ -314,11 +314,11 @@ static void wav_stream_close(ALLEGRO_AUDIO_STREAM *stream)
 }
 
 
-/* Function: al_load_sample_wav
+/* Function: al_load_wav
  *  Reads a RIFF WAV format sample ALLEGRO_FILE, returning an ALLEGRO_SAMPLE
  *  structure, or NULL on error.
  */
-ALLEGRO_SAMPLE *al_load_sample_wav(const char *filename)
+ALLEGRO_SAMPLE *al_load_wav(const char *filename)
 {
    WAVFILE *wavfile = wav_open(filename);
    ALLEGRO_SAMPLE *spl = NULL;
@@ -383,16 +383,16 @@ ALLEGRO_AUDIO_STREAM *al_load_audio_stream_wav(const char *filename,
 }
 
 
-/* Function: al_save_sample_wav
+/* Function: al_save_wav
  * Writes a sample into a wav ALLEGRO_FILE.
  * Returns true on success, false on error.
  */
-bool al_save_sample_wav(const char *filename, ALLEGRO_SAMPLE *spl)
+bool al_save_wav(const char *filename, ALLEGRO_SAMPLE *spl)
 {
    ALLEGRO_FILE *pf = al_fopen(filename, "wb");
 
    if (pf) {
-      bool rv = al_save_sample_wav_pf(pf, spl);
+      bool rv = al_save_wav_stream(pf, spl);
       al_fclose(pf);
       return rv;
    }
@@ -401,11 +401,11 @@ bool al_save_sample_wav(const char *filename, ALLEGRO_SAMPLE *spl)
 }
 
 
-/* Function: al_save_sample_wav_pf
+/* Function: al_save_wav_stream
  * Writes a sample into a wav packfile.
  * Returns true on success, false on error.
  */
-bool al_save_sample_wav_pf(ALLEGRO_FILE *pf, ALLEGRO_SAMPLE *spl)
+bool al_save_wav_stream(ALLEGRO_FILE *pf, ALLEGRO_SAMPLE *spl)
 {
    size_t channels, bits;
    size_t data_size;
