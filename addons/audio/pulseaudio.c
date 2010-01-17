@@ -96,11 +96,11 @@ static int pulseaudio_open(void)
    while (pa_operation_get_state(op) == PA_OPERATION_RUNNING) {
       pa_mainloop_iterate(mainloop, 1, NULL);
    }
-   if (state == PA_SINK_SUSPENDED) {
+   /*if (state == PA_SINK_SUSPENDED) {
       pa_context_disconnect(c);
       pa_mainloop_free(mainloop);
       return 1;
-   }
+   }*/
 
    pa_context_disconnect(c);
    pa_mainloop_free(mainloop);
