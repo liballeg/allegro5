@@ -347,9 +347,9 @@ ALLEGRO_SAMPLE *al_load_wav(const char *filename)
 }
 
 
-/* Function: al_load_audio_stream_wav
+/* Function: al_load_wav_audio_stream
 */
-ALLEGRO_AUDIO_STREAM *al_load_audio_stream_wav(const char *filename,
+ALLEGRO_AUDIO_STREAM *al_load_wav_audio_stream(const char *filename,
    size_t buffer_count, unsigned int samples)
 {
    WAVFILE* wavfile;

@@ -26,7 +26,7 @@ Returns the (compiled) version of the addon, in the same format as
 ### API: al_init_ogg_vorbis_addon
 
 This function to registers [al_load_ogg_vorbis] with [al_load_sample]
-and [al_load_audio_stream_ogg_vorbis] with [al_load_audio_stream] to handle files
+and [al_load_ogg_vorbis_audio_stream] with [al_load_audio_stream] to handle files
 with the extension ".ogg" (assumed to contain Vorbis data).  You will need to
 include the `allegro_vorbis.h` header file and link with the `allegro_vorbis` library.
 
@@ -38,7 +38,7 @@ Loads a sample in Ogg Vorbis format.
 
 See also: [al_load_sample]
 
-### API: al_load_audio_stream_ogg_vorbis
+### API: al_load_ogg_vorbis_audio_stream
 
 Loads a stream in Ogg Vorbis format.
 

@@ -44,7 +44,7 @@ static void acodec_ensure_init(void)
 
    al_register_sample_loader(".wav", al_load_wav);
    al_register_sample_saver(".wav", al_save_wav);
-   al_register_audio_stream_loader(".wav", al_load_audio_stream_wav);
+   al_register_audio_stream_loader(".wav", al_load_wav_audio_stream);
 
    _al_add_exit_func(acodec_shutdown, "acodec_shutdown");
 }

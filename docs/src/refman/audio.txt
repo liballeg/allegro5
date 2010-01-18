@@ -865,7 +865,7 @@ A stream must be attached to a voice to be used.  See
 
 Returns the stream on success, NULL on failure.
 
-See also: [al_register_audio_stream_loader], [al_load_audio_stream_wav]
+See also: [al_register_audio_stream_loader], [al_load_wav_audio_stream]
 
 ### API: al_save_sample
 
@@ -901,7 +901,7 @@ Returns true on success, false on error.
 
 See also: [al_save_sample], [al_save_wav_stream]
 
-### API: al_load_audio_stream_wav
+### API: al_load_wav_audio_stream
 
 Like [al_load_audio_stream] but assumes the file is PCM .wav file.
 
