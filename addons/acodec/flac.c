@@ -374,7 +374,7 @@ static bool flac_stream_set_loop(ALLEGRO_AUDIO_STREAM *stream, double start,
 bool al_init_flac_addon(void)
 {
    bool rc1 = al_register_sample_loader(".flac", al_load_flac);
-   bool rc2 = al_register_audio_stream_loader(".flac", al_load_audio_stream_flac);
+   bool rc2 = al_register_audio_stream_loader(".flac", al_load_flac_audio_stream);
    return rc1 && rc2;
 }
 
@@ -460,9 +460,9 @@ uint32_t al_get_allegro_flac_version(void)
    return ALLEGRO_VERSION_INT;
 }
 
-/* Function: al_load_audio_stream_flac
+/* Function: al_load_flac_audio_stream
 */
-ALLEGRO_AUDIO_STREAM *al_load_audio_stream_flac(const char *filename,
+ALLEGRO_AUDIO_STREAM *al_load_flac_audio_stream(const char *filename,
    size_t buffer_count, unsigned int samples)
 {
    ALLEGRO_AUDIO_STREAM *stream;

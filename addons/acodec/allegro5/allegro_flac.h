@@ -32,7 +32,7 @@ extern "C" {
 ALLEGRO_FLAC_FUNC(bool, al_init_flac_addon, (void));
 ALLEGRO_FLAC_FUNC(ALLEGRO_SAMPLE *, al_load_flac, (const char *filename));
 ALLEGRO_FLAC_FUNC(uint32_t, al_get_allegro_flac_version, (void));
-ALLEGRO_FLAC_FUNC(ALLEGRO_AUDIO_STREAM *, al_load_audio_stream_flac, (
+ALLEGRO_FLAC_FUNC(ALLEGRO_AUDIO_STREAM *, al_load_flac_audio_stream, (
    const char *filename, size_t buffer_count, unsigned int samples));
 
 
