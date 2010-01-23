@@ -383,14 +383,14 @@ ALLEGRO_SYSTEM_INTERFACE *_al_system_osx_driver(void)
       vt->get_keyboard_driver = _al_osx_get_keyboard_driver;
       vt->get_mouse_driver = _al_osx_get_mouse_driver;
       vt->get_joystick_driver = _al_osx_get_joystick_driver; 
-	  vt->get_num_display_modes = _al_osx_get_num_display_modes;
+      vt->get_num_display_modes = _al_osx_get_num_display_modes;
       vt->get_display_mode = _al_osx_get_display_mode;
       vt->shutdown_system = osx_sys_exit;
       vt->get_num_video_adapters = osx_get_num_video_adapters;
       vt->get_monitor_info = osx_get_monitor_info;
       vt->get_cursor_position = osx_get_cursor_position;
       vt->get_path = osx_get_path;
-	  vt->inhibit_screensaver = osx_inhibit_screensaver;
+      vt->inhibit_screensaver = osx_inhibit_screensaver;
 	};
 		
 	return vt;
