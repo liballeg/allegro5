@@ -15,7 +15,7 @@ def check_references():
     """
     print("Checking References...")
     
-    html_refs = os.path.join(options.path, "docs", "html_refs")
+    html_refs = os.path.join(options.build, "docs", "html_refs")
     for line in open(html_refs):
         mob = re.match(r"\[(.*?)\]", line)
         if mob:
