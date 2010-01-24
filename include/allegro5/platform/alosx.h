@@ -58,14 +58,11 @@ extern char **__crt0_argv;
 
 #ifndef ALLEGRO_NO_MAGIC_MAIN
    #define ALLEGRO_MAGIC_MAIN
-   #define main _mangled_main
-   #undef END_OF_MAIN
-   #define END_OF_MAIN() void *_mangled_main_address = (void*) _mangled_main;
-#else
-   #undef END_OF_MAIN
-   #define END_OF_MAIN() void *_mangled_main_address;
+   #define main _al_mangled_main
+   #ifdef __cplusplus
+      extern "C" int _al_mangled_main(int, char **);
+   #endif
 #endif
-
 
 /* System driver */
 #define SYSTEM_MACOSX           AL_ID('O','S','X',' ')

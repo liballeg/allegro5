@@ -25,11 +25,14 @@
 
 #ifdef __LP64__
 /* FIXME: the following prototype and enum definition appear to needed in
- * 64 bit mode. Apple's documentation indicates that "deprecated features"
- * are not available in 64 bit, but UpdateSystemActivity is not deprecated
- * and the documentation likewise suggests that all that should be required
- * is to #include CoreServices.h or Power.h. However, this does not appear
- * to work... for now, this should work ok.
+ * 64 bit mode on 10.5 (Leopard). Apple's documentation indicates that
+ * "deprecated features" are not available in 64 bit, but
+ * UpdateSystemActivity is not deprecated and the documentation likewise
+ * suggests that all that should be required is to #include CoreServices.h
+ * or Power.h. However, this does not appear to work... for now, this
+ * should work ok.
+ * On 10.6 (Snow Leopard) these defines cause a problem, so they are
+ * disabled.
  */
 extern OSErr UpdateSystemActivity(uint8_t activity);
 
@@ -54,7 +57,7 @@ enum {
 /* For compatibility with the unix code */
 extern int    __crt0_argc;
 extern char **__crt0_argv;
-extern void *_mangled_main_address;
+extern int _al_mangled_main(int, char **);
 
 static char *arg0, *arg1 = NULL;
 
@@ -227,8 +230,7 @@ static BOOL in_bundle(void)
 /* Call the user main() */
 static void call_user_main(void)
 {
-	int (*real_main)(int, char*[]) = (int (*)(int, char*[])) _mangled_main_address;
-	exit(real_main(__crt0_argc, __crt0_argv));
+ 	exit(_al_mangled_main(__crt0_argc, __crt0_argv));
 }
 
 

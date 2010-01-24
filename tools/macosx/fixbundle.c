@@ -677,4 +677,3 @@ exit_error_bundle:
    rmdir(bundle_contents_macos_dir);
    goto exit_error;
 }
-END_OF_MAIN()

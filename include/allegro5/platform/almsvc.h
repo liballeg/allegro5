@@ -43,13 +43,9 @@
 
 #ifdef ALLEGRO_USE_CONSOLE
    #define ALLEGRO_CONSOLE_OK
-   #define ALLEGRO_NO_MAGIC_MAIN
 #endif
-
-#ifdef ALLEGRO_AND_MFC
-   #define ALLEGRO_NO_MAGIC_MAIN
-#endif
-
+  
+#define ALLEGRO_NO_MAGIC_MAIN
 
 /* describe how function prototypes look to MSVC */
 #ifndef ALLEGRO_STATICLINK

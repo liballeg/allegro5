@@ -25,7 +25,7 @@
 
 extern int    __crt0_argc;
 extern char **__crt0_argv;
-extern void *_mangled_main_address;
+extern int _al_mangled_main(int, char **);
 
 
 
@@ -34,12 +34,9 @@ extern void *_mangled_main_address;
  */
 int main(int argc, char *argv[])
 {
-   int (*real_main) (int, char*[]) = (int (*) (int, char*[])) _mangled_main_address;
-
    __crt0_argc = argc;
    __crt0_argv = argv;
-
-   return (*real_main)(argc, argv);
+ 	return _al_mangled_main(__crt0_argc, __crt0_argv);
 }
 
 #endif

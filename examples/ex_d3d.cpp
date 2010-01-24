@@ -19,7 +19,7 @@ struct D3DVERTEX
    DWORD dwColor;
 };
 
-int main(void)
+int main(int argc, char *argv[])
 {
    ALLEGRO_DISPLAY *display;
 
@@ -98,4 +98,3 @@ int main(void)
 
    return 0;
 }
-END_OF_MAIN()

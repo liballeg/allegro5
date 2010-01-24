@@ -204,7 +204,7 @@ void Prog::draw_sample()
 }
 
 
-int main(void)
+int main(int argc, char *argv[])
 {
    ALLEGRO_DISPLAY *display;
    ALLEGRO_FONT *font;
@@ -246,6 +246,5 @@ int main(void)
 
    return 0;
 }
-END_OF_MAIN()
 
 /* vim: set sts=3 sw=3 et: */

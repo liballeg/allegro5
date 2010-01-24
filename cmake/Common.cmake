@@ -113,6 +113,9 @@ function(add_our_executable nm)
     if(NOT BUILD_SHARED_LIBS)
         set_target_properties(${nm} PROPERTIES COMPILE_FLAGS "-DALLEGRO_STATICLINK")
     endif(NOT BUILD_SHARED_LIBS)
+   if(MINGW)
+       set_target_properties(${nm} PROPERTIES LINK_FLAGS "-Wl,-subsystem,windows")
+   endif(MINGW)
 endfunction(add_our_executable)
 
 # Recreate data directory for out-of-source builds.

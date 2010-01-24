@@ -78,6 +78,5 @@ int main(void)
 
     return 0;
 }
-END_OF_MAIN()
 
 /* vim: set sts=4 sw=4 et: */

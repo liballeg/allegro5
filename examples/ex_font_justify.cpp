@@ -84,7 +84,7 @@ void Prog::draw_text()
       al_map_rgb(0, 255, 0), 0);
 }
 
-int main()
+int main(int argc, char *argv[])
 {
    ALLEGRO_DISPLAY *display;
 
@@ -140,6 +140,5 @@ int main()
 
    return 0;
 }
-END_OF_MAIN()
 
 /* vim: set sts=3 sw=3 et: */

@@ -107,7 +107,6 @@ done:
    return 0;
 }
 
-END_OF_MAIN()
 
 /* vim: set sw=3 sts=3 et: */
    

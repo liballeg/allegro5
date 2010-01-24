@@ -91,6 +91,5 @@ int main(void)
 
    return passed ? 0 : 1;
 }
-END_OF_MAIN()
 
 /* vim: set sts=3 sw=3 et: */

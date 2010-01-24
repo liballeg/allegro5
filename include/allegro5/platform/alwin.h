@@ -38,28 +38,14 @@ AL_FUNC(int, _WinMain, (void *_main, void *hInst, void *hPrev, char *Cmd, int nS
 #endif
 
 
-#if (!defined ALLEGRO_NO_MAGIC_MAIN) && (!defined ALLEGRO_SRC)
-
-   #define ALLEGRO_MAGIC_MAIN
-   #define main _mangled_main
-   #undef END_OF_MAIN
-
-   /* disable strict pointer typing because of the vague prototype below */
-   #define NO_STRICT
-
-   #ifdef __cplusplus
-      extern "C" int __stdcall WinMain(HINSTANCE hInst, HINSTANCE hPrev, char *Cmd, int nShow);
+/* The following is due to torhu from A.cc (see
+ * http://www.allegro.cc/forums/thread/596872/756993#target)
+ */
+#ifndef ALLEGRO_NO_MAGIC_MAIN
+   #if defined _MSC_VER && !defined ALLEGRO_LIB_BUILD
+      #pragma comment(linker,"/ENTRY:mainCRTStartup")
    #endif
-
-   #define END_OF_MAIN()                                                     \
-                                                                             \
-      int __stdcall WinMain(HINSTANCE hInst, HINSTANCE hPrev, char *Cmd, int nShow)  \
-      {                                                                      \
-         return _WinMain((void *)_mangled_main, hInst, hPrev, Cmd, nShow);   \
-      }
-
 #endif
-
 
 
 /*******************************************/

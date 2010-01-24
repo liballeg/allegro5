@@ -119,6 +119,5 @@ int main(int argc, const char *argv[])
 
     return 0;
 }
-END_OF_MAIN()
 
 /* vim: set sts=4 sw=4 et: */

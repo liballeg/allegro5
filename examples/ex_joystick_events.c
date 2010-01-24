@@ -206,6 +206,5 @@ int main(void)
 
    return 0;
 }
-END_OF_MAIN()
 
 /* vim: set ts=8 sts=3 sw=3 et: */

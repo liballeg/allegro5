@@ -3,7 +3,9 @@
 #endif
 
 #ifndef ALLEGRO_LIB_BUILD
-#define main _mangled_main
-#undef END_OF_MAIN
-#define END_OF_MAIN() int (*_mangled_main_address)(int argc, char **argv) = (int(*)(int, char **))_mangled_main;
+#define ALLEGRO_MAGIC_MAIN
+#define main _al_mangled_main
+#ifdef __cplusplus
+   extern "C" int _al_mangled_main(int, char **);
+#endif
 #endif

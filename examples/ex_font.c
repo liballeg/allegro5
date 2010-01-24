@@ -111,6 +111,5 @@ int main(void)
     al_destroy_font(a4f);
     return 0;
 }
-END_OF_MAIN()
 
 /* vim: set sts=4 sw=4 et: */

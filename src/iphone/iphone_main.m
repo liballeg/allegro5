@@ -9,14 +9,14 @@ ALLEGRO_DEBUG_CHANNEL("iphone")
 /* Not that there could ever be any arguments on iphone... */
 static int global_argc;
 static char **global_argv;
+extern int _al_mangled_main(int, char **);
 
-extern int (*_mangled_main_address)(int, char **);
 /* We run the user's "main" in its own thread. */
 static void *user_main(ALLEGRO_THREAD *thread, void *arg)
 {
     NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
     ALLEGRO_INFO("Starting user main.\n");
-    (*_mangled_main_address)(global_argc, global_argv);
+    _al_mangled_main(global_argc, global_argv);
     [pool release];
     ALLEGRO_INFO("User main has returned.\n");
     ALLEGRO_SYSTEM_IPHONE *iphone = (void *)al_get_system_driver();
