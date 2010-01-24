@@ -31,6 +31,20 @@
 #include <servers/bootstrap.h>
 #endif
 
+/* On 10.6 and above some CGDisplay functions have been deprecated and
+ * replaced with a new set of functions.
+ * We'd *like* to do something like "#ifdef OSX_VERSION>1060" but there
+ * isn't an OSX_VERSION variable. The closest we can get is
+ * __ENVIRONMENT_MAC_OS_X_VERSION_MIN_REQUIRED__, which is not
+ * guaranteed to be defined.
+ * We set this variable ourselves, and default to 10.4.0 (Tiger) if it is
+ * not set.
+ */
+#if defined __ENVIRONMENT_MAC_OS_X_VERSION_MIN_REQUIRED__
+#define MAC_OS_X_VERSION __ENVIRONMENT_MAC_OS_X_VERSION_MIN_REQUIRED__
+#else
+#define MAC_OS_X_VERSION 1040
+#endif
 
 /* These are used to warn the dock about the application */
 struct CPSProcessSerNum
@@ -199,11 +213,22 @@ static int _al_osx_get_num_display_modes(void)
       NSScreen *screen = [[NSScreen screens] objectAtIndex: adapter];
       NSDictionary *dict = [screen deviceDescription];
       NSNumber *display_id = [dict valueForKey: @"NSScreenNumber"];
+
+      /* FIXME (how?): in 64 bit-mode, this generates a warning, because
+       * CGDirectDisplayID is apparently 32 bit whereas a pointer is 64
+       * bit. Considering that a CGDirectDisplayID is supposed to be a
+       * pointer as well (according to the documentation available on-line)
+       * it is not quite clear what the correct way to do this would be.
+       */
       display = (CGDirectDisplayID) [display_id pointerValue];
    }
    
    _al_vector_free(&osx_display_modes);
+#if MAC_OS_X_VERSION < 1060
    modes = CGDisplayAvailableModes(display);
+#else
+   modes = CGDisplayCopyAllDisplayModes(display, NULL);
+#endif
    for (i = 0; i < CFArrayGetCount(modes); i++) {
       ALLEGRO_DISPLAY_MODE *mode;
       CFDictionaryRef dict = (CFDictionaryRef)CFArrayGetValueAtIndex(modes, i);
