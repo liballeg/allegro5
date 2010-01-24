@@ -57,7 +57,6 @@ extern char **__crt0_argv;
 extern void *_mangled_main_address;
 
 static char *arg0, *arg1 = NULL;
-static int refresh_rate = 70;
 
 static BOOL in_bundle(void)
 {
@@ -206,12 +205,7 @@ static BOOL in_bundle(void)
 		}
 	}
 	/* else: not in a bundle so don't chdir */
-	
-	mode = CGDisplayCurrentMode(kCGDirectMainDisplay);
-	CFNumberGetValue(CFDictionaryGetValue(mode, kCGDisplayRefreshRate), kCFNumberSInt32Type, &refresh_rate);
-	if (refresh_rate <= 0)
-		refresh_rate = 70;
-	
+
 	[NSThread detachNewThreadSelector: @selector(app_main:)
 							 toTarget: [AllegroAppDelegate class]
 						   withObject: nil];
@@ -225,19 +219,7 @@ static BOOL in_bundle(void)
 */
 - (void)applicationDidChangeScreenParameters: (NSNotification *)aNotification
 {
-	CFDictionaryRef mode;
-	int new_refresh_rate;
-	
-	//   if ((osx_window) && (osx_gfx_mode == OSX_GFX_WINDOW)) 
-	//   {
-	//      osx_setup_colorconv_blitter();
-	//      [osx_window display];
-	//   }
-	mode = CGDisplayCurrentMode(kCGDirectMainDisplay);
-	CFNumberGetValue(CFDictionaryGetValue(mode, kCGDisplayRefreshRate), kCFNumberSInt32Type, &new_refresh_rate);
-	if (new_refresh_rate <= 0)
-		new_refresh_rate = 70;
-	refresh_rate = new_refresh_rate;
+   /* no-op */
 }
 
 
