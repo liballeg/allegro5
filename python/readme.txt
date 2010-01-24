@@ -5,28 +5,9 @@ of all Allegro functions and constants using ctypes.
 
 ## Building
 
-It's not currently wired into the cmake build process, so you should
-build it like this:
-
-- Run cmake to build the library. We really only need the generated
-  headers for parsing in the next step but building the library is
-  the easiest way to get them.
-
-- Run the command below, specifying your cmake build dir (to find the
-  headers mention above):
-
-  docs/scripts/checkdocs.py -p protos -b <BUILD_DIR>
-
-  You should now have a file called "protos" containing all the lines
-  from Allegro's public headers which define functions, types and
-  constants.
-
-- Run the command below, specifying the protos file from before:
-
-  python/generate_python_ctypes.py -p protos -o python/allegro.py
-  
-  This will generate the file allegro.py which has the code we want
-  in it.
+Enable WANT_PYTHON_WRAPPER in cmake and you should end up with a
+single file called allegro.py in the python folder of your build
+directory.
 
 ## Using it
   
@@ -41,12 +22,11 @@ in LD_LIBRARY_PATH or in ldconfig paths.
 Right now this is only a proof-of concept implementation, some
 important things still have to be fixed:
 
-### END_OF_MAIN broken under OSX
+### Running main in a different thread under OSX
   
-One problem on OSX is that al_init() should not be called from the
-main thread. This will be solved once END_OF_MAIN has been removed,
-for now you'll have to look into src/osx/main.m and see how you can
-do the same from Python.
+The problem in OSX is that al_init() should not be called from the
+main thread. For now you'll have to look into src/osx/main.m and see how
+you can do the same from Python. This should be fixed soon though.
 
 ### Variable arguments not parsed properly yet
 

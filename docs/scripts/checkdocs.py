@@ -7,6 +7,7 @@ structs = {}
 types = {}
 anonymous_enums = {}
 functions = {}
+constants = {}
 
 def check_references():
     """
@@ -67,7 +68,15 @@ def parse_header(lines, filename):
             if line.startswith("#define"):
                 if ok:
                     name = line[8:]
+                    match = re.match("#define ([a-zA-Z_]+)", line)
+                    name = match.group(1)
                     symbols[name] = "macro"
+                    simple_constant = line.split()
+
+                    if len(simple_constant) == 3 and\
+                        not "(" in simple_constant[1] and\
+                        simple_constant[2][0] == "0":
+                        constants[name] = simple_constant[2]
                     n += 1
             elif line.startswith("#undef"):
                 pass
@@ -75,7 +84,8 @@ def parse_header(lines, filename):
                 match = re.match(r'# \d+ "(.*?)"', line)
                 name = match.group(1)
                 if name == "<stdin>" or name.startswith(options.build) or \
-                    name.startswith("include") or name.startswith("addons"):
+                    name.startswith("include") or name.startswith("addons") or\
+                    name.startswith(options.source):
                     ok = True
                 else:
                     ok = False
@@ -153,23 +163,24 @@ def parse_all_headers():
     """
     Call parse_header() on all of Allegro's public include files.
     """
-    includes = " -I include -I " + os.path.join(options.build, "include")
-    includes += " -I addons/acodec"
-    headers = ["include/allegro5/allegro5.h",
-        "addons/acodec/allegro5/allegro_flac.h",
-        "addons/acodec/allegro5/allegro_vorbis.h",
-        "include/allegro5/allegro_opengl.h"]
+    p = options.source
+    includes = " -I " + p + "/include -I " + os.path.join(options.build, "include")
+    includes += " -I " + p + "/addons/acodec"
+    headers = [p + "/include/allegro5/allegro5.h",
+        p + "/addons/acodec/allegro5/allegro_flac.h",
+        p + "/addons/acodec/allegro5/allegro_vorbis.h",
+        p + "/include/allegro5/allegro_opengl.h"]
 
-    for addon in glob.glob("addons/*"):
-        name = addon[7:]
-        header = os.path.join("addons", name, "allegro5",
+    for addon in glob.glob(p + "/addons/*"):
+        name = addon[len(p + "/addons/"):]
+        header = os.path.join(p, "addons", name, "allegro5",
             "allegro_" + name + ".h")
         if os.path.exists(header):
             headers.append(header)
-            includes += " -I " + os.path.join("addons", name)
+            includes += " -I " + os.path.join(p, "addons", name)
 
     for header in headers:
-        p = subprocess.Popen("gcc -E -dN - " + includes,
+        p = subprocess.Popen("gcc -E -dD - " + includes,
             stdout = subprocess.PIPE, stdin = subprocess.PIPE, shell = True)
         p.stdin.write("#include <allegro5/allegro5.h>\n" + open(header).read())
         p.stdin.close()
@@ -223,10 +234,13 @@ addons and cmake build directory for global definitions and check against all
 references in the documentation - then report symbols which are not documented.
 """;
     p.add_option("-b", "--build", help = "Path to the build directory.")
+    p.add_option("-s", "--source", help = "Path to the source directory.")
     p.add_option("-l", "--list", action = "store_true", help = "List all symbols.")
     p.add_option("-p", "--protos",  help = "Write all public " +
         "prototypes to the given file.")
     options, args = p.parse_args()
+    
+    if not options.source: options.source = "."
 
     if not options.build:
         sys.stderr.write("Build path required (-p).\n")
@@ -244,6 +258,8 @@ references in the documentation - then report symbols which are not documented.
             f.write(": " + e + "\n")
         for fname, proto in functions.items():
             f.write(fname + "(): " + proto + "\n")
+        for name, value in constants.items():
+            f.write(name + ": #define " + name + " " + value + "\n")
     elif options.list:
         list_all_symbols()
     else:

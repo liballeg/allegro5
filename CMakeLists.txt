@@ -89,6 +89,12 @@ option(WANT_PRIMITIVES "Enable primitives addon" on)
 option(WANT_NATIVE_DIALOG "Enable native dialog addon" on)
 
 #
+# Wrappers.
+#
+
+option(WANT_PYTHON_WRAPPER "Enable generation of the Python wrapper" off)
+
+#
 # Documentation.
 #
 
@@ -830,6 +836,16 @@ if(UNIX)
             )
     endforeach(name)
 endif(UNIX)
+
+#-----------------------------------------------------------------------------#
+#
+#   Wrappers
+#
+#-----------------------------------------------------------------------------#
+
+if(WANT_PYTHON_WRAPPER)
+    add_subdirectory(python)
+endif(WANT_PYTHON_WRAPPER)
 
 #-----------------------------------------------------------------------------#
 #

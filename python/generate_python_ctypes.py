@@ -172,6 +172,10 @@ class Allegro:
                 proto.startswith("typedef enum"):
                 if name: self.types[name] = c_int
                 protos.append(("", proto))
+            elif proto.startswith("#define"):
+                if not name.startswith("_") and not name.startswith("GL_"):
+                    i = eval(proto.split(None, 2)[2])
+                    self.constants[name] = i
             else:
                 # actual typedef
                 mob = re.match("typedef (.*) " + name, proto)
