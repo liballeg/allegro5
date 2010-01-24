@@ -350,39 +350,13 @@
 
 
 /* generic versions of the video memory access helpers */
-#ifndef bmp_select
-   #define bmp_select(bmp)
-#endif
+// FIXME: why do we need macros for this?
+#define bmp_write16(addr, c)        (*((uint16_t *)(addr)) = (c))
+#define bmp_write32(addr, c)        (*((uint32_t *)(addr)) = (c))
 
-#ifndef bmp_write8
-   #define bmp_write8(addr, c)         (*((uint8_t  *)(addr)) = (c))
-   #define bmp_write15(addr, c)        (*((uint16_t *)(addr)) = (c))
-   #define bmp_write16(addr, c)        (*((uint16_t *)(addr)) = (c))
-   #define bmp_write32(addr, c)        (*((uint32_t *)(addr)) = (c))
+#define bmp_read16(addr)            (*((uint16_t *)(addr)))
+#define bmp_read32(addr)            (*((uint32_t *)(addr)))
 
-   #define bmp_read8(addr)             (*((uint8_t  *)(addr)))
-   #define bmp_read15(addr)            (*((uint16_t *)(addr)))
-   #define bmp_read16(addr)            (*((uint16_t *)(addr)))
-   #define bmp_read32(addr)            (*((uint32_t *)(addr)))
-
-   AL_INLINE(int, bmp_read24, (uintptr_t addr),
-   {
-      unsigned char *p = (unsigned char *)addr;
-      int c;
-
-      c = READ3BYTES(p);
-
-      return c;
-   })
-
-   AL_INLINE(void, bmp_write24, (uintptr_t addr, int c),
-   {
-      unsigned char *p = (unsigned char *)addr;
-
-      WRITE3BYTES(p, c);
-   })
-
-#endif
 
 
 /* default random function definition */
