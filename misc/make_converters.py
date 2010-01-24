@@ -12,7 +12,8 @@ def read_bitmap_h(filename):
     inside_enum = False
     for line in open(filename):
         line = line.strip()
-        if line == "enum ALLEGRO_PIXEL_FORMAT {": inside_enum = True
+        if line == "{": continue
+        if line == "typedef enum ALLEGRO_PIXEL_FORMAT": inside_enum = True
         elif inside_enum:
             match = re.match(r"\s*ALLEGRO_PIXEL_FORMAT_(\w+)", line)
             if match:
@@ -382,6 +383,8 @@ functions."""
 
     # Read in bitmap.h to get the available formats.
     formats = read_bitmap_h("include/allegro5/bitmap_new.h")
+    
+    print(formats)
 
     # Parse the component info for each format.
     for f in formats:
