@@ -43,9 +43,9 @@
 
 #ifdef ALLEGRO_USE_CONSOLE
    #define ALLEGRO_CONSOLE_OK
+   #define ALLEGRO_NO_MAGIC_MAIN
 #endif
 
-#define ALLEGRO_NO_MAGIC_MAIN
 
 /* describe how function prototypes look to MINGW32 */
 #if (defined ALLEGRO_STATICLINK) || (defined ALLEGRO_SRC)
