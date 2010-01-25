@@ -109,7 +109,11 @@ void _al_osx_keyboard_was_installed(BOOL install) {
 }
 
 /* The main additions to this view are event-handling functions */
+#if MAC_OS_X_VERSION_MIN_REQUIRED >= 1060
+@interface ALOpenGLView : NSOpenGLView <NSWindowDelegate>
+#else
 @interface ALOpenGLView : NSOpenGLView
+#endif
 {
 	/* This is passed onto the event functions so we know where the event came from */
 	ALLEGRO_DISPLAY* dpy_ptr;
@@ -1273,7 +1277,7 @@ static void get_window_position(ALLEGRO_DISPLAY* display, int* px, int* py)
 static void set_window_title(ALLEGRO_DISPLAY *display, AL_CONST char *title)
 {
    ALLEGRO_DISPLAY_OSX_WIN* dpy = (ALLEGRO_DISPLAY_OSX_WIN*) display;
-   [dpy->win setTitle: [NSString stringWithCString:title]];
+   [dpy->win setTitle: [NSString stringWithUTF8String:title]];
 }
 
 /* set_icon:
