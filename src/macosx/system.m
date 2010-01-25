@@ -31,6 +31,8 @@
 #include <servers/bootstrap.h>
 #endif
 
+ALLEGRO_DEBUG_CHANNEL("MacOSX")
+
 /* These are used to warn the dock about the application */
 struct CPSProcessSerNum
 {
@@ -113,7 +115,6 @@ int _al_osx_bootstrap_ok(void)
  */
 static ALLEGRO_SYSTEM* osx_sys_init(int flags)
 {
-   int v1 = 0, v2 = 0, v3 = 0; // version numbers read from ProductVersion
    (void)flags;
    
 #ifdef OSX_BOOTSTRAP_DETECTION
@@ -122,42 +123,23 @@ static ALLEGRO_SYSTEM* osx_sys_init(int flags)
       return NULL;
    }
 #endif
-	/* Initialise the vt and display list */
-	osx_system.vt = _al_system_osx_driver();
-	_al_vector_init(&osx_system.displays, sizeof(ALLEGRO_DISPLAY*));
+   /* Initialise the vt and display list */
+   osx_system.vt = _al_system_osx_driver();
+   _al_vector_init(&osx_system.displays, sizeof(ALLEGRO_DISPLAY*));
   
    if (osx_bundle == NULL) {
        /* If in a bundle, the dock will recognise us automatically */
        osx_tell_dock();
    }
-   
-   /* Setup OS type & version */
-   NSDictionary* sysinfo = [NSDictionary dictionaryWithContentsOfFile: @"/System/Library/CoreServices/SystemVersion.plist"];
-   NSArray* version = [((NSString*) [sysinfo objectForKey:@"ProductVersion"]) componentsSeparatedByString:@"."];
-   switch ( [version count] ){
-   	/* if there are more than 3 versions just use the first 3 */
-   	default :
-	/* micro */
-   	case 3 : v3 = [[version objectAtIndex: 2] intValue];
-	/* minor */
-	case 2 : v2 = [[version objectAtIndex: 1] intValue];
-	/* major */
-	case 1 : v1 = [[version objectAtIndex: 0] intValue];
-	/* nothing at all */
-	case 0 : break;
-   }
-//   os_version = 10 * v1 + v2;
-//   os_revision = v3;
-   [version release];
-//   os_multitasking = true;
-   
-   
+
    _al_pthreads_tls_init();
+
    /* Mark the beginning of time. */
    _al_unix_init_time();
 
    _al_vector_init(&osx_display_modes, sizeof(ALLEGRO_DISPLAY_MODE));
 
+   ALLEGRO_DEBUG("system driver initialised.\n");
    return &osx_system;
 }
 
@@ -169,6 +151,7 @@ static ALLEGRO_SYSTEM* osx_sys_init(int flags)
 static void osx_sys_exit(void)
 {
    _al_vector_free(&osx_display_modes);
+   ALLEGRO_DEBUG("system driver shutdown.\n");
 }
 
 
@@ -214,19 +197,29 @@ static int _al_osx_get_num_display_modes(void)
 #else
    modes = CGDisplayCopyAllDisplayModes(display, NULL);
 #endif
+   ALLEGRO_INFO("detected %d display modes.\n", (int)CFArrayGetCount(modes));
    for (i = 0; i < CFArrayGetCount(modes); i++) {
       ALLEGRO_DISPLAY_MODE *mode;
       CFDictionaryRef dict = (CFDictionaryRef)CFArrayGetValueAtIndex(modes, i);
       CFNumberRef number;
       int value, samples;
+
       number = CFDictionaryGetValue(dict, kCGDisplayBitsPerPixel);
       CFNumberGetValue(number, kCFNumberIntType, &value);
-      if (depth && value != depth)
+      ALLEGRO_INFO("Mode %d has colour depth %d.\n", (int)i, value);
+      if (depth && value != depth) {
+         ALLEGRO_WARN("Skipping mode %d (requested colour depth %d).\n", (int)i, depth);
          continue;
+      }
+
       number = CFDictionaryGetValue(dict, kCGDisplayRefreshRate);
       CFNumberGetValue(number, kCFNumberIntType, &value);
-      if (refresh_rate && value != refresh_rate)
+      ALLEGRO_INFO("Mode %d has colour depth %d.\n", (int)i, value);
+      if (refresh_rate && value != refresh_rate) {
+         ALLEGRO_WARN("Skipping mode %d (requested refresh rate %d).\n", (int)i, refresh_rate);
          continue;
+      }
+
       mode = (ALLEGRO_DISPLAY_MODE *)_al_vector_alloc_back(&osx_display_modes);
       number = CFDictionaryGetValue(dict, kCGDisplayWidth);
       CFNumberGetValue(number, kCFNumberIntType, &mode->width);
@@ -234,6 +227,7 @@ static int _al_osx_get_num_display_modes(void)
       CFNumberGetValue(number, kCFNumberIntType, &mode->height);
       number = CFDictionaryGetValue(dict, kCGDisplayRefreshRate);
       CFNumberGetValue(number, kCFNumberIntType, &mode->refresh_rate);
+      ALLEGRO_INFO("Mode %d is %dx%d@%dHz\n", (int)i, mode->width, mode->height, mode->refresh_rate);
       
       number = CFDictionaryGetValue(dict, kCGDisplayBitsPerPixel);
       CFNumberGetValue(number, kCFNumberIntType, &temp.settings[ALLEGRO_COLOR_SIZE]);
@@ -241,6 +235,8 @@ static int _al_osx_get_num_display_modes(void)
       CFNumberGetValue(number, kCFNumberIntType, &samples);
       number = CFDictionaryGetValue(dict, kCGDisplayBitsPerSample);
       CFNumberGetValue(number, kCFNumberIntType, &value);
+      ALLEGRO_INFO("Mode %d has %d bits per pixel, %d samples per pixel and %d bits per sample\n",
+                  (int)i, temp.settings[ALLEGRO_COLOR_SIZE], samples, value);
       if (samples >= 3) {
          temp.settings[ALLEGRO_RED_SIZE] = value;
          temp.settings[ALLEGRO_GREEN_SIZE] = value;
@@ -276,22 +272,16 @@ static ALLEGRO_DISPLAY_MODE *_al_osx_get_display_mode(int index, ALLEGRO_DISPLAY
 static int osx_get_num_video_adapters(void) 
 {
    NSArray *screen_list;
+   int num = 0;
+
    screen_list = [NSScreen screens];
    if (screen_list)
-      return [screen_list count];
-   else
-      return 0;
-/*
-   CGDisplayCount count;
-   CGError err = CGGetActiveDisplayList(0, NULL, &count);
-   if (err == kCGErrorSuccess) {
-      return (int) count;
-   }
-   else {
-      return 0;
-   }
-*/
+      num = [screen_list count];
+
+   ALLEGRO_INFO("Detected %d displays\n", num);
+   return num;
 }
+
 /* osx_get_monitor_info:
  * Return the details of one monitor
  */
@@ -319,8 +309,11 @@ static void osx_get_monitor_info(int adapter, ALLEGRO_MONITOR_INFO* info)
       info->x2 = (int) (rc.origin.x + rc.size.width);
       info->y1 = (int) rc.origin.y;
       info->y2 = (int) (rc.origin.y + rc.size.height);
+      ALLEGRO_INFO("Display %d has coordinates (%d, %d) - (%d, %d)\n",
+         adapter, info->x1, info->y1, info->x2, info->y2);
    }
 }
+
 /* osx_inhibit_screensaver:
  * Stops the screen dimming/screen saver activation if inhibit is true
  * otherwise re-enable normal behaviour. The last call takes force (i.e 
@@ -329,12 +322,14 @@ static void osx_get_monitor_info(int adapter, ALLEGRO_MONITOR_INFO* info)
  */
 static bool osx_inhibit_screensaver(bool inhibit)
 {
-	// Send a message to the App's delegate always on the main thread
-	[[NSApp delegate] performSelectorOnMainThread: @selector(setInhibitScreenSaver:)
-		withObject: [NSNumber numberWithBool:inhibit ? YES : NO]
-		waitUntilDone: NO];
-	return true;
+   // Send a message to the App's delegate always on the main thread
+   [[NSApp delegate] performSelectorOnMainThread: @selector(setInhibitScreenSaver:)
+      withObject: [NSNumber numberWithBool:inhibit ? YES : NO]
+      waitUntilDone: NO];
+   ALLEGRO_INFO("Stop screensaver\n");
+   return true;
 }
+
 /* NSImageFromAllegroBitmap:
  * Create an NSImage from an Allegro bitmap
  * This could definitely be speeded up if necessary.
@@ -381,10 +376,11 @@ static bool osx_get_cursor_position(int *x, int *y)
    *y = r.size.height - p.y;
    return true;
 }
+
 /* Internal function to get a reference to this driver. */
 ALLEGRO_SYSTEM_INTERFACE *_al_system_osx_driver(void)
 {
-	static ALLEGRO_SYSTEM_INTERFACE* vt = NULL;
+   static ALLEGRO_SYSTEM_INTERFACE* vt = NULL;
    if (vt == NULL) {
       vt = _AL_MALLOC(sizeof(*vt));
       memset(vt, 0, sizeof(*vt));
@@ -401,9 +397,9 @@ ALLEGRO_SYSTEM_INTERFACE *_al_system_osx_driver(void)
       vt->get_cursor_position = osx_get_cursor_position;
       vt->get_path = osx_get_path;
       vt->inhibit_screensaver = osx_inhibit_screensaver;
-	};
-		
-	return vt;
+   };
+      
+   return vt;
 }
 
 /* This is a function each platform must define to register all available

@@ -63,24 +63,24 @@ static char *arg0, *arg1 = NULL;
 
 static BOOL in_bundle(void)
 {
-	/* This comes from the ADC tips & tricks section: how to detect if the app
+   /* This comes from the ADC tips & tricks section: how to detect if the app
     * lives inside a bundle
     */
-	FSRef processRef;
-	ProcessSerialNumber psn = { 0, kCurrentProcess };
-	FSCatalogInfo processInfo;
-	GetProcessBundleLocation(&psn, &processRef);
-	FSGetCatalogInfo(&processRef, kFSCatInfoNodeFlags, &processInfo, NULL, NULL, NULL);
-	if (processInfo.nodeFlags & kFSNodeIsDirectoryMask) 
-		return YES;
-	else
-		return NO;
+   FSRef processRef;
+   ProcessSerialNumber psn = { 0, kCurrentProcess };
+   FSCatalogInfo processInfo;
+   GetProcessBundleLocation(&psn, &processRef);
+   FSGetCatalogInfo(&processRef, kFSCatInfoNodeFlags, &processInfo, NULL, NULL, NULL);
+   if (processInfo.nodeFlags & kFSNodeIsDirectoryMask) 
+      return YES;
+   else
+      return NO;
 }
 
 
 @interface AllegroAppDelegate : NSObject
 {
-	NSTimer* activity;
+   NSTimer* activity;
 }
 - (void) dealloc;
 - (BOOL)application: (NSApplication *)theApplication openFile: (NSString *)filename;
@@ -109,24 +109,24 @@ static BOOL in_bundle(void)
  */
 -(void) setInhibitScreenSaver: (NSNumber *) inhibit 
 {
-	if ([inhibit boolValue] == YES) {
-		if (activity == nil) {
-		// Schedule every 30 seconds
-			activity = [NSTimer scheduledTimerWithTimeInterval:30.0  
-				target:self 
-				selector:@selector(updateSystemActivity:) 
-				userInfo:nil 
-				repeats:YES]; 
-				[activity retain];
-				}
-				// else already active
-			}
-			else {
-			// OK to send message to nil if timer wasn't set.
-				[activity invalidate];
-				[activity release];
-				activity = nil;
-			}
+   if ([inhibit boolValue] == YES) {
+      if (activity == nil) {
+      // Schedule every 30 seconds
+         activity = [NSTimer scheduledTimerWithTimeInterval:30.0  
+            target:self 
+            selector:@selector(updateSystemActivity:) 
+            userInfo:nil 
+            repeats:YES]; 
+            [activity retain];
+            }
+            // else already active
+         }
+         else {
+         // OK to send message to nil if timer wasn't set.
+            [activity invalidate];
+            [activity release];
+            activity = nil;
+         }
 }
 /* updateSystemActivity:
  * called by a timer to inform the system that there is still activity and 
@@ -135,30 +135,30 @@ static BOOL in_bundle(void)
 -(void) updateSystemActivity: (NSTimer*) timer
 {
    (void)timer;
-	UpdateSystemActivity(UsrActivity);
+   UpdateSystemActivity(UsrActivity);
 }
 
 -(void) dealloc
 {
-	[activity invalidate];
-	[activity release];
-	[super dealloc];
+   [activity invalidate];
+   [activity release];
+   [super dealloc];
 }
 - (BOOL)application: (NSApplication *)theApplication openFile: (NSString *)filename
 {
-	NSData* data = [filename dataUsingEncoding:NSASCIIStringEncoding allowLossyConversion:YES];
+   NSData* data = [filename dataUsingEncoding:NSASCIIStringEncoding allowLossyConversion:YES];
    (void)theApplication;
-	if (data != nil) {
-		unsigned int len = 1 + [data length];
-		arg1 = _AL_MALLOC(len);
-		memset(arg1, 0, len);
-		[data getBytes: arg1];
+   if (data != nil) {
+      unsigned int len = 1 + [data length];
+      arg1 = _AL_MALLOC(len);
+      memset(arg1, 0, len);
+      [data getBytes: arg1];
 
-		return YES;
-	}
-	else {
-		return NO;
-	}
+      return YES;
+   }
+   else {
+      return NO;
+   }
 }
 
 
@@ -168,53 +168,53 @@ static BOOL in_bundle(void)
 */
 - (void)applicationDidFinishLaunching: (NSNotification *)aNotification
 {
-	NSString* exename, *resdir;
-	NSFileManager* fm;
-	BOOL isDir;
-	
+   NSString* exename, *resdir;
+   NSFileManager* fm;
+   BOOL isDir;
+   
    (void)aNotification;
-	
-	if (in_bundle() == YES)   
-	{
-		/* In a bundle, so chdir to the containing directory,
-		* or to the 'magic' resource directory if it exists.
-		* (see the readme.osx file for more info)
-		*/
-		NSBundle* osx_bundle = [NSBundle mainBundle];
-		exename = [[osx_bundle executablePath] lastPathComponent];
-		resdir = [[osx_bundle resourcePath] stringByAppendingPathComponent: exename];
-		fm = [NSFileManager defaultManager];
-		if ([fm fileExistsAtPath: resdir isDirectory: &isDir] && isDir) {
-			/* Yes, it exists inside the bundle */
-			[fm changeCurrentDirectoryPath: resdir];
-		}
-		else {
-			/* No, change to the 'standard' OSX resource directory if it exists*/
-			if ([fm fileExistsAtPath: [osx_bundle resourcePath] isDirectory: &isDir] && isDir)
-			{
-				[fm changeCurrentDirectoryPath: [osx_bundle resourcePath]];
-			}
-			/* It doesn't exist - this is unusual for a bundle. Don't chdir */
-		}
-		arg0 = strdup([[osx_bundle bundlePath] fileSystemRepresentation]);
-		if (arg1) {
-			static char *args[2];
-			args[0] = arg0;
-			args[1] = arg1;
-			__crt0_argv = args;
-			__crt0_argc = 2;
-		}
-		else {
-			__crt0_argv = &arg0;
-			__crt0_argc = 1;
-		}
-	}
-	/* else: not in a bundle so don't chdir */
+   
+   if (in_bundle() == YES)   
+   {
+      /* In a bundle, so chdir to the containing directory,
+      * or to the 'magic' resource directory if it exists.
+      * (see the readme.osx file for more info)
+      */
+      NSBundle* osx_bundle = [NSBundle mainBundle];
+      exename = [[osx_bundle executablePath] lastPathComponent];
+      resdir = [[osx_bundle resourcePath] stringByAppendingPathComponent: exename];
+      fm = [NSFileManager defaultManager];
+      if ([fm fileExistsAtPath: resdir isDirectory: &isDir] && isDir) {
+         /* Yes, it exists inside the bundle */
+         [fm changeCurrentDirectoryPath: resdir];
+      }
+      else {
+         /* No, change to the 'standard' OSX resource directory if it exists*/
+         if ([fm fileExistsAtPath: [osx_bundle resourcePath] isDirectory: &isDir] && isDir)
+         {
+            [fm changeCurrentDirectoryPath: [osx_bundle resourcePath]];
+         }
+         /* It doesn't exist - this is unusual for a bundle. Don't chdir */
+      }
+      arg0 = strdup([[osx_bundle bundlePath] fileSystemRepresentation]);
+      if (arg1) {
+         static char *args[2];
+         args[0] = arg0;
+         args[1] = arg1;
+         __crt0_argv = args;
+         __crt0_argc = 2;
+      }
+      else {
+         __crt0_argv = &arg0;
+         __crt0_argc = 1;
+      }
+   }
+   /* else: not in a bundle so don't chdir */
 
-	[NSThread detachNewThreadSelector: @selector(app_main:)
-							 toTarget: [AllegroAppDelegate class]
-						   withObject: nil];
-	return;
+   [NSThread detachNewThreadSelector: @selector(app_main:)
+                      toTarget: [AllegroAppDelegate class]
+                     withObject: nil];
+   return;
 }
 
 
@@ -233,7 +233,7 @@ static BOOL in_bundle(void)
 /* Call the user main() */
 static void call_user_main(void)
 {
- 	exit(_al_mangled_main(__crt0_argc, __crt0_argv));
+    exit(_al_mangled_main(__crt0_argc, __crt0_argv));
 }
 
 
@@ -243,10 +243,10 @@ static void call_user_main(void)
 */
 + (void)app_main: (id)arg
 {
-	NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
+   NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
    (void)arg;
-	call_user_main();
-	[pool release];
+   call_user_main();
+   [pool release];
 }
 
 
@@ -258,8 +258,8 @@ static void call_user_main(void)
 - (NSApplicationTerminateReply) applicationShouldTerminate: (id)sender
 {
    (void)sender;
-	_al_osx_post_quit();
-	return NSTerminateCancel;
+   _al_osx_post_quit();
+   return NSTerminateCancel;
 }
 
 /* end of AllegroAppDelegate implementation */
@@ -281,66 +281,66 @@ static void call_user_main(void)
 */
 int main(int argc, char *argv[])
 {
-	NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
-	AllegroAppDelegate *app_delegate = [[AllegroAppDelegate alloc] init];
-	NSMenu *menu;
-	NSMenuItem *menu_item, *temp_item;
-	
-	__crt0_argc = argc;
-	__crt0_argv = argv;
-	
+   NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
+   AllegroAppDelegate *app_delegate = [[AllegroAppDelegate alloc] init];
+   NSMenu *menu;
+   NSMenuItem *menu_item, *temp_item;
+   
+   __crt0_argc = argc;
+   __crt0_argv = argv;
+   
 #ifdef OSX_BOOTSTRAP_DETECTION
-	if (!_al_osx_bootstrap_ok()) /* not safe to use NSApplication */
-		call_user_main();
+   if (!_al_osx_bootstrap_ok()) /* not safe to use NSApplication */
+      call_user_main();
 #endif
-	
-	[NSApplication sharedApplication];
-	
-	/* Load the main menu nib if possible */
-	if ((!in_bundle()) || ([NSBundle loadNibNamed: @"MainMenu"
-											owner: NSApp] == NO))
-	{
-		/* Didn't load the nib; create a default menu programmatically */
-		NSString* title = nil;
-		NSDictionary* app_dictionary = [[NSBundle mainBundle] infoDictionary];
-		if (app_dictionary) 
-		{
-			title = [app_dictionary objectForKey: @"CFBundleName"];
-		}
-		if (title == nil) 
-		{
-			title = [[NSProcessInfo processInfo] processName];
-		}
+   
+   [NSApplication sharedApplication];
+   
+   /* Load the main menu nib if possible */
+   if ((!in_bundle()) || ([NSBundle loadNibNamed: @"MainMenu"
+                                 owner: NSApp] == NO))
+   {
+      /* Didn't load the nib; create a default menu programmatically */
+      NSString* title = nil;
+      NSDictionary* app_dictionary = [[NSBundle mainBundle] infoDictionary];
+      if (app_dictionary) 
+      {
+         title = [app_dictionary objectForKey: @"CFBundleName"];
+      }
+      if (title == nil) 
+      {
+         title = [[NSProcessInfo processInfo] processName];
+      }
       NSMenu* main_menu = [[NSMenu allocWithZone: [NSMenu menuZone]] initWithTitle: @"temp"];
-		[NSApp setMainMenu: main_menu];
-		menu = [[NSMenu allocWithZone: [NSMenu menuZone]] initWithTitle: @"temp"];
-		temp_item = [[NSMenuItem allocWithZone: [NSMenu menuZone]]
-		     initWithTitle: @"temp"
-					action: NULL
-		     keyEquivalent: @""];
-		[main_menu addItem: temp_item];
-		[main_menu setSubmenu: menu forItem: temp_item];
+      [NSApp setMainMenu: main_menu];
+      menu = [[NSMenu allocWithZone: [NSMenu menuZone]] initWithTitle: @"temp"];
+      temp_item = [[NSMenuItem allocWithZone: [NSMenu menuZone]]
+           initWithTitle: @"temp"
+                  action: NULL
+           keyEquivalent: @""];
+      [main_menu addItem: temp_item];
+      [main_menu setSubmenu: menu forItem: temp_item];
       [temp_item release];
-		[NSApp setAppleMenu: menu];
-		NSString *quit = [@"Quit " stringByAppendingString: title];
-		menu_item = [[NSMenuItem allocWithZone: [NSMenu menuZone]]
-		     initWithTitle: quit
-					action: @selector(terminate:)
-		     keyEquivalent: @"q"];
-		[menu_item setKeyEquivalentModifierMask: NSCommandKeyMask];
-		[menu addItem: menu_item];
+      [NSApp setAppleMenu: menu];
+      NSString *quit = [@"Quit " stringByAppendingString: title];
+      menu_item = [[NSMenuItem allocWithZone: [NSMenu menuZone]]
+           initWithTitle: quit
+                  action: @selector(terminate:)
+           keyEquivalent: @"q"];
+      [menu_item setKeyEquivalentModifierMask: NSCommandKeyMask];
+      [menu addItem: menu_item];
       [menu_item release];
       [menu release];
       [main_menu release];
-	}
-	// setDelegate: doesn't retain the delegate here (a Cocoa convention)
+   }
+   // setDelegate: doesn't retain the delegate here (a Cocoa convention)
    // therefore we don't release it.
-	[NSApp setDelegate: app_delegate];
-	[NSApp run];
-	/* Can never get here */
-	[app_delegate release];
-	[pool release];
-	return 0;
+   [NSApp setDelegate: app_delegate];
+   [NSApp run];
+   /* Can never get here */
+   [app_delegate release];
+   [pool release];
+   return 0;
 }
 
 /* Local variables:       */
