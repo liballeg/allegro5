@@ -134,6 +134,7 @@ static BOOL in_bundle(void)
  */
 -(void) updateSystemActivity: (NSTimer*) timer
 {
+   (void)timer;
 	UpdateSystemActivity(UsrActivity);
 }
 
@@ -146,6 +147,7 @@ static BOOL in_bundle(void)
 - (BOOL)application: (NSApplication *)theApplication openFile: (NSString *)filename
 {
 	NSData* data = [filename dataUsingEncoding:NSASCIIStringEncoding allowLossyConversion:YES];
+   (void)theApplication;
 	if (data != nil) {
 		unsigned int len = 1 + [data length];
 		arg1 = _AL_MALLOC(len);
@@ -166,11 +168,11 @@ static BOOL in_bundle(void)
 */
 - (void)applicationDidFinishLaunching: (NSNotification *)aNotification
 {
-	CFDictionaryRef mode;
 	NSString* exename, *resdir;
 	NSFileManager* fm;
 	BOOL isDir;
 	
+   (void)aNotification;
 	
 	if (in_bundle() == YES)   
 	{
@@ -223,6 +225,7 @@ static BOOL in_bundle(void)
 - (void)applicationDidChangeScreenParameters: (NSNotification *)aNotification
 {
    /* no-op */
+   (void)aNotification;
 }
 
 
@@ -241,6 +244,7 @@ static void call_user_main(void)
 + (void)app_main: (id)arg
 {
 	NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
+   (void)arg;
 	call_user_main();
 	[pool release];
 }
@@ -253,6 +257,7 @@ static void call_user_main(void)
 */
 - (NSApplicationTerminateReply) applicationShouldTerminate: (id)sender
 {
+   (void)sender;
 	_al_osx_post_quit();
 	return NSTerminateCancel;
 }
