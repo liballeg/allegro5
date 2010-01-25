@@ -8,7 +8,7 @@ include_directories(SYSTEM ${PHYSFS_INCLUDE_DIR})
 add_our_library(allegro_physfs -${ALLEGRO_VERSION}
    "${PHYSFS_SOURCES}"
    "-DALLEGRO_PHYSFS_SRC"
-   "${ALLEGRO_LINK_WITH};${PHYSFS_LIBRARY}"
+   "${ALLEGRO_LINK_WITH};${PHYSFS_LIBRARIES}"
    )
 
 set(PHYSFS_LINK_WITH allegro_physfs PARENT_SCOPE)

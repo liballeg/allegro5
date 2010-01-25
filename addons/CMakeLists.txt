@@ -78,11 +78,44 @@ if(WANT_PHYSFS)
         PHYSFS_LIBRARY PHYSFS_INCLUDE_DIR)
     mark_as_advanced(PHYSFS_INCLUDE_DIR)
     mark_as_advanced(PHYSFS_LIBRARY)
+
+    find_package(ZLIB)
+
+    # Does this copy of PhysicsFS require zlib to be linked separately?
+    # FindPhysFS should really figure this out for us, but it doesn't.
     if(PHYSFS_FOUND)
+        set(CMAKE_REQUIRED_INCLUDES ${PHYSFS_INCLUDE_DIR})
+        set(CMAKE_REQUIRED_LIBRARIES ${PHYSFS_LIBRARY})
+        check_c_source_compiles("
+            #include <physfs.h>
+
+            int main(int argc, char **argv)
+            {
+                (void)argc;
+                PHYSFS_init(argv[0]);
+                PHYSFS_deinit();
+                return 0;
+            }"
+            PHYSFS_IMPLICIT_ZLIB)
+        set(CMAKE_REQUIRED_INCLUDES)
+        set(CMAKE_REQUIRED_LIBRARIES)
+
+        if(PHYSFS_IMPLICIT_ZLIB)
+            set(PHYSFS_LIBRARIES ${PHYSFS_LIBRARY})
+            set(SUPPORT_PHYSFS 1)
+        elseif(ZLIB_FOUND)
+            set(PHYSFS_LIBRARIES ${PHYSFS_LIBRARY} ${ZLIB_LIBRARY})
+            set(SUPPORT_PHYSFS 1)
+        else()
+            message("WARNING: PhysicsFS needs zlib, zlib not found, disabling PhysFS support.")
+        endif()
+    endif(PHYSFS_FOUND)
+
+    if(SUPPORT_PHYSFS)
         add_subdirectory(physfs)
         set(SUPPORT_PHYSFS 1 PARENT_SCOPE)
         set(PHYSFS_LINK_WITH ${PHYSFS_LINK_WITH} PARENT_SCOPE)
-    endif(PHYSFS_FOUND)
+    endif(SUPPORT_PHYSFS)
 endif(WANT_PHYSFS)
 
 if(WANT_NATIVE_DIALOG)
