@@ -58,12 +58,6 @@
 //#define OSX_BOOTSTRAP_DETECTION
 
 
-#define OSX_GFX_NONE                    0
-#define OSX_GFX_WINDOW                  1
-#define OSX_GFX_FULL                    2
-
-#define BMP_EXTRA(bmp)                  ((BMP_EXTRA_INFO *)((bmp)->extra))
-
 #define HID_MAX_DEVICES                 MAX_JOYSTICKS
 #define HID_MOUSE                       0
 #define HID_JOYSTICK                    1
