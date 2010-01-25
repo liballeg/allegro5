@@ -378,6 +378,9 @@ void Prog::handle_event(const ALLEGRO_EVENT & event)
 
 int main(int argc, char *argv[])
 {
+   (void)argc;
+   (void)argv;
+
    if (!al_init()) {
       fprintf(stderr, "Could not init Allegro.\n");
       return 1;
