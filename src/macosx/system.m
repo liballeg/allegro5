@@ -31,21 +31,6 @@
 #include <servers/bootstrap.h>
 #endif
 
-/* On 10.6 and above some CGDisplay functions have been deprecated and
- * replaced with a new set of functions.
- * We'd *like* to do something like "#ifdef OSX_VERSION>1060" but there
- * isn't an OSX_VERSION variable. The closest we can get is
- * __ENVIRONMENT_MAC_OS_X_VERSION_MIN_REQUIRED__, which is not
- * guaranteed to be defined.
- * We set this variable ourselves, and default to 10.4.0 (Tiger) if it is
- * not set.
- */
-#if defined __ENVIRONMENT_MAC_OS_X_VERSION_MIN_REQUIRED__
-#define MAC_OS_X_VERSION __ENVIRONMENT_MAC_OS_X_VERSION_MIN_REQUIRED__
-#else
-#define MAC_OS_X_VERSION 1040
-#endif
-
 /* These are used to warn the dock about the application */
 struct CPSProcessSerNum
 {
@@ -224,7 +209,7 @@ static int _al_osx_get_num_display_modes(void)
    }
    
    _al_vector_free(&osx_display_modes);
-#if MAC_OS_X_VERSION < 1060
+#if MAC_OS_X_VERSION_MIN_REQUIRED < 1060
    modes = CGDisplayAvailableModes(display);
 #else
    modes = CGDisplayCopyAllDisplayModes(display, NULL);
