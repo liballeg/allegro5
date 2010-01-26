@@ -265,10 +265,6 @@
    }
 #endif
 
-#ifndef END_OF_MAIN
-   #define END_OF_MAIN()
-#endif
-
 
 /* fill in default filename behaviour */
 #ifndef ALLEGRO_LFN
