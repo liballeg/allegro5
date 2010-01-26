@@ -42,6 +42,7 @@ set(DEMO_ICON data/gfx/Icon.icns)
 
 include_directories(
     include
+    ../addons/main
     ../addons/image
     ../addons/font
     ../addons/audio
@@ -64,6 +65,7 @@ if(SUPPORT_FONT AND SUPPORT_AUDIO AND SUPPORT_VORBIS)
         )
 
     target_link_libraries(demo
+        ${ALLEGRO_MAIN_LINK_WITH}
         ${FONT_LINK_WITH}
         ${IMAGE_LINK_WITH}
         ${VORBIS_LINK_WITH}
