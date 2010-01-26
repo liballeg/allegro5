@@ -41,56 +41,6 @@ set(ALLEGRO_SRC_C_FILES
 set(ALLEGRO_SRC_I386_FILES
     )
 
-set(ALLEGRO_SRC_DOS_FILES
-    src/dos/adlib.c
-    src/dos/awedata.c
-    src/dos/dfile.c
-    src/dos/dgfxdrv.c
-    src/dos/djoydrv.c
-    src/dos/dkeybd.c
-    src/dos/dma.c
-    src/dos/dmouse.c
-    src/dos/dpmi.c
-    src/dos/dsnddrv.c
-    src/dos/dsystem.c
-    src/dos/dtimer.c
-    src/dos/emu8k.c
-    src/dos/emu8kmid.c
-    src/dos/essaudio.c
-    src/dos/gpro.c
-    src/dos/grip.c
-    src/dos/gripjoy.c
-    src/dos/gripfnc.s
-    src/dos/ifsega.c
-    src/dos/ifsega2f.c
-    src/dos/ifsega2p.c
-    src/dos/joystd.c
-    src/dos/mpu.c
-    src/dos/multijoy.c
-    src/dos/n64pad.c
-    src/dos/pic.c
-    src/dos/psxpad.c
-    src/dos/sb.c
-    src/dos/sndscape.c
-    src/dos/snespad.c
-    src/dos/sw.c
-    src/dos/swpp.c
-    src/dos/swpps.s
-    src/dos/vesa.c
-    src/dos/vesas.s
-    src/dos/wss.c
-    src/dos/ww.c
-    src/misc/modex.c
-    src/misc/modexgfx.s
-    src/misc/modexsms.c
-    src/misc/pckeys.c
-    src/misc/vbeaf.c
-    src/misc/vbeafs.s
-    src/misc/vbeafex.c
-    src/misc/vga.c
-    src/misc/vgaregs.c
-    )
-
 set(ALLEGRO_SRC_WIN_FILES
     src/win/winput.c
     src/win/wjoydrv.c
@@ -119,43 +69,6 @@ set(ALLEGRO_SRC_OPENGL_FILES
 
 set(ALLEGRO_SRC_WGL_FILES
     src/win/wgl_disp.c
-    )
-
-set(ALLEGRO_SRC_BEOS_FILES
-    src/beos/baccel.cpp
-    src/beos/bdispsw.cpp
-    src/beos/bdwindow.cpp
-    src/beos/bgfx.c
-    src/beos/bgfxapi.cpp
-    src/beos/bgfxdrv.c
-    src/beos/bjoy.c
-    src/beos/bjoydrv.c
-    src/beos/bjoyapi.cpp
-    src/beos/bkey.c
-    src/beos/bkeyapi.cpp
-    src/beos/bkeydrv.c
-    src/beos/bmidi.c
-    src/beos/bmidiapi.cpp
-    src/beos/bmididrv.c
-    src/beos/bmousapi.cpp
-    src/beos/bmousdrv.c
-    src/beos/bmouse.c
-    src/beos/boverlay.c
-    src/beos/bsnd.c
-    src/beos/bsndapi.cpp
-    src/beos/bsnddrv.c
-    src/beos/bswitch.s
-    src/beos/bsysapi.cpp
-    src/beos/bsysdrv.c
-    src/beos/bsystem.c
-    src/beos/btimeapi.cpp
-    src/beos/btimedrv.c
-    src/beos/btimer.c
-    src/beos/bwindow.c
-    src/beos/bwscreen.cpp
-    src/unix/ufile.c
-    src/misc/colconv.c
-    src/misc/pckeys.c
     )
 
 set(ALLEGRO_SRC_LINUX_FILES
@@ -208,26 +121,6 @@ set(ALLEGRO_SRC_X_FILES
     src/linux/ljoynu.c
     )
 
-set(ALLEGRO_SRC_QNX_FILES
-    src/qnx/qdrivers.c
-    src/qnx/qkeydrv.c
-    src/qnx/qmouse.c
-    src/qnx/qphaccel.c
-    src/qnx/qphbmp.c
-    src/qnx/qphfull.c
-    src/qnx/qphoton.c
-    src/qnx/qphwin.c
-    src/qnx/qswitch.s
-    src/qnx/qsystem.c
-    src/unix/udjgpp.c
-    src/unix/ufile.c
-    src/unix/umain.c
-    src/unix/usystem.c
-    src/unix/utimer.c
-    src/misc/colconv.c
-    src/misc/pckeys.c
-    )
-
 set(ALLEGRO_SRC_MACOSX_FILES
     src/macosx/hidjoy.m
     src/macosx/hidman.m
@@ -247,22 +140,6 @@ set(ALLEGRO_SRC_GP2XWIZ_FILES
     src/gp2xwiz/wiz_joystick.c
     src/optimized.c
     src/linux/ljoynu.c
-    )
-
-set(ALLEGRO_MODULE_VGA_FILES
-    src/linux/lvga.c
-    src/misc/modex.c
-    src/misc/modexgfx.s
-    src/misc/vga.c
-    )
-
-set(ALLEGRO_MODULE_SVGALIB_FILES
-    src/linux/svgalib.c
-    src/linux/svgalibs.s
-    )
-
-set(ALLEGRO_MODULE_FBCON_FILES
-    src/linux/fbcon.c
     )
 
 set(ALLEGRO_MODULE_ALSADIGI_FILES
