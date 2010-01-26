@@ -23,10 +23,12 @@
 #include "allegro5/internal/aintern_audio.h"
 #include "allegro5/internal/aintern_audio_cfg.h"
 
+/* AudioToolbox is only available in Leopard and later */
+#if MAC_OS_X_VERSION_MIN_REQUIRED >= 1050
+
 #import <CoreAudio/CoreAudioTypes.h>
 #import <AudioToolbox/AudioQueue.h>
 #import <Foundation/NSAutoreleasePool.h>
-
 
 #define THREAD_BEGIN NSAutoreleasePool *___p = [[NSAutoreleasePool alloc] init];
 #define THREAD_END [___p release];
@@ -370,3 +372,4 @@ ALLEGRO_AUDIO_DRIVER _al_kcm_aqueue_driver = {
    _aqueue_set_voice_position,
 };
 
+#endif /* MAC_OS_X_VERSION_MIN_REQUIRED >= 1050 */
