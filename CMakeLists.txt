@@ -87,6 +87,7 @@ option(WANT_MEMFILE "Enable memfile addon" on)
 option(WANT_PHYSFS "Enable PhysicsFS addon" on)
 option(WANT_PRIMITIVES "Enable primitives addon" on)
 option(WANT_NATIVE_DIALOG "Enable native dialog addon" on)
+option(WANT_ALLEGRO_MAIN "Enable magic main addon" on)
 
 #
 # Wrappers.
@@ -803,6 +804,7 @@ set(PKG_CONFIG_FILES
     allegro_flac
     allegro_font
     allegro_image
+    allegro_main
     allegro_memfile
     allegro_physfs
     allegro_primitives

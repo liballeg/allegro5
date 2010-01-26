@@ -102,7 +102,6 @@ set(ALLEGRO_SRC_UNIX_FILES
     src/unix/ugfxdrv.c
     src/unix/ujoydrv.c
     src/unix/ukeybd.c
-    src/unix/umain.c
     src/unix/umodules.c
     src/unix/umouse.c
     src/unix/upath.c
@@ -125,7 +124,6 @@ set(ALLEGRO_SRC_MACOSX_FILES
     src/macosx/hidjoy.m
     src/macosx/hidman.m
     src/macosx/keybd.m
-    src/macosx/main.m
     src/macosx/qzmouse.m
     src/macosx/system.m
     src/macosx/osxgl.m

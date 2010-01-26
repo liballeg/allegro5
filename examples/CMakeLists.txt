@@ -4,6 +4,7 @@ include_directories(
     ../addons/color
     ../addons/font
     ../addons/image
+    ../addons/main
     ../addons/memfile
     ../addons/native_dialog
     ../addons/physfs
@@ -31,9 +32,9 @@ endfunction(example)
 
 macro(add_example nm)
     if(WANT_POPUP_EXAMPLES AND SUPPORT_NATIVE_DIALOG)
-        add_our_executable(${nm} ${ARGN} ${ALLEGRO_LINK_WITH} ${NATIVE_DIALOG_LINK_WITH})
+        add_our_executable(${nm} ${ARGN} ${ALLEGRO_LINK_WITH} ${ALLEGRO_MAIN_LINK_WITH} ${NATIVE_DIALOG_LINK_WITH})
     else()
-        add_our_executable(${nm} ${ARGN} ${ALLEGRO_LINK_WITH})
+        add_our_executable(${nm} ${ARGN} ${ALLEGRO_LINK_WITH} ${ALLEGRO_MAIN_LINK_WITH} )
     endif()
 endmacro(add_example nm)
 
