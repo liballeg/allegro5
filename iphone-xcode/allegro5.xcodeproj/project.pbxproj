@@ -3225,6 +3225,11 @@
 				COPY_PHASE_STRIP = YES;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				GCC_ENABLE_FIX_AND_CONTINUE = NO;
+				HEADER_SEARCH_PATHS = (
+					../addons/image,
+					include,
+					../include,
+				);
 				PREBINDING = NO;
 				PRODUCT_NAME = a5_font;
 				ZERO_LINK = NO;
