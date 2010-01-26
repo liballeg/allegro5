@@ -320,33 +320,6 @@ static void draw_quad(ALLEGRO_BITMAP *bitmap,
 
 
 
-/* Draw the bitmap at the specified position. */
-static void ogl_draw_bitmap(ALLEGRO_BITMAP *bitmap, float x, float y,
-   int flags)
-{
-   // FIXME: hack
-   // FIXME: need format conversion if they don't match
-   ALLEGRO_BITMAP *target = al_get_target_bitmap();
-   ALLEGRO_BITMAP_OGL *ogl_target = (ALLEGRO_BITMAP_OGL *)target;
-   ALLEGRO_DISPLAY *disp = al_get_current_display();
-   if (disp->ogl_extras->opengl_target != ogl_target ||
-      !setup_blending(disp) || target->locked) {
-      _al_draw_bitmap_memory(bitmap, x, y, flags);
-      return;
-   }
-
-   /* For sub-bitmaps */
-   if (target->parent) {
-      x += target->xofs;
-      y += target->yofs;
-   }
-
-   draw_quad(bitmap, 0, 0, bitmap->w, bitmap->h,
-      0, 0, x, y, bitmap->w, bitmap->h, 1, 1, 0, flags);
-}
-
-
-
 static void ogl_draw_scaled_bitmap(ALLEGRO_BITMAP *bitmap, float sx, float sy,
    float sw, float sh, float dx, float dy, float dw, float dh, int flags)
 {
@@ -443,6 +416,15 @@ static void ogl_draw_bitmap_region(ALLEGRO_BITMAP *bitmap, float sx, float sy,
    
    /* If all else fails, fall back to software implementation. */
    _al_draw_bitmap_region_memory(bitmap, sx, sy, sw, sh, dx, dy, flags);
+}
+
+
+
+/* Draw the bitmap at the specified position. */
+static void ogl_draw_bitmap(ALLEGRO_BITMAP *bitmap, float x, float y,
+   int flags)
+{
+   ogl_draw_bitmap_region(bitmap, 0, 0, bitmap->w, bitmap->h, x, y, flags);
 }
 
 
