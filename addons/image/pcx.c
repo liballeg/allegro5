@@ -272,5 +272,5 @@ bool al_save_pcx(const char *filename, ALLEGRO_BITMAP *bmp)
 
    al_fclose(f);
 
-   return true;
+   return ret;
 }

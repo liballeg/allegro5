@@ -872,7 +872,7 @@ bool al_save_bmp(const char *filename, ALLEGRO_BITMAP *bmp)
 
    al_fclose(f);
 
-   return true;
+   return ret;
 }
 
 /* vim: set sts=3 sw=3 et: */
