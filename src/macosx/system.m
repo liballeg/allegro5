@@ -194,9 +194,6 @@ static int _al_osx_get_num_display_modes(void)
    _al_vector_free(&osx_display_modes);
 #if MAC_OS_X_VERSION_MIN_REQUIRED < 1060
    modes = CGDisplayAvailableModes(display);
-#else
-   modes = CGDisplayCopyAllDisplayModes(display, NULL);
-#endif
    ALLEGRO_INFO("detected %d display modes.\n", (int)CFArrayGetCount(modes));
    for (i = 0; i < CFArrayGetCount(modes); i++) {
       ALLEGRO_DISPLAY_MODE *mode;
@@ -248,6 +245,100 @@ static int _al_osx_get_num_display_modes(void)
       mode->format = _al_deduce_color_format(&temp);
    }
    CFRelease(modes);
+#else
+   modes = CGDisplayCopyAllDisplayModes(display, NULL);
+   ALLEGRO_INFO("detected %d display modes.\n", (int)CFArrayGetCount(modes));
+   for (i = 0; i < CFArrayGetCount(modes); i++) {
+      ALLEGRO_DISPLAY_MODE *amode;
+      CGDisplayModeRef mode = (CGDisplayModeRef)CFArrayGetValueAtIndex(modes, i);
+      CFStringRef pixel_encoding = CGDisplayModeCopyPixelEncoding(mode);
+
+      int bpp, mode_refresh_rate, samples, value;
+
+      /* Determine pixel format. Whever thought this was a better idea than
+       * having query functions for each of these properties should be
+       * spoken to very harshly in a very severe voice.
+       */
+
+      if(CFStringCompare(pixel_encoding, CFSTR(kIO16BitFloatPixels), 1) == 0) {
+         bpp = 64;
+         samples = 3;
+         value = 16;
+      }
+
+      if(CFStringCompare(pixel_encoding, CFSTR(kIO32BitFloatPixels), 1) == 0) {
+         bpp = 128;
+         samples = 3;
+         value = 32;
+      }
+
+      if(CFStringCompare(pixel_encoding, CFSTR(kIO64BitDirectPixels), 1) == 0) {
+         bpp = 64;
+         samples = 3;
+         value = 16;
+      }
+
+      if(CFStringCompare(pixel_encoding, CFSTR(kIO30BitDirectPixels), 1) == 0) {
+         bpp = 32;
+         samples = 3;
+         value = 10;
+      }
+
+      if(CFStringCompare(pixel_encoding, CFSTR(IO32BitDirectPixels), 1) == 0) {
+         bpp = 32;
+         samples = 3;
+         value = 8;
+      }
+
+      if(CFStringCompare(pixel_encoding, CFSTR(IO16BitDirectPixels), 1) == 0) {
+         bpp = 16;
+         samples = 3;
+         value = 5;
+      }
+
+      if(CFStringCompare(pixel_encoding, CFSTR(IO8BitIndexedPixels), 1) == 0) {
+         bpp = 8;
+         samples = 1;
+         value = 8;
+      }
+
+
+      /* Check if this mode is ok in terms of depth and refresh rate */
+      ALLEGRO_INFO("Mode %d has colour depth %d.\n", (int)i, bpp);
+      if (depth && bpp != depth) {
+         ALLEGRO_WARN("Skipping mode %d (requested colour depth %d).\n", (int)i, depth);
+         continue;
+      }
+
+      mode_refresh_rate = CGDisplayModeGetRefreshRate(mode);
+      ALLEGRO_INFO("Mode %d has a refresh rate of %d.\n", (int)i, mode_refresh_rate);
+      if (refresh_rate && mode_refresh_rate != refresh_rate) {
+         ALLEGRO_WARN("Skipping mode %d (requested refresh rate %d).\n", (int)i, refresh_rate);
+         continue;
+      }
+
+      /* Yes, it's fine */
+      amode = (ALLEGRO_DISPLAY_MODE *)_al_vector_alloc_back(&osx_display_modes);
+      amode->width = CGDisplayModeGetWidth(mode); 
+      amode->height = CGDisplayModeGetHeight(mode); 
+      amode->refresh_rate = mode_refresh_rate;
+      ALLEGRO_INFO("Mode %d is %dx%d@%dHz\n", (int)i, amode->width, amode->height, amode->refresh_rate);
+      
+      temp.settings[ALLEGRO_COLOR_SIZE] = bpp;
+      ALLEGRO_INFO("Mode %d has %d bits per pixel, %d samples per pixel and %d bits per sample\n",
+                  (int)i, temp.settings[ALLEGRO_COLOR_SIZE], samples, value);
+      if (samples >= 3) {
+         temp.settings[ALLEGRO_RED_SIZE] = value;
+         temp.settings[ALLEGRO_GREEN_SIZE] = value;
+         temp.settings[ALLEGRO_BLUE_SIZE] = value;
+         if (samples == 4)
+            temp.settings[ALLEGRO_ALPHA_SIZE] = value;
+      }
+      _al_fill_display_settings(&temp);
+      amode->format = _al_deduce_color_format(&temp);
+   }
+   CFRelease(modes);
+#endif
    return _al_vector_size(&osx_display_modes);
 }
 
@@ -378,6 +469,21 @@ static bool osx_get_cursor_position(int *x, int *y)
    return true;
 }
 
+static int osx_get_num_display_formats(void)
+{
+   return 1;
+}
+
+static int osx_get_display_format_option(int i, int option)
+{
+   return 0;
+}
+
+static void osx_set_new_display_format(int i)
+{
+}
+
+
 /* Internal function to get a reference to this driver. */
 ALLEGRO_SYSTEM_INTERFACE *_al_system_osx_driver(void)
 {
@@ -398,6 +504,11 @@ ALLEGRO_SYSTEM_INTERFACE *_al_system_osx_driver(void)
       vt->get_cursor_position = osx_get_cursor_position;
       vt->get_path = osx_get_path;
       vt->inhibit_screensaver = osx_inhibit_screensaver;
+
+      /* FIXME: implement these properly */
+      vt->get_num_display_formats = osx_get_num_display_formats;
+      vt->get_display_format_option = osx_get_display_format_option;
+      vt->set_new_display_format = osx_set_new_display_format;
    };
       
    return vt;
