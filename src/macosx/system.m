@@ -247,6 +247,7 @@ static int _al_osx_get_num_display_modes(void)
       _al_fill_display_settings(&temp);
       mode->format = _al_deduce_color_format(&temp);
    }
+   CFRelease(modes);
    return _al_vector_size(&osx_display_modes);
 }
 
