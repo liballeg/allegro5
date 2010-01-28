@@ -82,13 +82,12 @@ def parse_header(lines, filename):
                 pass
             else:
                 match = re.match(r'# \d+ "(.*?)"', line)
-                name = match.group(1)
-                if name == "<stdin>" or name.startswith(options.build) or \
-                    name.startswith("include") or name.startswith("addons") or\
-                    name.startswith(options.source):
-                    ok = True
-                else:
-                    ok = False
+                if match:
+                    name = match.group(1)
+                    if name == "<stdin>" or name.startswith(options.build) or \
+                        name.startswith("include") or name.startswith("addons") or\
+                        name.startswith(options.source):
+                        ok = True
             continue
         if not ok: continue
 

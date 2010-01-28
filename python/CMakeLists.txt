@@ -3,7 +3,7 @@ include(FindPythonInterp)
 add_custom_command(
     OUTPUT python_protos
     DEPENDS ${ALLEGRO_INCLUDE_FILES}
-    COMMAND ${PYTHON_EXECUTABLE} ${CMAKE_SOURCE_DIR}/docs/scripts/checkdocs.py
+    COMMAND ${PYTHON_EXECUTABLE} ${CMAKE_SOURCE_DIR}/python/checkdocs.py
         -p python_protos
         -b ${CMAKE_BINARY_DIR}
         -s ${CMAKE_SOURCE_DIR}
