@@ -149,36 +149,37 @@ static ALLEGRO_PATH *get_executable_name(void)
    if (!fd == -1) {
       ioctl(fd, PIOCPSINFO, &psinfo);
       close(fd);
-
+   
    /* Use argv[0] directly if we can */
 #ifdef ALLEGRO_HAVE_PROCFS_ARGCV
-   if (psinfo.pr_argv && psinfo.pr_argc) {
-       path = _find_executable_file(psinfo.pr_argv[0]);
-       if (path)
-          return path;
-   }
-   else
+      if (psinfo.pr_argv && psinfo.pr_argc) {
+          path = _find_executable_file(psinfo.pr_argv[0]);
+          if (path)
+            return path;
+      }
+      else
 #endif
-   {
-      /* Emulate it */
-      /* We use the pr_psargs field to find argv[0]
-       * This is better than using the pr_fname field because we need
-       * the additional path information that may be present in argv[0]
-       */
- 
-      /* Skip other args */
-      char *s = strchr(psinfo.pr_psargs, ' ');
-      if (s)
-         s[0] = '\0';
-      path = _find_executable_file(psinfo.pr_psargs);
+      {
+         /* Emulate it */
+         /* We use the pr_psargs field to find argv[0]
+          * This is better than using the pr_fname field because we need
+          * the additional path information that may be present in argv[0]
+          */
+    
+         /* Skip other args */
+         char *s = strchr(psinfo.pr_psargs, ' ');
+         if (s)
+            s[0] = '\0';
+         path = _find_executable_file(psinfo.pr_psargs);
+         if (path)
+            return path;
+      }
+   
+      /* Try the pr_fname just for completeness' sake if argv[0] fails */
+      path = _find_executable_file(psinfo.pr_fname);
       if (path)
          return path;
    }
-
-   /* Try the pr_fname just for completeness' sake if argv[0] fails */
-   path = _find_executable_file(psinfo.pr_fname);
-   if (path)
-      return path;
 #endif
 
    /* Last resort: try using the output of the ps command to at least find */

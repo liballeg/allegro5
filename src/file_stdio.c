@@ -17,9 +17,15 @@
 
 /* enable large file support in gcc/glibc */
 #if defined ALLEGRO_HAVE_FTELLO && defined ALLEGRO_HAVE_FSEEKO
+#ifndef _LARGEFILE_SOURCE
    #define _LARGEFILE_SOURCE
+#endif
+#ifndef _LARGEFILE_SOURCE64
    #define _LARGEFILE_SOURCE64
+#endif
+#ifndef _FILE_OFFSET_BITS
    #define _FILE_OFFSET_BITS 64
+#endif
 #endif
 
 #include <stdio.h>
