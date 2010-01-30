@@ -1,14 +1,14 @@
 #!/usr/bin/env python
 from __future__ import division
-import sys
+import sys, os, glob
 from random import *
 from math import *
 from ctypes import *
-from allegro import *
 
-# chdir to the examples folder, assuming we are run within the allegro
-# distribution.
-os.chdir(os.path.join(os.path.dirname(__file__), "..", "examples"))
+# Get path to examples data.
+p = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "examples"))
+
+from allegro import *
 
 def abort_example(text):
     sys.stderr.write(text)
@@ -227,11 +227,11 @@ def main(argv):
     if not al_install_mouse():
         abort_example("Error installing mouse.\n")
 
-    example.font = al_load_font("data/fixed_font.tga", 0, 0)
+    example.font = al_load_font(p + "/data/fixed_font.tga", 0, 0)
     if not example.font:
         abort_example("Error loading data/fixed_font.tga\n")
 
-    example.mysha = al_load_bitmap("data/mysha.pcx")
+    example.mysha = al_load_bitmap(p + "/data/mysha.pcx")
     if not example.mysha:
         abort_example("Error loading data/mysha.pcx\n")
 
@@ -317,10 +317,10 @@ def main(argv):
                 dx = event.mouse.x - example.last_x
                 dy = event.mouse.y - example.last_y
                 if dy > 4:
-                    add_sprites(dy / 4)
+                    add_sprites(int(dy / 4))
 
                 if dy < -4:
-                    remove_sprites(-dy / 4)
+                    remove_sprites(-int(dy / 4))
 
                 if dx > 4:
                     change_size(example.bitmap_size + dx - 4)
@@ -334,4 +334,4 @@ def main(argv):
     al_destroy_bitmap(example.bitmap)
     al_uninstall_system()
 
-main(sys.argv)
+al_main(main, sys.argv)

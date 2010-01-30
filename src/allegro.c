@@ -25,7 +25,8 @@
 #include "allegro5/internal/aintern_dtor.h"
 #include "allegro5/internal/aintern_memory.h"
 #include "allegro5/internal/aintern_system.h"
-
+#include "allegro5/platform/alplatf.h"
+#include ALLEGRO_INTERNAL_HEADER
 
 
 /* debugging stuff */
@@ -450,6 +451,19 @@ void al_register_trace_handler(int (*handler)(const char *msg))
 uint32_t al_get_allegro_version(void)
 {
    return ALLEGRO_VERSION_INT;
+}
+
+
+
+/* Function: al_run_main
+ */
+int al_run_main(int argc, char **argv, int (*user_main)(int, char **))
+{
+#ifdef ALLEGRO_MACOSX
+    return _al_osx_run_main(argc, argv, user_main);
+#else
+    return user_main(argc, argv);
+#endif
 }
 
 

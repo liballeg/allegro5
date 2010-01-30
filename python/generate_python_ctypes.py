@@ -341,6 +341,7 @@ def _dll(func, ret, params):
         except AttributeError: pass
     sys.stderr.write("Cannot find function " + func + "\n")
     return lambda *args: None
+
 """ % locals())
 
     for name, x in sorted(al.types.items()):
@@ -376,6 +377,16 @@ def _dll(func, ret, params):
 
     for name, val in sorted(al.constants.items()):
         f.write(name + " = " + str(val) + "\n")
+
+
+    f.write("""
+def al_main(real_main, *args):
+    def python_callback(argc, argv):
+        real_main(*args)
+        return 0
+    cb = CFUNCTYPE(c_int, c_int, c_void_p)(python_callback)
+    al_run_main(0, 0, cb);
+""")
 
     f.close()
 

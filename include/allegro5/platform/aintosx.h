@@ -145,6 +145,9 @@ AL_FUNC(ALLEGRO_MOUSE_DRIVER*, _al_osx_get_mouse_driver, (void));
 AL_FUNC(ALLEGRO_JOYSTICK_DRIVER*, _al_osx_get_joystick_driver, (void));
 #endif
 
+AL_FUNC(int, _al_osx_run_main, (int argc, char **argv,
+   int (*real_main)(int, char **)));
+
 #endif
 
 /* Local variables:       */

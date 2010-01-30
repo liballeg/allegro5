@@ -75,7 +75,7 @@
     (ALLEGRO_WIP_VERSION << 8) | ALLEGRO_RELEASE_NUMBER)
 
 AL_FUNC(uint32_t, al_get_allegro_version, (void));
-
+AL_FUNC(int, al_run_main, (int, char **, int (*)(int, char **)));
 
 /*******************************************/
 /************ Some global stuff ************/

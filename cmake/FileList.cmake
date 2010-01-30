@@ -127,6 +127,7 @@ set(ALLEGRO_SRC_MACOSX_FILES
     src/macosx/qzmouse.m
     src/macosx/system.m
     src/macosx/osxgl.m
+    src/macosx/osx_app_delegate.m
     src/unix/utime.c
     src/unix/uxthread.c
     )
