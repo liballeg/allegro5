@@ -352,6 +352,7 @@ def _dll(func, ret, params):
 
     for kind in Structure, Union:
         for name, x in sorted(al.types.items()):
+            if not x: continue
             base = x.__bases__[0]
             if base != kind: continue
             f.write("class " + name + "(" + base.__name__ + "): pass\n")

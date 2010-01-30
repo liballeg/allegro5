@@ -81,6 +81,7 @@ def parse_header(lines, filename):
             elif line.startswith("#undef"):
                 pass
             else:
+                ok = False
                 match = re.match(r'# \d+ "(.*?)"', line)
                 if match:
                     name = match.group(1)
