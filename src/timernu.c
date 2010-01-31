@@ -42,7 +42,7 @@ struct ALLEGRO_TIMER
    ALLEGRO_EVENT_SOURCE es;
    bool started;
    double speed_secs;
-   long count;
+   int64_t count;
    double counter;		/* counts down to zero=blastoff */
 };
 
@@ -304,7 +304,7 @@ void al_set_timer_speed(ALLEGRO_TIMER *timer, double new_speed_secs)
 
 /* Function: al_get_timer_count
  */
-long al_get_timer_count(const ALLEGRO_TIMER *timer)
+int64_t al_get_timer_count(const ALLEGRO_TIMER *timer)
 {
    ASSERT(timer);
 
@@ -315,7 +315,7 @@ long al_get_timer_count(const ALLEGRO_TIMER *timer)
 
 /* Function: al_set_timer_count
  */
-void al_set_timer_count(ALLEGRO_TIMER *timer, long new_count)
+void al_set_timer_count(ALLEGRO_TIMER *timer, int64_t new_count)
 {
    ASSERT(timer);
 

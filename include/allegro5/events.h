@@ -167,7 +167,7 @@ typedef struct ALLEGRO_MOUSE_EVENT
 typedef struct ALLEGRO_TIMER_EVENT
 {
    _AL_EVENT_HEADER(struct ALLEGRO_TIMER)
-   long count;
+   int64_t count;
    double error;
 } ALLEGRO_TIMER_EVENT;
 
