@@ -47,6 +47,8 @@ class Example:
    half_white = None
    dark = None
    red = None
+   
+   direct_speed_measure = 1.0
 
    ftpos = 0
    frame_times = [0.0] * FPS
@@ -118,10 +120,8 @@ def change_size(size):
    al_clear_to_color(al_map_rgba_f(0, 0, 0, 0))
    bw = al_get_bitmap_width(example.mysha)
    bh = al_get_bitmap_height(example.mysha)
-   for y in range(0, size, bh):
-       for x in range(0, size, bw):
-            al_draw_bitmap(example.mysha, x, y, 0)
-
+   al_draw_scaled_bitmap(example.mysha, 0, 0, bw, bh, 0, 0,
+      size, size, 0)
    al_set_target_bitmap(al_get_backbuffer())
 
 def sprite_update(s):
@@ -191,8 +191,10 @@ def redraw():
     f1, f2 = get_fps()
     al_draw_textf(example.font, w, 0, ALLEGRO_ALIGN_RIGHT, "%s",
         "FPS: %4d +- %-4d" % (f1, f2))
+    al_draw_textf(example.font, w, fh, ALLEGRO_ALIGN_RIGHT, "%s",
+        "%4d / sec" % int(1.0 / example.direct_speed_measure))
 
-def main(argv):
+def main():
     w, h = 640, 480
     done = False
     need_redraw = True
@@ -231,15 +233,16 @@ def main(argv):
     if not example.font:
         abort_example("Error loading data/fixed_font.tga\n")
 
-    example.mysha = al_load_bitmap(p + "/data/mysha.pcx")
+    example.mysha = al_load_bitmap(p + "/data/mysha256x256.png")
     if not example.mysha:
-        abort_example("Error loading data/mysha.pcx\n")
+        abort_example("Error loading data/mysha256x256.png\n")
 
     example.white = al_map_rgb_f(1, 1, 1)
     example.half_white = al_map_rgba_f(1, 1, 1, 0.5)
     example.dark = al_map_rgb(15, 15, 15)
     example.red = al_map_rgb_f(1, 0.2, 0.1)
     change_size(256)
+    add_sprite()
     add_sprite()
 
     timer = al_install_timer(1.0 / FPS)
@@ -256,9 +259,12 @@ def main(argv):
         event = ALLEGRO_EVENT()
 
         if need_redraw and al_event_queue_is_empty(queue):
+            t = -al_current_time()
             add_time()
             al_clear_to_color(al_map_rgb_f(0, 0, 0))
             redraw()
+            t += al_current_time()
+            example.direct_speed_measure  = t
             al_flip_display()
             need_redraw = False
 
@@ -334,4 +340,4 @@ def main(argv):
     al_destroy_bitmap(example.bitmap)
     al_uninstall_system()
 
-al_main(main, sys.argv)
+al_main(main)
