@@ -155,6 +155,7 @@ div.searchbox {
     margin-left:	    5px;
     margin-right:	    5px;
     margin-bottom:	    0.8em;
+    font-size:          small;
 }
 
 /* Body of page */
@@ -162,4 +163,80 @@ table td.content {
     margin:                 10em;
     padding-left:           1em;
     max-width:              50em;
+}
+
+/* Below is the autosuggest.css from autosuggest.js version 2.4. */
+
+.autosuggest-body
+{
+	position: absolute;
+	border: 1px solid black;
+	z-index: 100;
+    font-size: small;
+}
+
+.autosuggest-body iframe
+{
+	display: block;
+	position: absolute;
+	z-index: 999;
+	filter: alpha(opacity=0);
+}
+
+.autosuggest-body table
+{
+	width: 100%;
+	background-color: #FFFFF0;
+}
+
+.autosuggest-body tr
+{
+	cursor: hand;
+	cursor: pointer;
+
+	color: black;
+
+	text-align: left;
+}
+
+.autosuggest-body tr.up
+{
+	height: 10px;
+	background: #656291 url("arrow-up.gif") center center no-repeat;
+}
+
+.autosuggest-body tr.down
+{
+	height: 10px;
+	background: #656291 url("arrow-down.gif") center center no-repeat;
+}
+
+.autosuggest-body tr.up-disabled
+{
+	height: 10px;
+	background: #656291 url("arrow-up-d.gif") center center no-repeat;
+	cursor: default;
+}
+
+.autosuggest-body tr.down-disabled
+{
+	height: 10px;
+	background: #656291 url("arrow-down-d.gif") center center no-repeat;
+	cursor: default;
+}
+
+.autosuggest-body tr.selected
+{
+	background-color: #D6D7E7;
+	color: red;
+}
+
+.autosuggest-body td
+{
+	white-space: nowrap;
+}
+
+.autosuggest-body span.match
+{
+	font-weight: bold;
 }

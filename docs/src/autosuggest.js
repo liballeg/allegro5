@@ -1,10 +1,12 @@
-/* Auto-suggest control
+/* Auto-suggest control, version 2.4, October 10th 2009.
  *
- * original code:
- * (c) 2004-2005 zichun
+ * (c) 2007-2009 Dmitriy Khudorozhkov (dmitrykhudorozhkov@yahoo.com)
  *
- * fixes, modifications and support:
- * (c) 2007-2009 Dmitriy Khudorozhkov (dmitrykhudorozhkov@yahoo.com) and contributors.
+ * Latest version download and documentation:
+ * http://www.codeproject.com/KB/scripting/AutoSuggestControl.aspx
+ *
+ * Based on "Auto-complete Control" by zichun:
+ * http://www.codeproject.com/KB/scripting/jsactb.aspx
  *
  * This software is provided "as-is", without any express or implied warranty.
  * In no event will the author be held liable for any damages arising from the
@@ -25,63 +27,64 @@
  * 3. This notice may not be removed or altered from any source distribution.
  */ 
 
-var suggesturl = ""; // Global link to the server-side script, that gives you the suggestion list.
-                     // Used for controls that do not define their own server script urls.
+var autosuggest_url = ""; // Global link to the server-side script, that gives you the suggestion list.
+			  // Used for controls that do not define their own server script urls.
 
-function actb(id, ca, url)
+function autosuggest(id, array, url, onSelect)
 {
+	var field  = document.getElementById(id);
+	var exists = field.autosuggest;
+
+	if(exists) return exists;
+
 	// "Public" variables:
 
-	this.actb_suggesturl  = url || (ca ? "" : suggesturl);
-										// link to the server-side script, that gives you the suggestion list
+	this.time_out      = 0;		// autocomplete timeout, in milliseconds (0: autocomplete never times out)
+	this.response_time = 250;	// time, in milliseconds, between the last char typed and the actual query
+	this.entry_limit   = 10;	// number of entries autocomplete will show at a time
 
-	this.actb_timeOut     = -1;			// autocomplete timeout in ms (-1: autocomplete never time out)
-	this.actb_response    = 250;		// time, in milliseconds, between the last char typed and the actual query
-	this.actb_lim         = 10;			// number of elements autocomplete will show
+	this.limit_start     = false;	// should the auto complete be limited to the beginning of keyword?
+	this.match_first     = true;	// if previous is false, should the exact matches be displayed first?
+	this.restrict_typing = true;	// restrict to existing members of array
+	this.full_refresh    = false;	// should the script re-send the AJAX request after each typed character?
 
-	this.actb_firstText   = false;		// should the auto complete be limited to the beginning of keyword?
-	this.actb_firstMatch  = true;		// if previous is false, should the exact matches be displayed first?
-	this.actb_restrict    = false;		// restrict to existing members of array
-	this.actb_fullRefresh = false;		// should the script re-send the AJAX request after each entered character?
+	this.use_iframe  = true;	// should the control use an IFrame element to fix suggestion list positioning (MS IE only)?
+	this.use_scroll  = true;	// should the control use a scroll bar (true) or a up/down arrow-buttons (false)?
+	this.use_mouse   = true;	// enable mouse support
+	this.no_default  = false;	// should the control omit selecting the 1st item in a suggestion list?
+	this.start_check = 0;		// show widget only after this number of characters is typed in (effective if >1)
 
-	this.actb_useIFrame   = true;		// should the control use an IFrame element to fix suggestion list positioning (MS IE only)?
-	this.actb_useScroll   = true;		// should the control use a scroll bar (true) or a up/down buttons (false)?
-	this.actb_mouse       = true;		// enable mouse support
-	this.actb_noDefault   = false;		// should the control omit selecting the 1st item in a suggestion list?
-	this.actb_startcheck  = 0;			// show widget only after this number of characters is typed in.
+	this.text_delimiter = [";", ","];	// delimiter for multiple autocomplete entries. Set it to empty array ( [] ) for single autocomplete.
+	this.ajax_delimiter = "|"; 			// character that delimits entries in the string returned by AJAX call
+	this.item_delimiter = ","; 			// character that delimits key and value for the suggestion item in the string returned by AJAX call
 
-	this.actb_delimiter   = [";", ","];	// delimiter for multiple autocomplete. Set it to empty array ( [] ) for single autocomplete
-	this.ajax_delimiter   = "|"; 		// character that delimits entries in the string returned by AJAX call
-	this.item_delimiter   = ","; 		// character that delimits key and value for the suggestion item in the string returned by AJAX call
-
-	this.actb_selectedIndex = -1;		// index (zero-based) of the element last chosen
-
-	// Styles:
-
-	this.actb_arColor    = "#656291";	// background color for the "arrows" (used if actb_useScroll is false)
-	this.actb_bgColor    = "";	// background color for the suggestion list
-	this.actb_textColor  = "";		// text color for the non-selected suggestions
-	this.actb_htextColor = "#F00";		// text color for the selected suggestion
-	this.actb_hColor     = "#D6D7E7";	// background color for the selected suggestion
-	this.actb_arrowSize  = "7px";		// height of "arrows" (used if actb_useScroll is false)
-	this.actb_fSize      = "";		// font size of suggestion items
-	this.actb_fFamily    = "";	// font(s) of suggestion items
+	this.selectedIndex = -1;	// index (zero-based) of the entry last selected
 
 	// "Private" variables:
 
-	this.actb_delimwords = [];
-	this.actb_cdelimword = 0;
-	this.actb_delimchar  = [];
-	this.actb_display    = false;
+	this.suggest_url = url || (array ? "" : autosuggest_url);	// URL the server-side script that gives you the suggestion list
+	this.msie = (document.all && !window.opera);
 
-	this.actb_pos    = 0;
-	this.actb_total  = 0;
-	this.actb_rangeu = 0;
-	this.actb_ranged = 0;
-	this.actb_bool   = [];
-	this.actb_pre    = 0;
-	this.actb_toid   = 0;
-	this.actb_tomake = false;
+	this.displayed = false;
+
+	this.delim_words  = [];
+	this.current_word = 0;
+	this.delim_char   = [];
+
+	this.current    = 0;
+	this.total      = 0;
+	this.range_up   = 0;
+	this.range_down = 0;
+
+	this.previous = 0;
+	this.timer    = 0;
+	this.rebuild  = false;
+	this.evsetup  = false;
+
+	this.bool = [];
+	this.rows = [];
+
+	this.onSelect = onSelect || null;
 
 	this.cur_x = 0;
 	this.cur_y = 0;
@@ -91,171 +94,171 @@ function actb(id, ca, url)
 	this.mouse_x = 0;
 	this.mouse_y = 0;
 
-	this.actb_mouse_on_list = 0;
-	this.actb_caretmove     = false;
+	this.mouse_on_list = 0;
+	this.caret_moved = false;
 
-	this.actb_base_id  = id;
-	this.actb_curr     = document.getElementById(id);
-	this.actb_prevterm = this.actb_curr.value;
+	this.field_id = id;
+	this.field    = field;
+	this.lastterm = field.value;
 
-	this.actb_keywords = [];
-	this.actb_values   = [];
+	this.keywords = [], this.keywords_init = [];
+	this.values   = [], this.values_init   = [];
 
-	this.actb_keywords_init = [];
-	this.actb_values_init   = [];
-
-	this.image = [new Image(), new Image(), new Image(), new Image()];
-
-	// Preinitialization & image preload:
-
-	ca = ca || [];
-	for(var i = 0, cl = ca.length; i < cl; i++)
-	{
-		if(String(typeof(ca[i])).toLowerCase() == "string")
-		{
-			this.actb_keywords[i] = this.actb_keywords_init[i] = ca[i];
-			this.actb_values[i]   = this.actb_values_init[i]   = "";
-		}
-		else
-		{
-			this.actb_keywords[i] = this.actb_keywords_init[i] = ca[i][0];
-			this.actb_values[i]   = this.actb_values_init[i]   = ca[i][1];
-		}
-	}
-
-	this.image[0].src = "arrow-down.gif"; this.image[1].src = "arrow-down-d.gif";
-	this.image[2].src = "arrow-up.gif";   this.image[3].src = "arrow-up-d.gif";
-
-	return this.construct();
+	return this.construct(array || []);
 };
 
-actb.prototype = {
+autosuggest.prototype = {
 
-	callLater: function(func, obj) { return function() { func.call(obj) }; },
-
-	construct: function()
+	construct: function(array)
 	{
-		this.actb_curr.actb = this;
+		function callLater(func, obj, param1, param2) { return function() { func.call(obj, param1 || null, param2 || null) }; }
 
-		// Pre-create event functions:
+		this.field.autosuggest = this;
 
-		this.funcClick = this.actb_mouseclick;
-		this.funcCheck = this.actb_checkkey;
+		// Initialize the control from JS array, if any:
 
-		this.funcHighlight = this.actb_table_highlight;
+		this.bindArray(array);
 
-		this.funcClear = this.callLater(this.actb_clear,    this);
-		this.funcPress = this.callLater(this.actb_keypress, this);
+		// Create event handlers:
 
-		this.funcUp   = this.callLater(this.actb_goup,   this);
-		this.funcDown = this.callLater(this.actb_godown, this);
+		this.funcClick = this.mouseClick;
+		this.funcCheck = this.checkKey;
+		this.funcPress = this.keyPress;
 
-		this.funcFocus   = this.callLater(this.actb_table_focus,   this);
-		this.funcUnfocus = this.callLater(this.actb_table_unfocus, this);
+		this.funcHighlight = this.highlightTable;
 
-		this.addEvent(this.actb_curr, "focus", this.callLater(this.actb_setup, this));
+		this.funcClear = callLater(this.clearEvents, this);
+
+		this.funcUp   = callLater(this.scroll, this, true,  1);
+		this.funcDown = callLater(this.scroll, this, false, 1);
+
+		this.funcFocus   = callLater(this.focusTable,   this);
+		this.funcUnfocus = callLater(this.unfocusTable, this);
+
+		this.addEvent(this.field, "focus", callLater(this.setupEvents, this));
+		this.addEvent(window, "resize", callLater(this.reposition, this));
 
 		return this;
 	},
 
-	actb_setup: function()
+	bindArray: function(array)
 	{
-		this.addEvent(document,       "keydown",  this.funcCheck);
-		this.addEvent(this.actb_curr, "blur",     this.funcClear);
-		this.addEvent(document,       "keypress", this.funcPress);
+		if(!array || !array.length) return;
+
+		this.suggest_url = "";
+
+		this.keywords = [], this.keywords_init = [];
+		this.values   = [], this.values_init   = [];
+
+		for(var i = 0, cl = array.length; i < cl; i++)
+		{
+			var item = array[i];
+
+			if(item.constructor == Array)
+			{
+				this.keywords[i] = this.keywords_init[i] = item[0];
+				this.values[i]   = this.values_init[i]   = item[1];
+			}
+			else
+			{
+				this.keywords[i] = this.keywords_init[i] = item;
+				this.values[i]   = this.values_init[i]   = "";
+			}
+		}
 	},
 
-	actb_clear: function()
+	bindURL: function(url)
 	{
+		if(!url)
+			url = autosuggest_url;
+
+		this.suggest_url = url;
+	},
+
+	setupEvents: function()
+	{
+		if(!this.evsetup)
+		{
+			this.evsetup = true;
+
+			this.addEvent(document,   "keydown",  this.funcCheck);
+			this.addEvent(this.field, "blur",     this.funcClear);
+			this.addEvent(document,   "keypress", this.funcPress);
+		}
+	},
+
+	clearEvents: function()
+	{
+		// Removes an event handler:
+		function removeEvent(obj, event_name, func_ref)
+		{
+			if(obj.removeEventListener && !window.opera)
+			{
+				obj.removeEventListener(event_name, func_ref, true);
+			}
+			else if(obj.detachEvent)
+			{
+				obj.detachEvent("on" + event_name, func_ref);
+			}
+			else
+			{
+				obj["on" + event_name] = null;
+			}
+		}
+
 		var event = window.event;
 
 		if(event && this.cur_h)
 		{
 			var elem = event.srcElement || event.target;
 
-			var x = this.mouse_x + (document.body.scrollLeft || 0);
-			var y = this.mouse_y + (document.body.scrollTop || 0);
+			var x = this.mouse_x + (document.documentElement.scrollLeft || document.body.scrollLeft || 0);
+			var y = this.mouse_y + (document.documentElement.scrollTop  || document.body.scrollTop  || 0);
 
-			if((elem.id == this.actb_base_id) && (x > this.cur_x && x < (this.cur_x + this.cur_w)) && (y > this.cur_y && y < (this.cur_y + this.cur_h)))
+			if((elem.id == this.field_id) && (x > this.cur_x && x < (this.cur_x + this.cur_w)) && (y > this.cur_y && y < (this.cur_y + this.cur_h)))
 			{
-				this.actb_curr.focus();
+				this.field.focus();
 				return;
 			}
 		}
 
-		this.removeEvent(document,       "keydown",  this.funcCheck);
-		this.removeEvent(this.actb_curr, "blur",     this.funcClear);
-		this.removeEvent(document,       "keypress", this.funcPress);
+		removeEvent(document,   "keydown",  this.funcCheck);
+		removeEvent(this.field, "blur",     this.funcClear);
+		removeEvent(document,   "keypress", this.funcPress);
 
-		this.actb_removedisp();
+		this.hide();
+		this.evsetup = false;
 	},
 
-	actb_parse: function(n)
+	parse: function(n, plen, re)
 	{
-		if(!n || !n.length) return n;
-
-	    var t, plen;
-		if(this.actb_delimiter.length > 0)
-		{
-			   t = this.trim(this.addslashes(this.actb_delimwords[this.actb_cdelimword]));
-			plen = this.trim(this.actb_delimwords[this.actb_cdelimword]).length;
-		}
-		else
-		{
-			   t = this.addslashes(this.actb_curr.value);
-			plen = this.actb_curr.value.length;
-		}
-
+		if(!n || !n.length)	return "";
 		if(!plen) return n;
 
-		var tobuild = [];
-		var c = 0;
-
-		var re = this.actb_firstText ? new RegExp("^" + t, "i") : new RegExp(t, "i");
-		var p = n.search(re);
+		var tobuild = [], c = 0, p = n.search(re);
 
 		tobuild[c++] = n.substr(0, p);
-
-		tobuild[c++] = "<b><font face=\"" + this.actb_fFamily + "\">";
-
+		tobuild[c++] = "<span class=\"match\">";
 		tobuild[c++] = n.substring(p, plen + p);
-
-		tobuild[c++] = "</font></b>";
-
+		tobuild[c++] = "</span>";
 		tobuild[c++] = n.substring(plen + p, n.length);
 
 		return tobuild.join("");
 	},
 
-	actb_generate: function()
+	build: function()
 	{
-		// Offset position from top of the screen
-		function curTop(obj)
+		if(this.total == 0)
 		{
-			var toreturn = 0;
-			while(obj)
-			{
-				toreturn += obj.offsetTop;
-				obj = obj.offsetParent;
-			}
-
-			return toreturn;
+			this.displayed = false;
+			return;
 		}
 
-		// Offset position from left of the screen
-		function curLeft(obj)
-		{
-			var toreturn = 0;
-			while(obj)
-			{
-				toreturn += obj.offsetLeft;
-				obj = obj.offsetParent;
-			}
-
-			return toreturn;
-		}
+		this.rows = [];
+		this.current = this.no_default ? -1 : 0;
 
 		var that = this;
+
 		this.addEvent(document, "mousemove", function(event)
 		{
 			event = event || window.event;
@@ -264,525 +267,520 @@ actb.prototype = {
 			that.mouse_y = event.y;
 		});
 
-		var body = document.getElementById("tat_table_" + this.actb_base_id);
+		var body = document.getElementById("suggest_table_" + this.field_id);
 		if(body)
 		{
-			this.actb_display = false;
+			this.displayed = false;
 			document.body.removeChild(body);
 
-			var helper = document.getElementById("tat_helper_" + this.actb_base_id);
+			var helper = document.getElementById("suggest_helper_" + this.field_id);
 			if(helper)
 				document.body.removeChild(helper);
-		}
-
-		if(this.actb_total == 0)
-		{
-			this.actb_display = false;
-			return;
-		}
-
-		var msie = (document.all && !window.opera) ? true : false;
+		}		
 
 		var bb = document.createElement("div");
-		bb.id  = "tat_table_" + this.actb_base_id;
-		bb.style.position = "absolute";
-		bb.style.border = "#000000 solid 1px";
-		bb.style.zIndex = 100;
+		bb.id  = "suggest_table_" + this.field_id;
+		bb.className = "autosuggest-body";
 
-		this.cur_y = curTop(this.actb_curr) + this.actb_curr.offsetHeight;
+		this.cur_y = this.curPos(this.field, "Top") + this.field.offsetHeight;
 		bb.style.top = this.cur_y + "px";
 
-		this.cur_x = bb.style.left = curLeft(this.actb_curr);
+		this.cur_x = this.curPos(this.field, "Left");
 		bb.style.left = this.cur_x + "px";
 
-		this.cur_w = this.actb_curr.offsetWidth - (msie ? 2 : 6) + 25;
+		this.cur_w = this.field.offsetWidth - (this.msie ? 2 : 6);
 		bb.style.width = this.cur_w + "px";
 
 		this.cur_h = 1;
-		bb.style.height = "1px"
+		bb.style.height = "1px";
 
 		var cc = null;
-		if(msie && this.actb_useIFrame)
+		if(this.msie && this.use_iframe)
 		{
 			var cc = document.createElement("iframe");
-			cc.id  = "tat_helper_" + this.actb_base_id;
+			cc.id = "suggest_helper_" + this.field_id;
 
 			cc.src = "javascript:\"<html></html>\";";
 			cc.scrolling = "no";
 			cc.frameBorder = "no";
-
-			cc.style.display = "block";
-			cc.style.position = "absolute";
-
-			cc.style.zIndex = 99;
-			cc.style.filter = "progid:DXImageTransform.Microsoft.Alpha(opacity=0)";
 		}
 
-		var actb_str = [];
-		var cn = 0;
-
-		actb_str[cn++] = "<table cellspacing=\"1px\" cellpadding=\"2px\" style=\"width:100%;background-color:" + this.actb_bgColor + "\" id=\"tat_table2_" + this.actb_base_id + "\">";
-
-		if(this.actb_useScroll && (this.actb_total > this.actb_lim))
-		{
-			this.cur_h = this.actb_lim * parseInt(this.actb_fSize);
-			bb.style.height = this.cur_h + "px";
-
-			bb.style.overflow  = "auto";
-			bb.style.overflowX = "hidden";
-		}
+		var that = this;
+		var showFull = (this.total > this.entry_limit);
 
 		if(cc)
 		{
 			document.body.appendChild(cc);
 
-			cc.style.top  = this.cur_y + "px";
+			cc.style.top = this.cur_y + "px";
 			cc.style.left = this.cur_x + "px";
 
-			cc.style.width  = bb.offsetWidth + 2;
+			cc.style.width = bb.offsetWidth + 2;
 		}
+
 		document.body.appendChild(bb);
 
-		var counter = 0, first = true, j = 1;
+		var first = true, dispCount = showFull ? this.entry_limit : this.total;
+		var str = [], cn = 0;
 
-		for(var i = 0; i < this.actb_keywords.length; i++)
-		{
-			if(!this.actb_useScroll && ((this.actb_keywords.length > this.actb_lim) && (this.actb_total > this.actb_lim) && !i))
-			{
-				actb_str[cn++] = "<tr style=\"background-color:" + this.actb_arColor + "\">";
-				actb_str[cn++] = "<td style=\"color:" + this.actb_textColor + ";font-family:arial narrow;font-size:" + this.actb_arrowSize + ";cursor:default" + "\" align=\"center\"></td></tr>";
-			}
+		// cellspacing and cellpadding were not moved to css - IE doesn't understand border-spacing.
+		str[cn++] = "<table cellspacing=\"1px\" cellpadding=\"2px\" id=\"suggest_table2_";
+		str[cn++] = this.field_id;
+		str[cn++] = "\">";
 
-			if(this.actb_bool[i] && (this.actb_useScroll || (counter < this.actb_lim)))
-			{
-				counter++;
+		bb.innerHTML = str.join("");
+		var table = bb.firstChild;
 
-				actb_str[cn++] = "<tr style=\"background-color:";
-
-				var tcolor = this.actb_textColor;
-
-				if((first && !this.actb_noDefault && !this.actb_tomake) || (this.actb_pre == i))
-				{
-					actb_str[cn++] = this.actb_hColor;
-					tcolor = this.actb_htextColor;
-					first = false;
-				}
-				else
-				{
-					actb_str[cn++] = this.actb_bgColor;
-				}
-				actb_str[cn++] = "\" id=\"tat_tr_" + this.actb_base_id + String(j) + "\">";
-
-				actb_str[cn++] = "<td style=\"color:" + tcolor + ";font-family:" + this.actb_fFamily + ";font-size:" + this.actb_fSize + ";white-space:nowrap" + "\">" + this.actb_parse(this.actb_keywords[i]) + "</td></tr>";
-
-				j++;
-			}
-		}
-
-		if(!this.actb_useScroll && (this.actb_total > this.actb_lim))
-		{
-			actb_str[cn++] = "<tr style=\"background-color:" + this.actb_arColor + "\">";
-			actb_str[cn++] = "<td style=\"color:" + this.actb_textColor + ";font-family:arial narrow;font-size:" + this.actb_arrowSize + ";cursor:default" + "\" align=\"center\"></td></tr>";
-		}
-
-		bb.innerHTML = actb_str.join("");
-
-		var table = bb.firstChild, row_num = table.rows.length, counter = 0, j = 1, real_height = 0, real_width = 0;
-		if(this.actb_mouse)
+		if(this.use_mouse)
 		{
 			table.onmouseout  = this.funcUnfocus;
 			table.onmouseover = this.funcFocus;
 		}
 
-		for(i = 0; i < row_num; i++)
+		var real_height = 0, real_width = 0;
+
+		function createArrowRow(dir)
 		{
-			var row  = table.rows[i];
-			var cell = row.cells[0];
+			var row = table.insertRow(-1);
+			row.className = dir ? "up" : "down";
 
-			if(!this.actb_useScroll && ((this.actb_keywords.length > this.actb_lim) && (this.actb_total > this.actb_lim) && !i))
+			var cell = row.insertCell(0);
+			real_height += cell.offsetHeight + 1;
+
+			return cell;
+		}
+
+		if(!this.use_scroll && showFull)
+			createArrowRow(true).parentNode.className = "up-disabled";
+
+		var kl = this.keywords.length, counter = 0, j = 0;
+
+		// For "parse" call:
+		var t, plen;
+		if(this.text_delimiter.length > 0)
+		{
+			var word = this.delim_words[this.current_word];
+
+			   t = this.trim(this.addSlashes(word));
+			plen = this.trim(word).length;
+		}
+		else
+		{
+			var word = this.field.value;
+
+			   t = this.addSlashes(word);
+			plen = word.length;
+		}
+
+		var re = new RegExp((this.limit_start ? "^" : "") + t, "i");
+
+		function addSuggestion(index, _first)
+		{
+			var row = that.rows[j] = table.insertRow(-1);
+			row.className = (_first || (that.previous == index)) ? "selected" : "";
+
+			var cell = row.insertCell(0);
+			cell.innerHTML = that.parse(that.keywords[index], plen, re);
+			cell.setAttribute("pos", j++);
+			cell.autosuggest = that; 
+
+			if(that.use_mouse)
 			{
-				this.replaceHTML(cell, this.image[3]); 
-
-				// Up arrow:
-				real_height += row.offsetHeight + 1;
+				that.addEvent(cell, "click", that.funcClick);
+				cell.onmouseover = that.funcHighlight;
 			}
-			else if((i == (row_num - 1)) && (!this.actb_useScroll && (this.actb_total > this.actb_lim)))
+
+			return [row.offsetWidth, row.offsetHeight];
+		}
+
+		for(var i = 0; i < kl; i++)
+		{
+			if(this.bool[i])
 			{
-				this.replaceHTML(cell, this.image[0]);
+				var dim = addSuggestion(i, (first && !this.no_default && !this.rebuild));
+				first = false;
 
-				// Down arrow:
-				this.addEvent(cell, "click", this.funcDown);
+				if(counter <= this.entry_limit)
+					real_height += dim[1] + 1;
 
-				real_height += row.offsetHeight + 1;
-			}
-			else
-			{
-				counter++;
+				if(real_width < dim[0])
+					real_width = dim[0];
 
-				// Content cells:
-				cell.actb = this; 
-				cell.setAttribute("pos", j);
-
-				if(counter <= this.actb_lim)
-					real_height += row.offsetHeight + 1;
-
-				if(real_width < row.offsetWidth)
-					real_width = row.offsetWidth;
-
-				if(this.actb_mouse)
+				if(++counter == this.entry_limit)
 				{
-					cell.style.cursor = msie ? "hand" : "pointer";
-					this.addEvent(cell, "click", this.funcClick);
-					cell.onmouseover = this.funcHighlight;
+					++i;
+					break;
 				}
-
-				j++;
 			}
 		}
 
-		real_height += (msie ? 3 : 1);
-		this.cur_h = real_height;
-		bb.style.height = real_height + "px";
+		var last = i;
 
-		this.cur_w = (real_width > bb.offsetWidth ? real_width : bb.offsetWidth) + 2;
+		if(showFull)
+		{
+			if(!this.use_scroll)
+			{
+				var cell = createArrowRow(false);
+
+				if(this.use_mouse)
+					this.addEvent(cell, "click", this.funcDown);
+			}
+			else
+			{
+				bb.style.height    = real_height + "px";
+				bb.style.overflow  = "auto";
+				bb.style.overflowX = "hidden";
+			}
+		}
+
+		this.cur_h = real_height + 1;
+		bb.style.height = this.cur_h + "px";
+
+		this.cur_w = ((real_width > bb.offsetWidth) ? real_width : bb.offsetWidth) + (this.msie ? -2 : 2) + 100;
 		bb.style.width  = this.cur_w + "px";
 
 		if(cc)
 		{
-			this.cur_h = real_height;
-
-			cc.style.height = bb.style.height = this.cur_h + "px";
+			cc.style.height = this.cur_h + "px";
 			cc.style.width  = this.cur_w + "px";
 		}
 
-		this.actb_pos    = this.actb_noDefault ? 0 : 1;
-		this.actb_rangeu = 1;
-		this.actb_ranged = j - 1;
-		this.actb_display = true;
+		this.range_up   = 0;
+		this.range_down = j - 1;
+		this.displayed  = true;
+
+		if(this.use_scroll)
+		{
+			setTimeout(function()
+			{
+				counter = 0;
+
+				for(var i = last; i < kl; i++)
+				{
+					if(!that.displayed) return;
+
+					if(that.bool[i])
+					{
+						addSuggestion(i);
+
+						if(++counter == that.entry_limit)
+						{
+							++i;
+							break;
+						}
+					}
+				}
+
+				last = i;
+
+				if(j < that.total) setTimeout(arguments.callee, 25);
+			},
+			25);
+		}
 	},
 
-	actb_remake: function()
+	remake: function()
 	{
-		var msie = (document.all && !window.opera) ? true : false;
-		var a = document.getElementById("tat_table2_" + this.actb_base_id);
+		this.rows = [];
 
-		if(this.actb_mouse)
+		var a = document.getElementById("suggest_table2_" + this.field_id);
+		var k = 0, first = true;
+
+		function adjustArrow(obj, which, cond, handler)
 		{
-			a.onmouseout  = this.funcUnfocus;
-			a.onmouseover = this.funcFocus;
-		}
-
-		var i, k = 0;
-		var first = true;
-		var j = 1;
-
-		if(this.actb_total > this.actb_lim)
-		{
-		    var b = (this.actb_rangeu > 1);
-
 			var r = a.rows[k++];
-			r.style.backgroundColor = this.actb_arColor;
+			r.className = which ? (cond ? "up" : "up-disabled") : (cond ? "down" : "down-disabled");
 
 			var c = r.firstChild;
-			c.style.color = this.actb_textColor;
-			c.style.fontFamily = "arial narrow";
-			c.style.fontSize = this.actb_arrowSize;
-			c.style.cursor = "default";
-			c.align = "center";
 
-			this.replaceHTML(c, b ? this.image[2] : this.image[3]);
-
-			if(b)
-			{
-				this.addEvent(c, "click", this.funcUp);
-				c.style.cursor = msie ? "hand" : "pointer";
-			}
-			else
-			{
-				c.style.cursor = "default";
-			}
+			if(cond && handler && obj.use_mouse)
+				obj.addEvent(c, "click", handler);
 		}
 
-		for(var i = 0; i < this.actb_keywords.length; i++)
+		if(this.total > this.entry_limit)
 		{
-			if(this.actb_bool[i])
+			var b = (this.range_up > 0);
+			adjustArrow(this, true, b, this.funcUp);
+		}
+
+		// For "parse" call:
+		var t, plen;
+		if(this.text_delimiter.length > 0)
+		{
+			var word = this.delim_words[this.current_word];
+
+			   t = this.trim(this.addSlashes(word));
+			plen = this.trim(word).length;
+		}
+		else
+		{
+			var word = this.field.value;
+
+			   t = this.addSlashes(word);
+			plen = word.length;
+		}
+
+		var re = new RegExp((this.limit_start ? "^" : "") + t, "i");
+		var kl = this.keywords.length, j = 0;
+
+		for(var i = 0; i < kl; i++)
+		{
+			if(this.bool[i])
 			{
-				if(j >= this.actb_rangeu && j <= this.actb_ranged)
+				if((j >= this.range_up) && (j <= this.range_down))
 				{
-					var r = a.rows[k++];
-					r.style.backgroundColor = this.actb_bgColor;
-					r.id = "tat_tr_" + this.actb_base_id + String(j);
+					var r = this.rows[j] = a.rows[k++];
+					r.className = "";
 
 					var c = r.firstChild;
-					c.style.color = this.actb_textColor;
-					c.style.fontFamily = this.actb_fFamily;
-					c.style.fontSize = this.actb_fSize;
-					c.innerHTML = this.actb_parse(this.actb_keywords[i]);
+					c.innerHTML = this.parse(this.keywords[i], plen, re);
 					c.setAttribute("pos", j);
 				}
 
-				j++;
+				if(++j > this.range_down) break;
 			}
-
-			if(j > this.actb_ranged) break;
 		}
 
-		if(this.actb_keywords.length > this.actb_lim)
+		if(kl > this.entry_limit)
 		{
-			var b = ((j - 1) < this.actb_total);
+			var b = (j < this.total);
+			adjustArrow(this, false, b, this.funcDown);
+		}
 
-			var r = a.rows[k];
-			r.style.backgroundColor = this.actb_arColor;
+		if(this.msie)
+		{
+			var helper = document.getElementById("suggest_helper_" + this.field_id);
+			if(helper) helper.style.width = a.parentNode.offsetWidth + 2;
+		}
+	},
 
-			var c = r.firstChild;
-			c.style.color = this.actb_textColor;
-			c.style.fontFamily = "arial narrow";
-			c.style.fontSize = this.actb_arrowSize;
-			c.style.cursor = "default";
-			c.align = "center";
+	reposition: function()
+	{
+		if(this.displayed)
+		{
+			this.cur_y = this.curPos(this.field, "Top") + this.field.offsetHeight;
+			this.cur_x = this.curPos(this.field, "Left");
 
-			this.replaceHTML(c, b ? this.image[0] : this.image[1]);
+			var control = document.getElementById("suggest_table_" + this.field_id);
+			control.style.top = this.cur_y + "px";
+			control.style.left = this.cur_x + "px";
+		}
+	},
 
-			if(b)
+	startTimer: function(on_list)
+	{
+		if(this.time_out > 0)
+			this.timer = setTimeout(function() { this.mouse_on_list = on_list; this.hide(); }, this.time_out);
+	},
+
+	stopTimer: function()
+	{
+		if(this.timer)
+		{
+			clearTimeout(this.timer);
+			this.timer = 0;
+		}
+	},
+
+	getRow: function(index)
+	{
+		if(typeof(index) == "undefined") index = this.current;
+
+		return (this.rows[index] || null);
+	},
+
+	fixArrows: function(base)
+	{
+		if(this.total <= this.entry_limit) return;
+
+		var table = base.firstChild, at_start = (this.current == 0), at_end = (this.current == (this.total - 1));
+
+		var row = table.rows[0];
+		row.className = at_start ? "up-disabled" : "up";
+
+		row = table.rows[this.entry_limit + 1];
+		row.className = at_end ? "down-disabled" : "down";
+	},
+
+	scroll: function(direction, times)
+	{
+		if(!this.displayed) return;
+
+		this.field.focus();
+		if(this.current == (direction ? 0 : (this.total - 1))) return;
+
+		if(!direction && (this.current < 0))
+		{
+			this.current = -1;
+		}
+		else
+		{
+			var t = this.getRow();
+
+			if(t && t.style)
+				t.className = "";
+		}
+
+		this.current += times * (direction ? -1 : 1);
+		if(direction)
+		{
+			if(this.current < 0)
+				this.current = 0;
+		}
+		else
+		{
+			if(this.current >= this.total)
+				this.current = this.total - 1;
+
+			if(this.use_scroll && (this.current >= this.rows.length))
+				this.current = this.rows.length - 1;
+		}
+
+		var t = this.getRow(), base = document.getElementById("suggest_table_" + this.field_id);
+
+		if(this.use_scroll)
+		{
+			if(direction)
 			{
-				this.addEvent(c, "click", this.funcDown);
-				c.style.cursor = msie ? "hand" : "pointer";
+				if(t.offsetTop < base.scrollTop)
+					base.scrollTop = t.offsetTop;
 			}
 			else
 			{
-				c.style.cursor = "default";
-			}
-		}
-
-		if((document.all && !window.opera))
-		{
-			var helper = document.getElementById("tat_helper_" + this.actb_base_id);
-			if(helper)
-				helper.style.width  = a.parentNode.offsetWidth + 2;
-		}
-	},
- 
-	actb_goup: function()
-	{
-		this.actb_curr.focus(); 
-
-		if(!this.actb_display) return;
-		if(this.actb_pos <= 1) return;
-
-		var t = document.getElementById("tat_tr_" + this.actb_base_id + String(this.actb_pos));
-		if(t && t.style)
-		{
-			t.style.backgroundColor = this.actb_bgColor;
-		    t.firstChild.style.color = this.actb_textColor;
-		}
-
-		this.actb_pos--;
-		t = document.getElementById("tat_tr_" + this.actb_base_id + String(this.actb_pos));
-
-		if(this.actb_useScroll && t)
-		{
-			var base = document.getElementById("tat_table_" + this.actb_base_id);
-			if(t.offsetTop < base.scrollTop) base.scrollTop = t.offsetTop;
-		}
-		else
-		{
-			if(this.actb_pos < this.actb_rangeu)
-			{
-				this.actb_rangeu--;
-				this.actb_ranged--;
-				this.actb_remake();
-			}
-
-			t = document.getElementById("tat_tr_" + this.actb_base_id + String(this.actb_pos));
-		}
-
-		if(t && t.style)
-		{
-			t.style.backgroundColor = this.actb_hColor;
-		    t.firstChild.style.color = this.actb_htextColor;
-		}
-
-		if(this.actb_toid)
-		{
-			clearTimeout(this.actb_toid);
-			this.actb_toid = 0;
-		}
-
-		if(this.actb_timeOut > 0)
-			this.actb_toid = setTimeout(function() { this.actb_mouse_on_list = 1; this.actb_removedisp(); }, this.actb_timeOut);
-
-		this.actb_curr.focus();
-	},
-
-	actb_godown: function()
-	{
-		this.actb_curr.focus(); 
-
-		if(!this.actb_display) return;
-		if(this.actb_pos == this.actb_total) return;
-
-		if(this.actb_pos >= 1)
-		{
-			var t = document.getElementById("tat_tr_" + this.actb_base_id + String(this.actb_pos));
-			if(t && t.style)
-			{
-				t.style.backgroundColor = this.actb_bgColor;
-				t.firstChild.style.color = this.actb_textColor;
-			}
-		}
-		else this.actb_pos = 0;
-
-		this.actb_pos++;
-		t = document.getElementById("tat_tr_" + this.actb_base_id + String(this.actb_pos));
-
-		if(this.actb_useScroll && t)
-		{
-			var base = document.getElementById("tat_table_" + this.actb_base_id);
-			if((t.offsetTop + t.offsetHeight) > (base.scrollTop + base.offsetHeight))
-			{
-				var ndx = this.actb_pos - this.actb_lim + 1;
-				if(ndx > 0)
-					base.scrollTop = document.getElementById("tat_tr_" + this.actb_base_id + String(ndx)).offsetTop;
+				if((t.offsetTop + t.offsetHeight) > (base.scrollTop + base.offsetHeight))
+				{
+					var ndx = this.current - this.entry_limit + 1;
+					if(ndx > 0)
+						base.scrollTop = this.getRow(ndx).offsetTop;
+				}
 			}
 		}
 		else
 		{
-			if(this.actb_pos > this.actb_ranged)
+			if(direction)
 			{
-				this.actb_rangeu++;
-				this.actb_ranged++;
-				this.actb_remake();
+				if(this.current < this.range_up)
+				{
+					this.range_up -= times;
+					if(this.range_up < 0) this.range_up = 0;
+
+					this.range_down = this.range_up + this.entry_limit - 1;
+
+					this.remake();
+				}
+				else this.fixArrows(base);
+			}
+			else
+			{
+				if(this.current > this.range_down)
+				{
+					this.range_down += times;
+					if(this.range_down > (this.total - 1)) this.range_down = this.total - 1;
+
+					this.range_up = this.range_down - this.entry_limit + 1;
+
+					this.remake();
+				}
+				else this.fixArrows(base);
 			}
 
-			t = document.getElementById("tat_tr_" + this.actb_base_id + String(this.actb_pos));
+			t = this.getRow();
 		}
 
 		if(t && t.style)
-		{
-			t.style.backgroundColor = this.actb_hColor;
-			t.firstChild.style.color = this.actb_htextColor;
-		}
+			t.className = "selected";
 
-		if(this.actb_toid)
-		{
-			clearTimeout(this.actb_toid);
-			this.actb_toid = 0;
-		}
+		this.stopTimer();
+		this.startTimer(1);
 
-		if(this.actb_timeOut > 0)
-			this.actb_toid = setTimeout(function() { this.actb_mouse_on_list = 1; this.actb_removedisp(); }, this.actb_timeOut);
-
-		this.actb_curr.focus();
+		this.field.focus();
 	},
 
-	actb_mouseclick: function(event)
+	mouseClick: function(event)
 	{
 		event = event || window.event;
 		var elem = event.srcElement || event.target;
 
 		if(!elem.id) elem = elem.parentNode;
 
-		var obj = elem.actb;
+		var obj = elem.autosuggest;
 
 		if(!obj)
 		{
 			var tag = elem.tagName.toLowerCase();
 			elem = (tag == "tr") ? elem.firstChild : elem.parentNode;
 
-			obj = elem.actb;
+			obj = elem.autosuggest;
 		}
 
-		if(!obj || !obj.actb_display) return;
+		if(!obj || !obj.displayed) return;
 
-		obj.actb_mouse_on_list = 0;
-		obj.actb_pos = elem.getAttribute("pos");
-		obj.actb_penter();
+		obj.mouse_on_list = 0;
+		obj.current = parseInt(elem.getAttribute("pos"), 10);
+		obj.choose();
 	},
 
-	actb_table_focus: function()
-	{ this.actb_mouse_on_list = 1; },
-
-	actb_table_unfocus: function()
+	focusTable: function()
 	{
-		this.actb_mouse_on_list = 0;
-
-		if(this.actb_toid)
-		{
-			clearTimeout(this.actb_toid);
-			this.actb_toid = 0;
-		}
-
-		if(this.actb_timeOut > 0)
-			this.actb_toid = setTimeout(function() { obj.actb_mouse_on_list = 0; this.actb_removedisp(); }, this.actb_timeOut);
+		this.mouse_on_list = 1;
 	},
 
-	actb_table_highlight: function(event)
+	unfocusTable: function()
+	{
+		this.mouse_on_list = 0;
+
+		this.stopTimer();
+		this.startTimer(0)
+	},
+
+	highlightTable: function(event)
 	{
 		event = event || window.event;
 		var elem = event.srcElement || event.target;
 
-		var obj = elem.actb;
+		var obj = elem.autosuggest;
 		if(!obj) return;
 
-		obj.actb_mouse_on_list = 1;
+		obj.mouse_on_list = 1;
 
-		var row = document.getElementById("tat_tr_" + obj.actb_base_id + obj.actb_pos);
+		var row = obj.getRow();
 		if(row && row.style)
-		{
-			row.style.backgroundColor = obj.actb_bgColor;
-			row.firstChild.style.color = obj.actb_textColor;
-		}
+			row.className = "";
 
-		obj.actb_pos = elem.getAttribute("pos");
+		obj.current = parseInt(elem.getAttribute("pos"), 10);
 
-		row = document.getElementById("tat_tr_" + obj.actb_base_id + obj.actb_pos);
+		row = obj.getRow();
 		if(row && row.style)
-		{
-			row.style.backgroundColor = obj.actb_hColor;
-			row.firstChild.style.color = obj.actb_htextColor; 
-		}
+			row.className = "selected";
 
-		if(obj.actb_toid)
-		{
-			clearTimeout(obj.actb_toid);
-			obj.actb_toid = 0;
-		}
-
-		if(obj.actb_timeOut > 0)
-			obj.actb_toid = setTimeout(function() { obj.actb_mouse_on_list = 0; obj.actb_removedisp(); }, obj.actb_timeOut);
+		obj.stopTimer();
+		obj.startTimer(0);
 	},
  
- 	actb_penter: function()
+ 	choose: function()
 	{
-		if(!this.actb_display) return;
-		if(this.actb_pos < 1) return;
+		if(!this.displayed) return;
+		if(this.current < 0) return;
 
-		this.actb_display = false;
+		this.displayed = false;
 
-		var word = "", c = 0;
+		var kl = this.keywords.length;
 
-		for(var i = 0; i < this.actb_keywords.length; i++)
-		{
-			if(this.actb_bool[i]) c++;
-
-			if(c == this.actb_pos)
-			{
-				word = this.actb_keywords[i];
+		for(var i = 0, c = 0; i < kl; i++)
+			if(this.bool[i] && (c++ == this.current))
 				break;
-			}
-		}
 
-		this.actb_selectedIndex = c;
-		this.actb_insertword(word);
-		
-		onSubmit(document.forms["search"]);
-		document.forms["search"].submit();
+		this.selectedIndex = i;
+		this.insertWord(this.keywords[i]);
+
+		if(this.onSelect)
+			this.onSelect(i, this);
 	},
 
-	actb_insertword: function(a)
+	insertWord: function(a)
 	{
 		// Sets the caret position to l in the object
-		function setCaret(obj, l)
+		function setCaretPos(obj, l)
 		{
 			obj.focus();
 
@@ -792,26 +790,26 @@ actb.prototype = {
 			}
 			else if(obj.createTextRange)
 			{
-				m = obj.createTextRange();		
+				var m = obj.createTextRange();
 				m.moveStart("character", l);
 				m.collapse();
 				m.select();
 			}
 		}
 
-		if(this.actb_delimiter.length > 0)
+		if(this.text_delimiter.length > 0)
 		{
-			var str = "";
+			var str = "", word = this.delim_words[this.current_word], wl = word.length, l = 0;
 
-			for(var i = 0; i < this.actb_delimwords.length; i++)
+			for(var i = 0; i < this.delim_words.length; i++)
 			{
-				if(this.actb_cdelimword == i)
+				if(this.current_word == i)
 				{
-					prespace = postspace = "";
-					gotbreak = false;
-					for(var j = 0; j < this.actb_delimwords[i].length; ++j)
+					var prespace = "", postspace = "", gotbreak = false;
+
+					for(var j = 0; j < wl; ++j)
 					{
-						if(this.actb_delimwords[i].charAt(j) != " ")
+						if(word.charAt(j) != " ")
 						{
 							gotbreak = true;
 							break;
@@ -820,303 +818,381 @@ actb.prototype = {
 						prespace += " ";
 					}
 
-					for(j = this.actb_delimwords[i].length - 1; j >= 0; --j)
+					for(j = wl - 1; j >= 0; --j)
 					{
-						if(this.actb_delimwords[i].charAt(j) != " ") break;
+						if(word.charAt(j) != " ")
+							break;
+
 						postspace += " ";
 					}
 
 					str += prespace;
 					str += a;
+					l = str.length;
+
 					if(gotbreak) str += postspace;
 				}
 				else
 				{
-					str += this.actb_delimwords[i];
+					str += this.delim_words[i];
 				}
 
-				if(i != this.actb_delimwords.length - 1)
-					str += this.actb_delimchar[i];
+				if(i != this.delim_words.length - 1)
+					str += this.delim_char[i];
 			}
 
-			this.actb_curr.value = str;
-			setCaret(this.actb_curr, this.actb_curr.value.length);
+			this.field.value = str;
+			setCaretPos(this.field, l);
 		}
 		else
 		{
-			this.actb_curr.value = a;
+			this.field.value = a;
 		}
 
-		this.actb_mouse_on_list = 0;
-		this.actb_removedisp();
+		this.mouse_on_list = 0;
+		this.hide();
 	},
 
-	actb_removedisp: function()
+	hide: function()
 	{
-		if(this.actb_mouse_on_list == 0)
+		if(this.mouse_on_list == 0)
 		{
-			this.actb_display = 0;
+			this.displayed = false;
 
-			var base = document.getElementById("tat_table_" + this.actb_base_id);
+			var base = document.getElementById("suggest_table_" + this.field_id);
 			if(base)
 			{
-				var helper = document.getElementById("tat_helper_" + this.actb_base_id);
+				var helper = document.getElementById("suggest_helper_" + this.field_id);
 				if(helper)
 					document.body.removeChild(helper);
 
 				document.body.removeChild(base);
 			}
 
-			if(this.actb_toid)
-			{
-			  clearTimeout(this.actb_toid);
-			  this.actb_toid = 0;
-			}
+			this.stopTimer();
 
 			this.cur_x = 0;
 			this.cur_y = 0;
 			this.cur_w = 0;
 			this.cur_h = 0;
+
+			this.rows = [];
 		}
 	},
 
-	actb_keypress: function(event)
+	keyPress: function(event)
 	{
-		if(this.actb_caretmove) this.stopEvent(event);
-		return !this.actb_caretmove;
+		// On firefox there is no way to distingish pressing shift-8 (asterix)
+		// from pressing 8 during the keyDown event, so we do restrict_typing
+		// whilest handling the keyPress event
+
+		event = event || window.event;
+
+		var code = window.event ? event.keyCode : event.charCode;
+		var obj = event.srcElement || event.target;
+
+		obj = obj.autosuggest;
+
+		if(obj.restrict_typing && !obj.suggest_url.length && (code >= 32))
+		{
+			var caret_pos = obj.getCaretEnd(obj.field);
+            var new_term = obj.field.value.substr(0, caret_pos).toLowerCase();
+			var isDelimiter = false;
+
+            if(obj.text_delimiter.length > 0)
+			{
+                // check whether the pressed key is a delimiter key
+                var delim_split = "";
+                for(var j = 0; j < obj.text_delimiter.length; j++)
+				{
+                    delim_split += obj.text_delimiter[j];
+
+                    if(obj.text_delimiter[j] == String.fromCharCode(code))
+                        isDelimiter = true;
+                }
+
+                // only consider part of term after last delimiter
+                delim_split = obj.addSlashes(delim_split);
+
+                var lastterm_rx = new RegExp(".*([" + delim_split + "])");
+                new_term = new_term.replace(lastterm_rx, '');
+            }
+
+            var keyw_len = obj.keywords.length;
+            var i = 0;
+
+            if(isDelimiter)
+			{
+                // pressed key is a delimiter: allow if current term is complete
+                for(i = 0; i < keyw_len; i++)
+                    if(obj.keywords[i].toLowerCase() == new_term)
+                        break;
+            }
+			else
+			{
+                new_term += String.fromCharCode(code).toLowerCase();
+                for(i = 0; i < keyw_len; i++)
+                    if(obj.keywords[i].toLowerCase().indexOf(new_term) != -1)
+                        break;
+            }
+
+            if(i == keyw_len)
+			{
+                obj.stopEvent(event);
+                return false;
+            }
+		}
+
+		if(obj.caret_moved) obj.stopEvent(event);
+		return !obj.caret_moved; 
 	},
 
-	actb_checkkey: function(event)
+	checkKey: function(event)
 	{
 		event = event || window.event;
 
 		var code = event.keyCode;
 		var obj = event.srcElement || event.target;
-		obj = obj.actb; 
-		obj.actb_caretmove = 0;
+
+		obj = obj.autosuggest; 
+		obj.caret_moved = 0;
 
 		var term = "";
 
-		if(obj.actb_toid)
-		{
-			clearTimeout(obj.actb_toid);
-			obj.actb_toid = 0;
-		}
+		obj.stopTimer();
 
 		switch(code)
 		{
 			// Up arrow:
 			case 38:
-				obj.actb_goup();
-				obj.actb_caretmove = 1;
+				if(obj.current <= 0)
+				{
+					obj.stopEvent(event);
+					obj.hide();
+				}
+				else
+				{
+					obj.scroll(true, 1);
+					obj.caret_moved = 1;
+					obj.stopEvent(event);
+				}
 				return false;
 
 			// Down arrow:
 			case 40:
-				if(!obj.actb_display)
+				if(!obj.displayed)
 				{
-					obj.actb_toid = setTimeout(function()
+					obj.timer = setTimeout(function()
 					{
-						obj.actb_tocomplete.call(obj, -1);
+						obj.preSuggest(-1);
 					},
 					25);
 				}
 				else
 				{
-					obj.actb_godown();
-					obj.actb_caretmove = 1;
+					obj.scroll(false, 1);
+					obj.caret_moved = 1;
 				}
 				return false;
 
 			// Page up:
 			case 33:
-				for(var c = 0; c < obj.actb_lim; c++)
-					obj.actb_goup();
+				if(obj.current == 0)
+				{
+					obj.caret_moved = 0;
+					return false;
+				}
 
-				obj.actb_caretmove = 1;
+				obj.scroll(true, (obj.use_scroll || (obj.getRow() == obj.rows[obj.range_up])) ? obj.entry_limit : (obj.current - obj.range_up));
+				obj.caret_moved = 1;
 				break;
 
 			// Page down:
 			case 34:
-				for(var c = 0; c < obj.actb_lim; c++)
-					obj.actb_godown();
+				if(obj.current == (obj.total - 1))
+				{
+					obj.caret_moved = 0;
+					return false;
+				}
 
-				obj.actb_caretmove = 1;
+				obj.scroll(false, (obj.use_scroll || (obj.getRow() == obj.rows[obj.range_down])) ? obj.entry_limit : (obj.range_down - obj.current));
+				obj.caret_moved = 1;
+				break;
+
+			// Home
+			case 36:
+				if(obj.current == 0)
+				{
+					obj.caret_moved = 0;
+					return false;
+				}
+
+				obj.scroll(true, obj.total);
+				obj.caret_moved = 1;
+				break;
+
+			// End
+			case 35:
+				if(obj.current == (obj.total - 1))
+				{
+					obj.caret_moved = 0;
+					return false;
+				}
+
+				obj.scroll(false, obj.total);
+				obj.caret_moved = 1;
 				break;
 
 			// Esc:
 			case 27:
-				term = obj.actb_curr.value;
+				term = obj.field.value;
 
-				obj.actb_mouse_on_list = 0;
-				obj.actb_removedisp();
+				obj.mouse_on_list = 0;
+				obj.hide();
 				break;
 
 			// Enter:
 			case 13:
-				if(obj.actb_display)
+				if(obj.displayed)
 				{
-					obj.actb_caretmove = 1;
-					obj.actb_penter();
+					obj.caret_moved = 1;
+					obj.choose();
 					return false;
 				}
 				break;
 
 			// Tab:
 			case 9:
-				if((obj.actb_display && obj.actb_pos) || obj.actb_toid)
+				if((obj.displayed && (obj.current >= 0)) || obj.timer)
 				{
-					obj.actb_caretmove = 1;
-					obj.actb_penter();
+					obj.caret_moved = 1;
+					obj.choose();
 
-					setTimeout(function() { obj.actb_curr.focus(); }, 25);
+					setTimeout(function() { obj.field.focus(); }, 25);
 					return false;
 				}
 				break;
 
-			default:
-				if(obj.actb_restrict && !obj.actb_suggesturl.length && (code != 8))
-				{
-					var keyw_len = obj.actb_keywords.length;
-					var new_term = obj.actb_curr.value + String.fromCharCode(code);
-					new_term = new_term.toLowerCase();
-
-					for(var i = 0; i < keyw_len; i++)
-						if(obj.actb_keywords[i].toLowerCase().indexOf(new_term) != -1)
-							break;
-
-					if(i == keyw_len)
-					{
-						obj.stopEvent(event);
-						return false;
-					}
-				}
-
-				obj.actb_caretmove = 0;
-				obj.actb_toid = setTimeout(function()
-				{
-					obj.actb_tocomplete.call(obj, code);
-				},
-				(obj.actb_response < 10 ? 10 : obj.actb_response));
+			case 16: //shift
 				break;
+
+			default:
+				obj.caret_moved = 0;
+				obj.timer = setTimeout(function()
+				{
+					obj.preSuggest(code);
+				},
+				(obj.response_time < 10 ? 10 : obj.response_time));
 		}
 
-		if(term.length) setTimeout(function() { obj.actb_curr.value = term; }, 25);
+		if(term.length) setTimeout(function() { obj.field.value = term; }, 25);
 		return true;
 	},
 
-	actb_tocomplete: function(kc)
+	preSuggest: function(kc)
 	{
-		if(this.actb_toid)
-		{
-			clearTimeout(this.actb_toid);
-			this.actb_toid = 0;
-		}
-		else
-		{
+		if(!this.timer)
 			return;
-		}
 
-		if(this.actb_display && (this.actb_prevterm == this.actb_curr.value)) return;
-		this.actb_prevterm = this.actb_curr.value;
+		this.stopTimer();
+
+		if(this.displayed && (this.lastterm == this.field.value)) return;
+		this.lastterm = this.field.value;
 
 		if(kc == 38 || kc == 40 || kc == 13) return;
 
-		if(this.actb_display)
-		{ 
-			var word = 0;
-			var c = 0;
-
-			for(var i = 0; i <= this.actb_keywords.length; i++)
+		var c = 0;
+		if(this.displayed && (this.current >= 0))
+		{
+			for(var i = 0; i < this.keywords.length; i++)
 			{
-				if(this.actb_bool[i]) c++;
+				if(this.bool[i]) ++c;
 
-				if(c == this.actb_pos)
+				if(c == this.current)
 				{
-					word = i;
+					this.previous = i;
 					break;
 				}
 			}
-			
-			this.actb_pre = word;
 		}
 		else
 		{
-			this.actb_pre = -1;
+			this.previous = -1;
 		}
-		
-		if(!this.actb_curr.value.length && (kc != -1))
+
+		if(!this.field.value.length && (kc != -1))
 		{
-			this.actb_mouse_on_list = 0;
-			this.actb_removedisp();
+			this.mouse_on_list = 0;
+			this.hide();
 		}
 
 		var ot, t;
 
-		if(this.actb_delimiter.length > 0)
+		if(this.text_delimiter.length > 0)
 		{
-			var caret_pos_end = this.actb_curr.value.length;
+			var caret_pos = this.getCaretEnd(this.field);
 
 			var delim_split = "";
-			for(var i = 0; i < this.actb_delimiter.length; i++)
-				delim_split += this.actb_delimiter[i];
+			for(var i = 0; i < this.text_delimiter.length; i++)
+				delim_split += this.text_delimiter[i];
 
-		    delim_split = this.addslashes(delim_split);
+			delim_split = this.addSlashes(delim_split);
 			var delim_split_rx = new RegExp("([" + delim_split + "])");
 			c = 0;
-			this.actb_delimwords = [];
-			this.actb_delimwords[0] = "";
+			this.delim_words = [];
+			this.delim_words[0] = "";
 
-			for(var i = 0, j = this.actb_curr.value.length; i < this.actb_curr.value.length; i++, j--)
+			for(var i = 0, j = this.field.value.length; i < this.field.value.length; i++, j--)
 			{
-				if(this.actb_curr.value.substr(i, j).search(delim_split_rx) == 0)
+				if(this.field.value.substr(i, j).search(delim_split_rx) == 0)
 				{
-					ma = this.actb_curr.value.substr(i,j).match(delim_split_rx);
-					this.actb_delimchar[c] = ma[1];
-					c++;
-					this.actb_delimwords[c] = "";
+					var ma = this.field.value.substr(i, j).match(delim_split_rx);
+					this.delim_char[c++] = ma[1];
+					this.delim_words[c] = "";
 				}
 				else
 				{
-					this.actb_delimwords[c] += this.actb_curr.value.charAt(i);
+					this.delim_words[c] += this.field.value.charAt(i);
 				}
 			}
 
 			var l = 0;
-			this.actb_cdelimword = -1;
-			for(i = 0; i < this.actb_delimwords.length; i++)
-			{
-				if((caret_pos_end >= l) && (caret_pos_end <= l + this.actb_delimwords[i].length))
-					this.actb_cdelimword = i;
+			this.current_word = -1;
 
-				l += this.actb_delimwords[i].length + 1;
+			for(i = 0; i < this.delim_words.length; i++)
+			{
+				if((caret_pos >= l) && (caret_pos <= (l + this.delim_words[i].length)))
+					this.current_word = i;
+
+				l += this.delim_words[i].length + 1;
 			}
 
-			ot = this.trim(this.actb_delimwords[this.actb_cdelimword]); 
-			 t = this.trim(this.addslashes(this.actb_delimwords[this.actb_cdelimword]));
+			ot = this.trim(this.delim_words[this.current_word]); 
+			 t = this.trim(this.addSlashes(this.delim_words[this.current_word]));
 		}
 		else
 		{
-			ot = this.actb_curr.value;
-			 t = this.addslashes(this.actb_curr.value);
+			ot = this.field.value;
+			 t = this.addSlashes(ot);
 		}
 
 		if(ot.length == 0 && (kc != -1))
 		{
-			this.actb_mouse_on_list = 0;
-			this.actb_removedisp();
+			this.mouse_on_list = 0;
+			this.hide();
 		}
-		else if((ot.length == 1) || this.actb_fullRefresh ||
-		       ((ot.length > 1) && !this.actb_keywords.length) ||
-		       ((ot.length > 1) && (this.actb_keywords[0].substr(0, 1).toLowerCase() != ot.substr(0, 1).toLowerCase())))
+		else if((ot.length == 1) || this.full_refresh ||
+		       ((ot.length > 1) && !this.keywords.length) ||
+		       ((ot.length > 1) && (this.keywords[0].charAt(0).toLowerCase() != ot.charAt(0).toLowerCase())))
 		{
-			var ot_ = ((ot.length > 1) && !this.actb_fullRefresh) ? ot.substr(0, 1) : ot;
+			var ot_ = ((ot.length > 1) && !this.full_refresh) ? ot.charAt(0) : ot;
 
-			if(this.actb_suggesturl.length)
+			if(this.suggest_url.length)
 			{
+
 				// create xmlhttprequest object:
 				var http = null;
-				if(typeof XMLHttpRequest != "undefined")
+				if(typeof(XMLHttpRequest) != "undefined")
 				{
 					try
 					{
@@ -1142,21 +1218,15 @@ actb.prototype = {
 
 				if(http)
 				{
-					// For local debugging in Mozilla/Firefox:
-					/*
-					try
-					{
-						netscape.security.PrivilegeManager.enablePrivilege("UniversalBrowserRead");
-					}
-					catch (e) { }
-					*/
+					// Uncomment for local debugging in Mozilla/Firefox:
+					// try { netscape.security.PrivilegeManager.enablePrivilege("UniversalBrowserRead"); } catch (e) { }
 
 					if(http.overrideMimeType)
 						http.overrideMimeType("text/xml");
 
-					http.open("GET", this.actb_suggesturl + ot_, true);
+					http.open("GET", this.suggest_url + ot_, true);
 
-					var obj = this;
+					var that = this;
 					http.onreadystatechange = function(n)
 					{
 						if(http.readyState == 4)
@@ -1167,39 +1237,38 @@ actb.prototype = {
 
 								var index1 = text.indexOf("<listdata>");
 								var index2 = (index1 == -1) ? text.length : text.indexOf("</listdata", index1 + 10);
-								if(index1 == -1)
-									index1 = 0;
-								else
-									index1 += 10;
+
+								index1 += (index1 != -1) ? 10 : 1;
 
 								var tmpinfo = text.substring(index1, index2);
 
 								if(tmpinfo)
 								{
-									obj.actb_keywords = tmpinfo.split(obj.ajax_delimiter);
+									that.keywords = tmpinfo.split(that.ajax_delimiter);
 
-									if(obj.item_delimiter && obj.item_delimiter.length)
+									if(that.item_delimiter && that.item_delimiter.length)
 									{
-										var keyword_number = obj.actb_keywords.length;
+										var keyword_number = that.keywords.length;
 										for(var i = 0; i < keyword_number; i++)
 										{
-											var ca = obj.actb_keywords[i], comma = ca.indexOf(obj.item_delimiter);
+											var ca = that.keywords[i], comma = ca.indexOf(that.item_delimiter);
 
 											if(comma != -1)
 											{
-												var ci = ca.split(",");
+												var ci = ca.split(that.item_delimiter);
 
-												obj.actb_keywords[i] = obj.actb_keywords_init[i] = ci[0];
-												obj.actb_values[i]   = obj.actb_values_init[i]   = ci[1];
+												that.keywords[i] = that.keywords_init[i] = ci[0];
+												that.values[i]   = that.values_init[i]   = ci[1];
 											}
 											else
 											{
-												obj.actb_values[i] = obj.actb_values_init[i] = "";										
+												that.keywords[i] = that.keywords_init[i] = ca;
+												that.values[i] = that.values_init[i] = "";
 											}
 										}
 									}
 
-									obj.done.call(obj, ot_, t);
+									that.suggest(ot_, t);
 								}
 							}
 						}
@@ -1207,121 +1276,86 @@ actb.prototype = {
 
 					http.send(null);
 				}
-
-				// xmlhttp object creation failed
-				return;
 			}
-			else
-			{
-				this.done(ot, t);
-			}
+			else this.suggest(ot, t);
 		}
-		else
-		{
-			this.done(ot, t);
-		}
+		else this.suggest(ot, t);
 	},
 
-	done: function(ot, t)
+	suggest: function(ot, t)
 	{
-		if(ot.length < this.actb_startcheck) return;
+		if(ot.length < this.start_check) return;
 
-		var re = new RegExp(((!this.actb_firstText && !this.actb_firstMatch) ? "" : "^") + t, "i");
-
-		this.actb_total = 0;
-		this.actb_tomake = false;
-
-		var al = this.actb_keywords.length;
+		var al = this.keywords.length;
+		this.total = 0, this.rebuild = false;
 
 		for(var i = 0; i < al; i++)
 		{
-			this.actb_bool[i] = false;
-			if(re.test(this.actb_keywords[i]))
-			{
-				this.actb_total++;
-				this.actb_bool[i] = true;
-
-				if(this.actb_pre == i) this.actb_tomake = true;
-			}
+			this.keywords[i] = this.keywords_init[i];
+			this.values[i] = this.values_init[i];
+			this.bool[i] = true;
 		}
 
-		if(!this.actb_curr.value.length)
+		if(!this.field.value.length)
 		{
-			for(i = 0; i < al; i++)
-			{
-				this.actb_keywords[i] = this.actb_keywords_init[i];
-				this.actb_values[i] = this.actb_values_init[i];
-				this.actb_bool[i] = true;
-			}
+			this.total = al;
 		}
-		else if(!this.actb_firstText && this.actb_firstMatch)
+		else
 		{
-			var tmp = [], tmpv = [];
+			var re1 = new RegExp(((!this.limit_start && !this.match_first) ? "" : "^") + t, "i");
+			var re2 = new RegExp(t, "i");
 
-			for(i = 0; i < al; i++)
+			var after = (!this.limit_start && this.match_first);
+
+			var matchArray = [], matchVArray = [];
+			var afterArray = [], afterVArray = [];
+			var otherArray = [], otherVArray = [];
+
+			for(var i = 0; i < al; i++)
 			{
-				if(this.actb_bool[i])
+				var key = this.keywords[i];
+				var value = this.values[i];
+
+				if(re1.test(key))
 				{
-					tmp[tmp.length]   = this.actb_keywords[i];
-					tmpv[tmpv.length] = this.actb_values[i];
+					++this.total;
+
+					matchArray[matchArray.length] = key;
+					matchVArray[matchVArray.length] = value;
+				}
+				else if(after && re2.test(key))
+				{
+					++this.total;
+
+					afterArray[afterArray.length] = key;
+					afterVArray[afterVArray.length] = value;
+				}
+				else
+				{
+					otherArray[otherArray.length] = key;
+					otherVArray[otherVArray.length] = value;
 				}
 			}
 
-			re = new RegExp(t, "i");
+			this.keywords = matchArray.concat(afterArray).concat(otherArray);
+			this.values = matchVArray.concat(afterVArray).concat(otherVArray);
 
 			for(i = 0; i < al; i++)
-			{
-				if(re.test(this.actb_keywords[i]) && !this.actb_bool[i])
-				{
-					this.actb_total++;
-					this.actb_bool[i] = true;
-
-					if(this.actb_pre == i) this.actb_tomake = true;
-
-					tmp[tmp.length]   = this.actb_keywords[i];
-					tmpv[tmpv.length] = this.actb_values[i];
-				}
-			}
-
-			for(i = 0; i < al; i++)
-			{
-				if(!this.actb_bool[i])
-				{
-					tmp[tmp.length]   = this.actb_keywords[i];
-					tmpv[tmpv.length] = this.actb_values[i];
-				}
-			}
-
-			for(i = 0; i < al; i++)
-			{
-				this.actb_keywords[i] = tmp[i];
-				this.actb_values[i]   = tmpv[i];
-			}
-
-			for(i = 0; i < al; i++)
-				this.actb_bool[i] = (i < this.actb_total) ? true : false;
+				this.bool[i] = (i < this.total);
 		}
 
-		if(this.actb_timeOut > 0)
-		  this.actb_toid = setTimeout(function(){ this.actb_mouse_on_list = 0; this.actb_removedisp(); }, this.actb_timeOut);
+		if(this.previous != -1)
+			this.rebuild = true;
 
-		this.actb_generate();
+		if(this.total)
+		{
+			this.startTimer(0);
+			this.build();
+		}
+		else this.hide();
 	},
 
 	// Utility methods:
-
-	// Image installation
-	replaceHTML: function(obj, oImg)
-	{
-		var el = obj.childNodes[0];
-		while(el)
-		{
-			obj.removeChild(el);
-			el = obj.childNodes[0];
-		}
-
-		obj.appendChild(oImg);
-	},
 
 	// Setup an event handler for the given event and DOM element
 	// event_name refers to the event trigger, without the "on", like click or mouseover
@@ -1332,22 +1366,13 @@ actb.prototype = {
 		{
 			obj.addEventListener(event_name, func_ref, true);
 		}
+		else if(obj.attachEvent)
+		{
+			obj.attachEvent("on" + event_name, func_ref)
+		}
 		else
 		{
 			obj["on" + event_name] = func_ref;
-		}
-	},
-
-	// Removes an event handler:
-	removeEvent: function(obj, event_name, func_ref)
-	{
-		if(obj.removeEventListener && !window.opera)
-		{
-			obj.removeEventListener(event_name, func_ref, true);
-		}
-		else
-		{
-			obj["on" + event_name] = null;
 		}
 	},
 
@@ -1361,7 +1386,7 @@ actb.prototype = {
 			if(event.stopPropagation) event.stopPropagation();
 			if(event.preventDefault) event.preventDefault();
 
-			if(typeof event.cancelBubble != "undefined")
+			if(typeof(event.cancelBubble) != "undefined")
 			{
 				event.cancelBubble = true;
 				event.returnValue = false;
@@ -1371,9 +1396,55 @@ actb.prototype = {
 		return false;
 	},
 
+	// Get the end position of the caret in the object. Note that the obj needs to be in focus first.
+	getCaretEnd: function(obj)
+	{
+		if(typeof(obj.selectionEnd) != "undefined")
+		{
+			return obj.selectionEnd;
+		}
+		else if(document.selection && document.selection.createRange)
+		{
+			var M = document.selection.createRange(), Lp;
+
+			try
+			{
+				Lp = M.duplicate();
+				Lp.moveToElementText(obj);
+			}
+			catch(e)
+			{
+				Lp = obj.createTextRange();
+			}
+
+			Lp.setEndPoint("EndToEnd", M);
+			var rb = Lp.text.length;
+
+			if(rb > obj.value.length)
+				return -1;
+		
+			return rb;
+		}
+
+		return -1;
+	},
+
+	// Get offset position from the top/left of the screen:
+	curPos: function(obj, what)
+	{
+		var coord = 0;
+		while(obj)
+		{
+			coord += obj["offset" + what];
+			obj = obj.offsetParent;
+		}
+
+		return coord;
+	},
+
 	// String functions:
 
-	addslashes: function(str) { return str.replace(/(["\\\.\|\[\]\^\*\+\?\$\(\)])/g, "\\$1"); },
+	addSlashes: function(str) { return str.replace(/(["\\\.\|\[\]\^\*\+\?\$\(\)])/g, "\\$1"); },
 
 	trim: function(str) { return str.replace(/^\s*(\S*(\s+\S+)*)\s*$/, "$1"); }
 };
