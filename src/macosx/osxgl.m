@@ -851,6 +851,8 @@ static ALLEGRO_DISPLAY* create_display_fs(int w, int h)
    dpy->parent.vt = _al_osx_get_display_driver_fs();
    dpy->parent.refresh_rate = al_get_new_display_refresh_rate();
    dpy->parent.flags = al_get_new_display_flags() | ALLEGRO_OPENGL | ALLEGRO_FULLSCREEN;
+   dpy->parent.w = w;
+   dpy->parent.h = h;
    _al_event_source_init(&dpy->parent.es);
    dpy->cursor = [[NSCursor arrowCursor] retain];
    dpy->display_id = CGMainDisplayID();
@@ -877,19 +879,7 @@ static ALLEGRO_DISPLAY* create_display_fs(int w, int h)
    if (context == nil)
       return NULL;
    [context makeCurrentContext];
-   /* Turn on vsyncing possibly */
-   if (_al_get_new_display_settings()->settings[ALLEGRO_VSYNC] == 1) {
-      GLint swapInterval = 1;
-      [context setValues:&swapInterval forParameter: NSOpenGLCPSwapInterval];
-   }
-   else {
-      GLint swapInterval = 0;
-      [context setValues:&swapInterval forParameter: NSOpenGLCPSwapInterval];
-   }
    dpy->ctx = context;
-
-   dpy->parent.w = w;
-   dpy->parent.h = h;
 
    // Prevent other apps from writing to this display and switch it to our
    // chosen mode.
@@ -904,6 +894,19 @@ static ALLEGRO_DISPLAY* create_display_fs(int w, int h)
    _al_ogl_manage_extensions(&dpy->parent);
    _al_ogl_set_extensions(dpy->parent.ogl_extras->extension_api);
    dpy->parent.ogl_extras->is_shared = true;
+
+   /* Retrieve the options that were set */
+   osx_get_opengl_pixelformat_attributes(dpy);
+   dpy->parent.ogl_extras->backbuffer = _al_ogl_create_backbuffer(&dpy->parent);
+   /* Turn on vsyncing possibly */
+   if (_al_get_new_display_settings()->settings[ALLEGRO_VSYNC] == 1) {
+      GLint swapInterval = 1;
+      [context setValues:&swapInterval forParameter: NSOpenGLCPSwapInterval];
+   }
+   else {
+      GLint swapInterval = 0;
+      [context setValues:&swapInterval forParameter: NSOpenGLCPSwapInterval];
+   }
 
    /* Set up GL as we want */
    setup_gl(&dpy->parent);
@@ -923,9 +926,7 @@ static ALLEGRO_DISPLAY* create_display_fs(int w, int h)
    [ALDisplayHelper performSelectorOnMainThread: @selector(runFullScreenDisplay:) 
                                      withObject: [NSValue valueWithPointer:dpy] 
                                   waitUntilDone: NO];
-   /* Retrieve the options that were set */
-   osx_get_opengl_pixelformat_attributes(dpy);
-   dpy->parent.ogl_extras->backbuffer = _al_ogl_create_backbuffer(&dpy->parent);
+
    return &dpy->parent;
 }
 
@@ -941,6 +942,7 @@ static ALLEGRO_DISPLAY* create_display_win(int w, int h) {
       return NULL;
    }
    memset(dpy, 0, sizeof(*dpy));
+
    /* Set up the ALLEGRO_DISPLAY part */
    dpy->parent.vt = _al_osx_get_display_driver_win();
    dpy->parent.refresh_rate = al_get_new_display_refresh_rate();
@@ -951,15 +953,22 @@ static ALLEGRO_DISPLAY* create_display_win(int w, int h) {
    osx_change_cursor(dpy, [NSCursor arrowCursor]);
    dpy->show_cursor = YES;
    
+   // Set up a pixel format to describe the mode we want.
+   osx_set_opengl_pixelformat_attributes(dpy);
+
+   // Clear last window position to 0 if there are no other open windows
    if (_al_vector_is_empty(&al_get_system_driver()->displays)) {
       last_window_pos = NSZeroPoint;
    }
-   osx_set_opengl_pixelformat_attributes(dpy);
+
    /* OSX specific part - finish the initialisation on the main thread */
    [ALDisplayHelper performSelectorOnMainThread: @selector(initialiseDisplay:) 
       withObject: [NSValue valueWithPointer:dpy] 
       waitUntilDone: YES];
+
    [dpy->ctx makeCurrentContext];
+
+   // Set up the Allegro OpenGL implementation
    dpy->parent.ogl_extras = _AL_MALLOC(sizeof(ALLEGRO_OGL_EXTRAS));
    memset(dpy->parent.ogl_extras, 0, sizeof(ALLEGRO_OGL_EXTRAS));
    _al_ogl_manage_extensions(&dpy->parent);
@@ -968,9 +977,7 @@ static ALLEGRO_DISPLAY* create_display_win(int w, int h) {
 
    /* Retrieve the options that were set */
    osx_get_opengl_pixelformat_attributes(dpy);
-    
    dpy->parent.ogl_extras->backbuffer = _al_ogl_create_backbuffer(&dpy->parent);
-   
    if (_al_get_new_display_settings()->settings[ALLEGRO_VSYNC] == 1) {
       GLint swapInterval = 1;
       [dpy->ctx setValues:&swapInterval forParameter: NSOpenGLCPSwapInterval];
@@ -982,8 +989,12 @@ static ALLEGRO_DISPLAY* create_display_win(int w, int h) {
 
    /* Set up GL as we want */
    setup_gl(&dpy->parent);
+
+   /* Add to the display list */
    ALLEGRO_DISPLAY **add = _al_vector_alloc_back(&al_get_system_driver()->displays);
-   return *add = &dpy->parent;
+   *add = &dpy->parent;
+
+   return &dpy->parent;
 }
 
 /* destroy_display:
