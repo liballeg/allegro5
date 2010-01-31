@@ -477,65 +477,6 @@ static bool win_inhibit_screensaver(bool inhibit)
    return true;
 }
 
-
-static int win_get_num_display_formats(void)
-{
-   int flags = al_get_new_display_flags();
-
-#if defined ALLEGRO_CFG_OPENGL
-   if (flags & ALLEGRO_OPENGL) {
-      return _al_wgl_get_num_display_formats();
-   }
-#endif
-#if defined ALLEGRO_CFG_D3D
-   return _al_d3d_get_num_display_formats();
-#endif
-#if defined ALLEGRO_CFG_OPENGL
-   _al_wgl_get_num_display_formats();
-#endif
-
-   return 0;
-}
-
-
-static int win_get_display_format_option(int i, int option)
-{
-   int flags = al_get_new_display_flags();
-
-#if defined ALLEGRO_CFG_OPENGL
-   if (flags & ALLEGRO_OPENGL) {
-      return _al_wgl_get_display_format_option(i, option);
-   }
-#endif
-#if defined ALLEGRO_CFG_D3D
-   return _al_d3d_get_display_format_option(i, option);
-#endif
-#if defined ALLEGRO_CFG_OPENGL
-   _al_wgl_get_display_format_option(i, option);
-#endif
-
-   return 0;
-}
-
-
-static void win_set_new_display_format(int i)
-{
-   int flags = al_get_new_display_flags();
-
-#if defined ALLEGRO_CFG_OPENGL
-   if (flags & ALLEGRO_OPENGL) {
-      return; /* FIXME: implement for wgl */
-   }
-#endif
-#if defined ALLEGRO_CFG_D3D
-   _al_d3d_set_new_display_format(i);
-#endif
-#if defined ALLEGRO_CFG_OPENGL
-   _al_wgl_set_new_display_format(i);
-#endif
-}
-
-
 static ALLEGRO_SYSTEM_INTERFACE *_al_system_win_driver(void)
 {
    if (vt) return vt;
@@ -556,9 +497,6 @@ static ALLEGRO_SYSTEM_INTERFACE *_al_system_win_driver(void)
    vt->get_cursor_position = win_get_cursor_position;
    vt->get_path = win_get_path;
    vt->inhibit_screensaver = win_inhibit_screensaver;
-   vt->get_num_display_formats = win_get_num_display_formats;
-   vt->get_display_format_option = win_get_display_format_option;
-   vt->set_new_display_format = win_set_new_display_format;
 
    TRACE("ALLEGRO_SYSTEM_INTERFACE created.\n");
 

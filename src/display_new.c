@@ -327,35 +327,6 @@ ALLEGRO_DISPLAY_MODE *al_get_display_mode(int index, ALLEGRO_DISPLAY_MODE *mode)
 
 
 
-/* Function: al_get_num_display_formats
- */
-int al_get_num_display_formats(void)
-{
-   ALLEGRO_SYSTEM *system = al_get_system_driver();
-   return system->vt->get_num_display_formats();
-}
-
-
-
-/* Function: al_get_display_format_option
- */
-int al_get_display_format_option(int i, int option)
-{
-   ALLEGRO_SYSTEM *system = al_get_system_driver();
-   return system->vt->get_display_format_option(i, option);
-}
-
-
-
-/* Function: al_set_new_display_format
- */
-void al_set_new_display_format(int i)
-{
-   ALLEGRO_SYSTEM *system = al_get_system_driver();
-   system->vt->set_new_display_format(i);
-}
-
-
 /* Function: al_wait_for_vsync
  */
 bool al_wait_for_vsync(void)

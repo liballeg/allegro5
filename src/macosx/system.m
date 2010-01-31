@@ -469,21 +469,6 @@ static bool osx_get_cursor_position(int *x, int *y)
    return true;
 }
 
-static int osx_get_num_display_formats(void)
-{
-   return 1;
-}
-
-static int osx_get_display_format_option(int i, int option)
-{
-   return 0;
-}
-
-static void osx_set_new_display_format(int i)
-{
-}
-
-
 /* Internal function to get a reference to this driver. */
 ALLEGRO_SYSTEM_INTERFACE *_al_system_osx_driver(void)
 {
@@ -504,11 +489,6 @@ ALLEGRO_SYSTEM_INTERFACE *_al_system_osx_driver(void)
       vt->get_cursor_position = osx_get_cursor_position;
       vt->get_path = osx_get_path;
       vt->inhibit_screensaver = osx_inhibit_screensaver;
-
-      /* FIXME: implement these properly */
-      vt->get_num_display_formats = osx_get_num_display_formats;
-      vt->get_display_format_option = osx_get_display_format_option;
-      vt->set_new_display_format = osx_set_new_display_format;
    };
       
    return vt;

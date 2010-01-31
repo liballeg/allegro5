@@ -513,9 +513,6 @@ static void osx_set_opengl_pixelformat_attributes(ALLEGRO_DISPLAY_OSX_WIN *dpy)
       dpy->depth = 32;  // FIXME
    *a = NSOpenGLPFAColorSize; a++;
    *a = dpy->depth; a++; 
-   /* This should be set automatically because al_set_new_display_format
-    * sets this.
-    */
 
    /* Say we don't need an exact match for the depth of the colour buffer.
     * FIXME: right now, this is set whenever nothing is required or

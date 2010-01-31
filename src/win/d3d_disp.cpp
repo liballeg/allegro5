@@ -2742,29 +2742,6 @@ void _al_d3d_get_monitor_info(int adapter, ALLEGRO_MONITOR_INFO *info)
    }
 }
 
-int _al_d3d_get_num_display_formats(void)
-{
-   d3d_generate_display_format_list();
-   return NUM_DISPLAY_FORMATS;
-}
-
-
-int _al_d3d_get_display_format_option(int i, int option)
-{
-   ASSERT(i < eds_list_count);
-   ASSERT(option < ALLEGRO_DISPLAY_OPTIONS_COUNT);
-
-   return eds_list[i]->settings[option];
-}
-
-
-void _al_d3d_set_new_display_format(int i)
-{
-   for (int j = 0; j < ALLEGRO_DISPLAY_OPTIONS_COUNT; j++) {
-      al_set_new_display_option(j, eds_list[i]->settings[j], ALLEGRO_REQUIRE);
-   }
-}
-
 
 } // end extern "C"
 

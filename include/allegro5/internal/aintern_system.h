@@ -28,9 +28,6 @@ struct ALLEGRO_SYSTEM_INTERFACE
    bool (*get_cursor_position)(int *ret_x, int *ret_y);
    ALLEGRO_PATH *(*get_path)(int id);
    bool (*inhibit_screensaver)(bool inhibit);
-   int (*get_num_display_formats)(void);
-   int (*get_display_format_option)(int i, int option);
-   void (*set_new_display_format)(int i);
 };
 
 struct ALLEGRO_SYSTEM

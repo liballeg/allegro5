@@ -101,24 +101,6 @@ static void gp2xwiz_get_monitor_info(int adapter, ALLEGRO_MONITOR_INFO *info)
    info->y2 = 240;
 }
 
-static int gp2xwiz_get_num_display_formats(void)
-{
-   return 1;
-}
-
-static int gp2xwiz_get_display_format_option(int i, int option)
-{
-   (void)i;
-   ASSERT(i == 0);
-   ALLEGRO_SYSTEM_GP2XWIZ *system = (void *)al_get_system_driver();
-   return system->extras.settings[option];
-}
-
-static void gp2xwiz_set_new_display_format(int i)
-{
-   (void)i;
-}
-
 // FIXME
 static bool gp2xwiz_get_cursor_position(int *ret_x, int *ret_y)
 {
@@ -176,8 +158,6 @@ ALLEGRO_SYSTEM_INTERFACE *_al_system_gp2xwiz_driver(void)
    gp2xwiz_vt->get_path = _al_unix_get_path;
    gp2xwiz_vt->inhibit_screensaver = gp2xwiz_inhibit_screensaver;
    gp2xwiz_vt->get_num_display_formats = gp2xwiz_get_num_display_formats;
-   gp2xwiz_vt->get_display_format_option = gp2xwiz_get_display_format_option;
-   gp2xwiz_vt->set_new_display_format = gp2xwiz_set_new_display_format;
 
    return gp2xwiz_vt;
 }

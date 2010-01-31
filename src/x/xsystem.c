@@ -408,41 +408,6 @@ static void xglx_get_monitor_info(int adapter, ALLEGRO_MONITOR_INFO *info)
 #endif /* !ALLEGRO_XWINDOWS_WITH_XINERAMA */
 }
 
-
-
-static int xglx_get_num_display_formats(void)
-{
-   ALLEGRO_SYSTEM_XGLX *system = (void *)al_get_system_driver();
-   return system->visuals_count;
-}
-
-
-
-static int xglx_get_display_format_option(int i, int option)
-{
-   ALLEGRO_SYSTEM_XGLX *system = (void *)al_get_system_driver();
-   ASSERT(i < system->visuals_count);
-
-   if (!system->visuals[i])
-      return 0;
-   return system->visuals[i]->settings[option];
-}
-
-
-
-static void xglx_set_new_display_format(int i)
-{
-   ALLEGRO_SYSTEM_XGLX *system = (void *)al_get_system_driver();
-   int j;
-   for (j = 0; j < ALLEGRO_DISPLAY_OPTIONS_COUNT; j++) {
-      /* It does not matter whether we use SUGGEST or REQUIRE -
-       * we already know that this exact mode is available.
-       */
-      al_set_new_display_option(j, system->visuals[i]->settings[j],
-         ALLEGRO_SUGGEST);
-   }
-}
-
 static bool xglx_get_cursor_position(int *ret_x, int *ret_y)
 {
    ALLEGRO_SYSTEM_XGLX *system = (void *)al_get_system_driver();
@@ -488,9 +453,6 @@ ALLEGRO_SYSTEM_INTERFACE *_al_system_xglx_driver(void)
    xglx_vt->get_cursor_position = xglx_get_cursor_position;
    xglx_vt->get_path = _al_unix_get_path;
    xglx_vt->inhibit_screensaver = xglx_inhibit_screensaver;
-   xglx_vt->get_num_display_formats = xglx_get_num_display_formats;
-   xglx_vt->get_display_format_option = xglx_get_display_format_option;
-   xglx_vt->set_new_display_format = xglx_set_new_display_format;
 
    return xglx_vt;
 }

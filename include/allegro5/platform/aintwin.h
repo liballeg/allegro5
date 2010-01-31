@@ -166,9 +166,6 @@ bool _al_win_hide_mouse_cursor(ALLEGRO_DISPLAY *display);
    bool _al_d3d_init_display(void);
    int  _al_d3d_get_num_video_adapters(void);
    void _al_d3d_get_monitor_info(int adapter, ALLEGRO_MONITOR_INFO *info);
-   int _al_d3d_get_num_display_formats(void);
-   int _al_d3d_get_display_format_option(int i, int option);
-   void _al_d3d_set_new_display_format(int i);
 #endif /*  defined ALLEGRO_CFG_D3D */
 
 #if defined ALLEGRO_CFG_OPENGL
@@ -180,9 +177,6 @@ bool _al_win_hide_mouse_cursor(ALLEGRO_DISPLAY *display);
    bool _al_wgl_init_display(void);
    int  _al_wgl_get_num_video_adapters(void);
    void _al_wgl_get_monitor_info(int adapter, ALLEGRO_MONITOR_INFO *info);
-   int  _al_wgl_get_num_display_formats(void);
-   int  _al_wgl_get_display_format_option(int i, int option);
-   void _al_wgl_set_new_display_format(int i);
 #endif /*  defined ALLEGRO_CFG_OPENGL */
 
 
