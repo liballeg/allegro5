@@ -240,7 +240,7 @@ unsigned int al_get_sample_instance_frequency(const ALLEGRO_SAMPLE_INSTANCE *spl
 
 /* Function: al_get_sample_instance_length
  */
-unsigned long al_get_sample_instance_length(const ALLEGRO_SAMPLE_INSTANCE *spl)
+unsigned int al_get_sample_instance_length(const ALLEGRO_SAMPLE_INSTANCE *spl)
 {
    ASSERT(spl);
 
@@ -250,7 +250,7 @@ unsigned long al_get_sample_instance_length(const ALLEGRO_SAMPLE_INSTANCE *spl)
 
 /* Function: al_get_sample_instance_position
  */
-unsigned long al_get_sample_instance_position(const ALLEGRO_SAMPLE_INSTANCE *spl)
+unsigned int al_get_sample_instance_position(const ALLEGRO_SAMPLE_INSTANCE *spl)
 {
    ASSERT(spl);
 
@@ -363,7 +363,7 @@ bool al_get_sample_instance_attached(const ALLEGRO_SAMPLE_INSTANCE *spl)
 /* Function: al_set_sample_instance_position
  */
 bool al_set_sample_instance_position(ALLEGRO_SAMPLE_INSTANCE *spl,
-   unsigned long val)
+   unsigned int val)
 {
    ASSERT(spl);
 
@@ -385,7 +385,7 @@ bool al_set_sample_instance_position(ALLEGRO_SAMPLE_INSTANCE *spl,
 /* Function: al_set_sample_instance_length
  */
 bool al_set_sample_instance_length(ALLEGRO_SAMPLE_INSTANCE *spl,
-   unsigned long val)
+   unsigned int val)
 {
    ASSERT(spl);
 

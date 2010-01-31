@@ -36,7 +36,7 @@ static void maybe_unlock_mutex(ALLEGRO_MUTEX *mutex)
 /* Function: al_create_audio_stream
  */
 ALLEGRO_AUDIO_STREAM *al_create_audio_stream(size_t fragment_count,
-   unsigned long samples, unsigned long freq, ALLEGRO_AUDIO_DEPTH depth,
+   unsigned int samples, unsigned int freq, ALLEGRO_AUDIO_DEPTH depth,
    ALLEGRO_CHANNEL_CONF chan_conf)
 {
    ALLEGRO_AUDIO_STREAM *stream;
@@ -163,18 +163,16 @@ unsigned int al_get_audio_stream_frequency(const ALLEGRO_AUDIO_STREAM *stream)
 {
    ASSERT(stream);
 
-   // XXX long not needed
    return stream->spl.spl_data.frequency;
 }
 
 
 /* Function: al_get_audio_stream_length
  */
-unsigned long al_get_audio_stream_length(const ALLEGRO_AUDIO_STREAM *stream)
+unsigned int al_get_audio_stream_length(const ALLEGRO_AUDIO_STREAM *stream)
 {
    ASSERT(stream);
 
-   // XXX long not needed?
    return stream->spl.spl_data.len >> MIXER_FRAC_SHIFT;
 }
 
@@ -582,7 +580,7 @@ void *_al_kcm_feed_stream(ALLEGRO_THREAD *self, void *vstream)
          fragment = al_get_audio_stream_fragment(stream);
          if (!fragment) {
             /* This is not an error. */
-                    continue;
+            continue;
          }
 
          bytes = (stream->spl.spl_data.len >> MIXER_FRAC_SHIFT) *
@@ -611,7 +609,7 @@ void *_al_kcm_feed_stream(ALLEGRO_THREAD *self, void *vstream)
 
          if (!al_set_audio_stream_fragment(stream, fragment)) {
             ALLEGRO_ERROR("Error setting stream buffer.\n");
-				continue;
+            continue;
          }
 
          /* The streaming source doesn't feed any more, drain buffers and quit. */

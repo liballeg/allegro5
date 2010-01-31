@@ -182,7 +182,7 @@ typedef struct ALLEGRO_AL_DATA {
 /* TODO: review */
 static void *_openal_update(ALLEGRO_THREAD* self, void* arg)
 {
-   unsigned long i, samples_per_update;
+   unsigned int i, samples_per_update;
    const void *data;
    void *silence;
 
@@ -621,7 +621,7 @@ static void _openal_deallocate_voice(ALLEGRO_VOICE *voice)
 /* The get_voice_position method should return the current sample position of
    the voice (sample_pos = byte_pos / (depth/8) / channels). This should never
    be called on a streaming voice. */
-static unsigned long _openal_get_voice_position(const ALLEGRO_VOICE *voice)
+static unsigned int _openal_get_voice_position(const ALLEGRO_VOICE *voice)
 {
    ALLEGRO_AL_DATA *ex_data = voice->extra;
    ALint pos;
@@ -635,7 +635,7 @@ static unsigned long _openal_get_voice_position(const ALLEGRO_VOICE *voice)
 /* The set_voice_position method should set the voice's playback position,
    given the value in samples. This should never be called on a streaming
    voice. */
-static int _openal_set_voice_position(ALLEGRO_VOICE *voice, unsigned long val)
+static int _openal_set_voice_position(ALLEGRO_VOICE *voice, unsigned int val)
 {
    ALLEGRO_AL_DATA *ex_data = voice->extra;
 

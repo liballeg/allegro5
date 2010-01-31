@@ -353,13 +353,13 @@ static bool oss_voice_is_playing(const ALLEGRO_VOICE *voice)
 }
 
 
-static unsigned long oss_get_voice_position(const ALLEGRO_VOICE *voice)
+static unsigned int oss_get_voice_position(const ALLEGRO_VOICE *voice)
 {
    return voice->attached_stream->pos;
 }
 
 
-static int oss_set_voice_position(ALLEGRO_VOICE *voice, unsigned long val)
+static int oss_set_voice_position(ALLEGRO_VOICE *voice, unsigned int val)
 {
    voice->attached_stream->pos = val;
    return 0;
@@ -426,8 +426,8 @@ static void* oss_update(ALLEGRO_THREAD *self, void *arg)
       len = bi.bytes;
       */
 
-      unsigned long frames = 1024; /* How many bytes are we supposed to try to
-                                    * write at once? */
+      /* How many bytes are we supposed to try to write at once? */
+      unsigned int frames = 1024;
 
       if (oss_voice->stop && !oss_voice->stopped) {
          oss_voice->stopped = true;
@@ -571,7 +571,7 @@ static int oss_allocate_voice(ALLEGRO_VOICE *voice)
       goto Error;
    }
    if (voice->frequency != tmp_freq) {
-      ALLEGRO_ERROR("Requested sample rate %lu, got %iu.\n", voice->frequency,
+      ALLEGRO_ERROR("Requested sample rate %u, got %iu.\n", voice->frequency,
             tmp_freq);
    }
 

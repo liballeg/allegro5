@@ -121,8 +121,8 @@ Error:
 
 /* Function: al_create_sample
  */
-ALLEGRO_SAMPLE *al_create_sample(void *buf, unsigned long samples,
-   unsigned long freq, ALLEGRO_AUDIO_DEPTH depth,
+ALLEGRO_SAMPLE *al_create_sample(void *buf, unsigned int samples,
+   unsigned int freq, ALLEGRO_AUDIO_DEPTH depth,
    ALLEGRO_CHANNEL_CONF chan_conf, bool free_buf)
 {
    ALLEGRO_SAMPLE *spl;
@@ -394,7 +394,7 @@ unsigned int al_get_sample_frequency(const ALLEGRO_SAMPLE *spl)
 
 /* Function: al_get_sample_length
  */
-unsigned long al_get_sample_length(const ALLEGRO_SAMPLE *spl)
+unsigned int al_get_sample_length(const ALLEGRO_SAMPLE *spl)
 {
    ASSERT(spl);
 

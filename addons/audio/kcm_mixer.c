@@ -497,9 +497,9 @@ static INLINE int32_t clamp(int32_t val, int32_t min, int32_t max)
 
 
 /* Reads some samples into a mixer buffer. */
-#define MAKE_MIXER(bits, interp, type)                                              \
-static void read_to_mixer_##interp ##_ ##type ##_ ##bits(void *source, void **vbuf,           \
-   unsigned long *samples, ALLEGRO_AUDIO_DEPTH buffer_depth,                  \
+#define MAKE_MIXER(bits, interp, type)                                        \
+static void read_to_mixer_##interp ##_ ##type ##_ ##bits(void *source, void **vbuf, \
+   unsigned int *samples, ALLEGRO_AUDIO_DEPTH buffer_depth,                   \
    size_t dest_maxc)                                                          \
 {                                                                             \
    ALLEGRO_SAMPLE_INSTANCE *spl = (ALLEGRO_SAMPLE_INSTANCE *)source;          \
@@ -547,7 +547,7 @@ MAKE_MIXER(16, point, int16_t)
  *  specified buffer (or if *buf is NULL, indicating a voice, convert it and
  *  set it to the buffer pointer).
  */
-void _al_kcm_mixer_read(void *source, void **buf, unsigned long *samples,
+void _al_kcm_mixer_read(void *source, void **buf, unsigned int *samples,
    ALLEGRO_AUDIO_DEPTH buffer_depth, size_t dest_maxc)
 {
    const ALLEGRO_MIXER *mixer;
@@ -595,6 +595,7 @@ void _al_kcm_mixer_read(void *source, void **buf, unsigned long *samples,
 
    if (*buf) {
       memcpy(buf, mixer->ss.spl_data.buffer.ptr, 4*samples_l);
+      /* XXX should this be `*samples' instead? */
       samples_l = 0;
       return;
    }
@@ -672,7 +673,7 @@ void _al_kcm_mixer_read(void *source, void **buf, unsigned long *samples,
 
 /* Function: al_create_mixer
  */
-ALLEGRO_MIXER *al_create_mixer(unsigned long freq,
+ALLEGRO_MIXER *al_create_mixer(unsigned int freq,
    ALLEGRO_AUDIO_DEPTH depth, ALLEGRO_CHANNEL_CONF chan_conf)
 {
    ALLEGRO_MIXER *mixer;
@@ -924,11 +925,9 @@ bool al_get_mixer_attached(const ALLEGRO_MIXER *mixer)
 
 /* Function: al_set_mixer_frequency
  */
-bool al_set_mixer_frequency(ALLEGRO_MIXER *mixer, unsigned long val)
+bool al_set_mixer_frequency(ALLEGRO_MIXER *mixer, unsigned int val)
 {
    ASSERT(mixer);
-
-   // XXX long not needed
 
    /* You can change the frequency of a mixer as long as it's not attached
     * to anything.

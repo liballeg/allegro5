@@ -16,7 +16,7 @@
 
 
 /* forward declarations */
-static void stream_read(void *source, void **vbuf, unsigned long *samples,
+static void stream_read(void *source, void **vbuf, unsigned int *samples,
    ALLEGRO_AUDIO_DEPTH buffer_depth, size_t dest_maxc);
 
 
@@ -34,18 +34,18 @@ static void stream_read(void *source, void **vbuf, unsigned long *samples,
  *  in the returned audio data and it may be less or equal to the requested
  *  samples count.
  */
-const void *_al_voice_update(ALLEGRO_VOICE *voice, unsigned long *samples)
+const void *_al_voice_update(ALLEGRO_VOICE *voice, unsigned int *samples)
 {
    void *buf = NULL;
 
    ASSERT(voice);
 
-	al_lock_mutex(voice->mutex);
-	if (voice->attached_stream) {
+   al_lock_mutex(voice->mutex);
+   if (voice->attached_stream) {
       voice->attached_stream->spl_read(voice->attached_stream, &buf, samples,
          voice->depth, 0);
    }
-	al_unlock_mutex(voice->mutex);
+   al_unlock_mutex(voice->mutex);
 
    return buf;
 }
@@ -53,7 +53,7 @@ const void *_al_voice_update(ALLEGRO_VOICE *voice, unsigned long *samples)
 
 /* Function: al_create_voice
  */
-ALLEGRO_VOICE *al_create_voice(unsigned long freq,
+ALLEGRO_VOICE *al_create_voice(unsigned int freq,
    ALLEGRO_AUDIO_DEPTH depth, ALLEGRO_CHANNEL_CONF chan_conf)
 {
    ALLEGRO_VOICE *voice = NULL;
@@ -180,7 +180,7 @@ bool al_attach_sample_to_voice(ALLEGRO_SAMPLE_INSTANCE *spl,
 /* stream_read:
  *  This passes the next waiting stream buffer to the voice via vbuf.
  */
-static void stream_read(void *source, void **vbuf, unsigned long *samples,
+static void stream_read(void *source, void **vbuf, unsigned int *samples,
    ALLEGRO_AUDIO_DEPTH buffer_depth, size_t dest_maxc)
 {
    ALLEGRO_AUDIO_STREAM *stream = (ALLEGRO_AUDIO_STREAM*)source;
@@ -381,14 +381,13 @@ unsigned int al_get_voice_frequency(const ALLEGRO_VOICE *voice)
 {
    ASSERT(voice);
 
-   // XXX long not needed
    return voice->frequency;
 }
 
 
 /* Function: al_get_voice_position
  */
-unsigned long al_get_voice_position(const ALLEGRO_VOICE *voice)
+unsigned int al_get_voice_position(const ALLEGRO_VOICE *voice)
 {
    ASSERT(voice);
 
@@ -436,7 +435,7 @@ bool al_get_voice_playing(const ALLEGRO_VOICE *voice)
 
 /* Function: al_set_voice_position
  */
-bool al_set_voice_position(ALLEGRO_VOICE *voice, unsigned long val)
+bool al_set_voice_position(ALLEGRO_VOICE *voice, unsigned int val)
 {
    ASSERT(voice);
 

@@ -306,7 +306,10 @@ static void *alsa_update_mmap(ALLEGRO_THREAD *self, void *arg)
          }
       }
       else if (voice->is_streaming && !alsa_voice->stopped) {
-         const void *data = _al_voice_update(voice, &frames);
+         /* This should fit. */
+         unsigned int iframes = frames;
+         const void *data = _al_voice_update(voice, &iframes);
+         frames = iframes;
          if (data == NULL)
             goto silence;
          memcpy(mmap, data, frames * alsa_voice->frame_size);
@@ -385,7 +388,10 @@ static void *alsa_update_rw(ALLEGRO_THREAD *self, void *arg)
          frames = bytes / alsa_voice->frame_size;
       }
       else if (voice->is_streaming && !alsa_voice->stopped) {
-         buf = (void *)_al_voice_update(voice, &frames);
+         /* This should fit. */
+         unsigned int iframes = frames;
+         buf = (void *)_al_voice_update(voice, &iframes);
+         frames = iframes;
          if (buf == NULL)
             goto silence;
       }
@@ -549,7 +555,7 @@ static int alsa_allocate_voice(ALLEGRO_VOICE *voice)
    ALSA_CHECK(snd_pcm_hw_params(ex_data->pcm_handle, hwparams));
 
    if (voice->frequency != req_freq) {
-      ALLEGRO_ERROR("Unsupported rate! Requested %lu, got %iu.\n", voice->frequency, req_freq);
+      ALLEGRO_ERROR("Unsupported rate! Requested %u, got %iu.\n", voice->frequency, req_freq);
       goto Error;
    }
 
@@ -616,7 +622,7 @@ static void alsa_deallocate_voice(ALLEGRO_VOICE *voice)
 /* The get_voice_position method should return the current sample position of
    the voice (sample_pos = byte_pos / (depth/8) / channels). This should never
    be called on a streaming voice. */
-static unsigned long alsa_get_voice_position(const ALLEGRO_VOICE *voice)
+static unsigned int alsa_get_voice_position(const ALLEGRO_VOICE *voice)
 {
    return voice->attached_stream->pos;
 }
@@ -626,7 +632,7 @@ static unsigned long alsa_get_voice_position(const ALLEGRO_VOICE *voice)
 /* The set_voice_position method should set the voice's playback position,
    given the value in samples. This should never be called on a streaming
    voice. */
-static int alsa_set_voice_position(ALLEGRO_VOICE *voice, unsigned long val)
+static int alsa_set_voice_position(ALLEGRO_VOICE *voice, unsigned int val)
 {
    voice->attached_stream->pos = val;
    return 0;

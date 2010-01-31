@@ -100,7 +100,7 @@ static void* _dsound_update(ALLEGRO_THREAD* self, void* arg)
    ALLEGRO_VOICE *voice = (ALLEGRO_VOICE *)arg;
    ALLEGRO_DS_DATA *ex_data = (ALLEGRO_DS_DATA*)voice->extra;
    DWORD play_cursor = 0, write_cursor, saved_play_cursor = 0;
-   unsigned long samples;
+   unsigned int samples;
    int d;
    LPVOID ptr1, ptr2;
    DWORD block1_bytes, block2_bytes;
@@ -425,7 +425,7 @@ static bool _dsound_voice_is_playing(const ALLEGRO_VOICE *voice)
 /* The get_voice_position method should return the current sample position of
    the voice (sample_pos = byte_pos / (depth/8) / channels). This should never
    be called on a streaming voice. */
-static unsigned long _dsound_get_voice_position(const ALLEGRO_VOICE *voice)
+static unsigned int _dsound_get_voice_position(const ALLEGRO_VOICE *voice)
 {
    ALLEGRO_DS_DATA *ex_data = (ALLEGRO_DS_DATA *)voice->extra;
    DWORD play_pos;
@@ -440,7 +440,7 @@ static unsigned long _dsound_get_voice_position(const ALLEGRO_VOICE *voice)
 /* The set_voice_position method should set the voice's playback position,
    given the value in samples. This should never be called on a streaming
    voice. */
-static int _dsound_set_voice_position(ALLEGRO_VOICE *voice, unsigned long val)
+static int _dsound_set_voice_position(ALLEGRO_VOICE *voice, unsigned int val)
 {
    ALLEGRO_DS_DATA *ex_data = (ALLEGRO_DS_DATA *)voice->extra;
 

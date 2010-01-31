@@ -32,13 +32,13 @@ struct ALLEGRO_AUDIO_DRIVER {
 
    bool           (*voice_is_playing)(const ALLEGRO_VOICE*);
 
-   unsigned long  (*get_voice_position)(const ALLEGRO_VOICE*);
-   int            (*set_voice_position)(ALLEGRO_VOICE*, unsigned long);
+   unsigned int   (*get_voice_position)(const ALLEGRO_VOICE*);
+   int            (*set_voice_position)(ALLEGRO_VOICE*, unsigned int);
 };
 
 extern ALLEGRO_AUDIO_DRIVER *_al_kcm_driver;
 
-const void *_al_voice_update(ALLEGRO_VOICE *voice, unsigned long *samples);
+const void *_al_voice_update(ALLEGRO_VOICE *voice, unsigned int *samples);
 
 /* A voice structure that you'd attach a mixer or sample to. Ideally there
  * would be one ALLEGRO_VOICE per system/hardware voice.
@@ -47,7 +47,7 @@ struct ALLEGRO_VOICE {
    ALLEGRO_AUDIO_DEPTH  depth;
    ALLEGRO_CHANNEL_CONF chan_conf;
 
-   unsigned long        frequency;
+   unsigned int         frequency;
 
    size_t               buffer_size;
    size_t               num_buffers;
@@ -87,8 +87,8 @@ typedef union {
 struct ALLEGRO_SAMPLE {
    ALLEGRO_AUDIO_DEPTH  depth;
    ALLEGRO_CHANNEL_CONF chan_conf;
-   unsigned long        frequency;
-   unsigned long        len;
+   unsigned int         frequency;
+   unsigned int         len;
    any_buffer_t         buffer;
    bool                 free_buf;
                         /* Whether `buffer' needs to be freed when the sample
@@ -96,7 +96,7 @@ struct ALLEGRO_SAMPLE {
                          */
 };
 
-typedef void (*stream_reader_t)(void *, void **, unsigned long *,
+typedef void (*stream_reader_t)(void *, void **, unsigned int *,
    ALLEGRO_AUDIO_DEPTH, size_t);
 
 typedef struct {
@@ -124,10 +124,10 @@ struct ALLEGRO_SAMPLE_INSTANCE {
    float                gain;
    float                pan;
 
-   unsigned long        pos;
-   unsigned long        loop_start;
-   unsigned long        loop_end;
-   long                 step;
+   unsigned int         pos;
+   unsigned int         loop_start;
+   unsigned int         loop_end;
+   int                  step;
 
    float                *matrix;
                         /* Used to convert from this format to the attached
@@ -222,7 +222,7 @@ struct ALLEGRO_AUDIO_STREAM {
 bool _al_kcm_refill_stream(ALLEGRO_AUDIO_STREAM *stream);
 
 
-typedef void (*postprocess_callback_t)(void *buf, unsigned long samples,
+typedef void (*postprocess_callback_t)(void *buf, unsigned int samples,
    void *userdata);
 
 /* ALLEGRO_MIXER is derived from ALLEGRO_SAMPLE_INSTANCE. Certain internal functions and
@@ -248,7 +248,7 @@ struct ALLEGRO_MIXER {
 
 extern void _al_kcm_mixer_rejig_sample_matrix(ALLEGRO_MIXER *mixer,
    ALLEGRO_SAMPLE_INSTANCE *spl);
-extern void _al_kcm_mixer_read(void *source, void **buf, unsigned long *samples,
+extern void _al_kcm_mixer_read(void *source, void **buf, unsigned int *samples,
    ALLEGRO_AUDIO_DEPTH buffer_depth, size_t dest_maxc);
 
 

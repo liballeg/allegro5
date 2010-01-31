@@ -118,7 +118,7 @@ static void *pulseaudio_update(ALLEGRO_THREAD *self, void *data)
 
    while (!al_get_thread_should_stop(self)) {
       if (pv->status == PV_PLAYING) {
-         unsigned long frames = 4096;
+         unsigned int frames = 4096;
          if (voice->is_streaming) { 
             // streaming audio           
             const void *data = _al_voice_update(voice, &frames);
@@ -130,7 +130,7 @@ static void *pulseaudio_update(ALLEGRO_THREAD *self, void *data)
             // direct buffer audio
             al_lock_mutex(pv->buffer_mutex);
             const char *data = pv->buffer;
-            unsigned long len = frames * pv->frame_size;
+            unsigned int len = frames * pv->frame_size;
             pv->buffer += frames * pv->frame_size;
             if (pv->buffer > pv->buffer_end) {
                len = pv->buffer_end - data;
@@ -282,12 +282,12 @@ static bool pulseaudio_voice_is_playing(const ALLEGRO_VOICE *voice)
    return pv->status == PV_PLAYING;
 }
 
-static unsigned long pulseaudio_get_voice_position(const ALLEGRO_VOICE *voice)
+static unsigned int pulseaudio_get_voice_position(const ALLEGRO_VOICE *voice)
 {
    return voice->attached_stream->pos;
 }
 
-static int pulseaudio_set_voice_position(ALLEGRO_VOICE *voice, unsigned long pos)
+static int pulseaudio_set_voice_position(ALLEGRO_VOICE *voice, unsigned int pos)
 {
    PULSEAUDIO_VOICE *pv = voice->extra;
 

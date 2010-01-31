@@ -62,13 +62,13 @@ static void handle_buffer(
 
    (void)inAQ; // unsused
 
-   unsigned long samples = (ex_data->buffer_size/ex_data->channels)/(ex_data->bits_per_sample/8);
+   unsigned int samples = (ex_data->buffer_size/ex_data->channels)/(ex_data->bits_per_sample/8);
 
    data = _al_voice_update(ex_data->voice, &samples);
    if (data == NULL)
       data = silence;
 
-   unsigned long copy_bytes = samples * ex_data->channels *
+   unsigned int copy_bytes = samples * ex_data->channels *
    	(ex_data->bits_per_sample/8);
    copy_bytes = _ALLEGRO_MIN(copy_bytes, inBuffer->mAudioDataBytesCapacity);
 
@@ -336,7 +336,7 @@ static bool _aqueue_voice_is_playing(const ALLEGRO_VOICE *voice)
 /* The get_voice_position method should return the current sample position of
    the voice (sample_pos = byte_pos / (depth/8) / channels). This should never
    be called on a streaming voice. */
-static unsigned long _aqueue_get_voice_position(const ALLEGRO_VOICE *voice)
+static unsigned int _aqueue_get_voice_position(const ALLEGRO_VOICE *voice)
 {
    /* FIXME */
    return 0;
@@ -345,7 +345,7 @@ static unsigned long _aqueue_get_voice_position(const ALLEGRO_VOICE *voice)
 /* The set_voice_position method should set the voice's playback position,
    given the value in samples. This should never be called on a streaming
    voice. */
-static int _aqueue_set_voice_position(ALLEGRO_VOICE *voice, unsigned long val)
+static int _aqueue_set_voice_position(ALLEGRO_VOICE *voice, unsigned int val)
 {
    /* FIXME */
    return 0;
