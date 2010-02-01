@@ -39,6 +39,11 @@ ALLEGRO_DEBUG_CHANNEL("MacOSX")
 #define MINIMUM_WIDTH 48
 #define MINIMUM_HEIGHT 48
 
+/* Unsigned integer; data type only avaliable for OS X >= 10.5 */
+#if MAC_OS_X_VERSION_MIN_REQUIRED < 1050
+typedef unsigned int NSUInteger;
+#endif
+
 /* Module Variables */
 static BOOL _osx_mouse_installed = NO, _osx_keyboard_installed = NO;
 static NSPoint last_window_pos;
@@ -81,6 +86,37 @@ static const unsigned int allegro_to_osx_settings[][3] = {
 };
 static const int number_of_settings =
    sizeof(allegro_to_osx_settings)/sizeof(*allegro_to_osx_settings);
+
+#ifdef DEBUGMODE
+static const char *allegro_pixel_format_names[] = {
+   "ALLEGRO_RED_SIZE",
+   "ALLEGRO_GREEN_SIZE",
+   "ALLEGRO_BLUE_SIZE",
+   "ALLEGRO_ALPHA_SIZE",
+   "ALLEGRO_RED_SHIFT",
+   "ALLEGRO_GREEN_SHIFT",
+   "ALLEGRO_BLUE_SHIFT",
+   "ALLEGRO_ALPHA_SHIFT",
+   "ALLEGRO_ACC_RED_SIZE",
+   "ALLEGRO_ACC_GREEN_SIZE",
+   "ALLEGRO_ACC_BLUE_SIZE",
+   "ALLEGRO_ACC_ALPHA_SIZE",
+   "ALLEGRO_STEREO",
+   "ALLEGRO_AUX_BUFFERS",
+   "ALLEGRO_COLOR_SIZE",
+   "ALLEGRO_DEPTH_SIZE",
+   "ALLEGRO_STENCIL_SIZE",
+   "ALLEGRO_SAMPLE_BUFFERS",
+   "ALLEGRO_SAMPLES",
+   "ALLEGRO_RENDER_METHOD",
+   "ALLEGRO_FLOAT_COLOR",
+   "ALLEGRO_FLOAT_DEPTH",
+   "ALLEGRO_SINGLE_BUFFER",
+   "ALLEGRO_SWAP_METHOD",
+   "ALLEGRO_COMPATIBLE_DISPLAY",
+   "ALLEGRO_DISPLAY_OPTIONS_COUNT"
+};
+#endif
 
 /* Module functions */
 static NSView* osx_view_from_display(ALLEGRO_DISPLAY* disp);
@@ -509,8 +545,21 @@ static void osx_set_opengl_pixelformat_attributes(ALLEGRO_DISPLAY_OSX_WIN *dpy)
    /* Find the requested colour depth */
    if (extras)
       dpy->depth = extras->settings[ALLEGRO_COLOR_SIZE];
-   if (!dpy->depth)
-      dpy->depth = 32;  // FIXME
+   if (!dpy->depth) {   /* Use default */
+      NSScreen *screen;
+      int adapter = al_get_current_video_adapter();
+      if ((adapter >= 0) && (adapter < al_get_num_video_adapters())) {
+         screen = [[NSScreen screens] objectAtIndex: adapter];
+      } else {
+         screen = [NSScreen mainScreen];
+      }
+      dpy->depth = NSBitsPerPixelFromDepth([screen depth]);
+      if (dpy->depth == 24)
+         dpy->depth = 32;
+      if (dpy->depth == 15)
+         dpy->depth = 16;
+      ALLEGRO_DEBUG("Using default colour depth %d\n", dpy->depth);
+   }
    *a = NSOpenGLPFAColorSize; a++;
    *a = dpy->depth; a++; 
 
@@ -555,9 +604,11 @@ static void osx_set_opengl_pixelformat_attributes(ALLEGRO_DISPLAY_OSX_WIN *dpy)
             if (extras->settings[i]) {
                *a = allegro_to_osx_settings[n][1]; a++;
                *a = extras->settings[i]; a++;
+               ALLEGRO_DEBUG("Passing pixel format attribute %s = %d\n", allegro_pixel_format_names[n], extras->settings[i]);
             }
          } else if (extras->settings[i]) {      /* Boolean, just turn this on */
             *a = allegro_to_osx_settings[n][1]; a++;
+            ALLEGRO_DEBUG("Passing pixel format attribute %s = %d\n", allegro_pixel_format_names[n], extras->settings[i]);
          }
       }
    }
@@ -570,49 +621,47 @@ static void osx_set_opengl_pixelformat_attributes(ALLEGRO_DISPLAY_OSX_WIN *dpy)
 static void osx_get_opengl_pixelformat_attributes(ALLEGRO_DISPLAY_OSX_WIN *dpy)
 {
    int n;
-   NSOpenGLPixelFormatAttribute *a;
-   NSOpenGLPixelFormatAttribute *attributes;
 
    if (!dpy)
       return;
 
-   /* Get pixelformat attributes selected for the display
-    * FIXME: right now, we just return the settings that were chosen by the
-    * user. To be correct, we should query the pixelformat corresponding to
-    * the display, using the NSOpenGLView pixelFormat method and the
-    * NSOpenGLPixelFormat getValues:forAttribute:forVirtualScreen: method,
-    * for which we need to know the logical screen number that the display
-    * is on.
-    */
-   attributes = dpy->attributes;
-
    /* Clear list of settings (none selected) */
    memset(&dpy->parent.extra_settings, 0, sizeof(dpy->parent.extra_settings));
 
+   /* Get the pixel format associated with the OpenGL context.
+    * We use teh Carbon API rather than the Cocoa API because that way we
+    * can use the same code in Windowed mode as in fullscreen mode (we
+    * don't have an NSOpenGLView in fullscreen mode).
+    */
+   CGLContextObj ctx = [dpy->ctx CGLContextObj];
+   CGLPixelFormatObj pixel_format = CGLGetPixelFormat(ctx);
+   GLint screen_id;
+   CGLGetVirtualScreen(ctx, &screen_id);
+   ALLEGRO_DEBUG("Screen has ID %d\n", (int)screen_id);
    for (n = 0; n < number_of_settings; n++) {
       /* Go through the list of options and relist the ones that we have
        * set to Allegro's option list.
        */
-      a = dpy->attributes;
-      while (*a) {
-         if (*a == allegro_to_osx_settings[n][1]) {
-            int al_setting = allegro_to_osx_settings[n][0];
-            int value = 1;
-            if (allegro_to_osx_settings[n][2])
-               value = a[1];
-            dpy->parent.extra_settings.settings[al_setting] = value;
-            ALLEGRO_DEBUG("Setting pixel format attribute %d to %d\n", al_setting, value);
-         }
-         /* Advance to next option */
-         if (allegro_to_osx_settings[n][2]) /* Has a parameter in the list */
-            a++;
-         a++;
-      }
+
+      CGLPixelFormatAttribute attrib = allegro_to_osx_settings[n][1];
+      /* Skip options that don't exist on OS X */
+      if (attrib == 0)
+         continue;
+
+      /* Get value for this attribute */
+      GLint value;
+      CGLDescribePixelFormat(pixel_format, screen_id, attrib, &value);
+
+      int al_setting = allegro_to_osx_settings[n][0];
+      if (allegro_to_osx_settings[n][2] == 0)      /* Boolean attribute */
+         value = 1;
+
+      dpy->parent.extra_settings.settings[al_setting] = value;
+      ALLEGRO_DEBUG("Pixel format attribute %s set to %d\n", allegro_pixel_format_names[n], value);
    }
    dpy->parent.extra_settings.settings[ALLEGRO_COMPATIBLE_DISPLAY] = 1;
-    
-   // FIXME - the color format has to filled in to know how to create the
-   // backbuffer
+
+   // Fill in the missing colour format options, as best we can
    ALLEGRO_EXTRA_DISPLAY_SETTINGS *eds = &dpy->parent.extra_settings;
    if (eds->settings[ALLEGRO_COLOR_SIZE] == 0) {
       eds->settings[ALLEGRO_COLOR_SIZE] = 32;
@@ -624,8 +673,38 @@ static void osx_get_opengl_pixelformat_attributes(ALLEGRO_DISPLAY_OSX_WIN *dpy)
       eds->settings[ALLEGRO_GREEN_SHIFT] = 8;
       eds->settings[ALLEGRO_BLUE_SHIFT] = 16;
       eds->settings[ALLEGRO_ALPHA_SHIFT] = 24;
+   } else {
+      int size = eds->settings[ALLEGRO_ALPHA_SIZE];
+      if (!size) {
+         switch (eds->settings[ALLEGRO_COLOR_SIZE]) {
+            case 32:
+               size = 8;
+               break;
+
+            case 16:
+               size = 5;
+               break;
+
+            case 8:
+               size = 8;
+               break;
+         }
+      }
+      if (!eds->settings[ALLEGRO_RED_SIZE])
+         eds->settings[ALLEGRO_RED_SIZE] = size;
+      if (!eds->settings[ALLEGRO_BLUE_SIZE])
+         eds->settings[ALLEGRO_BLUE_SIZE] = size;
+      if (!eds->settings[ALLEGRO_GREEN_SIZE])
+         eds->settings[ALLEGRO_GREEN_SIZE] = size;
+      if (!eds->settings[ALLEGRO_RED_SHIFT])
+         eds->settings[ALLEGRO_RED_SHIFT] = 0;
+      if (!eds->settings[ALLEGRO_GREEN_SHIFT])
+         eds->settings[ALLEGRO_GREEN_SHIFT] = eds->settings[ALLEGRO_RED_SIZE];
+      if (!eds->settings[ALLEGRO_BLUE_SHIFT])
+         eds->settings[ALLEGRO_BLUE_SHIFT] = eds->settings[ALLEGRO_GREEN_SIZE]+eds->settings[ALLEGRO_GREEN_SHIFT];
+      if (!eds->settings[ALLEGRO_ALPHA_SHIFT])
+         eds->settings[ALLEGRO_ALPHA_SHIFT] = eds->settings[ALLEGRO_BLUE_SIZE]+eds->settings[ALLEGRO_BLUE_SHIFT];
    }
-   
 }
 
 
@@ -667,8 +746,12 @@ static void osx_get_opengl_pixelformat_attributes(ALLEGRO_DISPLAY_OSX_WIN *dpy)
       [[NSOpenGLPixelFormat alloc] initWithAttributes: dpy->attributes];
    ALOpenGLView* view = [[ALOpenGLView alloc] initWithFrame: rc];
    dpy->ctx = osx_create_shareable_context(fmt, &dpy->display_group);
-   [fmt release];
+   if (dpy->ctx == nil) {
+      ALLEGRO_DEBUG("Could not create rendering context\n");
+      return;
+   }
    [view setOpenGLContext: dpy->ctx];
+   [view setPixelFormat: fmt];
    /* Hook up the view to its display */
    [view setAllegroDisplay: &dpy->parent];
    /* Realize the window on the main thread */
@@ -728,6 +811,7 @@ static void osx_get_opengl_pixelformat_attributes(ALLEGRO_DISPLAY_OSX_WIN *dpy)
    }
    [win makeKeyAndOrderFront:self];
    if (!(mask & NSBorderlessWindowMask)) [win makeMainWindow];
+   [fmt release];
    [view release];
 }
 +(void) destroyDisplay: (NSValue*) display_object {
@@ -823,22 +907,25 @@ static NSOpenGLContext* osx_create_shareable_context(NSOpenGLPixelFormat* fmt, u
       if (compat != nil) {
       // OK, we can share with this one
          *group = other->display_group;
+         ALLEGRO_DEBUG("Sharing display group %d\n", *group);
          break;
       }
    }
    if (compat == nil) {
       // Set to a new group
       *group = next_display_group++;
+      ALLEGRO_DEBUG("Creating new display group %d\n", *group);
       compat = [[NSOpenGLContext alloc] initWithFormat:fmt shareContext: nil];      
    }
    return compat;
 }
 
 /* create_display_fs:
-* Create a fullscreen display - capture the display
-*/
+ * Create a fullscreen display - capture the display
+ */
 static ALLEGRO_DISPLAY* create_display_fs(int w, int h)
 {
+   ALLEGRO_DEBUG("Switching to fullscreen mode sized %dx%d\n", w, h);
    if (al_get_current_video_adapter() >= al_get_num_video_adapters())
       return NULL;
    ALLEGRO_DISPLAY_OSX_WIN* dpy = _AL_MALLOC(sizeof(ALLEGRO_DISPLAY_OSX_WIN));
@@ -870,14 +957,18 @@ static ALLEGRO_DISPLAY* create_display_fs(int w, int h)
    osx_set_opengl_pixelformat_attributes(dpy);
    NSOpenGLPixelFormat* fmt =
       [[NSOpenGLPixelFormat alloc] initWithAttributes: dpy->attributes];
-   if (fmt == nil)
+   if (fmt == nil) {
+      ALLEGRO_DEBUG("Could not set pixel format\n");
       return NULL;
+   }
 
    // Create a context which shares with any other contexts with the same format
    NSOpenGLContext* context = osx_create_shareable_context(fmt, &dpy->display_group);
    [fmt release];
-   if (context == nil)
+   if (context == nil) {
+      ALLEGRO_DEBUG("Could not create rendering context\n");
       return NULL;
+   }
    [context makeCurrentContext];
    dpy->ctx = context;
 
@@ -935,6 +1026,7 @@ static ALLEGRO_DISPLAY* create_display_fs(int w, int h)
 * to be its content view
 */
 static ALLEGRO_DISPLAY* create_display_win(int w, int h) {
+   ALLEGRO_DEBUG("Creating window sized %dx%d\n", w, h);
    if (al_get_current_video_adapter() >= al_get_num_video_adapters())
       return NULL;
    ALLEGRO_DISPLAY_OSX_WIN* dpy = _AL_MALLOC(sizeof(ALLEGRO_DISPLAY_OSX_WIN));
