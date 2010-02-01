@@ -23,6 +23,7 @@ typedef struct ALLEGRO_DISPLAY_OSX_WIN {
    BOOL show_cursor;
    NSTrackingRectTag tracking;
    unsigned int display_group;
+   BOOL in_fullscreen;
 } ALLEGRO_DISPLAY_OSX_WIN;
 
 /* This is our version of ALLEGRO_MOUSE_CURSOR */

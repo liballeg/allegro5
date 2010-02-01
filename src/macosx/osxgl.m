@@ -48,7 +48,6 @@ typedef unsigned int NSUInteger;
 static BOOL _osx_mouse_installed = NO, _osx_keyboard_installed = NO;
 static NSPoint last_window_pos;
 static unsigned int next_display_group = 1;
-static BOOL in_fullscreen = NO;
 
 /* Dictionary to map Allegro's DISPLAY_OPTIONS to OS X
  * PixelFormatAttributes. 
@@ -822,7 +821,7 @@ static void osx_get_opengl_pixelformat_attributes(ALLEGRO_DISPLAY_OSX_WIN *dpy)
    // Unlock the screen 
    if (dpy->parent.flags & ALLEGRO_FULLSCREEN) {
       CGDisplayRelease(dpy->display_id);
-      in_fullscreen = false;
+      dpy->in_fullscreen = false;
    }
    else {
       // Destroy the containing window if there is one
@@ -837,7 +836,8 @@ static void osx_get_opengl_pixelformat_attributes(ALLEGRO_DISPLAY_OSX_WIN *dpy)
 +(void) runFullScreenDisplay: (NSValue*) display_object
 {
    ALLEGRO_DISPLAY* display = (ALLEGRO_DISPLAY*) [display_object pointerValue];
-   while (in_fullscreen) {
+   ALLEGRO_DISPLAY_OSX_WIN *dpy = (ALLEGRO_DISPLAY_OSX_WIN *)display;
+   while (dpy->in_fullscreen) {
       NSAutoreleasePool* pool = [[NSAutoreleasePool alloc] init];
      // Collect an event
       NSEvent* event = [NSApp nextEventMatchingMask:NSAnyEventMask 
@@ -1010,7 +1010,7 @@ static ALLEGRO_DISPLAY* create_display_fs(int w, int h)
    /* Add to the display list */
    ALLEGRO_DISPLAY **add = _al_vector_alloc_back(&al_get_system_driver()->displays);
    *add = &dpy->parent;
-   in_fullscreen = YES;
+   dpy->in_fullscreen = YES;
    // Begin the 'private' event loop 
    // Necessary because there's no NSResponder (i.e. a view) to collect 
    // events from the window server.
@@ -1085,6 +1085,7 @@ static ALLEGRO_DISPLAY* create_display_win(int w, int h) {
    /* Add to the display list */
    ALLEGRO_DISPLAY **add = _al_vector_alloc_back(&al_get_system_driver()->displays);
    *add = &dpy->parent;
+   dpy->in_fullscreen = NO;
 
    return &dpy->parent;
 }
