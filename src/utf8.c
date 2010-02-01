@@ -1132,7 +1132,7 @@ size_t al_ustr_encode_utf16(const ALLEGRO_USTR *us, uint16_t *s,
    size_t i = 0;
    while (1) {
       /* Used to hold one encoded UTF-16 character. */
-      uint16_t encoded[2];
+      uint16_t encoded[2] = {0, 0};
       size_t sz;
       int32_t c = al_ustr_get_next(us, &pos);
       if (c < 0)
