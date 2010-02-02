@@ -1,10 +1,5 @@
 /* Test retrieving and settings possible modes.
  * 
- * FIXME: Need a way to query the actually used settings and display
- *        them somewhere.
- * FIXME: Handle case when a mode can't be set with the given
- *        options, like keep the current display and print an error
- *        message.
  * FIXME: I can't test fullscreen support - I only get a single mode
  *        listed which does not work. Most likely the format parameter
  *        should be used somehow.
@@ -12,14 +7,17 @@
  */
 #include <allegro5/allegro5.h>
 #include <allegro5/allegro_font.h>
+#include <allegro5/allegro_primitives.h>
 #include <stdio.h>
 
 #include "common.c"
 
 ALLEGRO_FONT *font;
+ALLEGRO_COLOR white;
 int font_h;
 int modes_count;
 int options_count;
+char status[256];
 
 int selected_column;
 int selected_mode;
@@ -47,7 +45,7 @@ struct {
     X(STENCIL_SIZE, 32),
     X(SAMPLE_BUFFERS, 1),
     X(SAMPLES, 8),
-    X(RENDER_METHOD, 1),
+    X(RENDER_METHOD, 2),
     X(SINGLE_BUFFER, 1),
     X(SWAP_METHOD, 1),
     X(VSYNC, 1),
@@ -59,11 +57,13 @@ static void display_options(void)
    int i, y = 10;
    int x = 10;
    int n = options_count;
+   int dw = al_get_display_width();
+   int dh = al_get_display_height();
 
    ALLEGRO_COLOR c;
    c = al_map_rgb_f(0.8, 0.8, 1);
    al_set_blender(ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA, c);
-   al_draw_textf(font, x, y, 0, "Video modes");
+   al_draw_textf(font, x, y, 0, "Create new display");
    y += font_h;
    for (i = 0; i < modes_count + 1; i++) {
       ALLEGRO_DISPLAY_MODE mode;
@@ -76,10 +76,12 @@ static void display_options(void)
          mode.format = 0;
          mode.refresh_rate = 0;
       }
-      if (selected_column == 0 && selected_mode == i)
-         c = al_map_rgb_f(1, 0, 0);
-      else
-         c = al_map_rgb_f(0, 0, 0);
+      if (selected_column == 0 && selected_mode == i) {
+         c = al_map_rgb_f(1, 1, 0);
+         al_set_blender(ALLEGRO_ONE, ALLEGRO_ZERO, white);
+         al_draw_filled_rectangle(x, y, x + 300, y + font_h, c);
+      }
+      c = al_map_rgb_f(0, 0, 0);
       al_set_blender(ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA, c);
       al_draw_textf(font, x, y, 0, "%s %d x %d (%d, %d)",
          i < modes_count ? "Fullscreen" : "Windowed",
@@ -88,36 +90,53 @@ static void display_options(void)
       y += font_h;
    }
    
-   x = al_get_display_width() / 2 + 10;
+   x = dw / 2 + 10;
    y = 10;
    c = al_map_rgb_f(0.8, 0.8, 1);
    al_set_blender(ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA, c);
-   al_draw_textf(font, x, y, 0, "Display options");
+   al_draw_textf(font, x, y, 0, "Options for new display");
+   al_draw_textf(font, dw - 10, y, ALLEGRO_ALIGN_RIGHT, "(current display)");
    y += font_h;
    for (i = 0; i < n; i++) {
-      if (selected_column == 1 && selected_option == i)
-         c = al_map_rgb_f(1, 0, 0);
-      else
-         c = al_map_rgb_f(0, 0, 0);
+      if (selected_column == 1 && selected_option == i) {
+         c = al_map_rgb_f(1, 1, 0);
+         al_set_blender(ALLEGRO_ONE, ALLEGRO_ZERO, white);
+         al_draw_filled_rectangle(x, y, x + 300, y + font_h, c);
+      }
+
+      switch (options[i].required) {
+         case ALLEGRO_REQUIRE: c = al_map_rgb_f(0.5, 0, 0); break;
+         case ALLEGRO_SUGGEST: c = al_map_rgb_f(0, 0, 0); break;
+         case ALLEGRO_DONTCARE: c = al_map_rgb_f(0.5, 0.5, 0.5); break;
+      }
       al_set_blender(ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA, c);
       al_draw_textf(font, x, y, 0, "%s: %d (%s)", options[i].name,
          options[i].value,
             options[i].required == ALLEGRO_REQUIRE ? "required" :
             options[i].required == ALLEGRO_SUGGEST ? "suggested" :
             "ignored");
+            
+      c = al_map_rgb_f(0.9, 0.5, 0.3);
+      al_set_blender(ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA, c);
+      al_draw_textf(font, dw - 10, y, ALLEGRO_ALIGN_RIGHT, "%d",
+         al_get_display_option(options[i].option));
       y += font_h;
    }
    
    c = al_map_rgb_f(0, 0, 0.8);
    al_set_blender(ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA, c);
    x = 10;
-   y = al_get_display_height() - 10;
+   y = dh - font_h - 10;
    y -= font_h;
    al_draw_textf(font, x, y, 0, "PageUp/Down: modify values");
    y -= font_h;
    al_draw_textf(font, x, y, 0, "Return: set mode or require option");
    y -= font_h;
    al_draw_textf(font, x, y, 0, "Cursor keys: change selection");
+   
+   c = al_map_rgb_f(1, 0, 0);
+   al_set_blender(ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA, c);
+   al_draw_text(font, dw / 2, dh - font_h, ALLEGRO_ALIGN_CENTRE, status);
 }
 
 int main(void)
@@ -131,8 +150,11 @@ int main(void)
       abort_example("Could not init Allegro.\n");
       return 1;
    }
+   
+   white = al_map_rgba_f(1, 1, 1, 1);
 
    al_install_keyboard();
+   al_install_mouse();
    al_init_font_addon();
 
    display = al_create_display(800, 600);
@@ -153,6 +175,7 @@ int main(void)
 
    queue = al_create_event_queue();
    al_register_event_source(queue, al_get_keyboard_event_source());
+   al_register_event_source(queue, al_get_mouse_event_source());
    al_register_event_source(queue, al_get_display_event_source(display));
 
    while (1) {
@@ -160,6 +183,28 @@ int main(void)
       al_wait_for_event(queue, &event);
       if (event.type == ALLEGRO_EVENT_DISPLAY_CLOSE) {
          break;
+      }
+      if (event.type == ALLEGRO_EVENT_MOUSE_BUTTON_DOWN) {
+         if (event.mouse.button == 1) {
+            int dw = al_get_display_width();
+            int y = 10;
+            int row = (event.mouse.y - y) / font_h - 1;
+            int column = event.mouse.x / (dw / 2);
+            if (column == 0) {
+               if (row >= 0 && row <= modes_count) {
+                  selected_column = column;
+                  selected_mode = row;
+                  redraw = true;
+               }
+            }
+            if (column == 1) {
+               if (row >= 0 && row < options_count) {
+                  selected_column = column;
+                  selected_option = row;
+                  redraw = true;
+               }
+            }
+         }
       }
       if (event.type == ALLEGRO_EVENT_KEY_DOWN ||
          event.type == ALLEGRO_EVENT_KEY_REPEAT) {
@@ -194,16 +239,23 @@ int main(void)
                     mode.width = 800;
                     mode.height = 600;
                 }
+                printf("al_create_display\n");
                 new_display = al_create_display(
                    mode.width, mode.height);
-                al_destroy_display(display);
-                display = new_display;
-                al_register_event_source(queue, al_get_display_event_source(display));
+                if (new_display) {
+                   al_destroy_display(display);
+                   display = new_display;
+                   al_register_event_source(queue, al_get_display_event_source(display));
+                   sprintf(status, "Display creation succeeded.");
+                }
+                else {
+                   sprintf(status, "Display creation failed.");
+                }
              }
              if (selected_column == 1) {
                  options[selected_option].required += 1;
                  options[selected_option].required %= 3;
-                 al_set_new_display_option(selected_option,
+                 al_set_new_display_option(options[selected_option].option,
                     options[selected_option].value,
                     options[selected_option].required);
              }
@@ -213,12 +265,15 @@ int main(void)
          if (event.keyboard.keycode == ALLEGRO_KEY_PGUP) change = 1;
          if (event.keyboard.keycode == ALLEGRO_KEY_PGDN) change = -1;
          if (change && selected_column == 1) {
-             options[selected_option].value += change;
-             if (options[selected_option].value < 0)
-                options[selected_option].value = 0;
+            options[selected_option].value += change;
+            if (options[selected_option].value < 0)
+               options[selected_option].value = 0;
             if (options[selected_option].value > options[selected_option].max_value)
-                options[selected_option].value = options[selected_option].max_value;
-             redraw = true;
+               options[selected_option].value = options[selected_option].max_value;
+            al_set_new_display_option(options[selected_option].option,
+               options[selected_option].value,
+               options[selected_option].required);
+            redraw = true;
          }
       }
       

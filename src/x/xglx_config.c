@@ -391,6 +391,12 @@ static void select_best_visual(ALLEGRO_DISPLAY_XGLX *glx)
    ALLEGRO_EXTRA_DISPLAY_SETTINGS *eds[system->visuals_count];
    memcpy(eds, system->visuals, sizeof(*eds) * system->visuals_count);
    qsort(eds, system->visuals_count, sizeof(*eds), _al_display_settings_sorter);
+   
+   if (!eds[0]->info) {
+       ALLEGRO_ERROR("No matching displays found.\n");
+       glx->xvinfo = NULL;
+       return;
+   }
 
    ALLEGRO_INFO("Chose visual no. %i\n", eds[0]->index);
 #ifdef DEBUGMODE
@@ -413,10 +419,7 @@ void _al_xglx_config_select_visual(ALLEGRO_DISPLAY_XGLX *glx)
    ALLEGRO_SYSTEM_XGLX *system = (void *)al_get_system_driver();
    bool force_old = false;
    
-   if (system->visuals) {
-      select_best_visual(glx);
-      return;
-   }
+   _al_xglx_free_visuals_info();
 
    if (system->system.config) {
       const char *selection_mode;
