@@ -20,7 +20,7 @@ int main(int argc, char *argv[])
       if (d_match(line, "/[*] (Function|Type|Enum): (.*)")) {
          found_tag = true;
          do_print = false;
-	 d_assign(prefix, d_submatch(2));
+         d_assign(prefix, d_submatch(2));
          continue;
       }
       if (found_tag && d_match(line, "^ ?\\*/")) {
@@ -29,6 +29,12 @@ int main(int argc, char *argv[])
          continue;
       }
       if (d_match(line, "^\\{|^$")) {
+         do_print = false;
+         continue;
+      }
+      /* Prototype ends on blank line. */
+      /* TODO: Should the above regexp match it? If so it doesn't here... */
+      if (line[0] == 0) {
          do_print = false;
          continue;
       }
