@@ -198,6 +198,28 @@ void _al_osx_keyboard_was_installed(BOOL install) {
 }
 @end
 
+/* ALSetWindowFrame:
+ * Because we create the window frame on the main thread, we should change
+ * it on the main thread as well, otherwise we will get a warning similar
+ * to "-[NSLock unlock]: lock  unlocked from thread which did not lock it"
+ * everytime we change the window frame, which happens when we resize or
+ * move the window.
+ */
+@interface ALSetWindowFrame : NSObject
++(void) set_frame : (NSValue *)param;
+
+@end
+@implementation ALSetWindowFrame
++(void) set_frame : (NSValue *) param {
+   NSArray *array = [param pointerValue];
+   NSRect *rc = [[array objectAtIndex:0] pointerValue];
+   NSWindow *win = [[array objectAtIndex:1] pointerValue];
+
+   // Couldn't resist animating it!
+   [win setFrame:*rc display:YES animate:YES];
+}
+@end
+
 /* _al_osx_mouse_was_installed:
  * Called by the mouse driver when the driver is installed or uninstalled.
  * Set the variable so we can decide to pass events or not, and notify all
@@ -1347,7 +1369,18 @@ static bool resize_display_win(ALLEGRO_DISPLAY *d, int w, int h)
    h = _ALLEGRO_MAX(h, MINIMUM_HEIGHT);
    NSRect rc = [window frameRectForContentRect: NSMakeRect(0.0f, 0.0f, (float) w, (float) h)];
    rc.origin = current.origin;
-   [window setFrame:rc display:YES animate:YES];
+
+   /* Finalise setting the frame on the main thread. Because this is where
+    * the window's frame was initially set, this is where it should be
+    * modified too.
+    */
+   NSArray *param = [NSArray arrayWithObjects :
+      [NSValue valueWithPointer:&rc],
+      [NSValue valueWithPointer:window], nil];
+   [ALSetWindowFrame performSelectorOnMainThread: @selector(set_frame:) 
+                                     withObject: [NSValue valueWithPointer:param]
+                                  waitUntilDone: YES];
+
    return acknowledge_resize_display_win(d);
 }
 
@@ -1388,8 +1421,17 @@ static void set_window_position(ALLEGRO_DISPLAY* display, int x, int y)
    NSRect sc = [[window screen] frame];
    rc.origin.x = (float) x;
    rc.origin.y = sc.size.height - rc.size.height - ((float) y);
-   // Couldn't resist animating it!
-   [window setFrame:rc display:YES animate:YES];
+
+   /* Finalise setting the frame on the main thread. Because this is where
+    * the window's frame was initially set, this is where it should be
+    * modified too.
+    */
+   NSArray *param = [NSArray arrayWithObjects :
+      [NSValue valueWithPointer:&rc],
+      [NSValue valueWithPointer:window], nil];
+   [ALSetWindowFrame performSelectorOnMainThread: @selector(set_frame:) 
+                                     withObject: [NSValue valueWithPointer:param]
+                                  waitUntilDone: YES];
 }
 
 /* get_window_position:
