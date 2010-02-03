@@ -636,6 +636,10 @@ The size of the complete buffer is:
 
     buffer_size = bytes_per_fragment * fragment_count
 
+Note: unlike many Allegro objects, audio streams are not implicitly destroyed
+when Allegro is shut down.  You must destroy them manually with
+[al_destroy_audio_stream] before the audio system is shut down.
+
 ### API: al_destroy_audio_stream
 
 Destroy an audio stream which was created with [al_create_audio_stream]
