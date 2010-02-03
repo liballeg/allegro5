@@ -35,6 +35,7 @@ static int debug_trace_virgin = true;
 
 static FILE *assert_file = NULL;
 static FILE *trace_file = NULL;
+static _AL_MUTEX trace_mutex = _AL_MUTEX_UNINITED;
 
 static int (*assert_handler)(const char *msg) = NULL;
 int (*_al_trace_handler)(const char *msg) = NULL;
@@ -302,6 +303,8 @@ static void configure_logging(void)
    else
       _al_debug_info.flags &= ~1;
 
+   _al_mutex_init(&trace_mutex);
+
    _al_debug_info.configured = true;
 }
 
@@ -345,6 +348,9 @@ channel_included:
       }
    }
 
+   /* Avoid interleaved output from different threads. */
+   _al_mutex_lock(&trace_mutex);
+
    al_trace("%-8s ", channel);
    if (level == 0) al_trace("D ");
    if (level == 1) al_trace("I ");
@@ -368,6 +374,8 @@ channel_included:
          t = 0;
       al_trace("[%10.5f] ", t);
    }
+
+   _al_mutex_unlock(&trace_mutex);
 
    return true;
 }
