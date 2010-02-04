@@ -153,7 +153,7 @@ int16_t al_fread16le(ALLEGRO_FILE *f)
 
 /* Function: al_fread32le
  */
-int32_t al_fread32le(ALLEGRO_FILE *f, bool *ret_success)
+int32_t al_fread32le(ALLEGRO_FILE *f)
 {
    int b1, b2, b3, b4;
    ASSERT(f);
@@ -162,8 +162,6 @@ int32_t al_fread32le(ALLEGRO_FILE *f, bool *ret_success)
       if ((b2 = al_fgetc(f)) != EOF) {
          if ((b3 = al_fgetc(f)) != EOF) {
             if ((b4 = al_fgetc(f)) != EOF) {
-               if (ret_success)
-                  *ret_success = true;
                return (((int32_t)b4 << 24) | ((int32_t)b3 << 16) |
                        ((int32_t)b2 << 8) | (int32_t)b1);
             }
@@ -171,8 +169,6 @@ int32_t al_fread32le(ALLEGRO_FILE *f, bool *ret_success)
       }
    }
 
-   if (ret_success)
-      *ret_success = false;
    return EOF;
 }
 
@@ -242,7 +238,7 @@ int16_t al_fread16be(ALLEGRO_FILE *f)
 
 /* Function: al_fread32be
  */
-int32_t al_fread32be(ALLEGRO_FILE *f, bool *ret_success)
+int32_t al_fread32be(ALLEGRO_FILE *f)
 {
    int b1, b2, b3, b4;
    ASSERT(f);
@@ -251,8 +247,6 @@ int32_t al_fread32be(ALLEGRO_FILE *f, bool *ret_success)
       if ((b2 = al_fgetc(f)) != EOF) {
          if ((b3 = al_fgetc(f)) != EOF) {
             if ((b4 = al_fgetc(f)) != EOF) {
-               if (ret_success)
-                  *ret_success = true;
                return (((int32_t)b1 << 24) | ((int32_t)b2 << 16) |
                        ((int32_t)b3 << 8) | (int32_t)b4);
             }
@@ -260,8 +254,6 @@ int32_t al_fread32be(ALLEGRO_FILE *f, bool *ret_success)
       }
    }
 
-   if (ret_success)
-      *ret_success = false;
    return EOF;
 }
 

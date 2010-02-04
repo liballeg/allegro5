@@ -33,7 +33,7 @@ ALLEGRO_BITMAP *al_load_pcx_f(ALLEGRO_FILE *f)
    width += al_fread16le(f) + 1;      /* xmax */
    height += al_fread16le(f) + 1;     /* ymax */
 
-   al_fread32le(f, NULL);             /* skip DPI values */
+   al_fread32le(f);		   /* skip DPI values */
 
    for (c = 0; c < 16 * 3; c++) {          /* skip the 16 color palette */
       al_fgetc(f);
@@ -51,6 +51,10 @@ ALLEGRO_BITMAP *al_load_pcx_f(ALLEGRO_FILE *f)
 
    for (c = 0; c < 60; c++)                /* skip some more junk */
       al_fgetc(f);
+
+   if (al_feof(f) || al_ferror(f)) {
+      return NULL;
+   }
 
    b = al_create_bitmap(width, height);
    if (!b) {
@@ -276,3 +280,6 @@ bool al_save_pcx(const char *filename, ALLEGRO_BITMAP *bmp)
 
    return ret;
 }
+
+
+/* vim: set sts=3 sw=3 et: */

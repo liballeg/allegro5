@@ -46,7 +46,7 @@ int main(void)
 
    printf("Reading and testing data from memfile\n");
    for (i = 0; i < data_size/4; i++) {
-      int32_t ret = al_fread32le(memfile, NULL);
+      int32_t ret = al_fread32le(memfile);
       if (ret != i || al_feof(memfile)) {
          printf("Item %i failed to verify, got %i\n", i, ret);
          goto Error;

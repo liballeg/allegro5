@@ -122,16 +122,20 @@ contains exactly two bytes:
        report_error();
     }
 
+See also: [al_ferror]
+
 ## API: al_ferror
 
 Returns true if there was some sort of previous error.
+
+See also: [al_feof]
 
 ## API: al_fungetc
 
 Ungets a single byte from a file. Does not write to file, it only places the
 char back into the entry's buffer.
 
-See also [al_get_errno]
+See also: [al_fgetc], [al_get_errno]
 
 ## API: al_fsize
 
@@ -141,6 +145,8 @@ Return the size of the file, if it can be determined, or -1 otherwise.
 
 Read and return next byte in entry 'f'.
 Returns EOF on end of file or if an error occurred.
+
+See also: [al_fungetc]
 
 ## API: al_fputc
 
@@ -158,15 +164,21 @@ EOF on error
 
 Reads a 16-bit word in little-endian format (LSB first).
 
-Returns:
-The read 16-bit word or EOF on error
+On success, returns the 16-bit word.  On failure, returns EOF (-1).  Since -1
+is also a valid return value, use [al_feof] to check if the end of the file was
+reached prematurely, or [al_ferror] to check if an error occurred.
+
+See also: [al_fread16be]
 
 ## API: al_fread16be
 
 Reads a 16-bit word in big-endian format (MSB first).
 
-Returns:
-The read 16-bit word or EOF on error.
+On success, returns the 16-bit word.  On failure, returns EOF (-1).  Since -1
+is also a valid return value, use [al_feof] to check if the end of the file was
+reached prematurely, or [al_ferror] to check if an error occurred.
+
+See also: [al_fread16le]
 
 ## API: al_fwrite16le
 
@@ -174,30 +186,35 @@ Writes a 16-bit word in little-endian format (LSB first).
 
 Returns the number of bytes written: 2 on success, less than 2 on an error.
 
+See also: [al_fwrite16be]
+
 ## API: al_fwrite16be
 
 Writes a 16-bit word in big-endian format (MSB first).
 
 Returns the number of bytes written: 2 on success, less than 2 on an error.
 
+See also: [al_fwrite16le]
+
 ## API: al_fread32le
 
 Reads a 32-bit word in little-endian format (LSB first).
-If 'ret_success' is not NULL, it will be set to true on success
-or false on failure.
 
-Returns the read 32-bit word.  'ret_success' indicates if a full 32-bit word
-was read before reaching the EOF or an error.
+On success, returns the 32-bit word.  On failure, returns EOF (-1).  Since -1
+is also a valid return value, use [al_feof] to check if the end of the file was
+reached prematurely, or [al_ferror] to check if an error occurred.
+
+See also: [al_fread32be]
 
 ## API: al_fread32be
 
 Read a 32-bit word in big-endian format (MSB first).
-If 'ret_success' is not NULL, it will be set to true on success
-or false on failure.
 
-Returns:
-The read 32-bit word.  'ret_success' indicates if a full 32-bit word
-was read before reaching the EOF or an error.
+On success, returns the 32-bit word.  On failure, returns EOF (-1).  Since -1
+is also a valid return value, use [al_feof] to check if the end of the file was
+reached prematurely, or [al_ferror] to check if an error occurred.
+
+See also: [al_fread32le]
 
 ## API: al_fwrite32le
 
@@ -205,11 +222,15 @@ Writes a 32-bit word in little-endian format (LSB first).
 
 Returns the number of bytes written: 4 on success, less than 4 on an error.
 
+See also: [al_fwrite32be]
+
 ## API: al_fwrite32be
 
 Writes a 32-bit word in big-endian format (MSB first).
 
 Returns the number of bytes written: 4 on success, less than 4 on an error.
+
+See also: [al_fwrite32le]
 
 ## API: al_fgets
 
