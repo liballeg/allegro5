@@ -378,7 +378,7 @@ bool al_init_flac_addon(void)
    return rc1 && rc2;
 }
 
-static FLACFILE *flac_open(char const *filename)
+static FLACFILE *flac_open(ALLEGRO_FILE* f)
 {
    FLACFILE *ff;
    FLAC__StreamDecoderInitStatus init_status;
@@ -392,9 +392,9 @@ static FLACFILE *flac_open(char const *filename)
       goto error;
    }
 
-   ff->fh = al_fopen(filename, "rb");
+   ff->fh = f;
    if (!ff->fh) {
-      ALLEGRO_ERROR("Error opening FLAC file (%s)\n", filename);
+      ALLEGRO_ERROR("Error opening FLAC file\n");
       goto error;
    }
    
@@ -414,7 +414,7 @@ static FLACFILE *flac_open(char const *filename)
       goto error;
    }
 
-   ALLEGRO_INFO("Loaded sample %s with properties:\n", filename);
+   ALLEGRO_INFO("Loaded FLAC sample with properties:\n");
    ALLEGRO_INFO("    channels %d\n", ff->channels);
    ALLEGRO_INFO("    sample_size %d\n", ff->sample_size);
    ALLEGRO_INFO("    rate %.f\n", ff->sample_rate);
@@ -432,8 +432,25 @@ error:
  */
 ALLEGRO_SAMPLE *al_load_flac(const char *filename)
 {
+   ALLEGRO_FILE *f;
+   ALLEGRO_SAMPLE *spl;
+   ASSERT(filename);
+
+   f = al_fopen(filename, "rb");
+   if (!f)
+      return NULL;
+
+   spl = al_load_flac_f(f);
+
+   return spl;
+}
+
+/* Function: al_load_flac_f
+ */
+ALLEGRO_SAMPLE *al_load_flac_f(ALLEGRO_FILE* f)
+{
    ALLEGRO_SAMPLE *sample;
-   FLACFILE *ff = flac_open(filename);
+   FLACFILE *ff = flac_open(f);
 
    ff->buffer_size = ff->total_samples * ff->channels * ff->sample_size;
    ff->buffer = _AL_MALLOC_ATOMIC(ff->buffer_size);
@@ -465,8 +482,26 @@ uint32_t al_get_allegro_flac_version(void)
 ALLEGRO_AUDIO_STREAM *al_load_flac_audio_stream(const char *filename,
    size_t buffer_count, unsigned int samples)
 {
+   ALLEGRO_FILE *f;
    ALLEGRO_AUDIO_STREAM *stream;
-   FLACFILE *ff = flac_open(filename);
+   ASSERT(filename);
+
+   f = al_fopen(filename, "rb");
+   if (!f)
+      return NULL;
+
+   stream = al_load_flac_audio_stream_f(f, buffer_count, samples);
+
+   return stream;
+}
+
+/* Function: al_load_flac_audio_stream_f
+*/
+ALLEGRO_AUDIO_STREAM *al_load_flac_audio_stream_f(ALLEGRO_FILE* f,
+   size_t buffer_count, unsigned int samples)
+{
+   ALLEGRO_AUDIO_STREAM *stream;
+   FLACFILE *ff = flac_open(f);
 
    stream = al_create_audio_stream(buffer_count, samples, ff->sample_rate,
       _al_word_size_to_depth_conf(ff->sample_size),

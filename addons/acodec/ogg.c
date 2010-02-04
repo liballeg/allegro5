@@ -97,10 +97,27 @@ bool al_init_ogg_vorbis_addon(void)
    return rc1 && rc2;
 }
 
-
 /* Function: al_load_ogg_vorbis
  */
 ALLEGRO_SAMPLE *al_load_ogg_vorbis(const char *filename)
+{
+   ALLEGRO_FILE *f;
+   ALLEGRO_SAMPLE *spl;
+   ASSERT(filename);
+
+   f = al_fopen(filename, "rb");
+   if (!f)
+      return NULL;
+
+   spl = al_load_ogg_vorbis_f(f);
+
+   return spl;
+}
+
+
+/* Function: al_load_ogg_vorbis_f
+ */
+ALLEGRO_SAMPLE *al_load_ogg_vorbis_f(ALLEGRO_FILE* file)
 {
    /* Note: decoding library returns floats.  I always return 16-bit (most
     * commonly supported).
@@ -115,7 +132,6 @@ ALLEGRO_SAMPLE *al_load_ogg_vorbis(const char *filename)
    const int packet_size = 4096; /* suggestion for size to read at a time */
    OggVorbis_File vf;
    vorbis_info* vi;
-   ALLEGRO_FILE *file;
    char *buffer;
    long pos;
    ALLEGRO_SAMPLE *sample;
@@ -126,14 +142,13 @@ ALLEGRO_SAMPLE *al_load_ogg_vorbis(const char *filename)
    long total_size;
    AL_OV_DATA ov;
 
-   file = al_fopen(filename, "rb");
    if (file == NULL) {
-      TRACE("%s failed to open.\n", filename);
+      TRACE("Audio file failed to open.\n");
       return NULL;
    }
    ov.file = file;
    if (ov_open_callbacks(&ov, &vf, NULL, 0, callbacks) < 0) {
-      TRACE("%s does not appear to be an Ogg bitstream.\n", filename);
+      TRACE("Audio file does not appear to be an Ogg bitstream.\n");
       al_fclose(file);
       return NULL;
    }
@@ -146,7 +161,7 @@ ALLEGRO_SAMPLE *al_load_ogg_vorbis(const char *filename)
    bitstream = -1;
    total_size = total_samples * channels * word_size;
 
-   TRACE("Loaded sample %s with properties:\n", filename);
+   TRACE("Loaded an OGG Vorbis sample with properties:\n");
    TRACE("    channels %d\n", channels);
    TRACE("    word_size %d\n", word_size);
    TRACE("    rate %ld\n", rate);
@@ -325,8 +340,25 @@ static size_t ogg_stream_update(ALLEGRO_AUDIO_STREAM *stream, void *data,
 ALLEGRO_AUDIO_STREAM *al_load_ogg_vorbis_audio_stream(const char *filename,
 	size_t buffer_count, unsigned int samples)
 {
+   ALLEGRO_FILE *f;
+   ALLEGRO_AUDIO_STREAM *stream;
+   ASSERT(filename);
+
+   f = al_fopen(filename, "rb");
+   if (!f)
+      return NULL;
+
+   stream = al_load_ogg_vorbis_audio_stream_f(f, buffer_count, samples);
+
+   return stream;
+}
+
+/* Function: al_load_ogg_vorbis_audio_stream_f
+ */
+ALLEGRO_AUDIO_STREAM *al_load_ogg_vorbis_audio_stream_f(ALLEGRO_FILE* file,
+	size_t buffer_count, unsigned int samples)
+{
    const int word_size = 2; /* 1 = 8bit, 2 = 16-bit. nothing else */
-   ALLEGRO_FILE* file = NULL;
    OggVorbis_File* vf;
    vorbis_info* vi;
    int channels;
@@ -342,10 +374,9 @@ ALLEGRO_AUDIO_STREAM *al_load_ogg_vorbis_audio_stream(const char *filename,
       return NULL;
    }
    
-   file = al_fopen(filename, "rb");
    if (file == NULL) {
-      TRACE("%s failed to open\n", filename);
-	   fprintf(stderr, "%s failed to open\n", filename);
+      TRACE("File failed to open\n");
+      fprintf(stderr, "File failed to open\n");
       return NULL;
    }
    
@@ -370,7 +401,7 @@ ALLEGRO_AUDIO_STREAM *al_load_ogg_vorbis_audio_stream(const char *filename,
 
    extra->bitstream = -1;
 
-   TRACE("ogg: loaded sample %s with properties:\n", filename);
+   TRACE("ogg: loaded sample with properties:\n");
    TRACE("ogg:     channels %d\n", channels);
    TRACE("ogg:     word_size %d\n", word_size);
    TRACE("ogg:     rate %ld\n", rate);

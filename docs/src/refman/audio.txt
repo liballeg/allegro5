@@ -887,7 +887,15 @@ Load a sample from a PCM .wav file.
 
 Returns the sample on success, NULL on failure.
 
-See also: [al_load_sample]
+See also: [al_load_sample], [al_load_wav_f]
+
+### API: al_load_wav_f
+
+Load a sample from a [ALLEGRO_FILE] stream.
+
+Returns the sample on success, NULL on failure.
+
+See also: [al_load_sample], [al_load_wav]
 
 ### API: al_save_wav
 
@@ -908,4 +916,12 @@ See also: [al_save_sample], [al_save_wav]
 ### API: al_load_wav_audio_stream
 
 Like [al_load_audio_stream] but assumes the file is PCM .wav file.
+
+See also: [al_load_audio_stream], [al_load_wav_audio_stream_f]
+
+### API: al_load_wav_audio_stream_f
+
+Like [al_load_audio_stream_f] but assumes the file is PCM .wav file.
+
+See also: [al_load_audio_stream_f], [al_load_wav_audio_stream]
 

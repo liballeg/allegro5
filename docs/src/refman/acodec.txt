@@ -16,11 +16,23 @@ Loads a sample in FLAC format.
 
 See also: [al_load_sample]
 
+### API: al_load_flac_f
+
+Loads a sample in FLAC format from the [ALLEGRO_FILE] stream given.
+
+See also: [al_load_sample_f]
+
 ### API: al_load_flac_audio_stream
 
 Loads a stream in FLAC format.
 
 See also: [al_load_audio_stream]
+
+### API: al_load_flac_audio_stream_f
+
+Loads a stream in FLAC format from the [ALLEGRO_FILE] stream given.
+
+See also: [al_load_audio_stream_f]
 
 ### API: al_get_allegro_flac_version
 
@@ -44,11 +56,23 @@ Loads a sample in Ogg Vorbis format.
 
 See also: [al_load_sample]
 
+### API: al_load_ogg_vorbis_f
+
+Loads a sample in Ogg Vorbis format from the [ALLEGRO_FILE] stream given.
+
+See also: [al_load_sample_f]
+
 ### API: al_load_ogg_vorbis_audio_stream
 
 Loads a stream in Ogg Vorbis format.
 
 See also: [al_load_audio_stream]
+
+### API: al_load_ogg_vorbis_audio_stream_f
+
+Loads a stream in Ogg Vorbis format from the [ALLEGRO_FILE] stream given.
+
+See also: [al_load_audio_stream_f]
 
 ### API: al_get_allegro_ogg_vorbis_version
 

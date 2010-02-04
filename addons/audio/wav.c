@@ -60,15 +60,13 @@ static bool read32(ALLEGRO_FILE *f, int *v)
    return false;
 }
 
-
 /* wav_open:
- *  Opens 'filename' and prepares a WAVFILE struct with the WAV format info.
+ *  Opens f and prepares a WAVFILE struct with the WAV format info.
  *  On a successful return, the ALLEGRO_FILE is at the beginning of the sample data.
  *  returns the WAVFILE on success, or NULL on failure.
  */
-static WAVFILE *wav_open(const char *filename)
+static WAVFILE *wav_open(ALLEGRO_FILE *f)
 {
-   ALLEGRO_FILE *f = al_fopen(filename, "rb");
    WAVFILE *wavfile = NULL;
    char buffer[12];
 
@@ -170,7 +168,6 @@ wav_open_error:
 
    return NULL;
 }
-
 
 /* wav_read:
  *  Reads up to 'samples' number of samples from the wav ALLEGRO_FILE into 'data'.
@@ -320,7 +317,24 @@ static void wav_stream_close(ALLEGRO_AUDIO_STREAM *stream)
  */
 ALLEGRO_SAMPLE *al_load_wav(const char *filename)
 {
-   WAVFILE *wavfile = wav_open(filename);
+   ALLEGRO_FILE *f;
+   ALLEGRO_SAMPLE *spl;
+   ASSERT(filename);
+
+   f = al_fopen(filename, "rb");
+   if (!f)
+      return NULL;
+
+   spl = al_load_wav_f(f);
+
+   return spl;
+}
+
+/* Function: al_load_wav_f
+ */
+ALLEGRO_SAMPLE *al_load_wav_f(ALLEGRO_FILE *fp)
+{
+   WAVFILE *wavfile = wav_open(fp);
    ALLEGRO_SAMPLE *spl = NULL;
 
    if (wavfile) {
@@ -352,10 +366,28 @@ ALLEGRO_SAMPLE *al_load_wav(const char *filename)
 ALLEGRO_AUDIO_STREAM *al_load_wav_audio_stream(const char *filename,
    size_t buffer_count, unsigned int samples)
 {
+   ALLEGRO_FILE *f;
+   ALLEGRO_AUDIO_STREAM *stream;
+   ASSERT(filename);
+
+   f = al_fopen(filename, "rb");
+   if (!f)
+      return NULL;
+
+   stream = al_load_wav_audio_stream_f(f, buffer_count, samples);
+
+   return stream;
+}
+
+/* Function: al_load_wav_audio_stream_f
+*/
+ALLEGRO_AUDIO_STREAM *al_load_wav_audio_stream_f(ALLEGRO_FILE* f,
+   size_t buffer_count, unsigned int samples)
+{
    WAVFILE* wavfile;
    ALLEGRO_AUDIO_STREAM* stream;
 
-   wavfile = wav_open(filename);
+   wavfile = wav_open(f);
    
    if (wavfile == NULL)
       return NULL;
