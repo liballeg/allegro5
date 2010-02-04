@@ -392,7 +392,7 @@ bool al_save_wav(const char *filename, ALLEGRO_SAMPLE *spl)
    ALLEGRO_FILE *pf = al_fopen(filename, "wb");
 
    if (pf) {
-      bool rv = al_save_wav_stream(pf, spl);
+      bool rv = al_save_wav_f(pf, spl);
       al_fclose(pf);
       return rv;
    }
@@ -401,11 +401,11 @@ bool al_save_wav(const char *filename, ALLEGRO_SAMPLE *spl)
 }
 
 
-/* Function: al_save_wav_stream
+/* Function: al_save_wav_f
  * Writes a sample into a wav packfile.
  * Returns true on success, false on error.
  */
-bool al_save_wav_stream(ALLEGRO_FILE *pf, ALLEGRO_SAMPLE *spl)
+bool al_save_wav_f(ALLEGRO_FILE *pf, ALLEGRO_SAMPLE *spl)
 {
    size_t channels, bits;
    size_t data_size;

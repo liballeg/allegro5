@@ -4,8 +4,9 @@
 
 #include "iio.h"
 
-
-ALLEGRO_BITMAP *al_load_pcx_stream(ALLEGRO_FILE *f)
+/* Function: al_load_pcx_f
+ */
+ALLEGRO_BITMAP *al_load_pcx_f(ALLEGRO_FILE *f)
 {
    ALLEGRO_BITMAP *b;
    int c;
@@ -151,8 +152,9 @@ ALLEGRO_BITMAP *al_load_pcx_stream(ALLEGRO_FILE *f)
    return b;
 }
 
-
-bool al_save_pcx_stream(ALLEGRO_FILE *f, ALLEGRO_BITMAP *bmp)
+/* Function: al_save_pcx_f
+ */
+bool al_save_pcx_f(ALLEGRO_FILE *f, ALLEGRO_BITMAP *bmp)
 {
    int c;
    int x, y;
@@ -248,7 +250,7 @@ ALLEGRO_BITMAP *al_load_pcx(const char *filename)
    if (!f)
       return NULL;
 
-   bmp = al_load_pcx_stream(f);
+   bmp = al_load_pcx_f(f);
 
    al_fclose(f);
 
@@ -268,7 +270,7 @@ bool al_save_pcx(const char *filename, ALLEGRO_BITMAP *bmp)
    if (!f)
       return false;
 
-   ret = al_save_pcx_stream(f, bmp);
+   ret = al_save_pcx_f(f, bmp);
 
    al_fclose(f);
 

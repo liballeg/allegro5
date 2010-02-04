@@ -122,7 +122,7 @@ is provided. You must call [al_drain_audio_stream] when you're finished with
 supplying data to the stream.
 
 If the stream is created by [al_load_audio_stream] then it can also generate an
-ALLEGRO_EVENT_AUDIO_STREAM_FINISHED event if it reaches the end of the file and
+ALLEGRO_EVENT_audio_stream_FINISHED event if it reaches the end of the file and
 is not set to loop.
 
 ### API: ALLEGRO_VOICE
@@ -895,15 +895,15 @@ Save a sample to a PCM .wav file.
 
 Returns true on success, false on error.
 
-See also: [al_save_sample], [al_save_wav_stream]
+See also: [al_save_sample], [al_save_wav_f]
 
-### API: al_save_wav_stream
+### API: al_save_wav_f
 
 Write a PCM .wav file into the [ALLEGRO_FILE] stream given.
 
 Returns true on success, false on error.
 
-See also: [al_save_sample], [al_save_wav_stream]
+See also: [al_save_sample], [al_save_wav]
 
 ### API: al_load_wav_audio_stream
 
