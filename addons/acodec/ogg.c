@@ -10,6 +10,7 @@
 #include "allegro5/internal/aintern_audio.h"
 #include "allegro5/internal/aintern_memory.h"
 
+ALLEGRO_DEBUG_CHANNEL("acodec")
 
 /* FIXME: We need a ALLEGRO_CFG_TREMOR */
 #if !defined(ALLEGRO_GP2XWIZ) && !defined(ALLEGRO_IPHONE)
@@ -104,10 +105,13 @@ ALLEGRO_SAMPLE *al_load_ogg_vorbis(const char *filename)
    ALLEGRO_FILE *f;
    ALLEGRO_SAMPLE *spl;
    ASSERT(filename);
-
+   
+   ALLEGRO_INFO("Loading sample %s.\n", filename);
    f = al_fopen(filename, "rb");
-   if (!f)
+   if (!f) {
+      ALLEGRO_WARN("Failed reading %s.\n", filename);
       return NULL;
+   }
 
    spl = al_load_ogg_vorbis_f(f);
 
@@ -143,12 +147,12 @@ ALLEGRO_SAMPLE *al_load_ogg_vorbis_f(ALLEGRO_FILE* file)
    AL_OV_DATA ov;
 
    if (file == NULL) {
-      TRACE("Audio file failed to open.\n");
+      ALLEGRO_WARN("Audio file failed to open.\n");
       return NULL;
    }
    ov.file = file;
    if (ov_open_callbacks(&ov, &vf, NULL, 0, callbacks) < 0) {
-      TRACE("Audio file does not appear to be an Ogg bitstream.\n");
+      ALLEGRO_WARN("Audio file does not appear to be an Ogg bitstream.\n");
       al_fclose(file);
       return NULL;
    }
@@ -161,12 +165,11 @@ ALLEGRO_SAMPLE *al_load_ogg_vorbis_f(ALLEGRO_FILE* file)
    bitstream = -1;
    total_size = total_samples * channels * word_size;
 
-   TRACE("Loaded an OGG Vorbis sample with properties:\n");
-   TRACE("    channels %d\n", channels);
-   TRACE("    word_size %d\n", word_size);
-   TRACE("    rate %ld\n", rate);
-   TRACE("    total_samples %ld\n", total_samples);
-   TRACE("    total_size %ld\n", total_size);
+   ALLEGRO_DEBUG("channels %d\n", channels);
+   ALLEGRO_DEBUG("word_size %d\n", word_size);
+   ALLEGRO_DEBUG("rate %ld\n", rate);
+   ALLEGRO_DEBUG("total_samples %ld\n", total_samples);
+   ALLEGRO_DEBUG("total_size %ld\n", total_size);
 
    buffer = _AL_MALLOC_ATOMIC(total_size);
    if (!buffer) {
@@ -344,9 +347,12 @@ ALLEGRO_AUDIO_STREAM *al_load_ogg_vorbis_audio_stream(const char *filename,
    ALLEGRO_AUDIO_STREAM *stream;
    ASSERT(filename);
 
+   ALLEGRO_INFO("Loading stream %s.\n", filename);
    f = al_fopen(filename, "rb");
-   if (!f)
+   if (!f) {
+      ALLEGRO_WARN("Failed reading %s.\n", filename);
       return NULL;
+   }
 
    stream = al_load_ogg_vorbis_audio_stream_f(f, buffer_count, samples);
 
@@ -370,12 +376,12 @@ ALLEGRO_AUDIO_STREAM *al_load_ogg_vorbis_audio_stream_f(ALLEGRO_FILE* file,
 
    extra = _AL_MALLOC(sizeof(AL_OV_DATA));
    if (extra == NULL) {
-      TRACE("Failed to allocate AL_OV_DATA struct.\n");
+      ALLEGRO_ERROR("Failed to allocate AL_OV_DATA struct.\n");
       return NULL;
    }
    
    if (file == NULL) {
-      TRACE("File failed to open\n");
+      ALLEGRO_WARN("File failed to open\n");
       fprintf(stderr, "File failed to open\n");
       return NULL;
    }
@@ -384,7 +390,7 @@ ALLEGRO_AUDIO_STREAM *al_load_ogg_vorbis_audio_stream_f(ALLEGRO_FILE* file,
    
    vf = _AL_MALLOC(sizeof(OggVorbis_File));
    if (ov_open_callbacks(extra, vf, NULL, 0, callbacks) < 0) {
-      TRACE("ogg: Input does not appear to be an Ogg bitstream.\n");
+      ALLEGRO_WARN("ogg: Input does not appear to be an Ogg bitstream.\n");
       al_fclose(file);
       return NULL;
    }
@@ -401,12 +407,11 @@ ALLEGRO_AUDIO_STREAM *al_load_ogg_vorbis_audio_stream_f(ALLEGRO_FILE* file,
 
    extra->bitstream = -1;
 
-   TRACE("ogg: loaded sample with properties:\n");
-   TRACE("ogg:     channels %d\n", channels);
-   TRACE("ogg:     word_size %d\n", word_size);
-   TRACE("ogg:     rate %ld\n", rate);
-   TRACE("ogg:     total_samples %ld\n", total_samples);
-   TRACE("ogg:     total_size %ld\n", total_size);
+   ALLEGRO_DEBUG("channels %d\n", channels);
+   ALLEGRO_DEBUG("word_size %d\n", word_size);
+   ALLEGRO_DEBUG("rate %ld\n", rate);
+   ALLEGRO_DEBUG("total_samples %ld\n", total_samples);
+   ALLEGRO_DEBUG("total_size %ld\n", total_size);
 	
    stream = al_create_audio_stream(buffer_count, samples, rate,
             _al_word_size_to_depth_conf(word_size),
