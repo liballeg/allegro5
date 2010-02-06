@@ -815,6 +815,19 @@ The `loader` argument may be NULL to unregister an entry.
 Returns true on success, false on error.
 Returns false if unregistering an entry that doesn't exist.
 
+### API: al_register_sample_loader_f
+
+Register a handler for [al_load_sample_f].  The given function will be used to
+handle the loading of sample files with the given extension.
+
+The extension should include the leading dot ('.') character.
+It will be matched case-insensitively.
+
+The `loader` argument may be NULL to unregister an entry.
+
+Returns true on success, false on error.
+Returns false if unregistering an entry that doesn't exist.
+
 ### API: al_register_sample_saver
 
 Register a handler for [al_save_sample].  The given function will be used to
@@ -828,9 +841,35 @@ The `saver` argument may be NULL to unregister an entry.
 Returns true on success, false on error.
 Returns false if unregistering an entry that doesn't exist.
 
+### API: al_register_sample_saver_f
+
+Register a handler for [al_save_sample_f].  The given function will be used to
+handle the saving of sample files with the given extension.
+
+The extension should include the leading dot ('.') character.
+It will be matched case-insensitively.
+
+The `saver` argument may be NULL to unregister an entry.
+
+Returns true on success, false on error.
+Returns false if unregistering an entry that doesn't exist.
+
 ### API: al_register_audio_stream_loader
 
 Register a handler for [al_load_audio_stream].  The given function will be
+used to open streams from files with the given extension.
+
+The extension should include the leading dot ('.') character.
+It will be matched case-insensitively.
+
+The `stream_loader` argument may be NULL to unregister an entry.
+
+Returns true on success, false on error.
+Returns false if unregistering an entry that doesn't exist.
+
+### API: al_register_audio_stream_loader_f
+
+Register a handler for [al_load_audio_stream_f].  The given function will be
 used to open streams from files with the given extension.
 
 The extension should include the leading dot ('.') character.
@@ -855,6 +894,20 @@ Returns the sample on success, NULL on failure.
 
 See also: [al_register_sample_loader], [al_load_wav]
 
+### API: al_load_sample_f
+
+Loads an image from an ALLEGRO_FILE stream into an ALLEGRO_SAMPLE.
+The file type is determined by the passed 'ident' parameter, which is a file
+name extension including the leading dot.
+
+Note that this stores the entire file in memory at once, which
+may be time consuming.  To read the file as it is needed, 
+use [al_load_audio_stream_f].
+
+Returns the sample on success, NULL on failure.
+
+See also: [al_register_sample_loader_f], [al_load_wav_f]
+
 ### API: al_load_audio_stream
 
 Loads an audio file from disk as it is needed.
@@ -871,15 +924,44 @@ Returns the stream on success, NULL on failure.
 
 See also: [al_register_audio_stream_loader], [al_load_wav_audio_stream]
 
+### API: al_load_audio_stream_f
+
+Loads an audio file from ALLEGRO_FILE stream as it is needed.
+
+Unlike regular streams, the one returned by this function
+need not be fed by the user; the library will automatically
+read more of the file as it is needed.  The stream will 
+contain *buffer_count* buffers with *samples* samples.
+
+The file type is determined by the passed 'ident' parameter, which is a file
+name extension including the leading dot.
+
+A stream must be attached to a voice to be used.  See
+[ALLEGRO_AUDIO_STREAM] for more details.
+
+Returns the stream on success, NULL on failure.
+
+See also: [al_register_audio_stream_loader_f], [al_load_wav_audio_stream_f]
+
 ### API: al_save_sample
 
 Writes a sample into a file.  Currently, wav is
 the only supported format, and the extension
-must be 'wav'.
+must be '.wav'.
 
 Returns true on success, false on error.
 
-See also: [al_register_audio_stream_loader], [al_save_wav]
+See also: [al_register_sample_saver], [al_save_wav]
+
+### API: al_save_sample_f
+
+Writes a sample into a [ALLEGRO_FILE] filestream.  Currently, wav is
+the only supported format, and the extension
+must be '.wav'.
+
+Returns true on success, false on error.
+
+See also: [al_register_sample_saver_f], [al_save_wav_f]
 
 ### API: al_load_wav
 

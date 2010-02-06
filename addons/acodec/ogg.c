@@ -93,9 +93,12 @@ static ov_callbacks callbacks = {
  */
 bool al_init_ogg_vorbis_addon(void)
 {
-   bool rc1 = al_register_sample_loader(".ogg", al_load_ogg_vorbis);
-   bool rc2 = al_register_audio_stream_loader(".ogg", al_load_ogg_vorbis_audio_stream);
-   return rc1 && rc2;
+   bool ret = true;
+   ret &= al_register_sample_loader(".ogg", al_load_ogg_vorbis);
+   ret &= al_register_audio_stream_loader(".ogg", al_load_ogg_vorbis_audio_stream);
+   ret &= al_register_sample_loader_f(".ogg", al_load_ogg_vorbis_f);
+   ret &= al_register_audio_stream_loader_f(".ogg", al_load_ogg_vorbis_audio_stream_f);
+   return ret;
 }
 
 /* Function: al_load_ogg_vorbis

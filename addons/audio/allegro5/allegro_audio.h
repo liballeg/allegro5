@@ -354,11 +354,25 @@ ALLEGRO_KCM_AUDIO_FUNC(bool, al_register_sample_saver, (const char *ext,
 ALLEGRO_KCM_AUDIO_FUNC(bool, al_register_audio_stream_loader, (const char *ext,
 	ALLEGRO_AUDIO_STREAM *(*stream_loader)(const char *filename,
 	    size_t buffer_count, unsigned int samples)));
+       
+ALLEGRO_KCM_AUDIO_FUNC(bool, al_register_sample_loader_f, (const char *ext,
+	ALLEGRO_SAMPLE *(*loader)(ALLEGRO_FILE *fp)));
+ALLEGRO_KCM_AUDIO_FUNC(bool, al_register_sample_saver_f, (const char *ext,
+	bool (*saver)(ALLEGRO_FILE *fp, ALLEGRO_SAMPLE *spl)));
+ALLEGRO_KCM_AUDIO_FUNC(bool, al_register_audio_stream_loader_f, (const char *ext,
+	ALLEGRO_AUDIO_STREAM *(*stream_loader)(ALLEGRO_FILE *fp,
+	    size_t buffer_count, unsigned int samples)));
 
 ALLEGRO_KCM_AUDIO_FUNC(ALLEGRO_SAMPLE *, al_load_sample, (const char *filename));
 ALLEGRO_KCM_AUDIO_FUNC(bool, al_save_sample, (const char *filename,
 	ALLEGRO_SAMPLE *spl));
 ALLEGRO_KCM_AUDIO_FUNC(ALLEGRO_AUDIO_STREAM *, al_load_audio_stream, (const char *filename,
+	size_t buffer_count, unsigned int samples));
+   
+ALLEGRO_KCM_AUDIO_FUNC(ALLEGRO_SAMPLE *, al_load_sample_f, (ALLEGRO_FILE* fp, const char *ident));
+ALLEGRO_KCM_AUDIO_FUNC(bool, al_save_sample_f, (ALLEGRO_FILE* fp, const char *ident,
+	ALLEGRO_SAMPLE *spl));
+ALLEGRO_KCM_AUDIO_FUNC(ALLEGRO_AUDIO_STREAM *, al_load_audio_stream_f, (ALLEGRO_FILE* fp, const char *ident,
 	size_t buffer_count, unsigned int samples));
 
 /* WAV handlers */

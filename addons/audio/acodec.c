@@ -19,6 +19,11 @@ struct ACODEC_TABLE
    bool              (*saver)(const char *filename, ALLEGRO_SAMPLE *spl);
    ALLEGRO_AUDIO_STREAM *(*stream_loader)(const char *filename,
                         size_t buffer_count, unsigned int samples);
+                        
+   ALLEGRO_SAMPLE *  (*fs_loader)(ALLEGRO_FILE *fp);
+   bool              (*fs_saver)(ALLEGRO_FILE *fp, ALLEGRO_SAMPLE *spl);
+   ALLEGRO_AUDIO_STREAM *(*fs_stream_loader)(ALLEGRO_FILE *fp,
+                        size_t buffer_count, unsigned int samples);
 };
 
 
@@ -45,6 +50,10 @@ static void acodec_ensure_init(void)
    al_register_sample_loader(".wav", al_load_wav);
    al_register_sample_saver(".wav", al_save_wav);
    al_register_audio_stream_loader(".wav", al_load_wav_audio_stream);
+   
+   al_register_sample_loader_f(".wav", al_load_wav_f);
+   al_register_sample_saver_f(".wav", al_save_wav_f);
+   al_register_audio_stream_loader_f(".wav", al_load_wav_audio_stream_f);
 
    _al_add_exit_func(acodec_shutdown, "acodec_shutdown");
 }
@@ -84,6 +93,10 @@ static ACODEC_TABLE *add_acodec_table_entry(const char *ext)
    ent->loader = NULL;
    ent->saver = NULL;
    ent->stream_loader = NULL;
+   
+   ent->fs_loader = NULL;
+   ent->fs_saver = NULL;
+   ent->fs_stream_loader = NULL;
 
    return ent;
 }
@@ -115,6 +128,31 @@ bool al_register_sample_loader(const char *ext,
    return true;
 }
 
+/* Function: al_register_sample_loader_f
+ */
+bool al_register_sample_loader_f(const char *ext,
+   ALLEGRO_SAMPLE *(*loader)(ALLEGRO_FILE* fp))
+{
+   ACODEC_TABLE *ent;
+
+   if (strlen(ext) + 1 >= MAX_EXTENSION_LENGTH) {
+      return false;
+   }
+
+   ent = find_acodec_table_entry(ext);
+   if (!loader) {
+      if (!ent || !ent->fs_loader) {
+         return false; /* Nothing to remove. */
+      }
+   }
+   else if (!ent) {
+      ent = add_acodec_table_entry(ext);
+   }
+
+   ent->fs_loader = loader;
+
+   return true;
+}
 
 /* Function: al_register_sample_saver
  */
@@ -142,6 +180,31 @@ bool al_register_sample_saver(const char *ext,
    return true;
 }
 
+/* Function: al_register_sample_saver_f
+ */
+bool al_register_sample_saver_f(const char *ext,
+   bool (*saver)(ALLEGRO_FILE* fp, ALLEGRO_SAMPLE *spl))
+{
+   ACODEC_TABLE *ent;
+
+   if (strlen(ext) + 1 >= MAX_EXTENSION_LENGTH) {
+      return false;
+   }
+
+   ent = find_acodec_table_entry(ext);
+   if (!saver) {
+      if (!ent || !ent->fs_saver) {
+         return false; /* Nothing to remove. */
+      }
+   }
+   else if (!ent) {
+      ent = add_acodec_table_entry(ext);
+   }
+
+   ent->fs_saver = saver;
+
+   return true;
+}
 
 /* Function: al_register_audio_stream_loader
  */
@@ -170,6 +233,32 @@ bool al_register_audio_stream_loader(const char *ext,
    return true;
 }
 
+/* Function: al_register_audio_stream_loader_f
+ */
+bool al_register_audio_stream_loader_f(const char *ext,
+   ALLEGRO_AUDIO_STREAM *(*stream_loader)(ALLEGRO_FILE* fp,
+      size_t buffer_count, unsigned int samples))
+{
+   ACODEC_TABLE *ent;
+
+   if (strlen(ext) + 1 >= MAX_EXTENSION_LENGTH) {
+      return false;
+   }
+
+   ent = find_acodec_table_entry(ext);
+   if (!stream_loader) {
+      if (!ent || !ent->fs_stream_loader) {
+         return false; /* Nothing to remove. */
+      }
+   }
+   else if (!ent) {
+      ent = add_acodec_table_entry(ext);
+   }
+
+   ent->fs_stream_loader = stream_loader;
+
+   return true;
+}
 
 /* Function: al_load_sample
  */
@@ -186,6 +275,23 @@ ALLEGRO_SAMPLE *al_load_sample(const char *filename)
    ent = find_acodec_table_entry(ext);
    if (ent && ent->loader) {
       return (ent->loader)(filename);
+   }
+
+   return NULL;
+}
+
+/* Function: al_load_sample_f
+ */
+ALLEGRO_SAMPLE *al_load_sample_f(ALLEGRO_FILE* fp, const char *ident)
+{
+   ACODEC_TABLE *ent;
+
+   ASSERT(fp);
+   ASSERT(ident);
+
+   ent = find_acodec_table_entry(ident);
+   if (ent && ent->fs_loader) {
+      return (ent->fs_loader)(fp);
    }
 
    return NULL;
@@ -215,6 +321,23 @@ ALLEGRO_AUDIO_STREAM *al_load_audio_stream(const char *filename,
    return NULL;
 }
 
+/* Function: al_load_audio_stream_f
+ */
+ALLEGRO_AUDIO_STREAM *al_load_audio_stream_f(ALLEGRO_FILE* fp, const char *ident,
+   size_t buffer_count, unsigned int samples)
+{
+   ACODEC_TABLE *ent;
+
+   ASSERT(fp);
+   ASSERT(ident);
+   
+   ent = find_acodec_table_entry(ident);
+   if (ent && ent->fs_stream_loader) {
+      return (ent->fs_stream_loader)(fp, buffer_count, samples);
+   }
+
+   return NULL;
+}
 
 /* Function: al_save_sample
  */
@@ -227,7 +350,6 @@ bool al_save_sample(const char *filename, ALLEGRO_SAMPLE *spl)
    ext = strrchr(filename, '.');
    if (ext == NULL)
       return false;
-   ext++;   /* skip '.' */
 
    ent = find_acodec_table_entry(ext);
    if (ent && ent->saver) {
@@ -237,6 +359,22 @@ bool al_save_sample(const char *filename, ALLEGRO_SAMPLE *spl)
    return false;
 }
 
+/* Function: al_save_sample_f
+ */
+bool al_save_sample_f(ALLEGRO_FILE *fp, const char *ident, ALLEGRO_SAMPLE *spl)
+{
+   ACODEC_TABLE *ent;
+
+   ASSERT(fp);
+   ASSERT(ident);
+   
+   ent = find_acodec_table_entry(ident);
+   if (ent && ent->fs_saver) {
+      return (ent->fs_saver)(fp, spl);
+   }
+
+   return false;
+}
 
 /* FIXME: use the allegro provided helpers */
 ALLEGRO_CHANNEL_CONF _al_count_to_channel_conf(int num_channels)
