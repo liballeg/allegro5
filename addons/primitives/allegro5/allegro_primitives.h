@@ -78,8 +78,8 @@ typedef enum ALLEGRO_PRIM_STORAGE
 typedef struct ALLEGRO_VERTEX_ELEMENT ALLEGRO_VERTEX_ELEMENT;
 
 struct ALLEGRO_VERTEX_ELEMENT {
-   ALLEGRO_PRIM_ATTR attribute;
-   ALLEGRO_PRIM_STORAGE storage;
+   int attribute;
+   int storage;
    int offset;
 };
 
