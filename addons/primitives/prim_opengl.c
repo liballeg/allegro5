@@ -18,6 +18,7 @@
 
 #include "allegro5/allegro5.h"
 #include "allegro5/allegro_primitives.h"
+#include "allegro5/allegro_opengl.h"
 #include "allegro5/internal/aintern_prim_opengl.h"
 #include "allegro5/internal/aintern_prim_soft.h"
 #include "allegro5/platform/alplatf.h"
@@ -137,33 +138,42 @@ static void setup_state(const char* vtxs, const ALLEGRO_VERTEX_DECL* decl, ALLEG
    }
 
    if (texture) {
-      ALLEGRO_BITMAP_OGL *ogl_bitmap = (void *)texture; 
+      GLuint gl_texture = al_get_opengl_texture(texture);
+      int true_w, true_h;
+      int tex_x, tex_y;
       GLuint current_texture;
-      float t = (float)al_get_bitmap_height(texture) / ogl_bitmap->true_h;
+      float tx, ty;
+      
+      al_get_opengl_texture_size(texture, &true_w, &true_h);
+      al_get_opengl_texture_position(texture, &tex_x, &tex_y);
+      
+      tx = (float)tex_x / true_w;
+      ty = (float)(true_h - tex_y) / true_h;
+         
       float mat[4][4] = {
-         {1,  0, 0, 0},
-         {0, -1, 0, 0},
-         {0,  0, 1, 0},
-         {0,  t, 0, 1}
+         {1,  0,  0, 0},
+         {0, -1,  0, 0},
+         {0,  0,  1, 0},
+         {tx, ty, 0, 1}
       };
       (void)current_texture;
 
       if(decl) {
          if(decl->elements[ALLEGRO_PRIM_TEX_COORD_PIXEL].attribute) {
-            mat[0][0] = 1.0f / ogl_bitmap->true_w;
-            mat[1][1] = -1.0f / ogl_bitmap->true_h;
+            mat[0][0] = 1.0f / true_w;
+            mat[1][1] = -1.0f / true_h;
          } else {
-            mat[0][0] = (float)al_get_bitmap_width(texture) / ogl_bitmap->true_w;
-            mat[1][1] = -(float)al_get_bitmap_height(texture) / ogl_bitmap->true_h;
+            mat[0][0] = (float)al_get_bitmap_width(texture) / true_w;
+            mat[1][1] = -(float)al_get_bitmap_height(texture) / true_h;
          }
       } else {
-         mat[0][0] = 1.0f / ogl_bitmap->true_w;
-         mat[1][1] = -1.0f / ogl_bitmap->true_h;
+         mat[0][0] = 1.0f / true_w;
+         mat[1][1] = -1.0f / true_h;
       }
 
       glGetIntegerv(GL_TEXTURE_BINDING_2D, (GLint*)&current_texture);
-      if (current_texture != ogl_bitmap->texture) {
-         glBindTexture(GL_TEXTURE_2D, ogl_bitmap->texture);
+      if (current_texture != gl_texture) {
+         glBindTexture(GL_TEXTURE_2D, gl_texture);
       }
 
       glMatrixMode(GL_TEXTURE);
