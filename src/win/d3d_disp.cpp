@@ -1599,66 +1599,79 @@ static void d3d_display_thread_proc(void *arg)
    SetEvent(params->AckEvent);
 
    while (!win_display->end_thread) {
-      if (WaitMessage()) {
-         /* messages are waiting in the queue */
-         while (PeekMessage(&msg, NULL, 0, 0, PM_NOREMOVE)) {
-            if (GetMessage(&msg, NULL, 0, 0)) {
-               DispatchMessage(&msg);
-            }
-            else {
-               goto End;
-            }
+      /*
+       * Below we used to use WaitMessage to avoid looping
+       * unnecessarily, however there is a problem with that.
+       * WaitMessage does not always unblock on input (see MSDN),
+       * and we need this loop to run specifically on mouse input
+       * like when a window is being resized. The displays device
+       * will not be reset otherwise until the mouse is released
+       * and then moved once again. For now we just use a short
+       * delay in place of WaitMessage.
+       */
+      //if (WaitMessage()) {
+      al_rest(0.001);
+      while (PeekMessage(&msg, NULL, 0, 0, PM_NOREMOVE)) {
+         if (GetMessage(&msg, NULL, 0, 0)) {
+            DispatchMessage(&msg);
          }
+         else {
+            goto End;
+         }
+      }
 
-         if (!d3d_display->device)
-            continue;
+      if (!d3d_display->device)
+         continue;
 
-         hr = d3d_display->device->TestCooperativeLevel();
+      hr = d3d_display->device->TestCooperativeLevel();
 
-         if (hr == D3D_OK) {
+      if (hr == D3D_OK) {
+         d3d_display->device_lost = false;
+      }
+      else if (hr == D3DERR_DEVICELOST) {
+         /* device remains lost */
+         if (!lost_event_generated) {
+            _al_event_source_lock(&al_display->es);
+            if (_al_event_source_needs_to_generate_event(&al_display->es)) {
+               ALLEGRO_EVENT event;
+               event.display.type = ALLEGRO_EVENT_DISPLAY_LOST;
+               event.display.timestamp = al_current_time();
+               _al_event_source_emit_event(&al_display->es, &event);
+            }
+            _al_event_source_unlock(&al_display->es);
+            lost_event_generated = true;
+            al_rest(0.5); // give user time to respond
+         }
+      }
+      else if (hr == D3DERR_DEVICENOTRESET) {
+         if (_al_d3d_reset_device(d3d_display)) {
             d3d_display->device_lost = false;
-         }
-         else if (hr == D3DERR_DEVICELOST) {
-            /* device remains lost */
-            if (!lost_event_generated) {
-               _al_event_source_lock(&al_display->es);
-               if (_al_event_source_needs_to_generate_event(&al_display->es)) {
-                  ALLEGRO_EVENT event;
-                  event.display.type = ALLEGRO_EVENT_DISPLAY_LOST;
-                  event.display.timestamp = al_current_time();
-                  _al_event_source_emit_event(&al_display->es, &event);
-               }
-               _al_event_source_unlock(&al_display->es);
-               lost_event_generated = true;
-               al_rest(0.5); // give user time to respond
+            d3d_reset_state(d3d_display);
+            _al_d3d_set_ortho_projection(d3d_display, al_display->w, al_display->h);
+            _al_event_source_lock(&al_display->es);
+            if (_al_event_source_needs_to_generate_event(&al_display->es)) {
+               ALLEGRO_EVENT event;
+               event.display.type = ALLEGRO_EVENT_DISPLAY_FOUND;
+               event.display.timestamp = al_current_time();
+               _al_event_source_emit_event(&al_display->es, &event);
             }
+            _al_event_source_unlock(&al_display->es);
+            lost_event_generated = false;
          }
-         else if (hr == D3DERR_DEVICENOTRESET) {
-            if (_al_d3d_reset_device(d3d_display)) {
-               d3d_display->device_lost = false;
-               d3d_reset_state(d3d_display);
-               _al_d3d_set_ortho_projection(d3d_display, al_display->w, al_display->h);
-               _al_event_source_lock(&al_display->es);
-               if (_al_event_source_needs_to_generate_event(&al_display->es)) {
-                  ALLEGRO_EVENT event;
-                  event.display.type = ALLEGRO_EVENT_DISPLAY_FOUND;
-                  event.display.timestamp = al_current_time();
-                  _al_event_source_emit_event(&al_display->es, &event);
-               }
-               _al_event_source_unlock(&al_display->es);
-               lost_event_generated = false;
-            }
-         }
-         if (d3d_display->do_reset) {
-            d3d_display->reset_success = _al_d3d_reset_device(d3d_display);
-            d3d_display->reset_done = true;
-            d3d_display->do_reset = false;
-         }
+      }
+      if (d3d_display->do_reset) {
+         d3d_display->reset_success = _al_d3d_reset_device(d3d_display);
+         d3d_display->reset_done = true;
+         d3d_display->do_reset = false;
+      }
+      // else (WaitMessage)
+      /*
       }
       else {
          TRACE("Wait failed.\n");
          break;
       }
+      */
    }
 
 End:
