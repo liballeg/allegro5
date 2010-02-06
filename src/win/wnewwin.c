@@ -270,7 +270,7 @@ static void postpone_thread_proc(void *arg)
 {
    HWND window = (HWND)arg;
 
-   Sleep(500);
+   Sleep(250);
 
    SendMessage(window, WM_USER+0, 0, 0);
 }
@@ -669,8 +669,8 @@ static LRESULT CALLBACK window_callback(HWND hWnd, UINT message,
                _al_event_source_emit_event(es, &event);
             }
             _al_event_source_unlock(es);
-            resize_postponed = false;
          }
+         resize_postponed = false;
          return 0;
    } 
 
