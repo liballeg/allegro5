@@ -1396,6 +1396,10 @@ static bool wgl_acknowledge_resize(ALLEGRO_DISPLAY *d)
 
    d->w = w;
    d->h = h;
+   win_disp->mouse_range_x1 = 0;
+   win_disp->mouse_range_y1 = 0;
+   win_disp->mouse_range_x2 = w;
+   win_disp->mouse_range_y2 = h;
 
    _al_ogl_resize_backbuffer(ogl_disp->ogl_extras->backbuffer, w, h);
 

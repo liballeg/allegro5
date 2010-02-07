@@ -2270,6 +2270,10 @@ static bool d3d_acknowledge_resize(ALLEGRO_DISPLAY *d)
    old = al_get_current_display();
    al_set_current_display(d);
    al_set_clipping_rectangle(0, 0, d->w, d->h);
+   win_display->mouse_range_x1 = 0;
+   win_display->mouse_range_y1 = 0;
+   win_display->mouse_range_x2 = d->w;
+   win_display->mouse_range_y2 = d->h;
    al_set_current_display(old);
 
    return disp->reset_success;
