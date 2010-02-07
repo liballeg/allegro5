@@ -142,20 +142,19 @@ static void setup_state(const char* vtxs, const ALLEGRO_VERTEX_DECL* decl, ALLEG
       int true_w, true_h;
       int tex_x, tex_y;
       GLuint current_texture;
-      float tx, ty;
-      
-      al_get_opengl_texture_size(texture, &true_w, &true_h);
-      al_get_opengl_texture_position(texture, &tex_x, &tex_y);
-      
-      tx = (float)tex_x / true_w;
-      ty = (float)(true_h - tex_y) / true_h;
-         
       float mat[4][4] = {
          {1,  0,  0, 0},
          {0, -1,  0, 0},
          {0,  0,  1, 0},
-         {tx, ty, 0, 1}
+         {0,  0,  0, 1}
       };
+      
+      al_get_opengl_texture_size(texture, &true_w, &true_h);
+      al_get_opengl_texture_position(texture, &tex_x, &tex_y);
+      
+      mat[3][0] = (float)tex_x / true_w;
+      mat[3][1] = (float)(true_h - tex_y) / true_h;
+         
       (void)current_texture;
 
       if(decl) {
