@@ -2338,12 +2338,12 @@ static ALLEGRO_BITMAP *d3d_create_sub_bitmap(ALLEGRO_DISPLAY *display,
 
    bitmap->texture_w = 0;
    bitmap->texture_h = 0;
-   bitmap->video_texture = NULL;
-   bitmap->system_texture = NULL;
+   bitmap->video_texture = ((ALLEGRO_BITMAP_D3D *)parent)->video_texture;
+   bitmap->system_texture = ((ALLEGRO_BITMAP_D3D *)parent)->system_texture;
    bitmap->initialized = false;
    bitmap->is_backbuffer = ((ALLEGRO_BITMAP_D3D *)parent)->is_backbuffer;
    bitmap->display = (ALLEGRO_DISPLAY_D3D *)display;
-   bitmap->render_target = NULL;
+   bitmap->render_target = ((ALLEGRO_BITMAP_D3D *)parent)->render_target;
    bitmap->modified = true;
 
    bitmap->bitmap.vt = parent->vt;
@@ -2472,6 +2472,14 @@ LPDIRECT3DTEXTURE9 al_d3d_get_system_texture(ALLEGRO_BITMAP *bitmap)
 LPDIRECT3DTEXTURE9 al_d3d_get_video_texture(ALLEGRO_BITMAP *bitmap)
 {
    return ((ALLEGRO_BITMAP_D3D *)bitmap)->video_texture;
+}
+
+/* Function: al_get_d3d_texture_position
+ */
+void al_get_d3d_texture_position(ALLEGRO_BITMAP *bitmap, int *u, int *v)
+{
+   *u = bitmap->xofs;
+   *v = bitmap->yofs;
 }
 
 static void d3d_set_window_position(ALLEGRO_DISPLAY *display, int x, int y)

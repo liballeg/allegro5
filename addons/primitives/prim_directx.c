@@ -183,6 +183,7 @@ int _al_draw_prim_directx(ALLEGRO_BITMAP* texture, const void* vtxs, const ALLEG
    set_blender(display);
 
    if (texture) {
+      int tex_x, tex_y;
       D3DSURFACE_DESC desc;
       float mat[4][4] = {
          {1, 0, 0, 0},
@@ -191,6 +192,8 @@ int _al_draw_prim_directx(ALLEGRO_BITMAP* texture, const void* vtxs, const ALLEG
          {0, 0, 0, 1}
       };      
       IDirect3DTexture9_GetLevelDesc(al_d3d_get_video_texture(texture), 0, &desc);
+      
+      al_get_d3d_texture_position(texture, &tex_x, &tex_y);
 
       if(decl) {
          if(decl->elements[ALLEGRO_PRIM_TEX_COORD_PIXEL].attribute) {
@@ -204,8 +207,8 @@ int _al_draw_prim_directx(ALLEGRO_BITMAP* texture, const void* vtxs, const ALLEG
          mat[0][0] = 1.0f / desc.Width;
          mat[1][1] = 1.0f / desc.Height;
       }
-      mat[2][0] = 0.5f / desc.Width;
-      mat[2][1] = 0.5f / desc.Height;
+      mat[2][0] = ((float)tex_x + 0.5f) / desc.Width;
+      mat[2][1] = ((float)tex_y + 0.5f) / desc.Height;
 
       IDirect3DDevice9_GetTextureStageState(device, 0, D3DTSS_TEXTURETRANSFORMFLAGS, &old_ttf_state);
       IDirect3DDevice9_SetTextureStageState(device, 0, D3DTSS_TEXTURETRANSFORMFLAGS, D3DTTFF_COUNT2);

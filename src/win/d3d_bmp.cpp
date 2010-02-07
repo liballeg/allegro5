@@ -879,20 +879,22 @@ static void d3d_destroy_bitmap(ALLEGRO_BITMAP *bitmap)
 {
    ALLEGRO_BITMAP_D3D *d3d_bmp = (ALLEGRO_BITMAP_D3D *)bitmap;
 
-   if (d3d_bmp->video_texture) {
-      if (d3d_bmp->video_texture->Release() != 0) {
-         TRACE("d3d_destroy_bitmap: Release video texture failed.\n");
+   if(!al_is_sub_bitmap(bitmap)) {
+      if (d3d_bmp->video_texture) {
+         if (d3d_bmp->video_texture->Release() != 0) {
+            TRACE("d3d_destroy_bitmap: Release video texture failed.\n");
+         }
       }
-   }
-   if (d3d_bmp->system_texture) {
-      if (d3d_bmp->system_texture->Release() != 0) {
-         TRACE("d3d_destroy_bitmap: Release system texture failed.\n");
+      if (d3d_bmp->system_texture) {
+         if (d3d_bmp->system_texture->Release() != 0) {
+            TRACE("d3d_destroy_bitmap: Release system texture failed.\n");
+         }
       }
-   }
 
-   if (d3d_bmp->render_target) {
-      if (d3d_bmp->render_target->Release() != 0) {
-         TRACE("d3d_destroy_bitmap: Release render target failed.\n");
+      if (d3d_bmp->render_target) {
+         if (d3d_bmp->render_target->Release() != 0) {
+            TRACE("d3d_destroy_bitmap: Release render target failed.\n");
+         }
       }
    }
 
