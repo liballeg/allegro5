@@ -174,7 +174,10 @@ the display. Returns true on success.
 
 Adjusts the clipping rectangle to the full size of the backbuffer.
 
-See also: [al_resize_display]
+Note that a resize event may be outdated by the time you acknowledge it;
+there could be further resize events generated in the meantime.
+
+See also: [al_resize_display], [ALLEGRO_EVENT]
 
 ### API: al_flip_display
 
