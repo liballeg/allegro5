@@ -217,6 +217,10 @@ The demo is currently excluded from the build if MSVC8 is detected, due to
 some problems with IntelliSense.
 Please give it a try and report problems.
 
+*Note:*
+If you are using a static FLAC library that you must set the FLAC_STATIC
+option to on.
+
 
 
 Hints on setting up Visual C++ 2005 Express Edition

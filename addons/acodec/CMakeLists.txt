@@ -7,6 +7,13 @@ option(WANT_VORBIS "Enable Ogg Vorbis support" on)
 
 set(A5_FLAC_SOURCES flac.c)
 
+if(COMPILER_MSVC)
+    option(FLAC_STATIC "Set this if linking with a static FLAC library" off)
+    if(FLAC_STATIC)
+        set(FLAC__NO_DLL "-DFLAC__NO_DLL")
+    endif()
+endif(COMPILER_MSVC)
+
 if(WANT_FLAC)
     find_package(FLAC)
     if(FLAC_FOUND)
@@ -35,7 +42,7 @@ endif(WANT_FLAC)
 if(SUPPORT_FLAC)
     add_our_library(allegro_flac -${ALLEGRO_VERSION}
         "${A5_FLAC_SOURCES}"
-        "-DALLEGRO_FLAC_SRC"
+        "-DALLEGRO_FLAC_SRC ${FLAC__NO_DLL}"
         "${AUDIO_LINK_WITH};${FLAC_LIBRARIES}"
         )
 
