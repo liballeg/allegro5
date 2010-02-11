@@ -55,6 +55,7 @@ int main(void)
    al_init_image_addon();
    al_init_font_addon();
 
+   al_set_new_display_flags(ALLEGRO_RESIZABLE);
    display = al_create_display(640, 480);
    if (!display) {
       abort_example("Error creating display\n");
@@ -81,20 +82,22 @@ int main(void)
    al_register_event_source(queue, al_get_display_event_source(display));
 
    while (1) {
-      al_clear_to_color(al_map_rgb(0xff, 0xff, 0xc0));
-      for (i = 0; i < NUM_BUTTONS; i++) {
-         draw_mouse_button(i, buttons[i]);
+      if (al_event_queue_is_empty(queue)) {
+         al_clear_to_color(al_map_rgb(0xff, 0xff, 0xc0));
+         for (i = 0; i < NUM_BUTTONS; i++) {
+            draw_mouse_button(i, buttons[i]);
+         }
+         al_draw_bitmap(cursor, mx, my, 0);
+         al_set_blender(ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA,
+            al_map_rgb_f(0, 0, 0));
+         al_draw_textf(font, 5, 5, 0, "dx %i, dy %i, dz %i", mmx, mmy, mmz);
+         al_draw_textf(font, 5, 15, 0, "x %i, y %i, z %i", mx, my, mz);
+         al_draw_textf(font, 5, 25, 0, "%s", in ? "in" : "out");
+         al_set_blender(ALLEGRO_ONE, ALLEGRO_INVERSE_ALPHA,
+            al_map_rgb_f(1, 1, 1));
+         mmx = mmy = mmz = 0;
+         al_flip_display();
       }
-      al_draw_bitmap(cursor, mx, my, 0);
-      al_set_blender(ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA,
-         al_map_rgb_f(0, 0, 0));
-      al_draw_textf(font, 5, 5, 0, "dx %i, dy %i, dz %i", mmx, mmy, mmz);
-      al_draw_textf(font, 5, 15, 0, "x %i, y %i, z %i", mx, my, mz);
-      al_draw_textf(font, 5, 25, 0, "%s", in ? "in" : "out");
-      al_set_blender(ALLEGRO_ONE, ALLEGRO_INVERSE_ALPHA,
-         al_map_rgb_f(1, 1, 1));
-      mmx = mmy = mmz = 0;
-      al_flip_display();
 
       al_wait_for_event(queue, &event);
       switch (event.type) {
@@ -131,6 +134,10 @@ int main(void)
             if (event.keyboard.keycode == ALLEGRO_KEY_ESCAPE) {
                goto done;
             }
+            break;
+
+         case ALLEGRO_EVENT_DISPLAY_RESIZE:
+            al_acknowledge_resize(event.display.source);
             break;
 
          case ALLEGRO_EVENT_DISPLAY_CLOSE:
