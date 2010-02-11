@@ -1421,6 +1421,7 @@ static bool wgl_is_compatible_bitmap(ALLEGRO_DISPLAY *display, ALLEGRO_BITMAP *b
 
 static void wgl_switch_in(ALLEGRO_DISPLAY *display)
 {
+   (void)display;
    /*
    ALLEGRO_DISPLAY_WIN *win_disp = (ALLEGRO_DISPLAY_WIN *)display;
 
