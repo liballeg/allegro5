@@ -2501,12 +2501,17 @@ static void d3d_get_window_position(ALLEGRO_DISPLAY *display, int *x, int *y)
    }
 }
 
-static void d3d_toggle_frame(ALLEGRO_DISPLAY *display, bool onoff)
+
+static bool d3d_toggle_display_flag(ALLEGRO_DISPLAY *display, int flag, bool onoff)
 {
-   _al_win_toggle_window_frame(
-      display,
-      ((ALLEGRO_DISPLAY_WIN *)display)->window,
-      display->w, display->h, onoff);
+   switch(flag) {
+      case ALLEGRO_NOFRAME: 
+         _al_win_toggle_window_frame(display,
+            ((ALLEGRO_DISPLAY_WIN *)display)->window,
+            display->w, display->h, onoff);
+         return true;
+   }
+   return false;
 }
 
 
@@ -2621,7 +2626,7 @@ ALLEGRO_DISPLAY_INTERFACE *_al_display_d3d_driver(void)
    vt->set_icon = _al_win_set_display_icon;
    vt->set_window_position = d3d_set_window_position;
    vt->get_window_position = d3d_get_window_position;
-   vt->toggle_frame = d3d_toggle_frame;
+   vt->toggle_display_flag = d3d_toggle_display_flag;
    vt->set_window_title = _al_win_set_window_title;
    vt->shutdown = d3d_shutdown;
    

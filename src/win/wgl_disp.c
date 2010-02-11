@@ -1450,12 +1450,16 @@ static void wgl_get_window_position(ALLEGRO_DISPLAY *display, int *x, int *y)
 }
 
 
-static void wgl_toggle_frame(ALLEGRO_DISPLAY *display, bool onoff)
+static bool wgl_toggle_display_flag(ALLEGRO_DISPLAY *display, int flag, bool onoff)
 {
-   _al_win_toggle_window_frame(
-      display,
-      ((ALLEGRO_DISPLAY_WIN *)display)->window,
-      display->w, display->h, onoff);
+   switch(flag) {
+      case ALLEGRO_NOFRAME: 
+         _al_win_toggle_window_frame(display,
+            ((ALLEGRO_DISPLAY_WIN *)display)->window,
+            display->w, display->h, onoff);
+         return true;
+   }
+   return false;
 }
 
 
@@ -1494,7 +1498,7 @@ ALLEGRO_DISPLAY_INTERFACE *_al_display_wgl_driver(void)
    vt->set_icon = _al_win_set_display_icon;
    vt->set_window_position = wgl_set_window_position;
    vt->get_window_position = wgl_get_window_position;
-   vt->toggle_frame = wgl_toggle_frame;
+   vt->toggle_display_flag = wgl_toggle_display_flag;
    vt->set_window_title = _al_win_set_window_title;
    _al_ogl_add_drawing_functions(vt);
 

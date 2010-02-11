@@ -54,7 +54,7 @@ int main(void)
          }
          if (event.mouse.button == 2) {
             frame = !frame;
-            al_toggle_window_frame(display, frame);
+            al_toggle_display_flag(ALLEGRO_NOFRAME, frame);
          }
       }
       else if (event.type == ALLEGRO_EVENT_DISPLAY_CLOSE) {
@@ -69,8 +69,8 @@ int main(void)
          if (down) {
             int cx, cy;
             if (al_get_mouse_cursor_position(&cx, &cy)) {
-	       al_set_window_position(display, cx - down_x, cy - down_y);
-	    }
+               al_set_window_position(display, cx - down_x, cy - down_y);
+            }
          }
       }
       else if (event.type == ALLEGRO_EVENT_KEY_DOWN &&

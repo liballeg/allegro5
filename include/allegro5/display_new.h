@@ -105,6 +105,7 @@ AL_FUNC(int, al_get_display_height, (void));
 AL_FUNC(int, al_get_display_format, (void));
 AL_FUNC(int, al_get_display_refresh_rate, (void));
 AL_FUNC(int, al_get_display_flags,  (void));
+AL_FUNC(bool, al_toggle_display_flag, (int flag, bool onoff));
 
 AL_FUNC(ALLEGRO_DISPLAY*, al_create_display, (int w, int h));
 AL_FUNC(void,             al_destroy_display, (ALLEGRO_DISPLAY *display));
@@ -144,7 +145,7 @@ AL_FUNC(void, al_set_new_window_position, (int x, int y));
 AL_FUNC(void, al_get_new_window_position, (int *x, int *y));
 AL_FUNC(void, al_set_window_position, (ALLEGRO_DISPLAY *display, int x, int y));
 AL_FUNC(void, al_get_window_position, (ALLEGRO_DISPLAY *display, int *x, int *y));
-AL_FUNC(void, al_toggle_window_frame, (ALLEGRO_DISPLAY *display, bool onoff));
+
 AL_FUNC(void, al_set_window_title, (AL_CONST char *title));
 
 /* Defined in display_settings.c */

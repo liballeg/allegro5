@@ -322,9 +322,15 @@ See also: [al_get_window_position]
 
 Set the title on a display.
 
-### API: al_toggle_window_frame
+### API: al_toggle_display_flag
 
-Enable or disable the decorations around a windowed display.
+Enable or disable one of the display flags. The flags are the same
+as for [al_set_new_display_flag]. Note however that some of the flags
+cannot be changed after the display has been created.
+
+Returns true if the driver supports toggling the specified flag else
+false. You can use [al_get_display_flags] to query whether the given
+display property actually changed.
 
 ### API: al_update_display_region
 

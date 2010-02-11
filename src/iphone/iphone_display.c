@@ -228,8 +228,10 @@ static void iphone_set_window_position(ALLEGRO_DISPLAY *display, int x, int y)
 }
 
 /* Always fullscreen. */
-static void iphone_toggle_frame(ALLEGRO_DISPLAY *display, bool onoff)
+static bool iphone_toggle_display_flag(ALLEGRO_DISPLAY *display,
+   int flag, bool onoff)
 {
+   return false;
 }
 
 static void iphone_get_window_position(ALLEGRO_DISPLAY *display, int *x, int *y)
@@ -322,7 +324,7 @@ ALLEGRO_DISPLAY_INTERFACE *_al_get_iphone_display_interface(void)
     vt->set_window_title = iphone_set_window_title;
     vt->set_window_position = iphone_set_window_position;
     vt->get_window_position = iphone_get_window_position;
-    vt->toggle_frame = iphone_toggle_frame;
+    vt->toggle_display_flag = iphone_toggle_display_flag;
     vt->wait_for_vsync = iphone_wait_for_vsync;
     
     vt->create_mouse_cursor = iphone_create_mouse_cursor;

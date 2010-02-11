@@ -519,19 +519,17 @@ void al_get_window_position(ALLEGRO_DISPLAY *display, int *x, int *y)
 }
 
 
-/* Function: al_toggle_window_frame
+/* Function: al_toggle_display_flag
  */
-void al_toggle_window_frame(ALLEGRO_DISPLAY *display, bool onoff)
+bool al_toggle_display_flag(int flag, bool onoff)
 {
+   ALLEGRO_DISPLAY *display = al_get_current_display();
    ASSERT(display);
 
-   if (display->flags & ALLEGRO_FULLSCREEN) {
-      return;
+   if (display && display->vt && display->vt->toggle_display_flag) {
+      return display->vt->toggle_display_flag(display, flag, onoff);
    }
-
-   if (display && display->vt && display->vt->toggle_frame) {
-      display->vt->toggle_frame(display, onoff);
-   }
+   return false;
 }
 
 

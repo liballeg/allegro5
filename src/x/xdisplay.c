@@ -178,6 +178,19 @@ static void xdpy_toggle_frame(ALLEGRO_DISPLAY *display, bool onoff)
 
 
 
+static bool xdpy_toggle_display_flag(ALLEGRO_DISPLAY *display, int flag,
+   bool onoff)
+{
+   switch(flag) {
+      case ALLEGRO_NOFRAME: 
+         xdpy_toggle_frame(display, onoff);
+         return true;
+   }
+   return false;
+}
+
+
+
 /* Create a new X11 display, which maps directly to a GLX window. */
 static ALLEGRO_DISPLAY *xdpy_create_display(int w, int h)
 {
@@ -803,7 +816,7 @@ ALLEGRO_DISPLAY_INTERFACE *_al_display_xglx_driver(void)
    xdpy_vt.set_window_title = xdpy_set_window_title;
    xdpy_vt.set_window_position = xdpy_set_window_position;
    xdpy_vt.get_window_position = xdpy_get_window_position;
-   xdpy_vt.toggle_frame = xdpy_toggle_frame;
+   xdpy_vt.toggle_display_flag = xdpy_toggle_display_flag;
    xdpy_vt.wait_for_vsync = xdpy_wait_for_vsync;
 
    _al_xglx_add_cursor_functions(&xdpy_vt);
