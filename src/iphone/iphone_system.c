@@ -83,7 +83,6 @@ ALLEGRO_SYSTEM_INTERFACE *_al_get_iphone_system_interface(void)
     vt->get_cursor_position = iphone_get_cursor_position;
     vt->get_path = _al_iphone_get_path;
     //xglx_vt->inhibit_screensaver = xglx_inhibit_screensaver;
-    vt->get_num_display_formats = iphone_get_num_display_formats;
     
     return vt;
 }
