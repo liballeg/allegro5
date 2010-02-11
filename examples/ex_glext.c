@@ -213,10 +213,10 @@ int main(void)
    }
 
    if (al_get_display_option(ALLEGRO_SAMPLE_BUFFERS)) {
-      abort_example("With multisampling, level %i\n", al_get_display_option(ALLEGRO_SAMPLES));
+      printf("With multisampling, level %i\n", al_get_display_option(ALLEGRO_SAMPLES));
    }
    else {
-      abort_example("Without multisampling.\n");
+      printf("Without multisampling.\n");
    }
 
    al_install_keyboard();
