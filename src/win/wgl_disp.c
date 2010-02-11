@@ -1421,11 +1421,13 @@ static bool wgl_is_compatible_bitmap(ALLEGRO_DISPLAY *display, ALLEGRO_BITMAP *b
 
 static void wgl_switch_in(ALLEGRO_DISPLAY *display)
 {
+   /*
    ALLEGRO_DISPLAY_WIN *win_disp = (ALLEGRO_DISPLAY_WIN *)display;
 
    if (al_is_mouse_installed())
       al_set_mouse_range(win_disp->mouse_range_x1, win_disp->mouse_range_y1,
          win_disp->mouse_range_x2, win_disp->mouse_range_y2);
+   */
 }
 
 
