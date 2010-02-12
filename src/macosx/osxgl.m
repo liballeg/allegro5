@@ -480,7 +480,7 @@ void _al_osx_mouse_was_installed(BOOL install) {
       event.display.width = NSWidth(content);
       event.display.height = NSHeight(content);
       _al_event_source_emit_event(es, &event);
-      ALLEGRO_INFO("Window was resized");
+      ALLEGRO_INFO("Window was resized\n");
    }
    _al_event_source_unlock(es);
 }
@@ -1467,6 +1467,50 @@ static void set_icon(ALLEGRO_DISPLAY *display, ALLEGRO_BITMAP* bitmap)
    [NSApp setApplicationIconImage: NSImageFromAllegroBitmap(bitmap)];
 }
 
+/* toggle_display_flag:
+ * Change settings for an already active display
+ */
+static bool toggle_display_flag(ALLEGRO_DISPLAY *display, int flag, bool onoff)
+{
+#if MAC_OS_X_VERSION_MIN_REQUIRED < 1060
+   return false
+#else
+   if (!display)
+      return false;
+
+   ALLEGRO_DISPLAY_OSX_WIN *dpy = (ALLEGRO_DISPLAY_OSX_WIN *)display;
+   NSUInteger mask;
+   NSWindow *win = dpy->win;
+
+   if (!win)
+      return false;
+
+   switch (flag) {
+      case ALLEGRO_NOFRAME:
+         mask = [win styleMask];
+         if (onoff)
+            mask |= NSBorderlessWindowMask;
+         else
+            mask &= ~NSBorderlessWindowMask;
+         ALLEGRO_DEBUG("Toggle FRAME for display %p to %d\n", dpy, onoff);
+         [win setStyleMask : mask];
+         return true;
+
+      case ALLEGRO_RESIZABLE:
+         mask = [win styleMask];
+         if (onoff)
+            mask |= NSResizableWindowMask;
+         else
+            mask &= ~NSResizableWindowMask;
+         ALLEGRO_DEBUG("Toggle RESIZABLE for display %p to %d\n", dpy, onoff);
+         [win setStyleMask : mask];
+         return true;
+   }
+
+   return false;
+#endif
+}
+
 ALLEGRO_DISPLAY_INTERFACE* _al_osx_get_display_driver_win(void)
 {
    static ALLEGRO_DISPLAY_INTERFACE* vt = NULL;
@@ -1494,6 +1538,7 @@ ALLEGRO_DISPLAY_INTERFACE* _al_osx_get_display_driver_win(void)
       vt->get_window_position = get_window_position;
       vt->set_window_position = set_window_position;
       vt->set_window_title = set_window_title;
+      vt->toggle_display_flag = toggle_display_flag;
       vt->set_icon = set_icon;
       _al_ogl_add_drawing_functions(vt);
    }
