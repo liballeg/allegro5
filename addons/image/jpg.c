@@ -18,10 +18,18 @@
 
 #include "iio.h"
 
-/* HAVE_BOOLEAN must be defined before including jpeg headers */
 #ifdef __MINGW32__
-#define HAVE_BOOLEAN
+   /* rpcndr.h also defines `boolean' which can interfere so prevent it being
+    * included.
+    */
+   #define _RPCNDR_H
+
+   /* basetsd.h may define `INT32' which can conflict with a later definition
+    * so rename `INT32' to something else from here on.
+    */
+   #define INT32 jpeg_INT32
 #endif
+
 #include <jpeglib.h>
 #include <jerror.h>
 

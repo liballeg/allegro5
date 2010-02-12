@@ -124,9 +124,10 @@ example(ex_warp_mouse ${FONT} ${PRIM})
 example(ex_windows ${FONT})
 example(ex_winfull)
 
-if(SUPPORT_D3D)
-    example(ex_d3d ex_d3d.cpp d3dx9)
-endif(SUPPORT_D3D)
+find_library(D3DX9 d3dx9)
+if(D3DX9)
+    example(ex_d3d ex_d3d.cpp ${D3DX9})
+endif(D3DX9)
 
 if(SUPPORT_OPENGL)
     example(ex_gldepth ${FONT} ${IMAGE})
@@ -155,15 +156,20 @@ example(ex_synth ex_synth.cpp ${NIHGUI} ${AUDIO} ${TTF})
 
 example(ex_native_filechooser ${DIALOG} ${FONT} ${COLOR})
 
-find_package(CURL)
-if(CURL_FOUND)
-    if(WIN32)
-        # select() is in the Winsock library.
-        example(ex_curl ${CURL_LIBRARIES} ${IMAGE} ws2_32)
-    else(WIN32)
-        example(ex_curl ${CURL_LIBRARIES} ${IMAGE})
-    endif(WIN32)
-endif(CURL_FOUND)
+# In some configurations CURL pulls in dependencies which we don't check for.
+# This example isn't important so it's disabled by default to prevent problems.
+option(WANT_CURL_EXAMPLE "Build ex_curl example" off)
+if(WANT_CURL_EXAMPLE)
+    find_package(CURL)
+    if(CURL_FOUND)
+        if(WIN32)
+            # select() is in the Winsock library.
+            example(ex_curl ${CURL_LIBRARIES} ${IMAGE} ws2_32)
+        else(WIN32)
+            example(ex_curl ${CURL_LIBRARIES} ${IMAGE})
+        endif(WIN32)
+    endif(CURL_FOUND)
+endif(WANT_CURL_EXAMPLE)
 
 # Not yet added:
 # ex_gp2x
