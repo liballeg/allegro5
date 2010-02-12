@@ -7,6 +7,15 @@
 #include <windows.h>
 #include <d3d9.h>
 
+/* The MinGW copy of d3d9.h doesn't currently define this constant. */
+#ifndef D3D9b_SDK_VERSION
+   #ifdef D3D_DEBUG_INFO
+      #define D3D9b_SDK_VERSION (31 | 0x80000000)
+   #else
+      #define D3D9b_SDK_VERSION 31
+   #endif
+#endif
+
 
 #ifdef __cplusplus
 extern "C" {
