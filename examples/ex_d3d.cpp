@@ -22,6 +22,8 @@ struct D3DVERTEX
 int main(int argc, char *argv[])
 {
    ALLEGRO_DISPLAY *display;
+   (void)argc;
+   (void)argv;
 
    al_init();
    al_install_keyboard();
