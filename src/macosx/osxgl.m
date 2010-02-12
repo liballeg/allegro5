@@ -1473,7 +1473,7 @@ static void set_icon(ALLEGRO_DISPLAY *display, ALLEGRO_BITMAP* bitmap)
 static bool toggle_display_flag(ALLEGRO_DISPLAY *display, int flag, bool onoff)
 {
 #if MAC_OS_X_VERSION_MIN_REQUIRED < 1060
-   return false
+   return false;
 #else
    if (!display)
       return false;
