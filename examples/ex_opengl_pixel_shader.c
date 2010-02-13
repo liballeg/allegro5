@@ -40,27 +40,33 @@ int main(void)
    double start;
    GLint loc;
 
-   al_init();
+   if (!al_init()) {
+      abort_example("Could not init Allegro\n");
+   }
+
    al_install_keyboard();
    al_init_image_addon();
 
-    al_set_new_display_flags(ALLEGRO_OPENGL);
+   al_set_new_display_flags(ALLEGRO_OPENGL);
    display = al_create_display(320, 200);
+   if (!display) {
+      abort_example("Error creating display\n");
+   }
+
    mysha = al_load_bitmap("data/mysha.pcx");
+   if (!mysha) {
+      abort_example("Could not load image.\n");
+   }
+
    buffer = al_create_bitmap(320, 200);
 
-   (void)display;
-
    if (!al_is_opengl_extension_supported("GL_EXT_framebuffer_object")) {
-      printf("GL_EXT_framebuffer_object not supported.\n");
-      exit(1);
+      abort_example("GL_EXT_framebuffer_object not supported.\n");
    }
 
    // Check for shader support
-   if (!al_is_opengl_extension_supported("GL_ARB_fragment_shader"))
-   {
-      printf("Fragment shaders not supported. Exiting.\n");
-      exit(1);
+   if (!al_is_opengl_extension_supported("GL_ARB_fragment_shader")) {
+      abort_example("Fragment shaders not supported.\n");
    }
 
    tinter_shader = glCreateShaderObjectARB(GL_FRAGMENT_SHADER_ARB);
@@ -118,5 +124,9 @@ int main(void)
    glDetachObjectARB(tinter, tinter_shader);
    glDeleteObjectARB(tinter_shader);
 
+   al_uninstall_system();
+
    return 0;
 }
+
+/* vim: set sts=3 sw=3 et: */
