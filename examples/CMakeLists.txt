@@ -125,6 +125,7 @@ example(ex_windows ${FONT})
 example(ex_winfull)
 
 find_library(D3DX9 d3dx9)
+mark_as_advanced(D3DX9)
 if(D3DX9)
     example(ex_d3d ex_d3d.cpp ${D3DX9})
 endif(D3DX9)
