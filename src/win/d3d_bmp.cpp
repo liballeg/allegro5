@@ -1006,12 +1006,7 @@ static void d3d_unlock_region(ALLEGRO_BITMAP *bitmap)
 
 static void d3d_update_clipping_rectangle(ALLEGRO_BITMAP *bitmap)
 {
-   ALLEGRO_DISPLAY_D3D *d3d_display = (ALLEGRO_DISPLAY_D3D *)al_get_current_display();
-   ALLEGRO_BITMAP_D3D *d3d_bitmap = (ALLEGRO_BITMAP_D3D *)bitmap;
-
-   if (d3d_display->render_target == d3d_bitmap->render_target) {
-      _al_d3d_set_bitmap_clip(bitmap);
-   }
+   _al_d3d_set_bitmap_clip(bitmap);
 }
 
 
