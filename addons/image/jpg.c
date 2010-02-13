@@ -44,14 +44,14 @@
 struct my_src_mgr
 {
    struct jpeg_source_mgr pub;
-   unsigned char *buffer;
+   JOCTET *buffer;
    ALLEGRO_FILE *fp;
 };
 
 struct my_dest_mgr
 {
    struct jpeg_destination_mgr pub;
-   unsigned char *buffer;
+   JOCTET *buffer;
    ALLEGRO_FILE *fp;
 };
 
@@ -117,7 +117,7 @@ static void term_destination(j_compress_ptr cinfo)
 
 
 static void jpeg_packfile_src(j_decompress_ptr cinfo, ALLEGRO_FILE *fp,
-                              unsigned char *buffer)
+                              JOCTET *buffer)
 {
    struct my_src_mgr *src;
 
@@ -138,7 +138,7 @@ static void jpeg_packfile_src(j_decompress_ptr cinfo, ALLEGRO_FILE *fp,
 }
 
 static void jpeg_packfile_dest(j_compress_ptr cinfo, ALLEGRO_FILE *fp,
-                               unsigned char *buffer)
+                               JOCTET *buffer)
 {
    struct my_dest_mgr *dest;
 
@@ -170,7 +170,7 @@ static void my_error_exit(j_common_ptr cinfo)
 struct load_jpg_entry_helper_data {
    bool error;
    ALLEGRO_BITMAP *bmp;
-   unsigned char *buffer;
+   JOCTET *buffer;
    unsigned char *row;
 };
 
@@ -307,7 +307,7 @@ ALLEGRO_BITMAP *al_load_jpg_f(ALLEGRO_FILE *fp)
 /* See comment about load_jpg_entry_helper_data. */
 struct save_jpg_entry_helper_data {
    bool error;
-   unsigned char *buffer;
+   JOCTET *buffer;
 };
 
 static void save_jpg_entry_helper(ALLEGRO_FILE *fp, ALLEGRO_BITMAP *bmp,
