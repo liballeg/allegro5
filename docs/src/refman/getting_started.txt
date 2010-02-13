@@ -45,7 +45,7 @@ Here are the addons and their dependencies:
 
 The header file for the core library is `allegro5/allegro.h`.  The header
 files for the addons are named `allegro5/allegro_image.h`, `allegro5/allegro_font.h`,
-etc. The allegro_main addon does not have a headerfile.
+etc. The allegro_main addon does not have a header file.
 
 ## Initialisation
 
