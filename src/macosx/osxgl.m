@@ -86,7 +86,6 @@ static const unsigned int allegro_to_osx_settings[][3] = {
 static const int number_of_settings =
    sizeof(allegro_to_osx_settings)/sizeof(*allegro_to_osx_settings);
 
-#ifdef DEBUGMODE
 static const char *allegro_pixel_format_names[] = {
    "ALLEGRO_RED_SIZE",
    "ALLEGRO_GREEN_SIZE",
@@ -115,7 +114,6 @@ static const char *allegro_pixel_format_names[] = {
    "ALLEGRO_COMPATIBLE_DISPLAY",
    "ALLEGRO_DISPLAY_OPTIONS_COUNT"
 };
-#endif
 
 /* Module functions */
 static NSView* osx_view_from_display(ALLEGRO_DISPLAY* disp);
