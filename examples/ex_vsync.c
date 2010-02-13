@@ -1,8 +1,9 @@
 /* Tests vsync.
  */
 
-#include <allegro5/allegro5.h>
 #include <stdio.h>
+#include "allegro5/allegro5.h"
+#include "allegro5/allegro_font.h"
 
 #include "common.c"
 
@@ -18,21 +19,54 @@ static int option(ALLEGRO_CONFIG *config, char *name, int v)
    return v;
 }
 
+static bool display_warning(ALLEGRO_EVENT_QUEUE *queue, ALLEGRO_FONT *font)
+{
+   ALLEGRO_EVENT event;
+   float x = 320.0;
+   float y = 200.0;
+
+   for (;;) {
+      al_clear_to_color(al_map_rgb(0, 0, 0));
+      al_draw_text(font, x, y, ALLEGRO_ALIGN_CENTRE,
+         "Do not continue if you suffer from photosensitive epilepsy");
+      al_draw_text(font, x, y + 15, ALLEGRO_ALIGN_CENTRE,
+         "or simply hate flashing screens.");
+      al_draw_text(font, x, y + 40, ALLEGRO_ALIGN_CENTRE,
+         "Press Escape to quit or Enter to continue.");
+      al_flip_display();
+
+      al_wait_for_event(queue, &event);
+      if (event.type == ALLEGRO_EVENT_KEY_DOWN) {
+         if (event.keyboard.keycode == ALLEGRO_KEY_ESCAPE) {
+            return true;
+         }
+         if (event.keyboard.keycode == ALLEGRO_KEY_ENTER) {
+            return false;
+         }
+      }
+      if (event.type == ALLEGRO_EVENT_DISPLAY_CLOSE) {
+         return true;
+      }
+   }
+}
+
 int main(void)
 {
    ALLEGRO_DISPLAY *display;
+   ALLEGRO_FONT *font;
    ALLEGRO_CONFIG *config;
    ALLEGRO_EVENT_QUEUE *queue;
    int vsync, fullscreen, frequency;
    bool write = false;
    bool flip = false;
-   bool quit = false;
+   bool quit;
 
    if (!al_init()) {
       printf("Could not init Allegro.\n");
       return 1;
    }
 
+   al_init_font_addon();
    al_install_keyboard();
    al_install_mouse();
 
@@ -76,10 +110,19 @@ int main(void)
       return 1;
    }
 
+   font = al_load_font("data/a4_font.tga", 0, 0);
+   if (!font) {
+      abort_example("Failed to load a4_font.tga\n");
+      return 1;
+   }
+
    queue = al_create_event_queue();
    al_register_event_source(queue, al_get_keyboard_event_source());
    al_register_event_source(queue, al_get_mouse_event_source());
    al_register_event_source(queue, al_get_display_event_source(display));
+
+   quit = display_warning(queue, font);
+   al_flush_event_queue(queue);
 
    while (!quit) {
       ALLEGRO_EVENT event;
@@ -113,6 +156,7 @@ int main(void)
       al_rest(0.001);
    }
 
+   al_destroy_font(font);
    al_destroy_event_queue(queue);  
 
    return 0;
