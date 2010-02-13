@@ -4,6 +4,149 @@ See `changes._tx` for changes in earlier versions of Allegro.  These lists
 serve as summaries; the full histories are in the Subversion repository.
 
 
+Changes from 4.9.16 to 4.9.17 (February 2010)
+=============================================
+
+The main developers this time were: Trent Gamblin, Elias Pschernig, Evert
+Glebbeek, Paul Suntsov, Peter Wang.
+
+Core:
+
+-  Removed END_OF_MAIN() everywhere.
+
+   For MSVC, we pass a linker option through a #pragma.
+
+   On Mac OS X, we rename main() and call it from a real main() function in the
+   allegro-main addon.  The prototype for main() for C++ applications should be
+   "int main(int, char **)", or the code will not compile on OS X.  For C,
+   either of the normal ANSI forms is fine.
+
+   #define ALLEGRO_NO_MAGIC_MAIN disables the #pragma or name mangling, so you
+   can write a WinMain() or use al_run_main() yourself.
+
+Graphics:
+
+-  Fixed a bug in the OpenGL driver where al_draw_bitmap() wouldn't handle
+   blitting from the back buffer.
+
+-  Changing the blending color now works with deferred drawing (Todd Cope).
+
+-  Avoid some problems with window resizing in Windows/D3D.
+
+-  Added al_get_d3d_texture_position.
+
+-  Fixed bug under X11 where al_create_display() would always use the display
+   options from the first al_create_display() call.
+
+-  Properly implemented osx_get_opengl_pixelformat_attributes().
+
+-  Fixed automatic detection of colour depth on OS X.
+
+-  Fixed al_get_num_display_modes() on Mac OS X 10.6.
+
+-  Removed al_get_num_display_formats, al_get_display_format_option,
+   al_set_new_display_format functions as they can't be implemented on
+   OSX/iPhone/GPX ports (and were awkward to use).
+
+-  Replaced al_toggle_window_frame function with a new function
+   al_toggle_display_flags.
+
+-  al_load_bitmap() and al_convert_mask_to_alpha() no longer reset the current
+   transformation.
+
+-  Add a minimize button to all non-resizable windows on Windows.
+
+-  The wgl display switch-in/out vtable entries were swapped (Milan Mimica).
+
+Input:
+
+-  Some keycodes were out of order in src/win/wkeyboard.c
+
+-  Fixed mouse range after resizing window on Windows.
+
+-  Fixed (or worked around) a joystick axis detection problem on Mac OS X.
+
+-  Change timer counts from 'long' to 'int64_t'.
+
+File I/O:
+
+-  Remove `ret_success' arguments from al_fread32be/le.
+
+allegro-main addon:
+
+-  Added an "allegro-main" addon to hold the main() function that is required
+   on Mac OS X.  This way the user can opt out of it.
+
+Primitives addon:
+
+-  Added support for sub-bitmap textures in OpenGL driver.
+
+-  Added support for sub-bitmap textures in D3D driver.
+   Made D3D sub-bitmaps work better with user D3D code.
+
+Audio addons:
+
+-  Changed the _stream suffix to _f in the audio loading functions.
+
+-  Added the stream versions of loading functions for wav, ogg and flac.
+
+-  Rename audio I/O functions to al_load_{format}, al_save_{format},
+   al_load_{format}_f and al_save_{format}_f.
+
+-  Added al_load_sample_f, al_save_sample_f, al_load_audio_stream_f and the
+   related functions.
+
+-  Fixed a bug where al_save_sample was improperly handling the extension.
+
+-  al_drain_audio_stream would hang on an audio stream in the 'playing' state
+   (the default) which wasn't attached to anything.
+
+-  Fixed a potential deadlock on destroying audio streams by shutting down the
+   audio driver.
+
+-  Comment out PA_SINK_SUSPENDED check, which breaks the PulseAudio driver, at
+   least on Ubuntu 9.10.
+
+-  Replace unnecessary uses of `long' in audio interfaces.
+
+Image addons:
+
+-  Fixed return values of al_save_bmp_f and al_save_pcx_f being ignored.
+
+-  Changed the _stream suffix to _f in the image loading functions.
+
+TTF addon:
+
+-  Drawing TTF fonts no longer resets the current transformation.
+
+Build system:
+
+-  Add the CMake option FLAC_STATIC, required when using MSVC with a static
+   FLAC library.
+
+-  Link with zlib if linking with PhysicsFS is not enough.
+
+-  Updated iPhone project files.
+
+Documentation:
+
+-  Many documentation updates.
+
+Examples:
+
+-  ex_display_options: Added mouse support, query current display settings,
+   display error if a mode can't be set.
+
+Bindings:
+
+-  Made the Python wrapper work under OSX.
+
+-  Added a CMake option to build the Python wrapper.
+
+-  Added al_run_main() mainly to support the Python wrapper on OSX.
+
+
+
 Changes from 4.9.15.1 to 4.9.16 (November 2009)
 ===============================================
 
