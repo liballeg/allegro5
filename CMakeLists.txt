@@ -30,7 +30,7 @@ set(CMAKE_CONFIGURATION_TYPES "${CMAKE_BUILD_TYPE}" CACHE INTERNAL "internal")
 # We use C++ in a few cases.
 project(ALLEGRO C CXX)
 
-set(ALLEGRO_VERSION 4.9.17)
+set(ALLEGRO_VERSION 4.9.18)
 
 # Search in the `cmake' directory for additional CMake modules.
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake)
