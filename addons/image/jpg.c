@@ -19,10 +19,18 @@
 #include "iio.h"
 
 #ifdef __MINGW32__
-   /* rpcndr.h also defines `boolean' which can interfere so prevent it being
-    * included.
+   /*
+    * Differing versions of the MinGW rpcndr.h (which would be included at this
+    * point) may or may not typedef `boolean', which would conflict with the
+    * definition in jmorecfg.h.  The Microsoft rpcndr.h does define `boolean'.
+    *
+    * So tell the jpeg headers that we have our own boolean, then define a
+    * macro `boolean', which will work whether the typedef exists or not.
+    * Note that simply renaming `boolean' away (e.g. to jpeg_boolean) will NOT
+    * work with some copies of the jpeg headers floating around either.
     */
-   #define _RPCNDR_H
+   #define HAVE_BOOLEAN
+   #define boolean int
 
    /* basetsd.h may define `INT32' which can conflict with a later definition
     * so rename `INT32' to something else from here on.
