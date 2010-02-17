@@ -168,9 +168,11 @@ void _al_osx_mouse_generate_event(NSEvent* evt, ALLEGRO_DISPLAY* dpy)
 		mouse_event->x = pos.x;
 		mouse_event->y = pos.y; 
 		mouse_event->z = osx_mouse.z_axis;
+		mouse_event->w = osx_mouse.w_axis;
 		mouse_event->dx = dx;
 		mouse_event->dy = dy;
 		mouse_event->dz = dz;
+		mouse_event->dw = dw;
 		_al_event_source_emit_event(&osx_mouse.parent.es, &new_event);
 	}
 	// Record current state

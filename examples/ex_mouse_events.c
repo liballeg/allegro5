@@ -38,9 +38,11 @@ int main(void)
    int mx = 0;
    int my = 0;
    int mz = 0;
+   int mw = 0;
    int mmx = 0;
    int mmy = 0;
    int mmz = 0;
+   int mmw = 0;
    bool in = true;
    bool buttons[NUM_BUTTONS] = {false};
    int i;
@@ -90,8 +92,8 @@ int main(void)
          al_draw_bitmap(cursor, mx, my, 0);
          al_set_blender(ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA,
             al_map_rgb_f(0, 0, 0));
-         al_draw_textf(font, 5, 5, 0, "dx %i, dy %i, dz %i", mmx, mmy, mmz);
-         al_draw_textf(font, 5, 15, 0, "x %i, y %i, z %i", mx, my, mz);
+         al_draw_textf(font, 5, 5, 0, "dx %i, dy %i, dz %i, dw %i", mmx, mmy, mmz, mmw);
+         al_draw_textf(font, 5, 15, 0, "x %i, y %i, z %i, w %i", mx, my, mz, mw);
          al_draw_textf(font, 5, 25, 0, "%s", in ? "in" : "out");
          al_set_blender(ALLEGRO_ONE, ALLEGRO_INVERSE_ALPHA,
             al_map_rgb_f(1, 1, 1));
@@ -105,9 +107,11 @@ int main(void)
             mx = event.mouse.x;
             my = event.mouse.y;
             mz = event.mouse.z;
+            mw = event.mouse.w;
             mmx = event.mouse.dx;
             mmy = event.mouse.dy;
             mmz = event.mouse.dz;
+            mmw = event.mouse.dw;
             break;
 
          case ALLEGRO_EVENT_MOUSE_BUTTON_DOWN:
