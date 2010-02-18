@@ -166,6 +166,7 @@ void _al_ogl_set_target_bitmap(ALLEGRO_DISPLAY *display, ALLEGRO_BITMAP *bitmap)
 void _al_ogl_setup_bitmap_clipping(const ALLEGRO_BITMAP *bitmap)
 {
    int x_1, y_1, x_2, y_2, h;
+   bool use_scissor = true;
 
    x_1 = bitmap->cl;
    y_1 = bitmap->ct;
@@ -183,6 +184,19 @@ void _al_ogl_setup_bitmap_clipping(const ALLEGRO_BITMAP *bitmap)
    }
 
    if (x_1 == 0 &&  y_1 == 0 && x_2 == bitmap->w && y_2 == bitmap->h) {
+      if (bitmap->parent) {
+         /* Can only disable scissor if the sub-bitmap covers the
+          * complete parent.
+          */
+         if (bitmap->xofs == 0 && bitmap->yofs == 0 && bitmap->w ==
+            bitmap->parent->w && bitmap->h == bitmap->parent->h) {
+               use_scissor = false;
+            }
+      }
+      else
+         use_scissor = false;
+   }
+   if (!use_scissor) {
       glDisable(GL_SCISSOR_TEST);
    }
    else {
