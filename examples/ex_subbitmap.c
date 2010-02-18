@@ -26,8 +26,10 @@ typedef enum {
 } Mode;
 
 enum {
-   SRC_WIDTH  = 320,
-   SRC_HEIGHT = 200,
+   SRC_WIDTH  = 640,
+   SRC_HEIGHT = 480,
+   SRC_X = 160,
+   SRC_Y = 120,
    DST_WIDTH  = 640,
    DST_HEIGHT = 480
 };
@@ -38,10 +40,10 @@ ALLEGRO_DISPLAY *dst_display;
 ALLEGRO_EVENT_QUEUE *queue;
 ALLEGRO_BITMAP *mem_bmp;
 
-int src_x1 = 0;
-int src_y1 = 0;
-int src_x2 = SRC_WIDTH-1;
-int src_y2 = SRC_HEIGHT-1;
+int src_x1 = SRC_X;
+int src_y1 = SRC_Y;
+int src_x2 = SRC_X + 319;
+int src_y2 = SRC_Y + 199;
 int dst_x1 = 0;
 int dst_y1 = 0;
 int dst_x2 = DST_WIDTH-1;
@@ -99,7 +101,7 @@ int main(void)
 
    while (true) {
       if (recreate_subbitmaps) {
-         int l, r, t, b;
+         int l, r, t, b, sw, sh;
 
          al_destroy_bitmap(src_subbmp[0]);
          al_destroy_bitmap(dst_subbmp[0]);
@@ -110,26 +112,23 @@ int main(void)
          r = MAX(src_x1, src_x2);
          t = MIN(src_y1, src_y2);
          b = MAX(src_y1, src_y2);
-
-         l = CLAMP(0, l, SRC_WIDTH-1);
-         r = CLAMP(0, r, SRC_WIDTH-1);
-         t = CLAMP(0, t, SRC_HEIGHT-1);
-         b = CLAMP(0, b, SRC_HEIGHT-1);
+         
+         l -= SRC_X;
+         t -= SRC_Y;
+         r -= SRC_X;
+         b -= SRC_Y;
 
          src_subbmp[0] = al_create_sub_bitmap(mem_bmp, l, t, r - l + 1,
             b - t + 1);
+         sw = al_get_bitmap_width(src_subbmp[0]);
+         sh = al_get_bitmap_height(src_subbmp[0]);
          src_subbmp[1] = al_create_sub_bitmap(src_subbmp[0], 2, 2,
-            r - l - 3, b - t - 3);
+            sw - 4, sh - 4);
 
          l = MIN(dst_x1, dst_x2);
          r = MAX(dst_x1, dst_x2);
          t = MIN(dst_y1, dst_y2);
          b = MAX(dst_y1, dst_y2);
-
-         l = CLAMP(0, l, DST_WIDTH-1);
-         r = CLAMP(0, r, DST_WIDTH-1);
-         t = CLAMP(0, t, DST_HEIGHT-1);
-         b = CLAMP(0, b, DST_HEIGHT-1);
 
          al_set_current_display(dst_display);
          dst_subbmp[0] = al_create_sub_bitmap(al_get_backbuffer(),
@@ -181,7 +180,7 @@ int main(void)
             float y_ = src_y2 + 0.5;
             al_set_current_display(src_display);
             al_clear_to_color(al_map_rgb(0, 0, 0));
-            al_draw_bitmap(mem_bmp, 0, 0, 0);
+            al_draw_bitmap(mem_bmp, SRC_X, SRC_Y, 0);
             al_draw_rectangle(x, y, x_, y_,
                al_map_rgb(0, 255, 255), 0);
             al_draw_rectangle(x + 2, y + 2, x_ - 2, y_ - 2,

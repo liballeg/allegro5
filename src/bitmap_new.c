@@ -513,7 +513,29 @@ ALLEGRO_BITMAP *al_create_sub_bitmap(ALLEGRO_BITMAP *parent,
       y += parent->yofs;
       parent = parent->parent;
    }
+   
+   /* Clip */
+   if (x < 0) {
+      w += x;
+      if (w < 0) w = 0;
+      x = 0;
+   }
+   if (y < 0) {
+      h += y;
+      if (h < 0) h = 0;
+      y = 0;
+   }
+   if (x+w > parent->w) {
+      w = parent->w - x;
+   }
+   if (y+h > parent->h) {
+      h = parent->h - y;
+   }
 
+   /* Note:
+    * Drivers are guaranteed that the parent is not a subbitmap itself
+    * and that the passed rectangle lies fully within the parent.
+    */
    if (parent->display && parent->display->vt &&
          parent->display->vt->create_sub_bitmap)
    {
@@ -529,22 +551,6 @@ ALLEGRO_BITMAP *al_create_sub_bitmap(ALLEGRO_BITMAP *parent,
 
    bitmap->format = parent->format;
    bitmap->flags = parent->flags;
-
-   /* Clip */
-   if (x < 0) {
-      w += x;
-      x = 0;
-   }
-   if (y < 0) {
-      h += y;
-      y = 0;
-   }
-   if (x+w > parent->w) {
-      w = parent->w - x;
-   }
-   if (y+h > parent->h) {
-      h = parent->h - y;
-   }
 
    bitmap->w = w;
    bitmap->h = h;
