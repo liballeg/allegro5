@@ -77,8 +77,8 @@ static void display_splash_screen(void)
 {
     UIWindow *splashwin = [[UIWindow alloc] initWithFrame:[[UIScreen mainScreen] bounds]];
     UIView *splashview = [[UIView alloc] initWithFrame:[[UIScreen mainScreen] bounds]];
-    [splashview setBackgroundColor:[UIColor colorWithPatternImage:
-                                    [UIImage imageNamed:@"Default.png"]]];
+    splashview.backgroundColor = [UIColor colorWithPatternImage:[UIImage
+    	imageNamed:@"Default.png"]];
     [splashwin addSubview:splashview];
     [splashwin makeKeyAndVisible];
 }
