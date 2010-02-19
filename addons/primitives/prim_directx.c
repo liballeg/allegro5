@@ -207,8 +207,8 @@ int _al_draw_prim_directx(ALLEGRO_BITMAP* texture, const void* vtxs, const ALLEG
          mat[0][0] = 1.0f / desc.Width;
          mat[1][1] = 1.0f / desc.Height;
       }
-      mat[2][0] = ((float)tex_x + 0.5f) / desc.Width;
-      mat[2][1] = ((float)tex_y + 0.5f) / desc.Height;
+      mat[2][0] = (float)tex_x / desc.Width;
+      mat[2][1] = (float)tex_y / desc.Height;
 
       IDirect3DDevice9_GetTextureStageState(device, 0, D3DTSS_TEXTURETRANSFORMFLAGS, &old_ttf_state);
       IDirect3DDevice9_SetTextureStageState(device, 0, D3DTSS_TEXTURETRANSFORMFLAGS, D3DTTFF_COUNT2);

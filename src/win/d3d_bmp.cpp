@@ -115,8 +115,8 @@ void _al_d3d_draw_textured_quad(ALLEGRO_DISPLAY_D3D *disp, ALLEGRO_BITMAP_D3D *b
 
    texture_w = bmp->texture_w;
    texture_h = bmp->texture_h;
-   tu_start = (sx+0.5f) / texture_w;
-   tv_start = (sy+0.5f) / texture_h;
+   tu_start = sx / texture_w;
+   tv_start = sy / texture_h;
    tu_end = sw / texture_w + tu_start;
    tv_end = sh / texture_h + tv_start;
 
@@ -749,10 +749,6 @@ static void d3d_blit_real(ALLEGRO_BITMAP *src,
 
          /* FIXME: do filtering if enabled in config */
          if (!screen_screen) {
-            /* Huh? Why do I need to do this? */
-            dst_rect.right++;
-            dst_rect.bottom++;
-
             LPDIRECT3DSURFACE9 bmp_surface;
             ret = d3d_dest->video_texture->GetSurfaceLevel(0, &bmp_surface);
             ret = d3d_dest->display->device->StretchRect(
@@ -803,9 +799,9 @@ static void d3d_draw_bitmap(ALLEGRO_BITMAP *bitmap,
       return;
    }
 
-   d3d_blit_real(bitmap, -0.5f, -0.5f, bitmap->w, bitmap->h,
+   d3d_blit_real(bitmap, 0, 0, bitmap->w, bitmap->h,
       bitmap->w/2, bitmap->h/2,
-      dx-0.5f, dy-0.5f, bitmap->w, bitmap->h,
+      dx, dy, bitmap->w, bitmap->h,
       0.0f, flags, false);
 }
 
@@ -820,9 +816,9 @@ static void d3d_draw_bitmap_region(ALLEGRO_BITMAP *bitmap,
    }
 
    d3d_blit_real(bitmap,
-      sx-0.5f, sy-0.5f, sw, sh,
+      sx, sy, sw, sh,
       0.0f, 0.0f,
-      dx-0.5f, dy-0.5f, sw, sh,
+      dx, dy, sw, sh,
       0.0f, flags, false);
 }
 
@@ -837,8 +833,8 @@ static void d3d_draw_scaled_bitmap(ALLEGRO_BITMAP *bitmap, float sx, float sy,
    }
 
    d3d_blit_real(bitmap,
-      sx-0.5f, sy-0.5f, sw, sh, (sw-sx)/2, (sh-sy)/2,
-      dx-0.5f, dy-0.5f, dw, dh, 0.0f,
+      sx, sy, sw, sh, (sw-sx)/2, (sh-sy)/2,
+      dx, dy, dw, dh, 0.0f,
       flags, false);
 }
 
@@ -852,9 +848,9 @@ static void d3d_draw_rotated_bitmap(ALLEGRO_BITMAP *bitmap, float cx, float cy,
    }
 
    d3d_blit_real(bitmap,
-      -0.5f, -0.5f, bitmap->w, bitmap->h,
+      0, 0, bitmap->w, bitmap->h,
       cx, cy,
-      dx-0.5f, dy-0.5f, bitmap->w, bitmap->h,
+      dx, dy, bitmap->w, bitmap->h,
       angle, flags, true);
 }
 
@@ -869,9 +865,9 @@ static void d3d_draw_rotated_scaled_bitmap(ALLEGRO_BITMAP *bitmap, float cx, flo
    }
 
    d3d_blit_real(bitmap,
-      -0.5f, -0.5f, bitmap->w, bitmap->h,
+      0, 0, bitmap->w, bitmap->h,
       cx, cy,
-      dx-0.5f, dy-0.5f, bitmap->w*xscale, bitmap->h*yscale,
+      dx, dy, bitmap->w*xscale, bitmap->h*yscale,
       angle, flags, true);
 }
 
