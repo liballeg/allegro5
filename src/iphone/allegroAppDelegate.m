@@ -7,6 +7,8 @@
 
 ALLEGRO_DEBUG_CHANNEL("iphone")
 
+void _al_iphone_run_user_main(void);
+
 static allegroAppDelegate *global_delegate;
 
 void _al_iphone_add_view(ALLEGRO_DISPLAY *display)
@@ -61,14 +63,35 @@ void _al_iphone_accelerometer_control(int frequency)
     [pool release];
 }
 
-void _al_iphone_run_user_main(void);
+/* When applicationDidFinishLaunching() returns, the current view gets visible
+ * for at least one frame. Since we have no OpenGL context in the main thread
+ * we cannot draw anything into our OpenGL view so it means there's a short
+ * black flicker before the first al_flip_display() no matter what.
+ *
+ * To prevent the black flicker we create a dummy view here which loads the
+ * Default.png just as apple does internally. This way the moment the user
+ * view is first displayed in the user thread we switch from displaying the
+ * splash screen to the first user frame, without any flicker.
+ */
+static void display_splash_screen(void)
+{
+    UIWindow *splashwin = [[UIWindow alloc] initWithFrame:[[UIScreen mainScreen] bounds]];
+    UIView *splashview = [[UIView alloc] initWithFrame:[[UIScreen mainScreen] bounds]];
+    [splashview setBackgroundColor:[UIColor colorWithPatternImage:
+                                    [UIImage imageNamed:@"Default.png"]]];
+    [splashwin addSubview:splashview];
+    [splashwin makeKeyAndVisible];
+}
+
 - (void)applicationDidFinishLaunching:(UIApplication *)application {
    ALLEGRO_INFO("App launched.\n");
     
    application.statusBarHidden = true;
    global_delegate = self;
 
-   _al_iphone_run_user_main();   
+   _al_iphone_run_user_main();
+    
+    display_splash_screen();
 }
 
 - (void)applicationWillTerminate:(UIApplication *)application {

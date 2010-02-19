@@ -84,7 +84,10 @@ ALLEGRO_DISPLAY *al_create_display(int w, int h)
    al_clear_to_color(al_map_rgb(0, 0, 0));
 #endif
 
+   /* on iphone, don't kill the initial splashscreen */
+#ifndef ALLEGRO_IPHONE
    al_flip_display();
+#endif
 
    /* Clear the backbuffer */
 #ifndef ALLEGRO_GP2XWIZ
@@ -94,7 +97,9 @@ ALLEGRO_DISPLAY *al_create_display(int w, int h)
    al_clear_to_color(al_map_rgb(0, 0, 0));
 #endif
    
+#ifndef ALLEGRO_IPHONE
    al_flip_display();
+#endif
    
    al_set_window_title(al_get_appname());
 
