@@ -3,6 +3,7 @@
 
 #include "allegro5/allegro5.h"
 #include "allegro5/allegro_image.h"
+#include "allegro5/internal/aintern_image.h"
 #include "allegro5/internal/aintern.h"
 #include "allegro5/internal/aintern_vector.h"
 
@@ -70,6 +71,15 @@ bool al_init_image_addon(void)
    success |= al_register_bitmap_saver(".jpeg", al_save_jpg);
    success |= al_register_bitmap_loader_f(".jpeg", al_load_jpg_f);
    success |= al_register_bitmap_saver_f(".jpeg", al_save_jpg_f);
+#endif
+
+#ifdef ALLEGRO_IPHONE
+   char const *extensions[] = {".tif", ".tiff", ".jpg", ".jpeg", ".gif",
+      ".png", ".BMPf", ".ico", ".cur", ".xbm", NULL};
+   for (int i = 0; extensions[i]; i++) {
+      success |= al_register_bitmap_loader(extensions[i], _al_iphone_load_image);
+      success |= al_register_bitmap_loader_f(extensions[i], _al_iphone_load_image_f);
+   }
 #endif
 
    if (success)
