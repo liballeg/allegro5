@@ -663,6 +663,7 @@ static ALLEGRO_LOCKED_REGION *ogl_lock_region(ALLEGRO_BITMAP *bitmap,
       }
       else {
          #ifdef ALLEGRO_IPHONE
+            GLint current_fbo;
             pitch = round_to_unpack_alignment(w * pixel_size);
             ogl_bitmap->lock_buffer = _AL_MALLOC(pitch * h);
 
@@ -676,13 +677,14 @@ static ALLEGRO_LOCKED_REGION *ogl_lock_region(ALLEGRO_BITMAP *bitmap,
                al_restore_state(&state);
             }
 
+            glGetIntegerv(GL_FRAMEBUFFER_BINDING_OES, &current_fbo);
             glBindFramebufferOES(GL_FRAMEBUFFER_OES, ogl_bitmap->fbo);
             glReadPixels(x, gl_y, w, h,
                glformats[format][2],
                glformats[format][1],
                ogl_bitmap->lock_buffer);
 
-            glBindFramebufferOES(GL_FRAMEBUFFER_OES, 0);
+            glBindFramebufferOES(GL_FRAMEBUFFER_OES, current_fbo);
 
             bitmap->locked_region.data = ogl_bitmap->lock_buffer +
                pitch * (h - 1);
