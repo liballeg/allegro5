@@ -27,6 +27,7 @@
 		642F7ED9102CCF88001249EE /* ogl_draw.c in Sources */ = {isa = PBXBuildFile; fileRef = 64839038102AF2CF00D508EE /* ogl_draw.c */; };
 		642F8062102DE652001249EE /* iphone_keyboard.c in Sources */ = {isa = PBXBuildFile; fileRef = 642F8060102DE652001249EE /* iphone_keyboard.c */; };
 		642F8066102DE676001249EE /* iphone_mouse.m in Sources */ = {isa = PBXBuildFile; fileRef = 642F8065102DE676001249EE /* iphone_mouse.m */; };
+		64365F60112ED65700BCF577 /* iphone.m in Sources */ = {isa = PBXBuildFile; fileRef = 64365F5F112ED65700BCF577 /* iphone.m */; };
 		6483914E102AF35000D508EE /* allegro_direct3d.h in Headers */ = {isa = PBXBuildFile; fileRef = 648390DA102AF35000D508EE /* allegro_direct3d.h */; };
 		6483914F102AF35000D508EE /* allegro_opengl.h in Headers */ = {isa = PBXBuildFile; fileRef = 648390DB102AF35000D508EE /* allegro_opengl.h */; };
 		64839150102AF35000D508EE /* allegro_windows.h in Headers */ = {isa = PBXBuildFile; fileRef = 648390DC102AF35000D508EE /* allegro_windows.h */; };
@@ -548,6 +549,7 @@
 		642F7F97102DD0B6001249EE /* data */ = {isa = PBXFileReference; lastKnownFileType = folder; name = data; path = ../examples/data; sourceTree = "<group>"; };
 		642F8060102DE652001249EE /* iphone_keyboard.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = iphone_keyboard.c; sourceTree = "<group>"; };
 		642F8065102DE676001249EE /* iphone_mouse.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = iphone_mouse.m; sourceTree = "<group>"; };
+		64365F5F112ED65700BCF577 /* iphone.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = iphone.m; sourceTree = "<group>"; };
 		647027A8103DE5DD00E40FD4 /* ex_draw_bitmap.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = ex_draw_bitmap.c; path = ../examples/ex_draw_bitmap.c; sourceTree = SOURCE_ROOT; };
 		64838FF8102AF2CF00D508EE /* allegro.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = allegro.c; path = ../src/allegro.c; sourceTree = SOURCE_ROOT; };
 		64838FF9102AF2CF00D508EE /* bitmap_new.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = bitmap_new.c; path = ../src/bitmap_new.c; sourceTree = SOURCE_ROOT; };
@@ -1753,6 +1755,7 @@
 		64FACFCB1031B83A004E35A1 /* image */ = {
 			isa = PBXGroup;
 			children = (
+				64365F5F112ED65700BCF577 /* iphone.m */,
 				64FACFCC1031B83A004E35A1 /* allegro5 */,
 				64FACFD01031B83A004E35A1 /* bmp.c */,
 				64FACFD11031B83A004E35A1 /* CMakeLists.txt */,
@@ -2259,6 +2262,7 @@
 				64FACFD91031B846004E35A1 /* iio.c in Sources */,
 				64FACFDA1031B846004E35A1 /* pcx.c in Sources */,
 				64FACFDB1031B846004E35A1 /* tga.c in Sources */,
+				64365F60112ED65700BCF577 /* iphone.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
