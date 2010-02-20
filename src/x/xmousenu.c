@@ -475,9 +475,11 @@ static void generate_mouse_event(unsigned int type,
    event.mouse.x = x;
    event.mouse.y = y;
    event.mouse.z = z;
+   event.mouse.w = 0;
    event.mouse.dx = dx;
    event.mouse.dy = dy;
    event.mouse.dz = dz;
+   event.mouse.dw = 0;
    event.mouse.button = button;
    _al_event_source_emit_event(&the_mouse.parent.es, &event);
 }
