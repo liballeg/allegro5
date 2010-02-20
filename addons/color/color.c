@@ -214,8 +214,10 @@ char const *al_color_rgb_to_name(float r, float g, float b)
 ALLEGRO_COLOR al_color_name(char const *name)
 {
    float r, g, b;
-   al_color_name_to_rgb(name, &r, &g, &b);
-   return al_map_rgb_f(r, g, b);
+   if (al_color_name_to_rgb(name, &r, &g, &b))
+      return al_map_rgb_f(r, g, b);
+   else
+      return al_map_rgb_f(0, 0, 0);
 }
 
 /* Function: al_color_hsv_to_rgb
@@ -232,7 +234,8 @@ void al_color_hsv_to_rgb(float hue, float saturation, float value,
    a = value * (1 - saturation);
    b = value * (1 - e * saturation);
    c = value * (1 - (1 - e) * saturation);
-   switch(d) {
+   switch (d) {
+      default:
       case 0: *red = value, *green = c,     *blue = a;     return;
       case 1: *red = b,     *green = value, *blue = a;     return;
       case 2: *red = a,     *green = value, *blue = c;     return;
