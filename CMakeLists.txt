@@ -213,6 +213,7 @@ endif(UNIX AND NOT APPLE)
 if(APPLE)
     set(MACOSX 1)
     set(ALLEGRO_MACOSX 1)
+    set(ALLEGRO_CFG_PTHREADS_TLS 1)
     set(ALLEGRO_UNIX 0)
     set(WANT_X11 off)
 

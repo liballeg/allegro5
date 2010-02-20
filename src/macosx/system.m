@@ -132,8 +132,6 @@ static ALLEGRO_SYSTEM* osx_sys_init(int flags)
        osx_tell_dock();
    }
 
-   _al_pthreads_tls_init();
-
    /* Mark the beginning of time. */
    _al_unix_init_time();
 
