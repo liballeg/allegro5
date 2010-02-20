@@ -82,6 +82,10 @@ bool al_init_image_addon(void)
    }
 #endif
 
+#ifdef ALLEGRO_MACOSX
+   success |= _al_osx_register_image_loader();
+#endif
+
    if (success)
       iio_inited = true;
 
@@ -140,7 +144,6 @@ bool al_register_bitmap_loader(const char *extension,
    Handler *ent;
 
    ASSERT(extension);
-   ASSERT(loader);
 
    if (strlen(extension) + 1 >= MAX_EXTENSION) {
       return false;
@@ -200,7 +203,6 @@ bool al_register_bitmap_loader_f(const char *extension,
    Handler *ent;
 
    ASSERT(extension);
-   ASSERT(loader_f);
 
    if (strlen(extension) + 1 >= MAX_EXTENSION) {
       return false;
