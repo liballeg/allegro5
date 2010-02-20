@@ -46,7 +46,6 @@ static struct {
 	int minx, miny, maxx, maxy;
 	ALLEGRO_MOUSE_STATE state;
 	float z_axis, w_axis;
-	BOOL captured;
 	BOOL warped;
 	NSCursor* cursor;
 } osx_mouse;
@@ -155,7 +154,7 @@ void _al_osx_mouse_generate_event(NSEvent* evt, ALLEGRO_DISPLAY* dpy)
 	    osx_mouse.warped = FALSE;
 	}
 	_al_event_source_lock(&osx_mouse.parent.es);
-	if ((within || osx_mouse.captured) && _al_event_source_needs_to_generate_event(&osx_mouse.parent.es))
+	if (within && _al_event_source_needs_to_generate_event(&osx_mouse.parent.es))
 	{
 		ALLEGRO_EVENT new_event;
 		ALLEGRO_MOUSE_EVENT* mouse_event = &new_event.mouse;
