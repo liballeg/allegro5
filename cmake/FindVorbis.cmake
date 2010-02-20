@@ -15,6 +15,16 @@ if(NOT GP2XWIZ)
     find_library(OGG_LIBRARY NAMES ogg)
     find_library(VORBIS_LIBRARY NAMES vorbis)
     find_library(VORBISFILE_LIBRARY NAMES vorbisfile)
+    # MSVC built ogg/vorbis may be named ogg_static and vorbis_static
+    if(NOT OGG_LIBRARY)
+       find_library(OGG_LIBRARY NAMES ogg_static)
+    endif(NOT OGG_LIBRARY)
+    if(NOT VORBIS_LIBRARY)
+       find_library(VORBIS_LIBRARY NAMES vorbis_static)
+    endif(NOT VORBIS_LIBRARY)
+    if(NOT VORBISFILE_LIBRARY)
+       find_library(VORBISFILE_LIBRARY NAMES vorbisfile_static)
+    endif(NOT VORBISFILE_LIBRARY)
     # Handle the QUIETLY and REQUIRED arguments and set VORBIS_FOUND
     # to TRUE if all listed variables are TRUE.
     include(FindPackageHandleStandardArgs)

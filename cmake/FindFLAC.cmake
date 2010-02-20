@@ -18,6 +18,10 @@ if(NOT ${FLAC_LIBRARY})
 endif(NOT ${FLAC_LIBRARY})
 
 find_library(OGG_LIBRARY NAMES ogg)
+# MSVC built libogg can name it ogg_static
+if(NOT OGG_LIBRARY)
+    find_library(OGG_LIBRARY NAMES ogg_static)
+endif(NOT OGG_LIBRARY)
 
 # Handle the QUIETLY and REQUIRED arguments and set FLAC_FOUND to TRUE if
 # all listed variables are TRUE.
