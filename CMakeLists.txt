@@ -128,7 +128,9 @@ if(UNIX)
 
     check_include_files(linux/awe_voice.h ALLEGRO_HAVE_LINUX_AWE_VOICE_H)
     check_include_files(linux/input.h ALLEGRO_HAVE_LINUX_INPUT_H)
-    check_include_files(linux/joystick.h ALLEGRO_HAVE_LINUX_JOYSTICK_H)
+    # On some systems including linux/joystick.h without sys/types.h results
+    # in conflicting definitions of fd_set.
+    check_include_files("sys/types.h;linux/joystick.h" ALLEGRO_HAVE_LINUX_JOYSTICK_H)
     check_include_files(linux/soundcard.h ALLEGRO_HAVE_LINUX_SOUNDCARD_H)
     check_include_files(machine/soundcard.h ALLEGRO_HAVE_MACHINE_SOUNDCARD_H)
     check_include_files(soundcard.h ALLEGRO_HAVE_SOUNDCARD_H)
