@@ -2,14 +2,30 @@
 
 ## API: al_color_cmyk
 
+Return an [ALLEGRO_COLOR] structure from CMYK values (cyan, magenta, yellow,
+black).
+
+See also: [al_color_cmyk_to_rgb], [al_color_rgb_to_cmyk]
+
 
 ## API: al_color_cmyk_to_rgb
+
+Convert CMYK values to RGB values.
+
+See also: [al_color_cmyk], [al_color_rgb_to_cmyk]
 
 
 ## API: al_color_hsl
 
+Return an [ALLEGRO_COLOR] structure from HSL (hue, saturation, lightness)
+values.
+
+See also: [al_color_hsl_to_rgb], [al_color_hsv]
+
 
 ## API: al_color_hsl_to_rgb
+
+Convert values in HSL color model to RGB color model.
 
 Parameters:
 
@@ -18,10 +34,20 @@ Parameters:
 * lightness - Color lightness in the range 0..1.
 * red, green, blue - returned RGB values in the range 0..1.
 
+See also: [al_color_rgb_to_hsl], [al_color_hsl], [al_color_hsv_to_rgb]
+
+
 ## API: al_color_hsv
+
+Return an [ALLEGRO_COLOR] structure from HSV (hue, saturation, value)
+values.
+
+See also: [al_color_hsv_to_rgb], [al_color_hsl]
 
 
 ## API: al_color_hsv_to_rgb
+
+Convert values in HSV color model to RGB color model.
 
 Parameters:
 
@@ -30,17 +56,29 @@ Parameters:
 * value - Color value in the range 0..1.
 * red, green, blue - returned RGB values in the range 0..1.
 
+See also: [al_color_rgb_to_hsv], [al_color_hsv], [al_color_hsl_to_rgb]
+
+
 ## API: al_color_html
 
 Interprets an HTML styled hex number (e.g. #00faff) as a color. Components that
 are malformed are set to 0.
+
+See also: [al_color_html_to_rgb], [al_color_rgb_to_html]
+
 
 ## API: al_color_html_to_rgb
 
 Interprets an HTML styled hex number (e.g. #00faff) as a color. Components that
 are malformed are set to 0.
 
+See also: [al_color_html], [al_color_rgb_to_html]
+
+
 ## API: al_color_rgb_to_html
+
+Create an HTML-style string representation of an [ALLEGRO_COLOR],
+e.g. #00faff.
 
 Parameters:
 
@@ -55,7 +93,15 @@ Example:
 
 Now html will contain "#ff0000".
 
+See also: [al_color_html], [al_color_html_to_rgb]
+
+
 ## API: al_color_name
+
+Return an [ALLEGRO_COLOR] with the given name.  If the color is not found then
+black is returned.
+
+See [al_color_name_to_rgb] for the list of names.
 
 
 ## API: al_color_name_to_rgb
@@ -99,6 +145,9 @@ with CSS names being preferred over X11 ones where there is overlap.
 Returns:
 true if a name from the list above was passed, else false.
 
+See also: [al_color_name]
+
+
 ## API: al_color_rgb_to_cmyk
 
 Each RGB color can be represented in CMYK with a K component of 0
@@ -112,11 +161,17 @@ with the following formula:
 This function will instead find the representation with the maximal
 value for K and minimal color components.
 
+See also: [al_color_cmyk], [al_color_cmyk_to_rgb]
+
+
 ## API: al_color_rgb_to_hsl
 
 Given an RGB triplet with components in the range 0..1, return
 the hue in degrees from 0..360 and saturation and lightness in the
 range 0..1.
+
+See also: [al_color_hsl_to_rgb], [al_color_hsl]
+
 
 ## API: al_color_rgb_to_hsv
 
@@ -124,18 +179,37 @@ Given an RGB triplet with components in the range 0..1, return
 the hue in degrees from 0..360 and saturation and value in the
 range 0..1.
 
+See also: [al_color_hsv_to_rgb], [al_color_hsv]
+
+
 ## API: al_color_rgb_to_name
 
 Given an RGB triplet with components in the range 0..1, find a color
 name describing it approximately.
 
+See also: [al_color_name_to_rgb], [al_color_name]
+
+
 ## API: al_color_rgb_to_yuv
+
+Convert RGB values to YUV color space.
+
+See also: [al_color_yuv], [al_color_yuv_to_rgb]
 
 
 ## API: al_color_yuv
 
+Return an [ALLEGRO_COLOR] structure from YUV values.
+
+See also: [al_color_yuv_to_rgb], [al_color_rgb_to_yuv]
+
 
 ## API: al_color_yuv_to_rgb
+
+Convert YUV color values to RGB color space.
+
+See also: [al_color_yuv], [al_color_rgb_to_yuv]
+
 
 ## API: al_get_allegro_color_version
 
