@@ -37,6 +37,10 @@
 
 #ifdef ALLEGRO_HAVE_LINUX_JOYSTICK_H
 
+/* To be safe, include sys/types.h before linux/joystick.h to avoid conflicting
+ * definitions of fd_set.
+ */
+#include <sys/types.h>
 #include <linux/joystick.h>
 
 

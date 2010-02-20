@@ -367,7 +367,9 @@ endif(NOT ALLEGRO_BIG_ENDIAN)
 
 check_include_files(dirent.h ALLEGRO_HAVE_DIRENT_H)
 check_include_files(inttypes.h ALLEGRO_HAVE_INTTYPES_H)
-check_include_files(linux/joystick.h ALLEGRO_HAVE_LINUX_JOYSTICK_H)
+# On some systems including linux/joystick.h without sys/types.h results
+# in conflicting definitions of fd_set.
+check_include_files("sys/types.h;linux/joystick.h" ALLEGRO_HAVE_LINUX_JOYSTICK_H)
 check_include_files(stdbool.h ALLEGRO_HAVE_STDBOOL_H)
 check_include_files(stdint.h ALLEGRO_HAVE_STDINT_H)
 check_include_files(sys/io.h ALLEGRO_HAVE_SYS_IO_H)
