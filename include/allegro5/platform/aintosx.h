@@ -45,6 +45,9 @@
 #define NSAppKitVersionNumber10_2       663
 #endif
 
+#if MAC_OS_X_VERSION_MIN_REQUIRED < 1040
+#error Can't target OS X versions before 10.4
+#endif
 
 /* We include code to detect a "dead bootstrap context" and fail
  * gracefully if that situation is detected, but some of the code uses
