@@ -29,6 +29,8 @@
 #error Something is wrong with the makefile
 #endif
 
+ALLEGRO_DEBUG_CHANNEL("MacOSX");
+
 typedef struct ALLEGRO_MOUSE AL_MOUSE;
 typedef struct ALLEGRO_MOUSE_STATE AL_MOUSE_STATE;
 
@@ -192,21 +194,26 @@ static bool osx_init_mouse(void)
 	HID_DEVICE_COLLECTION devices={0,0,NULL};
 	int i = 0, j = 0;
 	int axes = 0, buttons = 0;
+	int max_axes = 0, max_buttons = 0;
 	HID_DEVICE* device = nil;
 	NSString* desc = nil;
 
    _al_osx_hid_scan(HID_MOUSE, &devices);
-   if (devices.count > 0) 
-   {
+   ALLEGRO_INFO("Detected %d pointing devices\n", devices.count);
+   for (i=0; i<devices.count; i++) {
       device=&devices.devices[i];
       buttons = 0;
       axes = 0;
-      for (j = 0; j < device->num_elements; j++) 
-      {
-         switch (device->element[j].type)
-         {
+
+      desc = [NSString stringWithFormat: @"%s %s",
+           device->manufacturer ? device->manufacturer : "",
+           device->product ? device->product : ""];
+      ALLEGRO_INFO("Device %d is a \"%s\"\n", i, [desc UTF8String]);
+
+      for (j = 0; j < device->num_elements; j++) {
+         switch (device->element[j].type) {
             case HID_ELEMENT_BUTTON:
-               buttons ++;
+               buttons++;
                break;
             case HID_ELEMENT_AXIS:
             case HID_ELEMENT_AXIS_PRIMARY_X:
@@ -216,16 +223,23 @@ static bool osx_init_mouse(void)
                break;
          }
       }
-      desc = [NSString stringWithFormat: @"%s %s",
-           device->manufacturer ? device->manufacturer : "",
-           device->product ? device->product : ""];
+      ALLEGRO_INFO("Detected %d axes and %d buttons\n", axes, buttons);
+      
+      /* When mouse events reach teh application, it is not clear which
+       * device generated them, so effectively the largest number of
+       * buttons and axes reported corresponds to the device that the
+       * application "sees"
+       */
+      if (axes > max_axes) max_axes = axes;
+      if (buttons > max_buttons) max_buttons = buttons;
    }
    _al_osx_hid_free(&devices);
+   ALLEGRO_INFO("Device effectively has %d axes and %d buttons\n", axes, buttons);
 
-	if (buttons <= 0) return false;
+	if (max_buttons <= 0) return false;
 	_al_event_source_init(&osx_mouse.parent.es);
-	osx_mouse.button_count = buttons;
-	osx_mouse.axis_count = axes;
+	osx_mouse.button_count = max_buttons;
+	osx_mouse.axis_count = max_axes;
 	osx_mouse.warped = FALSE;
 	memset(&osx_mouse.state, 0, sizeof(ALLEGRO_MOUSE_STATE));
    _al_osx_mouse_was_installed(YES);
