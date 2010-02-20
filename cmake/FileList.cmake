@@ -229,7 +229,8 @@ set(ALLEGRO_SRC_LINUX_FILES
         src/linux/fbcon.c
         src/linux/lconsole.c
         src/linux/lgfxdrv.c
-        src/linux/ljoy.c
+        # Listed with UNIX files.
+        # src/linux/ljoy.c
         src/linux/lkeybd.c
         src/linux/lmemory.c
         src/linux/lmouse.c
@@ -281,6 +282,9 @@ set(ALLEGRO_SRC_UNIX_FILES
         src/unix/uthreads.c
         src/unix/utimer.c
         # src/misc/modexsms.c
+
+        # May be used without enabling the entire Linux console port.
+        src/linux/ljoy.c
         )
 
 set(ALLEGRO_SRC_X_FILES
