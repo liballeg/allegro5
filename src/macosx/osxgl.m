@@ -750,6 +750,8 @@ static void osx_get_opengl_pixelformat_attributes(ALLEGRO_DISPLAY_OSX_WIN *dpy)
       (NSTitledWindowMask|NSClosableWindowMask|NSMiniaturizableWindowMask);
    if (dpy->parent.flags & ALLEGRO_RESIZABLE)
       mask |= NSResizableWindowMask;
+   if (dpy->parent.flags & ALLEGRO_FULLSCREEN)
+      mask |= NSResizableWindowMask;
   
    if ((adapter >= 0) && (adapter < al_get_num_video_adapters())) {
       screen = [[NSScreen screens] objectAtIndex: adapter];
@@ -840,15 +842,21 @@ static void osx_get_opengl_pixelformat_attributes(ALLEGRO_DISPLAY_OSX_WIN *dpy)
    [dpy->ctx clearDrawable];
    // Unlock the screen 
    if (dpy->parent.flags & ALLEGRO_FULLSCREEN) {
+#if MAC_OS_X_VERSION_MIN_REQUIRED >= 1050
+      if (dpy->win) {
+         [[dpy->win contentView] exitFullScreenModeWithOptions: nil];
+      }
+#endif
       CGDisplayRelease(dpy->display_id);
       dpy->in_fullscreen = false;
    }
-   else {
+   if (dpy->win) {
       // Destroy the containing window if there is one
       [dpy->win close];
       dpy->win = nil;      
    }
 }
+
 /* runFullScreenDisplay:
  * Capture the display and enter fullscreen mode. Do not leave this function
  * until full screen is cancelled
@@ -970,7 +978,8 @@ static ALLEGRO_DISPLAY* create_display_fs(int w, int h)
       NSScreen *screen = [[NSScreen screens] objectAtIndex: adapter];
       NSDictionary *dict = [screen deviceDescription];
       NSNumber *display_id = [dict valueForKey: @"NSScreenNumber"];
-      dpy->display_id = (CGDirectDisplayID) [display_id pointerValue];
+      dpy->display_id = [display_id integerValue];
+      //dpy->display_id = (CGDirectDisplayID)[display_id pointerValue];
    }
 
    // Set up a pixel format to describe the mode we want.
@@ -994,9 +1003,65 @@ static ALLEGRO_DISPLAY* create_display_fs(int w, int h)
 
    // Prevent other apps from writing to this display and switch it to our
    // chosen mode.
+#if MAC_OS_X_VERSION_MIN_REQUIRED < 1060
    CGDisplayCapture(dpy->display_id);
    CFDictionaryRef mode = CGDisplayBestModeForParametersAndRefreshRate(dpy->display_id, dpy->depth, w, h, dpy->parent.refresh_rate, NULL);
    CGDisplaySwitchToMode(dpy->display_id, mode);
+#else
+   CGDisplayModeRef mode = NULL;
+   CFArrayRef modes = NULL;
+   CFStringRef pixel_format = NULL;
+   int i;
+
+   /* Set pixel format string */
+   if (dpy->depth == 32)
+      pixel_format = CFSTR(IO32BitDirectPixels);
+   if (dpy->depth == 16)
+      pixel_format = CFSTR(IO16BitDirectPixels);
+   if (dpy->depth == 8)
+      pixel_format = CFSTR(IO8BitIndexedPixels);
+   modes = CGDisplayCopyAllDisplayModes(dpy->display_id, NULL);
+   for (i = 0; i < CFArrayGetCount(modes); i++) {
+      CGDisplayModeRef try_mode =
+         (CGDisplayModeRef)CFArrayGetValueAtIndex(modes, i);
+
+      CFStringRef pixel_encoding = CGDisplayModeCopyPixelEncoding(try_mode);
+
+      /* Found mode with matching size/colour depth */
+      if ( w == (int)CGDisplayModeGetWidth(try_mode) &&
+           h == (int)CGDisplayModeGetHeight(try_mode) &&
+           CFStringCompare(pixel_encoding, pixel_format, 1) == 0) {
+         mode = try_mode;
+         CFRelease(pixel_encoding);
+         break;
+      }
+
+      /* Found mode with matching size; colour depth does not match, but
+       * it's the best so far.
+       */
+      if ( w == (int)CGDisplayModeGetWidth(try_mode) &&
+           h == (int)CGDisplayModeGetHeight(try_mode) &&
+           mode == NULL) {
+         mode = try_mode;
+      }
+
+      CFRelease(pixel_encoding);
+   }
+
+   if (!mode) {
+      /* Trouble! - we can't find a nice mode to set. */
+      [dpy->ctx clearDrawable];
+      CGDisplayRelease(dpy->display_id);
+      _AL_FREE(dpy);
+      return NULL;
+   }
+
+   /* Switch display mode */
+   CFDictionaryRef options = CFDictionaryCreate(NULL, NULL, NULL, 0, NULL, NULL);
+   CGDisplaySetDisplayMode(dpy->display_id, mode, NULL);
+   CFRelease(options);
+   CFRelease(modes);
+#endif
    [context setFullScreen];
 
    // Set up the Allegro OpenGL implementation
@@ -1040,6 +1105,147 @@ static ALLEGRO_DISPLAY* create_display_fs(int w, int h)
 
    return &dpy->parent;
 }
+#if 0
+/* Alternative, Cocoa-based mode switching.
+ * Works, but I can't get the display to respond to a resize request
+ * properly - EG
+ */
+static ALLEGRO_DISPLAY* create_display_fs(int w, int h)
+{
+   ALLEGRO_DEBUG("Creating full screen mode sized %dx%d\n", w, h);
+   if (al_get_current_video_adapter() >= al_get_num_video_adapters())
+      return NULL;
+   ALLEGRO_DISPLAY_OSX_WIN* dpy = _AL_MALLOC(sizeof(ALLEGRO_DISPLAY_OSX_WIN));
+   if (dpy == NULL) {
+      return NULL;
+   }
+   memset(dpy, 0, sizeof(*dpy));
+
+   /* Set up the ALLEGRO_DISPLAY part */
+   dpy->parent.vt = _al_osx_get_display_driver_win();
+   dpy->parent.refresh_rate = al_get_new_display_refresh_rate();
+   dpy->parent.flags = al_get_new_display_flags() | ALLEGRO_OPENGL | ALLEGRO_FULLSCREEN;
+   dpy->parent.w = w;
+   dpy->parent.h = h;
+   _al_event_source_init(&dpy->parent.es);
+   osx_change_cursor(dpy, [NSCursor arrowCursor]);
+   dpy->show_cursor = YES;
+   
+   // Set up a pixel format to describe the mode we want.
+   osx_set_opengl_pixelformat_attributes(dpy);
+
+   // Clear last window position to 0 if there are no other open windows
+   if (_al_vector_is_empty(&al_get_system_driver()->displays)) {
+      last_window_pos = NSZeroPoint;
+   }
+
+   /* OSX specific part - finish the initialisation on the main thread */
+   [ALDisplayHelper performSelectorOnMainThread: @selector(initialiseDisplay:) 
+      withObject: [NSValue valueWithPointer:dpy] 
+      waitUntilDone: YES];
+
+   [dpy->ctx makeCurrentContext];
+   [dpy->ctx setFullScreen];
+
+   NSScreen *screen = [dpy->win screen];
+   NSDictionary *dict = [screen deviceDescription];
+   NSNumber *display_id = [dict valueForKey: @"NSScreenNumber"];
+   dpy->display_id = [display_id integerValue];
+   //dpy->display_id = (CGDirectDisplayID)[display_id pointerValue];
+   CGDisplayCapture(dpy->display_id);
+
+#if MAC_OS_X_VERSION_MIN_REQUIRED < 1060
+   CFDictionaryRef mode = CGDisplayBestModeForParametersAndRefreshRate(dpy->display_id, dpy->depth, w, h, dpy->parent.refresh_rate, NULL);
+   CGDisplaySwitchToMode(dpy->display_id, mode);
+#else
+   CGDisplayModeRef mode = NULL;
+   CFArrayRef modes = NULL;
+   CFStringRef pixel_format = NULL;
+   int i;
+
+   /* Set pixel format string */
+   if (dpy->depth == 32)
+      pixel_format = CFSTR(IO32BitDirectPixels);
+   if (dpy->depth == 16)
+      pixel_format = CFSTR(IO16BitDirectPixels);
+   if (dpy->depth == 8)
+      pixel_format = CFSTR(IO8BitIndexedPixels);
+   modes = CGDisplayCopyAllDisplayModes(dpy->display_id, NULL);
+   for (i = 0; i < CFArrayGetCount(modes); i++) {
+      CGDisplayModeRef try_mode =
+         (CGDisplayModeRef)CFArrayGetValueAtIndex(modes, i);
+
+      CFStringRef pixel_encoding = CGDisplayModeCopyPixelEncoding(try_mode);
+
+      /* Found mode with matching size/colour depth */
+      if ( w == (int)CGDisplayModeGetWidth(try_mode) &&
+           h == (int)CGDisplayModeGetHeight(try_mode) &&
+           CFStringCompare(pixel_encoding, pixel_format, 1) == 0) {
+         mode = try_mode;
+         CFRelease(pixel_encoding);
+         break;
+      }
+
+      /* Found mode with matching size; colour depth does not match, but
+       * it's the best so far.
+       */
+      if ( w == (int)CGDisplayModeGetWidth(try_mode) &&
+           h == (int)CGDisplayModeGetHeight(try_mode) &&
+           mode == NULL) {
+         mode = try_mode;
+      }
+
+      CFRelease(pixel_encoding);
+   }
+
+   if (!mode) {
+      /* Trouble! - we can't find a nice mode to set. */
+      [dpy->ctx clearDrawable];
+      CGDisplayRelease(dpy->display_id);
+      [dpy->win close];
+      _AL_FREE(dpy);
+      return NULL;
+   }
+
+   /* Switch display mode */
+   CFDictionaryRef options = CFDictionaryCreate(NULL, NULL, NULL, 0, NULL, NULL);
+   CGDisplaySetDisplayMode(dpy->display_id, mode, NULL);
+   CFRelease(options);
+   CFRelease(modes);
+#endif
+
+   [[dpy->win contentView] enterFullScreenMode: screen withOptions: nil];
+
+   // Set up the Allegro OpenGL implementation
+   dpy->parent.ogl_extras = _AL_MALLOC(sizeof(ALLEGRO_OGL_EXTRAS));
+   memset(dpy->parent.ogl_extras, 0, sizeof(ALLEGRO_OGL_EXTRAS));
+   _al_ogl_manage_extensions(&dpy->parent);
+   _al_ogl_set_extensions(dpy->parent.ogl_extras->extension_api);
+   dpy->parent.ogl_extras->is_shared = true;
+
+   /* Retrieve the options that were set */
+   osx_get_opengl_pixelformat_attributes(dpy);
+   dpy->parent.ogl_extras->backbuffer = _al_ogl_create_backbuffer(&dpy->parent);
+   if (_al_get_new_display_settings()->settings[ALLEGRO_VSYNC] == 1) {
+      GLint swapInterval = 1;
+      [dpy->ctx setValues:&swapInterval forParameter: NSOpenGLCPSwapInterval];
+   }
+   else {
+      GLint swapInterval = 0;
+      [dpy->ctx setValues:&swapInterval forParameter: NSOpenGLCPSwapInterval];
+   }
+
+   /* Set up GL as we want */
+   setup_gl(&dpy->parent);
+
+   /* Add to the display list */
+   ALLEGRO_DISPLAY **add = _al_vector_alloc_back(&al_get_system_driver()->displays);
+   *add = &dpy->parent;
+   dpy->in_fullscreen = YES;
+
+   return &dpy->parent;
+}
+#endif
 
 /* create_display_win:
 * Create a windowed display - create the window with an ALOpenGLView
@@ -1384,7 +1590,10 @@ static bool resize_display_win(ALLEGRO_DISPLAY *d, int w, int h)
 
 static bool resize_display_fs(ALLEGRO_DISPLAY *d, int w, int h)
 {
+   ALLEGRO_DEBUG("Resize full screen display to %d x %d\n", w, h);
+   bool success = true;
    ALLEGRO_DISPLAY_OSX_WIN* dpy = (ALLEGRO_DISPLAY_OSX_WIN*) d;
+#if MAC_OS_X_VERSION_MIN_REQUIRED < 1060
    CFDictionaryRef current = CGDisplayCurrentMode(dpy->display_id);
    CFNumberRef bps = (CFNumberRef) CFDictionaryGetValue(current, kCGDisplayBitsPerPixel);
    int b;
@@ -1392,12 +1601,52 @@ static bool resize_display_fs(ALLEGRO_DISPLAY *d, int w, int h)
    CFDictionaryRef mode = CGDisplayBestModeForParameters(dpy->display_id, b, w, h, NULL);
    [dpy->ctx clearDrawable];
    CGError err = CGDisplaySwitchToMode(dpy->display_id, mode);
+   success = (err == kCGErrorSuccess);
+#else
+   CGDisplayModeRef current = CGDisplayCopyDisplayMode(dpy->display_id);
+   CFStringRef bps = CGDisplayModeCopyPixelEncoding(current);
+   CGDisplayModeRef mode = NULL;
+   CFArrayRef modes = NULL;
+   int i;
+
+   modes = CGDisplayCopyAllDisplayModes(dpy->display_id, NULL);
+   for (i = 0; i < CFArrayGetCount(modes); i++) {
+      CGDisplayModeRef try_mode =
+         (CGDisplayModeRef)CFArrayGetValueAtIndex(modes, i);
+
+      CFStringRef pixel_encoding = CGDisplayModeCopyPixelEncoding(try_mode);
+
+      /* Found mode with matching size/colour depth */
+      if ( w == (int)CGDisplayModeGetWidth(try_mode) &&
+           h == (int)CGDisplayModeGetHeight(try_mode) &&
+           CFStringCompare(pixel_encoding, bps, 1) == 0) {
+         mode = try_mode;
+         CFRelease(pixel_encoding);
+         break;
+      }
+
+      CFRelease(pixel_encoding);
+   }
+
+   if (!mode) {
+      ALLEGRO_DEBUG("Can't resize fullscreen display\n");
+      CFRelease(modes);
+      return false;
+   }
+
+   /* Switch display mode */
+   [dpy->ctx clearDrawable];
+   CFDictionaryRef options = CFDictionaryCreate(NULL, NULL, NULL, 0, NULL, NULL);
+   CGDisplaySetDisplayMode(dpy->display_id, mode, NULL);
+   CFRelease(options);
+   CFRelease(modes);
+#endif
    d->w = w;
    d->h = h;
    [dpy->ctx setFullScreen];
    _al_ogl_resize_backbuffer(d->ogl_extras->backbuffer, d->w, d->h);
    setup_gl(d);
-   return  err == kCGErrorSuccess;
+   return success;
 }
 
 static bool is_compatible_bitmap(ALLEGRO_DISPLAY* disp, ALLEGRO_BITMAP* bmp)
