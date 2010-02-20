@@ -36,7 +36,7 @@ ALLEGRO_COLOR_FUNC(void, al_color_rgb_to_hsv, (float red, float green, float blu
    float *hue, float *saturation, float *value));
 ALLEGRO_COLOR_FUNC(void, al_color_hsl_to_rgb, (float hue, float saturation, float lightness,
    float *red, float *green, float *blue));
-ALLEGRO_COLOR_FUNC(int, al_color_name_to_rgb, (char const *name, float *r, float *g,
+ALLEGRO_COLOR_FUNC(bool, al_color_name_to_rgb, (char const *name, float *r, float *g,
    float *b));
 ALLEGRO_COLOR_FUNC(const char*, al_color_rgb_to_name, (float r, float g, float b));
 ALLEGRO_COLOR_FUNC(void, al_color_cmyk_to_rgb, (float cyan, float magenta, float yellow,

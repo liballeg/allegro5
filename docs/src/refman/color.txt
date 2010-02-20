@@ -97,7 +97,7 @@ They are taken from <http://en.wikipedia.org/wiki/X11_color_names>,
 with CSS names being preferred over X11 ones where there is overlap.
 
 Returns:
-0 if a name from the list above was passed, else 1.
+true if a name from the list above was passed, else false.
 
 ## API: al_color_rgb_to_cmyk
 

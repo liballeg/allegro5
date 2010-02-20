@@ -170,7 +170,7 @@ static int compare(const void *va, const void *vb)
 
 /* Function: al_color_name_to_rgb
  */
-int al_color_name_to_rgb(char const *name, float *r, float *g, float *b)
+bool al_color_name_to_rgb(char const *name, float *r, float *g, float *b)
 {
    void *result = bsearch(name, _al_color_names,
       sizeof(_al_color_names) / sizeof(ColorName), sizeof(ColorName),
@@ -180,9 +180,9 @@ int al_color_name_to_rgb(char const *name, float *r, float *g, float *b)
       *r = c->r / 255.0;
       *g = c->g / 255.0;
       *b = c->b / 255.0;
-      return 0;
+      return true;
    }
-   return 1;
+   return false;
 }
 
 /* Function: al_color_rgb_to_name
