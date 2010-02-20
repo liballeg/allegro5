@@ -43,6 +43,7 @@ struct ALLEGRO_MOUSE_STATE
     * (z) Mouse wheel position (1D 'wheel'), or,
     * (w, z) Mouse wheel position (2D 'ball')
     * display - the display the mouse is on (coordinates are relative to this)
+    * pressure - the pressure appleid to the mouse (for stylus/tablet)
     */
    int x;
    int y;
@@ -50,6 +51,7 @@ struct ALLEGRO_MOUSE_STATE
    int w;
    int more_axes[ALLEGRO_MOUSE_MAX_EXTRA_AXES];
    int buttons;
+   float pressure;
    struct ALLEGRO_DISPLAY *display;
 };
 

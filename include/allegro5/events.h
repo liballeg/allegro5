@@ -153,13 +153,16 @@ typedef struct ALLEGRO_MOUSE_EVENT
 {
    _AL_EVENT_HEADER(struct ALLEGRO_MOUSE)
    struct ALLEGRO_DISPLAY *display;
-   /* (display) Window the event originate from */
-   /* (x, y) Primary mouse position */
-   /* (z) Mouse wheel position (1D 'wheel'), or,  */
-   /* (w, z) Mouse wheel position (2D 'ball') */
+   /* (display) Window the event originate from
+    * (x, y) Primary mouse position
+    * (z) Mouse wheel position (1D 'wheel'), or,
+    * (w, z) Mouse wheel position (2D 'ball')
+    * (pressure) The pressure applied, for stylus (0 or 1 for normal mouse)
+    */
    int x,  y,  z, w;
    int dx, dy, dz, dw;
    unsigned int button;
+   float pressure;
 } ALLEGRO_MOUSE_EVENT;
 
 
