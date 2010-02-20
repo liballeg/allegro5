@@ -20,14 +20,6 @@ Convert beats per second to seconds.
 
 Convert beats per minute to seconds.
 
-## API: al_get_timer_count
-
-Return the timer's counter value. The timer can be started or stopped.
-
-## API: al_get_timer_speed
-
-Return the timer's speed, in seconds.
-
 ## API: al_install_timer
 
 Install a new timer. If successful, a pointer to a new timer object is
@@ -39,20 +31,7 @@ The system driver must be installed before this function can be called.
 Usage note: typical granularity is on the order of microseconds, but with
 some drivers might only be milliseconds.
 
-## API: al_set_timer_count
-
-Change a timer's counter value. The timer can be started or stopped.
-COUNT value may be positive or negative, but will always be incremented
-by +1.
-
-## API: al_set_timer_speed
-
-Set the timer's speed, i.e. the rate at which its counter will be
-incremented when it is started. This can be done when the timer is
-started or stopped. If the timer is currently running, it is made to
-look as though the speed change occured precisely at the last tick.
-
-*speed_secs* has exactly the same meaning as with [al_install_timer].
+See also: [al_start_timer], [al_uninstall_timer]
 
 ## API: al_start_timer
 
@@ -60,11 +39,15 @@ Start the timer specified.  From then, the timer's counter will increment
 at a constant rate, and it will begin generating events.  Starting a
 timer that is already started does nothing.
 
+See also: [al_stop_timer], [al_timer_is_started]
+
 ## API: al_stop_timer
 
 Stop the timer specified.  The timer's counter will stop incrementing and
 it will stop generating events.  Stopping a timer that is already stopped
 does nothing.
+
+See also: [al_start_timer], [al_timer_is_started]
 
 ## API: al_timer_is_started
 
@@ -77,6 +60,39 @@ automatically be stopped before uninstallation. It will also
 automatically unregister the timer with any event queues.
 
 Does nothing if passed the NULL pointer.
+
+See also: [al_install_timer]
+
+## API: al_get_timer_count
+
+Return the timer's counter value. The timer can be started or stopped.
+
+See also: [al_set_timer_count]
+
+## API: al_set_timer_count
+
+Change a timer's counter value. The timer can be started or stopped.
+The count value may be positive or negative, but will always be incremented
+by +1.
+
+See also: [al_get_timer_count]
+
+## API: al_get_timer_speed
+
+Return the timer's speed, in seconds.
+
+See also: [al_set_timer_speed]
+
+## API: al_set_timer_speed
+
+Set the timer's speed, i.e. the rate at which its counter will be
+incremented when it is started. This can be done when the timer is
+started or stopped. If the timer is currently running, it is made to
+look as though the speed change occured precisely at the last tick.
+
+*speed_secs* has exactly the same meaning as with [al_install_timer].
+
+See also: [al_get_timer_speed]
 
 ## API: al_get_timer_event_source
 

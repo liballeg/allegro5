@@ -4,6 +4,8 @@
 
 This is an abstract data type representing a physical joystick.
 
+See also: [al_get_joystick]
+
 ## API: ALLEGRO_JOYSTICK_STATE
 
 This is a structure that is used to hold a "snapshot" of a
@@ -15,6 +17,8 @@ All fields public and read-only.
     } stick[num_sticks];
     int button[num_buttons];                // 0 to 32767
 
+See also: [al_get_joystick_state]
+
 ## API: ALLEGRO_JOYFLAGS
 
 * ALLEGRO_JOYFLAG_DIGITAL  - the stick provides digital input
@@ -22,65 +26,24 @@ All fields public and read-only.
 
 (this enum is a holdover from the old API and may be removed)
 
-## API: al_get_joystick
-
-Get a handle for joystick number NUM on the system.  If successful
-a pointer to a joystick object is returned.  Otherwise NULL is
-returned.
-
-If the joystick was previously 'gotten' (and not yet released)
-then the returned pointer will be the same as in previous calls.
-
-## API: al_get_joystick_axis_name
-
-Return the name of the given axis.  If the axis doesn't exist,
-NULL is returned.
-
-## API: al_get_joystick_button_name
-
-Return the name of the given button.  If the button doesn't exist,
-NULL is returned.
-
-## API: al_get_joystick_name
-
-Return the name of the given joystick.
-
-## API: al_get_joystick_number
-
-Return the joystick number, i.e. 'i' such that `al_get_joystick(i)`
-returns the same joystick object.
-
-## API: al_get_joystick_state
-
-Get the current joystick state.
-
-## API: al_get_joystick_stick_flags
-
-Return the flags of the given "stick".  If the stick doesn't
-exist, NULL is returned.
-
-## API: al_get_joystick_stick_name
-
-Return the name of the given "stick".  If the stick doesn't
-exist, NULL is returned.
-
-## API: al_get_joystick_num_axes
-
-Return the number of axes on the given "stick".  If the stick
-doesn't exist, 0 is returned.
-
-## API: al_get_joystick_num_buttons
-
-Return the number of buttons on the joystick.
-
-## API: al_get_joystick_num_sticks
-
-Return the number of "sticks" on the given joystick.
+See also: [al_get_joystick_stick_flags]
 
 ## API: al_install_joystick
 
 Install a joystick driver, returning true if successful.  If a
 joystick driver was already installed, returns true immediately.
+
+See also: [al_uninstall_joystick]
+
+## API: al_uninstall_joystick
+
+Uninstalls the active joystick driver.  All outstanding [ALLEGRO_JOYSTICK]
+structures are automatically released.  If no joystick driver
+was active, this function does nothing.
+
+This function is automatically called when Allegro is shut down.
+
+See also: [al_install_joystick]
 
 ## API: al_get_num_joysticks
 
@@ -88,17 +51,93 @@ Return the number of joysticks on the system (depending on the OS
 this may not be accurate).  Returns 0 if there is no joystick driver
 installed.
 
+See also: [al_get_joystick]
+
+## API: al_get_joystick
+
+Get a handle for joystick number *num* on the system.  If successful
+a pointer to a joystick object is returned.  Otherwise NULL is
+returned.
+
+If the joystick was previously 'gotten' (and not yet released)
+then the returned pointer will be the same as in previous calls.
+
+See also: [al_get_num_joysticks]
+
 ## API: al_release_joystick
 
-Release a previously 'gotten' joystick object.
+Release a previously 'gotten' joystick object.  You do not normally need to do
+this explicitly as [al_uninstall_joystick] will automatically release
+joysticks.
 
-## API: al_uninstall_joystick
+See also: [al_get_joystick]
 
-Uninstalls the active joystick driver.  All outstanding
-ALLEGRO_JOYSTICKs are automatically released.  If no joystick driver
-was active, this function does nothing.
+## API: al_get_joystick_name
 
-This function is automatically called when Allegro is shut down.
+Return the name of the given joystick.
+
+See also: [al_get_joystick_stick_name], [al_get_joystick_axis_name],
+[al_get_joystick_button_name]
+
+## API: al_get_joystick_stick_name
+
+Return the name of the given "stick".  If the stick doesn't
+exist, NULL is returned.
+
+See also: [al_get_joystick_axis_name], [al_get_joystick_num_sticks]
+
+## API: al_get_joystick_axis_name
+
+Return the name of the given axis.  If the axis doesn't exist,
+NULL is returned.
+
+See also: [al_get_joystick_stick_name], [al_get_joystick_num_axes]
+
+## API: al_get_joystick_button_name
+
+Return the name of the given button.  If the button doesn't exist,
+NULL is returned.
+
+See also: [al_get_joystick_stick_name], [al_get_joystick_axis_name],
+[al_get_joystick_num_buttons]
+
+## API: al_get_joystick_number
+
+Return the joystick number, i.e. the parameter passed to [al_get_joystick].
+
+## API: al_get_joystick_stick_flags
+
+Return the flags of the given "stick".  If the stick doesn't
+exist, NULL is returned.
+
+See also: [ALLEGRO_JOYFLAGS]
+
+## API: al_get_joystick_num_sticks
+
+Return the number of "sticks" on the given joystick.
+A stick has one or more axes.
+
+See also: [al_get_joystick_num_axes], [al_get_joystick_num_buttons]
+
+## API: al_get_joystick_num_axes
+
+Return the number of axes on the given "stick".  If the stick
+doesn't exist, 0 is returned.
+
+See also: [al_get_joystick_num_sticks]
+
+## API: al_get_joystick_num_buttons
+
+Return the number of buttons on the joystick.
+
+See also: [al_get_joystick_num_sticks]
+
+## API: al_get_joystick_state
+
+Get the current joystick state.
+
+See also: [ALLEGRO_JOYSTICK_STATE], [al_get_joystick_num_buttons],
+[al_get_joystick_num_axes]
 
 ## API: al_get_joystick_event_source
 

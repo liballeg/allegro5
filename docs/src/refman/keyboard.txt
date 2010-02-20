@@ -15,6 +15,9 @@ You cannot read the state of keys directly.  Use the function
 
 ## Key codes
 
+These are the list of key codes used by Allegro, which you can pass to
+[al_key_down].
+
     ALLEGRO_KEY_A ... ALLEGRO_KEY_Z,
     ALLEGRO_KEY_0 ... ALLEGRO_KEY_9,
     ALLEGRO_KEY_PAD_0 ... ALLEGRO_KEY_PAD_9,
@@ -79,24 +82,40 @@ You cannot read the state of keys directly.  Use the function
     ALLEGRO_KEYMOD_ACCENT3
     ALLEGRO_KEYMOD_ACCENT4
 
-## API: al_get_keyboard_state
-
-Save the state of the keyboard specified at the time the function
-is called into the structure pointed to by RET_STATE.
-
 ## API: al_install_keyboard
 
 Install a keyboard driver. Returns true if successful. If a driver
 was already installed, nothing happens and true is returned.
 
+See also: [al_uninstall_keyboard], [al_is_keyboard_installed]
+
 ## API: al_is_keyboard_installed
 
 Returns true if [al_install_keyboard] was called successfully.
+
+## API: al_uninstall_keyboard
+
+Uninstalls the active keyboard driver, if any.  This will
+automatically unregister the keyboard event source with any event
+queues.
+
+This function is automatically called when Allegro is shut down.
+
+See also: [al_install_keyboard]
+
+## API: al_get_keyboard_state
+
+Save the state of the keyboard specified at the time the function
+is called into the structure pointed to by *ret_state*.
+
+See also: [al_key_down], [ALLEGRO_KEYBOARD_STATE]
 
 ## API: al_key_down
 
 Return true if the key specified was held down in the state
 specified.
+
+See also: [ALLEGRO_KEYBOARD_STATE]
 
 ## API: al_keycode_to_name
 
@@ -107,14 +126,6 @@ Converts the given keycode to a description of the key.
 Overrides the state of the keyboard LED indicators.
 Set to -1 to return to default behavior.
 False is returned if the current keyboard driver cannot set LED indicators.
-
-## API: al_uninstall_keyboard
-
-Uninstalls the active keyboard driver, if any.  This will
-automatically unregister the keyboard event source with any event
-queues.
-
-This function is automatically called when Allegro is shut down.
 
 ## API: al_get_keyboard_event_source
 

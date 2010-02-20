@@ -164,7 +164,6 @@ See also: [al_get_text_dimensions]
 Returns the (compiled) version of the addon, in the same format as
 [al_get_allegro_version].
 
-#
 ## Bitmap fonts
 
 ### API: al_grab_font_from_bitmap

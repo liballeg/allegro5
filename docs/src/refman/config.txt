@@ -3,6 +3,41 @@
 
 ## API: ALLEGRO_CONFIG
 
+An abstract configuration structure.
+
+## API: al_create_config
+
+Create an empty configuration structure.
+
+See also: [al_load_config_file], [al_destroy_config]
+
+## API: al_destroy_config
+
+Free the resources used by a configuration structure.
+Does nothing if passed NULL.
+
+See also: [al_create_config], [al_load_config_file]
+
+## API: al_load_config_file
+
+Read a configuration file from disk.
+Returns NULL on error.  The configuration structure should be destroyed
+with [al_destroy_config].
+
+See also: [al_save_config_file]
+
+## API: al_save_config_file
+
+Write out a configuration file to disk.
+Returns true on success, false on error.
+
+See also: [al_load_config_file]
+
+## API: al_add_config_section
+
+Add a section to a configuration structure with the given name.
+If the section already exists then nothing happens.
+
 ## API: al_add_config_comment
 
 Add a comment in a section of a configuration.  If the section doesn't yet
@@ -12,18 +47,7 @@ The section can be NULL or "" for the global section.
 The comment may or may not begin with a hash character.
 Any newlines in the comment string will be replaced by space characters.
 
-## API: al_add_config_section
-
-Add a section to a configuration structure.
-
-## API: al_create_config
-
-Create an empty configuration structure.
-
-## API: al_destroy_config
-
-Free the resources used by a configuration structure.
-Does nothing if passed NULL.
+See also: [al_add_config_section]
 
 ## API: al_get_config_value
 
@@ -33,25 +57,7 @@ if you need a copy.
 The section can be NULL or "" for the global section.
 Returns NULL if the section or key do not exist.
 
-## API: al_merge_config
-
-Merge two configuration structures, and return the result as a new
-configuration.  Values in configuration 'cfg2' override those in 'cfg1'.
-Neither of the input configuration structures are
-modified.
-Comments from 'cfg2' are not retained.
-
-## API: al_merge_config_into
-
-Merge one configuration structure into another.
-Values in configuration 'add' override those in 'master'.
-'master' is modified.
-Comments from 'add' are not retained.
-
-## API: al_load_config_file
-
-Read a configuration file from disk.
-Returns NULL on error.
+See also: [al_set_config_value]
 
 ## API: al_set_config_value
 
@@ -65,10 +71,7 @@ trailing whitespace will be stripped from the value.  If you have significant
 whitespace you wish to preserve, you should add your own quote characters
 and remove them when reading the values back in.
 
-## API: al_save_config_file
-
-Write out a configuration file to disk.
-Returns true on success, false on error.
+See also: [al_get_config_value]
 
 ## API: al_get_first_config_section
 
@@ -77,9 +80,10 @@ this will return an empty string for the global section. The `iterator`
 parameter will receive an opaque iterator which is used by
 [al_get_next_config_section] to iterate over the remaining sections.
 
-Note:
 The returned string and the iterator are only valid as long as no
 change is made to the passed ALLEGRO_CONFIG.
+
+See also: [al_get_next_config_section]
 
 ## API: al_get_next_config_section
 
@@ -87,17 +91,40 @@ Returns the name of the next section in the given config file. The
 `iterator` must have been obtained with [al_get_first_config_section]
 first.
 
+See also: [al_get_first_config_section]
+
 ## API: al_get_first_config_entry
 
 Returns the name of the first key in the given section in the given
 config. The `iterator` works like the one for
 [al_get_first_config_section].
 
-Note:
 The returned string and the iterator are only valid as long as no
-change is made to the passed ALLEGRO_CONFIG.
+change is made to the passed [ALLEGRO_CONFIG].
+
+See also: [al_get_next_config_entry]
 
 ## API: al_get_next_config_entry
 
 Returns the next key for the iterator obtained by
-[al_get_first_config_entry];
+[al_get_first_config_entry].
+
+## API: al_merge_config
+
+Merge two configuration structures, and return the result as a new
+configuration.  Values in configuration 'cfg2' override those in 'cfg1'.
+Neither of the input configuration structures are
+modified.
+Comments from 'cfg2' are not retained.
+
+See also: [al_merge_config_into]
+
+## API: al_merge_config_into
+
+Merge one configuration structure into another.
+Values in configuration 'add' override those in 'master'.
+'master' is modified.
+Comments from 'add' are not retained.
+
+See also: [al_merge_config]
+
