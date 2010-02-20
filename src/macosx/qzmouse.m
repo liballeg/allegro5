@@ -194,43 +194,34 @@ static bool osx_init_mouse(void)
 	int axes = 0, buttons = 0;
 	HID_DEVICE* device = nil;
 	NSString* desc = nil;
-	
-	if (floor(NSAppKitVersionNumber) <= NSAppKitVersionNumber10_1) {
-		/* On 10.1.x mice and keyboards aren't available from the HID Manager,
-		* so we can't autodetect. We assume an 1-button mouse to always be
-		* present.
-		*/
-		buttons = 1;
-		axes = 2;
-	}
-	else {
-		_al_osx_hid_scan(HID_MOUSE, &devices);
-		if (devices.count > 0) 
-		{
-            device=&devices.devices[i];
-            buttons = 0;
-            axes = 0;
-            for (j = 0; j < device->num_elements; j++) 
-			{
-				switch (device->element[j].type)
-				{
-					case HID_ELEMENT_BUTTON:
-                        buttons ++;
-                        break;
-					case HID_ELEMENT_AXIS:
-					case HID_ELEMENT_AXIS_PRIMARY_X:
-					case HID_ELEMENT_AXIS_PRIMARY_Y:
-					case HID_ELEMENT_STANDALONE_AXIS:
-                        axes ++;
-                        break;
-				}
-			}
-            desc = [NSString stringWithFormat: @"%s %s",
- device->manufacturer ? device->manufacturer : "",
-		   device->product ? device->product : ""];
-		}
-		_al_osx_hid_free(&devices);
-	}
+
+   _al_osx_hid_scan(HID_MOUSE, &devices);
+   if (devices.count > 0) 
+   {
+      device=&devices.devices[i];
+      buttons = 0;
+      axes = 0;
+      for (j = 0; j < device->num_elements; j++) 
+      {
+         switch (device->element[j].type)
+         {
+            case HID_ELEMENT_BUTTON:
+               buttons ++;
+               break;
+            case HID_ELEMENT_AXIS:
+            case HID_ELEMENT_AXIS_PRIMARY_X:
+            case HID_ELEMENT_AXIS_PRIMARY_Y:
+            case HID_ELEMENT_STANDALONE_AXIS:
+               axes ++;
+               break;
+         }
+      }
+      desc = [NSString stringWithFormat: @"%s %s",
+           device->manufacturer ? device->manufacturer : "",
+           device->product ? device->product : ""];
+   }
+   _al_osx_hid_free(&devices);
+
 	if (buttons <= 0) return false;
 	_al_event_source_init(&osx_mouse.parent.es);
 	osx_mouse.button_count = buttons;
