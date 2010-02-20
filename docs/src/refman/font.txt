@@ -5,27 +5,36 @@
 ### API: ALLEGRO_FONT
 
 A handle identifying any kind of font. Usually you will create it with
-[al_load_font] which supports loading all kinds of truetype fonts supported by
-the Freetype library. If you instead pass the filename of a bitmap file, it will
+[al_load_font] which supports loading all kinds of TrueType fonts supported by
+the FreeType library. If you instead pass the filename of a bitmap file, it will
 be loaded with [al_load_bitmap] and a font in Allegro's bitmap font format will
 be created from it with [al_grab_font_from_bitmap].
 
-### API: al_destroy_font
-
-Frees the memory being used by a font structure.
-
 ### API: al_init_font_addon
+
+Initialise the font addon.
+
+See also: [al_init_ttf_addon], [al_shutdown_font_addon]
 
 ### API: al_shutdown_font_addon
 
 Shut down the font addon. This is done automatically at program exit,
 but can be called any time the user wishes as well.
 
+See also: [al_init_font_addon]
+
 ### API: al_load_font
 
 Loads a font from disk. This will use [al_load_bitmap_font] if you pass the
 name of a known bitmap format, or else [al_load_ttf_font].
 
+See also: [al_destroy_font], [al_init_font_addon]
+
+### API: al_destroy_font
+
+Frees the memory being used by a font structure.
+
+See also: [al_load_font]
 
 ### API: al_register_font_loader
 
@@ -40,6 +49,8 @@ The `load_font` argument may be NULL to unregister an entry.
 Returns true on success, false on error.
 Returns false if unregistering an entry that doesn't exist.
 
+See also: [al_init_font_addon]
+
 ### API: al_get_font_line_height
 
 Returns the usual height of a line of text in the specified font. For bitmap
@@ -47,17 +58,20 @@ fonts this is simply the height of all glyph bitmaps. For truetype fonts it
 is whatever the font file specifies. In particular, some special glyphs may be
 higher than the height returned here.
 
+See also: [al_get_text_width], [al_get_text_dimensions]
+
 ### API: al_get_text_width
 
 Calculates the length of a string in a particular font, in pixels.
 
-See also: [al_get_ustr_width]
+See also: [al_get_ustr_width], [al_get_font_line_height],
+[al_get_text_dimensions]
 
 ### API: al_get_ustr_width
 
 Like [al_get_text_width] but expects an ALLEGRO_USTR.
 
-See also: [al_get_text_width]
+See also: [al_get_text_width], [al_get_ustr_dimensions]
 
 ### API: al_draw_text
 
@@ -70,27 +84,39 @@ The `flags` parameter can be 0 or one of the following flags:
 - ALLEGRO_ALIGN_CENTRE - Draw the text centered around the given position.
 - ALLEGRO_ALIGN_RIGHT - Draw the text right-aligned to the given position.
 
+See also: [al_draw_ustr], [al_draw_textf], [al_draw_justified_text]
+
 ### API: al_draw_ustr
 
 Like [al_draw_text], except the text is passed as an ALLEGRO_USTR instead of
 a 0-terminated char array.
 
+See also: [al_draw_text], [al_draw_justified_ustr]
+
 ### API: al_draw_justified_text
 
 Like [al_draw_text], but justifies the string to the specified area.
 
+See also: [al_draw_justified_textf], [al_draw_justified_ustr]
+
 ### API: al_draw_justified_ustr
 
-See [al_draw_justified_text].
+Like [al_draw_ustr], but justifies the string to the specified area.
+
+See also: [al_draw_justified_text], [al_draw_justified_textf].
 
 ### API: al_draw_textf
 
 Formatted text output, using a printf() style format string, all parameters
 have the same meaning as with [al_draw_text] otherwise.
 
+See also: [al_draw_text], [al_draw_ustr]
+
 ### API: al_draw_justified_textf
 
 Like [al_draw_justified_text] and [al_draw_textf].
+
+See also: [al_draw_justified_text], [al_draw_justified_ustr].
 
 ### API: al_get_text_dimensions
 
@@ -122,15 +148,23 @@ case x and y will have negative values.
                    |        |
     -------------------------
 
+See also: [al_get_text_width], [al_get_font_line_height],
+[al_get_ustr_dimensions]
+
 ### API: al_get_ustr_dimensions
 
-See [al_get_text_dimensions].
+Sometimes, the [al_get_ustr_width] and [al_get_font_line_height]
+functions are not enough for exact text placement, so this function
+returns some additional information.
+
+See also: [al_get_text_dimensions]
 
 ### API: al_get_allegro_font_version
 
 Returns the (compiled) version of the addon, in the same format as
 [al_get_allegro_version].
 
+#
 ## Bitmap fonts
 
 ### API: al_grab_font_from_bitmap
@@ -192,6 +226,8 @@ found in the bitmap to ASCII range, the next 95 glyphs to Latin 1, the
 next 128 glyphs to Extended-A, and the last glyph to the Euro character.
 (This is just the characters found in the Allegro 4 font.)
 
+See also: [al_load_bitmap], [al_grab_font_from_bitmap]
+
 ### API: al_load_bitmap_font
 
 Load a bitmap font from. It does this by first calling [al_load_bitmap] and then
@@ -201,9 +237,14 @@ and only then pass it to [al_grab_font_from_bitmap].
 
 ## TTF fonts
 
+### API: al_init_ttf_addon
+
+Call this after [al_init_font_addon] to make [al_load_font] recognize
+.ttf and other formats supported by [al_load_ttf_font].
+
 ### API: al_load_ttf_font
 
-Loads a truetype font from a file using the FreeType library. Quoting
+Loads a TrueType font from a file using the FreeType library. Quoting
 from the FreeType FAQ this means support for many different font
 formats:
 
@@ -223,19 +264,16 @@ The only flag supported right now is:
 * ALLEGRO_TTF_NO_KERNING - Do not use any kerning even if the font file
   supports it.
 
+See also: [al_init_ttf_addon], [al_load_ttf_font_entry]
+
 ### API: al_load_ttf_font_entry
 
 Like [al_load_ttf_font], but the font is read from the file handle. The filename
 is only used to find possible additional files next to a font file.
 
 Note: The file handle is owned by the returned ALLEGRO_FONT object and must not
-be freed by the caller, as Freetype expects to be able to read from it at a
+be freed by the caller, as FreeType expects to be able to read from it at a
 later time.
-
-### API: al_init_ttf_addon
-
-Call this after [al_init_font_addon] to make [al_load_font] recognize
-.ttf and other formats supported by [al_load_ttf_font].
 
 ### API: al_get_allegro_ttf_version
 
