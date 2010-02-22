@@ -11,6 +11,9 @@
 #
 # Adjust the following paths to suit your environment.
 #
+# You might want to set MINGDIR to prevent make install making a mess
+# in your normal directories.
+#
 # This file was based on http://www.cmake.org/Wiki/CmakeMingw
 
 # the name of the target operating system
