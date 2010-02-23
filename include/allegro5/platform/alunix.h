@@ -10,8 +10,6 @@
  *
  *      Unix-specific header defines.
  *
- *      By Michael Bukin.
- *
  *      See readme.txt for copyright information.
  */
 
@@ -21,20 +19,5 @@
 #endif
 
 
-/* magic to capture name of executable file */
-extern int    __crt0_argc;
-extern char **__crt0_argv;
-
-#ifdef ALLEGRO_WITH_MAGIC_MAIN
-
-
-   #ifndef ALLEGRO_NO_MAGIC_MAIN
-      #define ALLEGRO_MAGIC_MAIN
-      #define main _al_mangled_main
-      #ifdef __cplusplus
-         extern "C" int _al_mangled_main(int, char **);
-      #endif
-   #endif
-
-#endif
+/* Nothing left */
 

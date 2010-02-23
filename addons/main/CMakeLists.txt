@@ -1,8 +1,3 @@
-if(UNIX)
-    set(SOURCES umain.c)
-    set(SUPPORT_ALLEGRO_MAIN 1)
-endif(UNIX)
-
 if(APPLE)
     set(SOURCES osx_main.m)
     set(SUPPORT_ALLEGRO_MAIN 1)

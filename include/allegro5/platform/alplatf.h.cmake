@@ -93,11 +93,6 @@
 /* Define if constructor attribute is supported. */
 #cmakedefine ALLEGRO_USE_CONSTRUCTOR
 
-/* Define if sched_yield is provided by some library. */
-
-/* Define if you need to use a magic main. */
-#cmakedefine ALLEGRO_WITH_MAGIC_MAIN
-
 /* Define if dynamically loaded modules are supported. */
 #cmakedefine ALLEGRO_WITH_MODULES
 

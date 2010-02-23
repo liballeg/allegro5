@@ -117,7 +117,6 @@ option(WANT_MUDFLAP "Enable gcc mudflap (requires gcc 4.0+)" off)
 #
 
 option(WANT_ALLOW_SSE "Allow compiler to use SSE instructions (x86)" on)
-option(WANT_MAGIC_MAIN "Enable magic main" off)
 option(NO_FPU "No floating point unit" off)
 option(WANT_DLL_TLS "Force use of DllMain for TLS (Windows)" off)
 option(WANT_DEMO "Build a demo program" on)
@@ -603,10 +602,6 @@ endif(WIN32)
 
 # We no longer support hand-written assembly routines.
 set(ALLEGRO_NO_ASM 1)
-
-if(WANT_MAGIC_MAIN)
-    set(ALLEGRO_WITH_MAGIC_MAIN 1)
-endif(WANT_MAGIC_MAIN)
 
 if(NO_FPU)
     set(ALLEGRO_CFG_NO_FPU 1)

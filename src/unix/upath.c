@@ -225,13 +225,6 @@ static ALLEGRO_PATH *get_executable_name(void)
       return al_create_path(filename);
    }
 
-#ifdef ALLEGRO_WITH_MAGIC_MAIN
-   /* Try the captured argv[0] */   
-   path = _find_executable_file(__crt0_argv[0]);
-   if (path)
-      return path;
-#endif
-
    /* Give up; return empty string */
    return al_create_path("");
 }
