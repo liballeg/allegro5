@@ -136,7 +136,7 @@ static bool format_alpha_table[ALLEGRO_NUM_PIXEL_FORMATS] = {
    true /* ALLEGRO_PIXEL_FORMAT_RGBA_4444 */
 };
 
-char const *pixel_format_names[ALLEGRO_NUM_PIXEL_FORMATS + 1] = {
+static char const *pixel_format_names[ALLEGRO_NUM_PIXEL_FORMATS + 1] = {
    "ANY",
    "ANY_NO_ALPHA",
    "ANY_WITH_ALPHA",
