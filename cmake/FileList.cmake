@@ -96,7 +96,6 @@ set(ALLEGRO_SRC_LINUX_FILES
 
 set(ALLEGRO_SRC_UNIX_FILES
     src/unix/udrvlist.c
-    src/unix/udummy.c
     src/unix/ufdwatch.c
     src/unix/ugfxdrv.c
     src/unix/ujoydrv.c

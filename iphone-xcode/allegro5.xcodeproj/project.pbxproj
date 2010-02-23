@@ -591,7 +591,6 @@
 		64839040102AF2CF00D508EE /* tls.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = tls.c; path = ../src/tls.c; sourceTree = SOURCE_ROOT; };
 		64839042102AF2CF00D508EE /* udjgpp.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = udjgpp.c; path = ../src/unix/udjgpp.c; sourceTree = SOURCE_ROOT; };
 		64839043102AF2CF00D508EE /* udrvlist.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = udrvlist.c; path = ../src/unix/udrvlist.c; sourceTree = SOURCE_ROOT; };
-		64839044102AF2CF00D508EE /* udummy.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = udummy.c; path = ../src/unix/udummy.c; sourceTree = SOURCE_ROOT; };
 		64839045102AF2CF00D508EE /* ufdwatch.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = ufdwatch.c; path = ../src/unix/ufdwatch.c; sourceTree = SOURCE_ROOT; };
 		64839046102AF2CF00D508EE /* ugfxdrv.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = ugfxdrv.c; path = ../src/unix/ugfxdrv.c; sourceTree = SOURCE_ROOT; };
 		64839047102AF2CF00D508EE /* ujoydrv.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = ujoydrv.c; path = ../src/unix/ujoydrv.c; sourceTree = SOURCE_ROOT; };
@@ -1282,7 +1281,6 @@
 			children = (
 				64839042102AF2CF00D508EE /* udjgpp.c */,
 				64839043102AF2CF00D508EE /* udrvlist.c */,
-				64839044102AF2CF00D508EE /* udummy.c */,
 				64839045102AF2CF00D508EE /* ufdwatch.c */,
 				64839046102AF2CF00D508EE /* ugfxdrv.c */,
 				64839047102AF2CF00D508EE /* ujoydrv.c */,
