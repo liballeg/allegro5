@@ -260,7 +260,7 @@ terminal, this is most easily accomplished by the commands
 	$ export PATH=/Developer/usr/bin:$PATH
    $ export CC=clang
 
-before you run Cmake. If you use the graphical version of Gmake, you will
+before you run Cmake. If you use the graphical version of Cmake, you will
 be given the option of selecting the C compiler to use. Simply select
 /Developer/usr/bin/clang.
 The installation otherwise continues as indicated above.
