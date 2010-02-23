@@ -203,18 +203,6 @@ static bool format_is_real[ALLEGRO_NUM_PIXEL_FORMATS] =
    true /* ALLEGRO_PIXEL_FORMAT_RGBA_4444 */
 };
 
-/* lookup table for scaling 1 bit colors up to 8 bits */
-const int _rgb_scale_1[2];
-
-/* lookup table for scaling 4 bit colors up to 8 bits */
-const int _rgb_scale_4[16];
-
-/* lookup table for scaling 5 bit colors up to 8 bits */
-const int _rgb_scale_5[32];
-
-/* lookup table for scaling 6 bit colors up to 8 bits */
-const int _rgb_scale_6[64];
-
 
 bool _al_pixel_format_is_real(int format)
 {
