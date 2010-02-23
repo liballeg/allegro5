@@ -5,15 +5,20 @@
 
 #import <Cocoa/Cocoa.h>
 
-void al_show_native_file_dialog(ALLEGRO_NATIVE_DIALOG *fd)
-{
+/* We need to run the dialog box on the main thread because AppKit is not
+ * re-entrant and running it from another thread can cause unpredictable
+ * crashes.
+ * We use a dedicated class for this and simply forward the call.
+ * The textbox is apparently fine the way it is.
+ */
+@interface FileDialog : NSObject
++(void) show : (NSValue *)param;
+@end
+@implementation FileDialog
++(void) show : (NSValue *) param {
+   ALLEGRO_NATIVE_DIALOG *fd = [param pointerValue];
    int mode = fd->mode;
    NSString *directory, *filename;
-
-   /* Since this is designed to be run from a separate thread, we setup
-    * release pool, or we get memory leaks
-    */
-   NSAutoreleasePool* pool = [[NSAutoreleasePool alloc] init];
 
    /* Set initial directory to pass to the file selector */
    if (fd->initial_path) {
@@ -89,7 +94,20 @@ void al_show_native_file_dialog(ALLEGRO_NATIVE_DIALOG *fd)
          }
       }
    }
+}
+@end
 
+
+void al_show_native_file_dialog(ALLEGRO_NATIVE_DIALOG *fd)
+{
+   /* Since this function may be called from a separate thread (our own
+    * example program does this), we need to setup a release pool, or we
+    * get memory leaks.
+    */
+   NSAutoreleasePool* pool = [[NSAutoreleasePool alloc] init];
+   [FileDialog performSelectorOnMainThread: @selector(show:) 
+                                withObject: [NSValue valueWithPointer:fd]
+                             waitUntilDone: YES];
    [pool drain];
 }
 
