@@ -100,7 +100,7 @@ set(ALLEGRO_SRC_UNIX_FILES
     src/unix/ugfxdrv.c
     src/unix/ujoydrv.c
     src/unix/ukeybd.c
-    src/unix/umodules.c
+    # src/unix/umodules.c   # not used currently
     src/unix/umouse.c
     src/unix/upath.c
     src/unix/utime.c
