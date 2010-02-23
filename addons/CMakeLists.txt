@@ -124,11 +124,9 @@ if(WANT_NATIVE_DIALOG)
     set(NATIVE_DIALOG_LINK_WITH ${NATIVE_DIALOG_LINK_WITH} PARENT_SCOPE)
 endif(WANT_NATIVE_DIALOG)
 
-if(WANT_ALLEGRO_MAIN)
-    add_subdirectory(main)
-    set(SUPPORT_ALLEGRO_MAIN ${SUPPORT_ALLEGRO_MAIN} PARENT_SCOPE)
-    set(ALLEGRO_MAIN_LINK_WITH ${ALLEGRO_MAIN_LINK_WITH} PARENT_SCOPE)
-endif(WANT_ALLEGRO_MAIN)
+add_subdirectory(main)
+set(SUPPORT_ALLEGRO_MAIN ${SUPPORT_ALLEGRO_MAIN} PARENT_SCOPE)
+set(ALLEGRO_MAIN_LINK_WITH ${ALLEGRO_MAIN_LINK_WITH} PARENT_SCOPE)
 
 #-----------------------------------------------------------------------------#
 # vi: set ts=8 sts=4 sw=4 et:

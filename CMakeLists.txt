@@ -87,7 +87,6 @@ option(WANT_MEMFILE "Enable memfile addon" on)
 option(WANT_PHYSFS "Enable PhysicsFS addon" on)
 option(WANT_PRIMITIVES "Enable primitives addon" on)
 option(WANT_NATIVE_DIALOG "Enable native dialog addon" on)
-option(WANT_ALLEGRO_MAIN "Enable magic main addon" on)
 
 #
 # Wrappers.
