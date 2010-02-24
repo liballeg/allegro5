@@ -155,7 +155,7 @@ div.searchbox {
     margin-left:	    5px;
     margin-right:	    5px;
     margin-bottom:	    0.8em;
-    font-size:          small;
+    font-size:		    small;
 }
 
 /* Body of page */
@@ -163,6 +163,18 @@ table td.content {
     margin:                 10em;
     padding-left:           1em;
     max-width:              50em;
+}
+
+div#TOC {
+    display:		    table;
+    border:		    1px solid #e0e0e0;
+    background-color:	    #f8f8fa;
+    padding-right:	    1em;
+}
+
+div#TOC ul {
+    padding-left:	    1em;
+    list-style-type:	    none;
 }
 
 /* Below is the autosuggest.css from autosuggest.js version 2.4. */
