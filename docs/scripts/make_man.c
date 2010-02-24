@@ -5,6 +5,7 @@
 
 static const char *SECTION = "3";
 static const char *MANUAL = "Allegro reference manual";
+static dstr last_header;
 
 static void man_page_header(const char *name)
 {
@@ -12,6 +13,7 @@ static void man_page_header(const char *name)
    d_print("# NAME");
    d_print(name);
    d_print("\n# SYNOPSIS");
+   d_print(last_header);
    d_print(lookup_prototype(name));
    d_print("\n# DESCRIPTION");
 }
@@ -37,6 +39,11 @@ void make_man_pages(int argc, char *argv[])
          d_close_output();
          call_pandoc_for_man(tmp_preprocess_output, name);
          output = false;
+      }
+
+      if (d_match(line, "^ *#include ") && !output) {
+         d_assign(last_header, line);
+         continue;
       }
 
       if (d_match(line, "^#+ API: *")) {
