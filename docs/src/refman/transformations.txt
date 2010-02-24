@@ -1,5 +1,9 @@
 # Transformations
 
+These functions are declared in the main Allegro header file:
+
+    #include <allegro5/allegro.h>
+
 ### API: ALLEGRO_TRANSFORM
 
 Defines the generic transformation type, a 4x4 matrix. 2D transforms use only

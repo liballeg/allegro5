@@ -1,5 +1,10 @@
 # Color addon
 
+These functions are declared in the following header file.
+Link with allegro_color.
+
+    #include <allegro5/allegro_color.h>
+
 ## API: al_color_cmyk
 
 Return an [ALLEGRO_COLOR] structure from CMYK values (cyan, magenta, yellow,

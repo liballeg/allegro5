@@ -1,5 +1,9 @@
 # Memory
 
+These functions are declared in the main Allegro header file:
+
+    #include <allegro5/allegro.h>
+
 ## API: al_set_memory_management_functions
 
 Customise the memory management functions used by the library.

@@ -1,5 +1,9 @@
 # Path
 
+These functions are declared in the main Allegro header file:
+
+    #include <allegro5/allegro.h>
+
 We define a path as an optional *drive*, followed by zero or more *directory
 components*, followed by an optional *filename*.  The filename may be broken
 up into a *basename* and an *extension*, where the basename includes the start

@@ -1,5 +1,9 @@
 # Graphics
 
+These functions are declared in the main Allegro header file:
+
+    #include <allegro5/allegro.h>
+
 ## Colors
 
 ### API: ALLEGRO_COLOR

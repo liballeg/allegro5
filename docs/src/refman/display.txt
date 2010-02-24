@@ -1,5 +1,9 @@
 # Display
 
+These functions are declared in the main Allegro header file:
+
+    #include <allegro5/allegro.h>
+
 ## Display creation
 
 ### API: ALLEGRO_DISPLAY

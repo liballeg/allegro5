@@ -2,6 +2,11 @@
 
 ## FLAC addon
 
+These functions are declared in the following header file.
+Link with allegro_flac.
+
+    #include <allegro5/allegro_flac.h>
+
 ### API: al_init_flac_addon
 
 This function to registers [al_load_flac] with [al_load_sample] to
@@ -39,7 +44,13 @@ See also: [al_load_audio_stream_f]
 Returns the (compiled) version of the addon, in the same format as
 [al_get_allegro_version].
 
+
 ## Ogg Vorbis addon
+
+These functions are declared in the following header file.
+Link with allegro_vorbis.
+
+    #include <allegro5/allegro_vorbis.h>
 
 ### API: al_init_ogg_vorbis_addon
 

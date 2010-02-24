@@ -8,6 +8,10 @@ functions will differ subtly on different platforms (more so than usual).
 Your best bet is to be aware of this and code to the intersection of the
 semantics and avoid edge cases.
 
+These functions are declared in the main Allegro header file:
+
+    #include <allegro5/allegro.h>
+
 
 
 ## API: ALLEGRO_THREAD

@@ -2,7 +2,9 @@
 
 ## Windows
 
-You must include <allegro_windows.h> to use these functions.
+These functions are declared in the following header file:
+
+    #include <allegro5/allegro_windows.h>
 
 ### API: al_win_get_window
 

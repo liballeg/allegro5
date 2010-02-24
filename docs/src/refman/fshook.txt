@@ -1,5 +1,9 @@
 # File system
 
+These functions are declared in the main Allegro header file:
+
+    #include <allegro5/allegro.h>
+
 These functions allow access to the filesystem. This can either be the real
 filesystem like your harddrive, or a virtual filesystem like a .zip archive (or
 whatever else you or an addon makes it do).

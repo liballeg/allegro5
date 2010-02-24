@@ -1,5 +1,9 @@
 # OpenGL
 
+These functions are declared in the following header file:
+
+    #include <allegro5/allegro_opengl.h>
+
 ## API: al_get_opengl_extension_list
 
 Returns the list of OpenGL extensions supported by Allegro, for

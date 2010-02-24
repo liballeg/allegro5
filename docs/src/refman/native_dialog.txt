@@ -1,5 +1,10 @@
 # Native dialogs support
 
+These functions are declared in the following header file.
+Link with allegro_dialog.
+
+    #include <allegro5/allegro_native_dialog.h>
+
 ## API: ALLEGRO_NATIVE_DIALOG
 
 Opaque handle to a native file dialog. You should only have one such

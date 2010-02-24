@@ -1,5 +1,9 @@
 # Keyboard
 
+These functions are declared in the main Allegro header file:
+
+    #include <allegro5/allegro.h>
+
 ## API: ALLEGRO_KEYBOARD_STATE
 
 This is a structure that is used to hold a "snapshot" of a keyboard's

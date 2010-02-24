@@ -1,5 +1,9 @@
 # Time routines
 
+These functions are declared in the main Allegro header file:
+
+    #include <allegro5/allegro.h>
+
 ## API: ALLEGRO_TIMEOUT
 
 Represent a timeout value.  The size of the structure is known so can be

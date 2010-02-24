@@ -1,5 +1,9 @@
 # File I/O
 
+These functions are declared in the main Allegro header file:
+
+    #include <allegro5/allegro.h>
+
 ## API: ALLEGRO_FILE
 
 An opaque object representing an open file.  This could be a

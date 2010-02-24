@@ -1,5 +1,10 @@
 # Font addons
 
+These functions are declared in the following header file.
+Link with allegro_font.
+
+    #include <allegro5/allegro_font.h>
+
 ## General font routines
 
 ### API: ALLEGRO_FONT
@@ -235,6 +240,11 @@ you could load the bitmap yourself, then call [al_convert_mask_to_alpha] on it
 and only then pass it to [al_grab_font_from_bitmap].
 
 ## TTF fonts
+
+These functions are declared in the following header file.
+Link with allegro_ttf.
+
+    #include <allegro5/allegro_ttf.h>
 
 ### API: al_init_ttf_addon
 

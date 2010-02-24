@@ -1,5 +1,9 @@
 # Mouse
 
+These functions are declared in the main Allegro header file:
+
+    #include <allegro5/allegro.h>
+
 ## API: ALLEGRO_MOUSE_STATE
 
 Public fields (read only):

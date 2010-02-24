@@ -1,5 +1,9 @@
 # Miscellaneous
 
+These functions are declared in the main Allegro header file:
+
+    #include <allegro5/allegro.h>
+
 ## API: ALLEGRO_PI
 
 C99 compilers have no predefined value like M_PI for the constant π, but

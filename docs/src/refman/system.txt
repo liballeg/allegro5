@@ -1,5 +1,9 @@
 # System
 
+These functions are declared in the main Allegro header file:
+
+    #include <allegro5/allegro.h>
+
 ## API: al_install_system
 
 Initialize the Allegro system.  If atexit_ptr is non-NULL, and if hasn't

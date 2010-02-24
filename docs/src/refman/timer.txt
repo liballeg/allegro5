@@ -1,5 +1,9 @@
 # Timer
 
+These functions are declared in the main Allegro header file:
+
+    #include <allegro5/allegro.h>
+
 ## API: ALLEGRO_TIMER
 
 This is an abstract data type representing a timer object.

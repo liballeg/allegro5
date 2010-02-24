@@ -1,5 +1,9 @@
 # Events
 
+These functions are declared in the main Allegro header file:
+
+    #include <allegro5/allegro.h>
+
 ## API: ALLEGRO_EVENT
 
 An ALLEGRO_EVENT is a union of all builtin event structures, i.e. it is an

@@ -1,5 +1,10 @@
 # Primitives addon
 
+These functions are declared in the following header file.
+Link with allegro_primitives.
+
+    #include <allegro5/allegro_primitives.h>
+
 ## General
 
 ### API: al_get_allegro_primitives_version

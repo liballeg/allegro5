@@ -1,5 +1,9 @@
 # State
 
+These functions are declared in the main Allegro header file:
+
+    #include <allegro5/allegro.h>
+
 ## API: ALLEGRO_STATE
 
 Opaque type which is passed to [al_store_state]/[al_restore_state].

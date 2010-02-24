@@ -12,6 +12,12 @@ You must set up PhysicsFS through its own API.  When you want to open an
 ALLEGRO_FILE using PhysicsFS, first call [al_set_physfs_file_interface],
 then [al_fopen] or another function that calls [al_fopen].
 
+
+These functions are declared in the following header file.
+Link with allegro_physfs.
+
+    #include <allegro5/allegro_physfs.h>
+
 ## API: al_set_physfs_file_interface
 
 After calling this, subsequent calls to [al_fopen] will be handled
