@@ -159,7 +159,7 @@ static void setup_textures(void)
    al_draw_scaled_bitmap(tmp_bmp,
                          0, 0, al_get_bitmap_width(bmp), al_get_bitmap_height(bmp),
                          0, 0, w, h, 0);
-   al_set_blender(ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA, al_map_rgb(255, 0, 0));
+   al_set_blender(ALLEGRO_ADD, ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA, al_map_rgb(255, 0, 0));
    depth = al_get_display_option(ALLEGRO_DEPTH_SIZE);
    if (!depth)
       al_draw_textf(font, 0, 5, 0, "No Z-buffer!");

@@ -213,7 +213,7 @@ bool al_install_system(int (*atexit_ptr)(void (*)(void)))
 
    _al_init_pixels();
 
-   al_set_blender(ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA, al_map_rgb(255, 255, 255));
+   al_set_blender(ALLEGRO_ADD, ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA, al_map_rgb(255, 255, 255));
 
    if (atexit_ptr && atexit_virgin) {
       atexit_ptr(al_uninstall_system);

@@ -80,7 +80,7 @@ static void print(char const *format, ...)
    vsnprintf(message, sizeof message, format, list);
    va_end(list);
    
-   al_set_blender(ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA, ex.text);
+   al_set_blender(ALLEGRO_ADD, ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA, ex.text);
    al_draw_textf(ex.font, ex.text_x, ex.text_y, 0, "%s", message);
    al_restore_state(&state);
    
@@ -115,7 +115,7 @@ static void draw(void)
    
    al_get_clipping_rectangle(&cx, &cy, &cw, &ch);
    
-   al_set_blender(ALLEGRO_ONE, ALLEGRO_ZERO, ex.white);
+   al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ZERO, ex.white);
 
    al_clear_to_color(ex.background);
 

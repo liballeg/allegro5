@@ -629,31 +629,45 @@ Sets the function to use for blending for the current thread.
 Blending means, the source and destination colors are combined in
 drawing operations.
 
-Assume, the source color (e.g. color of a rectangle to draw, or pixel
-of a bitmap to draw), is given as its red/green/blue/alpha
-components (if the bitmap has no alpha, it always is assumed to be
+Assume the source color (e.g. color of a rectangle to draw, or pixel
+of a bitmap to draw) is given as its red/green/blue/alpha
+components (if the bitmap has no alpha it always is assumed to be
 fully opaque, so 255 for 8-bit or 1.0 for floating point):
 *sr, sg, sb, sa*.
 And this color is drawn to a destination, which already has a color:
 *dr, dg, db, da*.
 
-Blending formula:
-The conceptional formula used by Allegro to draw any pixel then is
+The Blending formula:
+The conceptional formula used by Allegro to draw any pixel then depends
+on the <op> parameter:
 
+    ALLEGRO_ADD
     r = dr * dst + sr * src
     g = dg * dst + sg * src
     b = db * dst + sb * src
     a = da * dst + sa * src
+    
+    ALLEGRO_DEST_MINUS_SRC
+    r = dr * dst - sr * src
+    g = dg * dst - sg * src
+    b = db * dst - sb * src
+    a = da * dst - sa * src
+    
+    ALLEGRO_SRC_MINUS_DEST
+    r = sr * src - dr * dst
+    g = sg * src - dg * dst
+    b = sb * src - db * dst
+    a = sa * src - da * dst
 
-Blending functions:
+Blending factors:
 Valid values for <src> and <dst> passed to this function are
 
-* ALLEGRO_ZERO - src, dst = 0
-* ALLEGRO_ONE - src, dst = 1
-* ALLEGRO_ALPHA - src, dst = sa
-* ALLEGRO_INVERSE_ALPHA - src, dst = 1 - sa
+* ALLEGRO_ZERO - src = 0, dst = 0
+* ALLEGRO_ONE - src = 1, dst = 1
+* ALLEGRO_ALPHA - src = sa, dst = sa
+* ALLEGRO_INVERSE_ALPHA - src = 1 - sa, dst = 1 - sa
 
-The color parameter specified the blend color, it is multipled with
+The color parameter specifies the blend color, it is multipled with
 the source color before the above blending operation.
 
 Blending examples:

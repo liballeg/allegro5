@@ -31,10 +31,10 @@ static void print(int x, int y, char const *format, ...)
    vsnprintf(message, sizeof message, format, list);
    va_end(list);
 
-   al_set_blender(ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA, al_map_rgb(0, 0, 0));
+   al_set_blender(ALLEGRO_ADD, ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA, al_map_rgb(0, 0, 0));
    al_draw_text(myfont, x + 2, y + 2, 0, message);
 
-   al_set_blender(ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA,
+   al_set_blender(ALLEGRO_ADD, ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA,
       al_map_rgb(255, 255, 255));
    al_draw_text(myfont, x, y, 0, message);
 }
@@ -51,7 +51,7 @@ static void draw(void)
    last_time = t;
 
    al_set_target_bitmap(target);
-   al_set_blender(ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA,
+   al_set_blender(ALLEGRO_ADD, ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA,
       al_map_rgba_f(1, 1, 1, 1));
 
    al_draw_filled_rectangle(x, y, x + RW, y + RH, al_map_rgba_f(1, 0, 0, 1));
@@ -77,7 +77,7 @@ static void draw(void)
    }
 
    al_set_target_bitmap(al_get_backbuffer());
-   al_set_blender(ALLEGRO_ONE, ALLEGRO_ZERO, al_map_rgba_f(1, 1, 1, 1));
+   al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ZERO, al_map_rgba_f(1, 1, 1, 1));
    al_clear_to_color(al_map_rgba_f(0, 0, 1, 1));
    xs = 1 + 0.2 * sin(t * ALLEGRO_PI * 2);
    ys = 1 + 0.2 * sin(t * ALLEGRO_PI * 2);

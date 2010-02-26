@@ -60,7 +60,7 @@ static void print(int x, int y, char const *format, ...)
    va_end(list);
 
    /* Actual text. */
-   al_set_blender(ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA,
+   al_set_blender(ALLEGRO_ADD, ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA,
       al_map_rgb_f(0, 0, 0));
    al_draw_text(ex.myfont, x, y, 0, message);
 }

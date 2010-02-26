@@ -69,11 +69,11 @@ static int al_blender_to_d3d(int al_mode)
 
 static void set_blender(ALLEGRO_DISPLAY *display)
 {
-   int src, dst, alpha_src, alpha_dst;
+   int op, src, dst, alpha_op, alpha_src, alpha_dst;
    ALLEGRO_COLOR color;
    LPDIRECT3DDEVICE9 device = al_d3d_get_device(display);
 
-   al_get_separate_blender(&src, &dst, &alpha_src, &alpha_dst, &color);
+   al_get_separate_blender(&op, &src, &dst, &alpha_op, &alpha_src, &alpha_dst, &color);
 
    src = al_blender_to_d3d(src);
    dst = al_blender_to_d3d(dst);

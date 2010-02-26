@@ -62,7 +62,7 @@ static void display_options(void)
 
    ALLEGRO_COLOR c;
    c = al_map_rgb_f(0.8, 0.8, 1);
-   al_set_blender(ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA, c);
+   al_set_blender(ALLEGRO_ADD, ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA, c);
    al_draw_textf(font, x, y, 0, "Create new display");
    y += font_h;
    for (i = 0; i < modes_count + 1; i++) {
@@ -78,11 +78,11 @@ static void display_options(void)
       }
       if (selected_column == 0 && selected_mode == i) {
          c = al_map_rgb_f(1, 1, 0);
-         al_set_blender(ALLEGRO_ONE, ALLEGRO_ZERO, white);
+         al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ZERO, white);
          al_draw_filled_rectangle(x, y, x + 300, y + font_h, c);
       }
       c = al_map_rgb_f(0, 0, 0);
-      al_set_blender(ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA, c);
+      al_set_blender(ALLEGRO_ADD, ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA, c);
       al_draw_textf(font, x, y, 0, "%s %d x %d (%d, %d)",
          i < modes_count ? "Fullscreen" : "Windowed",
          mode.width,
@@ -93,14 +93,14 @@ static void display_options(void)
    x = dw / 2 + 10;
    y = 10;
    c = al_map_rgb_f(0.8, 0.8, 1);
-   al_set_blender(ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA, c);
+   al_set_blender(ALLEGRO_ADD, ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA, c);
    al_draw_textf(font, x, y, 0, "Options for new display");
    al_draw_textf(font, dw - 10, y, ALLEGRO_ALIGN_RIGHT, "(current display)");
    y += font_h;
    for (i = 0; i < n; i++) {
       if (selected_column == 1 && selected_option == i) {
          c = al_map_rgb_f(1, 1, 0);
-         al_set_blender(ALLEGRO_ONE, ALLEGRO_ZERO, white);
+         al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ZERO, white);
          al_draw_filled_rectangle(x, y, x + 300, y + font_h, c);
       }
 
@@ -109,7 +109,7 @@ static void display_options(void)
          case ALLEGRO_SUGGEST: c = al_map_rgb_f(0, 0, 0); break;
          case ALLEGRO_DONTCARE: c = al_map_rgb_f(0.5, 0.5, 0.5); break;
       }
-      al_set_blender(ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA, c);
+      al_set_blender(ALLEGRO_ADD, ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA, c);
       al_draw_textf(font, x, y, 0, "%s: %d (%s)", options[i].name,
          options[i].value,
             options[i].required == ALLEGRO_REQUIRE ? "required" :
@@ -117,14 +117,14 @@ static void display_options(void)
             "ignored");
             
       c = al_map_rgb_f(0.9, 0.5, 0.3);
-      al_set_blender(ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA, c);
+      al_set_blender(ALLEGRO_ADD, ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA, c);
       al_draw_textf(font, dw - 10, y, ALLEGRO_ALIGN_RIGHT, "%d",
          al_get_display_option(options[i].option));
       y += font_h;
    }
    
    c = al_map_rgb_f(0, 0, 0.8);
-   al_set_blender(ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA, c);
+   al_set_blender(ALLEGRO_ADD, ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA, c);
    x = 10;
    y = dh - font_h - 10;
    y -= font_h;
@@ -135,7 +135,7 @@ static void display_options(void)
    al_draw_textf(font, x, y, 0, "Cursor keys: change selection");
    
    c = al_map_rgb_f(1, 0, 0);
-   al_set_blender(ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA, c);
+   al_set_blender(ALLEGRO_ADD, ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA, c);
    al_draw_text(font, dw / 2, dh - font_h, ALLEGRO_ALIGN_CENTRE, status);
 }
 

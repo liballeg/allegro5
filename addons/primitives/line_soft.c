@@ -487,10 +487,10 @@ void _al_line_2d(ALLEGRO_BITMAP* texture, ALLEGRO_VERTEX* v1, ALLEGRO_VERTEX* v2
 {
    int shade = 1;
    int grad = 1;
-   int src_mode, dst_mode, src_alpha, dst_alpha;
+   int op, src_mode, dst_mode, op_alpha, src_alpha, dst_alpha;
    ALLEGRO_COLOR ic;
    
-   al_get_separate_blender(&src_mode, &dst_mode, &src_alpha, &dst_alpha, &ic);
+   al_get_separate_blender(&op, &src_mode, &dst_mode, &op_alpha, &src_alpha, &dst_alpha, &ic);
    if (src_mode == ALLEGRO_ONE && src_alpha == ALLEGRO_ONE &&
       dst_mode == ALLEGRO_ZERO && dst_alpha == ALLEGRO_ZERO &&
          ic.r == 1.0f && ic.g == 1.0f && ic.b == 1.0f && ic.a == 1.0f) {

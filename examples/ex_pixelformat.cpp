@@ -161,7 +161,7 @@ void Prog::draw_sample()
       printf("Could not create bitmap, format = %d\n", formats[j].format);
    }
 
-   al_set_blender(ALLEGRO_ONE, ALLEGRO_ZERO, al_map_rgb(255, 255, 255));
+   al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ZERO, al_map_rgb(255, 255, 255));
 
    if (bitmap1 && bitmap2) {
       al_set_target_bitmap(bitmap2);

@@ -67,14 +67,14 @@ int main(void)
             w = event.display.width,
             h = event.display.height;
          /* Draw a red rectangle over the damaged area. */
-         al_set_blender(ALLEGRO_ONE, ALLEGRO_ZERO, al_map_rgba_f(1, 1, 1, 1));
+         al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ZERO, al_map_rgba_f(1, 1, 1, 1));
          al_draw_filled_rectangle(x, y, x + w, y + h, al_map_rgba_f(1, 0, 0, 1));
          al_flip_display();
       }
       if (event.type == ALLEGRO_EVENT_TIMER) {
          /* Slowly restore the original bitmap. */
          int x, y;
-         al_set_blender(ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA,
+         al_set_blender(ALLEGRO_ADD, ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA,
             al_map_rgba_f(1, 1, 1, 0.1));
          for (y = 0; y < al_get_display_height(); y += 200) {
             for (x = 0; x < al_get_display_width(); x += 320) {

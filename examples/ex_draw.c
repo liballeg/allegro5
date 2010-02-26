@@ -81,7 +81,7 @@ static void print(char const *format, ...)
    vsnprintf(message, sizeof message, format, list);
    va_end(list);
    
-   al_set_blender(ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA, ex.text);
+   al_set_blender(ALLEGRO_ADD, ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA, ex.text);
    al_draw_textf(ex.font, ex.text_x, ex.text_y, 0, "%s", message);
    al_restore_state(&state);
    
@@ -137,7 +137,7 @@ static void draw(void)
    set_xy(80, 16);
    print("Enlarged x 16");
 
-   al_set_blender(ALLEGRO_ONE, ALLEGRO_ZERO, ex.white);
+   al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ZERO, ex.white);
 
    if (ex.software) {
       al_set_new_bitmap_flags(ALLEGRO_MEMORY_BITMAP);
@@ -156,7 +156,7 @@ static void draw(void)
 
    /* Draw the test scene. */
 
-   al_set_blender(ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA,
+   al_set_blender(ALLEGRO_ADD, ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA,
       al_map_rgba_f(1, 1, 1, 0.5));
    for (i = 0; i < rects_num; i++) {
       primitive(
@@ -167,7 +167,7 @@ static void draw(void)
          ex.foreground, false);
    }
 
-   al_set_blender(ALLEGRO_ONE, ALLEGRO_ZERO, ex.white);
+   al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ZERO, ex.white);
 
    if (ex.software) {
       al_set_target_bitmap(screen);

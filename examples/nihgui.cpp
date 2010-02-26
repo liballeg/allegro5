@@ -180,6 +180,10 @@ void Dialog::run_step(bool block)
 
    while (al_get_next_event(event_queue, &event)) {
       switch (event.type) {
+         case ALLEGRO_EVENT_DISPLAY_CLOSE:
+            this->request_quit();
+            break;
+
          case ALLEGRO_EVENT_KEY_DOWN:
          case ALLEGRO_EVENT_KEY_REPEAT:
             on_key_down(event.keyboard);
@@ -371,7 +375,7 @@ void Label::draw()
    const Theme & theme = this->dialog->get_theme();
    SaveState state;
 
-   al_set_blender(ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA, theme.fg);
+   al_set_blender(ALLEGRO_ADD, ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA, theme.fg);
    if (centred) {
       al_draw_text(theme.font, (this->x1 + this->x2 + 1)/2,
          this->y1, ALLEGRO_ALIGN_CENTRE, this->text.c_str());
@@ -430,7 +434,7 @@ void Button::draw()
       fg, 0);
    al_draw_filled_rectangle(this->x1 + 1, this->y1 + 1, this->x2 - 1, this->y2 - 1,
       bg);
-   al_set_blender(ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA, fg);
+   al_set_blender(ALLEGRO_ADD, ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA, fg);
    al_draw_text(theme.font, (this->x1 + this->x2 + 1)/2,
       this->y1, ALLEGRO_ALIGN_CENTRE, this->text.c_str());
 }
@@ -522,16 +526,16 @@ void List::draw()
 
    al_draw_filled_rectangle(x1 + 1, y1 + 1, x2 - 1, y2 - 1, theme.bg);
 
-   al_set_blender(ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA, theme.fg);
+   al_set_blender(ALLEGRO_ADD, ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA, theme.fg);
    const int font_height = al_get_font_line_height(theme.font);
    for (unsigned i = 0; i < items.size(); i++) {
       int yi = y1 + i * font_height;
 
       if (i == selected_item) {
-         al_set_blender(ALLEGRO_ONE, ALLEGRO_ZERO, al_map_rgb(255, 255, 255));
+         al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ZERO, al_map_rgb(255, 255, 255));
          al_draw_filled_rectangle(x1 + 1, yi, x2 - 1, yi + font_height - 1,
             theme.highlight);
-         al_set_blender(ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA, theme.fg);
+         al_set_blender(ALLEGRO_ADD, ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA, theme.fg);
       }
 
       al_draw_text(theme.font, x1, yi, 0, items.at(i).c_str());
@@ -753,7 +757,7 @@ void TextEntry::draw()
 
    al_draw_filled_rectangle(x1, y1, x2, y2, theme.bg);
 
-   al_set_blender(ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA, theme.fg);
+   al_set_blender(ALLEGRO_ADD, ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA, theme.fg);
 
    if (!focused) {
       al_draw_ustr(theme.font, x1, y1, 0, UString(text, left_pos));
@@ -773,11 +777,11 @@ void TextEntry::draw()
       }
       else {
          UString sub(text, cursor_pos, 1);
-         al_set_blender(ALLEGRO_INVERSE_ALPHA, ALLEGRO_ALPHA, theme.fg);
+         al_set_blender(ALLEGRO_ADD, ALLEGRO_INVERSE_ALPHA, ALLEGRO_ALPHA, theme.fg);
          al_draw_ustr(theme.font, x, y1, 0, sub);
          x += al_get_ustr_width(theme.font, sub);
 
-         al_set_blender(ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA, theme.fg);
+         al_set_blender(ALLEGRO_ADD, ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA, theme.fg);
          al_draw_ustr(theme.font, x, y1, 0, UString(text, cursor_pos + 1));
       }
    }

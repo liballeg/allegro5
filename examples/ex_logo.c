@@ -99,8 +99,8 @@ static ALLEGRO_BITMAP *generate_logo(char const *text,
    br = blur_radius;
    bw = br * 2 + 1;
    c = al_map_rgba_f(1, 1, 1, 1.0 / (bw * bw * blur_factor));
-   al_set_separate_blender(ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA,
-                           ALLEGRO_ONE, ALLEGRO_ONE, c);
+   al_set_separate_blender(ALLEGRO_ADD, ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA,
+                           ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ONE, c);
    for (i = -br; i <= br; i++) {
       for (j = -br; j <= br; j++) {
          al_draw_text(logofont,
@@ -159,8 +159,8 @@ static ALLEGRO_BITMAP *generate_logo(char const *text,
 
    /* Draw a shadow. */
    c = al_map_rgba_f(0, 0, 0, 0.5 / 9);
-   al_set_separate_blender(ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA,
-                           ALLEGRO_ONE, ALLEGRO_ONE, c);
+   al_set_separate_blender(ALLEGRO_ADD, ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA,
+                           ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ONE, c);
    for (i = -1; i <= 1; i++)
       for (j = -1; j <= 1; j++)
          al_draw_text(logofont,
@@ -169,8 +169,8 @@ static ALLEGRO_BITMAP *generate_logo(char const *text,
                          0, text);
 
    /* Then draw the lit text we made before on top. */
-   al_set_separate_blender(ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA,
-                           ALLEGRO_ONE, ALLEGRO_INVERSE_ALPHA, white);
+   al_set_separate_blender(ALLEGRO_ADD, ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA,
+                           ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_INVERSE_ALPHA, white);
    al_draw_bitmap(light, 0, 0, 0);
    al_destroy_bitmap(light);
 
@@ -211,29 +211,29 @@ static void print_parameters(void)
 
    th = al_get_font_line_height(font) + 3;
    for (i = 0; param_names[i]; i++) {
-      al_set_blender(ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA, label);
+      al_set_blender(ALLEGRO_ADD, ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA, label);
       al_draw_textf(font, 2, 2 + i * th, 0, "%s", param_names[i]);
    }
    for (i = 0; param_names[i]; i++) {
       int y = 2 + i * th;
       // FIXME: additive blending seems broken here when using
       // memory blenders (i.e. no FBO available)
-      // al_set_blender(ALLEGRO_ONE, ALLEGRO_ONE, white)
-      al_set_blender(ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA, white);
+      // al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ONE, white)
+      al_set_blender(ALLEGRO_ADD, ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA, white);
       al_draw_filled_rectangle(75, y, 375, y + th - 2,
                         al_map_rgba_f(1, 1, 1, 0.5));
-      al_set_blender(ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA,
+      al_set_blender(ALLEGRO_ADD, ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA,
                      i == selection ? light : normal);
       al_draw_textf(font, 75, y, 0, "%s", param_values[i]);
       if (i == selection && editing &&
          (((int)(al_current_time() * 2)) & 1)) {
          int x = 75 + al_get_text_width(font, param_values[i]);
-         al_set_blender(ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA, normal);
+         al_set_blender(ALLEGRO_ADD, ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA, normal);
          al_draw_line(x, y, x, y + th, white, 0);
       }
    }
 
-   al_set_blender(ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA, normal);
+   al_set_blender(ALLEGRO_ADD, ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA, normal);
    al_draw_textf(font, 400, 2, 0, "%s", "R - Randomize");
    al_draw_textf(font, 400, 2 + th, 0, "%s", "S - Save as logo.png");
 
@@ -372,10 +372,10 @@ static void render(void)
       w = al_get_bitmap_width(logo);
       h = al_get_bitmap_height(logo);
       al_store_state(&state, ALLEGRO_STATE_BLENDER);
-      al_set_blender(ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA,
+      al_set_blender(ALLEGRO_ADD, ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA,
                      al_map_rgba_f(1, 1, 1, 1 - f));
       al_draw_bitmap(logo, logo_x, logo_y, 0);
-      al_set_blender(ALLEGRO_ONE, ALLEGRO_ONE, c);
+      al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ONE, c);
       for (j = -2; j <= 2; j += 2) {
          for (i = -2; i <= 2; i += 2) {
             al_draw_bitmap(logo_flash, logo_x + i, logo_y + j, 0);

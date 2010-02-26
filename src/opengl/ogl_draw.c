@@ -26,22 +26,50 @@ static bool set_opengl_blending(ALLEGRO_DISPLAY *d,
    const int blend_modes[4] = {
       GL_ZERO, GL_ONE, GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA
    };
+   const int blend_equations[3] = {
+      GL_FUNC_ADD, GL_FUNC_SUBTRACT, GL_FUNC_REVERSE_SUBTRACT
+   };
    ALLEGRO_COLOR *bc;
-   int src_color, dst_color, src_alpha, dst_alpha;
+   int op, src_color, dst_color, op_alpha, src_alpha, dst_alpha;
    float r, g, b, a;
 
    (void)d;
 
    al_unmap_rgba_f(*color, &r, &g, &b, &a);
 
-   al_get_separate_blender(&src_color, &dst_color, &src_alpha,
-      &dst_alpha, NULL);
-#if !defined ALLEGRO_GP2XWIZ && !defined ALLEGRO_IPHONE
+   al_get_separate_blender(&op, &src_color, &dst_color, &op_alpha,
+      &src_alpha, &dst_alpha, NULL);
+#if defined ALLEGRO_IPHONE
+   glEnable(GL_BLEND);
+   glBlendFuncSeparate(blend_modes[src_color],
+      blend_modes[dst_color], blend_modes[src_alpha],
+      blend_modes[dst_alpha]);
+   glBlendEquationSeparate(
+      blend_equations[op],
+      blend_equations[alpha_op]);
+   bc = _al_get_blend_color();
+   glColor4f(r * bc->r, g * bc->g, b * bc->b, a * bc->a);
+   return true;
+#elif defined ALLEGRO_GP2XWIZ
+   glEnable(GL_BLEND);
+   glBlendFunc(blend_modes[src_color], blend_modes[dst_color]);
+   glBlendEquation(blend_equations[op]);
+   bc = _al_get_blend_color();
+   glColor4f(r * bc->r, g * bc->g, b * bc->b, a * bc->a);
+   return true;
+#else
    if (d->ogl_extras->ogl_info.version >= 1.4) {
       glEnable(GL_BLEND);
       glBlendFuncSeparate(blend_modes[src_color],
          blend_modes[dst_color], blend_modes[src_alpha],
          blend_modes[dst_alpha]);
+      if (d->ogl_extras->ogl_info.version >= 2.0) {
+         glBlendEquationSeparate(
+            blend_equations[op],
+            blend_equations[op_alpha]);
+      }
+      else
+         glBlendEquation(blend_equations[op]);
       bc = _al_get_blend_color();
       glColor4f(r * bc->r, g * bc->g, b * bc->b, a * bc->a);
       return true;
@@ -50,17 +78,12 @@ static bool set_opengl_blending(ALLEGRO_DISPLAY *d,
       if (src_color == src_alpha && dst_color == dst_alpha) {
          glEnable(GL_BLEND);
          glBlendFunc(blend_modes[src_color], blend_modes[dst_color]);
+         glBlendEquation(blend_equations[op]);
          bc = _al_get_blend_color();
          glColor4f(r * bc->r, g * bc->g, b * bc->b, a * bc->a);
          return true;
       }
    }
-#else
-   glEnable(GL_BLEND);
-   glBlendFunc(blend_modes[src_color], blend_modes[dst_color]);
-   bc = _al_get_blend_color();
-   glColor4f(r * bc->r, g * bc->g, b * bc->b, a * bc->a);
-   return true;
 #endif
    return false;
 }

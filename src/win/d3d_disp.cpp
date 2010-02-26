@@ -1969,10 +1969,11 @@ static int d3d_al_blender_to_d3d(int al_mode)
 
 void _al_d3d_set_blender(ALLEGRO_DISPLAY_D3D *d3d_display)
 {
-   int src, dst, alpha_src, alpha_dst;
+   int op, src, dst, alpha_op, alpha_src, alpha_dst;
    ALLEGRO_COLOR color;
 
-   al_get_separate_blender(&src, &dst, &alpha_src, &alpha_dst, &color);
+   al_get_separate_blender(&op, &src, &dst,
+      &alpha_op, &alpha_src, &alpha_dst, &color);
 
    src = d3d_al_blender_to_d3d(src);
    dst = d3d_al_blender_to_d3d(dst);

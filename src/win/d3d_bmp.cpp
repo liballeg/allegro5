@@ -662,7 +662,7 @@ static void d3d_blit_real(ALLEGRO_BITMAP *src,
 
    _al_d3d_set_bitmap_clip(dest);
 
-   al_get_blender(NULL, NULL, &bc);
+   al_get_blender(NULL, NULL, NULL, &bc);
    al_unmap_rgba(bc, &r, &g, &b, &a);
    color = D3DCOLOR_ARGB(a, r, g, b);
 

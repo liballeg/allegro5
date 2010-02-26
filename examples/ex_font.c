@@ -27,7 +27,7 @@ static void wait_for_esc(void)
          int y = event.display.y;
          int w = event.display.width;
          int h = event.display.height;
-         al_set_blender(ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA,
+         al_set_blender(ALLEGRO_ADD, ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA,
             al_map_rgb_f(1, 1, 1));
          al_draw_bitmap_region(screen_clone, x, y, w, h,
             x, y, 0);
@@ -87,17 +87,17 @@ int main(void)
     al_draw_bitmap(bitmap, 0, 0, 0);
 
     /* Draw red text */
-    al_set_blender(ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA,
+    al_set_blender(ALLEGRO_ADD, ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA,
       al_map_rgb(255, 0, 0));
     al_draw_textf(f, 10, 10, 0, "red");
 
     /* Draw green text */
-    al_set_blender(ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA,
+    al_set_blender(ALLEGRO_ADD, ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA,
       al_map_rgb(0, 255, 0));
     al_draw_textf(f, 10, 50, 0, "green");
     
     /* Draw a unicode symbol */
-    al_set_blender(ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA,
+    al_set_blender(ALLEGRO_ADD, ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA,
       al_map_rgb(0, 0, 255));
     al_draw_textf(a4f, 10, 90, 0, "Mysha's 0.02€");
 

@@ -121,7 +121,7 @@ static void change_size(int size)
    example.bitmap = al_create_bitmap(size, size);
    example.bitmap_size = size;
    al_set_target_bitmap(example.bitmap);
-   al_set_blender(ALLEGRO_ONE, ALLEGRO_ZERO, example.white);
+   al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ZERO, example.white);
    al_clear_to_color(al_map_rgba_f(0, 0, 0, 0));
    bw = al_get_bitmap_width(example.mysha);
    bh = al_get_bitmap_height(example.mysha);
@@ -177,20 +177,20 @@ static void redraw(void)
    char const *binfo[] = {"alpha", "additive", "tinted", "solid"};
 
    if (example.blending == 0)
-      al_set_blender(ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA, example.half_white);
+      al_set_blender(ALLEGRO_ADD, ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA, example.half_white);
    else if (example.blending == 1)
-      al_set_blender(ALLEGRO_ONE, ALLEGRO_ONE, example.dark);
+      al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ONE, example.dark);
    else if (example.blending == 2)
-      al_set_blender(ALLEGRO_ONE, ALLEGRO_ZERO, example.red);
+      al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ZERO, example.red);
    else if (example.blending == 3)
-      al_set_blender(ALLEGRO_ONE, ALLEGRO_ZERO, example.white);
+      al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ZERO, example.white);
 
    for (i = 0; i < example.sprite_count; i++) {
       Sprite *s = example.sprites + i;
       al_draw_bitmap(example.bitmap, s->x, s->y, 0);
    }
 
-   al_set_blender(ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA, example.white);
+   al_set_blender(ALLEGRO_ADD, ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA, example.white);
    if (example.show_help) {
       for (i = 0; i < 5; i++)
          al_draw_text(example.font, 0, h - 5 * fh + i * fh, 0, text[i]);

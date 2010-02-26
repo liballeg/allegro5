@@ -36,10 +36,10 @@ static int fix_var(float var, int max_var)
 void _al_point_2d(ALLEGRO_BITMAP* texture, ALLEGRO_VERTEX* v)
 {
    int shade = 1;
-   int src_mode, dst_mode;
+   int op, src_mode, dst_mode;
    ALLEGRO_COLOR ic;
 
-   al_get_blender(&src_mode, &dst_mode, &ic);
+   al_get_blender(&op, &src_mode, &dst_mode, &ic);
    if (src_mode == ALLEGRO_ONE && dst_mode == ALLEGRO_ZERO &&
          ic.r == 1.0f && ic.g == 1.0f && ic.b == 1.0f && ic.a == 1.0f) {
       shade = 0;

@@ -661,7 +661,7 @@ void _al_convert_to_display_bitmap(ALLEGRO_BITMAP *bitmap)
    _al_vector_find_and_delete(&d->bitmaps, &tmp);
 
    /* Preserve bitmap contents. */
-   al_set_blender(ALLEGRO_ONE, ALLEGRO_ZERO, al_map_rgb(255, 255, 255));
+   al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ZERO, al_map_rgb(255, 255, 255));
    al_set_target_bitmap(tmp);
    al_draw_bitmap(bitmap, 0, 0, 0);
    tmp->cb_excl = bitmap->cb_excl;
@@ -716,7 +716,7 @@ void _al_convert_to_memory_bitmap(ALLEGRO_BITMAP *bitmap)
    tmp = al_create_bitmap(bitmap->w, bitmap->h);
 
    /* Preserve bitmap contents. */
-   al_set_blender(ALLEGRO_ONE, ALLEGRO_ZERO, al_map_rgb(255, 255, 255));
+   al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ZERO, al_map_rgb(255, 255, 255));
    al_set_target_bitmap(tmp);
    al_draw_bitmap(bitmap, 0, 0, 0);
    tmp->cb_excl = bitmap->cb_excl;

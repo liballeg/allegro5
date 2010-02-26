@@ -23,7 +23,7 @@ static void render(void)
 
     al_clear_to_color(white);
 
-    al_set_blender(ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA, black);
+    al_set_blender(ALLEGRO_ADD, ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA, black);
 
     al_hold_bitmap_drawing(true);
    
@@ -35,14 +35,14 @@ static void render(void)
     al_hold_bitmap_drawing(false);
     al_hold_bitmap_drawing(true);
 
-    al_set_blender(ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA, red);
+    al_set_blender(ALLEGRO_ADD, ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA, red);
     al_draw_textf(ex.f3, 50, 220, 0, "The color can be changed simply "
         "by using a different blender.");
         
     al_hold_bitmap_drawing(false);
     al_hold_bitmap_drawing(true);
         
-    al_set_blender(ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA, green);
+    al_set_blender(ALLEGRO_ADD, ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA, green);
     al_draw_textf(ex.f3, 50, 240, 0, "Some unicode symbols:");
     al_draw_textf(ex.f3, 50, 260, 0, "■□▢▣▤▥▦▧▨▩▪▫▬▭▮▯▰▱");
     al_draw_textf(ex.f3, 50, 280, 0, "▲△▴▵▶▷▸▹►▻▼▽▾▿◀◁◂◃◄◅◆◇◈◉◊");
@@ -70,17 +70,17 @@ static void render(void)
     ypos -= h;
     x += xpos;
     y += ypos;
-    al_set_blender(ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA, white);
+    al_set_blender(ALLEGRO_ADD, ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA, white);
     al_draw_rectangle(x, y, x + w, y + h, black, 0);
     al_draw_line(x, y + as, x + w, y + as, black, 0);
     al_draw_line(x, y + as + de, x + w, y + as + de, black, 0);
-    al_set_blender(ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA, blue);
+    al_set_blender(ALLEGRO_ADD, ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA, blue);
     
     al_hold_bitmap_drawing(true);
     al_draw_textf(ex.f4, xpos, ypos, 0, "Allegro");
     al_hold_bitmap_drawing(false);
 
-    al_set_blender(ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA, black);
+    al_set_blender(ALLEGRO_ADD, ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA, black);
     
     al_hold_bitmap_drawing(true);
 

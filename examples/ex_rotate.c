@@ -117,14 +117,14 @@ int main(void)
       src_bmp = (mem_src_mode) ? mem_bmp : bmp;
       k = (wide_mode) ? 2.0 : 1.0;
 
-      al_set_blender(ALLEGRO_ONE, ALLEGRO_ZERO, al_map_rgba_f(1, 1, 1, 1));
+      al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ZERO, al_map_rgba_f(1, 1, 1, 1));
       if (mode == 0)
          al_clear_to_color(al_map_rgba_f(1, 0, 0, 1));
       else
          al_clear_to_color(al_map_rgba_f(0, 0, 1, 1));
 
       if (trans_mode) {
-         al_set_blender(ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA,
+         al_set_blender(ALLEGRO_ADD, ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA,
             al_map_rgba_f(1, 1, 1, 0.5));
       }
 
@@ -146,7 +146,7 @@ int main(void)
          al_set_target_bitmap(al_get_backbuffer());
          al_set_clipping_rectangle(0, 0,
             al_get_display_width(), al_get_display_height());
-         al_set_blender(ALLEGRO_ONE, ALLEGRO_ZERO, al_map_rgba_f(1, 1, 1, 1));
+         al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ZERO, al_map_rgba_f(1, 1, 1, 1));
          al_draw_bitmap(buf, 0, 0, 0);
       }
 

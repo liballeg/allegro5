@@ -34,26 +34,46 @@ static void setup_blending(void)
    const int blend_modes[4] = {
       GL_ZERO, GL_ONE, GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA
    };
-   int src_color, dst_color, src_alpha, dst_alpha;
+   const int blend_equations[3] = {
+      GL_FUNC_ADD, GL_FUNC_SUBTRACT, GL_FUNC_REVERSE_SUBTRACT
+   };
+   int op, src_color, dst_color, op_alpha, src_alpha, dst_alpha;
    ALLEGRO_DISPLAY *d = al_get_current_display();
    (void)d;
 
-   al_get_separate_blender(&src_color, &dst_color, &src_alpha,
-      &dst_alpha, NULL);
-#if !defined ALLEGRO_GP2XWIZ && !defined ALLEGRO_IPHONE
+   al_get_separate_blender(&op, &src_color, &dst_color,
+      &op_alpha, &src_alpha, &dst_alpha, NULL);
+
+#if defined ALLEGRO_IPHONE
+   glEnable(GL_BLEND);
+   glBlendFuncSeparate(blend_modes[src_color],
+      blend_modes[dst_color], blend_modes[src_alpha],
+      blend_modes[dst_alpha]);
+   glBlendEquationSeparate(
+      blend_equations[op],
+      blend_equations[alpha_op]);
+#elif defined ALLEGRO_GP2XWIZ
+   glEnable(GL_BLEND);
+   glBlendFunc(blend_modes[src_color], blend_modes[dst_color]);
+   glBlendEquation(blend_equations[op]);
+#else
    if (d->ogl_extras->ogl_info.version >= 1.4) {
       glEnable(GL_BLEND);
       glBlendFuncSeparate(blend_modes[src_color],
          blend_modes[dst_color], blend_modes[src_alpha],
          blend_modes[dst_alpha]);
+      if (d->ogl_extras->ogl_info.version >= 2.0) {
+         glBlendEquationSeparate(
+            blend_equations[op],
+            blend_equations[op_alpha]);
+      }
+      else
+         glBlendEquation(blend_equations[op]);
    }
    else {
-      if (src_color == src_alpha && dst_color == dst_alpha) {
-#endif
-         glEnable(GL_BLEND);
-         glBlendFunc(blend_modes[src_color], blend_modes[dst_color]);
-#if !defined ALLEGRO_GP2XWIZ && !defined ALLEGRO_IPHONE
-      }
+      glEnable(GL_BLEND);
+      glBlendFunc(blend_modes[src_color], blend_modes[dst_color]);
+      glBlendEquation(blend_equations[op]);
    }
 #endif
 }

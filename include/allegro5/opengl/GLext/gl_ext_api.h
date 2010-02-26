@@ -166,6 +166,7 @@ AGL_API(void, GetQueryObjectuiv, (GLuint, GLenum, GLuint *))
 
 
 #if defined _ALLEGRO_GL_VERSION_2_0
+AGL_API(void, BlendEquationSeparate, (GLenum, GLenum))
 AGL_API(GLuint, CreateProgram, (void))
 AGL_API(GLuint, CreateShader, (GLenum))
 AGL_API(void,   DeleteProgram, (GLuint))

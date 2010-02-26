@@ -26,7 +26,7 @@ static ALLEGRO_COLOR test(ALLEGRO_COLOR src_col, ALLEGRO_COLOR dst_col,
 
    al_set_new_bitmap_format(dst_format);
    al_set_new_bitmap_flags(ALLEGRO_MEMORY_BITMAP);
-   al_set_blender(ALLEGRO_ONE, ALLEGRO_ZERO, al_map_rgb_f(1, 1, 1));
+   al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ZERO, al_map_rgb_f(1, 1, 1));
    dst_bmp = al_create_bitmap(1, 1);
    al_set_target_bitmap(dst_bmp);
    al_clear_to_color(dst_col);
@@ -37,16 +37,16 @@ static ALLEGRO_COLOR test(ALLEGRO_COLOR src_col, ALLEGRO_COLOR dst_col,
       al_set_target_bitmap(src_bmp);
       al_clear_to_color(src_col);
       al_set_target_bitmap(dst_bmp);
-      al_set_separate_blender(src, dst, src_a, dst_a, blend);
+      al_set_separate_blender(ALLEGRO_ADD, src, dst, ALLEGRO_ADD, src_a, dst_a, blend);
       al_draw_bitmap(src_bmp, 0, 0, 0);
       al_destroy_bitmap(src_bmp);
    }
    else  if (operation == 1) {
-      al_set_separate_blender(src, dst, src_a, dst_a, blend);
+      al_set_separate_blender(ALLEGRO_ADD, src, dst, ALLEGRO_ADD, src_a, dst_a, blend);
       al_draw_pixel(0, 0, src_col);
    }
    else  if (operation == 2) {
-      al_set_separate_blender(src, dst, src_a, dst_a, blend);
+      al_set_separate_blender(ALLEGRO_ADD, src, dst, ALLEGRO_ADD, src_a, dst_a, blend);
       al_draw_line(0, 0, 1, 1, src_col, 0);
    }
 
@@ -54,7 +54,7 @@ static ALLEGRO_COLOR test(ALLEGRO_COLOR src_col, ALLEGRO_COLOR dst_col,
 
    if (test_display) {
       al_set_target_bitmap(al_get_backbuffer());
-      al_set_blender(ALLEGRO_ONE, ALLEGRO_ZERO, al_map_rgb_f(1, 1, 1));
+      al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ZERO, al_map_rgb_f(1, 1, 1));
       al_draw_bitmap(dst_bmp, 0, 0, 0);
    }
 

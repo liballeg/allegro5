@@ -49,8 +49,10 @@ typedef struct thread_local_state {
    int new_bitmap_format;
    int new_bitmap_flags;
    /* Blending modes and color */
+   int blend_op;
    int blend_source;
    int blend_dest;
+   int blend_alpha_op;
    int blend_alpha_source;
    int blend_alpha_dest;
    ALLEGRO_COLOR blend_color;
@@ -118,8 +120,10 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved)
              memset(data, 0, sizeof(*data));
 
              data->new_bitmap_format = ALLEGRO_PIXEL_FORMAT_ANY;
+             data->blend_op = ALLEGRO_ADD;
              data->blend_source = ALLEGRO_ALPHA;
              data->blend_dest = ALLEGRO_INVERSE_ALPHA;
+             data->blend_alpha_op = ALLEGRO_ADD;
              data->blend_alpha_source = ALLEGRO_ONE;
              data->blend_alpha_dest = ALLEGRO_ONE;
              data->blend_color.r = data->blend_color.g = data->blend_color.b
@@ -224,8 +228,10 @@ static THREAD_LOCAL thread_local_state _tls = {
    NULL,                                  /* target_bitmap */
    ALLEGRO_PIXEL_FORMAT_ANY_WITH_ALPHA,   /* new_bitmap_format */
    0,                                     /* new_bitmap_flags */
+   ALLEGRO_ADD,                           /* blend_op */
    ALLEGRO_ALPHA,                         /* blend_source */
    ALLEGRO_INVERSE_ALPHA,                 /* blend_dest */
+   ALLEGRO_ADD,                           /* blend_alpha_op */
    ALLEGRO_ONE,                           /* blend_alpha_source */
    ALLEGRO_ONE,                           /* blend_alpha_dest */
    { 1.0f, 1.0f, 1.0f, 1.0f },            /* blend_color  */
@@ -491,8 +497,10 @@ void al_store_state(ALLEGRO_STATE *state, int flags)
    }
 
    if (flags & ALLEGRO_STATE_BLENDER) {
+      _STORE(blend_op);
       _STORE(blend_source);
       _STORE(blend_dest);
+      _STORE(blend_alpha_op);
       _STORE(blend_alpha_source);
       _STORE(blend_alpha_dest);
       _STORE(blend_color);
@@ -544,8 +552,10 @@ void al_restore_state(ALLEGRO_STATE const *state)
    }
    
    if (flags & ALLEGRO_STATE_BLENDER) {
+      _STORE(blend_op);
       _STORE(blend_source);
       _STORE(blend_dest);
+      _STORE(blend_alpha_op);
       _STORE(blend_alpha_source);
       _STORE(blend_alpha_dest);
       _STORE(blend_color);
@@ -563,25 +573,27 @@ void al_restore_state(ALLEGRO_STATE const *state)
 
 /* Function: al_set_blender
  */
-void al_set_blender(int src, int dst, ALLEGRO_COLOR color)
+void al_set_blender(int op, int src, int dst, ALLEGRO_COLOR color)
 {
-   al_set_separate_blender(src, dst, src, dst, color);
+   al_set_separate_blender(op, src, dst, op, src, dst, color);
 }
 
 
 
 /* Function: al_set_separate_blender
  */
-void al_set_separate_blender(int src, int dst, int alpha_src,
-   int alpha_dst, ALLEGRO_COLOR color)
+void al_set_separate_blender(int op, int src, int dst,
+   int alpha_op, int alpha_src, int alpha_dst, ALLEGRO_COLOR color)
 {
    thread_local_state *tls;
 
    if ((tls = tls_get()) == NULL)
       return;
 
+   tls->blend_op = op;
    tls->blend_source = src;
    tls->blend_dest = dst;
+   tls->blend_alpha_op = alpha_op;
    tls->blend_alpha_source = alpha_src;
    tls->blend_alpha_dest = alpha_dst;
 
@@ -594,28 +606,34 @@ void al_set_separate_blender(int src, int dst, int alpha_src,
 
 /* Function: al_get_blender
  */
-void al_get_blender(int *src, int *dst, ALLEGRO_COLOR *color)
+void al_get_blender(int *op, int *src, int *dst, ALLEGRO_COLOR *color)
 {
-   al_get_separate_blender(src, dst, NULL, NULL, color);
+   al_get_separate_blender(op, src, dst, NULL, NULL, NULL, color);
 }
 
 
 
 /* Function: al_get_separate_blender
  */
-void al_get_separate_blender(int *src, int *dst, int *alpha_src,
-   int *alpha_dst, ALLEGRO_COLOR *color)
+void al_get_separate_blender(int *op, int *src, int *dst,
+   int *alpha_op, int *alpha_src, int *alpha_dst, ALLEGRO_COLOR *color)
 {
    thread_local_state *tls;
 
    if ((tls = tls_get()) == NULL)
       return;
+   
+   if (op)
+      *op = tls->blend_op;
 
    if (src)
       *src = tls->blend_source;
 
    if (dst)
       *dst = tls->blend_dest;
+   
+   if (alpha_op)
+      *alpha_op = tls->blend_alpha_op;
 
    if (alpha_src)
       *alpha_src = tls->blend_alpha_source;

@@ -96,6 +96,12 @@ enum ALLEGRO_BLEND_MODE {
    ALLEGRO_INVERSE_ALPHA = 3
 };
 
+enum ALLEGRO_BLEND_OPERATIONS {
+   ALLEGRO_ADD = 0,
+   ALLEGRO_SRC_MINUS_DEST = 1,
+   ALLEGRO_DEST_MINUS_SRC = 2
+};
+
 
 /* Type: ALLEGRO_LOCKED_REGION
  */
@@ -166,10 +172,12 @@ AL_FUNC(ALLEGRO_BITMAP *, al_clone_bitmap, (ALLEGRO_BITMAP *bitmap));
 AL_FUNC(bool, al_is_bitmap_locked, (ALLEGRO_BITMAP *bitmap));
 
 /* Blending */
-AL_FUNC(void, al_set_blender, (int source, int dest, ALLEGRO_COLOR color));
-AL_FUNC(void, al_get_blender, (int *source, int *dest, ALLEGRO_COLOR *color));
-AL_FUNC(void, al_set_separate_blender, (int source, int dest, int alpha_source, int alpha_dest, ALLEGRO_COLOR color));
-AL_FUNC(void, al_get_separate_blender, (int *source, int *dest, int *alpha_src, int *alpha_dest, ALLEGRO_COLOR *color));
+AL_FUNC(void, al_set_blender, (int op, int source, int dest, ALLEGRO_COLOR color));
+AL_FUNC(void, al_get_blender, (int *op, int *source, int *dest, ALLEGRO_COLOR *color));
+AL_FUNC(void, al_set_separate_blender, (int op, int source, int dest,
+   int alpha_op, int alpha_source, int alpha_dest, ALLEGRO_COLOR color));
+AL_FUNC(void, al_get_separate_blender, (int *op, int *source, int *dest,
+   int *alpha_op, int *alpha_src, int *alpha_dest, ALLEGRO_COLOR *color));
 AL_FUNC(ALLEGRO_COLOR *, _al_get_blend_color, (void));
 
 AL_FUNC(void, _al_put_pixel, (ALLEGRO_BITMAP *bitmap, int x, int y, ALLEGRO_COLOR color));

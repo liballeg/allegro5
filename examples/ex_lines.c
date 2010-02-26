@@ -35,7 +35,7 @@ int last_y = -1;
 
 static void fade(void)
 {
-   al_set_blender(ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA, background);
+   al_set_blender(ALLEGRO_ADD, ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA, background);
    al_draw_filled_rectangle(0, 0, W, H, al_map_rgba_f(0.5, 0.5, 0.6, 0.2));
 }
 
@@ -68,7 +68,7 @@ static void plonk(const int x, const int y, bool blend)
 #endif
 
    fade();
-   al_set_blender(ALLEGRO_ONE, ALLEGRO_ZERO, white);
+   al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ZERO, white);
    draw_clip_rect();
    red_dot(x, y);
 
@@ -79,7 +79,7 @@ static void plonk(const int x, const int y, bool blend)
    else {
       my_set_clip_rect();
       if (blend) {
-         al_set_blender(ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA,
+         al_set_blender(ALLEGRO_ADD, ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA,
             al_map_rgb_f(0.5, 1, 1));
       }
       al_draw_line(last_x, last_y, x, y, white, 0);
@@ -106,13 +106,13 @@ static void splat(const int x, const int y, bool blend)
 #endif
 
    fade();
-   al_set_blender(ALLEGRO_ONE, ALLEGRO_ZERO, white);
+   al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ZERO, white);
    draw_clip_rect();
    red_dot(x, y);
 
    my_set_clip_rect();
    if (blend) {
-      al_set_blender(ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA,
+      al_set_blender(ALLEGRO_ADD, ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA,
          al_map_rgb_f(0.5, 1, 1));
    }
    for (theta = 0.0; theta < 2.0 * ALLEGRO_PI; theta += ALLEGRO_PI/16.0) {

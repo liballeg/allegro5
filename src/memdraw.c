@@ -203,13 +203,14 @@ void _al_draw_filled_rectangle_memory(int x1, int y1, int x2, int y2,
    ALLEGRO_LOCKED_REGION *lr;
    int w, h;
    int tmp;
-   int src_mode, dst_mode;
+   int op, src_mode, dst_mode;
    ALLEGRO_COLOR *ic;
 
-   al_get_blender(&src_mode, &dst_mode, NULL);
+   al_get_blender(&op, &src_mode, &dst_mode, NULL);
    ic = _al_get_blend_color();
-   if (src_mode == ALLEGRO_ONE && dst_mode == ALLEGRO_ZERO &&
-         ic->r == 1.0f && ic->g == 1.0f && ic->b == 1.0f && ic->a == 1.0f)
+   if (op == ALLEGRO_ADD &&
+      src_mode == ALLEGRO_ONE && dst_mode == ALLEGRO_ZERO &&
+      ic->r == 1.0f && ic->g == 1.0f && ic->b == 1.0f && ic->a == 1.0f)
    {
       _al_draw_filled_rectangle_memory_fast(x1, y1, x2, y2, color);
       return;

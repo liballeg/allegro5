@@ -167,6 +167,7 @@
 
 
 #if defined _ALLEGRO_GL_VERSION_2_0
+#define glBlendEquationSeparate _al_glBlendEquationSeparate
 #define glCreateProgram _al_glCreateProgram
 #define glCreateShader _al_glCreateShader
 #define glDeleteProgram _al_glDeleteProgram
@@ -1977,7 +1978,7 @@
 #define glGetTransformFeedbackVaryingNV _al_glGetTransformFeedbackVaryingNV
 #if !defined _ALLEGRO_GL_EXT_draw_buffers2
 #define glGetBooleanIndexedvEXT _al_glGetBooleanIndexedvEXT
-#define glGetIntegerIndexedvEXT _al_glGetIntegerIndexedvEXT
+//AGL_API(void,GetIntegerIndexedvEXT,(GLenum,GLuint,GLint*))
 #endif
 #endif
 

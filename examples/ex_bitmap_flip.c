@@ -121,17 +121,17 @@ int main(void)
 
    /* opaque: software version matches hardware version */
    /*
-   al_set_blender(ALLEGRO_ONE, ALLEGRO_ZERO, al_map_rgba_f(1, 1, 1, 1));
+   al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ZERO, al_map_rgba_f(1, 1, 1, 1));
    */
 
    /* XXX dest zero: software version much darker */
    /*
-   al_set_blender(ALLEGRO_ALPHA, ALLEGRO_ZERO,
+   al_set_blender(ALLEGRO_ADD, ALLEGRO_ALPHA, ALLEGRO_ZERO,
       al_map_rgba_f(1, 1, 1, 0.5));
    */
 
    /* XXX: software version darker */
-   al_set_blender(ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA,
+   al_set_blender(ALLEGRO_ADD, ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA,
       al_map_rgba_f(1, 1, 1, 0.5));
 
    while (!done) {

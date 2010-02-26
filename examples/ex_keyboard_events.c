@@ -62,7 +62,7 @@ static void draw_message_log(void)
    int y;
    int i;
 
-   al_set_blender(ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA, black);
+   al_set_blender(ALLEGRO_ADD, ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA, black);
 
    al_draw_text(myfont, 5, th * 0.5, 0, "EVENT KEY CHR UNICODE  [MODIFIERS]  KEY NAME");
 
@@ -84,7 +84,7 @@ static void draw_message_log(void)
       }
    }
 
-   al_set_blender(ALLEGRO_ONE, ALLEGRO_ZERO, white);
+   al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ZERO, white);
 }
 
 
