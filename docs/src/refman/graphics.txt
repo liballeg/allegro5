@@ -120,7 +120,7 @@ have the components as 4 bytes corresponding to red, green, blue and alpha,
 in this order, independent of the endianness.
 
 --------------------------------------------------------------------------------
-Format                     Notes
+Format                                 Notes
 -------------------------------------- -----------------------------------------
 ALLEGRO_PIXEL_FORMAT_ANY               Let the driver choose a format. This is
                                        the default format at program start.
@@ -637,40 +637,57 @@ fully opaque, so 255 for 8-bit or 1.0 for floating point):
 And this color is drawn to a destination, which already has a color:
 *dr, dg, db, da*.
 
-The Blending formula:
 The conceptional formula used by Allegro to draw any pixel then depends
-on the <op> parameter:
+on the `op` parameter:
 
-    ALLEGRO_ADD
-    r = dr * dst + sr * src
-    g = dg * dst + sg * src
-    b = db * dst + sb * src
-    a = da * dst + sa * src
+* ALLEGRO_ADD
+
+         r = dr * dst + sr * src
+         g = dg * dst + sg * src
+         b = db * dst + sb * src
+         a = da * dst + sa * src
+ 
+* ALLEGRO_DEST_MINUS_SRC
+
+         r = dr * dst - sr * src
+         g = dg * dst - sg * src
+         b = db * dst - sb * src
+         a = da * dst - sa * src
     
-    ALLEGRO_DEST_MINUS_SRC
-    r = dr * dst - sr * src
-    g = dg * dst - sg * src
-    b = db * dst - sb * src
-    a = da * dst - sa * src
-    
-    ALLEGRO_SRC_MINUS_DEST
-    r = sr * src - dr * dst
-    g = sg * src - dg * dst
-    b = sb * src - db * dst
-    a = sa * src - da * dst
+* ALLEGRO_SRC_MINUS_DEST
 
-Blending factors:
-Valid values for <src> and <dst> passed to this function are
+         r = sr * src - dr * dst
+         g = sg * src - dg * dst
+         b = sb * src - db * dst
+         a = sa * src - da * dst
 
-* ALLEGRO_ZERO - src = 0, dst = 0
-* ALLEGRO_ONE - src = 1, dst = 1
-* ALLEGRO_ALPHA - src = sa, dst = sa
-* ALLEGRO_INVERSE_ALPHA - src = 1 - sa, dst = 1 - sa
+Valid values for `src` and `dst` passed to this function are
+
+* ALLEGRO_ZERO
+
+         src = 0
+         dst = 0
+
+* ALLEGRO_ONE
+      
+         src = 1
+         dst = 1
+
+* ALLEGRO_ALPHA
+   
+         src = sa
+         dst = sa
+
+* ALLEGRO_INVERSE_ALPHA
+
+         src = 1 - sa
+         dst = 1 - sa
 
 The color parameter specifies the blend color, it is multipled with
 the source color before the above blending operation.
 
 Blending examples:
+
 So for example, to restore the default of using alpha blending, you
 would use (pseudo code)
 
