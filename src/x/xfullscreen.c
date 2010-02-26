@@ -235,4 +235,38 @@ void _al_xglx_free_mode_infos(ALLEGRO_SYSTEM_XGLX *s)
 
 #endif /* !ALLEGRO_XWINDOWS_WITH_XF86VIDMODE */
 
+static bool got_atoms;
+static Atom _NET_WM_STATE;
+static Atom _NET_WM_STATE_FULLSCREEN;
+#define X11_ATOM_STRING(x) x = XInternAtom(x11, #x, False);
+
+void _al_xglx_toggle_fullscreen_window(ALLEGRO_DISPLAY *display, bool onoff)
+{
+   ALLEGRO_SYSTEM_XGLX *system = (void *)al_get_system_driver();
+   ALLEGRO_DISPLAY_XGLX *glx = (ALLEGRO_DISPLAY_XGLX *)display;
+   Display *x11 = system->x11display;
+   
+   if (!got_atoms) {
+      X11_ATOM_STRING(_NET_WM_STATE)
+      X11_ATOM_STRING(_NET_WM_STATE_FULLSCREEN)
+      got_atoms = true;
+   }
+
+   XEvent xev;
+   xev.xclient.type = ClientMessage;
+   xev.xclient.serial = 0;
+   xev.xclient.send_event = True;
+   xev.xclient.message_type = _NET_WM_STATE;
+   xev.xclient.window = glx->window;
+   xev.xclient.format = 32;
+   xev.xclient.data.l[0] = onoff ? 1 : 0; /* 0 = off, 1 = on, 2 = toggle */
+   xev.xclient.data.l[1] = _NET_WM_STATE_FULLSCREEN;
+   xev.xclient.data.l[2] = 0;
+   xev.xclient.data.l[3] = 0;
+   xev.xclient.data.l[4] = 0;
+
+   XSendEvent(x11, DefaultRootWindow(x11), False,
+      SubstructureRedirectMask | SubstructureNotifyMask, &xev);
+}
+
 /* vim: set sts=3 sw=3 et: */

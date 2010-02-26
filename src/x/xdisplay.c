@@ -34,7 +34,8 @@ static void setup_gl(ALLEGRO_DISPLAY *d)
 
 static void set_size_hints(ALLEGRO_DISPLAY *d, int w, int h)
 {
-   if (!(d->flags & ALLEGRO_RESIZABLE)) {
+   if (!(d->flags & ALLEGRO_RESIZABLE)
+      && !(d->flags & ALLEGRO_FULLSCREEN_WINDOW)) {
       ALLEGRO_SYSTEM_XGLX *system = (void *)al_get_system_driver();
       ALLEGRO_DISPLAY_XGLX *glx = (void *)d;
       XSizeHints *hints = XAllocSizeHints();;
@@ -177,6 +178,12 @@ static void xdpy_toggle_frame(ALLEGRO_DISPLAY *display, bool onoff)
 }
 
 
+static Bool resize_predicate(Display *display, XEvent *event, XPointer arg)
+{
+   if (event->type == ConfigureNotify) return True;
+   return False;
+}
+
 
 static bool xdpy_toggle_display_flag(ALLEGRO_DISPLAY *display, int flag,
    bool onoff)
@@ -304,6 +311,8 @@ static ALLEGRO_DISPLAY *xdpy_create_display(int w, int h)
    int new_x, new_y;
    al_get_new_window_position(&new_x, &new_y);
    if (new_x != INT_MAX && new_y != INT_MAX) {
+      ALLEGRO_DEBUG("Force window position to %d, %d.\n",
+         new_x, new_y);
       XWindowChanges wch;
       wch.x = new_x;
       wch.y = new_y;
@@ -320,6 +329,28 @@ static ALLEGRO_DISPLAY *xdpy_create_display(int w, int h)
     */
    while (!d->is_mapped) {
       _al_cond_wait(&d->mapped, &system->lock);
+   }
+
+   /* We can do this at any time, but if we already have a mapped
+    * window when switching to fullscreen it will use the same
+    * monitor (with the MetaCity version I'm using here right now).
+    */
+   if (display->flags & ALLEGRO_FULLSCREEN_WINDOW) {
+      _al_xglx_toggle_fullscreen_window(display, true);
+
+      /* Wait for the resize event so we can create the initial
+       * OpenGL view already with the full size.
+       */
+      XSync(system->x11display, False);
+      XEvent e;
+      XIfEvent(system->x11display, &e, resize_predicate, NULL);
+
+      XWindowAttributes xwa;
+      XGetWindowAttributes(system->x11display, d->window, &xwa);
+      display->w = xwa.width;
+      display->h = xwa.height;
+      ALLEGRO_INFO("Using ALLEGRO_FULLSCREEN_WINDOW of %d x %d\n",
+         display->w, display->h);
    }
 
    if (!_al_xglx_config_create_context(d)) {
@@ -403,7 +434,6 @@ static ALLEGRO_DISPLAY *xdpy_create_display(int w, int h)
          display->extra_settings.settings[ALLEGRO_VSYNC] = 0;
       }
    }
-   
 
    d->invisible_cursor = None; /* Will be created on demand. */
    d->current_cursor = None; /* Initially, we use the root cursor. */

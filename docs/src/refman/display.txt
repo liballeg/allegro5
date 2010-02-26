@@ -131,6 +131,23 @@ reasonable combination of the following:
 
 * ALLEGRO_FULLSCREEN - prefer a fullscreen mode
 
+* ALLEGRO_FULLSCREEN_WINDOW
+
+  Make the window span the entire screen. Unlike ALLEGRO_FULLSCREEN this
+  will never attempt to modify the screen resolution. Instead the pixel
+  dimensions of the created display will be the same as the desktop.
+
+  The passed width and height are only used if the window is switched
+  out of fullscreen mode later but will be ignored initially.
+
+  Under Windows and X11 a fullscreen display created with this flag
+  will behave differently from one created with the ALLEGRO_FULLSCREEN
+  flag - even if the ALLEGRO_FULLSCREEN display is passed the desktop
+  dimensions. The exact difference is platform dependent, but some
+  things which may be different is how alt-tab works, how fast you can
+  toggle between fullscreen/windowed mode or how additional monitors
+  behave while your display is in fullscreen mode.
+
 * ALLEGRO_RESIZABLE - the display is resizable (only applicable if combined
 with ALLEGRO_WINDOWED)
 
