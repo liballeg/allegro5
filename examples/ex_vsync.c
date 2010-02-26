@@ -7,6 +7,8 @@
 
 #include "common.c"
 
+int vsync, fullscreen, frequency;
+
 static int option(ALLEGRO_CONFIG *config, char *name, int v)
 {
    char const *value;
@@ -23,9 +25,10 @@ static bool display_warning(ALLEGRO_EVENT_QUEUE *queue, ALLEGRO_FONT *font)
 {
    ALLEGRO_EVENT event;
    float x = 320.0;
-   float y = 200.0;
+   float h = al_get_font_line_height(font);
 
    for (;;) {
+      float y = 200.0;
       al_clear_to_color(al_map_rgb(0, 0, 0));
       al_draw_text(font, x, y, ALLEGRO_ALIGN_CENTRE,
          "Do not continue if you suffer from photosensitive epilepsy");
@@ -33,6 +36,16 @@ static bool display_warning(ALLEGRO_EVENT_QUEUE *queue, ALLEGRO_FONT *font)
          "or simply hate flashing screens.");
       al_draw_text(font, x, y + 40, ALLEGRO_ALIGN_CENTRE,
          "Press Escape to quit or Enter to continue.");
+      
+      y += 100;
+      al_draw_text(font, x, y, ALLEGRO_ALIGN_CENTRE, "Parameters from ex_vsync.ini:");
+      y += h;
+      al_draw_textf(font, x, y, ALLEGRO_ALIGN_CENTRE, "vsync: %d", vsync);
+      y += h;
+      al_draw_textf(font, x, y, ALLEGRO_ALIGN_CENTRE, "fullscreen: %d", fullscreen);
+      y += h;
+      al_draw_textf(font, x, y, ALLEGRO_ALIGN_CENTRE, "frequency: %d", frequency);
+      
       al_flip_display();
 
       al_wait_for_event(queue, &event);
@@ -56,7 +69,6 @@ int main(void)
    ALLEGRO_FONT *font;
    ALLEGRO_CONFIG *config;
    ALLEGRO_EVENT_QUEUE *queue;
-   int vsync, fullscreen, frequency;
    bool write = false;
    bool flip = false;
    bool quit;
