@@ -180,6 +180,8 @@ static void xdpy_toggle_frame(ALLEGRO_DISPLAY *display, bool onoff)
 
 static Bool resize_predicate(Display *display, XEvent *event, XPointer arg)
 {
+   (void) display;
+   (void) arg;
    if (event->type == ConfigureNotify) return True;
    return False;
 }
@@ -191,6 +193,9 @@ static bool xdpy_toggle_display_flag(ALLEGRO_DISPLAY *display, int flag,
    switch(flag) {
       case ALLEGRO_NOFRAME: 
          xdpy_toggle_frame(display, onoff);
+         return true;
+      case ALLEGRO_FULLSCREEN_WINDOW:
+         _al_xglx_toggle_fullscreen_window(display, onoff);
          return true;
    }
    return false;
