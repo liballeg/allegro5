@@ -1044,8 +1044,8 @@ ALLEGRO_BITMAP *_al_ogl_create_sub_bitmap(ALLEGRO_DISPLAY *d,
    ogl_bmp->true_w = ogl_parent->true_w;
    ogl_bmp->true_h = ogl_parent->true_h;
    ogl_bmp->texture = ogl_parent->texture;
-   // FIXME: Why not on Iphone?
-#if !defined ALLEGRO_GP2XWIZ && !defined ALLEGRO_IPHONE
+
+#if !defined ALLEGRO_GP2XWIZ
    ogl_bmp->fbo = ogl_parent->fbo;
 #endif
 
