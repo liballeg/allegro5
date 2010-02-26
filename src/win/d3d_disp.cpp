@@ -1971,6 +1971,12 @@ void _al_d3d_set_blender(ALLEGRO_DISPLAY_D3D *d3d_display)
 {
    int op, src, dst, alpha_op, alpha_src, alpha_dst;
    ALLEGRO_COLOR color;
+   DWORD d3d_op, d3d_alpha_op;
+   DWORD allegro_to_d3d_blendop[ALLEGRO_NUM_BLEND_OPERATIONS] = {
+      D3DBLENDOP_ADD,
+      D3DBLENDOP_SUBTRACT,
+      D3DBLENDOP_REVSUBTRACT
+   };
 
    al_get_separate_blender(&op, &src, &dst,
       &alpha_op, &alpha_src, &alpha_dst, &color);
@@ -1979,24 +1985,26 @@ void _al_d3d_set_blender(ALLEGRO_DISPLAY_D3D *d3d_display)
    dst = d3d_al_blender_to_d3d(dst);
    alpha_src = d3d_al_blender_to_d3d(alpha_src);
    alpha_dst = d3d_al_blender_to_d3d(alpha_dst);
+   d3d_op = allegro_to_d3d_blendop[op];
+   d3d_alpha_op = allegro_to_d3d_blendop[alpha_op];
+
+   /* These may not be supported but they will always fall back to ADD
+    * in that case.
+    */
+   d3d_display->device->SetRenderState(D3DRS_BLENDOP, d3d_op);
+   d3d_display->device->SetRenderState(D3DRS_BLENDOPALPHA, d3d_alpha_op);
 
    if (d3d_display->device->SetRenderState(D3DRS_SRCBLEND, src) != D3D_OK)
       TRACE("Failed to set source blender\n");
    if (d3d_display->device->SetRenderState(D3DRS_DESTBLEND, dst) != D3D_OK)
       TRACE("Failed to set dest blender\n");
 
-   //if (alpha_src != ALLEGRO_ONE || alpha_dst != ALLEGRO_ONE) {
-      if (d3d_display->device->SetRenderState(D3DRS_SEPARATEALPHABLENDENABLE, true) != D3D_OK)
-         TRACE("D3DRS_SEPARATEALPHABLENDENABLE failed\n");
-      if (d3d_display->device->SetRenderState(D3DRS_SRCBLENDALPHA, alpha_src) != D3D_OK)
-         TRACE("Failed to set source alpha blender\n");
-      if (d3d_display->device->SetRenderState(D3DRS_DESTBLENDALPHA, alpha_dst) != D3D_OK)
-         TRACE("Failed to set dest alpha blender\n");
-   //}
-   //else {
-     // if (d3d_display->device->SetRenderState(D3DRS_SEPARATEALPHABLENDENABLE, false) != D3D_OK)
-       //  TRACE("D3DRS_SEPARATEALPHABLENDENABLE false failed\n");
-  // }
+   if (d3d_display->device->SetRenderState(D3DRS_SEPARATEALPHABLENDENABLE, true) != D3D_OK)
+      TRACE("D3DRS_SEPARATEALPHABLENDENABLE failed\n");
+   if (d3d_display->device->SetRenderState(D3DRS_SRCBLENDALPHA, alpha_src) != D3D_OK)
+      TRACE("Failed to set source alpha blender\n");
+   if (d3d_display->device->SetRenderState(D3DRS_DESTBLENDALPHA, alpha_dst) != D3D_OK)
+      TRACE("Failed to set dest alpha blender\n");
 
    d3d_display->device->SetTextureStageState(0, D3DTSS_ALPHAOP, D3DTOP_MODULATE);
 }
@@ -2582,8 +2590,10 @@ static void d3d_update_transformation(ALLEGRO_DISPLAY* disp)
    ALLEGRO_DISPLAY_D3D* d3d_disp = (ALLEGRO_DISPLAY_D3D*)disp;
    D3DMATRIX matrix;
    memcpy(matrix.m[0], disp->cur_transform.m[0], 16 * sizeof(float));
-   matrix.m[3][0] -= 0.5f;
-   matrix.m[3][1] -= 0.5f;
+   //matrix.m[3][0] -= 0.5;
+   //matrix.m[3][1] -= 0.5;
+   matrix.m[3][0] -= 0.499999;
+   matrix.m[3][1] -= 0.499999;
    
    d3d_disp->device->SetTransform(D3DTS_VIEW, &matrix);
 }
