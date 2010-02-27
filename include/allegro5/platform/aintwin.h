@@ -63,6 +63,11 @@ struct ALLEGRO_DISPLAY_WIN
     */
    volatile bool end_thread;    /* The display thread should end */
    volatile bool thread_ended;  /* The display thread has ended */
+
+   /* For internal use by drivers, when this has been set to true
+    * after al_resize_display called you can call acknowledge_resize
+    */
+   bool can_acknowledge;
 };
 
 

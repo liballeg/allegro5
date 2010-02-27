@@ -238,8 +238,8 @@ HWND _al_win_create_faux_fullscreen_window(LPCTSTR devname, ALLEGRO_DISPLAY *dis
    mode.dmSize = sizeof(DEVMODE);
    mode.dmDriverExtra = 0;
    mode.dmBitsPerPel = al_get_new_display_option(ALLEGRO_COLOR_SIZE, NULL);
-   mode.dmPelsWidth = display->w;
-   mode.dmPelsHeight = display->h;
+   mode.dmPelsWidth = width; 
+   mode.dmPelsHeight = height;
    mode.dmDisplayFlags = 0;
    mode.dmDisplayFrequency = refresh_rate;
    mode.dmPosition.x = x1;
@@ -578,10 +578,11 @@ static LRESULT CALLBACK window_callback(HWND hWnd, UINT message,
       case WM_ACTIVATE:
          if (LOWORD(wParam) != WA_INACTIVE) {
             /* This SetWindowPos is for faux-fullscreen windows that lost focus
-             * so they can get place back on top
+             * so they can get placed back on top
              */
-            SetWindowPos(win_display->window, HWND_TOP, 0, 0, 0, 0,
-               SWP_NOMOVE | SWP_NOSIZE);
+             // FIXME: this doesn't seem to work
+            //SetWindowPos(win_display->window, HWND_TOP, 0, 0, 0, 0,
+            //   SWP_NOMOVE | SWP_NOSIZE);
             if (d->vt->switch_in)
             	  d->vt->switch_in(d);
             _al_event_source_lock(es);
@@ -671,6 +672,7 @@ static LRESULT CALLBACK window_callback(HWND hWnd, UINT message,
             _al_event_source_unlock(es);
          }
          resize_postponed = false;
+         win_display->can_acknowledge = true;
          return 0;
    } 
 

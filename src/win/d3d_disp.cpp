@@ -898,6 +898,7 @@ static void d3d_destroy_display_internals(ALLEGRO_DISPLAY_D3D *display);
 static void d3d_make_faux_fullscreen_stage_one(ALLEGRO_DISPLAY_D3D *d3d_display)
 {
    ALLEGRO_SYSTEM *system = al_get_system_driver();
+
    if (already_fullscreen || num_faux_fullscreen_windows) {
       int i;
       for (i = 0; i < (int)system->displays._size; i++) {
@@ -950,7 +951,7 @@ static bool d3d_create_device(ALLEGRO_DISPLAY_D3D *d,
     * displays, basically screen-filling windows set out in front of
     * everything else.
     */
-#ifndef ALLEGRO_CFG_D3D9EX
+#ifdef ALLEGRO_CFG_D3D9EX
    if (convert_to_faux)
       d3d_make_faux_fullscreen_stage_one(d);
 #else
@@ -1061,7 +1062,7 @@ static bool d3d_create_device(ALLEGRO_DISPLAY_D3D *d,
       TRACE("BeginScene succeeded in create_device\n");
    }
 
-#ifndef ALLEGRO_CFG_D3D9EX
+#ifdef ALLEGRO_CFG_D3D9EX
    if (convert_to_faux)
       d3d_make_faux_fullscreen_stage_two(d);
 #endif
@@ -1647,7 +1648,8 @@ static void d3d_display_thread_proc(void *arg)
          if (_al_d3d_reset_device(d3d_display)) {
             d3d_display->device_lost = false;
             d3d_reset_state(d3d_display);
-            _al_d3d_set_ortho_projection(d3d_display, al_display->w, al_display->h);
+            _al_d3d_set_ortho_projection(d3d_display,
+               al_display->w, al_display->h);
             _al_event_source_lock(&al_display->es);
             if (_al_event_source_needs_to_generate_event(&al_display->es)) {
                ALLEGRO_EVENT event;
@@ -1726,6 +1728,7 @@ static ALLEGRO_DISPLAY_D3D *d3d_create_display_helper(int w, int h)
 
    win_display->adapter = adapter;
    d3d_display->ignore_ack = false;
+   /* w/h may be reset below if ALLEGRO_FULLSCREEN_WINDOW is set */
    al_display->w = w;
    al_display->h = h;
    al_display->refresh_rate = al_get_new_display_refresh_rate();
@@ -1745,7 +1748,21 @@ static ALLEGRO_DISPLAY_D3D *d3d_create_display_helper(int w, int h)
          }
       }
       else {
-         d3d_display->faux_fullscreen = false;
+         if (al_display->flags & ALLEGRO_FULLSCREEN_WINDOW) {
+            ALLEGRO_MONITOR_INFO mi;
+            int adapter = al_get_current_video_adapter();
+            if (adapter == -1)
+                  adapter = 0;
+            al_get_monitor_info(adapter, &mi);
+            al_display->w = mi.x2 - mi.x1;
+            al_display->h = mi.y2 - mi.y1;
+            d3d_display->toggle_w = w;
+            d3d_display->toggle_h = h;
+            d3d_display->faux_fullscreen = true;
+         }
+         else {
+            d3d_display->faux_fullscreen = false;
+         }
       }
 #ifdef ALLEGRO_CFG_D3D9EX
    }
@@ -1765,8 +1782,6 @@ static bool d3d_create_display_internals(ALLEGRO_DISPLAY_D3D *d3d_display)
    static bool cfg_read = false;
    ALLEGRO_SYSTEM *sys;
    AL_CONST char *s;
-   int w = al_display->w;
-   int h = al_display->h;
    
    params.display = d3d_display;
   
@@ -1810,7 +1825,7 @@ static bool d3d_create_display_internals(ALLEGRO_DISPLAY_D3D *d3d_display)
          break;
       }
       // Display has been destroyed in d3d_display_thread_proc, create empty template again
-      d3d_display = d3d_create_display_helper(w, h);
+      d3d_display = d3d_create_display_helper(al_display->w, al_display->h);
       win_display = &d3d_display->win_display;
       al_display = &win_display->display;
       params.display = d3d_display;
@@ -1892,8 +1907,8 @@ static ALLEGRO_DISPLAY *d3d_create_display(int w, int h)
    /* Setup the mouse */
    win_display->mouse_range_x1 = 0;
    win_display->mouse_range_y1 = 0;
-   win_display->mouse_range_x2 = w;
-   win_display->mouse_range_y2 = h;
+   win_display->mouse_range_x2 = al_display->w;
+   win_display->mouse_range_y2 = al_display->h;
    if (al_display->flags & ALLEGRO_FULLSCREEN && al_is_mouse_installed()) {
       RAWINPUTDEVICE rid[1];
       rid[0].usUsagePage = 0x01; 
@@ -2171,6 +2186,23 @@ static bool d3d_resize_display(ALLEGRO_DISPLAY *d, int width, int height)
    ALLEGRO_DISPLAY_D3D *disp = (ALLEGRO_DISPLAY_D3D *)d;
    ALLEGRO_DISPLAY_WIN *win_display = &disp->win_display;
    bool ret;
+   int full_w, full_h;
+   ALLEGRO_MONITOR_INFO mi;
+   int adapter = al_get_current_video_adapter();
+   if (adapter == -1)
+         adapter = 0;
+   al_get_monitor_info(adapter, &mi);
+   full_w = mi.x2 - mi.x1;
+   full_h = mi.y2 - mi.y1;
+
+   if ((d->flags & ALLEGRO_FULLSCREEN_WINDOW) &&
+         (full_w != width || full_h != height)) {
+      disp->toggle_w = width;
+      disp->toggle_h = height;
+      return true;
+   }
+
+   win_display->can_acknowledge = false;
 
    //disp->ignore_ack = true;
 
@@ -2513,11 +2545,49 @@ static void d3d_get_window_position(ALLEGRO_DISPLAY *display, int *x, int *y)
 
 static bool d3d_toggle_display_flag(ALLEGRO_DISPLAY *display, int flag, bool onoff)
 {
+   ALLEGRO_DISPLAY_D3D *d3d_display = (ALLEGRO_DISPLAY_D3D *)display;
+   ALLEGRO_DISPLAY_WIN *win_display = (ALLEGRO_DISPLAY_WIN *)display;
+   double timeout;
+
    switch(flag) {
       case ALLEGRO_NOFRAME: 
          _al_win_toggle_window_frame(display,
             ((ALLEGRO_DISPLAY_WIN *)display)->window,
             display->w, display->h, onoff);
+         return true;
+      case ALLEGRO_FULLSCREEN_WINDOW:
+         if (onoff == (display->flags & ALLEGRO_FULLSCREEN_WINDOW))
+            return true;
+         d3d_toggle_display_flag(display, ALLEGRO_NOFRAME, !onoff);
+         if (onoff) {
+            ALLEGRO_MONITOR_INFO mi;
+            int adapter = al_get_current_video_adapter();
+            if (adapter == -1)
+                  adapter = 0;
+            al_get_monitor_info(adapter, &mi);
+            display->flags |= ALLEGRO_FULLSCREEN_WINDOW;
+            display->w = mi.x2 - mi.x1;
+            display->h = mi.y2 - mi.y1;
+         }
+         else {
+            display->flags &= ~ALLEGRO_FULLSCREEN_WINDOW;
+            display->w = d3d_display->toggle_w;
+            display->h = d3d_display->toggle_h;
+         }
+         al_resize_display(display->w, display->h);
+         timeout = al_current_time() + 3; // 3 seconds...
+         while (al_current_time() < timeout) {
+            if (win_display->can_acknowledge) {
+               al_acknowledge_resize(display);
+               break;
+            }
+         }
+         if (onoff) {
+            al_set_window_position(display, 0, 0);
+            // Pop it to the front
+            // FIXME: HOW?!
+         }
+         /* FIXME: else center the window? */
          return true;
    }
    return false;

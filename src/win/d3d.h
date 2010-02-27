@@ -84,6 +84,12 @@ typedef struct ALLEGRO_DISPLAY_D3D
    int samples;
    bool single_buffer;
    bool vsync;
+
+   /* Size to reset to when al_set_display_flag(FULLSCREEN_WINDOW, false)
+    * is called.
+    */
+   int toggle_w;
+   int toggle_h;
 } ALLEGRO_DISPLAY_D3D;
 
 
