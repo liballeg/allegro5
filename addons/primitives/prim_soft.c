@@ -98,10 +98,7 @@ static void convert_vtx(ALLEGRO_BITMAP* texture, const char* src, ALLEGRO_VERTEX
    if(e->attribute) {
       dest->color = *(ALLEGRO_PRIM_COLOR*)(src + e->offset);
    } else {
-      dest->color.r = 1;
-      dest->color.g = 1;
-      dest->color.b = 1;
-      dest->color.a = 1;
+      dest->color = 0xFFFFFFFF;
    }
 }
 

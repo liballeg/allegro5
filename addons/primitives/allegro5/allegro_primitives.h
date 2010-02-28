@@ -89,19 +89,14 @@ typedef struct ALLEGRO_VERTEX_DECL ALLEGRO_VERTEX_DECL;
 
 /* Type: ALLEGRO_PRIM_COLOR
  */
-typedef struct ALLEGRO_PRIM_COLOR ALLEGRO_PRIM_COLOR;
-
-struct ALLEGRO_PRIM_COLOR {
-   uint32_t d3d_color;
-   float r, g, b, a;
-};
+typedef uint32_t ALLEGRO_PRIM_COLOR;
 
 /* Type: ALLEGRO_VERTEX
  */
 typedef struct ALLEGRO_VERTEX ALLEGRO_VERTEX;
 
 struct ALLEGRO_VERTEX {
-  float x, y;
+  float x, y, z;
   ALLEGRO_PRIM_COLOR color;
   float u, v;
 };

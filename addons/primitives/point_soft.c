@@ -37,7 +37,9 @@ void _al_point_2d(ALLEGRO_BITMAP* texture, ALLEGRO_VERTEX* v)
 {
    int shade = 1;
    int op, src_mode, dst_mode;
-   ALLEGRO_COLOR ic;
+   ALLEGRO_COLOR ic, vc;
+
+   vc = al_get_allegro_color(v->color);
 
    al_get_blender(&op, &src_mode, &dst_mode, &ic);
    if (src_mode == ALLEGRO_ONE && dst_mode == ALLEGRO_ZERO &&
@@ -50,11 +52,11 @@ void _al_point_2d(ALLEGRO_BITMAP* texture, ALLEGRO_VERTEX* v)
       float V = fix_var(v->v, al_get_bitmap_height(texture));
       ALLEGRO_COLOR color = al_get_pixel(texture, U, V);
 
-      if(v->color.r != 1 || v->color.g != 1 || v->color.b != 1 || v->color.a != 1) {
-         color.r *= v->color.r;
-         color.g *= v->color.g;
-         color.b *= v->color.b;
-         color.a *= v->color.a;
+      if(vc.r != 1 || vc.g != 1 || vc.b != 1 || vc.a != 1) {
+         color.r *= vc.r;
+         color.g *= vc.g;
+         color.b *= vc.b;
+         color.a *= vc.a;
       }
 
       if (shade) {
@@ -63,7 +65,7 @@ void _al_point_2d(ALLEGRO_BITMAP* texture, ALLEGRO_VERTEX* v)
          al_put_pixel(v->x, v->y, color);
       }
    } else {
-      ALLEGRO_COLOR color = al_map_rgba_f(v->color.r, v->color.g, v->color.b, v->color.a);
+      ALLEGRO_COLOR color = al_map_rgba_f(vc.r, vc.g, vc.b, vc.a);
       if (shade) {
          al_draw_pixel(v->x, v->y, color);
       } else {

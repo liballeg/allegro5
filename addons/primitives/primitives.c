@@ -149,7 +149,23 @@ int al_draw_indexed_prim(const void* vtxs, const ALLEGRO_VERTEX_DECL* decl,
  */
 ALLEGRO_COLOR al_get_allegro_color(ALLEGRO_PRIM_COLOR col)
 {
-   return al_map_rgba_f(col.r, col.g, col.b, col.a);
+   int flags = al_get_display_flags();
+   if (flags & ALLEGRO_OPENGL) {
+	   return al_map_rgba(
+	      col & 0xff,
+	      (col >> 8) & 0xff,
+	      (col >> 16) & 0xff,
+	      (col >> 24) & 0xff
+	   );
+   }
+   else {
+	   return al_map_rgba(
+	      (col >> 16) & 0xff,
+	      (col >> 8) & 0xff,
+	      col & 0xff,
+	      (col >> 24) & 0xff
+	   );
+   }
 }
 
 /* Function: al_get_prim_color
@@ -157,15 +173,22 @@ ALLEGRO_COLOR al_get_allegro_color(ALLEGRO_PRIM_COLOR col)
 ALLEGRO_PRIM_COLOR al_get_prim_color(ALLEGRO_COLOR col)
 {
    ALLEGRO_PRIM_COLOR ret;
-   ret.r = col.r;
-   ret.g = col.g;
-   ret.b = col.b;
-   ret.a = col.a;
+   int flags = al_get_display_flags();
+   if (flags & ALLEGRO_OPENGL) {
+      ret =
+         (int)(col.r*255) |
+	 ((int)(col.g*255) << 8) |
+	 ((int)(col.b*255) << 16) |
+	 ((int)(col.a*255) << 24);
+   }
+   else {
 #ifdef ALLEGRO_CFG_D3D
-   ret.d3d_color = D3DCOLOR_COLORVALUE(col.r, col.g, col.b, col.a);
+      ret = D3DCOLOR_COLORVALUE(col.r, col.g, col.b, col.a);
 #else
-   ret.d3d_color = 0;
+      ret = 0;
 #endif
+   }
+
    return ret;
 }
 

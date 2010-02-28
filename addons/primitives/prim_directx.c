@@ -30,9 +30,9 @@
 
 D3DVERTEXELEMENT9 allegro_vertex_decl[] =
 {
-  {0, 0, D3DDECLTYPE_FLOAT2, D3DDECLMETHOD_DEFAULT, D3DDECLUSAGE_POSITION, 0},
-  {0, 8, D3DDECLTYPE_D3DCOLOR, D3DDECLMETHOD_DEFAULT, D3DDECLUSAGE_COLOR, 0},
-  {0, 28, D3DDECLTYPE_FLOAT2, D3DDECLMETHOD_DEFAULT, D3DDECLUSAGE_TEXCOORD, 0},
+  {0, 0, D3DDECLTYPE_FLOAT3, D3DDECLMETHOD_DEFAULT, D3DDECLUSAGE_POSITION, 0},
+  {0, 12, D3DDECLTYPE_D3DCOLOR, D3DDECLMETHOD_DEFAULT, D3DDECLUSAGE_COLOR, 0},
+  {0, 16, D3DDECLTYPE_FLOAT2, D3DDECLMETHOD_DEFAULT, D3DDECLUSAGE_TEXCOORD, 0},
   D3DDECL_END()
 };
 
@@ -128,7 +128,7 @@ static void* twiddle_vertices(const void* vtxs, int num_vertices)
       fvf_buffer[ii].u = vtx[ii].u;
       fvf_buffer[ii].v = vtx[ii].v;
       
-      fvf_buffer[ii].c = vtx[ii].color.d3d_color;
+      fvf_buffer[ii].c = vtx[ii].color;
    }
    return fvf_buffer;
 }
@@ -176,6 +176,10 @@ int _al_draw_prim_directx(ALLEGRO_BITMAP* texture, const void* vtxs, const ALLEG
          IDirect3DDevice9_SetFVF(device, A5V_FVF);
          vtx = twiddle_vertices(vtx, num_vtx);
       } else {
+         int i;
+	 for (i = start; i < end; i++) {
+	    ((ALLEGRO_VERTEX *)vtxs)[i].z = 0;
+	 }
          IDirect3DDevice9_SetVertexDeclaration(device, allegro_vertex_def);
       }
    }
@@ -341,6 +345,7 @@ int _al_draw_prim_indexed_directx(ALLEGRO_BITMAP* texture, const void* vtxs, con
       
       for(ii = 0; ii < num_vtx; ii++) {
          ((ALLEGRO_VERTEX*)cbuff)[ii] = ((const ALLEGRO_VERTEX*)vtxs)[indices[ii]];
+         ((ALLEGRO_VERTEX *)cbuff)[ii].z = 0;
       }
       ret = _al_draw_prim_directx(texture, cbuff, decl, 0, num_vtx, type);
       return ret;  
