@@ -51,7 +51,7 @@ static void setup_blending(void)
       blend_modes[dst_alpha]);
    glBlendEquationSeparate(
       blend_equations[op],
-      blend_equations[alpha_op]);
+      blend_equations[op_alpha]);
 #elif defined ALLEGRO_GP2XWIZ
    glEnable(GL_BLEND);
    glBlendFunc(blend_modes[src_color], blend_modes[dst_color]);

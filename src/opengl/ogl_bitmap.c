@@ -208,14 +208,20 @@ static INLINE bool setup_blending(ALLEGRO_DISPLAY *ogl_disp)
          return false;
       }
    }
-/* OpenGL ES 1.0 has both functions */
+
 #elif defined(ALLEGRO_IPHONE)
    glEnable(GL_BLEND);
-   glBlendFuncSeparate(blend_modes[src_color], blend_modes[dst_color],
-      blend_modes[src_alpha], blend_modes[dst_alpha]);
-   glBlendEquationSeparate(
-      blend_equations[op],
-      blend_equations[alpha_op]);
+   glBlendFunc(blend_modes[src_color], blend_modes[dst_color]);
+   glBlendEquation(blend_equations[op]);
+   /* FIXME: Only OpenGL ES 2.0 has both functions and the OES versions
+    * Apple put into ES 1.0 seem to just crash. Should try if it's fixed
+    * in their next update.
+    */
+   //glBlendFuncSeparate(blend_modes[src_color], blend_modes[dst_color],
+   //   blend_modes[src_alpha], blend_modes[dst_alpha]);
+   //glBlendEquationSeparate(
+   //   blend_equations[op],
+   //   blend_equations[op_alpha]);
 #else
    glEnable(GL_BLEND);
    glBlendFunc(blend_modes[src_color], blend_modes[dst_color]);

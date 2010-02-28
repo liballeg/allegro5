@@ -30,7 +30,17 @@
 
 #include <OpenGLES/ES1/gl.h>
 #include <OpenGLES/ES1/glext.h>
-       
+
+/* Apple defines OES versions for these - however the separated alpha ones
+ * don't seem to work on the device and just crash.
+ */
+#define glBlendEquation glBlendEquationOES
+#define glBlendFuncSeparate glBlendFuncSeparateOES
+#define glBlendEquationSeparate glBlendEquationSeparateOES
+#define GL_FUNC_ADD GL_FUNC_ADD_OES
+#define GL_FUNC_SUBTRACT GL_FUNC_SUBTRACT_OES
+#define GL_FUNC_REVERSE_SUBTRACT GL_FUNC_REVERSE_SUBTRACT_OES
+
 #elif defined ALLEGRO_MACOSX
 
 #include <OpenGL/OpenGL.h>

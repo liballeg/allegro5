@@ -46,7 +46,7 @@ static bool set_opengl_blending(ALLEGRO_DISPLAY *d,
       blend_modes[dst_alpha]);
    glBlendEquationSeparate(
       blend_equations[op],
-      blend_equations[alpha_op]);
+      blend_equations[op_alpha]);
    bc = _al_get_blend_color();
    glColor4f(r * bc->r, g * bc->g, b * bc->b, a * bc->a);
    return true;
