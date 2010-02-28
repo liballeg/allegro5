@@ -38,6 +38,8 @@ static void setup_blending(void)
    const int blend_equations[3] = {
       GL_FUNC_ADD, GL_FUNC_SUBTRACT, GL_FUNC_REVERSE_SUBTRACT
    };
+
+   ALLEGRO_DISPLAY *ogl_disp = al_get_current_display();
    
    al_get_separate_blender(&op, &src_color, &dst_color,
                      &op_alpha, &src_alpha, &dst_alpha, NULL);
