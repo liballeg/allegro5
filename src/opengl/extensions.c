@@ -370,9 +370,9 @@ static int _ogl_is_extension_supported(AL_CONST char *extension,
 {
    int ret;
    GLubyte const *ext_str;
+   (void)disp;
 
 #if defined ALLEGRO_GP2XWIZ
-   (void)disp;
    return false;
 #endif
 
