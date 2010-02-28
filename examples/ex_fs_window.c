@@ -25,7 +25,7 @@ static void redraw(void)
    al_flip_display();
 }
 
-static void wait(void)
+static void wait_a_while(void)
 {
    ALLEGRO_EVENT event;
    double start_time = al_current_time();
@@ -80,7 +80,7 @@ int main(void)
    }
 
    redraw();
-   wait();
+   wait_a_while();
 
    al_resize_display(800, 600);
    timeout = al_current_time();
@@ -99,7 +99,7 @@ int main(void)
    }
 
    redraw();
-   wait();
+   wait_a_while();
 
    /* Destroying the fullscreen display restores the original screen
     * resolution.  Shutting down Allegro would automatically destroy the
