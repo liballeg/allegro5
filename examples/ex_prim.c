@@ -577,6 +577,11 @@ int main(void)
       printf("Error installing keyboard.\n");
       return 1;
    }
+
+   if (!al_install_mouse()) {
+      printf("Error installing mouse.\n");
+      return 1;
+   }
    
    // Load a font
    Font = al_load_font("data/fixed_font.tga", 0, 0);
@@ -597,6 +602,7 @@ int main(void)
    queue = al_create_event_queue();
    al_register_event_source(queue, al_get_keyboard_event_source());
    al_register_event_source(queue, al_get_display_event_source(al_get_current_display()));
+   al_register_event_source(queue, al_get_mouse_event_source());
    
    al_set_window_title("Primitives Example");
    
@@ -660,6 +666,14 @@ int main(void)
          
          while (al_get_next_event(queue, &key_event)) {
             switch (key_event.type) {
+               case ALLEGRO_EVENT_MOUSE_BUTTON_DOWN: {
+                  cur_screen++;
+                  if (cur_screen >= NUM_SCREENS) {
+                     cur_screen = 0;
+                  }
+                  break;
+               }
+
                case ALLEGRO_EVENT_DISPLAY_CLOSE: {
                   done = true;
                   break;
