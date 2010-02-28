@@ -177,6 +177,10 @@ endif(WANT_CURL_EXAMPLE)
 # ex_gp2x
 # ex_iphone
 
+# example(ex_ogre3d ex_ogre3d.cpp)
+# include_directories(/usr/include/OGRE)
+# target_link_libraries(ex_ogre3d OgreMain)
+
 copy_data_dir_to_build(copy_example_data data)
 
 #-----------------------------------------------------------------------------#
