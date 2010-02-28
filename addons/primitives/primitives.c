@@ -151,20 +151,20 @@ ALLEGRO_COLOR al_get_allegro_color(ALLEGRO_PRIM_COLOR col)
 {
    int flags = al_get_display_flags();
    if (flags & ALLEGRO_OPENGL) {
-	   return al_map_rgba(
-	      col & 0xff,
-	      (col >> 8) & 0xff,
-	      (col >> 16) & 0xff,
-	      (col >> 24) & 0xff
-	   );
+      return al_map_rgba(
+         col & 0xff,
+         (col >> 8) & 0xff,
+         (col >> 16) & 0xff,
+         (col >> 24) & 0xff
+      );
    }
    else {
-	   return al_map_rgba(
-	      (col >> 16) & 0xff,
-	      (col >> 8) & 0xff,
-	      col & 0xff,
-	      (col >> 24) & 0xff
-	   );
+      return al_map_rgba(
+         (col >> 16) & 0xff,
+         (col >> 8) & 0xff,
+         col & 0xff,
+         (col >> 24) & 0xff
+      );
    }
 }
 
@@ -177,9 +177,9 @@ ALLEGRO_PRIM_COLOR al_get_prim_color(ALLEGRO_COLOR col)
    if (flags & ALLEGRO_OPENGL) {
       ret =
          (int)(col.r*255) |
-	 ((int)(col.g*255) << 8) |
-	 ((int)(col.b*255) << 16) |
-	 ((int)(col.a*255) << 24);
+         ((int)(col.g*255) << 8) |
+         ((int)(col.b*255) << 16) |
+         ((int)(col.a*255) << 24);
    }
    else {
 #ifdef ALLEGRO_CFG_D3D

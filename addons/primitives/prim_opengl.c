@@ -31,57 +31,57 @@
 
 static void setup_blending(void)
 {
-	int op, src_color, dst_color, op_alpha, src_alpha, dst_alpha;
-	const int blend_modes[4] = {
-		GL_ZERO, GL_ONE, GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA
-	};
-	const int blend_equations[3] = {
-		GL_FUNC_ADD, GL_FUNC_SUBTRACT, GL_FUNC_REVERSE_SUBTRACT
-	};
-	
-	al_get_separate_blender(&op, &src_color, &dst_color,
-							&op_alpha, &src_alpha, &dst_alpha, NULL);
-	/* glBlendFuncSeparate was only included with OpenGL 1.4 */
-	/* (And not in OpenGL ES) */
+   int op, src_color, dst_color, op_alpha, src_alpha, dst_alpha;
+   const int blend_modes[4] = {
+      GL_ZERO, GL_ONE, GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA
+   };
+   const int blend_equations[3] = {
+      GL_FUNC_ADD, GL_FUNC_SUBTRACT, GL_FUNC_REVERSE_SUBTRACT
+   };
+   
+   al_get_separate_blender(&op, &src_color, &dst_color,
+                     &op_alpha, &src_alpha, &dst_alpha, NULL);
+   /* glBlendFuncSeparate was only included with OpenGL 1.4 */
+   /* (And not in OpenGL ES) */
 #if !defined ALLEGRO_GP2XWIZ && !defined ALLEGRO_IPHONE
-	if (ogl_disp->ogl_extras->ogl_info.version >= 1.4) {
-		glEnable(GL_BLEND);
-		glBlendFuncSeparate(blend_modes[src_color], blend_modes[dst_color],
-							blend_modes[src_alpha], blend_modes[dst_alpha]);
-		if (ogl_disp->ogl_extras->ogl_info.version >= 2.0) {
-			glBlendEquationSeparate(
-									blend_equations[op],
-									blend_equations[op_alpha]);
-		}
-		else
-			glBlendEquation(blend_equations[op]);
-	}
-	else {
-		if (src_color == src_alpha && dst_color == dst_alpha) {
-			glEnable(GL_BLEND);
-			glBlendFunc(blend_modes[src_color], blend_modes[dst_color]);
-		}
-		else {
-			return;
-		}
-	}
-	
+   if (ogl_disp->ogl_extras->ogl_info.version >= 1.4) {
+      glEnable(GL_BLEND);
+      glBlendFuncSeparate(blend_modes[src_color], blend_modes[dst_color],
+                     blend_modes[src_alpha], blend_modes[dst_alpha]);
+      if (ogl_disp->ogl_extras->ogl_info.version >= 2.0) {
+         glBlendEquationSeparate(
+                           blend_equations[op],
+                           blend_equations[op_alpha]);
+      }
+      else
+         glBlendEquation(blend_equations[op]);
+   }
+   else {
+      if (src_color == src_alpha && dst_color == dst_alpha) {
+         glEnable(GL_BLEND);
+         glBlendFunc(blend_modes[src_color], blend_modes[dst_color]);
+      }
+      else {
+         return;
+      }
+   }
+   
 #elif defined(ALLEGRO_IPHONE)
-	glEnable(GL_BLEND);
-	glBlendFunc(blend_modes[src_color], blend_modes[dst_color]);
-	glBlendEquation(blend_equations[op]);
-	/* FIXME: Only OpenGL ES 2.0 has both functions and the OES versions
-	 * Apple put into ES 1.0 seem to just crash. Should try if it's fixed
-	 * in their next update.
-	 */
-	//glBlendFuncSeparate(blend_modes[src_color], blend_modes[dst_color],
-	//   blend_modes[src_alpha], blend_modes[dst_alpha]);
-	//glBlendEquationSeparate(
-	//   blend_equations[op],
-	//   blend_equations[op_alpha]);
+   glEnable(GL_BLEND);
+   glBlendFunc(blend_modes[src_color], blend_modes[dst_color]);
+   glBlendEquation(blend_equations[op]);
+   /* FIXME: Only OpenGL ES 2.0 has both functions and the OES versions
+    * Apple put into ES 1.0 seem to just crash. Should try if it's fixed
+    * in their next update.
+    */
+   //glBlendFuncSeparate(blend_modes[src_color], blend_modes[dst_color],
+   //   blend_modes[src_alpha], blend_modes[dst_alpha]);
+   //glBlendEquationSeparate(
+   //   blend_equations[op],
+   //   blend_equations[op_alpha]);
 #else
-	glEnable(GL_BLEND);
-	glBlendFunc(blend_modes[src_color], blend_modes[dst_color]);
+   glEnable(GL_BLEND);
+   glBlendFunc(blend_modes[src_color], blend_modes[dst_color]);
 #endif
 }
 

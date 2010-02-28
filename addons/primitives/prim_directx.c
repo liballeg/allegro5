@@ -177,9 +177,9 @@ int _al_draw_prim_directx(ALLEGRO_BITMAP* texture, const void* vtxs, const ALLEG
          vtx = twiddle_vertices(vtx, num_vtx);
       } else {
          int i;
-	 for (i = start; i < end; i++) {
-	    ((ALLEGRO_VERTEX *)vtxs)[i].z = 0;
-	 }
+         for (i = start; i < end; i++) {
+            ((ALLEGRO_VERTEX *)vtxs)[i].z = 0;
+         }
          IDirect3DDevice9_SetVertexDeclaration(device, allegro_vertex_def);
       }
    }

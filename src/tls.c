@@ -193,7 +193,7 @@ static thread_local_state* pthreads_thread_init(void)
    /* Allocate and copy the 'template' object */
    thread_local_state* ptr = (thread_local_state*)_AL_MALLOC(sizeof(thread_local_state));
    memcpy(ptr, &_tls, sizeof(thread_local_state));
-   ALLEGRO_DEBUG("Set specific %p for key %d\n", ptr, (int)tls_key);
+   //ALLEGRO_DEBUG("Set specific %p for key %d\n", ptr, (int)tls_key);
    pthread_setspecific(tls_key, ptr);
    return ptr;
 }
