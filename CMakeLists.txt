@@ -65,7 +65,7 @@ if(WIN32)
     endif()
 endif(WIN32)
 
-set(ALLEGRO_VERSION 4.4.0)
+set(ALLEGRO_VERSION 4.4.1)
 string(REGEX MATCH "^[0-9]+[.][0-9]+" ALLEGRO_SOVERSION ${ALLEGRO_VERSION})
 
 # Mac OS X -compatibility_version.
