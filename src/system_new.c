@@ -168,6 +168,7 @@ bool al_install_system(int (*atexit_ptr)(void (*)(void)))
     * settings out of there. Hence we use a dummy ALLEGRO_SYSTEM
     * here to load the initial config.
     */
+   memset(&bootstrap, 0, sizeof(bootstrap));
    active_sysdrv = &bootstrap;
    read_allegro_cfg();
 
