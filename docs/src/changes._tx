@@ -8,6 +8,19 @@
 @html_spaced_list_bullet
 
 @heading
+Changes from 4.4.0.1 to 4.4.1 (March 2009)
+<ul><li>
+   Allow Linux joystick driver to be used with the X11 port without
+   enabling the Linux console port.
+<li>
+   Avoid problem compiling joystick driver on some Linux systems.
+<li>
+   Install DLLs into bin directories on Windows.
+<li>
+   A few build improvements for MinGW cross-compiler.
+</ul>
+
+@heading
 Changes from 4.4.0 to 4.4.0.1 (December 2009)
 <ul><li>
    Chris Roberts updated CMake build for BeOS/Haiku.
