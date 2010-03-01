@@ -207,10 +207,8 @@ int main(void)
    al_register_event_source(queue,al_get_display_event_source(display));
    al_register_event_source(queue,al_get_timer_event_source(timer));
 
-   glShadeModel(GL_FLAT);
    glEnable(GL_DEPTH_TEST);
-   glCullFace(GL_BACK);
-   glEnable(GL_CULL_FACE);
+   glDisable(GL_CULL_FACE);
 
    setup_textures();
    al_start_timer(timer);
@@ -233,7 +231,6 @@ int main(void)
                set_camera_position();
                draw();
                al_flip_display();
-               glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
             }
             break;
       }
