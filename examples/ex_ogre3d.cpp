@@ -254,6 +254,8 @@ void Example::setup()
    al_register_event_source(queue, al_get_keyboard_event_source());
    al_register_event_source(queue, al_get_mouse_event_source());
    al_register_event_source(queue, al_get_timer_event_source(timer));
+   al_register_event_source(queue,
+      al_get_display_event_source(al_get_current_display()));
 }
 
 void Example::mainLoop()
@@ -274,6 +276,9 @@ void Example::mainLoop()
       al_wait_for_event(queue, &event);
       if (event.type == ALLEGRO_EVENT_KEY_DOWN &&
             event.keyboard.keycode == ALLEGRO_KEY_ESCAPE) {
+         break;
+      }
+      if (event.type == ALLEGRO_EVENT_DISPLAY_CLOSE) {
          break;
       }
 
@@ -329,6 +334,16 @@ void Example::mainLoop()
                left = is_down;
             if (event.keyboard.keycode == ALLEGRO_KEY_D)
                right = is_down;
+            break;
+         }
+
+         case ALLEGRO_EVENT_DISPLAY_RESIZE: {
+            al_acknowledge_resize(event.display.source);
+            int w = al_get_display_width();
+            int h = al_get_display_height();
+            mWindow->resize(w, h);
+            mCamera->setAspectRatio(Real(w) / Real(h));
+            redraw = true;
             break;
          }
       }
@@ -414,7 +429,7 @@ int main(int argc, char *argv[])
    al_install_keyboard();
    al_install_mouse();
 
-   al_set_new_display_flags(ALLEGRO_OPENGL);
+   al_set_new_display_flags(ALLEGRO_OPENGL | ALLEGRO_RESIZABLE);
    if (!al_create_display(WIDTH, HEIGHT)) {
       return 1;
    }
