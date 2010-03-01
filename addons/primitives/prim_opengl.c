@@ -39,32 +39,34 @@ static void setup_blending(void)
       GL_FUNC_ADD, GL_FUNC_SUBTRACT, GL_FUNC_REVERSE_SUBTRACT
    };
 
-   ALLEGRO_DISPLAY *ogl_disp = al_get_current_display();
-   
    al_get_separate_blender(&op, &src_color, &dst_color,
                      &op_alpha, &src_alpha, &dst_alpha, NULL);
    /* glBlendFuncSeparate was only included with OpenGL 1.4 */
    /* (And not in OpenGL ES) */
 #if !defined ALLEGRO_GP2XWIZ && !defined ALLEGRO_IPHONE
-   if (ogl_disp->ogl_extras->ogl_info.version >= 1.4) {
-      glEnable(GL_BLEND);
-      glBlendFuncSeparate(blend_modes[src_color], blend_modes[dst_color],
-                     blend_modes[src_alpha], blend_modes[dst_alpha]);
-      if (ogl_disp->ogl_extras->ogl_info.version >= 2.0) {
-         glBlendEquationSeparate(
-                           blend_equations[op],
-                           blend_equations[op_alpha]);
-      }
-      else
-         glBlendEquation(blend_equations[op]);
-   }
-   else {
-      if (src_color == src_alpha && dst_color == dst_alpha) {
+   {
+      ALLEGRO_DISPLAY *ogl_disp = al_get_current_display();
+      
+      if (ogl_disp->ogl_extras->ogl_info.version >= 1.4) {
          glEnable(GL_BLEND);
-         glBlendFunc(blend_modes[src_color], blend_modes[dst_color]);
+         glBlendFuncSeparate(blend_modes[src_color], blend_modes[dst_color],
+                        blend_modes[src_alpha], blend_modes[dst_alpha]);
+         if (ogl_disp->ogl_extras->ogl_info.version >= 2.0) {
+            glBlendEquationSeparate(
+                              blend_equations[op],
+                              blend_equations[op_alpha]);
+         }
+         else
+            glBlendEquation(blend_equations[op]);
       }
       else {
-         return;
+         if (src_color == src_alpha && dst_color == dst_alpha) {
+            glEnable(GL_BLEND);
+            glBlendFunc(blend_modes[src_color], blend_modes[dst_color]);
+         }
+         else {
+            return;
+         }
       }
    }
    
