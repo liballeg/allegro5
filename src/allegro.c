@@ -160,59 +160,6 @@ static void debug_exit(void)
 
 
 
-/* al_assert:
- *  Raises an assert (uses ASCII strings).
- */
-void al_assert(const char *file, int line)
-{
-   static int asserted = false;
-   int olderr = errno;
-   char buf[128];
-   char *s;
-
-   if (asserted)
-      return;
-
-   /* todo, some day: use snprintf (C99) */
-   sprintf(buf, "Assert failed at line %d of %s", line, file);
-
-   if (assert_handler) {
-      if (assert_handler(buf))
-	 return;
-   }
-
-   if (debug_assert_virgin) {
-      s = getenv("ALLEGRO_ASSERT");
-
-      if (s)
-	 assert_file = fopen(s, "w");
-      else
-	 assert_file = NULL;
-
-      if (debug_trace_virgin)
-	 _al_add_exit_func(debug_exit, "debug_exit");
-
-      debug_assert_virgin = false;
-   }
-
-   if (assert_file) {
-      fprintf(assert_file, "%s\n", buf);
-      fflush(assert_file);
-   }
-   else {
-      asserted = true;
-
-#ifndef ALLEGRO_MSVC
-      fprintf(stderr, "%s\n", buf);
-#endif
-      abort();
-   }
-
-   errno = olderr;
-}
-
-
-
 static void delete_string_list(_AL_VECTOR *v)
 {
    while (_al_vector_is_nonempty(v)) {

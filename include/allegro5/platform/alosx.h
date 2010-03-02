@@ -46,7 +46,6 @@
       #import <IOKit/hid/IOHIDLib.h>
       #import <IOKit/hid/IOHIDKeys.h>
       #import <Kernel/IOKit/hidsystem/IOHIDUsageTables.h>
-      #undef assert
    #endif
 #endif
 
