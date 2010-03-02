@@ -769,6 +769,9 @@ static void osx_get_opengl_pixelformat_attributes(ALLEGRO_DISPLAY_OSX_WIN *dpy)
    dpy->ctx = osx_create_shareable_context(fmt, &dpy->display_group);
    if (dpy->ctx == nil) {
       ALLEGRO_DEBUG("Could not create rendering context\n");
+	  [view release];
+	  [fmt release];
+	  
       return;
    }
    [view setOpenGLContext: dpy->ctx];
@@ -1047,6 +1050,7 @@ static ALLEGRO_DISPLAY* create_display_fs(int w, int h)
 
       CFRelease(pixel_encoding);
    }
+   CFRelease(modes);
 
    if (!mode) {
       /* Trouble! - we can't find a nice mode to set. */
@@ -1060,7 +1064,6 @@ static ALLEGRO_DISPLAY* create_display_fs(int w, int h)
    CFDictionaryRef options = CFDictionaryCreate(NULL, NULL, NULL, 0, NULL, NULL);
    CGDisplaySetDisplayMode(dpy->display_id, mode, NULL);
    CFRelease(options);
-   CFRelease(modes);
 #endif
    [context setFullScreen];
 
@@ -1605,6 +1608,7 @@ static bool resize_display_fs(ALLEGRO_DISPLAY *d, int w, int h)
 #else
    CGDisplayModeRef current = CGDisplayCopyDisplayMode(dpy->display_id);
    CFStringRef bps = CGDisplayModeCopyPixelEncoding(current);
+   CFRelease(current);
    CGDisplayModeRef mode = NULL;
    CFArrayRef modes = NULL;
    int i;
@@ -1627,10 +1631,11 @@ static bool resize_display_fs(ALLEGRO_DISPLAY *d, int w, int h)
 
       CFRelease(pixel_encoding);
    }
-
+  CFRelease(bps);
+  CFRelease(modes);
    if (!mode) {
       ALLEGRO_DEBUG("Can't resize fullscreen display\n");
-      CFRelease(modes);
+ 
       return false;
    }
 
@@ -1639,7 +1644,6 @@ static bool resize_display_fs(ALLEGRO_DISPLAY *d, int w, int h)
    CFDictionaryRef options = CFDictionaryCreate(NULL, NULL, NULL, 0, NULL, NULL);
    CGDisplaySetDisplayMode(dpy->display_id, mode, NULL);
    CFRelease(options);
-   CFRelease(modes);
 #endif
    d->w = w;
    d->h = h;

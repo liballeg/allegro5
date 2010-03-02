@@ -30,7 +30,8 @@ static ALLEGRO_BITMAP *really_load_image(char *buffer, int size)
 
    NSArray *reps = [image representations];
    NSImageRep *image_rep = [reps objectAtIndex: 0];
-   if (!image_rep)
+   [image release];
+   if (!image_rep) 
       return NULL;
 
    ALLEGRO_DEBUG("Read image of size %dx%d, %d representation(s)\n", w, h, (int)[reps count]);
@@ -61,7 +62,6 @@ static ALLEGRO_BITMAP *really_load_image(char *buffer, int size)
       al_unlock_bitmap(bmp);
    }
    _AL_FREE(pixels);
-   [image release];
    return bmp;
 }
 

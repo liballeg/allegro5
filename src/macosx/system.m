@@ -251,7 +251,7 @@ static int _al_osx_get_num_display_modes(void)
       CGDisplayModeRef mode = (CGDisplayModeRef)CFArrayGetValueAtIndex(modes, i);
       CFStringRef pixel_encoding = CGDisplayModeCopyPixelEncoding(mode);
 
-      int bpp, mode_refresh_rate, samples, value;
+      int bpp = 0, mode_refresh_rate, samples = 0, value = 0;
 
       /* Determine pixel format. Whever thought this was a better idea than
        * having query functions for each of these properties should be
@@ -299,7 +299,7 @@ static int _al_osx_get_num_display_modes(void)
          samples = 1;
          value = 8;
       }
-
+	  CFRelease(pixel_encoding);
 
       /* Check if this mode is ok in terms of depth and refresh rate */
       ALLEGRO_INFO("Mode %d has colour depth %d.\n", (int)i, bpp);
