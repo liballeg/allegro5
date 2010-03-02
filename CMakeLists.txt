@@ -53,7 +53,7 @@ if(WIN32)
         set(CMAKE_RC_COMPILE_OBJECT
             "<CMAKE_RC_COMPILER> <FLAGS> -O coff -o <OBJECT> -i <SOURCE>")
         if(NOT CMAKE_RC_COMPILER OR "${CMAKE_RC_COMPILER}" STREQUAL "")
-            string(REGEX REPLACE "gcc$" "windres"
+            string(REGEX REPLACE "gcc(.exe)?$" "windres"
                 GUESS_RC_COMPILER ${CMAKE_C_COMPILER})
             find_program(CMAKE_RC_COMPILER ${GUESS_RC_COMPILER})
         endif()
