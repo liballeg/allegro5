@@ -30,14 +30,10 @@
 
 
 /* debugging stuff */
-static int debug_assert_virgin = true;
 static int debug_trace_virgin = true;
-
-static FILE *assert_file = NULL;
 static FILE *trace_file = NULL;
 static _AL_MUTEX trace_mutex = _AL_MUTEX_UNINITED;
 
-static int (*assert_handler)(const char *msg) = NULL;
 int (*_al_trace_handler)(const char *msg) = NULL;
 
 
@@ -135,27 +131,6 @@ void _al_run_exit_funcs(void)
       _al_remove_exit_func(func);
       (*func)();
    }
-}
-
-
-
-/* debug_exit:
- *  Closes the debugging output files.
- */
-static void debug_exit(void)
-{
-   if (assert_file) {
-      fclose(assert_file);
-      assert_file = NULL;
-   }
-
-   if (trace_file) {
-      fclose(trace_file);
-      trace_file = NULL;
-   }
-
-   debug_assert_virgin = true;
-   debug_trace_virgin = true;
 }
 
 
@@ -365,9 +340,6 @@ void al_trace(const char *msg, ...)
          trace_file = fopen("allegro.log", "w");
 #endif
 
-      if (debug_assert_virgin)
-         _al_add_exit_func(debug_exit, "debug_exit");
-
       debug_trace_virgin = false;
    }
 
@@ -377,16 +349,6 @@ void al_trace(const char *msg, ...)
    }
 
    errno = olderr;
-}
-
-
-
-/* al_register_assert_handler:
- *  Installs a user handler for assert failures.
- */
-void al_register_assert_handler(int (*handler)(const char *msg))
-{
-   assert_handler = handler;
 }
 
 

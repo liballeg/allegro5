@@ -39,13 +39,6 @@
 # undef MIN
 # undef MAX
 # undef TRACE
-# undef ASSERT
-
-#ifdef DEBUGMODE
-# define AL_ASSERT(condition)  { if (!(condition)) al_assert(__FILE__, __LINE__); }
-#else
-# define AL_ASSERT(condition)
-#endif
 
 #ifndef SCAN_DEPEND
    #include <Be.h>

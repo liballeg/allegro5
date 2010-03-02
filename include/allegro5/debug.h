@@ -19,6 +19,7 @@
 #ifndef ALLEGRO_DEBUG_H
 #define ALLEGRO_DEBUG_H
 
+#include <assert.h>
 #include "allegro5/base.h"
 
 #ifdef __cplusplus
@@ -30,12 +31,10 @@ AL_FUNC(bool, _al_trace_prefix, (char const *channel, int level,
 
 AL_PRINTFUNC(void, al_trace, (const char *msg, ...), 1, 2);
 
-AL_FUNC(void, al_register_assert_handler, (AL_METHOD(int, handler, (const char *msg))));
 AL_FUNC(void, al_register_trace_handler, (AL_METHOD(int, handler, (const char *msg))));
 
 
 #ifdef DEBUGMODE
-   #undef NDEBUG
    /* Must not be used with a trailing semicolon. */
    #define ALLEGRO_DEBUG_CHANNEL(x) static char const *__al_debug_channel = x;
    #define ALLEGRO_TRACE_CHANNEL_LEVEL(channel, level)                        \
@@ -43,14 +42,12 @@ AL_FUNC(void, al_register_trace_handler, (AL_METHOD(int, handler, (const char *m
       ? (void)0 : al_trace
    #define TRACE                 al_trace
 #else
-   #define NDEBUG
    #define TRACE                                    1 ? (void) 0 : al_trace
    #define ALLEGRO_TRACE_CHANNEL_LEVEL(channel, x)  1 ? (void) 0 : al_trace
    #define ALLEGRO_DEBUG_CHANNEL(x)
 #endif
 
-#include <assert.h>
-#define ALLEGRO_ASSERT(e)		 assert(e)
+#define ALLEGRO_ASSERT(e)        assert(e)
 #define ALLEGRO_TRACE_LEVEL(x)   ALLEGRO_TRACE_CHANNEL_LEVEL(__al_debug_channel, x)
 #define ALLEGRO_DEBUG            ALLEGRO_TRACE_LEVEL(0)
 #define ALLEGRO_INFO             ALLEGRO_TRACE_LEVEL(1)
