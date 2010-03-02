@@ -275,7 +275,7 @@ static ALLEGRO_DISPLAY *xdpy_create_display(int w, int h)
 
    /* Create an X11 window */
    XSetWindowAttributes swa;
-   int mask = CWBorderPixel | CWColormap | CWEventMask | CWBackPixel;
+   int mask = CWBorderPixel | CWColormap | CWEventMask;
    swa.colormap = cmap;
    swa.border_pixel = 0;
    swa.event_mask =
@@ -290,7 +290,16 @@ static ALLEGRO_DISPLAY *xdpy_create_display(int w, int h)
       ButtonPressMask |
       ButtonReleaseMask |
       PointerMotionMask;
-   swa.background_pixel = BlackPixel(system->x11display, d->xvinfo->screen);
+
+   /* For a non-compositing window manager, a black background can look
+    * less broken if the application doesn't react to expose events fast
+    * enough. However in some cases like resizing, the black background
+    * causes horrible flicker.
+    */
+   if (!(display->flags & ALLEGRO_RESIZABLE)) {
+      mask |= CWBackPixel;
+      swa.background_pixel = BlackPixel(system->x11display, d->xvinfo->screen);
+   }
 
    d->window = XCreateWindow(system->x11display, RootWindow(
       system->x11display, d->xvinfo->screen), 0, 0, w, h, 0, d->xvinfo->depth,
