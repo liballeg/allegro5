@@ -26,7 +26,7 @@
 
 /* Function: al_copy_transform
  */
-void al_copy_transform(AL_CONST ALLEGRO_TRANSFORM* src, ALLEGRO_TRANSFORM* dest)
+void al_copy_transform(const ALLEGRO_TRANSFORM *src, ALLEGRO_TRANSFORM *dest)
 {
    ASSERT(src);
    ASSERT(dest);
@@ -36,7 +36,7 @@ void al_copy_transform(AL_CONST ALLEGRO_TRANSFORM* src, ALLEGRO_TRANSFORM* dest)
 
 /* Function: al_use_transform
  */
-void al_use_transform(AL_CONST ALLEGRO_TRANSFORM* trans)
+void al_use_transform(const ALLEGRO_TRANSFORM *trans)
 {
    ALLEGRO_DISPLAY *current_display = al_get_current_display();
    ASSERT(current_display);
@@ -48,7 +48,7 @@ void al_use_transform(AL_CONST ALLEGRO_TRANSFORM* trans)
 
 /* Function: al_get_current_transform
  */
-AL_CONST ALLEGRO_TRANSFORM* al_get_current_transform()
+const ALLEGRO_TRANSFORM *al_get_current_transform()
 {
    ALLEGRO_DISPLAY *current_display = al_get_current_display();
    ASSERT(current_display);
@@ -58,7 +58,7 @@ AL_CONST ALLEGRO_TRANSFORM* al_get_current_transform()
 
 /* Function: al_identity_transform
  */
-void al_identity_transform(ALLEGRO_TRANSFORM* trans)
+void al_identity_transform(ALLEGRO_TRANSFORM *trans)
 {
    ASSERT(trans);
    
@@ -85,7 +85,7 @@ void al_identity_transform(ALLEGRO_TRANSFORM* trans)
 
 /* Function: al_build_transform
  */
-void al_build_transform(ALLEGRO_TRANSFORM* trans, float x, float y,
+void al_build_transform(ALLEGRO_TRANSFORM *trans, float x, float y,
    float sx, float sy, float theta)
 {
    float c, s;
@@ -138,7 +138,7 @@ void al_invert_transform(ALLEGRO_TRANSFORM *trans)
 
 /* Function: al_check_inverse
  */
-int al_check_inverse(AL_CONST ALLEGRO_TRANSFORM *trans, float tol)
+int al_check_inverse(const ALLEGRO_TRANSFORM *trans, float tol)
 {
    float det, norm, c0, c1, c3;
    ASSERT(trans);
@@ -157,7 +157,7 @@ int al_check_inverse(AL_CONST ALLEGRO_TRANSFORM *trans, float tol)
 
 /* Function: al_translate_transform
  */
-void al_translate_transform(ALLEGRO_TRANSFORM* trans, float x, float y)
+void al_translate_transform(ALLEGRO_TRANSFORM *trans, float x, float y)
 {
    ASSERT(trans);
    
@@ -167,7 +167,7 @@ void al_translate_transform(ALLEGRO_TRANSFORM* trans, float x, float y)
 
 /* Function: al_rotate_transform
  */
-void al_rotate_transform(ALLEGRO_TRANSFORM* trans, float theta)
+void al_rotate_transform(ALLEGRO_TRANSFORM *trans, float theta)
 {
    float c, s;
    float t;
@@ -191,7 +191,7 @@ void al_rotate_transform(ALLEGRO_TRANSFORM* trans, float theta)
 
 /* Function: al_scale_transform
  */
-void al_scale_transform(ALLEGRO_TRANSFORM* trans, float sx, float sy)
+void al_scale_transform(ALLEGRO_TRANSFORM *trans, float sx, float sy)
 {
    ASSERT(trans);
    
@@ -207,7 +207,7 @@ void al_scale_transform(ALLEGRO_TRANSFORM* trans, float sx, float sy)
 
 /* Function: al_transform_coordinates
  */
-void al_transform_coordinates(AL_CONST ALLEGRO_TRANSFORM* trans, float* x, float* y)
+void al_transform_coordinates(const ALLEGRO_TRANSFORM *trans, float *x, float *y)
 {
    float t;
    ASSERT(trans);
@@ -222,7 +222,7 @@ void al_transform_coordinates(AL_CONST ALLEGRO_TRANSFORM* trans, float* x, float
 
 /* Function: al_transform_transform
  */
-void al_transform_transform(AL_CONST ALLEGRO_TRANSFORM* trans, ALLEGRO_TRANSFORM* trans2)
+void al_transform_transform(const ALLEGRO_TRANSFORM *trans, ALLEGRO_TRANSFORM *trans2)
 {
    float t;
    ASSERT(trans);
