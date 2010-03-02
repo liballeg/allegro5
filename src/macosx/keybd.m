@@ -169,14 +169,14 @@ static void get_state(ALLEGRO_KEYBOARD_STATE *ret_state)
 ALLEGRO_KEYBOARD_DRIVER keyboard_macosx =
 {
 	KEYBOARD_MACOSX, //int  id;
-	"",//   AL_CONST char *name;
-	"", // AL_CONST char *desc;
-	"MacOS X keyboard",// AL_CONST char *ascii_name;
+	"",//   const char *name;
+	"", // const char *desc;
+	"MacOS X keyboard",// const char *ascii_name;
 	osx_keyboard_init, // ALLEGRO_METHOD(bool, init, (void));
 	osx_keyboard_exit, // ALLEGRO_METHOD(void, exit, (void));
 	osx_get_keyboard, // ALLEGRO_METHOD(ALLEGRO_KEYBOARD*, get_keyboard, (void));
 	NULL, // ALLEGRO_METHOD(bool, set_leds, (int leds));
-	NULL, // ALLEGRO_METHOD(AL_CONST char *, keycode_to_name, (int keycode));
+	NULL, // ALLEGRO_METHOD(const char *, keycode_to_name, (int keycode));
 	get_state, // ALLEGRO_METHOD(void, get_state, (ALLEGRO_KEYBOARD_STATE *ret_state));
 };
 _DRIVER_INFO _al_keyboard_driver_list[] =

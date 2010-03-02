@@ -94,7 +94,7 @@ static int processor (unsigned char *buf, int buf_size)
  *  if there's a reasonable chance that this driver can work with that
  *  data.
  */
-static int analyse_data (AL_CONST char *buffer, int size)
+static int analyse_data (const char *buffer, int size)
 {
 	int pos = 0;
 	int packets = 0, errors = 0;
@@ -171,10 +171,10 @@ static void wakeup_im (int fd)
 static int mouse_init (void)
 {
 	char tmp1[128], tmp2[128];
-	AL_CONST char *udevice;
+	const char *udevice;
 	int flags;
 
-        static AL_CONST char * AL_CONST default_devices[] = {
+        static const char * const default_devices[] = {
 		"/dev/mouse",
 		"/dev/input/mice",
         };

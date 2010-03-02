@@ -571,7 +571,7 @@ static int _find_executable_file(const char *filename, char *output, int size)
 }
 
 /* Implentation of get_path */
-static AL_CONST char *_fixme_osx_get_path(uint32_t id, char* path, size_t length)
+static const char *_fixme_osx_get_path(uint32_t id, char* path, size_t length)
 {
    NSString* ans = nil;
    NSArray* paths = nil;

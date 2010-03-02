@@ -214,7 +214,7 @@ static ALLEGRO_DISPLAY_INTERFACE *win_get_display_driver(void)
 {
    int flags = al_get_new_display_flags();
    ALLEGRO_SYSTEM *sys = al_get_system_driver();
-   AL_CONST char *s;
+   const char *s;
 
 #if defined ALLEGRO_CFG_D3D
    if (flags & ALLEGRO_DIRECT3D) {

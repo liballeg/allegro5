@@ -540,7 +540,7 @@ bool al_toggle_display_flag(int flag, bool onoff)
 
 /* Function: al_set_window_title
  */
-void al_set_window_title(AL_CONST char *title)
+void al_set_window_title(const char *title)
 {
    ALLEGRO_DISPLAY *current_display = al_get_current_display();
 

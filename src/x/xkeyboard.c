@@ -323,7 +323,7 @@ static int find_unknown_key_assignment(int i)
 
    for (j = 1; j < ALLEGRO_KEY_MAX; j++) {
       if (!used[j]) {
-         AL_CONST char *str;
+         const char *str;
          keycode_to_scancode[i] = j;
          str = XKeysymToString(keysyms[sym_per_key * (i - min_keycode)]);
          if (str)
@@ -504,7 +504,7 @@ static int find_allegro_key(KeySym sym)
 /* scancode_to_name:
  *  Converts the given scancode to a description of the key.
  */
-static AL_CONST char *x_scancode_to_name(int scancode)
+static const char *x_scancode_to_name(int scancode)
 {
    ASSERT (scancode >= 0 && scancode < ALLEGRO_KEY_MAX);
 
@@ -841,7 +841,7 @@ static bool xkeybd_init_keyboard(void);
 static void xkeybd_exit_keyboard(void);
 static ALLEGRO_KEYBOARD *xkeybd_get_keyboard(void);
 static bool xkeybd_set_keyboard_leds(int leds);
-static AL_CONST char *xkeybd_keycode_to_name(int keycode);
+static const char *xkeybd_keycode_to_name(int keycode);
 static void xkeybd_get_keyboard_state(ALLEGRO_KEYBOARD_STATE *ret_state);
 
 
@@ -930,7 +930,7 @@ static bool xkeybd_set_keyboard_leds(int leds)
 /* xkeybd_keycode_to_name:
  *  Converts the given keycode to a description of the key.
  */
-static AL_CONST char *xkeybd_keycode_to_name(int keycode)
+static const char *xkeybd_keycode_to_name(int keycode)
 {
    return x_scancode_to_name(keycode);
 }

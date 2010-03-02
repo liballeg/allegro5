@@ -45,7 +45,7 @@
 
 static int  sys_linux_init(void);
 static void sys_linux_exit(void);
-static void sys_linux_message (AL_CONST char *msg);
+static void sys_linux_message (const char *msg);
 static void sys_linux_save_console_state(void);
 static void sys_linux_restore_console_state(void);
 
@@ -268,7 +268,7 @@ static void sys_linux_restore_console_state(void)
 /* sys_linux_message:
  *  Display a message on our original console.
  */
-static void sys_linux_message (AL_CONST char *msg)
+static void sys_linux_message (const char *msg)
 {
    char *tmp;
    int ret;

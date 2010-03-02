@@ -32,7 +32,7 @@
  *  Saves <num> bitmaps as an .ico, using <pal> as palette for 8-bit bitmaps.
  *  Other color depths are saved as 24-bit.
  */
-int save_ico(AL_CONST char *filename, BITMAP *bmp[], int num, PALETTE pal[])
+int save_ico(const char *filename, BITMAP *bmp[], int num, PALETTE pal[])
 {
    PACKFILE *f;
    int depth, bpp, bw, bitsw;

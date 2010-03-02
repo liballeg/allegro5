@@ -72,7 +72,7 @@ typedef struct ALLEGRO_OGL_BITMAP_VERTEX
 
 
 /* extensions */
-int  _al_ogl_look_for_an_extension(AL_CONST char *name, AL_CONST GLubyte *extensions);
+int  _al_ogl_look_for_an_extension(const char *name, const GLubyte *extensions);
 void _al_ogl_set_extensions(ALLEGRO_OGL_EXT_API *ext);
 void _al_ogl_manage_extensions(ALLEGRO_DISPLAY *disp);
 void _al_ogl_unmanage_extensions(ALLEGRO_DISPLAY *disp);

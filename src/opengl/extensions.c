@@ -337,9 +337,9 @@ static void destroy_extension_list(ALLEGRO_OGL_EXT_LIST *list)
  * This function has been written by Mark J. Kilgard in one of his
  * tutorials about OpenGL extensions
  */
-int _al_ogl_look_for_an_extension(AL_CONST char *name, AL_CONST GLubyte *extensions)
+int _al_ogl_look_for_an_extension(const char *name, const GLubyte *extensions)
 {
-   AL_CONST GLubyte *start;
+   const GLubyte *start;
    GLubyte *where, *terminator;
 
    /* Extension names should not have spaces. */
@@ -351,7 +351,7 @@ int _al_ogl_look_for_an_extension(AL_CONST char *name, AL_CONST GLubyte *extensi
     */
    start = extensions;
    for (;;) {
-      where = (GLubyte *) strstr((AL_CONST char *)start, name);
+      where = (GLubyte *) strstr((const char *)start, name);
       if (!where)
          break;
       terminator = where + strlen(name);
@@ -365,7 +365,7 @@ int _al_ogl_look_for_an_extension(AL_CONST char *name, AL_CONST GLubyte *extensi
 
 
 
-static int _ogl_is_extension_supported(AL_CONST char *extension,
+static int _ogl_is_extension_supported(const char *extension,
                                        ALLEGRO_DISPLAY *disp)
 {
    int ret;
@@ -417,7 +417,7 @@ static int _ogl_is_extension_supported(AL_CONST char *extension,
 
 
 static bool _ogl_is_extension_with_version_supported(
-   AL_CONST char *extension, ALLEGRO_DISPLAY *disp, float ver)
+   const char *extension, ALLEGRO_DISPLAY *disp, float ver)
 {
    ALLEGRO_CONFIG *cfg;
    char const *value;
@@ -454,7 +454,7 @@ static bool _ogl_is_extension_with_version_supported(
 
 /* Function: al_is_opengl_extension_supported
  */
-int al_is_opengl_extension_supported(AL_CONST char *extension)
+int al_is_opengl_extension_supported(const char *extension)
 {
    ALLEGRO_DISPLAY *disp;
    
@@ -472,7 +472,7 @@ int al_is_opengl_extension_supported(AL_CONST char *extension)
 
 /* Function: al_get_opengl_proc_address
  */
-void *al_get_opengl_proc_address(AL_CONST char *name)
+void *al_get_opengl_proc_address(const char *name)
 {
    void *symbol = NULL;
 #ifdef ALLEGRO_MACOSX
@@ -598,7 +598,7 @@ static void fill_in_info_struct(const GLubyte *rendereru, OPENGL_INFO *info)
  */
 void _al_ogl_manage_extensions(ALLEGRO_DISPLAY *gl_disp)
 {
-   //AL_CONST GLubyte *buf;
+   //const GLubyte *buf;
 #if defined ALLEGRO_MACOSX
    CFURLRef bundle_url;
 #endif

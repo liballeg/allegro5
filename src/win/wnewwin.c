@@ -808,7 +808,7 @@ void _al_win_toggle_window_frame(ALLEGRO_DISPLAY *display, HWND hWnd,
    }
 }
 
-void _al_win_set_window_title(ALLEGRO_DISPLAY *display, AL_CONST char *title)
+void _al_win_set_window_title(ALLEGRO_DISPLAY *display, const char *title)
 {
    ALLEGRO_DISPLAY_WIN *win_display = (ALLEGRO_DISPLAY_WIN *)display;
    SetWindowText(win_display->window, title);

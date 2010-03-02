@@ -71,7 +71,7 @@ ALLEGRO_DEBUG_CHANNEL("opengl")
 static GLint ogl_min_filter = GL_NEAREST;
 static GLint ogl_mag_filter = GL_NEAREST;
 
-static GLint ogl_get_filter(AL_CONST char *s)
+static GLint ogl_get_filter(const char *s)
 {
    if (!stricmp(s, "LINEAR"))
       return GL_LINEAR;
@@ -556,7 +556,7 @@ static bool ogl_upload_bitmap(ALLEGRO_BITMAP *bitmap)
    
    if (!cfg_read) {         
       ALLEGRO_SYSTEM *sys;
-      AL_CONST char *s;
+      const char *s;
 
       cfg_read = true;
 

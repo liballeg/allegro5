@@ -76,7 +76,7 @@ char *_alemu_strupr(char *string)
 /* _alemu_stricmp:
  *  Case-insensitive comparison of strings.
  */
-int _alemu_stricmp(AL_CONST char *s1, AL_CONST char *s2)
+int _alemu_stricmp(const char *s1, const char *s2)
 {
    int c1, c2;
    ASSERT(s1);

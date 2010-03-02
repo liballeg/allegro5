@@ -82,7 +82,7 @@ static int processor (unsigned char *buf, int buf_size)
  *  if there's a reasonable chance that this driver can work with that
  *  data.
  */
-static int analyse_data (AL_CONST char *buffer, int size)
+static int analyse_data (const char *buffer, int size)
 {
 	int pos = 0;
 	int packets = 0, errors = 0;
@@ -151,7 +151,7 @@ static void sync_mouse (int fd)
 static int mouse_init (void)
 {
 	char tmp1[128], tmp2[128], tmp3[128];
-	AL_CONST char *udevice;
+	const char *udevice;
 	struct termios t;
 
 	/* Find the device filename */

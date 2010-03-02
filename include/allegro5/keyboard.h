@@ -48,7 +48,7 @@ AL_FUNC(void,         al_uninstall_keyboard, (void));
 
 AL_FUNC(bool,         al_set_keyboard_leds,  (int leds));
 
-AL_FUNC(AL_CONST char *, al_keycode_to_name, (int keycode));
+AL_FUNC(const char *, al_keycode_to_name, (int keycode));
 
 AL_FUNC(void,         al_get_keyboard_state, (ALLEGRO_KEYBOARD_STATE *ret_state));
 AL_FUNC(bool,         al_key_down,           (const ALLEGRO_KEYBOARD_STATE *, int keycode));

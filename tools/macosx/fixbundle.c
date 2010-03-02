@@ -293,7 +293,7 @@ static void usage(void)
 
 
 
-static int copy_file(AL_CONST char *filename, AL_CONST char *dest_path)
+static int copy_file(const char *filename, const char *dest_path)
 {
    char *buffer = NULL;
    char dest_file[1024];

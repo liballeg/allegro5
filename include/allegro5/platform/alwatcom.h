@@ -65,10 +65,6 @@
    #define ALLEGRO_MMX
 #endif
 
-#if __WATCOMC__ >= 1200   /* Open Watcom 1.0 */
-   #define AL_CONST const
-#endif
-
 
 /* emulate some important djgpp routines */
 #define inportb(port)         inp(port)

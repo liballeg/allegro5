@@ -147,7 +147,7 @@ AL_FUNC(void, al_get_new_window_position, (int *x, int *y));
 AL_FUNC(void, al_set_window_position, (ALLEGRO_DISPLAY *display, int x, int y));
 AL_FUNC(void, al_get_window_position, (ALLEGRO_DISPLAY *display, int *x, int *y));
 
-AL_FUNC(void, al_set_window_title, (AL_CONST char *title));
+AL_FUNC(void, al_set_window_title, (const char *title));
 
 /* Defined in display_settings.c */
 AL_FUNC(void, al_set_new_display_option, (int option, int value, int importance));

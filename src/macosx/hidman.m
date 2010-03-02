@@ -78,7 +78,7 @@ static void hid_store_element_data(CFTypeRef element, int type, HID_DEVICE *devi
 {
 	HID_ELEMENT *hid_element;
 	CFTypeRef type_ref;
-	AL_CONST char *name;
+	const char *name;
 	
 	hid_element = add_element(device);
 	hid_element->type = type;
@@ -349,7 +349,7 @@ HID_DEVICE_COLLECTION *_al_osx_hid_scan(int type, HID_DEVICE_COLLECTION* col)
 	CFMutableDictionaryRef properties = NULL, usb_properties = NULL;
 	IOCFPlugInInterface **plugin_interface = NULL;
 	IOReturn result;
-	AL_CONST char *string;
+	const char *string;
 	SInt32 score = 0;
 	int error;
 	

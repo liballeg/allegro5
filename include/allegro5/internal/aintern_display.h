@@ -64,7 +64,7 @@ struct ALLEGRO_DISPLAY_INTERFACE
    void (*set_window_position)(ALLEGRO_DISPLAY *display, int x, int y);
    void (*get_window_position)(ALLEGRO_DISPLAY *display, int *x, int *y);
    bool (*toggle_display_flag)(ALLEGRO_DISPLAY *display, int flag, bool onoff);
-   void (*set_window_title)(ALLEGRO_DISPLAY *display, AL_CONST char *title);
+   void (*set_window_title)(ALLEGRO_DISPLAY *display, const char *title);
    
    void (*flush_vertex_cache)(ALLEGRO_DISPLAY *d);
    void* (*prepare_vertex_cache)(ALLEGRO_DISPLAY *d, int num_new_vertices);

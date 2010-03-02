@@ -116,8 +116,8 @@
 
 
 AL_FUNC(float,                 al_get_opengl_version,            (void));
-AL_FUNC(int,                   al_is_opengl_extension_supported, (AL_CONST char *extension));
-AL_FUNC(void*,                 al_get_opengl_proc_address,       (AL_CONST char *name));
+AL_FUNC(int,                   al_is_opengl_extension_supported, (const char *extension));
+AL_FUNC(void*,                 al_get_opengl_proc_address,       (const char *name));
 AL_FUNC(ALLEGRO_OGL_EXT_LIST*, al_get_opengl_extension_list,     (void));
 AL_FUNC(GLuint,                al_get_opengl_texture,            (ALLEGRO_BITMAP *bitmap));
 AL_FUNC(void,                  al_remove_opengl_fbo,             (ALLEGRO_BITMAP *bitmap));

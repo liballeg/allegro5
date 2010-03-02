@@ -393,7 +393,7 @@ static bool d3d_parameters_are_valid(int format, int refresh_rate, int flags)
 */
 
 
-static DWORD d3d_get_filter(AL_CONST char *s)
+static DWORD d3d_get_filter(const char *s)
 {
    if (!stricmp(s, "LINEAR"))
       return D3DTEXF_LINEAR;
@@ -1781,7 +1781,7 @@ static bool d3d_create_display_internals(ALLEGRO_DISPLAY_D3D *d3d_display)
    ALLEGRO_DISPLAY *al_display = &win_display->display;
    static bool cfg_read = false;
    ALLEGRO_SYSTEM *sys;
-   AL_CONST char *s;
+   const char *s;
    
    params.display = d3d_display;
   

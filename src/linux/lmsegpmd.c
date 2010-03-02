@@ -100,7 +100,7 @@ static void sync_mouse (int fd)
 static int mouse_init (void)
 {
 	char tmp1[128], tmp2[128], tmp3[128];
-	AL_CONST char *udevice;
+	const char *udevice;
 
 	/* Find the device filename */
 	udevice = get_config_string (uconvert_ascii ("mouse", tmp1),

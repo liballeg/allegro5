@@ -37,11 +37,11 @@ AL_FUNC(void, _al_rotate_scale_flip_coordinates, (al_fixed w, al_fixed h,
    al_fixed xs[4], al_fixed ys[4]));
 
 
-AL_FUNCPTR(int, _al_trace_handler, (AL_CONST char *msg));
+AL_FUNCPTR(int, _al_trace_handler, (const char *msg));
 
 
 /* list of functions to call at program cleanup */
-AL_FUNC(void, _al_add_exit_func, (AL_METHOD(void, func, (void)), AL_CONST char *desc));
+AL_FUNC(void, _al_add_exit_func, (AL_METHOD(void, func, (void)), const char *desc));
 AL_FUNC(void, _al_remove_exit_func, (AL_METHOD(void, func, (void))));
 AL_FUNC(void, _al_run_exit_funcs, (void));
 

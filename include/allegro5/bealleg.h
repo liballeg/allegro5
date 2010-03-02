@@ -268,7 +268,7 @@ AL_VAR(volatile int, _be_focus_count);
 AL_VAR(volatile bool, _be_gfx_initialized);
 AL_VAR(int, *_be_dirty_lines);
 
-AL_ARRAY(AL_CONST BE_MODE_TABLE, _be_mode_table);
+AL_ARRAY(const BE_MODE_TABLE, _be_mode_table);
 
 
 extern int32 (*_be_sync_func)();

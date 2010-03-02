@@ -159,7 +159,7 @@ typedef struct AXIS {
 /* in_to_screen:
  *  maps an input absolute position to a screen position
  */
-static int in_to_screen(AL_CONST AXIS *axis, int v)
+static int in_to_screen(const AXIS *axis, int v)
 {
    return (((v-axis->in_min) * OUT_RANGE(*axis)) / IN_RANGE(*axis)) + axis->out_min;
 }
@@ -262,7 +262,7 @@ static AXIS z_axis;
 /* init_axis:
  *  initialize an AXIS structure, from the device and the config file
  */
-static void init_axis(int fd, AXIS *axis, AL_CONST char *name, AL_CONST char *section, int type)
+static void init_axis(int fd, AXIS *axis, const char *name, const char *section, int type)
 {
    char tmp1[256]; /* config string */
    char tmp2[256]; /* format string */
@@ -338,7 +338,7 @@ static void init_tablet(int fd)
  *  process events of type key (button clicks and vicinity events are currently
  *  supported)
  */
-static void process_key(AL_CONST struct input_event *event)
+static void process_key(const struct input_event *event)
 {
    switch (event->code) {
       /* Buttons click
@@ -414,7 +414,7 @@ static void handle_button_event(unsigned int button, bool is_down)
 /* process_rel: [fdwatch thread]
  *  process relative events (x, y and z movement are currently supported)
  */
-static void process_rel(AL_CONST struct input_event *event)
+static void process_rel(const struct input_event *event)
 {
    /* The device can send a report when there's no tool */
    if (current_tool!=no_tool) {
@@ -449,7 +449,7 @@ static void process_rel(AL_CONST struct input_event *event)
  *  process absolute events (x, y and z movement are currently supported)
  *  TODO: missing handle_axis_event calls
  */
-static void process_abs(AL_CONST struct input_event *event)
+static void process_abs(const struct input_event *event)
 {
    /* The device can send a report when there's no tool */
    if (current_tool!=no_tool) {
@@ -530,7 +530,7 @@ static int open_mouse_device (const char *device_file)
 static bool mouse_init (void)
 {
    char tmp1[128], tmp2[128];
-   AL_CONST char *udevice;
+   const char *udevice;
 
    /* Set the current tool */
    current_tool = default_tool;

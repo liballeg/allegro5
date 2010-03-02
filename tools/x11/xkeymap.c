@@ -44,7 +44,7 @@ static void get_raw_keycode(int pressed, int keycode)
    }
 }
 
-static AL_CONST char *keycode_getter(int index, int *list_size)
+static const char *keycode_getter(int index, int *list_size)
 {
    if (index >= 0) {
       return scancode_to_name(index + 1);

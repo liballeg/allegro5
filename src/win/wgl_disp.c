@@ -98,7 +98,7 @@ static void setup_gl(ALLEGRO_DISPLAY *d)
    glLoadIdentity();
 }
 
-static bool is_wgl_extension_supported(AL_CONST char *extension, HDC dc)
+static bool is_wgl_extension_supported(const char *extension, HDC dc)
 {
    _ALLEGRO_wglGetExtensionsStringARB_t _wglGetExtensionsStringARB;
    int ret;

@@ -149,10 +149,6 @@
       #define ALLEGRO_ARM
    #endif
 
-   #ifndef AL_CONST
-      #define AL_CONST     const
-   #endif
-
    #ifndef AL_FUNC_DEPRECATED
       #if (__GNUC__ > 3) || ((__GNUC__ == 3) && (__GNUC_MINOR__ >= 1))
          #define AL_FUNC_DEPRECATED(type, name, args)              AL_FUNC(__attribute__ ((deprecated)) type, name, args)
@@ -300,7 +296,7 @@
 /* emulate missing library functions */
 /* Define the macros conditionally in case another library is also helpful. */
 #ifdef ALLEGRO_NO_STRICMP
-   AL_FUNC(int, _alemu_stricmp, (AL_CONST char *s1, AL_CONST char *s2));
+   AL_FUNC(int, _alemu_stricmp, (const char *s1, const char *s2));
    #ifndef stricmp
      #define stricmp(s1, s2) _alemu_stricmp((s1), (s2))
    #endif

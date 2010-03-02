@@ -792,8 +792,7 @@ static void xdpy_get_window_position(ALLEGRO_DISPLAY *display, int *x, int *y)
 
 
 
-static void xdpy_set_window_title(
-   ALLEGRO_DISPLAY *display, AL_CONST char *title)
+static void xdpy_set_window_title(ALLEGRO_DISPLAY *display, const char *title)
 {
    ALLEGRO_SYSTEM_XGLX *system = (ALLEGRO_SYSTEM_XGLX *)al_get_system_driver();
    ALLEGRO_DISPLAY_XGLX *glx = (ALLEGRO_DISPLAY_XGLX *)display;
