@@ -36,6 +36,15 @@ static double get_gamma(void)
 
 
 
+static void user_error_fn(png_structp png_ptr, png_const_charp message)
+{
+   jmp_buf *jmpbuf = (jmp_buf *)png_get_error_ptr(png_ptr);
+   (void)message;
+   longjmp(*jmpbuf, 1);
+}
+
+
+
 /*****************************************************************************
  * Loading routines
  ****************************************************************************/
@@ -264,6 +273,7 @@ static ALLEGRO_BITMAP *really_load_png(png_structp png_ptr, png_infop info_ptr)
  */
 ALLEGRO_BITMAP *al_load_png_f(ALLEGRO_FILE *fp)
 {
+   jmp_buf jmpbuf;
    ALLEGRO_BITMAP *bmp;
    png_structp png_ptr;
    png_infop info_ptr;
@@ -293,16 +303,14 @@ ALLEGRO_BITMAP *al_load_png_f(ALLEGRO_FILE *fp)
       return NULL;
    }
 
-   /* Set error handling if you are using the setjmp/longjmp method (this is
-    * the normal method of doing things with libpng).  REQUIRED unless you
-    * set up your own error handlers in the png_create_read_struct() earlier.
-    */
-   if (setjmp(png_ptr->jmpbuf)) {
+   /* Set error handling. */
+   if (setjmp(jmpbuf)) {
       /* Free all of the memory associated with the png_ptr and info_ptr */
       png_destroy_read_struct(&png_ptr, &info_ptr, (png_infopp) NULL);
       /* If we get here, we had a problem reading the file */
       return NULL;
    }
+   png_set_error_fn(png_ptr, jmpbuf, user_error_fn, NULL);
 
    /* Use Allegro packfile routines. */
    png_set_read_fn(png_ptr, fp, (png_rw_ptr) read_data);
@@ -419,6 +427,7 @@ static int save_rgba(png_structp png_ptr, ALLEGRO_BITMAP *bmp)
  */
 bool al_save_png_f(ALLEGRO_FILE *fp, ALLEGRO_BITMAP *bmp)
 {
+   jmp_buf jmpbuf;
    png_structp png_ptr = NULL;
    png_infop info_ptr = NULL;
    int depth;
@@ -440,10 +449,10 @@ bool al_save_png_f(ALLEGRO_FILE *fp, ALLEGRO_BITMAP *bmp)
       goto Error;
 
    /* Set error handling. */
-   if (setjmp(png_ptr->jmpbuf)) {
-      /* If we get here, we had a problem reading the file. */
+   if (setjmp(jmpbuf)) {
       goto Error;
    }
+   png_set_error_fn(png_ptr, jmpbuf, user_error_fn, NULL);
 
    /* Use packfile routines. */
    png_set_write_fn(png_ptr, fp, (png_rw_ptr) write_data, flush_data);
