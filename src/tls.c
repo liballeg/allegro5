@@ -33,8 +33,6 @@
 #include "allegro5/internal/aintern_memory.h"
 #include "allegro5/internal/aintern_fshook.h"
 
-ALLEGRO_DEBUG_CHANNEL("TLS");
-
 /* Thread local storage for graphics API state */
 typedef struct thread_local_state {
    /* Display parameters */
@@ -183,7 +181,6 @@ static void pthreads_thread_destroy(void* ptr)
 void _al_pthreads_tls_init(void)
 {
    pthread_key_create(&tls_key, pthreads_thread_destroy);
-   ALLEGRO_DEBUG("Created TLS key %d\n", (int)tls_key);
 }
 
 static thread_local_state _tls;
@@ -193,7 +190,6 @@ static thread_local_state* pthreads_thread_init(void)
    /* Allocate and copy the 'template' object */
    thread_local_state* ptr = (thread_local_state*)_AL_MALLOC(sizeof(thread_local_state));
    memcpy(ptr, &_tls, sizeof(thread_local_state));
-   //ALLEGRO_DEBUG("Set specific %p for key %d\n", ptr, (int)tls_key);
    pthread_setspecific(tls_key, ptr);
    return ptr;
 }
