@@ -8,6 +8,14 @@
 @html_spaced_list_bullet
 
 @heading
+Changes from 4.4.1 to 4.4.1.1 (March 2010)
+<ul><li>
+   Fix a silly build system problem with MinGW on Windows.
+<li>
+   Update loadpng code to not use a deprecated interface (as of libpng 1.4).
+</ul>
+
+@heading
 Changes from 4.4.0.1 to 4.4.1 (March 2010)
 <ul><li>
    Allow Linux joystick driver to be used with the X11 port without
