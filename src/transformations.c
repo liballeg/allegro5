@@ -43,7 +43,9 @@ void al_use_transform(const ALLEGRO_TRANSFORM *trans)
    ASSERT(trans);
 
    al_copy_transform(trans, &current_display->cur_transform);
-   current_display->vt->update_transformation(current_display);
+   if (current_display->vt) {
+      current_display->vt->update_transformation(current_display);
+   }
 }
 
 /* Function: al_get_current_transform
