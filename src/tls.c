@@ -33,7 +33,7 @@
 #include "allegro5/internal/aintern_memory.h"
 #include "allegro5/internal/aintern_fshook.h"
 
-/* Thread local storage for graphics API state */
+/* Thread local storage for various per-thread state. */
 typedef struct thread_local_state {
    /* Display parameters */
    int new_display_refresh_rate;
@@ -41,21 +41,15 @@ typedef struct thread_local_state {
    ALLEGRO_EXTRA_DISPLAY_SETTINGS new_display_settings;
    /* Current display */
    ALLEGRO_DISPLAY *current_display;
+   /* This is used for storing current transformation and blenders for
+    * graphics operations while no current display is available.
+    */
+   ALLEGRO_DISPLAY *memory_display;
    /* Target bitmap */
    ALLEGRO_BITMAP *target_bitmap;
    /* Bitmap parameters */
    int new_bitmap_format;
    int new_bitmap_flags;
-   /* Blending modes and color */
-   int blend_op;
-   int blend_source;
-   int blend_dest;
-   int blend_alpha_op;
-   int blend_alpha_source;
-   int blend_alpha_dest;
-   ALLEGRO_COLOR blend_color;
-   //FIXME: Might need this again for optimization purposes.
-   //ALLEGRO_MEMORY_BLENDER memory_blender;
    /* Files */
    const ALLEGRO_FILE_INTERFACE *new_file_interface;
    const ALLEGRO_FS_INTERFACE *fs_interface;
@@ -63,9 +57,15 @@ typedef struct thread_local_state {
    int allegro_errno;
 } thread_local_state;
 
-/* The extra sizeof(int) is for flags. */
+typedef struct INTERNAL_STATE {
+   thread_local_state tls;
+   ALLEGRO_BLENDER stored_blender;
+   ALLEGRO_TRANSFORM stored_transform;
+   int flags;
+} INTERNAL_STATE;
+
 ALLEGRO_STATIC_ASSERT(
-   sizeof(ALLEGRO_STATE) > sizeof(thread_local_state) + sizeof(int));
+   sizeof(ALLEGRO_STATE) > sizeof(INTERNAL_STATE));
 
 
 #if (defined ALLEGRO_MINGW32 && ( \
@@ -118,15 +118,6 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved)
              memset(data, 0, sizeof(*data));
 
              data->new_bitmap_format = ALLEGRO_PIXEL_FORMAT_ANY;
-             data->blend_op = ALLEGRO_ADD;
-             data->blend_source = ALLEGRO_ALPHA;
-             data->blend_dest = ALLEGRO_INVERSE_ALPHA;
-             data->blend_alpha_op = ALLEGRO_ADD;
-             data->blend_alpha_source = ALLEGRO_ONE;
-             data->blend_alpha_dest = ALLEGRO_ONE;
-             data->blend_color.r = data->blend_color.g = data->blend_color.b
-                = data->blend_color.a = 1.0f;
-             //data->memory_blender = _al_blender_alpha_inverse_alpha;
              TlsSetValue(tls_index, data);
              _al_fill_display_settings(&data->new_display_settings);
           }
@@ -221,17 +212,10 @@ static THREAD_LOCAL thread_local_state _tls = {
    {0, 0, { 0 },
     NULL, 0, 0},                          /* new_display_settings */
    NULL,                                  /* current_display */
+   NULL,                                  /* memory_display */
    NULL,                                  /* target_bitmap */
    ALLEGRO_PIXEL_FORMAT_ANY_WITH_ALPHA,   /* new_bitmap_format */
    0,                                     /* new_bitmap_flags */
-   ALLEGRO_ADD,                           /* blend_op */
-   ALLEGRO_ALPHA,                         /* blend_source */
-   ALLEGRO_INVERSE_ALPHA,                 /* blend_dest */
-   ALLEGRO_ADD,                           /* blend_alpha_op */
-   ALLEGRO_ONE,                           /* blend_alpha_source */
-   ALLEGRO_ONE,                           /* blend_alpha_dest */
-   { 1.0f, 1.0f, 1.0f, 1.0f },            /* blend_color  */
-   //_al_blender_alpha_inverse_alpha,       /* memory_blender */
    &_al_file_interface_stdio,             /* file_interface */
    &_al_fs_interface_stdio,               /* fs_interface */
    0                                      /* errno */
@@ -253,7 +237,9 @@ static thread_local_state *tls_get(void)
 
 #endif /* end not defined ALLEGRO_MINGW32 */
 
-
+#ifdef ALLEGRO_CFG_PTHREADS_TLS
+   _al_pthreads_tls_init();
+#endif
 
 void _al_set_new_display_settings(ALLEGRO_EXTRA_DISPLAY_SETTINGS *settings)
 {
@@ -367,8 +353,27 @@ ALLEGRO_DISPLAY *al_get_current_display(void)
    thread_local_state *tls;
 
    if ((tls = tls_get()) == NULL)
-      return 0;
+      return NULL;
    return tls->current_display;
+}
+
+
+
+ALLEGRO_DISPLAY *_al_get_current_display(void)
+{
+   thread_local_state *tls;
+
+   if ((tls = tls_get()) == NULL)
+      return NULL;
+   if (tls->current_display)
+      return tls->current_display;
+
+   if (!tls->memory_display) {
+      tls->memory_display = _AL_MALLOC(sizeof *tls->memory_display);
+      memset(tls->memory_display, 0, sizeof *tls->memory_display);
+      _al_initialize_blender(&tls->memory_display->cur_blender);
+   }
+   return tls->memory_display;
 }
 
 
@@ -459,20 +464,19 @@ int al_get_new_bitmap_flags(void)
 
 
 
-#define _STORE(x) stored->x = tls->x;
+#define _STORE(x) stored->tls.x = tls->x;
 /* Function: al_store_state
  */
 void al_store_state(ALLEGRO_STATE *state, int flags)
 {
    thread_local_state *tls;
-   thread_local_state *stored;
+   INTERNAL_STATE *stored;
 
    if ((tls = tls_get()) == NULL)
       return;
-      
-   state->flags = flags;
-   
-   stored = (void *)&state->_tls;
+
+   stored = (void *)state;
+   stored->flags = flags;
 
    if (flags & ALLEGRO_STATE_NEW_DISPLAY_PARAMETERS) {
       _STORE(new_display_refresh_rate);
@@ -493,39 +497,36 @@ void al_store_state(ALLEGRO_STATE *state, int flags)
    }
 
    if (flags & ALLEGRO_STATE_BLENDER) {
-      _STORE(blend_op);
-      _STORE(blend_source);
-      _STORE(blend_dest);
-      _STORE(blend_alpha_op);
-      _STORE(blend_alpha_source);
-      _STORE(blend_alpha_dest);
-      _STORE(blend_color);
-      //_STORE(memory_blender);
+      stored->stored_blender = _al_get_current_display()->cur_blender;
    }
 
    if (flags & ALLEGRO_STATE_NEW_FILE_INTERFACE) {
       _STORE(new_file_interface);
       _STORE(fs_interface);
    }
+   
+   if (flags & ALLEGRO_STATE_TRANSFORM) {
+      stored->stored_transform = _al_get_current_display()->cur_transform;
+   }
 }
 #undef _STORE
 
 
 
-#define _STORE(x) tls->x = stored->x;
+#define _STORE(x) tls->x = stored->tls.x;
 /* Function: al_restore_state
  */
 void al_restore_state(ALLEGRO_STATE const *state)
 {
    thread_local_state *tls;
-   thread_local_state *stored;
+   INTERNAL_STATE *stored;
    int flags;
 
    if ((tls = tls_get()) == NULL)
       return;
-   flags = state->flags;
    
-   stored = (void *)&state->_tls;
+   stored = (void *)state;
+   flags = stored->flags;
 
    if (flags & ALLEGRO_STATE_NEW_DISPLAY_PARAMETERS) {
       _STORE(new_display_refresh_rate);
@@ -548,204 +549,19 @@ void al_restore_state(ALLEGRO_STATE const *state)
    }
    
    if (flags & ALLEGRO_STATE_BLENDER) {
-      _STORE(blend_op);
-      _STORE(blend_source);
-      _STORE(blend_dest);
-      _STORE(blend_alpha_op);
-      _STORE(blend_alpha_source);
-      _STORE(blend_alpha_dest);
-      _STORE(blend_color);
-      //_STORE(memory_blender);
+      _al_get_current_display()->cur_blender = stored->stored_blender;
    }
 
    if (flags & ALLEGRO_STATE_NEW_FILE_INTERFACE) {
       _STORE(new_file_interface);
       _STORE(fs_interface);
    }
-}
-#undef _STORE
-
-
-
-/* Function: al_set_blender
- */
-void al_set_blender(int op, int src, int dst, ALLEGRO_COLOR color)
-{
-   al_set_separate_blender(op, src, dst, op, src, dst, color);
-}
-
-
-
-/* Function: al_set_separate_blender
- */
-void al_set_separate_blender(int op, int src, int dst,
-   int alpha_op, int alpha_src, int alpha_dst, ALLEGRO_COLOR color)
-{
-   thread_local_state *tls;
-
-   if ((tls = tls_get()) == NULL)
-      return;
-
-   tls->blend_op = op;
-   tls->blend_source = src;
-   tls->blend_dest = dst;
-   tls->blend_alpha_op = alpha_op;
-   tls->blend_alpha_source = alpha_src;
-   tls->blend_alpha_dest = alpha_dst;
-
-   memcpy(&tls->blend_color, &color, sizeof(ALLEGRO_COLOR));
-
-   //_al_set_memory_blender(src, dst, alpha_src, alpha_dst, &color);
-}
-
-
-
-/* Function: al_get_blender
- */
-void al_get_blender(int *op, int *src, int *dst, ALLEGRO_COLOR *color)
-{
-   al_get_separate_blender(op, src, dst, NULL, NULL, NULL, color);
-}
-
-
-
-/* Function: al_get_separate_blender
- */
-void al_get_separate_blender(int *op, int *src, int *dst,
-   int *alpha_op, int *alpha_src, int *alpha_dst, ALLEGRO_COLOR *color)
-{
-   thread_local_state *tls;
-
-   if ((tls = tls_get()) == NULL)
-      return;
    
-   if (op)
-      *op = tls->blend_op;
-
-   if (src)
-      *src = tls->blend_source;
-
-   if (dst)
-      *dst = tls->blend_dest;
-   
-   if (alpha_op)
-      *alpha_op = tls->blend_alpha_op;
-
-   if (alpha_src)
-      *alpha_src = tls->blend_alpha_source;
-
-   if (alpha_dst)
-      *alpha_dst = tls->blend_alpha_dest;
-
-   if (color)
-      memcpy(color, &tls->blend_color, sizeof(ALLEGRO_COLOR));
-}
-
-
-
-ALLEGRO_COLOR *_al_get_blend_color(void)
-{
-   thread_local_state *tls;
-
-   if ((tls = tls_get()) == NULL)
-      return NULL;
-   return &tls->blend_color;
-}
-
-
-
-// FIXME: Do we need this for optimization?
-#if 0
-void _al_set_memory_blender(int src, int dst, ALLEGRO_COLOR *color)
-{
-   thread_local_state *tls;
-
-   if ((tls = tls_get()) == NULL)
-      return;
-
-   switch (src) {
-
-      case ALLEGRO_ZERO:
-         switch (dst) {
-            case ALLEGRO_ZERO:
-               tls->memory_blender = _al_blender_zero_zero;
-               break;
-            case ALLEGRO_ONE:
-               tls->memory_blender = _al_blender_zero_one;
-               break;
-            case ALLEGRO_ALPHA:
-               tls->memory_blender = _al_blender_zero_alpha;
-               break;
-            case ALLEGRO_INVERSE_ALPHA:
-               tls->memory_blender = _al_blender_zero_inverse_alpha;
-               break;
-         }
-         break;
-
-      case ALLEGRO_ONE:
-         switch (dst) {
-            case ALLEGRO_ZERO:
-               tls->memory_blender = _al_blender_one_zero;
-               break;
-            case ALLEGRO_ONE:
-               tls->memory_blender = _al_blender_one_one;
-               break;
-            case ALLEGRO_ALPHA:
-               tls->memory_blender = _al_blender_one_alpha;
-               break;
-            case ALLEGRO_INVERSE_ALPHA:
-               tls->memory_blender = _al_blender_one_inverse_alpha;
-               break;
-         }
-         break;
-
-      case ALLEGRO_ALPHA:
-         switch (dst) {
-            case ALLEGRO_ZERO:
-               tls->memory_blender = _al_blender_alpha_zero;
-               break;
-            case ALLEGRO_ONE:
-               tls->memory_blender = _al_blender_alpha_one;
-               break;
-            case ALLEGRO_ALPHA:
-               tls->memory_blender = _al_blender_alpha_alpha;
-               break;
-            case ALLEGRO_INVERSE_ALPHA:
-               tls->memory_blender = _al_blender_alpha_inverse_alpha;
-               break;
-         }
-         break;
-
-      case ALLEGRO_INVERSE_ALPHA:
-         switch (dst) {
-            case ALLEGRO_ZERO:
-               tls->memory_blender = _al_blender_inverse_alpha_zero;
-               break;
-            case ALLEGRO_ONE:
-               tls->memory_blender = _al_blender_inverse_alpha_one;
-               break;
-            case ALLEGRO_ALPHA:
-               tls->memory_blender = _al_blender_inverse_alpha_alpha;
-               break;
-            case ALLEGRO_INVERSE_ALPHA:
-               tls->memory_blender = _al_blender_inverse_alpha_inverse_alpha;
-               break;
-         }
-         break;
+   if (flags & ALLEGRO_STATE_TRANSFORM) {
+      _al_get_current_display()->cur_transform = stored->stored_transform;
    }
 }
-
-
-
-ALLEGRO_MEMORY_BLENDER _al_get_memory_blender()
-{
-   thread_local_state *tls;
-
-   if ((tls = tls_get()) == NULL)
-      return NULL;
-   return tls->memory_blender;
-}
-#endif
+#undef _STORE
 
 
 

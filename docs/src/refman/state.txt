@@ -8,6 +8,32 @@ These functions are declared in the main Allegro header file:
 
 Opaque type which is passed to [al_store_state]/[al_restore_state].
 
+The various state kept internally by Allegro can be displayed like this:
+
+      global
+          active system driver
+              current config
+      per thread
+          new bitmap params
+          new display params
+          active file interface
+          errno
+          current display
+              current transformation
+              current blending mode
+              deferred drawing
+          current target bitmap
+              current clipping rectangle
+              bitmap locking
+
+In general, the only real global state is the active system driver. All
+other global state is per-thread, so if your application has multiple
+separate threads they never will interfere with each other. (Except if
+there are objects accessed by multiple threads of course. Usually you
+want to minimize that though and for the remaining cases use
+synchronization primitives described in the threads section or events
+described in the events section to control inter-thread communication.)
+
 ## API: ALLEGRO_STATE_FLAGS
 
 Flags which can be passed to [al_store_state]/[al_restore_state] as bit
@@ -20,6 +46,7 @@ to the following al_set\_/al_get\_ calls:
 * ALLEGRO_STATE_DISPLAY - current_display
 * ALLEGRO_STATE_TARGET_BITMAP - target_bitmap 
 * ALLEGRO_STATE_BLENDER - blender
+* ALLEGRO_STATE_TRANSFORMATION - current_transformation
 * ALLEGRO_STATE_NEW_FILE_INTERFACE - new_file_interface 
 * ALLEGRO_STATE_BITMAP - same as ALLEGRO_STATE_NEW_BITMAP_PARAMETERS and
                          ALLEGRO_STATE_TARGET_BITMAP

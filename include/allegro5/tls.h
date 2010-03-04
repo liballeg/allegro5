@@ -36,6 +36,7 @@ typedef enum ALLEGRO_STATE_FLAGS
     ALLEGRO_STATE_TARGET_BITMAP          = 0x0008,
     ALLEGRO_STATE_BLENDER                = 0x0010,
     ALLEGRO_STATE_NEW_FILE_INTERFACE     = 0x0020,
+    ALLEGRO_STATE_TRANSFORM              = 0x0040,
 
     ALLEGRO_STATE_BITMAP                 = ALLEGRO_STATE_TARGET_BITMAP +\
                                            ALLEGRO_STATE_NEW_BITMAP_PARAMETERS,
@@ -52,8 +53,7 @@ typedef struct ALLEGRO_STATE ALLEGRO_STATE;
 struct ALLEGRO_STATE
 {
    /* Internally, a thread_local_state structure is placed here. */
-   char _tls[256];
-   int flags;
+   char _tls[512];
 };
 
 

@@ -77,6 +77,17 @@ struct ALLEGRO_DISPLAY_INTERFACE
 
 struct ALLEGRO_OGL_EXTRAS;
 
+typedef struct ALLEGRO_BLENDER
+{
+   int blend_op;
+   int blend_source;
+   int blend_dest;
+   int blend_alpha_op;
+   int blend_alpha_source;
+   int blend_alpha_dest;
+   ALLEGRO_COLOR blend_color;
+} ALLEGRO_BLENDER;
+
 /* These are settings Allegro itself doesn't really care about on its
  * own, but which users may want to specify for a display anyway.
  */
@@ -113,6 +124,7 @@ struct ALLEGRO_DISPLAY
    uintptr_t cache_texture;
    
    ALLEGRO_TRANSFORM cur_transform;
+   ALLEGRO_BLENDER cur_blender;
 };
 
 int  _al_score_display_settings(ALLEGRO_EXTRA_DISPLAY_SETTINGS *eds, ALLEGRO_EXTRA_DISPLAY_SETTINGS *ref);
@@ -130,6 +142,8 @@ void _al_destroy_display_bitmaps(ALLEGRO_DISPLAY *d);
 /* Defined in tls.c */
 void _al_set_new_display_settings(ALLEGRO_EXTRA_DISPLAY_SETTINGS *settings);
 ALLEGRO_EXTRA_DISPLAY_SETTINGS *_al_get_new_display_settings(void);
+ALLEGRO_DISPLAY *_al_get_current_display(void);
+void _al_initialize_blender(ALLEGRO_BLENDER *blender);
 
 #ifdef __cplusplus
 }

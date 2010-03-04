@@ -38,7 +38,7 @@ void al_copy_transform(const ALLEGRO_TRANSFORM *src, ALLEGRO_TRANSFORM *dest)
  */
 void al_use_transform(const ALLEGRO_TRANSFORM *trans)
 {
-   ALLEGRO_DISPLAY *current_display = al_get_current_display();
+   ALLEGRO_DISPLAY *current_display = _al_get_current_display();
    ASSERT(current_display);
    ASSERT(trans);
 
@@ -50,7 +50,7 @@ void al_use_transform(const ALLEGRO_TRANSFORM *trans)
  */
 const ALLEGRO_TRANSFORM *al_get_current_transform()
 {
-   ALLEGRO_DISPLAY *current_display = al_get_current_display();
+   ALLEGRO_DISPLAY *current_display = _al_get_current_display();
    ASSERT(current_display);
 
    return &current_display->cur_transform;

@@ -71,6 +71,7 @@ ALLEGRO_DISPLAY *al_create_display(int w, int h)
    display->cache_texture = 0;
    
    al_identity_transform(&display->cur_transform);
+   _al_initialize_blender(&display->cur_blender);
 
    _al_vector_init(&display->bitmaps, sizeof(ALLEGRO_BITMAP*));
 
