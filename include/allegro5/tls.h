@@ -53,7 +53,7 @@ typedef struct ALLEGRO_STATE ALLEGRO_STATE;
 struct ALLEGRO_STATE
 {
    /* Internally, a thread_local_state structure is placed here. */
-   char _tls[512];
+   char _tls[1024];
 };
 
 

@@ -45,6 +45,14 @@ typedef struct thread_local_state {
     * graphics operations while no current display is available.
     */
    ALLEGRO_DISPLAY *memory_display;
+   /* FIXME: If we have a way to call a callback before a thread is
+    * destroyed this field can be removed and instead memory_display
+    * should be allocated on demand with _AL_MALLOC and then destroyed
+    * with _AL_FREE in the callback. For now putting it here avoids
+    * the allocation.
+    */
+   ALLEGRO_DISPLAY memory_display_storage;
+
    /* Target bitmap */
    ALLEGRO_BITMAP *target_bitmap;
    /* Bitmap parameters */
@@ -66,6 +74,18 @@ typedef struct INTERNAL_STATE {
 
 ALLEGRO_STATIC_ASSERT(
    sizeof(ALLEGRO_STATE) > sizeof(INTERNAL_STATE));
+
+
+static void initialize_tls_values(thread_local_state *tls)
+{
+   memset(tls, 0, sizeof *tls);
+
+   tls->new_bitmap_format = ALLEGRO_PIXEL_FORMAT_ANY_WITH_ALPHA;
+   tls->new_file_interface = &_al_file_interface_stdio;
+   tls->fs_interface = &_al_fs_interface_stdio;
+   
+   _al_fill_display_settings(&tls->new_display_settings);
+}
 
 
 #if (defined ALLEGRO_MINGW32 && ( \
@@ -115,11 +135,8 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved)
           // Initialize the TLS index for this thread.
           data = _AL_MALLOC(sizeof(*data));
           if (data != NULL) {
-             memset(data, 0, sizeof(*data));
-
-             data->new_bitmap_format = ALLEGRO_PIXEL_FORMAT_ANY;
              TlsSetValue(tls_index, data);
-             _al_fill_display_settings(&data->new_display_settings);
+             initialize_tls_values(data);
           }
              break; 
  
@@ -193,7 +210,7 @@ static thread_local_state* tls_get(void)
    {
       /* Must create object */
       ptr = pthreads_thread_init();
-      _al_fill_display_settings(&ptr->new_display_settings);
+      initialize_tls_values(ptr);
    }
    return ptr;
 }
@@ -205,22 +222,7 @@ static thread_local_state* tls_get(void)
 
 #endif /* end not MSVC/BCC32, not OSX */
 
-
-static THREAD_LOCAL thread_local_state _tls = {
-   0,                                     /* new_display_refresh_rate */
-   0,                                     /* new_display_flags */
-   {0, 0, { 0 },
-    NULL, 0, 0},                          /* new_display_settings */
-   NULL,                                  /* current_display */
-   NULL,                                  /* memory_display */
-   NULL,                                  /* target_bitmap */
-   ALLEGRO_PIXEL_FORMAT_ANY_WITH_ALPHA,   /* new_bitmap_format */
-   0,                                     /* new_bitmap_flags */
-   &_al_file_interface_stdio,             /* file_interface */
-   &_al_fs_interface_stdio,               /* fs_interface */
-   0                                      /* errno */
-};
-
+static THREAD_LOCAL thread_local_state _tls;
 
 #ifdef HAVE_NATIVE_TLS
 static thread_local_state *tls_get(void)
@@ -228,7 +230,7 @@ static thread_local_state *tls_get(void)
    static THREAD_LOCAL thread_local_state *ptr = NULL;
    if (!ptr) {
       ptr = &_tls;
-      _al_fill_display_settings(&ptr->new_display_settings);
+      initialize_tls_values(ptr);
    }
    return ptr;
 }
@@ -369,7 +371,7 @@ ALLEGRO_DISPLAY *_al_get_current_display(void)
       return tls->current_display;
 
    if (!tls->memory_display) {
-      tls->memory_display = _AL_MALLOC(sizeof *tls->memory_display);
+      tls->memory_display = &tls->memory_display_storage;
       memset(tls->memory_display, 0, sizeof *tls->memory_display);
       _al_initialize_blender(&tls->memory_display->cur_blender);
    }
