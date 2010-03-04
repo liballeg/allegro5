@@ -239,9 +239,7 @@ static thread_local_state *tls_get(void)
 
 #endif /* end not defined ALLEGRO_MINGW32 */
 
-#ifdef ALLEGRO_CFG_PTHREADS_TLS
-   _al_pthreads_tls_init();
-#endif
+
 
 void _al_set_new_display_settings(ALLEGRO_EXTRA_DISPLAY_SETTINGS *settings)
 {
