@@ -26,6 +26,7 @@
 #include "allegro5/internal/aintern.h"
 #include "allegro5/internal/aintern_memory.h"
 #include "allegro5/internal/aintern_thread.h"
+#include "allegro5/internal/aintern_system.h"
 
 
 
@@ -63,7 +64,12 @@ struct ALLEGRO_COND {
 static void thread_func_trampoline(_AL_THREAD *inner, void *_outer)
 {
    ALLEGRO_THREAD *outer = (ALLEGRO_THREAD *) _outer;
+   ALLEGRO_SYSTEM *system = al_get_system_driver();
    (void)inner;
+
+   if (system->vt->thread_init) {
+      system->vt->thread_init(outer);
+   }
 
    /* Wait to start the actual user thread function.  The thread could also be
     * destroyed before ever running the user function.
@@ -77,6 +83,10 @@ static void thread_func_trampoline(_AL_THREAD *inner, void *_outer)
    if (outer->thread_state == THREAD_STATE_STARTED) {
       outer->retval =
          ((void *(*)(ALLEGRO_THREAD *, void *))outer->proc)(outer, outer->arg);
+   }
+   
+   if (system->vt->thread_exit) {
+      system->vt->thread_exit(outer);
    }
 }
 

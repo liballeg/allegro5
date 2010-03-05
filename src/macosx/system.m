@@ -42,6 +42,10 @@ struct CPSProcessSerNum
 extern OSErr CPSGetCurrentProcess(struct CPSProcessSerNum *psn);
 extern OSErr CPSEnableForegroundOperation(struct CPSProcessSerNum *psn, UInt32 _arg2, UInt32 _arg3, UInt32 _arg4, UInt32 _arg5);
 extern OSErr CPSSetFrontProcess(struct CPSProcessSerNum *psn);
+typedef struct THREAD_AND_POOL {
+   ALLEGRO_THREAD *thread;
+   NSAutoreleasePool *pool;
+} THREAD_AND_POOL;
 
 
 
@@ -63,6 +67,7 @@ void (*osx_window_close_hook)(void) = NULL;
 //int osx_window_first_expose = false;
 static _AL_VECTOR osx_display_modes;
 static ALLEGRO_SYSTEM osx_system;
+_AL_VECTOR _osx_threads = _AL_VECTOR_INITIALIZER(THREAD_AND_POOL *);
 
 /* osx_tell_dock:
  *  Tell the dock about us; the origins of this hack are unknown, but it's
@@ -467,6 +472,33 @@ static bool osx_get_cursor_position(int *x, int *y)
    return true;
 }
 
+static void osx_thread_init(ALLEGRO_THREAD *thread)
+{
+   THREAD_AND_POOL *tap = _AL_MALLOC(sizeof(THREAD_AND_POOL));
+
+   tap->thread = thread;
+   tap->pool = [[NSAutoreleasePool alloc] init];
+
+   THREAD_AND_POOL **ptr = _al_vector_alloc_back(&_osx_threads);
+   *ptr = tap;
+}
+
+static void osx_thread_exit(ALLEGRO_THREAD *thread)
+{
+   unsigned int i;
+   THREAD_AND_POOL *tap;
+
+   for (i = 0; i < _osx_threads._size; i++) {
+      tap = _al_vector_ref(&_osx_threads, i);
+      if (tap->thread == thread) {
+         _al_vector_delete_at(&_osx_threads, i);
+         [tap->pool drain];
+         _AL_FREE(tap);
+	 return;
+      }
+   }
+}
+
 /* Internal function to get a reference to this driver. */
 ALLEGRO_SYSTEM_INTERFACE *_al_system_osx_driver(void)
 {
@@ -487,6 +519,8 @@ ALLEGRO_SYSTEM_INTERFACE *_al_system_osx_driver(void)
       vt->get_cursor_position = osx_get_cursor_position;
       vt->get_path = osx_get_path;
       vt->inhibit_screensaver = osx_inhibit_screensaver;
+      vt->thread_init = osx_thread_init;
+      vt->thread_exit = osx_thread_exit;
    };
       
    return vt;
