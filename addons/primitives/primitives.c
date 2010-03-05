@@ -149,7 +149,16 @@ int al_draw_indexed_prim(const void* vtxs, const ALLEGRO_VERTEX_DECL* decl,
  */
 ALLEGRO_COLOR al_get_allegro_color(ALLEGRO_PRIM_COLOR col)
 {
-   int flags = al_get_display_flags();
+   int flags;
+   if (al_get_target_bitmap()->flags & ALLEGRO_MEMORY_BITMAP) {
+      return al_map_rgba(
+         col & 0xff,
+         (col >> 8) & 0xff,
+         (col >> 16) & 0xff,
+         (col >> 24) & 0xff
+      );
+   }
+   flags = al_get_display_flags();
    if (flags & ALLEGRO_OPENGL) {
       return al_map_rgba(
          col & 0xff,
@@ -173,7 +182,17 @@ ALLEGRO_COLOR al_get_allegro_color(ALLEGRO_PRIM_COLOR col)
 ALLEGRO_PRIM_COLOR al_get_prim_color(ALLEGRO_COLOR col)
 {
    ALLEGRO_PRIM_COLOR ret;
-   int flags = al_get_display_flags();
+   int flags;
+   
+   if (al_get_target_bitmap()->flags & ALLEGRO_MEMORY_BITMAP) {
+      return
+         (int)(col.r*255) |
+         ((int)(col.g*255) << 8) |
+         ((int)(col.b*255) << 16) |
+         ((int)(col.a*255) << 24);
+   }
+   
+   flags = al_get_display_flags();
    if (flags & ALLEGRO_OPENGL) {
       ret =
          (int)(col.r*255) |
