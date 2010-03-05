@@ -28,7 +28,7 @@
 #ifdef ALLEGRO_CFG_D3D
 #include "allegro5/allegro_direct3d.h"
 
-D3DVERTEXELEMENT9 allegro_vertex_decl[] =
+static D3DVERTEXELEMENT9 allegro_vertex_decl[] =
 {
   {0, 0, D3DDECLTYPE_FLOAT3, D3DDECLMETHOD_DEFAULT, D3DDECLUSAGE_POSITION, 0},
   {0, 12, D3DDECLTYPE_D3DCOLOR, D3DDECLMETHOD_DEFAULT, D3DDECLUSAGE_COLOR, 0},
@@ -36,7 +36,7 @@ D3DVERTEXELEMENT9 allegro_vertex_decl[] =
   D3DDECL_END()
 };
 
-IDirect3DVertexDeclaration9* allegro_vertex_def;
+static IDirect3DVertexDeclaration9* allegro_vertex_def;
 
 static int al_blender_to_d3d(int al_mode)
 {
@@ -103,9 +103,10 @@ struct ALLEGRO_FVF_VERTEX {
   float u, v;
 };
 
-ALLEGRO_FVF_VERTEX* fvf_buffer;
-int fvf_buffer_size = 0;
-bool use_vertex_twiddler = false;
+/* XXX thread safety */
+static ALLEGRO_FVF_VERTEX* fvf_buffer;
+static int fvf_buffer_size = 0;
+static bool use_vertex_twiddler = false;
 
 static void* twiddle_vertices(const void* vtxs, int num_vertices)
 {
@@ -135,8 +136,11 @@ static void* twiddle_vertices(const void* vtxs, int num_vertices)
 
 #endif
 
-void* lbuff;
-int lbuff_size = 0;
+#ifdef ALLEGRO_CFG_D3D
+/* XXX thread safety */
+static void* lbuff;
+static int lbuff_size = 0;
+#endif
 
 int _al_draw_prim_directx(ALLEGRO_BITMAP* texture, const void* vtxs, const ALLEGRO_VERTEX_DECL* decl, int start, int end, int type)
 {
@@ -301,8 +305,11 @@ int _al_draw_prim_directx(ALLEGRO_BITMAP* texture, const void* vtxs, const ALLEG
 #endif
 }
 
-void* cbuff;
-int cbuff_size = 0;
+#ifdef ALLEGRO_CFG_D3D
+/* XXX thread safety */
+static void* cbuff;
+static int cbuff_size = 0;
+#endif
 
 int _al_draw_prim_indexed_directx(ALLEGRO_BITMAP* texture, const void* vtxs, const ALLEGRO_VERTEX_DECL* decl, const int* indices, int num_vtx, int type)
 {
