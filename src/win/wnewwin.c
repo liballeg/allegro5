@@ -217,6 +217,7 @@ HWND _al_win_create_faux_fullscreen_window(LPCTSTR devname, ALLEGRO_DISPLAY *dis
    DEVMODE mode;
    LONG temp;
 
+   (void)display;
    (void)flags;
 
    style = WS_VISIBLE;
