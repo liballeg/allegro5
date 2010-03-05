@@ -8,14 +8,15 @@ int main(void)
    ALLEGRO_DISPLAY *display;
    ALLEGRO_BITMAP *icon1;
    ALLEGRO_BITMAP *icon2;
+   ALLEGRO_EVENT_QUEUE *queue;
+   ALLEGRO_TIMER *timer;
    int i;
 
    if (!al_init()) {
       abort_example("Could not init Allegro.\n");
       return 1;
    }
-
-   al_install_mouse();
+   al_install_keyboard();
    al_init_image_addon();
 
    display = al_create_display(320, 200);
@@ -44,11 +45,30 @@ int main(void)
 
    al_set_window_title("<-- Changing icon example");
 
-   for (i = 0; i < 8; i++) {
-      al_set_display_icon((i & 1) ? icon2 : icon1);
-      al_flip_display();
-      al_rest(1.0);
+   timer = al_install_timer(0.5);
+   queue = al_create_event_queue();
+   al_register_event_source(queue, al_get_keyboard_event_source());
+   al_register_event_source(queue, al_get_display_event_source(display));
+   al_register_event_source(queue, al_get_timer_event_source(timer));
+   al_start_timer(timer);
+
+   for (;;) {
+      ALLEGRO_EVENT event;
+      al_wait_for_event(queue, &event);
+
+      if (event.type == ALLEGRO_EVENT_KEY_DOWN &&
+            event.keyboard.keycode == ALLEGRO_KEY_ESCAPE) {
+         break;
+      }
+      if (event.type == ALLEGRO_EVENT_DISPLAY_CLOSE) {
+         break;
+      }
+      if (event.type == ALLEGRO_EVENT_TIMER) {
+         al_set_display_icon((event.timer.count & 1) ? icon2 : icon1);
+      }
    }
+
+   al_uninstall_system();
 
    return 0;
 }
