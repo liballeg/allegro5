@@ -46,18 +46,6 @@
 
 #define LOCAL_VERTEX_CACHE  ALLEGRO_VERTEX vertex_cache[ALLEGRO_VERTEX_CACHE_SIZE]
 
-static float* cache_point_buffer;
-static int cache_point_size;
-
-static void update_point_cache(int size)
-{
-   if(size >= cache_point_size) {
-      free(cache_point_buffer);
-      cache_point_buffer = malloc(2 * sizeof(float) * size);
-      cache_point_size = size;
-   }
-}
-
 /* The software drawer ends up using al_draw_pixel for each pixel, so
  * blending works as expected.
  * However with OpenGL, Allegro's "blend color" needs to be
@@ -668,9 +656,19 @@ void al_calculate_spline(float* dest, int stride, float points[8],
    float xdt2_term, xdt3_term;
    float ydt2_term, ydt3_term;
 
+   /* This is enough to avoid malloc in ex_prim, which I take as a reasonable
+    * guess to what a common number of segments might be.  To be honest, it
+    * probably makes no difference.
+    */
+   float cache_point_buffer_storage[150];
+   float* cache_point_buffer = cache_point_buffer_storage;
+
    ASSERT(num_segments > 1);
    ASSERT(points);
-   update_point_cache(num_segments);
+
+   if (num_segments > (int)(sizeof(cache_point_buffer_storage) / sizeof(float) / 2)) {
+      cache_point_buffer = malloc(2 * sizeof(float) * num_segments);
+   }
 
    dt = 1.0 / (num_segments - 1);
    dt2 = (dt * dt);
@@ -716,6 +714,10 @@ void al_calculate_spline(float* dest, int stride, float points[8],
       cache_point_buffer[2 * ii + 1] = y;
    }
    al_calculate_ribbon(dest, stride, cache_point_buffer, 2 * sizeof(float), thickness, num_segments);
+
+   if (cache_point_buffer != cache_point_buffer_storage) {
+      free(cache_point_buffer);
+   }
 }
 
 /* Function: al_draw_spline
