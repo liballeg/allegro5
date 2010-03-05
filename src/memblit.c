@@ -85,17 +85,17 @@ static INLINE void _al_blend_inline(
    switch (aop) {
       case ALLEGRO_ADD:
          #define OP(x, y) MIN(1, x + y)
-         BLEND(a, src, dst)
+         BLEND(a, asrc, adst)
          #undef OP
          break;
       case ALLEGRO_SRC_MINUS_DEST:
          #define OP(x, y) MAX(0, x - y)
-         BLEND(a, src, dst)
+         BLEND(a, asrc, adst)
          #undef OP
          break;
       case ALLEGRO_DEST_MINUS_SRC:
          #define OP(x, y) MAX(0, y - x)
-         BLEND(a, src, dst)
+         BLEND(a, asrc, adst)
          #undef OP
          break;
    }
