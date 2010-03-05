@@ -44,14 +44,14 @@ typedef struct thread_local_state {
    /* This is used for storing current transformation and blenders for
     * graphics operations while no current display is available.
     */
-   ALLEGRO_DISPLAY *memory_display;
+
    /* FIXME: If we have a way to call a callback before a thread is
     * destroyed this field can be removed and instead memory_display
     * should be allocated on demand with _AL_MALLOC and then destroyed
     * with _AL_FREE in the callback. For now putting it here avoids
     * the allocation.
     */
-   ALLEGRO_DISPLAY memory_display_storage;
+   ALLEGRO_DISPLAY memory_display;
 
    /* Target bitmap */
    ALLEGRO_BITMAP *target_bitmap;
@@ -368,12 +368,12 @@ ALLEGRO_DISPLAY *_al_get_current_display(void)
    if (tls->current_display)
       return tls->current_display;
 
-   if (!tls->memory_display) {
-      tls->memory_display = &tls->memory_display_storage;
-      memset(tls->memory_display, 0, sizeof *tls->memory_display);
-      _al_initialize_blender(&tls->memory_display->cur_blender);
+   if (!(tls->memory_display.flags & ALLEGRO_INTERNAL)) {
+      tls->memory_display.flags |= ALLEGRO_INTERNAL;
+      al_identity_transform(&tls->memory_display.cur_transform);
+      _al_initialize_blender(&tls->memory_display.cur_blender);
    }
-   return tls->memory_display;
+   return &tls->memory_display;
 }
 
 

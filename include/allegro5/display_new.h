@@ -25,6 +25,8 @@
 #define ALLEGRO_GENERATE_EXPOSE_EVENTS 128
 //is something using 256? didn't seem to work...
 #define ALLEGRO_FULLSCREEN_WINDOW 512
+/* This is set to mark a display used only internally. */
+#define ALLEGRO_INTERNAL 1024
 
 /* Possible parameters for al_set_display_option.
  * Make sure to update ALLEGRO_EXTRA_DISPLAY_SETTINGS if you modify
