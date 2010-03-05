@@ -2,10 +2,6 @@
  *    Example program for the Allegro library, by Peter Wang.
  *
  *    In this example, each thread handles its own window and event queue.
- *
- *    The primitives addon is not yet thread-safe so you will see some cool
- *    looking but unintended glitches, especially if you increase the number
- *    of threads.
  */
 
 #include <math.h>

@@ -31,7 +31,7 @@
 /*
 The vertex cache allows for bulk transformation of vertices, for faster run speeds
 */
-static ALLEGRO_VERTEX vertex_cache[ALLEGRO_VERTEX_CACHE_SIZE];
+#define LOCAL_VERTEX_CACHE  ALLEGRO_VERTEX vertex_cache[ALLEGRO_VERTEX_CACHE_SIZE]
 
 static void convert_vtx(ALLEGRO_BITMAP* texture, const char* src, ALLEGRO_VERTEX* dest, const ALLEGRO_VERTEX_DECL* decl)
 {
@@ -104,6 +104,7 @@ static void convert_vtx(ALLEGRO_BITMAP* texture, const char* src, ALLEGRO_VERTEX
 
 int _al_draw_prim_soft(ALLEGRO_BITMAP* texture, const void* vtxs, const ALLEGRO_VERTEX_DECL* decl, int start, int end, int type)
 {
+   LOCAL_VERTEX_CACHE;
    int num_primitives;
    int num_vtx;
    int use_cache;
@@ -290,6 +291,7 @@ int _al_draw_prim_soft(ALLEGRO_BITMAP* texture, const void* vtxs, const ALLEGRO_
 int _al_draw_prim_indexed_soft(ALLEGRO_BITMAP* texture, const void* vtxs, const ALLEGRO_VERTEX_DECL* decl,
    const int* indices, int num_vtx, int type)
 {
+   LOCAL_VERTEX_CACHE;
    int num_primitives;
    int use_cache;
    int min_idx, max_idx;

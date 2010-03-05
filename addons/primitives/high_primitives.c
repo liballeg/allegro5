@@ -44,7 +44,8 @@
 #include "allegro5/internal/aintern_bitmap.h"
 #include <math.h>
 
-static ALLEGRO_VERTEX vertex_cache[ALLEGRO_VERTEX_CACHE_SIZE];
+#define LOCAL_VERTEX_CACHE  ALLEGRO_VERTEX vertex_cache[ALLEGRO_VERTEX_CACHE_SIZE]
+
 static float* cache_point_buffer;
 static int cache_point_size;
 
@@ -372,7 +373,9 @@ void al_calculate_arc(float* dest, int stride, float cx, float cy,
 void al_draw_ellipse(float cx, float cy, float rx, float ry,
    ALLEGRO_COLOR color, float thickness)
 {
+   LOCAL_VERTEX_CACHE;
    ALLEGRO_PRIM_COLOR prim_color;
+
    check_color_blending(&color);
    prim_color = al_get_prim_color(color);
    ASSERT(rx >= 0);
@@ -420,8 +423,10 @@ void al_draw_ellipse(float cx, float cy, float rx, float ry,
 void al_draw_filled_ellipse(float cx, float cy, float rx, float ry,
    ALLEGRO_COLOR color)
 {
+   LOCAL_VERTEX_CACHE;
    int num_segments, ii;
    ALLEGRO_PRIM_COLOR prim_color;
+
    check_color_blending(&color);
    prim_color = al_get_prim_color(color);
    ASSERT(rx >= 0);
@@ -468,7 +473,9 @@ void al_draw_filled_circle(float cx, float cy, float r, ALLEGRO_COLOR color)
 void al_draw_arc(float cx, float cy, float r, float start_theta,
    float delta_theta, ALLEGRO_COLOR color, float thickness)
 {
+   LOCAL_VERTEX_CACHE;
    ALLEGRO_PRIM_COLOR prim_color;
+
    check_color_blending(&color);
    prim_color = al_get_prim_color(color);
    ASSERT(r >= 0);
@@ -510,7 +517,9 @@ void al_draw_arc(float cx, float cy, float r, float start_theta,
 void al_draw_rounded_rectangle(float x1, float y1, float x2, float y2,
    float rx, float ry, ALLEGRO_COLOR color, float thickness)
 {
+   LOCAL_VERTEX_CACHE;
    ALLEGRO_PRIM_COLOR prim_color;
+
    check_color_blending(&color);
    prim_color = al_get_prim_color(color);
    ASSERT(rx >= 0);
@@ -600,6 +609,7 @@ void al_draw_rounded_rectangle(float x1, float y1, float x2, float y2,
 void al_draw_filled_rounded_rectangle(float x1, float y1, float x2, float y2,
    float rx, float ry, ALLEGRO_COLOR color)
 {
+   LOCAL_VERTEX_CACHE;
    ALLEGRO_PRIM_COLOR prim_color;
    int num_segments = ALLEGRO_PRIM_QUALITY * sqrtf((rx + ry) / 2.0f) / 4;
    int ii;
@@ -718,6 +728,7 @@ void al_draw_spline(float points[8], ALLEGRO_COLOR color, float thickness)
                                   (float)hypot(points[6] - points[4], points[7] - points[5])) *
                             1.2 * ALLEGRO_PRIM_QUALITY / 10);
    ALLEGRO_PRIM_COLOR prim_color;
+   LOCAL_VERTEX_CACHE;
    
    if(num_segments < 2)
       num_segments = 2;
@@ -879,8 +890,10 @@ void al_calculate_ribbon(float* dest, int dest_stride, const float *points,
 void al_draw_ribbon(const float *points, int points_stride, ALLEGRO_COLOR color,
    float thickness, int num_segments)
 {
-   int ii;
+   LOCAL_VERTEX_CACHE;
    ALLEGRO_PRIM_COLOR prim_color;
+   int ii;
+
    check_color_blending(&color);
    prim_color = al_get_prim_color(color);
    al_calculate_ribbon(&(vertex_cache[0].x), sizeof(ALLEGRO_VERTEX), points, points_stride, thickness, num_segments);
