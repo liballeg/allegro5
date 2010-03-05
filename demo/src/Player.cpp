@@ -193,6 +193,9 @@ void Player::destroy(void)
 
 bool Player::load(void)
 {
+   ALLEGRO_STATE state;
+   al_store_state(&state, ALLEGRO_STATE_TARGET_BITMAP | ALLEGRO_STATE_BLENDER);
+
    bitmap = al_load_bitmap(getResource("gfx/ship.tga"));
    if (!bitmap) {
       debug_message("Error loading %s\n", getResource("gfx/ship.tga"));
@@ -206,22 +209,15 @@ bool Player::load(void)
       al_destroy_bitmap(bitmap);
       return false;
    }
+
    /* Make a translucent copy of the ship */
-   ALLEGRO_BITMAP *old_target = al_get_target_bitmap();
    al_set_target_bitmap(trans_bitmap);
-   for (int py = 0; py < al_get_bitmap_height(bitmap); py++) {
-      for (int px = 0; px < al_get_bitmap_height(bitmap); px++) {
-         ALLEGRO_COLOR color = al_get_pixel(bitmap, px, py);
-         unsigned char r, g, b, a;
-         al_unmap_rgba(color, &r, &g, &b, &a);
-         if (a != 0) {
-            a = 160;
-            color = al_map_rgba(r, g, b, a);
-         }
-         al_put_pixel(px, py, color);
-      }
-   }
-   al_set_target_bitmap(old_target);
+   al_set_separate_blender(
+      ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ZERO,
+      ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ZERO,
+      al_map_rgba(255, 255, 255, 160));
+   al_draw_bitmap(bitmap, 0, 0, 0);
+   al_restore_state(&state);
 
    trail_bitmap = al_load_bitmap(getResource("gfx/trail.tga"));
    if (!trail_bitmap) {
@@ -243,7 +239,8 @@ bool Player::load(void)
    highscoreBitmap = al_create_bitmap(300, 200);
    al_set_target_bitmap(highscoreBitmap);
    al_clear_to_color(al_map_rgba(0, 0, 0, 0));
-   al_set_target_bitmap(old_target);
+
+   al_restore_state(&state);
 
    draw_radius = al_get_bitmap_width(bitmap)/2;
    radius = draw_radius / 2;
