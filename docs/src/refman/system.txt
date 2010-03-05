@@ -76,8 +76,7 @@ Sets the global application name.
 The Application name is used by [al_get_standard_path] to build the full path to
 an application's files.
 
-Should be called once at the start of a program, before [al_init] or [al_install_system]
-and never touched again.
+This function may be called before [al_init] or [al_install_system].
 
 See also: [al_get_appname], [al_set_orgname]
 
@@ -88,8 +87,7 @@ Sets the global organization name.
 The Organization name is used by [al_get_standard_path] to build the full path to
 an application's files.
 
-Should be called once at the start of a program, before [al_init] or [al_install_system]
-and never touched again.
+This function may be called before [al_init] or [al_install_system].
 
 See also: [al_get_orgname], [al_set_appname]
 

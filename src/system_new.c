@@ -40,7 +40,7 @@ static bool atexit_virgin = true;
 
 /* too large? */
 static char _al_appname[1024] = "";
-static char _al_orgname[1024] = "";
+static char _al_orgname[1024] = "allegro";
 
 #if 0
 bool al_register_system_driver(ALLEGRO_SYSTEM_INTERFACE *sys_interface)
@@ -197,10 +197,6 @@ bool al_install_system(int (*atexit_ptr)(void (*)(void)))
    active_sysdrv->config = bootstrap.config;
 
    ALLEGRO_INFO("Allegro version: %s\n", ALLEGRO_VERSION_STR);
-
-   if(strcmp(al_get_orgname(), "") == 0) {
-      al_set_orgname(NULL);
-   }
 
    if(strcmp(al_get_appname(), "") == 0) {
       al_set_appname(NULL);
