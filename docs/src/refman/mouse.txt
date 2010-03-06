@@ -20,8 +20,6 @@ See also: [al_get_mouse_state], [al_get_mouse_state_axis], [al_mouse_button_down
 
 Install a mouse driver.
 
-*Return value:*
-
 Returns true if successful. If a driver was already installed, nothing
 happens and true is returned.
 
@@ -71,8 +69,6 @@ Set the given mouse axis to the given value.
 
 For now: the axis number must not be 0 or 1, which are the X and Y axes.
 
-*Return value:*
-
 Returns true on success, false on failure.
 
 ## API: al_set_mouse_xy
@@ -80,8 +76,6 @@ Returns true on success, false on failure.
 Try to position the mouse at the given coordinates on the current display.
 The mouse movement resulting from a successful move will generate an
 ALLEGRO_EVENT_MOUSE_WARPED event.
-
-*Return value:*
 
 Returns true on success, false on failure.
 
@@ -91,8 +85,6 @@ See also: [al_set_mouse_z], [al_set_mouse_w], [al_set_mouse_range]
 
 Set the mouse wheel position to the given value.
 
-*Return value:*
-
 Returns true on success, false on failure.
 
 See also: [al_set_mouse_w]
@@ -100,8 +92,6 @@ See also: [al_set_mouse_w]
 ## API: al_set_mouse_w
 
 Set the second mouse wheel position to the given value.
-
-*Return value:*
 
 Returns true on success, false on failure.
 
@@ -111,8 +101,6 @@ See also: [al_set_mouse_z]
 
 Sets the area of the screen within which the mouse can move.
 The coordinates are inclusive. (XXX: change this?)
-
-*Return value:*
 
 Returns true on success, false on failure.
 
@@ -132,11 +120,9 @@ Returns NULL if the mouse subsystem was not installed.
 Create a mouse cursor from the bitmap provided.  There must be a current
 display in effect.
 
-*Return value:*
-
 Returns a pointer to the cursor on success, or NULL on failure.
 
-*See also:* [al_set_mouse_cursor], [al_destroy_mouse_cursor]
+See also: [al_set_mouse_cursor], [al_destroy_mouse_cursor]
 
 ### API: al_destroy_mouse_cursor
 
@@ -148,7 +134,7 @@ XXX that's terrible and should be changed
 
 Has no effect if `cursor` is NULL.
 
-*See also:* [al_create_mouse_cursor]
+See also: [al_create_mouse_cursor]
 
 ### API: al_set_mouse_cursor
 
@@ -162,11 +148,9 @@ XXX that's terrible and should be changed
 If the cursor is currently 'shown' (as opposed to 'hidden') the change is
 immediately visible.
 
-*Return value:*
-
 Returns true on success, false on failure.
 
-*See also:* [al_set_system_mouse_cursor], [al_show_mouse_cursor],
+See also: [al_set_system_mouse_cursor], [al_show_mouse_cursor],
 [al_hide_mouse_cursor]
 
 ### API: al_set_system_mouse_cursor
@@ -200,11 +184,9 @@ The cursors are:
 * ALLEGRO_SYSTEM_MOUSE_CURSOR_ALT_SELECT
 * ALLEGRO_SYSTEM_MOUSE_CURSOR_UNAVAILABLE
 
-*Return value:*
-
 Returns true on success, false on failure.
 
-*See also:* [al_set_mouse_cursor], [al_show_mouse_cursor], [al_hide_mouse_cursor]
+See also: [al_set_mouse_cursor], [al_show_mouse_cursor], [al_hide_mouse_cursor]
 
 ### API: al_get_mouse_cursor_position
 
@@ -212,8 +194,6 @@ On platforms where this information is available, this function returns the
 global location of the mouse cursor, relative to the desktop. You should
 not normally use this function, as the information is not useful except
 for special scenarios as moving a window.
-
-*Return value:*
 
 Returns true on success, false on failure.
 
@@ -223,21 +203,17 @@ Hide the mouse cursor in the current display of the calling thread. This
 has no effect on what the current mouse cursor looks like; it just makes
 it disappear.
 
-*Return value:*
-
 Returns true on success (or if the cursor already was hidden), false
 otherwise.
 
-*See also:* [al_show_mouse_cursor]
+See also: [al_show_mouse_cursor]
 
 ### API: al_show_mouse_cursor
 
 Make a mouse cursor visible in the current display of the calling thread.
 
-*Return value:*
-
 Returns true if a mouse cursor is shown as a result of the call (or one
 already was visible), false otherwise.
 
-*See also:* [al_hide_mouse_cursor]
+See also: [al_hide_mouse_cursor]
 
