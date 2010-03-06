@@ -15,12 +15,6 @@
  *      See readme.txt for copyright information.
  */
 
-/* Title: Threads
- *
- * The thread functions are documented in refman/threads.txt.
- * The NaturalDocs are deliberately bare.
- */
-
 
 #include "allegro5/allegro5.h"
 #include "allegro5/internal/aintern.h"
@@ -31,7 +25,8 @@
 
 
 typedef enum THREAD_STATE {
-   THREAD_STATE_CREATED,   /* -> started or -> joining */
+   THREAD_STATE_CREATED,   /* -> starting or -> joining */
+   THREAD_STATE_STARTING,  /* -> started */
    THREAD_STATE_STARTED,   /* -> joining */
    THREAD_STATE_JOINING,   /* -> joined */
    THREAD_STATE_JOINED,    /* -> destroyed */
@@ -80,15 +75,17 @@ static void thread_func_trampoline(_AL_THREAD *inner, void *_outer)
    }
    _al_mutex_unlock(&outer->mutex);
 
-   if (outer->thread_state == THREAD_STATE_STARTED) {
+   if (outer->thread_state == THREAD_STATE_STARTING) {
+      outer->thread_state = THREAD_STATE_STARTED;
       outer->retval =
          ((void *(*)(ALLEGRO_THREAD *, void *))outer->proc)(outer, outer->arg);
    }
-   
+
    if (system->vt->thread_exit) {
       system->vt->thread_exit(outer);
    }
 }
+
 
 static void detached_thread_func_trampoline(_AL_THREAD *inner, void *_outer)
 {
@@ -100,7 +97,8 @@ static void detached_thread_func_trampoline(_AL_THREAD *inner, void *_outer)
 }
 
 
-static ALLEGRO_THREAD *create_thread(void) {
+static ALLEGRO_THREAD *create_thread(void)
+{
    ALLEGRO_THREAD *outer;
 
    outer = _AL_MALLOC(sizeof(*outer));
@@ -153,9 +151,11 @@ void al_start_thread(ALLEGRO_THREAD *outer)
    switch (outer->thread_state) {
       case THREAD_STATE_CREATED:
          _al_mutex_lock(&outer->mutex);
-         outer->thread_state = THREAD_STATE_STARTED;
+         outer->thread_state = THREAD_STATE_STARTING;
          _al_cond_broadcast(&outer->cond);
          _al_mutex_unlock(&outer->mutex);
+         break;
+      case THREAD_STATE_STARTING:
          break;
       case THREAD_STATE_STARTED:
          break;
@@ -182,6 +182,15 @@ void al_join_thread(ALLEGRO_THREAD *outer, void **ret_value)
 {
    ASSERT(outer);
 
+   /* If al_join_thread() is called soon after al_start_thread(), the thread
+    * function may not yet have noticed the STARTING state and executed the
+    * user's thread function.  Hence we must wait until the thread enters the
+    * STARTED state.
+    */
+   while (outer->thread_state == THREAD_STATE_STARTING) {
+      al_rest(0.001);
+   }
+
    switch (outer->thread_state) {
       case THREAD_STATE_CREATED: /* fall through */
       case THREAD_STATE_STARTED:
@@ -192,6 +201,9 @@ void al_join_thread(ALLEGRO_THREAD *outer, void **ret_value)
          _al_mutex_destroy(&outer->mutex);
          _al_thread_join(&outer->thread);
          outer->thread_state = THREAD_STATE_JOINED;
+         break;
+      case THREAD_STATE_STARTING:
+         ASSERT(outer->thread_state != THREAD_STATE_STARTING);
          break;
       case THREAD_STATE_JOINING:
          ASSERT(outer->thread_state != THREAD_STATE_JOINING);
@@ -242,6 +254,7 @@ void al_destroy_thread(ALLEGRO_THREAD *outer)
    /* Join if required. */
    switch (outer->thread_state) {
       case THREAD_STATE_CREATED: /* fall through */
+      case THREAD_STATE_STARTING: /* fall through */
       case THREAD_STATE_STARTED:
          al_join_thread(outer, NULL);
          break;
