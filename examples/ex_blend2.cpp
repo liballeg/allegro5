@@ -34,6 +34,7 @@ private:
    List draw_mode;
    Label operation_label[6];
    List operations[6];
+   Label rgba_label[3];
    VSlider r[3];
    VSlider g[3];
    VSlider b[3];
@@ -60,11 +61,11 @@ Prog::Prog(const Theme & theme, ALLEGRO_DISPLAY *display) :
    destination_image(List(1)),
    draw_mode(List(0))
 {
-   d.add(memory_label, 10, 0, 10, 2);
+   d.add(memory_label, 9, 0, 10, 2);
    d.add(texture_label, 0, 0, 10, 2);
-   d.add(source_label, 1, 19, 6, 2);
-   d.add(destination_label, 7, 19, 6, 2);
-   d.add(blending_label, 13, 19, 6, 2);
+   d.add(source_label, 1, 17, 6, 2);
+   d.add(destination_label, 7, 17, 6, 2);
+   d.add(blending_label, 13, 17, 6, 2);
 
    List *images[] = {&source_image, &destination_image, &draw_mode};
    for (int i = 0; i < 3; i++) {
@@ -79,12 +80,12 @@ Prog::Prog(const Theme & theme, ALLEGRO_DISPLAY *display) :
          image.append_item("scaled");
          image.append_item("rotated");
       }
-      d.add(image, 1 + i * 6, 21, 4, 4);
+      d.add(image, 1 + i * 6, 18, 4, 4);
    }
 
    for (int i = 0; i < 6; i++) {
       operation_label[i] = Label(i % 2 == 0 ? "Color" : "Alpha", false);
-      d.add(operation_label[i], 1 + i * 3, 25, 3, 2);
+      d.add(operation_label[i], 1 + i * 3, 23, 3, 2);
       List &l = operations[i];
       if (i < 4) {
          l.append_item("ONE");
@@ -97,8 +98,15 @@ Prog::Prog(const Theme & theme, ALLEGRO_DISPLAY *display) :
          l.append_item("SRC_MINUS_DEST");
          l.append_item("DEST_MINUS_SRC");
       }
-      d.add(l, 1 + i * 3, 27, 3, 6);
+      d.add(l, 1 + i * 3, 24, 3, 6);
    }
+
+   rgba_label[0] = Label("RGBA");
+   rgba_label[1] = Label("RGBA");
+   rgba_label[2] = Label("RGBA");
+   d.add(rgba_label[0], 1, 32, 4, 1);
+   d.add(rgba_label[1], 7, 32, 4, 1);
+   d.add(rgba_label[2], 13, 32, 4, 1);
 
    for (int i = 0; i < 3; i++) {
       r[i] = VSlider(255, 255);
@@ -156,7 +164,7 @@ void draw_background(int x, int y)
       al_map_rgba(0x99, 0x99, 0x99, 0xff)
    };
 
-   for (int i = 0; i < 640 / 16; i++) {
+   for (int i = 0; i < 320 / 16; i++) {
       for (int j = 0; j < 200 / 16; j++) {
          al_draw_filled_rectangle(x + i * 16, y + j * 16,
             x + i * 16 + 16, y + j * 16 + 16,
@@ -242,7 +250,8 @@ void Prog::draw_samples()
    /* Draw a background, in case our target bitmap will end up with
     * alpha in it.
     */
-   draw_background(0, 20);
+   draw_background(40, 20);
+   draw_background(400, 20);
    
    /* Test standard blending. */
    al_set_target_bitmap(target);
@@ -256,8 +265,8 @@ void Prog::draw_samples()
    al_set_target_bitmap(al_get_backbuffer());
    al_set_blender(ALLEGRO_ADD, ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA,
       al_map_rgba(255, 255, 255, 255));
-   al_draw_bitmap(target, 0, 20, 0);
-   al_draw_bitmap(target_bmp, 320, 20, 0);
+   al_draw_bitmap(target, 40, 20, 0);
+   al_draw_bitmap(target_bmp, 400, 20, 0);
  
    al_restore_state(&state);
 }
@@ -281,7 +290,7 @@ int main(int argc, char *argv[])
    al_init_image_addon();
 
    al_set_new_display_flags(ALLEGRO_GENERATE_EXPOSE_EVENTS);
-   display = al_create_display(640, 480);
+   display = al_create_display(800, 600);
    if (!display) {
       abort_example("Unable to create display\n");
       return 1;
