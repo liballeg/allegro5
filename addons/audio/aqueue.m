@@ -23,12 +23,13 @@
 #include "allegro5/internal/aintern_audio.h"
 #include "allegro5/internal/aintern_audio_cfg.h"
 
+#import <CoreAudio/CoreAudioTypes.h>
+#import <Foundation/NSAutoreleasePool.h>
+
 /* AudioToolbox is only available in Leopard and later */
 #if MAC_OS_X_VERSION_MIN_REQUIRED >= 1050
 
-#import <CoreAudio/CoreAudioTypes.h>
 #import <AudioToolbox/AudioQueue.h>
-#import <Foundation/NSAutoreleasePool.h>
 
 #define THREAD_BEGIN NSAutoreleasePool *___p = [[NSAutoreleasePool alloc] init];
 #define THREAD_END [___p release];
