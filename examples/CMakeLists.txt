@@ -12,6 +12,10 @@ include_directories(
     ../addons/ttf
     )
 
+if(SUPPORT_PHYSFS)
+include_directories(${PHYSFS_INCLUDE_DIR}) # the physfs example directly includes physfs
+endif()
+
 #-----------------------------------------------------------------------------#
 
 # Conditionally build an example program.  If any of its arguments is the exact
