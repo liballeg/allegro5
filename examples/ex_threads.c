@@ -222,6 +222,10 @@ int main(int argc, const char *argv[])
    }
    for (i = 0; i < num_threads; i++) {
       al_start_thread(thread[i]);
+      /* There are currently problems with creating multiple displays
+       * simultaneously from different threads, at least on some platforms.
+       * These delays are a workaround.
+       */
       al_rest(0.3);
    }
    for (i = 0; i < num_threads; i++) {
