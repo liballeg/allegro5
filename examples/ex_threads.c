@@ -57,6 +57,20 @@ static void gen_square(Square *sq, int w, int h)
 }
 
 
+static void animate_square(Square *sq)
+{
+   sq->cx += sq->dx;
+   sq->cy += sq->dy;
+   sq->size += sq->dsize;
+   sq->rot += sq->drot;
+   sq->life += sq->dlife;
+
+   if (sq->size < 1.0 || sq->life > ALLEGRO_PI) {
+      gen_square(sq, al_get_display_width(), al_get_display_height());
+   }
+}
+
+
 static void draw_square(Square *sq)
 {
    ALLEGRO_TRANSFORM trans;
@@ -77,16 +91,6 @@ static void draw_square(Square *sq)
 
    size *= 1.1;
    al_draw_rounded_rectangle(-size, -size, size, size, 3, 3, white, 2);
-
-   sq->cx += sq->dx;
-   sq->cy += sq->dy;
-   sq->size += sq->dsize;
-   sq->rot += sq->drot;
-   sq->life += sq->dlife;
-
-   if (sq->size < 1.0 || sq->life > ALLEGRO_PI) {
-      gen_square(sq, al_get_display_width(), al_get_display_height());
-   }
 }
 
 
@@ -102,6 +106,7 @@ static void *thread_func(ALLEGRO_THREAD *thr, void *arg)
    ALLEGRO_STATE state;
    Square squares[MAX_SQUARES];
    double theta = 0.0;
+   bool redraw = true;
    int i;
 
    (void)thr;
@@ -132,8 +137,7 @@ static void *thread_func(ALLEGRO_THREAD *thr, void *arg)
    al_start_timer(timer);
 
    while (true) {
-      al_wait_for_event(queue, &event);
-      if (event.type == ALLEGRO_EVENT_TIMER) {
+      if (al_event_queue_is_empty(queue) && redraw) {
          double r = 0.7 + 0.3 * (sin(theta) + 1.0) / 2.0;
          ALLEGRO_COLOR c = al_map_rgb_f(
             background->rmax * r,
@@ -149,7 +153,16 @@ static void *thread_func(ALLEGRO_THREAD *thr, void *arg)
          al_restore_state(&state);
 
          al_flip_display();
+         redraw = false;
+      }
+
+      al_wait_for_event(queue, &event);
+      if (event.type == ALLEGRO_EVENT_TIMER) {
+         for (i = 0; i < MAX_SQUARES; i++) {
+            animate_square(&squares[i]);
+         }
          theta += 0.1;
+         redraw = true;
       }
       else if (event.type == ALLEGRO_EVENT_DISPLAY_CLOSE) {
          break;
