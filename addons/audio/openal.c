@@ -186,10 +186,10 @@ static void *_openal_update(ALLEGRO_THREAD* self, void* arg)
    const void *data;
    void *silence;
 
-   (void)self;
-
    ALLEGRO_VOICE* voice = (ALLEGRO_VOICE*) arg;
    ALLEGRO_AL_DATA *ex_data = (ALLEGRO_AL_DATA*)voice->extra;
+   
+   (void)self;
 
    /* Streams should not be set to looping */
    alSourcei(ex_data->source, AL_LOOPING, AL_FALSE);
