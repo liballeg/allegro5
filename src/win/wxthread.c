@@ -30,10 +30,16 @@
 
 /* threads */
 
-static void thread_proc_trampoline(void *data)
+static unsigned __stdcall thread_proc_trampoline(void *data)
 {
    _AL_THREAD *thread = data;
    (*thread->proc)(thread, thread->arg);
+
+   /* _endthreadex does not automatically close the thread handle,
+    * unlike _endthread.  We rely on this in al_join_thread().
+    */
+   _endthreadex(0);
+   return 0;
 }
 
 
@@ -48,7 +54,8 @@ void _al_thread_create(_AL_THREAD *thread, void (*proc)(_AL_THREAD*, void*), voi
       thread->proc = proc;
       thread->arg = arg;
 
-      thread->thread = (void *)_beginthread(thread_proc_trampoline, 0, thread);
+      thread->thread = (void *)_beginthreadex(NULL, 0,
+         thread_proc_trampoline, thread, 0, NULL);
    }
 }
 
@@ -73,17 +80,17 @@ void _al_thread_join(_AL_THREAD *thread)
    _al_thread_set_should_stop(thread);
    WaitForSingleObject(thread->thread, INFINITE);
 
+   CloseHandle(thread->thread);
    DeleteCriticalSection(&thread->cs);
 }
 
 
 void _al_thread_detach(_AL_THREAD *thread)
 {
-   // FIXME: Do something like pthread_detach, so the thread frees itself
-   // automatically when it ends.
-
-   DeleteCriticalSection(&thread->cs);
    ASSERT(thread);
+
+   CloseHandle(thread->thread);
+   DeleteCriticalSection(&thread->cs);
 }
 
 
@@ -401,9 +408,4 @@ void _al_cond_signal(_AL_COND *cond)
 }
 
 
-/*
- * Local Variables:
- * c-basic-offset: 3
- * indent-tabs-mode: nil
- * End:
- */
+/* vim: set sts=3 sw=3 et: */
