@@ -2556,7 +2556,7 @@ static bool d3d_toggle_display_flag(ALLEGRO_DISPLAY *display, int flag, bool ono
             display->w, display->h, onoff);
          return true;
       case ALLEGRO_FULLSCREEN_WINDOW:
-         if (onoff == (display->flags & ALLEGRO_FULLSCREEN_WINDOW))
+         if (onoff == (bool)(display->flags & ALLEGRO_FULLSCREEN_WINDOW))
             return true;
          d3d_toggle_display_flag(display, ALLEGRO_NOFRAME, !onoff);
          if (onoff) {
