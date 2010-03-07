@@ -1106,12 +1106,11 @@ static void wgl_destroy_display(ALLEGRO_DISPLAY *disp)
 static bool wgl_set_current_display(ALLEGRO_DISPLAY *d)
 {
    ALLEGRO_DISPLAY_WGL *wgl_disp = (ALLEGRO_DISPLAY_WGL *)d;
-   ALLEGRO_DISPLAY *ogl_disp = (ALLEGRO_DISPLAY *)d;
    HGLRC current_glrc;
 
    current_glrc = wglGetCurrentContext();
 
-   if (current_glrc && current_glrc != wgl_disp->glrc) {
+   if (!current_glrc || (current_glrc && current_glrc != wgl_disp->glrc)) {
       /* make the context the current one */
       if (!wglMakeCurrent(wgl_disp->dc, wgl_disp->glrc)) {
          ALLEGRO_ERROR("Unable to make the context current! %s\n",
@@ -1119,7 +1118,21 @@ static bool wgl_set_current_display(ALLEGRO_DISPLAY *d)
          return false;
       }
 
-      _al_ogl_set_extensions(ogl_disp->ogl_extras->extension_api);
+      _al_ogl_set_extensions(d->ogl_extras->extension_api);
+   }
+
+   return true;
+}
+
+
+static bool wgl_unset_current_display(ALLEGRO_DISPLAY *d)
+{
+   ALLEGRO_DISPLAY_WGL *wgl_disp = (ALLEGRO_DISPLAY_WGL *)d;
+
+   if (!wglMakeCurrent(NULL, NULL)) {
+      ALLEGRO_ERROR("Unable unset the current context! %s\n",
+                     get_error_desc(GetLastError()));
+      return false;
    }
 
    return true;
@@ -1476,6 +1489,7 @@ ALLEGRO_DISPLAY_INTERFACE *_al_display_wgl_driver(void)
    vt->destroy_display = wgl_destroy_display;
    vt->resize_display = wgl_resize_display;
    vt->set_current_display = wgl_set_current_display;
+   vt->unset_current_display = wgl_unset_current_display;
    vt->flip_display = wgl_flip_display;
    vt->update_display_region = wgl_update_display_region;
    vt->acknowledge_resize = wgl_acknowledge_resize;
