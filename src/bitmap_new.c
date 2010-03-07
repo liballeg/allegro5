@@ -630,6 +630,7 @@ bool al_is_bitmap_locked(ALLEGRO_BITMAP *bitmap)
 void _al_convert_to_display_bitmap(ALLEGRO_BITMAP *bitmap)
 {
    ALLEGRO_BITMAP *tmp;
+   ALLEGRO_BITMAP **vid;
    ALLEGRO_STATE backup;
    ALLEGRO_DISPLAY *d = al_get_current_display();
 
@@ -656,9 +657,6 @@ void _al_convert_to_display_bitmap(ALLEGRO_BITMAP *bitmap)
    al_set_new_bitmap_flags(0);
    al_set_new_bitmap_format(bitmap->format);
    tmp = al_create_bitmap(bitmap->w, bitmap->h);
-   /* Remove the temporary bitmap from the display bitmap list, added
-    * automatically by al_create_bitmap()*/
-   _al_vector_find_and_delete(&d->bitmaps, &tmp);
 
    /* Preserve bitmap contents. */
    al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ZERO, al_map_rgb(255, 255, 255));
@@ -680,6 +678,12 @@ void _al_convert_to_display_bitmap(ALLEGRO_BITMAP *bitmap)
    ASSERT(tmp->size == bitmap->size);
    memcpy(bitmap, tmp, tmp->size);
 
+   vid = _al_vector_alloc_back(&d->bitmaps);
+   *vid = bitmap;
+
+   /* Remove the temporary bitmap from the display bitmap list, added
+    * automatically by al_create_bitmap()*/
+   _al_vector_find_and_delete(&d->bitmaps, &tmp);
    _AL_FREE(tmp);
 }
 
@@ -692,6 +696,7 @@ void _al_convert_to_memory_bitmap(ALLEGRO_BITMAP *bitmap)
 {
    ALLEGRO_BITMAP *tmp;
    ALLEGRO_STATE backup;
+   size_t old_size;
 
    /* Do nothing if it is a memory bitmap already. */
    if (bitmap->flags & ALLEGRO_MEMORY_BITMAP)
@@ -739,7 +744,9 @@ void _al_convert_to_memory_bitmap(ALLEGRO_BITMAP *bitmap)
      bitmap->size = tmp->size*/
 
    /* Put the contents back to the bitmap. */
+   old_size = bitmap->size;
    memcpy(bitmap, tmp, tmp->size);
+   bitmap->size = old_size;
 
    _AL_FREE(tmp);
 }
