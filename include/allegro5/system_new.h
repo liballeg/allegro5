@@ -12,9 +12,9 @@ typedef struct ALLEGRO_SYSTEM ALLEGRO_SYSTEM;
 
 /* Function: al_init
  */
-#define al_init()    (al_install_system(atexit))
+#define al_init()    (al_install_system(ALLEGRO_VERSION_INT, atexit))
 
-AL_FUNC(bool, al_install_system, (int (*atexit_ptr)(void (*)(void))));
+AL_FUNC(bool, al_install_system, (int version, int (*atexit_ptr)(void (*)(void))));
 AL_FUNC(void, al_uninstall_system, (void));
 AL_FUNC(ALLEGRO_SYSTEM *, al_get_system_driver, (void));
 AL_FUNC(ALLEGRO_CONFIG *, al_get_system_config, (void));

@@ -6,8 +6,13 @@ These functions are declared in the main Allegro header file:
 
 ## API: al_install_system
 
-Initialize the Allegro system.  If atexit_ptr is non-NULL, and if hasn't
-been done already, al_uninstall_system() will be registered as an atexit
+Initialize the Allegro system. No other Allegro functions can be called
+before this (with one or two exceptions).
+
+The version field should always be set to ALLEGRO_VERSION_INT.
+
+If atexit_ptr is non-NULL, and if hasn't been done already,
+[al_uninstall_system] will be registered as an atexit
 function.
 
 Returns true if Allegro was successfully initialized by this function
@@ -18,8 +23,8 @@ See also: [al_init]
 
 ## API: al_init
 
-Like [al_install_system], but automatically uses the atexit function
-visible in the current compilation unit.
+Like [al_install_system], but automatically passes in the version and
+uses the atexit function visible in the current compilation unit.
 
 See also: [al_install_system]
 

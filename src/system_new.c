@@ -146,16 +146,48 @@ static void read_allegro_cfg(void)
 
 
 
+/*
+ * Let a = xa.ya.za.*
+ * Let b = xb.yb.zb.*
+ *
+ * When ya is odd, a is compatible with b if xa.ya.za = xb.yb.zb.
+ * When ya is even, a is compatible with b if xa.ya = xb.yb.
+ *
+ * Otherwise a and b are incompatible.
+ */
+static bool compatible_versions(int a, int b)
+{
+   if ((a & 0xffff0000) != (b & 0xffff0000)) {
+      return false;
+   }
+   if (((a & 0x00ff0000) >> 16) & 1) {
+      
+      if ((a & 0x0000ff00) != (b & 0x0000ff00)) {
+         return false;
+      }
+   }
+   return true;
+}
+
+
+
 /* Function: al_install_system
  */
-bool al_install_system(int (*atexit_ptr)(void (*)(void)))
+bool al_install_system(int version, int (*atexit_ptr)(void (*)(void)))
 {
    ALLEGRO_SYSTEM bootstrap;
    ALLEGRO_SYSTEM *real_system;
+   int library_version = al_get_allegro_version();
    
    if (active_sysdrv) {
       return true;
    }
+
+   /* Note: We cannot call logging functions yet.
+    * TODO: Maybe we want to do the check after the "bootstrap" system
+    * is available at least?
+    */
+   if (!compatible_versions(version, library_version)) return false;
 
 #ifdef ALLEGRO_CFG_PTHREADS_TLS
    _al_pthreads_tls_init();
