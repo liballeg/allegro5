@@ -1,5 +1,6 @@
 #import <Foundation/Foundation.h>
 #import <AppKit/NSImage.h>
+#import <AppKit/NSGraphicsContext.h>
 
 #include "allegro5/allegro5.h"
 #include "allegro5/fshook.h"
@@ -28,15 +29,17 @@ static ALLEGRO_BITMAP *really_load_image(char *buffer, int size)
    int w = s.width;
    int h = s.height;
 
-   NSArray *reps = [image representations];
-   NSImageRep *image_rep = [reps objectAtIndex: 0];
-   [image release];
-   if (!image_rep) 
-      return NULL;
+   // Note: Do we want to support this on OSX 10.5? It doesn't have
+   // CGImageForProposedRect...
+   //NSArray *reps = [image representations];
+   //NSImageRep *image_rep = [reps objectAtIndex: 0];
+   
+   //if (!image_rep) 
+   //   return NULL;
 
-   ALLEGRO_DEBUG("Read image of size %dx%d, %d representation(s)\n", w, h, (int)[reps count]);
+   ALLEGRO_DEBUG("Read image of size %dx%d\n", w, h);
 
-   CGImageRef cgimage = [image_rep CGImageForProposedRect: nil context: nil hints: nil];
+   //CGImageRef cgimage = [image_rep CGImageForProposedRect: nil context: nil hints: nil];
 
    /* Now we need to draw the image into a memory buffer. */
    pixels = _AL_MALLOC(w * h * 4);
@@ -45,10 +48,22 @@ static ALLEGRO_BITMAP *really_load_image(char *buffer, int size)
    CGContextRef context = CGBitmapContextCreate(pixels, w, h, 8, w * 4,
       colour_space,
       kCGImageAlphaPremultipliedLast);
-   CGContextDrawImage(context, CGRectMake(0.0, 0.0, (CGFloat)w, (CGFloat)h),
-      cgimage);
+      
+   [NSGraphicsContext saveGraphicsState];
+   [NSGraphicsContext setCurrentContext:[NSGraphicsContext
+      graphicsContextWithGraphicsPort:context flipped:NO]];
+   [image drawInRect:NSMakeRect(0, 0, w, h)
+      fromRect:NSZeroRect
+      operation : NSCompositeCopy
+      fraction : 1.0];
+   [NSGraphicsContext restoreGraphicsState];
+   
+   //CGContextDrawImage(context, CGRectMake(0.0, 0.0, (CGFloat)w, (CGFloat)h),
+   //   cgimage);
    CGContextRelease(context);
    CGColorSpaceRelease(colour_space);
+   
+   [image release];
 
    /* Then create a bitmap out of the memory buffer. */
    bmp = al_create_bitmap(w, h);
