@@ -7,6 +7,12 @@ option(WANT_VORBIS "Enable Ogg Vorbis support" on)
 
 set(A5_FLAC_SOURCES flac.c)
 
+set(A5_FLAC_INCLUDE_FILES
+    allegro5/allegro_flac.h
+    )
+
+set_our_header_properties(${A5_FLAC_INCLUDE_FILES})
+
 if(COMPILER_MSVC)
     option(FLAC_STATIC "Set this if linking with a static FLAC library" off)
     if(FLAC_STATIC)
@@ -40,22 +46,29 @@ if(WANT_FLAC)
 endif(WANT_FLAC)
 
 if(SUPPORT_FLAC)
-    add_our_library(allegro_flac -${ALLEGRO_VERSION}
-        "${A5_FLAC_SOURCES}"
+    add_our_library(allegro_flac
+        "${A5_FLAC_SOURCES};${A5_FLAC_INCLUDE_FILES}"
         "-DALLEGRO_FLAC_SRC ${FLAC__NO_DLL}"
         "${AUDIO_LINK_WITH};${FLAC_LIBRARIES}"
         )
 
-    set(FLAC_LINK_WITH allegro_flac PARENT_SCOPE)
+    set_our_framework_properties(allegro_flac AllegroFlac)
 
-    install(FILES allegro5/allegro_flac.h
-            DESTINATION include/allegro5
-            )
+    install_our_library(allegro_flac)
+    install_our_headers(${A5_FLAC_INCLUDE_FILES})
+
+    set(FLAC_LINK_WITH allegro_flac PARENT_SCOPE)
 endif(SUPPORT_FLAC)
 
 #-----------------------------------------------------------------------------#
 
 set(A5_VORBIS_SOURCES ogg.c)
+
+set(A5_VORBIS_INCLUDE_FILES
+    allegro5/allegro_vorbis.h
+    )
+
+set_our_header_properties(${A5_VORBIS_INCLUDE_FILES})
 
 if(WANT_VORBIS)
     find_package(Vorbis)
@@ -102,17 +115,18 @@ if(WANT_VORBIS)
 endif(WANT_VORBIS)
 
 if(SUPPORT_VORBIS)
-    add_our_library(allegro_vorbis -${ALLEGRO_VERSION}
-        "${A5_VORBIS_SOURCES}"
+    add_our_library(allegro_vorbis
+        "${A5_VORBIS_SOURCES};${A5_VORBIS_INCLUDE_FILES}"
         "-DALLEGRO_VORBIS_SRC"
         "${AUDIO_LINK_WITH};${VORBIS_LIBRARIES}"
         )
 
-    set(VORBIS_LINK_WITH allegro_vorbis PARENT_SCOPE)
+    set_our_framework_properties(allegro_vorbis AllegroVorbis-${ALLEGRO_SOVERSION})
 
-    install(FILES allegro5/allegro_vorbis.h
-            DESTINATION include/allegro5
-            )
+    install_our_library(allegro_vorbis)
+    install_our_headers(${A5_VORBIS_INCLUDE_FILES})
+
+    set(VORBIS_LINK_WITH allegro_vorbis PARENT_SCOPE)
 endif(SUPPORT_VORBIS)
 
 #-----------------------------------------------------------------------------#

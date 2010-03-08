@@ -19,6 +19,8 @@ set(AUDIO_SOURCES
 
 set(AUDIO_INCLUDE_FILES allegro5/allegro_audio.h)
 
+set_our_header_properties(${AUDIO_INCLUDE_FILES})
+
 # The platform conditions are not really necessary but prevent confusing the
 # user, e.g. it's pretty weird to get a warning about missing DSound on Unix.
 
@@ -116,24 +118,26 @@ configure_file(
     ${CMAKE_BINARY_DIR}/include/allegro5/internal/aintern_audio_cfg.h
     )
 
-if(SUPPORT_AUDIO)
-    # Let examples know that audio is supported.
-    set(SUPPORT_AUDIO 1 PARENT_SCOPE)
-
-    add_our_library(allegro_audio -${ALLEGRO_VERSION}
-        "${AUDIO_SOURCES}"
-        "-DALLEGRO_KCM_AUDIO_SRC"
-        "${ALLEGRO_LINK_WITH};${AUDIO_LIBRARIES}"
-        )
-
-    set(AUDIO_LINK_WITH allegro_audio PARENT_SCOPE)
-
-    install(FILES ${AUDIO_INCLUDE_FILES}
-            DESTINATION include/allegro5
-            )
-else(SUPPORT_AUDIO)
+if(NOT SUPPORT_AUDIO)
     message("WARNING: allegro_audio wanted but no supported backend found")
-endif(SUPPORT_AUDIO)
+    return()
+endif(NOT SUPPORT_AUDIO)
+
+# Let examples know that audio is supported.
+set(SUPPORT_AUDIO 1 PARENT_SCOPE)
+
+add_our_library(allegro_audio
+    "${AUDIO_SOURCES};${AUDIO_INCLUDE_FILES}"
+    "-DALLEGRO_KCM_AUDIO_SRC"
+    "${ALLEGRO_LINK_WITH};${AUDIO_LIBRARIES}"
+    )
+
+set_our_framework_properties(allegro_audio AllegroAudio-${ALLEGRO_SOVERSION})
+
+install_our_library(allegro_audio)
+install_our_headers(${AUDIO_INCLUDE_FILES})
+
+set(AUDIO_LINK_WITH allegro_audio PARENT_SCOPE)
 
 #-----------------------------------------------------------------------------#
 # vi: set ts=8 sts=4 sw=4 et:

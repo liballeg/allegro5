@@ -8,7 +8,7 @@ suffix=@lib_type@@lib_linkage@
 Name: allegro_audio
 Description: Allegro game programming library, audio addon
 Version: ${version}
-Libs: -L${libdir} -lallegro_audio${suffix}-${version}
+Libs: -L${libdir} -lallegro_audio${suffix}
 Libs.private: @link_with@
 Requires: allegro${suffix}-4.9 >= ${version}
 Cflags: -I${includedir}

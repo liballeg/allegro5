@@ -8,7 +8,7 @@ suffix=@lib_type@@lib_linkage@
 Name: allegro_memfile
 Description: Allegro game programming library, memory files addon
 Version: ${version}
-Libs: -L${libdir} -lallegro_memfile${suffix}-${version}
+Libs: -L${libdir} -lallegro_memfile${suffix}
 Libs.private: @link_with@
 Requires: allegro${suffix}-4.9 >= ${version}
 Cflags: -I${includedir}

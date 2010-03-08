@@ -8,24 +8,23 @@ set(PRIMITIVES_SOURCES
     point_soft.c
     primitives.c
     )
+
 set(PRIMITIVES_INCLUDE_FILES allegro5/allegro_primitives.h)
 
-add_our_library(allegro_primitives -${ALLEGRO_VERSION}
-    "${PRIMITIVES_SOURCES}"
+set_our_header_properties(${PRIMITIVES_INCLUDE_FILES})
+
+add_our_library(allegro_primitives
+    "${PRIMITIVES_SOURCES};${PRIMITIVES_INCLUDE_FILES}"
     "-DALLEGRO_PRIMITIVES_SRC"
     "${ALLEGRO_LINK_WITH}"
     )
 
+set_our_framework_properties(allegro_primitives AllegroPrimitives-${ALLEGRO_SOVERSION})
+
+install_our_library(allegro_primitives)
+install_our_headers(${PRIMITIVES_INCLUDE_FILES})
+
 set(PRIMITIVES_LINK_WITH allegro_primitives PARENT_SCOPE)
-
-#-----------------------------------------------------------------------------#
-#
-# Install header files.
-#
-
-install(FILES ${PRIMITIVES_INCLUDE_FILES}
-        DESTINATION include/allegro5
-        )
 
 #-----------------------------------------------------------------------------#
 # vi: set ts=8 sts=4 sw=4 et:

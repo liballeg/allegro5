@@ -1,3 +1,25 @@
+function(set_our_header_properties)
+    foreach(file ${ARGN})
+        # Infer which subdirectory this header file should be installed.
+        set(loc ${file})
+        string(REPLACE "${CMAKE_CURRENT_BINARY_DIR}/" "" loc ${loc})
+        string(REGEX REPLACE "^include/" "" loc ${loc})
+        string(REGEX REPLACE "/[-A-Za-z0-9_]+[.](h|inl)$" "" loc ${loc})
+
+        # If we have inferred correctly then it should be under allegro5.
+        string(REGEX MATCH "^allegro5" matched ${loc})
+        if(matched STREQUAL "allegro5")
+            # MACOSX_PACKAGE_LOCATION is also used in install_our_headers.
+            set_source_files_properties(${file}
+                PROPERTIES
+                MACOSX_PACKAGE_LOCATION Headers/${loc}
+                )
+        else()
+            message(FATAL_ERROR "Could not infer where to install ${file}")
+        endif()
+    endforeach(file)
+endfunction(set_our_header_properties)
+
 function(append_lib_type_suffix var)
     string(TOLOWER "${CMAKE_BUILD_TYPE}" CMAKE_BUILD_TYPE_TOLOWER)
     if(CMAKE_BUILD_TYPE_TOLOWER STREQUAL "debug")
@@ -42,46 +64,103 @@ function(sanitize_cmake_link_flags ...)
    set(return ${return} PARENT_SCOPE)
 endfunction(sanitize_cmake_link_flags)
 
-function(add_our_library target name_suffix sources extra_flags link_with)
+function(add_our_library target sources extra_flags link_with)
+    # BUILD_SHARED_LIBS controls whether this is a shared or static library.
+    add_library(${target} ${sources})
+
+    if(NOT BUILD_SHARED_LIBS)
+        set(static_flag "-DALLEGRO_STATICLINK")
+    endif(NOT BUILD_SHARED_LIBS)
+    set_target_properties(${target}
+        PROPERTIES
+        COMPILE_FLAGS "${extra_flags} ${static_flag} -DALLEGRO_LIB_BUILD"
+        VERSION ${ALLEGRO_VERSION}
+        SOVERSION ${ALLEGRO_SOVERSION}
+        )
 
     # Construct the output name.
     set(output_name ${target})
     append_lib_type_suffix(output_name)
     append_lib_linkage_suffix(output_name)
-    set(output_name ${output_name}${name_suffix})
-
-    if(NOT BUILD_SHARED_LIBS)
-        set(static_flag "-DALLEGRO_STATICLINK")
-    endif(NOT BUILD_SHARED_LIBS)
-
-    # Suppress errors about _mangled_main_address being undefined
-    # on Mac OS X.
-    if(APPLE)
-        set(LIBRARY_LINK_FLAGS "-flat_namespace -undefined suppress")
-    endif(APPLE)
-
-    # BUILD_SHARED_LIBS controls whether this is a shared or static library.
-    add_library(${target} ${sources})
-    
-    sanitize_cmake_link_flags(${link_with})
-
     set_target_properties(${target}
         PROPERTIES
-        COMPILE_FLAGS "${extra_flags} ${static_flag} -DALLEGRO_LIB_BUILD"
-        LINK_FLAGS "${LIBRARY_LINK_FLAGS}"
         OUTPUT_NAME ${output_name}
-        static_link_with "${return}"
         )
+
+    # Put version numbers on DLLs but not on import libraries nor static
+    # archives.  Make MinGW not add a lib prefix to DLLs, to match MSVC.
+    if(WIN32 AND SHARED)
+        set_target_properties(${target}
+            PROPERTIES
+            PREFIX ""
+            SUFFIX -${ALLEGRO_SOVERSION}.dll
+            IMPORT_SUFFIX ${CMAKE_IMPORT_LIBRARY_SUFFIX}
+            )
+    endif()
+
+    # Suppress errors about _mangled_main_address being undefined on Mac OS X.
+    if(APPLE)
+        set_target_properties(${target}
+            PROPERTIES
+            LINK_FLAGS "-flat_namespace -undefined suppress"
+            )
+    endif(APPLE)
 
     # Specify a list of libraries to be linked into the specified target.
     # Library dependencies are transitive by default.  Any target which links
     # with this target will therefore pull in these dependencies automatically.
     target_link_libraries(${target} ${link_with})
 
-    install(TARGETS ${target}
-            DESTINATION "lib${LIB_SUFFIX}"
-            )
+    # Set list of dependencies that the user would need to explicitly link with
+    # if static linking.
+    sanitize_cmake_link_flags(${link_with})
+    set_target_properties(${target}
+        PROPERTIES
+        static_link_with "${return}"
+        )
 endfunction(add_our_library)
+
+function(set_our_framework_properties target nm)
+    if(WANT_FRAMEWORKS)
+        if(WANT_EMBED)
+            set(install_name_dir "@executable_path/../Frameworks")
+        else()
+            set(install_name_dir "${FRAMEWORK_INSTALL_PREFIX}")
+        endif(WANT_EMBED)
+        set_target_properties(${target}
+            PROPERTIES
+            FRAMEWORK on
+            OUTPUT_NAME ${nm}
+            INSTALL_NAME_DIR "${install_name_dir}"
+            )
+    endif(WANT_FRAMEWORKS)
+endfunction(set_our_framework_properties)
+
+function(install_our_library target)
+    install(TARGETS ${target}
+            LIBRARY DESTINATION "lib${LIB_SUFFIX}"
+            ARCHIVE DESTINATION "lib${LIB_SUFFIX}"
+            FRAMEWORK DESTINATION "${FRAMEWORK_INSTALL_PREFIX}"
+            RUNTIME DESTINATION "bin"
+            # Doesn't work, see below.
+            # PUBLIC_HEADER DESTINATION "include"
+            )
+endfunction(install_our_library)
+
+# Unfortunately, CMake's PUBLIC_HEADER support doesn't install into nested
+# directories well, otherwise we could rely on install(TARGETS) to install
+# header files associated with the target.  Instead we use the install(FILES)
+# to install headers.  We reuse the MACOSX_PACKAGE_LOCATION property,
+# substituting the "Headers" prefix with "include".
+function(install_our_headers)
+    if(NOT WANT_FRAMEWORKS)
+        foreach(hdr ${ARGN})
+            get_source_file_property(LOC ${hdr} MACOSX_PACKAGE_LOCATION)
+            string(REGEX REPLACE "^Headers" "include" LOC ${LOC})
+            install(FILES ${hdr} DESTINATION ${LOC})
+        endforeach()
+    endif()
+endfunction(install_our_headers)
 
 # Arguments after nm should be source files or libraries.  Source files must
 # end with .c or .cpp.  If no source file was explicitly specified, we assume

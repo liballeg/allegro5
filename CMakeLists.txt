@@ -1,7 +1,6 @@
 #
 # TODO:
 #
-# - sonames on Unix
 # - some documentation targets still missing
 # - installing documentation
 #
@@ -31,6 +30,8 @@ set(CMAKE_CONFIGURATION_TYPES "${CMAKE_BUILD_TYPE}" CACHE INTERNAL "internal")
 project(ALLEGRO C CXX)
 
 set(ALLEGRO_VERSION 4.9.18)
+string(REGEX MATCH "^[0-9]+[.][0-9]+" ALLEGRO_SOVERSION ${ALLEGRO_VERSION})
+set(ALLEGRO_DLL_SHORTVER 49)
 
 # Search in the `cmake' directory for additional CMake modules.
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake)
@@ -62,6 +63,13 @@ set(BUILD_SHARED_LIBS ${SHARED})    # actual CMake variable
 # On some 64-bit platforms, libraries should be installed into `lib64'
 # instead of `lib'.  Set this to 64 to do that.
 set(LIB_SUFFIX "" CACHE STRING "Suffix for 'lib' directories, e.g. '64'")
+
+option(WANT_FRAMEWORKS "Want frameworks on Mac OS X" off)
+option(WANT_EMBED
+    "Make frameworks embeddable in application bundles (Mac OS X)" on)
+
+set(FRAMEWORK_INSTALL_PREFIX "/Library/Frameworks" CACHE STRING
+    "Directory in which to install Mac OS X frameworks")
 
 #
 # Platforms and drivers.
@@ -147,6 +155,7 @@ if(MSVC)
     set(ALLEGRO_MSVC 1)
 
     # Guess VCINSTALLDIR from the value of CMAKE_C_COMPILER if it's not set.
+    # XXX CMAKE_C_COMPILER will often be simply "cl" so this won't work.
     if("$ENV{VCINSTALLDIR}" STREQUAL "")
         string(REGEX REPLACE "/bin/[^/]*$" "" VCINSTALLDIR "${CMAKE_C_COMPILER}")
         message(STATUS "Guessed MSVC directory: ${VCINSTALLDIR}")
@@ -637,20 +646,6 @@ set(LIBRARY_SOURCES
     ${ALLEGRO_SRC_C_FILES}
     )
 
-# For intellisense.
-if(COMPILER_MSVC)
-    list(APPEND LIBRARY_SOURCES
-        ${ALLEGRO_INCLUDE_ALLEGRO_FILES}
-        ${ALLEGRO_INCLUDE_ALLEGRO_INLINE_FILES}
-        ${ALLEGRO_INCLUDE_ALLEGRO_INTERNAL_FILES}
-        ${ALLEGRO_INCLUDE_ALLEGRO_OPENGL_FILES}
-        ${ALLEGRO_INCLUDE_ALLEGRO_OPENGL_GLEXT_FILES}
-        ${ALLEGRO_INCLUDE_ALLEGRO_PLATFORM_FILES}
-        ${ALLEGRO_INCLUDE_ALLEGRO_WINDOWS_FILES}
-        ${ALLEGRO_INCLUDE_ALLEGRO_PLATFORM_FILES_GENERATED}
-        )
-endif(COMPILER_MSVC)
-
 # Libraries that we always need to link against on this platform.
 set(PLATFORM_LIBS)
 
@@ -703,55 +698,52 @@ if(GP2XWIZ)
     list(APPEND LIBRARY_SOURCES ${ALLEGRO_SRC_GP2XWIZ_FILES})
 endif(GP2XWIZ)
 
+# Header files that we need to install.
+set(ALLEGRO_PUBLIC_HEADERS
+    ${ALLEGRO_INCLUDE_FILES}
+    ${ALLEGRO_INCLUDE_ALLEGRO_FILES}
+    ${ALLEGRO_INCLUDE_ALLEGRO_INLINE_FILES}
+    ${ALLEGRO_INCLUDE_ALLEGRO_INTERNAL_FILES}
+    ${ALLEGRO_INCLUDE_ALLEGRO_PLATFORM_FILES}
+    )
+if(WIN32)
+    list(APPEND ALLEGRO_PUBLIC_HEADERS
+        ${ALLEGRO_INCLUDE_ALLEGRO_WINDOWS_FILES}
+        )
+endif(WIN32)
+if(SUPPORT_OPENGL)
+    list(APPEND ALLEGRO_PUBLIC_HEADERS
+        ${ALLEGRO_INCLUDE_ALLEGRO_OPENGL_FILES}
+        ${ALLEGRO_INCLUDE_ALLEGRO_OPENGL_GLEXT_FILES}
+        )
+endif(SUPPORT_OPENGL)
+
+foreach(genfile ${ALLEGRO_INCLUDE_ALLEGRO_PLATFORM_FILES_GENERATED})
+    list(APPEND ALLEGRO_PUBLIC_HEADERS
+        ${CMAKE_CURRENT_BINARY_DIR}/${genfile}
+        )
+endforeach(genfile)
+
+set_our_header_properties(${ALLEGRO_PUBLIC_HEADERS})
+
 # ALLEGRO_LIB_BUILD is defined for all Allegro sources (core and addon)
 # ALLEGRO_SRC is defined only while compiling the core sources (its use is
 # to get the DLL #defines right under Windows for creating DLL export functions
 # when it is defined or import DLL functions when it is not).
-add_our_library(allegro -${ALLEGRO_VERSION}
-    "${LIBRARY_SOURCES}"
+add_our_library(allegro
+    "${LIBRARY_SOURCES};${ALLEGRO_PUBLIC_HEADERS}"
     "${LIBRARY_CFLAGS} -DALLEGRO_SRC"
     "${PLATFORM_LIBS}"
     )
 
+# Allegro 4 has taken "Allegro" as the name of the framework.
+set_our_framework_properties(allegro Allegro-${ALLEGRO_SOVERSION})
+
+install_our_library(allegro)
+install_our_headers(${ALLEGRO_PUBLIC_HEADERS})
+
 # Addons and examples should link with this target.
 set(ALLEGRO_LINK_WITH allegro)
-
-# Install header files.
-
-install(FILES ${ALLEGRO_INCLUDE_FILES}
-        DESTINATION include
-        )
-install(FILES ${ALLEGRO_INCLUDE_ALLEGRO_FILES}
-        DESTINATION include/allegro5
-        )
-install(FILES ${ALLEGRO_INCLUDE_ALLEGRO_INLINE_FILES}
-        DESTINATION include/allegro5/inline
-        )
-install(FILES ${ALLEGRO_INCLUDE_ALLEGRO_INTERNAL_FILES}
-        DESTINATION include/allegro5/internal
-        )
-install(FILES ${ALLEGRO_INCLUDE_ALLEGRO_PLATFORM_FILES}
-        DESTINATION include/allegro5/platform
-        )
-if(WIN32)
-    install(FILES ${ALLEGRO_INCLUDE_ALLEGRO_WINDOWS_FILES}
-            DESTINATION include/allegro5/
-            )
-endif(WIN32)
-if(SUPPORT_OPENGL)
-    install(FILES ${ALLEGRO_INCLUDE_ALLEGRO_OPENGL_FILES}
-            DESTINATION include/allegro5/opengl
-            )
-    install(FILES ${ALLEGRO_INCLUDE_ALLEGRO_OPENGL_GLEXT_FILES}
-            DESTINATION include/allegro5/opengl/GLext
-            )
-endif(SUPPORT_OPENGL)
-
-foreach(genfile ${ALLEGRO_INCLUDE_ALLEGRO_PLATFORM_FILES_GENERATED})
-    install(FILES ${CMAKE_BINARY_DIR}/${genfile}
-            DESTINATION include/allegro5/platform
-            )
-endforeach(genfile)
 
 #-----------------------------------------------------------------------------#
 #
@@ -813,7 +805,7 @@ set(PKG_CONFIG_FILES
 # Probably usable on Windows as well but we shouldn't install it
 # indiscriminantly there.
 
-if(UNIX)
+if(UNIX AND NOT WANT_FRAMEWORKS)
     append_lib_type_suffix(lib_type)
     append_lib_linkage_suffix(lib_linkage)
 
@@ -834,7 +826,7 @@ if(UNIX)
             DESTINATION "lib${LIB_SUFFIX}/pkgconfig"
             )
     endforeach(name)
-endif(UNIX)
+endif(UNIX AND NOT WANT_FRAMEWORKS)
 
 #-----------------------------------------------------------------------------#
 #

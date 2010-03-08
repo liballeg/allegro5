@@ -3,17 +3,20 @@ set(MEMFILE_SOURCES memfile.c)
 
 set(MEMFILE_INCLUDE_FILES allegro5/memfile.h)
 
-add_our_library(allegro_memfile -${ALLEGRO_VERSION}
-   "${MEMFILE_SOURCES}"
+set_our_header_properties(${MEMFILE_INCLUDE_FILES})
+
+add_our_library(allegro_memfile
+   "${MEMFILE_SOURCES};${MEMFILE_INCLUDE_FILES}"
    "-DALLEGRO_MEMFILE_SRC"
    "${ALLEGRO_LINK_WITH}"
    )
 
-set(MEMFILE_LINK_WITH allegro_memfile PARENT_SCOPE)
+set_our_framework_properties(allegro_memfile AllegroMemfile-${ALLEGRO_SOVERSION})
 
-install(FILES ${MEMFILE_INCLUDE_FILES}
-        DESTINATION include/allegro5
-       )
+install_our_library(allegro_memfile)
+install_our_headers(${MEMFILE_INCLUDE_FILES})
+
+set(MEMFILE_LINK_WITH allegro_memfile PARENT_SCOPE)
 
 #-----------------------------------------------------------------------------#
 # vi: set ts=8 sts=4 sw=4 et:
