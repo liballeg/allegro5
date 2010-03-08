@@ -4,7 +4,10 @@
 #  DXGUID_LIBRARIES   - List of libraries
 #  DXGUID_FOUND       - True if dxguid found.
 
-find_library(DXGUID_LIBRARY NAMES dxguid)
+find_library(DXGUID_LIBRARY
+    NAMES dxguid
+    PATHS "$ENV{DXSDK_DIR}/Lib/$ENV{PROCESSOR_ARCHITECTURE}"
+    )
 
 # Handle the QUIETLY and REQUIRED arguments and set DXGUID_FOUND to TRUE if
 # all listed variables are TRUE.

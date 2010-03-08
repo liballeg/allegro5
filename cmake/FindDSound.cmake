@@ -10,9 +10,14 @@ if(DSOUND_INCLUDE_DIR)
     set(DSOUND_FIND_QUIETLY TRUE)
 endif(DSOUND_INCLUDE_DIR)
 
-find_path(DSOUND_INCLUDE_DIR dsound.h)
+find_path(DSOUND_INCLUDE_DIR dsound.h
+    PATHS "$ENV{DXSDK_DIR}/Include"
+    )
 
-find_library(DSOUND_LIBRARY NAMES dsound)
+find_library(DSOUND_LIBRARY
+    NAMES dsound
+    PATHS "$ENV{DXSDK_DIR}/Lib/$ENV{PROCESSOR_ARCHITECTURE}"
+    )
 
 # Handle the QUIETLY and REQUIRED arguments and set DSOUND_FOUND to TRUE if
 # all listed variables are TRUE.
