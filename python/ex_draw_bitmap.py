@@ -116,7 +116,7 @@ def change_size(size):
    example.bitmap = al_create_bitmap(size, size)
    example.bitmap_size = size
    al_set_target_bitmap(example.bitmap)
-   al_set_blender(ALLEGRO_ONE, ALLEGRO_ZERO, example.white)
+   al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ZERO, example.white)
    al_clear_to_color(al_map_rgba_f(0, 0, 0, 0))
    bw = al_get_bitmap_width(example.mysha)
    bh = al_get_bitmap_height(example.mysha)
@@ -162,19 +162,19 @@ def redraw():
     binfo = ["alpha", "additive", "tinted", "solid"]
 
     if example.blending == 0:
-        al_set_blender(ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA, example.half_white)
+        al_set_blender(ALLEGRO_ADD, ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA, example.half_white)
     elif example.blending == 1:
-        al_set_blender(ALLEGRO_ONE, ALLEGRO_ONE, example.dark)
+        al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ONE, example.dark)
     elif example.blending == 2:
-        al_set_blender(ALLEGRO_ONE, ALLEGRO_ZERO, example.red)
+        al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ZERO, example.red)
     elif example.blending == 3:
-        al_set_blender(ALLEGRO_ONE, ALLEGRO_ZERO, example.white)
+        al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ZERO, example.white)
 
     for i in range(example.sprite_count):
         s = example.sprites[i]
         al_draw_bitmap(example.bitmap, s.x, s.y, 0)
 
-    al_set_blender(ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA, example.white)
+    al_set_blender(ALLEGRO_ADD, ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA, example.white)
     if example.show_help:
         for i in range(5):
             al_draw_text(example.font, 0, h - 5 * fh + i * fh, 0, text[i])
@@ -200,7 +200,7 @@ def main():
     need_redraw = True
     example.show_help = True
 
-    if not al_install_system(None):
+    if not al_install_system(ALLEGRO_VERSION_INT, None):
         abort_example("Failed to init Allegro.\n")
         sys.exit(1)
 

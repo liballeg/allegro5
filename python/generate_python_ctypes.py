@@ -379,6 +379,12 @@ def _dll(func, ret, params):
     for name, val in sorted(al.constants.items()):
         f.write(name + " = " + str(val) + "\n")
 
+    # some stuff the automated parser doesn't pick up
+    f.write(r"""
+ALLEGRO_VERSION_INT = \
+    ((ALLEGRO_VERSION << 24) | (ALLEGRO_SUB_VERSION << 16) | \
+    (ALLEGRO_WIP_VERSION << 8) | ALLEGRO_RELEASE_NUMBER)
+    """)
 
     f.write("""
 def al_main(real_main, *args):

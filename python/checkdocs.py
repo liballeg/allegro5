@@ -75,7 +75,7 @@ def parse_header(lines, filename):
 
                     if len(simple_constant) == 3 and\
                         not "(" in simple_constant[1] and\
-                        simple_constant[2][0] == "0":
+                        simple_constant[2][0].isdigit():
                         constants[name] = simple_constant[2]
                     n += 1
             elif line.startswith("#undef"):
