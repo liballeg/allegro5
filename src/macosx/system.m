@@ -196,6 +196,7 @@ static int _al_osx_get_num_display_modes(void)
    
    _al_vector_free(&osx_display_modes);
 #if MAC_OS_X_VERSION_MIN_REQUIRED < 1060
+   /* Note: modes is owned by OSX and must not be released */
    modes = CGDisplayAvailableModes(display);
    ALLEGRO_INFO("detected %d display modes.\n", (int)CFArrayGetCount(modes));
    for (i = 0; i < CFArrayGetCount(modes); i++) {
@@ -247,7 +248,6 @@ static int _al_osx_get_num_display_modes(void)
       _al_fill_display_settings(&temp);
       mode->format = _al_deduce_color_format(&temp);
    }
-   CFRelease(modes);
 #else
    modes = CGDisplayCopyAllDisplayModes(display, NULL);
    ALLEGRO_INFO("detected %d display modes.\n", (int)CFArrayGetCount(modes));
