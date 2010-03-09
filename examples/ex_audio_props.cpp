@@ -89,7 +89,7 @@ void Prog::update_properties()
    al_set_sample_instance_gain(sample_inst, gain);
 }
 
-int main(int argc, const char *argv[])
+int main(int argc, char *argv[])
 {
    ALLEGRO_DISPLAY *display;
 
