@@ -183,7 +183,7 @@ Parameters:
 - ranges: 'n' pairs of first and last unicode point to map glyphs to for
   each range.
 
-The bitmap format is as in the followsing example, which contains three glyphs
+The bitmap format is as in the following example, which contains three glyphs
 for 1, 2 and 3.
 
     .............
