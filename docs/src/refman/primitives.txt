@@ -12,7 +12,21 @@ Link with allegro_primitives.
 Returns the (compiled) version of the addon, in the same format as
 [al_get_allegro_version].
 
-## High-level drawing routines
+## High level drawing routines
+
+High level drawing routines encompass the most common usage of this addon: to
+draw geometric primitives, both smooth (variations on the circle theme) and 
+piecewise linear. Outlined primitives support the concept of thickness with two
+distinct modes of output: hairline lines and think lines. Hairline lines are
+specifically designed to be exactly a pixel wide, and are commonly used for
+drawing outlined figures that need to be a pixel wide. Hairline thickness is 
+designated as thickness less than or equal to 0. Unfortunately, the exact
+rasterization rules for drawing these hairline lines vary from one video card
+to another, and sometimes leave gaps where the lines meet. If that matters to
+you, then you should use thick lines. In many cases, having a thickness of 1
+will produce 1 pixel wide lines that look better than hairline lines. Obviously,
+hairline lines cannot replicate thicknesses greater than 1. Thick lines grow 
+symmetrically around the generating shape as thickness is increased.
 
 ### API: al_draw_line
 
@@ -49,7 +63,7 @@ Draws an outlined rectangle.
 
 *Parameters:*
 
-* x1, y1, x2, y2 - Upper left and lower right points of a rectangle
+* x1, y1, x2, y2 - Upper left and lower right points of the rectangle
 * color - Color of the rectangle
 * thickness - Thickness of the lines, pass `<= 0` to draw hairline lines
 
@@ -59,7 +73,7 @@ Draws a filled rectangle.
 
 *Parameters:*
 
-* x1, y1, x2, y2 - Upper left and lower right points of a rectangle
+* x1, y1, x2, y2 - Upper left and lower right points of the rectangle
 * color - Color of the rectangle
 
 ### API: al_draw_rounded_rectangle
@@ -68,7 +82,7 @@ Draws an outlined rounded rectangle.
 
 *Parameters:*
 
-* x1, y1, x2, y2 - Upper left and lower right points of a rectangle
+* x1, y1, x2, y2 - Upper left and lower right points of the rectangle
 * color - Color of the rectangle
 * rx, ry - The radii of the round
 * thickness - Thickness of the lines, pass `<= 0` to draw hairline lines
@@ -79,23 +93,23 @@ Draws an filled rounded rectangle.
 
 *Parameters:*
 
-* x1, y1, x2, y2 - Upper left and lower right points of a rectangle
+* x1, y1, x2, y2 - Upper left and lower right points of the rectangle
 * color - Color of the rectangle
 * rx, ry - The radii of the round
 
 ### API: al_calculate_arc
 
-Calculates an elliptical arc, and sets the vertices in the destination to the
-calculated positions. If `thickness <= 0`, then `num_points` of points are
+Calculates an elliptical arc, and sets the vertices in the destination buffer to
+the calculated positions. If `thickness <= 0`, then `num_points` of points are
 required in the destination, otherwise twice as many are needed.  The
-destination buffer should consist of regularly spaced (by distance of stride
+destination buffer should consist of regularly spaced (by distance of `stride`
 bytes) doublets of floats, corresponding to x and y coordinates of the
 vertices.
 
 *Parameters:*
 
-* dest - Pointer to the destination buffer
-* stride - Distance (in bytes) between successive pairs of coordinates
+* dest - The destination buffer
+* stride - Distance (in bytes) between starts of successive pairs of coordinates
 * cx, cy - Center of the arc
 * rx, ry - Radii of the arc
 * start_theta - The initial angle from which the arc is calculated
@@ -113,7 +127,7 @@ Draws an outlined ellipse.
 * cx, cy - Center of the ellipse
 * rx, ry - Radii of the ellipse
 * color - Color of the ellipse
-* thickness - Thickness of the ellipse, pass `<= 0` to draw hairline ellipse
+* thickness - Thickness of the ellipse, pass `<= 0` to draw a hairline ellipse
 
 ### API: al_draw_filled_ellipse
 
@@ -134,7 +148,7 @@ Draws an outlined circle.
 * cx, cy - Center of the circle
 * r - Radius of the circle
 * color - Color of the circle
-* thickness - Thickness of the circle, pass `<= 0` to draw hairline circle
+* thickness - Thickness of the circle, pass `<= 0` to draw a hairline circle
 
 ### API: al_draw_filled_circle
 
@@ -162,7 +176,7 @@ Draws an arc.
 
 ### API: al_calculate_spline
 
-Calculates a spline given 4 control points. If `thickness <= 0`, then
+Calculates a Bézier spline given 4 control points. If `thickness <= 0`, then
 `num_segments` of points are required in the destination, otherwise twice as
 many are needed.  The destination buffer should consist of regularly spaced (by
 distance of stride bytes) doublets of floats, corresponding to x and y
@@ -170,21 +184,21 @@ coordinates of the vertices.
 
 *Parameters:*
 
-* dest - Pointer to the destination buffer
-* stride - Distance (in bytes) between successive pairs of coordinates
+* dest - The destination buffer
+* stride - Distance (in bytes) between starts of successive pairs of coordinates
 * points - An array of 4 pairs of coordinates of the 4 control points
 * thickness - Thickness of the spline ribbon
 * num_segments - The number of points to calculate
 
 ### API: al_draw_spline
 
-Draws a spline given 4 control points.
+Draws a Bézier spline given 4 control points.
 
 *Parameters:*
 
 * points - An array of 4 pairs of coordinates of the 4 control points
 * color - Color of the spline
-* thickness - Thickness of the spline, pass `<= 0` to draw hairline spline
+* thickness - Thickness of the spline, pass `<= 0` to draw a hairline spline
 
 ### API: al_calculate_ribbon
 
@@ -197,11 +211,11 @@ doublets of floats, corresponding to x and y coordinates of the vertices.
 *Parameters:*
 
 * dest - Pointer to the destination buffer
-* dest_stride - Distance (in bytes) between successive pairs of coordinates in
-    the destination buffer
+* dest_stride - Distance (in bytes) between starts of successive pairs of 
+    coordinates in the destination buffer
 * points - An array of pairs of coordinates for each point
-* points_stride - Distance (in bytes) between successive pairs of coordinates
-    in the points buffer
+* points_stride - Distance (in bytes) between starts successive pairs of 
+    coordinates in the points buffer
 * thickness - Thickness of the spline ribbon
 * num_segments - The number of points to calculate
 
@@ -216,23 +230,27 @@ of the passed points.
 * color - Color of the spline
 * thickness - Thickness of the spline, pass `<= 0` to draw hairline spline
 
-## Low-level drawing routines
+## Low level drawing routines
+
+Low level drawing routines allow for more advanced usage of the addon, allowing
+you to pass arbitrary sequences of vertices to draw to the screen. These
+routines also support using textures on the primitives with some restrictions. 
+For maximum portability, you should only use textures that have dimensions that 
+are a power of two, as not every videocard supports them completely. This 
+warning is relaxed, however, if the texture coordinates never exit the
+boundaries of a single bitmap (i.e. you are not having the texture repeat/tile).
+As long as that is the case, any texture can be used safely. Sub-bitmaps work
+as textures, but cannot be tiled.
 
 ### API: al_draw_prim
 
 Draws a subset of the passed vertex buffer.
 
-A note about non power-of-two textures: For maximum portability, you
-should only use textures that have their dimensions be a power of two. This 
-warning is relaxed, however, if the texture coordinates never exit the
-boundaries of a single bitmap. This means that if you want to tile the texture,
-you should have it be power of two sized for maximum portability.
-
 *Parameters:*
 
-* texture - Texture to use, pass 0 to use only shaded primitves
+* texture - Texture to use, pass 0 to use only color shaded primitves
 * vtxs - Pointer to an array of vertices
-* decl - Pointer to the vertex declaration. If set to 0, the vtxs are assumed
+* decl - Pointer to a vertex declaration. If set to 0, the vtxs are assumed
       to be of the ALLEGRO_VERTEX type
 * start, end - Start and end of the subset of the vertex buffer to draw
 * type - Primitive type to draw
@@ -247,14 +265,13 @@ Number of primitives drawn
 ### API: al_draw_indexed_prim
 
 Draws a subset of the passed vertex buffer. This function uses an index array
-to specify which vertices to use. See the [al_draw_prim] entry for a note about
-texture dimensions.
+to specify which vertices to use.
 
 *Parameters:*
 
 * texture - Texture to use, pass 0 to use only shaded primitves
 * vtxs - Pointer to an array of vertices
-* decl - Pointer to the vertex declaration. If set to 0, the vtxs are assumed
+* decl - Pointer to a vertex declaration. If set to 0, the vtxs are assumed
       to be of the ALLEGRO_VERTEX type
 * indices - An array of indices into the vertex buffer
 * num_vtx - Number of indices from the indices array you want to draw
@@ -334,9 +351,9 @@ may be absent if two vertices are horizontally collinear.
 * v1, v2, v3 - The three vertices of the triangle
 * state - A pointer to a user supplied struct, this struct will be passed to
   all the pixel functions
-* init - This function is called once, before any drawing is done. The three
+* init - Called once per call before any drawing is done. The three
   points passed to it may be altered by clipping.
-* first - The function is called twice, once per triangle segment. It is
+* first - Called twice per call, once per triangle segment. It is
   passed 4 parameters, the first two are the coordinates of the initial pixel
   drawn in the segment. 
   The second two are the left minor and the left major steps, respectively.
@@ -364,7 +381,7 @@ The line is drawn top to bottom.
 * v1, v2 - The two vertices of the line
 * state - A pointer to a user supplied struct, this struct will be passed to
   all the pixel functions
-* first - The function is called before drawing the first pixel of the line. It
+* first - Called before drawing the first pixel of the line. It
   is passed the coordinates of this pixel, as well as the two vertices above.
   The passed vertices may have been altered by clipping.
 * step - Called once per pixel. The second parameter is set to 1 if the step is
@@ -373,7 +390,7 @@ The line is drawn top to bottom.
   Major steps are taken in both directions diagonally. In all cases, the the
   absolute value of the change in coordinate is at most 1 in either direction.
 * draw - Called once per pixel. The function is expected to draw the pixel at
-  the two coordinates passed to it.
+  the coordinates passed to it.
 
 ## Structures and types
 
@@ -416,8 +433,8 @@ A small structure describing a certain element of a vertex. E.g. the
 position of the vertex, or its color. These structures are used by the 
 al_create_vertex_decl function to create the vertex declaration. For that they
 generally occur in an array. The last element of such an array should have the 
-attribute field be 0, to signify that it is the end of the array.
-Here's an example of code that would create a declaration describing the 
+attribute field equal to 0, to signify that it is the end of the array.
+Here is an example code that would create a declaration describing the 
 ALLEGRO_VERTEX structure:
 
     ALLEGRO_VERTEX_ELEMENT elems[] = {
@@ -517,5 +534,5 @@ number of line segments that will be used to form them.
 ### API: ALLEGRO_PRIM_QUALITY
 
 Defines the quality of the quadratic primitives. At 10, this roughly
-corresponds to error < 0.5 pixel.
+corresponds to error of less than half of a pixel.
 
