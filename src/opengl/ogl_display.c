@@ -33,7 +33,10 @@ ALLEGRO_DEBUG_CHANNEL("opengl")
 
 static void setup_fbo(ALLEGRO_DISPLAY *display, ALLEGRO_BITMAP *bitmap)
 {
-   ALLEGRO_BITMAP_OGL *ogl_bitmap = (void *)bitmap;
+   ALLEGRO_BITMAP_OGL *ogl_bitmap;
+   
+   if (bitmap->parent) bitmap = bitmap->parent;
+   ogl_bitmap = (void *)bitmap;
 
 #if !defined ALLEGRO_GP2XWIZ
    if (!ogl_bitmap->is_backbuffer) {

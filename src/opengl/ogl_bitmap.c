@@ -376,14 +376,17 @@ static void ogl_draw_bitmap_region(ALLEGRO_BITMAP *bitmap, float sx, float sy,
    // FIXME: hack
    // FIXME: need format conversion if they don't match
    ALLEGRO_BITMAP *target = al_get_target_bitmap();
-   ALLEGRO_BITMAP_OGL *ogl_target = (ALLEGRO_BITMAP_OGL *)target;
+   ALLEGRO_BITMAP_OGL *ogl_target;
    ALLEGRO_DISPLAY *disp = al_get_current_display();
    
    /* For sub-bitmaps */
    if (target->parent) {
       dx += target->xofs;
       dy += target->yofs;
+      target = target->parent;
    }
+   
+   ogl_target = (ALLEGRO_BITMAP_OGL *)target;
    
    if (!(bitmap->flags & ALLEGRO_MEMORY_BITMAP)) {
 #if !defined ALLEGRO_GP2XWIZ

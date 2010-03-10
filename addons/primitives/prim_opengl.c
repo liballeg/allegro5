@@ -221,10 +221,14 @@ int _al_draw_prim_opengl(ALLEGRO_BITMAP* texture, const void* vtxs, const ALLEGR
    int num_primitives = 0;
    ALLEGRO_DISPLAY *ogl_disp = al_get_current_display();
    ALLEGRO_BITMAP *target = al_get_target_bitmap();
-   ALLEGRO_BITMAP_OGL *ogl_target = (void *)target;
+   ALLEGRO_BITMAP_OGL *ogl_target;
    const void* vtx;
    int stride = decl ? decl->stride : (int)sizeof(ALLEGRO_VERTEX);
    int num_vtx;
+   
+   if (target->parent) target = target->parent;
+   
+   ogl_target = (void *)target;
   
    if ((!ogl_target->is_backbuffer && ogl_disp->ogl_extras->opengl_target != ogl_target) || al_is_bitmap_locked(target)) {
       return _al_draw_prim_soft(texture, vtxs, decl, start, end, type);
