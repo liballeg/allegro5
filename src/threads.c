@@ -144,16 +144,16 @@ void al_run_detached_thread(void *(*proc)(void *arg), void *arg)
 
 /* Function: al_start_thread
  */
-void al_start_thread(ALLEGRO_THREAD *outer)
+void al_start_thread(ALLEGRO_THREAD *thread)
 {
-   ASSERT(outer);
+   ASSERT(thread);
 
-   switch (outer->thread_state) {
+   switch (thread->thread_state) {
       case THREAD_STATE_CREATED:
-         _al_mutex_lock(&outer->mutex);
-         outer->thread_state = THREAD_STATE_STARTING;
-         _al_cond_broadcast(&outer->cond);
-         _al_mutex_unlock(&outer->mutex);
+         _al_mutex_lock(&thread->mutex);
+         thread->thread_state = THREAD_STATE_STARTING;
+         _al_cond_broadcast(&thread->cond);
+         _al_mutex_unlock(&thread->mutex);
          break;
       case THREAD_STATE_STARTING:
          break;
@@ -161,16 +161,16 @@ void al_start_thread(ALLEGRO_THREAD *outer)
          break;
       /* invalid cases */
       case THREAD_STATE_JOINING:
-         ASSERT(outer->thread_state != THREAD_STATE_JOINING);
+         ASSERT(thread->thread_state != THREAD_STATE_JOINING);
          break;
       case THREAD_STATE_JOINED:
-         ASSERT(outer->thread_state != THREAD_STATE_JOINED);
+         ASSERT(thread->thread_state != THREAD_STATE_JOINED);
          break;
       case THREAD_STATE_DESTROYED:
-         ASSERT(outer->thread_state != THREAD_STATE_DESTROYED);
+         ASSERT(thread->thread_state != THREAD_STATE_DESTROYED);
          break;
       case THREAD_STATE_DETACHED:
-         ASSERT(outer->thread_state != THREAD_STATE_DETACHED);
+         ASSERT(thread->thread_state != THREAD_STATE_DETACHED);
          break;
    }
 }
@@ -178,102 +178,102 @@ void al_start_thread(ALLEGRO_THREAD *outer)
 
 /* Function: al_join_thread
  */
-void al_join_thread(ALLEGRO_THREAD *outer, void **ret_value)
+void al_join_thread(ALLEGRO_THREAD *thread, void **ret_value)
 {
-   ASSERT(outer);
+   ASSERT(thread);
 
    /* If al_join_thread() is called soon after al_start_thread(), the thread
     * function may not yet have noticed the STARTING state and executed the
     * user's thread function.  Hence we must wait until the thread enters the
     * STARTED state.
     */
-   while (outer->thread_state == THREAD_STATE_STARTING) {
+   while (thread->thread_state == THREAD_STATE_STARTING) {
       al_rest(0.001);
    }
 
-   switch (outer->thread_state) {
+   switch (thread->thread_state) {
       case THREAD_STATE_CREATED: /* fall through */
       case THREAD_STATE_STARTED:
-         _al_mutex_lock(&outer->mutex);
-         outer->thread_state = THREAD_STATE_JOINING;
-         _al_cond_broadcast(&outer->cond);
-         _al_mutex_unlock(&outer->mutex);
-         _al_mutex_destroy(&outer->mutex);
-         _al_thread_join(&outer->thread);
-         outer->thread_state = THREAD_STATE_JOINED;
+         _al_mutex_lock(&thread->mutex);
+         thread->thread_state = THREAD_STATE_JOINING;
+         _al_cond_broadcast(&thread->cond);
+         _al_mutex_unlock(&thread->mutex);
+         _al_mutex_destroy(&thread->mutex);
+         _al_thread_join(&thread->thread);
+         thread->thread_state = THREAD_STATE_JOINED;
          break;
       case THREAD_STATE_STARTING:
-         ASSERT(outer->thread_state != THREAD_STATE_STARTING);
+         ASSERT(thread->thread_state != THREAD_STATE_STARTING);
          break;
       case THREAD_STATE_JOINING:
-         ASSERT(outer->thread_state != THREAD_STATE_JOINING);
+         ASSERT(thread->thread_state != THREAD_STATE_JOINING);
          break;
       case THREAD_STATE_JOINED:
-         ASSERT(outer->thread_state != THREAD_STATE_JOINED);
+         ASSERT(thread->thread_state != THREAD_STATE_JOINED);
          break;
       case THREAD_STATE_DESTROYED:
-         ASSERT(outer->thread_state != THREAD_STATE_DESTROYED);
+         ASSERT(thread->thread_state != THREAD_STATE_DESTROYED);
          break;
       case THREAD_STATE_DETACHED:
-         ASSERT(outer->thread_state != THREAD_STATE_DETACHED);
+         ASSERT(thread->thread_state != THREAD_STATE_DETACHED);
          break;
    }
 
    if (ret_value) {
-      *ret_value = outer->retval;
+      *ret_value = thread->retval;
    }
 }
 
 
 /* Function: al_set_thread_should_stop
  */
-void al_set_thread_should_stop(ALLEGRO_THREAD *outer)
+void al_set_thread_should_stop(ALLEGRO_THREAD *thread)
 {
-   ASSERT(outer);
-   _al_thread_set_should_stop(&outer->thread);
+   ASSERT(thread);
+   _al_thread_set_should_stop(&thread->thread);
 }
 
 
 /* Function: al_get_thread_should_stop
  */
-bool al_get_thread_should_stop(ALLEGRO_THREAD *outer)
+bool al_get_thread_should_stop(ALLEGRO_THREAD *thread)
 {
-   ASSERT(outer);
-   return _al_get_thread_should_stop(&outer->thread);
+   ASSERT(thread);
+   return _al_get_thread_should_stop(&thread->thread);
 }
 
 
 /* Function: al_destroy_thread
  */
-void al_destroy_thread(ALLEGRO_THREAD *outer)
+void al_destroy_thread(ALLEGRO_THREAD *thread)
 {
-   if (!outer) {
+   if (!thread) {
       return;
    }
 
    /* Join if required. */
-   switch (outer->thread_state) {
+   switch (thread->thread_state) {
       case THREAD_STATE_CREATED: /* fall through */
       case THREAD_STATE_STARTING: /* fall through */
       case THREAD_STATE_STARTED:
-         al_join_thread(outer, NULL);
+         al_join_thread(thread, NULL);
          break;
       case THREAD_STATE_JOINING:
-         ASSERT(outer->thread_state != THREAD_STATE_JOINING);
+         ASSERT(thread->thread_state != THREAD_STATE_JOINING);
          break;
       case THREAD_STATE_JOINED:
          break;
       case THREAD_STATE_DESTROYED:
-         ASSERT(outer->thread_state != THREAD_STATE_DESTROYED);
+         ASSERT(thread->thread_state != THREAD_STATE_DESTROYED);
          break;
       case THREAD_STATE_DETACHED:
-         ASSERT(outer->thread_state != THREAD_STATE_DETACHED);
+         ASSERT(thread->thread_state != THREAD_STATE_DETACHED);
          break;
    }
 
    /* May help debugging. */
-   outer->thread_state = THREAD_STATE_DESTROYED;
-   _AL_FREE(outer);
+   thread->thread_state = THREAD_STATE_DESTROYED;
+   _AL_FREE(thread);
 }
 
 
