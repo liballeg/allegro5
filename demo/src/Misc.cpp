@@ -147,7 +147,7 @@ bool init(void)
 
    for (int i = RES_SAMPLE_START; i < RES_SAMPLE_END; i++) {
       ALLEGRO_SAMPLE_INSTANCE *s = (ALLEGRO_SAMPLE_INSTANCE *)rm.getData(i);
-      al_attach_sample_to_mixer(s, mixer);
+      al_attach_sample_instance_to_mixer(s, mixer);
    }
 
    for (int i = RES_STREAM_START; i < RES_STREAM_END; i++) {

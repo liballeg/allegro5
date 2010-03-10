@@ -142,7 +142,7 @@ int main(int argc, char *argv[])
    /* Loop the sample. */
    sample_inst = al_create_sample_instance(sample);
    al_set_sample_instance_playmode(sample_inst, ALLEGRO_PLAYMODE_LOOP);
-   al_attach_sample_to_mixer(sample_inst, al_get_default_mixer());
+   al_attach_sample_instance_to_mixer(sample_inst, al_get_default_mixer());
    al_play_sample_instance(sample_inst);
 
    al_show_mouse_cursor();

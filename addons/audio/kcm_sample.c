@@ -200,7 +200,7 @@ bool al_reserve_samples(int reserve_samples)
             TRACE("al_create_sample failed\n");
             goto Error;
          }
-         if (!al_attach_sample_to_mixer(*slot, default_mixer)) {
+         if (!al_attach_sample_instance_to_mixer(*slot, default_mixer)) {
             TRACE("al_attach_mixer_to_sample failed\n");
             goto Error;
          }
@@ -256,7 +256,7 @@ bool al_set_default_mixer(ALLEGRO_MIXER *mixer)
             TRACE("al_create_sample failed\n");
             goto Error;
          }
-         if (!al_attach_sample_to_mixer(*slot, default_mixer)) {
+         if (!al_attach_sample_instance_to_mixer(*slot, default_mixer)) {
             TRACE("al_attach_mixer_to_sample failed\n");
             goto Error;
          }

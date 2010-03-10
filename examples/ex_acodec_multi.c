@@ -87,8 +87,8 @@ int main(int argc, char **argv)
 	 continue;
       }
 
-      if (!al_attach_sample_to_mixer(sample[i], mixer)) {
-         fprintf(stderr, "al_attach_sample_to_mixer failed.\n");
+      if (!al_attach_sample_instance_to_mixer(sample[i], mixer)) {
+         fprintf(stderr, "al_attach_sample_instance_to_mixer failed.\n");
          continue;
       }
    }

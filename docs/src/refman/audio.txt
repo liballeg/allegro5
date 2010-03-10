@@ -205,7 +205,7 @@ Detaches the sample or mixer stream from the voice.
 ### API: al_attach_audio_stream_to_voice
 
 Attaches an audio stream to a voice. The same rules as
-[al_attach_sample_to_voice] apply. This may fail if the driver can't create
+[al_attach_sample_instance_to_voice] apply. This may fail if the driver can't create
 a voice with the buffer count and buffer size the stream uses.
 
 An audio stream attached directly to a voice has a number of limitations.  The
@@ -217,12 +217,12 @@ Returns true on success, false on failure.
 
 ### API: al_attach_mixer_to_voice
 
-Attaches a mixer to a voice. The same rules as [al_attach_sample_to_voice]
+Attaches a mixer to a voice. The same rules as [al_attach_sample_instance_to_voice]
 apply, with the exception of the depth requirement.
 
 Returns true on success, false on failure.
 
-### API: al_attach_sample_to_voice
+### API: al_attach_sample_instance_to_voice
 
 Attaches a sample to a voice, and allows it to play. The sample's volume
 and loop mode will be ignored, and it must have the same frequency and
@@ -574,12 +574,12 @@ See also: [al_get_default_mixer], [al_set_default_mixer], [al_reserve_samples].
 ### API: al_attach_mixer_to_mixer
 
 Attaches a mixer onto another mixer. The same rules as with
-[al_attach_sample_to_mixer] apply, with the added caveat that both
+[al_attach_sample_instance_to_mixer] apply, with the added caveat that both
 mixers must be the same frequency.
 
 See also: [al_detach_mixer].
 
-### API: al_attach_sample_to_mixer
+### API: al_attach_sample_instance_to_mixer
 
 Attach a sample instance to a mixer.  The instance must not already be attached
 to anything.
@@ -651,7 +651,7 @@ See also: [al_get_mixer_playing].
 
 Return true if the mixer is attached to something.
 
-See also: [al_attach_sample_to_mixer], [al_attach_audio_stream_to_mixer],
+See also: [al_attach_sample_instance_to_mixer], [al_attach_audio_stream_to_mixer],
 [al_attach_mixer_to_mixer]
 
 ### API: al_detach_mixer

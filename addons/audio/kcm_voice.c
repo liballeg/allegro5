@@ -105,9 +105,9 @@ void al_destroy_voice(ALLEGRO_VOICE *voice)
 }
 
 
-/* Function: al_attach_sample_to_voice
+/* Function: al_attach_sample_instance_to_voice
  */
-bool al_attach_sample_to_voice(ALLEGRO_SAMPLE_INSTANCE *spl,
+bool al_attach_sample_instance_to_voice(ALLEGRO_SAMPLE_INSTANCE *spl,
    ALLEGRO_VOICE *voice)
 {
    bool ret;

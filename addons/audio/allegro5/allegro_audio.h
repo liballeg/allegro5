@@ -285,7 +285,7 @@ ALLEGRO_KCM_AUDIO_FUNC(ALLEGRO_EVENT_SOURCE *, al_get_audio_stream_event_source,
 ALLEGRO_KCM_AUDIO_FUNC(ALLEGRO_MIXER*, al_create_mixer, (unsigned int freq,
       ALLEGRO_AUDIO_DEPTH depth, ALLEGRO_CHANNEL_CONF chan_conf));
 ALLEGRO_KCM_AUDIO_FUNC(void, al_destroy_mixer, (ALLEGRO_MIXER *mixer));
-ALLEGRO_KCM_AUDIO_FUNC(bool, al_attach_sample_to_mixer, (
+ALLEGRO_KCM_AUDIO_FUNC(bool, al_attach_sample_instance_to_mixer, (
    ALLEGRO_SAMPLE_INSTANCE *stream, ALLEGRO_MIXER *mixer));
 ALLEGRO_KCM_AUDIO_FUNC(bool, al_attach_audio_stream_to_mixer, (ALLEGRO_AUDIO_STREAM *stream,
    ALLEGRO_MIXER *mixer));
@@ -312,7 +312,7 @@ ALLEGRO_KCM_AUDIO_FUNC(ALLEGRO_VOICE*, al_create_voice, (unsigned int freq,
       ALLEGRO_AUDIO_DEPTH depth,
       ALLEGRO_CHANNEL_CONF chan_conf));
 ALLEGRO_KCM_AUDIO_FUNC(void, al_destroy_voice, (ALLEGRO_VOICE *voice));
-ALLEGRO_KCM_AUDIO_FUNC(bool, al_attach_sample_to_voice, (
+ALLEGRO_KCM_AUDIO_FUNC(bool, al_attach_sample_instance_to_voice, (
    ALLEGRO_SAMPLE_INSTANCE *stream, ALLEGRO_VOICE *voice));
 ALLEGRO_KCM_AUDIO_FUNC(bool, al_attach_audio_stream_to_voice, (
    ALLEGRO_AUDIO_STREAM *stream, ALLEGRO_VOICE *voice ));

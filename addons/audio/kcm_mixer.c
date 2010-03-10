@@ -740,9 +740,9 @@ void al_destroy_mixer(ALLEGRO_MIXER *mixer)
 
 
 /* This function is ALLEGRO_MIXER aware */
-/* Function: al_attach_sample_to_mixer
+/* Function: al_attach_sample_instance_to_mixer
  */
-bool al_attach_sample_to_mixer(ALLEGRO_SAMPLE_INSTANCE *spl,
+bool al_attach_sample_instance_to_mixer(ALLEGRO_SAMPLE_INSTANCE *spl,
    ALLEGRO_MIXER *mixer)
 {
    ALLEGRO_SAMPLE_INSTANCE **slot;
@@ -824,7 +824,7 @@ bool al_attach_audio_stream_to_mixer(ALLEGRO_AUDIO_STREAM *stream, ALLEGRO_MIXER
    ASSERT(mixer);
    ASSERT(stream);
 
-   return al_attach_sample_to_mixer(&stream->spl, mixer);
+   return al_attach_sample_instance_to_mixer(&stream->spl, mixer);
 }
 
 
@@ -841,7 +841,7 @@ bool al_attach_mixer_to_mixer(ALLEGRO_MIXER *stream, ALLEGRO_MIXER *mixer)
       return false;
    }
 
-   return al_attach_sample_to_mixer(&stream->ss, mixer);
+   return al_attach_sample_instance_to_mixer(&stream->ss, mixer);
 }
 
 
