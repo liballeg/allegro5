@@ -155,7 +155,9 @@ static void setup_fbo(ALLEGRO_DISPLAY *display, ALLEGRO_BITMAP *bitmap)
 void _al_ogl_set_target_bitmap(ALLEGRO_DISPLAY *display, ALLEGRO_BITMAP *bitmap)
 {
    ALLEGRO_BITMAP_OGL *ogl_bitmap = (void *)bitmap;
-   
+   if (bitmap->parent)
+      ogl_bitmap = (void *)bitmap->parent;
+
    if (!bitmap->locked) {
       setup_fbo(display, bitmap);
 

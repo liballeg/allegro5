@@ -95,8 +95,12 @@ static void ogl_clear(ALLEGRO_DISPLAY *d, ALLEGRO_COLOR *color)
 {
    ALLEGRO_DISPLAY *ogl_disp = (void *)d;
    ALLEGRO_BITMAP *target = al_get_target_bitmap();
-   ALLEGRO_BITMAP_OGL *ogl_target = (void *)target;
+   ALLEGRO_BITMAP_OGL *ogl_target;
    float r, g, b, a;
+   
+   if (target->parent) target = target->parent;
+   
+   ogl_target = (void *)target;
 
    if ((!ogl_target->is_backbuffer &&
       ogl_disp->ogl_extras->opengl_target != ogl_target) ||
