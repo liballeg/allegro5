@@ -19,7 +19,7 @@ add_custom_command(
     COMMAND ${PYTHON_EXECUTABLE} ${CMAKE_SOURCE_DIR}/python/generate_python_ctypes.py
         -p python_protos
         -o allegro.py
-        -r ${release}
+        -r \"${release}\"
     )
 
 add_custom_target(python
