@@ -300,8 +300,14 @@ See also: [al_destroy_sample].
 Free the sample data structure. If it was created with the `free_buf`
 parameter set to true, then the buffer will be freed as well.
 
-You must destroy any [ALLEGRO_SAMPLE_INSTANCE] structures which reference
-this [ALLEGRO_SAMPLE] beforehand.
+You must stop or destroy any [ALLEGRO_SAMPLE_INSTANCE] structures which
+reference this [ALLEGRO_SAMPLE] beforehand.
+
+If you have used [al_play_sample] at all, it is a very good idea to call
+[al_stop_samples] before destroying samples at the end of the program, in case
+any are still playing.
+
+See also: [al_destroy_sample_instance], [al_stop_sample], [al_stop_samples]
 
 ### API: al_play_sample
 
@@ -323,15 +329,19 @@ Parameters:
   an id representing the sample being played.
 
 See also: [ALLEGRO_PLAYMODE], [ALLEGRO_AUDIO_PAN_NONE], [ALLEGRO_SAMPLE_ID],
-[al_stop_sample].
+[al_stop_sample], [al_stop_samples].
 
 ### API: al_stop_sample
 
 Stop the sample started by [al_play_sample].
 
+See also: [al_stop_samples]
+
 ### API: al_stop_samples
 
 Stop all samples started by [al_play_sample].
+
+See also: [al_stop_sample]
 
 ### API: al_get_sample_channels
 
