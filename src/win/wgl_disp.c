@@ -1125,17 +1125,14 @@ static bool wgl_set_current_display(ALLEGRO_DISPLAY *d)
 }
 
 
-static bool wgl_unset_current_display(ALLEGRO_DISPLAY *d)
+static void wgl_unset_current_display(ALLEGRO_DISPLAY *d)
 {
-   ALLEGRO_DISPLAY_WGL *wgl_disp = (ALLEGRO_DISPLAY_WGL *)d;
+   (void)d;
 
    if (!wglMakeCurrent(NULL, NULL)) {
       ALLEGRO_ERROR("Unable unset the current context! %s\n",
                      get_error_desc(GetLastError()));
-      return false;
    }
-
-   return true;
 }
 
 
