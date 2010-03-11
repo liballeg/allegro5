@@ -63,7 +63,7 @@ typedef void (*THREAD_PROC)(void *);
 /* input_proc: [input thread]
  * This the input thread.
  */
-static DWORD input_proc(void *unused)
+static unsigned __stdcall input_proc(void *unused)
 {
    DWORD result;
    (void)unused;
@@ -212,7 +212,7 @@ bool _al_win_input_unregister_event(HANDLE event_id)
 void _al_win_input_init(void)
 {
    input_thread_is_over = false;
-   input_thread = (HANDLE)_beginthread((THREAD_PROC)input_proc, 0, NULL);
+   input_thread = (HANDLE)_beginthreadex(NULL, 0, input_proc, NULL, 0, NULL);
    if (!input_thread) {
       TRACE(PREFIX_E "Failed to spawn the input thread.\n");
    }
@@ -231,6 +231,8 @@ void _al_win_input_exit(void)
       QueueUserAPC((PAPCFUNC)quit_input_thread, input_thread, (ULONG_PTR)NULL);
       /* wait for the input thread to acknowledge */
       WaitForSingleObject(ack_event, INFINITE);
+      CloseHandle(input_thread);
+      input_thread = NULL;
       TRACE(PREFIX_I "Input thread closed.\n");
    }
 

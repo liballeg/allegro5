@@ -1808,6 +1808,7 @@ static bool d3d_create_display_internals(ALLEGRO_DISPLAY_D3D *d3d_display)
       win_display->thread_ended = true;
       params.AckEvent = CreateEvent(NULL, false, false, NULL);
 
+      /* _beginthread closes the handle automatically. */
       _beginthread(d3d_display_thread_proc, 0, &params);
       /* Wait some _finite_ time (10 secs or so) for display thread to init, and
        * give up if something horrible happened to it, unless we're in debug mode

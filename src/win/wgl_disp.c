@@ -909,12 +909,12 @@ static bool create_display_internals(ALLEGRO_DISPLAY_WGL *wgl_disp)
    ALLEGRO_DISPLAY     *disp     = (void*)wgl_disp;
    ALLEGRO_DISPLAY_WIN *win_disp = (void*)wgl_disp;
    new_display_parameters ndp;
-   HANDLE window_thread;
 
+   /* _beginthread closes the handle automatically. */
    ndp.display = wgl_disp;
    ndp.init_failed = true;
    ndp.AckEvent = CreateEvent(NULL, false, false, NULL);
-   window_thread = (HANDLE)_beginthread(display_thread_proc, 0, &ndp);
+   _beginthread(display_thread_proc, 0, &ndp);
 
    /* Wait some _finite_ time (10 secs or so) for display thread to init, and
     * give up if something horrible happened to it, unless we're in debug mode

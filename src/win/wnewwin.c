@@ -279,6 +279,7 @@ static void postpone_thread_proc(void *arg)
 
 static void postpone_resize(HWND window)
 {
+   /* _beginthread closes the handle automatically. */
    _beginthread(postpone_thread_proc, 0, (void *)window);
 }
 

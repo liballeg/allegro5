@@ -146,7 +146,7 @@ static ALLEGRO_JOYSTICK *joydx_get_joystick(int num);
 static void joydx_release_joystick(ALLEGRO_JOYSTICK *joy);
 static void joydx_get_joystick_state(ALLEGRO_JOYSTICK *joy, ALLEGRO_JOYSTICK_STATE *ret_state);
 
-static void joydx_thread_proc(LPVOID unused);
+static unsigned __stdcall joydx_thread_proc(LPVOID unused);
 static void update_joystick(ALLEGRO_JOYSTICK_DIRECTX *joy);
 static void handle_axis_event(ALLEGRO_JOYSTICK_DIRECTX *joy, const AXIS_MAPPING *axis_mapping, DWORD value);
 static void handle_pov_event(ALLEGRO_JOYSTICK_DIRECTX *joy, int stick, DWORD value);
@@ -749,7 +749,7 @@ static bool joydx_init_joystick(void)
    InitializeCriticalSection(&joydx_thread_cs);
 
    /* start the background thread */
-   joydx_thread = (HANDLE) _beginthread(joydx_thread_proc, 0, NULL);
+   joydx_thread = (HANDLE) _beginthreadex(NULL, 0, joydx_thread_proc, NULL, 0, NULL);
 
    return true;
 }
@@ -811,6 +811,7 @@ static void joydx_exit_joystick(void)
    /* stop the thread */
    SetEvent(STOP_EVENT);
    WaitForSingleObject(joydx_thread, INFINITE);
+   CloseHandle(joydx_thread);
    joydx_thread = NULL;
 
    /* free thread resources */
@@ -927,7 +928,7 @@ static void joydx_get_joystick_state(ALLEGRO_JOYSTICK *joy_, ALLEGRO_JOYSTICK_ST
 /* joydx_thread_proc: [joystick thread]
  *  Thread loop function for the joystick thread.
  */
-static void joydx_thread_proc(LPVOID unused)
+static unsigned __stdcall joydx_thread_proc(LPVOID unused)
 {
    /* XXX is this needed? */
    _al_win_thread_init();
@@ -959,6 +960,7 @@ static void joydx_thread_proc(LPVOID unused)
    _al_win_thread_exit();
 
    (void)unused;
+   return 0;
 }
 
 
