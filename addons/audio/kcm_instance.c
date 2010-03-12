@@ -119,9 +119,6 @@ void _al_kcm_detach_from_parent(ALLEGRO_SAMPLE_INSTANCE *spl)
    
    mixer = spl->parent.u.mixer;
 
-   free(spl->matrix);
-   spl->matrix = NULL;
-
    /* Search through the streams and check for this one */
    for (i = _al_vector_size(&mixer->streams) - 1; i >= 0; i--) {
       ALLEGRO_SAMPLE_INSTANCE **slot = _al_vector_ref(&mixer->streams, i);
@@ -141,6 +138,9 @@ void _al_kcm_detach_from_parent(ALLEGRO_SAMPLE_INSTANCE *spl)
          break;
       }
    }
+
+   free(spl->matrix);
+   spl->matrix = NULL;
 }
 
 
