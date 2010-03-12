@@ -10,7 +10,9 @@
 
 #include <stdio.h>
 #include "allegro5/allegro5.h"
+#ifndef ALLEGRO_IPHONE
 #include "allegro5/allegro_flac.h"
+#endif
 #include "allegro5/allegro_vorbis.h"
 #include "allegro5/allegro_audio.h"
 
@@ -39,7 +41,9 @@ int main(int argc, char **argv)
    }
 
    al_init_ogg_vorbis_addon();
+#ifndef ALLEGRO_IPHONE
    al_init_flac_addon();
+#endif
 
    if (!al_install_audio(ALLEGRO_AUDIO_DRIVER_AUTODETECT)) {
        fprintf(stderr, "Could not init sound!\n");

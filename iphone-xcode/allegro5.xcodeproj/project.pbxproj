@@ -238,6 +238,9 @@
 		9606A959103B653D00E0963B /* libpthread.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 9606A958103B653D00E0963B /* libpthread.dylib */; };
 		9606AA6E103B795000E0963B /* CoreAudio.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9606AA6D103B795000E0963B /* CoreAudio.framework */; };
 		9606AC0A103B915300E0963B /* AudioToolbox.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9606AC09103B915300E0963B /* AudioToolbox.framework */; };
+		9622427A1149DE6F00AF7289 /* aqueue.m in Sources */ = {isa = PBXBuildFile; fileRef = 962242791149DE6F00AF7289 /* aqueue.m */; };
+		9622427B1149DE7D00AF7289 /* aqueue.m in Sources */ = {isa = PBXBuildFile; fileRef = 962242791149DE6F00AF7289 /* aqueue.m */; };
+		962242AD1149E06200AF7289 /* libTremor.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 962242AC1149E06200AF7289 /* libTremor.a */; };
 		964F08F5113AEF0600F3987C /* ex_prim.c in Sources */ = {isa = PBXBuildFile; fileRef = 642F7A0A102B27C5001249EE /* ex_prim.c */; };
 		964F08F6113AEF1200F3987C /* data in Resources */ = {isa = PBXBuildFile; fileRef = 642F7F97102DD0B6001249EE /* data */; };
 		964F0900113AEF4C00F3987C /* CoreFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 964F08FF113AEF4C00F3987C /* CoreFoundation.framework */; };
@@ -863,6 +866,8 @@
 		9606AA7E103B79A900E0963B /* QuartzCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QuartzCore.framework; path = System/Library/Frameworks/QuartzCore.framework; sourceTree = SDKROOT; };
 		9606AA80103B79A900E0963B /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
 		9606AC09103B915300E0963B /* AudioToolbox.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AudioToolbox.framework; path = System/Library/Frameworks/AudioToolbox.framework; sourceTree = SDKROOT; };
+		962242791149DE6F00AF7289 /* aqueue.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = aqueue.m; sourceTree = "<group>"; };
+		962242AC1149E06200AF7289 /* libTremor.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libTremor.a; path = /Users/trent/4.9/include/libTremor.a; sourceTree = "<absolute>"; };
 		964F08EE113AEEC700F3987C /* ex_prim.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ex_prim.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		964F08F0113AEEC700F3987C /* ex_prim-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "ex_prim-Info.plist"; sourceTree = "<group>"; };
 		964F08FF113AEF4C00F3987C /* CoreFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreFoundation.framework; path = System/Library/Frameworks/CoreFoundation.framework; sourceTree = SDKROOT; };
@@ -1049,6 +1054,7 @@
 				9606A959103B653D00E0963B /* libpthread.dylib in Frameworks */,
 				9606AA6E103B795000E0963B /* CoreAudio.framework in Frameworks */,
 				9606AC0A103B915300E0963B /* AudioToolbox.framework in Frameworks */,
+				962242AD1149E06200AF7289 /* libTremor.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1123,6 +1129,7 @@
 				964F0905113AEF4C00F3987C /* OpenGLES.framework */,
 				964F0907113AEF4C00F3987C /* QuartzCore.framework */,
 				964F0909113AEF4C00F3987C /* UIKit.framework */,
+				962242AC1149E06200AF7289 /* libTremor.a */,
 			);
 			name = CustomTemplate;
 			sourceTree = "<group>";
@@ -1607,6 +1614,7 @@
 		64FACD2010305B1E004E35A1 /* audio */ = {
 			isa = PBXGroup;
 			children = (
+				962242791149DE6F00AF7289 /* aqueue.m */,
 				64FACD2110305B1E004E35A1 /* acodec.c */,
 				64FACD2210305B1E004E35A1 /* allegro5 */,
 				64FACD2710305B1E004E35A1 /* alsa.c */,
@@ -2434,6 +2442,7 @@
 				6485CBA01038B9720094FDE9 /* iphone_joystick.m in Sources */,
 				96C30A1E10CE75DD00477B20 /* transformations.c in Sources */,
 				9665C55910E97752001C8024 /* point_soft.c in Sources */,
+				9622427A1149DE6F00AF7289 /* aqueue.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2521,6 +2530,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				9622427B1149DE7D00AF7289 /* aqueue.m in Sources */,
 				96A1ED08103B36900021FA43 /* acodec.c in Sources */,
 				96A1ED09103B36900021FA43 /* audio.c in Sources */,
 				96A1ED0A103B36900021FA43 /* kcm_dtor.c in Sources */,
@@ -3212,6 +3222,11 @@
 				COPY_PHASE_STRIP = YES;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				GCC_ENABLE_FIX_AND_CONTINUE = NO;
+				HEADER_SEARCH_PATHS = (
+					../addons/audio,
+					include,
+					../include,
+				);
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"\"$(SRCROOT)/..\"",
@@ -3219,6 +3234,7 @@
 				);
 				PREBINDING = NO;
 				PRODUCT_NAME = a5_vorbis;
+				SHARED_PRECOMPS_DIR = "";
 				ZERO_LINK = NO;
 			};
 			name = Release;
@@ -3263,7 +3279,7 @@
 				COPY_PHASE_STRIP = NO;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_OPTIMIZATION_LEVEL = 0;
-				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PRECOMPILE_PREFIX_HEADER = NO;
 				GCC_PREFIX_HEADER = "";
 				HEADER_SEARCH_PATHS = (
 					../addons/audio,
@@ -3276,18 +3292,14 @@
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"\"$(SRCROOT)/../deps\"",
+					"\"$(SRCROOT)/../include\"",
 				);
-				OTHER_LDFLAGS = (
-					"-framework",
-					Foundation,
-					"-framework",
-					UIKit,
-				);
+				OTHER_LDFLAGS = "";
 				PREBINDING = NO;
-				PRECOMPS_INCLUDE_HEADERS_FROM_BUILT_PRODUCTS_DIR = YES;
+				PRECOMPS_INCLUDE_HEADERS_FROM_BUILT_PRODUCTS_DIR = NO;
 				PRODUCT_NAME = ex_stream_file;
 				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "BBD63F07-6A3D-43BF-B4C6-48E829309D37";
-				SDKROOT = iphoneos2.1;
+				SDKROOT = iphonesimulator3.1;
 			};
 			name = Debug;
 		};
@@ -3299,24 +3311,27 @@
 				COPY_PHASE_STRIP = YES;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				GCC_ENABLE_FIX_AND_CONTINUE = NO;
-				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "$(SYSTEM_LIBRARY_DIR)/Frameworks/UIKit.framework/Headers/UIKit.h";
+				GCC_PRECOMPILE_PREFIX_HEADER = NO;
+				GCC_PREFIX_HEADER = "";
 				GCC_PREPROCESSOR_DEFINITIONS = "";
+				HEADER_SEARCH_PATHS = (
+					../addons/audio,
+					../addons/acodec,
+					include,
+					../include,
+				);
 				INFOPLIST_FILE = "ex_stream_file-Info.plist";
 				INSTALL_PATH = "$(HOME)/Applications";
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"\"$(SRCROOT)/../deps\"",
+					"\"$(SRCROOT)/../include\"",
 				);
-				OTHER_LDFLAGS = (
-					"-framework",
-					Foundation,
-					"-framework",
-					UIKit,
-				);
+				OTHER_LDFLAGS = "";
 				PREBINDING = NO;
+				PRECOMPS_INCLUDE_HEADERS_FROM_BUILT_PRODUCTS_DIR = NO;
 				PRODUCT_NAME = ex_stream_file;
-				SDKROOT = iphoneos2.1;
+				SDKROOT = iphonesimulator3.1;
 				ZERO_LINK = NO;
 			};
 			name = Release;

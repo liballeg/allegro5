@@ -62,7 +62,7 @@ static void thread_func_trampoline(_AL_THREAD *inner, void *_outer)
    ALLEGRO_SYSTEM *system = al_get_system_driver();
    (void)inner;
 
-   if (system->vt->thread_init) {
+   if (system && system->vt && system->vt->thread_init) {
       system->vt->thread_init(outer);
    }
 
@@ -81,7 +81,7 @@ static void thread_func_trampoline(_AL_THREAD *inner, void *_outer)
          ((void *(*)(ALLEGRO_THREAD *, void *))outer->proc)(outer, outer->arg);
    }
 
-   if (system->vt->thread_exit) {
+   if (system && system->vt && system->vt->thread_exit) {
       system->vt->thread_exit(outer);
    }
 }
