@@ -385,19 +385,41 @@ static void ogl_draw_bitmap_region(ALLEGRO_BITMAP *bitmap, float sx, float sy,
       dy += target->yofs;
       target = target->parent;
    }
-   
+
    ogl_target = (ALLEGRO_BITMAP_OGL *)target;
    
    if (!(bitmap->flags & ALLEGRO_MEMORY_BITMAP)) {
 #if !defined ALLEGRO_GP2XWIZ
       ALLEGRO_BITMAP_OGL *ogl_source = (void *)bitmap;
       if (ogl_source->is_backbuffer) {
+         float clip;
+
+         /* Have to do our own clipping. */
+         clip = dx - target->cl;
+         if (clip < 0) {
+            dx -= clip;
+            sw += clip;
+            dx -= clip;
+         }
+         clip = dy - target->ct;
+         if (clip < 0) {
+            dy -= clip;
+            sh += clip;
+            dy -= clip;
+         }
+         clip = target->cr_excl - dx - sw;
+         if (clip < 0) {
+            sw += clip;
+         }
+         clip = target->cb_excl - dy - sh;
+         if (clip < 0) {
+            sh += clip;
+         }
+          
          if (ogl_target->is_backbuffer) {
             #if !defined ALLEGRO_IPHONE
             /* Oh fun. Someone draws the screen to itself. */
             // FIXME: What if the target is locked?
-            // FIXME: OpenGL refuses to do clipping with CopyPixels,
-            // have to do it ourselves.
             if (setup_blending(disp)) {
                glRasterPos2f(dx, dy + sh);
                glCopyPixels(sx, bitmap->h - sy - sh, sw, sh, GL_COLOR);
