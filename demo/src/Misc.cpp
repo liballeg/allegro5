@@ -33,12 +33,12 @@ const char* getResource(const char* fmt, ...)
    snprintf(res, 511, fmt, ap);
 
    if (dir)
-      al_free_path(dir);
+      al_destroy_path(dir);
    dir = al_get_standard_path(ALLEGRO_PROGRAM_PATH);
    al_append_path_component(dir, "data");
    path = al_create_path(res);
    al_join_paths(dir, path);
-   al_free_path(path);
+   al_destroy_path(path);
 
    return al_path_cstr(dir, '/');
 }

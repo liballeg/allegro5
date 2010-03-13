@@ -29,7 +29,7 @@
       /* Convert path and filename to NSString objects */
       directory = [NSString stringWithUTF8String: al_path_cstr(initial_directory, '/')];
       filename = [NSString stringWithUTF8String: al_get_path_filename(fd->initial_path)];
-      al_free_path(initial_directory);
+      al_destroy_path(initial_directory);
    } else {
       directory = nil;
       filename = nil;

@@ -127,7 +127,7 @@ static void read_allegro_cfg(void)
          active_sysdrv->config = temp;
       }
    }
-   al_free_path(path);
+   al_destroy_path(path);
 
    temp = al_load_config_file("allegro5.cfg");
    if (temp) {
@@ -322,7 +322,7 @@ void al_set_appname(const char *appname)
       ALLEGRO_PATH *_appname_path;
       _appname_path = al_get_standard_path(ALLEGRO_EXENAME_PATH);
       strncpy(_al_appname, al_get_path_filename(_appname_path), sizeof(_al_appname));
-      al_free_path(_appname_path);
+      al_destroy_path(_appname_path);
    }
 }
 

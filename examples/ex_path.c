@@ -16,7 +16,7 @@ int main(int argc, char **argv)
       ALLEGRO_PATH *exe = al_create_path(argv[0]);
       if (exe) {
          printf("usage1: %s <path>\n", al_get_path_filename(exe));
-         al_free_path(exe);
+         al_destroy_path(exe);
       }
       else {
          printf("usage2: %s <path>\n", argv[0]);
@@ -33,7 +33,7 @@ int main(int argc, char **argv)
       printf("dyn: drive=\"%s\", file=\"%s\"\n",
 	  al_get_path_drive(dyn),
 	  al_get_path_filename(dyn));
-      al_free_path(dyn);
+      al_destroy_path(dyn);
    }
 
    tostring = al_create_path(argv[1]);
@@ -52,7 +52,7 @@ int main(int argc, char **argv)
          printf(" '%s'", al_get_path_component(tostring, i));
       }
       printf(" filename:'%s'\n", al_get_path_filename(tostring));
-      al_free_path(tostring);
+      al_destroy_path(tostring);
    }
 
    /* FIXME: test out more of the al_path_ functions, ie: insert, remove,
@@ -71,12 +71,12 @@ int main(int argc, char **argv)
          al_make_path_absolute(cloned);
          printf("abs: '%s'\n", al_path_cstr(cloned, '/'));
 
-         al_free_path(dyn);
-         al_free_path(cloned);
+         al_destroy_path(dyn);
+         al_destroy_path(cloned);
       }
       else {
          printf("failed to clone ALLEGRO_PATH :(\n");
-         al_free_path(dyn);
+         al_destroy_path(dyn);
       }
    }
    else {

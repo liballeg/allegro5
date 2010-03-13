@@ -70,15 +70,16 @@ ALLEGRO_SYSTEM_SETTINGS_PATH  Path to system-wide settings directory.
 ALLEGRO_EXENAME_PATH          The full path to the executable. 
 
 
-Returns NULL on failure.
+Returns NULL on failure.  The returned path should be freed with
+[al_destroy_path].
 
-See also: [al_set_appname], [al_set_orgname]
+See also: [al_set_appname], [al_set_orgname], [al_destroy_path]
 
 ## API: al_set_appname
 
 Sets the global application name.
 
-The Application name is used by [al_get_standard_path] to build the full path to
+The application name is used by [al_get_standard_path] to build the full path to
 an application's files.
 
 This function may be called before [al_init] or [al_install_system].
@@ -89,7 +90,7 @@ See also: [al_get_appname], [al_set_orgname]
 
 Sets the global organization name.
 
-The Organization name is used by [al_get_standard_path] to build the full path to
+The organization name is used by [al_get_standard_path] to build the full path to
 an application's files.
 
 This function may be called before [al_init] or [al_install_system].

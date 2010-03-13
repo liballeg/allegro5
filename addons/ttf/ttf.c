@@ -379,7 +379,7 @@ ALLEGRO_FONT *al_load_ttf_font_entry(ALLEGRO_FILE *file,
         FT_Attach_File(face, helper); 
         ALLEGRO_DEBUG("Guessed tfm file %s.\n", helper);
     }
-    al_free_path(path);
+    al_destroy_path(path);
 
     if (size > 0) {
        FT_Set_Pixel_Sizes(face, 0, size);

@@ -167,7 +167,7 @@ static void fs_phys_destroy_entry(ALLEGRO_FS_ENTRY *fse)
    ALLEGRO_FS_ENTRY_PHYSFS *e = (ALLEGRO_FS_ENTRY_PHYSFS *)fse;
    if (e->is_dir_open)
       fs_phys_close_directory(fse);
-   al_free_path(e->path);
+   al_destroy_path(e->path);
    _AL_FREE(e);
 }
 

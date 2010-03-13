@@ -498,7 +498,7 @@ static ALLEGRO_FS_ENTRY *fs_stdio_read_directory(ALLEGRO_FS_ENTRY *fp)
    path = al_create_path_for_directory(fp_stdio->path);
    al_set_path_filename(path, ent->d_name);
    ret = fs_stdio_create_entry(al_path_cstr(path, '/'));
-   al_free_path(path);
+   al_destroy_path(path);
    return ret;
 }
 
@@ -513,7 +513,7 @@ static void fs_stdio_destroy_entry(ALLEGRO_FS_ENTRY *fh_)
       _AL_FREE(fh->path);
 
    if (fh->apath)
-      al_free_path(fh->apath);
+      al_destroy_path(fh->apath);
 
    if (fh->isdir)
       fs_stdio_close_directory(fh_);

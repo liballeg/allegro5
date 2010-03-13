@@ -314,7 +314,7 @@ ALLEGRO_FILE *al_make_temp_file(const char *template, ALLEGRO_PATH **ret_path)
 
    path = al_get_standard_path(ALLEGRO_TEMP_PATH);
    if (!path) {
-      al_free_path(path);
+      al_destroy_path(path);
       return NULL;
    }
 
@@ -344,7 +344,7 @@ ALLEGRO_FILE *al_make_temp_file(const char *template, ALLEGRO_PATH **ret_path)
 
    if (fd == -1) {
       al_set_errno(errno);
-      al_free_path(path);
+      al_destroy_path(path);
       return NULL;
    }
 
@@ -353,14 +353,14 @@ ALLEGRO_FILE *al_make_temp_file(const char *template, ALLEGRO_PATH **ret_path)
       al_set_errno(errno);
       close(fd);
       unlink(al_path_cstr(path, ALLEGRO_NATIVE_PATH_SEP));
-      al_free_path(path);
+      al_destroy_path(path);
       return NULL;
    }
 
    if (ret_path)
       *ret_path = path;
    else
-      al_free_path(path);
+      al_destroy_path(path);
 
    return f;
 }

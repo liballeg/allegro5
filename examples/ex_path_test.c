@@ -34,20 +34,20 @@ int error = 0;
 /*---------------------------------------------------------------------------*/
 
 /* Test al_create_path, al_get_path_num_components, al_get_path_component,
- * al_get_path_drive, al_get_path_filename, al_free_path.
+ * al_get_path_drive, al_get_path_filename, al_destroy_path.
  */
 static void t1(void)
 {
    ALLEGRO_PATH *path;
 
    CHECK(path = al_create_path(NULL));
-   al_free_path(path);
+   al_destroy_path(path);
 
    CHECK(path = al_create_path(""));
    CHECK(al_get_path_num_components(path) == 0);
    CHECK_EQ(al_get_path_drive(path), "");
    CHECK_EQ(al_get_path_filename(path), "");
-   al_free_path(path);
+   al_destroy_path(path);
 
    /* . is a directory component. */
    CHECK(path = al_create_path("."));
@@ -55,7 +55,7 @@ static void t1(void)
    CHECK_EQ(al_get_path_component(path, 0), ".");
    CHECK_EQ(al_get_path_drive(path), "");
    CHECK_EQ(al_get_path_filename(path), "");
-   al_free_path(path);
+   al_destroy_path(path);
 
    /* .. is a directory component. */
    CHECK(path = al_create_path(".."));
@@ -63,7 +63,7 @@ static void t1(void)
    CHECK_EQ(al_get_path_component(path, 0), "..");
    CHECK_EQ(al_get_path_drive(path), "");
    CHECK_EQ(al_get_path_filename(path), "");
-   al_free_path(path);
+   al_destroy_path(path);
 
    /* Relative path. */
    CHECK(path = al_create_path("abc/def/.."));
@@ -73,7 +73,7 @@ static void t1(void)
    CHECK_EQ(al_get_path_component(path, 2), "..");
    CHECK_EQ(al_get_path_drive(path), "");
    CHECK_EQ(al_get_path_filename(path), "");
-   al_free_path(path);
+   al_destroy_path(path);
 
    /* Absolute path. */
    CHECK(path = al_create_path("/abc/def/.."));
@@ -84,7 +84,7 @@ static void t1(void)
    CHECK_EQ(al_get_path_component(path, 3), "..");
    CHECK_EQ(al_get_path_drive(path), "");
    CHECK_EQ(al_get_path_filename(path), "");
-   al_free_path(path);
+   al_destroy_path(path);
 
    /* Directories + filename. */
    CHECK(path = al_create_path("/abc/def/ghi"));
@@ -94,7 +94,7 @@ static void t1(void)
    CHECK_EQ(al_get_path_component(path, 2), "def");
    CHECK_EQ(al_get_path_drive(path), "");
    CHECK_EQ(al_get_path_filename(path), "ghi");
-   al_free_path(path);
+   al_destroy_path(path);
 }
 
 /* Test parsing UNC paths. */
@@ -111,7 +111,7 @@ static void t2(void)
    CHECK_EQ(al_get_path_component(path, 0), "share name");
    CHECK_EQ(al_get_path_component(path, 1), "dir");
    CHECK_EQ(al_get_path_filename(path), "filename");
-   al_free_path(path);
+   al_destroy_path(path);
 
    /* Bad paths. */
    CHECK(! al_create_path("//"));
@@ -135,7 +135,7 @@ static void t3(void)
    CHECK_EQ(al_get_path_component(path, 1), "def");
    CHECK_EQ(al_get_path_filename(path), "ghi");
    CHECK_EQ(al_path_cstr(path, '\\'), "c:abc\\def\\ghi");
-   al_free_path(path);
+   al_destroy_path(path);
 
    CHECK(path = al_create_path("c:\\abc/def\\ghi"));
    CHECK_EQ(al_get_path_drive(path), "c:");
@@ -145,7 +145,7 @@ static void t3(void)
    CHECK_EQ(al_get_path_component(path, 2), "def");
    CHECK_EQ(al_get_path_filename(path), "ghi");
    CHECK_EQ(al_path_cstr(path, '\\'), "c:\\abc\\def\\ghi");
-   al_free_path(path);
+   al_destroy_path(path);
 #endif
 }
 
@@ -170,7 +170,7 @@ static void t4(void)
    CHECK_EQ(al_get_path_component(path, -2), "def");
    CHECK_EQ(al_get_path_component(path, -3), "abc");
 
-   al_free_path(path);
+   al_destroy_path(path);
 }
 
 /* Test al_replace_path_component. */
@@ -197,7 +197,7 @@ static void t5(void)
    CHECK_EQ(al_get_path_component(path, 3), "CLYDE");
    CHECK_EQ(al_get_path_component(path, 4), "ghi");
 
-   al_free_path(path);
+   al_destroy_path(path);
 }
 
 /* Test al_remove_path_component. */
@@ -223,7 +223,7 @@ static void t6(void)
    CHECK_EQ(al_get_path_component(path, 1), "def");
    CHECK_EQ(al_get_path_component(path, 2), "ghi");
 
-   al_free_path(path);
+   al_destroy_path(path);
 }
 
 /* Test al_insert_path_component. */
@@ -242,7 +242,7 @@ static void t7(void)
    CHECK_EQ(al_get_path_component(path, 3), "BLINKY");
    CHECK_EQ(al_get_path_component(path, 4), "ghi");
 
-   al_free_path(path);
+   al_destroy_path(path);
 }
 
 /* Test al_get_path_tail, al_drop_path_tail. */
@@ -268,7 +268,7 @@ static void t8(void)
    al_drop_path_tail(path);
    CHECK(! al_get_path_tail(path));
 
-   al_free_path(path);
+   al_destroy_path(path);
 }
 
 /* Test al_set_path_drive, al_set_path_filename, al_path_cstr.
@@ -309,7 +309,7 @@ static void t9(void)
    al_set_path_filename(path, NULL);
    CHECK_EQ(al_path_cstr(path, '/'), "abc/def/");
 
-   al_free_path(path);
+   al_destroy_path(path);
 }
 
 /* Test al_join_paths. */
@@ -323,16 +323,16 @@ static void t10(void)
    path2 = al_create_path(NULL);
    al_join_paths(path1, path2);
    CHECK_EQ(al_path_cstr(path1, '/'), "");
-   al_free_path(path1);
-   al_free_path(path2);
+   al_destroy_path(path1);
+   al_destroy_path(path2);
 
    /* Both just filenames. */
    path1 = al_create_path("file1");
    path2 = al_create_path("file2");
    al_join_paths(path1, path2);
    CHECK_EQ(al_path_cstr(path1, '/'), "file2");
-   al_free_path(path1);
-   al_free_path(path2);
+   al_destroy_path(path1);
+   al_destroy_path(path2);
 
    /* Both relative paths. */
    path1 = al_create_path("dir1a/dir1b/file1");
@@ -340,8 +340,8 @@ static void t10(void)
    al_join_paths(path1, path2);
    CHECK_EQ(al_path_cstr(path1, '/'),
       "dir1a/dir1b/dir2a/dir2b/file2");
-   al_free_path(path1);
-   al_free_path(path2);
+   al_destroy_path(path1);
+   al_destroy_path(path2);
 
 #ifdef ALLEGRO_WINDOWS
    /* Both relative paths with drive letters. */
@@ -349,8 +349,8 @@ static void t10(void)
    path2 = al_create_path("e:dir2a/dir2b/file2");
    al_join_paths(path1, path2);
    CHECK_EQ(al_path_cstr(path1, '/'), "d:dir1a/dir1b/dir2a/dir2b/file2");
-   al_free_path(path1);
-   al_free_path(path2);
+   al_destroy_path(path1);
+   al_destroy_path(path2);
 #endif
 
    /* Path1 absolute, path2 relative. */
@@ -358,16 +358,16 @@ static void t10(void)
    path2 = al_create_path("dir2a/dir2b/file2");
    al_join_paths(path1, path2);
    CHECK_EQ(al_path_cstr(path1, '/'), "/dir1a/dir1b/dir2a/dir2b/file2");
-   al_free_path(path1);
-   al_free_path(path2);
+   al_destroy_path(path1);
+   al_destroy_path(path2);
 
    /* Both paths absolute. */
    path1 = al_create_path("/dir1a/dir1b/file1");
    path2 = al_create_path("/dir2a/dir2b/file2");
    al_join_paths(path1, path2);
    CHECK_EQ(al_path_cstr(path1, '/'), "/dir1a/dir1b/file1");
-   al_free_path(path1);
-   al_free_path(path2);
+   al_destroy_path(path1);
+   al_destroy_path(path2);
 }
 
 /* Test al_set_path_extension, al_get_path_extension. */
@@ -399,7 +399,7 @@ static void t11(void)
    CHECK_EQ(al_get_path_filename(path), "abc.def.ext");
    CHECK_EQ(al_get_path_extension(path), ".ext");
 
-   al_free_path(path);
+   al_destroy_path(path);
 }
 
 /* Test al_get_path_basename. */
@@ -423,7 +423,7 @@ static void t12(void)
    al_set_path_filename(path, "abc.def.ghi");
    CHECK_EQ(al_get_path_basename(path), "abc.def");
 
-   al_free_path(path);
+   al_destroy_path(path);
 }
 
 /* Test al_clone_path. */
@@ -442,8 +442,8 @@ static void t13(void)
    CHECK_EQ(al_path_cstr(path1, '/'), "/abc/def/ghi");
    CHECK_EQ(al_path_cstr(path2, '/'), "/abc/DEF/GHI");
 
-   al_free_path(path1);
-   al_free_path(path2);
+   al_destroy_path(path1);
+   al_destroy_path(path2);
 }
 
 /* Test al_is_path_present. */
@@ -457,7 +457,7 @@ static void t14(void)
    al_set_path_extension(path, ".phony");
    CHECK(! al_is_path_present(path));
 
-   al_free_path(path);
+   al_destroy_path(path);
 }
 
 static void t15(void)
@@ -481,7 +481,7 @@ static void t16(void)
    CHECK(0 == strcmp(buf + strlen(buf2), "abc/def") ||
          0 == strcmp(buf + strlen(buf2), "abc\\def"));
 
-   al_free_path(path);
+   al_destroy_path(path);
 }
 
 /* Test al_make_path_canonical. */
@@ -493,13 +493,13 @@ static void t17(void)
    CHECK(al_make_path_canonical(path));
    CHECK(al_get_path_num_components(path) == 6);
    CHECK_EQ(al_path_cstr(path, '/'), "/abc/def/../../ghi/jkl");
-   al_free_path(path);
+   al_destroy_path(path);
 
    path = al_create_path("../.././abc/./def/../../ghi/jkl");
    CHECK(al_make_path_canonical(path));
    CHECK(al_get_path_num_components(path) == 7);
    CHECK_EQ(al_path_cstr(path, '/'), "../../abc/def/../../ghi/jkl");
-   al_free_path(path);
+   al_destroy_path(path);
 }
 
 /*---------------------------------------------------------------------------*/

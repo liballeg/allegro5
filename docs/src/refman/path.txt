@@ -40,11 +40,15 @@ otherwise returns false.
 Create a path structure from a string.
 The string may be NULL for an empty path.
 
+See also: [al_destroy_path]
+
 ## API: al_create_path_for_directory
 
 This is the same as [al_create_path], but interprets the passed string
 as a directory path. The filename component of the returned path will
 always be empty.
+
+See also: [al_destroy_path]
 
 ## API: al_drop_path_tail
 
@@ -55,10 +59,14 @@ Drop the last directory component.
 Return true if path represents an existing file on the system,
 or false if it doesn't exist.
 
-## API: al_free_path
+## API: al_destroy_path
 
 Free a path structure.
 Does nothing if passed NULL.
+
+See also: [al_destroy_path]
+
+XXX maybe rename this to al_destroy_path
 
 ## API: al_get_path_basename
 

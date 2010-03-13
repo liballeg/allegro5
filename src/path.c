@@ -171,7 +171,7 @@ ALLEGRO_PATH *al_create_path(const char *str)
       replace_backslashes(copy);
 
       if (!parse_path_string(copy, path)) {
-         al_free_path(path);
+         al_destroy_path(path);
          path = NULL;
       }
 
@@ -392,9 +392,9 @@ const char *al_path_cstr(const ALLEGRO_PATH *path, char delim)
 }
 
 
-/* Function: al_free_path
+/* Function: al_destroy_path
  */
-void al_free_path(ALLEGRO_PATH *path)
+void al_destroy_path(ALLEGRO_PATH *path)
 {
    unsigned i;
 
@@ -580,7 +580,7 @@ bool al_make_path_absolute(ALLEGRO_PATH *path)
       al_insert_path_component(path, 0, al_get_path_component(cwd_path, i));
    }
 
-   al_free_path(cwd_path);
+   al_destroy_path(cwd_path);
 
    return true;
 }

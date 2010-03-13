@@ -52,12 +52,12 @@ void al_destroy_native_dialog(ALLEGRO_NATIVE_DIALOG *fd)
    if (fd->paths) {
       size_t i;
       for (i = 0; i < fd->count; i++) {
-         al_free_path(fd->paths[i]);
+         al_destroy_path(fd->paths[i]);
       }
    }
    _AL_FREE(fd->paths);
    if (fd->initial_path)
-      al_free_path(fd->initial_path);
+      al_destroy_path(fd->initial_path);
    al_ustr_free(fd->title);
    al_ustr_free(fd->heading);
    al_ustr_free(fd->patterns);
