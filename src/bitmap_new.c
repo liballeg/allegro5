@@ -212,8 +212,8 @@ void al_draw_bitmap(ALLEGRO_BITMAP *bitmap, float dx, float dy, int flags)
 
 /* Function: al_draw_bitmap_region
  */
-void al_draw_bitmap_region(ALLEGRO_BITMAP *bitmap, float sx, float sy,
-	float sw, float sh, float dx, float dy, int flags)
+void al_draw_bitmap_region(ALLEGRO_BITMAP *bitmap,
+   float sx, float sy, float sw, float sh, float dx, float dy, int flags)
 {
    ALLEGRO_BITMAP *dest = al_get_target_bitmap();
    ALLEGRO_DISPLAY* display = al_get_current_display();
@@ -247,8 +247,9 @@ void al_draw_bitmap_region(ALLEGRO_BITMAP *bitmap, float sx, float sy,
 
 /* Function: al_draw_scaled_bitmap
  */
-void al_draw_scaled_bitmap(ALLEGRO_BITMAP *bitmap, float sx, float sy,
-	float sw, float sh, float dx, float dy, float dw, float dh, int flags)
+void al_draw_scaled_bitmap(ALLEGRO_BITMAP *bitmap,
+   float sx, float sy, float sw, float sh,
+   float dx, float dy, float dw, float dh, int flags)
 {
    ALLEGRO_BITMAP *dest = al_get_target_bitmap();
 
@@ -272,8 +273,8 @@ void al_draw_scaled_bitmap(ALLEGRO_BITMAP *bitmap, float sx, float sy,
  * angle is specified in radians and moves clockwise
  * on the screen.
  */
-void al_draw_rotated_bitmap(ALLEGRO_BITMAP *bitmap, float cx, float cy,
-	float dx, float dy, float angle, int flags)
+void al_draw_rotated_bitmap(ALLEGRO_BITMAP *bitmap,
+   float cx, float cy, float dx, float dy, float angle, int flags)
 {
    ALLEGRO_BITMAP *dest = al_get_target_bitmap();
 
@@ -294,9 +295,9 @@ void al_draw_rotated_bitmap(ALLEGRO_BITMAP *bitmap, float cx, float cy,
 
 /* Function: al_draw_rotated_scaled_bitmap
  */
-void al_draw_rotated_scaled_bitmap(ALLEGRO_BITMAP *bitmap, float cx, float cy,
-	float dx, float dy, float xscale, float yscale, float angle,
-	int flags)
+void al_draw_rotated_scaled_bitmap(ALLEGRO_BITMAP *bitmap,
+   float cx, float cy, float dx, float dy, float xscale, float yscale,
+   float angle, int flags)
 {
    ALLEGRO_BITMAP *dest = al_get_target_bitmap();
 
@@ -319,10 +320,7 @@ void al_draw_rotated_scaled_bitmap(ALLEGRO_BITMAP *bitmap, float cx, float cy,
 /* Function: al_lock_bitmap_region
  */
 ALLEGRO_LOCKED_REGION *al_lock_bitmap_region(ALLEGRO_BITMAP *bitmap,
-	int x, int y,
-	int width, int height,
-        int format,
-	int flags)
+   int x, int y, int width, int height, int format, int flags)
 {
    ASSERT(x >= 0);
    ASSERT(y >= 0);
@@ -386,7 +384,8 @@ ALLEGRO_LOCKED_REGION *al_lock_bitmap_region(ALLEGRO_BITMAP *bitmap,
 
 /* Function: al_lock_bitmap
  */
-ALLEGRO_LOCKED_REGION *al_lock_bitmap(ALLEGRO_BITMAP *bitmap, int format, int flags)
+ALLEGRO_LOCKED_REGION *al_lock_bitmap(ALLEGRO_BITMAP *bitmap,
+   int format, int flags)
 {
    return al_lock_bitmap_region(bitmap, 0, 0, bitmap->w, bitmap->h, format, flags);
 }
@@ -602,9 +601,9 @@ ALLEGRO_BITMAP *al_clone_bitmap(ALLEGRO_BITMAP *bitmap)
    }
 
    _al_convert_bitmap_data(
-	src_region->data, src_region->format, src_region->pitch,
-        dst_region->data, dst_region->format, dst_region->pitch,
-        0, 0, 0, 0, bitmap->w, bitmap->h);
+      src_region->data, src_region->format, src_region->pitch,
+      dst_region->data, dst_region->format, dst_region->pitch,
+      0, 0, 0, 0, bitmap->w, bitmap->h);
 
    al_unlock_bitmap(bitmap);
    al_unlock_bitmap(clone);

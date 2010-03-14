@@ -85,7 +85,8 @@ call will work with any bitmap, including memory bitmaps.
                         // i.e. padded with extra bytes
     }
 
-See also: [al_lock_bitmap], [al_lock_bitmap_region], [al_unlock_bitmap]
+See also: [al_lock_bitmap], [al_lock_bitmap_region], [al_unlock_bitmap],
+[ALLEGRO_PIXEL_FORMAT]
 
 ### API: ALLEGRO_PIXEL_FORMAT
 
@@ -239,7 +240,8 @@ Note:
 While a bitmap is locked, you can not use any drawing operations on
 it (with the sole exception of [al_put_pixel] and [al_draw_pixel]).
 
-See also: [ALLEGRO_LOCKED_REGION], [al_unlock_bitmap]
+See also: [ALLEGRO_LOCKED_REGION], [ALLEGRO_PIXEL_FORMAT],
+[al_unlock_bitmap]
 
 ### API: al_lock_bitmap_region
 
@@ -248,7 +250,7 @@ If the bitmap is a display bitmap, only that area of the texture will
 be updated when it is unlocked. Locking only the region you indend to
 modify will be faster than locking the whole bitmap.
 
-See also: [ALLEGRO_LOCKED_REGION], [al_unlock_bitmap]
+See also: [ALLEGRO_LOCKED_REGION], [ALLEGRO_PIXEL_FORMAT], [al_unlock_bitmap]
 
 ### API: al_unlock_bitmap
 
