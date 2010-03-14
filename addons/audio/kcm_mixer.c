@@ -591,17 +591,28 @@ void _al_kcm_mixer_read(void *source, void **buf, unsigned int *samples,
          *samples, mixer->pp_callback_userdata);
    }
 
+   samples_l *= maxc;
+
+   /* Feeding to a non-voice.
+    * Currently we only support floating point mixers doing this.
+    */
    if (*buf) {
-      memcpy(buf, mixer->ss.spl_data.buffer.ptr, 4*samples_l);
-      /* XXX should this be `*samples' instead? */
-      samples_l = 0;
+      if (m->ss.spl_data.depth == ALLEGRO_AUDIO_DEPTH_FLOAT32) {
+         /* We don't need to clamp in the mixer yet. */
+         float *lbuf = *buf;
+         float *src = mixer->ss.spl_data.buffer.f32;
+         while (samples_l-- > 0) {
+            *lbuf += *src;
+            lbuf++;
+            src++;
+         }
+      }
+      else {
+         /* Not yet supported. */
+         ASSERT(false);
+      }
       return;
    }
-
-   //if (buffer_depth == mixer->ss.spl_data.depth)
-     // return;
-
-   samples_l *= maxc;
 
    /* We're feeding to a voice, so we pass it back the mixed data (make sure
     * to clamp and convert it).
@@ -640,7 +651,7 @@ void _al_kcm_mixer_read(void *source, void **buf, unsigned int *samples,
             }
          }
          else {
-	 	/* don't have to do anything */
+            /* don't have to do anything */
          }
          break;
       }
@@ -838,6 +849,14 @@ bool al_attach_mixer_to_mixer(ALLEGRO_MIXER *stream, ALLEGRO_MIXER *mixer)
    if (mixer->ss.spl_data.frequency != stream->ss.spl_data.frequency) {
       _al_set_error(ALLEGRO_INVALID_OBJECT,
          "Attempted to attach a mixer with different frequencies");
+      return false;
+   }
+
+   if (mixer->ss.spl_data.depth != ALLEGRO_AUDIO_DEPTH_FLOAT32 ||
+      stream->ss.spl_data.depth != ALLEGRO_AUDIO_DEPTH_FLOAT32)
+   {
+      _al_set_error(ALLEGRO_INVALID_OBJECT,
+         "Non-floating point mixers cannot be attached to one another yet");
       return false;
    }
 

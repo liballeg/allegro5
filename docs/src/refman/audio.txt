@@ -586,6 +586,10 @@ See also: [al_get_default_mixer], [al_set_default_mixer], [al_reserve_samples].
 Attaches a mixer onto another mixer. The same rules as with
 [al_attach_sample_instance_to_mixer] apply, with the added caveat that both
 mixers must be the same frequency.
+Returns true on success, false on error.
+
+Currently both mixers must be floating point mixers, otherwise the function
+fails.
 
 See also: [al_detach_mixer].
 
