@@ -89,15 +89,6 @@ sed -f fixver.sed fixver.tmp > include/allegro5/base.h
 echo "s/\\_\/__\/     Version .*/\\_\/__\/     Version $verstr/" > fixver.sed
 echo "s/By Shawn Hargreaves, .*\./By Shawn Hargreaves, $datestr\./" >> fixver.sed
 
-echo "Patching misc/pkgreadme._tx..."
-cp misc/pkgreadme._tx fixver.tmp
-sed -f fixver.sed fixver.tmp > misc/pkgreadme._tx
-
-# patch the spec file
-echo "Patching misc/allegro.spec..."
-cp misc/allegro.spec fixver.tmp
-sed -e "s/^Version: .*/Version: $1.$2.$3/" fixver.tmp > misc/allegro.spec
-
 # patch CMakeLists.txt
 echo "Patching CMakeLists.txt..."
 cp CMakeLists.txt fixver.tmp
