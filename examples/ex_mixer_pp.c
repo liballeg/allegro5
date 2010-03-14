@@ -44,17 +44,27 @@ static void update_meter(void *buf, unsigned int samples, void *data)
 
 static void draw(void)
 {
-   /* Whatever looks okay. */
-   const float db_l = 20 * log10(rms_l / 20e-6);
-   const float db_r = 20 * log10(rms_r / 20e-6);
-   const float scale = 1.0 + (db_l + db_r) / 150.0;
-
    const float sw = al_get_bitmap_width(bmp);
    const float sh = al_get_bitmap_height(bmp);
    const float dw = al_get_bitmap_width(dbuf);
    const float dh = al_get_bitmap_height(dbuf);
    const float dx = dw / 2.0;
    const float dy = dh / 2.0;
+   float db_l;
+   float db_r;
+   float db;
+   float scale;
+
+   /* Whatever looks okay. */
+   if (rms_l > 0.0 && rms_r > 0.0) {
+      db_l = 20 * log10(rms_l / 20e-6);
+      db_r = 20 * log10(rms_r / 20e-6);
+      db = (db_l + db_r) / 2.0;
+      scale = db / 20.0;
+   }
+   else {
+      db_l = db_r = db = scale = 0.0;
+   }
 
    al_set_target_bitmap(dbuf);
    al_set_blender(ALLEGRO_ADD, ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA,
