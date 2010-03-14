@@ -4,6 +4,196 @@ See `changes._tx` for changes in earlier versions of Allegro.  These lists
 serve as summaries; the full histories are in the Subversion repository.
 
 
+Changes from 4.9.17 to 4.9.18 (March 2010)
+==========================================
+
+The main developers this time were: Trent Gamblin, Elias Pschernig, Evert
+Glebbeek, Peter Wang.  Other contributions from: Milan Mimica, Paul Suntsov,
+Peter Hull.
+
+Graphics:
+
+-  Fixed broken drawing into memory bitmaps as access to the global
+   transformation required an active display. Now both transformation and
+   current blending mode are stored in the display but provisions are made for
+   them to also work if the current thread has no display.
+
+-  Fixed a bunch of clipping problems with OpenGL, especially with sub-bitmaps.
+
+-  Fix bug in OpenGL FBO setup when the target bitmap is the sub-bitmap of a
+   bitmap with an FBO.
+
+-  Fixed crash in al_get_num_display_modes under OSX 10.5.
+
+-  Fixed some problems in _al_convert_to_display_bitmap that caused problems in
+   WGL FS display resize.
+
+-  Fixed al_set_current_display(NULL) on WGL.
+
+-  Added subtractive blending.  al_set_blender() takes another parameter.
+
+-  Added ALLEGRO_FULLSCREEN_WINDOW display flag (X11 and D3D for now).
+
+-  Allow changing ALLEGRO_FULLSCREEN_WINDOW with al_toggle_display_flag.
+
+-  Figured out how to switch display modes using Carbon on OS X 10.6.
+
+-  Stop the OpenGL driver on iPhone from changing the currently bound FBO
+   behind our back when locking a bitmap.
+
+-  Prevent screen flicker at app startup by simulating the splash screen
+   (iPhone).
+
+Input:
+
+-  Added "pressure" field to the mouse event struct and mouse state, which can
+   be used with pressure sensitive pointing devices, i.e. tablets/stylus
+   (currently OS X only).
+
+-  Report scroll ball "w" position in mouse event struct, on OS X.
+
+-  Removed OS X 10.1 specific code from mouse driver. We don't support OS X
+   10.1 any more.
+
+-  Fix building of Linux joystick driver on some systems.
+
+Threads:
+
+-  Fix a problem when al_join_thread() is called immediately after
+   al_start_thread().  The thread could be joined before the user's thread
+   function starts at all.
+
+-  Fix a possible deadlock with al_join_thread() on Windows (thanks to Michał
+   Cichoń for the report).
+
+-  Fix some error messages running threading examples on OS X.
+
+Other core:
+
+-  Added version check to al_install_system.
+
+-  Rename al_free_path to al_destroy_path for consistency.
+
+-  Make it possible to have an empty organization name with al_set_orgname().
+
+-  Changed implementation of AL_ASSERT to use POSIX-standard assert instead.
+
+-  Removed al_register_assert_handler.
+
+-  Fix timer macros which did not parenthesize their arguments.
+
+-  Make stricmp, strlwr, strupr macros conditionally defined.
+
+Audio addon:
+
+-  Rename al_attach_sample_to_mixer to al_attach_sample_instance_to_mixer.
+
+-  Fix a premature free() when detaching samples and other audio objects.
+
+-  Fix mixers attaching to mixers.
+
+-  Pass correct number of samples to mixer postprocess callback.
+
+-  AudioQueue code was not compiled even though version requirements may have
+   been met (OS X).
+
+Primitives addon:
+
+-  Make high-level primitives functions thread safe. (note: the DirectX driver
+   is not yet thread safe)
+
+-  Fix a bug causing crashes on Windows 7 when using the primitives addon and
+   Direct3D (Invalid vertex declarations were being used).
+
+-  Fixed another issue with primitives drawing to memory bitmaps.
+
+-  Hopefully fix the bitmap clipping bugs, and make the D3D and OGL/Software
+   outputs to be near-identical again.
+
+Image addon:
+
+-  Added a "native loader" for MacOS X that uses the NSImage bitmap loading
+   functions. In addition to .png and .jpg, this allows us to read a whole zoo
+   of image formats (listed in allegro.log).
+
+-  Add native support for tif, jpg, gif, png, BMPf, ico, cur, xbm formats to
+   under IPhone.
+
+-  Fixed an over-zealous ASSERT() that disallowed passing NULL to
+   al_register_bitmap_loader() despite this being an allowed value.
+
+-  Avoid using a field which is deprecated in libpng 1.4.
+
+Color addon:
+
+-  Make al_color_name_to_rgb return a bool.
+
+Native dialogs addon:
+
+-  Fixed some erratic behaviour and crashes on OS X.
+
+Build system:
+
+-  Set VERSION and SOVERSION properties on targets to give Unix shared
+   libraries proper sonames.
+   e.g. liballegro[_addon].so.4.9, liballegro[_addon].4.9.dylib
+
+-  Static libraries are now named without version number suffixes
+   to minimise the differences with the shared libraries, which no longer
+   have the versions in their base names.
+   e.g. liballegro[_addon]-static.a, allegro[_addon]-static.lib
+
+-  Windows import libraries are also named without version suffixes, e.g.
+   liballegro[_addon].a, allegro[_addon].lib
+
+-  DLLs are named with a short version suffix, not the full version.
+   e.g. allegro-4.9.dll instead of allegro-4.9.18.dll
+
+-  Add support for Mac OS X frameworks (untested), which are enabled with
+   WANT_FRAMEWORKS and WANT_EMBED.  There is one framework per addon.
+
+-  Search for static OGG/Vorbis libraries built with MSVC named
+   libogg_static.lib, etc.
+
+-  Updated iPhone XCode project.
+
+Examples:
+
+-  ex_mixer_pp: New example to test mixer postprocessing callbacks.
+
+-  ex_threads: Make it more visually interesting and test out per-display
+   transformations.
+
+-  ex_ogre3d: New example demonstrating use of Ogre graphics rendering
+   alongside Allegro (currently GLX only).  Commented out in the build system
+   for now.
+
+-  ex_fs_window: New example to test ALLEGRO_FULLSCREEN_WINDOW flag and
+   al_toggle_display_flag.
+
+-  ex_blend2: Updated to test subtractive blending, including scaled/rotated
+   blits and the primitives addon.
+
+-  ex_mouse_events: Show "w" field.
+
+-  ex_prim: Added possibility to click the mouse to advance screens (for iPhone).
+
+-  ex_vsync: Display config parameters and warning.
+
+-  ex_gldepth: Make the textures appear again though we're not sure why they
+   disappeared.
+
+Documentation:
+
+-  Many documentation updates.
+
+-  Add which header file and which library to link with for each page of the
+   reference manual.
+
+-  Minor improvements to HTML styling and man page output.
+
+
+
 Changes from 4.9.16 to 4.9.17 (February 2010)
 =============================================
 
