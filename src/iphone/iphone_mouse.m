@@ -59,6 +59,7 @@ void _al_iphone_generate_mouse_event(unsigned int type, int x, int y,
       event.mouse.dz = 0; // TODO
       event.mouse.dw = 0; // TODO
       event.mouse.button = button;
+      event.mouse.pressure = 0.0; // TODO
       _al_event_source_emit_event(&the_mouse.parent.es, &event);
    }
 

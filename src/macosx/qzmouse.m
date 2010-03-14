@@ -330,6 +330,7 @@ static bool osx_set_mouse_xy(int x, int y)
         mouse_event->dx = x - osx_mouse.state.x;
         mouse_event->dy = y - osx_mouse.state.y;
         mouse_event->dz = 0;
+        mouse_event->pressure = 0.0;
         if (mouse_event->dx || mouse_event->dy) {
             osx_mouse.warped = TRUE;
             _al_event_source_emit_event(&osx_mouse.parent.es, &new_event);

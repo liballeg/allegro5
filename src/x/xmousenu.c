@@ -481,6 +481,7 @@ static void generate_mouse_event(unsigned int type,
    event.mouse.dz = dz;
    event.mouse.dw = 0;
    event.mouse.button = button;
+   event.mouse.pressure = 0.0; /* TODO */
    _al_event_source_emit_event(&the_mouse.parent.es, &event);
 }
 
