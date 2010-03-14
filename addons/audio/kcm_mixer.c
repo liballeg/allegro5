@@ -588,10 +588,8 @@ void _al_kcm_mixer_read(void *source, void **buf, unsigned int *samples,
    /* Call the post-processing callback. */
    if (mixer->postprocess_callback) {
       mixer->postprocess_callback(mixer->ss.spl_data.buffer.ptr,
-         mixer->ss.spl_data.len, mixer->pp_callback_userdata);
+         *samples, mixer->pp_callback_userdata);
    }
-
-   samples_l *= maxc;
 
    if (*buf) {
       memcpy(buf, mixer->ss.spl_data.buffer.ptr, 4*samples_l);
@@ -602,6 +600,8 @@ void _al_kcm_mixer_read(void *source, void **buf, unsigned int *samples,
 
    //if (buffer_depth == mixer->ss.spl_data.depth)
      // return;
+
+   samples_l *= maxc;
 
    /* We're feeding to a voice, so we pass it back the mixed data (make sure
     * to clamp and convert it).
@@ -848,13 +848,14 @@ bool al_attach_mixer_to_mixer(ALLEGRO_MIXER *stream, ALLEGRO_MIXER *mixer)
 /* Function: al_set_mixer_postprocess_callback
  */
 bool al_set_mixer_postprocess_callback(ALLEGRO_MIXER *mixer,
-   postprocess_callback_t postprocess_callback, void *pp_callback_userdata)
+   void (*pp_callback)(void *buf, unsigned int samples, void *data),
+   void *pp_callback_userdata)
 {
    ASSERT(mixer);
 
    maybe_lock_mutex(mixer->ss.mutex);
 
-   mixer->postprocess_callback = postprocess_callback;
+   mixer->postprocess_callback = pp_callback;
    mixer->pp_callback_userdata = pp_callback_userdata;
 
    maybe_unlock_mutex(mixer->ss.mutex);
