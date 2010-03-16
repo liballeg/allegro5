@@ -28,6 +28,7 @@ static ALLEGRO_BITMAP *really_load_image(char *buffer, int size)
    CGContextRef context = CGBitmapContextCreate(pixels, w, h, 8, w * 4,
       CGImageGetColorSpace(uiimage.CGImage),
       kCGImageAlphaPremultipliedLast);
+   CGContextSetBlendMode(context, kCGBlendModeCopy);
    CGContextDrawImage(context, CGRectMake(0.0, 0.0, (CGFloat)w, (CGFloat)h),
       uiimage.CGImage);
    CGContextRelease(context);
@@ -53,7 +54,7 @@ done:
 ALLEGRO_BITMAP *_al_iphone_load_image_f(ALLEGRO_FILE *f)
 {
    ALLEGRO_BITMAP *bmp;
-   ASSERT(fp);
+   ASSERT(f);
     
    int64_t size = al_fsize(f);
    if (size <= 0) {
