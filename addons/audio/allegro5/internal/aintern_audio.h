@@ -96,8 +96,27 @@ struct ALLEGRO_SAMPLE {
                          */
 };
 
-typedef void (*stream_reader_t)(void *, void **, unsigned int *,
-   ALLEGRO_AUDIO_DEPTH, size_t);
+/* Read some samples into a mixer buffer.
+ *
+ * source:
+ *    The object to read samples from.  This may be one of several types.
+ *
+ * *vbuf: (in-out parameter)
+ *    Pointer to pointer to destination buffer.
+ *    (should confirm what it means to change the pointer on return)
+ *
+ * *samples: (in-out parameter)
+ *    On input indicates the maximum number of samples that can fit into *vbuf.
+ *    On output indicates the actual number of samples that were read.
+ *
+ * buffer_depth:
+ *    The audio depth of the destination buffer.
+ *
+ * dest_maxc:
+ *    The number of channels in the destination.
+ */
+typedef void (*stream_reader_t)(void *source, void **vbuf,
+   unsigned int *samples, ALLEGRO_AUDIO_DEPTH buffer_depth, size_t dest_maxc);
 
 typedef struct {
    union {
