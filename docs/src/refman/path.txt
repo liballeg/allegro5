@@ -12,29 +12,6 @@ If no dot character exists the basename is the whole filename.
 The extension is everything from the last dot character to the end of the
 filename.
 
-## API: al_append_path_component
-
-Append a directory component.
-
-## API: al_clone_path
-
-Clones an ALLEGRO_PATH structure.
-Returns NULL on failure.
-
-## API: al_join_paths
-
-Concatenate two path structures. The first path structure is
-modified.  If 'tail' is an absolute path, this function does nothing.
-
-If 'tail' is a relative path, all of its directory components will be
-appended to 'path'.  tail's filename will also overwrite path's filename,
-even if it is just the empty string.
-
-Tail's drive is ignored.
-
-Returns true if 'tail' was a relative path and so concatenated to 'path',
-otherwise returns false.
-
 ## API: al_create_path
 
 Create a path structure from a string.
@@ -50,23 +27,74 @@ always be empty.
 
 See also: [al_destroy_path]
 
-## API: al_drop_path_tail
-
-Drop the last directory component.
-
-## API: al_is_path_present
-
-Return true if path represents an existing file on the system,
-or false if it doesn't exist.
-
 ## API: al_destroy_path
 
 Free a path structure.
 Does nothing if passed NULL.
 
+See also: [al_create_path], [al_create_path_for_directory]
+
+## API: al_clone_path
+
+Clones an ALLEGRO_PATH structure.
+Returns NULL on failure.
+
 See also: [al_destroy_path]
 
-XXX maybe rename this to al_destroy_path
+## API: al_join_paths
+
+Concatenate two path structures. The first path structure is
+modified.  If 'tail' is an absolute path, this function does nothing.
+
+If 'tail' is a relative path, all of its directory components will be
+appended to 'path'.  tail's filename will also overwrite path's filename,
+even if it is just the empty string.
+
+Tail's drive is ignored.
+
+Returns true if 'tail' was a relative path and so concatenated to 'path',
+otherwise returns false.
+
+## API: al_get_path_drive
+
+Return the drive letter on a path, or the empty string if there is none.
+
+The "drive letter" is only used on Windows, and is usually a string like
+"c:", but may be something like "\\\\Computer Name" in the case of UNC
+(Uniform Naming Convention) syntax.
+
+## API: al_get_path_num_components
+
+Return the number of directory components in a path.
+
+The directory components do not include the final part of a path
+(the filename).
+
+See also: [al_get_path_component]
+
+## API: al_get_path_component
+
+Return the i'th directory component of a path, counting from zero.
+If the index is negative then count from the right, i.e. -1 refers to
+the last path component.
+It is an error to pass an index which is out of bounds.
+
+See also: [al_get_path_num_components], [al_get_path_tail]
+
+## API: al_get_path_tail
+
+Returns the last directory component, or NULL if there are no directory
+components.
+
+## API: al_get_path_filename
+
+Return the filename part of the path, or the empty string if there is none.
+
+The returned pointer is valid only until the filename part of the path
+is modified in any way, or until the path is destroyed.
+
+See also: [al_get_path_basename], [al_get_path_extension],
+[al_get_path_component]
 
 ## API: al_get_path_basename
 
@@ -77,13 +105,7 @@ If there is no filename part then the empty string is returned.
 The returned pointer is valid only until the filename part of the path
 is modified in any way, or until the path is destroyed.
 
-## API: al_get_path_drive
-
-Return the drive letter on a path, or the empty string if there is none.
-
-The "drive letter" is only used on Windows, and is usually a string like
-"c:", but may be something like "\\\\Computer Name" in the case of UNC
-(Uniform Naming Convention) syntax.
+See also: [al_get_path_filename], [al_get_path_extension]
 
 ## API: al_get_path_extension
 
@@ -94,19 +116,21 @@ If no dot exists, returns an empty string.
 The returned pointer is valid only until the filename part of the path
 is modified in any way, or until the path is destroyed.
 
-## API: al_get_path_filename
+See also: [al_get_path_filename], [al_get_path_basename]
 
-Return the filename part of the path, or the empty string if there is none.
+## API: al_set_path_drive
 
-The returned pointer is valid only until the filename part of the path
-is modified in any way, or until the path is destroyed.
+Set the drive string on a path.
+The drive may be NULL, which is equivalent to setting the drive
+string to the empty string.
 
-## API: al_get_path_component
+See also: [al_get_path_drive]
 
-Return the i'th directory component of a path, counting from zero.
-If the index is negative then count from the right, i.e. -1 refers to
-the last path component.
-It is an error to pass an index which is out of bounds.
+## API: al_append_path_component
+
+Append a directory component.
+
+See also: [al_insert_path_component]
 
 ## API: al_insert_path_component
 
@@ -117,35 +141,8 @@ the last path component.
 It is an error to pass an index i which is not within these bounds:
 0 <= i <= al_get_path_num_components(path).
 
-## API: al_make_path_absolute
-
-Prepends the current working directory to 'path' if it is a relative path.
-The drive is also set to the driver of the current working directory.
-Does nothing if 'path' is an absolute path.
-
-## API: al_make_path_canonical
-
-Removes any leading '..' directory components in absolute paths.
-Removes all '.' directory components.
-
-Note that this does *not* collapse "x/../y" sections into "y".
-This is by design. If "/foo" on your system is a symlink to "/bar/baz",
-then "/foo/../quux" is actually "/bar/quux",
-not "/quux" as a naive removal of ".." components would give you.
-
-## API: al_get_path_num_components
-
-Return the number of directory components in a path.
-
-The directory components do not include the final part of a path
-(the filename).
-
-## API: al_remove_path_component
-
-Delete the i'th directory component.
-If the index is negative then count from the right, i.e. -1 refers to
-the last path component.
-It is an error to pass an index which is out of bounds.
+See also: [al_append_path_component], [al_replace_path_component],
+[al_remove_path_component]
 
 ## API: al_replace_path_component
 
@@ -154,17 +151,31 @@ If the index is negative then count from the right, i.e. -1 refers to
 the last path component.
 It is an error to pass an index which is out of bounds.
 
-## API: al_set_path_drive
+See also: [al_insert_path_component], [al_remove_path_component]
 
-Set the drive string on a path.
-The drive may be NULL, which is equivalent to setting the drive
-string to the empty string.
+## API: al_remove_path_component
+
+Delete the i'th directory component.
+If the index is negative then count from the right, i.e. -1 refers to
+the last path component.
+It is an error to pass an index which is out of bounds.
+
+See also: [al_insert_path_component], [al_replace_path_component],
+[al_drop_path_tail]
+
+## API: al_drop_path_tail
+
+Remove the last directory component, if any.
+
+See also: [al_remove_path_component]
 
 ## API: al_set_path_filename
 
 Set the optional filename part of the path.
 The filename may be NULL, which is equivalent to setting the
 filename to the empty string.
+
+See also: [al_set_path_extension], [al_get_path_filename]
 
 ## API: al_set_path_extension
 
@@ -176,10 +187,7 @@ Usually the new extension you supply should include a leading dot.
 Returns false if the path contains no filename part,
 i.e. the filename part is the empty string.
 
-## API: al_get_path_tail
-
-Returns the last directory component, or NULL if there are no directory
-components.
+See also: [al_set_path_filename], [al_get_path_extension]
 
 ## API: al_path_cstr
 
@@ -192,4 +200,29 @@ for 'delim'.
 
 The returned pointer is valid only until the path is modified in any way,
 or until the path is destroyed.
+
+## API: al_make_path_absolute
+
+Prepends the current working directory to 'path' if it is a relative path.
+The drive is also set to the driver of the current working directory.
+Does nothing if 'path' is an absolute path.
+
+See also: [al_make_path_canonical]
+
+## API: al_make_path_canonical
+
+Removes any leading '..' directory components in absolute paths.
+Removes all '.' directory components.
+
+Note that this does *not* collapse "x/../y" sections into "y".
+This is by design. If "/foo" on your system is a symlink to "/bar/baz",
+then "/foo/../quux" is actually "/bar/quux",
+not "/quux" as a naive removal of ".." components would give you.
+
+See also: [al_make_path_absolute]
+
+## API: al_is_path_present
+
+Return true if path represents an existing file on the system,
+or false if it doesn't exist.
 
