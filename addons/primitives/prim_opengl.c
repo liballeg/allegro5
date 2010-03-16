@@ -98,8 +98,7 @@ static void setup_state(const char* vtxs, const ALLEGRO_VERTEX_DECL* decl, ALLEG
          int ncoord = 0;
          GLenum type = 0;
 
-         if(!glIsEnabled(GL_VERTEX_ARRAY))
-            glEnableClientState(GL_VERTEX_ARRAY);
+         glEnableClientState(GL_VERTEX_ARRAY);
 
          switch(e->storage) {
             case ALLEGRO_PRIM_FLOAT_2:
@@ -126,8 +125,7 @@ static void setup_state(const char* vtxs, const ALLEGRO_VERTEX_DECL* decl, ALLEG
       if(texture && e->attribute) {
          GLenum type = 0;
 
-         if(!glIsEnabled(GL_TEXTURE_COORD_ARRAY))
-            glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+         glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 
          switch(e->storage) {
             case ALLEGRO_PRIM_FLOAT_2:
@@ -145,8 +143,7 @@ static void setup_state(const char* vtxs, const ALLEGRO_VERTEX_DECL* decl, ALLEG
 
       e = &decl->elements[ALLEGRO_PRIM_COLOR_ATTR];
       if(e->attribute) {
-         if(!glIsEnabled(GL_COLOR_ARRAY))
-            glEnableClientState(GL_COLOR_ARRAY);
+         glEnableClientState(GL_COLOR_ARRAY);
 
          glColorPointer(4, GL_UNSIGNED_BYTE, decl->stride, vtxs + e->offset);
       } else {
@@ -156,12 +153,9 @@ static void setup_state(const char* vtxs, const ALLEGRO_VERTEX_DECL* decl, ALLEG
    } else {
       const ALLEGRO_VERTEX* vtx = (const ALLEGRO_VERTEX*)vtxs;
    
-      if(!glIsEnabled(GL_COLOR_ARRAY))
-         glEnableClientState(GL_COLOR_ARRAY);
-      if(!glIsEnabled(GL_VERTEX_ARRAY))
-         glEnableClientState(GL_VERTEX_ARRAY);
-      if (!glIsEnabled(GL_TEXTURE_COORD_ARRAY))
-         glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+      glEnableClientState(GL_COLOR_ARRAY);
+      glEnableClientState(GL_VERTEX_ARRAY);
+      glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 
       glVertexPointer(2, GL_FLOAT, sizeof(ALLEGRO_VERTEX), &vtx[0].x);
       glColorPointer(4, GL_UNSIGNED_BYTE, sizeof(ALLEGRO_VERTEX), &vtx[0].color);
@@ -290,6 +284,10 @@ int _al_draw_prim_opengl(ALLEGRO_BITMAP* texture, const void* vtxs, const ALLEGR
       glLoadIdentity();
       glMatrixMode(GL_MODELVIEW);
    }
+   
+   glDisableClientState(GL_COLOR_ARRAY);
+   glDisableClientState(GL_VERTEX_ARRAY);
+   glDisableClientState(GL_TEXTURE_COORD_ARRAY);
 
    return num_primitives;
 #else
@@ -390,6 +388,10 @@ int _al_draw_prim_indexed_opengl(ALLEGRO_BITMAP* texture, const void* vtxs, cons
       glLoadIdentity();
       glMatrixMode(GL_MODELVIEW);
    }
+   
+   glDisableClientState(GL_COLOR_ARRAY);
+   glDisableClientState(GL_VERTEX_ARRAY);
+   glDisableClientState(GL_TEXTURE_COORD_ARRAY);
 
    return num_primitives;
 #else
