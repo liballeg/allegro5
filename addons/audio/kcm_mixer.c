@@ -706,7 +706,14 @@ void _al_kcm_mixer_read(void *source, void **buf, unsigned int *samples,
             }
 
             case ALLEGRO_AUDIO_DEPTH_INT16:
-               /* XXX signedness may differ */
+               /* Handle signedness differences. */
+               if (buffer_depth != ALLEGRO_AUDIO_DEPTH_INT16) {
+                  int16_t *lbuf = mixer->ss.spl_data.buffer.s16;
+                  while (samples_l > 0) {
+                     *lbuf++ ^= 0x8000;
+                     samples_l--;
+                  }
+               }
                break;
 
             case ALLEGRO_AUDIO_DEPTH_INT8:
