@@ -545,12 +545,18 @@ be stopped and detached from its parent.
 Creates a mixer stream, to attach sample streams or other mixers to. It
 will mix into a buffer at the requested frequency and channel count.
 
-Only floating point mixing is currently supported.
-[That's not true any more, is it?]
+The only supported audio depths are ALLEGRO_AUDIO_DEPTH_FLOAT32
+and ALLEGRO_AUDIO_DEPTH_INT16 (not yet complete).
+
+Returns true on success, false on error.
+
+See also: [al_destroy_mixer]
 
 ### API: al_destroy_mixer
 
 Destroys the mixer stream.
+
+See also: [al_create_mixer]
 
 ### API: al_get_default_mixer
 

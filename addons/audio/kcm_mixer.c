@@ -727,6 +727,12 @@ ALLEGRO_MIXER *al_create_mixer(unsigned int freq,
       return NULL;
    }
 
+   if (depth != ALLEGRO_AUDIO_DEPTH_FLOAT32 &&
+         depth != ALLEGRO_AUDIO_DEPTH_INT16) {
+      _al_set_error(ALLEGRO_INVALID_PARAM, "Unsupported mixer depth");
+      return NULL;
+   }
+
    mixer = calloc(1, sizeof(ALLEGRO_MIXER));
    if (!mixer) {
       _al_set_error(ALLEGRO_GENERIC_ERROR,
