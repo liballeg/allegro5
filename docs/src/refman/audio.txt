@@ -594,7 +594,7 @@ Attaches a mixer onto another mixer. The same rules as with
 mixers must be the same frequency.
 Returns true on success, false on error.
 
-Currently both mixers must be floating point mixers, otherwise the function
+Currently both mixers must have the same audio depth, otherwise the function
 fails.
 
 See also: [al_detach_mixer].

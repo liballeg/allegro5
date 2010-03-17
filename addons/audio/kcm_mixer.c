@@ -611,7 +611,7 @@ void _al_kcm_mixer_read(void *source, void **buf, unsigned int *samples,
    samples_l *= maxc;
 
    /* Feeding to a non-voice.
-    * Currently we only support floating point mixers doing this.
+    * Currently we only support mixers of the same audio depth doing this.
     */
    if (*buf) {
       switch (m->ss.spl_data.depth) {
@@ -626,10 +626,21 @@ void _al_kcm_mixer_read(void *source, void **buf, unsigned int *samples,
             }
             break;
 
-         case ALLEGRO_AUDIO_DEPTH_INT16:
-            /* XXX not yet implemented */
-            ASSERT(false);
+         case ALLEGRO_AUDIO_DEPTH_INT16: {
+            int16_t *lbuf = *buf;
+            int16_t *src = mixer->ss.spl_data.buffer.s16;
+            while (samples_l-- > 0) {
+               int32_t x = *lbuf + *src;
+               if (x < -32768)
+                  x = -32768;
+               else if (x > 32767)
+                  x = 32767;
+               *lbuf = (int16_t)x;
+               lbuf++;
+               src++;
+            }
             break;
+         }
 
          case ALLEGRO_AUDIO_DEPTH_INT8:
          case ALLEGRO_AUDIO_DEPTH_INT24:
@@ -965,11 +976,9 @@ bool al_attach_mixer_to_mixer(ALLEGRO_MIXER *stream, ALLEGRO_MIXER *mixer)
       return false;
    }
 
-   if (mixer->ss.spl_data.depth != ALLEGRO_AUDIO_DEPTH_FLOAT32 ||
-      stream->ss.spl_data.depth != ALLEGRO_AUDIO_DEPTH_FLOAT32)
-   {
+   if (mixer->ss.spl_data.depth != stream->ss.spl_data.depth) {
       _al_set_error(ALLEGRO_INVALID_OBJECT,
-         "Non-floating point mixers cannot be attached to one another yet");
+         "Mixers of different audio depths cannot be attached to one another");
       return false;
    }
 
