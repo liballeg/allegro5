@@ -19,11 +19,39 @@
 #include "allegro5/internal/aintern_float.h"
 #include "allegro5/internal/aintern_pixels.h"
 #include "allegro5/internal/aintern_convert.h"
+#include "allegro5/transformations.h"
 #include <math.h>
 
 
 #define MIN _ALLEGRO_MIN
 #define MAX _ALLEGRO_MAX
+
+static void _al_draw_transformed_rotated_bitmap_memory(ALLEGRO_BITMAP *src,
+   int cx, int cy, int dx, int dy, float xscale, float yscale,
+   float angle, int flags);
+   
+static void _al_draw_transformed_scaled_bitmap_memory(ALLEGRO_BITMAP *src,
+   int sx, int sy, int sw, int sh, int dx, int dy, int dw, int dh, int flags);
+   
+static bool is_identity(const ALLEGRO_TRANSFORM* trans)
+{
+   return trans->m[0][0] == 1 && 
+          trans->m[1][0] == 0 && 
+          trans->m[2][0] == 0 && 
+          trans->m[3][0] == 0 && 
+          trans->m[0][1] == 0 && 
+          trans->m[1][1] == 1 && 
+          trans->m[2][1] == 0 && 
+          trans->m[3][1] == 0 && 
+          trans->m[0][2] == 0 && 
+          trans->m[1][2] == 0 && 
+          trans->m[2][2] == 1 && 
+          trans->m[3][2] == 0 && 
+          trans->m[0][3] == 0 && 
+          trans->m[1][3] == 0 && 
+          trans->m[2][3] == 0 && 
+          trans->m[3][3] == 1;
+}
 
 
 static INLINE float get_factor(enum ALLEGRO_BLEND_MODE operation, float alpha)
@@ -147,6 +175,13 @@ void _al_draw_bitmap_region_memory(ALLEGRO_BITMAP *bitmap,
    int xinc, yinc;
    int yd;
    int sxd;
+   
+   if(!is_identity(al_get_current_transform()))
+   {
+      _al_draw_transformed_scaled_bitmap_memory(bitmap, sx, sy, sw, sh, dx, dy,
+         sw, sh, flags);
+      return;
+   }
 
    al_get_separate_blender(&op, &src_mode, &dst_mode, &op_alpha, &src_alpha, &dst_alpha, &bc);
 
@@ -345,6 +380,13 @@ void _al_draw_scaled_bitmap_memory(ALLEGRO_BITMAP *src,
    int x, y;
    int xend;
    int yend;
+   
+   if(!is_identity(al_get_current_transform()))
+   {
+      _al_draw_transformed_scaled_bitmap_memory(src, sx, sy, sw, sh, dx, dy,
+         dw, dh, flags);
+      return;
+   }
 
    al_get_separate_blender(&op, &src_mode, &dst_mode,
       &op_alpha, &src_alpha, &dst_alpha, &bc);
@@ -604,15 +646,26 @@ do {                                                                         \
    for (i = 0; i < 4; i++) {                                                 \
       corner_bmp_x[i] = xs[index];                                           \
       corner_bmp_y[i] = ys[index];                                           \
-      if (index < 2)                                                         \
-         corner_spr_y[i] = 0;                                                \
-      else                                                                   \
-         /* Need `- 1' since otherwise it would be outside sprite. */        \
-         corner_spr_y[i] = (src->h << 16) - 1;                               \
-      if ((index == 0) || (index == 3))                                      \
-         corner_spr_x[i] = 0;                                                \
-      else                                                                   \
-         corner_spr_x[i] = (src->w << 16) - 1;                               \
+      switch(index)                                                          \
+      {                                                                      \
+         case 0:                                                             \
+            corner_spr_x[i] = sx << 16;                                      \
+            corner_spr_y[i] = sy << 16;                                      \
+            break;                                                           \
+         case 1:                                                             \
+            /* Need `- 1' since otherwise it would be outside sprite. */     \
+            corner_spr_x[i] = ((sx + sw) << 16) - 1;                         \
+            corner_spr_y[i] = sy << 16;                                      \
+            break;                                                           \
+         case 2:                                                             \
+            corner_spr_x[i] = ((sx + sw) << 16) - 1;                         \
+            corner_spr_y[i] = ((sy + sh) << 16) - 1;                         \
+            break;                                                           \
+         case 3:                                                             \
+            corner_spr_x[i] = sx << 16;                                      \
+            corner_spr_y[i] = ((sy + sh) << 16) - 1;                         \
+            break;                                                           \
+      }                                                                      \
       index = (index + right_index) & 3;                                     \
    }                                                                         \
                                                                              \
@@ -703,10 +756,10 @@ do {                                                                         \
       We'd better use double to get this as exact as possible, since any     \
       errors will be accumulated along the scanline.                         \
    */                                                                        \
-   spr_dx = (al_fixed)((ys[3] - ys[0]) * 65536.0 * (65536.0 * src->w) /      \
+   spr_dx = (al_fixed)((ys[3] - ys[0]) * 65536.0 * (65536.0 * sw) /          \
                     ((xs[1] - xs[0]) * (double)(ys[3] - ys[0]) -             \
                      (xs[3] - xs[0]) * (double)(ys[1] - ys[0])));            \
-   spr_dy = (al_fixed)((ys[1] - ys[0]) * 65536.0 * (65536.0 * src->h) /      \
+   spr_dy = (al_fixed)((ys[1] - ys[0]) * 65536.0 * (65536.0 * sh) /          \
                     ((xs[3] - xs[0]) * (double)(ys[1] - ys[0]) -             \
                      (xs[1] - xs[0]) * (double)(ys[3] - ys[0])));            \
                                                                              \
@@ -827,7 +880,7 @@ do {                                                                         \
                Drawing a sprite with that routine took about 25% longer time \
                though.                                                       \
             */                                                               \
-            if ((unsigned)(l_spr_x_rounded >> 16) >= (unsigned)src->w) {     \
+            if ((unsigned)(l_spr_x_rounded >> 16) >= (unsigned)sw) {         \
                if (((l_spr_x_rounded < 0) && (spr_dx <= 0)) ||               \
                    ((l_spr_x_rounded > 0) && (spr_dx >= 0))) {               \
                   /* This can happen. */                                     \
@@ -841,14 +894,14 @@ do {                                                                         \
                      if (l_bmp_x_rounded > r_bmp_x_rounded)                  \
                         goto skip_draw;                                      \
                   } while ((unsigned)(l_spr_x_rounded >> 16) >=              \
-                           (unsigned)src->w);                                \
+                           (unsigned)sw);                                    \
                                                                              \
                }                                                             \
             }                                                                \
             right_edge_test = l_spr_x_rounded +                              \
                               ((r_bmp_x_rounded - l_bmp_x_rounded) >> 16) *  \
                               spr_dx;                                        \
-            if ((unsigned)(right_edge_test >> 16) >= (unsigned)src->w) {     \
+            if ((unsigned)(right_edge_test >> 16) >= (unsigned)sw) {         \
                if (((right_edge_test < 0) && (spr_dx <= 0)) ||               \
                    ((right_edge_test > 0) && (spr_dx >= 0))) {               \
                   /* This can happen. */                                     \
@@ -858,14 +911,14 @@ do {                                                                         \
                      if (l_bmp_x_rounded > r_bmp_x_rounded)                  \
                         goto skip_draw;                                      \
                   } while ((unsigned)(right_edge_test >> 16) >=              \
-                           (unsigned)src->w);                                \
+                           (unsigned)sw);                                    \
                }                                                             \
                else {                                                        \
                   /* I don't think this can happen, but I can't prove it. */ \
                   goto skip_draw;                                            \
                }                                                             \
             }                                                                \
-            if ((unsigned)(l_spr_y_rounded >> 16) >= (unsigned)src->h) {     \
+            if ((unsigned)(l_spr_y_rounded >> 16) >= (unsigned)sh) {         \
                if (((l_spr_y_rounded < 0) && (spr_dy <= 0)) ||               \
                    ((l_spr_y_rounded > 0) && (spr_dy >= 0))) {               \
                   /* This can happen. */                                     \
@@ -879,13 +932,13 @@ do {                                                                         \
                      if (l_bmp_x_rounded > r_bmp_x_rounded)                  \
                         goto skip_draw;                                      \
                   } while (((unsigned)l_spr_y_rounded >> 16) >=              \
-                           (unsigned)src->h);                                \
+                           (unsigned)sh);                                    \
                }                                                             \
             }                                                                \
             right_edge_test = l_spr_y_rounded +                              \
                               ((r_bmp_x_rounded - l_bmp_x_rounded) >> 16) *  \
                               spr_dy;                                        \
-            if ((unsigned)(right_edge_test >> 16) >= (unsigned)src->h) {     \
+            if ((unsigned)(right_edge_test >> 16) >= (unsigned)sh) {         \
                if (((right_edge_test < 0) && (spr_dy <= 0)) ||               \
                    ((right_edge_test > 0) && (spr_dy >= 0))) {               \
                   /* This can happen. */                                     \
@@ -895,7 +948,7 @@ do {                                                                         \
                      if (l_bmp_x_rounded > r_bmp_x_rounded)                  \
                         goto skip_draw;                                      \
                   } while ((unsigned)(right_edge_test >> 16) >=              \
-                           (unsigned)src->h);                                \
+                           (unsigned)sh);                                    \
                }                                                             \
                else {                                                        \
                   /* I don't think this can happen, but I can't prove it. */ \
@@ -992,6 +1045,10 @@ do {                                                                         \
    al_fixed fix_angle = al_ftofix(fl_angle*256/(ALLEGRO_PI*2));              \
    al_fixed fix_xscale = al_ftofix(fl_xscale);                               \
    al_fixed fix_yscale = al_ftofix(fl_yscale);                               \
+   int sx = 0;                                                               \
+   int sy = 0;                                                               \
+   int sw = src->w;                                                          \
+   int sh = src->h;                                                          \
                                                                              \
    _al_rotate_scale_flip_coordinates(src->w << 16, src->h << 16,             \
       fix_dx, fix_dy, fix_cx, fix_cy, fix_angle, fix_xscale, fix_yscale,     \
@@ -1010,6 +1067,13 @@ void _al_draw_rotated_scaled_bitmap_memory(ALLEGRO_BITMAP *src,
    int op, src_mode, dst_mode;
    int op_alpha, src_alpha, dst_alpha;
    ALLEGRO_COLOR bc;
+   
+   if(!is_identity(al_get_current_transform()))
+   {
+      _al_draw_transformed_rotated_bitmap_memory(src, cx, cy, dx, dy, xscale, yscale, angle,
+          flags);
+      return;
+   }
 
    al_get_separate_blender(&op, &src_mode, &dst_mode,
       &op_alpha, &src_alpha, &dst_alpha, &bc);
@@ -1037,6 +1101,109 @@ void _al_draw_rotated_bitmap_memory(ALLEGRO_BITMAP *src,
 {
    _al_draw_rotated_scaled_bitmap_memory(src,
       cx, cy, dx, dy, 1.0f, 1.0f, angle, flags);
+}
+
+static void _al_draw_transformed_bitmap_memory(ALLEGRO_BITMAP *src,
+   int sx, int sy, int sw, int sh, int dw, int dh, 
+   ALLEGRO_TRANSFORM* local_trans, int flags)
+{
+   ALLEGRO_BITMAP *dst = al_get_target_bitmap();
+   int op, src_mode, dst_mode;
+   int op_alpha, src_alpha, dst_alpha;
+   ALLEGRO_COLOR bc;
+   al_fixed xs[4], ys[4];
+   float xsf[4], ysf[4];
+   int tl = 0, tr = 1, bl = 3, br = 2;
+   int tmp;
+
+   al_get_separate_blender(&op, &src_mode, &dst_mode,
+      &op_alpha, &src_alpha, &dst_alpha, &bc);
+
+   ASSERT(_al_pixel_format_is_real(src->format));
+   ASSERT(_al_pixel_format_is_real(dst->format));
+   
+   /* Decide what order to take corners in. */
+   if (flags & ALLEGRO_FLIP_VERTICAL) {
+      tl = 3;
+      tr = 2;
+      bl = 0;
+      br = 1;
+   }
+   else {
+      tl = 0;
+      tr = 1;
+      bl = 3;
+      br = 2;
+   }
+   if (flags & ALLEGRO_FLIP_HORIZONTAL) {
+      tmp = tl;
+      tl = tr;
+      tr = tmp;
+      tmp = bl;
+      bl = br;
+      br = tmp;
+   }
+   
+   xsf[0] = 0;
+   ysf[0] = 0;
+   
+   xsf[1] = dw;
+   ysf[1] = 0;
+   
+   xsf[2] = 0;
+   ysf[2] = dh;
+   
+   al_transform_coordinates(local_trans, &xsf[0], &ysf[0]);
+   al_transform_coordinates(local_trans, &xsf[1], &ysf[1]);
+   al_transform_coordinates(local_trans, &xsf[2], &ysf[2]);
+   
+   xs[tl] = al_ftofix(xsf[0]);
+   ys[tl] = al_ftofix(ysf[0]);
+           
+   xs[tr] = al_ftofix(xsf[1]);
+   ys[tr] = al_ftofix(ysf[1]);
+           
+   xs[br] = al_ftofix(xsf[2] + xsf[1] - xsf[0]);
+   ys[br] = al_ftofix(ysf[2] + ysf[1] - ysf[0]);
+   
+   xs[bl] = al_ftofix(xsf[2]);
+   ys[bl] = al_ftofix(ysf[2]);
+      
+   DO_PARALLELOGRAM_MAP(true, flags);
+}
+
+static void _al_draw_transformed_rotated_bitmap_memory(ALLEGRO_BITMAP *src,
+   int cx, int cy, int dx, int dy, float xscale, float yscale,
+   float angle, int flags)
+{
+   ALLEGRO_TRANSFORM local_trans;
+   int w, h;
+   
+   al_identity_transform(&local_trans);
+   al_translate_transform(&local_trans, -cx, -cy);
+   al_scale_transform(&local_trans, xscale, yscale);
+   al_rotate_transform(&local_trans, angle);
+   al_translate_transform(&local_trans, dx, dy);
+   al_transform_transform(al_get_current_transform(), &local_trans);
+   
+   w = al_get_bitmap_width(src);
+   h = al_get_bitmap_height(src);
+   
+   _al_draw_transformed_bitmap_memory(src, 0, 0, w, h, w, h, &local_trans, 
+      flags);
+}
+
+static void _al_draw_transformed_scaled_bitmap_memory(ALLEGRO_BITMAP *src,
+   int sx, int sy, int sw, int sh, int dx, int dy, int dw, int dh, int flags)
+{
+   ALLEGRO_TRANSFORM local_trans;
+   
+   al_identity_transform(&local_trans);
+   al_translate_transform(&local_trans, dx, dy);
+   al_transform_transform(al_get_current_transform(), &local_trans);
+   
+   _al_draw_transformed_bitmap_memory(src, sx, sy, sw, sh, dw, dh, &local_trans, 
+      flags);
 }
 
 

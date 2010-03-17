@@ -14,6 +14,7 @@ int main(int argc, const char *argv[])
     ALLEGRO_TIMER *timer;
     ALLEGRO_EVENT_QUEUE *queue;
     ALLEGRO_TRANSFORM transform;
+    ALLEGRO_TRANSFORM identity;
     bool software = false;
     bool redraw = false;
     int w, h;
@@ -66,6 +67,8 @@ int main(int argc, const char *argv[])
     
     w = al_get_bitmap_width(bitmap);
     h = al_get_bitmap_height(bitmap);
+    
+    al_identity_transform(&identity);
 
     while (1) {
         ALLEGRO_EVENT event;
@@ -99,15 +102,17 @@ int main(int argc, const char *argv[])
 
             al_clear_to_color(al_map_rgb_f(0, 0, 0));
             al_draw_bitmap(bitmap, 0, 0, 0);
-            al_draw_bitmap(bitmap, w, 0, ALLEGRO_FLIP_HORIZONTAL);
-            al_draw_bitmap(bitmap, 0, h, ALLEGRO_FLIP_VERTICAL);
+            al_draw_scaled_bitmap(bitmap, w / 4, h / 4, w / 2, h / 2, w, 0, w / 2, h / 4, 0);//ALLEGRO_FLIP_HORIZONTAL);
+            al_draw_bitmap_region(bitmap, w / 4, h / 4, w / 2, h / 2, 0, h, ALLEGRO_FLIP_VERTICAL);
             al_draw_rotated_scaled_bitmap(bitmap, w / 2, h / 2, w + w / 2, h + h / 2, 0.7, 0.7, 0.3, 0);
             al_draw_pixel(w + w / 2, h + h / 2, al_map_rgb_f(0, 1, 0));
                     
             if(software) {
                al_draw_text(font, 640 / 2, 430, ALLEGRO_ALIGN_CENTRE, "Software Rendering");
+               al_use_transform(&identity);
                al_set_target_bitmap(al_get_backbuffer());
                al_draw_bitmap(buffer, 0, 0, 0);
+               al_use_transform(&transform);
             } else {
                al_draw_text(font, 640 / 2, 430, ALLEGRO_ALIGN_CENTRE, "Hardware Rendering");
             }
