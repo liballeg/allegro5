@@ -614,19 +614,32 @@ void _al_kcm_mixer_read(void *source, void **buf, unsigned int *samples,
     * Currently we only support floating point mixers doing this.
     */
    if (*buf) {
-      if (m->ss.spl_data.depth == ALLEGRO_AUDIO_DEPTH_FLOAT32) {
-         /* We don't need to clamp in the mixer yet. */
-         float *lbuf = *buf;
-         float *src = mixer->ss.spl_data.buffer.f32;
-         while (samples_l-- > 0) {
-            *lbuf += *src;
-            lbuf++;
-            src++;
+      switch (m->ss.spl_data.depth) {
+         case ALLEGRO_AUDIO_DEPTH_FLOAT32: {
+            /* We don't need to clamp in the mixer yet. */
+            float *lbuf = *buf;
+            float *src = mixer->ss.spl_data.buffer.f32;
+            while (samples_l-- > 0) {
+               *lbuf += *src;
+               lbuf++;
+               src++;
+            }
+            break;
+
+         case ALLEGRO_AUDIO_DEPTH_INT16:
+            /* XXX not yet implemented */
+            ASSERT(false);
+            break;
+
+         case ALLEGRO_AUDIO_DEPTH_INT8:
+         case ALLEGRO_AUDIO_DEPTH_INT24:
+         case ALLEGRO_AUDIO_DEPTH_UINT8:
+         case ALLEGRO_AUDIO_DEPTH_UINT16:
+         case ALLEGRO_AUDIO_DEPTH_UINT24:
+            /* Unsupported mixer depths. */
+            ASSERT(false);
+            break;
          }
-      }
-      else {
-         /* Not yet supported. */
-         ASSERT(false);
       }
       return;
    }
@@ -636,61 +649,115 @@ void _al_kcm_mixer_read(void *source, void **buf, unsigned int *samples,
     */
    *buf = mixer->ss.spl_data.buffer.ptr;
    switch (buffer_depth & ~ALLEGRO_AUDIO_DEPTH_UNSIGNED) {
-      case ALLEGRO_AUDIO_DEPTH_INT24: {
-         int32_t off = ((buffer_depth & ALLEGRO_AUDIO_DEPTH_UNSIGNED)
-                        ? 0x800000 : 0);
-         int32_t *lbuf = mixer->ss.spl_data.buffer.s24;
-         float *src = mixer->ss.spl_data.buffer.f32;
 
-         while (samples_l > 0) {
-            *lbuf = clamp(*(src++) * ((float)0x7FFFFF + 0.5f),
-               ~0x7FFFFF, 0x7FFFFF);
-            *lbuf += off;
-            lbuf++;
-            samples_l--;
-         }
+      case ALLEGRO_AUDIO_DEPTH_FLOAT32:
+         /* Do we need to clamp? */
          break;
-      }
 
-      case ALLEGRO_AUDIO_DEPTH_INT16: {
-         if ((mixer->ss.spl_data.depth & ~ALLEGRO_AUDIO_DEPTH_UNSIGNED) 
-               == ALLEGRO_AUDIO_DEPTH_FLOAT32) {
-            int16_t off = ((buffer_depth & ALLEGRO_AUDIO_DEPTH_UNSIGNED)
-                           ? 0x8000 : 0);
-            int16_t *lbuf = mixer->ss.spl_data.buffer.s16;
-            float *src = mixer->ss.spl_data.buffer.f32;
+      case ALLEGRO_AUDIO_DEPTH_INT24:
+         switch (mixer->ss.spl_data.depth) {
+            case ALLEGRO_AUDIO_DEPTH_FLOAT32: {
+               int32_t off = ((buffer_depth & ALLEGRO_AUDIO_DEPTH_UNSIGNED)
+                              ? 0x800000 : 0);
+               int32_t *lbuf = mixer->ss.spl_data.buffer.s24;
+               float *src = mixer->ss.spl_data.buffer.f32;
 
-            while (samples_l > 0) {
-               *lbuf = clamp(*(src++) * ((float)0x7FFF + 0.5f), ~0x7FFF, 0x7FFF);
-               *lbuf += off;
-               lbuf++;
-               samples_l--;
+               while (samples_l > 0) {
+                  *lbuf = clamp(*(src++) * ((float)0x7FFFFF + 0.5f),
+                     ~0x7FFFFF, 0x7FFFFF);
+                  *lbuf += off;
+                  lbuf++;
+                  samples_l--;
+               }
+               break;
             }
-         }
-         else {
-            /* don't have to do anything */
+
+            case ALLEGRO_AUDIO_DEPTH_INT16:
+               /* XXX not yet implemented */
+               ASSERT(false);
+               break;
+
+            case ALLEGRO_AUDIO_DEPTH_INT8:
+            case ALLEGRO_AUDIO_DEPTH_INT24:
+            case ALLEGRO_AUDIO_DEPTH_UINT8:
+            case ALLEGRO_AUDIO_DEPTH_UINT16:
+            case ALLEGRO_AUDIO_DEPTH_UINT24:
+               /* Unsupported mixer depths. */
+               ASSERT(false);
+               break;
          }
          break;
-      }
 
-      case ALLEGRO_AUDIO_DEPTH_INT8: {
-         int8_t off = ((buffer_depth & ALLEGRO_AUDIO_DEPTH_UNSIGNED)
-                        ? 0x80 : 0);
-         int8_t *lbuf = mixer->ss.spl_data.buffer.s8;
-         float *src = mixer->ss.spl_data.buffer.f32;
+      case ALLEGRO_AUDIO_DEPTH_INT16:
+         switch (mixer->ss.spl_data.depth) {
+            case ALLEGRO_AUDIO_DEPTH_FLOAT32: {
+               int16_t off = ((buffer_depth & ALLEGRO_AUDIO_DEPTH_UNSIGNED)
+                              ? 0x8000 : 0);
+               int16_t *lbuf = mixer->ss.spl_data.buffer.s16;
+               float *src = mixer->ss.spl_data.buffer.f32;
 
-         while (samples_l > 0) {
-            *lbuf = clamp(*(src++) * ((float)0x7F + 0.5f), ~0x7F, 0x7F);
-            *lbuf += off;
-            lbuf++;
-            samples_l--;
+               while (samples_l > 0) {
+                  *lbuf = clamp(*(src++) * ((float)0x7FFF + 0.5f), ~0x7FFF, 0x7FFF);
+                  *lbuf += off;
+                  lbuf++;
+                  samples_l--;
+               }
+               break;
+            }
+
+            case ALLEGRO_AUDIO_DEPTH_INT16:
+               /* XXX signedness may differ */
+               break;
+
+            case ALLEGRO_AUDIO_DEPTH_INT8:
+            case ALLEGRO_AUDIO_DEPTH_INT24:
+            case ALLEGRO_AUDIO_DEPTH_UINT8:
+            case ALLEGRO_AUDIO_DEPTH_UINT16:
+            case ALLEGRO_AUDIO_DEPTH_UINT24:
+               /* Unsupported mixer depths. */
+               ASSERT(false);
+               break;
          }
          break;
-      }
+
+      /* Ugh, do we really want to support 8-bit output? */
+      case ALLEGRO_AUDIO_DEPTH_INT8:
+         switch (mixer->ss.spl_data.depth) {
+            case ALLEGRO_AUDIO_DEPTH_FLOAT32: {
+               int8_t off = ((buffer_depth & ALLEGRO_AUDIO_DEPTH_UNSIGNED)
+                              ? 0x80 : 0);
+               int8_t *lbuf = mixer->ss.spl_data.buffer.s8;
+               float *src = mixer->ss.spl_data.buffer.f32;
+
+               while (samples_l > 0) {
+                  *lbuf = clamp(*(src++) * ((float)0x7F + 0.5f), ~0x7F, 0x7F);
+                  *lbuf += off;
+                  lbuf++;
+                  samples_l--;
+               }
+               break;
+            }
+
+            case ALLEGRO_AUDIO_DEPTH_INT16:
+               /* XXX not yet implemented */
+               ASSERT(false);
+               break;
+
+            case ALLEGRO_AUDIO_DEPTH_INT8:
+            case ALLEGRO_AUDIO_DEPTH_INT24:
+            case ALLEGRO_AUDIO_DEPTH_UINT8:
+            case ALLEGRO_AUDIO_DEPTH_UINT16:
+            case ALLEGRO_AUDIO_DEPTH_UINT24:
+               /* Unsupported mixer depths. */
+               ASSERT(false);
+               break;
+         }
+         break;
 
       case ALLEGRO_AUDIO_DEPTH_UINT8:
       case ALLEGRO_AUDIO_DEPTH_UINT16:
       case ALLEGRO_AUDIO_DEPTH_UINT24:
+         /* Impossible. */
          ASSERT(false);
          break;
    }
