@@ -639,14 +639,6 @@ Return the mixer quality.
 
 See also: [ALLEGRO_MIXER_QUALITY].
 
-### API: al_set_mixer_quality
-
-Set the mixer quality.
-
-Returns true on success, false on failure.
-
-See also: [ALLEGRO_MIXER_QUALITY].
-
 ### API: al_get_mixer_playing
 
 Return true if the mixer is playing.

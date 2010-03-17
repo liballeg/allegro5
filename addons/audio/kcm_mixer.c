@@ -17,10 +17,6 @@
 
 ALLEGRO_DEBUG_CHANNEL("audio")
 
-/* forward declarations */
-static void mixer_change_quality(ALLEGRO_MIXER *mixer,
-   ALLEGRO_MIXER_QUALITY new_quality);
-
 
 /* globals */
 static union {
@@ -982,65 +978,6 @@ bool al_set_mixer_frequency(ALLEGRO_MIXER *mixer, unsigned int val)
 
    mixer->ss.spl_data.frequency = val;
    return true;
-}
-
-
-/* Function: al_set_mixer_quality
- */
-bool al_set_mixer_quality(ALLEGRO_MIXER *mixer, ALLEGRO_MIXER_QUALITY val)
-{
-   ASSERT(mixer);
-
-   mixer_change_quality(mixer, val);
-   return true;
-}
-
-
-/* mixer_change_quality:
- *  Change the mixer quality, updating the streams already attached to it.
- *  XXX this seems an unnecessary and perhaps dangerous function
- */
-static void mixer_change_quality(ALLEGRO_MIXER *mixer,
-   ALLEGRO_MIXER_QUALITY new_quality)
-{
-   int i;
-	 	
-   maybe_lock_mutex(mixer->ss.mutex);
-
-   for (i = _al_vector_size(&mixer->streams) - 1; i >= 0; i--) {
-      ALLEGRO_SAMPLE_INSTANCE **slot = _al_vector_ref(&mixer->streams, i);
-      ALLEGRO_SAMPLE_INSTANCE *spl = *slot;
-
-      switch (new_quality) {
-         case ALLEGRO_MIXER_QUALITY_LINEAR:
-            if (spl->spl_read == read_to_mixer_point_float_32) {
-               spl->spl_read = read_to_mixer_linear_float_32;
-            }
-            else if (spl->spl_read == read_to_mixer_point_float_32u) {
-               spl->spl_read = read_to_mixer_linear_float_32u;
-            }
-            /* XXX what about ALLEGRO_AUDIO_DEPTH_INT16? */
-            break;
-
-         case ALLEGRO_MIXER_QUALITY_POINT:
-            if (mixer->ss.spl_data.depth == ALLEGRO_AUDIO_DEPTH_FLOAT32) {
-               if (spl->spl_read == read_to_mixer_linear_float_32) {
-                  spl->spl_read = read_to_mixer_point_float_32;
-               }
-               else {
-                  spl->spl_read = read_to_mixer_point_float_32u;
-               }
-            }
-            else {
-               spl->spl_read = read_to_mixer_point_int16_t_16;
-            }
-            break;
-      }
-   }
-
-   mixer->quality = new_quality;
-
-   maybe_unlock_mutex(mixer->ss.mutex);
 }
 
 
