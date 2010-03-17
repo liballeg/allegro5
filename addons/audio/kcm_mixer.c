@@ -812,25 +812,40 @@ bool al_attach_sample_instance_to_mixer(ALLEGRO_SAMPLE_INSTANCE *spl,
 
    /* If this isn't a mixer, set the proper sample stream reader */
    if (spl->spl_read == NULL) {
-      switch (mixer->quality) {
-         case ALLEGRO_MIXER_QUALITY_LINEAR:
-            if ((spl->spl_data.depth & ALLEGRO_AUDIO_DEPTH_UNSIGNED))
-               spl->spl_read = read_to_mixer_linear_float_32u;
-            else
-               spl->spl_read = read_to_mixer_linear_float_32;
-            /* XXX what about ALLEGRO_AUDIO_DEPTH_INT16? */
+      switch (mixer->ss.spl_data.depth) {
+
+         case ALLEGRO_AUDIO_DEPTH_FLOAT32:
+            switch (mixer->quality) {
+               case ALLEGRO_MIXER_QUALITY_LINEAR:
+                  if ((spl->spl_data.depth & ALLEGRO_AUDIO_DEPTH_UNSIGNED))
+                     spl->spl_read = read_to_mixer_linear_float_32u;
+                  else
+                     spl->spl_read = read_to_mixer_linear_float_32;
+                  break;
+
+               case ALLEGRO_MIXER_QUALITY_POINT:
+                  if (mixer->ss.spl_data.depth == ALLEGRO_AUDIO_DEPTH_FLOAT32) {
+                     if ((spl->spl_data.depth & ALLEGRO_AUDIO_DEPTH_UNSIGNED))
+                        spl->spl_read = read_to_mixer_point_float_32u;
+                     else
+                        spl->spl_read = read_to_mixer_point_float_32;
+                  }
+                  break;
+            }
             break;
 
-         case ALLEGRO_MIXER_QUALITY_POINT:
-	    if (mixer->ss.spl_data.depth == ALLEGRO_AUDIO_DEPTH_FLOAT32) {
-               if ((spl->spl_data.depth & ALLEGRO_AUDIO_DEPTH_UNSIGNED))
-                  spl->spl_read = read_to_mixer_point_float_32u;
-               else
-                  spl->spl_read = read_to_mixer_point_float_32;
-            }
-            else {
-               spl->spl_read = read_to_mixer_point_int16_t_16;
-            }
+         case ALLEGRO_AUDIO_DEPTH_INT16:
+            /* Linear interpolation not supported yet. */
+            spl->spl_read = read_to_mixer_point_int16_t_16;
+            break;
+
+         case ALLEGRO_AUDIO_DEPTH_INT8:
+         case ALLEGRO_AUDIO_DEPTH_INT24:
+         case ALLEGRO_AUDIO_DEPTH_UINT8:
+         case ALLEGRO_AUDIO_DEPTH_UINT16:
+         case ALLEGRO_AUDIO_DEPTH_UINT24:
+            /* Unsupported mixer depths. */
+            ASSERT(false);
             break;
       }
 
