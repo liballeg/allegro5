@@ -6,21 +6,6 @@
 
 ALLEGRO_DEBUG_CHANNEL("iphone")
 
-/* iPhone OS at the time of this writing has a memory leak that
- * can be seen by doing the following:
- *
- * 1) Enable accelerometer
- * 2) Touch and hold screen anywhere
- * 3) Shake or move device to generate accelerometer events
- *
- * To work around this leak, we deactivate the accelerometer
- * in touchesBegan and reactivate it in touchesEnded. This
- * variable holds a backup of the accelerometer delegate which
- * will be set to nil in touchesBegan then restored in
- * touchesEnded.
- */
-static id<UIAccelerometerDelegate> accelerometer_delegate_backup = nil;
-
 @implementation EAGLView
 
 @synthesize context;
@@ -145,10 +130,6 @@ static id<UIAccelerometerDelegate> accelerometer_delegate_backup = nil;
 -(void)touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event
 {
    UIAccelerometer *accelerometer = [UIAccelerometer sharedAccelerometer];
-   if (accelerometer.delegate != nil) {
-      accelerometer_delegate_backup = accelerometer.delegate;
-      accelerometer.delegate = nil;
-   }
 
    // TODO: handle double-clicks (send two events?)
 	// NSUInteger numTaps = [[touches anyObject] tapCount];
@@ -179,12 +160,6 @@ static id<UIAccelerometerDelegate> accelerometer_delegate_backup = nil;
 // Handles the end of a touch event.
 -(void)touchesEnded:(NSSet *)touches withEvent:(UIEvent *)event
 {
-
-   if (accelerometer_delegate_backup != nil) {
-      UIAccelerometer *accelerometer = [UIAccelerometer sharedAccelerometer];
-      accelerometer.delegate = accelerometer_delegate_backup;
-   }
-
    NSUInteger touchCount = 0;
 	// Enumerates through all touch object
 	for (UITouch *touch in touches) {
