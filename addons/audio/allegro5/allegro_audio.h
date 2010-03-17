@@ -330,6 +330,7 @@ ALLEGRO_KCM_AUDIO_FUNC(bool, al_set_voice_playing, (ALLEGRO_VOICE *voice, bool v
 /* Misc. audio functions */
 ALLEGRO_KCM_AUDIO_FUNC(bool, al_install_audio, (ALLEGRO_AUDIO_DRIVER_ENUM mode));
 ALLEGRO_KCM_AUDIO_FUNC(void, al_uninstall_audio, (void));
+ALLEGRO_KCM_AUDIO_FUNC(bool, al_is_audio_installed, (void));
 ALLEGRO_KCM_AUDIO_FUNC(uint32_t, al_get_allegro_audio_version, (void));
 
 ALLEGRO_KCM_AUDIO_FUNC(size_t, al_get_channel_count, (ALLEGRO_CHANNEL_CONF conf));

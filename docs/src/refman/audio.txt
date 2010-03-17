@@ -150,11 +150,18 @@ Parameters:
 
 Returns true on success, false on failure.
 
-See also: [al_reserve_samples], [al_uninstall_audio].
+See also: [al_reserve_samples], [al_uninstall_audio], [al_is_audio_installed]
 
 ### API: al_uninstall_audio
 
 Uninstalls the audio subsystem.
+
+See also: [al_install_audio]
+
+### API: al_is_audio_installed
+
+Returns true if [al_install_audio] was called previously and returned
+successfully.
 
 ### API: al_reserve_samples
 
@@ -163,6 +170,8 @@ Reserves 'reserve_samples' number of samples attached to the default mixer.
 then this function will create a voice with an attached mixer.
 
 Returns true on success, false on error.
+
+See also: [al_set_default_mixer]
 
 ### API: al_get_allegro_audio_version
 
@@ -193,10 +202,14 @@ have to care about this. If you access the voice directly, make sure to not
 rely on the parameters passed to this function, but query the returned voice
 for the actual settings.
 
+See also: [al_destroy_voice]
+
 ### API: al_destroy_voice
 
 Destroys the voice and deallocates it from the digital driver.
 Does nothing if the voice is NULL.
+
+See also: [al_create_voice]
 
 ### API: al_detach_voice
 

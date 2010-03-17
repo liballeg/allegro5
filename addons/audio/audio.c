@@ -284,6 +284,13 @@ void al_uninstall_audio(void)
    }
 }
 
+/* Function: al_is_audio_installed
+ */
+bool al_is_audio_installed(void)
+{
+   return _al_kcm_driver ? true : false;
+}
+
 /* Function: al_get_allegro_audio_version
  */
 uint32_t al_get_allegro_audio_version(void)
