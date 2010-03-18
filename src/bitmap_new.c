@@ -507,12 +507,6 @@ ALLEGRO_BITMAP *al_create_sub_bitmap(ALLEGRO_BITMAP *parent,
 {
    ALLEGRO_BITMAP *bitmap;
 
-   if (parent->parent) {
-      x += parent->xofs;
-      y += parent->yofs;
-      parent = parent->parent;
-   }
-   
    /* Clip */
    if (x < 0) {
       w += x;
@@ -529,6 +523,12 @@ ALLEGRO_BITMAP *al_create_sub_bitmap(ALLEGRO_BITMAP *parent,
    }
    if (y+h > parent->h) {
       h = parent->h - y;
+   }
+
+   if (parent->parent) {
+      x += parent->xofs;
+      y += parent->yofs;
+      parent = parent->parent;
    }
 
    /* Note:
