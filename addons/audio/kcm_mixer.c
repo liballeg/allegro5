@@ -1085,6 +1085,34 @@ bool al_set_mixer_frequency(ALLEGRO_MIXER *mixer, unsigned int val)
 }
 
 
+/* Function: al_set_mixer_quality
+ */
+bool al_set_mixer_quality(ALLEGRO_MIXER *mixer, ALLEGRO_MIXER_QUALITY new_quality)
+{
+   bool ret;
+   ASSERT(mixer);
+
+   maybe_lock_mutex(mixer->ss.mutex);
+
+   if (mixer->quality == new_quality) {
+      ret = true;
+   }
+   else if (_al_vector_size(&mixer->streams) == 0) {
+      mixer->quality = new_quality;
+      ret = true;
+   }
+   else {
+      _al_set_error(ALLEGRO_INVALID_OBJECT,
+         "Attempted to change the quality of a mixer with attachments");
+      ret = false;
+   }
+
+   maybe_unlock_mutex(mixer->ss.mutex);
+
+   return ret;
+}
+
+
 /* Function: al_set_mixer_playing
  */
 bool al_set_mixer_playing(ALLEGRO_MIXER *mixer, bool val)
