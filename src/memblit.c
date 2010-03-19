@@ -33,6 +33,9 @@ static void _al_draw_transformed_rotated_bitmap_memory(ALLEGRO_BITMAP *src,
 static void _al_draw_transformed_scaled_bitmap_memory(ALLEGRO_BITMAP *src,
    int sx, int sy, int sw, int sh, int dx, int dy, int dw, int dh, int flags);
    
+static void _al_parallelogram_map_fast(ALLEGRO_BITMAP *src, al_fixed xs[4], 
+   al_fixed ys[4], int sx, int sy, int sw, int sh);
+   
 static bool is_identity(const ALLEGRO_TRANSFORM* trans)
 {
    return trans->m[0][0] == 1 && 
@@ -1168,7 +1171,12 @@ static void _al_draw_transformed_bitmap_memory(ALLEGRO_BITMAP *src,
    
    xs[bl] = al_ftofix(xsf[2]);
    ys[bl] = al_ftofix(ysf[2]);
-      
+   
+   if (DEST_IS_ZERO && SRC_NOT_MODIFIED) {
+      _al_parallelogram_map_fast(src, xs, ys, sx, sy, sw, sh);
+      return;
+   }
+   
    DO_PARALLELOGRAM_MAP(true, flags);
 }
 
@@ -1516,9 +1524,8 @@ void _al_draw_scaled_bitmap_memory_fast(ALLEGRO_BITMAP *src,
  *  at least partly covered by the sprite. This is useful for doing
  *  anti-aliased blending.
  */
-void _al_draw_rotated_scaled_bitmap_memory_fast(ALLEGRO_BITMAP *src,
-   int cx, int cy, int dx, int dy, float xscale, float yscale,
-   float angle, int flags)
+static void _al_parallelogram_map_fast(ALLEGRO_BITMAP *src, al_fixed xs[4], 
+   al_fixed ys[4], int sx, int sy, int sw, int sh)
 {
    /* Index in xs[] and ys[] to topmost point. */
    int top_index;
@@ -1547,16 +1554,7 @@ void _al_draw_rotated_scaled_bitmap_memory_fast(ALLEGRO_BITMAP *src,
    ALLEGRO_BITMAP *dst = al_get_target_bitmap();
 
    bool sub_pixel_accuracy = true;
-
-   al_fixed xs[4], ys[4];
-   al_fixed fix_dx;
-   al_fixed fix_dy;
-   al_fixed fix_cx;
-   al_fixed fix_cy;
-   al_fixed fix_angle;
-   al_fixed fix_xscale;
-   al_fixed fix_yscale;
-
+   
    /*
     * Variables used in the loop
     */
@@ -1581,21 +1579,7 @@ void _al_draw_rotated_scaled_bitmap_memory_fast(ALLEGRO_BITMAP *src,
    int bmp_y_i;
    /* Right edge of scanline. */
    int right_edge_test;
-
-   angle = -angle;
    
-   fix_dx = al_ftofix(dx);
-   fix_dy = al_ftofix(dy);
-   fix_cx = al_ftofix(cx);
-   fix_cy = al_ftofix(cy);
-   fix_angle = al_ftofix(-angle*256/(ALLEGRO_PI*2));
-   fix_xscale = al_ftofix(xscale);
-   fix_yscale = al_ftofix(yscale);
-
-   _al_rotate_scale_flip_coordinates(src->w << 16, src->h << 16,
-      fix_dx, fix_dy, fix_cx, fix_cy, fix_angle, fix_xscale, fix_yscale,
-      flags & ALLEGRO_FLIP_HORIZONTAL, flags & ALLEGRO_FLIP_VERTICAL, xs, ys);
-
    /* Get index of topmost point. */
    top_index = 0;
    if (ys[1] < ys[0])
@@ -1628,15 +1612,26 @@ void _al_draw_rotated_scaled_bitmap_memory_fast(ALLEGRO_BITMAP *src,
    for (i = 0; i < 4; i++) {
       corner_bmp_x[i] = xs[index];
       corner_bmp_y[i] = ys[index];
-      if (index < 2)
-         corner_spr_y[i] = 0;
-      else
-         /* Need `- 1' since otherwise it would be outside sprite. */
-         corner_spr_y[i] = (src->h << 16) - 1;
-      if ((index == 0) || (index == 3))
-         corner_spr_x[i] = 0;
-      else
-         corner_spr_x[i] = (src->w << 16) - 1;
+      switch(index)
+      {
+         case 0:
+            corner_spr_x[i] = sx << 16;
+            corner_spr_y[i] = sy << 16;
+            break;
+         case 1:
+            /* Need `- 1' since otherwise it would be outside sprite. */
+            corner_spr_x[i] = ((sx + sw) << 16) - 1;
+            corner_spr_y[i] = sy << 16;
+            break;
+         case 2:
+            corner_spr_x[i] = ((sx + sw) << 16) - 1;
+            corner_spr_y[i] = ((sy + sh) << 16) - 1;
+            break;
+         case 3:
+            corner_spr_x[i] = sx << 16;
+            corner_spr_y[i] = ((sy + sh) << 16) - 1;
+            break;
+      }
       index = (index + right_index) & 3;
    }
 
@@ -1727,10 +1722,10 @@ void _al_draw_rotated_scaled_bitmap_memory_fast(ALLEGRO_BITMAP *src,
       We'd better use double to get this as exact as possible, since any
       errors will be accumulated along the scanline.
    */
-   spr_dx = (al_fixed)((ys[3] - ys[0]) * 65536.0 * (65536.0 * src->w) /
+   spr_dx = (al_fixed)((ys[3] - ys[0]) * 65536.0 * (65536.0 * sw) /
                     ((xs[1] - xs[0]) * (double)(ys[3] - ys[0]) -
                      (xs[3] - xs[0]) * (double)(ys[1] - ys[0])));
-   spr_dy = (al_fixed)((ys[1] - ys[0]) * 65536.0 * (65536.0 * src->h) /
+   spr_dy = (al_fixed)((ys[1] - ys[0]) * 65536.0 * (65536.0 * sh) /
                     ((xs[3] - xs[0]) * (double)(ys[1] - ys[0]) -
                      (xs[1] - xs[0]) * (double)(ys[3] - ys[0])));
 
@@ -1853,7 +1848,7 @@ void _al_draw_rotated_scaled_bitmap_memory_fast(ALLEGRO_BITMAP *src,
                Drawing a sprite with that routine took about 25% longer time
                though.
             */
-            if ((unsigned)(l_spr_x_rounded >> 16) >= (unsigned)src->w) {
+            if ((unsigned)(l_spr_x_rounded >> 16) >= (unsigned)sw) {
                if (((l_spr_x_rounded < 0) && (spr_dx <= 0)) ||
                    ((l_spr_x_rounded > 0) && (spr_dx >= 0))) {
                   /* This can happen. */
@@ -1867,14 +1862,14 @@ void _al_draw_rotated_scaled_bitmap_memory_fast(ALLEGRO_BITMAP *src,
                      if (l_bmp_x_rounded > r_bmp_x_rounded)
                         goto skip_draw;
                   } while ((unsigned)(l_spr_x_rounded >> 16) >=
-                           (unsigned)src->w);
+                           (unsigned)sw);
 
                }
             }
             right_edge_test = l_spr_x_rounded +
                               ((r_bmp_x_rounded - l_bmp_x_rounded) >> 16) *
                               spr_dx;
-            if ((unsigned)(right_edge_test >> 16) >= (unsigned)src->w) {
+            if ((unsigned)(right_edge_test >> 16) >= (unsigned)sw) {
                if (((right_edge_test < 0) && (spr_dx <= 0)) ||
                    ((right_edge_test > 0) && (spr_dx >= 0))) {
                   /* This can happen. */
@@ -1884,14 +1879,14 @@ void _al_draw_rotated_scaled_bitmap_memory_fast(ALLEGRO_BITMAP *src,
                      if (l_bmp_x_rounded > r_bmp_x_rounded)
                         goto skip_draw;
                   } while ((unsigned)(right_edge_test >> 16) >=
-                           (unsigned)src->w);
+                           (unsigned)sw);
                }
                else {
                   /* I don't think this can happen, but I can't prove it. */
                   goto skip_draw;
                }
             }
-            if ((unsigned)(l_spr_y_rounded >> 16) >= (unsigned)src->h) {
+            if ((unsigned)(l_spr_y_rounded >> 16) >= (unsigned)sh) {
                if (((l_spr_y_rounded < 0) && (spr_dy <= 0)) ||
                    ((l_spr_y_rounded > 0) && (spr_dy >= 0))) {
                   /* This can happen. */
@@ -1905,13 +1900,13 @@ void _al_draw_rotated_scaled_bitmap_memory_fast(ALLEGRO_BITMAP *src,
                      if (l_bmp_x_rounded > r_bmp_x_rounded)
                         goto skip_draw;
                   } while (((unsigned)l_spr_y_rounded >> 16) >=
-                           (unsigned)src->h);
+                           (unsigned)sh);
                }
             }
             right_edge_test = l_spr_y_rounded +
                               ((r_bmp_x_rounded - l_bmp_x_rounded) >> 16) *
                               spr_dy;
-            if ((unsigned)(right_edge_test >> 16) >= (unsigned)src->h) {
+            if ((unsigned)(right_edge_test >> 16) >= (unsigned)sh) {
                if (((right_edge_test < 0) && (spr_dy <= 0)) ||
                    ((right_edge_test > 0) && (spr_dy >= 0))) {
                   /* This can happen. */
@@ -1921,7 +1916,7 @@ void _al_draw_rotated_scaled_bitmap_memory_fast(ALLEGRO_BITMAP *src,
                      if (l_bmp_x_rounded > r_bmp_x_rounded)
                         goto skip_draw;
                   } while ((unsigned)(right_edge_test >> 16) >=
-                           (unsigned)src->h);
+                           (unsigned)sh);
                }
                else {
                   /* I don't think this can happen, but I can't prove it. */
@@ -1974,6 +1969,36 @@ void _al_draw_rotated_scaled_bitmap_memory_fast(ALLEGRO_BITMAP *src,
 
    al_unlock_bitmap(src);
    al_unlock_bitmap(dst);
+}
+
+void _al_draw_rotated_scaled_bitmap_memory_fast(ALLEGRO_BITMAP *src,
+   int cx, int cy, int dx, int dy, float xscale, float yscale,
+   float angle, int flags)
+{
+   al_fixed xs[4], ys[4];
+   al_fixed fix_dx;
+   al_fixed fix_dy;
+   al_fixed fix_cx;
+   al_fixed fix_cy;
+   al_fixed fix_angle;
+   al_fixed fix_xscale;
+   al_fixed fix_yscale;
+
+   angle = -angle;
+   
+   fix_dx = al_ftofix(dx);
+   fix_dy = al_ftofix(dy);
+   fix_cx = al_ftofix(cx);
+   fix_cy = al_ftofix(cy);
+   fix_angle = al_ftofix(-angle*256/(ALLEGRO_PI*2));
+   fix_xscale = al_ftofix(xscale);
+   fix_yscale = al_ftofix(yscale);
+
+   _al_rotate_scale_flip_coordinates(src->w << 16, src->h << 16,
+      fix_dx, fix_dy, fix_cx, fix_cy, fix_angle, fix_xscale, fix_yscale,
+      flags & ALLEGRO_FLIP_HORIZONTAL, flags & ALLEGRO_FLIP_VERTICAL, xs, ys);
+
+   _al_parallelogram_map_fast(src, xs, ys, 0, 0, src->w, src->h);
 }
 
 /* vim: set sts=3 sw=3 et: */
