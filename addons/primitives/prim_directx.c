@@ -27,17 +27,6 @@
 
 #ifdef ALLEGRO_CFG_D3D
 
-#ifdef ALLEGRO_MSVC
-   #include <malloc.h>
-   #define _alloca alloca
-#endif
-#ifdef ALLEGRO_MINGW32
-   #include <malloc.h>
-#endif
-#ifdef ALLEGRO_UNIX
-   #include <alloca.h>
-#endif
-
 #include "allegro5/allegro_direct3d.h"
 
 static D3DVERTEXELEMENT9 allegro_vertex_decl[] =
@@ -145,31 +134,44 @@ static void* twiddle_vertices(const void* vtxs, int num_vertices)
    return fvf_buffer;
 }
 
-#endif
-
-int _al_draw_prim_directx(ALLEGRO_BITMAP* texture, const void* vtxs, const ALLEGRO_VERTEX_DECL* decl, int start, int end, int type)
+static int _al_draw_prim_raw(ALLEGRO_BITMAP* texture, const void* vtx, const ALLEGRO_VERTEX_DECL* decl, 
+   const int* indices, int num_vtx, int type)
 {
-#ifdef ALLEGRO_CFG_D3D
-   int num_primitives = 0;
-   int num_vtx;
    int stride = decl ? decl->stride : (int)sizeof(ALLEGRO_VERTEX);
-   const void *vtx;
+   int num_primitives = 0;
+
    ALLEGRO_DISPLAY *display;
    LPDIRECT3DDEVICE9 device;
    LPDIRECT3DBASETEXTURE9 d3d_texture;
    DWORD old_wrap_state[2];
    DWORD old_ttf_state;
+   int min_idx = 0, max_idx = num_vtx - 1;
+   
+   if(indices)
+   {
+      int ii;
+      for(ii = 0; ii < num_vtx; ii++)
+      {
+         int idx = indices[ii];
+         if(ii == 0) {
+            min_idx = idx;
+            max_idx = idx;
+         } else if (idx < min_idx) {
+            min_idx = idx;
+         } else if (idx > max_idx) {
+            max_idx = idx;
+         }
+      }
+   }
 
    display = al_get_current_display();
    device = al_d3d_get_device(display);
-   num_vtx = end - start;
-   vtx = ((const char*)vtxs + start * stride);
    
    if(decl) {
       if(decl->d3d_decl) {
          IDirect3DDevice9_SetVertexDeclaration(device, (IDirect3DVertexDeclaration9*)decl->d3d_decl);
       } else {
-         return _al_draw_prim_soft(texture, vtxs, decl, start, end, type);
+         return _al_draw_prim_soft(texture, vtx, decl, 0, num_vtx, type);
       }
    } else {
       if(!allegro_vertex_def && !use_vertex_twiddler) {
@@ -183,11 +185,11 @@ int _al_draw_prim_directx(ALLEGRO_BITMAP* texture, const void* vtxs, const ALLEG
       if(use_vertex_twiddler) {
          stride = sizeof(ALLEGRO_FVF_VERTEX);
          IDirect3DDevice9_SetFVF(device, A5V_FVF);
-         vtx = twiddle_vertices(vtx, num_vtx);
+         vtx = twiddle_vertices(vtx, max_idx + 1);
       } else {
          int i;
-         for (i = start; i < end; i++) {
-            ((ALLEGRO_VERTEX *)vtxs)[i].z = 0;
+         for (i = 0; i < max_idx + 1; i++) {
+            ((ALLEGRO_VERTEX *)vtx)[i].z = 0;
          }
          IDirect3DDevice9_SetVertexDeclaration(device, allegro_vertex_def);
       }
@@ -239,49 +241,108 @@ int _al_draw_prim_directx(ALLEGRO_BITMAP* texture, const void* vtxs, const ALLEG
    IDirect3DDevice9_SetSamplerState(device, 0, D3DSAMP_ADDRESSU, D3DTADDRESS_WRAP);
    IDirect3DDevice9_SetSamplerState(device, 0, D3DSAMP_ADDRESSV, D3DTADDRESS_WRAP);
 
-   switch (type) {
-      case ALLEGRO_PRIM_LINE_LIST: {
-         num_primitives = num_vtx / 2;
-         IDirect3DDevice9_DrawPrimitiveUP(device, D3DPT_LINELIST, num_primitives, vtx, stride);
-         break;
-      };
-      case ALLEGRO_PRIM_LINE_STRIP: {
-         num_primitives = num_vtx - 1;
-         IDirect3DDevice9_DrawPrimitiveUP(device, D3DPT_LINESTRIP, num_primitives, vtx, stride);
-         break;
-      };
-      case ALLEGRO_PRIM_LINE_LOOP: {
-         int size = 2 * stride;
-         void* lbuff = alloca(size);
+   if(!indices)
+   {
+      switch (type) {
+         case ALLEGRO_PRIM_LINE_LIST: {
+            num_primitives = num_vtx / 2;
+            IDirect3DDevice9_DrawPrimitiveUP(device, D3DPT_LINELIST, num_primitives, vtx, stride);
+            break;
+         };
+         case ALLEGRO_PRIM_LINE_STRIP: {
+            num_primitives = num_vtx - 1;
+            IDirect3DDevice9_DrawPrimitiveUP(device, D3DPT_LINESTRIP, num_primitives, vtx, stride);
+            break;
+         };
+         case ALLEGRO_PRIM_LINE_LOOP: {
+            int in[2];
+            in[0] = 0;
+            in[1] = num_vtx-1;
          
-         memcpy(lbuff, vtx, stride);
-         memcpy((char*)lbuff + stride, (const char*)vtx + stride * (num_vtx - 1), stride);
-      
-         num_primitives = num_vtx;
-         IDirect3DDevice9_DrawPrimitiveUP(device, D3DPT_LINESTRIP, num_primitives-1, vtx, stride);
-         IDirect3DDevice9_DrawPrimitiveUP(device, D3DPT_LINELIST, 1, lbuff, stride);
-         break;
-      };
-      case ALLEGRO_PRIM_TRIANGLE_LIST: {
-         num_primitives = num_vtx / 3;
-         IDirect3DDevice9_DrawPrimitiveUP(device, D3DPT_TRIANGLELIST, num_primitives, vtx, stride);
-         break;
-      };
-      case ALLEGRO_PRIM_TRIANGLE_STRIP: {
-         num_primitives = num_vtx - 2;
-         IDirect3DDevice9_DrawPrimitiveUP(device, D3DPT_TRIANGLESTRIP, num_primitives, vtx, stride);
-         break;
-      };
-      case ALLEGRO_PRIM_TRIANGLE_FAN: {
-         num_primitives = num_vtx - 2;
-         IDirect3DDevice9_DrawPrimitiveUP(device, D3DPT_TRIANGLEFAN, num_primitives, vtx, stride);
-         break;
-      };
-      case ALLEGRO_PRIM_POINT_LIST: {
-         num_primitives = num_vtx;
-         IDirect3DDevice9_DrawPrimitiveUP(device, D3DPT_POINTLIST, num_primitives, vtx, stride);
-         break;
-      };
+            num_primitives = num_vtx - 1;
+            IDirect3DDevice9_DrawPrimitiveUP(device, D3DPT_LINESTRIP, num_primitives, vtx, stride);
+            IDirect3DDevice9_DrawIndexedPrimitiveUP(device, D3DPT_LINELIST, 0, num_vtx, 1, in, D3DFMT_INDEX32, vtx, stride);
+            break;
+         };
+         case ALLEGRO_PRIM_TRIANGLE_LIST: {
+            num_primitives = num_vtx / 3;
+            IDirect3DDevice9_DrawPrimitiveUP(device, D3DPT_TRIANGLELIST, num_primitives, vtx, stride);
+            break;
+         };
+         case ALLEGRO_PRIM_TRIANGLE_STRIP: {
+            num_primitives = num_vtx - 2;
+            IDirect3DDevice9_DrawPrimitiveUP(device, D3DPT_TRIANGLESTRIP, num_primitives, vtx, stride);
+            break;
+         };
+         case ALLEGRO_PRIM_TRIANGLE_FAN: {
+            num_primitives = num_vtx - 2;
+            IDirect3DDevice9_DrawPrimitiveUP(device, D3DPT_TRIANGLEFAN, num_primitives, vtx, stride);
+            break;
+         };
+         case ALLEGRO_PRIM_POINT_LIST: {
+            num_primitives = num_vtx;
+            IDirect3DDevice9_DrawPrimitiveUP(device, D3DPT_POINTLIST, num_primitives, vtx, stride);
+            break;
+         };
+      }
+   } else {      
+      switch (type) {
+         case ALLEGRO_PRIM_LINE_LIST: {
+            num_primitives = num_vtx / 2;
+            IDirect3DDevice9_DrawIndexedPrimitiveUP(device, D3DPT_LINELIST, min_idx, max_idx + 1, num_primitives, indices, D3DFMT_INDEX32, vtx, stride);
+            break;
+         };
+         case ALLEGRO_PRIM_LINE_STRIP: {
+            num_primitives = num_vtx - 1;
+            IDirect3DDevice9_DrawIndexedPrimitiveUP(device, D3DPT_LINESTRIP, min_idx, max_idx + 1, num_primitives, indices, D3DFMT_INDEX32, vtx, stride);
+            break;
+         };
+         case ALLEGRO_PRIM_LINE_LOOP: {
+            int in[2];
+            num_primitives = num_vtx - 1;
+            IDirect3DDevice9_DrawIndexedPrimitiveUP(device, D3DPT_LINESTRIP, min_idx, max_idx + 1, num_primitives, indices, D3DFMT_INDEX32, vtx, stride);
+            
+            in[0] = indices[0];
+            in[1] = indices[num_vtx-1];
+            IDirect3DDevice9_DrawIndexedPrimitiveUP(device, D3DPT_LINELIST, min_idx, max_idx + 1, 1, in, D3DFMT_INDEX32, vtx, stride);
+            break;
+         };
+         case ALLEGRO_PRIM_TRIANGLE_LIST: {
+            num_primitives = num_vtx / 3;
+            IDirect3DDevice9_DrawIndexedPrimitiveUP(device, D3DPT_TRIANGLELIST, min_idx, max_idx + 1, num_primitives, indices, D3DFMT_INDEX32, vtx, stride);
+            break;
+         };
+         case ALLEGRO_PRIM_TRIANGLE_STRIP: {
+            num_primitives = num_vtx - 2;
+            IDirect3DDevice9_DrawIndexedPrimitiveUP(device, D3DPT_TRIANGLESTRIP, min_idx, max_idx + 1, num_primitives, indices, D3DFMT_INDEX32, vtx, stride);
+            break;
+         };
+         case ALLEGRO_PRIM_TRIANGLE_FAN: {
+            num_primitives = num_vtx - 2;
+            IDirect3DDevice9_DrawIndexedPrimitiveUP(device, D3DPT_TRIANGLEFAN, min_idx, max_idx + 1, num_primitives, indices, D3DFMT_INDEX32, vtx, stride);
+            break;
+         };
+         case ALLEGRO_PRIM_POINT_LIST: {
+            /*
+             * D3D does not support point lists in indexed mode, so we draw them using the non-indexed mode. To gain at least a semblance
+             * of speed, we detect consecutive runs of vertices and draw them using a single DrawPrimitiveUP call
+             */
+            int ii = 0;
+            int start_idx = indices[0];
+            int run_length = 0;
+            for(ii = 0; ii < num_vtx; ii++)
+            {
+               run_length++;
+               if(indices[ii] + 1 != indices[ii + 1] || ii == num_vtx - 1) {
+                  IDirect3DDevice9_DrawPrimitiveUP(device, D3DPT_POINTLIST, run_length, (const char*)vtx + start_idx * stride, stride);
+                  if(ii != num_vtx - 1)
+                     start_idx = indices[ii + 1];
+                  run_length = 0;
+               }
+            }
+            break;
+         };
+      }
    }
 
    IDirect3DDevice9_SetSamplerState(device, 0, D3DSAMP_ADDRESSU, old_wrap_state[0]);
@@ -292,6 +353,15 @@ int _al_draw_prim_directx(ALLEGRO_BITMAP* texture, const void* vtxs, const ALLEG
    }
 
    return num_primitives;
+}
+
+#endif
+
+int _al_draw_prim_directx(ALLEGRO_BITMAP* texture, const void* vtxs, const ALLEGRO_VERTEX_DECL* decl, int start, int end, int type)
+{
+#ifdef ALLEGRO_CFG_D3D
+   int stride = decl ? decl->stride : (int)sizeof(ALLEGRO_VERTEX);
+   return _al_draw_prim_raw(texture, (const char*)vtxs + start * stride, decl, 0, end - start, type);
 #else
    (void)texture;
    (void)vtxs;
@@ -304,121 +374,10 @@ int _al_draw_prim_directx(ALLEGRO_BITMAP* texture, const void* vtxs, const ALLEG
 #endif
 }
 
-#ifdef ALLEGRO_CFG_D3D
-/* XXX thread safety */
-static void* cbuff;
-static int cbuff_size = 0;
-#endif
-
 int _al_draw_prim_indexed_directx(ALLEGRO_BITMAP* texture, const void* vtxs, const ALLEGRO_VERTEX_DECL* decl, const int* indices, int num_vtx, int type)
 {
 #ifdef ALLEGRO_CFG_D3D
-   /* FIXME: IDirect3DDevice9_DrawIndexedPrimitiveUP is incompatible with the freedom we allow for the contents of the indices array
-    * The function requires that the first index is the smallest index in the indices array. No such requirement is made at the
-    * primitives addon API level, so this function cannot be implemented directly.
-    */
-   
-   if(decl) {
-      int size = decl->stride * num_vtx;
-      int ii;
-      int ret;
-      
-      if(cbuff == 0) {
-         cbuff = malloc(size);
-         cbuff_size = size;
-      } else if (size > cbuff_size) {
-         cbuff = realloc(cbuff, size);
-         cbuff_size = size;
-      }
-      
-      for(ii = 0; ii < num_vtx; ii++) {
-         memcpy((char*)cbuff + ii * decl->stride, (const char*)vtxs + decl->stride * indices[ii], decl->stride);
-      }
-      ret = _al_draw_prim_directx(texture, cbuff, decl, 0, num_vtx, type);
-      return 0;
-   } else {
-      int size = sizeof(ALLEGRO_VERTEX) * num_vtx;
-      int ii;
-      int ret;
-      
-      if(cbuff == 0) {
-         cbuff = malloc(size);
-         cbuff_size = size;
-      } else if (size > cbuff_size) {
-         cbuff = realloc(cbuff, size);
-         cbuff_size = size;
-      }
-      
-      for(ii = 0; ii < num_vtx; ii++) {
-         ((ALLEGRO_VERTEX*)cbuff)[ii] = ((const ALLEGRO_VERTEX*)vtxs)[indices[ii]];
-         ((ALLEGRO_VERTEX *)cbuff)[ii].z = 0;
-      }
-      ret = _al_draw_prim_directx(texture, cbuff, decl, 0, num_vtx, type);
-      return ret;  
-   }
-   
-   /*
-   int num_primitives = 0;
-   ALLEGRO_VERTEX *vtx;
-   ALLEGRO_DISPLAY *display;
-   LPDIRECT3DDEVICE9 device;
-   LPDIRECT3DBASETEXTURE9 d3d_texture;
-
-   display = al_get_current_display();
-   device = al_d3d_get_device(display);
-   vtx = vtxs;
-
-   set_blender(display);
-
-   if (texture) {
-      d3d_texture = (LPDIRECT3DBASETEXTURE9)al_d3d_get_video_texture(texture);
-      IDirect3DDevice9_SetTexture(device, 0, d3d_texture);
-   }
-   else {
-      IDirect3DDevice9_SetTexture(device, 0, NULL);
-   }
-   
-   IDirect3DDevice9_SetFVF(device, A5V_FVF);
-
-   switch (type) {
-      case ALLEGRO_PRIM_LINE_LIST: {
-         num_primitives = num_vtx / 2;
-         IDirect3DDevice9_DrawIndexedPrimitiveUP(device, D3DPT_LINELIST, 0, num_vtx, num_primitives, indices, D3DFMT_INDEX32, vtx, sizeof(ALLEGRO_VERTEX));
-         break;
-      };
-      case ALLEGRO_PRIM_LINE_STRIP: {
-         num_primitives = num_vtx - 1;
-         IDirect3DDevice9_DrawIndexedPrimitiveUP(device, D3DPT_LINESTRIP, 0, num_vtx, num_primitives, indices, D3DFMT_INDEX32, vtx, sizeof(ALLEGRO_VERTEX));
-         break;
-      };
-      case ALLEGRO_PRIM_LINE_LOOP: {
-         int in[2];
-         num_primitives = num_vtx;
-         IDirect3DDevice9_DrawIndexedPrimitiveUP(device, D3DPT_LINESTRIP, 0, num_vtx, num_primitives-1, indices, D3DFMT_INDEX32, vtx, sizeof(ALLEGRO_VERTEX));
-         in[0] = indices[0];
-         in[1] = indices[num_vtx-1];
-         IDirect3DDevice9_DrawIndexedPrimitiveUP(device, D3DPT_LINELIST, 0, 2, 1, in, D3DFMT_INDEX32, vtx, sizeof(ALLEGRO_VERTEX));
-         break;
-      };
-      case ALLEGRO_PRIM_TRIANGLE_LIST: {
-         num_primitives = num_vtx / 3;
-         IDirect3DDevice9_DrawIndexedPrimitiveUP(device, D3DPT_TRIANGLELIST, 0, num_vtx, num_primitives, indices, D3DFMT_INDEX32, vtx, sizeof(ALLEGRO_VERTEX));
-         break;
-      };
-      case ALLEGRO_PRIM_TRIANGLE_STRIP: {
-         num_primitives = num_vtx - 2;
-         IDirect3DDevice9_DrawIndexedPrimitiveUP(device, D3DPT_TRIANGLESTRIP, 0, num_vtx, num_primitives, indices, D3DFMT_INDEX32, vtx, sizeof(ALLEGRO_VERTEX));
-         break;
-      };
-      case ALLEGRO_PRIM_TRIANGLE_FAN: {
-         num_primitives = num_vtx - 2;
-         IDirect3DDevice9_DrawIndexedPrimitiveUP(device, D3DPT_TRIANGLEFAN, 0, num_vtx, num_primitives, indices, D3DFMT_INDEX32, vtx, sizeof(ALLEGRO_VERTEX));
-         break;
-      };
-   }
-
-   return num_primitives;
-   */
+   return _al_draw_prim_raw(texture, vtxs, decl, indices, num_vtx, type);
 #else
    (void)texture;
    (void)vtxs;
