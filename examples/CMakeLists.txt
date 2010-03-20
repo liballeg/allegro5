@@ -188,5 +188,8 @@ endif(WANT_CURL_EXAMPLE)
 
 copy_data_dir_to_build(copy_example_data data)
 
+# This is useful for developers to add temporary test programs.
+include(${CMAKE_CURRENT_SOURCE_DIR}/local_examples.cmake OPTIONAL)
+
 #-----------------------------------------------------------------------------#
 # vim: set ts=8 sts=4 sw=4 et:
