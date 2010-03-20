@@ -14,7 +14,7 @@ bool no_fbo = false;
 
 static void draw_opengl(void)
 {
-   double ms = al_current_time();
+   double secs = al_current_time();
 
    glMatrixMode(GL_MODELVIEW);
    glLoadIdentity();
@@ -83,7 +83,7 @@ static void draw_opengl(void)
 
       glDisable(GL_TEXTURE_2D);
       glColor3f(1, 1, 0);
-      glTranslatef(128, 128 + sin(ms * ALLEGRO_PI * 2 * 2) * 20, 0);
+      glTranslatef(128, 128 + sin(secs * ALLEGRO_PI * 2 * 2) * 20, 0);
       glBegin(GL_TRIANGLES);
       glVertex2f(0, -100);
       glVertex2f(100, 0);
@@ -102,7 +102,7 @@ static void draw_opengl(void)
 
    glLoadIdentity();
    glTranslatef(320, 240, 0);
-   glRotatef(ms * 360 / 4, 0, 0, 1);
+   glRotatef(secs * 360 / 4, 0, 0, 1);
    glColor3f(1, 1, 1);
    glEnable(GL_TEXTURE_2D);
    glBindTexture(GL_TEXTURE_2D, tex);
