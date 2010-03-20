@@ -26,6 +26,18 @@
 #include "allegro5/platform/alplatf.h"
 
 #ifdef ALLEGRO_CFG_D3D
+
+#ifdef ALLEGRO_MSVC
+   #include <malloc.h>
+   #define _alloca alloca
+#endif
+#ifdef ALLEGRO_MINGW32
+   #include <malloc.h>
+#endif
+#ifdef ALLEGRO_UNIX
+   #include <alloca.h>
+#endif
+
 #include "allegro5/allegro_direct3d.h"
 
 static D3DVERTEXELEMENT9 allegro_vertex_decl[] =
@@ -35,8 +47,6 @@ static D3DVERTEXELEMENT9 allegro_vertex_decl[] =
   {0, 16, D3DDECLTYPE_FLOAT2, D3DDECLMETHOD_DEFAULT, D3DDECLUSAGE_TEXCOORD, 0},
   D3DDECL_END()
 };
-
-static IDirect3DVertexDeclaration9* allegro_vertex_def;
 
 static int al_blender_to_d3d(int al_mode)
 {
@@ -107,6 +117,7 @@ struct ALLEGRO_FVF_VERTEX {
 static ALLEGRO_FVF_VERTEX* fvf_buffer;
 static int fvf_buffer_size = 0;
 static bool use_vertex_twiddler = false;
+static IDirect3DVertexDeclaration9* allegro_vertex_def;
 
 static void* twiddle_vertices(const void* vtxs, int num_vertices)
 {
@@ -134,12 +145,6 @@ static void* twiddle_vertices(const void* vtxs, int num_vertices)
    return fvf_buffer;
 }
 
-#endif
-
-#ifdef ALLEGRO_CFG_D3D
-/* XXX thread safety */
-static void* lbuff;
-static int lbuff_size = 0;
 #endif
 
 int _al_draw_prim_directx(ALLEGRO_BITMAP* texture, const void* vtxs, const ALLEGRO_VERTEX_DECL* decl, int start, int end, int type)
@@ -247,13 +252,7 @@ int _al_draw_prim_directx(ALLEGRO_BITMAP* texture, const void* vtxs, const ALLEG
       };
       case ALLEGRO_PRIM_LINE_LOOP: {
          int size = 2 * stride;
-         if(lbuff == 0) {
-            lbuff = malloc(size);
-            lbuff_size = size;
-         } else if (size > lbuff_size) {
-            lbuff = realloc(lbuff, size);
-            lbuff_size = size;
-         }
+         void* lbuff = alloca(size);
          
          memcpy(lbuff, vtx, stride);
          memcpy((char*)lbuff + stride, (const char*)vtx + stride * (num_vtx - 1), stride);
@@ -429,5 +428,96 @@ int _al_draw_prim_indexed_directx(ALLEGRO_BITMAP* texture, const void* vtxs, con
    (void)decl;
 
    return 0;
+#endif
+}
+
+void _al_set_d3d_decl(ALLEGRO_VERTEX_DECL* ret)
+{
+#ifdef ALLEGRO_CFG_D3D
+   int flags = al_get_display_flags();
+   if (flags & ALLEGRO_DIRECT3D) {
+      ALLEGRO_DISPLAY *display;
+      LPDIRECT3DDEVICE9 device;
+      D3DVERTEXELEMENT9 d3delements[ALLEGRO_PRIM_ATTR_NUM + 1];
+      int idx = 0;
+      ALLEGRO_VERTEX_ELEMENT* e;
+      D3DCAPS9 caps;
+      
+      display = al_get_current_display();
+      device = al_d3d_get_device(display);
+      
+      IDirect3DDevice9_GetDeviceCaps(device, &caps);
+      if(caps.PixelShaderVersion < D3DPS_VERSION(3, 0)) {
+         ret->d3d_decl = 0;
+      } else {
+         e = &ret->elements[ALLEGRO_PRIM_POSITION];
+         if(e->attribute) {
+            int type = 0;
+            switch(e->storage) {
+               case ALLEGRO_PRIM_FLOAT_2:
+                  type = D3DDECLTYPE_FLOAT2;
+               break;
+               case ALLEGRO_PRIM_FLOAT_3:
+                  type = D3DDECLTYPE_FLOAT3;
+               break;
+               case ALLEGRO_PRIM_SHORT_2:
+                  type = D3DDECLTYPE_SHORT2;
+               break;
+            }
+            d3delements[idx].Stream = 0;
+            d3delements[idx].Offset = e->offset;
+            d3delements[idx].Type = type;
+            d3delements[idx].Method = D3DDECLMETHOD_DEFAULT;
+            d3delements[idx].Usage = D3DDECLUSAGE_POSITION;
+            d3delements[idx].UsageIndex = 0;
+            idx++;
+         }
+
+         e = &ret->elements[ALLEGRO_PRIM_TEX_COORD];
+         if(!e->attribute)
+            e = &ret->elements[ALLEGRO_PRIM_TEX_COORD_PIXEL];
+         if(e->attribute) {
+            int type = 0;
+            switch(e->storage) {
+               case ALLEGRO_PRIM_FLOAT_2:
+               case ALLEGRO_PRIM_FLOAT_3:
+                  type = D3DDECLTYPE_FLOAT2;
+               break;
+               case ALLEGRO_PRIM_SHORT_2:
+                  type = D3DDECLTYPE_SHORT2;
+               break;
+            }
+            d3delements[idx].Stream = 0;
+            d3delements[idx].Offset = e->offset;
+            d3delements[idx].Type = type;
+            d3delements[idx].Method = D3DDECLMETHOD_DEFAULT;
+            d3delements[idx].Usage = D3DDECLUSAGE_TEXCOORD;
+            d3delements[idx].UsageIndex = 0;
+            idx++;
+         }
+
+         e = &ret->elements[ALLEGRO_PRIM_COLOR_ATTR];
+         if(e->attribute) {
+            d3delements[idx].Stream = 0;
+            d3delements[idx].Offset = e->offset;
+            d3delements[idx].Type = D3DDECLTYPE_D3DCOLOR;
+            d3delements[idx].Method = D3DDECLMETHOD_DEFAULT;
+            d3delements[idx].Usage = D3DDECLUSAGE_COLOR;
+            d3delements[idx].UsageIndex = 0;
+            idx++;
+         }
+         
+         d3delements[idx].Stream = 0xFF;
+         d3delements[idx].Offset = 0;
+         d3delements[idx].Type = D3DDECLTYPE_UNUSED;
+         d3delements[idx].Method = 0;
+         d3delements[idx].Usage = 0;
+         d3delements[idx].UsageIndex = 0;
+         
+         IDirect3DDevice9_CreateVertexDeclaration(device, d3delements, (IDirect3DVertexDeclaration9**)&ret->d3d_decl);
+      }
+   }
+#else
+   ret->d3d_decl = 0;
 #endif
 }
