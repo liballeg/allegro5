@@ -29,14 +29,6 @@
 
 #include "allegro5/allegro_direct3d.h"
 
-static D3DVERTEXELEMENT9 allegro_vertex_decl[] =
-{
-  {0, 0, D3DDECLTYPE_FLOAT3, D3DDECLMETHOD_DEFAULT, D3DDECLUSAGE_POSITION, 0},
-  {0, 12, D3DDECLTYPE_D3DCOLOR, D3DDECLMETHOD_DEFAULT, D3DDECLUSAGE_COLOR, 0},
-  {0, 16, D3DDECLTYPE_FLOAT2, D3DDECLMETHOD_DEFAULT, D3DDECLUSAGE_TEXCOORD, 0},
-  D3DDECL_END()
-};
-
 static int al_blender_to_d3d(int al_mode)
 {
    int num_modes = 4;
@@ -89,50 +81,7 @@ static void set_blender(ALLEGRO_DISPLAY *display)
    IDirect3DDevice9_SetTextureStageState(device, 0, D3DTSS_ALPHAOP, D3DTOP_MODULATE);
 }
 
-/*
- * Workabouts for the pre-SM3 cards
- */
 #define A5V_FVF (D3DFVF_XYZ | D3DFVF_DIFFUSE | D3DFVF_TEX1)
-
-typedef struct ALLEGRO_FVF_VERTEX ALLEGRO_FVF_VERTEX;
-
-struct ALLEGRO_FVF_VERTEX {
-  float x, y, z;
-  DWORD c;
-  float u, v;
-};
-
-/* XXX thread safety */
-static ALLEGRO_FVF_VERTEX* fvf_buffer;
-static int fvf_buffer_size = 0;
-static bool use_vertex_twiddler = false;
-static IDirect3DVertexDeclaration9* allegro_vertex_def;
-
-static void* twiddle_vertices(const void* vtxs, int num_vertices)
-{
-   const ALLEGRO_VERTEX* vtx = vtxs;
-   int ii;
-   
-   if(fvf_buffer == 0) {
-      fvf_buffer = malloc(num_vertices * sizeof(ALLEGRO_FVF_VERTEX));
-      fvf_buffer_size = num_vertices;
-   } else if (num_vertices > fvf_buffer_size) {
-      fvf_buffer = realloc(fvf_buffer, num_vertices * sizeof(ALLEGRO_FVF_VERTEX));
-      fvf_buffer_size = num_vertices;
-   }
-   
-   for(ii = 0; ii < num_vertices; ii++) {
-      fvf_buffer[ii].x = vtx[ii].x;
-      fvf_buffer[ii].y = vtx[ii].y;
-      fvf_buffer[ii].z = 0;
-      
-      fvf_buffer[ii].u = vtx[ii].u;
-      fvf_buffer[ii].v = vtx[ii].v;
-      
-      fvf_buffer[ii].c = vtx[ii].color;
-   }
-   return fvf_buffer;
-}
 
 static int _al_draw_prim_raw(ALLEGRO_BITMAP* texture, const void* vtx, const ALLEGRO_VERTEX_DECL* decl, 
    const int* indices, int num_vtx, int type)
@@ -174,25 +123,7 @@ static int _al_draw_prim_raw(ALLEGRO_BITMAP* texture, const void* vtx, const ALL
          return _al_draw_prim_soft(texture, vtx, decl, 0, num_vtx, type);
       }
    } else {
-      if(!allegro_vertex_def && !use_vertex_twiddler) {
-         D3DCAPS9 caps;
-         IDirect3DDevice9_GetDeviceCaps(device, &caps);
-         if(caps.PixelShaderVersion < D3DPS_VERSION(3, 0))
-            use_vertex_twiddler = true;
-         else
-            IDirect3DDevice9_CreateVertexDeclaration(device, allegro_vertex_decl, &allegro_vertex_def);
-      }
-      if(use_vertex_twiddler) {
-         stride = sizeof(ALLEGRO_FVF_VERTEX);
-         IDirect3DDevice9_SetFVF(device, A5V_FVF);
-         vtx = twiddle_vertices(vtx, max_idx + 1);
-      } else {
-         int i;
-         for (i = 0; i < max_idx + 1; i++) {
-            ((ALLEGRO_VERTEX *)vtx)[i].z = 0;
-         }
-         IDirect3DDevice9_SetVertexDeclaration(device, allegro_vertex_def);
-      }
+      IDirect3DDevice9_SetFVF(device, A5V_FVF);
    }
 
    set_blender(display);

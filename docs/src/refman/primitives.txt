@@ -406,12 +406,14 @@ functions to convert between it and [ALLEGRO_COLOR] structure.
 
 ### API: ALLEGRO_VERTEX
 
-Defines the generic vertex type, with a 2D position, color and texture
-coordinates for a single texture.
+Defines the generic vertex type, with a 3D position, color and texture
+coordinates for a single texture. Note that at this time, the software driver
+for this addon cannot render 3D primitives. If you want a 2D only primitive,
+set z to 0.
 
 *Fields:*
 
-* x, y - Position of the vertex
+* x, y, z - Position of the vertex
 * color - `ALLEGRO_PRIM_COLOR` structure
 * u, v - Texture coordinates measured in pixels
 
@@ -438,7 +440,7 @@ Here is an example code that would create a declaration describing the
 ALLEGRO_VERTEX structure:
 
     ALLEGRO_VERTEX_ELEMENT elems[] = {
-       {ALLEGRO_PRIM_POSITION, ALLEGRO_PRIM_FLOAT_2, offsetof(ALLEGRO_VERTEX, x)},
+       {ALLEGRO_PRIM_POSITION, ALLEGRO_PRIM_FLOAT_3, offsetof(ALLEGRO_VERTEX, x)},
        {ALLEGRO_PRIM_TEX_COORD_PIXEL, ALLEGRO_PRIM_FLOAT_2, offsetof(ALLEGRO_VERTEX, u)},
        {ALLEGRO_PRIM_COLOR_ATTR, 0, offsetof(CUSTOM_VERTEX, color)},
        {0, 0, 0}

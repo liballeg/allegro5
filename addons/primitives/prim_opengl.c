@@ -157,7 +157,7 @@ static void setup_state(const char* vtxs, const ALLEGRO_VERTEX_DECL* decl, ALLEG
       glEnableClientState(GL_VERTEX_ARRAY);
       glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 
-      glVertexPointer(2, GL_FLOAT, sizeof(ALLEGRO_VERTEX), &vtx[0].x);
+      glVertexPointer(3, GL_FLOAT, sizeof(ALLEGRO_VERTEX), &vtx[0].x);
       glColorPointer(4, GL_UNSIGNED_BYTE, sizeof(ALLEGRO_VERTEX), &vtx[0].color);
       glTexCoordPointer(2, GL_FLOAT, sizeof(ALLEGRO_VERTEX), &vtx[0].u);
    }

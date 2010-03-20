@@ -116,7 +116,7 @@ static void TexturePrimitives(int mode)
          
          color = al_map_rgb((ii + 1) % 3 * 64, (ii + 2) % 3 * 64, (ii) % 3 * 64);
          
-         vtx[ii].x = x; vtx[ii].y = y;
+         vtx[ii].x = x; vtx[ii].y = y; vtx[ii].z = 0;
          vtx2[ii].x = 0.1 * x; vtx2[ii].y = 0.1 * y;
          vtx[ii].u = 64 * x / 100; vtx[ii].v = 64 * y / 100;
          vtx2[ii].u = 64 * x / 100; vtx2[ii].v = 64 * y / 100;
@@ -173,7 +173,7 @@ static void FilledTexturePrimitives(int mode)
          
          color = al_map_rgb((7 * ii + 1) % 3 * 64, (2 * ii + 2) % 3 * 64, (ii) % 3 * 64);
          
-         vtx[ii].x = x; vtx[ii].y = y;
+         vtx[ii].x = x; vtx[ii].y = y; vtx[ii].z = 0;
          vtx[ii].u = 64 * x / 100; vtx[ii].v = 64 * y / 100;
          if(ii < 10)
             vtx[ii].color = al_get_prim_color(al_map_rgba_f(1, 1, 1, 1));
@@ -225,7 +225,7 @@ static void FilledPrimitives(int mode)
          
          color = al_map_rgb((7 * ii + 1) % 3 * 64, (2 * ii + 2) % 3 * 64, (ii) % 3 * 64);
          
-         vtx[ii].x = x; vtx[ii].y = y;
+         vtx[ii].x = x; vtx[ii].y = y; vtx[ii].z = 0;
          vtx[ii].color = al_get_prim_color(color);
       }
    } else if (mode == LOGIC) {
@@ -276,7 +276,7 @@ static void IndexedFilledPrimitives(int mode)
          
          color = al_map_rgb((7 * ii + 1) % 3 * 64, (2 * ii + 2) % 3 * 64, (ii) % 3 * 64);
          
-         vtx[ii].x = x; vtx[ii].y = y;
+         vtx[ii].x = x; vtx[ii].y = y; vtx[ii].z = 0;
          vtx[ii].color = al_get_prim_color(color);
       }
    } else if (mode == LOGIC) {
@@ -471,7 +471,7 @@ static void LowPrimitives(int mode)
          
          color = al_map_rgb((ii + 1) % 3 * 64, (ii + 2) % 3 * 64, (ii) % 3 * 64);
          
-         vtx[ii].x = x; vtx[ii].y = y;
+         vtx[ii].x = x; vtx[ii].y = y; vtx[ii].z = 0;
          vtx2[ii].x = 0.1 * x; vtx2[ii].y = 0.1 * y;
          vtx[ii].color = al_get_prim_color(color);
          vtx2[ii].color = al_get_prim_color(color);
@@ -517,7 +517,7 @@ static void IndexedPrimitives(int mode)
          
          color = al_map_rgb((ii + 1) % 3 * 64, (ii + 2) % 3 * 64, (ii) % 3 * 64);
          
-         vtx[ii].x = x; vtx[ii].y = y;
+         vtx[ii].x = x; vtx[ii].y = y; vtx[ii].z = 0;
          vtx2[ii].x = 0.1 * x; vtx2[ii].y = 0.1 * y;
          vtx[ii].color = al_get_prim_color(color);
          vtx2[ii].color = al_get_prim_color(color);
