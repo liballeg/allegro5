@@ -89,6 +89,7 @@ option(WANT_AUDIO "Enable allegro_audio engine" on)
 option(WANT_IMAGE "Enable image load/save addon" on)
 option(WANT_IMAGE_JPG "Enable JPEG support in image addon" on)
 option(WANT_IMAGE_PNG "Enable PNG support in image addon" on)
+option(WANT_NATIVE_APPLE_IMAGE_LOADER "Enable the native Apple image loader (iPhone and OS X only)" on)
 option(WANT_TTF "Enable TTF addon" on)
 option(WANT_COLOR "Enable color addon" on)
 option(WANT_MEMFILE "Enable memfile addon" on)
@@ -223,6 +224,9 @@ if(APPLE)
     set(ALLEGRO_CFG_PTHREADS_TLS 1)
     set(ALLEGRO_UNIX 0)
     set(WANT_X11 off)
+    if(WANT_NATIVE_APPLE_IMAGE_LOADER)
+        set(ALLEGRO_CFG_WANT_NATIVE_APPLE_IMAGE_LOADER 1)
+    endif(WANT_NATIVE_APPLE_IMAGE_LOADER)
 
     # This flag is required on some versions of Mac OS X to avoid linker
     # problems with global variables which are not explicitly initialised.

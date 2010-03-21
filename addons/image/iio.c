@@ -73,6 +73,7 @@ bool al_init_image_addon(void)
    success |= al_register_bitmap_saver_f(".jpeg", al_save_jpg_f);
 #endif
 
+#ifdef ALLEGRO_CFG_WANT_NATIVE_APPLE_IMAGE_LOADER
 #ifdef ALLEGRO_IPHONE
    char const *extensions[] = {".tif", ".tiff", ".jpg", ".jpeg", ".gif",
       ".png", ".BMPf", ".ico", ".cur", ".xbm", NULL};
@@ -84,6 +85,7 @@ bool al_init_image_addon(void)
 
 #ifdef ALLEGRO_MACOSX
    success |= _al_osx_register_image_loader();
+#endif
 #endif
 
    if (success)
