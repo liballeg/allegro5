@@ -4,7 +4,7 @@ These functions are declared in the main Allegro header file:
 
     #include <allegro5/allegro.h>
 
-### API: ALLEGRO_TRANSFORM
+## API: ALLEGRO_TRANSFORM
 
 Defines the generic transformation type, a 4x4 matrix. 2D transforms use only
 a small subsection of this matrix, namely the top left 2x2 matrix, and the
@@ -14,7 +14,7 @@ right most 2x1 matrix, for a total of 6 values.
 
 * m - A 4x4 float matrix
 
-### API: al_copy_transform
+## API: al_copy_transform
 
 Makes a copy of a transformation.
 
@@ -23,7 +23,7 @@ Makes a copy of a transformation.
 * src - Source transformation
 * dest - Destination transformation
 
-### API: al_use_transform
+## API: al_use_transform
 
 Sets the transformation to be used for the the drawing operations. Every
 drawing operation after this call will be transformed using this
@@ -34,14 +34,14 @@ to the default behaviour.
 
 * trans - Transformation to use
 
-### API: al_get_current_transform
+## API: al_get_current_transform
 
 Returns the current transformation, as set by [al_use_transform].
 
 *Returns:*
 A pointer to the current transformation.
 
-### API: al_invert_transform
+## API: al_invert_transform
 
 Inverts the passed transformation. If the transformation is nearly singular 
 (close to not having an inverse) then the returned transformation may be
@@ -55,7 +55,7 @@ inverse before inverting it if you are in doubt.
 *See Also:*
 [al_check_inverse]
 
-### API: al_check_inverse
+## API: al_check_inverse
 
 Checks if the transformation has an inverse using the supplied tolerance. 
 Tolerance should be a small value between 0 and 1, with 0.001 being sufficient 
@@ -76,7 +76,7 @@ above 0, the transformation will be invertible.
 *See Also:*
 [al_invert_transform]
 
-### API: al_identity_transform
+## API: al_identity_transform
 
 Sets the transformation to be the identity transformation.
 
@@ -84,7 +84,7 @@ Sets the transformation to be the identity transformation.
 
 * trans - Transformation to alter
 
-### API: al_build_transform
+## API: al_build_transform
 
 Builds a transformation given some parameters. This call is equivalent to
 calling the transformations in this order: make identity, scale, rotate,
@@ -98,7 +98,7 @@ functions.
 * sx, sy - Scale
 * theta - Rotation angle
 
-### API: al_translate_transform
+## API: al_translate_transform
 
 Apply a translation to a transformation.
 
@@ -107,7 +107,7 @@ Apply a translation to a transformation.
 * trans - Transformation to alter
 * x, y - Translation
 
-### API: al_rotate_transform
+## API: al_rotate_transform
 
 Apply a rotation to a transformation.
 
@@ -116,7 +116,7 @@ Apply a rotation to a transformation.
 * trans - Transformation to alter
 * theta - Rotation angle
 
-### API: al_scale_transform
+## API: al_scale_transform
 
 Apply a scale to a transformation.
 
@@ -125,7 +125,7 @@ Apply a scale to a transformation.
 * trans - Transformation to alter
 * sx, sy - Scale
 
-### API: al_transform_coordinates
+## API: al_transform_coordinates
 
 Transform a pair of coordinates.
 
@@ -134,7 +134,7 @@ Transform a pair of coordinates.
 * trans - Transformation to use
 * x, y - Pointers to the coordinates
 
-### API: al_transform_transform
+## API: al_transform_transform
 
 Transform a transformation.
 
