@@ -36,9 +36,15 @@
 #include "allegro5/platform/aintwin.h"
 #include "allegro5/internal/aintern_display.h"
 
-ALLEGRO_MOUSE the_mouse;
-ALLEGRO_MOUSE_STATE mouse_state;
+typedef struct ALLEGRO_MOUSE_STATE_WIN ALLEGRO_MOUSE_STATE_WIN;
+struct ALLEGRO_MOUSE_STATE_WIN {
+   ALLEGRO_MOUSE_STATE mouse_state;
+   int x_unclamped;
+   int y_unclamped;
+};
 
+static ALLEGRO_MOUSE_STATE_WIN ms_win;
+static ALLEGRO_MOUSE the_mouse;
 static bool installed = false;
 
 
@@ -47,7 +53,7 @@ static bool init_mouse(void)
    if (installed)
       return false;
 
-   memset(&mouse_state, 0, sizeof(mouse_state));
+   memset(&ms_win, 0, sizeof(ms_win));
    _al_event_source_init(&the_mouse.es);
 
    if (al_get_new_display_flags() & ALLEGRO_FULLSCREEN) {
@@ -72,7 +78,7 @@ static void exit_mouse(void)
    if (!installed)
       return;
 
-   memset(&mouse_state, 0, sizeof(mouse_state));
+   memset(&ms_win, 0, sizeof(ms_win));
    _al_event_source_free(&the_mouse.es);
    installed = false;
 }
@@ -145,16 +151,16 @@ static bool set_mouse_xy(int x, int y)
    new_x = _ALLEGRO_CLAMP(win_disp->mouse_range_x1, x, win_disp->mouse_range_x2);
    new_y = _ALLEGRO_CLAMP(win_disp->mouse_range_y1, y, win_disp->mouse_range_y2);
 
-   dx = new_x - mouse_state.x;
-   dy = new_y - mouse_state.y;
+   dx = new_x - ms_win.mouse_state.x;
+   dy = new_y - ms_win.mouse_state.y;
 
    if (dx || dy) {
-      mouse_state.x = x;
-      mouse_state.y = y;
+      ms_win.mouse_state.x = x;
+      ms_win.mouse_state.y = y;
 
       generate_mouse_event(
          ALLEGRO_EVENT_MOUSE_WARPED,
-         mouse_state.x, mouse_state.y, mouse_state.z,
+         ms_win.mouse_state.x, ms_win.mouse_state.y, ms_win.mouse_state.z,
          dx, dy, 0,
          0, (void*)win_disp);
    }
@@ -178,14 +184,14 @@ static bool set_mouse_axis(int which, int z)
    }
 
    {
-      int dz = (z - mouse_state.z);
+      int dz = (z - ms_win.mouse_state.z);
 
       if (dz != 0) {
-         mouse_state.z = z;
+         ms_win.mouse_state.z = z;
 
          generate_mouse_event(
             ALLEGRO_EVENT_MOUSE_AXES,
-            mouse_state.x, mouse_state.y, mouse_state.z,
+            ms_win.mouse_state.x, ms_win.mouse_state.y, ms_win.mouse_state.z,
             0, 0, dz,
             0, disp);
       }
@@ -205,19 +211,21 @@ static bool set_mouse_range(int x1, int y1, int x2, int y2)
    win_disp->mouse_range_x2 = x2;
    win_disp->mouse_range_y2 = y2;
 
-   new_x = _ALLEGRO_CLAMP(win_disp->mouse_range_x1, mouse_state.x, win_disp->mouse_range_x2);
-   new_y = _ALLEGRO_CLAMP(win_disp->mouse_range_y1, mouse_state.y, win_disp->mouse_range_y2);
+   new_x = _ALLEGRO_CLAMP(win_disp->mouse_range_x1, ms_win.mouse_state.x, win_disp->mouse_range_x2);
+   new_y = _ALLEGRO_CLAMP(win_disp->mouse_range_y1, ms_win.mouse_state.y, win_disp->mouse_range_y2);
 
-   dx = new_x - mouse_state.x;
-   dy = new_y - mouse_state.y;
+   dx = new_x - ms_win.mouse_state.x;
+   dy = new_y - ms_win.mouse_state.y;
 
    if (dx || dy) {
-      mouse_state.x = new_x;
-      mouse_state.y = new_y;
+      ms_win.mouse_state.x = new_x;
+      ms_win.mouse_state.y = new_y;
+      ms_win.x_unclamped = new_x;
+      ms_win.y_unclamped = new_y;
 
       generate_mouse_event(
          ALLEGRO_EVENT_MOUSE_AXES,
-         mouse_state.x, mouse_state.y, mouse_state.z,
+         ms_win.mouse_state.x, ms_win.mouse_state.y, ms_win.mouse_state.z,
          dx, dy, 0,
          0, (void*)win_disp);
    }
@@ -227,23 +235,8 @@ static bool set_mouse_range(int x1, int y1, int x2, int y2)
 
 static void get_mouse_state(ALLEGRO_MOUSE_STATE *ret_state)
 {
-   unsigned int i;
-   ALLEGRO_DISPLAY *disp = NULL;
-   ALLEGRO_SYSTEM *sys;
-
    _al_event_source_lock(&the_mouse.es);
-   {
-      sys = al_get_system_driver();
-      for (i = 0; i < sys->displays._size; i++) {
-         ALLEGRO_DISPLAY_WIN **d = (void*)_al_vector_ref(&sys->displays, i);
-         if ((*d)->window == GetForegroundWindow()) {
-            disp = (void*)*d;
-            break;
-         }
-      }
-      mouse_state.display = disp;
-      *ret_state = mouse_state;
-   }
+   *ret_state = ms_win.mouse_state;
    _al_event_source_unlock(&the_mouse.es);
 }
 
@@ -280,8 +273,9 @@ void _al_win_mouse_handle_leave(ALLEGRO_DISPLAY_WIN *win_disp)
 {
    if (!installed)
       return;
+   ms_win.mouse_state.display = NULL;
    generate_mouse_event(ALLEGRO_EVENT_MOUSE_LEAVE_DISPLAY,
-      mouse_state.x, mouse_state.y, mouse_state.z,
+      ms_win.mouse_state.x, ms_win.mouse_state.y, ms_win.mouse_state.z,
       0, 0, 0,
       0, (void*)win_disp);
 }
@@ -291,8 +285,9 @@ void _al_win_mouse_handle_enter(ALLEGRO_DISPLAY_WIN *win_disp)
 {
    if (!installed)
       return;
+   ms_win.mouse_state.display = (void*)win_disp;
    generate_mouse_event(ALLEGRO_EVENT_MOUSE_ENTER_DISPLAY,
-      mouse_state.x, mouse_state.y, mouse_state.z,
+      ms_win.mouse_state.x, ms_win.mouse_state.y, ms_win.mouse_state.z,
       0, 0, 0,
       0, (void*)win_disp);
 }
@@ -303,31 +298,33 @@ void _al_win_mouse_handle_move(int x, int y, bool abs, ALLEGRO_DISPLAY_WIN *win_
    int dx, dy;
    int oldx, oldy;
 
-   oldx = mouse_state.x;
-   oldy = mouse_state.y;
+   oldx = ms_win.mouse_state.x;
+   oldy = ms_win.mouse_state.y;
 
    if (!installed)
       return;
 
    if (!abs) {
-      mouse_state.x += x;
-      mouse_state.y += y;
+      ms_win.mouse_state.x += x;
+      ms_win.mouse_state.y += y;
       dx = x;
       dy = y;
    }
    else {
-      dx = x - mouse_state.x;
-      dy = y - mouse_state.y;
-      mouse_state.x = x;
-      mouse_state.y = y;
+      dx = x - ms_win.x_unclamped;
+      dy = y - ms_win.y_unclamped;
+      ms_win.mouse_state.x = x;
+      ms_win.mouse_state.y = y;
    }
 
-   mouse_state.x = _ALLEGRO_CLAMP(win_disp->mouse_range_x1, mouse_state.x, win_disp->mouse_range_x2);
-   mouse_state.y = _ALLEGRO_CLAMP(win_disp->mouse_range_y1, mouse_state.y, win_disp->mouse_range_y2);
+   ms_win.x_unclamped = ms_win.mouse_state.x;
+   ms_win.y_unclamped = ms_win.mouse_state.y;
+   ms_win.mouse_state.x = _ALLEGRO_CLAMP(win_disp->mouse_range_x1, ms_win.mouse_state.x, win_disp->mouse_range_x2);
+   ms_win.mouse_state.y = _ALLEGRO_CLAMP(win_disp->mouse_range_y1, ms_win.mouse_state.y, win_disp->mouse_range_y2);
 
-   if (oldx != mouse_state.x || oldy != mouse_state.y) {
+   if (oldx != ms_win.mouse_state.x || oldy != ms_win.mouse_state.y) {
       generate_mouse_event(ALLEGRO_EVENT_MOUSE_AXES,
-         mouse_state.x, mouse_state.y, mouse_state.z,
+         ms_win.mouse_state.x, ms_win.mouse_state.y, ms_win.mouse_state.z,
          dx, dy, 0,
          0, (void*)win_disp);
    }
@@ -342,16 +339,16 @@ void _al_win_mouse_handle_wheel(int z, bool abs, ALLEGRO_DISPLAY_WIN *win_disp)
       return;
 
    if (!abs) {
-      mouse_state.z += z;
+      ms_win.mouse_state.z += z;
       d = z;
    }
    else {
-      d = z - mouse_state.z;
-      mouse_state.z = z;
+      d = z - ms_win.mouse_state.z;
+      ms_win.mouse_state.z = z;
    }
 
    generate_mouse_event(ALLEGRO_EVENT_MOUSE_AXES,
-      mouse_state.x, mouse_state.y, mouse_state.z,
+      ms_win.mouse_state.x, ms_win.mouse_state.y, ms_win.mouse_state.z,
       0, 0, d,
       0, (void*)win_disp);
 }
@@ -367,21 +364,21 @@ void _al_win_mouse_handle_button(int button, bool down, int x, int y, bool abs,
       return;
 
    if (!abs) {
-      mouse_state.x += x;
-      mouse_state.y += y;
+      ms_win.mouse_state.x += x;
+      ms_win.mouse_state.y += y;
    }
    else {
-      mouse_state.x = x;
-      mouse_state.y = y;
+      ms_win.mouse_state.x = x;
+      ms_win.mouse_state.y = y;
    }
 
    if (down)
-      mouse_state.buttons |= (1 << (button-1));
+      ms_win.mouse_state.buttons |= (1 << (button-1));
    else
-      mouse_state.buttons &= ~(1 << (button-1));
+      ms_win.mouse_state.buttons &= ~(1 << (button-1));
 
    generate_mouse_event(type,
-   mouse_state.x, mouse_state.y, mouse_state.z,
+   ms_win.mouse_state.x, ms_win.mouse_state.y, ms_win.mouse_state.z,
    0, 0, 0,
    button, (void*)win_disp);
 }

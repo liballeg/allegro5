@@ -20,6 +20,7 @@
 #define WINVER 0x0501
 #endif
 #include <windows.h>
+#include <windowsx.h>
 
 #include <allegro5/allegro5.h>
 #include <process.h>
@@ -401,38 +402,54 @@ static LRESULT CALLBACK window_callback(HWND hWnd, UINT message,
       }
       case WM_LBUTTONDOWN:
       case WM_LBUTTONUP: {
-         int mx = LOWORD(lParam);
-         int my = HIWORD(lParam);
+         int mx = GET_X_LPARAM(lParam);
+         int my = GET_Y_LPARAM(lParam);
          bool down = (message == WM_LBUTTONDOWN);
          _al_win_mouse_handle_button(1, down, mx, my, true, win_display);
+         if (down)
+            SetCapture(hWnd);
+         else
+            ReleaseCapture();
          break;
       }
       case WM_MBUTTONDOWN:
       case WM_MBUTTONUP: {
-         int mx = LOWORD(lParam);
-         int my = HIWORD(lParam);
+         int mx = GET_X_LPARAM(lParam);
+         int my = GET_Y_LPARAM(lParam);
          bool down = (message == WM_MBUTTONDOWN);
          _al_win_mouse_handle_button(3, down, mx, my, true, win_display);
+         if (down)
+            SetCapture(hWnd);
+         else
+            ReleaseCapture();
          break;
       }
       case WM_RBUTTONDOWN:
       case WM_RBUTTONUP: {
-         int mx = LOWORD(lParam);
-         int my = HIWORD(lParam);
+         int mx = GET_X_LPARAM(lParam);
+         int my = GET_Y_LPARAM(lParam);
          bool down = (message == WM_RBUTTONDOWN);
          _al_win_mouse_handle_button(2, down, mx, my, true, win_display);
+         if (down)
+            SetCapture(hWnd);
+         else
+            ReleaseCapture();
          break;
       }
       case WM_XBUTTONDOWN:
       case WM_XBUTTONUP: {
-         int mx = LOWORD(lParam);
-         int my = HIWORD(lParam);
+         int mx = GET_X_LPARAM(lParam);
+         int my = GET_Y_LPARAM(lParam);
          int button = HIWORD(wParam);
          bool down = (message == WM_XBUTTONDOWN);
          if (button == XBUTTON1)
             _al_win_mouse_handle_button(4, down, mx, my, true, win_display);
-         else if (button == XBUTTON1)
+         else if (button == XBUTTON2)
             _al_win_mouse_handle_button(5, down, mx, my, true, win_display);
+         if (down)
+            SetCapture(hWnd);
+         else
+            ReleaseCapture();
          return TRUE;
       }
       case WM_MOUSEWHEEL: {
@@ -442,29 +459,43 @@ static LRESULT CALLBACK window_callback(HWND hWnd, UINT message,
       }
       case WM_MOUSEMOVE: {
          TRACKMOUSEEVENT tme;
-         int mx = LOWORD(lParam);
-         int my = HIWORD(lParam);
-         _al_win_mouse_handle_move(mx, my, true, win_display);
-
-         tme.cbSize = sizeof(tme);
-         tme.dwFlags = TME_QUERY;
-         if (TrackMouseEvent(&tme) && !tme.hwndTrack) {
-            tme.dwFlags = TME_LEAVE;
-            tme.hwndTrack = hWnd;
-            tme.dwHoverTime = 0;
-            TrackMouseEvent(&tme);
-            _al_win_mouse_handle_enter(win_display);
-         }
+         int mx = GET_X_LPARAM(lParam);
+         int my = GET_Y_LPARAM(lParam);
 
          if (win_display->mouse_cursor_shown && we_hid_the_mouse) {
             we_hid_the_mouse = false;
             win_display->display.vt->hide_mouse_cursor((void*)win_display);
          }
 
+         _al_win_mouse_handle_move(mx, my, true, win_display);
+         if (mx >= 0 && my >= 0 && mx < d->w && my < d->h) {
+            tme.cbSize = sizeof(tme);
+            tme.dwFlags = TME_QUERY;
+            if (TrackMouseEvent(&tme) && !tme.hwndTrack) {
+               tme.dwFlags = TME_LEAVE;
+               tme.hwndTrack = hWnd;
+               tme.dwHoverTime = 0;
+               TrackMouseEvent(&tme);
+               _al_win_mouse_handle_enter(win_display);
+            }
+         }
+
          break;
       }
       case WM_MOUSELEAVE: {
-         _al_win_mouse_handle_leave(win_display);
+          _al_win_mouse_handle_leave(win_display);
+          break;
+      }
+      case WM_CAPTURECHANGED: {
+         int i;
+         ALLEGRO_MOUSE_STATE state;
+         if (!lParam || (HWND)lParam == hWnd)
+            break;
+         al_get_mouse_state(&state);
+         for (i = 1; i <= 5; i++) {
+            if (al_mouse_button_down(&state, i))
+               _al_win_mouse_handle_button(i, 0, 0, 0, true, win_display);
+         }
          break;
       }
       case WM_NCMOUSEMOVE: {
