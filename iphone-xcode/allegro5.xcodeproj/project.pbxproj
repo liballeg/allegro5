@@ -259,6 +259,7 @@
 		964F0A10113AF06900F3987C /* OpenGLES.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 64F820AC103B259500D0F30A /* OpenGLES.framework */; };
 		964F0A11113AF06900F3987C /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 64F820AE103B259500D0F30A /* QuartzCore.framework */; };
 		964F0A12113AF06900F3987C /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 64F820B0103B259500D0F30A /* UIKit.framework */; };
+		9656CDF3115709E400208C45 /* ttf.c in Sources */ = {isa = PBXBuildFile; fileRef = 64FACD7C10305B1E004E35A1 /* ttf.c */; };
 		9665C55910E97752001C8024 /* point_soft.c in Sources */ = {isa = PBXBuildFile; fileRef = 9665C55810E97752001C8024 /* point_soft.c */; };
 		96A1EC55103B31620021FA43 /* ogg.c in Sources */ = {isa = PBXBuildFile; fileRef = 64FACD1F10305B1E004E35A1 /* ogg.c */; };
 		96A1ED08103B36900021FA43 /* acodec.c in Sources */ = {isa = PBXBuildFile; fileRef = 64FACD2110305B1E004E35A1 /* acodec.c */; };
@@ -876,6 +877,7 @@
 		964F0905113AEF4C00F3987C /* OpenGLES.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGLES.framework; path = System/Library/Frameworks/OpenGLES.framework; sourceTree = SDKROOT; };
 		964F0907113AEF4C00F3987C /* QuartzCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QuartzCore.framework; path = System/Library/Frameworks/QuartzCore.framework; sourceTree = SDKROOT; };
 		964F0909113AEF4C00F3987C /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
+		9656CDEF115709B400208C45 /* liba5_ttf.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = liba5_ttf.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		9665C55810E97752001C8024 /* point_soft.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = point_soft.c; path = ../addons/primitives/point_soft.c; sourceTree = SOURCE_ROOT; };
 		96A1EC10103B30150021FA43 /* liba5_vorbis.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = liba5_vorbis.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		96A1ED04103B36300021FA43 /* liba5_audio.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = liba5_audio.a; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -1023,6 +1025,13 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		9656CDED115709B400208C45 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		96A1EC0E103B30150021FA43 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -1077,6 +1086,7 @@
 				96A1ED04103B36300021FA43 /* liba5_audio.a */,
 				96A1EDCE103B3C980021FA43 /* ex_stream_file.app */,
 				964F08EE113AEEC700F3987C /* ex_prim.app */,
+				9656CDEF115709B400208C45 /* liba5_ttf.a */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -2029,6 +2039,13 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		9656CDEB115709B400208C45 /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		96A1EC0C103B30150021FA43 /* Headers */ = {
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
@@ -2240,6 +2257,23 @@
 			productReference = 964F08EE113AEEC700F3987C /* ex_prim.app */;
 			productType = "com.apple.product-type.application";
 		};
+		9656CDEE115709B400208C45 /* a5_ttf */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 9656CDF2115709D300208C45 /* Build configuration list for PBXNativeTarget "a5_ttf" */;
+			buildPhases = (
+				9656CDEB115709B400208C45 /* Headers */,
+				9656CDEC115709B400208C45 /* Sources */,
+				9656CDED115709B400208C45 /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = a5_ttf;
+			productName = a5_ttf;
+			productReference = 9656CDEF115709B400208C45 /* liba5_ttf.a */;
+			productType = "com.apple.product-type.library.static";
+		};
 		96A1EC0F103B30150021FA43 /* a5_vorbis */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = 96A1EC15103B30500021FA43 /* Build configuration list for PBXNativeTarget "a5_vorbis" */;
@@ -2319,6 +2353,7 @@
 				96A1ED03103B36300021FA43 /* a5_audio */,
 				96A1EDCD103B3C980021FA43 /* ex_stream_file */,
 				964F08ED113AEEC700F3987C /* ex_prim */,
+				9656CDEE115709B400208C45 /* a5_ttf */,
 			);
 		};
 /* End PBXProject section */
@@ -2515,6 +2550,14 @@
 			buildActionMask = 2147483647;
 			files = (
 				964F08F5113AEF0600F3987C /* ex_prim.c in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		9656CDEC115709B400208C45 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				9656CDF3115709E400208C45 /* ttf.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -3190,6 +3233,36 @@
 			};
 			name = Release;
 		};
+		9656CDF0115709B500208C45 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				COPY_PHASE_STRIP = NO;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				PREBINDING = NO;
+				PRODUCT_NAME = a5_ttf;
+			};
+			name = Debug;
+		};
+		9656CDF1115709B500208C45 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				COPY_PHASE_STRIP = YES;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				GCC_ENABLE_FIX_AND_CONTINUE = NO;
+				HEADER_SEARCH_PATHS = (
+					../addons/font,
+					include,
+					../include,
+				);
+				PREBINDING = NO;
+				PRODUCT_NAME = a5_ttf;
+				ZERO_LINK = NO;
+			};
+			name = Release;
+		};
 		96A1EC11103B30160021FA43 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -3459,6 +3532,15 @@
 			buildConfigurations = (
 				964F08F1113AEEC700F3987C /* Debug */,
 				964F08F2113AEEC700F3987C /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		9656CDF2115709D300208C45 /* Build configuration list for PBXNativeTarget "a5_ttf" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				9656CDF0115709B500208C45 /* Debug */,
+				9656CDF1115709B500208C45 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
