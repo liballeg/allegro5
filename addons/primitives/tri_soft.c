@@ -841,7 +841,7 @@ void _al_triangle_2d(ALLEGRO_BITMAP* texture, ALLEGRO_VERTEX* v1, ALLEGRO_VERTEX
 {
    int shade = 1;
    int grad = 1;
-   int op, src_mode, dst_mode;
+   int op, src_mode, dst_mode, op_alpha, src_alpha, dst_alpha;
    ALLEGRO_COLOR ic;
    ALLEGRO_COLOR v1c, v2c, v3c;
    
@@ -849,9 +849,8 @@ void _al_triangle_2d(ALLEGRO_BITMAP* texture, ALLEGRO_VERTEX* v1, ALLEGRO_VERTEX
    v2c = al_get_allegro_color(v2->color);
    v3c = al_get_allegro_color(v3->color);
 
-   al_get_blender(&op, &src_mode, &dst_mode, &ic);
-   if (src_mode == ALLEGRO_ONE && dst_mode == ALLEGRO_ZERO &&
-         ic.r == 1.0f && ic.g == 1.0f && ic.b == 1.0f && ic.a == 1.0f) {
+   al_get_separate_blender(&op, &src_mode, &dst_mode, &op_alpha, &src_alpha, &dst_alpha, &ic);
+   if (_DEST_IS_ZERO && _SRC_NOT_MODIFIED) {
       shade = 0;
    }
    

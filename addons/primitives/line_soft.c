@@ -200,7 +200,7 @@ static void shader_texture_solid_any_draw_opaque(uintptr_t state, int x, int y)
 
    ALLEGRO_COLOR color = al_get_pixel(s->texture, u, v);
    SHADE_COLORS(color, s->color)
-   al_put_pixel(x, y, s->color);
+   al_put_pixel(x, y, color);
 }
 
 static void shader_texture_solid_any_draw_opaque_white(uintptr_t state, int x, int y)
@@ -500,9 +500,7 @@ void _al_line_2d(ALLEGRO_BITMAP* texture, ALLEGRO_VERTEX* v1, ALLEGRO_VERTEX* v2
    v2c = al_get_allegro_color(v2->color);
    
    al_get_separate_blender(&op, &src_mode, &dst_mode, &op_alpha, &src_alpha, &dst_alpha, &ic);
-   if (src_mode == ALLEGRO_ONE && src_alpha == ALLEGRO_ONE &&
-      dst_mode == ALLEGRO_ZERO && dst_alpha == ALLEGRO_ZERO &&
-         ic.r == 1.0f && ic.g == 1.0f && ic.b == 1.0f && ic.a == 1.0f) {
+   if (_DEST_IS_ZERO && _SRC_NOT_MODIFIED) {
       shade = 0;
    }
    
@@ -549,7 +547,7 @@ void _al_line_2d(ALLEGRO_BITMAP* texture, ALLEGRO_VERTEX* v1, ALLEGRO_VERTEX* v2
          if (shade) {
             al_draw_soft_line(v1, v2, (uintptr_t)&state, shader_grad_any_first, shader_grad_any_step, shader_solid_any_draw_shade);
          } else {
-            al_draw_soft_line(v1, v2, (uintptr_t)&state, shader_grad_any_first, shader_grad_any_step, shader_solid_any_draw_shade);
+            al_draw_soft_line(v1, v2, (uintptr_t)&state, shader_grad_any_first, shader_grad_any_step, shader_solid_any_draw_opaque);
          }
       } else {
          state_solid_any_2d state;
