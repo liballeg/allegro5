@@ -27,12 +27,19 @@ typedef struct {
 } float4;
 
 
-void _al_draw_pixel_memory(ALLEGRO_BITMAP *bitmap, int x, int y,
+void _al_draw_pixel_memory(ALLEGRO_BITMAP *bitmap, float x, float y,
    ALLEGRO_COLOR *color)
 {
    ALLEGRO_COLOR result;
-   _al_blend(color, bitmap, x, y, &result);
-   _al_put_pixel(bitmap, x, y, result);
+   int ix, iy;
+   /*
+    * Probably not worth it to check for identity
+    */
+   al_transform_coordinates(al_get_current_transform(), &x, &y);
+   ix = (int)x;
+   iy = (int)y;
+   _al_blend(color, bitmap, ix, iy, &result);
+   _al_put_pixel(bitmap, ix, iy, result);
 }
 
 

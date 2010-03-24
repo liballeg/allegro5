@@ -21,6 +21,7 @@
 #include "allegro5/internal/aintern_bitmap.h"
 
 #include "allegro5/allegro_primitives.h"
+#include "allegro5/internal/aintern.h"
 #include "allegro5/internal/aintern_prim_soft.h"
 #include "allegro5/internal/aintern_prim.h"
 
@@ -517,4 +518,96 @@ int _al_draw_prim_indexed_soft(ALLEGRO_BITMAP* texture, const void* vtxs, const 
    
    return num_primitives;
 #undef SET_VERTEX
+}
+
+static float get_factor(int operation, float alpha)
+{
+   switch(operation) {
+       case ALLEGRO_ZERO: return 0;
+       case ALLEGRO_ONE: return 1;
+       case ALLEGRO_ALPHA: return alpha;
+       case ALLEGRO_INVERSE_ALPHA: return 1 - alpha;
+   }
+   ASSERT(false);
+   return 0; /* silence warning in release build */
+}
+
+// FIXME: Copied directly from Allegro core...
+void _al_prim_draw_pixel(int x, int y, ALLEGRO_COLOR color)
+{
+   float src, dst, asrc, adst;
+   int op, src_, dst_, aop, asrc_, adst_;
+   ALLEGRO_COLOR dcol;
+   ALLEGRO_COLOR bc;
+
+   dcol = al_get_pixel(al_get_target_bitmap(), x, y);
+   al_get_separate_blender(&op, &src_, &dst_, &aop, &asrc_, &adst_, &bc);
+   color.r = color.r * bc.r;
+   color.g = color.g * bc.g;
+   color.b = color.b * bc.b;
+   color.a = color.a * bc.a;
+   src = get_factor(src_, color.a);
+   dst = get_factor(dst_, color.a);
+   asrc = get_factor(asrc_, color.a);
+   adst = get_factor(adst_, color.a);
+
+   // FIXME: Better not do all those checks for each pixel but already
+   // at the caller.
+   // Note: Multiplying NaN or Inf with 0 doesn't give 0.
+   if (dst == 0) {
+      if (src == 0 || op == ALLEGRO_DEST_MINUS_SRC) {
+         color.r = 0;
+         color.g = 0;
+         color.b = 0;
+      }
+      else {
+         color.r = color.r * src;
+         color.g = color.g * src;
+         color.b = color.b * src;
+      }
+   } else if (src == 0) {
+      if (op == ALLEGRO_SRC_MINUS_DEST) {
+         color.r = 0;
+         color.g = 0;
+         color.b = 0;
+      }
+      else {
+         color.r = dcol.r * dst;
+         color.g = dcol.g * dst;
+         color.b = dcol.b * dst;
+      }
+   } else if (op == ALLEGRO_ADD) {
+      color.r = _ALLEGRO_MIN(1, color.r * src + dcol.r * dst);
+      color.g = _ALLEGRO_MIN(1, color.g * src + dcol.g * dst);
+      color.b = _ALLEGRO_MIN(1, color.b * src + dcol.b * dst);
+   }
+   else if (op == ALLEGRO_SRC_MINUS_DEST) {
+      color.r = _ALLEGRO_MAX(0, color.r * src - dcol.r * dst);
+      color.g = _ALLEGRO_MAX(0, color.g * src - dcol.g * dst);
+      color.b = _ALLEGRO_MAX(0, color.b * src - dcol.b * dst);
+   }
+   else if (op == ALLEGRO_DEST_MINUS_SRC) {
+      color.r = _ALLEGRO_MAX(0, dcol.r * dst - color.r * src);
+      color.g = _ALLEGRO_MAX(0, dcol.g * dst - color.g * src);
+      color.b = _ALLEGRO_MAX(0, dcol.b * dst - color.b * src);
+   }
+
+   if (adst == 0)
+      if (asrc == 0 || aop == ALLEGRO_DEST_MINUS_SRC)
+         color.a = 0;
+      else
+         color.a = color.a * asrc;
+   else if (asrc == 0)
+      if (aop == ALLEGRO_SRC_MINUS_DEST)
+         color.a = 0;
+      else
+         color.a = dcol.a * adst;
+   else if (aop == ALLEGRO_ADD)
+      color.a = _ALLEGRO_MIN(1, color.a * asrc + dcol.a * adst);
+   else if (aop == ALLEGRO_SRC_MINUS_DEST)
+      color.a = _ALLEGRO_MAX(0, color.a * asrc - dcol.a * adst);
+   else if (aop == ALLEGRO_DEST_MINUS_SRC)
+      color.a = _ALLEGRO_MAX(0, dcol.a * adst - color.a * asrc);
+      
+   al_put_pixel(x, y, color);
 }

@@ -41,7 +41,7 @@ static void shader_solid_any_draw_shade(uintptr_t state, int x1, int y, int x2)
    int x;
 
    for (x = x1; x <= x2; x++) {
-      al_draw_pixel(x, y - 1, s->cur_color);
+      _al_prim_draw_pixel(x, y - 1, s->cur_color);
    }
 }
 
@@ -141,7 +141,7 @@ static void shader_grad_any_draw_shade(uintptr_t state, int x1, int y, int x2)
       TODO: This y - 1 bit bothers me, why would I need this?
       Either _al_put_pixel, or al_draw_bitmap are shifted by 1 relative to OpenGL
       */
-      al_draw_pixel(x, y - 1, color);
+      _al_prim_draw_pixel(x, y - 1, color);
       
       color.r += s->color_dx.r;
       color.g += s->color_dx.g;
@@ -288,7 +288,7 @@ static void shader_texture_solid_any_draw_shade(uintptr_t state, int x1, int y, 
    for (x = x1; x <= x2; x++) {
       color = al_get_pixel(s->texture, fix_var(u, s->w), fix_var(v, s->h));
       SHADE_COLORS(color, s->cur_color)
-      al_draw_pixel(x, y - 1, color);
+      _al_prim_draw_pixel(x, y - 1, color);
       
       u += s->du_dx;
       v += s->dv_dx;
@@ -305,7 +305,7 @@ static void shader_texture_solid_any_draw_shade_white(uintptr_t state, int x1, i
    
    for (x = x1; x <= x2; x++) {
       color = al_get_pixel(s->texture, fix_var(u, s->w), fix_var(v, s->h));
-      al_draw_pixel(x, y - 1, color);
+      _al_prim_draw_pixel(x, y - 1, color);
       
       u += s->du_dx;
       v += s->dv_dx;
@@ -428,7 +428,7 @@ static void shader_texture_grad_any_draw_shade(uintptr_t state, int x1, int y, i
    for (x = x1; x <= x2; x++) {
       color = al_get_pixel(s->solid.texture, fix_var(u, s->solid.w), fix_var(v, s->solid.h));
       SHADE_COLORS(color, cur_color)
-      al_draw_pixel(x, y - 1, color);
+      _al_prim_draw_pixel(x, y - 1, color);
       
       u += s->solid.du_dx;
       v += s->solid.dv_dx;

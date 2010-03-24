@@ -38,7 +38,7 @@ typedef struct {
 static void shader_solid_any_draw_shade(uintptr_t state, int x, int y)
 {
    state_solid_any_2d* s = (state_solid_any_2d*)state;
-   al_draw_pixel(x, y, s->color);
+   _al_prim_draw_pixel(x, y, s->color);
 }
 
 static void shader_solid_any_draw_opaque(uintptr_t state, int x, int y)
@@ -182,7 +182,7 @@ static void shader_texture_solid_any_draw_shade(uintptr_t state, int x, int y)
 
    ALLEGRO_COLOR color = al_get_pixel(s->texture, u, v);
    SHADE_COLORS(color, s->color)
-   al_draw_pixel(x, y, color);
+   _al_prim_draw_pixel(x, y, color);
 }
 
 static void shader_texture_solid_any_draw_shade_white(uintptr_t state, int x, int y)
@@ -190,7 +190,7 @@ static void shader_texture_solid_any_draw_shade_white(uintptr_t state, int x, in
    state_texture_solid_any_2d* s = (state_texture_solid_any_2d*)state;
    FIX_UV
 
-   al_draw_pixel(x, y, al_get_pixel(s->texture, u, v));
+   _al_prim_draw_pixel(x, y, al_get_pixel(s->texture, u, v));
 }
 
 static void shader_texture_solid_any_draw_opaque(uintptr_t state, int x, int y)
