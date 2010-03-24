@@ -114,6 +114,7 @@ int main(int argc, const char *argv[])
             al_draw_bitmap_region(bitmap, w / 4, h / 4, w / 2, h / 2, 0, h, ALLEGRO_FLIP_VERTICAL);
             al_draw_rotated_scaled_bitmap(bitmap, w / 2, h / 2, w + w / 2, h + h / 2, 0.7, 0.7, 0.3, 0);
             al_draw_pixel(w + w / 2, h + h / 2, al_map_rgb_f(0, 1, 0));
+            al_put_pixel(w + w / 2 + 2, h + h / 2 + 2, al_map_rgb_f(0, 1, 1));
 
             al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ZERO, al_map_rgba_f(1, 1, 1, 1));
             if(software) {
