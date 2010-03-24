@@ -278,6 +278,26 @@ static void postpone_thread_proc(void *arg)
 }
 
 
+static void handle_mouse_capture(bool down, HWND hWnd)
+{
+   int i;
+   bool any_button_down = false;
+   ALLEGRO_MOUSE_STATE state;
+
+   al_get_mouse_state(&state);
+   for (i = 1; i <= 5; i++) {
+      any_button_down |= al_mouse_button_down(&state, i);
+   }
+
+   if (down && GetCapture() != hWnd) {
+      SetCapture(hWnd);
+   }
+   else if (!any_button_down) {
+      ReleaseCapture();
+   }
+}
+
+
 static void postpone_resize(HWND window)
 {
    /* _beginthread closes the handle automatically. */
@@ -406,10 +426,7 @@ static LRESULT CALLBACK window_callback(HWND hWnd, UINT message,
          int my = GET_Y_LPARAM(lParam);
          bool down = (message == WM_LBUTTONDOWN);
          _al_win_mouse_handle_button(1, down, mx, my, true, win_display);
-         if (down)
-            SetCapture(hWnd);
-         else
-            ReleaseCapture();
+         handle_mouse_capture(down, hWnd);
          break;
       }
       case WM_MBUTTONDOWN:
@@ -418,10 +435,7 @@ static LRESULT CALLBACK window_callback(HWND hWnd, UINT message,
          int my = GET_Y_LPARAM(lParam);
          bool down = (message == WM_MBUTTONDOWN);
          _al_win_mouse_handle_button(3, down, mx, my, true, win_display);
-         if (down)
-            SetCapture(hWnd);
-         else
-            ReleaseCapture();
+         handle_mouse_capture(down, hWnd);
          break;
       }
       case WM_RBUTTONDOWN:
@@ -430,10 +444,7 @@ static LRESULT CALLBACK window_callback(HWND hWnd, UINT message,
          int my = GET_Y_LPARAM(lParam);
          bool down = (message == WM_RBUTTONDOWN);
          _al_win_mouse_handle_button(2, down, mx, my, true, win_display);
-         if (down)
-            SetCapture(hWnd);
-         else
-            ReleaseCapture();
+         handle_mouse_capture(down, hWnd);
          break;
       }
       case WM_XBUTTONDOWN:
@@ -446,10 +457,7 @@ static LRESULT CALLBACK window_callback(HWND hWnd, UINT message,
             _al_win_mouse_handle_button(4, down, mx, my, true, win_display);
          else if (button == XBUTTON2)
             _al_win_mouse_handle_button(5, down, mx, my, true, win_display);
-         if (down)
-            SetCapture(hWnd);
-         else
-            ReleaseCapture();
+         handle_mouse_capture(down, hWnd);
          return TRUE;
       }
       case WM_MOUSEWHEEL: {
