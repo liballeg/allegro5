@@ -35,11 +35,10 @@ static void wait_a_while(void)
             if (event.keyboard.keycode == ALLEGRO_KEY_ESCAPE)
                break;
             else if (event.keyboard.keycode == ALLEGRO_KEY_SPACE) {
-	       al_toggle_display_flag(ALLEGRO_FULLSCREEN_WINDOW,
-	          !(al_get_display_flags() & ALLEGRO_FULLSCREEN_WINDOW));
-	       redraw();
-	    }
-	 }
+               al_toggle_display_flag(ALLEGRO_FULLSCREEN_WINDOW, !(al_get_display_flags() & ALLEGRO_FULLSCREEN_WINDOW));
+               redraw();
+            }
+         }
       }
       /* FIXME: Lazy timing */
       al_rest(0.001);
@@ -88,10 +87,10 @@ int main(void)
       ALLEGRO_EVENT event;
       if (al_get_next_event(display_queue, &event)) {
          if (event.type == ALLEGRO_EVENT_DISPLAY_RESIZE) {
-	 	al_acknowledge_resize(display);
-		acknowledged = true;
-		break;
-	 }
+            al_acknowledge_resize(display);
+            acknowledged = true;
+            break;
+         }
       }
    }
    if (!acknowledged) {
