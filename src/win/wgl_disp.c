@@ -1416,6 +1416,10 @@ static bool wgl_resize_display(ALLEGRO_DISPLAY *d, int width, int height)
 
       d->w = width;
       d->h = height;
+      if (!(d->flags & ALLEGRO_FULLSCREEN_WINDOW)) {
+         win_disp->toggle_w = width;
+         win_disp->toggle_h = height;
+      }
 
       _al_ogl_resize_backbuffer(ogl_disp->ogl_extras->backbuffer, width, height);
 

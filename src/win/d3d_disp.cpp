@@ -2254,6 +2254,11 @@ static bool d3d_resize_display(ALLEGRO_DISPLAY *d, int width, int height)
 
       PostMessage(win_display->window, WM_USER+0, 0, 0);
 
+      if (!(d->flags & ALLEGRO_FULLSCREEN_WINDOW)) {
+         win_display->toggle_w = width;
+         win_display->toggle_h = height;
+      }
+
       /*
        * The clipping rectangle and bitmap size must be
        * changed to match the new size.
