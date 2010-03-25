@@ -1756,8 +1756,8 @@ static ALLEGRO_DISPLAY_D3D *d3d_create_display_helper(int w, int h)
             al_get_monitor_info(adapter, &mi);
             al_display->w = mi.x2 - mi.x1;
             al_display->h = mi.y2 - mi.y1;
-            d3d_display->toggle_w = w;
-            d3d_display->toggle_h = h;
+            win_display->toggle_w = w;
+            win_display->toggle_h = h;
             d3d_display->faux_fullscreen = true;
          }
          else {
@@ -2198,8 +2198,8 @@ static bool d3d_resize_display(ALLEGRO_DISPLAY *d, int width, int height)
 
    if ((d->flags & ALLEGRO_FULLSCREEN_WINDOW) &&
          (full_w != width || full_h != height)) {
-      disp->toggle_w = width;
-      disp->toggle_h = height;
+      win_display->toggle_w = width;
+      win_display->toggle_h = height;
       return true;
    }
 
@@ -2544,57 +2544,6 @@ static void d3d_get_window_position(ALLEGRO_DISPLAY *display, int *x, int *y)
 }
 
 
-static bool d3d_toggle_display_flag(ALLEGRO_DISPLAY *display, int flag, bool onoff)
-{
-   ALLEGRO_DISPLAY_D3D *d3d_display = (ALLEGRO_DISPLAY_D3D *)display;
-   ALLEGRO_DISPLAY_WIN *win_display = (ALLEGRO_DISPLAY_WIN *)display;
-   double timeout;
-
-   switch(flag) {
-      case ALLEGRO_NOFRAME: 
-         _al_win_toggle_window_frame(display,
-            ((ALLEGRO_DISPLAY_WIN *)display)->window,
-            display->w, display->h, onoff);
-         return true;
-      case ALLEGRO_FULLSCREEN_WINDOW:
-         if (onoff == (bool)(display->flags & ALLEGRO_FULLSCREEN_WINDOW))
-            return true;
-         d3d_toggle_display_flag(display, ALLEGRO_NOFRAME, !onoff);
-         if (onoff) {
-            ALLEGRO_MONITOR_INFO mi;
-            int adapter = al_get_current_video_adapter();
-            if (adapter == -1)
-                  adapter = 0;
-            al_get_monitor_info(adapter, &mi);
-            display->flags |= ALLEGRO_FULLSCREEN_WINDOW;
-            display->w = mi.x2 - mi.x1;
-            display->h = mi.y2 - mi.y1;
-         }
-         else {
-            display->flags &= ~ALLEGRO_FULLSCREEN_WINDOW;
-            display->w = d3d_display->toggle_w;
-            display->h = d3d_display->toggle_h;
-         }
-         al_resize_display(display->w, display->h);
-         timeout = al_current_time() + 3; // 3 seconds...
-         while (al_current_time() < timeout) {
-            if (win_display->can_acknowledge) {
-               al_acknowledge_resize(display);
-               break;
-            }
-         }
-         if (onoff) {
-            al_set_window_position(display, 0, 0);
-            // Pop it to the front
-            // FIXME: HOW?!
-         }
-         /* FIXME: else center the window? */
-         return true;
-   }
-   return false;
-}
-
-
 static void d3d_shutdown(void)
 {
    if (eds_list) {
@@ -2708,7 +2657,7 @@ ALLEGRO_DISPLAY_INTERFACE *_al_display_d3d_driver(void)
    vt->set_icon = _al_win_set_display_icon;
    vt->set_window_position = d3d_set_window_position;
    vt->get_window_position = d3d_get_window_position;
-   vt->toggle_display_flag = d3d_toggle_display_flag;
+   vt->toggle_display_flag = _al_win_toggle_display_flag;
    vt->set_window_title = _al_win_set_window_title;
    vt->shutdown = d3d_shutdown;
    

@@ -1001,6 +1001,7 @@ static bool create_display_internals(ALLEGRO_DISPLAY_WGL *wgl_disp)
 
    win_disp->mouse_selected_hcursor = 0;
    win_disp->mouse_cursor_shown = false;
+   win_disp->can_acknowledge = false;
 
    _al_win_grab_input(win_disp);
 
@@ -1159,6 +1160,17 @@ static void display_thread_proc(void *arg)
          return;
       }
    }
+   else if (disp->flags & ALLEGRO_FULLSCREEN_WINDOW) {
+      ALLEGRO_MONITOR_INFO mi;
+      int adapter = al_get_current_video_adapter();
+      if (adapter == -1)
+         adapter = 0;
+      al_get_monitor_info(adapter, &mi);
+      win_disp->toggle_w = disp->w;
+      win_disp->toggle_h = disp->h;
+      disp->w = mi.x2 - mi.x1;
+      disp->h = mi.y2 - mi.y1;
+   }
 
    win_disp->window = _al_win_create_window(disp, disp->w, disp->h, disp->flags);
 
@@ -1179,6 +1191,10 @@ static void display_thread_proc(void *arg)
       SetWindowPos(win_disp->window, 0, rect.left, rect.top,
              rect.right - rect.left, rect.bottom - rect.top,
              SWP_NOZORDER | SWP_FRAMECHANGED);
+   }
+   
+   if (disp->flags & ALLEGRO_FULLSCREEN_WINDOW) {
+      _al_win_toggle_window_frame(disp, win_disp->window, disp->w, disp->h, false);
    }
 
    /* Yep, the following is really needed sometimes. */
@@ -1319,6 +1335,22 @@ static bool wgl_resize_display(ALLEGRO_DISPLAY *d, int width, int height)
    ALLEGRO_DISPLAY_WGL *wgl_disp = (ALLEGRO_DISPLAY_WGL *)d;
    ALLEGRO_DISPLAY *ogl_disp = (ALLEGRO_DISPLAY *)d;
    ALLEGRO_DISPLAY_WIN *win_disp = (ALLEGRO_DISPLAY_WIN *)d;
+   int full_w, full_h;
+   ALLEGRO_MONITOR_INFO mi;
+   int adapter = al_get_current_video_adapter();
+   if (adapter == -1)
+         adapter = 0;
+   al_get_monitor_info(adapter, &mi);
+   full_w = mi.x2 - mi.x1;
+   full_h = mi.y2 - mi.y1;
+
+   if ((d->flags & ALLEGRO_FULLSCREEN_WINDOW) && (full_w != width || full_h != height)) {
+      win_disp->toggle_w = width;
+      win_disp->toggle_h = height;
+      return true;
+   }
+
+   win_disp->can_acknowledge = false;
 
    if (d->flags & ALLEGRO_FULLSCREEN) {
       ALLEGRO_BITMAP *target_bmp;
@@ -1379,6 +1411,8 @@ static bool wgl_resize_display(ALLEGRO_DISPLAY *d, int width, int height)
          win_size.bottom - win_size.top,
          SWP_NOMOVE|SWP_NOZORDER))
             return false;
+
+      PostMessage(win_disp->window, WM_USER+0, 0, 0);
 
       d->w = width;
       d->h = height;
@@ -1460,19 +1494,6 @@ static void wgl_get_window_position(ALLEGRO_DISPLAY *display, int *x, int *y)
 }
 
 
-static bool wgl_toggle_display_flag(ALLEGRO_DISPLAY *display, int flag, bool onoff)
-{
-   switch(flag) {
-      case ALLEGRO_NOFRAME: 
-         _al_win_toggle_window_frame(display,
-            ((ALLEGRO_DISPLAY_WIN *)display)->window,
-            display->w, display->h, onoff);
-         return true;
-   }
-   return false;
-}
-
-
 /* Obtain a reference to this driver. */
 ALLEGRO_DISPLAY_INTERFACE *_al_display_wgl_driver(void)
 {
@@ -1509,7 +1530,7 @@ ALLEGRO_DISPLAY_INTERFACE *_al_display_wgl_driver(void)
    vt->set_icon = _al_win_set_display_icon;
    vt->set_window_position = wgl_set_window_position;
    vt->get_window_position = wgl_get_window_position;
-   vt->toggle_display_flag = wgl_toggle_display_flag;
+   vt->toggle_display_flag = _al_win_toggle_display_flag;
    vt->set_window_title = _al_win_set_window_title;
    _al_ogl_add_drawing_functions(vt);
 

@@ -849,6 +849,60 @@ void _al_win_toggle_window_frame(ALLEGRO_DISPLAY *display, HWND hWnd,
    }
 }
 
+
+bool _al_win_toggle_display_flag(ALLEGRO_DISPLAY *display, int flag, bool onoff)
+{
+   ALLEGRO_DISPLAY_WIN *win_display = (void*)display;
+   double timeout;
+
+   switch(flag) {
+      case ALLEGRO_NOFRAME: 
+         _al_win_toggle_window_frame(display, win_display->window, display->w, display->h, onoff);
+         return true;
+
+      case ALLEGRO_FULLSCREEN_WINDOW:
+         if (onoff == ((display->flags & ALLEGRO_FULLSCREEN_WINDOW) != 0))
+            return true;
+
+         _al_win_toggle_display_flag(display, ALLEGRO_NOFRAME, !onoff);
+
+         if (onoff) {
+            ALLEGRO_MONITOR_INFO mi;
+            int adapter = al_get_current_video_adapter();
+            if (adapter == -1)
+                  adapter = 0;
+            al_get_monitor_info(adapter, &mi);
+            display->flags |= ALLEGRO_FULLSCREEN_WINDOW;
+            display->w = mi.x2 - mi.x1;
+            display->h = mi.y2 - mi.y1;
+         }
+         else {
+            display->flags &= ~ALLEGRO_FULLSCREEN_WINDOW;
+            display->w = win_display->toggle_w;
+            display->h = win_display->toggle_h;
+         }
+
+         al_resize_display(display->w, display->h);
+         timeout = al_current_time() + 3; // 3 seconds...
+         while (al_current_time() < timeout) {
+            if (win_display->can_acknowledge) {
+               al_acknowledge_resize(display);
+               break;
+            }
+         }
+
+         if (onoff) {
+            al_set_window_position(display, 0, 0);
+            // Pop it to the front
+            // FIXME: HOW?!
+         }
+         /* FIXME: else center the window? */
+         return true;
+   }
+   return false;
+}
+
+
 void _al_win_set_window_title(ALLEGRO_DISPLAY *display, const char *title)
 {
    ALLEGRO_DISPLAY_WIN *win_display = (ALLEGRO_DISPLAY_WIN *)display;
