@@ -348,59 +348,6 @@ bool al_wait_for_vsync(void)
 
 
 
-/* Function: al_set_clipping_rectangle
- */
-/* XXX this seems like it belongs in bitmap_new.c */
-void al_set_clipping_rectangle(int x, int y, int width, int height)
-{
-   ALLEGRO_BITMAP *bitmap = al_get_target_bitmap();
-
-   ASSERT(bitmap);
-
-   if (x < 0) {
-      width += x;
-      x = 0;
-   }
-   if (y < 0) {
-      height += y;
-      y = 0;
-   }
-   if (x + width > bitmap->w) {
-      width = bitmap->w - x;
-   }
-   if (y + height > bitmap->h) {
-      height = bitmap->h - y;
-   }
-
-   bitmap->cl = x;
-   bitmap->ct = y;
-   bitmap->cr_excl = x + width;
-   bitmap->cb_excl = y + height;
-
-   if (bitmap->vt && bitmap->vt->update_clipping_rectangle) {
-      bitmap->vt->update_clipping_rectangle(bitmap);
-   }
-}
-
-
-
-/* Function: al_get_clipping_rectangle
- */
-/* XXX this seems like it belongs in bitmap_new.c */
-void al_get_clipping_rectangle(int *x, int *y, int *w, int *h)
-{
-   ALLEGRO_BITMAP *bitmap = al_get_target_bitmap();
-
-   ASSERT(bitmap);
-
-   if (x) *x = bitmap->cl;
-   if (y) *y = bitmap->ct;
-   if (w) *w = bitmap->cr_excl - bitmap->cl;
-   if (h) *h = bitmap->cb_excl - bitmap->ct;
-}
-
-
-
 /* Function: al_set_display_icon
  */
 void al_set_display_icon(ALLEGRO_BITMAP *icon)

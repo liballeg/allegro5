@@ -500,6 +500,57 @@ int al_get_bitmap_flags(ALLEGRO_BITMAP *bitmap)
 
 
 
+/* Function: al_set_clipping_rectangle
+ */
+void al_set_clipping_rectangle(int x, int y, int width, int height)
+{
+   ALLEGRO_BITMAP *bitmap = al_get_target_bitmap();
+
+   ASSERT(bitmap);
+
+   if (x < 0) {
+      width += x;
+      x = 0;
+   }
+   if (y < 0) {
+      height += y;
+      y = 0;
+   }
+   if (x + width > bitmap->w) {
+      width = bitmap->w - x;
+   }
+   if (y + height > bitmap->h) {
+      height = bitmap->h - y;
+   }
+
+   bitmap->cl = x;
+   bitmap->ct = y;
+   bitmap->cr_excl = x + width;
+   bitmap->cb_excl = y + height;
+
+   if (bitmap->vt && bitmap->vt->update_clipping_rectangle) {
+      bitmap->vt->update_clipping_rectangle(bitmap);
+   }
+}
+
+
+
+/* Function: al_get_clipping_rectangle
+ */
+void al_get_clipping_rectangle(int *x, int *y, int *w, int *h)
+{
+   ALLEGRO_BITMAP *bitmap = al_get_target_bitmap();
+
+   ASSERT(bitmap);
+
+   if (x) *x = bitmap->cl;
+   if (y) *y = bitmap->ct;
+   if (w) *w = bitmap->cr_excl - bitmap->cl;
+   if (h) *h = bitmap->cb_excl - bitmap->ct;
+}
+
+
+
 /* Function: al_create_sub_bitmap
  */
 ALLEGRO_BITMAP *al_create_sub_bitmap(ALLEGRO_BITMAP *parent,
