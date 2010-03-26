@@ -32,7 +32,7 @@ Destroy a display.
 
 Gets the current flags used for newly created displays.
 
-See also: [al_set_new_display_flags]
+See also: [al_set_new_display_flags], [al_toggle_display_flag]
 
 ### API: al_get_new_display_refresh_rate
 
@@ -346,12 +346,14 @@ Set the title on a display.
 ### API: al_toggle_display_flag
 
 Enable or disable one of the display flags. The flags are the same
-as for [al_set_new_display_flag]. Note however that some of the flags
+as for [al_set_new_display_flags]. Note however that some of the flags
 cannot be changed after the display has been created.
 
 Returns true if the driver supports toggling the specified flag else
 false. You can use [al_get_display_flags] to query whether the given
 display property actually changed.
+
+See also: [al_set_new_display_flags], [al_get_display_flags]
 
 ### API: al_update_display_region
 
