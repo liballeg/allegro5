@@ -8,14 +8,7 @@
 
 #include "common.c"
 
-/* Define this to test drawing to memory bitmaps.
- * XXX the software line drawer currently doesn't perform clipping properly
- *
- * Once event `display' fields are working we can just open up two windows,
- * one to test drawing to the backbuffer and one to test drawing to a memory
- * buffer.
- */
-/* #define TEST_MEMBMP */
+/* XXX the software line drawer currently doesn't perform clipping properly */
 
 const int W = 640;
 const int H = 480;
@@ -25,9 +18,7 @@ ALLEGRO_EVENT_QUEUE *queue;
 ALLEGRO_COLOR black;
 ALLEGRO_COLOR white;
 ALLEGRO_COLOR background;
-#ifdef TEST_MEMBMP
-   ALLEGRO_BITMAP *memory_bitmap;
-#endif
+ALLEGRO_BITMAP *dbuf;
 
 int last_x = -1;
 int last_y = -1;
@@ -59,13 +50,17 @@ static void reset_clip_rect(void)
    al_set_clipping_rectangle(0, 0, W, H);
 }
 
+static void flip(void)
+{
+   al_set_target_bitmap(al_get_backbuffer());
+   al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ZERO, white);
+   al_draw_bitmap(dbuf, 0.0, 0.0, 0);
+   al_flip_display();
+}
+
 static void plonk(const int x, const int y, bool blend)
 {
-#ifdef TEST_MEMBMP
-   al_set_target_bitmap(memory_bitmap);
-#else
-   al_set_target_bitmap(al_get_backbuffer());
-#endif
+   al_set_target_bitmap(dbuf);
 
    fade();
    al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ZERO, white);
@@ -87,23 +82,14 @@ static void plonk(const int x, const int y, bool blend)
       reset_clip_rect();
    }
 
-#ifdef TEST_MEMBMP
-   al_set_target_bitmap(al_get_backbuffer());
-   al_draw_bitmap(memory_bitmap, 0.0, 0.0, 0);
-#endif
-
-   al_flip_display();
+   flip();
 }
 
 static void splat(const int x, const int y, bool blend)
 {
    double theta;
 
-#ifdef TEST_MEMBMP
-   al_set_target_bitmap(memory_bitmap);
-#else
-   al_set_target_bitmap(al_get_backbuffer());
-#endif
+   al_set_target_bitmap(dbuf);
 
    fade();
    al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ZERO, white);
@@ -120,15 +106,10 @@ static void splat(const int x, const int y, bool blend)
    }
    reset_clip_rect();
 
-#ifdef TEST_MEMBMP
-   al_set_target_bitmap(al_get_backbuffer());
-   al_draw_bitmap(memory_bitmap, 0.0, 0.0, 0);
-#endif
-
-   al_flip_display();
+   flip();
 }
 
-int main(void)
+int main(int argc, const char *argv[])
 {
    ALLEGRO_EVENT event;
    ALLEGRO_KEYBOARD_STATE kst;
@@ -142,7 +123,6 @@ int main(void)
    al_install_keyboard();
    al_install_mouse();
 
-   al_set_new_display_option(ALLEGRO_SINGLE_BUFFER, true, ALLEGRO_SUGGEST);
    display = al_create_display(W, H);
    if (!display) {
       abort_example("Error creating display\n");
@@ -153,21 +133,19 @@ int main(void)
    white = al_map_rgb_f(1.0, 1.0, 1.0);
    background = al_map_rgb_f(0.5, 0.5, 0.6);
 
-#ifdef TEST_MEMBMP
-   al_set_new_bitmap_flags(ALLEGRO_MEMORY_BITMAP);
-   memory_bitmap = al_create_bitmap(W, H);
-   if (!memory_bitmap) {
-      abort_example("Error creating memory bitmap\n");
+   if (argc > 1 && 0 == strcmp(argv[1], "--memory-bitmap")) {
+      al_set_new_bitmap_flags(ALLEGRO_MEMORY_BITMAP);
+   }
+   dbuf = al_create_bitmap(W, H);
+   if (!dbuf) {
+      abort_example("Error creating double buffer\n");
       return 1;
    }
-   al_set_target_bitmap(memory_bitmap);
-   al_clear_to_color(background);
-#endif
 
-   al_set_target_bitmap(al_get_backbuffer());
+   al_set_target_bitmap(dbuf);
    al_clear_to_color(background);
    draw_clip_rect();
-   al_flip_display();
+   flip();
 
    queue = al_create_event_queue();
    al_register_event_source(queue, al_get_keyboard_event_source());
@@ -196,9 +174,7 @@ int main(void)
    }
 
    al_destroy_event_queue(queue);
-#ifdef TEST_MEMBMP
-   al_destroy_bitmap(memory_bitmap);
-#endif
+   al_destroy_bitmap(dbuf);
 
    return 0;
 }
