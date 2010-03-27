@@ -372,6 +372,11 @@ ALLEGRO_BITMAP *al_load_tga_f(ALLEGRO_FILE *f)
             return NULL;
          }
 
+         for (i=0; i<256; i++) {
+            image_palette[i][0] = i;
+            image_palette[i][1] = i;
+            image_palette[i][2] = i;
+         }
          break;
 
       default:
