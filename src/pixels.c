@@ -420,6 +420,12 @@ void _al_put_pixel(ALLEGRO_BITMAP *bitmap, int x, int y, ALLEGRO_COLOR color)
        y += bitmap->yofs;
        bitmap = bitmap->parent;
    }
+   
+   if (x < bitmap->cl || y < bitmap->ct ||
+       x >= bitmap->cr_excl || y >= bitmap->cb_excl)
+   {
+      return;
+   }
 
    if (bitmap->locked) {
       x -= bitmap->lock_x;
@@ -435,12 +441,6 @@ void _al_put_pixel(ALLEGRO_BITMAP *bitmap, int x, int y, ALLEGRO_COLOR color)
       _AL_INLINE_PUT_PIXEL(bitmap->format, data, color, false);
    }
    else {
-      if (x < bitmap->cl || y < bitmap->ct ||
-          x >= bitmap->cr_excl || y >= bitmap->cb_excl)
-      {
-         return;
-      }
-
       lr = al_lock_bitmap_region(bitmap, x, y, 1, 1, bitmap->format, 0);
       if (!lr)
          return;

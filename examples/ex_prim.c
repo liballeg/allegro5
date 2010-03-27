@@ -616,6 +616,7 @@ int main(void)
    int ii;
    int cur_screen = 0;
    bool done = false;
+   int clip = 0;
    ALLEGRO_TIMER *timer;
    ALLEGRO_EVENT_QUEUE *timer_queue;
    int old;
@@ -691,6 +692,12 @@ int main(void)
                         frames_done = 0;
                         break;
                      }
+                     case ALLEGRO_KEY_C: {
+                        clip = !clip;
+                        time_diff = al_current_time();
+                        frames_done = 0;
+                        break;
+                     }
                      case ALLEGRO_KEY_L: {
                         Blend = !Blend;
                         time_diff = al_current_time();
@@ -761,7 +768,13 @@ int main(void)
          al_draw_scaled_bitmap(bkg, 0, 0, al_get_bitmap_width(bkg), al_get_bitmap_height(bkg), 0, 0, ScreenW, ScreenH, 0);
       }
       
+      if (clip == 1) {
+         al_set_clipping_rectangle(ScreenW / 2, ScreenH / 2, ScreenW / 2, ScreenH / 2);
+      }
+      
       Screens[cur_screen](DRAW);
+      
+      al_set_clipping_rectangle(0, 0, ScreenW, ScreenH);
 
       if (Soft == 1) {
          al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ZERO, white);
@@ -777,6 +790,7 @@ int main(void)
       al_draw_textf(Font, 0, 80, 0, "Software (S): %d", Soft);
       al_draw_textf(Font, 0, 100, 0, "Blending (L): %d", Blend);
       al_draw_textf(Font, 0, 120, 0, "Background (B): %d", Background);
+      al_draw_textf(Font, 0, 140, 0, "Clip (C): %d", clip);
 
       al_flip_display();
       frames_done++;
