@@ -238,7 +238,7 @@ ALLEGRO_PIXEL_FORMAT_ANY. Locking in the native format will usually be faster.
 Note:
 
 While a bitmap is locked, you can not use any drawing operations on
-it (with the sole exception of [al_put_pixel] and [al_draw_pixel]).
+it (with the sole exception of [al_put_pixel] and [al_put_blended_pixel]).
 
 See also: [ALLEGRO_LOCKED_REGION], [ALLEGRO_PIXEL_FORMAT],
 [al_unlock_bitmap]
@@ -486,9 +486,9 @@ See also: [al_draw_bitmap], [al_draw_scaled_bitmap],
 ### API: al_draw_pixel
 
 Draws a single pixel at x, y. This function, unlike
-[al_put_pixel], does blending.  This operation is slow on non-memory
-bitmaps. Consider locking the bitmap if you are going to use this function
-multiple times on the same bitmap.
+[al_put_pixel], does blending and, unlike [al_put_blended_pixel], respects the
+transformations. This function can be slow if called often; if you need to draw
+a lot of pixels consider using the primitives addon.
 
 * x - destination x
 * y - destination y
@@ -560,9 +560,17 @@ See also: [al_set_target_bitmap]
 
 Draw a single pixel on the target bitmap. This operation is slow on non-memory
 bitmaps. Consider locking the bitmap if you are going to use this function
-multiple times on the same bitmap.
+multiple times on the same bitmap. This function is not affected by neither the
+transformations nor the color blenders.
 
-See also: [ALLEGRO_COLOR], [al_get_pixel]
+See also: [ALLEGRO_COLOR], [al_get_pixel], [al_put_blended_pixel]
+
+### API: al_put_blended_pixel
+
+Like [al_put_pixel], but the pixel color is blended using the current blenders
+before being drawn. 
+
+See also: [ALLEGRO_COLOR], [al_put_pixel]
 
 ### API: al_set_target_bitmap
 
@@ -599,7 +607,7 @@ The above allows using al_put_pixel on a locked bitmap without creating an FBO.
 In this example an FBO is created however:
 
     al_set_target_bitmap(bitmap);
-    al_draw_line(x1, y1, x2, y2, color);
+    al_draw_line(x1, y1, x2, y2, color, 0);
 
 And an OpenGL command will be used to directly draw the line into the bitmap's
 associated texture.

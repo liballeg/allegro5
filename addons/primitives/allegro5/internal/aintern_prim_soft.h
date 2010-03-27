@@ -11,8 +11,6 @@ void _al_line_2d(ALLEGRO_BITMAP* texture, ALLEGRO_VERTEX* v1, ALLEGRO_VERTEX* v2
 void _al_triangle_2d(ALLEGRO_BITMAP* texture, ALLEGRO_VERTEX* v1, ALLEGRO_VERTEX* v2, ALLEGRO_VERTEX* v3);
 void _al_point_2d(ALLEGRO_BITMAP* texture, ALLEGRO_VERTEX* v);
 
-void _al_prim_draw_pixel(int x, int y, ALLEGRO_COLOR color);
-
 #define _DEST_IS_ZERO \
    dst_mode == ALLEGRO_ZERO &&  dst_alpha == ALLEGRO_ZERO && \
    op != ALLEGRO_DEST_MINUS_SRC && op_alpha != ALLEGRO_DEST_MINUS_SRC

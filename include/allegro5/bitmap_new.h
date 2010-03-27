@@ -139,6 +139,7 @@ AL_FUNC(ALLEGRO_LOCKED_REGION*, al_lock_bitmap_region, (ALLEGRO_BITMAP *bitmap, 
 AL_FUNC(void, al_unlock_bitmap, (ALLEGRO_BITMAP *bitmap));
 
 AL_FUNC(void, al_put_pixel, (int x, int y, ALLEGRO_COLOR color));
+AL_FUNC(void, al_put_blended_pixel, (int x, int y, ALLEGRO_COLOR color));
 AL_FUNC(ALLEGRO_COLOR, al_get_pixel, (ALLEGRO_BITMAP *bitmap, int x, int y));
 AL_FUNC(int, al_get_pixel_size, (int format));
 

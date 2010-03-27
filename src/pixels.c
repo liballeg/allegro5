@@ -462,6 +462,16 @@ void al_put_pixel(int x, int y, ALLEGRO_COLOR color)
    _al_put_pixel(al_get_target_bitmap(), x, y, color);
 }
 
+/* Function: al_put_blended_pixel
+ */
+void al_put_blended_pixel(int x, int y, ALLEGRO_COLOR color)
+{
+   ALLEGRO_COLOR result;
+   ALLEGRO_BITMAP* bitmap = al_get_target_bitmap();
+   _al_blend(&color, bitmap, x, y, &result);
+   _al_put_pixel(bitmap, x, y, result);
+}
+
 
 /* unmapping functions */
 

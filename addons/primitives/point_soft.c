@@ -59,14 +59,14 @@ void _al_point_2d(ALLEGRO_BITMAP* texture, ALLEGRO_VERTEX* v)
       }
 
       if (shade) {
-         _al_prim_draw_pixel(v->x, v->y, color);
+         al_put_blended_pixel(v->x, v->y, color);
       } else {
          al_put_pixel(v->x, v->y, color);
       }
    } else {
       ALLEGRO_COLOR color = al_map_rgba_f(vc.r, vc.g, vc.b, vc.a);
       if (shade) {
-         _al_prim_draw_pixel(v->x, v->y, color);
+         al_put_blended_pixel(v->x, v->y, color);
       } else {
          al_put_pixel(v->x, v->y, color);
       }
