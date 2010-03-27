@@ -10,7 +10,7 @@ int main(int argc, const char *argv[])
 {
     const char *filename;
     ALLEGRO_DISPLAY *display;
-    ALLEGRO_BITMAP *buffer, *bitmap;
+    ALLEGRO_BITMAP *buffer, *bitmap, *subbitmap, *buffer_subbitmap;
     ALLEGRO_TIMER *timer;
     ALLEGRO_EVENT_QUEUE *queue;
     ALLEGRO_TRANSFORM transform;
@@ -18,6 +18,7 @@ int main(int argc, const char *argv[])
     bool software = false;
     bool redraw = false;
     bool blend = false;
+    bool use_subbitmap = false;
     int w, h;
     ALLEGRO_FONT* font;
 
@@ -44,6 +45,8 @@ int main(int argc, const char *argv[])
        abort_example("Error creating display\n");
     }
     
+    subbitmap = al_create_sub_bitmap(al_get_backbuffer(), 50, 50, 640 - 50, 480 - 50);
+    
     al_set_window_title(filename);
 
     bitmap = al_load_bitmap(filename);
@@ -52,6 +55,7 @@ int main(int argc, const char *argv[])
     }
     al_set_new_bitmap_flags(ALLEGRO_MEMORY_BITMAP);
     buffer = al_create_bitmap(640, 480);
+    buffer_subbitmap = al_create_sub_bitmap(buffer, 50, 50, 640 - 50, 480 - 50);
     al_set_new_bitmap_flags(ALLEGRO_VIDEO_BITMAP);
     
     font = al_load_font("data/bmpfont.tga", 0, 0);
@@ -81,6 +85,8 @@ int main(int argc, const char *argv[])
                software = !software;
             } else if (event.keyboard.keycode == ALLEGRO_KEY_L) {
                blend = !blend;
+            } else if (event.keyboard.keycode == ALLEGRO_KEY_B) {
+               use_subbitmap = !use_subbitmap;
             } else if (event.keyboard.keycode == ALLEGRO_KEY_ESCAPE) {
                break;
             }
@@ -103,10 +109,25 @@ int main(int argc, const char *argv[])
             al_rotate_transform(&transform, t / 50);
             al_translate_transform(&transform, 640 / 2, 480 / 2);
             
-            al_use_transform(&transform);
+            if(software) {
+               if(use_subbitmap) {
+                  al_set_target_bitmap(buffer);
+                  al_clear_to_color(al_map_rgb_f(1, 0, 0));
+                  al_set_target_bitmap(buffer_subbitmap);
+               } else {
+                  al_set_target_bitmap(buffer);
+               }
+            } else {
+               if(use_subbitmap) {
+                  al_set_target_bitmap(al_get_backbuffer());
+                  al_clear_to_color(al_map_rgb_f(1, 0, 0));
+                  al_set_target_bitmap(subbitmap);
+               } else {
+                  al_set_target_bitmap(al_get_backbuffer());
+               }
+            }
             
-            if(software)
-               al_set_target_bitmap(buffer);
+            al_use_transform(&transform);
 
             al_clear_to_color(al_map_rgb_f(0, 0, 0));
             al_draw_bitmap(bitmap, 0, 0, 0);
