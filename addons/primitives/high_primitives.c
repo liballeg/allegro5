@@ -106,6 +106,8 @@ void al_draw_line(float x1, float y1, float x2, float y2,
       
       vtx[0].color = prim_color;
       vtx[1].color = prim_color;
+      vtx[0].z = 0;
+      vtx[1].z = 0;
       
       al_draw_prim(vtx, 0, 0, 0, 2, ALLEGRO_PRIM_LINE_LIST);
    }
