@@ -52,7 +52,6 @@ static unsigned int xmouse_get_mouse_num_buttons(void);
 static unsigned int xmouse_get_mouse_num_axes(void);
 static bool xmouse_set_mouse_xy(int x, int y);
 static bool xmouse_set_mouse_axis(int which, int z);
-static bool xmouse_set_mouse_range(int x1, int y1, int x2, int y2);
 static void xmouse_get_state(ALLEGRO_MOUSE_STATE *ret_state);
 
 static void wheel_motion_handler(int dz, ALLEGRO_DISPLAY *display);
@@ -82,7 +81,6 @@ static ALLEGRO_MOUSE_DRIVER mousedrv_xwin =
    xmouse_get_mouse_num_axes,
    xmouse_set_mouse_xy,
    xmouse_set_mouse_axis,
-   xmouse_set_mouse_range,
    xmouse_get_state
 };
 
@@ -254,19 +252,6 @@ static bool xmouse_set_mouse_axis(int which, int z)
    return true;
 }
 
-
-
-/* xmouse_set_mouse_range:
- */
-static bool xmouse_set_mouse_range(int x1, int y1, int x2, int y2)
-{
-   // TODO
-   (void)x1;
-   (void)y1;
-   (void)x2;
-   (void)y2;
-   return false;
-}
 
 
 

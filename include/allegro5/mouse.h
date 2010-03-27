@@ -97,7 +97,6 @@ AL_FUNC(bool,           al_set_mouse_xy,        (int x, int y));
 AL_FUNC(bool,           al_set_mouse_z,         (int z));
 AL_FUNC(bool,           al_set_mouse_w,         (int w));
 AL_FUNC(bool,           al_set_mouse_axis,      (int axis, int value));
-AL_FUNC(bool,           al_set_mouse_range,     (int x1, int y1, int x2, int y2));
 AL_FUNC(void,           al_get_mouse_state,     (ALLEGRO_MOUSE_STATE *ret_state));
 AL_FUNC(bool,           al_mouse_button_down,   (ALLEGRO_MOUSE_STATE *state, int button));
 AL_FUNC(int,            al_get_mouse_state_axis, (ALLEGRO_MOUSE_STATE *state, int axis));

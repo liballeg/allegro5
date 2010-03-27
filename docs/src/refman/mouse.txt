@@ -79,7 +79,7 @@ ALLEGRO_EVENT_MOUSE_WARPED event.
 
 Returns true on success, false on failure.
 
-See also: [al_set_mouse_z], [al_set_mouse_w], [al_set_mouse_range]
+See also: [al_set_mouse_z], [al_set_mouse_w]
 
 ## API: al_set_mouse_z
 
@@ -96,15 +96,6 @@ Set the second mouse wheel position to the given value.
 Returns true on success, false on failure.
 
 See also: [al_set_mouse_z]
-
-## API: al_set_mouse_range
-
-Sets the area of the screen within which the mouse can move.
-The coordinates are inclusive. (XXX: change this?)
-
-Returns true on success, false on failure.
-
-See also: [al_set_mouse_xy]
 
 ## API: al_get_mouse_event_source
 

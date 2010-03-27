@@ -200,18 +200,6 @@ bool al_set_mouse_axis(int which, int value)
 
 
 
-/* Function: al_set_mouse_range
- */
-bool al_set_mouse_range(int x1, int y1, int x2, int y2)
-{
-   ASSERT(new_mouse_driver);
-   ASSERT(new_mouse_driver->set_mouse_range);
-
-   return new_mouse_driver->set_mouse_range(x1, y1, x2, y2);
-}
-
-
-
 /* Function: al_get_mouse_state
  */
 void al_get_mouse_state(ALLEGRO_MOUSE_STATE *ret_state)

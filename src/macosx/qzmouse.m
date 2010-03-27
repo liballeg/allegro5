@@ -382,7 +382,6 @@ static ALLEGRO_MOUSE_DRIVER osx_mouse_driver =
    osx_get_mouse_num_axes, //AL_METHOD(unsigned int, get_mouse_num_axes, (void));
    osx_set_mouse_xy, //AL_METHOD(bool, set_mouse_xy, (int x, int y));
    osx_set_mouse_axis, //AL_METHOD(bool, set_mouse_axis, (int which, int value));
-   NULL, //AL_METHOD(bool, set_mouse_range, (int x1, int y1, int x2, int y2));
    osx_get_mouse_state, //AL_METHOD(void, get_mouse_state, (ALLEGRO_MOUSE_STATE *ret_state));
 };
 ALLEGRO_MOUSE_DRIVER* _al_osx_get_mouse_driver(void)
