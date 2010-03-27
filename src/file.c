@@ -140,12 +140,12 @@ int al_fputc(ALLEGRO_FILE *f, int c)
  */
 int16_t al_fread16le(ALLEGRO_FILE *f)
 {
-   int b1, b2;
+   unsigned char b[2];
    ASSERT(f);
 
-   if ((b1 = al_fgetc(f)) != EOF)
-      if ((b2 = al_fgetc(f)) != EOF)
-         return ((b2 << 8) | b1);
+   if (al_fread(f, b, 2) == 2) {
+      return (((int16_t)b[1] << 8) | (int16_t)b[0]);
+   }
 
    return EOF;
 }
@@ -155,18 +155,12 @@ int16_t al_fread16le(ALLEGRO_FILE *f)
  */
 int32_t al_fread32le(ALLEGRO_FILE *f)
 {
-   int b1, b2, b3, b4;
+   unsigned char b[4];
    ASSERT(f);
 
-   if ((b1 = al_fgetc(f)) != EOF) {
-      if ((b2 = al_fgetc(f)) != EOF) {
-         if ((b3 = al_fgetc(f)) != EOF) {
-            if ((b4 = al_fgetc(f)) != EOF) {
-               return (((int32_t)b4 << 24) | ((int32_t)b3 << 16) |
-                       ((int32_t)b2 << 8) | (int32_t)b1);
-            }
-         }
-      }
+   if (al_fread(f, b, 4) == 4) {
+      return (((int32_t)b[3] << 24) | ((int32_t)b[2] << 16) |
+              ((int32_t)b[1] << 8) | (int32_t)b[0]);
    }
 
    return EOF;
@@ -225,12 +219,12 @@ size_t al_fwrite32le(ALLEGRO_FILE *f, int32_t l)
  */
 int16_t al_fread16be(ALLEGRO_FILE *f)
 {
-   int b1, b2;
+   unsigned char b[2];
    ASSERT(f);
 
-   if ((b1 = al_fgetc(f)) != EOF)
-      if ((b2 = al_fgetc(f)) != EOF)
-         return ((b1 << 8) | b2);
+   if (al_fread(f, b, 2) == 2) {
+      return (((int16_t)b[0] << 8) | (int16_t)b[1]);
+   }
 
    return EOF;
 }
@@ -240,18 +234,12 @@ int16_t al_fread16be(ALLEGRO_FILE *f)
  */
 int32_t al_fread32be(ALLEGRO_FILE *f)
 {
-   int b1, b2, b3, b4;
+   unsigned char b[4];
    ASSERT(f);
 
-   if ((b1 = al_fgetc(f)) != EOF) {
-      if ((b2 = al_fgetc(f)) != EOF) {
-         if ((b3 = al_fgetc(f)) != EOF) {
-            if ((b4 = al_fgetc(f)) != EOF) {
-               return (((int32_t)b1 << 24) | ((int32_t)b2 << 16) |
-                       ((int32_t)b3 << 8) | (int32_t)b4);
-            }
-         }
-      }
+   if (al_fread(f, b, 4) == 4) {
+      return (((int32_t)b[0] << 24) | ((int32_t)b[1] << 16) |
+              ((int32_t)b[2] << 8) | (int32_t)b[3]);
    }
 
    return EOF;
