@@ -72,23 +72,9 @@ static void rle_tga_read8(unsigned char *b, int w, ALLEGRO_FILE *f)
 /* single_tga_read32:
  *  Helper for reading a single 32-bit data from TGA files.
  */
-static INLINE int single_tga_read32(ALLEGRO_FILE *f)
+static INLINE int32_t single_tga_read32(ALLEGRO_FILE *f)
 {
-   PalEntry value;
-   int alpha;
-
-   value.b = al_fgetc(f);
-   value.g = al_fgetc(f);
-   value.r = al_fgetc(f);
-   alpha = al_fgetc(f);
-
-#ifdef ALLEGRO_LITTLE_ENDIAN
-   return (alpha << 24) | (value.r << 16) | (value.g << 8) | value.b;
-#elif defined ALLEGRO_BIG_ENDIAN
-   return (value.b << 24) | (value.g << 16) | (value.r << 8) | alpha;
-#else
-#error "Endianesse not defined!"
-#endif
+   return al_fread32le(f);
 }
 
 
@@ -136,21 +122,9 @@ static void rle_tga_read32(unsigned int *b, int w, ALLEGRO_FILE *f)
 /* single_tga_read24:
  *  Helper for reading a single 24-bit data from TGA files.
  */
-static INLINE int single_tga_read24(ALLEGRO_FILE *f)
+static INLINE void single_tga_read24(ALLEGRO_FILE *f, unsigned char color[3])
 {
-   PalEntry value;
-
-   value.b = al_fgetc(f);
-   value.g = al_fgetc(f);
-   value.r = al_fgetc(f);
-
-#ifdef ALLEGRO_LITTLE_ENDIAN
-   return (value.r << 16) | (value.g << 8) | value.b;
-#elif defined ALLEGRO_BIG_ENDIAN
-   return (value.b << 16) | (value.g << 8) | value.r;
-#else
-#error "Endianesse not defined!"
-#endif
+   al_fread(f, color, 3);
 }
 
 
@@ -160,11 +134,8 @@ static INLINE int single_tga_read24(ALLEGRO_FILE *f)
  */
 static unsigned char *raw_tga_read24(unsigned char *b, int w, ALLEGRO_FILE *f)
 {
-   int color;
-
    while (w--) {
-      color = single_tga_read24(f);
-      WRITE3BYTES(b, color);
+      single_tga_read24(f, b);
       b += 3;
    }
 
@@ -178,7 +149,8 @@ static unsigned char *raw_tga_read24(unsigned char *b, int w, ALLEGRO_FILE *f)
  */
 static void rle_tga_read24(unsigned char *b, int w, ALLEGRO_FILE *f)
 {
-   int color, count, c = 0;
+   int count, c = 0;
+   unsigned char color[3];
 
    do {
       count = al_fgetc(f);
@@ -186,9 +158,11 @@ static void rle_tga_read24(unsigned char *b, int w, ALLEGRO_FILE *f)
          /* run-length packet */
          count = (count & 0x7F) + 1;
          c += count;
-         color = single_tga_read24(f);
+         single_tga_read24(f, color);
          while (count--) {
-            WRITE3BYTES(b, color);
+            b[0] = color[0];
+            b[1] = color[1];
+            b[2] = color[2];
             b += 3;
          }
       }
@@ -208,11 +182,7 @@ static void rle_tga_read24(unsigned char *b, int w, ALLEGRO_FILE *f)
  */
 static INLINE int single_tga_read16(ALLEGRO_FILE *f)
 {
-   int value;
-
-   value = al_fread16le(f);
-
-   return value;
+   return al_fread16le(f);
 }
 
 
@@ -278,7 +248,6 @@ ALLEGRO_BITMAP *al_load_tga_f(ALLEGRO_FILE *f)
    int compressed;
    ALLEGRO_BITMAP *bmp;
    ALLEGRO_LOCKED_REGION *lr;
-   ALLEGRO_STATE backup;
    unsigned char *buf;
    ASSERT(f);
 
@@ -390,11 +359,18 @@ ALLEGRO_BITMAP *al_load_tga_f(ALLEGRO_FILE *f)
 
    al_set_errno(0);
 
-   lr = al_lock_bitmap(bmp, ALLEGRO_PIXEL_FORMAT_ANY, ALLEGRO_LOCK_WRITEONLY);
-   buf = malloc(image_width * ((bpp + 1 / 8)));
+   lr = al_lock_bitmap(bmp, ALLEGRO_PIXEL_FORMAT_ABGR_8888_LE, ALLEGRO_LOCK_WRITEONLY);
+   if (!lr) {
+      al_destroy_bitmap(bmp);
+      return NULL;
+   }
 
-   al_store_state(&backup, ALLEGRO_STATE_TARGET_BITMAP);
-   al_set_target_bitmap(bmp);
+   buf = malloc(image_width * ((bpp + 1 / 8)));
+   if (!buf) {
+      al_unlock_bitmap(bmp);
+      al_destroy_bitmap(bmp);
+      return NULL;
+   }
 
    for (y = 0; y < image_height; y++) {
       int true_y = (top_to_bottom) ? y : (image_height - 1 - y);
@@ -411,10 +387,12 @@ ALLEGRO_BITMAP *al_load_tga_f(ALLEGRO_FILE *f)
             for (i = 0; i < image_width; i++) {
                int true_x = (left_to_right) ? i : (image_width - 1 - i);
                int pix = buf[i];
-               ALLEGRO_COLOR color = al_map_rgb(image_palette[pix][2],
-                                                image_palette[pix][1],
-                                                image_palette[pix][0]);
-               al_put_pixel(true_x, true_y, color);
+
+               unsigned char *dest = lr->data + lr->pitch*true_y + true_x*4;
+               dest[0] = image_palette[pix][2];
+               dest[1] = image_palette[pix][1];
+               dest[2] = image_palette[pix][0];
+               dest[3] = 255;
             }
 
             break;
@@ -432,8 +410,12 @@ ALLEGRO_BITMAP *al_load_tga_f(ALLEGRO_FILE *f)
                   int g = buf[i * 4 + 1];
                   int r = buf[i * 4 + 2];
                   int a = buf[i * 4 + 3];
-                  ALLEGRO_COLOR color = al_map_rgba(r, g, b, a);
-                  al_put_pixel(true_x, true_y, color);
+
+                  unsigned char *dest = lr->data + lr->pitch*true_y + true_x*4;
+                  dest[0] = r;
+                  dest[1] = g;
+                  dest[2] = b;
+                  dest[3] = a;
                }
             }
             else if (bpp == 24) {
@@ -446,8 +428,12 @@ ALLEGRO_BITMAP *al_load_tga_f(ALLEGRO_FILE *f)
                   int b = buf[i * 3 + 0];
                   int g = buf[i * 3 + 1];
                   int r = buf[i * 3 + 2];
-                  ALLEGRO_COLOR color = al_map_rgb(r, g, b);
-                  al_put_pixel(true_x, true_y, color);
+
+                  unsigned char *dest = lr->data + lr->pitch*true_y + true_x*4;
+                  dest[0] = r;
+                  dest[1] = g;
+                  dest[2] = b;
+                  dest[3] = 255;
                }
             }
             else {
@@ -461,8 +447,12 @@ ALLEGRO_BITMAP *al_load_tga_f(ALLEGRO_FILE *f)
                   int r = _al_rgb_scale_5[(pix >> 10)];
                   int g = _al_rgb_scale_5[(pix >> 5) & 0x1F];
                   int b = _al_rgb_scale_5[(pix & 0x1F)];
-                  ALLEGRO_COLOR color = al_map_rgb(r, g, b);
-                  al_put_pixel(true_x, true_y, color);
+
+                  unsigned char *dest = lr->data + lr->pitch*true_y + true_x*4;
+                  dest[0] = r;
+                  dest[1] = g;
+                  dest[2] = b;
+                  dest[3] = 255;
                }
             }
             break;
@@ -471,7 +461,6 @@ ALLEGRO_BITMAP *al_load_tga_f(ALLEGRO_FILE *f)
 
    free(buf);
    al_unlock_bitmap(bmp);
-   al_restore_state(&backup);
 
    if (al_get_errno()) {
       al_destroy_bitmap(bmp);
@@ -574,3 +563,6 @@ bool al_save_tga(const char *filename, ALLEGRO_BITMAP *bmp)
 
    return ret;
 }
+
+
+/* vim: set sts=3 sw=3 et: */

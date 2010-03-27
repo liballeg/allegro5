@@ -15,7 +15,6 @@ ALLEGRO_BITMAP *al_load_pcx_f(ALLEGRO_FILE *f)
    int x, xx, y;
    char ch;
    ALLEGRO_LOCKED_REGION *lr;
-   ALLEGRO_STATE backup;
    unsigned char *buf;
    PalEntry pal[256];
    ASSERT(f);
@@ -74,9 +73,11 @@ ALLEGRO_BITMAP *al_load_pcx_f(ALLEGRO_FILE *f)
       buf = (unsigned char *)malloc(bytes_per_line * 3);
    }
 
-   al_store_state(&backup, ALLEGRO_STATE_TARGET_BITMAP);
-   al_set_target_bitmap(b);
-   lr = al_lock_bitmap(b, ALLEGRO_PIXEL_FORMAT_ANY, ALLEGRO_LOCK_WRITEONLY);
+   lr = al_lock_bitmap(b, ALLEGRO_PIXEL_FORMAT_ABGR_8888_LE, ALLEGRO_LOCK_WRITEONLY);
+   if (!lr) {
+      free(buf);
+      return NULL;
+   }
 
    xx = 0;                      /* index into buf, only for bpp = 8 */
 
@@ -110,13 +111,12 @@ ALLEGRO_BITMAP *al_load_pcx_f(ALLEGRO_FILE *f)
          }
       }
       if (bpp == 24) {
-         int i;
-         for (i = 0; i < width; i++) {
-            int r = buf[i];
-            int g = buf[i + width];
-            int b = buf[i + width * 2];
-            ALLEGRO_COLOR color = al_map_rgb(r, g, b);
-            al_put_pixel(i, y, color);
+         char *dest = lr->data + y*lr->pitch;
+         for (x = 0; x < width; x++) {
+            dest[x*4    ] = buf[x];
+            dest[x*4 + 1] = buf[x + width];
+            dest[x*4 + 2] = buf[x + width * 2];
+            dest[x*4 + 3] = 255;
          }
       }
    }
@@ -133,17 +133,17 @@ ALLEGRO_BITMAP *al_load_pcx_f(ALLEGRO_FILE *f)
          }
       }
       for (y = 0; y < height; y++) {
+         char *dest = lr->data + y*lr->pitch;
          for (x = 0; x < width; x++) {
             int index = buf[y * width + x];
-            ALLEGRO_COLOR color = al_map_rgb(pal[index].r,
-                                             pal[index].g,
-                                             pal[index].b);
-            al_put_pixel(x, y, color);
+            dest[x*4    ] = pal[index].r;
+            dest[x*4 + 1] = pal[index].g;
+            dest[x*4 + 2] = pal[index].b;
+            dest[x*4 + 3] = 255;
          }
       }
    }
 
-   al_restore_state(&backup);
    al_unlock_bitmap(b);
 
    free(buf);
