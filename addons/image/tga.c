@@ -388,7 +388,7 @@ ALLEGRO_BITMAP *al_load_tga_f(ALLEGRO_FILE *f)
                int true_x = (left_to_right) ? i : (image_width - 1 - i);
                int pix = buf[i];
 
-               unsigned char *dest = lr->data + lr->pitch*true_y + true_x*4;
+               unsigned char *dest = (char*)lr->data + lr->pitch*true_y + true_x*4;
                dest[0] = image_palette[pix][2];
                dest[1] = image_palette[pix][1];
                dest[2] = image_palette[pix][0];
@@ -411,7 +411,7 @@ ALLEGRO_BITMAP *al_load_tga_f(ALLEGRO_FILE *f)
                   int r = buf[i * 4 + 2];
                   int a = buf[i * 4 + 3];
 
-                  unsigned char *dest = lr->data + lr->pitch*true_y + true_x*4;
+                  unsigned char *dest = (char*)lr->data + lr->pitch*true_y + true_x*4;
                   dest[0] = r;
                   dest[1] = g;
                   dest[2] = b;
@@ -429,7 +429,7 @@ ALLEGRO_BITMAP *al_load_tga_f(ALLEGRO_FILE *f)
                   int g = buf[i * 3 + 1];
                   int r = buf[i * 3 + 2];
 
-                  unsigned char *dest = lr->data + lr->pitch*true_y + true_x*4;
+                  unsigned char *dest = (char*)lr->data + lr->pitch*true_y + true_x*4;
                   dest[0] = r;
                   dest[1] = g;
                   dest[2] = b;
@@ -448,7 +448,7 @@ ALLEGRO_BITMAP *al_load_tga_f(ALLEGRO_FILE *f)
                   int g = _al_rgb_scale_5[(pix >> 5) & 0x1F];
                   int b = _al_rgb_scale_5[(pix & 0x1F)];
 
-                  unsigned char *dest = lr->data + lr->pitch*true_y + true_x*4;
+                  unsigned char *dest = (char*)lr->data + lr->pitch*true_y + true_x*4;
                   dest[0] = r;
                   dest[1] = g;
                   dest[2] = b;

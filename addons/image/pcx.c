@@ -111,7 +111,7 @@ ALLEGRO_BITMAP *al_load_pcx_f(ALLEGRO_FILE *f)
          }
       }
       if (bpp == 24) {
-         char *dest = lr->data + y*lr->pitch;
+         char *dest = (char*)lr->data + y*lr->pitch;
          for (x = 0; x < width; x++) {
             dest[x*4    ] = buf[x];
             dest[x*4 + 1] = buf[x + width];
@@ -133,7 +133,7 @@ ALLEGRO_BITMAP *al_load_pcx_f(ALLEGRO_FILE *f)
          }
       }
       for (y = 0; y < height; y++) {
-         char *dest = lr->data + y*lr->pitch;
+         char *dest = (char*)lr->data + y*lr->pitch;
          for (x = 0; x < width; x++) {
             int index = buf[y * width + x];
             dest[x*4    ] = pal[index].r;
