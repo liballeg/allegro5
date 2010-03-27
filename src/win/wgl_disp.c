@@ -988,17 +988,6 @@ static bool create_display_internals(ALLEGRO_DISPLAY_WGL *wgl_disp)
       return false;
    }
  
-   win_disp->mouse_range_x1 = 0;
-   win_disp->mouse_range_y1 = 0;
-   win_disp->mouse_range_x2 = disp->w;
-   win_disp->mouse_range_y2 = disp->h;
-   /* XXX: These calls use the current display (which is not set to this
-           display yet). Mouse routines semantics have to be sorted out first.
-   if (al_is_mouse_installed()) {
-      al_set_mouse_xy(disp->w/2, disp->h/2);
-      al_set_mouse_range(0, 0, disp->w, disp->h);
-   }*/
-
    win_disp->mouse_selected_hcursor = 0;
    win_disp->mouse_cursor_shown = false;
    win_disp->can_acknowledge = false;
@@ -1444,10 +1433,6 @@ static bool wgl_acknowledge_resize(ALLEGRO_DISPLAY *d)
 
    d->w = w;
    d->h = h;
-   win_disp->mouse_range_x1 = 0;
-   win_disp->mouse_range_y1 = 0;
-   win_disp->mouse_range_x2 = w;
-   win_disp->mouse_range_y2 = h;
 
    _al_ogl_resize_backbuffer(ogl_disp->ogl_extras->backbuffer, w, h);
 

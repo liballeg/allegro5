@@ -48,10 +48,6 @@ struct ALLEGRO_DISPLAY_WIN
    ALLEGRO_DISPLAY display;
 
    HWND window;
-   int mouse_range_x1;
-   int mouse_range_y1;
-   int mouse_range_x2;
-   int mouse_range_y2;
    HCURSOR mouse_selected_hcursor;
    bool mouse_cursor_shown;
 

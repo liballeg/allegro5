@@ -1906,10 +1906,6 @@ static ALLEGRO_DISPLAY *d3d_create_display(int w, int h)
    d3d_display->es_inited = true;
 
    /* Setup the mouse */
-   win_display->mouse_range_x1 = 0;
-   win_display->mouse_range_y1 = 0;
-   win_display->mouse_range_x2 = al_display->w;
-   win_display->mouse_range_y2 = al_display->h;
    if (al_display->flags & ALLEGRO_FULLSCREEN && al_is_mouse_installed()) {
       RAWINPUTDEVICE rid[1];
       rid[0].usUsagePage = 0x01; 
@@ -2317,10 +2313,6 @@ static bool d3d_acknowledge_resize(ALLEGRO_DISPLAY *d)
    old = al_get_current_display();
    al_set_current_display(d);
    al_set_clipping_rectangle(0, 0, d->w, d->h);
-   win_display->mouse_range_x1 = 0;
-   win_display->mouse_range_y1 = 0;
-   win_display->mouse_range_x2 = d->w;
-   win_display->mouse_range_y2 = d->h;
    al_set_current_display(old);
 
    return disp->reset_success;
