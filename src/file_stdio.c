@@ -120,14 +120,23 @@ static void file_stdio_fclose(ALLEGRO_FILE *f)
 
 static size_t file_stdio_fread(ALLEGRO_FILE *f, void *ptr, size_t size)
 {
-   size_t ret;
-
-   ret = fread(ptr, 1, size, get_fp(f));
-   if (ret < size) {
-      al_set_errno(errno);
+   if (size == 1) {
+      /* Optimise common case. */
+      int c = fgetc(get_fp(f));
+      if (c == EOF) {
+         al_set_errno(errno);
+         return 0;
+      }
+      *((char *)ptr) = (char)c;
+      return 1;
    }
-
-   return ret;
+   else {
+      size_t ret = fread(ptr, 1, size, get_fp(f));
+      if (ret < size) {
+         al_set_errno(errno);
+      }
+      return ret;
+   }
 }
 
 
