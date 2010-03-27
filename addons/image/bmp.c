@@ -278,9 +278,9 @@ static void read_16bit_line(int length, ALLEGRO_FILE *f, int line)
       w = al_fread16le(f);
 
       /* the format is like a 15-bpp bitmap, not 16bpp */
-      c.r = (w >> 10) & 0x1f;
-      c.g = (w >> 5) & 0x1f;
-      c.b = w & 0x1f;
+      c.r = _al_rgb_scale_5[(w >> 10) & 0x1f];
+      c.g = _al_rgb_scale_5[(w >> 5) & 0x1f];
+      c.b = _al_rgb_scale_5[w & 0x1f];
 
       al_put_pixel(i, line, al_map_rgb(c.r, c.g, c.b));
    }
