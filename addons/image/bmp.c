@@ -269,20 +269,24 @@ static void read_8bit_line(int length, ALLEGRO_FILE *f, unsigned char *buf)
  *  Support function for reading the 16 bit bitmap file format, doing
  *  our best to convert it down to a 256 color palette.
  */
-static void read_16bit_line(int length, ALLEGRO_FILE *f, int line)
+static void read_16bit_line(int length, ALLEGRO_FILE *f, unsigned char *data)
 {
    int i, w;
-   PalEntry c;
+   unsigned char r, g, b;
 
    for (i = 0; i < length; i++) {
       w = al_fread16le(f);
 
       /* the format is like a 15-bpp bitmap, not 16bpp */
-      c.r = _al_rgb_scale_5[(w >> 10) & 0x1f];
-      c.g = _al_rgb_scale_5[(w >> 5) & 0x1f];
-      c.b = _al_rgb_scale_5[w & 0x1f];
+      r = _al_rgb_scale_5[(w >> 10) & 0x1f];
+      g = _al_rgb_scale_5[(w >> 5) & 0x1f];
+      b = _al_rgb_scale_5[w & 0x1f];
 
-      al_put_pixel(i, line, al_map_rgb(c.r, c.g, c.b));
+      data[0] = r;
+      data[1] = g;
+      data[2] = b;
+      data[3] = 255;
+      data += 4;
    }
 
    /* padding */
@@ -296,19 +300,25 @@ static void read_16bit_line(int length, ALLEGRO_FILE *f, int line)
 
 
 /* read_24bit_line:
- *  Support function for reading the 24 bit bitmap file format, doing
- *  our best to convert it down to a 256 color palette.
+ *  Support function for reading the 24 bit bitmap file format.
  */
-static void read_24bit_line(int length, ALLEGRO_FILE *f, int line)
+static void read_24bit_line(int length, ALLEGRO_FILE *f, unsigned char *data)
 {
    int i;
-   PalEntry c;
+   unsigned char c[3];
+   unsigned char r, g, b;
 
    for (i = 0; i < length; i++) {
-      c.b = al_fgetc(f);
-      c.g = al_fgetc(f);
-      c.r = al_fgetc(f);
-      al_put_pixel(i, line, al_map_rgb(c.r, c.g, c.b));
+      al_fread(f, c, 3);
+      r = c[2];
+      g = c[1];
+      b = c[0];
+
+      data[0] = r;
+      data[1] = g;
+      data[2] = b;
+      data[3] = 255;
+      data += 4;
    }
 
    /* padding */
@@ -325,17 +335,24 @@ static void read_24bit_line(int length, ALLEGRO_FILE *f, int line)
  *  Support function for reading the 32 bit bitmap file format, doing
  *  our best to convert it down to a 256 color palette.
  */
-static void read_32bit_line(int length, ALLEGRO_FILE *f, int line)
+static void read_32bit_line(int length, ALLEGRO_FILE *f, unsigned char *data)
 {
    int i;
-   PalEntry c;
+   unsigned char c[4];
+   unsigned char r, g, b, a;
 
    for (i = 0; i < length; i++) {
-      c.b = al_fgetc(f);
-      c.g = al_fgetc(f);
-      c.r = al_fgetc(f);
-      c.a = al_fgetc(f);
-      al_put_pixel(i, line, al_map_rgba(c.r, c.g, c.b, c.a));
+      al_fread(f, c, 4);
+      r = c[2];
+      g = c[1];
+      b = c[0];
+      a = c[3];
+
+      data[0] = r;
+      data[1] = g;
+      data[2] = b;
+      data[3] = a;
+      data += 4;
    }
 }
 
@@ -344,13 +361,13 @@ static void read_32bit_line(int length, ALLEGRO_FILE *f, int line)
 /* read_bitfields_image:
  *  For reading the bitfield compressed BMP image format.
  */
-static void read_bitfields_image(ALLEGRO_FILE *f, const BMPINFOHEADER *infoheader, int bpp)
+static void read_bitfields_image(ALLEGRO_FILE *f, const BMPINFOHEADER *infoheader, int bpp,
+   ALLEGRO_LOCKED_REGION *lr)
 {
    int k, i, line, height, dir;
    int bytes_per_pixel;
    unsigned long buffer;
    int pix;
-   ALLEGRO_COLOR color;
 
    height = infoheader->biHeight;
    line = height < 0 ? 0 : height - 1;
@@ -361,6 +378,8 @@ static void read_bitfields_image(ALLEGRO_FILE *f, const BMPINFOHEADER *infoheade
    bytes_per_pixel = (bpp + 1) / 8;
 
    for (i = 0; i < height; i++, line += dir) {
+      unsigned char *data = (unsigned char *)lr->data + lr->pitch * line;
+
       for (k = 0; k < (int)infoheader->biWidth; k++) {
 
          al_fread(f, &buffer, bytes_per_pixel);
@@ -375,10 +394,11 @@ static void read_bitfields_image(ALLEGRO_FILE *f, const BMPINFOHEADER *infoheade
             pix = ALLEGRO_CONVERT_XRGB_8888_TO_ARGB_8888(buffer);
          }
 
-         color = al_map_rgb((pix >> 16) & 0xFF,
-                            (pix >> 8) & 0xFF, (pix & 0xFF));
-
-         al_put_pixel(k, line, color);
+         data[2] = pix & 255;
+         data[1] = (pix >> 8) & 255;
+         data[0] = (pix >> 16) & 255;
+         data[3] = (pix >> 24) & 255;
+         data += 4;
       }
 
       /* padding */
@@ -395,10 +415,12 @@ static void read_bitfields_image(ALLEGRO_FILE *f, const BMPINFOHEADER *infoheade
  *  For reading the noncompressed BMP image format.
  */
 static void read_image(ALLEGRO_FILE *f,
-                       const BMPINFOHEADER *infoheader, PalEntry *pal)
+                       const BMPINFOHEADER *infoheader, PalEntry *pal,
+                       ALLEGRO_LOCKED_REGION *lr)
 {
    int i, j, line, height, dir;
    unsigned char *buf;
+   unsigned char *data;
 
    height = infoheader->biHeight;
    line = height < 0 ? 0 : height - 1;
@@ -408,6 +430,8 @@ static void read_image(ALLEGRO_FILE *f,
    buf = malloc(infoheader->biWidth);
 
    for (i = 0; i < height; i++, line += dir) {
+      data = (unsigned char *)lr->data + lr->pitch * line;
+
       switch (infoheader->biBitCount) {
 
          case 1:
@@ -423,23 +447,24 @@ static void read_image(ALLEGRO_FILE *f,
             break;
 
          case 16:
-            read_16bit_line(infoheader->biWidth, f, line);
+            read_16bit_line(infoheader->biWidth, f, data);
             break;
 
          case 24:
-            read_24bit_line(infoheader->biWidth, f, line);
+            read_24bit_line(infoheader->biWidth, f, data);
             break;
 
          case 32:
-            read_32bit_line(infoheader->biWidth, f, line);
+            read_32bit_line(infoheader->biWidth, f, data);
             break;
       }
       if (infoheader->biBitCount <= 8) {
          for (j = 0; j < (int)infoheader->biWidth; j++) {
-            ALLEGRO_COLOR color = al_map_rgb(pal[buf[j]].r,
-                                             pal[buf[j]].g,
-                                             pal[buf[j]].b);
-            al_put_pixel(j, line, color);
+            data[0] = pal[buf[j]].r;
+            data[1] = pal[buf[j]].g;
+            data[2] = pal[buf[j]].b;
+            data[3] = 255;
+            data += 4;
          }
       }
    }
@@ -625,7 +650,6 @@ ALLEGRO_BITMAP *al_load_bmp_f(ALLEGRO_FILE *f)
    unsigned long biSize;
    unsigned char *buf = NULL;
    ALLEGRO_LOCKED_REGION *lr;
-   ALLEGRO_STATE backup;
    int bpp;
    ASSERT(f);
 
@@ -689,9 +713,12 @@ ALLEGRO_BITMAP *al_load_bmp_f(ALLEGRO_FILE *f)
       return NULL;
    }
 
-   al_store_state(&backup, ALLEGRO_STATE_TARGET_BITMAP);
-   al_set_target_bitmap(bmp);
-   lr = al_lock_bitmap(bmp, ALLEGRO_PIXEL_FORMAT_ANY, ALLEGRO_LOCK_WRITEONLY);
+   lr = al_lock_bitmap(bmp, ALLEGRO_PIXEL_FORMAT_ABGR_8888_LE,
+      ALLEGRO_LOCK_WRITEONLY);
+   if (!lr) {
+      al_destroy_bitmap(bmp);
+      return NULL;
+   }
 
    if (infoheader.biCompression == BIT_RLE8
        || infoheader.biCompression == BIT_RLE4) {
@@ -701,7 +728,7 @@ ALLEGRO_BITMAP *al_load_bmp_f(ALLEGRO_FILE *f)
    switch (infoheader.biCompression) {
 
       case BIT_RGB:
-         read_image(f, &infoheader, pal);
+         read_image(f, &infoheader, pal, lr);
          break;
 
       case BIT_RLE8:
@@ -713,31 +740,37 @@ ALLEGRO_BITMAP *al_load_bmp_f(ALLEGRO_FILE *f)
          break;
 
       case BIT_BITFIELDS:
-         read_bitfields_image(f, &infoheader, bpp);
+         read_bitfields_image(f, &infoheader, bpp, lr);
          break;
 
       default:
+         al_unlock_bitmap(bmp);
          al_destroy_bitmap(bmp);
          bmp = NULL;
+         break;
    }
 
    if (infoheader.biCompression == BIT_RLE8
        || infoheader.biCompression == BIT_RLE4) {
       int x, y;
+      unsigned char *data;
+
       for (y = 0; y < infoheader.biHeight; y++) {
+         data = (unsigned char *)lr->data + lr->pitch * y;
          for (x = 0; x < (int)infoheader.biWidth; x++) {
-            ALLEGRO_COLOR color =
-                al_map_rgb(pal[buf[y * infoheader.biWidth + x]].r,
-                           pal[buf[y * infoheader.biWidth + x]].g,
-                           pal[buf[y * infoheader.biWidth + x]].b);
-            al_put_pixel(x, y, color);
+            data[0] = pal[buf[y * infoheader.biWidth + x]].r;
+            data[1] = pal[buf[y * infoheader.biWidth + x]].g;
+            data[2] = pal[buf[y * infoheader.biWidth + x]].b;
+            data[3] = 255;
+            data += 4;
          }
       }
       free(buf);
    }
 
-   al_restore_state(&backup);
-   al_unlock_bitmap(bmp);
+   if (bmp) {
+      al_unlock_bitmap(bmp);
+   }
 
    return bmp;
 }
