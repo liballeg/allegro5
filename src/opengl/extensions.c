@@ -762,9 +762,15 @@ void _al_ogl_manage_extensions(ALLEGRO_DISPLAY *gl_disp)
    ALLEGRO_INFO("Use of non-power-of-two textures %s.\n",
       ext_list->ALLEGRO_GL_ARB_texture_non_power_of_two ? "enabled" :
       "disabled");
+#ifdef ALLEGRO_IPHONE
+   ALLEGRO_INFO("Use of FBO to draw to textures %s.\n",
+      ext_list->ALLEGRO_GL_OES_framebuffer_object ? "enabled" :
+      "disabled");
+#else
    ALLEGRO_INFO("Use of FBO to draw to textures %s.\n",
       ext_list->ALLEGRO_GL_EXT_framebuffer_object ? "enabled" :
       "disabled");
+#endif
 }
 
 
