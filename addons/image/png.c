@@ -166,7 +166,7 @@ static ALLEGRO_BITMAP *really_load_png(png_structp png_ptr, png_infop info_ptr)
       if (png_get_PLTE(png_ptr, info_ptr, &palette, &num_palette)) {
          /* We don't actually dither, we just copy the palette. */
          for (i = 0; ((i < num_palette) && (i < 256)); i++) {
-            pal[i].r = palette[i].red;  /* 256 -> 64 */
+            pal[i].r = palette[i].red;
             pal[i].g = palette[i].green;
             pal[i].b = palette[i].blue;
          }
