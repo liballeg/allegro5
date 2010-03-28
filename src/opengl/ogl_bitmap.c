@@ -658,7 +658,6 @@ static ALLEGRO_LOCKED_REGION *ogl_lock_region(ALLEGRO_BITMAP *bitmap,
    GLint gl_y = bitmap->h - y - h;
    GLenum e;
 
-
    if (format == ALLEGRO_PIXEL_FORMAT_ANY)
       format = bitmap->format;
 
@@ -795,13 +794,17 @@ static void ogl_unlock_region(ALLEGRO_BITMAP *bitmap)
    ALLEGRO_DISPLAY *old_disp = NULL;
    GLenum e;
    GLint gl_y = bitmap->h - bitmap->lock_y - bitmap->lock_h;
+   int orig_format;
+   int pixel_size;
    (void)e;
+
+   orig_format = _al_get_real_pixel_format(bitmap->format);
+   pixel_size = al_get_pixel_size(orig_format);
 
    if (bitmap->lock_flags & ALLEGRO_LOCK_READONLY) {
       _AL_FREE(ogl_bitmap->lock_buffer);
       return;
    }
-//#endif
 
    if (bitmap->display->ogl_extras->is_shared == false &&
        bitmap->display != al_get_current_display()) {
@@ -889,24 +892,25 @@ static void ogl_unlock_region(ALLEGRO_BITMAP *bitmap)
    else {
       glBindTexture(GL_TEXTURE_2D, ogl_bitmap->texture);
       if (bitmap->lock_flags & ALLEGRO_LOCK_WRITEONLY) {
-         int fake_pitch = round_to_unpack_alignment(bitmap->w *
-            al_get_pixel_size(bitmap->format));
+         int dst_pitch = bitmap->lock_w*pixel_size;
          _al_convert_bitmap_data(
-            bitmap->locked_region.data, bitmap->locked_region.format,
-            bitmap->locked_region.pitch,
-	    bitmap->memory+fake_pitch*(bitmap->h-1), bitmap->format,
-	    -fake_pitch,
-            0, 0, bitmap->lock_x, bitmap->lock_y,
+            ogl_bitmap->lock_buffer,
+            bitmap->locked_region.format,
+            -bitmap->locked_region.pitch,
+	    bitmap->memory,
+            orig_format,
+            dst_pitch,
+            0, 0, 0, 0,
             bitmap->lock_w, bitmap->lock_h);
          glTexSubImage2D(GL_TEXTURE_2D, 0,
             bitmap->lock_x, gl_y,
             bitmap->lock_w, bitmap->lock_h,
-            glformats[bitmap->format][2],
-            glformats[bitmap->format][1],
+            glformats[orig_format][2],
+            glformats[orig_format][1],
             bitmap->memory);
          e = glGetError();
          if (e) {
-            ALLEGRO_ERROR("glTexImage2D for format %d failed (%s).\n",
+            ALLEGRO_ERROR("glTexSubImage2D for format %d failed (%s).\n",
                format, error_string(e));
          }
       }
