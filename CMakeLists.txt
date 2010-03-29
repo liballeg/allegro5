@@ -379,6 +379,7 @@ endfunction(add_our_module)
 set(PLATFORM_SOURCES)
 set(PLATFORM_LIBS)              # always link with these libraries
 set(PLATFORM_LIBS_NON_MODULES)  # only link with these if modules disabled
+set(PLATFORM_LIBS_MODULES)      # only link with these if modules enabled
 
 # -- Unix --
 
@@ -391,6 +392,12 @@ if(ALLEGRO_UNIX) # not MACOSX
     find_package(Threads)
     if(NOT CMAKE_USE_PTHREADS_INIT)
         message(FATAL_ERROR "Unix port requires pthreads support.")
+    find_library(DLOPEN_LIB dl)
+    mark_as_advanced(DLOPEN_LIB)
+    if(DLOPEN_LIB)
+        list(APPEND PLATFORM_LIBS_MODULES dl)
+    endif()
+
     endif()
     set(ALLEGRO_HAVE_LIBPTHREAD 1)
     list(APPEND PLATFORM_LIBS m ${CMAKE_THREAD_LIBS_INIT})
@@ -495,8 +502,8 @@ if(ALLEGRO_WITH_XWINDOWS)
         "${X11_LIB_SEARCH_PATH}" XDGA_FOUND)
     if(XDGA_FOUND)
         set(ALLEGRO_XWINDOWS_WITH_XF86DGA2 1)
-        list(APPEND PLATFORM_LIBS_NON_MODULES Xxf86dga)
-        add_our_module(alleg-dga2 src/x/xdga2.c Xxf86dga)
+        list(APPEND PLATFORM_LIBS_NON_MODULES Xxf86dga ${X11_LIBRARIES})
+        add_our_module(alleg-dga2 src/x/xdga2.c Xxf86dga ${X11_LIBRARIES})
     endif()
 endif(ALLEGRO_WITH_XWINDOWS)
 
@@ -760,7 +767,9 @@ endif(WIN32)
 set_our_framework_properties(allegro Allegro)
 
 set(link_with ${PLATFORM_LIBS})
-if(NOT ALLEGRO_WITH_MODULES)
+if(ALLEGRO_WITH_MODULES)
+    list(APPEND link_with ${PLATFORM_LIBS_MODULES})
+else()
     list(APPEND link_with ${PLATFORM_LIBS_NON_MODULES})
 endif()
 target_link_libraries(allegro ${link_with})
@@ -811,6 +820,7 @@ if(UNIX) # including MACOSX
     sanitize_cmake_link_flags(LIBS
         ${PLATFORM_LIBS}
         ${PLATFORM_LIBS_NON_MODULES}
+        ${PLATFORM_LIBS_MODULES}
         )
 
     if(APPLE)
