@@ -44,14 +44,6 @@ TODO: This is a hack... I need to know the values of these without actually incl
 #define ALLEGRO_DIRECT3D 8
 #endif
 
-static void temp_trans(float x, float y)
-{
-   ALLEGRO_TRANSFORM copy;
-   al_copy_transform(al_get_current_transform(), &copy);
-   al_translate_transform(&copy, x, y);
-   al_use_transform(&copy);
-}
-
 /* Function: al_draw_prim
  */
 int al_draw_prim(const void* vtxs, const ALLEGRO_VERTEX_DECL* decl,
@@ -70,13 +62,6 @@ int al_draw_prim(const void* vtxs, const ALLEGRO_VERTEX_DECL* decl,
     * view space should occur here
     */
    
-   if (target->parent) {
-      /*
-       * For sub-bitmaps
-       */
-      temp_trans((float)target->xofs, (float)target->yofs);
-   }
-   
    if (target->flags & ALLEGRO_MEMORY_BITMAP || (texture && texture->flags & ALLEGRO_MEMORY_BITMAP)) {
       ret =  _al_draw_prim_soft(texture, vtxs, decl, start, end, type);
    } else {
@@ -86,13 +71,6 @@ int al_draw_prim(const void* vtxs, const ALLEGRO_VERTEX_DECL* decl,
       } else if (flags & ALLEGRO_DIRECT3D) {
          ret =  _al_draw_prim_directx(texture, vtxs, decl, start, end, type);
       }
-   }
-   
-   if (target->parent) {
-      /*
-       * Move it back, if rounding errors become an issue we can do a copy-restore instead
-       */
-      temp_trans(-(float)target->xofs, -(float)target->yofs);
    }
    
    return ret;
@@ -117,13 +95,6 @@ int al_draw_indexed_prim(const void* vtxs, const ALLEGRO_VERTEX_DECL* decl,
     * view space should occur here
     */
    
-   if (target->parent) {
-      /*
-       * For sub-bitmaps
-       */
-      temp_trans((float)target->xofs, (float)target->yofs);
-   }
-   
    if (target->flags & ALLEGRO_MEMORY_BITMAP || (texture && texture->flags & ALLEGRO_MEMORY_BITMAP)) {
       ret =  _al_draw_prim_indexed_soft(texture, vtxs, decl, indices, num_vtx, type);
    } else {
@@ -133,13 +104,6 @@ int al_draw_indexed_prim(const void* vtxs, const ALLEGRO_VERTEX_DECL* decl,
       } else if (flags & ALLEGRO_DIRECT3D) {
          ret =  _al_draw_prim_indexed_directx(texture, vtxs, decl, indices, num_vtx, type);
       }
-   }
-   
-   if (target->parent) {
-      /*
-       * Move it back, if rounding errors become an issue we can do a copy-restore instead
-       */
-      temp_trans(-(float)target->xofs, -(float)target->yofs);
    }
    
    return ret;

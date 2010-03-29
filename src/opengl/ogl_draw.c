@@ -132,9 +132,12 @@ static void ogl_draw_pixel(ALLEGRO_DISPLAY *d, float x, float y,
    }
 
    /* For sub bitmaps. */
-   if (target->parent) {
-      x += target->xofs;
-      y += target->yofs;
+   if(target->parent) {
+      glMatrixMode(GL_MODELVIEW);
+      glPushMatrix();
+      glLoadIdentity();
+      glTranslatef(target->xofs, target->yofs, 0);
+      glMultMatrixf((float*)(d->cur_transform.m));
    }
 
    vert[0] = x;
@@ -146,6 +149,10 @@ static void ogl_draw_pixel(ALLEGRO_DISPLAY *d, float x, float y,
    glDrawArrays(GL_POINTS, 0, 1);
 
    glDisableClientState(GL_VERTEX_ARRAY);
+   
+   if(target->parent) {
+      glPopMatrix();
+   }
 }
 
 static void* ogl_prepare_vertex_cache(ALLEGRO_DISPLAY* disp, 
@@ -171,10 +178,20 @@ static void ogl_flush_vertex_cache(ALLEGRO_DISPLAY* disp)
    ALLEGRO_COLOR *bc;
    GLboolean on;
    GLuint current_texture;
+   ALLEGRO_BITMAP* target;
    if(!disp->vertex_cache)
       return;
    if(disp->num_cache_vertices == 0)
       return;
+      
+   target = al_get_target_bitmap();
+   if(target->parent) {
+      glMatrixMode(GL_MODELVIEW);
+      glPushMatrix();
+      glLoadIdentity();
+      glTranslatef(target->xofs, target->yofs, 0);
+      glMultMatrixf((float*)(disp->cur_transform.m));
+   }
    
    glGetBooleanv(GL_TEXTURE_2D, &on);
    if (!on) {
@@ -203,6 +220,10 @@ static void ogl_flush_vertex_cache(ALLEGRO_DISPLAY* disp)
    glDisableClientState(GL_VERTEX_ARRAY);
    glDisableClientState(GL_TEXTURE_COORD_ARRAY);
    glDisableClientState(GL_COLOR_ARRAY);
+   
+   if(target->parent) {
+      glPopMatrix();
+   }
    
    disp->num_cache_vertices = 0;
    if (!on) {

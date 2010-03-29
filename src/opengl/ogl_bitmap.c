@@ -352,17 +352,16 @@ static void ogl_draw_scaled_bitmap(ALLEGRO_BITMAP *bitmap, float sx, float sy,
    ALLEGRO_BITMAP *target = al_get_target_bitmap();
    ALLEGRO_BITMAP_OGL *ogl_target = (ALLEGRO_BITMAP_OGL *)target;
    ALLEGRO_DISPLAY *disp = al_get_current_display();
+   
+   if(target->parent) {
+      ogl_target = (ALLEGRO_BITMAP_OGL *)target->parent;
+   }
+      
    if (disp->ogl_extras->opengl_target != ogl_target ||
       !setup_blending(disp) || target->locked) {
       _al_draw_scaled_bitmap_memory(bitmap, sx, sy, sw, sh, dx, dy, dw, dh,
                                     flags);
       return;
-   }
-
-   /* For sub-bitmaps */
-   if (target->parent) {
-      dx += target->xofs;
-      dy += target->yofs;
    }
 
    draw_quad(bitmap, sx, sy, sw, sh, 0, 0, dx, dy, dw, dh, 1, 1, 0, flags);
@@ -381,8 +380,6 @@ static void ogl_draw_bitmap_region(ALLEGRO_BITMAP *bitmap, float sx, float sy,
    
    /* For sub-bitmaps */
    if (target->parent) {
-      dx += target->xofs;
-      dy += target->yofs;
       target = target->parent;
    }
 
@@ -393,6 +390,11 @@ static void ogl_draw_bitmap_region(ALLEGRO_BITMAP *bitmap, float sx, float sy,
       ALLEGRO_BITMAP_OGL *ogl_source = (void *)bitmap;
       if (ogl_source->is_backbuffer) {
          float clip;
+         
+         if (target->parent) {
+            dx += target->xofs;
+            dy += target->yofs;
+         }
 
          /* Have to do our own clipping. */
          clip = dx - target->cl;
@@ -486,16 +488,15 @@ static void ogl_draw_rotated_bitmap(ALLEGRO_BITMAP *bitmap, float cx, float cy,
    ALLEGRO_BITMAP *target = al_get_target_bitmap();
    ALLEGRO_BITMAP_OGL *ogl_target = (ALLEGRO_BITMAP_OGL *)target;
    ALLEGRO_DISPLAY *disp = al_get_current_display();
+   
+   if (target->parent) {
+       ogl_target = (ALLEGRO_BITMAP_OGL *)target->parent;
+   }
+   
    if (disp->ogl_extras->opengl_target != ogl_target ||
       !setup_blending(disp) || target->locked) {
       _al_draw_rotated_bitmap_memory(bitmap, cx, cy, dx, dy, angle, flags);
       return;
-   }
-
-   /* For sub-bitmaps */
-   if (target->parent) {
-      dx += target->xofs;
-      dy += target->yofs;
    }
 
    draw_quad(bitmap, 0, 0, bitmap->w, bitmap->h, cx, cy,
@@ -513,17 +514,16 @@ static void ogl_draw_rotated_scaled_bitmap(ALLEGRO_BITMAP *bitmap,
    ALLEGRO_BITMAP *target = al_get_target_bitmap();
    ALLEGRO_BITMAP_OGL *ogl_target = (ALLEGRO_BITMAP_OGL *)target;
    ALLEGRO_DISPLAY *disp = al_get_current_display();
+   
+   if (target->parent) {
+       ogl_target = (ALLEGRO_BITMAP_OGL *)target->parent;
+   }
+   
    if (disp->ogl_extras->opengl_target != ogl_target ||
       !setup_blending(disp) || target->locked) {
       _al_draw_rotated_scaled_bitmap_memory(bitmap, cx, cy, dx, dy,
                                             xscale, yscale, angle, flags);
       return;
-   }
-
-   /* For sub-bitmaps */
-   if (target->parent) {
-      dx += target->xofs;
-      dy += target->yofs;
    }
 
    draw_quad(bitmap, 0, 0, bitmap->w, bitmap->h, cx, cy, dx, dy,
