@@ -678,6 +678,7 @@ static bool d3d_create_fullscreen_device(ALLEGRO_DISPLAY_D3D *d,
    }
    else {
       d3d_pp.FullScreen_RefreshRateInHz = d3d_get_default_refresh_rate(win_display->adapter);
+      al_display->refresh_rate = d3d_pp.FullScreen_RefreshRateInHz;
    }
 
    if (ffw_set == false) {
