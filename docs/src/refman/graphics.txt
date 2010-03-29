@@ -304,6 +304,9 @@ clipping settings.
 If the sub-bitmap does not lie completely inside the parent bitmap, then
 it is automatically clipped so that it does.
 
+See the discussion in [al_get_backbuffer] about using sub-bitmaps of
+the backbuffer.
+
 The parent bitmap's clipping rectangles are ignored.
 
 If a sub-bitmap was not or cannot be created then NULL is returned.

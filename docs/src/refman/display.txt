@@ -231,6 +231,18 @@ See also: [al_set_new_display_flags], [al_set_new_display_option]
 Return a special bitmap representing the back-buffer of the
 current display.
 
+Care should be taken when using the backbuffer bitmap (and its 
+sub-bitmaps) as the source bitmap (e.g as the bitmap argument to
+[al_draw_bitmap]). Only untransformed operations are hardware 
+accelerated. This consists of [al_draw_bitmap] and 
+[al_draw_bitmap_region] when the current transformation is the identity.
+If the tranformation is not the identity, or some other drawing 
+operation is used, the call will be routed through the memory bitmap
+routines, which is slow. If you need those operations, then first copy
+(via the operations mentioned above) a region of the backbuffer into a
+temporary bitmap, and then use that temporary bitmap as the source
+bitmap.
+
 See also: [al_get_frontbuffer]
 
 ### API: al_get_current_display
