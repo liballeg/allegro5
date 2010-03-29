@@ -238,10 +238,10 @@ accelerated. This consists of [al_draw_bitmap] and
 [al_draw_bitmap_region] when the current transformation is the identity.
 If the tranformation is not the identity, or some other drawing 
 operation is used, the call will be routed through the memory bitmap
-routines, which is slow. If you need those operations, then first copy
-(via the operations mentioned above) a region of the backbuffer into a
-temporary bitmap, and then use that temporary bitmap as the source
-bitmap.
+routines, which are slow. If you need those operations to be accelerated, 
+then first copy a region of the backbuffer into a temporary bitmap (via 
+the [al_draw_bitmap] and [al_draw_bitmap_region]), and then use that 
+temporary bitmap as the source bitmap.
 
 See also: [al_get_frontbuffer]
 
