@@ -252,10 +252,12 @@ void al_draw_scaled_bitmap(ALLEGRO_BITMAP *bitmap,
    float dx, float dy, float dw, float dh, int flags)
 {
    ALLEGRO_BITMAP *dest = al_get_target_bitmap();
+   ALLEGRO_BITMAP *back = al_get_backbuffer();
 
    if ((bitmap->flags & ALLEGRO_MEMORY_BITMAP) ||
        (dest->flags & ALLEGRO_MEMORY_BITMAP) ||
-       (!al_is_compatible_bitmap(bitmap)))
+       (!al_is_compatible_bitmap(bitmap)) ||
+       (bitmap == back) || (bitmap->parent == back))
    {
       _al_draw_scaled_bitmap_memory(bitmap, sx, sy, sw, sh,
          dx, dy, dw, dh, flags);
@@ -277,11 +279,13 @@ void al_draw_rotated_bitmap(ALLEGRO_BITMAP *bitmap,
    float cx, float cy, float dx, float dy, float angle, int flags)
 {
    ALLEGRO_BITMAP *dest = al_get_target_bitmap();
+   ALLEGRO_BITMAP *back = al_get_backbuffer();
 
    /* If one is a memory bitmap, do memory blit */
    if ((bitmap->flags & ALLEGRO_MEMORY_BITMAP) ||
        (dest->flags & ALLEGRO_MEMORY_BITMAP) ||
-       (!al_is_compatible_bitmap(bitmap)))
+       (!al_is_compatible_bitmap(bitmap)) ||
+       (bitmap == back) || (bitmap->parent == back))
    {
       _al_draw_rotated_bitmap_memory(bitmap, cx, cy,
          dx, dy, angle, flags);
@@ -300,11 +304,13 @@ void al_draw_rotated_scaled_bitmap(ALLEGRO_BITMAP *bitmap,
    float angle, int flags)
 {
    ALLEGRO_BITMAP *dest = al_get_target_bitmap();
+   ALLEGRO_BITMAP *back = al_get_backbuffer();
 
    /* If one is a memory bitmap, do memory blit */
     if ((bitmap->flags & ALLEGRO_MEMORY_BITMAP) ||
        (dest->flags & ALLEGRO_MEMORY_BITMAP) ||
-       (!al_is_compatible_bitmap(bitmap)))
+       (!al_is_compatible_bitmap(bitmap)) ||
+       (bitmap == back) || (bitmap->parent == back))
    {
       _al_draw_rotated_scaled_bitmap_memory(bitmap, cx, cy,
          dx, dy, xscale, yscale, angle, flags);
