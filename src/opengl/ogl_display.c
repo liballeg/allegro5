@@ -94,9 +94,6 @@ static void setup_fbo(ALLEGRO_DISPLAY *display, ALLEGRO_BITMAP *bitmap)
             glLoadIdentity();
 
             glOrtho(0, bitmap->w, bitmap->h, 0, -1, 1);
-
-            glMatrixMode(GL_MODELVIEW);
-            glLoadIdentity();
          }
       }
    }
