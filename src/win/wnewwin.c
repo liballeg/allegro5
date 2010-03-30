@@ -284,6 +284,9 @@ static void handle_mouse_capture(bool down, HWND hWnd)
    bool any_button_down = false;
    ALLEGRO_MOUSE_STATE state;
 
+   if (!al_is_mouse_installed())
+      return;
+
    al_get_mouse_state(&state);
    for (i = 1; i <= 5; i++) {
       any_button_down |= al_mouse_button_down(&state, i);
@@ -494,7 +497,7 @@ static LRESULT CALLBACK window_callback(HWND hWnd, UINT message,
           _al_win_mouse_handle_leave(win_display);
           break;
       }
-      case WM_CAPTURECHANGED: {
+      case WM_CAPTURECHANGED: if (al_is_mouse_installed()) {
          int i;
          ALLEGRO_MOUSE_STATE state;
          if (!lParam || (HWND)lParam == hWnd)
