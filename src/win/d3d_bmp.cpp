@@ -103,6 +103,9 @@ void _al_d3d_draw_textured_quad(ALLEGRO_DISPLAY_D3D *disp, ALLEGRO_BITMAP_D3D *b
    
    ALLEGRO_DISPLAY* aldisp = (ALLEGRO_DISPLAY*)disp;
 
+   dx -= 0.5;
+   dy -= 0.5;
+
    if (aldisp->num_cache_vertices != 0 && (uintptr_t)bmp != aldisp->cache_texture) {
       aldisp->vt->flush_vertex_cache(aldisp);
    }
