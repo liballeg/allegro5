@@ -118,9 +118,6 @@ static void setup_fbo(ALLEGRO_DISPLAY *display, ALLEGRO_BITMAP *bitmap)
        * coordinate is display->h not 0.
        */
       glOrtho(0, display->w, display->h, 0, -1, 1);
-
-      glMatrixMode(GL_MODELVIEW);
-      glLoadIdentity();
       #endif
    }
 #else
@@ -142,9 +139,6 @@ static void setup_fbo(ALLEGRO_DISPLAY *display, ALLEGRO_BITMAP *bitmap)
        * coordinate is display->h not 0.
        */
       glOrtho(0, display->w, display->h, 0, -1, 1);
-
-      glMatrixMode(GL_MODELVIEW);
-      glLoadIdentity();
    }
 #endif
 }
