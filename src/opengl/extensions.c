@@ -97,7 +97,6 @@ static float _al_ogl_version(void)
    ALLEGRO_CONFIG *cfg;
    const char *str;
    int major, minor1, minor2;
-   char ver[32];
 
    cfg = al_get_system_config();
    if (cfg) {
@@ -111,34 +110,17 @@ static float _al_ogl_version(void)
    }
 
    str = (const char *)glGetString(GL_VERSION);
-
-   for (major = 9; major > 0; major--) {
-      for (minor1 = 9; minor1 >= 0; minor1--) {
-         for (minor2 = 9; minor2 >= 0; minor2--) {
-            sprintf(ver, "%i.%i.%i", major, minor1, minor2);
-            if (strncmp(str, ver, 5) == 0) {
-               return major + minor1 / 10.f + minor2 / 100.f;
-            }
-         }
-      }
+   if (str) {
+      major = minor1 = minor2 = 0;
+      sscanf(str, "%d.%d.%d", &major, &minor1, &minor2);
+      return major + minor1 / 10.f + minor2 / 100.f;
    }
-   for (major = 9; major > 0; major--) {
-      for (minor1 = 9; minor1 >= 0; minor1--) {
-         sprintf(ver, "%i.%i", major, minor1);
-         if (strncmp(str, ver, 3) == 0) {
-            return major + minor1 / 10.f;
-         }
-      }
-   }
-
-   /* The OpenGL driver does not return a version
-    * number. However it probably supports at least OpenGL 1.0
-    */
-   if (!str) {
+   else {
+      /* The OpenGL driver does not return a version
+       * number. However it probably supports at least OpenGL 1.0
+       */
       return 1.0;
    }
-
-   return atof(str);
 }
 
 
