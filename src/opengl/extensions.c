@@ -25,6 +25,7 @@
 #include "allegro5/internal/aintern_opengl.h"
 #include "allegro5/internal/aintern_display.h"
 #include "allegro5/internal/aintern_system.h"
+#include <stdio.h>
 
 /* We need some driver specific details not worth of a vtable entry. */
 #if defined ALLEGRO_WINDOWS
@@ -95,6 +96,8 @@ static float _al_ogl_version(void)
 {
    ALLEGRO_CONFIG *cfg;
    const char *str;
+   int major, minor1, minor2;
+   char ver[32];
 
    cfg = al_get_system_config();
    if (cfg) {
@@ -109,31 +112,24 @@ static float _al_ogl_version(void)
 
    str = (const char *)glGetString(GL_VERSION);
 
-   /* TODO: can we make this less stupid?*/
-   if ((strncmp(str, "1.0 ", 4) == 0) || (strncmp(str, "1.0.0 ", 6) == 0))
-      return 1.0;
-   if ((strncmp(str, "1.1 ", 4) == 0) || (strncmp(str, "1.1.0 ", 6) == 0))
-      return 1.1;
-   if ((strncmp(str, "1.2 ", 4) == 0) || (strncmp(str, "1.2.0 ", 6) == 0))
-      return 1.2;
-   if ((strncmp(str, "1.2.1 ", 6) == 0))
-      return 1.21;
-   if ((strncmp(str, "1.2.2 ", 6) == 0))
-      return 1.22;
-   if ((strncmp(str, "1.3 ", 4) == 0) || (strncmp(str, "1.3.0 ", 6) == 0))
-      return 1.3;
-   if ((strncmp(str, "1.4 ", 4) == 0) || (strncmp(str, "1.4.0 ", 6) == 0))
-      return 1.4;
-   if ((strncmp(str, "1.5 ", 4) == 0) || (strncmp(str, "1.5.0 ", 6) == 0))
-      return 1.5;
-   if ((strncmp(str, "2.0 ", 4) == 0) || (strncmp(str, "2.0.0 ", 6) == 0))
-      return 2.0;
-   if ((strncmp(str, "2.1 ", 4) == 0) || (strncmp(str, "2.1.0 ", 6) == 0))
-      return 2.1;
-   if ((strncmp(str, "3.0 ", 4) == 0) || (strncmp(str, "3.0.0 ", 6) == 0))
-      return 3.0;
-   if ((strncmp(str, "3.1 ", 4) == 0) || (strncmp(str, "3.1.0 ", 6) == 0))
-      return 3.1;
+   for (major = 9; major > 0; major--) {
+      for (minor1 = 9; minor1 >= 0; minor1--) {
+         for (minor2 = 9; minor2 >= 0; minor2--) {
+            sprintf(ver, "%i.%i.%i", major, minor1, minor2);
+            if (strncmp(str, ver, 5) == 0) {
+               return major + minor1 / 10 + minor2 / 100;
+            }
+         }
+      }
+   }
+   for (major = 9; major > 0; major--) {
+      for (minor1 = 9; minor1 >= 0; minor1--) {
+         sprintf(ver, "%i.%i", major, minor1);
+         if (strncmp(str, ver, 3) == 0) {
+            return major + minor1 / 10;
+         }
+      }
+   }
 
    /* The OpenGL driver does not return a version
     * number. However it probably supports at least OpenGL 1.0
