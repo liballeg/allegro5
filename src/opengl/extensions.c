@@ -117,7 +117,7 @@ static float _al_ogl_version(void)
          for (minor2 = 9; minor2 >= 0; minor2--) {
             sprintf(ver, "%i.%i.%i", major, minor1, minor2);
             if (strncmp(str, ver, 5) == 0) {
-               return major + minor1 / 10 + minor2 / 100;
+               return major + minor1 / 10.f + minor2 / 100.f;
             }
          }
       }
@@ -126,7 +126,7 @@ static float _al_ogl_version(void)
       for (minor1 = 9; minor1 >= 0; minor1--) {
          sprintf(ver, "%i.%i", major, minor1);
          if (strncmp(str, ver, 3) == 0) {
-            return major + minor1 / 10;
+            return major + minor1 / 10.f;
          }
       }
    }
