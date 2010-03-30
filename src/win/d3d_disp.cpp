@@ -2027,6 +2027,8 @@ void _al_d3d_set_blender(ALLEGRO_DISPLAY_D3D *d3d_display)
 static void d3d_clear(ALLEGRO_DISPLAY *al_display, ALLEGRO_COLOR *color)
 {
    ALLEGRO_DISPLAY_D3D* d3d_display = (ALLEGRO_DISPLAY_D3D*)al_display;
+   if (d3d_display->device_lost)
+      return;
    if (d3d_display->device->Clear(0, NULL, D3DCLEAR_TARGET,
       D3DCOLOR_ARGB((int)(color->a*255), (int)(color->r*255), (int)(color->g*255), (int)(color->b*255)),
       0, 0) != D3D_OK) {
