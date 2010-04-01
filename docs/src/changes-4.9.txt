@@ -7,7 +7,7 @@ serve as summaries; the full histories are in the Subversion repository.
 Changes from 4.9.18 to 4.9.19 (April 2010)
 ==========================================
 
-The main developers this time were: Milan Milan, Trent Gamblin, Paul Suntsov,
+The main developers this time were: Milan Mimica, Trent Gamblin, Paul Suntsov,
 Peter Wang.  Other contributions from: Evert Glebbeek and Shawn Hargreaves.
 
 Graphics:
