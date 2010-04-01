@@ -103,9 +103,6 @@ void _al_d3d_draw_textured_quad(ALLEGRO_DISPLAY_D3D *disp, ALLEGRO_BITMAP_D3D *b
    
    ALLEGRO_DISPLAY* aldisp = (ALLEGRO_DISPLAY*)disp;
 
-   dx -= 0.5;
-   dy -= 0.5;
-
    if (aldisp->num_cache_vertices != 0 && (uintptr_t)bmp != aldisp->cache_texture) {
       aldisp->vt->flush_vertex_cache(aldisp);
    }
@@ -677,8 +674,6 @@ static void d3d_blit_real(ALLEGRO_BITMAP *src,
       d3d_src = (ALLEGRO_BITMAP_D3D *)src;
    }
    if (dest->parent) {
-      dx += dest->xofs;
-      dy += dest->yofs;
       dest = dest->parent;
       d3d_dest = (ALLEGRO_BITMAP_D3D *)dest;
    }
@@ -697,19 +692,24 @@ static void d3d_blit_real(ALLEGRO_BITMAP *src,
          al_destroy_bitmap((ALLEGRO_BITMAP *)tmp_bmp);
       }
       else {
-	 bool screen_screen = d3d_src == d3d_dest;
+         bool screen_screen = d3d_src == d3d_dest;
          LPDIRECT3DSURFACE9 tmp_surface_full;
          LPDIRECT3DSURFACE9 tmp_surface_small;
          LPDIRECT3DSURFACE9 screen_surface;
          ALLEGRO_DISPLAY *al_display = (ALLEGRO_DISPLAY *)
             d3d_dest->display;
-	 RECT src_rect, dst_rect;
+         RECT src_rect, dst_rect;
          POINT point;
          DWORD ret;
          D3DFORMAT format;
 
          ALLEGRO_BITMAP *old_target = al_get_target_bitmap();
          al_set_target_bitmap(al_get_backbuffer()); // set it away from our bitmap/screen
+         
+         if (dest->parent) {
+            dx += dest->xofs;
+            dy += dest->yofs;
+         }
 
          ret = d3d_dest->display->device->GetRenderTarget(
             0,
@@ -735,9 +735,9 @@ static void d3d_blit_real(ALLEGRO_BITMAP *src,
          );
 
          src_rect.left = sx;
-	 src_rect.top = sy;
-	 src_rect.right = sx+sw;
-	 src_rect.bottom = sy+sh;
+         src_rect.top = sy;
+         src_rect.right = sx+sw;
+         src_rect.bottom = sy+sh;
          point.x = 0;
          point.y = 0;
 
@@ -745,10 +745,10 @@ static void d3d_blit_real(ALLEGRO_BITMAP *src,
             tmp_surface_full, &src_rect,
             tmp_surface_small, &point);
 
-	 dst_rect.left = dx;
-	 dst_rect.top = dy;
-	 dst_rect.right = dx+dw;
-	 dst_rect.bottom = dy+dh;
+         dst_rect.left = dx;
+         dst_rect.top = dy;
+         dst_rect.right = dx+dw;
+         dst_rect.bottom = dy+dh;
 
          /* FIXME: do filtering if enabled in config */
          if (!screen_screen) {

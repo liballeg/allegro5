@@ -95,6 +95,9 @@ static int _al_draw_prim_raw(ALLEGRO_BITMAP* texture, const void* vtx, const ALL
    DWORD old_wrap_state[2];
    DWORD old_ttf_state;
    int min_idx = 0, max_idx = num_vtx - 1;
+   ALLEGRO_BITMAP* target = al_get_target_bitmap();
+   D3DMATRIX new_trans;
+   const ALLEGRO_TRANSFORM* cur_trans = al_get_current_transform();
    
    if(indices)
    {
@@ -171,6 +174,16 @@ static int _al_draw_prim_raw(ALLEGRO_BITMAP* texture, const void* vtx, const ALL
    
    IDirect3DDevice9_SetSamplerState(device, 0, D3DSAMP_ADDRESSU, D3DTADDRESS_WRAP);
    IDirect3DDevice9_SetSamplerState(device, 0, D3DSAMP_ADDRESSV, D3DTADDRESS_WRAP);
+   
+   /* For sub-bitmaps */
+   if (al_is_sub_bitmap(target)) {
+      int xofs, yofs;
+      al_get_d3d_texture_position(target, &xofs, &yofs);
+      memcpy(new_trans.m[0], cur_trans->m[0], 16 * sizeof(float));
+      new_trans.m[3][0] += xofs - 0.5;
+      new_trans.m[3][1] += yofs - 0.5;
+      IDirect3DDevice9_SetTransform(device, D3DTS_VIEW, &new_trans);
+   }
 
    if(!indices)
    {
@@ -274,6 +287,12 @@ static int _al_draw_prim_raw(ALLEGRO_BITMAP* texture, const void* vtx, const ALL
             break;
          };
       }
+   }
+   
+   if (al_is_sub_bitmap(target)) {
+      new_trans.m[3][0] = cur_trans->m[3][0] - 0.5;
+      new_trans.m[3][1] = cur_trans->m[3][1] - 0.5;
+      IDirect3DDevice9_SetTransform(device, D3DTS_VIEW, &new_trans);
    }
 
    IDirect3DDevice9_SetSamplerState(device, 0, D3DSAMP_ADDRESSU, old_wrap_state[0]);

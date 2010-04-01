@@ -45,6 +45,7 @@ ALLEGRO_DISPLAY *al_create_display(int w, int h)
    ALLEGRO_DISPLAY_INTERFACE *driver;
    ALLEGRO_DISPLAY *display;
    ALLEGRO_EXTRA_DISPLAY_SETTINGS *eds;
+   ALLEGRO_TRANSFORM identity;
 
    eds = _al_get_new_display_settings();
    /* We cannot depend on al_reset_new_display_options() having been called
@@ -70,12 +71,14 @@ ALLEGRO_DISPLAY *al_create_display(int w, int h)
    display->vertex_cache_size = 0;
    display->cache_texture = 0;
    
-   al_identity_transform(&display->cur_transform);
    _al_initialize_blender(&display->cur_blender);
 
    _al_vector_init(&display->bitmaps, sizeof(ALLEGRO_BITMAP*));
 
    al_set_current_display(display);
+   
+   al_identity_transform(&identity);
+   al_use_transform(&identity);
 
    /* Clear the screen */
 #ifndef ALLEGRO_GP2XWIZ
