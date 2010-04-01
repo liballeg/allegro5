@@ -41,6 +41,7 @@ static void draw_opengl(void)
          GL_UNSIGNED_INT_8_8_8_8_REV, pixels);
       glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
       glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+      free(pixels);
    }
 
    /* Let's create a framebuffer object. */
