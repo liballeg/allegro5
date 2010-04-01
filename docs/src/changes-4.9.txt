@@ -4,6 +4,113 @@ See `changes._tx` for changes in earlier versions of Allegro.  These lists
 serve as summaries; the full histories are in the Subversion repository.
 
 
+Changes from 4.9.18 to 4.9.19 (April 2010)
+==========================================
+
+The main developers this time were: Milan Milan, Trent Gamblin, Paul Suntsov,
+Peter Wang.  Other contributions from: Evert Glebbeek and Shawn Hargreaves.
+
+Graphics:
+
+-  Implemented support for transformations for memory bitmaps.
+
+-  Transformations now work properly when the target bitmap is a sub-bitmap in
+   OpenGL (still broken in D3D). Also fixed OpenGL bitmap drawing in the same
+   scenario (it used to always revert to software drawing).
+
+-  Use the memory drawers when the source bitmap is the backbuffer with the
+   rotated/scaled bitmaps.
+
+-  Make al_put_pixel clip even if the bitmap is locked, which was the reason
+   why software primitives were not clipping.
+
+-  Added al_put_blended_pixel, the blended version of al_put_pixel.
+
+-  Sub bitmaps of sub bitmaps must be clipped to the first parent.
+
+-  Don't clear the transformation when setting the target bitmap in OpenGL.
+
+-  Implemented ALLEGRO_NOFRAME and ALLEGRO_FULLSCREEN_WINDOW in WGL.
+
+-  Set the ALLEGRO_DISPLAY->refresh_rate variable for fullscreen modes under D3D.
+
+-  Make d3d_clear return immediately if the display is in a lost state.
+
+-  Rewrote the function that reads the OpenGL version so it works for
+   previously unrecognised versions, and future versions.
+
+-  Check for framebuffer extension on iPhone properly.
+
+-  Fixed locking bugs on iPhone. allegro_ttf works now.
+
+Input:
+
+-  Removed al_set_mouse_range.
+
+-  Don't call al_get_mouse_state if the mouse driver isn't installed (Windows).
+
+-  Send events even when the mouse cursor leaves the window, while any buttons
+   are held down (Windows and Mac OS X; X11 already did this).
+
+-  Allow mouse presses and accelerometer data simultaneously. (iPhone)
+
+File I/O:
+
+-  Optimise al_fread{16,32}* by using only one call to al_fread each.
+
+-  Optimise al_fgetc() for stdio backend.
+
+Path:
+
+-  Fix an infinite loop in _find_executable_file when searching for the
+   executable on the PATH (Alan Coopersmith).
+
+Primitives addon:
+
+-  Made the software driver for the primitives addon check for blending
+   properly. Also, fixed two line shaders.
+
+-  Made the D3D driver thread-safe. The whole addon should be thread-safe now.
+
+-  The addon now officially supports 3D vertices, even though the software
+   component can't draw them yet.
+
+-  Changed the way the primitives addon handles the OpenGL state (fixes a few
+   bugs and makes life easier for raw-OpenGL people)
+
+Image addon:
+
+-  Optimised BMP, PCX, TGA loaders.
+
+-  Fix loading 16-bit BMP files.
+
+-  Fix loading grayscale TGA images.
+
+-  Nial Giacomelli fixed a bug where images could be corrupt using the native
+   Apple image loader (iPhone).
+
+Audio addon:
+
+-  Add al_is_audio_installed.
+
+-  Fix al_attach_sample_instance_to_mixer for int16 mixers.
+
+-  Implement attaching an INT16 mixer to another INT16 mixer.
+
+-  Handle conversion when an INT16 mixer is attached to a UINT16 voice.
+
+Build system:
+
+-  Add an option to disable Apple native image loader (iPhone and OS X).
+
+-  Add ttf addon target to iPhone xcode project.
+
+Examples:
+
+-  Special contribution from Shawn "the Progenitor" Hargreaves.
+
+
+
 Changes from 4.9.17 to 4.9.18 (March 2010)
 ==========================================
 
