@@ -42,11 +42,11 @@ set(DEMO_ICON data/gfx/Icon.icns)
 
 include_directories(
     include
-    ../addons/main
-    ../addons/image
-    ../addons/font
-    ../addons/audio
-    ../addons/acodec
+    ${CMAKE_SOURCE_DIR}/addons/main
+    ${CMAKE_SOURCE_DIR}/addons/image
+    ${CMAKE_SOURCE_DIR}/addons/font
+    ${CMAKE_SOURCE_DIR}/addons/audio
+    ${CMAKE_SOURCE_DIR}/addons/acodec
     )
 
 if(MACOSX)

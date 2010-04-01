@@ -764,7 +764,7 @@ add_subdirectory(addons)
 #-----------------------------------------------------------------------------#
 
 if(NOT MSVC80 AND WANT_DEMO) # XXX disabled because it breaks MSVC's intellisense for some reason
-    add_subdirectory(demo)
+    add_subdirectory(demos/a5teroids)
 endif(NOT MSVC80 AND WANT_DEMO)
 
 #-----------------------------------------------------------------------------#
