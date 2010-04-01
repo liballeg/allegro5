@@ -1,0 +1,210 @@
+
+   SPEED: Simultaneous Projections Employing an Ensemble of Displays.
+
+   Or alternatively: Stupid Pointless Effort at Establishing a Dumb Acronym.
+
+   By Shawn Hargreaves, November 1999.
+
+
+This program is my entry for the Allegro SpeedHack 1999, and was written 
+over the weekend of November 27/28. Many thanks to Arron Shutt for 
+organising this competition, and to the various musicians who kept me sane 
+(?) during it (notably Trent Reznor, Adrian Belew, Charles Mingus, Miles 
+Davis, Mike Keneally, and Robert Fripp).
+
+It should be pretty obvious how to play, as long as you know how to press 
+the spacebar and left/right arrow keys. The objective is to protect the 
+blocks underneath your ship: you get one point for each block left at the 
+end of an attack wave, and a hundred bonus points if you manage to preserve 
+all sixteen blocks.
+
+Hint: the later levels of this game are much easier to play if you view them 
+through tinted glasses, to filter out only one of the views :-)
+
+You gain very little from running it in a truecolor mode (the title screens 
+look a bit nicer, but game graphics are almost identical to in 8 bit color). 
+It does look very cramped in a 320x200 resolution, though, so I recommend 
+playing it in 640x480x8.
+
+This code is free: do with it as you will.
+
+The remainder of this file is a realtime log, with entries added 
+chronologically during the course of the hack. The numbered subdirectories 
+contain snapshots of the code taken at various times over the weekend. It is 
+unlikely that anything but the final version will compile on systems other 
+than Linux.
+
+
+
+10-26-1999, at 14:56
+--------------------
+
+I've written myself a makefile, and a script which ought to be able to send
+this message to the website automatically. If you see this text, then it
+worked!
+
+
+
+10-26-1999, at 15:18
+--------------------
+
+Design doc:
+
+Traditional Space Invaders type gameplay: aliens move down the screen, you 
+move across the bottom firing upwards. Three lives. Your goal is to protect 
+blocks underneath you, and you get score for having blocks left at the end 
+of each attack wave. Alien motion will be as complex as I have time for, 
+including Centipede style splitting.
+
+This 2d action will be rendered in four different psuedo-3d viewports: 
+normal flat mode, inside of a tube, outside of a large cylinder, and in 
+spherical coordinates. Early attack waves use only one viewpoint, later ones 
+tile multiple views of the same action, and toward the end of the sequence 
+the views are overlaid (additive color). If you complete the sequence, it 
+cycles but with vastly increased game speed.
+
+When changing attack waves, views will slide around to their new locations 
+(that should look pretty cool).
+
+Any color depth, any resolution.
+
+No time for drawing graphics, so everything will be simple vector art.
+
+Bullets are surrounded by spining wireframe square, flightsim targetting 
+style.
+
+Explosions are expanding XLU circlefill, plus more rapidly expanding single 
+circle shockwaves.
+
+Wow, I think that is the most detailed formal game design that I have ever 
+written! I don't have time for this, better get coding...
+
+
+
+10-26-1999, at 17:37
+--------------------
+
+Basic game structure is in place: init code, commandline parsing, title 
+screen, stupid little music bit at the end.
+
+
+
+10-27-1999, at 10:21
+--------------------
+
+10:30 AM on saturday morning: just got out of bed and am ready to start some
+serious work. Title and ending screens are finished, so it is just the game
+itself left to be written!
+
+
+
+10-27-1999, at 13:14
+--------------------
+
+Lots of new source files added: 3d viewport system is in place (sliding
+screen windows and all but one of the 3d projections).
+
+
+
+10-27-1999, at 14:04
+--------------------
+
+Player movement is in, so you can see the different projections in action...
+
+
+
+10-27-1999, at 15:08
+--------------------
+
+Added text messages (for status display, number of lives left, etc) that
+float over the middle of the screen, and implemented the final 3d
+projection mode, so all the different views are working now.
+
+
+
+10-27-1999, at 16:17
+--------------------
+
+Bullet code is finished.
+
+
+
+10-27-1999, at 17:55
+--------------------
+
+Enemies are in, and you can shoot them now.
+
+Still todo: more interesting enemy movememnt, you dying.
+
+This is going faster than I expected, so I should be able to get that
+finished this evening, and then have tomorrow free either to relax,
+or perhaps to add sound and a hiscore table...
+
+
+
+10-27-1999, at 19:18
+--------------------
+
+You can die now, and the scoring mechanism is complete.
+
+
+
+10-27-1999, at 22:55
+--------------------
+
+Enemy wave patterns are finished! It is a table-driven system, with a
+cycle of 26 different attack patterns before the thing repeats. I've
+just finished typing in all the tables, so the game can now be played
+the whole way through, ie. the gameplay side of things is complete!
+
+All that remains is cosmetic tweaking (sound, hiscore, etc).
+
+
+
+10-28-1999, at 00:02
+--------------------
+
+Various tweaks to get it working with djgpp, MSVC, and Watcom (I've been
+developing in X up until now).
+
+
+
+10-28-1999, at 13:42
+--------------------
+
+Scoretable is finished.
+
+Unfortunately this thing has reached the point where it is actually quite
+fun to play, which is getting in the way of my actually finishing it :-)
+
+
+
+10-28-1999, at 15:40
+--------------------
+
+Some (really cheesy old-skool arcade style :-) sound effects are in.
+
+
+
+10-28-1999, at 19:43
+--------------------
+
+Music is finished! And that means, the whole thing is pretty much complete.
+I just need to test that it still works in DOS/Windows, and take some
+screenshots, and then I can upload it. Yippee! And it is still pretty
+early on Sunday evening...
+
+The music is quite possibly even more crap than the sound effects, which
+is quite an achievement! The goal was to avoid using any external resources
+at all, which means that all graphics and sounds have to be written as
+pure C code in a text editor. In other words, sound samples are generated
+from basic waveforms, and I typed in all the music notes as data tables.
+I haven't done that since the old days on my 8 bit Oric machine, but it
+was quite satisfying. The results don't sound _quite_ up to what you
+can do with more capable sound editing tools, but hey, for an arrangement
+done entirely inside a text editor, I don't think this is too bad :-)
+
+Stay tuned for an upload of the final version...
+
+The End.
+
