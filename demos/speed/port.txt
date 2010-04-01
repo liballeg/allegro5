@@ -1,0 +1,30 @@
+
+   SPEED: Simultaneous Projections Employing an Ensemble of Displays.
+
+   By Shawn Hargreaves, November 1999.
+
+   Allegro 5 port by Peter Wang, April 2010
+
+
+This is a port of SPEED to Allegro 5.  a4_aux.c contains a small
+"compatibility" layer so that the original code did not need to be
+disturbed too much.
+
+See speed.txt for the original information about the game.
+
+Have fun!
+
+
+
+User-visible changes from the original
+--------------------------------------
+
+- The game now defaults to a 640x480 screen resolution if you do not
+  supply any command line arguments.
+
+- The bpp (colour depth) command line option was removed.
+
+- The intersection points in the game grid only appear half as bright
+  as in the original. I'm not sure why, unless it was a bug in Allegro 4.x.
+  Admittedly the brighter pixels looked cooler.
+

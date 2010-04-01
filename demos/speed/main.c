@@ -7,7 +7,10 @@
 #include <time.h>
 #include <stdio.h>
 #include <string.h>
-#include <allegro.h>
+#include <allegro5/allegro.h>
+#include <allegro5/allegro_audio.h>
+#include <allegro5/allegro_font.h>
+#include <allegro5/allegro_image.h>
 
 #include "speed.h"
 
@@ -38,23 +41,10 @@ int score;
 
 
 
-/* timer for controlling game speed */
-static volatile int counter;
-
-static void inc_counter(void)
-{
-   counter++;
-}
-
-END_OF_STATIC_FUNCTION(inc_counter);
-
-
-
 /* the main game function */
 static int play_game()
 { 
-   BITMAP *bmp = create_bitmap(SCREEN_W, SCREEN_H);
-
+   ALLEGRO_TIMER *inc_counter;
    int gameover = 0;
    int cyclenum = 0;
 
@@ -68,19 +58,15 @@ static int play_game()
    init_explode();
    init_message();
 
-   LOCK_VARIABLE(counter);
-   LOCK_FUNCTION(inc_counter);
+   #define TIMER_SPEED  ALLEGRO_BPS_TO_SECS(30*(cyclenum+2))
 
-   counter = 0;
-
-   #define TIMER_SPEED  BPS_TO_TIMER(30*(cyclenum+2))
-
-   install_int_ex(inc_counter, TIMER_SPEED);
+   inc_counter = al_install_timer(TIMER_SPEED);
+   al_start_timer(inc_counter);
 
    while (!gameover) {
 
       /* move everyone */
-      while ((counter > 0) && (!gameover)) {
+      while ((al_get_timer_count(inc_counter) > 0) && (!gameover)) {
 	 update_view();
 	 update_bullets();
 	 update_explode();
@@ -89,7 +75,7 @@ static int play_game()
 	 if (update_badguys()) {
 	    if (advance_view()) {
 	       cyclenum++;
-	       install_int_ex(inc_counter, TIMER_SPEED);
+	       al_set_timer_count(inc_counter, 0);
 	       lay_attack_wave(TRUE);
 	       advance_player(TRUE);
 	    }
@@ -101,36 +87,31 @@ static int play_game()
 
 	 gameover = update_player();
 
-	 counter--;
+	 al_set_timer_count(inc_counter, al_get_timer_count(inc_counter)-1);
       }
 
       /* take a screenshot? */
-      if (key[KEY_PRTSCR]) {
+      if (key[ALLEGRO_KEY_PRINTSCREEN]) {
 	 static int ss_count = 0;
 
 	 char fname[80];
-	 PALETTE pal;
-	 BITMAP *b;
 
 	 sprintf(fname, "speed%03d.tga", ++ss_count);
 
-	 get_palette(pal);
-	 b = create_sub_bitmap(screen, 0, 0, SCREEN_W, SCREEN_H);
-	 save_tga(fname, b, pal);
-	 destroy_bitmap(b);
+	 al_save_tga(fname, al_get_frontbuffer());
 
-	 while (key[KEY_PRTSCR])
-	    poll_keyboard();
+	 while (key[ALLEGRO_KEY_PRINTSCREEN])
+	    poll_input_wait();
 
-	 counter = 0;
+	 al_set_timer_count(inc_counter, 0);
       }
 
       /* draw everyone */
-      draw_view(bmp);
+      draw_view();
    }
 
    /* cleanup */
-   remove_int(inc_counter);
+   al_uninstall_timer(inc_counter);
 
    shutdown_view();
    shutdown_player();
@@ -138,8 +119,6 @@ static int play_game()
    shutdown_bullets();
    shutdown_explode();
    shutdown_message();
-
-   destroy_bitmap(bmp);
 
    if (gameover < 0) {
       sfx_ping(1);
@@ -151,84 +130,18 @@ static int play_game()
 
 
 
-/* for generating the 8 bit additive color lookup table */
-static void add_blender8(PALETTE pal, int x, int y, RGB *rgb)
-{
-   int r, g, b;
-
-   r = (int)pal[x].r + (int)pal[y].r;
-   g = (int)pal[x].g + (int)pal[y].g;
-   b = (int)pal[x].b + (int)pal[y].b;
-
-   rgb->r = MIN(r, 63);
-   rgb->g = MIN(g, 63);
-   rgb->b = MIN(b, 63);
-}
-
-
-
-/* 15 bit additive color blender */
-static unsigned long add_blender15(unsigned long x, unsigned long y, unsigned long n)
-{
-   int r = getr15(x) + getr15(y);
-   int g = getg15(x) + getg15(y);
-   int b = getb15(x) + getb15(y);
-
-   r = MIN(r, 255);
-   g = MIN(g, 255);
-   b = MIN(b, 255);
-
-   return makecol15(r, g, b);
-}
-
-
-
-/* 16 bit additive color blender */
-static unsigned long add_blender16(unsigned long x, unsigned long y, unsigned long n)
-{
-   int r = getr16(x) + getr16(y);
-   int g = getg16(x) + getg16(y);
-   int b = getb16(x) + getb16(y);
-
-   r = MIN(r, 255);
-   g = MIN(g, 255);
-   b = MIN(b, 255);
-
-   return makecol16(r, g, b);
-}
-
-
-
-/* 24 bit additive color blender */
-static unsigned long add_blender24(unsigned long x, unsigned long y, unsigned long n)
-{
-   int r = getr24(x) + getr24(y);
-   int g = getg24(x) + getg24(y);
-   int b = getb24(x) + getb24(y);
-
-   r = MIN(r, 255);
-   g = MIN(g, 255);
-   b = MIN(b, 255);
-
-   return makecol24(r, g, b);
-}
-
-
-
 /* display a commandline usage message */
 static void usage()
 {
-   allegro_message(
+   printf(
       "\n"
       "SPEED - by Shawn Hargreaves, 1999\n"
+      "Allegro 5 port, 2010\n"
       "\n"
-      "Usage: speed w h bpp [options]\n"
+      "Usage: speed w h [options]\n"
       "\n"
       "The w and h values set your desired screen resolution.\n"
       "What modes are available will depend on your hardware.\n"
-      "\n"
-      "The bpp value sets the color depth: 8, 15, 16, 24, or 32.\n"
-      "It runs _much_ faster in 8 bit mode.\n"
       "\n"
       "Available options:\n"
       "\n"
@@ -240,7 +153,7 @@ static void usage()
       "\n"
       "Example usage:\n"
       "\n"
-      "\tspeed 640 480 8\n"
+      "\tspeed 640 480\n"
    );
 }
 
@@ -249,14 +162,21 @@ static void usage()
 /* the main program body */
 int main(int argc, char *argv[])
 {
-   int w=0, h=0, bpp=0;
+   int w=0, h=0;
    int www = FALSE;
-   PALETTE pal;
    int i, n;
 
    srand(time(NULL));
 
-   allegro_init();
+   if (!al_init()) {
+      fprintf(stderr, "Could not initialise Allegro.\n");
+      return 1;
+   }
+
+   if (argc == 1) {
+      w = 640;
+      h = 480;
+   }
 
    /* parse the commandline */
    for (i=1; i<argc; i++) {
@@ -289,9 +209,6 @@ int main(int argc, char *argv[])
 	 else if (!h) {
 	    h = n;
 	 }
-	 else if (!bpp) {
-	    bpp = n;
-	 }
 	 else {
 	    usage();
 	    return 1;
@@ -301,7 +218,7 @@ int main(int argc, char *argv[])
 
    /* it's a real shame that I had to take this out! */
    if (www) {
-      allegro_message(
+      printf(
 	 "\n"
 	 "Unfortunately the built-in web browser feature had to be removed.\n"
 	 "\n"
@@ -319,50 +236,37 @@ int main(int argc, char *argv[])
       return 1;
    }
 
-   if ((!w) || (!h) || (!bpp)) {
+   if ((!w) || (!h)) {
       usage();
       return 1;
    }
 
    /* set the screen mode */
-   set_color_depth(bpp);
+   al_set_new_display_flags(ALLEGRO_GENERATE_EXPOSE_EVENTS);
+   if (!al_create_display(w, h)) {
+      fprintf(stderr, "Error setting %dx%d display mode\n", w, h);
+      return 1;
+   }
 
-   if (set_gfx_mode(GFX_AUTODETECT, w, h, 0, 0) != 0) {
-      allegro_message("Error setting %dx%d %d bpp display mode:\n%s\n",
-		      w, h, bpp, allegro_error);
+   /* the Allegro 5 port introduced an external data dependency, sorry */
+   al_init_font_addon();
+   font = al_load_bitmap_font("a4_font.tga");
+   if (!font) {
+      fprintf(stderr, "Error loading a4_font.tga\n");
       return 1;
    }
 
    /* set up everything else */
-   install_timer();
-   install_keyboard();
-   install_joystick(JOY_TYPE_AUTODETECT);
-   install_sound(DIGI_AUTODETECT, MIDI_NONE, NULL);
+   al_install_keyboard();
+   al_install_joystick();
+   if (al_install_audio(ALLEGRO_AUDIO_DRIVER_AUTODETECT)) {
+      if (!al_reserve_samples(8))
+         al_uninstall_audio();
+   }
 
+   init_input();
    init_sound();
    init_hiscore();
-
-   /* additive color is cool */
-   if (bpp == 8) {
-      generate_332_palette(pal);
-
-      pal[0].r = 0;
-      pal[0].g = 0;
-      pal[0].b = 0;
-
-      set_palette(pal);
-
-      rgb_map = malloc(sizeof(RGB_MAP));
-      create_rgb_table(rgb_map, pal, NULL);
-
-      color_map = malloc(sizeof(COLOR_MAP));
-      create_color_table(color_map, pal, add_blender8, NULL);
-   }
-   else {
-      set_blender_mode(add_blender15, add_blender16, add_blender24, 0, 0, 0, 0);
-   }
-
-   text_mode(-1);
 
    /* the main program body */
    while (title_screen()) {
@@ -378,17 +282,9 @@ int main(int argc, char *argv[])
 
    goodbye();
 
-   if (rgb_map) {
-      free(rgb_map);
-      rgb_map = NULL;
-   }
+   shutdown_input();
 
-   if (color_map) {
-      free(color_map);
-      color_map = NULL;
-   }
+   al_destroy_font(font);
 
    return 0;
 }
-
-END_OF_MAIN();

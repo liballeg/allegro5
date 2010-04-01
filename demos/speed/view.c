@@ -5,7 +5,9 @@
  */
 
 #include <math.h>
-#include <allegro.h>
+#include <allegro5/allegro.h>
+#include <allegro5/allegro_font.h>
+#include <allegro5/allegro_primitives.h>
 
 #include "speed.h"
 
@@ -298,17 +300,20 @@ static int project_cylinder(float *f, int *i, int c)
 
 
 /* draws the entire view */
-void draw_view(BITMAP *bmp)
+void draw_view()
 {
+   int SCREEN_W = al_get_display_width();
+   int SCREEN_H = al_get_display_height();
    int (*project)(float *f, int *i, int c);
-   int r, g, b, c;
+   int r, g, b;
+   ALLEGRO_COLOR c;
    int i, n, x, y;
    float point[6];
    int ipoint[6];
 
-   clear(bmp);
+   al_clear_to_color(makecol(0, 0, 0));
 
-   drawing_mode(DRAW_MODE_TRANS, NULL, 0, 0);
+   al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ONE, al_map_rgba_f(1, 1, 1, 1));
 
    for (i=0; i<4; i++) {
 
@@ -361,7 +366,7 @@ void draw_view(BITMAP *bmp)
 
 	    default:
 	       /* oops! */
-	       ASSERT(FALSE);
+	       assert(FALSE);
 	       return;
 	 }
 
@@ -381,31 +386,31 @@ void draw_view(BITMAP *bmp)
 
 		  if (project(point, ipoint, 6)) {
 		     if (x < n)
-			line(bmp, ipoint[0], ipoint[1], ipoint[2], ipoint[3], c);
+			line(ipoint[0], ipoint[1], ipoint[2], ipoint[3], c);
 
 		     if ((y < n) && ((x < n) || (i == 0)))
-			line(bmp, ipoint[0], ipoint[1], ipoint[4], ipoint[5], c);
+			line(ipoint[0], ipoint[1], ipoint[4], ipoint[5], c);
 		  }
 	       }
 	    }
 	 }
 
-	 draw_player(bmp, r, g, b, project);
-	 draw_badguys(bmp, r, g, b, project);
-	 draw_bullets(bmp, r, g, b, project);
-	 draw_explode(bmp, r, g, b, project);
+	 draw_player(r, g, b, project);
+	 draw_badguys(r, g, b, project);
+	 draw_bullets(r, g, b, project);
+	 draw_explode(r, g, b, project);
       }
    }
 
    solid_mode();
 
-   draw_message(bmp);
+   draw_message();
 
-   textprintf(bmp, font, 4, 4, makecol(128, 128, 128), "Lives: %d", lives);
-   textprintf(bmp, font, 4, 16, makecol(128, 128, 128), "Score: %d", score);
-   textprintf(bmp, font, 4, 28, makecol(128, 128, 128), "Hiscore: %d", get_hiscore());
+   textprintf(font, 4, 4, makecol(128, 128, 128), "Lives: %d", lives);
+   textprintf(font, 4, 16, makecol(128, 128, 128), "Score: %d", score);
+   textprintf(font, 4, 28, makecol(128, 128, 128), "Hiscore: %d", get_hiscore());
 
-   blit(bmp, screen, 0, 0, 0, 0, SCREEN_W, SCREEN_H);
+   al_flip_display();
 }
 
 

@@ -4,7 +4,8 @@
  *    Explosion graphics effect.
  */
 
-#include <allegro.h>
+#include <allegro5/allegro.h>
+#include <allegro5/allegro_primitives.h>
 
 #include "speed.h"
 
@@ -91,13 +92,14 @@ void update_explode()
 
 
 /* draws explosions */
-void draw_explode(BITMAP *bmp, int r, int g, int b, int (*project)(float *f, int *i, int c))
+void draw_explode(int r, int g, int b, int (*project)(float *f, int *i, int c))
 {
    EXPLOSION *e = explosions;
    float size = view_size();
    float pos[2];
    int ipos[2];
    int rr, gg, bb, c, s;
+   ALLEGRO_COLOR col;
 
    while (e) {
       pos[0] = e->x;
@@ -108,10 +110,10 @@ void draw_explode(BITMAP *bmp, int r, int g, int b, int (*project)(float *f, int
 
 	 if ((!low_detail) && (e->time < 24)) {
 	    c = (24 - e->time) * 255 / 24;
-	    c = makecol(c, c, c);
+	    col = makecol(c, c, c);
 
-	    circle(bmp, ipos[0], ipos[1], s*2, c);
-	    circle(bmp, ipos[0], ipos[1], s*s/8, c);
+	    al_draw_circle(ipos[0], ipos[1], s*2, col, 0);
+	    al_draw_circle(ipos[0], ipos[1], s*s/8, col, 0);
 	 }
 
 	 if (e->time < 32) {
@@ -125,9 +127,9 @@ void draw_explode(BITMAP *bmp, int r, int g, int b, int (*project)(float *f, int
 	    gg = MAX(gg, c);
 	    bb = MAX(bb, c);
 
-	    c = makecol(rr, gg, bb);
+	    col = makecol(rr, gg, bb);
 
-	    circlefill(bmp, ipos[0], ipos[1], s, c);
+	    al_draw_filled_circle(ipos[0], ipos[1], s, col);
 	 }
       }
 

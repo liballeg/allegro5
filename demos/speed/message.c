@@ -4,7 +4,8 @@
  *    Text message displaying functions.
  */
 
-#include <allegro.h>
+#include <allegro5/allegro.h>
+#include <allegro5/allegro_font.h>
 
 #include "speed.h"
 
@@ -67,6 +68,8 @@ void message(char *text)
 /* updates the message position */
 void update_message()
 {
+   int SCREEN_W = al_get_display_width();
+   int SCREEN_H = al_get_display_height();
    MESSAGE **p = &msg;
    MESSAGE *m = msg;
    MESSAGE *tmp;
@@ -104,12 +107,12 @@ void update_message()
 
 
 /* draws messages */
-void draw_message(BITMAP *bmp)
+void draw_message()
 {
    MESSAGE *m = msg;
 
    while (m) {
-      textout_centre(bmp, font, m->text, m->x, m->y, makecol(255, 255, 255));
+      textout_centre(font, m->text, m->x, m->y, makecol(255, 255, 255));
       m = m->next;
    }
 }

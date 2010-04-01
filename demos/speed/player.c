@@ -5,7 +5,8 @@
  */
 
 #include <stdio.h>
-#include <allegro.h>
+#include <allegro5/allegro.h>
+#include <allegro5/allegro_primitives.h>
 
 #include "speed.h"
 
@@ -204,11 +205,10 @@ void advance_player(int cycle)
 /* updates the player position */
 int update_player()
 {
-   poll_keyboard();
-   poll_joystick();
+   poll_input();
 
    /* quit game? */ 
-   if (key[KEY_ESC])
+   if (key[ALLEGRO_KEY_ESCAPE])
       return -1;
 
    /* safe period while initing */
@@ -237,10 +237,10 @@ int update_player()
 
    /* handle user left/right input */
    if (!die_time) {
-      if ((joy_left) || (key[KEY_LEFT]))
+      if ((joy_left) || (key[ALLEGRO_KEY_LEFT]))
 	 vel -= 0.005;
 
-      if ((joy_right) || (key[KEY_RIGHT]))
+      if ((joy_right) || (key[ALLEGRO_KEY_RIGHT]))
 	 vel += 0.005;
    }
 
@@ -257,7 +257,7 @@ int update_player()
 
    /* fire bullets */
    if ((!die_time) && (!init_time) && (!fire_time)) {
-      if ((key[KEY_SPACE]) || (joy_b1)) {
+      if ((key[ALLEGRO_KEY_SPACE]) || (joy_b1)) {
 	 fire_bullet();
 	 fire_time = 24;
       }
@@ -272,7 +272,7 @@ int update_player()
 
 
 /* draws the player */
-void draw_player(BITMAP *bmp, int r, int g, int b, int (*project)(float *f, int *i, int c))
+void draw_player(int r, int g, int b, int (*project)(float *f, int *i, int c))
 {
    float shape[12];
    int ishape[12];
@@ -294,7 +294,7 @@ void draw_player(BITMAP *bmp, int r, int g, int b, int (*project)(float *f, int 
 	 shape[7] = 1.0;
 
 	 if (project(shape, ishape, 8))
-	    polygon(bmp, 4, ishape, makecol(r/3, g/3, b/3));
+	    polygon(4, ishape, makecol(r/3, g/3, b/3));
       }
    }
 
@@ -322,7 +322,7 @@ void draw_player(BITMAP *bmp, int r, int g, int b, int (*project)(float *f, int 
    shape[11] = 0.98;
 
    if (project(shape, ishape, 12))
-      polygon(bmp, 6, ishape, makecol(r, g, b));
+      polygon(6, ishape, makecol(r, g, b));
 }
 
 

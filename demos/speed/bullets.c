@@ -5,7 +5,8 @@
  */
 
 #include <math.h>
-#include <allegro.h>
+#include <allegro5/allegro.h>
+#include <allegro5/allegro_primitives.h>
 
 #include "speed.h"
 
@@ -126,11 +127,11 @@ void update_bullets()
 
 
 /* draws the bullets */
-void draw_bullets(BITMAP *bmp, int r, int g, int b, int (*project)(float *f, int *i, int c))
+void draw_bullets(int r, int g, int b, int (*project)(float *f, int *i, int c))
 {
    BULLET *bul = bullets;
-   int c1 = makecol(128+r/2, 128+g/2, 128+b/2);
-   int c2 = (g) ? makecol(r/5, g/5, b/5) : makecol(r/4, g/4, b/4);
+   ALLEGRO_COLOR c1 = makecol(128+r/2, 128+g/2, 128+b/2);
+   ALLEGRO_COLOR c2 = (g) ? makecol(r/5, g/5, b/5) : makecol(r/4, g/4, b/4);
    float shape[6];
    int ishape[6];
    int i;
@@ -147,7 +148,7 @@ void draw_bullets(BITMAP *bmp, int r, int g, int b, int (*project)(float *f, int
 	 shape[5] = bul->y - 0.015;
 
 	 if (project(shape, ishape, 6)) {
-	    polygon(bmp, 3, ishape, c1);
+	    polygon(3, ishape, c1);
 
 	    if (!low_detail) {
 	       float cx = (ishape[0] + ishape[2] + ishape[4]) / 3;
@@ -166,10 +167,10 @@ void draw_bullets(BITMAP *bmp, int r, int g, int b, int (*project)(float *f, int
 		  boxy[i] = ty * bul->y * view_size() / 8;
 	       }
 
-	       line(bmp, cx+boxx[0], cy+boxy[0], cx+boxx[1], cy+boxy[1], c2);
-	       line(bmp, cx+boxx[1], cy+boxy[1], cx+boxx[2], cy+boxy[2], c2);
-	       line(bmp, cx+boxx[2], cy+boxy[2], cx+boxx[3], cy+boxy[3], c2);
-	       line(bmp, cx+boxx[3], cy+boxy[3], cx+boxx[0], cy+boxy[0], c2);
+	       line(cx+boxx[0], cy+boxy[0], cx+boxx[1], cy+boxy[1], c2);
+	       line(cx+boxx[1], cy+boxy[1], cx+boxx[2], cy+boxy[2], c2);
+	       line(cx+boxx[2], cy+boxy[2], cx+boxx[3], cy+boxy[3], c2);
+	       line(cx+boxx[3], cy+boxy[3], cx+boxx[0], cy+boxy[0], c2);
 	    }
 	 }
       }

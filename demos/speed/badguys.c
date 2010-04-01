@@ -5,7 +5,7 @@
  */
 
 #include <math.h>
-#include <allegro.h>
+#include <allegro5/allegro.h>
 
 #include "speed.h"
 
@@ -243,12 +243,12 @@ int update_badguys()
    int dead;
 
    /* testcode: enter clears the level */
-   if ((cheat) && (key[KEY_ENTER])) {
+   if ((cheat) && (key[ALLEGRO_KEY_ENTER])) {
       shutdown_badguys();
       b = NULL;
 
-      while (key[KEY_ENTER])
-	 poll_keyboard();
+      while (key[ALLEGRO_KEY_ENTER])
+	 poll_input_wait();
    }
 
    while (b) {
@@ -393,10 +393,10 @@ int update_badguys()
 
 
 /* draws the badguys */
-void draw_badguys(BITMAP *bmp, int r, int g, int b, int (*project)(float *f, int *i, int c))
+void draw_badguys(int r, int g, int b, int (*project)(float *f, int *i, int c))
 {
    BADGUY *bad = evildudes;
-   int c = makecol(r, g, b);
+   ALLEGRO_COLOR c = makecol(r, g, b);
    float shape[12];
    int ishape[12];
 
@@ -421,7 +421,7 @@ void draw_badguys(BITMAP *bmp, int r, int g, int b, int (*project)(float *f, int
 	 shape[11] = bad->y + 0.005;
 
 	 if (project(shape, ishape, 12))
-	    polygon(bmp, 6, ishape, c);
+	    polygon(6, ishape, c);
       }
 
       bad = bad->next;

@@ -9,7 +9,8 @@
  */
 
 #include <math.h>
-#include <allegro.h>
+#include <allegro5/allegro.h>
+#include <allegro5/allegro_audio.h>
 
 #include "speed.h"
 
@@ -20,16 +21,16 @@
 
 
 /* generated sample waveforms */
-static SAMPLE *zap;
-static SAMPLE *bang;
-static SAMPLE *bigbang;
-static SAMPLE *ping;
-static SAMPLE *sine;
-static SAMPLE *square;
-static SAMPLE *saw;
-static SAMPLE *bd;
-static SAMPLE *snare;
-static SAMPLE *hihat;
+static ALLEGRO_SAMPLE *zap;
+static ALLEGRO_SAMPLE *bang;
+static ALLEGRO_SAMPLE *bigbang;
+static ALLEGRO_SAMPLE *ping;
+static ALLEGRO_SAMPLE *sine;
+static ALLEGRO_SAMPLE *square;
+static ALLEGRO_SAMPLE *saw;
+static ALLEGRO_SAMPLE *bd;
+static ALLEGRO_SAMPLE *snare;
+static ALLEGRO_SAMPLE *hihat;
 
 
 
@@ -575,12 +576,16 @@ static int part_time[NUM_PARTS];
 
 static int freq_table[256];
 
-static int part_voice[NUM_PARTS];
+static ALLEGRO_SAMPLE_INSTANCE *part_voice[NUM_PARTS];
+
+static ALLEGRO_TIMER *music_timer;
+
+#define PAN(x)	  (((x) - 128)/128.0)
 
 
 
 /* the main music player function */
-static void music_player(void)
+static void music_player()
 {
    int i, note;
 
@@ -589,28 +594,28 @@ static void music_player(void)
 	 note = part_pos[i][0];
 	 part_time[i] = part_pos[i][1];
 
-	 voice_stop(part_voice[i]);
+	 al_stop_sample_instance(part_voice[i]);
 
 	 if (i == 3) {
 	    if (note == 1) {
-	       reallocate_voice(part_voice[i], bd);
-	       voice_set_pan(part_voice[i], 128);
+	       al_set_sample(part_voice[i], bd);
+	       al_set_sample_instance_pan(part_voice[i], PAN(128));
 	    }
 	    else if (note == 2) {
-	       reallocate_voice(part_voice[i], snare);
-	       voice_set_pan(part_voice[i], 160);
+	       al_set_sample(part_voice[i], snare);
+	       al_set_sample_instance_pan(part_voice[i], PAN(160));
 	    }
 	    else {
-	       reallocate_voice(part_voice[i], hihat);
-	       voice_set_pan(part_voice[i], 96);
+	       al_set_sample(part_voice[i], hihat);
+	       al_set_sample_instance_pan(part_voice[i], PAN(96));
 	    }
 
-	    voice_start(part_voice[i]);
+	    al_play_sample_instance(part_voice[i]);
 	 }
 	 else {
 	    if (note > 0) {
-	       voice_set_frequency(part_voice[i], freq_table[note]);
-	       voice_start(part_voice[i]);
+	       al_set_sample_instance_speed(part_voice[i], freq_table[note]/22050.0);
+	       al_play_sample_instance(part_voice[i]);
 	    }
 	 }
 
@@ -623,8 +628,6 @@ static void music_player(void)
    }
 }
 
-END_OF_STATIC_FUNCTION(music_player);
-
 
 
 /* this code is sick */
@@ -634,9 +637,12 @@ static void init_music()
    char *p;
    int i;
 
+   if (!al_is_audio_installed())
+      return;
+
    /* sine waves (one straight and one with oscillator sync) for the bass */
-   sine = create_sample(8, FALSE, 22050, 64);
-   p = (char *)sine->data;
+   sine = create_sample_u8(22050, 64);
+   p = (char *)al_get_sample_data(sine);
 
    for (i=0; i<64; i++) {
       *p = 128 + (sin((float)i * M_PI / 32.0) + sin((float)i * M_PI / 12.0)) * 8.0;
@@ -644,8 +650,8 @@ static void init_music()
    }
 
    /* square wave for melody #1 */
-   square = create_sample(8, FALSE, 22050, 64);
-   p = (char *)square->data;
+   square = create_sample_u8(22050, 64);
+   p = (char *)al_get_sample_data(square);
 
    for (i=0; i<64; i++) {
       *p = (i < 32) ? 120 : 136;
@@ -653,8 +659,8 @@ static void init_music()
    }
 
    /* saw wave for melody #2 */
-   saw = create_sample(8, FALSE, 22050, 64);
-   p = (char *)saw->data;
+   saw = create_sample_u8(22050, 64);
+   p = (char *)al_get_sample_data(saw);
 
    for (i=0; i<64; i++) {
       *p = 120 + (i*4 & 255) / 16;
@@ -662,8 +668,8 @@ static void init_music()
    }
 
    /* bass drum */
-   bd = create_sample(8, FALSE, 22050, 1024);
-   p = (char *)bd->data;
+   bd = create_sample_u8(22050, 1024);
+   p = (char *)al_get_sample_data(bd);
 
    for (i=0; i<1024; i++) {
       vol = (float)(1024-i) / 16.0;
@@ -672,8 +678,8 @@ static void init_music()
    }
 
    /* snare drum */
-   snare = create_sample(8, FALSE, 22050, 3072);
-   p = (char *)snare->data;
+   snare = create_sample_u8(22050, 3072);
+   p = (char *)al_get_sample_data(snare);
 
    val = 0;
 
@@ -685,8 +691,8 @@ static void init_music()
    }
 
    /* hihat */
-   hihat = create_sample(8, FALSE, 22050, 1024);
-   p = (char *)hihat->data;
+   hihat = create_sample_u8(22050, 1024);
+   p = (char *)al_get_sample_data(hihat);
 
    for (i=0; i<1024; i++) {
       vol = (float)(1024-i) / 192.0;
@@ -698,54 +704,37 @@ static void init_music()
    for (i=0; i<256; i++)
       freq_table[i] = (int)(350.0 * pow(2.0, (float)i/12.0));
 
-   LOCK_VARIABLE(sine);
-   LOCK_VARIABLE(square);
-   LOCK_VARIABLE(saw);
-   LOCK_VARIABLE(bd);
-   LOCK_VARIABLE(snare);
-   LOCK_VARIABLE(hihat);
-   LOCK_VARIABLE(part_1);
-   LOCK_VARIABLE(part_2);
-   LOCK_VARIABLE(part_3);
-   LOCK_VARIABLE(part_4);
-   LOCK_VARIABLE(part_ptr);
-   LOCK_VARIABLE(part_pos);
-   LOCK_VARIABLE(part_time);
-   LOCK_VARIABLE(freq_table);
-   LOCK_VARIABLE(part_voice);
-   LOCK_FUNCTION(music_player);
-
    for (i=0; i<NUM_PARTS; i++) {
       part_pos[i] = part_ptr[i];
       part_time[i] = 0;
    }
 
-   part_voice[0] = allocate_voice(sine);
-   part_voice[1] = allocate_voice(square);
-   part_voice[2] = allocate_voice(saw);
-   part_voice[3] = allocate_voice(bd);
+   part_voice[0] = al_create_sample_instance(sine);
+   part_voice[1] = al_create_sample_instance(square);
+   part_voice[2] = al_create_sample_instance(saw);
+   part_voice[3] = al_create_sample_instance(bd);
 
-   voice_set_priority(part_voice[0], 255);
-   voice_set_priority(part_voice[1], 255);
-   voice_set_priority(part_voice[2], 255);
-   voice_set_priority(part_voice[3], 255);
+   al_attach_sample_instance_to_mixer(part_voice[0], al_get_default_mixer());
+   al_attach_sample_instance_to_mixer(part_voice[1], al_get_default_mixer());
+   al_attach_sample_instance_to_mixer(part_voice[2], al_get_default_mixer());
+   al_attach_sample_instance_to_mixer(part_voice[3], al_get_default_mixer());
 
-   voice_set_playmode(part_voice[0], PLAYMODE_LOOP);
-   voice_set_playmode(part_voice[1], PLAYMODE_LOOP);
-   voice_set_playmode(part_voice[2], PLAYMODE_LOOP);
-   voice_set_playmode(part_voice[3], PLAYMODE_PLAY);
+   al_set_sample_instance_playmode(part_voice[0], ALLEGRO_PLAYMODE_LOOP);
+   al_set_sample_instance_playmode(part_voice[1], ALLEGRO_PLAYMODE_LOOP);
+   al_set_sample_instance_playmode(part_voice[2], ALLEGRO_PLAYMODE_LOOP);
+   al_set_sample_instance_playmode(part_voice[3], ALLEGRO_PLAYMODE_ONCE);
 
-   voice_set_volume(part_voice[0], 192);
-   voice_set_volume(part_voice[1], 192);
-   voice_set_volume(part_voice[2], 192);
-   voice_set_volume(part_voice[3], 255);
+   al_set_sample_instance_gain(part_voice[0], 192/255.0);
+   al_set_sample_instance_gain(part_voice[1], 192/255.0);
+   al_set_sample_instance_gain(part_voice[2], 192/255.0);
+   al_set_sample_instance_gain(part_voice[3], 255/255.0);
 
-   voice_set_pan(part_voice[0], 128);
-   voice_set_pan(part_voice[1], 224);
-   voice_set_pan(part_voice[2], 32);
-   voice_set_pan(part_voice[3], 128);
+   al_set_sample_instance_pan(part_voice[0], PAN(128));
+   al_set_sample_instance_pan(part_voice[1], PAN(224));
+   al_set_sample_instance_pan(part_voice[2], PAN(32));
+   al_set_sample_instance_pan(part_voice[3], PAN(128));
 
-   install_int_ex(music_player, BPS_TO_TIMER(22));
+   music_timer = al_install_timer(ALLEGRO_BPS_TO_SECS(22));
 }
 
 
@@ -754,19 +743,56 @@ static void init_music()
 static int ping_vol;
 static int ping_freq;
 static int ping_count;
+static ALLEGRO_TIMER *ping_timer;
 
 
-static void ping_proc(void)
+static int ping_proc(void)
 {
    ping_freq = ping_freq*4/3;
 
    play_sample(ping, ping_vol, 128, ping_freq, FALSE);
 
    if (!--ping_count) 
-      remove_int(ping_proc);
+      return FALSE;
+
+   return TRUE;
 }
 
-END_OF_STATIC_FUNCTION(ping_proc);
+
+
+/* thread to keep the music playing and the pings pinging */
+static ALLEGRO_THREAD *sound_update_thread;
+
+
+
+static void *sound_update_proc(ALLEGRO_THREAD *thread, void *arg)
+{
+   ALLEGRO_EVENT_QUEUE *queue;
+   ALLEGRO_EVENT event;
+   (void)arg;
+
+   queue = al_create_event_queue();
+   al_register_event_source(queue, al_get_timer_event_source(ping_timer));
+   if (music_timer)
+      al_register_event_source(queue, al_get_timer_event_source(music_timer));
+
+   while (!al_get_thread_should_stop(thread)) {
+      if (!al_wait_for_event_timed(queue, &event, 0.25))
+	 continue;
+
+      if (event.any.source == (void *)music_timer)
+	 music_player();
+
+      if (event.any.source == (void *)ping_timer) {
+	 if (!ping_proc())
+	    al_stop_timer(ping_timer);
+      }
+   }
+
+   al_destroy_event_queue(queue);
+
+   return NULL;
+}
 
 
 
@@ -775,12 +801,17 @@ void init_sound()
 {
    float f, osc1, osc2, freq1, freq2, vol, val;
    char *p;
+   int len;
    int i;
 
-   /* zap (firing sound) consists of multiple falling saw waves */
-   zap = create_sample(8, FALSE, 22050, 8192);
+   if (!al_is_audio_installed())
+      return;
 
-   p = (char *)zap->data;
+   /* zap (firing sound) consists of multiple falling saw waves */
+   len = 8192;
+   zap = create_sample_u8(22050, len);
+
+   p = (char *)al_get_sample_data(zap);
 
    osc1 = 0;
    freq1 = 0.02;
@@ -788,8 +819,8 @@ void init_sound()
    osc2 = 0;
    freq2 = 0.025;
 
-   for (i=0; i<zap->len; i++) {
-      vol = (float)(zap->len - i) / (float)zap->len * 127;
+   for (i=0; i<len; i++) {
+      vol = (float)(len - i) / (float)len * 127;
 
       *p = 128 + (fmod(osc1, 1) + fmod(osc2, 1) - 1) * vol;
 
@@ -803,33 +834,35 @@ void init_sound()
    }
 
    /* bang (explosion) consists of filtered noise */
-   bang = create_sample(8, FALSE, 22050, 8192);
+   len = 8192;
+   bang = create_sample_u8(22050, len);
 
-   p = (char *)bang->data;
+   p = (char *)al_get_sample_data(bang);
 
    val = 0;
 
-   for (i=0; i<bang->len; i++) {
-      vol = (float)(bang->len - i) / (float)bang->len * 255;
+   for (i=0; i<len; i++) {
+      vol = (float)(len - i) / (float)len * 255;
       val = (val * 0.75) + (RAND * 0.25);
       *p = 128 + val * vol;
       p++;
    }
 
    /* big bang (explosion) consists of noise plus rumble */
-   bigbang = create_sample(8, FALSE, 11025, 24576);
+   len = 24576;
+   bigbang = create_sample_u8(11025, len);
 
-   p = (char *)bigbang->data;
+   p = (char *)al_get_sample_data(bigbang);
 
    val = 0;
 
    osc1 = 0;
    osc2 = 0;
 
-   for (i=0; i<bigbang->len; i++) {
-      vol = (float)(bigbang->len - i) / (float)bigbang->len * 128;
+   for (i=0; i<len; i++) {
+      vol = (float)(len - i) / (float)len * 128;
 
-      f = 0.5 + ((float)i / (float)bigbang->len * 0.4);
+      f = 0.5 + ((float)i / (float)len * 0.4);
       val = (val * f) + (RAND * (1-f));
 
       *p = 128 + (val + (sin(osc1) + sin(osc2)) / 4) * vol;
@@ -841,15 +874,16 @@ void init_sound()
    }
 
    /* ping consists of two sine waves */
-   ping = create_sample(8, FALSE, 22050, 8192);
+   len = 8192;
+   ping = create_sample_u8(22050, len);
 
-   p = (char *)ping->data;
+   p = (char *)al_get_sample_data(ping);
 
    osc1 = 0;
    osc2 = 0;
 
-   for (i=0; i<ping->len; i++) {
-      vol = (float)(ping->len - i) / (float)ping->len * 31;
+   for (i=0; i<len; i++) {
+      vol = (float)(len - i) / (float)len * 31;
 
       *p = 128 + (sin(osc1) + sin(osc2) - 1) * vol;
 
@@ -859,9 +893,16 @@ void init_sound()
       p++;
    }
 
+   ping_timer = al_install_timer(0.3);
+
    /* set up my lurvely music player :-) */
-   if (!no_music)
+   if (!no_music) {
       init_music();
+      al_start_timer(music_timer);
+   }
+
+   sound_update_thread = al_create_thread(sound_update_proc, NULL);
+   al_start_thread(sound_update_thread);
 }
 
 
@@ -869,28 +910,34 @@ void init_sound()
 /* closes down the sound system */
 void shutdown_sound()
 {
-   destroy_sample(zap);
-   destroy_sample(bang);
-   destroy_sample(bigbang);
-   destroy_sample(ping);
+   if (!al_is_audio_installed())
+      return;
+
+   al_destroy_thread(sound_update_thread);
+   al_uninstall_timer(ping_timer);
+
+   al_stop_samples();
+
+   al_destroy_sample(zap);
+   al_destroy_sample(bang);
+   al_destroy_sample(bigbang);
+   al_destroy_sample(ping);
 
    if (!no_music) {
-      remove_int(music_player);
+      al_uninstall_timer(music_timer);
 
-      deallocate_voice(part_voice[0]);
-      deallocate_voice(part_voice[1]);
-      deallocate_voice(part_voice[2]);
-      deallocate_voice(part_voice[3]);
+      al_destroy_sample_instance(part_voice[0]);
+      al_destroy_sample_instance(part_voice[1]);
+      al_destroy_sample_instance(part_voice[2]);
+      al_destroy_sample_instance(part_voice[3]);
 
-      destroy_sample(sine);
-      destroy_sample(square);
-      destroy_sample(saw);
-      destroy_sample(bd);
-      destroy_sample(snare);
-      destroy_sample(hihat);
+      al_destroy_sample(sine);
+      al_destroy_sample(square);
+      al_destroy_sample(saw);
+      al_destroy_sample(bd);
+      al_destroy_sample(snare);
+      al_destroy_sample(hihat);
    }
-
-   remove_int(ping_proc);
 }
 
 
@@ -898,7 +945,8 @@ void shutdown_sound()
 /* plays a shoot sound effect */
 void sfx_shoot()
 {
-   play_sample(zap, 64, 128, 1000, FALSE);
+   if (al_is_audio_installed())
+      play_sample(zap, 64, 128, 1000, FALSE);
 }
 
 
@@ -906,7 +954,8 @@ void sfx_shoot()
 /* plays an alien explosion sound effect */
 void sfx_explode_alien()
 {
-   play_sample(bang, 192, 128, 1000, FALSE);
+   if (al_is_audio_installed())
+      play_sample(bang, 192, 128, 1000, FALSE);
 }
 
 
@@ -914,7 +963,8 @@ void sfx_explode_alien()
 /* plays a block explosion sound effect */
 void sfx_explode_block()
 {
-   play_sample(bang, 224, 128, 400, FALSE);
+   if (al_is_audio_installed())
+      play_sample(bang, 224, 128, 400, FALSE);
 }
 
 
@@ -922,7 +972,8 @@ void sfx_explode_block()
 /* plays a player explosion sound effect */
 void sfx_explode_player()
 {
-   play_sample(bigbang, 255, 128, 1000, FALSE);
+   if (al_is_audio_installed())
+      play_sample(bigbang, 255, 128, 1000, FALSE);
 }
 
 
@@ -930,19 +981,10 @@ void sfx_explode_player()
 /* plays a ping sound effect */
 void sfx_ping(int times)
 {
-   static int virgin = TRUE;
+   if (!al_is_audio_installed())
+      return;
 
    if (times) {
-      if (virgin) {
-	 LOCK_VARIABLE(ping);
-	 LOCK_VARIABLE(ping_vol);
-	 LOCK_VARIABLE(ping_freq);
-	 LOCK_VARIABLE(ping_count);
-	 LOCK_FUNCTION(ping_proc);
-
-	 virgin = FALSE;
-      }
-
       if (times > 1) {
 	 ping_vol = 255;
 	 ping_freq = 500;
@@ -956,7 +998,7 @@ void sfx_ping(int times)
 
       play_sample(ping, ping_vol, 128, ping_freq, FALSE);
 
-      install_int(ping_proc, 300);
+      al_start_timer(ping_timer);
    }
    else
       play_sample(ping, 255, 128, 500, FALSE);

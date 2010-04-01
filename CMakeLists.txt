@@ -127,7 +127,7 @@ option(WANT_MUDFLAP "Enable gcc mudflap (requires gcc 4.0+)" off)
 option(WANT_ALLOW_SSE "Allow compiler to use SSE instructions (x86)" on)
 option(NO_FPU "No floating point unit" off)
 option(WANT_DLL_TLS "Force use of DllMain for TLS (Windows)" off)
-option(WANT_DEMO "Build a demo program" on)
+option(WANT_DEMO "Build demo programs" on)
 option(WANT_EXAMPLES "Build example programs" on)
 option(WANT_POPUP_EXAMPLES "Use popups instead of printf for fatal errors" on)
 
@@ -765,6 +765,7 @@ add_subdirectory(addons)
 
 if(NOT MSVC80 AND WANT_DEMO) # XXX disabled because it breaks MSVC's intellisense for some reason
     add_subdirectory(demos/a5teroids)
+    add_subdirectory(demos/speed)
 endif(NOT MSVC80 AND WANT_DEMO)
 
 #-----------------------------------------------------------------------------#
