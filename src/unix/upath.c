@@ -80,7 +80,7 @@ static ALLEGRO_PATH *_find_executable_file(const char *filename)
       ALLEGRO_USTR *us = al_ustr_new(env);
       int start_pos = 0;
       while (start_pos >= 0) {
-         int next_start_pos = al_ustr_find_chr(us, start_pos, ':');
+         int next_start_pos = al_ustr_find_chr(us, start_pos + 1, ':');
          int end_pos = next_start_pos;
          if (next_start_pos < 0)
             end_pos = al_ustr_size(us);
