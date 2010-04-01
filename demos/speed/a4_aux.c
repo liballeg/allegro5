@@ -399,7 +399,8 @@ void textprintf(const ALLEGRO_FONT *f, int x, int y, ALLEGRO_COLOR color, const 
 
    va_start(ap, fmt);
 #if defined(__WATCOMC__) || defined(_MSC_VER)
-   _vsprintf(buf, fmt, ap);
+   _vsnprintf(buf, sizeof(buf), fmt, ap);
+   buf[sizeof(buf)-1] = '\0';
 #else
    vsnprintf(buf, sizeof(buf), fmt, ap);
 #endif
