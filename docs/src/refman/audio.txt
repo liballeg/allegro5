@@ -915,7 +915,7 @@ See also: [al_set_audio_stream_fragment], [al_get_audio_stream_event_source].
 ### API: al_set_audio_stream_fragment
 
 This function needs to be called for every successful call of
-[al_get_audio_stream_buffer] to indicate that the buffer is filled with new data.
+[al_get_audio_stream_fragment] to indicate that the buffer is filled with new data.
 
 ### API: al_get_audio_stream_fragments
 
@@ -925,7 +925,7 @@ passed to [al_create_audio_stream] when a new stream is created.
 ### API: al_get_available_audio_stream_fragments
 
 Returns the number of available fragments in the stream. You can use
-[al_get_audio_stream_buffer].
+[al_get_audio_stream_fragment].
 
 ### API: al_seek_audio_stream_secs
 
