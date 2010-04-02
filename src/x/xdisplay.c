@@ -32,21 +32,41 @@ static void setup_gl(ALLEGRO_DISPLAY *d)
 
 
 
-static void set_size_hints(ALLEGRO_DISPLAY *d, int w, int h)
+static void set_size_hints(ALLEGRO_DISPLAY *d)
 {
-   if (!(d->flags & ALLEGRO_RESIZABLE)
-      && !(d->flags & ALLEGRO_FULLSCREEN_WINDOW)) {
-      ALLEGRO_SYSTEM_XGLX *system = (void *)al_get_system_driver();
-      ALLEGRO_DISPLAY_XGLX *glx = (void *)d;
-      XSizeHints *hints = XAllocSizeHints();;
+   if (d->flags & ALLEGRO_RESIZABLE) return;
 
-      hints->flags = PMinSize | PMaxSize | PBaseSize;
-      hints->min_width  = hints->max_width  = hints->base_width  = w;
-      hints->min_height = hints->max_height = hints->base_height = h;
-      XSetWMNormalHints(system->x11display, glx->window, hints);
+   ALLEGRO_SYSTEM_XGLX *system = (void *)al_get_system_driver();
+   ALLEGRO_DISPLAY_XGLX *glx = (void *)d;
+   XSizeHints *hints = XAllocSizeHints();;
 
-      XFree(hints);
-   }
+   int w = d->w;
+   int h = d->h;
+   hints->flags = PMinSize | PMaxSize | PBaseSize;
+   hints->min_width  = hints->max_width  = hints->base_width  = w;
+   hints->min_height = hints->max_height = hints->base_height = h;
+   XSetWMNormalHints(system->x11display, glx->window, hints);
+
+   XFree(hints);
+}
+
+
+
+static void reset_size_hints(ALLEGRO_DISPLAY *d)
+{
+   ALLEGRO_SYSTEM_XGLX *system = (void *)al_get_system_driver();
+   ALLEGRO_DISPLAY_XGLX *glx = (void *)d;
+   XSizeHints *hints = XAllocSizeHints();;
+
+   hints->flags = PMinSize | PMaxSize;
+   hints->min_width  = 0;
+   hints->min_height = 0;
+   // FIXME: Is there a way to remove/reset max dimensions?
+   hints->max_width  = 32768;
+   hints->max_height = 32768;
+   XSetWMNormalHints(system->x11display, glx->window, hints);
+
+   XFree(hints);
 }
 
 
@@ -196,8 +216,10 @@ static bool xdpy_toggle_display_flag(ALLEGRO_DISPLAY *display, int flag,
          return true;
       case ALLEGRO_FULLSCREEN_WINDOW:
          if (onoff == !(display->flags & ALLEGRO_FULLSCREEN_WINDOW)) {
+            reset_size_hints(display);
             _al_xglx_toggle_fullscreen_window(display);
             display->flags ^= ALLEGRO_FULLSCREEN_WINDOW;
+            set_size_hints(display);
          }
          return true;
    }
@@ -313,7 +335,7 @@ static ALLEGRO_DISPLAY *xdpy_create_display(int w, int h)
 
    ALLEGRO_DEBUG("X11 window created.\n");
 
-   set_size_hints(display, w, h);
+   set_size_hints(display);
 
    d->wm_delete_window_atom = XInternAtom (system->x11display,
       "WM_DELETE_WINDOW", False);
@@ -669,7 +691,7 @@ static bool xdpy_resize_display(ALLEGRO_DISPLAY *d, int w, int h)
 
    _al_mutex_lock(&system->lock);
 
-   set_size_hints(d, w, h);
+   reset_size_hints(d);
    XResizeWindow(system->x11display, glx->window, w, h);
 
    _al_display_xglx_await_resize(d);
@@ -678,6 +700,8 @@ static bool xdpy_resize_display(ALLEGRO_DISPLAY *d, int w, int h)
       _al_xglx_fullscreen_set_mode(system, w, h, 0, 0);
       _al_xglx_fullscreen_to_display(system, glx);
    }
+   
+   set_size_hints(d);
 
    _al_mutex_unlock(&system->lock);
    return true;
