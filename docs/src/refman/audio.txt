@@ -10,8 +10,8 @@ Link with allegro_audio.
 ### API: ALLEGRO_AUDIO_DEPTH
 
 Sample depth and type, and signedness. Mixers only use 32-bit signed
-float (-1..+1). The unsigned value is a bit-flag applied to the depth
-value.
+float (-1..+1), or 16-bit signed integers.
+The unsigned value is a bit-flag applied to the depth value.
 
 * ALLEGRO_AUDIO_DEPTH_INT8
 * ALLEGRO_AUDIO_DEPTH_INT16
@@ -35,6 +35,8 @@ ALLEGRO_AUDIO_DRIVER_AUTODETECT whenever possible.
 * ALLEGRO_AUDIO_DRIVER_ALSA
 * ALLEGRO_AUDIO_DRIVER_DSOUND
 * ALLEGRO_AUDIO_DRIVER_OSS
+* ALLEGRO_AUDIO_DRIVER_PULSEAUDIO
+* ALLEGRO_AUDIO_DRIVER_AQUEUE
 
 ### API: ALLEGRO_AUDIO_PAN_NONE
 
@@ -117,10 +119,13 @@ While playing, you must periodically fill fragments with new audio data. To
 know when a new fragment is ready to be filled, you can either directly check
 with [al_get_available_audio_stream_fragments], or listen to events from the
 stream.
-An ALLEGRO_EVENT_AUDIO_STREAM_FRAGMENT event is generated whenever a new
-fragment is ready. Use [al_get_audio_stream_fragment] to obtain a pointer to the
-fragment to be filled. The size and format are determined by the parameters
-passed to [al_create_audio_stream].
+
+You can register an audio stream event source to an event queue; see
+[al_get_audio_stream_event_source].  An ALLEGRO_EVENT_AUDIO_STREAM_FRAGMENT
+event is generated whenever a new fragment is ready.  When you receive an
+event, use [al_get_audio_stream_fragment] to obtain a pointer to the fragment
+to be filled. The size and format are determined by the parameters passed to
+[al_create_audio_stream].
 
 If you're late with supplying new data, the stream will be silent until new data
 is provided. You must call [al_drain_audio_stream] when you're finished with
@@ -710,26 +715,22 @@ Creates an [ALLEGRO_AUDIO_STREAM]. The stream will be set to play by default.
 It will feed audio data from a buffer, which is split into a number of
 fragments.
 
---------------------------------------------------------------------------------
-Parameter      Meaning
--------------  ------------------------------------------------------------------
-fragment_count How many fragments to use for the audio stream. Usually only
-               two fragments are required - splitting the audio buffer in two
-               halves. But it means that the only time when new data can be
-               supplied is whenever one half has finished playing.
+Parameters:
 
-               When using many fragments, you usually will use fewer samples
-               for one, so there always will be (small) fragments available to
-               be filled with new data.
+* fragment_count - How many fragments to use for the audio stream.
+    Usually only two fragments are required - splitting the audio buffer in
+    two halves. But it means that the only time when new data can be supplied
+    is whenever one half has finished playing.  When using many fragments,
+    you usually will use fewer samples for one, so there always will be
+    (small) fragments available to be filled with new data.
 
-samples        The size of a fragment in samples. See note below.
+* samples - The size of a fragment in samples. See note below.
 
-freq           The frequency, in Hertz.
+* freq - The frequency, in Hertz.
 
-depth          Must be one of the values listed for [ALLEGRO_AUDIO_DEPTH].
+* depth - Must be one of the values listed for [ALLEGRO_AUDIO_DEPTH].
 
-chan_conf      Must be one of the values listed for [ALLEGRO_CHANNEL_CONF].
---------------------------------------------------------------------------------
+* chan_conf - Must be one of the values listed for [ALLEGRO_CHANNEL_CONF].
 
 The choice of *fragment_count*, *samples* and *freq* directly influences the
 audio delay. The delay in seconds can be expressed as:
@@ -801,7 +802,7 @@ See also: [ALLEGRO_AUDIO_DEPTH].
 
 ### API: al_get_audio_stream_length
 
-Return the stream length in seconds, if known. Otherwise returns zero.
+Return the stream length in samples.
 
 ### API: al_get_audio_stream_speed
 
@@ -910,7 +911,9 @@ ALLEGRO_EVENT_AUDIO_STREAM_FRAGMENT event will be generated whenever a new
 fragment is ready. However, getting an event is *not* a guarantee that
 [al_get_audio_stream_fragment] will not return NULL, so you still must check for it.
 
-See also: [al_set_audio_stream_fragment], [al_get_audio_stream_event_source].
+See also: [al_set_audio_stream_fragment], [al_get_audio_stream_event_source],
+[al_get_audio_stream_frequency], [al_get_audio_stream_channels],
+[al_get_audio_stream_depth], [al_get_audio_stream_length]
 
 ### API: al_set_audio_stream_fragment
 
@@ -919,13 +922,15 @@ This function needs to be called for every successful call of
 
 ### API: al_get_audio_stream_fragments
 
-Returns the number of fragments this stream used. This is the same value as
+Returns the number of fragments this stream uses. This is the same value as
 passed to [al_create_audio_stream] when a new stream is created.
 
 ### API: al_get_available_audio_stream_fragments
 
-Returns the number of available fragments in the stream. You can use
-[al_get_audio_stream_fragment].
+Returns the number of available fragments in the stream, that is, fragments
+which are not currently filled with data for playback.
+
+See also: [al_get_audio_stream_fragment]
 
 ### API: al_seek_audio_stream_secs
 
@@ -942,7 +947,9 @@ Currently this can only be called on streams created with
 
 ### API: al_get_audio_stream_length_secs
 
-Return the length of the stream in seconds.
+Return the length of the stream in seconds, if known.
+Otherwise returns zero.
+
 Currently this can only be called on streams created with
 [al_load_audio_stream], [al_load_audio_stream_f] and the format-specific
 functions underlying those functions.
