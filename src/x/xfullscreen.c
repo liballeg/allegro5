@@ -240,11 +240,13 @@ static Atom _NET_WM_STATE;
 static Atom _NET_WM_STATE_FULLSCREEN;
 #define X11_ATOM_STRING(x) x = XInternAtom(x11, #x, False);
 
-void _al_xglx_toggle_fullscreen_window(ALLEGRO_DISPLAY *display, bool onoff)
+void _al_xglx_toggle_fullscreen_window(ALLEGRO_DISPLAY *display)
 {
    ALLEGRO_SYSTEM_XGLX *system = (void *)al_get_system_driver();
    ALLEGRO_DISPLAY_XGLX *glx = (ALLEGRO_DISPLAY_XGLX *)display;
    Display *x11 = system->x11display;
+   
+   _al_mutex_lock(&system->lock);
    
    if (!got_atoms) {
       X11_ATOM_STRING(_NET_WM_STATE)
@@ -259,14 +261,22 @@ void _al_xglx_toggle_fullscreen_window(ALLEGRO_DISPLAY *display, bool onoff)
    xev.xclient.message_type = _NET_WM_STATE;
    xev.xclient.window = glx->window;
    xev.xclient.format = 32;
-   xev.xclient.data.l[0] = onoff ? 1 : 0; /* 0 = off, 1 = on, 2 = toggle */
+
+   // Note: It seems 0 is not reliable except when mapping a window -
+   // 2 is all we need though.
+   xev.xclient.data.l[0] = 2; /* 0 = off, 1 = on, 2 = toggle */
+
    xev.xclient.data.l[1] = _NET_WM_STATE_FULLSCREEN;
    xev.xclient.data.l[2] = 0;
    xev.xclient.data.l[3] = 0;
-   xev.xclient.data.l[4] = 0;
+   xev.xclient.data.l[4] = 1;
 
    XSendEvent(x11, DefaultRootWindow(x11), False,
       SubstructureRedirectMask | SubstructureNotifyMask, &xev);
+   
+   _al_display_xglx_await_resize(display);
+   
+   _al_mutex_unlock(&system->lock);
 }
 
 /* vim: set sts=3 sw=3 et: */

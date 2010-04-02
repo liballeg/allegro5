@@ -195,7 +195,10 @@ static bool xdpy_toggle_display_flag(ALLEGRO_DISPLAY *display, int flag,
          xdpy_toggle_frame(display, onoff);
          return true;
       case ALLEGRO_FULLSCREEN_WINDOW:
-         _al_xglx_toggle_fullscreen_window(display, onoff);
+         if (onoff == !(display->flags & ALLEGRO_FULLSCREEN_WINDOW)) {
+            _al_xglx_toggle_fullscreen_window(display);
+            display->flags ^= ALLEGRO_FULLSCREEN_WINDOW;
+         }
          return true;
    }
    return false;
@@ -350,7 +353,7 @@ static ALLEGRO_DISPLAY *xdpy_create_display(int w, int h)
     * monitor (with the MetaCity version I'm using here right now).
     */
    if (display->flags & ALLEGRO_FULLSCREEN_WINDOW) {
-      _al_xglx_toggle_fullscreen_window(display, true);
+      _al_xglx_toggle_fullscreen_window(display);
 
       /* Wait for the resize event so we can create the initial
        * OpenGL view already with the full size.
@@ -636,6 +639,29 @@ static bool xdpy_acknowledge_resize(ALLEGRO_DISPLAY *d)
 
 
 
+void _al_display_xglx_await_resize(ALLEGRO_DISPLAY *d)
+{
+   ALLEGRO_SYSTEM_XGLX *system = (void *)al_get_system_driver();
+   
+   XSync(system->x11display, False);
+
+   /* Wait until we are actually resized. There might be a better
+    * way.. and FIXME: should use one condition variable per display,
+    * not a global one, else resizing multiple displays from multiple
+    * threads will not work right most likely.
+    */
+   _al_cond_wait(&system->resized, &system->lock);
+
+   /* TODO: Right now, we still generate a resize event (from the events
+    * thread, in response to the Configure event) which is X11
+    * specific though - if there's a simple way to prevent it we
+    * should do so.
+    */
+   xdpy_acknowledge_resize(d);
+}
+
+
+
 static bool xdpy_resize_display(ALLEGRO_DISPLAY *d, int w, int h)
 {
    ALLEGRO_SYSTEM_XGLX *system = (ALLEGRO_SYSTEM_XGLX *)al_get_system_driver();
@@ -645,17 +671,9 @@ static bool xdpy_resize_display(ALLEGRO_DISPLAY *d, int w, int h)
 
    set_size_hints(d, w, h);
    XResizeWindow(system->x11display, glx->window, w, h);
-   XSync(system->x11display, False);
 
-   /* Wait until we are actually resized. There might be a better way.. */
-   _al_cond_wait(&system->resized, &system->lock);
-
-   /* The user can expect the display to already be resized when
-    * xdpy_resize_display returns.
-    * TODO: Right now, we still generate a resize event - maybe we should not.
-    */
-   xdpy_acknowledge_resize(d);
-
+   _al_display_xglx_await_resize(d);
+   
    if (d->flags & ALLEGRO_FULLSCREEN) {
       _al_xglx_fullscreen_set_mode(system, w, h, 0, 0);
       _al_xglx_fullscreen_to_display(system, glx);
