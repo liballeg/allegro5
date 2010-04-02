@@ -20,6 +20,20 @@
    #pragma warning (disable: 4066)
 #endif
 
+/* Some unicode characters */
+#define U_ae         0x00e6   /* æ */
+#define U_i_acute    0x00ed   /* í */
+#define U_eth        0x00f0   /* ð */
+#define U_o_dia      0x00f6   /* ö */
+#define U_thorn      0x00fe   /* þ */
+#define U_z_bar      0x01b6   /* ƶ */
+#define U_schwa      0x0259   /* ə */
+#define U_beta       0x03b2   /* β */
+#define U_1d08       0x1d08   /* ᴈ */
+#define U_1ff7       0x1ff7   /* ῷ */
+#define U_2051       0x2051   /* ⁑ */
+#define U_euro       0x20ac   /* € */
+
 typedef void (*test_t)(void);
 
 int error = 0;
@@ -389,12 +403,12 @@ static void t19(void)
    ALLEGRO_USTR *us = al_ustr_new("");
 
    CHECK(al_ustr_insert_chr(us, 0, 'a') == 1);
-   CHECK(al_ustr_insert_chr(us, 0, L'æ') == 2);
-   CHECK(al_ustr_insert_chr(us, 2, L'€') == 3);
+   CHECK(al_ustr_insert_chr(us, 0, U_ae) == 2);
+   CHECK(al_ustr_insert_chr(us, 2, U_euro) == 3);
    CHECK(0 == strcmp(al_cstr(us), "æ€a"));
 
    /* Past end. */
-   CHECK(al_ustr_insert_chr(us, 8, L'ö') == 2);
+   CHECK(al_ustr_insert_chr(us, 8, U_o_dia) == 2);
    CHECK(0 == memcmp(al_cstr(us), "æ€a\0\0ö", 9));
 
    /* Invalid code points. */
@@ -410,8 +424,8 @@ static void t20(void)
    ALLEGRO_USTR *us = al_ustr_new("");
 
    CHECK(al_ustr_append_chr(us, 'a') == 1);
-   CHECK(al_ustr_append_chr(us, L'æ') == 2);
-   CHECK(al_ustr_append_chr(us, L'€') == 3);
+   CHECK(al_ustr_append_chr(us, U_ae) == 2);
+   CHECK(al_ustr_append_chr(us, U_euro) == 3);
    CHECK(0 == strcmp(al_cstr(us), "aæ€"));
 
    /* Invalid code points. */
@@ -645,15 +659,15 @@ static void t29(void)
 
    pos = 0;
    CHECK(al_ustr_get_next(us, &pos) == 'a');
-   CHECK(al_ustr_get_next(us, &pos) == L'þ');
-   CHECK(al_ustr_get_next(us, &pos) == L'€');
+   CHECK(al_ustr_get_next(us, &pos) == U_thorn);
+   CHECK(al_ustr_get_next(us, &pos) == U_euro);
    CHECK(al_ustr_get_next(us, &pos) == -1);
    CHECK(pos == (int) al_ustr_size(us));
 
    /* Start in the middle of þ. */
    pos = 2;
    CHECK(al_ustr_get_next(us, &pos) == -2);
-   CHECK(al_ustr_get_next(us, &pos) == L'€');
+   CHECK(al_ustr_get_next(us, &pos) == U_euro);
 
    al_ustr_free(us);
 }
@@ -665,14 +679,14 @@ static void t30(void)
    int pos;
 
    pos = al_ustr_size(us);
-   CHECK(al_ustr_prev_get(us, &pos) == L'€');
-   CHECK(al_ustr_prev_get(us, &pos) == L'þ');
+   CHECK(al_ustr_prev_get(us, &pos) == U_euro);
+   CHECK(al_ustr_prev_get(us, &pos) == U_thorn);
    CHECK(al_ustr_prev_get(us, &pos) == 'a');
    CHECK(al_ustr_prev_get(us, &pos) == -1);
 
    /* Start in the middle of þ. */
    pos = 2;
-   CHECK(al_ustr_prev_get(us, &pos) == L'þ');
+   CHECK(al_ustr_prev_get(us, &pos) == U_thorn);
 
    al_ustr_free(us);
 }
@@ -689,10 +703,10 @@ static void t31(void)
    CHECK(al_ustr_find_chr(us, 0, '.') == -1);
 
    /* Find non-ASCII. */
-   CHECK(al_ustr_find_chr(us, 0, L'ð') == 5);
-   CHECK(al_ustr_find_chr(us, 5, L'ð') == 5);   /* start_pos is inclusive */
-   CHECK(al_ustr_find_chr(us, 6, L'ð') == 21);
-   CHECK(al_ustr_find_chr(us, 0, L'ƶ') == -1);
+   CHECK(al_ustr_find_chr(us, 0, U_eth) == 5);
+   CHECK(al_ustr_find_chr(us, 5, U_eth) == 5);   /* start_pos is inclusive */
+   CHECK(al_ustr_find_chr(us, 6, U_eth) == 21);
+   CHECK(al_ustr_find_chr(us, 0, U_z_bar) == -1);
 
    al_ustr_free(us);
 }
@@ -709,9 +723,9 @@ static void t32(void)
    CHECK(al_ustr_rfind_chr(us, end, '.') == -1);
 
    /* Find non-ASCII. */
-   CHECK(al_ustr_rfind_chr(us, end, L'í') == 30);
-   CHECK(al_ustr_rfind_chr(us, end - 1, L'í') == 14); /* end_pos exclusive */
-   CHECK(al_ustr_rfind_chr(us, end, L'ƶ') == -1);
+   CHECK(al_ustr_rfind_chr(us, end, U_i_acute) == 30);
+   CHECK(al_ustr_rfind_chr(us, end - 1, U_i_acute) == 14); /* end_pos exclusive */
+   CHECK(al_ustr_rfind_chr(us, end, U_z_bar) == -1);
 
    al_ustr_free(us);
 }
@@ -894,32 +908,32 @@ static void t42(void)
    CHECK(6 == al_ustr_size(us));
 
    /* Enlarge to 2-bytes. */
-   CHECK(al_ustr_set_chr(us, 1, L'β') == 2);
+   CHECK(al_ustr_set_chr(us, 1, U_beta) == 2);
    CHECK(0 == strcmp(al_cstr(us), "aβcdef"));
    CHECK(7 == al_ustr_size(us));
 
    /* Enlarge to 3-bytes. */
-   CHECK(al_ustr_set_chr(us, 5, L'ᴈ') == 3);
+   CHECK(al_ustr_set_chr(us, 5, U_1d08) == 3);
    CHECK(0 == strcmp(al_cstr(us), "aβcdᴈf"));
    CHECK(9 == al_ustr_size(us));
 
    /* Reduce to 2-bytes. */
-   CHECK(al_ustr_set_chr(us, 5, L'ə') == 2);
+   CHECK(al_ustr_set_chr(us, 5, U_schwa) == 2);
    CHECK(0 == strcmp(al_cstr(us), "aβcdəf"));
    CHECK(8 == al_ustr_size(us));
 
    /* Set at end of string. */
-   CHECK(al_ustr_set_chr(us, al_ustr_size(us), L'ῷ') == 3);
+   CHECK(al_ustr_set_chr(us, al_ustr_size(us), U_1ff7) == 3);
    CHECK(0 == strcmp(al_cstr(us), "aβcdəfῷ"));
    CHECK(11 == al_ustr_size(us));
 
    /* Set past end of string. */
-   CHECK(al_ustr_set_chr(us, al_ustr_size(us) + 2, L'⁑') == 3);
+   CHECK(al_ustr_set_chr(us, al_ustr_size(us) + 2, U_2051) == 3);
    CHECK(0 == memcmp(al_cstr(us), "aβcdəfῷ\0\0⁑", 16));
    CHECK(16 == al_ustr_size(us));
 
    /* Set before start of string (not allowed). */
-   CHECK(al_ustr_set_chr(us, -1, L'⁑') == 0);
+   CHECK(al_ustr_set_chr(us, -1, U_2051) == 0);
    CHECK(16 == al_ustr_size(us));
 
    al_ustr_free(us);
