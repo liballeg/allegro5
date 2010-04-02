@@ -90,8 +90,6 @@ int main(void)
    al_init_image_addon();
    al_init_font_addon();
 
-   al_set_new_display_flags(ALLEGRO_WINDOWED | ALLEGRO_RESIZABLE);
-
    display = al_create_display(640, 480);
    if (!display) {
       abort_example("Error creating display\n");
