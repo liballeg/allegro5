@@ -47,11 +47,11 @@ int main(void)
    }
 
    redraw(picture);
-   al_rest(2.5);
+   al_rest(10.0);
 
    if (al_resize_display(800, 600)) {
       redraw(picture);
-      al_rest(2.5);
+      al_rest(10.0);
    }
    else {
       return 1;

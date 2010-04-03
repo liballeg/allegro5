@@ -114,8 +114,11 @@
 /* Define if XF86VidMode extension is supported. */
 #cmakedefine ALLEGRO_XWINDOWS_WITH_XF86VIDMODE
 
-/* Define if XF86VidMode extension is supported. */
+/* Define if Xinerama extension is supported. */
 #cmakedefine ALLEGRO_XWINDOWS_WITH_XINERAMA
+
+/* Define if XRandR extension is supported. */
+#cmakedefine ALLEGRO_XWINDOWS_WITH_XRANDR
 
 /* Define if XIM extension is supported. */
 #cmakedefine ALLEGRO_XWINDOWS_WITH_XIM

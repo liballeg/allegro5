@@ -161,52 +161,6 @@ static void xglx_background_thread(_AL_THREAD *self, void *arg)
    }
 }
 
-#ifdef ALLEGRO_XWINDOWS_WITH_XINERAMA
-
-static void _al_xsys_xinerama_init(ALLEGRO_SYSTEM_XGLX *s)
-{
-   int event_base = 0;
-   int error_base = 0;
-
-   /* init xinerama info to defaults */
-   s->xinerama_available = 0;
-   s->xinerama_screen_count = 0;
-   s->xinerama_screen_info = NULL;
-
-   _al_mutex_lock(&s->lock);
-
-   if (XineramaQueryExtension(s->x11display, &event_base, &error_base)) {
-      int minor_version = 0, major_version = 0;
-      int status = XineramaQueryVersion(s->x11display, &major_version, &minor_version);
-      ALLEGRO_INFO("Xinerama version: %i.%i\n", major_version, minor_version);
-
-      if (status && !XineramaIsActive(s->x11display)) {
-         ALLEGRO_WARN("Xinerama is not active\n");
-      }
-      else {
-         ALLEGRO_INFO("Xinerama is active\n");
-         s->xinerama_available = 1;
-      }
-   }
-   else {
-      ALLEGRO_WARN("Xinerama extension is not available.\n");
-   }
-
-   _al_mutex_unlock(&s->lock);
-}
-
-static void _al_xsys_xinerama_exit(ALLEGRO_SYSTEM_XGLX *s)
-{
-   if (s->xinerama_screen_info)
-      XFree(s->xinerama_screen_info);
-
-   s->xinerama_available = 0;
-   s->xinerama_screen_count = 0;
-   s->xinerama_screen_info = NULL;
-}
-
-#endif /* ALLEGRO_XWINDOWS_WITH_XINERAMA */
-
 /* Create a new system object for the dummy X11 driver. */
 static ALLEGRO_SYSTEM *xglx_initialize(int flags)
 {
@@ -268,8 +222,16 @@ static ALLEGRO_SYSTEM *xglx_initialize(int flags)
    _al_xsys_xinerama_init(s);
 #endif
 
+#ifdef ALLEGRO_XWINDOWS_WITH_XF86VIDMODE
+   _al_xsys_xfvm_init(s);
+#endif
+
+#ifdef ALLEGRO_XWINDOWS_WITH_XRANDR
+   _al_xsys_xrandr_init(s);
+#endif
+
    _al_xglx_store_video_mode(s);
-   
+
    _al_thread_create(&s->thread, xglx_background_thread, s);
 
    ALLEGRO_INFO("events thread spawned.\n");
@@ -295,15 +257,22 @@ static void xglx_shutdown_system(void)
    }
    _al_vector_free(&s->displays);
 
-   _al_xglx_free_mode_infos(sx);
-
 #ifdef ALLEGRO_XWINDOWS_WITH_XINERAMA
    _al_xsys_xinerama_exit(sx);
+#endif
+
+#ifdef ALLEGRO_XWINDOWS_WITH_XF86VIDMODE
+   _al_xsys_xfvm_exit(sx);
+#endif
+
+#ifdef ALLEGRO_XWINDOWS_WITH_XRANDR
+   _al_xsys_xrandr_exit(sx);
 #endif
 
    if (sx->x11display) {
       XCloseDisplay(sx->x11display);
       sx->x11display = None;
+      ALLEGRO_DEBUG("xsys: close x11display.\n");
    }
 
    if (sx->gfxdisplay) {
@@ -340,46 +309,9 @@ static ALLEGRO_JOYSTICK_DRIVER *xglx_get_joystick_driver(void)
 
 static int xglx_get_num_video_adapters(void)
 {
-#ifdef ALLEGRO_XWINDOWS_WITH_XINERAMA
    ALLEGRO_SYSTEM_XGLX *system = (void *)al_get_system_driver();
-   if (!system->xinerama_available) {
-      return 1;
-   }
-   
-   if (system->xinerama_screen_info) {
-      XFree(system->xinerama_screen_info);
-      system->xinerama_screen_info = NULL;
-      system->xinerama_screen_count = 0;
-   }
 
-   _al_mutex_lock(&system->lock);
-   system->xinerama_screen_info = XineramaQueryScreens(system->x11display, &(system->xinerama_screen_count));
-   _al_mutex_unlock(&system->lock);
-
-   if (!system->xinerama_screen_info) {
-      system->xinerama_available = 0;
-      system->xinerama_screen_count = 0;
-      return 1;
-   }
-
-   return system->xinerama_screen_count;
-#else    /* !ALLEGRO_XWINDOWS_WITH_XINERAMA */
-   return 1;
-#endif   /* !ALLEGRO_XWINDOWS_WITH_XINERAMA */
-}
-
-static void xglx_get_smonitor_info(ALLEGRO_SYSTEM_XGLX *system, ALLEGRO_MONITOR_INFO *info)
-{
-   XWindowAttributes xwa;
-   Window root = RootWindow(system->x11display, 0);
-   _al_mutex_lock(&system->lock);
-   XGetWindowAttributes(system->x11display, root, &xwa);
-   _al_mutex_unlock(&system->lock);
-   
-   info->x1 = 0;
-   info->y1 = 0;
-   info->x2 = xwa.width;
-   info->y2 = xwa.height;
+   return _al_xglx_get_num_video_adapters(system);
 }
 
 // FIXME: only uses xinerama to get info. Need to extend later and include the xfullscreen code
@@ -388,24 +320,7 @@ static void xglx_get_monitor_info(int adapter, ALLEGRO_MONITOR_INFO *info)
 {
    ALLEGRO_SYSTEM_XGLX *system = (void *)al_get_system_driver();
 
-#ifdef ALLEGRO_XWINDOWS_WITH_XINERAMA
-   if (system->xinerama_available) {
-      if (adapter >= system->xinerama_screen_count || adapter < 0)
-         return; // don't fill in single screen info if an invalid adapter number is entered.
-                 // its a bug, and should be noticed.
-
-      info->x1 = system->xinerama_screen_info[adapter].x_org;
-      info->y1 = system->xinerama_screen_info[adapter].y_org;
-      info->x2 = system->xinerama_screen_info[adapter].x_org + system->xinerama_screen_info[adapter].width;
-      info->y2 = system->xinerama_screen_info[adapter].y_org + system->xinerama_screen_info[adapter].height;
-   }
-   else {
-      xglx_get_smonitor_info(system, info);
-   }
-#else /* !ALLEGRO_XWINDOWS_WITH_XINERAMA */
-   (void)adapter;
-   xglx_get_smonitor_info(system, info);
-#endif /* !ALLEGRO_XWINDOWS_WITH_XINERAMA */
+   _al_xglx_get_monitor_info(system, adapter, info);
 }
 
 static bool xglx_get_cursor_position(int *ret_x, int *ret_y)
@@ -431,6 +346,22 @@ static bool xglx_inhibit_screensaver(bool inhibit)
    return true;
 }
 
+static int xglx_get_num_display_modes()
+{
+   int adapter = al_get_current_video_adapter();
+   ALLEGRO_SYSTEM_XGLX *s = (ALLEGRO_SYSTEM_XGLX *)al_get_system_driver();
+
+   return _al_xglx_get_num_display_modes(s, adapter);
+}
+
+static ALLEGRO_DISPLAY_MODE *xglx_get_display_mode(int mode, ALLEGRO_DISPLAY_MODE *dm)
+{
+   int adapter = al_get_current_video_adapter();
+   ALLEGRO_SYSTEM_XGLX *s = (ALLEGRO_SYSTEM_XGLX *)al_get_system_driver();
+
+   return _al_xglx_get_display_mode(s, adapter, mode, dm);
+}
+
 /* Internal function to get a reference to this driver. */
 ALLEGRO_SYSTEM_INTERFACE *_al_system_xglx_driver(void)
 {
@@ -445,8 +376,8 @@ ALLEGRO_SYSTEM_INTERFACE *_al_system_xglx_driver(void)
    xglx_vt->get_keyboard_driver = xglx_get_keyboard_driver;
    xglx_vt->get_mouse_driver = xglx_get_mouse_driver;
    xglx_vt->get_joystick_driver = xglx_get_joystick_driver;
-   xglx_vt->get_num_display_modes = _al_xglx_get_num_display_modes;
-   xglx_vt->get_display_mode = _al_xglx_get_display_mode;
+   xglx_vt->get_num_display_modes = xglx_get_num_display_modes;
+   xglx_vt->get_display_mode = xglx_get_display_mode;
    xglx_vt->shutdown_system = xglx_shutdown_system;
    xglx_vt->get_num_video_adapters = xglx_get_num_video_adapters;
    xglx_vt->get_monitor_info = xglx_get_monitor_info;

@@ -76,6 +76,9 @@ set(FRAMEWORK_INSTALL_PREFIX "/Library/Frameworks" CACHE STRING
 #
 
 option(WANT_X11 "X11 support" on)
+option(WANT_X11_XF86VIDMODE "X11 XF86VidMode Extension support" on)
+option(WANT_X11_XINERAMA "X11 Xinerama Extension support" on)
+option(WANT_X11_XRANDR "X11 XRandR Extension support" on)
 option(WANT_D3D "Enable Direct3D graphics driver (Windows)" on)
 option(WANT_D3D9EX "Enable Direct3D 9Ex extensions (Vista)" off)
 option(WANT_OPENGL "Enable OpenGL graphics driver (Windows, X11, OS X))" on)
@@ -423,10 +426,10 @@ check_c_source_compiles("
     )
 
 check_c_source_compiles("
-    #include <sys/procfs.h> 
+    #include <sys/procfs.h>
     #include <sys/ioctl.h>
     int main(void) {
-        struct prpsinfo psinfo; 
+        struct prpsinfo psinfo;
         ioctl(0, PIOCPSINFO, &psinfo);
         return 0;
     }"
@@ -533,21 +536,29 @@ if(SUPPORT_X11)
         message(FATAL_ERROR "X11 support requires Xcursor library.")
     endif(CAN_XCURSOR)
 
-    check_library_exists(Xxf86vm XF86VidModeQueryExtension "" CAN_XF86VIDMODE)
-    if(CAN_XF86VIDMODE)
-        set(ALLEGRO_XWINDOWS_WITH_XF86VIDMODE 1)
-        list(APPEND X11_LIBRARIES "Xxf86vm")
-    else(CAN_XF86VIDMODE)
-        message(
-            "WARNING: missing Xxf86vm (XF86VidMode) library. "
-            "Fullscreen support will be disabled.")
-    endif(CAN_XF86VIDMODE)
+    if(WANT_X11_XF86VIDMODE)
+      check_library_exists(Xxf86vm XF86VidModeQueryExtension "" CAN_XF86VIDMODE)
+      if(CAN_XF86VIDMODE)
+         set(ALLEGRO_XWINDOWS_WITH_XF86VIDMODE 1)
+         list(APPEND X11_LIBRARIES "Xxf86vm")
+      endif(CAN_XF86VIDMODE)
+    endif(WANT_X11_XF86VIDMODE)
 
-    check_library_exists(Xinerama XineramaQueryExtension "" CAN_XINERAMA)
-    if(CAN_XINERAMA)
-        set(ALLEGRO_XWINDOWS_WITH_XINERAMA 1)
-        list(APPEND X11_LIBRARIES "Xinerama")
-    endif(CAN_XINERAMA)
+    if(WANT_X11_XINERAMA)
+      check_library_exists(Xinerama XineramaQueryExtension "" CAN_XINERAMA)
+      if(CAN_XINERAMA)
+         set(ALLEGRO_XWINDOWS_WITH_XINERAMA 1)
+         list(APPEND X11_LIBRARIES "Xinerama")
+      endif(CAN_XINERAMA)
+    endif(WANT_X11_XINERAMA)
+
+    if(WANT_X11_XRANDR)
+      check_library_exists(Xrandr XRRQueryExtension "" CAN_XRANDR)
+      if(CAN_XRANDR)
+         set(ALLEGRO_XWINDOWS_WITH_XRANDR 1)
+         list(APPEND X11_LIBRARIES "Xrandr")
+      endif(CAN_XRANDR)
+    endif(WANT_X11_XRANDR)
 
     check_library_exists(X11 XOpenIM "" CAN_XIM)
     if(CAN_XIM)
@@ -579,7 +590,7 @@ if(WIN32)
         message(FATAL_ERROR
             "Windows port requires DirectInput (not found).")
     endif(DINPUT_FOUND)
-    
+
     find_package(DXGuid)
     if(NOT DXGUID_FOUND)
         message(FATAL_ERROR

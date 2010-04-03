@@ -23,7 +23,7 @@ static void setup_gl(ALLEGRO_DISPLAY *d)
 
    glMatrixMode(GL_MODELVIEW);
    glLoadIdentity();
-   
+
    if (ogl->backbuffer)
       _al_ogl_resize_backbuffer(ogl->backbuffer, d->w, d->h);
    else
@@ -181,7 +181,7 @@ static void xdpy_toggle_frame(ALLEGRO_DISPLAY *display, bool onoff)
     * would also require special care in the event handler.
     */
    hints = XInternAtom(x11, "_MOTIF_WM_HINTS", True);
-   if (hints) { 
+   if (hints) {
       struct {
          unsigned long flags;
          unsigned long functions;
@@ -211,7 +211,7 @@ static bool xdpy_toggle_display_flag(ALLEGRO_DISPLAY *display, int flag,
    bool onoff)
 {
    switch(flag) {
-      case ALLEGRO_NOFRAME: 
+      case ALLEGRO_NOFRAME:
          xdpy_toggle_frame(display, onoff);
          return true;
       case ALLEGRO_FULLSCREEN_WINDOW:
@@ -256,21 +256,15 @@ static ALLEGRO_DISPLAY *xdpy_create_display(int w, int h)
    // FIXME: default? Is this the right place to set this?
    display->flags |= ALLEGRO_OPENGL;
 
-   // TODO: What is this?
-   d->xscreen = DefaultScreen(system->x11display);
+   // store our initial screen, used by fullscreen and glx visual code
+   d->xscreen = al_get_current_video_adapter();
+   if(d->xscreen < 0)
+      d->xscreen = 0;
+
+   ALLEGRO_DEBUG("xdpy: default screen: %d adapter: %d\n", DefaultScreen(system->x11display), d->xscreen);
 
    d->is_mapped = false;
    _al_cond_init(&d->mapped);
-
-   // Try to set full screen mode if requested, fail if we can't
-   if (display->flags & ALLEGRO_FULLSCREEN) {
-      if (!_al_xglx_fullscreen_set_mode(system, w, h, 0, 0)) {
-         _AL_FREE(d);
-         _AL_FREE(ogl);
-         _al_mutex_unlock(&system->lock);
-         return NULL;
-      }
-   }
 
    _al_xglx_config_select_visual(d);
 
@@ -326,10 +320,45 @@ static ALLEGRO_DISPLAY *xdpy_create_display(int w, int h)
       swa.background_pixel = BlackPixel(system->x11display, d->xvinfo->screen);
    }
 
+   int x_off = INT_MAX, y_off = INT_MAX;
+   if(display->flags & ALLEGRO_FULLSCREEN) {
+      _al_xglx_get_display_offset(system, d->xscreen, &x_off, &y_off);
+   }
+   else {
+      al_get_new_window_position(&x_off, &y_off);
+   }
+
    d->window = XCreateWindow(system->x11display, RootWindow(
-      system->x11display, d->xvinfo->screen), 0, 0, w, h, 0, d->xvinfo->depth,
+      system->x11display, d->xvinfo->screen), x_off, y_off, w, h, 0, d->xvinfo->depth,
       InputOutput, d->xvinfo->visual, mask, &swa);
 
+   // Tell WMs to respect our chosen position,
+   // otherwise the x_off/y_off positions passed to
+   // XCreateWindow will be ignored by most WMs.
+   if (x_off != INT_MAX && y_off != INT_MAX) {
+      ALLEGRO_DEBUG("Force window position to %d, %d.\n",
+         x_off, y_off);
+
+      XSizeHints sh;
+      sh.flags = PPosition;
+      XSetWMNormalHints(system->x11display, d->window, &sh);
+   }
+
+      // Try to set full screen mode if requested, fail if we can't
+   if (display->flags & ALLEGRO_FULLSCREEN) {
+      xdpy_toggle_frame(display, false);
+      _al_xglx_set_above(display);
+      if (!_al_xglx_fullscreen_set_mode(system, d, w, h, 0, display->refresh_rate)) {
+         ALLEGRO_DEBUG("xdpy: failed to set fullscreen mode.\n");
+         XDestroyWindow(system->x11display, d->window);
+         _al_vector_delete_at(&system->system.displays, _al_vector_size(&system->system.displays)-1);
+         _AL_FREE(d);
+         _AL_FREE(ogl);
+         _al_mutex_unlock(&system->lock);
+         return NULL;
+      }
+   }
+   
    if (display->flags & ALLEGRO_NOFRAME)
       xdpy_toggle_frame(display, false);
 
@@ -343,20 +372,6 @@ static ALLEGRO_DISPLAY *xdpy_create_display(int w, int h)
 
    XMapWindow(system->x11display, d->window);
    ALLEGRO_DEBUG("X11 window mapped.\n");
-
-   /* Is there a better way to do this, that positions the window before
-    * mapping it?
-    */
-   int new_x, new_y;
-   al_get_new_window_position(&new_x, &new_y);
-   if (new_x != INT_MAX && new_y != INT_MAX) {
-      ALLEGRO_DEBUG("Force window position to %d, %d.\n",
-         new_x, new_y);
-      XWindowChanges wch;
-      wch.x = new_x;
-      wch.y = new_y;
-      XConfigureWindow(system->x11display, d->window, CWX | CWY, &wch);
-   }
 
    /* Send the pending request to the X server. */
    XSync(system->x11display, False);
@@ -445,11 +460,11 @@ static ALLEGRO_DISPLAY *xdpy_create_display(int w, int h)
       setup_gl(display);
 
    /* vsync */
-   
+
    /* Fill in the user setting. */
    display->extra_settings.settings[ALLEGRO_VSYNC] =
       _al_get_new_display_settings()->settings[ALLEGRO_VSYNC];
-   
+
    /* We set the swap interval to 0 if vsync is forced off, and to 1
     * if it is forced on.
     * http://www.opengl.org/registry/specs/SGI/swap_control.txt
@@ -494,6 +509,8 @@ static void xdpy_destroy_display(ALLEGRO_DISPLAY *d)
    ALLEGRO_DISPLAY_XGLX *glx = (void *)d;
    ALLEGRO_OGL_EXTRAS *ogl = d->ogl_extras;
 
+   ALLEGRO_DEBUG("xdpy: destroy display.\n");
+
    /* If we're the last display, convert all bitmpas to display independent
     * (memory) bitmaps. */
    if (s->system.displays._size == 1) {
@@ -502,6 +519,7 @@ static void xdpy_destroy_display(ALLEGRO_DISPLAY *d)
          ALLEGRO_BITMAP *b = *bptr;
          _al_convert_to_memory_bitmap(b);
       }
+      ALLEGRO_DEBUG("xdpy: free visuals info.\n");
       _al_xglx_free_visuals_info();
    }
    else {
@@ -526,23 +544,29 @@ static void xdpy_destroy_display(ALLEGRO_DISPLAY *d)
    }
 
    _al_ogl_unmanage_extensions(d);
+   ALLEGRO_DEBUG("xdpy: unmanaged extensions.\n");
 
    _al_mutex_lock(&s->lock);
    _al_vector_find_and_delete(&s->system.displays, &d);
    XDestroyWindow(s->x11display, glx->window);
 
+   ALLEGRO_DEBUG("xdpy: destroy window.\n");
+
    if (d->flags & ALLEGRO_FULLSCREEN) {
-      _al_xglx_restore_video_mode(s);
+      ALLEGRO_DEBUG("xfullscreen: restore modes.\n");
+      _al_xglx_restore_video_mode(s, glx->xscreen);
    }
 
    if (ogl->backbuffer) {
       _al_ogl_destroy_backbuffer(ogl->backbuffer);
       ogl->backbuffer = NULL;
+      ALLEGRO_DEBUG("xdpy: destroy backbuffer.\n");
    }
 
    if (glx->context) {
       glXDestroyContext(s->gfxdisplay, glx->context);
       glx->context = NULL;
+      ALLEGRO_DEBUG("xdpy: destroy context.\n");
    }
 
    /* XXX quick pre-release hack */
@@ -569,6 +593,8 @@ static void xdpy_destroy_display(ALLEGRO_DISPLAY *d)
    _AL_FREE(d);
 
    _al_mutex_unlock(&s->lock);
+
+    ALLEGRO_DEBUG("xdpy: destroy display fin.\n");
 }
 
 
@@ -696,8 +722,9 @@ static bool xdpy_resize_display(ALLEGRO_DISPLAY *d, int w, int h)
 
    _al_display_xglx_await_resize(d);
    
+   // XXX is this even a valid action?
    if (d->flags & ALLEGRO_FULLSCREEN) {
-      _al_xglx_fullscreen_set_mode(system, w, h, 0, 0);
+      _al_xglx_fullscreen_set_mode(system, glx, w, h, 0, 0);
       _al_xglx_fullscreen_to_display(system, glx);
    }
    
