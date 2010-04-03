@@ -21,6 +21,22 @@ static void redraw(ALLEGRO_BITMAP *picture)
    al_flip_display();
 }
 
+static void wait_for_key(void)
+{
+   ALLEGRO_EVENT_QUEUE *queue;
+   ALLEGRO_EVENT event;
+
+   queue = al_create_event_queue();
+   al_register_event_source(queue, al_get_keyboard_event_source());
+   while (1) {
+      al_wait_for_event(queue, &event);
+      if (event.type == ALLEGRO_EVENT_KEY_DOWN) {
+	  break;
+      }
+   }
+   al_destroy_event_queue(queue);
+}
+
 int main(void)
 {
    ALLEGRO_DISPLAY *display;
@@ -31,6 +47,7 @@ int main(void)
       return 1;
    }
 
+   al_install_keyboard();
    al_init_image_addon();
 
    al_set_new_display_flags(ALLEGRO_FULLSCREEN);
@@ -47,11 +64,11 @@ int main(void)
    }
 
    redraw(picture);
-   al_rest(10.0);
+   wait_for_key();
 
-   if (al_resize_display(800, 600)) {
+   if (al_resize_display(1024, 768)) {
       redraw(picture);
-      al_rest(10.0);
+      wait_for_key();
    }
    else {
       return 1;
