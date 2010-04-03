@@ -78,9 +78,6 @@ static void run(void)
 
 int main(void)
 {
-   bool acknowledged = false;
-   double timeout;
-
    if (!al_init()) {
       abort_example("Could not init Allegro.\n");
       return 1;
