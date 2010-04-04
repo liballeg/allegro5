@@ -280,7 +280,8 @@ bool _al_d3d_supports_separate_alpha_blend(ALLEGRO_DISPLAY *display)
    return d3d_disp->supports_separate_alpha_blend;
 }
 
-
+/* Function: al_d3d_supports_non_pow2_textures
+ */
 bool al_d3d_supports_non_pow2_textures(void)
 {
    D3DCAPS9 caps;
@@ -302,7 +303,8 @@ bool al_d3d_supports_non_pow2_textures(void)
    return false;
 }
 
-
+/* Function: al_d3d_supports_non_square_textures
+ */
 bool al_d3d_supports_non_square_textures(void)
 {
    D3DCAPS9 caps;
@@ -2513,19 +2515,23 @@ static bool d3d_wait_for_vsync(ALLEGRO_DISPLAY *display)
 
 /* Exposed stuff */
 
+/* Function: al_d3d_get_device
+ */
 LPDIRECT3DDEVICE9 al_d3d_get_device(ALLEGRO_DISPLAY *display)
 {
    ALLEGRO_DISPLAY_D3D *d3d_display = (ALLEGRO_DISPLAY_D3D *)display;
    return d3d_display->device;
 }
 
-
+/* Function: al_d3d_get_system_texture
+ */
 LPDIRECT3DTEXTURE9 al_d3d_get_system_texture(ALLEGRO_BITMAP *bitmap)
 {
    return ((ALLEGRO_BITMAP_D3D *)bitmap)->system_texture;
 }
 
-
+/* Function: al_d3d_get_video_texture
+ */
 LPDIRECT3DTEXTURE9 al_d3d_get_video_texture(ALLEGRO_BITMAP *bitmap)
 {
    return ((ALLEGRO_BITMAP_D3D *)bitmap)->video_texture;

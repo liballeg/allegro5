@@ -6,6 +6,7 @@ set(PAGES
     getting_started
 
     config
+    direct3d
     display
     events
     file

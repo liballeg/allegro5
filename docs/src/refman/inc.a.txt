@@ -6,6 +6,7 @@
 
 * [**Contents**](index.html)
 * [Configuration files](config.html)
+* [Direct3D](direct3d.html)
 * [Display](display.html)
 * [Events](events.html)
 * [File I/O](file.html)
