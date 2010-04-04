@@ -1,0 +1,56 @@
+# Direct3D
+
+These functions are declared in the following header file:
+
+    #include <allegro5/allegro_direct3d.h>
+
+## API: al_d3d_get_device
+
+Returns the Direct3D device of the current display. The return value is 
+undefined if the display was not created with the Direct3D flag.
+
+*Returns:*
+A pointer to the Direct3D device.
+
+## API: al_d3d_get_system_texture
+
+Returns the system texture (stored with the D3DPOOL_SYSTEMMEM flags). This 
+texture is used for the render-to-texture feature set.
+
+*Returns:*
+A pointer to the Direct3D system texture.
+
+## API: al_d3d_get_video_texture
+
+Returns the video texture (stored with the D3DPOOL_DEFAULT or D3DPOOL_MANAGED
+flags depending on whether render-to-texture is enabled or disabled 
+respectively).
+
+*Returns:*
+A pointer to the Direct3D video texture.
+
+## API: al_d3d_supports_non_pow2_textures
+
+Returns whether the Direct3D device supports textures whose dimensions are not 
+powers of two.
+
+*Returns:*
+True if device suports NPOT textures, false otherwise.
+
+## API: al_d3d_supports_non_square_textures
+
+Returns whether the Direct3D device supports textures that are not square.
+
+*Returns:*
+True if the Direct3D device suports non-square textures, false otherwise.
+
+## API: al_get_d3d_texture_position
+
+Returns the u/v coordinates for the top/left corner of the bitmap within the
+used texture, in pixels.
+
+*Parameters:*
+
+* bitmap - ALLEGRO_BITMAP to examine
+* u - Will hold the returned u coordinate
+* v - Will hold the returned v coordinate
