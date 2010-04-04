@@ -30,7 +30,7 @@
  */
 
 /* Display creation flag. */
-#define ALLEGRO_DIRECT3D     8
+#define ALLEGRO_DIRECT3D     ALLEGRO_DIRECT3D_INTERNAL
 
 
 AL_FUNC(LPDIRECT3DDEVICE9,  al_get_d3d_device,         (ALLEGRO_DISPLAY *));

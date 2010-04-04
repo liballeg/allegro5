@@ -12,21 +12,20 @@
 #endif
 
 /* Possible bit combinations for the flags parameter of al_create_display. */
-
-#define ALLEGRO_WINDOWED     1
-#define ALLEGRO_FULLSCREEN   2
-// moved to allegro_opengl.h
-//#define ALLEGRO_OPENGL       4
-// moved to allegro_direct3d.h
-//#define ALLEGRO_DIRECT3D     8
-#define ALLEGRO_RESIZABLE    16
-//#define ALLEGRO_SINGLEBUFFER 32
-#define ALLEGRO_NOFRAME      64
-#define ALLEGRO_GENERATE_EXPOSE_EVENTS 128
-//is something using 256? didn't seem to work...
-#define ALLEGRO_FULLSCREEN_WINDOW 512
+enum {
+   ALLEGRO_WINDOWED                    = 1 << 0,
+   ALLEGRO_FULLSCREEN                  = 1 << 1,
+   ALLEGRO_OPENGL                      = 1 << 2,
+   ALLEGRO_DIRECT3D_INTERNAL           = 1 << 3,
+   ALLEGRO_RESIZABLE                   = 1 << 4,
+   ALLEGRO_NOFRAME                     = 1 << 5,
+   ALLEGRO_GENERATE_EXPOSE_EVENTS      = 1 << 6,
+   ALLEGRO_OPENGL_3_0                  = 1 << 7,
+   ALLEGRO_OPENGL_FORWARD_COMPATIBLE   = 1 << 8,
+   ALLEGRO_FULLSCREEN_WINDOW           = 1 << 9,
 /* This is set to mark a display used only internally. */
-#define ALLEGRO_INTERNAL 1024
+   ALLEGRO_INTERNAL                    = 1 << 10
+};
 
 /* Possible parameters for al_set_display_option.
  * Make sure to update ALLEGRO_EXTRA_DISPLAY_SETTINGS if you modify
