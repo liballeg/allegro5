@@ -154,6 +154,14 @@ with ALLEGRO_WINDOWED)
 * ALLEGRO_OPENGL - require the driver to provide an initialized opengl context
 after returning successfully
 
+* ALLEGRO_OPENGL_3_0 - require the driver to provide an initialized opengl
+context compatible with OpenGL version 3.0
+
+* ALLEGRO_OPENGL_FORWARD_COMPATIBLE - the opengl context created with
+ALLEGRO_OPENGL_3_0 will be forwad compatible, meaning that all of the OpenGL API
+declared deprecated in OpenGL 3.0 will not be supported. For such displays,
+option ALLEGRO_COMPATIBLE_DISPLAY will be set to false.
+
 * ALLEGRO_DIRECT3D - require the driver to do rendering with Direct3D and
 provide a Direct3D device
 
@@ -166,7 +174,7 @@ or not.
 
 0 can be used for default values. 
 
-See also: [al_set_new_display_option]
+See also: [al_set_new_display_option], [al_get_display_option]
 
 ### API: al_set_new_display_refresh_rate
 
