@@ -266,6 +266,8 @@ static ALLEGRO_DISPLAY *xdpy_create_display(int w, int h)
    d->is_mapped = false;
    _al_cond_init(&d->mapped);
 
+   d->resize_count = 0;
+
    _al_xglx_config_select_visual(d);
 
    if (!d->xvinfo) {
@@ -682,6 +684,8 @@ static bool xdpy_acknowledge_resize(ALLEGRO_DISPLAY *d)
    d->w = w;
    d->h = h;
 
+   ALLEGRO_DEBUG("xdpy: acknowledge_resize (%d, %d)\n", d->w, d->h);
+
    setup_gl(d);
 
    _al_mutex_unlock(&system->lock);
@@ -694,15 +698,16 @@ static bool xdpy_acknowledge_resize(ALLEGRO_DISPLAY *d)
 void _al_display_xglx_await_resize(ALLEGRO_DISPLAY *d)
 {
    ALLEGRO_SYSTEM_XGLX *system = (void *)al_get_system_driver();
+   ALLEGRO_DISPLAY_XGLX *glx = (ALLEGRO_DISPLAY_XGLX *)d;
+   int old_resize_count;
    
    XSync(system->x11display, False);
 
-   /* Wait until we are actually resized. There might be a better
-    * way.. and FIXME: should use one condition variable per display,
-    * not a global one, else resizing multiple displays from multiple
-    * threads will not work right most likely.
-    */
-   _al_cond_wait(&system->resized, &system->lock);
+   /* Wait until we are actually resized. */
+   old_resize_count = glx->resize_count;
+   while (old_resize_count == glx->resize_count) {
+      _al_cond_wait(&system->resized, &system->lock);
+   }
 
    /* TODO: Right now, we still generate a resize event (from the events
     * thread, in response to the Configure event) which is X11

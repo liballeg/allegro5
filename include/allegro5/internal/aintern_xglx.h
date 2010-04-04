@@ -114,6 +114,8 @@ struct ALLEGRO_DISPLAY_XGLX
    _AL_COND mapped; /* Condition variable to wait for mapping a window. */
    bool is_mapped;  /* Set to true when mapped. */
 
+   int resize_count; /* Increments when resized. */
+
    /* Cursor for this window. */
    Cursor invisible_cursor;
    Cursor current_cursor;
