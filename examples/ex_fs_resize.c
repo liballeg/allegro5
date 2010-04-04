@@ -4,6 +4,19 @@
 
 #include "common.c"
 
+#define NUM_RESOLUTIONS 4
+
+static struct {
+   int w, h;
+} res[NUM_RESOLUTIONS] = {
+   { 640, 480 },
+   { 800, 600 },
+   { 1024, 768 },
+   { 1280, 1024 }
+};
+
+static int cur_res = 0;
+
 static void redraw(ALLEGRO_BITMAP *picture)
 {
    ALLEGRO_COLOR color;
@@ -21,19 +34,63 @@ static void redraw(ALLEGRO_BITMAP *picture)
    al_flip_display();
 }
 
-static void wait_for_key(void)
+static void main_loop(ALLEGRO_BITMAP *picture)
 {
    ALLEGRO_EVENT_QUEUE *queue;
    ALLEGRO_EVENT event;
+   int new_res;
 
    queue = al_create_event_queue();
    al_register_event_source(queue, al_get_keyboard_event_source());
+   al_register_event_source(queue, al_get_display_event_source(
+            al_get_current_display()));
+
    while (1) {
+      if (al_event_queue_is_empty(queue)) {
+         redraw(picture);
+      }
       al_wait_for_event(queue, &event);
-      if (event.type == ALLEGRO_EVENT_KEY_DOWN) {
-	  break;
+
+      if (event.type == ALLEGRO_EVENT_DISPLAY_RESIZE) {
+         al_acknowledge_resize(event.display.source);
+         continue;
+      }
+
+      if (event.type != ALLEGRO_EVENT_KEY_DOWN) {
+         continue;
+      }
+
+      if (event.keyboard.keycode == ALLEGRO_KEY_ESCAPE) {
+         break;
+      }
+
+      new_res = cur_res;
+
+      if (event.keyboard.unichar == '+' ||
+            event.keyboard.unichar == ' ' ||
+            event.keyboard.keycode == ALLEGRO_KEY_ENTER) {
+         new_res++;
+         if (new_res >= NUM_RESOLUTIONS)
+            new_res = 0;
+      }
+      else if (event.keyboard.unichar == '-') {
+         new_res--;
+         if (new_res < 0)
+            new_res = NUM_RESOLUTIONS - 1;
+      }
+
+      if (new_res != cur_res) {
+         cur_res = new_res;
+         printf("Switching to %dx%d... ", res[cur_res].w, res[cur_res].h);
+         if (al_resize_display(res[cur_res].w, res[cur_res].h)) {
+            printf("succeeded.\n");
+         }
+         else {
+            printf("failed.\n");
+         }
       }
    }
+
    al_destroy_event_queue(queue);
 }
 
@@ -51,7 +108,7 @@ int main(void)
    al_init_image_addon();
 
    al_set_new_display_flags(ALLEGRO_FULLSCREEN);
-   display = al_create_display(640, 480);
+   display = al_create_display(res[cur_res].w, res[cur_res].h);
    if (!display) {
       abort_example("Error creating display\n");
       return 1;
@@ -63,16 +120,9 @@ int main(void)
       return 1;
    }
 
-   redraw(picture);
-   wait_for_key();
+   main_loop(picture);
 
-   if (al_resize_display(1024, 768)) {
-      redraw(picture);
-      wait_for_key();
-   }
-   else {
-      return 1;
-   }
+   al_destroy_bitmap(picture);
 
    /* Destroying the fullscreen display restores the original screen
     * resolution.  Shutting down Allegro would automatically destroy the
