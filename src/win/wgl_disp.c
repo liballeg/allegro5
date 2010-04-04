@@ -645,7 +645,7 @@ static bool change_display_mode(ALLEGRO_DISPLAY *d)
 }
 
 
-static HGLRC init_ogl_context_ex(HDC dc, int fc, int major, int minor)
+static HGLRC init_ogl_context_ex(HDC dc, bool fc, int major, int minor)
 {
    HWND testwnd = NULL;
    HDC testdc   = NULL;
@@ -669,8 +669,10 @@ static HGLRC init_ogl_context_ex(HDC dc, int fc, int major, int minor)
    if (is_wgl_extension_supported("WGL_ARB_create_context", testdc)) {
       int attrib[] = {WGL_CONTEXT_MAJOR_VERSION_ARB, major,
                       WGL_CONTEXT_MINOR_VERSION_ARB, minor,
-                      WGL_CONTEXT_FORWARD_COMPATIBLE_BIT_ARB, fc,
+                      GLX_CONTEXT_FLAGS_ARB, 0,
                       0};
+      if (fc)
+         attrib[5] = GLX_CONTEXT_FORWARD_COMPATIBLE_BIT_ARB;
       if (!init_context_creation_extensions())
          goto bail;
       /* TODO: we could use the context sharing feature */
@@ -942,7 +944,7 @@ static bool create_display_internals(ALLEGRO_DISPLAY_WGL *wgl_disp)
    }
 
    if (disp->flags & ALLEGRO_OPENGL_3_0) {
-      int fc = disp->flags & ALLEGRO_OPENGL_FORWARD_COMPATIBLE;
+      bool fc = disp->flags & ALLEGRO_OPENGL_FORWARD_COMPATIBLE;
       wgl_disp->glrc = init_ogl_context_ex(wgl_disp->dc, fc, 3, 0);
    }
    else {

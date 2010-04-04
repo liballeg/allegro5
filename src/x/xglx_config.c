@@ -460,7 +460,7 @@ void _al_xglx_config_select_visual(ALLEGRO_DISPLAY_XGLX *glx)
 }
 
 static GLXContext create_context_new(int ver, Display *dpy, GLXFBConfig fb,
-   GLXContext ctx, int fc, int major, int minor)
+   GLXContext ctx, bool fc, int major, int minor)
 {
    typedef GLXContext (*GCCA_PROC) (Display*, GLXFBConfig, GLXContext, Bool, const int*);
    GCCA_PROC _xglx_glXCreateContextAttribsARB;
@@ -479,8 +479,10 @@ static GLXContext create_context_new(int ver, Display *dpy, GLXFBConfig fb,
    }
    int attrib[] = {GLX_CONTEXT_MAJOR_VERSION_ARB, major,
                    GLX_CONTEXT_MINOR_VERSION_ARB, minor,
-                   GLX_CONTEXT_FORWARD_COMPATIBLE_BIT_ARB, fc,
+                   GLX_CONTEXT_FLAGS_ARB, 0,
                    0};
+   if (fc)
+      attrib[5] = GLX_CONTEXT_FORWARD_COMPATIBLE_BIT_ARB;
    return _xglx_glXCreateContextAttribsARB(dpy, fb, ctx, True, attrib);
 }
 
@@ -501,7 +503,7 @@ bool _al_xglx_config_create_context(ALLEGRO_DISPLAY_XGLX *glx)
    if (glx->fbc) {
       /* Create a GLX context from FBC. */
       if (disp->flags & ALLEGRO_OPENGL_3_0) {
-         int fc = disp->flags & ALLEGRO_OPENGL_FORWARD_COMPATIBLE;
+         bool fc = disp->flags & ALLEGRO_OPENGL_FORWARD_COMPATIBLE;
          glx->context = create_context_new(glx->glx_version,
             system->gfxdisplay, *glx->fbc, existing_ctx, fc, 3, 0);
          disp->extra_settings.settings[ALLEGRO_COMPATIBLE_DISPLAY] = !fc;
