@@ -329,7 +329,7 @@ static ALLEGRO_DISPLAY *xdpy_create_display(int w, int h)
    }
 
    d->window = XCreateWindow(system->x11display, RootWindow(
-      system->x11display, d->xvinfo->screen), x_off, y_off, w, h, 0, d->xvinfo->depth,
+      system->x11display, d->xvinfo->screen), x_off != INT_MAX ? x_off : 0, y_off != INT_MAX ? y_off : 0, w, h, 0, d->xvinfo->depth,
       InputOutput, d->xvinfo->visual, mask, &swa);
 
    // Tell WMs to respect our chosen position,
@@ -347,7 +347,7 @@ static ALLEGRO_DISPLAY *xdpy_create_display(int w, int h)
       // Try to set full screen mode if requested, fail if we can't
    if (display->flags & ALLEGRO_FULLSCREEN) {
       xdpy_toggle_frame(display, false);
-      _al_xglx_set_above(display);
+      //_al_xglx_set_above(display);
       if (!_al_xglx_fullscreen_set_mode(system, d, w, h, 0, display->refresh_rate)) {
          ALLEGRO_DEBUG("xdpy: failed to set fullscreen mode.\n");
          XDestroyWindow(system->x11display, d->window);
@@ -385,6 +385,10 @@ static ALLEGRO_DISPLAY *xdpy_create_display(int w, int h)
       _al_cond_wait(&d->mapped, &system->lock);
    }
 
+   if (display->flags & ALLEGRO_FULLSCREEN) {
+      _al_xglx_set_above(display);
+   }
+      
    /* We can do this at any time, but if we already have a mapped
     * window when switching to fullscreen it will use the same
     * monitor (with the MetaCity version I'm using here right now).

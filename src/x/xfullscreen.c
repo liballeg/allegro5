@@ -847,11 +847,11 @@ void _al_xglx_fullscreen_to_display(ALLEGRO_SYSTEM_XGLX *s,
    ALLEGRO_DISPLAY_XGLX *d)
 {
    /* First, make sure the mouse stays inside the window. */
-   XGrabPointer(s->gfxdisplay, d->window, False,
-      PointerMotionMask | ButtonPressMask | ButtonReleaseMask,
-      GrabModeAsync, GrabModeAsync, d->window, None, CurrentTime);
+   //XGrabPointer(s->gfxdisplay, d->window, False,
+   //   PointerMotionMask | ButtonPressMask | ButtonReleaseMask,
+   //   GrabModeAsync, GrabModeAsync, d->window, None, CurrentTime);
    //FIXME: handle possible errors here
-   s->pointer_grabbed = true;
+   //s->pointer_grabbed = true;
 }
 
 void _al_xglx_store_video_mode(ALLEGRO_SYSTEM_XGLX *s)
