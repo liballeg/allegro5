@@ -6,6 +6,6 @@ These functions are declared in the following header file:
 
     #include <allegro5/allegro_windows.h>
 
-### API: al_win_get_window
+### API: al_get_win_window_handle
 
-XXX to be documented
+Returns the handle to the window that the passed display is using.

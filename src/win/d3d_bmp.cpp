@@ -544,8 +544,8 @@ static bool d3d_upload_bitmap(ALLEGRO_BITMAP *bitmap)
       return false;
 
    if (d3d_bmp->initialized != true) {
-      bool non_pow2 = al_d3d_supports_non_pow2_textures();
-      bool non_square = al_d3d_supports_non_square_textures();
+      bool non_pow2 = al_have_d3d_non_pow2_texture_support();
+      bool non_square = al_have_d3d_non_square_texture_support();
 
       if (non_pow2 && non_square) {
          // Any shape and size

@@ -29,7 +29,7 @@
  *  Public Windows-related API
  */
 
-AL_FUNC(HWND,               al_win_get_window,           (ALLEGRO_DISPLAY *));
+AL_FUNC(HWND,               al_get_win_window_handle,           (ALLEGRO_DISPLAY *));
 
 #ifdef __cplusplus
    }

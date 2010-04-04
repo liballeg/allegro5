@@ -937,9 +937,9 @@ void _al_win_wnd_schedule_proc(HWND wnd, void (*proc) (void*), void* param)
 }
 
 
-/* Function: al_win_get_window
+/* Function: al_get_win_window_handle
  */
-HWND al_win_get_window(ALLEGRO_DISPLAY *display)
+HWND al_get_win_window_handle(ALLEGRO_DISPLAY *display)
 {
    return ((ALLEGRO_DISPLAY_WIN *)display)->window;
 }

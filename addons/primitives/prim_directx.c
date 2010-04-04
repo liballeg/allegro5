@@ -62,7 +62,7 @@ static void set_blender(ALLEGRO_DISPLAY *display)
 {
    int op, src, dst, alpha_op, alpha_src, alpha_dst;
    ALLEGRO_COLOR color;
-   LPDIRECT3DDEVICE9 device = al_d3d_get_device(display);
+   LPDIRECT3DDEVICE9 device = al_get_d3d_device(display);
 
    al_get_separate_blender(&op, &src, &dst, &alpha_op, &alpha_src, &alpha_dst, &color);
 
@@ -117,7 +117,7 @@ static int _al_draw_prim_raw(ALLEGRO_BITMAP* texture, const void* vtx, const ALL
    }
 
    display = al_get_current_display();
-   device = al_d3d_get_device(display);
+   device = al_get_d3d_device(display);
    
    if(decl) {
       if(decl->d3d_decl) {
@@ -140,7 +140,7 @@ static int _al_draw_prim_raw(ALLEGRO_BITMAP* texture, const void* vtx, const ALL
          {0, 0, 1, 0},
          {0, 0, 0, 1}
       };      
-      IDirect3DTexture9_GetLevelDesc(al_d3d_get_video_texture(texture), 0, &desc);
+      IDirect3DTexture9_GetLevelDesc(al_get_d3d_video_texture(texture), 0, &desc);
       
       al_get_d3d_texture_position(texture, &tex_x, &tex_y);
 
@@ -163,7 +163,7 @@ static int _al_draw_prim_raw(ALLEGRO_BITMAP* texture, const void* vtx, const ALL
       IDirect3DDevice9_SetTextureStageState(device, 0, D3DTSS_TEXTURETRANSFORMFLAGS, D3DTTFF_COUNT2);
       IDirect3DDevice9_SetTransform(device, D3DTS_TEXTURE0, (D3DMATRIX *)&mat);
 
-      d3d_texture = (LPDIRECT3DBASETEXTURE9)al_d3d_get_video_texture(texture);
+      d3d_texture = (LPDIRECT3DBASETEXTURE9)al_get_d3d_video_texture(texture);
       IDirect3DDevice9_SetTexture(device, 0, d3d_texture);
    } else {
       IDirect3DDevice9_SetTexture(device, 0, NULL);
@@ -353,7 +353,7 @@ void _al_set_d3d_decl(ALLEGRO_VERTEX_DECL* ret)
       D3DCAPS9 caps;
       
       display = al_get_current_display();
-      device = al_d3d_get_device(display);
+      device = al_get_d3d_device(display);
       
       IDirect3DDevice9_GetDeviceCaps(device, &caps);
       if(caps.PixelShaderVersion < D3DPS_VERSION(3, 0)) {

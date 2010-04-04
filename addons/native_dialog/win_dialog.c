@@ -124,7 +124,7 @@ int _al_show_native_message_box(ALLEGRO_NATIVE_DIALOG *fd)
 	if (fd->mode & ALLEGRO_MESSAGEBOX_YES_NO) type |= MB_YESNO;
 	if (fd->mode & ALLEGRO_MESSAGEBOX_OK_CANCEL) type |= MB_OKCANCEL;
 
-	result = MessageBox(al_win_get_window(al_get_current_display()),
+	result = MessageBox(al_get_win_window_handle(al_get_current_display()),
 		al_cstr(fd->text), al_cstr(fd->title), type);
 	
 	if (result == IDYES || result == IDOK)

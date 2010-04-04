@@ -33,7 +33,7 @@ int main(int argc, char *argv[])
 
    ALLEGRO_KEYBOARD_STATE state;
 
-   IDirect3DDevice9 *d3dd = al_d3d_get_device(display);
+   IDirect3DDevice9 *d3dd = al_get_d3d_device(display);
 
    d3dd->SetRenderState(D3DRS_AMBIENT, 0x11111111);
    d3dd->SetRenderState(D3DRS_LIGHTING,false);
