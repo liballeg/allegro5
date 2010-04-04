@@ -709,6 +709,12 @@ void _al_display_xglx_await_resize(ALLEGRO_DISPLAY *d)
       _al_cond_wait(&system->resized, &system->lock);
    }
 
+   /* XXX: This hack makes the second and subsequent toggles of
+    * ALLEGRO_FULLSCREEN_WINDOW work in ex_fs_window on my machine,
+    * with IceWM and Fluxbox.  xfwm and kwin were okay without.
+    */
+   al_rest(0.05);
+
    /* TODO: Right now, we still generate a resize event (from the events
     * thread, in response to the Configure event) which is X11
     * specific though - if there's a simple way to prevent it we
