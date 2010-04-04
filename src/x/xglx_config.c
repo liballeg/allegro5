@@ -420,13 +420,6 @@ void _al_xglx_config_select_visual(ALLEGRO_DISPLAY_XGLX *glx)
    bool force_old = false;
    
    _al_xglx_free_visuals_info();
-   
-   // FIXME: It seems the FB config stuff can crash with an invalud
-   // X11 request in GLX 1.4.
-   // So use the old xvisual selection by default until we can fix the
-   // problem.
-   
-   force_old = true;
 
    if (system->system.config) {
       const char *selection_mode;
