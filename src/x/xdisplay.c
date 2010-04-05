@@ -71,70 +71,56 @@ static void reset_size_hints(ALLEGRO_DISPLAY *d)
 
 
 
-/* Helper to set a window icon. */
+/* Helper to set a window icon.  We use the _NET_WM_ICON property which is
+ * supported by modern window managers.
+ *
+ * The old method is XSetWMHints but the (antiquated) ICCCM talks about 1-bit
+ * pixmaps.  For colour icons, perhaps you're supposed use the icon_window,
+ * and draw the window yourself?
+ */
 static void xdpy_set_icon(ALLEGRO_DISPLAY *d, ALLEGRO_BITMAP *bitmap)
 {
-   ALLEGRO_SYSTEM_XGLX *system = (void *)al_get_system_driver();
-   ALLEGRO_DISPLAY_XGLX *display = (void *)d;
-   XWMHints wm_hints;
-
-   _al_mutex_lock(&system->lock);
-
+   ALLEGRO_SYSTEM_XGLX *system = (ALLEGRO_SYSTEM_XGLX *)al_get_system_driver();
+   ALLEGRO_DISPLAY_XGLX *glx = (ALLEGRO_DISPLAY_XGLX *)d;
    int w = al_get_bitmap_width(bitmap);
    int h = al_get_bitmap_height(bitmap);
+   int data_size;
+   unsigned long *data; /* Yes, unsigned long, even on 64-bit platforms! */
 
-   XWindowAttributes attributes;
-   XGetWindowAttributes(system->x11display, display->window,
-      &attributes);
+   data_size = 2 + w * h;
+   data = _AL_MALLOC(data_size * sizeof(data[0]));
 
-   // FIXME: Do we need to check for other depths? Just 32 now..
-   XImage *image = XCreateImage(system->x11display, attributes.visual,
-      attributes.depth, ZPixmap, 0, NULL, w, h, 32, 0);
-   // FIXME: Must check for errors
-   // TODO: Is this really freed by XDestroyImage?
-   image->data = _AL_MALLOC_ATOMIC(image->bytes_per_line * h);
+   if (data) {
+      ALLEGRO_LOCKED_REGION *lr = al_lock_bitmap(bitmap,
+         ALLEGRO_PIXEL_FORMAT_ANY_WITH_ALPHA, ALLEGRO_LOCK_READONLY);
 
-   // FIXME: Do this properly.
-   ALLEGRO_LOCKED_REGION *lr;
-   lr = al_lock_bitmap(bitmap, ALLEGRO_PIXEL_FORMAT_ARGB_8888, ALLEGRO_LOCK_READONLY);
-   if (lr) {
-      const char *src;
-      char *dst;
-      int i;
+      if (lr) {
+         int x, y;
+         ALLEGRO_COLOR c;
+         unsigned char r, g, b, a;
+         Atom _NET_WM_ICON;
 
-      src = lr->data;
-      dst = image->data;
-      for (i = 0; i < h; i++) {
-         memcpy(dst, src, w * 4);
-         src += lr->pitch;
-         dst += w * 4;
+         data[0] = w;
+         data[1] = h;
+         for (y = 0; y < h; y++) {
+            for (x = 0; x < w; x++) {
+               c = al_get_pixel(bitmap, x, y);
+               al_unmap_rgba(c, &r, &g, &b, &a);
+               data[2 + y*w + x] = (a << 24) | (r << 16) | (g << 8) | b;
+            }
+         }
+
+         _al_mutex_lock(&system->lock);
+         _NET_WM_ICON = XInternAtom(system->x11display, "_NET_WM_ICON", False);
+         XChangeProperty(system->x11display, glx->window, _NET_WM_ICON,
+            XA_CARDINAL, 32, PropModeReplace, (unsigned char *)data, data_size);
+         _al_mutex_unlock(&system->lock);
+
+         al_unlock_bitmap(bitmap);
       }
 
-      al_unlock_bitmap(bitmap);
+      _AL_FREE(data);
    }
-   else {
-       /* XXX what should we do here? */
-   }
-
-   display->icon = XCreatePixmap(system->x11display, display->window,
-      bitmap->w, bitmap->h, attributes.depth);
-
-   GC gc = XCreateGC(system->x11display, display->icon, 0, NULL);
-   XPutImage(system->x11display, display->icon, gc, image, 0, 0, 0, 0, w, h);
-   XFreeGC(system->x11display, gc);
-   XDestroyImage(image);
-
-   wm_hints.flags = IconPixmapHint | IconMaskHint;
-   wm_hints.icon_pixmap = display->icon;
-   // FIXME: Does X11 support apha values? In any case, we need a separate
-   // mask here!
-   wm_hints.icon_mask = display->icon;
-   XSetWMHints(system->x11display, display->window, &wm_hints);
-   // FIXME: Do we have to destroy the icon pixmap, or is it owned by X11 now?
-
-   XFlush(system->x11display);
-
-   _al_mutex_unlock(&system->lock);
 }
 
 
