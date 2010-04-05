@@ -12,9 +12,7 @@
 
 ALLEGRO_DEBUG_CHANNEL("OSXIIO")
 
-/* really_load_png:
- *  Worker routine, used by load_png and load_memory_png.
- */
+
 static ALLEGRO_BITMAP *really_load_image(char *buffer, int size)
 {
    ALLEGRO_BITMAP *bmp = NULL;
@@ -81,9 +79,6 @@ static ALLEGRO_BITMAP *really_load_image(char *buffer, int size)
 }
 
 
-/* Function: al_load_png_f
- *  Load a PNG file from disk, doing colour coversion if required.
- */
 static ALLEGRO_BITMAP *_al_osx_load_image_f(ALLEGRO_FILE *f)
 {
    ALLEGRO_BITMAP *bmp;
@@ -106,8 +101,6 @@ static ALLEGRO_BITMAP *_al_osx_load_image_f(ALLEGRO_FILE *f)
 }
 
 
-/* Function: al_load_png
- */
 static ALLEGRO_BITMAP *_al_osx_load_image(const char *filename)
 {
    ALLEGRO_FILE *fp;
@@ -126,6 +119,7 @@ static ALLEGRO_BITMAP *_al_osx_load_image(const char *filename)
 
    return bmp;
 }
+
 
 bool _al_osx_register_image_loader(void)
 {
