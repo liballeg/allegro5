@@ -669,10 +669,10 @@ static HGLRC init_ogl_context_ex(HDC dc, bool fc, int major, int minor)
    if (is_wgl_extension_supported("WGL_ARB_create_context", testdc)) {
       int attrib[] = {WGL_CONTEXT_MAJOR_VERSION_ARB, major,
                       WGL_CONTEXT_MINOR_VERSION_ARB, minor,
-                      GLX_CONTEXT_FLAGS_ARB, 0,
+                      WGL_CONTEXT_FLAGS_ARB, 0,
                       0};
       if (fc)
-         attrib[5] = GLX_CONTEXT_FORWARD_COMPATIBLE_BIT_ARB;
+         attrib[5] = WGL_CONTEXT_FORWARD_COMPATIBLE_BIT_ARB;
       if (!init_context_creation_extensions())
          goto bail;
       /* TODO: we could use the context sharing feature */
