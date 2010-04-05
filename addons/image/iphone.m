@@ -10,9 +10,6 @@
 #include "iio.h"
 
 
-/* really_load_png:
- *  Worker routine, used by load_png and load_memory_png.
- */
 static ALLEGRO_BITMAP *really_load_image(char *buffer, int size)
 {
    ALLEGRO_BITMAP *bmp = NULL;
@@ -48,9 +45,6 @@ done:
 }
 
 
-/* Function: al_load_png_f
- *  Load a PNG file from disk, doing colour coversion if required.
- */
 ALLEGRO_BITMAP *_al_iphone_load_image_f(ALLEGRO_FILE *f)
 {
    ALLEGRO_BITMAP *bmp;
@@ -73,8 +67,6 @@ ALLEGRO_BITMAP *_al_iphone_load_image_f(ALLEGRO_FILE *f)
 }
 
 
-/* Function: al_load_png
- */
 ALLEGRO_BITMAP *_al_iphone_load_image(const char *filename)
 {
    ALLEGRO_FILE *fp;
