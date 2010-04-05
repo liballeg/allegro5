@@ -124,11 +124,6 @@ static bool imouse_set_mouse_axis(int which, int z)
     return false;
 }
 
-static bool imouse_set_mouse_range(int x1, int y1, int x2, int y2)
-{
-    return false;
-}
-
 static void imouse_get_state(ALLEGRO_MOUSE_STATE *ret_state)
 {
     ASSERT(imouse_installed);
@@ -152,7 +147,6 @@ static ALLEGRO_MOUSE_DRIVER iphone_mouse_driver = {
     imouse_get_mouse_num_axes,
     imouse_set_mouse_xy,
     imouse_set_mouse_axis,
-    imouse_set_mouse_range,
     imouse_get_state
 };
 
