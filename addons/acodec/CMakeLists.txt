@@ -2,6 +2,7 @@ include_directories(../audio)
 
 option(WANT_FLAC "Enable FLAC support" on)
 option(WANT_VORBIS "Enable Ogg Vorbis support" on)
+option(WANT_MODAUDIO "Enable MOD Audio support" on)
 
 #-----------------------------------------------------------------------------#
 
@@ -128,6 +129,58 @@ if(SUPPORT_VORBIS)
 
     set(VORBIS_LINK_WITH allegro_vorbis PARENT_SCOPE)
 endif(SUPPORT_VORBIS)
+
+#-----------------------------------------------------------------------------#
+
+set(A5_MODAUDIO_SOURCES modaudio.c)
+
+set(A5_MODAUDIO_INCLUDE_FILES
+    allegro5/allegro_modaudio.h
+    )
+
+set_our_header_properties(${A5_MODAUDIO_INCLUDE_FILES})
+
+if(WANT_MODAUDIO)
+    find_package(DUMB)
+    if(DUMB_FOUND)
+        set(CMAKE_REQUIRED_INCLUDES ${DUMB_INCLUDE_DIR})
+        set(CMAKE_REQUIRED_LIBRARIES ${DUMB_LIBRARIES})
+        check_c_source_compiles("
+            #include <dumb.h>
+            int main(void)
+            {
+	              dumb_register_stdfiles();
+	              return 0;
+            }"
+            DUMB_COMPILES)
+        set(CMAKE_REQUIRED_INCLUDES)
+        set(CMAKE_REQUIRED_LIBRARIES)
+        if(DUMB_COMPILES)
+            set(SUPPORT_MODAUDIO 1)
+            set(SUPPORT_MODAUDIO 1 PARENT_SCOPE)
+            include_directories(SYSTEM ${FLAC_INCLUDE_DIR})
+        endif(DUMB_COMPILES)
+    else(DUMB_FOUND)
+        message("WARNING: libdumb not found, disabling support. <http://dumb.sourceforge.net/>")
+    endif(DUMB_FOUND)
+endif(WANT_MODAUDIO)
+
+if(SUPPORT_MODAUDIO)
+    add_our_library(allegro_modaudio
+        "${A5_MODAUDIO_SOURCES};${A5_MODAUDIO_INCLUDE_FILES}"
+        "-DALLEGRO_MODAUDIO_SRC"
+        "${AUDIO_LINK_WITH};${DUMB_LIBRARIES}"
+        )
+
+    set_our_framework_properties(allegro_modaudio AllegroMODAudio)
+
+    install_our_library(allegro_modaudio)
+    install_our_headers(${A5_MODAUDIO_INCLUDE_FILES})
+
+    set(MODAUDIO_LINK_WITH allegro_modaudio PARENT_SCOPE)
+endif(SUPPORT_MODAUDIO)
+
+#-----------------------------------------------------------------------------#
 
 #-----------------------------------------------------------------------------#
 # vim: set ts=8 sts=4 sw=4 et:

@@ -9,11 +9,16 @@ Link with allegro_flac.
 
 ### API: al_init_flac_addon
 
-This function to registers [al_load_flac] with [al_load_sample] to
+This function registers [al_load_flac] with [al_load_sample] to
 handle files with the extension ".flac".  You will need to include the
 `allegro_flac.h` header file and link with the `allegro_flac` library.
 
 Return true on success.
+
+### API: al_get_allegro_flac_version
+
+Returns the (compiled) version of the addon, in the same format as
+[al_get_allegro_version].
 
 ### API: al_load_flac
 
@@ -39,10 +44,79 @@ Loads a stream in FLAC format from the [ALLEGRO_FILE] stream given.
 
 See also: [al_load_audio_stream_f]
 
-### API: al_get_allegro_flac_version
+
+
+## MOD Audio addon
+
+These functions are declared in the following header file.
+Link with allegro_modaudio.
+
+    #include <allegro5/allegro_modaudio.h>
+
+
+### API: al_init_modaudio_addon
+
+This function registers [al_load_it_audio_stream], [al_load_mod_audio_stream],
+[al_load_s3m_audio_stream], and [al_load_xm_audio_stream] with
+[al_load_audio_stream] to handle files with the extensions ".it", ".mod", ".s3m",
+and ".xm".  You will need to include the `allegro_modaudio.h` header file and
+link with the `allegro_modaudio` library.
+
+Return true if every function is registered successfully.
+
+### API: al_get_allegro_modaudio_version
 
 Returns the (compiled) version of the addon, in the same format as
 [al_get_allegro_version].
+
+### API: al_load_it_audio_stream
+
+Loads a stream in the Impulse Tracker format.
+
+See also: [al_load_audio_stream]
+
+### API: al_load_it_audio_stream_f
+
+Loads a stream in the Impulse Tracker format from the [ALLEGRO_FILE] stream given.
+
+See also: [al_load_audio_stream_f]
+
+### API: al_load_mod_audio_stream
+
+Loads a stream in the Amiga Module format.
+
+See also: [al_load_audio_stream]
+
+### API: al_load_mod_audio_stream_f
+
+Loads a stream in the Amiga Module format from the [ALLEGRO_FILE] stream given.
+
+See also: [al_load_audio_stream_f]
+
+### API: al_load_s3m_audio_stream
+
+Loads a stream in the Scream Tracker 3 format.
+
+See also: [al_load_audio_stream]
+
+### API: al_load_s3m_audio_stream_f
+
+Loads a stream in the Scream Tracker 3 format from the [ALLEGRO_FILE] stream given.
+
+See also: [al_load_audio_stream_f]
+
+### API: al_load_xm_audio_stream
+
+Loads a stream in the Fast Tracker 2 format.
+
+See also: [al_load_audio_stream]
+
+### API: al_load_xm_audio_stream_f
+
+Loads a stream in Fast Tracker 2 format from the [ALLEGRO_FILE] stream given.
+
+See also: [al_load_audio_stream_f]
+
 
 
 ## Ogg Vorbis addon
@@ -54,12 +128,17 @@ Link with allegro_vorbis.
 
 ### API: al_init_ogg_vorbis_addon
 
-This function to registers [al_load_ogg_vorbis] with [al_load_sample]
+This function registers [al_load_ogg_vorbis] with [al_load_sample]
 and [al_load_ogg_vorbis_audio_stream] with [al_load_audio_stream] to handle files
 with the extension ".ogg" (assumed to contain Vorbis data).  You will need to
 include the `allegro_vorbis.h` header file and link with the `allegro_vorbis` library.
 
 Return true on success.
+
+### API: al_get_allegro_ogg_vorbis_version
+
+Returns the (compiled) version of the addon, in the same format as
+[al_get_allegro_version].
 
 ### API: al_load_ogg_vorbis
 
@@ -84,9 +163,4 @@ See also: [al_load_audio_stream]
 Loads a stream in Ogg Vorbis format from the [ALLEGRO_FILE] stream given.
 
 See also: [al_load_audio_stream_f]
-
-### API: al_get_allegro_ogg_vorbis_version
-
-Returns the (compiled) version of the addon, in the same format as
-[al_get_allegro_version].
 

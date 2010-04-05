@@ -81,9 +81,9 @@ headers and import libraries.
 Mac users may find some dependencies in Fink or MacPorts.
 <http://www.finkproject.org/> and <http://www.macports.org/>
 
-Linux users likely have all the dependencies already, except PhysicsFS.
-If your distribution uses separate development packages, they will need to be
-installed.  The packages are probably named *-dev or *-devel.
+Linux users likely have all the dependencies already, except PhysicsFS
+and DUMB. If your distribution uses separate development packages, they
+will need to be installed.  The packages are probably named *-dev or *-devel.
 
 - libpng and zlib, for PNG image support.
   Home page: <http://www.libpng.org/pub/png/>
@@ -102,6 +102,9 @@ installed.  The packages are probably named *-dev or *-devel.
 
 - FLAC, a free lossless audio codec. (libFLAC, libogg)
   Home page: <http://flac.sourceforge.net/>
+
+- DUMB, an IT, XM, S3M and MOD player library. (libdumb)
+  Home page: <http://dumb.sourceforge.net/>
 
 - OpenAL, a 3D audio API.  The audio addon of Allegro can use OpenAL, although
   the 3D capabilities aren't used.

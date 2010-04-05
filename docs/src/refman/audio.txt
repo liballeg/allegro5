@@ -774,7 +774,7 @@ ALLEGRO_EVENT_AUDIO_STREAM_FRAGMENT event that audio streams emit.
 ### API: al_drain_audio_stream
 
 You should call this to finalise an audio stream that you will no longer
-be feeding, to waits for all pending buffers to finish playing.
+be feeding, to wait for all pending buffers to finish playing.
 The stream's playing state will change to false.
 
 ### API: al_rewind_audio_stream
@@ -1057,7 +1057,7 @@ See also: [al_register_sample_loader], [al_load_wav]
 
 ### API: al_load_sample_f
 
-Loads an image from an ALLEGRO_FILE stream into an ALLEGRO_SAMPLE.
+Loads an audio file from an ALLEGRO_FILE stream into an ALLEGRO_SAMPLE.
 The file type is determined by the passed 'ident' parameter, which is a file
 name extension including the leading dot.
 

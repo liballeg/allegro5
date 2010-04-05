@@ -811,6 +811,7 @@ set(PKG_CONFIG_FILES
     allegro_image
     allegro_main
     allegro_memfile
+    allegro_modaudio
     allegro_physfs
     allegro_primitives
     allegro_ttf

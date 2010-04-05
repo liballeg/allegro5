@@ -11,6 +11,7 @@
 #include "allegro5/allegro_vorbis.h"
 #include "allegro5/allegro_audio.h"
 #include "allegro5/allegro_primitives.h"
+#include "allegro5/allegro_modaudio.h"
 
 #include "common.c"
 
@@ -42,6 +43,8 @@ static int initialize(void)
    }
    al_init_ogg_vorbis_addon();
    al_init_flac_addon();
+   al_init_modaudio_addon();
+
    if (!al_install_audio(ALLEGRO_AUDIO_DRIVER_AUTODETECT)) {
       printf("Could not init sound!\n");
       return 0;
@@ -255,7 +258,7 @@ int main(int argc, char * argv[])
       buffer_count = 4;
    }
    if (samples == 0) {
-      samples = 512;
+      samples = 1024;
    }
 
    stream_filename = argv[1];
@@ -267,6 +270,8 @@ int main(int argc, char * argv[])
 
    loop_start = 0.0;
    loop_end = al_get_audio_stream_length_secs(music_stream);
+   al_set_audio_stream_loop_secs(music_stream, loop_start, loop_end);
+
    al_set_audio_stream_playmode(music_stream, ALLEGRO_PLAYMODE_LOOP);
    al_attach_audio_stream_to_mixer(music_stream, al_get_default_mixer());
    al_start_timer(timer);

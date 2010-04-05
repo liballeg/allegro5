@@ -45,7 +45,7 @@ endmacro(add_example nm)
 #-----------------------------------------------------------------------------#
 
 set(AUDIO x${AUDIO_LINK_WITH})
-set(ACODEC x${FLAC_LINK_WITH} x${VORBIS_LINK_WITH})
+set(ACODEC x${FLAC_LINK_WITH} x${VORBIS_LINK_WITH} x${MODAUDIO_LINK_WITH})
 set(COLOR x${COLOR_LINK_WITH})
 set(DIALOG x${NATIVE_DIALOG_LINK_WITH})
 set(FONT x${FONT_LINK_WITH})
