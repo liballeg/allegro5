@@ -173,7 +173,8 @@ static int render_glyph(ALLEGRO_FONT const *f, int prev, int ch,
     return xpos - startpos;
 }
 
-static int render_char(ALLEGRO_FONT const *f, int ch, int xpos, int ypos)
+static int render_char(ALLEGRO_FONT const *f, int ch, float xpos,
+   float ypos)
 {
     return render_glyph(f, '\0', ch, xpos, ypos, NULL);
 }
@@ -185,10 +186,10 @@ static int char_length(ALLEGRO_FONT const *f, int ch)
 }
 
 static int render(ALLEGRO_FONT const *f, const ALLEGRO_USTR *text,
-    int x0, int y)
+    float x0, float y)
 {
     int pos = 0;
-    int x = x0;
+    float x = x0;
     int32_t prev = '\0';
     int32_t ch;
     bool on = al_is_bitmap_drawing_held();
@@ -220,9 +221,10 @@ static int text_length(ALLEGRO_FONT const *f, const ALLEGRO_USTR *text)
     return x;
 }
 
-static void get_text_dimensions(ALLEGRO_FONT const *f, ALLEGRO_USTR const *text,
-    int *bbx, int *bby, int *bbw, int *bbh, int *ascent,
-    int *descent)
+static void get_text_dimensions(ALLEGRO_FONT const *f,
+   ALLEGRO_USTR const *text,
+   int *bbx, int *bby, int *bbw, int *bbh, int *ascent,
+   int *descent)
 {
     ALLEGRO_TTF_FONT_DATA *data = f->data;
     FT_Face face = data->face;

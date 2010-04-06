@@ -140,12 +140,14 @@ static int color_char_length(const ALLEGRO_FONT* f, int ch)
 
 /* color_render_char:
  *  (color vtable entry)
- *  Renders a color character onto a bitmap, at the specified location, using
+ *  Renders a color character onto a bitmap, at the specified location,
+ *  using
  *  the specified colors. If fg == -1, render as color, else render as
  *  mono; if bg == -1, render as transparent, else render as opaque.
  *  Returns the character width, in pixels.
  */
-static int color_render_char(const ALLEGRO_FONT* f, int ch, int x, int y)
+static int color_render_char(const ALLEGRO_FONT* f, int ch, float x,
+   float y)
 {
     int w = 0;
     int h = f->vtable->font_height(f);
@@ -168,10 +170,10 @@ static int color_render_char(const ALLEGRO_FONT* f, int ch, int x, int y)
  *  mono; if bg == -1, render as transparent, else render as opaque.
  */
 static int color_render(const ALLEGRO_FONT* f, const ALLEGRO_USTR *text,
-    int x0, int y)
+    float x0, float y)
 {
     int pos = 0;
-    int x = x0;
+    float x = x0;
     int32_t ch;
     bool held = al_is_bitmap_drawing_held();
     
