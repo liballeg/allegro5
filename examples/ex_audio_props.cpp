@@ -5,10 +5,9 @@
  */
 
 #include "allegro5/allegro5.h"
-#include "allegro5/allegro_flac.h"
 #include "allegro5/allegro_font.h"
-#include "allegro5/allegro_vorbis.h"
 #include "allegro5/allegro_audio.h"
+#include "acodec.h"
 #include "nihgui.hpp"
 #include <cstdio>
 
@@ -107,8 +106,7 @@ int main(int argc, char *argv[])
 
    al_init_font_addon();
 
-   al_init_flac_addon();
-   al_init_ogg_vorbis_addon();
+   init_acodecs();
 
    if (!al_install_audio(ALLEGRO_AUDIO_DRIVER_AUTODETECT)) {
       abort_example("Could not init sound!\n");

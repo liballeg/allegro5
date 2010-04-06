@@ -7,11 +7,9 @@
 #include <stdio.h>
 #include "allegro5/allegro5.h"
 #include "allegro5/allegro_font.h"
-#include "allegro5/allegro_flac.h"
-#include "allegro5/allegro_vorbis.h"
 #include "allegro5/allegro_audio.h"
 #include "allegro5/allegro_primitives.h"
-#include "allegro5/allegro_modaudio.h"
+#include "acodec.h"
 
 #include "common.c"
 
@@ -41,9 +39,8 @@ static int initialize(void)
       printf("Could not init mouse!\n");
       return 0;
    }
-   al_init_ogg_vorbis_addon();
-   al_init_flac_addon();
-   al_init_modaudio_addon();
+   
+   init_acodecs();
 
    if (!al_install_audio(ALLEGRO_AUDIO_DRIVER_AUTODETECT)) {
       printf("Could not init sound!\n");

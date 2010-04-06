@@ -6,9 +6,8 @@
 
 #include <stdio.h>
 #include "allegro5/allegro5.h"
-#include "allegro5/allegro_flac.h"
-#include "allegro5/allegro_vorbis.h"
 #include "allegro5/allegro_audio.h"
+#include "acodec.h"
 
 #include "common.c"
 
@@ -46,8 +45,7 @@ int main(int argc, const char *argv[])
    event_queue = al_create_event_queue();
    al_register_event_source(event_queue, al_get_keyboard_event_source());
 
-   al_init_flac_addon();
-   al_init_ogg_vorbis_addon();
+   init_acodecs();
 
 Restart:
 

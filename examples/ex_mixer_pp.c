@@ -7,10 +7,9 @@
 #include <math.h>
 #include "allegro5/allegro.h"
 #include "allegro5/allegro_audio.h"
-#include "allegro5/allegro_flac.h"
 #include "allegro5/allegro_image.h"
 #include "allegro5/allegro_primitives.h"
-#include "allegro5/allegro_vorbis.h"
+#include "acodec.h"
 
 #include "common.c"
 
@@ -139,8 +138,8 @@ int main(int argc, char **argv)
    }
 
    al_init_image_addon();
-   al_init_flac_addon();
-   al_init_ogg_vorbis_addon();
+   init_acodecs();
+   
    al_install_keyboard();
 
    if (!al_create_display(640, 480)) {

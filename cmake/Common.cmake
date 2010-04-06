@@ -162,21 +162,28 @@ function(install_our_headers)
     endif()
 endfunction(install_our_headers)
 
-# Arguments after nm should be source files or libraries.  Source files must
-# end with .c or .cpp.  If no source file was explicitly specified, we assume
-# an implied C source file.
+# Arguments after nm should be source files, libraries, or defines (-D).
+# Source files must end with .c or .cpp.  If no source file was explicitly
+# specified, we assume an implied C source file.
 # 
 # Free variable: EXECUTABLE_TYPE
 #
 function(add_our_executable nm)
     set(srcs)
     set(libs)
+    set(defines)
     set(regex "[.](c|cpp)$")
+    set(regexd "^-D")
     foreach(arg ${ARGN})
         if("${arg}" MATCHES "${regex}")
             list(APPEND srcs ${arg})
         else("${arg}" MATCHES "${regex}")
-            list(APPEND libs ${arg})
+            if ("${arg}" MATCHES "${regexd}")
+                string(REGEX REPLACE "${regexd}" "" arg "${arg}")
+                list(APPEND defines ${arg})                
+            else("${arg}" MATCHES "${regexd}")
+                list(APPEND libs ${arg})
+            endif("${arg}" MATCHES "${regexd}")
         endif("${arg}" MATCHES "${regex}")
     endforeach(arg ${ARGN})
 
@@ -187,11 +194,17 @@ function(add_our_executable nm)
     add_executable(${nm} ${EXECUTABLE_TYPE} ${srcs})
     target_link_libraries(${nm} ${libs})
     if(WANT_POPUP_EXAMPLES AND SUPPORT_NATIVE_DIALOG)
-        set_target_properties(${nm} PROPERTIES COMPILE_FLAGS "-DALLEGRO_POPUP_EXAMPLES")
+        list(APPEND defines ALLEGRO_POPUP_EXAMPLES)                        
     endif()
     if(NOT BUILD_SHARED_LIBS)
-        set_target_properties(${nm} PROPERTIES COMPILE_FLAGS "-DALLEGRO_STATICLINK")
+        list(APPEND defines ALLEGRO_STATICLINK)                        
     endif(NOT BUILD_SHARED_LIBS)
+    
+    foreach(d ${defines})
+        set_property(TARGET ${nm} APPEND PROPERTY COMPILE_DEFINITIONS ${d})
+    endforeach(d ${defines})
+
+    
     if(MINGW)
         if(NOT CMAKE_BUILD_TYPE STREQUAL Debug)
             set_target_properties(${nm} PROPERTIES LINK_FLAGS "-Wl,-subsystem,windows")
