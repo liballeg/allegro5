@@ -890,7 +890,6 @@
 		64F82060103B232C00D0F30A /* ex_mouse_events-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "ex_mouse_events-Info.plist"; sourceTree = "<group>"; };
 		64FACD1910305B1E004E35A1 /* allegro_flac.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = allegro_flac.h; path = ../addons/acodec/allegro5/allegro_flac.h; sourceTree = SOURCE_ROOT; };
 		64FACD1A10305B1E004E35A1 /* allegro_vorbis.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = allegro_vorbis.h; path = ../addons/acodec/allegro5/allegro_vorbis.h; sourceTree = SOURCE_ROOT; };
-		64FACD1C10305B1E004E35A1 /* aintern_acodec_cfg.h.cmake */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = aintern_acodec_cfg.h.cmake; path = ../addons/acodec/allegro5/internal/aintern_acodec_cfg.h.cmake; sourceTree = SOURCE_ROOT; };
 		64FACD1D10305B1E004E35A1 /* CMakeLists.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = CMakeLists.txt; path = ../addons/acodec/CMakeLists.txt; sourceTree = SOURCE_ROOT; };
 		64FACD1E10305B1E004E35A1 /* flac.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = flac.c; path = ../addons/acodec/flac.c; sourceTree = SOURCE_ROOT; };
 		64FACD1F10305B1E004E35A1 /* ogg.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = ogg.c; path = ../addons/acodec/ogg.c; sourceTree = SOURCE_ROOT; };
@@ -1713,19 +1712,9 @@
 			children = (
 				64FACD1910305B1E004E35A1 /* allegro_flac.h */,
 				64FACD1A10305B1E004E35A1 /* allegro_vorbis.h */,
-				64FACD1B10305B1E004E35A1 /* internal */,
 			);
 			name = allegro5;
 			path = ../addons/acodec/allegro5;
-			sourceTree = SOURCE_ROOT;
-		};
-		64FACD1B10305B1E004E35A1 /* internal */ = {
-			isa = PBXGroup;
-			children = (
-				64FACD1C10305B1E004E35A1 /* aintern_acodec_cfg.h.cmake */,
-			);
-			name = internal;
-			path = ../addons/acodec/allegro5/internal;
 			sourceTree = SOURCE_ROOT;
 		};
 		64FACD2010305B1E004E35A1 /* audio */ = {

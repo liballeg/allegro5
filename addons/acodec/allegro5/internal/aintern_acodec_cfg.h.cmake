@@ -1,2 +1,0 @@
-#cmakedefine ALLEGRO_CFG_ACODEC_FLAC
-#cmakedefine ALLEGRO_CFG_ACODEC_VORBIS
