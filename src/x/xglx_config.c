@@ -199,63 +199,48 @@ static ALLEGRO_EXTRA_DISPLAY_SETTINGS* read_fbconfig(Display *dpy,
    return eds;
 }
 
-void _al_xglx_free_visuals_info(void)
-{
-   ALLEGRO_SYSTEM_XGLX *system = (void *)al_get_system_driver();
-   if (system->visuals) {
-      int i;
-      for (i = 0; i < system->visuals_count; i++) {
-         if (system->visuals[i]) {
-            _AL_FREE(system->visuals[i]->info);
-            _AL_FREE(system->visuals[i]);
-         }
-      }
-      _AL_FREE(system->visuals);
-      system->visuals = NULL;
-      system->visuals_count = 0;
-   }
-}
 
-static void get_visuals_new(ALLEGRO_DISPLAY_XGLX *glx)
+static ALLEGRO_EXTRA_DISPLAY_SETTINGS** get_visuals_new(ALLEGRO_DISPLAY_XGLX *glx, int *eds_count)
 {
    int num_fbconfigs, i;
    GLXFBConfig *fbconfig;
    ALLEGRO_EXTRA_DISPLAY_SETTINGS *ref;
+   ALLEGRO_EXTRA_DISPLAY_SETTINGS **eds = NULL;
    ALLEGRO_SYSTEM_XGLX *system = (void *)al_get_system_driver();
 
    ref = _al_get_new_display_settings();
 
    fbconfig = glXGetFBConfigs(system->gfxdisplay, glx->xscreen, &num_fbconfigs);
    if (!fbconfig || !num_fbconfigs)
-      return;
+      return NULL;
 
-   system->visuals = _AL_MALLOC(num_fbconfigs * sizeof(*system->visuals));
-   system->visuals_count = num_fbconfigs;
-   memset(system->visuals, 0, num_fbconfigs * sizeof(*system->visuals));
+   eds = _AL_MALLOC(num_fbconfigs * sizeof(*eds));
 
    ALLEGRO_INFO("%i formats.\n", num_fbconfigs);
 
    for (i = 0; i < num_fbconfigs; i++) {
       ALLEGRO_DEBUG("-- \n");
       ALLEGRO_DEBUG("Decoding visual no. %i...\n", i);
-      system->visuals[i] = read_fbconfig(system->gfxdisplay, fbconfig[i]);
-      if (!system->visuals[i])
+      eds[i] = read_fbconfig(system->gfxdisplay, fbconfig[i]);
+      if (!eds[i])
          continue;
 #ifdef DEBUGMODE
-      display_pixel_format(system->visuals[i]);
+      display_pixel_format(eds[i]);
 #endif
-      system->visuals[i]->score = _al_score_display_settings(system->visuals[i], ref);
-      if (system->visuals[i]->score == -1) {
+      eds[i]->score = _al_score_display_settings(eds[i], ref);
+      if (eds[i]->score == -1) {
          continue;
       }
-      system->visuals[i]->index = i;
-      system->visuals[i]->info = _AL_MALLOC(sizeof(GLXFBConfig));
-      memcpy(system->visuals[i]->info, &fbconfig[i], sizeof(GLXFBConfig));
+      eds[i]->index = i;
+      eds[i]->info = _AL_MALLOC(sizeof(GLXFBConfig));
+      memcpy(eds[i]->info, &fbconfig[i], sizeof(GLXFBConfig));
    }
 
+   *eds_count = i;
    ALLEGRO_INFO("%i visuals are good enough.\n", i);
 
    XFree(fbconfig);
+   return eds;
 }
 
 
@@ -340,58 +325,58 @@ static ALLEGRO_EXTRA_DISPLAY_SETTINGS* read_xvisual(Display *dpy,
    return eds;
 }
 
-static void get_visuals_old(void)
+static ALLEGRO_EXTRA_DISPLAY_SETTINGS** get_visuals_old(int *eds_count)
 {
    int i, num_visuals;
    XVisualInfo *xv;
    ALLEGRO_EXTRA_DISPLAY_SETTINGS *ref;
+   ALLEGRO_EXTRA_DISPLAY_SETTINGS **eds;
    ALLEGRO_SYSTEM_XGLX *system = (void *)al_get_system_driver();
 
    ref = _al_get_new_display_settings();
 
    xv = XGetVisualInfo(system->gfxdisplay, 0, NULL, &num_visuals);
    if (!xv || !num_visuals)
-      return;
+      return NULL;
 
-   system->visuals = _AL_MALLOC(num_visuals * sizeof(*system->visuals));
-   system->visuals_count = num_visuals;
-   memset(system->visuals, 0, num_visuals * sizeof(*system->visuals));
+   eds = _AL_MALLOC(num_visuals * sizeof(*eds));
 
    ALLEGRO_INFO("%i formats.\n", num_visuals);
 
    for (i = 0; i < num_visuals; i++) {
       ALLEGRO_DEBUG("-- \n");
       ALLEGRO_DEBUG("Decoding visual no. %i...\n", i);
-      system->visuals[i] = read_xvisual(system->gfxdisplay, xv+i);
-      if (!system->visuals[i])
+      eds[i] = read_xvisual(system->gfxdisplay, xv+i);
+      if (!eds[i])
          continue;
 #ifdef DEBUGMODE
-      display_pixel_format(system->visuals[i]);
+      display_pixel_format(eds[i]);
 #endif
-      system->visuals[i]->score = _al_score_display_settings(
-         system->visuals[i], ref);
-      if (system->visuals[i]->score == -1) {
+      eds[i]->score = _al_score_display_settings(eds[i], ref);
+      if (eds[i]->score == -1) {
          continue;
       }
-      system->visuals[i]->index = i;
+      eds[i]->index = i;
       /* Seems that XVinfo is static. */
-      system->visuals[i]->info = _AL_MALLOC(sizeof(XVisualInfo));
-      memcpy(system->visuals[i]->info, xv + i, sizeof(XVisualInfo));
+      eds[i]->info = _AL_MALLOC(sizeof(XVisualInfo));
+      memcpy(eds[i]->info, xv + i, sizeof(XVisualInfo));
    }
 
+   *eds_count = i;
    ALLEGRO_INFO("%i visuals are good enough.\n", i);
    XFree(xv);
+   return eds;
 }
 
 
-static void select_best_visual(ALLEGRO_DISPLAY_XGLX *glx)
+static void select_best_visual(ALLEGRO_DISPLAY_XGLX *glx,
+                               ALLEGRO_EXTRA_DISPLAY_SETTINGS* *eds, int eds_count,
+                               bool using_fbc)
 {
    ALLEGRO_SYSTEM_XGLX *system = (void *)al_get_system_driver();
 
-   ALLEGRO_EXTRA_DISPLAY_SETTINGS *eds[system->visuals_count];
-   memcpy(eds, system->visuals, sizeof(*eds) * system->visuals_count);
-   qsort(eds, system->visuals_count, sizeof(*eds), _al_display_settings_sorter);
-   
+   qsort(eds, eds_count, sizeof(*eds), _al_display_settings_sorter);
+
    if (!eds[0]->info) {
        ALLEGRO_ERROR("No matching displays found.\n");
        glx->xvinfo = NULL;
@@ -402,12 +387,17 @@ static void select_best_visual(ALLEGRO_DISPLAY_XGLX *glx)
 #ifdef DEBUGMODE
    display_pixel_format(eds[0]);
 #endif
-   if (system->using_fbc) {
-      glx->fbc = eds[0]->info;
+   if (using_fbc) {
+      glx->fbc = _AL_MALLOC(sizeof(GLXFBConfig));
+      memcpy(glx->fbc, eds[0]->info, sizeof(GLXFBConfig));
+
       glx->xvinfo = glXGetVisualFromFBConfig(system->gfxdisplay, *glx->fbc);
    }
-   else
-      glx->xvinfo = eds[0]->info;
+   else {
+      glx->xvinfo = _AL_MALLOC(sizeof(XVisualInfo));
+      memcpy(glx->xvinfo, eds[0]->info, sizeof(XVisualInfo));
+   }
+
    ALLEGRO_INFO("Corresponding X11 visual id: %lu\n", glx->xvinfo->visualid);
    memcpy(&glx->display.extra_settings, eds[0], sizeof(ALLEGRO_EXTRA_DISPLAY_SETTINGS));
 }
@@ -417,9 +407,10 @@ static void select_best_visual(ALLEGRO_DISPLAY_XGLX *glx)
 void _al_xglx_config_select_visual(ALLEGRO_DISPLAY_XGLX *glx)
 {
    ALLEGRO_SYSTEM_XGLX *system = (void *)al_get_system_driver();
+   ALLEGRO_EXTRA_DISPLAY_SETTINGS **eds;
+   int eds_count, i;
    bool force_old = false;
-   
-   _al_xglx_free_visuals_info();
+   bool using_fbc;
 
    if (system->system.config) {
       const char *selection_mode;
@@ -436,20 +427,28 @@ void _al_xglx_config_select_visual(ALLEGRO_DISPLAY_XGLX *glx)
    }
 
    if (glx->glx_version >= 130 && !force_old)
-      get_visuals_new(glx);
-   if (!system->visuals) {
-      get_visuals_old();
-      system->using_fbc = false;
+      eds = get_visuals_new(glx, &eds_count);
+   if (!eds) {
+      eds = get_visuals_old(&eds_count);
+      using_fbc = false;
    }
    else
-      system->using_fbc = true;
+      using_fbc = true;
 
-   if (!system->visuals) {
+   if (!eds) {
       ALLEGRO_ERROR("Failed to get any visual info.\n");
       return;
    }
 
-   select_best_visual(glx);
+   select_best_visual(glx, eds, eds_count, using_fbc);
+
+   for (i = 0; i < eds_count; i++) {
+      if (eds[i]) {
+         _AL_FREE(eds[i]->info);
+         _AL_FREE(eds[i]);
+      }
+   }
+   _AL_FREE(eds);
 }
 
 static GLXContext create_context_new(int ver, Display *dpy, GLXFBConfig fb,
