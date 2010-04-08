@@ -70,7 +70,6 @@
 		64839177102AF35000D508EE /* aintern_thread.h in Headers */ = {isa = PBXBuildFile; fileRef = 64839106102AF35000D508EE /* aintern_thread.h */; };
 		64839178102AF35000D508EE /* aintern_vector.h in Headers */ = {isa = PBXBuildFile; fileRef = 64839107102AF35000D508EE /* aintern_vector.h */; };
 		64839179102AF35000D508EE /* aintern_xglx.h in Headers */ = {isa = PBXBuildFile; fileRef = 64839108102AF35000D508EE /* aintern_xglx.h */; };
-		6483917A102AF35000D508EE /* aintvga.h in Headers */ = {isa = PBXBuildFile; fileRef = 64839109102AF35000D508EE /* aintvga.h */; };
 		6483917B102AF35000D508EE /* alconfig.h in Headers */ = {isa = PBXBuildFile; fileRef = 6483910A102AF35000D508EE /* alconfig.h */; };
 		6483917C102AF35000D508EE /* bstrlib.h in Headers */ = {isa = PBXBuildFile; fileRef = 6483910B102AF35000D508EE /* bstrlib.h */; };
 		6483917D102AF35000D508EE /* joystick.h in Headers */ = {isa = PBXBuildFile; fileRef = 6483910C102AF35000D508EE /* joystick.h */; };
@@ -93,12 +92,9 @@
 		6483918E102AF35000D508EE /* wgl_ext_list.h in Headers */ = {isa = PBXBuildFile; fileRef = 6483911F102AF35000D508EE /* wgl_ext_list.h */; };
 		6483918F102AF35000D508EE /* osxalleg.h in Headers */ = {isa = PBXBuildFile; fileRef = 64839120102AF35000D508EE /* osxalleg.h */; };
 		64839190102AF35000D508EE /* path.h in Headers */ = {isa = PBXBuildFile; fileRef = 64839121102AF35000D508EE /* path.h */; };
-		64839191102AF35000D508EE /* aintbeos.h in Headers */ = {isa = PBXBuildFile; fileRef = 64839123102AF35000D508EE /* aintbeos.h */; };
-		64839192102AF35000D508EE /* aintdos.h in Headers */ = {isa = PBXBuildFile; fileRef = 64839124102AF35000D508EE /* aintdos.h */; };
 		64839193102AF35000D508EE /* aintiphone.h in Headers */ = {isa = PBXBuildFile; fileRef = 64839125102AF35000D508EE /* aintiphone.h */; };
 		64839194102AF35000D508EE /* aintlnx.h in Headers */ = {isa = PBXBuildFile; fileRef = 64839126102AF35000D508EE /* aintlnx.h */; };
 		64839195102AF35000D508EE /* aintosx.h in Headers */ = {isa = PBXBuildFile; fileRef = 64839127102AF35000D508EE /* aintosx.h */; };
-		64839196102AF35000D508EE /* aintqnx.h in Headers */ = {isa = PBXBuildFile; fileRef = 64839128102AF35000D508EE /* aintqnx.h */; };
 		64839197102AF35000D508EE /* aintunix.h in Headers */ = {isa = PBXBuildFile; fileRef = 64839129102AF35000D508EE /* aintunix.h */; };
 		64839198102AF35000D508EE /* aintuthr.h in Headers */ = {isa = PBXBuildFile; fileRef = 6483912A102AF35000D508EE /* aintuthr.h */; };
 		64839199102AF35000D508EE /* aintwin.h in Headers */ = {isa = PBXBuildFile; fileRef = 6483912B102AF35000D508EE /* aintwin.h */; };
@@ -109,19 +105,13 @@
 		6483919E102AF35000D508EE /* al386vc.h in Headers */ = {isa = PBXBuildFile; fileRef = 64839130102AF35000D508EE /* al386vc.h */; };
 		6483919F102AF35000D508EE /* al386wat.h in Headers */ = {isa = PBXBuildFile; fileRef = 64839131102AF35000D508EE /* al386wat.h */; };
 		648391A0102AF35000D508EE /* albcc32.h in Headers */ = {isa = PBXBuildFile; fileRef = 64839132102AF35000D508EE /* albcc32.h */; };
-		648391A1102AF35000D508EE /* albecfg.h in Headers */ = {isa = PBXBuildFile; fileRef = 64839133102AF35000D508EE /* albecfg.h */; };
-		648391A2102AF35000D508EE /* albeos.h in Headers */ = {isa = PBXBuildFile; fileRef = 64839134102AF35000D508EE /* albeos.h */; };
-		648391A3102AF35000D508EE /* aldjgpp.h in Headers */ = {isa = PBXBuildFile; fileRef = 64839135102AF35000D508EE /* aldjgpp.h */; };
 		648391A4102AF35000D508EE /* aldmc.h in Headers */ = {isa = PBXBuildFile; fileRef = 64839136102AF35000D508EE /* aldmc.h */; };
-		648391A5102AF35000D508EE /* aldos.h in Headers */ = {isa = PBXBuildFile; fileRef = 64839137102AF35000D508EE /* aldos.h */; };
 		648391A6102AF35000D508EE /* aliphone.h in Headers */ = {isa = PBXBuildFile; fileRef = 64839138102AF35000D508EE /* aliphone.h */; };
 		648391A7102AF35000D508EE /* aliphonecfg.h in Headers */ = {isa = PBXBuildFile; fileRef = 64839139102AF35000D508EE /* aliphonecfg.h */; };
 		648391A8102AF35000D508EE /* almngw32.h in Headers */ = {isa = PBXBuildFile; fileRef = 6483913A102AF35000D508EE /* almngw32.h */; };
 		648391A9102AF35000D508EE /* almsvc.h in Headers */ = {isa = PBXBuildFile; fileRef = 6483913B102AF35000D508EE /* almsvc.h */; };
 		648391AA102AF35000D508EE /* alosx.h in Headers */ = {isa = PBXBuildFile; fileRef = 6483913C102AF35000D508EE /* alosx.h */; };
 		648391AB102AF35000D508EE /* alosxcfg.h in Headers */ = {isa = PBXBuildFile; fileRef = 6483913D102AF35000D508EE /* alosxcfg.h */; };
-		648391AC102AF35000D508EE /* alqnx.h in Headers */ = {isa = PBXBuildFile; fileRef = 6483913F102AF35000D508EE /* alqnx.h */; };
-		648391AD102AF35000D508EE /* alqnxcfg.h in Headers */ = {isa = PBXBuildFile; fileRef = 64839140102AF35000D508EE /* alqnxcfg.h */; };
 		648391AE102AF35000D508EE /* alucfg.h in Headers */ = {isa = PBXBuildFile; fileRef = 64839141102AF35000D508EE /* alucfg.h */; };
 		648391AF102AF35000D508EE /* alunix.h in Headers */ = {isa = PBXBuildFile; fileRef = 64839142102AF35000D508EE /* alunix.h */; };
 		648391B0102AF35000D508EE /* alwatcom.h in Headers */ = {isa = PBXBuildFile; fileRef = 64839143102AF35000D508EE /* alwatcom.h */; };
@@ -300,12 +290,6 @@
 		9622427A1149DE6F00AF7289 /* aqueue.m in Sources */ = {isa = PBXBuildFile; fileRef = 962242791149DE6F00AF7289 /* aqueue.m */; };
 		9622427B1149DE7D00AF7289 /* aqueue.m in Sources */ = {isa = PBXBuildFile; fileRef = 962242791149DE6F00AF7289 /* aqueue.m */; };
 		964F08F6113AEF1200F3987C /* data in Resources */ = {isa = PBXBuildFile; fileRef = 642F7F97102DD0B6001249EE /* data */; };
-		964F0900113AEF4C00F3987C /* CoreFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 964F08FF113AEF4C00F3987C /* CoreFoundation.framework */; };
-		964F0902113AEF4C00F3987C /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 964F0901113AEF4C00F3987C /* CoreGraphics.framework */; };
-		964F0904113AEF4C00F3987C /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 964F0903113AEF4C00F3987C /* Foundation.framework */; };
-		964F0906113AEF4C00F3987C /* OpenGLES.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 964F0905113AEF4C00F3987C /* OpenGLES.framework */; };
-		964F0908113AEF4C00F3987C /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 964F0907113AEF4C00F3987C /* QuartzCore.framework */; };
-		964F090A113AEF4C00F3987C /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 964F0909113AEF4C00F3987C /* UIKit.framework */; };
 		964F0A09113AF06900F3987C /* liba5_font.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 64FAD2EA1031E26D004E35A1 /* liba5_font.a */; };
 		964F0A0A113AF06900F3987C /* liba5_primitives.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 64FACF941031B4C8004E35A1 /* liba5_primitives.a */; };
 		964F0A0B113AF06900F3987C /* liba5_image.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 642F7B04102B2A45001249EE /* liba5_image.a */; };
@@ -405,14 +389,14 @@
 			isa = PBXContainerItemProxy;
 			containerPortal = 29B97313FDCFA39411CA2CEA /* Project object */;
 			proxyType = 1;
-			remoteGlobalIDString = 64898473116A226D007C3944 /* ex_ttf */;
+			remoteGlobalIDString = 64898473116A226D007C3944;
 			remoteInfo = ex_ttf;
 		};
 		64898493116A2323007C3944 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 29B97313FDCFA39411CA2CEA /* Project object */;
 			proxyType = 1;
-			remoteGlobalIDString = 9656CDEE115709B400208C45 /* a5_ttf */;
+			remoteGlobalIDString = 9656CDEE115709B400208C45;
 			remoteInfo = a5_ttf;
 		};
 		64E10567103B2C0B00E83BAB /* PBXContainerItemProxy */ = {
@@ -717,7 +701,6 @@
 		64839106102AF35000D508EE /* aintern_thread.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = aintern_thread.h; path = ../include/allegro5/internal/aintern_thread.h; sourceTree = SOURCE_ROOT; };
 		64839107102AF35000D508EE /* aintern_vector.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = aintern_vector.h; path = ../include/allegro5/internal/aintern_vector.h; sourceTree = SOURCE_ROOT; };
 		64839108102AF35000D508EE /* aintern_xglx.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = aintern_xglx.h; path = ../include/allegro5/internal/aintern_xglx.h; sourceTree = SOURCE_ROOT; };
-		64839109102AF35000D508EE /* aintvga.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = aintvga.h; path = ../include/allegro5/internal/aintvga.h; sourceTree = SOURCE_ROOT; };
 		6483910A102AF35000D508EE /* alconfig.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = alconfig.h; path = ../include/allegro5/internal/alconfig.h; sourceTree = SOURCE_ROOT; };
 		6483910B102AF35000D508EE /* bstrlib.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = bstrlib.h; path = ../include/allegro5/internal/bstrlib.h; sourceTree = SOURCE_ROOT; };
 		6483910C102AF35000D508EE /* joystick.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = joystick.h; path = ../include/allegro5/joystick.h; sourceTree = SOURCE_ROOT; };
@@ -740,12 +723,9 @@
 		6483911F102AF35000D508EE /* wgl_ext_list.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = wgl_ext_list.h; path = ../include/allegro5/opengl/GLext/wgl_ext_list.h; sourceTree = SOURCE_ROOT; };
 		64839120102AF35000D508EE /* osxalleg.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = osxalleg.h; path = ../include/allegro5/osxalleg.h; sourceTree = SOURCE_ROOT; };
 		64839121102AF35000D508EE /* path.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = path.h; path = ../include/allegro5/path.h; sourceTree = SOURCE_ROOT; };
-		64839123102AF35000D508EE /* aintbeos.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = aintbeos.h; path = ../include/allegro5/platform/aintbeos.h; sourceTree = SOURCE_ROOT; };
-		64839124102AF35000D508EE /* aintdos.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = aintdos.h; path = ../include/allegro5/platform/aintdos.h; sourceTree = SOURCE_ROOT; };
 		64839125102AF35000D508EE /* aintiphone.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = aintiphone.h; path = ../include/allegro5/platform/aintiphone.h; sourceTree = SOURCE_ROOT; };
 		64839126102AF35000D508EE /* aintlnx.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = aintlnx.h; path = ../include/allegro5/platform/aintlnx.h; sourceTree = SOURCE_ROOT; };
 		64839127102AF35000D508EE /* aintosx.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = aintosx.h; path = ../include/allegro5/platform/aintosx.h; sourceTree = SOURCE_ROOT; };
-		64839128102AF35000D508EE /* aintqnx.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = aintqnx.h; path = ../include/allegro5/platform/aintqnx.h; sourceTree = SOURCE_ROOT; };
 		64839129102AF35000D508EE /* aintunix.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = aintunix.h; path = ../include/allegro5/platform/aintunix.h; sourceTree = SOURCE_ROOT; };
 		6483912A102AF35000D508EE /* aintuthr.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = aintuthr.h; path = ../include/allegro5/platform/aintuthr.h; sourceTree = SOURCE_ROOT; };
 		6483912B102AF35000D508EE /* aintwin.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = aintwin.h; path = ../include/allegro5/platform/aintwin.h; sourceTree = SOURCE_ROOT; };
@@ -756,11 +736,7 @@
 		64839130102AF35000D508EE /* al386vc.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = al386vc.h; path = ../include/allegro5/platform/al386vc.h; sourceTree = SOURCE_ROOT; };
 		64839131102AF35000D508EE /* al386wat.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = al386wat.h; path = ../include/allegro5/platform/al386wat.h; sourceTree = SOURCE_ROOT; };
 		64839132102AF35000D508EE /* albcc32.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = albcc32.h; path = ../include/allegro5/platform/albcc32.h; sourceTree = SOURCE_ROOT; };
-		64839133102AF35000D508EE /* albecfg.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = albecfg.h; path = ../include/allegro5/platform/albecfg.h; sourceTree = SOURCE_ROOT; };
-		64839134102AF35000D508EE /* albeos.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = albeos.h; path = ../include/allegro5/platform/albeos.h; sourceTree = SOURCE_ROOT; };
-		64839135102AF35000D508EE /* aldjgpp.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = aldjgpp.h; path = ../include/allegro5/platform/aldjgpp.h; sourceTree = SOURCE_ROOT; };
 		64839136102AF35000D508EE /* aldmc.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = aldmc.h; path = ../include/allegro5/platform/aldmc.h; sourceTree = SOURCE_ROOT; };
-		64839137102AF35000D508EE /* aldos.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = aldos.h; path = ../include/allegro5/platform/aldos.h; sourceTree = SOURCE_ROOT; };
 		64839138102AF35000D508EE /* aliphone.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = aliphone.h; path = ../include/allegro5/platform/aliphone.h; sourceTree = SOURCE_ROOT; };
 		64839139102AF35000D508EE /* aliphonecfg.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = aliphonecfg.h; path = ../include/allegro5/platform/aliphonecfg.h; sourceTree = SOURCE_ROOT; };
 		6483913A102AF35000D508EE /* almngw32.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = almngw32.h; path = ../include/allegro5/platform/almngw32.h; sourceTree = SOURCE_ROOT; };
@@ -768,8 +744,6 @@
 		6483913C102AF35000D508EE /* alosx.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = alosx.h; path = ../include/allegro5/platform/alosx.h; sourceTree = SOURCE_ROOT; };
 		6483913D102AF35000D508EE /* alosxcfg.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = alosxcfg.h; path = ../include/allegro5/platform/alosxcfg.h; sourceTree = SOURCE_ROOT; };
 		6483913E102AF35000D508EE /* alplatf.h.cmake */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = alplatf.h.cmake; path = ../include/allegro5/platform/alplatf.h.cmake; sourceTree = SOURCE_ROOT; };
-		6483913F102AF35000D508EE /* alqnx.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = alqnx.h; path = ../include/allegro5/platform/alqnx.h; sourceTree = SOURCE_ROOT; };
-		64839140102AF35000D508EE /* alqnxcfg.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = alqnxcfg.h; path = ../include/allegro5/platform/alqnxcfg.h; sourceTree = SOURCE_ROOT; };
 		64839141102AF35000D508EE /* alucfg.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = alucfg.h; path = ../include/allegro5/platform/alucfg.h; sourceTree = SOURCE_ROOT; };
 		64839142102AF35000D508EE /* alunix.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = alunix.h; path = ../include/allegro5/platform/alunix.h; sourceTree = SOURCE_ROOT; };
 		64839143102AF35000D508EE /* alwatcom.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = alwatcom.h; path = ../include/allegro5/platform/alwatcom.h; sourceTree = SOURCE_ROOT; };
@@ -976,12 +950,6 @@
 		962242AC1149E06200AF7289 /* libTremor.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libTremor.a; path = /Users/trent/4.9/include/libTremor.a; sourceTree = "<absolute>"; };
 		964F08EE113AEEC700F3987C /* ex_prim.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ex_prim.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		964F08F0113AEEC700F3987C /* ex_prim-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "ex_prim-Info.plist"; sourceTree = "<group>"; };
-		964F08FF113AEF4C00F3987C /* CoreFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreFoundation.framework; path = System/Library/Frameworks/CoreFoundation.framework; sourceTree = SDKROOT; };
-		964F0901113AEF4C00F3987C /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = System/Library/Frameworks/CoreGraphics.framework; sourceTree = SDKROOT; };
-		964F0903113AEF4C00F3987C /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
-		964F0905113AEF4C00F3987C /* OpenGLES.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGLES.framework; path = System/Library/Frameworks/OpenGLES.framework; sourceTree = SDKROOT; };
-		964F0907113AEF4C00F3987C /* QuartzCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QuartzCore.framework; path = System/Library/Frameworks/QuartzCore.framework; sourceTree = SDKROOT; };
-		964F0909113AEF4C00F3987C /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
 		9656CDEF115709B400208C45 /* liba5_ttf.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = liba5_ttf.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		9665C55810E97752001C8024 /* point_soft.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = point_soft.c; path = ../addons/primitives/point_soft.c; sourceTree = SOURCE_ROOT; };
 		96A1EC10103B30150021FA43 /* liba5_vorbis.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = liba5_vorbis.a; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -1165,12 +1133,6 @@
 				964F0A0A113AF06900F3987C /* liba5_primitives.a in Frameworks */,
 				964F0A0B113AF06900F3987C /* liba5_image.a in Frameworks */,
 				964F0A0C113AF06900F3987C /* liballegro.a in Frameworks */,
-				964F0900113AEF4C00F3987C /* CoreFoundation.framework in Frameworks */,
-				964F0902113AEF4C00F3987C /* CoreGraphics.framework in Frameworks */,
-				964F0904113AEF4C00F3987C /* Foundation.framework in Frameworks */,
-				964F0906113AEF4C00F3987C /* OpenGLES.framework in Frameworks */,
-				964F0908113AEF4C00F3987C /* QuartzCore.framework in Frameworks */,
-				964F090A113AEF4C00F3987C /* UIKit.framework in Frameworks */,
 				648984C5116A23CD007C3944 /* AudioToolbox.framework in Frameworks */,
 				648984C6116A23CD007C3944 /* CoreAudio.framework in Frameworks */,
 				648984C7116A23CD007C3944 /* libpthread.dylib in Frameworks */,
@@ -1250,6 +1212,7 @@
 				642F7F97102DD0B6001249EE /* data */,
 				29B97315FDCFA39411CA2CEA /* Sources */,
 				29B97317FDCFA39411CA2CEA /* Resources */,
+				64036E96116E3BBE00726FC2 /* Resources-iPad */,
 				29B97323FDCFA39411CA2CEA /* Frameworks */,
 				19C28FACFE9D520D11CA2CBB /* Products */,
 				642F7928102B1F7F001249EE /* alplatf.h */,
@@ -1300,6 +1263,13 @@
 				9606AA7E103B79A900E0963B /* QuartzCore.framework */,
 			);
 			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		64036E96116E3BBE00726FC2 /* Resources-iPad */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = "Resources-iPad";
 			sourceTree = "<group>";
 		};
 		64838FF7102AF2CF00D508EE /* src */ = {
@@ -1496,7 +1466,6 @@
 				64839106102AF35000D508EE /* aintern_thread.h */,
 				64839107102AF35000D508EE /* aintern_vector.h */,
 				64839108102AF35000D508EE /* aintern_xglx.h */,
-				64839109102AF35000D508EE /* aintvga.h */,
 				6483910A102AF35000D508EE /* alconfig.h */,
 				6483910B102AF35000D508EE /* bstrlib.h */,
 			);
@@ -1537,12 +1506,9 @@
 		64839122102AF35000D508EE /* platform */ = {
 			isa = PBXGroup;
 			children = (
-				64839123102AF35000D508EE /* aintbeos.h */,
-				64839124102AF35000D508EE /* aintdos.h */,
 				64839125102AF35000D508EE /* aintiphone.h */,
 				64839126102AF35000D508EE /* aintlnx.h */,
 				64839127102AF35000D508EE /* aintosx.h */,
-				64839128102AF35000D508EE /* aintqnx.h */,
 				64839129102AF35000D508EE /* aintunix.h */,
 				6483912A102AF35000D508EE /* aintuthr.h */,
 				6483912B102AF35000D508EE /* aintwin.h */,
@@ -1553,11 +1519,7 @@
 				64839130102AF35000D508EE /* al386vc.h */,
 				64839131102AF35000D508EE /* al386wat.h */,
 				64839132102AF35000D508EE /* albcc32.h */,
-				64839133102AF35000D508EE /* albecfg.h */,
-				64839134102AF35000D508EE /* albeos.h */,
-				64839135102AF35000D508EE /* aldjgpp.h */,
 				64839136102AF35000D508EE /* aldmc.h */,
-				64839137102AF35000D508EE /* aldos.h */,
 				64839138102AF35000D508EE /* aliphone.h */,
 				64839139102AF35000D508EE /* aliphonecfg.h */,
 				6483913A102AF35000D508EE /* almngw32.h */,
@@ -1565,8 +1527,6 @@
 				6483913C102AF35000D508EE /* alosx.h */,
 				6483913D102AF35000D508EE /* alosxcfg.h */,
 				6483913E102AF35000D508EE /* alplatf.h.cmake */,
-				6483913F102AF35000D508EE /* alqnx.h */,
-				64839140102AF35000D508EE /* alqnxcfg.h */,
 				64839141102AF35000D508EE /* alucfg.h */,
 				64839142102AF35000D508EE /* alunix.h */,
 				64839143102AF35000D508EE /* alwatcom.h */,
@@ -2043,7 +2003,6 @@
 				64839177102AF35000D508EE /* aintern_thread.h in Headers */,
 				64839178102AF35000D508EE /* aintern_vector.h in Headers */,
 				64839179102AF35000D508EE /* aintern_xglx.h in Headers */,
-				6483917A102AF35000D508EE /* aintvga.h in Headers */,
 				6483917B102AF35000D508EE /* alconfig.h in Headers */,
 				6483917C102AF35000D508EE /* bstrlib.h in Headers */,
 				6483917D102AF35000D508EE /* joystick.h in Headers */,
@@ -2066,12 +2025,9 @@
 				6483918E102AF35000D508EE /* wgl_ext_list.h in Headers */,
 				6483918F102AF35000D508EE /* osxalleg.h in Headers */,
 				64839190102AF35000D508EE /* path.h in Headers */,
-				64839191102AF35000D508EE /* aintbeos.h in Headers */,
-				64839192102AF35000D508EE /* aintdos.h in Headers */,
 				64839193102AF35000D508EE /* aintiphone.h in Headers */,
 				64839194102AF35000D508EE /* aintlnx.h in Headers */,
 				64839195102AF35000D508EE /* aintosx.h in Headers */,
-				64839196102AF35000D508EE /* aintqnx.h in Headers */,
 				64839197102AF35000D508EE /* aintunix.h in Headers */,
 				64839198102AF35000D508EE /* aintuthr.h in Headers */,
 				64839199102AF35000D508EE /* aintwin.h in Headers */,
@@ -2082,19 +2038,13 @@
 				6483919E102AF35000D508EE /* al386vc.h in Headers */,
 				6483919F102AF35000D508EE /* al386wat.h in Headers */,
 				648391A0102AF35000D508EE /* albcc32.h in Headers */,
-				648391A1102AF35000D508EE /* albecfg.h in Headers */,
-				648391A2102AF35000D508EE /* albeos.h in Headers */,
-				648391A3102AF35000D508EE /* aldjgpp.h in Headers */,
 				648391A4102AF35000D508EE /* aldmc.h in Headers */,
-				648391A5102AF35000D508EE /* aldos.h in Headers */,
 				648391A6102AF35000D508EE /* aliphone.h in Headers */,
 				648391A7102AF35000D508EE /* aliphonecfg.h in Headers */,
 				648391A8102AF35000D508EE /* almngw32.h in Headers */,
 				648391A9102AF35000D508EE /* almsvc.h in Headers */,
 				648391AA102AF35000D508EE /* alosx.h in Headers */,
 				648391AB102AF35000D508EE /* alosxcfg.h in Headers */,
-				648391AC102AF35000D508EE /* alqnx.h in Headers */,
-				648391AD102AF35000D508EE /* alqnxcfg.h in Headers */,
 				648391AE102AF35000D508EE /* alucfg.h in Headers */,
 				648391AF102AF35000D508EE /* alunix.h in Headers */,
 				648391B0102AF35000D508EE /* alwatcom.h in Headers */,
@@ -3117,6 +3067,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				ARCHS = "$(ARCHS_UNIVERSAL_IPHONE_OS)";
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				COPY_PHASE_STRIP = NO;
 				GCC_DYNAMIC_NO_PIC = NO;
@@ -3133,6 +3084,7 @@
 				);
 				INFOPLIST_FILE = "ex_draw_bitmap-Info copy.plist";
 				INSTALL_PATH = "$(HOME)/Applications";
+				IPHONEOS_DEPLOYMENT_TARGET = 3.1.3;
 				OTHER_LDFLAGS = (
 					"-framework",
 					Foundation,
@@ -3141,7 +3093,8 @@
 				);
 				PREBINDING = NO;
 				PRODUCT_NAME = ex_blit;
-				SDKROOT = iphoneos2.1;
+				SDKROOT = iphoneos3.2;
+				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Debug;
 		};
@@ -3149,6 +3102,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				ARCHS = "$(ARCHS_UNIVERSAL_IPHONE_OS)";
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				COPY_PHASE_STRIP = YES;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
@@ -3167,6 +3121,7 @@
 				);
 				INFOPLIST_FILE = "ex_ttf-Info.plist";
 				INSTALL_PATH = "$(HOME)/Applications";
+				IPHONEOS_DEPLOYMENT_TARGET = 3.1.3;
 				OTHER_LDFLAGS = (
 					"-framework",
 					Foundation,
@@ -3175,7 +3130,8 @@
 				);
 				PREBINDING = NO;
 				PRODUCT_NAME = "ex ttf";
-				SDKROOT = iphoneos3.0;
+				SDKROOT = iphoneos3.2;
+				TARGETED_DEVICE_FAMILY = "1,2";
 				ZERO_LINK = NO;
 			};
 			name = Release;

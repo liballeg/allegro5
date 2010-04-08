@@ -52,6 +52,12 @@ void _al_iphone_accelerometer_control(int frequency)
     }
 }
 
+void _al_iphone_get_screen_size(int *w, int *h)
+{
+    *w = [[UIScreen mainScreen] bounds].size.width;
+    *h = [[UIScreen mainScreen] bounds].size.height;
+}
+
 @implementation allegroAppDelegate
 
 @synthesize window;

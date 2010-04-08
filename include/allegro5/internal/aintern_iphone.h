@@ -35,3 +35,4 @@ void _al_iphone_update_visuals(void);
 void _al_iphone_accelerometer_control(int frequency);
 void _al_iphone_generate_joystick_event(float x, float y, float z);
 void _al_iphone_await_termination(void);
+void _al_iphone_get_screen_size(int *w, int *h);

@@ -10,13 +10,15 @@ static ALLEGRO_DISPLAY_INTERFACE *vt;
 
 void _al_iphone_setup_opengl_view(ALLEGRO_DISPLAY *d)
 {
+    int w, h;
+    _al_iphone_get_screen_size(&w, &h);
     _al_iphone_reset_framebuffer();
-    glViewport(0, 0, 320, 480);
+    glViewport(0, 0, w, h);
 
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
     
-    glOrthof(0, 320, 480, 0, -1, 1);
+    glOrthof(0, w, h, 0, -1, 1);
    
     /* We automatically adjust the view if the user doesn't use 320x480. Users
      * of the iphone port are adviced to provide a 320x480 mode and do their
@@ -24,18 +26,18 @@ void _al_iphone_setup_opengl_view(ALLEGRO_DISPLAY *d)
      * any OpenGL and not having to change a single character in your
      * application - here you go.
      */
-    if (d->w != 320 || d->h != 480) {
+    if (d->w != w || d->h != h) {
        double scale;
        if (d->w >= d->h) {
-          if (d->w * 320 > d->h * 480.0) {
-             scale = 480.0 / d->w;
-             glTranslatef((320.0 - d->h * scale) * 0.5, 0, 0);
+          if (d->w * w > d->h * h) {
+             scale = h * 1.0 / d->w;
+             glTranslatef((w - d->h * scale) * 0.5, 0, 0);
           }
           else {
-             scale = 320.0 / d->h;
-             glTranslatef(0, (480.0 - d->w * scale) * 0.5, 0);
+             scale = w * 1.0 / d->h;
+             glTranslatef(0, (h - d->w * scale) * 0.5, 0);
           }
-          glTranslatef(320, 0, 0);
+          glTranslatef(w, 0, 0);
           glRotatef(90, 0, 0, 1);
           glScalef(scale, scale, 1);
        }

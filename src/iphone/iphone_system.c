@@ -50,10 +50,12 @@ static int iphone_get_num_video_adapters(void)
 
 static void iphone_get_monitor_info(int adapter, ALLEGRO_MONITOR_INFO *info)
 {
+   int w, h;
+   _al_iphone_get_screen_size(&w, &h);
    info->x1 = 0;
    info->y1 = 0;
-   info->x2 = 320;
-   info->y2 = 480;
+   info->x2 = w;
+   info->y2 = h;
 }
 
 /* There is no cursor. */
