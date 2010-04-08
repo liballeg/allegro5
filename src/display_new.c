@@ -44,7 +44,6 @@ ALLEGRO_DISPLAY *al_create_display(int w, int h)
    ALLEGRO_SYSTEM *system;
    ALLEGRO_DISPLAY_INTERFACE *driver;
    ALLEGRO_DISPLAY *display;
-   ALLEGRO_EXTRA_DISPLAY_SETTINGS *eds;
    ALLEGRO_TRANSFORM identity;
 
    system = al_get_system_driver();

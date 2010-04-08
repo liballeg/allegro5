@@ -852,6 +852,9 @@ void _al_xglx_fullscreen_to_display(ALLEGRO_SYSTEM_XGLX *s,
    //   GrabModeAsync, GrabModeAsync, d->window, None, CurrentTime);
    //FIXME: handle possible errors here
    //s->pointer_grabbed = true;
+
+   (void)s;
+   (void)d;
 }
 
 void _al_xglx_store_video_mode(ALLEGRO_SYSTEM_XGLX *s)

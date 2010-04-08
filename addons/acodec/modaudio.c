@@ -22,8 +22,6 @@ static double duh_stream_get_length(ALLEGRO_AUDIO_STREAM *stream);
 static bool duh_stream_set_loop(ALLEGRO_AUDIO_STREAM *stream, double start, double end);
 static void duh_stream_close(ALLEGRO_AUDIO_STREAM *stream);
 
-ALLEGRO_DEBUG_CHANNEL("acodec")
-
 typedef struct MOD_FILE
 {
    DUH *duh;
@@ -70,9 +68,12 @@ static size_t duh_stream_update(ALLEGRO_AUDIO_STREAM *stream, void *data,
    
    /* the mod files are stereo and 16-bit */
    const int sample_size = 4;
-   size_t written = duh_render(df->sig, 16, 0, 1.0, 65536.0 / 44100.0, buf_size / sample_size, data) * sample_size;  
+   size_t written;
    size_t i;
    
+   written = duh_render(df->sig, 16, 0, 1.0, 65536.0 / 44100.0,
+      buf_size / sample_size, data) * sample_size;
+
    /* Fill the remainder with silence */
    for (i = written; i < buf_size; ++i)
       ((int *)data)[i] = 0x8000;
@@ -155,12 +156,12 @@ static ALLEGRO_AUDIO_STREAM *mod_stream_init(ALLEGRO_FILE* f,
 
    duh = loader(df);
    if (!duh) {
-       /* try to return back to where we started to load */
-       if (start_pos != -1)
-          al_fseek(f, start_pos, ALLEGRO_SEEK_SET);
-     return NULL;  
+      /* try to return back to where we started to load */
+      if (start_pos != -1)
+         al_fseek(f, start_pos, ALLEGRO_SEEK_SET);
+      return NULL;
    }
-     
+
    sig = duh_start_sigrenderer(duh, 0, 2, 0);
    if (!sig) {
       unload_duh(duh);
@@ -171,15 +172,16 @@ static ALLEGRO_AUDIO_STREAM *mod_stream_init(ALLEGRO_FILE* f,
       ALLEGRO_AUDIO_DEPTH_INT16, ALLEGRO_CHANNEL_CONF_2); 
 
    if (stream) {
-        MOD_FILE *mf = malloc(sizeof(MOD_FILE));
-        mf->duh = duh;
-        mf->sig = sig;
-        mf->fh = NULL;
-        mf->length = duh_get_length(duh) / 65536.0;
-        if (mf->length < 0) mf->length = 0;
-        mf->loop_start = -1;
-        mf->loop_end = -1;        
-        
+      MOD_FILE *mf = malloc(sizeof(MOD_FILE));
+      mf->duh = duh;
+      mf->sig = sig;
+      mf->fh = NULL;
+      mf->length = duh_get_length(duh) / 65536.0;
+      if (mf->length < 0)
+         mf->length = 0;
+      mf->loop_start = -1;
+      mf->loop_end = -1;
+
       stream->extra = mf;
       stream->feed_thread = al_create_thread(_al_kcm_feed_stream, stream);
       stream->feeder = duh_stream_update;
@@ -330,7 +332,7 @@ ALLEGRO_AUDIO_STREAM *al_load_s3m_audio_stream(const char *filename,
 
 /* Function: al_load_mod_audio_stream_f
  */
-ALLEGRO_AUDIO_STREAM *al_load_mod_audio_stream_f(ALLEGRO_FILE* f,
+ALLEGRO_AUDIO_STREAM *al_load_mod_audio_stream_f(ALLEGRO_FILE *f,
    size_t buffer_count, unsigned int samples)
 {
    return mod_stream_init(f, buffer_count, samples, dumb_read_mod);
@@ -338,7 +340,7 @@ ALLEGRO_AUDIO_STREAM *al_load_mod_audio_stream_f(ALLEGRO_FILE* f,
 
 /* Function: al_load_it_audio_stream_f
  */
-ALLEGRO_AUDIO_STREAM *al_load_it_audio_stream_f(ALLEGRO_FILE* f,
+ALLEGRO_AUDIO_STREAM *al_load_it_audio_stream_f(ALLEGRO_FILE *f,
    size_t buffer_count, unsigned int samples)
 {
    return mod_stream_init(f, buffer_count, samples, dumb_read_it);
@@ -346,7 +348,7 @@ ALLEGRO_AUDIO_STREAM *al_load_it_audio_stream_f(ALLEGRO_FILE* f,
 
 /* Function: al_load_xm_audio_stream_f
  */
-ALLEGRO_AUDIO_STREAM *al_load_xm_audio_stream_f(ALLEGRO_FILE* f,
+ALLEGRO_AUDIO_STREAM *al_load_xm_audio_stream_f(ALLEGRO_FILE *f,
    size_t buffer_count, unsigned int samples)
 {
    return mod_stream_init(f, buffer_count, samples, dumb_read_xm);
@@ -354,7 +356,7 @@ ALLEGRO_AUDIO_STREAM *al_load_xm_audio_stream_f(ALLEGRO_FILE* f,
 
 /* Function: al_load_s3m_audio_stream_f
  */
-ALLEGRO_AUDIO_STREAM *al_load_s3m_audio_stream_f(ALLEGRO_FILE* f,
+ALLEGRO_AUDIO_STREAM *al_load_s3m_audio_stream_f(ALLEGRO_FILE *f,
    size_t buffer_count, unsigned int samples)
 {
    return mod_stream_init(f, buffer_count, samples, dumb_read_s3m);
