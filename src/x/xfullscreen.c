@@ -117,6 +117,9 @@ static bool _al_xsys_xrandr_query(ALLEGRO_SYSTEM_XGLX *s)
       s->xrandr_output_count = 0;
    }
 
+   /* XXX This causes an annoying flicker with the intel driver and a secondary
+    * display (at least) so should be deferred until required.
+    */
    res = s->xrandr_res = XRRGetScreenResources (s->x11display, XRootWindow(s->x11display, DefaultScreen(s->x11display)));
    if (res && res->nmode) {
       s->xrandr_output_count = 0; // just in case
