@@ -13,8 +13,8 @@ you can use this one instead.
 
 This function is useful in cases where you don't have a main() function but
 want to run Allegro (mostly useful in a wrapper library). Under Windows and
-Linux this is no problem because you simply can call al_install_system. But
-some other system (like OSX) don't allow calling al_install_system in the main
+Linux this is no problem because you simply can call [al_install_system]. But
+some other system (like OSX) don't allow calling [al_install_system] in the main
 thread. al_run_main will know what to do in that case.
 
 The passed argc and argv will simply be passed on to user_main and the return

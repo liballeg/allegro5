@@ -179,7 +179,7 @@ See also: [al_set_new_display_option], [al_get_display_option]
 ### API: al_set_new_display_refresh_rate
 
 Sets the refresh rate to use for newly created displays. If the refresh rate
-is not available, al_create_display will fail. A list of modes with refresh
+is not available, [al_create_display] will fail. A list of modes with refresh
 rates can be found with [al_get_num_display_modes] and [al_get_display_mode].
 
 ### API: al_set_new_window_position
@@ -476,8 +476,8 @@ See also: [al_set_current_video_adapter]
 
 Sets the adapter to use for newly created displays.
 The adapter has a monitor attached to it. Information
-about the monitor can be gotten using al_get_num_video_adapters
-and al_get_monitor_info.
+about the monitor can be gotten using [al_get_num_video_adapters]
+and [al_get_monitor_info].
 
 See also: [al_get_num_video_adapters], [al_get_monitor_info]
 

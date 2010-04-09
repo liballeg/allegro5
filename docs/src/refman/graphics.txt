@@ -605,7 +605,8 @@ In the following example, no FBO will be created:
     al_put_pixel(x, y, color);
     al_unlock_bitmap(bitmap);
 
-The above allows using al_put_pixel on a locked bitmap without creating an FBO.
+The above allows using [al_put_pixel] on a locked bitmap without creating an
+FBO.
 
 In this example an FBO is created however:
 

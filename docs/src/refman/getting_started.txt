@@ -154,7 +154,7 @@ will not have to be pre-loaded into memory.
 
 If the above sounds too simple and you can't help but think about clipping and
 latency issues, don't worry. Allegro gives you full control over how much or
-little you want its sound system to do. The al_reserve_samples function
+little you want its sound system to do. The [al_reserve_samples] function
 mentioned above only sets up a default mixer and a number of sample instances
 but you don't need to use it.
 

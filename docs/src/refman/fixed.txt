@@ -155,7 +155,7 @@ Example:
     result = al_fixtof(al_itofix(100) / 6);
 ~~~~
 
-See also: al_ftofix, al_itofix, al_fixtoi.
+See also: [al_ftofix], [al_itofix], [al_fixtoi].
 
 ## API: al_fixmul
 
