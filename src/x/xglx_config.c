@@ -428,6 +428,9 @@ void _al_xglx_config_select_visual(ALLEGRO_DISPLAY_XGLX *glx)
 
    if (glx->glx_version >= 130 && !force_old)
       eds = get_visuals_new(glx, &eds_count);
+   else
+      eds = NULL;
+
    if (!eds) {
       eds = get_visuals_old(&eds_count);
       using_fbc = false;
