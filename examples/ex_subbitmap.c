@@ -158,12 +158,22 @@ int main(void)
                break;
          }
 
+         #define SWAP_GREATER(f1, f2) { \
+            if (f1 > f2) { \
+               float tmp = f1; \
+               f1 = f2; \
+               f2 = tmp; \
+            } \
+         }
+
          {
             /* pixel center is at 0.5/0.5 */
             float x = dst_x1 + 0.5;
             float y = dst_y1 + 0.5;
             float x_ = dst_x2 + 0.5;
             float y_ = dst_y2 + 0.5;
+            SWAP_GREATER(x, x_)
+            SWAP_GREATER(y, y_)
             al_set_target_bitmap(al_get_backbuffer());
             al_draw_rectangle(x, y, x_, y_,
                al_map_rgb(0, 255, 255), 0);
@@ -178,6 +188,8 @@ int main(void)
             float y = src_y1 + 0.5;
             float x_ = src_x2 + 0.5;
             float y_ = src_y2 + 0.5;
+            SWAP_GREATER(x, x_)
+            SWAP_GREATER(y, y_)
             al_set_current_display(src_display);
             al_clear_to_color(al_map_rgb(0, 0, 0));
             al_draw_bitmap(mem_bmp, SRC_X, SRC_Y, 0);
@@ -187,6 +199,8 @@ int main(void)
                al_map_rgb(255, 255, 0), 0);
             al_flip_display();
          }
+
+         #undef SWAP_GREATER
 
          redraw = false;
       }
