@@ -94,13 +94,13 @@ static ALLEGRO_BITMAP* create_glyph_cache(ALLEGRO_FONT const *f, int w,
 }
 
 static int render_glyph(ALLEGRO_FONT const *f, int prev, int ch,
-    int xpos, int ypos, ALLEGRO_TTF_GLYPH_DATA **measure_glyph)
+    float xpos, float ypos, ALLEGRO_TTF_GLYPH_DATA **measure_glyph)
 {
     ALLEGRO_TTF_FONT_DATA *data = f->data;
     FT_Face face = data->face;
     int ft_index = FT_Get_Char_Index(face, ch);
     unsigned char *row;
-    int startpos = xpos;
+    float startpos = xpos;
 
     ALLEGRO_TTF_GLYPH_DATA *glyph = data->cache + ft_index;
     if (!glyph->bitmap) {
