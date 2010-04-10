@@ -64,6 +64,15 @@ static void check_color_blending(ALLEGRO_COLOR *color)
    }
 }
 
+/*
+ * Make an estimate of the scale of the current transformation. 
+ */
+static float get_scale()
+{
+   const ALLEGRO_TRANSFORM* t = al_get_current_transform();
+   return (hypotf(t->m[0][0], t->m[0][1]) + hypotf(t->m[1][0], t->m[1][1])) / 2;
+}
+
 /* Function: al_draw_line
  */
 void al_draw_line(float x1, float y1, float x2, float y2,
@@ -383,6 +392,7 @@ void al_draw_ellipse(float cx, float cy, float rx, float ry,
 {
    LOCAL_VERTEX_CACHE;
    ALLEGRO_PRIM_COLOR prim_color;
+   float scale = get_scale();
 
    check_color_blending(&color);
    prim_color = al_get_prim_color(color);
@@ -390,7 +400,7 @@ void al_draw_ellipse(float cx, float cy, float rx, float ry,
    ASSERT(ry >= 0);
 
    if (thickness > 0) {
-      int num_segments = ALLEGRO_PRIM_QUALITY * sqrtf((rx + ry) / 2.0f);
+      int num_segments = ALLEGRO_PRIM_QUALITY * scale * sqrtf((rx + ry) / 2.0f);
       int ii;
 
       /* In case rx and ry are both 0. */
@@ -409,7 +419,7 @@ void al_draw_ellipse(float cx, float cy, float rx, float ry,
          
       al_draw_prim(vertex_cache, 0, 0, 0, 2 * num_segments, ALLEGRO_PRIM_TRIANGLE_STRIP);
    } else {
-      int num_segments = ALLEGRO_PRIM_QUALITY * sqrtf((rx + ry) / 2.0f);
+      int num_segments = ALLEGRO_PRIM_QUALITY * scale * sqrtf((rx + ry) / 2.0f);
       int ii;
       
       /* In case rx and ry are both 0. */
@@ -438,13 +448,14 @@ void al_draw_filled_ellipse(float cx, float cy, float rx, float ry,
    LOCAL_VERTEX_CACHE;
    int num_segments, ii;
    ALLEGRO_PRIM_COLOR prim_color;
+   float scale = get_scale();
 
    check_color_blending(&color);
    prim_color = al_get_prim_color(color);
    ASSERT(rx >= 0);
    ASSERT(ry >= 0);
    
-   num_segments = ALLEGRO_PRIM_QUALITY * sqrtf((rx + ry) / 2.0f);
+   num_segments = ALLEGRO_PRIM_QUALITY * scale * sqrtf((rx + ry) / 2.0f);
 
    /* In case rx and ry are both close to 0. If al_calculate_arc is passed
     * 0 or 1 it will assert.
@@ -489,12 +500,13 @@ void al_draw_arc(float cx, float cy, float r, float start_theta,
 {
    LOCAL_VERTEX_CACHE;
    ALLEGRO_PRIM_COLOR prim_color;
+   float scale = get_scale();
 
    check_color_blending(&color);
    prim_color = al_get_prim_color(color);
    ASSERT(r >= 0);
    if (thickness > 0) {
-      int num_segments = fabs(delta_theta / (2 * ALLEGRO_PI) * ALLEGRO_PRIM_QUALITY * sqrtf(r));
+      int num_segments = fabs(delta_theta / (2 * ALLEGRO_PI) * ALLEGRO_PRIM_QUALITY * scale * sqrtf(r));
       int ii;
       
       if (2 * num_segments >= ALLEGRO_VERTEX_CACHE_SIZE) {
@@ -510,7 +522,7 @@ void al_draw_arc(float cx, float cy, float r, float start_theta,
       
       al_draw_prim(vertex_cache, 0, 0, 0, 2 * num_segments, ALLEGRO_PRIM_TRIANGLE_STRIP);
    } else {
-      int num_segments = fabs(delta_theta / (2 * ALLEGRO_PI) * ALLEGRO_PRIM_QUALITY * sqrtf(r));
+      int num_segments = fabs(delta_theta / (2 * ALLEGRO_PI) * ALLEGRO_PRIM_QUALITY * scale * sqrtf(r));
       int ii;
       
       if (num_segments >= ALLEGRO_VERTEX_CACHE_SIZE) {
@@ -535,6 +547,7 @@ void al_draw_rounded_rectangle(float x1, float y1, float x2, float y2,
 {
    LOCAL_VERTEX_CACHE;
    ALLEGRO_PRIM_COLOR prim_color;
+   float scale = get_scale();
 
    check_color_blending(&color);
    prim_color = al_get_prim_color(color);
@@ -542,7 +555,7 @@ void al_draw_rounded_rectangle(float x1, float y1, float x2, float y2,
    ASSERT(ry >= 0);
 
    if (thickness > 0) {
-      int num_segments = ALLEGRO_PRIM_QUALITY * sqrtf((rx + ry) / 2.0f) / 4;
+      int num_segments = ALLEGRO_PRIM_QUALITY * scale * sqrtf((rx + ry) / 2.0f) / 4;
       int ii;
 
       /* In case rx and ry are both 0. */
@@ -587,7 +600,7 @@ void al_draw_rounded_rectangle(float x1, float y1, float x2, float y2,
          
       al_draw_prim(vertex_cache, 0, 0, 0, 8 * num_segments + 2, ALLEGRO_PRIM_TRIANGLE_STRIP);
    } else {
-      int num_segments = ALLEGRO_PRIM_QUALITY * sqrtf((rx + ry) / 2.0f) / 4;
+      int num_segments = ALLEGRO_PRIM_QUALITY * scale * sqrtf((rx + ry) / 2.0f) / 4;
       int ii;
       
       /* In case rx and ry are both 0. */
@@ -631,8 +644,9 @@ void al_draw_filled_rounded_rectangle(float x1, float y1, float x2, float y2,
 {
    LOCAL_VERTEX_CACHE;
    ALLEGRO_PRIM_COLOR prim_color;
-   int num_segments = ALLEGRO_PRIM_QUALITY * sqrtf((rx + ry) / 2.0f) / 4;
    int ii;
+   float scale = get_scale();
+   int num_segments = ALLEGRO_PRIM_QUALITY * scale * sqrtf((rx + ry) / 2.0f) / 4;
 
    check_color_blending(&color);
    prim_color = al_get_prim_color(color);
@@ -759,10 +773,11 @@ void al_calculate_spline(float* dest, int stride, float points[8],
 void al_draw_spline(float points[8], ALLEGRO_COLOR color, float thickness)
 {
    int ii;
+   float scale = get_scale();
    int num_segments = (int)(sqrtf((float)hypot(points[2] - points[0], points[3] - points[1]) +
                                   (float)hypot(points[4] - points[2], points[5] - points[3]) +
                                   (float)hypot(points[6] - points[4], points[7] - points[5])) *
-                            1.2 * ALLEGRO_PRIM_QUALITY / 10);
+                            1.2 * ALLEGRO_PRIM_QUALITY * scale / 10);
    ALLEGRO_PRIM_COLOR prim_color;
    LOCAL_VERTEX_CACHE;
    
