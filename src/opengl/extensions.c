@@ -134,6 +134,7 @@ static void print_extensions(char const *extension)
 {
    char buf[80];
    char *start;
+   ASSERT(extension);
 
    while (*extension != '\0') {
       start = buf;
@@ -319,6 +320,7 @@ int _al_ogl_look_for_an_extension(const char *name, const GLubyte *extensions)
 {
    const GLubyte *start;
    GLubyte *where, *terminator;
+   ASSERT(extensions);
 
    /* Extension names should not have spaces. */
    where = (GLubyte *) strchr(name, ' ');
@@ -380,12 +382,17 @@ static int _ogl_is_extension_supported(const char *extension,
    if (!ret && strncmp(extension, "GLX", 3) == 0) {
       ALLEGRO_SYSTEM_XGLX *sys = (void*)al_get_system_driver();
       ALLEGRO_DISPLAY_XGLX *glx_disp = (void*)disp;
+      char const *ext;
 
       if (!sys->gfxdisplay)
          return false;
 
-      ret = _al_ogl_look_for_an_extension(extension, (const GLubyte *)
-         glXQueryExtensionsString(sys->gfxdisplay, glx_disp->xscreen));
+      ext = glXQueryExtensionsString(sys->gfxdisplay, glx_disp->xscreen);
+      if (!ext) {
+         /* work around driver bugs? */
+         ext = "";
+      }
+      ret = _al_ogl_look_for_an_extension(extension, (const GLubyte *)ext);
    }
 #endif
 
@@ -632,8 +639,13 @@ void _al_ogl_manage_extensions(ALLEGRO_DISPLAY *gl_disp)
    ALLEGRO_DEBUG("GLX Extensions:\n");
    ALLEGRO_SYSTEM_XGLX *glx_sys = (void*)al_get_system_driver();
    ALLEGRO_DISPLAY_XGLX *glx_disp = (void *)gl_disp;
-   print_extensions((char const *)glXQueryExtensionsString(
-      glx_sys->gfxdisplay, glx_disp->xscreen));
+   char const *ext = glXQueryExtensionsString(
+      glx_sys->gfxdisplay, glx_disp->xscreen);
+   if (!ext) {
+      /* work around driver bugs? */
+      ext = "";
+   }
+   print_extensions(ext);
 #endif
 
    fill_in_info_struct(glGetString(GL_RENDERER), &(gl_disp->ogl_extras->ogl_info));
