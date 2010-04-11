@@ -123,7 +123,7 @@ static void main_loop(void)
 
 int main(int argc, char **argv)
 {
-   const char *filename = "../demo/data/sfx/title_music.ogg";
+   const char *filename = "../demos/a5teroids/data/sfx/title_music.ogg";
    ALLEGRO_VOICE *voice;
    ALLEGRO_MIXER *mixer;
    ALLEGRO_AUDIO_STREAM *stream;
