@@ -248,10 +248,23 @@ int main(int argc, char *argv[])
       return 1;
    }
 
-   /* the Allegro 5 port introduced an external data dependency, sorry */
+   /* The Allegro 5 port introduced an external data dependency, sorry.
+    * To avoid performance problems on graphics drivers that don't support
+    * drawing to textures, we build up transition screens on memory bitmaps.
+    * We need a font loaded into a memory bitmap for those, then a font
+    * loaded into a video bitmap for the game view. Blech!
+    */
    al_init_font_addon();
+   al_set_new_bitmap_flags(ALLEGRO_MEMORY_BITMAP);
    font = al_load_bitmap_font("a4_font.tga");
    if (!font) {
+      fprintf(stderr, "Error loading a4_font.tga\n");
+      return 1;
+   }
+
+   al_set_new_bitmap_flags(ALLEGRO_VIDEO_BITMAP);
+   font_video = al_load_bitmap_font("a4_font.tga");
+   if (!font_video) {
       fprintf(stderr, "Error loading a4_font.tga\n");
       return 1;
    }
@@ -285,6 +298,7 @@ int main(int argc, char *argv[])
    shutdown_input();
 
    al_destroy_font(font);
+   al_destroy_font(font_video);
 
    return 0;
 }

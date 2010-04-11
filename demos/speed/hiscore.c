@@ -94,7 +94,7 @@ static void draw_entry_box(int which, int64_t retrace_count)
 {
    const int w = MAX_NAME_LEN*8+16;
    const int h = 16;
-   ALLEGRO_BITMAP *b = al_create_bitmap(w, h);
+   ALLEGRO_BITMAP *b;
    ALLEGRO_BITMAP *screen;
    int SCREEN_W, SCREEN_H;
    int x;
@@ -103,6 +103,7 @@ static void draw_entry_box(int which, int64_t retrace_count)
    SCREEN_W = al_get_bitmap_width(screen);
    SCREEN_H = al_get_bitmap_height(screen);
 
+   b = create_memory_bitmap(w, h);
    al_set_target_bitmap(b);
    al_clear_to_color(makecol(0, 96, 0));
    hline(0, w, h-1, makecol(0, 32, 0));
@@ -149,7 +150,7 @@ void score_table()
       }
    }
 
-   bmp = al_create_bitmap(SCREEN_W, SCREEN_H);
+   bmp = create_memory_bitmap(SCREEN_W, SCREEN_H);
    al_set_target_bitmap(bmp);
 
    for (i=0; i<SCREEN_W/2; i++) {
@@ -157,7 +158,7 @@ void score_table()
       vline(SCREEN_W/2+i, 0, SCREEN_H, makecol(0, i*255/(SCREEN_W/2), 0));
    }
 
-   b = al_create_bitmap(104, 8);
+   b = create_memory_bitmap(104, 8);
    al_set_target_bitmap(b);
    al_clear_to_color(al_map_rgba(0, 0, 0, 0));
 
@@ -189,6 +190,8 @@ void score_table()
 
    if (myscore >= 0)
       draw_entry_box(myscore, 0);
+
+   bmp = replace_bitmap(bmp);
 
    al_set_target_bitmap(al_get_backbuffer());
 

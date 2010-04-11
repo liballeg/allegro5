@@ -406,9 +406,9 @@ void draw_view()
 
    draw_message();
 
-   textprintf(font, 4, 4, makecol(128, 128, 128), "Lives: %d", lives);
-   textprintf(font, 4, 16, makecol(128, 128, 128), "Score: %d", score);
-   textprintf(font, 4, 28, makecol(128, 128, 128), "Hiscore: %d", get_hiscore());
+   textprintf(font_video, 4, 4, makecol(128, 128, 128), "Lives: %d", lives);
+   textprintf(font_video, 4, 16, makecol(128, 128, 128), "Score: %d", score);
+   textprintf(font_video, 4, 28, makecol(128, 128, 128), "Hiscore: %d", get_hiscore());
 
    al_flip_display();
 }

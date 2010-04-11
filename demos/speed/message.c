@@ -112,7 +112,7 @@ void draw_message()
    MESSAGE *m = msg;
 
    while (m) {
-      textout_centre(font, m->text, m->x, m->y, makecol(255, 255, 255));
+      textout_centre(font_video, m->text, m->x, m->y, makecol(255, 255, 255));
       m = m->next;
    }
 }

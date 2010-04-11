@@ -34,6 +34,7 @@ extern int joy_left;
 extern int joy_right;
 extern int joy_b1;
 extern struct ALLEGRO_FONT *font;
+extern struct ALLEGRO_FONT *font_video;
 
 
 const char *get_config_string(const ALLEGRO_CONFIG *cfg, const char *section, const char *name, const char *def);
@@ -48,6 +49,8 @@ int keypressed();
 int readkey();
 void clear_keybuf();
 
+ALLEGRO_BITMAP *create_memory_bitmap(int w, int h);
+ALLEGRO_BITMAP *replace_bitmap(ALLEGRO_BITMAP *bmp);
 void solid_mode();
 ALLEGRO_COLOR makecol(int r, int g, int b);
 void hline(int x1, int y, int x2, ALLEGRO_COLOR c);

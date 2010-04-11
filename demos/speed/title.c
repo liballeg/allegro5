@@ -33,7 +33,7 @@ int title_screen()
    ALLEGRO_COLOR white = makecol(255, 255, 255);
    int i, j, y;
 
-   bmp = al_create_bitmap(SCREEN_W, SCREEN_H);
+   bmp = create_memory_bitmap(SCREEN_W, SCREEN_H);
    al_set_target_bitmap(bmp);
 
    for (i=0; i<SCREEN_H/2; i++) {
@@ -41,7 +41,7 @@ int title_screen()
       hline(0, SCREEN_H-i-1, SCREEN_W, makecol(0, 0, i*255/(SCREEN_H/2)));
    }
 
-   b = al_create_bitmap(40, 8);
+   b = create_memory_bitmap(40, 8);
    al_set_target_bitmap(b);
    al_clear_to_color(al_map_rgba(0, 0, 0, 0));
 
@@ -63,6 +63,8 @@ int title_screen()
    textout_shadow("By Shawn Hargreaves, 1999", SCREEN_W/2, SCREEN_H/2+16, white);
    textout_shadow("Written for the Allegro", SCREEN_W/2, SCREEN_H/2+48, white);
    textout_shadow("SpeedHack competition", SCREEN_W/2, SCREEN_H/2+64, white);
+
+   bmp = replace_bitmap(bmp);
 
    al_set_target_bitmap(al_get_backbuffer());
 
@@ -115,7 +117,7 @@ void show_results()
    char buf[80];
    int i, j, x;
 
-   bmp = al_create_bitmap(SCREEN_W, SCREEN_H);
+   bmp = create_memory_bitmap(SCREEN_W, SCREEN_H);
    al_set_target_bitmap(bmp);
 
    for (i=0; i<SCREEN_H/2; i++) {
@@ -123,7 +125,7 @@ void show_results()
       hline(0, SCREEN_H/2+i, SCREEN_W, makecol(i*255/(SCREEN_H/2), 0, 0));
    }
 
-   b = al_create_bitmap(72, 8);
+   b = create_memory_bitmap(72, 8);
    al_set_target_bitmap(b);
    al_clear_to_color(al_map_rgba(0, 0, 0, 0));
 
@@ -138,6 +140,8 @@ void show_results()
    al_set_target_bitmap(bmp);
    sprintf(buf, "Score: %d", score);
    textout_shadow(buf, SCREEN_W/2, SCREEN_H*3/4, makecol(255, 255, 255));
+
+   bmp = replace_bitmap(bmp);
 
    al_set_target_bitmap(al_get_backbuffer());
 

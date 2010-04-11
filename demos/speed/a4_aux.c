@@ -246,6 +246,32 @@ void clear_keybuf()
 
 
 ALLEGRO_FONT *font;
+ALLEGRO_FONT *font_video;
+
+
+
+/* like create_bitmap() */
+ALLEGRO_BITMAP *create_memory_bitmap(int w, int h)
+{
+   ALLEGRO_STATE state;
+   ALLEGRO_BITMAP *bmp;
+
+   al_store_state(&state, ALLEGRO_STATE_NEW_BITMAP_PARAMETERS);
+   al_set_new_bitmap_flags(ALLEGRO_MEMORY_BITMAP);
+   bmp = al_create_bitmap(w, h);
+   al_restore_state(&state);
+   return bmp;
+}
+
+
+
+/* used to clone a video bitmap from a memory bitmap; no such function in A4 */
+ALLEGRO_BITMAP *replace_bitmap(ALLEGRO_BITMAP *bmp)
+{
+   ALLEGRO_BITMAP *tmp = al_clone_bitmap(bmp);
+   al_destroy_bitmap(bmp);
+   return tmp;
+}
 
 
 
