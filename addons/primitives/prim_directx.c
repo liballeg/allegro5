@@ -98,6 +98,7 @@ static int _al_draw_prim_raw(ALLEGRO_BITMAP* texture, const void* vtx, const ALL
    ALLEGRO_BITMAP* target = al_get_target_bitmap();
    D3DMATRIX new_trans;
    const ALLEGRO_TRANSFORM* cur_trans = al_get_current_transform();
+   IDirect3DVertexShader9* old_shader;
    
    if(indices)
    {
@@ -118,6 +119,7 @@ static int _al_draw_prim_raw(ALLEGRO_BITMAP* texture, const void* vtx, const ALL
 
    display = al_get_current_display();
    device = al_get_d3d_device(display);
+   IDirect3DDevice9_GetVertexShader(device, &old_shader);
    
    if(decl) {
       if(decl->d3d_decl) {
@@ -159,9 +161,14 @@ static int _al_draw_prim_raw(ALLEGRO_BITMAP* texture, const void* vtx, const ALL
       mat[2][0] = (float)tex_x / desc.Width;
       mat[2][1] = (float)tex_y / desc.Height;
 
-      IDirect3DDevice9_GetTextureStageState(device, 0, D3DTSS_TEXTURETRANSFORMFLAGS, &old_ttf_state);
-      IDirect3DDevice9_SetTextureStageState(device, 0, D3DTSS_TEXTURETRANSFORMFLAGS, D3DTTFF_COUNT2);
-      IDirect3DDevice9_SetTransform(device, D3DTS_TEXTURE0, (D3DMATRIX *)&mat);
+      if(!old_shader && !decl)
+      {
+         IDirect3DDevice9_GetTextureStageState(device, 0, D3DTSS_TEXTURETRANSFORMFLAGS, &old_ttf_state);
+         IDirect3DDevice9_SetTextureStageState(device, 0, D3DTSS_TEXTURETRANSFORMFLAGS, D3DTTFF_COUNT2);
+         IDirect3DDevice9_SetTransform(device, D3DTS_TEXTURE0, (D3DMATRIX *)&mat);
+      } else if (decl) {
+         _al_set_texture_matrix(device, decl, mat[0]);
+      }
 
       d3d_texture = (LPDIRECT3DBASETEXTURE9)al_get_d3d_video_texture(texture);
       IDirect3DDevice9_SetTexture(device, 0, d3d_texture);
@@ -184,6 +191,9 @@ static int _al_draw_prim_raw(ALLEGRO_BITMAP* texture, const void* vtx, const ALL
       new_trans.m[3][1] += yofs - 0.5;
       IDirect3DDevice9_SetTransform(device, D3DTS_VIEW, &new_trans);
    }
+   
+   if(!old_shader && decl)
+      _al_setup_shader(device, decl);
 
    if(!indices)
    {
@@ -298,9 +308,12 @@ static int _al_draw_prim_raw(ALLEGRO_BITMAP* texture, const void* vtx, const ALL
    IDirect3DDevice9_SetSamplerState(device, 0, D3DSAMP_ADDRESSU, old_wrap_state[0]);
    IDirect3DDevice9_SetSamplerState(device, 0, D3DSAMP_ADDRESSV, old_wrap_state[1]);
 
-   if(texture) {
+   if(!old_shader && texture && !decl) {
       IDirect3DDevice9_SetTextureStageState(device, 0, D3DTSS_TEXTURETRANSFORMFLAGS, old_ttf_state);
    }
+   
+   if(!old_shader)
+      IDirect3DDevice9_SetVertexShader(device, 0);
 
    return num_primitives;
 }
@@ -425,6 +438,8 @@ void _al_set_d3d_decl(ALLEGRO_VERTEX_DECL* ret)
          
          IDirect3DDevice9_CreateVertexDeclaration(device, d3delements, (IDirect3DVertexDeclaration9**)&ret->d3d_decl);
       }
+      
+      _al_create_shader(ret);
    }
 #else
    ret->d3d_decl = 0;
