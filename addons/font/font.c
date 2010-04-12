@@ -1,6 +1,6 @@
-/*         ______   ___    ___ 
- *        /\  _  \ /\_ \  /\_ \ 
- *        \ \ \L\ \\//\ \ \//\ \      __     __   _ __   ___ 
+/*         ______   ___    ___
+ *        /\  _  \ /\_ \  /\_ \
+ *        \ \ \L\ \\//\ \ \//\ \      __     __   _ __   ___
  *         \ \  __ \ \ \ \  \ \ \   /'__`\ /'_ `\/\`'__\/ __`\
  *          \ \ \/\ \ \_\ \_ \_\ \_/\  __//\ \L\ \ \ \//\ \L\ \
  *           \ \_\ \_\/\____\/\____\ \____\ \____ \ \_\\ \____/
@@ -170,19 +170,19 @@ static int color_render_char(const ALLEGRO_FONT* f, int ch, float x,
  *  mono; if bg == -1, render as transparent, else render as opaque.
  */
 static int color_render(const ALLEGRO_FONT* f, const ALLEGRO_USTR *text,
-    float x0, float y)
+    float x, float y)
 {
     int pos = 0;
-    float x = x0;
+    int advance = 0;
     int32_t ch;
     bool held = al_is_bitmap_drawing_held();
-    
+
     al_hold_bitmap_drawing(true);
     while ((ch = al_ustr_get_next(text, &pos)) >= 0) {
-        x += f->vtable->render_char(f, ch, x, y);
+        advance += f->vtable->render_char(f, ch, x + advance, y);
     }
     al_hold_bitmap_drawing(held);
-    return x - x0;
+    return advance;
 }
 
 
@@ -200,7 +200,7 @@ static void color_destroy(ALLEGRO_FONT* f)
         return;
 
     cf = (ALLEGRO_FONT_COLOR_DATA*)(f->data);
-    
+
     if (cf)
         glyphs = cf->glyphs;
 
@@ -232,7 +232,7 @@ static void color_destroy(ALLEGRO_FONT* f)
  * vtable declarations
  ********/
 
-ALLEGRO_FONT_VTABLE _al_font_vtable_color = {  
+ALLEGRO_FONT_VTABLE _al_font_vtable_color = {
     font_height,
     color_char_length,
     length,
@@ -262,7 +262,7 @@ void al_init_font_addon(void)
 {
    _al_vector_init(&font_handlers, sizeof(FONT_HANDLER));
    al_init_image_addon(); /* we depend on the iio addon */
-   
+
    al_register_font_loader(".bmp", _al_load_bitmap_font);
    al_register_font_loader(".jpg", _al_load_bitmap_font);
    al_register_font_loader(".pcx", _al_load_bitmap_font);
@@ -339,10 +339,10 @@ ALLEGRO_FONT *al_load_font(char const *filename, int size, int flags)
    /* No handler for the extension was registered - try to load with
     * all registered font_handlers and see if one works. So if the user
     * does:
-    * 
+    *
     * al_init_font_addon()
     * al_init_ttf_addon()
-    * 
+    *
     * This will first try to load an unknown (let's say Type1) font file
     * with Freetype (and load it successfully in this case), then try
     * to load it as a bitmap font.
@@ -368,4 +368,4 @@ uint32_t al_get_allegro_font_version(void)
 
 
 /* vim: set sts=4 sw=4 et: */
- 
+
