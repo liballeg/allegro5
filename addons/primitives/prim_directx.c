@@ -98,7 +98,8 @@ static int _al_draw_prim_raw(ALLEGRO_BITMAP* texture, const void* vtx, const ALL
    ALLEGRO_BITMAP* target = al_get_target_bitmap();
    D3DMATRIX new_trans;
    const ALLEGRO_TRANSFORM* cur_trans = al_get_current_transform();
-   IDirect3DVertexShader9* old_shader;
+   IDirect3DVertexShader9* old_vtx_shader;
+   IDirect3DPixelShader9* old_pix_shader;
    
    if(indices)
    {
@@ -119,7 +120,8 @@ static int _al_draw_prim_raw(ALLEGRO_BITMAP* texture, const void* vtx, const ALL
 
    display = al_get_current_display();
    device = al_get_d3d_device(display);
-   IDirect3DDevice9_GetVertexShader(device, &old_shader);
+   IDirect3DDevice9_GetVertexShader(device, &old_vtx_shader);
+   IDirect3DDevice9_GetPixelShader(device, &old_pix_shader);
    
    if(decl) {
       if(decl->d3d_decl) {
@@ -131,49 +133,53 @@ static int _al_draw_prim_raw(ALLEGRO_BITMAP* texture, const void* vtx, const ALL
       IDirect3DDevice9_SetFVF(device, A5V_FVF);
    }
 
-   set_blender(display);
+   if(!old_pix_shader)
+      set_blender(display);
 
-   if (texture) {
-      int tex_x, tex_y;
-      D3DSURFACE_DESC desc;
-      float mat[4][4] = {
-         {1, 0, 0, 0},
-         {0, 1, 0, 0},
-         {0, 0, 1, 0},
-         {0, 0, 0, 1}
-      };      
-      IDirect3DTexture9_GetLevelDesc(al_get_d3d_video_texture(texture), 0, &desc);
-      
-      al_get_d3d_texture_position(texture, &tex_x, &tex_y);
+   if(!old_vtx_shader) {
+      if (texture) {
+         int tex_x, tex_y;
+         D3DSURFACE_DESC desc;
+         float mat[4][4] = {
+            {1, 0, 0, 0},
+            {0, 1, 0, 0},
+            {0, 0, 1, 0},
+            {0, 0, 0, 1}
+         };      
+         IDirect3DTexture9_GetLevelDesc(al_get_d3d_video_texture(texture), 0, &desc);
+         
+         al_get_d3d_texture_position(texture, &tex_x, &tex_y);
 
-      if(decl) {
-         if(decl->elements[ALLEGRO_PRIM_TEX_COORD_PIXEL].attribute) {
+         if(decl) {
+            if(decl->elements[ALLEGRO_PRIM_TEX_COORD_PIXEL].attribute) {
+               mat[0][0] = 1.0f / desc.Width;
+               mat[1][1] = 1.0f / desc.Height;
+            } else {
+               mat[0][0] = (float)al_get_bitmap_width(texture) / desc.Width;
+               mat[1][1] = (float)al_get_bitmap_height(texture) / desc.Height;
+            }
+         } else {
             mat[0][0] = 1.0f / desc.Width;
             mat[1][1] = 1.0f / desc.Height;
-         } else {
-            mat[0][0] = (float)al_get_bitmap_width(texture) / desc.Width;
-            mat[1][1] = (float)al_get_bitmap_height(texture) / desc.Height;
          }
+         mat[2][0] = (float)tex_x / desc.Width;
+         mat[2][1] = (float)tex_y / desc.Height;
+
+         if (decl) {
+            _al_set_texture_matrix(device, decl, mat[0]);
+         }
+         else
+         {
+            IDirect3DDevice9_GetTextureStageState(device, 0, D3DTSS_TEXTURETRANSFORMFLAGS, &old_ttf_state);
+            IDirect3DDevice9_SetTextureStageState(device, 0, D3DTSS_TEXTURETRANSFORMFLAGS, D3DTTFF_COUNT2);
+            IDirect3DDevice9_SetTransform(device, D3DTS_TEXTURE0, (D3DMATRIX *)&mat);
+         }
+
+         d3d_texture = (LPDIRECT3DBASETEXTURE9)al_get_d3d_video_texture(texture);
+         IDirect3DDevice9_SetTexture(device, 0, d3d_texture);
       } else {
-         mat[0][0] = 1.0f / desc.Width;
-         mat[1][1] = 1.0f / desc.Height;
+         IDirect3DDevice9_SetTexture(device, 0, NULL);
       }
-      mat[2][0] = (float)tex_x / desc.Width;
-      mat[2][1] = (float)tex_y / desc.Height;
-
-      if(!old_shader && !decl)
-      {
-         IDirect3DDevice9_GetTextureStageState(device, 0, D3DTSS_TEXTURETRANSFORMFLAGS, &old_ttf_state);
-         IDirect3DDevice9_SetTextureStageState(device, 0, D3DTSS_TEXTURETRANSFORMFLAGS, D3DTTFF_COUNT2);
-         IDirect3DDevice9_SetTransform(device, D3DTS_TEXTURE0, (D3DMATRIX *)&mat);
-      } else if (decl) {
-         _al_set_texture_matrix(device, decl, mat[0]);
-      }
-
-      d3d_texture = (LPDIRECT3DBASETEXTURE9)al_get_d3d_video_texture(texture);
-      IDirect3DDevice9_SetTexture(device, 0, d3d_texture);
-   } else {
-      IDirect3DDevice9_SetTexture(device, 0, NULL);
    }
    
    IDirect3DDevice9_GetSamplerState(device, 0, D3DSAMP_ADDRESSU, &old_wrap_state[0]);
@@ -192,7 +198,7 @@ static int _al_draw_prim_raw(ALLEGRO_BITMAP* texture, const void* vtx, const ALL
       IDirect3DDevice9_SetTransform(device, D3DTS_VIEW, &new_trans);
    }
    
-   if(!old_shader && decl)
+   if(!old_vtx_shader && decl)
       _al_setup_shader(device, decl);
 
    if(!indices)
@@ -308,11 +314,11 @@ static int _al_draw_prim_raw(ALLEGRO_BITMAP* texture, const void* vtx, const ALL
    IDirect3DDevice9_SetSamplerState(device, 0, D3DSAMP_ADDRESSU, old_wrap_state[0]);
    IDirect3DDevice9_SetSamplerState(device, 0, D3DSAMP_ADDRESSV, old_wrap_state[1]);
 
-   if(!old_shader && texture && !decl) {
+   if(!old_vtx_shader && texture && !decl) {
       IDirect3DDevice9_SetTextureStageState(device, 0, D3DTSS_TEXTURETRANSFORMFLAGS, old_ttf_state);
    }
    
-   if(!old_shader)
+   if(!old_vtx_shader)
       IDirect3DDevice9_SetVertexShader(device, 0);
 
    return num_primitives;
