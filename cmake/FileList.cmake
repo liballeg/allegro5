@@ -42,7 +42,6 @@ set(ALLEGRO_SRC_I386_FILES
     )
 
 set(ALLEGRO_SRC_WIN_FILES
-    src/win/winput.c
     src/win/wjoydrv.c
     src/win/wjoydxnu.c
     src/win/wkeyboard.c

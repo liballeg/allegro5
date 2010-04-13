@@ -159,8 +159,6 @@ static ALLEGRO_SYSTEM *win_initialize(int flags)
    }
    _al_win_init_time();
 
-   _al_win_input_init();
-
    _al_win_init_window();
 
    _al_vector_init(&_al_win_system->system.displays, sizeof (ALLEGRO_SYSTEM_WIN *));
@@ -194,8 +192,6 @@ static void win_shutdown(void)
    }
 
    _al_win_shutdown_time();
-
-    _al_win_input_exit();
 
    if (using_higher_res_timer) {
       timeEndPeriod(1);

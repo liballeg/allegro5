@@ -77,10 +77,6 @@ void _al_win_thread_init(void);
 void _al_win_thread_exit(void);
 
 /* input routines */
-AL_FUNC(void, _al_win_input_init, (void));
-AL_FUNC(void, _al_win_input_exit, (void));
-bool _al_win_input_register_event(HANDLE event_id, void (*handler)(void));
-bool _al_win_input_unregister_event(HANDLE event_id);
 void _al_win_grab_input(ALLEGRO_DISPLAY_WIN *win_disp);
 
 /* keyboard routines */
