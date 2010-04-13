@@ -67,7 +67,7 @@ static void check_color_blending(ALLEGRO_COLOR *color)
 /*
  * Make an estimate of the scale of the current transformation. 
  */
-static float get_scale()
+static float get_scale(void)
 {
    const ALLEGRO_TRANSFORM* t = al_get_current_transform();
    return (hypotf(t->m[0][0], t->m[0][1]) + hypotf(t->m[1][0], t->m[1][1])) / 2;

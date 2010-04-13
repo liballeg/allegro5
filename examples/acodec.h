@@ -29,7 +29,7 @@
  * Returns true if all audio codecs are successfully initialized.
  */
 
-bool init_acodecs()
+static bool init_acodecs(void)
 {
    bool ret = true;
    

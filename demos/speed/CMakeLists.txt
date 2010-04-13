@@ -27,6 +27,11 @@ if(NOT SUPPORT_AUDIO OR NOT SUPPORT_PRIMITIVES OR NOT SUPPORT_FONT)
     message(STATUS "Not building SPEED")
 endif()
 
+if(COMPILER_GCC)
+    set(CMAKE_C_FLAGS
+        "${CMAKE_C_FLAGS} -Wno-strict-prototypes -Wno-missing-prototypes")
+endif(COMPILER_GCC)
+
 add_executable(speed ${SPEED_SRCS} ${A4_FONT})
 
 target_link_libraries(speed
