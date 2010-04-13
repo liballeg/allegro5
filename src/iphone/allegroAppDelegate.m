@@ -81,12 +81,12 @@ void _al_iphone_get_screen_size(int *w, int *h)
  */
 static void display_splash_screen(void)
 {
-    UIWindow *splashwin = [[UIWindow alloc] initWithFrame:[[UIScreen mainScreen] bounds]];
-    UIView *splashview = [[UIView alloc] initWithFrame:[[UIScreen mainScreen] bounds]];
-    splashview.backgroundColor = [UIColor colorWithPatternImage:[UIImage
-    	imageNamed:@"Default.png"]];
-    [splashwin addSubview:splashview];
-    [splashwin makeKeyAndVisible];
+   UIScreen *screen = [UIScreen mainScreen];
+   UIWindow *splashwin = [[UIWindow alloc] initWithFrame:[screen bounds]];
+   UIImage *img = [UIImage imageNamed:@"Default.png"];
+   UIImageView *splashview = [[UIImageView alloc] initWithImage:img];
+   [splashwin addSubview:splashview];
+   [splashwin makeKeyAndVisible];
 }
 
 - (void)applicationDidFinishLaunching:(UIApplication *)application {
