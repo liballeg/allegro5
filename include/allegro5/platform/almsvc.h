@@ -86,6 +86,8 @@
 #define uint64_t     unsigned __int64
 #endif
 
+#define hypotf _hypotf
+
 /* __func__ is C99 */
 #ifndef __func__
    /* MSVC versions before VC7 don't have __FUNCTION__ */
