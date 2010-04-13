@@ -931,9 +931,11 @@ void al_draw_soft_triangle(
    int need_unlock = 0;
    ALLEGRO_LOCKED_REGION *lr;
    int min_x, max_x, min_y, max_y;
+   int clip_min_x, clip_min_y, clip_max_x, clip_max_y;
    
-   int width = al_get_bitmap_width(target);
-   int height = al_get_bitmap_height(target);
+   al_get_clipping_rectangle(&clip_min_x, &clip_min_y, &clip_max_x, &clip_max_y);
+   clip_max_x += clip_min_x;
+   clip_max_y += clip_min_y;
    
    /*
    TODO: Need to clip them first, make a copy of the vertices first then
@@ -954,23 +956,19 @@ void al_draw_soft_triangle(
    TODO: This bit is temporary, the min max's will be guaranteed to be within the bitmap
    once clipping is implemented
    */
-   if (max_x >= width)
-      max_x = width;
-   if (max_y >= height)
-      max_y = height;
-   if (min_x >= width)
-      min_x = width;
-   if (min_y >= height)
-      min_y = height;
+   if (min_x >= clip_max_x || min_y >= clip_max_y)
+      return;
+   if (max_x >= clip_max_x)
+      max_x = clip_max_x;
+   if (max_y >= clip_max_y)
+      max_y = clip_max_y;
 
-   if (max_x < 0)
-      max_x = 0;
-   if (max_y < 0)
-      max_y = 0;
-   if (min_x < 0)
-      min_x = 0;
-   if (min_y < 0)
-      min_y = 0;
+   if (max_x < clip_min_x || max_y < clip_min_y)
+      return;
+   if (min_x < clip_min_x)
+      min_x = clip_min_x;
+   if (min_y < clip_min_y)
+      min_y = clip_min_y;
       
    if (al_is_bitmap_locked(target)) {
       if (!_al_bitmap_region_is_locked(target, min_x, min_y, max_x - min_x, max_y - min_y))

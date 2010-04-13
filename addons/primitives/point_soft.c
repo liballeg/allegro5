@@ -38,6 +38,16 @@ void _al_point_2d(ALLEGRO_BITMAP* texture, ALLEGRO_VERTEX* v)
    int shade = 1;
    int op, src_mode, dst_mode, op_alpha, src_alpha, dst_alpha;
    ALLEGRO_COLOR ic, vc;
+   int clip_min_x, clip_min_y, clip_max_x, clip_max_y;
+   int x = (int)floor(v->x);
+   int y = (int)floor(v->x);
+   
+   al_get_clipping_rectangle(&clip_min_x, &clip_min_y, &clip_max_x, &clip_max_y);
+   clip_max_x += clip_min_x;
+   clip_max_y += clip_min_y;
+   
+   if(x < clip_min_x || x >= clip_max_x || y < clip_min_y || y >= clip_max_y)
+      return;
 
    vc = al_get_allegro_color(v->color);
 
