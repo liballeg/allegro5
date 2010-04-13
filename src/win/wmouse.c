@@ -229,7 +229,8 @@ void _al_win_mouse_handle_leave(ALLEGRO_DISPLAY_WIN *win_disp)
 {
    if (!installed)
       return;
-   mouse_state.display = NULL;
+   if (mouse_state.display == (void*)win_disp)
+      mouse_state.display = NULL;
    generate_mouse_event(ALLEGRO_EVENT_MOUSE_LEAVE_DISPLAY,
       mouse_state.x, mouse_state.y, mouse_state.z,
       0, 0, 0,
