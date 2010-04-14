@@ -981,7 +981,11 @@ static ALLEGRO_DISPLAY* create_display_fs(int w, int h)
       NSScreen *screen = [[NSScreen screens] objectAtIndex: adapter];
       NSDictionary *dict = [screen deviceDescription];
       NSNumber *display_id = [dict valueForKey: @"NSScreenNumber"];
+#if MAC_OS_X_VERSION_MIN_REQUIRED < 1050
+      dpy->display_id = [display_id intValue];
+#else
       dpy->display_id = [display_id integerValue];
+#endif
       //dpy->display_id = (CGDirectDisplayID)[display_id pointerValue];
    }
 
