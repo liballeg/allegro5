@@ -65,14 +65,13 @@ void _al_iphone_generate_mouse_event(unsigned int type, int x, int y,
 
    _al_event_source_unlock(&the_mouse.parent.es);
 
+   the_mouse.state.x = x;
+   the_mouse.state.y = y;
+
    if (type == ALLEGRO_EVENT_MOUSE_BUTTON_DOWN) {
-   	the_mouse.state.x = x;
-	the_mouse.state.y = y;
 	the_mouse.state.buttons |= (1 << button);
    }
    else if (type == ALLEGRO_EVENT_MOUSE_BUTTON_UP) {
-   	the_mouse.state.x = x;
-	the_mouse.state.y = y;
 	the_mouse.state.buttons &= ~(1 << button);
    }
 }
