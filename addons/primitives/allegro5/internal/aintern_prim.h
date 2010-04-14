@@ -8,7 +8,6 @@ struct ALLEGRO_VERTEX_DECL {
    int stride;
    void* d3d_decl;
    void* d3d_dummy_shader;
-   void* d3d_shader_table;
 };
 
 #endif

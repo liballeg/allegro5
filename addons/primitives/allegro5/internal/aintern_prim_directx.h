@@ -10,6 +10,6 @@ void _al_set_d3d_decl(ALLEGRO_VERTEX_DECL* ret);
 
 void _al_setup_shader(void* dev, const ALLEGRO_VERTEX_DECL* decl);
 void _al_create_shader(ALLEGRO_VERTEX_DECL* decl);
-void _al_set_texture_matrix(void* dev, const ALLEGRO_VERTEX_DECL* decl, float* mat);
+void _al_set_texture_matrix(void* dev, float* mat);
 
 #endif

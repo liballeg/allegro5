@@ -166,7 +166,7 @@ static int _al_draw_prim_raw(ALLEGRO_BITMAP* texture, const void* vtx, const ALL
          mat[2][1] = (float)tex_y / desc.Height;
 
          if (decl) {
-            _al_set_texture_matrix(device, decl, mat[0]);
+            _al_set_texture_matrix(device, mat[0]);
          }
          else
          {
