@@ -27,6 +27,7 @@
 #ifdef ALLEGRO_CFG_D3D
 
 #include "allegro5/allegro_direct3d.h"
+#include "allegro5/internal/aintern_prim_directx.h"
 
 /*
  * The following pre-compiled shaders are generated using the
@@ -546,11 +547,8 @@ static const uint8_t _al_vs_pos0_tex0_col0[] = {
 };
 
 
-#endif /* ALLEGRO_CFG_D3D */
-
 void _al_create_shader(ALLEGRO_VERTEX_DECL* decl)
 {
-#ifdef ALLEGRO_CFG_D3D
 
    LPDIRECT3DDEVICE9 device = NULL;
    LPDIRECT3DVERTEXSHADER9 ret = 0;
@@ -612,12 +610,8 @@ void _al_create_shader(ALLEGRO_VERTEX_DECL* decl)
    IDirect3DDevice9_CreateVertexShader(device, (const DWORD*)shader, &ret);
 
    decl->d3d_dummy_shader = ret;
-#else
-   (void)decl;
-#endif
 }
 
-#ifdef ALLEGRO_CFG_D3D
 static void _al_swap(float* l, float* r)
 {
   float temp = *r;
@@ -627,14 +621,14 @@ static void _al_swap(float* l, float* r)
 
 static void _al_transpose_d3d_matrix(D3DMATRIX* m)
 {
-  int i, j;
-  float* m_ptr = (float*)m;
+   int i, j;
+   float* m_ptr = (float*)m;
 
-  for (i = 1; i < 4; i++) {
-    for (j = 0; j < i; j++) {
-      _al_swap(m_ptr + (i * 4 + j), m_ptr + (j * 4 + i));
-    }
-  }
+   for (i = 1; i < 4; i++) {
+      for (j = 0; j < i; j++) {
+         _al_swap(m_ptr + (i * 4 + j), m_ptr + (j * 4 + i));
+      }
+   }
 }
 
 static void _al_multiply_d3d_matrix(D3DMATRIX* result, const D3DMATRIX* a, const D3DMATRIX* b)
@@ -670,23 +664,16 @@ static void _al_multiply_transpose_d3d_matrix(D3DMATRIX* result, const D3DMATRIX
       }
    }
 }
-#endif
 
 /* note: passed matrix may be modified by this function */
 void _al_set_texture_matrix(void* dev, float* mat)
 {
-#ifdef ALLEGRO_CFG_D3D
-  _al_transpose_d3d_matrix((D3DMATRIX*)mat);
-  IDirect3DDevice9_SetVertexShaderConstantF((IDirect3DDevice9*)dev, 4, mat, 4);
-#else
-   (void)dev;
-   (void)mat;
-#endif
+   _al_transpose_d3d_matrix((D3DMATRIX*)mat);
+   IDirect3DDevice9_SetVertexShaderConstantF((IDirect3DDevice9*)dev, 4, mat, 4);
 }
 
 void _al_setup_shader(void* dev, const ALLEGRO_VERTEX_DECL* decl)
 {
-#ifdef ALLEGRO_CFG_D3D
    IDirect3DDevice9* device = (IDirect3DDevice9*)dev;
    D3DMATRIX matWorld, matView, matProj, matWorldView, matWorldViewProj;
    IDirect3DDevice9_GetTransform(device, D3DTS_WORLD, &matWorld);
@@ -696,8 +683,8 @@ void _al_setup_shader(void* dev, const ALLEGRO_VERTEX_DECL* decl)
    _al_multiply_transpose_d3d_matrix(&matWorldViewProj, &matWorldView, &matProj);
    IDirect3DDevice9_SetVertexShaderConstantF((IDirect3DDevice9*)dev, 0, (float*)&matWorldViewProj, 4);
    IDirect3DDevice9_SetVertexShader(device, (IDirect3DVertexShader9*)decl->d3d_dummy_shader);
-#else
-   (void)dev;
-   (void)decl;
-#endif
 }
+
+#endif /* ALLEGRO_CFG_D3D */
+
+/* vim: set sts=3 sw=3 et: */
