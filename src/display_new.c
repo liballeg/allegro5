@@ -107,6 +107,7 @@ ALLEGRO_DISPLAY *al_create_display(int w, int h)
 void al_destroy_display(ALLEGRO_DISPLAY *display)
 {
    if (display) {
+      _AL_FREE(display->vertex_cache);
       display->vt->destroy_display(display);
    }
 }
