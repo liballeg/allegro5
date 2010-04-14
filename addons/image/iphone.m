@@ -30,13 +30,16 @@ static ALLEGRO_BITMAP *really_load_image(char *buffer, int size)
 
    /* Now we need to draw the image into a memory buffer. */
    pixels = _AL_MALLOC(w * h * 4);
+   CGColorSpaceRef cs =  CGColorSpaceCreateDeviceRGB();
    CGContextRef context = CGBitmapContextCreate(pixels, w, h, 8, w * 4,
-      CGImageGetColorSpace(uiimage.CGImage),
+      //CGImageGetColorSpace(uiimage.CGImage),
+      cs,
       kCGImageAlphaPremultipliedLast);
    CGContextSetBlendMode(context, kCGBlendModeCopy);
    CGContextDrawImage(context, CGRectMake(0.0, 0.0, (CGFloat)w, (CGFloat)h),
       uiimage.CGImage);
    CGContextRelease(context);
+    CGColorSpaceRelease(cs);
 
    /* Then create a bitmap out of the memory buffer. */
    bmp = al_create_bitmap(w, h);
