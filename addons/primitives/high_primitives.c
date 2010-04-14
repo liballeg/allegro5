@@ -44,6 +44,10 @@
 #include "allegro5/internal/aintern_bitmap.h"
 #include <math.h>
 
+#ifdef ALLEGRO_MSVC
+   #define hypotf(x, y) _hypotf((x), (y))
+#endif
+
 #define LOCAL_VERTEX_CACHE  ALLEGRO_VERTEX vertex_cache[ALLEGRO_VERTEX_CACHE_SIZE]
 
 /* The software drawer ends up using al_draw_pixel for each pixel, so
