@@ -216,6 +216,10 @@ static bool xdpy_toggle_display_flag(ALLEGRO_DISPLAY *display, int flag,
 
 
 
+static void xdpy_destroy_display(ALLEGRO_DISPLAY *d);
+
+
+
 /* Create a new X11 display, which maps directly to a GLX window. */
 static ALLEGRO_DISPLAY *xdpy_create_display(int w, int h)
 {
@@ -400,10 +404,8 @@ static ALLEGRO_DISPLAY *xdpy_create_display(int w, int h)
 
    if (!_al_xglx_config_create_context(d)) {
       ALLEGRO_ERROR("Failed to create a context.\n");
-      _AL_FREE(d);
-      _AL_FREE(ogl);
+      xdpy_destroy_display(display);
       _al_mutex_unlock(&system->lock);
-      /* FIXME: make it a clean exit */
       return NULL;
    }
 
@@ -429,10 +431,8 @@ static ALLEGRO_DISPLAY *xdpy_create_display(int w, int h)
       ALLEGRO_EXTRA_DISPLAY_SETTINGS *eds = _al_get_new_display_settings();
       if (eds->required & (1<<ALLEGRO_COMPATIBLE_DISPLAY)) {
          ALLEGRO_ERROR("Allegro requires at least OpenGL version 1.2 to work.");
-         _AL_FREE(d);
-         _AL_FREE(ogl);
+         xdpy_destroy_display(display);
          _al_mutex_unlock(&system->lock);
-         /* FIXME: make it a clean exit */
          return NULL;
       }
       display->extra_settings.settings[ALLEGRO_COMPATIBLE_DISPLAY] = 0;
