@@ -185,18 +185,24 @@ static size_t wav_read(WAVFILE *wavfile, void *data, size_t samples)
       return al_fread(wavfile->f, data, n) / wavfile->channels;
    }
    else {
-      size_t i;
-      signed short *d = (signed short *) data;
+      size_t bytes = al_fread(wavfile->f, data, n * sizeof(int16_t));
+      int n = bytes / sizeof(int16_t);
 
-      for (i = 0; i < n; i++) {
-         signed short s;
-         if (!read16(wavfile->f, &s))
-            break;
+      /* PCM data in RIFF WAV files is little endian.
+       * PCM data in RIFX WAV files is big endian (which we don't support).
+       */
+#ifdef ALLEGRO_BIGENDIAN
+      int i;
+      unsigned char tmp, *p = data;
 
-         *d++ = s;
+      for (i = 0; i < n*2; i += 2) {
+         tmp = data[i];
+         data[i] = data[i+1];
+         data[i+1] = tmp;
       }
+#endif
 
-      return i / wavfile->channels;
+      return n;
    }
 }
 
