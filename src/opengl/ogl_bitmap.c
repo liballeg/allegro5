@@ -186,8 +186,12 @@ static INLINE bool setup_blending(ALLEGRO_DISPLAY *ogl_disp)
       &op_alpha, &src_alpha, &dst_alpha, NULL);
    /* glBlendFuncSeparate was only included with OpenGL 1.4 */
    /* (And not in OpenGL ES) */
-#if !defined ALLEGRO_GP2XWIZ && !defined ALLEGRO_IPHONE
+#if !defined ALLEGRO_GP2XWIZ
+#ifndef ALLEGRO_IPHONE
    if (ogl_disp->ogl_extras->ogl_info.version >= 1.4) {
+#else
+   if (ogl_disp->ogl_extras->ogl_info.version >= 2.0) {
+#endif
       glEnable(GL_BLEND);
       glBlendFuncSeparate(blend_modes[src_color], blend_modes[dst_color],
          blend_modes[src_alpha], blend_modes[dst_alpha]);
@@ -208,20 +212,6 @@ static INLINE bool setup_blending(ALLEGRO_DISPLAY *ogl_disp)
          return false;
       }
    }
-
-#elif defined(ALLEGRO_IPHONE)
-   glEnable(GL_BLEND);
-   glBlendFunc(blend_modes[src_color], blend_modes[dst_color]);
-   glBlendEquation(blend_equations[op]);
-   /* FIXME: Only OpenGL ES 2.0 has both functions and the OES versions
-    * Apple put into ES 1.0 seem to just crash. Should try if it's fixed
-    * in their next update.
-    */
-   //glBlendFuncSeparate(blend_modes[src_color], blend_modes[dst_color],
-   //   blend_modes[src_alpha], blend_modes[dst_alpha]);
-   //glBlendEquationSeparate(
-   //   blend_equations[op],
-   //   blend_equations[op_alpha]);
 #else
    glEnable(GL_BLEND);
    glBlendFunc(blend_modes[src_color], blend_modes[dst_color]);
@@ -700,11 +690,9 @@ static ALLEGRO_LOCKED_REGION *ogl_lock_region(ALLEGRO_BITMAP *bitmap,
 #if !defined ALLEGRO_GP2XWIZ
    else {
       if (flags & ALLEGRO_LOCK_WRITEONLY) {
-         /* For write-only locking, we allocate a buffer just big enough
-          * to later be passed to glTexSubImage2D.  The start of each row must
-          * be aligned according to GL_UNPACK_ALIGNMENT.
-          */
-         pitch = round_to_unpack_alignment(w * pixel_size);
+         glPixelStorei(GL_PACK_ALIGNMENT, pixel_size);
+         pitch = round_to_pack_alignment(w * pixel_size);
+
          ogl_bitmap->lock_buffer = _AL_MALLOC(pitch * h);
          bitmap->locked_region.data = ogl_bitmap->lock_buffer +
             pitch * (h - 1);
@@ -712,8 +700,6 @@ static ALLEGRO_LOCKED_REGION *ogl_lock_region(ALLEGRO_BITMAP *bitmap,
       else {
          #ifdef ALLEGRO_IPHONE
             GLint current_fbo;
-            pitch = round_to_unpack_alignment(w * pixel_size);
-            ogl_bitmap->lock_buffer = _AL_MALLOC(pitch * h);
 
             /* Create an FBO if there isn't one. */
             if (!ogl_bitmap->fbo) {
@@ -727,6 +713,12 @@ static ALLEGRO_LOCKED_REGION *ogl_lock_region(ALLEGRO_BITMAP *bitmap,
 
             glGetIntegerv(GL_FRAMEBUFFER_BINDING_OES, &current_fbo);
             glBindFramebufferOES(GL_FRAMEBUFFER_OES, ogl_bitmap->fbo);
+
+            glPixelStorei(GL_PACK_ALIGNMENT, pixel_size);
+            pitch = round_to_pack_alignment(w * pixel_size);
+
+            ogl_bitmap->lock_buffer = _AL_MALLOC(pitch * h);
+
             glReadPixels(x, gl_y, w, h,
                glformats[format][2],
                glformats[format][1],
@@ -765,8 +757,6 @@ static ALLEGRO_LOCKED_REGION *ogl_lock_region(ALLEGRO_BITMAP *bitmap,
          ogl_bitmap->lock_buffer = _AL_MALLOC(pitch * h);
 	 bitmap->locked_region.data = ogl_bitmap->lock_buffer;
 	 pitch = -pitch;
-         //bitmap->locked_region.data = ogl_bitmap->lock_buffer +
-           // pitch * (h - 1);
       }
       else {
          /* FIXME: implement */
@@ -902,6 +892,7 @@ static void ogl_unlock_region(ALLEGRO_BITMAP *bitmap)
             dst_pitch,
             0, 0, 0, 0,
             bitmap->lock_w, bitmap->lock_h);
+         glPixelStorei(GL_UNPACK_ALIGNMENT, pixel_size);
          glTexSubImage2D(GL_TEXTURE_2D, 0,
             bitmap->lock_x, gl_y,
             bitmap->lock_w, bitmap->lock_h,
@@ -916,7 +907,7 @@ static void ogl_unlock_region(ALLEGRO_BITMAP *bitmap)
       }
       else {
          #ifdef ALLEGRO_IPHONE
-         /* We don't copy anything past bitmap->h on purpose. */
+         glPixelStorei(GL_UNPACK_ALIGNMENT, pixel_size);
          glTexSubImage2D(GL_TEXTURE_2D, 0, bitmap->lock_x, gl_y,
             bitmap->lock_w, bitmap->lock_h,
             glformats[format][2],
