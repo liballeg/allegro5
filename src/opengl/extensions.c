@@ -123,9 +123,13 @@ static float _al_ogl_version(void)
       return 1.0;
    }
 #else
-   /* The above code doesn't seem to work. It produces a version 0.0 */
-   /* Even ES 1.1 has the features we need in 2.0 */
-   return 2.0;
+   const char *s = glGetString(GL_VERSION);
+   if (strstr(s, "2.0"))
+      return 2.0;
+   else if (strstr(s, "1.1"))
+      return 1.5;
+   else
+      return 1.3;
 #endif
 }
 
