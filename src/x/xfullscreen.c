@@ -85,7 +85,7 @@ static void _al_xsys_xinerama_get_monitor_info(ALLEGRO_SYSTEM_XGLX *s, int adapt
       return;
    
    mi->x1 = s->xinerama_screen_info[adapter].x_org;
-   mi->x2 = s->xinerama_screen_info[adapter].y_org;
+   mi->y1 = s->xinerama_screen_info[adapter].y_org;
    mi->x2 = mi->x1 + s->xinerama_screen_info[adapter].width;
    mi->y2 = mi->y1 + s->xinerama_screen_info[adapter].height;
 }
