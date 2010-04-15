@@ -647,8 +647,9 @@ static void osx_get_opengl_pixelformat_attributes(ALLEGRO_DISPLAY_OSX_WIN *dpy)
    /* Clear list of settings (none selected) */
    memset(&dpy->parent.extra_settings, 0, sizeof(dpy->parent.extra_settings));
 
+#if MAC_OS_X_VERSION_MIN_REQUIRED >= 1050
    /* Get the pixel format associated with the OpenGL context.
-    * We use teh Carbon API rather than the Cocoa API because that way we
+    * We use the Carbon API rather than the Cocoa API because that way we
     * can use the same code in Windowed mode as in fullscreen mode (we
     * don't have an NSOpenGLView in fullscreen mode).
     */
@@ -678,6 +679,39 @@ static void osx_get_opengl_pixelformat_attributes(ALLEGRO_DISPLAY_OSX_WIN *dpy)
       dpy->parent.extra_settings.settings[al_setting] = value;
       ALLEGRO_DEBUG("Pixel format attribute %s set to %d\n", allegro_pixel_format_names[n], value);
    }
+#else
+   /* CGLGetPixelFormat does not exist on Tiger, so we need to do something
+    * else.
+    * FIXME: right now, we just return the settings that were chosen by the
+    * user. To be correct, we should query the pixelformat corresponding to
+    * the display, using the NSOpenGLView pixelFormat method and the
+    * NSOpenGLPixelFormat getValues:forAttribute:forVirtualScreen: method,
+    * for which we need to know the logical screen number that the display
+    * is on. That doesn't work for fullscreen modes though...
+    */
+   NSOpenGLPixelFormatAttribute *attributes = dpy->attributes;
+
+   for (n = 0; n < number_of_settings; n++) {
+      /* Go through the list of options and relist the ones that we have
+       * set to Allegro's option list.
+       */
+      NSOpenGLPixelFormatAttribute *a = dpy->attributes;
+      while (*a) {
+         if (*a == allegro_to_osx_settings[n][1]) {
+            int al_setting = allegro_to_osx_settings[n][0];
+            int value = 1;
+            if (allegro_to_osx_settings[n][2])
+               value = a[1];
+            dpy->parent.extra_settings.settings[al_setting] = value;
+            ALLEGRO_DEBUG("Setting pixel format attribute %d to %d\n", al_setting, value);
+         }
+         /* Advance to next option */
+         if (allegro_to_osx_settings[n][2]) /* Has a parameter in the list */
+            a++;
+         a++;
+      }
+   }
+#endif
    dpy->parent.extra_settings.settings[ALLEGRO_COMPATIBLE_DISPLAY] = 1;
 
    // Fill in the missing colour format options, as best we can
