@@ -94,6 +94,7 @@ ALLEGRO_DEBUG_CHANNEL("opengl")
 /* Reads version info out of glGetString(GL_VERSION) */
 static float _al_ogl_version(void)
 {
+#ifndef ALLEGRO_IPHONE
    ALLEGRO_CONFIG *cfg;
    const char *str;
    int major, minor1, minor2;
@@ -121,6 +122,11 @@ static float _al_ogl_version(void)
        */
       return 1.0;
    }
+#else
+   /* The above code doesn't seem to work. It produces a version 0.0 */
+   /* Even ES 1.1 has the features we need in 2.0 */
+   return 2.0;
+#endif
 }
 
 
