@@ -184,13 +184,20 @@ static void xdpy_toggle_frame(ALLEGRO_DISPLAY *display, bool onoff)
 }
 
 
-static Bool resize_predicate(Display *display, XEvent *event, XPointer arg)
+
+static void xdpy_toggle_fullscreen_window(ALLEGRO_DISPLAY *display, bool onoff)
 {
-   (void) display;
-   (void) arg;
-   if (event->type == ConfigureNotify) return True;
-   return False;
+   ALLEGRO_SYSTEM_XGLX *system = (void *)al_get_system_driver();
+   if (onoff == !(display->flags & ALLEGRO_FULLSCREEN_WINDOW)) {
+      _al_mutex_lock(&system->lock);
+      reset_size_hints(display);
+      _al_xglx_toggle_fullscreen_window(display);
+      display->flags ^= ALLEGRO_FULLSCREEN_WINDOW;
+      set_size_hints(display);
+      _al_mutex_unlock(&system->lock);
+   }
 }
+
 
 
 static bool xdpy_toggle_display_flag(ALLEGRO_DISPLAY *display, int flag,
@@ -201,12 +208,7 @@ static bool xdpy_toggle_display_flag(ALLEGRO_DISPLAY *display, int flag,
          xdpy_toggle_frame(display, onoff);
          return true;
       case ALLEGRO_FULLSCREEN_WINDOW:
-         if (onoff == !(display->flags & ALLEGRO_FULLSCREEN_WINDOW)) {
-            reset_size_hints(display);
-            _al_xglx_toggle_fullscreen_window(display);
-            display->flags ^= ALLEGRO_FULLSCREEN_WINDOW;
-            set_size_hints(display);
-         }
+         xdpy_toggle_fullscreen_window(display, onoff);
          return true;
    }
    return false;
@@ -382,14 +384,11 @@ static ALLEGRO_DISPLAY *xdpy_create_display(int w, int h)
     * monitor (with the MetaCity version I'm using here right now).
     */
    if (display->flags & ALLEGRO_FULLSCREEN_WINDOW) {
+      ALLEGRO_INFO("Toggling fullscreen flag for %d x %d window.\n",
+         display->w, display->h);
+      reset_size_hints(display);
       _al_xglx_toggle_fullscreen_window(display);
-
-      /* Wait for the resize event so we can create the initial
-       * OpenGL view already with the full size.
-       */
-      XSync(system->x11display, False);
-      XEvent e;
-      XIfEvent(system->x11display, &e, resize_predicate, NULL);
+      set_size_hints(display);
 
       XWindowAttributes xwa;
       XGetWindowAttributes(system->x11display, d->window, &xwa);
@@ -654,6 +653,11 @@ static bool xdpy_acknowledge_resize(ALLEGRO_DISPLAY *d)
    XWindowAttributes xwa;
    unsigned int w, h;
 
+   /* No context yet means this is a stray call happening during
+    * initialization.
+    */
+   if (!glx->context) return true;
+
    _al_mutex_lock(&system->lock);
 
    /* glXQueryDrawable is GLX 1.3+. */
@@ -680,12 +684,16 @@ static bool xdpy_acknowledge_resize(ALLEGRO_DISPLAY *d)
 
 
 
+/* Note: The system mutex must be locked (exactly once) so when we
+ * wait for the condition variable it gets auto-unlocked. For a
+ * nested lock that would not be the case.
+ */
 void _al_display_xglx_await_resize(ALLEGRO_DISPLAY *d)
 {
    ALLEGRO_SYSTEM_XGLX *system = (void *)al_get_system_driver();
    ALLEGRO_DISPLAY_XGLX *glx = (ALLEGRO_DISPLAY_XGLX *)d;
    int old_resize_count;
-   
+
    XSync(system->x11display, False);
 
    /* Wait until we are actually resized. */

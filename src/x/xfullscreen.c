@@ -913,14 +913,15 @@ static Atom _NET_WM_STATE_FULLSCREEN;
 static Atom _NET_WM_STATE_ABOVE;
 #define X11_ATOM_STRING(x) x = XInternAtom(x11, #x, False);
 
+/* Note: The system mutex must be locked (exactly once) before
+ * calling this as we call _al_display_xglx_await_resize.
+ */
 void _al_xglx_toggle_fullscreen_window(ALLEGRO_DISPLAY *display)
 {
    ALLEGRO_SYSTEM_XGLX *system = (void *)al_get_system_driver();
    ALLEGRO_DISPLAY_XGLX *glx = (ALLEGRO_DISPLAY_XGLX *)display;
    Display *x11 = system->x11display;
 
-   _al_mutex_lock(&system->lock);
-   
    if (!got_atoms) {
       X11_ATOM_STRING(_NET_WM_STATE)
       X11_ATOM_STRING(_NET_WM_STATE_ABOVE)
@@ -949,8 +950,6 @@ void _al_xglx_toggle_fullscreen_window(ALLEGRO_DISPLAY *display)
       SubstructureRedirectMask | SubstructureNotifyMask, &xev);
    
    _al_display_xglx_await_resize(display);
-   
-   _al_mutex_unlock(&system->lock);
 }
 
 // XXX This doesn't seem to actually work with KDE4+Plasma, the panel still appears over our window.
