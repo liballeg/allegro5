@@ -42,11 +42,10 @@ static void setup_blending(void)
    al_get_separate_blender(&op, &src_color, &dst_color,
                      &op_alpha, &src_alpha, &dst_alpha, NULL);
    /* glBlendFuncSeparate was only included with OpenGL 1.4 */
-   /* (And not in OpenGL ES) */
-#if !defined ALLEGRO_GP2XWIZ && !defined ALLEGRO_IPHONE
+#if !defined ALLEGRO_GP2XWIZ
    {
       ALLEGRO_DISPLAY *ogl_disp = al_get_current_display();
-      
+     
       if (ogl_disp->ogl_extras->ogl_info.version >= 1.4) {
          glEnable(GL_BLEND);
          glBlendFuncSeparate(blend_modes[src_color], blend_modes[dst_color],
@@ -69,20 +68,6 @@ static void setup_blending(void)
          }
       }
    }
-   
-#elif defined(ALLEGRO_IPHONE)
-   glEnable(GL_BLEND);
-   glBlendFunc(blend_modes[src_color], blend_modes[dst_color]);
-   glBlendEquation(blend_equations[op]);
-   /* FIXME: Only OpenGL ES 2.0 has both functions and the OES versions
-    * Apple put into ES 1.0 seem to just crash. Should try if it's fixed
-    * in their next update.
-    */
-   //glBlendFuncSeparate(blend_modes[src_color], blend_modes[dst_color],
-   //   blend_modes[src_alpha], blend_modes[dst_alpha]);
-   //glBlendEquationSeparate(
-   //   blend_equations[op],
-   //   blend_equations[op_alpha]);
 #else
    glEnable(GL_BLEND);
    glBlendFunc(blend_modes[src_color], blend_modes[dst_color]);
@@ -173,12 +158,18 @@ static void setup_state(const char* vtxs, const ALLEGRO_VERTEX_DECL* decl, ALLEG
          {0,  0,  1, 0},
          {0,  0,  0, 1}
       };
+      int height;
+
+      if (texture->parent)
+         height = texture->parent->h;
+      else
+         height = texture->h;
       
       al_get_opengl_texture_size(texture, &true_w, &true_h);
       al_get_opengl_texture_position(texture, &tex_x, &tex_y);
       
       mat[3][0] = (float)tex_x / true_w;
-      mat[3][1] = (float)(true_h - tex_y) / true_h;
+      mat[3][1] = (float)(height - tex_y) / true_h;
          
       (void)current_texture;
 
