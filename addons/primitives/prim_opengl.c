@@ -46,7 +46,11 @@ static void setup_blending(void)
    {
       ALLEGRO_DISPLAY *ogl_disp = al_get_current_display();
      
+#ifndef ALLEGRO_IPHONE
       if (ogl_disp->ogl_extras->ogl_info.version >= 1.4) {
+#else
+      if (ogl_disp->ogl_extras->ogl_info.version >= 2.0) {
+#endif
          glEnable(GL_BLEND);
          glBlendFuncSeparate(blend_modes[src_color], blend_modes[dst_color],
                         blend_modes[src_alpha], blend_modes[dst_alpha]);
@@ -171,8 +175,6 @@ static void setup_state(const char* vtxs, const ALLEGRO_VERTEX_DECL* decl, ALLEG
       mat[3][0] = (float)tex_x / true_w;
       mat[3][1] = (float)(height - tex_y) / true_h;
          
-      (void)current_texture;
-
       if(decl) {
          if(decl->elements[ALLEGRO_PRIM_TEX_COORD_PIXEL].attribute) {
             mat[0][0] = 1.0f / true_w;
