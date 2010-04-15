@@ -10,6 +10,8 @@ ALLEGRO_DEBUG_CHANNEL("iphone")
 void _al_iphone_run_user_main(void);
 
 static allegroAppDelegate *global_delegate;
+static UIImageView *splashview;
+static UIWindow *splashwin;
 
 void _al_iphone_add_view(ALLEGRO_DISPLAY *display)
 {
@@ -82,9 +84,9 @@ void _al_iphone_get_screen_size(int *w, int *h)
 static void display_splash_screen(void)
 {
    UIScreen *screen = [UIScreen mainScreen];
-   UIWindow *splashwin = [[UIWindow alloc] initWithFrame:[screen bounds]];
+   splashwin = [[UIWindow alloc] initWithFrame:[screen bounds]];
    UIImage *img = [UIImage imageNamed:@"Default.png"];
-   UIImageView *splashview = [[UIImageView alloc] initWithImage:img];
+   splashview = [[UIImageView alloc] initWithImage:img];
    [splashwin addSubview:splashview];
    [splashwin makeKeyAndVisible];
 }
@@ -135,6 +137,8 @@ static void display_splash_screen(void)
    [view set_allegro_display:allegro_display];
    [window addSubview:view];
    [window makeKeyAndVisible];
+   [splashview release];
+   [splashwin release];
 }
 
 - (void)accelerometer:(UIAccelerometer*)accelerometer didAccelerate:(UIAcceleration*)acceleration
