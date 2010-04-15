@@ -39,24 +39,27 @@ static bool set_opengl_blending(ALLEGRO_DISPLAY *d,
 
    al_get_separate_blender(&op, &src_color, &dst_color, &op_alpha,
       &src_alpha, &dst_alpha, NULL);
-#if defined ALLEGRO_IPHONE
-   glEnable(GL_BLEND);
-   glBlendFuncSeparate(blend_modes[src_color],
-      blend_modes[dst_color], blend_modes[src_alpha],
-      blend_modes[dst_alpha]);
-   glBlendEquationSeparate(
-      blend_equations[op],
-      blend_equations[op_alpha]);
-   bc = _al_get_blend_color();
-   glColor4f(r * bc->r, g * bc->g, b * bc->b, a * bc->a);
-   return true;
-#elif defined ALLEGRO_GP2XWIZ
-   glEnable(GL_BLEND);
-   glBlendFunc(blend_modes[src_color], blend_modes[dst_color]);
-   glBlendEquation(blend_equations[op]);
-   bc = _al_get_blend_color();
-   glColor4f(r * bc->r, g * bc->g, b * bc->b, a * bc->a);
-   return true;
+#if defined ALLEGRO_IPHONE || defined ALLEGRO_GP2XWIZ
+   if (al_get_opengl_version() >= 2.0) {
+      glEnable(GL_BLEND);
+      glBlendFuncSeparate(blend_modes[src_color],
+         blend_modes[dst_color], blend_modes[src_alpha],
+         blend_modes[dst_alpha]);
+      glBlendEquationSeparate(
+         blend_equations[op],
+         blend_equations[op_alpha]);
+      bc = _al_get_blend_color();
+      glColor4f(r * bc->r, g * bc->g, b * bc->b, a * bc->a);
+      return true;
+   }
+   else {
+	   glEnable(GL_BLEND);
+	   glBlendFunc(blend_modes[src_color], blend_modes[dst_color]);
+	   glBlendEquation(blend_equations[op]);
+	   bc = _al_get_blend_color();
+	   glColor4f(r * bc->r, g * bc->g, b * bc->b, a * bc->a);
+	   return true;
+   }
 #else
    if (d->ogl_extras->ogl_info.version >= 1.4) {
       glEnable(GL_BLEND);
