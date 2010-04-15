@@ -19,46 +19,12 @@ typedef struct WAVFILE
    int freq;        /* e.g., 44100 */
    short bits;      /* 8 (unsigned char) or 16 (signed short) */
    short channels;  /* 1 (mono) or 2 (stereo) */
-   int samples;     /* # of samples. size = samples * (bits/8) * channels */
+   int sample_size; /* channels * bits/8 */
+   int samples;     /* # of samples. size = samples * sample_size */
    double loop_start;
    double loop_end;
 } WAVFILE;
 
-
-/* read16:
- *  Reads a signed, 16-bit little endian integer and places the value in 'v'.
- *
- *  Returns true on success, false on EOF
- */
-static bool read16(ALLEGRO_FILE *f, signed short *v)
-{
-   const int a = al_fgetc(f), b = al_fgetc(f);
-   
-   if (b != EOF) {
-      *v = (a | (b << 8));
-      return true;
-   }
-
-   return false;
-}
-
-
-/* read32:
- *  Reads a signed, 32-bit little endian integer and places the value in 'v'.
- *
- *  Returns true on success, false on EOF
- */
-static bool read32(ALLEGRO_FILE *f, int *v)
-{
-   const int a = al_fgetc(f), b = al_fgetc(f), c = al_fgetc(f), d = al_fgetc(f);
-
-   if (d != EOF) {
-      *v = (a | (b << 8) | (c << 16) | (d << 24));
-      return true;
-   }
-
-   return false;
-}
 
 /* wav_open:
  *  Opens f and prepares a WAVFILE struct with the WAV format info.
@@ -103,29 +69,29 @@ static WAVFILE *wav_open(ALLEGRO_FILE *f)
       /* check to see if it's a fmt chunk */
       if (!memcmp(buffer, "fmt ", 4)) {
 
-         read32(f, &length);
+         length = al_fread32le(f);
          if (length < 16)
             goto wav_open_error;
 
          /* should be 1 for PCM data */
-         read16(f, &pcm);
+         pcm = al_fread16le(f);
          if (pcm != 1)
             goto wav_open_error;
 
          /* mono or stereo data */
-         read16(f, &wavfile->channels);
+         wavfile->channels = al_fread16le(f);
 
          if ((wavfile->channels != 1) && (wavfile->channels != 2))
             goto wav_open_error;
 
          /* sample frequency */
-         read32(f, &wavfile->freq);
-
+         wavfile->freq = al_fread32le(f);
+       
          /* skip six bytes */
          al_fseek(f, 6, ALLEGRO_SEEK_CUR);   
 
          /* 8 or 16 bit data? */
-         read16(f, &wavfile->bits);
+         wavfile->bits = al_fread16le(f);
          if ((wavfile->bits != 8) && (wavfile->bits != 16))
             goto wav_open_error;
 
@@ -139,13 +105,13 @@ static WAVFILE *wav_open(ALLEGRO_FILE *f)
             break;
          ALLEGRO_INFO("Ignoring chunk: %c%c%c%c\n", buffer[0], buffer[1],
             buffer[2], buffer[3]);
-         read32(f, &length);
+         length = al_fread32le(f);
          al_fseek(f, length, ALLEGRO_SEEK_CUR);
       }
    }
 
    /* find out how many samples exist */
-   read32(f, &wavfile->samples);
+   wavfile->samples = al_fread32le(f);
 
    if (wavfile->channels == 2) {
       wavfile->samples = (wavfile->samples + 1) / 2;
@@ -154,6 +120,8 @@ static WAVFILE *wav_open(ALLEGRO_FILE *f)
    if (wavfile->bits == 16) {
       wavfile->samples /= 2;
    }
+
+   wavfile->sample_size = wavfile->channels * wavfile->bits / 8;
 
    wavfile->dpos = al_ftell(f);
 
@@ -175,35 +143,32 @@ wav_open_error:
  */
 static size_t wav_read(WAVFILE *wavfile, void *data, size_t samples)
 {
-   size_t n;
+   size_t bytes_read;
 
    ASSERT(wavfile);
 
-   n = wavfile->channels * samples;
+   bytes_read = al_fread(wavfile->f, data, samples * wavfile->sample_size);
 
-   if (wavfile->bits == 8) {
-      return al_fread(wavfile->f, data, n) / wavfile->channels;
-   }
-   else {
-      size_t bytes = al_fread(wavfile->f, data, n * sizeof(int16_t));
-      int n = bytes / sizeof(int16_t);
+   /* PCM data in RIFF WAV files is little endian.
+    * PCM data in RIFX WAV files is big endian (which we don't support).
+    */
+#ifdef ALLEGRO_BIG_ENDIAN
+   if (wavfile->bits == 16) {
+      uint8_t *p = data;
+      const uint8_t *const end = p + bytes_read - 1; /* in case bytes_read is not even */
 
-      /* PCM data in RIFF WAV files is little endian.
-       * PCM data in RIFX WAV files is big endian (which we don't support).
-       */
-#ifdef ALLEGRO_BIGENDIAN
-      int i;
-      unsigned char tmp, *p = data;
-
-      for (i = 0; i < n*2; i += 2) {
-         tmp = data[i];
-         data[i] = data[i+1];
-         data[i+1] = tmp;
+      /* swap high/low bytes */
+      while (p < end) {
+         uint8_t *const q = p + 1;
+         const uint8_t tmp = *p;
+         *p = *q;
+         *q = tmp;
+         p = q;       
       }
+   }
 #endif
 
-      return n;
-   }
+   return bytes_read / wavfile->sample_size;
 }
 
 
