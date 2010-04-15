@@ -341,13 +341,10 @@ static ALLEGRO_DISPLAY *xdpy_create_display(int w, int h)
       // Try to set full screen mode if requested, fail if we can't
    if (display->flags & ALLEGRO_FULLSCREEN) {
       xdpy_toggle_frame(display, false);
-      //_al_xglx_set_above(display);
+
       if (!_al_xglx_fullscreen_set_mode(system, d, w, h, 0, display->refresh_rate)) {
          ALLEGRO_DEBUG("xdpy: failed to set fullscreen mode.\n");
-         XDestroyWindow(system->x11display, d->window);
-         _al_vector_delete_at(&system->system.displays, _al_vector_size(&system->system.displays)-1);
-         _AL_FREE(d);
-         _AL_FREE(ogl);
+         xdpy_destroy_display(display);
          _al_mutex_unlock(&system->lock);
          return NULL;
       }
