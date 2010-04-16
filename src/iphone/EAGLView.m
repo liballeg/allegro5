@@ -4,9 +4,6 @@
 #import "EAGLView.h"
 #include <pthread.h>
 
-bool allegro_iphone_shaken = false;
-float allegroBatteryLevel = 1.0;
-
 ALLEGRO_DEBUG_CHANNEL("iphone")
 
 @implementation EAGLView
@@ -50,33 +47,8 @@ ALLEGRO_DEBUG_CHANNEL("iphone")
 - (id)initWithFrame:(CGRect)frame {
     
     self = [super initWithFrame:frame];
-    
-    self.multipleTouchEnabled = YES;
-
-   [UIDevice currentDevice].batteryMonitoringEnabled = YES;
-   if ([[UIDevice currentDevice] batteryState] == UIDeviceBatteryStateCharging || [[UIDevice currentDevice] batteryState] == UIDeviceBatteryStateFull || !([[UIDevice currentDevice] isBatteryMonitoringEnabled]))
-      allegroBatteryLevel = 1.0;
-   else
-      allegroBatteryLevel = [[UIDevice currentDevice] batteryLevel];
-
-   // Register for battery level and state change notifications.
-   [[NSNotificationCenter defaultCenter] addObserver:self
-      selector:@selector(batteryLevelDidChange:)
-      name:UIDeviceBatteryLevelDidChangeNotification object:nil];
-
-   [[NSNotificationCenter defaultCenter] addObserver:self
-      selector:@selector(batteryLevelDidChange:)
-      name:UIDeviceBatteryStateDidChangeNotification object:nil];
 
     return self;
-}
-
-- (void)batteryLevelDidChange:(NSNotification *)notification
-{
-	if ([[UIDevice currentDevice] batteryState] == UIDeviceBatteryStateCharging || [[UIDevice currentDevice] batteryState] == UIDeviceBatteryStateFull)
-		allegroBatteryLevel = 1.0;
-	else
-		allegroBatteryLevel = [[UIDevice currentDevice] batteryLevel];
 }
 
 - (void)make_current {
@@ -157,6 +129,8 @@ ALLEGRO_DEBUG_CHANNEL("iphone")
 // Handles the start of a touch
 -(void)touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event
 {
+   UIAccelerometer *accelerometer = [UIAccelerometer sharedAccelerometer];
+
    // TODO: handle double-clicks (send two events?)
 	// NSUInteger numTaps = [[touches anyObject] tapCount];
 	// Enumerate through all the touch objects.
@@ -207,19 +181,5 @@ ALLEGRO_DEBUG_CHANNEL("iphone")
       // for all currently pressed buttons.
 	}
 }
-
--(BOOL)canBecomeFirstResponder {
-    return YES;
-}
- 
-
--(void)motionEnded:(UIEventSubtype)motion withEvent:(UIEvent *)event
-{
-	if (event.subtype == UIEventSubtypeMotionShake) {
-		allegro_iphone_shaken = true;
-	}
-}
-
-
 
 @end
