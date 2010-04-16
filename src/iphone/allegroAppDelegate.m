@@ -33,6 +33,12 @@ void _al_iphone_make_view_current(void)
 void _al_iphone_flip_view(void)
 {
     [global_delegate.view flip];
+   if (splashview) {
+      [splashview release];
+      [splashwin release];
+      splashview = nil;
+      splashwin = nil;
+   }
 }
 
 void _al_iphone_reset_framebuffer(void)
@@ -137,8 +143,6 @@ static void display_splash_screen(void)
    [view set_allegro_display:allegro_display];
    [window addSubview:view];
    [window makeKeyAndVisible];
-   [splashview release];
-   [splashwin release];
 }
 
 - (void)accelerometer:(UIAccelerometer*)accelerometer didAccelerate:(UIAcceleration*)acceleration
