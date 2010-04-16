@@ -90,7 +90,7 @@ static void initialize_tls_values(thread_local_state *tls)
 
 #if (defined ALLEGRO_MINGW32 && ( \
    __GNUC__ < 4 || (__GNUC__ == 4 && __GNUC_MINOR__ < 2) || \
-   (__GNUC__ == 4 && __GNUC_MINOR == 2 && __GNUC_PATCHLEVEL__ < 1))) || \
+   (__GNUC__ == 4 && __GNUC_MINOR__ == 2 && __GNUC_PATCHLEVEL__ < 1))) || \
    defined ALLEGRO_CFG_DLL_TLS
 
 /*
