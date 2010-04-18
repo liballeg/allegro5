@@ -92,7 +92,8 @@ static long dfs_getnc(char *ptr, long n, void *f)
 
 static void dfs_close(void *f)
 {
-   al_fclose(f);
+   /* Don't actually close f here. */
+   (void)f;
 }
 
 
@@ -182,8 +183,8 @@ static ALLEGRO_AUDIO_STREAM *mod_stream_init(ALLEGRO_FILE* f,
 {
    ALLEGRO_AUDIO_STREAM *stream;
    DUMBFILE *df;
-   DUH_SIGRENDERER *sig;
-   DUH *duh;
+   DUH_SIGRENDERER *sig = NULL;
+   DUH *duh = NULL;
    int64_t start_pos = -1;
    
    df = lib.dumbfile_open_ex(f, &dfs_f);
@@ -194,16 +195,12 @@ static ALLEGRO_AUDIO_STREAM *mod_stream_init(ALLEGRO_FILE* f,
 
    duh = loader(df);
    if (!duh) {
-      /* try to return back to where we started to load */
-      if (start_pos != -1)
-         al_fseek(f, start_pos, ALLEGRO_SEEK_SET);
-      return NULL;
+      goto Error;
    }
 
    sig = lib.duh_start_sigrenderer(duh, 0, 2, 0);
    if (!sig) {
-      lib.unload_duh(duh);
-      return NULL;
+      goto Error;
    }
 
    stream = al_create_audio_stream(buffer_count, samples, 44100,
@@ -232,11 +229,26 @@ static ALLEGRO_AUDIO_STREAM *mod_stream_init(ALLEGRO_FILE* f,
       al_start_thread(stream->feed_thread);
    }
    else {
-      lib.duh_end_sigrenderer(sig);
-      lib.unload_duh(duh);
+      goto Error;
    }
 
    return stream;
+
+Error:
+
+   if (sig) {
+      lib.duh_end_sigrenderer(sig);
+   }
+
+   if (duh) {
+      lib.unload_duh(duh);
+   }
+
+   /* try to return back to where we started to load */
+   if (start_pos != -1)
+      al_fseek(f, start_pos, ALLEGRO_SEEK_SET);
+
+   return NULL;
 }
 
 static void shutdown_libdumb(void)
@@ -334,10 +346,12 @@ ALLEGRO_AUDIO_STREAM *_al_load_mod_audio_stream(const char *filename,
       return NULL;
 
    stream = _al_load_mod_audio_stream_f(f, buffer_count, samples);
-   
-   if (!stream)
+
+   if (!stream) {
       al_fclose(f);
-      
+      return NULL;
+   }
+
    ((MOD_FILE *)stream->extra)->fh = f;
    
    return stream;
@@ -356,9 +370,11 @@ ALLEGRO_AUDIO_STREAM *_al_load_it_audio_stream(const char *filename,
 
    stream = _al_load_it_audio_stream_f(f, buffer_count, samples);
    
-   if (!stream)
+   if (!stream) {
       al_fclose(f);
-      
+      return NULL;
+   }
+
    ((MOD_FILE *)stream->extra)->fh = f;
    
    return stream;
@@ -376,10 +392,12 @@ ALLEGRO_AUDIO_STREAM *_al_load_xm_audio_stream(const char *filename,
       return NULL;
 
    stream = _al_load_xm_audio_stream_f(f, buffer_count, samples);
-   
-   if (!stream)
+
+   if (!stream) {
       al_fclose(f);
-      
+      return NULL;
+   }
+
    ((MOD_FILE *)stream->extra)->fh = f;
    
    return stream;
@@ -398,8 +416,10 @@ ALLEGRO_AUDIO_STREAM *_al_load_s3m_audio_stream(const char *filename,
 
    stream = _al_load_s3m_audio_stream_f(f, buffer_count, samples);
    
-   if (!stream)
+   if (!stream) {
       al_fclose(f);
+      return NULL;
+   }
       
    ((MOD_FILE *)stream->extra)->fh = f;
    

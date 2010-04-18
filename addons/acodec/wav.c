@@ -130,8 +130,6 @@ static WAVFILE *wav_open(ALLEGRO_FILE *f)
 
 wav_open_error:
 
-   if (f)
-      al_fclose(f);
    if (wavfile)
       free(wavfile);
 
@@ -180,7 +178,6 @@ static void wav_close(WAVFILE *wavfile)
 {
    ASSERT(wavfile);
 
-   al_fclose(wavfile->f);
    free(wavfile);
 }
 
@@ -277,6 +274,7 @@ static void wav_stream_close(ALLEGRO_AUDIO_STREAM *stream)
    al_join_thread(stream->feed_thread, NULL);
    al_destroy_thread(stream->feed_thread);
 
+   al_fclose(wavfile->f);
    wav_close(wavfile);
    stream->extra = NULL;
    stream->feed_thread = NULL;
@@ -298,6 +296,8 @@ ALLEGRO_SAMPLE *_al_load_wav(const char *filename)
       return NULL;
 
    spl = _al_load_wav_f(f);
+
+   al_fclose(f);
 
    return spl;
 }
@@ -345,6 +345,9 @@ ALLEGRO_AUDIO_STREAM *_al_load_wav_audio_stream(const char *filename,
       return NULL;
 
    stream = _al_load_wav_audio_stream_f(f, buffer_count, samples);
+   if (!stream) {
+      al_fclose(f);
+   }
 
    return stream;
 }
@@ -381,7 +384,7 @@ ALLEGRO_AUDIO_STREAM *_al_load_wav_audio_stream_f(ALLEGRO_FILE* f,
       al_start_thread(stream->feed_thread);
    }
    else {
-      /* XXX clean up */
+      wav_close(wavfile);
    }
 
    return stream;

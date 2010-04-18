@@ -173,8 +173,8 @@ static long tell_callback(void *dptr)
 
 static int close_callback(void *dptr)
 {
-   AL_OV_DATA *d = (void *)dptr;
-   al_fclose(d->file);
+   /* Don't close dptr->file here. */
+   (void)dptr;
    return 0;
 }
 
@@ -201,6 +201,8 @@ ALLEGRO_SAMPLE *_al_load_ogg_vorbis(const char *filename)
    }
 
    spl = _al_load_ogg_vorbis_f(f);
+
+   al_fclose(f);
 
    return spl;
 }
@@ -238,7 +240,6 @@ ALLEGRO_SAMPLE *_al_load_ogg_vorbis_f(ALLEGRO_FILE *file)
    ov.file = file;
    if (lib.ov_open_callbacks(&ov, &vf, NULL, 0, callbacks) < 0) {
       ALLEGRO_WARN("Audio file does not appear to be an Ogg bitstream.\n");
-      al_fclose(file);
       return NULL;
    }
 
@@ -258,7 +259,6 @@ ALLEGRO_SAMPLE *_al_load_ogg_vorbis_f(ALLEGRO_FILE *file)
 
    buffer = _AL_MALLOC_ATOMIC(total_size);
    if (!buffer) {
-      al_fclose(file);
       return NULL;
    }
 
@@ -352,11 +352,12 @@ static void ogg_stream_close(ALLEGRO_AUDIO_STREAM *stream)
    AL_OV_DATA *extra = (AL_OV_DATA *) stream->extra;
    ALLEGRO_EVENT quit_event;
 
-
    quit_event.type = _KCM_STREAM_FEEDER_QUIT_EVENT_TYPE;
    al_emit_user_event(al_get_audio_stream_event_source(stream), &quit_event, NULL);
    al_join_thread(stream->feed_thread, NULL);
    al_destroy_thread(stream->feed_thread);
+
+   al_fclose(extra->file);
 
    lib.ov_clear(extra->vf);
    _AL_FREE(extra->vf);
@@ -437,6 +438,9 @@ ALLEGRO_AUDIO_STREAM *_al_load_ogg_vorbis_audio_stream(const char *filename,
    }
 
    stream = _al_load_ogg_vorbis_audio_stream_f(f, buffer_count, samples);
+   if (!stream) {
+      al_fclose(f);
+   }
 
    return stream;
 }
@@ -470,7 +474,6 @@ ALLEGRO_AUDIO_STREAM *_al_load_ogg_vorbis_audio_stream_f(ALLEGRO_FILE *file,
    vf = _AL_MALLOC(sizeof(OggVorbis_File));
    if (lib.ov_open_callbacks(extra, vf, NULL, 0, callbacks) < 0) {
       ALLEGRO_WARN("ogg: Input does not appear to be an Ogg bitstream.\n");
-      al_fclose(file);
       return NULL;
    }
 

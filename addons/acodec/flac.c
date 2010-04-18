@@ -340,7 +340,7 @@ static void flac_close(FLACFILE *ff)
 {
    lib.FLAC__stream_decoder_finish(ff->decoder);
    lib.FLAC__stream_decoder_delete(ff->decoder);
-   al_fclose(ff->fh);
+   /* Don't close ff->fh here. */
    _AL_FREE(ff);
 }
 
@@ -412,6 +412,7 @@ static size_t flac_stream_update(ALLEGRO_AUDIO_STREAM *stream, void *data,
 static void flac_stream_close(ALLEGRO_AUDIO_STREAM *stream)
 {
    FLACFILE *ff = stream->extra;
+   al_fclose(ff->fh);
    flac_close(ff);
 }
 
@@ -517,8 +518,6 @@ error:
    if (ff) {
       if (ff->decoder)
          lib.FLAC__stream_decoder_delete(ff->decoder);
-      if (ff)
-         al_fclose(ff->fh);
       _AL_FREE(ff);
    }
    return NULL;
@@ -535,6 +534,8 @@ ALLEGRO_SAMPLE *_al_load_flac(const char *filename)
       return NULL;
 
    spl = _al_load_flac_f(f);
+
+   al_fclose(f);
 
    return spl;
 }
@@ -579,6 +580,9 @@ ALLEGRO_AUDIO_STREAM *_al_load_flac_audio_stream(const char *filename,
       return NULL;
 
    stream = _al_load_flac_audio_stream_f(f, buffer_count, samples);
+   if (!stream) {
+      al_fclose(f);
+   }
 
    return stream;
 }
@@ -613,7 +617,8 @@ ALLEGRO_AUDIO_STREAM *_al_load_flac_audio_stream_f(ALLEGRO_FILE* f,
       al_start_thread(stream->feed_thread);
    }
    else {
-      /* XXX clean up */
+      al_fclose(ff->fh);
+      flac_close(ff);
    }
 
    return stream;
