@@ -317,9 +317,9 @@ static void ftclose(FT_Stream  stream)
     al_fclose(data->file);
 }
 
-/* Function: al_load_ttf_font_entry
+/* Function: al_load_ttf_font_f
  */
-ALLEGRO_FONT *al_load_ttf_font_entry(ALLEGRO_FILE *file,
+ALLEGRO_FONT *al_load_ttf_font_f(ALLEGRO_FILE *file,
     char const *filename, int size, int flags)
 {
     FT_Face face;
@@ -449,7 +449,7 @@ ALLEGRO_FONT *al_load_ttf_font(char const *filename, int size, int flags)
     * closed when the font is destroyed, in case Freetype has to load data
     * at a later time.
     */
-   font = al_load_ttf_font_entry(f, filename, size, flags);
+   font = al_load_ttf_font_f(f, filename, size, flags);
 
    return font;
 }

@@ -276,9 +276,9 @@ The only flag supported right now is:
 * ALLEGRO_TTF_NO_KERNING - Do not use any kerning even if the font file
   supports it.
 
-See also: [al_init_ttf_addon], [al_load_ttf_font_entry]
+See also: [al_init_ttf_addon], [al_load_ttf_font_f]
 
-### API: al_load_ttf_font_entry
+### API: al_load_ttf_font_f
 
 Like [al_load_ttf_font], but the font is read from the file handle. The filename
 is only used to find possible additional files next to a font file.
