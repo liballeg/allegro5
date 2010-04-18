@@ -119,7 +119,7 @@ is provided. You must call [al_drain_audio_stream] when you're finished with
 supplying data to the stream.
 
 If the stream is created by [al_load_audio_stream] then it can also generate an
-ALLEGRO_EVENT_audio_stream_FINISHED event if it reaches the end of the file and
+ALLEGRO_EVENT_AUDIO_STREAM_FINISHED event if it reaches the end of the file and
 is not set to loop.
 
 ### API: ALLEGRO_VOICE
