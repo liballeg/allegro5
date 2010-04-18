@@ -3,6 +3,7 @@ include_directories(../audio)
 option(WANT_FLAC "Enable FLAC support" on)
 option(WANT_VORBIS "Enable Ogg Vorbis support" on)
 option(WANT_MODAUDIO "Enable MOD Audio support" on)
+option(WANT_ACODEC_DYNAMIC_LOAD "Enable DLL loading in acodec (Windows)" on)
 
 #-----------------------------------------------------------------------------#
 
@@ -18,12 +19,20 @@ set(ACODEC_SOURCES
     )
 set(ACODEC_LIBRARIES)
 
-if(COMPILER_MSVC)
-    option(FLAC_STATIC "Set this if linking with a static FLAC library" off)
-    if(FLAC_STATIC)
-        set(FLAC__NO_DLL "-DFLAC__NO_DLL")
-    endif()
-endif(COMPILER_MSVC)
+# For dynamic loading, we want to make sure that CMake has found an import
+# library and not a static library. We assume that the name of the DLL to load
+# is the same as the import library, bar the extension.
+#
+# With MSVC, static libraries and import libraries share the same extension.
+# Luckily the MSVC static libraries for FLAC and Vorbis are named with a
+# _static suffix.
+# With MinGW, static libraries end with .a, and import libraries end with
+# .dll.a so we can tell them apart. (The regex for this is a bodge.)
+set(WIN32_STATIC_LIB_REGEX "_static[.]|[^l][.]a")
+
+#
+# FLAC
+#
 
 if(WANT_FLAC)
     find_package(FLAC)
@@ -41,15 +50,42 @@ if(WANT_FLAC)
         set(CMAKE_REQUIRED_INCLUDES)
         set(CMAKE_REQUIRED_LIBRARIES)
         if(FLAC_COMPILES)
-            set(ALLEGRO_CFG_ACODEC_FLAC 1)
-            list(APPEND ACODEC_SOURCES flac.c)
-            list(APPEND ACODEC_LIBRARIES ${FLAC_LIBRARIES})
-            include_directories(SYSTEM ${FLAC_INCLUDE_DIR})
+            set(SUPPORT_FLAC 1)
         endif(FLAC_COMPILES)
     else(FLAC_FOUND)
         message("WARNING: libFLAC not found, disabling support.")
     endif(FLAC_FOUND)
 endif(WANT_FLAC)
+
+if(SUPPORT_FLAC)
+    include_directories(SYSTEM ${FLAC_INCLUDE_DIR})
+    set(ALLEGRO_CFG_ACODEC_FLAC 1)
+    list(APPEND ACODEC_SOURCES flac.c)
+
+    if(WIN32)
+        if(FLAC_LIBRARY MATCHES "${WIN32_STATIC_LIB_REGEX}")
+            set(FLAC_STATIC 1)
+            set(FLAC__NO_DLL "-DFLAC__NO_DLL")
+        endif()
+        if(WANT_ACODEC_DYNAMIC_LOAD)
+            if(FLAC_STATIC)
+                message("WARNING: Dynamic loading will be disabled for FLAC as"
+                        " static library was found: ${FLAC_LIBRARY}")
+            else()
+                get_filename_component(FLAC_BASENAME "${FLAC_LIBRARY}" NAME_WE)
+                set(ALLEGRO_CFG_ACODEC_FLAC_DLL "${FLAC_BASENAME}.dll")
+            endif()
+        endif()
+    endif(WIN32)
+
+    if(NOT ALLEGRO_CFG_ACODEC_FLAC_DLL)
+        list(APPEND ACODEC_LIBRARIES ${FLAC_LIBRARIES})
+    endif()
+endif(SUPPORT_FLAC)
+
+#
+# MOD audio
+#
 
 if(WANT_MODAUDIO)
     find_package(DUMB)
@@ -69,6 +105,7 @@ if(WANT_MODAUDIO)
         if(DUMB_COMPILES)
             set(ALLEGRO_CFG_ACODEC_MODAUDIO 1)
             list(APPEND ACODEC_SOURCES modaudio.c)
+            # XXX WANT_ACODEC_DYNAMIC_LOAD
             list(APPEND ACODEC_LIBRARIES ${DUMB_LIBRARIES})
             include_directories(SYSTEM ${DUMB_INCLUDE_DIR})
         endif(DUMB_COMPILES)
@@ -76,6 +113,10 @@ if(WANT_MODAUDIO)
         message("WARNING: libdumb not found, disabling support. <http://dumb.sourceforge.net/>")
     endif(DUMB_FOUND)
 endif(WANT_MODAUDIO)
+
+#
+# Vorbis
+#
 
 if(WANT_VORBIS)
     find_package(Vorbis)
@@ -114,6 +155,7 @@ if(WANT_VORBIS)
         if(VORBIS_COMPILES)
             set(ALLEGRO_CFG_ACODEC_VORBIS 1)
             list(APPEND ACODEC_SOURCES ogg.c)
+            # XXX WANT_ACODEC_DYNAMIC_LOAD
             list(APPEND ACODEC_LIBRARIES ${VORBIS_LIBRARIES})
             include_directories(SYSTEM ${OGG_INCLUDE_DIR} ${VORBIS_INCLUDE_DIR})
         endif(VORBIS_COMPILES)

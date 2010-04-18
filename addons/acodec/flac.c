@@ -8,14 +8,17 @@
 #include "allegro5/allegro5.h"
 #include "allegro5/allegro_acodec.h"
 #include "allegro5/allegro_audio.h"
+#include "allegro5/internal/aintern.h"
 #include "allegro5/internal/aintern_audio.h"
 #include "allegro5/internal/aintern_memory.h"
+#include "allegro5/internal/aintern_system.h"
 #include "acodec.h"
 
 #include <FLAC/stream_decoder.h>
 #include <stdio.h>
 
 ALLEGRO_DEBUG_CHANNEL("acodec")
+
 
 typedef struct FLACFILE {
    FLAC__StreamDecoder *decoder;
@@ -39,6 +42,98 @@ typedef struct FLACFILE {
    ALLEGRO_FILE *fh;
    uint64_t loop_start, loop_end; /* in samples */
 } FLACFILE;
+
+
+/* dynamic loading support (Windows only currently) */
+#ifdef ALLEGRO_CFG_ACODEC_FLAC_DLL
+static void *flac_dll = NULL;
+#endif
+
+static struct
+{
+   FLAC__StreamDecoder *(*FLAC__stream_decoder_new)(void);
+   void (*FLAC__stream_decoder_delete)(FLAC__StreamDecoder *decoder);
+   FLAC__StreamDecoderInitStatus (*FLAC__stream_decoder_init_stream)(
+      FLAC__StreamDecoder *decoder,
+      FLAC__StreamDecoderReadCallback read_callback,
+      FLAC__StreamDecoderSeekCallback seek_callback,
+      FLAC__StreamDecoderTellCallback tell_callback,
+      FLAC__StreamDecoderLengthCallback length_callback,
+      FLAC__StreamDecoderEofCallback eof_callback,
+      FLAC__StreamDecoderWriteCallback write_callback,
+      FLAC__StreamDecoderMetadataCallback metadata_callback,
+      FLAC__StreamDecoderErrorCallback error_callback,
+      void *client_data);
+   FLAC__bool (*FLAC__stream_decoder_process_single)(FLAC__StreamDecoder *decoder);
+   FLAC__bool (*FLAC__stream_decoder_process_until_end_of_metadata)(FLAC__StreamDecoder *decoder);
+   FLAC__bool (*FLAC__stream_decoder_process_until_end_of_stream)(FLAC__StreamDecoder *decoder);
+   FLAC__bool (*FLAC__stream_decoder_seek_absolute)(FLAC__StreamDecoder *decoder, FLAC__uint64 sample);
+   FLAC__bool (*FLAC__stream_decoder_flush)(FLAC__StreamDecoder *decoder);
+   FLAC__bool (*FLAC__stream_decoder_finish)(FLAC__StreamDecoder *decoder);
+} lib;
+
+
+#ifdef ALLEGRO_CFG_ACODEC_FLAC_DLL
+static void shutdown_dynlib(void)
+{
+   if (flac_dll) {
+      _al_close_library(flac_dll);
+      flac_dll = NULL;
+   }
+}
+#endif
+
+
+static bool init_dynlib(void)
+{
+#ifdef ALLEGRO_CFG_ACODEC_FLAC_DLL
+   if (flac_dll) {
+      return true;
+   }
+
+   flac_dll = _al_open_library(ALLEGRO_CFG_ACODEC_FLAC_DLL);
+   if (!flac_dll) {
+      ALLEGRO_WARN("Could not load " ALLEGRO_CFG_ACODEC_FLAC_DLL "\n");
+      return false;
+   }
+
+   _al_add_exit_func(shutdown_dynlib, "shutdown_dynlib");
+
+   #define INITSYM(x)   (lib.x = _al_import_symbol(flac_dll, #x))
+#else
+   #define INITSYM(x)   (lib.x = (x))
+#endif
+
+   memset(&lib, 0, sizeof(lib));
+
+   INITSYM(FLAC__stream_decoder_new);
+   INITSYM(FLAC__stream_decoder_delete);
+   INITSYM(FLAC__stream_decoder_init_stream);
+   INITSYM(FLAC__stream_decoder_process_single);
+   INITSYM(FLAC__stream_decoder_process_until_end_of_metadata);
+   INITSYM(FLAC__stream_decoder_process_until_end_of_stream);
+   INITSYM(FLAC__stream_decoder_seek_absolute);
+   INITSYM(FLAC__stream_decoder_flush);
+   INITSYM(FLAC__stream_decoder_finish);
+
+   /* Check that all symbols are defined. */
+   {
+      intptr_t *p = (intptr_t *) &lib;
+      size_t n = sizeof(lib) / sizeof(void *);
+      unsigned i;
+
+      for (i = 0; i < n; i++) {
+         if (p[i] == 0) {
+            ALLEGRO_ERROR("undefined symbol in lib structure\n");
+            return false;
+         }
+      }
+   }
+
+   return true;
+
+#undef INITSYM
+}
 
 
 static FLAC__StreamDecoderReadStatus read_callback(const FLAC__StreamDecoder *decoder,
@@ -144,8 +239,12 @@ static void error_callback(const FLAC__StreamDecoder *decoder,
    (void)decoder;
    (void)client_data;
 
+#ifdef ALLEGRO_CFG_ACODEC_FLAC_DLL
+   ALLEGRO_ERROR("Got FLAC error callback\n"); /* lazy */
+#else
    ALLEGRO_ERROR("Got FLAC error callback: %s\n",
       FLAC__StreamDecoderErrorStatusString[status]);
+#endif
 }
 
 
@@ -239,8 +338,8 @@ static FLAC__StreamDecoderWriteStatus write_callback(
 
 static void flac_close(FLACFILE *ff)
 {
-   FLAC__stream_decoder_finish(ff->decoder);
-   FLAC__stream_decoder_delete(ff->decoder);
+   lib.FLAC__stream_decoder_finish(ff->decoder);
+   lib.FLAC__stream_decoder_delete(ff->decoder);
    al_fclose(ff->fh);
    _AL_FREE(ff);
 }
@@ -284,7 +383,7 @@ static size_t flac_stream_update(ALLEGRO_AUDIO_STREAM *stream, void *data,
        * buffer keeps growing - so only refill when needed.
        */
       if (!read_samples) {
-         if (!FLAC__stream_decoder_process_single(ff->decoder))
+         if (!lib.FLAC__stream_decoder_process_single(ff->decoder))
             break;
          read_samples = ff->decoded_samples - ff->streamed_samples;
          if (!read_samples) {
@@ -325,8 +424,8 @@ static bool real_seek(ALLEGRO_AUDIO_STREAM *stream, uint64_t sample)
     * when seeking - that is, we call flush below to make the FLAC decoder
     * discard any additional samples it may have buffered already.
     * */
-   FLAC__stream_decoder_flush(ff->decoder);
-   FLAC__stream_decoder_seek_absolute(ff->decoder, sample);
+   lib.FLAC__stream_decoder_flush(ff->decoder);
+   lib.FLAC__stream_decoder_seek_absolute(ff->decoder, sample);
 
    ff->buffer_pos = 0;
    ff->streamed_samples = sample;
@@ -367,10 +466,14 @@ static FLACFILE *flac_open(ALLEGRO_FILE* f)
    FLACFILE *ff;
    FLAC__StreamDecoderInitStatus init_status;
 
+   if (!init_dynlib()) {
+      return NULL;
+   }
+
    ff = _AL_MALLOC(sizeof *ff);
    memset(ff, 0, sizeof *ff);
 
-   ff->decoder = FLAC__stream_decoder_new();
+   ff->decoder = lib.FLAC__stream_decoder_new();
    if (!ff->decoder) {
       ALLEGRO_ERROR("Error allocating FLAC decoder\n");
       goto error;
@@ -381,17 +484,21 @@ static FLACFILE *flac_open(ALLEGRO_FILE* f)
       ALLEGRO_ERROR("Error opening FLAC file\n");
       goto error;
    }
-   
-   init_status = FLAC__stream_decoder_init_stream(ff->decoder, read_callback,
+
+   init_status = lib.FLAC__stream_decoder_init_stream(ff->decoder, read_callback,
       seek_callback, tell_callback, length_callback, eof_callback,
       write_callback, metadata_callback, error_callback, ff);
    if (init_status != FLAC__STREAM_DECODER_INIT_STATUS_OK) {
+#ifdef ALLEGRO_CFG_ACODEC_FLAC_DLL
+      ALLEGRO_ERROR("Error initializing FLAC decoder\n"); /* lazy */
+#else
       ALLEGRO_ERROR("Error initializing FLAC decoder: %s\n",
          FLAC__StreamDecoderInitStatusString[init_status]);
+#endif
       goto error;
    }
 
-   FLAC__stream_decoder_process_until_end_of_metadata(ff->decoder);
+   lib.FLAC__stream_decoder_process_until_end_of_metadata(ff->decoder);
 
    if (ff->sample_size == 0) {
       ALLEGRO_ERROR("Error: don't support sub 8-bit sizes\n");
@@ -405,10 +512,15 @@ static FLACFILE *flac_open(ALLEGRO_FILE* f)
    ALLEGRO_INFO("    total_samples %ld\n", (long) ff->total_samples);
 
    return ff;
+
 error:
-   if (ff && ff->decoder) FLAC__stream_decoder_delete(ff->decoder);
-   if (ff && ff->fh) al_fclose(ff->fh);
-   if (ff) _AL_FREE(ff);
+   if (ff) {
+      if (ff->decoder)
+         lib.FLAC__stream_decoder_delete(ff->decoder);
+      if (ff)
+         al_fclose(ff->fh);
+      _AL_FREE(ff);
+   }
    return NULL;
 }
 
@@ -430,12 +542,17 @@ ALLEGRO_SAMPLE *_al_load_flac(const char *filename)
 ALLEGRO_SAMPLE *_al_load_flac_f(ALLEGRO_FILE *f)
 {
    ALLEGRO_SAMPLE *sample;
-   FLACFILE *ff = flac_open(f);
+   FLACFILE *ff;
+
+   ff = flac_open(f);
+   if (!ff) {
+      return NULL;
+   }
 
    ff->buffer_size = ff->total_samples * ff->channels * ff->sample_size;
    ff->buffer = _AL_MALLOC_ATOMIC(ff->buffer_size);
 
-   FLAC__stream_decoder_process_until_end_of_stream(ff->decoder);
+   lib.FLAC__stream_decoder_process_until_end_of_stream(ff->decoder);
 
    sample = al_create_sample(ff->buffer, ff->total_samples, ff->sample_rate,
       _al_word_size_to_depth_conf(ff->sample_size),
@@ -470,7 +587,12 @@ ALLEGRO_AUDIO_STREAM *_al_load_flac_audio_stream_f(ALLEGRO_FILE* f,
    size_t buffer_count, unsigned int samples)
 {
    ALLEGRO_AUDIO_STREAM *stream;
-   FLACFILE *ff = flac_open(f);
+   FLACFILE *ff;
+
+   ff = flac_open(f);
+   if (!ff) {
+      return NULL;
+   }
 
    stream = al_create_audio_stream(buffer_count, samples, ff->sample_rate,
       _al_word_size_to_depth_conf(ff->sample_size),
@@ -489,6 +611,9 @@ ALLEGRO_AUDIO_STREAM *_al_load_flac_audio_stream_f(ALLEGRO_FILE* f,
       stream->get_feeder_length = flac_stream_get_length;
       stream->set_feeder_loop = flac_stream_set_loop;
       al_start_thread(stream->feed_thread);
+   }
+   else {
+      /* XXX clean up */
    }
 
    return stream;
