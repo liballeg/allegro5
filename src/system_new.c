@@ -21,6 +21,7 @@
 #include "allegro5/allegro5.h"
 #include "allegro5/internal/aintern.h"
 #include ALLEGRO_INTERNAL_HEADER
+#include "allegro5/internal/aintern_bitmap.h"
 #include "allegro5/internal/aintern_dtor.h"
 #include "allegro5/internal/aintern_system.h"
 #include "allegro5/internal/aintern_vector.h"
@@ -241,6 +242,8 @@ bool al_install_system(int version, int (*atexit_ptr)(void (*)(void)))
    _al_init_events();
 
    _al_init_pixels();
+
+   _al_init_iio_table();
 
    if (atexit_ptr && atexit_virgin) {
       atexit_ptr(al_uninstall_system);

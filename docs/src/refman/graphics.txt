@@ -787,3 +787,100 @@ See also: [al_is_bitmap_drawing_held]
 Returns whether the deferred bitmap drawing mode is turned on or off.
 
 See also: [al_hold_bitmap_drawing]
+
+
+
+## Image I/O
+
+### API: al_register_bitmap_loader
+
+Register a handler for [al_load_bitmap].  The given function will be used to
+handle the loading of bitmaps files with the given extension.
+
+The extension should include the leading dot ('.') character.
+It will be matched case-insensitively.
+
+The `loader` argument may be NULL to unregister an entry.
+
+Returns true on success, false on error.
+Returns false if unregistering an entry that doesn't exist.
+
+### API: al_register_bitmap_saver
+
+Register a handler for [al_save_bitmap].  The given function will be used to
+handle the loading of bitmaps files with the given extension.
+
+The extension should include the leading dot ('.') character.
+It will be matched case-insensitively.
+
+The `saver` argument may be NULL to unregister an entry.
+
+Returns true on success, false on error.
+Returns false if unregistering an entry that doesn't exist.
+
+### API: al_register_bitmap_loader_f
+
+Register a handler for [al_load_bitmap_f].  The given function will be
+used to handle the loading of bitmaps files with the given extension.
+
+The extension should include the leading dot ('.') character.
+It will be matched case-insensitively.
+
+The `fs_loader` argument may be NULL to unregister an entry.
+
+Returns true on success, false on error.
+Returns false if unregistering an entry that doesn't exist.
+
+### API: al_register_bitmap_saver_f
+
+Register a handler for [al_save_bitmap_f].  The given function will be
+used to handle the loading of bitmaps files with the given extension.
+
+The extension should include the leading dot ('.') character.
+It will be matched case-insensitively.
+
+The `saver_f` argument may be NULL to unregister an entry.
+
+Returns true on success, false on error.
+Returns false if unregistering an entry that doesn't exist.
+
+### API: al_load_bitmap
+
+Loads an image file into an ALLEGRO_BITMAP.
+The file type is determined by the extension.
+
+Returns NULL on error.
+
+See also: [al_load_bitmap_f], [al_register_bitmap_loader],
+[al_set_new_bitmap_format], [al_set_new_bitmap_flags],
+[al_init_image_addon]
+
+### API: al_load_bitmap_f
+
+Loads an image from an ALLEGRO_FILE stream into an ALLEGRO_BITMAP.
+The file type is determined by the passed 'ident' parameter, which is a file
+name extension including the leading dot.
+
+Returns NULL on error.
+
+See also: [al_load_bitmap], [al_register_bitmap_loader_f]
+
+### API: al_save_bitmap
+
+Saves an ALLEGRO_BITMAP to an image file.
+The file type is determined by the extension.
+
+Returns true on success, false on error.
+
+See also: [al_save_bitmap_f], [al_register_bitmap_saver], [al_init_image_addon]
+
+### API: al_save_bitmap_f
+
+Saves an ALLEGRO_BITMAP to an ALLEGRO_FILE stream.
+The file type is determined by the passed 'ident' parameter, which is a file
+name extension including the leading dot.
+
+Returns true on success, false on error.
+
+See also: [al_save_bitmap], [al_register_bitmap_saver_f]
+
