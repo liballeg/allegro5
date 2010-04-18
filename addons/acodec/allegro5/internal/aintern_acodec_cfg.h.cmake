@@ -4,3 +4,4 @@
 
 /* Define if the library should be loaded dynamically. */
 #cmakedefine ALLEGRO_CFG_ACODEC_FLAC_DLL "@ALLEGRO_CFG_ACODEC_FLAC_DLL@"
+#cmakedefine ALLEGRO_CFG_ACODEC_VORBISFILE_DLL "@ALLEGRO_CFG_ACODEC_VORBISFILE_DLL@"

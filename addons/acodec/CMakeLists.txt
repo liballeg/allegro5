@@ -131,6 +131,7 @@ if(WANT_VORBIS)
                     OggVorbis_File f;
                     ov_callbacks callback;
                     vorbis_info *v = 0;
+                    (void)v;
                     ov_info(&f, -1);
                     callback = OV_CALLBACKS_NOCLOSE;
                     return 0;
@@ -153,16 +154,32 @@ if(WANT_VORBIS)
         set(CMAKE_REQUIRED_INCLUDES)
         set(CMAKE_REQUIRED_LIBRARIES)
         if(VORBIS_COMPILES)
-            set(ALLEGRO_CFG_ACODEC_VORBIS 1)
-            list(APPEND ACODEC_SOURCES ogg.c)
-            # XXX WANT_ACODEC_DYNAMIC_LOAD
-            list(APPEND ACODEC_LIBRARIES ${VORBIS_LIBRARIES})
-            include_directories(SYSTEM ${OGG_INCLUDE_DIR} ${VORBIS_INCLUDE_DIR})
+            set(SUPPORT_VORBIS 1)
         endif(VORBIS_COMPILES)
     else(VORBIS_FOUND)
         message("WARNING: libvorbis not found, disabling support.")
     endif(VORBIS_FOUND)
 endif(WANT_VORBIS)
+
+if(SUPPORT_VORBIS)
+    include_directories(SYSTEM ${OGG_INCLUDE_DIR} ${VORBIS_INCLUDE_DIR})
+    set(ALLEGRO_CFG_ACODEC_VORBIS 1)
+    list(APPEND ACODEC_SOURCES ogg.c)
+
+    if(WIN32 AND WANT_ACODEC_DYNAMIC_LOAD)
+        if(VORBISFILE_LIBRARY MATCHES "${WIN32_STATIC_LIB_REGEX}")
+            message("WARNING: Dynamic loading will be disabled for Vorbis"
+                    " as static library was found: ${VORBISFILE_LIBRARY}")
+        else()
+            get_filename_component(VORBISFILE_BASENAME "${VORBISFILE_LIBRARY}" NAME_WE)
+            set(ALLEGRO_CFG_ACODEC_VORBISFILE_DLL "${VORBISFILE_BASENAME}.dll")
+        endif()
+    endif()
+
+    if(NOT ALLEGRO_CFG_ACODEC_VORBISFILE_DLL)
+        list(APPEND ACODEC_LIBRARIES ${VORBIS_LIBRARIES})
+    endif()
+endif(SUPPORT_VORBIS)
 
 configure_file(
     allegro5/internal/aintern_acodec_cfg.h.cmake

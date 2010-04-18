@@ -7,8 +7,10 @@
 #include "allegro5/allegro5.h"
 #include "allegro5/allegro_acodec.h"
 #include "allegro5/allegro_audio.h"
+#include "allegro5/internal/aintern.h"
 #include "allegro5/internal/aintern_audio.h"
 #include "allegro5/internal/aintern_memory.h"
+#include "allegro5/internal/aintern_system.h"
 #include "acodec.h"
 
 ALLEGRO_DEBUG_CHANNEL("acodec")
@@ -17,7 +19,8 @@ ALLEGRO_DEBUG_CHANNEL("acodec")
 #if !defined(ALLEGRO_GP2XWIZ) && !defined(ALLEGRO_IPHONE)
 #include <vorbis/vorbisfile.h>
 #else
-#include <ivorbisfile.h>
+#include <tremor/ivorbisfile.h>
+#define TREMOR 1
 #endif
 
 typedef struct AL_OV_DATA AL_OV_DATA;
@@ -30,6 +33,100 @@ struct AL_OV_DATA {
    double loop_start;
    double loop_end;
 };
+
+
+/* dynamic loading support (Windows only currently) */
+#ifdef ALLEGRO_CFG_ACODEC_VORBISFILE_DLL
+static void *ov_dll = NULL;
+#endif
+
+static struct
+{
+   int (*ov_clear)(OggVorbis_File *);
+   int (*ov_open_callbacks)(void *, OggVorbis_File *, char *, long, ov_callbacks);
+   ogg_int64_t (*ov_pcm_total)(OggVorbis_File *, int);
+   vorbis_info *(*ov_info)(OggVorbis_File *, int);
+#ifndef TREMOR
+   double (*ov_time_total)(OggVorbis_File *, int);
+   int (*ov_time_seek_lap)(OggVorbis_File *, double);
+   double (*ov_time_tell)(OggVorbis_File *);
+   long (*ov_read)(OggVorbis_File *, char *, int, int, int, int, int *);
+#else
+   ogg_int64_t (*ov_time_total)(OggVorbis_File *, int);
+   int (*ov_time_seek)(OggVorbis_File *, ogg_int64_t);
+   ogg_int64_t (*ov_time_tell)(OggVorbis_File *);
+   long (*ov_read)(OggVorbis_File *, char *, int, int *);
+#endif
+} lib;
+
+
+#ifdef ALLEGRO_CFG_ACODEC_VORBISFILE_DLL
+static void shutdown_dynlib(void)
+{
+   if (ov_dll) {
+      _al_close_library(ov_dll);
+      ov_dll = NULL;
+   }
+}
+#endif
+
+
+static bool init_dynlib(void)
+{
+#ifdef ALLEGRO_CFG_ACODEC_VORBISFILE_DLL
+   if (ov_dll) {
+      return true;
+   }
+
+   ov_dll = _al_open_library(ALLEGRO_CFG_ACODEC_VORBISFILE_DLL);
+   if (!ov_dll) {
+      ALLEGRO_WARN("Could not load " ALLEGRO_CFG_ACODEC_VORBISFILE_DLL "\n");
+      return false;
+   }
+
+   _al_add_exit_func(shutdown_dynlib, "shutdown_dynlib");
+
+   #define INITSYM(x)   (lib.x = _al_import_symbol(ov_dll, #x))
+#else
+   #define INITSYM(x)   (lib.x = (x))
+#endif
+
+   memset(&lib, 0, sizeof(lib));
+
+   INITSYM(ov_clear);
+   INITSYM(ov_open_callbacks);
+   INITSYM(ov_pcm_total);
+   INITSYM(ov_info);
+#ifndef TREMOR
+   INITSYM(ov_time_total);
+   INITSYM(ov_time_seek_lap);
+   INITSYM(ov_time_tell);
+   INITSYM(ov_read);
+#else
+   INITSYM(ov_time_total);
+   INITSYM(ov_time_seek);
+   INITSYM(ov_time_tell);
+   INITSYM(ov_read);
+#endif
+
+   /* Check that all symbols are defined. */
+   {
+      intptr_t *p = (intptr_t *) &lib;
+      size_t n = sizeof(lib) / sizeof(void *);
+      unsigned i;
+
+      for (i = 0; i < n; i++) {
+         if (p[i] == 0) {
+            ALLEGRO_ERROR("undefined symbol in lib structure\n");
+            return false;
+         }
+      }
+   }
+
+   return true;
+
+#undef INITSYM
+}
 
 
 static size_t read_callback(void *ptr, size_t size, size_t nmemb, void *dptr)
@@ -134,22 +231,22 @@ ALLEGRO_SAMPLE *_al_load_ogg_vorbis_f(ALLEGRO_FILE *file)
    long total_size;
    AL_OV_DATA ov;
 
-   if (file == NULL) {
-      ALLEGRO_WARN("Audio file failed to open.\n");
+   if (!init_dynlib()) {
       return NULL;
    }
+
    ov.file = file;
-   if (ov_open_callbacks(&ov, &vf, NULL, 0, callbacks) < 0) {
+   if (lib.ov_open_callbacks(&ov, &vf, NULL, 0, callbacks) < 0) {
       ALLEGRO_WARN("Audio file does not appear to be an Ogg bitstream.\n");
       al_fclose(file);
       return NULL;
    }
 
-   vi = ov_info(&vf, -1);
+   vi = lib.ov_info(&vf, -1);
 
    channels = vi->channels;
    rate = vi->rate;
-   total_samples = ov_pcm_total(&vf, -1);
+   total_samples = lib.ov_pcm_total(&vf, -1);
    bitstream = -1;
    total_size = total_samples * channels * word_size;
 
@@ -168,20 +265,20 @@ ALLEGRO_SAMPLE *_al_load_ogg_vorbis_f(ALLEGRO_FILE *file)
    pos = 0;
    while (pos < total_size) {
       /* XXX error handling */
-#if !defined(ALLEGRO_GP2XWIZ) && !defined(ALLEGRO_IPHONE)
-      long read = ov_read(&vf, buffer + pos, packet_size, endian, word_size,
+#ifndef TREMOR
+      long read = lib.ov_read(&vf, buffer + pos, packet_size, endian, word_size,
          signedness, &bitstream);
 #else
       (void)endian;
       (void)signedness;
-      long read = ov_read(&vf, buffer + pos, packet_size, &bitstream);
+      long read = lib.ov_read(&vf, buffer + pos, packet_size, &bitstream);
 #endif
       pos += read;
       if (read == 0)
          break;
    }
 
-   ov_clear(&vf);
+   lib.ov_clear(&vf);
 
    sample = al_create_sample(buffer, total_samples, rate,
       _al_word_size_to_depth_conf(word_size),
@@ -200,10 +297,10 @@ static bool ogg_stream_seek(ALLEGRO_AUDIO_STREAM *stream, double time)
    AL_OV_DATA *extra = (AL_OV_DATA *) stream->extra;
    if (time >= extra->loop_end)
       return false;
-#if !defined(ALLEGRO_GP2XWIZ) && !defined(ALLEGRO_IPHONE) 
-   return (ov_time_seek_lap(extra->vf, time) != -1);
+#ifndef TREMOR
+   return (lib.ov_time_seek_lap(extra->vf, time) != -1);
 #else
-   return ov_time_seek(extra->vf, time*1000) != -1;
+   return lib.ov_time_seek(extra->vf, time*1000) != -1;
 #endif
 }
 
@@ -218,10 +315,10 @@ static bool ogg_stream_rewind(ALLEGRO_AUDIO_STREAM *stream)
 static double ogg_stream_get_position(ALLEGRO_AUDIO_STREAM *stream)
 {
    AL_OV_DATA *extra = (AL_OV_DATA *) stream->extra;
-#if !defined(ALLEGRO_GP2XWIZ) && !defined(ALLEGRO_IPHONE)
-   return ov_time_tell(extra->vf);
+#ifndef TREMOR
+   return lib.ov_time_tell(extra->vf);
 #else
-   return ov_time_tell(extra->vf)/1000.0;
+   return lib.ov_time_tell(extra->vf)/1000.0;
 #endif
 }
 
@@ -229,10 +326,10 @@ static double ogg_stream_get_position(ALLEGRO_AUDIO_STREAM *stream)
 static double ogg_stream_get_length(ALLEGRO_AUDIO_STREAM *stream)
 {
    AL_OV_DATA *extra = (AL_OV_DATA *) stream->extra;
-#if !defined(ALLEGRO_GP2XWIZ) && !defined(ALLEGRO_IPHONE)
-   double ret = ov_time_total(extra->vf, -1);
+#ifndef TREMOR
+   double ret = lib.ov_time_total(extra->vf, -1);
 #else
-   double ret = ov_time_total(extra->vf, -1)/1000.0;
+   double ret = lib.ov_time_total(extra->vf, -1)/1000.0;
 #endif
    return ret;
 }
@@ -261,7 +358,7 @@ static void ogg_stream_close(ALLEGRO_AUDIO_STREAM *stream)
    al_join_thread(stream->feed_thread, NULL);
    al_destroy_thread(stream->feed_thread);
 
-   ov_clear(extra->vf);
+   lib.ov_clear(extra->vf);
    _AL_FREE(extra->vf);
    _AL_FREE(extra);
    stream->extra = NULL;
@@ -284,10 +381,10 @@ static size_t ogg_stream_update(ALLEGRO_AUDIO_STREAM *stream, void *data,
 
    unsigned long pos = 0;
    int read_length = buf_size;
-#if !defined(ALLEGRO_GP2XWIZ) && !defined(ALLEGRO_IPHONE)
-   double ctime = ov_time_tell(extra->vf);
+#ifndef TREMOR
+   double ctime = lib.ov_time_tell(extra->vf);
 #else
-   double ctime = ov_time_tell(extra->vf)/1000.0;
+   double ctime = lib.ov_time_tell(extra->vf)/1000.0;
 #endif
    double rate = extra->vi->rate;
    double btime = ((double)buf_size / (double)word_size) / rate;
@@ -301,15 +398,14 @@ static size_t ogg_stream_update(ALLEGRO_AUDIO_STREAM *stream, void *data,
          }
       }
    while (pos < (unsigned long)read_length) {
-#if !defined(ALLEGRO_GP2XWIZ) && !defined(ALLEGRO_IPHONE)
-      unsigned long read = ov_read(extra->vf, (char *)data + pos,
-                                   read_length - pos, endian, word_size,
-                                   signedness, &extra->bitstream);
+#ifndef TREMOR
+      unsigned long read = lib.ov_read(extra->vf, (char *)data + pos,
+         read_length - pos, endian, word_size, signedness, &extra->bitstream);
 #else
       (void)endian;
       (void)signedness;
-      unsigned long read = ov_read(extra->vf, (char *)data + pos,
-                                   read_length - pos, &extra->bitstream);
+      unsigned long read = lib.ov_read(extra->vf, (char *)data + pos,
+         read_length - pos, &extra->bitstream);
 #endif
       pos += read;
 	   
@@ -359,22 +455,20 @@ ALLEGRO_AUDIO_STREAM *_al_load_ogg_vorbis_audio_stream_f(ALLEGRO_FILE *file,
    AL_OV_DATA* extra;
    ALLEGRO_AUDIO_STREAM* stream;
 
+   if (!init_dynlib()) {
+      return NULL;
+   }
+
    extra = _AL_MALLOC(sizeof(AL_OV_DATA));
    if (extra == NULL) {
       ALLEGRO_ERROR("Failed to allocate AL_OV_DATA struct.\n");
       return NULL;
    }
-   
-   if (file == NULL) {
-      ALLEGRO_WARN("File failed to open\n");
-      fprintf(stderr, "File failed to open\n");
-      return NULL;
-   }
-   
+
    extra->file = file;
    
    vf = _AL_MALLOC(sizeof(OggVorbis_File));
-   if (ov_open_callbacks(extra, vf, NULL, 0, callbacks) < 0) {
+   if (lib.ov_open_callbacks(extra, vf, NULL, 0, callbacks) < 0) {
       ALLEGRO_WARN("ogg: Input does not appear to be an Ogg bitstream.\n");
       al_fclose(file);
       return NULL;
@@ -382,10 +476,10 @@ ALLEGRO_AUDIO_STREAM *_al_load_ogg_vorbis_audio_stream_f(ALLEGRO_FILE *file,
 
    extra->vf = vf;
 
-   vi = ov_info(vf, -1);
+   vi = lib.ov_info(vf, -1);
    channels = vi->channels;
    rate = vi->rate;
-   total_samples = ov_pcm_total(vf,-1);
+   total_samples = lib.ov_pcm_total(vf, -1);
    total_size = total_samples * channels * word_size;
 
    extra->vi = vi;
@@ -402,6 +496,7 @@ ALLEGRO_AUDIO_STREAM *_al_load_ogg_vorbis_audio_stream_f(ALLEGRO_FILE *file,
             _al_word_size_to_depth_conf(word_size),
             _al_count_to_channel_conf(channels));
    if (!stream) {
+      lib.ov_clear(vf);
       free(vf);
       return NULL;
    }
