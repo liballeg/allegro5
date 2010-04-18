@@ -10,11 +10,16 @@
 #include "allegro5/internal/aintern.h"
 #include "allegro5/internal/aintern_audio.h"
 #include "allegro5/internal/aintern_memory.h"
+#include "allegro5/internal/aintern_system.h"
 #include "acodec.h"
 
 #include <dumb.h>
 #include <stdio.h>
 
+ALLEGRO_DEBUG_CHANNEL("acodec")
+
+
+/* forward declarations */
 static size_t duh_stream_update(ALLEGRO_AUDIO_STREAM *stream, void *data,
    size_t buf_size);
 static bool duh_stream_rewind(ALLEGRO_AUDIO_STREAM *stream);
@@ -23,6 +28,7 @@ static double duh_stream_get_position(ALLEGRO_AUDIO_STREAM *stream);
 static double duh_stream_get_length(ALLEGRO_AUDIO_STREAM *stream);
 static bool duh_stream_set_loop(ALLEGRO_AUDIO_STREAM *stream, double start, double end);
 static void duh_stream_close(ALLEGRO_AUDIO_STREAM *stream);
+
 
 typedef struct MOD_FILE
 {
@@ -33,7 +39,32 @@ typedef struct MOD_FILE
    long loop_start, loop_end;
 } MOD_FILE;
 
+
 static bool libdumb_loaded = false;
+
+
+/* dynamic loading support (Windows only currently) */
+#ifdef ALLEGRO_CFG_ACODEC_FLAC_DLL
+static void *dumb_dll = NULL;
+#endif
+
+static struct
+{
+   long (*duh_render)(DUH_SIGRENDERER *, int, int, float, float, long, void *);
+   long (*duh_sigrenderer_get_position)(DUH_SIGRENDERER *);
+   void (*duh_end_sigrenderer)(DUH_SIGRENDERER *);
+   void (*unload_duh)(DUH *);
+   DUH_SIGRENDERER *(*duh_start_sigrenderer)(DUH *, int, int, long);
+   DUMBFILE *(*dumbfile_open_ex)(void *, DUMBFILE_SYSTEM *);
+   long (*duh_get_length)(DUH *);
+   void (*dumb_exit)(void);
+   void (*register_dumbfile_system)(DUMBFILE_SYSTEM *);
+   DUH *(*dumb_read_it)(DUMBFILE *);
+   DUH *(*dumb_read_xm)(DUMBFILE *);
+   DUH *(*dumb_read_s3m)(DUMBFILE *);
+   DUH *(*dumb_read_mod)(DUMBFILE *);
+} lib;
+
 
 /* Set up DUMB's file system */
 static DUMBFILE_SYSTEM dfs, dfs_f;
@@ -75,7 +106,7 @@ static size_t duh_stream_update(ALLEGRO_AUDIO_STREAM *stream, void *data,
    size_t written;
    size_t i;
    
-   written = duh_render(df->sig, 16, 0, 1.0, 65536.0 / 44100.0,
+   written = lib.duh_render(df->sig, 16, 0, 1.0, 65536.0 / 44100.0,
       buf_size / sample_size, data) * sample_size;
 
    /* Fill the remainder with silence */
@@ -84,7 +115,7 @@ static size_t duh_stream_update(ALLEGRO_AUDIO_STREAM *stream, void *data,
    
    /* Check to see if a loop is set */
    if (df->loop_start != -1 && 
-      df->loop_end < duh_sigrenderer_get_position(df->sig)) {
+      df->loop_end < lib.duh_sigrenderer_get_position(df->sig)) {
          duh_stream_seek(stream, df->loop_start / 65536.0);
    }   
    
@@ -95,8 +126,8 @@ static void duh_stream_close(ALLEGRO_AUDIO_STREAM *stream)
 {
    MOD_FILE *const df = stream->extra;
    
-   duh_end_sigrenderer(df->sig);
-   unload_duh(df->duh);
+   lib.duh_end_sigrenderer(df->sig);
+   lib.unload_duh(df->duh);
    if (df->fh)
       al_fclose(df->fh);
 }
@@ -104,8 +135,8 @@ static void duh_stream_close(ALLEGRO_AUDIO_STREAM *stream)
 static bool duh_stream_rewind(ALLEGRO_AUDIO_STREAM *stream)
 {
    MOD_FILE *const df = stream->extra;
-   duh_end_sigrenderer(df->sig);
-   df->sig = duh_start_sigrenderer(df->duh, 0, 2, 0);   
+   lib.duh_end_sigrenderer(df->sig);
+   df->sig = lib.duh_start_sigrenderer(df->duh, 0, 2, 0);
    return true;
 }
 
@@ -113,8 +144,8 @@ static bool duh_stream_seek(ALLEGRO_AUDIO_STREAM *stream, double time)
 {
    MOD_FILE *const df = stream->extra;
    
-   duh_end_sigrenderer(df->sig);
-   df->sig = duh_start_sigrenderer(df->duh, 0, 2, time * 65536);
+   lib.duh_end_sigrenderer(df->sig);
+   df->sig = lib.duh_start_sigrenderer(df->duh, 0, 2, time * 65536);
    
    return false;
 }
@@ -122,7 +153,7 @@ static bool duh_stream_seek(ALLEGRO_AUDIO_STREAM *stream, double time)
 static double duh_stream_get_position(ALLEGRO_AUDIO_STREAM *stream)
 {
    MOD_FILE *const df = stream->extra;
-   return duh_sigrenderer_get_position(df->sig) / 65536.0;
+   return lib.duh_sigrenderer_get_position(df->sig) / 65536.0;
 }
 
 static double duh_stream_get_length(ALLEGRO_AUDIO_STREAM *stream)
@@ -152,7 +183,7 @@ static ALLEGRO_AUDIO_STREAM *mod_stream_init(ALLEGRO_FILE* f,
    DUH *duh;
    int64_t start_pos = -1;
    
-   df = dumbfile_open_ex(f, &dfs_f);
+   df = lib.dumbfile_open_ex(f, &dfs_f);
    if (!df)
       return NULL;
       
@@ -166,9 +197,9 @@ static ALLEGRO_AUDIO_STREAM *mod_stream_init(ALLEGRO_FILE* f,
       return NULL;
    }
 
-   sig = duh_start_sigrenderer(duh, 0, 2, 0);
+   sig = lib.duh_start_sigrenderer(duh, 0, 2, 0);
    if (!sig) {
-      unload_duh(duh);
+      lib.unload_duh(duh);
       return NULL;
    }
 
@@ -180,7 +211,7 @@ static ALLEGRO_AUDIO_STREAM *mod_stream_init(ALLEGRO_FILE* f,
       mf->duh = duh;
       mf->sig = sig;
       mf->fh = NULL;
-      mf->length = duh_get_length(duh) / 65536.0;
+      mf->length = lib.duh_get_length(duh) / 65536.0;
       if (mf->length < 0)
          mf->length = 0;
       mf->loop_start = -1;
@@ -197,6 +228,10 @@ static ALLEGRO_AUDIO_STREAM *mod_stream_init(ALLEGRO_FILE* f,
       stream->set_feeder_loop = duh_stream_set_loop;
       al_start_thread(stream->feed_thread);
    }
+   else {
+      lib.duh_end_sigrenderer(sig);
+      lib.unload_duh(duh);
+   }
 
    return stream;
 }
@@ -204,9 +239,16 @@ static ALLEGRO_AUDIO_STREAM *mod_stream_init(ALLEGRO_FILE* f,
 static void shutdown_libdumb(void)
 {
    if (libdumb_loaded) {
-      dumb_exit();
+      lib.dumb_exit();
       libdumb_loaded = false;
    }
+
+#ifdef ALLEGRO_CFG_ACODEC_DUMB_DLL
+   if (dumb_dll) {
+      _al_close_library(dumb_dll);
+      dumb_dll = NULL;
+   }
+#endif
 }
 
 static bool init_libdumb(void)
@@ -215,8 +257,50 @@ static bool init_libdumb(void)
       return true;
    }
 
+#ifdef ALLEGRO_CFG_ACODEC_DUMB_DLL
+   dumb_dll = _al_open_library(ALLEGRO_CFG_ACODEC_DUMB_DLL);
+   if (!dumb_dll) {
+      ALLEGRO_WARN("Could not load " ALLEGRO_CFG_ACODEC_DUMB_DLL "\n");
+      return false;
+   }
+
+   #define INITSYM(x)   (lib.x = _al_import_symbol(flac_dll, #x))
+#else
+   #define INITSYM(x)   (lib.x = (x))
+#endif
+
    _al_add_exit_func(shutdown_libdumb, "shutdown_libdumb");
-    
+
+   memset(&lib, 0, sizeof(lib));
+
+   INITSYM(duh_render);
+   INITSYM(duh_sigrenderer_get_position);
+   INITSYM(duh_end_sigrenderer);
+   INITSYM(unload_duh);
+   INITSYM(duh_start_sigrenderer);
+   INITSYM(dumbfile_open_ex);
+   INITSYM(duh_get_length);
+   INITSYM(dumb_exit);
+   INITSYM(register_dumbfile_system);
+   INITSYM(dumb_read_it);
+   INITSYM(dumb_read_xm);
+   INITSYM(dumb_read_s3m);
+   INITSYM(dumb_read_mod);
+
+   /* Check that all symbols are defined. */
+   {
+      intptr_t *p = (intptr_t *) &lib;
+      size_t n = sizeof(lib) / sizeof(void *);
+      unsigned i;
+
+      for (i = 0; i < n; i++) {
+         if (p[i] == 0) {
+            ALLEGRO_ERROR("undefined symbol in lib structure: %d\n", i);
+            return false;
+         }
+      }
+   }
+
    dfs.open = dfs_open;
    dfs.skip = dfs_skip;
    dfs.getc = dfs_getc;
@@ -224,7 +308,7 @@ static bool init_libdumb(void)
    dfs.close = dfs_close;
    
    /* Set up DUMB's default I/O to go through Allegro... */
-   register_dumbfile_system(&dfs);
+   lib.register_dumbfile_system(&dfs);
    
    /* But we'll actually use them through this version: */
    dfs_f = dfs;
@@ -325,7 +409,7 @@ ALLEGRO_AUDIO_STREAM *_al_load_mod_audio_stream_f(ALLEGRO_FILE *f,
    if (!init_libdumb())
       return NULL;
 
-   return mod_stream_init(f, buffer_count, samples, dumb_read_mod);
+   return mod_stream_init(f, buffer_count, samples, lib.dumb_read_mod);
 }
 
 ALLEGRO_AUDIO_STREAM *_al_load_it_audio_stream_f(ALLEGRO_FILE *f,
@@ -334,7 +418,7 @@ ALLEGRO_AUDIO_STREAM *_al_load_it_audio_stream_f(ALLEGRO_FILE *f,
    if (!init_libdumb())
       return NULL;
 
-   return mod_stream_init(f, buffer_count, samples, dumb_read_it);
+   return mod_stream_init(f, buffer_count, samples, lib.dumb_read_it);
 }
 
 ALLEGRO_AUDIO_STREAM *_al_load_xm_audio_stream_f(ALLEGRO_FILE *f,
@@ -343,7 +427,7 @@ ALLEGRO_AUDIO_STREAM *_al_load_xm_audio_stream_f(ALLEGRO_FILE *f,
    if (!init_libdumb())
       return NULL;
 
-   return mod_stream_init(f, buffer_count, samples, dumb_read_xm);
+   return mod_stream_init(f, buffer_count, samples, lib.dumb_read_xm);
 }
 
 ALLEGRO_AUDIO_STREAM *_al_load_s3m_audio_stream_f(ALLEGRO_FILE *f,
@@ -352,7 +436,7 @@ ALLEGRO_AUDIO_STREAM *_al_load_s3m_audio_stream_f(ALLEGRO_FILE *f,
    if (!init_libdumb())
       return NULL;
 
-   return mod_stream_init(f, buffer_count, samples, dumb_read_s3m);
+   return mod_stream_init(f, buffer_count, samples, lib.dumb_read_s3m);
 }
 
 /* vim: set sts=3 sw=3 et: */

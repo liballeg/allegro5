@@ -103,16 +103,32 @@ if(WANT_MODAUDIO)
         set(CMAKE_REQUIRED_INCLUDES)
         set(CMAKE_REQUIRED_LIBRARIES)
         if(DUMB_COMPILES)
-            set(ALLEGRO_CFG_ACODEC_MODAUDIO 1)
-            list(APPEND ACODEC_SOURCES modaudio.c)
-            # XXX WANT_ACODEC_DYNAMIC_LOAD
-            list(APPEND ACODEC_LIBRARIES ${DUMB_LIBRARIES})
-            include_directories(SYSTEM ${DUMB_INCLUDE_DIR})
+            set(SUPPORT_MODAUDIO 1)
         endif(DUMB_COMPILES)
     else(DUMB_FOUND)
         message("WARNING: libdumb not found, disabling support. <http://dumb.sourceforge.net/>")
     endif(DUMB_FOUND)
 endif(WANT_MODAUDIO)
+
+if(SUPPORT_MODAUDIO)
+    include_directories(SYSTEM ${DUMB_INCLUDE_DIR})
+    set(ALLEGRO_CFG_ACODEC_MODAUDIO 1)
+    list(APPEND ACODEC_SOURCES modaudio.c)
+
+    if(WIN32 AND WANT_ACODEC_DYNAMIC_LOAD)
+        if(DUMB_LIBRARY MATCHES "${WIN32_STATIC_LIB_REGEX}")
+            message("WARNING: Dynamic loading will be disabled for DUMB"
+                    " as static library was found: ${DUMB_LIBRARY}")
+        else()
+            get_filename_component(DUMB_BASENAME "${DUMB_LIBRARY}" NAME_WE)
+            set(ALLEGRO_CFG_ACODEC_DUMB_DLL "${DUMB_BASENAME}.dll")
+        endif()
+    endif()
+
+    if(NOT ALLEGRO_CFG_ACODEC_DUMB_DLL)
+        list(APPEND ACODEC_LIBRARIES ${DUMB_LIBRARIES})
+    endif()
+endif()
 
 #
 # Vorbis
