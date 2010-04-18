@@ -1,166 +1,22 @@
 # Audio codecs
 
-## FLAC addon
-
 These functions are declared in the following header file.
-Link with allegro_flac.
+Link with allegro_acodec.
 
-    #include <allegro5/allegro_flac.h>
+    #include <allegro5/allegro_acodec.h>
 
-### API: al_init_flac_addon
+### API: al_init_acodec_addon
 
-This function registers [al_load_flac] with [al_load_sample] to
-handle files with the extension ".flac".  You will need to include the
-`allegro_flac.h` header file and link with the `allegro_flac` library.
+This function registers all the known audio file type handlers for
+[al_load_sample], [al_save_sample], [al_load_audio_stream], etc.
+
+Depending on what libraries are available, the full set of recognised
+extensions is: .flac, .ogg, .it, .mod, .s3m, .xm.
 
 Return true on success.
 
-### API: al_get_allegro_flac_version
+### API: al_get_allegro_acodec_version
 
 Returns the (compiled) version of the addon, in the same format as
 [al_get_allegro_version].
-
-### API: al_load_flac
-
-Loads a sample in FLAC format.
-
-See also: [al_load_sample]
-
-### API: al_load_flac_f
-
-Loads a sample in FLAC format from the [ALLEGRO_FILE] stream given.
-
-See also: [al_load_sample_f]
-
-### API: al_load_flac_audio_stream
-
-Loads a stream in FLAC format.
-
-See also: [al_load_audio_stream]
-
-### API: al_load_flac_audio_stream_f
-
-Loads a stream in FLAC format from the [ALLEGRO_FILE] stream given.
-
-See also: [al_load_audio_stream_f]
-
-
-
-## MOD Audio addon
-
-These functions are declared in the following header file.
-Link with allegro_modaudio.
-
-    #include <allegro5/allegro_modaudio.h>
-
-
-### API: al_init_modaudio_addon
-
-This function registers [al_load_it_audio_stream], [al_load_mod_audio_stream],
-[al_load_s3m_audio_stream], and [al_load_xm_audio_stream] with
-[al_load_audio_stream] to handle files with the extensions ".it", ".mod", ".s3m",
-and ".xm".  You will need to include the `allegro_modaudio.h` header file and
-link with the `allegro_modaudio` library.
-
-Return true if every function is registered successfully.
-
-### API: al_get_allegro_modaudio_version
-
-Returns the (compiled) version of the addon, in the same format as
-[al_get_allegro_version].
-
-### API: al_load_it_audio_stream
-
-Loads a stream in the Impulse Tracker format.
-
-See also: [al_load_audio_stream]
-
-### API: al_load_it_audio_stream_f
-
-Loads a stream in the Impulse Tracker format from the [ALLEGRO_FILE] stream given.
-
-See also: [al_load_audio_stream_f]
-
-### API: al_load_mod_audio_stream
-
-Loads a stream in the Amiga Module format.
-
-See also: [al_load_audio_stream]
-
-### API: al_load_mod_audio_stream_f
-
-Loads a stream in the Amiga Module format from the [ALLEGRO_FILE] stream given.
-
-See also: [al_load_audio_stream_f]
-
-### API: al_load_s3m_audio_stream
-
-Loads a stream in the Scream Tracker 3 format.
-
-See also: [al_load_audio_stream]
-
-### API: al_load_s3m_audio_stream_f
-
-Loads a stream in the Scream Tracker 3 format from the [ALLEGRO_FILE] stream given.
-
-See also: [al_load_audio_stream_f]
-
-### API: al_load_xm_audio_stream
-
-Loads a stream in the Fast Tracker 2 format.
-
-See also: [al_load_audio_stream]
-
-### API: al_load_xm_audio_stream_f
-
-Loads a stream in Fast Tracker 2 format from the [ALLEGRO_FILE] stream given.
-
-See also: [al_load_audio_stream_f]
-
-
-
-## Ogg Vorbis addon
-
-These functions are declared in the following header file.
-Link with allegro_vorbis.
-
-    #include <allegro5/allegro_vorbis.h>
-
-### API: al_init_ogg_vorbis_addon
-
-This function registers [al_load_ogg_vorbis] with [al_load_sample]
-and [al_load_ogg_vorbis_audio_stream] with [al_load_audio_stream] to handle files
-with the extension ".ogg" (assumed to contain Vorbis data).  You will need to
-include the `allegro_vorbis.h` header file and link with the `allegro_vorbis` library.
-
-Return true on success.
-
-### API: al_get_allegro_ogg_vorbis_version
-
-Returns the (compiled) version of the addon, in the same format as
-[al_get_allegro_version].
-
-### API: al_load_ogg_vorbis
-
-Loads a sample in Ogg Vorbis format.
-
-See also: [al_load_sample]
-
-### API: al_load_ogg_vorbis_f
-
-Loads a sample in Ogg Vorbis format from the [ALLEGRO_FILE] stream given.
-
-See also: [al_load_sample_f]
-
-### API: al_load_ogg_vorbis_audio_stream
-
-Loads a stream in Ogg Vorbis format.
-
-See also: [al_load_audio_stream]
-
-### API: al_load_ogg_vorbis_audio_stream_f
-
-Loads a stream in Ogg Vorbis format from the [ALLEGRO_FILE] stream given.
-
-See also: [al_load_audio_stream_f]
 

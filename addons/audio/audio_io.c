@@ -1,5 +1,5 @@
 /*
- * Allegro audio codec loader.
+ * Allegro audio codec table.
  */
 
 #include "allegro5/allegro5.h"
@@ -27,42 +27,17 @@ struct ACODEC_TABLE
 };
 
 
-/* forward declarations */
-static void acodec_ensure_init(void);
-static void acodec_shutdown(void);
-static ACODEC_TABLE *find_acodec_table_entry(const char *ext);
-
-
 /* globals */
 static bool acodec_inited = false;
 static _AL_VECTOR acodec_table = _AL_VECTOR_INITIALIZER(ACODEC_TABLE);
 
 
-static void acodec_ensure_init(void)
-{
-   if (acodec_inited) {
-      return;
-   }
-
-   /* Must be before register calls to avoid recursion. */
-   acodec_inited = true;
-
-   al_register_sample_loader(".wav", al_load_wav);
-   al_register_sample_saver(".wav", al_save_wav);
-   al_register_audio_stream_loader(".wav", al_load_wav_audio_stream);
-   
-   al_register_sample_loader_f(".wav", al_load_wav_f);
-   al_register_sample_saver_f(".wav", al_save_wav_f);
-   al_register_audio_stream_loader_f(".wav", al_load_wav_audio_stream_f);
-
-   _al_add_exit_func(acodec_shutdown, "acodec_shutdown");
-}
-
-
 static void acodec_shutdown(void)
 {
-   _al_vector_free(&acodec_table);
-   acodec_inited = false;
+   if (acodec_inited) {
+      _al_vector_free(&acodec_table);
+      acodec_inited = false;
+   }
 }
 
 
@@ -71,7 +46,10 @@ static ACODEC_TABLE *find_acodec_table_entry(const char *ext)
    ACODEC_TABLE *ent;
    unsigned i;
 
-   acodec_ensure_init();
+   if (!acodec_inited) {
+      acodec_inited = true;
+      _al_add_exit_func(acodec_shutdown, "acodec_shutdown");
+   }
 
    for (i = 0; i < _al_vector_size(&acodec_table); i++) {
       ent = _al_vector_ref(&acodec_table, i);
@@ -128,6 +106,7 @@ bool al_register_sample_loader(const char *ext,
    return true;
 }
 
+
 /* Function: al_register_sample_loader_f
  */
 bool al_register_sample_loader_f(const char *ext,
@@ -153,6 +132,7 @@ bool al_register_sample_loader_f(const char *ext,
 
    return true;
 }
+
 
 /* Function: al_register_sample_saver
  */
@@ -180,6 +160,7 @@ bool al_register_sample_saver(const char *ext,
    return true;
 }
 
+
 /* Function: al_register_sample_saver_f
  */
 bool al_register_sample_saver_f(const char *ext,
@@ -205,6 +186,7 @@ bool al_register_sample_saver_f(const char *ext,
 
    return true;
 }
+
 
 /* Function: al_register_audio_stream_loader
  */
@@ -233,6 +215,7 @@ bool al_register_audio_stream_loader(const char *ext,
    return true;
 }
 
+
 /* Function: al_register_audio_stream_loader_f
  */
 bool al_register_audio_stream_loader_f(const char *ext,
@@ -260,6 +243,7 @@ bool al_register_audio_stream_loader_f(const char *ext,
    return true;
 }
 
+
 /* Function: al_load_sample
  */
 ALLEGRO_SAMPLE *al_load_sample(const char *filename)
@@ -279,6 +263,7 @@ ALLEGRO_SAMPLE *al_load_sample(const char *filename)
 
    return NULL;
 }
+
 
 /* Function: al_load_sample_f
  */
@@ -321,6 +306,7 @@ ALLEGRO_AUDIO_STREAM *al_load_audio_stream(const char *filename,
    return NULL;
 }
 
+
 /* Function: al_load_audio_stream_f
  */
 ALLEGRO_AUDIO_STREAM *al_load_audio_stream_f(ALLEGRO_FILE* fp, const char *ident,
@@ -338,6 +324,7 @@ ALLEGRO_AUDIO_STREAM *al_load_audio_stream_f(ALLEGRO_FILE* fp, const char *ident
 
    return NULL;
 }
+
 
 /* Function: al_save_sample
  */
@@ -359,6 +346,7 @@ bool al_save_sample(const char *filename, ALLEGRO_SAMPLE *spl)
    return false;
 }
 
+
 /* Function: al_save_sample_f
  */
 bool al_save_sample_f(ALLEGRO_FILE *fp, const char *ident, ALLEGRO_SAMPLE *spl)
@@ -376,45 +364,5 @@ bool al_save_sample_f(ALLEGRO_FILE *fp, const char *ident, ALLEGRO_SAMPLE *spl)
    return false;
 }
 
-/* FIXME: use the allegro provided helpers */
-ALLEGRO_CHANNEL_CONF _al_count_to_channel_conf(int num_channels)
-{
-   switch (num_channels) {
-      case 1:
-         return ALLEGRO_CHANNEL_CONF_1;
-      case 2:
-         return ALLEGRO_CHANNEL_CONF_2;
-      case 3:
-         return ALLEGRO_CHANNEL_CONF_3;
-      case 4:
-         return ALLEGRO_CHANNEL_CONF_4;
-      case 6:
-         return ALLEGRO_CHANNEL_CONF_5_1;
-      case 7:
-         return ALLEGRO_CHANNEL_CONF_6_1;
-      case 8:
-         return ALLEGRO_CHANNEL_CONF_7_1;
-      default:
-         return 0;
-   }
-}
-
-
-/* Note: assumes 8-bit is unsigned, and all others are signed. */
-ALLEGRO_AUDIO_DEPTH _al_word_size_to_depth_conf(int word_size)
-{
-   switch (word_size) {
-      case 1:
-         return ALLEGRO_AUDIO_DEPTH_UINT8;
-      case 2:
-         return ALLEGRO_AUDIO_DEPTH_INT16;
-      case 3:
-         return ALLEGRO_AUDIO_DEPTH_INT24;
-      case 4:
-         return ALLEGRO_AUDIO_DEPTH_FLOAT32;
-      default:
-         return 0;
-   }
-}
 
 /* vim: set sts=3 sw=3 et: */

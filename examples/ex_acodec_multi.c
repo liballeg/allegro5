@@ -7,7 +7,7 @@
 #include <stdio.h>
 #include "allegro5/allegro5.h"
 #include "allegro5/allegro_audio.h"
-#include "acodec.h"
+#include "allegro5/allegro_acodec.h"
 
 #include "common.c"
 
@@ -30,7 +30,7 @@ int main(int argc, char **argv)
        return 1;
    }
 
-   init_acodecs();
+   al_init_acodec_addon();
 
    if (!al_install_audio()) {
        fprintf(stderr, "Could not init sound!\n");

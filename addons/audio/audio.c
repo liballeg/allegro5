@@ -70,6 +70,46 @@ size_t al_get_depth_size(ALLEGRO_AUDIO_DEPTH depth)
    }
 }
 
+/* FIXME: use the allegro provided helpers */
+ALLEGRO_CHANNEL_CONF _al_count_to_channel_conf(int num_channels)
+{
+   switch (num_channels) {
+      case 1:
+         return ALLEGRO_CHANNEL_CONF_1;
+      case 2:
+         return ALLEGRO_CHANNEL_CONF_2;
+      case 3:
+         return ALLEGRO_CHANNEL_CONF_3;
+      case 4:
+         return ALLEGRO_CHANNEL_CONF_4;
+      case 6:
+         return ALLEGRO_CHANNEL_CONF_5_1;
+      case 7:
+         return ALLEGRO_CHANNEL_CONF_6_1;
+      case 8:
+         return ALLEGRO_CHANNEL_CONF_7_1;
+      default:
+         return 0;
+   }
+}
+
+/* FIXME: assumes 8-bit is unsigned, and all others are signed. */
+ALLEGRO_AUDIO_DEPTH _al_word_size_to_depth_conf(int word_size)
+{
+   switch (word_size) {
+      case 1:
+         return ALLEGRO_AUDIO_DEPTH_UINT8;
+      case 2:
+         return ALLEGRO_AUDIO_DEPTH_INT16;
+      case 3:
+         return ALLEGRO_AUDIO_DEPTH_INT24;
+      case 4:
+         return ALLEGRO_AUDIO_DEPTH_FLOAT32;
+      default:
+         return 0;
+   }
+}
+
 /* Returns a silent sample frame. */
 int _al_kcm_get_silence(ALLEGRO_AUDIO_DEPTH depth)
 {

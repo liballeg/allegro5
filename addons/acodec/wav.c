@@ -8,6 +8,7 @@
 #include "allegro5/allegro_audio.h"
 #include "allegro5/internal/aintern_audio.h"
 #include "allegro5/internal/aintern_memory.h"
+#include "acodec.h"
 
 ALLEGRO_DEBUG_CHANNEL("wav")
 
@@ -282,11 +283,11 @@ static void wav_stream_close(ALLEGRO_AUDIO_STREAM *stream)
 }
 
 
-/* Function: al_load_wav
+/* _al_load_wav:
  *  Reads a RIFF WAV format sample ALLEGRO_FILE, returning an ALLEGRO_SAMPLE
  *  structure, or NULL on error.
  */
-ALLEGRO_SAMPLE *al_load_wav(const char *filename)
+ALLEGRO_SAMPLE *_al_load_wav(const char *filename)
 {
    ALLEGRO_FILE *f;
    ALLEGRO_SAMPLE *spl;
@@ -296,14 +297,12 @@ ALLEGRO_SAMPLE *al_load_wav(const char *filename)
    if (!f)
       return NULL;
 
-   spl = al_load_wav_f(f);
+   spl = _al_load_wav_f(f);
 
    return spl;
 }
 
-/* Function: al_load_wav_f
- */
-ALLEGRO_SAMPLE *al_load_wav_f(ALLEGRO_FILE *fp)
+ALLEGRO_SAMPLE *_al_load_wav_f(ALLEGRO_FILE *fp)
 {
    WAVFILE *wavfile = wav_open(fp);
    ALLEGRO_SAMPLE *spl = NULL;
@@ -332,9 +331,9 @@ ALLEGRO_SAMPLE *al_load_wav_f(ALLEGRO_FILE *fp)
 }
 
 
-/* Function: al_load_wav_audio_stream
+/* _al_load_wav_audio_stream:
 */
-ALLEGRO_AUDIO_STREAM *al_load_wav_audio_stream(const char *filename,
+ALLEGRO_AUDIO_STREAM *_al_load_wav_audio_stream(const char *filename,
    size_t buffer_count, unsigned int samples)
 {
    ALLEGRO_FILE *f;
@@ -345,14 +344,14 @@ ALLEGRO_AUDIO_STREAM *al_load_wav_audio_stream(const char *filename,
    if (!f)
       return NULL;
 
-   stream = al_load_wav_audio_stream_f(f, buffer_count, samples);
+   stream = _al_load_wav_audio_stream_f(f, buffer_count, samples);
 
    return stream;
 }
 
-/* Function: al_load_wav_audio_stream_f
+/* _al_load_wav_audio_stream_f:
 */
-ALLEGRO_AUDIO_STREAM *al_load_wav_audio_stream_f(ALLEGRO_FILE* f,
+ALLEGRO_AUDIO_STREAM *_al_load_wav_audio_stream_f(ALLEGRO_FILE* f,
    size_t buffer_count, unsigned int samples)
 {
    WAVFILE* wavfile;
@@ -381,21 +380,24 @@ ALLEGRO_AUDIO_STREAM *al_load_wav_audio_stream_f(ALLEGRO_FILE* f,
       stream->set_feeder_loop = wav_stream_set_loop;
       al_start_thread(stream->feed_thread);
    }
+   else {
+      /* XXX clean up */
+   }
 
    return stream;
 }
 
 
-/* Function: al_save_wav
+/* _al_save_wav:
  * Writes a sample into a wav ALLEGRO_FILE.
  * Returns true on success, false on error.
  */
-bool al_save_wav(const char *filename, ALLEGRO_SAMPLE *spl)
+bool _al_save_wav(const char *filename, ALLEGRO_SAMPLE *spl)
 {
    ALLEGRO_FILE *pf = al_fopen(filename, "wb");
 
    if (pf) {
-      bool rv = al_save_wav_f(pf, spl);
+      bool rv = _al_save_wav_f(pf, spl);
       al_fclose(pf);
       return rv;
    }
@@ -404,11 +406,11 @@ bool al_save_wav(const char *filename, ALLEGRO_SAMPLE *spl)
 }
 
 
-/* Function: al_save_wav_f
+/* _al_save_wav_f:
  * Writes a sample into a wav packfile.
  * Returns true on success, false on error.
  */
-bool al_save_wav_f(ALLEGRO_FILE *pf, ALLEGRO_SAMPLE *spl)
+bool _al_save_wav_f(ALLEGRO_FILE *pf, ALLEGRO_SAMPLE *spl)
 {
    size_t channels, bits;
    size_t data_size;

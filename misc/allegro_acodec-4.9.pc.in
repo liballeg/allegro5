@@ -5,10 +5,10 @@ includedir=@includedir@
 version=@ALLEGRO_VERSION@
 suffix=@lib_type@@lib_linkage@
 
-Name: allegro_flac
-Description: Allegro game programming library, FLAC codec addon
+Name: allegro_acodec
+Description: Allegro game programming library, audio codec addon
 Version: ${version}
-Libs: -L${libdir} -lallegro_flac${suffix}
+Libs: -L${libdir} -lallegro_acodec${suffix}
 Libs.private: @link_with@
 Requires: allegro_audio${suffix}-4.9 >= ${version}
 Cflags: -I${includedir}

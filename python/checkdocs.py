@@ -167,8 +167,7 @@ def parse_all_headers():
     includes = " -I " + p + "/include -I " + os.path.join(options.build, "include")
     includes += " -I " + p + "/addons/acodec"
     headers = [p + "/include/allegro5/allegro5.h",
-        p + "/addons/acodec/allegro5/allegro_flac.h",
-        p + "/addons/acodec/allegro5/allegro_vorbis.h",
+        p + "/addons/acodec/allegro5/allegro_acodec.h",
         p + "/include/allegro5/allegro_opengl.h"]
 
     for addon in glob.glob(p + "/addons/*"):

@@ -123,7 +123,7 @@ bool init(void)
    al_init();
    al_init_image_addon();
    al_init_font_addon();
-   al_init_ogg_vorbis_addon();
+   al_init_acodec_addon();
 
    al_set_new_bitmap_format(ALLEGRO_PIXEL_FORMAT_ANY_WITH_ALPHA);
 

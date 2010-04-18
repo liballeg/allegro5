@@ -6,10 +6,11 @@
 
 
 #include "allegro5/allegro5.h"
-#include "allegro5/allegro_flac.h"
+#include "allegro5/allegro_acodec.h"
 #include "allegro5/allegro_audio.h"
 #include "allegro5/internal/aintern_audio.h"
 #include "allegro5/internal/aintern_memory.h"
+#include "acodec.h"
 
 #include <FLAC/stream_decoder.h>
 #include <stdio.h>
@@ -361,19 +362,6 @@ static bool flac_stream_set_loop(ALLEGRO_AUDIO_STREAM *stream, double start,
    return true;
 }
 
-
-/* Function: al_init_flac_addon
- */
-bool al_init_flac_addon(void)
-{
-   bool ret = true;
-   ret &= al_register_sample_loader(".flac", al_load_flac);
-   ret &= al_register_audio_stream_loader(".flac", al_load_flac_audio_stream);
-   ret &= al_register_sample_loader_f(".flac", al_load_flac_f);
-   ret &= al_register_audio_stream_loader_f(".flac", al_load_flac_audio_stream_f);
-   return ret;
-}
-
 static FLACFILE *flac_open(ALLEGRO_FILE* f)
 {
    FLACFILE *ff;
@@ -424,9 +412,7 @@ error:
    return NULL;
 }
 
-/* Function: al_load_flac
- */
-ALLEGRO_SAMPLE *al_load_flac(const char *filename)
+ALLEGRO_SAMPLE *_al_load_flac(const char *filename)
 {
    ALLEGRO_FILE *f;
    ALLEGRO_SAMPLE *spl;
@@ -436,14 +422,12 @@ ALLEGRO_SAMPLE *al_load_flac(const char *filename)
    if (!f)
       return NULL;
 
-   spl = al_load_flac_f(f);
+   spl = _al_load_flac_f(f);
 
    return spl;
 }
 
-/* Function: al_load_flac_f
- */
-ALLEGRO_SAMPLE *al_load_flac_f(ALLEGRO_FILE* f)
+ALLEGRO_SAMPLE *_al_load_flac_f(ALLEGRO_FILE *f)
 {
    ALLEGRO_SAMPLE *sample;
    FLACFILE *ff = flac_open(f);
@@ -466,16 +450,7 @@ ALLEGRO_SAMPLE *al_load_flac_f(ALLEGRO_FILE* f)
    return sample;
 }
 
-/* Function: al_get_allegro_flac_version
- */
-uint32_t al_get_allegro_flac_version(void)
-{
-   return ALLEGRO_VERSION_INT;
-}
-
-/* Function: al_load_flac_audio_stream
-*/
-ALLEGRO_AUDIO_STREAM *al_load_flac_audio_stream(const char *filename,
+ALLEGRO_AUDIO_STREAM *_al_load_flac_audio_stream(const char *filename,
    size_t buffer_count, unsigned int samples)
 {
    ALLEGRO_FILE *f;
@@ -486,14 +461,12 @@ ALLEGRO_AUDIO_STREAM *al_load_flac_audio_stream(const char *filename,
    if (!f)
       return NULL;
 
-   stream = al_load_flac_audio_stream_f(f, buffer_count, samples);
+   stream = _al_load_flac_audio_stream_f(f, buffer_count, samples);
 
    return stream;
 }
 
-/* Function: al_load_flac_audio_stream_f
-*/
-ALLEGRO_AUDIO_STREAM *al_load_flac_audio_stream_f(ALLEGRO_FILE* f,
+ALLEGRO_AUDIO_STREAM *_al_load_flac_audio_stream_f(ALLEGRO_FILE* f,
    size_t buffer_count, unsigned int samples)
 {
    ALLEGRO_AUDIO_STREAM *stream;

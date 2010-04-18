@@ -9,8 +9,8 @@
 #include "allegro5/allegro_font.h"
 #include "allegro5/allegro_image.h"
 #include "allegro5/allegro_audio.h"
+#include "allegro5/allegro_acodec.h"
 #include "allegro5/allegro_primitives.h"
-#include "acodec.h"
 
 #include "common.c"
 
@@ -42,7 +42,7 @@ static int initialize(void)
       return 0;
    }
    
-   init_acodecs();
+   al_init_acodec_addon();
 
    if (!al_install_audio()) {
       printf("Could not init sound!\n");

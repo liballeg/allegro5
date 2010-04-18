@@ -6,15 +6,14 @@ option(WANT_DSOUND "Enable DSound digital audio driver (Windows)" on)
 option(WANT_AQUEUE "Enable AudioQueue digital audio driver (Mac)" on)
 
 set(AUDIO_SOURCES
-    acodec.c
     audio.c
+    audio_io.c
     kcm_dtor.c
     kcm_instance.c
     kcm_mixer.c
     kcm_sample.c
     kcm_stream.c
     kcm_voice.c
-    wav.c
     )
 
 set(AUDIO_INCLUDE_FILES allegro5/allegro_audio.h)

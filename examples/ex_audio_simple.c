@@ -7,7 +7,7 @@
 #include <stdio.h>
 #include "allegro5/allegro5.h"
 #include "allegro5/allegro_audio.h"
-#include "acodec.h"
+#include "allegro5/allegro_acodec.h"
 
 #include "common.c"
 
@@ -45,7 +45,7 @@ int main(int argc, const char *argv[])
    event_queue = al_create_event_queue();
    al_register_event_source(event_queue, al_get_keyboard_event_source());
 
-   init_acodecs();
+   al_init_acodec_addon();
 
 Restart:
 

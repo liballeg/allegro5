@@ -35,8 +35,7 @@ Here are the addons and their dependencies:
     allegro_ttf -> allegro_font -> allegro
 
     allegro_audio -> allegro
-    allegro_flac -> allegro_audio -> allegro
-    allegro_vorbis -> allegro_audio -> allegro
+    allegro_acodec -> allegro_audio -> allegro
 
     allegro_memfile -> allegro
     allegro_physfs -> allegro
@@ -142,9 +141,8 @@ provide a convenient way to do that.
 
 ## Sound
 
-Use [al_install_audio] to initialize sound. This will allow loading uncompressed
-.wav files, for other formats you need to initialize them first, for example
-with [al_init_ogg_vorbis_addon] for the .ogg format.
+Use [al_install_audio] to initialize sound. To load any sample formats, you
+will need to initialise the acodec addon with [al_init_acodec_addon].
 
 After that, you can simply use [al_reserve_samples] and pass the number of
 sound effects typically playing at the same time. Then load your sound effects

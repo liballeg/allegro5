@@ -5,10 +5,12 @@
 
 
 #include "allegro5/allegro5.h"
-#include "allegro5/allegro_modaudio.h"
+#include "allegro5/allegro_acodec.h"
 #include "allegro5/allegro_audio.h"
+#include "allegro5/internal/aintern.h"
 #include "allegro5/internal/aintern_audio.h"
 #include "allegro5/internal/aintern_memory.h"
+#include "acodec.h"
 
 #include <dumb.h>
 #include <stdio.h>
@@ -30,6 +32,8 @@ typedef struct MOD_FILE
    double length;
    long loop_start, loop_end;
 } MOD_FILE;
+
+static bool libdumb_loaded = false;
 
 /* Set up DUMB's file system */
 static DUMBFILE_SYSTEM dfs, dfs_f;
@@ -197,13 +201,21 @@ static ALLEGRO_AUDIO_STREAM *mod_stream_init(ALLEGRO_FILE* f,
    return stream;
 }
 
-/* Function: al_init_modaudio_addon
- */
-bool al_init_modaudio_addon()
+static void shutdown_libdumb(void)
 {
-   bool ret = true;
-   
-   atexit(&dumb_exit);
+   if (libdumb_loaded) {
+      dumb_exit();
+      libdumb_loaded = false;
+   }
+}
+
+static bool init_libdumb(void)
+{
+   if (libdumb_loaded) {
+      return true;
+   }
+
+   _al_add_exit_func(shutdown_libdumb, "shutdown_libdumb");
     
    dfs.open = dfs_open;
    dfs.skip = dfs_skip;
@@ -218,29 +230,12 @@ bool al_init_modaudio_addon()
    dfs_f = dfs;
    dfs_f.open = NULL;
    dfs_f.close = NULL;
-    
-   ret &= al_register_audio_stream_loader(".xm", al_load_xm_audio_stream);
-   ret &= al_register_audio_stream_loader_f(".xm", al_load_xm_audio_stream_f);
-   ret &= al_register_audio_stream_loader(".it", al_load_it_audio_stream);
-   ret &= al_register_audio_stream_loader_f(".it", al_load_it_audio_stream_f);
-   ret &= al_register_audio_stream_loader(".mod", al_load_mod_audio_stream);
-   ret &= al_register_audio_stream_loader_f(".mod", al_load_mod_audio_stream_f);
-   ret &= al_register_audio_stream_loader(".s3m", al_load_s3m_audio_stream);
-   ret &= al_register_audio_stream_loader_f(".s3m", al_load_s3m_audio_stream_f);
-   
-   return ret;
+
+   libdumb_loaded = true;
+   return true;
 }
 
-/* Function: al_get_allegro_modaudio_version
- */
-uint32_t al_get_allegro_modaudio_version()
-{
-   return ALLEGRO_VERSION_INT;
-}
-
-/* Function: al_load_mod_audio_stream
- */
-ALLEGRO_AUDIO_STREAM *al_load_mod_audio_stream(const char *filename,
+ALLEGRO_AUDIO_STREAM *_al_load_mod_audio_stream(const char *filename,
    size_t buffer_count, unsigned int samples)
 {
    ALLEGRO_FILE *f;
@@ -251,7 +246,7 @@ ALLEGRO_AUDIO_STREAM *al_load_mod_audio_stream(const char *filename,
    if (!f)
       return NULL;
 
-   stream = al_load_mod_audio_stream_f(f, buffer_count, samples);
+   stream = _al_load_mod_audio_stream_f(f, buffer_count, samples);
    
    if (!stream)
       al_fclose(f);
@@ -261,9 +256,7 @@ ALLEGRO_AUDIO_STREAM *al_load_mod_audio_stream(const char *filename,
    return stream;
 }
 
-/* Function: al_load_it_audio_stream
- */
-ALLEGRO_AUDIO_STREAM *al_load_it_audio_stream(const char *filename,
+ALLEGRO_AUDIO_STREAM *_al_load_it_audio_stream(const char *filename,
    size_t buffer_count, unsigned int samples)
 {
    ALLEGRO_FILE *f;
@@ -274,7 +267,7 @@ ALLEGRO_AUDIO_STREAM *al_load_it_audio_stream(const char *filename,
    if (!f)
       return NULL;
 
-   stream = al_load_it_audio_stream_f(f, buffer_count, samples);
+   stream = _al_load_it_audio_stream_f(f, buffer_count, samples);
    
    if (!stream)
       al_fclose(f);
@@ -284,9 +277,7 @@ ALLEGRO_AUDIO_STREAM *al_load_it_audio_stream(const char *filename,
    return stream;
 }
 
-/* Function: al_load_xm_audio_stream
- */
-ALLEGRO_AUDIO_STREAM *al_load_xm_audio_stream(const char *filename,
+ALLEGRO_AUDIO_STREAM *_al_load_xm_audio_stream(const char *filename,
    size_t buffer_count, unsigned int samples)
 {
    ALLEGRO_FILE *f;
@@ -297,7 +288,7 @@ ALLEGRO_AUDIO_STREAM *al_load_xm_audio_stream(const char *filename,
    if (!f)
       return NULL;
 
-   stream = al_load_xm_audio_stream_f(f, buffer_count, samples);
+   stream = _al_load_xm_audio_stream_f(f, buffer_count, samples);
    
    if (!stream)
       al_fclose(f);
@@ -307,9 +298,7 @@ ALLEGRO_AUDIO_STREAM *al_load_xm_audio_stream(const char *filename,
    return stream;
 }
 
-/* Function: al_load_s3m_audio_stream
- */
-ALLEGRO_AUDIO_STREAM *al_load_s3m_audio_stream(const char *filename,
+ALLEGRO_AUDIO_STREAM *_al_load_s3m_audio_stream(const char *filename,
    size_t buffer_count, unsigned int samples)
 {
    ALLEGRO_FILE *f;
@@ -320,7 +309,7 @@ ALLEGRO_AUDIO_STREAM *al_load_s3m_audio_stream(const char *filename,
    if (!f)
       return NULL;
 
-   stream = al_load_s3m_audio_stream_f(f, buffer_count, samples);
+   stream = _al_load_s3m_audio_stream_f(f, buffer_count, samples);
    
    if (!stream)
       al_fclose(f);
@@ -330,35 +319,39 @@ ALLEGRO_AUDIO_STREAM *al_load_s3m_audio_stream(const char *filename,
    return stream;
 }
 
-/* Function: al_load_mod_audio_stream_f
- */
-ALLEGRO_AUDIO_STREAM *al_load_mod_audio_stream_f(ALLEGRO_FILE *f,
+ALLEGRO_AUDIO_STREAM *_al_load_mod_audio_stream_f(ALLEGRO_FILE *f,
    size_t buffer_count, unsigned int samples)
 {
+   if (!init_libdumb())
+      return NULL;
+
    return mod_stream_init(f, buffer_count, samples, dumb_read_mod);
 }
 
-/* Function: al_load_it_audio_stream_f
- */
-ALLEGRO_AUDIO_STREAM *al_load_it_audio_stream_f(ALLEGRO_FILE *f,
+ALLEGRO_AUDIO_STREAM *_al_load_it_audio_stream_f(ALLEGRO_FILE *f,
    size_t buffer_count, unsigned int samples)
 {
+   if (!init_libdumb())
+      return NULL;
+
    return mod_stream_init(f, buffer_count, samples, dumb_read_it);
 }
 
-/* Function: al_load_xm_audio_stream_f
- */
-ALLEGRO_AUDIO_STREAM *al_load_xm_audio_stream_f(ALLEGRO_FILE *f,
+ALLEGRO_AUDIO_STREAM *_al_load_xm_audio_stream_f(ALLEGRO_FILE *f,
    size_t buffer_count, unsigned int samples)
 {
+   if (!init_libdumb())
+      return NULL;
+
    return mod_stream_init(f, buffer_count, samples, dumb_read_xm);
 }
 
-/* Function: al_load_s3m_audio_stream_f
- */
-ALLEGRO_AUDIO_STREAM *al_load_s3m_audio_stream_f(ALLEGRO_FILE *f,
+ALLEGRO_AUDIO_STREAM *_al_load_s3m_audio_stream_f(ALLEGRO_FILE *f,
    size_t buffer_count, unsigned int samples)
 {
+   if (!init_libdumb())
+      return NULL;
+
    return mod_stream_init(f, buffer_count, samples, dumb_read_s3m);
 }
 

@@ -7,9 +7,9 @@
 #include <math.h>
 #include "allegro5/allegro.h"
 #include "allegro5/allegro_audio.h"
+#include "allegro5/allegro_acodec.h"
 #include "allegro5/allegro_image.h"
 #include "allegro5/allegro_primitives.h"
-#include "acodec.h"
 
 #include "common.c"
 
@@ -138,7 +138,7 @@ int main(int argc, char **argv)
    }
 
    al_init_image_addon();
-   init_acodecs();
+   al_init_acodec_addon();
    
    al_install_keyboard();
 

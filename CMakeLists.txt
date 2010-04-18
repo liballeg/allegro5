@@ -804,19 +804,17 @@ set(libdir "\${exec_prefix}/lib")
 
 set(PKG_CONFIG_FILES
     allegro
+    allegro_acodec
+    allegro_audio
     allegro_color
     allegro_dialog
-    allegro_flac
     allegro_font
     allegro_image
     allegro_main
     allegro_memfile
-    allegro_modaudio
     allegro_physfs
     allegro_primitives
     allegro_ttf
-    allegro_vorbis
-    allegro_audio
     )
 
 # Probably usable on Windows as well but we shouldn't install it

@@ -8,7 +8,7 @@
 #include "allegro5/allegro_image.h"
 #include "allegro5/allegro_font.h"
 #include "allegro5/allegro_audio.h"
-#include "acodec.h"
+#include "allegro5/allegro_acodec.h"
 #include "nihgui.hpp"
 #include <cstdio>
 
@@ -108,7 +108,7 @@ int main(int argc, char *argv[])
    al_init_image_addon();
    al_init_font_addon();
 
-   init_acodecs();
+   al_init_acodec_addon();
 
    if (!al_install_audio()) {
       abort_example("Could not init sound!\n");

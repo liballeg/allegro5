@@ -5,10 +5,11 @@
  */
 
 #include "allegro5/allegro5.h"
-#include "allegro5/allegro_vorbis.h"
+#include "allegro5/allegro_acodec.h"
 #include "allegro5/allegro_audio.h"
 #include "allegro5/internal/aintern_audio.h"
 #include "allegro5/internal/aintern_memory.h"
+#include "acodec.h"
 
 ALLEGRO_DEBUG_CHANNEL("acodec")
 
@@ -89,21 +90,7 @@ static ov_callbacks callbacks = {
 };
 
 
-/* Function: al_init_ogg_vorbis_addon
- */
-bool al_init_ogg_vorbis_addon(void)
-{
-   bool ret = true;
-   ret &= al_register_sample_loader(".ogg", al_load_ogg_vorbis);
-   ret &= al_register_audio_stream_loader(".ogg", al_load_ogg_vorbis_audio_stream);
-   ret &= al_register_sample_loader_f(".ogg", al_load_ogg_vorbis_f);
-   ret &= al_register_audio_stream_loader_f(".ogg", al_load_ogg_vorbis_audio_stream_f);
-   return ret;
-}
-
-/* Function: al_load_ogg_vorbis
- */
-ALLEGRO_SAMPLE *al_load_ogg_vorbis(const char *filename)
+ALLEGRO_SAMPLE *_al_load_ogg_vorbis(const char *filename)
 {
    ALLEGRO_FILE *f;
    ALLEGRO_SAMPLE *spl;
@@ -116,15 +103,13 @@ ALLEGRO_SAMPLE *al_load_ogg_vorbis(const char *filename)
       return NULL;
    }
 
-   spl = al_load_ogg_vorbis_f(f);
+   spl = _al_load_ogg_vorbis_f(f);
 
    return spl;
 }
 
 
-/* Function: al_load_ogg_vorbis_f
- */
-ALLEGRO_SAMPLE *al_load_ogg_vorbis_f(ALLEGRO_FILE* file)
+ALLEGRO_SAMPLE *_al_load_ogg_vorbis_f(ALLEGRO_FILE *file)
 {
    /* Note: decoding library returns floats.  I always return 16-bit (most
     * commonly supported).
@@ -341,10 +326,8 @@ static size_t ogg_stream_update(ALLEGRO_AUDIO_STREAM *stream, void *data,
 }
 
 
-/* Function: al_load_ogg_vorbis_audio_stream
- */
-ALLEGRO_AUDIO_STREAM *al_load_ogg_vorbis_audio_stream(const char *filename,
-	size_t buffer_count, unsigned int samples)
+ALLEGRO_AUDIO_STREAM *_al_load_ogg_vorbis_audio_stream(const char *filename,
+   size_t buffer_count, unsigned int samples)
 {
    ALLEGRO_FILE *f;
    ALLEGRO_AUDIO_STREAM *stream;
@@ -357,15 +340,14 @@ ALLEGRO_AUDIO_STREAM *al_load_ogg_vorbis_audio_stream(const char *filename,
       return NULL;
    }
 
-   stream = al_load_ogg_vorbis_audio_stream_f(f, buffer_count, samples);
+   stream = _al_load_ogg_vorbis_audio_stream_f(f, buffer_count, samples);
 
    return stream;
 }
 
-/* Function: al_load_ogg_vorbis_audio_stream_f
- */
-ALLEGRO_AUDIO_STREAM *al_load_ogg_vorbis_audio_stream_f(ALLEGRO_FILE* file,
-	size_t buffer_count, unsigned int samples)
+
+ALLEGRO_AUDIO_STREAM *_al_load_ogg_vorbis_audio_stream_f(ALLEGRO_FILE *file,
+   size_t buffer_count, unsigned int samples)
 {
    const int word_size = 2; /* 1 = 8bit, 2 = 16-bit. nothing else */
    OggVorbis_File* vf;
@@ -440,13 +422,6 @@ ALLEGRO_AUDIO_STREAM *al_load_ogg_vorbis_audio_stream_f(ALLEGRO_FILE* file,
    al_start_thread(stream->feed_thread);
 	
    return stream;
-}
-
-/* Function: al_get_allegro_ogg_vorbis_version
- */
-uint32_t al_get_allegro_ogg_vorbis_version(void)
-{
-   return ALLEGRO_VERSION_INT;
 }
 
 
