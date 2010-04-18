@@ -12,6 +12,13 @@ configure_file(
     ${CMAKE_BINARY_DIR}/include/allegro5/internal/aintern_ttf_cfg.h
     )
 
+# FREETYPE_LIBRARIES should include zlib automatically if statically linking,
+# but it doesn't.
+find_package(ZLIB)
+if(ZLIB_FOUND)
+    list(APPEND FREETYPE_LIBRARIES ${ZLIB_LIBRARIES})
+endif(ZLIB_FOUND)
+
 add_our_library(allegro_ttf
     "${TTF_SOURCES};${TTF_INCLUDE_FILES}"
     "-DALLEGRO_TTF_SRC"
