@@ -25,19 +25,6 @@ For convenience:
 * ALLEGRO_AUDIO_DEPTH_UINT16
 * ALLEGRO_AUDIO_DEPTH_UINT24
 
-### API: ALLEGRO_AUDIO_DRIVER_ENUM
-
-The sound driver to use. It is *highly* recommended to use
-ALLEGRO_AUDIO_DRIVER_AUTODETECT whenever possible.
-
-* ALLEGRO_AUDIO_DRIVER_AUTODETECT
-* ALLEGRO_AUDIO_DRIVER_OPENAL
-* ALLEGRO_AUDIO_DRIVER_ALSA
-* ALLEGRO_AUDIO_DRIVER_DSOUND
-* ALLEGRO_AUDIO_DRIVER_OSS
-* ALLEGRO_AUDIO_DRIVER_PULSEAUDIO
-* ALLEGRO_AUDIO_DRIVER_AQUEUE
-
 ### API: ALLEGRO_AUDIO_PAN_NONE
 
 Special value for the ALLEGRO_AUDIOPROP_PAN property.
@@ -147,11 +134,6 @@ would be one ALLEGRO_VOICE per system/hardware voice.
 ### API: al_install_audio
 
 Install the audio subsystem.
-
-Parameters:
-
-* mode - see [ALLEGRO_AUDIO_DRIVER_ENUM]. It is recommended to pass
-  ALLEGRO_AUDIO_DRIVER_AUTODETECT.
 
 Returns true on success, false on failure.
 

@@ -272,7 +272,7 @@ int main(int argc, char *argv[])
    /* set up everything else */
    al_install_keyboard();
    al_install_joystick();
-   if (al_install_audio(ALLEGRO_AUDIO_DRIVER_AUTODETECT)) {
+   if (al_install_audio()) {
       if (!al_reserve_samples(8))
          al_uninstall_audio();
    }

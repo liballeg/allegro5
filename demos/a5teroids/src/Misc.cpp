@@ -60,7 +60,7 @@ bool loadResources(void)
    }
 
    /* For some reason dsound needs a window... */
-   if(!al_install_audio(ALLEGRO_AUDIO_DRIVER_AUTODETECT)) {
+   if (!al_install_audio()) {
    	printf("Failed to install audio.\n");
    	return false;
    }

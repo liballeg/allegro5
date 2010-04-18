@@ -404,7 +404,7 @@ int main(int argc, char *argv[])
       return 1;
    }
 
-   if (!al_install_audio(ALLEGRO_AUDIO_DRIVER_AUTODETECT)) {
+   if (!al_install_audio()) {
       abort_example("Could not init sound!\n");
       return 1;
    }

@@ -129,21 +129,6 @@ enum ALLEGRO_MIXER_QUALITY
 };
 
 
-/* Enum: ALLEGRO_AUDIO_DRIVER_ENUM
- */
-enum ALLEGRO_AUDIO_DRIVER_ENUM
-{
-   /* Various driver modes. */
-   ALLEGRO_AUDIO_DRIVER_AUTODETECT = 0x20000,
-   ALLEGRO_AUDIO_DRIVER_OPENAL     = 0x20001,
-   ALLEGRO_AUDIO_DRIVER_ALSA       = 0x20002,
-   ALLEGRO_AUDIO_DRIVER_DSOUND     = 0x20003,
-   ALLEGRO_AUDIO_DRIVER_OSS        = 0x20004,
-   ALLEGRO_AUDIO_DRIVER_AQUEUE     = 0x20005,
-   ALLEGRO_AUDIO_DRIVER_PULSEAUDIO = 0x20006
-};
-
-
 /* Enum: ALLEGRO_AUDIO_PAN_NONE
  */
 #define ALLEGRO_AUDIO_PAN_NONE      (-1000.0f)
@@ -329,7 +314,7 @@ ALLEGRO_KCM_AUDIO_FUNC(bool, al_set_voice_position, (ALLEGRO_VOICE *voice, unsig
 ALLEGRO_KCM_AUDIO_FUNC(bool, al_set_voice_playing, (ALLEGRO_VOICE *voice, bool val));
 
 /* Misc. audio functions */
-ALLEGRO_KCM_AUDIO_FUNC(bool, al_install_audio, (ALLEGRO_AUDIO_DRIVER_ENUM mode));
+ALLEGRO_KCM_AUDIO_FUNC(bool, al_install_audio, (void));
 ALLEGRO_KCM_AUDIO_FUNC(void, al_uninstall_audio, (void));
 ALLEGRO_KCM_AUDIO_FUNC(bool, al_is_audio_installed, (void));
 ALLEGRO_KCM_AUDIO_FUNC(uint32_t, al_get_allegro_audio_version, (void));

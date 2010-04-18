@@ -115,11 +115,6 @@ static ALLEGRO_AUDIO_DRIVER_ENUM get_config_audio_driver(void)
    return ALLEGRO_AUDIO_DRIVER_AUTODETECT;
 }
 
-/* TODO: possibly take extra parameters
- * (freq, channel, etc) and test if you 
- * can create a voice with them.. if not
- * try another driver.
- */
 static bool do_install_audio(ALLEGRO_AUDIO_DRIVER_ENUM mode)
 {
    bool retVal;
@@ -137,7 +132,7 @@ static bool do_install_audio(ALLEGRO_AUDIO_DRIVER_ENUM mode)
    switch (mode) {
       case ALLEGRO_AUDIO_DRIVER_AUTODETECT:
 #if defined(ALLEGRO_CFG_KCM_AQUEUE)
-         retVal = al_install_audio(ALLEGRO_AUDIO_DRIVER_AQUEUE);
+         retVal = do_install_audio(ALLEGRO_AUDIO_DRIVER_AQUEUE);
          if (retVal)
             return retVal;
 #endif
@@ -148,27 +143,27 @@ static bool do_install_audio(ALLEGRO_AUDIO_DRIVER_ENUM mode)
  * ALSA and OSS first.
  */
 #if defined(ALLEGRO_CFG_KCM_PULSEAUDIO)
-         retVal = al_install_audio(ALLEGRO_AUDIO_DRIVER_PULSEAUDIO);
+         retVal = do_install_audio(ALLEGRO_AUDIO_DRIVER_PULSEAUDIO);
          if (retVal)
             return retVal;
 #endif
 #if defined(ALLEGRO_CFG_KCM_ALSA)
-         retVal = al_install_audio(ALLEGRO_AUDIO_DRIVER_ALSA);
+         retVal = do_install_audio(ALLEGRO_AUDIO_DRIVER_ALSA);
          if (retVal)
             return retVal;
 #endif
 #if defined(ALLEGRO_CFG_KCM_DSOUND)
-         retVal = al_install_audio(ALLEGRO_AUDIO_DRIVER_DSOUND);
+         retVal = do_install_audio(ALLEGRO_AUDIO_DRIVER_DSOUND);
          if (retVal)
             return retVal;
 #endif
 #if defined(ALLEGRO_CFG_KCM_OSS)
-         retVal = al_install_audio(ALLEGRO_AUDIO_DRIVER_OSS);
+         retVal = do_install_audio(ALLEGRO_AUDIO_DRIVER_OSS);
          if (retVal)
             return retVal;
 #endif
 #if defined(ALLEGRO_CFG_KCM_OPENAL)
-         retVal = al_install_audio(ALLEGRO_AUDIO_DRIVER_OPENAL);
+         retVal = do_install_audio(ALLEGRO_AUDIO_DRIVER_OPENAL);
          if (retVal)
             return retVal;
 #endif
@@ -262,9 +257,9 @@ static bool do_install_audio(ALLEGRO_AUDIO_DRIVER_ENUM mode)
 
 /* Function: al_install_audio
  */
-bool al_install_audio(ALLEGRO_AUDIO_DRIVER_ENUM mode)
+bool al_install_audio(void)
 {
-   bool ret = do_install_audio(mode);
+   bool ret = do_install_audio(ALLEGRO_AUDIO_DRIVER_AUTODETECT);
    if (ret) {
       _al_kcm_init_destructors();
       _al_add_exit_func(al_uninstall_audio, "al_uninstall_audio");
