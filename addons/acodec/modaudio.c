@@ -20,14 +20,15 @@ ALLEGRO_DEBUG_CHANNEL("acodec")
 
 
 /* forward declarations */
-static size_t duh_stream_update(ALLEGRO_AUDIO_STREAM *stream, void *data,
+static size_t modaudio_stream_update(ALLEGRO_AUDIO_STREAM *stream, void *data,
    size_t buf_size);
-static bool duh_stream_rewind(ALLEGRO_AUDIO_STREAM *stream);
-static bool duh_stream_seek(ALLEGRO_AUDIO_STREAM *stream, double time);
-static double duh_stream_get_position(ALLEGRO_AUDIO_STREAM *stream);
-static double duh_stream_get_length(ALLEGRO_AUDIO_STREAM *stream);
-static bool duh_stream_set_loop(ALLEGRO_AUDIO_STREAM *stream, double start, double end);
-static void duh_stream_close(ALLEGRO_AUDIO_STREAM *stream);
+static bool modaudio_stream_rewind(ALLEGRO_AUDIO_STREAM *stream);
+static bool modaudio_stream_seek(ALLEGRO_AUDIO_STREAM *stream, double time);
+static double modaudio_stream_get_position(ALLEGRO_AUDIO_STREAM *stream);
+static double modaudio_stream_get_length(ALLEGRO_AUDIO_STREAM *stream);
+static bool modaudio_stream_set_loop(ALLEGRO_AUDIO_STREAM *stream,
+   double start, double end);
+static void modaudio_stream_close(ALLEGRO_AUDIO_STREAM *stream);
 
 
 typedef struct MOD_FILE
@@ -94,9 +95,10 @@ static void dfs_close(void *f)
    al_fclose(f);
 }
 
+
 /* Stream Functions */
 
-static size_t duh_stream_update(ALLEGRO_AUDIO_STREAM *stream, void *data,
+static size_t modaudio_stream_update(ALLEGRO_AUDIO_STREAM *stream, void *data,
    size_t buf_size)
 {
    MOD_FILE *const df = stream->extra;
@@ -116,13 +118,13 @@ static size_t duh_stream_update(ALLEGRO_AUDIO_STREAM *stream, void *data,
    /* Check to see if a loop is set */
    if (df->loop_start != -1 && 
       df->loop_end < lib.duh_sigrenderer_get_position(df->sig)) {
-         duh_stream_seek(stream, df->loop_start / 65536.0);
+         modaudio_stream_seek(stream, df->loop_start / 65536.0);
    }   
    
    return written;
 }
 
-static void duh_stream_close(ALLEGRO_AUDIO_STREAM *stream)
+static void modaudio_stream_close(ALLEGRO_AUDIO_STREAM *stream)
 {
    MOD_FILE *const df = stream->extra;
    
@@ -132,7 +134,7 @@ static void duh_stream_close(ALLEGRO_AUDIO_STREAM *stream)
       al_fclose(df->fh);
 }
 
-static bool duh_stream_rewind(ALLEGRO_AUDIO_STREAM *stream)
+static bool modaudio_stream_rewind(ALLEGRO_AUDIO_STREAM *stream)
 {
    MOD_FILE *const df = stream->extra;
    lib.duh_end_sigrenderer(df->sig);
@@ -140,7 +142,7 @@ static bool duh_stream_rewind(ALLEGRO_AUDIO_STREAM *stream)
    return true;
 }
 
-static bool duh_stream_seek(ALLEGRO_AUDIO_STREAM *stream, double time)
+static bool modaudio_stream_seek(ALLEGRO_AUDIO_STREAM *stream, double time)
 {
    MOD_FILE *const df = stream->extra;
    
@@ -150,19 +152,20 @@ static bool duh_stream_seek(ALLEGRO_AUDIO_STREAM *stream, double time)
    return false;
 }
 
-static double duh_stream_get_position(ALLEGRO_AUDIO_STREAM *stream)
+static double modaudio_stream_get_position(ALLEGRO_AUDIO_STREAM *stream)
 {
    MOD_FILE *const df = stream->extra;
    return lib.duh_sigrenderer_get_position(df->sig) / 65536.0;
 }
 
-static double duh_stream_get_length(ALLEGRO_AUDIO_STREAM *stream)
+static double modaudio_stream_get_length(ALLEGRO_AUDIO_STREAM *stream)
 {
    MOD_FILE *const df = stream->extra;
    return df->length;
 }
 
-static bool duh_stream_set_loop(ALLEGRO_AUDIO_STREAM *stream, double start, double end)
+static bool modaudio_stream_set_loop(ALLEGRO_AUDIO_STREAM *stream,
+   double start, double end)
 {
    MOD_FILE *const df = stream->extra;
    
@@ -219,13 +222,13 @@ static ALLEGRO_AUDIO_STREAM *mod_stream_init(ALLEGRO_FILE* f,
 
       stream->extra = mf;
       stream->feed_thread = al_create_thread(_al_kcm_feed_stream, stream);
-      stream->feeder = duh_stream_update;
-      stream->unload_feeder = duh_stream_close;
-      stream->rewind_feeder = duh_stream_rewind;
-      stream->seek_feeder = duh_stream_seek;
-      stream->get_feeder_position = duh_stream_get_position;
-      stream->get_feeder_length = duh_stream_get_length;
-      stream->set_feeder_loop = duh_stream_set_loop;
+      stream->feeder = modaudio_stream_update;
+      stream->unload_feeder = modaudio_stream_close;
+      stream->rewind_feeder = modaudio_stream_rewind;
+      stream->seek_feeder = modaudio_stream_seek;
+      stream->get_feeder_position = modaudio_stream_get_position;
+      stream->get_feeder_length = modaudio_stream_get_length;
+      stream->set_feeder_loop = modaudio_stream_set_loop;
       al_start_thread(stream->feed_thread);
    }
    else {
