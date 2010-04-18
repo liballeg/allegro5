@@ -1035,7 +1035,7 @@ use [al_load_audio_stream].
 
 Returns the sample on success, NULL on failure.
 
-See also: [al_register_sample_loader], [al_load_wav]
+See also: [al_register_sample_loader]
 
 ### API: al_load_sample_f
 
@@ -1049,7 +1049,7 @@ use [al_load_audio_stream_f].
 
 Returns the sample on success, NULL on failure.
 
-See also: [al_register_sample_loader_f], [al_load_wav_f]
+See also: [al_register_sample_loader_f]
 
 ### API: al_load_audio_stream
 
@@ -1065,7 +1065,7 @@ A stream must be attached to a voice to be used.  See
 
 Returns the stream on success, NULL on failure.
 
-See also: [al_register_audio_stream_loader], [al_load_wav_audio_stream]
+See also: [al_register_audio_stream_loader]
 
 ### API: al_load_audio_stream_f
 
@@ -1084,7 +1084,7 @@ A stream must be attached to a voice to be used.  See
 
 Returns the stream on success, NULL on failure.
 
-See also: [al_register_audio_stream_loader_f], [al_load_wav_audio_stream_f]
+See also: [al_register_audio_stream_loader_f]
 
 ### API: al_save_sample
 
@@ -1105,48 +1105,4 @@ must be '.wav'.
 Returns true on success, false on error.
 
 See also: [al_register_sample_saver_f], [al_save_wav_f]
-
-### API: al_load_wav
-
-Load a sample from a PCM .wav file.
-
-Returns the sample on success, NULL on failure.
-
-See also: [al_load_sample], [al_load_wav_f]
-
-### API: al_load_wav_f
-
-Load a sample from a [ALLEGRO_FILE] stream.
-
-Returns the sample on success, NULL on failure.
-
-See also: [al_load_sample], [al_load_wav]
-
-### API: al_save_wav
-
-Save a sample to a PCM .wav file.
-
-Returns true on success, false on error.
-
-See also: [al_save_sample], [al_save_wav_f]
-
-### API: al_save_wav_f
-
-Write a PCM .wav file into the [ALLEGRO_FILE] stream given.
-
-Returns true on success, false on error.
-
-See also: [al_save_sample], [al_save_wav]
-
-### API: al_load_wav_audio_stream
-
-Like [al_load_audio_stream] but assumes the file is PCM .wav file.
-
-See also: [al_load_audio_stream], [al_load_wav_audio_stream_f]
-
-### API: al_load_wav_audio_stream_f
-
-Like [al_load_audio_stream_f] but assumes the file is PCM .wav file.
-
-See also: [al_load_audio_stream_f], [al_load_wav_audio_stream]
 

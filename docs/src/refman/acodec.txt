@@ -11,7 +11,7 @@ This function registers all the known audio file type handlers for
 [al_load_sample], [al_save_sample], [al_load_audio_stream], etc.
 
 Depending on what libraries are available, the full set of recognised
-extensions is: .flac, .ogg, .it, .mod, .s3m, .xm.
+extensions is: .wav, .flac, .ogg, .it, .mod, .s3m, .xm.
 
 Return true on success.
 
