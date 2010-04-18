@@ -359,4 +359,34 @@ bool al_inhibit_screensaver(bool inhibit)
 }
 
 
+void *_al_open_library(const char *filename)
+{
+   ASSERT(active_sysdrv);
+
+   if (active_sysdrv->vt->open_library)
+      return active_sysdrv->vt->open_library(filename);
+   else
+      return NULL;
+}
+
+
+void *_al_import_symbol(void *library, const char *symbol)
+{
+   ASSERT(active_sysdrv);
+
+   if (active_sysdrv->vt->import_symbol)
+      return active_sysdrv->vt->import_symbol(library, symbol);
+   else
+      return NULL;
+}
+
+
+void _al_close_library(void *library)
+{
+   ASSERT(active_sysdrv);
+
+   if (active_sysdrv->vt->close_library)
+      active_sysdrv->vt->close_library(library);
+}
+
 /* vim: set sts=3 sw=3 et: */

@@ -30,6 +30,9 @@ struct ALLEGRO_SYSTEM_INTERFACE
    bool (*inhibit_screensaver)(bool inhibit);
    void (*thread_init)(ALLEGRO_THREAD *thread);
    void (*thread_exit)(ALLEGRO_THREAD *thread);
+   void *(*open_library)(const char *filename);
+   void *(*import_symbol)(void *library, const char *symbol);
+   void (*close_library)(void *handle);
 };
 
 struct ALLEGRO_SYSTEM
@@ -43,5 +46,9 @@ struct ALLEGRO_SYSTEM
 AL_FUNC(void, _al_register_system_interfaces, (void));
 AL_VAR(_AL_VECTOR, _al_system_interfaces);
 AL_VAR(_AL_DTOR_LIST *, _al_dtor_list);
+
+AL_FUNC(void *, _al_open_library, (const char *filename));
+AL_FUNC(void *, _al_import_symbol, (void *library, const char *symbol));
+AL_FUNC(void, _al_close_library, (void *library));
 
 #endif

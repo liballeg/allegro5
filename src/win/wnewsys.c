@@ -473,6 +473,30 @@ static bool win_inhibit_screensaver(bool inhibit)
    return true;
 }
 
+static void *win_open_library(const char *filename)
+{
+   HINSTANCE lib = LoadLibrary(filename);
+   if (!lib) {
+      DWORD error = GetLastError();
+      HRESULT hr = HRESULT_FROM_WIN32(error);
+      /* XXX do something with it */
+      (void)hr;
+   }
+   return lib;
+}
+
+static void *win_import_symbol(void *library, const char *symbol)
+{
+   ASSERT(library);
+   return GetProcAddress(library, symbol);
+}
+
+static void win_close_library(void *library)
+{
+   ASSERT(library);
+   FreeLibrary(library);
+}
+
 static ALLEGRO_SYSTEM_INTERFACE *_al_system_win_driver(void)
 {
    if (vt) return vt;
@@ -493,6 +517,9 @@ static ALLEGRO_SYSTEM_INTERFACE *_al_system_win_driver(void)
    vt->get_cursor_position = win_get_cursor_position;
    vt->get_path = win_get_path;
    vt->inhibit_screensaver = win_inhibit_screensaver;
+   vt->open_library = win_open_library;
+   vt->import_symbol = win_import_symbol;
+   vt->close_library = win_close_library;
 
    TRACE("ALLEGRO_SYSTEM_INTERFACE created.\n");
 
