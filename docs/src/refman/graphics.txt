@@ -862,6 +862,7 @@ The file type is determined by the passed 'ident' parameter, which is a file
 name extension including the leading dot.
 
 Returns NULL on error.
+The file remains open afterwards.
 
 See also: [al_load_bitmap], [al_register_bitmap_loader_f]
 
@@ -881,6 +882,7 @@ The file type is determined by the passed 'ident' parameter, which is a file
 name extension including the leading dot.
 
 Returns true on success, false on error.
+The file remains open afterwards.
 
 See also: [al_save_bitmap], [al_register_bitmap_saver_f]
 
