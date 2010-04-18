@@ -230,6 +230,7 @@ int main(void)
       return 1;
    }
 
+   al_init_image_addon();
    al_init_font_addon();
 
    display = al_create_display(WIDTH, HEIGHT);

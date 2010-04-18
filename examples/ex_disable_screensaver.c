@@ -1,4 +1,5 @@
 #include "allegro5/allegro5.h"
+#include "allegro5/allegro_image.h"
 #include "allegro5/allegro_font.h"
 #include <stdio.h>
 
@@ -15,6 +16,7 @@ int main(void)
 
    al_init();
    al_install_keyboard();
+   al_init_image_addon();
    al_init_font_addon();
 
    al_set_new_display_flags(ALLEGRO_GENERATE_EXPOSE_EVENTS);

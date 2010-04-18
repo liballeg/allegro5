@@ -1,5 +1,6 @@
 #include "allegro5/allegro5.h"
 #include "allegro5/allegro_font.h"
+#include "allegro5/allegro_image.h"
 #include <stdlib.h>
 #include <time.h>
 
@@ -29,6 +30,7 @@ int main(void)
 
    al_install_mouse();
    al_init_font_addon();
+   al_init_image_addon();
 
    adapter_count = al_get_num_video_adapters();
 
@@ -53,6 +55,10 @@ int main(void)
 
    al_set_new_bitmap_flags(ALLEGRO_MEMORY_BITMAP);
    myfont = al_load_font("data/fixed_font.tga", 0, 0);
+   if (!myfont) {
+      abort_example("Could not load font.\n");
+      return 1;
+   }
 
    events = al_create_event_queue();
    al_register_event_source(events, al_get_mouse_event_source());

@@ -2,6 +2,7 @@
  */
 #include <allegro5/allegro5.h>
 #include <allegro5/allegro_font.h>
+#include <allegro5/allegro_image.h>
 #include <allegro5/allegro_color.h>
 #include <stdio.h>
 #include <stdarg.h>
@@ -252,6 +253,7 @@ int main(void)
 
    al_install_keyboard();
    al_install_mouse();
+   al_init_image_addon();
    al_init_font_addon();
 
    display = al_create_display(640, 480);

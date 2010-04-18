@@ -1,5 +1,3 @@
-include_directories(../image)
-
 set(FONT_SOURCES font.c fontbmp.c text.c)
 
 set(FONT_INCLUDE_FILES allegro5/allegro_font.h)
@@ -9,7 +7,7 @@ set_our_header_properties(${FONT_INCLUDE_FILES})
 add_our_library(allegro_font
     "${FONT_SOURCES};${FONT_INCLUDE_FILES}"
     "-DALLEGRO_FONT_SRC"
-    "${IMAGE_LINK_WITH}"
+    "${ALLEGRO_LINK_WITH}"
     )
 
 set_our_framework_properties(allegro_font AllegroFont-${ALLEGRO_SOVERSION})

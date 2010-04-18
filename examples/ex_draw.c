@@ -2,6 +2,7 @@
  */
 
 #include <allegro5/allegro5.h>
+#include <allegro5/allegro_image.h>
 #include <allegro5/allegro_font.h>
 #include <allegro5/allegro_color.h>
 #include <allegro5/allegro_primitives.h>
@@ -287,6 +288,7 @@ int main(void)
 
    al_install_keyboard();
    al_install_mouse();
+   al_init_image_addon();
    al_init_font_addon();
 
    /* Read supersampling info from ex_draw.ini. */

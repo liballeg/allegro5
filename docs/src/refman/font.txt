@@ -19,7 +19,10 @@ be created from it with [al_grab_font_from_bitmap].
 
 Initialise the font addon.
 
-See also: [al_init_ttf_addon], [al_shutdown_font_addon]
+Note that if you intend to load bitmap fonts, you will need to initialise
+allegro_image separately (unless you are using another library to load images).
+
+See also: [al_init_image_addon], [al_init_ttf_addon], [al_shutdown_font_addon]
 
 ### API: al_shutdown_font_addon
 

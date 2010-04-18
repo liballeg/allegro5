@@ -39,6 +39,7 @@ target_link_libraries(speed
     ${AUDIO_LINK_WITH}
     ${PRIMITIVES_LINK_WITH}
     ${FONT_LINK_WITH}
+    ${IMAGE_LINK_WITH}
     )
 
 if(NOT BUILD_SHARED_LIBS)

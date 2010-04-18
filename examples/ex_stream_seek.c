@@ -7,6 +7,7 @@
 #include <stdio.h>
 #include "allegro5/allegro5.h"
 #include "allegro5/allegro_font.h"
+#include "allegro5/allegro_image.h"
 #include "allegro5/allegro_audio.h"
 #include "allegro5/allegro_primitives.h"
 #include "acodec.h"
@@ -30,6 +31,7 @@ static int initialize(void)
 {
    al_init();
 
+   al_init_image_addon();
    al_init_font_addon();
    if (!al_install_keyboard()) {
       printf("Could not init keyboard!\n");

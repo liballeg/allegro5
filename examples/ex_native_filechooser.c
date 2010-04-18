@@ -10,6 +10,7 @@
 #include <allegro5/allegro5.h>
 #include <allegro5/allegro_native_dialog.h>
 #include <allegro5/allegro_font.h>
+#include <allegro5/allegro_image.h>
 #include <allegro5/allegro_color.h>
 
 #include "common.c"
@@ -177,6 +178,7 @@ int main(void)
    int button;
 
    al_init();
+   al_init_image_addon();
    al_init_font_addon();
 
    background = al_color_name("white");

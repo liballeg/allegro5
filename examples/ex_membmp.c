@@ -89,6 +89,7 @@ int main(void)
    }
 
    al_install_keyboard();
+   al_init_image_addon();
    al_init_font_addon();
 
    display = al_create_display(640, 400);

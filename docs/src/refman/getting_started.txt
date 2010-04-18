@@ -31,8 +31,8 @@ Here are the addons and their dependencies:
     allegro_primitives -> allegro
     allegro_color -> allegro
 
-    allegro_font -> allegro_image -> allegro
-    allegro_ttf -> allegro_font -> allegro_image -> allegro
+    allegro_font -> allegro
+    allegro_ttf -> allegro_font -> allegro
 
     allegro_audio -> allegro
     allegro_flac -> allegro_audio -> allegro
@@ -117,9 +117,9 @@ inserted into the queues that the timer is registered with.  Create some with
 
 ## Displaying some text
 
-To display some text, initialise the font addon with [al_init_font_addon]
-then load a bitmap font with [al_load_font].  Use [al_draw_text] or
-[al_draw_textf].
+To display some text, initialise the image and font addons with
+[al_init_image_addon] and [al_init_font_addon], then load a bitmap font with
+[al_load_font].  Use [al_draw_text] or [al_draw_textf].
 
 For TrueType fonts, you'll need to initialise the TTF font addon with
 [al_init_ttf_addon] and load a TTF font with [al_load_ttf_font].

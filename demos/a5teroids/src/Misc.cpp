@@ -121,6 +121,7 @@ bool init(void)
    srand(time(NULL));
 
    al_init();
+   al_init_image_addon();
    al_init_font_addon();
    al_init_ogg_vorbis_addon();
 

@@ -248,6 +248,8 @@ int main(int argc, char *argv[])
       return 1;
    }
 
+   al_init_image_addon();
+
    /* The Allegro 5 port introduced an external data dependency, sorry.
     * To avoid performance problems on graphics drivers that don't support
     * drawing to textures, we build up transition screens on memory bitmaps.
