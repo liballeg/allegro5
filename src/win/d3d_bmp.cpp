@@ -31,6 +31,8 @@
 
 extern "C" {
 
+ALLEGRO_DEBUG_CHANNEL("d3d")
+
 
 static ALLEGRO_BITMAP_INTERFACE *vt;
 static _AL_VECTOR created_bitmaps;
@@ -211,7 +213,7 @@ static void d3d_sync_bitmap_memory(ALLEGRO_BITMAP *bitmap)
    texture->UnlockRect(0);
    }
    else {
-      TRACE("d3d_sync_bitmap_memory: Couldn't lock texture.\n");
+      ALLEGRO_ERROR("d3d_sync_bitmap_memory: Couldn't lock texture.\n");
    }
 }
 
@@ -272,7 +274,7 @@ static void d3d_sync_bitmap_texture(ALLEGRO_BITMAP *bitmap,
 	   texture->UnlockRect(0);
    }
    else {
-      TRACE("d3d_sync_bitmap_texture: Couldn't lock texture to upload.\n");
+      ALLEGRO_ERROR("d3d_sync_bitmap_texture: Couldn't lock texture to upload.\n");
    }
 }
 
@@ -289,7 +291,7 @@ static void d3d_do_upload(ALLEGRO_BITMAP_D3D *d3d_bmp, int x, int y, int width,
       if (d3d_bmp->display->device->UpdateTexture(
             (IDirect3DBaseTexture9 *)d3d_bmp->system_texture,
             (IDirect3DBaseTexture9 *)d3d_bmp->video_texture) != D3D_OK) {
-         TRACE("d3d_do_upload: Couldn't update texture.\n");
+         ALLEGRO_ERROR("d3d_do_upload: Couldn't update texture.\n");
          return;
       }
    }
@@ -328,11 +330,11 @@ void _al_d3d_release_default_pool_textures(void)
 	*/
 	/*
    	while (d3d_bmp->video_texture->Release() != 0) {
-      	   TRACE("_al_d3d_release_default_pool_textures: video texture reference count not 0\n");
+      	   ALLEGRO_WARN("_al_d3d_release_default_pool_textures: video texture reference count not 0\n");
    	}
    	if (_al_d3d_render_to_texture_supported()) {
    	   while (d3d_bmp->system_texture->Release() != 0) {
-      	   	TRACE("_al_d3d_release_default_pool_textures: system texture reference count not 0\n");
+      	   	ALLEGRO_WARN("_al_d3d_release_default_pool_textures: system texture reference count not 0\n");
 	   }
 	}
 	*/
@@ -348,7 +350,7 @@ static bool d3d_create_textures(ALLEGRO_DISPLAY_D3D *disp, int w, int h,
          if (disp->device->CreateTexture(w, h, 1,
                D3DUSAGE_RENDERTARGET, (D3DFORMAT)_al_format_to_d3d(format), D3DPOOL_DEFAULT,
                video_texture, NULL) != D3D_OK) {
-            TRACE("d3d_create_textures: Unable to create video texture.\n");
+            ALLEGRO_ERROR("d3d_create_textures: Unable to create video texture.\n");
             return false;
          }
       }
@@ -357,7 +359,7 @@ static bool d3d_create_textures(ALLEGRO_DISPLAY_D3D *disp, int w, int h,
          if (disp->device->CreateTexture(w, h, 1,
                0, (D3DFORMAT)_al_format_to_d3d(format), D3DPOOL_SYSTEMMEM,
                system_texture, NULL) != D3D_OK) {
-            TRACE("d3d_create_textures: Unable to create system texture.\n");
+            ALLEGRO_ERROR("d3d_create_textures: Unable to create system texture.\n");
             if (video_texture && (*video_texture)) {
                (*video_texture)->Release();
             }
@@ -372,7 +374,7 @@ static bool d3d_create_textures(ALLEGRO_DISPLAY_D3D *disp, int w, int h,
          if (disp->device->CreateTexture(w, h, 1,
                0, (D3DFORMAT)_al_format_to_d3d(format), D3DPOOL_MANAGED,
                video_texture, NULL) != D3D_OK) {
-            TRACE("d3d_create_textures: Unable to create video texture (no render-to-texture).\n");
+            ALLEGRO_ERROR("d3d_create_textures: Unable to create video texture (no render-to-texture).\n");
             return false;
          }
       }
@@ -394,12 +396,12 @@ static ALLEGRO_BITMAP *d3d_create_bitmap_from_surface(LPDIRECT3DSURFACE9 surface
    unsigned int y;
 
    if (surface->GetDesc(&desc) != D3D_OK) {
-      TRACE("d3d_create_bitmap_from_surface: GetDesc failed.\n");
+      ALLEGRO_ERROR("d3d_create_bitmap_from_surface: GetDesc failed.\n");
       return NULL;
    }
 
    if (surface->LockRect(&surf_locked_rect, 0, D3DLOCK_READONLY) != D3D_OK) {
-      TRACE("d3d_create_bitmap_from_surface: LockRect failed.\n");
+      ALLEGRO_ERROR("d3d_create_bitmap_from_surface: LockRect failed.\n");
       return NULL;
    }
 
@@ -423,7 +425,7 @@ static ALLEGRO_BITMAP *d3d_create_bitmap_from_surface(LPDIRECT3DSURFACE9 surface
    if (d3d_bmp->system_texture->LockRect(0, &sys_locked_rect, 0, 0) != D3D_OK) {
       surface->UnlockRect();
       al_destroy_bitmap(bitmap);
-      TRACE("d3d_create_bitmap_from_surface: Lock system texture failed.\n");
+      ALLEGRO_ERROR("d3d_create_bitmap_from_surface: Lock system texture failed.\n");
       return NULL;
    }
 
@@ -441,7 +443,7 @@ static ALLEGRO_BITMAP *d3d_create_bitmap_from_surface(LPDIRECT3DSURFACE9 surface
    if (d3d_bmp->display->device->UpdateTexture(
          (IDirect3DBaseTexture9 *)d3d_bmp->system_texture,
          (IDirect3DBaseTexture9 *)d3d_bmp->video_texture) != D3D_OK) {
-      TRACE("d3d_create_bitmap_from_texture: Couldn't update texture.\n");
+      ALLEGRO_ERROR("d3d_create_bitmap_from_texture: Couldn't update texture.\n");
    }
 
    return bitmap;
@@ -613,30 +615,30 @@ void _al_d3d_sync_bitmap(ALLEGRO_BITMAP *dest)
 
    if (d3d_dest->system_texture->GetSurfaceLevel(
          0, &system_texture_surface) != D3D_OK) {
-      TRACE("_al_d3d_sync_bitmap: GetSurfaceLevel failed while updating video texture.\n");
+      ALLEGRO_ERROR("_al_d3d_sync_bitmap: GetSurfaceLevel failed while updating video texture.\n");
       return;
    }
 
    if (d3d_dest->video_texture->GetSurfaceLevel(
          0, &video_texture_surface) != D3D_OK) {
-      TRACE("_al_d3d_sync_bitmap: GetSurfaceLevel failed while updating video texture.\n");
+      ALLEGRO_ERROR("_al_d3d_sync_bitmap: GetSurfaceLevel failed while updating video texture.\n");
       return;
    }
 
    if (d3d_dest->display->device->GetRenderTargetData(
          video_texture_surface,
          system_texture_surface) != D3D_OK) {
-      TRACE("_al_d3d_sync_bitmap: GetRenderTargetData failed.\n");
+      ALLEGRO_ERROR("_al_d3d_sync_bitmap: GetRenderTargetData failed.\n");
       return;
    }
 
    if ((i = system_texture_surface->Release()) != 0) {
-      TRACE("_al_d3d_sync_bitmap (system) ref count == %d\n", i);
+      ALLEGRO_DEBUG("_al_d3d_sync_bitmap (system) ref count == %d\n", i);
    }
 
    if ((i = video_texture_surface->Release()) != 0) {
-   	// This can be non-zero
-      TRACE("_al_d3d_sync_bitmap (video) ref count == %d\n", i);
+      // This can be non-zero
+      ALLEGRO_DEBUG("_al_d3d_sync_bitmap (video) ref count == %d\n", i);
    }
 
    d3d_sync_bitmap_memory(dest);
@@ -881,18 +883,18 @@ static void d3d_destroy_bitmap(ALLEGRO_BITMAP *bitmap)
    if(!al_is_sub_bitmap(bitmap)) {
       if (d3d_bmp->video_texture) {
          if (d3d_bmp->video_texture->Release() != 0) {
-            TRACE("d3d_destroy_bitmap: Release video texture failed.\n");
+            ALLEGRO_WARN("d3d_destroy_bitmap: Release video texture failed.\n");
          }
       }
       if (d3d_bmp->system_texture) {
          if (d3d_bmp->system_texture->Release() != 0) {
-            TRACE("d3d_destroy_bitmap: Release system texture failed.\n");
+            ALLEGRO_WARN("d3d_destroy_bitmap: Release system texture failed.\n");
          }
       }
 
       if (d3d_bmp->render_target) {
          if (d3d_bmp->render_target->Release() != 0) {
-            TRACE("d3d_destroy_bitmap: Release render target failed.\n");
+            ALLEGRO_WARN("d3d_destroy_bitmap: Release render target failed.\n");
          }
       }
    }
@@ -924,7 +926,7 @@ static ALLEGRO_LOCKED_REGION *d3d_lock_region(ALLEGRO_BITMAP *bitmap,
    if (d3d_bmp->is_backbuffer) {
       ALLEGRO_DISPLAY_D3D *d3d_disp = (ALLEGRO_DISPLAY_D3D *)bitmap->display;
       if (d3d_disp->render_target->LockRect(&d3d_bmp->locked_rect, &rect, Flags) != D3D_OK) {
-         TRACE("LockRect failed in d3d_lock_region.\n");
+         ALLEGRO_ERROR("LockRect failed in d3d_lock_region.\n");
          return NULL;
       }
    }
@@ -943,7 +945,7 @@ static ALLEGRO_LOCKED_REGION *d3d_lock_region(ALLEGRO_BITMAP *bitmap,
          texture = d3d_bmp->video_texture;
       }
       if (texture->LockRect(0, &d3d_bmp->locked_rect, &rect, Flags) != D3D_OK) {
-         TRACE("LockRect failed in d3d_lock_region.\n");
+         ALLEGRO_ERROR("LockRect failed in d3d_lock_region.\n");
          return NULL;
       }
    }
