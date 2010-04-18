@@ -1098,7 +1098,7 @@ must be '.wav'.
 
 Returns true on success, false on error.
 
-See also: [al_register_sample_saver], [al_save_wav]
+See also: [al_register_sample_saver]
 
 ### API: al_save_sample_f
 
@@ -1109,5 +1109,5 @@ must be '.wav'.
 Returns true on success, false on error.
 The file remains open afterwards.
 
-See also: [al_register_sample_saver_f], [al_save_wav_f]
+See also: [al_register_sample_saver_f]
 
