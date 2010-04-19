@@ -362,6 +362,7 @@ static LRESULT CALLBACK window_callback(HWND hWnd, UINT message,
    switch (message) {
       case WM_INPUT: 
       {
+         /* RAW Input is currently unused. */
           UINT dwSize;
           LPBYTE lpb;
           RAWINPUT* raw;

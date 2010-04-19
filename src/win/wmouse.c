@@ -15,10 +15,12 @@
  *      See readme.txt for copyright information.
  */
 
+#if 0
 /* Raw input */
 #define _WIN32_WINNT 0x0501
 #ifndef WINVER
 #define WINVER 0x0600
+#endif
 #endif
 #include <windows.h>
 
@@ -49,6 +51,7 @@ static bool init_mouse(void)
    memset(&mouse_state, 0, sizeof(mouse_state));
    _al_event_source_init(&the_mouse.es);
 
+#if 0
    if (al_get_new_display_flags() & ALLEGRO_FULLSCREEN) {
       RAWINPUTDEVICE rid[1];
       rid[0].usUsagePage = 0x01; 
@@ -59,6 +62,7 @@ static bool init_mouse(void)
          return false;
       }
    }
+#endif
 
    installed = true;
 

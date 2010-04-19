@@ -15,10 +15,12 @@
  *
  */
 
+#if 0
 /* Raw input */
 #define _WIN32_WINNT 0x0501
 #ifndef WINVER
 #define WINVER 0x0501
+#endif
 #endif
 #include <windows.h>
 
@@ -1189,6 +1191,7 @@ static void display_thread_proc(void *arg)
    }
 
    /* Yep, the following is really needed sometimes. */
+   /* ... Or is it now that we have dumped DInput? */
    /* <rohannessian> Win98/2k/XP's window forground rules don't let us
     * make our window the topmost window on launch. This causes issues on 
     * full-screen apps, as DInput loses input focus on them.
@@ -1232,6 +1235,7 @@ static void display_thread_proc(void *arg)
 #undef SPI_SETFOREGROUNDLOCKTIMEOUT
    }
 
+#if 0
    if (disp->flags & ALLEGRO_FULLSCREEN && al_is_mouse_installed()) {
       RAWINPUTDEVICE rid[1];
       rid[0].usUsagePage = 0x01; 
@@ -1243,6 +1247,7 @@ static void display_thread_proc(void *arg)
              "Failed to init mouse. %s\n", get_error_desc(GetLastError()));
       }
    }
+#endif
 
    /* get the device context of our window */
    wgl_disp->dc = GetDC(win_disp->window);

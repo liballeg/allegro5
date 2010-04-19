@@ -14,10 +14,12 @@
  *
  */
 
+#if 0
 /* Raw input */
 #define _WIN32_WINNT 0x0501
 #ifndef WINVER
 #define WINVER 0x0501
+#endif
 #endif
 #include <windows.h>
 
@@ -1910,6 +1912,7 @@ static ALLEGRO_DISPLAY *d3d_create_display(int w, int h)
    _al_event_source_init(&al_display->es);
    d3d_display->es_inited = true;
 
+#if 0
    /* Setup the mouse */
    if (al_display->flags & ALLEGRO_FULLSCREEN && al_is_mouse_installed()) {
       RAWINPUTDEVICE rid[1];
@@ -1921,6 +1924,7 @@ static ALLEGRO_DISPLAY *d3d_create_display(int w, int h)
           ALLEGRO_WARN("Failed to init mouse.\n");
       }
    }
+#endif
 
    win_display->mouse_selected_hcursor = 0;
    win_display->mouse_cursor_shown = false;
