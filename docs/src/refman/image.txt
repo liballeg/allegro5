@@ -17,7 +17,7 @@ via external dependencies.
 
 Other formats may be available depending on the operating system and
 installed libraries, but are not guaranteed and should not be assumed to
-be univerally available. 
+be universally available. 
 
 ## API: al_shutdown_image_addon
 
