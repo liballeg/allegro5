@@ -32,6 +32,8 @@
 #import <AudioToolbox/AudioQueue.h>
 
 #define THREAD_BEGIN NSAutoreleasePool *___p = [[NSAutoreleasePool alloc] init];
+#define THREAD_DRAIN [___p drain];
+#define THREAD_RECREATE ___p = [[NSAutoreleasePool alloc] init];
 #define THREAD_END [___p release];
 
 
@@ -207,6 +209,13 @@ static void *stream_proc(void *in_data)
 {
    #ifdef ALLEGRO_IPHONE
    THREAD_BEGIN
+   /* We need to periodically drain and recreate the autorelease pool
+    * so it doesn't fill up memory.
+    */
+   ALLEGRO_TIMER *drain_timer = al_install_timer(30);
+   ALLEGRO_EVENT_QUEUE *event_queue = al_create_event_queue();
+   al_register_event_source(event_queue, al_get_timer_event_source(drain_timer));
+   al_start_timer(drain_timer);
    #endif
 
    ALLEGRO_VOICE *voice = in_data;
@@ -279,9 +288,20 @@ static void *stream_proc(void *in_data)
          0.05,
          false
       );
+      #ifdef ALLEGRO_IPHONE
+      if (!al_event_queue_is_empty(event_queue)) {
+         ALLEGRO_EVENT event;
+	 al_get_next_event(event_queue, &event);
+	 if (event.type == ALLEGRO_EVENT_TIMER && event.timer.source == drain_timer) {
+	 	THREAD_DRAIN
+		THREAD_RECREATE
+	 }
+      }
+      #endif
    } while (playing);
 	
    #ifdef ALLEGRO_IPHONE
+   al_destroy_event_queue(event_queue);
    THREAD_END
    #endif
 
