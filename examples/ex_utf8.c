@@ -1055,6 +1055,14 @@ static void t47(void)
             al_ref_cstr(&i1, "Thú mỏ vịt"),
             al_ref_cstr(&i2, "Thú mỏ vit")) > 0);
 
+   CHECK(al_ustr_compare(
+            al_ref_cstr(&i1, "abc"),
+            al_ref_cstr(&i2, "abc\001")) < 0);
+
+   CHECK(al_ustr_compare(
+            al_ref_cstr(&i1, "abc\001"),
+            al_ref_cstr(&i2, "abc")) > 0);
+
    CHECK(al_ustr_ncompare(
             al_ref_cstr(&i1, "Thú mỏ vịt"),
             al_ref_cstr(&i2, "Thú mỏ vit"), 8) == 0);
@@ -1066,6 +1074,15 @@ static void t47(void)
    CHECK(al_ustr_ncompare(
             al_ref_cstr(&i1, "Thú mỏ vịt"),
             al_ref_cstr(&i2, "platypus"), 0) == 0);
+
+   CHECK(al_ustr_ncompare(
+            al_ref_cstr(&i1, "abc"),
+            al_ref_cstr(&i2, "abc\001"), 4) < 0);
+
+   CHECK(al_ustr_ncompare(
+            al_ref_cstr(&i1, "abc\001"),
+            al_ref_cstr(&i2, "abc"), 4) > 0);
+
 }
 
 /* Test al_ustr_has_prefix, al_ustr_has_suffix. */

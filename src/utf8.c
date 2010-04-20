@@ -889,11 +889,13 @@ int al_ustr_compare(const ALLEGRO_USTR *us1, const ALLEGRO_USTR *us2)
       int32_t c1 = al_ustr_get_next(us1, &pos1);
       int32_t c2 = al_ustr_get_next(us2, &pos2);
 
-      if (c1 != c2)
-	 return c1 - c2;
+      if (c1 != c2) {
+         /* This happens to work even when one of c1 or c2 is -1. */
+         return c1 - c2;
+      }
 
       if (c1 == -1) /* == c2 */
-	 return 0;
+         return 0;
    }
 }
 
@@ -912,11 +914,13 @@ int al_ustr_ncompare(const ALLEGRO_USTR *us1, const ALLEGRO_USTR *us2, int n)
       int32_t c1 = al_ustr_get_next(us1, &pos1);
       int32_t c2 = al_ustr_get_next(us2, &pos2);
 
-      if (c1 != c2)
-	 return c1 - c2;
+      if (c1 != c2) {
+         /* This happens to work even when one of c1 or c2 is -1. */
+         return c1 - c2;
+      }
 
       if ((c1 == -1) || (--n <= 0))
-	 return 0;
+         return 0;
    }
 }
 
