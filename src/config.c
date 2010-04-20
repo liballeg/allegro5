@@ -21,6 +21,7 @@
 #include <ctype.h>
 #include "allegro5/allegro5.h"
 #include "allegro5/internal/aintern.h"
+#include "allegro5/internal/aintern_aatree.h"
 #include "allegro5/internal/aintern_config.h"
 #include "allegro5/internal/aintern_memory.h"
 
@@ -38,6 +39,12 @@ static void *local_calloc1(size_t size)
 }
 
 
+static int cmp_ustr(void const *a, void const *b)
+{
+   return al_ustr_compare(a, b);
+}
+
+
 /* Function: al_create_config
  */
 ALLEGRO_CONFIG *al_create_config(void)
@@ -52,34 +59,14 @@ ALLEGRO_CONFIG *al_create_config(void)
 static ALLEGRO_CONFIG_SECTION *find_section(const ALLEGRO_CONFIG *config,
    const ALLEGRO_USTR *section)
 {
-   ALLEGRO_CONFIG_SECTION *p = config->head;
-
-   if (!p)
-      return NULL;
-
-   while (p != NULL) {
-      if (al_ustr_equal(p->name, section))
-         return p;
-      p = p->next;
-   }
-
-   return NULL;
+   return _al_aa_search(config->tree, section, cmp_ustr);
 }
 
 
-static ALLEGRO_CONFIG_ENTRY *find_entry(ALLEGRO_CONFIG_ENTRY *section_head,
+static ALLEGRO_CONFIG_ENTRY *find_entry(const ALLEGRO_CONFIG_SECTION *section,
    const ALLEGRO_USTR *key)
 {
-   ALLEGRO_CONFIG_ENTRY *p = section_head;
-
-   while (p != NULL) {
-      if (!p->is_comment && al_ustr_equal(p->key, key)) {
-         return p;
-      }
-      p = p->next;
-   }
-
-   return NULL;
+   return _al_aa_search(section->tree, key, cmp_ustr);
 }
 
 
@@ -116,12 +103,15 @@ static ALLEGRO_CONFIG_SECTION *config_add_section(ALLEGRO_CONFIG *config,
 
    if (sec == NULL) {
       config->head = section;
+      config->last = section;
    }
    else {
-      while (sec->next != NULL)
-         sec = sec->next;
-      sec->next = section;
+      ASSERT(config->last->next == NULL);
+      config->last->next = section;
+      config->last = section;
    }
+
+   config->tree = _al_aa_insert(config->tree, section->name, section, cmp_ustr);
 
    return section;
 }
@@ -148,16 +138,12 @@ static void config_set_value(ALLEGRO_CONFIG *config,
 
    s = find_section(config, section);
    if (s) {
-      entry = find_entry(s->head, key);
-   }
-   else {
-      entry = NULL;
-   }
-
-   if (entry) {
-      al_ustr_assign(entry->value, value);
-      al_ustr_trim_ws(entry->value);
-      return;
+      entry = find_entry(s, key);
+      if (entry) {
+         al_ustr_assign(entry->value, value);
+         al_ustr_trim_ws(entry->value);
+         return;
+      }
    }
 
    entry = local_calloc1(sizeof(ALLEGRO_CONFIG_ENTRY));
@@ -172,13 +158,15 @@ static void config_set_value(ALLEGRO_CONFIG *config,
 
    if (s->head == NULL) {
       s->head = entry;
+      s->last = entry;
    }
    else {
-      ALLEGRO_CONFIG_ENTRY *p = s->head;
-      while (p->next != NULL)
-         p = p->next;
-      p->next = entry;
+      ASSERT(s->last->next == NULL);
+      s->last->next = entry;
+      s->last = entry;
    }
+
+   s->tree = _al_aa_insert(s->tree, entry->key, entry, cmp_ustr);
 }
 
 
@@ -232,12 +220,12 @@ static void config_add_comment(ALLEGRO_CONFIG *config,
 
    if (s->head == NULL) {
       s->head = entry;
+      s->last = entry;
    }
    else {
-      ALLEGRO_CONFIG_ENTRY *p = s->head;
-      while (p->next != NULL)
-         p = p->next;
-      p->next = entry;
+      ASSERT(s->last->next == NULL);
+      s->last->next = entry;
+      s->last = entry;
    }
 }
 
@@ -275,9 +263,8 @@ static bool config_get_value(const ALLEGRO_CONFIG *config,
    s = find_section(config, section);
    if (!s)
       return false;
-   e = s->head;
 
-   e = find_entry(e, key);
+   e = find_entry(s, key);
    if (!e)
       return false;
 
@@ -572,10 +559,12 @@ void al_destroy_config(ALLEGRO_CONFIG *config)
          e = tmp;
       }
       al_ustr_free(s->name);
+      _al_aa_free(s->tree);
       _AL_FREE(s);
       s = tmp;
    }
 
+   _al_aa_free(config->tree);
    _AL_FREE(config);
 }
 

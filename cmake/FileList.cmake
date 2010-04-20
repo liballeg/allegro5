@@ -32,6 +32,7 @@ set(ALLEGRO_SRC_FILES
     src/tls.c
     src/transformations.c
     src/utf8.c
+    src/misc/aatree.c
     src/misc/bstrlib.c
     src/misc/vector.c
     )

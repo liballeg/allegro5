@@ -1,6 +1,8 @@
 #ifndef AINTERN_CONFIG_H
 #define AINTERN_CONFIG_H
 
+#include "allegro5/internal/aintern_aatree.h"
+
 typedef struct ALLEGRO_CONFIG_ENTRY ALLEGRO_CONFIG_ENTRY;
 typedef struct ALLEGRO_CONFIG_SECTION ALLEGRO_CONFIG_SECTION;
 
@@ -11,15 +13,18 @@ struct ALLEGRO_CONFIG_ENTRY {
    ALLEGRO_CONFIG_ENTRY *next;
 };
 
-
 struct ALLEGRO_CONFIG_SECTION {
    ALLEGRO_USTR *name;
    ALLEGRO_CONFIG_ENTRY *head;
+   ALLEGRO_CONFIG_ENTRY *last;
+   _AL_AATREE *tree;
    ALLEGRO_CONFIG_SECTION *next;
 };
 
 struct ALLEGRO_CONFIG {
    ALLEGRO_CONFIG_SECTION *head;
+   ALLEGRO_CONFIG_SECTION *last;
+   _AL_AATREE *tree;
 };
 
 
