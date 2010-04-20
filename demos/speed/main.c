@@ -98,7 +98,7 @@ static int play_game()
 
 	 sprintf(fname, "speed%03d.tga", ++ss_count);
 
-	 al_save_tga(fname, al_get_frontbuffer());
+	 al_save_bitmap(fname, al_get_frontbuffer());
 
 	 while (key[ALLEGRO_KEY_PRINTSCREEN])
 	    poll_input_wait();

@@ -4,141 +4,25 @@ These functions are declared in the following header file.
 Link with allegro_image.
 
     #include <allegro5/allegro_image.h>
+    
 
 ## API: al_init_image_addon
 
 Initializes the image addon.  This registers bitmap format handlers for
 [al_load_bitmap], [al_load_bitmap_f], [al_save_bitmap], [al_save_bitmap_f].
 
+The following types are built in to Allegro and guaranteed to be
+available: BMP, PCX, TGA. Every platform also supports JPEG and PNG
+via external dependencies.
+
+Other formats may be available depending on the operating system and
+installed libraries, but are not guaranteed and should not be assumed to
+be univerally available. 
+
 ## API: al_shutdown_image_addon
 
 Shut down the image addon. This is done automatically at program exit,
 but can be called any time the user wishes as well.
-
-## API: al_load_bmp
-
-Create a new ALLEGRO_BITMAP from a BMP file. The bitmap is created with
-[al_create_bitmap].
-
-Returns NULL on error.
-
-See Also: [al_load_bitmap].
-
-## API: al_load_bmp_f
-
-See [al_load_bmp] and [al_load_bitmap_f].
-
-## API: al_load_jpg
-
-Create a new ALLEGRO_BITMAP from a JPEG file. The bitmap is created with
-[al_create_bitmap].
-
-Returns NULL on error.
-
-See Also: [al_load_bitmap].
-
-## API: al_load_jpg_f
-
-See [al_load_jpg] and [al_load_bitmap_f].
-
-## API: al_load_pcx
-
-Create a new ALLEGRO_BITMAP from a PCX file. The bitmap is created with
-[al_create_bitmap].
-
-Returns NULL on error.
-
-See Also: [al_load_bitmap].
-
-## API: al_load_pcx_f
-
-See [al_load_pcx] and [al_load_bitmap_f].
-
-## API: al_load_png
-
-Create a new ALLEGRO_BITMAP from a PNG file. The bitmap is created with
-[al_create_bitmap].
-
-Returns NULL on error.
-
-See Also: [al_load_bitmap].
-
-## API: al_load_png_f
-
-See [al_load_png] and [al_load_bitmap_f].
-
-## API: al_load_tga
-
-Create a new ALLEGRO_BITMAP from a TGA file. The bitmap is created with
-[al_create_bitmap].
-
-Returns NULL on error.
-
-See Also: [al_load_bitmap].
-
-## API: al_load_tga_f
-
-See [al_load_tga] and [al_load_bitmap_f].
-
-## API: al_save_bmp
-
-Save an ALLEGRO_BITMAP as a BMP file.
-
-Returns true on success, false on error.
-
-See Also: [al_save_bitmap].
-
-## API: al_save_bmp_f
-
-See [al_save_bmp] and [al_save_bitmap_f].
-
-## API: al_save_jpg
-
-Save an ALLEGRO_BITMAP as a JPEG file. 
-
-Returns true on success, false on error.
-
-See Also: [al_save_bitmap].
-
-## API: al_save_jpg_f
-
-See [al_save_jpg] and [al_save_bitmap_f].
-
-## API: al_save_pcx
-
-Save an ALLEGRO_BITMAP as a PCX file.
-
-Returns true on success, false on error.
-
-See Also: [al_save_bitmap].
-
-## API: al_save_pcx_f
-
-See [al_save_pcx] and [al_save_bitmap_f].
-
-## API: al_save_png
-
-Save an ALLEGRO_BITMAP as a PNG file. 
-
-Returns true on success, false on error.
-
-See Also: [al_save_bitmap].
-
-## API: al_save_png_f
-
-See [al_save_png] and [al_save_bitmap_f].
-
-## API: al_save_tga
-
-Save an ALLEGRO_BITMAP as a TGA file. 
-
-Returns true on success, false on error.
-
-See Also: [al_save_bitmap].
-
-## API: al_save_tga_f
-
-See [al_save_tga] and [al_save_bitmap_f].
 
 ## API: al_get_allegro_image_version
 

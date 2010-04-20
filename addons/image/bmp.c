@@ -634,14 +634,13 @@ static void read_RLE4_compressed_image(ALLEGRO_FILE *f, unsigned char *buf,
 
 
 
-/* Function: al_load_bmp_f
- *  Like load_bmp, but starts loading from the current place in the ALLEGRO_FILE
+/*  Like load_bmp, but starts loading from the current place in the ALLEGRO_FILE
  *  specified. If successful the offset into the file will be left just after
  *  the image data. If unsuccessful the offset into the file is unspecified,
  *  i.e. you must either reset the offset to some known place or close the
  *  packfile. The packfile is not closed by this function.
  */
-ALLEGRO_BITMAP *al_load_bmp_f(ALLEGRO_FILE *f)
+ALLEGRO_BITMAP *_al_load_bmp_f(ALLEGRO_FILE *f)
 {
    BMPFILEHEADER fileheader;
    BMPINFOHEADER infoheader;
@@ -777,13 +776,12 @@ ALLEGRO_BITMAP *al_load_bmp_f(ALLEGRO_FILE *f)
 
 
 
-/* Function: al_save_bmp_f
- *  Like save_bmp but writes into the ALLEGRO_FILE given instead of a new file.
+/*  Like save_bmp but writes into the ALLEGRO_FILE given instead of a new file.
  *  The packfile is not closed after writing is completed. On success the
  *  offset into the file is left after the TGA file just written. On failure
  *  the offset is left at the end of whatever incomplete data was written.
  */
-bool al_save_bmp_f(ALLEGRO_FILE *f, ALLEGRO_BITMAP *bmp)
+bool _al_save_bmp_f(ALLEGRO_FILE *f, ALLEGRO_BITMAP *bmp)
 {
    int bfSize;
    int biSizeImage;
@@ -865,9 +863,7 @@ bool al_save_bmp_f(ALLEGRO_FILE *f, ALLEGRO_BITMAP *bmp)
 
 
 
-/* Function: al_load_bmp
- */
-ALLEGRO_BITMAP *al_load_bmp(const char *filename)
+ALLEGRO_BITMAP *_al_load_bmp(const char *filename)
 {
    ALLEGRO_FILE *f;
    ALLEGRO_BITMAP *bmp;
@@ -877,7 +873,7 @@ ALLEGRO_BITMAP *al_load_bmp(const char *filename)
    if (!f)
       return NULL;
 
-   bmp = al_load_bmp_f(f);
+   bmp = _al_load_bmp_f(f);
 
    al_fclose(f);
 
@@ -885,9 +881,7 @@ ALLEGRO_BITMAP *al_load_bmp(const char *filename)
 }
 
 
-/* Function: al_save_bmp
- */
-bool al_save_bmp(const char *filename, ALLEGRO_BITMAP *bmp)
+bool _al_save_bmp(const char *filename, ALLEGRO_BITMAP *bmp)
 {
    ALLEGRO_FILE *f;
    bool ret;
@@ -897,7 +891,7 @@ bool al_save_bmp(const char *filename, ALLEGRO_BITMAP *bmp)
    if (!f)
       return false;
 
-   ret = al_save_bmp_f(f, bmp);
+   ret = _al_save_bmp_f(f, bmp);
 
    al_fclose(f);
 
