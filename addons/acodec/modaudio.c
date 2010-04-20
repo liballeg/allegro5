@@ -45,7 +45,7 @@ static bool libdumb_loaded = false;
 
 
 /* dynamic loading support (Windows only currently) */
-#ifdef ALLEGRO_CFG_ACODEC_FLAC_DLL
+#ifdef ALLEGRO_CFG_ACODEC_DUMB_DLL
 static void *dumb_dll = NULL;
 #endif
 
@@ -279,7 +279,7 @@ static bool init_libdumb(void)
       return false;
    }
 
-   #define INITSYM(x)   (lib.x = _al_import_symbol(flac_dll, #x))
+   #define INITSYM(x)   (lib.x = _al_import_symbol(dumb_dll, #x))
 #else
    #define INITSYM(x)   (lib.x = (x))
 #endif
