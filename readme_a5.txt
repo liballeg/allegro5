@@ -216,6 +216,11 @@ Now that the project solution has been generated, open it with the MSVC IDE
 and start the building process.
 
 *Note:*
+As of the time this is written, CMake has a bug that causes the DLLs in
+MSVC 10 to be named incorrectly. To work around this, generate MSVC 9 projects
+instead.
+
+*Note:*
 The demo is currently excluded from the build if MSVC8 is detected, due to
 some problems with IntelliSense.
 Please give it a try and report problems.
