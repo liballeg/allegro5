@@ -304,7 +304,7 @@ static bool init_libdumb(void)
 
    /* Check that all symbols are defined. */
    {
-      intptr_t *p = (intptr_t *) &lib;
+      intptr_t *p = (void *) &lib;
       size_t n = sizeof(lib) / sizeof(void *);
       unsigned i;
 

@@ -118,7 +118,7 @@ static bool init_dynlib(void)
 
    /* Check that all symbols are defined. */
    {
-      intptr_t *p = (intptr_t *) &lib;
+      intptr_t *p = (void *) &lib;
       size_t n = sizeof(lib) / sizeof(void *);
       unsigned i;
 
@@ -240,6 +240,7 @@ static void error_callback(const FLAC__StreamDecoder *decoder,
    (void)client_data;
 
 #ifdef ALLEGRO_CFG_ACODEC_FLAC_DLL
+   (void)status;
    ALLEGRO_ERROR("Got FLAC error callback\n"); /* lazy */
 #else
    ALLEGRO_ERROR("Got FLAC error callback: %s\n",
