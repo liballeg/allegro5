@@ -320,22 +320,32 @@ static bool readline(ALLEGRO_FILE *file, ALLEGRO_USTR *line)
  */
 ALLEGRO_CONFIG *al_load_config_file(const char *filename)
 {
+   ALLEGRO_FILE *file;
+   ALLEGRO_CONFIG *cfg = NULL;
+
+   file = al_fopen(filename, "r");
+   if (file) {
+      cfg = al_load_config_file_f(file);
+      al_fclose(file);
+   }
+
+   return cfg;
+}
+
+
+/* Function: al_load_config_file_f
+ */
+ALLEGRO_CONFIG *al_load_config_file_f(ALLEGRO_FILE *file)
+{
    ALLEGRO_CONFIG *config;
    ALLEGRO_CONFIG_SECTION *current_section = NULL;
    ALLEGRO_USTR *line;
    ALLEGRO_USTR *section;
    ALLEGRO_USTR *key;
    ALLEGRO_USTR *value;
-   ALLEGRO_FILE *file;
 
-   file = al_fopen(filename, "r");
-   if (!file) {
-      return NULL;
-   }
-   
    config = al_create_config();
    if (!config) {
-      al_fclose(file);
       return NULL;
    }
 
@@ -379,8 +389,6 @@ ALLEGRO_CONFIG *al_load_config_file(const char *filename)
    al_ustr_free(section);
    al_ustr_free(key);
    al_ustr_free(value);
-
-   al_fclose(file);
 
    return config;
 }
@@ -430,21 +438,34 @@ static bool config_write_section(ALLEGRO_FILE *file,
 
 /* Function: al_save_config_file
  */
-bool al_save_config_file(const ALLEGRO_CONFIG *config, const char *filename)
+bool al_save_config_file(const char *filename, const ALLEGRO_CONFIG *config)
+{
+   ALLEGRO_FILE *file;
+   bool ret = false;
+
+   file = al_fopen(filename, "w");
+   if (file) {
+      ret = al_save_config_file_f(file, config);
+      /* XXX do we delete the incomplete file on error? I suppose not. */
+      al_fclose(file);
+   }
+
+   return ret;
+}
+
+
+/* Function: al_save_config_file_f
+ */
+bool al_save_config_file_f(ALLEGRO_FILE *file, const ALLEGRO_CONFIG *config)
 {
    ALLEGRO_CONFIG_SECTION *s;
-   ALLEGRO_FILE *file = al_fopen(filename, "w");
-
-   if (!file) {
-      return false;
-   }
 
    /* Save global section */
    s = config->head;
    while (s != NULL) {
       if (al_ustr_size(s->name) == 0) {
          if (!config_write_section(file, s)) {
-            goto Error;
+            return false;
          }
          break;
       }
@@ -456,28 +477,13 @@ bool al_save_config_file(const ALLEGRO_CONFIG *config, const char *filename)
    while (s != NULL) {
       if (al_ustr_size(s->name) > 0) {
          if (!config_write_section(file, s)) {
-            goto Error;
+            return false;
          }
       }
       s = s->next;
    }
 
-#if 0
-   if (al_fs_entry_close(file)) {
-      /* XXX do we delete the incomplete file? */
-      return 1;
-   }
-#endif
-
-   al_fclose(file);
-
    return true;
-
-Error:
-
-   /* XXX do we delete the incomplete file? */
-   al_fclose(file);
-   return false;
 }
 
 

@@ -301,7 +301,7 @@ int main(void)
       ex.samples = strtol(value, NULL, 0);
    sprintf(str, "%d", ex.samples);
    al_set_config_value(config, "settings", "samples", str);
-   al_save_config_file(config, "ex_draw.ini");
+   al_save_config_file("ex_draw.ini", config);
    al_destroy_config(config);
 
    if (ex.samples) {

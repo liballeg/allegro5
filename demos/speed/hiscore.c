@@ -81,7 +81,7 @@ void shutdown_hiscore()
       al_set_config_value(cfg, "hiscore", buf1, names[i]);
    }
 
-   al_save_config_file(cfg, al_path_cstr(path, ALLEGRO_NATIVE_PATH_SEP));
+   al_save_config_file(al_path_cstr(path, ALLEGRO_NATIVE_PATH_SEP), cfg);
 
    al_destroy_config(cfg);
    al_destroy_path(path);

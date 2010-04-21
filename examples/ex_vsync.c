@@ -102,7 +102,7 @@ int main(void)
 
    /* Write the file back (so a template is generated on first run). */
    if (write) {
-      al_save_config_file(config, "ex_vsync.ini");
+      al_save_config_file("ex_vsync.ini", config);
    }
    al_destroy_config(config);
 

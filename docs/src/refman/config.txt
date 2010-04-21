@@ -27,14 +27,32 @@ Read a configuration file from disk.
 Returns NULL on error.  The configuration structure should be destroyed
 with [al_destroy_config].
 
-See also: [al_save_config_file]
+See also: [al_load_config_file_f], [al_save_config_file]
+
+## API: al_load_config_file_f
+
+Read a configuration file from an already open file.
+
+Returns NULL on error.  The configuration structure should be destroyed
+with [al_destroy_config].  The file remains open afterwards.
+
+See also: [al_load_config_file]
 
 ## API: al_save_config_file
 
 Write out a configuration file to disk.
 Returns true on success, false on error.
 
-See also: [al_load_config_file]
+See also: [al_save_config_file_f], [al_load_config_file]
+
+## API: al_save_config_file_f
+
+Write out a configuration file to an already open file.
+
+Returns true on success, false on error.
+The file remains open afterwards.
+
+See also: [al_save_config_file]
 
 ## API: al_add_config_section
 

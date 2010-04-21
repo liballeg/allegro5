@@ -519,7 +519,7 @@ int main(void)
       al_set_config_value(config, "logo", param_names[i],
          param_values[i]);
    }
-   al_save_config_file(config, "logo.ini");
+   al_save_config_file("logo.ini", config);
    al_destroy_config(config);
 
    return 0;

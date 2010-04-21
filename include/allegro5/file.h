@@ -2,6 +2,8 @@
 #define __al_included_file_h
 
 #include "allegro5/base.h"
+#include "allegro5/path.h"
+#include "allegro5/utf8.h"
 
 #ifdef __cplusplus
    extern "C" {
