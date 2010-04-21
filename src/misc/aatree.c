@@ -20,7 +20,7 @@
 #include "allegro5/internal/aintern_memory.h"
 #include "allegro5/internal/aintern_aatree.h"
 
-static Aatree nil = { 0, NULL, NULL, NULL, NULL };
+static Aatree nil = { 0, &nil, &nil, NULL, NULL };
 
 static Aatree *skew(Aatree *T)
 {
