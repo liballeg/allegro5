@@ -77,11 +77,13 @@ void _al_run_destructors(_AL_DTOR_LIST *dtors)
    {
       while (!_al_vector_is_empty(&dtors->dtors)) {
          DTOR *dtor = _al_vector_ref_back(&dtors->dtors);
+         void *object = dtor->object;
+         void (*func)(void *) = dtor->func;
 
-         ALLEGRO_INFO("calling dtor for object %p, func %p\n", dtor->object, dtor->func);
+         ALLEGRO_INFO("calling dtor for object %p, func %p\n", object, func);
          _al_mutex_unlock(&dtors->mutex);
          {
-            (*dtor->func)(dtor->object);
+            (*func)(object);
          }
          _al_mutex_lock(&dtors->mutex);
       }
