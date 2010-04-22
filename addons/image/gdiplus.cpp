@@ -135,7 +135,7 @@ public:
       }
 
       return ret ? S_OK : STG_E_INVALIDFUNCTION;
-	}
+   }
 
    /* The GDI+ image I/O methods need to know the file size */
    virtual HRESULT STDMETHODCALLTYPE Stat(STATSTG *pstatstg, DWORD grfStatFlag)
@@ -211,19 +211,27 @@ ALLEGRO_BITMAP *_al_load_gdiplus_bitmap_f(ALLEGRO_FILE *fp)
          Gdiplus::Rect rect(0, 0, w, h);
          Gdiplus::BitmapData *gdi_lock = new Gdiplus::BitmapData();
 
-         if (!gdi_bmp->LockBits(&rect, Gdiplus::ImageLockModeRead, PixelFormat32bppARGB, gdi_lock)) {
-            ALLEGRO_LOCKED_REGION *a_lock = al_lock_bitmap(a_bmp, ALLEGRO_PIXEL_FORMAT_ARGB_8888, ALLEGRO_LOCK_WRITEONLY);
+         if (!gdi_bmp->LockBits(&rect, Gdiplus::ImageLockModeRead,
+               PixelFormat32bppARGB, gdi_lock)) {
+               	
+            ALLEGRO_LOCKED_REGION *a_lock = al_lock_bitmap(a_bmp,
+               ALLEGRO_PIXEL_FORMAT_ARGB_8888, ALLEGRO_LOCK_WRITEONLY);
 
             if (a_lock) {
                unsigned char *in = (unsigned char *)gdi_lock->Scan0;
                unsigned char *out = (unsigned char *)a_lock->data;
-               uint32_t rows = h;
-               while (rows--) {
-                  memcpy(out, in, w * 4);
-                  in += gdi_lock->Stride;
-                  out += a_lock->pitch;
-               }
 
+               if (gdi_lock->Stride == a_lock->pitch) {
+                  memcpy(out, in, h * gdi_lock->Stride);
+               }
+               else {
+                  uint32_t rows = h;
+                  while (rows--) {
+                     memcpy(out, in, w * 4);
+                     in += gdi_lock->Stride;
+                     out += a_lock->pitch;
+                  }
+               }
                al_unlock_bitmap(a_bmp);
             }
 
@@ -299,15 +307,20 @@ bool _al_save_gdiplus_bitmap_f(ALLEGRO_FILE *fp, const char *ident,
          ALLEGRO_LOCKED_REGION *a_lock = al_lock_bitmap(
             a_bmp, ALLEGRO_PIXEL_FORMAT_ARGB_8888, ALLEGRO_LOCK_READONLY);
 
-			   if (a_lock) {
+         if (a_lock) {
             unsigned char *in = (unsigned char *)a_lock->data;
             unsigned char *out = (unsigned char *)gdi_lock->Scan0;
-				
-            uint32_t rows = h;
-            while (rows--) {
-               memcpy(out, in, w * 4);
-               in += a_lock->pitch;
-               out += gdi_lock->Stride;				
+           
+            if (gdi_lock->Stride == a_lock->pitch) {
+               memcpy(out, in, h * gdi_lock->Stride);
+            }
+            else {
+               uint32_t rows = h;
+               while (rows--) {
+                  memcpy(out, in, w * 4);
+                  in += a_lock->pitch;
+                  out += gdi_lock->Stride;				
+               }
             }
 
             al_unlock_bitmap(a_bmp);
@@ -368,11 +381,11 @@ bool _al_init_gdiplus()
 {
    if (!gdiplus_inited) {
       Gdiplus::GdiplusStartupInput gdiplusStartupInput;
-      gdiplus_inited = (Gdiplus::GdiplusStartup(&gdiplusToken, &gdiplusStartupInput, NULL) == Gdiplus::Ok);
-
-	  if (gdiplus_inited) {
+      if (Gdiplus::GdiplusStartup(&gdiplusToken, &gdiplusStartupInput, NULL)
+            == Gdiplus::Ok) {
+         gdiplus_inited = TRUE;
          _al_add_exit_func(_al_shutdown_gdiplus, "_al_shutdown_gdiplus");
-	  }
+      }
    }
 
    return gdiplus_inited;
@@ -382,6 +395,6 @@ void _al_shutdown_gdiplus()
 {
    if (gdiplus_inited) {
       Gdiplus::GdiplusShutdown(gdiplusToken);
-	  gdiplus_inited = false;
+      gdiplus_inited = false;
    }
 }
