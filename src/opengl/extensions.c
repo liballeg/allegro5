@@ -358,7 +358,7 @@ int _al_ogl_look_for_an_extension(const char *name, const GLubyte *extensions)
 static int _ogl_is_extension_supported(const char *extension,
                                        ALLEGRO_DISPLAY *disp)
 {
-   int ret;
+   int ret = 0;
    GLubyte const *ext_str;
    (void)disp;
 
@@ -366,11 +366,24 @@ static int _ogl_is_extension_supported(const char *extension,
    return false;
 #endif
 
-   ext_str = glGetString(GL_EXTENSIONS);
-   if (!ext_str)
-      return false;
-
-   ret = _al_ogl_look_for_an_extension(extension, ext_str);
+   if (al_get_opengl_version() >= 3) {
+      int i;
+      GLint ext_cnt;
+      glGetIntegerv(GL_NUM_EXTENSIONS, &ext_cnt);
+      for (i = 0; i < ext_cnt; i++) {
+         ext_str = glGetStringi(GL_EXTENSIONS, i);
+         if (ext_str && !strcmp(extension, (char*)ext_str)) {
+            ret = 1;
+            break;
+         }
+      }
+   }
+   else {
+      ext_str = glGetString(GL_EXTENSIONS);
+      if (!ext_str)
+         return false;
+      ret = _al_ogl_look_for_an_extension(extension, ext_str);
+   }
 
 #ifdef ALLEGRO_WINDOWS
    if (!ret && strncmp(extension, "WGL", 3) == 0) {
