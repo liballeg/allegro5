@@ -342,6 +342,7 @@
 #define glGetStringi _al_glGetStringi
 #endif
 
+
 #if defined _ALLEGRO_GL_VERSION_3_1
 /*OpenGL3.1alsoreusesentrypointsfromtheseextensions:*/
 /*ARB_copy_buffer*/
@@ -351,6 +352,32 @@
 #define glTexBuffer _al_glTexBuffer
 #define glPrimitiveRestartIndex _al_glPrimitiveRestartIndex
 #endif
+
+#if defined _ALLEGRO_GL_VERSION_3_2
+/*OpenGL3.2alsoreusesentrypointsfromtheseextensions:*/
+/*ARB_draw_elements_base_vertex*/
+/*ARB_provoking_vertex*/
+/*ARB_sync*/
+/*ARB_texture_multisample*/
+#define glglGetInteger64i_v _al_glglGetInteger64i_v
+#define glglGetBufferParameteri64v _al_glglGetBufferParameteri64v
+#define glglProgramParameteri _al_glglProgramParameteri
+#define glglFramebufferTexture _al_glglFramebufferTexture
+#endif
+
+#if defined _ALLEGRO_GL_VERSION_3_3
+/*OpenGL3.3alsoreusesentrypointsfromtheseextensions:*/
+/*ARB_blend_func_extended*/
+/*ARB_sampler_objects*/
+/*ARB_explicit_attrib_location,butithasnone*/
+/*ARB_occlusion_query2(noentrypoints)*/
+/*ARB_shader_bit_encoding(noentrypoints)*/
+/*ARB_texture_rgb10_a2ui(noentrypoints)*/
+/*ARB_texture_swizzle(noentrypoints)*/
+/*ARB_timer_query*/
+/*ARB_vertex_type_2_10_10_10_rev*/
+#endif
+
 
 /*</Core>*/
 /*<ARB>*/
@@ -718,6 +745,200 @@
 
 #if defined _ALLEGRO_GL_ARB_copy_buffer
 #define glCopyBufferSubData _al_glCopyBufferSubData
+#endif
+
+
+#if defined _ALLEGRO_GL_ARB_draw_elements_base_vertex
+#define glDrawElementsBaseVertex _al_glDrawElementsBaseVertex
+#define glDrawRangeElementsBaseVertex _al_glDrawRangeElementsBaseVertex
+#define glDrawElementsInstancedBaseVertex _al_glDrawElementsInstancedBaseVertex
+#define glMultiDrawElementsBaseVertex _al_glMultiDrawElementsBaseVertex
+#endif
+
+#if defined _ALLEGRO_GL_ARB_provoking_vertex
+#define glProvokingVertex _al_glProvokingVertex
+#endif
+
+#if defined _ALLEGRO_GL_ARB_sync
+#define glFenceSync _al_glFenceSync
+#define glIsSync _al_glIsSync
+#define glDeleteSync _al_glDeleteSync
+#define glClientWaitSync _al_glClientWaitSync
+#define glWaitSync _al_glWaitSync
+#define glGetInteger64v _al_glGetInteger64v
+#define glGetSynciv _al_glGetSynciv
+#endif
+
+#if defined _ALLEGRO_GL_ARB_texture_multisample
+#define glTexImage2DMultisample _al_glTexImage2DMultisample
+#define glTexImage3DMultisample _al_glTexImage3DMultisample
+#define glGetMultisamplefv _al_glGetMultisamplefv
+#define glSampleMaski _al_glSampleMaski
+#endif
+
+#if defined _ALLEGRO_GL_ARB_draw_buffers_blend
+#define glBlendEquationi _al_glBlendEquationi
+#define glBlendEquationSeparatei _al_glBlendEquationSeparatei
+#define glBlendFunci _al_glBlendFunci
+#define glBlendFuncSeparatei _al_glBlendFuncSeparatei
+#endif
+
+#if defined _ALLEGRO_GL_ARB_sample_shading
+#define glMinSampleShading _al_glMinSampleShading
+#endif
+
+#if defined _ALLEGRO_GL_ARB_shading_language_include
+#define glNamedStringARB _al_glNamedStringARB
+#define glDeleteNamedStringARB _al_glDeleteNamedStringARB
+#define glCompileShaderIncludeARB _al_glCompileShaderIncludeARB
+#define glIsNamedStringARB _al_glIsNamedStringARB
+#define glGetNamedStringARB _al_glGetNamedStringARB
+#define glGetNamedStringivARB _al_glGetNamedStringivARB
+#endif
+
+#if defined _ALLEGRO_GL_ARB_blend_func_extended
+#define glBindFragDataLocationIndexed _al_glBindFragDataLocationIndexed
+#define glGetFragDataIndex _al_glGetFragDataIndex
+#endif
+
+#if defined _ALLEGRO_GL_ARB_sampler_objects
+#define glGenSamplers _al_glGenSamplers
+#define glDeleteSamplers _al_glDeleteSamplers
+#define glIsSampler _al_glIsSampler
+#define glBindSampler _al_glBindSampler
+#define glSamplerParameteri _al_glSamplerParameteri
+#define glSamplerParameteriv _al_glSamplerParameteriv
+#define glSamplerParameterf _al_glSamplerParameterf
+#define glSamplerParameterfv _al_glSamplerParameterfv
+#define glSamplerParameterIiv _al_glSamplerParameterIiv
+#define glSamplerParameterIuiv _al_glSamplerParameterIuiv
+#define glGetSamplerParameteriv _al_glGetSamplerParameteriv
+#define glGetSamplerParameterIiv _al_glGetSamplerParameterIiv
+#define glGetSamplerParameterfv _al_glGetSamplerParameterfv
+#define glGetSamplerParameterIfv _al_glGetSamplerParameterIfv
+#endif
+
+#if defined _ALLEGRO_GL_ARB_timer_query
+#define glQueryCounter _al_glQueryCounter
+#define glGetQueryObjecti64v _al_glGetQueryObjecti64v
+#define glGetQueryObjectui64v _al_glGetQueryObjectui64v
+#endif
+
+#if defined _ALLEGRO_GL_ARB_vertex_type_2_10_10_10_rev
+#define glVertexP2ui _al_glVertexP2ui
+#define glVertexP2uiv _al_glVertexP2uiv
+#define glVertexP3ui _al_glVertexP3ui
+#define glVertexP3uiv _al_glVertexP3uiv
+#define glVertexP4ui _al_glVertexP4ui
+#define glVertexP4uiv _al_glVertexP4uiv
+#define glTexCoordP1ui _al_glTexCoordP1ui
+#define glTexCoordP1uiv _al_glTexCoordP1uiv
+#define glTexCoordP2ui _al_glTexCoordP2ui
+#define glTexCoordP2uiv _al_glTexCoordP2uiv
+#define glTexCoordP3ui _al_glTexCoordP3ui
+#define glTexCoordP3uiv _al_glTexCoordP3uiv
+#define glTexCoordP4ui _al_glTexCoordP4ui
+#define glTexCoordP4uiv _al_glTexCoordP4uiv
+#define glMultiTexCoordP1ui _al_glMultiTexCoordP1ui
+#define glMultiTexCoordP1uiv _al_glMultiTexCoordP1uiv
+#define glMultiTexCoordP2ui _al_glMultiTexCoordP2ui
+#define glMultiTexCoordP2uiv _al_glMultiTexCoordP2uiv
+#define glMultiTexCoordP3ui _al_glMultiTexCoordP3ui
+#define glMultiTexCoordP3uiv _al_glMultiTexCoordP3uiv
+#define glMultiTexCoordP4ui _al_glMultiTexCoordP4ui
+#define glMultiTexCoordP4uiv _al_glMultiTexCoordP4uiv
+#define glNormalP3ui _al_glNormalP3ui
+#define glNormalP3uiv _al_glNormalP3uiv
+#define glColorP3ui _al_glColorP3ui
+#define glColorP3uiv _al_glColorP3uiv
+#define glColorP4ui _al_glColorP4ui
+#define glColorP4uiv _al_glColorP4uiv
+#define glSecondaryColorP3ui _al_glSecondaryColorP3ui
+#define glSecondaryColorP3uiv _al_glSecondaryColorP3uiv
+#define glVertexAttribP1ui _al_glVertexAttribP1ui
+#define glVertexAttribP1uiv _al_glVertexAttribP1uiv
+#define glVertexAttribP2ui _al_glVertexAttribP2ui
+#define glVertexAttribP2uiv _al_glVertexAttribP2uiv
+#define glVertexAttribP3ui _al_glVertexAttribP3ui
+#define glVertexAttribP3uiv _al_glVertexAttribP3uiv
+#define glVertexAttribP4ui _al_glVertexAttribP4ui
+#define glVertexAttribP4uiv _al_glVertexAttribP4uiv
+#endif
+
+#if defined _ALLEGRO_GL_ARB_draw_indirect
+#define glDrawArraysIndirect _al_glDrawArraysIndirect
+#define glDrawElementsIndirect _al_glDrawElementsIndirect
+#endif
+
+#if defined _ALLEGRO_GL_ARB_gpu_shader_fp64
+#define glUniform1d _al_glUniform1d
+#define glUniform2d _al_glUniform2d
+#define glUniform3d _al_glUniform3d
+#define glUniform4d _al_glUniform4d
+#define glUniform1dv _al_glUniform1dv
+#define glUniform2dv _al_glUniform2dv
+#define glUniform3dv _al_glUniform3dv
+#define glUniform4dv _al_glUniform4dv
+#define glUniformMatrix2dv _al_glUniformMatrix2dv
+#define glUniformMatrix3dv _al_glUniformMatrix3dv
+#define glUniformMatrix4dv _al_glUniformMatrix4dv
+#define glUniformMatrix2x3dv _al_glUniformMatrix2x3dv
+#define glUniformMatrix2x4dv _al_glUniformMatrix2x4dv
+#define glUniformMatrix3x2dv _al_glUniformMatrix3x2dv
+#define glUniformMatrix3x4dv _al_glUniformMatrix3x4dv
+#define glUniformMatrix4x2dv _al_glUniformMatrix4x2dv
+#define glUniformMatrix4x3dv _al_glUniformMatrix4x3dv
+#define glGetUniformdv _al_glGetUniformdv
+#define glProgramUniform1dEXT _al_glProgramUniform1dEXT
+#define glProgramUniform2dEXT _al_glProgramUniform2dEXT
+#define glProgramUniform3dEXT _al_glProgramUniform3dEXT
+#define glProgramUniform4dEXT _al_glProgramUniform4dEXT
+#define glProgramUniform1dvEXT _al_glProgramUniform1dvEXT
+#define glProgramUniform2dvEXT _al_glProgramUniform2dvEXT
+#define glProgramUniform3dvEXT _al_glProgramUniform3dvEXT
+#define glProgramUniform4dvEXT _al_glProgramUniform4dvEXT
+#define glProgramUniformMatrix2dvEXT _al_glProgramUniformMatrix2dvEXT
+#define glProgramUniformMatrix3dvEXT _al_glProgramUniformMatrix3dvEXT
+#define glProgramUniformMatrix4dvEXT _al_glProgramUniformMatrix4dvEXT
+#define glProgramUniformMatrix2x3dvEXT _al_glProgramUniformMatrix2x3dvEXT
+#define glProgramUniformMatrix2x4dvEXT _al_glProgramUniformMatrix2x4dvEXT
+#define glProgramUniformMatrix3x2dvEXT _al_glProgramUniformMatrix3x2dvEXT
+#define glProgramUniformMatrix3x4dvEXT _al_glProgramUniformMatrix3x4dvEXT
+#define glProgramUniformMatrix4x2dvEXT _al_glProgramUniformMatrix4x2dvEXT
+#define glProgramUniformMatrix4x3dvEXT _al_glProgramUniformMatrix4x3dvEXT
+#endif
+
+#if defined _ALLEGRO_GL_ARB_shader_subroutine
+#define glGetSubroutineUniformLocation _al_glGetSubroutineUniformLocation
+#define glGetSubroutineIndex _al_glGetSubroutineIndex
+#define glGetActiveSubroutineUniformiv _al_glGetActiveSubroutineUniformiv
+#define glGetActiveSubroutineUniformName _al_glGetActiveSubroutineUniformName
+#define glGetActiveSubroutineName _al_glGetActiveSubroutineName
+#define glUniformSubroutinesuiv _al_glUniformSubroutinesuiv
+#define glGetUniformSubroutineuiv _al_glGetUniformSubroutineuiv
+#define glGetProgramStageiv _al_glGetProgramStageiv
+#endif
+
+#if defined _ALLEGRO_GL_ARB_tessellation_shader
+#define glPatchParameteri _al_glPatchParameteri
+#define glPatchParameterfv _al_glPatchParameterfv
+#endif
+
+#if defined _ALLEGRO_GL_ARB_transform_feedback2
+#define glBindTransformFeedback _al_glBindTransformFeedback
+#define glDeleteTransformFeedbacks _al_glDeleteTransformFeedbacks
+#define glGenTransformFeedbacks _al_glGenTransformFeedbacks
+#define glIsTransformFeedback _al_glIsTransformFeedback
+#define glPauseTransformFeedback _al_glPauseTransformFeedback
+#define glResumeTransformFeedback _al_glResumeTransformFeedback
+#define glDrawTransformFeedback _al_glDrawTransformFeedback
+#endif
+
+#if defined _ALLEGRO_GL_ARB_transform_feedback3
+#define glDrawTransformFeedbackStream _al_glDrawTransformFeedbackStream
+#define glBeginQueryIndexed _al_glBeginQueryIndexed
+#define glEndQueryIndexed _al_glEndQueryIndexed
+#define glGetQueryIndexediv _al_glGetQueryIndexediv
 #endif
 
 
@@ -2257,3 +2478,87 @@
 #define glProvokingVertexEXT _al_glProvokingVertexEXT
 #endif
 
+#if defined _ALLEGRO_GL_AMD_draw_buffers_blend
+#define glBlendFuncIndexedAMD _al_glBlendFuncIndexedAMD
+#define glBlendFuncSeparateIndexedAMD _al_glBlendFuncSeparateIndexedAMD
+#define glBlendEquationIndexedAMD _al_glBlendEquationIndexedAMD
+#define glBlendEquationSeparateIndexedAMD _al_glBlendEquationSeparateIndexedAMD
+#endif
+
+#if defined _ALLEGRO_GL_APPLE_texture_range
+#define glTextureRangeAPPLE _al_glTextureRangeAPPLE
+#define glGetTexParameterPointervAPPLE _al_glGetTexParameterPointervAPPLE
+#endif
+
+#if defined _ALLEGRO_GL_APPLE_vertex_program_evaluators
+#define glEnableVertexAttribAPPLE _al_glEnableVertexAttribAPPLE
+#define glDisableVertexAttribAPPLE _al_glDisableVertexAttribAPPLE
+#define glIsVertexAttribEnabledAPPLE _al_glIsVertexAttribEnabledAPPLE
+#define glMapVertexAttrib1dAPPLE _al_glMapVertexAttrib1dAPPLE
+#define glMapVertexAttrib1fAPPLE _al_glMapVertexAttrib1fAPPLE
+#define glMapVertexAttrib2dAPPLE _al_glMapVertexAttrib2dAPPLE
+#define glMapVertexAttrib2fAPPLE _al_glMapVertexAttrib2fAPPLE
+#endif
+
+#if defined _ALLEGRO_GL_APPLE_object_purgeable
+#define glObjectPurgeableAPPLE _al_glObjectPurgeableAPPLE
+#define glObjectUnpurgeableAPPLE _al_glObjectUnpurgeableAPPLE
+#define glGetObjectParameterivAPPLE _al_glGetObjectParameterivAPPLE
+#endif
+
+#if defined _ALLEGRO_GL_NV_video_capture
+#define glBeginVideoCaptureNV _al_glBeginVideoCaptureNV
+#define glBindVideoCaptureStreamBufferNV _al_glBindVideoCaptureStreamBufferNV
+#define glBindVideoCaptureStreamTextureNV _al_glBindVideoCaptureStreamTextureNV
+#define glEndVideoCaptureNV _al_glEndVideoCaptureNV
+#define glGetVideoCaptureivNV _al_glGetVideoCaptureivNV
+#define glGetVideoCaptureStreamivNV _al_glGetVideoCaptureStreamivNV
+#define glGetVideoCaptureStreamfvNV _al_glGetVideoCaptureStreamfvNV
+#define glGetVideoCaptureStreamdvNV _al_glGetVideoCaptureStreamdvNV
+#define glVideoCaptureNV _al_glVideoCaptureNV
+#define glVideoCaptureStreamParameterivNV _al_glVideoCaptureStreamParameterivNV
+#define glVideoCaptureStreamParameterfvNV _al_glVideoCaptureStreamParameterfvNV
+#define glVideoCaptureStreamParameterdvNV _al_glVideoCaptureStreamParameterdvNV
+#endif
+
+#if defined _ALLEGRO_GL_EXT_separate_shader_objects
+#define glUseShaderProgramEXT _al_glUseShaderProgramEXT
+#define glActiveProgramEXT _al_glActiveProgramEXT
+#define glCreateShaderProgramEXT _al_glCreateShaderProgramEXT
+#endif
+
+#if defined _ALLEGRO_GL_NV_shader_buffer_load
+#define glMakeBufferResidentNV _al_glMakeBufferResidentNV
+#define glMakeBufferNonResidentNV _al_glMakeBufferNonResidentNV
+#define glIsBufferResidentNV _al_glIsBufferResidentNV
+#define glMakeNamedBufferResidentNV _al_glMakeNamedBufferResidentNV
+#define glMakeNamedBufferNonResidentNV _al_glMakeNamedBufferNonResidentNV
+#define glIsNamedBufferResidentNV _al_glIsNamedBufferResidentNV
+#define glGetBufferParameterui64vNV _al_glGetBufferParameterui64vNV
+#define glGetNamedBufferParameterui64vNV _al_glGetNamedBufferParameterui64vNV
+#define glGetIntegerui64vNV _al_glGetIntegerui64vNV
+#define glUniformui64NV _al_glUniformui64NV
+#define glUniformui64vNV _al_glUniformui64vNV
+#define glGetUniformui64vNV _al_glGetUniformui64vNV
+#define glProgramUniformui64NV _al_glProgramUniformui64NV
+#define glProgramUniformui64vNV _al_glProgramUniformui64vNV
+#endif
+
+#if defined _ALLEGRO_GL_NV_vertex_buffer_unified_memory
+#define glBufferAddressRangeNV _al_glBufferAddressRangeNV
+#define glVertexFormatNV _al_glVertexFormatNV
+#define glNormalFormatNV _al_glNormalFormatNV
+#define glColorFormatNV _al_glColorFormatNV
+#define glIndexFormatNV _al_glIndexFormatNV
+#define glTexCoordFormatNV _al_glTexCoordFormatNV
+#define glEdgeFlagFormatNV _al_glEdgeFlagFormatNV
+#define glSecondaryColorFormatNV _al_glSecondaryColorFormatNV
+#define glFogCoordFormatNV _al_glFogCoordFormatNV
+#define glVertexAttribFormatNV _al_glVertexAttribFormatNV
+#define glVertexAttribIFormatNV _al_glVertexAttribIFormatNV
+#define glGetIntegerui64i_vNV _al_glGetIntegerui64i_vNV
+#endif
+
+#if defined _ALLEGRO_GL_NV_texture_barrier
+#define glTextureBarrierNV _al_glTextureBarrierNV
+#endif

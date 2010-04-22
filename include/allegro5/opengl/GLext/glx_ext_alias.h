@@ -30,6 +30,10 @@
 #define glXGetProcAddressARB _al_glXGetProcAddressARB
 #endif
 
+#ifdef _ALLEGRO_GLX_ARB_create_context
+#define glXCreateContextAttribsARB _al_glXCreateContextAttribsARB
+#endif
+
 #ifdef _ALLEGRO_GLX_SGI_swap_control
 /*GLX_SGI_swap_control*/
 #define glXSwapIntervalSGI _al_glXSwapIntervalSGI
@@ -174,7 +178,7 @@
 #define glXReleaseTextImageEXT _al_glXReleaseTextImageEXT
 #endif
 
-#ifdef _ALLEGRO_GLX_NV_video_out
+#ifdef _ALLEGRO_GLX_NV_video_output
 #define glXGetVideoDeviceNV _al_glXGetVideoDeviceNV
 #define glXReleaseVideoDeviceNV _al_glXReleaseVideoDeviceNV
 #define glXBindVideoImageNV _al_glXBindVideoImageNV
@@ -192,6 +196,18 @@
 #define glXResetFrameCountNV _al_glXResetFrameCountNV
 #endif
 
-#ifdef _ALLEGRO_GLX_ARB_create_context
-#define glXCreateContextAttribsARB _al_glXCreateContextAttribsARB
+#ifdef _ALLEGRO_GLX_NV_video_capture
+#define glXBindVideoCaptureDeviceNV _al_glXBindVideoCaptureDeviceNV
+#define glXEnumerateVideoCaptureDevicesNV _al_glXEnumerateVideoCaptureDevicesNV
+#define glXLockVideoCaptureDeviceNV _al_glXLockVideoCaptureDeviceNV
+#define glXQueryVideoCaptureDeviceNV _al_glXQueryVideoCaptureDeviceNV
+#define glXReleaseVideoCaptureDeviceNV _al_glXReleaseVideoCaptureDeviceNV
+#endif
+
+#ifdef _ALLEGRO_GLX_EXT_swap_control
+#define glXSwapIntervalEXT _al_glXSwapIntervalEXT
+#endif
+
+#ifdef _ALLEGRO_GLX_NV_copy_image
+#define glXCopyImageSubDataNV _al_glXCopyImageSubDataNV
 #endif

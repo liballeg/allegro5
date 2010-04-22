@@ -28,6 +28,9 @@ AGL_API(BOOL, BindTexImageARB, (HPBUFFERARB, int))
 AGL_API(BOOL, ReleaseTexImageARB, (HPBUFFERARB, int))
 AGL_API(BOOL, SetPbufferAttribARB, (HPBUFFERARB, const int *))
 
+/* WGL_ARB_create_context */
+AGL_API(HGLRC, CreateContextAttribsARB, (HDC, HGLRC, const int *))
+
 /* WGL_EXT_display_color_table */
 AGL_API(GLboolean, CreateDisplayColorTableEXT, (GLushort))
 AGL_API(GLboolean, LoadDisplayColorTableEXT, (const GLushort *, GLuint))
@@ -142,9 +145,7 @@ AGL_API(HDC,  CreateAffinityDCNV, (const HGPUNV *))
 AGL_API(BOOL, EnumGpusFromAffinityDCNV, (HDC, UINT, HGPUNV *))
 AGL_API(BOOL, DeleteDCNV, (HDC))
 
-/* WGL_ARB_create_context */
-AGL_API(HGLRC, CreateContextAttribsARB, (HDC, HGLRC, const int *))
-
+/* WGL_AMD_gpu_association */
 AGL_API(UINT, GetGPUIDsAMD, (UINT, UINT *))
 AGL_API(INT, GetGPUInfoAMD, (UINT, int, GLenum, UINT, void *))
 AGL_API(UINT, GetContextGPUIDAMD, (HGLRC))
@@ -155,3 +156,12 @@ AGL_API(BOOL, MakeAssociatedContextCurrentAMD, (HGLRC))
 AGL_API(HGLRC, GetCurrentAssociatedContextAMD, (void))
 AGL_API(VOID, BlitContextFramebufferAMD, (HGLRC, GLint, GLint, GLint, GLint, GLint, GLint, GLint, GLint, GLbitfield, GLenum))
 
+/* WGL_NV_video_capture */
+AGL_API(BOOL, BindVideoCaptureDeviceNV, (UINT uVideoSlot, HVIDEOINPUTDEVICENV hDevice))
+AGL_API(UINT, EnumerateVideoCaptureDevicesNV, (HDC hDc, HVIDEOINPUTDEVICENV *phDeviceList))
+AGL_API(BOOL, LockVideoCaptureDeviceNV, (HDC hDc, HVIDEOINPUTDEVICENV hDevice))
+AGL_API(BOOL, QueryVideoCaptureDeviceNV, (HDC hDc, HVIDEOINPUTDEVICENV hDevice, int iAttribute, int *piValue))
+AGL_API(BOOL, ReleaseVideoCaptureDeviceNV, (HDC hDc, HVIDEOINPUTDEVICENV hDevice))
+
+/* WGL_NV_copy_image */
+AGL_API(BOOL, CopyImageSubDataNV, (HGLRC hSrcRC, GLuint srcName, GLenum srcTarget, GLint srcLevel, GLint srcX, GLint srcY, GLint srcZ, HGLRC hDstRC, GLuint dstName, GLenum dstTarget, GLint dstLevel, GLint dstX, GLint dstY, GLint dstZ, GLsizei width, GLsizei height, GLsizei depth))

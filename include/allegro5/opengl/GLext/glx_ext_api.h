@@ -29,6 +29,10 @@ AGL_API(__GLXextFuncPtr, GetProcAddress, (const GLubyte *))
 AGL_API(__GLXextFuncPtr, GetProcAddressARB, (const GLubyte *))
 #endif
 
+#ifdef _ALLEGRO_GLX_ARB_create_context
+AGL_API(GLXContext, CreateContextAttribsARB, (Display *, GLXFBConfig, GLXContext, Bool, const int *))
+#endif
+
 #ifdef _ALLEGRO_GLX_SGI_swap_control
 /* GLX_SGI_swap_control */
 AGL_API(int, SwapIntervalSGI, (int))
@@ -173,7 +177,7 @@ AGL_API(void, BindTexImageEXT, (Display *dpy, GLXDrawable drawable, int buffer, 
 AGL_API(void, ReleaseTextImageEXT, (Display *dpy, GLXDrawable drawable, int buffer))
 #endif
 
-#ifdef _ALLEGRO_GLX_NV_video_out
+#ifdef _ALLEGRO_GLX_NV_video_output
 AGL_API(int, GetVideoDeviceNV, (Display *dpy, int screen, int numVideoDevices, GLXVideoDeviceNV *pVideoDevice))
 AGL_API(int, ReleaseVideoDeviceNV, (Display *dpy, int screen, GLXVideoDeviceNV VideoDevice))
 AGL_API(int, BindVideoImageNV, (Display *dpy, GLXVideoDeviceNV VideoDevice, GLXPbuffer pbuf, int iVideoBuffer))
@@ -191,6 +195,18 @@ AGL_API(Bool, QueryFrameCountNV, (Display *dpy, int screen, GLuint *count))
 AGL_API(Bool, ResetFrameCountNV, (Display *dpy, int screen))
 #endif
 
-#ifdef _ALLEGRO_GLX_ARB_create_context
-AGL_API(GLXContext, CreateContextAttribsARB, (Display *, GLXFBConfig, GLXContext, Bool, const int *))
+#ifdef _ALLEGRO_GLX_NV_video_capture
+AGL_API(int, BindVideoCaptureDeviceNV, (Display *dpy, unsigned int video_capture_slot, GLXVideoCaptureDeviceNV device))
+AGL_API(GLXVideoCaptureDeviceNV *, EnumerateVideoCaptureDevicesNV, (Display *dpy, int screen, int *nelements))
+AGL_API(void, LockVideoCaptureDeviceNV, (Display *dpy, GLXVideoCaptureDeviceNV device))
+AGL_API(int, QueryVideoCaptureDeviceNV, (Display *dpy, GLXVideoCaptureDeviceNV device, int attribute, int *value))
+AGL_API(void, ReleaseVideoCaptureDeviceNV, (Display *dpy, GLXVideoCaptureDeviceNV device))
+#endif
+
+#ifdef _ALLEGRO_GLX_EXT_swap_control
+AGL_API(int, SwapIntervalEXT, (Display *dpy, GLXDrawable drawable, int interval))
+#endif
+
+#ifdef _ALLEGRO_GLX_NV_copy_image
+AGL_API(void, CopyImageSubDataNV, (Display *dpy, GLXContext srcCtx, GLuint srcName, GLenum srcTarget, GLint srcLevel, GLint srcX, GLint srcY, GLint srcZ, GLXContext dstCtx, GLuint dstName, GLenum dstTarget, GLint dstLevel, GLint dstX, GLint dstY, GLint dstZ, GLsizei width, GLsizei height, GLsizei depth))
 #endif

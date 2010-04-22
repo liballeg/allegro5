@@ -567,6 +567,18 @@ typedef char GLchar;
 #define GL_QUERY_BY_REGION_NO_WAIT        0x8E16
 #endif
 
+#ifndef GL_VERSION_3_0_DEPRECATED
+#define GL_VERSION_3_0_DEPRECATED
+#define _ALLEGRO_GL_VERSION_3_0_DEPRECATED
+#define GL_CLAMP_VERTEX_COLOR             0x891A
+#define GL_CLAMP_FRAGMENT_COLOR           0x891B
+#define GL_ALPHA_INTEGER                  0x8D97
+/* Reuse tokens from ARB_framebuffer_object */
+/* reuse GL_TEXTURE_LUMINANCE_TYPE */
+/* reuse GL_TEXTURE_INTENSITY_TYPE */
+#endif
+
+
 #ifndef GL_VERSION_3_1
 #define GL_VERSION_3_1
 #define _ALLEGRO_GL_VERSION_3_1
@@ -602,6 +614,40 @@ typedef char GLchar;
 #define GL_PRIMITIVE_RESTART              0x8F9D
 #define GL_PRIMITIVE_RESTART_INDEX        0x8F9E
 #endif
+
+#ifndef GL_VERSION_3_2
+#define GL_VERSION_3_2
+#define _ALLEGRO_GL_VERSION_3_2
+#define GL_CONTEXT_CORE_PROFILE_BIT       0x00000001
+#define GL_CONTEXT_COMPATIBILITY_PROFILE_BIT 0x00000002
+#define GL_LINES_ADJACENCY                0x000A
+#define GL_LINE_STRIP_ADJACENCY           0x000B
+#define GL_TRIANGLES_ADJACENCY            0x000C
+#define GL_TRIANGLE_STRIP_ADJACENCY       0x000D
+#define GL_PROGRAM_POINT_SIZE             0x8642
+#define GL_MAX_GEOMETRY_TEXTURE_IMAGE_UNITS 0x8C29
+#define GL_FRAMEBUFFER_ATTACHMENT_LAYERED 0x8DA7
+#define GL_FRAMEBUFFER_INCOMPLETE_LAYER_TARGETS 0x8DA8
+#define GL_GEOMETRY_SHADER                0x8DD9
+#define GL_GEOMETRY_VERTICES_OUT          0x8916
+#define GL_GEOMETRY_INPUT_TYPE            0x8917
+#define GL_GEOMETRY_OUTPUT_TYPE           0x8918
+#define GL_MAX_GEOMETRY_UNIFORM_COMPONENTS 0x8DDF
+#define GL_MAX_GEOMETRY_OUTPUT_VERTICES   0x8DE0
+#define GL_MAX_GEOMETRY_TOTAL_OUTPUT_COMPONENTS 0x8DE1
+#define GL_MAX_VERTEX_OUTPUT_COMPONENTS   0x9122
+#define GL_MAX_GEOMETRY_INPUT_COMPONENTS  0x9123
+#define GL_MAX_GEOMETRY_OUTPUT_COMPONENTS 0x9124
+#define GL_MAX_FRAGMENT_INPUT_COMPONENTS  0x9125
+#define GL_CONTEXT_PROFILE_MASK           0x9126
+#endif
+
+#ifndef GL_VERSION_3_3
+#define GL_VERSION_3_3
+#define _ALLEGRO_GL_VERSION_3_3
+#endif
+
+
 
 /* </Core> */
 /* <ARB> */
@@ -1458,6 +1504,335 @@ typedef unsigned long GLhandleARB;
 #define GL_COPY_READ_BUFFER               0x8F36
 #define GL_COPY_WRITE_BUFFER              0x8F37
 #endif
+
+#ifndef GL_ARB_shader_texture_lod
+#define GL_ARB_shader_texture_lod
+#define _ALLEGRO_GL_ARB_shader_texture_lod
+#endif
+
+#ifndef GL_ARB_depth_clamp
+#define GL_ARB_depth_clamp
+#define _ALLEGRO_GL_ARB_depth_clamp
+#define GL_DEPTH_CLAMP                    0x864F
+#endif
+
+#ifndef GL_ARB_draw_elements_base_vertex
+#define GL_ARB_draw_elements_base_vertex
+#define _ALLEGRO_GL_ARB_draw_elements_base_vertex
+#endif
+
+#ifndef GL_ARB_fragment_coord_conventions
+#define GL_ARB_fragment_coord_conventions
+#define _ALLEGRO_GL_ARB_fragment_coord_conventions
+#endif
+
+#ifndef GL_ARB_provoking_vertex
+#define GL_ARB_provoking_vertex
+#define _ALLEGRO_GL_ARB_provoking_vertex
+#define GL_QUADS_FOLLOW_PROVOKING_VERTEX_CONVENTION 0x8E4C
+#define GL_FIRST_VERTEX_CONVENTION        0x8E4D
+#define GL_LAST_VERTEX_CONVENTION         0x8E4E
+#define GL_PROVOKING_VERTEX               0x8E4F
+#endif
+
+#ifndef GL_ARB_seamless_cube_map
+#define GL_ARB_seamless_cube_map
+#define _ALLEGRO_GL_ARB_seamless_cube_map
+#define GL_TEXTURE_CUBE_MAP_SEAMLESS      0x884F
+#endif
+
+#ifndef GL_ARB_sync
+#define GL_ARB_sync
+#define _ALLEGRO_GL_ARB_sync
+#if (defined _MSC_VER) && (_MSC_VER < 1400)
+typedef __int64          GLint64;
+typedef unsigned __int64 GLuint64;
+#else
+typedef int64_t GLint64;
+typedef uint64_t GLuint64;
+#endif
+typedef struct __GLsync *GLsync;
+#define GL_MAX_SERVER_WAIT_TIMEOUT        0x9111
+#define GL_OBJECT_TYPE                    0x9112
+#define GL_SYNC_CONDITION                 0x9113
+#define GL_SYNC_STATUS                    0x9114
+#define GL_SYNC_FLAGS                     0x9115
+#define GL_SYNC_FENCE                     0x9116
+#define GL_SYNC_GPU_COMMANDS_COMPLETE     0x9117
+#define GL_UNSIGNALED                     0x9118
+#define GL_SIGNALED                       0x9119
+#define GL_ALREADY_SIGNALED               0x911A
+#define GL_TIMEOUT_EXPIRED                0x911B
+#define GL_CONDITION_SATISFIED            0x911C
+#define GL_WAIT_FAILED                    0x911D
+#define GL_SYNC_FLUSH_COMMANDS_BIT        0x00000001
+#define GL_TIMEOUT_IGNORED                0xFFFFFFFFFFFFFFFFull
+#endif
+
+#ifndef GL_ARB_texture_multisample
+#define GL_ARB_texture_multisample
+#define _ALLEGRO_GL_ARB_texture_multisample
+#define GL_SAMPLE_POSITION                0x8E50
+#define GL_SAMPLE_MASK                    0x8E51
+#define GL_SAMPLE_MASK_VALUE              0x8E52
+#define GL_MAX_SAMPLE_MASK_WORDS          0x8E59
+#define GL_TEXTURE_2D_MULTISAMPLE         0x9100
+#define GL_PROXY_TEXTURE_2D_MULTISAMPLE   0x9101
+#define GL_TEXTURE_2D_MULTISAMPLE_ARRAY   0x9102
+#define GL_PROXY_TEXTURE_2D_MULTISAMPLE_ARRAY 0x9103
+#define GL_TEXTURE_BINDING_2D_MULTISAMPLE 0x9104
+#define GL_TEXTURE_BINDING_2D_MULTISAMPLE_ARRAY 0x9105
+#define GL_TEXTURE_SAMPLES                0x9106
+#define GL_TEXTURE_FIXED_SAMPLE_LOCATIONS 0x9107
+#define GL_SAMPLER_2D_MULTISAMPLE         0x9108
+#define GL_INT_SAMPLER_2D_MULTISAMPLE     0x9109
+#define GL_UNSIGNED_INT_SAMPLER_2D_MULTISAMPLE 0x910A
+#define GL_SAMPLER_2D_MULTISAMPLE_ARRAY   0x910B
+#define GL_INT_SAMPLER_2D_MULTISAMPLE_ARRAY 0x910C
+#define GL_UNSIGNED_INT_SAMPLER_2D_MULTISAMPLE_ARRAY 0x910D
+#define GL_MAX_COLOR_TEXTURE_SAMPLES      0x910E
+#define GL_MAX_DEPTH_TEXTURE_SAMPLES      0x910F
+#define GL_MAX_INTEGER_SAMPLES            0x9110
+#endif
+
+#ifndef GL_ARB_vertex_array_bgra
+#define GL_ARB_vertex_array_bgra
+#define _ALLEGRO_GL_ARB_vertex_array_bgra
+/* reuse GL_BGRA */
+#endif
+
+#ifndef GL_ARB_draw_buffers_blend
+#define GL_ARB_draw_buffers_blend
+#define _ALLEGRO_GL_ARB_draw_buffers_blend
+#endif
+
+#ifndef GL_ARB_sample_shading
+#define GL_ARB_sample_shading
+#define _ALLEGRO_GL_ARB_sample_shading
+#define GL_SAMPLE_SHADING                 0x8C36
+#define GL_MIN_SAMPLE_SHADING_VALUE       0x8C37
+#endif
+
+#ifndef GL_ARB_texture_cube_map_array
+#define GL_ARB_texture_cube_map_array
+#define _ALLEGRO_GL_ARB_texture_cube_map_array
+#define GL_TEXTURE_CUBE_MAP_ARRAY         0x9009
+#define GL_TEXTURE_BINDING_CUBE_MAP_ARRAY 0x900A
+#define GL_PROXY_TEXTURE_CUBE_MAP_ARRAY   0x900B
+#define GL_SAMPLER_CUBE_MAP_ARRAY         0x900C
+#define GL_SAMPLER_CUBE_MAP_ARRAY_SHADOW  0x900D
+#define GL_INT_SAMPLER_CUBE_MAP_ARRAY     0x900E
+#define GL_UNSIGNED_INT_SAMPLER_CUBE_MAP_ARRAY 0x900F
+#endif
+
+#ifndef GL_ARB_texture_gather
+#define GL_ARB_texture_gather
+#define _ALLEGRO_GL_ARB_texture_gather
+#define GL_MIN_PROGRAM_TEXTURE_GATHER_OFFSET_ARB 0x8E5E
+#define GL_MAX_PROGRAM_TEXTURE_GATHER_OFFSET_ARB 0x8E5F
+#endif
+
+#ifndef GL_ARB_texture_query_lod
+#define GL_ARB_texture_query_lod
+#define _ALLEGRO_GL_ARB_texture_query_lod
+#endif
+
+#ifndef GL_ARB_shading_language_include
+#define GL_ARB_shading_language_include
+#define _ALLEGRO_GL_ARB_shading_language_include
+#define GL_SHADER_INCLUDE_ARB             0x8DAE
+#define GL_NAMED_STRING_LENGTH_ARB        0x8DE9
+#define GL_NAMED_STRING_TYPE_ARB          0x8DEA
+#endif
+
+#ifndef GL_ARB_texture_compression_bptc
+#define GL_ARB_texture_compression_bptc
+#define _ALLEGRO_GL_ARB_texture_compression_bptc
+#define GL_COMPRESSED_RGBA_BPTC_UNORM_ARB 0x8E8C
+#define GL_COMPRESSED_SRGB_ALPHA_BPTC_UNORM_ARB 0x8E8D
+#define GL_COMPRESSED_RGB_BPTC_SIGNED_FLOAT_ARB 0x8E8E
+#define GL_COMPRESSED_RGB_BPTC_UNSIGNED_FLOAT_ARB 0x8E8F
+#endif
+
+#ifndef GL_ARB_blend_func_extended
+#define GL_ARB_blend_func_extended
+#define _ALLEGRO_GL_ARB_blend_func_extended
+#define GL_SRC1_COLOR                     0x88F9
+/* reuse GL_SRC1_ALPHA */
+#define GL_ONE_MINUS_SRC1_COLOR           0x88FA
+#define GL_ONE_MINUS_SRC1_ALPHA           0x88FB
+#define GL_MAX_DUAL_SOURCE_DRAW_BUFFERS   0x88FC
+#endif
+
+#ifndef GL_ARB_explicit_attrib_location
+#define GL_ARB_explicit_attrib_location
+#define _ALLEGRO_GL_ARB_explicit_attrib_location
+#endif
+
+#ifndef GL_ARB_occlusion_query2
+#define GL_ARB_occlusion_query2
+#define _ALLEGRO_GL_ARB_occlusion_query2
+#define GL_ANY_SAMPLES_PASSED             0x8C2F
+#endif
+
+#ifndef GL_ARB_sampler_objects
+#define GL_ARB_sampler_objects
+#define _ALLEGRO_GL_ARB_sampler_objects
+#define GL_SAMPLER_BINDING                0x8919
+#endif
+
+#ifndef GL_ARB_shader_bit_encoding
+#define GL_ARB_shader_bit_encoding
+#define _ALLEGRO_GL_ARB_shader_bit_encoding
+#endif
+
+#ifndef GL_ARB_texture_rgb10_a2ui
+#define GL_ARB_texture_rgb10_a2ui
+#define _ALLEGRO_GL_ARB_texture_rgb10_a2ui
+#define GL_RGB10_A2UI                     0x906F
+#endif
+
+#ifndef GL_ARB_texture_swizzle
+#define GL_ARB_texture_swizzle
+#define _ALLEGRO_GL_ARB_texture_swizzle
+#define GL_TEXTURE_SWIZZLE_R              0x8E42
+#define GL_TEXTURE_SWIZZLE_G              0x8E43
+#define GL_TEXTURE_SWIZZLE_B              0x8E44
+#define GL_TEXTURE_SWIZZLE_A              0x8E45
+#define GL_TEXTURE_SWIZZLE_RGBA           0x8E46
+#endif
+
+#ifndef GL_ARB_timer_query
+#define GL_ARB_timer_query
+#define _ALLEGRO_GL_ARB_timer_query
+#define GL_TIME_ELAPSED                   0x88BF
+#define GL_TIMESTAMP                      0x8E28
+#endif
+
+#ifndef GL_ARB_vertex_type_2_10_10_10_rev
+#define GL_ARB_vertex_type_2_10_10_10_rev
+#define _ALLEGRO_GL_ARB_vertex_type_2_10_10_10_rev
+/* reuse GL_UNSIGNED_INT_2_10_10_10_REV */
+#define GL_INT_2_10_10_10_REV             0x8D9F
+#endif
+
+#ifndef GL_ARB_draw_indirect
+#define GL_ARB_draw_indirect
+#define _ALLEGRO_GL_ARB_draw_indirect
+#define GL_DRAW_INDIRECT_BUFFER           0x8F3F
+#define GL_DRAW_INDIRECT_BUFFER_BINDING   0x8F43
+#endif
+
+#ifndef GL_ARB_gpu_shader5
+#define GL_ARB_gpu_shader5
+#define _ALLEGRO_GL_ARB_gpu_shader5
+#define GL_GEOMETRY_SHADER_INVOCATIONS    0x887F
+#define GL_MAX_GEOMETRY_SHADER_INVOCATIONS 0x8E5A
+#define GL_MIN_FRAGMENT_INTERPOLATION_OFFSET 0x8E5B
+#define GL_MAX_FRAGMENT_INTERPOLATION_OFFSET 0x8E5C
+#define GL_FRAGMENT_INTERPOLATION_OFFSET_BITS 0x8E5D
+#define GL_MAX_VERTEX_STREAMS             0x8E71
+#endif
+
+#ifndef GL_ARB_gpu_shader_fp64
+#define GL_ARB_gpu_shader_fp64
+#define _ALLEGRO_GL_ARB_gpu_shader_fp64
+/* reuse GL_DOUBLE */
+#define GL_DOUBLE_VEC2                    0x8FFC
+#define GL_DOUBLE_VEC3                    0x8FFD
+#define GL_DOUBLE_VEC4                    0x8FFE
+#define GL_DOUBLE_MAT2                    0x8F46
+#define GL_DOUBLE_MAT3                    0x8F47
+#define GL_DOUBLE_MAT4                    0x8F48
+#define GL_DOUBLE_MAT2x3                  0x8F49
+#define GL_DOUBLE_MAT2x4                  0x8F4A
+#define GL_DOUBLE_MAT3x2                  0x8F4B
+#define GL_DOUBLE_MAT3x4                  0x8F4C
+#define GL_DOUBLE_MAT4x2                  0x8F4D
+#define GL_DOUBLE_MAT4x3                  0x8F4E
+#endif
+
+#ifndef GL_ARB_shader_subroutine
+#define GL_ARB_shader_subroutine
+#define _ALLEGRO_GL_ARB_shader_subroutine
+#define GL_ACTIVE_SUBROUTINES             0x8DE5
+#define GL_ACTIVE_SUBROUTINE_UNIFORMS     0x8DE6
+#define GL_ACTIVE_SUBROUTINE_UNIFORM_LOCATIONS 0x8E47
+#define GL_ACTIVE_SUBROUTINE_MAX_LENGTH   0x8E48
+#define GL_ACTIVE_SUBROUTINE_UNIFORM_MAX_LENGTH 0x8E49
+#define GL_MAX_SUBROUTINES                0x8DE7
+#define GL_MAX_SUBROUTINE_UNIFORM_LOCATIONS 0x8DE8
+#define GL_NUM_COMPATIBLE_SUBROUTINES     0x8E4A
+#define GL_COMPATIBLE_SUBROUTINES         0x8E4B
+/* reuse GL_UNIFORM_SIZE */
+/* reuse GL_UNIFORM_NAME_LENGTH */
+#endif
+
+#ifndef GL_ARB_tessellation_shader
+#define GL_ARB_tessellation_shader
+#define _ALLEGRO_GL_ARB_tessellation_shader
+#define GL_PATCHES                        0x000E
+#define GL_PATCH_VERTICES                 0x8E72
+#define GL_PATCH_DEFAULT_INNER_LEVEL      0x8E73
+#define GL_PATCH_DEFAULT_OUTER_LEVEL      0x8E74
+#define GL_TESS_CONTROL_OUTPUT_VERTICES   0x8E75
+#define GL_TESS_GEN_MODE                  0x8E76
+#define GL_TESS_GEN_SPACING               0x8E77
+#define GL_TESS_GEN_VERTEX_ORDER          0x8E78
+#define GL_TESS_GEN_POINT_MODE            0x8E79
+/* reuse GL_TRIANGLES */
+/* reuse GL_QUADS */
+#define GL_ISOLINES                       0x8E7A
+/* reuse GL_EQUAL */
+#define GL_FRACTIONAL_ODD                 0x8E7B
+#define GL_FRACTIONAL_EVEN                0x8E7C
+/* reuse GL_CCW */
+/* reuse GL_CW */
+#define GL_MAX_PATCH_VERTICES             0x8E7D
+#define GL_MAX_TESS_GEN_LEVEL             0x8E7E
+#define GL_MAX_TESS_CONTROL_UNIFORM_COMPONENTS 0x8E7F
+#define GL_MAX_TESS_EVALUATION_UNIFORM_COMPONENTS 0x8E80
+#define GL_MAX_TESS_CONTROL_TEXTURE_IMAGE_UNITS 0x8E81
+#define GL_MAX_TESS_EVALUATION_TEXTURE_IMAGE_UNITS 0x8E82
+#define GL_MAX_TESS_CONTROL_OUTPUT_COMPONENTS 0x8E83
+#define GL_MAX_TESS_PATCH_COMPONENTS      0x8E84
+#define GL_MAX_TESS_CONTROL_TOTAL_OUTPUT_COMPONENTS 0x8E85
+#define GL_MAX_TESS_EVALUATION_OUTPUT_COMPONENTS 0x8E86
+#define GL_MAX_TESS_CONTROL_UNIFORM_BLOCKS 0x8E89
+#define GL_MAX_TESS_EVALUATION_UNIFORM_BLOCKS 0x8E8A
+#define GL_MAX_TESS_CONTROL_INPUT_COMPONENTS 0x886C
+#define GL_MAX_TESS_EVALUATION_INPUT_COMPONENTS 0x886D
+#define GL_MAX_COMBINED_TESS_CONTROL_UNIFORM_COMPONENTS 0x8E1E
+#define GL_MAX_COMBINED_TESS_EVALUATION_UNIFORM_COMPONENTS 0x8E1F
+#define GL_UNIFORM_BLOCK_REFERENCED_BY_TESS_CONTROL_SHADER 0x84F0
+#define GL_UNIFORM_BLOCK_REFERENCED_BY_TESS_EVALUATION_SHADER 0x84F1
+#define GL_TESS_EVALUATION_SHADER         0x8E87
+#define GL_TESS_CONTROL_SHADER            0x8E88
+#endif
+
+#ifndef GL_ARB_texture_buffer_object_rgb32
+#define GL_ARB_texture_buffer_object_rgb32
+#define _ALLEGRO_GL_ARB_texture_buffer_object_rgb32
+/* reuse GL_RGB32F */
+/* reuse GL_RGB32UI */
+/* reuse GL_RGB32I */
+#endif
+
+#ifndef GL_ARB_transform_feedback2
+#define GL_ARB_transform_feedback2
+#define _ALLEGRO_GL_ARB_transform_feedback2
+#define GL_TRANSFORM_FEEDBACK             0x8E22
+#define GL_TRANSFORM_FEEDBACK_BUFFER_PAUSED 0x8E23
+#define GL_TRANSFORM_FEEDBACK_BUFFER_ACTIVE 0x8E24
+#define GL_TRANSFORM_FEEDBACK_BINDING     0x8E25
+#endif
+
+#ifndef GL_ARB_transform_feedback3
+#define GL_ARB_transform_feedback3
+#define _ALLEGRO_GL_ARB_transform_feedback3
+#define GL_MAX_TRANSFORM_FEEDBACK_BUFFERS 0x8E70
+#endif
+
 
 /* </ARB> */
 
@@ -4519,3 +4894,215 @@ typedef uint64_t GLuint64EXT;
 #define GL_PROVOKING_VERTEX_EXT           0x8E4F
 #endif
 
+#ifndef GL_EXT_texture_snorm
+#define GL_EXT_texture_snorm
+#define _ALLEGRO_GL_EXT_texture_snorm
+#define GL_ALPHA_SNORM                    0x9010
+#define GL_LUMINANCE_SNORM                0x9011
+#define GL_LUMINANCE_ALPHA_SNORM          0x9012
+#define GL_INTENSITY_SNORM                0x9013
+#define GL_ALPHA8_SNORM                   0x9014
+#define GL_LUMINANCE8_SNORM               0x9015
+#define GL_LUMINANCE8_ALPHA8_SNORM        0x9016
+#define GL_INTENSITY8_SNORM               0x9017
+#define GL_ALPHA16_SNORM                  0x9018
+#define GL_LUMINANCE16_SNORM              0x9019
+#define GL_LUMINANCE16_ALPHA16_SNORM      0x901A
+#define GL_INTENSITY16_SNORM              0x901B
+/* reuse GL_RED_SNORM */
+/* reuse GL_RG_SNORM */
+/* reuse GL_RGB_SNORM */
+/* reuse GL_RGBA_SNORM */
+/* reuse GL_R8_SNORM */
+/* reuse GL_RG8_SNORM */
+/* reuse GL_RGB8_SNORM */
+/* reuse GL_RGBA8_SNORM */
+/* reuse GL_R16_SNORM */
+/* reuse GL_RG16_SNORM */
+/* reuse GL_RGB16_SNORM */
+/* reuse GL_RGBA16_SNORM */
+/* reuse GL_SIGNED_NORMALIZED */
+#endif
+
+#ifndef GL_AMD_draw_buffers_blend
+#define GL_AMD_draw_buffers_blend
+#define _ALLEGRO_GL_AMD_draw_buffers_blend
+#endif
+
+#ifndef GL_APPLE_texture_range
+#define GL_APPLE_texture_range
+#define _ALLEGRO_GL_APPLE_texture_range
+#define GL_TEXTURE_RANGE_LENGTH_APPLE     0x85B7
+#define GL_TEXTURE_RANGE_POINTER_APPLE    0x85B8
+#define GL_TEXTURE_STORAGE_HINT_APPLE     0x85BC
+#define GL_STORAGE_PRIVATE_APPLE          0x85BD
+/* reuse GL_STORAGE_CACHED_APPLE */
+/* reuse GL_STORAGE_SHARED_APPLE */
+#endif
+
+#ifndef GL_APPLE_float_pixels
+#define GL_APPLE_float_pixels
+#define _ALLEGRO_GL_APPLE_float_pixels
+#define GL_HALF_APPLE                     0x140B
+#define GL_RGBA_FLOAT32_APPLE             0x8814
+#define GL_RGB_FLOAT32_APPLE              0x8815
+#define GL_ALPHA_FLOAT32_APPLE            0x8816
+#define GL_INTENSITY_FLOAT32_APPLE        0x8817
+#define GL_LUMINANCE_FLOAT32_APPLE        0x8818
+#define GL_LUMINANCE_ALPHA_FLOAT32_APPLE  0x8819
+#define GL_RGBA_FLOAT16_APPLE             0x881A
+#define GL_RGB_FLOAT16_APPLE              0x881B
+#define GL_ALPHA_FLOAT16_APPLE            0x881C
+#define GL_INTENSITY_FLOAT16_APPLE        0x881D
+#define GL_LUMINANCE_FLOAT16_APPLE        0x881E
+#define GL_LUMINANCE_ALPHA_FLOAT16_APPLE  0x881F
+#define GL_COLOR_FLOAT_APPLE              0x8A0F
+#endif
+
+#ifndef GL_APPLE_vertex_program_evaluators
+#define GL_APPLE_vertex_program_evaluators
+#define _ALLEGRO_GL_APPLE_vertex_program_evaluators
+#define GL_VERTEX_ATTRIB_MAP1_APPLE       0x8A00
+#define GL_VERTEX_ATTRIB_MAP2_APPLE       0x8A01
+#define GL_VERTEX_ATTRIB_MAP1_SIZE_APPLE  0x8A02
+#define GL_VERTEX_ATTRIB_MAP1_COEFF_APPLE 0x8A03
+#define GL_VERTEX_ATTRIB_MAP1_ORDER_APPLE 0x8A04
+#define GL_VERTEX_ATTRIB_MAP1_DOMAIN_APPLE 0x8A05
+#define GL_VERTEX_ATTRIB_MAP2_SIZE_APPLE  0x8A06
+#define GL_VERTEX_ATTRIB_MAP2_COEFF_APPLE 0x8A07
+#define GL_VERTEX_ATTRIB_MAP2_ORDER_APPLE 0x8A08
+#define GL_VERTEX_ATTRIB_MAP2_DOMAIN_APPLE 0x8A09
+#endif
+
+#ifndef GL_APPLE_aux_depth_stencil
+#define GL_APPLE_aux_depth_stencil
+#define _ALLEGRO_GL_APPLE_aux_depth_stencil
+#define GL_AUX_DEPTH_STENCIL_APPLE        0x8A14
+#endif
+
+#ifndef GL_APPLE_object_purgeable
+#define GL_APPLE_object_purgeable
+#define _ALLEGRO_GL_APPLE_object_purgeable
+#define GL_BUFFER_OBJECT_APPLE            0x85B3
+#define GL_RELEASED_APPLE                 0x8A19
+#define GL_VOLATILE_APPLE                 0x8A1A
+#define GL_RETAINED_APPLE                 0x8A1B
+#define GL_UNDEFINED_APPLE                0x8A1C
+#define GL_PURGEABLE_APPLE                0x8A1D
+#endif
+
+#ifndef GL_APPLE_row_bytes
+#define GL_APPLE_row_bytes
+#define _ALLEGRO_GL_APPLE_row_bytes
+#define GL_PACK_ROW_BYTES_APPLE           0x8A15
+#define GL_UNPACK_ROW_BYTES_APPLE         0x8A16
+#endif
+
+#ifndef GL_APPLE_rgb_422
+#define GL_APPLE_rgb_422
+#define _ALLEGRO_GL_APPLE_rgb_422
+#define GL_RGB_422_APPLE                  0x8A1F
+/* reuse GL_UNSIGNED_SHORT_8_8_APPLE */
+/* reuse GL_UNSIGNED_SHORT_8_8_REV_APPLE */
+#endif
+
+#ifndef GL_NV_video_capture
+#define GL_NV_video_capture
+#define _ALLEGRO_GL_NV_video_capture
+#define GL_VIDEO_BUFFER_NV                0x9020
+#define GL_VIDEO_BUFFER_BINDING_NV        0x9021
+#define GL_FIELD_UPPER_NV                 0x9022
+#define GL_FIELD_LOWER_NV                 0x9023
+#define GL_NUM_VIDEO_CAPTURE_STREAMS_NV   0x9024
+#define GL_NEXT_VIDEO_CAPTURE_BUFFER_STATUS_NV 0x9025
+#define GL_VIDEO_CAPTURE_TO_422_SUPPORTED_NV 0x9026
+#define GL_LAST_VIDEO_CAPTURE_STATUS_NV   0x9027
+#define GL_VIDEO_BUFFER_PITCH_NV          0x9028
+#define GL_VIDEO_COLOR_CONVERSION_MATRIX_NV 0x9029
+#define GL_VIDEO_COLOR_CONVERSION_MAX_NV  0x902A
+#define GL_VIDEO_COLOR_CONVERSION_MIN_NV  0x902B
+#define GL_VIDEO_COLOR_CONVERSION_OFFSET_NV 0x902C
+#define GL_VIDEO_BUFFER_INTERNAL_FORMAT_NV 0x902D
+#define GL_PARTIAL_SUCCESS_NV             0x902E
+#define GL_SUCCESS_NV                     0x902F
+#define GL_FAILURE_NV                     0x9030
+#define GL_YCBYCR8_422_NV                 0x9031
+#define GL_YCBAYCR8A_4224_NV              0x9032
+#define GL_Z6Y10Z6CB10Z6Y10Z6CR10_422_NV  0x9033
+#define GL_Z6Y10Z6CB10Z6A10Z6Y10Z6CR10Z6A10_4224_NV 0x9034
+#define GL_Z4Y12Z4CB12Z4Y12Z4CR12_422_NV  0x9035
+#define GL_Z4Y12Z4CB12Z4A12Z4Y12Z4CR12Z4A12_4224_NV 0x9036
+#define GL_Z4Y12Z4CB12Z4CR12_444_NV       0x9037
+#define GL_VIDEO_CAPTURE_FRAME_WIDTH_NV   0x9038
+#define GL_VIDEO_CAPTURE_FRAME_HEIGHT_NV  0x9039
+#define GL_VIDEO_CAPTURE_FIELD_UPPER_HEIGHT_NV 0x903A
+#define GL_VIDEO_CAPTURE_FIELD_LOWER_HEIGHT_NV 0x903B
+#define GL_VIDEO_CAPTURE_SURFACE_ORIGIN_NV 0x903C
+#endif
+
+#ifndef GL_EXT_separate_shader_objects
+#define GL_EXT_separate_shader_objects
+#define _ALLEGRO_GL_EXT_separate_shader_objects
+#define GL_ACTIVE_PROGRAM_EXT             0x8B8D
+#endif
+
+#ifndef GL_NV_parameter_buffer_object2
+#define GL_NV_parameter_buffer_object2
+#define _ALLEGRO_GL_NV_parameter_buffer_object2
+#endif
+
+#ifndef GL_NV_shader_buffer_load
+#define GL_NV_shader_buffer_load
+#define _ALLEGRO_GL_NV_shader_buffer_load
+#define GL_BUFFER_GPU_ADDRESS_NV          0x8F1D
+#define GL_GPU_ADDRESS_NV                 0x8F34
+#define GL_MAX_SHADER_BUFFER_ADDRESS_NV   0x8F35
+#endif
+
+#ifndef GL_NV_vertex_buffer_unified_memory
+#define GL_NV_vertex_buffer_unified_memory
+#define _ALLEGRO_GL_NV_vertex_buffer_unified_memory
+#define GL_VERTEX_ATTRIB_ARRAY_UNIFIED_NV 0x8F1E
+#define GL_ELEMENT_ARRAY_UNIFIED_NV       0x8F1F
+#define GL_VERTEX_ATTRIB_ARRAY_ADDRESS_NV 0x8F20
+#define GL_VERTEX_ARRAY_ADDRESS_NV        0x8F21
+#define GL_NORMAL_ARRAY_ADDRESS_NV        0x8F22
+#define GL_COLOR_ARRAY_ADDRESS_NV         0x8F23
+#define GL_INDEX_ARRAY_ADDRESS_NV         0x8F24
+#define GL_TEXTURE_COORD_ARRAY_ADDRESS_NV 0x8F25
+#define GL_EDGE_FLAG_ARRAY_ADDRESS_NV     0x8F26
+#define GL_SECONDARY_COLOR_ARRAY_ADDRESS_NV 0x8F27
+#define GL_FOG_COORD_ARRAY_ADDRESS_NV     0x8F28
+#define GL_ELEMENT_ARRAY_ADDRESS_NV       0x8F29
+#define GL_VERTEX_ATTRIB_ARRAY_LENGTH_NV  0x8F2A
+#define GL_VERTEX_ARRAY_LENGTH_NV         0x8F2B
+#define GL_NORMAL_ARRAY_LENGTH_NV         0x8F2C
+#define GL_COLOR_ARRAY_LENGTH_NV          0x8F2D
+#define GL_INDEX_ARRAY_LENGTH_NV          0x8F2E
+#define GL_TEXTURE_COORD_ARRAY_LENGTH_NV  0x8F2F
+#define GL_EDGE_FLAG_ARRAY_LENGTH_NV      0x8F30
+#define GL_SECONDARY_COLOR_ARRAY_LENGTH_NV 0x8F31
+#define GL_FOG_COORD_ARRAY_LENGTH_NV      0x8F32
+#define GL_ELEMENT_ARRAY_LENGTH_NV        0x8F33
+#endif
+
+#ifndef GL_NV_texture_barrier
+#define GL_NV_texture_barrier
+#define _ALLEGRO_GL_NV_texture_barrier
+#endif
+
+#ifndef GL_AMD_shader_stencil_export
+#define GL_AMD_shader_stencil_export
+#define _ALLEGRO_GL_AMD_shader_stencil_export
+#endif
+
+#ifndef GL_AMD_seamless_cubemap_per_texture
+#define GL_AMD_seamless_cubemap_per_texture
+#define _ALLEGRO_GL_AMD_seamless_cubemap_per_texture
+/* reuse GL_TEXTURE_CUBE_MAP_SEAMLESS_ARB */
+#endif
+
+#ifndef GL_AMD_conservative_depth
+#define GL_AMD_conservative_depth
+#define _ALLEGRO_GL_AMD_conservative_depth
+#endif

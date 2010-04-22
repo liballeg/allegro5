@@ -71,11 +71,48 @@
 #define GLX_SAMPLES                        100001
 #endif
 
+#ifndef GLX_ARB_get_proc_address
+#define _ALLEGRO_GLX_ARB_get_proc_address
+#define GLX_ARB_get_proc_address
+typedef void (*__GLXextFuncPtr)(void);
+#endif
+
 #ifndef GLX_ARB_multisample
 #define _ALLEGRO_GLX_ARB_multisample
 #define GLX_ARB_multisample
 #define GLX_SAMPLE_BUFFERS_ARB             100000
 #define GLX_SAMPLES_ARB                    100001
+#endif
+
+#ifndef GLX_ARB_vertex_buffer_object
+#define GLX_ARB_vertex_buffer_object
+#define _ALLEGRO_GLX_ARB_vertex_buffer_object
+#define GLX_CONTEXT_ALLOW_BUFFER_BYTE_ORDER_MISMATCH_ARB 0x2095
+#endif
+
+#ifndef GLX_ARB_fbconfig_float
+#define GLX_ARB_fbconfig_float
+#define _ALLEGRO_GLX_ARB_fbconfig_float
+#define GLX_RGBA_FLOAT_TYPE_ARB            0x20B9
+#define GLX_RGBA_FLOAT_BIT_ARB             0x00000004
+#endif
+
+#ifndef GLX_ARB_create_context
+#define GLX_ARB_create_context
+#define _ALLEGRO_GLX_ARB_create_context
+#define GLX_CONTEXT_DEBUG_BIT_ARB          0x00000001
+#define GLX_CONTEXT_FORWARD_COMPATIBLE_BIT_ARB 0x00000002
+#define GLX_CONTEXT_MAJOR_VERSION_ARB      0x2091
+#define GLX_CONTEXT_MINOR_VERSION_ARB      0x2092
+#define GLX_CONTEXT_FLAGS_ARB              0x2094
+#endif
+
+#ifndef GLX_ARB_create_context_profile
+#define GLX_ARB_create_context_profile
+#define _ALLEGRO_GLX_ARB_create_context_profile
+#define GLX_CONTEXT_CORE_PROFILE_BIT_ARB   0x00000001
+#define GLX_CONTEXT_COMPATIBILITY_PROFILE_BIT_ARB 0x00000002
+#define GLX_CONTEXT_PROFILE_MASK_ARB       0x9126
 #endif
 
 #ifndef GLX_SGIS_multisample
@@ -247,13 +284,6 @@ typedef struct {
 #define GLX_SWAP_UNDEFINED_OML             0x8063
 #endif
 
-
-#ifndef GLX_ARB_get_proc_address
-#define _ALLEGRO_GLX_ARB_get_proc_address
-#define GLX_ARB_get_proc_address
-typedef void (*__GLXextFuncPtr)(void);
-#endif
-
 #ifndef GLX_SGIX_video_source
 #define _ALLEGRO_GLX_SGIX_video_source
 #define GLX_SGIX_video_source
@@ -368,14 +398,6 @@ typedef struct {
 #define _ALLEGRO_GLX_MESA_agp_offset
 #endif
 
-
-#ifndef GLX_ARB_fbconfig_float
-#define GLX_ARB_fbconfig_float
-#define _ALLEGRO_GLX_ARB_fbconfig_float
-#define GLX_RGBA_FLOAT_TYPE                0x20B9
-#define GLX_RGBA_FLOAT_BIT                 0x00000004
-#endif
-
 #ifndef GLX_EXT_framebuffer_sRGB
 #define GLX_EXT_framebuffer_sRGB
 #define _ALLEGRO_GLX_EXT_framebuffer_sRGB
@@ -433,9 +455,9 @@ typedef struct {
 #define GLX_GLX_NUM_VIDEO_SLOTS_NV         0x20F0
 #endif
 
-#ifndef GLX_NV_video_out
-#define GLX_NV_video_out
-#define _ALLEGRO_GLX_NV_video_out
+#ifndef GLX_NV_video_output
+#define GLX_NV_video_output
+#define _ALLEGRO_GLX_NV_video_output
 #define GLX_VIDEO_OUT_COLOR_NV           0x20C3
 #define GLX_VIDEO_OUT_ALPHA_NV           0x20C4
 #define GLX_VIDEO_OUT_DEPTH_NV           0x20C5
@@ -452,12 +474,32 @@ typedef unsigned int GLXVideoDeviceNV;
 #define _ALLEGRO_GLX_NV_swap_group
 #endif
 
-#ifndef GLX_ARB_create_context
-#define GLX_ARB_create_context
-#define _ALLEGRO_GLX_ARB_create_context
-#define GLX_CONTEXT_DEBUG_BIT_ARB          0x00000001
-#define GLX_CONTEXT_FORWARD_COMPATIBLE_BIT_ARB 0x00000002
-#define GLX_CONTEXT_MAJOR_VERSION_ARB      0x2091
-#define GLX_CONTEXT_MINOR_VERSION_ARB      0x2092
-#define GLX_CONTEXT_FLAGS_ARB              0x2094
+#ifndef GLX_NV_video_capture
+#define GLX_NV_video_capture
+#define _ALLEGRO_GLX_NV_video_capture
+#define GLX_DEVICE_ID_NV                   0x20CD
+#define GLX_UNIQUE_ID_NV                   0x20CE
+#define GLX_NUM_VIDEO_CAPTURE_SLOTS_NV     0x20CF
+typedef XID GLXVideoCaptureDeviceNV;
+#endif
+
+#ifndef GLX_EXT_swap_control
+#define GLX_EXT_swap_control
+#define _ALLEGRO_GLX_EXT_swap_control
+#define GLX_SWAP_INTERVAL_EXT              0x20F1
+#define GLX_MAX_SWAP_INTERVAL_EXT          0x20F2
+#endif
+
+#ifndef GLX_NV_copy_image
+#define GLX_NV_copy_image
+#define _ALLEGRO_GLX_NV_copy_image
+#endif
+
+#ifndef GLX_INTEL_swap_event
+#define GLX_INTEL_swap_event
+#define _ALLEGRO_GLX_INTEL_swap_event
+#define GLX_BUFFER_SWAP_COMPLETE_INTEL_MASK 0x04000000
+#define GLX_EXCHANGE_COMPLETE_INTEL        0x8180
+#define GLX_COPY_COMPLETE_INTEL            0x8181
+#define GLX_FLIP_COMPLETE_INTEL            0x8182
 #endif

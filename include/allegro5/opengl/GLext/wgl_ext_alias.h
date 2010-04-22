@@ -29,6 +29,9 @@
 #define wglReleaseTexImageARB _al_wglReleaseTexImageARB
 #define wglSetPbufferAttribARB _al_wglSetPbufferAttribARB
 
+/*WGL_ARB_create_context*/
+#define wglCreateContextAttribsARB _al_wglCreateContextAttribsARB
+
 /*WGL_EXT_display_color_table*/
 #define wglCreateDisplayColorTableEXT _al_wglCreateDisplayColorTableEXT
 #define wglLoadDisplayColorTableEXT _al_wglLoadDisplayColorTableEXT
@@ -143,9 +146,7 @@
 #define wglEnumGpusFromAffinityDCNV _al_wglEnumGpusFromAffinityDCNV
 #define wglDeleteDCNV _al_wglDeleteDCNV
 
-/*WGL_ARB_create_context*/
-#define wglCreateContextAttribsARB _al_wglCreateContextAttribsARB
-
+/*WGL_AMD_gpu_association*/
 #define wglGetGPUIDsAMD _al_wglGetGPUIDsAMD
 #define wglGetGPUInfoAMD _al_wglGetGPUInfoAMD
 #define wglGetContextGPUIDAMD _al_wglGetContextGPUIDAMD
@@ -156,3 +157,12 @@
 #define wglGetCurrentAssociatedContextAMD _al_wglGetCurrentAssociatedContextAMD
 #define wglBlitContextFramebufferAMD _al_wglBlitContextFramebufferAMD
 
+/*WGL_NV_video_capture*/
+#define wglBindVideoCaptureDeviceNV _al_wglBindVideoCaptureDeviceNV
+#define wglEnumerateVideoCaptureDevicesNV _al_wglEnumerateVideoCaptureDevicesNV
+#define wglLockVideoCaptureDeviceNV _al_wglLockVideoCaptureDeviceNV
+#define wglQueryVideoCaptureDeviceNV _al_wglQueryVideoCaptureDeviceNV
+#define wglReleaseVideoCaptureDeviceNV _al_wglReleaseVideoCaptureDeviceNV
+
+/*WGL_NV_copy_image*/
+#define wglCopyImageSubDataNV _al_wglCopyImageSubDataNV

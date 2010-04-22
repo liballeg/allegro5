@@ -128,6 +128,24 @@ DECLARE_HANDLE(HPBUFFERARB);
 #define WGL_TYPE_RGBA_FLOAT_ARB        0x21A0
 #endif
 
+#ifndef WGL_ARB_create_context
+#define WGL_ARB_create_context
+#define WGL_CONTEXT_DEBUG_BIT_ARB      0x0001
+#define WGL_CONTEXT_FORWARD_COMPATIBLE_BIT_ARB 0x0002
+#define WGL_CONTEXT_MAJOR_VERSION_ARB  0x2091
+#define WGL_CONTEXT_MINOR_VERSION_ARB  0x2092
+#define WGL_CONTEXT_LAYER_PLANE_ARB    0x2093
+#define WGL_CONTEXT_FLAGS_ARB          0x2094
+#define ERROR_INVALID_VERSION_ARB      0x2095
+#endif
+
+#ifndef WGL_ARB_create_context_profile
+#define WGL_ARB_create_context_profile
+#define WGL_CONTEXT_PROFILE_MASK_ARB   0x9126
+#define WGL_CONTEXT_CORE_PROFILE_BIT_ARB 0x00000001
+#define WGL_CONTEXT_COMPATIBILITY_PROFILE_BIT_ARB 0x00000002
+#define ERROR_INVALID_PROFILE_ARB      0x2096
+#endif
 
 #ifndef WGL_EXT_make_current_read
 #define WGL_EXT_make_current_read
@@ -342,17 +360,6 @@ typedef struct _GPU_DEVICE {
 #define WGL_ERROR_MISSING_AFFINITY_MASK_NV 0x20D1
 #endif
 
-#ifndef WGL_ARB_create_context
-#define WGL_ARB_create_context
-#define WGL_CONTEXT_DEBUG_BIT_ARB      0x0001
-#define WGL_CONTEXT_FORWARD_COMPATIBLE_BIT_ARB 0x0002
-#define WGL_CONTEXT_MAJOR_VERSION_ARB  0x2091
-#define WGL_CONTEXT_MINOR_VERSION_ARB  0x2092
-#define WGL_CONTEXT_LAYER_PLANE_ARB    0x2093
-#define WGL_CONTEXT_FLAGS_ARB          0x2094
-#define ERROR_INVALID_VERSION_ARB      0x2095
-#endif
-
 #ifndef WGL_AMD_gpu_association
 #define WGL_AMD_gpu_association
 #define WGL_GPU_VENDOR_AMD             0x1F00
@@ -367,3 +374,13 @@ typedef struct _GPU_DEVICE {
 #define WGL_GPU_NUM_SPI_AMD            0x21A8
 #endif
 
+#ifndef WGL_NV_video_capture
+#define WGL_NV_video_capture
+DECLARE_HANDLE(HVIDEOINPUTDEVICENV);
+#define WGL_UNIQUE_ID_NV               0x20CE
+#define WGL_NUM_VIDEO_CAPTURE_SLOTS_NV 0x20CF
+#endif
+
+#ifndef WGL_NV_copy_image
+#define WGL_NV_copy_image
+#endif

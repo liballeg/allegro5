@@ -130,7 +130,7 @@ static ALLEGRO_EXTRA_DISPLAY_SETTINGS* read_fbconfig(Display *dpy,
    }
    eds->settings[ALLEGRO_SINGLE_BUFFER] = !double_buffer;
 
-   if (!(render_type & GLX_RGBA_BIT) && !(render_type & GLX_RGBA_FLOAT_BIT)) {
+   if (!(render_type & GLX_RGBA_BIT) && !(render_type & GLX_RGBA_FLOAT_BIT_ARB)) {
       ALLEGRO_DEBUG("Not RGBA mode\n");
       free(eds);
       return NULL;
@@ -158,7 +158,7 @@ static ALLEGRO_EXTRA_DISPLAY_SETTINGS* read_fbconfig(Display *dpy,
    /* Floating-point depth is not supported as glx extension (yet). */
    eds->settings[ALLEGRO_FLOAT_DEPTH] = 0;
 
-   eds->settings[ALLEGRO_FLOAT_COLOR] = (render_type & GLX_RGBA_FLOAT_BIT);
+   eds->settings[ALLEGRO_FLOAT_COLOR] = (render_type & GLX_RGBA_FLOAT_BIT_ARB);
 
    v = glXGetVisualFromFBConfig(dpy, fbc);
    if (!v) {
