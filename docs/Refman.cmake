@@ -197,7 +197,7 @@ if(WANT_DOCS_HTML)
                 --include-after-body inc.z.html
                 --include-after-body inc.timestamp.html
                 --css pandoc.css
-                --custom-header ${SRC_DIR}/custom_header.html
+                --include-in-header ${SRC_DIR}/custom_header.html
                 --standalone
                 --toc
                 -- ${SRC_REFMAN_DIR}/${page}.txt ${HTML_REFS}
