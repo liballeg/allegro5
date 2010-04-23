@@ -71,6 +71,7 @@ typedef enum ALLEGRO_PIXEL_FORMAT
 #define ALLEGRO_FORCE_LOCKING         0x0004
 #define ALLEGRO_NO_PRESERVE_TEXTURE   0x0008
 #define ALLEGRO_ALPHA_TEST            0x0010
+#define _ALLEGRO_INTERNAL_OPENGL      0x0020
 
 
 /* Flags for the blitting functions */

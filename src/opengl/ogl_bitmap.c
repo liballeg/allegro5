@@ -1050,7 +1050,7 @@ ALLEGRO_BITMAP *_al_ogl_create_bitmap(ALLEGRO_DISPLAY *d, int w, int h)
    bitmap->bitmap.h = h;
    bitmap->bitmap.pitch = pitch;
    bitmap->bitmap.format = format;
-   bitmap->bitmap.flags = flags;
+   bitmap->bitmap.flags = flags | _ALLEGRO_INTERNAL_OPENGL;
    bitmap->bitmap.cl = 0;
    bitmap->bitmap.ct = 0;
    bitmap->bitmap.cr_excl = w;
@@ -1101,6 +1101,8 @@ ALLEGRO_BITMAP *_al_ogl_create_sub_bitmap(ALLEGRO_DISPLAY *d,
    ogl_bmp->is_backbuffer = ogl_parent->is_backbuffer;
 
    ogl_bmp->bitmap.vt = parent->vt;
+   
+   ogl_bmp->bitmap.flags |= _ALLEGRO_INTERNAL_OPENGL;
 
    return (void*)ogl_bmp;
 }
@@ -1109,8 +1111,8 @@ ALLEGRO_BITMAP *_al_ogl_create_sub_bitmap(ALLEGRO_DISPLAY *d,
  */
 GLuint al_get_opengl_texture(ALLEGRO_BITMAP *bitmap)
 {
-   // FIXME: Check if this is an OpenGL bitmap, if not, return 0
    ALLEGRO_BITMAP_OGL *ogl_bitmap = (void *)bitmap;
+   if (!(bitmap->flags & _ALLEGRO_INTERNAL_OPENGL)) return 0;
    return ogl_bitmap->texture;
 }
 
@@ -1119,8 +1121,8 @@ GLuint al_get_opengl_texture(ALLEGRO_BITMAP *bitmap)
 void al_remove_opengl_fbo(ALLEGRO_BITMAP *bitmap)
 {
 #if !defined ALLEGRO_GP2XWIZ && !defined ALLEGRO_IPHONE
-   // FIXME: Check if this is an OpenGL bitmap
    ALLEGRO_BITMAP_OGL *ogl_bitmap = (void *)bitmap;
+   if (!(bitmap->flags & _ALLEGRO_INTERNAL_OPENGL)) return;
    if (ogl_bitmap->fbo) {
       glDeleteFramebuffersEXT(1, &ogl_bitmap->fbo);
       ogl_bitmap->fbo = 0;
@@ -1135,8 +1137,8 @@ void al_remove_opengl_fbo(ALLEGRO_BITMAP *bitmap)
 GLuint al_get_opengl_fbo(ALLEGRO_BITMAP *bitmap)
 {
 #if !defined ALLEGRO_GP2XWIZ
-   // FIXME: Check if this is an OpenGL bitmap, if not, return 0
    ALLEGRO_BITMAP_OGL *ogl_bitmap = (void *)bitmap;
+   if (!(bitmap->flags & _ALLEGRO_INTERNAL_OPENGL)) return 0;
    return ogl_bitmap->fbo;
 #else
    (void)bitmap;
@@ -1153,6 +1155,11 @@ void al_get_opengl_texture_size(ALLEGRO_BITMAP *bitmap, int *w, int *h)
     * size. On normal OpenGL also glGetTexLevelParameter could be used.
     */
    ALLEGRO_BITMAP_OGL *ogl_bitmap = (void *)bitmap;
+   if (!(bitmap->flags & _ALLEGRO_INTERNAL_OPENGL)) {
+      *w = 0;
+      *h = 0;
+      return;
+   }
    *w = ogl_bitmap->true_w;
    *h = ogl_bitmap->true_h;
 }
