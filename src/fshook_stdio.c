@@ -348,6 +348,8 @@ static ALLEGRO_FS_ENTRY *fs_stdio_create_entry(const char *path)
 {
    ALLEGRO_FS_ENTRY_STDIO *fh = NULL;
    uint32_t len = 0;
+   unsigned int trailing_slashes = 0;
+   char c;
 
    fh = _AL_MALLOC(sizeof(*fh));
    if (!fh) {
@@ -360,14 +362,27 @@ static ALLEGRO_FS_ENTRY *fs_stdio_create_entry(const char *path)
    fh->fs_entry.vtable = &_al_fs_interface_stdio;
 
    len = strlen(path);
-   fh->path = _AL_MALLOC(len+1);
+
+   /* At least under Windows 7, a trailing slash or backslash makes
+    * all calls to stat() with the given filename fail - making the
+    * filesystem entry useless.
+    */
+   while (true) {
+      if (trailing_slashes >= len) break;
+      c = path[len - 1 - trailing_slashes];
+      if (c != '/' && c != '\\') break;
+      trailing_slashes++;
+   }
+
+   fh->path = _AL_MALLOC(len + 1 - trailing_slashes);
    if (!fh->path) {
       al_set_errno(errno);
       _AL_FREE(fh);
       return NULL;
    }
 
-   memcpy(fh->path, path, len+1);
+   memcpy(fh->path, path, len - trailing_slashes);
+   fh->path[len - trailing_slashes] = 0;
 
    fs_stdio_update_entry((ALLEGRO_FS_ENTRY *) fh);
 
@@ -426,7 +441,6 @@ static bool fs_stdio_update_entry(ALLEGRO_FS_ENTRY *fp)
    int32_t ret = 0;
 
    ret = stat(fp_stdio->path, &(fp_stdio->st));
-
    if (ret == -1) {
       al_set_errno(errno);
       return false;
