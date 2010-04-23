@@ -20,6 +20,7 @@
 
 #include <string.h>
 
+ALLEGRO_DEBUG_CHANNEL("bitmap");
 
 #define MAX_EXTENSION   (32)
 
@@ -213,14 +214,24 @@ ALLEGRO_BITMAP *al_load_bitmap(const char *filename)
    al_use_transform(&identity_trans);
 
    ext = strrchr(filename, '.');
-   if (!ext)
+   if (!ext) {
+      ALLEGRO_WARN("Bitmap %s has no extension - "
+         "not even trying to load it.\n", filename);
       return NULL;
+   }
 
    h = find_handler(ext);
-   if (h)
+   if (h) {
       ret = h->loader(filename);
-   else
+      if (!ret)
+         ALLEGRO_WARN("Failed loading %s with %s handler.\n", filename,
+            ext);
+   }
+   else {
+      ALLEGRO_WARN("No handler for bitmap extensions %s - "
+         "therefore not trying to load %s.\n", ext, filename);
       ret = NULL;
+   }
 
    al_use_transform(&old_trans);
 
