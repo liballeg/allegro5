@@ -725,6 +725,10 @@ static bool xdpy_resize_display(ALLEGRO_DISPLAY *d, int w, int h)
    ALLEGRO_SYSTEM_XGLX *system = (ALLEGRO_SYSTEM_XGLX *)al_get_system_driver();
    ALLEGRO_DISPLAY_XGLX *glx = (ALLEGRO_DISPLAY_XGLX *)d;
 
+   /* A fullscreen-window can't be resized. */
+   if (d->flags & ALLEGRO_FULLSCREEN_WINDOW)
+      return;
+
    _al_mutex_lock(&system->lock);
 
    reset_size_hints(d);
