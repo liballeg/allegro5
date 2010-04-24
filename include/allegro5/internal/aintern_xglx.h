@@ -73,13 +73,13 @@ struct ALLEGRO_SYSTEM_XGLX
    bool pointer_grabbed; /* Is an XGrabPointer in effect? */
    bool inhibit_screensaver; /* Should we inhibit the screensaver? */
 
-   #ifdef ALLEGRO_XWINDOWS_WITH_XINERAMA
+   bool mmon_interface_inited;
+#ifdef ALLEGRO_XWINDOWS_WITH_XINERAMA
    int xinerama_available;
    int xinerama_screen_count;
    XineramaScreenInfo *xinerama_screen_info;
-   #endif
-
-   #ifdef ALLEGRO_XWINDOWS_WITH_XRANDR
+#endif
+#ifdef ALLEGRO_XWINDOWS_WITH_XRANDR
    int xrandr_available;
    XRRScreenResources *xrandr_res;
    // these are technically changeable at runtime if we handle XRandR events.
@@ -87,7 +87,7 @@ struct ALLEGRO_SYSTEM_XGLX
    int xrandr_output_count;
    XRROutputInfo **xrandr_outputs;
    XRRModeInfo **xrandr_stored_modes;
-   #endif
+#endif
 };
 
 /* This is our version of ALLEGRO_DISPLAY with driver specific extra data. */
@@ -155,16 +155,9 @@ void _al_xwin_mouse_switch_handler(ALLEGRO_DISPLAY *display,
 /* cursor */
 void _al_xglx_add_cursor_functions(ALLEGRO_DISPLAY_INTERFACE *vt);
 
-/* fullscreen and multi monitor stuf */
+/* fullscreen and multi monitor stuff */
 
-void _al_xsys_xinerama_init(ALLEGRO_SYSTEM_XGLX *s);
-void _al_xsys_xinerama_exit(ALLEGRO_SYSTEM_XGLX *s);
-
-void _al_xsys_xrandr_init(ALLEGRO_SYSTEM_XGLX *s);
-void _al_xsys_xrandr_exit(ALLEGRO_SYSTEM_XGLX *s);
-
-void _al_xsys_xfvm_init(ALLEGRO_SYSTEM_XGLX *s);
-void _al_xsys_xfvm_exit(ALLEGRO_SYSTEM_XGLX *s);
+void _al_xsys_mmon_exit(ALLEGRO_SYSTEM_XGLX *s);
 
 int _al_xglx_get_num_display_modes(ALLEGRO_SYSTEM_XGLX *s, int adapter);
 ALLEGRO_DISPLAY_MODE *_al_xglx_get_display_mode(

@@ -219,20 +219,6 @@ static ALLEGRO_SYSTEM *xglx_initialize(int flags)
    ALLEGRO_INFO("X11 protocol version %d.%d.\n",
       ProtocolVersion(s->x11display), ProtocolRevision(s->x11display));
 
-#ifdef ALLEGRO_XWINDOWS_WITH_XINERAMA
-   _al_xsys_xinerama_init(s);
-#endif
-
-#ifdef ALLEGRO_XWINDOWS_WITH_XF86VIDMODE
-   _al_xsys_xfvm_init(s);
-#endif
-
-#ifdef ALLEGRO_XWINDOWS_WITH_XRANDR
-   _al_xsys_xrandr_init(s);
-#endif
-
-   _al_xglx_store_video_mode(s);
-
    _al_thread_create(&s->thread, xglx_background_thread, s);
 
    ALLEGRO_INFO("events thread spawned.\n");
@@ -258,17 +244,7 @@ static void xglx_shutdown_system(void)
    }
    _al_vector_free(&s->displays);
 
-#ifdef ALLEGRO_XWINDOWS_WITH_XINERAMA
-   _al_xsys_xinerama_exit(sx);
-#endif
-
-#ifdef ALLEGRO_XWINDOWS_WITH_XF86VIDMODE
-   _al_xsys_xfvm_exit(sx);
-#endif
-
-#ifdef ALLEGRO_XWINDOWS_WITH_XRANDR
-   _al_xsys_xrandr_exit(sx);
-#endif
+   _al_xsys_mmon_exit(sx);
 
    if (sx->x11display) {
       XCloseDisplay(sx->x11display);
