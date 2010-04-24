@@ -12,6 +12,10 @@ Link with allegro_primitives.
 Returns the (compiled) version of the addon, in the same format as
 [al_get_allegro_version].
 
+### API: al_init_primitives_addon
+
+Initializes the primitives addon.
+
 ## High level drawing routines
 
 High level drawing routines encompass the most common usage of this addon: to

@@ -11,6 +11,7 @@ const int POINTS = 200;
 int main(void)
 {
 	al_init();
+	al_init_primitives_addon();
 
 	ALLEGRO_DISPLAY *d = al_create_display(W, H);
 

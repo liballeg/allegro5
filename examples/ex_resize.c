@@ -34,6 +34,7 @@ int main(void)
         abort_example("Could not init Allegro.\n");
         return 1;
     }
+    al_init_primitives_addon();
     events = al_create_event_queue();
 
     /* Setup a display driver and register events from it. */

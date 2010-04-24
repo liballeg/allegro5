@@ -217,6 +217,7 @@ int main(int argc, char *argv[])
       return 1;
    }
 
+   al_init_primitives_addon();
    al_init_image_addon();
    al_init_font_addon();
 

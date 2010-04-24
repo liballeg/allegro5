@@ -40,6 +40,7 @@ int main(void)
       return 1;
    }
 
+   al_init_primitives_addon();
    al_install_mouse();
    al_install_keyboard();
    al_init_image_addon();

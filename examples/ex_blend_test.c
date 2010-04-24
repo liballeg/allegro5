@@ -290,7 +290,7 @@ int main(int argc, char **argv)
    }
 
    al_init();
-   
+   al_init_primitives_addon();
    if (test_display)
       al_create_display(100, 100);
 

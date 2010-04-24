@@ -20,6 +20,7 @@ int main(void)
    int fake_x = 0, fake_y = 0;
 
    al_init();
+   al_init_primitives_addon();
    al_init_font_addon();
    al_init_image_addon();
    al_install_mouse();

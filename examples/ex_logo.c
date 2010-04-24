@@ -402,6 +402,7 @@ int main(void)
       abort_example("Could not initialise Allegro\n");
       return 1;
    }
+   al_init_primitives_addon();
    al_install_mouse();
    al_init_image_addon();
    al_init_font_addon();

@@ -11,6 +11,7 @@
 #include <allegro5/allegro_audio.h>
 #include <allegro5/allegro_font.h>
 #include <allegro5/allegro_image.h>
+#include <allegro5/allegro_primitives.h>
 
 #include "speed.h"
 
@@ -172,6 +173,7 @@ int main(int argc, char *argv[])
       fprintf(stderr, "Could not initialise Allegro.\n");
       return 1;
    }
+   al_init_primitives_addon();
 
    if (argc == 1) {
       w = 640;

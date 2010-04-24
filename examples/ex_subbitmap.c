@@ -64,6 +64,7 @@ int main(void)
    if (!al_init()) {
       return 1;
    }
+   al_init_primitives_addon();
    al_init_image_addon();
 
    al_set_new_display_flags(ALLEGRO_GENERATE_EXPOSE_EVENTS);

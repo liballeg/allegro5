@@ -31,6 +31,7 @@ static int initialize(void)
 {
    al_init();
 
+   al_init_primitives_addon();
    al_init_image_addon();
    al_init_font_addon();
    if (!al_install_keyboard()) {

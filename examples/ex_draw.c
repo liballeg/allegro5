@@ -285,7 +285,8 @@ int main(void)
       printf("Could not init Allegro.\n");
       return 1;
    }
-
+   
+   al_init_primitives_addon();
    al_install_keyboard();
    al_install_mouse();
    al_init_image_addon();

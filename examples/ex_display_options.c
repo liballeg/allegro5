@@ -151,6 +151,7 @@ int main(void)
       abort_example("Could not init Allegro.\n");
       return 1;
    }
+   al_init_primitives_addon();
    
    white = al_map_rgba_f(1, 1, 1, 1);
 

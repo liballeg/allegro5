@@ -120,6 +120,7 @@ int main(int argc, const char *argv[])
       return 1;
    }
 
+   al_init_primitives_addon();
    al_install_keyboard();
    al_install_mouse();
 

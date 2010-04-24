@@ -44,6 +44,16 @@ TODO: This is a hack... I need to know the values of these without actually incl
 #define ALLEGRO_DIRECT3D 8
 #endif
 
+/* Function: al_init_primitives_addon
+ */
+void al_init_primitives_addon(void)
+{
+   /*
+    * Doesn't do anything at this time...
+    */
+}
+
+
 /* Function: al_draw_prim
  */
 int al_draw_prim(const void* vtxs, const ALLEGRO_VERTEX_DECL* decl,
