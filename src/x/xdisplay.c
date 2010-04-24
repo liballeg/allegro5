@@ -655,11 +655,6 @@ static bool xdpy_acknowledge_resize(ALLEGRO_DISPLAY *d)
    XWindowAttributes xwa;
    unsigned int w, h;
 
-   /* No context yet means this is a stray call happening during
-    * initialization.
-    */
-   if (!glx->context) return true;
-
    _al_mutex_lock(&system->lock);
 
    /* glXQueryDrawable is GLX 1.3+. */
@@ -677,7 +672,11 @@ static bool xdpy_acknowledge_resize(ALLEGRO_DISPLAY *d)
 
    ALLEGRO_DEBUG("xdpy: acknowledge_resize (%d, %d)\n", d->w, d->h);
 
-   setup_gl(d);
+   /* No context yet means this is a stray call happening during
+    * initialization.
+    */
+   if (glx->context)
+      setup_gl(d);
 
    _al_mutex_unlock(&system->lock);
 
