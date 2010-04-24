@@ -907,11 +907,7 @@ int _al_xglx_get_num_video_adapters(ALLEGRO_SYSTEM_XGLX *s)
    return mmon_interface.get_num_adapters(s);
 }
 
-static bool got_atoms;
-static Atom _NET_WM_STATE;
-static Atom _NET_WM_STATE_FULLSCREEN;
-static Atom _NET_WM_STATE_ABOVE;
-#define X11_ATOM_STRING(x) x = XInternAtom(x11, #x, False);
+#define X11_ATOM(x)  XInternAtom(x11, #x, False);
 
 /* Note: The system mutex must be locked (exactly once) before
  * calling this as we call _al_display_xglx_await_resize.
@@ -922,18 +918,11 @@ void _al_xglx_toggle_fullscreen_window(ALLEGRO_DISPLAY *display)
    ALLEGRO_DISPLAY_XGLX *glx = (ALLEGRO_DISPLAY_XGLX *)display;
    Display *x11 = system->x11display;
 
-   if (!got_atoms) {
-      X11_ATOM_STRING(_NET_WM_STATE)
-      X11_ATOM_STRING(_NET_WM_STATE_ABOVE)
-      X11_ATOM_STRING(_NET_WM_STATE_FULLSCREEN)
-      got_atoms = true;
-   }
-
    XEvent xev;
    xev.xclient.type = ClientMessage;
    xev.xclient.serial = 0;
    xev.xclient.send_event = True;
-   xev.xclient.message_type = _NET_WM_STATE;
+   xev.xclient.message_type = X11_ATOM(_NET_WM_STATE);
    xev.xclient.window = glx->window;
    xev.xclient.format = 32;
 
@@ -941,7 +930,7 @@ void _al_xglx_toggle_fullscreen_window(ALLEGRO_DISPLAY *display)
    // 2 is all we need though.
    xev.xclient.data.l[0] = 2; /* 0 = off, 1 = on, 2 = toggle */
 
-   xev.xclient.data.l[1] = _NET_WM_STATE_FULLSCREEN;
+   xev.xclient.data.l[1] = X11_ATOM(_NET_WM_STATE_FULLSCREEN);
    xev.xclient.data.l[2] = 0;
    xev.xclient.data.l[3] = 0;
    xev.xclient.data.l[4] = 1;
@@ -961,18 +950,11 @@ void _al_xglx_set_above(ALLEGRO_DISPLAY *display)
 
    _al_mutex_lock(&system->lock);
 
-   if (!got_atoms) {
-      X11_ATOM_STRING(_NET_WM_STATE)
-      X11_ATOM_STRING(_NET_WM_STATE_ABOVE)
-      X11_ATOM_STRING(_NET_WM_STATE_FULLSCREEN)
-      got_atoms = true;
-   }
-
    XEvent xev;
    xev.xclient.type = ClientMessage;
    xev.xclient.serial = 0;
    xev.xclient.send_event = True;
-   xev.xclient.message_type = _NET_WM_STATE;
+   xev.xclient.message_type = X11_ATOM(_NET_WM_STATE);
    xev.xclient.window = glx->window;
    xev.xclient.format = 32;
 
@@ -980,7 +962,7 @@ void _al_xglx_set_above(ALLEGRO_DISPLAY *display)
    // 2 is all we need though.
    xev.xclient.data.l[0] = 1; /* 0 = off, 1 = on, 2 = toggle */
 
-   xev.xclient.data.l[1] = _NET_WM_STATE_ABOVE;
+   xev.xclient.data.l[1] = X11_ATOM(_NET_WM_STATE_ABOVE);
    xev.xclient.data.l[2] = 0;
    xev.xclient.data.l[3] = 0;
    xev.xclient.data.l[4] = 1;
