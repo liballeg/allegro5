@@ -727,7 +727,7 @@ static bool xdpy_resize_display(ALLEGRO_DISPLAY *d, int w, int h)
 
    /* A fullscreen-window can't be resized. */
    if (d->flags & ALLEGRO_FULLSCREEN_WINDOW)
-      return;
+      return false;
 
    _al_mutex_lock(&system->lock);
 
