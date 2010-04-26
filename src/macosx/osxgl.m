@@ -1849,6 +1849,7 @@ static bool toggle_display_flag(ALLEGRO_DISPLAY *display, int flag, bool onoff)
             resize_display_win(display, sc.size.width, sc.size.height);
             [win center];
          }
+         return true;
    }
 
    return false;
