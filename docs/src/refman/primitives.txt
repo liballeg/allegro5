@@ -16,6 +16,9 @@ Returns the (compiled) version of the addon, in the same format as
 
 Initializes the primitives addon.
 
+*Returns:*
+True on success, false on failure.
+
 ## High level drawing routines
 
 High level drawing routines encompass the most common usage of this addon: to

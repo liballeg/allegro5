@@ -46,11 +46,12 @@ TODO: This is a hack... I need to know the values of these without actually incl
 
 /* Function: al_init_primitives_addon
  */
-void al_init_primitives_addon(void)
+bool al_init_primitives_addon(void)
 {
    /*
     * Doesn't do anything at this time...
     */
+   return true;
 }
 
 
