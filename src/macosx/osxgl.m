@@ -1327,6 +1327,14 @@ static ALLEGRO_DISPLAY* create_display_win(int w, int h) {
 
    [dpy->ctx makeCurrentContext];
 
+   /* Print out OpenGL version info */
+   ALLEGRO_INFO("OpenGL Version: %s\n", glGetString(GL_VERSION));
+   ALLEGRO_INFO("Vendor: %s\n", glGetString(GL_VENDOR));
+   ALLEGRO_INFO("Renderer: %s\n", glGetString(GL_RENDERER));
+   
+   // Set up a pixel format to describe the mode we want.
+   osx_set_opengl_pixelformat_attributes(dpy);
+
    // Set up the Allegro OpenGL implementation
    dpy->parent.ogl_extras = _AL_MALLOC(sizeof(ALLEGRO_OGL_EXTRAS));
    memset(dpy->parent.ogl_extras, 0, sizeof(ALLEGRO_OGL_EXTRAS));
