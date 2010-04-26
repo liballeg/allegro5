@@ -1840,16 +1840,14 @@ static bool toggle_display_flag(ALLEGRO_DISPLAY *display, int flag, bool onoff)
             [[win contentView] enterFullScreenMode: [win screen] withOptions: nil];
             NSRect sc = [[win screen] frame];
             resize_display_win(display, sc.size.width, sc.size.height);
-            acknowledge_resize_display_win(display);
             display->flags |= ALLEGRO_FULLSCREEN_WINDOW;
          } else {
             NSView *view = [win contentView];
             [view exitFullScreenModeWithOptions: nil];
-            display->flags &= ~ALLEGRO_FULLSCREEN_WINDOW;
-
             NSRect sc = [view frame];
+            display->flags &= ~ALLEGRO_FULLSCREEN_WINDOW;
             resize_display_win(display, sc.size.width, sc.size.height);
-            acknowledge_resize_display_win(display);
+            [win center];
          }
    }
 
