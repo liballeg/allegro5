@@ -121,6 +121,7 @@ ALLEGRO_DISPLAY_INTERFACE* _al_osx_get_display_driver(void);
 ALLEGRO_DISPLAY_INTERFACE* _al_osx_get_display_driver_win(void);
 ALLEGRO_DISPLAY_INTERFACE* _al_osx_get_display_driver_fs(void);
 static NSOpenGLContext* osx_create_shareable_context(NSOpenGLPixelFormat* fmt, unsigned int* group);
+static bool toggle_display_flag(ALLEGRO_DISPLAY *display, int flag, bool onoff);
 
 /* osx_change_cursor:
  * Actually change the current cursor. This can be called fom any thread 
@@ -1348,11 +1349,6 @@ static ALLEGRO_DISPLAY* create_display_win(int w, int h) {
 
    [dpy->ctx makeCurrentContext];
 
-   if (dpy->parent.flags & ALLEGRO_FULLSCREEN_WINDOW) {
-      NSView *view = [dpy->win contentView];
-      [view enterFullScreenMode: [dpy->win screen] withOptions: nil];
-   }
-
    /* Print out OpenGL version info */
    ALLEGRO_INFO("OpenGL Version: %s\n", glGetString(GL_VERSION));
    ALLEGRO_INFO("Vendor: %s\n", glGetString(GL_VENDOR));
@@ -1387,6 +1383,11 @@ static ALLEGRO_DISPLAY* create_display_win(int w, int h) {
    ALLEGRO_DISPLAY **add = _al_vector_alloc_back(&al_get_system_driver()->displays);
    *add = &dpy->parent;
    dpy->in_fullscreen = NO;
+
+   if (dpy->parent.flags & ALLEGRO_FULLSCREEN_WINDOW) {
+      dpy->parent.flags ^= ALLEGRO_FULLSCREEN_WINDOW; /* Not set yet */
+      toggle_display_flag(&dpy->parent, ALLEGRO_FULLSCREEN_WINDOW, true);
+   }
 
    return &dpy->parent;
 }
@@ -1649,6 +1650,11 @@ static bool resize_display_win(ALLEGRO_DISPLAY *d, int w, int h)
    NSRect rc = [window frameRectForContentRect: NSMakeRect(0.0f, 0.0f, (float) w, (float) h)];
    rc.origin = current.origin;
 
+   /* Don't resize a fullscreen window */
+   if (d->flags & ALLEGRO_FULLSCREEN_WINDOW)
+      return false;
+
+
    /* Finalise setting the frame on the main thread. Because this is where
     * the window's frame was initially set, this is where it should be
     * modified too.
@@ -1833,15 +1839,17 @@ static bool toggle_display_flag(ALLEGRO_DISPLAY *display, int flag, bool onoff)
          if (onoff) {
             [[win contentView] enterFullScreenMode: [win screen] withOptions: nil];
             NSRect sc = [[win screen] frame];
-            _al_ogl_resize_backbuffer(display->ogl_extras->backbuffer,
-                  sc.size.width, sc.size.height);
+            resize_display_win(display, sc.size.width, sc.size.height);
+            acknowledge_resize_display_win(display);
             display->flags |= ALLEGRO_FULLSCREEN_WINDOW;
          } else {
             NSView *view = [win contentView];
             [view exitFullScreenModeWithOptions: nil];
-            resize_display_win(display, dpy->parent.w, dpy->parent.h);
-            acknowledge_resize_display_win(display);
             display->flags &= ~ALLEGRO_FULLSCREEN_WINDOW;
+
+            NSRect sc = [view frame];
+            resize_display_win(display, sc.size.width, sc.size.height);
+            acknowledge_resize_display_win(display);
          }
    }
 
