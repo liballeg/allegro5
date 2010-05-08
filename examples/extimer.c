@@ -115,7 +115,7 @@ int main(void)
    while (!keypressed()) {
       textprintf_centre_ex(screen, font, SCREEN_W/2, 176, makecol(0, 0, 0),
 			   makecol(255, 255, 255), "x=%d, y=%d, z=%d", x, y, z);
-      rest(0);
+      rest(1);
    }
 
    return 0;
