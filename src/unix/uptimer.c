@@ -89,6 +89,11 @@ static void *ptimer_thread_func(void *unused)
    struct timeval new_time;
    struct timeval delay;
    long interval = 0x8000;
+#ifdef ALLEGRO_HAVE_POSIX_MONOTONIC_CLOCK
+   struct timespec old_time_ns;
+   struct timespec new_time_ns;
+   int clock_monotonic;
+#endif
 
    block_all_signals();
 
@@ -122,6 +127,14 @@ static void *ptimer_thread_func(void *unused)
    }
 #endif
 
+#ifdef ALLEGRO_HAVE_POSIX_MONOTONIC_CLOCK
+   /* clock_gettime(CLOCK_MONOTONIC, ...) is preferable to gettimeofday() in
+    * case the system time is changed while the program is running.
+    * CLOCK_MONOTONIC is not available on all systems.
+    */
+   clock_monotonic = (clock_gettime(CLOCK_MONOTONIC, &old_time_ns) == 0);
+#endif
+
    gettimeofday(&old_time, 0);
 
    while (thread_alive) {
@@ -131,10 +144,23 @@ static void *ptimer_thread_func(void *unused)
       select(0, NULL, NULL, NULL, &delay);
 
       /* Calculate actual time elapsed.  */
-      gettimeofday(&new_time, 0);
-      interval = USEC_TO_TIMER((new_time.tv_sec - old_time.tv_sec) * 1000000L
-			       + (new_time.tv_usec - old_time.tv_usec));
-      old_time = new_time;
+#ifdef ALLEGRO_HAVE_POSIX_MONOTONIC_CLOCK
+      if (clock_monotonic) {
+         clock_gettime(CLOCK_MONOTONIC, &new_time_ns);
+         interval = USEC_TO_TIMER(
+            (new_time_ns.tv_sec - old_time_ns.tv_sec) * 1000000L +
+            (new_time_ns.tv_nsec - old_time_ns.tv_nsec) / 1000);
+         old_time_ns = new_time_ns;
+      }
+      else
+#endif
+      {
+         gettimeofday(&new_time, 0);
+         interval = USEC_TO_TIMER(
+            (new_time.tv_sec - old_time.tv_sec) * 1000000L +
+            (new_time.tv_usec - old_time.tv_usec));
+         old_time = new_time;
+      }
 
       /* Handle a tick.  */
       interval = _handle_timer_tick(interval);

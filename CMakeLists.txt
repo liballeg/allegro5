@@ -197,6 +197,17 @@ if(UNIX)
         "
         ALLEGRO_USE_CONSTRUCTOR)
 
+    find_library(RT_LIBRARY rt)
+    check_c_source_compiles("
+        #include <time.h>
+        int main(void) {
+            struct timespec new_time_ns;
+            clock_gettime(CLOCK_MONOTONIC, &new_time_ns);
+            return 0;
+        }"
+        ALLEGRO_HAVE_POSIX_MONOTONIC_CLOCK
+        )
+
     if(MAGIC_MAIN)
         set(ALLEGRO_WITH_MAGIC_MAIN 1)
     endif(MAGIC_MAIN)
@@ -392,16 +403,20 @@ if(ALLEGRO_UNIX) # not MACOSX
     find_package(Threads)
     if(NOT CMAKE_USE_PTHREADS_INIT)
         message(FATAL_ERROR "Unix port requires pthreads support.")
-    find_library(DLOPEN_LIB dl)
-    mark_as_advanced(DLOPEN_LIB)
-    if(DLOPEN_LIB)
-        list(APPEND PLATFORM_LIBS_MODULES dl)
-    endif()
-
     endif()
     set(ALLEGRO_HAVE_LIBPTHREAD 1)
     list(APPEND PLATFORM_LIBS m ${CMAKE_THREAD_LIBS_INIT})
     list(APPEND PLATFORM_SOURCES ${ALLEGRO_SRC_UNIX_FILES})
+
+    find_library(DLOPEN_LIBRARY dl)
+    mark_as_advanced(DLOPEN_LIBRARY)
+    if(DLOPEN_LIBRARY)
+        list(APPEND PLATFORM_LIBS_MODULES ${DLOPEN_LIBRARY})
+    endif()
+
+    if(ALLEGRO_HAVE_POSIX_MONOTONIC_CLOCK)
+        list(APPEND PLATFORM_LIBS ${RT_LIBRARY})
+    endif(ALLEGRO_HAVE_POSIX_MONOTONIC_CLOCK)
 
     if(WANT_OSS)
         include(AllegroFindOSS)
