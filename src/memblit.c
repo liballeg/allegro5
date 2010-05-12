@@ -266,6 +266,8 @@ void _al_draw_bitmap_region_memory(ALLEGRO_BITMAP *bitmap,
       }
    }
 #endif
+   /* Blitting to a locked bitmap is a user mistake. */
+   ASSERT(!al_is_bitmap_locked(dest));
 
    /* Lock the bitmaps */
    if (!(src_region = al_lock_bitmap_region(bitmap, sx, sy, sw, sh, ALLEGRO_PIXEL_FORMAT_ANY,
@@ -273,9 +275,6 @@ void _al_draw_bitmap_region_memory(ALLEGRO_BITMAP *bitmap,
    {
       return;
    }
-
-   /* Blitting to a locked bitmap is a user mistake. */
-   ASSERT(!al_is_bitmap_locked(dest));
 
    if (!(dst_region = al_lock_bitmap_region(dest, dx, dy, sw, sh, ALLEGRO_PIXEL_FORMAT_ANY, 0))) {
       al_unlock_bitmap(bitmap);
