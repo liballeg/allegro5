@@ -552,7 +552,7 @@ ALLEGRO_SAMPLE *_al_load_flac_f(ALLEGRO_FILE *f)
    }
 
    ff->buffer_size = ff->total_samples * ff->channels * ff->sample_size;
-   ff->buffer = _AL_MALLOC_ATOMIC(ff->buffer_size);
+   ff->buffer = al_malloc(ff->buffer_size);
 
    lib.FLAC__stream_decoder_process_until_end_of_stream(ff->decoder);
 

@@ -141,6 +141,16 @@ static void *default_debug_realloc(int line, const char *file, const char *func,
 }
 
 
+
+/* Function: al_malloc
+ */
+void *al_malloc(size_t n)
+{
+   return _AL_MALLOC(n);
+}
+
+
+
 /* Function: al_free
  */
 void al_free(void *ptr)

@@ -38,6 +38,7 @@ void _al_set_memory_management_functions(
       void *opaque, void *ptr, size_t size),
    void *user_opaque);
 
+void *al_malloc(size_t n);
 void al_free(void *ptr);
 
 #ifdef __cplusplus

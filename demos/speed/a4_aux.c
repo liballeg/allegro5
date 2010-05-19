@@ -602,7 +602,7 @@ void rest(unsigned int time)
 /* emulate create_sample(), for unsigned 8-bit mono samples */
 ALLEGRO_SAMPLE *create_sample_u8(int freq, int len)
 {
-   char *buf = malloc(freq * len);
+   char *buf = al_malloc(freq * len);
 
    return al_create_sample(buf, len, freq, ALLEGRO_AUDIO_DEPTH_UINT8,
 			   ALLEGRO_CHANNEL_CONF_1, true);

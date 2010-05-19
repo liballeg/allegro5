@@ -162,7 +162,7 @@ void al_destroy_sample(ALLEGRO_SAMPLE *spl)
       _al_kcm_unregister_destructor(spl);
 
       if (spl->free_buf && spl->buffer.ptr) {
-         free(spl->buffer.ptr);
+         al_free(spl->buffer.ptr);
       }
       spl->buffer.ptr = NULL;
       spl->free_buf = false;

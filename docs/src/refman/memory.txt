@@ -4,6 +4,14 @@ These functions are declared in the main Allegro header file:
 
     #include <allegro5/allegro.h>
 
+## API: al_malloc
+
+Like malloc() in the C standard library.  In the future we plan to allow the
+user to customise the malloc/free functions used by Allegro, so it may hook
+into another implementation.
+
+See also: [al_free]
+
 ## API: al_free
 
 Like free() in the C standard library.  This is required because:
@@ -14,4 +22,6 @@ Like free() in the C standard library.  This is required because:
 
 -  In the future we plan to allow the user to customise the malloc/free
    functions used by Allegro, so it may hook into another implementation.
+
+See also: [al_malloc]
 

@@ -257,7 +257,7 @@ ALLEGRO_SAMPLE *_al_load_ogg_vorbis_f(ALLEGRO_FILE *file)
    ALLEGRO_DEBUG("total_samples %ld\n", total_samples);
    ALLEGRO_DEBUG("total_size %ld\n", total_size);
 
-   buffer = _AL_MALLOC_ATOMIC(total_size);
+   buffer = al_malloc(total_size);
    if (!buffer) {
       return NULL;
    }

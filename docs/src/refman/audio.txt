@@ -284,8 +284,10 @@ See also: [al_get_voice_position].
 ### API: al_create_sample
 
 Create a sample data structure from the supplied buffer.
-If `free_buf` is true then the buffer will be freed as well when the
-sample data structure is destroyed.
+If `free_buf` is true then the buffer will be freed with [al_free] when the
+sample data structure is destroyed.  For portability (especially Windows),
+the buffer should have been allocated with [al_malloc].  Otherwise you should
+free the sample data yourself.
 
 To allocate a buffer of the correct size, you can use something like this:
 
@@ -298,7 +300,7 @@ See also: [al_destroy_sample].
 ### API: al_destroy_sample
 
 Free the sample data structure. If it was created with the `free_buf`
-parameter set to true, then the buffer will be freed as well.
+parameter set to true, then the buffer will be freed with [al_free].
 
 You must stop or destroy any [ALLEGRO_SAMPLE_INSTANCE] structures which
 reference this [ALLEGRO_SAMPLE] beforehand.

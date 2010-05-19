@@ -309,7 +309,7 @@ ALLEGRO_SAMPLE *_al_load_wav_f(ALLEGRO_FILE *fp)
 
    if (wavfile) {
       size_t n = (wavfile->bits / 8) * wavfile->channels * wavfile->samples;
-      char *data = malloc(n);
+      char *data = al_malloc(n);
 
       if (data) {
          spl = al_create_sample(data, wavfile->samples, wavfile->freq,
