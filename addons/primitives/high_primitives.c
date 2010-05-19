@@ -82,9 +82,7 @@ static float get_scale(void)
 void al_draw_line(float x1, float y1, float x2, float y2,
    ALLEGRO_COLOR color, float thickness)
 {
-   ALLEGRO_PRIM_COLOR prim_color;
    check_color_blending(&color);
-   prim_color = al_get_prim_color(color);
 
    if (thickness > 0) {
       int ii;
@@ -105,7 +103,7 @@ void al_draw_line(float x1, float y1, float x2, float y2,
       vtx[3].x = x2 + tx; vtx[3].y = y2 + ty;
       
       for (ii = 0; ii < 4; ii++) {
-         vtx[ii].color = prim_color;
+         vtx[ii].color = color;
          vtx[ii].z = 0;
       }
       
@@ -117,8 +115,8 @@ void al_draw_line(float x1, float y1, float x2, float y2,
       vtx[0].x = x1; vtx[0].y = y1;
       vtx[1].x = x2; vtx[1].y = y2;
       
-      vtx[0].color = prim_color;
-      vtx[1].color = prim_color;
+      vtx[0].color = color;
+      vtx[1].color = color;
       vtx[0].z = 0;
       vtx[1].z = 0;
       
@@ -131,9 +129,7 @@ void al_draw_line(float x1, float y1, float x2, float y2,
 void al_draw_triangle(float x1, float y1, float x2, float y2,
    float x3, float y3, ALLEGRO_COLOR color, float thickness)
 {
-   ALLEGRO_PRIM_COLOR prim_color;
    check_color_blending(&color);
-   prim_color = al_get_prim_color(color);
    
    if (thickness > 0) {
       int ii;
@@ -185,7 +181,7 @@ void al_draw_triangle(float x1, float y1, float x2, float y2,
       vtx[6].x = incenter_x + vert_x1 * inner_frac; vtx[6].y = incenter_y + vert_y1 * inner_frac;
       
       for (ii = 0; ii < 8; ii++) {
-         vtx[ii].color = prim_color;
+         vtx[ii].color = color;
          vtx[ii].z = 0;
       }
       
@@ -198,9 +194,9 @@ void al_draw_triangle(float x1, float y1, float x2, float y2,
       vtx[1].x = x2; vtx[1].y = y2;
       vtx[2].x = x3; vtx[2].y = y3;
       
-      vtx[0].color = prim_color;
-      vtx[1].color = prim_color;
-      vtx[2].color = prim_color;
+      vtx[0].color = color;
+      vtx[1].color = color;
+      vtx[2].color = color;
       
       vtx[0].z = 0;
       vtx[1].z = 0;
@@ -215,19 +211,17 @@ void al_draw_triangle(float x1, float y1, float x2, float y2,
 void al_draw_filled_triangle(float x1, float y1, float x2, float y2,
    float x3, float y3, ALLEGRO_COLOR color)
 {
-   ALLEGRO_PRIM_COLOR prim_color;
    ALLEGRO_VERTEX vtx[3];
 
    check_color_blending(&color);
-   prim_color = al_get_prim_color(color);
      
    vtx[0].x = x1; vtx[0].y = y1;
    vtx[1].x = x2; vtx[1].y = y2;
    vtx[2].x = x3; vtx[2].y = y3;
   
-   vtx[0].color = prim_color;
-   vtx[1].color = prim_color;
-   vtx[2].color = prim_color;
+   vtx[0].color = color;
+   vtx[1].color = color;
+   vtx[2].color = color;
    
    vtx[0].z = 0;
    vtx[1].z = 0;
@@ -242,9 +236,7 @@ void al_draw_rectangle(float x1, float y1, float x2, float y2,
    ALLEGRO_COLOR color, float thickness)
 {
    int ii;
-   ALLEGRO_PRIM_COLOR prim_color;
    check_color_blending(&color);
-   prim_color = al_get_prim_color(color);
 
    if (thickness > 0) {
       float t = thickness / 2;
@@ -262,7 +254,7 @@ void al_draw_rectangle(float x1, float y1, float x2, float y2,
       vtx[9].x = x1 + t; vtx[9].y = y1 + t;
       
       for (ii = 0; ii < 10; ii++) {
-         vtx[ii].color = prim_color;
+         vtx[ii].color = color;
          vtx[ii].z = 0;
       }
       
@@ -276,7 +268,7 @@ void al_draw_rectangle(float x1, float y1, float x2, float y2,
       vtx[3].x = x1; vtx[3].y = y2;
       
       for (ii = 0; ii < 4; ii++) {
-         vtx[ii].color = prim_color;
+         vtx[ii].color = color;
          vtx[ii].z = 0;
       }
       
@@ -289,11 +281,9 @@ void al_draw_rectangle(float x1, float y1, float x2, float y2,
 void al_draw_filled_rectangle(float x1, float y1, float x2, float y2,
    ALLEGRO_COLOR color)
 {
-   ALLEGRO_PRIM_COLOR prim_color;
    ALLEGRO_VERTEX vtx[4];
    int ii;
    check_color_blending(&color);
-   prim_color = al_get_prim_color(color);
       
    vtx[0].x = x1; vtx[0].y = y1;
    vtx[1].x = x1; vtx[1].y = y2;
@@ -301,7 +291,7 @@ void al_draw_filled_rectangle(float x1, float y1, float x2, float y2,
    vtx[3].x = x2; vtx[3].y = y1;
    
    for (ii = 0; ii < 4; ii++) {
-      vtx[ii].color = prim_color;
+      vtx[ii].color = color;
       vtx[ii].z = 0;
    }
    
@@ -395,11 +385,9 @@ void al_draw_ellipse(float cx, float cy, float rx, float ry,
    ALLEGRO_COLOR color, float thickness)
 {
    LOCAL_VERTEX_CACHE;
-   ALLEGRO_PRIM_COLOR prim_color;
    float scale = get_scale();
 
    check_color_blending(&color);
-   prim_color = al_get_prim_color(color);
    ASSERT(rx >= 0);
    ASSERT(ry >= 0);
 
@@ -417,7 +405,7 @@ void al_draw_ellipse(float cx, float cy, float rx, float ry,
       
       al_calculate_arc(&(vertex_cache[0].x), sizeof(ALLEGRO_VERTEX), cx, cy, rx, ry, 0, ALLEGRO_PI * 2, thickness, num_segments);
       for (ii = 0; ii < 2 * num_segments; ii++) {
-         vertex_cache[ii].color = prim_color;
+         vertex_cache[ii].color = color;
          vertex_cache[ii].z = 0;
       }
          
@@ -436,7 +424,7 @@ void al_draw_ellipse(float cx, float cy, float rx, float ry,
       
       al_calculate_arc(&(vertex_cache[0].x), sizeof(ALLEGRO_VERTEX), cx, cy, rx, ry, 0, ALLEGRO_PI * 2, 0, num_segments);
       for (ii = 0; ii < num_segments; ii++) {
-         vertex_cache[ii].color = prim_color;
+         vertex_cache[ii].color = color;
          vertex_cache[ii].z = 0;
       }
          
@@ -451,11 +439,9 @@ void al_draw_filled_ellipse(float cx, float cy, float rx, float ry,
 {
    LOCAL_VERTEX_CACHE;
    int num_segments, ii;
-   ALLEGRO_PRIM_COLOR prim_color;
    float scale = get_scale();
 
    check_color_blending(&color);
-   prim_color = al_get_prim_color(color);
    ASSERT(rx >= 0);
    ASSERT(ry >= 0);
    
@@ -475,7 +461,7 @@ void al_draw_filled_ellipse(float cx, float cy, float rx, float ry,
    vertex_cache[0].x = cx; vertex_cache[0].y = cy;
    
    for (ii = 0; ii < num_segments + 1; ii++) {
-      vertex_cache[ii].color = prim_color;
+      vertex_cache[ii].color = color;
       vertex_cache[ii].z = 0;
    }
    
@@ -503,11 +489,9 @@ void al_draw_arc(float cx, float cy, float r, float start_theta,
    float delta_theta, ALLEGRO_COLOR color, float thickness)
 {
    LOCAL_VERTEX_CACHE;
-   ALLEGRO_PRIM_COLOR prim_color;
    float scale = get_scale();
 
    check_color_blending(&color);
-   prim_color = al_get_prim_color(color);
    ASSERT(r >= 0);
    if (thickness > 0) {
       int num_segments = fabs(delta_theta / (2 * ALLEGRO_PI) * ALLEGRO_PRIM_QUALITY * scale * sqrtf(r));
@@ -520,7 +504,7 @@ void al_draw_arc(float cx, float cy, float r, float start_theta,
       al_calculate_arc(&(vertex_cache[0].x), sizeof(ALLEGRO_VERTEX), cx, cy, r, r, start_theta, delta_theta, thickness, num_segments);
       
       for (ii = 0; ii < 2 * num_segments; ii++) {
-         vertex_cache[ii].color = prim_color;
+         vertex_cache[ii].color = color;
          vertex_cache[ii].z = 0;
       }
       
@@ -536,7 +520,7 @@ void al_draw_arc(float cx, float cy, float r, float start_theta,
       al_calculate_arc(&(vertex_cache[0].x), sizeof(ALLEGRO_VERTEX), cx, cy, r, r, start_theta, delta_theta, 0, num_segments);
       
       for (ii = 0; ii < num_segments; ii++) {
-         vertex_cache[ii].color = prim_color;
+         vertex_cache[ii].color = color;
          vertex_cache[ii].z = 0;
       }
       
@@ -550,11 +534,9 @@ void al_draw_rounded_rectangle(float x1, float y1, float x2, float y2,
    float rx, float ry, ALLEGRO_COLOR color, float thickness)
 {
    LOCAL_VERTEX_CACHE;
-   ALLEGRO_PRIM_COLOR prim_color;
    float scale = get_scale();
 
    check_color_blending(&color);
-   prim_color = al_get_prim_color(color);
    ASSERT(rx >= 0);
    ASSERT(ry >= 0);
 
@@ -598,7 +580,7 @@ void al_draw_rounded_rectangle(float x1, float y1, float x2, float y2,
       vertex_cache[8 * num_segments + 1] = vertex_cache[1];
 
       for (ii = 0; ii < 8 * num_segments + 2; ii++) {
-         vertex_cache[ii].color = prim_color;
+         vertex_cache[ii].color = color;
          vertex_cache[ii].z = 0;
       }
          
@@ -633,7 +615,7 @@ void al_draw_rounded_rectangle(float x1, float y1, float x2, float y2,
       }
 
       for (ii = 0; ii < 4 * num_segments; ii++) {
-         vertex_cache[ii].color = prim_color;
+         vertex_cache[ii].color = color;
          vertex_cache[ii].z = 0;
       }
          
@@ -647,13 +629,11 @@ void al_draw_filled_rounded_rectangle(float x1, float y1, float x2, float y2,
    float rx, float ry, ALLEGRO_COLOR color)
 {
    LOCAL_VERTEX_CACHE;
-   ALLEGRO_PRIM_COLOR prim_color;
    int ii;
    float scale = get_scale();
    int num_segments = ALLEGRO_PRIM_QUALITY * scale * sqrtf((rx + ry) / 2.0f) / 4;
 
    check_color_blending(&color);
-   prim_color = al_get_prim_color(color);
    ASSERT(rx >= 0);
    ASSERT(ry >= 0);
    
@@ -683,7 +663,7 @@ void al_draw_filled_rounded_rectangle(float x1, float y1, float x2, float y2,
    }
 
    for (ii = 0; ii < 4 * num_segments; ii++) {
-      vertex_cache[ii].color = prim_color;
+      vertex_cache[ii].color = color;
       vertex_cache[ii].z = 0;
    }
 
@@ -782,14 +762,12 @@ void al_draw_spline(float points[8], ALLEGRO_COLOR color, float thickness)
                                   (float)hypot(points[4] - points[2], points[5] - points[3]) +
                                   (float)hypot(points[6] - points[4], points[7] - points[5])) *
                             1.2 * ALLEGRO_PRIM_QUALITY * scale / 10);
-   ALLEGRO_PRIM_COLOR prim_color;
    LOCAL_VERTEX_CACHE;
    
    if(num_segments < 2)
       num_segments = 2;
    
    check_color_blending(&color);
-   prim_color = al_get_prim_color(color);
 
    if (thickness > 0) {
       if (2 * num_segments >= ALLEGRO_VERTEX_CACHE_SIZE) {
@@ -799,7 +777,7 @@ void al_draw_spline(float points[8], ALLEGRO_COLOR color, float thickness)
       al_calculate_spline(&(vertex_cache[0].x), sizeof(ALLEGRO_VERTEX), points, thickness, num_segments);
       
       for (ii = 0; ii < 2 * num_segments; ii++) {
-         vertex_cache[ii].color = prim_color;
+         vertex_cache[ii].color = color;
          vertex_cache[ii].z = 0;
       }
       
@@ -812,7 +790,7 @@ void al_draw_spline(float points[8], ALLEGRO_COLOR color, float thickness)
       al_calculate_spline(&(vertex_cache[0].x), sizeof(ALLEGRO_VERTEX), points, thickness, num_segments);
       
       for (ii = 0; ii < num_segments; ii++) {
-         vertex_cache[ii].color = prim_color;
+         vertex_cache[ii].color = color;
          vertex_cache[ii].z = 0;
       }
       
@@ -948,23 +926,21 @@ void al_draw_ribbon(const float *points, int points_stride, ALLEGRO_COLOR color,
    float thickness, int num_segments)
 {
    LOCAL_VERTEX_CACHE;
-   ALLEGRO_PRIM_COLOR prim_color;
    int ii;
 
    check_color_blending(&color);
-   prim_color = al_get_prim_color(color);
    al_calculate_ribbon(&(vertex_cache[0].x), sizeof(ALLEGRO_VERTEX), points, points_stride, thickness, num_segments);
    
    if (thickness > 0) {
       for (ii = 0; ii < 2 * num_segments; ii++) {
-         vertex_cache[ii].color = prim_color;
+         vertex_cache[ii].color = color;
          vertex_cache[ii].z = 0;
       }
       
       al_draw_prim(vertex_cache, 0, 0, 0, 2 * num_segments, ALLEGRO_PRIM_TRIANGLE_STRIP);
    } else {
       for (ii = 0; ii < num_segments; ii++) {
-         vertex_cache[ii].color = prim_color;
+         vertex_cache[ii].color = color;
          vertex_cache[ii].z = 0;
       }
       

@@ -134,7 +134,7 @@ static void setup_state(const char* vtxs, const ALLEGRO_VERTEX_DECL* decl, ALLEG
       if(e->attribute) {
          glEnableClientState(GL_COLOR_ARRAY);
 
-         glColorPointer(4, GL_UNSIGNED_BYTE, decl->stride, vtxs + e->offset);
+         glColorPointer(4, GL_FLOAT, decl->stride, vtxs + e->offset);
       } else {
          glDisableClientState(GL_COLOR_ARRAY);
          glColor4f(1, 1, 1, 1);
@@ -147,7 +147,7 @@ static void setup_state(const char* vtxs, const ALLEGRO_VERTEX_DECL* decl, ALLEG
       glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 
       glVertexPointer(3, GL_FLOAT, sizeof(ALLEGRO_VERTEX), &vtx[0].x);
-      glColorPointer(4, GL_UNSIGNED_BYTE, sizeof(ALLEGRO_VERTEX), &vtx[0].color);
+      glColorPointer(4, GL_FLOAT, sizeof(ALLEGRO_VERTEX), &vtx[0].color.r);
       glTexCoordPointer(2, GL_FLOAT, sizeof(ALLEGRO_VERTEX), &vtx[0].u);
    }
 

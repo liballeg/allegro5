@@ -19,6 +19,13 @@ Initializes the primitives addon.
 *Returns:*
 True on success, false on failure.
 
+### API: al_shutdown_primitives_addon
+
+Shut down the primitives addon. This is done automatically at program exit,
+but can be called any time the user wishes as well.
+
+See also: [al_init_primitives_addon]
+
 ## High level drawing routines
 
 High level drawing routines encompass the most common usage of this addon: to
@@ -290,34 +297,6 @@ Number of primitives drawn
 *See Also:*
 [ALLEGRO_VERTEX], [ALLEGRO_PRIM_TYPE], [ALLEGRO_VERTEX_DECL], [al_draw_prim]
 
-### API: al_get_allegro_color
-
-Converts an `ALLEGRO_PRIM_COLOR` into a `ALLEGRO_COLOR`.
-
-*Parameters:*
-
-* col - ALLEGRO_PRIM_COLOR to convert
-
-*Returns:*
-Converted ALLEGRO_COLOR
-
-*See Also:*
-[ALLEGRO_PRIM_COLOR], [al_get_prim_color]
-
-### API: al_get_prim_color
-
-Converts an `ALLEGRO_COLOR` into a `ALLEGRO_PRIM_COLOR`.
-
-*Parameters:*
-
-* col - ALLEGRO_COLOR to convert
-
-*Returns:*
-Converted ALLEGRO_PRIM_COLOR
-
-*See Also:*
-[ALLEGRO_PRIM_COLOR], [al_get_allegro_color]
-
 ### API: al_create_vertex_decl
 
 Creates a vertex declaration, which describes a custom vertex format.
@@ -401,16 +380,6 @@ The line is drawn top to bottom.
 
 ## Structures and types
 
-### API: ALLEGRO_PRIM_COLOR
-
-A special structure that defines a color in a way that understandable to both
-OpenGL and Direct3D backends.
-You should never access internal fields, instead using the two conversion
-functions to convert between it and [ALLEGRO_COLOR] structure.
-
-*See Also:*
-[al_get_allegro_color], [al_get_prim_color]
-
 ### API: ALLEGRO_VERTEX
 
 Defines the generic vertex type, with a 3D position, color and texture
@@ -421,11 +390,11 @@ set z to 0.
 *Fields:*
 
 * x, y, z - Position of the vertex
-* color - `ALLEGRO_PRIM_COLOR` structure
+* color - [ALLEGRO_COLOR] structure, storing the color of the vertex
 * u, v - Texture coordinates measured in pixels
 
 *See Also:*
-[ALLEGRO_PRIM_COLOR], [ALLEGRO_PRIM_ATTR]
+[ALLEGRO_PRIM_ATTR]
 
 ### API: ALLEGRO_VERTEX_DECL
 
@@ -497,7 +466,7 @@ Enumerates the types of vertex attributes that a custom vertex may have.
 * ALLEGRO_PRIM_POSITION - Position information, can be stored in any supported 
    fashion
 
-* ALLEGRO_PRIM_COLOR_ATTR - Color information, stored in an ALLEGRO_PRIM_COLOR.
+* ALLEGRO_PRIM_COLOR_ATTR - Color information, stored in an [ALLEGRO_COLOR].
    The storage field of ALLEGRO_VERTEX_ELEMENT is ignored
 
 * ALLEGRO_PRIM_TEX_COORD - Texture coordinate information, can be stored only in

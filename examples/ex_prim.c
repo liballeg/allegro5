@@ -52,7 +52,7 @@ enum MODE {
 
 typedef struct
 {
-   ALLEGRO_PRIM_COLOR color;
+   ALLEGRO_COLOR color;
    short u, v;
    short x, y;
    int junk[6];
@@ -79,7 +79,7 @@ static void CustomVertexFormatPrimitives(int mode)
          
          vtx[ii].x = x; vtx[ii].y = y;
          vtx[ii].u = 64 * x / 100; vtx[ii].v = 64 * y / 100;
-         vtx[ii].color = al_get_prim_color(al_map_rgba_f(1, 1, 1, 1));
+         vtx[ii].color = al_map_rgba_f(1, 1, 1, 1);
       }
    } else if (mode == LOGIC) {
       Theta += Speed;
@@ -121,9 +121,9 @@ static void TexturePrimitives(int mode)
          vtx[ii].u = 64 * x / 100; vtx[ii].v = 64 * y / 100;
          vtx2[ii].u = 64 * x / 100; vtx2[ii].v = 64 * y / 100;
          if(ii < 10)
-            vtx[ii].color = al_get_prim_color(al_map_rgba_f(1, 1, 1, 1));
+            vtx[ii].color = al_map_rgba_f(1, 1, 1, 1);
          else
-            vtx[ii].color = al_get_prim_color(color);
+            vtx[ii].color = color;
          vtx2[ii].color = vtx[ii].color;
       }
    } else if (mode == LOGIC) {
@@ -176,9 +176,9 @@ static void FilledTexturePrimitives(int mode)
          vtx[ii].x = x; vtx[ii].y = y; vtx[ii].z = 0;
          vtx[ii].u = 64 * x / 100; vtx[ii].v = 64 * y / 100;
          if(ii < 10)
-            vtx[ii].color = al_get_prim_color(al_map_rgba_f(1, 1, 1, 1));
+            vtx[ii].color = al_map_rgba_f(1, 1, 1, 1);
          else
-            vtx[ii].color = al_get_prim_color(color);
+            vtx[ii].color = color;
       }
    } else if (mode == LOGIC) {
       Theta += Speed;
@@ -226,7 +226,7 @@ static void FilledPrimitives(int mode)
          color = al_map_rgb((7 * ii + 1) % 3 * 64, (2 * ii + 2) % 3 * 64, (ii) % 3 * 64);
          
          vtx[ii].x = x; vtx[ii].y = y; vtx[ii].z = 0;
-         vtx[ii].color = al_get_prim_color(color);
+         vtx[ii].color = color;
       }
    } else if (mode == LOGIC) {
       Theta += Speed;
@@ -277,7 +277,7 @@ static void IndexedFilledPrimitives(int mode)
          color = al_map_rgb((7 * ii + 1) % 3 * 64, (2 * ii + 2) % 3 * 64, (ii) % 3 * 64);
          
          vtx[ii].x = x; vtx[ii].y = y; vtx[ii].z = 0;
-         vtx[ii].color = al_get_prim_color(color);
+         vtx[ii].color = color;
       }
    } else if (mode == LOGIC) {
       int ii;
@@ -473,8 +473,8 @@ static void LowPrimitives(int mode)
          
          vtx[ii].x = x; vtx[ii].y = y; vtx[ii].z = 0;
          vtx2[ii].x = 0.1 * x; vtx2[ii].y = 0.1 * y;
-         vtx[ii].color = al_get_prim_color(color);
-         vtx2[ii].color = al_get_prim_color(color);
+         vtx[ii].color = color;
+         vtx2[ii].color = color;
       }
    } else if (mode == LOGIC) {
       Theta += Speed;
@@ -519,8 +519,8 @@ static void IndexedPrimitives(int mode)
          
          vtx[ii].x = x; vtx[ii].y = y; vtx[ii].z = 0;
          vtx2[ii].x = 0.1 * x; vtx2[ii].y = 0.1 * y;
-         vtx[ii].color = al_get_prim_color(color);
-         vtx2[ii].color = al_get_prim_color(color);
+         vtx[ii].color = color;
+         vtx2[ii].color = color;
       }
    } else if (mode == LOGIC) {
       int ii;
@@ -563,9 +563,9 @@ int main(void)
 
    // Initialize Allegro 5 and addons
    al_init();
-   al_init_primitives_addon();
    al_init_image_addon();
    al_init_font_addon();
+   al_init_primitives_addon();
    
    // Create a window to display things on: 640x480 pixels
    display = al_create_display(ScreenW, ScreenH);

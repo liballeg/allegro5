@@ -97,9 +97,9 @@ static void convert_vtx(ALLEGRO_BITMAP* texture, const char* src, ALLEGRO_VERTEX
 
    e = &decl->elements[ALLEGRO_PRIM_COLOR_ATTR];
    if(e->attribute) {
-      dest->color = *(ALLEGRO_PRIM_COLOR*)(src + e->offset);
+      dest->color = *(ALLEGRO_COLOR*)(src + e->offset);
    } else {
-      dest->color = 0xFFFFFFFF;
+      dest->color = al_map_rgba_f(1,1,1,1);
    }
 }
 

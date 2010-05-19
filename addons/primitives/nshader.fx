@@ -37,7 +37,8 @@
 # define _in_tex0
 # define _in_tex2                       float2 tex : TEXCOORD0;
 # define _in_col0
-# define _in_col4                       float4 col : COLOR0;
+# define _in_col4_0                     float4 col : TEXCOORD0;
+# define _in_col4_1                     float4 col : TEXCOORD1;
 
 # define _out_pos0                      float4 pos : POSITION;
 # define _out_pos2                      float4 pos : POSITION;
@@ -45,7 +46,8 @@
 # define _out_tex0
 # define _out_tex2                      float2 tex : TEXCOORD0;
 # define _out_col0                      float4 col : COLOR0;
-# define _out_col4                      float4 col : COLOR0;
+# define _out_col4_0                    float4 col : COLOR0;
+# define _out_col4_1                    float4 col : COLOR0;
 
 # define _op_pos0                       o.pos = float4(0.0f, 0.0f, 0.0f, 1.0f);
 # define _op_pos2                       o.pos = mul(float4(i.pos.xy,   0.0f, 1.0f), g_world_view_proj);
@@ -53,20 +55,21 @@
 # define _op_tex0
 # define _op_tex2                       o.tex = mul(float4(i.tex.xy,   0.0f, 1.0f), g_texture_proj).xy;
 # define _op_col0                       o.col = float4(1.0f, 1.0f, 1.0f, 1.0f);
-# define _op_col4                       o.col = i.col;
+# define _op_col4_0                     o.col = i.col;
+# define _op_col4_1                     o.col = i.col;
 
 float4x4 g_world_view_proj : register(c0);
 float4x4 g_texture_proj    : register(c4);
 
-DEF_VS3(pos3, tex2, col4);
+DEF_VS3(pos3, tex2, col4_1);
 DEF_VS3(pos3, tex2, col0);
-DEF_VS3(pos3, tex0, col4);
+DEF_VS3(pos3, tex0, col4_0);
 DEF_VS3(pos3, tex0, col0);
-DEF_VS3(pos2, tex2, col4);
+DEF_VS3(pos2, tex2, col4_1);
 DEF_VS3(pos2, tex2, col0);
-DEF_VS3(pos2, tex0, col4);
+DEF_VS3(pos2, tex0, col4_0);
 DEF_VS3(pos2, tex0, col0);
-DEF_VS3(pos0, tex2, col4);
+DEF_VS3(pos0, tex2, col4_1);
 DEF_VS3(pos0, tex2, col0);
-DEF_VS3(pos0, tex0, col4);
+DEF_VS3(pos0, tex0, col4_0);
 DEF_VS3(pos0, tex0, col0);

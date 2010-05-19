@@ -58,7 +58,7 @@ static void shader_solid_any_draw_opaque(uintptr_t state, int x1, int y, int x2)
 static void shader_solid_any_init(uintptr_t state, ALLEGRO_VERTEX* v1, ALLEGRO_VERTEX* v2, ALLEGRO_VERTEX* v3)
 {
    state_solid_any_2d* s = (state_solid_any_2d*)state;
-   s->cur_color = al_get_allegro_color(v1->color);
+   s->cur_color = v1->color;
 
    (void)v2;
    (void)v3;
@@ -170,9 +170,9 @@ static void shader_grad_any_init(uintptr_t state, ALLEGRO_VERTEX* v1, ALLEGRO_VE
 {
    INIT_PREAMBLE
    
-   ALLEGRO_COLOR v1c = al_get_allegro_color(v1->color);
-   ALLEGRO_COLOR v2c = al_get_allegro_color(v2->color);
-   ALLEGRO_COLOR v3c = al_get_allegro_color(v3->color);
+   ALLEGRO_COLOR v1c = v1->color;
+   ALLEGRO_COLOR v2c = v2->color;
+   ALLEGRO_COLOR v3c = v3->color;
   
    PLANE_DETS(r, v1c.r, v2c.r, v3c.r)
    PLANE_DETS(g, v1c.g, v2c.g, v3c.g)
@@ -468,9 +468,9 @@ static void shader_texture_grad_any_init(uintptr_t state, ALLEGRO_VERTEX* v1, AL
 {
    INIT_PREAMBLE
    
-   ALLEGRO_COLOR v1c = al_get_allegro_color(v1->color);
-   ALLEGRO_COLOR v2c = al_get_allegro_color(v2->color);
-   ALLEGRO_COLOR v3c = al_get_allegro_color(v3->color);
+   ALLEGRO_COLOR v1c = v1->color;
+   ALLEGRO_COLOR v2c = v2->color;
+   ALLEGRO_COLOR v3c = v3->color;
   
    PLANE_DETS(r, v1c.r, v2c.r, v3c.r)
    PLANE_DETS(g, v1c.g, v2c.g, v3c.g)
@@ -845,9 +845,9 @@ void _al_triangle_2d(ALLEGRO_BITMAP* texture, ALLEGRO_VERTEX* v1, ALLEGRO_VERTEX
    ALLEGRO_COLOR ic;
    ALLEGRO_COLOR v1c, v2c, v3c;
    
-   v1c = al_get_allegro_color(v1->color);
-   v2c = al_get_allegro_color(v2->color);
-   v3c = al_get_allegro_color(v3->color);
+   v1c = v1->color;
+   v2c = v2->color;
+   v3c = v3->color;
 
    al_get_separate_blender(&op, &src_mode, &dst_mode, &op_alpha, &src_alpha, &dst_alpha, &ic);
    if (_DEST_IS_ZERO && _SRC_NOT_MODIFIED) {

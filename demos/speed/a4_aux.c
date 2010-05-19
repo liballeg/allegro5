@@ -348,17 +348,14 @@ void stretch_sprite(ALLEGRO_BITMAP *bmp, ALLEGRO_BITMAP *sprite,
 void polygon(int vertices, const int *points, ALLEGRO_COLOR color)
 {
    ALLEGRO_VERTEX vtxs[MAX_POLYGON_VERTICES + 2];
-   ALLEGRO_PRIM_COLOR pc;
    int i;
 
    assert(vertices <= MAX_POLYGON_VERTICES);
 
-   pc = al_get_prim_color(color);
-
    vtxs[0].x = 0.0;
    vtxs[0].y = 0.0;
    vtxs[0].z = 0.0;
-   vtxs[0].color = pc;
+   vtxs[0].color = color;
    vtxs[0].u = 0;
    vtxs[0].v = 0;
 
@@ -374,7 +371,7 @@ void polygon(int vertices, const int *points, ALLEGRO_COLOR color)
       vtxs[i].x = points[0];
       vtxs[i].y = points[1];
       vtxs[i].z = 0.0;
-      vtxs[i].color = pc;
+      vtxs[i].color = color;
       vtxs[i].u = 0;
       vtxs[i].v = 0;
       points += 2;

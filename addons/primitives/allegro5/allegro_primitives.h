@@ -97,8 +97,8 @@ typedef struct ALLEGRO_VERTEX ALLEGRO_VERTEX;
 
 struct ALLEGRO_VERTEX {
   float x, y, z;
-  ALLEGRO_PRIM_COLOR color;
   float u, v;
+  ALLEGRO_COLOR color;
 };
 
 ALLEGRO_PRIM_FUNC(uint32_t, al_get_allegro_primitives_version, (void));
@@ -107,14 +107,12 @@ ALLEGRO_PRIM_FUNC(uint32_t, al_get_allegro_primitives_version, (void));
 * Primary Functions
 */
 ALLEGRO_PRIM_FUNC(bool, al_init_primitives_addon, (void));
+ALLEGRO_PRIM_FUNC(void, al_shutdown_primitives_addon, (void));
 ALLEGRO_PRIM_FUNC(int, al_draw_prim, (const void* vtxs, const ALLEGRO_VERTEX_DECL* decl, ALLEGRO_BITMAP* texture, int start, int end, int type));
 ALLEGRO_PRIM_FUNC(int, al_draw_indexed_prim, (const void* vtxs, const ALLEGRO_VERTEX_DECL* decl, ALLEGRO_BITMAP* texture, const int* indices, int num_vtx, int type));
 
 ALLEGRO_PRIM_FUNC(ALLEGRO_VERTEX_DECL*, al_create_vertex_decl, (const ALLEGRO_VERTEX_ELEMENT* elements, int stride));
 ALLEGRO_PRIM_FUNC(void, al_destroy_vertex_decl, (ALLEGRO_VERTEX_DECL* decl));
-
-ALLEGRO_PRIM_FUNC(ALLEGRO_COLOR, al_get_allegro_color, (ALLEGRO_PRIM_COLOR col));
-ALLEGRO_PRIM_FUNC(ALLEGRO_PRIM_COLOR, al_get_prim_color, (ALLEGRO_COLOR col));
 
 /*
 * Custom primitives

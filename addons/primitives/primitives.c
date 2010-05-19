@@ -48,12 +48,20 @@ TODO: This is a hack... I need to know the values of these without actually incl
  */
 bool al_init_primitives_addon(void)
 {
-   /*
-    * Doesn't do anything at this time...
-    */
-   return true;
+   bool ret = true;
+   ret &= _al_init_d3d_driver();
+   
+   _al_add_exit_func(al_shutdown_primitives_addon, "primitives_shutdown");
+   
+   return ret;
 }
 
+/* Function: al_shutdown_primitives_addon
+ */
+void al_shutdown_primitives_addon(void)
+{
+   _al_shutdown_d3d_driver();
+}
 
 /* Function: al_draw_prim
  */
@@ -117,53 +125,6 @@ int al_draw_indexed_prim(const void* vtxs, const ALLEGRO_VERTEX_DECL* decl,
       }
    }
    
-   return ret;
-}
-
-/* Function: al_get_allegro_color
- */
-ALLEGRO_COLOR al_get_allegro_color(ALLEGRO_PRIM_COLOR col)
-{
-   int flags = al_get_display_flags();
-   if (flags & ALLEGRO_OPENGL) {
-      return al_map_rgba(
-         col & 0xff,
-         (col >> 8) & 0xff,
-         (col >> 16) & 0xff,
-         (col >> 24) & 0xff
-      );
-   }
-   else {
-      return al_map_rgba(
-         (col >> 16) & 0xff,
-         (col >> 8) & 0xff,
-         col & 0xff,
-         (col >> 24) & 0xff
-      );
-   }
-}
-
-/* Function: al_get_prim_color
- */
-ALLEGRO_PRIM_COLOR al_get_prim_color(ALLEGRO_COLOR col)
-{
-   ALLEGRO_PRIM_COLOR ret;
-   int flags = al_get_display_flags();
-   if (flags & ALLEGRO_OPENGL) {
-      ret =
-         (int)(col.r*255) |
-         ((int)(col.g*255) << 8) |
-         ((int)(col.b*255) << 16) |
-         ((int)(col.a*255) << 24);
-   }
-   else {
-#ifdef ALLEGRO_CFG_D3D
-      ret = D3DCOLOR_COLORVALUE(col.r, col.g, col.b, col.a);
-#else
-      ret = 0;
-#endif
-   }
-
    return ret;
 }
 

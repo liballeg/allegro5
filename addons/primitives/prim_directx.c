@@ -27,6 +27,48 @@
 
 #ifdef ALLEGRO_CFG_D3D
 
+static ALLEGRO_MUTEX *d3d_mutex;
+static bool legacy_card = false;
+static bool know_card_type = false;
+
+typedef struct LEGACY_VERTEX
+{
+   float x, y, z;
+   DWORD color;
+   float u, v;
+} LEGACY_VERTEX;
+
+static LEGACY_VERTEX* legacy_buffer;
+static int legacy_buffer_size = 0;
+#define A5V_FVF (D3DFVF_XYZ | D3DFVF_TEX2 | D3DFVF_TEXCOORDSIZE2(0) | D3DFVF_TEXCOORDSIZE4(1))
+#define A5V_LEGACY_FVF (D3DFVF_XYZ | D3DFVF_DIFFUSE | D3DFVF_TEX1)
+
+#endif
+
+bool _al_init_d3d_driver(void)
+{
+   #ifdef ALLEGRO_CFG_D3D
+   d3d_mutex = al_create_mutex();
+   #endif
+   return true;
+}
+
+void _al_shutdown_d3d_driver(void)
+{
+   #ifdef ALLEGRO_CFG_D3D
+   al_destroy_mutex(d3d_mutex);
+   free(legacy_buffer);
+   _al_destroy_default_shader();
+   
+   legacy_card = false;
+   know_card_type = false;
+   legacy_buffer_size = 0;
+   d3d_mutex = 0;
+   #endif
+}
+
+#ifdef ALLEGRO_CFG_D3D
+
 #include "allegro5/allegro_direct3d.h"
 
 static int al_blender_to_d3d(int al_mode)
@@ -81,7 +123,32 @@ static void set_blender(ALLEGRO_DISPLAY *display)
    IDirect3DDevice9_SetTextureStageState(device, 0, D3DTSS_ALPHAOP, D3DTOP_MODULATE);
 }
 
-#define A5V_FVF (D3DFVF_XYZ | D3DFVF_DIFFUSE | D3DFVF_TEX1)
+static void* convert_to_legacy_vertices(const void* vtxs, int num_vertices)
+{
+   const ALLEGRO_VERTEX* vtx = vtxs;
+   int ii;
+   
+   if(legacy_buffer == 0) {
+      legacy_buffer = malloc(num_vertices * sizeof(LEGACY_VERTEX));
+      legacy_buffer_size = num_vertices;
+   } else if (num_vertices > legacy_buffer_size) {
+      legacy_buffer = realloc(legacy_buffer, num_vertices * 1.5 * sizeof(LEGACY_VERTEX));
+      legacy_buffer_size = num_vertices * 1.5;
+   }
+   
+   for(ii = 0; ii < num_vertices; ii++) {
+      legacy_buffer[ii].x = vtx[ii].x;
+      legacy_buffer[ii].y = vtx[ii].y;
+      legacy_buffer[ii].z = vtx[ii].z;
+      
+      legacy_buffer[ii].u = vtx[ii].u;
+      legacy_buffer[ii].v = vtx[ii].v;
+      
+      legacy_buffer[ii].color = D3DCOLOR_COLORVALUE(vtx[ii].color.r, vtx[ii].color.g, vtx[ii].color.b, vtx[ii].color.a);
+   }
+   return legacy_buffer;
+}
+
 
 static int _al_draw_prim_raw(ALLEGRO_BITMAP* texture, const void* vtx, const ALLEGRO_VERTEX_DECL* decl, 
    const int* indices, int num_vtx, int type)
@@ -123,20 +190,56 @@ static int _al_draw_prim_raw(ALLEGRO_BITMAP* texture, const void* vtx, const ALL
    IDirect3DDevice9_GetVertexShader(device, &old_vtx_shader);
    IDirect3DDevice9_GetPixelShader(device, &old_pix_shader);
    
-   if(decl) {
-      if(decl->d3d_decl) {
-         IDirect3DDevice9_SetVertexDeclaration(device, (IDirect3DVertexDeclaration9*)decl->d3d_decl);
-      } else {
+   if(!know_card_type) {
+      D3DCAPS9 caps;
+      IDirect3DDevice9_GetDeviceCaps(device, &caps);
+      if(caps.PixelShaderVersion < D3DPS_VERSION(3, 0))
+         legacy_card = true;
+      know_card_type = true;
+   }
+   
+   /* Check for early exit */
+   if((legacy_card && decl) || (decl && decl->d3d_decl == 0)) {
+      if(!indices)
          return _al_draw_prim_soft(texture, vtx, decl, 0, num_vtx, type);
-      }
-   } else {
-      IDirect3DDevice9_SetFVF(device, A5V_FVF);
+      else
+         return _al_draw_prim_indexed_soft(texture, vtx, decl, indices, num_vtx, type);
    }
 
    if(!old_pix_shader)
       set_blender(display);
-
+      
    if(!old_vtx_shader) {
+      /* Prepare the default shader */
+      if(!legacy_card) {
+         if(decl) 
+            _al_setup_shader(device, decl);
+         else {
+            if(!_al_default_shader_ready()) {
+               al_lock_mutex(d3d_mutex);
+               _al_create_default_shader();
+               al_unlock_mutex(d3d_mutex);
+            }
+            if(!legacy_card)
+               _al_setup_default_shader(device);
+         }
+      }
+   }
+   
+   /* Set the vertex declarations */
+   if(legacy_card) {
+      IDirect3DDevice9_SetFVF(device, A5V_LEGACY_FVF);
+      stride = sizeof(LEGACY_VERTEX);
+   } else {         
+      if(decl) {
+         IDirect3DDevice9_SetVertexDeclaration(device, (IDirect3DVertexDeclaration9*)decl->d3d_decl);
+      } else {
+         IDirect3DDevice9_SetFVF(device, A5V_FVF);
+      }
+   }
+   
+   if(!old_vtx_shader) {
+      /* Set up the texture */
       if (texture) {
          int tex_x, tex_y;
          D3DSURFACE_DESC desc;
@@ -165,14 +268,12 @@ static int _al_draw_prim_raw(ALLEGRO_BITMAP* texture, const void* vtx, const ALL
          mat[2][0] = (float)tex_x / desc.Width;
          mat[2][1] = (float)tex_y / desc.Height;
 
-         if (decl) {
-            _al_set_texture_matrix(device, mat[0]);
-         }
-         else
-         {
+         if(legacy_card) {
             IDirect3DDevice9_GetTextureStageState(device, 0, D3DTSS_TEXTURETRANSFORMFLAGS, &old_ttf_state);
             IDirect3DDevice9_SetTextureStageState(device, 0, D3DTSS_TEXTURETRANSFORMFLAGS, D3DTTFF_COUNT2);
             IDirect3DDevice9_SetTransform(device, D3DTS_TEXTURE0, (D3DMATRIX *)&mat);
+         } else {
+            _al_set_texture_matrix(device, mat[0]);
          }
 
          d3d_texture = (LPDIRECT3DBASETEXTURE9)al_get_d3d_video_texture(texture);
@@ -198,8 +299,11 @@ static int _al_draw_prim_raw(ALLEGRO_BITMAP* texture, const void* vtx, const ALL
       IDirect3DDevice9_SetTransform(device, D3DTS_VIEW, &new_trans);
    }
    
-   if(!old_vtx_shader && decl)
-      _al_setup_shader(device, decl);
+   /* Convert vertices for legacy cards */
+   if(legacy_card) {
+      al_lock_mutex(d3d_mutex);
+      vtx = convert_to_legacy_vertices(vtx, max_idx + 1);
+   }
 
    if(!indices)
    {
@@ -305,6 +409,9 @@ static int _al_draw_prim_raw(ALLEGRO_BITMAP* texture, const void* vtx, const ALL
       }
    }
    
+   if(legacy_card)
+      al_unlock_mutex(d3d_mutex);
+   
    if (al_is_sub_bitmap(target)) {
       new_trans.m[3][0] = cur_trans->m[3][0] - 0.5;
       new_trans.m[3][1] = cur_trans->m[3][1] - 0.5;
@@ -314,7 +421,7 @@ static int _al_draw_prim_raw(ALLEGRO_BITMAP* texture, const void* vtx, const ALL
    IDirect3DDevice9_SetSamplerState(device, 0, D3DSAMP_ADDRESSU, old_wrap_state[0]);
    IDirect3DDevice9_SetSamplerState(device, 0, D3DSAMP_ADDRESSV, old_wrap_state[1]);
 
-   if(!old_vtx_shader && texture && !decl) {
+   if(!old_vtx_shader && legacy_card && texture) {
       IDirect3DDevice9_SetTextureStageState(device, 0, D3DTSS_TEXTURETRANSFORMFLAGS, old_ttf_state);
    }
    
@@ -378,6 +485,7 @@ void _al_set_d3d_decl(ALLEGRO_VERTEX_DECL* ret)
       if(caps.PixelShaderVersion < D3DPS_VERSION(3, 0)) {
          ret->d3d_decl = 0;
       } else {
+         int color_idx = 0;
          e = &ret->elements[ALLEGRO_PRIM_POSITION];
          if(e->attribute) {
             int type = 0;
@@ -422,16 +530,17 @@ void _al_set_d3d_decl(ALLEGRO_VERTEX_DECL* ret)
             d3delements[idx].Usage = D3DDECLUSAGE_TEXCOORD;
             d3delements[idx].UsageIndex = 0;
             idx++;
+            color_idx++;
          }
 
          e = &ret->elements[ALLEGRO_PRIM_COLOR_ATTR];
          if(e->attribute) {
             d3delements[idx].Stream = 0;
             d3delements[idx].Offset = e->offset;
-            d3delements[idx].Type = D3DDECLTYPE_D3DCOLOR;
+            d3delements[idx].Type = D3DDECLTYPE_FLOAT4;
             d3delements[idx].Method = D3DDECLMETHOD_DEFAULT;
-            d3delements[idx].Usage = D3DDECLUSAGE_COLOR;
-            d3delements[idx].UsageIndex = 0;
+            d3delements[idx].Usage = D3DDECLUSAGE_TEXCOORD;
+            d3delements[idx].UsageIndex = color_idx;
             idx++;
          }
          

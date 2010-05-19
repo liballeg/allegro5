@@ -50,7 +50,7 @@ static void shader_solid_any_draw_opaque(uintptr_t state, int x, int y)
 static void shader_solid_any_first(uintptr_t state, int start_x, int start_y, ALLEGRO_VERTEX* v1, ALLEGRO_VERTEX* v2)
 {
    state_solid_any_2d* s = (state_solid_any_2d*)state;
-   s->color = al_get_allegro_color(v1->color);
+   s->color = v1->color;
 
    (void)start_x;
    (void)start_y;
@@ -102,8 +102,8 @@ static void shader_grad_any_first(uintptr_t state, int start_x, int start_y, ALL
    state_grad_any_2d* st = (state_grad_any_2d*)state;
    ALLEGRO_COLOR diff, v1c, v2c;
 
-   v1c = al_get_allegro_color(v1->color);
-   v2c = al_get_allegro_color(v2->color);
+   v1c = v1->color;
+   v2c = v2->color;
 
    get_interpolation_parameters(start_x, start_y, v1, v2, &param, &minor_delta_param, &major_delta_param);
   
@@ -220,7 +220,7 @@ static void shader_texture_solid_any_first(uintptr_t state, int start_x, int sta
    float du, dv;
    ALLEGRO_COLOR v1c;
 
-   v1c = al_get_allegro_color(v1->color);
+   v1c = v1->color;
 
    get_interpolation_parameters(start_x, start_y, v1, v2, &param, &minor_delta_param, &major_delta_param);
   
@@ -274,8 +274,8 @@ static void shader_texture_grad_any_first(uintptr_t state, int start_x, int star
    float du, dv;
    ALLEGRO_COLOR diff, v1c, v2c;
 
-   v1c = al_get_allegro_color(v1->color);
-   v2c = al_get_allegro_color(v2->color);
+   v1c = v1->color;
+   v2c = v2->color;
 
    get_interpolation_parameters(start_x, start_y, v1, v2, &param, &minor_delta_param, &major_delta_param);
   
@@ -496,8 +496,8 @@ void _al_line_2d(ALLEGRO_BITMAP* texture, ALLEGRO_VERTEX* v1, ALLEGRO_VERTEX* v2
    int op, src_mode, dst_mode, op_alpha, src_alpha, dst_alpha;
    ALLEGRO_COLOR ic, v1c, v2c;
 
-   v1c = al_get_allegro_color(v1->color);
-   v2c = al_get_allegro_color(v2->color);
+   v1c = v1->color;
+   v2c = v2->color;
    
    al_get_separate_blender(&op, &src_mode, &dst_mode, &op_alpha, &src_alpha, &dst_alpha, &ic);
    if (_DEST_IS_ZERO && _SRC_NOT_MODIFIED) {

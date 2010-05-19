@@ -49,7 +49,7 @@ void _al_point_2d(ALLEGRO_BITMAP* texture, ALLEGRO_VERTEX* v)
    if(x < clip_min_x || x >= clip_max_x || y < clip_min_y || y >= clip_max_y)
       return;
 
-   vc = al_get_allegro_color(v->color);
+   vc = v->color;
 
    al_get_separate_blender(&op, &src_mode, &dst_mode, &op_alpha, &src_alpha, &dst_alpha, &ic);
    if (_DEST_IS_ZERO && _SRC_NOT_MODIFIED) {
