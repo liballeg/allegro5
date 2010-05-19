@@ -140,4 +140,13 @@ static void *default_debug_realloc(int line, const char *file, const char *func,
    return _al_realloc(opaque, ptr, size);
 }
 
-/* vi ts=8 sts=3 sw=3 et */
+
+/* Function: al_free
+ */
+void al_free(void *ptr)
+{
+   _AL_FREE(ptr);
+}
+
+
+/* vim: set ts=8 sts=3 sw=3 et: */

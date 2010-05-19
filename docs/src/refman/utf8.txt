@@ -96,10 +96,8 @@ in bytes. The result will always be 0-terminated.
 
 Create a NUL  ('\0') terminated copy of the string.  Any embedded NUL
 bytes will still be presented in the returned string.
-The new string must eventually be freed with free().
+The new string must eventually be freed with [al_free].
 If an error occurs NULL is returned.
-
-[after we introduce al_free it should be freed with al_free]
 
 
 ### API: al_ustr_dup

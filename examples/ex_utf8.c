@@ -857,7 +857,7 @@ static void t39(void)
    CHECK(0 == strcmp(s1, s2));
    CHECK(0 == memcmp(s1, s2, sizeof(s1))); /* including NUL terminator */
 
-   free(s2); /* should be al_free eventually */
+   al_free(s2);
 }
 
 /* Test al_ustr_assign, al_ustr_assign_cstr. */

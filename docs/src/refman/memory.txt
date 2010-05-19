@@ -4,3 +4,14 @@ These functions are declared in the main Allegro header file:
 
     #include <allegro5/allegro.h>
 
+## API: al_free
+
+Like free() in the C standard library.  This is required because:
+
+-  On Windows a memory block allocated by one DLL must be freed from the same
+   DLL.  In the few places where an Allegro function returns a pointer that
+   must be freed, you must use al_free() for portability to Windows.
+
+-  In the future we plan to allow the user to customise the malloc/free
+   functions used by Allegro, so it may hook into another implementation.
+
