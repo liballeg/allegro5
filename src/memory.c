@@ -55,9 +55,9 @@ void *(*_al_debug_realloc)(int line, const char *file, const char *func,
 
 
 
-/* Function: al_set_memory_management_functions
+/* _al_set_memory_management_functions:
  */
-void al_set_memory_management_functions(
+void _al_set_memory_management_functions(
    void *(*malloc)(void *opaque, size_t size),
    void *(*malloc_atomic)(void *opaque, size_t size),
    void (*free)(void *opaque, void *ptr),

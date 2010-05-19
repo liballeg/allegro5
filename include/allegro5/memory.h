@@ -20,7 +20,10 @@
    extern "C" {
 #endif
 
-void al_set_memory_management_functions(
+/* Not exported for now. I'm not sure how to handle the debug situation for
+ * user code.  Also, passing a pointer to a vtable might be better.
+ */
+void _al_set_memory_management_functions(
    void *(*malloc)(void *opaque, size_t size),
    void *(*malloc_atomic)(void *opaque, size_t size),
    void (*free)(void *opaque, void *ptr),
