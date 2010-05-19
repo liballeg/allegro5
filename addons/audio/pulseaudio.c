@@ -209,7 +209,7 @@ static int pulseaudio_allocate_voice(ALLEGRO_VOICE *voice)
 
    voice->extra = pv;
 
-   pv->frame_size = ss.channels * al_get_depth_size(voice->depth);
+   pv->frame_size = ss.channels * al_get_audio_depth_size(voice->depth);
    pv->status = PV_STOPPED;
    pv->buffer_mutex = al_create_mutex();
 

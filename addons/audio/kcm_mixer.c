@@ -579,7 +579,7 @@ void _al_kcm_mixer_read(void *source, void **buf, unsigned int *samples,
    /* Make sure the mixer buffer is big enough. */
    if (m->ss.spl_data.len*maxc < samples_l*maxc) {
       free(m->ss.spl_data.buffer.ptr);
-      m->ss.spl_data.buffer.ptr = malloc(samples_l*maxc*al_get_depth_size(m->ss.spl_data.depth));
+      m->ss.spl_data.buffer.ptr = malloc(samples_l*maxc*al_get_audio_depth_size(m->ss.spl_data.depth));
       if (!m->ss.spl_data.buffer.ptr) {
          _al_set_error(ALLEGRO_GENERIC_ERROR,
             "Out of memory allocating mixer buffer");
@@ -592,7 +592,7 @@ void _al_kcm_mixer_read(void *source, void **buf, unsigned int *samples,
    mixer = m;
 
    /* Clear the buffer to silence. */
-   memset(mixer->ss.spl_data.buffer.ptr, 0, samples_l * maxc * al_get_depth_size(mixer->ss.spl_data.depth));
+   memset(mixer->ss.spl_data.buffer.ptr, 0, samples_l * maxc * al_get_audio_depth_size(mixer->ss.spl_data.depth));
 
    /* Mix the streams into the mixer buffer. */
    for (i = _al_vector_size(&mixer->streams) - 1; i >= 0; i--) {

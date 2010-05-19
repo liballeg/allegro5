@@ -148,7 +148,7 @@ bool al_attach_sample_instance_to_voice(ALLEGRO_SAMPLE_INSTANCE *spl,
    voice->num_buffers = 1;
    voice->buffer_size = (spl->spl_data.len >> MIXER_FRAC_SHIFT) *
                         al_get_channel_count(voice->chan_conf) *
-                        al_get_depth_size(voice->depth);
+                        al_get_audio_depth_size(voice->depth);
 
    spl->spl_read = NULL;
    _al_kcm_stream_set_mutex(spl, voice->mutex);
@@ -211,7 +211,7 @@ static void stream_read(void *source, void **vbuf, unsigned int *samples,
    }
    else {
       int bytes = pos * al_get_channel_count(stream->spl.spl_data.chan_conf)
-                      * al_get_depth_size(stream->spl.spl_data.depth);
+                      * al_get_audio_depth_size(stream->spl.spl_data.depth);
       *vbuf = ((char *)stream->pending_bufs[0]) + bytes;
 
       if (pos + *samples > len)
@@ -270,7 +270,7 @@ bool al_attach_audio_stream_to_voice(ALLEGRO_AUDIO_STREAM *stream,
    voice->num_buffers = stream->buf_count;
    voice->buffer_size = (stream->spl.spl_data.len >> MIXER_FRAC_SHIFT) *
                         al_get_channel_count(stream->spl.spl_data.chan_conf) *
-                        al_get_depth_size(stream->spl.spl_data.depth);
+                        al_get_audio_depth_size(stream->spl.spl_data.depth);
 
    stream->spl.spl_read = stream_read;
 

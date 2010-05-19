@@ -50,7 +50,7 @@ size_t al_get_channel_count(ALLEGRO_CHANNEL_CONF conf)
 }
 
 /* Depth configuration helpers */
-size_t al_get_depth_size(ALLEGRO_AUDIO_DEPTH depth)
+size_t al_get_audio_depth_size(ALLEGRO_AUDIO_DEPTH depth)
 {
    switch (depth) {
       case ALLEGRO_AUDIO_DEPTH_INT8:

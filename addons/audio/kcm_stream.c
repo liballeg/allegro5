@@ -60,7 +60,7 @@ ALLEGRO_AUDIO_STREAM *al_create_audio_stream(size_t fragment_count,
    }
 
    bytes_per_buffer = samples * al_get_channel_count(chan_conf) *
-      al_get_depth_size(depth);
+      al_get_audio_depth_size(depth);
 
    stream = calloc(1, sizeof(*stream));
    if (!stream) {
@@ -587,7 +587,7 @@ void *_al_kcm_feed_stream(ALLEGRO_THREAD *self, void *vstream)
 
          bytes = (stream->spl.spl_data.len >> MIXER_FRAC_SHIFT) *
                al_get_channel_count(stream->spl.spl_data.chan_conf) *
-               al_get_depth_size(stream->spl.spl_data.depth);
+               al_get_audio_depth_size(stream->spl.spl_data.depth);
 
          maybe_lock_mutex(stream->spl.mutex);
          bytes_written = stream->feeder(stream, fragment, bytes);
