@@ -256,6 +256,14 @@ boundaries of a single bitmap (i.e. you are not having the texture repeat/tile).
 As long as that is the case, any texture can be used safely. Sub-bitmaps work
 as textures, but cannot be tiled.
 
+A note about pixel coordinates. In OpenGL the texture coordinate (0, 0) refers
+to the top left corner of the pixel. This confuses some drivers, because due to
+rounding errors the actual pixel sampled might be the pixel to the top and/or 
+left of the (0, 0) pixel. To make this error less likely it is advisable to
+offset the texture coordinates you pass to the al_draw_prim by (0.5, 0.5) if you
+need precise pixel control. E.g. to refer to pixel (5, 10) you'd set the u and v
+to 5.5 and 10.5 respectively.
+
 ### API: al_draw_prim
 
 Draws a subset of the passed vertex buffer.
@@ -477,14 +485,6 @@ Enumerates the types of vertex attributes that a custom vertex may have.
 * ALLEGRO_PRIM_TEX_COORD_PIXEL - Texture coordinate information, can be stored
    only in ALLEGRO_PRIM_FLOAT_2 and ALLEGRO_PRIM_SHORT_2. These coordinates are
    measured in pixels.
-
-A note about pixel coordinates. In OpenGL the texture coordinate (0, 0) refers
-to the top left corner of the pixel. This confuses some drivers, because due to
-rounding errors the actual pixel sampled might be the pixel to the top and/or 
-left of the (0, 0) pixel. To make this error less likely it is advisable to
-offset the texture coordinates you pass to the al_draw_prim by (0.5, 0.5) if you
-need precise pixel control. E.g. to refer to pixel (5, 10) you'd set the u and v
-to 5.5 and 10.5 respectively.
 
 *See Also:*
 [ALLEGRO_VERTEX_DECL], [ALLEGRO_PRIM_STORAGE]
