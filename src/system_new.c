@@ -250,6 +250,9 @@ bool al_install_system(int version, int (*atexit_ptr)(void (*)(void)))
       atexit_virgin = false;
    }
 
+   /* Clear errnos set while searching for config files. */
+   al_set_errno(0);
+
    return true;
 }
 
