@@ -22,7 +22,6 @@
 
 #include "allegro5/allegro5.h"
 #include "allegro5/internal/aintern.h"
-#include "allegro5/internal/aintern_memory.h"
 #include <string.h>
 #include <ctype.h>
 
@@ -95,7 +94,7 @@ int _alemu_stricmp(const char *s1, const char *s2)
 
 
 /* _al_sane_realloc:
- *  _AL_REALLOC() substitution with guaranteed behaviour.
+ *  al_realloc() substitution with guaranteed behaviour.
  */
 void *_al_sane_realloc(void *ptr, size_t size)
 {
@@ -104,15 +103,15 @@ void *_al_sane_realloc(void *ptr, size_t size)
    tmp_ptr = NULL;
 
    if (ptr && size) {
-      tmp_ptr = _AL_REALLOC(ptr, size);
-      if (!tmp_ptr && ptr) _AL_FREE(ptr);
+      tmp_ptr = al_realloc(ptr, size);
+      if (!tmp_ptr && ptr) al_free(ptr);
    }
    else if (!size) {
       tmp_ptr = NULL;
-      if (ptr) _AL_FREE(ptr);
+      if (ptr) al_free(ptr);
    }
    else if (!ptr) {
-      tmp_ptr = _AL_MALLOC(size);
+      tmp_ptr = al_malloc(size);
    }
    
    return tmp_ptr;

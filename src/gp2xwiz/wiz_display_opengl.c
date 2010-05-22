@@ -16,7 +16,6 @@
 
 #include "allegro5/internal/aintern_gp2xwiz.h"
 #include "allegro5/internal/aintern_bitmap.h"
-#include "allegro5/internal/aintern_memory.h"
 #include "allegro5/internal/aintern_opengl.h"
 
 ALLEGRO_DEBUG_CHANNEL("display")
@@ -54,9 +53,9 @@ static ALLEGRO_DISPLAY *gp2xwiz_create_display_ogl(int w, int h)
    if (set_gfx_mode)
       return NULL;
 
-   ALLEGRO_DISPLAY_GP2XWIZ_OGL *d = _AL_MALLOC(sizeof *d);
+   ALLEGRO_DISPLAY_GP2XWIZ_OGL *d = al_malloc(sizeof *d);
    ALLEGRO_DISPLAY *display = (void*)d;
-   ALLEGRO_OGL_EXTRAS *ogl = _AL_MALLOC(sizeof *ogl);
+   ALLEGRO_OGL_EXTRAS *ogl = al_malloc(sizeof *ogl);
    EGLint numConfigs;
 
    memset(d, 0, sizeof *d);
@@ -157,15 +156,15 @@ static void gp2xwiz_destroy_display_ogl(ALLEGRO_DISPLAY *d)
    eglDestroySurface(wiz_disp->egl_display, wiz_disp->egl_surface);
    eglDestroyContext(wiz_disp->egl_display, wiz_disp->egl_context);
    eglTerminate(wiz_disp->egl_display);
-   free(wiz_disp->hNativeWnd);
+   al_free(wiz_disp->hNativeWnd);
    nanoGL_Destroy();
 
    _al_vector_free(&d->bitmaps);
    _al_event_source_free(&d->es);
 
-   _AL_FREE(d->ogl_extras);
-   _AL_FREE(d->vertex_cache);
-   _AL_FREE(d);
+   al_free(d->ogl_extras);
+   al_free(d->vertex_cache);
+   al_free(d);
 
    set_gfx_mode = false;
 }
@@ -239,7 +238,7 @@ ALLEGRO_DISPLAY_INTERFACE *_al_display_gp2xwiz_opengl_driver(void)
    if (gp2xwiz_vt)
       return gp2xwiz_vt;
 
-   gp2xwiz_vt = _AL_MALLOC(sizeof *gp2xwiz_vt);
+   gp2xwiz_vt = al_malloc(sizeof *gp2xwiz_vt);
    memset(gp2xwiz_vt, 0, sizeof *gp2xwiz_vt);
 
    gp2xwiz_vt->create_display = gp2xwiz_create_display_ogl;

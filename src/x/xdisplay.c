@@ -1,6 +1,5 @@
 #include "allegro5/internal/aintern_xglx.h"
 #include "allegro5/internal/aintern_bitmap.h"
-#include "allegro5/internal/aintern_memory.h"
 #include "allegro5/internal/aintern_opengl.h"
 
 
@@ -88,7 +87,7 @@ static void xdpy_set_icon(ALLEGRO_DISPLAY *d, ALLEGRO_BITMAP *bitmap)
    unsigned long *data; /* Yes, unsigned long, even on 64-bit platforms! */
 
    data_size = 2 + w * h;
-   data = _AL_MALLOC(data_size * sizeof(data[0]));
+   data = al_malloc(data_size * sizeof(data[0]));
 
    if (data) {
       ALLEGRO_LOCKED_REGION *lr = al_lock_bitmap(bitmap,
@@ -119,7 +118,7 @@ static void xdpy_set_icon(ALLEGRO_DISPLAY *d, ALLEGRO_BITMAP *bitmap)
          al_unlock_bitmap(bitmap);
       }
 
-      _AL_FREE(data);
+      al_free(data);
    }
 }
 
@@ -223,9 +222,9 @@ static void xdpy_destroy_display(ALLEGRO_DISPLAY *d);
 /* Create a new X11 display, which maps directly to a GLX window. */
 static ALLEGRO_DISPLAY *xdpy_create_display(int w, int h)
 {
-   ALLEGRO_DISPLAY_XGLX *d = _AL_MALLOC(sizeof *d);
+   ALLEGRO_DISPLAY_XGLX *d = al_malloc(sizeof *d);
    ALLEGRO_DISPLAY *display = (void*)d;
-   ALLEGRO_OGL_EXTRAS *ogl = _AL_MALLOC(sizeof *ogl);
+   ALLEGRO_OGL_EXTRAS *ogl = al_malloc(sizeof *ogl);
    memset(d, 0, sizeof *d);
    memset(ogl, 0, sizeof *ogl);
    display->ogl_extras = ogl;
@@ -265,8 +264,8 @@ static ALLEGRO_DISPLAY *xdpy_create_display(int w, int h)
    if (!d->xvinfo) {
       ALLEGRO_ERROR("FIXME: Need better visual selection.\n");
       ALLEGRO_ERROR("No matching visual found.\n");
-      _AL_FREE(d);
-      _AL_FREE(ogl);
+      al_free(d);
+      al_free(ogl);
       _al_mutex_unlock(&system->lock);
       return NULL;
    }
@@ -564,13 +563,13 @@ static void xdpy_destroy_display(ALLEGRO_DISPLAY *d)
    /* In multi-window programs these result in a double-free bugs. */
 #if 0
    if (glx->fbc) {
-      free(glx->fbc);
+      al_free(glx->fbc);
       glx->fbc = NULL;
       XFree(glx->xvinfo);
       glx->xvinfo = NULL;
    }
    else if (glx->xvinfo) {
-      free(glx->xvinfo);
+      al_free(glx->xvinfo);
       glx->xvinfo = NULL;
    }
 #endif
@@ -580,9 +579,9 @@ static void xdpy_destroy_display(ALLEGRO_DISPLAY *d)
    _al_vector_free(&d->bitmaps);
    _al_event_source_free(&d->es);
 
-   _AL_FREE(d->ogl_extras);
-   _AL_FREE(d->vertex_cache);
-   _AL_FREE(d);
+   al_free(d->ogl_extras);
+   al_free(d->vertex_cache);
+   al_free(d);
 
    _al_mutex_unlock(&s->lock);
 

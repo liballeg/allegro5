@@ -19,7 +19,6 @@
 #include <string.h>
 
 #include "allegro5/allegro5.h"
-#include "allegro5/internal/aintern_memory.h"
 
 #include "allegro5/allegro_font.h"
 
@@ -196,7 +195,7 @@ ALLEGRO_FONT *al_grab_font_from_bitmap(ALLEGRO_BITMAP *bmp,
    w = al_get_bitmap_width(bmp);
    h = al_get_bitmap_height(bmp);
 
-   f = _AL_MALLOC(sizeof *f);
+   f = al_malloc(sizeof *f);
    memset(f, 0, sizeof *f);
    f->vtable = al_font_vtable_color;
    
@@ -220,7 +219,7 @@ ALLEGRO_FONT *al_grab_font_from_bitmap(ALLEGRO_BITMAP *bmp,
       int first = ranges[i * 2];
       int last = ranges[i * 2 + 1];
       int n = 1 + last - first;
-      cf = _AL_MALLOC(sizeof(ALLEGRO_FONT_COLOR_DATA));
+      cf = al_malloc(sizeof(ALLEGRO_FONT_COLOR_DATA));
       memset(cf, 0, sizeof *cf);
 
       if (prev)
@@ -228,7 +227,7 @@ ALLEGRO_FONT *al_grab_font_from_bitmap(ALLEGRO_BITMAP *bmp,
       else
          f->data = cf;
       
-      cf->bitmaps = _AL_MALLOC(sizeof(ALLEGRO_BITMAP*) * n);
+      cf->bitmaps = al_malloc(sizeof(ALLEGRO_BITMAP*) * n);
 
       if (!glyphs) {
          glyphs = al_clone_bitmap(unmasked);

@@ -245,7 +245,7 @@ static int _dsound_allocate_voice(ALLEGRO_VOICE *voice)
          return 1;
    }
 
-   ex_data = (ALLEGRO_DS_DATA *)calloc(1, sizeof(*ex_data));
+   ex_data = (ALLEGRO_DS_DATA *)al_calloc(1, sizeof(*ex_data));
    if (!ex_data) {
       fprintf(stderr, "Could not allocate voice data memory\n"); 
       return 1;
@@ -265,7 +265,7 @@ static int _dsound_allocate_voice(ALLEGRO_VOICE *voice)
    unloaded by the time this is called */
 static void _dsound_deallocate_voice(ALLEGRO_VOICE *voice)
 {
-   free(voice->extra);
+   al_free(voice->extra);
    voice->extra = NULL;
 }
 
@@ -298,7 +298,7 @@ static int _dsound_load_voice(ALLEGRO_VOICE *voice, const void *data)
 
    hr = device->CreateSoundBuffer(&ex_data->desc, &ex_data->ds_buffer, NULL);
    if (FAILED(hr)) {
-      free(ex_data);
+      al_free(ex_data);
       return 1;
    }
 
@@ -362,7 +362,7 @@ static int _dsound_start_voice(ALLEGRO_VOICE *voice)
       hr = device->CreateSoundBuffer(&ex_data->desc, &ex_data->ds_buffer, NULL);
       if (FAILED(hr)) {
          fprintf(stderr, "CreateSoundBuffer failed: %s\n", ds_get_error(hr));
-         free(ex_data);
+         al_free(ex_data);
          return 1;
       }
 

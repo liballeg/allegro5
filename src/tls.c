@@ -30,7 +30,6 @@
 #include "allegro5/internal/aintern_bitmap.h"
 #include "allegro5/internal/aintern_display.h"
 #include "allegro5/internal/aintern_file.h"
-#include "allegro5/internal/aintern_memory.h"
 #include "allegro5/internal/aintern_fshook.h"
 
 /* Thread local storage for various per-thread state. */
@@ -47,8 +46,8 @@ typedef struct thread_local_state {
 
    /* FIXME: If we have a way to call a callback before a thread is
     * destroyed this field can be removed and instead memory_display
-    * should be allocated on demand with _AL_MALLOC and then destroyed
-    * with _AL_FREE in the callback. For now putting it here avoids
+    * should be allocated on demand with al_malloc and then destroyed
+    * with al_free in the callback. For now putting it here avoids
     * the allocation.
     */
    ALLEGRO_DISPLAY memory_display;
@@ -133,7 +132,7 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved)
 
       case DLL_THREAD_ATTACH: 
           // Initialize the TLS index for this thread.
-          data = _AL_MALLOC(sizeof(*data));
+          data = al_malloc(sizeof(*data));
           if (data != NULL) {
              TlsSetValue(tls_index, data);
              initialize_tls_values(data);
@@ -145,7 +144,7 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved)
          // Release the allocated memory for this thread.
          data = TlsGetValue(tls_index); 
          if (data != NULL) 
-            _AL_FREE(data);
+            al_free(data);
  
          break; 
  
@@ -154,7 +153,7 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved)
          // Release the allocated memory for this thread.
          data = TlsGetValue(tls_index); 
          if (data != NULL) 
-            _AL_FREE(data);
+            al_free(data);
          // Release the TLS index.
          TlsFree(tls_index); 
          break; 
@@ -182,7 +181,7 @@ static pthread_key_t tls_key = 0;
 
 static void pthreads_thread_destroy(void* ptr)
 {
-   _AL_FREE(ptr);
+   al_free(ptr);
 }
 
 
@@ -196,7 +195,7 @@ static thread_local_state _tls;
 static thread_local_state* pthreads_thread_init(void)
 {
    /* Allocate and copy the 'template' object */
-   thread_local_state* ptr = (thread_local_state*)_AL_MALLOC(sizeof(thread_local_state));
+   thread_local_state* ptr = (thread_local_state*)al_malloc(sizeof(thread_local_state));
    memcpy(ptr, &_tls, sizeof(thread_local_state));
    pthread_setspecific(tls_key, ptr);
    return ptr;

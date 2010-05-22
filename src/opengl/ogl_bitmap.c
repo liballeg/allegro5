@@ -20,7 +20,6 @@
 #include "allegro5/allegro5.h"
 #include "allegro5/allegro_opengl.h"
 #include "allegro5/internal/aintern.h"
-#include "allegro5/internal/aintern_memory.h"
 #include "allegro5/internal/aintern_opengl.h"
 #include "allegro5/internal/aintern_pixels.h"
 #include "allegro5/internal/aintern_display.h"
@@ -671,7 +670,7 @@ static ALLEGRO_LOCKED_REGION *ogl_lock_region(ALLEGRO_BITMAP *bitmap,
 
    if (ogl_bitmap->is_backbuffer) {
       pitch = round_to_unpack_alignment(w * pixel_size);
-      ogl_bitmap->lock_buffer = _AL_MALLOC(pitch * h);
+      ogl_bitmap->lock_buffer = al_malloc(pitch * h);
 
       if (!(flags & ALLEGRO_LOCK_WRITEONLY)) {
          glReadPixels(x, gl_y, w, h,
@@ -693,7 +692,7 @@ static ALLEGRO_LOCKED_REGION *ogl_lock_region(ALLEGRO_BITMAP *bitmap,
          glPixelStorei(GL_PACK_ALIGNMENT, pixel_size);
          pitch = round_to_pack_alignment(w * pixel_size);
 
-         ogl_bitmap->lock_buffer = _AL_MALLOC(pitch * h);
+         ogl_bitmap->lock_buffer = al_malloc(pitch * h);
          bitmap->locked_region.data = ogl_bitmap->lock_buffer +
             pitch * (h - 1);
       }
@@ -717,7 +716,7 @@ static ALLEGRO_LOCKED_REGION *ogl_lock_region(ALLEGRO_BITMAP *bitmap,
             glPixelStorei(GL_PACK_ALIGNMENT, pixel_size);
             pitch = round_to_pack_alignment(w * pixel_size);
 
-            ogl_bitmap->lock_buffer = _AL_MALLOC(pitch * h);
+            ogl_bitmap->lock_buffer = al_malloc(pitch * h);
 
             glReadPixels(x, gl_y, w, h,
                glformats[format][2],
@@ -734,7 +733,7 @@ static ALLEGRO_LOCKED_REGION *ogl_lock_region(ALLEGRO_BITMAP *bitmap,
          // using FBO and glReadPixels to just read the locked part
          // would be faster.
          pitch = round_to_pack_alignment(ogl_bitmap->true_w * pixel_size);
-         ogl_bitmap->lock_buffer = _AL_MALLOC(pitch * ogl_bitmap->true_h);
+         ogl_bitmap->lock_buffer = al_malloc(pitch * ogl_bitmap->true_h);
 
          glBindTexture(GL_TEXTURE_2D, ogl_bitmap->texture);
          glGetTexImage(GL_TEXTURE_2D, 0, glformats[format][2],
@@ -754,7 +753,7 @@ static ALLEGRO_LOCKED_REGION *ogl_lock_region(ALLEGRO_BITMAP *bitmap,
    else {
       if (flags & ALLEGRO_LOCK_WRITEONLY) {
          pitch = round_to_unpack_alignment(w * pixel_size);
-         ogl_bitmap->lock_buffer = _AL_MALLOC(pitch * h);
+         ogl_bitmap->lock_buffer = al_malloc(pitch * h);
 	 bitmap->locked_region.data = ogl_bitmap->lock_buffer;
 	 pitch = -pitch;
       }
@@ -792,7 +791,7 @@ static void ogl_unlock_region(ALLEGRO_BITMAP *bitmap)
    pixel_size = al_get_pixel_size(orig_format);
 
    if (bitmap->lock_flags & ALLEGRO_LOCK_READONLY) {
-      _AL_FREE(ogl_bitmap->lock_buffer);
+      al_free(ogl_bitmap->lock_buffer);
       return;
    }
 
@@ -927,7 +926,7 @@ static void ogl_unlock_region(ALLEGRO_BITMAP *bitmap)
       al_set_current_display(old_disp);
    }
 
-   _AL_FREE(ogl_bitmap->lock_buffer);
+   al_free(ogl_bitmap->lock_buffer);
 }
 
 
@@ -973,7 +972,7 @@ static ALLEGRO_BITMAP_INTERFACE *ogl_bitmap_driver(void)
    if (glbmp_vt)
       return glbmp_vt;
 
-   glbmp_vt = _AL_MALLOC(sizeof *glbmp_vt);
+   glbmp_vt = al_malloc(sizeof *glbmp_vt);
    memset(glbmp_vt, 0, sizeof *glbmp_vt);
 
    glbmp_vt->draw_bitmap = ogl_draw_bitmap;
@@ -1041,7 +1040,7 @@ ALLEGRO_BITMAP *_al_ogl_create_bitmap(ALLEGRO_DISPLAY *d, int w, int h)
     */
    pitch = true_w * al_get_pixel_size(format);
 
-   bitmap = _AL_MALLOC(sizeof *bitmap);
+   bitmap = al_malloc(sizeof *bitmap);
    ASSERT(bitmap);
    memset(bitmap, 0, sizeof *bitmap);
    bitmap->bitmap.size = sizeof *bitmap;
@@ -1060,7 +1059,7 @@ ALLEGRO_BITMAP *_al_ogl_create_bitmap(ALLEGRO_DISPLAY *d, int w, int h)
    bitmap->true_h = true_h;
 
    bytes = pitch * true_h;
-   bitmap->bitmap.memory = _AL_MALLOC(bytes);
+   bitmap->bitmap.memory = al_malloc(bytes);
    
    /* We never allow un-initialized memory for OpenGL bitmaps, if it
     * is uploaded to a floating point texture it can lead to Inf and
@@ -1082,7 +1081,7 @@ ALLEGRO_BITMAP *_al_ogl_create_sub_bitmap(ALLEGRO_DISPLAY *d,
    ALLEGRO_BITMAP_OGL* ogl_parent = (void*)parent;
    (void)d;
 
-   ogl_bmp = _AL_MALLOC(sizeof *ogl_bmp);
+   ogl_bmp = al_malloc(sizeof *ogl_bmp);
    memset(ogl_bmp, 0, sizeof *ogl_bmp);
 
    ogl_bmp->true_w = ogl_parent->true_w;

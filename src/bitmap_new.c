@@ -25,7 +25,6 @@
 #include ALLEGRO_INTERNAL_HEADER
 #include "allegro5/internal/aintern_display.h"
 #include "allegro5/internal/aintern_bitmap.h"
-#include "allegro5/internal/aintern_memory.h"
 #include "allegro5/internal/aintern_system.h"
 
 /* Creates a memory bitmap.
@@ -38,7 +37,7 @@ static ALLEGRO_BITMAP *_al_create_memory_bitmap(int w, int h)
    
    format = _al_get_real_pixel_format(format);
    
-   bitmap = _AL_MALLOC(sizeof *bitmap);
+   bitmap = al_malloc(sizeof *bitmap);
    memset(bitmap, 0, sizeof(*bitmap));
    bitmap->size = sizeof(*bitmap);
 
@@ -57,7 +56,7 @@ static ALLEGRO_BITMAP *_al_create_memory_bitmap(int w, int h)
    bitmap->cb_excl = h;
    bitmap->parent = NULL;
    bitmap->xofs = bitmap->yofs = 0;
-   bitmap->memory = _AL_MALLOC(pitch * h);
+   bitmap->memory = al_malloc(pitch * h);
    bitmap->preserve_texture = !(al_get_new_bitmap_flags() & ALLEGRO_NO_PRESERVE_TEXTURE);
    return bitmap;
 }
@@ -66,8 +65,8 @@ static ALLEGRO_BITMAP *_al_create_memory_bitmap(int w, int h)
 
 static void _al_destroy_memory_bitmap(ALLEGRO_BITMAP *bmp)
 {
-   _AL_FREE(bmp->memory);
-   _AL_FREE(bmp);
+   al_free(bmp->memory);
+   al_free(bmp);
 }
 
 
@@ -119,7 +118,7 @@ ALLEGRO_BITMAP *al_create_bitmap(int w, int h)
     */
    if (!bitmap->memory) {
       size_t bytes = bitmap->pitch * h;
-      bitmap->memory = _AL_MALLOC_ATOMIC(bytes);
+      bitmap->memory = al_malloc(bytes);
       //memset(bitmap->memory, 0, bytes);
    }
 
@@ -150,7 +149,7 @@ void al_destroy_bitmap(ALLEGRO_BITMAP *bitmap)
       /* It's a sub-bitmap */
       if (bitmap->display)
          _al_vector_find_and_delete(&bitmap->display->bitmaps, &bitmap);
-      _AL_FREE(bitmap);
+      al_free(bitmap);
       return;
    }
 
@@ -171,9 +170,9 @@ void al_destroy_bitmap(ALLEGRO_BITMAP *bitmap)
       _al_vector_find_and_delete(&bitmap->display->bitmaps, &bitmap);
 
    if (bitmap->memory)
-      _AL_FREE(bitmap->memory);
+      al_free(bitmap->memory);
 
-   _AL_FREE(bitmap);
+   al_free(bitmap);
 }
 
 
@@ -365,7 +364,7 @@ ALLEGRO_LOCKED_REGION *al_lock_bitmap_region(ALLEGRO_BITMAP *bitmap,
       }
       else {
          bitmap->locked_region.pitch = al_get_pixel_size(f) * width;
-         bitmap->locked_region.data = _AL_MALLOC(bitmap->locked_region.pitch*height);
+         bitmap->locked_region.data = al_malloc(bitmap->locked_region.pitch*height);
          bitmap->locked_region.format = f;
          if (!(bitmap->lock_flags & ALLEGRO_LOCK_WRITEONLY)) {
             _al_convert_bitmap_data(
@@ -418,7 +417,7 @@ void al_unlock_bitmap(ALLEGRO_BITMAP *bitmap)
                bitmap->memory, bitmap->format, bitmap->pitch,
                0, 0, bitmap->lock_x, bitmap->lock_y, bitmap->lock_w, bitmap->lock_h);
          }
-         _AL_FREE(bitmap->locked_region.data);
+         al_free(bitmap->locked_region.data);
       }
    }
 
@@ -599,7 +598,7 @@ ALLEGRO_BITMAP *al_create_sub_bitmap(ALLEGRO_BITMAP *parent,
          parent->display, parent, x, y, w, h);
    }
    else {
-      bitmap = _AL_MALLOC(sizeof *bitmap);
+      bitmap = al_malloc(sizeof *bitmap);
       memset(bitmap, 0, sizeof *bitmap);
       bitmap->size = sizeof *bitmap;
       bitmap->vt = parent->vt;
@@ -726,7 +725,7 @@ void _al_convert_to_display_bitmap(ALLEGRO_BITMAP *bitmap)
    al_restore_state(&backup);
 
    /* Free the memory bitmap's memory. */
-   _AL_FREE(bitmap->memory);
+   al_free(bitmap->memory);
 
    /* Put the contents back to the bitmap. */
    ASSERT(tmp->size > sizeof(ALLEGRO_BITMAP));
@@ -740,7 +739,7 @@ void _al_convert_to_display_bitmap(ALLEGRO_BITMAP *bitmap)
    /* Remove the temporary bitmap from the display bitmap list, added
     * automatically by al_create_bitmap()*/
    _al_vector_find_and_delete(&d->bitmaps, &tmp);
-   _AL_FREE(tmp);
+   al_free(tmp);
 }
 
 
@@ -761,7 +760,7 @@ void _al_convert_to_memory_bitmap(ALLEGRO_BITMAP *bitmap)
    if (bitmap->parent) {
       _al_vector_find_and_delete(&bitmap->display->bitmaps, &bitmap);
 
-      //_AL_REALLOC(bitmap, sizeof(ALLEGRO_BITMAP));
+      //al_realloc(bitmap, sizeof(ALLEGRO_BITMAP));
       bitmap->display = NULL;
       bitmap->flags |= ALLEGRO_MEMORY_BITMAP;
       return;
@@ -796,7 +795,7 @@ void _al_convert_to_memory_bitmap(ALLEGRO_BITMAP *bitmap)
    /* Do not shrink the bitmap object. This way we can convert back to the
     * display bitmap.
     */
-   /*_AL_REALLOC(bitmap, tmp->size);
+   /*al_realloc(bitmap, tmp->size);
      bitmap->size = tmp->size*/
 
    /* Put the contents back to the bitmap. */
@@ -804,7 +803,7 @@ void _al_convert_to_memory_bitmap(ALLEGRO_BITMAP *bitmap)
    memcpy(bitmap, tmp, tmp->size);
    bitmap->size = old_size;
 
-   _AL_FREE(tmp);
+   al_free(tmp);
 }
 
 void _al_convert_bitmap_data(

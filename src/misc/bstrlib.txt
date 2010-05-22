@@ -96,8 +96,8 @@ definition is also considered exposed.
 Bstrlib basically manages bstrings allocated as a header and an associated 
 data-buffer.  Since the implementation is exposed, they can also be 
 constructed manually.  Functions which mutate bstrings assume that the header 
-and data buffer have been malloced; the bstring library may perform free() or 
-realloc() on both the header and data buffer of any bstring parameter. 
+and data buffer have been malloced; the bstring library may perform al_free() or 
+al_realloc() on both the header and data buffer of any bstring parameter. 
 Functions which return bstring's create new bstrings.  The string memory is 
 freed by a bdestroy() call (or using the bstrFree macro).
 

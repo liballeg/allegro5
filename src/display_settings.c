@@ -18,7 +18,6 @@
  */
 
 #include "allegro5/allegro5.h"
-#include "allegro5/internal/aintern_memory.h"
 #include "allegro5/internal/aintern_display.h"
 #include <math.h>
 

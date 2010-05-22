@@ -7,7 +7,6 @@
 #include "allegro5/internal/aintern_system.h"
 #include "allegro5/internal/aintern_bitmap.h"
 #include "allegro5/platform/aintwiz.h"
-#include "allegro5/internal/aintern_memory.h"
 #include "allegro5/internal/aintern_opengl.h"
 
 #include <wiz/castor.h>

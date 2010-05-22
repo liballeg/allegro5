@@ -1,8 +1,6 @@
-#define ALLEGRO_LIB_BUILD 1
 #include <allegro5/allegro5.h>
 #include "allegro5/memfile.h"
 #include "allegro5/internal/aintern_file.h"
-#include "allegro5/internal/aintern_memory.h"
 
 
 typedef struct ALLEGRO_FILE_MEMFILE ALLEGRO_FILE_MEMFILE;
@@ -20,7 +18,7 @@ struct ALLEGRO_FILE_MEMFILE {
 
 static void memfile_fclose(ALLEGRO_FILE *fp)
 {
-   _AL_FREE(fp);
+   al_free(fp);
 }
 
 static size_t memfile_fread(ALLEGRO_FILE *fp, void *ptr, size_t size)
@@ -159,7 +157,7 @@ ALLEGRO_FILE *al_open_memfile(int64_t size, void *mem)
    ASSERT(mem);
    ASSERT(size > 0);
 
-   memfile = _AL_MALLOC(sizeof(ALLEGRO_FILE_MEMFILE));
+   memfile = al_malloc(sizeof(ALLEGRO_FILE_MEMFILE));
    if(!memfile) {
       al_set_errno(ENOMEM);
       return NULL;

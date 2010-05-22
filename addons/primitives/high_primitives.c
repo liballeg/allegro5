@@ -699,7 +699,7 @@ void al_calculate_spline(float* dest, int stride, float points[8],
    ASSERT(points);
 
    if (num_segments > (int)(sizeof(cache_point_buffer_storage) / sizeof(float) / 2)) {
-      cache_point_buffer = malloc(2 * sizeof(float) * num_segments);
+      cache_point_buffer = al_malloc(2 * sizeof(float) * num_segments);
    }
 
    dt = 1.0 / (num_segments - 1);
@@ -748,7 +748,7 @@ void al_calculate_spline(float* dest, int stride, float points[8],
    al_calculate_ribbon(dest, stride, cache_point_buffer, 2 * sizeof(float), thickness, num_segments);
 
    if (cache_point_buffer != cache_point_buffer_storage) {
-      free(cache_point_buffer);
+      al_free(cache_point_buffer);
    }
 }
 

@@ -10,7 +10,6 @@ extern int _Xdebug; /* part of Xlib */
 #include <sys/time.h>
 
 #include "allegro5/allegro5.h"
-#include "allegro5/internal/aintern_memory.h"
 #include "allegro5/platform/aintunix.h"
 #include "allegro5/internal/aintern_xglx.h"
 
@@ -194,7 +193,7 @@ static ALLEGRO_SYSTEM *xglx_initialize(int flags)
 
    _al_unix_init_time();
 
-   s = _AL_MALLOC(sizeof *s);
+   s = al_malloc(sizeof *s);
    memset(s, 0, sizeof *s);
 
    /* We need to put *some* atom into the ClientMessage we send for
@@ -258,7 +257,7 @@ static void xglx_shutdown_system(void)
       sx->gfxdisplay = None;
    }
 
-   _AL_FREE(sx);
+   al_free(sx);
 }
 
 // FIXME: This is just for now, the real way is of course a list of
@@ -345,7 +344,7 @@ ALLEGRO_SYSTEM_INTERFACE *_al_system_xglx_driver(void)
    if (xglx_vt)
       return xglx_vt;
 
-   xglx_vt = _AL_MALLOC(sizeof *xglx_vt);
+   xglx_vt = al_malloc(sizeof *xglx_vt);
    memset(xglx_vt, 0, sizeof *xglx_vt);
 
    xglx_vt->initialize = xglx_initialize;

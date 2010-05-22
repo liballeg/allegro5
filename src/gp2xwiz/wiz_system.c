@@ -17,7 +17,6 @@
 #include <sys/time.h>
 
 #include "allegro5/allegro5.h"
-#include "allegro5/internal/aintern_memory.h"
 #include "allegro5/platform/aintunix.h"
 #include "allegro5/internal/aintern_gp2xwiz.h"
 #include "allegro5/platform/aintwiz.h"
@@ -32,7 +31,7 @@ static ALLEGRO_SYSTEM *gp2xwiz_initialize(int flags)
 
    _al_unix_init_time();
 
-   s = _AL_MALLOC(sizeof *s);
+   s = al_malloc(sizeof *s);
    memset(s, 0, sizeof *s);
 
    _al_vector_init(&s->system.displays, sizeof (ALLEGRO_DISPLAY *));
@@ -56,7 +55,7 @@ static void gp2xwiz_shutdown_system(void)
    }
    _al_vector_free(&s->displays);
 
-   _AL_FREE(sx);
+   al_free(sx);
 
    lc_exit();
 
@@ -141,7 +140,7 @@ ALLEGRO_SYSTEM_INTERFACE *_al_system_gp2xwiz_driver(void)
    if (gp2xwiz_vt)
       return gp2xwiz_vt;
 
-   gp2xwiz_vt = _AL_MALLOC(sizeof *gp2xwiz_vt);
+   gp2xwiz_vt = al_malloc(sizeof *gp2xwiz_vt);
    memset(gp2xwiz_vt, 0, sizeof *gp2xwiz_vt);
 
    gp2xwiz_vt->initialize = gp2xwiz_initialize;

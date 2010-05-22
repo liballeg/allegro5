@@ -28,7 +28,6 @@
 #include "allegro5/internal/aintern.h"
 #include "allegro5/internal/aintern_dtor.h"
 #include "allegro5/internal/aintern_events.h"
-#include "allegro5/internal/aintern_memory.h"
 #include "allegro5/internal/aintern_system.h"
 
 
@@ -87,7 +86,7 @@ static void shutdown_events(void)
  */
 ALLEGRO_EVENT_QUEUE *al_create_event_queue(void)
 {
-   ALLEGRO_EVENT_QUEUE *queue = _AL_MALLOC(sizeof *queue);
+   ALLEGRO_EVENT_QUEUE *queue = al_malloc(sizeof *queue);
 
    ASSERT(queue);
 
@@ -135,7 +134,7 @@ void al_destroy_event_queue(ALLEGRO_EVENT_QUEUE *queue)
    _al_cond_destroy(&queue->cond);
    _al_mutex_destroy(&queue->mutex);
 
-   _AL_FREE(queue);
+   al_free(queue);
 }
 
 
@@ -658,7 +657,7 @@ void al_unref_user_event(ALLEGRO_USER_EVENT *event)
 
       if (refcount == 0) {
          (descr->dtor)(event);
-         _AL_FREE(descr);
+         al_free(descr);
       }
    }
 }

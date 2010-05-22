@@ -18,7 +18,6 @@
 
 #include "allegro5/allegro5.h"
 #include "allegro5/internal/aintern.h"
-#include "allegro5/internal/aintern_memory.h"
 #include "allegro5/internal/aintern_thread.h"
 
 #ifndef SCAN_DEPEND
@@ -102,7 +101,7 @@ void _al_mutex_init(_AL_MUTEX *mutex)
    ASSERT(mutex);
 
    if (!mutex->cs)
-      mutex->cs = _AL_MALLOC(sizeof *mutex->cs);
+      mutex->cs = al_malloc(sizeof *mutex->cs);
    ASSERT(mutex->cs);
    if (mutex->cs)
       InitializeCriticalSection(mutex->cs);
@@ -124,7 +123,7 @@ void _al_mutex_destroy(_AL_MUTEX *mutex)
 
    if (mutex->cs) {
       DeleteCriticalSection(mutex->cs);
-      _AL_FREE(mutex->cs);
+      al_free(mutex->cs);
       mutex->cs = NULL;
    }
 }

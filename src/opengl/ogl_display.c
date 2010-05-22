@@ -17,7 +17,6 @@
 #include "allegro5/allegro5.h"
 #include "allegro5/allegro_opengl.h"
 #include "allegro5/internal/aintern.h"
-#include "allegro5/internal/aintern_memory.h"
 #include "allegro5/internal/aintern_opengl.h"
 #include "allegro5/internal/aintern_pixels.h"
 
@@ -231,8 +230,8 @@ bool _al_ogl_resize_backbuffer(ALLEGRO_BITMAP_OGL *b, int w, int h)
 
    /* FIXME: lazily manage memory */
    bytes = pitch * h;
-   _AL_FREE(b->bitmap.memory);
-   b->bitmap.memory = _AL_MALLOC_ATOMIC(bytes);
+   al_free(b->bitmap.memory);
+   b->bitmap.memory = al_malloc(bytes);
    memset(b->bitmap.memory, 0, bytes);
 
    return true;

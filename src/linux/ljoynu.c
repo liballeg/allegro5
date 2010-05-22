@@ -32,7 +32,6 @@
 #include "allegro5/internal/aintern.h"
 #include "allegro5/internal/aintern_events.h"
 #include "allegro5/internal/aintern_joystick.h"
-#include "allegro5/internal/aintern_memory.h"
 #include ALLEGRO_INTERNAL_HEADER
 
 #ifdef ALLEGRO_HAVE_LINUX_JOYSTICK_H
@@ -256,7 +255,7 @@ static ALLEGRO_JOYSTICK *ljoy_get_joystick(int num)
       return NULL;
 
    /* Allocate a structure for the joystick. */
-   joy = _AL_MALLOC(sizeof *joy);
+   joy = al_malloc(sizeof *joy);
    if (!joy) {
       close(fd);
       return NULL;
@@ -310,7 +309,7 @@ static ALLEGRO_JOYSTICK *ljoy_get_joystick(int num)
             joy->parent.info.stick[s].num_axes = 1;
             joy->parent.info.stick[s].axis[0].name = "Throttle";
             char *name = joy->parent.info.stick[s].axis[0].name;
-            joy->parent.info.stick[s].name = _AL_MALLOC_ATOMIC(strlen(name) + 1);
+            joy->parent.info.stick[s].name = al_malloc(strlen(name) + 1);
             strcpy(joy->parent.info.stick[s].name, name);
             joy->axis_mapping[a].stick = s;
             joy->axis_mapping[a].axis = 0;
@@ -322,7 +321,7 @@ static ALLEGRO_JOYSTICK *ljoy_get_joystick(int num)
             joy->parent.info.stick[s].num_axes = 2;
             joy->parent.info.stick[s].axis[0].name = "X";
             joy->parent.info.stick[s].axis[1].name = "Y";
-            joy->parent.info.stick[s].name = _AL_MALLOC_ATOMIC (32);
+            joy->parent.info.stick[s].name = al_malloc (32);
             snprintf((char *)joy->parent.info.stick[s].name, 32, "Stick %d", s+1);
             joy->axis_mapping[a].stick = s;
             joy->axis_mapping[a].axis = 0;
@@ -338,7 +337,7 @@ static ALLEGRO_JOYSTICK *ljoy_get_joystick(int num)
       /* Do the buttons. */
 
       for (b = 0; b < num_buttons; b++) {
-         joy->parent.info.button[b].name = _AL_MALLOC_ATOMIC (32);
+         joy->parent.info.button[b].name = al_malloc (32);
          snprintf((char *)joy->parent.info.button[b].name, 32, "B%d", b+1);
       }
 
@@ -371,10 +370,10 @@ static void ljoy_release_joystick(ALLEGRO_JOYSTICK *joy_)
    _al_event_source_free(&joy->parent.es);
    close(joy->fd);
    for (i = 0; i < joy->parent.info.num_sticks; i++)
-      _AL_FREE((void *)joy->parent.info.stick[i].name);
+      al_free((void *)joy->parent.info.stick[i].name);
    for (i = 0; i < joy->parent.info.num_buttons; i++)
-      _AL_FREE((void *)joy->parent.info.button[i].name);
-   _AL_FREE(joy);
+      al_free((void *)joy->parent.info.button[i].name);
+   al_free(joy);
 }
 
 

@@ -23,7 +23,6 @@
 #include "allegro5/internal/aintern.h"
 #include "allegro5/internal/aintern_bitmap.h"
 #include "allegro5/internal/aintern_display.h"
-#include "allegro5/internal/aintern_memory.h"
 #include "allegro5/internal/aintern_system.h"
 #include "allegro5/platform/aintwin.h"
 
@@ -51,7 +50,7 @@ void _al_d3d_bmp_destroy(void)
    _al_vector_free(&created_bitmaps);
    _al_vector_init(&created_bitmaps, sizeof(ALLEGRO_SYSTEM_INTERFACE *));
 
-   _AL_FREE(vt);
+   al_free(vt);
    vt = NULL;
 }
 
@@ -957,7 +956,7 @@ static ALLEGRO_LOCKED_REGION *d3d_lock_region(ALLEGRO_BITMAP *bitmap,
    }
    else {
       bitmap->locked_region.pitch = al_get_pixel_size(f) * w;
-      bitmap->locked_region.data = _AL_MALLOC(bitmap->locked_region.pitch*h);
+      bitmap->locked_region.data = al_malloc(bitmap->locked_region.pitch*h);
       bitmap->locked_region.format = f;
       if (!(bitmap->lock_flags & ALLEGRO_LOCK_WRITEONLY)) {
          _al_convert_bitmap_data(
@@ -983,7 +982,7 @@ static void d3d_unlock_region(ALLEGRO_BITMAP *bitmap)
             d3d_bmp->locked_rect.pBits, bitmap->format, d3d_bmp->locked_rect.Pitch,
             0, 0, 0, 0, bitmap->lock_w, bitmap->lock_h);
       }
-      _AL_FREE(bitmap->locked_region.data);
+      al_free(bitmap->locked_region.data);
    }
 
    if (d3d_bmp->is_backbuffer) {
@@ -1017,7 +1016,7 @@ ALLEGRO_BITMAP_INTERFACE *_al_bitmap_d3d_driver(void)
    if (vt)
       return vt;
 
-   vt = (ALLEGRO_BITMAP_INTERFACE *)_AL_MALLOC(sizeof *vt);
+   vt = (ALLEGRO_BITMAP_INTERFACE *)al_malloc(sizeof *vt);
    memset(vt, 0, sizeof *vt);
 
    vt->draw_bitmap = d3d_draw_bitmap;

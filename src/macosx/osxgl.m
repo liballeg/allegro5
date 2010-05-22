@@ -20,7 +20,6 @@
 #include "allegro5/allegro_opengl.h"
 #include "allegro5/internal/aintern.h"
 #include "allegro5/internal/aintern_bitmap.h"
-#include "allegro5/internal/aintern_memory.h"
 #include "allegro5/internal/aintern_system.h"
 #include "allegro5/internal/aintern_keyboard.h"
 #include "allegro5/internal/aintern_opengl.h"
@@ -994,7 +993,7 @@ static ALLEGRO_DISPLAY* create_display_fs(int w, int h)
    ALLEGRO_DEBUG("Switching to fullscreen mode sized %dx%d\n", w, h);
    if (al_get_current_video_adapter() >= al_get_num_video_adapters())
       return NULL;
-   ALLEGRO_DISPLAY_OSX_WIN* dpy = _AL_MALLOC(sizeof(ALLEGRO_DISPLAY_OSX_WIN));
+   ALLEGRO_DISPLAY_OSX_WIN* dpy = al_malloc(sizeof(ALLEGRO_DISPLAY_OSX_WIN));
    if (dpy == NULL) {
       return NULL;
    }
@@ -1095,7 +1094,7 @@ static ALLEGRO_DISPLAY* create_display_fs(int w, int h)
       /* Trouble! - we can't find a nice mode to set. */
       [dpy->ctx clearDrawable];
       CGDisplayRelease(dpy->display_id);
-      _AL_FREE(dpy);
+      al_free(dpy);
       return NULL;
    }
 
@@ -1107,7 +1106,7 @@ static ALLEGRO_DISPLAY* create_display_fs(int w, int h)
    [context setFullScreen];
 
    // Set up the Allegro OpenGL implementation
-   dpy->parent.ogl_extras = _AL_MALLOC(sizeof(ALLEGRO_OGL_EXTRAS));
+   dpy->parent.ogl_extras = al_malloc(sizeof(ALLEGRO_OGL_EXTRAS));
    memset(dpy->parent.ogl_extras, 0, sizeof(ALLEGRO_OGL_EXTRAS));
    _al_ogl_manage_extensions(&dpy->parent);
    _al_ogl_set_extensions(dpy->parent.ogl_extras->extension_api);
@@ -1157,7 +1156,7 @@ static ALLEGRO_DISPLAY* create_display_fs(int w, int h)
    ALLEGRO_DEBUG("Creating full screen mode sized %dx%d\n", w, h);
    if (al_get_current_video_adapter() >= al_get_num_video_adapters())
       return NULL;
-   ALLEGRO_DISPLAY_OSX_WIN* dpy = _AL_MALLOC(sizeof(ALLEGRO_DISPLAY_OSX_WIN));
+   ALLEGRO_DISPLAY_OSX_WIN* dpy = al_malloc(sizeof(ALLEGRO_DISPLAY_OSX_WIN));
    if (dpy == NULL) {
       return NULL;
    }
@@ -1245,7 +1244,7 @@ static ALLEGRO_DISPLAY* create_display_fs(int w, int h)
       [dpy->ctx clearDrawable];
       CGDisplayRelease(dpy->display_id);
       [dpy->win close];
-      _AL_FREE(dpy);
+      al_free(dpy);
       return NULL;
    }
 
@@ -1259,7 +1258,7 @@ static ALLEGRO_DISPLAY* create_display_fs(int w, int h)
    [[dpy->win contentView] enterFullScreenMode: screen withOptions: nil];
 
    // Set up the Allegro OpenGL implementation
-   dpy->parent.ogl_extras = _AL_MALLOC(sizeof(ALLEGRO_OGL_EXTRAS));
+   dpy->parent.ogl_extras = al_malloc(sizeof(ALLEGRO_OGL_EXTRAS));
    memset(dpy->parent.ogl_extras, 0, sizeof(ALLEGRO_OGL_EXTRAS));
    _al_ogl_manage_extensions(&dpy->parent);
    _al_ogl_set_extensions(dpy->parent.ogl_extras->extension_api);
@@ -1312,7 +1311,7 @@ static ALLEGRO_DISPLAY* create_display_win(int w, int h) {
    ALLEGRO_DEBUG("Creating window sized %dx%d\n", w, h);
    if (al_get_current_video_adapter() >= al_get_num_video_adapters())
       return NULL;
-   ALLEGRO_DISPLAY_OSX_WIN* dpy = _AL_MALLOC(sizeof(ALLEGRO_DISPLAY_OSX_WIN));
+   ALLEGRO_DISPLAY_OSX_WIN* dpy = al_malloc(sizeof(ALLEGRO_DISPLAY_OSX_WIN));
    if (dpy == NULL) {
       return NULL;
    }
@@ -1358,7 +1357,7 @@ static ALLEGRO_DISPLAY* create_display_win(int w, int h) {
    osx_set_opengl_pixelformat_attributes(dpy);
 
    // Set up the Allegro OpenGL implementation
-   dpy->parent.ogl_extras = _AL_MALLOC(sizeof(ALLEGRO_OGL_EXTRAS));
+   dpy->parent.ogl_extras = al_malloc(sizeof(ALLEGRO_OGL_EXTRAS));
    memset(dpy->parent.ogl_extras, 0, sizeof(ALLEGRO_OGL_EXTRAS));
    _al_ogl_manage_extensions(&dpy->parent);
    _al_ogl_set_extensions(dpy->parent.ogl_extras->extension_api);
@@ -1444,7 +1443,7 @@ static void destroy_display(ALLEGRO_DISPLAY* d)
    [dpy->ctx release];
    [dpy->cursor release];
    _al_event_source_free(&d->es);
-   _AL_FREE(d->ogl_extras);
+   al_free(d->ogl_extras);
 
    // Restore original display from before this function was called.
    // If the display we just destroyed is actually current, set the current
@@ -1454,8 +1453,8 @@ static void destroy_display(ALLEGRO_DISPLAY* d)
    else
       al_set_current_display(NULL);
 
-   _AL_FREE(d->vertex_cache);
-   _AL_FREE(d);
+   al_free(d->vertex_cache);
+   al_free(d);
 }
 
 /* create_display:
@@ -1511,7 +1510,7 @@ static ALLEGRO_MOUSE_CURSOR *osx_create_mouse_cursor(ALLEGRO_DISPLAY *display,
       return NULL;
 
    NSImage* cursor_image = NSImageFromAllegroBitmap(bmp);
-   cursor = _AL_MALLOC(sizeof *cursor);
+   cursor = al_malloc(sizeof *cursor);
    cursor->cursor = [[NSCursor alloc] initWithImage: cursor_image
                             hotSpot: NSMakePoint(x_focus, y_focus)];
    [cursor_image release];
@@ -1534,7 +1533,7 @@ static void osx_destroy_mouse_cursor(ALLEGRO_DISPLAY *display,
    osx_change_cursor(dpy, [NSCursor arrowCursor]);
 
    [cursor->cursor release];
-   _AL_FREE(cursor);
+   al_free(cursor);
 }
 
 /* osx_set_mouse_cursor:
@@ -1860,7 +1859,7 @@ ALLEGRO_DISPLAY_INTERFACE* _al_osx_get_display_driver_win(void)
 {
    static ALLEGRO_DISPLAY_INTERFACE* vt = NULL;
    if (vt == NULL) {
-      vt = _AL_MALLOC(sizeof(*vt));
+      vt = al_malloc(sizeof(*vt));
       memset(vt, 0, sizeof(ALLEGRO_DISPLAY_INTERFACE));
       vt->create_display = create_display_win;
       vt->destroy_display = destroy_display;
@@ -1894,7 +1893,7 @@ ALLEGRO_DISPLAY_INTERFACE* _al_osx_get_display_driver_fs(void)
 {
    static ALLEGRO_DISPLAY_INTERFACE* vt = NULL;
    if (vt == NULL) {
-      vt = _AL_MALLOC(sizeof(*vt));
+      vt = al_malloc(sizeof(*vt));
       memset(vt, 0, sizeof(ALLEGRO_DISPLAY_INTERFACE));
       vt->create_display = create_display_fs;
       vt->destroy_display = destroy_display;
@@ -1922,7 +1921,7 @@ ALLEGRO_DISPLAY_INTERFACE* _al_osx_get_display_driver(void)
 {
    static ALLEGRO_DISPLAY_INTERFACE* vt = NULL;
    if (vt == NULL) {
-      vt = _AL_MALLOC(sizeof(*vt));
+      vt = al_malloc(sizeof(*vt));
       memset(vt, 0, sizeof(ALLEGRO_DISPLAY_INTERFACE));
       vt->create_display = create_display;
    }

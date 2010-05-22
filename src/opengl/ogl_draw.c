@@ -17,7 +17,6 @@
 #include "allegro5/allegro_opengl.h"
 #include "allegro5/internal/aintern_display.h"
 #include "allegro5/internal/aintern_opengl.h"
-#include "allegro5/internal/aintern_memory.h"
 
 
 static bool set_opengl_blending(ALLEGRO_DISPLAY *d,
@@ -163,11 +162,11 @@ static void* ogl_prepare_vertex_cache(ALLEGRO_DISPLAY* disp,
 {
    disp->num_cache_vertices += num_new_vertices;
    if(!disp->vertex_cache) {  
-      disp->vertex_cache = _AL_MALLOC(num_new_vertices * sizeof(ALLEGRO_OGL_BITMAP_VERTEX));
+      disp->vertex_cache = al_malloc(num_new_vertices * sizeof(ALLEGRO_OGL_BITMAP_VERTEX));
       
       disp->vertex_cache_size = num_new_vertices;
    } else if (disp->num_cache_vertices > disp->vertex_cache_size) {
-      disp->vertex_cache = _AL_REALLOC(disp->vertex_cache, 
+      disp->vertex_cache = al_realloc(disp->vertex_cache, 
                               2 * disp->num_cache_vertices * sizeof(ALLEGRO_OGL_BITMAP_VERTEX));
                               
       disp->vertex_cache_size = 2 * disp->num_cache_vertices;

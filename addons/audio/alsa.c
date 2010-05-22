@@ -111,7 +111,7 @@ Error:
 static void alsa_close(void)
 {
    if (alsa_device != default_device)
-      free(alsa_device);
+      al_free(alsa_device);
    
    alsa_device = NULL;
    
@@ -492,7 +492,7 @@ static int alsa_allocate_voice(ALLEGRO_VOICE *voice)
    int chan_count;
    unsigned int req_freq;
 
-   ALSA_VOICE *ex_data = calloc(1, sizeof(ALSA_VOICE));
+   ALSA_VOICE *ex_data = al_calloc(1, sizeof(ALSA_VOICE));
    if (!ex_data)
       return 1;
 
@@ -568,7 +568,7 @@ static int alsa_allocate_voice(ALLEGRO_VOICE *voice)
    ALSA_CHECK(snd_pcm_sw_params(ex_data->pcm_handle, swparams));
 
    ex_data->ufds_count = snd_pcm_poll_descriptors_count(ex_data->pcm_handle);
-   ex_data->ufds = malloc(sizeof(struct pollfd) * ex_data->ufds_count);
+   ex_data->ufds = al_malloc(sizeof(struct pollfd) * ex_data->ufds_count);
    ALSA_CHECK(snd_pcm_poll_descriptors(ex_data->pcm_handle, ex_data->ufds, ex_data->ufds_count));
 
    voice->extra = ex_data;
@@ -590,7 +590,7 @@ static int alsa_allocate_voice(ALLEGRO_VOICE *voice)
 Error:
    if (ex_data->pcm_handle)
       snd_pcm_close(ex_data->pcm_handle);
-   free(ex_data);
+   al_free(ex_data);
    voice->extra = NULL;
    return 1;
 }
@@ -612,8 +612,8 @@ static void alsa_deallocate_voice(ALLEGRO_VOICE *voice)
 
    al_destroy_thread(alsa_voice->poll_thread);
    al_destroy_cond(alsa_voice->cond);
-   free(alsa_voice->ufds);
-   free(voice->extra);
+   al_free(alsa_voice->ufds);
+   al_free(voice->extra);
    voice->extra = NULL;
 }
 

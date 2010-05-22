@@ -23,7 +23,6 @@
 #include "allegro5/allegro5.h"
 #include "allegro5/internal/aintern.h"
 #include "allegro5/internal/aintern_dtor.h"
-#include "allegro5/internal/aintern_memory.h"
 #include "allegro5/internal/aintern_system.h"
 #include "allegro5/platform/alplatf.h"
 #include ALLEGRO_INTERNAL_HEADER
@@ -84,7 +83,7 @@ void _al_add_exit_func(void (*func)(void), const char *desc)
       if (n->funcptr == func)
 	 return;
 
-   n = _AL_MALLOC(sizeof(struct al_exit_func));
+   n = al_malloc(sizeof(struct al_exit_func));
    if (!n)
       return;
 
@@ -110,7 +109,7 @@ void _al_remove_exit_func(void (*func)(void))
 	    prev->next = iter->next;
 	 else
 	    exit_func_list = iter->next;
-	 _AL_FREE(iter);
+	 al_free(iter);
 	 return;
       }
       prev = iter;

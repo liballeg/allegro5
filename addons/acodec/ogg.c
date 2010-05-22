@@ -9,7 +9,6 @@
 #include "allegro5/allegro_audio.h"
 #include "allegro5/internal/aintern.h"
 #include "allegro5/internal/aintern_audio.h"
-#include "allegro5/internal/aintern_memory.h"
 #include "allegro5/internal/aintern_system.h"
 #include "acodec.h"
 
@@ -285,7 +284,7 @@ ALLEGRO_SAMPLE *_al_load_ogg_vorbis_f(ALLEGRO_FILE *file)
       _al_count_to_channel_conf(channels), true);
 
    if (!sample) {
-      _AL_FREE(buffer);
+      al_free(buffer);
    }
 
    return sample;
@@ -360,8 +359,8 @@ static void ogg_stream_close(ALLEGRO_AUDIO_STREAM *stream)
    al_fclose(extra->file);
 
    lib.ov_clear(extra->vf);
-   _AL_FREE(extra->vf);
-   _AL_FREE(extra);
+   al_free(extra->vf);
+   al_free(extra);
    stream->extra = NULL;
    stream->feed_thread = NULL;
 }
@@ -463,7 +462,7 @@ ALLEGRO_AUDIO_STREAM *_al_load_ogg_vorbis_audio_stream_f(ALLEGRO_FILE *file,
       return NULL;
    }
 
-   extra = _AL_MALLOC(sizeof(AL_OV_DATA));
+   extra = al_malloc(sizeof(AL_OV_DATA));
    if (extra == NULL) {
       ALLEGRO_ERROR("Failed to allocate AL_OV_DATA struct.\n");
       return NULL;
@@ -471,7 +470,7 @@ ALLEGRO_AUDIO_STREAM *_al_load_ogg_vorbis_audio_stream_f(ALLEGRO_FILE *file,
 
    extra->file = file;
    
-   vf = _AL_MALLOC(sizeof(OggVorbis_File));
+   vf = al_malloc(sizeof(OggVorbis_File));
    if (lib.ov_open_callbacks(extra, vf, NULL, 0, callbacks) < 0) {
       ALLEGRO_WARN("ogg: Input does not appear to be an Ogg bitstream.\n");
       return NULL;
@@ -500,7 +499,7 @@ ALLEGRO_AUDIO_STREAM *_al_load_ogg_vorbis_audio_stream_f(ALLEGRO_FILE *file,
             _al_count_to_channel_conf(channels));
    if (!stream) {
       lib.ov_clear(vf);
-      free(vf);
+      al_free(vf);
       return NULL;
    }
 

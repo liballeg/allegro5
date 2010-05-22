@@ -12,7 +12,6 @@
 #include "allegro5/allegro5.h"
 #include "allegro5/allegro_native_dialog.h"
 #include "allegro5/internal/aintern_native_dialog.h"
-#include "allegro5/internal/aintern_memory.h"
 
 #ifdef ALLEGRO_WITH_XWINDOWS
 #include "allegro5/internal/aintern_xglx.h"
@@ -143,7 +142,7 @@ static void ok(GtkWidget *w, GtkFileSelection *fs)
       n++;
    }
    fc->count = n;
-   fc->paths = _AL_MALLOC(n * sizeof(void *));
+   fc->paths = al_malloc(n * sizeof(void *));
    for (i = 0; i < n; i++)
       fc->paths[i] = al_create_path(paths[i]);
    g_strfreev(paths);

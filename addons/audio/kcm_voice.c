@@ -63,7 +63,7 @@ ALLEGRO_VOICE *al_create_voice(unsigned int freq,
       return NULL;
    }
 
-   voice = calloc(1, sizeof(*voice));
+   voice = al_calloc(1, sizeof(*voice));
    if (!voice) {
       return NULL;
    }
@@ -79,7 +79,7 @@ ALLEGRO_VOICE *al_create_voice(unsigned int freq,
    ASSERT(_al_kcm_driver);
    if (_al_kcm_driver->allocate_voice(voice) != 0) {
       al_destroy_mutex(voice->mutex);
-      free(voice);
+      al_free(voice);
       return NULL;
    }
 
@@ -100,7 +100,7 @@ void al_destroy_voice(ALLEGRO_VOICE *voice)
       voice->driver->deallocate_voice(voice);
       al_destroy_mutex(voice->mutex);
 
-      free(voice);
+      al_free(voice);
    }
 }
 

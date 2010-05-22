@@ -1,5 +1,4 @@
 #include "allegro5/allegro5.h"
-#include "allegro5/internal/aintern_memory.h"
 #include "allegro5/internal/aintern_vector.h"
 
 #include "allegro5/allegro_ttf.h"
@@ -290,9 +289,9 @@ static void destroy(ALLEGRO_FONT *f)
         _al_vector_delete_at(vec, _al_vector_size(vec)-1);
     }
     _al_vector_free(&data->cache_bitmaps);
-    _AL_FREE(data->cache);
-    _AL_FREE(data);
-    _AL_FREE(f);
+    al_free(data->cache);
+    al_free(data);
+    al_free(f);
 }
 
 static unsigned long ftread(FT_Stream stream, unsigned long offset,
@@ -343,7 +342,7 @@ ALLEGRO_FONT *al_load_ttf_font_f(ALLEGRO_FILE *file,
         once = false;
     }
 
-    data = _AL_MALLOC(sizeof *data);
+    data = al_malloc(sizeof *data);
     memset(data, 0, sizeof *data);
     data->stream.read = ftread;
     data->stream.close = ftclose;
@@ -359,7 +358,7 @@ ALLEGRO_FONT *al_load_ttf_font_f(ALLEGRO_FILE *file,
     if (FT_Open_Face(ft, &args, 0, &face) != 0) {
         ALLEGRO_DEBUG("Reading %s failed.\n", filename);
         al_fclose(file);
-        _AL_FREE(data);
+        al_free(data);
         return NULL;
     }
 
@@ -418,12 +417,12 @@ ALLEGRO_FONT *al_load_ttf_font_f(ALLEGRO_FILE *file,
     data->flags = flags;
     data->glyphs_count = m;
     bytes = (m + 1) * sizeof(ALLEGRO_TTF_GLYPH_DATA);
-    data->cache = _AL_MALLOC(bytes);
+    data->cache = al_malloc(bytes);
     memset(data->cache, 0, bytes);
     _al_vector_init(&data->cache_bitmaps, sizeof(ALLEGRO_BITMAP*));
     ALLEGRO_DEBUG("%s: Preparing cache for %d glyphs.\n", filename, m);
 
-    f = _AL_MALLOC(sizeof *f);
+    f = al_malloc(sizeof *f);
     f->height = face->size->metrics.height >> 6;
 
     f->vtable = &vt;

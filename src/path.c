@@ -21,7 +21,6 @@
 #include <stdio.h>
 #include "allegro5/allegro.h"
 #include "allegro5/internal/aintern.h"
-#include "allegro5/internal/aintern_memory.h"
 #include "allegro5/internal/aintern_vector.h"
 #include "allegro5/internal/aintern_path.h"
 
@@ -156,7 +155,7 @@ ALLEGRO_PATH *al_create_path(const char *str)
 {
    ALLEGRO_PATH *path;
 
-   path = _AL_MALLOC(sizeof(ALLEGRO_PATH));
+   path = al_malloc(sizeof(ALLEGRO_PATH));
    if (!path)
       return NULL;
 
@@ -427,7 +426,7 @@ void al_destroy_path(ALLEGRO_PATH *path)
       path->full_string = NULL;
    }
 
-   _AL_FREE(path);
+   al_free(path);
 }
 
 

@@ -29,7 +29,6 @@
 #include "allegro5/system_new.h"
 #include "allegro5/internal/aintern.h"
 #include "allegro5/internal/aintern_bitmap.h"
-#include "allegro5/internal/aintern_memory.h"
 #include "allegro5/internal/aintern_opengl.h"
 #include "allegro5/internal/aintern_vector.h"
 #include "allegro5/platform/aintwin.h"
@@ -463,10 +462,10 @@ static ALLEGRO_EXTRA_DISPLAY_SETTINGS* read_pixel_format_old(int fmt, HDC dc)
       return NULL;
    }
 
-   eds = malloc(sizeof *eds);
+   eds = al_malloc(sizeof *eds);
    memset(eds, 0, sizeof *eds);
    if (!decode_pixel_format_old(&pfd, eds)) {
-      free(eds);
+      al_free(eds);
       return NULL;
    }
 
@@ -519,7 +518,7 @@ static ALLEGRO_EXTRA_DISPLAY_SETTINGS* read_pixel_format_ext(int fmt, HDC dc)
    };
 
    const int num_attribs = sizeof(attrib) / sizeof(attrib[0]);
-   int *value = (int*)malloc(sizeof(int) * num_attribs);
+   int *value = (int*)al_malloc(sizeof(int) * num_attribs);
    int ret;
 
    if (!value)
@@ -548,18 +547,18 @@ static ALLEGRO_EXTRA_DISPLAY_SETTINGS* read_pixel_format_ext(int fmt, HDC dc)
    if (!ret) {
       ALLEGRO_ERROR("wglGetPixelFormatAttrib failed! %s\n",
                      get_error_desc(GetLastError()));
-      free(value);
+      al_free(value);
       return NULL;
    }
 
-   eds = malloc(sizeof *eds);
+   eds = al_malloc(sizeof *eds);
    memset(eds, 0, sizeof *eds);
    if (!decode_pixel_format_attrib(eds, num_attribs, attrib, value)) {
-      free(eds);
+      al_free(eds);
       eds = NULL;
    }
 
-   free(value);
+   al_free(value);
 
    return eds;
 }
@@ -747,7 +746,7 @@ static ALLEGRO_EXTRA_DISPLAY_SETTINGS** get_available_pixel_formats_ext(int *cou
 
    ALLEGRO_INFO("Got %i visuals.\n", maxindex);
 
-   eds_list = malloc(maxindex * sizeof(*eds_list));
+   eds_list = al_malloc(maxindex * sizeof(*eds_list));
    if (!eds_list)
       goto bail;
    memset(eds_list, 0, sizeof *eds_list);
@@ -761,7 +760,7 @@ static ALLEGRO_EXTRA_DISPLAY_SETTINGS** get_available_pixel_formats_ext(int *cou
       display_pixel_format(eds_list[j]);
       eds_list[j]->score = _al_score_display_settings(eds_list[j], ref);
       if (eds_list[j]->score == -1) {
-         free(eds_list[j]);
+         al_free(eds_list[j]);
          eds_list[j] = NULL;
          continue;
       }
@@ -809,7 +808,7 @@ static ALLEGRO_EXTRA_DISPLAY_SETTINGS** get_available_pixel_formats_old(int *cou
 
    ALLEGRO_INFO("Got %i visuals.\n", maxindex);
 
-   eds_list = malloc(maxindex * sizeof(*eds_list));
+   eds_list = al_malloc(maxindex * sizeof(*eds_list));
    if (!eds_list)
       return NULL;
    memset(eds_list, 0, sizeof *eds_list);
@@ -825,7 +824,7 @@ static ALLEGRO_EXTRA_DISPLAY_SETTINGS** get_available_pixel_formats_old(int *cou
 #endif
       eds_list[j]->score = _al_score_display_settings(eds_list[j], ref);
       if (eds_list[j]->score == -1) {
-         free(eds_list[j]);
+         al_free(eds_list[j]);
          eds_list[j] = NULL;
          continue;
       }
@@ -892,17 +891,17 @@ static bool select_pixel_format(ALLEGRO_DISPLAY_WGL *d, HDC dc)
       ALLEGRO_ERROR("Unable to set any pixel format! %s\n",
                      get_error_desc(GetLastError()));
       for (i = 0; i < eds_count; i++)
-         free(eds[i]);
-      free(eds);
+         al_free(eds[i]);
+      al_free(eds);
       return false;
    }
 
    memcpy(&d->win_display.display.extra_settings, eds[i], sizeof(ALLEGRO_EXTRA_DISPLAY_SETTINGS));
 
    for (i = 0; i < eds_count; i++)
-      free(eds[i]);
+      al_free(eds[i]);
    if (eds)
-      free(eds);
+      al_free(eds);
 
    return true;
 }
@@ -1009,7 +1008,7 @@ static ALLEGRO_DISPLAY* wgl_create_display(int w, int h)
 {
    ALLEGRO_SYSTEM_WIN *system = (ALLEGRO_SYSTEM_WIN *)al_get_system_driver();
    ALLEGRO_DISPLAY_WGL **add;
-   ALLEGRO_DISPLAY_WGL *wgl_display = _AL_MALLOC(sizeof *wgl_display);
+   ALLEGRO_DISPLAY_WGL *wgl_display = al_malloc(sizeof *wgl_display);
    ALLEGRO_DISPLAY *ogl_display = (void*)wgl_display;
    ALLEGRO_DISPLAY     *display     = (void*)ogl_display;
 
@@ -1020,12 +1019,12 @@ static ALLEGRO_DISPLAY* wgl_create_display(int w, int h)
    display->flags = al_get_new_display_flags();
    display->vt = vt;
 
-   display->ogl_extras = _AL_MALLOC(sizeof(ALLEGRO_OGL_EXTRAS));
+   display->ogl_extras = al_malloc(sizeof(ALLEGRO_OGL_EXTRAS));
    memset(display->ogl_extras, 0, sizeof(ALLEGRO_OGL_EXTRAS));
 
    if (!create_display_internals(wgl_display)) {
-      _AL_FREE(display->ogl_extras);
-      _AL_FREE(display);
+      al_free(display->ogl_extras);
+      al_free(display);
       return NULL;
    }
 
@@ -1087,13 +1086,13 @@ static void wgl_destroy_display(ALLEGRO_DISPLAY *disp)
    _al_vector_find_and_delete(&system->system.displays, &disp);
 
    _al_vector_free(&disp->bitmaps);
-   _AL_FREE(disp->ogl_extras);
+   al_free(disp->ogl_extras);
 
    if (old_disp != disp)
       al_set_current_display(old_disp);
 
-   _AL_FREE(disp->vertex_cache);
-   _AL_FREE(wgl_disp);
+   al_free(disp->vertex_cache);
+   al_free(wgl_disp);
 }
 
 
@@ -1496,7 +1495,7 @@ ALLEGRO_DISPLAY_INTERFACE *_al_display_wgl_driver(void)
    if (vt)
       return vt;
 
-   vt = _AL_MALLOC(sizeof *vt);
+   vt = al_malloc(sizeof *vt);
    memset(vt, 0, sizeof *vt);
 
    vt->create_display = wgl_create_display;

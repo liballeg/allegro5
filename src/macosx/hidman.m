@@ -19,7 +19,6 @@
 #include "allegro5/allegro5.h"
 #include "allegro5/internal/aintern.h"
 #include "allegro5/internal/aintern_events.h"
-#include "allegro5/internal/aintern_memory.h"
 #include "allegro5/internal/aintern_keyboard.h"
 #include "allegro5/platform/aintosx.h"
 
@@ -44,11 +43,11 @@ static HID_ELEMENT* add_element(HID_DEVICE* d) {
 	HID_ELEMENT* e;
 	if (d->element==NULL) {
 		d->capacity=8;
-		d->element=malloc(d->capacity*sizeof(HID_ELEMENT));
+		d->element=al_malloc(d->capacity*sizeof(HID_ELEMENT));
 	}
 	if (d->num_elements>=d->capacity) {
 		d->capacity*=2;
-		d->element=realloc(d->element, d->capacity*sizeof(HID_ELEMENT));
+		d->element=al_realloc(d->element, d->capacity*sizeof(HID_ELEMENT));
 	}
 	e=&d->element[d->num_elements++];
 	memset(e, 0, sizeof(HID_ELEMENT));
@@ -436,9 +435,9 @@ HID_DEVICE_COLLECTION *_al_osx_hid_scan(int type, HID_DEVICE_COLLECTION* col)
 					}
 					if (error) {
 						if (this_device->manufacturer)
-							free(this_device->manufacturer);
+							al_free(this_device->manufacturer);
 						if (this_device->product)
-							free(this_device->product);
+							al_free(this_device->product);
 						if (this_device->interface)
 							(*(this_device->interface))->Release(this_device->interface);
 						this_device->interface=NULL;
@@ -467,11 +466,11 @@ static HID_DEVICE* add_device(HID_DEVICE_COLLECTION* o) {
 	if (o->devices==NULL) {
 		o->count=0;
 		o->capacity=1;
-		o->devices=malloc(o->capacity*sizeof(HID_DEVICE));
+		o->devices=al_malloc(o->capacity*sizeof(HID_DEVICE));
 	}
 	if (o->count>=o->capacity) {
 		o->capacity*=2;
-		o->devices=realloc(o->devices, o->capacity*sizeof(HID_DEVICE));
+		o->devices=al_realloc(o->devices, o->capacity*sizeof(HID_DEVICE));
 	}
 	d=&o->devices[o->count];
 	memset(d, 0, sizeof(HID_DEVICE));
@@ -494,21 +493,21 @@ void _al_osx_hid_free(HID_DEVICE_COLLECTION *col)
 	for (i = 0; i < col->count; i++) {
 		device = &col->devices[i];
 		if (device->manufacturer)
-			free(device->manufacturer);
+			al_free(device->manufacturer);
 		if (device->product)
-			free(device->product);
+			al_free(device->product);
 		for (j = 0; j < device->num_elements; j++) {
 			element = &device->element[j];
 			if (element->name)
-				free(element->name);
+				al_free(element->name);
 		}
-		free(device->element);
+		al_free(device->element);
 		if (device->interface) {
 			(*(device->interface))->close(device->interface);
 			(*(device->interface))->Release(device->interface);
 		}
 	}
-	free(col->devices);
+	al_free(col->devices);
 }
 
 

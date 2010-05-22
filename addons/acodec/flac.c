@@ -10,7 +10,6 @@
 #include "allegro5/allegro_audio.h"
 #include "allegro5/internal/aintern.h"
 #include "allegro5/internal/aintern_audio.h"
-#include "allegro5/internal/aintern_memory.h"
 #include "allegro5/internal/aintern_system.h"
 #include "acodec.h"
 
@@ -264,7 +263,7 @@ static FLAC__StreamDecoderWriteStatus write_callback(
    int out_index;
 
    if (ff->buffer_pos + bytes > ff->buffer_size) {
-      ff->buffer = _AL_REALLOC(ff->buffer, ff->buffer_pos + bytes);
+      ff->buffer = al_realloc(ff->buffer, ff->buffer_pos + bytes);
       ff->buffer_size = ff->buffer_pos + bytes;
    }
 
@@ -342,7 +341,7 @@ static void flac_close(FLACFILE *ff)
    lib.FLAC__stream_decoder_finish(ff->decoder);
    lib.FLAC__stream_decoder_delete(ff->decoder);
    /* Don't close ff->fh here. */
-   _AL_FREE(ff);
+   al_free(ff);
 }
 
 /* In seconds. */
@@ -472,7 +471,7 @@ static FLACFILE *flac_open(ALLEGRO_FILE* f)
       return NULL;
    }
 
-   ff = _AL_MALLOC(sizeof *ff);
+   ff = al_malloc(sizeof *ff);
    memset(ff, 0, sizeof *ff);
 
    ff->decoder = lib.FLAC__stream_decoder_new();
@@ -519,7 +518,7 @@ error:
    if (ff) {
       if (ff->decoder)
          lib.FLAC__stream_decoder_delete(ff->decoder);
-      _AL_FREE(ff);
+      al_free(ff);
    }
    return NULL;
 }
@@ -561,7 +560,7 @@ ALLEGRO_SAMPLE *_al_load_flac_f(ALLEGRO_FILE *f)
       _al_count_to_channel_conf(ff->channels), true);
 
    if (!sample) {
-      _AL_FREE(ff->buffer);
+      al_free(ff->buffer);
    }
 
    flac_close(ff);

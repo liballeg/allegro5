@@ -198,7 +198,7 @@ static ALLEGRO_BITMAP *really_load_png(png_structp png_ptr, png_infop info_ptr)
       return NULL;
    }
 
-   buf = malloc(((bpp + 7) / 8) * width);
+   buf = al_malloc(((bpp + 7) / 8) * width);
 
    lock = al_lock_bitmap(bmp, ALLEGRO_PIXEL_FORMAT_ABGR_8888_LE,
       ALLEGRO_LOCK_WRITEONLY);
@@ -259,7 +259,7 @@ static ALLEGRO_BITMAP *really_load_png(png_structp png_ptr, png_infop info_ptr)
 
    al_unlock_bitmap(bmp);
 
-   free(buf);
+   al_free(buf);
 
    /* Read rest of file, and get additional chunks in info_ptr. */
    png_read_end(png_ptr, info_ptr);
@@ -389,7 +389,7 @@ static int save_rgba(png_structp png_ptr, ALLEGRO_BITMAP *bmp)
    ALLEGRO_LOCKED_REGION *lock;
    lock = al_lock_bitmap(bmp, ALLEGRO_PIXEL_FORMAT_ANY, ALLEGRO_LOCK_READONLY);
 
-   rowdata = (unsigned char *)malloc(bmp_w * 4);
+   rowdata = (unsigned char *)al_malloc(bmp_w * 4);
    if (!rowdata)
       return 0;
 
@@ -409,7 +409,7 @@ static int save_rgba(png_structp png_ptr, ALLEGRO_BITMAP *bmp)
       png_write_row(png_ptr, rowdata);
    }
 
-   free(rowdata);
+   al_free(rowdata);
    
    al_unlock_bitmap(bmp);
 

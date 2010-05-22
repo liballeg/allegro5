@@ -162,7 +162,7 @@ static void *pulseaudio_update(ALLEGRO_THREAD *self, void *data)
 
 static int pulseaudio_allocate_voice(ALLEGRO_VOICE *voice)
 {
-   PULSEAUDIO_VOICE *pv = malloc(sizeof(PULSEAUDIO_VOICE));
+   PULSEAUDIO_VOICE *pv = al_malloc(sizeof(PULSEAUDIO_VOICE));
    pa_sample_spec ss;
    pa_buffer_attr ba;
 
@@ -181,7 +181,7 @@ static int pulseaudio_allocate_voice(ALLEGRO_VOICE *voice)
       ss.format = PA_SAMPLE_FLOAT32NE;
    else {
       ALLEGRO_ERROR("Unsupported PulseAudio sound format.\n");
-      free(pv);
+      al_free(pv);
       return 1;
    }
 
@@ -203,7 +203,7 @@ static int pulseaudio_allocate_voice(ALLEGRO_VOICE *voice)
    );
 
    if (!pv->s) {
-      free(pv);
+      al_free(pv);
       return 1;
    }
 
@@ -230,7 +230,7 @@ static void pulseaudio_deallocate_voice(ALLEGRO_VOICE *voice)
    al_destroy_mutex(pv->buffer_mutex);
 
    pa_simple_free(pv->s);
-   free(pv);
+   al_free(pv);
 }
 
 static int pulseaudio_load_voice(ALLEGRO_VOICE *voice, const void *data)

@@ -9,7 +9,6 @@
 #include "allegro5/allegro_audio.h"
 #include "allegro5/internal/aintern.h"
 #include "allegro5/internal/aintern_audio.h"
-#include "allegro5/internal/aintern_memory.h"
 #include "allegro5/internal/aintern_system.h"
 #include "acodec.h"
 
@@ -207,7 +206,7 @@ static ALLEGRO_AUDIO_STREAM *mod_stream_init(ALLEGRO_FILE* f,
       ALLEGRO_AUDIO_DEPTH_INT16, ALLEGRO_CHANNEL_CONF_2); 
 
    if (stream) {
-      MOD_FILE *mf = malloc(sizeof(MOD_FILE));
+      MOD_FILE *mf = al_malloc(sizeof(MOD_FILE));
       mf->duh = duh;
       mf->sig = sig;
       mf->fh = NULL;

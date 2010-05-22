@@ -61,7 +61,6 @@
 #include "allegro5/platform/aintwin.h"
 #include "allegro5/internal/aintern_events.h"
 #include "allegro5/internal/aintern_joystick.h"
-#include "allegro5/internal/aintern_memory.h"
 
 #ifndef SCAN_DEPEND
    #ifdef ALLEGRO_MINGW32
@@ -330,7 +329,7 @@ void _al_win_joystick_dinput_grab(void *param)
 
 static char *my_strdup(char const *str)
 {
-   char *dup = _AL_MALLOC(strlen(str) + 1);
+   char *dup = al_malloc(strlen(str) + 1);
    strcpy(dup, str);
    return dup;
 }
@@ -766,7 +765,7 @@ static void free_caps_and_names_strings(CAPS_AND_NAMES *can)
 #define FREE(x)         \
    do {                 \
       if (x) {          \
-         _AL_FREE(x);   \
+         al_free(x);   \
          x = NULL;      \
       }                 \
    } while(0)           \

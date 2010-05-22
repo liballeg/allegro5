@@ -57,7 +57,7 @@ void _al_shutdown_d3d_driver(void)
 {
    #ifdef ALLEGRO_CFG_D3D
    al_destroy_mutex(d3d_mutex);
-   free(legacy_buffer);
+   al_free(legacy_buffer);
    _al_destroy_default_shader();
    
    legacy_card = false;
@@ -129,10 +129,10 @@ static void* convert_to_legacy_vertices(const void* vtxs, int num_vertices)
    int ii;
    
    if(legacy_buffer == 0) {
-      legacy_buffer = malloc(num_vertices * sizeof(LEGACY_VERTEX));
+      legacy_buffer = al_malloc(num_vertices * sizeof(LEGACY_VERTEX));
       legacy_buffer_size = num_vertices;
    } else if (num_vertices > legacy_buffer_size) {
-      legacy_buffer = realloc(legacy_buffer, num_vertices * 1.5 * sizeof(LEGACY_VERTEX));
+      legacy_buffer = al_realloc(legacy_buffer, num_vertices * 1.5 * sizeof(LEGACY_VERTEX));
       legacy_buffer_size = num_vertices * 1.5;
    }
    

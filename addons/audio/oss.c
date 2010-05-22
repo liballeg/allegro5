@@ -289,7 +289,7 @@ static void oss_deallocate_voice(ALLEGRO_VOICE *voice)
    al_destroy_thread(oss_voice->poll_thread);
 
    close(oss_voice->fd);
-   free(voice->extra);
+   al_free(voice->extra);
    voice->extra = NULL;
 }
 
@@ -479,7 +479,7 @@ static int oss_allocate_voice(ALLEGRO_VOICE *voice)
    int format;
    int chan_count;
 
-   OSS_VOICE *ex_data = calloc(1, sizeof(OSS_VOICE));
+   OSS_VOICE *ex_data = al_calloc(1, sizeof(OSS_VOICE));
    if (!ex_data)
       return 1;
 
@@ -488,7 +488,7 @@ static int oss_allocate_voice(ALLEGRO_VOICE *voice)
       ALLEGRO_ERROR("Failed to open audio device '%s'.\n",
             oss_audio_device);
       ALLEGRO_ERROR("errno: %i -- %s\n", errno, strerror(errno));
-      free(ex_data);
+      al_free(ex_data);
       return 1;
    }
 
@@ -584,7 +584,7 @@ static int oss_allocate_voice(ALLEGRO_VOICE *voice)
 
 Error:
    close(ex_data->fd);
-   free(ex_data);
+   al_free(ex_data);
    return 1;
 }
 

@@ -18,7 +18,6 @@
 
 #include "allegro5/allegro5.h"
 #include "allegro5/internal/aintern.h"
-#include "allegro5/internal/aintern_memory.h"
 #include "allegro5/platform/aintunix.h"
 
 
@@ -153,7 +152,7 @@ void _unix_load_modules(int system_driver)
       if (init)
          init(system_driver);
 
-      m = _AL_MALLOC(sizeof(MODULE));
+      m = al_malloc(sizeof(MODULE));
       if (m) {
 	 m->handle = handle;
 	 m->next = module_list;
@@ -195,7 +194,7 @@ void _unix_unload_modules(void)
       if (!has_registered)
 	 dlclose(m->handle);
 
-      _AL_FREE(m);
+      al_free(m);
    }
    
    module_list = NULL;

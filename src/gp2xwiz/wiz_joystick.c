@@ -30,7 +30,6 @@
 #include "allegro5/platform/alwiz.h"
 #include "allegro5/internal/aintern_events.h"
 #include "allegro5/internal/aintern_joystick.h"
-#include "allegro5/internal/aintern_memory.h"
 #include "allegro5/internal/aintern_gp2xwiz.h"
 
 static ALLEGRO_JOYSTICK joy;

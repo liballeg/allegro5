@@ -1,5 +1,4 @@
 #include <allegro5/internal/aintern_iphone.h>
-#include <allegro5/internal/aintern_memory.h>
 #include <allegro5/platform/aintunix.h>
 
 ALLEGRO_DEBUG_CHANNEL("iphone")
@@ -10,7 +9,7 @@ static ALLEGRO_SYSTEM_INTERFACE *vt;
 /* al_init will call this. */
 ALLEGRO_SYSTEM *iphone_initialize(int flags)
 {
-    iphone = _AL_MALLOC(sizeof *iphone);
+    iphone = al_malloc(sizeof *iphone);
     memset(iphone, 0, sizeof *iphone);
     
     ALLEGRO_SYSTEM *sys = &iphone->system;
@@ -69,7 +68,7 @@ ALLEGRO_SYSTEM_INTERFACE *_al_get_iphone_system_interface(void)
     if (vt)
        return vt;
     
-    vt = _AL_MALLOC(sizeof *vt);
+    vt = al_malloc(sizeof *vt);
     memset(vt, 0, sizeof *vt);
     
     vt->initialize = iphone_initialize;

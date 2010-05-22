@@ -23,7 +23,6 @@
 #include "allegro5/internal/aintern.h"
 #include "allegro5/internal/aintern_dtor.h"
 #include "allegro5/internal/aintern_events.h"
-#include "allegro5/internal/aintern_memory.h"
 #include "allegro5/internal/aintern_system.h"
 
 
@@ -226,7 +225,7 @@ bool al_emit_user_event(ALLEGRO_EVENT_SOURCE *src,
    ASSERT(ALLEGRO_EVENT_TYPE_IS_USER(event->any.type));
 
    if (dtor) {
-      ALLEGRO_USER_EVENT_DESCRIPTOR *descr = _AL_MALLOC(sizeof(*descr));
+      ALLEGRO_USER_EVENT_DESCRIPTOR *descr = al_malloc(sizeof(*descr));
       descr->refcount = 0;
       descr->dtor = dtor;
       event->user.__internal__descr = descr;
@@ -253,7 +252,7 @@ bool al_emit_user_event(ALLEGRO_EVENT_SOURCE *src,
 
    if (dtor && !rc) {
       dtor(&event->user);
-      _AL_FREE(event->user.__internal__descr);
+      al_free(event->user.__internal__descr);
    }
 
    return rc;

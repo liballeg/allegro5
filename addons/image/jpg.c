@@ -13,7 +13,6 @@
 
 #include "allegro5/allegro5.h"
 #include "allegro5/allegro_image.h"
-#include "allegro5/internal/aintern_memory.h"
 #include "allegro5/internal/aintern_image.h"
 
 #include "iio.h"
@@ -192,7 +191,7 @@ static void load_jpg_entry_helper(ALLEGRO_FILE *fp,
       goto longjmp_error;
    }
 
-   data->buffer = _AL_MALLOC(BUFFER_SIZE);
+   data->buffer = al_malloc(BUFFER_SIZE);
    if (!data->buffer) {
       data->error = true;
       goto error;
@@ -253,7 +252,7 @@ static void load_jpg_entry_helper(ALLEGRO_FILE *fp,
       unsigned char *out;
       int x, y;
 
-      data->row = _AL_MALLOC(w);
+      data->row = al_malloc(w);
       for (y = cinfo.output_scanline; y < h; y = cinfo.output_scanline) {
          jpeg_read_scanlines(&cinfo, (void *)&data->row, 1);
          in = data->row;
@@ -283,8 +282,8 @@ static void load_jpg_entry_helper(ALLEGRO_FILE *fp,
       }
    }
 
-   _AL_FREE(data->buffer);
-   _AL_FREE(data->row);
+   al_free(data->buffer);
+   al_free(data->row);
 }
 
 ALLEGRO_BITMAP *_al_load_jpg_f(ALLEGRO_FILE *fp)
@@ -325,7 +324,7 @@ static void save_jpg_entry_helper(ALLEGRO_FILE *fp, ALLEGRO_BITMAP *bmp,
       goto longjmp_error;
    }
 
-   data->buffer = _AL_MALLOC(BUFFER_SIZE);
+   data->buffer = al_malloc(BUFFER_SIZE);
    if (!data->buffer) {
       data->error = true;
       goto error;
@@ -369,7 +368,7 @@ static void save_jpg_entry_helper(ALLEGRO_FILE *fp, ALLEGRO_BITMAP *bmp,
       al_unlock_bitmap(bmp);
    }
 
-   _AL_FREE(data->buffer);
+   al_free(data->buffer);
 }
 
 bool _al_save_jpg_f(ALLEGRO_FILE *fp, ALLEGRO_BITMAP *bmp)

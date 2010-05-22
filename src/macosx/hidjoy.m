@@ -17,7 +17,6 @@
 
 #include "allegro5/allegro5.h"
 #include "allegro5/platform/aintosx.h"
-#include "allegro5/internal/aintern_memory.h"
 #import <IOKit/hid/IOHIDLib.h>
 #import <IOKit/hid/IOHIDKeys.h>
 #import <IOKit/hid/IOHIDUsageTables.h>
@@ -302,7 +301,7 @@ ALLEGRO_JOYSTICK_DRIVER* _al_osx_get_joystick_driver(void)
 {
    static ALLEGRO_JOYSTICK_DRIVER* vt = NULL;
    if (vt == NULL) {
-      vt = _AL_MALLOC(sizeof(*vt));
+      vt = al_malloc(sizeof(*vt));
       memset(vt, 0, sizeof(*vt));
       vt->joydrv_ascii_name = "OSX HID Driver";
       vt->init_joystick = init_joystick;
@@ -370,12 +369,12 @@ static void exit_joystick(void)
       * (all fields set to NULL initially so this is OK.)
       */
       for (b = 0; b < _AL_MAX_JOYSTICK_BUTTONS; ++ b) {
-         free((void*) joy->parent.info.button[b].name);
+         al_free((void*) joy->parent.info.button[b].name);
       }
       for (s = 0; s < _AL_MAX_JOYSTICK_STICKS; ++s) {
-         free((void*) joy->parent.info.stick[s].name);
+         al_free((void*) joy->parent.info.stick[s].name);
          for (a = 0; a < _AL_MAX_JOYSTICK_AXES; ++a) {
-            free((void*) joy->parent.info.stick[s].axis[a].name);
+            al_free((void*) joy->parent.info.stick[s].axis[a].name);
          }
       }
    }

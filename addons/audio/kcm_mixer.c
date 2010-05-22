@@ -146,7 +146,7 @@ void _al_kcm_mixer_rejig_sample_matrix(ALLEGRO_MIXER *mixer,
    size_t i, j;
 
    if (spl->matrix) {
-      free(spl->matrix);
+      al_free(spl->matrix);
    }
 
    mat = _al_rechannel_matrix(spl->spl_data.chan_conf,
@@ -155,7 +155,7 @@ void _al_kcm_mixer_rejig_sample_matrix(ALLEGRO_MIXER *mixer,
    dst_chans = al_get_channel_count(mixer->ss.spl_data.chan_conf);
    src_chans = al_get_channel_count(spl->spl_data.chan_conf);
 
-   spl->matrix = calloc(1, src_chans * dst_chans * sizeof(float));
+   spl->matrix = al_calloc(1, src_chans * dst_chans * sizeof(float));
 
    for (i = 0; i < dst_chans; i++) {
       for (j = 0; j < src_chans; j++) {
@@ -578,8 +578,8 @@ void _al_kcm_mixer_read(void *source, void **buf, unsigned int *samples,
 
    /* Make sure the mixer buffer is big enough. */
    if (m->ss.spl_data.len*maxc < samples_l*maxc) {
-      free(m->ss.spl_data.buffer.ptr);
-      m->ss.spl_data.buffer.ptr = malloc(samples_l*maxc*al_get_audio_depth_size(m->ss.spl_data.depth));
+      al_free(m->ss.spl_data.buffer.ptr);
+      m->ss.spl_data.buffer.ptr = al_malloc(samples_l*maxc*al_get_audio_depth_size(m->ss.spl_data.depth));
       if (!m->ss.spl_data.buffer.ptr) {
          _al_set_error(ALLEGRO_GENERIC_ERROR,
             "Out of memory allocating mixer buffer");
@@ -818,7 +818,7 @@ ALLEGRO_MIXER *al_create_mixer(unsigned int freq,
       return NULL;
    }
 
-   mixer = calloc(1, sizeof(ALLEGRO_MIXER));
+   mixer = al_calloc(1, sizeof(ALLEGRO_MIXER));
    if (!mixer) {
       _al_set_error(ALLEGRO_GENERIC_ERROR,
          "Out of memory allocating mixer object");

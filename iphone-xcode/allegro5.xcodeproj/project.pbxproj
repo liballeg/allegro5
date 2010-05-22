@@ -61,7 +61,6 @@
 		6483916E102AF35000D508EE /* aintern_gp2xwiz.h in Headers */ = {isa = PBXBuildFile; fileRef = 648390FD102AF35000D508EE /* aintern_gp2xwiz.h */; };
 		6483916F102AF35000D508EE /* aintern_joystick.h in Headers */ = {isa = PBXBuildFile; fileRef = 648390FE102AF35000D508EE /* aintern_joystick.h */; };
 		64839170102AF35000D508EE /* aintern_keyboard.h in Headers */ = {isa = PBXBuildFile; fileRef = 648390FF102AF35000D508EE /* aintern_keyboard.h */; };
-		64839171102AF35000D508EE /* aintern_memory.h in Headers */ = {isa = PBXBuildFile; fileRef = 64839100102AF35000D508EE /* aintern_memory.h */; };
 		64839172102AF35000D508EE /* aintern_mouse.h in Headers */ = {isa = PBXBuildFile; fileRef = 64839101102AF35000D508EE /* aintern_mouse.h */; };
 		64839173102AF35000D508EE /* aintern_opengl.h in Headers */ = {isa = PBXBuildFile; fileRef = 64839102102AF35000D508EE /* aintern_opengl.h */; };
 		64839174102AF35000D508EE /* aintern_path.h in Headers */ = {isa = PBXBuildFile; fileRef = 64839103102AF35000D508EE /* aintern_path.h */; };
@@ -692,7 +691,6 @@
 		648390FD102AF35000D508EE /* aintern_gp2xwiz.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = aintern_gp2xwiz.h; path = ../include/allegro5/internal/aintern_gp2xwiz.h; sourceTree = SOURCE_ROOT; };
 		648390FE102AF35000D508EE /* aintern_joystick.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = aintern_joystick.h; path = ../include/allegro5/internal/aintern_joystick.h; sourceTree = SOURCE_ROOT; };
 		648390FF102AF35000D508EE /* aintern_keyboard.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = aintern_keyboard.h; path = ../include/allegro5/internal/aintern_keyboard.h; sourceTree = SOURCE_ROOT; };
-		64839100102AF35000D508EE /* aintern_memory.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = aintern_memory.h; path = ../include/allegro5/internal/aintern_memory.h; sourceTree = SOURCE_ROOT; };
 		64839101102AF35000D508EE /* aintern_mouse.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = aintern_mouse.h; path = ../include/allegro5/internal/aintern_mouse.h; sourceTree = SOURCE_ROOT; };
 		64839102102AF35000D508EE /* aintern_opengl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = aintern_opengl.h; path = ../include/allegro5/internal/aintern_opengl.h; sourceTree = SOURCE_ROOT; };
 		64839103102AF35000D508EE /* aintern_path.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = aintern_path.h; path = ../include/allegro5/internal/aintern_path.h; sourceTree = SOURCE_ROOT; };
@@ -1457,7 +1455,6 @@
 				642F7E23102CACCF001249EE /* aintern_iphone.h */,
 				648390FE102AF35000D508EE /* aintern_joystick.h */,
 				648390FF102AF35000D508EE /* aintern_keyboard.h */,
-				64839100102AF35000D508EE /* aintern_memory.h */,
 				64839101102AF35000D508EE /* aintern_mouse.h */,
 				64839102102AF35000D508EE /* aintern_opengl.h */,
 				64839103102AF35000D508EE /* aintern_path.h */,
@@ -1994,7 +1991,6 @@
 				6483916E102AF35000D508EE /* aintern_gp2xwiz.h in Headers */,
 				6483916F102AF35000D508EE /* aintern_joystick.h in Headers */,
 				64839170102AF35000D508EE /* aintern_keyboard.h in Headers */,
-				64839171102AF35000D508EE /* aintern_memory.h in Headers */,
 				64839172102AF35000D508EE /* aintern_mouse.h in Headers */,
 				64839173102AF35000D508EE /* aintern_opengl.h in Headers */,
 				64839174102AF35000D508EE /* aintern_path.h in Headers */,

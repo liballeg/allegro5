@@ -1,7 +1,6 @@
 #include "allegro5/allegro5.h"
 #include "allegro5/allegro_native_dialog.h"
 #include "allegro5/internal/aintern_native_dialog.h"
-#include "allegro5/internal/aintern_memory.h"
 
 
 /* Function: al_create_native_file_dialog
@@ -13,7 +12,7 @@ ALLEGRO_NATIVE_DIALOG *al_create_native_file_dialog(
     int mode)
 {
    ALLEGRO_NATIVE_DIALOG *fc;
-   fc = _AL_MALLOC(sizeof *fc);
+   fc = al_malloc(sizeof *fc);
    memset(fc, 0, sizeof *fc);
 
    if (initial_path)
@@ -55,7 +54,7 @@ void al_destroy_native_dialog(ALLEGRO_NATIVE_DIALOG *fd)
          al_destroy_path(fd->paths[i]);
       }
    }
-   _AL_FREE(fd->paths);
+   al_free(fd->paths);
    if (fd->initial_path)
       al_destroy_path(fd->initial_path);
    al_ustr_free(fd->title);
@@ -64,7 +63,7 @@ void al_destroy_native_dialog(ALLEGRO_NATIVE_DIALOG *fd)
    al_ustr_free(fd->text);
    al_ustr_free(fd->buttons);
    al_destroy_cond(fd->cond);
-   _AL_FREE(fd);
+   al_free(fd);
 }
 
 /* Function: al_show_native_message_box
@@ -75,7 +74,7 @@ int al_show_native_message_box(
 {
    ALLEGRO_NATIVE_DIALOG *fc;
    int r;
-   fc = _AL_MALLOC(sizeof *fc);
+   fc = al_malloc(sizeof *fc);
    memset(fc, 0, sizeof *fc);
 
    fc->title = al_ustr_new(title);

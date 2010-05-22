@@ -35,7 +35,6 @@ extern "C" {
 #include "allegro5/internal/aintern.h"
 #include "allegro5/internal/aintern_bitmap.h"
 #include "allegro5/internal/aintern_display.h"
-#include "allegro5/internal/aintern_memory.h"
 #include "allegro5/internal/aintern_system.h"
 #include "allegro5/internal/aintern_thread.h"
 #include "allegro5/internal/aintern_vector.h"
@@ -548,9 +547,9 @@ static void d3d_destroy_display_format_list(void)
 {
    /* Free the display format list */
    for (int j = 0; j < eds_list_count; j++) {
-      _AL_FREE(eds_list[j]);
+      al_free(eds_list[j]);
    }
-   _AL_FREE(eds_list);
+   al_free(eds_list);
    eds_list = 0;
    eds_list_count = 0;
 }
@@ -598,12 +597,12 @@ static void d3d_generate_display_format_list(void)
       }
    }
 
-   eds_list = (ALLEGRO_EXTRA_DISPLAY_SETTINGS **)_AL_MALLOC(
+   eds_list = (ALLEGRO_EXTRA_DISPLAY_SETTINGS **)al_malloc(
       eds_list_count * sizeof(*eds_list)
    );
    memset(eds_list, 0, eds_list_count * sizeof(*eds_list));
    for (int i = 0; i < eds_list_count; i++) {
-      eds_list[i] = (ALLEGRO_EXTRA_DISPLAY_SETTINGS *)_AL_MALLOC(sizeof(ALLEGRO_EXTRA_DISPLAY_SETTINGS));
+      eds_list[i] = (ALLEGRO_EXTRA_DISPLAY_SETTINGS *)al_malloc(sizeof(ALLEGRO_EXTRA_DISPLAY_SETTINGS));
       memset(eds_list[i], 0, sizeof(ALLEGRO_EXTRA_DISPLAY_SETTINGS));
    }
 
@@ -1170,8 +1169,8 @@ static void d3d_destroy_display(ALLEGRO_DISPLAY *display)
    }
 
    _al_vector_free(&display->bitmaps);
-   _AL_FREE(display->vertex_cache);
-   _AL_FREE(display);
+   al_free(display->vertex_cache);
+   al_free(display);
 }
 
 void _al_d3d_prepare_for_reset(ALLEGRO_DISPLAY_D3D *disp)
@@ -1552,7 +1551,7 @@ static void d3d_display_thread_proc(void *arg)
       else {
          refresh_rate = d3d_get_default_refresh_rate(win_display->adapter);
       }
-      d3d_display->device_name = (TCHAR *)_AL_MALLOC(sizeof(TCHAR)*32);
+      d3d_display->device_name = (TCHAR *)al_malloc(sizeof(TCHAR)*32);
       strcpy(d3d_display->device_name, dd.DeviceName);
       ALLEGRO_DEBUG("going to call _al_win_create_faux_fullscreen_window\n");
       win_display->window = _al_win_create_faux_fullscreen_window(dd.DeviceName, al_display,
@@ -1689,7 +1688,7 @@ End:
 
    if (d3d_display->faux_fullscreen) {
       ChangeDisplaySettingsEx(d3d_display->device_name, NULL, NULL, 0, NULL);//CDS_FULLSCREEN
-      _AL_FREE(d3d_display->device_name);
+      al_free(d3d_display->device_name);
       num_faux_fullscreen_windows--;
    }
 
@@ -1724,7 +1723,7 @@ static int d3d_display_list_resorter(const void *p0, const void *p1)
 static ALLEGRO_DISPLAY_D3D *d3d_create_display_helper(int w, int h)
 {
    ALLEGRO_SYSTEM_WIN *system = (ALLEGRO_SYSTEM_WIN *)al_get_system_driver();
-   ALLEGRO_DISPLAY_D3D *d3d_display = (ALLEGRO_DISPLAY_D3D *)_AL_MALLOC(sizeof(ALLEGRO_DISPLAY_D3D));
+   ALLEGRO_DISPLAY_D3D *d3d_display = (ALLEGRO_DISPLAY_D3D *)al_malloc(sizeof(ALLEGRO_DISPLAY_D3D));
    ALLEGRO_DISPLAY_WIN *win_display = &d3d_display->win_display;
    ALLEGRO_DISPLAY *al_display = &win_display->display;
    int adapter = al_get_current_video_adapter();
@@ -1900,7 +1899,7 @@ static ALLEGRO_DISPLAY *d3d_create_display(int w, int h)
 
    if (!d3d_create_display_internals(d3d_display)) {
       ALLEGRO_ERROR("d3d_create_display failed.\n");
-      _AL_FREE(d3d_display);
+      al_free(d3d_display);
       return NULL;
    }
 
@@ -2145,7 +2144,7 @@ static void d3d_update_display_region(ALLEGRO_DISPLAY *al_display,
       rect.top = y;
       rect.bottom = y+height;
 
-      rgndata = (RGNDATA *)malloc(sizeof(RGNDATA)+sizeof(RECT)-1);
+      rgndata = (RGNDATA *)al_malloc(sizeof(RGNDATA)+sizeof(RECT)-1);
       rgndata->rdh.dwSize = sizeof(RGNDATAHEADER);
       rgndata->rdh.iType = RDH_RECTANGLES;
       rgndata->rdh.nCount = 1;
@@ -2159,7 +2158,7 @@ static void d3d_update_display_region(ALLEGRO_DISPLAY *al_display,
 
       d3d_display->device->BeginScene();
 
-      free(rgndata);
+      al_free(rgndata);
 
       if (hr == D3DERR_DEVICELOST) {
          d3d_display->device_lost = true;
@@ -2242,7 +2241,7 @@ static bool d3d_resize_display(ALLEGRO_DISPLAY *d, int width, int height)
          ffw_set = false;
       }
       if (!d3d_create_display_internals(disp)) {
-         _AL_FREE(disp);
+         al_free(disp);
          return false;
       }
       al_set_current_display(d);
@@ -2348,7 +2347,7 @@ static bool d3d_acknowledge_resize(ALLEGRO_DISPLAY *d)
 ALLEGRO_BITMAP *_al_d3d_create_bitmap(ALLEGRO_DISPLAY *d,
    int w, int h)
 {
-   ALLEGRO_BITMAP_D3D *bitmap = (ALLEGRO_BITMAP_D3D*)_AL_MALLOC(sizeof *bitmap);
+   ALLEGRO_BITMAP_D3D *bitmap = (ALLEGRO_BITMAP_D3D*)al_malloc(sizeof *bitmap);
    int format;
    int flags;
 
@@ -2395,7 +2394,7 @@ ALLEGRO_BITMAP *_al_d3d_create_bitmap(ALLEGRO_DISPLAY *d,
 static ALLEGRO_BITMAP *d3d_create_sub_bitmap(ALLEGRO_DISPLAY *display,
    ALLEGRO_BITMAP *parent, int x, int y, int width, int height)
 {
-   ALLEGRO_BITMAP_D3D *bitmap = (ALLEGRO_BITMAP_D3D*)_AL_MALLOC(sizeof *bitmap);
+   ALLEGRO_BITMAP_D3D *bitmap = (ALLEGRO_BITMAP_D3D*)al_malloc(sizeof *bitmap);
 
    (void)x;
    (void)y;
@@ -2584,7 +2583,7 @@ static void d3d_shutdown(void)
 
    _al_d3d_bmp_destroy();
 
-   _AL_FREE(vt);
+   al_free(vt);
    vt = NULL;
 }
 
@@ -2593,11 +2592,11 @@ static void* d3d_prepare_vertex_cache(ALLEGRO_DISPLAY* disp,
 {
    disp->num_cache_vertices += num_new_vertices;
    if(!disp->vertex_cache) {  
-      disp->vertex_cache = _AL_MALLOC(num_new_vertices * sizeof(D3D_TL_VERTEX));
+      disp->vertex_cache = al_malloc(num_new_vertices * sizeof(D3D_TL_VERTEX));
       
       disp->vertex_cache_size = num_new_vertices;
    } else if (disp->num_cache_vertices > disp->vertex_cache_size) {
-      disp->vertex_cache = _AL_REALLOC(disp->vertex_cache, 
+      disp->vertex_cache = al_realloc(disp->vertex_cache, 
                               2 * disp->num_cache_vertices * sizeof(D3D_TL_VERTEX));
                               
       disp->vertex_cache_size = 2 * disp->num_cache_vertices;
@@ -2666,7 +2665,7 @@ ALLEGRO_DISPLAY_INTERFACE *_al_display_d3d_driver(void)
    if (vt)
       return vt;
 
-   vt = (ALLEGRO_DISPLAY_INTERFACE *)_AL_MALLOC(sizeof *vt);
+   vt = (ALLEGRO_DISPLAY_INTERFACE *)al_malloc(sizeof *vt);
    memset(vt, 0, sizeof *vt);
 
    vt->create_display = d3d_create_display;

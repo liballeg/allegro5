@@ -179,7 +179,7 @@ float al_get_opengl_version(void)
 /* Create the extension list */
 static ALLEGRO_OGL_EXT_LIST *create_extension_list(void)
 {
-   ALLEGRO_OGL_EXT_LIST *ret = malloc(sizeof(ALLEGRO_OGL_EXT_LIST));
+   ALLEGRO_OGL_EXT_LIST *ret = al_malloc(sizeof(ALLEGRO_OGL_EXT_LIST));
 
    if (!ret) {
       return NULL;
@@ -195,7 +195,7 @@ static ALLEGRO_OGL_EXT_LIST *create_extension_list(void)
 /* Create the extension API table */
 static ALLEGRO_OGL_EXT_API *create_extension_api_table(void)
 {
-   ALLEGRO_OGL_EXT_API *ret = malloc(sizeof(ALLEGRO_OGL_EXT_API));
+   ALLEGRO_OGL_EXT_API *ret = al_malloc(sizeof(ALLEGRO_OGL_EXT_API));
 
    if (!ret) {
       return NULL;
@@ -306,7 +306,7 @@ void _al_ogl_set_extensions(ALLEGRO_OGL_EXT_API *ext)
 static void destroy_extension_api_table(ALLEGRO_OGL_EXT_API *ext)
 {
    if (ext) {
-      free(ext);
+      al_free(ext);
    }
 }
 
@@ -316,7 +316,7 @@ static void destroy_extension_api_table(ALLEGRO_OGL_EXT_API *ext)
 static void destroy_extension_list(ALLEGRO_OGL_EXT_LIST *list)
 {
    if (list) {
-      free(list);
+      al_free(list);
    }
 }
 

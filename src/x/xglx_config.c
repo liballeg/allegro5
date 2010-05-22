@@ -84,7 +84,7 @@ static ALLEGRO_EXTRA_DISPLAY_SETTINGS* read_fbconfig(Display *dpy,
    ALLEGRO_EXTRA_DISPLAY_SETTINGS *eds;
    XVisualInfo *v;
 
-   eds = _AL_MALLOC(sizeof(ALLEGRO_EXTRA_DISPLAY_SETTINGS));
+   eds = al_malloc(sizeof(ALLEGRO_EXTRA_DISPLAY_SETTINGS));
    memset(eds, 0, sizeof *eds);
    eds->settings[ALLEGRO_RENDER_METHOD] = 2;
 
@@ -125,33 +125,33 @@ static ALLEGRO_EXTRA_DISPLAY_SETTINGS* read_fbconfig(Display *dpy,
     || glXGetFBConfigAttrib (dpy, fbc, GLX_ACCUM_ALPHA_SIZE,
                      &eds->settings[ALLEGRO_ACC_ALPHA_SIZE])) {
       ALLEGRO_DEBUG("Incomplete glX mode ...\n");
-      free(eds);
+      al_free(eds);
       return NULL;
    }
    eds->settings[ALLEGRO_SINGLE_BUFFER] = !double_buffer;
 
    if (!(render_type & GLX_RGBA_BIT) && !(render_type & GLX_RGBA_FLOAT_BIT_ARB)) {
       ALLEGRO_DEBUG("Not RGBA mode\n");
-      free(eds);
+      al_free(eds);
       return NULL;
    }
 
    if (!(drawable_type & GLX_WINDOW_BIT)) {
       ALLEGRO_DEBUG("Cannot render to a window.\n");
-      free(eds);
+      al_free(eds);
       return NULL;
    }
 
    if (renderable == False) {
       ALLEGRO_DEBUG("GLX windows not supported.\n");
-      free(eds);
+      al_free(eds);
       return NULL;
    }
 
    if (visual_type != GLX_TRUE_COLOR && visual_type != GLX_DIRECT_COLOR) {
       ALLEGRO_DEBUG("visual type other than TrueColor and "
                   "DirectColor.\n");
-      free(eds);
+      al_free(eds);
       return NULL;
    }
 
@@ -163,7 +163,7 @@ static ALLEGRO_EXTRA_DISPLAY_SETTINGS* read_fbconfig(Display *dpy,
    v = glXGetVisualFromFBConfig(dpy, fbc);
    if (!v) {
       ALLEGRO_DEBUG("Cannot get associated visual for the FBConfig.\n");
-      free(eds);
+      al_free(eds);
       return NULL;
    }
    figure_out_colors(eds, v);
@@ -214,7 +214,7 @@ static ALLEGRO_EXTRA_DISPLAY_SETTINGS** get_visuals_new(ALLEGRO_DISPLAY_XGLX *gl
    if (!fbconfig || !num_fbconfigs)
       return NULL;
 
-   eds = _AL_MALLOC(num_fbconfigs * sizeof(*eds));
+   eds = al_malloc(num_fbconfigs * sizeof(*eds));
 
    ALLEGRO_INFO("%i formats.\n", num_fbconfigs);
 
@@ -232,7 +232,7 @@ static ALLEGRO_EXTRA_DISPLAY_SETTINGS** get_visuals_new(ALLEGRO_DISPLAY_XGLX *gl
          continue;
       }
       eds[i]->index = i;
-      eds[i]->info = _AL_MALLOC(sizeof(GLXFBConfig));
+      eds[i]->info = al_malloc(sizeof(GLXFBConfig));
       memcpy(eds[i]->info, &fbconfig[i], sizeof(GLXFBConfig));
    }
 
@@ -255,7 +255,7 @@ static ALLEGRO_EXTRA_DISPLAY_SETTINGS* read_xvisual(Display *dpy,
    if (v->class != TrueColor && v->class != DirectColor)
       return NULL;
 
-   eds = _AL_MALLOC(sizeof(ALLEGRO_EXTRA_DISPLAY_SETTINGS));
+   eds = al_malloc(sizeof(ALLEGRO_EXTRA_DISPLAY_SETTINGS));
    memset(eds, 0, sizeof *eds);
    eds->settings[ALLEGRO_RENDER_METHOD] = 2;
 
@@ -280,20 +280,20 @@ static ALLEGRO_EXTRA_DISPLAY_SETTINGS* read_xvisual(Display *dpy,
     || glXGetConfig (dpy, v, GLX_ACCUM_ALPHA_SIZE,
                      &eds->settings[ALLEGRO_ACC_ALPHA_SIZE])) {
       ALLEGRO_DEBUG("Incomplete glX mode ...\n");
-      free(eds);
+      al_free(eds);
       return NULL;
    }
    eds->settings[ALLEGRO_SINGLE_BUFFER] = !double_buffer;
 
    if (!rgba) {
       ALLEGRO_DEBUG("Not RGBA mode\n");
-      free(eds);
+      al_free(eds);
       return NULL;
    }
 
    if (!use_gl) {
       ALLEGRO_DEBUG("OpenGL Unsupported\n");
-      free(eds);
+      al_free(eds);
       return NULL;
    }
 
@@ -339,7 +339,7 @@ static ALLEGRO_EXTRA_DISPLAY_SETTINGS** get_visuals_old(int *eds_count)
    if (!xv || !num_visuals)
       return NULL;
 
-   eds = _AL_MALLOC(num_visuals * sizeof(*eds));
+   eds = al_malloc(num_visuals * sizeof(*eds));
 
    ALLEGRO_INFO("%i formats.\n", num_visuals);
 
@@ -358,7 +358,7 @@ static ALLEGRO_EXTRA_DISPLAY_SETTINGS** get_visuals_old(int *eds_count)
       }
       eds[i]->index = i;
       /* Seems that XVinfo is static. */
-      eds[i]->info = _AL_MALLOC(sizeof(XVisualInfo));
+      eds[i]->info = al_malloc(sizeof(XVisualInfo));
       memcpy(eds[i]->info, xv + i, sizeof(XVisualInfo));
    }
 
@@ -388,13 +388,13 @@ static void select_best_visual(ALLEGRO_DISPLAY_XGLX *glx,
    display_pixel_format(eds[0]);
 #endif
    if (using_fbc) {
-      glx->fbc = _AL_MALLOC(sizeof(GLXFBConfig));
+      glx->fbc = al_malloc(sizeof(GLXFBConfig));
       memcpy(glx->fbc, eds[0]->info, sizeof(GLXFBConfig));
 
       glx->xvinfo = glXGetVisualFromFBConfig(system->gfxdisplay, *glx->fbc);
    }
    else {
-      glx->xvinfo = _AL_MALLOC(sizeof(XVisualInfo));
+      glx->xvinfo = al_malloc(sizeof(XVisualInfo));
       memcpy(glx->xvinfo, eds[0]->info, sizeof(XVisualInfo));
    }
 
@@ -447,11 +447,11 @@ void _al_xglx_config_select_visual(ALLEGRO_DISPLAY_XGLX *glx)
 
    for (i = 0; i < eds_count; i++) {
       if (eds[i]) {
-         _AL_FREE(eds[i]->info);
-         _AL_FREE(eds[i]);
+         al_free(eds[i]->info);
+         al_free(eds[i]);
       }
    }
-   _AL_FREE(eds);
+   al_free(eds);
 }
 
 static GLXContext create_context_new(int ver, Display *dpy, GLXFBConfig fb,

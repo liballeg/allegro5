@@ -17,7 +17,6 @@
 #define _AL_AATREE Aatree
 
 #include "allegro5/allegro.h"
-#include "allegro5/internal/aintern_memory.h"
 #include "allegro5/internal/aintern_aatree.h"
 
 static Aatree nil = { 0, &nil, &nil, NULL, NULL };
@@ -51,7 +50,7 @@ static Aatree *split(Aatree *T)
 
 static Aatree *singleton(const void *key, void *value)
 {
-   Aatree *T = _AL_MALLOC(sizeof(Aatree));
+   Aatree *T = al_malloc(sizeof(Aatree));
    T->level = 1;
    T->left = &nil;
    T->right = &nil;
@@ -109,7 +108,7 @@ void _al_aa_free(Aatree *T)
    if (T && T != &nil) {
       _al_aa_free(T->left);
       _al_aa_free(T->right);
-      _AL_FREE(T);
+      al_free(T);
    }
 }
 

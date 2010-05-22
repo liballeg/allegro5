@@ -1,7 +1,6 @@
 #include <allegro5/allegro5.h>
 #include <allegro5/allegro_opengl.h>
 #include <allegro5/internal/aintern_iphone.h>
-#include <allegro5/internal/aintern_memory.h>
 #include <allegro5/internal/aintern_opengl.h>
 
 ALLEGRO_DEBUG_CHANNEL("iphone")
@@ -107,12 +106,12 @@ void _al_iphone_update_visuals(void)
       return;
    }
    
-   system->visuals = _AL_MALLOC(VISUALS_COUNT * sizeof(*system->visuals));
+   system->visuals = al_malloc(VISUALS_COUNT * sizeof(*system->visuals));
    system->visuals_count = VISUALS_COUNT;
    memset(system->visuals, 0, VISUALS_COUNT * sizeof(*system->visuals));
    
    for (int i = 0; i < VISUALS_COUNT; i++) {
-      ALLEGRO_EXTRA_DISPLAY_SETTINGS *eds = _AL_MALLOC(sizeof *eds);
+      ALLEGRO_EXTRA_DISPLAY_SETTINGS *eds = al_malloc(sizeof *eds);
       memset(eds, 0, sizeof *eds);
       eds->settings[ALLEGRO_RENDER_METHOD] = 1;
       eds->settings[ALLEGRO_COMPATIBLE_DISPLAY] = 1;
@@ -143,9 +142,9 @@ void _al_iphone_update_visuals(void)
 
 static ALLEGRO_DISPLAY *iphone_create_display(int w, int h)
 {
-    ALLEGRO_DISPLAY_IPHONE *d = _AL_MALLOC(sizeof *d);
+    ALLEGRO_DISPLAY_IPHONE *d = al_malloc(sizeof *d);
     ALLEGRO_DISPLAY *display = (void*)d;
-    ALLEGRO_OGL_EXTRAS *ogl = _AL_MALLOC(sizeof *ogl);
+    ALLEGRO_OGL_EXTRAS *ogl = al_malloc(sizeof *ogl);
     memset(d, 0, sizeof *d);
     memset(ogl, 0, sizeof *ogl);
     display->ogl_extras = ogl;
@@ -305,7 +304,7 @@ ALLEGRO_DISPLAY_INTERFACE *_al_get_iphone_display_interface(void)
     if (vt)
         return vt;
     
-    vt = _AL_MALLOC(sizeof *vt);
+    vt = al_malloc(sizeof *vt);
     memset(vt, 0, sizeof *vt);
     
     vt->create_display = iphone_create_display;

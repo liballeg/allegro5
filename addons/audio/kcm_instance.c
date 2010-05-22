@@ -87,7 +87,7 @@ static void stream_free(ALLEGRO_SAMPLE_INSTANCE *spl)
 
          if (spl->spl_data.buffer.ptr) {
             ASSERT(spl->spl_data.free_buf);
-            free(spl->spl_data.buffer.ptr);
+            al_free(spl->spl_data.buffer.ptr);
             spl->spl_data.buffer.ptr = NULL;
          }
          spl->spl_data.free_buf = false;
@@ -95,7 +95,7 @@ static void stream_free(ALLEGRO_SAMPLE_INSTANCE *spl)
 
       ASSERT(! spl->spl_data.free_buf);
 
-      free(spl);
+      al_free(spl);
    }
 }
 
@@ -139,7 +139,7 @@ void _al_kcm_detach_from_parent(ALLEGRO_SAMPLE_INSTANCE *spl)
       }
    }
 
-   free(spl->matrix);
+   al_free(spl->matrix);
    spl->matrix = NULL;
 }
 
@@ -150,7 +150,7 @@ ALLEGRO_SAMPLE_INSTANCE *al_create_sample_instance(ALLEGRO_SAMPLE *sample_data)
 {
    ALLEGRO_SAMPLE_INSTANCE *spl;
 
-   spl = calloc(1, sizeof(*spl));
+   spl = al_calloc(1, sizeof(*spl));
    if (!spl) {
       _al_set_error(ALLEGRO_GENERIC_ERROR,
          "Out of memory allocating sample object");

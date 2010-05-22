@@ -27,7 +27,7 @@ static int GetEncoderClsid(const WCHAR* format, CLSID* pClsid)
       return -1;  
    }
 
-   pImageCodecInfo = (Gdiplus::ImageCodecInfo*)(malloc(size));
+   pImageCodecInfo = (Gdiplus::ImageCodecInfo*)(al_malloc(size));
    if(pImageCodecInfo == NULL) {
       return -1;  
    }
@@ -37,12 +37,12 @@ static int GetEncoderClsid(const WCHAR* format, CLSID* pClsid)
    for(UINT j = 0; j < num; ++j) {
       if(wcscmp(pImageCodecInfo[j].MimeType, format) == 0) {
          *pClsid = pImageCodecInfo[j].Clsid;
-         free(pImageCodecInfo);
+         al_free(pImageCodecInfo);
          return j;
       }    
    }
 
-   free(pImageCodecInfo);
+   al_free(pImageCodecInfo);
    return -1;  
 }
 

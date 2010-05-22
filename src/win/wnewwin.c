@@ -28,7 +28,6 @@
 #include "allegro5/allegro_windows.h"
 #include "allegro5/internal/aintern.h"
 #include "allegro5/internal/aintern_bitmap.h"
-#include "allegro5/internal/aintern_memory.h"
 #include "allegro5/internal/aintern_vector.h"
 #include "allegro5/internal/aintern_display.h"
 #include "allegro5/platform/aintwin.h"
@@ -134,7 +133,7 @@ HWND _al_win_create_window(ALLEGRO_DISPLAY *display, int width, int height, int 
          unsigned int i;
          unsigned int fullscreen_found = 0;
          num = al_get_num_video_adapters();
-         is_fullscreen = _AL_MALLOC(sizeof(bool)*num);
+         is_fullscreen = al_malloc(sizeof(bool)*num);
          memset(is_fullscreen, 0, sizeof(bool)*num);
          for (i = 0; i < sys->displays._size; i++) {
             ALLEGRO_DISPLAY **dptr = _al_vector_ref(&sys->displays, i);
@@ -155,7 +154,7 @@ HWND _al_win_create_window(ALLEGRO_DISPLAY *display, int width, int height, int 
          }
          else
             a = 0;
-         _AL_FREE(is_fullscreen);
+         al_free(is_fullscreen);
       }
 
       al_set_current_video_adapter(a);
@@ -373,7 +372,7 @@ static LRESULT CALLBACK window_callback(HWND hWnd, UINT message,
 
           GetRawInputData((HRAWINPUT)lParam, RID_INPUT, NULL, &dwSize, 
                           sizeof(RAWINPUTHEADER));
-          lpb = malloc(sizeof(BYTE)*dwSize);
+          lpb = al_malloc(sizeof(BYTE)*dwSize);
           if (lpb == NULL) 
               break;
 
@@ -381,7 +380,7 @@ static LRESULT CALLBACK window_callback(HWND hWnd, UINT message,
           raw = (RAWINPUT*)lpb;
 
           if (raw->header.dwType != RIM_TYPEMOUSE) {
-             free(lpb); 
+             al_free(lpb); 
              break;
           }
 
@@ -421,7 +420,7 @@ static LRESULT CALLBACK window_callback(HWND hWnd, UINT message,
           }
        }
 
-          free(lpb); 
+          al_free(lpb); 
           break;
       }
       case WM_LBUTTONDOWN:
@@ -566,7 +565,7 @@ static LRESULT CALLBACK window_callback(HWND hWnd, UINT message,
                RECT *rects;
                BeginPaint(win_display->window, &ps);
                size = GetRegionData(hrgn, 0, NULL);
-               rgndata = _AL_MALLOC(size);
+               rgndata = al_malloc(size);
                GetRegionData(hrgn, size, rgndata);
                n = rgndata->rdh.nCount;
                rects = (RECT *)rgndata->Buffer;
@@ -583,7 +582,7 @@ static LRESULT CALLBACK window_callback(HWND hWnd, UINT message,
                   _al_event_source_emit_event(es, &event);
                }
                _al_event_source_unlock(es);
-               _AL_FREE(rgndata);
+               al_free(rgndata);
                EndPaint(win_display->window, &ps);
                DeleteObject(hrgn);
             }

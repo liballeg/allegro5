@@ -3,7 +3,6 @@
 #include "allegro5/internal/aintern.h"
 #include "allegro5/internal/aintern_events.h"
 #include "allegro5/internal/aintern_keyboard.h"
-#include "allegro5/internal/aintern_memory.h"
 #include "allegro5/platform/aintosx.h"
 
 #ifdef __LP64__
@@ -127,7 +126,7 @@ static BOOL in_bundle(void)
     (void)theApplication;
     if (data != nil) {
         unsigned int len = 1 + [data length];
-        arg1 = _AL_MALLOC(len);
+        arg1 = al_malloc(len);
         memset(arg1, 0, len);
         [data getBytes: arg1];
         

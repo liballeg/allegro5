@@ -18,7 +18,6 @@
 
 #include "allegro5/allegro5.h"
 #include "allegro5/internal/aintern.h"
-#include "allegro5/internal/aintern_memory.h"
 #include "allegro5/internal/aintern_thread.h"
 #include "allegro5/internal/aintern_system.h"
 
@@ -93,7 +92,7 @@ static void detached_thread_func_trampoline(_AL_THREAD *inner, void *_outer)
    (void)inner;
 
    ((void *(*)(void *))outer->proc)(outer->arg);
-   _AL_FREE(outer);
+   al_free(outer);
 }
 
 
@@ -101,7 +100,7 @@ static ALLEGRO_THREAD *create_thread(void)
 {
    ALLEGRO_THREAD *outer;
 
-   outer = _AL_MALLOC(sizeof(*outer));
+   outer = al_malloc(sizeof(*outer));
    if (!outer) {
       return NULL;
    }
@@ -273,7 +272,7 @@ void al_destroy_thread(ALLEGRO_THREAD *thread)
 
    /* May help debugging. */
    thread->thread_state = THREAD_STATE_DESTROYED;
-   _AL_FREE(thread);
+   al_free(thread);
 }
 
 
@@ -281,7 +280,7 @@ void al_destroy_thread(ALLEGRO_THREAD *thread)
  */
 ALLEGRO_MUTEX *al_create_mutex(void)
 {
-   ALLEGRO_MUTEX *mutex = _AL_MALLOC(sizeof(*mutex));
+   ALLEGRO_MUTEX *mutex = al_malloc(sizeof(*mutex));
    if (mutex) {
       _AL_MARK_MUTEX_UNINITED(mutex->mutex);
       _al_mutex_init(&mutex->mutex);
@@ -294,7 +293,7 @@ ALLEGRO_MUTEX *al_create_mutex(void)
  */
 ALLEGRO_MUTEX *al_create_mutex_recursive(void)
 {
-   ALLEGRO_MUTEX *mutex = _AL_MALLOC(sizeof(*mutex));
+   ALLEGRO_MUTEX *mutex = al_malloc(sizeof(*mutex));
    if (mutex) {
       _al_mutex_init_recursive(&mutex->mutex);
    }
@@ -327,7 +326,7 @@ void al_destroy_mutex(ALLEGRO_MUTEX *mutex)
 {
    if (mutex) {
       _al_mutex_destroy(&mutex->mutex);
-      _AL_FREE(mutex);
+      al_free(mutex);
    }
 }
 
@@ -336,7 +335,7 @@ void al_destroy_mutex(ALLEGRO_MUTEX *mutex)
  */
 ALLEGRO_COND *al_create_cond(void)
 {
-   ALLEGRO_COND *cond = _AL_MALLOC(sizeof(*cond));
+   ALLEGRO_COND *cond = al_malloc(sizeof(*cond));
    if (cond) {
       _al_cond_init(&cond->cond);
    }
@@ -350,7 +349,7 @@ void al_destroy_cond(ALLEGRO_COND *cond)
 {
    if (cond) {
       _al_cond_destroy(&cond->cond);
-      _AL_FREE(cond);
+      al_free(cond);
    }
 }
 

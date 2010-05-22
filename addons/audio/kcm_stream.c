@@ -62,7 +62,7 @@ ALLEGRO_AUDIO_STREAM *al_create_audio_stream(size_t fragment_count,
    bytes_per_buffer = samples * al_get_channel_count(chan_conf) *
       al_get_audio_depth_size(depth);
 
-   stream = calloc(1, sizeof(*stream));
+   stream = al_calloc(1, sizeof(*stream));
    if (!stream) {
       _al_set_error(ALLEGRO_GENERIC_ERROR,
          "Out of memory allocating stream object");
@@ -86,20 +86,20 @@ ALLEGRO_AUDIO_STREAM *al_create_audio_stream(size_t fragment_count,
 
    stream->buf_count = fragment_count;
 
-   stream->used_bufs = calloc(1, fragment_count * sizeof(void *) * 2);
+   stream->used_bufs = al_calloc(1, fragment_count * sizeof(void *) * 2);
    if (!stream->used_bufs) {
-      free(stream->used_bufs);
-      free(stream);
+      al_free(stream->used_bufs);
+      al_free(stream);
       _al_set_error(ALLEGRO_GENERIC_ERROR,
          "Out of memory allocating stream buffer pointers");
       return NULL;
    }
    stream->pending_bufs = stream->used_bufs + fragment_count;
 
-   stream->main_buffer = calloc(1, bytes_per_buffer * fragment_count);
+   stream->main_buffer = al_calloc(1, bytes_per_buffer * fragment_count);
    if (!stream->main_buffer) {
-      free(stream->used_bufs);
-      free(stream);
+      al_free(stream->used_bufs);
+      al_free(stream);
       _al_set_error(ALLEGRO_GENERIC_ERROR,
          "Out of memory allocating stream buffer");
       return NULL;
@@ -132,9 +132,9 @@ void al_destroy_audio_stream(ALLEGRO_AUDIO_STREAM *stream)
       _al_kcm_detach_from_parent(&stream->spl);
 
       al_destroy_user_event_source(&stream->spl.es);
-      free(stream->main_buffer);
-      free(stream->used_bufs);
-      free(stream);
+      al_free(stream->main_buffer);
+      al_free(stream->used_bufs);
+      al_free(stream);
    }
 }
 

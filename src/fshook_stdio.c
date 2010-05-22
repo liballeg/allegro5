@@ -40,7 +40,6 @@
 
 #include "allegro5/internal/aintern.h"
 #include "allegro5/internal/aintern_fshook.h"
-#include "allegro5/internal/aintern_memory.h"
 
 #ifdef ALLEGRO_HAVE_SYS_STAT_H
    #include <sys/stat.h>
@@ -183,7 +182,7 @@ static DIR *opendir(const _TCHAR *szPath)
 
    /* Allocate enough space to store DIR structure and the complete
    * directory path given. */
-   nd = (DIR *) malloc(sizeof (DIR) + (_tcslen(szFullPath) + _tcslen(SLASH)
+   nd = (DIR *) al_malloc(sizeof (DIR) + (_tcslen(szFullPath) + _tcslen(SLASH)
       + _tcslen(SUFFIX) + 1) * sizeof(_TCHAR));
 
    if (!nd) {
@@ -317,7 +316,7 @@ static int closedir(DIR* dirp)
   }
 
   /* Delete the dir structure. */
-  free(dirp);
+  al_free(dirp);
 
   return rc;
 }
@@ -351,7 +350,7 @@ static ALLEGRO_FS_ENTRY *fs_stdio_create_entry(const char *path)
    unsigned int trailing_slashes = 0;
    char c;
 
-   fh = _AL_MALLOC(sizeof(*fh));
+   fh = al_malloc(sizeof(*fh));
    if (!fh) {
       al_set_errno(errno);
       return NULL;
@@ -374,10 +373,10 @@ static ALLEGRO_FS_ENTRY *fs_stdio_create_entry(const char *path)
       trailing_slashes++;
    }
 
-   fh->path = _AL_MALLOC(len + 1 - trailing_slashes);
+   fh->path = al_malloc(len + 1 - trailing_slashes);
    if (!fh->path) {
       al_set_errno(errno);
-      _AL_FREE(fh);
+      al_free(fh);
       return NULL;
    }
 
@@ -524,7 +523,7 @@ static void fs_stdio_destroy_entry(ALLEGRO_FS_ENTRY *fh_)
       unlink(fh->path);
 
    if (fh->path)
-      _AL_FREE(fh->path);
+      al_free(fh->path);
 
    if (fh->apath)
       al_destroy_path(fh->apath);
@@ -533,7 +532,7 @@ static void fs_stdio_destroy_entry(ALLEGRO_FS_ENTRY *fh_)
       fs_stdio_close_directory(fh_);
 
    memset(fh, 0, sizeof(*fh));
-   _AL_FREE(fh);
+   al_free(fh);
 }
 
 static off_t fs_stdio_entry_size(ALLEGRO_FS_ENTRY *fp)

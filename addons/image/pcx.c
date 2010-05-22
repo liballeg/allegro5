@@ -64,16 +64,16 @@ ALLEGRO_BITMAP *_al_load_pcx_f(ALLEGRO_FILE *f)
       /* The palette comes after the image data.  We need to to keep the
        * whole image in a temporary buffer before mapping the final colours.
        */
-      buf = (unsigned char *)malloc(bytes_per_line * height);
+      buf = (unsigned char *)al_malloc(bytes_per_line * height);
    }
    else {
       /* We can read one line at a time. */
-      buf = (unsigned char *)malloc(bytes_per_line * 3);
+      buf = (unsigned char *)al_malloc(bytes_per_line * 3);
    }
 
    lr = al_lock_bitmap(b, ALLEGRO_PIXEL_FORMAT_ABGR_8888_LE, ALLEGRO_LOCK_WRITEONLY);
    if (!lr) {
-      free(buf);
+      al_free(buf);
       return NULL;
    }
 
@@ -144,7 +144,7 @@ ALLEGRO_BITMAP *_al_load_pcx_f(ALLEGRO_FILE *f)
 
    al_unlock_bitmap(b);
 
-   free(buf);
+   al_free(buf);
 
    if (al_get_errno()) {
       al_destroy_bitmap(b);
@@ -196,7 +196,7 @@ bool _al_save_pcx_f(ALLEGRO_FILE *f, ALLEGRO_BITMAP *bmp)
    for (c = 0; c < 54; c++)     /* filler */
       al_fputc(f, 0);
 
-   buf = malloc(w * 3);
+   buf = al_malloc(w * 3);
 
    lr = al_lock_bitmap(bmp, ALLEGRO_PIXEL_FORMAT_ANY, ALLEGRO_LOCK_READONLY);
 
@@ -229,7 +229,7 @@ bool _al_save_pcx_f(ALLEGRO_FILE *f, ALLEGRO_BITMAP *bmp)
       }
    }
 
-   free(buf);
+   al_free(buf);
 
    al_unlock_bitmap(bmp);
 

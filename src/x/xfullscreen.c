@@ -128,7 +128,7 @@ static bool _al_xsys_xrandr_query(ALLEGRO_SYSTEM_XGLX *s)
          XRRFreeOutputInfo(s->xrandr_outputs[i]);
          s->xrandr_outputs[i] = NULL;
       }
-      free(s->xrandr_outputs);
+      al_free(s->xrandr_outputs);
       s->xrandr_outputs = NULL;
       s->xrandr_output_count = 0;
    }
@@ -155,7 +155,7 @@ static bool _al_xsys_xrandr_query(ALLEGRO_SYSTEM_XGLX *s)
             XRROutputInfo **new_output_info = s->xrandr_outputs;
             int new_output_count = s->xrandr_output_count + crtc_info->noutput;
 
-            new_output_info = realloc(new_output_info, sizeof(XRROutputInfo *) * new_output_count);
+            new_output_info = al_realloc(new_output_info, sizeof(XRROutputInfo *) * new_output_count);
             if (new_output_info) {
                memset(new_output_info+s->xrandr_output_count, 0, sizeof(XRROutputInfo*)*crtc_info->noutput);
 
@@ -309,8 +309,8 @@ static bool _al_xsys_xrandr_set_mode(ALLEGRO_SYSTEM_XGLX *s, ALLEGRO_DISPLAY_XGL
 
 static void _al_xsys_xrandr_store_modes(ALLEGRO_SYSTEM_XGLX *s)
 {
-   free(s->xrandr_stored_modes);
-   s->xrandr_stored_modes = calloc(s->xrandr_output_count, sizeof(XRRModeInfo*));
+   al_free(s->xrandr_stored_modes);
+   s->xrandr_stored_modes = al_calloc(s->xrandr_output_count, sizeof(XRRModeInfo*));
    if (!s->xrandr_stored_modes) {
       ALLEGRO_ERROR("XRandR failed to allocate memory for stored modes array.\n");
       return;
@@ -501,8 +501,8 @@ static void _al_xsys_xrandr_exit(ALLEGRO_SYSTEM_XGLX *s)
    //if (s->xrandr_res)
    //   XRRFreeScreenResources(s->xrandr_res);
 
-   free(s->xrandr_outputs);
-   free(s->xrandr_stored_modes);
+   al_free(s->xrandr_outputs);
+   al_free(s->xrandr_stored_modes);
 
    s->xrandr_available = 0;
    s->xrandr_output_count = 0;
@@ -725,7 +725,7 @@ static void _al_xsys_xfvm_init(ALLEGRO_SYSTEM_XGLX *s)
       ALLEGRO_DEBUG("XF86VidMode Got %d screens.\n", num_screens);
       s->xfvm_screen_count = num_screens;
 
-      s->xfvm_screen = calloc(num_screens, sizeof(*s->xfvm_screen));
+      s->xfvm_screen = al_calloc(num_screens, sizeof(*s->xfvm_screen));
       if (!s->xfvm_screen) {
          ALLEGRO_ERROR("XF86VidMode: failed to allocate screen array.\n");
          s->xfvm_available = 0;
@@ -776,7 +776,7 @@ static void _al_xsys_xfvm_exit(ALLEGRO_SYSTEM_XGLX *s)
       ALLEGRO_DEBUG("xfullscreen: XFVM freed adapter %d.\n", adapter);
    }
 
-   free(s->xfvm_screen);
+   al_free(s->xfvm_screen);
    s->xfvm_screen = NULL;
 }
 

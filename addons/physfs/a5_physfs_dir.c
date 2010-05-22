@@ -7,7 +7,6 @@
 #include <physfs.h>
 #include "allegro5/allegro5.h"
 #include "allegro5/allegro_physfs.h"
-#include "allegro5/internal/aintern_memory.h"
 
 #include "allegro_physfs_intern.h"
 
@@ -32,7 +31,7 @@ static const ALLEGRO_FS_INTERFACE fs_phys_vtable;
 static ALLEGRO_FS_ENTRY *fs_phys_create_entry(const char *path)
 {
    ALLEGRO_FS_ENTRY_PHYSFS *e;
-   e = _AL_MALLOC(sizeof *e);
+   e = al_malloc(sizeof *e);
    memset(e, 0, sizeof *e);
    e->fs_entry.vtable = &fs_phys_vtable;
    e->path = al_create_path(path);
@@ -168,7 +167,7 @@ static void fs_phys_destroy_entry(ALLEGRO_FS_ENTRY *fse)
    if (e->is_dir_open)
       fs_phys_close_directory(fse);
    al_destroy_path(e->path);
-   _AL_FREE(e);
+   al_free(e);
 }
 
 static const ALLEGRO_FS_INTERFACE fs_phys_vtable =

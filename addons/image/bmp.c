@@ -427,7 +427,7 @@ static void read_image(ALLEGRO_FILE *f,
    dir = height < 0 ? 1 : -1;
    height = abs(height);
 
-   buf = malloc(infoheader->biWidth);
+   buf = al_malloc(infoheader->biWidth);
 
    for (i = 0; i < height; i++, line += dir) {
       data = (unsigned char *)lr->data + lr->pitch * line;
@@ -469,7 +469,7 @@ static void read_image(ALLEGRO_FILE *f,
       }
    }
 
-   free(buf);
+   al_free(buf);
 }
 
 
@@ -721,7 +721,7 @@ ALLEGRO_BITMAP *_al_load_bmp_f(ALLEGRO_FILE *f)
 
    if (infoheader.biCompression == BIT_RLE8
        || infoheader.biCompression == BIT_RLE4) {
-      buf = malloc(infoheader.biWidth * infoheader.biHeight);
+      buf = al_malloc(infoheader.biWidth * infoheader.biHeight);
    }
 
    switch (infoheader.biCompression) {
@@ -764,7 +764,7 @@ ALLEGRO_BITMAP *_al_load_bmp_f(ALLEGRO_FILE *f)
             data += 4;
          }
       }
-      free(buf);
+      al_free(buf);
    }
 
    if (bmp) {

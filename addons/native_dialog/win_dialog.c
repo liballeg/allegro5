@@ -11,7 +11,6 @@
 #include "allegro5/allegro5.h"
 #include "allegro5/allegro_native_dialog.h"
 #include "allegro5/internal/aintern_native_dialog.h"
-#include "allegro5/internal/aintern_memory.h"
 
 #include "allegro5/platform/aintwin.h"
 
@@ -98,7 +97,7 @@ void al_show_native_file_dialog(ALLEGRO_NATIVE_DIALOG *fd)
          i++;
       }
 
-      fd->paths = _AL_MALLOC(fd->count * sizeof(void *));
+      fd->paths = al_malloc(fd->count * sizeof(void *));
       i = next(buf);
       for (p = 0; p < (int)fd->count; p++) {
          fd->paths[p] = al_create_path(path);
@@ -108,7 +107,7 @@ void al_show_native_file_dialog(ALLEGRO_NATIVE_DIALOG *fd)
    }
    else {
       fd->count = 1;
-      fd->paths = _AL_MALLOC(sizeof(void *));
+      fd->paths = al_malloc(sizeof(void *));
       fd->paths[0] = al_create_path(buf);
    }
 }

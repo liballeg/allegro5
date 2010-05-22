@@ -1,7 +1,6 @@
 #include "allegro5/allegro5.h"
 #include "allegro5/allegro_native_dialog.h"
 #include "allegro5/internal/aintern_native_dialog.h"
-#include "allegro5/internal/aintern_memory.h"
 
 #import <Cocoa/Cocoa.h>
 
@@ -57,7 +56,7 @@
           */
          const char *s = [[panel filename] UTF8String];
          fd->count = 1;
-         fd->paths = _AL_MALLOC(fd->count * sizeof *fd->paths);
+         fd->paths = al_malloc(fd->count * sizeof *fd->paths);
          fd->paths[0] = al_create_path(s);
       }
    } else {                                  // Open dialog
@@ -82,7 +81,7 @@
       if ([panel runModalForDirectory:directory file:filename] == NSOKButton) {
          size_t i;
          fd->count = [[panel filenames] count];
-         fd->paths = _AL_MALLOC(fd->count * sizeof *fd->paths);
+         fd->paths = al_malloc(fd->count * sizeof *fd->paths);
          for (i = 0; i < fd->count; i++) {
             /* NOTE: at first glance, it looks as if this code might leak
              * memory, but in fact it doesn't: the string returned by

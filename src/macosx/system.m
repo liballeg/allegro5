@@ -17,7 +17,6 @@
 
 
 #include "allegro5/allegro5.h"
-#include "allegro5/internal/aintern_memory.h"
 #include "allegro5/platform/aintosx.h"
 #include <sys/stat.h>
 
@@ -474,7 +473,7 @@ static bool osx_get_cursor_position(int *x, int *y)
 
 static void osx_thread_init(ALLEGRO_THREAD *thread)
 {
-   THREAD_AND_POOL *tap = _AL_MALLOC(sizeof(THREAD_AND_POOL));
+   THREAD_AND_POOL *tap = al_malloc(sizeof(THREAD_AND_POOL));
 
    tap->thread = thread;
    tap->pool = [[NSAutoreleasePool alloc] init];
@@ -493,7 +492,7 @@ static void osx_thread_exit(ALLEGRO_THREAD *thread)
       if (tap->thread == thread) {
          _al_vector_delete_at(&_osx_threads, i);
          [tap->pool drain];
-         _AL_FREE(tap);
+         al_free(tap);
 	 return;
       }
    }
@@ -504,7 +503,7 @@ ALLEGRO_SYSTEM_INTERFACE *_al_system_osx_driver(void)
 {
    static ALLEGRO_SYSTEM_INTERFACE* vt = NULL;
    if (vt == NULL) {
-      vt = _AL_MALLOC(sizeof(*vt));
+      vt = al_malloc(sizeof(*vt));
       memset(vt, 0, sizeof(*vt));
       vt->initialize = osx_sys_init;
       vt->get_display_driver = _al_osx_get_display_driver;
@@ -580,7 +579,7 @@ static int _find_executable_file(const char *filename, char *output, int size)
             end = strchr(start, '\0');
 
          /* Resize `buffer' for path component, slash, filename and a '\0' */
-         temp = _AL_REALLOC (buffer, end - start + 1 + strlen (filename) + 1);
+         temp = al_realloc (buffer, end - start + 1 + strlen (filename) + 1);
          if (temp) {
             buffer = temp;
 
@@ -590,7 +589,7 @@ static int _find_executable_file(const char *filename, char *output, int size)
 
             if ((stat(buffer, &finfo)==0) && (!S_ISDIR (finfo.st_mode))) {
                _al_sane_strncpy(output, buffer, size);
-               _AL_FREE (buffer);
+               al_free(buffer);
                return 1;
             }
          } /* else... ignore the failure; `buffer' is still valid anyway. */
@@ -598,7 +597,7 @@ static int _find_executable_file(const char *filename, char *output, int size)
          start = end + 1;
       }
       /* Path search failed */
-      _AL_FREE (buffer);
+      al_free(buffer);
    }
 
    return 0;

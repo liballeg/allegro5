@@ -150,8 +150,8 @@ uint32_t al_get_allegro_primitives_version(void)
  */
 ALLEGRO_VERTEX_DECL* al_create_vertex_decl(const ALLEGRO_VERTEX_ELEMENT* elements, int stride)
 {
-   ALLEGRO_VERTEX_DECL* ret = malloc(sizeof(ALLEGRO_VERTEX_DECL));
-   ret->elements = malloc(sizeof(ALLEGRO_VERTEX_ELEMENT) * ALLEGRO_PRIM_ATTR_NUM);
+   ALLEGRO_VERTEX_DECL* ret = al_malloc(sizeof(ALLEGRO_VERTEX_DECL));
+   ret->elements = al_malloc(sizeof(ALLEGRO_VERTEX_ELEMENT) * ALLEGRO_PRIM_ATTR_NUM);
    memset(ret->elements, 0, sizeof(ALLEGRO_VERTEX_ELEMENT) * ALLEGRO_PRIM_ATTR_NUM);
    while(elements->attribute) {
       ret->elements[elements->attribute] = *elements;
@@ -168,9 +168,9 @@ ALLEGRO_VERTEX_DECL* al_create_vertex_decl(const ALLEGRO_VERTEX_ELEMENT* element
  */
 void al_destroy_vertex_decl(ALLEGRO_VERTEX_DECL* decl)
 {
-   free(decl->elements);
+   al_free(decl->elements);
    /*
     * TODO: Somehow free the d3d_decl
     */
-   free(decl);
+   al_free(decl);
 }

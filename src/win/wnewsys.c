@@ -23,7 +23,6 @@
 #include "allegro5/allegro5.h"
 #include "allegro5/internal/aintern.h"
 #include "allegro5/internal/aintern_bitmap.h"
-#include "allegro5/internal/aintern_memory.h"
 #include "allegro5/internal/aintern_system.h"
 #include "allegro5/platform/aintwin.h"
 
@@ -83,14 +82,14 @@ int _WinMain(void *_main, void *hInst, void *hPrev, char *Cmd, int nShow)
    /* can't use parameter because it doesn't include the executable name */
    cmdline = GetCommandLine();
    i = strlen(cmdline) + 1;
-   argbuf = _AL_MALLOC(i);
+   argbuf = al_malloc(i);
    memcpy(argbuf, cmdline, i);
 
    argc = 0;
    argc_max = 64;
-   argv = _AL_MALLOC(sizeof(char *) * argc_max);
+   argv = al_malloc(sizeof(char *) * argc_max);
    if (!argv) {
-      _AL_FREE(argbuf);
+      al_free(argbuf);
       return 1;
    }
 
@@ -114,9 +113,9 @@ int _WinMain(void *_main, void *hInst, void *hPrev, char *Cmd, int nShow)
 
          if (argc >= argc_max) {
             argc_max += 64;
-            argv = _AL_REALLOC(argv, sizeof(char *) * argc_max);
+            argv = al_realloc(argv, sizeof(char *) * argc_max);
             if (!argv) {
-               _AL_FREE(argbuf);
+               al_free(argbuf);
                return 1;
             }
          }
@@ -136,8 +135,8 @@ int _WinMain(void *_main, void *hInst, void *hPrev, char *Cmd, int nShow)
    /* call the application entry point */
    i = mainfunc(argc, argv);
 
-   _AL_FREE(argv);
-   _AL_FREE(argbuf);
+   al_free(argv);
+   al_free(argbuf);
 
    return i;
 }
@@ -150,7 +149,7 @@ static ALLEGRO_SYSTEM *win_initialize(int flags)
 {
    (void)flags;
 
-   _al_win_system = _AL_MALLOC(sizeof *_al_win_system);
+   _al_win_system = al_malloc(sizeof *_al_win_system);
    memset(_al_win_system, 0, sizeof *_al_win_system);
 
    // Request a 1ms resolution from our timer
@@ -198,11 +197,11 @@ static void win_shutdown(void)
    }
 
    ASSERT(vt);
-   _AL_FREE(vt);
+   al_free(vt);
    vt = NULL;
 
    ASSERT(_al_win_system);
-   _AL_FREE(_al_win_system);
+   al_free(_al_win_system);
 }
 
 
@@ -501,7 +500,7 @@ static ALLEGRO_SYSTEM_INTERFACE *_al_system_win_driver(void)
 {
    if (vt) return vt;
 
-   vt = _AL_MALLOC(sizeof *vt);
+   vt = al_malloc(sizeof *vt);
    memset(vt, 0, sizeof *vt);
 
    vt->initialize = win_initialize;

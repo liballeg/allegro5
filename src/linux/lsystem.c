@@ -25,7 +25,6 @@
 
 #include "allegro5/allegro5.h"
 #include "allegro5/internal/aintern.h"
-#include "allegro5/internal/aintern_memory.h"
 #include "allegro5/platform/aintunix.h"
 #include "allegro5/platform/aintlnx.h"
 
@@ -274,7 +273,7 @@ static void sys_linux_message (const char *msg)
    int ret;
    ASSERT(msg);
 
-   tmp = _AL_MALLOC_ATOMIC(ALLEGRO_MESSAGE_SIZE);
+   tmp = al_malloc(ALLEGRO_MESSAGE_SIZE);
    msg = uconvert(msg, U_UTF8, tmp, U_ASCII, ALLEGRO_MESSAGE_SIZE);
 
    do {
@@ -285,7 +284,7 @@ static void sys_linux_message (const char *msg)
 
    __al_linux_got_text_message = true;
 
-   _AL_FREE(tmp);
+   al_free(tmp);
 }
 
 

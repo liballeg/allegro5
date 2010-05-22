@@ -5,7 +5,6 @@
 #include "allegro5/allegro5.h"
 #include "allegro5/fshook.h"
 #include "allegro5/allegro_image.h"
-#include "allegro5/internal/aintern_memory.h"
 #include "allegro5/internal/aintern_image.h"
 
 #include "iio.h"
@@ -40,7 +39,7 @@ static ALLEGRO_BITMAP *really_load_image(char *buffer, int size)
    //CGImageRef cgimage = [image_rep CGImageForProposedRect: nil context: nil hints: nil];
 
    /* Now we need to draw the image into a memory buffer. */
-   pixels = _AL_MALLOC(w * h * 4);
+   pixels = al_malloc(w * h * 4);
    CGColorSpaceRef colour_space =
       CGColorSpaceCreateWithName(kCGColorSpaceGenericRGB);
    CGContextRef context = CGBitmapContextCreate(pixels, w, h, 8, w * 4,
@@ -74,7 +73,7 @@ static ALLEGRO_BITMAP *really_load_image(char *buffer, int size)
       }
       al_unlock_bitmap(bmp);
    }
-   _AL_FREE(pixels);
+   al_free(pixels);
    return bmp;
 }
 
@@ -92,7 +91,7 @@ static ALLEGRO_BITMAP *_al_osx_load_image_f(ALLEGRO_FILE *f)
    /* Note: This *MUST* be the Apple malloc and not any wrapper, as the
     * buffer will be owned and freed by the NSData object not us.
     */
-   void *buffer = malloc(size);
+   void *buffer = al_malloc(size);
    al_fread(f, buffer, size);
 
    /* Really load the image now. */

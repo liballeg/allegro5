@@ -32,7 +32,6 @@
 
 #include "allegro5/internal/aintern.h"
 #include "allegro5/internal/aintern_file.h"
-#include "allegro5/internal/aintern_memory.h"
 
 #ifdef ALLEGRO_HAVE_SYS_STAT_H
 #include <sys/stat.h>
@@ -68,7 +67,7 @@ ALLEGRO_FILE *al_fopen_fd(int fd, const char *mode)
 
    /* The fd should remain open if this function fails in either way. */
 
-   f = _AL_MALLOC(sizeof(*f));
+   f = al_malloc(sizeof(*f));
    if (!f) {
       al_set_errno(ENOMEM);
       return NULL;
@@ -77,7 +76,7 @@ ALLEGRO_FILE *al_fopen_fd(int fd, const char *mode)
    fp = fdopen(fd, mode);
    if (!fp) {
       al_set_errno(errno);
-      _AL_FREE(f);
+      al_free(f);
       return NULL;
    }
 
@@ -98,7 +97,7 @@ static ALLEGRO_FILE *file_stdio_fopen(const char *path, const char *mode)
       return NULL;
    }
 
-   f = _AL_MALLOC(sizeof(*f));
+   f = al_malloc(sizeof(*f));
    if (!f) {
       al_set_errno(ENOMEM);
       fclose(fp);
@@ -114,7 +113,7 @@ static ALLEGRO_FILE *file_stdio_fopen(const char *path, const char *mode)
 static void file_stdio_fclose(ALLEGRO_FILE *f)
 {
    fclose(get_fp(f));
-   _AL_FREE(f);
+   al_free(f);
 }
 
 

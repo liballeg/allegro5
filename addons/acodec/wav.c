@@ -7,7 +7,6 @@
 
 #include "allegro5/allegro_audio.h"
 #include "allegro5/internal/aintern_audio.h"
-#include "allegro5/internal/aintern_memory.h"
 #include "acodec.h"
 
 ALLEGRO_DEBUG_CHANNEL("wav")
@@ -41,7 +40,7 @@ static WAVFILE *wav_open(ALLEGRO_FILE *f)
       goto wav_open_error;
 
    /* prepare default values */
-   wavfile = malloc(sizeof(WAVFILE));
+   wavfile = al_malloc(sizeof(WAVFILE));
    if(!wavfile){
       return NULL;
    }
@@ -131,7 +130,7 @@ static WAVFILE *wav_open(ALLEGRO_FILE *f)
 wav_open_error:
 
    if (wavfile)
-      free(wavfile);
+      al_free(wavfile);
 
    return NULL;
 }
@@ -178,7 +177,7 @@ static void wav_close(WAVFILE *wavfile)
 {
    ASSERT(wavfile);
 
-   free(wavfile);
+   al_free(wavfile);
 }
 
 
@@ -321,7 +320,7 @@ ALLEGRO_SAMPLE *_al_load_wav_f(ALLEGRO_FILE *fp)
             wav_read(wavfile, data, wavfile->samples);
          }
          else {
-            free(data);
+            al_free(data);
          }
       }
       wav_close(wavfile);

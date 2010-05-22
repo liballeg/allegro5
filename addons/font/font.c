@@ -15,7 +15,6 @@
 #include <string.h>
 #include "allegro5/allegro5.h"
 #include "allegro5/internal/aintern.h"
-#include "allegro5/internal/aintern_memory.h"
 #include "allegro5/internal/aintern_vector.h"
 #include "allegro5/allegro_font.h"
 #include "allegro5/internal/aintern_bitmap.h"
@@ -217,13 +216,13 @@ static void color_destroy(ALLEGRO_FONT* f)
         if (!next && cf->glyphs)
             al_destroy_bitmap(cf->glyphs);
 
-        _AL_FREE(cf->bitmaps);
-        _AL_FREE(cf);
+        al_free(cf->bitmaps);
+        al_free(cf);
 
         cf = next;
     }
 
-    _AL_FREE(f);
+    al_free(f);
 }
 
 

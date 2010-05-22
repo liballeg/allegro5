@@ -27,7 +27,6 @@
 #include "allegro5/allegro5.h"
 #include "allegro5/internal/aintern.h"
 #include "allegro5/internal/aintern_dtor.h"
-#include "allegro5/internal/aintern_memory.h"
 #include "allegro5/internal/aintern_thread.h"
 #include "allegro5/internal/aintern_vector.h"
 
@@ -52,7 +51,7 @@ typedef struct DTOR {
  */
 _AL_DTOR_LIST *_al_init_destructors(void)
 {
-   _AL_DTOR_LIST *dtors = _AL_MALLOC(sizeof(*dtors));
+   _AL_DTOR_LIST *dtors = al_malloc(sizeof(*dtors));
 
    _AL_MARK_MUTEX_UNINITED(dtors->mutex);
    _al_mutex_init(&dtors->mutex);
@@ -108,7 +107,7 @@ void _al_shutdown_destructors(_AL_DTOR_LIST *dtors)
 
    _al_mutex_destroy(&dtors->mutex);
 
-   _AL_FREE(dtors);
+   al_free(dtors);
 }
 
 

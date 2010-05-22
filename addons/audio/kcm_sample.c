@@ -134,7 +134,7 @@ ALLEGRO_SAMPLE *al_create_sample(void *buf, unsigned int samples,
       return NULL;
    }
 
-   spl = calloc(1, sizeof(*spl));
+   spl = al_calloc(1, sizeof(*spl));
    if (!spl) {
       _al_set_error(ALLEGRO_GENERIC_ERROR,
          "Out of memory allocating sample data object");
@@ -166,7 +166,7 @@ void al_destroy_sample(ALLEGRO_SAMPLE *spl)
       }
       spl->buffer.ptr = NULL;
       spl->free_buf = false;
-      free(spl);
+      al_free(spl);
    }
 }
 

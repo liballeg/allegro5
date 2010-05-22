@@ -33,7 +33,6 @@
 
 #include "allegro5/allegro5.h"
 #include "allegro5/internal/aintern.h"
-#include "allegro5/internal/aintern_memory.h"
 #include "allegro5/internal/aintern_vector.h"
 
 
@@ -136,7 +135,7 @@ void* _al_vector_alloc_back(_AL_VECTOR *vec)
          ASSERT(vec->_size == 0);
          ASSERT(vec->_unused == 0);
 
-         vec->_items = _AL_MALLOC(vec->_itemsize);
+         vec->_items = al_malloc(vec->_itemsize);
          ASSERT(vec->_items);
          if (!vec->_items)
             return NULL;
@@ -144,7 +143,7 @@ void* _al_vector_alloc_back(_AL_VECTOR *vec)
          vec->_unused = 1;
       }
       else if (vec->_unused == 0) {
-         char *new_items = _AL_REALLOC(vec->_items, 2 * vec->_size * vec->_itemsize);
+         char *new_items = al_realloc(vec->_items, 2 * vec->_size * vec->_itemsize);
          ASSERT(new_items);
          if (!new_items)
             return NULL;
@@ -182,7 +181,7 @@ void* _al_vector_alloc_mid(_AL_VECTOR *vec, unsigned int index)
       }
 
       if (vec->_unused == 0) {
-         char *new_items = _AL_REALLOC(vec->_items, 2 * vec->_size * vec->_itemsize);
+         char *new_items = al_realloc(vec->_items, 2 * vec->_size * vec->_itemsize);
          ASSERT(new_items);
          if (!new_items)
             return NULL;
@@ -304,7 +303,7 @@ void _al_vector_free(_AL_VECTOR *vec)
    ASSERT(vec);
 
    if (vec->_items != NULL) {
-      _AL_FREE(vec->_items);
+      al_free(vec->_items);
       vec->_items = NULL;
    }
    vec->_size = 0;

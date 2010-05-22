@@ -2,7 +2,6 @@
 #include "allegro5/internal/aintern.h"
 #include "allegro5/internal/aintern_events.h"
 #include "allegro5/internal/aintern_joystick.h"
-#include "allegro5/internal/aintern_memory.h"
 #include "allegro5/internal/aintern_iphone.h"
 
 ALLEGRO_DEBUG_CHANNEL("iphone")

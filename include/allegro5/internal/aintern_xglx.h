@@ -15,7 +15,6 @@
 #include "allegro5/internal/aintern_bitmap.h"
 #include "allegro5/platform/aintxglx.h"
 #include "allegro5/internal/aintern_opengl.h"
-#include "allegro5/internal/aintern_memory.h"
 
 #ifdef ALLEGRO_XWINDOWS_WITH_XF86VIDMODE
 #include <X11/extensions/xf86vmode.h>

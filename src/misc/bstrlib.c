@@ -22,7 +22,12 @@
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
+#include "allegro5/allegro.h"
 #include "allegro5/internal/bstrlib.h"
+
+#define bstr__alloc(x)	    al_malloc(x)
+#define bstr__free(p)	    al_free(p)
+#define bstr__realloc(p, x) al_realloc((p), (x))
 
 /* Optionally include a mechanism for debugging memory */
 

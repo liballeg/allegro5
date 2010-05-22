@@ -23,7 +23,6 @@
 #include "allegro5/internal/aintern.h"
 #include "allegro5/internal/aintern_aatree.h"
 #include "allegro5/internal/aintern_config.h"
-#include "allegro5/internal/aintern_memory.h"
 
 
 
@@ -31,7 +30,7 @@ static void *local_calloc1(size_t size)
 {
    void *p;
 
-   p = _AL_MALLOC(size);
+   p = al_malloc(size);
    if (p) {
       memset(p, 0, size);
    }
@@ -561,17 +560,17 @@ void al_destroy_config(ALLEGRO_CONFIG *config)
          ALLEGRO_CONFIG_ENTRY *tmp = e->next;
          al_ustr_free(e->key);
          al_ustr_free(e->value);
-         _AL_FREE(e);
+         al_free(e);
          e = tmp;
       }
       al_ustr_free(s->name);
       _al_aa_free(s->tree);
-      _AL_FREE(s);
+      al_free(s);
       s = tmp;
    }
 
    _al_aa_free(config->tree);
-   _AL_FREE(config);
+   al_free(config);
 }
 
 

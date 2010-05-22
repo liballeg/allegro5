@@ -1,5 +1,4 @@
 #include "allegro5/allegro5.h"
-#include "allegro5/internal/aintern_memory.h"
 #include "allegro5/internal/aintern_xglx.h"
 
 #include <X11/cursorfont.h>
@@ -36,14 +35,14 @@ static ALLEGRO_MOUSE_CURSOR *xdpy_create_mouse_cursor(ALLEGRO_DISPLAY *display,
       return NULL;
    }
 
-   xcursor = _AL_MALLOC(sizeof *xcursor);
+   xcursor = al_malloc(sizeof *xcursor);
    if (!xcursor) {
       return NULL;
    }
 
    image = XcursorImageCreate(bmp->w, bmp->h);
    if (image == None) {
-      _AL_FREE(xcursor);
+      al_free(xcursor);
       return NULL;
    }
 
@@ -92,7 +91,7 @@ static void xdpy_destroy_mouse_cursor(ALLEGRO_DISPLAY *display,
    }
 
    XFreeCursor(xdisplay, xcursor->cursor);
-   _AL_FREE(xcursor);
+   al_free(xcursor);
 
    _al_mutex_unlock(&system->lock);
 }

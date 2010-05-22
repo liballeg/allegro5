@@ -23,7 +23,6 @@
 #include "allegro5/allegro5.h"
 #include "allegro5/internal/aintern.h"
 #include "allegro5/internal/aintern_bitmap.h"
-#include "allegro5/internal/aintern_memory.h"
 #include "allegro5/platform/aintwin.h"
 
 
@@ -136,7 +135,7 @@ ALLEGRO_MOUSE_CURSOR *_al_win_create_mouse_cursor(ALLEGRO_DISPLAY *display,
       return NULL;
    }
 
-   win_cursor = _AL_MALLOC(sizeof *win_cursor);
+   win_cursor = al_malloc(sizeof *win_cursor);
    if (!win_cursor) {
       DestroyIcon(hcursor);
       return NULL;
@@ -160,7 +159,7 @@ void _al_win_destroy_mouse_cursor(ALLEGRO_DISPLAY *display, ALLEGRO_MOUSE_CURSOR
    }
 
    DestroyIcon(win_cursor->hcursor);
-   _AL_FREE(win_cursor);
+   al_free(win_cursor);
 }
 
 
@@ -305,7 +304,7 @@ static BITMAPINFO *get_bitmap_info(ALLEGRO_BITMAP *bitmap)
    BITMAPINFO *bi;
    int i;
 
-   bi = (BITMAPINFO *) _AL_MALLOC(sizeof(BITMAPINFO) + sizeof(RGBQUAD) * 256);
+   bi = (BITMAPINFO *) al_malloc(sizeof(BITMAPINFO) + sizeof(RGBQUAD) * 256);
 
    ZeroMemory(&bi->bmiHeader, sizeof(BITMAPINFOHEADER));
 
@@ -347,7 +346,7 @@ static BYTE *get_dib_from_bitmap_32(ALLEGRO_BITMAP *bitmap)
    h = al_get_bitmap_height(bitmap);
    pitch = w * 4;
 
-   pixels = (BYTE *) _AL_MALLOC_ATOMIC(h * pitch);
+   pixels = (BYTE *) al_malloc(h * pitch);
    if (!pixels)
       return NULL;
 
@@ -422,8 +421,8 @@ static void local_stretch_blit_to_hdc(ALLEGRO_BITMAP *bitmap, HDC dc,
 	 DIB_RGB_COLORS, SRCCOPY);
    }
 
-   _AL_FREE(pixels);
-   _AL_FREE(bi);
+   al_free(pixels);
+   al_free(bi);
 }
 
 

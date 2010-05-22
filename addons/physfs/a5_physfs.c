@@ -7,7 +7,6 @@
 #include <physfs.h>
 #include "allegro5/allegro5.h"
 #include "allegro5/allegro_physfs.h"
-#include "allegro5/internal/aintern_memory.h"
 
 #include "allegro_physfs_intern.h"
 
@@ -72,7 +71,7 @@ static ALLEGRO_FILE *file_phys_fopen(const char *filename, const char *mode)
       return NULL;
    }
 
-   fp = _AL_MALLOC(sizeof(*fp));
+   fp = al_malloc(sizeof(*fp));
    if (!fp) {
       al_set_errno(ENOMEM);
       PHYSFS_close(phys);
@@ -93,7 +92,7 @@ static void file_phys_fclose(ALLEGRO_FILE *f)
    ALLEGRO_FILE_PHYSFS *fp = cast_stream(f);
 
    PHYSFS_close(fp->phys);
-   _AL_FREE(fp);
+   al_free(fp);
 }
 
 

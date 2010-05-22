@@ -155,7 +155,7 @@ static int _aqueue_allocate_voice(ALLEGRO_VOICE *voice)
          return 1;
    }
 
-   ex_data = (ALLEGRO_AQ_DATA *)calloc(1, sizeof(*ex_data));
+   ex_data = (ALLEGRO_AQ_DATA *)al_calloc(1, sizeof(*ex_data));
    if (!ex_data) {
       fprintf(stderr, "Could not allocate voice data memory\n"); 
       return 1;
@@ -171,7 +171,7 @@ static int _aqueue_allocate_voice(ALLEGRO_VOICE *voice)
    voice->extra = ex_data;
    ex_data->voice = voice;
    
-   silence = calloc(1, ex_data->buffer_size);
+   silence = al_calloc(1, ex_data->buffer_size);
 
    return 0;
 }
@@ -181,8 +181,8 @@ static int _aqueue_allocate_voice(ALLEGRO_VOICE *voice)
    unloaded by the time this is called */
 static void _aqueue_deallocate_voice(ALLEGRO_VOICE *voice)
 {
-   free(voice->extra);
-   free(silence);
+   al_free(voice->extra);
+   al_free(silence);
    voice->extra = NULL;
 }
 
