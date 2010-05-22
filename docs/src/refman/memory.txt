@@ -6,24 +6,22 @@ These functions are declared in the main Allegro header file:
 
 ## API: al_malloc
 
-Like malloc() in the C standard library.  In the future we plan to allow the
-user to customise the malloc/free functions used by Allegro, so it may hook
-into another implementation.
+Like malloc() in the C standard library, but the implementation may be
+overridden.
 
 This is a macro.
 
-See also: [al_free], [al_realloc], [al_calloc], [al_malloc_with_context]
+See also: [al_free], [al_realloc], [al_calloc], [al_malloc_with_context],
+[al_set_memory_interface]
 
 ## API: al_free
 
-Like free() in the C standard library.  This is required because:
+Like free() in the C standard library, but the implementation may be
+overridden.
 
--  On Windows a memory block allocated by one DLL must be freed from the same
-   DLL.  In the few places where an Allegro function returns a pointer that
-   must be freed, you must use al_free() for portability to Windows.
-
--  In the future we plan to allow the user to customise the malloc/free
-   functions used by Allegro, so it may hook into another implementation.
+Additionally, on Windows, a memory block allocated by one DLL must be freed
+from the same DLL.  In the few places where an Allegro function returns a
+pointer that must be freed, you must use [al_free] for portability to Windows.
 
 This is a macro.
 
@@ -31,7 +29,8 @@ See also: [al_malloc], [al_free_with_context]
 
 ## API: al_realloc
 
-Like realloc() in the C standard library.
+Like realloc() in the C standard library, but the implementation may be
+overridden.
 
 This is a macro.
 
@@ -39,7 +38,8 @@ See also: [al_malloc], [al_realloc_with_context]
 
 ## API: al_calloc
 
-Like calloc() in the C standard library.
+Like calloc() in the C standard library, but the implementation may be
+overridden.
 
 This is a macro.
 
@@ -47,29 +47,52 @@ See also: [al_malloc], [al_calloc_with_context]
 
 ## API: al_malloc_with_context
 
-This currently just calls malloc() from the Allegro library (this matters on
-Windows).  The context arguments are not used yet.
+This calls malloc() from the Allegro library (this matters on Windows),
+unless overriden with [al_set_memory_interface],
 
 Generally you should use the [al_malloc] macro.
 
 ## API: al_free_with_context
 
-This currently just calls free() from the Allegro library (this matters on
-Windows).  The context arguments are not used yet.
+This calls free() from the Allegro library (this matters on Windows),
+unless overriden with [al_set_memory_interface].
 
 Generally you should use the [al_free] macro.
 
 ## API: al_realloc_with_context
 
-This currently just calls realloc() from the Allegro library (this matters on
-Windows).  The context arguments are not used yet.
+This calls realloc() from the Allegro library (this matters on Windows),
+unless overriden with [al_set_memory_interface],
 
 Generally you should use the [al_realloc] macro.
 
 ## API: al_calloc_with_context
 
-This currently just calls calloc() from the Allegro library (this matters on
-Windows).  The context arguments are not used yet.
+This calls calloc() from the Allegro library (this matters on Windows),
+unless overriden with [al_set_memory_interface],
 
 Generally you should use the [al_calloc] macro.
+
+## API: ALLEGRO_MEMORY_INTERFACE
+
+This structure has the following fields.
+
+    void *(*mi_malloc)(size_t n, int line, const char *file, const char *func);
+    void (*mi_free)(void *ptr, int line, const char *file, const char *func);
+    void *(*mi_realloc)(void *ptr, size_t n, int line, const char *file,
+                        const char *func);
+    void *(*mi_calloc)(size_t count, size_t n, int line, const char *file,
+                       const char *func);
+
+See also: [al_set_memory_interface]
+
+## API: al_set_memory_interface
+
+Override the memory management functions with implementations of
+[al_malloc_with_context], [al_free_with_context], [al_realloc_with_context] and
+[al_calloc_with_context].  The context arguments may be used for debugging.
+
+If the pointer may be NULL, the default behaviour will be restored.
+
+See also: [ALLEGRO_MEMORY_INTERFACE]
 
