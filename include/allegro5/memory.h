@@ -20,26 +20,30 @@
    extern "C" {
 #endif
 
-/* Not exported for now. I'm not sure how to handle the debug situation for
- * user code.  Also, passing a pointer to a vtable might be better.
+/* Function: al_malloc
  */
-void _al_set_memory_management_functions(
-   void *(*malloc)(void *opaque, size_t size),
-   void *(*malloc_atomic)(void *opaque, size_t size),
-   void (*free)(void *opaque, void *ptr),
-   void *(*realloc)(void *opaque, void *ptr, size_t size),
-   void *(*debug_malloc)(int line, const char *file, const char *func,
-      void *opaque, size_t size),
-   void *(*debug_malloc_atomic)(int line, const char *file, const char *func,
-      void *opaque, size_t size),
-   void (*debug_free)(int line, const char *file, const char *func,
-      void *opaque, void *ptr),
-   void *(*debug_realloc)(int line, const char *file, const char *func,
-      void *opaque, void *ptr, size_t size),
-   void *user_opaque);
+#define al_malloc(n) (al_malloc_with_context((n), __LINE__, __FILE__, __func__))
 
-void *al_malloc(size_t n);
-void al_free(void *ptr);
+/* Function: al_free
+ */
+#define al_free(p) (al_free_with_context((p), __LINE__, __FILE__, __func__))
+
+/* Function: al_realloc
+ */
+#define al_realloc(p, n) (al_realloc_with_context((p), (n), __LINE__, __FILE__, __func__))
+
+/* Function: al_calloc
+ */
+#define al_calloc(c, n) (al_calloc_with_context((c), (n), __LINE__, __FILE__, __func__))
+
+AL_FUNC(void *, al_malloc_with_context, (size_t n,
+   int line, const char *file, const char *func));
+AL_FUNC(void, al_free_with_context, (void *ptr,
+   int line, const char *file, const char *func));
+AL_FUNC(void *, al_realloc_with_context, (void *ptr, size_t n,
+   int line, const char *file, const char *func));
+AL_FUNC(void *, al_calloc_with_context, (size_t count, size_t n,
+   int line, const char *file, const char *func));
 
 #ifdef __cplusplus
    }

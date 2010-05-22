@@ -15,147 +15,63 @@
  *      See readme.txt for copyright information.
  */
 
-/* Title: Memory management routines
- */
-
 
 #include "allegro5/allegro5.h"
-#include "allegro5/internal/aintern.h"
-#include "allegro5/internal/aintern_memory.h"
 
 
 
-/* forward declarations */
-static void *default_malloc(void *opaque, size_t size);
-static void default_free(void *opaque, void *ptr);
-static void *default_realloc(void *opaque, void *ptr, size_t size);
-static void *default_debug_malloc(int line, const char *file, const char *func,
-   void *opaque, size_t size);
-static void default_debug_free(int line, const char *file, const char *func,
-   void *opaque, void *ptr);
-static void *default_debug_realloc(int line, const char *file, const char *func,
-   void *opaque, void *ptr, size_t size);
-
-
-
-/* global variables */
-void *_al_memory_opaque = NULL;
-void *(*_al_malloc)(void *opaque, size_t size) = default_malloc;
-void *(*_al_malloc_atomic)(void *opaque, size_t size) = default_malloc;
-void (*_al_free)(void *opaque, void *ptr) = default_free;
-void *(*_al_realloc)(void *opaque, void *ptr, size_t size) = default_realloc;
-void *(*_al_debug_malloc)(int line, const char *file, const char *func,
-   void *opaque, size_t size) = default_debug_malloc;
-void *(*_al_debug_malloc_atomic)(int line, const char *file, const char *func,
-   void *opaque, size_t size) = default_debug_malloc;
-void (*_al_debug_free)(int line, const char *file, const char *func,
-   void *opaque, void *ptr) = default_debug_free;
-void *(*_al_debug_realloc)(int line, const char *file, const char *func,
-   void *opaque, void *ptr, size_t size) = default_debug_realloc;
-
-
-
-/* _al_set_memory_management_functions:
+/* Function: al_malloc_with_context
  */
-void _al_set_memory_management_functions(
-   void *(*malloc)(void *opaque, size_t size),
-   void *(*malloc_atomic)(void *opaque, size_t size),
-   void (*free)(void *opaque, void *ptr),
-   void *(*realloc)(void *opaque, void *ptr, size_t size),
-   void *(*debug_malloc)(int line, const char *file, const char *func,
-      void *opaque, size_t size),
-   void *(*debug_malloc_atomic)(int line, const char *file, const char *func,
-      void *opaque, size_t size),
-   void (*debug_free)(int line, const char *file, const char *func,
-      void *opaque, void *ptr),
-   void *(*debug_realloc)(int line, const char *file, const char *func,
-      void *opaque, void *ptr, size_t size),
-   void *user_opaque)
+void *al_malloc_with_context(size_t n,
+   int line, const char *file, const char *func)
 {
-   _al_malloc        = malloc ? malloc : default_malloc;
-   _al_malloc_atomic = malloc_atomic ? malloc_atomic : default_malloc;
-   _al_free          = free ? free : default_free;
-   _al_realloc       = realloc ? realloc : default_realloc;
-   _al_debug_malloc  = debug_malloc ? debug_malloc : default_debug_malloc;
-   _al_debug_malloc_atomic = debug_malloc_atomic ?
-                             debug_malloc_atomic : default_debug_malloc;
-   _al_debug_free    = debug_free ? debug_free : default_debug_free;
-   _al_debug_realloc = debug_realloc ? debug_realloc : default_debug_realloc;
-   _al_memory_opaque = user_opaque;
+   (void)line;
+   (void)file;
+   (void)func;
+
+   return malloc(n);
 }
 
 
 
-/*
- * The default implementations of the memory management functions.
+/* Function: al_free_with_context
  */
-static void *default_malloc(void *opaque, size_t size)
+void al_free_with_context(void *ptr,
+   int line, const char *file, const char *func)
 {
-   (void)opaque;
-   return malloc(size);
-}
+   (void)line;
+   (void)file;
+   (void)func;
 
-static void default_free(void *opaque, void *ptr)
-{
-   (void)opaque;
    free(ptr);
 }
 
-static void *default_realloc(void *opaque, void *ptr, size_t size)
-{
-   (void)opaque;
-   return realloc(ptr, size);
-}
-
-static void *default_debug_malloc(int line, const char *file, const char *func,
-   void *opaque, size_t size)
-{
-   ASSERT(_al_malloc);
-   (void)line;
-   (void)file;
-   (void)func;
-
-   return _al_malloc(opaque, size);
-}
-
-static void default_debug_free(int line, const char *file, const char *func,
-   void *opaque, void *ptr)
-{
-   ASSERT(_al_free);
-   (void)line;
-   (void)file;
-   (void)func;
-
-   _al_free(opaque, ptr);
-}
-
-static void *default_debug_realloc(int line, const char *file, const char *func,
-   void *opaque, void *ptr, size_t size)
-{
-   ASSERT(_al_realloc);
-   (void)line;
-   (void)file;
-   (void)func;
-
-   return _al_realloc(opaque, ptr, size);
-}
 
 
-
-/* Function: al_malloc
+/* Function: al_realloc_with_context
  */
-void *al_malloc(size_t n)
+void *al_realloc_with_context(void *ptr, size_t n,
+   int line, const char *file, const char *func)
 {
-   return _AL_MALLOC(n);
+   (void)line;
+   (void)file;
+   (void)func;
+
+   return realloc(ptr, n);
 }
 
 
 
-/* Function: al_free
+/* Function: al_calloc_with_context
  */
-void al_free(void *ptr)
+void *al_calloc_with_context(size_t count, size_t n,
+   int line, const char *file, const char *func)
 {
-   _AL_FREE(ptr);
+   (void)line;
+   (void)file;
+   (void)func;
+
+   return calloc(count, n);
 }
 
 

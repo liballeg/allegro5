@@ -10,7 +10,9 @@ Like malloc() in the C standard library.  In the future we plan to allow the
 user to customise the malloc/free functions used by Allegro, so it may hook
 into another implementation.
 
-See also: [al_free]
+This is a macro.
+
+See also: [al_free], [al_realloc], [al_calloc], [al_malloc_with_context]
 
 ## API: al_free
 
@@ -23,5 +25,51 @@ Like free() in the C standard library.  This is required because:
 -  In the future we plan to allow the user to customise the malloc/free
    functions used by Allegro, so it may hook into another implementation.
 
-See also: [al_malloc]
+This is a macro.
+
+See also: [al_malloc], [al_free_with_context]
+
+## API: al_realloc
+
+Like realloc() in the C standard library.
+
+This is a macro.
+
+See also: [al_malloc], [al_realloc_with_context]
+
+## API: al_calloc
+
+Like calloc() in the C standard library.
+
+This is a macro.
+
+See also: [al_malloc], [al_calloc_with_context]
+
+## API: al_malloc_with_context
+
+This currently just calls malloc() from the Allegro library (this matters on
+Windows).  The context arguments are not used yet.
+
+Generally you should use the [al_malloc] macro.
+
+## API: al_free_with_context
+
+This currently just calls free() from the Allegro library (this matters on
+Windows).  The context arguments are not used yet.
+
+Generally you should use the [al_free] macro.
+
+## API: al_realloc_with_context
+
+This currently just calls realloc() from the Allegro library (this matters on
+Windows).  The context arguments are not used yet.
+
+Generally you should use the [al_realloc] macro.
+
+## API: al_calloc_with_context
+
+This currently just calls calloc() from the Allegro library (this matters on
+Windows).  The context arguments are not used yet.
+
+Generally you should use the [al_calloc] macro.
 
