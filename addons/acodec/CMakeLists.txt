@@ -30,6 +30,36 @@ set(ACODEC_LIBRARIES)
 # .dll.a so we can tell them apart. (The regex for this is a bodge.)
 set(WIN32_STATIC_LIB_REGEX "_static[.]|[^l][.]a")
 
+function(get_dll_name implib dllname_var)
+    if(MINGW)
+        # Guess the name of dlltool from gcc.
+        string(REGEX REPLACE "gcc.*" dlltool DLLTOOL ${CMAKE_C_COMPILER})
+        execute_process(
+            COMMAND ${DLLTOOL} -I ${implib}
+            OUTPUT_VARIABLE dllname
+            OUTPUT_STRIP_TRAILING_WHITESPACE
+            )
+    elseif(MSVC)
+        # Not sure this is the best way.
+        execute_process(
+            COMMAND lib /LIST ${implib}
+            OUTPUT_VARIABLE output
+            )
+        if(output STREQUAL "")
+           message("WARNING: Failed to execute lib /list")
+        else()
+            string(REGEX MATCH "[^\n]+[.]dll" dllname "${output}")
+        endif()
+    endif()
+    if(NOT dllname)
+        # Guess from the basename.
+        get_filename_component(basename "${implib}" NAME_WE)
+        set(dllname "${basename}.dll")
+    endif()
+    message(STATUS "DLL name for ${implib}: ${dllname}")
+    set(${dllname_var} ${dllname} PARENT_SCOPE)
+endfunction(get_dll_name)
+
 #
 # FLAC
 #
@@ -72,8 +102,7 @@ if(SUPPORT_FLAC)
                 message("WARNING: Dynamic loading will be disabled for FLAC as"
                         " static library was found: ${FLAC_LIBRARY}")
             else()
-                get_filename_component(FLAC_BASENAME "${FLAC_LIBRARY}" NAME_WE)
-                set(ALLEGRO_CFG_ACODEC_FLAC_DLL "${FLAC_BASENAME}.dll")
+                get_dll_name(${FLAC_LIBRARY} ALLEGRO_CFG_ACODEC_FLAC_DLL)
             endif()
         endif()
     endif(WIN32)
@@ -120,8 +149,7 @@ if(SUPPORT_MODAUDIO)
             message("WARNING: Dynamic loading will be disabled for DUMB"
                     " as static library was found: ${DUMB_LIBRARY}")
         else()
-            get_filename_component(DUMB_BASENAME "${DUMB_LIBRARY}" NAME_WE)
-            set(ALLEGRO_CFG_ACODEC_DUMB_DLL "${DUMB_BASENAME}.dll")
+            get_dll_name(${DUMB_LIBRARY} ALLEGRO_CFG_ACODEC_DUMB_DLL)
         endif()
     endif()
 
@@ -187,8 +215,7 @@ if(SUPPORT_VORBIS)
             message("WARNING: Dynamic loading will be disabled for Vorbis"
                     " as static library was found: ${VORBISFILE_LIBRARY}")
         else()
-            get_filename_component(VORBISFILE_BASENAME "${VORBISFILE_LIBRARY}" NAME_WE)
-            set(ALLEGRO_CFG_ACODEC_VORBISFILE_DLL "${VORBISFILE_BASENAME}.dll")
+            get_dll_name(${VORBISFILE_LIBRARY} ALLEGRO_CFG_ACODEC_VORBISFILE_DLL)
         endif()
     endif()
 

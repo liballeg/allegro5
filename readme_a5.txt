@@ -193,9 +193,10 @@ the path*.  This is a known problem.
 First open up a console and make sure that cmake.exe is in your %PATH%. You
 ensure than by typing "SET PATH=C:\cmake\bin\;%PATH%" or similar. Typing
 "cmake" should display the help message. It is also a good idea to have MSVC
-compiler cl.exe in your path, to make it easier for CMake to find it, especially
-if you have mutiple MSVC versions installed. You can do that by running
-vcvars32.bat script found in the directory where MSVC is installed.
+compiler cl.exe in your path, and you must have lib.exe in your path.
+You can do that by running vcvars32.bat script found in the directory where
+MSVC is installed, or you can start the IDE then click "Tools > Visual Studio
+20xx Command Prompt".
 
 CMake works by first creating a project solution, which can then be opened
 with MSVC IDE and built.
@@ -212,6 +213,8 @@ Examples:
 
 	$ cmake -G "Visual Studio 9 2008"
 
+Or use the cmake-gui tool.
+
 Now that the project solution has been generated, open it with the MSVC IDE
 and start the building process.
 
@@ -224,10 +227,6 @@ instead.
 The demo is currently excluded from the build if MSVC8 is detected, due to
 some problems with IntelliSense.
 Please give it a try and report problems.
-
-*Note:*
-If you are using a static FLAC library that you must set the FLAC_STATIC
-option to on.
 
 
 
