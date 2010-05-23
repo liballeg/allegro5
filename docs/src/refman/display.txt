@@ -108,6 +108,24 @@ The supported options are:
     [al_update_display_region] is equivalent to [al_flip_display].
 *   ALLEGRO_VSYNC: Set to 1 to tell the driver to wait for vsync
     in [al_flip_display], or to 2 to force vsync off. 
+*   ALLEGRO_MAX_BITMAP_SIZE: When queried this returns the maximum
+    size (width as well as height) a bitmap can have for this
+    display. Calls to [al_create_bitmap] or [al_load_bitmap] for
+    bitmaps larger than this size will fail. It does not apply to memory
+    bitmaps which always can have arbitrary size (but are slow for
+    drawing).
+*   ALLEGRO_SUPPORT_NPOT_BITMAP: Set to 1 if textures used for bitmaps
+    on this display can have a size which is not a power of two. This
+    is mostly useful if you use Allegro to load textures as otherwise
+    only power-of-two textures will be used internally as bitmap
+    storage.
+*   ALLEGRO_CAN_DRAW_INTO_BITMAP: Set to 1 if you can use
+    [al_set_target_bitmap] on bitmaps of this display to draw into them.
+    If this is not the case software emulation will be used when drawing
+    into display bitmaps (which can be very slow).
+*   ALLEGRO_SUPPORT_SEPARATE_ALPHA: This is set to 1 if the
+    [al_set_separate_blender] function is supported. Otherwise the
+    alpha parameters will be ignored.
 
 FIXME: document them all in detail
 

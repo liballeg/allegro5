@@ -771,19 +771,32 @@ void _al_ogl_manage_extensions(ALLEGRO_DISPLAY *gl_disp)
          }
       }
    }
+   
+   {
+      int *s = gl_disp->extra_settings.settings;
+      glGetIntegerv(GL_MAX_TEXTURE_SIZE, s + ALLEGRO_MAX_BITMAP_SIZE);
+   
+      if (gl_disp->ogl_extras->ogl_info.version >= 2.0)
+         s[ALLEGRO_SUPPORT_SEPARATE_ALPHA] = 1;
 
+      s[ALLEGRO_SUPPORT_NPOT_BITMAP] =
+         ext_list->ALLEGRO_GL_ARB_texture_non_power_of_two;
    ALLEGRO_INFO("Use of non-power-of-two textures %s.\n",
-      ext_list->ALLEGRO_GL_ARB_texture_non_power_of_two ? "enabled" :
-      "disabled");
+      s[ALLEGRO_SUPPORT_NPOT_BITMAP] ? "enabled" : "disabled");
 #ifdef ALLEGRO_IPHONE
+   s[ALLEGRO_CAN_DRAW_INTO_BITMAP] =
+      ext_list->ALLEGRO_GL_OES_framebuffer_object;
    ALLEGRO_INFO("Use of FBO to draw to textures %s.\n",
-      ext_list->ALLEGRO_GL_OES_framebuffer_object ? "enabled" :
+      s[ALLEGRO_CAN_DRAW_INTO_BITMAP] ? "enabled" :
       "disabled");
 #else
+   s[ALLEGRO_CAN_DRAW_INTO_BITMAP] =
+      ext_list->ALLEGRO_GL_EXT_framebuffer_object;
    ALLEGRO_INFO("Use of FBO to draw to textures %s.\n",
-      ext_list->ALLEGRO_GL_EXT_framebuffer_object ? "enabled" :
+      s[ALLEGRO_CAN_DRAW_INTO_BITMAP] ? "enabled" :
       "disabled");
 #endif
+   }
 }
 
 

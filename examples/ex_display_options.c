@@ -51,6 +51,10 @@ struct {
     X(SWAP_METHOD, 1),
     X(VSYNC, 1),
     X(COMPATIBLE_DISPLAY, 1),
+    X(MAX_BITMAP_SIZE, 65536),
+    X(SUPPORT_NPOT_BITMAP, 1),
+    X(CAN_DRAW_INTO_BITMAP, 1),
+    X(SUPPORT_SEPARATE_ALPHA, 1),
 };
 
 static void display_options(void)
