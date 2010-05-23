@@ -24,7 +24,12 @@
 #include "allegro5/internal/aintern_audio_cfg.h"
 
 #import <CoreAudio/CoreAudioTypes.h>
+#import <AudioToolbox/AudioToolbox.h>
+
+#ifdef ALLEGRO_IPHONE
+#import <AVFoundation/AVFoundation.h>
 #import <Foundation/NSAutoreleasePool.h>
+#endif
 
 /* AudioToolbox is only available in Leopard and later */
 #if MAC_OS_X_VERSION_MIN_REQUIRED >= 1050
@@ -53,6 +58,7 @@ typedef struct ALLEGRO_AQ_DATA {
 static bool playing = false;
 static AudioQueueRef queue;
 static unsigned char *silence;
+static ALLEGRO_VOICE *saved_voice;
 
 /* Audio queue callback */
 static void handle_buffer(
@@ -110,12 +116,45 @@ static void handle_buffer(
    */
 }
 
+#ifdef ALLEGRO_IPHONE
+static int _aqueue_start_voice(ALLEGRO_VOICE *voice);
+static int _aqueue_stop_voice(ALLEGRO_VOICE* voice);
+
+void interruption_callback(void *inClientData, UInt32 inInterruptionState)
+{
+   if (inInterruptionState == kAudioSessionBeginInterruption) {
+      _aqueue_stop_voice(saved_voice);
+   }
+   else {
+      _aqueue_start_voice(saved_voice);
+   }
+}
+#endif
 
 /* The open method starts up the driver and should lock the device, using the
    previously set paramters, or defaults. It shouldn't need to start sending
    audio data to the device yet, however. */
 static int _aqueue_open()
 { 
+#ifdef ALLEGRO_IPHONE
+   /* These settings allow ipod music playback simultaneously with
+    * our Allegro music/sfx, and also do not stop the streams when
+    * a phone call comes in (it's muted for the duration of the call).
+    */
+   AudioSessionInitialize(NULL, NULL, interruption_callback, NULL);
+
+   UInt32 sessionCategory = kAudioSessionCategory_AmbientSound;
+   AudioSessionSetProperty(kAudioSessionProperty_AudioCategory,
+      sizeof(sessionCategory), &sessionCategory);
+
+   UInt32 mix = TRUE;
+   AudioSessionSetProperty(kAudioSessionProperty_OverrideCategoryMixWithOthers,
+      sizeof(mix), &mix);
+
+   //interruptionListener = [[InterruptionListener alloc] init];
+
+   //[[AVAudioSession sharedInstance] setDelegate:interruptionListener];
+#endif
    return 0;
 }
 
@@ -212,10 +251,7 @@ static void *stream_proc(void *in_data)
    /* We need to periodically drain and recreate the autorelease pool
     * so it doesn't fill up memory.
     */
-   ALLEGRO_TIMER *drain_timer = al_install_timer(30);
-   ALLEGRO_EVENT_QUEUE *event_queue = al_create_event_queue();
-   al_register_event_source(event_queue, al_get_timer_event_source(drain_timer));
-   al_start_timer(drain_timer);
+   double last_drain = al_current_time();
    #endif
 
    ALLEGRO_VOICE *voice = in_data;
@@ -289,19 +325,16 @@ static void *stream_proc(void *in_data)
          false
       );
       #ifdef ALLEGRO_IPHONE
-      if (!al_event_queue_is_empty(event_queue)) {
-         ALLEGRO_EVENT event;
-	 al_get_next_event(event_queue, &event);
-	 if (event.type == ALLEGRO_EVENT_TIMER && event.timer.source == drain_timer) {
-	 	THREAD_DRAIN
-		THREAD_RECREATE
-	 }
+      double now = al_current_time();
+      if (now > last_drain+30) {
+         last_drain = now;
+         THREAD_DRAIN
+         THREAD_RECREATE
       }
       #endif
    } while (playing);
 	
    #ifdef ALLEGRO_IPHONE
-   al_destroy_event_queue(event_queue);
    THREAD_END
    #endif
 
@@ -315,6 +348,8 @@ static void *stream_proc(void *in_data)
    position */
 static int _aqueue_start_voice(ALLEGRO_VOICE *voice)
 {
+   saved_voice = voice;
+
    if (voice->is_streaming && playing == false) {
       al_run_detached_thread(stream_proc, voice);
       return 0;
