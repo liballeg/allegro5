@@ -90,43 +90,31 @@ static void handle_buffer(
       0,
       NULL
    );
-   /*
-   ALLEGRO_AQ_DATA *ex_data = in_data;
-   const void *data;
-  
-   unsigned long capacity = inBuffer->mAudioDataBytesCapacity;
-   unsigned long samples = 
-   	capacity / (ex_data->channels * (ex_data->bits_per_sample/8));
-
-   data = _al_voice_update(ex_data->voice, &samples);
-   if (data == NULL)
-      data = silence;
-
-   capacity = samples * ex_data->channels * (ex_data->bits_per_sample/8);
-
-   memcpy(inBuffer->mAudioData, data, capacity);
-   inBuffer->mAudioDataByteSize = capacity;
-
-   AudioQueueEnqueueBuffer(
-      queue,
-      inBuffer,
-      0,
-      NULL
-   );
-   */
 }
 
 #ifdef ALLEGRO_IPHONE
 static int _aqueue_start_voice(ALLEGRO_VOICE *voice);
 static int _aqueue_stop_voice(ALLEGRO_VOICE* voice);
 
-void interruption_callback(void *inClientData, UInt32 inInterruptionState)
+static void interruption_callback(void *inClientData, UInt32 inInterruptionState)
 {
    if (inInterruptionState == kAudioSessionBeginInterruption) {
       _aqueue_stop_voice(saved_voice);
    }
    else {
       _aqueue_start_voice(saved_voice);
+   }
+}
+
+// This allows plugging/unplugging of hardware/bluetooth/speakers etc while keeping the sound playing
+static void property_listener(void *inClientData, AudioSessionPropertyID inID, UInt32 inDataSize, const void *inData)
+{
+   if (inID == kAudioSessionProperty_AudioRouteChange) {
+      UInt32 reason = (UInt32)inData;
+      if (reason == kAudioSessionRouteChangeReason_NewDeviceAvailable) {
+         _aqueue_stop_voice(saved_voice);
+         _aqueue_start_voice(saved_voice);
+      }
    }
 }
 #endif
@@ -151,9 +139,7 @@ static int _aqueue_open()
    AudioSessionSetProperty(kAudioSessionProperty_OverrideCategoryMixWithOthers,
       sizeof(mix), &mix);
 
-   //interruptionListener = [[InterruptionListener alloc] init];
-
-   //[[AVAudioSession sharedInstance] setDelegate:interruptionListener];
+   AudioSessionAddPropertyListener(kAudioSessionProperty_AudioRouteChange, property_listener, NULL);
 #endif
    return 0;
 }
