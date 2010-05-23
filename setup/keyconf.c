@@ -15,6 +15,7 @@
  *      See readme.txt for copyright information.
  */
 
+#define ALLEGRO_USE_CONSOLE
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -954,4 +955,4 @@ int main(void)
 
 #endif
 
-END_OF_MAIN();
+END_OF_MAIN()
