@@ -95,9 +95,9 @@ int main(void)
          al_set_blender(ALLEGRO_ADD, ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA,
             al_map_rgb_f(0, 0, 0));
          al_draw_textf(font, 5, 5, 0, "dx %i, dy %i, dz %i, dw %i", mmx, mmy, mmz, mmw);
-         al_draw_textf(font, 5, 15, 0, "x %i, y %i, z %i, w %i", mx, my, mz, mw);
-         al_draw_textf(font, 5, 25, 0, "p = %g", p);
-         al_draw_textf(font, 5, 35, 0, "%s", in ? "in" : "out");
+         al_draw_textf(font, 5, 25, 0, "x %i, y %i, z %i, w %i", mx, my, mz, mw);
+         al_draw_textf(font, 5, 45, 0, "p = %g", p);
+         al_draw_textf(font, 5, 65, 0, "%s", in ? "in" : "out");
          al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_INVERSE_ALPHA,
             al_map_rgb_f(1, 1, 1));
          mmx = mmy = mmz = 0;
