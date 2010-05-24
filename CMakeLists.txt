@@ -488,29 +488,17 @@ endif(WANT_OPENGL)
 # Unix-specific
 #
 
-if(UNIX AND NOT GP2XWIZ) # includes MACOSX
-    find_package(Threads)
-    if(CMAKE_USE_PTHREADS_INIT)
-        set(ALLEGRO_HAVE_LIBPTHREAD 1)
-    else(CMAKE_USE_PTHREADS_INIT)
-        message(FATAL_ERROR
-            "Unix port requires pthreads support, not detected.")
-    endif(CMAKE_USE_PTHREADS_INIT)
-
-    set(CMAKE_REQUIRED_LIBRARIES rt)
-    check_c_source_compiles("
-        #include <time.h>
-        int main(void) {
-            struct timespec new_time_ns;
-            clock_gettime(CLOCK_MONOTONIC, &new_time_ns);
-            return 0;
-        }"
-        ALLEGRO_HAVE_POSIX_MONOTONIC_CLOCK
-        )
-    if(ALLEGRO_HAVE_POSIX_MONOTONIC_CLOCK)
-        set(RT_LIBRARY rt)
-    endif()
-endif(UNIX AND NOT GP2XWIZ)
+if(UNIX) # includes MACOSX
+    if(NOT GP2XWIZ)
+        find_package(Threads)
+        if(CMAKE_USE_PTHREADS_INIT)
+            set(ALLEGRO_HAVE_LIBPTHREAD 1)
+        else(CMAKE_USE_PTHREADS_INIT)
+            message(FATAL_ERROR
+                "Unix port requires pthreads support, not detected.")
+        endif(CMAKE_USE_PTHREADS_INIT)
+    endif(NOT GP2XWIZ)
+endif(UNIX)
 
 #
 # X Window System
@@ -680,7 +668,6 @@ set(PLATFORM_LIBS)
 if(ALLEGRO_UNIX) # not MACOSX
     list(APPEND LIBRARY_SOURCES ${ALLEGRO_SRC_UNIX_FILES})
     list(APPEND PLATFORM_LIBS m ${CMAKE_THREAD_LIBS_INIT})
-    list(APPEND PLATFORM_LIBS ${RT_LIBRARY})
 endif(ALLEGRO_UNIX)
 
 if(SUPPORT_X11)

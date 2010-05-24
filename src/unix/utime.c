@@ -28,11 +28,7 @@ ALLEGRO_STATIC_ASSERT(sizeof(ALLEGRO_TIMEOUT_UNIX) <= sizeof(ALLEGRO_TIMEOUT));
 
 
 /* Marks the time Allegro was initialised, for al_current_time(). */
-static struct timeval initial_time;
-#ifdef ALLEGRO_HAVE_POSIX_MONOTONIC_CLOCK
-static bool clock_monotonic;
-static struct timespec initial_time_ns;
-#endif
+struct timeval _al_unix_initial_time;
 
 
 
@@ -41,13 +37,7 @@ static struct timespec initial_time_ns;
  */
 void _al_unix_init_time(void)
 {
-#ifdef ALLEGRO_HAVE_POSIX_MONOTONIC_CLOCK
-   clock_monotonic = (clock_gettime(CLOCK_MONOTONIC, &initial_time_ns) == 0);
-   if (!clock_monotonic)
-#endif
-   {
-      gettimeofday(&initial_time, NULL);
-   }
+   gettimeofday(&_al_unix_initial_time, NULL);
 }
 
 
@@ -56,21 +46,13 @@ void _al_unix_init_time(void)
  */
 double al_current_time(void)
 {
-#ifdef ALLEGRO_HAVE_POSIX_MONOTONIC_CLOCK
-   if (clock_monotonic) {
-      struct timespec now_ns;
-      clock_gettime(CLOCK_MONOTONIC, &now_ns);
-      return (double) (now_ns.tv_sec - initial_time_ns.tv_sec)
-         + (double) (now_ns.tv_nsec - initial_time_ns.tv_nsec) * 1.0e-9;
-   }
-   else
-#endif
-   {
-      struct timeval now;
-      gettimeofday(&now, NULL);
-      return (double) (now.tv_sec - initial_time.tv_sec)
-         + (double) (now.tv_usec - initial_time.tv_usec) * 1.0e-6;
-   }
+   struct timeval now;
+   double time;
+
+   gettimeofday(&now, NULL);
+   time = (double) (now.tv_sec - _al_unix_initial_time.tv_sec)
+      + (double) (now.tv_usec - _al_unix_initial_time.tv_usec) * 1.0e-6;
+   return time;
 }
 
 
@@ -92,37 +74,27 @@ void al_rest(double seconds)
  */
 void al_init_timeout(ALLEGRO_TIMEOUT *timeout, double seconds)
 {
-   ALLEGRO_TIMEOUT_UNIX *ut = (ALLEGRO_TIMEOUT_UNIX *) timeout;
-   struct timeval now;
-   struct timespec now_ns;
-   double integral;
-   double frac;
+    ALLEGRO_TIMEOUT_UNIX *ut = (ALLEGRO_TIMEOUT_UNIX *) timeout;
+    struct timeval now;
+    double integral;
+    double frac;
 
-   ASSERT(ut);
+    ASSERT(ut);
 
-#ifdef ALLEGRO_HAVE_POSIX_MONOTONIC_CLOCK
-   if (clock_monotonic) {
-      clock_gettime(CLOCK_MONOTONIC, &now_ns);
-   }
-   else
-#endif
-   {
-      gettimeofday(&now, NULL);
-      now_ns.tv_sec = now.tv_sec;
-      now_ns.tv_nsec = now.tv_usec * 1000;
-   }
+    gettimeofday(&now, NULL);
 
-   if (seconds <= 0.0) {
-      ut->abstime = now_ns;
-   }
-   else {
-      frac = modf(seconds, &integral);
+    if (seconds <= 0.0) {
+	ut->abstime.tv_sec = now.tv_sec;
+	ut->abstime.tv_nsec = now.tv_usec * 1000;
+    }
+    else {
+	frac = modf(seconds, &integral);
 
-      ut->abstime.tv_sec = now_ns.tv_sec + integral;
-      ut->abstime.tv_nsec = now_ns.tv_nsec + (frac * 1000000000L);
-      ut->abstime.tv_sec += ut->abstime.tv_nsec / 1000000000L;
-      ut->abstime.tv_nsec = ut->abstime.tv_nsec % 1000000000L;
-   }
+	ut->abstime.tv_sec = now.tv_sec + integral;
+	ut->abstime.tv_nsec = (now.tv_usec * 1000) + (frac * 1000000000L);
+	ut->abstime.tv_sec += ut->abstime.tv_nsec / 1000000000L;
+	ut->abstime.tv_nsec = ut->abstime.tv_nsec % 1000000000L;
+    }
 }
 
 /* vim: set sts=3 sw=3 et */
