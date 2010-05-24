@@ -592,15 +592,15 @@ void VSlider::on_mouse_button_hold(int mx, int my)
 void VSlider::draw()
 {
    const Theme & theme = dialog->get_theme();
-   const int cx = (x1 + x2) / 2;
+   float left = x1 + 0.5, top = y1 + 0.5;
+   float right = x2 + 0.5, bottom = y2 + 0.5;
    SaveState state;
 
-   al_draw_rectangle(x1, y1, x2, y2, theme.bg, 0);
-   al_draw_line(cx, y1, cx, y2, theme.fg, 0);
+   al_draw_rectangle(left, top, right, bottom, theme.fg, 1);
 
    double ratio = (double) this->cur_value / (double) this->max_value;
-   int ypos = y2 - (int) (ratio * (height() - 2));
-   al_draw_filled_rectangle(x1, ypos - 2, x2, ypos + 2, theme.fg);
+   int ypos = bottom - 0.5 - (int) (ratio * (height() - 7));
+   al_draw_filled_rectangle(left + 0.5, ypos - 5, right - 0.5, ypos, theme.fg);
 }
 
 int VSlider::get_cur_value() const
