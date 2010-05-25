@@ -35,6 +35,18 @@ const char* getResource(const char* fmt, ...)
    if (dir)
       al_destroy_path(dir);
    dir = al_get_standard_path(ALLEGRO_PROGRAM_PATH);
+#ifdef ALLEGRO_MSVC
+   {
+      /* Hack to cope automatically with MSVC workspaces. */
+      const char *last = al_get_path_component(dir, -1);
+      if (0 == strcmp(last, "Debug")
+            || 0 == strcmp(last, "RelWithDebInfo")
+            || 0 == strcmp(last, "Release")
+            || 0 == strcmp(last, "Profile")) {
+         al_append_path_component(dir, "..");
+      }
+   }
+#endif
    al_append_path_component(dir, "data");
    path = al_create_path(res);
    al_join_paths(dir, path);
