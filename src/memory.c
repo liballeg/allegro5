@@ -52,9 +52,9 @@ void al_free_with_context(void *ptr,
    int line, const char *file, const char *func)
 {
    if (mem)
-      return mem->mi_free(ptr, line, file, func);
+      mem->mi_free(ptr, line, file, func);
    else
-      return free(ptr);
+      free(ptr);
 }
 
 
