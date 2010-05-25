@@ -599,7 +599,7 @@ void VSlider::draw()
    al_draw_rectangle(left, top, right, bottom, theme.fg, 1);
 
    double ratio = (double) this->cur_value / (double) this->max_value;
-   int ypos = bottom - 0.5 - (int) (ratio * (height() - 7));
+   int ypos = (int) (bottom - 0.5 - (int) (ratio * (height() - 7)));
    al_draw_filled_rectangle(left + 0.5, ypos - 5, right - 0.5, ypos, theme.fg);
 }
 
