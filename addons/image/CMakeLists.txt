@@ -22,6 +22,18 @@ if(WANT_NATIVE_IMAGE_LOADER)
     if(WIN32)
         find_package(GDIPLUS)
         if(GDIPLUS_FOUND)
+            set(CMAKE_REQUIRED_INCLUDES ${GDIPLUS_INCLUDE_DIR})
+            check_cxx_source_compiles("
+                #include <objidl.h>
+                #include <gdiplus.h>
+                int main(void)
+                {
+                    return 0;
+                }
+                "
+                SUPPORT_GDIPLUS)
+        endif(GDIPLUS_FOUND)
+        if(SUPPORT_GDIPLUS)
             set(ALLEGRO_CFG_IIO_HAVE_GDIPLUS 1)
             set(ALLEGRO_CFG_IIO_SUPPORT_PNG 1)
             set(ALLEGRO_CFG_IIO_SUPPORT_JPG 1)
@@ -29,9 +41,9 @@ if(WANT_NATIVE_IMAGE_LOADER)
             list(APPEND IMAGE_LIBRARIES ${GDIPLUS_LIBRARIES})
             list(APPEND IMAGE_DEFINES ${GDIPLUS_DEFINITIONS})
             include_directories(SYSTEM ${GDIPLUS_INCLUDE_DIR})            
-        else(GDIPLUS_FOUND)
-            message("WARNING: unable to find GDI+. Will try other libraries.")
-        endif(GDIPLUS_FOUND)
+        else(SUPPORT_GDIPLUS)
+            message("WARNING: cannot use GDI+. Will try other libraries.")
+        endif(SUPPORT_GDIPLUS)
     endif(WIN32)
 endif(WANT_NATIVE_IMAGE_LOADER)
 

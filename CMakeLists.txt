@@ -141,6 +141,7 @@ option(WANT_POPUP_EXAMPLES "Use popups instead of printf for fatal errors" on)
 #-----------------------------------------------------------------------------#
 
 include(CheckCSourceCompiles)
+include(CheckCXXSourceCompiles)
 
 set(INSTALL_PREFIX "")
 
