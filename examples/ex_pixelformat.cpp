@@ -149,7 +149,6 @@ void Prog::draw_sample()
 
    bitmap1 = al_load_bitmap("data/allegro.pcx");
    if (!bitmap1) {
-      abort_example("Could not load image, bitmap format = %d\n", formats[i].format);
       printf("Could not load image, bitmap format = %d\n", formats[i].format);
    }
 
@@ -157,7 +156,6 @@ void Prog::draw_sample()
 
    bitmap2 = al_create_bitmap(320, 200);
    if (!bitmap2) {
-      abort_example("Could not create bitmap, format = %d\n", formats[j].format);
       printf("Could not create bitmap, format = %d\n", formats[j].format);
    }
 
