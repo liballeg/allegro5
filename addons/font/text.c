@@ -20,6 +20,7 @@
  */
 
 
+#include <math.h>
 #include "allegro5/allegro5.h"
 
 #include "allegro5/allegro_font.h"
@@ -32,6 +33,32 @@
  * preprocessor magic when calling strcmp() that inserts a call to strlen.
  * There might be a better way to do this.
  */
+
+
+
+/* Text usually looks best when aligned to pixels -
+ * but if x is 0.5 it may very well end up at an integer
+ * position if the current transformation scales by 2 or
+ * translated x by 0.5. So we simply apply the transformation,
+ * round to nearest integer, and backtransform that.
+ */
+// TODO: In case someone actually *wants* to draw their text to
+// sub-pixel positions, for example because multisampling is used,
+// this should not be done. We most likely want either a new alignment
+// flag to disable this, or even a per-font or per-display setting to
+// do so.
+static void align_to_integer_pixel(float *x, float *y)
+{
+   ALLEGRO_TRANSFORM const *t;
+   ALLEGRO_TRANSFORM inverse;
+   t = al_get_current_transform();
+   al_transform_coordinates(t, x, y);
+   *x = floor(*x + 0.5);
+   *y = floor(*y + 0.5);
+   al_copy_transform(t, &inverse);
+   al_invert_transform(&inverse);
+   al_transform_coordinates(&inverse, x, y);
+}
 
 
 
@@ -54,6 +81,9 @@ void al_draw_ustr(const ALLEGRO_FONT *font, float x, float y, int flags,
       default:
          break;
    }
+
+   align_to_integer_pixel(&x, &y);
+
    font->vtable->render(font, ustr, x, y);
 }
 
