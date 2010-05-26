@@ -43,7 +43,7 @@ const char* getResource(const char* fmt, ...)
             || 0 == strcmp(last, "RelWithDebInfo")
             || 0 == strcmp(last, "Release")
             || 0 == strcmp(last, "Profile")) {
-         al_append_path_component(dir, "..");
+         al_remove_path_component(dir, -1);
       }
    }
 #endif
