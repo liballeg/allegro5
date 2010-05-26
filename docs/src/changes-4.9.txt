@@ -4,6 +4,184 @@ See `changes._tx` for changes in earlier versions of Allegro.  These lists
 serve as summaries; the full histories are in the Subversion repository.
 
 
+Changes from 4.9.19 to 4.9.20 (May 2010)
+========================================
+
+The developers this time were: Thomas Fjellstrom, Evert Glebbeek,
+Matthew Leverton, Milan Mimica, Paul Suntsov, Trent Gamblin, Elias Pschernig,
+Peter Wang.  With significant contributions from Michał Cichoń.
+
+Core:
+
+-  Add al_malloc, al_free, et al.  These are now used consistently throughout
+   Allegro and its addons.
+
+-  Replace al_set_memory_management_functions by a simpler function,
+   al_set_memory_interface.
+
+-  Renamed some D3D/Windows specific functions to follow the al_{verb}_{stuff}
+   convention.
+
+Graphics:
+
+-  Move image I/O framework to core, i.e. al_load_bitmap, al_save_bitmap and
+   bitmap file type registration.  Image codecs remain in allegro_image.
+
+-  Added a simple display capabilities querying capability to
+   al_get_display_option: ALLEGRO_MAX_BITMAP_SIZE, ALLEGRO_SUPPORT_NPOT_BITMAP,
+   ALLEGRO_CAN_DRAW_INTO_BITMAP, ALLEGRO_SUPPORT_SEPARATE_ALPHA.
+   (OpenGL only for now)
+
+-  Fix in OpenGL 3.0 context creation.
+
+-  Make the extensions mechanism compatible with OpenGL version >= 3.
+   Declared symbols needed by OpenGL 3.2 and 3.3 and brought OpenGL extensions
+   up to date.
+
+-  Fix an assertion in _al_draw_bitmap_region_memory so it does not trigger
+   when source and destination are the same bitmap.
+
+-  Fix some locking issues by setting GL_PACK_ALIGNMENT and GL_UNPACK_ALIGNMENT
+   before reading/writing pixels.
+
+-  Partial implementation of ALLEGRO_FULLSCREEN_WINDOW on OS X (Snow Leopard,
+   probably Leopard).
+
+-  Started X11 fullscreen support (resolution switching).
+
+-  Fix handling of X11 size hints.
+
+-  Fixed a deadlock related to fullscreen windows under X11 caused by using a
+   nested lock for a condition variable.
+
+-  Use _NET_WM_ICON to set icon on X11 instead of XSetWMHints.
+
+-  Get the iPhone OpenGL version more properly.  Only use separate blending on
+   iPhone with OpenGL ES 2.0+.
+
+-  Release the splash view and windows on iPhone, which makes backgrounding
+   Allegro apps on OS 4.0 work.
+
+-  Updated iphone port for IPad (only tested in the simulator).
+
+Input:
+
+-  Disabled Raw Input code in Windows.  Mouse events now reflect system cursor
+   movements even in fullscreen mode.
+
+-  Prevent late WM_MOUSELEAVE notifications from overriding mouse state display
+   field (Windows).
+
+-  Update pollable mouse state with axes events as well as button events on
+   iPhone.
+
+Filesystem:
+
+-  Made the filesystem entry functions work under Windows even if the name
+   passed to al_create_fs_entry has a trailing slash or backslash.
+
+Config routines:
+
+-  Add al_{load,save}_config_file_f.
+
+-  Reorder al_save_config_file* arguments to match al_save_bitmap and
+   al_save_sample.
+
+-  Optimise config routines to work well for thousands of keys/sections.
+
+Image addon:
+
+-  Added a GDI+ implementation of the image codecs, which will be used in
+   favour of libjpeg/libpng if Allegro is compiled with MSVC.  Then
+   allegro_image will not require JPEG/PNG DLLs at runtime.
+
+-  Removed format specific image functions.
+
+-  Fixed bug in native png loader on iphone: was using the source color space
+   instead of the target color space which made it fail whenever they differed
+   (alpha-less paletted pictures).
+
+-  Add an autorelease pool around iphone native image loading to stop memory
+   leaks.
+
+Font addons:
+
+-  Sever the tie between allegro_font and allegro_image.
+   The user needs to initialise the image addon separately now.
+
+-  Rename al_load_ttf_font_entry to al_load_ttf_font_f.
+
+-  Fixed problem with glyph precision after applying transformations in the ttf
+   addon.
+
+Primitives addon:
+
+-  Added al_init_primitives addon function.  This is now required.
+
+-  Removed ALLEGRO_PRIM_COLOR; ALLEGRO_COLOR can now be used where it was
+   required.
+
+-  v textures coordinates were off for OpenGL non-power-of-two textures.
+
+-  Free the vertex cache in al_destroy_display on X11.
+
+-  Added the dummy vertex shader support to D3D driver of the primitives addon.
+   Without this, custom vertices either resulted in warnings or outright
+   crashes on some systems.
+
+-  Bring D3D driver up to speed a little bit: transformations now work properly
+   with sub-bitmap targets; the half-pixel offset now properly interacts with
+   transformations; al_set_target_bitmap does not clear the transformation; the
+   proper transformation is set at display creation.
+
+-  Cull the primitives that are completely outside the clipping region.
+
+-  Scale the numbers of vertices for the curvy primitives with the scale of the
+   current transformation.
+
+Audio addon:
+
+-  Remove driver parameter from al_install_audio.
+
+-  Rename al_get_depth_size to al_get_audio_depth_size.
+
+-  Rename al_get_audio_stream_buffer to al_get_audio_stream_fragment.
+
+-  Many improvements to AQueue driver.
+
+Audio codecs:
+
+-  Add MOD/S3M/XM/IT file support, using the DUMB library.
+
+-  Revert to a monolithic allegro_acodec addon, i.e. remove separate
+   allegro_flac, allegro_vorbis addons.  WAV file support is in allegro_acodec.
+
+-  Implement DLL loading for FLAC/Vorbis/DUMB on Windows.  allegro_acodec will
+   load the DLL at runtime to enable support for that format.  If your program
+   does not require said format, you don't need to distribute the DLL.
+
+-  Remove format-specific loader/saver audio codec functions.
+
+-  Make acodec loaders have consistent file closing behaviour.
+
+-  Optimised wave file loading.
+
+Examples:
+
+-  Make SPEED port run acceptably on graphics drivers without FBOs.
+
+Documentation:
+
+-  Added documentation for the public Direct3D specific functions.
+
+-  Documented ALLEGRO_OPENGL_3_0 and ALLEGRO_OPENGL_FORWARD_COMPATIBLE.
+
+Other:
+
+-  Many bug and documentation fixes.
+
+
+
 Changes from 4.9.18 to 4.9.19 (April 2010)
 ==========================================
 
