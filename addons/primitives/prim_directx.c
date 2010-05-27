@@ -28,6 +28,17 @@
 #ifdef ALLEGRO_CFG_D3D
 
 static ALLEGRO_MUTEX *d3d_mutex;
+/*
+ * In the context of this file, legacy cards pretty much refer to older Intel cards.
+ * They are distinguished by three misfeatures:
+ * 1. They don't support shaders
+ * 2. They don't support custom vertices
+ * 3. DrawIndexedPrimitiveUP is broken
+ * 
+ * Since shaders are used 100% of the time, this means that for these cards
+ * the incoming vertices are first converted into the vertex type that these cards
+ * can handle.
+ */
 static bool legacy_card = false;
 static bool know_card_type = false;
 
@@ -123,29 +134,43 @@ static void set_blender(ALLEGRO_DISPLAY *display)
    IDirect3DDevice9_SetTextureStageState(device, 0, D3DTSS_ALPHAOP, D3DTOP_MODULATE);
 }
 
-static void* convert_to_legacy_vertices(const void* vtxs, int num_vertices)
+static void* convert_to_legacy_vertices(const void* vtxs, int num_vertices, const int* indices, bool loop)
 {
    const ALLEGRO_VERTEX* vtx = vtxs;
    int ii;
+   int num_needed_vertices = num_vertices;
+   
+   if(loop)
+      num_needed_vertices++;
    
    if(legacy_buffer == 0) {
-      legacy_buffer = al_malloc(num_vertices * sizeof(LEGACY_VERTEX));
-      legacy_buffer_size = num_vertices;
-   } else if (num_vertices > legacy_buffer_size) {
-      legacy_buffer = al_realloc(legacy_buffer, num_vertices * 1.5 * sizeof(LEGACY_VERTEX));
-      legacy_buffer_size = num_vertices * 1.5;
+      legacy_buffer = al_malloc(num_needed_vertices * sizeof(LEGACY_VERTEX));
+      legacy_buffer_size = num_needed_vertices;
+   } else if (num_needed_vertices > legacy_buffer_size) {
+      legacy_buffer = al_realloc(legacy_buffer, num_needed_vertices * 1.5 * sizeof(LEGACY_VERTEX));
+      legacy_buffer_size = num_needed_vertices * 1.5;
+   }
+   for(ii = 0; ii < num_vertices; ii++) {
+      ALLEGRO_VERTEX vertex;
+      
+      if(indices)
+         vertex = vtx[indices[ii]];
+      else
+         vertex = vtx[ii];
+         
+      legacy_buffer[ii].x = vertex.x;
+      legacy_buffer[ii].y = vertex.y;
+      legacy_buffer[ii].z = vertex.z;
+      
+      legacy_buffer[ii].u = vertex.u;
+      legacy_buffer[ii].v = vertex.v;
+      
+      legacy_buffer[ii].color = D3DCOLOR_COLORVALUE(vertex.color.r, vertex.color.g, vertex.color.b, vertex.color.a);
    }
    
-   for(ii = 0; ii < num_vertices; ii++) {
-      legacy_buffer[ii].x = vtx[ii].x;
-      legacy_buffer[ii].y = vtx[ii].y;
-      legacy_buffer[ii].z = vtx[ii].z;
+   if(loop)
+      legacy_buffer[num_vertices] = legacy_buffer[0];
       
-      legacy_buffer[ii].u = vtx[ii].u;
-      legacy_buffer[ii].v = vtx[ii].v;
-      
-      legacy_buffer[ii].color = D3DCOLOR_COLORVALUE(vtx[ii].color.r, vtx[ii].color.g, vtx[ii].color.b, vtx[ii].color.a);
-   }
    return legacy_buffer;
 }
 
@@ -302,10 +327,10 @@ static int _al_draw_prim_raw(ALLEGRO_BITMAP* texture, const void* vtx, const ALL
    /* Convert vertices for legacy cards */
    if(legacy_card) {
       al_lock_mutex(d3d_mutex);
-      vtx = convert_to_legacy_vertices(vtx, max_idx + 1);
+      vtx = convert_to_legacy_vertices(vtx, num_vtx, indices, type == ALLEGRO_PRIM_LINE_LOOP);
    }
 
-   if(!indices)
+   if(!indices || legacy_card)
    {
       switch (type) {
          case ALLEGRO_PRIM_LINE_LIST: {
@@ -319,13 +344,17 @@ static int _al_draw_prim_raw(ALLEGRO_BITMAP* texture, const void* vtx, const ALL
             break;
          };
          case ALLEGRO_PRIM_LINE_LOOP: {
-            int in[2];
-            in[0] = 0;
-            in[1] = num_vtx-1;
-         
             num_primitives = num_vtx - 1;
             IDirect3DDevice9_DrawPrimitiveUP(device, D3DPT_LINESTRIP, num_primitives, vtx, stride);
-            IDirect3DDevice9_DrawIndexedPrimitiveUP(device, D3DPT_LINELIST, 0, num_vtx, 1, in, D3DFMT_INDEX32, vtx, stride);
+            if(!legacy_card) {
+               int in[2];
+               in[0] = 0;
+               in[1] = num_vtx-1;
+         
+               IDirect3DDevice9_DrawIndexedPrimitiveUP(device, D3DPT_LINELIST, 0, num_vtx, 1, in, D3DFMT_INDEX32, vtx, stride);
+            } else {
+               IDirect3DDevice9_DrawPrimitiveUP(device, D3DPT_LINELIST, 1, (char*)vtx + stride * (num_vtx - 1), stride);
+            }
             break;
          };
          case ALLEGRO_PRIM_TRIANGLE_LIST: {
