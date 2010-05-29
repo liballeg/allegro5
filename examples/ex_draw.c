@@ -33,8 +33,8 @@ struct Example
 char const *names[] = {
    "filled rectangles",
    "rectangles",
-   "circles",
    "filled circles",
+   "circles",
    "lines"
 };
 
