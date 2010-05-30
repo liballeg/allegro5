@@ -106,6 +106,9 @@ ALLEGRO_DISPLAY *al_create_display(int w, int h)
 void al_destroy_display(ALLEGRO_DISPLAY *display)
 {
    if (display) {
+      if (display == al_get_current_display())
+         al_set_current_display(NULL);
+
       display->vt->destroy_display(display);
    }
 }
