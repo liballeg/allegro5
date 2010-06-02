@@ -66,7 +66,9 @@ static void render(void)
     
     xpos = al_get_display_width() - 10;
     ypos = al_get_display_height() - 10;
-    al_get_text_dimensions(ex.f4, "Allegro", &x, &y, &w, &h, &as, &de);
+    al_get_text_dimensions(ex.f4, "Allegro", &x, &y, &w, &h);
+    as = al_get_font_ascent(ex.f4);
+    de = al_get_font_descent(ex.f4);
     xpos -= w;
     ypos -= h;
     x += xpos;

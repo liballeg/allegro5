@@ -51,6 +51,20 @@ static int font_height(const ALLEGRO_FONT *f)
 
 
 
+static int font_ascent(const ALLEGRO_FONT *f)
+{
+    return font_height(f);
+}
+
+
+
+static int font_descent(const ALLEGRO_FONT *f)
+{
+    return 0;
+}
+
+
+
 /* length:
  *  (mono and color vtable entry)
  *  Returns the length, in pixels, of a string as rendered in a font.
@@ -72,22 +86,18 @@ static int length(const ALLEGRO_FONT* f, const ALLEGRO_USTR *text)
 
 static void color_get_text_dimensions(ALLEGRO_FONT const *f,
    const ALLEGRO_USTR *text,
-   int *bbx, int *bby, int *bbw, int *bbh, int *ascent,
-   int *descent)
+   int *bbx, int *bby, int *bbw, int *bbh)
 {
    /* Dummy implementation - for A4-style bitmap fonts the bounding
-    * box of text is its width and line-height. And since we have no
-    * idea about the baseline position, ascent is the full height and
-    * descent is 0.
+    * box of text is its width and line-height.
     */
    int h = al_get_font_line_height(f);
    if (bbx) *bbx = 0;
    if (bby) *bby = 0;
    if (bbw) *bbw = length(f, text);
    if (bbh) *bbh = h;
-   if (ascent) *ascent = h;
-   if (descent) *descent = 0;
 }
+
 
 
 static ALLEGRO_FONT_COLOR_DATA *_al_font_find_page(
@@ -232,12 +242,14 @@ static void color_destroy(ALLEGRO_FONT* f)
 
 ALLEGRO_FONT_VTABLE _al_font_vtable_color = {
     font_height,
+    font_ascent,
+    font_descent,
     color_char_length,
     length,
     color_render_char,
     color_render,
     color_destroy,
-    color_get_text_dimensions
+    color_get_text_dimensions,
 };
 
 ALLEGRO_FONT_VTABLE* al_font_vtable_color = &_al_font_vtable_color;

@@ -57,14 +57,15 @@ struct ALLEGRO_FONT
 struct ALLEGRO_FONT_VTABLE
 {
    ALLEGRO_FONT_METHOD(int, font_height, (const ALLEGRO_FONT *f));
+   ALLEGRO_FONT_METHOD(int, font_ascent, (const ALLEGRO_FONT *f));
+   ALLEGRO_FONT_METHOD(int, font_descent, (const ALLEGRO_FONT *f));
    ALLEGRO_FONT_METHOD(int, char_length, (const ALLEGRO_FONT *f, int ch));
    ALLEGRO_FONT_METHOD(int, text_length, (const ALLEGRO_FONT *f, const ALLEGRO_USTR *text));
    ALLEGRO_FONT_METHOD(int, render_char, (const ALLEGRO_FONT *f, int ch, float x, float y));
    ALLEGRO_FONT_METHOD(int, render, (const ALLEGRO_FONT *f, const ALLEGRO_USTR *text, float x, float y));
    ALLEGRO_FONT_METHOD(void, destroy, (ALLEGRO_FONT *f));
    ALLEGRO_FONT_METHOD(void, get_text_dimensions, (const ALLEGRO_FONT *f,
-      const ALLEGRO_USTR *text, int *bbx, int *bby, int *bbw,
-      int *bbh, int *ascent, int *descent));
+      const ALLEGRO_USTR *text, int *bbx, int *bby, int *bbw, int *bbh));
 };
 
 enum {
@@ -88,13 +89,15 @@ ALLEGRO_FONT_PRINTFUNC(void, al_draw_justified_textf, (const ALLEGRO_FONT *font,
 ALLEGRO_FONT_FUNC(int, al_get_text_width, (const ALLEGRO_FONT *f, const char *str));
 ALLEGRO_FONT_FUNC(int, al_get_ustr_width, (const ALLEGRO_FONT *f, const ALLEGRO_USTR *ustr));
 ALLEGRO_FONT_FUNC(int, al_get_font_line_height, (const ALLEGRO_FONT *f));
+ALLEGRO_FONT_FUNC(int, al_get_font_ascent, (const ALLEGRO_FONT *f));
+ALLEGRO_FONT_FUNC(int, al_get_font_descent, (const ALLEGRO_FONT *f));
 ALLEGRO_FONT_FUNC(void, al_destroy_font, (ALLEGRO_FONT *f));
 ALLEGRO_FONT_FUNC(void, al_get_ustr_dimensions, (const ALLEGRO_FONT *f,
    ALLEGRO_USTR const *text,
-   int *bbx, int *bby, int *bbw, int *bbh, int *ascent, int *descent));
+   int *bbx, int *bby, int *bbw, int *bbh));
 ALLEGRO_FONT_FUNC(void, al_get_text_dimensions, (const ALLEGRO_FONT *f,
    char const *text,
-   int *bbx, int *bby, int *bbw, int *bbh, int *ascent, int *descent));
+   int *bbx, int *bby, int *bbw, int *bbh));
 ALLEGRO_FONT_FUNC(void, al_init_font_addon, (void));
 ALLEGRO_FONT_FUNC(void, al_shutdown_font_addon, (void));
 ALLEGRO_FONT_FUNC(uint32_t, al_get_allegro_font_version, (void));

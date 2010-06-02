@@ -42,6 +42,32 @@ static int font_height(ALLEGRO_FONT const *f)
    return f->height;
 }
 
+static int font_ascent(ALLEGRO_FONT const *f)
+{
+    ALLEGRO_TTF_FONT_DATA *data;
+    FT_Face face;
+
+    ASSERT(f);
+
+    data = f->data;
+    face = data->face;
+
+    return face->size->metrics.ascender >> 6;
+}
+
+static int font_descent(ALLEGRO_FONT const *f)
+{
+    ALLEGRO_TTF_FONT_DATA *data;
+    FT_Face face;
+
+    ASSERT(f);
+
+    data = f->data;
+    face = data->face;
+
+    return (-face->size->metrics.descender) >> 6;
+}
+
 // FIXME: Add a special case for when a single glyph rendering won't fit
 // into 256x256 pixels.
 static void push_new_cache_bitmap(ALLEGRO_TTF_FONT_DATA *data)
@@ -223,11 +249,8 @@ static int text_length(ALLEGRO_FONT const *f, const ALLEGRO_USTR *text)
 
 static void get_text_dimensions(ALLEGRO_FONT const *f,
    ALLEGRO_USTR const *text,
-   int *bbx, int *bby, int *bbw, int *bbh, int *ascent,
-   int *descent)
+   int *bbx, int *bby, int *bbw, int *bbh)
 {
-    ALLEGRO_TTF_FONT_DATA *data = f->data;
-    FT_Face face = data->face;
     int32_t prev = '\0';
     int pos = 0;
     int i;
@@ -250,8 +273,6 @@ static void get_text_dimensions(ALLEGRO_FONT const *f,
     *bby = 0; // FIXME
     *bbw = x - *bbx;
     *bbh = f->height; // FIXME, we want the bounding box!
-    *ascent = face->size->metrics.ascender >> 6;
-    *descent = (-face->size->metrics.descender) >> 6;
 }
 
 #if 0
@@ -333,6 +354,8 @@ ALLEGRO_FONT *al_load_ttf_font_f(ALLEGRO_FILE *file,
     if (once) {
         FT_Init_FreeType(&ft);
         vt.font_height = font_height;
+        vt.font_ascent = font_ascent;
+        vt.font_descent = font_descent;
         vt.char_length = char_length;
         vt.text_length = text_length;
         vt.render_char = render_char;
@@ -452,7 +475,6 @@ ALLEGRO_FONT *al_load_ttf_font(char const *filename, int size, int flags)
 
    return font;
 }
-
 
 /* Function: al_init_ttf_addon
  */

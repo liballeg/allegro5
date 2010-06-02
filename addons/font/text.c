@@ -269,16 +269,36 @@ int al_get_font_line_height(const ALLEGRO_FONT *f)
 
 
 
+/* Function: al_get_font_ascent
+ */
+int al_get_font_ascent(const ALLEGRO_FONT *f)
+{
+   ASSERT(f);
+   return f->vtable->font_ascent(f);
+}
+
+
+
+/* Function: al_get_font_descent
+ */
+int al_get_font_descent(const ALLEGRO_FONT *f)
+{
+   ASSERT(f);
+   return f->vtable->font_descent(f);
+}
+
+
+
 /* Function: al_get_ustr_dimensions
  */
 void al_get_ustr_dimensions(const ALLEGRO_FONT *f,
    ALLEGRO_USTR const *ustr,
-   int *bbx, int *bby, int *bbw, int *bbh, int *ascent, int *descent)
+   int *bbx, int *bby, int *bbw, int *bbh)
 {
    ASSERT(f);
    ASSERT(ustr);
    f->vtable->get_text_dimensions(f, ustr, bbx, bby,
-      bbw, bbh, ascent, descent);
+      bbw, bbh);
 }
 
 
@@ -287,14 +307,14 @@ void al_get_ustr_dimensions(const ALLEGRO_FONT *f,
  */
 void al_get_text_dimensions(const ALLEGRO_FONT *f,
    char const *text,
-   int *bbx, int *bby, int *bbw, int *bbh, int *ascent, int *descent)
+   int *bbx, int *bby, int *bbw, int *bbh)
 {
    ALLEGRO_USTR_INFO info;
    ASSERT(f);
    ASSERT(text);
 
    f->vtable->get_text_dimensions(f, al_ref_cstr(&info, text), bbx, bby,
-      bbw, bbh, ascent, descent);
+      bbw, bbh);
 }
 
 

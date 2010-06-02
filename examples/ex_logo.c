@@ -72,7 +72,7 @@ static ALLEGRO_BITMAP *generate_logo(char const *text,
                                      ALLEGRO_BITMAP **bumpmap)
 {
    ALLEGRO_COLOR transparent = al_map_rgba_f(0, 0, 0, 0);
-   int xp, yp, w, h, as, de, i, j, x, y, br, bw, dw, dh;
+   int xp, yp, w, h, i, j, x, y, br, bw, dw, dh;
    ALLEGRO_COLOR c;
    ALLEGRO_FONT *logofont;
    ALLEGRO_STATE state;
@@ -88,7 +88,7 @@ static ALLEGRO_BITMAP *generate_logo(char const *text,
    cy = dh * 0.5;
 
    logofont = al_load_font(fontname, -font_size, 0);
-   al_get_text_dimensions(logofont, text, &xp, &yp, &w, &h, &as, &de);
+   al_get_text_dimensions(logofont, text, &xp, &yp, &w, &h);
 
    al_store_state(&state, ALLEGRO_STATE_TARGET_BITMAP | ALLEGRO_STATE_BLENDER);
 
