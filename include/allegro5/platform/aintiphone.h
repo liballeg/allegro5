@@ -4,7 +4,7 @@
 #include "allegro5/internal/aintern_display.h"
 #include "allegro5/internal/aintern_bitmap.h"
 #include "allegro5/internal/aintern_system.h"
-#include "allegro5/system_new.h"
+#include "allegro5/system.h"
 #include "allegro5/platform/aintunix.h"
 
 ALLEGRO_DISPLAY_INTERFACE *_al_display_iphone(void);

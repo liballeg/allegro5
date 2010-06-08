@@ -4,8 +4,8 @@
 #ifndef ALLEGRO_DISPLAY_NEW_H
 #define ALLEGRO_DISPLAY_NEW_H
 
-#include "allegro5/color_new.h"
-#include "allegro5/bitmap_new.h"
+#include "allegro5/color.h"
+#include "allegro5/bitmap.h"
 
 #ifdef __cplusplus
    extern "C" {

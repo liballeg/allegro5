@@ -1,7 +1,7 @@
 #ifndef __al_included_bitmap_io_h
 #define __al_included_bitmap_io_h
 
-#include "allegro5/bitmap_new.h"
+#include "allegro5/bitmap.h"
 #include "allegro5/file.h"
 
 #ifdef __cplusplus

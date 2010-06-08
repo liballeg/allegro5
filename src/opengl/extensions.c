@@ -20,7 +20,7 @@
 
 #include "allegro5/allegro5.h"
 #include "allegro5/allegro_opengl.h"
-#include "allegro5/display_new.h"
+#include "allegro5/display.h"
 #include "allegro5/opengl/gl_ext.h"
 #include "allegro5/internal/aintern_opengl.h"
 #include "allegro5/internal/aintern_display.h"

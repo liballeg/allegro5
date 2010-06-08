@@ -1,8 +1,8 @@
 #ifndef ALLEGRO_INTERNAL_BITMAP_NEW_H
 #define ALLEGRO_INTERNAL_BITMAP_NEW_H
 
-#include "allegro5/display_new.h"
-#include "allegro5/bitmap_new.h"
+#include "allegro5/display.h"
+#include "allegro5/bitmap.h"
 
 #ifdef __cplusplus
 extern "C" {

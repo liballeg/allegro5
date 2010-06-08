@@ -4,7 +4,7 @@
 #ifndef ALLEGRO_BITMAP_NEW_H
 #define ALLEGRO_BITMAP_NEW_H
 
-#include "allegro5/color_new.h"
+#include "allegro5/color.h"
 
 #ifdef __cplusplus
    extern "C" {

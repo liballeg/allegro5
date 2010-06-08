@@ -382,7 +382,7 @@ functions."""
     options, args = p.parse_args()
 
     # Read in bitmap.h to get the available formats.
-    formats = read_bitmap_h("include/allegro5/bitmap_new.h")
+    formats = read_bitmap_h("include/allegro5/bitmap.h")
     
     print(formats)
 

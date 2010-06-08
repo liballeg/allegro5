@@ -3,8 +3,8 @@
 
 #include "allegro5/allegro5.h"
 #include "allegro5/transformations.h"
-#include "allegro5/display_new.h"
-#include "allegro5/bitmap_new.h"
+#include "allegro5/display.h"
+#include "allegro5/bitmap.h"
 #include "allegro5/internal/aintern_events.h"
 
 

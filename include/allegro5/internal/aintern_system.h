@@ -1,7 +1,7 @@
 #ifndef ALLEGRO_INTERNAL_SYSTEM_NEW_H
 #define ALLEGRO_INTERNAL_SYSTEM_NEW_H
 
-#include "allegro5/system_new.h"
+#include "allegro5/system.h"
 #include "allegro5/internal/aintern_display.h"
 #include "allegro5/internal/aintern_dtor.h"
 #include "allegro5/internal/aintern_events.h"

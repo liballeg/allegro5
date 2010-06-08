@@ -1,11 +1,11 @@
 set(ALLEGRO_SRC_FILES
     src/allegro.c
     src/bitmap_io.c
-    src/bitmap_new.c
+    src/bitmap.c
     src/blenders.c
     src/config.c
     src/convert.c
-    src/display_new.c
+    src/display.c
     src/display_settings.c
     src/dtor.c
     src/events.c
@@ -26,7 +26,7 @@ set(ALLEGRO_SRC_FILES
     src/path.c
     src/pixels.c
     src/rotate.c
-    src/system_new.c
+    src/system.c
     src/threads.c
     src/timernu.c
     src/tls.c
@@ -169,11 +169,11 @@ set(ALLEGRO_INCLUDE_ALLEGRO_FILES
     include/allegro5/altime.h
     include/allegro5/base.h
     include/allegro5/bitmap_io.h
-    include/allegro5/bitmap_new.h
-    include/allegro5/color_new.h
+    include/allegro5/bitmap.h
+    include/allegro5/color.h
     include/allegro5/config.h
     include/allegro5/debug.h
-    include/allegro5/display_new.h
+    include/allegro5/display.h
     include/allegro5/error.h
     include/allegro5/events.h
     include/allegro5/file.h
@@ -188,7 +188,7 @@ set(ALLEGRO_INCLUDE_ALLEGRO_FILES
     include/allegro5/path.h
     include/allegro5/allegro_opengl.h
     include/allegro5/allegro_direct3d.h
-    include/allegro5/system_new.h
+    include/allegro5/system.h
     include/allegro5/threads.h
     include/allegro5/tls.h
     include/allegro5/timer.h

@@ -30,7 +30,7 @@
 #include "allegro5/platform/aintwthr.h"
 #include "allegro5/internal/aintern_display.h"
 #include "allegro5/internal/aintern_system.h"
-#include "allegro5/system_new.h"
+#include "allegro5/system.h"
 
 
 #define WINDOWS_RGB(r,g,b)  ((COLORREF)(((BYTE)(r)|((WORD)((BYTE)(g))<<8))|(((DWORD)(BYTE)(b))<<16)))
