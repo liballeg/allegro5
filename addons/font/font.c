@@ -60,6 +60,7 @@ static int font_ascent(const ALLEGRO_FONT *f)
 
 static int font_descent(const ALLEGRO_FONT *f)
 {
+    (void)f;
     return 0;
 }
 
