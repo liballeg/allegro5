@@ -393,7 +393,9 @@ The line is drawn top to bottom.
 Defines the generic vertex type, with a 3D position, color and texture
 coordinates for a single texture. Note that at this time, the software driver
 for this addon cannot render 3D primitives. If you want a 2D only primitive,
-set z to 0.
+set z to 0. Note that when you must initialize all members of this struct when 
+you're using it. One exception to this rule are the u and v variables which can
+be left uninitialized when you are not using textures.
 
 *Fields:*
 
