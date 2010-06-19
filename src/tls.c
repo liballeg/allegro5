@@ -327,7 +327,11 @@ bool al_set_current_display(ALLEGRO_DISPLAY *display)
    }
 
    if (display) {
-      if (display->vt->set_current_display(display)) {
+      if (!display->vt) {
+         tls->current_display = display;
+         return true;
+      }
+      else if (display->vt->set_current_display(display)) {
          tls->current_display = display;
          al_set_target_bitmap(al_get_backbuffer());
          return true;

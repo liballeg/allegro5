@@ -250,6 +250,10 @@ bool al_install_system(int version, int (*atexit_ptr)(void (*)(void)))
       atexit_virgin = false;
    }
 
+   /* Create a dummy dispay so command line tools work */
+   active_sysdrv->dummy_display = al_calloc(1, sizeof(ALLEGRO_DISPLAY));
+   al_set_current_display(active_sysdrv->dummy_display);
+
    /* Clear errnos set while searching for config files. */
    al_set_errno(0);
 
