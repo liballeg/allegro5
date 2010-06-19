@@ -44,6 +44,12 @@ foreach(page ${PAGES})
     list(APPEND PAGES_TXT ${SRC_REFMAN_DIR}/${page}.txt)
 endforeach(page)
 
+set(IMAGES
+    primitives1
+    primitives2
+    )
+
+
 #-----------------------------------------------------------------------------#
 #
 #   Paths
@@ -205,7 +211,21 @@ if(WANT_DOCS_HTML)
             )
         list(APPEND HTML_PAGES ${HTML_DIR}/${page}.html)
     endforeach(page)
-    add_custom_target(html ALL DEPENDS ${HTML_PAGES})
+    
+    set(HTML_IMAGES)
+    foreach(image ${IMAGES})
+        add_custom_command(
+            OUTPUT ${HTML_DIR}/images/${image}.png
+            DEPENDS
+                ${SRC_REFMAN_DIR}/images/${image}.png
+            COMMAND 
+                "${CMAKE_COMMAND}" -E copy
+                "${SRC_REFMAN_DIR}/images/${image}.png" "${HTML_DIR}/images/${image}.png"
+            ) 
+         list(APPEND HTML_IMAGES ${HTML_DIR}/images/${image}.png)
+    endforeach(image)
+    
+    add_custom_target(html ALL DEPENDS ${HTML_PAGES} ${HTML_IMAGES})
 
     foreach(file pandoc.css autosuggest.js)
         configure_file(
