@@ -327,6 +327,7 @@ bool al_set_current_display(ALLEGRO_DISPLAY *display)
    }
 
    if (display) {
+      /* This is the case for dummy displays for command line tools */
       if (!display->vt) {
          tls->current_display = display;
          return true;
