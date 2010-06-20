@@ -36,7 +36,8 @@ int main(void)
 
    do {
       al_clear_to_color(al_map_rgb(0, 0, 0));
-      al_draw_textf(font, 0, 0, 0, "Screen saver: %s", active ? "Normal" : "Inhibited");
+      al_draw_textf(font, al_map_rgb_f(1, 1, 1), 0, 0, 0,
+         "Screen saver: %s", active ? "Normal" : "Inhibited");
       al_flip_display();
       al_wait_for_event(events, &event);
       switch (event.type) {

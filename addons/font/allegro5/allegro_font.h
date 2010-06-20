@@ -61,8 +61,8 @@ struct ALLEGRO_FONT_VTABLE
    ALLEGRO_FONT_METHOD(int, font_descent, (const ALLEGRO_FONT *f));
    ALLEGRO_FONT_METHOD(int, char_length, (const ALLEGRO_FONT *f, int ch));
    ALLEGRO_FONT_METHOD(int, text_length, (const ALLEGRO_FONT *f, const ALLEGRO_USTR *text));
-   ALLEGRO_FONT_METHOD(int, render_char, (const ALLEGRO_FONT *f, int ch, float x, float y));
-   ALLEGRO_FONT_METHOD(int, render, (const ALLEGRO_FONT *f, const ALLEGRO_USTR *text, float x, float y));
+   ALLEGRO_FONT_METHOD(int, render_char, (const ALLEGRO_FONT *f, ALLEGRO_COLOR color, int ch, float x, float y));
+   ALLEGRO_FONT_METHOD(int, render, (const ALLEGRO_FONT *f, ALLEGRO_COLOR color, const ALLEGRO_USTR *text, float x, float y));
    ALLEGRO_FONT_METHOD(void, destroy, (ALLEGRO_FONT *f));
    ALLEGRO_FONT_METHOD(void, get_text_dimensions, (const ALLEGRO_FONT *f,
       const ALLEGRO_USTR *text, int *bbx, int *bby, int *bbw, int *bbh));
@@ -80,12 +80,12 @@ ALLEGRO_FONT_FUNC(ALLEGRO_FONT *, al_load_font, (const char *filename, int size,
 
 ALLEGRO_FONT_FUNC(ALLEGRO_FONT *, al_grab_font_from_bitmap, (ALLEGRO_BITMAP *bmp, int n, int ranges[]));
 
-ALLEGRO_FONT_FUNC(void, al_draw_ustr, (const ALLEGRO_FONT *font, float x, float y, int flags, ALLEGRO_USTR const *ustr));
-ALLEGRO_FONT_FUNC(void, al_draw_text, (const ALLEGRO_FONT *font, float x, float y, int flags, char const *text));
-ALLEGRO_FONT_FUNC(void, al_draw_justified_text, (const ALLEGRO_FONT *font, float x1, float x2, float y, float diff, int flags, char const *text));
-ALLEGRO_FONT_FUNC(void, al_draw_justified_ustr, (const ALLEGRO_FONT *font, float x1, float x2, float y, float diff, int flags, ALLEGRO_USTR const *text));
-ALLEGRO_FONT_PRINTFUNC(void, al_draw_textf, (const ALLEGRO_FONT *font, float x, float y, int flags, char const *format, ...), 5, 6);
-ALLEGRO_FONT_PRINTFUNC(void, al_draw_justified_textf, (const ALLEGRO_FONT *font, float x1, float x2, float y, float diff, int flags, char const *format, ...), 7, 8);
+ALLEGRO_FONT_FUNC(void, al_draw_ustr, (const ALLEGRO_FONT *font, ALLEGRO_COLOR color, float x, float y, int flags, ALLEGRO_USTR const *ustr));
+ALLEGRO_FONT_FUNC(void, al_draw_text, (const ALLEGRO_FONT *font, ALLEGRO_COLOR color, float x, float y, int flags, char const *text));
+ALLEGRO_FONT_FUNC(void, al_draw_justified_text, (const ALLEGRO_FONT *font, ALLEGRO_COLOR color, float x1, float x2, float y, float diff, int flags, char const *text));
+ALLEGRO_FONT_FUNC(void, al_draw_justified_ustr, (const ALLEGRO_FONT *font, ALLEGRO_COLOR color, float x1, float x2, float y, float diff, int flags, ALLEGRO_USTR const *text));
+ALLEGRO_FONT_PRINTFUNC(void, al_draw_textf, (const ALLEGRO_FONT *font, ALLEGRO_COLOR color, float x, float y, int flags, char const *format, ...), 6, 7);
+ALLEGRO_FONT_PRINTFUNC(void, al_draw_justified_textf, (const ALLEGRO_FONT *font, ALLEGRO_COLOR color, float x1, float x2, float y, float diff, int flags, char const *format, ...), 8, 9);
 ALLEGRO_FONT_FUNC(int, al_get_text_width, (const ALLEGRO_FONT *f, const char *str));
 ALLEGRO_FONT_FUNC(int, al_get_ustr_width, (const ALLEGRO_FONT *f, const ALLEGRO_USTR *ustr));
 ALLEGRO_FONT_FUNC(int, al_get_font_line_height, (const ALLEGRO_FONT *f));

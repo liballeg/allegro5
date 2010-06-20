@@ -47,6 +47,7 @@ int main(void)
    bool buttons[NUM_BUTTONS] = {false};
    int i;
    float p = 0.0;
+   ALLEGRO_COLOR black;
 
    if (!al_init()) {
       abort_example("Could not init Allegro.\n");
@@ -79,6 +80,8 @@ int main(void)
       abort_example("data/fixed_font.tga not found\n");
       return 1;
    }
+   
+   black = al_map_rgb_f(0, 0, 0);
 
    queue = al_create_event_queue();
    al_register_event_source(queue, al_get_mouse_event_source());
@@ -92,14 +95,12 @@ int main(void)
             draw_mouse_button(i, buttons[i]);
          }
          al_draw_bitmap(cursor, mx, my, 0);
-         al_set_blender(ALLEGRO_ADD, ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA,
-            al_map_rgb_f(0, 0, 0));
-         al_draw_textf(font, 5, 5, 0, "dx %i, dy %i, dz %i, dw %i", mmx, mmy, mmz, mmw);
-         al_draw_textf(font, 5, 25, 0, "x %i, y %i, z %i, w %i", mx, my, mz, mw);
-         al_draw_textf(font, 5, 45, 0, "p = %g", p);
-         al_draw_textf(font, 5, 65, 0, "%s", in ? "in" : "out");
-         al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_INVERSE_ALPHA,
-            al_map_rgb_f(1, 1, 1));
+         al_set_blender(ALLEGRO_ADD, ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA);
+         al_draw_textf(font, black, 5, 5, 0, "dx %i, dy %i, dz %i, dw %i", mmx, mmy, mmz, mmw);
+         al_draw_textf(font, black, 5, 25, 0, "x %i, y %i, z %i, w %i", mx, my, mz, mw);
+         al_draw_textf(font, black, 5, 45, 0, "p = %g", p);
+         al_draw_textf(font, black, 5, 65, 0, "%s", in ? "in" : "out");
+         al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_INVERSE_ALPHA);
          mmx = mmy = mmz = 0;
          al_flip_display();
       }

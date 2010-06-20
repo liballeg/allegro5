@@ -17,7 +17,7 @@ static void print_color(ALLEGRO_COLOR c)
 }
 
 static ALLEGRO_COLOR test(ALLEGRO_COLOR src_col, ALLEGRO_COLOR dst_col,
-   ALLEGRO_COLOR blend, int src_format, int dst_format,
+   int src_format, int dst_format,
    int src, int dst, int src_a, int dst_a,
    int operation, bool verbose)
 {
@@ -26,7 +26,7 @@ static ALLEGRO_COLOR test(ALLEGRO_COLOR src_col, ALLEGRO_COLOR dst_col,
 
    al_set_new_bitmap_format(dst_format);
    al_set_new_bitmap_flags(ALLEGRO_MEMORY_BITMAP);
-   al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ZERO, al_map_rgb_f(1, 1, 1));
+   al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ZERO);
    dst_bmp = al_create_bitmap(1, 1);
    al_set_target_bitmap(dst_bmp);
    al_clear_to_color(dst_col);
@@ -37,16 +37,16 @@ static ALLEGRO_COLOR test(ALLEGRO_COLOR src_col, ALLEGRO_COLOR dst_col,
       al_set_target_bitmap(src_bmp);
       al_clear_to_color(src_col);
       al_set_target_bitmap(dst_bmp);
-      al_set_separate_blender(ALLEGRO_ADD, src, dst, ALLEGRO_ADD, src_a, dst_a, blend);
+      al_set_separate_blender(ALLEGRO_ADD, src, dst, ALLEGRO_ADD, src_a, dst_a);
       al_draw_bitmap(src_bmp, 0, 0, 0);
       al_destroy_bitmap(src_bmp);
    }
    else  if (operation == 1) {
-      al_set_separate_blender(ALLEGRO_ADD, src, dst, ALLEGRO_ADD, src_a, dst_a, blend);
+      al_set_separate_blender(ALLEGRO_ADD, src, dst, ALLEGRO_ADD, src_a, dst_a);
       al_draw_pixel(0, 0, src_col);
    }
    else  if (operation == 2) {
-      al_set_separate_blender(ALLEGRO_ADD, src, dst, ALLEGRO_ADD, src_a, dst_a, blend);
+      al_set_separate_blender(ALLEGRO_ADD, src, dst, ALLEGRO_ADD, src_a, dst_a);
       al_draw_line(0, 0, 1, 1, src_col, 0);
    }
 
@@ -54,7 +54,7 @@ static ALLEGRO_COLOR test(ALLEGRO_COLOR src_col, ALLEGRO_COLOR dst_col,
 
    if (test_display) {
       al_set_target_bitmap(al_get_backbuffer());
-      al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ZERO, al_map_rgb_f(1, 1, 1));
+      al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ZERO);
       al_draw_bitmap(dst_bmp, 0, 0, 0);
    }
 
@@ -76,10 +76,6 @@ static ALLEGRO_COLOR test(ALLEGRO_COLOR src_col, ALLEGRO_COLOR dst_col,
    print_color(dst_col);
    printf(" format=%d mode=%d alpha=%d\n",
       dst_format, dst, dst_a);
-
-   printf("blender    : ");
-   print_color(blend);
-   printf("\n");
    
    printf("result     : ");
    print_color(result);
@@ -131,18 +127,16 @@ static bool has_alpha(int format)
 
 static ALLEGRO_COLOR reference_implementation(
    ALLEGRO_COLOR src_col, ALLEGRO_COLOR dst_col,
-   ALLEGRO_COLOR blend_col, int src_format, int dst_format,
+   int src_format, int dst_format,
    int src_mode, int dst_mode, int src_alpha, int dst_alpha,
    int operation)
 {
    float sr, sg, sb, sa;
-   float br, bg, bb, ba;
    float dr, dg, db, da;
    float r, g, b, a;
    float src, dst, asrc, adst;
 
    al_unmap_rgba_f(src_col, &sr, &sg, &sb, &sa);
-   al_unmap_rgba_f(blend_col, &br, &bg, &bb, &ba);
    al_unmap_rgba_f(dst_col, &dr, &dg, &db, &da);
 
    /* Do we even have source alpha? */
@@ -152,10 +146,10 @@ static ALLEGRO_COLOR reference_implementation(
       }
    }
 
-   r = sr * br;
-   g = sg * bg;
-   b = sb * bb;
-   a = sa * ba;
+   r = sr;
+   g = sg;
+   b = sb;
+   a = sa;
 
    src = get_factor(src_mode, a);
    dst = get_factor(dst_mode, a);
@@ -181,7 +175,7 @@ static ALLEGRO_COLOR reference_implementation(
 }
 
 static void do_test2(ALLEGRO_COLOR src_col, ALLEGRO_COLOR dst_col,
-   ALLEGRO_COLOR blend_col, int src_format, int dst_format,
+   int src_format, int dst_format,
    int src_mode, int dst_mode, int src_alpha, int dst_alpha,
    int operation)
 {
@@ -192,15 +186,15 @@ static void do_test2(ALLEGRO_COLOR src_col, ALLEGRO_COLOR dst_col,
       return;
 
    reference = reference_implementation(
-      src_col, dst_col, blend_col, src_format, dst_format,
+      src_col, dst_col, src_format, dst_format,
       src_mode, dst_mode, src_alpha, dst_alpha, operation);
 
-   result = test(src_col, dst_col, blend_col, src_format,
+   result = test(src_col, dst_col, src_format,
       dst_format, src_mode, dst_mode, src_alpha, dst_alpha,
       operation, false);
 
    if (!same_color(reference, result)) {
-      test(src_col, dst_col, blend_col, src_format,
+      test(src_col, dst_col, src_format,
       dst_format, src_mode, dst_mode, src_alpha, dst_alpha,
       operation, true);
       printf("expected   : ");
@@ -217,11 +211,11 @@ static void do_test2(ALLEGRO_COLOR src_col, ALLEGRO_COLOR dst_col,
       dst_format = al_get_display_format();
       from_display = al_get_pixel(al_get_backbuffer(), 0, 0);
       reference = reference_implementation(
-         src_col, dst_col, blend_col, src_format, dst_format,
+         src_col, dst_col, src_format, dst_format,
          src_mode, dst_mode, src_alpha, dst_alpha, operation);
       
       if (!same_color(reference, from_display)) {
-         test(src_col, dst_col, blend_col, src_format,
+         test(src_col, dst_col, src_format,
          dst_format, src_mode, dst_mode, src_alpha, dst_alpha,
          operation, true);
          printf("displayed  : ");
@@ -236,7 +230,7 @@ static void do_test2(ALLEGRO_COLOR src_col, ALLEGRO_COLOR dst_col,
 }
 
 static void do_test1(ALLEGRO_COLOR src_col, ALLEGRO_COLOR dst_col,
-   ALLEGRO_COLOR blend_col, int src_format, int dst_format)
+   int src_format, int dst_format)
 {
    int i, j, k, l, m;
    int smodes[4] = {ALLEGRO_ALPHA, ALLEGRO_ZERO, ALLEGRO_ONE,
@@ -248,7 +242,7 @@ static void do_test1(ALLEGRO_COLOR src_col, ALLEGRO_COLOR dst_col,
          for (k = 0; k < 4; k++) {
             for (l = 0; l < 4; l++) {
                for (m = 0; m < 3; m++) {
-                  do_test2(src_col, dst_col, blend_col,
+                  do_test2(src_col, dst_col,
                      src_format, dst_format,
                      smodes[i], dmodes[j], smodes[k], dmodes[l],
                      m);
@@ -263,10 +257,9 @@ static void do_test1(ALLEGRO_COLOR src_col, ALLEGRO_COLOR dst_col,
 
 int main(int argc, char **argv)
 {
-   int i, j, k, l, m;
+   int i, j, l, m;
    ALLEGRO_COLOR src_colors[2];
    ALLEGRO_COLOR dst_colors[2];
-   ALLEGRO_COLOR blend_colors[2];
    int src_formats[2] = {
       ALLEGRO_PIXEL_FORMAT_ABGR_8888,
       ALLEGRO_PIXEL_FORMAT_BGR_888
@@ -279,8 +272,6 @@ int main(int argc, char **argv)
    src_colors[1] = C(1, 1, 1, 1);
    dst_colors[0] = C(1, 1, 1, 1);
    dst_colors[1] = C(0, 0, 0, 0);
-   blend_colors[0] = C(1, 1, 1, 0.5);
-   blend_colors[1] = C(1, 1, 1, 1);
 
    for (i = 1; i < argc; i++) {
       if (!strcmp(argv[i], "-d"))
@@ -296,16 +287,13 @@ int main(int argc, char **argv)
 
    for (i = 0; i < 2; i++) {
       for (j = 0; j < 2; j++) {
-         for (k = 0; k < 2; k++) {
-            for (l = 0; l < 2; l++) {
-               for (m = 0; m < 2; m++) {
-                  do_test1(
-                     src_colors[i],
-                     dst_colors[j],
-                     blend_colors[k],
-                     src_formats[l],
-                     dst_formats[m]);
-               }
+         for (l = 0; l < 2; l++) {
+            for (m = 0; m < 2; m++) {
+               do_test1(
+                  src_colors[i],
+                  dst_colors[j],
+                  src_formats[l],
+                  dst_formats[m]);
             }
          }
       }

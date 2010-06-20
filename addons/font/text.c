@@ -64,7 +64,8 @@ static void align_to_integer_pixel(float *x, float *y)
 
 /* Function: al_draw_ustr
  */
-void al_draw_ustr(const ALLEGRO_FONT *font, float x, float y, int flags,
+void al_draw_ustr(const ALLEGRO_FONT *font,
+   ALLEGRO_COLOR color, float x, float y, int flags,
    const ALLEGRO_USTR *ustr) 
 {
    ASSERT(font);
@@ -84,26 +85,28 @@ void al_draw_ustr(const ALLEGRO_FONT *font, float x, float y, int flags,
 
    align_to_integer_pixel(&x, &y);
 
-   font->vtable->render(font, ustr, x, y);
+   font->vtable->render(font, color, ustr, x, y);
 }
 
 
 
 /* Function: al_draw_text
  */
-void al_draw_text(const ALLEGRO_FONT *font, float x, float y, int flags,
+void al_draw_text(const ALLEGRO_FONT *font,
+   ALLEGRO_COLOR color, float x, float y, int flags,
    char const *text) 
 {
    ALLEGRO_USTR_INFO info;
    ASSERT(text);
-   al_draw_ustr(font, x, y, flags, al_ref_cstr(&info, text));
+   al_draw_ustr(font, color, x, y, flags, al_ref_cstr(&info, text));
 }
 
 
 
 /* Function: al_draw_justified_ustr
  */
-void al_draw_justified_ustr(const ALLEGRO_FONT *font, float x1, float x2,
+void al_draw_justified_ustr(const ALLEGRO_FONT *font,
+   ALLEGRO_COLOR color, float x1, float x2,
    float y, float diff, int flags, const ALLEGRO_USTR *ustr)
 {
    const char *whitespace = " \t\n\r";
@@ -141,7 +144,7 @@ void al_draw_justified_ustr(const ALLEGRO_FONT *font, float x1, float x2,
 
    if ((space <= 0) || (space > diff) || (num_words < 2)) {
       /* can't justify */
-      font->vtable->render(font, ustr, x1, y);
+      font->vtable->render(font, color, ustr, x1, y);
       return; 
    }
 
@@ -158,7 +161,7 @@ void al_draw_justified_ustr(const ALLEGRO_FONT *font, float x1, float x2,
          pos2 = al_ustr_size(ustr);
 
       word = al_ref_ustr(&word_info, ustr, pos1, pos2);
-      fleft += font->vtable->render(font, word, (int)fleft, y);
+      fleft += font->vtable->render(font, color, word, (int)fleft, y);
       fleft += finc;
 
       pos1 = pos2;
@@ -168,18 +171,21 @@ void al_draw_justified_ustr(const ALLEGRO_FONT *font, float x1, float x2,
 
 /* Function: al_draw_justified_text
  */
-void al_draw_justified_text(const ALLEGRO_FONT *font, float x1, float x2,
+void al_draw_justified_text(const ALLEGRO_FONT *font,
+   ALLEGRO_COLOR color, float x1, float x2,
    float y, float diff, int flags, const char *text)
 {
    ALLEGRO_USTR_INFO info;
    ASSERT(text);
-   al_draw_justified_ustr(font, x1, x2, y, diff, flags, al_ref_cstr(&info, text));
+   al_draw_justified_ustr(font, color, x1, x2, y, diff, flags,
+      al_ref_cstr(&info, text));
 }
 
 
 /* Function: al_draw_textf
  */
-void al_draw_textf(const ALLEGRO_FONT *font, float x, float y, int flags,
+void al_draw_textf(const ALLEGRO_FONT *font, ALLEGRO_COLOR color,
+   float x, float y, int flags,
    const char *format, ...)
 {
    ALLEGRO_USTR *buf;
@@ -192,7 +198,7 @@ void al_draw_textf(const ALLEGRO_FONT *font, float x, float y, int flags,
    if (0 == strcmp(format, "%s")) {
       va_start(ap, format);
       s = va_arg(ap, const char *);
-      al_draw_text(font, x, y, flags, s);
+      al_draw_text(font, color, x, y, flags, s);
       va_end(ap);
       return;
    }
@@ -202,7 +208,7 @@ void al_draw_textf(const ALLEGRO_FONT *font, float x, float y, int flags,
    al_ustr_vappendf(buf, format, ap);
    va_end(ap);
 
-   al_draw_text(font, x, y, flags, al_cstr(buf));
+   al_draw_text(font, color, x, y, flags, al_cstr(buf));
 
    al_ustr_free(buf);
 }
@@ -211,7 +217,8 @@ void al_draw_textf(const ALLEGRO_FONT *font, float x, float y, int flags,
 
 /* Function: al_draw_justified_textf
  */
-void al_draw_justified_textf(const ALLEGRO_FONT *f, float x1, float x2, float y,
+void al_draw_justified_textf(const ALLEGRO_FONT *f,
+   ALLEGRO_COLOR color, float x1, float x2, float y,
    float diff, int flags, const char *format, ...)
 {
    ALLEGRO_USTR *buf;
@@ -224,7 +231,8 @@ void al_draw_justified_textf(const ALLEGRO_FONT *f, float x1, float x2, float y,
    al_ustr_vappendf(buf, format, ap);
    va_end(ap);
 
-   al_draw_justified_text(f, x1, x2, y, diff, flags, al_cstr(buf));
+   al_draw_justified_text(f, color, x1, x2, y, diff, flags,
+      al_cstr(buf));
 
    al_ustr_free(buf);
 }

@@ -50,24 +50,6 @@
 
 #define LOCAL_VERTEX_CACHE  ALLEGRO_VERTEX vertex_cache[ALLEGRO_VERTEX_CACHE_SIZE]
 
-/* The software drawer ends up using al_draw_pixel for each pixel, so
- * blending works as expected.
- * However with OpenGL, Allegro's "blend color" needs to be
- * pre-multiplied with the vertex colors to produce the correct
- * result.
- */
-static void check_color_blending(ALLEGRO_COLOR *color)
-{
-   ALLEGRO_BITMAP *target = al_get_target_bitmap();
-   if (!(target->flags & ALLEGRO_MEMORY_BITMAP)) {
-      ALLEGRO_COLOR *bc = _al_get_blend_color();
-      color->r *= bc->r;
-      color->g *= bc->g;
-      color->b *= bc->b;
-      color->a *= bc->a;
-   }
-}
-
 /*
  * Make an estimate of the scale of the current transformation. 
  */
@@ -82,8 +64,6 @@ static float get_scale(void)
 void al_draw_line(float x1, float y1, float x2, float y2,
    ALLEGRO_COLOR color, float thickness)
 {
-   check_color_blending(&color);
-
    if (thickness > 0) {
       int ii;
       float tx, ty;
@@ -129,8 +109,6 @@ void al_draw_line(float x1, float y1, float x2, float y2,
 void al_draw_triangle(float x1, float y1, float x2, float y2,
    float x3, float y3, ALLEGRO_COLOR color, float thickness)
 {
-   check_color_blending(&color);
-   
    if (thickness > 0) {
       int ii;
       float side1, side2, side3;      
@@ -213,8 +191,6 @@ void al_draw_filled_triangle(float x1, float y1, float x2, float y2,
 {
    ALLEGRO_VERTEX vtx[3];
 
-   check_color_blending(&color);
-     
    vtx[0].x = x1; vtx[0].y = y1;
    vtx[1].x = x2; vtx[1].y = y2;
    vtx[2].x = x3; vtx[2].y = y3;
@@ -236,7 +212,6 @@ void al_draw_rectangle(float x1, float y1, float x2, float y2,
    ALLEGRO_COLOR color, float thickness)
 {
    int ii;
-   check_color_blending(&color);
 
    if (thickness > 0) {
       float t = thickness / 2;
@@ -283,8 +258,7 @@ void al_draw_filled_rectangle(float x1, float y1, float x2, float y2,
 {
    ALLEGRO_VERTEX vtx[4];
    int ii;
-   check_color_blending(&color);
-      
+
    vtx[0].x = x1; vtx[0].y = y1;
    vtx[1].x = x1; vtx[1].y = y2;
    vtx[2].x = x2; vtx[2].y = y2;
@@ -387,7 +361,6 @@ void al_draw_ellipse(float cx, float cy, float rx, float ry,
    LOCAL_VERTEX_CACHE;
    float scale = get_scale();
 
-   check_color_blending(&color);
    ASSERT(rx >= 0);
    ASSERT(ry >= 0);
 
@@ -441,7 +414,6 @@ void al_draw_filled_ellipse(float cx, float cy, float rx, float ry,
    int num_segments, ii;
    float scale = get_scale();
 
-   check_color_blending(&color);
    ASSERT(rx >= 0);
    ASSERT(ry >= 0);
    
@@ -491,7 +463,6 @@ void al_draw_arc(float cx, float cy, float r, float start_theta,
    LOCAL_VERTEX_CACHE;
    float scale = get_scale();
 
-   check_color_blending(&color);
    ASSERT(r >= 0);
    if (thickness > 0) {
       int num_segments = fabs(delta_theta / (2 * ALLEGRO_PI) * ALLEGRO_PRIM_QUALITY * scale * sqrtf(r));
@@ -536,7 +507,6 @@ void al_draw_rounded_rectangle(float x1, float y1, float x2, float y2,
    LOCAL_VERTEX_CACHE;
    float scale = get_scale();
 
-   check_color_blending(&color);
    ASSERT(rx >= 0);
    ASSERT(ry >= 0);
 
@@ -633,7 +603,6 @@ void al_draw_filled_rounded_rectangle(float x1, float y1, float x2, float y2,
    float scale = get_scale();
    int num_segments = ALLEGRO_PRIM_QUALITY * scale * sqrtf((rx + ry) / 2.0f) / 4;
 
-   check_color_blending(&color);
    ASSERT(rx >= 0);
    ASSERT(ry >= 0);
    
@@ -766,8 +735,6 @@ void al_draw_spline(float points[8], ALLEGRO_COLOR color, float thickness)
    
    if(num_segments < 2)
       num_segments = 2;
-   
-   check_color_blending(&color);
 
    if (thickness > 0) {
       if (2 * num_segments >= ALLEGRO_VERTEX_CACHE_SIZE) {
@@ -928,7 +895,6 @@ void al_draw_ribbon(const float *points, int points_stride, ALLEGRO_COLOR color,
    LOCAL_VERTEX_CACHE;
    int ii;
 
-   check_color_blending(&color);
    al_calculate_ribbon(&(vertex_cache[0].x), sizeof(ALLEGRO_VERTEX), points, points_stride, thickness, num_segments);
    
    if (thickness > 0) {

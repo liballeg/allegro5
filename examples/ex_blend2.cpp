@@ -34,11 +34,11 @@ private:
    List draw_mode;
    Label operation_label[6];
    List operations[6];
-   Label rgba_label[3];
-   VSlider r[3];
-   VSlider g[3];
-   VSlider b[3];
-   VSlider a[3];
+   Label rgba_label[2];
+   VSlider r[2];
+   VSlider g[2];
+   VSlider b[2];
+   VSlider a[2];
 
 public:
    Prog(const Theme & theme, ALLEGRO_DISPLAY *display);
@@ -103,12 +103,11 @@ Prog::Prog(const Theme & theme, ALLEGRO_DISPLAY *display) :
 
    rgba_label[0] = Label("RGBA");
    rgba_label[1] = Label("RGBA");
-   rgba_label[2] = Label("RGBA");
    d.add(rgba_label[0], 1, 32, 4, 1);
    d.add(rgba_label[1], 7, 32, 4, 1);
    d.add(rgba_label[2], 13, 32, 4, 1);
 
-   for (int i = 0; i < 3; i++) {
+   for (int i = 0; i < 2; i++) {
       r[i] = VSlider(255, 255);
       g[i] = VSlider(255, 255);
       b[i] = VSlider(255, 255);
@@ -224,20 +223,15 @@ void Prog::blending_test(bool memory)
    int asrc = str_to_blend_mode(operations[1].get_selected_item_text());
    int dst = str_to_blend_mode(operations[2].get_selected_item_text());
    int adst = str_to_blend_mode(operations[3].get_selected_item_text());
-   int rv = r[2].get_cur_value();
-   int gv = g[2].get_cur_value();
-   int bv = b[2].get_cur_value();
-   int av = a[2].get_cur_value();
 
    /* Initialize with destination. */
    al_clear_to_color(opaque_white); // Just in case.
-   al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ZERO, opaque_white);
+   al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ZERO);
    draw_bitmap(destination_image.get_selected_item_text(),
       "original", memory, true);
 
    /* Now draw the blended source over it. */
-   al_set_separate_blender(op, src, dst, aop, asrc, adst,
-      al_map_rgba(rv, gv, bv, av));
+   al_set_separate_blender(op, src, dst, aop, asrc, adst);
    draw_bitmap(source_image.get_selected_item_text(),
       draw_mode.get_selected_item_text(), memory, false);
 }
@@ -263,8 +257,7 @@ void Prog::draw_samples()
 
    /* Display results. */
    al_set_target_bitmap(al_get_backbuffer());
-   al_set_blender(ALLEGRO_ADD, ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA,
-      al_map_rgba(255, 255, 255, 255));
+   al_set_blender(ALLEGRO_ADD, ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA);
    al_draw_bitmap(target, 40, 20, 0);
    al_draw_bitmap(target_bmp, 400, 20, 0);
  

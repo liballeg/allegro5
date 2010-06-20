@@ -121,7 +121,7 @@ static void change_size(int size)
    example.bitmap = al_create_bitmap(size, size);
    example.bitmap_size = size;
    al_set_target_bitmap(example.bitmap);
-   al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ZERO, example.white);
+   al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ZERO);
    al_clear_to_color(al_map_rgba_f(0, 0, 0, 0));
    bw = al_get_bitmap_width(example.mysha);
    bh = al_get_bitmap_height(example.mysha);
@@ -177,38 +177,38 @@ static void redraw(void)
    char const *binfo[] = {"alpha", "additive", "tinted", "solid"};
 
    if (example.blending == 0)
-      al_set_blender(ALLEGRO_ADD, ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA, example.half_white);
+      al_set_blender(ALLEGRO_ADD, ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA);
    else if (example.blending == 1)
-      al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ONE, example.dark);
+      al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ONE);
    else if (example.blending == 2)
-      al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ZERO, example.red);
+      al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ZERO);
    else if (example.blending == 3)
-      al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ZERO, example.white);
+      al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ZERO);
 
    for (i = 0; i < example.sprite_count; i++) {
       Sprite *s = example.sprites + i;
       al_draw_bitmap(example.bitmap, s->x, s->y, 0);
    }
 
-   al_set_blender(ALLEGRO_ADD, ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA, example.white);
+   al_set_blender(ALLEGRO_ADD, ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA);
    if (example.show_help) {
       for (i = 0; i < 5; i++)
-         al_draw_text(example.font, 0, h - 5 * fh + i * fh, 0, text[i]);
+         al_draw_text(example.font, example.white, 0, h - 5 * fh + i * fh, 0, text[i]);
    }
 
-   al_draw_textf(example.font, 0, 0, 0, "count: %d",
+   al_draw_textf(example.font, example.white, 0, 0, 0, "count: %d",
       example.sprite_count);
-   al_draw_textf(example.font, 0, fh, 0, "size: %d",
+   al_draw_textf(example.font, example.white, 0, fh, 0, "size: %d",
       example.bitmap_size);
-   al_draw_textf(example.font, 0, fh * 2, 0, "%s",
+   al_draw_textf(example.font, example.white, 0, fh * 2, 0, "%s",
       info[example.use_memory_bitmaps]);
-   al_draw_textf(example.font, 0, fh * 3, 0, "%s",
+   al_draw_textf(example.font, example.white, 0, fh * 3, 0, "%s",
       binfo[example.blending]);
 
    get_fps(&f1, &f2);
-   al_draw_textf(example.font, w, 0, ALLEGRO_ALIGN_RIGHT, "FPS: %4d +- %-4d",
+   al_draw_textf(example.font, example.white, w, 0, ALLEGRO_ALIGN_RIGHT, "FPS: %4d +- %-4d",
       f1, f2);
-   al_draw_textf(example.font, w, fh, ALLEGRO_ALIGN_RIGHT, "%4d / sec",
+   al_draw_textf(example.font, example.white, w, fh, ALLEGRO_ALIGN_RIGHT, "%4d / sec",
       (int)(1.0 / example.direct_speed_measure));
    
 }

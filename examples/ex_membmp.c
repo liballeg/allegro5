@@ -8,12 +8,8 @@
 
 static void print(ALLEGRO_FONT *myfont, char *message, int x, int y)
 {
-   al_set_blender(ALLEGRO_ADD, ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA, al_map_rgb(0, 0, 0));
-   al_draw_text(myfont, x+2, y+2, 0, message);
-
-   al_set_blender(ALLEGRO_ADD, ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA,
-      al_map_rgb(255, 255, 255));
-   al_draw_text(myfont, x, y, 0, message);
+   al_draw_text(myfont, al_map_rgb(0, 0, 0), x+2, y+2, 0, message);
+   al_draw_text(myfont, al_map_rgb(255, 255, 255), x, y, 0, message);
 }
 
 static bool test(ALLEGRO_BITMAP *bitmap, ALLEGRO_FONT *font, char *message)
@@ -44,8 +40,7 @@ static bool test(ALLEGRO_BITMAP *bitmap, ALLEGRO_FONT *font, char *message)
          }
       }
 
-      al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ZERO,
-         al_map_rgb(255, 255, 255));
+      al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ZERO);
 
       /* Clear the backbuffer with red so we can tell if the bitmap does not
        * cover the entire backbuffer.
@@ -59,6 +54,8 @@ static bool test(ALLEGRO_BITMAP *bitmap, ALLEGRO_FONT *font, char *message)
          al_get_display_width(),
          al_get_display_height(),
          0);
+      
+      al_set_blender(ALLEGRO_ADD, ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA);
 
       print(font, message, 0, 0);
       sprintf(second_line, "%.1f FPS", fps);

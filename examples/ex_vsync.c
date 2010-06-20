@@ -27,25 +27,26 @@ static bool display_warning(ALLEGRO_EVENT_QUEUE *queue, ALLEGRO_FONT *font)
    ALLEGRO_EVENT event;
    float x = 320.0;
    float h = al_get_font_line_height(font);
+   ALLEGRO_COLOR white = al_map_rgb_f(1, 1, 1);
 
    for (;;) {
       float y = 200.0;
       al_clear_to_color(al_map_rgb(0, 0, 0));
-      al_draw_text(font, x, y, ALLEGRO_ALIGN_CENTRE,
+      al_draw_text(font, white, x, y, ALLEGRO_ALIGN_CENTRE,
          "Do not continue if you suffer from photosensitive epilepsy");
-      al_draw_text(font, x, y + 15, ALLEGRO_ALIGN_CENTRE,
+      al_draw_text(font, white, x, y + 15, ALLEGRO_ALIGN_CENTRE,
          "or simply hate flashing screens.");
-      al_draw_text(font, x, y + 40, ALLEGRO_ALIGN_CENTRE,
+      al_draw_text(font, white, x, y + 40, ALLEGRO_ALIGN_CENTRE,
          "Press Escape to quit or Enter to continue.");
       
       y += 100;
-      al_draw_text(font, x, y, ALLEGRO_ALIGN_CENTRE, "Parameters from ex_vsync.ini:");
+      al_draw_text(font, white, x, y, ALLEGRO_ALIGN_CENTRE, "Parameters from ex_vsync.ini:");
       y += h;
-      al_draw_textf(font, x, y, ALLEGRO_ALIGN_CENTRE, "vsync: %d", vsync);
+      al_draw_textf(font, white, x, y, ALLEGRO_ALIGN_CENTRE, "vsync: %d", vsync);
       y += h;
-      al_draw_textf(font, x, y, ALLEGRO_ALIGN_CENTRE, "fullscreen: %d", fullscreen);
+      al_draw_textf(font, white, x, y, ALLEGRO_ALIGN_CENTRE, "fullscreen: %d", fullscreen);
       y += h;
-      al_draw_textf(font, x, y, ALLEGRO_ALIGN_CENTRE, "frequency: %d", frequency);
+      al_draw_textf(font, white, x, y, ALLEGRO_ALIGN_CENTRE, "frequency: %d", frequency);
       
       al_flip_display();
 

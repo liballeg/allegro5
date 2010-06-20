@@ -62,9 +62,7 @@ static void draw_message_log(void)
    int y;
    int i;
 
-   al_set_blender(ALLEGRO_ADD, ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA, black);
-
-   al_draw_text(myfont, 5, th * 0.5, 0, "EVENT KEY CHR UNICODE  [MODIFIERS]  KEY NAME");
+   al_draw_text(myfont, black, 5, th * 0.5, 0, "EVENT KEY CHR UNICODE  [MODIFIERS]  KEY NAME");
 
    /* Scroll down the log if necessary. */
    while (num_messages() >= (HEIGHT/th)) {
@@ -75,7 +73,7 @@ static void draw_message_log(void)
    i = msg_tail;
    while (1) {
       if (msg_log[i])
-         al_draw_text(myfont, 5, y, 0, al_cstr(msg_log[i]));
+         al_draw_text(myfont, al_map_rgb_f(1, 1, 1), 5, y, 0, al_cstr(msg_log[i]));
       y += th;
 
       i = (i + 1) % SIZE_LOG;
@@ -83,8 +81,6 @@ static void draw_message_log(void)
          break;
       }
    }
-
-   al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ZERO, white);
 }
 
 

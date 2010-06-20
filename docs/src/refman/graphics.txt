@@ -471,6 +471,19 @@ flags can be a combination of:
 See also: [al_draw_bitmap_region], [al_draw_scaled_bitmap],
 [al_draw_rotated_bitmap], [al_draw_rotated_scaled_bitmap]
 
+### API: al_draw_tinted_bitmap
+
+Like [al_draw_bitmap] but multiplies all colors in the bitmap with
+the given color. For example:
+
+    al_draw_tinted_bitmap(bitmap, al_map_rgba_f(1, 1, 1, 0.5), x, y, 0);
+
+The above will draw the bitmap 50% transparently.
+
+    al_draw_tinted_bitmap(bitmap, al_map_rgba_f(1, 0, 0, 1), x, y, 0);
+
+The above will only draw the red component of the bitmap.
+
 ### API: al_draw_bitmap_region
 
 Draws a region of the given bitmap to the target bitmap.
@@ -485,6 +498,13 @@ Draws a region of the given bitmap to the target bitmap.
 
 See also: [al_draw_bitmap], [al_draw_scaled_bitmap],
 [al_draw_rotated_bitmap], [al_draw_rotated_scaled_bitmap]
+
+### API: al_draw_tinted_bitmap_region
+
+Like [al_draw_bitmap_region] but multiplies all colors in the bitmap
+with the given color.
+
+See also: [al_draw_tinted_bitmap]
 
 ### API: al_draw_pixel
 
@@ -517,6 +537,13 @@ bitmap is rotated around this point.
 See also: [al_draw_bitmap], [al_draw_bitmap_region],
 [al_draw_scaled_bitmap], [al_draw_rotated_scaled_bitmap]
 
+### API: al_draw_tinted_rotated_bitmap
+
+Like [al_draw_rotated_bitmap] but multiplies all colors in the bitmap
+with the given color.
+
+See also: [al_draw_tinted_bitmap]
+
 ### API: al_draw_rotated_scaled_bitmap
 
 Like [al_draw_rotated_bitmap], but can also scale the bitmap.
@@ -536,6 +563,13 @@ rotated and scaled around this point.
 See also: [al_draw_bitmap], [al_draw_bitmap_region], [al_draw_scaled_bitmap],
 [al_draw_rotated_bitmap]
 
+### API: al_draw_tinted_rotated__scaled_bitmap
+
+Like [al_draw_rotated_scaled_bitmap] but multiplies all colors in the
+bitmap with the given color.
+
+See also: [al_draw_tinted_bitmap]
+
 ### API: al_draw_scaled_bitmap
 
 Draws a scaled version of the given bitmap to the target bitmap.
@@ -552,6 +586,13 @@ Draws a scaled version of the given bitmap to the target bitmap.
 
 See also: [al_draw_bitmap], [al_draw_bitmap_region], [al_draw_rotated_bitmap],
 [al_draw_rotated_scaled_bitmap],
+
+### API: al_draw_tinted_scaled_bitmap
+
+Like [al_draw_scaled_bitmap] but multiplies all colors in the bitmap
+with the given color.
+
+See also: [al_draw_tinted_bitmap]
 
 ### API: al_get_target_bitmap
 
@@ -697,34 +738,34 @@ Valid values for `src` and `dst` passed to this function are
          src = 1 - sa
          dst = 1 - sa
 
-The color parameter specifies the blend color, it is multipled with
-the source color before the above blending operation.
 
 Blending examples:
 
 So for example, to restore the default of using alpha blending, you
 would use (pseudo code)
 
-    al_set_blender(ALLEGRO_ADD, ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA, al_map_rgba_f(1, 1, 1, 1))
+    al_set_blender(ALLEGRO_ADD, ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA)
 
-If in addition you want to draw half transparently
+If you are using pre-multiplied alpha, you could use
 
-    al_set_blender(ALLEGRO_ADD, ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA, al_map_rgba_f(1, 1, 1, 0.5))
+    al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_INVERSE_ALPHA)
 
 Additive blending would be achieved with
 
-    al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ONE, al_map_rgba_f(1, 1, 1, 1))
+    al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ONE)
 
 Copying the source to the destination (including alpha) unmodified
 
-    al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ZERO, al_map_rgba_f(1, 1, 1, 1))
+    al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ZERO)
 
 See also: [al_set_separate_blender], [al_get_blender]
 
 ### API: al_set_separate_blender
 
 Like [al_set_blender], but allows specifying a separate blending
-operation for the alpha channel.
+operation for the alpha channel. This is useful if your target
+bitmap also has an alpha channel and the two alpha channels need
+to be combined in a different way than the color components.
 
 See also: [al_set_blender], [al_get_blender], [al_get_separate_blender]
 

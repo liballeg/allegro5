@@ -128,21 +128,23 @@ void Player::render_extra(void)
 
    small_font = (ALLEGRO_FONT *)rm.getData(RES_SMALLFONT);
 
-   al_draw_textf(small_font, 20, 2, 0, "x%d", lives);
+   al_draw_textf(small_font, al_map_rgb(255, 255, 255), 20, 2, 0, "x%d", lives);
 
-   al_draw_textf(small_font, 2, 18, 0, "%d", score);
+   al_draw_textf(small_font, al_map_rgb(255, 255, 255), 2, 18, 0, "%d", score);
 }
 
-void Player::render(int offx, int offy)
+void Player::render(int offx, int offy, ALLEGRO_COLOR tint)
 {
    int rx = (int)(offx + x), ry = (int)(offy + y);
 
    if (!isDestructable) {
-      al_draw_rotated_bitmap(trans_bitmap, draw_radius, draw_radius, rx, ry,
+      al_draw_tinted_rotated_bitmap(trans_bitmap, tint,
+         draw_radius, draw_radius, rx, ry,
          angle+(ALLEGRO_PI/2.0f), 0);
    }
    else {
-      al_draw_rotated_bitmap(bitmap, draw_radius, draw_radius, rx, ry,
+      al_draw_tinted_rotated_bitmap(bitmap,
+         tint, draw_radius, draw_radius, rx, ry,
          angle+(ALLEGRO_PI/2.0f), 0);
    }
    if (draw_trail) {
@@ -152,14 +154,19 @@ void Player::render(int offx, int offy)
       float a = ca + ((210.0f / 180.0f) * ALLEGRO_PI);
       float tx = rx + 42.0f * cos(a);
       float ty = ry + 42.0f * sin(a);
-      al_draw_rotated_bitmap(trail_bitmap, tw, th/2,
+      al_draw_tinted_rotated_bitmap(trail_bitmap, tint, tw, th/2,
          tx, ty, a, 0);
       a = ca + ((150.0f / 180.0f) * ALLEGRO_PI);
       tx = rx + 42.0f * cos(a);
       ty = ry + 42.0f * sin(a);
-      al_draw_rotated_bitmap(trail_bitmap, tw, th/2,
+      al_draw_tinted_rotated_bitmap(trail_bitmap, tint, tw, th/2,
          tx, ty, a, 0);
    }
+}
+
+void Player::render(int offx, int offy)
+{
+   render(offx, offy, al_map_rgb(255, 255, 255));
 }
 
 bool Player::hit(int damage)
@@ -212,11 +219,9 @@ bool Player::load(void)
 
    /* Make a translucent copy of the ship */
    al_set_target_bitmap(trans_bitmap);
-   al_set_separate_blender(
-      ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ZERO,
-      ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ZERO,
-      al_map_rgba(255, 255, 255, 160));
-   al_draw_bitmap(bitmap, 0, 0, 0);
+   al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ZERO);
+   al_draw_tinted_bitmap(bitmap, al_map_rgba(255, 255, 255, 160),
+      0, 0, 0);
    al_restore_state(&state);
 
    trail_bitmap = al_load_bitmap(getResource("gfx/trail.tga"));
@@ -293,8 +298,8 @@ void Player::die(void)
       ResourceManager& rm = ResourceManager::getInstance();
       ALLEGRO_FONT *large_font = (ALLEGRO_FONT *)rm.getData(RES_LARGEFONT);
       ALLEGRO_FONT *small_font = (ALLEGRO_FONT *)rm.getData(RES_SMALLFONT);
-      al_draw_textf(large_font, w/2, h/2-16, ALLEGRO_ALIGN_CENTRE, "GAME OVER");
-      al_draw_textf(small_font, w/2, h/2+16, ALLEGRO_ALIGN_CENTRE, "%d Points", score);
+      al_draw_textf(large_font, al_map_rgb(255, 255, 255), w/2, h/2-16, ALLEGRO_ALIGN_CENTRE, "GAME OVER");
+      al_draw_textf(small_font, al_map_rgb(255, 255, 255), w/2, h/2+16, ALLEGRO_ALIGN_CENTRE, "%d Points", score);
       al_set_target_bitmap(old_target);
    }
    else {

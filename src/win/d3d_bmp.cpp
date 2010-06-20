@@ -646,6 +646,7 @@ void _al_d3d_sync_bitmap(ALLEGRO_BITMAP *dest)
 
 /* Draw the bitmap at the specified position. */
 static void d3d_blit_real(ALLEGRO_BITMAP *src,
+   ALLEGRO_COLOR tint,
    float sx, float sy, float sw, float sh,
    float source_center_x, float source_center_y,
    float dx, float dy, float dw, float dh,
@@ -655,7 +656,6 @@ static void d3d_blit_real(ALLEGRO_BITMAP *src,
    ALLEGRO_BITMAP *dest = al_get_target_bitmap();
    ALLEGRO_BITMAP_D3D *d3d_dest = (ALLEGRO_BITMAP_D3D *)al_get_target_bitmap();
    DWORD color;
-   ALLEGRO_COLOR bc;
    unsigned char r, g, b, a;
 
    if (d3d_dest->display->device_lost)
@@ -663,8 +663,7 @@ static void d3d_blit_real(ALLEGRO_BITMAP *src,
 
    _al_d3d_set_bitmap_clip(dest);
 
-   al_get_blender(NULL, NULL, NULL, &bc);
-   al_unmap_rgba(bc, &r, &g, &b, &a);
+   al_unmap_rgba(tint, &r, &g, &b, &a);
    color = D3DCOLOR_ARGB(a, r, g, b);
 
    /* For sub-bitmaps */
@@ -686,7 +685,7 @@ static void d3d_blit_real(ALLEGRO_BITMAP *src,
             (ALLEGRO_BITMAP_D3D *)d3d_create_bitmap_from_surface(
                ((ALLEGRO_BITMAP_D3D *)d3d_src)->display->render_target,
                src->flags);
-         d3d_blit_real((ALLEGRO_BITMAP *)tmp_bmp, sx, sy, sw, sh,
+         d3d_blit_real((ALLEGRO_BITMAP *)tmp_bmp, tint, sx, sy, sw, sh,
             source_center_x, source_center_y,
             dx, dy, dw, dh,
             angle, flags, pivot);
@@ -796,79 +795,86 @@ static void d3d_blit_real(ALLEGRO_BITMAP *src,
 /* Blitting functions */
 
 static void d3d_draw_bitmap(ALLEGRO_BITMAP *bitmap,
+   ALLEGRO_COLOR tint,
    float dx, float dy, int flags)
 {
    if (!_al_d3d_render_to_texture_supported() || !_al_d3d_supports_separate_alpha_blend(al_get_current_display())) {
-      _al_draw_bitmap_memory(bitmap, (int) dx, (int) dy, flags);
+      _al_draw_bitmap_memory(bitmap, tint, (int) dx, (int) dy, flags);
       return;
    }
 
-   d3d_blit_real(bitmap, 0, 0, bitmap->w, bitmap->h,
+   d3d_blit_real(bitmap, tint, 0, 0, bitmap->w, bitmap->h,
       bitmap->w/2, bitmap->h/2,
       dx, dy, bitmap->w, bitmap->h,
       0.0f, flags, false);
 }
 
 static void d3d_draw_bitmap_region(ALLEGRO_BITMAP *bitmap,
+   ALLEGRO_COLOR tint,
    float sx, float sy, float sw, float sh, float dx, float dy, int flags)
 {
    if (!_al_d3d_render_to_texture_supported() || !_al_d3d_supports_separate_alpha_blend(al_get_current_display())) {
-      _al_draw_bitmap_region_memory(bitmap,
+      _al_draw_bitmap_region_memory(bitmap, tint,
          (int) sx, (int) sy, (int) sw, (int) sh,
          (int) dx, (int) dy, flags);
       return;
    }
 
-   d3d_blit_real(bitmap,
+   d3d_blit_real(bitmap, tint,
       sx, sy, sw, sh,
       0.0f, 0.0f,
       dx, dy, sw, sh,
       0.0f, flags, false);
 }
 
-static void d3d_draw_scaled_bitmap(ALLEGRO_BITMAP *bitmap, float sx, float sy,
+static void d3d_draw_scaled_bitmap(ALLEGRO_BITMAP *bitmap,
+   ALLEGRO_COLOR tint, float sx, float sy,
    float sw, float sh, float dx, float dy, float dw, float dh, int flags)
 {
    if (!_al_d3d_render_to_texture_supported() || !_al_d3d_supports_separate_alpha_blend(al_get_current_display())) {
-      _al_draw_scaled_bitmap_memory(bitmap,
+      _al_draw_scaled_bitmap_memory(bitmap, tint,
          (int) sx, (int) sy, (int) sw, (int) sh,
          (int) dx, (int) dy, (int) dw, (int) dh, flags);
       return;
    }
 
-   d3d_blit_real(bitmap,
+   d3d_blit_real(bitmap, tint,
       sx, sy, sw, sh, (sw-sx)/2, (sh-sy)/2,
       dx, dy, dw, dh, 0.0f,
       flags, false);
 }
 
-static void d3d_draw_rotated_bitmap(ALLEGRO_BITMAP *bitmap, float cx, float cy,
+static void d3d_draw_rotated_bitmap(ALLEGRO_BITMAP *bitmap,
+   ALLEGRO_COLOR tint,
+   float cx, float cy,
    float dx, float dy, float angle, int flags)
 {
    if (!_al_d3d_render_to_texture_supported() || !_al_d3d_supports_separate_alpha_blend(al_get_current_display())) {
-      _al_draw_rotated_bitmap_memory(bitmap, (int) cx, (int) cy,
+      _al_draw_rotated_bitmap_memory(bitmap, tint, (int) cx, (int) cy,
          (int) dx, (int) dy, angle, flags);
       return;
    }
 
-   d3d_blit_real(bitmap,
+   d3d_blit_real(bitmap, tint,
       0, 0, bitmap->w, bitmap->h,
       cx, cy,
       dx, dy, bitmap->w, bitmap->h,
       angle, flags, true);
 }
 
-static void d3d_draw_rotated_scaled_bitmap(ALLEGRO_BITMAP *bitmap, float cx, float cy,
+static void d3d_draw_rotated_scaled_bitmap(ALLEGRO_BITMAP *bitmap,
+   ALLEGRO_COLOR tint, float cx, float cy,
    float dx, float dy, float xscale, float yscale, float angle,
    int flags)
 {
    if (!_al_d3d_render_to_texture_supported() || !_al_d3d_supports_separate_alpha_blend(al_get_current_display())) {
-      _al_draw_rotated_scaled_bitmap_memory(bitmap, (int) cx, (int) cy,
+      _al_draw_rotated_scaled_bitmap_memory(bitmap, tint,
+         (int) cx, (int) cy,
          (int) dx, (int) dy, xscale, yscale, angle, flags);
       return;
    }
 
-   d3d_blit_real(bitmap,
+   d3d_blit_real(bitmap, tint,
       0, 0, bitmap->w, bitmap->h,
       cx, cy,
       dx, dy, bitmap->w*xscale, bitmap->h*yscale,

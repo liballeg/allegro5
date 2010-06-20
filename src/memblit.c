@@ -26,14 +26,18 @@
 #define MIN _ALLEGRO_MIN
 #define MAX _ALLEGRO_MAX
 
-static void _al_draw_transformed_rotated_bitmap_memory(ALLEGRO_BITMAP *src,
+static void _al_draw_transformed_rotated_bitmap_memory(
+   ALLEGRO_BITMAP *src, ALLEGRO_COLOR tint,
    int cx, int cy, int dx, int dy, float xscale, float yscale,
    float angle, int flags);
    
-static void _al_draw_transformed_scaled_bitmap_memory(ALLEGRO_BITMAP *src,
-   int sx, int sy, int sw, int sh, int dx, int dy, int dw, int dh, int flags);
+static void _al_draw_transformed_scaled_bitmap_memory(
+   ALLEGRO_BITMAP *src, ALLEGRO_COLOR tint, 
+   int sx, int sy, int sw, int sh, int dx, int dy, int dw, int dh,
+   int flags);
    
-static void _al_parallelogram_map_fast(ALLEGRO_BITMAP *src, al_fixed xs[4], 
+static void _al_parallelogram_map_fast(ALLEGRO_BITMAP *src,
+   al_fixed xs[4], 
    al_fixed ys[4], int sx, int sy, int sw, int sh);
    
 static bool is_identity(const ALLEGRO_TRANSFORM* trans)
@@ -72,15 +76,15 @@ static INLINE float get_factor(enum ALLEGRO_BLEND_MODE operation, float alpha)
 
 static INLINE void _al_blend_inline(
    const ALLEGRO_COLOR *scol, const ALLEGRO_COLOR *dcol,
-   int op, int src_, int dst_, int aop, int asrc_, int adst_, const ALLEGRO_COLOR *bc,
+   int op, int src_, int dst_, int aop, int asrc_, int adst_,
    ALLEGRO_COLOR *result)
 {
    float src, dst, asrc, adst;
 
-   result->r = scol->r * bc->r;
-   result->g = scol->g * bc->g;
-   result->b = scol->b * bc->b;
-   result->a = scol->a * bc->a;
+   result->r = scol->r;
+   result->g = scol->g;
+   result->b = scol->b;
+   result->a = scol->a;
 
    src = get_factor(src_, result->a);
    dst = get_factor(dst_, result->a);
@@ -135,15 +139,15 @@ static INLINE void _al_blend_inline(
 
 static void _al_blend_inline_dest_zero_add(
    const ALLEGRO_COLOR *scol,
-   int src_, int asrc_, const ALLEGRO_COLOR *bc,
+   int src_, int asrc_,
    ALLEGRO_COLOR *result)
 {
    float src, asrc;
 
-   result->r = scol->r * bc->r;
-   result->g = scol->g * bc->g;
-   result->b = scol->b * bc->b;
-   result->a = scol->a * bc->a;
+   result->r = scol->r;
+   result->g = scol->g;
+   result->b = scol->b;
+   result->a = scol->a;
 
    src = get_factor(src_, result->a);
    asrc = get_factor(asrc_, result->a);
@@ -161,10 +165,11 @@ static void _al_blend_inline_dest_zero_add(
 
 #define SRC_NOT_MODIFIED \
    src_mode == ALLEGRO_ONE && src_alpha == ALLEGRO_ONE && \
-   bc.r == 1.0f && bc.g == 1.0f && bc.b == 1.0f && bc.a == 1.0f
+   tint.r == 1.0f && tint.g == 1.0f && tint.b == 1.0f && tint.a == 1.0f
 
 
 void _al_draw_bitmap_region_memory(ALLEGRO_BITMAP *bitmap,
+   ALLEGRO_COLOR tint,
    int sx, int sy, int sw, int sh,
    int dx, int dy, int flags)
 {
@@ -174,19 +179,18 @@ void _al_draw_bitmap_region_memory(ALLEGRO_BITMAP *bitmap,
    int x, y;
    int op, src_mode, dst_mode;
    int op_alpha, src_alpha, dst_alpha;
-   ALLEGRO_COLOR bc;
    int xinc, yinc;
    int yd;
    int sxd;
    
    if(!is_identity(al_get_current_transform()))
    {
-      _al_draw_transformed_scaled_bitmap_memory(bitmap, sx, sy, sw, sh, dx, dy,
-         sw, sh, flags);
+      _al_draw_transformed_scaled_bitmap_memory(bitmap, tint, sx, sy,
+         sw, sh, dx, dy, sw, sh, flags);
       return;
    }
 
-   al_get_separate_blender(&op, &src_mode, &dst_mode, &op_alpha, &src_alpha, &dst_alpha, &bc);
+   al_get_separate_blender(&op, &src_mode, &dst_mode, &op_alpha, &src_alpha, &dst_alpha);
 
    if (DEST_IS_ZERO && SRC_NOT_MODIFIED)
    {
@@ -328,7 +332,11 @@ void _al_draw_bitmap_region_memory(ALLEGRO_BITMAP *bitmap,
             op != ALLEGRO_DEST_MINUS_SRC && op_alpha != ALLEGRO_DEST_MINUS_SRC) {
             for (x = 0; x < sw; x++) {
                _AL_INLINE_GET_PIXEL(src_region->format, src_data, src_color, false);
-               _al_blend_inline_dest_zero_add(&src_color, src_mode, src_alpha, &bc,
+               src_color.r *= tint.r;
+               src_color.g *= tint.g;
+               src_color.b *= tint.b;
+               src_color.a *= tint.a;
+               _al_blend_inline_dest_zero_add(&src_color, src_mode, src_alpha,
                   &result);
                _AL_INLINE_PUT_PIXEL(dst_region->format, dest_data, result, true);
 
@@ -339,8 +347,12 @@ void _al_draw_bitmap_region_memory(ALLEGRO_BITMAP *bitmap,
             for (x = 0; x < sw; x++) {
                _AL_INLINE_GET_PIXEL(src_region->format, src_data, src_color, false);
                _AL_INLINE_GET_PIXEL(dst_region->format, dest_data, dst_color, false);
+               src_color.r *= tint.r;
+               src_color.g *= tint.g;
+               src_color.b *= tint.b;
+               src_color.a *= tint.a;
                _al_blend_inline(&src_color, &dst_color,
-                  op, src_mode, dst_mode, op_alpha, src_alpha, dst_alpha, &bc, &result);
+                  op, src_mode, dst_mode, op_alpha, src_alpha, dst_alpha, &result);
                _AL_INLINE_PUT_PIXEL(dst_region->format, dest_data, result, true);
 
                src_data += src_data_inc;
@@ -355,13 +367,15 @@ void _al_draw_bitmap_region_memory(ALLEGRO_BITMAP *bitmap,
 
 
 
-void _al_draw_bitmap_memory(ALLEGRO_BITMAP *bitmap, int dx, int dy, int flags)
+void _al_draw_bitmap_memory(ALLEGRO_BITMAP *bitmap,
+   ALLEGRO_COLOR tint, int dx, int dy, int flags)
 {
-   _al_draw_bitmap_region_memory(bitmap, 0, 0, bitmap->w, bitmap->h,
-      dx, dy, flags);
+   _al_draw_bitmap_region_memory(bitmap, tint, 0, 0,
+      bitmap->w, bitmap->h, dx, dy, flags);
 }
 
 void _al_draw_scaled_bitmap_memory(ALLEGRO_BITMAP *src,
+   ALLEGRO_COLOR tint,
    int sx, int sy, int sw, int sh,
    int dx, int dy, int dw, int dh, int flags)
 {
@@ -370,7 +384,6 @@ void _al_draw_scaled_bitmap_memory(ALLEGRO_BITMAP *src,
    ALLEGRO_LOCKED_REGION *dst_region;
    int op, src_mode, dst_mode;
    int op_alpha, src_alpha, dst_alpha;
-   ALLEGRO_COLOR bc;
 
    float sxinc;
    float syinc;
@@ -385,13 +398,13 @@ void _al_draw_scaled_bitmap_memory(ALLEGRO_BITMAP *src,
    
    if(!is_identity(al_get_current_transform()))
    {
-      _al_draw_transformed_scaled_bitmap_memory(src, sx, sy, sw, sh, dx, dy,
-         dw, dh, flags);
+      _al_draw_transformed_scaled_bitmap_memory(src, tint, sx, sy,
+         sw, sh, dx, dy, dw, dh, flags);
       return;
    }
 
    al_get_separate_blender(&op, &src_mode, &dst_mode,
-      &op_alpha, &src_alpha, &dst_alpha, &bc);
+      &op_alpha, &src_alpha, &dst_alpha);
 
    if (DEST_IS_ZERO && SRC_NOT_MODIFIED) {
       _al_draw_scaled_bitmap_memory_fast(src,
@@ -487,7 +500,11 @@ void _al_draw_scaled_bitmap_memory(ALLEGRO_BITMAP *src,
                const char *src_data = src_row
                   + src_size * _al_fast_float_to_int(_sx);
                _AL_INLINE_GET_PIXEL(src->format, src_data, src_color, false);
-               _al_blend_inline_dest_zero_add(&src_color, src_mode, src_alpha, &bc,
+               src_color.r *= tint.r;
+               src_color.g *= tint.g;
+               src_color.b *= tint.b;
+               src_color.a *= tint.a;
+               _al_blend_inline_dest_zero_add(&src_color, src_mode, src_alpha,
                   &result);
                _AL_INLINE_PUT_PIXEL(dest->format, dst_data, result, false);
 
@@ -501,8 +518,12 @@ void _al_draw_scaled_bitmap_memory(ALLEGRO_BITMAP *src,
                   + src_size * _al_fast_float_to_int(_sx);
                _AL_INLINE_GET_PIXEL(src->format, src_data, src_color, false);
                _AL_INLINE_GET_PIXEL(dest->format, dst_data, dst_color, false);
+               src_color.r *= tint.r;
+               src_color.g *= tint.g;
+               src_color.b *= tint.b;
+               src_color.a *= tint.a;
                _al_blend_inline(&src_color, &dst_color,
-                  op, src_mode, dst_mode, op_alpha, src_alpha, dst_alpha, &bc, &result);
+                  op, src_mode, dst_mode, op_alpha, src_alpha, dst_alpha, &result);
                _AL_INLINE_PUT_PIXEL(dest->format, dst_data, result, false);
 
                _sx += sxinc;
@@ -979,7 +1000,11 @@ do {                                                                         \
                   + src_region->pitch * (my_l_spr_y>>16)                     \
                   + src_size * (my_l_spr_x>>16);                             \
             _AL_INLINE_GET_PIXEL(src->format, src_data, src_color, false);   \
-            _al_blend_inline_dest_zero_add(&src_color, src_mode, src_alpha, &bc,         \
+            src_color.r *= tint.r;                                           \
+            src_color.g *= tint.g;                                           \
+            src_color.b *= tint.b;                                           \
+            src_color.a *= tint.a;                                           \
+            _al_blend_inline_dest_zero_add(&src_color, src_mode, src_alpha,  \
                &result);                                                     \
             _AL_INLINE_PUT_PIXEL(dst->format, dst_data, result, true);       \
                                                                              \
@@ -994,8 +1019,12 @@ do {                                                                         \
                   + src_size * (my_l_spr_x>>16);                             \
             _AL_INLINE_GET_PIXEL(src->format, src_data, src_color, false);   \
             _AL_INLINE_GET_PIXEL(dst->format, dst_data, dst_color, false);   \
+            src_color.r *= tint.r;                                           \
+            src_color.g *= tint.g;                                           \
+            src_color.b *= tint.b;                                           \
+            src_color.a *= tint.a;                                           \
             _al_blend_inline(&src_color, &dst_color,                         \
-               op, src_mode, dst_mode, op_alpha, src_alpha, dst_alpha, &bc, &result);                      \
+               op, src_mode, dst_mode, op_alpha, src_alpha, dst_alpha, &result);                      \
             _AL_INLINE_PUT_PIXEL(dst->format, dst_data, result, true);       \
                                                                              \
             my_l_spr_x += spr_dx;                                            \
@@ -1062,26 +1091,27 @@ do {                                                                         \
 
 
 void _al_draw_rotated_scaled_bitmap_memory(ALLEGRO_BITMAP *src,
+   ALLEGRO_COLOR tint,
    int cx, int cy, int dx, int dy, float xscale, float yscale,
    float angle, int flags)
 {
    ALLEGRO_BITMAP *dst = al_get_target_bitmap();
    int op, src_mode, dst_mode;
    int op_alpha, src_alpha, dst_alpha;
-   ALLEGRO_COLOR bc;
    
    if(!is_identity(al_get_current_transform()))
    {
-      _al_draw_transformed_rotated_bitmap_memory(src, cx, cy, dx, dy, xscale, yscale, angle,
+      _al_draw_transformed_rotated_bitmap_memory(src, tint,
+         cx, cy, dx, dy, xscale, yscale, angle,
           flags);
       return;
    }
 
    al_get_separate_blender(&op, &src_mode, &dst_mode,
-      &op_alpha, &src_alpha, &dst_alpha, &bc);
+      &op_alpha, &src_alpha, &dst_alpha);
 
    if (src_mode == ALLEGRO_ONE && dst_mode == ALLEGRO_ZERO &&
-      bc.r == 1.0f && bc.g == 1.0f && bc.b == 1.0f && bc.a == 1.0f &&
+      tint.r == 1.0f && tint.g == 1.0f && tint.b == 1.0f && tint.a == 1.0f &&
       (src->format == dst->format)) {
       _al_draw_rotated_scaled_bitmap_memory_fast(src,
          cx, cy, dx, dy, xscale, yscale, angle, flags);
@@ -1099,27 +1129,28 @@ void _al_draw_rotated_scaled_bitmap_memory(ALLEGRO_BITMAP *src,
 
 
 void _al_draw_rotated_bitmap_memory(ALLEGRO_BITMAP *src,
+   ALLEGRO_COLOR tint,
    int cx, int cy, int dx, int dy, float angle, int flags)
 {
-   _al_draw_rotated_scaled_bitmap_memory(src,
+   _al_draw_rotated_scaled_bitmap_memory(src, tint,
       cx, cy, dx, dy, 1.0f, 1.0f, angle, flags);
 }
 
 static void _al_draw_transformed_bitmap_memory(ALLEGRO_BITMAP *src,
+   ALLEGRO_COLOR tint,
    int sx, int sy, int sw, int sh, int dw, int dh, 
    ALLEGRO_TRANSFORM* local_trans, int flags)
 {
    ALLEGRO_BITMAP *dst = al_get_target_bitmap();
    int op, src_mode, dst_mode;
    int op_alpha, src_alpha, dst_alpha;
-   ALLEGRO_COLOR bc;
    al_fixed xs[4], ys[4];
    float xsf[4], ysf[4];
    int tl = 0, tr = 1, bl = 3, br = 2;
    int tmp;
 
    al_get_separate_blender(&op, &src_mode, &dst_mode,
-      &op_alpha, &src_alpha, &dst_alpha, &bc);
+      &op_alpha, &src_alpha, &dst_alpha);
 
    ASSERT(_al_pixel_format_is_real(src->format));
    ASSERT(_al_pixel_format_is_real(dst->format));
@@ -1179,7 +1210,8 @@ static void _al_draw_transformed_bitmap_memory(ALLEGRO_BITMAP *src,
    DO_PARALLELOGRAM_MAP(true, flags);
 }
 
-static void _al_draw_transformed_rotated_bitmap_memory(ALLEGRO_BITMAP *src,
+static void _al_draw_transformed_rotated_bitmap_memory(
+   ALLEGRO_BITMAP *src, ALLEGRO_COLOR tint,
    int cx, int cy, int dx, int dy, float xscale, float yscale,
    float angle, int flags)
 {
@@ -1196,11 +1228,12 @@ static void _al_draw_transformed_rotated_bitmap_memory(ALLEGRO_BITMAP *src,
    w = al_get_bitmap_width(src);
    h = al_get_bitmap_height(src);
    
-   _al_draw_transformed_bitmap_memory(src, 0, 0, w, h, w, h, &local_trans, 
-      flags);
+   _al_draw_transformed_bitmap_memory(src, tint, 0, 0, w, h, w, h,
+      &local_trans, flags);
 }
 
-static void _al_draw_transformed_scaled_bitmap_memory(ALLEGRO_BITMAP *src,
+static void _al_draw_transformed_scaled_bitmap_memory(
+   ALLEGRO_BITMAP *src, ALLEGRO_COLOR tint,
    int sx, int sy, int sw, int sh, int dx, int dy, int dw, int dh, int flags)
 {
    ALLEGRO_TRANSFORM local_trans;
@@ -1209,8 +1242,8 @@ static void _al_draw_transformed_scaled_bitmap_memory(ALLEGRO_BITMAP *src,
    al_translate_transform(&local_trans, dx, dy);
    al_transform_transform(al_get_current_transform(), &local_trans);
    
-   _al_draw_transformed_bitmap_memory(src, sx, sy, sw, sh, dw, dh, &local_trans, 
-      flags);
+   _al_draw_transformed_bitmap_memory(src, tint, sx, sy, sw, sh, dw, dh,
+      &local_trans, flags);
 }
 
 

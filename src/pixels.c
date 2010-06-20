@@ -468,7 +468,7 @@ void al_put_blended_pixel(int x, int y, ALLEGRO_COLOR color)
 {
    ALLEGRO_COLOR result;
    ALLEGRO_BITMAP* bitmap = al_get_target_bitmap();
-   _al_blend(&color, bitmap, x, y, &result);
+   _al_blend_memory(&color, bitmap, x, y, &result);
    _al_put_pixel(bitmap, x, y, result);
 }
 

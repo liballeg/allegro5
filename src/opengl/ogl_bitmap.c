@@ -182,7 +182,7 @@ static INLINE bool setup_blending(ALLEGRO_DISPLAY *ogl_disp)
    (void)ogl_disp;
 
    al_get_separate_blender(&op, &src_color, &dst_color,
-      &op_alpha, &src_alpha, &dst_alpha, NULL);
+      &op_alpha, &src_alpha, &dst_alpha);
    /* glBlendFuncSeparate was only included with OpenGL 1.4 */
    /* (And not in OpenGL ES) */
 #if !defined ALLEGRO_GP2XWIZ
@@ -235,6 +235,7 @@ static INLINE void transform_vertex(float cx, float cy, float dx, float dy,
 }
 
 static void draw_quad(ALLEGRO_BITMAP *bitmap,
+    ALLEGRO_COLOR tint,
     float sx, float sy, float sw, float sh,
     float cx, float cy, float dx, float dy, float dw, float dh,
     float xscale, float yscale, float angle, int flags)
@@ -243,8 +244,7 @@ static void draw_quad(ALLEGRO_BITMAP *bitmap,
    float c, s;
    ALLEGRO_BITMAP_OGL *ogl_bitmap = (void *)bitmap;
    ALLEGRO_OGL_BITMAP_VERTEX* verts;
-   ALLEGRO_DISPLAY* disp = al_get_current_display();
-   ALLEGRO_COLOR* bc = _al_get_blend_color();
+   ALLEGRO_DISPLAY *disp = al_get_current_display();
 
    if (disp->num_cache_vertices != 0 && ogl_bitmap->texture != disp->cache_texture) {
       disp->vt->flush_vertex_cache(disp);
@@ -278,37 +278,37 @@ static void draw_quad(ALLEGRO_BITMAP *bitmap,
    verts[0].y = dy+dh;
    verts[0].tx = tex_l;
    verts[0].ty = tex_b;
-   verts[0].r = bc->r;
-   verts[0].g = bc->g;
-   verts[0].b = bc->b;
-   verts[0].a = bc->a;
+   verts[0].r = tint.r;
+   verts[0].g = tint.g;
+   verts[0].b = tint.b;
+   verts[0].a = tint.a;
    
    verts[1].x = dx;
    verts[1].y = dy;
    verts[1].tx = tex_l;
    verts[1].ty = tex_t;
-   verts[1].r = bc->r;
-   verts[1].g = bc->g;
-   verts[1].b = bc->b;
-   verts[1].a = bc->a;
+   verts[1].r = tint.r;
+   verts[1].g = tint.g;
+   verts[1].b = tint.b;
+   verts[1].a = tint.a;
    
    verts[2].x = dx+dw;
    verts[2].y = dy+dh;
    verts[2].tx = tex_r;
    verts[2].ty = tex_b;
-   verts[2].r = bc->r;
-   verts[2].g = bc->g;
-   verts[2].b = bc->b;
-   verts[2].a = bc->a;
+   verts[2].r = tint.r;
+   verts[2].g = tint.g;
+   verts[2].b = tint.b;
+   verts[2].a = tint.a;
    
    verts[4].x = dx+dw;
    verts[4].y = dy;
    verts[4].tx = tex_r;
    verts[4].ty = tex_t;
-   verts[4].r = bc->r;
-   verts[4].g = bc->g;
-   verts[4].b = bc->b;
-   verts[4].a = bc->a;
+   verts[4].r = tint.r;
+   verts[4].g = tint.g;
+   verts[4].b = tint.b;
+   verts[4].a = tint.a;
    
    if(angle == 0) {
       c = 1;
@@ -333,7 +333,8 @@ static void draw_quad(ALLEGRO_BITMAP *bitmap,
 
 
 
-static void ogl_draw_scaled_bitmap(ALLEGRO_BITMAP *bitmap, float sx, float sy,
+static void ogl_draw_scaled_bitmap(ALLEGRO_BITMAP *bitmap,
+   ALLEGRO_COLOR tint, float sx, float sy,
    float sw, float sh, float dx, float dy, float dw, float dh, int flags)
 {
    // FIXME: hack
@@ -348,17 +349,18 @@ static void ogl_draw_scaled_bitmap(ALLEGRO_BITMAP *bitmap, float sx, float sy,
       
    if (disp->ogl_extras->opengl_target != ogl_target ||
       !setup_blending(disp) || target->locked) {
-      _al_draw_scaled_bitmap_memory(bitmap, sx, sy, sw, sh, dx, dy, dw, dh,
-                                    flags);
+      _al_draw_scaled_bitmap_memory(bitmap, tint, sx, sy, sw, sh,
+         dx, dy, dw, dh, flags);
       return;
    }
 
-   draw_quad(bitmap, sx, sy, sw, sh, 0, 0, dx, dy, dw, dh, 1, 1, 0, flags);
+   draw_quad(bitmap, tint, sx, sy, sw, sh, 0, 0, dx, dy, dw, dh, 1, 1, 0, flags);
 }
 
 
 
-static void ogl_draw_bitmap_region(ALLEGRO_BITMAP *bitmap, float sx, float sy,
+static void ogl_draw_bitmap_region(ALLEGRO_BITMAP *bitmap,
+   ALLEGRO_COLOR tint, float sx, float sy,
    float sw, float sh, float dx, float dy, int flags)
 {
    // FIXME: hack
@@ -447,7 +449,7 @@ static void ogl_draw_bitmap_region(ALLEGRO_BITMAP *bitmap, float sx, float sy,
    }
    if (disp->ogl_extras->opengl_target == ogl_target) {
       if (setup_blending(disp)) {
-         draw_quad(bitmap, sx, sy, sw, sh, 0, 0, dx, dy, sw, sh, 1, 1, 0, flags);
+         draw_quad(bitmap, tint, sx, sy, sw, sh, 0, 0, dx, dy, sw, sh, 1, 1, 0, flags);
          return;
       }
    }
@@ -455,21 +457,23 @@ static void ogl_draw_bitmap_region(ALLEGRO_BITMAP *bitmap, float sx, float sy,
    
    
    /* If all else fails, fall back to software implementation. */
-   _al_draw_bitmap_region_memory(bitmap, sx, sy, sw, sh, dx, dy, flags);
+   _al_draw_bitmap_region_memory(bitmap, tint, sx, sy, sw, sh, dx, dy, flags);
 }
 
 
 
 /* Draw the bitmap at the specified position. */
-static void ogl_draw_bitmap(ALLEGRO_BITMAP *bitmap, float x, float y,
+static void ogl_draw_bitmap(ALLEGRO_BITMAP *bitmap,
+   ALLEGRO_COLOR tint, float x, float y,
    int flags)
 {
-   ogl_draw_bitmap_region(bitmap, 0, 0, bitmap->w, bitmap->h, x, y, flags);
+   ogl_draw_bitmap_region(bitmap, tint, 0, 0, bitmap->w, bitmap->h, x, y, flags);
 }
 
 
 
-static void ogl_draw_rotated_bitmap(ALLEGRO_BITMAP *bitmap, float cx, float cy,
+static void ogl_draw_rotated_bitmap(ALLEGRO_BITMAP *bitmap,
+   ALLEGRO_COLOR tint, float cx, float cy,
    float dx, float dy, float angle, int flags)
 {
    // FIXME: hack
@@ -484,17 +488,18 @@ static void ogl_draw_rotated_bitmap(ALLEGRO_BITMAP *bitmap, float cx, float cy,
    
    if (disp->ogl_extras->opengl_target != ogl_target ||
       !setup_blending(disp) || target->locked) {
-      _al_draw_rotated_bitmap_memory(bitmap, cx, cy, dx, dy, angle, flags);
+      _al_draw_rotated_bitmap_memory(bitmap, tint, cx, cy, dx, dy, angle, flags);
       return;
    }
 
-   draw_quad(bitmap, 0, 0, bitmap->w, bitmap->h, cx, cy,
+   draw_quad(bitmap, tint, 0, 0, bitmap->w, bitmap->h, cx, cy,
       dx, dy, bitmap->w, bitmap->h, 1, 1, angle, flags);
 }
 
 
 
 static void ogl_draw_rotated_scaled_bitmap(ALLEGRO_BITMAP *bitmap,
+   ALLEGRO_COLOR tint, 
    float cx, float cy, float dx, float dy, float xscale, float yscale,
    float angle, int flags)
 {
@@ -510,12 +515,12 @@ static void ogl_draw_rotated_scaled_bitmap(ALLEGRO_BITMAP *bitmap,
    
    if (disp->ogl_extras->opengl_target != ogl_target ||
       !setup_blending(disp) || target->locked) {
-      _al_draw_rotated_scaled_bitmap_memory(bitmap, cx, cy, dx, dy,
-                                            xscale, yscale, angle, flags);
+      _al_draw_rotated_scaled_bitmap_memory(bitmap, tint, cx, cy,
+         dx, dy, xscale, yscale, angle, flags);
       return;
    }
 
-   draw_quad(bitmap, 0, 0, bitmap->w, bitmap->h, cx, cy, dx, dy,
+   draw_quad(bitmap, tint, 0, 0, bitmap->w, bitmap->h, cx, cy, dx, dy,
       bitmap->w, bitmap->h, xscale, yscale, angle, flags);
 }
 

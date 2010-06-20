@@ -76,21 +76,20 @@ static void draw_square(Square *sq)
    ALLEGRO_TRANSFORM trans;
    float alpha;
    float size;
-   ALLEGRO_COLOR white;
+   ALLEGRO_COLOR tint;
 
    al_build_transform(&trans, sq->cx, sq->cy, 1.0, 1.0, sq->rot);
    al_use_transform(&trans);
 
    alpha = sin(sq->life);
-   al_set_blender(ALLEGRO_ADD, ALLEGRO_ALPHA, ALLEGRO_ONE,
-      al_map_rgba_f(0.5, 0.3, 0, alpha));
+   al_set_blender(ALLEGRO_ADD, ALLEGRO_ALPHA, ALLEGRO_ONE);
+   tint = al_map_rgba_f(0.5, 0.3, 0, alpha);
 
    size = sq->size;
-   white = al_map_rgba_f(1, 1, 1, 1);
-   al_draw_filled_rounded_rectangle(-size, -size, size, size, 3, 3, white);
+   al_draw_filled_rounded_rectangle(-size, -size, size, size, 3, 3, tint);
 
    size *= 1.1;
-   al_draw_rounded_rectangle(-size, -size, size, size, 3, 3, white, 2);
+   al_draw_rounded_rectangle(-size, -size, size, size, 3, 3, tint, 2);
 }
 
 

@@ -280,8 +280,7 @@ ALLEGRO_BITMAP *replace_bitmap(ALLEGRO_BITMAP *bmp)
  */
 void solid_mode()
 {
-   al_set_blender(ALLEGRO_ADD, ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA,
-		  al_map_rgb(255, 255, 255));
+   al_set_blender(ALLEGRO_ADD, ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA);
 }
 
 
@@ -387,14 +386,7 @@ void polygon(int vertices, const int *points, ALLEGRO_COLOR color)
 /* emulate textout() */
 void textout(const ALLEGRO_FONT *font, const char *s, int x, int y, ALLEGRO_COLOR c)
 {
-   ALLEGRO_STATE state;
-
-   al_store_state(&state, ALLEGRO_STATE_BLENDER);
-
-   al_set_blender(ALLEGRO_ADD, ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA, c);
-   al_draw_text(font, x, y, ALLEGRO_ALIGN_LEFT, s);
-
-   al_restore_state(&state);
+   al_draw_text(font, c, x, y, ALLEGRO_ALIGN_LEFT, s);
 }
 
 
@@ -402,14 +394,7 @@ void textout(const ALLEGRO_FONT *font, const char *s, int x, int y, ALLEGRO_COLO
 /* emulate textout_centre() */
 void textout_centre(const ALLEGRO_FONT *font, const char *s, int x, int y, ALLEGRO_COLOR c)
 {
-   ALLEGRO_STATE state;
-
-   al_store_state(&state, ALLEGRO_STATE_BLENDER);
-
-   al_set_blender(ALLEGRO_ADD, ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA, c);
-   al_draw_text(font, x, y, ALLEGRO_ALIGN_CENTRE, s);
-
-   al_restore_state(&state);
+   al_draw_text(font, c, x, y, ALLEGRO_ALIGN_CENTRE, s);
 }
 
 

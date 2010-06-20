@@ -65,18 +65,11 @@ static void print(char const *format, ...)
 {
    va_list list;
    char message[1024];
-   ALLEGRO_STATE state;
    int th = al_get_font_line_height(ex.font);
-   al_store_state(&state, ALLEGRO_STATE_BLENDER);
-
    va_start(list, format);
    vsnprintf(message, sizeof message, format, list);
    va_end(list);
-   
-   al_set_blender(ALLEGRO_ADD, ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA, ex.text);
-   al_draw_textf(ex.font, ex.text_x, ex.text_y, 0, "%s", message);
-   al_restore_state(&state);
-   
+   al_draw_textf(ex.font, ex.text, ex.text_x, ex.text_y, 0, "%s", message);
    ex.text_y += th;   
 }
 
@@ -108,7 +101,7 @@ static void draw(void)
    void *data;
    int size, i, format;
    
-   al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ZERO, ex.white);
+   al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ZERO);
 
    al_clear_to_color(ex.background);
 

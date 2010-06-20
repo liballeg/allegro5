@@ -27,16 +27,16 @@
 
 /* Function: al_set_blender
  */
-void al_set_blender(int op, int src, int dst, ALLEGRO_COLOR color)
+void al_set_blender(int op, int src, int dst)
 {
-   al_set_separate_blender(op, src, dst, op, src, dst, color);
+   al_set_separate_blender(op, src, dst, op, src, dst);
 }
 
 
 /* Function: al_set_separate_blender
  */
 void al_set_separate_blender(int op, int src, int dst,
-   int alpha_op, int alpha_src, int alpha_dst, ALLEGRO_COLOR color)
+   int alpha_op, int alpha_src, int alpha_dst)
 {
    ALLEGRO_DISPLAY *display = _al_get_current_display();
    ALLEGRO_BLENDER *b = &display->cur_blender;
@@ -47,22 +47,21 @@ void al_set_separate_blender(int op, int src, int dst,
    b->blend_alpha_op = alpha_op;
    b->blend_alpha_source = alpha_src;
    b->blend_alpha_dest = alpha_dst;
-   b->blend_color = color;
 }
 
 
 /* Function: al_get_blender
  */
-void al_get_blender(int *op, int *src, int *dst, ALLEGRO_COLOR *color)
+void al_get_blender(int *op, int *src, int *dst)
 {
-   al_get_separate_blender(op, src, dst, NULL, NULL, NULL, color);
+   al_get_separate_blender(op, src, dst, NULL, NULL, NULL);
 }
 
 
 /* Function: al_get_separate_blender
  */
 void al_get_separate_blender(int *op, int *src, int *dst,
-   int *alpha_op, int *alpha_src, int *alpha_dst, ALLEGRO_COLOR *color)
+   int *alpha_op, int *alpha_src, int *alpha_dst)
 {
    ALLEGRO_DISPLAY *display = _al_get_current_display();
    ALLEGRO_BLENDER *b = &display->cur_blender;
@@ -84,17 +83,6 @@ void al_get_separate_blender(int *op, int *src, int *dst,
 
    if (alpha_dst)
       *alpha_dst = b->blend_alpha_dest;
-
-   if (color)
-      *color = b->blend_color;
-}
-
-
-ALLEGRO_COLOR *_al_get_blend_color(void)
-{
-   ALLEGRO_DISPLAY *display = _al_get_current_display();
-   ALLEGRO_BLENDER *b = &display->cur_blender;
-   return &b->blend_color;
 }
 
 
@@ -106,7 +94,6 @@ void _al_initialize_blender(ALLEGRO_BLENDER *b)
    b->blend_alpha_op = ALLEGRO_ADD;
    b->blend_alpha_source = ALLEGRO_ALPHA;
    b->blend_alpha_dest = ALLEGRO_INVERSE_ALPHA;
-   b->blend_color = al_map_rgb_f(1, 1, 1);
 }
 
 
@@ -124,21 +111,20 @@ static float get_factor(int operation, float alpha)
 
 
 // FIXME: un-optimized reference implementation
-void _al_blend(ALLEGRO_COLOR *scol,
+void _al_blend_memory(ALLEGRO_COLOR *scol,
    ALLEGRO_BITMAP *dest,
    int dx, int dy, ALLEGRO_COLOR *result)
 {
    float src, dst, asrc, adst;
    int op, src_, dst_, aop, asrc_, adst_;
    ALLEGRO_COLOR dcol;
-   ALLEGRO_COLOR bc;
 
    dcol = al_get_pixel(dest, dx, dy);
-   al_get_separate_blender(&op, &src_, &dst_, &aop, &asrc_, &adst_, &bc);
-   result->r = scol->r * bc.r;
-   result->g = scol->g * bc.g;
-   result->b = scol->b * bc.b;
-   result->a = scol->a * bc.a;
+   al_get_separate_blender(&op, &src_, &dst_, &aop, &asrc_, &adst_);
+   result->r = scol->r;
+   result->g = scol->g;
+   result->b = scol->b;
+   result->a = scol->a;
    src = get_factor(src_, result->a);
    dst = get_factor(dst_, result->a);
    asrc = get_factor(asrc_, result->a);

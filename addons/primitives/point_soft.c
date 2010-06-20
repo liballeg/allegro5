@@ -37,7 +37,7 @@ void _al_point_2d(ALLEGRO_BITMAP* texture, ALLEGRO_VERTEX* v)
 {
    int shade = 1;
    int op, src_mode, dst_mode, op_alpha, src_alpha, dst_alpha;
-   ALLEGRO_COLOR ic, vc;
+   ALLEGRO_COLOR vc;
    int clip_min_x, clip_min_y, clip_max_x, clip_max_y;
    int x = (int)floor(v->x);
    int y = (int)floor(v->x);
@@ -51,7 +51,7 @@ void _al_point_2d(ALLEGRO_BITMAP* texture, ALLEGRO_VERTEX* v)
 
    vc = v->color;
 
-   al_get_separate_blender(&op, &src_mode, &dst_mode, &op_alpha, &src_alpha, &dst_alpha, &ic);
+   al_get_separate_blender(&op, &src_mode, &dst_mode, &op_alpha, &src_alpha, &dst_alpha);
    if (_DEST_IS_ZERO && _SRC_NOT_MODIFIED) {
       shade = 0;
    }

@@ -66,25 +66,25 @@ void Entity::wrap(void)
       y -= BB_H;
 }
 
-void Entity::render_four(void)
+void Entity::render_four(ALLEGRO_COLOR tint)
 {
    int ox = 0;
-   render(0, 0);
+   render(0, 0, tint);
    if (x > BB_W / 2) {
       ox = -BB_W;
-      render(ox, 0);
+      render(ox, 0, tint);
    }
    else {
       ox = BB_W;
-      render(ox, 0);
+      render(ox, 0, tint);
    }
    if (y > BB_H / 2) {
-      render(0, -BB_H);
-      render(ox, -BB_H);
+      render(0, -BB_H, tint);
+      render(ox, -BB_H, tint);
    }
    else {
-      render(0, BB_H);
-      render(ox, BB_H);
+      render(0, BB_H, tint);
+      render(ox, BB_H, tint);
    }
    
    #ifdef DEBUG_COLLISION_CIRCLES
@@ -99,6 +99,12 @@ void Entity::render_four(void)
    }
    #endif
    
+}
+
+void Entity::render(int x, int y, ALLEGRO_COLOR c)
+{
+   (void)c; // To use c must override this in a sub-class.
+   render(x, y);
 }
 
 Entity *Entity::checkCollisions(std::list<Entity *>& e)

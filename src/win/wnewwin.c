@@ -761,7 +761,7 @@ void _al_win_set_display_icon(ALLEGRO_DISPLAY *display, ALLEGRO_BITMAP *bmp)
    al_set_new_bitmap_format(ALLEGRO_PIXEL_FORMAT_ARGB_8888);
    scaled_bmp = al_create_bitmap(32, 32);
    al_set_target_bitmap(scaled_bmp);
-   al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ZERO, al_map_rgb(255, 255, 255));
+   al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ZERO);
    al_draw_scaled_bitmap(bmp, 0, 0,
       al_get_bitmap_width(bmp),
       al_get_bitmap_height(bmp),

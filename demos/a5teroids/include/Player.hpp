@@ -11,6 +11,7 @@ public:
    bool logic(int step);
    void render_extra(void);
    void render(int offx, int offy);
+   void render(int offx, int offy, ALLEGRO_COLOR tint);
    bool hit(int damage);
 
    void destroy(void);

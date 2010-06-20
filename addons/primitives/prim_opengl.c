@@ -40,7 +40,7 @@ static void setup_blending(void)
    };
 
    al_get_separate_blender(&op, &src_color, &dst_color,
-                     &op_alpha, &src_alpha, &dst_alpha, NULL);
+                     &op_alpha, &src_alpha, &dst_alpha);
    /* glBlendFuncSeparate was only included with OpenGL 1.4 */
 #if !defined ALLEGRO_GP2XWIZ
    {

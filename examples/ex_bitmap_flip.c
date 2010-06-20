@@ -119,20 +119,7 @@ int main(void)
 
    al_start_timer(timer);
 
-   /* opaque: software version matches hardware version */
-   /*
-   al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ZERO, al_map_rgba_f(1, 1, 1, 1));
-   */
-
-   /* XXX dest zero: software version much darker */
-   /*
-   al_set_blender(ALLEGRO_ADD, ALLEGRO_ALPHA, ALLEGRO_ZERO,
-      al_map_rgba_f(1, 1, 1, 0.5));
-   */
-
-   /* XXX: software version darker */
-   al_set_blender(ALLEGRO_ADD, ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA,
-      al_map_rgba_f(1, 1, 1, 0.5));
+   al_set_blender(ALLEGRO_ADD, ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA);
 
    while (!done) {
       ALLEGRO_EVENT event;
@@ -140,8 +127,9 @@ int main(void)
       if (redraw && al_event_queue_is_empty(queue)) {
          update(bmp);
          al_clear_to_color(al_map_rgb_f(0, 0, 0));
-         al_draw_bitmap(bmp, bmp_x, bmp_y, bmp_flag);
-         al_draw_text(font, 0, 0, 0, text);
+         al_draw_tinted_bitmap(bmp, al_map_rgba_f(1, 1, 1, 0.5),
+            bmp_x, bmp_y, bmp_flag);
+         al_draw_text(font, al_map_rgba_f(1, 1, 1, 0.5), 0, 0, 0, text);
          al_flip_display();
          redraw = false;
       }

@@ -41,6 +41,7 @@ static void print(int x, int y, bool vertical, char const *format, ...)
    vsnprintf(message, sizeof message, format, list);
    va_end(list);
 
+   al_set_blender(ALLEGRO_ADD, ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA);
    h = al_get_font_line_height(ex.myfont);
 
    for (j = 0; j < 2; j++) {
@@ -49,20 +50,19 @@ static void print(int x, int y, bool vertical, char const *format, ...)
       else
          color = al_map_rgb(255, 255, 255);
 
-      al_set_blender(ALLEGRO_ADD, ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA, color);
       if (vertical) {
          int i;
          ALLEGRO_USTR_INFO ui;
          ALLEGRO_USTR *us = al_ref_cstr(&ui, message);
          for (i = 0; i < (int)al_ustr_length(us); i++) {
             ALLEGRO_USTR_INFO letter;
-            al_draw_ustr(ex.myfont, x + 1 - j, y + 1 - j + h * i, 0,
+            al_draw_ustr(ex.myfont, color, x + 1 - j, y + 1 - j + h * i, 0,
                al_ref_ustr(&letter, us, al_ustr_offset(us, i),
                al_ustr_offset(us, i + 1)));
          }
       }
       else {
-         al_draw_text(ex.myfont, x + 1 - j, y + 1 - j, 0, message);
+         al_draw_text(ex.myfont, color, x + 1 - j, y + 1 - j, 0, message);
       }
    }
 }
@@ -70,17 +70,13 @@ static void print(int x, int y, bool vertical, char const *format, ...)
 /* Create an example bitmap. */
 static ALLEGRO_BITMAP *create_example_bitmap(void)
 {
-   ALLEGRO_BITMAP *raw;
    ALLEGRO_BITMAP *bitmap;
    int i, j;
    ALLEGRO_LOCKED_REGION *locked;
    unsigned char *data;
 
-   /* Create out example bitmap as a memory bitmap with a fixed format. */
-   al_set_new_bitmap_flags(ALLEGRO_MEMORY_BITMAP);
-   al_set_new_bitmap_format(ALLEGRO_PIXEL_FORMAT_ABGR_8888);
-   raw = al_create_bitmap(100, 100);
-   locked = al_lock_bitmap(raw, ALLEGRO_PIXEL_FORMAT_ANY, ALLEGRO_LOCK_WRITEONLY);
+   bitmap = al_create_bitmap(100, 100);
+   locked = al_lock_bitmap(bitmap, ALLEGRO_PIXEL_FORMAT_ABGR_8888, ALLEGRO_LOCK_WRITEONLY);
    data = locked->data;
  
    for (j = 0; j < 100; j++) {
@@ -97,15 +93,7 @@ static ALLEGRO_BITMAP *create_example_bitmap(void)
       }
       data += locked->pitch;
    }
-   al_unlock_bitmap(raw);
-   
-   /* Now clone it into a fast display bitmap. */
-   al_set_new_bitmap_flags(0);
-   al_set_new_bitmap_format(ALLEGRO_PIXEL_FORMAT_ANY_WITH_ALPHA);
-   bitmap = al_clone_bitmap(raw);
-   
-   /* And don't forget to destroy the memory copy. */
-   al_destroy_bitmap(raw);
+   al_unlock_bitmap(bitmap);
 
    return bitmap;
 }
@@ -113,7 +101,7 @@ static ALLEGRO_BITMAP *create_example_bitmap(void)
 /* Draw our example scene. */
 static void draw(void)
 {
-   ALLEGRO_COLOR blendcolor, white;
+   ALLEGRO_COLOR white;
    ALLEGRO_COLOR test[5];
    ALLEGRO_BITMAP *target = al_get_target_bitmap();
 
@@ -126,7 +114,6 @@ static void draw(void)
 
    al_clear_to_color(al_map_rgb_f(0.5, 0.5, 0.5));
 
-   blendcolor = al_map_rgba_f(1, 1, 1, 1);
    white = al_map_rgba_f(1, 1, 1, 1);
 
    test[0] = al_map_rgba_f(1, 1, 1, 1);
@@ -142,7 +129,7 @@ static void draw(void)
       print(20, y + i * 110, true, blend_vnames[i]);
    }
 
-   al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ZERO, white);
+   al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ZERO);
    if (ex.mode >= 1 && ex.mode <= 5) {
       al_set_target_bitmap(ex.offscreen);
       al_clear_to_color(test[ex.mode - 1]);
@@ -154,23 +141,24 @@ static void draw(void)
 
    for (j = 0; j < 4; j++) {
       for (i = 0; i < 4; i++) {
-         al_set_blender(ALLEGRO_ADD, blend_modes[j], blend_modes[i], blendcolor);
+         al_set_blender(ALLEGRO_ADD, blend_modes[j], blend_modes[i]);
          if (ex.image == 0)
             al_draw_bitmap(ex.example, x + i * 110, y + j * 110, 0);
          else if (ex.image >= 1 && ex.image <= 6) {
             al_draw_filled_rectangle(x + i * 110, y + j * 110,
-               x + i * 110 + 100, y + j * 110 + 100, test[ex.image - 1]);
+               x + i * 110 + 100, y + j * 110 + 100,
+                  test[ex.image - 1]);
          }
       }
    }
 
    if (ex.mode >= 1 && ex.mode <= 5) {
-      al_set_blender(ALLEGRO_ADD, ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA, white);
+      al_set_blender(ALLEGRO_ADD, ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA);
       al_set_target_bitmap(target);
       al_draw_bitmap_region(ex.offscreen, x, y, 430, 430, x, y, 0);
    }
    if (ex.mode >= 6 && ex.mode <= 10) {
-      al_set_blender(ALLEGRO_ADD, ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA, white);
+      al_set_blender(ALLEGRO_ADD, ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA);
       al_set_target_bitmap(target);
       al_draw_bitmap_region(ex.memory, x, y, 430, 430, x, y, 0);
    }

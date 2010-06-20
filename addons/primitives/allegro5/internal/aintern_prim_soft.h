@@ -16,7 +16,6 @@ void _al_point_2d(ALLEGRO_BITMAP* texture, ALLEGRO_VERTEX* v);
    op != ALLEGRO_DEST_MINUS_SRC && op_alpha != ALLEGRO_DEST_MINUS_SRC
 
 #define _SRC_NOT_MODIFIED \
-   src_mode == ALLEGRO_ONE && src_alpha == ALLEGRO_ONE && \
-   ic.r == 1.0f && ic.g == 1.0f && ic.b == 1.0f && ic.a == 1.0f
+   src_mode == ALLEGRO_ONE && src_alpha == ALLEGRO_ONE
 
 #endif

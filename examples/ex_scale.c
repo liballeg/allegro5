@@ -39,6 +39,7 @@ int main(void)
    bool trans_mode = false;
    int flags = 0;
    bool clip_mode = false;
+   ALLEGRO_COLOR tint;
 
    if (!al_init()) {
       abort_example("Could not init Allegro.\n");
@@ -117,15 +118,16 @@ int main(void)
       src_bmp = (mem_src_mode) ? mem_bmp : bmp;
       k = (wide_mode) ? 2.0 : 1.0;
 
-      al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ZERO, al_map_rgba_f(1, 1, 1, 1));
+      al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ZERO);
+      tint = al_map_rgba_f(1, 1, 1, 1);
       if (mode == 0)
          al_clear_to_color(al_map_rgba_f(1, 0, 0, 1));
       else
          al_clear_to_color(al_map_rgba_f(0, 0, 1, 1));
 
       if (trans_mode) {
-         al_set_blender(ALLEGRO_ADD, ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA,
-            al_map_rgba_f(1, 1, 1, 0.5));
+         al_set_blender(ALLEGRO_ADD, ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA);
+         tint = al_map_rgba_f(1, 1, 1, 0.5);
       }
 
       if (clip_mode) {
@@ -137,7 +139,7 @@ int main(void)
             al_get_display_width(), al_get_display_height());
       }
 
-      al_draw_scaled_bitmap(src_bmp,
+      al_draw_tinted_scaled_bitmap(src_bmp, tint,
          0, 0, bmp_w, bmp_h,
          display_w/2, display_h/2,
          k * cos(theta) * display_w/2, k * sin(theta) * display_h/2,
@@ -147,7 +149,7 @@ int main(void)
          al_set_target_bitmap(al_get_backbuffer());
          al_set_clipping_rectangle(0, 0,
             al_get_display_width(), al_get_display_height());
-         al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ZERO, al_map_rgba_f(1, 1, 1, 1));
+         al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ZERO);
          al_draw_bitmap(buf, 0, 0, 0);
       }
 

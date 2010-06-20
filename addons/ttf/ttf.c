@@ -118,7 +118,8 @@ static ALLEGRO_BITMAP* create_glyph_cache(ALLEGRO_FONT const *f, int w,
     return ret;
 }
 
-static int render_glyph(ALLEGRO_FONT const *f, int prev, int ch,
+static int render_glyph(ALLEGRO_FONT const *f,
+   ALLEGRO_COLOR color, int prev, int ch,
     float xpos, float ypos, ALLEGRO_TTF_GLYPH_DATA **measure_glyph)
 {
     ALLEGRO_TTF_FONT_DATA *data = f->data;
@@ -192,26 +193,30 @@ static int render_glyph(ALLEGRO_FONT const *f, int prev, int ch,
     if (measure_glyph)
         *measure_glyph = glyph;
     else
-        al_draw_bitmap(glyph->bitmap, xpos + glyph->x + advance, ypos + glyph->y, 0);
+        al_draw_tinted_bitmap(glyph->bitmap, color,
+            xpos + glyph->x + advance, ypos + glyph->y, 0);
 
     advance += glyph->advance;
 
     return advance;
 }
 
-static int render_char(ALLEGRO_FONT const *f, int ch, float xpos,
+static int render_char(ALLEGRO_FONT const *f, ALLEGRO_COLOR color,
+   int ch, float xpos,
    float ypos)
 {
-    return render_glyph(f, '\0', ch, xpos, ypos, NULL);
+    return render_glyph(f, color, '\0', ch, xpos, ypos, NULL);
 }
 
 static int char_length(ALLEGRO_FONT const *f, int ch)
 {
     ALLEGRO_TTF_GLYPH_DATA *glyph;
-    return render_glyph(f, '\0', ch, 0, 0, &glyph);
+    ALLEGRO_COLOR dummy = {1, 1, 1, 1};
+    return render_glyph(f, dummy, '\0', ch, 0, 0, &glyph);
 }
 
-static int render(ALLEGRO_FONT const *f, const ALLEGRO_USTR *text,
+static int render(ALLEGRO_FONT const *f, ALLEGRO_COLOR color,
+   const ALLEGRO_USTR *text,
     float x, float y)
 {
     int pos = 0;
@@ -223,7 +228,7 @@ static int render(ALLEGRO_FONT const *f, const ALLEGRO_USTR *text,
     al_hold_bitmap_drawing(true);
 
     while ((ch = al_ustr_get_next(text, &pos)) >= 0) {
-        advance += render_glyph(f, prev, ch, x + advance, y, NULL);
+        advance += render_glyph(f, color, prev, ch, x + advance, y, NULL);
         prev = ch;
     }
 
@@ -239,9 +244,9 @@ static int text_length(ALLEGRO_FONT const *f, const ALLEGRO_USTR *text)
     int32_t ch;
     int x = 0;
     ALLEGRO_TTF_GLYPH_DATA *glyph;
-
+    ALLEGRO_COLOR dummy = {1, 1, 1, 1};
     while ((ch = al_ustr_get_next(text, &pos)) >= 0) {
-        x += render_glyph(f, prev, ch, x, 0, &glyph);
+        x += render_glyph(f, dummy, prev, ch, x, 0, &glyph);
         prev = ch;
     }
     return x;
@@ -256,12 +261,13 @@ static void get_text_dimensions(ALLEGRO_FONT const *f,
     int i;
     int x = 0;
     ALLEGRO_TTF_GLYPH_DATA *glyph;
+    ALLEGRO_COLOR dummy = {1, 1, 1, 1};
 
     int count = al_ustr_length(text);
     *bbx = 0;
     for (i = 0; i < count; i++) {
         int32_t ch = al_ustr_get_next(text, &pos);
-        x += render_glyph(f, prev, ch, 0, 0, &glyph);
+        x += render_glyph(f, dummy, prev, ch, 0, 0, &glyph);
         if (i == count - 1) {
             x -= glyph->advance;
             x += glyph->x + al_get_bitmap_width(glyph->bitmap);

@@ -101,14 +101,13 @@ int main(int argc, const char *argv[])
    }
 
    al_set_target_bitmap(b1);
-   al_set_blender(ALLEGRO_ADD, ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA,
-      al_map_rgba_f(1, 1, 1, 0.5));
+   al_set_blender(ALLEGRO_ADD, ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA);
    step(mode, b2);
 
    /* Display the blended bitmap to the screen so we can see something. */
    al_store_state(&state, ALLEGRO_STATE_ALL);
    al_set_target_bitmap(al_get_backbuffer());
-   al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ZERO, al_map_rgba_f(1, 1, 1, 1));
+   al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ZERO);
    al_draw_bitmap(b1, 0, 0, 0);
    al_flip_display();
    al_restore_state(&state);

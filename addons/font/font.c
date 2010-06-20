@@ -155,21 +155,23 @@ static int color_char_length(const ALLEGRO_FONT* f, int ch)
  *  mono; if bg == -1, render as transparent, else render as opaque.
  *  Returns the character width, in pixels.
  */
-static int color_render_char(const ALLEGRO_FONT* f, int ch, float x,
+static int color_render_char(const ALLEGRO_FONT* f,
+   ALLEGRO_COLOR color, int ch, float x,
    float y)
 {
-    int w = 0;
-    int h = f->vtable->font_height(f);
-    ALLEGRO_BITMAP *g;
+   int w = 0;
+   int h = f->vtable->font_height(f);
+   ALLEGRO_BITMAP *g;
 
-    g = _al_font_color_find_glyph(f, ch);
-    if(g) {
-        al_draw_bitmap(g, x, y + ((float)h - al_get_bitmap_height(g))/2.0f, 0);
+   g = _al_font_color_find_glyph(f, ch);
+   if(g) {
+      al_draw_tinted_bitmap(g, color, x,
+         y + ((float)h - al_get_bitmap_height(g))/2.0f, 0);
 
-        w = al_get_bitmap_width(g);
-    }
+      w = al_get_bitmap_width(g);
+   }
 
-    return w;
+   return w;
 }
 
 /* color_render:
@@ -178,7 +180,8 @@ static int color_render_char(const ALLEGRO_FONT* f, int ch, float x,
  *  the specified colors. If fg == -1, render as color, else render as
  *  mono; if bg == -1, render as transparent, else render as opaque.
  */
-static int color_render(const ALLEGRO_FONT* f, const ALLEGRO_USTR *text,
+static int color_render(const ALLEGRO_FONT* f, ALLEGRO_COLOR color,
+   const ALLEGRO_USTR *text,
     float x, float y)
 {
     int pos = 0;
@@ -188,7 +191,7 @@ static int color_render(const ALLEGRO_FONT* f, const ALLEGRO_USTR *text,
 
     al_hold_bitmap_drawing(true);
     while ((ch = al_ustr_get_next(text, &pos)) >= 0) {
-        advance += f->vtable->render_char(f, ch, x + advance, y);
+        advance += f->vtable->render_char(f, color, ch, x + advance, y);
     }
     al_hold_bitmap_drawing(held);
     return advance;

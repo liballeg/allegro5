@@ -49,7 +49,7 @@ void showWave(int num)
    ALLEGRO_BITMAP *old_target = al_get_target_bitmap();
    al_set_target_bitmap(waveBitmap);
    al_clear_to_color(al_map_rgba(0, 0, 0, 0));
-   al_draw_textf(myfont, 0, 0, 0, "%s", text);
+   al_draw_textf(myfont, al_map_rgb(255, 255, 255), 0, 0, 0, "%s", text);
    al_set_target_bitmap(old_target);
 
    waveAngle = (ALLEGRO_PI*2);
@@ -98,18 +98,17 @@ void render(int step)
    std::list<Entity *>::iterator it;
    for (it = entities.begin(); it != entities.end(); it++) {
       Entity *e = *it;
-      e->render_four();
+      e->render_four(al_map_rgb(255, 255, 255));
       if (e->isHighlighted()) {
-         al_set_blender(ALLEGRO_ADD, ALLEGRO_ALPHA, ALLEGRO_ONE, al_map_rgb(150, 150, 150));
-         e->render_four();
-         al_set_blender(ALLEGRO_ADD, ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA,
-            al_map_rgb(255, 255, 255));
+         al_set_blender(ALLEGRO_ADD, ALLEGRO_ALPHA, ALLEGRO_ONE);
+         e->render_four(al_map_rgb(150, 150, 150));
+         al_set_blender(ALLEGRO_ADD, ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA);
       }
       rendered++;
    }
 
    Player *player = (Player *)rm.getData(RES_PLAYER);
-   player->render_four();
+   player->render_four(al_map_rgb(255, 255, 255));
    player->render_extra();
 
    if (waveAngle > 0.0f) {

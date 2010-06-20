@@ -38,7 +38,7 @@ void _al_draw_pixel_memory(ALLEGRO_BITMAP *bitmap, float x, float y,
    al_transform_coordinates(al_get_current_transform(), &x, &y);
    ix = (int)x;
    iy = (int)y;
-   _al_blend(color, bitmap, ix, iy, &result);
+   _al_blend_memory(color, bitmap, ix, iy, &result);
    _al_put_pixel(bitmap, ix, iy, result);
 }
 
@@ -186,7 +186,7 @@ static void _hline(ALLEGRO_BITMAP *target, int x1, int y, int x2,
 
    for (x = x1; x <= x2; x++) {
       ALLEGRO_COLOR result;
-      _al_blend(color, target, x, y, &result);
+      _al_blend_memory(color, target, x, y, &result);
       _al_put_pixel(target, x, y, result);
    }
 }
@@ -211,13 +211,10 @@ void _al_draw_filled_rectangle_memory(int x1, int y1, int x2, int y2,
    int w, h;
    int tmp;
    int op, src_mode, dst_mode;
-   ALLEGRO_COLOR *ic;
 
-   al_get_blender(&op, &src_mode, &dst_mode, NULL);
-   ic = _al_get_blend_color();
+   al_get_blender(&op, &src_mode, &dst_mode);
    if (op == ALLEGRO_ADD &&
-      src_mode == ALLEGRO_ONE && dst_mode == ALLEGRO_ZERO &&
-      ic->r == 1.0f && ic->g == 1.0f && ic->b == 1.0f && ic->a == 1.0f)
+      src_mode == ALLEGRO_ONE && dst_mode == ALLEGRO_ZERO)
    {
       _al_draw_filled_rectangle_memory_fast(x1, y1, x2, y2, color);
       return;

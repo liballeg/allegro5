@@ -99,7 +99,7 @@ static void print_time(int x, int y, float t)
    t -= hours * 3600;
    minutes = (int)t / 60;
    t -= minutes * 60;
-   al_draw_textf(basic_font, x, y, 0, "%02d:%02d:%05.2f", hours, minutes, t);
+   al_draw_textf(basic_font, al_map_rgb(255, 255, 255), x, y, 0, "%02d:%02d:%05.2f", hours, minutes, t);
 }
 
 static void render(void)
@@ -109,14 +109,15 @@ static void render(void)
    double w = al_get_display_width() - 20;
    double loop_start_pos = w * (loop_start / length);
    double loop_end_pos = w * (loop_end / length);
+   ALLEGRO_COLOR c = al_map_rgb(255, 255, 255);
 
    al_clear_to_color(al_map_rgb(64, 64, 128));
    
    /* render "music player" */
-   al_set_blender(ALLEGRO_ADD, ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA, al_map_rgb(255, 255, 255));
-   al_draw_textf(basic_font, 0, 0, 0, "Playing %s", stream_filename);
+   al_set_blender(ALLEGRO_ADD, ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA);
+   al_draw_textf(basic_font, c, 0, 0, 0, "Playing %s", stream_filename);
    print_time(8, 24, pos);
-   al_draw_textf(basic_font, 100, 24, 0, "/");
+   al_draw_textf(basic_font, c, 100, 24, 0, "/");
    print_time(110, 24, length);
    al_draw_filled_rectangle(10.0, 48.0 + 7.0, 10.0 + w, 48.0 + 9.0, al_map_rgb(0, 0, 0));
    al_draw_line(10.0 + loop_start_pos, 46.0, 10.0 + loop_start_pos, 66.0, al_map_rgb(0, 168, 128), 0);
@@ -125,11 +126,11 @@ static void render(void)
       al_map_rgb(224, 224, 224));
    
    /* show help */
-   al_draw_textf(basic_font, 0, 96, 0, "Drag the slider to seek.");
-   al_draw_textf(basic_font, 0, 120, 0, "Middle-click to set loop start.");
-   al_draw_textf(basic_font, 0, 144, 0, "Right-click to set loop end.");
-   al_draw_textf(basic_font, 0, 168, 0, "Left/right arrows to seek.");
-   al_draw_textf(basic_font, 0, 192, 0, "Space to pause.");
+   al_draw_textf(basic_font, c, 0, 96, 0, "Drag the slider to seek.");
+   al_draw_textf(basic_font, c, 0, 120, 0, "Middle-click to set loop start.");
+   al_draw_textf(basic_font, c, 0, 144, 0, "Right-click to set loop end.");
+   al_draw_textf(basic_font, c, 0, 168, 0, "Left/right arrows to seek.");
+   al_draw_textf(basic_font, c, 0, 192, 0, "Space to pause.");
    
    al_flip_display();
 }

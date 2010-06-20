@@ -313,7 +313,7 @@ void draw_view()
 
    al_clear_to_color(makecol(0, 0, 0));
 
-   al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ONE, al_map_rgba_f(1, 1, 1, 1));
+   al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ONE);
 
    for (i=0; i<4; i++) {
 

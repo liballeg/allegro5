@@ -1993,7 +1993,6 @@ static int d3d_al_blender_to_d3d(int al_mode)
 void _al_d3d_set_blender(ALLEGRO_DISPLAY_D3D *d3d_display)
 {
    int op, src, dst, alpha_op, alpha_src, alpha_dst;
-   ALLEGRO_COLOR color;
    DWORD d3d_op, d3d_alpha_op;
    DWORD allegro_to_d3d_blendop[ALLEGRO_NUM_BLEND_OPERATIONS] = {
       D3DBLENDOP_ADD,
@@ -2002,7 +2001,7 @@ void _al_d3d_set_blender(ALLEGRO_DISPLAY_D3D *d3d_display)
    };
 
    al_get_separate_blender(&op, &src, &dst,
-      &alpha_op, &alpha_src, &alpha_dst, &color);
+      &alpha_op, &alpha_src, &alpha_dst);
 
    src = d3d_al_blender_to_d3d(src);
    dst = d3d_al_blender_to_d3d(dst);
@@ -2051,7 +2050,7 @@ static void d3d_clear(ALLEGRO_DISPLAY *al_display, ALLEGRO_COLOR *color)
 static void d3d_draw_pixel(ALLEGRO_DISPLAY *al_display, float x, float y, ALLEGRO_COLOR *color)
 {
    ALLEGRO_DISPLAY_D3D *disp = (ALLEGRO_DISPLAY_D3D *)al_display;
-   ALLEGRO_COLOR c, *blend_color;
+   ALLEGRO_COLOR c;
    ALLEGRO_BITMAP* dest = al_get_target_bitmap();
    D3DMATRIX new_trans;
 
@@ -2061,12 +2060,10 @@ static void d3d_draw_pixel(ALLEGRO_DISPLAY *al_display, float x, float y, ALLEGR
    vertices[0].y = y;
    vertices[0].z = 0;
 
-   blend_color = _al_get_blend_color();
-
-   c.r = blend_color->r * color->r;
-   c.g = blend_color->g * color->g;
-   c.b = blend_color->b * color->b;
-   c.a = blend_color->a * color->a;
+   c.r = color->r;
+   c.g = color->g;
+   c.b = color->b;
+   c.a = color->a;
 
    vertices[0].diffuse = d3d_al_color_to_d3d(c);
 

@@ -19,8 +19,7 @@
 #include "allegro5/internal/aintern_opengl.h"
 
 
-static bool set_opengl_blending(ALLEGRO_DISPLAY *d,
-   ALLEGRO_COLOR *color)
+static bool set_opengl_blending(ALLEGRO_DISPLAY *d)
 {
    const int blend_modes[4] = {
       GL_ZERO, GL_ONE, GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA
@@ -28,16 +27,12 @@ static bool set_opengl_blending(ALLEGRO_DISPLAY *d,
    const int blend_equations[3] = {
       GL_FUNC_ADD, GL_FUNC_SUBTRACT, GL_FUNC_REVERSE_SUBTRACT
    };
-   ALLEGRO_COLOR *bc;
    int op, src_color, dst_color, op_alpha, src_alpha, dst_alpha;
-   float r, g, b, a;
 
    (void)d;
 
-   al_unmap_rgba_f(*color, &r, &g, &b, &a);
-
    al_get_separate_blender(&op, &src_color, &dst_color, &op_alpha,
-      &src_alpha, &dst_alpha, NULL);
+      &src_alpha, &dst_alpha);
 #if defined ALLEGRO_IPHONE || defined ALLEGRO_GP2XWIZ
    if (al_get_opengl_version() >= 2.0) {
       glEnable(GL_BLEND);
@@ -47,16 +42,12 @@ static bool set_opengl_blending(ALLEGRO_DISPLAY *d,
       glBlendEquationSeparate(
          blend_equations[op],
          blend_equations[op_alpha]);
-      bc = _al_get_blend_color();
-      glColor4f(r * bc->r, g * bc->g, b * bc->b, a * bc->a);
       return true;
    }
    else {
 	   glEnable(GL_BLEND);
 	   glBlendFunc(blend_modes[src_color], blend_modes[dst_color]);
 	   glBlendEquation(blend_equations[op]);
-	   bc = _al_get_blend_color();
-	   glColor4f(r * bc->r, g * bc->g, b * bc->b, a * bc->a);
 	   return true;
    }
 #else
@@ -72,8 +63,6 @@ static bool set_opengl_blending(ALLEGRO_DISPLAY *d,
       }
       else
          glBlendEquation(blend_equations[op]);
-      bc = _al_get_blend_color();
-      glColor4f(r * bc->r, g * bc->g, b * bc->b, a * bc->a);
       return true;
    }
    else {
@@ -81,8 +70,6 @@ static bool set_opengl_blending(ALLEGRO_DISPLAY *d,
          glEnable(GL_BLEND);
          glBlendFunc(blend_modes[src_color], blend_modes[dst_color]);
          glBlendEquation(blend_equations[op]);
-         bc = _al_get_blend_color();
-         glColor4f(r * bc->r, g * bc->g, b * bc->b, a * bc->a);
          return true;
       }
    }
@@ -128,7 +115,7 @@ static void ogl_draw_pixel(ALLEGRO_DISPLAY *d, float x, float y,
 
    if ((!ogl_target->is_backbuffer &&
       d->ogl_extras->opengl_target != ogl_target) ||
-      target->locked || !set_opengl_blending(d, color))  {
+      target->locked || !set_opengl_blending(d))  {
       _al_draw_pixel_memory(target, x, y, color);
       return;
    }
@@ -177,7 +164,6 @@ static void* ogl_prepare_vertex_cache(ALLEGRO_DISPLAY* disp,
 
 static void ogl_flush_vertex_cache(ALLEGRO_DISPLAY* disp)
 {
-   ALLEGRO_COLOR *bc;
    GLboolean on;
    GLuint current_texture;
    ALLEGRO_BITMAP* target;
@@ -204,9 +190,6 @@ static void ogl_flush_vertex_cache(ALLEGRO_DISPLAY* disp)
    if (current_texture != disp->cache_texture) {
       glBindTexture(GL_TEXTURE_2D, disp->cache_texture);
    }
-      
-   bc = _al_get_blend_color();
-   glColor4f(bc->r, bc->g, bc->b, bc->a);
 
    glEnableClientState(GL_VERTEX_ARRAY);
    glEnableClientState(GL_TEXTURE_COORD_ARRAY);

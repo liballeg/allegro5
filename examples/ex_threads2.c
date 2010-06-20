@@ -212,7 +212,7 @@ static void show_images(void)
    int y = 0;
    int i;
 
-   al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ZERO, al_map_rgb_f(1, 1, 1));
+   al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ZERO);
    for (i = 0; i < NUM_THREADS; i++) {
       /* for lots of threads, this is not good enough */
       al_lock_mutex(thread_info[i].mutex);

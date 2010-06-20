@@ -21,6 +21,7 @@ static void redraw(void)
    int th = al_get_font_line_height(font);
    float cx =  (w - pw) * 0.5;
    float cy =  (h - ph) * 0.5;
+   ALLEGRO_COLOR white = al_map_rgb_f(1, 1, 1);
 
    color = al_map_rgb_f(0.8, 0.7, 0.9);
    al_clear_to_color(color);
@@ -31,11 +32,11 @@ static void redraw(void)
 
    al_draw_bitmap(picture, cx, cy, 0);
    
-   al_draw_textf(font, w / 2, cy + ph, ALLEGRO_ALIGN_CENTRE,
+   al_draw_textf(font, white, w / 2, cy + ph, ALLEGRO_ALIGN_CENTRE,
       "Press Space to toggle fullscreen");
-   al_draw_textf(font, w / 2, cy + ph + th, ALLEGRO_ALIGN_CENTRE,
+   al_draw_textf(font, white, w / 2, cy + ph + th, ALLEGRO_ALIGN_CENTRE,
       "Press Enter to toggle window size");
-   al_draw_textf(font, w / 2, cy + ph + th * 2, ALLEGRO_ALIGN_CENTRE,
+   al_draw_textf(font, white, w / 2, cy + ph + th * 2, ALLEGRO_ALIGN_CENTRE,
       "Window: %dx%d (%s)",
       al_get_display_width(), al_get_display_height(),
       (al_get_display_flags() & ALLEGRO_FULLSCREEN_WINDOW) ?

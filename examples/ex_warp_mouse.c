@@ -18,6 +18,7 @@ int main(void)
    bool right_button_down = false;
    bool redraw = true;
    int fake_x = 0, fake_y = 0;
+   ALLEGRO_COLOR white;
 
    al_init();
    al_init_primitives_addon();
@@ -38,6 +39,7 @@ int main(void)
    al_register_event_source(event_queue, al_get_keyboard_event_source());
 
    font = al_load_font("data/fixed_font.tga", 0, 0);
+   white = al_map_rgb_f(1, 1, 1);
 
    while (1) {      
       if (redraw && al_event_queue_is_empty(event_queue)) {
@@ -54,12 +56,12 @@ int main(void)
                al_map_rgb_f(1, 1, 1), 2);
          }
          
-         al_draw_textf(font, 0, 0, 0, "x: %i y: %i dx: %i dy %i",
+         al_draw_textf(font, white, 0, 0, 0, "x: %i y: %i dx: %i dy %i",
             event.mouse.x, event.mouse.y,
             event.mouse.dx, event.mouse.dy);
-         al_draw_textf(font, width / 2, height / 2 - th, ALLEGRO_ALIGN_CENTRE,
+         al_draw_textf(font, white, width / 2, height / 2 - th, ALLEGRO_ALIGN_CENTRE,
             "Left-Click to warp pointer to the middle once.");
-         al_draw_textf(font, width / 2, height / 2, ALLEGRO_ALIGN_CENTRE,
+         al_draw_textf(font, white, width / 2, height / 2, ALLEGRO_ALIGN_CENTRE,
             "Hold right mouse button to constantly move pointer to the middle.");
          al_flip_display();
          redraw = false;
