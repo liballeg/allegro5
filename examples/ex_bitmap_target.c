@@ -32,6 +32,8 @@ static void print(int x, int y, char const *format, ...)
    vsnprintf(message, sizeof message, format, list);
    va_end(list);
 
+   al_set_blender(ALLEGRO_ADD, ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA);
+
    al_draw_text(myfont, al_map_rgb(0, 0, 0), x + 2, y + 2, 0, message);
    al_draw_text(myfont, al_map_rgb(255, 255, 255), x, y, 0, message);
 }

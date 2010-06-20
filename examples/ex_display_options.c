@@ -67,6 +67,7 @@ static void display_options(void)
 
    ALLEGRO_COLOR c;
    c = al_map_rgb_f(0.8, 0.8, 1);
+   al_set_blender(ALLEGRO_ADD, ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA);
    al_draw_textf(font, c, x, y, 0, "Create new display");
    y += font_h;
    for (i = 0; i < modes_count + 1; i++) {
@@ -86,6 +87,7 @@ static void display_options(void)
          al_draw_filled_rectangle(x, y, x + 300, y + font_h, c);
       }
       c = al_map_rgb_f(0, 0, 0);
+      al_set_blender(ALLEGRO_ADD, ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA);
       al_draw_textf(font, c, x, y, 0, "%s %d x %d (%d, %d)",
          i < modes_count ? "Fullscreen" : "Windowed",
          mode.width,
@@ -96,6 +98,7 @@ static void display_options(void)
    x = dw / 2 + 10;
    y = 10;
    c = al_map_rgb_f(0.8, 0.8, 1);
+   al_set_blender(ALLEGRO_ADD, ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA);
    al_draw_textf(font, c, x, y, 0, "Options for new display");
    al_draw_textf(font, c, dw - 10, y, ALLEGRO_ALIGN_RIGHT, "(current display)");
    y += font_h;
