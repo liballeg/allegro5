@@ -60,6 +60,8 @@ ALLEGRO_DISPLAY *al_create_display(int w, int h)
    display->vertex_cache_size = 0;
    display->cache_texture = 0;
    
+   display->display_invalidated = 0;
+   
    _al_initialize_blender(&display->cur_blender);
 
    _al_vector_init(&display->bitmaps, sizeof(ALLEGRO_BITMAP*));
@@ -108,6 +110,9 @@ void al_destroy_display(ALLEGRO_DISPLAY *display)
    if (display) {
       if (display == al_get_current_display())
          al_set_current_display(NULL);
+         
+      if(display->display_invalidated)
+         display->display_invalidated(display, true);
 
       display->vt->destroy_display(display);
 
@@ -522,6 +527,11 @@ bool al_is_bitmap_drawing_held(void)
 {
    ALLEGRO_DISPLAY *current_display = al_get_current_display();
    return current_display->cache_enabled;
+}
+
+void _al_set_display_invalidated_callback(ALLEGRO_DISPLAY* display, void (*display_invalidated)(ALLEGRO_DISPLAY*, bool))
+{
+   display->display_invalidated = display_invalidated;
 }
 
 /* vim: set sts=3 sw=3 et: */

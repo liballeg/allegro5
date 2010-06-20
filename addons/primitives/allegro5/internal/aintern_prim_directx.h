@@ -10,12 +10,11 @@ void _al_set_d3d_decl(ALLEGRO_VERTEX_DECL* ret);
 
 bool _al_init_d3d_driver(void);
 void _al_shutdown_d3d_driver(void);
-bool _al_create_default_shader(void);
-bool _al_default_shader_ready(void);
-void _al_destroy_default_shader(void);
+
+void* _al_create_default_shader(void* dev);
+void _al_setup_default_shader(void* dev, void* shader);
 
 void _al_setup_shader(void* dev, const ALLEGRO_VERTEX_DECL* decl);
-void _al_setup_default_shader(void* dev);
 void _al_create_shader(ALLEGRO_VERTEX_DECL* decl);
 void _al_set_texture_matrix(void* dev, float* mat);
 

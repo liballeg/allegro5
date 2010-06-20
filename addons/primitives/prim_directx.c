@@ -22,10 +22,13 @@
 #include "allegro5/internal/aintern_prim_directx.h"
 #include "allegro5/internal/aintern_prim_soft.h"
 #include "allegro5/internal/aintern_prim.h"
+#include "allegro5/internal/aintern_display.h"
 
 #include "allegro5/platform/alplatf.h"
 
 #ifdef ALLEGRO_CFG_D3D
+
+#include "allegro5/allegro_direct3d.h"
 
 static ALLEGRO_MUTEX *d3d_mutex;
 /*
@@ -54,6 +57,120 @@ static int legacy_buffer_size = 0;
 #define A5V_FVF (D3DFVF_XYZ | D3DFVF_TEX2 | D3DFVF_TEXCOORDSIZE2(0) | D3DFVF_TEXCOORDSIZE4(1))
 #define A5V_LEGACY_FVF (D3DFVF_XYZ | D3DFVF_DIFFUSE | D3DFVF_TEX1)
 
+typedef struct SHADER_ENTRY
+{
+   LPDIRECT3DDEVICE9 device;
+   LPDIRECT3DVERTEXSHADER9 shader;
+} SHADER_ENTRY;
+
+static SHADER_ENTRY* shader_entries;
+static int num_shader_entries = 0;
+
+static void display_invalidated(ALLEGRO_DISPLAY* display, bool destroyed)
+{
+   int ii;
+   LPDIRECT3DDEVICE9 device = al_get_d3d_device(display);
+   /*
+    * If there is no mutex, the addon has been shutdown earlier
+    */
+   if(!d3d_mutex)
+      return;
+
+   al_lock_mutex(d3d_mutex);
+   
+   for(ii = 0; ii < num_shader_entries; ii++)
+   {
+      if(shader_entries[ii].device == device) {
+         IDirect3DVertexShader9_Release(shader_entries[ii].shader);
+         if(destroyed) {
+            shader_entries[ii] = shader_entries[num_shader_entries - 1];
+            num_shader_entries--;
+         }
+         else
+         {
+            /*
+             * Just recreate the shader
+             */
+            shader_entries[ii].shader = _al_create_default_shader(device);
+         }
+         break;
+      }
+   }
+   
+   al_unlock_mutex(d3d_mutex);
+}
+
+static void setup_default_shader(ALLEGRO_DISPLAY* display)
+{   
+   LPDIRECT3DDEVICE9 device = al_get_d3d_device(display);
+   
+   /*
+    * Lock the mutex so that the entries are not messed up by a 
+    * display blowing up/being created
+    */
+   al_lock_mutex(d3d_mutex);
+   
+   if(num_shader_entries == 0) {
+      shader_entries = al_malloc(sizeof(SHADER_ENTRY));
+      num_shader_entries = 1;
+      
+      shader_entries[0].device = device;
+      shader_entries[0].shader = _al_create_default_shader(device);
+      
+      _al_set_display_invalidated_callback(display, &display_invalidated);
+   }
+   
+   if(shader_entries[0].device != device) {
+      int ii;
+      bool found = false;
+      for(ii = 1; ii < num_shader_entries; ii++)
+      {
+         if(shader_entries[ii].device == device) {
+            /*
+             * Move this entry to the front, so the search goes faster 
+             * next time - presumably the al_draw_prim will be called
+             * several times for each display before switching again
+             */
+            SHADER_ENTRY t = shader_entries[0];
+            shader_entries[0] = shader_entries[ii];
+            shader_entries[ii] = t;
+            
+            found = true;
+            
+            break;
+         }
+      }
+      
+      if(!found) {
+         SHADER_ENTRY t = shader_entries[0];
+         
+         num_shader_entries++;
+         shader_entries = al_realloc(shader_entries, sizeof(SHADER_ENTRY) * num_shader_entries);
+         
+         shader_entries[num_shader_entries - 1] = t;
+         shader_entries[0].device = device;
+         shader_entries[0].shader = _al_create_default_shader(device);
+         
+         _al_set_display_invalidated_callback(display, &display_invalidated);
+      }
+   }
+   
+   _al_setup_default_shader(device, shader_entries[0].shader);
+   
+   al_unlock_mutex(d3d_mutex);
+}
+
+static void destroy_default_shaders(void)
+{
+   int ii;
+   for(ii = 0; ii < num_shader_entries; ii++)
+   {
+      IDirect3DVertexShader9_Release(shader_entries[ii].shader);
+   }
+   num_shader_entries = 0;
+   al_free(shader_entries);
+}
+
 #endif
 
 bool _al_init_d3d_driver(void)
@@ -69,7 +186,7 @@ void _al_shutdown_d3d_driver(void)
    #ifdef ALLEGRO_CFG_D3D
    al_destroy_mutex(d3d_mutex);
    al_free(legacy_buffer);
-   _al_destroy_default_shader();
+   destroy_default_shaders();
    
    legacy_card = false;
    know_card_type = false;
@@ -79,8 +196,6 @@ void _al_shutdown_d3d_driver(void)
 }
 
 #ifdef ALLEGRO_CFG_D3D
-
-#include "allegro5/allegro_direct3d.h"
 
 static int al_blender_to_d3d(int al_mode)
 {
@@ -239,15 +354,8 @@ static int _al_draw_prim_raw(ALLEGRO_BITMAP* texture, const void* vtx, const ALL
       if(!legacy_card) {
          if(decl) 
             _al_setup_shader(device, decl);
-         else {
-            if(!_al_default_shader_ready()) {
-               al_lock_mutex(d3d_mutex);
-               _al_create_default_shader();
-               al_unlock_mutex(d3d_mutex);
-            }
-            if(!legacy_card)
-               _al_setup_default_shader(device);
-         }
+         else
+            setup_default_shader(display);
       }
    }
    

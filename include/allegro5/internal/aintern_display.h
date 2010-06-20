@@ -126,6 +126,8 @@ struct ALLEGRO_DISPLAY
    
    ALLEGRO_TRANSFORM cur_transform;
    ALLEGRO_BLENDER cur_blender;
+   
+   void (*display_invalidated)(ALLEGRO_DISPLAY*, bool);
 };
 
 int  _al_score_display_settings(ALLEGRO_EXTRA_DISPLAY_SETTINGS *eds, ALLEGRO_EXTRA_DISPLAY_SETTINGS *ref);
@@ -139,6 +141,8 @@ void _al_draw_filled_rectangle_memory(int x1, int y1, int x2, int y2, ALLEGRO_CO
 void _al_draw_pixel_memory(ALLEGRO_BITMAP *bmp, float x, float y, ALLEGRO_COLOR *color);
 
 void _al_destroy_display_bitmaps(ALLEGRO_DISPLAY *d);
+
+void _al_set_display_invalidated_callback(ALLEGRO_DISPLAY* display, void (*display_invalidated)(ALLEGRO_DISPLAY*, bool));
 
 /* Defined in tls.c */
 void _al_set_new_display_settings(ALLEGRO_EXTRA_DISPLAY_SETTINGS *settings);

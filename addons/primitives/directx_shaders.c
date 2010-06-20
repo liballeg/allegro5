@@ -605,27 +605,12 @@ void _al_create_shader(ALLEGRO_VERTEX_DECL* decl)
    decl->d3d_dummy_shader = ret;
 }
 
-static LPDIRECT3DVERTEXSHADER9 default_shader;
-
-bool _al_default_shader_ready(void)
+void* _al_create_default_shader(void* dev)
 {
-   return default_shader != 0;
-}
-
-bool _al_create_default_shader(void)
-{
-   LPDIRECT3DDEVICE9 device = al_get_d3d_device(al_get_current_display());
-   if(default_shader)
-      return true;
-   return IDirect3DDevice9_CreateVertexShader(device, (const DWORD*)_al_vs_pos3_tex2_col4_1, &default_shader) == D3D_OK;
-}
-
-void _al_destroy_default_shader(void)
-{
-   if(default_shader) {
-      IDirect3DVertexShader9_Release(default_shader);
-      default_shader = 0;
-   }
+   LPDIRECT3DDEVICE9 device = dev;
+   LPDIRECT3DVERTEXSHADER9 shader;
+   IDirect3DDevice9_CreateVertexShader(device, (const DWORD*)_al_vs_pos3_tex2_col4_1, &shader);
+   return shader;
 }
 
 static void _al_swap(float* l, float* r)
@@ -706,11 +691,11 @@ void _al_setup_shader(void* dev, const ALLEGRO_VERTEX_DECL* decl)
    IDirect3DDevice9_SetVertexShader(device, (IDirect3DVertexShader9*)decl->d3d_dummy_shader);
 }
 
-void _al_setup_default_shader(void* dev)
+void _al_setup_default_shader(void* dev, void* shader)
 {
    IDirect3DDevice9* device = (IDirect3DDevice9*)dev;
    setup_transforms(device);
-   IDirect3DDevice9_SetVertexShader(device, default_shader);
+   IDirect3DDevice9_SetVertexShader(device, shader);
 }
 
 #endif /* ALLEGRO_CFG_D3D */
