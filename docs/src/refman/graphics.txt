@@ -563,7 +563,7 @@ rotated and scaled around this point.
 See also: [al_draw_bitmap], [al_draw_bitmap_region], [al_draw_scaled_bitmap],
 [al_draw_rotated_bitmap]
 
-### API: al_draw_tinted_rotated__scaled_bitmap
+### API: al_draw_tinted_rotated_scaled_bitmap
 
 Like [al_draw_rotated_scaled_bitmap] but multiplies all colors in the
 bitmap with the given color.
