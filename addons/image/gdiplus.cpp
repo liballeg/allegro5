@@ -1,3 +1,4 @@
+#include <windows.h>
 #include <objidl.h>
 #include <gdiplus.h>
 
@@ -8,6 +9,10 @@
 #include "allegro5/internal/aintern_image.h"
 
 #include "iio.h"
+
+#ifndef _MSC_VER
+#define __uuidof(x) (IID_ ## x)
+#endif
 
 static bool gdiplus_inited = false;
 static ULONG_PTR gdiplusToken = 0;

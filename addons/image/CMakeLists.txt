@@ -23,7 +23,9 @@ if(WANT_NATIVE_IMAGE_LOADER)
         find_package(GDIPLUS)
         if(GDIPLUS_FOUND)
             set(CMAKE_REQUIRED_INCLUDES ${GDIPLUS_INCLUDE_DIR})
+            set(CMAKE_REQUIRED_LIBRARIES ${GDIPLUS_LIBRARY})
             check_cxx_source_compiles("
+                #include <windows.h>
                 #include <objidl.h>
                 #include <gdiplus.h>
                 int main(void)
