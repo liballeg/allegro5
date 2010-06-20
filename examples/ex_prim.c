@@ -28,7 +28,7 @@
 
 typedef void (*Screen)(int);
 int ScreenW = 800, ScreenH = 600;
-#define NUM_SCREENS 11
+#define NUM_SCREENS 10
 #define ROTATE_SPEED 0.0001f
 Screen Screens[NUM_SCREENS];
 ALLEGRO_FONT* Font;
@@ -86,6 +86,8 @@ static void CustomVertexFormatPrimitives(int mode)
       Theta += Speed;
       al_build_transform(&MainTrans, ScreenW / 2, ScreenH / 2, 1, 1, Theta);
    } else if (mode == DRAW) {
+      al_set_blender(ALLEGRO_ADD, ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA);
+      
       al_draw_textf(Font, solid_white, ScreenW / 2, ScreenH - 20,
          ALLEGRO_ALIGN_CENTRE, "Custom Vertex Format");
       
@@ -130,6 +132,7 @@ static void TexturePrimitives(int mode)
       Theta += Speed;
       al_build_transform(&MainTrans, ScreenW / 2, ScreenH / 2, 1, 1, Theta);
    } else if (mode == DRAW) {
+      al_set_blender(ALLEGRO_ADD, ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA);
 
       al_draw_textf(Font, solid_white, ScreenW / 2, ScreenH - 20, ALLEGRO_ALIGN_CENTRE, "Textured Primitives");
       
@@ -376,47 +379,6 @@ static void HighFilledPrimitives(int mode)
    }
 }
 
-static void ShadePrimitives(int mode)
-{
-   static ALLEGRO_COLOR shade_color;
-   float t = al_current_time();
-   if (mode == INIT) {
-   
-   } else if (mode == LOGIC) {
-      Theta += Speed;
-      al_build_transform(&MainTrans, ScreenW / 2, ScreenH / 2, 1, 1, Theta);
-      shade_color = al_map_rgba_f(1 + 0.5 * sinf(t), 1 + 0.5 * sinf(t + ALLEGRO_PI / 3), 1 + 0.5 * sinf(t + 2 * ALLEGRO_PI / 3), 1);
-   } else if (mode == DRAW) {
-      float points[8] = {
-         -300, -200,
-         700, 200,
-         -700, 200,
-         300, -200
-      };
-      al_set_blender(ALLEGRO_ADD, ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA);
-      
-      al_draw_textf(Font, solid_white, ScreenW / 2, ScreenH - 20, ALLEGRO_ALIGN_CENTRE, "Shaded Primitives");
-      
-      if (Blend)
-         al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ONE);
-      else
-         al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ZERO);
-      
-      al_use_transform(&MainTrans);
-      
-      al_draw_line(-300, -200, 300, 200, al_map_rgba_f(0, 0.5, 0.5, 1), Thickness);
-      al_draw_triangle(-150, -250, 0, 250, 150, -250, al_map_rgba_f(0.5, 0, 0.5, 1), Thickness);
-      al_draw_rectangle(-300, -200, 300, 200, al_map_rgba_f(0.5, 0, 0, 1), Thickness);
-      al_draw_rounded_rectangle(-200, -125, 200, 125, 50, 100, al_map_rgba_f(0.2, 0.2, 0, 1), Thickness);
-      
-      al_draw_ellipse(0, 0, 300, 150, al_map_rgba_f(0, 0.5, 0.5, 1), Thickness);
-      al_draw_arc(0, 0, 200, -ALLEGRO_PI / 2, ALLEGRO_PI, al_map_rgba_f(0.5, 0.25, 0, 1), Thickness);
-      al_draw_spline(points, al_map_rgba_f(0.1, 0.2, 0.5, 1), Thickness);
-      
-      al_use_transform(&Identity);
-   }
-}
-
 static void TransformationsPrimitives(int mode)
 {
    float t = al_current_time();
@@ -639,14 +601,13 @@ int main(void)
    Screens[0] = LowPrimitives;
    Screens[1] = IndexedPrimitives;
    Screens[2] = HighPrimitives;
-   Screens[3] = ShadePrimitives;
-   Screens[4] = TransformationsPrimitives;
-   Screens[5] = FilledPrimitives;
-   Screens[6] = IndexedFilledPrimitives;
-   Screens[7] = HighFilledPrimitives;
-   Screens[8] = TexturePrimitives;
-   Screens[9] = FilledTexturePrimitives;
-   Screens[10] = CustomVertexFormatPrimitives;
+   Screens[3] = TransformationsPrimitives;
+   Screens[4] = FilledPrimitives;
+   Screens[5] = IndexedFilledPrimitives;
+   Screens[6] = HighFilledPrimitives;
+   Screens[7] = TexturePrimitives;
+   Screens[8] = FilledTexturePrimitives;
+   Screens[9] = CustomVertexFormatPrimitives;
    
    for (ii = 0; ii < NUM_SCREENS; ii++)
       Screens[ii](INIT);
@@ -785,6 +746,7 @@ int main(void)
          al_draw_bitmap(Buffer, 0, 0, 0);
       }
 
+      al_set_blender(ALLEGRO_ADD, ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA);
       al_draw_textf(Font, solid_white, 0, 0, 0, "FPS: %f", (float)frames_done / (al_current_time() - time_diff));
       al_draw_textf(Font, solid_white, 0, 20, 0, "Change Screen (Up/Down). Esc to Quit.");
       al_draw_textf(Font, solid_white, 0, 40, 0, "Rotation (Left/Right/Space): %f", Speed);
