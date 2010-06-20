@@ -321,6 +321,7 @@ bool al_set_current_display(ALLEGRO_DISPLAY *display)
       return false;
 
    if (tls->current_display &&
+         tls->current_display->vt &&
          tls->current_display->vt->unset_current_display) {
       tls->current_display->vt->unset_current_display(tls->current_display);
       tls->current_display = NULL;

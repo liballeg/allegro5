@@ -1148,17 +1148,16 @@ static void d3d_destroy_display(ALLEGRO_DISPLAY *display)
 {
    ALLEGRO_SYSTEM_WIN *system = (ALLEGRO_SYSTEM_WIN *)al_get_system_driver();
    ALLEGRO_DISPLAY_D3D *d3d_display = (ALLEGRO_DISPLAY_D3D *)display;
+   ALLEGRO_DISPLAY *old_disp = al_get_current_display();
+
+   if (old_disp != display)
+      al_set_current_display(display);
 
    d3d_destroy_display_internals(d3d_display);
 
    _al_vector_find_and_delete(&system->system.displays, &display);
 
-   if (system->system.displays._size > 0) {
-      ALLEGRO_DISPLAY_D3D **dptr = (ALLEGRO_DISPLAY_D3D **)_al_vector_ref(&system->system.displays, 0);
-      ALLEGRO_DISPLAY_D3D *d = *dptr;
-      _al_win_grab_input((ALLEGRO_DISPLAY_WIN*)d);
-   }
-   else {
+   if (system->system.displays._size <= 0) {
       ffw_set = false;
       already_fullscreen = false;
    }
@@ -1169,6 +1168,10 @@ static void d3d_destroy_display(ALLEGRO_DISPLAY *display)
    }
 
    _al_vector_free(&display->bitmaps);
+   
+   if (old_disp != display)
+      al_set_current_display(old_disp);
+
    al_free(display->vertex_cache);
    al_free(display);
 }

@@ -168,7 +168,7 @@ float al_get_opengl_version(void)
    ALLEGRO_DISPLAY *ogl_disp;
 
    ogl_disp = (ALLEGRO_DISPLAY*)al_get_current_display();
-   if (!ogl_disp)
+   if (!ogl_disp || !ogl_disp->ogl_extras)
       return 0.0f;
 
    return ogl_disp->ogl_extras->ogl_info.version;
