@@ -133,11 +133,14 @@ static void ogl_draw_pixel(ALLEGRO_DISPLAY *d, float x, float y,
    vert[1] = y;
 
    glEnableClientState(GL_VERTEX_ARRAY);
+   glEnableClientState(GL_COLOR_ARRAY);
    glVertexPointer(2, GL_FLOAT, 0, vert);
+   glColorPointer(4, GL_FLOAT, 0, color);
 
    glDrawArrays(GL_POINTS, 0, 1);
 
    glDisableClientState(GL_VERTEX_ARRAY);
+   glDisableClientState(GL_COLOR_ARRAY);
    
    if(target->parent) {
       glPopMatrix();
