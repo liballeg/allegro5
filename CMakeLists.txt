@@ -157,8 +157,6 @@ option(WANT_POPUP_EXAMPLES "Use popups instead of printf for fatal errors" on)
 include(CheckCSourceCompiles)
 include(CheckCXXSourceCompiles)
 
-set(INSTALL_PREFIX "")
-
 if(CMAKE_COMPILER_IS_GNUCC)
     set(COMPILER_GCC 1)
 endif(CMAKE_COMPILER_IS_GNUCC)
@@ -184,11 +182,9 @@ if(MSVC)
     endif("$ENV{VCINSTALLDIR}" STREQUAL "")
 
     # Install in VCINSTALLDIR by default
-    if(INSTALL_PREFIX STREQUAL "")
+    if(CMAKE_INSTALL_PREFIX_SET_TO_DEFAULT)
         set(CMAKE_INSTALL_PREFIX ${VCINSTALLDIR})
-    else(INSTALL_PREFIX STREQUAL "")
-        set(CMAKE_INSTALL_PREFIX ${INSTALL_PREFIX})
-    endif(INSTALL_PREFIX STREQUAL "")
+    endif(CMAKE_INSTALL_PREFIX_SET_TO_DEFAULT)
 
     set(EXECUTABLE_TYPE "WIN32")
 endif(MSVC)
@@ -210,11 +206,9 @@ if(MINGW)
     set(CMAKE_PREFIX_PATH "${MINGDIR}")
 
     # Install to MINGDIR
-    if(INSTALL_PREFIX STREQUAL "")
+    if(CMAKE_INSTALL_PREFIX_SET_TO_DEFAULT)
         set(CMAKE_INSTALL_PREFIX ${MINGDIR})
-    else(INSTALL_PREFIX STREQUAL "")
-        set(CMAKE_INSTALL_PREFIX ${INSTALL_PREFIX})
-    endif(INSTALL_PREFIX STREQUAL "")
+    endif(CMAKE_INSTALL_PREFIX_SET_TO_DEFAULT)
 
     # Check for a common problem (at the time of writing).
     check_c_source_compiles("
