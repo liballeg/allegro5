@@ -775,8 +775,11 @@ void TextEntry::draw()
       }
       else {
          UString sub(text, cursor_pos, 1);
-         al_draw_ustr(theme.font, theme.fg, x, y1, 0, sub);
-         x += al_get_ustr_width(theme.font, sub);
+         int subw = al_get_ustr_width(theme.font, sub);
+         al_draw_filled_rectangle(x, y1, x + subw,
+            y1 + al_get_font_line_height(theme.font), theme.fg);
+         al_draw_ustr(theme.font, theme.bg, x, y1, 0, sub);
+         x += subw;
 
          al_draw_ustr(theme.font, theme.fg, x, y1, 0, UString(text, cursor_pos + 1));
       }
