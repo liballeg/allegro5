@@ -108,6 +108,8 @@ ALLEGRO_DISPLAY *al_create_display(int w, int h)
 void al_destroy_display(ALLEGRO_DISPLAY *display)
 {
    if (display) {
+      ALLEGRO_SYSTEM *sysdrv;
+
       if (display == al_get_current_display())
          al_set_current_display(NULL);
          
@@ -116,7 +118,7 @@ void al_destroy_display(ALLEGRO_DISPLAY *display)
 
       display->vt->destroy_display(display);
 
-      ALLEGRO_SYSTEM *sysdrv = al_get_system_driver();
+      sysdrv = al_get_system_driver();
       if (sysdrv->displays._size <= 0) {
          al_set_current_display(sysdrv->dummy_display);
       }
