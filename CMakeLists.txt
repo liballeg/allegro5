@@ -182,9 +182,11 @@ if(MSVC)
     endif("$ENV{VCINSTALLDIR}" STREQUAL "")
 
     # Install in VCINSTALLDIR by default
-    if(CMAKE_INSTALL_PREFIX_SET_TO_DEFAULT)
-        set(CMAKE_INSTALL_PREFIX ${VCINSTALLDIR})
-    endif(CMAKE_INSTALL_PREFIX_SET_TO_DEFAULT)
+    if(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
+        set(CMAKE_INSTALL_PREFIX ${VCINSTALLDIR}
+            CACHE PATH "Install path prefix, prepended onto install directories."
+            FORCE)
+    endif(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
 
     set(EXECUTABLE_TYPE "WIN32")
 endif(MSVC)
@@ -206,9 +208,11 @@ if(MINGW)
     set(CMAKE_PREFIX_PATH "${MINGDIR}")
 
     # Install to MINGDIR
-    if(CMAKE_INSTALL_PREFIX_SET_TO_DEFAULT)
-        set(CMAKE_INSTALL_PREFIX ${MINGDIR})
-    endif(CMAKE_INSTALL_PREFIX_SET_TO_DEFAULT)
+    if(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
+        set(CMAKE_INSTALL_PREFIX ${MINGDIR}
+            CACHE PATH "Install path prefix, prepended onto install directories."
+            FORCE)
+    endif(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
 
     # Check for a common problem (at the time of writing).
     check_c_source_compiles("
