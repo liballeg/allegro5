@@ -109,11 +109,16 @@ void al_destroy_display(ALLEGRO_DISPLAY *display)
 {
    if (display) {
       ALLEGRO_SYSTEM *sysdrv;
+      ALLEGRO_BITMAP *bmp;
+
+      bmp = al_get_target_bitmap();
+      if (bmp && (bmp == al_get_frontbuffer() || bmp == al_get_backbuffer()))
+         al_set_target_bitmap(NULL);
 
       if (display == al_get_current_display())
          al_set_current_display(NULL);
-         
-      if(display->display_invalidated)
+
+      if (display->display_invalidated)
          display->display_invalidated(display, true);
 
       display->vt->destroy_display(display);

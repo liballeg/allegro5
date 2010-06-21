@@ -28,6 +28,18 @@ See also: [al_set_new_display_flags], [al_set_new_display_option],
 
 Destroy a display.
 
+If the target bitmap of the calling thread is either the front or backbuffer of
+`display`, then it implies a call to "al_set_target_bitmap(NULL);" before the
+display is destroyed.
+
+If `display` is the current display of the calling thread, then it implies a
+call to "al_set_current_display(NULL);" before the display is destroyed.
+
+Those special cases notwithstanding, you should explicitly make the display and
+its bitmaps not current for any threads before destroying it.
+
+See also: [al_set_current_display], [al_set_target_bitmap]
+
 ### API: al_get_new_display_flags
 
 Gets the current flags used for newly created displays.
