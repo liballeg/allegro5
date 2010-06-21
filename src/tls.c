@@ -166,7 +166,7 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved)
 }
 
 
-#else /* not defined ALLEGRO_MINGW32 */
+#else /* not MinGW < 4.2.1 */
 
 #if defined(ALLEGRO_MSVC) || defined(ALLEGRO_BCC32)
 
@@ -236,7 +236,7 @@ static thread_local_state *tls_get(void)
 #endif /* end HAVE_NATIVE_TLS */
 
 
-#endif /* end not defined ALLEGRO_MINGW32 */
+#endif /* end not MinGW < 4.2,1 */
 
 
 
