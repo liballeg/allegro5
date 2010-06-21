@@ -63,9 +63,9 @@ Prog::Prog(const Theme & theme, ALLEGRO_DISPLAY *display) :
 {
    d.add(memory_label, 9, 0, 10, 2);
    d.add(texture_label, 0, 0, 10, 2);
-   d.add(source_label, 1, 17, 6, 2);
-   d.add(destination_label, 7, 17, 6, 2);
-   d.add(blending_label, 13, 17, 6, 2);
+   d.add(source_label, 1, 15, 6, 2);
+   d.add(destination_label, 7, 15, 6, 2);
+   d.add(blending_label, 13, 15, 6, 2);
 
    List *images[] = {&source_image, &destination_image, &draw_mode};
    for (int i = 0; i < 3; i++) {
@@ -73,6 +73,8 @@ Prog::Prog(const Theme & theme, ALLEGRO_DISPLAY *display) :
       if (i < 2) {
          image.append_item("Mysha");
          image.append_item("Allegro");
+         image.append_item("Mysha (tinted)");
+         image.append_item("Allegro (tinted)");
          image.append_item("Color");
       }
       else {
@@ -80,12 +82,12 @@ Prog::Prog(const Theme & theme, ALLEGRO_DISPLAY *display) :
          image.append_item("scaled");
          image.append_item("rotated");
       }
-      d.add(image, 1 + i * 6, 18, 4, 4);
+      d.add(image, 1 + i * 6, 17, 4, 6);
    }
 
    for (int i = 0; i < 6; i++) {
       operation_label[i] = Label(i % 2 == 0 ? "Color" : "Alpha", false);
-      d.add(operation_label[i], 1 + i * 3, 23, 3, 2);
+      d.add(operation_label[i], 1 + i * 3, 24, 3, 2);
       List &l = operations[i];
       if (i < 4) {
          l.append_item("ONE");
@@ -98,7 +100,7 @@ Prog::Prog(const Theme & theme, ALLEGRO_DISPLAY *display) :
          l.append_item("SRC_MINUS_DEST");
          l.append_item("DEST_MINUS_SRC");
       }
-      d.add(l, 1 + i * 3, 24, 3, 6);
+      d.add(l, 1 + i * 3, 25, 3, 6);
    }
 
    rgba_label[0] = Label("RGBA");
@@ -172,6 +174,11 @@ void draw_background(int x, int y)
    }
 }
 
+static bool contains(const std::string & haystack, const std::string & needle)
+{
+   return haystack.find(needle) != std::string::npos;
+}
+
 void Prog::draw_bitmap(const std::string & str,
    const std::string &how,
    bool memory,
@@ -183,34 +190,46 @@ void Prog::draw_bitmap(const std::string & str,
    int bv = b[i].get_cur_value();
    int av = a[i].get_cur_value();
    ALLEGRO_COLOR color = al_map_rgba(rv, gv, bv, av);
+   ALLEGRO_BITMAP *bmp;
+
+   if (contains(str, "Mysha"))
+      bmp = (memory ? mysha_bmp : mysha);
+   else
+      bmp = (memory ? allegro_bmp : allegro);
 
    if (how == "original") {
-      if (str == "Mysha")
-         al_draw_bitmap(memory ? mysha_bmp : mysha, 0, 0, 0);
-      else if (str == "Allegro")
-         al_draw_bitmap(memory ? allegro_bmp : allegro, 0, 0, 0);
-      else if (str == "Color")
+      if (str == "Color")
          al_draw_filled_rectangle(0, 0, 320, 200, color);
+      else if (contains(str, "tint"))
+         al_draw_tinted_bitmap(bmp, color, 0, 0, 0);
+      else
+         al_draw_bitmap(bmp, 0, 0, 0);
    }
    else if (how == "scaled") {
-      if (str == "Mysha")
+      if (str == "Color") {
+         al_draw_filled_rectangle(10, 10, 300, 180, color);
+      }
+      else if (contains(str, "tint")) {
+         al_draw_tinted_scaled_bitmap(bmp, color, 0, 0,
+            320, 200, 10, 10, 300, 180, 0);
+      }
+      else {
          al_draw_scaled_bitmap(memory ? mysha_bmp : mysha, 0, 0,
             320, 200, 10, 10, 300, 180, 0);
-      else if (str == "Allegro")
-         al_draw_scaled_bitmap(memory ? allegro_bmp : allegro, 0, 0,
-            320, 200, 10, 10, 300, 180, 0);
-      else if (str == "Color")
-         al_draw_filled_rectangle(10, 10, 300, 180, color);
+      }
    }
    else if (how == "rotated") {
-      if (str == "Mysha")
-         al_draw_rotated_bitmap(memory ? mysha_bmp : mysha, 160, 100,
-            160, 100, ALLEGRO_PI / 8, 0);
-      else if (str == "Allegro")
-         al_draw_rotated_bitmap(memory ? allegro_bmp : allegro, 160, 100,
-            160, 100, ALLEGRO_PI / 8, 0);
-      else if (str == "Color")
+      if (str == "Color") {
          al_draw_filled_circle(160, 100, 100, color);
+      }
+      else if (contains(str, "tint")) {
+         al_draw_tinted_rotated_bitmap(bmp, color, 160, 100,
+            160, 100, ALLEGRO_PI / 8, 0);
+      }
+      else {
+         al_draw_rotated_bitmap(bmp, 160, 100,
+            160, 100, ALLEGRO_PI / 8, 0);
+      }
    }
 }
 
