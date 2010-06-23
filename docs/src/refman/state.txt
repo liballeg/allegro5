@@ -37,8 +37,19 @@ described in the events section to control inter-thread communication.)
 ## API: ALLEGRO_STATE_FLAGS
 
 Flags which can be passed to [al_store_state]/[al_restore_state] as bit
-combinations. The following flags store or restore settings corresponding
-to the following al_set\_/al_get\_ calls:
+combinations. See [al_store_state] for the list of flags.
+
+## API: al_restore_state
+
+Restores part of the state of the current thread from the given
+[ALLEGRO_STATE] object.
+
+See also: [al_store_state], [ALLEGRO_STATE_FLAGS]
+
+## API: al_store_state
+
+Stores part of the state of the current thread in the given [ALLEGRO_STATE]
+objects. The flags parameter can take any bit-combination of these flags:
 
 * ALLEGRO_STATE_NEW_DISPLAY_PARAMETERS - new_display_format,
   new_display_refresh_rate, new_display_flags
@@ -52,20 +63,7 @@ to the following al_set\_/al_get\_ calls:
                          ALLEGRO_STATE_TARGET_BITMAP
 * ALLEGRO_STATE_ALL - all of the above 
 
-## API: al_restore_state
-
-Restores part of the state of the current thread from the given
-[ALLEGRO_STATE] object.
-
-See also: [al_store_state], [ALLEGRO_STATE_FLAGS]
-
-## API: al_store_state
-
-Stores part of the state of the current thread in the given [ALLEGRO_STATE]
-objects. The flags parameter can take any bit-combination of the flags
-described under [ALLEGRO_STATE_FLAGS].
-
-See also: [al_restore_state]
+See also: [al_restore_state], [ALLEGRO_STATE]
 
 ## API: al_get_errno
 
