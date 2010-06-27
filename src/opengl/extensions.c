@@ -26,6 +26,7 @@
 #include "allegro5/internal/aintern_display.h"
 #include "allegro5/internal/aintern_system.h"
 #include <stdio.h>
+#include <math.h>
 
 /* We need some driver specific details not worth of a vtable entry. */
 #if defined ALLEGRO_WINDOWS
@@ -112,9 +113,14 @@ static float _al_ogl_version(void)
 
    str = (const char *)glGetString(GL_VERSION);
    if (str) {
+      float v;
       major = minor1 = minor2 = 0;
       sscanf(str, "%d.%d.%d", &major, &minor1, &minor2);
-      return major + minor1 / 10.f + minor2 / 100.f;
+      v = major;
+      v += minor1 / 10.f;
+      if (minor2 > 0)
+        v += minor2 / pow(10, 2 + floor(log10(minor2)));
+      return v;
    }
    else {
       /* The OpenGL driver does not return a version
@@ -594,6 +600,7 @@ static void fill_in_info_struct(const GLubyte *rendereru, OPENGL_INFO *info)
 
    /* Read OpenGL properties */
    info->version = _al_ogl_version();
+   ALLEGRO_INFO("Assumed OpenGL version: %f\n", info->version);
 
    return;
 }
