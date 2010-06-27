@@ -88,7 +88,6 @@ static void shutdown_system_driver(void)
 {
    if (active_sysdrv) {
       ALLEGRO_CONFIG *temp = active_sysdrv->config;
-      al_free(active_sysdrv->dummy_display);
       if (active_sysdrv->vt && active_sysdrv->vt->shutdown_system)
          active_sysdrv->vt->shutdown_system();
       active_sysdrv = NULL;
@@ -250,10 +249,6 @@ bool al_install_system(int version, int (*atexit_ptr)(void (*)(void)))
       atexit_ptr(al_uninstall_system);
       atexit_virgin = false;
    }
-
-   /* Create a dummy dispay so command line tools work */
-   active_sysdrv->dummy_display = al_calloc(1, sizeof(ALLEGRO_DISPLAY));
-   al_set_current_display(active_sysdrv->dummy_display);
 
    /* Clear errnos set while searching for config files. */
    al_set_errno(0);

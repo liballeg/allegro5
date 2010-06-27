@@ -108,7 +108,6 @@ ALLEGRO_DISPLAY *al_create_display(int w, int h)
 void al_destroy_display(ALLEGRO_DISPLAY *display)
 {
    if (display) {
-      ALLEGRO_SYSTEM *sysdrv;
       ALLEGRO_BITMAP *bmp;
 
       bmp = al_get_target_bitmap();
@@ -122,11 +121,6 @@ void al_destroy_display(ALLEGRO_DISPLAY *display)
          display->display_invalidated(display, true);
 
       display->vt->destroy_display(display);
-
-      sysdrv = al_get_system_driver();
-      if (sysdrv->displays._size <= 0) {
-         al_set_current_display(sysdrv->dummy_display);
-      }
    }
 }
 
