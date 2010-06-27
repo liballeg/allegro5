@@ -1079,7 +1079,7 @@ static void wgl_destroy_display(ALLEGRO_DISPLAY *disp)
    ALLEGRO_DISPLAY *old_disp = al_get_current_display();
 
    if (old_disp != disp)
-      al_set_current_display(disp);
+      _al_set_current_display_only(disp);
 
    destroy_display_internals(wgl_disp);
    _al_event_source_free(&disp->es);
@@ -1089,7 +1089,7 @@ static void wgl_destroy_display(ALLEGRO_DISPLAY *disp)
    al_free(disp->ogl_extras);
 
    if (old_disp != disp)
-      al_set_current_display(old_disp);
+      _al_set_current_display_only(old_disp);
 
    al_free(disp->vertex_cache);
    al_free(wgl_disp);

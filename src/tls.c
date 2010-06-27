@@ -38,12 +38,13 @@ typedef struct thread_local_state {
    int new_display_refresh_rate;
    int new_display_flags;
    ALLEGRO_EXTRA_DISPLAY_SETTINGS new_display_settings;
+
    /* Current display */
    ALLEGRO_DISPLAY *current_display;
+
    /* This is used for storing current transformation and blenders for
     * graphics operations while no current display is available.
     */
-
    /* FIXME: If we have a way to call a callback before a thread is
     * destroyed this field can be removed and instead memory_display
     * should be allocated on demand with al_malloc and then destroyed
@@ -311,9 +312,10 @@ int al_get_new_display_flags(void)
 
 
 
-/* Function: al_set_current_display
+/* Make the given display current, without changing the target bitmap.
+ * This is used internally to change the current display transiently.
  */
-bool al_set_current_display(ALLEGRO_DISPLAY *display)
+bool _al_set_current_display_only(ALLEGRO_DISPLAY *display)
 {
    thread_local_state *tls;
 
@@ -327,25 +329,14 @@ bool al_set_current_display(ALLEGRO_DISPLAY *display)
       tls->current_display = NULL;
    }
 
-   if (display) {
-      /* This is the case for dummy displays for command line tools */
-      if (!display->vt) {
-         tls->current_display = display;
-         return true;
-      }
-      else if (display->vt->set_current_display(display)) {
-         tls->current_display = display;
-         al_set_target_bitmap(al_get_backbuffer(display));
-         return true;
-      }
-      else {
+   if (display &&
+         display->vt &&
+         display->vt->set_current_display) {
+      if (!display->vt->set_current_display(display))
          return false;
-      }
-   }
-   else {
-      tls->current_display = NULL;
    }
 
+   tls->current_display = display;
    return true;
 }
 
@@ -540,7 +531,7 @@ void al_store_state(ALLEGRO_STATE *state, int flags)
    if (flags & ALLEGRO_STATE_DISPLAY) {
       _STORE(current_display);
    }
-   
+
    if (flags & ALLEGRO_STATE_TARGET_BITMAP) {
       _STORE(target_bitmap);
    }
@@ -589,9 +580,9 @@ void al_restore_state(ALLEGRO_STATE const *state)
    
    if (flags & ALLEGRO_STATE_DISPLAY) {
       _STORE(current_display);
-      al_set_current_display(tls->current_display);
+      _al_set_current_display_only(tls->current_display);
    }
-   
+
    if (flags & ALLEGRO_STATE_TARGET_BITMAP) {
       _STORE(target_bitmap);
       al_set_target_bitmap(tls->target_bitmap);

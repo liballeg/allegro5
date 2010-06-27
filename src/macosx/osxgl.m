@@ -1404,7 +1404,7 @@ static void destroy_display(ALLEGRO_DISPLAY* d)
    // Set the display as the current display; needed because we need to
    // make the context current.
    if (old_dpy != d)
-      al_set_current_display(d);
+      _al_set_current_display_only(d);
 
    /* First of all, save video bitmaps attached to this display. */
    // Check for other displays in this display group
@@ -1449,9 +1449,11 @@ static void destroy_display(ALLEGRO_DISPLAY* d)
    // If the display we just destroyed is actually current, set the current
    // display to NULL.
    if (old_dpy != d)
-      al_set_current_display(old_dpy);
-   else
-      al_set_current_display(NULL);
+      _al_set_current_display_only(old_dpy);
+   else {
+      // Is this redundant? --pw
+      _al_set_current_display_only(NULL);
+   }
 
    al_free(d->vertex_cache);
    al_free(d);

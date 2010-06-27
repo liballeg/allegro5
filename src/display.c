@@ -66,7 +66,7 @@ ALLEGRO_DISPLAY *al_create_display(int w, int h)
 
    _al_vector_init(&display->bitmaps, sizeof(ALLEGRO_BITMAP*));
 
-   al_set_current_display(display);
+   al_set_target_bitmap(al_get_backbuffer(display));
    
    al_identity_transform(&identity);
    al_use_transform(&identity);
@@ -114,8 +114,11 @@ void al_destroy_display(ALLEGRO_DISPLAY *display)
       if (bmp && bmp->display == display)
          al_set_target_bitmap(NULL);
 
+      /* This can happen if we have a current display, but the target bitmap
+       * was a memory bitmap.
+       */
       if (display == al_get_current_display())
-         al_set_current_display(NULL);
+         _al_set_current_display_only(NULL);
 
       if (display->display_invalidated)
          display->display_invalidated(display, true);
@@ -228,15 +231,15 @@ void al_clear_to_color(ALLEGRO_COLOR color)
  */
 void al_draw_pixel(float x, float y, ALLEGRO_COLOR color)
 {
-   ALLEGRO_DISPLAY *display = al_get_current_display();
    ALLEGRO_BITMAP *target = al_get_target_bitmap();
 
    ASSERT(target);
 
-   if (target->flags & ALLEGRO_MEMORY_BITMAP || !display->vt->draw_pixel) {
+   if ((target->flags & ALLEGRO_MEMORY_BITMAP) || target->display->vt->draw_pixel) {
       _al_draw_pixel_memory(target, x, y, &color);
    }
    else {
+      ALLEGRO_DISPLAY *display = target->display;
       ASSERT(display);
       display->vt->draw_pixel(display, x, y, &color);
    }

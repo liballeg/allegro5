@@ -676,6 +676,13 @@ Same as `al_set_target_bitmap(al_get_backbuffer(display));'
 
 See also: [al_set_target_bitmap], [al_get_backbuffer]
 
+### API: al_get_current_display
+
+Return the display that is "current" for the calling thread, or NULL if there
+is none.
+
+See also: [al_set_target_bitmap]
+
 
 
 ## Blending modes

@@ -140,6 +140,7 @@ void _al_destroy_display_bitmaps(ALLEGRO_DISPLAY *d);
 void _al_set_display_invalidated_callback(ALLEGRO_DISPLAY* display, void (*display_invalidated)(ALLEGRO_DISPLAY*, bool));
 
 /* Defined in tls.c */
+bool _al_set_current_display_only(ALLEGRO_DISPLAY *display);
 void _al_set_new_display_settings(ALLEGRO_EXTRA_DISPLAY_SETTINGS *settings);
 ALLEGRO_EXTRA_DISPLAY_SETTINGS *_al_get_new_display_settings(void);
 ALLEGRO_DISPLAY *_al_get_current_display(void);

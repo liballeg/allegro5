@@ -184,7 +184,7 @@ void al_draw_tinted_bitmap(ALLEGRO_BITMAP *bitmap, ALLEGRO_COLOR tint,
    float dx, float dy, int flags)
 {
    ALLEGRO_BITMAP *dest = al_get_target_bitmap();
-   ALLEGRO_DISPLAY *display = al_get_current_display();
+   ALLEGRO_DISPLAY *display = dest->display;
    
    /* If destination is memory, do a memory bitmap */
    if (dest->flags & ALLEGRO_MEMORY_BITMAP) {
@@ -226,7 +226,7 @@ void al_draw_tinted_bitmap_region(ALLEGRO_BITMAP *bitmap,
    float sx, float sy, float sw, float sh, float dx, float dy, int flags)
 {
    ALLEGRO_BITMAP *dest = al_get_target_bitmap();
-   ALLEGRO_DISPLAY* display = al_get_current_display();
+   ALLEGRO_DISPLAY *display = dest->display;
    
    /* If destination is memory, do a memory bitmap */
    if (dest->flags & ALLEGRO_MEMORY_BITMAP) {

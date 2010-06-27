@@ -1151,7 +1151,7 @@ static void d3d_destroy_display(ALLEGRO_DISPLAY *display)
    ALLEGRO_DISPLAY *old_disp = al_get_current_display();
 
    if (old_disp != display)
-      al_set_current_display(display);
+      _al_set_current_display_only(display);
 
    d3d_destroy_display_internals(d3d_display);
 
@@ -1170,7 +1170,7 @@ static void d3d_destroy_display(ALLEGRO_DISPLAY *display)
    _al_vector_free(&display->bitmaps);
    
    if (old_disp != display)
-      al_set_current_display(old_disp);
+      _al_set_current_display_only(old_disp);
 
    al_free(display->vertex_cache);
    al_free(display);
@@ -2305,6 +2305,7 @@ static bool d3d_acknowledge_resize(ALLEGRO_DISPLAY *d)
    ALLEGRO_DISPLAY *old;
    ALLEGRO_DISPLAY_D3D *disp = (ALLEGRO_DISPLAY_D3D *)d;
    ALLEGRO_DISPLAY_WIN *win_display = &disp->win_display;
+   ALLEGRO_STATE state;
    int w, h;
 
    if (disp->ignore_ack) {
@@ -2335,10 +2336,10 @@ static bool d3d_acknowledge_resize(ALLEGRO_DISPLAY *d)
    }
    disp->reset_done = false;
 
-   old = al_get_current_display();
-   al_set_current_display(d);
+   al_store_state(&state, ALLEGRO_STATE_DISPLAY | ALLEGRO_STATE_TARGET_BITMAP);
+   al_set_target_bitmap(al_get_backbuffer(d));
    al_set_clipping_rectangle(0, 0, d->w, d->h);
-   al_set_current_display(old);
+   al_restore_state(&state);
 
    return disp->reset_success;
 }

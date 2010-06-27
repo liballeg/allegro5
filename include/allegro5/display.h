@@ -115,7 +115,6 @@ AL_FUNC(bool, al_toggle_display_flag, (ALLEGRO_DISPLAY *display, int flag, bool 
 
 AL_FUNC(ALLEGRO_DISPLAY*, al_create_display, (int w, int h));
 AL_FUNC(void,             al_destroy_display, (ALLEGRO_DISPLAY *display));
-AL_FUNC(bool,             al_set_current_display, (ALLEGRO_DISPLAY *display));
 AL_FUNC(ALLEGRO_DISPLAY*, al_get_current_display, (void));
 AL_FUNC(void,            al_set_target_bitmap, (ALLEGRO_BITMAP *bitmap));
 AL_FUNC(void,            al_set_target_backbuffer, (ALLEGRO_DISPLAY *display));

@@ -343,12 +343,12 @@ static void ogl_draw_scaled_bitmap(ALLEGRO_BITMAP *bitmap,
    ALLEGRO_BITMAP_OGL *ogl_target = (ALLEGRO_BITMAP_OGL *)target;
    ALLEGRO_DISPLAY *disp = al_get_current_display();
    
-   if(target->parent) {
+   if (target->parent) {
       ogl_target = (ALLEGRO_BITMAP_OGL *)target->parent;
    }
       
    if (disp->ogl_extras->opengl_target != ogl_target ||
-      !setup_blending(disp) || target->locked) {
+         !setup_blending(disp) || target->locked) {
       _al_draw_scaled_bitmap_memory(bitmap, tint, sx, sy, sw, sh,
          dx, dy, dw, dh, flags);
       return;
@@ -367,7 +367,7 @@ static void ogl_draw_bitmap_region(ALLEGRO_BITMAP *bitmap,
    // FIXME: need format conversion if they don't match
    ALLEGRO_BITMAP *target = al_get_target_bitmap();
    ALLEGRO_BITMAP_OGL *ogl_target;
-   ALLEGRO_DISPLAY *disp = al_get_current_display();
+   ALLEGRO_DISPLAY *disp = target->display;
    
    /* For sub-bitmaps */
    if (target->parent) {
@@ -480,7 +480,7 @@ static void ogl_draw_rotated_bitmap(ALLEGRO_BITMAP *bitmap,
    // FIXME: need format conversion if they don't match
    ALLEGRO_BITMAP *target = al_get_target_bitmap();
    ALLEGRO_BITMAP_OGL *ogl_target = (ALLEGRO_BITMAP_OGL *)target;
-   ALLEGRO_DISPLAY *disp = al_get_current_display();
+   ALLEGRO_DISPLAY *disp = target->display;
    
    if (target->parent) {
        ogl_target = (ALLEGRO_BITMAP_OGL *)target->parent;
@@ -507,7 +507,7 @@ static void ogl_draw_rotated_scaled_bitmap(ALLEGRO_BITMAP *bitmap,
    // FIXME: need format conversion if they don't match
    ALLEGRO_BITMAP *target = al_get_target_bitmap();
    ALLEGRO_BITMAP_OGL *ogl_target = (ALLEGRO_BITMAP_OGL *)target;
-   ALLEGRO_DISPLAY *disp = al_get_current_display();
+   ALLEGRO_DISPLAY *disp = target->display;
    
    if (target->parent) {
        ogl_target = (ALLEGRO_BITMAP_OGL *)target->parent;
@@ -608,8 +608,7 @@ static bool ogl_upload_bitmap(ALLEGRO_BITMAP *bitmap)
 
 static void ogl_update_clipping_rectangle(ALLEGRO_BITMAP *bitmap)
 {
-   ALLEGRO_DISPLAY *display = al_get_current_display();
-   ALLEGRO_DISPLAY *ogl_disp = display;
+   ALLEGRO_DISPLAY *ogl_disp = al_get_current_display();
    ALLEGRO_BITMAP_OGL *ogl_bitmap = (void *)bitmap;
 
    if (ogl_disp->ogl_extras->opengl_target == ogl_bitmap) {
@@ -648,6 +647,7 @@ static ALLEGRO_LOCKED_REGION *ogl_lock_region(ALLEGRO_BITMAP *bitmap,
    ALLEGRO_BITMAP_OGL *ogl_bitmap = (void *)bitmap;
    int pixel_size;
    int pitch = 0;
+   ALLEGRO_DISPLAY *disp;
    ALLEGRO_DISPLAY *old_disp = NULL;
    GLint gl_y = bitmap->h - y - h;
    GLenum e;
@@ -655,22 +655,15 @@ static ALLEGRO_LOCKED_REGION *ogl_lock_region(ALLEGRO_BITMAP *bitmap,
    if (format == ALLEGRO_PIXEL_FORMAT_ANY)
       format = bitmap->format;
 
-   format = _al_get_real_pixel_format(al_get_current_display(), format);
-/*#else
-   format = bitmap->format;
-   (void)x;
-   (void)w;
-   (void)gl_y;
-   (void)e;
-#endif
-*/
+   disp = al_get_current_display();
+   format = _al_get_real_pixel_format(disp, format);
 
    pixel_size = al_get_pixel_size(format);
 
    if (bitmap->display->ogl_extras->is_shared == false &&
-       bitmap->display != al_get_current_display()) {
-      old_disp = al_get_current_display();
-      al_set_current_display(bitmap->display);
+         bitmap->display != disp) {
+      old_disp = disp;
+      _al_set_current_display_only(bitmap->display);
    }
 
    if (ogl_bitmap->is_backbuffer) {
@@ -773,7 +766,7 @@ static ALLEGRO_LOCKED_REGION *ogl_lock_region(ALLEGRO_BITMAP *bitmap,
    bitmap->locked_region.pitch = -pitch;
 
    if (old_disp) {
-      al_set_current_display(old_disp);
+      _al_set_current_display_only(old_disp);
    }
 
    return &bitmap->locked_region;
@@ -785,6 +778,7 @@ static void ogl_unlock_region(ALLEGRO_BITMAP *bitmap)
 {
    ALLEGRO_BITMAP_OGL *ogl_bitmap = (void *)bitmap;
    const int format = bitmap->locked_region.format;
+   ALLEGRO_DISPLAY *disp;
    ALLEGRO_DISPLAY *old_disp = NULL;
    GLenum e;
    GLint gl_y = bitmap->h - bitmap->lock_y - bitmap->lock_h;
@@ -792,7 +786,8 @@ static void ogl_unlock_region(ALLEGRO_BITMAP *bitmap)
    int pixel_size;
    (void)e;
 
-   orig_format = _al_get_real_pixel_format(al_get_current_display(), bitmap->format);
+   disp = al_get_current_display();
+   orig_format = _al_get_real_pixel_format(disp, bitmap->format);
    pixel_size = al_get_pixel_size(orig_format);
 
    if (bitmap->lock_flags & ALLEGRO_LOCK_READONLY) {
@@ -801,9 +796,9 @@ static void ogl_unlock_region(ALLEGRO_BITMAP *bitmap)
    }
 
    if (bitmap->display->ogl_extras->is_shared == false &&
-       bitmap->display != al_get_current_display()) {
-      old_disp = al_get_current_display();
-      al_set_current_display(bitmap->display);
+       bitmap->display != disp) {
+      old_disp = disp;
+      _al_set_current_display_only(bitmap->display);
    }
 
 #if !defined ALLEGRO_GP2XWIZ && !defined ALLEGRO_IPHONE
@@ -928,7 +923,7 @@ static void ogl_unlock_region(ALLEGRO_BITMAP *bitmap)
 #endif
 
    if (old_disp) {
-      al_set_current_display(old_disp);
+      _al_set_current_display_only(old_disp);
    }
 
    al_free(ogl_bitmap->lock_buffer);
@@ -939,12 +934,14 @@ static void ogl_unlock_region(ALLEGRO_BITMAP *bitmap)
 static void ogl_destroy_bitmap(ALLEGRO_BITMAP *bitmap)
 {
    ALLEGRO_BITMAP_OGL *ogl_bitmap = (void *)bitmap;
+   ALLEGRO_DISPLAY *disp;
    ALLEGRO_DISPLAY *old_disp = NULL;
 
+   disp = al_get_current_display();
    if (bitmap->display->ogl_extras->is_shared == false &&
-       bitmap->display != al_get_current_display()) {
-      old_disp = al_get_current_display();
-      al_set_current_display(bitmap->display);
+       bitmap->display != disp) {
+      old_disp = disp;
+      _al_set_current_display_only(bitmap->display);
    }
 
 #if !defined ALLEGRO_GP2XWIZ && !defined ALLEGRO_IPHONE
@@ -965,7 +962,7 @@ static void ogl_destroy_bitmap(ALLEGRO_BITMAP *bitmap)
    }
 
    if (old_disp) {
-      al_set_current_display(old_disp);
+      _al_set_current_display_only(old_disp);
    }
 }
 
