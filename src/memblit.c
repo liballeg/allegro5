@@ -166,7 +166,107 @@ static void _al_blend_inline_dest_zero_add(
 #define SRC_NOT_MODIFIED \
    src_mode == ALLEGRO_ONE && src_alpha == ALLEGRO_ONE && \
    tint.r == 1.0f && tint.g == 1.0f && tint.b == 1.0f && tint.a == 1.0f
-
+   
+/* sub-bitmaps may originate and extend off its parents boundaries in any
+ * direction. The HANDLE_SUB_BITMAPS macro takes post-clipped coordinates
+ * for both the source and destination bitmaps and further restricts them
+ * as necessary. The wr and hr parameters are the ratio of source
+ * width & height to destination width & height _before_ clipping.
+ *
+ * First the left (top) coordinates are moved inward. Then the right
+ * (bottom) coordinates are moved inward. The changes are applied 
+ * simultaneously to the complementary bitmap with scaling taken into
+ * consideration.
+ *
+ * The coordinates are modified, and the sub-bitmaps are set to the
+ * parent bitmaps. If nothing needs to be drawn, the macro exits the 
+ * function.
+ */   
+#define HANDLE_SUB_BITMAPS(src, sx, sy, sw, sh, dest, dx, dy, dw, dh, wr, hr) \
+                                                                         \
+   if (dest->parent) {                                                   \
+      dx += dest->xofs;                                                  \
+      if (dx < 0) {                                                      \
+         int scaled_width = dx * wr;                                     \
+         sw += scaled_width;                                             \
+         sx -= scaled_width;                                             \
+         dw += dx;                                                       \
+         dx = 0;                                                         \
+      }                                                                  \
+      else if (dx >= dest->parent->w) {                                  \
+         return;                                                         \
+      }                                                                  \
+                                                                         \
+      dy += dest->yofs;                                                  \
+      if (dy < 0) {                                                      \
+         int scaled_height = dy * hr;                                    \
+         sh += scaled_height;                                            \
+         sy -= scaled_height;                                            \
+         dh += dy;                                                       \
+         dy = 0;                                                         \
+      }                                                                  \
+      else if (dy >= dest->parent->h) {                                  \
+         return;                                                         \
+      }                                                                  \
+                                                                         \
+      dest = dest->parent;                                               \
+                                                                         \
+      if (dx + dw > dest->w) {                                           \
+         sw -= (dx + dw - dest->w) * wr;                                 \
+         dw = dest->w - dx;                                              \
+      }                                                                  \
+                                                                         \
+      if (dy + dh > dest->h) {                                           \
+         sh -= (dy + dh - dest->h) * hr;                                 \
+         dh = dest->h - dy;                                              \
+      }                                                                  \
+                                                                         \
+      if (dw <= 0 || dh <= 0) {                                          \
+         return;                                                         \
+      }                                                                  \
+   }                                                                     \
+                                                                         \
+   if (src->parent) {                                                    \
+      sx += src->xofs;                                                   \
+      if (sx < 0) {                                                      \
+         int scaled_width = sx / wr;                                     \
+         dw += scaled_width;                                             \
+         dx -= scaled_width;                                             \
+         sw += sx;                                                       \
+         sx = 0;                                                         \
+      }                                                                  \
+      else if (sx >= src->parent->w) {                                   \
+         return;                                                         \
+      }                                                                  \
+                                                                         \
+      sy += src->yofs;                                                   \
+      if (sy < 0) {                                                      \
+         int scaled_height = sy / hr;                                    \
+         dh += scaled_height;                                            \
+         dy -= scaled_height;                                            \
+         sh += sy;                                                       \
+         sy = 0;                                                         \
+      }                                                                  \
+      else if (sy >= src->parent->h) {                                   \
+         return;                                                         \
+      }                                                                  \
+                                                                         \
+      src = src->parent;                                                 \
+                                                                         \
+      if (sx + sw > src->w) {                                            \
+         dw -= (sx + sw - src->w) / wr;                                  \
+         sw = src->w - sx;                                               \
+      }                                                                  \
+                                                                         \
+      if (sy + sh > src->h) {                                            \
+         dh -= (sy + sh - src->h) / hr;                                  \
+         sh = src->h - sy;                                               \
+      }                                                                  \
+                                                                         \
+      if (sw <= 0 || sh <= 0) {                                          \
+         return;                                                         \
+      }                                                                  \
+   }
 
 void _al_draw_bitmap_region_memory(ALLEGRO_BITMAP *bitmap,
    ALLEGRO_COLOR tint,
@@ -182,6 +282,7 @@ void _al_draw_bitmap_region_memory(ALLEGRO_BITMAP *bitmap,
    int xinc, yinc;
    int yd;
    int sxd;
+   int dw, dh;
    
    if(!is_identity(al_get_current_transform()))
    {
@@ -228,18 +329,10 @@ void _al_draw_bitmap_region_memory(ALLEGRO_BITMAP *bitmap,
       return;
    }
 
-   /* Handle sub bitmaps */
-   if (dest->parent) {
-      dx += dest->xofs;
-      dy += dest->yofs;
-      dest = dest->parent;
-   }
-
-   if (bitmap->parent) {
-      sx += bitmap->xofs;
-      sy += bitmap->yofs;
-      bitmap = bitmap->parent;
-   }
+	 dw = sw;
+	 dh = sh;
+	 
+	 HANDLE_SUB_BITMAPS(bitmap, sx, sy, sw, sh, dest, dx, dy, dw, dh, 1.0f, 1.0f)
 
 #ifdef ALLEGRO_GP2XWIZ
    if (src_mode == ALLEGRO_ALPHA &&
@@ -431,18 +524,7 @@ void _al_draw_scaled_bitmap_memory(ALLEGRO_BITMAP *src,
    if (dw == 0 || dh == 0)
       return;
 
-   /* Handle sub bitmaps */
-   if (dest->parent) {
-      dx += dest->xofs;
-      dy += dest->yofs;
-      dest = dest->parent;
-   }
-
-   if (src->parent) {
-      sx += src->xofs;
-      sy += src->yofs;
-      src = src->parent;
-   }
+   HANDLE_SUB_BITMAPS(src, sx, sy, sw, sh, dest, dx, dy, dw, dh, sxinc, syinc) 
 
    if (!(src_region = al_lock_bitmap(src, ALLEGRO_PIXEL_FORMAT_ANY, ALLEGRO_LOCK_READONLY))) {
       return;
@@ -1256,6 +1338,7 @@ void _al_draw_bitmap_region_memory_fast(ALLEGRO_BITMAP *bitmap,
    ALLEGRO_BITMAP *dest = al_get_target_bitmap();
    int x;
    int y;
+   int dw, dh;
 
    ASSERT(_al_pixel_format_is_real(bitmap->format));
    ASSERT(_al_pixel_format_is_real(dest->format));
@@ -1283,18 +1366,10 @@ void _al_draw_bitmap_region_memory_fast(ALLEGRO_BITMAP *bitmap,
       sh -= inc;
    }
 
-   /* Handle sub bitmaps */
-   if (dest->parent) {
-      dx += dest->xofs;
-      dy += dest->yofs;
-      dest = dest->parent;
-   }
-
-   if (bitmap->parent) {
-      sx += bitmap->xofs;
-      sy += bitmap->yofs;
-      bitmap = bitmap->parent;
-   }
+   dw = sw;
+   dh = sh;
+   
+   HANDLE_SUB_BITMAPS(bitmap, sx, sy, sw, sh, dest, dx, dy, dw, dh, 1.0f, 1.0f)
 
    /* Fast paths for no flipping */
    if (!(flags & ALLEGRO_FLIP_HORIZONTAL) &&
@@ -1419,18 +1494,7 @@ void _al_draw_scaled_bitmap_memory_fast(ALLEGRO_BITMAP *src,
    if (dw == 0 || dh == 0)
       return;
 
-   /* Handle sub bitmaps */
-   if (dest->parent) {
-      dx += dest->xofs;
-      dy += dest->yofs;
-      dest = dest->parent;
-   }
-
-   if (src->parent) {
-      sx += src->xofs;
-      sy += src->yofs;
-      src = src->parent;
-   }
+   HANDLE_SUB_BITMAPS(src, sx, sy, sw, sh, dest, dx, dy, dw, dh, sxinc, syinc)
 
    if (src->format == dest->format) {
       if (!(src_region = al_lock_bitmap(src, ALLEGRO_PIXEL_FORMAT_ANY,

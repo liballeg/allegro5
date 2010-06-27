@@ -50,7 +50,7 @@ int dst_x2 = DST_WIDTH-1;
 int dst_y2 = DST_HEIGHT-1;
 
 Mode mode = PLAIN_BLIT;
-
+int draw_flags = 0;
 
 int main(void)
 {
@@ -147,16 +147,20 @@ int main(void)
          al_set_target_bitmap(dst_subbmp[1]);
          switch (mode) {
             case PLAIN_BLIT:
-               al_draw_bitmap(src_subbmp[1], 0, 0, 0);
+            {
+               al_draw_bitmap(src_subbmp[1], 0, 0, draw_flags);
                break;
+            }
             case SCALED_BLIT:
+            {
                al_draw_scaled_bitmap(src_subbmp[1],
                   0, 0, al_get_bitmap_width(src_subbmp[1]),
                   al_get_bitmap_height(src_subbmp[1]),
                   0, 0, al_get_bitmap_width(dst_subbmp[1]),
                   al_get_bitmap_height(dst_subbmp[1]),
-                  0);
+                  draw_flags);
                break;
+            }
          }
 
          #define SWAP_GREATER(f1, f2) { \
@@ -220,6 +224,14 @@ int main(void)
          }
          else if (event.keyboard.unichar == 's') {
             mode = SCALED_BLIT;
+            redraw = true;
+         }
+         else if (event.keyboard.unichar == 'h') {
+            draw_flags ^= ALLEGRO_FLIP_HORIZONTAL;
+            redraw = true;
+         }
+         else if (event.keyboard.unichar == 'v') {
+            draw_flags ^= ALLEGRO_FLIP_VERTICAL;
             redraw = true;
          }
       }

@@ -301,8 +301,7 @@ specified size. A sub-bitmap is a bitmap that shares drawing memory with a
 pre-existing (parent) bitmap, but possibly with a different size and
 clipping settings.
 
-If the sub-bitmap does not lie completely inside the parent bitmap, then
-it is automatically clipped so that it does.
+The sub-bitmap may originate off or extend past the parent bitmap.
 
 See the discussion in [al_get_backbuffer] about using sub-bitmaps of
 the backbuffer.
