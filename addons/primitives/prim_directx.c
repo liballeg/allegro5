@@ -19,6 +19,7 @@
 
 #include "allegro5/allegro5.h"
 #include "allegro5/allegro_primitives.h"
+#include "allegro5/internal/aintern_bitmap.h"
 #include "allegro5/internal/aintern_prim_directx.h"
 #include "allegro5/internal/aintern_prim_soft.h"
 #include "allegro5/internal/aintern_prim.h"
@@ -226,10 +227,9 @@ static int al_blender_to_d3d(int al_mode)
    return D3DBLEND_ONE;
 }
 
-static void set_blender(ALLEGRO_DISPLAY *display)
+static void set_blender(LPDIRECT3DDEVICE9 device)
 {
    int op, src, dst, alpha_op, alpha_src, alpha_dst;
-   LPDIRECT3DDEVICE9 device = al_get_d3d_device(display);
 
    al_get_separate_blender(&op, &src, &dst, &alpha_op, &alpha_src, &alpha_dst);
 
@@ -289,19 +289,18 @@ static void* convert_to_legacy_vertices(const void* vtxs, int num_vertices, cons
 }
 
 
-static int _al_draw_prim_raw(ALLEGRO_BITMAP* texture, const void* vtx, const ALLEGRO_VERTEX_DECL* decl, 
+static int _al_draw_prim_raw(ALLEGRO_BITMAP* target, ALLEGRO_BITMAP* texture,
+   const void* vtx, const ALLEGRO_VERTEX_DECL* decl,
    const int* indices, int num_vtx, int type)
 {
    int stride = decl ? decl->stride : (int)sizeof(ALLEGRO_VERTEX);
    int num_primitives = 0;
 
-   ALLEGRO_DISPLAY *display;
    LPDIRECT3DDEVICE9 device;
    LPDIRECT3DBASETEXTURE9 d3d_texture;
    DWORD old_wrap_state[2];
    DWORD old_ttf_state;
    int min_idx = 0, max_idx = num_vtx - 1;
-   ALLEGRO_BITMAP* target = al_get_target_bitmap();
    D3DMATRIX new_trans;
    const ALLEGRO_TRANSFORM* cur_trans = al_get_current_transform();
    IDirect3DVertexShader9* old_vtx_shader;
@@ -324,8 +323,7 @@ static int _al_draw_prim_raw(ALLEGRO_BITMAP* texture, const void* vtx, const ALL
       }
    }
 
-   display = al_get_current_display();
-   device = al_get_d3d_device(display);
+   device = al_get_d3d_device(target->display);
    IDirect3DDevice9_GetVertexShader(device, &old_vtx_shader);
    IDirect3DDevice9_GetPixelShader(device, &old_pix_shader);
    
@@ -346,7 +344,7 @@ static int _al_draw_prim_raw(ALLEGRO_BITMAP* texture, const void* vtx, const ALL
    }
 
    if(!old_pix_shader)
-      set_blender(display);
+      set_blender(device);
       
    if(!old_vtx_shader) {
       /* Prepare the default shader */
@@ -354,7 +352,7 @@ static int _al_draw_prim_raw(ALLEGRO_BITMAP* texture, const void* vtx, const ALL
          if(decl) 
             _al_setup_shader(device, decl);
          else
-            setup_default_shader(display);
+            setup_default_shader(target->display);
       }
    }
    
@@ -569,12 +567,13 @@ static int _al_draw_prim_raw(ALLEGRO_BITMAP* texture, const void* vtx, const ALL
 
 #endif
 
-int _al_draw_prim_directx(ALLEGRO_BITMAP* texture, const void* vtxs, const ALLEGRO_VERTEX_DECL* decl, int start, int end, int type)
+int _al_draw_prim_directx(ALLEGRO_BITMAP* target, ALLEGRO_BITMAP* texture, const void* vtxs, const ALLEGRO_VERTEX_DECL* decl, int start, int end, int type)
 {
 #ifdef ALLEGRO_CFG_D3D
    int stride = decl ? decl->stride : (int)sizeof(ALLEGRO_VERTEX);
-   return _al_draw_prim_raw(texture, (const char*)vtxs + start * stride, decl, 0, end - start, type);
+   return _al_draw_prim_raw(target, texture, (const char*)vtxs + start * stride, decl, 0, end - start, type);
 #else
+   (void)target;
    (void)texture;
    (void)vtxs;
    (void)start;
@@ -586,11 +585,12 @@ int _al_draw_prim_directx(ALLEGRO_BITMAP* texture, const void* vtxs, const ALLEG
 #endif
 }
 
-int _al_draw_prim_indexed_directx(ALLEGRO_BITMAP* texture, const void* vtxs, const ALLEGRO_VERTEX_DECL* decl, const int* indices, int num_vtx, int type)
+int _al_draw_prim_indexed_directx(ALLEGRO_BITMAP* target, ALLEGRO_BITMAP* texture, const void* vtxs, const ALLEGRO_VERTEX_DECL* decl, const int* indices, int num_vtx, int type)
 {
 #ifdef ALLEGRO_CFG_D3D
-   return _al_draw_prim_raw(texture, vtxs, decl, indices, num_vtx, type);
+   return _al_draw_prim_raw(target, texture, vtxs, decl, indices, num_vtx, type);
 #else
+   (void)target;
    (void)texture;
    (void)vtxs;
    (void)indices;
@@ -602,21 +602,18 @@ int _al_draw_prim_indexed_directx(ALLEGRO_BITMAP* texture, const void* vtxs, con
 #endif
 }
 
-void _al_set_d3d_decl(ALLEGRO_VERTEX_DECL* ret)
+void _al_set_d3d_decl(ALLEGRO_DISPLAY* display, ALLEGRO_VERTEX_DECL* ret)
 {
 #ifdef ALLEGRO_CFG_D3D
-   int flags = al_get_display_flags(al_get_current_display());
-   if (flags & ALLEGRO_DIRECT3D) {
-      ALLEGRO_DISPLAY *display;
+   {
       LPDIRECT3DDEVICE9 device;
       D3DVERTEXELEMENT9 d3delements[ALLEGRO_PRIM_ATTR_NUM + 1];
       int idx = 0;
       ALLEGRO_VERTEX_ELEMENT* e;
       D3DCAPS9 caps;
-      
-      display = al_get_current_display();
+
       device = al_get_d3d_device(display);
-      
+
       IDirect3DDevice9_GetDeviceCaps(device, &caps);
       if(caps.PixelShaderVersion < D3DPS_VERSION(3, 0)) {
          ret->d3d_decl = 0;
@@ -690,9 +687,10 @@ void _al_set_d3d_decl(ALLEGRO_VERTEX_DECL* ret)
          IDirect3DDevice9_CreateVertexDeclaration(device, d3delements, (IDirect3DVertexDeclaration9**)&ret->d3d_decl);
       }
       
-      _al_create_shader(ret);
+      _al_create_shader(device, ret);
    }
 #else
+   (void)display;
    ret->d3d_decl = 0;
 #endif
 }

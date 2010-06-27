@@ -86,9 +86,9 @@ int al_draw_prim(const void* vtxs, const ALLEGRO_VERTEX_DECL* decl,
    } else {
       int flags = al_get_display_flags(target->display);
       if (flags & ALLEGRO_OPENGL) {
-         ret =  _al_draw_prim_opengl(texture, vtxs, decl, start, end, type);
+         ret =  _al_draw_prim_opengl(target, texture, vtxs, decl, start, end, type);
       } else if (flags & ALLEGRO_DIRECT3D) {
-         ret =  _al_draw_prim_directx(texture, vtxs, decl, start, end, type);
+         ret =  _al_draw_prim_directx(target, texture, vtxs, decl, start, end, type);
       }
    }
    
@@ -119,9 +119,9 @@ int al_draw_indexed_prim(const void* vtxs, const ALLEGRO_VERTEX_DECL* decl,
    } else {
       int flags = al_get_display_flags(target->display);
       if (flags & ALLEGRO_OPENGL) {
-         ret =  _al_draw_prim_indexed_opengl(texture, vtxs, decl, indices, num_vtx, type);
+         ret =  _al_draw_prim_indexed_opengl(target, texture, vtxs, decl, indices, num_vtx, type);
       } else if (flags & ALLEGRO_DIRECT3D) {
-         ret =  _al_draw_prim_indexed_directx(texture, vtxs, decl, indices, num_vtx, type);
+         ret =  _al_draw_prim_indexed_directx(target, texture, vtxs, decl, indices, num_vtx, type);
       }
    }
    
@@ -150,7 +150,11 @@ uint32_t al_get_allegro_primitives_version(void)
  */
 ALLEGRO_VERTEX_DECL* al_create_vertex_decl(const ALLEGRO_VERTEX_ELEMENT* elements, int stride)
 {
-   ALLEGRO_VERTEX_DECL* ret = al_malloc(sizeof(ALLEGRO_VERTEX_DECL));
+   ALLEGRO_VERTEX_DECL* ret;
+   ALLEGRO_DISPLAY* display;
+   int flags;
+
+   ret = al_malloc(sizeof(ALLEGRO_VERTEX_DECL));
    ret->elements = al_malloc(sizeof(ALLEGRO_VERTEX_ELEMENT) * ALLEGRO_PRIM_ATTR_NUM);
    memset(ret->elements, 0, sizeof(ALLEGRO_VERTEX_ELEMENT) * ALLEGRO_PRIM_ATTR_NUM);
    while(elements->attribute) {
@@ -158,7 +162,11 @@ ALLEGRO_VERTEX_DECL* al_create_vertex_decl(const ALLEGRO_VERTEX_ELEMENT* element
       elements++;
    }
    
-   _al_set_d3d_decl(ret);
+   display = al_get_current_display();
+   flags = al_get_display_flags(display);
+   if (flags & ALLEGRO_DIRECT3D) {
+      _al_set_d3d_decl(display, ret);
+   }
    
    ret->stride = stride;
    return ret;

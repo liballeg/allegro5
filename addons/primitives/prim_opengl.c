@@ -29,7 +29,7 @@
 #include "allegro5/allegro_opengl.h"
 #include "allegro5/internal/aintern_opengl.h"
 
-static void setup_blending(void)
+static void setup_blending(ALLEGRO_DISPLAY *ogl_disp)
 {
    int op, src_color, dst_color, op_alpha, src_alpha, dst_alpha;
    const int blend_modes[4] = {
@@ -44,8 +44,6 @@ static void setup_blending(void)
    /* glBlendFuncSeparate was only included with OpenGL 1.4 */
 #if !defined ALLEGRO_GP2XWIZ
    {
-      ALLEGRO_DISPLAY *ogl_disp = al_get_current_display();
-     
 #ifndef ALLEGRO_IPHONE
       if (ogl_disp->ogl_extras->ogl_info.version >= 1.4) {
 #else
@@ -73,6 +71,7 @@ static void setup_blending(void)
       }
    }
 #else
+   (void)ogl_disp;
    glEnable(GL_BLEND);
    glBlendFunc(blend_modes[src_color], blend_modes[dst_color]);
 #endif
@@ -201,13 +200,12 @@ static void setup_state(const char* vtxs, const ALLEGRO_VERTEX_DECL* decl, ALLEG
    }
 }
 
-int _al_draw_prim_opengl(ALLEGRO_BITMAP* texture, const void* vtxs, const ALLEGRO_VERTEX_DECL* decl, int start, int end, int type)
+int _al_draw_prim_opengl(ALLEGRO_BITMAP* target, ALLEGRO_BITMAP* texture, const void* vtxs, const ALLEGRO_VERTEX_DECL* decl, int start, int end, int type)
 {   
 #ifdef ALLEGRO_CFG_OPENGL
 
    int num_primitives = 0;
-   ALLEGRO_DISPLAY *ogl_disp = al_get_current_display();
-   ALLEGRO_BITMAP *target = al_get_target_bitmap();
+   ALLEGRO_DISPLAY *ogl_disp = target->display;
    ALLEGRO_BITMAP_OGL *ogl_target = (ALLEGRO_BITMAP_OGL *)target;
    const void* vtx;
    int stride = decl ? decl->stride : (int)sizeof(ALLEGRO_VERTEX);
@@ -235,7 +233,7 @@ int _al_draw_prim_opengl(ALLEGRO_BITMAP* texture, const void* vtxs, const ALLEGR
    vtx = (const char*)vtxs + start * stride;
    num_vtx = end - start;
 
-   setup_blending();
+   setup_blending(ogl_disp);
    setup_state(vtx, decl, texture);
    
    if(texture) {
@@ -311,13 +309,12 @@ int _al_draw_prim_opengl(ALLEGRO_BITMAP* texture, const void* vtxs, const ALLEGR
 #endif
 }
 
-int _al_draw_prim_indexed_opengl(ALLEGRO_BITMAP* texture, const void* vtxs, const ALLEGRO_VERTEX_DECL* decl, const int* indices, int num_vtx, int type)
+int _al_draw_prim_indexed_opengl(ALLEGRO_BITMAP *target, ALLEGRO_BITMAP* texture, const void* vtxs, const ALLEGRO_VERTEX_DECL* decl, const int* indices, int num_vtx, int type)
 {   
 #ifdef ALLEGRO_CFG_OPENGL
 
    int num_primitives = 0;
-   ALLEGRO_DISPLAY *ogl_disp = al_get_current_display();
-   ALLEGRO_BITMAP *target = al_get_target_bitmap();
+   ALLEGRO_DISPLAY *ogl_disp = target->display;
    ALLEGRO_BITMAP_OGL *ogl_target = (ALLEGRO_BITMAP_OGL *)target;
    const void* vtx;
    const void* idx = indices;
@@ -349,7 +346,7 @@ int _al_draw_prim_indexed_opengl(ALLEGRO_BITMAP* texture, const void* vtxs, cons
    
    vtx = vtxs;
 
-   setup_blending();
+   setup_blending(ogl_disp);
    setup_state(vtx, decl, texture);
    
    if(texture) {

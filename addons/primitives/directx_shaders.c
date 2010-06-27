@@ -540,10 +540,9 @@ static const uint8_t _al_vs_pos0_tex0_col0[] = {
    0x00, 0x00, 0x55, 0xa0, 0xff, 0xff, 0x00, 0x00
 };
 
-void _al_create_shader(ALLEGRO_VERTEX_DECL* decl)
+void _al_create_shader(void* dev, ALLEGRO_VERTEX_DECL* decl)
 {
-
-   LPDIRECT3DDEVICE9 device = NULL;
+   LPDIRECT3DDEVICE9 device = dev;
    LPDIRECT3DVERTEXSHADER9 ret = 0;
 
    ALLEGRO_VERTEX_ELEMENT* e;
@@ -597,8 +596,6 @@ void _al_create_shader(ALLEGRO_VERTEX_DECL* decl)
    }
       
    shader = shaders[position][texture][color];
-
-   device = al_get_d3d_device(al_get_current_display());
 
    IDirect3DDevice9_CreateVertexShader(device, (const DWORD*)shader, &ret);
 
