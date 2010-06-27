@@ -152,12 +152,12 @@ unsigned int al_get_mouse_num_axes(void)
 
 /* Function: al_set_mouse_xy
  */
-bool al_set_mouse_xy(int x, int y)
+bool al_set_mouse_xy(ALLEGRO_DISPLAY *display, int x, int y)
 {
    ASSERT(new_mouse_driver);
    ASSERT(new_mouse_driver->set_mouse_xy);
 
-   return new_mouse_driver->set_mouse_xy(x, y);
+   return new_mouse_driver->set_mouse_xy(display, x, y);
 }
 
 
@@ -195,7 +195,10 @@ bool al_set_mouse_axis(int which, int value)
    ASSERT(which >= 2);
    ASSERT(which < 4 + ALLEGRO_MOUSE_MAX_EXTRA_AXES);
 
-   return new_mouse_driver->set_mouse_axis(which, value);
+   if (which >= 2 && which < 4 + ALLEGRO_MOUSE_MAX_EXTRA_AXES)
+      return new_mouse_driver->set_mouse_axis(which, value);
+   else
+      return false;
 }
 
 
@@ -258,16 +261,11 @@ bool al_mouse_button_down(ALLEGRO_MOUSE_STATE *state, int button)
 ALLEGRO_MOUSE_CURSOR *al_create_mouse_cursor(ALLEGRO_BITMAP *bmp,
    int x_focus, int y_focus)
 {
-   ALLEGRO_DISPLAY *dpy = al_get_current_display();
-   ASSERT(dpy);
+   ALLEGRO_SYSTEM *sysdrv = al_get_system_driver();
    ASSERT(bmp);
 
-   if (!dpy) {
-      return NULL;
-   }
-
-   ASSERT(dpy->vt->create_mouse_cursor);
-   return dpy->vt->create_mouse_cursor(dpy, bmp, x_focus, y_focus);
+   ASSERT(sysdrv->vt->create_mouse_cursor);
+   return sysdrv->vt->create_mouse_cursor(bmp, x_focus, y_focus);
 }
 
 
@@ -275,32 +273,31 @@ ALLEGRO_MOUSE_CURSOR *al_create_mouse_cursor(ALLEGRO_BITMAP *bmp,
  */
 void al_destroy_mouse_cursor(ALLEGRO_MOUSE_CURSOR *cursor)
 {
-   ALLEGRO_DISPLAY *dpy = al_get_current_display();
-   ASSERT(dpy);
+   ALLEGRO_SYSTEM *sysdrv;
 
    if (!cursor) {
       return;
    }
 
-   ASSERT(dpy->vt->destroy_mouse_cursor);
-   dpy->vt->destroy_mouse_cursor(dpy, cursor);
+   sysdrv = al_get_system_driver();
+
+   ASSERT(sysdrv->vt->destroy_mouse_cursor);
+   sysdrv->vt->destroy_mouse_cursor(cursor);
 }
 
 
 
 /* Function: al_set_mouse_cursor
  */
-bool al_set_mouse_cursor(ALLEGRO_MOUSE_CURSOR *cursor)
+bool al_set_mouse_cursor(ALLEGRO_DISPLAY *display, ALLEGRO_MOUSE_CURSOR *cursor)
 {
-   ALLEGRO_DISPLAY *dpy = al_get_current_display();
-
    if (!cursor) {
       return false;
    }
 
-   if (dpy) {
-      ASSERT(dpy->vt->set_mouse_cursor);
-      return dpy->vt->set_mouse_cursor(dpy, cursor);
+   if (display) {
+      ASSERT(display->vt->set_mouse_cursor);
+      return display->vt->set_mouse_cursor(display, cursor);
    }
 
    return false;
@@ -310,14 +307,13 @@ bool al_set_mouse_cursor(ALLEGRO_MOUSE_CURSOR *cursor)
 
 /* Function: al_set_system_mouse_cursor
  */
-bool al_set_system_mouse_cursor(ALLEGRO_SYSTEM_MOUSE_CURSOR cursor_id)
+bool al_set_system_mouse_cursor(ALLEGRO_DISPLAY *display,
+   ALLEGRO_SYSTEM_MOUSE_CURSOR cursor_id)
 {
-   ALLEGRO_DISPLAY *dpy = al_get_current_display();
-
    /* XXX should you be able to set ALLEGRO_SYSTEM_MOUSE_CURSOR_NONE? */
    ASSERT(cursor_id > ALLEGRO_SYSTEM_MOUSE_CURSOR_NONE);
    ASSERT(cursor_id < ALLEGRO_NUM_SYSTEM_MOUSE_CURSORS);
-   ASSERT(dpy);
+   ASSERT(display);
 
    if (cursor_id <= ALLEGRO_SYSTEM_MOUSE_CURSOR_NONE) {
       return false;
@@ -325,25 +321,23 @@ bool al_set_system_mouse_cursor(ALLEGRO_SYSTEM_MOUSE_CURSOR cursor_id)
    if (cursor_id > ALLEGRO_NUM_SYSTEM_MOUSE_CURSORS) {
       return false;
    }
-   if (!dpy) {
+   if (!display) {
       return false;
    }
 
-   ASSERT(dpy->vt->set_system_mouse_cursor);
-   return dpy->vt->set_system_mouse_cursor(dpy, cursor_id);
+   ASSERT(display->vt->set_system_mouse_cursor);
+   return display->vt->set_system_mouse_cursor(display, cursor_id);
 }
 
 
 
 /* Function: al_show_mouse_cursor
  */
-bool al_show_mouse_cursor(void)
+bool al_show_mouse_cursor(ALLEGRO_DISPLAY *display)
 {
-   ALLEGRO_DISPLAY *dpy = al_get_current_display();
-
-   if (dpy) {
-      ASSERT(dpy->vt->show_mouse_cursor);
-      return dpy->vt->show_mouse_cursor(dpy);
+   if (display) {
+      ASSERT(display->vt->show_mouse_cursor);
+      return display->vt->show_mouse_cursor(display);
    }
 
    return false;
@@ -353,13 +347,11 @@ bool al_show_mouse_cursor(void)
 
 /* Function: al_hide_mouse_cursor
  */
-bool al_hide_mouse_cursor(void)
+bool al_hide_mouse_cursor(ALLEGRO_DISPLAY *display)
 {
-   ALLEGRO_DISPLAY *dpy = al_get_current_display();
-
-   if (dpy) {
-      ASSERT(dpy->vt->hide_mouse_cursor);
-      return dpy->vt->hide_mouse_cursor(dpy);
+   if (display) {
+      ASSERT(display->vt->hide_mouse_cursor);
+      return display->vt->hide_mouse_cursor(display);
    }
 
    return false;

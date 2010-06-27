@@ -357,6 +357,8 @@ ALLEGRO_SYSTEM_INTERFACE *_al_system_xglx_driver(void)
    xglx_vt->shutdown_system = xglx_shutdown_system;
    xglx_vt->get_num_video_adapters = xglx_get_num_video_adapters;
    xglx_vt->get_monitor_info = xglx_get_monitor_info;
+   xglx_vt->create_mouse_cursor = _al_xwin_create_mouse_cursor;
+   xglx_vt->destroy_mouse_cursor = _al_xwin_destroy_mouse_cursor;
    xglx_vt->get_cursor_position = xglx_get_cursor_position;
    xglx_vt->get_path = _al_unix_get_path;
    xglx_vt->inhibit_screensaver = xglx_inhibit_screensaver;

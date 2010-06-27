@@ -90,10 +90,7 @@ AL_FUNC(bool,           al_install_mouse,       (void));
 AL_FUNC(void,           al_uninstall_mouse,     (void));
 AL_FUNC(unsigned int,   al_get_mouse_num_buttons, (void));
 AL_FUNC(unsigned int,   al_get_mouse_num_axes,  (void));
-AL_FUNC(bool,           al_set_mouse_xy,        (int x, int y));
-    /* XXX: how is this going to work with multiple windows? 
-     * Probably it will require an AL_DISPLAY parameter.
-     */
+AL_FUNC(bool,           al_set_mouse_xy,        (struct ALLEGRO_DISPLAY *display, int x, int y));
 AL_FUNC(bool,           al_set_mouse_z,         (int z));
 AL_FUNC(bool,           al_set_mouse_w,         (int w));
 AL_FUNC(bool,           al_set_mouse_axis,      (int axis, int value));
@@ -113,12 +110,15 @@ struct ALLEGRO_BITMAP;
  * for later (it would need significant cooperation from the display
  * API).
  */
-AL_FUNC(ALLEGRO_MOUSE_CURSOR *, al_create_mouse_cursor, (struct ALLEGRO_BITMAP *sprite, int xfocus, int yfocus));
+AL_FUNC(ALLEGRO_MOUSE_CURSOR *, al_create_mouse_cursor, (
+        struct ALLEGRO_BITMAP *sprite, int xfocus, int yfocus));
 AL_FUNC(void, al_destroy_mouse_cursor, (ALLEGRO_MOUSE_CURSOR *));
-AL_FUNC(bool, al_set_mouse_cursor, (ALLEGRO_MOUSE_CURSOR *cursor));
-AL_FUNC(bool, al_set_system_mouse_cursor, (ALLEGRO_SYSTEM_MOUSE_CURSOR cursor_id));
-AL_FUNC(bool, al_show_mouse_cursor, (void));
-AL_FUNC(bool, al_hide_mouse_cursor, (void));
+AL_FUNC(bool, al_set_mouse_cursor, (struct ALLEGRO_DISPLAY *display,
+                                    ALLEGRO_MOUSE_CURSOR *cursor));
+AL_FUNC(bool, al_set_system_mouse_cursor, (struct ALLEGRO_DISPLAY *display,
+                                           ALLEGRO_SYSTEM_MOUSE_CURSOR cursor_id));
+AL_FUNC(bool, al_show_mouse_cursor, (struct ALLEGRO_DISPLAY *display));
+AL_FUNC(bool, al_hide_mouse_cursor, (struct ALLEGRO_DISPLAY *display));
 AL_FUNC(bool, al_get_mouse_cursor_position, (int *ret_x, int *ret_y));
 
 #ifdef __cplusplus
@@ -127,9 +127,4 @@ AL_FUNC(bool, al_get_mouse_cursor_position, (int *ret_x, int *ret_y));
 
 #endif          /* ifndef ALLEGRO_MOUSE_H */
 
-/*
- * Local Variables:
- * c-basic-offset: 3
- * indent-tabs-mode: nil
- * End:
- */
+/* vim: set sts=3 sw=3 et: */

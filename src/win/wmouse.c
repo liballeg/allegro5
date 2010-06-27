@@ -135,11 +135,11 @@ static unsigned int get_num_axes(void)
 }
 
 
-static bool set_mouse_xy(int x, int y)
+static bool set_mouse_xy(ALLEGRO_DISPLAY *disp, int x, int y)
 {
    int dx, dy;
    int wx, wy;
-   ALLEGRO_DISPLAY_WIN *win_disp = (void*)al_get_current_display();
+   ALLEGRO_DISPLAY_WIN *win_disp = (void*)disp;
 
    if (!installed)
       return false;
@@ -170,8 +170,6 @@ static bool set_mouse_xy(int x, int y)
 
 static bool set_mouse_axis(int which, int z)
 {
-   ALLEGRO_DISPLAY *disp = al_get_current_display();
-
    if (which != 2) {
       return false;
    }
@@ -186,7 +184,7 @@ static bool set_mouse_axis(int which, int z)
             ALLEGRO_EVENT_MOUSE_AXES,
             mouse_state.x, mouse_state.y, mouse_state.z,
             0, 0, dz,
-            0, disp);
+            0, mouse_state.display);
       }
    }
 

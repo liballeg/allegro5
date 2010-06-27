@@ -181,8 +181,6 @@ int main(void)
    al_set_target_bitmap(al_get_backbuffer());
    draw_display(font);
 
-   al_show_mouse_cursor();
-
    while (1) {
       al_wait_for_event(queue, &event);
       if (event.type == ALLEGRO_EVENT_DISPLAY_CLOSE) {
@@ -199,10 +197,10 @@ int main(void)
             case 27: /* escape */
                goto Quit;
             case 'h':
-               al_hide_mouse_cursor();
+               al_hide_mouse_cursor(event.keyboard.display);
                break;
             case 's':
-               al_show_mouse_cursor();
+               al_show_mouse_cursor(event.keyboard.display);
                break;
             default:
                break;
@@ -213,12 +211,12 @@ int main(void)
          int i = hover(font, event.mouse.y);
 
          if (i >= 0 && current_cursor[dpy] != i) {
-            al_set_current_display(event.mouse.display);
             if (cursor_list[i].system_cursor != -1) {
-               al_set_system_mouse_cursor(cursor_list[i].system_cursor);
+               al_set_system_mouse_cursor(event.mouse.display,
+                  cursor_list[i].system_cursor);
             }
             else {
-               al_set_mouse_cursor(custom_cursor);
+               al_set_mouse_cursor(event.mouse.display, custom_cursor);
             }
             current_cursor[dpy] = i;
          }

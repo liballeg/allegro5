@@ -150,8 +150,8 @@ struct ALLEGRO_MOUSE_CURSOR_WIN
    HCURSOR hcursor;
 };
 
-ALLEGRO_MOUSE_CURSOR* _al_win_create_mouse_cursor(ALLEGRO_DISPLAY *display, ALLEGRO_BITMAP *sprite, int xfocus, int yfocus);
-void _al_win_destroy_mouse_cursor(ALLEGRO_DISPLAY *display, ALLEGRO_MOUSE_CURSOR *cursor);
+ALLEGRO_MOUSE_CURSOR* _al_win_create_mouse_cursor(ALLEGRO_BITMAP *sprite, int xfocus, int yfocus);
+void _al_win_destroy_mouse_cursor(ALLEGRO_MOUSE_CURSOR *cursor);
 bool _al_win_set_mouse_cursor(ALLEGRO_DISPLAY *display, ALLEGRO_MOUSE_CURSOR *cursor);
 bool _al_win_set_system_mouse_cursor(ALLEGRO_DISPLAY *display, ALLEGRO_SYSTEM_MOUSE_CURSOR cursor_id);
 bool _al_win_show_mouse_cursor(ALLEGRO_DISPLAY *display);

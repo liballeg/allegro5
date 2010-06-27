@@ -179,8 +179,6 @@ int main(int argc, char *argv[])
       return 1;
    }
 
-   al_show_mouse_cursor();
-
    Theme theme(font);
    Prog prog(theme, display);
    prog.run();

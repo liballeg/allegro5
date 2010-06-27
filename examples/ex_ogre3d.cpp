@@ -304,7 +304,7 @@ void Example::mainLoop()
             if (event.mouse.button == 2)
                rmb = false;
             if (!lmb && !rmb)
-               al_show_mouse_cursor();
+               al_show_mouse_cursor(display);
             break;
 
          case ALLEGRO_EVENT_MOUSE_AXES:
@@ -317,9 +317,10 @@ void Example::mainLoop()
                translate.y = event.mouse.dy * -0.5;
             }
             if (lmb || rmb) {
-               al_hide_mouse_cursor();
-               al_set_mouse_xy(al_get_display_width()/2,
-                  al_get_display_height()/2);
+               al_hide_mouse_cursor(display);
+               al_set_mouse_xy(display,
+                  al_get_display_width(display)/2,
+                  al_get_display_height(display)/2);
             }
             break;
 

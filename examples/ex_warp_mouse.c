@@ -29,7 +29,6 @@ int main(void)
 
    al_set_new_display_flags(ALLEGRO_WINDOWED);
    display = al_create_display(width, height);
-   al_show_mouse_cursor();
 
    memset(&event, 0, sizeof(event));
 
@@ -82,7 +81,7 @@ int main(void)
       }
       if (event.type == ALLEGRO_EVENT_MOUSE_AXES) {
          if (right_button_down) {
-            al_set_mouse_xy(width / 2, height / 2);
+            al_set_mouse_xy(display, width / 2, height / 2);
             fake_x += event.mouse.dx;
             fake_y += event.mouse.dy;
          }
@@ -90,7 +89,7 @@ int main(void)
       }
       if (event.type == ALLEGRO_EVENT_MOUSE_BUTTON_DOWN) {
          if (event.mouse.button == 1)
-            al_set_mouse_xy(width / 2, height / 2);
+            al_set_mouse_xy(display, width / 2, height / 2);
          if (event.mouse.button == 2) {
             right_button_down = true;
             fake_x = width / 2;

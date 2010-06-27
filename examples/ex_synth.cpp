@@ -442,8 +442,6 @@ int main(int argc, char *argv[])
       return 1;
    }
 
-   al_show_mouse_cursor();
-
    /* Prog is destroyed at the end of this scope. */
    {
       Theme theme(font_gui);

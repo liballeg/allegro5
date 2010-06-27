@@ -132,8 +132,6 @@ int main(int argc, char *argv[])
       return 1;
    }
 
-   al_show_mouse_cursor();
-
    /* Don't remove these braces. */
    {
       Theme theme(font_gui);

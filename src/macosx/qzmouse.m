@@ -288,11 +288,11 @@ static void osx_get_mouse_state(ALLEGRO_MOUSE_STATE *ret_state)
 /* osx_set_mouse_xy:
 * Set the current mouse position
 */
-static bool osx_set_mouse_xy(int x, int y)
+static bool osx_set_mouse_xy(ALLEGRO_DISPLAY *dpy_, int x, int y)
 {
 	CGPoint pos;
 	CGDirectDisplayID display = 0;
-    ALLEGRO_DISPLAY_OSX_WIN *dpy = (ALLEGRO_DISPLAY_OSX_WIN *)al_get_current_display();
+    ALLEGRO_DISPLAY_OSX_WIN *dpy = (ALLEGRO_DISPLAY_OSX_WIN *)dpy_;
     
     if ((dpy) && !(dpy->parent.flags & ALLEGRO_FULLSCREEN) && (dpy->win)) {
         NSWindow *window = dpy->win;
@@ -365,6 +365,7 @@ static bool osx_set_mouse_axis(int axis, int value)
 			result = true;
 			break;
 	}
+	/* XXX generate an event if the axis value changed */
 	_al_event_source_unlock(&osx_mouse.parent.es);
 	return result;
 }

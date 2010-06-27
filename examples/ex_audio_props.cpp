@@ -145,8 +145,6 @@ int main(int argc, char *argv[])
    al_attach_sample_instance_to_mixer(sample_inst, al_get_default_mixer());
    al_play_sample_instance(sample_inst);
 
-   al_show_mouse_cursor();
-
    /* Don't remove these braces. */
    {
       Theme theme(font_gui);

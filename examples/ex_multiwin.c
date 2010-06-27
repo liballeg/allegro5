@@ -42,7 +42,6 @@ int main(void)
       abort_example("failed to load allegro.pcx\n");
       return 1;
    }
-   al_show_mouse_cursor();
 
    /* This is only needed since we want to receive resize events. */
    al_register_event_source(events, al_get_display_event_source(display[0]));

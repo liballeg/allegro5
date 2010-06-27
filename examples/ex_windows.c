@@ -51,7 +51,6 @@ int main(void)
    al_set_new_window_position(x, y);
 
    displays[1] = al_create_display(W, H);
-   al_show_mouse_cursor();
 
    al_set_new_bitmap_flags(ALLEGRO_MEMORY_BITMAP);
    myfont = al_load_font("data/fixed_font.tga", 0, 0);

@@ -2688,8 +2688,6 @@ ALLEGRO_DISPLAY_INTERFACE *_al_display_d3d_driver(void)
    vt->create_sub_bitmap = d3d_create_sub_bitmap;
    vt->wait_for_vsync = d3d_wait_for_vsync;
 
-   vt->create_mouse_cursor = _al_win_create_mouse_cursor;
-   vt->destroy_mouse_cursor = _al_win_destroy_mouse_cursor;
    vt->set_mouse_cursor = _al_win_set_mouse_cursor;
    vt->set_system_mouse_cursor = _al_win_set_system_mouse_cursor;
    vt->show_mouse_cursor = _al_win_show_mouse_cursor;

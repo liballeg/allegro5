@@ -1515,8 +1515,6 @@ ALLEGRO_DISPLAY_INTERFACE *_al_display_wgl_driver(void)
    vt->switch_in = wgl_switch_in;
    vt->switch_out = wgl_switch_out;
 
-   vt->create_mouse_cursor = _al_win_create_mouse_cursor;
-   vt->destroy_mouse_cursor = _al_win_destroy_mouse_cursor;
    vt->set_mouse_cursor = _al_win_set_mouse_cursor;
    vt->set_system_mouse_cursor = _al_win_set_system_mouse_cursor;
    vt->show_mouse_cursor = _al_win_show_mouse_cursor;

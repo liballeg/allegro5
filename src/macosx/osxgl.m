@@ -1496,17 +1496,16 @@ static void update_display_region(ALLEGRO_DISPLAY *disp,
    flip_display(disp);
 }
 
-/* osx_create_mouse_cursor:
+/* _al_osx_create_mouse_cursor:
  * creates a custom system cursor from the bitmap bmp.
  * (x_focus, y_focus) indicates the cursor hot-spot.
  */
-static ALLEGRO_MOUSE_CURSOR *osx_create_mouse_cursor(ALLEGRO_DISPLAY *display,
-   ALLEGRO_BITMAP *bmp, int x_focus, int y_focus)
+ALLEGRO_MOUSE_CURSOR *_al_osx_create_mouse_cursor(ALLEGRO_BITMAP *bmp,
+   int x_focus, int y_focus)
 {
-   ALLEGRO_DISPLAY_OSX_WIN* dpy = (ALLEGRO_DISPLAY_OSX_WIN*) display;
    ALLEGRO_MOUSE_CURSOR_OSX *cursor = NULL;
    
-   if (!bmp || !dpy)
+   if (!bmp)
       return NULL;
 
    NSImage* cursor_image = NSImageFromAllegroBitmap(bmp);
@@ -1518,19 +1517,28 @@ static ALLEGRO_MOUSE_CURSOR *osx_create_mouse_cursor(ALLEGRO_DISPLAY *display,
    return (ALLEGRO_MOUSE_CURSOR *)cursor;
 }
  
-/* osx_destroy_mouse_cursor:
- * destroys a mouse cursor previously created with osx_create_mouse_cursor
+/* _al_osx_destroy_mouse_cursor:
+ * destroys a mouse cursor previously created with _al_osx_create_mouse_cursor
  */
-static void osx_destroy_mouse_cursor(ALLEGRO_DISPLAY *display,
-   ALLEGRO_MOUSE_CURSOR *curs)
+void _al_osx_destroy_mouse_cursor(ALLEGRO_MOUSE_CURSOR *curs)
 {
-   ALLEGRO_DISPLAY_OSX_WIN* dpy = (ALLEGRO_DISPLAY_OSX_WIN*) display;
    ALLEGRO_MOUSE_CURSOR_OSX *cursor = (ALLEGRO_MOUSE_CURSOR_OSX *) curs;
+   unsigned i;
 
-   if (!dpy || !cursor)
+   if (!cursor)
       return;
 
-   osx_change_cursor(dpy, [NSCursor arrowCursor]);
+   /* XXX not at all thread safe */
+
+   _AL_VECTOR* dpys = &al_get_system_driver()->displays;
+   for (i = 0; i < _al_vector_size(dpys); ++i) {
+      ALLEGRO_DISPLAY* dpy = *(ALLEGRO_DISPLAY**) _al_vector_ref(dpys, i);
+      ALLEGRO_DISPLAY_OSX_WIN *osx_dpy = (ALLEGRO_DISPLAY_OSX_WIN*) dpy;
+
+      if (osx_dpy->cursor == cursor->cursor) {
+         osx_change_cursor(osx_dpy, [NSCursor arrowCursor]);
+      }
+   }
 
    [cursor->cursor release];
    al_free(cursor);
@@ -1875,8 +1883,6 @@ ALLEGRO_DISPLAY_INTERFACE* _al_osx_get_display_driver_win(void)
       vt->create_sub_bitmap = _al_ogl_create_sub_bitmap;
       vt->show_mouse_cursor = show_cursor;
       vt->hide_mouse_cursor = hide_cursor;
-      vt->create_mouse_cursor = osx_create_mouse_cursor;
-      vt->destroy_mouse_cursor = osx_destroy_mouse_cursor;
       vt->set_mouse_cursor = osx_set_mouse_cursor;
       vt->set_system_mouse_cursor = osx_set_system_mouse_cursor;
       vt->get_window_position = get_window_position;
@@ -1904,8 +1910,6 @@ ALLEGRO_DISPLAY_INTERFACE* _al_osx_get_display_driver_fs(void)
       vt->set_target_bitmap = _al_ogl_set_target_bitmap;
       vt->show_mouse_cursor = show_cursor;
       vt->hide_mouse_cursor = hide_cursor;
-      vt->create_mouse_cursor = osx_create_mouse_cursor;
-      vt->destroy_mouse_cursor = osx_destroy_mouse_cursor;
       vt->set_mouse_cursor = osx_set_mouse_cursor;
       vt->set_system_mouse_cursor = osx_set_system_mouse_cursor;
       vt->get_backbuffer = _al_ogl_get_backbuffer;

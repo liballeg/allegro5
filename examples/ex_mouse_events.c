@@ -67,7 +67,7 @@ int main(void)
       return 1;
    }
 
-   al_hide_mouse_cursor();
+   al_hide_mouse_cursor(display);
 
    cursor = al_load_bitmap("data/cursor.tga");
    if (!cursor) {

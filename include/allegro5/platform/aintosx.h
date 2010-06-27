@@ -133,6 +133,9 @@ void _al_osx_switch_keyboard_focus(ALLEGRO_DISPLAY *, bool switch_in);
 void _al_osx_switch_mouse_focus(ALLEGRO_DISPLAY *, bool switch_in);
 // Notify the display that the mouse driver was installed/uninstalled.
 void _al_osx_mouse_was_installed(BOOL);
+// Create and destroy mouse cursors
+ALLEGRO_MOUSE_CURSOR *_al_osx_create_mouse_cursor(ALLEGRO_BITMAP *bmp, int x_focus, int y_focus);
+void _al_osx_destroy_mouse_cursor(ALLEGRO_MOUSE_CURSOR *curs);
 // Notify the display that the keyboard driver was installed/uninstalled.
 void _al_osx_keyboard_was_installed(BOOL);
 // Notify that the quit menu was clicked

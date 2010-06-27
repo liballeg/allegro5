@@ -515,6 +515,8 @@ ALLEGRO_SYSTEM_INTERFACE *_al_system_osx_driver(void)
       vt->shutdown_system = osx_sys_exit;
       vt->get_num_video_adapters = osx_get_num_video_adapters;
       vt->get_monitor_info = osx_get_monitor_info;
+      vt->create_mouse_cursor = _al_osx_create_mouse_cursor;
+      vt->destroy_mouse_cursor = _al_osx_destroy_mouse_cursor;
       vt->get_cursor_position = osx_get_cursor_position;
       vt->get_path = osx_get_path;
       vt->inhibit_screensaver = osx_inhibit_screensaver;

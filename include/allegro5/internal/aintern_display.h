@@ -48,10 +48,6 @@ struct ALLEGRO_DISPLAY_INTERFACE
 
    bool (*wait_for_vsync)(ALLEGRO_DISPLAY *display);
 
-   ALLEGRO_MOUSE_CURSOR *(*create_mouse_cursor)(ALLEGRO_DISPLAY *display,
-      ALLEGRO_BITMAP *bmp, int x_focus, int y_focus);
-   void (*destroy_mouse_cursor)(ALLEGRO_DISPLAY *display,
-      ALLEGRO_MOUSE_CURSOR *cursor);
    bool (*set_mouse_cursor)(ALLEGRO_DISPLAY *display,
       ALLEGRO_MOUSE_CURSOR *cursor);
    bool (*set_system_mouse_cursor)(ALLEGRO_DISPLAY *display,

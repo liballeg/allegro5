@@ -331,8 +331,6 @@ int main(int argc, char *argv[])
    mysha_bmp = al_clone_bitmap(mysha);
    target_bmp = al_clone_bitmap(target);
 
-   al_show_mouse_cursor();
-
    /* Don't remove these braces. */
    {
       Theme theme(font);

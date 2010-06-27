@@ -63,17 +63,9 @@ specified.
 
 See also: [ALLEGRO_MOUSE_STATE], [al_get_mouse_state], [al_get_mouse_state_axis]
 
-## API: al_set_mouse_axis
-
-Set the given mouse axis to the given value.
-
-For now: the axis number must not be 0 or 1, which are the X and Y axes.
-
-Returns true on success, false on failure.
-
 ## API: al_set_mouse_xy
 
-Try to position the mouse at the given coordinates on the current display.
+Try to position the mouse at the given coordinates on the given display.
 The mouse movement resulting from a successful move will generate an
 ALLEGRO_EVENT_MOUSE_WARPED event.
 
@@ -97,6 +89,17 @@ Returns true on success, false on failure.
 
 See also: [al_set_mouse_z]
 
+## API: al_set_mouse_axis
+
+Set the given mouse axis to the given value.
+
+The axis number must not be 0 or 1, which are the X and Y axes.
+Use [al_set_mouse_xy] for that.
+
+Returns true on success, false on failure.
+
+See also: [al_set_mouse_xy], [al_set_mouse_z], [al_set_mouse_w]
+
 ## API: al_get_mouse_event_source
 
 Retrieve the mouse event source.
@@ -108,8 +111,7 @@ Returns NULL if the mouse subsystem was not installed.
 
 ### API: al_create_mouse_cursor
 
-Create a mouse cursor from the bitmap provided.  There must be a current
-display in effect.
+Create a mouse cursor from the bitmap provided.
 
 Returns a pointer to the cursor on success, or NULL on failure.
 
@@ -119,22 +121,14 @@ See also: [al_set_mouse_cursor], [al_destroy_mouse_cursor]
 
 Free the memory used by the given cursor.
 
-The display that was in effect when the cursor was created must
-still be in effect.
-XXX that's terrible and should be changed
-
 Has no effect if `cursor` is NULL.
 
 See also: [al_create_mouse_cursor]
 
 ### API: al_set_mouse_cursor
 
-Set the given mouse cursor to be the current mouse cursor for the current
+Set the given mouse cursor to be the current mouse cursor for the given
 display.
-
-The display that was in effect when the cursor was created must still be
-in effect.
-XXX that's terrible and should be changed
 
 If the cursor is currently 'shown' (as opposed to 'hidden') the change is
 immediately visible.
@@ -147,7 +141,7 @@ See also: [al_set_system_mouse_cursor], [al_show_mouse_cursor],
 ### API: al_set_system_mouse_cursor
 
 Set the given system mouse cursor to be the current mouse cursor
-for the current display.  If the cursor is currently 'shown' (as opposed
+for the given display.  If the cursor is currently 'shown' (as opposed
 to 'hidden') the change is immediately visible.
 
 If the cursor doesn't exist on the current platform another cursor will be
@@ -190,9 +184,8 @@ Returns true on success, false on failure.
 
 ### API: al_hide_mouse_cursor
 
-Hide the mouse cursor in the current display of the calling thread. This
-has no effect on what the current mouse cursor looks like; it just makes
-it disappear.
+Hide the mouse cursor in the given display. This has no effect on what the
+current mouse cursor looks like; it just makes it disappear.
 
 Returns true on success (or if the cursor already was hidden), false
 otherwise.
@@ -201,7 +194,7 @@ See also: [al_show_mouse_cursor]
 
 ### API: al_show_mouse_cursor
 
-Make a mouse cursor visible in the current display of the calling thread.
+Make a mouse cursor visible in the given display.
 
 Returns true if a mouse cursor is shown as a result of the call (or one
 already was visible), false otherwise.

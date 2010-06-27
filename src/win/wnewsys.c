@@ -512,6 +512,8 @@ static ALLEGRO_SYSTEM_INTERFACE *_al_system_win_driver(void)
    vt->get_display_mode = win_get_display_mode;
    vt->shutdown_system = win_shutdown;
    vt->get_num_video_adapters = win_get_num_video_adapters;
+   vt->create_mouse_cursor = _al_win_create_mouse_cursor;
+   vt->destroy_mouse_cursor = _al_win_destroy_mouse_cursor;
    vt->get_monitor_info = win_get_monitor_info;
    vt->get_cursor_position = win_get_cursor_position;
    vt->get_path = win_get_path;

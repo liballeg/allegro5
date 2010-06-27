@@ -50,7 +50,7 @@ static void xmouse_exit(void);
 static ALLEGRO_MOUSE *xmouse_get_mouse(void);
 static unsigned int xmouse_get_mouse_num_buttons(void);
 static unsigned int xmouse_get_mouse_num_axes(void);
-static bool xmouse_set_mouse_xy(int x, int y);
+static bool xmouse_set_mouse_xy(ALLEGRO_DISPLAY *,int x, int y);
 static bool xmouse_set_mouse_axis(int which, int z);
 static void xmouse_get_state(ALLEGRO_MOUSE_STATE *ret_state);
 
@@ -181,16 +181,14 @@ static unsigned int xmouse_get_mouse_num_axes(void)
 /* xmouse_set_mouse_xy:
  *  Set the mouse position.  Return true if successful.
  */
-static bool xmouse_set_mouse_xy(int x, int y)
+static bool xmouse_set_mouse_xy(ALLEGRO_DISPLAY *display, int x, int y)
 {
    if (!xmouse_installed)
       return false;
 
-   // TODO: Multi display warps.
-
    ALLEGRO_SYSTEM_XGLX *system = (void *)al_get_system_driver();
-   Display *display = system->x11display;
-   ALLEGRO_DISPLAY_XGLX *d = (void *)al_get_current_display();
+   Display *x11display = system->x11display;
+   ALLEGRO_DISPLAY_XGLX *d = (void *)display;
 
    int window_width = al_get_display_width();
    int window_height = al_get_display_height();
@@ -208,13 +206,13 @@ static bool xmouse_set_mouse_xy(int x, int y)
    event.xclient.type = ClientMessage;
    event.xclient.serial = 0;
    event.xclient.send_event = True;
-   event.xclient.display = display;
+   event.xclient.display = x11display;
    event.xclient.window = d->window;
    event.xclient.message_type = system->AllegroAtom;
    event.xclient.format = 32;
-   XSendEvent(display, d->window, False, NoEventMask, &event);
+   XSendEvent(x11display, d->window, False, NoEventMask, &event);
 
-   XWarpPointer(display, None, d->window, 0, 0, 0, 0, x, y);
+   XWarpPointer(x11display, None, d->window, 0, 0, 0, 0, x, y);
    _al_mutex_unlock(&system->lock);
 
    return true;
@@ -244,7 +242,7 @@ static bool xmouse_set_mouse_axis(int which, int z)
             ALLEGRO_EVENT_MOUSE_AXES,
             the_mouse.state.x, the_mouse.state.y, the_mouse.state.z,
             0, 0, dz,
-            0, NULL);
+            0, the_mouse.state.display);
       }
    }
    _al_event_source_unlock(&the_mouse.parent.es);
@@ -389,6 +387,7 @@ void _al_xwin_mouse_motion_notify_handler(int x, int y,
 
    the_mouse.state.x = x;
    the_mouse.state.y = y;
+   the_mouse.state.display = display;
 
    generate_mouse_event(
       event_type,

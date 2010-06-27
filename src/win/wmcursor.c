@@ -122,13 +122,15 @@ HICON _al_win_create_icon(HWND wnd,
 }
 
 
-ALLEGRO_MOUSE_CURSOR *_al_win_create_mouse_cursor(ALLEGRO_DISPLAY *display,
-   ALLEGRO_BITMAP *sprite, int xfocus, int yfocus)
+ALLEGRO_MOUSE_CURSOR *_al_win_create_mouse_cursor(ALLEGRO_BITMAP *sprite,
+   int xfocus, int yfocus)
 {
-   ALLEGRO_DISPLAY_WIN *win_display = (ALLEGRO_DISPLAY_WIN *) display;
-   HWND wnd = win_display->window;
+   HWND wnd;
    HCURSOR hcursor;
    ALLEGRO_MOUSE_CURSOR_WIN *win_cursor;
+
+   /* A null HWND retrieves the DC for the entire screen. */
+   wnd = NULL;
 
    hcursor = (HCURSOR)_al_win_create_icon(wnd, sprite, xfocus, yfocus, true);
    if (!hcursor) {
@@ -147,15 +149,24 @@ ALLEGRO_MOUSE_CURSOR *_al_win_create_mouse_cursor(ALLEGRO_DISPLAY *display,
 
 
 
-void _al_win_destroy_mouse_cursor(ALLEGRO_DISPLAY *display, ALLEGRO_MOUSE_CURSOR *cursor)
+void _al_win_destroy_mouse_cursor(ALLEGRO_MOUSE_CURSOR *cursor)
 {
-   ALLEGRO_DISPLAY_WIN *win_display = (ALLEGRO_DISPLAY_WIN *) display;
    ALLEGRO_MOUSE_CURSOR_WIN *win_cursor = (ALLEGRO_MOUSE_CURSOR_WIN *) cursor;
+   ALLEGRO_SYSTEM *sys = al_get_system_driver();
+   unsigned i;
 
    ASSERT(win_cursor);
 
-   if (win_cursor->hcursor == win_display->mouse_selected_hcursor) {
-      _al_win_set_system_mouse_cursor(display, ALLEGRO_SYSTEM_MOUSE_CURSOR_ARROW);
+   /* XXX not at all thread safe */
+
+   for (i = 0; i < _al_vector_size(&sys->displays); i++) {
+      ALLEGRO_DISPLAY_WIN **slot = _al_vector_ref(&sys->displays, i);
+      ALLEGRO_DISPLAY_WIN *win_display = *slot;
+
+      if (win_cursor->hcursor == win_display->mouse_selected_hcursor) {
+         _al_win_set_system_mouse_cursor((ALLEGRO_DISPLAY *)win_display,
+            ALLEGRO_SYSTEM_MOUSE_CURSOR_ARROW);
+      }
    }
 
    DestroyIcon(win_cursor->hcursor);

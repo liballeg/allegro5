@@ -12,8 +12,8 @@
 #error This file requires Xcursor.
 #endif
 
-static ALLEGRO_MOUSE_CURSOR *xdpy_create_mouse_cursor(ALLEGRO_DISPLAY *display,
-   ALLEGRO_BITMAP *bmp, int x_focus, int y_focus)
+ALLEGRO_MOUSE_CURSOR *_al_xwin_create_mouse_cursor(ALLEGRO_BITMAP *bmp,
+   int x_focus, int y_focus)
 {
    ALLEGRO_SYSTEM_XGLX *system = (ALLEGRO_SYSTEM_XGLX *)al_get_system_driver();
    Display *xdisplay = system->x11display;
@@ -24,8 +24,6 @@ static ALLEGRO_MOUSE_CURSOR *xdpy_create_mouse_cursor(ALLEGRO_DISPLAY *display,
    ALLEGRO_MOUSE_CURSOR_XGLX *xcursor;
    XcursorImage *image;
    int c, ix, iy;
-
-   (void)display;
 
    bmp_w = al_get_bitmap_width(bmp);
    bmp_h = al_get_bitmap_height(bmp);
@@ -74,26 +72,30 @@ static ALLEGRO_MOUSE_CURSOR *xdpy_create_mouse_cursor(ALLEGRO_DISPLAY *display,
 
 
 
-static void xdpy_destroy_mouse_cursor(ALLEGRO_DISPLAY *display,
-   ALLEGRO_MOUSE_CURSOR *cursor)
+void _al_xwin_destroy_mouse_cursor(ALLEGRO_MOUSE_CURSOR *cursor)
 {
-   ALLEGRO_DISPLAY_XGLX *glx = (ALLEGRO_DISPLAY_XGLX *)display;
    ALLEGRO_MOUSE_CURSOR_XGLX *xcursor = (ALLEGRO_MOUSE_CURSOR_XGLX *)cursor;
-   ALLEGRO_SYSTEM_XGLX *system = (ALLEGRO_SYSTEM_XGLX *)al_get_system_driver();
-   Display *xdisplay = system->x11display;
-   Window xwindow = glx->window;
+   ALLEGRO_SYSTEM *sys = al_get_system_driver();
+   ALLEGRO_SYSTEM_XGLX *sysx = (ALLEGRO_SYSTEM_XGLX *)sys;
+   unsigned i;
 
-   _al_mutex_lock(&system->lock);
+   _al_mutex_lock(&sysx->lock);
 
-   if (glx->current_cursor == xcursor->cursor) {
-      XUndefineCursor(xdisplay, xwindow);
-      glx->current_cursor = None;
+   for (i = 0; i < _al_vector_size(&sys->displays); i++) {
+      ALLEGRO_DISPLAY_XGLX **slot = _al_vector_ref(&sys->displays, i);
+      ALLEGRO_DISPLAY_XGLX *glx = *slot;
+
+      if (glx->current_cursor == xcursor->cursor) {
+         if (!glx->cursor_hidden)
+            XUndefineCursor(sysx->x11display, glx->window);
+         glx->current_cursor = None;
+      }
    }
 
-   XFreeCursor(xdisplay, xcursor->cursor);
+   XFreeCursor(sysx->x11display, xcursor->cursor);
    al_free(xcursor);
 
-   _al_mutex_unlock(&system->lock);
+   _al_mutex_unlock(&sysx->lock);
 }
 
 
@@ -272,10 +274,11 @@ static bool xdpy_hide_mouse_cursor(ALLEGRO_DISPLAY *display)
 
 void _al_xglx_add_cursor_functions(ALLEGRO_DISPLAY_INTERFACE *vt)
 {
-   vt->create_mouse_cursor = xdpy_create_mouse_cursor;
-   vt->destroy_mouse_cursor = xdpy_destroy_mouse_cursor;
    vt->set_mouse_cursor = xdpy_set_mouse_cursor;
    vt->set_system_mouse_cursor = xdpy_set_system_mouse_cursor;
    vt->show_mouse_cursor = xdpy_show_mouse_cursor;
    vt->hide_mouse_cursor = xdpy_hide_mouse_cursor;
 }
+
+
+/* vim: set sts=3 sw=3 et: */
