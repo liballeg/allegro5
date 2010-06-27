@@ -27,10 +27,11 @@ static int next(char *s)
    return i+1;
 }
 
-void al_show_native_file_dialog(ALLEGRO_NATIVE_DIALOG *fd)
+void al_show_native_file_dialog(ALLEGRO_DISPLAY *display,
+   ALLEGRO_NATIVE_DIALOG *fd)
 {
    OPENFILENAME ofn;
-   ALLEGRO_DISPLAY_WIN *display;
+   ALLEGRO_DISPLAY_WIN *win_display;
    int flags = 0;
    bool ret;
    char buf[4096] = { 0, };
@@ -39,8 +40,8 @@ void al_show_native_file_dialog(ALLEGRO_NATIVE_DIALOG *fd)
    memset(&ofn, 0, sizeof(OPENFILENAME));
 
    ofn.lStructSize = sizeof(OPENFILENAME);
-   display = (ALLEGRO_DISPLAY_WIN*)al_get_current_display();
-   ofn.hwndOwner = display->window;
+   win_display = (ALLEGRO_DISPLAY_WIN *)display;
+   ofn.hwndOwner = win_display->window;
    if (fd->initial_path) {
       strncpy(buf, al_path_cstr(fd->initial_path, '/'), 4096);
    }
@@ -112,7 +113,8 @@ void al_show_native_file_dialog(ALLEGRO_NATIVE_DIALOG *fd)
    }
 }
 
-int _al_show_native_message_box(ALLEGRO_NATIVE_DIALOG *fd)
+int _al_show_native_message_box(ALLEGRO_DISPLAY *display,
+	ALLEGRO_NATIVE_DIALOG *fd)
 {
 	UINT type = 0;
 	int result;
@@ -123,7 +125,7 @@ int _al_show_native_message_box(ALLEGRO_NATIVE_DIALOG *fd)
 	if (fd->mode & ALLEGRO_MESSAGEBOX_YES_NO) type |= MB_YESNO;
 	if (fd->mode & ALLEGRO_MESSAGEBOX_OK_CANCEL) type |= MB_OKCANCEL;
 
-	result = MessageBox(al_get_win_window_handle(al_get_current_display()),
+	result = MessageBox(al_get_win_window_handle(display),
 		al_cstr(fd->text), al_cstr(fd->title), type);
 	
 	if (result == IDYES || result == IDOK)

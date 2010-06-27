@@ -17,7 +17,7 @@ void abort_example(char const *format, ...)
    // active - but it's probably better if make al_show_native_message_box
    // does that instead and falls back to other means to deliver the message
    // on all platforms (even without A5 installed or a display active).
-   al_show_native_message_box("Error", "Cannot run example", str, NULL, 0);
+   al_show_native_message_box(NULL, "Error", "Cannot run example", str, NULL, 0);
    exit(1);
 }
 #else

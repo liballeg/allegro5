@@ -50,7 +50,8 @@ query the results. When you are done, call
 
 ## API: al_show_native_file_dialog
 
-Show the dialog window.
+Show the dialog window.  The display may be NULL, otherwise the given display
+is treated as the parent if possible.
 
 This function blocks the calling thread until it returns,
 so you may want to spawn a thread with [al_create_thread] and
@@ -71,8 +72,8 @@ Frees up all resources used by the dialog.
 ## API: al_show_native_message_box
 
 Show a native GUI message box. This can be used for example to display an error
-message if creation of an initial display fails. You should usually not use this
-function as long as an ALLEGRO_DISPLAY is active (but you may).
+message if creation of an initial display fails.  The display may be NULL,
+otherwise the given display is treated as the parent if possible.
 
 The message box will have a single "OK" button and use the style informative
 dialog boxes usually have on the native system. If the `buttons` parameter is

@@ -186,11 +186,11 @@ static void realized(GtkWidget *window, gpointer data)
 }
 #endif /* ALLEGRO_WITH_XWINDOWS */
 
-static void make_transient(GtkWidget *window)
+static void make_transient(ALLEGRO_DISPLAY *display, GtkWidget *window)
 {
    /* Set the current display window (if any) as the parent of the dialog. */
    #ifdef ALLEGRO_WITH_XWINDOWS
-   ALLEGRO_DISPLAY_XGLX *glx = (void *)al_get_current_display();
+   ALLEGRO_DISPLAY_XGLX *glx = (void *)display;
    if (glx) {
       if (!GTK_WIDGET_REALIZED(window))
          g_signal_connect(window, "realize", G_CALLBACK(realized), (void *)glx);
@@ -200,7 +200,8 @@ static void make_transient(GtkWidget *window)
    #endif
 }
 
-void al_show_native_file_dialog(ALLEGRO_NATIVE_DIALOG *fd)
+void al_show_native_file_dialog(ALLEGRO_DISPLAY *display,
+   ALLEGRO_NATIVE_DIALOG *fd)
 {
    GtkWidget *window;
 
@@ -209,7 +210,7 @@ void al_show_native_file_dialog(ALLEGRO_NATIVE_DIALOG *fd)
    /* Create a new file selection widget */
    window = gtk_file_selection_new(al_cstr(fd->title));
 
-   make_transient(window);
+   make_transient(display, window);
 
    /* Connect the destroy signal */
    g_signal_connect(G_OBJECT(window), "destroy", G_CALLBACK(destroy), fd);
@@ -240,7 +241,8 @@ void al_show_native_file_dialog(ALLEGRO_NATIVE_DIALOG *fd)
    gtk_unlock_and_wait(fd);
 }
 
-int _al_show_native_message_box(ALLEGRO_NATIVE_DIALOG *fd)
+int _al_show_native_message_box(ALLEGRO_DISPLAY *display,
+   ALLEGRO_NATIVE_DIALOG *fd)
 {
    GtkWidget *window;
    gtk_start_and_lock();
@@ -261,7 +263,7 @@ int _al_show_native_message_box(ALLEGRO_NATIVE_DIALOG *fd)
     gtk_message_dialog_format_secondary_text(GTK_MESSAGE_DIALOG(window), "%s",
       al_cstr(fd->text));
 
-   make_transient(window);
+   make_transient(display, window);
 
    if (fd->buttons) {
       int i = 1;

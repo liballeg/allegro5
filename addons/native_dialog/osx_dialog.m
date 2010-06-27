@@ -97,8 +97,11 @@
 @end
 
 
-void al_show_native_file_dialog(ALLEGRO_NATIVE_DIALOG *fd)
+void al_show_native_file_dialog(ALLEGRO_DISPLAY *display,
+   ALLEGRO_NATIVE_DIALOG *fd)
 {
+   (void)display;
+
    /* Since this function may be called from a separate thread (our own
     * example program does this), we need to setup a release pool, or we
     * get memory leaks.
@@ -110,9 +113,12 @@ void al_show_native_file_dialog(ALLEGRO_NATIVE_DIALOG *fd)
    [pool drain];
 }
 
-int _al_show_native_message_box(ALLEGRO_NATIVE_DIALOG *fd)
+int _al_show_native_message_box(ALLEGRO_DISPLAY *display,
+   ALLEGRO_NATIVE_DIALOG *fd)
 {
    unsigned i;
+
+   (void)display;
 
    /* Since this might be run from a separate thread, we setup
     * release pool, or we get memory leaks
