@@ -72,13 +72,13 @@ int main(void)
    if (!src_display) {
       return 1;
    }
-   al_set_window_title("Source");
+   al_set_window_title(src_display, "Source");
 
    dst_display = al_create_display(DST_WIDTH, DST_HEIGHT);
    if (!dst_display) {
       return 1;
    }
-   al_set_window_title("Destination");
+   al_set_window_title(dst_display, "Destination");
 
    al_set_new_bitmap_flags(ALLEGRO_MEMORY_BITMAP);
    mem_bmp = al_load_bitmap("data/mysha.pcx");
@@ -131,8 +131,8 @@ int main(void)
          t = MIN(dst_y1, dst_y2);
          b = MAX(dst_y1, dst_y2);
 
-         al_set_current_display(dst_display);
-         dst_subbmp[0] = al_create_sub_bitmap(al_get_backbuffer(),
+         al_set_target_backbuffer(dst_display);
+         dst_subbmp[0] = al_create_sub_bitmap(al_get_backbuffer(dst_display),
             l, t, r - l + 1, b - t + 1);
          dst_subbmp[1] = al_create_sub_bitmap(dst_subbmp[0],
             2, 2, r - l - 3, b - t - 3);
@@ -141,7 +141,7 @@ int main(void)
       }
 
       if (redraw && al_event_queue_is_empty(queue)) {
-         al_set_current_display(dst_display);
+         al_set_target_backbuffer(dst_display);
          al_clear_to_color(al_map_rgb(0, 0, 0));
 
          al_set_target_bitmap(dst_subbmp[1]);
@@ -179,7 +179,7 @@ int main(void)
             float y_ = dst_y2 + 0.5;
             SWAP_GREATER(x, x_)
             SWAP_GREATER(y, y_)
-            al_set_target_bitmap(al_get_backbuffer());
+            al_set_target_backbuffer(dst_display);
             al_draw_rectangle(x, y, x_, y_,
                al_map_rgb(0, 255, 255), 0);
             al_draw_rectangle(x + 2, y + 2, x_ - 2, y_ - 2,
@@ -195,7 +195,7 @@ int main(void)
             float y_ = src_y2 + 0.5;
             SWAP_GREATER(x, x_)
             SWAP_GREATER(y, y_)
-            al_set_current_display(src_display);
+            al_set_target_backbuffer(src_display);
             al_clear_to_color(al_map_rgb(0, 0, 0));
             al_draw_bitmap(mem_bmp, SRC_X, SRC_Y, 0);
             al_draw_rectangle(x, y, x_, y_,

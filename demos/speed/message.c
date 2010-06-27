@@ -68,8 +68,8 @@ void message(char *text)
 /* updates the message position */
 void update_message()
 {
-   int SCREEN_W = al_get_display_width();
-   int SCREEN_H = al_get_display_height();
+   int SCREEN_W = al_get_display_width(screen);
+   int SCREEN_H = al_get_display_height(screen);
    MESSAGE **p = &msg;
    MESSAGE *m = msg;
    MESSAGE *tmp;

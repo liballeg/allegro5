@@ -66,7 +66,7 @@ int main(void)
 
    for (;;) {
       for (i = 0; i < 2; i++) {
-        al_set_current_display(displays[i]);
+        al_set_target_backbuffer(displays[i]);
         al_set_blender(ALLEGRO_ADD, ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA);
         if (i == 0)
            al_clear_to_color(al_map_rgb(255, 0, 255));

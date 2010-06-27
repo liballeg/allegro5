@@ -605,7 +605,7 @@ int _al_draw_prim_indexed_directx(ALLEGRO_BITMAP* texture, const void* vtxs, con
 void _al_set_d3d_decl(ALLEGRO_VERTEX_DECL* ret)
 {
 #ifdef ALLEGRO_CFG_D3D
-   int flags = al_get_display_flags();
+   int flags = al_get_display_flags(al_get_current_display());
    if (flags & ALLEGRO_DIRECT3D) {
       ALLEGRO_DISPLAY *display;
       LPDIRECT3DDEVICE9 device;

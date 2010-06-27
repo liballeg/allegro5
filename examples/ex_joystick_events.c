@@ -43,8 +43,9 @@ static void draw_joystick_axes(int cx, int cy, int stick)
 
 static void draw_joystick_button(int button, bool down)
 {
-   int x = al_get_display_width()/2 + (button % 5) * 30;
-   int y = al_get_display_height()-60 + (button / 5) * 30;
+   ALLEGRO_BITMAP *bmp = al_get_target_bitmap();
+   int x = al_get_bitmap_width(bmp)/2 + (button % 5) * 30;
+   int y = al_get_bitmap_height(bmp)-60 + (button / 5) * 30;
 
    al_draw_filled_rectangle(x, y, x + 25.5, y + 25.5, grey);
    al_draw_rectangle(x, y, x + 25.5, y + 25.5, black, 0);
@@ -57,13 +58,16 @@ static void draw_joystick_button(int button, bool down)
 
 static void draw_all(void)
 {
+   ALLEGRO_BITMAP *bmp = al_get_target_bitmap();
+   int width = al_get_bitmap_width(bmp);
+   int height = al_get_bitmap_height(bmp);
    int i;
 
    al_clear_to_color(al_map_rgb(0xff, 0xff, 0xc0));
 
    for (i = 0; i < num_sticks; i++) {
-      int cx = (i + 0.5) * al_get_display_width() / num_sticks;
-      int cy = al_get_display_height() / 2;
+      int cx = (i + 0.5) * width / num_sticks;
+      int cy = height / 2;
       draw_joystick_axes(cx, cy, i);
    }
 

@@ -55,6 +55,7 @@ int main(int argc, const char *argv[])
 {
    enum Mode mode = PLAIN_BLIT;
    ALLEGRO_STATE state;
+   ALLEGRO_DISPLAY *display;
    ALLEGRO_BITMAP *b1;
    ALLEGRO_BITMAP *b2;
    int REPEAT;
@@ -81,7 +82,8 @@ int main(int argc, const char *argv[])
 
    al_init_image_addon();
 
-   if (!al_create_display(640, 480)) {
+   display = al_create_display(640, 480);
+   if (!display) {
       abort_example("Error creating display\n");
       return 1;
    }
@@ -106,7 +108,7 @@ int main(int argc, const char *argv[])
 
    /* Display the blended bitmap to the screen so we can see something. */
    al_store_state(&state, ALLEGRO_STATE_ALL);
-   al_set_target_bitmap(al_get_backbuffer());
+   al_set_target_backbuffer(display);
    al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ZERO);
    al_draw_bitmap(b1, 0, 0, 0);
    al_flip_display();

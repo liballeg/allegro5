@@ -14,8 +14,8 @@ static bool big;
 static void redraw(void)
 {
    ALLEGRO_COLOR color;
-   int w = al_get_display_width();
-   int h = al_get_display_height();
+   int w = al_get_display_width(display);
+   int h = al_get_display_height(display);
    int pw = al_get_bitmap_width(picture);
    int ph = al_get_bitmap_height(picture);
    int th = al_get_font_line_height(font);
@@ -38,8 +38,8 @@ static void redraw(void)
       "Press Enter to toggle window size");
    al_draw_textf(font, white, w / 2, cy + ph + th * 2, ALLEGRO_ALIGN_CENTRE,
       "Window: %dx%d (%s)",
-      al_get_display_width(), al_get_display_height(),
-      (al_get_display_flags() & ALLEGRO_FULLSCREEN_WINDOW) ?
+      al_get_display_width(display), al_get_display_height(display),
+      (al_get_display_flags(display) & ALLEGRO_FULLSCREEN_WINDOW) ?
       "fullscreen" : "not fullscreen");
    
    al_flip_display();
@@ -57,16 +57,16 @@ static void run(void)
             if (event.keyboard.keycode == ALLEGRO_KEY_ESCAPE)
                quit = true;
             else if (event.keyboard.keycode == ALLEGRO_KEY_SPACE) {
-               al_toggle_display_flag(ALLEGRO_FULLSCREEN_WINDOW,
-                  !(al_get_display_flags() & ALLEGRO_FULLSCREEN_WINDOW));
+               bool val = al_get_display_flags(display) & ALLEGRO_FULLSCREEN_WINDOW;
+               al_toggle_display_flag(display, ALLEGRO_FULLSCREEN_WINDOW, !val);
                redraw();
             }
             else if (event.keyboard.keycode == ALLEGRO_KEY_ENTER) {
                big = !big;
                if (big)
-                  al_resize_display(800, 600);
+                  al_resize_display(display, 800, 600);
                else
-                  al_resize_display(640, 480);
+                  al_resize_display(display, 640, 480);
                redraw();
             }
          }

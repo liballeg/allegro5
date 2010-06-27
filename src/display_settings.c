@@ -70,11 +70,9 @@ int al_get_new_display_option(int option, int *importance)
 
 /* Function: al_get_display_option
  */
-int al_get_display_option(int option)
+int al_get_display_option(ALLEGRO_DISPLAY *display, int option)
 {
    ALLEGRO_EXTRA_DISPLAY_SETTINGS *extras;
-   ALLEGRO_DISPLAY *display;
-   display = al_get_current_display();
    extras = &display->extra_settings;
    return extras->settings[option];
 }

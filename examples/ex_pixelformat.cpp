@@ -162,6 +162,8 @@ void Prog::draw_sample()
    al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ZERO);
 
    if (bitmap1 && bitmap2) {
+      ALLEGRO_BITMAP *target = al_get_target_bitmap();
+
       al_set_target_bitmap(bitmap2);
       if (enable_timing) {
          double t0, t1;
@@ -184,7 +186,7 @@ void Prog::draw_sample()
          time_label.set_text("");
       }
 
-      al_set_target_bitmap(al_get_backbuffer());
+      al_set_target_bitmap(target);
       al_draw_bitmap(bitmap2, 0, 0, 0);
    }
    else {

@@ -36,12 +36,12 @@ int main(void)
       printf("Multisampling not available.\n");
       return 1;
    }
-   al_set_window_title("Multisampling");
+   al_set_window_title(ms_display, "Multisampling");
 
    al_set_new_display_option(ALLEGRO_SAMPLE_BUFFERS, 0, ALLEGRO_REQUIRE);
    al_set_new_display_option(ALLEGRO_SAMPLES, 0, ALLEGRO_REQUIRE);
    display = al_create_display(200, 200);
-   al_set_window_title("Normal");
+   al_set_window_title(display, "Normal");
    
    timer = al_install_timer(1.0 / 30.0);
 
@@ -71,11 +71,11 @@ int main(void)
       }
       
       if (redraw && al_event_queue_is_empty(queue)) {
-         al_set_current_display(ms_display);
+         al_set_target_backbuffer(ms_display);
          draw();
          al_flip_display();
          
-         al_set_current_display(display);
+         al_set_target_backbuffer(display);
          draw();
          al_flip_display();
          

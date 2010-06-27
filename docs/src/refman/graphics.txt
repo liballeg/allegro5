@@ -425,8 +425,8 @@ See also: [al_lock_bitmap], [al_lock_bitmap_region], [al_unlock_bitmap]
 D3D and OpenGL allow sharing a texture in a way so it can be used for
 multiple windows. Each ALLEGRO_BITMAP created with [al_create_bitmap]
 however is usually tied to a single ALLEGRO_DISPLAY. This function can
-be used to know if the bitmap is compatible with the current display,
-even if it is another display than the one it was created with. It
+be used to know if the bitmap is compatible with the given display,
+even if it is a different display to the one it was created with. It
 returns true if the bitmap is compatible (things like a cached texture
 version can be used) and false otherwise (blitting in the current
 display will be slow).
@@ -595,7 +595,7 @@ See also: [al_draw_tinted_bitmap]
 
 ### API: al_get_target_bitmap
 
-Return the target bitmap of the current display.
+Return the target bitmap of the calling thread.
 
 See also: [al_set_target_bitmap]
 
@@ -620,6 +620,18 @@ See also: [ALLEGRO_COLOR], [al_put_pixel]
 Select the bitmap to which all subsequent drawing operations in the calling
 thread will draw. Select the backbuffer (see [al_get_backbuffer]) to return
 to drawing to the screen normally.
+
+Each video bitmap is tied to a display. When a video bitmap is set to as the
+target bitmap, the display that the bitmap belongs to is automatically made
+"current" for the calling thread (if it is not current already).  Then drawing
+other bitmaps which are tied to the same display can be hardware accelerated.
+
+A single display cannot be current for multiple threads simultaneously.  If you
+need to release a display, so it is not current for the calling thread, call
+`al_set_target_bitmap(NULL);`
+
+Setting a memory bitmap as the target bitmap will not change which display
+is current for the calling thread.
 
 OpenGL note:
 
@@ -656,7 +668,13 @@ In this example an FBO is created however:
 And an OpenGL command will be used to directly draw the line into the bitmap's
 associated texture.
 
-See also: [al_get_target_bitmap]
+See also: [al_get_target_bitmap], [al_set_target_backbuffer]
+
+### API: al_set_target_backbuffer
+
+Same as `al_set_target_bitmap(al_get_backbuffer(display));'
+
+See also: [al_set_target_bitmap], [al_get_backbuffer]
 
 
 

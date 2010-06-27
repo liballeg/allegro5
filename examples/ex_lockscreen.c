@@ -24,7 +24,7 @@ int main(void)
       return 1;
    }
 
-   bitmap = al_get_backbuffer();
+   bitmap = al_get_backbuffer(display);
    locked = al_lock_bitmap(bitmap, ALLEGRO_PIXEL_FORMAT_ANY_32_NO_ALPHA, 0);
    size = al_get_pixel_size(locked->format);
    for (i = 0; i < 100; i++) {

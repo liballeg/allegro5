@@ -3,6 +3,8 @@
 
 #include "common.c"
 
+#define WIDTH 640
+#define HEIGHT 480
 #define NUM_STARS 300
 #define TARGET_FPS 9999
 
@@ -34,8 +36,11 @@ int main(void)
 
    al_install_keyboard();
    
-
-   display = al_create_display(640, 480);
+   display = al_create_display(WIDTH, HEIGHT);
+   if (!display) {
+      abort_example("Could not create display.\n");
+      return 1;
+   }
 
    colors[0] = al_map_rgba(255, 100, 255, 128);
    colors[1] = al_map_rgba(255, 100, 100, 255);
@@ -44,8 +49,8 @@ int main(void)
    for (layer = 0; layer < 3; layer++) {
       for (star = 0; star < NUM_STARS/3; star++) {
          Point *p = &stars[layer][star];
-         p->x = rand() % al_get_display_width();
-         p->y = rand() % al_get_display_height();
+         p->x = rand() % WIDTH;
+         p->y = rand() % HEIGHT;
       }
    }
 
@@ -70,7 +75,7 @@ int main(void)
             Point *p = &stars[0][star];
             al_draw_pixel(p->x, p->y, colors[0]);
          }
-         lr = al_lock_bitmap(al_get_backbuffer(), ALLEGRO_PIXEL_FORMAT_ANY, 0);
+         lr = al_lock_bitmap(al_get_backbuffer(display), ALLEGRO_PIXEL_FORMAT_ANY, 0);
 
          for (layer = 1; layer < 3; layer++) {
             for (star = 0; star < NUM_STARS/3; star++) {
@@ -81,14 +86,14 @@ int main(void)
          }
 
          /* Check that dots appear at the window extremes. */
-         X = al_get_display_width() - 1;
-         Y = al_get_display_height() - 1;
+         X = WIDTH - 1;
+         Y = HEIGHT - 1;
          al_put_pixel(0, 0, al_map_rgb_f(1, 1, 1));
          al_put_pixel(X, 0, al_map_rgb_f(1, 1, 1));
          al_put_pixel(0, Y, al_map_rgb_f(1, 1, 1));
          al_put_pixel(X, Y, al_map_rgb_f(1, 1, 1));
 
-         al_unlock_bitmap(al_get_backbuffer());
+         al_unlock_bitmap(al_get_backbuffer(display));
          al_flip_display();
          total_frames++;
       }
@@ -102,8 +107,8 @@ int main(void)
             Point *p = &stars[layer][star];
             p->y -= speeds[layer] * elapsed;
             if (p->y < 0) {
-               p->x = rand() % al_get_display_width();
-               p->y = al_get_display_height();
+               p->x = rand() % WIDTH;
+               p->y = HEIGHT;
             }
          }
       }

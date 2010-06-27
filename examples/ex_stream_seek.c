@@ -86,7 +86,7 @@ static int initialize(void)
 static void logic(void)
 {
    /* calculate the position of the slider */
-   double w = al_get_display_width() - 20;
+   double w = al_get_display_width(display) - 20;
    double pos = al_get_audio_stream_position_secs(music_stream);
    double len = al_get_audio_stream_length_secs(music_stream);
    slider_pos = w * (pos / len);
@@ -106,7 +106,7 @@ static void render(void)
 {
    double pos = al_get_audio_stream_position_secs(music_stream);
    double length = al_get_audio_stream_length_secs(music_stream);
-   double w = al_get_display_width() - 20;
+   double w = al_get_display_width(display) - 20;
    double loop_start_pos = w * (loop_start / length);
    double loop_end_pos = w * (loop_end / length);
    ALLEGRO_COLOR c = al_map_rgb(255, 255, 255);
@@ -147,7 +147,7 @@ static void myexit(void)
 static void maybe_fiddle_sliders(int mx, int my)
 {
    double seek_pos;
-   double w = al_get_display_width() - 20;
+   double w = al_get_display_width(display) - 20;
 
    if (!(mx >= 10 && mx < 10 + w && my >= 48 && my < 64)) {
       return;

@@ -566,10 +566,10 @@ int main(void)
    // Start the event queue to handle keyboard input and our timer
    queue = al_create_event_queue();
    al_register_event_source(queue, al_get_keyboard_event_source());
-   al_register_event_source(queue, al_get_display_event_source(al_get_current_display()));
+   al_register_event_source(queue, al_get_display_event_source(display));
    al_register_event_source(queue, al_get_mouse_event_source());
    
-   al_set_window_title("Primitives Example");
+   al_set_window_title(display, "Primitives Example");
    
    {
    int refresh_rate = 60;
@@ -742,7 +742,7 @@ int main(void)
 
       if (Soft == 1) {
          al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ZERO);
-         al_set_target_bitmap(al_get_backbuffer());
+         al_set_target_backbuffer(display);
          al_draw_bitmap(Buffer, 0, 0, 0);
       }
 

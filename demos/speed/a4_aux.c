@@ -90,8 +90,7 @@ void init_input()
 
    input_queue = al_create_event_queue();
    al_register_event_source(input_queue, al_get_keyboard_event_source());
-   al_register_event_source(input_queue, al_get_display_event_source(
-			    al_get_current_display()));
+   al_register_event_source(input_queue, al_get_display_event_source(screen));
 
    if (al_get_num_joysticks() > 0) {
       joy = al_get_joystick(0);
@@ -245,6 +244,7 @@ void clear_keybuf()
 #define MAX_POLYGON_VERTICES	 6
 
 
+ALLEGRO_DISPLAY *screen;
 ALLEGRO_FONT *font;
 ALLEGRO_FONT *font_video;
 

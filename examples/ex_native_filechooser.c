@@ -255,7 +255,7 @@ restart:
       }
 
       if (redraw && al_event_queue_is_empty(queue)) {
-         float x = al_get_display_width() / 2;
+         float x = al_get_display_width(display) / 2;
          float y = 0;
          redraw = false;
          al_clear_to_color(background);

@@ -212,8 +212,8 @@ int main(void)
       return -1;
    }
 
-   if (al_get_display_option(ALLEGRO_SAMPLE_BUFFERS)) {
-      printf("With multisampling, level %i\n", al_get_display_option(ALLEGRO_SAMPLES));
+   if (al_get_display_option(d, ALLEGRO_SAMPLE_BUFFERS)) {
+      printf("With multisampling, level %i\n", al_get_display_option(d, ALLEGRO_SAMPLES));
    }
    else {
       printf("Without multisampling.\n");

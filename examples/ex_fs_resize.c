@@ -20,8 +20,9 @@ static int cur_res = 0;
 static void redraw(ALLEGRO_BITMAP *picture)
 {
    ALLEGRO_COLOR color;
-   int w = al_get_display_width();
-   int h = al_get_display_height();
+   ALLEGRO_BITMAP *target = al_get_target_bitmap();
+   int w = al_get_bitmap_width(target);
+   int h = al_get_bitmap_height(target);
 
    color = al_map_rgb(rand() % 255, rand() % 255, rand() % 255);
    al_clear_to_color(color);
@@ -34,7 +35,7 @@ static void redraw(ALLEGRO_BITMAP *picture)
    al_flip_display();
 }
 
-static void main_loop(ALLEGRO_BITMAP *picture)
+static void main_loop(ALLEGRO_DISPLAY *display, ALLEGRO_BITMAP *picture)
 {
    ALLEGRO_EVENT_QUEUE *queue;
    ALLEGRO_EVENT event;
@@ -42,8 +43,7 @@ static void main_loop(ALLEGRO_BITMAP *picture)
 
    queue = al_create_event_queue();
    al_register_event_source(queue, al_get_keyboard_event_source());
-   al_register_event_source(queue, al_get_display_event_source(
-            al_get_current_display()));
+   al_register_event_source(queue, al_get_display_event_source(display));
 
    while (1) {
       if (al_event_queue_is_empty(queue)) {
@@ -82,7 +82,7 @@ static void main_loop(ALLEGRO_BITMAP *picture)
       if (new_res != cur_res) {
          cur_res = new_res;
          printf("Switching to %dx%d... ", res[cur_res].w, res[cur_res].h);
-         if (al_resize_display(res[cur_res].w, res[cur_res].h)) {
+         if (al_resize_display(display, res[cur_res].w, res[cur_res].h)) {
             printf("succeeded.\n");
          }
          else {
@@ -120,7 +120,7 @@ int main(void)
       return 1;
    }
 
-   main_loop(picture);
+   main_loop(display, picture);
 
    al_destroy_bitmap(picture);
 

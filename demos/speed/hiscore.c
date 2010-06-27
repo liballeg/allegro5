@@ -128,8 +128,8 @@ static void draw_entry_box(int which, int64_t retrace_count)
 /* displays the score table */
 void score_table()
 {
-   int SCREEN_W = al_get_display_width();
-   int SCREEN_H = al_get_display_height();
+   int SCREEN_W = al_get_display_width(screen);
+   int SCREEN_H = al_get_display_height(screen);
    ALLEGRO_BITMAP *bmp, *b;
    ALLEGRO_COLOR col;
    int c, i, j, x, y;
@@ -193,7 +193,7 @@ void score_table()
 
    bmp = replace_bitmap(bmp);
 
-   al_set_target_bitmap(al_get_backbuffer());
+   al_set_target_bitmap(al_get_backbuffer(screen));
 
    start_retrace_count();
 

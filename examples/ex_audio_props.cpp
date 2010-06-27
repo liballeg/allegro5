@@ -29,13 +29,13 @@ private:
    VSlider gain_slider;
 
 public:
-   Prog(const Theme & theme);
+   Prog(const Theme & theme, ALLEGRO_DISPLAY *display);
    void run();
    void update_properties();
 };
 
-Prog::Prog(const Theme & theme) :
-   d(Dialog(theme, al_get_current_display(), 20, 20)),
+Prog::Prog(const Theme & theme, ALLEGRO_DISPLAY *display) :
+   d(Dialog(theme, display, 20, 20)),
    pan_button(ToggleButton("Pan")),
    pan_slider(HSlider(1000, 2000)),
    speed_label(Label("Speed")),
@@ -148,7 +148,7 @@ int main(int argc, char *argv[])
    /* Don't remove these braces. */
    {
       Theme theme(font_gui);
-      Prog prog(theme);
+      Prog prog(theme, display);
       prog.run();
    }
 

@@ -115,7 +115,7 @@ int main(void)
       al_draw_bitmap(mysha, 0, 0, 0);
       glUseProgramObjectARB(0);
 
-      al_set_target_bitmap(al_get_backbuffer());
+      al_set_target_backbuffer(display);
       al_draw_bitmap(buffer, 0, 0, 0);
       al_flip_display();
       al_rest(0.001);

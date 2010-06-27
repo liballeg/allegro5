@@ -302,8 +302,8 @@ static int project_cylinder(float *f, int *i, int c)
 /* draws the entire view */
 void draw_view()
 {
-   int SCREEN_W = al_get_display_width();
-   int SCREEN_H = al_get_display_height();
+   int SCREEN_W = al_get_display_width(screen);
+   int SCREEN_H = al_get_display_height(screen);
    int (*project)(float *f, int *i, int c);
    int r, g, b;
    ALLEGRO_COLOR c;

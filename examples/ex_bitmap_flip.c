@@ -18,8 +18,9 @@ int bmp_flag = 0;
 
 static void update(ALLEGRO_BITMAP *bmp)
 {
-   int display_w = al_get_display_width();
-   int display_h = al_get_display_height();
+   ALLEGRO_BITMAP *target = al_get_target_bitmap();
+   int display_w = al_get_bitmap_width(target);
+   int display_h = al_get_bitmap_height(target);
    int bitmap_w = al_get_bitmap_width(bmp);
    int bitmap_h = al_get_bitmap_height(bmp);
 

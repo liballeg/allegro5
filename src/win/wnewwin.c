@@ -885,7 +885,7 @@ bool _al_win_toggle_display_flag(ALLEGRO_DISPLAY *display, int flag, bool onoff)
             display->h = win_display->toggle_h;
          }
 
-         al_resize_display(display->w, display->h);
+         al_resize_display(display, display->w, display->h);
          timeout = al_current_time() + 3; // 3 seconds...
          while (al_current_time() < timeout) {
             if (win_display->can_acknowledge) {

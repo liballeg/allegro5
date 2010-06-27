@@ -37,7 +37,7 @@ static ALLEGRO_BITMAP *_al_create_memory_bitmap(int w, int h)
    int pitch;
    int format = al_get_new_bitmap_format();
    
-   format = _al_get_real_pixel_format(format);
+   format = _al_get_real_pixel_format(al_get_current_display(), format);
    
    bitmap = al_malloc(sizeof *bitmap);
    memset(bitmap, 0, sizeof(*bitmap));
@@ -273,7 +273,7 @@ void al_draw_tinted_scaled_bitmap(ALLEGRO_BITMAP *bitmap,
    float dx, float dy, float dw, float dh, int flags)
 {
    ALLEGRO_BITMAP *dest = al_get_target_bitmap();
-   ALLEGRO_BITMAP *back = al_get_backbuffer();
+   ALLEGRO_BITMAP *back = al_get_backbuffer(al_get_current_display());
 
    if ((bitmap->flags & ALLEGRO_MEMORY_BITMAP) ||
        (dest->flags & ALLEGRO_MEMORY_BITMAP) ||
@@ -311,7 +311,7 @@ void al_draw_tinted_rotated_bitmap(ALLEGRO_BITMAP *bitmap,
    float cx, float cy, float dx, float dy, float angle, int flags)
 {
    ALLEGRO_BITMAP *dest = al_get_target_bitmap();
-   ALLEGRO_BITMAP *back = al_get_backbuffer();
+   ALLEGRO_BITMAP *back = al_get_backbuffer(al_get_current_display());
 
    /* If one is a memory bitmap, do memory blit */
    if ((bitmap->flags & ALLEGRO_MEMORY_BITMAP) ||
@@ -346,7 +346,7 @@ void al_draw_tinted_rotated_scaled_bitmap(ALLEGRO_BITMAP *bitmap,
    float angle, int flags)
 {
    ALLEGRO_BITMAP *dest = al_get_target_bitmap();
-   ALLEGRO_BITMAP *back = al_get_backbuffer();
+   ALLEGRO_BITMAP *back = al_get_backbuffer(al_get_current_display());
 
    /* If one is a memory bitmap, do memory blit */
     if ((bitmap->flags & ALLEGRO_MEMORY_BITMAP) ||
@@ -405,7 +405,7 @@ ALLEGRO_LOCKED_REGION *al_lock_bitmap_region(ALLEGRO_BITMAP *bitmap,
    bitmap->lock_flags = flags;
 
    if (bitmap->flags & ALLEGRO_MEMORY_BITMAP) {
-      int f = _al_get_real_pixel_format(format);
+      int f = _al_get_real_pixel_format(al_get_current_display(), format);
       if (f < 0) {
          return NULL;
       }
@@ -729,7 +729,7 @@ void _al_convert_to_display_bitmap(ALLEGRO_BITMAP *bitmap)
        * We cannot safely assume that the backbuffer and bitmaps use the same
        * vtable.
        */
-      bitmap->vt = al_get_backbuffer()->vt;
+      bitmap->vt = al_get_backbuffer(d)->vt;
       bitmap->display = d;
       bitmap->flags &= !ALLEGRO_MEMORY_BITMAP;
       return;

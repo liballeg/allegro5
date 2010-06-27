@@ -4,14 +4,14 @@
 
 #include "common.c"
 
-static void wait_for_esc(void)
+static void wait_for_esc(ALLEGRO_DISPLAY *display)
 {
    ALLEGRO_EVENT_QUEUE *queue;
    ALLEGRO_BITMAP *screen_clone;
    al_install_keyboard();
    queue = al_create_event_queue();
    al_register_event_source(queue, al_get_keyboard_event_source());
-   al_register_event_source(queue, al_get_display_event_source(al_get_current_display()));
+   al_register_event_source(queue, al_get_display_event_source(display));
    screen_clone = al_clone_bitmap(al_get_target_bitmap());
    while (1) {
       ALLEGRO_EVENT event;
@@ -96,7 +96,7 @@ int main(void)
 
     al_flip_display();
 
-    wait_for_esc();
+    wait_for_esc(display);
 
     al_destroy_bitmap(bitmap);
     al_destroy_bitmap(font_bitmap);

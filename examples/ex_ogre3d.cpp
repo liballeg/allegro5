@@ -42,12 +42,12 @@ protected:
    Camera *mCamera;
 
 public:
-   void setup()
+   void setup(int w, int h)
    {
       createRoot();
       defineResources();
       setupRenderSystem();
-      createRenderWindow();
+      createRenderWindow(w, h);
       initializeResourceGroups();
       chooseSceneManager();
       createCamera();
@@ -93,7 +93,7 @@ private:
       }
    }
 
-   void createRenderWindow()
+   void createRenderWindow(int w, int h)
    {
       // Initialise Ogre without creating a window.
       mRoot->initialise(false);
@@ -103,8 +103,6 @@ private:
       // you *will* need something different on Windows or Mac.
       misc["currentGLContext"] = String("True");
 
-      int w = al_get_display_width();
-      int h = al_get_display_height();
       mWindow = mRoot->createRenderWindow("MainRenderWindow", w, h, false,
          &misc);
       mWindow->setVisible(true);
@@ -156,6 +154,7 @@ public:
 class Example : public Application
 {
 private:
+   ALLEGRO_DISPLAY *display;
    ALLEGRO_EVENT_QUEUE *queue;
    ALLEGRO_TIMER *timer;
 
@@ -172,7 +171,7 @@ private:
    Vector3 last_translate;
 
 public:
-   Example();
+   Example(ALLEGRO_DISPLAY *display);
    ~Example();
    void setup();
    void mainLoop();
@@ -185,7 +184,8 @@ private:
    void nextFrame();
 };
 
-Example::Example() :
+Example::Example(ALLEGRO_DISPLAY *display) :
+   display(display),
    queue(NULL),
    timer(NULL),
    startTime(0.0),
@@ -245,7 +245,9 @@ void Example::createScene()
 
 void Example::setup()
 {
-   Application::setup();
+   int w = al_get_display_width(display);
+   int h = al_get_display_height(display);
+   Application::setup(w, h);
 
    const double BPS = 60.0;
    timer = al_install_timer(1.0 / BPS);
@@ -254,8 +256,7 @@ void Example::setup()
    al_register_event_source(queue, al_get_keyboard_event_source());
    al_register_event_source(queue, al_get_mouse_event_source());
    al_register_event_source(queue, al_get_timer_event_source(timer));
-   al_register_event_source(queue,
-      al_get_display_event_source(al_get_current_display()));
+   al_register_event_source(queue, al_get_display_event_source(display));
 }
 
 void Example::mainLoop()
@@ -340,8 +341,8 @@ void Example::mainLoop()
 
          case ALLEGRO_EVENT_DISPLAY_RESIZE: {
             al_acknowledge_resize(event.display.source);
-            int w = al_get_display_width();
-            int h = al_get_display_height();
+            int w = al_get_display_width(display);
+            int h = al_get_display_height(display);
             mWindow->resize(w, h);
             mCamera->setAspectRatio(Real(w) / Real(h));
             redraw = true;
@@ -423,6 +424,7 @@ int main(int argc, char *argv[])
 {
    (void)argc;
    (void)argv;
+   ALLEGRO_DISPLAY *display;
 
    if (!al_init()) {
       return 1;
@@ -431,13 +433,14 @@ int main(int argc, char *argv[])
    al_install_mouse();
 
    al_set_new_display_flags(ALLEGRO_OPENGL | ALLEGRO_RESIZABLE);
-   if (!al_create_display(WIDTH, HEIGHT)) {
+   display = al_create_display(WIDTH, HEIGHT);
+   if (!display) {
       return 1;
    }
-   al_set_window_title("My window");
+   al_set_window_title(display, "My window");
 
    {
-      Example app;
+      Example app(display);
       app.setup();
       app.mainLoop();
    }

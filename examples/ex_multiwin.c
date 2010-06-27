@@ -13,6 +13,8 @@ int main(void)
    ALLEGRO_EVENT event;
    ALLEGRO_EVENT_QUEUE *events;
    ALLEGRO_BITMAP *pictures[2];
+   ALLEGRO_BITMAP *target;
+   int width, height;
    int i;
 
    if (!al_init()) {
@@ -89,19 +91,23 @@ int main(void)
          if (!display[i])
             continue;
 
-         al_set_current_display(display[i]);
+         target = al_get_backbuffer(display[i]);
+         width = al_get_bitmap_width(target);
+         height = al_get_bitmap_height(target);
+
+         al_set_target_bitmap(target);
          al_draw_scaled_bitmap(pictures[0], 0, 0,
             al_get_bitmap_width(pictures[0]),
             al_get_bitmap_height(pictures[0]),
             0, 0,
-            al_get_display_width() / 2,
-            al_get_display_height(), 0);
+            width / 2, height,
+            0);
          al_draw_scaled_bitmap(pictures[1], 0, 0,
             al_get_bitmap_width(pictures[1]),
             al_get_bitmap_height(pictures[1]),
-            al_get_display_width() / 2, 0,
-            al_get_display_width() / 2,
-            al_get_display_height(), 0);
+            width / 2, 0,
+            width / 2, height,
+            0);
 
          al_flip_display();
       }

@@ -6,7 +6,7 @@ These functions are declared in the following header file:
 
 ## API: al_get_d3d_device
 
-Returns the Direct3D device of the current display. The return value is 
+Returns the Direct3D device of the display. The return value is 
 undefined if the display was not created with the Direct3D flag.
 
 *Returns:*

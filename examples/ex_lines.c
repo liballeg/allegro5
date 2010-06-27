@@ -52,7 +52,7 @@ static void reset_clip_rect(void)
 
 static void flip(void)
 {
-   al_set_target_bitmap(al_get_backbuffer());
+   al_set_target_backbuffer(display);
    al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ZERO);
    al_draw_bitmap(dbuf, 0.0, 0.0, 0);
    al_flip_display();

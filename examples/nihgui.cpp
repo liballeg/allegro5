@@ -159,8 +159,8 @@ void Dialog::prepare()
 
 void Dialog::configure_all()
 {
-   const int xsize = al_get_display_width() / this->grid_m;
-   const int ysize = al_get_display_height() / this->grid_n;
+   const int xsize = al_get_display_width(display) / this->grid_m;
+   const int ysize = al_get_display_height(display) / this->grid_n;
 
    for (std::list<Widget*>::iterator it = this->all_widgets.begin();
          it != this->all_widgets.end();

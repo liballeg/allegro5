@@ -81,8 +81,8 @@ static ALLEGRO_BITMAP *generate_logo(char const *text,
    ALLEGRO_LOCKED_REGION *lock1, *lock2;
    float cx, cy;
 
-   dw = al_get_display_width();
-   dh = al_get_display_height();
+   dw = al_get_bitmap_width(al_get_target_bitmap());
+   dh = al_get_bitmap_height(al_get_target_bitmap());
 
    cx = dw * 0.5;
    cy = dh * 0.5;
@@ -414,7 +414,7 @@ int main(void)
       abort_example("Could not create display\n");
       return 1;
    }
-   al_set_window_title("Allegro Logo Generator");
+   al_set_window_title(display, "Allegro Logo Generator");
    al_install_keyboard();
 
    /* Read logo parameters from logo.ini (if it exists). */

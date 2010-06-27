@@ -142,7 +142,7 @@ static void draw(void)
 
    if (ex.software) {
       al_set_new_bitmap_flags(ALLEGRO_MEMORY_BITMAP);
-      al_set_new_bitmap_format(al_get_display_format());
+      al_set_new_bitmap_format(al_get_bitmap_format(al_get_target_bitmap()));
       mem = al_create_bitmap(w, h);
       al_set_target_bitmap(mem);
       x = 0;

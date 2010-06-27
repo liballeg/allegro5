@@ -57,13 +57,13 @@ struct {
     X(SUPPORT_SEPARATE_ALPHA, 1),
 };
 
-static void display_options(void)
+static void display_options(ALLEGRO_DISPLAY *display)
 {
    int i, y = 10;
    int x = 10;
    int n = options_count;
-   int dw = al_get_display_width();
-   int dh = al_get_display_height();
+   int dw = al_get_display_width(display);
+   int dh = al_get_display_height(display);
 
    ALLEGRO_COLOR c;
    c = al_map_rgb_f(0.8, 0.8, 1);
@@ -119,7 +119,7 @@ static void display_options(void)
             
       c = al_map_rgb_f(0.9, 0.5, 0.3);
       al_draw_textf(font, c, dw - 10, y, ALLEGRO_ALIGN_RIGHT, "%d",
-         al_get_display_option(options[i].option));
+         al_get_display_option(display, options[i].option));
       y += font_h;
    }
    
@@ -170,7 +170,7 @@ int main(void)
    n = 0;
    font_h = al_get_font_line_height(font);
    al_clear_to_color(al_map_rgb_f(1, 1, 1));
-   display_options();
+   display_options(display);
    al_flip_display();
 
    queue = al_create_event_queue();
@@ -186,7 +186,7 @@ int main(void)
       }
       if (event.type == ALLEGRO_EVENT_MOUSE_BUTTON_DOWN) {
          if (event.mouse.button == 1) {
-            int dw = al_get_display_width();
+            int dw = al_get_display_width(display);
             int y = 10;
             int row = (event.mouse.y - y) / font_h - 1;
             int column = event.mouse.x / (dw / 2);
@@ -285,7 +285,7 @@ int main(void)
       if (redraw && al_event_queue_is_empty(queue)) {
          redraw = false;
          al_clear_to_color(al_map_rgb_f(1, 1, 1));
-         display_options();
+         display_options(display);
          al_flip_display();
       }
    }

@@ -38,7 +38,7 @@ int main(int argc, const char *argv[])
        abort_example("Error creating display\n");
     }
     
-    al_set_window_title(filename);
+    al_set_window_title(display, filename);
     
     /* We load the bitmap into a memory bitmap, because creating a
      * display bitmap could fail if the bitmap is too big to fit into a
@@ -84,7 +84,7 @@ int main(int argc, const char *argv[])
             if (event.keyboard.unichar == '-')
                 zoom /= 1.1;
             if (event.keyboard.unichar == 'f')
-                zoom = (double)al_get_display_width() /
+                zoom = (double)al_get_display_width(display) /
                     al_get_bitmap_width(bitmap);
         }
         if (event.type == ALLEGRO_EVENT_TIMER)

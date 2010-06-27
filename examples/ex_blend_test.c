@@ -8,6 +8,7 @@
 int test_only_index = 0;
 int test_index = 0;
 bool test_display = false;
+ALLEGRO_DISPLAY *display;
 
 static void print_color(ALLEGRO_COLOR c)
 {
@@ -53,7 +54,7 @@ static ALLEGRO_COLOR test(ALLEGRO_COLOR src_col, ALLEGRO_COLOR dst_col,
    result = al_get_pixel(dst_bmp, 0, 0);
 
    if (test_display) {
-      al_set_target_bitmap(al_get_backbuffer());
+      al_set_target_backbuffer(display);
       al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ZERO);
       al_draw_bitmap(dst_bmp, 0, 0, 0);
    }
@@ -208,8 +209,8 @@ static void do_test2(ALLEGRO_COLOR src_col, ALLEGRO_COLOR dst_col,
    }
 
    if (test_display) {
-      dst_format = al_get_display_format();
-      from_display = al_get_pixel(al_get_backbuffer(), 0, 0);
+      dst_format = al_get_display_format(display);
+      from_display = al_get_pixel(al_get_backbuffer(display), 0, 0);
       reference = reference_implementation(
          src_col, dst_col, src_format, dst_format,
          src_mode, dst_mode, src_alpha, dst_alpha, operation);
@@ -283,7 +284,7 @@ int main(int argc, char **argv)
    al_init();
    al_init_primitives_addon();
    if (test_display)
-      al_create_display(100, 100);
+      display = al_create_display(100, 100);
 
    for (i = 0; i < 2; i++) {
       for (j = 0; j < 2; j++) {

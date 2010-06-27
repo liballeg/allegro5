@@ -112,7 +112,7 @@ int main(void)
          al_set_target_bitmap(buf);
       }
       else {
-         al_set_target_bitmap(al_get_backbuffer());
+         al_set_target_backbuffer(dpy);
       }
 
       src_bmp = (mem_src_mode) ? mem_bmp : bmp;
@@ -131,12 +131,10 @@ int main(void)
       }
 
       if (clip_mode) {
-         al_set_clipping_rectangle(50, 50,
-            al_get_display_width() - 100, al_get_display_height() - 100);
+         al_set_clipping_rectangle(50, 50, display_w - 100, display_h - 100);
       }
       else {
-         al_set_clipping_rectangle(0, 0,
-            al_get_display_width(), al_get_display_height());
+         al_set_clipping_rectangle(0, 0, display_w, display_h);
       }
 
       al_draw_tinted_scaled_bitmap(src_bmp, tint,
@@ -146,9 +144,8 @@ int main(void)
          flags);
 
       if (mode == 0) {
-         al_set_target_bitmap(al_get_backbuffer());
-         al_set_clipping_rectangle(0, 0,
-            al_get_display_width(), al_get_display_height());
+         al_set_target_backbuffer(dpy);
+         al_set_clipping_rectangle(0, 0, display_w, display_h);
          al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ZERO);
          al_draw_bitmap(buf, 0, 0, 0);
       }

@@ -335,7 +335,7 @@ bool al_set_current_display(ALLEGRO_DISPLAY *display)
       }
       else if (display->vt->set_current_display(display)) {
          tls->current_display = display;
-         al_set_target_bitmap(al_get_backbuffer());
+         al_set_target_bitmap(al_get_backbuffer(display));
          return true;
       }
       else {
@@ -388,18 +388,62 @@ ALLEGRO_DISPLAY *_al_get_current_display(void)
 void al_set_target_bitmap(ALLEGRO_BITMAP *bitmap)
 {
    thread_local_state *tls;
+   ALLEGRO_DISPLAY *old_display;
+   ALLEGRO_DISPLAY *new_display;
 
    if ((tls = tls_get()) == NULL)
       return;
 
-   tls->target_bitmap = bitmap;
-   if (bitmap != NULL) {
-      if (!(bitmap->flags & ALLEGRO_MEMORY_BITMAP)) {
-         ALLEGRO_DISPLAY *display = tls->current_display;
-         ASSERT(display);
-         display->vt->set_target_bitmap(display, bitmap);
+   old_display = tls->current_display;
+
+   if (bitmap == NULL) {
+      /* Explicitly releasing the current rendering context. */
+      new_display = NULL;
+   }
+   else if (bitmap->flags & ALLEGRO_MEMORY_BITMAP) {
+      /* Setting a memory bitmap doesn't change the rendering context. */
+      new_display = old_display;
+   }
+   else {
+      new_display = bitmap->display;
+   }
+
+   /* Change the rendering context if necessary. */
+   if (old_display != new_display) {
+      if (old_display &&
+            old_display->vt &&
+            old_display->vt->unset_current_display) {
+         old_display->vt->unset_current_display(old_display);
+      }
+
+      tls->current_display = new_display;
+
+      if (new_display &&
+            new_display->vt &&
+            new_display->vt->set_current_display) {
+         new_display->vt->set_current_display(new_display);
       }
    }
+
+   /* Change the target bitmap itself. */
+   tls->target_bitmap = bitmap;
+
+   if (bitmap &&
+         !(bitmap->flags & ALLEGRO_MEMORY_BITMAP) &&
+         new_display &&
+         new_display->vt &&
+         new_display->vt->set_target_bitmap) {
+      new_display->vt->set_target_bitmap(new_display, bitmap);
+   }
+}
+
+
+
+/* Function: al_set_target_backbuffer
+ */
+void al_set_target_backbuffer(ALLEGRO_DISPLAY *display)
+{
+   al_set_target_bitmap(al_get_backbuffer(display));
 }
 
 

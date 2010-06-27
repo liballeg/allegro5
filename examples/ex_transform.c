@@ -47,9 +47,9 @@ int main(int argc, const char *argv[])
        abort_example("Error creating display\n");
     }
     
-    subbitmap = al_create_sub_bitmap(al_get_backbuffer(), 50, 50, 640 - 50, 480 - 50);
+    subbitmap = al_create_sub_bitmap(al_get_backbuffer(display), 50, 50, 640 - 50, 480 - 50);
     
-    al_set_window_title(filename);
+    al_set_window_title(display, filename);
 
     bitmap = al_load_bitmap(filename);
     if (!bitmap) {
@@ -123,11 +123,11 @@ int main(int argc, const char *argv[])
                }
             } else {
                if(use_subbitmap) {
-                  al_set_target_bitmap(al_get_backbuffer());
+                  al_set_target_backbuffer(display);
                   al_clear_to_color(al_map_rgb_f(1, 0, 0));
                   al_set_target_bitmap(subbitmap);
                } else {
-                  al_set_target_bitmap(al_get_backbuffer());
+                  al_set_target_backbuffer(display);
                }
             }
             
@@ -147,7 +147,7 @@ int main(int argc, const char *argv[])
                al_draw_text(font, al_map_rgba_f(1, 1, 1, 1),
                   640 / 2, 430, ALLEGRO_ALIGN_CENTRE, "Software Rendering");
                al_use_transform(&identity);
-               al_set_target_bitmap(al_get_backbuffer());
+               al_set_target_backbuffer(display);
                al_draw_bitmap(buffer, 0, 0, 0);
                al_use_transform(&transform);
             } else {

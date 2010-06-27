@@ -52,7 +52,6 @@ static void draw_display(ALLEGRO_FONT *font)
    int th;
    int i;
 
-   al_set_target_bitmap(al_get_backbuffer());
    al_clear_to_color(al_map_rgb(128, 128, 128));
 
    al_set_blender(ALLEGRO_ADD, ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA);
@@ -173,12 +172,10 @@ int main(void)
    al_register_event_source(queue, al_get_display_event_source(display1));
    al_register_event_source(queue, al_get_display_event_source(display2));
 
-   al_set_current_display(display1);
-   al_set_target_bitmap(al_get_backbuffer());
+   al_set_target_backbuffer(display1);
    draw_display(font);
 
-   al_set_current_display(display2);
-   al_set_target_bitmap(al_get_backbuffer());
+   al_set_target_backbuffer(display2);
    draw_display(font);
 
    while (1) {
@@ -187,12 +184,11 @@ int main(void)
          break;
       }
       if (event.type == ALLEGRO_EVENT_DISPLAY_EXPOSE) {
-         al_set_current_display(event.display.source);
+         al_set_target_backbuffer(event.display.source);
          draw_display(font);
          continue;
       }
       if (event.type == ALLEGRO_EVENT_KEY_DOWN) {
-         al_set_current_display(event.keyboard.display);
          switch (event.keyboard.unichar) {
             case 27: /* escape */
                goto Quit;

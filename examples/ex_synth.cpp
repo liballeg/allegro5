@@ -280,15 +280,15 @@ private:
    double   t;
 
 public:
-   Prog(const Theme & theme);
+   Prog(const Theme & theme, ALLEGRO_DISPLAY *display);
    virtual ~Prog() {}
    void run();
    void handle_event(const ALLEGRO_EVENT & event);
 };
 
 
-Prog::Prog(const Theme & theme) :
-   d(Dialog(theme, al_get_current_display(), 30, 26)),
+Prog::Prog(const Theme & theme, ALLEGRO_DISPLAY *display) :
+   d(Dialog(theme, display, 30, 26)),
    t(0.0)
 {
    group1.add_to_dialog(d, 1, 1);
@@ -378,6 +378,7 @@ void Prog::handle_event(const ALLEGRO_EVENT & event)
 
 int main(int argc, char *argv[])
 {
+   ALLEGRO_DISPLAY *display;
    (void)argc;
    (void)argv;
 
@@ -392,11 +393,12 @@ int main(int argc, char *argv[])
    al_init_ttf_addon();
 
    al_set_new_display_flags(ALLEGRO_GENERATE_EXPOSE_EVENTS);
-   if (!al_create_display(800, 600)) {
+   display = al_create_display(800, 600);
+   if (!display) {
       abort_example("Unable to create display\n");
       return 1;
    }
-   al_set_window_title("Synthesiser of sorts");
+   al_set_window_title(display, "Synthesiser of sorts");
 
    font_gui = al_load_ttf_font("data/DejaVuSans.ttf", 12, 0);
    if (!font_gui) {
@@ -445,7 +447,7 @@ int main(int argc, char *argv[])
    /* Prog is destroyed at the end of this scope. */
    {
       Theme theme(font_gui);
-      Prog prog(theme);
+      Prog prog(theme, display);
       prog.run();
    }
 

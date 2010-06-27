@@ -28,19 +28,19 @@ private:
    HSlider diff_slider;
 
 public:
-   Prog(const Theme & theme);
+   Prog(const Theme & theme, ALLEGRO_DISPLAY *display);
    void run();
    void draw_text();
 };
 
-Prog::Prog(const Theme & theme) :
-   d(Dialog(theme, al_get_current_display(), 10, 20)),
+Prog::Prog(const Theme & theme, ALLEGRO_DISPLAY *display) :
+   d(Dialog(theme, display, 10, 20)),
    text_label(Label("Text")),
    width_label(Label("Width")),
    diff_label(Label("Diff")),
    text_entry(TextEntry("Lorem ipsum dolor sit amet")),
-   width_slider(HSlider(400, al_get_display_width())),
-   diff_slider(HSlider(100, al_get_display_width()))
+   width_slider(HSlider(400, al_get_display_width(display))),
+   diff_slider(HSlider(100, al_get_display_width(display)))
 {
    d.add(text_label, 0, 10, 1, 1);
    d.add(text_entry, 1, 10, 8, 1);
@@ -70,7 +70,8 @@ void Prog::run()
 
 void Prog::draw_text()
 {
-   const int cx = al_get_display_width() / 2;
+   ALLEGRO_BITMAP *target = al_get_target_bitmap();
+   const int cx = al_get_bitmap_width(target) / 2;
    const int x1 = cx - width_slider.get_cur_value() / 2;
    const int x2 = cx + width_slider.get_cur_value() / 2;
    const int diff = diff_slider.get_cur_value();
@@ -135,7 +136,7 @@ int main(int argc, char *argv[])
    /* Don't remove these braces. */
    {
       Theme theme(font_gui);
-      Prog prog(theme);
+      Prog prog(theme, display);
       prog.run();
    }
 

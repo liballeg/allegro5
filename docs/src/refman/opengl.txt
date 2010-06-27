@@ -7,7 +7,7 @@ These functions are declared in the following header file:
 ## API: al_get_opengl_extension_list
 
 Returns the list of OpenGL extensions supported by Allegro, for
-the current display.
+the given display.
 
 Allegro will keep information about all extensions it knows about in a
 structure returned by `al_get_opengl_extension_list`.
@@ -18,7 +18,7 @@ For example:
         use it
     }
 
-The extension will be set to true if available for the current display and
+The extension will be set to true if available for the given display and
 false otherwise. This means to use the definitions and functions from an
 OpenGL extension, all you need to do is to check for it as above at
 run time, after acquiring the OpenGL display from Allegro.
@@ -101,7 +101,7 @@ it is freed. It also is freed automatically when the bitmap is destroyed.
 ## API: al_is_opengl_extension_supported
 
 This function is a helper to determine whether an OpenGL extension is
-available on the current display or not.
+available on the given display or not.
 
 Example:
 

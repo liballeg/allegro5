@@ -15,6 +15,7 @@
 
 const int W = 300, H = 300; /* Size of target bitmap. */
 const int RW = 50, RH = 50; /* Size of rectangle we draw to it. */
+ALLEGRO_DISPLAY *display;
 ALLEGRO_BITMAP *target; /* The target bitmap. */
 float x, y, dx, dy; /* Position and velocity of moving rectangle. */
 double last_time; /* For controling speed. */
@@ -74,7 +75,7 @@ static void draw(void)
       dy = -dy;
    }
 
-   al_set_target_bitmap(al_get_backbuffer());
+   al_set_target_backbuffer(display);
    al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ZERO);
    al_clear_to_color(al_map_rgba_f(0, 0, 1, 1));
    xs = 1 + 0.2 * sin(t * ALLEGRO_PI * 2);
@@ -94,7 +95,7 @@ static void run(void)
    al_set_target_bitmap(target);
    al_clear_to_color(al_map_rgba_f(1, 1, 0, 1));
 
-   al_set_target_bitmap(al_get_backbuffer());
+   al_set_target_backbuffer(display);
 
    dx = 81;
    dy = 63;
@@ -140,8 +141,6 @@ done:
 
 int main(void)
 {
-   ALLEGRO_DISPLAY *display;
-
    if (!al_init()) {
       abort_example("Could not init Allegro.\n");
       return 1;

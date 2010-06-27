@@ -96,7 +96,7 @@ ALLEGRO_DISPLAY *al_create_display(int w, int h)
    al_flip_display();
 #endif
    
-   al_set_window_title(al_get_appname());
+   al_set_window_title(display, al_get_appname());
 
    return display;
 }
@@ -112,7 +112,7 @@ void al_destroy_display(ALLEGRO_DISPLAY *display)
       ALLEGRO_BITMAP *bmp;
 
       bmp = al_get_target_bitmap();
-      if (bmp && (bmp == al_get_frontbuffer() || bmp == al_get_backbuffer()))
+      if (bmp && bmp->display == display)
          al_set_target_bitmap(NULL);
 
       if (display == al_get_current_display())
@@ -134,24 +134,24 @@ void al_destroy_display(ALLEGRO_DISPLAY *display)
 
 /* Function: al_get_backbuffer
  */
-ALLEGRO_BITMAP *al_get_backbuffer(void)
+ALLEGRO_BITMAP *al_get_backbuffer(ALLEGRO_DISPLAY *display)
 {
-   ALLEGRO_DISPLAY *display = al_get_current_display();
-   ASSERT(display);
-
-   return display->vt->get_backbuffer(display);
+   if (display)
+      return display->vt->get_backbuffer(display);
+   else
+      return NULL;
 }
 
 
 
 /* Function: al_get_frontbuffer
  */
-ALLEGRO_BITMAP *al_get_frontbuffer(void)
+ALLEGRO_BITMAP *al_get_frontbuffer(ALLEGRO_DISPLAY *display)
 {
-   ALLEGRO_DISPLAY *display = al_get_current_display();
-   ASSERT(display);
-
-   return display->vt->get_frontbuffer(display);
+   if (display)
+      return display->vt->get_frontbuffer(display);
+   else
+      return NULL;
 }
 
 
@@ -161,9 +161,9 @@ ALLEGRO_BITMAP *al_get_frontbuffer(void)
 void al_flip_display(void)
 {
    ALLEGRO_DISPLAY *display = al_get_current_display();
-   ASSERT(display);
 
-   display->vt->flip_display(display);
+   if (display)
+      display->vt->flip_display(display);
 }
 
 
@@ -173,9 +173,9 @@ void al_flip_display(void)
 void al_update_display_region(int x, int y, int width, int height)
 {
    ALLEGRO_DISPLAY *display = al_get_current_display();
-   ASSERT(display);
 
-   display->vt->update_display_region(display, x, y, width, height);
+   if (!display)
+      display->vt->update_display_region(display, x, y, width, height);
 }
 
 
@@ -198,9 +198,8 @@ bool al_acknowledge_resize(ALLEGRO_DISPLAY *display)
 
 /* Function: al_resize_display
  */
-bool al_resize_display(int width, int height)
+bool al_resize_display(ALLEGRO_DISPLAY *display, int width, int height)
 {
-   ALLEGRO_DISPLAY *display = al_get_current_display();
    ASSERT(display);
 
    if (display->vt->resize_display) {
@@ -215,8 +214,8 @@ bool al_resize_display(int width, int height)
  */
 void al_clear_to_color(ALLEGRO_COLOR color)
 {
-   ALLEGRO_DISPLAY *display = al_get_current_display();
    ALLEGRO_BITMAP *target = al_get_target_bitmap();
+   ALLEGRO_DISPLAY *display = target->display;
 
    ASSERT(target);
 
@@ -269,9 +268,8 @@ bool al_is_compatible_bitmap(ALLEGRO_BITMAP *bitmap)
 
 /* Function: al_get_display_width
  */
-int al_get_display_width(void)
+int al_get_display_width(ALLEGRO_DISPLAY *display)
 {
-   ALLEGRO_DISPLAY *display = al_get_current_display();
    ASSERT(display);
 
    return display->w;
@@ -281,9 +279,8 @@ int al_get_display_width(void)
 
 /* Function: al_get_display_height
  */
-int al_get_display_height(void)
+int al_get_display_height(ALLEGRO_DISPLAY *display)
 {
-   ALLEGRO_DISPLAY *display = al_get_current_display();
    ASSERT(display);
 
    return display->h;
@@ -292,9 +289,8 @@ int al_get_display_height(void)
 
 /* Function: al_get_display_format
  */
-int al_get_display_format(void)
+int al_get_display_format(ALLEGRO_DISPLAY *display)
 {
-   ALLEGRO_DISPLAY *display = al_get_current_display();
    ASSERT(display);
 
    return display->backbuffer_format;
@@ -303,9 +299,8 @@ int al_get_display_format(void)
 
 /* Function: al_get_display_refresh_rate
  */
-int al_get_display_refresh_rate(void)
+int al_get_display_refresh_rate(ALLEGRO_DISPLAY *display)
 {
-   ALLEGRO_DISPLAY *display = al_get_current_display();
    ASSERT(display);
 
    return display->refresh_rate;
@@ -315,9 +310,8 @@ int al_get_display_refresh_rate(void)
 
 /* Function: al_get_display_flags
  */
-int al_get_display_flags(void)
+int al_get_display_flags(ALLEGRO_DISPLAY *display)
 {
-   ALLEGRO_DISPLAY *display = al_get_current_display();
    ASSERT(display);
 
    return display->flags;
@@ -362,9 +356,8 @@ bool al_wait_for_vsync(void)
 
 /* Function: al_set_display_icon
  */
-void al_set_display_icon(ALLEGRO_BITMAP *icon)
+void al_set_display_icon(ALLEGRO_DISPLAY *display, ALLEGRO_BITMAP *icon)
 {
-   ALLEGRO_DISPLAY *display = al_get_current_display();
    ASSERT(display);
    ASSERT(icon);
 
@@ -488,9 +481,8 @@ void al_get_window_position(ALLEGRO_DISPLAY *display, int *x, int *y)
 
 /* Function: al_toggle_display_flag
  */
-bool al_toggle_display_flag(int flag, bool onoff)
+bool al_toggle_display_flag(ALLEGRO_DISPLAY *display, int flag, bool onoff)
 {
-   ALLEGRO_DISPLAY *display = al_get_current_display();
    ASSERT(display);
 
    if (display && display->vt && display->vt->toggle_display_flag) {
@@ -502,12 +494,10 @@ bool al_toggle_display_flag(int flag, bool onoff)
 
 /* Function: al_set_window_title
  */
-void al_set_window_title(const char *title)
+void al_set_window_title(ALLEGRO_DISPLAY *display, const char *title)
 {
-   ALLEGRO_DISPLAY *current_display = al_get_current_display();
-
-   if (current_display && current_display->vt && current_display->vt->set_window_title)
-      current_display->vt->set_window_title(current_display, title);
+   if (display && display->vt && display->vt->set_window_title)
+      display->vt->set_window_title(display, title);
 }
 
 
@@ -523,9 +513,12 @@ ALLEGRO_EVENT_SOURCE *al_get_display_event_source(ALLEGRO_DISPLAY *display)
 void al_hold_bitmap_drawing(bool hold)
 {
    ALLEGRO_DISPLAY *current_display = al_get_current_display();
-   current_display->cache_enabled = hold;
-   if(!hold)
-      current_display->vt->flush_vertex_cache(current_display);
+
+   if (current_display) {
+      current_display->cache_enabled = hold;
+      if (!hold)
+         current_display->vt->flush_vertex_cache(current_display);
+   }
 }
 
 /* Function: al_is_bitmap_drawing_held
@@ -533,7 +526,11 @@ void al_hold_bitmap_drawing(bool hold)
 bool al_is_bitmap_drawing_held(void)
 {
    ALLEGRO_DISPLAY *current_display = al_get_current_display();
-   return current_display->cache_enabled;
+
+   if (current_display)
+      return current_display->cache_enabled;
+   else
+      return false;
 }
 
 void _al_set_display_invalidated_callback(ALLEGRO_DISPLAY* display, void (*display_invalidated)(ALLEGRO_DISPLAY*, bool))

@@ -135,7 +135,7 @@ static void draw(void)
 
 
 
-static void setup_textures(void)
+static void setup_textures(ALLEGRO_DISPLAY *display)
 {
    ALLEGRO_BITMAP *tmp_bmp;
    ALLEGRO_FONT *font;
@@ -160,12 +160,12 @@ static void setup_textures(void)
                          0, 0, al_get_bitmap_width(bmp), al_get_bitmap_height(bmp),
                          0, 0, w, h, 0);
 
-   depth = al_get_display_option(ALLEGRO_DEPTH_SIZE);
+   depth = al_get_display_option(display, ALLEGRO_DEPTH_SIZE);
    if (!depth)
       al_draw_textf(font, al_map_rgb(255, 0, 0), 0, 5, 0, "No Z-buffer!");
    else
       al_draw_textf(font, al_map_rgb(255, 0, 0), 0, 5, 0, "Z-buffer: %i bits", depth);
-   al_set_target_bitmap(al_get_backbuffer());
+   al_set_target_backbuffer(display);
    al_destroy_bitmap(tmp_bmp);
    al_destroy_font(font);
 
@@ -210,7 +210,7 @@ int main(void)
    glEnable(GL_DEPTH_TEST);
    glDisable(GL_CULL_FACE);
 
-   setup_textures();
+   setup_textures(display);
    al_start_timer(timer);
 
    while(true) {

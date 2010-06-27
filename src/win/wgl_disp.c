@@ -1384,7 +1384,7 @@ static bool wgl_resize_display(ALLEGRO_DISPLAY *d, int width, int height)
 
       /* We have a new backbuffer now. */
       if (was_backbuffer)
-         al_set_target_bitmap(al_get_backbuffer());
+         al_set_target_bitmap(al_get_backbuffer(d));
    }
    else {
       RECT win_size;

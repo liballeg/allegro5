@@ -18,6 +18,7 @@
 static volatile float rms_l = 0.0;
 static volatile float rms_r = 0.0;
 
+static ALLEGRO_DISPLAY *display;
 static ALLEGRO_BITMAP *dbuf;
 static ALLEGRO_BITMAP *bmp;
 static float theta;
@@ -74,7 +75,7 @@ static void draw(void)
       sw/2.0, sh/2.0, dx, dy, scale, scale, theta, 0);
 
    al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ZERO);
-   al_set_target_bitmap(al_get_backbuffer());
+   al_set_target_backbuffer(display);
    al_draw_bitmap(dbuf, 0, 0, 0);
 
    al_draw_line(10, dh - db_l, 10, dh, al_map_rgb_f(1, 0.6, 0.2), 6);
@@ -91,8 +92,7 @@ static void main_loop(void)
 
    queue = al_create_event_queue();
    al_register_event_source(queue, al_get_keyboard_event_source());
-   al_register_event_source(queue,
-      al_get_display_event_source(al_get_current_display()));
+   al_register_event_source(queue, al_get_display_event_source(display));
 
    theta = 0.0;
 
@@ -142,12 +142,13 @@ int main(int argc, char **argv)
    
    al_install_keyboard();
 
-   if (!al_create_display(640, 480)) {
+   display = al_create_display(640, 480);
+   if (!display) {
       abort_example("Could not create display.\n");
       return 1;
    }
 
-   dbuf = al_create_bitmap(al_get_display_width(), al_get_display_height());
+   dbuf = al_create_bitmap(640, 480);
 
    bmp = al_load_bitmap("data/mysha.pcx");
    if (!bmp) {

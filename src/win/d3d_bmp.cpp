@@ -704,7 +704,7 @@ static void d3d_blit_real(ALLEGRO_BITMAP *src,
          D3DFORMAT format;
 
          ALLEGRO_BITMAP *old_target = al_get_target_bitmap();
-         al_set_target_bitmap(al_get_backbuffer()); // set it away from our bitmap/screen
+         al_set_target_bitmap(al_get_backbuffer(al_get_current_display())); // set it away from our bitmap/screen
          
          if (dest->parent) {
             dx += dest->xofs;
@@ -718,7 +718,7 @@ static void d3d_blit_real(ALLEGRO_BITMAP *src,
 
 
          format = (D3DFORMAT)_al_format_to_d3d(
-            _al_get_real_pixel_format(al_display->backbuffer_format)
+            _al_get_real_pixel_format(al_display, al_display->backbuffer_format)
          );
          ret = d3d_dest->display->device->CreateOffscreenPlainSurface(
             al_display->w, al_display->h, format,
@@ -918,7 +918,7 @@ static ALLEGRO_LOCKED_REGION *d3d_lock_region(ALLEGRO_BITMAP *bitmap,
 
    RECT rect;
    DWORD Flags = flags & ALLEGRO_LOCK_READONLY ? D3DLOCK_READONLY : 0;
-   int f = _al_get_real_pixel_format(format);
+   int f = _al_get_real_pixel_format(al_get_current_display(), format);
    if (f < 0) {
       return NULL;
    }

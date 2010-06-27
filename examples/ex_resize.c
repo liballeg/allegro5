@@ -12,8 +12,8 @@ static void redraw(void)
     black = al_map_rgba_f(0, 0, 0, 1);
 
     al_clear_to_color(white);
-    w = al_get_display_width();
-    h = al_get_display_height();
+    w = al_get_bitmap_width(al_get_target_bitmap());
+    h = al_get_bitmap_height(al_get_target_bitmap());
     al_draw_line(0, h, w / 2, 0, black, 0);
     al_draw_line(w / 2, 0, w, h, black, 0);
     al_draw_line(w / 4, h / 2, 3 * w / 4, h / 2, black, 0);
@@ -40,6 +40,10 @@ int main(void)
     /* Setup a display driver and register events from it. */
     al_set_new_display_flags(ALLEGRO_RESIZABLE);
     display = al_create_display(rs, rs);
+    if (!display) {
+        abort_example("Could not create display.\n");
+        return 1;
+    }
     al_register_event_source(events, al_get_display_event_source(display));
 
     /* Setup a keyboard driver and regsiter events from it. */
@@ -73,7 +77,7 @@ int main(void)
             s = rs;
             if (s > 200)
                s = 400 - s;
-            al_resize_display(s, s);
+            al_resize_display(display, s, s);
         }
     }
 

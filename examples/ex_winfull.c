@@ -42,11 +42,11 @@ int main(void)
             goto done;
       }
 
-      al_set_current_display(full);
+      al_set_target_backbuffer(full);
       al_clear_to_color(al_map_rgb(rand()%255, rand()%255, rand()%255));
       al_flip_display();
 
-      al_set_current_display(win);
+      al_set_target_backbuffer(win);
       al_clear_to_color(al_map_rgb(rand()%255, rand()%255, rand()%255));
       al_flip_display();
 

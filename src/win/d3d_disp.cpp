@@ -1381,10 +1381,10 @@ static BOOL IsTextureFormatOk(D3DFORMAT TextureFormat, D3DFORMAT AdapterFormat)
    return SUCCEEDED(hr);
 }
 
-static int real_choose_bitmap_format(int bits, bool alpha)
+static int real_choose_bitmap_format(ALLEGRO_DISPLAY_D3D *d3d_display,
+   int bits, bool alpha)
 {
    int i;
-   ALLEGRO_DISPLAY_D3D *d3d_display = (ALLEGRO_DISPLAY_D3D *)al_get_current_display();
 
    for (i = 0; allegro_formats[i] >= 0; i++) {
       int aformat = allegro_formats[i];
@@ -1421,33 +1421,33 @@ static int real_choose_bitmap_format(int bits, bool alpha)
    return -1;
 }
 
-static int d3d_choose_bitmap_format(int fake)
+static int d3d_choose_bitmap_format(ALLEGRO_DISPLAY_D3D *d3d_display, int fake)
 {
    switch (fake) {
       case ALLEGRO_PIXEL_FORMAT_ANY_NO_ALPHA:
-         fake = real_choose_bitmap_format(0, false);
+         fake = real_choose_bitmap_format(d3d_display, 0, false);
          break;
       case ALLEGRO_PIXEL_FORMAT_ANY:
       case ALLEGRO_PIXEL_FORMAT_ANY_WITH_ALPHA:
-         fake = real_choose_bitmap_format(0, true);
+         fake = real_choose_bitmap_format(d3d_display, 0, true);
          break;
       case ALLEGRO_PIXEL_FORMAT_ANY_32_NO_ALPHA:
-         fake = real_choose_bitmap_format(32, false);
+         fake = real_choose_bitmap_format(d3d_display, 32, false);
          break;
       case ALLEGRO_PIXEL_FORMAT_ANY_32_WITH_ALPHA:
-         fake = real_choose_bitmap_format(32, true);
+         fake = real_choose_bitmap_format(d3d_display, 32, true);
          break;
       case ALLEGRO_PIXEL_FORMAT_ANY_24_NO_ALPHA:
-         fake = real_choose_bitmap_format(24, false);
+         fake = real_choose_bitmap_format(d3d_display, 24, false);
          break;
       case ALLEGRO_PIXEL_FORMAT_ANY_16_NO_ALPHA:
-         fake = real_choose_bitmap_format(16, false);
+         fake = real_choose_bitmap_format(d3d_display, 16, false);
          break;
       case ALLEGRO_PIXEL_FORMAT_ANY_16_WITH_ALPHA:
-         fake = real_choose_bitmap_format(16, true);
+         fake = real_choose_bitmap_format(d3d_display, 16, true);
          break;
       case ALLEGRO_PIXEL_FORMAT_ANY_15_NO_ALPHA:
-         fake = real_choose_bitmap_format(15, false);
+         fake = real_choose_bitmap_format(d3d_display, 15, false);
          break;
       default:
          fake = -1;
@@ -2244,8 +2244,7 @@ static bool d3d_resize_display(ALLEGRO_DISPLAY *d, int width, int height)
          al_free(disp);
          return false;
       }
-      al_set_current_display(d);
-      al_set_target_bitmap(al_get_backbuffer());
+      al_set_target_bitmap(al_get_backbuffer(d));
       _al_d3d_recreate_bitmap_textures(disp);
 
       disp->backbuffer_bmp.bitmap.w = width;
@@ -2360,7 +2359,7 @@ ALLEGRO_BITMAP *_al_d3d_create_bitmap(ALLEGRO_DISPLAY *d,
    flags = al_get_new_bitmap_flags();
 
    if (!_al_pixel_format_is_real(format)) {
-      format = d3d_choose_bitmap_format(format);
+      format = d3d_choose_bitmap_format((ALLEGRO_DISPLAY_D3D *)d, format);
       if (format < 0) {
          return NULL;
       }

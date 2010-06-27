@@ -66,7 +66,8 @@ static void animate_square(Square *sq)
    sq->life += sq->dlife;
 
    if (sq->size < 1.0 || sq->life > ALLEGRO_PI) {
-      gen_square(sq, al_get_display_width(), al_get_display_height());
+      ALLEGRO_BITMAP *bmp = al_get_target_bitmap();
+      gen_square(sq, al_get_bitmap_width(bmp), al_get_bitmap_height(bmp));
    }
 }
 

@@ -76,8 +76,8 @@ int main(void)
          /* Slowly restore the original bitmap. */
          int x, y;
          al_set_blender(ALLEGRO_ADD, ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA);
-         for (y = 0; y < al_get_display_height(); y += 200) {
-            for (x = 0; x < al_get_display_width(); x += 320) {
+         for (y = 0; y < H; y += 200) {
+            for (x = 0; x < W; x += 320) {
                al_draw_tinted_bitmap(bitmap, al_map_rgba_f(1, 1, 1, 0.1), x, y, 0);
             }
          }

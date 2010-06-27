@@ -99,7 +99,7 @@ static int play_game()
 
 	 sprintf(fname, "speed%03d.tga", ++ss_count);
 
-	 al_save_bitmap(fname, al_get_frontbuffer());
+	 al_save_bitmap(fname, al_get_frontbuffer(screen));
 
 	 while (key[ALLEGRO_KEY_PRINTSCREEN])
 	    poll_input_wait();
@@ -245,7 +245,8 @@ int main(int argc, char *argv[])
 
    /* set the screen mode */
    al_set_new_display_flags(ALLEGRO_GENERATE_EXPOSE_EVENTS);
-   if (!al_create_display(w, h)) {
+   screen = al_create_display(w, h);
+   if (!screen) {
       fprintf(stderr, "Error setting %dx%d display mode\n", w, h);
       return 1;
    }

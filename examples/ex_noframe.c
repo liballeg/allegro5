@@ -54,7 +54,7 @@ int main(void)
          }
          if (event.mouse.button == 2) {
             frame = !frame;
-            al_toggle_display_flag(ALLEGRO_NOFRAME, frame);
+            al_toggle_display_flag(display, ALLEGRO_NOFRAME, frame);
          }
       }
       else if (event.type == ALLEGRO_EVENT_DISPLAY_CLOSE) {

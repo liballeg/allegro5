@@ -50,11 +50,11 @@ static void go(void)
 	 }
       }
 
-      al_set_current_display(d1);
+      al_set_target_backbuffer(d1);
       al_draw_scaled_bitmap(b1, 0, 0, 320, 200, 0, 0, 640, 480, 0);
       al_flip_display();
 
-      al_set_current_display(d2);
+      al_set_target_backbuffer(d2);
       al_draw_scaled_bitmap(b2, 0, 0, 320, 200, 0, 0, 640, 480, 0);
       al_flip_display();
 

@@ -19,6 +19,7 @@ static void render(void)
     ALLEGRO_COLOR green = al_map_rgba_f(0, 0.5, 0, 1);
     ALLEGRO_COLOR blue = al_map_rgba_f(0.1, 0.2, 1, 1);
     int x, y, w, h, as, de, xpos, ypos;
+    int target_w, target_h;
     ALLEGRO_USTR_INFO info, sub_info;
     ALLEGRO_USTR *u;
 
@@ -57,9 +58,12 @@ static void render(void)
     al_draw_ustr(ex.f3, green, 50, 380, 0, SUB(0, 11));
     
     al_hold_bitmap_drawing(false);
-    
-    xpos = al_get_display_width() - 10;
-    ypos = al_get_display_height() - 10;
+
+    target_w = al_get_bitmap_width(al_get_target_bitmap());
+    target_h = al_get_bitmap_height(al_get_target_bitmap());
+
+    xpos = target_w - 10;
+    ypos = target_h - 10;
     al_get_text_dimensions(ex.f4, "Allegro", &x, &y, &w, &h);
     as = al_get_font_ascent(ex.f4);
     de = al_get_font_descent(ex.f4);
@@ -78,7 +82,7 @@ static void render(void)
 
     al_hold_bitmap_drawing(true);
 
-    al_draw_textf(ex.f3, black, al_get_display_width(), 0, ALLEGRO_ALIGN_RIGHT,
+    al_draw_textf(ex.f3, black, target_w, 0, ALLEGRO_ALIGN_RIGHT,
        "%.1f FPS", ex.fps);
        
     al_hold_bitmap_drawing(false);

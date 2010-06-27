@@ -190,8 +190,8 @@ static bool xmouse_set_mouse_xy(ALLEGRO_DISPLAY *display, int x, int y)
    Display *x11display = system->x11display;
    ALLEGRO_DISPLAY_XGLX *d = (void *)display;
 
-   int window_width = al_get_display_width();
-   int window_height = al_get_display_height();
+   int window_width = al_get_display_width(display);
+   int window_height = al_get_display_height(display);
    if (x < 0 || y < 0 || x >= window_width || y >= window_height)
       return false;
 

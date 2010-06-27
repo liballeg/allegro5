@@ -655,7 +655,7 @@ static ALLEGRO_LOCKED_REGION *ogl_lock_region(ALLEGRO_BITMAP *bitmap,
    if (format == ALLEGRO_PIXEL_FORMAT_ANY)
       format = bitmap->format;
 
-   format = _al_get_real_pixel_format(format);
+   format = _al_get_real_pixel_format(al_get_current_display(), format);
 /*#else
    format = bitmap->format;
    (void)x;
@@ -792,7 +792,7 @@ static void ogl_unlock_region(ALLEGRO_BITMAP *bitmap)
    int pixel_size;
    (void)e;
 
-   orig_format = _al_get_real_pixel_format(bitmap->format);
+   orig_format = _al_get_real_pixel_format(al_get_current_display(), bitmap->format);
    pixel_size = al_get_pixel_size(orig_format);
 
    if (bitmap->lock_flags & ALLEGRO_LOCK_READONLY) {
@@ -1032,7 +1032,7 @@ ALLEGRO_BITMAP *_al_ogl_create_bitmap(ALLEGRO_DISPLAY *d, int w, int h)
    ALLEGRO_DEBUG("Using dimensions: %d %d\n", true_w, true_h);
 
 #if !defined ALLEGRO_GP2XWIZ
-   format = _al_get_real_pixel_format(format);
+   format = _al_get_real_pixel_format(d, format);
 #else
    if (format != ALLEGRO_PIXEL_FORMAT_RGB_565 && format != ALLEGRO_PIXEL_FORMAT_RGBA_4444)
       format = ALLEGRO_PIXEL_FORMAT_RGBA_4444;

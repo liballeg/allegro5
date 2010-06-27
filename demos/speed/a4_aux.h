@@ -33,6 +33,7 @@ extern int key[ALLEGRO_KEY_MAX];
 extern int joy_left;
 extern int joy_right;
 extern int joy_b1;
+extern struct ALLEGRO_DISPLAY *screen;
 extern struct ALLEGRO_FONT *font;
 extern struct ALLEGRO_FONT *font_video;
 

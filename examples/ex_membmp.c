@@ -51,8 +51,8 @@ static bool test(ALLEGRO_BITMAP *bitmap, ALLEGRO_FONT *font, char *message)
          al_get_bitmap_width(bitmap),
          al_get_bitmap_height(bitmap),
          0, 0,
-         al_get_display_width(),
-         al_get_display_height(),
+         al_get_bitmap_width(al_get_target_bitmap()),
+         al_get_bitmap_height(al_get_target_bitmap()),
          0);
       
       al_set_blender(ALLEGRO_ADD, ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA);

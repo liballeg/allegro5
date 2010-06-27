@@ -258,7 +258,7 @@ void Prog::blending_test(bool memory)
 void Prog::draw_samples()
 {
    ALLEGRO_STATE state;
-   al_store_state(&state, ALLEGRO_STATE_ALL);
+   al_store_state(&state, ALLEGRO_STATE_TARGET_BITMAP | ALLEGRO_STATE_BLENDER);
       
    /* Draw a background, in case our target bitmap will end up with
     * alpha in it.
@@ -275,7 +275,7 @@ void Prog::draw_samples()
    blending_test(true);
 
    /* Display results. */
-   al_set_target_bitmap(al_get_backbuffer());
+   al_restore_state(&state);
    al_set_blender(ALLEGRO_ADD, ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA);
    al_draw_bitmap(target, 40, 20, 0);
    al_draw_bitmap(target_bmp, 400, 20, 0);

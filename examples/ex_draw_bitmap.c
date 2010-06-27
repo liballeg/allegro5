@@ -25,6 +25,7 @@ struct Example {
    Sprite sprites[MAX_SPRITES];
    bool use_memory_bitmaps;
    int blending;
+   ALLEGRO_DISPLAY *display;
    ALLEGRO_BITMAP *mysha, *bitmap;
    int bitmap_size;
    int sprite_count;
@@ -80,8 +81,8 @@ static void get_fps(int *average, int *minmax)
 static void add_sprite(void)
 {
    if (example.sprite_count < MAX_SPRITES) {
-      int w = al_get_display_width();
-      int h = al_get_display_height();
+      int w = al_get_display_width(example.display);
+      int h = al_get_display_height(example.display);
       int i = example.sprite_count++;
       Sprite *s = example.sprites + i;
       float a = rand() % 360;
@@ -127,13 +128,13 @@ static void change_size(int size)
    bh = al_get_bitmap_height(example.mysha);
    al_draw_scaled_bitmap(example.mysha, 0, 0, bw, bh, 0, 0,
       size, size, 0);
-   al_set_target_bitmap(al_get_backbuffer());
+   al_set_target_backbuffer(example.display);
 }
 
 static void sprite_update(Sprite *s)
 {
-   int w = al_get_display_width();
-   int h = al_get_display_height();
+   int w = al_get_display_width(example.display);
+   int h = al_get_display_height(example.display);
 
    s->x += s->dx / FPS;
    s->y += s->dy / FPS;
@@ -168,8 +169,8 @@ static void update(void)
 
 static void redraw(void)
 {
-   int w = al_get_display_width();
-   int h = al_get_display_height();
+   int w = al_get_display_width(example.display);
+   int h = al_get_display_height(example.display);
    int i;
    int f1, f2;
    int fh = al_get_font_line_height(example.font);
@@ -218,7 +219,6 @@ static void redraw(void)
 
 int main(void)
 {
-   ALLEGRO_DISPLAY *display;
    ALLEGRO_TIMER *timer;
    ALLEGRO_EVENT_QUEUE *queue;
    ALLEGRO_MONITOR_INFO info;
@@ -246,9 +246,9 @@ int main(void)
       w = info.x2 - info.x1;
    if (info.y2 - info.y1 < h)
       h = info.y2 - info.y1;
-   display = al_create_display(w, h);
+   example.display = al_create_display(w, h);
 
-   if (!display) {
+   if (!example.display) {
       abort_example("Error creating display.\n");
       return 1;
    }
@@ -289,7 +289,7 @@ int main(void)
    al_register_event_source(queue, al_get_keyboard_event_source());
    al_register_event_source(queue, al_get_mouse_event_source());
    al_register_event_source(queue, al_get_timer_event_source(timer));
-   al_register_event_source(queue, al_get_display_event_source(display));
+   al_register_event_source(queue, al_get_display_event_source(example.display));
 
    al_start_timer(timer);
 

@@ -41,9 +41,9 @@ int main(void)
       int v = i / 16;
       al_put_pixel(u, v, al_map_rgb_f(u / 15.0, v / 15.0, 1));
    }
-   al_set_target_bitmap(al_get_backbuffer());
+   al_set_target_backbuffer(display);
 
-   al_set_window_title("<-- Changing icon example");
+   al_set_window_title(display, "<-- Changing icon example");
 
    timer = al_install_timer(0.5);
    queue = al_create_event_queue();
@@ -64,7 +64,7 @@ int main(void)
          break;
       }
       if (event.type == ALLEGRO_EVENT_TIMER) {
-         al_set_display_icon((event.timer.count & 1) ? icon2 : icon1);
+         al_set_display_icon(display, (event.timer.count & 1) ? icon2 : icon1);
       }
    }
 
