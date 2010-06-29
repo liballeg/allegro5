@@ -77,7 +77,14 @@ int main(int argc, char *argv[])
    do {
       d3dd->Clear(0, NULL, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER, D3DCOLOR_XRGB(0, 0, 0), 1.0f, 0);
 
-      D3DXMatrixTranslation(&mat, 0, 0, 2.0f);
+      /*
+       * The X and Y translation here is to offset
+       * a translation Allegro does internally so
+       * that its coordinate space matches OpenGL's.
+       * Normally you don't have to worry about this
+       * but if you're using D3D directly you do.
+       */
+      D3DXMatrixTranslation(&mat, 0.5, 0.5, 2.0f);
       d3dd->SetTransform(D3DTS_WORLDMATRIX(0), &mat);
       angle += 50 * (al_current_time() - start);
       D3DXMatrixRotationY(&mat, angle);
