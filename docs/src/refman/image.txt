@@ -11,7 +11,7 @@ Link with allegro_image.
 Initializes the image addon.  This registers bitmap format handlers for
 [al_load_bitmap], [al_load_bitmap_f], [al_save_bitmap], [al_save_bitmap_f].
 
-The following types are built in to Allegro and guaranteed to be
+The following types are built into the Allegro image addon and guaranteed to be
 available: BMP, PCX, TGA. Every platform also supports JPEG and PNG
 via external dependencies.
 

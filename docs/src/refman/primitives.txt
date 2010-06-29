@@ -31,7 +31,7 @@ See also: [al_init_primitives_addon]
 High level drawing routines encompass the most common usage of this addon: to
 draw geometric primitives, both smooth (variations on the circle theme) and 
 piecewise linear. Outlined primitives support the concept of thickness with two
-distinct modes of output: hairline lines and think lines. Hairline lines are
+distinct modes of output: hairline lines and thick lines. Hairline lines are
 specifically designed to be exactly a pixel wide, and are commonly used for
 drawing outlined figures that need to be a pixel wide. Hairline thickness is 
 designated as thickness less than or equal to 0. Unfortunately, the exact
