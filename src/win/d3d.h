@@ -70,9 +70,6 @@ typedef struct ALLEGRO_DISPLAY_D3D
 
    bool device_lost;
 
-   bool ignore_ack; // al_resize_display doesn't need acknowledge_resize
-   		    // (but you should do it anyway, for portability)
-
    bool faux_fullscreen;
 
    bool supports_separate_alpha_blend;

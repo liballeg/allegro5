@@ -181,9 +181,14 @@ void done(void)
    */
 
    // Free resources
+   al_stop_samples();
+   ResourceManager& rm = ResourceManager::getInstance();
+   for (int i = RES_STREAM_START; i < RES_STREAM_END; i++) {
+      ALLEGRO_AUDIO_STREAM *s = (ALLEGRO_AUDIO_STREAM *)rm.getData(i);
+      al_set_audio_stream_playing(s, false);
+   }
+
    ResourceManager::getInstance().destroy();
-   al_destroy_mixer(mixer);
-   al_destroy_voice(voice);
 }
 
 // Returns a random number between lo and hi

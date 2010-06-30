@@ -28,6 +28,7 @@ struct ALLEGRO_DISPLAY_INTERFACE
    	int width, int height);
    bool (*acknowledge_resize)(ALLEGRO_DISPLAY *d);
    bool (*resize_display)(ALLEGRO_DISPLAY *d, int width, int height);
+   void (*quick_size)(ALLEGRO_DISPLAY *d);
 
    ALLEGRO_BITMAP *(*create_bitmap)(ALLEGRO_DISPLAY *d,
    	int w, int h);
@@ -121,7 +122,7 @@ struct ALLEGRO_DISPLAY
    
    ALLEGRO_BLENDER cur_blender;
    
-   void (*display_invalidated)(ALLEGRO_DISPLAY*, bool);
+   void (*display_invalidated)(ALLEGRO_DISPLAY*);
 };
 
 int  _al_score_display_settings(ALLEGRO_EXTRA_DISPLAY_SETTINGS *eds, ALLEGRO_EXTRA_DISPLAY_SETTINGS *ref);
@@ -136,7 +137,7 @@ void _al_draw_pixel_memory(ALLEGRO_BITMAP *bmp, float x, float y, ALLEGRO_COLOR 
 
 void _al_destroy_display_bitmaps(ALLEGRO_DISPLAY *d);
 
-void _al_set_display_invalidated_callback(ALLEGRO_DISPLAY* display, void (*display_invalidated)(ALLEGRO_DISPLAY*, bool));
+void _al_set_display_invalidated_callback(ALLEGRO_DISPLAY* display, void (*display_invalidated)(ALLEGRO_DISPLAY*));
 
 /* Defined in tls.c */
 bool _al_set_current_display_only(ALLEGRO_DISPLAY *display);

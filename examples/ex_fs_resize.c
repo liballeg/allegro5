@@ -1,6 +1,7 @@
 #include "allegro5/allegro5.h"
 #include "allegro5/allegro_image.h"
 #include <allegro5/allegro_primitives.h>
+#include <stdlib.h>
 
 #include "common.c"
 
@@ -87,6 +88,7 @@ static void main_loop(ALLEGRO_DISPLAY *display, ALLEGRO_BITMAP *picture)
          }
          else {
             printf("failed.\n");
+	    return;
          }
       }
    }
@@ -94,7 +96,7 @@ static void main_loop(ALLEGRO_DISPLAY *display, ALLEGRO_BITMAP *picture)
    al_destroy_event_queue(queue);
 }
 
-int main(void)
+int main(int argc, char **argv)
 {
    ALLEGRO_DISPLAY *display;
    ALLEGRO_BITMAP *picture;
@@ -106,6 +108,10 @@ int main(void)
    al_init_primitives_addon();
    al_install_keyboard();
    al_init_image_addon();
+
+   if (argc == 2) {
+   	al_set_current_video_adapter(atoi(argv[1]));
+   }
 
    al_set_new_display_flags(ALLEGRO_FULLSCREEN);
    display = al_create_display(res[cur_res].w, res[cur_res].h);

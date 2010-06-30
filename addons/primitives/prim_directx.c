@@ -67,7 +67,7 @@ typedef struct SHADER_ENTRY
 static SHADER_ENTRY* shader_entries;
 static int num_shader_entries = 0;
 
-static void display_invalidated(ALLEGRO_DISPLAY* display, bool destroyed)
+static void display_invalidated(ALLEGRO_DISPLAY* display)
 {
    int ii;
    LPDIRECT3DDEVICE9 device = al_get_d3d_device(display);
@@ -83,17 +83,8 @@ static void display_invalidated(ALLEGRO_DISPLAY* display, bool destroyed)
    {
       if(shader_entries[ii].device == device) {
          IDirect3DVertexShader9_Release(shader_entries[ii].shader);
-         if(destroyed) {
-            shader_entries[ii] = shader_entries[num_shader_entries - 1];
-            num_shader_entries--;
-         }
-         else
-         {
-            /*
-             * Just recreate the shader
-             */
-            shader_entries[ii].shader = _al_create_default_shader(device);
-         }
+         shader_entries[ii] = shader_entries[num_shader_entries - 1];
+         num_shader_entries--;
          break;
       }
    }

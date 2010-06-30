@@ -118,9 +118,6 @@ void al_destroy_display(ALLEGRO_DISPLAY *display)
       if (display == al_get_current_display())
          _al_set_current_display_only(NULL);
 
-      if (display->display_invalidated)
-         display->display_invalidated(display, true);
-
       display->vt->destroy_display(display);
    }
 }
@@ -528,7 +525,7 @@ bool al_is_bitmap_drawing_held(void)
       return false;
 }
 
-void _al_set_display_invalidated_callback(ALLEGRO_DISPLAY* display, void (*display_invalidated)(ALLEGRO_DISPLAY*, bool))
+void _al_set_display_invalidated_callback(ALLEGRO_DISPLAY* display, void (*display_invalidated)(ALLEGRO_DISPLAY*))
 {
    display->display_invalidated = display_invalidated;
 }
