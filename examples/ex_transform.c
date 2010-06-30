@@ -12,16 +12,17 @@ int main(int argc, const char *argv[])
     const char *filename;
     ALLEGRO_DISPLAY *display;
     ALLEGRO_BITMAP *buffer, *bitmap, *subbitmap, *buffer_subbitmap;
+    ALLEGRO_BITMAP *overlay;
     ALLEGRO_TIMER *timer;
     ALLEGRO_EVENT_QUEUE *queue;
     ALLEGRO_TRANSFORM transform;
-    ALLEGRO_TRANSFORM identity;
     bool software = false;
     bool redraw = false;
     bool blend = false;
     bool use_subbitmap = false;
     int w, h;
     ALLEGRO_FONT* font;
+    ALLEGRO_FONT* soft_font;
 
     if (argc > 1) {
        filename = argv[1];
@@ -48,6 +49,7 @@ int main(int argc, const char *argv[])
     }
     
     subbitmap = al_create_sub_bitmap(al_get_backbuffer(display), 50, 50, 640 - 50, 480 - 50);
+    overlay = al_create_sub_bitmap(al_get_backbuffer(display), 100, 100, 300, 50);
     
     al_set_window_title(display, filename);
 
@@ -55,13 +57,17 @@ int main(int argc, const char *argv[])
     if (!bitmap) {
        abort_example("%s not found or failed to load\n", filename);
     }
+    font = al_load_font("data/bmpfont.tga", 0, 0);
+    if (!font) {
+       abort_example("data/bmpfont.tga not found or failed to load\n");
+    }
+
     al_set_new_bitmap_flags(ALLEGRO_MEMORY_BITMAP);
     buffer = al_create_bitmap(640, 480);
     buffer_subbitmap = al_create_sub_bitmap(buffer, 50, 50, 640 - 50, 480 - 50);
-    al_set_new_bitmap_flags(ALLEGRO_VIDEO_BITMAP);
-    
-    font = al_load_font("data/bmpfont.tga", 0, 0);
-    if (!font) {
+
+    soft_font = al_load_font("data/bmpfont.tga", 0, 0);
+    if (!soft_font) {
        abort_example("data/bmpfont.tga not found or failed to load\n");
     }
 
@@ -74,8 +80,11 @@ int main(int argc, const char *argv[])
     
     w = al_get_bitmap_width(bitmap);
     h = al_get_bitmap_height(bitmap);
-    
-    al_identity_transform(&identity);
+
+    al_set_target_bitmap(overlay);
+    al_identity_transform(&transform);
+    al_rotate_transform(&transform, -0.06);
+    al_use_transform(&transform);
 
     while (1) {
         ALLEGRO_EVENT event;
@@ -85,6 +94,12 @@ int main(int argc, const char *argv[])
         if (event.type == ALLEGRO_EVENT_KEY_DOWN) {
             if (event.keyboard.keycode == ALLEGRO_KEY_S) {
                software = !software;
+               if (software) {
+                  /* Restore identity transform on display bitmap. */
+                  ALLEGRO_TRANSFORM identity;
+                  al_identity_transform(&identity);
+                  al_use_transform(&identity);
+               }
             } else if (event.keyboard.keycode == ALLEGRO_KEY_L) {
                blend = !blend;
             } else if (event.keyboard.keycode == ALLEGRO_KEY_B) {
@@ -107,12 +122,6 @@ int main(int argc, const char *argv[])
             else
                tint = al_map_rgba_f(1, 1, 1, 1);
             
-            al_identity_transform(&transform);
-            al_translate_transform(&transform, -640 / 2, -480 / 2);
-            al_scale_transform(&transform, 0.15 + sin(t / 5), 0.15 + cos(t / 5));
-            al_rotate_transform(&transform, t / 50);
-            al_translate_transform(&transform, 640 / 2, 480 / 2);
-            
             if(software) {
                if(use_subbitmap) {
                   al_set_target_bitmap(buffer);
@@ -130,9 +139,16 @@ int main(int argc, const char *argv[])
                   al_set_target_backbuffer(display);
                }
             }
-            
+
+            /* Set the transformation on the target bitmap. */
+            al_identity_transform(&transform);
+            al_translate_transform(&transform, -640 / 2, -480 / 2);
+            al_scale_transform(&transform, 0.15 + sin(t / 5), 0.15 + cos(t / 5));
+            al_rotate_transform(&transform, t / 50);
+            al_translate_transform(&transform, 640 / 2, 480 / 2);
             al_use_transform(&transform);
 
+            /* Draw some stuff */
             al_clear_to_color(al_map_rgb_f(0, 0, 0));
             al_draw_tinted_bitmap(bitmap, tint, 0, 0, 0);
             al_draw_tinted_scaled_bitmap(bitmap, tint, w / 4, h / 4, w / 2, h / 2, w, 0, w / 2, h / 4, 0);//ALLEGRO_FLIP_HORIZONTAL);
@@ -144,16 +160,24 @@ int main(int argc, const char *argv[])
 
             al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ZERO);
             if(software) {
-               al_draw_text(font, al_map_rgba_f(1, 1, 1, 1),
+               al_draw_text(soft_font, al_map_rgba_f(1, 1, 1, 1),
                   640 / 2, 430, ALLEGRO_ALIGN_CENTRE, "Software Rendering");
-               al_use_transform(&identity);
                al_set_target_backbuffer(display);
                al_draw_bitmap(buffer, 0, 0, 0);
-               al_use_transform(&transform);
             } else {
                al_draw_text(font, al_map_rgba_f(1, 1, 1, 1),
                   640 / 2, 430, ALLEGRO_ALIGN_CENTRE, "Hardware Rendering");
             }
+
+            /* Each target bitmap has its own transformation matrix, so this
+             * overlay is unaffected by the transformations set earlier.
+             */
+            al_set_target_bitmap(overlay);
+            al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ONE);
+            al_draw_text(font, al_map_rgba_f(1, 1, 0, 1),
+               0, 10, ALLEGRO_ALIGN_LEFT, "hello!");
+
+            al_set_target_backbuffer(display);
             al_flip_display();
         }
     }

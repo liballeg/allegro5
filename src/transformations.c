@@ -18,8 +18,9 @@
 #include "allegro5/allegro5.h"
 #include "allegro5/internal/aintern.h"
 #include ALLEGRO_INTERNAL_HEADER
-#include "allegro5/internal/aintern_system.h"
+#include "allegro5/internal/aintern_bitmap.h"
 #include "allegro5/internal/aintern_display.h"
+#include "allegro5/internal/aintern_system.h"
 #include <math.h>
 
 /* ALLEGRO_DEBUG_CHANNEL("transformations") */
@@ -38,24 +39,36 @@ void al_copy_transform(const ALLEGRO_TRANSFORM *src, ALLEGRO_TRANSFORM *dest)
  */
 void al_use_transform(const ALLEGRO_TRANSFORM *trans)
 {
-   ALLEGRO_DISPLAY *current_display = _al_get_current_display();
-   ASSERT(current_display);
-   ASSERT(trans);
+   ALLEGRO_BITMAP *target = al_get_target_bitmap();
+   ALLEGRO_DISPLAY *display;
 
-   al_copy_transform(trans, &current_display->cur_transform);
-   if (current_display->vt) {
-      current_display->vt->update_transformation(current_display);
+   if (!target)
+      return;
+
+   /* Changes to a back buffer should affect the front buffer, and vice versa.
+    * Currently we rely on the fact that in the OpenGL drivers the back buffer
+    * and front buffer bitmaps are exactly the same, and the DirectX driver
+    * doesn't support front buffer bitmaps.
+    */
+
+   al_copy_transform(trans, &target->transform);
+
+   display = target->display;
+   if (display) {
+      display->vt->update_transformation(display, target);
    }
 }
 
 /* Function: al_get_current_transform
  */
-const ALLEGRO_TRANSFORM *al_get_current_transform()
+const ALLEGRO_TRANSFORM *al_get_current_transform(void)
 {
-   ALLEGRO_DISPLAY *current_display = _al_get_current_display();
-   ASSERT(current_display);
+   ALLEGRO_BITMAP *target = al_get_target_bitmap();
 
-   return &current_display->cur_transform;
+   if (!target)
+      return NULL;
+
+   return &target->transform;
 }
 
 /* Function: al_identity_transform

@@ -120,15 +120,6 @@ static void ogl_draw_pixel(ALLEGRO_DISPLAY *d, float x, float y,
       return;
    }
 
-   /* For sub bitmaps. */
-   if(target->parent) {
-      glMatrixMode(GL_MODELVIEW);
-      glPushMatrix();
-      glLoadIdentity();
-      glTranslatef(target->xofs, target->yofs, 0);
-      glMultMatrixf((float*)(d->cur_transform.m));
-   }
-
    vert[0] = x;
    vert[1] = y;
 
@@ -141,10 +132,6 @@ static void ogl_draw_pixel(ALLEGRO_DISPLAY *d, float x, float y,
 
    glDisableClientState(GL_VERTEX_ARRAY);
    glDisableClientState(GL_COLOR_ARRAY);
-   
-   if(target->parent) {
-      glPopMatrix();
-   }
 }
 
 static void* ogl_prepare_vertex_cache(ALLEGRO_DISPLAY* disp, 
@@ -169,21 +156,11 @@ static void ogl_flush_vertex_cache(ALLEGRO_DISPLAY* disp)
 {
    GLboolean on;
    GLuint current_texture;
-   ALLEGRO_BITMAP* target;
    if(!disp->vertex_cache)
       return;
    if(disp->num_cache_vertices == 0)
       return;
       
-   target = al_get_target_bitmap();
-   if(target->parent) {
-      glMatrixMode(GL_MODELVIEW);
-      glPushMatrix();
-      glLoadIdentity();
-      glTranslatef(target->xofs, target->yofs, 0);
-      glMultMatrixf((float*)(disp->cur_transform.m));
-   }
-   
    glGetBooleanv(GL_TEXTURE_2D, &on);
    if (!on) {
       glEnable(GL_TEXTURE_2D);
@@ -209,20 +186,27 @@ static void ogl_flush_vertex_cache(ALLEGRO_DISPLAY* disp)
    glDisableClientState(GL_TEXTURE_COORD_ARRAY);
    glDisableClientState(GL_COLOR_ARRAY);
    
-   if(target->parent) {
-      glPopMatrix();
-   }
-   
    disp->num_cache_vertices = 0;
    if (!on) {
       glDisable(GL_TEXTURE_2D);
    }
 }
 
-static void ogl_update_transformation(ALLEGRO_DISPLAY* disp)
+static void ogl_update_transformation(ALLEGRO_DISPLAY* disp,
+   ALLEGRO_BITMAP *target)
 {
+   (void)disp;
+
    glMatrixMode(GL_MODELVIEW);
-   glLoadMatrixf((float*)(disp->cur_transform.m));
+   if (target->parent) {
+      /* Sub-bitmaps have an additional offset. */
+      glLoadIdentity();
+      glTranslatef(target->xofs, target->yofs, 0);
+      glMultMatrixf((float*)(target->transform.m));
+   }
+   else {
+      glLoadMatrixf((float *)target->transform.m);
+   }
 }
 
 /* Add drawing commands to the vtable. */

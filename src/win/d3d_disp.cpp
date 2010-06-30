@@ -2051,8 +2051,6 @@ static void d3d_draw_pixel(ALLEGRO_DISPLAY *al_display, float x, float y, ALLEGR
 {
    ALLEGRO_DISPLAY_D3D *disp = (ALLEGRO_DISPLAY_D3D *)al_display;
    ALLEGRO_COLOR c;
-   ALLEGRO_BITMAP* dest = al_get_target_bitmap();
-   D3DMATRIX new_trans;
 
    D3D_TL_VERTEX vertices[1];
 
@@ -2073,24 +2071,10 @@ static void d3d_draw_pixel(ALLEGRO_DISPLAY *al_display, float x, float y, ALLEGR
 
    disp->device->SetFVF(D3DFVF_TL_VERTEX);
 
-   /* For sub-bitmaps */
-   if (dest->parent) {
-      memcpy(new_trans.m[0], al_display->cur_transform.m[0], 16 * sizeof(float));
-      new_trans.m[3][0] += dest->xofs - 0.5;
-      new_trans.m[3][1] += dest->yofs - 0.5;
-      disp->device->SetTransform(D3DTS_VIEW, &new_trans);
-   }
-
    if (disp->device->DrawPrimitiveUP(D3DPT_POINTLIST, 1,
       vertices, sizeof(D3D_TL_VERTEX)) != D3D_OK) {
       ALLEGRO_ERROR("d3d_draw_pixel: DrawPrimitive failed.\n");
       return;
-   }
-   
-   if (dest->parent) {
-      new_trans.m[3][0] = al_display->cur_transform.m[3][0] - 0.5;
-      new_trans.m[3][1] = al_display->cur_transform.m[3][1] - 0.5;
-      disp->device->SetTransform(D3DTS_VIEW, &new_trans);
    }
 }
 
@@ -2302,7 +2286,6 @@ static bool d3d_resize_display(ALLEGRO_DISPLAY *d, int width, int height)
 static bool d3d_acknowledge_resize(ALLEGRO_DISPLAY *d)
 {
    WINDOWINFO wi;
-   ALLEGRO_DISPLAY *old;
    ALLEGRO_DISPLAY_D3D *disp = (ALLEGRO_DISPLAY_D3D *)d;
    ALLEGRO_DISPLAY_WIN *win_display = &disp->win_display;
    ALLEGRO_STATE state;
@@ -2378,6 +2361,7 @@ ALLEGRO_BITMAP *_al_d3d_create_bitmap(ALLEGRO_DISPLAY *d,
    bitmap->bitmap.format = format;
    bitmap->bitmap.flags = flags;
    bitmap->bitmap.pitch = w * al_get_pixel_size(format);
+   al_identity_transform(&bitmap->bitmap.transform);
 
    bitmap->video_texture = 0;
    bitmap->system_texture = 0;
@@ -2607,8 +2591,6 @@ static void* d3d_prepare_vertex_cache(ALLEGRO_DISPLAY* disp,
 
 static void d3d_flush_vertex_cache(ALLEGRO_DISPLAY* disp)
 {
-   ALLEGRO_BITMAP* dest = al_get_target_bitmap();
-   D3DMATRIX new_trans;
    if(!disp->vertex_cache)
       return;
    if(disp->num_cache_vertices == 0)
@@ -2616,14 +2598,6 @@ static void d3d_flush_vertex_cache(ALLEGRO_DISPLAY* disp)
       
    ALLEGRO_DISPLAY_D3D* d3d_disp = (ALLEGRO_DISPLAY_D3D*)disp;
    
-   /* For sub-bitmaps */
-   if (dest->parent) {
-      memcpy(new_trans.m[0], disp->cur_transform.m[0], 16 * sizeof(float));
-      new_trans.m[3][0] += dest->xofs - 0.5;
-      new_trans.m[3][1] += dest->yofs - 0.5;
-      d3d_disp->device->SetTransform(D3DTS_VIEW, &new_trans);
-   }
-
    if (d3d_disp->device->SetTexture(0,
          (IDirect3DBaseTexture9 *)((ALLEGRO_BITMAP_D3D*)disp->cache_texture)->video_texture) != D3D_OK) {
       ALLEGRO_ERROR("d3d_flush_vertex_cache: SetTexture failed.\n");
@@ -2638,21 +2612,23 @@ static void d3d_flush_vertex_cache(ALLEGRO_DISPLAY* disp)
       return;
    }
    
-   if (dest->parent) {
-      new_trans.m[3][0] = disp->cur_transform.m[3][0] - 0.5;
-      new_trans.m[3][1] = disp->cur_transform.m[3][1] - 0.5;
-      d3d_disp->device->SetTransform(D3DTS_VIEW, &new_trans);
-   }
-   
    disp->num_cache_vertices = 0;
    d3d_disp->device->SetTexture(0, NULL);
 }
 
-static void d3d_update_transformation(ALLEGRO_DISPLAY* disp)
+static void d3d_update_transformation(ALLEGRO_DISPLAY* disp, ALLEGRO_BITMAP *target)
 {
    ALLEGRO_DISPLAY_D3D* d3d_disp = (ALLEGRO_DISPLAY_D3D*)disp;
    D3DMATRIX matrix;
-   memcpy(matrix.m[0], disp->cur_transform.m[0], 16 * sizeof(float));
+   ALLEGRO_TRANSFORM tmp_transform;
+
+   al_copy_transform(&target->transform, &tmp_transform);
+
+   if (target->parent) {
+      al_translate_transform(&tmp_transform, target->xofs, target->yofs);
+   }
+
+   memcpy(matrix.m[0], tmp_transform.m[0], 16 * sizeof(float));
    matrix.m[3][0] -= 0.5;
    matrix.m[3][1] -= 0.5;
    

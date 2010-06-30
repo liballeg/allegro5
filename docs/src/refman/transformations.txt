@@ -49,10 +49,13 @@ Makes a copy of a transformation.
 
 ## API: al_use_transform
 
-Sets the transformation to be used for the the drawing operations. Every
-drawing operation after this call will be transformed using this
+Sets the transformation to be used for the the drawing operations on the target
+bitmap (each bitmap maintains its own transformation).
+Every drawing operation after this call will be transformed using this
 transformation. Call this function with an identity transformation to return
 to the default behaviour.
+
+This function does nothing if there is no target bitmap.
 
 *Parameters:*
 
@@ -60,7 +63,8 @@ to the default behaviour.
 
 ## API: al_get_current_transform
 
-Returns the current transformation, as set by [al_use_transform].
+Returns the transformation of the current target bitmap, as set by
+[al_use_transform].  If there is no target bitmap, this function returns NULL.
 
 *Returns:*
 A pointer to the current transformation.

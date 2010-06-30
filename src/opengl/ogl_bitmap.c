@@ -1056,6 +1056,7 @@ ALLEGRO_BITMAP *_al_ogl_create_bitmap(ALLEGRO_DISPLAY *d, int w, int h)
    bitmap->bitmap.ct = 0;
    bitmap->bitmap.cr_excl = w;
    bitmap->bitmap.cb_excl = h;
+   al_identity_transform(&bitmap->bitmap.transform);  // XXX back and front buffers should share a transform
 
    bitmap->true_w = true_w;
    bitmap->true_h = true_h;

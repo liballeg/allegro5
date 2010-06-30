@@ -65,7 +65,7 @@ struct ALLEGRO_DISPLAY_INTERFACE
    void (*flush_vertex_cache)(ALLEGRO_DISPLAY *d);
    void* (*prepare_vertex_cache)(ALLEGRO_DISPLAY *d, int num_new_vertices);
    
-   void (*update_transformation)(ALLEGRO_DISPLAY* d);
+   void (*update_transformation)(ALLEGRO_DISPLAY* d, ALLEGRO_BITMAP *target);
 
    void (*shutdown)(void);
 };
@@ -119,7 +119,6 @@ struct ALLEGRO_DISPLAY
    void* vertex_cache;
    uintptr_t cache_texture;
    
-   ALLEGRO_TRANSFORM cur_transform;
    ALLEGRO_BLENDER cur_blender;
    
    void (*display_invalidated)(ALLEGRO_DISPLAY*, bool);

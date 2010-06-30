@@ -52,6 +52,9 @@ struct ALLEGRO_BITMAP
    int lock_flags;
    ALLEGRO_LOCKED_REGION locked_region;
 
+   /* Transformation for this bitmap */
+   ALLEGRO_TRANSFORM transform;
+
    /* Info for sub-bitmaps */
    ALLEGRO_BITMAP *parent;
    int xofs;

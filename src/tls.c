@@ -366,7 +366,7 @@ ALLEGRO_DISPLAY *_al_get_current_display(void)
 
    if (!(tls->memory_display.flags & ALLEGRO_INTERNAL)) {
       tls->memory_display.flags |= ALLEGRO_INTERNAL;
-      al_identity_transform(&tls->memory_display.cur_transform);
+      //al_identity_transform(&tls->memory_display.cur_transform);
       _al_initialize_blender(&tls->memory_display.cur_blender);
    }
    return &tls->memory_display;
@@ -425,6 +425,8 @@ void al_set_target_bitmap(ALLEGRO_BITMAP *bitmap)
          new_display->vt &&
          new_display->vt->set_target_bitmap) {
       new_display->vt->set_target_bitmap(new_display, bitmap);
+
+      new_display->vt->update_transformation(new_display, bitmap);
    }
 }
 
@@ -546,7 +548,11 @@ void al_store_state(ALLEGRO_STATE *state, int flags)
    }
    
    if (flags & ALLEGRO_STATE_TRANSFORM) {
-      stored->stored_transform = _al_get_current_display()->cur_transform;
+      ALLEGRO_BITMAP *target = al_get_target_bitmap();
+      if (!target)
+         al_identity_transform(&stored->stored_transform);
+      else
+         stored->stored_transform = target->transform;
    }
 }
 #undef _STORE
@@ -598,7 +604,9 @@ void al_restore_state(ALLEGRO_STATE const *state)
    }
    
    if (flags & ALLEGRO_STATE_TRANSFORM) {
-      _al_get_current_display()->cur_transform = stored->stored_transform;
+      ALLEGRO_BITMAP *bitmap = al_get_target_bitmap();
+      if (bitmap)
+         al_use_transform(&stored->stored_transform);
    }
 }
 #undef _STORE
