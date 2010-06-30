@@ -62,8 +62,6 @@ ALLEGRO_DISPLAY *al_create_display(int w, int h)
    
    display->display_invalidated = 0;
    
-   _al_initialize_blender(&display->cur_blender);
-
    _al_vector_init(&display->bitmaps, sizeof(ALLEGRO_BITMAP*));
 
    al_set_target_bitmap(al_get_backbuffer(display));

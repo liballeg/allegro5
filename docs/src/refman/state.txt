@@ -18,11 +18,11 @@ The various state kept internally by Allegro can be displayed like this:
           new display params
           active file interface
           errno
+          current blending mode
           current display
-              current transformation
-              current blending mode
               deferred drawing
           current target bitmap
+              current transformation
               current clipping rectangle
               bitmap locking
 

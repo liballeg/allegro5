@@ -42,25 +42,20 @@ typedef struct thread_local_state {
    /* Current display */
    ALLEGRO_DISPLAY *current_display;
 
-   /* This is used for storing current transformation and blenders for
-    * graphics operations while no current display is available.
-    */
-   /* FIXME: If we have a way to call a callback before a thread is
-    * destroyed this field can be removed and instead memory_display
-    * should be allocated on demand with al_malloc and then destroyed
-    * with al_free in the callback. For now putting it here avoids
-    * the allocation.
-    */
-   ALLEGRO_DISPLAY memory_display;
-
    /* Target bitmap */
    ALLEGRO_BITMAP *target_bitmap;
+
+   /* Blender */
+   ALLEGRO_BLENDER current_blender;
+
    /* Bitmap parameters */
    int new_bitmap_format;
    int new_bitmap_flags;
+
    /* Files */
    const ALLEGRO_FILE_INTERFACE *new_file_interface;
    const ALLEGRO_FS_INTERFACE *fs_interface;
+
    /* Error code */
    int allegro_errno;
 } thread_local_state;
@@ -76,10 +71,22 @@ ALLEGRO_STATIC_ASSERT(
    sizeof(ALLEGRO_STATE) > sizeof(INTERNAL_STATE));
 
 
+static void initialize_blender(ALLEGRO_BLENDER *b)
+{
+   b->blend_op = ALLEGRO_ADD;
+   b->blend_source = ALLEGRO_ALPHA;
+   b->blend_dest = ALLEGRO_INVERSE_ALPHA;
+   b->blend_alpha_op = ALLEGRO_ADD;
+   b->blend_alpha_source = ALLEGRO_ALPHA;
+   b->blend_alpha_dest = ALLEGRO_INVERSE_ALPHA;
+}
+
+
 static void initialize_tls_values(thread_local_state *tls)
 {
    memset(tls, 0, sizeof *tls);
 
+   initialize_blender(&tls->current_blender);
    tls->new_bitmap_format = ALLEGRO_PIXEL_FORMAT_ANY_WITH_ALPHA;
    tls->new_file_interface = &_al_file_interface_stdio;
    tls->fs_interface = &_al_fs_interface_stdio;
@@ -355,25 +362,6 @@ ALLEGRO_DISPLAY *al_get_current_display(void)
 
 
 
-ALLEGRO_DISPLAY *_al_get_current_display(void)
-{
-   thread_local_state *tls;
-
-   if ((tls = tls_get()) == NULL)
-      return NULL;
-   if (tls->current_display)
-      return tls->current_display;
-
-   if (!(tls->memory_display.flags & ALLEGRO_INTERNAL)) {
-      tls->memory_display.flags |= ALLEGRO_INTERNAL;
-      //al_identity_transform(&tls->memory_display.cur_transform);
-      _al_initialize_blender(&tls->memory_display.cur_blender);
-   }
-   return &tls->memory_display;
-}
-
-
-
 /* Function: al_set_target_bitmap
  */
 void al_set_target_bitmap(ALLEGRO_BITMAP *bitmap)
@@ -450,6 +438,81 @@ ALLEGRO_BITMAP *al_get_target_bitmap(void)
    if ((tls = tls_get()) == NULL)
       return 0;
    return tls->target_bitmap;
+}
+
+
+
+/* Function: al_set_blender
+ */
+void al_set_blender(int op, int src, int dst)
+{
+   al_set_separate_blender(op, src, dst, op, src, dst);
+}
+
+
+
+/* Function: al_set_separate_blender
+ */
+void al_set_separate_blender(int op, int src, int dst,
+   int alpha_op, int alpha_src, int alpha_dst)
+{
+   thread_local_state *tls;
+   ALLEGRO_BLENDER *b;
+
+   if ((tls = tls_get()) == NULL)
+      return;
+
+   b = &tls->current_blender;
+
+   b->blend_op = op;
+   b->blend_source = src;
+   b->blend_dest = dst;
+   b->blend_alpha_op = alpha_op;
+   b->blend_alpha_source = alpha_src;
+   b->blend_alpha_dest = alpha_dst;
+}
+
+
+
+/* Function: al_get_blender
+ */
+void al_get_blender(int *op, int *src, int *dst)
+{
+   al_get_separate_blender(op, src, dst, NULL, NULL, NULL);
+}
+
+
+
+/* Function: al_get_separate_blender
+ */
+void al_get_separate_blender(int *op, int *src, int *dst,
+   int *alpha_op, int *alpha_src, int *alpha_dst)
+{
+   thread_local_state *tls;
+   ALLEGRO_BLENDER *b;
+
+   if ((tls = tls_get()) == NULL)
+      return;
+
+   b = &tls->current_blender;
+
+   if (op)
+      *op = b->blend_op;
+
+   if (src)
+      *src = b->blend_source;
+
+   if (dst)
+      *dst = b->blend_dest;
+
+   if (alpha_op)
+      *alpha_op = b->blend_alpha_op;
+
+   if (alpha_src)
+      *alpha_src = b->blend_alpha_source;
+
+   if (alpha_dst)
+      *alpha_dst = b->blend_alpha_dest;
 }
 
 
@@ -539,7 +602,7 @@ void al_store_state(ALLEGRO_STATE *state, int flags)
    }
 
    if (flags & ALLEGRO_STATE_BLENDER) {
-      stored->stored_blender = _al_get_current_display()->cur_blender;
+      stored->stored_blender = tls->current_blender;
    }
 
    if (flags & ALLEGRO_STATE_NEW_FILE_INTERFACE) {
@@ -595,7 +658,7 @@ void al_restore_state(ALLEGRO_STATE const *state)
    }
    
    if (flags & ALLEGRO_STATE_BLENDER) {
-      _al_get_current_display()->cur_blender = stored->stored_blender;
+      tls->current_blender = stored->stored_blender;
    }
 
    if (flags & ALLEGRO_STATE_NEW_FILE_INTERFACE) {
