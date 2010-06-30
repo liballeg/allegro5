@@ -296,6 +296,13 @@ See also: [al_get_backbuffer]
 
 Gets the flags of the display.
 
+In addition to the flags set for the display at creation time with
+al_set_new_display_flags it can also have the ALLEGRO_MINIMIZED flag
+set, indicating that the window is currently minimized. This flag
+is very platform-dependent as even a minimized application may still
+render a preview version so normally you should not care whether it
+is minimized or not.
+
 See also: [al_set_new_display_flags]
 
 ### API: al_get_display_format

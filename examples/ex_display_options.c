@@ -19,6 +19,7 @@ int font_h;
 int modes_count;
 int options_count;
 char status[256];
+int flags, old_flags;
 
 int selected_column;
 int selected_mode;
@@ -56,6 +57,24 @@ struct {
     X(CAN_DRAW_INTO_BITMAP, 1),
     X(SUPPORT_SEPARATE_ALPHA, 1),
 };
+#undef X
+static char const *flag_names[32];
+static void init_flags(void)
+{
+   int i;
+   #define X(f) if (1 << i == ALLEGRO_##f) flag_names[i] = #f;
+   for (i = 0; i < 32; i++) {
+      X(WINDOWED)
+      X(FULLSCREEN)
+      X(OPENGL)
+      X(RESIZABLE)
+      X(NOFRAME)
+      X(GENERATE_EXPOSE_EVENTS)
+      X(FULLSCREEN_WINDOW)
+      X(MINIMIZED)
+   }
+   #undef X
+}
 
 static void display_options(ALLEGRO_DISPLAY *display)
 {
@@ -122,7 +141,7 @@ static void display_options(ALLEGRO_DISPLAY *display)
          al_get_display_option(display, options[i].option));
       y += font_h;
    }
-   
+
    c = al_map_rgb_f(0, 0, 0.8);
    x = 10;
    y = dh - font_h - 10;
@@ -133,6 +152,17 @@ static void display_options(ALLEGRO_DISPLAY *display)
    y -= font_h;
    al_draw_textf(font, c, x, y, 0, "Cursor keys: change selection");
    
+   y -= font_h * 2;
+   for (i = 0; i < 32; i++) {
+      if (flag_names[i]) {
+         if (flags & (1 << i)) c = al_map_rgb_f(0.5, 0, 0);
+         else if (old_flags & (1 << i)) c = al_map_rgb_f(0.5, 0.4, 0.4);
+         else continue;
+         al_draw_text(font, c, x, y, 0, flag_names[i]);
+         x += al_get_text_width(font, flag_names[i]) + 10;
+      }
+   }
+   
    c = al_map_rgb_f(1, 0, 0);
    al_draw_text(font, c, dw / 2, dh - font_h, ALLEGRO_ALIGN_CENTRE, status);
 }
@@ -141,6 +171,7 @@ int main(void)
 {
    ALLEGRO_DISPLAY *display;
    ALLEGRO_EVENT_QUEUE *queue;
+   ALLEGRO_TIMER *timer;
    int n;
    bool redraw = false;
 
@@ -148,6 +179,7 @@ int main(void)
       abort_example("Could not init Allegro.\n");
       return 1;
    }
+   init_flags();
    al_init_primitives_addon();
    
    white = al_map_rgba_f(1, 1, 1, 1);
@@ -164,6 +196,8 @@ int main(void)
       abort_example("data/fixed_font.tga not found\n");
       return 1;
    }
+   
+   timer = al_install_timer(1.0 / 60);
 
    modes_count = al_get_num_display_modes();
    options_count = sizeof(options) / sizeof(options[0]);
@@ -177,6 +211,9 @@ int main(void)
    al_register_event_source(queue, al_get_keyboard_event_source());
    al_register_event_source(queue, al_get_mouse_event_source());
    al_register_event_source(queue, al_get_display_event_source(display));
+   al_register_event_source(queue, al_get_timer_event_source(timer));
+   
+   al_start_timer(timer);
 
    while (1) {
       ALLEGRO_EVENT event;
@@ -205,6 +242,14 @@ int main(void)
                }
             }
          }
+      }
+      if (event.type == ALLEGRO_EVENT_TIMER) {
+          int f = al_get_display_flags(display);
+          if (f != flags) {
+              redraw = true;
+              flags = f;
+              old_flags |= f;
+          }
       }
       if (event.type == ALLEGRO_EVENT_KEY_DOWN ||
          event.type == ALLEGRO_EVENT_KEY_REPEAT) {

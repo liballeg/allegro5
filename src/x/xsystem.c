@@ -75,8 +75,12 @@ static void process_x11_event(ALLEGRO_SYSTEM_XGLX *s, XEvent event)
          _al_cond_signal(&s->resized);
          break;
       case MapNotify:
+         d->display.flags &= ~ALLEGRO_MINIMIZED;
          d->is_mapped = true;
          _al_cond_signal(&d->mapped);
+         break;
+      case UnmapNotify:
+         d->display.flags |= ALLEGRO_MINIMIZED;
          break;
       case Expose:
          if (d->display.flags & ALLEGRO_GENERATE_EXPOSE_EVENTS) {
