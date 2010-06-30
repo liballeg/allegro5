@@ -176,15 +176,19 @@ static void redraw(void)
    int fh = al_get_font_line_height(example.font);
    char const *info[] = {"textures", "memory buffers"};
    char const *binfo[] = {"alpha", "additive", "tinted", "solid"};
-   ALLEGRO_COLOR tint = al_map_rgb_f(1,1,1);
+   ALLEGRO_COLOR tint = example.white;
 
-   if (example.blending == 0)
+   if (example.blending == 0) {
       al_set_blender(ALLEGRO_ADD, ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA);
-   else if (example.blending == 1)
+      tint = example.half_white;
+   }
+   else if (example.blending == 1) {
       al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ONE);
+      tint = example.dark;
+   }
    else if (example.blending == 2) {
       al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ZERO);
-      tint = al_map_rgb_f(0.33,0.5,1);
+      tint = example.red;
    }
    else if (example.blending == 3)
       al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ZERO);
