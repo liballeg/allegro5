@@ -54,6 +54,7 @@ static void draw(void)
    float db_r;
    float db;
    float scale;
+   float disp;
 
    /* Whatever looks okay. */
    if (rms_l > 0.0 && rms_r > 0.0) {
@@ -61,9 +62,10 @@ static void draw(void)
       db_r = 20 * log10(rms_r / 20e-6);
       db = (db_l + db_r) / 2.0;
       scale = db / 20.0;
+      disp = (rms_l + rms_r) * 200.0;
    }
    else {
-      db_l = db_r = db = scale = 0.0;
+      db_l = db_r = db = scale = disp = 0.0;
    }
 
    al_set_target_bitmap(dbuf);
@@ -72,7 +74,7 @@ static void draw(void)
       al_map_rgba_f(0.8, 0.3, 0.1, 0.06));
    al_draw_tinted_rotated_scaled_bitmap(bmp,
       al_map_rgba_f(0.8, 0.3, 0.1, 0.2),
-      sw/2.0, sh/2.0, dx, dy, scale, scale, theta, 0);
+      sw/2.0, sh/2.0, dx, dy - disp, scale, scale, theta, 0);
 
    al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ZERO);
    al_set_target_backbuffer(display);
@@ -82,6 +84,8 @@ static void draw(void)
    al_draw_line(20, dh - db_r, 20, dh, al_map_rgb_f(1, 0.6, 0.2), 6);
 
    al_flip_display();
+
+   theta -= (rms_l + rms_r) * 0.1;
 }
 
 static void main_loop(void)
@@ -99,7 +103,6 @@ static void main_loop(void)
    for (;;) {
       if (redraw && al_event_queue_is_empty(queue)) {
          draw();
-         theta -= ALLEGRO_PI / (4.0 * FPS);
          redraw = false;
       }
 
