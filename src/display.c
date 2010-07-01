@@ -166,7 +166,7 @@ void al_update_display_region(int x, int y, int width, int height)
 {
    ALLEGRO_DISPLAY *display = al_get_current_display();
 
-   if (!display)
+   if (display)
       display->vt->update_display_region(display, x, y, width, height);
 }
 
