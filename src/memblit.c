@@ -1,6 +1,6 @@
-/*         ______   ___    ___ 
- *        /\  _  \ /\_ \  /\_ \ 
- *        \ \ \L\ \\//\ \ \//\ \      __     __   _ __   ___ 
+/*         ______   ___    ___
+ *        /\  _  \ /\_ \  /\_ \
+ *        \ \ \L\ \\//\ \ \//\ \      __     __   _ __   ___
  *         \ \  __ \ \ \ \  \ \ \   /'__`\ /'_ `\/\`'__\/ __`\
  *          \ \ \/\ \ \_\ \_ \_\ \_/\  __//\ \L\ \ \ \//\ \L\ \
  *           \ \_\ \_\/\____\/\____\ \____\ \____ \ \_\\ \____/
@@ -30,33 +30,33 @@ static void _al_draw_transformed_rotated_bitmap_memory(
    ALLEGRO_BITMAP *src, ALLEGRO_COLOR tint,
    int cx, int cy, int dx, int dy, float xscale, float yscale,
    float angle, int flags);
-   
+
 static void _al_draw_transformed_scaled_bitmap_memory(
-   ALLEGRO_BITMAP *src, ALLEGRO_COLOR tint, 
+   ALLEGRO_BITMAP *src, ALLEGRO_COLOR tint,
    int sx, int sy, int sw, int sh, int dx, int dy, int dw, int dh,
    int flags);
-   
+
 static void _al_parallelogram_map_fast(ALLEGRO_BITMAP *src,
-   al_fixed xs[4], 
+   al_fixed xs[4],
    al_fixed ys[4], int sx, int sy, int sw, int sh);
-   
+
 static bool is_identity(const ALLEGRO_TRANSFORM* trans)
 {
-   return trans->m[0][0] == 1 && 
-          trans->m[1][0] == 0 && 
-          trans->m[2][0] == 0 && 
-          trans->m[3][0] == 0 && 
-          trans->m[0][1] == 0 && 
-          trans->m[1][1] == 1 && 
-          trans->m[2][1] == 0 && 
-          trans->m[3][1] == 0 && 
-          trans->m[0][2] == 0 && 
-          trans->m[1][2] == 0 && 
-          trans->m[2][2] == 1 && 
-          trans->m[3][2] == 0 && 
-          trans->m[0][3] == 0 && 
-          trans->m[1][3] == 0 && 
-          trans->m[2][3] == 0 && 
+   return trans->m[0][0] == 1 &&
+          trans->m[1][0] == 0 &&
+          trans->m[2][0] == 0 &&
+          trans->m[3][0] == 0 &&
+          trans->m[0][1] == 0 &&
+          trans->m[1][1] == 1 &&
+          trans->m[2][1] == 0 &&
+          trans->m[3][1] == 0 &&
+          trans->m[0][2] == 0 &&
+          trans->m[1][2] == 0 &&
+          trans->m[2][2] == 1 &&
+          trans->m[3][2] == 0 &&
+          trans->m[0][3] == 0 &&
+          trans->m[1][3] == 0 &&
+          trans->m[2][3] == 0 &&
           trans->m[3][3] == 1;
 }
 
@@ -116,7 +116,7 @@ static INLINE void _al_blend_inline(
          #undef OP
          break;
    }
-   
+
    switch (aop) {
       case ALLEGRO_ADD:
          #define OP(x, y) MIN(1, x + y)
@@ -166,109 +166,162 @@ static void _al_blend_inline_dest_zero_add(
 #define SRC_NOT_MODIFIED \
    src_mode == ALLEGRO_ONE && src_alpha == ALLEGRO_ONE && \
    tint.r == 1.0f && tint.g == 1.0f && tint.b == 1.0f && tint.a == 1.0f
-   
-/* sub-bitmaps may originate and extend off its parents boundaries in any
- * direction. The HANDLE_SUB_BITMAPS macro takes post-clipped coordinates
- * for both the source and destination bitmaps and further restricts them
- * as necessary. The wr and hr parameters are the ratio of source
- * width & height to destination width & height _before_ clipping.
+
+/* The CLIPPER macro takes pre-clipped coordinates for both the source
+ * and destination bitmaps and clips them as necessary, taking sub-
+ * bitmaps into consideration. The wr and hr parameters are the ratio of
+ * source width & height to destination width & height _before_ clipping.
  *
  * First the left (top) coordinates are moved inward. Then the right
- * (bottom) coordinates are moved inward. The changes are applied 
+ * (bottom) coordinates are moved inward. The changes are applied
  * simultaneously to the complementary bitmap with scaling taken into
  * consideration.
  *
  * The coordinates are modified, and the sub-bitmaps are set to the
- * parent bitmaps. If nothing needs to be drawn, the macro exits the 
+ * parent bitmaps. If nothing needs to be drawn, the macro exits the
  * function.
- */   
-#define HANDLE_SUB_BITMAPS(src, sx, sy, sw, sh, dest, dx, dy, dw, dh, wr, hr) \
-                                                                         \
-   if (dest->parent) {                                                   \
-      dx += dest->xofs;                                                  \
-      if (dx < 0) {                                                      \
-         int scaled_width = dx * wr;                                     \
-         sw += scaled_width;                                             \
-         sx -= scaled_width;                                             \
-         dw += dx;                                                       \
-         dx = 0;                                                         \
-      }                                                                  \
-      else if (dx >= dest->parent->w) {                                  \
-         return;                                                         \
-      }                                                                  \
-                                                                         \
-      dy += dest->yofs;                                                  \
-      if (dy < 0) {                                                      \
-         int scaled_height = dy * hr;                                    \
-         sh += scaled_height;                                            \
-         sy -= scaled_height;                                            \
-         dh += dy;                                                       \
-         dy = 0;                                                         \
-      }                                                                  \
-      else if (dy >= dest->parent->h) {                                  \
-         return;                                                         \
-      }                                                                  \
-                                                                         \
-      dest = dest->parent;                                               \
-                                                                         \
-      if (dx + dw > dest->w) {                                           \
-         sw -= (dx + dw - dest->w) * wr;                                 \
-         dw = dest->w - dx;                                              \
-      }                                                                  \
-                                                                         \
-      if (dy + dh > dest->h) {                                           \
-         sh -= (dy + dh - dest->h) * hr;                                 \
-         dh = dest->h - dy;                                              \
-      }                                                                  \
-                                                                         \
-      if (dw <= 0 || dh <= 0) {                                          \
-         return;                                                         \
-      }                                                                  \
-   }                                                                     \
-                                                                         \
-   if (src->parent) {                                                    \
-      sx += src->xofs;                                                   \
-      if (sx < 0) {                                                      \
-         int scaled_width = sx / wr;                                     \
-         dw += scaled_width;                                             \
-         dx -= scaled_width;                                             \
-         sw += sx;                                                       \
-         sx = 0;                                                         \
-      }                                                                  \
-      else if (sx >= src->parent->w) {                                   \
-         return;                                                         \
-      }                                                                  \
-                                                                         \
-      sy += src->yofs;                                                   \
-      if (sy < 0) {                                                      \
-         int scaled_height = sy / hr;                                    \
-         dh += scaled_height;                                            \
-         dy -= scaled_height;                                            \
-         sh += sy;                                                       \
-         sy = 0;                                                         \
-      }                                                                  \
-      else if (sy >= src->parent->h) {                                   \
-         return;                                                         \
-      }                                                                  \
-                                                                         \
-      src = src->parent;                                                 \
-                                                                         \
-      if (sx + sw > src->w) {                                            \
-         dw -= (sx + sw - src->w) / wr;                                  \
-         sw = src->w - sx;                                               \
-      }                                                                  \
-                                                                         \
-      if (sy + sh > src->h) {                                            \
-         dh -= (sy + sh - src->h) / hr;                                  \
-         sh = src->h - sy;                                               \
-      }                                                                  \
-                                                                         \
-      if (sw <= 0 || sh <= 0) {                                          \
-         return;                                                         \
-      }                                                                  \
-   }
+ */
 
-void _al_draw_bitmap_region_memory(ALLEGRO_BITMAP *bitmap,
+#define CLIPPER(src, sx, sy, sw, sh, dest, dx, dy, dw, dh, wr, hr, flags)\
+{                                                                        \
+  int cl = dest->cl, cr = dest->cr_excl;                                 \
+  int ct = dest->ct, cb = dest->cb_excl;                                 \
+                                                                         \
+  if (dest->parent) {                                                    \
+     dx += dest->xofs;                                                   \
+     dy += dest->yofs;                                                   \
+                                                                         \
+     cl += dest->xofs;                                                   \
+     if (cl >= dest->parent->w) {                                        \
+        return;                                                          \
+     }                                                                   \
+     else if (cl < 0) {                                                  \
+        cl = 0;                                                          \
+     }                                                                   \
+                                                                         \
+     ct += dest->yofs;                                                   \
+     if (ct >= dest->parent->h) {                                        \
+        return;                                                          \
+     }                                                                   \
+     else if (ct < 0) {                                                  \
+        ct = 0;                                                          \
+     }                                                                   \
+                                                                         \
+     cr = MIN(dest->parent->w, cr + dest->xofs);                         \
+     cb = MIN(dest->parent->h, cb + dest->yofs);                         \
+                                                                         \
+     dest = dest->parent;                                                \
+  }                                                                      \
+                                                                         \
+  if (dx < cl) {                                                         \
+     const int d = cl - dx;                                              \
+     dx = cl;                                                            \
+     dw -= d;                                                            \
+     if (!(flags & ALLEGRO_FLIP_HORIZONTAL)) {                           \
+        sx += d * wr;                                                    \
+     }                                                                   \
+     sw -= d * wr;                                                       \
+  }                                                                      \
+                                                                         \
+  if (dx + dw > cr) {                                                    \
+     const int d = dx + dw - cr;                                         \
+     dw -= d;                                                            \
+     sw -= d * wr;                                                       \
+     if (flags & ALLEGRO_FLIP_HORIZONTAL) {                              \
+        sx += d * wr;                                                    \
+     }                                                                   \
+  }                                                                      \
+                                                                         \
+  if (dy < ct) {                                                         \
+     const int d = ct - dy;                                              \
+     dy = ct;                                                            \
+     dh -= d;                                                            \
+     if (!(flags & ALLEGRO_FLIP_VERTICAL)) {                             \
+        sy += d * hr;                                                    \
+     }                                                                   \
+     sh -= d * hr;                                                       \
+  }                                                                      \
+                                                                         \
+  if (dy + dh > cb) {                                                    \
+     const int d = dy + dh - cb;                                         \
+     dh -= d;                                                            \
+     sh -= d * hr;                                                       \
+     if (flags & ALLEGRO_FLIP_VERTICAL) {                                \
+        sy += d * hr;                                                    \
+     }                                                                   \
+  }                                                                      \
+                                                                         \
+  cl = 0; cr = src->w;                                                   \
+  ct = 0; cb = src->h;                                                   \
+                                                                         \
+  if (src->parent) {                                                     \
+     sx += src->xofs;                                                    \
+     sy += src->yofs;                                                    \
+                                                                         \
+     cl += src->xofs;                                                    \
+     if (cl >= src->parent->w) {                                         \
+        return;                                                          \
+     }                                                                   \
+     else if (cl < 0) {                                                  \
+        cl = 0;                                                          \
+     }                                                                   \
+                                                                         \
+     ct += src->yofs;                                                    \
+     if (ct >= src->parent->h) {                                         \
+        return;                                                          \
+     }                                                                   \
+     else if (ct < 0) {                                                  \
+        ct = 0;                                                          \
+     }                                                                   \
+                                                                         \
+     cr = MIN(src->parent->w, cr + src->xofs);                           \
+     cb = MIN(src->parent->h, cb + src->yofs);                           \
+                                                                         \
+     src = src->parent;                                                  \
+  }                                                                      \
+                                                                         \
+  if (sx < cl) {                                                         \
+     const int d = cl - sx;                                              \
+     sx = cl;                                                            \
+     sw -= d;                                                            \
+     if (!(flags & ALLEGRO_FLIP_HORIZONTAL)) {                           \
+        dx += d / wr;                                                    \
+     }                                                                   \
+     dw -= d / wr;                                                       \
+  }                                                                      \
+                                                                         \
+  if (sx + sw > cr) {                                                    \
+     const int d = sx + sw - cr;                                         \
+     sw -= d;                                                            \
+     dw -= d / wr;                                                       \
+     if (flags & ALLEGRO_FLIP_HORIZONTAL) {                              \
+        dx += d / wr;                                                    \
+     }                                                                   \
+  }                                                                      \
+                                                                         \
+  if (sy < ct) {                                                         \
+     const int d = ct - sy;                                              \
+     sy = ct;                                                            \
+     sh -= d;                                                            \
+     if (!(flags & ALLEGRO_FLIP_VERTICAL)) {                             \
+        dy += d / hr;                                                    \
+     }                                                                   \
+     dh -= d / hr;                                                       \
+  }                                                                      \
+                                                                         \
+  if (sy + sh > cb) {                                                    \
+     const int d = sy + sh - cb;                                         \
+     sh -= d;                                                            \
+     dh -= d / hr;                                                       \
+     if (flags & ALLEGRO_FLIP_VERTICAL) {                                \
+        dy += d / hr;                                                    \
+     }                                                                   \
+  }                                                                      \
+                                                                         \
+  if (dh <= 0 || sh <= 0 || dw <= 0 || sw <= 0) return;                  \
+}
+
+void _al_draw_bitmap_region_memory(ALLEGRO_BITMAP *src,
    ALLEGRO_COLOR tint,
    int sx, int sy, int sw, int sh,
    int dx, int dy, int flags)
@@ -282,11 +335,11 @@ void _al_draw_bitmap_region_memory(ALLEGRO_BITMAP *bitmap,
    int xinc, yinc;
    int yd;
    int sxd;
-   int dw, dh;
-   
+   int dw = sw, dh = sh;
+
    if(!is_identity(al_get_current_transform()))
    {
-      _al_draw_transformed_scaled_bitmap_memory(bitmap, tint, sx, sy,
+      _al_draw_transformed_scaled_bitmap_memory(src, tint, sx, sy,
          sw, sh, dx, dy, sw, sh, flags);
       return;
    }
@@ -295,59 +348,29 @@ void _al_draw_bitmap_region_memory(ALLEGRO_BITMAP *bitmap,
 
    if (DEST_IS_ZERO && SRC_NOT_MODIFIED)
    {
-      _al_draw_bitmap_region_memory_fast(bitmap, sx, sy, sw, sh, dx, dy, flags);
+      _al_draw_bitmap_region_memory_fast(src, sx, sy, sw, sh, dx, dy, flags);
       return;
    }
 
-   ASSERT(_al_pixel_format_is_real(bitmap->format));
+   ASSERT(_al_pixel_format_is_real(src->format));
    ASSERT(_al_pixel_format_is_real(dest->format));
 
-   /* Do clipping */
-   if (dx < dest->cl) {
-      int inc = dest->cl - dx;
-      sx += inc;
-      dx = dest->cl;
-      sw -= inc;
-   }
-   if (dx+sw > dest->cr_excl) {
-      int inc = (dx+sw) - dest->cr_excl;
-      sw -= inc;
-   }
-
-   if (dy < dest->ct) {
-      int inc = dest->ct - dy;
-      sy += inc;
-      dy = dest->ct;
-      sh -= inc;
-   }
-   if (dy+sh > dest->cb_excl) {
-      int inc = (dy+sh) - dest->cb_excl;
-      sh -= inc;
-   }
-
-   if (sw <= 0 || sh <= 0) {
-      return;
-   }
-
-	 dw = sw;
-	 dh = sh;
-	 
-	 HANDLE_SUB_BITMAPS(bitmap, sx, sy, sw, sh, dest, dx, dy, dw, dh, 1.0f, 1.0f)
+   CLIPPER(src, sx, sy, sw, sh, dest, dx, dy, dw, dh, 1, 1, flags)
 
 #ifdef ALLEGRO_GP2XWIZ
    if (src_mode == ALLEGRO_ALPHA &&
 	 dst_mode == ALLEGRO_INVERSE_ALPHA &&
 	 src_alpha == ALLEGRO_ALPHA &&
 	 dst_alpha == ALLEGRO_INVERSE_ALPHA) {
-      switch (bitmap->format) {
+      switch (src->format) {
 	 case ALLEGRO_PIXEL_FORMAT_RGBA_4444: {
 	    switch (dest->format) {
 	       case ALLEGRO_PIXEL_FORMAT_RGB_565: {
-		  _al_draw_bitmap_region_optimized_rgba_4444_to_rgb_565(bitmap, sx, sy, sw, sh, dest, dx, dy, flags);
+		  _al_draw_bitmap_region_optimized_rgba_4444_to_rgb_565(src, sx, sy, sw, sh, dest, dx, dy, flags);
 		  return;
                }
 	       case ALLEGRO_PIXEL_FORMAT_RGBA_4444: {
-		  _al_draw_bitmap_region_optimized_rgba_4444_to_rgba_4444(bitmap, sx, sy, sw, sh, dest, dx, dy, flags);
+		  _al_draw_bitmap_region_optimized_rgba_4444_to_rgba_4444(src, sx, sy, sw, sh, dest, dx, dy, flags);
 		  return;
 	       }
 	    }
@@ -355,7 +378,7 @@ void _al_draw_bitmap_region_memory(ALLEGRO_BITMAP *bitmap,
          case ALLEGRO_PIXEL_FORMAT_RGB_565: {
             switch (dest->format) {
                case ALLEGRO_PIXEL_FORMAT_RGB_565: {
-		  _al_draw_bitmap_region_optimized_rgb_565_to_rgb_565(bitmap, sx, sy, sw, sh, dest, dx, dy, flags);
+		  _al_draw_bitmap_region_optimized_rgb_565_to_rgb_565(src, sx, sy, sw, sh, dest, dx, dy, flags);
                   return;
                }
             }
@@ -367,14 +390,14 @@ void _al_draw_bitmap_region_memory(ALLEGRO_BITMAP *bitmap,
    ASSERT(!al_is_bitmap_locked(dest));
 
    /* Lock the bitmaps */
-   if (!(src_region = al_lock_bitmap_region(bitmap, sx, sy, sw, sh, ALLEGRO_PIXEL_FORMAT_ANY,
+   if (!(src_region = al_lock_bitmap_region(src, sx, sy, sw, sh, ALLEGRO_PIXEL_FORMAT_ANY,
       ALLEGRO_LOCK_READONLY)))
    {
       return;
    }
 
    if (!(dst_region = al_lock_bitmap_region(dest, dx, dy, sw, sh, ALLEGRO_PIXEL_FORMAT_ANY, 0))) {
-      al_unlock_bitmap(bitmap);
+      al_unlock_bitmap(src);
       return;
    }
 
@@ -395,7 +418,7 @@ void _al_draw_bitmap_region_memory(ALLEGRO_BITMAP *bitmap,
       sxd = 0;
    }
 
-   ASSERT(!bitmap->parent);
+   ASSERT(!src->parent);
    ASSERT(!dest->parent);
 
    {
@@ -454,7 +477,7 @@ void _al_draw_bitmap_region_memory(ALLEGRO_BITMAP *bitmap,
       }
    }
 
-   al_unlock_bitmap(bitmap);
+   al_unlock_bitmap(src);
    al_unlock_bitmap(dest);
 }
 
@@ -488,7 +511,7 @@ void _al_draw_scaled_bitmap_memory(ALLEGRO_BITMAP *src,
    int x, y;
    int xend;
    int yend;
-   
+
    if(!is_identity(al_get_current_transform()))
    {
       _al_draw_transformed_scaled_bitmap_memory(src, tint, sx, sy,
@@ -512,19 +535,7 @@ void _al_draw_scaled_bitmap_memory(ALLEGRO_BITMAP *src,
    sxinc = fabs((float)sw / dw);
    syinc = fabs((float)sh / dh);
 
-   /* Do clipping.  We subtract 1 from ct and cl as they are inclusive,
-    * but dw, dh are exclusive.
-    */
-   dy = ((dy > dest->ct) ? dy : dest->ct);
-   dh = _ALLEGRO_CLAMP(dest->ct - 1, dy + dh, dest->cb_excl) - dy;
-
-   dx = ((dx > dest->cl) ? dx : dest->cl);
-   dw = _ALLEGRO_CLAMP(dest->cl - 1, dx + dw, dest->cr_excl) - dx;
-
-   if (dw == 0 || dh == 0)
-      return;
-
-   HANDLE_SUB_BITMAPS(src, sx, sy, sw, sh, dest, dx, dy, dw, dh, sxinc, syinc) 
+   CLIPPER(src, sx, sy, sw, sh, dest, dx, dy, dw, dh, sxinc, syinc, flags)
 
    if (!(src_region = al_lock_bitmap(src, ALLEGRO_PIXEL_FORMAT_ANY, ALLEGRO_LOCK_READONLY))) {
       return;
@@ -1180,7 +1191,7 @@ void _al_draw_rotated_scaled_bitmap_memory(ALLEGRO_BITMAP *src,
    ALLEGRO_BITMAP *dst = al_get_target_bitmap();
    int op, src_mode, dst_mode;
    int op_alpha, src_alpha, dst_alpha;
-   
+
    if(!is_identity(al_get_current_transform()))
    {
       _al_draw_transformed_rotated_bitmap_memory(src, tint,
@@ -1220,7 +1231,7 @@ void _al_draw_rotated_bitmap_memory(ALLEGRO_BITMAP *src,
 
 static void _al_draw_transformed_bitmap_memory(ALLEGRO_BITMAP *src,
    ALLEGRO_COLOR tint,
-   int sx, int sy, int sw, int sh, int dw, int dh, 
+   int sx, int sy, int sw, int sh, int dw, int dh,
    ALLEGRO_TRANSFORM* local_trans, int flags)
 {
    ALLEGRO_BITMAP *dst = al_get_target_bitmap();
@@ -1236,7 +1247,7 @@ static void _al_draw_transformed_bitmap_memory(ALLEGRO_BITMAP *src,
 
    ASSERT(_al_pixel_format_is_real(src->format));
    ASSERT(_al_pixel_format_is_real(dst->format));
-   
+
    /* Decide what order to take corners in. */
    if (flags & ALLEGRO_FLIP_VERTICAL) {
       tl = 3;
@@ -1258,37 +1269,37 @@ static void _al_draw_transformed_bitmap_memory(ALLEGRO_BITMAP *src,
       bl = br;
       br = tmp;
    }
-   
+
    xsf[0] = 0;
    ysf[0] = 0;
-   
+
    xsf[1] = dw;
    ysf[1] = 0;
-   
+
    xsf[2] = 0;
    ysf[2] = dh;
-   
+
    al_transform_coordinates(local_trans, &xsf[0], &ysf[0]);
    al_transform_coordinates(local_trans, &xsf[1], &ysf[1]);
    al_transform_coordinates(local_trans, &xsf[2], &ysf[2]);
-   
+
    xs[tl] = al_ftofix(xsf[0]);
    ys[tl] = al_ftofix(ysf[0]);
-           
+
    xs[tr] = al_ftofix(xsf[1]);
    ys[tr] = al_ftofix(ysf[1]);
-           
+
    xs[br] = al_ftofix(xsf[2] + xsf[1] - xsf[0]);
    ys[br] = al_ftofix(ysf[2] + ysf[1] - ysf[0]);
-   
+
    xs[bl] = al_ftofix(xsf[2]);
    ys[bl] = al_ftofix(ysf[2]);
-   
+
    if (DEST_IS_ZERO && SRC_NOT_MODIFIED) {
       _al_parallelogram_map_fast(src, xs, ys, sx, sy, sw, sh);
       return;
    }
-   
+
    DO_PARALLELOGRAM_MAP(true, flags);
 }
 
@@ -1299,17 +1310,17 @@ static void _al_draw_transformed_rotated_bitmap_memory(
 {
    ALLEGRO_TRANSFORM local_trans;
    int w, h;
-   
+
    al_identity_transform(&local_trans);
    al_translate_transform(&local_trans, -cx, -cy);
    al_scale_transform(&local_trans, xscale, yscale);
    al_rotate_transform(&local_trans, angle);
    al_translate_transform(&local_trans, dx, dy);
    al_transform_transform(&local_trans, al_get_current_transform());
-   
+
    w = al_get_bitmap_width(src);
    h = al_get_bitmap_height(src);
-   
+
    _al_draw_transformed_bitmap_memory(src, tint, 0, 0, w, h, w, h,
       &local_trans, flags);
 }
@@ -1319,11 +1330,11 @@ static void _al_draw_transformed_scaled_bitmap_memory(
    int sx, int sy, int sw, int sh, int dx, int dy, int dw, int dh, int flags)
 {
    ALLEGRO_TRANSFORM local_trans;
-   
+
    al_identity_transform(&local_trans);
    al_translate_transform(&local_trans, dx, dy);
    al_transform_transform(&local_trans, al_get_current_transform());
-   
+
    _al_draw_transformed_bitmap_memory(src, tint, sx, sy, sw, sh, dw, dh,
       &local_trans, flags);
 }
@@ -1338,38 +1349,12 @@ void _al_draw_bitmap_region_memory_fast(ALLEGRO_BITMAP *bitmap,
    ALLEGRO_BITMAP *dest = al_get_target_bitmap();
    int x;
    int y;
-   int dw, dh;
+   int dw = sw, dh = sh;
 
    ASSERT(_al_pixel_format_is_real(bitmap->format));
    ASSERT(_al_pixel_format_is_real(dest->format));
-            
-   /* Do clipping */
-   if (dx < dest->cl) {
-      int inc = dest->cl - dx;
-      sx += inc;
-      dx = dest->cl;
-      sw -= inc;
-   }
-   if (dx+sw > dest->cr_excl) {
-      int inc = (dx+sw) - dest->cr_excl;
-      sw -= inc;
-   }
 
-   if (dy < dest->ct) {
-      int inc = dest->ct - dy;
-      sy += inc;
-      dy = dest->ct;
-      sh -= inc;
-   }
-   if (dy+sh > dest->cb_excl) {
-      int inc = (dy+sh) - dest->cb_excl;
-      sh -= inc;
-   }
-
-   dw = sw;
-   dh = sh;
-   
-   HANDLE_SUB_BITMAPS(bitmap, sx, sy, sw, sh, dest, dx, dy, dw, dh, 1.0f, 1.0f)
+   CLIPPER(bitmap, sx, sy, sw, sh, dest, dx, dy, dw, dh, 1, 1, flags)
 
    /* Fast paths for no flipping */
    if (!(flags & ALLEGRO_FLIP_HORIZONTAL) &&
@@ -1482,19 +1467,7 @@ void _al_draw_scaled_bitmap_memory_fast(ALLEGRO_BITMAP *src,
    sxinc = fabs((float)sw / dw);
    syinc = fabs((float)sh / dh);
 
-   /* Do clipping.  We subtract 1 from ct and cl as they are inclusive,
-    * but dw, dh are exclusive.
-    */
-   dy = ((dy > dest->ct) ? dy : dest->ct);
-   dh = _ALLEGRO_CLAMP(dest->ct - 1, dy + dh, dest->cb_excl) - dy;
-
-   dx = ((dx > dest->cl) ? dx : dest->cl);
-   dw = _ALLEGRO_CLAMP(dest->cl - 1, dx + dw, dest->cr_excl) - dx;
-
-   if (dw == 0 || dh == 0)
-      return;
-
-   HANDLE_SUB_BITMAPS(src, sx, sy, sw, sh, dest, dx, dy, dw, dh, sxinc, syinc)
+   CLIPPER(src, sx, sy, sw, sh, dest, dx, dy, dw, dh, sxinc, syinc, flags)
 
    if (src->format == dest->format) {
       if (!(src_region = al_lock_bitmap(src, ALLEGRO_PIXEL_FORMAT_ANY,
@@ -1542,7 +1515,7 @@ void _al_draw_scaled_bitmap_memory_fast(ALLEGRO_BITMAP *src,
    else {
       _sy = sy;
    }
-      
+
    #define INNER(t, s, r, w) \
       for (x = 0; x < xend; x++) { \
          t pix = r((char *)src_region->data+(int)_sy*src_region->pitch+(int)_sx*s); \
@@ -1620,7 +1593,7 @@ void _al_draw_scaled_bitmap_memory_fast(ALLEGRO_BITMAP *src,
  *  at least partly covered by the sprite. This is useful for doing
  *  anti-aliased blending.
  */
-static void _al_parallelogram_map_fast(ALLEGRO_BITMAP *src, al_fixed xs[4], 
+static void _al_parallelogram_map_fast(ALLEGRO_BITMAP *src, al_fixed xs[4],
    al_fixed ys[4], int sx, int sy, int sw, int sh)
 {
    /* Index in xs[] and ys[] to topmost point. */
@@ -1650,7 +1623,7 @@ static void _al_parallelogram_map_fast(ALLEGRO_BITMAP *src, al_fixed xs[4],
    ALLEGRO_BITMAP *dst = al_get_target_bitmap();
 
    bool sub_pixel_accuracy = true;
-   
+
    /*
     * Variables used in the loop
     */
@@ -1675,7 +1648,7 @@ static void _al_parallelogram_map_fast(ALLEGRO_BITMAP *src, al_fixed xs[4],
    int bmp_y_i;
    /* Right edge of scanline. */
    int right_edge_test;
-   
+
    /* Get index of topmost point. */
    top_index = 0;
    if (ys[1] < ys[0])
@@ -2081,7 +2054,7 @@ void _al_draw_rotated_scaled_bitmap_memory_fast(ALLEGRO_BITMAP *src,
    al_fixed fix_yscale;
 
    angle = -angle;
-   
+
    fix_dx = al_ftofix(dx);
    fix_dy = al_ftofix(dy);
    fix_cx = al_ftofix(cx);
