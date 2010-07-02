@@ -38,7 +38,7 @@ enum {
 ALLEGRO_DISPLAY *src_display;
 ALLEGRO_DISPLAY *dst_display;
 ALLEGRO_EVENT_QUEUE *queue;
-ALLEGRO_BITMAP *mem_bmp;
+ALLEGRO_BITMAP *src_bmp;
 
 int src_x1 = SRC_X;
 int src_y1 = SRC_Y;
@@ -60,6 +60,7 @@ int main(int argc, const char *argv[])
    bool mouse_down;
    bool recreate_subbitmaps;
    bool redraw;
+   const char *image_filename = NULL;
 
    if (!al_init()) {
       return 1;
@@ -79,19 +80,32 @@ int main(int argc, const char *argv[])
       return 1;
    }
    al_set_window_title(dst_display, "Destination");
-
-   if (argc > 1 && 0 == strcmp(argv[1], "-v")) {
-      al_set_new_bitmap_flags(ALLEGRO_VIDEO_BITMAP);
+   
+   al_set_new_bitmap_flags(ALLEGRO_MEMORY_BITMAP);
+   {
+      int i;
+      for (i = 1; i < argc; ++i) {
+         if (!strcmp(argv[i], "-v"))
+            al_set_new_bitmap_flags(ALLEGRO_VIDEO_BITMAP);
+         else if (!image_filename)
+            image_filename = argv[i];
+         else
+            fprintf(stderr, "Unknown argument: %s\n", argv[i]);
+      }
+      
+      if (!image_filename) {
+         image_filename = "data/mysha.pcx";
+      }
    }
-   else {
-      al_set_new_bitmap_flags(ALLEGRO_MEMORY_BITMAP);
-   }
 
-   mem_bmp = al_load_bitmap("data/mysha.pcx");
-   if (!mem_bmp) {
-      abort_example("Could not load data/mysha.pcx\n");
+   src_bmp = al_load_bitmap(image_filename);
+   if (!src_bmp) {
+      abort_example("Could not load image file\n");
       return 1;
    }
+   
+   src_x2 = src_x1 + al_get_bitmap_width(src_bmp);
+   src_y2 = src_y1 + al_get_bitmap_height(src_bmp);
 
    al_install_keyboard();
    al_install_mouse();
@@ -125,7 +139,7 @@ int main(int argc, const char *argv[])
          r -= SRC_X;
          b -= SRC_Y;
 
-         src_subbmp[0] = al_create_sub_bitmap(mem_bmp, l, t, r - l + 1,
+         src_subbmp[0] = al_create_sub_bitmap(src_bmp, l, t, r - l + 1,
             b - t + 1);
          sw = al_get_bitmap_width(src_subbmp[0]);
          sh = al_get_bitmap_height(src_subbmp[0]);
@@ -203,7 +217,7 @@ int main(int argc, const char *argv[])
             SWAP_GREATER(y, y_)
             al_set_target_backbuffer(src_display);
             al_clear_to_color(al_map_rgb(0, 0, 0));
-            al_draw_bitmap(mem_bmp, SRC_X, SRC_Y, 0);
+            al_draw_bitmap(src_bmp, SRC_X, SRC_Y, 0);
             al_draw_rectangle(x, y, x_, y_,
                al_map_rgb(0, 255, 255), 0);
             al_draw_rectangle(x + 2, y + 2, x_ - 2, y_ - 2,
