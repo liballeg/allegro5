@@ -1305,7 +1305,7 @@ static void _al_draw_transformed_rotated_bitmap_memory(
    al_scale_transform(&local_trans, xscale, yscale);
    al_rotate_transform(&local_trans, angle);
    al_translate_transform(&local_trans, dx, dy);
-   al_transform_transform(al_get_current_transform(), &local_trans);
+   al_transform_transform(&local_trans, al_get_current_transform());
    
    w = al_get_bitmap_width(src);
    h = al_get_bitmap_height(src);
@@ -1322,7 +1322,7 @@ static void _al_draw_transformed_scaled_bitmap_memory(
    
    al_identity_transform(&local_trans);
    al_translate_transform(&local_trans, dx, dy);
-   al_transform_transform(al_get_current_transform(), &local_trans);
+   al_transform_transform(&local_trans, al_get_current_transform());
    
    _al_draw_transformed_bitmap_memory(src, tint, sx, sy, sw, sh, dw, dh,
       &local_trans, flags);

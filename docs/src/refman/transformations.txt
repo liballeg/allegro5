@@ -16,10 +16,10 @@ transformations. So, for example, if you have code that does:
 
     al_identity_transform(&T);
     
-    al_transform_transform(&T1, &T);
-    al_transform_transform(&T2, &T);
-    al_transform_transform(&T3, &T);
-    al_transform_transform(&T4, &T);
+    al_transform_transform(&T, &T1);
+    al_transform_transform(&T, &T2);
+    al_transform_transform(&T, &T3);
+    al_transform_transform(&T, &T4);
 
 The resultant matrix multiplication expression will look like this:
 
@@ -168,5 +168,5 @@ Transform a transformation.
 
 *Parameters:*
 
-* trans - Transformation to use
-* trans2 - Transformation to transform
+* trans - Transformation to alter
+* other - Transformation used to transform `trans`

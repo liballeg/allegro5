@@ -237,32 +237,32 @@ void al_transform_coordinates(const ALLEGRO_TRANSFORM *trans, float *x, float *y
 
 /* Function: al_transform_transform
  */
-void al_transform_transform(const ALLEGRO_TRANSFORM *trans, ALLEGRO_TRANSFORM *trans2)
+void al_transform_transform(ALLEGRO_TRANSFORM *trans, const ALLEGRO_TRANSFORM *other)
 {
    float t;
+   ASSERT(other);
    ASSERT(trans);
-   ASSERT(trans2);
    
    /*
    First column
    */
-   t = trans2->m[0][0];
-   trans2->m[0][0] =  trans->m[0][0] * t + trans->m[1][0] * trans2->m[0][1];
-   trans2->m[0][1] =  trans->m[0][1] * t + trans->m[1][1] * trans2->m[0][1];
+   t = trans->m[0][0];
+   trans->m[0][0] =  other->m[0][0] * t + other->m[1][0] * trans->m[0][1];
+   trans->m[0][1] =  other->m[0][1] * t + other->m[1][1] * trans->m[0][1];
    
    /*
    Second column
    */
-   t = trans2->m[1][0];
-   trans2->m[1][0] =  trans->m[0][0] * t + trans->m[1][0] * trans2->m[1][1];
-   trans2->m[1][1] =  trans->m[0][1] * t + trans->m[1][1] * trans2->m[1][1];
+   t = trans->m[1][0];
+   trans->m[1][0] =  other->m[0][0] * t + other->m[1][0] * trans->m[1][1];
+   trans->m[1][1] =  other->m[0][1] * t + other->m[1][1] * trans->m[1][1];
    
    /*
    Fourth column
    */
-   t = trans2->m[3][0];
-   trans2->m[3][0] =  trans->m[0][0] * t + trans->m[1][0] * trans2->m[3][1] +  trans->m[3][0];
-   trans2->m[3][1] =  trans->m[0][1] * t + trans->m[1][1] * trans2->m[3][1] +  trans->m[3][1];
+   t = trans->m[3][0];
+   trans->m[3][0] =  other->m[0][0] * t + other->m[1][0] * trans->m[3][1] + other->m[3][0];
+   trans->m[3][1] =  other->m[0][1] * t + other->m[1][1] * trans->m[3][1] + other->m[3][1];
 }
 
 /* vim: set sts=3 sw=3 et: */
