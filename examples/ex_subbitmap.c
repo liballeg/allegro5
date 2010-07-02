@@ -6,9 +6,9 @@
  *    Highlight sub-bitmap regions with left mouse button.
  *    Press '1' to perform plain blits.
  *    Press 's' to perform scaled blits.
+ *
+ *    Pass -v on the command line to use video bitmaps.
  */
-
-/* TODO: test non-memory bitmaps */
 
 #include "allegro5/allegro5.h"
 #include "allegro5/allegro_image.h"
@@ -52,7 +52,7 @@ int dst_y2 = DST_HEIGHT-1;
 Mode mode = PLAIN_BLIT;
 int draw_flags = 0;
 
-int main(void)
+int main(int argc, const char *argv[])
 {
    ALLEGRO_BITMAP *src_subbmp[2] = {NULL, NULL};
    ALLEGRO_BITMAP *dst_subbmp[2] = {NULL, NULL};
@@ -80,7 +80,13 @@ int main(void)
    }
    al_set_window_title(dst_display, "Destination");
 
-   al_set_new_bitmap_flags(ALLEGRO_MEMORY_BITMAP);
+   if (argc > 1 && 0 == strcmp(argv[1], "-v")) {
+      al_set_new_bitmap_flags(ALLEGRO_VIDEO_BITMAP);
+   }
+   else {
+      al_set_new_bitmap_flags(ALLEGRO_MEMORY_BITMAP);
+   }
+
    mem_bmp = al_load_bitmap("data/mysha.pcx");
    if (!mem_bmp) {
       abort_example("Could not load data/mysha.pcx\n");
