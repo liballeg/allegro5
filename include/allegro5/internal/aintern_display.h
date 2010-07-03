@@ -137,7 +137,9 @@ void _al_draw_pixel_memory(ALLEGRO_BITMAP *bmp, float x, float y, ALLEGRO_COLOR 
 
 void _al_destroy_display_bitmaps(ALLEGRO_DISPLAY *d);
 
-void _al_set_display_invalidated_callback(ALLEGRO_DISPLAY* display, void (*display_invalidated)(ALLEGRO_DISPLAY*));
+/* This is called from the primitives addon. */
+AL_FUNC(void, _al_set_display_invalidated_callback, (ALLEGRO_DISPLAY *display,
+   void (*display_invalidated)(ALLEGRO_DISPLAY*)));
 
 /* Defined in tls.c */
 bool _al_set_current_display_only(ALLEGRO_DISPLAY *display);
