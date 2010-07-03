@@ -803,16 +803,22 @@ static void ogl_unlock_region(ALLEGRO_BITMAP *bitmap)
 
 #if !defined ALLEGRO_GP2XWIZ && !defined ALLEGRO_IPHONE
    if (ogl_bitmap->is_backbuffer) {
+      bool popmatrix = false;
       /* glWindowPos2i may not be available. */
       if (al_get_opengl_version() >= 1.4) {
          glWindowPos2i(bitmap->lock_x, gl_y);
       }
       else {
-         /* The offset is to keep the coordinate within bounds, which was at
-          * least needed on my machine. --pw
+         /* glRasterPos is affected by the current modelview and projection
+          * matrices (so maybe we actually need to reset both of them?).
+          * The coordinate is also clipped; the small offset was required to
+          * prevent it being culled on one of my machines. --pw
           */
+         glPushMatrix();
+         glLoadIdentity();
          glRasterPos2f(bitmap->lock_x,
             bitmap->lock_y + bitmap->lock_h - 1e-4f);
+         popmatrix = true;
       }
       glDisable(GL_BLEND);
       glDrawPixels(bitmap->lock_w, bitmap->lock_h,
@@ -823,6 +829,9 @@ static void ogl_unlock_region(ALLEGRO_BITMAP *bitmap)
       if (e) {
          ALLEGRO_ERROR("glDrawPixels for format %s failed (%s).\n",
             _al_format_name(format), error_string(e));
+      }
+      if (popmatrix) {
+         glPopMatrix();
       }
    }
    else {
