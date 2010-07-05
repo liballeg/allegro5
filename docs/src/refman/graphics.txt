@@ -350,6 +350,7 @@ which depend on the display driver in use.
 
 * ALLEGRO_KEEP_BITMAP_FORMAT - Only used when loading bitmaps from disk files,
 forces the resulting ALLEGRO_BITMAP to use the same format as the file.
+*This is not yet honoured.*
 
 * ALLEGRO_FORCE_LOCKING - When drawing to a bitmap with this flag set, always
 use pixel locking and draw to it using Allegro's software drawing primitives.
