@@ -206,15 +206,6 @@ ALLEGRO_BITMAP *al_load_bitmap(const char *filename)
    const char *ext;
    Handler *h;
    ALLEGRO_BITMAP *ret;
-   const ALLEGRO_TRANSFORM *current_transform = al_get_current_transform();
-   ALLEGRO_TRANSFORM old_trans;
-   ALLEGRO_TRANSFORM identity_trans;
-
-   if (current_transform) {
-      al_copy_transform(al_get_current_transform(), &old_trans);
-      al_identity_transform(&identity_trans);
-      al_use_transform(&identity_trans);
-   }
 
    ext = strrchr(filename, '.');
    if (!ext) {
@@ -235,9 +226,6 @@ ALLEGRO_BITMAP *al_load_bitmap(const char *filename)
          "therefore not trying to load %s.\n", ext, filename);
       ret = NULL;
    }
-
-   if (current_transform)
-      al_use_transform(&old_trans);
 
    return ret;
 }
