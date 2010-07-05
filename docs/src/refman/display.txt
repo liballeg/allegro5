@@ -164,20 +164,20 @@ reasonable combination of the following:
 
 * ALLEGRO_FULLSCREEN_WINDOW
 
-  Make the window span the entire screen. Unlike ALLEGRO_FULLSCREEN this
-  will never attempt to modify the screen resolution. Instead the pixel
-  dimensions of the created display will be the same as the desktop.
+    Make the window span the entire screen. Unlike ALLEGRO_FULLSCREEN this
+    will never attempt to modify the screen resolution. Instead the pixel
+    dimensions of the created display will be the same as the desktop.
 
-  The passed width and height are only used if the window is switched
-  out of fullscreen mode later but will be ignored initially.
+    The passed width and height are only used if the window is switched
+    out of fullscreen mode later but will be ignored initially.
 
-  Under Windows and X11 a fullscreen display created with this flag
-  will behave differently from one created with the ALLEGRO_FULLSCREEN
-  flag - even if the ALLEGRO_FULLSCREEN display is passed the desktop
-  dimensions. The exact difference is platform dependent, but some
-  things which may be different is how alt-tab works, how fast you can
-  toggle between fullscreen/windowed mode or how additional monitors
-  behave while your display is in fullscreen mode.
+    Under Windows and X11 a fullscreen display created with this flag
+    will behave differently from one created with the ALLEGRO_FULLSCREEN
+    flag - even if the ALLEGRO_FULLSCREEN display is passed the desktop
+    dimensions. The exact difference is platform dependent, but some
+    things which may be different is how alt-tab works, how fast you can
+    toggle between fullscreen/windowed mode or how additional monitors
+    behave while your display is in fullscreen mode.
 
 * ALLEGRO_RESIZABLE - the display is resizable (only applicable if combined
 with ALLEGRO_WINDOWED)
@@ -188,8 +188,8 @@ after returning successfully
 * ALLEGRO_OPENGL_3_0 - require the driver to provide an initialized opengl
 context compatible with OpenGL version 3.0
 
-* ALLEGRO_OPENGL_FORWARD_COMPATIBLE - the opengl context created with
-ALLEGRO_OPENGL_3_0 will be forwad compatible, meaning that all of the OpenGL API
+* ALLEGRO_OPENGL_FORWARD_COMPATIBLE - the OpenGL context created with
+ALLEGRO_OPENGL_3_0 will be forward compatible, meaning that all of the OpenGL API
 declared deprecated in OpenGL 3.0 will not be supported. For such displays,
 option ALLEGRO_COMPATIBLE_DISPLAY will be set to false.
 
@@ -297,7 +297,7 @@ See also: [al_get_backbuffer]
 Gets the flags of the display.
 
 In addition to the flags set for the display at creation time with
-al_set_new_display_flags it can also have the ALLEGRO_MINIMIZED flag
+[al_set_new_display_flags] it can also have the ALLEGRO_MINIMIZED flag
 set, indicating that the window is currently minimized. This flag
 is very platform-dependent as even a minimized application may still
 render a preview version so normally you should not care whether it
@@ -383,8 +383,11 @@ Set the title on a display.
 ### API: al_toggle_display_flag
 
 Enable or disable one of the display flags. The flags are the same
-as for [al_set_new_display_flags]. Note however that some of the flags
-cannot be changed after the display has been created.
+as for [al_set_new_display_flags]. The only flags that can be changed
+after creation are:
+
+- ALLEGRO_FULLSCREEN_WINDOW
+- ALLEGRO_NOFRAME
 
 Returns true if the driver supports toggling the specified flag else
 false. You can use [al_get_display_flags] to query whether the given
