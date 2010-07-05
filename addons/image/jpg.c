@@ -234,7 +234,6 @@ static void load_jpg_entry_helper(ALLEGRO_FILE *fp,
    lock = al_lock_bitmap(data->bmp, ALLEGRO_PIXEL_FORMAT_BGR_888,
        ALLEGRO_LOCK_WRITEONLY);
 #endif
-   al_set_target_bitmap(data->bmp);
 
    if (s == 3) {
       /* Colour. */
@@ -288,15 +287,10 @@ static void load_jpg_entry_helper(ALLEGRO_FILE *fp,
 
 ALLEGRO_BITMAP *_al_load_jpg_f(ALLEGRO_FILE *fp)
 {
-   ALLEGRO_STATE state;
    struct load_jpg_entry_helper_data data;
-
-   al_store_state(&state, ALLEGRO_STATE_TARGET_BITMAP);
 
    memset(&data, 0, sizeof(data));
    load_jpg_entry_helper(fp, &data);
-
-   al_restore_state(&state);
 
    return data.bmp;
 }
@@ -349,7 +343,6 @@ static void save_jpg_entry_helper(ALLEGRO_FILE *fp, ALLEGRO_BITMAP *bmp,
    lock = al_lock_bitmap(bmp, ALLEGRO_PIXEL_FORMAT_BGR_888,
       ALLEGRO_LOCK_READONLY);
 #endif
-   al_set_target_bitmap(bmp);
 
    while (cinfo.next_scanline < cinfo.image_height) {
       unsigned char *row[1];
@@ -373,15 +366,10 @@ static void save_jpg_entry_helper(ALLEGRO_FILE *fp, ALLEGRO_BITMAP *bmp,
 
 bool _al_save_jpg_f(ALLEGRO_FILE *fp, ALLEGRO_BITMAP *bmp)
 {
-   ALLEGRO_STATE state;
    struct save_jpg_entry_helper_data data;
-
-   al_store_state(&state, ALLEGRO_STATE_TARGET_BITMAP);
 
    memset(&data, 0, sizeof(data));
    save_jpg_entry_helper(fp, bmp, &data);
-
-   al_restore_state(&state);
 
    return !data.error;
 }
