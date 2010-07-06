@@ -92,7 +92,7 @@ Override the memory management functions with implementations of
 [al_malloc_with_context], [al_free_with_context], [al_realloc_with_context] and
 [al_calloc_with_context].  The context arguments may be used for debugging.
 
-If the pointer may be NULL, the default behaviour will be restored.
+If the pointer is NULL, the default behaviour will be restored.
 
 See also: [ALLEGRO_MEMORY_INTERFACE]
 
