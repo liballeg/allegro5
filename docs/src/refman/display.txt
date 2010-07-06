@@ -182,16 +182,18 @@ reasonable combination of the following:
 * ALLEGRO_RESIZABLE - the display is resizable (only applicable if combined
 with ALLEGRO_WINDOWED)
 
-* ALLEGRO_OPENGL - require the driver to provide an initialized opengl context
+* ALLEGRO_OPENGL - require the driver to provide an initialized OpenGL context
 after returning successfully
 
 * ALLEGRO_OPENGL_3_0 - require the driver to provide an initialized opengl
 context compatible with OpenGL version 3.0
 
-* ALLEGRO_OPENGL_FORWARD_COMPATIBLE - the OpenGL context created with
-ALLEGRO_OPENGL_3_0 will be forward compatible, meaning that all of the OpenGL API
-declared deprecated in OpenGL 3.0 will not be supported. For such displays,
-option ALLEGRO_COMPATIBLE_DISPLAY will be set to false.
+* ALLEGRO_OPENGL_FORWARD_COMPATIBLE - if this flag is set, the OpenGL
+context created with ALLEGRO_OPENGL_3_0 will be forward compatible *only*,
+meaning that all of the OpenGL API declared deprecated in OpenGL 3.0 will not
+be supported. Currently, a display created with this flag will *not* be
+compatible with Allegro drawing routines; the display option
+ALLEGRO_COMPATIBLE_DISPLAY will be set to false.
 
 * ALLEGRO_DIRECT3D - require the driver to do rendering with Direct3D and
 provide a Direct3D device
