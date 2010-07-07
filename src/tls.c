@@ -319,9 +319,9 @@ int al_get_new_display_refresh_rate(void)
 
 
 
-/* Function: al_set_current_video_adapter
+/* Function: al_set_new_display_adapter
  */
-void al_set_current_video_adapter(int adapter)
+void al_set_new_display_adapter(int adapter)
 {
    thread_local_state *tls;
 
@@ -332,9 +332,9 @@ void al_set_current_video_adapter(int adapter)
 
 
 
-/* Function: al_get_current_video_adapter
+/* Function: al_get_new_display_adapter
  */
-int al_get_current_video_adapter(void)
+int al_get_new_display_adapter(void)
 {
    thread_local_state *tls;
 

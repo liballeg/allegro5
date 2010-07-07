@@ -328,7 +328,7 @@ static bool xglx_inhibit_screensaver(bool inhibit)
 
 static int xglx_get_num_display_modes(void)
 {
-   int adapter = al_get_current_video_adapter();
+   int adapter = al_get_new_display_adapter();
    ALLEGRO_SYSTEM_XGLX *s = (ALLEGRO_SYSTEM_XGLX *)al_get_system_driver();
 
    return _al_xglx_get_num_display_modes(s, adapter);
@@ -336,7 +336,7 @@ static int xglx_get_num_display_modes(void)
 
 static ALLEGRO_DISPLAY_MODE *xglx_get_display_mode(int mode, ALLEGRO_DISPLAY_MODE *dm)
 {
-   int adapter = al_get_current_video_adapter();
+   int adapter = al_get_new_display_adapter();
    ALLEGRO_SYSTEM_XGLX *s = (ALLEGRO_SYSTEM_XGLX *)al_get_system_driver();
 
    return _al_xglx_get_display_mode(s, adapter, mode, dm);

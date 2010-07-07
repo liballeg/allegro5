@@ -566,7 +566,7 @@ static void osx_set_opengl_pixelformat_attributes(ALLEGRO_DISPLAY_OSX_WIN *dpy)
       dpy->depth = extras->settings[ALLEGRO_COLOR_SIZE];
    if (!dpy->depth) {   /* Use default */
       NSScreen *screen;
-      int adapter = al_get_current_video_adapter();
+      int adapter = al_get_new_display_adapter();
       if ((adapter >= 0) && (adapter < al_get_num_video_adapters())) {
          screen = [[NSScreen screens] objectAtIndex: adapter];
       } else {
@@ -778,7 +778,7 @@ static void osx_get_opengl_pixelformat_attributes(ALLEGRO_DISPLAY_OSX_WIN *dpy)
    ALLEGRO_DISPLAY_OSX_WIN* dpy = [display_object pointerValue];
    NSRect rc = NSMakeRect(0, 0, dpy->parent.w,  dpy->parent.h);
    NSWindow* win = dpy->win = [ALWindow alloc]; 
-   int adapter = al_get_current_video_adapter();
+   int adapter = al_get_new_display_adapter();
    NSScreen *screen;
    unsigned int mask = (dpy->parent.flags & ALLEGRO_NOFRAME) ? NSBorderlessWindowMask : 
       (NSTitledWindowMask|NSClosableWindowMask|NSMiniaturizableWindowMask);
@@ -991,7 +991,7 @@ static NSOpenGLContext* osx_create_shareable_context(NSOpenGLPixelFormat* fmt, u
 static ALLEGRO_DISPLAY* create_display_fs(int w, int h)
 {
    ALLEGRO_DEBUG("Switching to fullscreen mode sized %dx%d\n", w, h);
-   if (al_get_current_video_adapter() >= al_get_num_video_adapters())
+   if (al_get_new_display_adapter() >= al_get_num_video_adapters())
       return NULL;
    ALLEGRO_DISPLAY_OSX_WIN* dpy = al_malloc(sizeof(ALLEGRO_DISPLAY_OSX_WIN));
    if (dpy == NULL) {
@@ -1010,8 +1010,8 @@ static ALLEGRO_DISPLAY* create_display_fs(int w, int h)
    dpy->display_id = CGMainDisplayID();
 
    /* Get display ID for the requested display */
-   if (al_get_current_video_adapter() > 0) {
-      int adapter = al_get_current_video_adapter();
+   if (al_get_new_display_adapter() > 0) {
+      int adapter = al_get_new_display_adapter();
       NSScreen *screen = [[NSScreen screens] objectAtIndex: adapter];
       NSDictionary *dict = [screen deviceDescription];
       NSNumber *display_id = [dict valueForKey: @"NSScreenNumber"];
@@ -1154,7 +1154,7 @@ static ALLEGRO_DISPLAY* create_display_fs(int w, int h)
 static ALLEGRO_DISPLAY* create_display_fs(int w, int h)
 {
    ALLEGRO_DEBUG("Creating full screen mode sized %dx%d\n", w, h);
-   if (al_get_current_video_adapter() >= al_get_num_video_adapters())
+   if (al_get_new_display_adapter() >= al_get_num_video_adapters())
       return NULL;
    ALLEGRO_DISPLAY_OSX_WIN* dpy = al_malloc(sizeof(ALLEGRO_DISPLAY_OSX_WIN));
    if (dpy == NULL) {
@@ -1309,7 +1309,7 @@ static ALLEGRO_DISPLAY* create_display_win(int w, int h) {
    }
 
    ALLEGRO_DEBUG("Creating window sized %dx%d\n", w, h);
-   if (al_get_current_video_adapter() >= al_get_num_video_adapters())
+   if (al_get_new_display_adapter() >= al_get_num_video_adapters())
       return NULL;
    ALLEGRO_DISPLAY_OSX_WIN* dpy = al_malloc(sizeof(ALLEGRO_DISPLAY_OSX_WIN));
    if (dpy == NULL) {

@@ -248,7 +248,7 @@ static ALLEGRO_DISPLAY *xdpy_create_display(int w, int h)
    display->flags |= ALLEGRO_OPENGL;
 
    // store our initial screen, used by fullscreen and glx visual code
-   d->xscreen = al_get_current_video_adapter();
+   d->xscreen = al_get_new_display_adapter();
    if(d->xscreen < 0)
       d->xscreen = 0;
 

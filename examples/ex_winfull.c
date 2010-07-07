@@ -15,7 +15,7 @@ int main(void)
 
    al_install_keyboard();
 
-   al_set_current_video_adapter(1);
+   al_set_new_display_adapter(1);
    al_set_new_display_flags(ALLEGRO_WINDOWED);
    win = al_create_display(640, 480);
    if (!win) {
@@ -23,7 +23,7 @@ int main(void)
       return 1;
    }
 
-   al_set_current_video_adapter(0);
+   al_set_new_display_adapter(0);
    al_set_new_display_flags(ALLEGRO_FULLSCREEN);
    full = al_create_display(640, 480);
    if (!full) {

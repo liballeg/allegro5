@@ -573,7 +573,7 @@ static bool change_display_mode(ALLEGRO_DISPLAY *d)
    int i, modeswitch, result;
    int fallback_dm_valid = 0;
    int bpp;
-   int adapter = al_get_current_video_adapter();
+   int adapter = al_get_new_display_adapter();
 
    if (adapter != -1) {
       memset(&dd, 0, sizeof(dd));
@@ -1154,7 +1154,7 @@ static void display_thread_proc(void *arg)
    }
    else if (disp->flags & ALLEGRO_FULLSCREEN_WINDOW) {
       ALLEGRO_MONITOR_INFO mi;
-      int adapter = al_get_current_video_adapter();
+      int adapter = al_get_new_display_adapter();
       if (adapter == -1)
          adapter = 0;
       al_get_monitor_info(adapter, &mi);
@@ -1332,7 +1332,7 @@ static bool wgl_resize_display(ALLEGRO_DISPLAY *d, int width, int height)
    ALLEGRO_DISPLAY_WIN *win_disp = (ALLEGRO_DISPLAY_WIN *)d;
    int full_w, full_h;
    ALLEGRO_MONITOR_INFO mi;
-   int adapter = al_get_current_video_adapter();
+   int adapter = al_get_new_display_adapter();
    if (adapter == -1)
          adapter = 0;
    al_get_monitor_info(adapter, &mi);

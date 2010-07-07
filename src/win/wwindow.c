@@ -123,7 +123,7 @@ HWND _al_win_create_window(ALLEGRO_DISPLAY *display, int width, int height, int 
    }
 
    if (center) {
-      //int a = al_get_current_video_adapter();
+      //int a = al_get_new_display_adapter();
       int a = win_display->adapter;
 
       if (a == -1) {
@@ -157,7 +157,7 @@ HWND _al_win_create_window(ALLEGRO_DISPLAY *display, int width, int height, int 
          al_free(is_fullscreen);
       }
 
-      al_set_current_video_adapter(a);
+      al_set_new_display_adapter(a);
 
       al_get_monitor_info(a, &info);
 
@@ -864,7 +864,7 @@ bool _al_win_toggle_display_flag(ALLEGRO_DISPLAY *display, int flag, bool onoff)
 
          if (onoff) {
             ALLEGRO_MONITOR_INFO mi;
-            int adapter = al_get_current_video_adapter();
+            int adapter = al_get_new_display_adapter();
             if (adapter == -1)
                   adapter = 0;
             al_get_monitor_info(adapter, &mi);

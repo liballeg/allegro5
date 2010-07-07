@@ -167,7 +167,7 @@ static int _al_osx_get_num_display_modes(void)
    ALLEGRO_EXTRA_DISPLAY_SETTINGS *extras = _al_get_new_display_settings();
    ALLEGRO_EXTRA_DISPLAY_SETTINGS temp;
    int refresh_rate = al_get_new_display_refresh_rate();
-   int adapter = al_get_current_video_adapter();
+   int adapter = al_get_new_display_adapter();
    int depth = 0;
    CGDirectDisplayID display;
    CFArrayRef modes;

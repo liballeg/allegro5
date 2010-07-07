@@ -144,8 +144,8 @@ AL_FUNC(void, al_set_display_icon, (ALLEGRO_DISPLAY *display, ALLEGRO_BITMAP *ic
 /* Stuff for multihead/window management */
 AL_FUNC(int, al_get_num_video_adapters, (void));
 AL_FUNC(void, al_get_monitor_info, (int adapter, ALLEGRO_MONITOR_INFO *info));
-AL_FUNC(int, al_get_current_video_adapter, (void));
-AL_FUNC(void, al_set_current_video_adapter, (int adapter));
+AL_FUNC(int, al_get_new_display_adapter, (void));
+AL_FUNC(void, al_set_new_display_adapter, (int adapter));
 AL_FUNC(void, al_set_new_window_position, (int x, int y));
 AL_FUNC(void, al_get_new_window_position, (int *x, int *y));
 AL_FUNC(void, al_set_window_position, (ALLEGRO_DISPLAY *display, int x, int y));

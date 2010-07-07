@@ -13,7 +13,7 @@ static void go(void)
 
    al_set_new_display_flags(ALLEGRO_FULLSCREEN);
 
-   al_set_current_video_adapter(0);
+   al_set_new_display_adapter(0);
    d1 = al_create_display(640, 480);
    if (!d1) {
       printf("Error creating first display\n");
@@ -25,7 +25,7 @@ static void go(void)
       return;
    }
 
-   al_set_current_video_adapter(1);
+   al_set_new_display_adapter(1);
    d2 = al_create_display(640, 480);
    if (!d2) {
       printf("Error creating second display\n");
