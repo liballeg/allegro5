@@ -14,16 +14,6 @@
  *
  */
 
-/* Title: Thread local storage
- *
- * Some of Allegro's "global" state is thread-specific.  For example, each
- * thread in the program will have it's own target bitmap, and calling
- * <al_set_target_bitmap> will only change the target bitmap of the calling
- * thread.  This reduces the problems with global state in multithreaded
- * programs.
- */
-
-
 #include <string.h>
 #include "allegro5/allegro5.h"
 #include "allegro5/internal/aintern.h"
@@ -32,11 +22,15 @@
 #include "allegro5/internal/aintern_file.h"
 #include "allegro5/internal/aintern_fshook.h"
 
+
 /* Thread local storage for various per-thread state. */
 typedef struct thread_local_state {
-   /* Display parameters */
-   int new_display_refresh_rate;
+   /* New display parameters */
    int new_display_flags;
+   int new_display_refresh_rate;
+   int new_display_adapter;
+   int new_window_x;
+   int new_window_y;
    ALLEGRO_EXTRA_DISPLAY_SETTINGS new_display_settings;
 
    /* Current display */
@@ -85,6 +79,10 @@ static void initialize_blender(ALLEGRO_BLENDER *b)
 static void initialize_tls_values(thread_local_state *tls)
 {
    memset(tls, 0, sizeof *tls);
+
+   tls->new_display_adapter = -1;
+   tls->new_window_x = INT_MAX;
+   tls->new_window_y = INT_MAX;
 
    initialize_blender(&tls->current_blender);
    tls->new_bitmap_format = ALLEGRO_PIXEL_FORMAT_ANY_WITH_ALPHA;
@@ -135,8 +133,8 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved)
          if ((tls_index = TlsAlloc()) == TLS_OUT_OF_INDEXES) {
             return false;
 	 }
-            // No break: Initialize the index for first thread.
-            // The attached process creates a new thread. 
+         // No break: Initialize the index for first thread.
+         // The attached process creates a new thread. 
 
       case DLL_THREAD_ATTACH: 
           // Initialize the TLS index for this thread.
@@ -145,7 +143,7 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved)
              TlsSetValue(tls_index, data);
              initialize_tls_values(data);
           }
-             break; 
+          break; 
  
         // The thread of the attached process terminates.
       case DLL_THREAD_DETACH: 
@@ -268,18 +266,6 @@ ALLEGRO_EXTRA_DISPLAY_SETTINGS *_al_get_new_display_settings(void)
 }
 
 
-/* Function: al_set_new_display_refresh_rate
- */
-void al_set_new_display_refresh_rate(int refresh_rate)
-{
-   thread_local_state *tls;
-
-   if ((tls = tls_get()) == NULL)
-      return;
-   tls->new_display_refresh_rate = refresh_rate;
-}
-
-
 
 /* Function: al_set_new_display_flags
  */
@@ -291,6 +277,33 @@ void al_set_new_display_flags(int flags)
       return;
    tls->new_display_flags = flags;
 }
+
+
+
+/* Function: al_get_new_display_flags
+ */
+int al_get_new_display_flags(void)
+{
+   thread_local_state *tls;
+
+   if ((tls = tls_get()) == NULL)
+      return 0;
+   return tls->new_display_flags;
+}
+
+
+
+/* Function: al_set_new_display_refresh_rate
+ */
+void al_set_new_display_refresh_rate(int refresh_rate)
+{
+   thread_local_state *tls;
+
+   if ((tls = tls_get()) == NULL)
+      return;
+   tls->new_display_refresh_rate = refresh_rate;
+}
+
 
 
 /* Function: al_get_new_display_refresh_rate
@@ -306,15 +319,63 @@ int al_get_new_display_refresh_rate(void)
 
 
 
-/* Function: al_get_new_display_flags
+/* Function: al_set_current_video_adapter
  */
-int al_get_new_display_flags(void)
+void al_set_current_video_adapter(int adapter)
 {
    thread_local_state *tls;
 
    if ((tls = tls_get()) == NULL)
-      return 0;
-   return tls->new_display_flags;
+      return;
+   tls->new_display_adapter = adapter;
+}
+
+
+
+/* Function: al_get_current_video_adapter
+ */
+int al_get_current_video_adapter(void)
+{
+   thread_local_state *tls;
+
+   if ((tls = tls_get()) == NULL)
+      return -1;
+   return tls->new_display_adapter;
+}
+
+
+
+/* Function: al_set_new_window_position
+ */
+void al_set_new_window_position(int x, int y)
+{
+   thread_local_state *tls;
+
+   if ((tls = tls_get()) == NULL)
+      return;
+   tls->new_window_x = x;
+   tls->new_window_y = y;
+}
+
+
+
+/* Function: al_get_new_window_position
+ */
+void al_get_new_window_position(int *x, int *y)
+{
+   thread_local_state *tls;
+   int new_window_x = INT_MAX;
+   int new_window_y = INT_MAX;
+
+   if ((tls = tls_get()) != NULL) {
+      new_window_x = tls->new_window_x;
+      new_window_y = tls->new_window_y;
+   }
+
+   if (x)
+      *x = new_window_x;
+   if (y)
+      *y = new_window_y;
 }
 
 
@@ -584,8 +645,12 @@ void al_store_state(ALLEGRO_STATE *state, int flags)
    stored->flags = flags;
 
    if (flags & ALLEGRO_STATE_NEW_DISPLAY_PARAMETERS) {
-      _STORE(new_display_refresh_rate);
       _STORE(new_display_flags);
+      _STORE(new_display_refresh_rate);
+      _STORE(new_display_adapter);
+      _STORE(new_window_x);
+      _STORE(new_window_y);
+      _STORE(new_display_settings);
    }
    
    if (flags & ALLEGRO_STATE_NEW_BITMAP_PARAMETERS) {
@@ -638,8 +703,12 @@ void al_restore_state(ALLEGRO_STATE const *state)
    flags = stored->flags;
 
    if (flags & ALLEGRO_STATE_NEW_DISPLAY_PARAMETERS) {
-      _STORE(new_display_refresh_rate);
       _STORE(new_display_flags);
+      _STORE(new_display_refresh_rate);
+      _STORE(new_display_adapter);
+      _STORE(new_window_x);
+      _STORE(new_window_y);
+      _STORE(new_display_settings);
    }
    
    if (flags & ALLEGRO_STATE_NEW_BITMAP_PARAMETERS) {

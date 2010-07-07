@@ -32,9 +32,6 @@
 
 ALLEGRO_DEBUG_CHANNEL("display")
 
-static int current_video_adapter = -1;
-static int new_window_x = INT_MAX;
-static int new_window_y = INT_MAX;
 
 /* Function: al_create_display
  */
@@ -400,42 +397,6 @@ void al_get_monitor_info(int adapter, ALLEGRO_MONITOR_INFO *info)
    else {
       info->x1 = info->y1 = info->x2 = info->y2 = INT_MAX;
    }
-}
-
-
-/* Function: al_get_current_video_adapter
- */
-int al_get_current_video_adapter(void)
-{
-   return current_video_adapter;
-}
-
-
-/* Function: al_set_current_video_adapter
- */
-void al_set_current_video_adapter(int adapter)
-{
-   current_video_adapter = adapter;
-}
-
-
-/* Function: al_set_new_window_position
- */
-void al_set_new_window_position(int x, int y)
-{
-   new_window_x = x;
-   new_window_y = y;
-}
-
-
-/* Function: al_get_new_window_position
- */
-void al_get_new_window_position(int *x, int *y)
-{
-   if (x)
-      *x = new_window_x;
-   if (y)
-      *y = new_window_y;
 }
 
 
