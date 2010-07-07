@@ -25,7 +25,8 @@ Each display has a distinct OpenGL rendering context associated with it. See
 [al_set_target_bitmap] for the discussion about rendering contexts.
 
 See also: [al_set_new_display_flags], [al_set_new_display_option],
-[al_set_new_display_refresh_rate]
+[al_set_new_display_refresh_rate], [al_set_new_display_adapter],
+[al_set_window_position]
 
 ### API: al_destroy_display
 
@@ -43,28 +44,32 @@ See also: [al_set_target_bitmap]
 
 ### API: al_get_new_display_flags
 
-Gets the current flags used for newly created displays.
+Get the display flags to be used when creating new displays on the calling
+thread.
 
 See also: [al_set_new_display_flags], [al_toggle_display_flag]
 
 ### API: al_get_new_display_refresh_rate
 
-Gets the current refresh rate used for newly created displays.
+Get the requested refresh rate to be used when creating new displays on the
+calling thread.
 
 See also: [al_set_new_display_refresh_rate]
 
 ### API: al_get_new_window_position
 
-Gets the position where newly created non-fullscreen
-displays will be placed.
+Get the position where new non-fullscreen displays created by the calling
+thread will be placed.
 
 See also: [al_set_new_window_position]
 
 ### API: al_set_new_display_option
 
-Sets an extra display option. Allegro itself will not care about those
-options itself, but you may want to specify them, for example if you
-want to use multisampling.
+Set an extra display option, to be used when creating new displays on the
+calling thread.  Display options differ from display flags, and specify some
+details of the context to be created within the window itself.
+These mainly have no effect on Allegro itself, but you may want to specify
+them, for example if you want to use multisampling.
 
 The 'importance' parameter can be either:
 
@@ -151,12 +156,13 @@ Retrieve an extra display setting which was previously set with
 
 ### API: al_reset_new_display_options
 
-This undoes any previous calls to [al_set_new_display_option].
+This undoes any previous call to [al_set_new_display_option]
+on the calling thread.
 
 ### API: al_set_new_display_flags
 
-Sets various flags for display creation. flags is a bitfield containing any
-reasonable combination of the following:
+Sets various flags to be used when creating new displays on the calling thread.
+flags is a bitfield containing any reasonable combination of the following:
 
 * ALLEGRO_WINDOWED - prefer a windowed mode
 
@@ -211,15 +217,23 @@ See also: [al_set_new_display_option], [al_get_display_option]
 
 ### API: al_set_new_display_refresh_rate
 
-Sets the refresh rate to use for newly created displays. If the refresh rate
-is not available, [al_create_display] will fail. A list of modes with refresh
-rates can be found with [al_get_num_display_modes] and [al_get_display_mode].
+Sets the refresh rate to use when creating new displays on the calling thread.
+If the refresh rate is not available, [al_create_display] will fail.
+A list of modes with refresh rates can be found with [al_get_num_display_modes]
+and [al_get_display_mode].
+
+The default setting is zero (don't care).
+
+See also: [al_get_new_display_refresh_rate]
 
 ### API: al_set_new_window_position
 
 Sets where the top left pixel of the client area of newly
-created windows (non-fullscreen) will be on screen.
+created windows (non-fullscreen) will be on screen,
+for displays created by the calling thread.
 Negative values allowed on some multihead systems.
+
+To reset to the default behaviour, pass (INT_MAX, INT_MAX).
 
 See also: [al_get_new_window_position]
 
@@ -366,6 +380,8 @@ bitmap, it will be scaled.
 TODO: Describe best practice for the size?
 TODO: Allow providing multiple icons in differet sizes?
 
+See also: [al_set_window_title]
+
 ### API: al_get_display_option
 
 Return an extra display setting of the display.
@@ -381,6 +397,8 @@ See also: [al_get_window_position]
 ### API: al_set_window_title
 
 Set the title on a display.
+
+See also: [al_set_display_icon]
 
 ### API: al_toggle_display_flag
 
@@ -490,16 +508,18 @@ See also: [al_get_monitor_info]
 ### API: al_get_new_display_adapter
 
 Gets the video adapter index where new displays
-will be created.
+will be created by the calling thread.
 
 See also: [al_set_new_display_adapter]
 
 ### API: al_set_new_display_adapter
 
-Sets the adapter to use for newly created displays.
+Sets the adapter to use for new displays created by the calling thread.
 The adapter has a monitor attached to it. Information
 about the monitor can be gotten using [al_get_num_video_adapters]
 and [al_get_monitor_info].
+
+To return to the default behaviour, pass -1.
 
 See also: [al_get_num_video_adapters], [al_get_monitor_info]
 
