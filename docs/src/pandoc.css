@@ -1,46 +1,30 @@
 /* We use this style sheet for HTML documents generated with Pandoc. */
 
 body {
-    margin: auto;
-    padding-right: 1em;
-    padding-left: 0.5em;
-    border-left: 1px solid #e0e0e0;
-    border-right: 1px solid #e0e0e0;
-    color: black;
+    background-color: #fcfcfc;
+    padding-left: 0.1em;
+    color: #222;
     font-family: sans-serif;
-    font-size: 100%;
 }
 
-/* example code */
 pre {
-    border: none;
-    background-color: #fafafa;
-    color: #1111111;
-    padding: 0.5em;
-}
-
-/* function prototype */
-h2 + pre {
-    border: 1px solid #e0e0e0;
-    background-color: #f8f8fa;
-    padding: 0.5em;
+    border: 1px solid #ddd;
+    background-color: #f3f3f8;
+    padding: 0.6em;
+    padding-left: 0.8em;
+    -moz-border-radius: 5px;
+    -webkit-border-radius: 5px;
 }
 
 code {
     font-family: monospace;
 }
 
-h1 a, h2 a, h3 a, h4 a, h5 a { 
-    text-decoration: none;
-    color: #334490;
-}
-
 h1, h2, h3, h4, h5 {
-    font-weight: bold;
-    margin-top: 1.2em;
-    border-bottom: 1px solid #e0e0e0;
-    padding-bottom: 1px;
-    color: #334490;
+    color: #348;
+    margin-top: 2.5em;
+    border-top: 1px solid #eee;
+    padding-top: 0.8em;
 }
 
 h1 {
@@ -68,6 +52,7 @@ h5 {
 h1.title {
     font-size: 200%;
     font-weight: bold;
+    margin-top: 0;
     padding-top: 0.2em;
     padding-bottom: 0.2em;
     text-align: left;
@@ -76,7 +61,7 @@ h1.title {
 
 a {
     text-decoration: none;
-    color: #334490;
+    color: #348;
 }
 
 dt code {
@@ -103,28 +88,16 @@ table th {
     padding: 0.5em;
 }
 
-table.white {
-    background-color: #ffffff;
-    line-height: 140%;
-    border-top: none;
-    border-bottom: none;
-}
-
-table.white td {
-    padding: 0.4em;
-    vertical-align: top;
-}
-
-#footer {
-    padding-top: 1em;
-    font-size: 70%;
-    color: gray;
-    text-align: center;
-}
-
 /* Side bar */
 div.sidebar {
+    background-color: #f0f0fa;
+    border: solid 1px #e0e0ea;
+    float: left;
+    width: 150px;
     margin-right:           1em;
+    line-height:	    110%;
+    -moz-border-radius:	    5px;
+    -webkit-border-radius:  5px;
 }
 
 div.sidebar ul {
@@ -134,21 +107,8 @@ div.sidebar ul {
     font-size:              small;
 }
 
-div.sidebar li {
-    display:                block;
-    margin-top:             0.05em;
-    margin-bottom:          0em;
-}
-
 div.sidebar ul a:hover {
     background:             #fffff0;
-}
-
-table td.sidebar {
-    background-color:       #f0f0fa;
-    padding:                0;
-    line-height:	    110%;
-    -moz-border-radius:	    10px;
 }
 
 div.searchbox {
@@ -159,22 +119,33 @@ div.searchbox {
 }
 
 /* Body of page */
-table td.content {
-    margin:                 10em;
-    padding-left:           1em;
-    max-width:              50em;
+div.content {
+    margin-left: 165px;
+    max-width: 50em;
+    line-height: 135%;
 }
 
 div#TOC {
     display:		    table;
-    border:		    1px solid #e0e0e0;
-    background-color:	    #f8f8fa;
+    border:		    1px solid #ddd;
+    background-color:	    #f3f3fa;
     padding-right:	    1em;
+    -moz-border-radius:	    5px;
+    -webkit-border-radius:  5px;
 }
 
 div#TOC ul {
     padding-left:	    1em;
     list-style-type:	    none;
+}
+
+p.timestamp {
+    margin-top: 3em;
+    border-top: solid 1px #eee;
+    padding: 0.7em;
+    padding-left: 0.3em;
+    color: #999;
+    text-align: left;
 }
 
 /* Below is the autosuggest.css from autosuggest.js version 2.4. */

@@ -15,7 +15,7 @@ int main(void)
    time(&now);
    strftime(buf, sizeof(buf), "%Y-%m-%d %H:%M:%S UTC", gmtime(&now));
 
-   printf("<p>\n");
+   printf("<p class=\"timestamp\">\n");
    printf("Last updated: %s\n", buf);
    printf("</p>\n");
    return 0;

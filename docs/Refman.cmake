@@ -200,8 +200,8 @@ if(WANT_DOCS_HTML)
                 --to html
                 --raise-sections
                 --include-before-body inc.a.html
-                --include-after-body inc.z.html
                 --include-after-body inc.timestamp.html
+                --include-after-body inc.z.html
                 --css pandoc.css
                 --include-in-header ${SRC_DIR}/custom_header.html
                 --standalone
