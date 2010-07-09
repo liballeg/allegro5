@@ -33,6 +33,7 @@ class Example:
    sprites = [Sprite() for i in range(MAX_SPRITES)]
    use_memory_bitmaps = False
    blending = False
+   display = None
    mysha = None
    bitmap = None
    bitmap_size = 0
@@ -83,8 +84,8 @@ def get_fps():
 
 def add_sprite():
     if example.sprite_count < MAX_SPRITES:
-        w = al_get_display_width()
-        h = al_get_display_height()
+        w = al_get_display_width(example.display)
+        h = al_get_display_height(example.display)
         i = example.sprite_count
         example.sprite_count += 1
         s = example.sprites[i]
@@ -122,11 +123,11 @@ def change_size(size):
    bh = al_get_bitmap_height(example.mysha)
    al_draw_scaled_bitmap(example.mysha, 0, 0, bw, bh, 0, 0,
       size, size, 0)
-   al_set_target_bitmap(al_get_backbuffer())
+   al_set_target_backbuffer(example.display)
 
 def sprite_update(s):
-   w = al_get_display_width()
-   h = al_get_display_height()
+   w = al_get_display_width(example.display)
+   h = al_get_display_height(example.display)
 
    s.x += s.dx / FPS
    s.y += s.dy / FPS
@@ -155,43 +156,47 @@ def update():
       sprite_update(example.sprites[i])
 
 def redraw():
-    w = al_get_display_width()
-    h = al_get_display_height()
+    w = al_get_display_width(example.display)
+    h = al_get_display_height(example.display)
     fh = al_get_font_line_height(example.font)
     info = ["textures", "memory buffers"]
     binfo = ["alpha", "additive", "tinted", "solid"]
+    tint = example.white
 
     if example.blending == 0:
-        al_set_blender(ALLEGRO_ADD, ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA, example.half_white)
+        al_set_blender(ALLEGRO_ADD, ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA)
+        tint = example.half_white
     elif example.blending == 1:
-        al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ONE, example.dark)
+        al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ONE)
+        tint = example.dark
     elif example.blending == 2:
-        al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ZERO, example.red)
+        al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ZERO)
+        tint = example.red
     elif example.blending == 3:
         al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ZERO, example.white)
 
     for i in range(example.sprite_count):
         s = example.sprites[i]
-        al_draw_bitmap(example.bitmap, s.x, s.y, 0)
+        al_draw_tinted_bitmap(example.bitmap, tint, s.x, s.y, 0)
 
-    al_set_blender(ALLEGRO_ADD, ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA, example.white)
+    al_set_blender(ALLEGRO_ADD, ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA)
     if example.show_help:
         for i in range(5):
-            al_draw_text(example.font, 0, h - 5 * fh + i * fh, 0, text[i])
+            al_draw_text(example.font, example.white, 0, h - 5 * fh + i * fh, 0, text[i])
 
-    al_draw_textf(example.font, 0, 0, 0, "count: %d",
+    al_draw_textf(example.font, example.white, 0, 0, 0, "count: %d",
         example.sprite_count)
-    al_draw_textf(example.font, 0, fh, 0, "size: %d",
+    al_draw_textf(example.font, example.white, 0, fh, 0, "size: %d",
         example.bitmap_size)
-    al_draw_textf(example.font, 0, fh * 2, 0, "%s",
+    al_draw_textf(example.font, example.white, 0, fh * 2, 0, "%s",
         info[example.use_memory_bitmaps])
-    al_draw_textf(example.font, 0, fh * 3, 0, "%s",
+    al_draw_textf(example.font, example.white, 0, fh * 3, 0, "%s",
         binfo[example.blending])
 
     f1, f2 = get_fps()
-    al_draw_textf(example.font, w, 0, ALLEGRO_ALIGN_RIGHT, "%s",
+    al_draw_textf(example.font, example.white, w, 0, ALLEGRO_ALIGN_RIGHT, "%s",
         "FPS: %4d +- %-4d" % (f1, f2))
-    al_draw_textf(example.font, w, fh, ALLEGRO_ALIGN_RIGHT, "%s",
+    al_draw_textf(example.font, example.white, w, fh, ALLEGRO_ALIGN_RIGHT, "%s",
         "%4d / sec" % int(1.0 / example.direct_speed_measure))
 
 def main():
@@ -218,9 +223,9 @@ def main():
         w = info.x2 - info.x1
     if info.y2 - info.y1 < h:
         h = info.y2 - info.y1
-    display = al_create_display(w, h)
+    example.display = al_create_display(w, h)
 
-    if not display:
+    if not example.display:
         abort_example("Error creating display.\n")
 
     if not al_install_keyboard():
@@ -251,7 +256,7 @@ def main():
     al_register_event_source(queue, al_get_keyboard_event_source())
     al_register_event_source(queue, al_get_mouse_event_source())
     al_register_event_source(queue, al_get_timer_event_source(timer))
-    al_register_event_source(queue, al_get_display_event_source(display))
+    al_register_event_source(queue, al_get_display_event_source(example.display))
 
     al_start_timer(timer)
 
