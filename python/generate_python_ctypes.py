@@ -313,8 +313,12 @@ def _add_dll(name):
         if not path:
             path = "dlls/" + path
 
-    # RTLD_GLOBAL is required under OSX for some reason (?)
-    _dlls.append(CDLL(path, RTLD_GLOBAL))
+    try:
+        # RTLD_GLOBAL is required under OSX for some reason (?)
+        _dlls.append(CDLL(path, RTLD_GLOBAL))
+    except OSError:
+        # No need to fail here, might just be one of the addons.
+        pass
 
 _add_dll("allegro")
 _add_dll("allegro_acodec")
