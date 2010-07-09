@@ -89,7 +89,9 @@ add_executable(make_doc
     scripts/make_man.c
     scripts/make_single.c
     ${DAWK_SOURCES})
-add_executable(insert_timestamp scripts/insert_timestamp.c)
+add_executable(insert_timestamp
+   scripts/insert_timestamp.c
+   ${DAWK_SOURCES})
 add_executable(make_search_index scripts/make_search_index.c ${DAWK_SOURCES})
 
 #-----------------------------------------------------------------------------#
@@ -194,7 +196,7 @@ if(WANT_DOCS_HTML)
                 make_doc
                 insert_timestamp
             COMMAND
-                ${INSERT_TIMESTAMP} > inc.timestamp.html
+                ${INSERT_TIMESTAMP} ${CMAKE_SOURCE_DIR}/include/allegro5/base.h > inc.timestamp.html
             COMMAND
                 ${MAKE_DOC}
                 --to html
