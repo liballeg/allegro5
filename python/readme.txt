@@ -7,26 +7,57 @@ of all Allegro functions and constants using ctypes.
 
 Enable WANT_PYTHON_WRAPPER in cmake and you should end up with a
 single file called allegro.py in the python folder of your build
-directory.
+directory. You also need to build the shared version so you end up
+with either:
+
+Windows: liballegro*.dll
+OSX: liballegro*.dylib
+Unix: liballegro*.so
+
+For simplicity we will simply call those files "DLL files".
 
 ## Using it
   
-Distribute the allegro.py along with your project. If you want you can
-modify it to directly point to your allegro.dll so you can be sure
-the file is found. By default, it will try several system specific
-locations. E.g. in linux it will find .so files as long as they are
-in LD_LIBRARY_PATH or in ldconfig paths.
+Distribute the allegro.py as well as the required DLL files along with
+your project. If you want you can modify it to directly point to the
+DLL files so you can be sure they are found. By default, it will try
+several system specific locations.
+
+E.g. in linux it will find .so files as long as they are in
+LD_LIBRARY_PATH or in ldconfig paths. For distribution build of your
+game, this usually means that the .so files are found within your
+distributions /usr/lib directory. For a standalone distribution, you
+may provide a shell script which modifies LD_LIBRARY_PATH to point
+to your game's library folder then runs the python executable.
+
+To run the included Python example something like this will work under
+Linux, starting within the Allegro source distribution folder:
+
+    mkdir build
+    cd build
+    cmake -D WANT_PYTHON_WRAPPER=1 ..
+    make
+    export PYTHONPATH=python/
+    export LD_LIBRARY_PATH=lib/
+    python ../python/ex_draw_bitmap.py
+
+We use PYTHONPATH to specify the location of the allegro.py module and
+LD_LIBRARY_PATH to specify the location of the .so files.
+
+For OSX, this should work:
+
+    mkdir build
+    cd build
+    cmake -D WANT_PYTHON_WRAPPER=1 ..
+    make
+    export PYTHONPATH=python/
+    export DYLD_LIBRARY_PATH=lib/
+    python ../python/ex_draw_bitmap.py
 
 ## Limitations
 
 Right now this is only a proof-of concept implementation, some
 important things still have to be fixed:
-
-### Running main in a different thread under OSX
-  
-The problem in OSX is that al_init() should not be called from the
-main thread. For now you'll have to look into src/osx/main.m and see how
-you can do the same from Python. This should be fixed soon though.
 
 ### Variable arguments not parsed properly yet
 
@@ -40,7 +71,10 @@ al_draw_textf(font, x, y, flags, "%s", "%d, %d" % (x, y))
 
 ### No reference counting or garbage collection
 
-You probably should do something like this:
+For example, if you call al_load_bitmap, a C pointer is returned. If
+it goes out of scope you end up with a memory leak - very unpythonic.
+
+Therefore you should do something like this:
 
     class Bitmap:
 
@@ -53,10 +87,14 @@ You probably should do something like this:
 		def draw(self, x, y, flags):
 			al_draw_bitmap(self.c_pointer, x, y, flags);
 
-In other words, a proper Python wrapper.
+In other words, make a proper Python wrapper.
 
 ### No docstrings
 
 Even though the documentation system provides the description of
 each functions it's not copied into allegro.py right now. You will
-need to use the C documentation until it is fixed.
+need to use the C documentation until this is fixed.
+
+### Need more examples
+
+Or a demo game. It should test that at least each addon can be used.
