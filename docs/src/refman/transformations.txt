@@ -16,10 +16,10 @@ transformations. So, for example, if you have code that does:
 
     al_identity_transform(&T);
     
-    al_transform_transform(&T, &T1);
-    al_transform_transform(&T, &T2);
-    al_transform_transform(&T, &T3);
-    al_transform_transform(&T, &T4);
+    al_compose_transform(&T, &T1);
+    al_compose_transform(&T, &T2);
+    al_compose_transform(&T, &T3);
+    al_compose_transform(&T, &T4);
 
 The resultant matrix multiplication expression will look like this:
 
@@ -162,9 +162,11 @@ Transform a pair of coordinates.
 * trans - Transformation to use
 * x, y - Pointers to the coordinates
 
-## API: al_transform_transform
+## API: al_compose_transform
 
-Transform a transformation.
+Compose (combine) two transformations by a matrix multiplication.
+
+    trans := trans other
 
 *Parameters:*
 

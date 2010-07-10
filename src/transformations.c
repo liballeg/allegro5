@@ -235,9 +235,9 @@ void al_transform_coordinates(const ALLEGRO_TRANSFORM *trans, float *x, float *y
    *y = t * trans->m[0][1] + *y * trans->m[1][1] + trans->m[3][1];
 }
 
-/* Function: al_transform_transform
+/* Function: al_compose_transform
  */
-void al_transform_transform(ALLEGRO_TRANSFORM *trans, const ALLEGRO_TRANSFORM *other)
+void al_compose_transform(ALLEGRO_TRANSFORM *trans, const ALLEGRO_TRANSFORM *other)
 {
    float t;
    ASSERT(other);
