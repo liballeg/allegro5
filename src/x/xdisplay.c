@@ -222,16 +222,24 @@ static void xdpy_destroy_display(ALLEGRO_DISPLAY *d);
 /* Create a new X11 display, which maps directly to a GLX window. */
 static ALLEGRO_DISPLAY *xdpy_create_display(int w, int h)
 {
+   ALLEGRO_SYSTEM_XGLX *system = (void *)al_get_system_driver();
+   int adapter = al_get_new_display_adapter();
+
+   _al_mutex_lock(&system->lock);
+
+   if (adapter >= ScreenCount(system->x11display)) {
+      /* Fail early, as glXGetFBConfigs may crash otherwise. */
+      ALLEGRO_DEBUG("Requested display adapter more than ScreenCount.\n");
+      _al_mutex_unlock(&system->lock);
+      return NULL;
+   }
+
    ALLEGRO_DISPLAY_XGLX *d = al_malloc(sizeof *d);
    ALLEGRO_DISPLAY *display = (void*)d;
    ALLEGRO_OGL_EXTRAS *ogl = al_malloc(sizeof *ogl);
    memset(d, 0, sizeof *d);
    memset(ogl, 0, sizeof *ogl);
    display->ogl_extras = ogl;
-
-   ALLEGRO_SYSTEM_XGLX *system = (void *)al_get_system_driver();
-
-   _al_mutex_lock(&system->lock);
 
    int major, minor;
    glXQueryVersion(system->x11display, &major, &minor);
@@ -248,11 +256,9 @@ static ALLEGRO_DISPLAY *xdpy_create_display(int w, int h)
    display->flags |= ALLEGRO_OPENGL;
 
    // store our initial screen, used by fullscreen and glx visual code
-   d->xscreen = al_get_new_display_adapter();
-   if(d->xscreen < 0)
+   d->xscreen = adapter;
+   if (d->xscreen < 0)
       d->xscreen = 0;
-
-   ALLEGRO_DEBUG("xdpy: default screen: %d adapter: %d\n", DefaultScreen(system->x11display), d->xscreen);
 
    d->is_mapped = false;
    _al_cond_init(&d->mapped);

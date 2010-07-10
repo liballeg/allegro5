@@ -211,8 +211,10 @@ static ALLEGRO_EXTRA_DISPLAY_SETTINGS** get_visuals_new(ALLEGRO_DISPLAY_XGLX *gl
    ref = _al_get_new_display_settings();
 
    fbconfig = glXGetFBConfigs(system->gfxdisplay, glx->xscreen, &num_fbconfigs);
-   if (!fbconfig || !num_fbconfigs)
+   if (!fbconfig || !num_fbconfigs) {
+      ALLEGRO_DEBUG("glXGetFBConfigs(xscreen=%d) returned NULL.\n", glx->xscreen);
       return NULL;
+   }
 
    eds = al_malloc(num_fbconfigs * sizeof(*eds));
 
