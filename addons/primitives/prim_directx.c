@@ -160,10 +160,8 @@ static void destroy_default_shaders(void)
       IDirect3DVertexShader9_Release(shader_entries[ii].shader);
    }
    num_shader_entries = 0;
-   if (shader_entries) {
-      al_free(shader_entries);
-      shader_entries = NULL;
-   }
+   al_free(shader_entries);
+   shader_entries = NULL;
 }
 
 #endif
@@ -179,14 +177,10 @@ bool _al_init_d3d_driver(void)
 void _al_shutdown_d3d_driver(void)
 {
    #ifdef ALLEGRO_CFG_D3D
-   if (d3d_mutex) {
-      al_destroy_mutex(d3d_mutex);
-      d3d_mutex = NULL;
-   }
-   if (legacy_buffer) {
-      al_free(legacy_buffer);
-      legacy_buffer = NULL;
-   }
+   al_destroy_mutex(d3d_mutex);
+   al_free(legacy_buffer);
+   d3d_mutex = NULL;
+   legacy_buffer = NULL;
 
    destroy_default_shaders();
    
