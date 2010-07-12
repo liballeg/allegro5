@@ -39,9 +39,8 @@ _AL_DTOR_LIST *_al_dtor_list = NULL;
 
 static bool atexit_virgin = true;
 
-/* too large? */
-static char _al_app_name[1024] = "";
-static char _al_org_name[1024] = "allegro";
+static char _al_app_name[256] = "";
+static char _al_org_name[256] = "allegro";
 
 #if 0
 bool al_register_system_driver(ALLEGRO_SYSTEM_INTERFACE *sys_interface)
@@ -310,10 +309,10 @@ ALLEGRO_PATH *al_get_standard_path(int id)
  */
 void al_set_org_name(const char *org_name)
 {
-   if(org_name)
-      strncpy(_al_org_name, org_name, sizeof(_al_org_name));
-   else
-      strncpy(_al_org_name, "allegro", sizeof(_al_org_name));
+   if (!org_name)
+      org_name = "allegro";
+
+   _al_sane_strncpy(_al_org_name, org_name, sizeof(_al_org_name));
 }
 
 
@@ -321,14 +320,14 @@ void al_set_org_name(const char *org_name)
  */
 void al_set_app_name(const char *app_name)
 {
-   if(app_name) {
-      strncpy(_al_app_name, app_name, sizeof(_al_app_name));
+   if (app_name) {
+      _al_sane_strncpy(_al_app_name, app_name, sizeof(_al_app_name));
    }
    else {
-      ALLEGRO_PATH *_app_name_path;
-      _app_name_path = al_get_standard_path(ALLEGRO_EXENAME_PATH);
-      strncpy(_al_app_name, al_get_path_filename(_app_name_path), sizeof(_al_app_name));
-      al_destroy_path(_app_name_path);
+      ALLEGRO_PATH *path;
+      path = al_get_standard_path(ALLEGRO_EXENAME_PATH);
+      _al_sane_strncpy(_al_app_name, al_get_path_filename(path), sizeof(_al_app_name));
+      al_destroy_path(path);
    }
 }
 
