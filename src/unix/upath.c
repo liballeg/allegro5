@@ -302,8 +302,8 @@ ALLEGRO_PATH *_al_unix_get_path(int id)
 
          /* FIXME: make this a compile time define, or a allegro cfg option? or both */
          sys_data_path = al_create_path("/usr/share/");
-         al_append_path_component(sys_data_path, al_get_orgname());
-         al_append_path_component(sys_data_path, al_get_appname());
+         al_append_path_component(sys_data_path, al_get_org_name());
+         al_append_path_component(sys_data_path, al_get_app_name());
 
          return sys_data_path;
       } break;
@@ -357,8 +357,8 @@ ALLEGRO_PATH *_al_unix_get_path(int id)
             return NULL;
 
          al_append_path_component(local_path, ".config");
-         al_append_path_component(local_path, al_get_orgname());
-         al_append_path_component(local_path, al_get_appname());
+         al_append_path_component(local_path, al_get_org_name());
+         al_append_path_component(local_path, al_get_app_name());
 
         return local_path;
       } break;
@@ -371,8 +371,8 @@ ALLEGRO_PATH *_al_unix_get_path(int id)
 
          /* FIXME: make this a compile time define, or something */
          sys_path = al_create_path("/etc/");
-         al_append_path_component(sys_path, al_get_orgname());
-         al_append_path_component(sys_path, al_get_appname());
+         al_append_path_component(sys_path, al_get_org_name());
+         al_append_path_component(sys_path, al_get_app_name());
 
          return sys_path;
       } break;

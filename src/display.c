@@ -91,7 +91,7 @@ ALLEGRO_DISPLAY *al_create_display(int w, int h)
    al_flip_display();
 #endif
    
-   al_set_window_title(display, al_get_appname());
+   al_set_window_title(display, al_get_app_name());
 
    return display;
 }

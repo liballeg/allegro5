@@ -9,10 +9,10 @@ int main(void)
    ALLEGRO_PATH *path;
 
    /* defaults to allegro */
-   al_set_orgname("liballeg.org");
+   al_set_org_name("liballeg.org");
 
    /* defaults to the exename, set it here to remove the .exe on windows */
-   al_set_appname("ex_get_path");
+   al_set_app_name("ex_get_path");
    
    al_init();
 

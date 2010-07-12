@@ -40,8 +40,8 @@ _AL_DTOR_LIST *_al_dtor_list = NULL;
 static bool atexit_virgin = true;
 
 /* too large? */
-static char _al_appname[1024] = "";
-static char _al_orgname[1024] = "allegro";
+static char _al_app_name[1024] = "";
+static char _al_org_name[1024] = "allegro";
 
 #if 0
 bool al_register_system_driver(ALLEGRO_SYSTEM_INTERFACE *sys_interface)
@@ -231,8 +231,8 @@ bool al_install_system(int version, int (*atexit_ptr)(void (*)(void)))
 
    ALLEGRO_INFO("Allegro version: %s\n", ALLEGRO_VERSION_STR);
 
-   if(strcmp(al_get_appname(), "") == 0) {
-      al_set_appname(NULL);
+   if(strcmp(al_get_app_name(), "") == 0) {
+      al_set_app_name(NULL);
    }
 
    _al_add_exit_func(shutdown_system_driver, "shutdown_system_driver");
@@ -306,46 +306,46 @@ ALLEGRO_PATH *al_get_standard_path(int id)
 }
 
 
-/* Function: al_set_orgname
+/* Function: al_set_org_name
  */
-void al_set_orgname(const char *orgname)
+void al_set_org_name(const char *org_name)
 {
-   if(orgname)
-      strncpy(_al_orgname, orgname, sizeof(_al_orgname));
+   if(org_name)
+      strncpy(_al_org_name, org_name, sizeof(_al_org_name));
    else
-      strncpy(_al_orgname, "allegro", sizeof(_al_orgname));
+      strncpy(_al_org_name, "allegro", sizeof(_al_org_name));
 }
 
 
-/* Function: al_set_appname
+/* Function: al_set_app_name
  */
-void al_set_appname(const char *appname)
+void al_set_app_name(const char *app_name)
 {
-   if(appname) {
-      strncpy(_al_appname, appname, sizeof(_al_appname));
+   if(app_name) {
+      strncpy(_al_app_name, app_name, sizeof(_al_app_name));
    }
    else {
-      ALLEGRO_PATH *_appname_path;
-      _appname_path = al_get_standard_path(ALLEGRO_EXENAME_PATH);
-      strncpy(_al_appname, al_get_path_filename(_appname_path), sizeof(_al_appname));
-      al_destroy_path(_appname_path);
+      ALLEGRO_PATH *_app_name_path;
+      _app_name_path = al_get_standard_path(ALLEGRO_EXENAME_PATH);
+      strncpy(_al_app_name, al_get_path_filename(_app_name_path), sizeof(_al_app_name));
+      al_destroy_path(_app_name_path);
    }
 }
 
 
-/* Function: al_get_orgname
+/* Function: al_get_org_name
  */
-const char *al_get_orgname(void)
+const char *al_get_org_name(void)
 {
-   return _al_orgname;
+   return _al_org_name;
 }
 
 
-/* Function: al_get_appname
+/* Function: al_get_app_name
  */
-const char *al_get_appname(void)
+const char *al_get_app_name(void)
 {
-   return _al_appname;
+   return _al_app_name;
 }
 
 

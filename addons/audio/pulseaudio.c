@@ -67,7 +67,7 @@ static int pulseaudio_open(void)
 
    pa_mainloop *mainloop = pa_mainloop_new();
    pa_context *c = pa_context_new(pa_mainloop_get_api(mainloop),
-      al_get_appname());
+      al_get_app_name());
    if (!c) {
       pa_mainloop_free(mainloop);
       return 1;
@@ -192,7 +192,7 @@ static int pulseaudio_allocate_voice(ALLEGRO_VOICE *voice)
    ba.fragsize  = -1;      // fragment size (recording)
 
    pv->s = pa_simple_new(NULL,         // Use the default server.
-                   al_get_appname(),     
+                   al_get_app_name(),     
                    PA_STREAM_PLAYBACK,
                    NULL,               // Use the default device.
                    "Allegro Voice",    

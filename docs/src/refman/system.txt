@@ -73,9 +73,9 @@ ALLEGRO_EXENAME_PATH          The full path to the executable.
 Returns NULL on failure.  The returned path should be freed with
 [al_destroy_path].
 
-See also: [al_set_appname], [al_set_orgname], [al_destroy_path]
+See also: [al_set_app_name], [al_set_org_name], [al_destroy_path]
 
-## API: al_set_appname
+## API: al_set_app_name
 
 Sets the global application name.
 
@@ -84,9 +84,9 @@ an application's files.
 
 This function may be called before [al_init] or [al_install_system].
 
-See also: [al_get_appname], [al_set_orgname]
+See also: [al_get_app_name], [al_set_org_name]
 
-## API: al_set_orgname
+## API: al_set_org_name
 
 Sets the global organization name.
 
@@ -95,19 +95,19 @@ an application's files.
 
 This function may be called before [al_init] or [al_install_system].
 
-See also: [al_get_orgname], [al_set_appname]
+See also: [al_get_org_name], [al_set_app_name]
 
-## API: al_get_appname
+## API: al_get_app_name
 
 Returns the global application name string.
 
-See also: [al_set_appname]
+See also: [al_set_app_name]
 
-## API: al_get_orgname
+## API: al_get_org_name
 
 Returns the global organization name string.
 
-See also: [al_set_orgname]
+See also: [al_set_org_name]
 
 ## API: al_get_system_driver
 

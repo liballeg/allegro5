@@ -610,8 +610,8 @@ static const char *_fixme_osx_get_path(uint32_t id, char* path, size_t length)
 {
    NSString* ans = nil;
    NSArray* paths = nil;
-   NSString *orgname = [[NSString alloc] initWithUTF8String: al_get_orgname()];
-   NSString *appname = [[NSString alloc] initWithUTF8String: al_get_appname()];
+   NSString *org_name = [[NSString alloc] initWithUTF8String: al_get_org_name()];
+   NSString *app_name = [[NSString alloc] initWithUTF8String: al_get_app_name()];
    BOOL ok = NO;
    switch (id) {
       case ALLEGRO_PROGRAM_PATH:
@@ -624,8 +624,8 @@ static const char *_fixme_osx_get_path(uint32_t id, char* path, size_t length)
          ans = [[NSBundle mainBundle] resourcePath];
          if (ans != nil) {
             /* Append program name */
-            ans = [[ans stringByAppendingPathComponent: orgname]
-                                     stringByAppendingPathComponent: appname];
+            ans = [[ans stringByAppendingPathComponent: org_name]
+                                     stringByAppendingPathComponent: app_name];
          }
          break;
       case ALLEGRO_USER_DATA_PATH:
@@ -636,8 +636,8 @@ static const char *_fixme_osx_get_path(uint32_t id, char* path, size_t length)
             ans = [paths objectAtIndex: 0];
          if (ans != nil) {
             /* Append program name */
-            ans = [[ans stringByAppendingPathComponent: orgname]
-                                     stringByAppendingPathComponent: appname];
+            ans = [[ans stringByAppendingPathComponent: org_name]
+                                     stringByAppendingPathComponent: app_name];
          }
          break;
       case ALLEGRO_USER_HOME_PATH:
@@ -670,8 +670,8 @@ static const char *_fixme_osx_get_path(uint32_t id, char* path, size_t length)
             ans = [paths objectAtIndex: 0];
          if (ans != nil) {
             /* Append program name */
-            ans = [[ans stringByAppendingPathComponent: orgname]
-                                     stringByAppendingPathComponent: appname];
+            ans = [[ans stringByAppendingPathComponent: org_name]
+                                     stringByAppendingPathComponent: app_name];
          }
          break;
       case ALLEGRO_SYSTEM_SETTINGS_PATH:
@@ -683,15 +683,15 @@ static const char *_fixme_osx_get_path(uint32_t id, char* path, size_t length)
             ans = [paths objectAtIndex: 0];
          if (ans != nil) {
             /* Append program name */
-            ans = [[ans stringByAppendingPathComponent: orgname]
-                                     stringByAppendingPathComponent: appname];
+            ans = [[ans stringByAppendingPathComponent: org_name]
+                                     stringByAppendingPathComponent: app_name];
          }
          break;
       default:
       break;
    }
-   [orgname release];
-   [appname release];
+   [org_name release];
+   [app_name release];
    if ((ans != nil) && (path != NULL)) {
       _al_sane_strncpy(path, [ans UTF8String], length);
    }

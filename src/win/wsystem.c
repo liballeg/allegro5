@@ -459,8 +459,8 @@ static ALLEGRO_PATH *win_get_path(int id)
       return NULL;
 
    if (id != ALLEGRO_USER_HOME_PATH) {
-      al_append_path_component(cisdl_path, al_get_orgname());
-      al_append_path_component(cisdl_path, al_get_appname());
+      al_append_path_component(cisdl_path, al_get_org_name());
+      al_append_path_component(cisdl_path, al_get_app_name());
    }
 
    return cisdl_path;

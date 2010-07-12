@@ -359,7 +359,7 @@ Other core:
 
 -  Rename al_free_path to al_destroy_path for consistency.
 
--  Make it possible to have an empty organization name with al_set_orgname().
+-  Make it possible to have an empty organization name with al_set_org_name().
 
 -  Changed implementation of AL_ASSERT to use POSIX-standard assert instead.
 
@@ -1520,7 +1520,7 @@ File system hooks:
 Path functions:
 
 -  Added al_path_clone(), al_path_make_canonical(), al_path_make_absolute(),
-   al_path_set\_extension(), al\_{get,set}\_orgname, al\_{get,set}_appname}
+   al_path_set\_extension(), al\_{get,set}\_org_name, al\_{get,set}_app_name}
    functions.
 
 -  Made al_path_get_extension() not include the leading "." of the extension,
