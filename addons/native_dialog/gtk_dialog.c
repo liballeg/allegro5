@@ -296,3 +296,111 @@ int _al_show_native_message_box(ALLEGRO_DISPLAY *display,
 
    return fd->pressed_button;
 }
+
+static gboolean textlog_delete(GtkWidget *w, GdkEvent *gevent,
+   gpointer userdata)
+{
+   ALLEGRO_NATIVE_DIALOG *textlog = userdata;
+   (void)w;
+   (void)gevent;
+
+   if (!(textlog->mode & ALLEGRO_TEXTLOG_NO_CLOSE)) {
+      ALLEGRO_EVENT event;
+      event.user.type = ALLEGRO_EVENT_NATIVE_DIALOG_CLOSE;
+      event.user.timestamp = al_current_time();
+      event.user.data1 = (intptr_t)textlog;
+      al_emit_user_event(&textlog->events, &event, NULL);
+   }
+
+   /* Don't close the window. */
+   return TRUE;
+}
+
+void _al_open_native_text_log(ALLEGRO_NATIVE_DIALOG *textlog)
+{
+   al_lock_mutex(textlog->text_mutex);
+
+   gtk_start_and_lock();
+
+   /* Create a new text log window. */
+   GtkWidget *top = gtk_window_new(GTK_WINDOW_TOPLEVEL);
+   gtk_window_set_default_size(GTK_WINDOW(top), 640, 480);
+   gtk_window_set_title(GTK_WINDOW(top), al_cstr(textlog->title));
+
+   if (textlog->mode & ALLEGRO_TEXTLOG_NO_CLOSE) {
+      gtk_window_set_deletable(GTK_WINDOW(top), false);
+   }
+   g_signal_connect(G_OBJECT(top), "delete-event", G_CALLBACK(textlog_delete), textlog);
+   g_signal_connect(G_OBJECT(top), "destroy", G_CALLBACK(destroy), textlog);
+   GtkWidget *scroll = gtk_scrolled_window_new(NULL, NULL);
+   gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(scroll),
+      GTK_POLICY_AUTOMATIC, GTK_POLICY_AUTOMATIC);
+   gtk_container_add(GTK_CONTAINER(top), scroll);
+   GtkWidget *view = gtk_text_view_new();
+   gtk_text_view_set_editable(GTK_TEXT_VIEW(view), false);
+   gtk_container_add(GTK_CONTAINER(scroll), view);
+   gtk_widget_show(view);
+   gtk_widget_show(scroll);
+   gtk_widget_show(top);
+   textlog->window = top;
+   textlog->textview = view;
+
+   /* Now notify al_show_native_textlog that the text log is ready. */
+   textlog->done = true;
+   al_signal_cond(textlog->text_cond);
+   al_unlock_mutex(textlog->text_mutex);
+
+   /* Keep running until the textlog is closed. */
+   gtk_unlock_and_wait(textlog);
+
+   /* Notify everyone that we're gone. */
+   al_lock_mutex(textlog->text_mutex);
+   textlog->done = true;
+   al_signal_cond(textlog->text_cond);
+   al_unlock_mutex(textlog->text_mutex);
+
+}
+
+static gboolean do_append_native_text_log(gpointer data)
+{
+   ALLEGRO_NATIVE_DIALOG *textlog = data;
+   al_lock_mutex(textlog->text_mutex);
+
+   GtkTextView *tv = GTK_TEXT_VIEW(textlog->textview);
+   GtkTextBuffer *buffer = gtk_text_view_get_buffer(tv);
+   GtkTextIter iter;
+
+   gtk_text_buffer_get_end_iter(buffer, &iter);
+   gtk_text_buffer_insert(buffer, &iter, al_cstr(textlog->text), -1);
+
+   gtk_text_buffer_get_end_iter(buffer, &iter);
+   gtk_text_view_scroll_to_iter(tv, &iter, 0, false, 0, 0);
+
+   /* Notify the original caller that we are all done. */
+   textlog->done = true;
+   al_signal_cond(textlog->text_cond);
+   al_unlock_mutex(textlog->text_mutex);
+   return false;
+}
+
+void _al_append_native_text_log(ALLEGRO_NATIVE_DIALOG *textlog)
+{
+   gdk_threads_add_timeout(0, do_append_native_text_log, textlog);
+}
+
+static gboolean do_close_native_text_log(gpointer data)
+{
+   ALLEGRO_NATIVE_DIALOG *textlog = data;
+   /* This causes the GTK window as well as all of its children to
+    * be freed. Further it will call the destroy function which we
+    * connected to the destroy signal which in turn causes our
+    * gtk thread to quit.
+    */
+   gtk_widget_destroy(textlog->window);
+   return false;
+}
+
+void _al_close_native_text_log(ALLEGRO_NATIVE_DIALOG *textlog)
+{
+   gdk_threads_add_timeout(0, do_close_native_text_log, textlog);
+}

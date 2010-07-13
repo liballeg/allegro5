@@ -53,6 +53,15 @@ ALLEGRO_DIALOG_FUNC(
 ALLEGRO_DIALOG_FUNC(void, al_destroy_native_dialog, (ALLEGRO_NATIVE_DIALOG *fc));
 ALLEGRO_DIALOG_FUNC(uint32_t, al_get_allegro_native_dialog_version, (void));
 
+ALLEGRO_DIALOG_FUNC(ALLEGRO_NATIVE_DIALOG *, al_open_native_text_log,
+   (char const *title, int flags));
+ALLEGRO_DIALOG_FUNC(void, al_close_native_text_log,
+   (ALLEGRO_NATIVE_DIALOG *textlog));
+ALLEGRO_DIALOG_FUNC(void, al_append_native_text_log,
+   (ALLEGRO_NATIVE_DIALOG *textlog, char const *format, ...));
+ALLEGRO_DIALOG_FUNC(ALLEGRO_EVENT_SOURCE *,
+   al_get_native_dialog_event_source, (ALLEGRO_NATIVE_DIALOG *dialog));
+
 #define ALLEGRO_FILECHOOSER_FILE_MUST_EXIST 1
 #define ALLEGRO_FILECHOOSER_SAVE 2
 #define ALLEGRO_FILECHOOSER_FOLDER 4
@@ -65,6 +74,11 @@ ALLEGRO_DIALOG_FUNC(uint32_t, al_get_allegro_native_dialog_version, (void));
 #define ALLEGRO_MESSAGEBOX_OK_CANCEL (1<<2)
 #define ALLEGRO_MESSAGEBOX_YES_NO (1<<3)
 #define ALLEGRO_MESSAGEBOX_QUESTION (1<<4)
+
+#define ALLEGRO_TEXTLOG_NO_CLOSE (1<<0)
+
+// FIXME: How do addons allocate those?
+#define ALLEGRO_EVENT_NATIVE_DIALOG_CLOSE 600
 
 #ifdef __cplusplus
    }

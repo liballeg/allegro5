@@ -7,12 +7,12 @@ Link with allegro_dialog.
 
 ## API: ALLEGRO_NATIVE_DIALOG
 
-Opaque handle to a native file dialog. You should only have one such
-dialog opened at a time.
+Opaque handle to a native dialog.
 
 ## API: al_create_native_file_dialog
 
-Creates a new native file dialog.
+Creates a new native file dialog.  You should only have one such dialog opened
+at a time.
 
 Parameters:
 
@@ -116,6 +116,50 @@ Example:
       /* button is 1/2/3/4 if one of the buttons is pressed, 0 if the window
        * is closed.
        */
+
+## API: al_open_native_text_log
+
+Opens a window to which you can append log messages with
+[al_append_native_text_log]. This can be useful for debugging if you don't
+want to depend on a console being available.
+
+Use [al_close_native_text_log] to close the window again.
+
+The only flag so far is ALLEGRO_MESSAGELOG_NO_CLOSE - it will prevent
+the window from having a close button. Otherwise if the close button
+is pressed an event is generated; see [al_get_native_dialog_event_source].
+
+Returns NULL if there was an error opening the window, or if text log windows
+are not implemented on the platform.
+
+See also: [al_append_native_text_log], [al_close_native_text_log]
+
+## API: al_close_native_text_log
+
+Closes a message log window opened with [al_open_native_text_log]
+earlier.
+
+Does nothing if passed NULL.
+
+See also: [al_open_native_text_log]
+
+## API: al_append_native_text_log
+
+Appends a line of text to the message log window and scrolls to the
+bottom (if the line would not be visible otherwise). This works like
+printf. A line is continued until you add a newline character.
+
+If the window is NULL then this function will fall back to calling
+printf. This makes it convenient to support logging to a window or
+a terminal.
+
+## API: al_get_native_dialog_event_source
+
+Get an event source for a native window. The possible events are:
+
+ALLEGRO_EVENT_NATIVE_DIALOG_CLOSE
+  ~ The close button of the window has been pressed. Only supported
+    for windows created with [al_open_native_text_log].
 
 ## API: al_get_allegro_native_dialog_version
 

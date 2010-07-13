@@ -2,13 +2,20 @@ set(DIALOG_INCLUDE_FILES allegro5/allegro_native_dialog.h)
 
 set_our_header_properties(${DIALOG_INCLUDE_FILES})
 
+set(DIALOG_SOURCES
+    dialog.c
+    textlog.c
+    )
+
 if(APPLE)
-   set(DIALOG_SOURCES dialog.c osx_dialog.m)
+   list(APPEND DIALOG_SOURCES osx_dialog.m)
+   set(ALLEGRO_CFG_NATIVE_DIALOG_OSX 1)
    set(SUPPORT_NATIVE_DIALOG 1)
 endif(APPLE)
 
 if(WIN32)
-   set(DIALOG_SOURCES dialog.c win_dialog.c)
+   list(APPEND DIALOG_SOURCES win_dialog.c)
+   set(ALLEGRO_CFG_NATIVE_DIALOG_WINDOWS 1)
    set(SUPPORT_NATIVE_DIALOG 1)
 endif(WIN32)
 
@@ -16,7 +23,7 @@ if(NOT SUPPORT_NATIVE_DIALOG AND NOT GP2XWIZ)
     pkg_check_modules(GTK gtk+-2.0)
     pkg_check_modules(GT gthread-2.0)
     if(GTK_FOUND AND GT_FOUND)
-        set(DIALOG_SOURCES dialog.c gtk_dialog.c)
+        list(APPEND DIALOG_SOURCES gtk_dialog.c)
         include_directories(SYSTEM ${GTK_INCLUDE_DIRS})
 
         # For example, on Windows, GTK+ requires gcc -mms-bitfields (MinGW).
@@ -38,6 +45,7 @@ if(NOT SUPPORT_NATIVE_DIALOG AND NOT GP2XWIZ)
 
         set(NATIVE_DIALOG_LIBRARIES ${GTK_LIBRARIES} ${GT_LIBRARIES})
 
+        set(ALLEGRO_CFG_NATIVE_DIALOG_GTK 1)
         set(SUPPORT_NATIVE_DIALOG 1)
     endif(GTK_FOUND AND GT_FOUND)
 endif(NOT SUPPORT_NATIVE_DIALOG AND NOT GP2XWIZ)

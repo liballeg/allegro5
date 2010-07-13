@@ -28,6 +28,18 @@ typedef struct
    ALLEGRO_THREAD *thread;
 } AsyncDialog;
 
+ALLEGRO_NATIVE_DIALOG *textlog;
+
+static void message(char const *format, ...)
+{
+   char str[1024];
+   va_list args;
+
+   va_start(args, format);
+   vsnprintf(str, sizeof str, format, args);
+   va_end(args);
+   al_append_native_text_log(textlog, "%s", str);
+}
 
 /* Our thread to show the native file dialog. */
 static void *async_file_dialog_thread_func(ALLEGRO_THREAD *thread, void *arg)
@@ -155,9 +167,15 @@ int main(void)
    AsyncDialog *cur_dialog = NULL;
    AsyncDialog *message_box = NULL;
    bool redraw = false;
+   bool close_log = false;
    int button;
+   bool message_log = true;
 
    al_init();
+
+   textlog = al_open_native_text_log("Log", 0);
+   message("Starting up log window.\n");
+
    al_init_image_addon();
    al_init_font_addon();
 
@@ -169,28 +187,41 @@ int main(void)
    al_install_mouse();
    al_install_keyboard();
 
+   message("Creating 640x480 window...");
+
    display = al_create_display(640, 480);
    if (!display) {
+      message("failure.\n");
       abort_example("Error creating display\n");
       return 1;
    }
+   message("success.\n");
 
+   message("Loading font '%s'...", "data/fixed_font.tga");
    font = al_load_font("data/fixed_font.tga", 0, 0);
    if (!font) {
+      message("failure.\n");
       abort_example("Error loading data/fixed_font.tga\n");
       return 1;
    }
+   message("success.\n");
 
    timer = al_install_timer(1.0 / 30);
 restart:
+   message("Starting main loop.\n");
    queue = al_create_event_queue();
    al_register_event_source(queue, al_get_keyboard_event_source());
    al_register_event_source(queue, al_get_mouse_event_source());
    al_register_event_source(queue, al_get_display_event_source(display));
    al_register_event_source(queue, al_get_timer_event_source(timer));
+   if (textlog) {
+      al_register_event_source(queue, al_get_native_dialog_event_source(
+         textlog));
+   }
    al_start_timer(timer);
 
    while (1) {
+      float h = al_get_display_height(display);
       ALLEGRO_EVENT event;
       al_wait_for_event(queue, &event);
 
@@ -206,8 +237,22 @@ restart:
        * shown already, we show a new one.
        */
       if (event.type == ALLEGRO_EVENT_MOUSE_BUTTON_DOWN) {
+          message("Mouse clicked at %d,%d.\n", event.mouse.x, event.mouse.y);
           if (event.mouse.y > 30) {
-             if (!message_box) {
+             if (event.mouse.y > h - 30) {
+                message_log = !message_log;
+                if (message_log) {
+                   textlog = al_open_native_text_log("Log", 0);
+                   if (textlog) {
+                      al_register_event_source(queue,
+                         al_get_native_dialog_event_source(textlog));
+                   }
+                }
+                else {
+                   close_log = true;
+                }
+             }
+             else if (!message_box) {
                 message_box = spawn_async_message_dialog(display);
                 al_register_event_source(queue, &message_box->event_source);
              }
@@ -250,6 +295,10 @@ restart:
          message_box = NULL;
       }
 
+      if (event.type == ALLEGRO_EVENT_NATIVE_DIALOG_CLOSE) {
+         close_log = true;
+      }
+
       if (event.type == ALLEGRO_EVENT_TIMER) {
          redraw = true;
       }
@@ -261,11 +310,24 @@ restart:
          al_clear_to_color(background);
          al_set_blender(ALLEGRO_ADD, ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA);
          al_draw_textf(font, cur_dialog ? inactive : active, x, y, ALLEGRO_ALIGN_CENTRE, "Open");
+         al_draw_textf(font, cur_dialog ? inactive : active, x, h - 30,
+            ALLEGRO_ALIGN_CENTRE, message_log ? "Close Message Log" : "Open Message Log");
          if (old_dialog)
             show_files_list(old_dialog->file_dialog, font, info);
          al_flip_display();
       }
+
+      if (close_log && textlog) {
+         close_log = false;
+         message_log = false;
+         al_unregister_event_source(queue,
+            al_get_native_dialog_event_source(textlog));
+         al_close_native_text_log(textlog);
+         textlog = NULL;
+      }
    }
+
+   message("Exiting.\n");
 
    al_destroy_event_queue(queue);
 
