@@ -61,12 +61,12 @@ static void *message_box_thread(ALLEGRO_THREAD *thread, void *arg)
    (void)thread;
 
    button = al_show_native_message_box(data->display, "Warning",
-      "Warning! Click Detected!",
-      "This is the last warning. There is nothing to click here.",
+      "Click Detected",
+      "That does nothing. Stop clicking there.",
       "Oh no!|Don't press|Ok", ALLEGRO_MESSAGEBOX_WARN);
    if (button == 2) {
-      button = al_show_native_message_box(data->display, "Error", "Error!",
-         "Invalid button press detected.",
+      button = al_show_native_message_box(data->display, "Error", "Hey!",
+         "Stop it! I told you not to click there.",
          NULL, ALLEGRO_MESSAGEBOX_ERROR);
    }
 
