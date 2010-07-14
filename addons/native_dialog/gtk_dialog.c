@@ -8,6 +8,7 @@
  * 
  */
 #include <gtk/gtk.h>
+#include <gdk/gdkkeysyms.h>
 #include <pango/pango.h>
 
 #include "allegro5/allegro5.h"
@@ -298,22 +299,41 @@ int _al_show_native_message_box(ALLEGRO_DISPLAY *display,
    return fd->pressed_button;
 }
 
+static void emit_close_event(ALLEGRO_NATIVE_DIALOG *textlog, bool keypress)
+{
+   ALLEGRO_EVENT event;
+   event.user.type = ALLEGRO_EVENT_NATIVE_DIALOG_CLOSE;
+   event.user.timestamp = al_current_time();
+   event.user.data1 = (intptr_t)textlog;
+   event.user.data2 = (intptr_t)keypress;
+   al_emit_user_event(&textlog->events, &event, NULL);
+}
+
 static gboolean textlog_delete(GtkWidget *w, GdkEvent *gevent,
    gpointer userdata)
 {
    ALLEGRO_NATIVE_DIALOG *textlog = userdata;
    (void)w;
+   (void)gevent;
 
    if (!(textlog->mode & ALLEGRO_TEXTLOG_NO_CLOSE)) {
-      ALLEGRO_EVENT event;
-      event.user.type = ALLEGRO_EVENT_NATIVE_DIALOG_CLOSE;
-      event.user.timestamp = al_current_time();
-      event.user.data1 = (intptr_t)textlog;
-      event.user.data2 = (intptr_t)(gevent->type == GDK_KEY_PRESS);
-      al_emit_user_event(&textlog->events, &event, NULL);
+      emit_close_event(textlog, false);
    }
 
    /* Don't close the window. */
+   return TRUE;
+}
+
+static gboolean textlog_key_press(GtkWidget *w, GdkEventKey *gevent,
+    gpointer userdata)
+{
+   ALLEGRO_NATIVE_DIALOG *textlog = userdata;
+   (void)w;
+
+   if (gevent->keyval == GDK_Escape) {
+      emit_close_event(textlog, true);
+   }
+
    return TRUE;
 }
 
@@ -331,8 +351,10 @@ void _al_open_native_text_log(ALLEGRO_NATIVE_DIALOG *textlog)
    if (textlog->mode & ALLEGRO_TEXTLOG_NO_CLOSE) {
       gtk_window_set_deletable(GTK_WINDOW(top), false);
    }
+   else {
+      g_signal_connect(G_OBJECT(top), "key-press-event", G_CALLBACK(textlog_key_press), textlog);
+   }
    g_signal_connect(G_OBJECT(top), "delete-event", G_CALLBACK(textlog_delete), textlog);
-   g_signal_connect(G_OBJECT(top), "key-press-event", G_CALLBACK(textlog_delete), textlog);
    g_signal_connect(G_OBJECT(top), "destroy", G_CALLBACK(destroy), textlog);
    GtkWidget *scroll = gtk_scrolled_window_new(NULL, NULL);
    gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(scroll),
