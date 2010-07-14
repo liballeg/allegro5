@@ -8,6 +8,7 @@
  * 
  */
 #include <gtk/gtk.h>
+#include <pango/pango.h>
 
 #include "allegro5/allegro5.h"
 #include "allegro5/allegro_native_dialog.h"
@@ -338,6 +339,12 @@ void _al_open_native_text_log(ALLEGRO_NATIVE_DIALOG *textlog)
    gtk_container_add(GTK_CONTAINER(top), scroll);
    GtkWidget *view = gtk_text_view_new();
    gtk_text_view_set_editable(GTK_TEXT_VIEW(view), false);
+   if (textlog->mode & ALLEGRO_TEXTLOG_MONOSPACE) {
+      PangoFontDescription *font_desc;
+      font_desc = pango_font_description_from_string("Monospace");
+      gtk_widget_modify_font(view, font_desc);
+      pango_font_description_free(font_desc);
+   }
    gtk_container_add(GTK_CONTAINER(scroll), view);
    gtk_widget_show(view);
    gtk_widget_show(scroll);

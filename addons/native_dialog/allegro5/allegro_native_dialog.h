@@ -62,26 +62,36 @@ ALLEGRO_DIALOG_FUNC(void, al_append_native_text_log,
 ALLEGRO_DIALOG_FUNC(ALLEGRO_EVENT_SOURCE *,
    al_get_native_dialog_event_source, (ALLEGRO_NATIVE_DIALOG *dialog));
 
-#define ALLEGRO_FILECHOOSER_FILE_MUST_EXIST 1
-#define ALLEGRO_FILECHOOSER_SAVE 2
-#define ALLEGRO_FILECHOOSER_FOLDER 4
-#define ALLEGRO_FILECHOOSER_PICTURES 8
-#define ALLEGRO_FILECHOOSER_SHOW_HIDDEN 16
-#define ALLEGRO_FILECHOOSER_MULTIPLE 32
+enum {
+   ALLEGRO_FILECHOOSER_FILE_MUST_EXIST = 1,
+   ALLEGRO_FILECHOOSER_SAVE            = 2,
+   ALLEGRO_FILECHOOSER_FOLDER          = 4,
+   ALLEGRO_FILECHOOSER_PICTURES        = 8,
+   ALLEGRO_FILECHOOSER_SHOW_HIDDEN     = 16,
+   ALLEGRO_FILECHOOSER_MULTIPLE        = 32
+};
 
-#define ALLEGRO_MESSAGEBOX_WARN (1<<0)
-#define ALLEGRO_MESSAGEBOX_ERROR (1<<1)
-#define ALLEGRO_MESSAGEBOX_OK_CANCEL (1<<2)
-#define ALLEGRO_MESSAGEBOX_YES_NO (1<<3)
-#define ALLEGRO_MESSAGEBOX_QUESTION (1<<4)
+enum {
+   ALLEGRO_MESSAGEBOX_WARN             = 1<<0,
+   ALLEGRO_MESSAGEBOX_ERROR            = 1<<1,
+   ALLEGRO_MESSAGEBOX_OK_CANCEL        = 1<<2,
+   ALLEGRO_MESSAGEBOX_YES_NO           = 1<<3,
+   ALLEGRO_MESSAGEBOX_QUESTION         = 1<<4
+};
 
-#define ALLEGRO_TEXTLOG_NO_CLOSE (1<<0)
+enum {
+   ALLEGRO_TEXTLOG_NO_CLOSE            = 1<<0,
+   ALLEGRO_TEXTLOG_MONOSPACE           = 1<<1
+};
 
-// FIXME: How do addons allocate those?
-#define ALLEGRO_EVENT_NATIVE_DIALOG_CLOSE 600
+enum {
+   ALLEGRO_EVENT_NATIVE_DIALOG_CLOSE   = 600
+};
 
 #ifdef __cplusplus
    }
 #endif
 
 #endif   /* __al_included_allegro_native_dialog_h */
+
+/* vim: set sts=3 sw=3 et: */

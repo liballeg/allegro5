@@ -125,9 +125,15 @@ want to depend on a console being available.
 
 Use [al_close_native_text_log] to close the window again.
 
-The only flag so far is ALLEGRO_MESSAGELOG_NO_CLOSE - it will prevent
-the window from having a close button. Otherwise if the close button
-is pressed an event is generated; see [al_get_native_dialog_event_source].
+The flags available are:
+
+ALLEGRO_TEXTLOG_NO_CLOSE
+:   Prevent the window from having a close button. Otherwise if the close
+    button is pressed an event is generated; see
+    [al_get_native_dialog_event_source].
+
+ALLEGRO_TEXTLOG_MONOSPACE
+:   Use a monospace font to display the text.
 
 Returns NULL if there was an error opening the window, or if text log windows
 are not implemented on the platform.
@@ -158,7 +164,7 @@ a terminal.
 Get an event source for a native window. The possible events are:
 
 ALLEGRO_EVENT_NATIVE_DIALOG_CLOSE
-  ~ The close button of the window has been pressed. Only supported
+:   The close button of the window has been pressed. Only supported
     for windows created with [al_open_native_text_log].
 
 ## API: al_get_allegro_native_dialog_version
