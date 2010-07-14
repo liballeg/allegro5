@@ -303,13 +303,13 @@ static gboolean textlog_delete(GtkWidget *w, GdkEvent *gevent,
 {
    ALLEGRO_NATIVE_DIALOG *textlog = userdata;
    (void)w;
-   (void)gevent;
 
    if (!(textlog->mode & ALLEGRO_TEXTLOG_NO_CLOSE)) {
       ALLEGRO_EVENT event;
       event.user.type = ALLEGRO_EVENT_NATIVE_DIALOG_CLOSE;
       event.user.timestamp = al_current_time();
       event.user.data1 = (intptr_t)textlog;
+      event.user.data2 = (intptr_t)(gevent->type == GDK_KEY_PRESS);
       al_emit_user_event(&textlog->events, &event, NULL);
    }
 
@@ -332,6 +332,7 @@ void _al_open_native_text_log(ALLEGRO_NATIVE_DIALOG *textlog)
       gtk_window_set_deletable(GTK_WINDOW(top), false);
    }
    g_signal_connect(G_OBJECT(top), "delete-event", G_CALLBACK(textlog_delete), textlog);
+   g_signal_connect(G_OBJECT(top), "key-press-event", G_CALLBACK(textlog_delete), textlog);
    g_signal_connect(G_OBJECT(top), "destroy", G_CALLBACK(destroy), textlog);
    GtkWidget *scroll = gtk_scrolled_window_new(NULL, NULL);
    gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(scroll),

@@ -164,8 +164,13 @@ a terminal.
 Get an event source for a native window. The possible events are:
 
 ALLEGRO_EVENT_NATIVE_DIALOG_CLOSE
-:   The close button of the window has been pressed. Only supported
-    for windows created with [al_open_native_text_log].
+:   The window was requested to be closed, either by pressing the close button
+    or pressing Escape on the keyboard.  Only supported for windows created
+    with [al_open_native_text_log].
+    The user.data1 field will hold a pointer to the [ALLEGRO_NATIVE_DIALOG]
+    which generated the event.
+    The user.data2 field will be 1 if the event was generated as a result of a
+    key press; otherwise it will be zero.
 
 ## API: al_get_allegro_native_dialog_version
 
