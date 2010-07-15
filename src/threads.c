@@ -295,6 +295,7 @@ ALLEGRO_MUTEX *al_create_mutex_recursive(void)
 {
    ALLEGRO_MUTEX *mutex = al_malloc(sizeof(*mutex));
    if (mutex) {
+      _AL_MARK_MUTEX_UNINITED(mutex->mutex);
       _al_mutex_init_recursive(&mutex->mutex);
    }
    return mutex;
