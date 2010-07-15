@@ -101,7 +101,7 @@ int main(void)
       abort_example("Error loading data/mysha.pcx\n");
       return 1;
    }
-   text = "Display bitmap";
+   text = "Display bitmap (space to change)";
 
    al_set_new_bitmap_flags(ALLEGRO_MEMORY_BITMAP);
    mem_bmp = al_load_bitmap("data/mysha.pcx");
@@ -143,11 +143,11 @@ int main(void)
             else if (event.keyboard.keycode == ALLEGRO_KEY_SPACE) {
                if (bmp == mem_bmp) {
                   bmp = disp_bmp;
-                  text = "Display bitmap";
+                  text = "Display bitmap (space to change)";
                }
                else {
                   bmp = mem_bmp;
-                  text = "Memory bitmap";
+                  text = "Memory bitmap (space to change)";
                }
             }
                
