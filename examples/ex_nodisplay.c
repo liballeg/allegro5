@@ -4,28 +4,31 @@
 #include "allegro5/allegro.h"
 #include "allegro5/allegro_image.h"
 
+#include "common.c"
+
 int main(void)
 {
    ALLEGRO_BITMAP *bmp;
    ALLEGRO_BITMAP *sprite;
    ALLEGRO_COLOR c1, c2, c3;
    bool rc;
+   int status = 0;
 
    if (!al_init()) {
-      printf("Error initialising Allegro\n");
+      abort_example("Error initialising Allegro\n");
       return 1;
    }
    al_init_image_addon();
 
    sprite = al_load_bitmap("data/cursor.tga");
    if (!sprite) {
-      printf("Error loading data/cursor.tga\n");
+      abort_example("Error loading data/cursor.tga\n");
       return 1;
    }
 
    bmp = al_create_bitmap(256, 256);
    if (!bmp) {
-      printf("Error creating bitmap\n");
+      abort_example("Error creating bitmap\n");
       return 1;
    }
    al_set_target_bitmap(bmp);
@@ -43,10 +46,15 @@ int main(void)
    rc = al_save_bitmap("ex_nodisplay_out.tga", bmp);
 
    if (rc) {
+#ifdef ALLEGRO_POPUP_EXAMPLES
+      al_show_native_message_box(NULL, "ex_nodisplay_out", "",
+         "Saved ex_nodisplay_out.tga", NULL, 0);
+#else
       printf("Saved ex_nodisplay_out.tga\n");
+#endif
    }
    else {
-      printf("Error saving ex_nodisplay_out.tga\n");
+      abort_example("Error saving ex_nodisplay_out.tga\n");
    }
 
    al_destroy_bitmap(sprite);
