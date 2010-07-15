@@ -1,13 +1,5 @@
 /*
  *    Example program for the Allegro library, by Peter Wang.
- *
- *    Press 'w' to toggle "wide" mode.
- *    Press 's' to toggle memory source bitmap.
- *    Press ' ' to toggle scaling to backbuffer or off-screen bitmap.
- *    Press 't' to toggle translucency.
- *    Press 'h' to toggle horizontal flipping.
- *    Press 'v' to toggle vertical flipping.
- *    Press 'c' to toggle clipping.
  */
 
 
@@ -49,6 +41,16 @@ int main(void)
    al_install_keyboard();
    al_init_image_addon();
 
+   open_log();
+   log_printf("Press 'w' to toggle wide mode.\n");
+   log_printf("Press 's' to toggle memory source bitmap.\n");
+   log_printf("Press space to toggle drawing to backbuffer or off-screen bitmap.\n");
+   log_printf("Press 't' to toggle translucency.\n");
+   log_printf("Press 'h' to toggle horizontal flipping.\n");
+   log_printf("Press 'v' to toggle vertical flipping.\n");
+   log_printf("Press 'c' to toggle clipping.\n");
+   log_printf("\n");
+
    dpy = al_create_display(display_w, display_h);
    if (!dpy) {
       abort_example("Unable to set any graphic mode\n");
@@ -85,12 +87,22 @@ int main(void)
          if (event.type == ALLEGRO_EVENT_KEY_DOWN) {
             if (event.keyboard.keycode == ALLEGRO_KEY_ESCAPE)
                break;
-            if (event.keyboard.unichar == ' ')
+            if (event.keyboard.unichar == ' ') {
                mode = !mode;
+               if (mode == 0)
+                  log_printf("Drawing to off-screen buffer\n");
+               else
+                  log_printf("Drawing to display backbuffer\n");
+            }
             if (event.keyboard.unichar == 'w')
                wide_mode = !wide_mode;
-            if (event.keyboard.unichar == 's')
+            if (event.keyboard.unichar == 's') {
                mem_src_mode = !mem_src_mode;
+               if (mem_src_mode)
+                  log_printf("Source is memory bitmap\n");
+               else
+                  log_printf("Source is display bitmap\n");
+            }
 	    if (event.keyboard.unichar == 't')
 		trans_mode = !trans_mode;
             if (event.keyboard.unichar == 'h')
@@ -159,6 +171,7 @@ int main(void)
    al_destroy_bitmap(mem_bmp);
    al_destroy_bitmap(buf);
 
+   close_log(false);
    return 0;
 }
 

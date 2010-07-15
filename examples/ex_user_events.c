@@ -37,7 +37,7 @@ static MY_EVENT *new_event(int id)
 
 static void my_event_dtor(ALLEGRO_USER_EVENT *event)
 {
-   printf("my_event_dtor: %p\n", (void *) event->data1);
+   log_printf("my_event_dtor: %p\n", (void *) event->data1);
    free((void *) event->data1);
 }
 
@@ -61,6 +61,8 @@ int main(void)
       return 1;
    }
 
+   open_log();
+
    al_init_user_event_source(&user_src);
 
    queue = al_create_event_queue();
@@ -75,7 +77,7 @@ int main(void)
       if (event.type == ALLEGRO_EVENT_TIMER) {
          int n = event.timer.count;
 
-         printf("Got timer event %d\n", n);
+         log_printf("Got timer event %d\n", n);
 
          user_event.user.type = MY_SIMPLE_EVENT_TYPE;
          user_event.user.data1 = n;
@@ -91,7 +93,7 @@ int main(void)
 
          al_unref_user_event(&event.user);
 
-         printf("Got simple user event %d\n", n);
+         log_printf("Got simple user event %d\n", n);
          if (n == 5) {
             break;
          }
@@ -100,7 +102,7 @@ int main(void)
          MY_EVENT *my_event = (void *)event.user.data1;
          ALLEGRO_ASSERT(event.user.source == &user_src);
 
-         printf("Got complex user event %d\n", my_event->id);
+         log_printf("Got complex user event %d\n", my_event->id);
          al_unref_user_event(&event.user);
       }
    }
@@ -108,6 +110,9 @@ int main(void)
    al_destroy_event_queue(queue);
    al_destroy_user_event_source(&user_src);
    al_uninstall_timer(timer);
+
+   log_printf("Done.\n");
+   close_log(true);
 
    return 0;
 }

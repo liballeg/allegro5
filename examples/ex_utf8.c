@@ -42,10 +42,10 @@ int error = 0;
    do {                                                                     \
       bool ok = (x);                                                        \
       if (!ok) {                                                            \
-         printf("FAIL %s\n", #x);                                           \
+         log_printf("FAIL %s\n", #x);                                       \
          error++;                                                           \
       } else {                                                              \
-         printf("OK   %s\n", #x);                                           \
+         log_printf("OK   %s\n", #x);                                       \
       }                                                                     \
    } while (0)
 
@@ -1213,11 +1213,14 @@ int main(int argc, const char *argv[])
 {
    int i;
 
+   al_init();
+   open_log_monospace();
+
    if (argc < 2) {
       for (i = 1; i < NUM_TESTS; i++) {
-         printf("# t%d\n\n", i);
+         log_printf("# t%d\n\n", i);
          all_tests[i]();
-         printf("\n");
+         log_printf("\n");
       }
    }
    else {
@@ -1226,6 +1229,8 @@ int main(int argc, const char *argv[])
          all_tests[i]();
       }
    }
+
+   close_log(true);
 
    if (error) {
       exit(EXIT_FAILURE);

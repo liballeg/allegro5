@@ -18,7 +18,7 @@ static void print_file(ALLEGRO_FS_ENTRY *entry)
       name = al_get_path_component(path, -1);
    else
       name = al_get_path_filename(path);
-   printf("%-32s %s%s%s%s%s%s %10lu %10lu %10lu %13lu\n", 
+   log_printf("%-32s %s%s%s%s%s%s %10lu %10lu %10lu %13lu\n", 
       al_path_cstr(path, '/'),
       mode & ALLEGRO_FILEMODE_READ ? "r" : ".",
       mode & ALLEGRO_FILEMODE_WRITE ? "w" : ".",
@@ -57,21 +57,22 @@ int main(int argc, char **argv)
    int i;
 
    al_init();
+   open_log_monospace();
    
-   printf("%-32s %-6s %10s %10s %10s %13s\n",
+   log_printf("%-32s %-6s %10s %10s %10s %13s\n",
       "name", "flags", "ctime", "mtime", "atime", "size");
-   printf("-------------------------------- "
-          "------ "
-          "---------- "
-          "---------- "
-          "---------- "
-          "-------------\n");
+   log_printf(
+      "-------------------------------- "
+      "------ "
+      "---------- "
+      "---------- "
+      "---------- "
+      "-------------\n");
 
    if (argc == 1) {
       ALLEGRO_FS_ENTRY *entry = al_create_fs_entry("data");
       print_entry(entry);
       al_destroy_fs_entry(entry);
-      return 0;
    }
 
    for (i = 1; i < argc; i++) {
@@ -79,6 +80,8 @@ int main(int argc, char **argv)
       print_entry(entry);
       al_destroy_fs_entry(entry);
    }
+
+   close_log(true);
    return 0;
 }
 

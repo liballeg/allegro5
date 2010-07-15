@@ -3,10 +3,6 @@
  *
  *    This program blitting to/from sub-bitmaps.
  *
- *    Highlight sub-bitmap regions with left mouse button.
- *    Press '1' to perform plain blits.
- *    Press 's' to perform scaled blits.
- *
  *    Pass -v on the command line to use video bitmaps.
  */
 
@@ -68,6 +64,8 @@ int main(int argc, const char *argv[])
    al_init_primitives_addon();
    al_init_image_addon();
 
+   open_log();
+
    al_set_new_display_flags(ALLEGRO_GENERATE_EXPOSE_EVENTS);
    src_display = al_create_display(SRC_WIDTH, SRC_HEIGHT);
    if (!src_display) {
@@ -119,6 +117,12 @@ int main(int argc, const char *argv[])
    mouse_down = false;
    recreate_subbitmaps = true;
    redraw = true;
+
+   log_printf("Highlight sub-bitmap regions with left mouse button.\n");
+   log_printf("Press '1' to perform plain blits.\n");
+   log_printf("Press 's' to perform scaled blits.\n");
+   log_printf("Press 'h' to flip horizontally.\n");
+   log_printf("Press 'v' to flip vertically.\n");
 
    while (true) {
       if (recreate_subbitmaps) {
@@ -294,6 +298,7 @@ int main(int argc, const char *argv[])
 
    al_destroy_event_queue(queue);
 
+   close_log(false);
    return 0;
 }
 

@@ -80,6 +80,8 @@ int main(int argc, const char *argv[])
    if (!al_init())
       return 1;
 
+   open_log();
+
    al_init_image_addon();
 
    display = al_create_display(640, 480);
@@ -114,7 +116,7 @@ int main(int argc, const char *argv[])
    al_flip_display();
    al_restore_state(&state);
 
-   printf("Please wait...\n");
+   log_printf("Please wait...\n");
 
    /* Do warmup run and estimate required runs for real test. */
    t0 = current_clock();
@@ -131,8 +133,12 @@ int main(int argc, const char *argv[])
    }
    t1 = current_clock();
 
-   printf("Time = %g s, %d steps, FPS = %g\n",
+   log_printf("Time = %g s, %d steps, FPS = %g\n",
       t1 - t0, REPEAT, REPEAT / (t1 - t0));
+
+   al_destroy_display(display);
+
+   close_log(true);
 
    return 0;
 }

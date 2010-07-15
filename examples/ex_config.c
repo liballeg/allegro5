@@ -11,9 +11,16 @@
 #include "common.c"
 
 static int passed = true;
-#define TEST(name, expr) \
-   if (expr) printf(" PASS - %s\n", name); \
-   else      {printf("!FAIL - %s\n", name); passed = false;}
+
+#define TEST(name, expr)                  \
+do {                                      \
+   if (expr)                              \
+      log_printf(" PASS - %s\n", name);   \
+   else {                                 \
+      log_printf("!FAIL - %s\n", name);   \
+      passed = false;                     \
+   }                                      \
+} while (0)
 
 int main(void)
 {
@@ -24,6 +31,7 @@ int main(void)
    if (!al_init()) {
       return 1;
    }
+   open_log();
 
    cfg = al_load_config_file("data/sample.cfg");
    if (!cfg) {
@@ -88,6 +96,8 @@ int main(void)
    TEST("save_config", al_save_config_file("test.cfg", cfg));
 
    al_destroy_config(cfg);
+
+   close_log(true);
 
    return passed ? 0 : 1;
 }

@@ -44,7 +44,7 @@ static void print_file(ALLEGRO_FS_ENTRY *entry)
    const ALLEGRO_PATH *path = al_get_fs_entry_name(entry);
    off_t size = al_get_fs_entry_size(entry);
 
-   printf("%-32s %s%s%s%s%s%s %10lu %10lu %10lu %13lu\n",
+   log_printf("%-32s %s%s%s%s%s%s %10lu %10lu %10lu %13lu\n",
       al_path_cstr(path, '/'),
       mode & ALLEGRO_FILEMODE_READ ? "r" : ".",
       mode & ALLEGRO_FILEMODE_WRITE ? "w" : ".",
@@ -87,6 +87,7 @@ int main(int argc, const char *argv[])
       return 1;
    al_init_image_addon();
    al_install_keyboard();
+   open_log();
 
    /* Set up PhysicsFS. */
    if (!PHYSFS_init(argv[0]))
@@ -100,7 +101,7 @@ int main(int argc, const char *argv[])
 
    for (i = 1; i < argc; i++) {
       if (!PHYSFS_addToSearchPath(argv[i], 1)) {
-         printf("Couldn't add %s\n", argv[i]);
+         abort_example("Couldn't add %s\n", argv[i]);
          return 1;
       }
    }
@@ -115,9 +116,10 @@ int main(int argc, const char *argv[])
    al_set_physfs_file_interface();
 
    /* List the contents of our example zip recursively. */
-   printf("%-32s %-6s %10s %10s %10s %13s\n",
+   log_printf("%-32s %-6s %10s %10s %10s %13s\n",
       "name", "flags", "ctime", "mtime", "atime", "size");
-   printf("-------------------------------- "
+   log_printf(
+          "-------------------------------- "
           "------ "
           "---------- "
           "---------- "
@@ -135,6 +137,7 @@ int main(int argc, const char *argv[])
 
    PHYSFS_deinit();
 
+   close_log(false);
    return 0;
 }
 

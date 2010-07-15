@@ -15,38 +15,40 @@ int main(void)
    al_set_app_name("ex_get_path");
    
    al_init();
+   open_log();
 
    path = al_get_standard_path(ALLEGRO_PROGRAM_PATH);
-   printf("PROGRAM_PATH: %s\n", al_path_cstr(path, '/'));
+   log_printf("PROGRAM_PATH: %s\n", al_path_cstr(path, '/'));
    al_destroy_path(path);
 
    path = al_get_standard_path(ALLEGRO_TEMP_PATH);
-   printf("TEMP_PATH: %s\n", al_path_cstr(path, '/'));
+   log_printf("TEMP_PATH: %s\n", al_path_cstr(path, '/'));
    al_destroy_path(path);
 
    path = al_get_standard_path(ALLEGRO_SYSTEM_DATA_PATH);
-   printf("SYSTEM_DATA_PATH: %s\n", al_path_cstr(path, '/'));
+   log_printf("SYSTEM_DATA_PATH: %s\n", al_path_cstr(path, '/'));
    al_destroy_path(path);
 
    path = al_get_standard_path(ALLEGRO_SYSTEM_SETTINGS_PATH);
-   printf("SYSTEM_SETTINGS_PATH: %s\n", al_path_cstr(path, '/'));
+   log_printf("SYSTEM_SETTINGS_PATH: %s\n", al_path_cstr(path, '/'));
    al_destroy_path(path);
 
    path = al_get_standard_path(ALLEGRO_USER_DATA_PATH);
-   printf("USER_DATA_PATH: %s\n", al_path_cstr(path, '/'));
+   log_printf("USER_DATA_PATH: %s\n", al_path_cstr(path, '/'));
    al_destroy_path(path);
 
    path = al_get_standard_path(ALLEGRO_USER_SETTINGS_PATH);
-   printf("USER_SETTINGS_PATH: %s\n", al_path_cstr(path, '/'));
+   log_printf("USER_SETTINGS_PATH: %s\n", al_path_cstr(path, '/'));
 
    path = al_get_standard_path(ALLEGRO_USER_HOME_PATH);
-   printf("USER_HOME_PATH: %s\n", al_path_cstr(path, '/'));
+   log_printf("USER_HOME_PATH: %s\n", al_path_cstr(path, '/'));
    al_destroy_path(path);
 
    path = al_get_standard_path(ALLEGRO_EXENAME_PATH);
-   printf("EXENAME_PATH: %s\n", al_path_cstr(path, '/'));
+   log_printf("EXENAME_PATH: %s\n", al_path_cstr(path, '/'));
    al_destroy_path(path);
 
+   close_log(true);
    return 0;
 }
 
