@@ -31,8 +31,25 @@ extern "C" {
 static IDirectSound8 *device;
 static HRESULT hr;
 static char ds_err_str[100];
-const int BUFSIZE = 16*1024; /* FIXME */
+static int buffer_size_in_samples = 4*1024; // default
+static int buffer_size; // in bytes
 
+static void dsound_set_buffer_size(int bits_per_sample)
+{
+   ALLEGRO_CONFIG *config = al_get_system_config();
+   if (config) {
+      const char *dsound_buffer_size;
+      dsound_buffer_size = al_get_config_value(
+         config,
+	 "directsound",
+	 "buffer_size"
+      );
+      if (dsound_buffer_size && dsound_buffer_size[0] != '\0')
+         buffer_size_in_samples = atoi(dsound_buffer_size);
+   }
+   
+   buffer_size = buffer_size_in_samples * (bits_per_sample/8);
+}
 
 static char *ds_get_error(HRESULT hr)
 {
@@ -110,9 +127,9 @@ static void* _dsound_update(ALLEGRO_THREAD* self, void* arg)
    (void)self;
 
    /* Fill buffer */
-   hr = ex_data->ds8_buffer->Lock(0, BUFSIZE, &ptr1, &block1_bytes, &ptr2, &block2_bytes, DSBLOCK_ENTIREBUFFER);
+   hr = ex_data->ds8_buffer->Lock(0, buffer_size, &ptr1, &block1_bytes, &ptr2, &block2_bytes, DSBLOCK_ENTIREBUFFER);
    if (!FAILED(hr)) {
-      samples = BUFSIZE / bytes_per_sample / ex_data->channels;
+      samples = buffer_size / bytes_per_sample / ex_data->channels;
       data = _al_voice_update(voice, &samples);
       memcpy(ptr1, data, block1_bytes);
       memcpy(ptr2, ((unsigned char *)data)+block1_bytes, block2_bytes);
@@ -129,7 +146,7 @@ static void* _dsound_update(ALLEGRO_THREAD* self, void* arg)
       if (play_cursor != saved_play_cursor) {
          d = play_cursor - saved_play_cursor;
          if (d < 0)
-            d += BUFSIZE;
+            d += buffer_size;
          samples = d / bytes_per_sample / ex_data->channels;
          data = _al_voice_update(voice, &samples);
          if (data == NULL) {
@@ -148,7 +165,7 @@ static void* _dsound_update(ALLEGRO_THREAD* self, void* arg)
             else {
             }
             saved_play_cursor += block1_bytes + block2_bytes;
-            saved_play_cursor %= BUFSIZE;
+            saved_play_cursor %= buffer_size;
          }
       }
       al_rest(0.005);
@@ -255,6 +272,8 @@ static int _dsound_allocate_voice(ALLEGRO_VOICE *voice)
    ex_data->channels = channels;
    ex_data->stop_voice = 1;
 
+   dsound_set_buffer_size(bits_per_sample);
+
    voice->extra = ex_data;
 
    return 0;
@@ -354,7 +373,7 @@ static int _dsound_start_voice(ALLEGRO_VOICE *voice)
 
       ex_data->desc.dwSize = sizeof(DSBUFFERDESC);
       ex_data->desc.dwFlags = DSBCAPS_LOCSOFTWARE | DSBCAPS_GLOBALFOCUS; /* FIXME: software mixing for now */
-      ex_data->desc.dwBufferBytes = BUFSIZE;
+      ex_data->desc.dwBufferBytes = buffer_size;
       ex_data->desc.dwReserved = 0;
       ex_data->desc.lpwfxFormat = &ex_data->wave_fmt;
       ex_data->desc.guid3DAlgorithm = DS3DALG_DEFAULT;
