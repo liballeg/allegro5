@@ -71,7 +71,7 @@ int main(int argc, const char *argv[])
        abort_example("data/bmpfont.tga not found or failed to load\n");
     }
 
-    timer = al_install_timer(1.0 / 60);
+    timer = al_create_timer(1.0 / 60);
     queue = al_create_event_queue();
     al_register_event_source(queue, al_get_keyboard_event_source());
     al_register_event_source(queue, al_get_display_event_source(display));

@@ -197,7 +197,7 @@ int main(void)
       return 1;
    }
    
-   timer = al_install_timer(1.0 / 60);
+   timer = al_create_timer(1.0 / 60);
 
    modes_count = al_get_num_display_modes();
    options_count = sizeof(options) / sizeof(options[0]);

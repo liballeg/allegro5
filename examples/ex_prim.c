@@ -586,7 +586,7 @@ int main(void)
    ALLEGRO_EVENT_QUEUE *timer_queue;
    int old;
 
-   timer = al_install_timer(ALLEGRO_BPS_TO_SECS(refresh_rate));
+   timer = al_create_timer(ALLEGRO_BPS_TO_SECS(refresh_rate));
    al_start_timer(timer);
    timer_queue = al_create_event_queue();
    al_register_event_source(timer_queue, al_get_timer_event_source(timer));

@@ -274,7 +274,7 @@ int main(void)
       abort_example("Error creating display\n");
       return 1;
    }
-   timer = al_install_timer(1.0/3);
+   timer = al_create_timer(1.0/3);
    if (!timer) {
       abort_example("Error creating timer\n");
       return 1;
@@ -388,7 +388,7 @@ int main(void)
    }
 
    al_destroy_event_queue(queue);
-   al_uninstall_timer(timer);
+   al_destroy_timer(timer);
    al_destroy_display(display);
 
    return 0;

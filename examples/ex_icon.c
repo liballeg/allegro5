@@ -45,7 +45,7 @@ int main(void)
 
    al_set_window_title(display, "<-- Changing icon example");
 
-   timer = al_install_timer(0.5);
+   timer = al_create_timer(0.5);
    queue = al_create_event_queue();
    al_register_event_source(queue, al_get_keyboard_event_source());
    al_register_event_source(queue, al_get_display_event_source(display));

@@ -121,7 +121,7 @@ static void *thread_func(ALLEGRO_THREAD *thr, void *arg)
    if (!queue) {
       goto Quit;
    }
-   timer = al_install_timer(0.1);
+   timer = al_create_timer(0.1);
    if (!timer) {
       goto Quit;
    }
@@ -179,7 +179,7 @@ static void *thread_func(ALLEGRO_THREAD *thr, void *arg)
 Quit:
 
    if (timer) {
-      al_uninstall_timer(timer);
+      al_destroy_timer(timer);
    }
    if (queue) {
       al_destroy_event_queue(queue);

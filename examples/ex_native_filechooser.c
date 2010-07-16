@@ -206,7 +206,7 @@ int main(void)
    }
    message("success.\n");
 
-   timer = al_install_timer(1.0 / 30);
+   timer = al_create_timer(1.0 / 30);
 restart:
    message("Starting main loop.\n");
    queue = al_create_event_queue();

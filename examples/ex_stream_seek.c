@@ -65,7 +65,7 @@ static int initialize(void)
       printf("Could not load font!\n");
       return 0;
    }
-   timer = al_install_timer(1.000 / 30);
+   timer = al_create_timer(1.000 / 30);
    if (!timer) {
       printf("Could not init timer!\n");
       return 0;

@@ -318,7 +318,7 @@ int main(void)
 
    init();
 
-   timer = al_install_timer(1.0 / ex.FPS);
+   timer = al_create_timer(1.0 / ex.FPS);
 
    ex.queue = al_create_event_queue();
    al_register_event_source(ex.queue, al_get_keyboard_event_source());

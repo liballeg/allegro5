@@ -204,7 +204,7 @@ Example::Example(ALLEGRO_DISPLAY *display) :
 
 Example::~Example()
 {
-   al_uninstall_timer(timer);
+   al_destroy_timer(timer);
    al_destroy_event_queue(queue);
 }
 
@@ -250,7 +250,7 @@ void Example::setup()
    Application::setup(w, h);
 
    const double BPS = 60.0;
-   timer = al_install_timer(1.0 / BPS);
+   timer = al_create_timer(1.0 / BPS);
 
    queue = al_create_event_queue();
    al_register_event_source(queue, al_get_keyboard_event_source());

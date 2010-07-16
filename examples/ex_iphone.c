@@ -56,7 +56,7 @@ int main(void)
    al_register_event_source(queue, al_get_mouse_event_source());
    al_register_event_source(queue, al_get_display_event_source(display));
    
-   timer = al_install_timer(1/10.0);
+   timer = al_create_timer(1/10.0);
    al_register_event_source(queue, al_get_timer_event_source(timer));
    al_start_timer(timer);
 

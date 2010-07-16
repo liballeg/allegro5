@@ -55,7 +55,7 @@ int main(void)
       return 1;
    }
 
-   timer = al_install_timer(0.5);
+   timer = al_create_timer(0.5);
    if (!timer) {
       abort_example("Could not install timer.\n");
       return 1;
@@ -109,7 +109,7 @@ int main(void)
 
    al_destroy_event_queue(queue);
    al_destroy_user_event_source(&user_src);
-   al_uninstall_timer(timer);
+   al_destroy_timer(timer);
 
    log_printf("Done.\n");
    close_log(true);

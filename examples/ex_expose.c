@@ -41,7 +41,7 @@ int main(void)
    al_draw_bitmap(bitmap, 0, 0, 0);
    al_flip_display();
 
-   timer = al_install_timer(0.5);
+   timer = al_create_timer(0.5);
 
    queue = al_create_event_queue();
    al_register_event_source(queue, al_get_keyboard_event_source());

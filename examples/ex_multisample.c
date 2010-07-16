@@ -43,7 +43,7 @@ int main(void)
    display = al_create_display(200, 200);
    al_set_window_title(display, "Normal");
    
-   timer = al_install_timer(1.0 / 30.0);
+   timer = al_create_timer(1.0 / 30.0);
 
    queue = al_create_event_queue();
    al_register_event_source(queue, al_get_keyboard_event_source());

@@ -34,7 +34,7 @@ int main(void)
       return 1;
    }
 
-   timer = al_install_timer(1.0f/30.0f);
+   timer = al_create_timer(1.0f/30.0f);
 
    events = al_create_event_queue();
    al_register_event_source(events, al_get_mouse_event_source());
@@ -83,7 +83,7 @@ int main(void)
       }
    }
 
-   al_uninstall_timer(timer);
+   al_destroy_timer(timer);
    al_destroy_event_queue(events);
    al_destroy_display(display);
 
