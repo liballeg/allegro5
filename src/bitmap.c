@@ -493,7 +493,7 @@ void al_convert_mask_to_alpha(ALLEGRO_BITMAP *bitmap, ALLEGRO_COLOR mask_color)
    
    ALLEGRO_TRANSFORM old_trans;
    ALLEGRO_TRANSFORM identity_trans;
-   al_copy_transform(al_get_current_transform(), &old_trans);
+   al_copy_transform(&old_trans, al_get_current_transform());
    al_identity_transform(&identity_trans);
    al_use_transform(&identity_trans);
 

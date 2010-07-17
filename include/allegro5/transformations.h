@@ -18,7 +18,7 @@ struct ALLEGRO_TRANSFORM {
 
 /* Transformations*/
 AL_FUNC(void, al_use_transform, (const ALLEGRO_TRANSFORM* trans));
-AL_FUNC(void, al_copy_transform, (const ALLEGRO_TRANSFORM* src, ALLEGRO_TRANSFORM* dest));
+AL_FUNC(void, al_copy_transform, (ALLEGRO_TRANSFORM* dest, const ALLEGRO_TRANSFORM* src));
 AL_FUNC(void, al_identity_transform, (ALLEGRO_TRANSFORM* trans));
 AL_FUNC(void, al_build_transform, (ALLEGRO_TRANSFORM* trans, float x, float y, float sx, float sy, float theta));
 AL_FUNC(void, al_translate_transform, (ALLEGRO_TRANSFORM* trans, float x, float y));

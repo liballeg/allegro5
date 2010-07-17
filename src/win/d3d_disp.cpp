@@ -2658,7 +2658,7 @@ static void d3d_update_transformation(ALLEGRO_DISPLAY* disp, ALLEGRO_BITMAP *tar
    D3DMATRIX matrix;
    ALLEGRO_TRANSFORM tmp_transform;
 
-   al_copy_transform(&target->transform, &tmp_transform);
+   al_copy_transform(&tmp_transform, &target->transform);
 
    if (target->parent) {
       al_translate_transform(&tmp_transform, target->xofs, target->yofs);

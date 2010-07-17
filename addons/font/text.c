@@ -55,7 +55,7 @@ static void align_to_integer_pixel(float *x, float *y)
    al_transform_coordinates(t, x, y);
    *x = floor(*x + 0.5);
    *y = floor(*y + 0.5);
-   al_copy_transform(t, &inverse);
+   al_copy_transform(&inverse, t);
    al_invert_transform(&inverse);
    al_transform_coordinates(&inverse, x, y);
 }

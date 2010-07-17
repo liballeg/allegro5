@@ -27,7 +27,7 @@
 
 /* Function: al_copy_transform
  */
-void al_copy_transform(const ALLEGRO_TRANSFORM *src, ALLEGRO_TRANSFORM *dest)
+void al_copy_transform(ALLEGRO_TRANSFORM *dest, const ALLEGRO_TRANSFORM *src)
 {
    ASSERT(src);
    ASSERT(dest);
@@ -51,7 +51,7 @@ void al_use_transform(const ALLEGRO_TRANSFORM *trans)
     * doesn't support front buffer bitmaps.
     */
 
-   al_copy_transform(trans, &target->transform);
+   al_copy_transform(&target->transform, trans);
 
    display = target->display;
    if (display) {

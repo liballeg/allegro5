@@ -44,8 +44,8 @@ Makes a copy of a transformation.
 
 *Parameters:*
 
-* src - Source transformation
-* dest - Destination transformation
+* dest - Source transformation
+* src - Destination transformation
 
 ## API: al_use_transform
 
