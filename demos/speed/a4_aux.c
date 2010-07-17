@@ -546,7 +546,7 @@ static ALLEGRO_TIMER *retrace_counter = NULL;
 /* start incrementing retrace_count */
 void start_retrace_count()
 {
-   retrace_counter = al_install_timer(1/70.0);
+   retrace_counter = al_create_timer(1/70.0);
    al_register_event_source(input_queue, al_get_timer_event_source(retrace_counter));
    al_start_timer(retrace_counter);
 }
@@ -556,7 +556,7 @@ void start_retrace_count()
 /* stop incrementing retrace_count */
 void stop_retrace_count()
 {
-   al_uninstall_timer(retrace_counter);
+   al_destroy_timer(retrace_counter);
    retrace_counter = NULL;
 }
 

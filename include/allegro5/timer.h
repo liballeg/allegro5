@@ -48,8 +48,8 @@
 typedef struct ALLEGRO_TIMER ALLEGRO_TIMER;
 
 
-AL_FUNC(ALLEGRO_TIMER*, al_install_timer, (double speed_secs));
-AL_FUNC(void, al_uninstall_timer, (ALLEGRO_TIMER *timer));
+AL_FUNC(ALLEGRO_TIMER*, al_create_timer, (double speed_secs));
+AL_FUNC(void, al_destroy_timer, (ALLEGRO_TIMER *timer));
 AL_FUNC(void, al_start_timer, (ALLEGRO_TIMER *timer));
 AL_FUNC(void, al_stop_timer, (ALLEGRO_TIMER *timer));
 AL_FUNC(bool, al_timer_is_started, (const ALLEGRO_TIMER *timer));

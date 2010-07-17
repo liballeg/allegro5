@@ -151,9 +151,9 @@ static double timer_thread_handle_tick(double interval)
  */
 
 
-/* Function: al_install_timer
+/* Function: al_create_timer
  */
-ALLEGRO_TIMER* al_install_timer(double speed_secs)
+ALLEGRO_TIMER* al_create_timer(double speed_secs)
 {
    ASSERT(speed_secs > 0);
    {
@@ -169,7 +169,7 @@ ALLEGRO_TIMER* al_install_timer(double speed_secs)
          timer->counter = 0;
 
          _al_register_destructor(_al_dtor_list, timer,
-            (void (*)(void *)) al_uninstall_timer);
+            (void (*)(void *)) al_destroy_timer);
       }
 
       return timer;
@@ -178,9 +178,9 @@ ALLEGRO_TIMER* al_install_timer(double speed_secs)
 
 
 
-/* Function: al_uninstall_timer
+/* Function: al_destroy_timer
  */
-void al_uninstall_timer(ALLEGRO_TIMER *timer)
+void al_destroy_timer(ALLEGRO_TIMER *timer)
 {
    if (timer) {
       al_stop_timer(timer);

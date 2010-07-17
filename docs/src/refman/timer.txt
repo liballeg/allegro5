@@ -24,7 +24,7 @@ Convert beats per second to seconds.
 
 Convert beats per minute to seconds.
 
-## API: al_install_timer
+## API: al_create_timer
 
 Install a new timer. If successful, a pointer to a new timer object is
 returned, otherwise NULL is returned.  *speed_secs* is in seconds per
@@ -35,7 +35,7 @@ The system driver must be installed before this function can be called.
 Usage note: typical granularity is on the order of microseconds, but with
 some drivers might only be milliseconds.
 
-See also: [al_start_timer], [al_uninstall_timer]
+See also: [al_start_timer], [al_destroy_timer]
 
 ## API: al_start_timer
 
@@ -57,7 +57,7 @@ See also: [al_start_timer], [al_timer_is_started]
 
 Return true if the timer specified is currently started.
 
-## API: al_uninstall_timer
+## API: al_destroy_timer
 
 Uninstall the timer specified. If the timer is started, it will
 automatically be stopped before uninstallation. It will also
@@ -65,7 +65,7 @@ automatically unregister the timer with any event queues.
 
 Does nothing if passed the NULL pointer.
 
-See also: [al_install_timer]
+See also: [al_create_timer]
 
 ## API: al_get_timer_count
 
@@ -94,7 +94,7 @@ incremented when it is started. This can be done when the timer is
 started or stopped. If the timer is currently running, it is made to
 look as though the speed change occured precisely at the last tick.
 
-*speed_secs* has exactly the same meaning as with [al_install_timer].
+*speed_secs* has exactly the same meaning as with [al_create_timer].
 
 See also: [al_get_timer_speed]
 

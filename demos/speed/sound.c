@@ -734,7 +734,7 @@ static void init_music()
    al_set_sample_instance_pan(part_voice[2], PAN(32));
    al_set_sample_instance_pan(part_voice[3], PAN(128));
 
-   music_timer = al_install_timer(ALLEGRO_BPS_TO_SECS(22));
+   music_timer = al_create_timer(ALLEGRO_BPS_TO_SECS(22));
 }
 
 
@@ -893,7 +893,7 @@ void init_sound()
       p++;
    }
 
-   ping_timer = al_install_timer(0.3);
+   ping_timer = al_create_timer(0.3);
 
    /* set up my lurvely music player :-) */
    if (!no_music) {
@@ -914,7 +914,7 @@ void shutdown_sound()
       return;
 
    al_destroy_thread(sound_update_thread);
-   al_uninstall_timer(ping_timer);
+   al_destroy_timer(ping_timer);
 
    al_stop_samples();
 
@@ -924,7 +924,7 @@ void shutdown_sound()
    al_destroy_sample(ping);
 
    if (!no_music) {
-      al_uninstall_timer(music_timer);
+      al_destroy_timer(music_timer);
 
       al_destroy_sample_instance(part_voice[0]);
       al_destroy_sample_instance(part_voice[1]);

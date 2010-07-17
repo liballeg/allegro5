@@ -154,7 +154,7 @@ void _al_register_destructor(_AL_DTOR_LIST *dtors, void *object,
 
 /* Internal function: _al_unregister_destructor
  *  Unregister a previously registered object.  This must be called
- *  in the normal object destroyer routine, e.g. al_uninstall_timer.
+ *  in the normal object destroyer routine, e.g. al_destroy_timer.
  *
  *  [thread-safe]
  */

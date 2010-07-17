@@ -61,7 +61,7 @@ static int play_game()
 
    #define TIMER_SPEED  ALLEGRO_BPS_TO_SECS(30*(cyclenum+2))
 
-   inc_counter = al_install_timer(TIMER_SPEED);
+   inc_counter = al_create_timer(TIMER_SPEED);
    al_start_timer(inc_counter);
 
    while (!gameover) {
@@ -112,7 +112,7 @@ static int play_game()
    }
 
    /* cleanup */
-   al_uninstall_timer(inc_counter);
+   al_destroy_timer(inc_counter);
 
    shutdown_view();
    shutdown_player();

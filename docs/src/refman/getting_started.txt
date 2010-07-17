@@ -110,7 +110,7 @@ When you get a resize event, call [al_acknowledge_resize].
 
 Timers are event sources which "tick" periodically, causing an event to be
 inserted into the queues that the timer is registered with.  Create some with
-[al_install_timer].
+[al_create_timer].
 
 [al_current_time] and [al_rest] are more direct ways to deal with time.
 
