@@ -107,8 +107,8 @@ int main(void)
       }
    }
 
-   al_destroy_event_queue(queue);
    al_destroy_user_event_source(&user_src);
+   al_destroy_event_queue(queue);
    al_destroy_timer(timer);
 
    log_printf("Done.\n");
