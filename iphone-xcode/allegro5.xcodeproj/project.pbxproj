@@ -799,7 +799,6 @@
 		6489817C116A1BE3007C3944 /* ex_keyboard_focus.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = ex_keyboard_focus.c; path = ../examples/ex_keyboard_focus.c; sourceTree = SOURCE_ROOT; };
 		6489817D116A1BE3007C3944 /* ex_lines.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = ex_lines.c; path = ../examples/ex_lines.c; sourceTree = SOURCE_ROOT; };
 		6489817E116A1BE3007C3944 /* ex_lockbitmap.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = ex_lockbitmap.c; path = ../examples/ex_lockbitmap.c; sourceTree = SOURCE_ROOT; };
-		6489817F116A1BE3007C3944 /* ex_lockscreen.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = ex_lockscreen.c; path = ../examples/ex_lockscreen.c; sourceTree = SOURCE_ROOT; };
 		64898180116A1BE3007C3944 /* ex_logo.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = ex_logo.c; path = ../examples/ex_logo.c; sourceTree = SOURCE_ROOT; };
 		64898181116A1BE3007C3944 /* ex_membmp.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = ex_membmp.c; path = ../examples/ex_membmp.c; sourceTree = SOURCE_ROOT; };
 		64898182116A1BE3007C3944 /* ex_memfile.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = ex_memfile.c; path = ../examples/ex_memfile.c; sourceTree = SOURCE_ROOT; };
@@ -1583,7 +1582,6 @@
 				6489817C116A1BE3007C3944 /* ex_keyboard_focus.c */,
 				6489817D116A1BE3007C3944 /* ex_lines.c */,
 				6489817E116A1BE3007C3944 /* ex_lockbitmap.c */,
-				6489817F116A1BE3007C3944 /* ex_lockscreen.c */,
 				64898180116A1BE3007C3944 /* ex_logo.c */,
 				64898181116A1BE3007C3944 /* ex_membmp.c */,
 				64898182116A1BE3007C3944 /* ex_memfile.c */,
