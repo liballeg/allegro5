@@ -18,6 +18,7 @@ int main(void)
    int i, j;
    ALLEGRO_EVENT_QUEUE *events;
    ALLEGRO_EVENT event;
+   int mode = 0;
 
    if (!al_init()) {
       abort_example("Could not init Allegro.\n");
@@ -26,58 +27,87 @@ int main(void)
 
    al_install_keyboard();
 
+   open_log();
+
    /* Create a window. */
-   al_set_new_display_flags(ALLEGRO_GENERATE_EXPOSE_EVENTS);
    display = al_create_display(3*256, 256);
    if (!display) {
       abort_example("Error creating display\n");
       return 1;
    }
 
-   /* Create the bitmap. */
-   bitmap = al_create_bitmap(3*256, 256);
+   events = al_create_event_queue();
+   al_register_event_source(events, al_get_keyboard_event_source());
+
+   log_printf("Press space to change bitmap type\n");
+
+restart:
+
+   /* Create the bitmap to lock, or use the display backbuffer. */
+   if (mode == 0) {
+      log_printf("Locking video bitmap\n");
+      al_set_new_bitmap_flags(ALLEGRO_VIDEO_BITMAP);
+      bitmap = al_create_bitmap(3*256, 256);
+   }
+   else if (mode == 1) {
+      log_printf("Locking memory bitmap\n");
+      al_set_new_bitmap_flags(ALLEGRO_MEMORY_BITMAP);
+      bitmap = al_create_bitmap(3*256, 256);
+   }
+   else {
+      log_printf("Locking display backbuffer\n");
+      bitmap = al_get_backbuffer(display);
+   }
+   if (!bitmap) {
+      abort_example("Error creating bitmap\n");
+   }
+
+   al_set_target_bitmap(bitmap);
+   al_clear_to_color(al_map_rgb(255, 255, 0));
+   al_set_target_backbuffer(display);
 
    /* Locking the bitmap means, we work directly with pixel data.  We can
     * choose the format we want to work with, which may imply conversions, or
     * use the bitmap's actual format so we can work directly with the bitmap's
     * pixel data.
+    * We use a 16-bit format and odd positions and sizes to increase the
+    * chances of uncovering bugs.
+    * XXX 15-bit format doesn't work
     */
-   locked = al_lock_bitmap(bitmap, ALLEGRO_PIXEL_FORMAT_ARGB_8888,
-      ALLEGRO_LOCK_WRITEONLY);
-   for (j = 0; j < 256; j++) {
+   locked = al_lock_bitmap_region(bitmap, 193, 65, 3*127, 127,
+      ALLEGRO_PIXEL_FORMAT_RGB_565, ALLEGRO_LOCK_WRITEONLY);
+   for (j = 0; j < 127; j++) {
       ptr = (uint8_t *)locked->data + j * locked->pitch;
 
-      for (i = 0; i < 3*256; i++) {
+      for (i = 0; i < 3*127; i++) {
          uint8_t red;
          uint8_t green;
          uint8_t blue;
-         uint8_t alpha = 255;
-         uint32_t col;
-         uint32_t *cptr = (uint32_t *)ptr;
+         uint16_t col;
+         uint16_t *cptr = (uint16_t *)ptr;
 
-         if (i < 256) {
+         if (i < 127) {
             red = 255;
-            green = blue = j;
+            green = blue = j*2;
          }
-         else if (i < 2*256) {
+         else if (i < 2*127) {
             green = 255;
-            red = blue = j;
+            red = blue = j*2;
          }
          else {
             blue = 255;
-            red = green = j;
+            red = green = j*2;
          }
 
-         /* The ARGB format means, the 32 bits per pixel are layed out like
-          * this, least significant bit right:
-          * A A A A A A A A R R R R R R R R G G G G G G G G B B B B B B B B
+         /* The RGB_555 format means, the 16 bits per pixel are laid out like
+          * this, least significant bit right: RRRRR GGGGGG BBBBB
           * Because the byte order can vary per platform (big endian or
-          * little endian) we encode a 32 bit integer and store that
-          * directly rather than storing each component seperately.
+          * little endian) we encode an integer and store that
+          * directly rather than storing each component separately.
           */
-         col = (alpha << 24) | (red << 16) | (green << 8) | blue;
+         col = ((red/8) << 11) | ((green/4) << 5) | (blue/8);
          *cptr = col;
-         ptr += 4;
+         ptr += 2;
       }
    }
    al_unlock_bitmap(bitmap);
@@ -85,22 +115,27 @@ int main(void)
    al_draw_bitmap(bitmap, 0, 0, 0);
    al_flip_display();
 
-   events = al_create_event_queue();
-   al_register_event_source(events, al_get_keyboard_event_source());
-   al_register_event_source(events, al_get_display_event_source(display));
+   if (mode < 2) {
+      al_destroy_bitmap(bitmap);
+      bitmap = NULL;
+   }
 
    while (1) {
       al_wait_for_event(events, &event);
-      if (event.type == ALLEGRO_EVENT_KEY_DOWN &&
-            event.keyboard.keycode == ALLEGRO_KEY_ESCAPE) {
-         break;
-      }
-      if (event.type == ALLEGRO_EVENT_DISPLAY_EXPOSE) {
-          al_draw_bitmap(bitmap, 0, 0, 0);
-          al_flip_display();
+
+      if (event.type == ALLEGRO_EVENT_KEY_DOWN) {
+         if (event.keyboard.keycode == ALLEGRO_KEY_ESCAPE)
+            break;
+
+         if (event.keyboard.keycode == ALLEGRO_KEY_SPACE) {
+            if (++mode > 2)
+               mode = 0;
+            goto restart;
+         }
       }
    }
 
+   close_log(false);
    return 0;
 }
 
