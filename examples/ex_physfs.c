@@ -87,7 +87,7 @@ int main(int argc, const char *argv[])
       return 1;
    al_init_image_addon();
    al_install_keyboard();
-   open_log();
+   open_log_monospace();
 
    /* Set up PhysicsFS. */
    if (!PHYSFS_init(argv[0]))
