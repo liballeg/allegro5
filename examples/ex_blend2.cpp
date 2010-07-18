@@ -28,7 +28,6 @@ private:
    Label texture_label;
    Label source_label;
    Label destination_label;
-   Label blending_label;
    List source_image;
    List destination_image;
    List draw_mode;
@@ -56,7 +55,6 @@ Prog::Prog(const Theme & theme, ALLEGRO_DISPLAY *display) :
    texture_label(Label("Texture")),
    source_label(Label("Source", false)),
    destination_label(Label("Destination", false)),
-   blending_label(Label("Blending", false)),
    source_image(List(0)),
    destination_image(List(1)),
    draw_mode(List(0))
@@ -65,7 +63,6 @@ Prog::Prog(const Theme & theme, ALLEGRO_DISPLAY *display) :
    d.add(texture_label, 0, 0, 10, 2);
    d.add(source_label, 1, 15, 6, 2);
    d.add(destination_label, 7, 15, 6, 2);
-   d.add(blending_label, 13, 15, 6, 2);
 
    List *images[] = {&source_image, &destination_image, &draw_mode};
    for (int i = 0; i < 3; i++) {
@@ -85,21 +82,24 @@ Prog::Prog(const Theme & theme, ALLEGRO_DISPLAY *display) :
       d.add(image, 1 + i * 6, 17, 4, 6);
    }
 
-   for (int i = 0; i < 6; i++) {
+   for (int i = 0; i < 4; i++) {
       operation_label[i] = Label(i % 2 == 0 ? "Color" : "Alpha", false);
       d.add(operation_label[i], 1 + i * 3, 24, 3, 2);
       List &l = operations[i];
-      if (i < 4) {
-         l.append_item("ONE");
-         l.append_item("ZERO");
-         l.append_item("ALPHA");
-         l.append_item("INVERSE");
-      }
-      else {
-         l.append_item("ADD");
-         l.append_item("SRC_MINUS_DEST");
-         l.append_item("DEST_MINUS_SRC");
-      }
+      l.append_item("ONE");
+      l.append_item("ZERO");
+      l.append_item("ALPHA");
+      l.append_item("INVERSE");
+      d.add(l, 1 + i * 3, 25, 3, 6);
+   }
+
+   for (int i = 4; i < 6; i++) {
+      operation_label[i] = Label(i == 4 ? "Blend op" : "Alpha op", false);
+      d.add(operation_label[i], 1 + i * 3, 24, 3, 2);
+      List &l = operations[i];
+      l.append_item("ADD");
+      l.append_item("SRC_MINUS_DEST");
+      l.append_item("DEST_MINUS_SRC");
       d.add(l, 1 + i * 3, 25, 3, 6);
    }
 
