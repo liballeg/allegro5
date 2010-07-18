@@ -12,7 +12,6 @@ int main(void)
    ALLEGRO_BITMAP *sprite;
    ALLEGRO_COLOR c1, c2, c3;
    bool rc;
-   int status = 0;
 
    if (!al_init()) {
       abort_example("Error initialising Allegro\n");
