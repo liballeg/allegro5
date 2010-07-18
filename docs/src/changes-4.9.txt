@@ -4,6 +4,143 @@ See `changes._tx` for changes in earlier versions of Allegro.  These lists
 serve as summaries; the full histories are in the Subversion repository.
 
 
+Changes from 4.9.20 to 4.9.21 (July 2010)
+=========================================
+
+The main developers this time were: Trent Gamblin, Matthew Leverton,
+Elias Pschernig, Paul Suntsov, Peter Wang.
+
+Graphics:
+
+-  Fixed the mis-termed "blend color". There is no more color state.
+
+    - al_set*_blender functions lose the color parameter.
+
+    - Added 5 new bitmap drawing functions al_draw_tinted*_bitmap with a color
+      parameter. The parameter is used just like the "blend color" before.
+
+    - All text drawing functions gain a color parameter and use it like they
+      used the "blend color" before.
+
+    - Primitive drawing functions previously sometimes (and sometimes not) used
+      the "blend color". Not any longer.
+
+-  Make the current blending mode thread-local state instead of per-display
+   state.
+
+-  Add explicit display arguments to functions which require a display,
+   but don't require the rendering context to be current.
+
+-  Make al_set_target_bitmap change the current display as necessary.
+   al_set_target_bitmap(NULL) releases the rendering context.
+
+-  Add al_set_target_backbuffer as a convenience.
+
+-  Remove al_set_current_display.
+
+-  Give each bitmap its own transformation, i.e. every bitmap has a
+   transformation, which is in effect when that bitmap is the target.
+
+-  Remove sub-bitmap clip-to-parent restriction on create. Add out-of-bounds
+   blitting support to memory bitmaps.
+
+-  Merge sub-bitmap and parent bitmap clipping; clip source bitmap to
+   (0,0)-(w,h); fix flipping to/from clipped bitmaps.
+
+-  Made mouse cursors independent of displays.  You may create cursors without
+   a display, and you may use a cursor with any display.
+
+-  Rename al_{set,get}_current_video_adapter to *new_display_adapter for
+   consistency.
+
+-  Move the new display video adapter and new window position to thread-local
+   state, like other new display parameters.  Make al_store_state also save
+   those parameters with ALLEGRO_STATE_NEW_DISPLAY_PARAMETERS.
+
+-  Rename al_transform_transform to al_compose_transform.  Switched the order
+   of parameters in al_compose_transform and al_copy_transform to match the
+   rest of the transform functions.
+
+-  Made memory bitmap manipulation without a display possible (again?).
+
+-  Fixed window resizing in D3D driver.  Simplify resize-postponing on Windows.
+
+-  Make al_create_display abort early when the new_display_adapter is
+   greater than the screen count (X11).
+
+-  Added ALLEGRO_MINIMIZED flag to the X11 port.
+
+-  Fixed OpenGL version string parsing (bug #3016654).
+
+Other core:
+
+-  Renamed al_install_timer to al_create_timer, and al_uninstall_timer to
+   al_destroy_timer.
+
+-  Rename al\_{get,set}\_{appname,orgname} to \*app_name and \*org_name.
+
+-  Fix assertion failure in al_create_mutex_recursive on Windows (spoofle).
+
+Primitives addon:
+
+-  Made the D3D driver of the primitives addon work with multiple displays.
+   Also made it handle the display being destroyed properly.
+
+-  Simplified shader recreating on thread destruction when using the primitives
+   addon with D3D.
+
+-  Avoid double free when shutting down the primitives addon multiple times.
+
+-  Older Intel cards don't implement DrawIndexedPrimitiveUP correctly.
+   Altered the D3D code to work around that.
+
+Audio addon:
+
+-  Allow setting the DirectSound buffer size via allegro5.cfg.
+
+Image addon:
+
+-  Make GDI+ image loader work with MinGW.
+
+Font addon:
+
+-  Nicolas Martyanoff added al_get_font_descent/ascent functions which query
+   per-font properties.  Previously it was necessary to call
+   al_get_text_dimensions (which now just reports the text dimensions as it
+   should).
+
+Native dialogs addon:
+
+-  Add text log window functions (GTK only for now).
+
+Documentation:
+
+-  Many updates to the reference manual.
+
+-  Improve styling and add Allegro version to HTML pages.
+
+-  Separated readme_a5.txt into multiple files, and hopefully improve them.
+
+Build system:
+
+-  Remove INSTALL_PREFIX.  Windows users can now use CMAKE_INSTALL_PREFIX to
+   set the install path.
+
+-  Allow the user to place dependencies in a subdirectory "deps", which will
+   be automatically searched.
+
+Examples:
+
+-  Use text log windows in many examples.
+
+-  Add ex_noframe: test bitmap manipulation without a display.
+
+Bindings:
+
+- Update Python bindings.
+
+
+
 Changes from 4.9.19 to 4.9.20 (May 2010)
 ========================================
 
