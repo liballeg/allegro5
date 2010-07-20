@@ -662,6 +662,8 @@ static ALLEGRO_LOCKED_REGION *ogl_lock_region(ALLEGRO_BITMAP *bitmap,
    glPixelStorei(GL_PACK_ALIGNMENT, pixel_size);
 
    if (ogl_bitmap->is_backbuffer) {
+      ALLEGRO_DEBUG("Locking backbuffer\n");
+
       pitch = round_to_alignment(w * pixel_size, pixel_size);
       ogl_bitmap->lock_buffer = al_malloc(pitch * h);
 
@@ -682,12 +684,16 @@ static ALLEGRO_LOCKED_REGION *ogl_lock_region(ALLEGRO_BITMAP *bitmap,
 #if !defined ALLEGRO_GP2XWIZ
    else {
       if (flags & ALLEGRO_LOCK_WRITEONLY) {
+         ALLEGRO_DEBUG("Locking non-backbuffer WRITEONLY\n");
+
          pitch = round_to_alignment(w * pixel_size, pixel_size);
          ogl_bitmap->lock_buffer = al_malloc(pitch * h);
          bitmap->locked_region.data = ogl_bitmap->lock_buffer +
             pitch * (h - 1);
       }
       else {
+         ALLEGRO_DEBUG("Locking non-backbuffer READWRITE\n");
+
          #ifdef ALLEGRO_IPHONE
             GLint current_fbo;
 
@@ -802,6 +808,8 @@ static void ogl_unlock_region(ALLEGRO_BITMAP *bitmap)
 #if !defined ALLEGRO_GP2XWIZ && !defined ALLEGRO_IPHONE
    if (ogl_bitmap->is_backbuffer) {
       bool popmatrix = false;
+      ALLEGRO_DEBUG("Unlocking backbuffer\n");
+
       /* glWindowPos2i may not be available. */
       if (al_get_opengl_version() >= 1.4) {
          glWindowPos2i(bitmap->lock_x, gl_y);
@@ -838,6 +846,8 @@ static void ogl_unlock_region(ALLEGRO_BITMAP *bitmap)
    else {
       glBindTexture(GL_TEXTURE_2D, ogl_bitmap->texture);
       if (bitmap->lock_flags & ALLEGRO_LOCK_WRITEONLY) {
+         ALLEGRO_DEBUG("Unlocking non-backbuffer WRITEONLY\n");
+
          glTexSubImage2D(GL_TEXTURE_2D, 0,
             bitmap->lock_x, gl_y,
             bitmap->lock_w, bitmap->lock_h,
@@ -851,6 +861,8 @@ static void ogl_unlock_region(ALLEGRO_BITMAP *bitmap)
          }
       }
       else {
+         ALLEGRO_DEBUG("Unlocking non-backbuffer READWRITE\n");
+
          // FIXME: Don't copy the whole bitmap. For example use
          // FBO and glDrawPixels to draw the locked area back
          // into the texture.
