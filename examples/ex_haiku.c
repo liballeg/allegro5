@@ -7,7 +7,7 @@
  */
 
 /* This version leaves out some things from Mark's original version:
- * the nice title sequence, text labels, mouse cursors and drop shadows.
+ * the nice title sequence, text labels and mouse cursors.
  */
 
 #include <allegro5/allegro.h>
@@ -35,6 +35,7 @@ enum {
    IMG_WATER = TYPE_WATER,
    IMG_FIRE  = TYPE_FIRE,
    IMG_BLACK,
+   IMG_DROPSHADOW,
    IMG_GLOW,
    IMG_GLOW_OVERLAY,
    IMG_AIR_EFFECT,
@@ -132,6 +133,8 @@ const float    token_scale = 0.8;
 const float    button_size = 64;
 const float    button_unsel_scale = 0.8;
 const float    button_sel_scale = 1.1;
+const float    dropshadow_unsel_scale = 0.6;
+const float    dropshadow_sel_scale = 0.9;
 const float    refresh_rate = 60.0;
 const float    playback_period = 2.7333;
 
@@ -150,6 +153,7 @@ static void load_images(void)
    images[IMG_WATER]       = al_load_bitmap(HAIKU_DATA "water.png");
    images[IMG_FIRE]        = al_load_bitmap(HAIKU_DATA "fire.png");
    images[IMG_BLACK]       = al_load_bitmap(HAIKU_DATA "black_bead_opaque_A.png");
+   images[IMG_DROPSHADOW]  = al_load_bitmap(HAIKU_DATA "dropshadow.png");
    images[IMG_AIR_EFFECT]  = al_load_bitmap(HAIKU_DATA "air_effect.png");
    images[IMG_WATER_DROPS] = al_load_bitmap(HAIKU_DATA "water_droplets.png");
    images[IMG_FLAME]       = al_load_bitmap(HAIKU_DATA "flame2.png");
@@ -235,7 +239,9 @@ static void init_buttons(void)
       buttons[i].type = i;
       buttons[i].x = x;
       buttons[i].y = y;
-      init_sprite(&buttons[i].bot, IMG_BLACK, x, y, button_unsel_scale, 0.0);
+      init_sprite(&buttons[i].bot, IMG_DROPSHADOW, x, y,
+         dropshadow_unsel_scale, 0.4);
+      buttons[i].bot.align_y = 0.0;
       init_sprite(&buttons[i].top, i, x, y, button_unsel_scale, 1.0);
    }
 }
@@ -541,9 +547,7 @@ static void draw_screen(void)
 
    al_clear_to_color(al_map_rgb(0, 0, 0));
 
-   al_set_separate_blender(
-      ALLEGRO_ADD, ALLEGRO_ALPHA, ALLEGRO_ONE,
-      ALLEGRO_ADD, ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA);
+   al_set_blender(ALLEGRO_ADD, ALLEGRO_ALPHA, ALLEGRO_ONE);
 
    draw_sprite(&glow);
    draw_sprite(&glow_overlay);
@@ -551,10 +555,12 @@ static void draw_screen(void)
    for (i = 0; i < NUM_TOKENS; i++)
       draw_token(&tokens[i]);
 
-   for (i = 0; i < NUM_TYPES; i++) {
-      /* XXX the buttons do not look exactly like the original version */
+   al_set_blender(ALLEGRO_ADD, ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA);
+
+   for (i = 0; i < NUM_TYPES; i++)
       draw_token(&buttons[i]);
-   }
+
+   al_set_blender(ALLEGRO_ADD, ALLEGRO_ALPHA, ALLEGRO_ONE);
 
    for (fl = flairs; fl != NULL; fl = fl->next)
       draw_sprite(&fl->sprite);
@@ -800,6 +806,10 @@ static void select_button(Token *button)
       anim_to(spr, &spr->scale_x, button_unsel_scale, INTERP_SLOW, 0.3);
       anim_to(spr, &spr->scale_y, button_unsel_scale, INTERP_SLOW, 0.3);
       anim_to(spr, &spr->opacity, 0.5, INTERP_DOUBLE_SLOW, 0.2);
+
+      spr = &selected_button->bot;
+      anim_to(spr, &spr->scale_x, dropshadow_unsel_scale, INTERP_SLOW, 0.3);
+      anim_to(spr, &spr->scale_y, dropshadow_unsel_scale, INTERP_SLOW, 0.3);
    }
 
    selected_button = button;
@@ -808,6 +818,10 @@ static void select_button(Token *button)
    anim_to(spr, &spr->scale_x, button_sel_scale, INTERP_FAST, 0.3);
    anim_to(spr, &spr->scale_y, button_sel_scale, INTERP_FAST, 0.3);
    anim_to(spr, &spr->opacity, 1.0, INTERP_FAST, 0.3);
+
+   spr = &button->bot;
+   anim_to(spr, &spr->scale_x, dropshadow_sel_scale, INTERP_FAST, 0.3);
+   anim_to(spr, &spr->scale_y, dropshadow_sel_scale, INTERP_FAST, 0.3);
 
    change_healthy_glow(button->type, button->x);
 
