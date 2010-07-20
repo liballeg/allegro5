@@ -618,21 +618,8 @@ static void ogl_update_clipping_rectangle(ALLEGRO_BITMAP *bitmap)
 
 
 
-static int round_to_pack_alignment(int pitch)
+static int round_to_alignment(int pitch, int alignment)
 {
-   GLint alignment;
-
-   glGetIntegerv(GL_PACK_ALIGNMENT, &alignment);
-   return (pitch + alignment - 1) / alignment * alignment;
-}
-
-
-
-static int round_to_unpack_alignment(int pitch)
-{
-   GLint alignment;
-
-   glGetIntegerv(GL_UNPACK_ALIGNMENT, &alignment);
    return (pitch + alignment - 1) / alignment * alignment;
 }
 
@@ -666,8 +653,16 @@ static ALLEGRO_LOCKED_REGION *ogl_lock_region(ALLEGRO_BITMAP *bitmap,
       _al_set_current_display_only(bitmap->display);
    }
 
+   /* Set up the pixel store state.  We will need to match it when unlocking.
+    * There may be other pixel store state we should be setting.
+    * See also pitfalls 7 & 8 from:
+    * http://www.opengl.org/resources/features/KilgardTechniques/oglpitfall/
+    */
+   glPushClientAttrib(GL_CLIENT_PIXEL_STORE_BIT);
+   glPixelStorei(GL_PACK_ALIGNMENT, pixel_size);
+
    if (ogl_bitmap->is_backbuffer) {
-      pitch = round_to_unpack_alignment(w * pixel_size);
+      pitch = round_to_alignment(w * pixel_size, pixel_size);
       ogl_bitmap->lock_buffer = al_malloc(pitch * h);
 
       if (!(flags & ALLEGRO_LOCK_WRITEONLY)) {
@@ -687,9 +682,7 @@ static ALLEGRO_LOCKED_REGION *ogl_lock_region(ALLEGRO_BITMAP *bitmap,
 #if !defined ALLEGRO_GP2XWIZ
    else {
       if (flags & ALLEGRO_LOCK_WRITEONLY) {
-         glPixelStorei(GL_PACK_ALIGNMENT, pixel_size);
-         pitch = round_to_pack_alignment(w * pixel_size);
-
+         pitch = round_to_alignment(w * pixel_size, pixel_size);
          ogl_bitmap->lock_buffer = al_malloc(pitch * h);
          bitmap->locked_region.data = ogl_bitmap->lock_buffer +
             pitch * (h - 1);
@@ -711,9 +704,7 @@ static ALLEGRO_LOCKED_REGION *ogl_lock_region(ALLEGRO_BITMAP *bitmap,
             glGetIntegerv(GL_FRAMEBUFFER_BINDING_OES, &current_fbo);
             glBindFramebufferOES(GL_FRAMEBUFFER_OES, ogl_bitmap->fbo);
 
-            glPixelStorei(GL_PACK_ALIGNMENT, pixel_size);
-            pitch = round_to_pack_alignment(w * pixel_size);
-
+            pitch = round_to_alignment(w * pixel_size, pixel_size);
             ogl_bitmap->lock_buffer = al_malloc(pitch * h);
 
             glReadPixels(x, gl_y, w, h,
@@ -730,7 +721,7 @@ static ALLEGRO_LOCKED_REGION *ogl_lock_region(ALLEGRO_BITMAP *bitmap,
          // texture - even when only a single pixel is locked. Likely
          // using FBO and glReadPixels to just read the locked part
          // would be faster.
-         pitch = round_to_pack_alignment(ogl_bitmap->true_w * pixel_size);
+         pitch = round_to_alignment(ogl_bitmap->true_w * pixel_size, pixel_size);
          ogl_bitmap->lock_buffer = al_malloc(pitch * ogl_bitmap->true_h);
 
          glBindTexture(GL_TEXTURE_2D, ogl_bitmap->texture);
@@ -750,7 +741,7 @@ static ALLEGRO_LOCKED_REGION *ogl_lock_region(ALLEGRO_BITMAP *bitmap,
 #else
    else {
       if (flags & ALLEGRO_LOCK_WRITEONLY) {
-         pitch = round_to_unpack_alignment(w * pixel_size);
+         pitch = round_to_alignment(w * pixel_size, pixel_size);
          ogl_bitmap->lock_buffer = al_malloc(pitch * h);
 	 bitmap->locked_region.data = ogl_bitmap->lock_buffer;
 	 pitch = -pitch;
@@ -762,6 +753,8 @@ static ALLEGRO_LOCKED_REGION *ogl_lock_region(ALLEGRO_BITMAP *bitmap,
    }
 #endif
 
+   glPopClientAttrib();
+
    bitmap->locked_region.format = format;
    bitmap->locked_region.pitch = -pitch;
 
@@ -772,34 +765,39 @@ static ALLEGRO_LOCKED_REGION *ogl_lock_region(ALLEGRO_BITMAP *bitmap,
    return &bitmap->locked_region;
 }
 
+
+
 /* Synchronizes the texture back to the (possibly modified) bitmap data.
  */
 static void ogl_unlock_region(ALLEGRO_BITMAP *bitmap)
 {
    ALLEGRO_BITMAP_OGL *ogl_bitmap = (void *)bitmap;
-   const int format = bitmap->locked_region.format;
+   const int lock_format = bitmap->locked_region.format;
    ALLEGRO_DISPLAY *disp;
    ALLEGRO_DISPLAY *old_disp = NULL;
    GLenum e;
    GLint gl_y = bitmap->h - bitmap->lock_y - bitmap->lock_h;
    int orig_format;
-   int pixel_size;
+   int orig_pixel_size;
    (void)e;
+
+   if (bitmap->lock_flags & ALLEGRO_LOCK_READONLY) {
+      goto Done;
+   }
 
    disp = al_get_current_display();
    orig_format = _al_get_real_pixel_format(disp, bitmap->format);
-   pixel_size = al_get_pixel_size(orig_format);
-
-   if (bitmap->lock_flags & ALLEGRO_LOCK_READONLY) {
-      al_free(ogl_bitmap->lock_buffer);
-      return;
-   }
+   orig_pixel_size = al_get_pixel_size(orig_format);
 
    if (bitmap->display->ogl_extras->is_shared == false &&
        bitmap->display != disp) {
       old_disp = disp;
       _al_set_current_display_only(bitmap->display);
    }
+
+   /* Keep this in sync with ogl_lock_region. */
+   glPushClientAttrib(GL_CLIENT_PIXEL_STORE_BIT);
+   glPixelStorei(GL_UNPACK_ALIGNMENT, al_get_pixel_size(lock_format));
 
 #if !defined ALLEGRO_GP2XWIZ && !defined ALLEGRO_IPHONE
    if (ogl_bitmap->is_backbuffer) {
@@ -813,6 +811,9 @@ static void ogl_unlock_region(ALLEGRO_BITMAP *bitmap)
           * matrices (so maybe we actually need to reset both of them?).
           * The coordinate is also clipped; the small offset was required to
           * prevent it being culled on one of my machines. --pw
+          *
+          * Consider using glWindowPos2fMESAemulate from:
+          * http://www.opengl.org/resources/features/KilgardTechniques/oglpitfall/
           */
          glPushMatrix();
          glLoadIdentity();
@@ -822,13 +823,13 @@ static void ogl_unlock_region(ALLEGRO_BITMAP *bitmap)
       }
       glDisable(GL_BLEND);
       glDrawPixels(bitmap->lock_w, bitmap->lock_h,
-         glformats[format][2],
-         glformats[format][1],
+         glformats[lock_format][2],
+         glformats[lock_format][1],
          ogl_bitmap->lock_buffer);
       e = glGetError();
       if (e) {
          ALLEGRO_ERROR("glDrawPixels for format %s failed (%s).\n",
-            _al_format_name(format), error_string(e));
+            _al_format_name(lock_format), error_string(e));
       }
       if (popmatrix) {
          glPopMatrix();
@@ -840,13 +841,13 @@ static void ogl_unlock_region(ALLEGRO_BITMAP *bitmap)
          glTexSubImage2D(GL_TEXTURE_2D, 0,
             bitmap->lock_x, gl_y,
             bitmap->lock_w, bitmap->lock_h,
-            glformats[format][2],
-            glformats[format][1],
+            glformats[lock_format][2],
+            glformats[lock_format][1],
             ogl_bitmap->lock_buffer);
          e = glGetError();
          if (e) {
             ALLEGRO_ERROR("glTexSubImage2D for format %d failed (%s).\n",
-               format, error_string(e));
+               lock_format, error_string(e));
          }
       }
       else {
@@ -857,17 +858,17 @@ static void ogl_unlock_region(ALLEGRO_BITMAP *bitmap)
          /* We don't copy anything past bitmap->h on purpose. */
          glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0,
             ogl_bitmap->true_w, bitmap->h,
-            glformats[format][2],
-            glformats[format][1],
+            glformats[lock_format][2],
+            glformats[lock_format][1],
             ogl_bitmap->lock_buffer);
          e = glGetError();
          if (e) {
             ALLEGRO_ERROR("glTexSubImage2D for format %s failed (%s).\n",
-               _al_format_name(format), error_string(e));
+               _al_format_name(lock_format), error_string(e));
          }
       }
    }
-#else
+#else /* ALLEGRO_GP2XWIZ or ALLEGRO_IPHONE */
    if (ogl_bitmap->is_backbuffer) {
       GLuint tmp_tex;
       glGenTextures(1, &tmp_tex);
@@ -890,7 +891,7 @@ static void ogl_unlock_region(ALLEGRO_BITMAP *bitmap)
    else {
       glBindTexture(GL_TEXTURE_2D, ogl_bitmap->texture);
       if (bitmap->lock_flags & ALLEGRO_LOCK_WRITEONLY) {
-         int dst_pitch = bitmap->lock_w*pixel_size;
+         int dst_pitch = bitmap->lock_w*orig_pixel_size;
          _al_convert_bitmap_data(
             ogl_bitmap->lock_buffer,
             bitmap->locked_region.format,
@@ -900,7 +901,7 @@ static void ogl_unlock_region(ALLEGRO_BITMAP *bitmap)
             dst_pitch,
             0, 0, 0, 0,
             bitmap->lock_w, bitmap->lock_h);
-         glPixelStorei(GL_UNPACK_ALIGNMENT, pixel_size);
+         glPixelStorei(GL_UNPACK_ALIGNMENT, orig_pixel_size);
          glTexSubImage2D(GL_TEXTURE_2D, 0,
             bitmap->lock_x, gl_y,
             bitmap->lock_w, bitmap->lock_h,
@@ -910,32 +911,37 @@ static void ogl_unlock_region(ALLEGRO_BITMAP *bitmap)
          e = glGetError();
          if (e) {
             ALLEGRO_ERROR("glTexSubImage2D for format %d failed (%s).\n",
-               format, error_string(e));
+               lock_format, error_string(e));
          }
       }
       else {
          #ifdef ALLEGRO_IPHONE
-         glPixelStorei(GL_UNPACK_ALIGNMENT, pixel_size);
+         glPixelStorei(GL_UNPACK_ALIGNMENT, orig_pixel_size);
          glTexSubImage2D(GL_TEXTURE_2D, 0, bitmap->lock_x, gl_y,
             bitmap->lock_w, bitmap->lock_h,
-            glformats[format][2],
-            glformats[format][1],
+            glformats[lock_format][2],
+            glformats[lock_format][1],
             ogl_bitmap->lock_buffer);
          e = glGetError();
          if (e) {
             ALLEGRO_ERROR("glTexSubImage2D for format %s failed (%s).\n",
-               _al_format_name(format), error_string(e));
+               _al_format_name(lock_format), error_string(e));
          }
          #endif
       }
    }
 #endif
 
+   glPopClientAttrib();
+
    if (old_disp) {
       _al_set_current_display_only(old_disp);
    }
 
+Done:
+
    al_free(ogl_bitmap->lock_buffer);
+   ogl_bitmap->lock_buffer = NULL;
 }
 
 
