@@ -19,6 +19,7 @@ int main(void)
    ALLEGRO_EVENT_QUEUE *events;
    ALLEGRO_EVENT event;
    int mode = 0;
+   int lock_flags = ALLEGRO_LOCK_WRITEONLY;
 
    if (!al_init()) {
       abort_example("Could not init Allegro.\n");
@@ -40,31 +41,39 @@ int main(void)
    al_register_event_source(events, al_get_keyboard_event_source());
 
    log_printf("Press space to change bitmap type\n");
+   log_printf("Press w to toggle WRITEONLY mode\n");
 
 restart:
 
    /* Create the bitmap to lock, or use the display backbuffer. */
    if (mode == 0) {
-      log_printf("Locking video bitmap\n");
+      log_printf("Locking video bitmap");
       al_set_new_bitmap_flags(ALLEGRO_VIDEO_BITMAP);
       bitmap = al_create_bitmap(3*256, 256);
    }
    else if (mode == 1) {
-      log_printf("Locking memory bitmap\n");
+      log_printf("Locking memory bitmap");
       al_set_new_bitmap_flags(ALLEGRO_MEMORY_BITMAP);
       bitmap = al_create_bitmap(3*256, 256);
    }
    else {
-      log_printf("Locking display backbuffer\n");
+      log_printf("Locking display backbuffer");
       bitmap = al_get_backbuffer(display);
    }
    if (!bitmap) {
-      abort_example("Error creating bitmap\n");
+      abort_example("Error creating bitmap");
    }
 
    al_set_target_bitmap(bitmap);
    al_clear_to_color(al_map_rgb(255, 255, 0));
    al_set_target_backbuffer(display);
+
+   if (lock_flags & ALLEGRO_LOCK_WRITEONLY) {
+      log_printf(" in write-only mode\n");
+   }
+   else {
+      log_printf(" in read/write mode\n");
+   }
 
    /* Locking the bitmap means, we work directly with pixel data.  We can
     * choose the format we want to work with, which may imply conversions, or
@@ -75,7 +84,7 @@ restart:
     * XXX 15-bit format doesn't work
     */
    locked = al_lock_bitmap_region(bitmap, 193, 65, 3*127, 127,
-      ALLEGRO_PIXEL_FORMAT_RGB_565, ALLEGRO_LOCK_WRITEONLY);
+      ALLEGRO_PIXEL_FORMAT_RGB_565, lock_flags);
    for (j = 0; j < 127; j++) {
       ptr = (uint8_t *)locked->data + j * locked->pitch;
 
@@ -127,9 +136,14 @@ restart:
          if (event.keyboard.keycode == ALLEGRO_KEY_ESCAPE)
             break;
 
-         if (event.keyboard.keycode == ALLEGRO_KEY_SPACE) {
+         if (event.keyboard.unichar == ' ') {
             if (++mode > 2)
                mode = 0;
+            goto restart;
+         }
+
+         if (event.keyboard.unichar == 'w' || event.keyboard.unichar == 'W') {
+            lock_flags ^= ALLEGRO_LOCK_WRITEONLY;
             goto restart;
          }
       }
