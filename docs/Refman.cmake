@@ -339,7 +339,6 @@ endif(WANT_DOCS_INFO AND PANDOC_WITH_TEXINFO AND MAKEINFO)
 
 make_directory(${LATEX_DIR})
 
-add_custom_target(latex DEPENDS ${LATEX_DIR}/refman.tex)
 add_custom_command(
     OUTPUT ${LATEX_DIR}/refman.tex
     DEPENDS ${PROTOS_TIMESTAMP}
@@ -355,6 +354,21 @@ add_custom_command(
             -- ${DUMMY_REFS} ${PAGES_TXT}
             > ${LATEX_DIR}/refman.tex
     )
+    
+set(PDF_IMAGES)
+foreach(image ${IMAGES})
+  add_custom_command(
+		OUTPUT ${LATEX_DIR}/images/${image}.png
+		DEPENDS
+			 ${SRC_REFMAN_DIR}/images/${image}.png
+		COMMAND 
+			 "${CMAKE_COMMAND}" -E copy
+			 "${SRC_REFMAN_DIR}/images/${image}.png" "${LATEX_DIR}/images/${image}.png"
+		) 
+	list(APPEND PDF_IMAGES ${LATEX_DIR}/images/${image}.png)
+endforeach(image)
+
+add_custom_target(latex ALL DEPENDS ${LATEX_DIR}/refman.tex ${PDF_IMAGES})
 
 if(WANT_DOCS_PDF AND PDFLATEX_COMPILER)
     make_directory(${PDF_DIR})
@@ -364,10 +378,11 @@ if(WANT_DOCS_PDF AND PDFLATEX_COMPILER)
         OUTPUT ${PDF_DIR}/refman.pdf
         DEPENDS ${LATEX_DIR}/refman.tex
         # Repeat three times to get cross references correct.
-        COMMAND ${PDFLATEX_COMPILER} -output-directory ${PDF_DIR} ${LATEX_DIR}/refman.tex
-        COMMAND ${PDFLATEX_COMPILER} -output-directory ${PDF_DIR} ${LATEX_DIR}/refman.tex
-        COMMAND ${PDFLATEX_COMPILER} -output-directory ${PDF_DIR} ${LATEX_DIR}/refman.tex
+        COMMAND "${CMAKE_COMMAND}" -E chdir ${LATEX_DIR} ${PDFLATEX_COMPILER} -output-directory ${PDF_DIR} ${LATEX_DIR}/refman.tex
+        COMMAND "${CMAKE_COMMAND}" -E chdir ${LATEX_DIR} ${PDFLATEX_COMPILER} -output-directory ${PDF_DIR} ${LATEX_DIR}/refman.tex
+        COMMAND "${CMAKE_COMMAND}" -E chdir ${LATEX_DIR} ${PDFLATEX_COMPILER} -output-directory ${PDF_DIR} ${LATEX_DIR}/refman.tex
         )
+
 else()
     if(WANT_DOCS_PDF)
         message("PDF generation requires pdflatex")
