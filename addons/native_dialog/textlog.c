@@ -47,9 +47,9 @@ ALLEGRO_NATIVE_DIALOG *al_open_native_text_log(char const *title, int flags)
     * purposes when no console can be used. Therefore we have it run
     * in a separate thread.
     */
+   textlog->done = false;
    al_start_thread(textlog->thread);
    al_lock_mutex(textlog->text_mutex);
-   textlog->done = false;
    while (!textlog->done) {
       al_wait_cond(textlog->text_cond, textlog->text_mutex);
    }
