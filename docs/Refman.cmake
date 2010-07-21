@@ -368,7 +368,7 @@ foreach(image ${IMAGES})
 	list(APPEND PDF_IMAGES ${LATEX_DIR}/images/${image}.png)
 endforeach(image)
 
-add_custom_target(latex ALL DEPENDS ${LATEX_DIR}/refman.tex ${PDF_IMAGES})
+add_custom_target(latex ALL DEPENDS ${LATEX_DIR}/refman.tex)
 
 if(WANT_DOCS_PDF AND PDFLATEX_COMPILER)
     make_directory(${PDF_DIR})
@@ -377,6 +377,7 @@ if(WANT_DOCS_PDF AND PDFLATEX_COMPILER)
     add_custom_command(
         OUTPUT ${PDF_DIR}/refman.pdf
         DEPENDS ${LATEX_DIR}/refman.tex
+        DEPENDS ${PDF_IMAGES}
         # Repeat three times to get cross references correct.
         COMMAND "${CMAKE_COMMAND}" -E chdir ${LATEX_DIR} ${PDFLATEX_COMPILER} -output-directory ${PDF_DIR} ${LATEX_DIR}/refman.tex
         COMMAND "${CMAKE_COMMAND}" -E chdir ${LATEX_DIR} ${PDFLATEX_COMPILER} -output-directory ${PDF_DIR} ${LATEX_DIR}/refman.tex
