@@ -48,11 +48,13 @@ restart:
    /* Create the bitmap to lock, or use the display backbuffer. */
    if (mode == 0) {
       log_printf("Locking video bitmap");
+      al_clear_to_color(al_map_rgb(0, 0, 0));
       al_set_new_bitmap_flags(ALLEGRO_VIDEO_BITMAP);
       bitmap = al_create_bitmap(3*256, 256);
    }
    else if (mode == 1) {
       log_printf("Locking memory bitmap");
+      al_clear_to_color(al_map_rgb(0, 0, 0));
       al_set_new_bitmap_flags(ALLEGRO_MEMORY_BITMAP);
       bitmap = al_create_bitmap(3*256, 256);
    }
@@ -64,16 +66,16 @@ restart:
       abort_example("Error creating bitmap");
    }
 
-   al_set_target_bitmap(bitmap);
-   al_clear_to_color(al_map_rgb(255, 255, 0));
-   al_set_target_backbuffer(display);
-
    if (lock_flags & ALLEGRO_LOCK_WRITEONLY) {
       log_printf(" in write-only mode\n");
    }
    else {
       log_printf(" in read/write mode\n");
    }
+
+   al_set_target_bitmap(bitmap);
+   al_clear_to_color(al_map_rgb_f(0.8, 0.8, 0.9));
+   al_set_target_backbuffer(display);
 
    /* Locking the bitmap means, we work directly with pixel data.  We can
     * choose the format we want to work with, which may imply conversions, or
@@ -95,7 +97,10 @@ restart:
          uint16_t col;
          uint16_t *cptr = (uint16_t *)ptr;
 
-         if (i < 127) {
+         if (j == 0 || j == 126 || i == 0 || i == 3*127-1) {
+            red = green = blue = 0;
+         }
+         else if (i < 127) {
             red = 255;
             green = blue = j*2;
          }
