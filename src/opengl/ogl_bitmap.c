@@ -837,40 +837,29 @@ static void ogl_unlock_region(ALLEGRO_BITMAP *bitmap)
       }
    }
    else {
+      unsigned char *start_ptr;
+      // FIXME: would FBO and glDrawPixels be any faster?
       glBindTexture(GL_TEXTURE_2D, ogl_bitmap->texture);
       if (bitmap->lock_flags & ALLEGRO_LOCK_WRITEONLY) {
          ALLEGRO_DEBUG("Unlocking non-backbuffer WRITEONLY\n");
-
-         glTexSubImage2D(GL_TEXTURE_2D, 0,
-            bitmap->lock_x, gl_y,
-            bitmap->lock_w, bitmap->lock_h,
-            glformats[lock_format][2],
-            glformats[lock_format][1],
-            ogl_bitmap->lock_buffer);
-         e = glGetError();
-         if (e) {
-            ALLEGRO_ERROR("glTexSubImage2D for format %d failed (%s).\n",
-               lock_format, error_string(e));
-         }
+         start_ptr = ogl_bitmap->lock_buffer;
       }
       else {
          ALLEGRO_DEBUG("Unlocking non-backbuffer READWRITE\n");
-
-         // FIXME: Don't copy the whole bitmap. For example use
-         // FBO and glDrawPixels to draw the locked area back
-         // into the texture.
-
-         /* We don't copy anything past bitmap->h on purpose. */
-         glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0,
-            ogl_bitmap->true_w, bitmap->h,
-            glformats[lock_format][2],
-            glformats[lock_format][1],
-            ogl_bitmap->lock_buffer);
-         e = glGetError();
-         if (e) {
-            ALLEGRO_ERROR("glTexSubImage2D for format %s failed (%s).\n",
-               _al_format_name(lock_format), error_string(e));
-         }
+         glPixelStorei(GL_UNPACK_ROW_LENGTH, ogl_bitmap->true_w);
+         start_ptr = (unsigned char *)bitmap->locked_region.data
+               + (bitmap->lock_h - 1) * bitmap->locked_region.pitch;
+      }
+      glTexSubImage2D(GL_TEXTURE_2D, 0,
+         bitmap->lock_x, gl_y,
+         bitmap->lock_w, bitmap->lock_h,
+         glformats[lock_format][2],
+         glformats[lock_format][1],
+         start_ptr);
+      e = glGetError();
+      if (e) {
+         ALLEGRO_ERROR("glTexSubImage2D for format %s failed (%s).\n",
+            _al_format_name(lock_format), error_string(e));
       }
    }
 #else /* ALLEGRO_GP2XWIZ or ALLEGRO_IPHONE */
