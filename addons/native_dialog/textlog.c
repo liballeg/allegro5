@@ -5,7 +5,7 @@
 #include "allegro5/internal/aintern_native_dialog.h"
 #include "allegro5/internal/aintern_native_dialog_cfg.h"
 
-/* Text logs are only implemented for GTK+ so far. */
+/* Text logs are only implemented for GTK+ and Windows so far. */
 #if defined(ALLEGRO_CFG_NATIVE_DIALOG_GTK) || defined(ALLEGRO_CFG_NATIVE_DIALOG_WINDOWS)
    #define HAVE_TEXT_LOG
 #endif

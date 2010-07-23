@@ -20,16 +20,16 @@
 #include <richedit.h>
 
 /* Non-zero if text log window class was registered. */
-static int __al_class_registered = 0;
+static int wlog_class_registered = 0;
 
 /* Handle of RichEdit module */
-static HMODULE __al_rich_edit_module = 0;
+static HMODULE wlog_rich_edit_module = 0;
 
 /* Name of the edit control. Depend on system resources. */
-static wchar_t* __al_edit_control = L"EDIT";
+static wchar_t* wlog_edit_control = L"EDIT";
 
 /* True if output support unicode */
-static bool __al_unicode = false;
+static bool wlog_unicode = false;
 
 
 static int next(char *s)
@@ -131,27 +131,27 @@ void al_show_native_file_dialog(ALLEGRO_DISPLAY *display,
 int _al_show_native_message_box(ALLEGRO_DISPLAY *display,
 	ALLEGRO_NATIVE_DIALOG *fd)
 {
-	UINT type = 0;
-	int result;
+   UINT type = 0;
+   int result;
 
-	if (fd->mode & ALLEGRO_MESSAGEBOX_QUESTION) type |= MB_ICONQUESTION;
-	if (fd->mode & ALLEGRO_MESSAGEBOX_WARN) type |= MB_ICONWARNING;
-	if (fd->mode & ALLEGRO_MESSAGEBOX_ERROR) type |= MB_ICONERROR;
-	if (fd->mode & ALLEGRO_MESSAGEBOX_YES_NO) type |= MB_YESNO;
-	if (fd->mode & ALLEGRO_MESSAGEBOX_OK_CANCEL) type |= MB_OKCANCEL;
+   if (fd->mode & ALLEGRO_MESSAGEBOX_QUESTION) type |= MB_ICONQUESTION;
+   if (fd->mode & ALLEGRO_MESSAGEBOX_WARN) type |= MB_ICONWARNING;
+   if (fd->mode & ALLEGRO_MESSAGEBOX_ERROR) type |= MB_ICONERROR;
+   if (fd->mode & ALLEGRO_MESSAGEBOX_YES_NO) type |= MB_YESNO;
+   if (fd->mode & ALLEGRO_MESSAGEBOX_OK_CANCEL) type |= MB_OKCANCEL;
 
-	result = MessageBox(al_get_win_window_handle(display),
-		al_cstr(fd->text), al_cstr(fd->title), type);
+   result = MessageBox(al_get_win_window_handle(display),
+      al_cstr(fd->text), al_cstr(fd->title), type);
 
-	if (result == IDYES || result == IDOK)
-		return 1;
-	else
-		return 0;
+   if (result == IDYES || result == IDOK)
+      return 1;
+   else
+      return 0;
 }
 
 
 /* Emit close event. */
-static void __al_emit_close_event(ALLEGRO_NATIVE_DIALOG *textlog, bool keypress)
+static void wlog_emit_close_event(ALLEGRO_NATIVE_DIALOG *textlog, bool keypress)
 {
    ALLEGRO_EVENT event;
    event.user.type = ALLEGRO_EVENT_NATIVE_DIALOG_CLOSE;
@@ -162,7 +162,7 @@ static void __al_emit_close_event(ALLEGRO_NATIVE_DIALOG *textlog, bool keypress)
 }
 
 /* Output message to ANSI log. */
-void __al_do_append_native_text_log_ansi(ALLEGRO_NATIVE_DIALOG *textlog)
+static void wlog_do_append_native_text_log_ansi(ALLEGRO_NATIVE_DIALOG *textlog)
 {
    int index;
    CHARFORMATA format;
@@ -181,7 +181,7 @@ void __al_do_append_native_text_log_ansi(ALLEGRO_NATIVE_DIALOG *textlog)
 }
 
 /* Output message to Unicode log. */
-void __al_do_append_native_text_log_unicode(ALLEGRO_NATIVE_DIALOG *textlog)
+static void wlog_do_append_native_text_log_unicode(ALLEGRO_NATIVE_DIALOG *textlog)
 {
 #define BUFFER_SIZE  512
    bool flush;
@@ -225,27 +225,26 @@ void __al_do_append_native_text_log_unicode(ALLEGRO_NATIVE_DIALOG *textlog)
 }
 
 /* General function to output log message. */
-void __al_do_append_native_text_log(ALLEGRO_NATIVE_DIALOG *textlog)
+static void wlog_do_append_native_text_log(ALLEGRO_NATIVE_DIALOG *textlog)
 {
-   if (__al_unicode) {
-      __al_do_append_native_text_log_unicode(textlog);
+   if (wlog_unicode) {
+      wlog_do_append_native_text_log_unicode(textlog);
    }
    else {
-      __al_do_append_native_text_log_ansi(textlog);
+      wlog_do_append_native_text_log_ansi(textlog);
    }
 
    SendMessage(textlog->textview, WM_VSCROLL, SB_BOTTOM, 0);
 }
 
 /* Text log window callback. */
-static LRESULT CALLBACK __al_text_log_callback(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
+static LRESULT CALLBACK wlog_text_log_callback(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
    CREATESTRUCT* create_struct;
 
    ALLEGRO_NATIVE_DIALOG* textlog = (ALLEGRO_NATIVE_DIALOG*)GetWindowLongPtr(hWnd, GWLP_USERDATA);
 
-   switch (uMsg)
-   {
+   switch (uMsg) {
       case WM_CTLCOLORSTATIC:
          /* Set colors for text and background */
          SetBkColor((HDC)wParam, RGB(16, 16, 16));
@@ -261,7 +260,7 @@ static LRESULT CALLBACK __al_text_log_callback(HWND hWnd, UINT uMsg, WPARAM wPar
       case WM_CLOSE:
          if (textlog->is_active) {
             if (!(textlog->mode & ALLEGRO_TEXTLOG_NO_CLOSE)) {
-               __al_emit_close_event(textlog, false);
+               wlog_emit_close_event(textlog, false);
             }
             return 0;
          }
@@ -273,7 +272,7 @@ static LRESULT CALLBACK __al_text_log_callback(HWND hWnd, UINT uMsg, WPARAM wPar
 
       case WM_KEYDOWN:
          if (wParam == VK_ESCAPE) {
-            __al_emit_close_event(textlog, true);
+            wlog_emit_close_event(textlog, true);
          }
 
          break;
@@ -295,7 +294,7 @@ static LRESULT CALLBACK __al_text_log_callback(HWND hWnd, UINT uMsg, WPARAM wPar
       case WM_USER:
          al_lock_mutex(textlog->text_mutex);
 
-         __al_do_append_native_text_log(textlog);
+         wlog_do_append_native_text_log(textlog);
 
          /* notify the original caller that we are all done */
          textlog->done = true;
@@ -322,11 +321,11 @@ void _al_open_native_text_log(ALLEGRO_NATIVE_DIALOG *textlog)
    al_lock_mutex(textlog->text_mutex);
 
    /* Prepare text log class info. */
-   if (!__al_class_registered++) {
+   if (!wlog_class_registered) {
       memset(&text_log_class, 0, sizeof(text_log_class));
       text_log_class.hInstance      = (HINSTANCE)GetModuleHandle(NULL);
       text_log_class.lpszClassName  = "Allegro Text Log";
-      text_log_class.lpfnWndProc    = __al_text_log_callback;
+      text_log_class.lpfnWndProc    = wlog_text_log_callback;
       text_log_class.hIcon          = NULL;
       text_log_class.hCursor        = NULL;
       text_log_class.lpszMenuName   = NULL;
@@ -335,36 +334,34 @@ void _al_open_native_text_log(ALLEGRO_NATIVE_DIALOG *textlog)
       if (RegisterClassA(&text_log_class) == 0) {
          /* Failure, window class is a basis and we do not have one. */
          al_unlock_mutex(textlog->text_mutex);
-         __al_class_registered--;
          return;
       }
+
+      wlog_class_registered++;
    }
 
    /* Load RichEdit control. */
-   if (!__al_rich_edit_module) {
-
-      if (__al_rich_edit_module = LoadLibraryA("msftedit.dll")) {
+   if (!wlog_rich_edit_module) {
+      if ((wlog_rich_edit_module = LoadLibraryA("msftedit.dll"))) {
          /* 4.1 and emulation of 3.0, 2.0, 1.0 */
-         __al_edit_control = L"RICHEDIT50W"; /*MSFTEDIT_CLASS*/
-         __al_unicode      = true;
+         wlog_edit_control = L"RICHEDIT50W"; /*MSFTEDIT_CLASS*/
+         wlog_unicode      = true;
       }
-      else if (__al_rich_edit_module = LoadLibraryA("riched20.dll")) {
+      else if ((wlog_rich_edit_module = LoadLibraryA("riched20.dll"))) {
          /* 3.0, 2.0 */
-         __al_edit_control = L"RichEdit20W"; /*RICHEDIT_CLASS*/
-         __al_unicode      = true;
+         wlog_edit_control = L"RichEdit20W"; /*RICHEDIT_CLASS*/
+         wlog_unicode      = true;
       }
-      else if (__al_rich_edit_module = LoadLibraryA("riched32.dll")) {
+      else if ((wlog_rich_edit_module = LoadLibraryA("riched32.dll"))) {
          /* 1.0 */
-         __al_edit_control = L"RichEdit"; /*RICHEDIT_CLASS*/
-         __al_unicode      = false;
+         wlog_edit_control = L"RichEdit"; /*RICHEDIT_CLASS*/
+         wlog_unicode      = false;
       }
-      else
-      {
-         __al_edit_control = L"EDIT";
-         __al_unicode      = false;
+      else {
+         wlog_edit_control = L"EDIT";
+         wlog_unicode      = false;
       }
    }
-
 
    /* Create text log window. */
    hWnd = CreateWindowA("Allegro Text Log", al_cstr(textlog->title),
@@ -372,9 +369,9 @@ void _al_open_native_text_log(ALLEGRO_NATIVE_DIALOG *textlog)
       CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, NULL, NULL,
       (HINSTANCE)GetModuleHandle(NULL), textlog);
    if (!hWnd) {
-      if (__al_rich_edit_module) {
-         FreeLibrary(__al_rich_edit_module);
-         __al_rich_edit_module = NULL;
+      if (wlog_rich_edit_module) {
+         FreeLibrary(wlog_rich_edit_module);
+         wlog_rich_edit_module = NULL;
       }
       UnregisterClassA("Allegro Text Log", (HINSTANCE)GetModuleHandle(NULL));
       al_unlock_mutex(textlog->text_mutex);
@@ -385,15 +382,14 @@ void _al_open_native_text_log(ALLEGRO_NATIVE_DIALOG *textlog)
    GetClientRect(hWnd, &client_rect);
 
    /* Create edit control. */
-   hLog = CreateWindowW(__al_edit_control, NULL,
-        WS_CHILD | WS_VISIBLE | WS_VSCROLL | ES_MULTILINE | ES_WANTRETURN | ES_AUTOVSCROLL | ES_READONLY,
-        client_rect.left, client_rect.top, client_rect.right - client_rect.left, client_rect.bottom - client_rect.top,
-        hWnd, NULL, (HINSTANCE)GetModuleHandle(NULL), NULL);
-   if (!hLog)
-   {
-      if (__al_rich_edit_module) {
-         FreeLibrary(__al_rich_edit_module);
-         __al_rich_edit_module = NULL;
+   hLog = CreateWindowW(wlog_edit_control, NULL,
+      WS_CHILD | WS_VISIBLE | WS_VSCROLL | ES_MULTILINE | ES_WANTRETURN | ES_AUTOVSCROLL | ES_READONLY,
+      client_rect.left, client_rect.top, client_rect.right - client_rect.left, client_rect.bottom - client_rect.top,
+      hWnd, NULL, (HINSTANCE)GetModuleHandle(NULL), NULL);
+   if (!hLog) {
+      if (wlog_rich_edit_module) {
+         FreeLibrary(wlog_rich_edit_module);
+         wlog_rich_edit_module = NULL;
       }
       DestroyWindow(hWnd);
       UnregisterClassA("Allegro Text Log", (HINSTANCE)GetModuleHandle(NULL));
@@ -421,7 +417,7 @@ void _al_open_native_text_log(ALLEGRO_NATIVE_DIALOG *textlog)
    }
 
    /* Set background color of RichEdit control. */
-   if (__al_rich_edit_module) {
+   if (wlog_rich_edit_module) {
       SendMessage(hLog, EM_SETBKGNDCOLOR, 0, (LPARAM)RGB(16, 16, 16));
    }
 
@@ -439,10 +435,8 @@ void _al_open_native_text_log(ALLEGRO_NATIVE_DIALOG *textlog)
    al_unlock_mutex(textlog->text_mutex);
 
    /* Process messages. */
-   while ((ret = GetMessage(&msg, NULL, 0, 0)) != 0)
-   {
-      if (ret != -1 && msg.message != WM_QUIT)
-      {
+   while ((ret = GetMessage(&msg, NULL, 0, 0)) != 0) {
+      if (ret != -1 && msg.message != WM_QUIT) {
          /* Intercept child window key down messages. Needed to track
           * hit of ESCAPE key while text log have focus. */
          if (msg.hwnd != textlog->window && msg.message == WM_KEYDOWN) {
@@ -464,13 +458,13 @@ void _al_open_native_text_log(ALLEGRO_NATIVE_DIALOG *textlog)
    DeleteObject(hFont);
 
    /* Release RichEdit module. */
-   if (__al_rich_edit_module) {
-      FreeLibrary(__al_rich_edit_module);
-      __al_rich_edit_module = NULL;
+   if (wlog_rich_edit_module) {
+      FreeLibrary(wlog_rich_edit_module);
+      wlog_rich_edit_module = NULL;
    }
 
    /* Unregister window class. */
-   if (!(--__al_class_registered)) {
+   if (--wlog_class_registered == 0) {
       UnregisterClassA("Allegro Text Log", (HINSTANCE)GetModuleHandle(NULL));
    }
 
